@@ -32,13 +32,18 @@ Redistribution and use in source and binary forms, with or without modification,
 #define CONSOLECOLOR_GREEN 10
 #define CONSOLECOLOR_RED 12
 #define CONSOLECOLOR_YELLOW 14
+#define CONSOLECOLOR_CYAN 11
+#define CONSOLECOLOR_PURPLE 13
+#define CONSOLECOLOR_WHITEOVERRED 79
+#define CONSOLECOLOR_WHITEOVERGREEN 47
+#define CONSOLECOLOR_WHITEOVERGREY 143
 
 class Lina_Console
 {
 
 public:
 
-	enum MsgType {Debug, Success, Warning, Error};
+	enum MsgType {Debug, Success, Warning, Error, Initialization, Update, Deinitialization };
 	
 	// Returns the current time in string format. Pass in %I, %M, %S, %p %F for formatting.
 	std::string now(const char* format = "%c")
@@ -65,6 +70,12 @@ public:
 			colorVal = CONSOLECOLOR_YELLOW;
 		else if (type == MsgType::Success)
 			colorVal = CONSOLECOLOR_GREEN;
+		else if (type == MsgType::Initialization)
+			colorVal = CONSOLECOLOR_WHITEOVERGREEN;
+		else if (type == MsgType::Deinitialization)
+			colorVal = CONSOLECOLOR_WHITEOVERRED;
+		else if (type == MsgType::Update)
+			colorVal = CONSOLECOLOR_WHITEOVERGREY;
 
 		// Set color.
 		SetConsoleTextAttribute(hConsole, colorVal);

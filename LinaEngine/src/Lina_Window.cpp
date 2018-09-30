@@ -30,7 +30,7 @@ Lina_Window::Lina_Window(int width, int height, const std::string& title) : m_Wi
 {
 	// Add a console message about correct initialization.
 	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Display initialized. (W: " + std::to_string(width) + " H: " + std::to_string(height) + ")", Lina_Console::MsgType::Success);
+	cons.AddConsoleMsg("Display initialized. (W: " + std::to_string(width) + " H: " + std::to_string(height) + ")", Lina_Console::MsgType::Initialization);
 
 	// Set additional parameters for SDL window using SDL_WINDOW_OPENGL
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);	// 8 bits (at least) -> 2 to the pow of 8 amount of color data. 256.
@@ -58,7 +58,7 @@ Lina_Window::Lina_Window(int width, int height, const std::string& title) : m_Wi
 	if (status != GLEW_OK)
 		cons.AddConsoleMsg("Glew failed to initialize!", Lina_Console::MsgType::Error);
 	else
-		cons.AddConsoleMsg("Glew initialized.", Lina_Console::Success);
+		cons.AddConsoleMsg("Glew initialized.", Lina_Console::Initialization);
 
 	// Set closed flag. This will be checked by OS events being received on Update.
 	m_IsClosed = false;
@@ -68,7 +68,8 @@ Lina_Window::Lina_Window(int width, int height, const std::string& title) : m_Wi
 Lina_Window::~Lina_Window()
 {
 	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Display deinitialized.", Lina_Console::MsgType::Warning);
+	cons.AddConsoleMsg("Window deinitialized.", Lina_Console::MsgType::Deinitialization);
+
 	// Deallocate GL context and window. (m_Window pointer is deleted via SDL_DestroyWindow already so no need to use delete again on that.)
 	SDL_GL_DeleteContext(m_glContext);
 	SDL_DestroyWindow(m_Window);

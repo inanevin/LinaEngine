@@ -26,36 +26,52 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "pch.h"
 #include "Lina_Rendering.h"  
 
-Lina_Rendering::Lina_Rendering()
+
+Lina_Rendering& Lina_Rendering::Instance()
+{
+	static Lina_Rendering instance;
+	return instance;
+}
+
+void Lina_Rendering::InitializeFirstSetup()
 {
 	// Add a console message.
 	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Rendering engine initialized.", Lina_Console::MsgType::Success);
+	cons.AddConsoleMsg("Rendering engine initialized.", Lina_Console::MsgType::Initialization);
 
 	// Initialize SDL.
 	SDL_Init(SDL_INIT_EVERYTHING);
-	cons.AddConsoleMsg("SDL initialized with SDL_INIT_EVERYTHING.", Lina_Console::Success);
+	cons.AddConsoleMsg("SDL initialized with SDL_INIT_EVERYTHING.", Lina_Console::Initialization);
 
-	Lina_Rendering::CreateDisplayWindow(800, 600, "Window1");
+	//Lina_Rendering::CreateDisplayWindow(800, 600, "Window1");
 }
+
 
 Lina_Rendering::~Lina_Rendering()
 {
 	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Rendering deinitialized.", Lina_Console::MsgType::Warning);
+	cons.AddConsoleMsg("Rendering deinitialized.", Lina_Console::MsgType::Deinitialization);
 	SDL_Quit();
 }
 
 void Lina_Rendering::CreateDisplayWindow(int width, int height, const std::string& title)
 {
 	// Initialize display.
-	Lina_Window currentDisplay = Lina_Window(width, height, title);
+	//Lina_Window::CreateDisplayWindow2(800, 600, title);
+	std::unique_ptr<Lina_Window> p = Lina_Window::CreateDisplayWindow(800, 600, title);
+
+	//Lina_Window currentDisplay = Lina_Window(width, height, title);
 
 	// Display window is not closed.
-	while (!currentDisplay.IsClosed())
+	while (!p->IsClosed())
 	{
+		Lina_Console cons = Lina_Console();
+		cons.AddConsoleMsg("Window updated.", Lina_Console::MsgType::Update);
 		// Clear color the screen.
-		currentDisplay.Clear(0.0f, 0.4f, 0.2f, 1.0f);
-		currentDisplay.Update();
+		p->Clear(0.0f, 0.4f, 0.2f, 1.0f);
+		p->Update();
 	}
+	
 }
+
+
