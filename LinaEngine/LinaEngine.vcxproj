@@ -156,6 +156,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="inc\Lina_Rendering.cpp" />
     <ClCompile Include="src\Lina_Core.cpp" />
     <ClCompile Include="src\Lina_Display.cpp" />
     <ClCompile Include="src\Lina_Main.cpp" />
@@ -173,6 +174,10 @@
     </ClInclude>
     <ClInclude Include="inc\Lina_Core.h" />
     <ClInclude Include="inc\Lina_Display.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Lina_Rendering.h">
       <SubType>
       </SubType>
     </ClInclude>

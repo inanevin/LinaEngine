@@ -28,12 +28,18 @@ Redistribution and use in source and binary forms, with or without modification,
 #ifndef Lina_Display_H
 #define Lina_Display_H
 
+class SDL_Window;
+
 class Lina_Display
 {
 
 public:
 	Lina_Display(int, int, const std::string&);
 
+private:
+
+	SDL_Window* m_window;
+	SDL_GLContext m_glContext;
 };
 
 

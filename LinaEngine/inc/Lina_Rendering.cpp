@@ -18,26 +18,31 @@ Redistribution and use in source and binary forms, with or without modification,
 -- STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 -- OF SUCH DAMAGE.
 
+4.0.30319.42000
+9/30/2018 4:59:52 PM
+
 */
 
-
 #include "pch.h"
-#include <iostream>
-#include <Lina_Core.h>
-#include <Lina_Rendering.h>
+#include <Lina_Display.h>
+#include "Lina_Rendering.h"  
+#include <SDL2/SDL.h>
 
-// Constructor, initialize components.
-Lina_Core::Lina_Core()
+Lina_Rendering::Lina_Rendering()
 {
 	// Add a console message.
 	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Lina Engine core initialized.", Lina_Console::MsgType::Success);
+	cons.AddConsoleMsg("Rendering engine initialized.", Lina_Console::MsgType::Success);
 
-	// Initialize rendering engine.
-	lina_RenderingEngine = new Lina_Rendering();
+	// Initialize SDL.
+	SDL_Init(SDL_INIT_EVERYTHING);
+
+	// Initialize display.
+	Lina_Display display(800, 600, "Display Init ");
+
 }
 
-Lina_Core::~Lina_Core()
+Lina_Rendering::~Lina_Rendering()
 {
-	delete lina_RenderingEngine;
+	SDL_Quit();
 }

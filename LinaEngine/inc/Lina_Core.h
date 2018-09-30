@@ -24,10 +24,17 @@ Redistribution and use in source and binary forms, with or without modification,
 
 #pragma once
 
+class Lina_Rendering;
+
 class Lina_Core {
 
 public:
 
 	Lina_Core();
+	~Lina_Core();
+
+private:
+
+	Lina_Rendering* lina_RenderingEngine;
 
 };
