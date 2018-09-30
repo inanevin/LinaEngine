@@ -38,6 +38,9 @@ Redistribution and use in source and binary forms, with or without modification,
 #define CONSOLECOLOR_WHITEOVERGREEN 47
 #define CONSOLECOLOR_WHITEOVERGREY 143
 
+#include "Lina_Rendering.h"
+
+
 class Lina_Console
 {
 

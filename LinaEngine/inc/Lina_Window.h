@@ -50,10 +50,11 @@ public:
 	void Clear(float, float, float, float);
 	void RenderBlankColor();
 
+
 	bool IsClosed();
-	int GetWidth() { return m_Width; }
-	int GetHeight() { return m_Height; }
-	std::string GetTitle() { return m_Title; }
+	inline int GetWidth() { return m_Width; }
+	inline int GetHeight() { return m_Height; }
+	inline std::string GetTitle() { return m_Title; }
 	void operator=(const Lina_Window& other) {}
 
 

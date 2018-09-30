@@ -32,12 +32,14 @@ public:
     Lina_Core();
 	~Lina_Core();
 
+private:
+
 	void Start();
 	void Stop();
 	void Run();
 	void Render();
 	void CleanUp();
+	bool isRunning;
 
-private:
 	std::shared_ptr<Lina_Rendering> renderingEngine;
 };

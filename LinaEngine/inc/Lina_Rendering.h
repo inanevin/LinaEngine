@@ -39,6 +39,7 @@ public:
 	//static Lina_Rendering& Instance();
     void CreateDisplayWindow(int, int, const std::string&);
 	void Render();
+	void CleanUp();
 	Lina_Rendering();
 	~Lina_Rendering();
 	Lina_Rendering& operator= (const Lina_Rendering&);

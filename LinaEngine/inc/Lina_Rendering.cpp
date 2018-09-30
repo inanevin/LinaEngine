@@ -58,17 +58,27 @@ void Lina_Rendering::Render()
 {
 	// Send dbg msg.
 	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Render Loop is running", Lina_Console::MsgType::Update, "Core");
+	cons.AddConsoleMsg("Render Loop is running", Lina_Console::MsgType::Update, "Render Engine");
 
 	// Check if active window points to an object.
 	if (m_ActiveWindow == nullptr)
 	{
-		cons.AddConsoleMsg("No active window to render onto!", Lina_Console::MsgType::Error, "Core");
+		cons.AddConsoleMsg("No active window to render onto!", Lina_Console::MsgType::Error, "Render Engine");
 		return;
 	}
 
 	// Call render method on active window.
 	m_ActiveWindow->RenderBlankColor();
+}
+
+void Lina_Rendering::CleanUp()
+{
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Cleaning up rendering engine...", Lina_Console::MsgType::Deinitialization, "Render Engine");
+
+	// If we have an active window decrement the shared pointer of it.
+	if (m_ActiveWindow != nullptr)
+		m_ActiveWindow.reset();
 }
 
 void Lina_Rendering::CreateDisplayWindow(int width, int height, const std::string& title)

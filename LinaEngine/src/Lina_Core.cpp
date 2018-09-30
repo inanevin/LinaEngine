@@ -32,9 +32,12 @@ Lina_Core::Lina_Core()
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Core initialized.", Lina_Console::MsgType::Initialization, "Core");
 
+	// Set running.
+	isRunning = false;
+
 	// Initialize rendering engine.
 	renderingEngine = std::make_shared<Lina_Rendering>();
-	
+
 	// Create a window.
 	renderingEngine->CreateDisplayWindow(1024, 768, "Lina Engine 3D");
 
@@ -52,7 +55,11 @@ Lina_Core::~Lina_Core()
 // Initialization method for the game core.
 void Lina_Core::Start()
 {
-	// Nothing here yet.
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Game engine loop starting...", Lina_Console::MsgType::Initialization, "Core Engine");
+
+	// Can not start if we are already running.
+	if (isRunning) return;
 
 	// Start the main game loop.
 	Run();
@@ -60,25 +67,54 @@ void Lina_Core::Start()
 
 void Lina_Core::Stop()
 {
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Game engine loop stopping...", Lina_Console::MsgType::Deinitialization, "Core Engine");
 
+	// Can not stop if we are not running.
+	if (!isRunning) return;
+
+	// Stop running the engine.
+	isRunning = false;
 }
 
 void Lina_Core::Run()
 {
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Game engine loop running...", Lina_Console::MsgType::Update, "Core Engine");
+
+	isRunning = true;
+
 	// For now the only condition is to have an active window to keep the rendering.
-	while(renderingEngine->m_ActiveWindow != nullptr && !renderingEngine->m_ActiveWindow->IsClosed())
+	while (isRunning)
 	{
+		// If we don't have an active window or is closed stop.
+		if (renderingEngine->m_ActiveWindow == nullptr || renderingEngine->m_ActiveWindow->IsClosed())
+		{
+			Stop();
+			break;
+		}
+
+		// Render process.
 		Render();
 	}
+
+	// Clean up thrash when finishing running.
+	CleanUp();
 }
 
 // Rendering loop.
 void Lina_Core::Render()
 {
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Game engine loop rendering...", Lina_Console::MsgType::Update, "Core Engine");
 	renderingEngine->Render();
 }
 
 void Lina_Core::CleanUp()
 {
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Game engine loop cleaning up...", Lina_Console::MsgType::Deinitialization, "Core Engine");
 
+	// Clean up render engine.
+	renderingEngine->CleanUp();
 }
