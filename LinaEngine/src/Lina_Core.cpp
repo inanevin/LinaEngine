@@ -34,8 +34,10 @@ Lina_Core::Lina_Core()
 	cons.AddConsoleMsg("Lina Engine core initialized.", Lina_Console::MsgType::Success);
 
 	// Initialize rendering engine.
-	lina_RenderingEngine = new Lina_Rendering();
+	lina_RenderingEngine = Lina_Rendering();
 
+	int x;
+	std::cin >> x;
 	// Start the game.
 	//Start();
 }
@@ -44,7 +46,7 @@ Lina_Core::~Lina_Core()
 {
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Core deinitialized.", Lina_Console::MsgType::Warning);
-	delete lina_RenderingEngine;
+	//delete lina_RenderingEngine;
 }
 
 void Lina_Core::Start()

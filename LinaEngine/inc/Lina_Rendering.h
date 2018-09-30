@@ -27,8 +27,7 @@ Redistribution and use in source and binary forms, with or without modification,
 
 #ifndef Lina_Rendering_H
 #define Lina_Rendering_H
-#include <Lina_Display.h>
-
+#include <Lina_Window.h>
 
 class Lina_Rendering
 {
@@ -36,6 +35,7 @@ class Lina_Rendering
 public:
 	Lina_Rendering();
 	~Lina_Rendering();
+	static void CreateDisplayWindow(int, int, const std::string&);
 
 private:
 

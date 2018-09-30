@@ -24,9 +24,9 @@ Redistribution and use in source and binary forms, with or without modification,
 */
 
 #include "pch.h"
-#include "Lina_Display.h"  
+#include "Lina_Window.h"  
 
-Lina_Display::Lina_Display(int width, int height, const std::string& title) : m_Width(width), m_Height(height), m_Title(title)
+Lina_Window::Lina_Window(int width, int height, const std::string& title) : m_Width(width), m_Height(height), m_Title(title)
 {
 	// Add a console message about correct initialization.
 	Lina_Console cons = Lina_Console();
@@ -65,7 +65,7 @@ Lina_Display::Lina_Display(int width, int height, const std::string& title) : m_
 
 }
 
-Lina_Display::~Lina_Display()
+Lina_Window::~Lina_Window()
 {
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Display deinitialized.", Lina_Console::MsgType::Warning);
@@ -74,7 +74,7 @@ Lina_Display::~Lina_Display()
 	SDL_DestroyWindow(m_Window);
 }
 
-void Lina_Display::Update()
+void Lina_Window::Update()
 {
 	// We had allocated space for 2 windows space via SDL_GL_SetAttribute. First both of them are empty, our window will only display the first one.
 	// OpenGL will draw to the invisible buffer, then we swap buffers, our window will start displaying the previously drawn buffer while
@@ -93,14 +93,14 @@ void Lina_Display::Update()
 	}
 }
 
-void Lina_Display::Clear(float r, float g, float b, float a)
+void Lina_Window::Clear(float r, float g, float b, float a)
 {
 	// Draw a flat color.
 	glClearColor(0.0f, 0.15f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-bool Lina_Display::IsClosed() { return m_IsClosed; }
+bool Lina_Window::IsClosed() { return m_IsClosed; }
 
 /* NOTE ABOUT GPU's & PIPELINE 
 

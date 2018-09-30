@@ -41,6 +41,6 @@ public:
 
 private:
 
-	Lina_Rendering* lina_RenderingEngine;
+	static Lina_Rendering lina_RenderingEngine;
 
 };

@@ -31,13 +31,12 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "SDL2/SDL.h"
 #include "GL/glew.h"
 
-class Lina_Display
+class Lina_Window
 {
 public:
 
-	Lina_Display();
-	Lina_Display(int, int, const std::string&);
-	~Lina_Display();
+	Lina_Window(int, int, const std::string&);
+	~Lina_Window();
 
 	void Update();
 	void Clear(float, float, float, float);
@@ -45,7 +44,7 @@ public:
 	int GetWidth() { return m_Width; }
 	int GetHeight() { return m_Height; }
 	std::string GetTitle() { return m_Title; }
-	void operator=(const Lina_Display& other) {}
+	void operator=(const Lina_Window& other) {}
 
 
 private:

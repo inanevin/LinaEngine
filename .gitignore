@@ -71,6 +71,7 @@ artifacts/
 *.scc
 *.resx
 *.ico
+!/LinaEngine/*/*.lib
 
 # Chutzpah Test files
 _Chutzpah*
