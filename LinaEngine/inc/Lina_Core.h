@@ -2,6 +2,7 @@
 Author: Inan Evin
 www.inanevin.com
 
+
 BSD 2-Clause License
 Lina Engine Copyright (c) 2018, Inan Evin All rights reserved.
 
@@ -18,20 +19,15 @@ Redistribution and use in source and binary forms, with or without modification,
 -- STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 -- OF SUCH DAMAGE.
 
+
 */
 
+#pragma once
 
-#include "pch.h"
-#include <iostream>
-#include <Lina_Core.h>
-#include <Lina_Display.h>
+class Lina_Core {
 
-Lina_Core::Lina_Core()
-{
-	// Add a console message.
-	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Lina Engine core initialized.", Lina_Console::MsgType::Success);
+public:
 
-	// Initialize display.
-	Lina_Display display(800, 600, "Display Init");
-}
+	Lina_Core();
+
+};

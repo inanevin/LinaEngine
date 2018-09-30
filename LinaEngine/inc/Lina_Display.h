@@ -18,20 +18,23 @@ Redistribution and use in source and binary forms, with or without modification,
 -- STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 -- OF SUCH DAMAGE.
 
+4.0.30319.42000
+9/30/2018 4:08:35 PM
+
 */
 
+#pragma once
 
-#include "pch.h"
-#include <iostream>
-#include <Lina_Core.h>
-#include <Lina_Display.h>
+#ifndef Lina_Display_H
+#define Lina_Display_H
 
-Lina_Core::Lina_Core()
+class Lina_Display
 {
-	// Add a console message.
-	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Lina Engine core initialized.", Lina_Console::MsgType::Success);
 
-	// Initialize display.
-	Lina_Display display(800, 600, "Display Init");
-}
+public:
+	Lina_Display(int, int, const std::string&);
+
+};
+
+
+#endif

@@ -18,20 +18,66 @@ Redistribution and use in source and binary forms, with or without modification,
 -- STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 -- OF SUCH DAMAGE.
 
+4.0.30319.42000
+9/30/2018 4:14:11 PM
+
 */
 
+#pragma once
 
-#include "pch.h"
-#include <iostream>
-#include <Lina_Core.h>
-#include <Lina_Display.h>
+#ifndef Lina_Console_H
+#define Lina_Console_H
 
-Lina_Core::Lina_Core()
+#define CONSOLECOLOR_WHITE 15
+#define CONSOLECOLOR_GREEN 10
+#define CONSOLECOLOR_RED 12
+#define CONSOLECOLOR_YELLOW 14
+
+class Lina_Console
 {
-	// Add a console message.
-	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Lina Engine core initialized.", Lina_Console::MsgType::Success);
 
-	// Initialize display.
-	Lina_Display display(800, 600, "Display Init");
-}
+public:
+
+	enum MsgType {Debug, Success, Warning, Error};
+	
+	// Returns the current time in string format. Pass in %I, %M, %S, %p %F for formatting.
+	std::string now(const char* format = "%c")
+	{
+		std::time_t t = std::time(0);
+		char cstr[128];
+		std::strftime(cstr, sizeof(cstr), format, std::localtime(&t));
+		return cstr;
+	}
+
+	// Adds a colored message to the console.
+	void AddConsoleMsg(std::string msg, MsgType type)
+	{
+		// Get the console.
+		HANDLE hConsole;
+		hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+		// Choose a color acc to the type.
+		int colorVal = CONSOLECOLOR_WHITE;	// White.
+
+		if (type == MsgType::Error)
+			colorVal = CONSOLECOLOR_RED;
+		else if (type == MsgType::Warning)
+			colorVal = CONSOLECOLOR_YELLOW;
+		else if (type == MsgType::Success)
+			colorVal = CONSOLECOLOR_GREEN;
+
+		// Set color.
+		SetConsoleTextAttribute(hConsole, colorVal);
+
+		// print.
+		std::cout << "-> " << msg << " T = " << now("%I:%M:%S %p") << std::endl;
+
+		// Set the console color back to white.
+		colorVal = CONSOLECOLOR_WHITE;
+		SetConsoleTextAttribute(hConsole, colorVal);
+	}
+
+};
+
+
+#endif
