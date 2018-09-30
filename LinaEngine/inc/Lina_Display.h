@@ -35,19 +35,26 @@ class Lina_Display
 {
 public:
 
+	Lina_Display();
 	Lina_Display(int, int, const std::string&);
 	~Lina_Display();
+
 	void Update();
 	void Clear(float, float, float, float);
 	bool IsClosed();
+	int GetWidth() { return m_Width; }
+	int GetHeight() { return m_Height; }
+	std::string GetTitle() { return m_Title; }
+	void operator=(const Lina_Display& other) {}
 
 
 private:
 
+	int m_Width, m_Height;
+	std::string m_Title;
 	SDL_Window* m_Window;
 	SDL_GLContext m_glContext;
 	bool m_IsClosed;
-	void operator=(const Lina_Display& other){}
 };
 
 

@@ -33,6 +33,12 @@ public:
 	Lina_Core();
 	~Lina_Core();
 
+	void Start();
+	void Stop();
+	void Run();
+	void Render();
+	void CleanUp();
+
 private:
 
 	Lina_Rendering* lina_RenderingEngine;

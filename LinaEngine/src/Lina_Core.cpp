@@ -35,9 +35,42 @@ Lina_Core::Lina_Core()
 
 	// Initialize rendering engine.
 	lina_RenderingEngine = new Lina_Rendering();
+
+	// Start the game.
+	//Start();
 }
 
 Lina_Core::~Lina_Core()
 {
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Core deinitialized.", Lina_Console::MsgType::Warning);
 	delete lina_RenderingEngine;
+}
+
+void Lina_Core::Start()
+{
+	Run();
+}
+
+void Lina_Core::Stop()
+{
+
+}
+
+void Lina_Core::Run()
+{
+	/*if (!lina_RenderingEngine.currentDisplay->IsClosed())
+	{
+		std::cout << "display active" << std::endl;
+	}*/
+}
+
+void Lina_Core::Render()
+{
+
+}
+
+void Lina_Core::CleanUp()
+{
+
 }

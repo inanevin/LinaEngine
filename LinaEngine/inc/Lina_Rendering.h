@@ -27,6 +27,7 @@ Redistribution and use in source and binary forms, with or without modification,
 
 #ifndef Lina_Rendering_H
 #define Lina_Rendering_H
+#include <Lina_Display.h>
 
 
 class Lina_Rendering
@@ -38,7 +39,6 @@ public:
 
 private:
 
-	
 
 };
 

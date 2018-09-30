@@ -26,7 +26,7 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "pch.h"
 #include "Lina_Display.h"  
 
-Lina_Display::Lina_Display(int width, int height, const std::string& title)
+Lina_Display::Lina_Display(int width, int height, const std::string& title) : m_Width(width), m_Height(height), m_Title(title)
 {
 	// Add a console message about correct initialization.
 	Lina_Console cons = Lina_Console();
@@ -67,6 +67,8 @@ Lina_Display::Lina_Display(int width, int height, const std::string& title)
 
 Lina_Display::~Lina_Display()
 {
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Display deinitialized.", Lina_Console::MsgType::Warning);
 	// Deallocate GL context and window. (m_Window pointer is deleted via SDL_DestroyWindow already so no need to use delete again on that.)
 	SDL_GL_DeleteContext(m_glContext);
 	SDL_DestroyWindow(m_Window);
@@ -100,4 +102,19 @@ void Lina_Display::Clear(float r, float g, float b, float a)
 
 bool Lina_Display::IsClosed() { return m_IsClosed; }
 
+/* NOTE ABOUT GPU's & PIPELINE 
 
+// GPU can -> draw a triangle, interpolates bw points, pass data in parallel.
+// GPU takes data (in parallel, so it takes every individual unit of data), processes it (converts it to some standart form for itself)
+// Processed data form is, dots, dots that CAN be converted into a triangle. This stage is called the -> "VERTEX SHADER".
+// Rasterization -> Connect the dots into triangles. After connecting them, it will fill the triangles in.
+// Take individual pixels from the triangles, and process them. 
+// For every individual pixel in the triangles, it generates colors. This stage of processing, the coloring, is called -> "FRAGMENT SHADER"
+// It takes your output image and writes all the pixels on it.
+// There will be a lot of pipelines working in paralel to write onto the output image.
+// After all the parallel pipelines finished, the output image is sent to the display.
+
+// We send data to GPU, but while doing so we have to tell how to interpret it.
+// We are gonna create a vertex shader & fragment shader. Then pass them to GPU so that it can generate in the way we want.
+
+*/

@@ -29,5 +29,6 @@ Redistribution and use in source and binary forms, with or without modification,
 int main()
 {
 	Lina_Core core = Lina_Core();
+	
 
 }

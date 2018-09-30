@@ -24,12 +24,12 @@ Redistribution and use in source and binary forms, with or without modification,
 */
 
 #include "pch.h"
-#include <Lina_Display.h>
 #include "Lina_Rendering.h"  
 
 
 Lina_Rendering::Lina_Rendering()
 {
+
 	// Add a console message.
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Rendering engine initialized.", Lina_Console::MsgType::Success);
@@ -39,18 +39,20 @@ Lina_Rendering::Lina_Rendering()
 	cons.AddConsoleMsg("SDL initialized with SDL_INIT_EVERYTHING.", Lina_Console::Success);
 
 	// Initialize display.
-	Lina_Display display(800, 600, "Display Init ");
+	Lina_Display currentDisplay = Lina_Display(800, 600, "Lina Engine");
 
 	// Display window is not closed.
-	while (!display.IsClosed())
+	while (!currentDisplay.IsClosed())
 	{
 		// Clear color the screen.
-		display.Clear(0.0f, 0.4f, 0.2f, 1.0f);
-		display.Update();
+		currentDisplay.Clear(0.0f, 0.4f, 0.2f, 1.0f);
+		currentDisplay.Update();
 	}
 }
 
 Lina_Rendering::~Lina_Rendering()
 {
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Rendering deinitialized.", Lina_Console::MsgType::Warning);
 	SDL_Quit();
 }
