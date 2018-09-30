@@ -55,7 +55,7 @@ public:
 	}
 
 	// Adds a colored message to the console.
-	void AddConsoleMsg(std::string msg, MsgType type)
+	void AddConsoleMsg(std::string msg, MsgType type, std::string sender)
 	{
 		// Get the console.
 		HANDLE hConsole;
@@ -81,7 +81,7 @@ public:
 		SetConsoleTextAttribute(hConsole, colorVal);
 
 		// print.
-		std::cout << "-> " << msg << " T = " << now("%I:%M:%S %p") << std::endl;
+		std::cout << "-> " << sender << " ->: " << msg << " T = " << now("%I:%M:%S %p") << std::endl;
 
 		// Set the console color back to white.
 		colorVal = CONSOLECOLOR_WHITE;

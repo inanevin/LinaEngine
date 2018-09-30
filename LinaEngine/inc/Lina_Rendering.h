@@ -28,7 +28,7 @@ Redistribution and use in source and binary forms, with or without modification,
 #ifndef Lina_Rendering_H
 #define Lina_Rendering_H
 
-#include<list>
+//#include<list>
 #include"Lina_Window.h"
 
 class Lina_Rendering
@@ -36,17 +36,15 @@ class Lina_Rendering
 
 public:
 
-	static Lina_Rendering& Instance();
-	void InitializeFirstSetup();
+	//static Lina_Rendering& Instance();
     void CreateDisplayWindow(int, int, const std::string&);
-
-private:
-
-	std::list<std::unique_ptr<Lina_Window>> m_ActiveWindows;
-	Lina_Rendering() {};
-	Lina_Rendering(const Lina_Rendering&) = delete;
-	Lina_Rendering& operator= (const Lina_Rendering&) = delete;
+	void Render();
+	Lina_Rendering();
 	~Lina_Rendering();
+	Lina_Rendering& operator= (const Lina_Rendering&);
+	Lina_Rendering(const Lina_Rendering&);
+	std::shared_ptr<Lina_Window> m_ActiveWindow;
+
 };
 
 

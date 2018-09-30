@@ -24,13 +24,12 @@ Redistribution and use in source and binary forms, with or without modification,
 
 #pragma once
 
-class Lina_Rendering;
+#include <Lina_Rendering.h>
 
 class Lina_Core {
 
 public:
-
-	Lina_Core();
+    Lina_Core();
 	~Lina_Core();
 
 	void Start();
@@ -40,7 +39,5 @@ public:
 	void CleanUp();
 
 private:
-
-	static Lina_Rendering lina_RenderingEngine;
-
+	std::shared_ptr<Lina_Rendering> renderingEngine;
 };

@@ -29,23 +29,27 @@ Redistribution and use in source and binary forms, with or without modification,
 #define Lina_Display_H
 
 #include "SDL2/SDL.h"
+#undef main
 #include "GL/glew.h"
 
 class Lina_Window
 {
 public:
 
-	static std::unique_ptr<Lina_Window> CreateDisplayWindow(int width, int height, const std::string& title)
+/*	static std::unique_ptr<Lina_Window> CreateDisplayWindow(int width, int height, const std::string& title)
 	{
 	  std::unique_ptr<Lina_Window> p(new Lina_Window(width,height,title));
 	  return std::move(p);
 	}
-
+	*/
 
 	Lina_Window(int, int, const std::string&);
 	~Lina_Window();
+
 	void Update();
 	void Clear(float, float, float, float);
+	void RenderBlankColor();
+
 	bool IsClosed();
 	int GetWidth() { return m_Width; }
 	int GetHeight() { return m_Height; }

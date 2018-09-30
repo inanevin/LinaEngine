@@ -24,41 +24,37 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "pch.h"
 #include <iostream>
 #include <Lina_Core.h>
-#include <Lina_Rendering.h>
 
 // Constructor, initialize components.
 Lina_Core::Lina_Core()
 {
 	// Add a console message.
 	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Lina Engine core initialized.", Lina_Console::MsgType::Initialization);
+	cons.AddConsoleMsg("Core initialized.", Lina_Console::MsgType::Initialization, "Core");
 
-	// Initialize & setup rendering engine.
-	Lina_Rendering::Instance().InitializeFirstSetup();
-
-	int x = 1;
-	while (x != 0)
-	{
-		std::cin >> x;
-		if (x == 2)
-		{
-			Lina_Rendering::Instance().CreateDisplayWindow(200, 200, "sa");
-		}
-	}
+	// Initialize rendering engine.
+	renderingEngine = std::make_shared<Lina_Rendering>();
+	
+	// Create a window.
+	renderingEngine->CreateDisplayWindow(1024, 768, "Lina Engine 3D");
 
 	// Start the game.
-	//Start();
+	Start();
 }
 
+// Destructor.
 Lina_Core::~Lina_Core()
 {
 	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Core deinitialized.", Lina_Console::MsgType::Deinitialization);
-	//delete lina_RenderingEngine;
+	cons.AddConsoleMsg("Core deinitialized.", Lina_Console::MsgType::Deinitialization, "Core");
 }
 
+// Initialization method for the game core.
 void Lina_Core::Start()
 {
+	// Nothing here yet.
+
+	// Start the main game loop.
 	Run();
 }
 
@@ -69,15 +65,17 @@ void Lina_Core::Stop()
 
 void Lina_Core::Run()
 {
-	/*if (!lina_RenderingEngine.currentDisplay->IsClosed())
+	// For now the only condition is to have an active window to keep the rendering.
+	while(renderingEngine->m_ActiveWindow != nullptr && !renderingEngine->m_ActiveWindow->IsClosed())
 	{
-		std::cout << "display active" << std::endl;
-	}*/
+		Render();
+	}
 }
 
+// Rendering loop.
 void Lina_Core::Render()
 {
-
+	renderingEngine->Render();
 }
 
 void Lina_Core::CleanUp()
