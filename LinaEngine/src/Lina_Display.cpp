@@ -25,7 +25,6 @@ Redistribution and use in source and binary forms, with or without modification,
 
 #include "pch.h"
 #include "Lina_Display.h"  
-#include "SDL2/SDL.h"
 
 Lina_Display::Lina_Display(int width, int height, const std::string& title)
 {
@@ -39,7 +38,7 @@ Lina_Display::Lina_Display(int width, int height, const std::string& title)
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);	// 8 bits -> 2 to the pow of 8 amount of color data. 256.
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);	// 8 bits -> 2 to the pow of 8 amount of color data. 256.
 	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);	// How much data will SDL allocate for a single pixel.
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);	// Alloc an area for 2 windows. (only 1 is used for now.) 
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);	// Alloc an area for 2 blocks of display mem.
 
 	// Create an SDL window.
 	m_Window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
@@ -52,5 +51,53 @@ Lina_Display::Lina_Display(int width, int height, const std::string& title)
 	// We create a context using our window, so we will have power over our window via OpenGL -> GPU.
 	m_glContext = SDL_GL_CreateContext(m_Window);
 
+	// Initialize GLEW.
+	GLenum status = glewInit();
+
+	// Check glew initialization status.
+	if (status != GLEW_OK)
+		cons.AddConsoleMsg("Glew failed to initialize!", Lina_Console::MsgType::Error);
+	else
+		cons.AddConsoleMsg("Glew initialized.", Lina_Console::Success);
+
+	// Set closed flag. This will be checked by OS events being received on Update.
+	m_IsClosed = false;
+
 }
+
+Lina_Display::~Lina_Display()
+{
+	// Deallocate GL context and window. (m_Window pointer is deleted via SDL_DestroyWindow already so no need to use delete again on that.)
+	SDL_GL_DeleteContext(m_glContext);
+	SDL_DestroyWindow(m_Window);
+}
+
+void Lina_Display::Update()
+{
+	// We had allocated space for 2 windows space via SDL_GL_SetAttribute. First both of them are empty, our window will only display the first one.
+	// OpenGL will draw to the invisible buffer, then we swap buffers, our window will start displaying the previously drawn buffer while
+	// OpenGL will start drawing on the swaped buffer. And so on.
+	// So our window will never display a buffer that is currently being drawn by opengl.
+	SDL_GL_SwapWindow(m_Window);
+
+	SDL_Event e;
+	
+	// Look for any OS event received and store it in e's address.
+	while (SDL_PollEvent(&e))
+	{
+		// If Quit event is received. 
+		if (e.type == SDL_QUIT)
+			m_IsClosed = true;
+	}
+}
+
+void Lina_Display::Clear(float r, float g, float b, float a)
+{
+	// Draw a flat color.
+	glClearColor(0.0f, 0.15f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+bool Lina_Display::IsClosed() { return m_IsClosed; }
+
 

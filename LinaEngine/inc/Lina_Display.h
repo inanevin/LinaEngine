@@ -28,18 +28,26 @@ Redistribution and use in source and binary forms, with or without modification,
 #ifndef Lina_Display_H
 #define Lina_Display_H
 
-class SDL_Window;
+#include "SDL2/SDL.h"
+#include "GL/glew.h"
 
 class Lina_Display
 {
-
 public:
+
 	Lina_Display(int, int, const std::string&);
+	~Lina_Display();
+	void Update();
+	void Clear(float, float, float, float);
+	bool IsClosed();
+
 
 private:
 
-	SDL_Window* m_window;
+	SDL_Window* m_Window;
 	SDL_GLContext m_glContext;
+	bool m_IsClosed;
+	void operator=(const Lina_Display& other){}
 };
 
 

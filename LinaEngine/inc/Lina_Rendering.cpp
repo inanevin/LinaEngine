@@ -26,7 +26,7 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "pch.h"
 #include <Lina_Display.h>
 #include "Lina_Rendering.h"  
-#include <SDL2/SDL.h>
+
 
 Lina_Rendering::Lina_Rendering()
 {
@@ -36,10 +36,18 @@ Lina_Rendering::Lina_Rendering()
 
 	// Initialize SDL.
 	SDL_Init(SDL_INIT_EVERYTHING);
+	cons.AddConsoleMsg("SDL initialized with SDL_INIT_EVERYTHING.", Lina_Console::Success);
 
 	// Initialize display.
 	Lina_Display display(800, 600, "Display Init ");
 
+	// Display window is not closed.
+	while (!display.IsClosed())
+	{
+		// Clear color the screen.
+		display.Clear(0.0f, 0.4f, 0.2f, 1.0f);
+		display.Update();
+	}
 }
 
 Lina_Rendering::~Lina_Rendering()
