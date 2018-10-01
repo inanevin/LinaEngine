@@ -32,6 +32,8 @@ Lina_Window::Lina_Window(int width, int height, const std::string& title) : m_Wi
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Window initialized. (W: " + std::to_string(width) + " H: " + std::to_string(height) + ")", Lina_Console::MsgType::Initialization, "Window");
 
+	
+
 	// Set additional parameters for SDL window using SDL_WINDOW_OPENGL
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);	// 8 bits (at least) -> 2 to the pow of 8 amount of color data. 256.
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);	// 8 bits -> 2 to the pow of 8 amount of color data. 256.
@@ -39,6 +41,8 @@ Lina_Window::Lina_Window(int width, int height, const std::string& title) : m_Wi
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);	// 8 bits -> 2 to the pow of 8 amount of color data. 256.
 	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);	// How much data will SDL allocate for a single pixel.
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);	// Alloc an area for 2 blocks of display mem.
+
+
 
 	// Create an SDL window.
 	m_Window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
@@ -50,6 +54,9 @@ Lina_Window::Lina_Window(int width, int height, const std::string& title) : m_Wi
 
 	// We create a context using our window, so we will have power over our window via OpenGL -> GPU.
 	m_glContext = SDL_GL_CreateContext(m_Window);
+
+	// Disable vsync. Needs to be called after SDL_GL_CreateContext bc swap interval works on the current active context. ( can be changed laterwards )
+	SDL_GL_SetSwapInterval(0);
 
 	// Initialize GLEW.
 	GLenum status = glewInit();
