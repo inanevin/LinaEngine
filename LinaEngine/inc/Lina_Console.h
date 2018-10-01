@@ -46,8 +46,9 @@ class Lina_Console
 
 public:
 
-	enum MsgType {Debug, Success, Warning, Error, Initialization, Update, Deinitialization };
-	
+	enum MsgType { Debug, Success, Warning, Error, Initialization, Update, Deinitialization };
+
+
 	// Returns the current time in string format. Pass in %I, %M, %S, %p %F for formatting.
 	std::string now(const char* format = "%c")
 	{
@@ -58,7 +59,7 @@ public:
 	}
 
 	// Adds a colored message to the console.
-	void AddConsoleMsg(std::string msg, MsgType type, std::string sender)
+	inline void AddConsoleMsg(std::string msg, MsgType type, std::string sender, bool flushAfter = false)
 	{
 		// Get the console.
 		HANDLE hConsole;
@@ -83,13 +84,33 @@ public:
 		// Set color.
 		SetConsoleTextAttribute(hConsole, colorVal);
 
+		// Add an end of line string acc to flush choice.
+		// std::string eofStr = flushAfter ? " \r ACTIVE LOOP " : "\r";
+
+		std::string eofStr = "\n";
+
+		// Static bool to record flushings.
+		// static bool wasFlushed;
+
+		// If a line without flushing has been logged after a flushed line, add a new line.
+		// if (!flushAfter && wasFlushed)
+		// std::cout << std::endl;
+
 		// print.
-		std::cout << "-> " << sender << " ->: " << msg << " T = " << now("%I:%M:%S %p") << std::endl;
+		std::cout << "-> " << sender << " ->: " << msg << " T = " << now("%I:%M:%S %p") << std::string(eofStr);
+
+		// End line or flush the current one according to choice.
+		// if (flushAfter) std::cout << std::flush;
+		// else std::cout << std::flush << std::endl;
+		// wasFlushed = flushAfter;
 
 		// Set the console color back to white.
 		colorVal = CONSOLECOLOR_WHITE;
 		SetConsoleTextAttribute(hConsole, colorVal);
 	}
+
+private:
+
 
 };
 

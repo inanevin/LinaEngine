@@ -57,13 +57,13 @@ Lina_Rendering::~Lina_Rendering()
 void Lina_Rendering::Render()
 {
 	// Send dbg msg.
-	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Render Loop is running", Lina_Console::MsgType::Update, "Render Engine");
+	/* Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Render Loop is running", Lina_Console::MsgType::Update, "Render Engine", true); */
 
 	// Check if active window points to an object.
 	if (m_ActiveWindow == nullptr)
 	{
-		cons.AddConsoleMsg("No active window to render onto!", Lina_Console::MsgType::Error, "Render Engine");
+		//cons.AddConsoleMsg("No active window to render onto!", Lina_Console::MsgType::Error, "Render Engine");
 		return;
 	}
 

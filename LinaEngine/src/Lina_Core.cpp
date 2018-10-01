@@ -24,6 +24,10 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "pch.h"
 #include <iostream>
 #include <Lina_Core.h>
+#include <Lina_Time.h>
+
+static const double FRAME_CAP = 5000.0;	// max frame limit we can draw
+static const long SECOND = 1000000000;	// time in nanosecs
 
 // Constructor, initialize components.
 Lina_Core::Lina_Core()
@@ -44,6 +48,8 @@ Lina_Core::Lina_Core()
 	// Start the game.
 	Start();
 }
+
+
 
 // Destructor.
 Lina_Core::~Lina_Core()
@@ -79,23 +85,97 @@ void Lina_Core::Stop()
 
 void Lina_Core::Run()
 {
-	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Game engine loop running...", Lina_Console::MsgType::Update, "Core Engine");
-
 	isRunning = true;
+
+	// Amount of time one frame takes.
+	const double frameTime = 1.0 / FRAME_CAP;
+
+	// Time that prev frame started running.
+	long lastTime = Lina_Time::GetCurrentTimeInNano();
+
+	// Cumilator -> Keep track of how much times we still need to update the game.
+	double unprocessedTime = 0;
+
 
 	// For now the only condition is to have an active window to keep the rendering.
 	while (isRunning)
 	{
-		// If we don't have an active window or is closed stop.
-		if (renderingEngine->m_ActiveWindow == nullptr || renderingEngine->m_ActiveWindow->IsClosed())
+		// Debug running.
+		/*Lina_Console cons = Lina_Console();
+		cons.AddConsoleMsg("Game engine loop running...", Lina_Console::MsgType::Update, "Core Engine", true); */
+
+		// Frame counter.
+		int frames = 0;
+		long frameCounter = 0;
+
+		// Whether to render the frame or not.
+		bool renderFrame = false;
+
+		// Time that this frame started running.
+		long startTime = Lina_Time::GetCurrentTimeInNano();
+		std::cout << startTime << std::endl;
+
+		// amount of the it took for the frame.
+		long passedTime = startTime - lastTime;
+
+		// this frame is now the previous frame.
+		lastTime = startTime;
+
+		// How much time has passed in doubles. (running total of time passed)
+		unprocessedTime += passedTime / static_cast<double>(SECOND);
+
+		// Increment frame counter.
+		frameCounter += passedTime;
+
+		// While total time is greater than time one frame is supposed to take. (update time)
+		while (unprocessedTime > frameTime)
 		{
-			Stop();
-			break;
+			renderFrame = true;
+
+			// decrease time to process.
+			unprocessedTime -= frameTime;
+
+			// If we don't have an active window or is closed stop.
+			if (renderingEngine->m_ActiveWindow == nullptr || renderingEngine->m_ActiveWindow->IsClosed())
+			{
+				Stop();
+			}
+
+			// TODO: Update game loop
+			
+		
+			if (frameCounter >= SECOND)
+			{
+				// Debug frames.
+				Lina_Console cons = Lina_Console();
+				cons.AddConsoleMsg("Main Game Loop Frames: " + std::to_string(frames), Lina_Console::MsgType::Error, "Core Engine", true);
+				// reset frame counter & frames.
+				frames = 0;
+				frameCounter = 0;
+			}
+
 		}
 
-		// Render process.
-		Render();
+		// render the frame.
+		if (renderFrame)
+		{
+			Render();
+			frames++;	// Increment the amount of frames rendered.
+		}
+		else
+		{
+			try {
+				// Sleep for a single millisecond instead waiting for rendering and running calculations.
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			}
+			catch (const std::exception& e) {
+				// Debug exception.
+				Lina_Console cons = Lina_Console();
+				cons.AddConsoleMsg(e.what(), Lina_Console::MsgType::Error, "Core Engine", true);
+			}
+		}
+
+
 	}
 
 	// Clean up thrash when finishing running.
@@ -105,8 +185,6 @@ void Lina_Core::Run()
 // Rendering loop.
 void Lina_Core::Render()
 {
-	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Game engine loop rendering...", Lina_Console::MsgType::Update, "Core Engine");
 	renderingEngine->Render();
 }
 

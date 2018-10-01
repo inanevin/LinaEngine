@@ -2,7 +2,6 @@
 Author: Inan Evin
 www.inanevin.com
 
-
 BSD 2-Clause License
 Lina Engine Copyright (c) 2018, Inan Evin All rights reserved.
 
@@ -19,36 +18,35 @@ Redistribution and use in source and binary forms, with or without modification,
 -- STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 -- OF SUCH DAMAGE.
 
+4.0.30319.42000
+10/1/2018 3:34:14 AM
 
 */
 
-#pragma once
+#include "pch.h"
+#include "Lina_Time.h"  
 
-#ifndef LINA_CORE_H
-#define LINA_CORE_H
+Lina_Time::Lina_Time()
+{
 
-#include <Lina_Rendering.h>
 
-extern const double FRAME_CAP;
-extern const long SECOND;
+}
 
-class Lina_Core {
+long Lina_Time::GetCurrentTimeInNano()
+{
+	// Get time traffic
+	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
 
-public:
+	// Get time traffic with presicion of nanoseconds.
+	auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
 
-    Lina_Core();
-	~Lina_Core();
+	// Now get the time as std::chrono::nanoseconds type.
+	auto duration = now_ns.time_since_epoch();
 
-private:
+	// cast the duration
+	auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(duration);
 
-	void Start();
-	void Stop();
-	void Run();
-	void Render();
-	void CleanUp();
-	bool isRunning;
+	// Return the long.
+	return nanoseconds.count();
+}
 
-	std::shared_ptr<Lina_Rendering> renderingEngine;
-};
-
-#endif

@@ -2,7 +2,6 @@
 Author: Inan Evin
 www.inanevin.com
 
-
 BSD 2-Clause License
 Lina Engine Copyright (c) 2018, Inan Evin All rights reserved.
 
@@ -19,36 +18,29 @@ Redistribution and use in source and binary forms, with or without modification,
 -- STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 -- OF SUCH DAMAGE.
 
+4.0.30319.42000
+10/1/2018 3:33:58 AM
 
 */
 
 #pragma once
 
-#ifndef LINA_CORE_H
-#define LINA_CORE_H
+#ifndef Lina_Time_H
+#define Lina_Time_H
 
-#include <Lina_Rendering.h>
 
-extern const double FRAME_CAP;
-extern const long SECOND;
-
-class Lina_Core {
+class Lina_Time
+{
 
 public:
-
-    Lina_Core();
-	~Lina_Core();
+	Lina_Time();
+	static long GetCurrentTimeInNano();
+	static double GetDelta() { return delta; }
+	static double SetDelta(double delta) { Lina_Time::delta = delta; }
 
 private:
-
-	void Start();
-	void Stop();
-	void Run();
-	void Render();
-	void CleanUp();
-	bool isRunning;
-
-	std::shared_ptr<Lina_Rendering> renderingEngine;
+	static double delta;
 };
+
 
 #endif
