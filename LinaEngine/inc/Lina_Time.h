@@ -33,13 +33,12 @@ class Lina_Time
 {
 
 public:
-	Lina_Time();
 	static long GetCurrentTimeInNano();
 	static double GetDelta() { return delta; }
-	static double SetDelta(double delta) { Lina_Time::delta = delta; }
+	static void SetDelta(const double d) { Lina_Time::delta = d; }
+	static double delta;
 
 private:
-	static double delta;
 };
 
 

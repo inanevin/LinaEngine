@@ -26,11 +26,7 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "pch.h"
 #include "Lina_Time.h"  
 
-Lina_Time::Lina_Time()
-{
-
-
-}
+double Lina_Time::delta;
 
 long Lina_Time::GetCurrentTimeInNano()
 {

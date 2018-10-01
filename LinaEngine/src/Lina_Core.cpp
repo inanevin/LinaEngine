@@ -42,6 +42,9 @@ Lina_Core::Lina_Core()
 	// Initialize rendering engine.
 	renderingEngine = std::make_shared<Lina_Rendering>();
 
+	// Initialize game core.
+	gameCore = std::make_shared<Lina_GameCore>();
+
 	// Create a window.
 	renderingEngine->CreateDisplayWindow(1024, 768, "Lina Engine 3D");
 
@@ -141,10 +144,13 @@ void Lina_Core::Run()
 				break;
 			}
 
-			// TODO: Update game loop
-			
-			
+			// Set delta. (Change later, no effect for now)
+			Lina_Time::SetDelta(frameTime);
 
+			// TODO: Update game loop
+			gameCore->ProcessInput();
+			gameCore->Update();
+			
 			// print the frame counter every second.
 			if (frameCounter >= SECOND)
 			{
@@ -167,7 +173,7 @@ void Lina_Core::Run()
 		}
 		else
 		{
-			/*try {
+			try {
 				// Sleep for a single millisecond instead waiting for rendering and running calculations.
 				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
@@ -175,7 +181,7 @@ void Lina_Core::Run()
 				// Debug exception.
 				Lina_Console cons = Lina_Console();
 				cons.AddConsoleMsg(e.what(), Lina_Console::MsgType::Error, "Core Engine", true);
-			}*/
+			}
 		}
 
 
@@ -188,6 +194,7 @@ void Lina_Core::Run()
 // Rendering loop.
 void Lina_Core::Render()
 {
+	gameCore->Render();
 	renderingEngine->Render();
 }
 
