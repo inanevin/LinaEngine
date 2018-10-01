@@ -20,7 +20,7 @@ void Lina_Input::ProcessInput()
 {
 	//Process the keyboard and mouse inputs in here
 	
-	//TODO: Find a suitable Lina_Engine Component for using Lina_Input(Lina_Window or Lina_Renderer)
+	//TODO: change the ProcessInput class to something compatible with the SDL_Event system.
 	
 	//Get State of Keyboard
 	const Uint8* state = SDL_GetKeyboardState(NULL);
@@ -30,4 +30,15 @@ void Lina_Input::ProcessInput()
 		Lina_Console cons = Lina_Console();
 		cons.AddConsoleMsg("Pressed: A", Lina_Console::MsgType::Debug);
 	}
+
+	//Get State of Mouse
+	if (SDL_GetMouseState(NULL, NULL) && SDL_BUTTON(1))
+	{
+		Lina_Console cons = Lina_Console();
+		cons.AddConsoleMsg("Left Mouse Click", Lina_Console::MsgType::Debug);
+	}
+
+	//While states of keyboard and mouse can be seen from the Lina_Window, right now because of not using the SDL_Event system
+	//SDL does not take SDL_KEYDOWN and SDL_KEYUP into consideration thus it inputs as much as it can in a frame.
+
 }
