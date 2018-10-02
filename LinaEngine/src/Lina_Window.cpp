@@ -102,9 +102,11 @@ void Lina_Window::Update()
 	// Look for any OS event received and store it in e's address.
 	for (int i = 0; i < Lina_SDLHandler::GetFrameEvents().size(); i++)
 	{
-		std::cout << "test";
+		//std::cout << "test";
 		if (frameEvents[i].type == SDL_QUIT)
-			m_IsClosed;
+		{
+			m_IsClosed = true;
+		}
 	}
 
 	/*SDL_Event e;

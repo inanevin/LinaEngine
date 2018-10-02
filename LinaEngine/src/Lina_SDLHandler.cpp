@@ -45,16 +45,17 @@ Lina_SDLHandler::~Lina_SDLHandler()
 
 void Lina_SDLHandler::Process()
 {
-	// Pool frame events and clear them every time processed.
+	// Pool frame event & clear.
 
-	//GetFrameEvents().clear();
-
+	GetFrameEvents().clear();
 	SDL_Event event;
-	while (SDL_PollEvent(&event) != 0)
+
+	if (SDL_PollEvent(&event) != 0)
 	{
 		GetFrameEvents().push_back(event);
 
-		if (event.type == SDL_QUIT)
-			std::cout << "quit";
+		if (event.type == SDL_KEYDOWN)
+			std::cout << "yey";
 	}
+
 }
