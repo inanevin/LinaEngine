@@ -3,6 +3,10 @@
 #ifndef Lina_Input_H
 #define Lina_Input_H
 
+#include <SDL2/SDL.h>
+
+#include <vector>
+
 class Lina_Input
 {
 public:
@@ -15,9 +19,11 @@ public:
 	bool GetKeyDown(int key);
 
 private:
-	bool* m_Keys;
-	bool* m_PrevKeys;
+	std::vector<bool> m_Keys;
+	std::vector<bool> m_PressedKeys;
 	int m_NumKeys;
+
+	Uint8* m_KeyboardState;
 };
 
 #endif
