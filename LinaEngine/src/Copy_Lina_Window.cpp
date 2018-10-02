@@ -92,8 +92,22 @@ void Copy_Lina_Window::Update()
 			m_IsClosed = true;
 	}
 
-	//Process the Input via Lina_Input object.
-	lina_Input.ProcessInput();
+	//Update the input each frame for input synchronization.
+	lina_Input.Update();
+
+	//Example Usage of Lina_Input class.
+	if (lina_Input.GetKey(SDL_SCANCODE_ESCAPE))
+	{
+		m_IsClosed = true;
+	}
+	if (lina_Input.GetKeyUp(SDL_SCANCODE_A))
+	{
+		std::cout << "Pressed A" << std::endl;
+	}
+	if (lina_Input.GetKeyDown(SDL_SCANCODE_D))
+	{
+		std::cout << "Pressed D" << std::endl;
+	}
 }
 
 void Copy_Lina_Window::Clear(float r, float g, float b, float a)
