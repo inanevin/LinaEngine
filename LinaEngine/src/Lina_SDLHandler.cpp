@@ -19,36 +19,42 @@ Redistribution and use in source and binary forms, with or without modification,
 -- OF SUCH DAMAGE.
 
 4.0.30319.42000
-10/1/2018 6:00:05 AM
+10/2/2018 11:40:43 AM
 
 */
 
 #include "pch.h"
-#include "Lina_GameCore.h"  
+#include "Lina_SDLHandler.h"  
 
-Lina_GameCore::Lina_GameCore(std::shared_ptr<Lina_Input> inp)
+Lina_SDLHandler::Lina_SDLHandler()
 {
 	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Game core initialized.", Lina_Console::MsgType::Initialization, "Game Core");
+	cons.AddConsoleMsg("SDL Handler initialized.", Lina_Console::Initialization, "SDL Handler");
 
-	// Copy shared pointer into our local variable.
-	inputEngine = inp;
+	// Initialize SDL.
+	SDL_Init(SDL_INIT_EVERYTHING);
+	cons.AddConsoleMsg("SDL initialized with SDL_INIT_EVERYTHING.", Lina_Console::Initialization, "SDL Handler");
 }
 
-void Lina_GameCore::ProcessInput()
+Lina_SDLHandler::~Lina_SDLHandler()
 {
-	if (inputEngine->GetKey(SDLK_a))
-		std::cout << "true";
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("SDL Quitted.", Lina_Console::Initialization, "SDL Handler");
+	SDL_Quit();
 }
 
-void Lina_GameCore::Update()
+void Lina_SDLHandler::Process()
 {
+	// Pool frame events and clear them every time processed.
 
+	//GetFrameEvents().clear();
+
+	SDL_Event event;
+	while (SDL_PollEvent(&event) != 0)
+	{
+		GetFrameEvents().push_back(event);
+
+		if (event.type == SDL_QUIT)
+			std::cout << "quit";
+	}
 }
-
-void Lina_GameCore::Render()
-{
-
-}
-
-

@@ -28,7 +28,7 @@ Redistribution and use in source and binary forms, with or without modification,
 #ifndef Lina_Display_H
 #define Lina_Display_H
 
-#include "SDL2/SDL.h"
+#include <Lina_SDLHandler.h>
 #undef main
 #include "GL/glew.h"
 

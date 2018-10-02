@@ -39,10 +39,6 @@ Lina_Rendering::Lina_Rendering()
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Rendering engine initialized.", Lina_Console::MsgType::Initialization, "Render Engine");
 
-	// Initialize SDL.
-	SDL_Init(SDL_INIT_EVERYTHING);
-	cons.AddConsoleMsg("SDL initialized with SDL_INIT_EVERYTHING.", Lina_Console::Initialization, "Render Engine");
-
 }
 
 // Destructor.
@@ -50,7 +46,6 @@ Lina_Rendering::~Lina_Rendering()
 {
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Rendering deinitialized.", Lina_Console::MsgType::Deinitialization, "Render Engine");
-	SDL_Quit();
 }
 
 // Main method to render a particular image on the active window.

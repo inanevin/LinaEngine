@@ -49,8 +49,11 @@ private:
 	void CleanUp();
 	bool isRunning;
 
+	std::shared_ptr<Lina_Input> inputEngine;
 	std::shared_ptr<Lina_Rendering> renderingEngine;
 	std::shared_ptr<Lina_GameCore> gameCore;
+	std::shared_ptr<Lina_SDLHandler> sdlHandler;
+
 };
 
 #endif

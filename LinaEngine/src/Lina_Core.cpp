@@ -39,11 +39,17 @@ Lina_Core::Lina_Core()
 	// Set running.
 	isRunning = false;
 
+	// Initialize SDL handler.
+	sdlHandler = std::make_shared<Lina_SDLHandler>();
+
 	// Initialize rendering engine.
 	renderingEngine = std::make_shared<Lina_Rendering>();
 
+	// Initialize input engine.
+	inputEngine = std::make_shared<Lina_Input>();
+
 	// Initialize game core.
-	gameCore = std::make_shared<Lina_GameCore>();
+	gameCore = std::make_shared<Lina_GameCore>(inputEngine);
 
 	// Create a window.
 	renderingEngine->CreateDisplayWindow(1024, 768, "Lina Engine 3D");
@@ -146,6 +152,12 @@ void Lina_Core::Run()
 
 			// Set delta. (Change later, no effect for now)
 			Lina_Time::SetDelta(frameTime);
+		
+			// Update SDL Handler.
+			sdlHandler->Process();
+
+			// Update input engine.
+			inputEngine->Process();
 
 			// TODO: Update game loop
 			gameCore->ProcessInput();
@@ -155,8 +167,8 @@ void Lina_Core::Run()
 			if (frameCounter >= SECOND)
 			{
 				// Debug frames.
-				Lina_Console cons = Lina_Console();
-				cons.AddConsoleMsg("Main Game Loop Running (" + std::to_string(frames) + " FPS)" + std::to_string(frames), Lina_Console::MsgType::Update, "Core Engine", true);
+				//Lina_Console cons = Lina_Console();
+				//cons.AddConsoleMsg("Main Game Loop Running (" + std::to_string(frames) + " FPS)" + std::to_string(frames), Lina_Console::MsgType::Update, "Core Engine", true);
 				// reset frame counter & frames to calculate on the next iteration.
 				frames = 0;
 				frameCounter = 0;

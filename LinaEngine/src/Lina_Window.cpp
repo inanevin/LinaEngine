@@ -97,7 +97,17 @@ void Lina_Window::Update()
 	// So our window will never display a buffer that is currently being drawn by opengl.
 	SDL_GL_SwapWindow(m_Window);
 
-	SDL_Event e;
+	std::vector<SDL_Event>& frameEvents = Lina_SDLHandler::GetFrameEvents();
+
+	// Look for any OS event received and store it in e's address.
+	for (int i = 0; i < Lina_SDLHandler::GetFrameEvents().size(); i++)
+	{
+		std::cout << "test";
+		if (frameEvents[i].type == SDL_QUIT)
+			m_IsClosed;
+	}
+
+	/*SDL_Event e;
 	
 	// Look for any OS event received and store it in e's address.
 	while (SDL_PollEvent(&e))
@@ -105,7 +115,7 @@ void Lina_Window::Update()
 		// If Quit event is received. 
 		if (e.type == SDL_QUIT)
 			m_IsClosed = true;
-	}
+	}*/
 }
 
 void Lina_Window::Clear(float r, float g, float b, float a)

@@ -19,36 +19,41 @@ Redistribution and use in source and binary forms, with or without modification,
 -- OF SUCH DAMAGE.
 
 4.0.30319.42000
-10/1/2018 6:00:05 AM
+10/2/2018 11:12:13 AM
 
 */
 
 #include "pch.h"
-#include "Lina_GameCore.h"  
+#include "Lina_Input.h"  
 
-Lina_GameCore::Lina_GameCore(std::shared_ptr<Lina_Input> inp)
-{
-	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Game core initialized.", Lina_Console::MsgType::Initialization, "Game Core");
+bool isAPressed;
 
-	// Copy shared pointer into our local variable.
-	inputEngine = inp;
-}
-
-void Lina_GameCore::ProcessInput()
-{
-	if (inputEngine->GetKey(SDLK_a))
-		std::cout << "true";
-}
-
-void Lina_GameCore::Update()
+Lina_Input::Lina_Input()
 {
 
 }
 
-void Lina_GameCore::Render()
+void Lina_Input::Process()
 {
-
+	//std::cout << "Input engine processing...";
+	isAPressed = false;
+	/*SDL_Event event;
+	while (SDL_PollEvent(&event)) {
+		switch (event.type) {
+		case SDL_KEYDOWN:
+			switch (event.key.keysym.sym) {
+			case SDLK_a:
+				isAPressed = true;
+				break;
+			default:
+				break;
+			}
+		}
+	}*/
 }
 
 
+bool Lina_Input::GetKey(SDL_Keycode code)
+{
+	return isAPressed;
+}

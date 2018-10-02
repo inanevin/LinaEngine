@@ -19,36 +19,35 @@ Redistribution and use in source and binary forms, with or without modification,
 -- OF SUCH DAMAGE.
 
 4.0.30319.42000
-10/1/2018 6:00:05 AM
+10/2/2018 11:40:57 AM
 
 */
 
-#include "pch.h"
-#include "Lina_GameCore.h"  
+#pragma once
 
-Lina_GameCore::Lina_GameCore(std::shared_ptr<Lina_Input> inp)
-{
-	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Game core initialized.", Lina_Console::MsgType::Initialization, "Game Core");
+#ifndef Lina_SDLHandler_H
+#define Lina_SDLHandler_H
 
-	// Copy shared pointer into our local variable.
-	inputEngine = inp;
-}
+#include "SDL2/SDL.h";
+#include <vector>
 
-void Lina_GameCore::ProcessInput()
-{
-	if (inputEngine->GetKey(SDLK_a))
-		std::cout << "true";
-}
-
-void Lina_GameCore::Update()
+class Lina_SDLHandler
 {
 
-}
+public:
+	Lina_SDLHandler();
+	~Lina_SDLHandler();
+	void Process();
 
-void Lina_GameCore::Render()
-{
+	static std::vector<SDL_Event>& GetFrameEvents()
+	{
+		static std::vector<SDL_Event> frameEvents;
+		return frameEvents;
+	}
 
-}
+private:
+
+};
 
 
+#endif
