@@ -71,6 +71,8 @@ artifacts/
 *.scc
 *.resx
 *.ico
+*.vcxproj
+*.vcxproj.filters
 !/LinaEngine/*/*.lib
 !/Debug/*.dll
 
