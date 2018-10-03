@@ -1,59 +1,80 @@
-/*
-Author: Inan Evin
-www.inanevin.com
-
-BSD 2-Clause License
-Lina Engine Copyright (c) 2018, Inan Evin All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation
-* and/or other materials provided with the distribution.
-
--- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO
--- THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS
--- BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
--- GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
--- STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
--- OF SUCH DAMAGE.
-
-4.0.30319.42000
-10/2/2018 11:12:13 AM
-
-*/
-
 #include "pch.h"
-#include "Lina_Input.h"  
-
-bool isAPressed;
+#include "Lina_Input.h"
 
 Lina_Input::Lina_Input()
 {
+	//Add a console message about correct initialization
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Input initialized.", Lina_Console::MsgType::Success);
 
+	//Get state of the keyboard and also store the number of the keys in the keyboard at m_Numkeys
+	m_KeyboardState = (Uint8*)SDL_GetKeyboardState(&m_NumKeys);
+
+	//m_Keys will hold the current state of the keyboard.
+	//Since at the start of the system there can't be pressed keys we initialize all of the previous keys false.
+	for (int i = 0; i < m_NumKeys; i++)
+	{
+		m_Keys.push_back(m_KeyboardState[i]);
+		m_PressedKeys.push_back(m_KeyboardState[i]);
+	}
 }
 
-void Lina_Input::Process()
+Lina_Input::~Lina_Input()
 {
-	//std::cout << "Input engine processing...";
-	isAPressed = false;
-	/*SDL_Event event;
-	while (SDL_PollEvent(&event)) {
-		switch (event.type) {
-		case SDL_KEYDOWN:
-			switch (event.key.keysym.sym) {
-			case SDLK_a:
-				isAPressed = true;
-				break;
-			default:
-				break;
-			}
-		}
-	}*/
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Input deinitialized.", Lina_Console::MsgType::Warning);
+
+	//Clearing the vectors does not de-allocate the all memory since while vectors dynamically grow they don't shrink,
+	//So after clearing the vectors we can swap our vector with new empty. This will almost free all of the unused memory(Depends on the implementation of the vector).
+	m_Keys.clear();
+	std::vector<bool>().swap(m_Keys);
+
+	m_PressedKeys.clear();
+	std::vector<bool>().swap(m_PressedKeys);
 }
 
-
-bool Lina_Input::GetKey(SDL_Keycode code)
+void Lina_Input::Update()
 {
-	return isAPressed;
+	//This function will be called once in the loop an will sync the object's variables with the current state of the keyboard.
+
+	//This function updates the event queue and internal device state.
+	SDL_PumpEvents();
+
+	//After a frame we will assign the m_Keys to the m_PrevKeys as last frames keys and get the keyboards state for the current frame.
+	for (int i = 0; i < m_NumKeys; i++)
+	{
+		m_PressedKeys[i] = m_Keys[i];
+		m_Keys[i] = m_KeyboardState[i];
+	}
 }
+
+bool Lina_Input::GetKey(int key)
+{
+	//Check if the pressed key is in the range of m_Numkeys
+	if (key < 0 || key > m_NumKeys)
+		return false;
+
+	//If the key is pressed down return true.
+	return(m_Keys[key]);
+}
+
+bool Lina_Input::GetKeyUp(int key)
+{
+	//Check if the pressed key is in the range of m_Numkeys
+	if (key < 0 || key > m_NumKeys)
+		return false;
+
+	//If the key is pressed in the last frame and is not the same key in the current frame return true.
+	return(m_PressedKeys[key] && !m_Keys[key]);
+}
+
+bool Lina_Input::GetKeyDown(int key)
+{
+	//Check if the pressed key is in the range of m_Numkeys
+	if (key < 0 || key > m_NumKeys)
+		return false;
+
+	//If the key is pressed in the current frame and is not the same key in the last frame return true.
+	return (m_Keys[key] && !m_PressedKeys[key]);
+}
+

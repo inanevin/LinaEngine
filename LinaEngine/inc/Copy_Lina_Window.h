@@ -1,4 +1,3 @@
-
 /*
 Author: Inan Evin
 www.inanevin.com
@@ -20,38 +19,46 @@ Redistribution and use in source and binary forms, with or without modification,
 -- OF SUCH DAMAGE.
 
 4.0.30319.42000
-10/2/2018 11:11:56 AM
+9/30/2018 4:08:35 PM
 
 */
 
-
 #pragma once
 
-#ifndef Lina_Input_H
-#define Lina_Input_H
+#ifndef Lina_Display_H
+#define Lina_Display_H
 
-#include <SDL2/SDL.h>
+#include "SDL2/SDL.h"
+#include "GL/glew.h"
 
-#include <vector>
+#include "Lina_Input.h"
 
-class Lina_Input
+class Copy_Lina_Window
 {
 public:
-	Lina_Input();
-	~Lina_Input();
+
+	Copy_Lina_Window(int, int, const std::string&);
+	~Copy_Lina_Window();
 
 	void Update();
-	bool GetKey(int key);
-	bool GetKeyUp(int key);
-	bool GetKeyDown(int key);
+	void Clear(float, float, float, float);
+	bool IsClosed();
+	int GetWidth() { return m_Width; }
+	int GetHeight() { return m_Height; }
+	std::string GetTitle() { return m_Title; }
+	void operator=(const Copy_Lina_Window& other) {}
+
 
 private:
-	std::vector<bool> m_Keys;
-	std::vector<bool> m_PressedKeys;
-	int m_NumKeys;
 
-	Uint8* m_KeyboardState;
+	int m_Width, m_Height;
+	std::string m_Title;
+	SDL_Window* m_Window;
+	SDL_GLContext m_glContext;
+	bool m_IsClosed;
+
+	Lina_Input lina_Input;//
 };
 
-#endif
 
+#endif
