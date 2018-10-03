@@ -5,7 +5,7 @@ Lina_Input::Lina_Input()
 {
 	//Add a console message about correct initialization
 	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Input initialized.", Lina_Console::MsgType::Success);
+	cons.AddConsoleMsg("Input initialized.", Lina_Console::MsgType::Success, "Input System");
 
 	//Get state of the keyboard and also store the number of the keys in the keyboard at m_Numkeys
 	m_KeyboardState = (Uint8*)SDL_GetKeyboardState(&m_NumKeys);
@@ -22,7 +22,7 @@ Lina_Input::Lina_Input()
 Lina_Input::~Lina_Input()
 {
 	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Input deinitialized.", Lina_Console::MsgType::Warning);
+	cons.AddConsoleMsg("Input deinitialized.", Lina_Console::MsgType::Warning, "Input System");
 
 	//Clearing the vectors does not de-allocate the all memory since while vectors dynamically grow they don't shrink,
 	//So after clearing the vectors we can swap our vector with new empty. This will almost free all of the unused memory(Depends on the implementation of the vector).

@@ -157,7 +157,7 @@ void Lina_Core::Run()
 			sdlHandler->Process();
 
 			// Update input engine.
-			inputEngine->Process();
+			inputEngine->Update();
 
 			// TODO: Update game loop
 			gameCore->ProcessInput();

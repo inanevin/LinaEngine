@@ -55,7 +55,7 @@ void Lina_SDLHandler::Process()
 		GetFrameEvents().push_back(event);
 
 		if (event.type == SDL_KEYDOWN)
-			std::cout << "yey";
+			//std::cout << "yey";
 	}
 
 }
