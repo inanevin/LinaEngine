@@ -111,6 +111,8 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>
+      </LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -159,7 +161,11 @@
     <ClCompile Include="inc\Lina_Rendering.cpp" />
     <ClCompile Include="src\Copy_Lina_Window.cpp" />
     <ClCompile Include="src\Lina_Core.cpp" />
+    <ClCompile Include="src\Lina_GameCore.cpp" />
     <ClCompile Include="src\Lina_Input.cpp" />
+    <ClCompile Include="src\Lina_SDLHandler.cpp" />
+    <ClCompile Include="src\Lina_Time.cpp" />
+
     <ClCompile Include="src\Lina_Window.cpp" />
     <ClCompile Include="src\Lina_Main.cpp" />
     <ClCompile Include="src\pch.cpp">
@@ -176,7 +182,23 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\Lina_Core.h" />
-    <ClInclude Include="inc\Lina_Input.h" />
+    <ClInclude Include="inc\Lina_GameCore.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Lina_Input.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Lina_SDLHandler.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Lina_Time.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+
     <ClInclude Include="inc\Lina_Window.h">
       <SubType>
       </SubType>

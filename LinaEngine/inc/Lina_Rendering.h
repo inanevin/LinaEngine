@@ -27,18 +27,24 @@ Redistribution and use in source and binary forms, with or without modification,
 
 #ifndef Lina_Rendering_H
 #define Lina_Rendering_H
-#include <Lina_Window.h>
+
+//#include<list>
+#include"Lina_Window.h"
 
 class Lina_Rendering
 {
 
 public:
+
+	//static Lina_Rendering& Instance();
+    void CreateDisplayWindow(int, int, const std::string&);
+	void Render();
+	void CleanUp();
 	Lina_Rendering();
 	~Lina_Rendering();
-	static void CreateDisplayWindow(int, int, const std::string&);
-
-private:
-
+	Lina_Rendering& operator= (const Lina_Rendering&);
+	Lina_Rendering(const Lina_Rendering&);
+	std::shared_ptr<Lina_Window> m_ActiveWindow;
 
 };
 

@@ -1,4 +1,3 @@
-
 /*
 Author: Inan Evin
 www.inanevin.com
@@ -20,38 +19,36 @@ Redistribution and use in source and binary forms, with or without modification,
 -- OF SUCH DAMAGE.
 
 4.0.30319.42000
-10/2/2018 11:11:56 AM
+10/1/2018 6:00:05 AM
 
 */
 
+#include "pch.h"
+#include "Lina_GameCore.h"  
 
-#pragma once
-
-#ifndef Lina_Input_H
-#define Lina_Input_H
-
-#include <SDL2/SDL.h>
-
-#include <vector>
-
-class Lina_Input
+Lina_GameCore::Lina_GameCore(std::shared_ptr<Lina_Input> inp)
 {
-public:
-	Lina_Input();
-	~Lina_Input();
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Game core initialized.", Lina_Console::MsgType::Initialization, "Game Core");
 
-	void Update();
-	bool GetKey(int key);
-	bool GetKeyUp(int key);
-	bool GetKeyDown(int key);
+	// Copy shared pointer into our local variable.
+	inputEngine = inp;
+}
 
-private:
-	std::vector<bool> m_Keys;
-	std::vector<bool> m_PressedKeys;
-	int m_NumKeys;
+void Lina_GameCore::ProcessInput()
+{
+	if (inputEngine->GetKey(SDLK_a))
+		std::cout << "true";
+}
 
-	Uint8* m_KeyboardState;
-};
+void Lina_GameCore::Update()
+{
 
-#endif
+}
+
+void Lina_GameCore::Render()
+{
+
+}
+
 

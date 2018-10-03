@@ -1,4 +1,3 @@
-
 /*
 Author: Inan Evin
 www.inanevin.com
@@ -20,38 +19,35 @@ Redistribution and use in source and binary forms, with or without modification,
 -- OF SUCH DAMAGE.
 
 4.0.30319.42000
-10/2/2018 11:11:56 AM
+10/2/2018 11:40:57 AM
 
 */
 
-
 #pragma once
 
-#ifndef Lina_Input_H
-#define Lina_Input_H
+#ifndef Lina_SDLHandler_H
+#define Lina_SDLHandler_H
 
-#include <SDL2/SDL.h>
-
+#include "SDL2/SDL.h";
 #include <vector>
 
-class Lina_Input
+class Lina_SDLHandler
 {
-public:
-	Lina_Input();
-	~Lina_Input();
 
-	void Update();
-	bool GetKey(int key);
-	bool GetKeyUp(int key);
-	bool GetKeyDown(int key);
+public:
+	Lina_SDLHandler();
+	~Lina_SDLHandler();
+	void Process();
+
+	static std::vector<SDL_Event>& GetFrameEvents()
+	{
+		static std::vector<SDL_Event> frameEvents;
+		return frameEvents;
+	}
 
 private:
-	std::vector<bool> m_Keys;
-	std::vector<bool> m_PressedKeys;
-	int m_NumKeys;
 
-	Uint8* m_KeyboardState;
 };
 
-#endif
 
+#endif

@@ -26,36 +26,60 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "pch.h"
 #include "Lina_Rendering.h"  
 
+
+/*Lina_Rendering& Lina_Rendering::Instance()
+{
+	static Lina_Rendering instance;
+	return instance;
+}*/
+
 Lina_Rendering::Lina_Rendering()
 {
 	// Add a console message.
 	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Rendering engine initialized.", Lina_Console::MsgType::Success);
+	cons.AddConsoleMsg("Rendering engine initialized.", Lina_Console::MsgType::Initialization, "Render Engine");
 
-	// Initialize SDL.
-	SDL_Init(SDL_INIT_EVERYTHING);
-	cons.AddConsoleMsg("SDL initialized with SDL_INIT_EVERYTHING.", Lina_Console::Success);
-
-	Lina_Rendering::CreateDisplayWindow(800, 600, "Window1");
 }
 
+// Destructor.
 Lina_Rendering::~Lina_Rendering()
 {
 	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Rendering deinitialized.", Lina_Console::MsgType::Warning);
-	SDL_Quit();
+	cons.AddConsoleMsg("Rendering deinitialized.", Lina_Console::MsgType::Deinitialization, "Render Engine");
+}
+
+// Main method to render a particular image on the active window.
+void Lina_Rendering::Render()
+{
+	// Send dbg msg.
+	/* Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Render Loop is running", Lina_Console::MsgType::Update, "Render Engine", true); */
+
+	// Check if active window points to an object.
+	if (m_ActiveWindow == nullptr)
+	{
+		//cons.AddConsoleMsg("No active window to render onto!", Lina_Console::MsgType::Error, "Render Engine");
+		return;
+	}
+
+	// Call render method on active window.
+	m_ActiveWindow->RenderBlankColor();
+}
+
+void Lina_Rendering::CleanUp()
+{
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Cleaning up rendering engine...", Lina_Console::MsgType::Deinitialization, "Render Engine");
+
+	// If we have an active window decrement the shared pointer of it.
+	if (m_ActiveWindow != nullptr)
+		m_ActiveWindow.reset();
 }
 
 void Lina_Rendering::CreateDisplayWindow(int width, int height, const std::string& title)
 {
 	// Initialize display.
-	Lina_Window currentDisplay = Lina_Window(width, height, title);
-
-	// Display window is not closed.
-	while (!currentDisplay.IsClosed())
-	{
-		// Clear color the screen.
-		currentDisplay.Clear(0.0f, 0.4f, 0.2f, 1.0f);
-		currentDisplay.Update();
-	}
+	m_ActiveWindow = std::make_shared<Lina_Window>(width,height,title);
 }
+
+

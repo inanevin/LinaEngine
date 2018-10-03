@@ -1,4 +1,3 @@
-
 /*
 Author: Inan Evin
 www.inanevin.com
@@ -20,38 +19,27 @@ Redistribution and use in source and binary forms, with or without modification,
 -- OF SUCH DAMAGE.
 
 4.0.30319.42000
-10/2/2018 11:11:56 AM
+10/1/2018 3:33:58 AM
 
 */
 
-
 #pragma once
 
-#ifndef Lina_Input_H
-#define Lina_Input_H
+#ifndef Lina_Time_H
+#define Lina_Time_H
 
-#include <SDL2/SDL.h>
 
-#include <vector>
-
-class Lina_Input
+class Lina_Time
 {
-public:
-	Lina_Input();
-	~Lina_Input();
 
-	void Update();
-	bool GetKey(int key);
-	bool GetKeyUp(int key);
-	bool GetKeyDown(int key);
+public:
+	static long GetCurrentTimeInNano();
+	static double GetDelta() { return delta; }
+	static void SetDelta(const double d) { Lina_Time::delta = d; }
+	static double delta;
 
 private:
-	std::vector<bool> m_Keys;
-	std::vector<bool> m_PressedKeys;
-	int m_NumKeys;
-
-	Uint8* m_KeyboardState;
 };
 
-#endif
 
+#endif

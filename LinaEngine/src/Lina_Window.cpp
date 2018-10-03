@@ -30,7 +30,9 @@ Lina_Window::Lina_Window(int width, int height, const std::string& title) : m_Wi
 {
 	// Add a console message about correct initialization.
 	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Display initialized. (W: " + std::to_string(width) + " H: " + std::to_string(height) + ")", Lina_Console::MsgType::Success);
+	cons.AddConsoleMsg("Window initialized. (W: " + std::to_string(width) + " H: " + std::to_string(height) + ")", Lina_Console::MsgType::Initialization, "Window");
+
+	
 
 	// Set additional parameters for SDL window using SDL_WINDOW_OPENGL
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);	// 8 bits (at least) -> 2 to the pow of 8 amount of color data. 256.
@@ -39,6 +41,8 @@ Lina_Window::Lina_Window(int width, int height, const std::string& title) : m_Wi
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);	// 8 bits -> 2 to the pow of 8 amount of color data. 256.
 	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);	// How much data will SDL allocate for a single pixel.
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);	// Alloc an area for 2 blocks of display mem.
+
+
 
 	// Create an SDL window.
 	m_Window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
@@ -51,14 +55,17 @@ Lina_Window::Lina_Window(int width, int height, const std::string& title) : m_Wi
 	// We create a context using our window, so we will have power over our window via OpenGL -> GPU.
 	m_glContext = SDL_GL_CreateContext(m_Window);
 
+	// Disable vsync. Needs to be called after SDL_GL_CreateContext bc swap interval works on the current active context. ( can be changed laterwards )
+	SDL_GL_SetSwapInterval(0);
+
 	// Initialize GLEW.
 	GLenum status = glewInit();
-
+	
 	// Check glew initialization status.
 	if (status != GLEW_OK)
-		cons.AddConsoleMsg("Glew failed to initialize!", Lina_Console::MsgType::Error);
+		cons.AddConsoleMsg("Glew failed to initialize!", Lina_Console::MsgType::Error, "Window");
 	else
-		cons.AddConsoleMsg("Glew initialized.", Lina_Console::Success);
+		cons.AddConsoleMsg("Glew initialized.", Lina_Console::Initialization, "Window");
 
 	// Set closed flag. This will be checked by OS events being received on Update.
 	m_IsClosed = false;
@@ -68,10 +75,18 @@ Lina_Window::Lina_Window(int width, int height, const std::string& title) : m_Wi
 Lina_Window::~Lina_Window()
 {
 	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Display deinitialized.", Lina_Console::MsgType::Warning);
+	cons.AddConsoleMsg("Window deinitialized.", Lina_Console::MsgType::Deinitialization, "Window");
+
 	// Deallocate GL context and window. (m_Window pointer is deleted via SDL_DestroyWindow already so no need to use delete again on that.)
 	SDL_GL_DeleteContext(m_glContext);
 	SDL_DestroyWindow(m_Window);
+}
+
+// Renders blank color.
+void Lina_Window::RenderBlankColor()
+{
+	Clear(155,0,2,1);
+	Update();
 }
 
 void Lina_Window::Update()
@@ -82,7 +97,19 @@ void Lina_Window::Update()
 	// So our window will never display a buffer that is currently being drawn by opengl.
 	SDL_GL_SwapWindow(m_Window);
 
-	SDL_Event e;
+	std::vector<SDL_Event>& frameEvents = Lina_SDLHandler::GetFrameEvents();
+
+	// Look for any OS event received and store it in e's address.
+	for (int i = 0; i < Lina_SDLHandler::GetFrameEvents().size(); i++)
+	{
+		//std::cout << "test";
+		if (frameEvents[i].type == SDL_QUIT)
+		{
+			m_IsClosed = true;
+		}
+	}
+
+	/*SDL_Event e;
 	
 	// Look for any OS event received and store it in e's address.
 	while (SDL_PollEvent(&e))
@@ -90,7 +117,7 @@ void Lina_Window::Update()
 		// If Quit event is received. 
 		if (e.type == SDL_QUIT)
 			m_IsClosed = true;
-	}
+	}*/
 }
 
 void Lina_Window::Clear(float r, float g, float b, float a)

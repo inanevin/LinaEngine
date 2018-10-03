@@ -1,4 +1,3 @@
-
 /*
 Author: Inan Evin
 www.inanevin.com
@@ -20,38 +19,29 @@ Redistribution and use in source and binary forms, with or without modification,
 -- OF SUCH DAMAGE.
 
 4.0.30319.42000
-10/2/2018 11:11:56 AM
+10/1/2018 5:57:03 AM
 
 */
 
-
 #pragma once
 
-#ifndef Lina_Input_H
-#define Lina_Input_H
+#ifndef Lina_Game_H
+#define Lina_Game_H
 
-#include <SDL2/SDL.h>
+#include <Lina_Input.h>
 
-#include <vector>
-
-class Lina_Input
+class Lina_GameCore
 {
+
 public:
-	Lina_Input();
-	~Lina_Input();
+	Lina_GameCore(std::shared_ptr<Lina_Input>);
 
+	void ProcessInput();
 	void Update();
-	bool GetKey(int key);
-	bool GetKeyUp(int key);
-	bool GetKeyDown(int key);
+	void Render();
 
-private:
-	std::vector<bool> m_Keys;
-	std::vector<bool> m_PressedKeys;
-	int m_NumKeys;
-
-	Uint8* m_KeyboardState;
+	std::shared_ptr<Lina_Input> inputEngine;
 };
 
-#endif
 
+#endif

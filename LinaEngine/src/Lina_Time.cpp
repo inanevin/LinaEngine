@@ -1,4 +1,3 @@
-
 /*
 Author: Inan Evin
 www.inanevin.com
@@ -20,38 +19,30 @@ Redistribution and use in source and binary forms, with or without modification,
 -- OF SUCH DAMAGE.
 
 4.0.30319.42000
-10/2/2018 11:11:56 AM
+10/1/2018 3:34:14 AM
 
 */
 
+#include "pch.h"
+#include "Lina_Time.h"  
 
-#pragma once
+double Lina_Time::delta;
 
-#ifndef Lina_Input_H
-#define Lina_Input_H
-
-#include <SDL2/SDL.h>
-
-#include <vector>
-
-class Lina_Input
+long Lina_Time::GetCurrentTimeInNano()
 {
-public:
-	Lina_Input();
-	~Lina_Input();
+	// Get time traffic
+	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
 
-	void Update();
-	bool GetKey(int key);
-	bool GetKeyUp(int key);
-	bool GetKeyDown(int key);
+	// Get time traffic with presicion of nanoseconds.
+	auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
 
-private:
-	std::vector<bool> m_Keys;
-	std::vector<bool> m_PressedKeys;
-	int m_NumKeys;
+	// Now get the time as std::chrono::nanoseconds type.
+	auto duration = now_ns.time_since_epoch();
 
-	Uint8* m_KeyboardState;
-};
+	// cast the duration
+	auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(duration);
 
-#endif
+	// Return the long.
+	return nanoseconds.count();
+}
 

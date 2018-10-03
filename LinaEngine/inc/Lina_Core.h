@@ -24,23 +24,36 @@ Redistribution and use in source and binary forms, with or without modification,
 
 #pragma once
 
-class Lina_Rendering;
+#ifndef LINA_CORE_H
+#define LINA_CORE_H
+
+#include <Lina_Rendering.h>
+#include <Lina_GameCore.h>
+
+extern const double FRAME_CAP;
+extern const long SECOND;
 
 class Lina_Core {
 
 public:
 
-	Lina_Core();
+    Lina_Core();
 	~Lina_Core();
+
+private:
 
 	void Start();
 	void Stop();
 	void Run();
 	void Render();
 	void CleanUp();
+	bool isRunning;
 
-private:
-
-	static Lina_Rendering lina_RenderingEngine;
+	std::shared_ptr<Lina_Input> inputEngine;
+	std::shared_ptr<Lina_Rendering> renderingEngine;
+	std::shared_ptr<Lina_GameCore> gameCore;
+	std::shared_ptr<Lina_SDLHandler> sdlHandler;
 
 };
+
+#endif

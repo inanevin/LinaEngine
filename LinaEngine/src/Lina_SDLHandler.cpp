@@ -1,4 +1,3 @@
-
 /*
 Author: Inan Evin
 www.inanevin.com
@@ -20,38 +19,43 @@ Redistribution and use in source and binary forms, with or without modification,
 -- OF SUCH DAMAGE.
 
 4.0.30319.42000
-10/2/2018 11:11:56 AM
+10/2/2018 11:40:43 AM
 
 */
 
+#include "pch.h"
+#include "Lina_SDLHandler.h"  
 
-#pragma once
-
-#ifndef Lina_Input_H
-#define Lina_Input_H
-
-#include <SDL2/SDL.h>
-
-#include <vector>
-
-class Lina_Input
+Lina_SDLHandler::Lina_SDLHandler()
 {
-public:
-	Lina_Input();
-	~Lina_Input();
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("SDL Handler initialized.", Lina_Console::Initialization, "SDL Handler");
 
-	void Update();
-	bool GetKey(int key);
-	bool GetKeyUp(int key);
-	bool GetKeyDown(int key);
+	// Initialize SDL.
+	SDL_Init(SDL_INIT_EVERYTHING);
+	cons.AddConsoleMsg("SDL initialized with SDL_INIT_EVERYTHING.", Lina_Console::Initialization, "SDL Handler");
+}
 
-private:
-	std::vector<bool> m_Keys;
-	std::vector<bool> m_PressedKeys;
-	int m_NumKeys;
+Lina_SDLHandler::~Lina_SDLHandler()
+{
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("SDL Quitted.", Lina_Console::Initialization, "SDL Handler");
+	SDL_Quit();
+}
 
-	Uint8* m_KeyboardState;
-};
+void Lina_SDLHandler::Process()
+{
+	// Pool frame event & clear.
 
-#endif
+	GetFrameEvents().clear();
+	SDL_Event event;
 
+	if (SDL_PollEvent(&event) != 0)
+	{
+		GetFrameEvents().push_back(event);
+
+		if (event.type == SDL_KEYDOWN)
+			std::cout << "yey";
+	}
+
+}
