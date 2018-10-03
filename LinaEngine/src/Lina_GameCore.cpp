@@ -43,7 +43,7 @@ void Lina_GameCore::ProcessInput()
 
 void Lina_GameCore::Update()
 {
-
+	
 }
 
 void Lina_GameCore::Render()

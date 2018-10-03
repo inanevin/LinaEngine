@@ -158,7 +158,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="inc\Lina_Rendering.cpp" />
+    <ClCompile Include="src\Lina_Rendering.cpp" />
     <ClCompile Include="src\Lina_Core.cpp" />
     <ClCompile Include="src\Lina_GameCore.cpp" />
     <ClCompile Include="src\Lina_Input.cpp" />

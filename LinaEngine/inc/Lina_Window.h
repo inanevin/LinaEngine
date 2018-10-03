@@ -49,7 +49,7 @@ public:
 	void Update();
 	void Clear(float, float, float, float);
 	void RenderBlankColor();
-
+	void CloseWindow();
 
 	bool IsClosed();
 	inline int GetWidth() { return m_Width; }

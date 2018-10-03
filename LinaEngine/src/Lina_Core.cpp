@@ -42,11 +42,11 @@ Lina_Core::Lina_Core()
 	// Initialize SDL handler.
 	sdlHandler = std::make_shared<Lina_SDLHandler>();
 
-	// Initialize rendering engine.
-	renderingEngine = std::make_shared<Lina_Rendering>();
-
 	// Initialize input engine.
 	inputEngine = std::make_shared<Lina_Input>();
+
+	// Initialize rendering engine.
+	renderingEngine = std::make_shared<Lina_Rendering>(inputEngine);
 
 	// Initialize game core.
 	gameCore = std::make_shared<Lina_GameCore>(inputEngine);
@@ -118,6 +118,7 @@ void Lina_Core::Run()
 
 		// Whether to render the frame or not.
 		bool renderFrame = false;
+	
 
 		// Time that this frame started running.
 		long startTime = Lina_Time::GetCurrentTimeInNano();
@@ -134,7 +135,6 @@ void Lina_Core::Run()
 
 		// Increment frame counter.
 		frameCounter += passedTime;
-
 		// While total time is greater than time one frame is supposed to take. (update time)
 		while (unprocessedTime > frameTime)
 		{
@@ -162,13 +162,13 @@ void Lina_Core::Run()
 			// TODO: Update game loop
 			gameCore->ProcessInput();
 			gameCore->Update();
-			
+	
 			// print the frame counter every second.
 			if (frameCounter >= SECOND)
 			{
 				// Debug frames.
-				//Lina_Console cons = Lina_Console();
-				//cons.AddConsoleMsg("Main Game Loop Running (" + std::to_string(frames) + " FPS)" + std::to_string(frames), Lina_Console::MsgType::Update, "Core Engine", true);
+				Lina_Console cons = Lina_Console();
+				cons.AddConsoleMsg("Main Game Loop Running (" + std::to_string(frames) + " FPS)" + std::to_string(frames), Lina_Console::MsgType::Update, "Core Engine", true);
 				// reset frame counter & frames to calculate on the next iteration.
 				frames = 0;
 				frameCounter = 0;
@@ -181,7 +181,6 @@ void Lina_Core::Run()
 		{
 			Render();
 			frames++;	// Increment the amount of frames rendered.
-
 		}
 		else
 		{
@@ -206,6 +205,7 @@ void Lina_Core::Run()
 // Rendering loop.
 void Lina_Core::Render()
 {
+
 	gameCore->Render();
 	renderingEngine->Render();
 }

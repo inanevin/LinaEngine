@@ -45,6 +45,7 @@ Lina_SDLHandler::~Lina_SDLHandler()
 
 void Lina_SDLHandler::Process()
 {
+	return;
 	// Pool frame event & clear.
 
 	GetFrameEvents().clear();
@@ -52,10 +53,7 @@ void Lina_SDLHandler::Process()
 
 	if (SDL_PollEvent(&event) != 0)
 	{
-		GetFrameEvents().push_back(event);
 
-		if (event.type == SDL_KEYDOWN)
-			//std::cout << "yey";
 	}
 
 }

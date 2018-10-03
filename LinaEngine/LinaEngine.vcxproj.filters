@@ -24,9 +24,6 @@
     <ClCompile Include="src\Lina_Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="inc\Lina_Rendering.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Lina_Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -40,6 +37,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Lina_SDLHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Lina_Rendering.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

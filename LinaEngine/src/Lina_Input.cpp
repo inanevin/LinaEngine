@@ -33,13 +33,21 @@ Lina_Input::~Lina_Input()
 	std::vector<bool>().swap(m_PressedKeys);
 }
 
+
+
 void Lina_Input::Update()
 {
 	//This function will be called once in the loop an will sync the object's variables with the current state of the keyboard.
 
 	//This function updates the event queue and internal device state.
 	SDL_PumpEvents();
+	
+	m_PressedMouseButtons = m_MouseButtons;
+	m_MouseButtons[0] = (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT));
+	m_MouseButtons[1] = (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT));
+	m_MouseButtons[2] = (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_MIDDLE));
 
+	
 	//After a frame we will assign the m_Keys to the m_PrevKeys as last frames keys and get the keyboards state for the current frame.
 	for (int i = 0; i < m_NumKeys; i++)
 	{
@@ -50,6 +58,7 @@ void Lina_Input::Update()
 
 bool Lina_Input::GetKey(int key)
 {
+	
 	//Check if the pressed key is in the range of m_Numkeys
 	if (key < 0 || key > m_NumKeys)
 		return false;
@@ -78,3 +87,30 @@ bool Lina_Input::GetKeyDown(int key)
 	return (m_Keys[key] && !m_PressedKeys[key]);
 }
 
+bool Lina_Input::GetMouseButton(int button)
+{
+	// Range check
+	if (button < 0 || button > 2)
+		return false;
+
+	return m_MouseButtons[button];
+}
+
+bool Lina_Input::GetMouseButtonDown(int button)
+{
+	// Range check
+	if (button < 0 || button > 2)
+		return false;
+
+	return m_MouseButtons[button] && !m_PressedMouseButtons[button];
+}
+
+
+bool Lina_Input::GetMouseButtonUp(int button)
+{
+	// Range check
+	if (button < 0 || button > 2)
+		return false;
+
+	return !m_MouseButtons[button] && m_PressedMouseButtons[button];
+}

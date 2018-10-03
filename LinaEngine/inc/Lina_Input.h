@@ -31,7 +31,7 @@ Redistribution and use in source and binary forms, with or without modification,
 #define Lina_Input_H
 
 #include <SDL2/SDL.h>
-
+#include <array>
 #include <vector>
 
 class Lina_Input
@@ -41,13 +41,20 @@ public:
 	~Lina_Input();
 
 	void Update();
-	bool GetKey(int key);
-	bool GetKeyUp(int key);
-	bool GetKeyDown(int key);
+	bool GetKey(int);
+	bool GetKeyUp(int);
+	bool GetKeyDown(int);
+	bool GetMouseButtonDown(int);
+	bool GetMouseButtonUp(int);
+	bool GetMouseButton(int);
+
 
 private:
 	std::vector<bool> m_Keys;
 	std::vector<bool> m_PressedKeys;
+	std::array<bool, 3> m_PressedMouseButtons{ false,false,false };
+	std::array<bool, 3> m_MouseButtons{ false,false,false };
+	
 	int m_NumKeys;
 
 	Uint8* m_KeyboardState;
