@@ -187,8 +187,6 @@ void Lina_Core::Run()
 
 			inputEngine->update();
 
-			// The main method is `handleEvents`. You pass it an event object.
-			// You can still feel free to handle events yourself as well, if you want.
 			SDL_Event event;
 			while (SDL_PollEvent(&event)) {
 				inputEngine->handleEvents(&event);
