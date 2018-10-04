@@ -193,7 +193,6 @@ void Lina_Core::Run()
 
 			}
 
-
 			// Set delta. (Change later, no effect for now)
 			Lina_Time::SetDelta(frameTime);
 		
@@ -201,7 +200,7 @@ void Lina_Core::Run()
 			sdlHandler->Process();
 
 			// Update input engine.
-			//inputEngine->Update();
+			inputEngine->Update();
 
 			//std::cout << menu;
 		
