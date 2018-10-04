@@ -100,17 +100,21 @@ void TestMethod1()
 
 }
 
-void TestMethod2(int a, int b, Lina_InputHandler* h)
+void TestMethod2()
 {
 	//h->UnBindMethod(&TestMethod1);
 	std::cout << "TestMethod2";
 }
 
-void Lina_Core::TestMethod3()
+void Lina_Core::TestMethod3(Lina_InputBinding& b, Lina_InputBinding& b2)
 {
-	inputEngine->UnBindMethod("a1");
+	inputEngine->UnbindMethod(b);
+	inputEngine->UnbindMethod(b2);
 
+	std::cout << "Test Method3";
+	
 }
+
 
 void Lina_Core::Run()
 {
@@ -129,17 +133,21 @@ void Lina_Core::Run()
 	int frames = 0;
 	long frameCounter = 0;
 
+	Lina_InputBinding b3(Lina_InputBinding::EventType::OnKeyPress, SDL_SCANCODE_F, &TestMethod2);
 
+	Lina_InputBinding b(Lina_InputBinding::EventType::OnKeyPress, SDL_SCANCODE_A, &TestMethod1);
+	auto f2 = [this, &b, &b3] { TestMethod3(b, b3); };
+	Lina_InputBinding b2(Lina_InputBinding::EventType::OnKeyPress, SDL_SCANCODE_B, f2);
 
-	inputEngine->BindMethod(Lina_InputHandler::EventType::OnKeyPress, SDL_SCANCODE_A, &TestMethod1, "a1");
-
+	inputEngine->BindMethod(b);
+	inputEngine->BindMethod(b2);
+	inputEngine->BindMethod(b3);
+	
 	//auto&& f = std::bind(TestMethod2, 5, 2, inputEngine);
 	//inputEngine->BindMethod(Lina_InputHandler::EventType::OnKeyPress, SDL_SCANCODE_B, f, "a1");
 
-	
-	auto f2 = [this] { TestMethod3(); };
-	inputEngine->BindMethod(Lina_InputHandler::EventType::OnKeyPress, SDL_SCANCODE_C, f2, "a3");
 
+	//inputEngine->BindMethod(Lina_InputHandler::EventType::OnKeyPress, SDL_SCANCODE_C, f2, "a3");
 
 
 	// For now the only condition is to have an active window to keep the rendering.
@@ -185,11 +193,11 @@ void Lina_Core::Run()
 				break;
 			}
 
-			inputEngine->update();
+			inputEngine->Update();
 
 			SDL_Event event;
 			while (SDL_PollEvent(&event)) {
-				inputEngine->handleEvents(&event);
+				inputEngine->HandleEvents(event);
 
 			}
 
@@ -198,9 +206,6 @@ void Lina_Core::Run()
 		
 			// Update SDL Handler.
 			sdlHandler->Process();
-
-			// Update input engine.
-			inputEngine->Update();
 
 			//std::cout << menu;
 		

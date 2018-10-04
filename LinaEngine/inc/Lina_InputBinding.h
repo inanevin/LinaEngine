@@ -30,21 +30,37 @@ Redistribution and use in source and binary forms, with or without modification,
 
 #include <SDL2/SDL.h>
 
+static int sNextID = 0;
+
 class Lina_InputBinding
 {
 
 public:
-	Lina_InputBinding();
 
-	enum BindingType {
-		GetKeyBinding,
-		GetKeyDownBinding,
-		GetKeyUpBinding,
-		GetMouseBinding,
-		GetMouseDownBinding,
-		GetMouseUpBinding,
-		GetMouseAxisBinding,
+	enum EventType { OnKeyPress, OnKeyPressDelay, OnKeyPressPrev };
+
+	// Param constructor, increment statid ID counter.
+	Lina_InputBinding(EventType t, SDL_Scancode key, std::function<void()> && cb) : m_Type(t), m_Key(key), m_Callback(cb) {
+		sNextID++;
+		m_ID = sNextID;
 	};
+
+	~Lina_InputBinding() {};
+	Lina_InputBinding(Lina_InputBinding&& rhs) = default;
+	SDL_Scancode m_Key;
+	std::function<void()> m_Callback;
+	EventType m_Type;
+	int m_ID;
+
+private:
+
+	Lina_InputBinding(const Lina_InputBinding& c) = delete;
+
+	// Comparison operator override for comparing IDs.
+	friend bool operator==(const Lina_InputBinding& lhs, const Lina_InputBinding& rhs)
+	{
+		return lhs.m_ID == rhs.m_ID;
+	}
 };
 
 

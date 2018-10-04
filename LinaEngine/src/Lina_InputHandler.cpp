@@ -26,7 +26,43 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "pch.h"
 #include "Lina_InputHandler.h"  
 
-Lina_InputHandler::Lina_InputHandler()
+void Lina_InputHandler::HandleEvents(SDL_Event& e)
+{
+	if (e.type == SDL_KEYDOWN)
+	{
+		for (std::list<Lina_InputBinding>::iterator it = eventContainers.begin(); it != eventContainers.end(); it++)
+		{
+			if (it->m_Key == e.key.keysym.scancode)
+			{
+				it->m_Callback();
+			}
+		}
+	}
+}
+
+void Lina_InputHandler::BindMethod(Lina_InputBinding& binding)
+{
+	// Add the binding with emplace_back and std::move so we will avoid copying, we will use the move constructor.
+	eventContainers.emplace_back(std::move(binding));
+}
+
+void Lina_InputHandler::UnbindMethod(Lina_InputBinding& binding)
+{
+	// Iterate through the list, if the matching id is found, remove it.
+	// Note that this iteration will remove EVERY object that matches the id.
+	std::list<Lina_InputBinding>::iterator itri = eventContainers.begin();
+	while (itri != eventContainers.end())
+	{
+		if (*itri == binding)
+		{
+			itri = eventContainers.erase(itri++);
+		}
+		else
+			++itri;
+	}
+}
+
+void Lina_InputHandler::Update()
 {
 
 }

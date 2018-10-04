@@ -26,8 +26,4 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "pch.h"
 #include "Lina_InputBinding.h"  
 
-Lina_InputBinding::Lina_InputBinding()
-{
-
-}
 
