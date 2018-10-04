@@ -97,7 +97,7 @@ public:
 		}
 	}
 
-	void update()
+	void Update()
 	{
 
 	}
