@@ -133,11 +133,7 @@ void Lina_InputHandler::Unbind(Lina_InputBinding& binding)
 void Lina_InputHandler::Update()
 {
 	SDL_PumpEvents();
-	for (int i = 0; i < 555; i++)
-	{
-		std::cout << "QQQ";
 
-	}
 	for (std::list<Lina_InputBinding>::iterator it = eventContainers.begin(); it != eventContainers.end(); it++)
 	{
 		if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {

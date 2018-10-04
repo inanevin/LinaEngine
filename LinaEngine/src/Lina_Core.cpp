@@ -233,7 +233,6 @@ void Lina_Core::Run()
 			// TODO: Update game loop
 			gameCore->ProcessInput();
 			gameCore->Update();
-			std::cout << "vay";
 			// print the frame counter every second.
 			if (frameCounter >= SECOND)
 			{
