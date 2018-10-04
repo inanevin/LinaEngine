@@ -38,8 +38,8 @@ Redistribution and use in source and binary forms, with or without modification,
 #define CONSOLECOLOR_WHITEOVERGREEN 47
 #define CONSOLECOLOR_WHITEOVERGREY 143
 
-#include "Lina_Rendering.h"
 
+static std::string lastSender;
 
 class Lina_Console
 {
@@ -59,7 +59,7 @@ public:
 	}
 
 	// Adds a colored message to the console.
-	inline void AddConsoleMsg(std::string msg, MsgType type, std::string sender, bool flushAfter = false)
+	inline void AddConsoleMsg(std::string msg, MsgType type, std::string sender)
 	{
 		// Get the console.
 		HANDLE hConsole;
@@ -84,25 +84,49 @@ public:
 		// Set color.
 		SetConsoleTextAttribute(hConsole, colorVal);
 
-		// Add an end of line string acc to flush choice.
-		// std::string eofStr = flushAfter ? " \r ACTIVE LOOP " : "\r";
 
-		std::string eofStr = "\n";
-
-		// Static bool to record flushings.
-		// static bool wasFlushed;
-
-		// If a line without flushing has been logged after a flushed line, add a new line.
-		// if (!flushAfter && wasFlushed)
-		// std::cout << std::endl;
 
 		// print.
-		std::cout << "-> " << sender << " ->: " << msg << " T = " << now("%I:%M:%S %p") << std::string(eofStr);
+		std::cout << std::endl <<  "-> " << sender << " ->: " << msg << " T = " << now("%I:%M:%S %p")<< std::endl;
 
-		// End line or flush the current one according to choice.
-		// if (flushAfter) std::cout << std::flush;
-		// else std::cout << std::flush << std::endl;
-		// wasFlushed = flushAfter;
+
+		// Set the console color back to white.
+		colorVal = CONSOLECOLOR_WHITE;
+		SetConsoleTextAttribute(hConsole, colorVal);
+	}
+	
+
+	inline void AddConsoleMsgSameLine(std::string msg, MsgType type, std::string sender)
+	{
+		// Get the console.
+		HANDLE hConsole;
+		hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+		// Choose a color acc to the type.
+		int colorVal = CONSOLECOLOR_WHITE;	// White.
+
+		if (type == MsgType::Error)
+			colorVal = CONSOLECOLOR_RED;
+		else if (type == MsgType::Warning)
+			colorVal = CONSOLECOLOR_YELLOW;
+		else if (type == MsgType::Success)
+			colorVal = CONSOLECOLOR_GREEN;
+		else if (type == MsgType::Initialization)
+			colorVal = CONSOLECOLOR_WHITEOVERGREEN;
+		else if (type == MsgType::Deinitialization)
+			colorVal = CONSOLECOLOR_WHITEOVERRED;
+		else if (type == MsgType::Update)
+			colorVal = CONSOLECOLOR_WHITEOVERGREY;
+
+		// Set color.
+		SetConsoleTextAttribute(hConsole, colorVal);
+
+		// Set a new line if the sender is different.
+		std::string bgn = lastSender == sender ? "" : "\n";
+		lastSender = sender;
+		// print.
+		std::cout << bgn << "\r -> " << sender << " ->: " << msg << " T = " << now("%I:%M:%S %p") << std::flush;
+
 
 		// Set the console color back to white.
 		colorVal = CONSOLECOLOR_WHITE;

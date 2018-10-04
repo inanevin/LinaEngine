@@ -29,39 +29,95 @@ Redistribution and use in source and binary forms, with or without modification,
 #define Lina_InputBinding_H
 
 #include <SDL2/SDL.h>
+#include "Lina_Console.h"
 
-static int sNextID = 0;
+static int sNextKeyBindingID = 0;
+static int sNextMouseBindingID = 0;
 
-class Lina_InputBinding
+enum KeyPressEventType {
+	OnKey,
+	OnKeyDown,
+	OnKeyUp
+};
+
+enum MousePressEventType {
+	OnMouseButton,
+	OnMouseButtonDown,
+	OnMouseButtonUp
+};
+
+enum MouseButton {
+	MOUSE_LEFT = 1,
+	MOUSE_MIDDLE = 2,
+	MOUSE_RIGHT = 3
+};
+
+class Lina_KeyBinding
+{
+public:
+
+	// Constructors
+
+	Lina_KeyBinding(KeyPressEventType t, SDL_Scancode key, std::function<void()> && cb) : m_EventType(t), m_Key(key), m_Callback(cb)
+	{
+		m_KeyFrameLock = false;
+		sNextKeyBindingID++;
+		m_ID = sNextKeyBindingID;
+	};
+
+	~Lina_KeyBinding() {};
+	Lina_KeyBinding(Lina_KeyBinding&& rhs) = default;
+
+	// Attributes
+
+	SDL_Scancode m_Key;
+	std::function<void()> m_Callback;
+	KeyPressEventType m_EventType;
+	int m_ID;
+	bool m_KeyFrameLock;
+
+private:
+
+	Lina_KeyBinding(const Lina_KeyBinding& c) = delete;
+	// Comparison operator override for comparing IDs.
+	friend bool operator==(const Lina_KeyBinding& lhs, const Lina_KeyBinding& rhs)
+	{
+		return lhs.m_ID == rhs.m_ID;
+	}
+};
+
+class Lina_MouseBinding
 {
 
 public:
 
-	enum EventType { OnKey, OnKeyDown, OnKeyUp };
-
-	// Param constructor, increment statid ID counter.
-	Lina_InputBinding(EventType t, SDL_Scancode key, std::function<void()> && cb) : m_Type(t), m_Key(key), m_Callback(cb) {
-		m_FrameLock = false;
-		sNextID++;
-		m_ID = sNextID;
+	// Constructors
+	Lina_MouseBinding(MousePressEventType t, MouseButton but, std::function<void()> && cb) : m_EventType(t), m_Mouse(but), m_Callback(cb)
+	{
+		m_MouseFrameLock = false;
+		sNextMouseBindingID++;
+		m_ID = sNextMouseBindingID;
 	};
+	~Lina_MouseBinding() {};
+	Lina_MouseBinding(Lina_MouseBinding&& rhs) = default;
 
-	~Lina_InputBinding() {};
-	Lina_InputBinding(Lina_InputBinding&& rhs) = default;
-	SDL_Scancode m_Key;
+	// Data attributes
+
+	int m_Mouse;
 	std::function<void()> m_Callback;
-	EventType m_Type;
+	MousePressEventType m_EventType;
 	int m_ID;
-	bool m_FrameLock;
+	bool m_MouseFrameLock;
 
 private:
 
-	Lina_InputBinding(const Lina_InputBinding& c) = delete;
+	Lina_MouseBinding(const Lina_MouseBinding& c) = delete;
 	// Comparison operator override for comparing IDs.
-	friend bool operator==(const Lina_InputBinding& lhs, const Lina_InputBinding& rhs)
+	friend bool operator==(const Lina_MouseBinding& lhs, const Lina_MouseBinding& rhs)
 	{
 		return lhs.m_ID == rhs.m_ID;
 	}
+
 };
 
 

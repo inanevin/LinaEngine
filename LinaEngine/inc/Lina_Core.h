@@ -42,7 +42,7 @@ public:
 	~Lina_Core();
 
 private:
-	void TestMethod3(Lina_InputBinding& b, Lina_InputBinding& b2);
+
 	void Start();
 	void Stop();
 	void Run();

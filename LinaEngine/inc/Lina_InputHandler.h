@@ -37,10 +37,9 @@ class Lina_InputHandler
 
 public:
 
-	std::list<SDL_Scancode> previousKeys;
 	std::list<Lina_InputBinding> eventContainers;
-	void BindMethod(Lina_InputBinding& binding);
-	void UnbindMethod(Lina_InputBinding& binding);
+	void Bind(Lina_InputBinding& binding);
+	void Unbind(Lina_InputBinding& binding);
 	void Update();
 	void HandleEvents(SDL_Event& e);
 };

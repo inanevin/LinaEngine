@@ -28,54 +28,93 @@ Redistribution and use in source and binary forms, with or without modification,
 
 void Lina_InputHandler::HandleEvents(SDL_Event& e)
 {
-
 	for (std::list<Lina_InputBinding>::iterator it = eventContainers.begin(); it != eventContainers.end(); it++)
 	{
 		// KEYBOARD EVENTS
 		if (e.type == SDL_KEYDOWN)
 		{
-			if (it->m_Type == Lina_InputBinding::EventType::OnKey)
+			if (it->m_EventType == InputEventType::OnKey)
 			{
 				if (it->m_Key == e.key.keysym.scancode)
 				{
 					it->m_Callback();	// execute callback if event & key matches.
 				}
 			}
-			else if (it->m_Type == Lina_InputBinding::EventType::OnKeyDown)
+			else if (it->m_EventType == InputEventType::OnKeyDown)
 			{
 				// Execute only if the frame lock is not present for that particular binding.
-				if (!it->m_FrameLock && it->m_Key == e.key.keysym.scancode)
+				if (!it->m_KeyFrameLock && it->m_Key == e.key.keysym.scancode)
 				{
 					// Lock the particular binding to prevent it being called on next frame.
-					it->m_FrameLock = true;
+					it->m_KeyFrameLock = true;
 					it->m_Callback();
 				}
 			}
 		}
-		else if (e.type == SDL_KEYUP)
+		if (e.type == SDL_KEYUP)
 		{
 			// Remove a frame lock if a key that was pressed have been released.
-			if (it->m_FrameLock && it->m_Key == e.key.keysym.scancode)
-				it->m_FrameLock = false;
+			if (it->m_KeyFrameLock && it->m_Key == e.key.keysym.scancode)
+				it->m_KeyFrameLock = false;
 
 			// Execute if type and key matches.
-			if (it->m_Type == Lina_InputBinding::EventType::OnKeyUp && it->m_Key == e.key.keysym.scancode)
+			if (it->m_EventType == InputEventType::OnKeyUp)
 			{
-				it->m_Callback();
+				if (it->m_Key == e.key.keysym.scancode)
+					it->m_Callback();
 			}
 		}
-		
+	
+		// Mouse Events
+		if (e.type == SDL_MOUSEBUTTONDOWN)
+		{
+			if (it->m_EventType == InputEventType::OnMouseButton)
+			{
+				// Fire off events if respective buttons are passed.
+				if (it->m_Mouse == e.button.button)
+				{
+					it->m_Callback();
+
+					// SDL mouse events work differently than keyboard events, they only get caught a single frame when they were pressed.
+					// So in order to work with OnMouseButton event, which means holding down the button, we release the mouseLock to call
+					// the respective event until the lock has been captured, by an OnMouseButtonUp event.
+					if (!it->m_MouseFrameRelease)
+						it->m_MouseFrameRelease = true;
+				}
+			}
+			else if (it->m_EventType == InputEventType::OnMouseButtonDown)
+			{
+				// Fire off events if respective buttons are passed.
+				if (it->m_Mouse == e.button.button)
+					it->m_Callback();
+			}
+		}
+
+		if (e.type == SDL_MOUSEBUTTONUP)
+		{
+			// Lock the frame lock if it was released previously.
+			if (it->m_MouseFrameRelease && it->m_Mouse == e.button.button)
+				it->m_MouseFrameRelease = false;
+
+			if (it->m_EventType == InputEventType::OnMouseButtonUp)
+			{
+				// Fire off events if respective buttons are passed.
+				if (it->m_Mouse == e.button.button)
+					it->m_Callback();
+			}
+		}
+
 	}
 
 }
 
-void Lina_InputHandler::BindMethod(Lina_InputBinding& binding)
+void Lina_InputHandler::Bind(Lina_InputBinding& binding)
 {
 	// Add the binding with emplace_back and std::move so we will avoid copying, we will use the move constructor.
 	eventContainers.emplace_back(std::move(binding));
 }
 
-void Lina_InputHandler::UnbindMethod(Lina_InputBinding& binding)
+void Lina_InputHandler::Unbind(Lina_InputBinding& binding)
 {
 	// Iterate through the list, if the matching id is found, remove it.
 	// Note that this iteration will remove EVERY object that matches the id, so unique usage of the static ID counter must be cared about.
@@ -93,6 +132,18 @@ void Lina_InputHandler::UnbindMethod(Lina_InputBinding& binding)
 
 void Lina_InputHandler::Update()
 {
+	SDL_PumpEvents();
+	for (int i = 0; i < 555; i++)
+	{
+		std::cout << "QQQ";
 
+	}
+	for (std::list<Lina_InputBinding>::iterator it = eventContainers.begin(); it != eventContainers.end(); it++)
+	{
+		if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+
+		}
+	}
+	
 }
 
