@@ -55,7 +55,7 @@ class Lina_InputBinding
 public:
 
 
-	// Param constructor for keyboard binding.
+	// Param constructor for keyboard binding to a method.
 	Lina_InputBinding(InputEventType t, SDL_Scancode key, std::function<void()> && cb) : m_EventType(t), m_Key(key), m_Callback(cb) 
 	{
 		// Throw error if a mouse based event type has been passed.
@@ -67,12 +67,29 @@ public:
 		}
 
 		m_KeyFrameLock = false;
-		m_MouseFrameRelease = false;
+		m_MouseFrameLock = false;
 		sNextID++;
 		m_ID = sNextID;
 	};
 
-	// Param constructor for mouse binding.
+	// Param constructor for keyboard binding to a boolean.
+	Lina_InputBinding(InputEventType t, SDL_Scancode key, bool* b) : m_EventType(t), m_Key(key), m_Bool(b)
+	{
+		// Throw error if a mouse based event type has been passed.
+		if ((int)t > 2)
+		{
+			Lina_Console cons = Lina_Console();
+			cons.AddConsoleMsg("Mouse Event Type has passed for Scancode value!", Lina_Console::MsgType::Error, "Input binder");
+			return;
+		}
+
+		m_KeyFrameLock = false;
+		m_MouseFrameLock = false;
+		sNextID++;
+		m_ID = sNextID;
+	};
+
+	// Param constructor for mouse binding to a method.
 	Lina_InputBinding(InputEventType t, MouseButton but, std::function<void()> && cb) : m_EventType(t), m_Mouse(but), m_Callback(cb)
 	{
 		// Throw error if keyboard based event type has been passed.
@@ -92,7 +109,31 @@ public:
 		}
 
 		m_KeyFrameLock = false;
-		m_MouseFrameRelease = false;
+		m_MouseFrameLock = false;
+		sNextID++;
+		m_ID = sNextID;
+	};
+
+	// Param constructor for mouse binding to a boolean.
+	Lina_InputBinding(InputEventType t, MouseButton but, bool* b) : m_EventType(t), m_Mouse(but), m_Bool(b)
+	{
+		// Throw error if keyboard based event type has been passed.
+		if ((int)t < 2)
+		{
+			Lina_Console cons = Lina_Console();
+			cons.AddConsoleMsg("Keyboard Event Type has passed for mouse value!", Lina_Console::MsgType::Error, "Input binder");
+		}
+
+		// Throw error if the mouse input is bigger than 2.
+		if (but > 3 || but < 1)
+		{
+			Lina_Console cons = Lina_Console();
+			cons.AddConsoleMsg("Mouse value is too big! Use 1 for Left, 2 for Middle, 3 for Right", Lina_Console::MsgType::Error, "Input binder");
+			return;
+		}
+
+		m_KeyFrameLock = false;
+		m_MouseFrameLock = false;
 		sNextID++;
 		m_ID = sNextID;
 	};
@@ -103,11 +144,12 @@ public:
 
 	SDL_Scancode m_Key;
 	int m_Mouse;
+	int m_ID;
+	bool* m_Bool;
 	std::function<void()> m_Callback;
 	InputEventType m_EventType;
-	int m_ID;
 	bool m_KeyFrameLock;
-	bool m_MouseFrameRelease;
+	bool m_MouseFrameLock;
 
 private:
 

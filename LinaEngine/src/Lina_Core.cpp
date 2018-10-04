@@ -96,9 +96,7 @@ void Lina_Core::Stop()
 
 void TestMethod1()
 {
-	Lina_Console cons = Lina_Console();
-
-	cons.AddConsoleMsg("SA", Lina_Console::MsgType::Update, "2Core Engine");
+	std::cout << "sa";
 
 }
 void TestMethod22()
@@ -148,13 +146,13 @@ void Lina_Core::Run()
 	//Lina_InputBinding b5(Lina_InputBinding::MouseEventType::OnMouseButton, 0, &TestMethod2);
 	//Lina_InputBinding b3(Lina_InputBinding::KeyboardEventType::OnKeyDown, SDL_SCANCODE_F, &TestMethod2);
 	
-	Lina_InputBinding b(InputEventType::OnMouseButton, MouseButton::MOUSE_LEFT, &TestMethod1);
+	Lina_InputBinding b(InputEventType::OnMouseButtonUp, MouseButton::MOUSE_LEFT, &TestMethod1);
 	//Lina_InputBinding b2(InputEventType::OnMouseButtonDown, 1, &TestMethod22);
-	Lina_InputBinding b3(InputEventType::OnKeyDown, SDL_SCANCODE_F, &TestMethod33);
-	Lina_InputBinding b4(InputEventType::OnKeyUp, SDL_SCANCODE_A, &TestMethod44);
+	Lina_InputBinding b3(InputEventType::OnMouseButtonDown, MouseButton::MOUSE_LEFT, &TestMethod33);
+	Lina_InputBinding b4(InputEventType::OnMouseButton, MouseButton::MOUSE_LEFT, &TestMethod44);
 	inputEngine->Bind(b);
 	//inputEngine->Bind(b2);
-	inputEngine->Bind(b3);
+inputEngine->Bind(b3);
 	inputEngine->Bind(b4);
 
 	//auto f2 = [this, &b, &b3] { TestMethod3(b, b3); };
@@ -238,7 +236,7 @@ void Lina_Core::Run()
 			{
 				// Debug frames.
 				Lina_Console cons = Lina_Console();
-				cons.AddConsoleMsgSameLine("Main Game Loop Running (" + std::to_string(frames) + " FPS)" + std::to_string(frames), Lina_Console::MsgType::Update, "Core Engine");
+				//cons.AddConsoleMsgSameLine("Main Game Loop Running (" + std::to_string(frames) + " FPS)" + std::to_string(frames), Lina_Console::MsgType::Update, "Core Engine");
 				// reset frame counter & frames to calculate on the next iteration.
 				frames = 0;
 				frameCounter = 0;

@@ -37,7 +37,8 @@ class Lina_InputHandler
 
 public:
 
-	std::list<Lina_InputBinding> eventContainers;
+	std::list<Lina_InputBinding> mousePressEventContainers;
+	std::list<Lina_InputBinding> keyPressEventContainers;
 	void Bind(Lina_InputBinding& binding);
 	void Unbind(Lina_InputBinding& binding);
 	void Update();
