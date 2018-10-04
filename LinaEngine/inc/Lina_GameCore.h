@@ -28,19 +28,19 @@ Redistribution and use in source and binary forms, with or without modification,
 #ifndef Lina_Game_H
 #define Lina_Game_H
 
-#include <Lina_Input.h>
+#include <Lina_InputHandler.h>
 
 class Lina_GameCore
 {
 
 public:
-	Lina_GameCore(std::shared_ptr<Lina_Input>);
+	Lina_GameCore(const std::shared_ptr<Lina_InputHandler>&);
 
 	void ProcessInput();
 	void Update();
 	void Render();
 
-	std::shared_ptr<Lina_Input> inputEngine;
+	std::shared_ptr<Lina_InputHandler> inputEngine;
 };
 
 

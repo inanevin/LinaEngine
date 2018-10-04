@@ -29,8 +29,8 @@ Redistribution and use in source and binary forms, with or without modification,
 #define Lina_Rendering_H
 
 //#include<list>
-#include"Lina_Window.h"
-#include "Lina_Input.h"
+#include "Lina_Window.h"
+#include "Lina_InputHandler.h"
 class Lina_Rendering
 {
 
@@ -41,12 +41,12 @@ public:
 	void Render();
 	void CleanUp();
 	Lina_Rendering();
-	Lina_Rendering(const std::shared_ptr<Lina_Input>& inp);
+	Lina_Rendering(const std::shared_ptr<Lina_InputHandler>& inp);
 	~Lina_Rendering();
 	Lina_Rendering& operator= (const Lina_Rendering&);
 	Lina_Rendering(const Lina_Rendering&);
 	std::shared_ptr<Lina_Window> m_ActiveWindow;
-	std::shared_ptr<Lina_Input> inputEngine;
+	std::shared_ptr<Lina_InputHandler> inputEngine;
 };
 
 

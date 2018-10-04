@@ -33,7 +33,7 @@ Redistribution and use in source and binary forms, with or without modification,
 	return instance;
 }*/
 
-Lina_Rendering::Lina_Rendering(const std::shared_ptr<Lina_Input>& inp)
+Lina_Rendering::Lina_Rendering(const std::shared_ptr<Lina_InputHandler>& inp)
 {
 	// Add a console message.
 	Lina_Console cons = Lina_Console();
@@ -64,7 +64,7 @@ void Lina_Rendering::Render()
 	}
 	
 	// Close the active window upon escape key press.
-	//if (inputEngine->GetKeyDown(SDL_SCANCODE_ESCAPE))
+//	if (inputEngine->GetKeyDown(SDL_SCANCODE_ESCAPE))
 		//m_ActiveWindow->CloseWindow();
 
 	// Call render method on active window.

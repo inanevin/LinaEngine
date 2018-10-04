@@ -19,36 +19,19 @@ Redistribution and use in source and binary forms, with or without modification,
 -- OF SUCH DAMAGE.
 
 4.0.30319.42000
-10/1/2018 6:00:05 AM
+10/3/2018 10:46:24 PM
 
 */
 
 #include "pch.h"
-#include "Lina_GameCore.h"  
+#include "Test.h"  
 
-Lina_GameCore::Lina_GameCore(const std::shared_ptr<Lina_InputHandler>& inp)
-{
-	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Game core initialized.", Lina_Console::MsgType::Initialization, "Game Core");
-
-	// Copy shared pointer into our local variable.
-	inputEngine = inp;
-}
-
-void Lina_GameCore::ProcessInput()
-{
-	//if (inputEngine->GetKey(SDLK_a))
-	//	std::cout << "true";
-}
-
-void Lina_GameCore::Update()
-{
-	
-}
-
-void Lina_GameCore::Render()
+Test::Test()
 {
 
 }
 
-
+void Test::sa()
+{
+	std::cout << "vay amk" << std::endl;
+}

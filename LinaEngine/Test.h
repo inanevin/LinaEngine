@@ -1,4 +1,3 @@
-
 /*
 Author: Inan Evin
 www.inanevin.com
@@ -20,45 +19,24 @@ Redistribution and use in source and binary forms, with or without modification,
 -- OF SUCH DAMAGE.
 
 4.0.30319.42000
-10/2/2018 11:11:56 AM
+10/3/2018 10:46:18 PM
 
 */
 
-
 #pragma once
 
-#ifndef Lina_Input_H
-#define Lina_Input_H
+#ifndef Test_H
+#define Test_H
+#include "Lina_InputManager.h"
 
-#include <SDL2/SDL.h>
-#include <array>
-#include <vector>
-
-class Lina_Input
+class Test : Lina_InputManager 
 {
+
 public:
-	Lina_Input();
-	~Lina_Input();
+	Test();
 
-	void Update();
-	bool GetKey(int);
-	bool GetKeyUp(int);
-	bool GetKeyDown(int);
-	bool GetMouseButtonDown(int);
-	bool GetMouseButtonUp(int);
-	bool GetMouseButton(int);
-
-
-private:
-	std::vector<bool> m_Keys;
-	std::vector<bool> m_PressedKeys;
-	std::array<bool, 3> m_PressedMouseButtons{ false,false,false };
-	std::array<bool, 3> m_MouseButtons{ false,false,false };
-	
-	int m_NumKeys;
-
-	Uint8* m_KeyboardState;
+	virtual void sa();
 };
 
-#endif
 
+#endif

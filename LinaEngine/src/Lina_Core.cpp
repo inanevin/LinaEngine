@@ -43,7 +43,7 @@ Lina_Core::Lina_Core()
 	sdlHandler = std::make_shared<Lina_SDLHandler>();
 
 	// Initialize input engine.
-	inputEngine = std::make_shared<Lina_Input>();
+	inputEngine = std::make_shared<Lina_InputHandler>();
 
 	// Initialize rendering engine.
 	renderingEngine = std::make_shared<Lina_Rendering>(inputEngine);
@@ -92,6 +92,26 @@ void Lina_Core::Stop()
 	isRunning = false;
 }
 
+
+
+void TestMethod1()
+{
+	std::cout << "TestMethod1";
+
+}
+
+void TestMethod2(int a, int b, Lina_InputHandler* h)
+{
+	//h->UnBindMethod(&TestMethod1);
+	std::cout << "TestMethod2";
+}
+
+void Lina_Core::TestMethod3()
+{
+	inputEngine->UnBindMethod("a1");
+
+}
+
 void Lina_Core::Run()
 {
 	isRunning = true;
@@ -108,6 +128,19 @@ void Lina_Core::Run()
 	// Frame counter.
 	int frames = 0;
 	long frameCounter = 0;
+
+
+
+	inputEngine->BindMethod(Lina_InputHandler::EventType::OnKeyPress, SDL_SCANCODE_A, &TestMethod1, "a1");
+
+	//auto&& f = std::bind(TestMethod2, 5, 2, inputEngine);
+	//inputEngine->BindMethod(Lina_InputHandler::EventType::OnKeyPress, SDL_SCANCODE_B, f, "a1");
+
+	
+	auto f2 = [this] { TestMethod3(); };
+	inputEngine->BindMethod(Lina_InputHandler::EventType::OnKeyPress, SDL_SCANCODE_C, f2, "a3");
+
+
 
 	// For now the only condition is to have an active window to keep the rendering.
 	while (isRunning)
@@ -135,9 +168,11 @@ void Lina_Core::Run()
 
 		// Increment frame counter.
 		frameCounter += passedTime;
+
 		// While total time is greater than time one frame is supposed to take. (update time)
 		while (unprocessedTime > frameTime)
 		{
+
 			renderFrame = true;
 
 			// decrease time to process.
@@ -150,6 +185,17 @@ void Lina_Core::Run()
 				break;
 			}
 
+			inputEngine->update();
+
+			// The main method is `handleEvents`. You pass it an event object.
+			// You can still feel free to handle events yourself as well, if you want.
+			SDL_Event event;
+			while (SDL_PollEvent(&event)) {
+				inputEngine->handleEvents(&event);
+
+			}
+
+
 			// Set delta. (Change later, no effect for now)
 			Lina_Time::SetDelta(frameTime);
 		
@@ -157,8 +203,10 @@ void Lina_Core::Run()
 			sdlHandler->Process();
 
 			// Update input engine.
-			inputEngine->Update();
+			//inputEngine->Update();
 
+			//std::cout << menu;
+		
 			// TODO: Update game loop
 			gameCore->ProcessInput();
 			gameCore->Update();

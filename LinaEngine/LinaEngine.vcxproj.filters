@@ -33,13 +33,22 @@
     <ClCompile Include="src\Lina_GameCore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Lina_Input.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Lina_SDLHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Lina_Rendering.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Lina_InputManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdlinput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Lina_InputHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Lina_InputBinding.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -65,10 +74,19 @@
     <ClInclude Include="inc\Lina_GameCore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Lina_Input.h">
+    <ClInclude Include="inc\Lina_SDLHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Lina_SDLHandler.h">
+    <ClInclude Include="inc\Lina_InputManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\sdlinput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Lina_InputHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Lina_InputBinding.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
