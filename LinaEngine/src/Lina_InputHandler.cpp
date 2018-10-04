@@ -28,16 +28,45 @@ Redistribution and use in source and binary forms, with or without modification,
 
 void Lina_InputHandler::HandleEvents(SDL_Event& e)
 {
-	if (e.type == SDL_KEYDOWN)
+
+	for (std::list<Lina_InputBinding>::iterator it = eventContainers.begin(); it != eventContainers.end(); it++)
 	{
-		for (std::list<Lina_InputBinding>::iterator it = eventContainers.begin(); it != eventContainers.end(); it++)
+		// KEYBOARD EVENTS
+		if (e.type == SDL_KEYDOWN)
 		{
-			if (it->m_Key == e.key.keysym.scancode)
+			if (it->m_Type == Lina_InputBinding::EventType::OnKey)
+			{
+				if (it->m_Key == e.key.keysym.scancode)
+				{
+					it->m_Callback();	// execute callback if event & key matches.
+				}
+			}
+			else if (it->m_Type == Lina_InputBinding::EventType::OnKeyDown)
+			{
+				// Execute only if the frame lock is not present for that particular binding.
+				if (!it->m_FrameLock && it->m_Key == e.key.keysym.scancode)
+				{
+					// Lock the particular binding to prevent it being called on next frame.
+					it->m_FrameLock = true;
+					it->m_Callback();
+				}
+			}
+		}
+		else if (e.type == SDL_KEYUP)
+		{
+			// Remove a frame lock if a key that was pressed have been released.
+			if (it->m_FrameLock && it->m_Key == e.key.keysym.scancode)
+				it->m_FrameLock = false;
+
+			// Execute if type and key matches.
+			if (it->m_Type == Lina_InputBinding::EventType::OnKeyUp && it->m_Key == e.key.keysym.scancode)
 			{
 				it->m_Callback();
 			}
 		}
+		
 	}
+
 }
 
 void Lina_InputHandler::BindMethod(Lina_InputBinding& binding)
@@ -49,7 +78,7 @@ void Lina_InputHandler::BindMethod(Lina_InputBinding& binding)
 void Lina_InputHandler::UnbindMethod(Lina_InputBinding& binding)
 {
 	// Iterate through the list, if the matching id is found, remove it.
-	// Note that this iteration will remove EVERY object that matches the id.
+	// Note that this iteration will remove EVERY object that matches the id, so unique usage of the static ID counter must be cared about.
 	std::list<Lina_InputBinding>::iterator itri = eventContainers.begin();
 	while (itri != eventContainers.end())
 	{

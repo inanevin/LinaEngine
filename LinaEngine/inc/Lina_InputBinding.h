@@ -37,10 +37,11 @@ class Lina_InputBinding
 
 public:
 
-	enum EventType { OnKeyPress, OnKeyPressDelay, OnKeyPressPrev };
+	enum EventType { OnKey, OnKeyDown, OnKeyUp };
 
 	// Param constructor, increment statid ID counter.
 	Lina_InputBinding(EventType t, SDL_Scancode key, std::function<void()> && cb) : m_Type(t), m_Key(key), m_Callback(cb) {
+		m_FrameLock = false;
 		sNextID++;
 		m_ID = sNextID;
 	};
@@ -51,11 +52,11 @@ public:
 	std::function<void()> m_Callback;
 	EventType m_Type;
 	int m_ID;
+	bool m_FrameLock;
 
 private:
 
 	Lina_InputBinding(const Lina_InputBinding& c) = delete;
-
 	// Comparison operator override for comparing IDs.
 	friend bool operator==(const Lina_InputBinding& lhs, const Lina_InputBinding& rhs)
 	{

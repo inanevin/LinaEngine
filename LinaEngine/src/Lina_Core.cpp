@@ -133,11 +133,11 @@ void Lina_Core::Run()
 	int frames = 0;
 	long frameCounter = 0;
 
-	Lina_InputBinding b3(Lina_InputBinding::EventType::OnKeyPress, SDL_SCANCODE_F, &TestMethod2);
+	Lina_InputBinding b3(Lina_InputBinding::EventType::OnKeyDown, SDL_SCANCODE_F, &TestMethod2);
 
-	Lina_InputBinding b(Lina_InputBinding::EventType::OnKeyPress, SDL_SCANCODE_A, &TestMethod1);
+	Lina_InputBinding b(Lina_InputBinding::EventType::OnKeyUp, SDL_SCANCODE_F, &TestMethod1);
 	auto f2 = [this, &b, &b3] { TestMethod3(b, b3); };
-	Lina_InputBinding b2(Lina_InputBinding::EventType::OnKeyPress, SDL_SCANCODE_B, f2);
+	Lina_InputBinding b2(Lina_InputBinding::EventType::OnKey, SDL_SCANCODE_B, f2);
 
 	inputEngine->BindMethod(b);
 	inputEngine->BindMethod(b2);
