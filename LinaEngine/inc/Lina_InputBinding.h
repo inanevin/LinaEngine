@@ -31,23 +31,44 @@ Redistribution and use in source and binary forms, with or without modification,
 #include <SDL2/SDL.h>
 #include "Lina_Console.h"
 
+
+
 static int sNextID = 0;
 
-enum InputEventType {
-	OnKey,
-	OnKeyDown,
-	OnKeyUp,
-	OnMouseButton,
-	OnMouseButtonDown,
-	OnMouseButtonUp
-};
 
 enum MouseButton {
 	MOUSE_LEFT = 1,
 	MOUSE_MIDDLE = 2,
-	MOUSE_RIGHT = 3
+	MOUSE_RIGHT = 3,
+	MOUSE_EMPTY = -1
 };
 
+enum KeyPressEventType {
+	OnKey,
+	OnKeyDown,
+	OnKeyUp,
+	EMPTYKEY
+};
+
+enum MousePressEventType {
+
+	OnMouseButton,
+	OnMouseButtonDown,
+	OnMouseButtonUp,
+	EMPTYMOUSEBUTTON
+};
+
+enum MouseMotionEventType {
+	MouseMotionX,
+	MouseMotionY,
+	EMPTYMOUSEMOTION
+};
+
+enum BindingType {
+	KeyPress,
+	MousePress,
+	MouseMotion
+};
 
 class Lina_InputBinding
 {
@@ -56,109 +77,52 @@ public:
 
 
 	// Param constructor for keyboard binding to a method.
-	Lina_InputBinding(InputEventType t, SDL_Scancode key, std::function<void()> && cb) : m_EventType(t), m_Key(key), m_Callback(cb) 
-	{
-		// Throw error if a mouse based event type has been passed.
-		if ((int)t > 2)
-		{
-			Lina_Console cons = Lina_Console();
-			cons.AddConsoleMsg("Mouse Event Type has passed for Scancode value!", Lina_Console::MsgType::Error, "Input binder");
-			return;
-		}
-
-		m_KeyFrameLock = false;
-		m_MouseFrameLock = false;
-		sNextID++;
-		m_ID = sNextID;
-	};
+	Lina_InputBinding(KeyPressEventType, SDL_Scancode, std::function<void()> &&);
 
 	// Param constructor for keyboard binding to a boolean.
-	Lina_InputBinding(InputEventType t, SDL_Scancode key, bool* b) : m_EventType(t), m_Key(key), m_Bool(b)
-	{
-		// Throw error if a mouse based event type has been passed.
-		if ((int)t > 2)
-		{
-			Lina_Console cons = Lina_Console();
-			cons.AddConsoleMsg("Mouse Event Type has passed for Scancode value!", Lina_Console::MsgType::Error, "Input binder");
-			return;
-		}
-
-		m_KeyFrameLock = false;
-		m_MouseFrameLock = false;
-		sNextID++;
-		m_ID = sNextID;
-	};
+	//Lina_InputBinding(KeyPressEventType t, SDL_Scancode key, bool* b);
 
 	// Param constructor for mouse binding to a method.
-	Lina_InputBinding(InputEventType t, MouseButton but, std::function<void()> && cb) : m_EventType(t), m_Mouse(but), m_Callback(cb)
-	{
-		// Throw error if keyboard based event type has been passed.
-		if ((int)t < 2)
-		{
-			Lina_Console cons = Lina_Console();
-			cons.AddConsoleMsg("Keyboard Event Type has passed for mouse value!", Lina_Console::MsgType::Error, "Input binder");
-		}
-		
-
-		// Throw error if the mouse input is bigger than 2.
-		if (but > 3 || but < 1)
-		{
-			Lina_Console cons = Lina_Console();
-			cons.AddConsoleMsg("Mouse value is too big! Use 1 for Left, 2 for Middle, 3 for Right", Lina_Console::MsgType::Error, "Input binder");
-			return;
-		}
-
-		m_KeyFrameLock = false;
-		m_MouseFrameLock = false;
-		sNextID++;
-		m_ID = sNextID;
-	};
+	Lina_InputBinding(MousePressEventType, MouseButton, std::function<void()> &&) ;
 
 	// Param constructor for mouse binding to a boolean.
-	Lina_InputBinding(InputEventType t, MouseButton but, bool* b) : m_EventType(t), m_Mouse(but), m_Bool(b)
-	{
-		// Throw error if keyboard based event type has been passed.
-		if ((int)t < 2)
-		{
-			Lina_Console cons = Lina_Console();
-			cons.AddConsoleMsg("Keyboard Event Type has passed for mouse value!", Lina_Console::MsgType::Error, "Input binder");
-		}
+	//Lina_InputBinding(MousePressEventType t, MouseButton but, bool* b);
 
-		// Throw error if the mouse input is bigger than 2.
-		if (but > 3 || but < 1)
-		{
-			Lina_Console cons = Lina_Console();
-			cons.AddConsoleMsg("Mouse value is too big! Use 1 for Left, 2 for Middle, 3 for Right", Lina_Console::MsgType::Error, "Input binder");
-			return;
-		}
-
-		m_KeyFrameLock = false;
-		m_MouseFrameLock = false;
-		sNextID++;
-		m_ID = sNextID;
-	};
+	// Param constructor for mouse motion binding to a float.
+	Lina_InputBinding(MouseMotionEventType, std::weak_ptr<float>);
 
 
 	~Lina_InputBinding() {};
 	Lina_InputBinding(Lina_InputBinding&& rhs) = default;
 
-	SDL_Scancode m_Key;
-	int m_Mouse;
-	int m_ID;
-	bool* m_Bool;
-	std::function<void()> m_Callback;
-	InputEventType m_EventType;
-	bool m_KeyFrameLock;
-	bool m_MouseFrameLock;
+	friend class Lina_InputHandler;
 
 private:
 
+	// No copy constructor is allowed.
 	Lina_InputBinding(const Lina_InputBinding& c) = delete;
+
 	// Comparison operator override for comparing IDs.
 	friend bool operator==(const Lina_InputBinding& lhs, const Lina_InputBinding& rhs)
-	{
-		return lhs.m_ID == rhs.m_ID;
-	}
+	{ return lhs.m_ID == rhs.m_ID; }
+
+
+	// ATTRIBUTES
+
+	std::function<void()> m_Callback;
+
+	MousePressEventType m_MousePressEventType;
+	KeyPressEventType m_KeyPressEventType;
+	MouseMotionEventType m_MouseMotionEventType;
+	BindingType m_BindingType;
+
+	SDL_Scancode m_Key;
+	bool m_KeyFrameLock;
+	bool m_MouseFrameLock;
+	std::weak_ptr<bool> m_Bool;
+	std::weak_ptr<float> m_Float;
+	int m_Mouse;
+	int m_ID;
 };
 
 

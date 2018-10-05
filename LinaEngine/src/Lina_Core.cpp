@@ -146,14 +146,14 @@ void Lina_Core::Run()
 	//Lina_InputBinding b5(Lina_InputBinding::MouseEventType::OnMouseButton, 0, &TestMethod2);
 	//Lina_InputBinding b3(Lina_InputBinding::KeyboardEventType::OnKeyDown, SDL_SCANCODE_F, &TestMethod2);
 	
-	Lina_InputBinding b(InputEventType::OnMouseButtonUp, MouseButton::MOUSE_LEFT, &TestMethod1);
+	//Lina_InputBinding b(InputEventType::OnMouseButtonUp, MouseButton::MOUSE_LEFT, &TestMethod1);
 	//Lina_InputBinding b2(InputEventType::OnMouseButtonDown, 1, &TestMethod22);
-	Lina_InputBinding b3(InputEventType::OnMouseButtonDown, MouseButton::MOUSE_LEFT, &TestMethod33);
-	Lina_InputBinding b4(InputEventType::OnMouseButton, MouseButton::MOUSE_LEFT, &TestMethod44);
-	inputEngine->Bind(b);
+	//Lina_InputBinding b3(InputEventType::OnMouseButtonDown, MouseButton::MOUSE_LEFT, &TestMethod33);
+	//Lina_InputBinding b4(InputEventType::OnMouseButton, MouseButton::MOUSE_LEFT, &TestMethod44);
+//	inputEngine->Bind(b);
 	//inputEngine->Bind(b2);
-inputEngine->Bind(b3);
-	inputEngine->Bind(b4);
+//inputEngine->Bind(b3);
+	//inputEngine->Bind(b4);
 
 	//auto f2 = [this, &b, &b3] { TestMethod3(b, b3); };
 	//Lina_InputBinding b2(Lina_InputBinding::KeyboardEventType::OnKey, SDL_SCANCODE_B, f2);
