@@ -25,6 +25,9 @@ Redistribution and use in source and binary forms, with or without modification,
 #include <iostream>
 #include <Lina_Core.h>
 #include <Lina_Time.h>
+#include <Lina_Event.h>
+
+
 
 static const double FRAME_CAP = 5000.0;	// max frame limit we can draw. (ex.5000 frames in a sec)
 static const long SECOND = 1000000000;	// time in nanosecs
@@ -32,6 +35,8 @@ static const long SECOND = 1000000000;	// time in nanosecs
 // Constructor, initialize components.
 Lina_Core::Lina_Core()
 {
+
+
 	// Add a console message.
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Core initialized.", Lina_Console::MsgType::Initialization, "Core");
@@ -57,8 +62,6 @@ Lina_Core::Lina_Core()
 	// Start the game.
 	Start();
 }
-
-
 
 // Destructor.
 Lina_Core::~Lina_Core()
@@ -91,40 +94,6 @@ void Lina_Core::Stop()
 	// Stop running the engine.
 	isRunning = false;
 }
-
-
-
-void TestMethod1()
-{
-	std::cout << "sa";
-
-}
-void TestMethod22()
-{
-	Lina_Console cons = Lina_Console();
-
-	cons.AddConsoleMsg("SA", Lina_Console::MsgType::Update, "2Core Engine");
-
-}
-void TestMethod33()
-{
-	std::cout << "TestMethod33";
-
-}
-
-
-void TestMethod44()
-{
-	std::cout << "TestMethod44";
-
-}
-void TestMethod2()
-{
-	//h->UnBindMethod(&TestMethod1);
-	std::cout << "TestMethod2";
-}
-
-
 
 void Lina_Core::Run()
 {
@@ -165,13 +134,23 @@ void Lina_Core::Run()
 	//auto&& f = std::bind(TestMethod2, 5, 2, inputEngine);
 	//inputEngine->BindMethod(Lina_InputHandler::EventType::OnKeyPress, SDL_SCANCODE_B, f, "a1");
 
-
 	//inputEngine->BindMethod(Lina_InputHandler::EventType::OnKeyPress, SDL_SCANCODE_C, f2, "a3");
 
+	//keyPressed::listener l1;
+	//l1.observe(kp, []() {std::cout << "sa"; });
+	//Lina_Event<SDL_Scancode>::listener l;
+	//l.observe(inputEngine->keyPressed, [](SDL_Scancode s) {std::cout << "code:" << s<<std::endl; });
+	Lina_Event<SDL_Scancode>::Lina_Listener mL;
+
+	auto f = [](SDL_Scancode c) { if (c == SDL_SCANCODE_F) std::cout << "YES"; };
+
+	mL.ObserveEvent(inputEngine->onKey, f);
+	mL.Clear();
 
 	// For now the only condition is to have an active window to keep the rendering.
 	while (isRunning)
 	{
+
 		// Debug running.
 		/*Lina_Console cons = Lina_Console();
 		cons.AddConsoleMsg("Game engine loop running...", Lina_Console::MsgType::Update, "Core Engine", true); */
@@ -216,6 +195,7 @@ void Lina_Core::Run()
 
 			SDL_Event event;
 			while (SDL_PollEvent(&event)) {
+
 				inputEngine->HandleEvents(event);
 
 			}
@@ -224,7 +204,7 @@ void Lina_Core::Run()
 			Lina_Time::SetDelta(frameTime);
 		
 			// Update SDL Handler.
-			sdlHandler->Process();
+			//sdlHandler->Process();
 
 			//std::cout << menu;
 		

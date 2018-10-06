@@ -1,4 +1,3 @@
-
 /*
 Author: Inan Evin
 www.inanevin.com
@@ -20,55 +19,29 @@ Redistribution and use in source and binary forms, with or without modification,
 -- OF SUCH DAMAGE.
 
 4.0.30319.42000
-10/2/2018 11:11:56 AM
+10/6/2018 12:12:14 AM
 
 */
 
-
 #pragma once
 
-#ifndef Lina_Input_H
-#define Lina_Input_H
+#ifndef Lina_EventDispatcher_H
+#define Lina_EventDispatcher_H
+#include <Lina_Event.h>
 
 
-#include <SDL2/SDL.h>
-#include <vector>
-
-
-enum MouseButtons { LEFT = 0, RIGHT = 1, MIDDLE = 2 };
-
-class Lina_InputManager
+class Lina_EventDispatcher
 {
-public:
-	Lina_InputManager();
-	~Lina_InputManager();
+public:	
 
-	void Update();
-	//bool GetKey(int key);
-	//bool GetKeyUp(int key);
-	bool GetKeyDown(SDL_Scancode) const;
-	bool GetMouseButtonDown(int) const;
-	//bool GetMouseButtonUp(int);
-//	bool GetMouseButton(int);
-
-
-private:
-	Uint8* m_Keys;
-	Uint8* m_PressedKeys;
-	
-
-
-	void OnKeyDown();
-	void OnKeyUp();
-	void OnMouseButtonDown(SDL_Event&);
-	void OnMouseButtonUp(SDL_Event&);
-
-	int m_NumKeys;
-	int m_NumKeysPrev;
-	const Uint8* m_KeyboardState;
-	std::vector<bool> m_MouseButtonStates;
+	template<typename ... Args>
+	void DispatchEvent(Lina_Event<Args...>& ev, Args ... args)
+	{
+		ev.SignalListeners(args...);
+	}
 
 };
 
-#endif
 
+
+#endif

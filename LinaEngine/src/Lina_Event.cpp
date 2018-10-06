@@ -1,4 +1,3 @@
-
 /*
 Author: Inan Evin
 www.inanevin.com
@@ -20,55 +19,11 @@ Redistribution and use in source and binary forms, with or without modification,
 -- OF SUCH DAMAGE.
 
 4.0.30319.42000
-10/2/2018 11:11:56 AM
+10/6/2018 12:49:45 AM
 
 */
 
+#include "pch.h"
+#include "Lina_Event.h"  
 
-#pragma once
-
-#ifndef Lina_Input_H
-#define Lina_Input_H
-
-
-#include <SDL2/SDL.h>
-#include <vector>
-
-
-enum MouseButtons { LEFT = 0, RIGHT = 1, MIDDLE = 2 };
-
-class Lina_InputManager
-{
-public:
-	Lina_InputManager();
-	~Lina_InputManager();
-
-	void Update();
-	//bool GetKey(int key);
-	//bool GetKeyUp(int key);
-	bool GetKeyDown(SDL_Scancode) const;
-	bool GetMouseButtonDown(int) const;
-	//bool GetMouseButtonUp(int);
-//	bool GetMouseButton(int);
-
-
-private:
-	Uint8* m_Keys;
-	Uint8* m_PressedKeys;
-	
-
-
-	void OnKeyDown();
-	void OnKeyUp();
-	void OnMouseButtonDown(SDL_Event&);
-	void OnMouseButtonUp(SDL_Event&);
-
-	int m_NumKeys;
-	int m_NumKeysPrev;
-	const Uint8* m_KeyboardState;
-	std::vector<bool> m_MouseButtonStates;
-
-};
-
-#endif
 

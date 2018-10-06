@@ -26,58 +26,50 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "pch.h"
 #include "Lina_InputHandler.h"  
 
+
+
+Lina_InputHandler::Lina_InputHandler()
+{
+	state = SDL_GetKeyboardState(NULL);
+	inputDispatcher = Lina_EventDispatcher();
+}
+
 void Lina_InputHandler::HandleEvents(SDL_Event& e)
 {
-	for (std::list<Lina_InputBinding>::iterator it = keyPressEventContainers.begin(); it != keyPressEventContainers.end(); it++)
+	if (e.type == SDL_KEYDOWN)
 	{
-		// KEYBOARD EVENTS
-		if (e.type == SDL_KEYDOWN)
-		{
-			if (it->m_KeyPressEventType == KeyPressEventType::OnKey)
-			{
-				if (it->m_Key == e.key.keysym.scancode)
-				{
-					it->m_Callback();	// execute callback if event & key matches.
-					
-				}
-			}
-			else if (it->m_KeyPressEventType == KeyPressEventType::OnKeyDown)
-			{
-				// Execute only if the frame lock is not present for that particular binding.
-				if (!it->m_KeyFrameLock && it->m_Key == e.key.keysym.scancode)
-				{
-					// Lock the particular binding to prevent it being called on next frame.
-					it->m_KeyFrameLock = true;
-					it->m_Callback();
-				}
-			}
-		}
-		if (e.type == SDL_KEYUP)
-		{
-			// Remove a frame lock if a key that was pressed have been released.
-			if (it->m_KeyFrameLock && it->m_Key == e.key.keysym.scancode)
-				it->m_KeyFrameLock = false;
-
-			// Execute if type and key matches.
-			if (it->m_KeyPressEventType == KeyPressEventType::OnKeyUp)
-			{
-				if (it->m_Key == e.key.keysym.scancode)
-					it->m_Callback();
-			}
-		}
+		//inputDispatcher.DispatchEvent<Lina_Event, SDL_Scancode>(&onKey, SDL_SCANCODE_0);
+		inputDispatcher.DispatchEvent(onKey, e.key.keysym.scancode);
 	}
+/*	else if (it->m_KeyPressEventType == KeyPressEventType::OnKeyDown)
+	{
+		
+	}
+	}
+	if (e.type == SDL_KEYUP)
+	{
+		// Remove a frame lock if a key that was pressed have been released.
+		if (it->m_KeyFrameLock && it->m_Key == e.key.keysym.scancode)
+			it->m_KeyFrameLock = false;
 
+		// Execute if type and key matches.
+		if (it->m_KeyPressEventType == KeyPressEventType::OnKeyUp)
+		{
+			if (it->m_Key == e.key.keysym.scancode)
+				it->m_Callback();
+		}
+	}*/
 }
 
 void Lina_InputHandler::Bind(Lina_InputBinding& binding)
 {
 	// Add the binding with emplace_back and std::move so we will avoid copying, we will use the move constructor.
 
-	if(binding.m_BindingType == BindingType::KeyPress)
+	if (binding.m_BindingType == BindingType::KeyPress)
 		keyPressEventContainers.emplace_back(std::move(binding));
-	else if(binding.m_BindingType == BindingType::MousePress)
+	else if (binding.m_BindingType == BindingType::MousePress)
 		mousePressEventContainers.emplace_back(std::move(binding));
-	else if(binding.m_BindingType == BindingType::MouseMotion)
+	else if (binding.m_BindingType == BindingType::MouseMotion)
 		mousePressEventContainers.emplace_back(std::move(binding));
 
 	/*if(binding.m_KeyPressEventType == KeyPressEventType::OnKey || binding.m_KeyPressEventType == KeyPressEventType::OnKeyDown || binding.m_EventType == InputEventType::OnKeyUp)
@@ -135,94 +127,5 @@ void Lina_InputHandler::Update()
 {
 	SDL_PumpEvents();
 
-	for (std::list<Lina_InputBinding>::iterator it = mousePressEventContainers.begin(); it != mousePressEventContainers.end(); it++)
-	{
-		// Check the frame locked bindings first.
-		if (it->m_MouseFrameLock)
-		{
-			// If a binding is frame locked, it means the corresponding button was pressed before
-			// Now if the corresponding button is not pressed this frame, it means it was released.
-			// If the event type is OnMouseButtonDown, then simply unlock the frame lock, the rest will be done by
-			// other control blocks. However if the event type is mouse up, unlock the frame lock, then call the corresponding
-			// event since we want the event to be fired on the frame when the button was released, which is this frame.
-			if (it->m_Mouse == MouseButton::MOUSE_LEFT && !(SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)))
-			{
-				it->m_MouseFrameLock = false;
-
-				if (it->m_MousePressEventType == MousePressEventType::OnMouseButtonUp)
-					it->m_Callback();
-			}
-			else if (it->m_Mouse == MouseButton::MOUSE_MIDDLE && !(SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_MIDDLE)))
-			{
-				it->m_MouseFrameLock = false;
-				if (it->m_MousePressEventType == MousePressEventType::OnMouseButtonUp)
-					it->m_Callback();
-			}
-			else if (it->m_Mouse == MouseButton::MOUSE_RIGHT && !(SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT)))
-			{
-				it->m_MouseFrameLock = false;
-
-				if (it->m_MousePressEventType == MousePressEventType::OnMouseButtonUp)
-					it->m_Callback();
-			}
-		}
-
-		// Check the OnMouseButton events and fire the callbacks each frame the buttons are held.
-		if (it->m_MousePressEventType == MousePressEventType::OnMouseButton)
-		{
-			if (!it->m_MouseFrameLock)
-			{
-				if (it->m_Mouse == MouseButton::MOUSE_LEFT && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
-					it->m_Callback();
-				else if (it->m_Mouse == MouseButton::MOUSE_MIDDLE && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_MIDDLE))
-					it->m_Callback();
-				else if (it->m_Mouse == MouseButton::MOUSE_RIGHT && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
-					it->m_Callback();
-			}
-		}
-		// Check the OnMouseButtonDown events, and fire the callbacks in this frame, then frame lock the bindings, so that they
-		// won't be called until they are released and pressed again.
-		if (it->m_MousePressEventType == MousePressEventType::OnMouseButtonDown)
-		{
-			if (!it->m_MouseFrameLock)
-			{
-				if (it->m_Mouse == MouseButton::MOUSE_LEFT && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
-				{
-					it->m_Callback();
-					it->m_MouseFrameLock = true;
-				}
-				else if (it->m_Mouse == MouseButton::MOUSE_MIDDLE && SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_MIDDLE))
-				{
-					it->m_Callback();
-					it->m_MouseFrameLock = true;
-				}
-				else if (it->m_Mouse == MouseButton::MOUSE_RIGHT &&  SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
-				{
-					it->m_Callback();
-					it->m_MouseFrameLock = true;
-				}
-			}
-		}
-
-		// If a binding which is registered as button up and is pressed currently, frame lock it and prepare it for the
-		// control body of the future frames to fire it.
-		if (it->m_MousePressEventType == MousePressEventType::OnMouseButtonUp)
-		{
-			if (it->m_Mouse == MouseButton::MOUSE_LEFT && (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)))
-			{
-				it->m_MouseFrameLock = true;
-			}
-			else if (it->m_Mouse == MouseButton::MOUSE_LEFT && (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)))
-			{
-				it->m_MouseFrameLock = true;
-			}
-			else if (it->m_Mouse == MouseButton::MOUSE_LEFT && (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)))
-			{
-				it->m_MouseFrameLock = true;
-			}
-		}
-
-	}
-	
 }
 

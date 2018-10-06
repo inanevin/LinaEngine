@@ -91,7 +91,6 @@ public:
 	// Param constructor for mouse motion binding to a float.
 	Lina_InputBinding(MouseMotionEventType, std::weak_ptr<float>);
 
-
 	~Lina_InputBinding() {};
 	Lina_InputBinding(Lina_InputBinding&& rhs) = default;
 
