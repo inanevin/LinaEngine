@@ -27,9 +27,8 @@ Redistribution and use in source and binary forms, with or without modification,
 
 #ifndef Lina_Actions_H
 #define Lina_Actions_H
-#include <list>
 #include "pch.h"
-#include <variant>
+#include <list>
 #include <type_traits>
 
 enum ActionType
@@ -38,8 +37,7 @@ enum ActionType
 	ActionType2
 };
 
-
-
+// Base wrapper class for actions.
 class Lina_ActionBase
 {
 
@@ -55,6 +53,7 @@ private:
 
 };
 
+// Template class used for actions. 
 template<typename T>
 class Lina_Action : public Lina_ActionBase
 {
@@ -70,13 +69,14 @@ private:
 
 };
 
-
+// Base wrapper class for action handlers.
 class Lina_ActionHandlerBase
 {
 public:
 
 	Lina_ActionHandlerBase() {}
-	Lina_ActionHandlerBase(ActionType at) : m_ActionType(at) {};
+	~Lina_ActionHandlerBase() {};
+	Lina_ActionHandlerBase(ActionType at) : m_ActionType(at) { };
 
 	inline ActionType GetActionType() { return m_ActionType; }
 	inline void SetActionType(ActionType t) { m_ActionType = t; }
@@ -88,93 +88,119 @@ private:
 	ActionType m_ActionType;
 };
 
-
-template<typename T = int>
-class Lina_ActionHandler_ValCheck : public Lina_ActionHandlerBase
+// Service class for actions handlers, determines the behaviour choices of actions.
+template<typename T>
+class Lina_ActionHandler_ConditionCheck : public Lina_ActionHandlerBase
 {
 
 public:
 
-	Lina_ActionHandler_ValCheck() {};
-	Lina_ActionHandler_ValCheck(ActionType at) :
-		Lina_ActionHandlerBase::Lina_ActionHandlerBase(at) {};
+	Lina_ActionHandler_ConditionCheck() {};
+	~Lina_ActionHandler_ConditionCheck() {};
+	Lina_ActionHandler_ConditionCheck(ActionType at) :
+		Lina_ActionHandlerBase::Lina_ActionHandlerBase(at) { };
+
+
+	inline void SetCondition(T t) { m_Condition = t; }
+	inline T GetCondition() { return m_Condition; }
+
+	// Control block called by the dispatchers.
+	virtual void Control(Lina_ActionBase& action) override
+	{
+		// Cast from polymorphic action base class void* type to T*.
+		T* typePointer = static_cast<T*>(action.GetData());
+
+		// Compare the type of the member attribute of type of the value value received from the action.
+		// If types are the same, then check the values, if they are the same, execute
+		if (CompareType(*typePointer) && CompareValue(*typePointer))
+			Execute(action);
+	}
+
+	// Compares the data type U with member attribute of type T. First chekcs if T & U are the same time, then if they are equal.
+	template<typename U>
+	bool CompareType(U u)
+	{
+		if (std::is_same<U, T>::value)
+			return true;
+
+		return false;
+	}
+
+	template<typename U>
+	bool CompareValue(U u)
+	{
+		return LinaEngine::Internal::comparison_traits<T>::equal(m_Condition, u);
+	}
+
+
+private:
+	T m_Condition;
+
+};
+
+
+
+// Main derived class used for action handlers.
+template<typename T = int>
+class Lina_ActionHandler : public Lina_ActionHandler_ConditionCheck<T>
+{
+public:
+
+	Lina_ActionHandler() {}
+	~Lina_ActionHandler() {}
+	Lina_ActionHandler(ActionType at) :
+		Lina_ActionHandler_ConditionCheck<T>::Lina_ActionHandler_ConditionCheck(at) {};
 
 	inline void SetUseCondition(bool b) { m_UseCondition = b; }
 	inline void SetUseBinding(bool b) { m_UseBinding = b; }
 	inline void SetUseParamCallback(bool b) { m_UseParamCallback = b; }
 	inline void SetUseNoParamCallback(bool b) { m_UseNoParamCallback = b; }
-	inline void SetCondition(T t) { m_Condition = t; }
+
 
 	inline bool GetUseBinding() { return m_UseBinding; }
 	inline bool GetConditionCheck() { return m_UseCondition; }
 	inline bool GetUseParamCallback() { return m_UseParamCallback; }
 	inline bool GetUseNoParamCallback() { return m_UseNoParamCallback; }
-	inline T GetCondition() { return m_Condition; }
-
-	template<typename U>
-	bool CompareData(U u)
-	{
-		if (std::is_same<U, T>::value)
-			return LinaEngine::Internal::comparison_traits<T>::equal(m_Condition, u);
-
-		return false;
-	}
 
 	virtual void Control(Lina_ActionBase& action) override
 	{
-		T* typePointer = static_cast<T*>(action.GetData()); // cast from void* to int*
-		if (CompareData(*typePointer))
-		{
-			Execute(action);
-		}
-	}
 
-
-private:
-	bool m_UseParamCallback = false;
-	bool m_UseNoParamCallback = false;
-	bool m_UseBinding = false;
-	bool m_UseCondition = false;
-	T m_Condition = NULL;
-};
-
-
-
-
-template<typename T = int>
-class Lina_ActionHandler_CallMethod : public Lina_ActionHandler_ValCheck<T>
-{
-public:
-
-	Lina_ActionHandler_CallMethod() {}
-
-	Lina_ActionHandler_CallMethod(ActionType at) :
-		Lina_ActionHandler_ValCheck<T>::Lina_ActionHandler_ValCheck(at)
-	{
-
-	}
-
-	virtual void Control(Lina_ActionBase& action) override
-	{
-		if (Lina_ActionHandler_ValCheck<T>::GetConditionCheck())
-			Lina_ActionHandler_ValCheck<T>::Control(action);
+		// If condition check is used, call the control of the behaviour base class so it can compare it's member attribute T with the action's value.
+		if (m_UseCondition)
+			Lina_ActionHandler_ConditionCheck<T>::Control(action);
 		else
-			Execute(action);
+			Execute(action);	// Execute the action if no check is provided.
 	}
 
 	virtual void Execute(Lina_ActionBase& action) override
 	{
-		if (Lina_ActionHandler_ValCheck<T>::GetUseNoParamCallback())
+		// Call the callback with no parameters
+		if (m_UseNoParamCallback)
 			m_CallbackNoParam();
 
-		if (Lina_ActionHandler_ValCheck<T>::GetUseParamCallback())
-			m_CallbackParam(*static_cast<T*>(action.GetData()));
-
-		if (Lina_ActionHandler_ValCheck<T>::GetUseBinding())
+		// If we use parameterized callback or binding, we will extract the value from the action.
+		// However, if we have not used condition, it means whe have not typed checked this value. So type check it first.
+		if ((m_UseParamCallback || m_UseBinding))
 		{
-			*m_Binding = *static_cast<T*>(action.GetData());
-		}
+			// Cast from polymorphic action base class void* type to T*.
+			T* typePointer = static_cast<T*>(action.GetData());
 
+			if (!m_UseCondition)
+			{
+				// If the types do not match, simply exit.
+				if (Lina_ActionHandler_ConditionCheck<T>::CompareType(*typePointer))
+					return;
+			}
+			
+		
+			// Call the callback with parameters, cast and pass in the data from the action.
+			if (m_UseParamCallback)
+				m_CallbackParam(*typePointer);
+
+			// Bind the value.
+			if (m_UseBinding)
+				*m_Binding = *typePointer;
+		}
 	
 	}
 
@@ -183,6 +209,10 @@ public:
 	void SetBinding(T* binding) { m_Binding = binding; }
 
 private:
+	bool m_UseParamCallback = false;
+	bool m_UseNoParamCallback = false;
+	bool m_UseBinding = false;
+	bool m_UseCondition = false;
 	T* m_Binding;
 	std::function<void()> m_CallbackNoParam;
 	std::function<void(T)> m_CallbackParam;
@@ -205,40 +235,36 @@ public:
 };
 
 
-
+using namespace std;
 class TestClass
 {
 public:
 	TestClass()
 	{
 		int toBind = 2;
+
 		Lina_ActionDispatcher* disp = new Lina_ActionDispatcher;
-		Lina_Action<int> action;
-		action.SetData(25);
-		//	action.id = "xd";
+		Lina_Action<float> action;
+		
+		action.SetData(22.5);
 
-		auto f = []() {std::cout << "selam" << std::endl; };
-		auto f2 = [](int c) {std::cout << "lambda: " << c << std::endl; };
+		auto f = []() {std::cout << "Non-Parameterized Callback Called" << std::endl; };
+		auto f2 = [](float f) {std::cout << "Parameterized Callback Called, Value is : " << f << std::endl; };
 
-		Lina_ActionHandler_CallMethod<int> b(ActionType::ActionType1);
-
-		//b.SetParamCallback(f);
-		//b.SetUseBinding(true);
-		//b.SetBinding(&toBind);
+		Lina_ActionHandler<float> b(ActionType1);
 
 		b.SetUseCondition(true);
 		b.SetUseNoParamCallback(true);
 		b.SetUseParamCallback(true);
-		b.SetUseBinding(true);
 
-		b.SetCondition(25);
+		b.SetCondition(22.5);
 		b.SetNoParamCallback(f);
 		b.SetParamCallback(f2);
-		b.SetBinding(&toBind);
 
 		disp->m_TestListeners.push_back(&b);
 		disp->m_TestListeners.front()->Control(action);
-		std::cout << toBind;
+
+		std::cout << "Binded Variable Is: " << toBind;
 	}
 
 };
