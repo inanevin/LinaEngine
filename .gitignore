@@ -73,6 +73,7 @@ artifacts/
 *.ico
 !/LinaEngine/*/*.lib
 !/Debug/*.dll
+*.lina
 
 # Chutzpah Test files
 _Chutzpah*

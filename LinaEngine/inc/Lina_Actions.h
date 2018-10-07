@@ -269,7 +269,6 @@ public:
 
 };
 
-
 //static bool deleteAll(Action * theElement) { delete action; return true; }
 //actList.remove_if(deleteAll);
 
