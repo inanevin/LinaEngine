@@ -38,37 +38,36 @@ enum ActionType
 	ActionType2
 };
 
-enum ActionBindType
-{
-	BindValue,
-	BindMethod,
-	BindMethodToValue
-};
-
-
 
 
 class Lina_ActionBase
 {
+
 public:
+
 	Lina_ActionBase() {};
 	virtual void* GetData() { return 0; }
-	ActionType GetActionType() { return m_ActionType; }
+	inline ActionType GetActionType() { return m_ActionType; }
+
 private:
 	Lina_ActionBase(const Lina_ActionBase& rhs) = delete;
 	ActionType m_ActionType;
+
 };
 
 template<typename T>
 class Lina_Action : public Lina_ActionBase
 {
+
 public:
 
-	Lina_Action() { std::cout << "CONST" << std::endl; }
-	std::string id;
-	T m_Data;
-	void SetData(T t) { m_Data = t; }
-	virtual void* GetData() {return &m_Data; }
+	Lina_Action() { }
+	inline void SetData(T t) { m_Value = t; }
+	virtual void* GetData() { return &m_Value; }
+
+private:
+	T m_Value;
+
 };
 
 
@@ -76,121 +75,117 @@ class Lina_ActionHandlerBase
 {
 public:
 
-	Lina_ActionHandlerBase(){}
-	Lina_ActionHandlerBase(ActionType at, ActionBindType abt) : m_ActionType(at), m_ActionBindType(abt)
-	{
-		// Constructor.
-	};
-	ActionType GetActionType() { return m_ActionType; }
-	ActionBindType GetActionBindType() { return m_ActionBindType; }
+	Lina_ActionHandlerBase() {}
+	Lina_ActionHandlerBase(ActionType at) : m_ActionType(at) {};
 
+	inline ActionType GetActionType() { return m_ActionType; }
+	inline void SetActionType(ActionType t) { m_ActionType = t; }
 	virtual void Control(Lina_ActionBase& action) { };
 	virtual void Execute(Lina_ActionBase& action) {};
 
 
 private:
-
-
 	ActionType m_ActionType;
-	ActionBindType m_ActionBindType;
 };
 
 
-/*class Lina_ActionHandlerMethod : public Lina_ActionHandlerBase
-{
-
-public:
-
-	Lina_ActionHandlerMethod(ActionType at, std::function<void()>&& cb)
-	{
-		m_ActionType = at;
-		m_ActionBindType = NoControl;
-		m_Callback = cb;
-	}
-
-protected:
-
-	virtual void Execute() override
-	{
-		m_Callback();
-	}
-
-private:
-
-	std::function<void()> m_Callback;
-};*/
-
-
-template<typename T>
+template<typename T = int>
 class Lina_ActionHandler_ValCheck : public Lina_ActionHandlerBase
 {
 
 public:
 
-
 	Lina_ActionHandler_ValCheck() {};
+	Lina_ActionHandler_ValCheck(ActionType at) :
+		Lina_ActionHandlerBase::Lina_ActionHandlerBase(at) {};
 
-	Lina_ActionHandler_ValCheck(ActionType at, ActionBindType abt, T condition) :
-	Lina_ActionHandlerBase::Lina_ActionHandlerBase(at, abt), m_Value(condition)
+	inline void SetUseCondition(bool b) { m_UseCondition = b; }
+	inline void SetUseBinding(bool b) { m_UseBinding = b; }
+	inline void SetUseParamCallback(bool b) { m_UseParamCallback = b; }
+	inline void SetUseNoParamCallback(bool b) { m_UseNoParamCallback = b; }
+	inline void SetCondition(T t) { m_Condition = t; }
+
+	inline bool GetUseBinding() { return m_UseBinding; }
+	inline bool GetConditionCheck() { return m_UseCondition; }
+	inline bool GetUseParamCallback() { return m_UseParamCallback; }
+	inline bool GetUseNoParamCallback() { return m_UseNoParamCallback; }
+	inline T GetCondition() { return m_Condition; }
+
+	template<typename U>
+	bool CompareData(U u)
 	{
-		// Constructor.
+		if (std::is_same<U, T>::value)
+			return LinaEngine::Internal::comparison_traits<T>::equal(m_Condition, u);
+
+		return false;
 	}
 
 	virtual void Control(Lina_ActionBase& action) override
 	{
 		T* typePointer = static_cast<T*>(action.GetData()); // cast from void* to int*
-		std::cout << typePointer << std::endl;
-		std::cout << action.GetData() << std::endl;
 		if (CompareData(*typePointer))
 		{
 			Execute(action);
 		}
 	}
 
-	void SetMyValue(T t) { m_Value = t; }
-	T GetValue() { return m_Value; }
 
-	template<typename U>
-	bool CompareData(U u)
-	{
-		if (std::is_same<U, T>::value)
-			return LinaEngine::Internal::comparison_traits<T>::equal(m_Value, u);
-			
-		return false;
-	}
-	
-
-protected:
-	T m_Value;
+private:
+	bool m_UseParamCallback = false;
+	bool m_UseNoParamCallback = false;
+	bool m_UseBinding = false;
+	bool m_UseCondition = false;
+	T m_Condition = NULL;
 };
 
 
-template<typename T>
+
+
+template<typename T = int>
 class Lina_ActionHandler_CallMethod : public Lina_ActionHandler_ValCheck<T>
 {
 public:
 
 	Lina_ActionHandler_CallMethod() {}
 
-	Lina_ActionHandler_CallMethod(ActionType at, ActionBindType abt, T condition):
-	Lina_ActionHandler_ValCheck<T>::Lina_ActionHandler_ValCheck(at, abt, condition)
+	Lina_ActionHandler_CallMethod(ActionType at) :
+		Lina_ActionHandler_ValCheck<T>::Lina_ActionHandler_ValCheck(at)
 	{
-		// Constructor.
+
 	}
 
 	virtual void Control(Lina_ActionBase& action) override
 	{
-		std::cout << "3rd control" << std::endl;
-		Lina_ActionHandler_ValCheck<T>::Control(action);
-		//std::cout << "subsub control";
+		if (Lina_ActionHandler_ValCheck<T>::GetConditionCheck())
+			Lina_ActionHandler_ValCheck<T>::Control(action);
+		else
+			Execute(action);
 	}
 
 	virtual void Execute(Lina_ActionBase& action) override
 	{
-		
+		if (Lina_ActionHandler_ValCheck<T>::GetUseNoParamCallback())
+			m_CallbackNoParam();
+
+		if (Lina_ActionHandler_ValCheck<T>::GetUseParamCallback())
+			m_CallbackParam(*static_cast<T*>(action.GetData()));
+
+		if (Lina_ActionHandler_ValCheck<T>::GetUseBinding())
+		{
+			*m_Binding = *static_cast<T*>(action.GetData());
+		}
+
+	
 	}
 
+	void SetParamCallback(std::function<void(T)> && cbp) { m_CallbackParam = cbp; }
+	void SetNoParamCallback(std::function<void()>&& cb) { m_CallbackNoParam = cb; }
+	void SetBinding(T* binding) { m_Binding = binding; }
 
+private:
+	T* m_Binding;
+	std::function<void()> m_CallbackNoParam;
+	std::function<void(T)> m_CallbackParam;
 };
 
 
@@ -210,29 +205,45 @@ public:
 };
 
 
+
 class TestClass
 {
 public:
 	TestClass()
 	{
-
+		int toBind = 2;
 		Lina_ActionDispatcher* disp = new Lina_ActionDispatcher;
-		Lina_Action<float> action;
-		action.SetData(23);
-		action.id = "xd";
-		float myBindableData = 23;
+		Lina_Action<int> action;
+		action.SetData(25);
+		//	action.id = "xd";
 
-		Lina_ActionHandler_CallMethod<float> b(ActionType::ActionType1, ActionBindType::BindValue, myBindableData);
+		auto f = []() {std::cout << "selam" << std::endl; };
+		auto f2 = [](int c) {std::cout << "lambda: " << c << std::endl; };
 
+		Lina_ActionHandler_CallMethod<int> b(ActionType::ActionType1);
+
+		//b.SetParamCallback(f);
+		//b.SetUseBinding(true);
+		//b.SetBinding(&toBind);
+
+		b.SetUseCondition(true);
+		b.SetUseNoParamCallback(true);
+		b.SetUseParamCallback(true);
+		b.SetUseBinding(true);
+
+		b.SetCondition(25);
+		b.SetNoParamCallback(f);
+		b.SetParamCallback(f2);
+		b.SetBinding(&toBind);
 
 		disp->m_TestListeners.push_back(&b);
-
 		disp->m_TestListeners.front()->Control(action);
-		
-
+		std::cout << toBind;
 	}
 
 };
+
+
 //static bool deleteAll(Foo * theElement) { delete theElement; return true; }
 
 //foo_list.remove_if(deleteAll);
