@@ -270,8 +270,7 @@ public:
 };
 
 
-//static bool deleteAll(Foo * theElement) { delete theElement; return true; }
-
-//foo_list.remove_if(deleteAll);
+//static bool deleteAll(Action * theElement) { delete action; return true; }
+//actList.remove_if(deleteAll);
 
 #endif
