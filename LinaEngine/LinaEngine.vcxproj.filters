@@ -101,5 +101,8 @@
     <ClInclude Include="inc\Lina_Event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="inc\Lina_Actions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

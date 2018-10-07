@@ -26,8 +26,7 @@ Redistribution and use in source and binary forms, with or without modification,
 #include <Lina_Core.h>
 #include <Lina_Time.h>
 #include <Lina_Event.h>
-
-
+#include <Lina_Actions.h>
 
 static const double FRAME_CAP = 5000.0;	// max frame limit we can draw. (ex.5000 frames in a sec)
 static const long SECOND = 1000000000;	// time in nanosecs
@@ -35,7 +34,7 @@ static const long SECOND = 1000000000;	// time in nanosecs
 // Constructor, initialize components.
 Lina_Core::Lina_Core()
 {
-
+	TestClass t;
 
 	// Add a console message.
 	Lina_Console cons = Lina_Console();
@@ -140,13 +139,13 @@ void Lina_Core::Run()
 	//l1.observe(kp, []() {std::cout << "sa"; });
 	//Lina_Event<SDL_Scancode>::listener l;
 	//l.observe(inputEngine->keyPressed, [](SDL_Scancode s) {std::cout << "code:" << s<<std::endl; });
-	Lina_Event<SDL_Scancode>::Lina_Listener mL;
 
-	auto f = [](SDL_Scancode c) { if (c == SDL_SCANCODE_F) std::cout << "YES"; };
+	//Lina_Event<SDL_Scancode>::Lina_Listener mL;
 
-	mL.ObserveEvent(inputEngine->onKey, f);
-	mL.Clear();
-
+	//auto f = [](SDL_Scancode c) { if (c == SDL_SCANCODE_F) std::cout << "YES"; };
+	
+	//mL.ObserveEvent(inputEngine->onKey, f);
+	
 	// For now the only condition is to have an active window to keep the rendering.
 	while (isRunning)
 	{
@@ -158,7 +157,6 @@ void Lina_Core::Run()
 		// Whether to render the frame or not.
 		bool renderFrame = false;
 	
-
 		// Time that this frame started running.
 		long startTime = Lina_Time::GetCurrentTimeInNano();
 
@@ -216,7 +214,7 @@ void Lina_Core::Run()
 			{
 				// Debug frames.
 				Lina_Console cons = Lina_Console();
-				//cons.AddConsoleMsgSameLine("Main Game Loop Running (" + std::to_string(frames) + " FPS)" + std::to_string(frames), Lina_Console::MsgType::Update, "Core Engine");
+				cons.AddConsoleMsgSameLine("Main Game Loop Running (" + std::to_string(frames) + " FPS)" + std::to_string(frames), Lina_Console::MsgType::Update, "Core Engine");
 				// reset frame counter & frames to calculate on the next iteration.
 				frames = 0;
 				frameCounter = 0;
@@ -242,8 +240,6 @@ void Lina_Core::Run()
 				cons.AddConsoleMsg(e.what(), Lina_Console::MsgType::Error, "Core Engine");
 			}
 		}
-
-
 	}
 
 	// Clean up thrash when finishing running.

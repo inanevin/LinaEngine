@@ -179,6 +179,10 @@
     <ClCompile Include="src\sdlinput.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="inc\Lina_Actions.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="inc\Lina_Console.h">
       <SubType>
       </SubType>
