@@ -217,6 +217,7 @@
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="inc\Lina_TempVertexData.h" />
     <ClInclude Include="inc\Lina_Time.h">
       <SubType>
       </SubType>

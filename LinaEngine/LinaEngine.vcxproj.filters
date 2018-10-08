@@ -104,5 +104,8 @@
     <ClInclude Include="inc\Lina_ExampleMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="inc\Lina_TempVertexData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
