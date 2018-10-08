@@ -1,5 +1,9 @@
-#include <Lina_ExampleMesh.h>
+#pragma once
 
+#ifndef Lina_TempVertexData_H
+#define Lina_TempVertexData_H
+
+#include <Lina_ExampleVertex.h>
 
 //Triangle
 Vertex vertices[] = {
@@ -34,3 +38,5 @@ unsigned int rektIndices[] = {
 	0, 1, 2, //First triangle of rectangle
 	2, 1, 3 //Second triangle of rectangle
 };
+
+#endif

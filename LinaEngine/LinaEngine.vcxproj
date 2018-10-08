@@ -158,6 +158,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Copy_Lina_Rendering.cpp" />
     <ClCompile Include="src\Lina_Event.cpp" />
     <ClCompile Include="src\Lina_EventDispatcher.cpp" />
     <ClCompile Include="src\Lina_ExampleMesh.cpp" />
@@ -180,6 +181,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="inc\Copy_Lina_Rendering.h" />
     <ClInclude Include="inc\Lina_Actions.h">
       <SubType>
       </SubType>
@@ -199,6 +201,7 @@
     </ClInclude>
     <ClInclude Include="inc\Lina_ExampleMesh.h" />
     <ClInclude Include="inc\Lina_ExampleShader.h" />
+    <ClInclude Include="inc\Lina_ExampleVertex.h" />
     <ClInclude Include="inc\Lina_GameCore.h">
       <SubType>
       </SubType>

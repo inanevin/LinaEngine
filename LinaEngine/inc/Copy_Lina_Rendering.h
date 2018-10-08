@@ -25,32 +25,37 @@ Redistribution and use in source and binary forms, with or without modification,
 
 #pragma once
 
-#ifndef Lina_ExampleMesh_H
-#define Lina_ExampleMesh_H
+#ifndef Copy_Lina_Rendering_H
+#define Copy_Lina_Rendering_H
 
-#include <Lina_ExampleVertex.h>
-
-#include <GL/glew.h>
-
-class Lina_Mesh
+//#include<list>
+#include "Lina_Window.h"
+#include "Lina_InputHandler.h"
+#include "Lina_ExampleMesh.h"
+#include "Lina_ExampleShader.h"
+class Copy_Lina_Rendering
 {
-public:
-	Lina_Mesh();
 
-	void InitMesh(Vertex* vertices, unsigned int numVertices);
-	void InitMeshWithIndex(Vertex* vertices, unsigned int numVertices, unsigned int* indices, unsigned int numIndices);
-	void Draw();
-	void DeleteMesh();
+public:
+
+	//static Lina_Rendering& Instance();
+	void CreateDisplayWindow(int, int, const std::string&);
+	void Render();
+	void CleanUp();
+	Copy_Lina_Rendering();
+	Copy_Lina_Rendering(const std::shared_ptr<Lina_InputHandler>& inp);
+	~Copy_Lina_Rendering();
+	Copy_Lina_Rendering& operator= (const Copy_Lina_Rendering&);
+	Copy_Lina_Rendering(const Copy_Lina_Rendering&);
+	std::shared_ptr<Lina_Window> m_ActiveWindow;
+	std::shared_ptr<Lina_InputHandler> inputEngine;
+
+	void InitShaderAndMesh();
 
 private:
-	GLuint m_VAO;
-	GLuint m_VBO;
-	GLuint m_EBO;
-
-	unsigned int m_NumVertices;
-	unsigned int m_NumIndices;
-
-	bool b_CreatedWithIndex;
+	Lina_Mesh mesh;
+	Lina_Shader shader;
 };
+
 
 #endif
