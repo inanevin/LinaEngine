@@ -30,6 +30,7 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "pch.h"
 #include <list>
 #include <type_traits>
+#include <algorithm>
 
 enum ActionType
 {
@@ -46,9 +47,11 @@ public:
 	Lina_ActionBase() {};
 	virtual void* GetData() { return 0; }
 	inline ActionType GetActionType() { return m_ActionType; }
+	inline void SetActionType(ActionType t) { m_ActionType = t; }
+
 
 private:
-	Lina_ActionBase(const Lina_ActionBase& rhs) = delete;
+	//Lina_ActionBase(const Lina_ActionBase& rhs) = delete;
 	ActionType m_ActionType;
 
 };
@@ -164,7 +167,6 @@ public:
 
 	virtual void Control(Lina_ActionBase& action) override
 	{
-
 		// If condition check is used, call the control of the behaviour base class so it can compare it's member attribute T with the action's value.
 		if (m_UseCondition)
 			Lina_ActionHandler_ConditionCheck<T>::Control(action);
@@ -191,8 +193,8 @@ public:
 				if (Lina_ActionHandler_ConditionCheck<T>::CompareType(*typePointer))
 					return;
 			}
-			
-		
+
+
 			// Call the callback with parameters, cast and pass in the data from the action.
 			if (m_UseParamCallback)
 				m_CallbackParam(*typePointer);
@@ -201,7 +203,7 @@ public:
 			if (m_UseBinding)
 				*m_Binding = *typePointer;
 		}
-	
+
 	}
 
 	void SetParamCallback(std::function<void(T)> && cbp) { m_CallbackParam = cbp; }
@@ -218,22 +220,90 @@ private:
 	std::function<void(T)> m_CallbackParam;
 };
 
+class TestClass;
 
 // Dispatcher class for actions.
 class Lina_ActionDispatcher
 {
+	typename std::list<std::weak_ptr<Lina_ActionHandlerBase>>::iterator it;
 
 public:
 
-	Lina_ActionDispatcher(){}
-	~Lina_ActionDispatcher(){}
+	Lina_ActionDispatcher() {
 
-	void SubscribeHandler()
+		Lina_Action<float> action;
+
+		action.SetData(22.5);
+		action.SetActionType(ActionType::ActionType2);
+
+		Lina_ActionHandler<float> b(ActionType2);
+
+		b.SetUseCondition(true);
+		b.SetUseNoParamCallback(true);
+
+		auto f = []() {std::cout << "Non-Parameterized Callback Called" << std::endl; };
+
+		b.SetCondition(22.5);
+		b.SetNoParamCallback(f);
+
+		std::shared_ptr<Lina_ActionHandler<float>> sptr = std::make_shared<Lina_ActionHandler<float>>(b);
+		std::weak_ptr<Lina_ActionHandler<float>> wptr = sptr;
+
+
+		m_ActionHandlers.push_back(wptr);
+
+
+		DispatchAction(action);
+
+	}
+
+	~Lina_ActionDispatcher() {}
+
+	void DispatchAction(Lina_ActionBase& action)
+	{
+		for (it = m_ActionHandlers.begin(); it != m_ActionHandlers.end(); it++)
+		{
+			// Check if the the object is alive.
+			if (auto tmp = it->lock())
+			{
+				// Check if the action types match.
+				if (action.GetActionType() == tmp->GetActionType())
+				{
+					// Tell the handler to check the action.
+					tmp->Control(action);
+				}
+			}
+		}
+	
+		m_ActionHandlers.erase(std::remove_if(m_ActionHandlers.begin(), m_ActionHandlers.end(),
+			[](std::weak_ptr<Lina_ActionHandlerBase> handler) 
+		{
+			return handler.expired();
+		}), m_ActionHandlers.end());
+
+
+
+	}
+
+	void SubscribeHandler(std::weak_ptr<Lina_ActionHandlerBase>& handler)
 	{
 
 	}
 
-	std::list<Lina_ActionHandlerBase*> m_TestListeners;
+	void UnsubscribeHandler(std::weak_ptr<Lina_ActionHandlerBase>& handler)
+	{
+		it = m_ActionHandlers.begin();
+		while (it != m_ActionHandlers.begin())
+		{
+			/*if (*it == handler.lock)
+			{
+				it = m_ActionHandlers.erase(it++);
+			}
+			else
+				++it;*/
+		}
+	}
+
 	std::list<std::weak_ptr<Lina_ActionHandlerBase>> m_ActionHandlers;
 
 };
@@ -249,24 +319,14 @@ public:
 
 		Lina_ActionDispatcher* disp = new Lina_ActionDispatcher;
 		Lina_Action<float> action;
-		
+
 		action.SetData(22.5);
 
 		auto f = []() {std::cout << "Non-Parameterized Callback Called" << std::endl; };
 		auto f2 = [](float f) {std::cout << "Parameterized Callback Called, Value is : " << f << std::endl; };
 
-		Lina_ActionHandler<float> b(ActionType1);
 
-		b.SetUseCondition(true);
-		b.SetUseNoParamCallback(true);
-		b.SetUseParamCallback(true);
 
-		b.SetCondition(22.5);
-		b.SetNoParamCallback(f);
-		b.SetParamCallback(f2);
-
-		disp->m_TestListeners.push_back(&b);
-		disp->m_TestListeners.front()->Control(action);
 
 		std::cout << "Binded Variable Is: " << toBind;
 	}
