@@ -75,7 +75,7 @@ void Lina_Mesh::InitMesh(Vertex* vertices, unsigned int numVertices)
 
 void Lina_Mesh::InitMeshWithIndex(Vertex* vertices, unsigned int numVertices, unsigned int* indices, unsigned int numIndices)
 {
-	//This function is almost identical with the InitMesh but draw changes how we store the data.
+	//This function is almost identical with the InitMesh but changes how we draw.
 
 	glCreateVertexArrays(1, &m_VAO);
 	glCreateBuffers(1, &m_VBO);
