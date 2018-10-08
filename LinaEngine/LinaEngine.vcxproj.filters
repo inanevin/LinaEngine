@@ -57,6 +57,9 @@
     <ClCompile Include="src\Lina_ExampleMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Lina_ExampleShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\pch.h">
@@ -107,5 +110,16 @@
     <ClInclude Include="inc\Lina_TempVertexData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="inc\Lina_ExampleShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Shaders\basic.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resources\Shaders\basic.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

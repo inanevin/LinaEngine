@@ -161,6 +161,7 @@
     <ClCompile Include="src\Lina_Event.cpp" />
     <ClCompile Include="src\Lina_EventDispatcher.cpp" />
     <ClCompile Include="src\Lina_ExampleMesh.cpp" />
+    <ClCompile Include="src\Lina_ExampleShader.cpp" />
     <ClCompile Include="src\Lina_InputBinding.cpp" />
     <ClCompile Include="src\Lina_InputHandler.cpp" />
     <ClCompile Include="src\Lina_Rendering.cpp" />
@@ -197,6 +198,7 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\Lina_ExampleMesh.h" />
+    <ClInclude Include="inc\Lina_ExampleShader.h" />
     <ClInclude Include="inc\Lina_GameCore.h">
       <SubType>
       </SubType>
@@ -231,6 +233,10 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\pch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Shaders\basic.frag" />
+    <None Include="Resources\Shaders\basic.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
