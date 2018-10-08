@@ -219,16 +219,20 @@ private:
 };
 
 
-
+// Dispatcher class for actions.
 class Lina_ActionDispatcher
 {
 
 public:
 
-	Lina_ActionDispatcher()
+	Lina_ActionDispatcher(){}
+	~Lina_ActionDispatcher(){}
+
+	void SubscribeHandler()
 	{
 
 	}
+
 	std::list<Lina_ActionHandlerBase*> m_TestListeners;
 	std::list<std::weak_ptr<Lina_ActionHandlerBase>> m_ActionHandlers;
 

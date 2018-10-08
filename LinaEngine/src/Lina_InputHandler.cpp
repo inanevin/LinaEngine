@@ -31,7 +31,7 @@ Redistribution and use in source and binary forms, with or without modification,
 Lina_InputHandler::Lina_InputHandler()
 {
 	state = SDL_GetKeyboardState(NULL);
-	inputDispatcher = Lina_EventDispatcher();
+	//inputDispatcher = Lina_SignalDispatcher();
 }
 
 void Lina_InputHandler::HandleEvents(SDL_Event& e)
@@ -39,7 +39,7 @@ void Lina_InputHandler::HandleEvents(SDL_Event& e)
 	if (e.type == SDL_KEYDOWN)
 	{
 		//inputDispatcher.DispatchEvent<Lina_Event, SDL_Scancode>(&onKey, SDL_SCANCODE_0);
-		inputDispatcher.DispatchEvent(onKey, e.key.keysym.scancode);
+		//inputDispatcher.DispatchSignal(onKey, e.key.keysym.scancode);
 	}
 /*	else if (it->m_KeyPressEventType == KeyPressEventType::OnKeyDown)
 	{

@@ -158,8 +158,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Lina_Event.cpp" />
-    <ClCompile Include="src\Lina_EventDispatcher.cpp" />
     <ClCompile Include="src\Lina_InputBinding.cpp" />
     <ClCompile Include="src\Lina_InputHandler.cpp" />
     <ClCompile Include="src\Lina_Rendering.cpp" />
@@ -176,7 +174,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\sdlinput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\Lina_Actions.h">
@@ -188,11 +185,7 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\Lina_Core.h" />
-    <ClInclude Include="inc\Lina_Event.h">
-      <SubType>
-      </SubType>
-    </ClInclude>
-    <ClInclude Include="inc\Lina_EventDispatcher.h">
+    <ClInclude Include="inc\Lina_Signals.h">
       <SubType>
       </SubType>
     </ClInclude>
@@ -229,7 +222,6 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\pch.h" />
-    <ClInclude Include="inc\sdlinput.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -44,15 +44,16 @@ using VFP = std::function<void(Args...)>;
 template<typename ... Args>
 using SPTR = std::shared_ptr<std::list<VFP<Args...>>>;
 
-template <typename ... Args> struct Lina_Event : SPTR<Args...> {
+template <typename ... Args> struct Lina_Signal : SPTR<Args...> {
 
-	using EventHandler = std::function<void(Args...)>;
-	using MyListeners = std::list<EventHandler>;
+	using SignalHandler = std::function<void(Args...)>;
+	using Slots = std::list<SignalHandler>;
 
-	Lina_Event() : std::shared_ptr<MyListeners>(std::make_shared<MyListeners>()) { }
-	Lina_Event(const Lina_Event &) = delete;
-	Lina_Event & operator=(const Lina_Event &) = delete;
+	Lina_Signal() : std::shared_ptr<Slots>(std::make_shared<Slots>()) { }
+	Lina_Signal(const Lina_Signal &) = delete;
+	Lina_Signal & operator=(const Lina_Signal &) = delete;
 
+	// Init callbacks on listeners.
 	void SignalListeners(Args... args) 
 	{
 		for (auto &f : **this)
@@ -63,21 +64,21 @@ template <typename ... Args> struct Lina_Event : SPTR<Args...> {
 
 	struct Lina_Listener {
 
-		std::weak_ptr<MyListeners> Event;
-		typename MyListeners::iterator it;
+		std::weak_ptr<Slots> slot;
+		typename Slots::iterator it;
 
 		Lina_Listener() { }
 
-		Lina_Listener(Lina_Event& event, EventHandler handler) 
+		Lina_Listener(Lina_Signal& event, SignalHandler handler) 
 		{
-			ObserveEvent(event, handler);
+			ObserveSignal(event, handler);
 		}
 
 		Lina_Listener(Lina_Listener &&other) 
 		{
-			Event = other.Event;
+			slot = other.slot;
 			it = other.it;
-			other.Event.reset();
+			other.slot.reset();
 		}
 
 		Lina_Listener(const Lina_Listener &other) = delete;
@@ -86,30 +87,30 @@ template <typename ... Args> struct Lina_Event : SPTR<Args...> {
 		Lina_Listener & operator=(Lina_Listener &&other)
 		{
 			Clear();
-			Event = other.Event;
+			slot = other.slot;
 			it = other.it;
-			other.Event.reset();
+			other.slot.reset();
 			return *this;
 		}
 
-		void ObserveEvent(Lina_Event& event, EventHandler handler) 
+		void ObserveSignal(Lina_Signal& event, SignalHandler handler) 
 		{
 			Clear();
-			Event = event;
+			slot = event;
 			it = event->insert(event->end(), handler);
 		}
 
 		void Clear()
 		{
-			if (!Event.expired()) Event.lock()->erase(it);
-			Event.reset();
+			if (!slot.expired()) slot.lock()->erase(it);
+			slot.reset();
 		}
 
 		~Lina_Listener() { Clear(); }
 	};
 
 
-	Lina_Listener Connect(EventHandler h)
+	Lina_Listener Connect(SignalHandler h)
 	{
 		return Lina_Listener(*this, h);
 	}
@@ -118,7 +119,25 @@ template <typename ... Args> struct Lina_Event : SPTR<Args...> {
 };
 
 
+/* EXAMPLE SIGNALS 
+Lina_Signal<SDL_Scancode> onKey;
+Lina_Signal<SDL_Scancode> onKeyDown;
+Lina_Signal<SDL_Scancode> onKeyUp;
+Lina_Signal<int> onMouse;
+Lina_Signal<int> onMouseDown;
+Lina_Signal<float, float> onMouseMotion;*/
 
+class Lina_SignalDispatcher
+{
+public:
+
+	template<typename ... Args>
+	void DispatchSignal(Lina_Signal<Args...>& ev, Args ... args)
+	{
+		ev.SignalListeners(args...);
+	}
+
+};
 
 
 #endif

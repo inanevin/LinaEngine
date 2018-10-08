@@ -29,7 +29,6 @@ Redistribution and use in source and binary forms, with or without modification,
 #define Lina_InputHandler_H
 #include <Lina_InputBinding.h>
 #include <list>
-#include <Lina_EventDispatcher.h>
 
 
 
@@ -45,15 +44,7 @@ public:
 	void Unbind(Lina_InputBinding& binding);
 	void Update();
 	void HandleEvents(SDL_Event& e);
-	Lina_EventDispatcher inputDispatcher;
 
-	/* INPUT HANDLER EVENTS */
-	Lina_Event<SDL_Scancode> onKey;
-	Lina_Event<SDL_Scancode> onKeyDown;
-	Lina_Event<SDL_Scancode> onKeyUp;
-	Lina_Event<int> onMouse;
-	Lina_Event<int> onMouseDown;
-	Lina_Event<float, float> onMouseMotion;
 
 
 };

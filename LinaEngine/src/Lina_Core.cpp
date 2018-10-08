@@ -25,7 +25,6 @@ Redistribution and use in source and binary forms, with or without modification,
 #include <iostream>
 #include <Lina_Core.h>
 #include <Lina_Time.h>
-#include <Lina_Event.h>
 #include <Lina_Actions.h>
 
 static const double FRAME_CAP = 5000.0;	// max frame limit we can draw. (ex.5000 frames in a sec)
