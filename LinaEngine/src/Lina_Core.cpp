@@ -56,6 +56,13 @@ Lina_Core::Lina_Core()
 	// Create a window.
 	renderingEngine->CreateDisplayWindow(1024, 768, "Lina Engine 3D");
 
+	
+	
+		Lina_EventSubscriber subs;
+		auto f = []() {std::cout << "act"; };
+		subs.SubscribeToAction(ActionType::KeyPressed, f);
+	
+	
 	// Start the game.
 	Start();
 }

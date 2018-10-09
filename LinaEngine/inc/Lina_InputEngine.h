@@ -44,12 +44,14 @@ private:
 
 	void operator=(const Lina_InputEngine& r) = delete;
 
+	Lina_ActionDispatcher m_InputDispatcher;
+
 	// INPUT ENGINE EVENTS
-	Lina_Action<SDL_Scancode> keyPressed;
+	/*Lina_Action<SDL_Scancode> keyPressed;
 	Lina_Action<SDL_Scancode> keyReleased;
 	Lina_Action<int> mouseButtonPressed;
-	Lina_Action<int> mouseButtonReleased;
-	Lina_ActionDispatcher m_InputDispatcher;
+	Lina_Action<int> mouseButtonReleased;*/
+
 };
 
 

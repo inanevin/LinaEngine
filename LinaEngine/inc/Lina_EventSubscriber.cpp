@@ -2,7 +2,6 @@
 Author: Inan Evin
 www.inanevin.com
 
-
 BSD 2-Clause License
 Lina Engine Copyright (c) 2018, Inan Evin All rights reserved.
 
@@ -19,45 +18,16 @@ Redistribution and use in source and binary forms, with or without modification,
 -- STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 -- OF SUCH DAMAGE.
 
+4.0.30319.42000
+10/9/2018 5:23:59 AM
 
 */
 
-#pragma once
+#include "pch.h"
+#include "Lina_EventSubscriber.h"  
 
-#ifndef LINA_CORE_H
-#define LINA_CORE_H
+Lina_EventSubscriber::Lina_EventSubscriber()
+{
 
-#include "Lina_Rendering.h"
-#include "Lina_GameCore.h"
-#include "Lina_InputEngine.h"
-#include "Lina_EventSubscriber.h"
+}
 
-extern const double FRAME_CAP;
-extern const long SECOND;
-
-class Lina_Core {
-
-public:
-
-    Lina_Core();
-	~Lina_Core();
-
-private:
-
-	void Start();
-	void Stop();
-	void Run();
-	void Render();
-	void CleanUp();
-	bool isRunning;
-
-	std::shared_ptr<Lina_InputEngine> inputEngine;
-	std::shared_ptr<Lina_Rendering> renderingEngine;
-	std::shared_ptr<Lina_GameCore> gameCore;
-	std::shared_ptr<Lina_SDLHandler> sdlHandler;
-
-	Lina_EventSubscriber eventSubscriber;
-
-};
-
-#endif

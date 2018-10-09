@@ -29,7 +29,6 @@ Redistribution and use in source and binary forms, with or without modification,
 #define Lina_SDLHandler_H
 
 #include "SDL2/SDL.h";
-#include <vector>
 
 class Lina_SDLHandler
 {

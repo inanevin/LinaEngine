@@ -25,6 +25,7 @@ Redistribution and use in source and binary forms, with or without modification,
 
 #include "pch.h"
 #include "Lina_InputEngine.h"  
+#include "Lina_CoreMessageBus.h"
 
 Lina_InputEngine::Lina_InputEngine()
 {
@@ -32,39 +33,34 @@ Lina_InputEngine::Lina_InputEngine()
 	cons.AddConsoleMsg("Input Engine Initialized.", Lina_Console::MsgType::Initialization, "Input Engine");
 
 	// Initialize events.
-	keyPressed = Lina_Action<SDL_Scancode>(KeyPressed);
-	keyReleased = Lina_Action<SDL_Scancode>(KeyPressed);
-	mouseButtonPressed = Lina_Action<int>(MouseButtonPressed);
-	mouseButtonReleased = Lina_Action<int>(MouseButtonPressed);
+	//keyPressed = Lina_Action<SDL_Scancode>(KeyPressed);
+	//keyReleased = Lina_Action<SDL_Scancode>(KeyPressed);
+//	mouseButtonPressed = Lina_Action<int>(MouseButtonPressed);
+//	mouseButtonReleased = Lina_Action<int>(MouseButtonPressed);
 
-
-	Lina_ActionHandler<SDL_Scancode> b(KeyPressed);
-	b.SetUseNoParamCallback(true);
-
-	auto f = []() {std::cout << "Non-Parameterized Callback Called" << std::endl; };
-	///
-		//	b.SetCondition(22.5);
-			b.SetNoParamCallback(f);
-
-	std::shared_ptr<Lina_ActionHandler<SDL_Scancode>> sptr = std::make_shared<Lina_ActionHandler<SDL_Scancode>>(b);
-	std::weak_ptr<Lina_ActionHandler<SDL_Scancode>> wptr = sptr;
-
-	m_InputDispatcher.SubscribeHandler(wptr);
+	// Provide the input dispatcher to message bus.
+	Lina_CoreMessageBus::Instance().SetInputDispatcher(&m_InputDispatcher);
 
 }
 
+void TestMethod()
+{
+
+}
 void Lina_InputEngine::HandleEvents(SDL_Event& e)
 {
 	// Set the data for the actions and dispatch them.
 	if (e.type == SDL_KEYDOWN)
 	{
+		Lina_Action<SDL_Scancode> keyPressed = Lina_Action<SDL_Scancode>(KeyPressed);
 		keyPressed.SetData(e.key.keysym.scancode);
 		m_InputDispatcher.DispatchAction(keyPressed);
 	}
-	else if (e.type == SDL_KEYUP)
+	 if (e.type == SDL_KEYUP)
 	{
+		Lina_Action<SDL_Scancode> keyReleased = Lina_Action<SDL_Scancode>(KeyReleased);
 		keyReleased.SetData(e.key.keysym.scancode);
-		m_InputDispatcher.DispatchAction(keyReleased);
+		//m_InputDispatcher.DispatchAction(keyReleased);
 	}
 }
 

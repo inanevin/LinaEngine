@@ -83,6 +83,10 @@ public:
 
 	inline ActionType GetActionType() { return m_ActionType; }
 	inline void SetActionType(ActionType t) { m_ActionType = t; }
+
+protected:
+	friend class Lina_ActionDispatcher;
+
 	virtual void Control(Lina_ActionBase& action) { };
 	virtual void Execute(Lina_ActionBase& action) {};
 
@@ -103,9 +107,12 @@ public:
 	Lina_ActionHandler_ConditionCheck(ActionType at) :
 		Lina_ActionHandlerBase::Lina_ActionHandlerBase(at) { };
 
-
 	inline void SetCondition(T t) { m_Condition = t; }
 	inline T GetCondition() { return m_Condition; }
+
+protected:
+
+	friend class Lina_ActionDispatcher;
 
 	// Control block called by the dispatchers.
 	virtual void Control(Lina_ActionBase& action) override
@@ -153,7 +160,8 @@ public:
 	Lina_ActionHandler() {}
 	~Lina_ActionHandler() {}
 	Lina_ActionHandler(ActionType at) :
-		Lina_ActionHandler_ConditionCheck<T>::Lina_ActionHandler_ConditionCheck(at) {};
+		Lina_ActionHandler_ConditionCheck<T>::Lina_ActionHandler_ConditionCheck(at) {
+	};
 
 	inline void SetUseCondition(bool b) { m_UseCondition = b; }
 	inline void SetUseBinding(bool b) { m_UseBinding = b; }
@@ -165,6 +173,15 @@ public:
 	inline bool GetConditionCheck() { return m_UseCondition; }
 	inline bool GetUseParamCallback() { return m_UseParamCallback; }
 	inline bool GetUseNoParamCallback() { return m_UseNoParamCallback; }
+
+	inline void SetParamCallback(std::function<void(T)> const& cbp) { m_CallbackParam = cbp; }
+	inline void SetNoParamCallback(std::function<void()> const& cb) { m_CallbackNoParam = cb; }
+	inline void SetBinding(T* binding) { m_Binding = binding; }
+
+
+protected:
+
+	friend class Lina_ActionDispatcher;
 
 	virtual void Control(Lina_ActionBase& action) override
 	{
@@ -187,31 +204,27 @@ public:
 		{
 			// Cast from polymorphic action base class void* type to T*.
 			T* typePointer = static_cast<T*>(action.GetData());
-
+			
 			if (!m_UseCondition)
 			{
 				// If the types do not match, simply exit.
-				if (Lina_ActionHandler_ConditionCheck<T>::CompareType(*typePointer))
+				if (!Lina_ActionHandler_ConditionCheck<T>::CompareType(*typePointer))
 					return;
 			}
-
-
-			// Call the callback with parameters, cast and pass in the data from the action.
-			if (m_UseParamCallback)
-				m_CallbackParam(*typePointer);
 
 			// Bind the value.
 			if (m_UseBinding)
 				*m_Binding = *typePointer;
+
+			// Call the callback with parameters, cast and pass in the data from the action.
+			if (m_UseParamCallback)
+				m_CallbackParam(*typePointer);
 		}
 
 	}
 
-	void SetParamCallback(std::function<void(T)> && cbp) { m_CallbackParam = cbp; }
-	void SetNoParamCallback(std::function<void()>&& cb) { m_CallbackNoParam = cb; }
-	void SetBinding(T* binding) { m_Binding = binding; }
-
 private:
+
 	bool m_UseParamCallback = false;
 	bool m_UseNoParamCallback = false;
 	bool m_UseBinding = false;
@@ -237,8 +250,11 @@ public:
 		m_ActionHandlers.clear();
 	}
 
+	void operator=(Lina_ActionDispatcher const&) = delete;
+
 	void DispatchAction(Lina_ActionBase& action)
 	{
+		
 		for (it = m_ActionHandlers.begin(); it != m_ActionHandlers.end(); it++)
 		{
 			// Check if the the object is alive.
@@ -252,7 +268,7 @@ public:
 				}
 			}
 		}
-		std::cout << std::endl << m_ActionHandlers.size();
+
 		// Check the handlers if any of the pointed objects are dead, remove it from the list if so.
 		m_ActionHandlers.erase(std::remove_if(m_ActionHandlers.begin(), m_ActionHandlers.end(),
 			[](std::weak_ptr<Lina_ActionHandlerBase> handler) 
@@ -263,8 +279,8 @@ public:
 
 	}
 
-	template<typename T>
-	void SubscribeHandler(std::weak_ptr<Lina_ActionHandler<T>> ptr)
+	
+	void SubscribeHandler(std::weak_ptr<Lina_ActionHandlerBase> ptr)
 	{
 		// Add the weak pointer to the list.
 		m_ActionHandlers.push_back(ptr);
