@@ -25,7 +25,6 @@ Redistribution and use in source and binary forms, with or without modification,
 
 #include "pch.h"
 #include "Copy_Lina_Rendering.h"  
-#include "Lina_TempVertexData.h"
 
 /*Lina_Rendering& Lina_Rendering::Instance()
 {
@@ -40,6 +39,8 @@ Copy_Lina_Rendering::Copy_Lina_Rendering(const std::shared_ptr<Lina_InputHandler
 	cons.AddConsoleMsg("Rendering engine initialized.", Lina_Console::MsgType::Initialization, "Render Engine");
 
 	inputEngine = inp;
+
+	m_Scene = std::make_shared<Lina_Scene>();
 }
 
 // Destructor.
@@ -47,19 +48,6 @@ Copy_Lina_Rendering::~Copy_Lina_Rendering()
 {
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Rendering deinitialized.", Lina_Console::MsgType::Deinitialization, "Render Engine");
-}
-
-void Copy_Lina_Rendering::InitShaderAndMesh()
-{
-	//Initialization with vertices
-	//mesh.InitMesh(vertices, sizeof(vertices) / sizeof(vertices[0])); 
-	//mesh.InitMesh(rectVertices, sizeof(rectVertices) / sizeof(rectVertices[0]));
-
-	//Initialization with vertices and indices.
-	mesh.InitMeshWithIndex(rektVertices, sizeof(rektVertices) / sizeof(rektVertices[0]), rektIndices, sizeof(rektIndices) / sizeof(rektIndices[0]));
-
-
-	shader.LoadAndCompile("./Resources/Shaders/basic.vert", "./Resources/Shaders/basic.frag");
 }
 
 // Main method to render a particular image on the active window.
@@ -80,18 +68,14 @@ void Copy_Lina_Rendering::Render()
 	//	if (inputEngine->GetKeyDown(SDL_SCANCODE_ESCAPE))
 	//m_ActiveWindow->CloseWindow();
 
-	//TODO: Find a better way to initialize the meshes and shaders
-	InitShaderAndMesh();//While this is not a good place to call since this is initialization function it is most likely best called before
-						//the main loop starts but for simplicity it is called here.
-
+	//Render loop should do three things in order. Clear the buffers, draw the meshes and swapping the buffers.
 	// Call render method on active window.
 	m_ActiveWindow->RenderBlankColor(); //the Update call from this function should be removed since it causes 2 swapbuffer calls in a single frame
 										//and that causes flickering.
-
-	shader.Use(); //Declare shader at the after clearing the buffer. From now on this shader will affect every single mesh.
-	mesh.Draw();
+	m_Scene->Draw();
 
 	m_ActiveWindow->Update();
+
 }
 
 void Copy_Lina_Rendering::CleanUp()
@@ -102,8 +86,6 @@ void Copy_Lina_Rendering::CleanUp()
 	// If we have an active window decrement the shared pointer of it.
 	if (m_ActiveWindow != nullptr)
 		m_ActiveWindow.reset();
-
-	mesh.DeleteMesh(); //
 }
 
 void Copy_Lina_Rendering::CreateDisplayWindow(int width, int height, const std::string& title)

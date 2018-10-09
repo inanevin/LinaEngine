@@ -18,41 +18,29 @@ Redistribution and use in source and binary forms, with or without modification,
 -- STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 -- OF SUCH DAMAGE.
 
-4.0.30319.42000
-9/30/2018 4:59:45 PM
-
 */
 
 #pragma once
 
-#ifndef Copy_Lina_Rendering_H
-#define Copy_Lina_Rendering_H
+#ifndef Lina_Scene_H
+#define Lina_Scene_H
 
-//#include<list>
-#include "Lina_Window.h"
-#include "Lina_InputHandler.h"
-#include "Lina_Scene.h"
+#include <Lina_ExampleMesh.h>
+#include <Lina_ExampleShader.h>
 
-class Copy_Lina_Rendering
+class Lina_Scene
 {
-
 public:
+	Lina_Scene();
+	~Lina_Scene();
 
-	//static Lina_Rendering& Instance();
-	void CreateDisplayWindow(int, int, const std::string&);
-	void Render();
-	void CleanUp();
-	Copy_Lina_Rendering();
-	Copy_Lina_Rendering(const std::shared_ptr<Lina_InputHandler>& inp);
-	~Copy_Lina_Rendering();
-	Copy_Lina_Rendering& operator= (const Copy_Lina_Rendering&);
-	Copy_Lina_Rendering(const Copy_Lina_Rendering&);
-	std::shared_ptr<Lina_Window> m_ActiveWindow;
-	std::shared_ptr<Lina_InputHandler> inputEngine;
-	std::shared_ptr<Lina_Scene> m_Scene;
-	std::shared_ptr<Lina_Scene>& GetScene() { return m_Scene; }
-
+	//For initializing Mesh and Shader use renderingEngine->GetScene()
+	void InitMesh();
+	void InitShader();
+	void Draw();
+private:
+	Lina_Mesh m_Mesh;
+	Lina_Shader m_Shader;
 };
-
 
 #endif

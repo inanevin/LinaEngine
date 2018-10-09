@@ -169,6 +169,7 @@
     <ClCompile Include="src\Lina_Core.cpp" />
     <ClCompile Include="src\Lina_GameCore.cpp" />
     <ClCompile Include="src\Lina_InputManager.cpp" />
+    <ClCompile Include="src\Lina_Scene.cpp" />
     <ClCompile Include="src\Lina_SDLHandler.cpp" />
     <ClCompile Include="src\Lina_Time.cpp" />
     <ClCompile Include="src\Lina_Window.cpp" />
@@ -218,6 +219,7 @@
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="inc\Lina_Scene.h" />
     <ClInclude Include="inc\Lina_SDLHandler.h">
       <SubType>
       </SubType>

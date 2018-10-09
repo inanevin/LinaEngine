@@ -18,41 +18,42 @@ Redistribution and use in source and binary forms, with or without modification,
 -- STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 -- OF SUCH DAMAGE.
 
-4.0.30319.42000
-9/30/2018 4:59:45 PM
-
 */
 
-#pragma once
-
-#ifndef Copy_Lina_Rendering_H
-#define Copy_Lina_Rendering_H
-
-//#include<list>
-#include "Lina_Window.h"
-#include "Lina_InputHandler.h"
+#include "pch.h"
 #include "Lina_Scene.h"
+#include "Lina_ExampleVertex.h"
+#include "Lina_TempVertexData.h"
 
-class Copy_Lina_Rendering
+Lina_Scene::Lina_Scene()
 {
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Scene initialized.", Lina_Console::MsgType::Initialization, "Scene");
+}
 
-public:
+Lina_Scene::~Lina_Scene()
+{
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Scene deinitialized.", Lina_Console::MsgType::Deinitialization, "Scene");
+}
 
-	//static Lina_Rendering& Instance();
-	void CreateDisplayWindow(int, int, const std::string&);
-	void Render();
-	void CleanUp();
-	Copy_Lina_Rendering();
-	Copy_Lina_Rendering(const std::shared_ptr<Lina_InputHandler>& inp);
-	~Copy_Lina_Rendering();
-	Copy_Lina_Rendering& operator= (const Copy_Lina_Rendering&);
-	Copy_Lina_Rendering(const Copy_Lina_Rendering&);
-	std::shared_ptr<Lina_Window> m_ActiveWindow;
-	std::shared_ptr<Lina_InputHandler> inputEngine;
-	std::shared_ptr<Lina_Scene> m_Scene;
-	std::shared_ptr<Lina_Scene>& GetScene() { return m_Scene; }
+void Lina_Scene::InitMesh()
+{
+	//Mesh initialization examples.
 
-};
+	m_Mesh.InitMesh(vertices, sizeof(vertices) / sizeof(vertices[0]));
+	//mesh.InitMesh(rectVertices, sizeof(rectVertices) / sizeof(rectVertices[0]));
+	//mesh.InitMeshWithIndex(rektVertices, sizeof(rektVertices) / sizeof(rektVertices[0]), rektIndices, sizeof(rektIndices) / sizeof(rektIndices[0]));
+}
 
+void Lina_Scene::InitShader()
+{
+	m_Shader.LoadAndCompile("./Resources/Shaders/basic.vert", "./Resources/Shaders/basic.frag");
+}
 
-#endif
+void Lina_Scene::Draw()
+{
+	//Before drawing the mesh activate the shader.
+	m_Shader.Use();
+	m_Mesh.Draw();
+}
