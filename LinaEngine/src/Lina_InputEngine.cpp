@@ -19,33 +19,57 @@ Redistribution and use in source and binary forms, with or without modification,
 -- OF SUCH DAMAGE.
 
 4.0.30319.42000
-9/30/2018 4:59:45 PM
+10/9/2018 3:02:34 AM
 
 */
 
-#pragma once
+#include "pch.h"
+#include "Lina_InputEngine.h"  
 
-#ifndef Lina_Rendering_H
-#define Lina_Rendering_H
+Lina_InputEngine::Lina_InputEngine()
+{
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Input Engine Initialized.", Lina_Console::MsgType::Initialization, "Input Engine");
 
-//#include<list>
-#include "Lina_Window.h"
-class Lina_Rendering
+	// Initialize events.
+	keyPressed = Lina_Action<SDL_Scancode>(KeyPressed);
+	keyReleased = Lina_Action<SDL_Scancode>(KeyPressed);
+	mouseButtonPressed = Lina_Action<int>(MouseButtonPressed);
+	mouseButtonReleased = Lina_Action<int>(MouseButtonPressed);
+
+
+	Lina_ActionHandler<SDL_Scancode> b(KeyPressed);
+	b.SetUseNoParamCallback(true);
+
+	auto f = []() {std::cout << "Non-Parameterized Callback Called" << std::endl; };
+	///
+		//	b.SetCondition(22.5);
+			b.SetNoParamCallback(f);
+
+	std::shared_ptr<Lina_ActionHandler<SDL_Scancode>> sptr = std::make_shared<Lina_ActionHandler<SDL_Scancode>>(b);
+	std::weak_ptr<Lina_ActionHandler<SDL_Scancode>> wptr = sptr;
+
+	m_InputDispatcher.SubscribeHandler(wptr);
+
+}
+
+void Lina_InputEngine::HandleEvents(SDL_Event& e)
+{
+	// Set the data for the actions and dispatch them.
+	if (e.type == SDL_KEYDOWN)
+	{
+		keyPressed.SetData(e.key.keysym.scancode);
+		m_InputDispatcher.DispatchAction(keyPressed);
+	}
+	else if (e.type == SDL_KEYUP)
+	{
+		keyReleased.SetData(e.key.keysym.scancode);
+		m_InputDispatcher.DispatchAction(keyReleased);
+	}
+}
+
+void Lina_InputEngine::Update()
 {
 
-public:
+}
 
-	//static Lina_Rendering& Instance();
-    void CreateDisplayWindow(int, int, const std::string&);
-	void Render();
-	void CleanUp();
-	Lina_Rendering();
-	~Lina_Rendering();
-	Lina_Rendering& operator= (const Lina_Rendering&);
-	Lina_Rendering(const Lina_Rendering&);
-	std::shared_ptr<Lina_Window> m_ActiveWindow;
-	
-};
-
-
-#endif

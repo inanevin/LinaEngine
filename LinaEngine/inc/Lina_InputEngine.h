@@ -19,34 +19,37 @@ Redistribution and use in source and binary forms, with or without modification,
 -- OF SUCH DAMAGE.
 
 4.0.30319.42000
-10/4/2018 1:00:21 AM
+10/9/2018 3:02:19 AM
 
 */
 
 #pragma once
 
-#ifndef Lina_InputHandler_H
-#define Lina_InputHandler_H
-#include <Lina_InputBinding.h>
-#include <list>
+#ifndef Lina_InputEngine_H
+#define Lina_InputEngine_H
 
+#include <Lina_Actions.h>
+#include <Lina_SDLHandler.h>
 
-
-class Lina_InputHandler
+class Lina_InputEngine
 {
 
 public:
-	Lina_InputHandler();
-	const Uint8 *state;
-	std::list<Lina_InputBinding> mousePressEventContainers;
-	std::list<Lina_InputBinding> keyPressEventContainers;
-	void Bind(Lina_InputBinding& binding);
-	void Unbind(Lina_InputBinding& binding);
+
+	Lina_InputEngine();
 	void Update();
 	void HandleEvents(SDL_Event& e);
 
+private:
 
+	void operator=(const Lina_InputEngine& r) = delete;
 
+	// INPUT ENGINE EVENTS
+	Lina_Action<SDL_Scancode> keyPressed;
+	Lina_Action<SDL_Scancode> keyReleased;
+	Lina_Action<int> mouseButtonPressed;
+	Lina_Action<int> mouseButtonReleased;
+	Lina_ActionDispatcher m_InputDispatcher;
 };
 
 

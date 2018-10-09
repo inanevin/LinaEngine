@@ -33,13 +33,12 @@ Redistribution and use in source and binary forms, with or without modification,
 	return instance;
 }*/
 
-Lina_Rendering::Lina_Rendering(const std::shared_ptr<Lina_InputHandler>& inp)
+Lina_Rendering::Lina_Rendering()
 {
 	// Add a console message.
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Rendering engine initialized.", Lina_Console::MsgType::Initialization, "Render Engine");
 
-	inputEngine = inp;
 }
 
 // Destructor.

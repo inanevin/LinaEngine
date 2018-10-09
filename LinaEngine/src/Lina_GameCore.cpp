@@ -26,13 +26,11 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "pch.h"
 #include "Lina_GameCore.h"  
 
-Lina_GameCore::Lina_GameCore(const std::shared_ptr<Lina_InputHandler>& inp)
+Lina_GameCore::Lina_GameCore()
 {
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Game core initialized.", Lina_Console::MsgType::Initialization, "Game Core");
 
-	// Copy shared pointer into our local variable.
-	inputEngine = inp;
 }
 
 void Lina_GameCore::ProcessInput()

@@ -29,7 +29,7 @@ Redistribution and use in source and binary forms, with or without modification,
 
 #include <Lina_Rendering.h>
 #include <Lina_GameCore.h>
-#include <Lina_InputHandler.h>
+#include <Lina_InputEngine.h>
 
 extern const double FRAME_CAP;
 extern const long SECOND;
@@ -50,7 +50,7 @@ private:
 	void CleanUp();
 	bool isRunning;
 
-	std::shared_ptr<Lina_InputHandler> inputEngine;
+	std::shared_ptr<Lina_InputEngine> inputEngine;
 	std::shared_ptr<Lina_Rendering> renderingEngine;
 	std::shared_ptr<Lina_GameCore> gameCore;
 	std::shared_ptr<Lina_SDLHandler> sdlHandler;

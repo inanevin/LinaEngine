@@ -42,10 +42,7 @@
     <ClCompile Include="src\Lina_InputManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Lina_InputHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Lina_InputBinding.cpp">
+    <ClCompile Include="src\Lina_InputEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -77,16 +74,13 @@
     <ClInclude Include="inc\Lina_InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Lina_InputHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Lina_InputBinding.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Lina_Actions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="inc\Lina_Signals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Lina_InputEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

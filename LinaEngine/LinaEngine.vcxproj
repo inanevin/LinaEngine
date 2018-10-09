@@ -158,8 +158,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Lina_InputBinding.cpp" />
-    <ClCompile Include="src\Lina_InputHandler.cpp" />
+    <ClCompile Include="src\Lina_InputEngine.cpp" />
     <ClCompile Include="src\Lina_Rendering.cpp" />
     <ClCompile Include="src\Lina_Core.cpp" />
     <ClCompile Include="src\Lina_GameCore.cpp" />
@@ -185,19 +184,15 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\Lina_Core.h" />
+    <ClInclude Include="inc\Lina_InputEngine.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="inc\Lina_Signals.h">
       <SubType>
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\Lina_GameCore.h">
-      <SubType>
-      </SubType>
-    </ClInclude>
-    <ClInclude Include="inc\Lina_InputBinding.h">
-      <SubType>
-      </SubType>
-    </ClInclude>
-    <ClInclude Include="inc\Lina_InputHandler.h">
       <SubType>
       </SubType>
     </ClInclude>

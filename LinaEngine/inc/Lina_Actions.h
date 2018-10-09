@@ -34,8 +34,10 @@ Redistribution and use in source and binary forms, with or without modification,
 
 enum ActionType
 {
-	ActionType1,
-	ActionType2
+	KeyPressed,
+	KeyReleased,
+	MouseButtonPressed,
+	MouseButtonReleased
 };
 
 // Base wrapper class for actions.
@@ -43,17 +45,15 @@ class Lina_ActionBase
 {
 
 public:
-
 	Lina_ActionBase() {};
+	Lina_ActionBase(ActionType t) : m_ActionType(t) {};
 	virtual void* GetData() { return 0; }
 	inline ActionType GetActionType() { return m_ActionType; }
 	inline void SetActionType(ActionType t) { m_ActionType = t; }
 
-
 private:
 	//Lina_ActionBase(const Lina_ActionBase& rhs) = delete;
 	ActionType m_ActionType;
-
 };
 
 // Template class used for actions. 
@@ -62,8 +62,8 @@ class Lina_Action : public Lina_ActionBase
 {
 
 public:
-
-	Lina_Action() { }
+	Lina_Action() {};
+	Lina_Action(ActionType t) : Lina_ActionBase::Lina_ActionBase(t) { }
 	inline void SetData(T t) { m_Value = t; }
 	virtual void* GetData() { return &m_Value; }
 
@@ -110,6 +110,7 @@ public:
 	// Control block called by the dispatchers.
 	virtual void Control(Lina_ActionBase& action) override
 	{
+
 		// Cast from polymorphic action base class void* type to T*.
 		T* typePointer = static_cast<T*>(action.GetData());
 
@@ -229,35 +230,12 @@ class Lina_ActionDispatcher
 
 public:
 
-	Lina_ActionDispatcher() {
+	Lina_ActionDispatcher() { };
 
-		Lina_Action<float> action;
-
-		action.SetData(22.5);
-		action.SetActionType(ActionType::ActionType2);
-
-		Lina_ActionHandler<float> b(ActionType2);
-
-		b.SetUseCondition(true);
-		b.SetUseNoParamCallback(true);
-
-		auto f = []() {std::cout << "Non-Parameterized Callback Called" << std::endl; };
-
-		b.SetCondition(22.5);
-		b.SetNoParamCallback(f);
-
-		std::shared_ptr<Lina_ActionHandler<float>> sptr = std::make_shared<Lina_ActionHandler<float>>(b);
-		std::weak_ptr<Lina_ActionHandler<float>> wptr = sptr;
-
-
-		m_ActionHandlers.push_back(wptr);
-
-
-		DispatchAction(action);
-
+	~Lina_ActionDispatcher()
+	{
+		m_ActionHandlers.clear();
 	}
-
-	~Lina_ActionDispatcher() {}
 
 	void DispatchAction(Lina_ActionBase& action)
 	{
@@ -274,66 +252,29 @@ public:
 				}
 			}
 		}
-	
+		std::cout << std::endl << m_ActionHandlers.size();
+		// Check the handlers if any of the pointed objects are dead, remove it from the list if so.
 		m_ActionHandlers.erase(std::remove_if(m_ActionHandlers.begin(), m_ActionHandlers.end(),
 			[](std::weak_ptr<Lina_ActionHandlerBase> handler) 
 		{
-			return handler.expired();
+			return handler.expired();	// LOCK OR EXPIRED?
 		}), m_ActionHandlers.end());
 
 
-
 	}
 
-	void SubscribeHandler(std::weak_ptr<Lina_ActionHandlerBase>& handler)
+	template<typename T>
+	void SubscribeHandler(std::weak_ptr<Lina_ActionHandler<T>> ptr)
 	{
-
+		// Add the weak pointer to the list.
+		m_ActionHandlers.push_back(ptr);
 	}
 
-	void UnsubscribeHandler(std::weak_ptr<Lina_ActionHandlerBase>& handler)
-	{
-		it = m_ActionHandlers.begin();
-		while (it != m_ActionHandlers.begin())
-		{
-			/*if (*it == handler.lock)
-			{
-				it = m_ActionHandlers.erase(it++);
-			}
-			else
-				++it;*/
-		}
-	}
+private:
 
 	std::list<std::weak_ptr<Lina_ActionHandlerBase>> m_ActionHandlers;
 
 };
 
-
-using namespace std;
-class TestClass
-{
-public:
-	TestClass()
-	{
-		int toBind = 2;
-
-		Lina_ActionDispatcher* disp = new Lina_ActionDispatcher;
-		Lina_Action<float> action;
-
-		action.SetData(22.5);
-
-		auto f = []() {std::cout << "Non-Parameterized Callback Called" << std::endl; };
-		auto f2 = [](float f) {std::cout << "Parameterized Callback Called, Value is : " << f << std::endl; };
-
-
-
-
-		std::cout << "Binded Variable Is: " << toBind;
-	}
-
-};
-
-//static bool deleteAll(Action * theElement) { delete action; return true; }
-//actList.remove_if(deleteAll);
 
 #endif

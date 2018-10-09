@@ -37,13 +37,6 @@ class Lina_SDLHandler
 public:
 	Lina_SDLHandler();
 	~Lina_SDLHandler();
-	void Process();
-
-	static std::vector<SDL_Event>& GetFrameEvents()
-	{
-		static std::vector<SDL_Event> frameEvents;
-		return frameEvents;
-	}
 
 private:
 

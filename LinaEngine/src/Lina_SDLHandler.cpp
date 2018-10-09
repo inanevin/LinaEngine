@@ -42,18 +42,3 @@ Lina_SDLHandler::~Lina_SDLHandler()
 	cons.AddConsoleMsg("SDL Quitted.", Lina_Console::Initialization, "SDL Handler");
 	SDL_Quit();
 }
-
-void Lina_SDLHandler::Process()
-{
-	return;
-	// Pool frame event & clear.
-
-	GetFrameEvents().clear();
-	SDL_Event event;
-
-	if (SDL_PollEvent(&event) != 0)
-	{
-
-	}
-
-}

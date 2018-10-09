@@ -33,7 +33,6 @@ static const long SECOND = 1000000000;	// time in nanosecs
 // Constructor, initialize components.
 Lina_Core::Lina_Core()
 {
-	TestClass t;
 
 	// Add a console message.
 	Lina_Console cons = Lina_Console();
@@ -46,13 +45,13 @@ Lina_Core::Lina_Core()
 	sdlHandler = std::make_shared<Lina_SDLHandler>();
 
 	// Initialize input engine.
-	inputEngine = std::make_shared<Lina_InputHandler>();
+	inputEngine = std::make_shared<Lina_InputEngine>();
 
 	// Initialize rendering engine.
-	renderingEngine = std::make_shared<Lina_Rendering>(inputEngine);
+	renderingEngine = std::make_shared<Lina_Rendering>();
 
 	// Initialize game core.
-	gameCore = std::make_shared<Lina_GameCore>(inputEngine);
+	gameCore = std::make_shared<Lina_GameCore>();
 
 	// Create a window.
 	renderingEngine->CreateDisplayWindow(1024, 768, "Lina Engine 3D");
@@ -110,41 +109,6 @@ void Lina_Core::Run()
 	int frames = 0;
 	long frameCounter = 0;
 
-	//Lina_InputBinding b5(Lina_InputBinding::MouseEventType::OnMouseButton, 0, &TestMethod2);
-	//Lina_InputBinding b3(Lina_InputBinding::KeyboardEventType::OnKeyDown, SDL_SCANCODE_F, &TestMethod2);
-	
-	//Lina_InputBinding b(InputEventType::OnMouseButtonUp, MouseButton::MOUSE_LEFT, &TestMethod1);
-	//Lina_InputBinding b2(InputEventType::OnMouseButtonDown, 1, &TestMethod22);
-	//Lina_InputBinding b3(InputEventType::OnMouseButtonDown, MouseButton::MOUSE_LEFT, &TestMethod33);
-	//Lina_InputBinding b4(InputEventType::OnMouseButton, MouseButton::MOUSE_LEFT, &TestMethod44);
-//	inputEngine->Bind(b);
-	//inputEngine->Bind(b2);
-//inputEngine->Bind(b3);
-	//inputEngine->Bind(b4);
-
-	//auto f2 = [this, &b, &b3] { TestMethod3(b, b3); };
-	//Lina_InputBinding b2(Lina_InputBinding::KeyboardEventType::OnKey, SDL_SCANCODE_B, f2);
-
-	//inputEngine->Bind(b);
-	//inputEngine->Bind(b2);
-	//inputEngine->Bind(b3);
-	
-	//auto&& f = std::bind(TestMethod2, 5, 2, inputEngine);
-	//inputEngine->BindMethod(Lina_InputHandler::EventType::OnKeyPress, SDL_SCANCODE_B, f, "a1");
-
-	//inputEngine->BindMethod(Lina_InputHandler::EventType::OnKeyPress, SDL_SCANCODE_C, f2, "a3");
-
-	//keyPressed::listener l1;
-	//l1.observe(kp, []() {std::cout << "sa"; });
-	//Lina_Event<SDL_Scancode>::listener l;
-	//l.observe(inputEngine->keyPressed, [](SDL_Scancode s) {std::cout << "code:" << s<<std::endl; });
-
-	//Lina_Event<SDL_Scancode>::Lina_Listener mL;
-
-	//auto f = [](SDL_Scancode c) { if (c == SDL_SCANCODE_F) std::cout << "YES"; };
-	
-	//mL.ObserveEvent(inputEngine->onKey, f);
-	
 	// For now the only condition is to have an active window to keep the rendering.
 	while (isRunning)
 	{
@@ -194,17 +158,14 @@ void Lina_Core::Run()
 			while (SDL_PollEvent(&event)) {
 
 				inputEngine->HandleEvents(event);
-
 			}
 
 			// Set delta. (Change later, no effect for now)
 			Lina_Time::SetDelta(frameTime);
-		
-			// Update SDL Handler.
-			//sdlHandler->Process();
 
-			//std::cout << menu;
-		
+			// Process input engine.
+			inputEngine->Update();
+
 			// TODO: Update game loop
 			gameCore->ProcessInput();
 			gameCore->Update();
@@ -213,7 +174,7 @@ void Lina_Core::Run()
 			{
 				// Debug frames.
 				Lina_Console cons = Lina_Console();
-				cons.AddConsoleMsgSameLine("Main Game Loop Running (" + std::to_string(frames) + " FPS)" + std::to_string(frames), Lina_Console::MsgType::Update, "Core Engine");
+			//	cons.AddConsoleMsgSameLine("Main Game Loop Running (" + std::to_string(frames) + " FPS)" + std::to_string(frames), Lina_Console::MsgType::Update, "Core Engine");
 				// reset frame counter & frames to calculate on the next iteration.
 				frames = 0;
 				frameCounter = 0;
