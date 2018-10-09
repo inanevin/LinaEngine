@@ -86,6 +86,8 @@ void Copy_Lina_Rendering::CleanUp()
 	// If we have an active window decrement the shared pointer of it.
 	if (m_ActiveWindow != nullptr)
 		m_ActiveWindow.reset();
+
+	m_Scene->CleanUp();
 }
 
 void Copy_Lina_Rendering::CreateDisplayWindow(int width, int height, const std::string& title)

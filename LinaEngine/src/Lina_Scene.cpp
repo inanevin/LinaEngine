@@ -57,3 +57,8 @@ void Lina_Scene::Draw()
 	m_Shader.Use();
 	m_Mesh.Draw();
 }
+
+void Lina_Scene::CleanUp()
+{
+	m_Mesh.DeleteMesh();
+}

@@ -38,6 +38,7 @@ public:
 	void InitMesh();
 	void InitShader();
 	void Draw();
+	void CleanUp();
 private:
 	Lina_Mesh m_Mesh;
 	Lina_Shader m_Shader;
