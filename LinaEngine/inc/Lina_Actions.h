@@ -37,7 +37,9 @@ enum ActionType
 	KeyPressed,
 	KeyReleased,
 	MouseButtonPressed,
-	MouseButtonReleased
+	MouseButtonReleased,
+	MouseMotionX,
+	MouseMotionY
 };
 
 // Base wrapper class for actions.

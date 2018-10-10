@@ -57,10 +57,12 @@ Lina_Core::Lina_Core()
 	renderingEngine->CreateDisplayWindow(1024, 768, "Lina Engine 3D");
 
 	
-	
-		Lina_EventSubscriber subs;
-		auto f = []() {std::cout << "act"; };
-		subs.SubscribeToAction(ActionType::KeyPressed, f);
+		auto f = [](int mouseButton) {std::cout << "MouseButtonDown: " << mouseButton; };
+		auto f2 = [](int mouseButton) {std::cout << "MouseButtonReleased: " << mouseButton; };
+		auto f3 = [](SDL_Scancode key) {std::cout << "Key: " << key; };
+		auto f4 = [](SDL_Scancode keyReleased) {std::cout << "KeyReleased: " << keyReleased; };
+
+		//subs.SubscribeToAction(ActionType::KeyPressed, f);
 	
 	
 	// Start the game.
@@ -167,6 +169,7 @@ void Lina_Core::Run()
 				inputEngine->HandleEvents(event);
 			}
 
+			std::cout << "Input: " << eventHandler.GetMouseX() << std::endl;
 			// Set delta. (Change later, no effect for now)
 			Lina_Time::SetDelta(frameTime);
 

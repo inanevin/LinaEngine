@@ -37,14 +37,15 @@ Redistribution and use in source and binary forms, with or without modification,
 #define CALLBACK std::function<void()>const&
 #define CALLBACKPARAM std::function<void(T)>const&
 
-class Lina_EventSubscriber
+class Lina_EventHandler
 {
 public:
 
-	Lina_EventSubscriber();
-	~Lina_EventSubscriber() {
-		std::cout << "im dead" << std::endl;
-	};
+
+
+	Lina_EventHandler();
+	~Lina_EventHandler() {};
+
 	/* ACITON SUBSCRIPTION OVERLOADS */
 	void SubscribeToAction(ActionType, CALLBACK);
 	template<typename T>
@@ -73,6 +74,11 @@ public:
 	void SubscribeToAction(ActionType, CALLBACK, CALLBACKPARAM, BINDING); 
 	template<typename T>
 	void SubscribeToAction(ActionType, CONDITION, CALLBACK, CALLBACKPARAM, BINDING);
+
+	void Subscribe(ActionType at, std::weak_ptr<Lina_ActionHandlerBase>);
+
+	float GetMouseX();
+	float GetMouseY();
 
 	std::list<std::shared_ptr<Lina_ActionHandlerBase>> m_Handlers;
 };

@@ -34,24 +34,27 @@ Redistribution and use in source and binary forms, with or without modification,
 class Lina_InputEngine
 {
 
+
 public:
 
 	Lina_InputEngine();
 	void Update();
 	void HandleEvents(SDL_Event& e);
 
+	float GetMouseAxis(int);
+
 private:
 
 	void operator=(const Lina_InputEngine& r) = delete;
+	bool mouseXT;
 
+	int relativeMouseX;
+	int relativeMouseY;
+	int prevMouseX;
+	int prevMouseY;
+	int currentMouseX;
+	int currentMouseY;
 	Lina_ActionDispatcher m_InputDispatcher;
-
-	// INPUT ENGINE EVENTS
-	/*Lina_Action<SDL_Scancode> keyPressed;
-	Lina_Action<SDL_Scancode> keyReleased;
-	Lina_Action<int> mouseButtonPressed;
-	Lina_Action<int> mouseButtonReleased;*/
-
 };
 
 

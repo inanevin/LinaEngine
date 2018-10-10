@@ -28,6 +28,7 @@ Redistribution and use in source and binary forms, with or without modification,
 #ifndef Lina_CoreMessageBus_H
 #define Lina_CoreMessageBus_H
 
+#include "Lina_InputEngine.h"
 class Lina_ActionDispatcher;
 
 class Lina_CoreMessageBus
@@ -49,17 +50,26 @@ public:
 		return inputDispatcher;
 	}
 
+	Lina_InputEngine* GetInputEngine()
+	{
+		if(inputEngine == nullptr)
+			throw "Pointer you are trying to get (inputDispatcher) does not point to a valid object!";
+
+		return inputEngine;
+	}
+
 	void SetInputDispatcher(Lina_ActionDispatcher* disp) { inputDispatcher = disp; }
+	void SetInputEngine(Lina_InputEngine* inp) { inputEngine = inp; }
 
 private:
 	Lina_CoreMessageBus() {}
 
 	//Lina_CoreMessageBus(Lina_CoreMessageBus const&);  // Don't Implement
 	//void operator=(Lina_CoreMessageBus const&); // Don't implement
-
-
 	/* INSTANCES */
+	Lina_InputEngine* inputEngine;
 	Lina_ActionDispatcher* inputDispatcher;
+
 public:
 
 	Lina_CoreMessageBus(Lina_CoreMessageBus const&) = delete;

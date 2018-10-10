@@ -30,7 +30,7 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "Lina_Rendering.h"
 #include "Lina_GameCore.h"
 #include "Lina_InputEngine.h"
-#include "Lina_EventSubscriber.h"
+#include "Lina_EventHandler.h"
 
 extern const double FRAME_CAP;
 extern const long SECOND;
@@ -56,7 +56,8 @@ private:
 	std::shared_ptr<Lina_GameCore> gameCore;
 	std::shared_ptr<Lina_SDLHandler> sdlHandler;
 
-	Lina_EventSubscriber eventSubscriber;
+	Lina_EventHandler eventHandler;
+
 
 };
 

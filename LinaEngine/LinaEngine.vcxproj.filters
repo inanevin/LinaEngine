@@ -45,7 +45,7 @@
     <ClCompile Include="src\Lina_InputEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Lina_EventSubscriber.cpp">
+    <ClCompile Include="src\Lina_EventHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,7 +89,7 @@
     <ClInclude Include="inc\Lina_CoreMessageBus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Lina_EventSubscriber.h">
+    <ClInclude Include="inc\Lina_EventHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

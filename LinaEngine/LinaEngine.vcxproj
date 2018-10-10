@@ -158,7 +158,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Lina_EventSubscriber.cpp" />
+    <ClCompile Include="src\Lina_EventHandler.cpp" />
     <ClCompile Include="src\Lina_InputEngine.cpp" />
     <ClCompile Include="src\Lina_Rendering.cpp" />
     <ClCompile Include="src\Lina_Core.cpp" />
@@ -189,7 +189,7 @@
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Lina_EventSubscriber.h">
+    <ClInclude Include="inc\Lina_EventHandler.h">
       <SubType>
       </SubType>
     </ClInclude>

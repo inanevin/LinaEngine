@@ -34,6 +34,9 @@ Lina_SDLHandler::Lina_SDLHandler()
 	// Initialize SDL.
 	SDL_Init(SDL_INIT_EVERYTHING);
 	cons.AddConsoleMsg("SDL initialized with SDL_INIT_EVERYTHING.", Lina_Console::Initialization, "SDL Handler");
+
+	// Set Mouse Relative Motion
+	//SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
 Lina_SDLHandler::~Lina_SDLHandler()

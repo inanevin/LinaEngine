@@ -32,21 +32,12 @@ Lina_InputEngine::Lina_InputEngine()
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Input Engine Initialized.", Lina_Console::MsgType::Initialization, "Input Engine");
 
-	// Initialize events.
-	//keyPressed = Lina_Action<SDL_Scancode>(KeyPressed);
-	//keyReleased = Lina_Action<SDL_Scancode>(KeyPressed);
-//	mouseButtonPressed = Lina_Action<int>(MouseButtonPressed);
-//	mouseButtonReleased = Lina_Action<int>(MouseButtonPressed);
-
-	// Provide the input dispatcher to message bus.
+	// Provide the engine & input dispatcher to message bus.
+	Lina_CoreMessageBus::Instance().SetInputEngine(this);
 	Lina_CoreMessageBus::Instance().SetInputDispatcher(&m_InputDispatcher);
-
 }
 
-void TestMethod()
-{
 
-}
 void Lina_InputEngine::HandleEvents(SDL_Event& e)
 {
 	// Set the data for the actions and dispatch them.
@@ -56,16 +47,56 @@ void Lina_InputEngine::HandleEvents(SDL_Event& e)
 		keyPressed.SetData(e.key.keysym.scancode);
 		m_InputDispatcher.DispatchAction(keyPressed);
 	}
-	 if (e.type == SDL_KEYUP)
+	if (e.type == SDL_KEYUP)
 	{
 		Lina_Action<SDL_Scancode> keyReleased = Lina_Action<SDL_Scancode>(KeyReleased);
 		keyReleased.SetData(e.key.keysym.scancode);
-		//m_InputDispatcher.DispatchAction(keyReleased);
+		m_InputDispatcher.DispatchAction(keyReleased);
 	}
+	if (e.type == SDL_MOUSEBUTTONDOWN)
+	{
+		Lina_Action<int> mouseButtonDown = Lina_Action<int>(MouseButtonPressed);
+		mouseButtonDown.SetData(e.button.button);
+		m_InputDispatcher.DispatchAction(mouseButtonDown);
+	}
+	if (e.type == SDL_MOUSEBUTTONUP)
+	{
+		Lina_Action<int> mouseButtonUp = Lina_Action<int>(MouseButtonReleased);
+		mouseButtonUp.SetData(e.button.button);
+		m_InputDispatcher.DispatchAction(mouseButtonUp);
+	}
+	if (e.type == SDL_MOUSEMOTION)
+	{
+		mouseXT = true;
+		prevMouseX = currentMouseX;
+		currentMouseX = e.motion.x;
+		relativeMouseX = currentMouseX - prevMouseX;
+	}
+	mouseXT = false;
 }
-
 void Lina_InputEngine::Update()
 {
+	if (mouseXT)
+	{
+		mouseXT = false;
+		std::cout << "aq";
+		relativeMouseX = 0;
+	}
+	/*prevMouseX = currentMouseX;
+	prevMouseY = currentMouseY;
 
+	SDL_PumpEvents();
+
+
+	SDL_GetMouseState(&currentMouseX, &currentMouseY);*/
+}
+
+float Lina_InputEngine::GetMouseAxis(int axis)
+{
+	if (axis ==  0)
+	{
+
+		return relativeMouseX;
+	}
 }
 
