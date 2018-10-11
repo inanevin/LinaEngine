@@ -370,4 +370,6 @@ void Lina_EventHandler::Subscribe(ActionType at, std::weak_ptr<Lina_ActionHandle
 float Lina_EventHandler::GetMouseX()
 {
 	return Lina_CoreMessageBus::Instance().GetInputEngine()->GetMouseAxis(0);
+
 }
+

@@ -33,6 +33,8 @@ Lina_GameCore::Lina_GameCore()
 
 }
 
+
+
 void Lina_GameCore::ProcessInput()
 {
 	//if (inputEngine->GetKey(SDLK_a))

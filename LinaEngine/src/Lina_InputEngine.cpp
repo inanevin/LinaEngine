@@ -79,7 +79,7 @@ void Lina_InputEngine::Update()
 	if (mouseXT)
 	{
 		mouseXT = false;
-		std::cout << "aq";
+		//std::cout << "aq";
 		relativeMouseX = 0;
 	}
 	/*prevMouseX = currentMouseX;

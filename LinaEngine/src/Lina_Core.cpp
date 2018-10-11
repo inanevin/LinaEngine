@@ -118,6 +118,9 @@ void Lina_Core::Run()
 	int frames = 0;
 	long frameCounter = 0;
 
+
+
+
 	// For now the only condition is to have an active window to keep the rendering.
 	while (isRunning)
 	{
@@ -169,7 +172,7 @@ void Lina_Core::Run()
 				inputEngine->HandleEvents(event);
 			}
 
-			std::cout << "Input: " << eventHandler.GetMouseX() << std::endl;
+			//std::cout << "Input: " << eventHandler.GetMouseX() << std::endl;
 			// Set delta. (Change later, no effect for now)
 			Lina_Time::SetDelta(frameTime);
 
@@ -184,7 +187,7 @@ void Lina_Core::Run()
 			{
 				// Debug frames.
 				Lina_Console cons = Lina_Console();
-			//	cons.AddConsoleMsgSameLine("Main Game Loop Running (" + std::to_string(frames) + " FPS)" + std::to_string(frames), Lina_Console::MsgType::Update, "Core Engine");
+				cons.AddConsoleMsgSameLine("Main Game Loop Running (" + std::to_string(frames) + " FPS)" + std::to_string(frames), Lina_Console::MsgType::Update, "Core Engine");
 				// reset frame counter & frames to calculate on the next iteration.
 				frames = 0;
 				frameCounter = 0;
