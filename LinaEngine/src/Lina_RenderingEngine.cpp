@@ -24,32 +24,25 @@ Redistribution and use in source and binary forms, with or without modification,
 */
 
 #include "pch.h"
-#include "Lina_Rendering.h"  
+#include "Lina_RenderingEngine.h"  
 
-
-/*Lina_Rendering& Lina_Rendering::Instance()
-{
-	static Lina_Rendering instance;
-	return instance;
-}*/
-
-Lina_Rendering::Lina_Rendering()
+// Init rendering engine.
+void Lina_RenderingEngine::Initialize() 
 {
 	// Add a console message.
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Rendering engine initialized.", Lina_Console::MsgType::Initialization, "Render Engine");
-
 }
 
 // Destructor.
-Lina_Rendering::~Lina_Rendering()
+Lina_RenderingEngine::~Lina_RenderingEngine()
 {
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Rendering deinitialized.", Lina_Console::MsgType::Deinitialization, "Render Engine");
 }
 
 // Main method to render a particular image on the active window.
-void Lina_Rendering::Render()
+void Lina_RenderingEngine::Render()
 {
 	// Send dbg msg.
 	/* Lina_Console cons = Lina_Console();
@@ -70,7 +63,7 @@ void Lina_Rendering::Render()
 	m_ActiveWindow->RenderBlankColor();
 }
 
-void Lina_Rendering::CleanUp()
+void Lina_RenderingEngine::CleanUp()
 {
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Cleaning up rendering engine...", Lina_Console::MsgType::Deinitialization, "Render Engine");
@@ -80,7 +73,7 @@ void Lina_Rendering::CleanUp()
 		m_ActiveWindow.reset();
 }
 
-void Lina_Rendering::CreateDisplayWindow(int width, int height, const std::string& title)
+void Lina_RenderingEngine::CreateDisplayWindow(int width, int height, const std::string& title)
 {
 	// Initialize display.
 	m_ActiveWindow = std::make_shared<Lina_Window>(width,height,title);

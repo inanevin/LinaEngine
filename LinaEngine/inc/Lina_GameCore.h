@@ -33,11 +33,15 @@ class Lina_GameCore
 {
 
 public:
-	Lina_GameCore();
-
+	Lina_GameCore() {};
+	~Lina_GameCore() {};
+	void Initialize();
 	void ProcessInput();
 	void Update();
 	void Render();
+
+private:
+	Lina_GameCore(const Lina_GameCore& r) = delete;
 
 };
 

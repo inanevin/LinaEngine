@@ -19,33 +19,15 @@ Redistribution and use in source and binary forms, with or without modification,
 -- OF SUCH DAMAGE.
 
 4.0.30319.42000
-9/30/2018 4:59:45 PM
+10/12/2018 1:50:18 AM
 
 */
 
-#pragma once
+#include "pch.h"
+#include "Lina_CoreMessageBus.h"  
 
-#ifndef Lina_Rendering_H
-#define Lina_Rendering_H
-
-//#include<list>
-#include "Lina_Window.h"
-class Lina_Rendering
+void Lina_CoreMessageBus::Initialize()
 {
-
-public:
-
-	//static Lina_Rendering& Instance();
-    void CreateDisplayWindow(int, int, const std::string&);
-	void Render();
-	void CleanUp();
-	Lina_Rendering();
-	~Lina_Rendering();
-	Lina_Rendering& operator= (const Lina_Rendering&);
-	Lina_Rendering(const Lina_Rendering&);
-	std::shared_ptr<Lina_Window> m_ActiveWindow;
-	
-};
-
-
-#endif
+	Lina_Console c;
+	c.AddConsoleMsg("Message Bus Initialized", Lina_Console::MsgType::Initialization, "Message Bus");
+}

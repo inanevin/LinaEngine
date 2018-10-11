@@ -26,15 +26,16 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "pch.h"
 #include "Lina_InputEngine.h"  
 #include "Lina_CoreMessageBus.h"
+#include "Lina_Math.h"
+#include "Lina_Time.h"
 
-Lina_InputEngine::Lina_InputEngine()
+void Lina_InputEngine::Initialize()
 {
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Input Engine Initialized.", Lina_Console::MsgType::Initialization, "Input Engine");
 
 	// Provide the engine & input dispatcher to message bus.
 	Lina_CoreMessageBus::Instance().SetInputEngine(this);
-	Lina_CoreMessageBus::Instance().SetInputDispatcher(&m_InputDispatcher);
 }
 
 
@@ -65,38 +66,67 @@ void Lina_InputEngine::HandleEvents(SDL_Event& e)
 		mouseButtonUp.SetData(e.button.button);
 		m_InputDispatcher.DispatchAction(mouseButtonUp);
 	}
+
+	// Set up flag for mouse motion.
+	mouseMotionActive = false;
 	if (e.type == SDL_MOUSEMOTION)
-	{
-		mouseXT = true;
-		prevMouseX = currentMouseX;
-		currentMouseX = e.motion.x;
-		relativeMouseX = currentMouseX - prevMouseX;
-	}
-	mouseXT = false;
+		mouseMotionActive = true;
+	
 }
+
 void Lina_InputEngine::Update()
 {
-	if (mouseXT)
-	{
-		mouseXT = false;
-		//std::cout << "aq";
-		relativeMouseX = 0;
-	}
-	/*prevMouseX = currentMouseX;
-	prevMouseY = currentMouseY;
-
+	// Pump SDL Events
 	SDL_PumpEvents();
 
+	// Store current mouse coordinates.
+	SDL_GetMouseState(&currentMouseX, &currentMouseY);
 
-	SDL_GetMouseState(&currentMouseX, &currentMouseY);*/
-}
-
-float Lina_InputEngine::GetMouseAxis(int axis)
-{
-	if (axis ==  0)
+	// Get the delta of the mouse movement for X & Y if there is currently a motion, else, set the delta's to zero.
+	if (mouseMotionActive)
 	{
-
-		return relativeMouseX;
+		mouseMotionActive = false;
+		deltaMouseX = (currentMouseX - prevMouseX) / MOUSE_ACCURACY;
+		deltaMouseX = Lina_Math::ClampMinMax(deltaMouseX, -1.0f, 1.0f);
+		deltaMouseY = (currentMouseY - prevMouseY) / MOUSE_ACCURACY;
+		deltaMouseY = Lina_Math::ClampMinMax(deltaMouseY, -1.0f, 1.0f);
 	}
+	else
+	{
+		smoothDeltaMouseX = smoothDeltaMouseY = 0;
+		deltaMouseX = deltaMouseY = 0;
+	}
+
+	// Interpolate smoothed mouse input.
+	smoothDeltaMouseX = Lina_Math::Lerp(smoothDeltaMouseX, deltaMouseX, Lina_Time::GetDelta() * MOUSE_SMOOTH);
+	smoothDeltaMouseY = Lina_Math::Lerp(smoothDeltaMouseY, deltaMouseY, Lina_Time::GetDelta() * MOUSE_SMOOTH);
+
+	// Store the last coordinates at the end of the frame for the next frame.
+	prevMouseX = currentMouseX;
+	prevMouseY = currentMouseY;
+
 }
+
+float Lina_InputEngine::GetRawMouseX()
+{
+	return deltaMouseX;
+}
+
+float Lina_InputEngine::GetRawMouseY()
+{
+	return deltaMouseY;
+}
+
+float Lina_InputEngine::GetMouseX()
+{
+	return deltaMouseX;
+}
+
+float Lina_InputEngine::GetMouseY()
+{
+	return deltaMouseY;
+}
+
+
+
 

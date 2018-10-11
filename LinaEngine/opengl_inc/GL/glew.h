@@ -146,7 +146,7 @@
 #  endif
 #endif
 /* <winnt.h> */
-#ifndef CALLBACK
+#ifndef ACTIONCALLBACK
 #define GLEW_CALLBACK_DEFINED
 #  if defined(__MINGW32__) || defined(__CYGWIN__)
 #    define CALLBACK __attribute__ ((__stdcall__))

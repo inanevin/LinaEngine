@@ -26,9 +26,11 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "pch.h"
 #include "Lina_EventHandler.h"  
 
-Lina_EventHandler::Lina_EventHandler()
+void Lina_EventHandler::Initialize()
 {
-
+	// Retrieve the input engine pointer from the message bus.
+	inputEngine = Lina_CoreMessageBus::Instance().GetInputEngine();
+	//inputDispatcher = inputEngine->GetInputDispatcher();
 }
 
 /* ACITON SUBSCRIPTION OVERLOADS */
@@ -363,13 +365,30 @@ void Lina_EventHandler::Subscribe(ActionType at, std::weak_ptr<Lina_ActionHandle
 	if (at == ActionType::KeyPressed || at == ActionType::KeyReleased || at == ActionType::MouseButtonPressed || at == ActionType::MouseButtonReleased || 
 		at == ActionType::MouseMotionX || at == ActionType::MouseMotionY)
 	{
-		Lina_CoreMessageBus::Instance().GetInputDispatcher()->SubscribeHandler(wptr);
+		inputDispatcher->SubscribeHandler(wptr);
 	}
 }
 
+// Returns the smoothed delta mouse x value.
 float Lina_EventHandler::GetMouseX()
 {
-	return Lina_CoreMessageBus::Instance().GetInputEngine()->GetMouseAxis(0);
-
+	return inputEngine->GetMouseX();
 }
 
+// Returns the smoothed delta mouse y value.
+float Lina_EventHandler::GetMouseY()
+{
+	return inputEngine->GetMouseY();
+}
+
+// Returns the raw delta mouse x value.
+float Lina_EventHandler::GetRawMouseX()
+{
+	return inputEngine->GetRawMouseX();
+}
+
+// Returns the raw delta mouse y value.
+float Lina_EventHandler::GetRawMouseY()
+{
+	return inputEngine->GetRawMouseY();
+}

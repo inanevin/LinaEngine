@@ -158,9 +158,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Lina_CoreMessageBus.cpp" />
     <ClCompile Include="src\Lina_EventHandler.cpp" />
     <ClCompile Include="src\Lina_InputEngine.cpp" />
-    <ClCompile Include="src\Lina_Rendering.cpp" />
+    <ClCompile Include="src\Lina_RenderingEngine.cpp" />
     <ClCompile Include="src\Lina_Core.cpp" />
     <ClCompile Include="src\Lina_GameCore.cpp" />
     <ClCompile Include="src\Lina_InputManager.cpp" />
@@ -197,6 +198,10 @@
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="inc\Lina_Math.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="inc\Lina_Signals.h">
       <SubType>
       </SubType>
@@ -221,7 +226,7 @@
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Lina_Rendering.h">
+    <ClInclude Include="inc\Lina_RenderingEngine.h">
       <SubType>
       </SubType>
     </ClInclude>

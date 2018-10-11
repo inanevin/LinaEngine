@@ -26,7 +26,7 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "pch.h"
 #include "Lina_SDLHandler.h"  
 
-Lina_SDLHandler::Lina_SDLHandler()
+void Lina_SDLHandler::Initialize()
 {
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("SDL Handler initialized.", Lina_Console::Initialization, "SDL Handler");

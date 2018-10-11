@@ -44,13 +44,8 @@ public:
 	~Lina_InputManager();
 
 	void Update();
-	//bool GetKey(int key);
-	//bool GetKeyUp(int key);
 	bool GetKeyDown(SDL_Scancode) const;
 	bool GetMouseButtonDown(int) const;
-	//bool GetMouseButtonUp(int);
-//	bool GetMouseButton(int);
-
 
 private:
 	Uint8* m_Keys;

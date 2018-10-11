@@ -34,11 +34,13 @@ class Lina_SDLHandler
 {
 
 public:
-	Lina_SDLHandler();
+	
+	Lina_SDLHandler() {};
 	~Lina_SDLHandler();
+	void Initialize();
 
 private:
-
+	Lina_SDLHandler(const Lina_SDLHandler& h) = delete;
 };
 
 

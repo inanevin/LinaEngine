@@ -28,12 +28,17 @@ Redistribution and use in source and binary forms, with or without modification,
 #ifndef Lina_CoreMessageBus_H
 #define Lina_CoreMessageBus_H
 
-#include "Lina_InputEngine.h"
+class Lina_InputEngine;
+class Lina_Core;
 class Lina_ActionDispatcher;
+class Lina_RenderingEngine;
+class Lina_SDLHandler;
 
 class Lina_CoreMessageBus
 {
 public:
+
+	void Initialize();
 
 	static Lina_CoreMessageBus& Instance()
 	{
@@ -41,34 +46,18 @@ public:
 		return instance;
 	}
 
-
-	Lina_ActionDispatcher* GetInputDispatcher()
-	{
-		if (inputDispatcher == nullptr)
-			throw "Pointer you are trying to get (inputDispatcher) does not point to a valid object!";
-
-		return inputDispatcher;
-	}
-
-	Lina_InputEngine* GetInputEngine()
-	{
-		if(inputEngine == nullptr)
-			throw "Pointer you are trying to get (inputDispatcher) does not point to a valid object!";
-
-		return inputEngine;
-	}
-
-	void SetInputDispatcher(Lina_ActionDispatcher* disp) { inputDispatcher = disp; }
+	Lina_InputEngine* GetInputEngine() { return inputEngine; }
 	void SetInputEngine(Lina_InputEngine* inp) { inputEngine = inp; }
 
 private:
+
 	Lina_CoreMessageBus() {}
 
-	//Lina_CoreMessageBus(Lina_CoreMessageBus const&);  // Don't Implement
-	//void operator=(Lina_CoreMessageBus const&); // Don't implement
 	/* INSTANCES */
 	Lina_InputEngine* inputEngine;
-	Lina_ActionDispatcher* inputDispatcher;
+	Lina_SDLHandler* sdlHandler;
+	Lina_Core* coreEngine;
+	Lina_RenderingEngine* renderingEngine;
 
 public:
 

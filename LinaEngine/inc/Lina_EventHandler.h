@@ -30,57 +30,61 @@ Redistribution and use in source and binary forms, with or without modification,
 
 #include "Lina_CoreMessageBus.h"
 #include "Lina_Actions.h"
-#include "Lina_SDLHandler.h"
+#include "Lina_InputEngine.h"
 
 #define CONDITION T
 #define BINDING T*
-#define CALLBACK std::function<void()>const&
-#define CALLBACKPARAM std::function<void(T)>const&
+#define ACTIONCALLBACK std::function<void()>const&
+#define ACTIONCALLBACKPARAM std::function<void(T)>const&
 
 class Lina_EventHandler
 {
 public:
 
-
-
-	Lina_EventHandler();
+	Lina_EventHandler() {};
 	~Lina_EventHandler() {};
+	void Initialize();
 
 	/* ACITON SUBSCRIPTION OVERLOADS */
-	void SubscribeToAction(ActionType, CALLBACK);
+	void SubscribeToAction(ActionType, ACTIONCALLBACK);
 	template<typename T>
-	void SubscribeToAction(ActionType, CALLBACKPARAM);
+	void SubscribeToAction(ActionType, ACTIONCALLBACKPARAM);
 	template<typename T>
 	void SubscribeToAction(ActionType, BINDING);
 	template<typename T>
-	void SubscribeToAction(ActionType, CONDITION, CALLBACK);
+	void SubscribeToAction(ActionType, CONDITION, ACTIONCALLBACK);
 	template<typename T>
-	void SubscribeToAction(ActionType, CONDITION, CALLBACKPARAM);
+	void SubscribeToAction(ActionType, CONDITION, ACTIONCALLBACKPARAM);
 	template<typename T>
 	void SubscribeToAction(ActionType, CONDITION, BINDING);
 	template<typename T>
-	void SubscribeToAction(ActionType, CALLBACK, CALLBACKPARAM);
+	void SubscribeToAction(ActionType, ACTIONCALLBACK, ACTIONCALLBACKPARAM);
 	template<typename T>
-	void SubscribeToAction(ActionType, CALLBACK, BINDING);
+	void SubscribeToAction(ActionType, ACTIONCALLBACK, BINDING);
 	template<typename T>
-	void SubscribeToAction(ActionType, CALLBACKPARAM, BINDING);
+	void SubscribeToAction(ActionType, ACTIONCALLBACKPARAM, BINDING);
 	template<typename T>
-	void SubscribeToAction(ActionType, CONDITION, CALLBACK, CALLBACKPARAM); 
+	void SubscribeToAction(ActionType, CONDITION, ACTIONCALLBACK, ACTIONCALLBACKPARAM); 
 	template<typename T>
-	void SubscribeToAction(ActionType, CONDITION, CALLBACKPARAM, BINDING); 
+	void SubscribeToAction(ActionType, CONDITION, ACTIONCALLBACKPARAM, BINDING); 
 	template<typename T>
-	void SubscribeToAction(ActionType, CONDITION, CALLBACK, BINDING); 
+	void SubscribeToAction(ActionType, CONDITION, ACTIONCALLBACK, BINDING); 
 	template<typename T>
-	void SubscribeToAction(ActionType, CALLBACK, CALLBACKPARAM, BINDING); 
+	void SubscribeToAction(ActionType, ACTIONCALLBACK, ACTIONCALLBACKPARAM, BINDING); 
 	template<typename T>
-	void SubscribeToAction(ActionType, CONDITION, CALLBACK, CALLBACKPARAM, BINDING);
-
+	void SubscribeToAction(ActionType, CONDITION, ACTIONCALLBACK, ACTIONCALLBACKPARAM, BINDING);
 	void Subscribe(ActionType at, std::weak_ptr<Lina_ActionHandlerBase>);
 
 	float GetMouseX();
 	float GetMouseY();
+	float GetRawMouseX();
+	float GetRawMouseY();
 
 	std::list<std::shared_ptr<Lina_ActionHandlerBase>> m_Handlers;
+
+	// Instance references.
+	Lina_InputEngine* inputEngine;
+	Lina_ActionDispatcher* inputDispatcher;
 };
 
 

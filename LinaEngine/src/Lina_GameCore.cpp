@@ -26,19 +26,15 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "pch.h"
 #include "Lina_GameCore.h"  
 
-Lina_GameCore::Lina_GameCore()
+void Lina_GameCore::Initialize()
 {
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Game core initialized.", Lina_Console::MsgType::Initialization, "Game Core");
-
 }
-
-
 
 void Lina_GameCore::ProcessInput()
 {
-	//if (inputEngine->GetKey(SDLK_a))
-	//	std::cout << "true";
+
 }
 
 void Lina_GameCore::Update()

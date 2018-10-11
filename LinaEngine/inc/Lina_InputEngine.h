@@ -28,30 +28,39 @@ Redistribution and use in source and binary forms, with or without modification,
 #ifndef Lina_InputEngine_H
 #define Lina_InputEngine_H
 
+#define MOUSE_ACCURACY 2
+#define MOUSE_SMOOTH 3
+
 #include <Lina_Actions.h>
 #include <Lina_SDLHandler.h>
 
 class Lina_InputEngine
 {
 
-
 public:
 
-	Lina_InputEngine();
+	Lina_InputEngine() {};
+	~Lina_InputEngine() {};
+	void Initialize();
 	void Update();
 	void HandleEvents(SDL_Event& e);
-
-	float GetMouseAxis(int);
+	float GetRawMouseX();
+	float GetRawMouseY();
+	float GetMouseX();
+	float GetMouseY();
+	Lina_ActionDispatcher* GetInputDispatcher() { return &m_InputDispatcher; }
 
 private:
 
 	void operator=(const Lina_InputEngine& r) = delete;
-	bool mouseXT;
-
-	int relativeMouseX;
-	int relativeMouseY;
-	int prevMouseX;
-	int prevMouseY;
+	Lina_InputEngine(const Lina_InputEngine& r) = delete;
+	bool mouseMotionActive;
+	float deltaMouseX;
+	float deltaMouseY;
+	float prevMouseX;
+	float prevMouseY;
+	float smoothDeltaMouseX;
+	float smoothDeltaMouseY;
 	int currentMouseX;
 	int currentMouseY;
 	Lina_ActionDispatcher m_InputDispatcher;

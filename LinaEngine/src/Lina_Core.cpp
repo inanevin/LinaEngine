@@ -33,7 +33,6 @@ static const long SECOND = 1000000000;	// time in nanosecs
 // Constructor, initialize components.
 Lina_Core::Lina_Core()
 {
-
 	// Add a console message.
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Core initialized.", Lina_Console::MsgType::Initialization, "Core");
@@ -41,30 +40,32 @@ Lina_Core::Lina_Core()
 	// Set running.
 	isRunning = false;
 
+	// Initialize Message Bus.
+	Lina_CoreMessageBus::Instance().Initialize();
+
 	// Initialize SDL handler.
-	sdlHandler = std::make_shared<Lina_SDLHandler>();
+	sdlHandler.Initialize();
 
 	// Initialize input engine.
-	inputEngine = std::make_shared<Lina_InputEngine>();
+	inputEngine.Initialize();
 
 	// Initialize rendering engine.
-	renderingEngine = std::make_shared<Lina_Rendering>();
+	renderingEngine.Initialize();
 
 	// Initialize game core.
-	gameCore = std::make_shared<Lina_GameCore>();
+	gameCore.Initialize();
 
 	// Create a window.
-	renderingEngine->CreateDisplayWindow(1024, 768, "Lina Engine 3D");
+	renderingEngine.CreateDisplayWindow(1024, 768, "Lina Engine 3D");
 
-	
-		auto f = [](int mouseButton) {std::cout << "MouseButtonDown: " << mouseButton; };
-		auto f2 = [](int mouseButton) {std::cout << "MouseButtonReleased: " << mouseButton; };
-		auto f3 = [](SDL_Scancode key) {std::cout << "Key: " << key; };
-		auto f4 = [](SDL_Scancode keyReleased) {std::cout << "KeyReleased: " << keyReleased; };
+	auto f = [](int mouseButton) {std::cout << "MouseButtonDown: " << mouseButton; };
+	auto f2 = [](int mouseButton) {std::cout << "MouseButtonReleased: " << mouseButton; };
+	auto f3 = [](SDL_Scancode key) {std::cout << "Key: " << key; };
+	auto f4 = [](SDL_Scancode keyReleased) {std::cout << "KeyReleased: " << keyReleased; };
 
-		//subs.SubscribeToAction(ActionType::KeyPressed, f);
-	
-	
+	//subs.SubscribeToAction(ActionType::KeyPressed, f);
+
+
 	// Start the game.
 	Start();
 }
@@ -118,20 +119,12 @@ void Lina_Core::Run()
 	int frames = 0;
 	long frameCounter = 0;
 
-
-
-
 	// For now the only condition is to have an active window to keep the rendering.
 	while (isRunning)
 	{
-
-		// Debug running.
-		/*Lina_Console cons = Lina_Console();
-		cons.AddConsoleMsg("Game engine loop running...", Lina_Console::MsgType::Update, "Core Engine", true); */
-
 		// Whether to render the frame or not.
 		bool renderFrame = false;
-	
+
 		// Time that this frame started running.
 		long startTime = Lina_Time::GetCurrentTimeInNano();
 
@@ -158,43 +151,41 @@ void Lina_Core::Run()
 			unprocessedTime -= frameTime;
 
 			// If we don't have an active window or is closed stop.
-			if (renderingEngine->m_ActiveWindow == nullptr || renderingEngine->m_ActiveWindow->IsClosed())
+			if (renderingEngine.m_ActiveWindow == nullptr || renderingEngine.m_ActiveWindow->IsClosed())
 			{
 				Stop();
 				break;
 			}
 
-			inputEngine->Update();
-
+			// Handle the input events.
 			SDL_Event event;
-			while (SDL_PollEvent(&event)) {
+			while (SDL_PollEvent(&event))
+				inputEngine.HandleEvents(event);
 
-				inputEngine->HandleEvents(event);
-			}
-
-			//std::cout << "Input: " << eventHandler.GetMouseX() << std::endl;
 			// Set delta. (Change later, no effect for now)
 			Lina_Time::SetDelta(frameTime);
 
-			// Process input engine.
-			inputEngine->Update();
+			// Update the input engine.
+			inputEngine.Update();
 
 			// TODO: Update game loop
-			gameCore->ProcessInput();
-			gameCore->Update();
+			gameCore.ProcessInput();
+			gameCore.Update();
+
 			// print the frame counter every second.
 			if (frameCounter >= SECOND)
 			{
 				// Debug frames.
-				Lina_Console cons = Lina_Console();
-				cons.AddConsoleMsgSameLine("Main Game Loop Running (" + std::to_string(frames) + " FPS)" + std::to_string(frames), Lina_Console::MsgType::Update, "Core Engine");
+				//Lina_Console cons = Lina_Console();
+				//cons.AddConsoleMsgSameLine("Main Game Loop Running (" + std::to_string(frames) + " FPS)" + std::to_string(frames), Lina_Console::MsgType::Update, "Core Engine");
 				// reset frame counter & frames to calculate on the next iteration.
 				frames = 0;
 				frameCounter = 0;
 			}
 
-		}
+			std::cout << eventHandler.GetMouseX();
 
+		}
 		// render the frame.
 		if (renderFrame)
 		{
@@ -222,9 +213,8 @@ void Lina_Core::Run()
 // Rendering loop.
 void Lina_Core::Render()
 {
-
-	gameCore->Render();
-	renderingEngine->Render();
+	gameCore.Render();
+	renderingEngine.Render();
 }
 
 void Lina_Core::CleanUp()
@@ -233,5 +223,5 @@ void Lina_Core::CleanUp()
 	cons.AddConsoleMsg("Game engine loop cleaning up...", Lina_Console::MsgType::Deinitialization, "Core Engine");
 
 	// Clean up render engine.
-	renderingEngine->CleanUp();
+	renderingEngine.CleanUp();
 }
