@@ -2,10 +2,13 @@
 
 //As we stated in glVertexAttribPointer we declare position at the location 0.
 layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoords;
 
 //In order to send data to the next step of the rendering pipeline we can use out word.
 out float red;
 out float blue;
+
+out vec2 TexCoords;
 
 void main()
 {
@@ -16,4 +19,6 @@ void main()
 	//We can give values to the data which we send to the fragment shader.
 	red = aPos.x;
 	blue = 0.5;
+
+	TexCoords = aTexCoords;
 }

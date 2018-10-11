@@ -50,7 +50,7 @@ public:
 	std::shared_ptr<Lina_Window> m_ActiveWindow;
 	std::shared_ptr<Lina_InputHandler> inputEngine;
 	std::shared_ptr<Lina_Scene> m_Scene;
-	std::shared_ptr<Lina_Scene>& GetScene() { return m_Scene; }
+	void InitScene();
 
 };
 

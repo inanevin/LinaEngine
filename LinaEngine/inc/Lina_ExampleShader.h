@@ -38,6 +38,7 @@ public:
 	void LoadAndCompile(const char* vertexPath, const char* fragmentPath);
 
 	void SetFloat(const std::string& name, float value) const;
+	void SetInt(const std::string& name, int value) const;
 private:
 	void Compile(const char* vertexShader, const char* fragmentShader);
 	void CheckErrors(unsigned int ID, std::string type);

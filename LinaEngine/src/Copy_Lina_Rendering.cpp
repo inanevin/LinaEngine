@@ -25,6 +25,7 @@ Redistribution and use in source and binary forms, with or without modification,
 
 #include "pch.h"
 #include "Copy_Lina_Rendering.h"  
+#include "..\inc\Copy_Lina_Rendering.h"
 
 /*Lina_Rendering& Lina_Rendering::Instance()
 {
@@ -48,6 +49,11 @@ Copy_Lina_Rendering::~Copy_Lina_Rendering()
 {
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Rendering deinitialized.", Lina_Console::MsgType::Deinitialization, "Render Engine");
+}
+
+void Copy_Lina_Rendering::InitScene()
+{
+	m_Scene->InitScene();
 }
 
 // Main method to render a particular image on the active window.

@@ -69,6 +69,10 @@ void Lina_Mesh::InitMesh(Vertex* vertices, unsigned int numVertices)
 	//(The use of this argument will be more clear once we add different data for Normal positions and Texture coordinates).
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 
+	//VertexAttribArray for texture at position = 1
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
+
 	//We keep track of the number of vertices for Draw method.
 	m_NumVertices = numVertices;
 }
@@ -93,8 +97,13 @@ void Lina_Mesh::InitMeshWithIndex(Vertex* vertices, unsigned int numVertices, un
 	//The Usage of this method will be more clear when drawing.
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(indices[0]), indices, GL_STATIC_DRAW);
 
+	//VertexAttribArray for position at position = 0
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+
+	//VertexAttribArray for texture at position = 1
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
 
 	//We keep track of the number of indices for Draw method.
 	m_NumIndices = numIndices;

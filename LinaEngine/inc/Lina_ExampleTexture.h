@@ -22,27 +22,20 @@ Redistribution and use in source and binary forms, with or without modification,
 
 #pragma once
 
-#ifndef Lina_Scene_H
-#define Lina_Scene_H
+#ifndef Lina_ExampleTexture_H
+#define Lina_ExampleTexture_H
 
-#include <Lina_ExampleMesh.h>
-#include <Lina_ExampleShader.h>
-#include <Lina_ExampleTexture.h>
+#include "stb_image.h"
 
-class Lina_Scene
+class Lina_Texture
 {
 public:
-	Lina_Scene();
-	~Lina_Scene();
+	Lina_Texture();
+	void LoadTexture(const char* filePath);
+	void Bind();
 
-	//For initializing Mesh, Shader and Texture use renderingEngine->GetScene()
-	void InitScene();
-	void Draw();
-	void CleanUp();
 private:
-	Lina_Mesh m_Mesh;
-	Lina_Shader m_Shader;
-	Lina_Texture m_Texture;
+	unsigned int m_ID;
 };
 
 #endif

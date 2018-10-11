@@ -158,11 +158,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="opengl_inc\stb_image.cpp" />
     <ClCompile Include="src\Copy_Lina_Rendering.cpp" />
     <ClCompile Include="src\Lina_Event.cpp" />
     <ClCompile Include="src\Lina_EventDispatcher.cpp" />
     <ClCompile Include="src\Lina_ExampleMesh.cpp" />
     <ClCompile Include="src\Lina_ExampleShader.cpp" />
+    <ClCompile Include="src\Lina_ExampleTexture.cpp" />
     <ClCompile Include="src\Lina_InputBinding.cpp" />
     <ClCompile Include="src\Lina_InputHandler.cpp" />
     <ClCompile Include="src\Lina_Rendering.cpp" />
@@ -202,6 +204,7 @@
     </ClInclude>
     <ClInclude Include="inc\Lina_ExampleMesh.h" />
     <ClInclude Include="inc\Lina_ExampleShader.h" />
+    <ClInclude Include="inc\Lina_ExampleTexture.h" />
     <ClInclude Include="inc\Lina_ExampleVertex.h" />
     <ClInclude Include="inc\Lina_GameCore.h">
       <SubType>
@@ -238,6 +241,7 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\pch.h" />
+    <ClInclude Include="opengl_inc\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\basic.frag" />

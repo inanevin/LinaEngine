@@ -7,7 +7,13 @@ out vec4 FragColor;
 in float red;
 in float blue;
 
+in vec2 TexCoords;
+
+uniform sampler2D texture1;
+
 void main()
 {
-	FragColor = vec4(red, 0.0, blue, 1.0); // We are passing the color value as rgba.
+	//FragColor = vec4(red, 0.0, blue, 1.0); // We are passing the color value as rgba.
+	FragColor = texture(texture1, TexCoords); //texture is built in GLSL function which return vec4 color values.
+											  //the function expects a texture file and texture coordinates.
 }

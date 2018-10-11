@@ -8,14 +8,15 @@
 struct Vertex
 {
 public:
-	Vertex(glm::vec3 position)
+	Vertex(glm::vec3 position, glm::vec2 texCoords)
 	{
 		m_Position = position;
+		m_TexCoords = texCoords;
 	}
 
-	glm::vec3 GetPosition() { return m_Position; }
 public:
 	glm::vec3 m_Position;
+	glm::vec2 m_TexCoords;
 };
 
 #endif

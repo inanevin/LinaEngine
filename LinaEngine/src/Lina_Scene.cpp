@@ -37,24 +37,26 @@ Lina_Scene::~Lina_Scene()
 	cons.AddConsoleMsg("Scene deinitialized.", Lina_Console::MsgType::Deinitialization, "Scene");
 }
 
-void Lina_Scene::InitMesh()
+void Lina_Scene::InitScene()
 {
 	//Mesh initialization examples.
-
 	m_Mesh.InitMesh(vertices, sizeof(vertices) / sizeof(vertices[0]));
-	//mesh.InitMesh(rectVertices, sizeof(rectVertices) / sizeof(rectVertices[0]));
-	//mesh.InitMeshWithIndex(rektVertices, sizeof(rektVertices) / sizeof(rektVertices[0]), rektIndices, sizeof(rektIndices) / sizeof(rektIndices[0]));
-}
+	//m_Mesh.InitMesh(rectVertices, sizeof(rectVertices) / sizeof(rectVertices[0]));
+	//m_Mesh.InitMeshWithIndex(rektVertices, sizeof(rektVertices) / sizeof(rektVertices[0]), rektIndices, sizeof(rektIndices) / sizeof(rektIndices[0]));
 
-void Lina_Scene::InitShader()
-{
 	m_Shader.LoadAndCompile("./Resources/Shaders/basic.vert", "./Resources/Shaders/basic.frag");
+
+	m_Texture.LoadTexture("./Resources/Textures/container2.png");
 }
 
 void Lina_Scene::Draw()
 {
-	//Before drawing the mesh activate the shader.
+	//Before drawing the mesh bind the textures and activate the shader.
+	glActiveTexture(GL_TEXTURE0);
+	m_Texture.Bind();
+
 	m_Shader.Use();
+
 	m_Mesh.Draw();
 }
 
