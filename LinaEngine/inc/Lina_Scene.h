@@ -35,7 +35,8 @@ public:
 	Lina_Scene();
 	~Lina_Scene();
 
-	//For initializing Mesh, Shader and Texture use renderingEngine->GetScene()
+	//For using scene use Copy_Lina_Rendering
+	//For initializing Mesh, Shader and Texture use renderingEngine->InitScene()
 	void InitScene();
 	void Draw();
 	void CleanUp();
