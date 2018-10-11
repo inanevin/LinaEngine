@@ -41,7 +41,7 @@ Lina_Core::Lina_Core()
 	isRunning = false;
 
 	// Initialize Message Bus.
-	Lina_CoreMessageBus::Instance().Initialize();
+	Lina_CoreMessageBus::Instance().Initialize(&sdlHandler, &inputEngine, &renderingEngine);
 
 	// Initialize SDL handler.
 	sdlHandler.Initialize();
@@ -53,7 +53,10 @@ Lina_Core::Lina_Core()
 	renderingEngine.Initialize();
 
 	// Initialize game core.
-	gameCore.Initialize();
+	gameCore.Initialize();	
+
+	// Wake the systems.
+	Wake();
 
 	// Create a window.
 	renderingEngine.CreateDisplayWindow(1024, 768, "Lina Engine 3D");
@@ -65,7 +68,6 @@ Lina_Core::Lina_Core()
 
 	//subs.SubscribeToAction(ActionType::KeyPressed, f);
 
-
 	// Start the game.
 	Start();
 }
@@ -76,6 +78,14 @@ Lina_Core::~Lina_Core()
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Core deinitialized.", Lina_Console::MsgType::Deinitialization, "Core");
 }
+
+// Initialization before start.
+void Lina_Core::Wake()
+{
+	// Initialize event handler.
+	eventHandler.Initialize();
+}
+
 
 // Initialization method for the game core.
 void Lina_Core::Start()
@@ -107,7 +117,7 @@ void Lina_Core::Run()
 	isRunning = true;
 
 	// Amount of time one frame takes.
-	const double frameTime = 1.0 / FRAME_CAP;
+	const double frameTime = 1.0 / 15;
 
 	// Time that prev frame started running.
 	long lastTime = Lina_Time::GetCurrentTimeInNano();
@@ -140,7 +150,7 @@ void Lina_Core::Run()
 
 		// Increment frame counter.
 		frameCounter += passedTime;
-
+		
 		// While total time is greater than time one frame is supposed to take. (update time)
 		while (unprocessedTime > frameTime)
 		{
@@ -161,17 +171,17 @@ void Lina_Core::Run()
 			SDL_Event event;
 			while (SDL_PollEvent(&event))
 				inputEngine.HandleEvents(event);
-
-			// Set delta. (Change later, no effect for now)
-			Lina_Time::SetDelta(frameTime);
-
+			
 			// Update the input engine.
 			inputEngine.Update();
 
+			// Set delta. (Change later, no effect for now)
+			Lina_Time::SetDelta(frameTime);
+			
 			// TODO: Update game loop
 			gameCore.ProcessInput();
 			gameCore.Update();
-
+			
 			// print the frame counter every second.
 			if (frameCounter >= SECOND)
 			{
@@ -182,9 +192,9 @@ void Lina_Core::Run()
 				frames = 0;
 				frameCounter = 0;
 			}
-
-			std::cout << eventHandler.GetMouseX();
-
+			float x = eventHandler.GetRawMouseX();
+			//	if(x != 0)
+			//	std::cout << x << std::endl;
 		}
 		// render the frame.
 		if (renderFrame)

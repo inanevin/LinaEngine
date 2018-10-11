@@ -28,8 +28,8 @@ Redistribution and use in source and binary forms, with or without modification,
 #ifndef Lina_InputEngine_H
 #define Lina_InputEngine_H
 
-#define MOUSE_ACCURACY 2
-#define MOUSE_SMOOTH 3
+#define MOUSE_ACCURACY	15
+#define MOUSE_SMOOTH .1
 
 #include <Lina_Actions.h>
 #include <Lina_SDLHandler.h>

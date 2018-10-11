@@ -30,6 +30,8 @@ Redistribution and use in source and binary forms, with or without modification,
 
 //#include<list>
 #include "Lina_Window.h"
+#include "Lina_EventHandler.h"
+
 class Lina_RenderingEngine
 {
 
@@ -42,7 +44,7 @@ public:
 	void Render();
 	void CleanUp();
 	std::shared_ptr<Lina_Window> m_ActiveWindow;
-
+	Lina_EventHandler eventHandler;
 private:
 	Lina_RenderingEngine(const Lina_RenderingEngine&) = delete;
 	Lina_RenderingEngine& operator= (const Lina_RenderingEngine&) = delete;

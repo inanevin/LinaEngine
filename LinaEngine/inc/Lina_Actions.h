@@ -39,7 +39,8 @@ enum ActionType
 	MouseButtonPressed,
 	MouseButtonReleased,
 	MouseMotionX,
-	MouseMotionY
+	MouseMotionY,
+	SDLQuit
 };
 
 // Base wrapper class for actions.
@@ -59,7 +60,7 @@ private:
 };
 
 // Template class used for actions. 
-template<typename T>
+template<typename T = int>
 class Lina_Action : public Lina_ActionBase
 {
 
@@ -281,7 +282,6 @@ public:
 
 	}
 
-	
 	void SubscribeHandler(std::weak_ptr<Lina_ActionHandlerBase> ptr)
 	{
 		// Add the weak pointer to the list.

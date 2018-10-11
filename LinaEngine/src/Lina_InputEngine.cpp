@@ -48,23 +48,28 @@ void Lina_InputEngine::HandleEvents(SDL_Event& e)
 		keyPressed.SetData(e.key.keysym.scancode);
 		m_InputDispatcher.DispatchAction(keyPressed);
 	}
-	if (e.type == SDL_KEYUP)
+	else if (e.type == SDL_KEYUP)
 	{
 		Lina_Action<SDL_Scancode> keyReleased = Lina_Action<SDL_Scancode>(KeyReleased);
 		keyReleased.SetData(e.key.keysym.scancode);
 		m_InputDispatcher.DispatchAction(keyReleased);
 	}
-	if (e.type == SDL_MOUSEBUTTONDOWN)
+	else if (e.type == SDL_MOUSEBUTTONDOWN)
 	{
 		Lina_Action<int> mouseButtonDown = Lina_Action<int>(MouseButtonPressed);
 		mouseButtonDown.SetData(e.button.button);
 		m_InputDispatcher.DispatchAction(mouseButtonDown);
 	}
-	if (e.type == SDL_MOUSEBUTTONUP)
+	else if (e.type == SDL_MOUSEBUTTONUP)
 	{
 		Lina_Action<int> mouseButtonUp = Lina_Action<int>(MouseButtonReleased);
 		mouseButtonUp.SetData(e.button.button);
 		m_InputDispatcher.DispatchAction(mouseButtonUp);
+	}
+	else if (e.type == SDL_QUIT)
+	{
+		Lina_Action<> sdlQuit = Lina_Action<>(SDLQuit);
+		m_InputDispatcher.DispatchAction(sdlQuit);
 	}
 
 	// Set up flag for mouse motion.
@@ -76,12 +81,10 @@ void Lina_InputEngine::HandleEvents(SDL_Event& e)
 
 void Lina_InputEngine::Update()
 {
-	// Pump SDL Events
-	SDL_PumpEvents();
-
 	// Store current mouse coordinates.
 	SDL_GetMouseState(&currentMouseX, &currentMouseY);
 
+	std::cout << "\r" << "Previous Mouse X: " << prevMouseX << " Current MouseX: " << currentMouseX << std::endl;
 	// Get the delta of the mouse movement for X & Y if there is currently a motion, else, set the delta's to zero.
 	if (mouseMotionActive)
 	{

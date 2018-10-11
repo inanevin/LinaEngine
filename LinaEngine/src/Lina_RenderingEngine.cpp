@@ -32,6 +32,12 @@ void Lina_RenderingEngine::Initialize()
 	// Add a console message.
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Rendering engine initialized.", Lina_Console::MsgType::Initialization, "Render Engine");
+
+	// Initialize event handler.
+	eventHandler.Initialize();
+
+	// Register window events.
+	eventHandler.SubscribeToAction(ActionType::SDLQuit, [this]() { m_ActiveWindow->CloseWindow(); });
 }
 
 // Destructor.

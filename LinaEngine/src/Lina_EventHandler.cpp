@@ -30,7 +30,7 @@ void Lina_EventHandler::Initialize()
 {
 	// Retrieve the input engine pointer from the message bus.
 	inputEngine = Lina_CoreMessageBus::Instance().GetInputEngine();
-	//inputDispatcher = inputEngine->GetInputDispatcher();
+	inputDispatcher = inputEngine->GetInputDispatcher();
 }
 
 /* ACITON SUBSCRIPTION OVERLOADS */
@@ -363,7 +363,7 @@ void Lina_EventHandler::SubscribeToAction(ActionType at, T condition, std::funct
 void Lina_EventHandler::Subscribe(ActionType at, std::weak_ptr<Lina_ActionHandlerBase> wptr)
 {
 	if (at == ActionType::KeyPressed || at == ActionType::KeyReleased || at == ActionType::MouseButtonPressed || at == ActionType::MouseButtonReleased || 
-		at == ActionType::MouseMotionX || at == ActionType::MouseMotionY)
+		at == ActionType::MouseMotionX || at == ActionType::MouseMotionY || at == ActionType::SDLQuit)
 	{
 		inputDispatcher->SubscribeHandler(wptr);
 	}

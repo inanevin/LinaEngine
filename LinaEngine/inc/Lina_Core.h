@@ -44,6 +44,7 @@ public:
 
 private:
 
+	void Wake();
 	void Start();
 	void Stop();
 	void Run();

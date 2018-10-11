@@ -30,7 +30,6 @@ Redistribution and use in source and binary forms, with or without modification,
 
 class Lina_InputEngine;
 class Lina_Core;
-class Lina_ActionDispatcher;
 class Lina_RenderingEngine;
 class Lina_SDLHandler;
 
@@ -38,7 +37,7 @@ class Lina_CoreMessageBus
 {
 public:
 
-	void Initialize();
+	void Initialize(Lina_SDLHandler*, Lina_InputEngine*, Lina_RenderingEngine*);
 
 	static Lina_CoreMessageBus& Instance()
 	{
