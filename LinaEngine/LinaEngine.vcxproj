@@ -159,7 +159,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Lina_CoreMessageBus.cpp" />
-    <ClCompile Include="src\Lina_EventHandler.cpp" />
+    <ClCompile Include="src\Lina_ObjectHandler.cpp" />
     <ClCompile Include="src\Lina_InputEngine.cpp" />
     <ClCompile Include="src\Lina_RenderingEngine.cpp" />
     <ClCompile Include="src\Lina_Core.cpp" />
@@ -190,7 +190,7 @@
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Lina_EventHandler.h">
+    <ClInclude Include="inc\Lina_ObjectHandler.h">
       <SubType>
       </SubType>
     </ClInclude>

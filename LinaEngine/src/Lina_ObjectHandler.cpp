@@ -20,9 +20,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
-#include "Lina_EventHandler.h"  
+#include "Lina_ObjectHandler.h"  
 
-void Lina_EventHandler::Initialize()
+void Lina_ObjectHandler::Initialize()
 {
 	// Retrieve the input engine pointer from the message bus.
 	inputEngine = Lina_CoreMessageBus::Instance().GetInputEngine();
@@ -31,7 +31,7 @@ void Lina_EventHandler::Initialize()
 
 /* ACITON SUBSCRIPTION OVERLOADS */
 
-void Lina_EventHandler::SubscribeToAction(ActionType at, std::function<void()>const& cb)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void()>const& cb)
 {
 	// Init the handler.
 	Lina_ActionHandler<> handler(at);
@@ -52,7 +52,7 @@ void Lina_EventHandler::SubscribeToAction(ActionType at, std::function<void()>co
 }
 
 template<typename T>
-void Lina_EventHandler::SubscribeToAction(ActionType at, std::function<void(T)>const& cbp)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void(T)>const& cbp)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -73,7 +73,7 @@ void Lina_EventHandler::SubscribeToAction(ActionType at, std::function<void(T)>c
 }
 
 template<typename T>
-void Lina_EventHandler::SubscribeToAction(ActionType at, T* binding)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, T* binding)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -94,7 +94,7 @@ void Lina_EventHandler::SubscribeToAction(ActionType at, T* binding)
 }
 
 template<typename T>
-void Lina_EventHandler::SubscribeToAction(ActionType at, T condition, std::function<void()>const& cb)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::function<void()>const& cb)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -117,7 +117,7 @@ void Lina_EventHandler::SubscribeToAction(ActionType at, T condition, std::funct
 }
 
 template<typename T>
-void Lina_EventHandler::SubscribeToAction(ActionType at, T condition, std::function<void(T)>const& cbp)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::function<void(T)>const& cbp)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -140,7 +140,7 @@ void Lina_EventHandler::SubscribeToAction(ActionType at, T condition, std::funct
 }
 
 template<typename T>
-void Lina_EventHandler::SubscribeToAction(ActionType at, T condition, T* binding)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, T* binding)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -163,7 +163,7 @@ void Lina_EventHandler::SubscribeToAction(ActionType at, T condition, T* binding
 }
 
 template<typename T>
-void Lina_EventHandler::SubscribeToAction(ActionType at, std::function<void()>const& cb, std::function<void(T)>const& cbp)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void()>const& cb, std::function<void(T)>const& cbp)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -186,7 +186,7 @@ void Lina_EventHandler::SubscribeToAction(ActionType at, std::function<void()>co
 }
 
 template<typename T>
-void Lina_EventHandler::SubscribeToAction(ActionType at, std::function<void()>const& cb, T* binding)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void()>const& cb, T* binding)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -209,7 +209,7 @@ void Lina_EventHandler::SubscribeToAction(ActionType at, std::function<void()>co
 }
 
 template<typename T>
-void Lina_EventHandler::SubscribeToAction(ActionType at, std::function<void(T)>const& cbp, T* binding)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void(T)>const& cbp, T* binding)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -232,107 +232,7 @@ void Lina_EventHandler::SubscribeToAction(ActionType at, std::function<void(T)>c
 }
 
 template<typename T>
-void Lina_EventHandler::SubscribeToAction(ActionType at, T condition, std::function<void()>const& cb, std::function<void(T)>const& cbp)
-{
-	// Init the handler.
-	Lina_ActionHandler<T> handler(at);
-	handler.SetUseCondition(true);
-	handler.SetUseNoParamCallback(true);
-	handler.SetUseParamCallback(true);
-	handler.SetCondition(condition);
-	handler.SetNoParamCallback(cb);
-	handler.SetParamCallback(cbp);
-
-	// Push it a shared ptr to the handler to the list.
-	m_Handlers.push_back(std::make_shared<Lina_ActionHandler<T>>(handler));
-
-	// Get the shared ptr pushed just now.
-	std::list<std::shared_ptr<Lina_ActionHandlerBase>>::iterator iter = std::prev(m_Handlers.end());
-
-	// construct a weakptr out of the shared.
-	std::weak_ptr<Lina_ActionHandlerBase> wptr = *iter;
-
-	// Call the subscription to subscribe to relevant dispatcher.
-	Subscribe(at, wptr);
-}
-
-template<typename T>
-void Lina_EventHandler::SubscribeToAction(ActionType at, T condition, std::function<void(T)>const& cbp, T* binding)
-{
-	// Init the handler.
-	Lina_ActionHandler<T> handler(at);
-	handler.SetUseCondition(true);
-	handler.SetUseBinding(true);
-	handler.SetUseParamCallback(true);
-	handler.SetCondition(condition);
-	handler.SetBinding(binding);
-	handler.SetParamCallback(cbp);
-
-	// Push it a shared ptr to the handler to the list.
-	m_Handlers.push_back(std::make_shared<Lina_ActionHandler<T>>(handler));
-
-	// Get the shared ptr pushed just now.
-	std::list<std::shared_ptr<Lina_ActionHandlerBase>>::iterator iter = std::prev(m_Handlers.end());
-
-	// construct a weakptr out of the shared.
-	std::weak_ptr<Lina_ActionHandlerBase> wptr = *iter;
-
-	// Call the subscription to subscribe to relevant dispatcher.
-	Subscribe(at, wptr);
-}
-
-template<typename T>
-void Lina_EventHandler::SubscribeToAction(ActionType at, T condition, std::function<void()>const& cb, T* binding)
-{
-	// Init the handler.
-	Lina_ActionHandler<T> handler(at);
-	handler.SetUseCondition(true);
-	handler.SetUseNoParamCallback(true);
-	handler.SetUseBinding(true);
-	handler.SetCondition(condition);
-	handler.SetNoParamCallback(cb);
-	handler.SetBinding(binding);
-
-	// Push it a shared ptr to the handler to the list.
-	m_Handlers.push_back(std::make_shared<Lina_ActionHandler<T>>(handler));
-
-	// Get the shared ptr pushed just now.
-	std::list<std::shared_ptr<Lina_ActionHandlerBase>>::iterator iter = std::prev(m_Handlers.end());
-
-	// construct a weakptr out of the shared.
-	std::weak_ptr<Lina_ActionHandlerBase> wptr = *iter;
-
-	// Call the subscription to subscribe to relevant dispatcher.
-	Subscribe(at, wptr);
-}
-
-template<typename T>
-void Lina_EventHandler::SubscribeToAction(ActionType at, std::function<void()>const& cb, std::function<void(T)>const& cbp, T* binding)
-{
-	// Init the handler.
-	Lina_ActionHandler<T> handler(at);
-	handler.SetUseNoParamCallback(true);
-	handler.SetUseParamCallback(true);
-	handler.SetUseBinding(true);
-	handler.SetNoParamCallback(cb);
-	handler.SetParamCallback(cbp);
-	handler.SetBinding(binding);
-
-	// Push it a shared ptr to the handler to the list.
-	m_Handlers.push_back(std::make_shared<Lina_ActionHandler<T>>(handler));
-
-	// Get the shared ptr pushed just now.
-	std::list<std::shared_ptr<Lina_ActionHandlerBase>>::iterator iter = std::prev(m_Handlers.end());
-
-	// construct a weakptr out of the shared.
-	std::weak_ptr<Lina_ActionHandlerBase> wptr = *iter;
-
-	// Call the subscription to subscribe to relevant dispatcher.
-	Subscribe(at, wptr);
-}
-
-template<typename T>
-void Lina_EventHandler::SubscribeToAction(ActionType at, T condition, std::function<void()>const& cb, std::function<void(T)>const& cbp, T* binding)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::function<void()>const& cb, std::function<void(T)>const& cbp)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -356,7 +256,107 @@ void Lina_EventHandler::SubscribeToAction(ActionType at, T condition, std::funct
 	Subscribe(at, wptr);
 }
 
-void Lina_EventHandler::Subscribe(ActionType at, std::weak_ptr<Lina_ActionHandlerBase> wptr)
+template<typename T>
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::function<void(T)>const& cbp, T* binding)
+{
+	// Init the handler.
+	Lina_ActionHandler<T> handler(at);
+	handler.SetUseCondition(true);
+	handler.SetUseBinding(true);
+	handler.SetUseParamCallback(true);
+	handler.SetCondition(condition);
+	handler.SetBinding(binding);
+	handler.SetParamCallback(cbp);
+
+	// Push it a shared ptr to the handler to the list.
+	m_Handlers.push_back(std::make_shared<Lina_ActionHandler<T>>(handler));
+
+	// Get the shared ptr pushed just now.
+	std::list<std::shared_ptr<Lina_ActionHandlerBase>>::iterator iter = std::prev(m_Handlers.end());
+
+	// construct a weakptr out of the shared.
+	std::weak_ptr<Lina_ActionHandlerBase> wptr = *iter;
+
+	// Call the subscription to subscribe to relevant dispatcher.
+	Subscribe(at, wptr);
+}
+
+template<typename T>
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::function<void()>const& cb, T* binding)
+{
+	// Init the handler.
+	Lina_ActionHandler<T> handler(at);
+	handler.SetUseCondition(true);
+	handler.SetUseNoParamCallback(true);
+	handler.SetUseBinding(true);
+	handler.SetCondition(condition);
+	handler.SetNoParamCallback(cb);
+	handler.SetBinding(binding);
+
+	// Push it a shared ptr to the handler to the list.
+	m_Handlers.push_back(std::make_shared<Lina_ActionHandler<T>>(handler));
+
+	// Get the shared ptr pushed just now.
+	std::list<std::shared_ptr<Lina_ActionHandlerBase>>::iterator iter = std::prev(m_Handlers.end());
+
+	// construct a weakptr out of the shared.
+	std::weak_ptr<Lina_ActionHandlerBase> wptr = *iter;
+
+	// Call the subscription to subscribe to relevant dispatcher.
+	Subscribe(at, wptr);
+}
+
+template<typename T>
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void()>const& cb, std::function<void(T)>const& cbp, T* binding)
+{
+	// Init the handler.
+	Lina_ActionHandler<T> handler(at);
+	handler.SetUseNoParamCallback(true);
+	handler.SetUseParamCallback(true);
+	handler.SetUseBinding(true);
+	handler.SetNoParamCallback(cb);
+	handler.SetParamCallback(cbp);
+	handler.SetBinding(binding);
+
+	// Push it a shared ptr to the handler to the list.
+	m_Handlers.push_back(std::make_shared<Lina_ActionHandler<T>>(handler));
+
+	// Get the shared ptr pushed just now.
+	std::list<std::shared_ptr<Lina_ActionHandlerBase>>::iterator iter = std::prev(m_Handlers.end());
+
+	// construct a weakptr out of the shared.
+	std::weak_ptr<Lina_ActionHandlerBase> wptr = *iter;
+
+	// Call the subscription to subscribe to relevant dispatcher.
+	Subscribe(at, wptr);
+}
+
+template<typename T>
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::function<void()>const& cb, std::function<void(T)>const& cbp, T* binding)
+{
+	// Init the handler.
+	Lina_ActionHandler<T> handler(at);
+	handler.SetUseCondition(true);
+	handler.SetUseNoParamCallback(true);
+	handler.SetUseParamCallback(true);
+	handler.SetCondition(condition);
+	handler.SetNoParamCallback(cb);
+	handler.SetParamCallback(cbp);
+
+	// Push it a shared ptr to the handler to the list.
+	m_Handlers.push_back(std::make_shared<Lina_ActionHandler<T>>(handler));
+
+	// Get the shared ptr pushed just now.
+	std::list<std::shared_ptr<Lina_ActionHandlerBase>>::iterator iter = std::prev(m_Handlers.end());
+
+	// construct a weakptr out of the shared.
+	std::weak_ptr<Lina_ActionHandlerBase> wptr = *iter;
+
+	// Call the subscription to subscribe to relevant dispatcher.
+	Subscribe(at, wptr);
+}
+
+void Lina_ObjectHandler::Subscribe(ActionType at, std::weak_ptr<Lina_ActionHandlerBase> wptr)
 {
 	if (at == ActionType::KeyPressed || at == ActionType::KeyReleased || at == ActionType::MouseButtonPressed || at == ActionType::MouseButtonReleased || 
 		at == ActionType::MouseMotionX || at == ActionType::MouseMotionY || at == ActionType::SDLQuit)
@@ -366,25 +366,40 @@ void Lina_EventHandler::Subscribe(ActionType at, std::weak_ptr<Lina_ActionHandle
 }
 
 // Returns the smoothed delta mouse x value.
-float Lina_EventHandler::GetMouseX()
+float Lina_ObjectHandler::GetMouseX()
 {
 	return inputEngine->GetMouseX();
 }
 
 // Returns the smoothed delta mouse y value.
-float Lina_EventHandler::GetMouseY()
+float Lina_ObjectHandler::GetMouseY()
 {
 	return inputEngine->GetMouseY();
 }
 
 // Returns the raw delta mouse x value.
-float Lina_EventHandler::GetRawMouseX()
+float Lina_ObjectHandler::GetRawMouseX()
 {
 	return inputEngine->GetRawMouseX();
 }
 
 // Returns the raw delta mouse y value.
-float Lina_EventHandler::GetRawMouseY()
+float Lina_ObjectHandler::GetRawMouseY()
 {
 	return inputEngine->GetRawMouseY();
+}
+
+bool Lina_ObjectHandler::GetMouseButton(int button)
+{
+	return inputEngine->GetMouseButton(button);
+}
+
+bool Lina_ObjectHandler::GetMouseButtonDown(int button)
+{
+	return inputEngine->GetMouseButtonDown(button);
+}
+
+bool Lina_ObjectHandler::GetMouseButtonUp(int button)
+{
+	return inputEngine->GetMouseButtonUp(button);
 }

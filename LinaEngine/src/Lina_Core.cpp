@@ -79,7 +79,7 @@ Lina_Core::~Lina_Core()
 void Lina_Core::Wake()
 {
 	// Initialize event handler.
-	eventHandler.Initialize();
+	objectHandler.Initialize();
 }
 
 
@@ -188,7 +188,7 @@ void Lina_Core::Run()
 				frames = 0;
 				frameCounter = 0;
 			}
-			float x = eventHandler.GetRawMouseX();
+			float x = objectHandler.GetRawMouseX();
 			//	if(x != 0)
 			//	std::cout << x << std::endl;
 		}

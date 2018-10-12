@@ -33,12 +33,12 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define ACTIONCALLBACK std::function<void()>const&
 #define ACTIONCALLBACKPARAM std::function<void(T)>const&
 
-class Lina_EventHandler
+class Lina_ObjectHandler
 {
 public:
 
-	Lina_EventHandler() {};
-	~Lina_EventHandler() {};
+	Lina_ObjectHandler() {};
+	~Lina_ObjectHandler() {};
 	void Initialize();
 
 	/* ACITON SUBSCRIPTION OVERLOADS */
@@ -75,10 +75,12 @@ public:
 	float GetMouseY();
 	float GetRawMouseX();
 	float GetRawMouseY();
+	bool GetMouseButton(int);
+	bool GetMouseButtonDown(int);
+	bool GetMouseButtonUp(int);
+
 
 	std::list<std::shared_ptr<Lina_ActionHandlerBase>> m_Handlers;
-
-	// Instance references.
 	Lina_InputEngine* inputEngine;
 	Lina_ActionDispatcher* inputDispatcher;
 };

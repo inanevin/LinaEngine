@@ -26,7 +26,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Lina_RenderingEngine.h"
 #include "Lina_GameCore.h"
 #include "Lina_InputEngine.h"
-#include "Lina_EventHandler.h"
+#include "Lina_ObjectHandler.h"
 
 extern const double FRAME_CAP;
 extern const long SECOND;
@@ -54,7 +54,7 @@ private:
 	Lina_SDLHandler sdlHandler;
 
 	// Object Specific
-	Lina_EventHandler eventHandler;
+	Lina_ObjectHandler eventHandler;
 
 	Lina_Core(const Lina_Core& r) = delete;
 

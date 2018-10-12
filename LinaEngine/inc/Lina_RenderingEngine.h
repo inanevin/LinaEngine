@@ -26,7 +26,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 //#include<list>
 #include "Lina_Window.h"
-#include "Lina_EventHandler.h"
+#include "Lina_ObjectHandler.h"
 
 class Lina_RenderingEngine
 {
@@ -40,7 +40,7 @@ public:
 	void Render();
 	void CleanUp();
 	std::shared_ptr<Lina_Window> m_ActiveWindow;
-	Lina_EventHandler eventHandler;
+	Lina_ObjectHandler eventHandler;
 private:
 	Lina_RenderingEngine(const Lina_RenderingEngine&) = delete;
 	Lina_RenderingEngine& operator= (const Lina_RenderingEngine&) = delete;
