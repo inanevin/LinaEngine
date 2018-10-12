@@ -1,5 +1,5 @@
 # Lina Engine
-Lina Engine is an open-source , modular and fast C++ game engine, aimed to develop 3D cross-platform desktop games.
+Lina Engine is an open-source , modular, tiny and fast C++ game engine, aimed to develop 3D cross-platform desktop games.
 
 ## Prequisites
 Visual Studio 2017
