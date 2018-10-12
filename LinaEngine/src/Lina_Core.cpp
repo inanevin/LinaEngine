@@ -117,7 +117,7 @@ void Lina_Core::Run()
 	isRunning = true;
 
 	// Amount of time one frame takes.
-	const double frameTime = 1.0 / 15;
+	const double frameTime = 1.0 / FRAME_CAP;
 
 	// Time that prev frame started running.
 	long lastTime = Lina_Time::GetCurrentTimeInNano();

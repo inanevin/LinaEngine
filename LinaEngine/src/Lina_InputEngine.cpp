@@ -29,6 +29,10 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "Lina_Math.h"
 #include "Lina_Time.h"
 
+#define MOUSE_ACCURACY	10
+#define MOUSE_SMOOTH 25
+
+
 void Lina_InputEngine::Initialize()
 {
 	Lina_Console cons = Lina_Console();
@@ -71,43 +75,27 @@ void Lina_InputEngine::HandleEvents(SDL_Event& e)
 		Lina_Action<> sdlQuit = Lina_Action<>(SDLQuit);
 		m_InputDispatcher.DispatchAction(sdlQuit);
 	}
-
-	// Set up flag for mouse motion.
-	mouseMotionActive = false;
-	if (e.type == SDL_MOUSEMOTION)
-		mouseMotionActive = true;
 	
 }
 
 void Lina_InputEngine::Update()
 {
 	// Store current mouse coordinates.
-	SDL_GetMouseState(&currentMouseX, &currentMouseY);
+	SDL_GetRelativeMouseState(&mouseXState, &mouseYState);
 
-	std::cout << "\r" << "Previous Mouse X: " << prevMouseX << " Current MouseX: " << currentMouseX << std::endl;
-	// Get the delta of the mouse movement for X & Y if there is currently a motion, else, set the delta's to zero.
-	if (mouseMotionActive)
-	{
-		mouseMotionActive = false;
-		deltaMouseX = (currentMouseX - prevMouseX) / MOUSE_ACCURACY;
-		deltaMouseX = Lina_Math::ClampMinMax(deltaMouseX, -1.0f, 1.0f);
-		deltaMouseY = (currentMouseY - prevMouseY) / MOUSE_ACCURACY;
-		deltaMouseY = Lina_Math::ClampMinMax(deltaMouseY, -1.0f, 1.0f);
-	}
-	else
-	{
-		smoothDeltaMouseX = smoothDeltaMouseY = 0;
-		deltaMouseX = deltaMouseY = 0;
-	}
+	// Update mouse x & y state into float variables.
+	currentMouseX = mouseXState;
+	currentMouseY = mouseYState;
 
-	// Interpolate smoothed mouse input.
-	smoothDeltaMouseX = Lina_Math::Lerp(smoothDeltaMouseX, deltaMouseX, Lina_Time::GetDelta() * MOUSE_SMOOTH);
-	smoothDeltaMouseY = Lina_Math::Lerp(smoothDeltaMouseY, deltaMouseY, Lina_Time::GetDelta() * MOUSE_SMOOTH);
+	// Divide the current values by an accuracy value to create precision.
+	deltaMouseX = float((currentMouseX) / MOUSE_ACCURACY);
+	deltaMouseX = float((currentMouseX) / MOUSE_ACCURACY);
 
-	// Store the last coordinates at the end of the frame for the next frame.
-	prevMouseX = currentMouseX;
-	prevMouseY = currentMouseY;
-
+	// Interpolate smoothed mouse input. TODO: Interpolate smoothing later.
+	smoothDeltaMouseX = deltaMouseX;
+	smoothDeltaMouseY = deltaMouseY;
+	//smoothDeltaMouseX = Lina_Math::Lerp(smoothDeltaMouseX, deltaMouseX, Lina_Time::GetDelta() * MOUSE_SMOOTH);
+	//smoothDeltaMouseY = Lina_Math::Lerp(smoothDeltaMouseY, deltaMouseY, Lina_Time::GetDelta() * MOUSE_SMOOTH);
 }
 
 float Lina_InputEngine::GetRawMouseX()
@@ -122,12 +110,12 @@ float Lina_InputEngine::GetRawMouseY()
 
 float Lina_InputEngine::GetMouseX()
 {
-	return deltaMouseX;
+	return smoothDeltaMouseX;
 }
 
 float Lina_InputEngine::GetMouseY()
 {
-	return deltaMouseY;
+	return smoothDeltaMouseY;
 }
 
 

@@ -28,9 +28,6 @@ Redistribution and use in source and binary forms, with or without modification,
 #ifndef Lina_InputEngine_H
 #define Lina_InputEngine_H
 
-#define MOUSE_ACCURACY	15
-#define MOUSE_SMOOTH .1
-
 #include <Lina_Actions.h>
 #include <Lina_SDLHandler.h>
 
@@ -54,15 +51,14 @@ private:
 
 	void operator=(const Lina_InputEngine& r) = delete;
 	Lina_InputEngine(const Lina_InputEngine& r) = delete;
-	bool mouseMotionActive;
 	float deltaMouseX;
 	float deltaMouseY;
-	float prevMouseX;
-	float prevMouseY;
 	float smoothDeltaMouseX;
 	float smoothDeltaMouseY;
-	int currentMouseX;
-	int currentMouseY;
+	float currentMouseX;
+	float currentMouseY;
+	int mouseXState;
+	int mouseYState;
 	Lina_ActionDispatcher m_InputDispatcher;
 };
 
