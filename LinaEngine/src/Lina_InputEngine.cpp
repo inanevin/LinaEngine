@@ -36,8 +36,26 @@ void Lina_InputEngine::Initialize()
 
 	// Provide the engine & input dispatcher to message bus.
 	Lina_CoreMessageBus::Instance().SetInputEngine(this);
+
+	// Initialize the array.
+	m_PreviousKeys = new Uint8[numKeys];
+
+	// Store the key state into member attribute.
+	m_KeyboardState = SDL_GetKeyboardState(&numKeys);
+
+	// Allocate arrays to store previous and current keys, set them to current key state initially.
+	m_PreviousKeys = new Uint8[numKeys];
+	m_CurrentKeys = new Uint8[numKeys];
+	memcpy(m_CurrentKeys, m_KeyboardState, sizeof(Uint8) * numKeys);
+	memcpy(m_PreviousKeys, m_KeyboardState, sizeof(Uint8) * numKeys);
+
 }
 
+Lina_InputEngine::~Lina_InputEngine()
+{
+	delete m_PreviousKeys;
+	delete m_CurrentKeys;
+}
 
 void Lina_InputEngine::HandleEvents(SDL_Event& e)
 {
@@ -92,6 +110,17 @@ void Lina_InputEngine::Update()
 	smoothDeltaMouseY = deltaMouseY;
 	//smoothDeltaMouseX = Lina_Math::Lerp(smoothDeltaMouseX, deltaMouseX, Lina_Time::GetDelta() * MOUSE_SMOOTH);
 	//smoothDeltaMouseY = Lina_Math::Lerp(smoothDeltaMouseY, deltaMouseY, Lina_Time::GetDelta() * MOUSE_SMOOTH);
+
+	// Store the previous keys.
+	m_PreviousKeys = new Uint8[numKeys];
+	memcpy(m_PreviousKeys, m_CurrentKeys, sizeof(Uint8) * numKeys);
+	
+	// Update the current keys, copy the current keys to pressed keys.
+	m_CurrentKeys = new Uint8[numKeys];
+	memcpy(m_CurrentKeys, m_KeyboardState, sizeof(Uint8) * numKeys);
+
+	if (GetMouse(0))
+		std::cout << "sa";
 }
 
 float Lina_InputEngine::GetRawMouseX()
@@ -114,6 +143,23 @@ float Lina_InputEngine::GetMouseY()
 	return smoothDeltaMouseY;
 }
 
+bool Lina_InputEngine::GetKey(SDL_Scancode sc)
+{
+	int index = (int)sc;
+	return *(m_CurrentKeys + index);
+}
+
+bool Lina_InputEngine::GetKeyUp(SDL_Scancode sc)
+{
+	int index = (int)sc;
+	return (*(m_PreviousKeys+index) && !(*(m_CurrentKeys+index)));
+}
+
+bool Lina_InputEngine::GetKeyDown(SDL_Scancode sc)
+{
+	int index = (int)sc;
+	return (!(*(m_PreviousKeys + index)) && (*(m_CurrentKeys + index)));
+}
 
 
 

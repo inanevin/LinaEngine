@@ -33,7 +33,7 @@ class Lina_InputEngine
 public:
 
 	Lina_InputEngine() {};
-	~Lina_InputEngine() {};
+	~Lina_InputEngine();
 	void Initialize();
 	void Update();
 	void HandleEvents(SDL_Event& e);
@@ -41,12 +41,26 @@ public:
 	float GetRawMouseY();
 	float GetMouseX();
 	float GetMouseY();
+	bool GetKey(SDL_Scancode);
+	bool GetKeyDown(SDL_Scancode);
+	bool GetKeyUp(SDL_Scancode);
+	bool GetMouse(int);
+	bool GetMouseDown(int);
+	bool GetMouseUp(int);
+
 	Lina_ActionDispatcher* GetInputDispatcher() { return &m_InputDispatcher; }
 
 private:
 
 	void operator=(const Lina_InputEngine& r) = delete;
 	Lina_InputEngine(const Lina_InputEngine& r) = delete;
+	Lina_ActionDispatcher m_InputDispatcher;
+
+	const Uint8* m_KeyboardState;
+	Uint8* m_PreviousKeys;
+	Uint8* m_CurrentKeys;
+	
+	int numKeys = 256;
 	float deltaMouseX;
 	float deltaMouseY;
 	float smoothDeltaMouseX;
@@ -55,7 +69,6 @@ private:
 	float currentMouseY;
 	int mouseXState;
 	int mouseYState;
-	Lina_ActionDispatcher m_InputDispatcher;
 };
 
 
