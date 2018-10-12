@@ -168,7 +168,7 @@ bool Lina_InputEngine::GetKeyDown(SDL_Scancode sc)
 	return (!(*(m_PreviousKeys + index)) && (*(m_CurrentKeys + index)));
 }
 
-bool Lina_InputEngine::GetMouse(int mouse)
+bool Lina_InputEngine::GetMouseButton(int mouse)
 {
 	if (mouse == 0)
 		return mouse0Current;
@@ -178,7 +178,7 @@ bool Lina_InputEngine::GetMouse(int mouse)
 		return mouse2Current;
 }
 
-bool Lina_InputEngine::GetMouseDown(int mouse)
+bool Lina_InputEngine::GetMouseButtonDown(int mouse)
 {
 	if (mouse == 0)
 		return !mouse0Previous && mouse0Current;
@@ -188,7 +188,7 @@ bool Lina_InputEngine::GetMouseDown(int mouse)
 		return !mouse2Previous && mouse2Current;
 }
 
-bool Lina_InputEngine::GetMouseUp(int mouse)
+bool Lina_InputEngine::GetMouseButtonUp(int mouse)
 {
 	if (mouse == 0)
 		return mouse0Previous && !mouse0Current;

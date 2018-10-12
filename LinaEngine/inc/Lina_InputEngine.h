@@ -44,9 +44,9 @@ public:
 	bool GetKey(SDL_Scancode);
 	bool GetKeyDown(SDL_Scancode);
 	bool GetKeyUp(SDL_Scancode);
-	bool GetMouse(int);
-	bool GetMouseDown(int);
-	bool GetMouseUp(int);
+	bool GetMouseButton(int);
+	bool GetMouseButtonDown(int);
+	bool GetMouseButtonUp(int);
 
 	Lina_ActionDispatcher* GetInputDispatcher() { return &m_InputDispatcher; }
 
