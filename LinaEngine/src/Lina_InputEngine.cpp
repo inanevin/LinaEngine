@@ -89,7 +89,7 @@ void Lina_InputEngine::HandleEvents(SDL_Event& e)
 		Lina_Action<> sdlQuit = Lina_Action<>(SDLQuit);
 		m_InputDispatcher.DispatchAction(sdlQuit);
 	}
-	
+
 }
 
 void Lina_InputEngine::Update()
@@ -114,13 +114,20 @@ void Lina_InputEngine::Update()
 	// Store the previous keys.
 	m_PreviousKeys = new Uint8[numKeys];
 	memcpy(m_PreviousKeys, m_CurrentKeys, sizeof(Uint8) * numKeys);
-	
+
 	// Update the current keys, copy the current keys to pressed keys.
 	m_CurrentKeys = new Uint8[numKeys];
 	memcpy(m_CurrentKeys, m_KeyboardState, sizeof(Uint8) * numKeys);
 
-	if (GetMouse(0))
-		std::cout << "sa";
+	// Store previous mouse states.
+	mouse0Previous = mouse0Current;
+	mouse1Previous = mouse1Current;
+	mouse2Previous = mouse2Current;
+
+	// Update current mouse states.
+	mouse0Current = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT);
+	mouse1Current = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT);
+	mouse2Current = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_MIDDLE);
 }
 
 float Lina_InputEngine::GetRawMouseX()
@@ -152,7 +159,7 @@ bool Lina_InputEngine::GetKey(SDL_Scancode sc)
 bool Lina_InputEngine::GetKeyUp(SDL_Scancode sc)
 {
 	int index = (int)sc;
-	return (*(m_PreviousKeys+index) && !(*(m_CurrentKeys+index)));
+	return (*(m_PreviousKeys + index) && !(*(m_CurrentKeys + index)));
 }
 
 bool Lina_InputEngine::GetKeyDown(SDL_Scancode sc)
@@ -161,5 +168,32 @@ bool Lina_InputEngine::GetKeyDown(SDL_Scancode sc)
 	return (!(*(m_PreviousKeys + index)) && (*(m_CurrentKeys + index)));
 }
 
+bool Lina_InputEngine::GetMouse(int mouse)
+{
+	if (mouse == 0)
+		return mouse0Current;
+	else if (mouse == 1)
+		return mouse1Current;
+	else if (mouse == 2)
+		return mouse2Current;
+}
 
+bool Lina_InputEngine::GetMouseDown(int mouse)
+{
+	if (mouse == 0)
+		return !mouse0Previous && mouse0Current;
+	else if (mouse == 1)
+		return !mouse1Previous && mouse1Current;
+	else if (mouse == 2)
+		return !mouse2Previous && mouse2Current;
+}
 
+bool Lina_InputEngine::GetMouseUp(int mouse)
+{
+	if (mouse == 0)
+		return mouse0Previous && !mouse0Current;
+	else if (mouse == 1)
+		return mouse1Previous && !mouse1Current;
+	else if (mouse == 2)
+		return mouse2Previous && !mouse2Current;
+}

@@ -69,6 +69,12 @@ private:
 	float currentMouseY;
 	int mouseXState;
 	int mouseYState;
+	bool mouse0Previous;
+	bool mouse1Previous;
+	bool mouse2Previous;
+	bool mouse0Current;
+	bool mouse1Current;
+	bool mouse2Current;
 };
 
 
