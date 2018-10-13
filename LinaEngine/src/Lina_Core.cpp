@@ -56,16 +56,25 @@ Lina_Core::Lina_Core()
 
 	// Create a window.
 	renderingEngine.CreateDisplayWindow(1024, 768, "Lina Engine 3D");
+	auto f0 = []() {std::cout << "MouseButtonDown: "; };
 
 	auto f = [](int mouseButton) {std::cout << "MouseButtonDown: " << mouseButton; };
 	auto f2 = [](int mouseButton) {std::cout << "MouseButtonReleased: " << mouseButton; };
 	auto f3 = [](SDL_Scancode key) {std::cout << "Key: " << key; };
 	auto f4 = [](SDL_Scancode keyReleased) {std::cout << "KeyReleased: " << keyReleased; };
+	
+	//objectHandler.SubscribeToAction<SDL_Scancode>(ActionType::KeyPressed, SDL_SCANCODE_F, f3);
 
-	//subs.SubscribeToAction(ActionType::KeyPressed, f);
+//	objectHandler.SubscribeToAction(ActionType::KeyPressed, &(this->Test));
+//	objectHandler.SubscribeToAction(ActionType::KeyPressed, SDL_SCANCODE_F, &(this->Test));
 
 	// Start the game.
 	Start();
+}
+
+void Lina_Core::Test()
+{
+
 }
 
 // Destructor.
@@ -182,8 +191,8 @@ void Lina_Core::Run()
 			if (frameCounter >= SECOND)
 			{
 				// Debug frames.
-				//Lina_Console cons = Lina_Console();
-				//cons.AddConsoleMsgSameLine("Main Game Loop Running (" + std::to_string(frames) + " FPS)" + std::to_string(frames), Lina_Console::MsgType::Update, "Core Engine");
+				Lina_Console cons = Lina_Console();
+				cons.AddConsoleMsg("Main Game Loop Running (" + std::to_string(frames) + " FPS)" + std::to_string(frames), Lina_Console::MsgType::Update, "Core Engine");
 				// reset frame counter & frames to calculate on the next iteration.
 				frames = 0;
 				frameCounter = 0;

@@ -31,7 +31,7 @@ void Lina_ObjectHandler::Initialize()
 
 /* ACITON SUBSCRIPTION OVERLOADS */
 
-void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void()>const& cb)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void()>const&& cb)
 {
 	// Init the handler.
 	Lina_ActionHandler<> handler(at);
@@ -52,7 +52,7 @@ void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void()>c
 }
 
 template<typename T>
-void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void(T)>const& cbp)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void(T)>const&& cbp)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -94,7 +94,7 @@ void Lina_ObjectHandler::SubscribeToAction(ActionType at, T* binding)
 }
 
 template<typename T>
-void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::function<void()>const& cb)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::function<void()>const&& cb)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -117,7 +117,7 @@ void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::func
 }
 
 template<typename T>
-void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::function<void(T)>const& cbp)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::function<void(T)>const&& cbp)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -163,7 +163,7 @@ void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, T* bindin
 }
 
 template<typename T>
-void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void()>const& cb, std::function<void(T)>const& cbp)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void()>const&& cb, std::function<void(T)>const&& cbp)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -186,7 +186,7 @@ void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void()>c
 }
 
 template<typename T>
-void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void()>const& cb, T* binding)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void()>const&& cb, T* binding)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -209,7 +209,7 @@ void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void()>c
 }
 
 template<typename T>
-void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void(T)>const& cbp, T* binding)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void(T)>const&& cbp, T* binding)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -232,7 +232,7 @@ void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void(T)>
 }
 
 template<typename T>
-void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::function<void()>const& cb, std::function<void(T)>const& cbp)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::function<void()>const&& cb, std::function<void(T)>const&& cbp)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -257,7 +257,7 @@ void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::func
 }
 
 template<typename T>
-void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::function<void(T)>const& cbp, T* binding)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::function<void(T)>const&& cbp, T* binding)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -282,7 +282,7 @@ void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::func
 }
 
 template<typename T>
-void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::function<void()>const& cb, T* binding)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::function<void()>const&& cb, T* binding)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -307,7 +307,7 @@ void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::func
 }
 
 template<typename T>
-void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void()>const& cb, std::function<void(T)>const& cbp, T* binding)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void()>const&& cb, std::function<void(T)>const&& cbp, T* binding)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);
@@ -332,7 +332,7 @@ void Lina_ObjectHandler::SubscribeToAction(ActionType at, std::function<void()>c
 }
 
 template<typename T>
-void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::function<void()>const& cb, std::function<void(T)>const& cbp, T* binding)
+void Lina_ObjectHandler::SubscribeToAction(ActionType at, T condition, std::function<void()>const&& cb, std::function<void(T)>const&& cbp, T* binding)
 {
 	// Init the handler.
 	Lina_ActionHandler<T> handler(at);

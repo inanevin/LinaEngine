@@ -36,6 +36,7 @@ void Lina_RenderingEngine::Initialize()
 	eventHandler.SubscribeToAction(ActionType::SDLQuit, [this]() { m_ActiveWindow->CloseWindow(); });
 }
 
+
 // Destructor.
 Lina_RenderingEngine::~Lina_RenderingEngine()
 {
