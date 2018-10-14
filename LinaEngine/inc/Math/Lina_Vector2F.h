@@ -15,192 +15,181 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/14/2018 7:03:10 PM
+10/14/2018 9:07:23 PM
 
 */
 
 #pragma once
 
-#ifndef Lina_Vector3F_H
-#define Lina_Vector3F_H
+#ifndef Lina_Vector2F_H
+#define Lina_Vector2F_H
 
-#include <iostream>
-#include <Lina_Math.h>
+#include "Math/Lina_Math.h"
 #include <string>
 
-
-class Lina_Vector3F
+class Lina_Vector2F
 {
 
 public:
-
-	float x, y, z;
-	Lina_Vector3F() { x = y = z = 0.0; }	// Empty const.
-	Lina_Vector3F(const Lina_Vector3F& rhs) {
+	float x, y;
+	Lina_Vector2F() { x = y = 0.0; }	// Empty const.
+	Lina_Vector2F(const Lina_Vector2F& rhs) {
 		this->x = rhs.x;
 		this->y = rhs.y;
-		this->z = rhs.z;
 	}
-	Lina_Vector3F(float a, float b, float c) : x(a), y(b), z(c) {}
+	Lina_Vector2F(float a, float b) : x(a), y(b) {}
 
 #pragma region OperatorOverloads
 
 	/* OVERLOADS FOR TWO VECTORS */
-	Lina_Vector3F operator= (const Lina_Vector3F& rhs)
+	Lina_Vector2F operator= (const Lina_Vector2F& rhs)
 	{
 		if (this != &rhs) {
 			this->x = rhs.x;
 			this->y = rhs.y;
-			this->z = rhs.z;
 		}
 
 		return *this;
 	}
-	Lina_Vector3F operator+ (const Lina_Vector3F& rhs)
+	Lina_Vector2F operator+ (const Lina_Vector2F& rhs)
 	{
-		Lina_Vector3F v;
+		Lina_Vector2F v;
 		v.x = this->x + rhs.x;
 		v.y = this->y + rhs.y;
-		v.z = this->z + rhs.z;
 		return v;
 	}
-	Lina_Vector3F operator- (const Lina_Vector3F& rhs)
+	Lina_Vector2F operator- (const Lina_Vector2F& rhs)
 	{
-		Lina_Vector3F v;
+		Lina_Vector2F v;
 		v.x = this->x - rhs.x;
 		v.y = this->y - rhs.y;
-		v.z = this->z - rhs.z;
 		return v;
 	}
-	Lina_Vector3F operator* (const Lina_Vector3F& rhs)
+	Lina_Vector2F operator* (const Lina_Vector2F& rhs)
 	{
-		Lina_Vector3F v;
+		Lina_Vector2F v;
 		v.x = this->x * rhs.x;
 		v.y = this->y * rhs.y;
-		v.z = this->z * rhs.z;
 		return v;
 	}
-	Lina_Vector3F operator/ (const Lina_Vector3F& rhs)
+	Lina_Vector2F operator/ (const Lina_Vector2F& rhs)
 	{
-		Lina_Vector3F v;
+		Lina_Vector2F v;
 		v.x = this->x / rhs.x;
 		v.y = this->y / rhs.y;
-		v.z = this->z / rhs.z;
 		return v;
 	}
 
 	/* OVERLOADS FOR ARITHMETIC CALCULATIONS VIA FLOAT ON A SINGLE VECTOR */
 
-	Lina_Vector3F& operator+=(const float& rhs)
+	Lina_Vector2F& operator+=(const float& rhs)
 	{
 		this->x += rhs;
 		this->y += rhs;
-		this->z += rhs;
 		return *this;
 	}
-	Lina_Vector3F& operator-=(const float& rhs)
+	Lina_Vector2F& operator-=(const float& rhs)
 	{
 		this->x -= rhs;
 		this->y -= rhs;
-		this->z -= rhs;
 		return *this;
 	}
-	Lina_Vector3F& operator*=(const float& rhs)
+	Lina_Vector2F& operator*=(const float& rhs)
 	{
 		this->x *= rhs;
 		this->y *= rhs;
-		this->z *= rhs;
 		return *this;
 	}
-	Lina_Vector3F& operator/=(const float& rhs)
+	Lina_Vector2F& operator/=(const float& rhs)
 	{
 		this->x /= rhs;
 		this->y /= rhs;
-		this->z /= rhs;
 		return *this;
 	}
 
 	/* OVERLOADS FOR COPY CALCULATIONS VIA FLOAT */
 
-	Lina_Vector3F operator+(const float& rhs)
+	Lina_Vector2F operator+(const float& rhs)
 	{
-		Lina_Vector3F v;
+		Lina_Vector2F v;
 		v.x = this->x + rhs;
 		v.y = this->y + rhs;
-		v.z = this->z + rhs;
 		return v;
 	}
-	Lina_Vector3F operator-(const float& rhs)
+	Lina_Vector2F operator-(const float& rhs)
 	{
-		Lina_Vector3F v;
+		Lina_Vector2F v;
 		v.x = this->x - rhs;
 		v.y = this->y - rhs;
-		v.z = this->z - rhs;
 		return v;
 	}
-	Lina_Vector3F operator*(const float& rhs)
+	Lina_Vector2F operator*(const float& rhs)
 	{
-		Lina_Vector3F v;
+		Lina_Vector2F v;
 		v.x = this->x - rhs;
 		v.y = this->y - rhs;
-		v.z = this->z - rhs;
 		return v;
 	}
-	Lina_Vector3F operator/(const float& rhs)
+	Lina_Vector2F operator/(const float& rhs)
 	{
-		Lina_Vector3F v;
+		Lina_Vector2F v;
 		v.x = this->x - rhs;
 		v.y = this->y - rhs;
-		v.z = this->z - rhs;
 		return v;
 	}
 
-	bool operator== (const Lina_Vector3F& rhs)
+	bool operator== (const Lina_Vector2F& rhs)
 	{
-		return (this->x == rhs.x && this->y == rhs.y && this->z == rhs.z);
+		return (this->x == rhs.x && this->y == rhs.y);
 	}
 
 #pragma endregion
 
 #pragma region MemberOperations
 
-
 	// Get magnitude of a vector.
 	float magnitude()
 	{
-		return sqrt(this->x * this->x + this->y * this->y + this->z *this->z);
+		return sqrt(this->x * this->x + this->y * this->y);
 	}
 
 	// Normalize the vector and return a copy.
-	Lina_Vector3F normalized()
+	Lina_Vector2F normalized()
 	{
-		Lina_Vector3F v = Lina_Vector3F(*this);
+		Lina_Vector2F v = Lina_Vector2F(*this);
 		float mag = magnitude();
 		v.x /= mag;
 		v.y /= mag;
-		v.z /= mag;
 		return v;
 	}
 
 	// Normalize the vector and return a copy.
-	void Normalize(Lina_Vector3F& v)
+	void Normalize(Lina_Vector2F& v)
 	{
 		float mag = v.magnitude();
 		v.x /= mag;
 		v.y /= mag;
-		v.z /= mag;
 	}
-
+	
 	// Rotates a direction vector by angles.
 	void Rotate(float angle)
 	{
-	
+		double rad = Lina_Math::ToRadians(angle);
+		double cosVal = cos(rad);
+		double sinVal = sin(rad);
+
+		this->x = x * cosVal - y * sinVal;
+		this->y = x * sinVal + y * cosVal;
 	}
 
 	// Returns a vector that is the rotated copy of the original.
-	Lina_Vector3F rotated(float angle)
+	Lina_Vector2F rotated(float angle)
 	{
-		
+		double rad = Lina_Math::ToRadians(angle);
+		double cosVal = cos(rad);
+		double sinVal = sin(rad);
+
+		return Lina_Vector2F(x * cosVal - y * sinVal, x * sinVal + y * cosVal);
 	}
 
 #pragma endregion
@@ -208,53 +197,41 @@ public:
 #pragma region Utility
 
 	// Get random vector bw min & max.
-	static Lina_Vector3F GetRandomVector(float min, float max)
+	static Lina_Vector2F GetRandomVector(float min, float max)
 	{
-		Lina_Vector3F(Lina_Math::GetRandom(min, max), Lina_Math::GetRandom(min, max), Lina_Math::GetRandom(min, max));
+		Lina_Vector2F(Lina_Math::GetRandom(min, max), Lina_Math::GetRandom(min, max));
 	}
 
 	// Get random vector bw seperate min & max.
-	static Lina_Vector3F GetRandomVector(float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
+	static Lina_Vector2F GetRandomVector(float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
 	{
 		float x = Lina_Math::GetRandom(minX, maxX);
 		float y = Lina_Math::GetRandom(minY, maxY);
 		float z = Lina_Math::GetRandom(minZ, maxZ);
-		return Lina_Vector3F(x, y, z);
+		return Lina_Vector2F(x, y);
 	}
 
 	// Return a string containing info on the vector attributes.
-	static std::string VToString(const Lina_Vector3F& v)
+	static std::string VToString(const Lina_Vector2F& v)
 	{
 		std::string s = "";
 		s += "(x:" + std::to_string(v.x);
 		s += " y:" + std::to_string(v.y);
-		s += " z:" + std::to_string(v.z)
 			+ ")";
 		return s;
 	}
 
-	// Cross product of two vectors.
-	static Lina_Vector3F Cross(Lina_Vector3F& v1, Lina_Vector3F& v2)
+	// Dot product of two vectors.
+	static float dot(Lina_Vector2F v1, Lina_Vector2F v2)
 	{
-		Lina_Vector3F crossP = Lina_Vector3F();
-		crossP.x = Lina_Math::det(v1.y, v1.z, v2.y, v2.z);
-		crossP.y = -1 * Lina_Math::det(v1.x, v1.z, v2.x, v2.z);
-		crossP.z = Lina_Math::det(v1.x, v1.y, v2.x, v2.y);
-		return crossP;
+		return v1.x * v2.x + v1.y * v2.y;
 	}
 
-	// Dot product of two vectors.
-	static float Dot(Lina_Vector3F v1, Lina_Vector3F v2)
-	{
-		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-	}
 
 #pragma endregion
 
-
 };
 
-typedef Lina_Vector3F Vector3;
-
+typedef Lina_Vector2F Vector2;
 
 #endif

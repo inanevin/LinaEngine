@@ -24,7 +24,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_Quaternion_H
 #define Lina_Quaternion_H
 
-#include "Lina_Math.h"
+#include "Math/Lina_Math.h"
 
 class Lina_Quaternion
 {
@@ -128,5 +128,6 @@ public:
 
 };
 
+typedef Lina_Quaternion Quaternion;
 
 #endif

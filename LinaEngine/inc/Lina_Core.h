@@ -23,9 +23,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef LINA_CORE_H
 #define LINA_CORE_H
 
-#include "Lina_RenderingEngine.h"
+#include "Rendering/Lina_RenderingEngine.h"
 #include "Lina_GameCore.h"
-#include "Lina_InputEngine.h"
+#include "Input/Lina_InputEngine.h"
 #include "Lina_ObjectHandler.h"
 
 extern const double FRAME_CAP;

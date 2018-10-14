@@ -25,8 +25,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_EventSubscriber_H
 
 #include "Lina_CoreMessageBus.h"
-#include "Lina_Actions.h"
-#include "Lina_InputEngine.h"
+#include "Events/Lina_Actions.h"
+#include "Input/Lina_InputEngine.h"
 
 #define CONDITION T
 #define BINDING T*
