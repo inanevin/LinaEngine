@@ -2,7 +2,6 @@
 Author: Inan Evin
 www.inanevin.com
 
-
 MIT License
 
 Lina Engine, Copyright (c) 2018 Inan Evin
@@ -15,51 +14,37 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+4.0.30319.42000
+9/30/2018 4:59:45 PM
 
 */
 
 #pragma once
 
-#ifndef LINA_CORE_H
-#define LINA_CORE_H
+#ifndef Lina_Rendering_H
+#define Lina_Rendering_H
 
-#include "Lina_RenderingEngine.h"
-#include "Lina_GameCore.h"
-#include "Lina_InputEngine.h"
+//#include<list>
+#include "Lina_Window.h"
 #include "Lina_ObjectHandler.h"
 
-extern const double FRAME_CAP;
-extern const long SECOND;
-
-class Lina_Core {
+class Lina_RenderingEngine
+{
 
 public:
-
-    Lina_Core();
-	~Lina_Core();
-
-private:
-
-	void Wake();
-	void Start();
-	void Stop();
-	void Run();
+	Lina_RenderingEngine() {};
+	~Lina_RenderingEngine();
+	void Initialize();
+    void CreateDisplayWindow(int, int, const std::string&);
 	void Render();
 	void CleanUp();
-	bool isRunning;
-	void Test();
-
-	Lina_InputEngine inputEngine;
-	Lina_RenderingEngine renderingEngine;
-	Lina_GameCore gameCore;
-	Lina_SDLHandler sdlHandler;
-
-	// Object Specific
-	Lina_ObjectHandler objectHandler;
-
-	Lina_Core(const Lina_Core& r) = delete;
-
-
+	std::shared_ptr<Lina_Window> m_ActiveWindow;
+	Lina_ObjectHandler eventHandler;
+private:
+	Lina_RenderingEngine(const Lina_RenderingEngine&) = delete;
+	Lina_RenderingEngine& operator= (const Lina_RenderingEngine&) = delete;
+	
 };
+
 
 #endif

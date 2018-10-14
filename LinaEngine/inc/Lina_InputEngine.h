@@ -15,26 +15,66 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/1/2018 3:33:58 AM
+10/9/2018 3:02:19 AM
 
 */
 
 #pragma once
 
-#ifndef Lina_Time_H
-#define Lina_Time_H
+#ifndef Lina_InputEngine_H
+#define Lina_InputEngine_H
 
+#include <Lina_Actions.h>
+#include <Lina_SDLHandler.h>
 
-class Lina_Time
+class Lina_InputEngine
 {
 
 public:
-	static long GetCurrentTimeInNano();
-	static double GetDelta() { return delta; }
-	static void SetDelta(const double d) { Lina_Time::delta = d; }
-	static double delta;
+
+	Lina_InputEngine() {};
+	~Lina_InputEngine();
+	void Initialize();
+	void Update();
+	void HandleEvents(SDL_Event& e);
+	float GetRawMouseX();
+	float GetRawMouseY();
+	float GetMouseX();
+	float GetMouseY();
+	bool GetKey(SDL_Scancode);
+	bool GetKeyDown(SDL_Scancode);
+	bool GetKeyUp(SDL_Scancode);
+	bool GetMouseButton(int);
+	bool GetMouseButtonDown(int);
+	bool GetMouseButtonUp(int);
+
+	Lina_ActionDispatcher* GetInputDispatcher() { return &m_InputDispatcher; }
 
 private:
+
+	void operator=(const Lina_InputEngine& r) = delete;
+	Lina_InputEngine(const Lina_InputEngine& r) = delete;
+	Lina_ActionDispatcher m_InputDispatcher;
+
+	const Uint8* m_KeyboardState;
+	Uint8* m_PreviousKeys;
+	Uint8* m_CurrentKeys;
+	
+	int numKeys = 256;
+	float deltaMouseX;
+	float deltaMouseY;
+	float smoothDeltaMouseX;
+	float smoothDeltaMouseY;
+	float currentMouseX;
+	float currentMouseY;
+	int mouseXState;
+	int mouseYState;
+	bool mouse0Previous;
+	bool mouse1Previous;
+	bool mouse2Previous;
+	bool mouse0Current;
+	bool mouse1Current;
+	bool mouse2Current;
 };
 
 

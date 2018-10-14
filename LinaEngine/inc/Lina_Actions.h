@@ -2,21 +2,17 @@
 Author: Inan Evin
 www.inanevin.com
 
-BSD 2-Clause License
-Lina Engine Copyright (c) 2018, Inan Evin All rights reserved.
+MIT License
 
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+Lina Engine, Copyright (c) 2018 Inan Evin
 
-* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation
-* and/or other materials provided with the distribution.
-
--- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO
--- THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS
--- BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
--- GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
--- STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
--- OF SUCH DAMAGE.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
 10/6/2018 11:26:54 PM
@@ -30,11 +26,17 @@ Redistribution and use in source and binary forms, with or without modification,
 #include "pch.h"
 #include <list>
 #include <type_traits>
+#include <algorithm>
 
 enum ActionType
 {
-	ActionType1,
-	ActionType2
+	KeyPressed,
+	KeyReleased,
+	MouseButtonPressed,
+	MouseButtonReleased,
+	MouseMotionX,
+	MouseMotionY,
+	SDLQuit
 };
 
 // Base wrapper class for actions.
@@ -42,25 +44,25 @@ class Lina_ActionBase
 {
 
 public:
-
 	Lina_ActionBase() {};
+	Lina_ActionBase(ActionType t) : m_ActionType(t) {};
 	virtual void* GetData() { return 0; }
 	inline ActionType GetActionType() { return m_ActionType; }
+	inline void SetActionType(ActionType t) { m_ActionType = t; }
 
 private:
-	Lina_ActionBase(const Lina_ActionBase& rhs) = delete;
+	//Lina_ActionBase(const Lina_ActionBase& rhs) = delete;
 	ActionType m_ActionType;
-
 };
 
 // Template class used for actions. 
-template<typename T>
+template<typename T = int>
 class Lina_Action : public Lina_ActionBase
 {
 
 public:
-
-	Lina_Action() { }
+	Lina_Action() {};
+	Lina_Action(ActionType t) : Lina_ActionBase::Lina_ActionBase(t) { }
 	inline void SetData(T t) { m_Value = t; }
 	virtual void* GetData() { return &m_Value; }
 
@@ -80,6 +82,10 @@ public:
 
 	inline ActionType GetActionType() { return m_ActionType; }
 	inline void SetActionType(ActionType t) { m_ActionType = t; }
+
+protected:
+	friend class Lina_ActionDispatcher;
+
 	virtual void Control(Lina_ActionBase& action) { };
 	virtual void Execute(Lina_ActionBase& action) {};
 
@@ -100,13 +106,17 @@ public:
 	Lina_ActionHandler_ConditionCheck(ActionType at) :
 		Lina_ActionHandlerBase::Lina_ActionHandlerBase(at) { };
 
-
 	inline void SetCondition(T t) { m_Condition = t; }
 	inline T GetCondition() { return m_Condition; }
+
+protected:
+
+	friend class Lina_ActionDispatcher;
 
 	// Control block called by the dispatchers.
 	virtual void Control(Lina_ActionBase& action) override
 	{
+
 		// Cast from polymorphic action base class void* type to T*.
 		T* typePointer = static_cast<T*>(action.GetData());
 
@@ -149,7 +159,8 @@ public:
 	Lina_ActionHandler() {}
 	~Lina_ActionHandler() {}
 	Lina_ActionHandler(ActionType at) :
-		Lina_ActionHandler_ConditionCheck<T>::Lina_ActionHandler_ConditionCheck(at) {};
+		Lina_ActionHandler_ConditionCheck<T>::Lina_ActionHandler_ConditionCheck(at) {
+	};
 
 	inline void SetUseCondition(bool b) { m_UseCondition = b; }
 	inline void SetUseBinding(bool b) { m_UseBinding = b; }
@@ -162,9 +173,17 @@ public:
 	inline bool GetUseParamCallback() { return m_UseParamCallback; }
 	inline bool GetUseNoParamCallback() { return m_UseNoParamCallback; }
 
+	inline void SetParamCallback(std::function<void(T)> const& cbp) { m_CallbackParam = cbp; }
+	inline void SetNoParamCallback(std::function<void()> const& cb) { m_CallbackNoParam = cb; }
+	inline void SetBinding(T* binding) { m_Binding = binding; }
+
+
+protected:
+
+	friend class Lina_ActionDispatcher;
+
 	virtual void Control(Lina_ActionBase& action) override
 	{
-
 		// If condition check is used, call the control of the behaviour base class so it can compare it's member attribute T with the action's value.
 		if (m_UseCondition)
 			Lina_ActionHandler_ConditionCheck<T>::Control(action);
@@ -184,31 +203,27 @@ public:
 		{
 			// Cast from polymorphic action base class void* type to T*.
 			T* typePointer = static_cast<T*>(action.GetData());
-
+			
 			if (!m_UseCondition)
 			{
 				// If the types do not match, simply exit.
-				if (Lina_ActionHandler_ConditionCheck<T>::CompareType(*typePointer))
+				if (!Lina_ActionHandler_ConditionCheck<T>::CompareType(*typePointer))
 					return;
 			}
-			
-		
-			// Call the callback with parameters, cast and pass in the data from the action.
-			if (m_UseParamCallback)
-				m_CallbackParam(*typePointer);
 
 			// Bind the value.
 			if (m_UseBinding)
 				*m_Binding = *typePointer;
+
+			// Call the callback with parameters, cast and pass in the data from the action.
+			if (m_UseParamCallback)
+				m_CallbackParam(*typePointer);
 		}
-	
+
 	}
 
-	void SetParamCallback(std::function<void(T)> && cbp) { m_CallbackParam = cbp; }
-	void SetNoParamCallback(std::function<void()>&& cb) { m_CallbackNoParam = cb; }
-	void SetBinding(T* binding) { m_Binding = binding; }
-
 private:
+
 	bool m_UseParamCallback = false;
 	bool m_UseNoParamCallback = false;
 	bool m_UseBinding = false;
@@ -218,58 +233,62 @@ private:
 	std::function<void(T)> m_CallbackParam;
 };
 
+class TestClass;
 
-
+// Dispatcher class for actions.
 class Lina_ActionDispatcher
 {
+	typename std::list<std::weak_ptr<Lina_ActionHandlerBase>>::iterator it;
 
 public:
 
-	Lina_ActionDispatcher()
+	Lina_ActionDispatcher() { };
+
+	~Lina_ActionDispatcher()
 	{
+		m_ActionHandlers.clear();
+	}
+
+	void operator=(Lina_ActionDispatcher const&) = delete;
+
+	void DispatchAction(Lina_ActionBase& action)
+	{
+		
+		for (it = m_ActionHandlers.begin(); it != m_ActionHandlers.end(); it++)
+		{
+			// Check if the the object is alive.
+			if (auto tmp = it->lock())
+			{
+				// Check if the action types match.
+				if (action.GetActionType() == tmp->GetActionType())
+				{
+					// Tell the handler to check the action.
+					tmp->Control(action);
+				}
+			}
+		}
+
+		// Check the handlers if any of the pointed objects are dead, remove it from the list if so.
+		m_ActionHandlers.erase(std::remove_if(m_ActionHandlers.begin(), m_ActionHandlers.end(),
+			[](std::weak_ptr<Lina_ActionHandlerBase> handler) 
+		{
+			return handler.expired();	// LOCK OR EXPIRED?
+		}), m_ActionHandlers.end());
+
 
 	}
-	std::list<Lina_ActionHandlerBase*> m_TestListeners;
+
+	void SubscribeHandler(std::weak_ptr<Lina_ActionHandlerBase> ptr)
+	{
+		// Add the weak pointer to the list.
+		m_ActionHandlers.push_back(ptr);
+	}
+
+private:
+
 	std::list<std::weak_ptr<Lina_ActionHandlerBase>> m_ActionHandlers;
 
 };
 
-
-using namespace std;
-class TestClass
-{
-public:
-	TestClass()
-	{
-		int toBind = 2;
-
-		Lina_ActionDispatcher* disp = new Lina_ActionDispatcher;
-		Lina_Action<float> action;
-		
-		action.SetData(22.5);
-
-		auto f = []() {std::cout << "Non-Parameterized Callback Called" << std::endl; };
-		auto f2 = [](float f) {std::cout << "Parameterized Callback Called, Value is : " << f << std::endl; };
-
-		Lina_ActionHandler<float> b(ActionType1);
-
-		b.SetUseCondition(true);
-		b.SetUseNoParamCallback(true);
-		b.SetUseParamCallback(true);
-
-		b.SetCondition(22.5);
-		b.SetNoParamCallback(f);
-		b.SetParamCallback(f2);
-
-		disp->m_TestListeners.push_back(&b);
-		disp->m_TestListeners.front()->Control(action);
-
-		std::cout << "Binded Variable Is: " << toBind;
-	}
-
-};
-
-//static bool deleteAll(Action * theElement) { delete action; return true; }
-//actList.remove_if(deleteAll);
 
 #endif

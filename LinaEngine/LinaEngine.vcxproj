@@ -168,6 +168,10 @@
     <ClCompile Include="src\Lina_InputBinding.cpp" />
     <ClCompile Include="src\Lina_InputHandler.cpp" />
     <ClCompile Include="src\Lina_Rendering.cpp" />
+    <ClCompile Include="src\Lina_CoreMessageBus.cpp" />
+    <ClCompile Include="src\Lina_ObjectHandler.cpp" />
+    <ClCompile Include="src\Lina_InputEngine.cpp" />
+    <ClCompile Include="src\Lina_RenderingEngine.cpp" />
     <ClCompile Include="src\Lina_Core.cpp" />
     <ClCompile Include="src\Lina_GameCore.cpp" />
     <ClCompile Include="src\Lina_InputManager.cpp" />
@@ -194,11 +198,11 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\Lina_Core.h" />
-    <ClInclude Include="inc\Lina_Event.h">
+    <ClInclude Include="inc\Lina_CoreMessageBus.h">
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Lina_EventDispatcher.h">
+    <ClInclude Include="inc\Lina_ObjectHandler.h">
       <SubType>
       </SubType>
     </ClInclude>
@@ -207,14 +211,19 @@
     <ClInclude Include="inc\Lina_ExampleTexture.h" />
     <ClInclude Include="inc\Lina_ExampleVertex.h" />
     <ClInclude Include="inc\Lina_GameCore.h">
+    <ClInclude Include="inc\Lina_InputEngine.h">
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Lina_InputBinding.h">
+    <ClInclude Include="inc\Lina_Math.h">
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Lina_InputHandler.h">
+    <ClInclude Include="inc\Lina_Signals.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Lina_GameCore.h">
       <SubType>
       </SubType>
     </ClInclude>
@@ -236,7 +245,7 @@
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Lina_Rendering.h">
+    <ClInclude Include="inc\Lina_RenderingEngine.h">
       <SubType>
       </SubType>
     </ClInclude>

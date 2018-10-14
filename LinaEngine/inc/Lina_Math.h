@@ -2,7 +2,6 @@
 Author: Inan Evin
 www.inanevin.com
 
-
 MIT License
 
 Lina Engine, Copyright (c) 2018 Inan Evin
@@ -15,51 +14,42 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+4.0.30319.42000
+10/12/2018 12:59:49 AM
 
 */
 
 #pragma once
 
-#ifndef LINA_CORE_H
-#define LINA_CORE_H
+#ifndef Lina_Math_H
+#define Lina_Math_H
 
-#include "Lina_RenderingEngine.h"
-#include "Lina_GameCore.h"
-#include "Lina_InputEngine.h"
-#include "Lina_ObjectHandler.h"
-
-extern const double FRAME_CAP;
-extern const long SECOND;
-
-class Lina_Core {
+class Lina_Math
+{
 
 public:
 
-    Lina_Core();
-	~Lina_Core();
+	template<typename T>
+	static T ClampMinMax(T val, T min, T max)
+	{
+		if (val > max)
+			val = max;
+		else if (val < min)
+			val = min;
 
-private:
+		return val;
+	}
+	
+	static float Lerp(float v0, float v1, float t) {
+		return (1 - t) * v0 + t * v1;
+	}
 
-	void Wake();
-	void Start();
-	void Stop();
-	void Run();
-	void Render();
-	void CleanUp();
-	bool isRunning;
-	void Test();
-
-	Lina_InputEngine inputEngine;
-	Lina_RenderingEngine renderingEngine;
-	Lina_GameCore gameCore;
-	Lina_SDLHandler sdlHandler;
-
-	// Object Specific
-	Lina_ObjectHandler objectHandler;
-
-	Lina_Core(const Lina_Core& r) = delete;
-
+	static float LerpFast(float v0, float v1, float t) {
+		return v0 + t * (v1 - v0);
+	}
+	
 
 };
+
 
 #endif

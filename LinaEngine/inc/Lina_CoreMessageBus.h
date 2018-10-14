@@ -2,7 +2,6 @@
 Author: Inan Evin
 www.inanevin.com
 
-
 MIT License
 
 Lina Engine, Copyright (c) 2018 Inan Evin
@@ -15,51 +14,52 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+4.0.30319.42000
+10/9/2018 4:44:45 AM
 
 */
 
 #pragma once
 
-#ifndef LINA_CORE_H
-#define LINA_CORE_H
+#ifndef Lina_CoreMessageBus_H
+#define Lina_CoreMessageBus_H
 
-#include "Lina_RenderingEngine.h"
-#include "Lina_GameCore.h"
-#include "Lina_InputEngine.h"
-#include "Lina_ObjectHandler.h"
+class Lina_InputEngine;
+class Lina_Core;
+class Lina_RenderingEngine;
+class Lina_SDLHandler;
 
-extern const double FRAME_CAP;
-extern const long SECOND;
-
-class Lina_Core {
-
+class Lina_CoreMessageBus
+{
 public:
 
-    Lina_Core();
-	~Lina_Core();
+	void Initialize(Lina_SDLHandler*, Lina_InputEngine*, Lina_RenderingEngine*);
+
+	static Lina_CoreMessageBus& Instance()
+	{
+		static Lina_CoreMessageBus instance; 				  
+		return instance;
+	}
+
+	Lina_InputEngine* GetInputEngine() { return inputEngine; }
+	void SetInputEngine(Lina_InputEngine* inp) { inputEngine = inp; }
 
 private:
 
-	void Wake();
-	void Start();
-	void Stop();
-	void Run();
-	void Render();
-	void CleanUp();
-	bool isRunning;
-	void Test();
+	Lina_CoreMessageBus() {}
 
-	Lina_InputEngine inputEngine;
-	Lina_RenderingEngine renderingEngine;
-	Lina_GameCore gameCore;
-	Lina_SDLHandler sdlHandler;
+	/* INSTANCES */
+	Lina_InputEngine* inputEngine;
+	Lina_SDLHandler* sdlHandler;
+	Lina_Core* coreEngine;
+	Lina_RenderingEngine* renderingEngine;
 
-	// Object Specific
-	Lina_ObjectHandler objectHandler;
+public:
 
-	Lina_Core(const Lina_Core& r) = delete;
-
+	Lina_CoreMessageBus(Lina_CoreMessageBus const&) = delete;
+	void operator=(Lina_CoreMessageBus const&) = delete;
 
 };
+
 
 #endif

@@ -19,11 +19,15 @@ Redistribution and use in source and binary forms, with or without modification,
 -- OF SUCH DAMAGE.
 
 4.0.30319.42000
-10/6/2018 12:49:20 AM
+10/9/2018 5:23:59 AM
 
 */
 
 #include "pch.h"
-#include "Lina_EventDispatcher.h"  
+#include "Lina_EventSubscriber.h"  
 
+Lina_EventSubscriber::Lina_EventSubscriber()
+{
+
+}
 
