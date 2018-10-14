@@ -170,12 +170,13 @@ public:
 		v.x /= mag;
 		v.y /= mag;
 	}
-
+	
+	// Rotates a direction vector by angles.
 	Lina_Vector2F Rotate(float angle)
 	{
 		double rad = Lina_Math::ToRadians(angle);
-		double cosVal = cos(angle);
-		double sinVal = sin(angle);
+		double cosVal = cos(rad);
+		double sinVal = sin(rad);
 
 		return Lina_Vector2F(x * cosVal - y * sinVal, x * sinVal + y * cosVal);
 	}
@@ -187,7 +188,7 @@ public:
 	// Get random vector bw min & max.
 	static Lina_Vector2F GetRandomVector(float min, float max)
 	{
-		Lina_Vector2F(Lina_Math::GetRandom(min, max), Lina_Math::GetRandom(min, max), Lina_Math::GetRandom(min, max));
+		Lina_Vector2F(Lina_Math::GetRandom(min, max), Lina_Math::GetRandom(min, max));
 	}
 
 	// Get random vector bw seperate min & max.
@@ -196,7 +197,7 @@ public:
 		float x = Lina_Math::GetRandom(minX, maxX);
 		float y = Lina_Math::GetRandom(minY, maxY);
 		float z = Lina_Math::GetRandom(minZ, maxZ);
-		return Lina_Vector2F(x, y, z);
+		return Lina_Vector2F(x, y);
 	}
 
 	// Return a string containing info on the vector attributes.
