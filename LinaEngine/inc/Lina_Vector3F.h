@@ -33,9 +33,14 @@ class Lina_Vector3F
 {
 
 public:
+
 	float x, y, z;
 	Lina_Vector3F() { x = y = z = 0.0; }	// Empty const.
-
+	Lina_Vector3F(const Lina_Vector3F& rhs) {
+		this->x = rhs.x;
+		this->y = rhs.y;
+		this->z = rhs.z;
+	}
 	Lina_Vector3F(float a, float b, float c) : x(a), y(b), z(c) {}
 
 #pragma region OperatorOverloads
@@ -157,38 +162,33 @@ public:
 
 #pragma endregion
 
-#pragma region VectorMath
+#pragma region MemberOperations
 
-	// Cross product of two vectors.
-	static Lina_Vector3F cross(Lina_Vector3F& v1, Lina_Vector3F& v2)
-	{
-		Lina_Vector3F crossP = Lina_Vector3F();
-		crossP.x = Lina_Math::det(v1.y, v1.z, v2.y, v2.z);
-		crossP.y = -1 * Lina_Math::det(v1.x, v1.z, v2.x, v2.z);
-		crossP.z = Lina_Math::det(v1.x, v1.y, v2.x, v2.y);
-		return crossP;
-	}
 
 	// Get magnitude of a vector.
-	static float magnitude(Lina_Vector3F v)
+	float magnitude()
 	{
-		return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-	}
-
-	// Dot product of two vectors.
-	static float dot(Lina_Vector3F v1, Lina_Vector3F v2)
-	{
-		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+		return sqrt(this->x * this->x + this->y * this->y + this->z *this->z);
 	}
 
 	// Normalize the vector and return a copy.
-	static Lina_Vector3F normalize(Lina_Vector3F& v)
+	Lina_Vector3F normalized()
 	{
-		float mag = Lina_Vector3F::magnitude(v);
+		Lina_Vector3F v = Lina_Vector3F(*this);
+		float mag = magnitude();
 		v.x /= mag;
 		v.y /= mag;
 		v.z /= mag;
 		return v;
+	}
+
+	// Normalize the vector and return a copy.
+	void Normalize(Lina_Vector3F& v)
+	{
+		float mag = v.magnitude();
+		v.x /= mag;
+		v.y /= mag;
+		v.z /= mag;
 	}
 
 #pragma endregion
@@ -219,6 +219,22 @@ public:
 		s += " z:" + std::to_string(v.z)
 			+ ")";
 		return s;
+	}
+
+	// Cross product of two vectors.
+	static Lina_Vector3F Cross(Lina_Vector3F& v1, Lina_Vector3F& v2)
+	{
+		Lina_Vector3F crossP = Lina_Vector3F();
+		crossP.x = Lina_Math::det(v1.y, v1.z, v2.y, v2.z);
+		crossP.y = -1 * Lina_Math::det(v1.x, v1.z, v2.x, v2.z);
+		crossP.z = Lina_Math::det(v1.x, v1.y, v2.x, v2.y);
+		return crossP;
+	}
+
+	// Dot product of two vectors.
+	static float Dot(Lina_Vector3F v1, Lina_Vector3F v2)
+	{
+		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 	}
 
 #pragma endregion

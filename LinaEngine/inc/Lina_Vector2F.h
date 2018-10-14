@@ -33,8 +33,11 @@ class Lina_Vector2F
 public:
 	float x, y;
 	Lina_Vector2F() { x = y = 0.0; }	// Empty const.
-
-	Lina_Vector2F(float a, float b, float c) : x(a), y(b) {}
+	Lina_Vector2F(const Lina_Vector2F& rhs) {
+		this->x = rhs.x;
+		this->y = rhs.y;
+	}
+	Lina_Vector2F(float a, float b) : x(a), y(b) {}
 
 #pragma region OperatorOverloads
 
@@ -142,30 +145,43 @@ public:
 
 #pragma endregion
 
-#pragma region VectorMath
+#pragma region MemberOperations
 
 	// Get magnitude of a vector.
-	static float magnitude(Lina_Vector2F v)
+	float magnitude()
 	{
-		return sqrt(v.x * v.x + v.y * v.y);
-	}
-
-	// Dot product of two vectors.
-	static float dot(Lina_Vector2F v1, Lina_Vector2F v2)
-	{
-		return v1.x * v2.x + v1.y * v2.y;
+		return sqrt(this->x * this->x + this->y * this->y);
 	}
 
 	// Normalize the vector and return a copy.
-	static Lina_Vector2F normalize(Lina_Vector2F& v)
+	Lina_Vector2F normalized()
 	{
-		float mag = Lina_Vector2F::magnitude(v);
+		Lina_Vector2F v = Lina_Vector2F(*this);
+		float mag = magnitude();
 		v.x /= mag;
 		v.y /= mag;
 		return v;
 	}
 
+	// Normalize the vector and return a copy.
+	void Normalize(Lina_Vector2F& v)
+	{
+		float mag = v.magnitude();
+		v.x /= mag;
+		v.y /= mag;
+	}
+
+	Lina_Vector2F Rotate(float angle)
+	{
+		double rad = Lina_Math::ToRadians(angle);
+		double cosVal = cos(angle);
+		double sinVal = sin(angle);
+
+		return Lina_Vector2F(x * cosVal - y * sinVal, x * sinVal + y * cosVal);
+	}
+
 #pragma endregion
+
 #pragma region Utility
 
 	// Get random vector bw min & max.
@@ -192,6 +208,13 @@ public:
 			+ ")";
 		return s;
 	}
+
+	// Dot product of two vectors.
+	static float dot(Lina_Vector2F v1, Lina_Vector2F v2)
+	{
+		return v1.x * v2.x + v1.y * v2.y;
+	}
+
 
 #pragma endregion
 

@@ -140,6 +140,9 @@
     <ClInclude Include="inc\Lina_Vector3F.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
+    <ClInclude Include="inc\Lina_Vector2F.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\basic.frag">

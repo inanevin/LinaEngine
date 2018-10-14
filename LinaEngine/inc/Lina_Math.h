@@ -29,6 +29,7 @@ Redistribution and use in source and binary forms, with or without modification,
 #define Lina_Math_H
 
 #include <random>
+#include <math.h>
 
 class Lina_Math
 {
@@ -37,6 +38,7 @@ public:
 	template<typename T>
 	static T ClampMinMax(T val, T min, T max)
 	{
+		
 		if (val > max)
 			val = max;
 		else if (val < min)
@@ -105,6 +107,18 @@ public:
 		std::uniform_real_distribution<float> uni(min, max);
 		auto random = uni(rng);
 		return random;
+	}
+
+	// Convert a degree to radians.
+	static double ToRadians(float deg)
+	{
+		return deg / 180.0 * M_PI;
+	}
+
+	// Convert radians into degrees.
+	static double ToDegree(float radians)
+	{
+		return (radians * M_PI) / 180.0;
 	}
 };
 
