@@ -172,7 +172,18 @@ public:
 	}
 	
 	// Rotates a direction vector by angles.
-	Lina_Vector2F Rotate(float angle)
+	void Rotate(float angle)
+	{
+		double rad = Lina_Math::ToRadians(angle);
+		double cosVal = cos(rad);
+		double sinVal = sin(rad);
+
+		this->x = x * cosVal - y * sinVal;
+		this->y = x * sinVal + y * cosVal;
+	}
+
+	// Returns a vector that is the rotated copy of the original.
+	Lina_Vector2F rotated(float angle)
 	{
 		double rad = Lina_Math::ToRadians(angle);
 		double cosVal = cos(rad);

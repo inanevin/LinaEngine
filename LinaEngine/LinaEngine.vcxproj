@@ -199,6 +199,10 @@
     <ClInclude Include="inc\Lina_ExampleShader.h" />
     <ClInclude Include="inc\Lina_ExampleTexture.h" />
     <ClInclude Include="inc\Lina_ExampleVertex.h" />
+    <ClInclude Include="inc\Lina_Matrix4F.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="inc\Lina_ObjectHandler.h">
       <SubType>
       </SubType>

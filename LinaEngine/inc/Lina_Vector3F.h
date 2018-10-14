@@ -191,6 +191,18 @@ public:
 		v.z /= mag;
 	}
 
+	// Rotates a direction vector by angles.
+	void Rotate(float angle)
+	{
+	
+	}
+
+	// Returns a vector that is the rotated copy of the original.
+	Lina_Vector3F rotated(float angle)
+	{
+		
+	}
+
 #pragma endregion
 
 #pragma region Utility
