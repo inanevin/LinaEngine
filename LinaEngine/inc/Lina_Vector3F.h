@@ -28,6 +28,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include <Lina_Math.h>
 #include <string>
 
+
 class Lina_Vector3F
 {
 
@@ -37,6 +38,7 @@ public:
 
 	Lina_Vector3F(float a, float b, float c) : x(a), y(b), z(c) {}
 
+	/* OVERLOADS FOR TWO VECTORS */
 	Lina_Vector3F operator= (const Lina_Vector3F& rhs)
 	{
 		if (this != &rhs) {
@@ -79,15 +81,41 @@ public:
 		v.z = this->z / rhs.z;
 		return v;
 	}
-	Lina_Vector3F operator* (const float& rhs)
+
+	/* OVERLOADS FOR ARITHMETIC CALCULATIONS VIA FLOAT ON A SINGLE VECTOR */
+
+	Lina_Vector3F& operator+=(const float& rhs)
 	{
-		Lina_Vector3F v;
-		v.x = this->x * rhs;
-		v.y = this->y * rhs;
-		v.z = this->z * rhs;
-		return v;
+		this->x += rhs;
+		this->y += rhs;
+		this->z += rhs;
+		return *this;
 	}
-	Lina_Vector3F operator+ (const float& rhs)
+	Lina_Vector3F& operator-=(const float& rhs)
+	{
+		this->x -= rhs;
+		this->y -= rhs;
+		this->z -= rhs;
+		return *this;
+	}
+	Lina_Vector3F& operator*=(const float& rhs)
+	{
+		this->x *= rhs;
+		this->y *= rhs;
+		this->z *= rhs;
+		return *this;
+	}
+	Lina_Vector3F& operator/=(const float& rhs)
+	{
+		this->x /= rhs;
+		this->y /= rhs;
+		this->z /= rhs;
+		return *this;
+	}
+
+	/* OVERLOADS FOR COPY CALCULATIONS VIA FLOAT */
+
+	Lina_Vector3F operator+(const float& rhs)
 	{
 		Lina_Vector3F v;
 		v.x = this->x + rhs;
@@ -95,7 +123,7 @@ public:
 		v.z = this->z + rhs;
 		return v;
 	}
-	Lina_Vector3F operator- (const float& rhs)
+	Lina_Vector3F operator-(const float& rhs)
 	{
 		Lina_Vector3F v;
 		v.x = this->x - rhs;
@@ -103,6 +131,23 @@ public:
 		v.z = this->z - rhs;
 		return v;
 	}
+	Lina_Vector3F operator*(const float& rhs)
+	{
+		Lina_Vector3F v;
+		v.x = this->x - rhs;
+		v.y = this->y - rhs;
+		v.z = this->z - rhs;
+		return v;
+	}
+	Lina_Vector3F operator/(const float& rhs)
+	{
+		Lina_Vector3F v;
+		v.x = this->x - rhs;
+		v.y = this->y - rhs;
+		v.z = this->z - rhs;
+		return v;
+	}
+
 	bool operator== (const Lina_Vector3F& rhs)
 	{
 		return (this->x == rhs.x && this->y == rhs.y && this->z == rhs.z);
@@ -116,6 +161,18 @@ public:
 		crossP.y = -1 * Lina_Math::det(v1.x, v1.z, v2.x, v2.z);
 		crossP.z = Lina_Math::det(v1.x, v1.y, v2.x, v2.y);
 		return crossP;
+	}
+
+	// Get magnitude of a vector.
+	static float magnitude(Lina_Vector3F v)
+	{
+		return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+	}
+
+	// Dot product of two vectors.
+	static float dot(Lina_Vector3F v1, Lina_Vector3F v2)
+	{
+		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 	}
 
 	// Normalize the vector and return a copy.
@@ -133,6 +190,7 @@ public:
 	{
 		Lina_Vector3F(Lina_Math::GetRandom(min, max), Lina_Math::GetRandom(min, max), Lina_Math::GetRandom(min, max));
 	}
+
 	// Get random vector bw seperate min & max.
 	static Lina_Vector3F GetRandomVector(float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
 	{
@@ -141,17 +199,8 @@ public:
 		float z = Lina_Math::GetRandom(minZ, maxZ);
 		return Lina_Vector3F(x, y, z);
 	}
-	// Get magnitude of a vector.
-	static float magnitude(Lina_Vector3F v)
-	{
-		return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-	}
-	// Dot product of two vectors.
-	static float dot(Lina_Vector3F v1, Lina_Vector3F v2)
-	{
-		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-	}
 
+	// Return a string containing info on the vector attributes.
 	static std::string VToString(const Lina_Vector3F& v)
 	{
 		std::string s = "";
@@ -162,6 +211,8 @@ public:
 		return s;
 	}
 };
+
+typedef Lina_Vector3F Vector3;
 
 
 #endif
