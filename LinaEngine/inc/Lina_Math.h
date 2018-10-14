@@ -2,31 +2,36 @@
 Author: Inan Evin
 www.inanevin.com
 
-MIT License
 
-Lina Engine, Copyright (c) 2018 Inan Evin
+BSD 2-Clause License
+Lina Engine Copyright (c) 2018, Inan Evin All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
-to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation
+* and/or other materials provided with the distribution.
+
+-- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO
+-- THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS
+-- BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+-- GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+-- STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+-- OF SUCH DAMAGE.
 
 4.0.30319.42000
-10/12/2018 12:59:49 AM
+9/29/2018 3:42:21 PM
 
 */
 
 #pragma once
-
 #ifndef Lina_Math_H
 #define Lina_Math_H
 
+#include <random>
+
 class Lina_Math
 {
-
 public:
 
 	template<typename T>
@@ -39,7 +44,7 @@ public:
 
 		return val;
 	}
-	
+
 	static float Lerp(float v0, float v1, float t) {
 		return (1 - t) * v0 + t * v1;
 	}
@@ -47,8 +52,60 @@ public:
 	static float LerpFast(float v0, float v1, float t) {
 		return v0 + t * (v1 - v0);
 	}
-	
 
+	// Get absolute value.
+	static float abs(float f1)
+	{
+		if (f1 < 0) return -f1;
+		else return f1;
+	}
+
+	// Get sqrt with Newton's Method.
+	static float sqrtNewton(float f1, float est)
+	{
+		float err = abs(est*est - f1);
+
+		if (err <= 0.0001f)
+			return est;
+
+		float newEst = (((f1 / est) + est) / 2);
+		return sqrtNewton(f1, newEst);
+	}
+
+	// Get square root.
+	static float sqrt(float f1)
+	{
+		if (f1 < 0) return -1;
+
+		return sqrtNewton(f1, 1.0f);
+	}
+
+	// Get determinant.
+	static float det(float a, float b, float c, float d)
+	{
+		return a * d - b * c;
+	}
+
+	// Get power to the i.
+	static float pow(float f1, int i1)
+	{
+		for (int i = 0; i < i1; i++)
+		{
+			f1 *= f1;
+		}
+
+		return f1;
+	}
+
+	// Get a random float bw min & max.
+	static float GetRandom(float min, float max)
+	{
+		std::random_device rd;     // only used once to initialise (seed) engine
+		std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
+		std::uniform_real_distribution<float> uni(min, max);
+		auto random = uni(rng);
+		return random;
+	}
 };
 
 
