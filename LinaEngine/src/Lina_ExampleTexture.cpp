@@ -22,7 +22,6 @@ Redistribution and use in source and binary forms, with or without modification,
 
 #include "pch.h"
 #include "Lina_ExampleTexture.h"
-
 #include <GL/glew.h>
 
 Lina_Texture::Lina_Texture()

@@ -54,27 +54,8 @@ Lina_Core::Lina_Core()
 	// Wake the systems.
 	Wake();
 
-	// Create a window.
-	renderingEngine.CreateDisplayWindow(1024, 768, "Lina Engine 3D");
-	auto f0 = []() {std::cout << "MouseButtonDown: "; };
-
-	auto f = [](int mouseButton) {std::cout << "MouseButtonDown: " << mouseButton; };
-	auto f2 = [](int mouseButton) {std::cout << "MouseButtonReleased: " << mouseButton; };
-	auto f3 = [](SDL_Scancode key) {std::cout << "Key: " << key; };
-	auto f4 = [](SDL_Scancode keyReleased) {std::cout << "KeyReleased: " << keyReleased; };
-	
-	//objectHandler.SubscribeToAction<SDL_Scancode>(ActionType::KeyPressed, SDL_SCANCODE_F, f3);
-
-//	objectHandler.SubscribeToAction(ActionType::KeyPressed, &(this->Test));
-//	objectHandler.SubscribeToAction(ActionType::KeyPressed, SDL_SCANCODE_F, &(this->Test));
-
 	// Start the game.
 	Start();
-}
-
-void Lina_Core::Test()
-{
-
 }
 
 // Destructor.

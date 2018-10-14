@@ -159,12 +159,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Lina_CoreMessageBus.cpp" />
+    <ClCompile Include="src\Lina_ExampleMesh.cpp" />
+    <ClCompile Include="src\Lina_ExampleShader.cpp" />
+    <ClCompile Include="src\Lina_ExampleTexture.cpp" />
     <ClCompile Include="src\Lina_ObjectHandler.cpp" />
     <ClCompile Include="src\Lina_InputEngine.cpp" />
     <ClCompile Include="src\Lina_RenderingEngine.cpp" />
     <ClCompile Include="src\Lina_Core.cpp" />
     <ClCompile Include="src\Lina_GameCore.cpp" />
     <ClCompile Include="src\Lina_InputManager.cpp" />
+    <ClCompile Include="src\Lina_Scene.cpp" />
     <ClCompile Include="src\Lina_SDLHandler.cpp" />
     <ClCompile Include="src\Lina_Time.cpp" />
     <ClCompile Include="src\Lina_Window.cpp" />
@@ -175,6 +179,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\Lina_Actions.h">
@@ -190,6 +195,10 @@
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="inc\Lina_ExampleMesh.h" />
+    <ClInclude Include="inc\Lina_ExampleShader.h" />
+    <ClInclude Include="inc\Lina_ExampleTexture.h" />
+    <ClInclude Include="inc\Lina_ExampleVertex.h" />
     <ClInclude Include="inc\Lina_ObjectHandler.h">
       <SubType>
       </SubType>
@@ -202,6 +211,7 @@
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="inc\Lina_Scene.h" />
     <ClInclude Include="inc\Lina_Signals.h">
       <SubType>
       </SubType>
@@ -218,6 +228,7 @@
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="inc\Lina_TempVertexData.h" />
     <ClInclude Include="inc\Lina_Time.h">
       <SubType>
       </SubType>
@@ -231,6 +242,14 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\pch.h" />
+    <ClInclude Include="inc\stb_image.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Shaders\basic.frag" />
+    <None Include="Resources\Shaders\basic.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\Textures\container2.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

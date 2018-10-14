@@ -34,6 +34,12 @@ void Lina_RenderingEngine::Initialize()
 
 	// Register window events.
 	eventHandler.SubscribeToAction(ActionType::SDLQuit, [this]() { m_ActiveWindow->CloseWindow(); });
+
+	// Create a window.
+	CreateDisplayWindow(1024, 768, "Lina Engine 3D");
+
+	// Init my scene
+	m_Scene.InitScene();
 }
 
 
@@ -47,23 +53,18 @@ Lina_RenderingEngine::~Lina_RenderingEngine()
 // Main method to render a particular image on the active window.
 void Lina_RenderingEngine::Render()
 {
-	// Send dbg msg.
-	/* Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Render Loop is running", Lina_Console::MsgType::Update, "Render Engine", true); */
-
 	// Check if active window points to an object.
 	if (m_ActiveWindow == nullptr)
 	{
-		//cons.AddConsoleMsg("No active window to render onto!", Lina_Console::MsgType::Error, "Render Engine");
 		return;
 	}
-	
-	// Close the active window upon escape key press.
-//	if (inputEngine->GetKeyDown(SDL_SCANCODE_ESCAPE))
-		//m_ActiveWindow->CloseWindow();
 
 	// Call render method on active window.
-	m_ActiveWindow->RenderBlankColor();
+	//m_ActiveWindow->RenderBlankColor();
+
+	m_Scene.Draw();
+
+	m_ActiveWindow->Update();
 }
 
 void Lina_RenderingEngine::CleanUp()
@@ -74,6 +75,8 @@ void Lina_RenderingEngine::CleanUp()
 	// If we have an active window decrement the shared pointer of it.
 	if (m_ActiveWindow != nullptr)
 		m_ActiveWindow.reset();
+
+	m_Scene.CleanUp();
 }
 
 void Lina_RenderingEngine::CreateDisplayWindow(int width, int height, const std::string& title)

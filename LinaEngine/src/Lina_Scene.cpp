@@ -45,7 +45,6 @@ void Lina_Scene::InitScene()
 	//m_Mesh.InitMeshWithIndex(rektVertices, sizeof(rektVertices) / sizeof(rektVertices[0]), rektIndices, sizeof(rektIndices) / sizeof(rektIndices[0]));
 
 	m_Shader.LoadAndCompile("./Resources/Shaders/basic.vert", "./Resources/Shaders/basic.frag");
-
 	m_Texture.LoadTexture("./Resources/Textures/container2.png");
 }
 
