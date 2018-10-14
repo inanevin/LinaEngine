@@ -24,6 +24,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include <Lina_Actions.h>
 #include <Lina_Vector3F.h>
 #include <Lina_Matrix4F.h>
+#include <Lina_Quaternion.h>
+
 static const double FRAME_CAP = 5000.0;	// max frame limit we can draw. (ex.5000 frames in a sec)
 static const long SECOND = 1000000000;	// time in nanosecs
 
@@ -54,7 +56,7 @@ Lina_Core::Lina_Core()
 
 	// Wake the systems.
 	Wake();
-
+	Lina_Quaternion q;
 
 	// Start the game.
 	Start();
