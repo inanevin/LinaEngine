@@ -22,6 +22,13 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "pch.h"
 #include "Lina_RenderingEngine.h"  
 
+
+void Lina_RenderingEngine::CreateDisplayWindow(int width, int height, const std::string& title)
+{
+	// Initialize display.
+	m_ActiveWindow = std::make_shared<Lina_Window>(width, height, title);
+}
+
 // Init rendering engine.
 void Lina_RenderingEngine::Initialize() 
 {
@@ -38,10 +45,26 @@ void Lina_RenderingEngine::Initialize()
 	// Create a window.
 	CreateDisplayWindow(1024, 768, "Lina Engine 3D");
 
-	// Init my scene
-	m_Scene.InitScene();
-}
+	// Clear color.
+	glClearColor(0.0, 0.0, 0.0, 0.0);
 
+	// Every face in clock-wise order is front.
+	glFrontFace(GL_CW);
+
+	// Get rid of the back face.
+	glCullFace(GL_BACK);
+
+	// Enable culling faces for now to prevent extra faces.
+	glEnable(GL_CULL_FACE);
+
+	// Enable depth test -> enable Z draw-order.
+	glEnable(GL_DEPTH_TEST);
+
+	// depth clamp.
+
+	// Get free gamma correction.
+	glEnable(GL_FRAMEBUFFER_SRGB);
+}
 
 // Destructor.
 Lina_RenderingEngine::~Lina_RenderingEngine()
@@ -50,7 +73,14 @@ Lina_RenderingEngine::~Lina_RenderingEngine()
 	cons.AddConsoleMsg("Rendering deinitialized.", Lina_Console::MsgType::Deinitialization, "Render Engine");
 }
 
-// Main method to render a particular image on the active window.
+
+void Lina_RenderingEngine::ClearScreen()
+{
+	// Clear color & depth buffers.
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+// Main method to render.
 void Lina_RenderingEngine::Render()
 {
 	// Check if active window points to an object.
@@ -60,10 +90,6 @@ void Lina_RenderingEngine::Render()
 	}
 
 	// Call render method on active window.
-	//m_ActiveWindow->RenderBlankColor();
-
-	m_Scene.Draw();
-
 	m_ActiveWindow->Update();
 }
 
@@ -76,13 +102,7 @@ void Lina_RenderingEngine::CleanUp()
 	if (m_ActiveWindow != nullptr)
 		m_ActiveWindow.reset();
 
-	m_Scene.CleanUp();
 }
 
-void Lina_RenderingEngine::CreateDisplayWindow(int width, int height, const std::string& title)
-{
-	// Initialize display.
-	m_ActiveWindow = std::make_shared<Lina_Window>(width,height,title);
-}
 
 

@@ -42,6 +42,12 @@ public:
 	std::shared_ptr<Lina_Window> m_ActiveWindow;
 	Lina_ObjectHandler eventHandler;
 	Lina_Scene m_Scene;
+
+	void ClearScreen();
+	void InitGraphics();
+
+
+
 private:
 	Lina_RenderingEngine(const Lina_RenderingEngine&) = delete;
 	Lina_RenderingEngine& operator= (const Lina_RenderingEngine&) = delete;

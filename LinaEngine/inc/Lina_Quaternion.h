@@ -126,8 +126,6 @@ public:
 		return Lina_Quaternion(x_, y_, z_, w_);
 	}
 
-
-
 };
 
 

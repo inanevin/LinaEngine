@@ -39,6 +39,23 @@ Lina_Core::Lina_Core()
 	// Set running.
 	isRunning = false;
 
+	// Wake the systems.
+	Wake();
+
+	// Start the game.
+	Start();
+}
+
+// Destructor.
+Lina_Core::~Lina_Core()
+{
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Core deinitialized.", Lina_Console::MsgType::Deinitialization, "Core");
+}
+
+// Initialization before start.
+void Lina_Core::Wake()
+{
 	// Initialize Message Bus.
 	Lina_CoreMessageBus::Instance().Initialize(&sdlHandler, &inputEngine, &renderingEngine);
 
@@ -52,28 +69,8 @@ Lina_Core::Lina_Core()
 	renderingEngine.Initialize();
 
 	// Initialize game core.
-	gameCore.Initialize();	
+	gameCore.Initialize();
 
-	// Wake the systems.
-	Wake();
-	Lina_Quaternion q;
-
-	// Start the game.
-	Start();
-
-
-}
-
-// Destructor.
-Lina_Core::~Lina_Core()
-{
-	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Core deinitialized.", Lina_Console::MsgType::Deinitialization, "Core");
-}
-
-// Initialization before start.
-void Lina_Core::Wake()
-{
 	// Initialize event handler.
 	objectHandler.Initialize();
 }
@@ -215,6 +212,7 @@ void Lina_Core::Run()
 // Rendering loop.
 void Lina_Core::Render()
 {
+	renderingEngine.ClearScreen();
 	gameCore.Render();
 	renderingEngine.Render();
 }

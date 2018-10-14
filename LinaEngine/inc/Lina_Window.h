@@ -43,8 +43,6 @@ public:
 	~Lina_Window();
 
 	void Update();
-	void Clear(float, float, float, float);
-	void RenderBlankColor();
 	void CloseWindow();
 
 	bool IsClosed();
@@ -52,8 +50,6 @@ public:
 	inline int GetHeight() { return m_Height; }
 	inline std::string GetTitle() { return m_Title; }
 	void operator=(const Lina_Window& other) {}
-
-
 
 private:
 

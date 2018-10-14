@@ -28,8 +28,6 @@ Lina_Window::Lina_Window(int width, int height, const std::string& title) : m_Wi
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Window initialized. (W: " + std::to_string(width) + " H: " + std::to_string(height) + ")", Lina_Console::MsgType::Initialization, "Window");
 
-	
-
 	// Set additional parameters for SDL window using SDL_WINDOW_OPENGL
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);	// 8 bits (at least) -> 2 to the pow of 8 amount of color data. 256.
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);	// 8 bits -> 2 to the pow of 8 amount of color data. 256.
@@ -77,12 +75,6 @@ Lina_Window::~Lina_Window()
 	SDL_DestroyWindow(m_Window);
 }
 
-// Renders blank color.
-void Lina_Window::RenderBlankColor()
-{
-	Clear(155,0,2,1);
-	Update();
-}
 
 void Lina_Window::CloseWindow()
 {
@@ -96,14 +88,6 @@ void Lina_Window::Update()
 	// OpenGL will start drawing on the swaped buffer. And so on.
 	// So our window will never display a buffer that is currently being drawn by opengl.
 	SDL_GL_SwapWindow(m_Window);
-
-}
-
-void Lina_Window::Clear(float r, float g, float b, float a)
-{
-	// Draw a flat color.
-	glClearColor(0.0f, 0.15f, 0.3f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 bool Lina_Window::IsClosed() { return m_IsClosed; }
