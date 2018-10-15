@@ -25,42 +25,18 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_Vertex_H
 
 #include "Math/Lina_Vector3F.h"
-#include <glm/glm.hpp>
 
-/*class Lina_Vertex
-{
-
-public:
-
-	Lina_Vertex(Vector3 p) : pos(p) {}
-	Vector3 GetPos() { return pos; }
-	Vector3 SetPos(Vector3 p) { pos = p; }
-
-	static const int SIZE = 3;
-
-private:
-	
-	Vector3 pos;
-
-};
-
-typedef Lina_Vertex Vertex;*/
-
-
-struct Vertex
+struct Lina_Vertex
 {
 public:
-	Vertex(Vector3 position)
-	{
-		m_Position = position;
-	}
+
+	Lina_Vertex(Vector3 position) : m_Position(position) {};
 
 public:
 	Vector3 m_Position;
 };
 
-
-
+typedef Lina_Vertex Vertex; 
 
 
 #endif

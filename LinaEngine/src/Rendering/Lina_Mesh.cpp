@@ -22,3 +22,34 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "pch.h"
 #include "Rendering/Lina_Mesh.h"  
 
+void Lina_Mesh::InitMesh()
+{
+	//This function assigns unique ID to our Vertex Buffer Object.
+	glCreateBuffers(1, &m_VBO);
+	size = 0;
+}
+
+void Lina_Mesh::AddVertices(Vertex* vertices, unsigned int vSize)
+{
+	size = vSize;
+
+	//This function binds the Vertex Buffer Object..
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+
+	//After binding the buffer we specify the size of the data and the actual data itself.
+	glBufferData(GL_ARRAY_BUFFER, vSize * sizeof(vertices[0]), vertices, GL_STATIC_DRAW);
+}
+
+void Lina_Mesh::Draw()
+{
+
+	glEnableVertexAttribArray(0);
+
+	// Bind buffers & draw.
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+	glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * 4, (void*)0);
+	glDrawArrays(GL_TRIANGLES, 0, size);
+
+	glDisableVertexAttribArray(0);
+
+}
