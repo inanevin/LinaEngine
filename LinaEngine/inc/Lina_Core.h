@@ -38,7 +38,12 @@ public:
     Lina_Core();
 	~Lina_Core();
 
+	
+
 private:
+
+	int movementspeed;
+	float torque;
 
 	void Wake();
 	void Start();

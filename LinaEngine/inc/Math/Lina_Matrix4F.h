@@ -29,7 +29,9 @@ class Lina_Matrix4F
 
 public:
 
-	Lina_Matrix4F() {};
+	Lina_Matrix4F() { 
+
+	};
 
 	static Lina_Matrix4F Multiply(const Lina_Matrix4F& r1, const Lina_Matrix4F& r2)
 	{
@@ -82,10 +84,11 @@ public:
 	void SetMatrix(float(&arr)[4][4]) { std::memcpy(this->m, arr, sizeof(float) * 16); }
 	float GetElement(int x, int y) const { return this->m[x][y]; }
 	float SetElement(int x, int y, float val) { this->m[x][y] = val; }
-	float m[4][4];
+	GLfloat m[4][4];
 
 
 };
 
+typedef Lina_Matrix4F Matrix4;
 
 #endif

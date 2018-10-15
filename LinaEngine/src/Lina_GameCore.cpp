@@ -51,6 +51,8 @@ void Lina_GameCore::Wake()
 
 	m.InitMesh();
 	m.AddVertices(vertices, sizeof(vertices) / sizeof(vertices[0]));
+
+
 }
 
 void Lina_GameCore::Start()
@@ -68,9 +70,13 @@ void Lina_GameCore::Update()
 	
 }
 
+float temp = 0.0f;
+
 void Lina_GameCore::Render()
 {
-	//s.Use();
+	temp += Lina_Time::GetDelta() * 5;
+	mat.m[0][2] = abs(sin(temp));
+	s.SetUniform("uM", *(mat.m));
 	s.Bind();
 	m.Draw();
 

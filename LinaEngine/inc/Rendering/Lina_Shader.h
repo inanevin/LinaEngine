@@ -25,7 +25,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_Shader_H
 
 #include <GL/glew.h>
-
+#include "Math/Lina_Vector3F.h"
+#include "Math/Lina_Matrix4F.h"
 
 class Lina_Shader
 {
@@ -40,7 +41,11 @@ public:
 	void AddFragmentShader(std::string);
 	void CompileShader();
 	void Bind();
-	void SetFloat(const std::string& name, float value) const;
+	void SetUniform(const std::string& name, float value) const;
+	void SetUniform(const std::string& name, int val) const;
+	void SetUniform(const std::string& name, Vector3 value) const;
+	void SetUniform(const std::string& name, GLfloat* val) const;
+
 	void CheckError(unsigned int, int, std::string);
 
 private:

@@ -43,7 +43,7 @@ public:
 private:
 
 	Lina_GameCore(const Lina_GameCore& r) = delete;
-
+	Lina_Matrix4F mat;
 	Lina_Mesh m;
 	Lina_Shader s;
 };

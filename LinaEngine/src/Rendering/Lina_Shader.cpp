@@ -22,10 +22,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "pch.h"
 #include "Rendering/Lina_Shader.h"  
 
-#include <fstream>
-#include <sstream>
-#include <iostream>
-
 void Lina_Shader::Init()
 {
 	program = glCreateProgram();
@@ -89,7 +85,7 @@ void Lina_Shader::Bind()
 }
 
 
-void Lina_Shader::SetFloat(const std::string& name, float value) const
+void Lina_Shader::SetUniform(const std::string& name, float value) const
 {
 	//This function is wrapper example for using uniform funtionality of opengl.
 	//In order to use uniforms we must declare a uniform in the GLSL code and find the location of the uniform
@@ -98,6 +94,21 @@ void Lina_Shader::SetFloat(const std::string& name, float value) const
 	glUniform1f(glGetUniformLocation(program, name.c_str()), value);
 }
 
+void Lina_Shader::SetUniform(const std::string& name, int value) const
+{
+	glUniform1i(glGetUniformLocation(program, name.c_str()), value);
+}
+
+
+void Lina_Shader::SetUniform(const std::string& name, Vector3 value) const
+{
+	glUniform3f(glGetUniformLocation(program, name.c_str()), value.x, value.y, value.z);
+}
+
+void Lina_Shader::SetUniform(const std::string& name, GLfloat* val) const
+{
+	glUniformMatrix4fv(glGetUniformLocation(program, name.c_str()), 1, false, val);
+}
 
 void Lina_Shader::CheckError(unsigned int ID, int type, std::string typeID)
 {
