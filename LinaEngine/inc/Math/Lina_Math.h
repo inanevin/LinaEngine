@@ -29,6 +29,8 @@ Redistribution and use in source and binary forms, with or without modification,
 #define Lina_Math_H
 
 #include <random>
+#define _USE_MATH_DEFINES
+#include <cmath> 
 #include <math.h>
 
 class Lina_Math

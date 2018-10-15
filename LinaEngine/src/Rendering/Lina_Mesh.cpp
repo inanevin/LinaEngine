@@ -15,41 +15,10 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-9/30/2018 4:59:45 PM
+10/15/2018 10:33:27 AM
 
 */
 
-#pragma once
+#include "pch.h"
+#include "Rendering/Lina_Mesh.h"  
 
-#ifndef Lina_RenderingEngine_H
-#define Lina_RenderingEngine_H
-
-//#include<list>
-#include "Lina_Window.h"
-#include "Lina_ObjectHandler.h"
-
-class Lina_RenderingEngine
-{
-
-public:
-	Lina_RenderingEngine() {};
-	~Lina_RenderingEngine();
-
-	void Initialize();
-    void CreateDisplayWindow(int, int, const std::string&);
-	void ClearScreen();
-	void Render();
-	void CleanUp();
-
-	std::shared_ptr<Lina_Window> m_ActiveWindow;
-	Lina_ObjectHandler eventHandler;
-
-
-private:
-	Lina_RenderingEngine(const Lina_RenderingEngine&) = delete;
-	Lina_RenderingEngine& operator= (const Lina_RenderingEngine&) = delete;
-	
-};
-
-
-#endif

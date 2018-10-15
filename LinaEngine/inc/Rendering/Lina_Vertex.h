@@ -15,41 +15,54 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-9/30/2018 4:59:45 PM
+10/14/2018 11:48:03 PM
 
 */
 
 #pragma once
 
-#ifndef Lina_RenderingEngine_H
-#define Lina_RenderingEngine_H
+#ifndef Lina_Vertex_H
+#define Lina_Vertex_H
 
-//#include<list>
-#include "Lina_Window.h"
-#include "Lina_ObjectHandler.h"
+#include "Math/Lina_Vector3F.h"
+#include <glm/glm.hpp>
 
-class Lina_RenderingEngine
+/*class Lina_Vertex
 {
 
 public:
-	Lina_RenderingEngine() {};
-	~Lina_RenderingEngine();
 
-	void Initialize();
-    void CreateDisplayWindow(int, int, const std::string&);
-	void ClearScreen();
-	void Render();
-	void CleanUp();
+	Lina_Vertex(Vector3 p) : pos(p) {}
+	Vector3 GetPos() { return pos; }
+	Vector3 SetPos(Vector3 p) { pos = p; }
 
-	std::shared_ptr<Lina_Window> m_ActiveWindow;
-	Lina_ObjectHandler eventHandler;
-
+	static const int SIZE = 3;
 
 private:
-	Lina_RenderingEngine(const Lina_RenderingEngine&) = delete;
-	Lina_RenderingEngine& operator= (const Lina_RenderingEngine&) = delete;
 	
+	Vector3 pos;
+
 };
+
+typedef Lina_Vertex Vertex;*/
+
+
+struct Vertex
+{
+public:
+	Vertex(glm::vec3 position, glm::vec2 texCoords)
+	{
+		m_Position = position;
+		m_TexCoords = texCoords;
+	}
+
+public:
+	glm::vec3 m_Position;
+	glm::vec2 m_TexCoords;
+};
+
+
+
 
 
 #endif

@@ -47,7 +47,6 @@ private:
 	void Render();
 	void CleanUp();
 	bool isRunning;
-	void Test();
 
 	Lina_InputEngine inputEngine;
 	Lina_RenderingEngine renderingEngine;
@@ -58,7 +57,6 @@ private:
 	Lina_ObjectHandler objectHandler;
 
 	Lina_Core(const Lina_Core& r) = delete;
-
 
 };
 

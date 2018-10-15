@@ -22,10 +22,30 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "pch.h"
 #include "Lina_GameCore.h"  
 
-void Lina_GameCore::Initialize()
+
+void Lina_GameCore::Wake()
 {
-	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Game core initialized.", Lina_Console::MsgType::Initialization, "Game Core");
+	//Triangle
+	
+	//Triangle
+	Vertex vertices[] = {
+		//Position					//TexCoords
+	Vertex(glm::vec3(0.5, -0.5, 0.0), glm::vec2(1.0, 0.0)),
+	Vertex(glm::vec3(0.0, 0.5, 0.0), glm::vec2(0.5, 1.0)),
+	Vertex(glm::vec3(-0.5, -0.5, 0.0), glm::vec2(0.0, 0.0))
+	};
+
+	//Lina_Vertex vertices[] = { Lina_Vertex(Vector3(-1,-1,0)), Lina_Vertex(Vector3(0,1,0)) , Lina_Vertex(Vector3(-1,1,0))};
+	//Triangle
+
+	m.InitMesh();
+	m.AddVertices(vertices, sizeof(vertices) / sizeof(vertices[0]));
+
+}
+
+void Lina_GameCore::Start()
+{
+	
 }
 
 void Lina_GameCore::ProcessInput()
@@ -40,7 +60,7 @@ void Lina_GameCore::Update()
 
 void Lina_GameCore::Render()
 {
-
+	m.Draw();
 }
 
 

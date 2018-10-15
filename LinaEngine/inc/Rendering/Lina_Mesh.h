@@ -15,40 +15,66 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-9/30/2018 4:59:45 PM
+10/14/2018 11:50:38 PM
 
 */
 
 #pragma once
 
-#ifndef Lina_RenderingEngine_H
-#define Lina_RenderingEngine_H
+#ifndef Lina_Mesh_H
+#define Lina_Mesh_H
 
-//#include<list>
-#include "Lina_Window.h"
-#include "Lina_ObjectHandler.h"
+#include "Lina_Vertex.h"
+#include <GL/glew.h>
 
-class Lina_RenderingEngine
+class Lina_Mesh
 {
 
 public:
-	Lina_RenderingEngine() {};
-	~Lina_RenderingEngine();
 
-	void Initialize();
-    void CreateDisplayWindow(int, int, const std::string&);
-	void ClearScreen();
-	void Render();
-	void CleanUp();
+	Lina_Mesh()
+	{
+		
+	}
 
-	std::shared_ptr<Lina_Window> m_ActiveWindow;
-	Lina_ObjectHandler eventHandler;
+	void InitMesh()
+	{
+		//This function assigns unique ID to our Vertex Buffer Object.
+		glCreateBuffers(1, &m_VBO);
+		size = 0;
+	}
 
+	void AddVertices(Vertex* vertices, unsigned int vSize)
+	{
+		size = vSize;
+
+		//This function binds the Vertex Buffer Object..
+		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+
+		//After binding the buffer we specify the size of the data and the actual data itself.
+		glBufferData(GL_ARRAY_BUFFER, vSize * sizeof(vertices[0]), vertices, GL_STATIC_DRAW);
+	}
+
+	void Draw()
+	{
+		
+		glEnableVertexAttribArray(0);
+
+		// Bind buffers & draw.
+		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * 4, (void*)0);
+		glDrawArrays(GL_TRIANGLES, 0, size);
+
+		glDisableVertexAttribArray(0);
+
+	}
 
 private:
-	Lina_RenderingEngine(const Lina_RenderingEngine&) = delete;
-	Lina_RenderingEngine& operator= (const Lina_RenderingEngine&) = delete;
-	
+
+	unsigned int size;
+	GLuint m_VBO;
+	GLuint m_VAO;
+
 };
 
 

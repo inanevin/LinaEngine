@@ -24,7 +24,7 @@ Redistribution and use in source and binary forms, with or without modification,
 */
 
 #include "pch.h"
-#include "Lina_ExampleShader.h"
+#include "Rendering/Lina_ExampleShader.h"
 
 #include <GL/glew.h>
 

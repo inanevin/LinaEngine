@@ -24,6 +24,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_Game_H
 #define Lina_Game_H
 
+#include "Rendering/Lina_Mesh.h"
+#include "Rendering/Lina_ExampleShader.h"
+
 
 class Lina_GameCore
 {
@@ -31,7 +34,8 @@ class Lina_GameCore
 public:
 	Lina_GameCore() {};
 	~Lina_GameCore() {};
-	void Initialize();
+	void Wake();
+	void Start();
 	void ProcessInput();
 	void Update();
 	void Render();
@@ -39,6 +43,8 @@ public:
 private:
 	Lina_GameCore(const Lina_GameCore& r) = delete;
 
+	Lina_Mesh m;
+	Lina_Shader s;
 };
 
 

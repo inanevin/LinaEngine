@@ -18,7 +18,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 
 #include "pch.h"
-#include <iostream>
 #include "Lina_Core.h"
 #include "Utility/Lina_Time.h"
 
@@ -66,7 +65,7 @@ void Lina_Core::Wake()
 	renderingEngine.Initialize();
 
 	// Initialize game core.
-	gameCore.Initialize();
+	gameCore.Wake();
 
 	// Initialize event handler.
 	objectHandler.Initialize();
@@ -81,6 +80,9 @@ void Lina_Core::Start()
 
 	// Can not start if we are already running.
 	if (isRunning) return;
+
+	// Call start for game core.
+	gameCore.Start();
 
 	// Start the main game loop.
 	Run();

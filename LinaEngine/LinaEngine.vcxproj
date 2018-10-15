@@ -159,15 +159,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Lina_CoreMessageBus.cpp" />
-    <ClCompile Include="src\Lina_ExampleMesh.cpp" />
-    <ClCompile Include="src\Lina_ExampleShader.cpp" />
-    <ClCompile Include="src\Lina_ExampleTexture.cpp" />
     <ClCompile Include="src\Lina_ObjectHandler.cpp" />
     <ClCompile Include="src\Input\Lina_InputEngine.cpp" />
+    <ClCompile Include="src\Rendering\Lina_ExampleShader.cpp" />
+    <ClCompile Include="src\Rendering\Lina_Mesh.cpp" />
     <ClCompile Include="src\Rendering\Lina_RenderingEngine.cpp" />
     <ClCompile Include="src\Lina_Core.cpp" />
     <ClCompile Include="src\Lina_GameCore.cpp" />
-    <ClCompile Include="src\Lina_Scene.cpp" />
     <ClCompile Include="src\Lina_SDLHandler.cpp" />
     <ClCompile Include="src\Utility\Lina_Time.cpp" />
     <ClCompile Include="src\Rendering\Lina_Window.cpp" />
@@ -185,6 +183,15 @@
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_ExampleShader.h" />
+    <ClInclude Include="inc\Rendering\Lina_Mesh.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Vertex.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="inc\Utility\Lina_Console.h">
       <SubType>
       </SubType>
@@ -194,10 +201,6 @@
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Lina_ExampleMesh.h" />
-    <ClInclude Include="inc\Lina_ExampleShader.h" />
-    <ClInclude Include="inc\Lina_ExampleTexture.h" />
-    <ClInclude Include="inc\Lina_ExampleVertex.h" />
     <ClInclude Include="inc\Math\Lina_Matrix4F.h">
       <SubType>
       </SubType>
@@ -218,7 +221,6 @@
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Lina_Scene.h" />
     <ClInclude Include="inc\Events\Lina_Signals.h">
       <SubType>
       </SubType>
@@ -231,7 +233,6 @@
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Lina_TempVertexData.h" />
     <ClInclude Include="inc\Utility\Lina_Time.h">
       <SubType>
       </SubType>
