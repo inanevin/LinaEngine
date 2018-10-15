@@ -30,9 +30,9 @@ void Lina_GameCore::Wake()
 	//Triangle
 	Vertex vertices[] = {
 		//Position					//TexCoords
-	Vertex(glm::vec3(0.5, -0.5, 0.0), glm::vec2(1.0, 0.0)),
-	Vertex(glm::vec3(0.0, 0.5, 0.0), glm::vec2(0.5, 1.0)),
-	Vertex(glm::vec3(-0.5, -0.5, 0.0), glm::vec2(0.0, 0.0))
+	Vertex(Vector3(-1, -1, 0.0)),
+	Vertex(Vector3(0, 1, 0.0)),
+	Vertex(Vector3(1, -1, 0.0))
 	};
 
 	//Lina_Vertex vertices[] = { Lina_Vertex(Vector3(-1,-1,0)), Lina_Vertex(Vector3(0,1,0)) , Lina_Vertex(Vector3(-1,1,0))};
@@ -60,6 +60,7 @@ void Lina_GameCore::Update()
 
 void Lina_GameCore::Render()
 {
+	//s.Use();
 	m.Draw();
 }
 

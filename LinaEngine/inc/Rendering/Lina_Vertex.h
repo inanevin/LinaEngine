@@ -50,15 +50,13 @@ typedef Lina_Vertex Vertex;*/
 struct Vertex
 {
 public:
-	Vertex(glm::vec3 position, glm::vec2 texCoords)
+	Vertex(Vector3 position)
 	{
 		m_Position = position;
-		m_TexCoords = texCoords;
 	}
 
 public:
-	glm::vec3 m_Position;
-	glm::vec2 m_TexCoords;
+	Vector3 m_Position;
 };
 
 

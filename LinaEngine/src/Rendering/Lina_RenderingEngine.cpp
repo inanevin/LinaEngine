@@ -46,7 +46,7 @@ void Lina_RenderingEngine::Initialize()
 	CreateDisplayWindow(1024, 768, "Lina Engine 3D");
 
 	// Clear color.
-	glClearColor(0.0, 1.0, 0.0, 0.0);
+	glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	// Every face in clock-wise order is front.
 	//glFrontFace(GL_CW);
