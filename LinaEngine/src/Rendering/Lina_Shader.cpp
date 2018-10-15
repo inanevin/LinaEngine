@@ -49,7 +49,6 @@ void Lina_Shader::AddFragmentShader(std::string text)
 void Lina_Shader::AddToProgram(std::string text, int type)
 {
 
-
 	unsigned int shader = glCreateShader(type);
 
 	if (shader == 0)
@@ -88,6 +87,17 @@ void Lina_Shader::Bind()
 {
 	glUseProgram(program);
 }
+
+
+void Lina_Shader::SetFloat(const std::string& name, float value) const
+{
+	//This function is wrapper example for using uniform funtionality of opengl.
+	//In order to use uniforms we must declare a uniform in the GLSL code and find the location of the uniform
+	//with glGetUniformLocation, using ID of shader program and the name of the uniform in the GLSL code.
+	//After that we set the uniform given value. For float we use glUniform1f.
+	glUniform1f(glGetUniformLocation(program, name.c_str()), value);
+}
+
 
 void Lina_Shader::CheckError(unsigned int ID, int type, std::string typeID)
 {

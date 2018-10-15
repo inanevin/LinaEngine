@@ -40,6 +40,7 @@ public:
 	void AddFragmentShader(std::string);
 	void CompileShader();
 	void Bind();
+	void SetFloat(const std::string& name, float value) const;
 	void CheckError(unsigned int, int, std::string);
 
 private:

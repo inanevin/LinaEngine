@@ -23,7 +23,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #ifndef Lina_Matrix4F_H
 #define Lina_Matrix4F_H
-
+#include <memory>
 class Lina_Matrix4F
 {
 

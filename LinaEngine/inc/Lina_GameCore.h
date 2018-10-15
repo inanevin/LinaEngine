@@ -26,7 +26,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "Rendering/Lina_Mesh.h"
 #include "Rendering/Lina_Shader.h"
-
+#include "Lina_ObjectHandler.h"
 
 class Lina_GameCore
 {
@@ -39,8 +39,9 @@ public:
 	void ProcessInput();
 	void Update();
 	void Render();
-
+	Lina_ObjectHandler handler;
 private:
+
 	Lina_GameCore(const Lina_GameCore& r) = delete;
 
 	Lina_Mesh m;
