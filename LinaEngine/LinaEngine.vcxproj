@@ -167,6 +167,8 @@
     <ClCompile Include="src\Lina_Core.cpp" />
     <ClCompile Include="src\Lina_GameCore.cpp" />
     <ClCompile Include="src\Lina_SDLHandler.cpp" />
+    <ClCompile Include="src\Rendering\Lina_Shader.cpp" />
+    <ClCompile Include="src\Utility\Lina_ResourceLoader.cpp" />
     <ClCompile Include="src\Utility\Lina_Time.cpp" />
     <ClCompile Include="src\Rendering\Lina_Window.cpp" />
     <ClCompile Include="src\Lina_Main.cpp" />
@@ -185,6 +187,10 @@
     </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_ExampleShader.h" />
     <ClInclude Include="inc\Rendering\Lina_Mesh.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Shader.h">
       <SubType>
       </SubType>
     </ClInclude>
@@ -230,6 +236,10 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\Lina_SDLHandler.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Utility\Lina_ResourceLoader.h">
       <SubType>
       </SubType>
     </ClInclude>

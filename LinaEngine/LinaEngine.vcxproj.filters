@@ -81,6 +81,12 @@
     <ClCompile Include="src\Rendering\Lina_ExampleShader.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="src\Utility\Lina_ResourceLoader.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rendering\Lina_Shader.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\pch.h">
@@ -147,6 +153,12 @@
       <Filter>Header Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_ExampleShader.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Utility\Lina_ResourceLoader.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Shader.h">
       <Filter>Header Files\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
