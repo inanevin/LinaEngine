@@ -32,28 +32,21 @@ class Lina_Shader
 
 public:
 
-	Lina_Shader()
-	{
-		program = glCreateProgram();
+	Lina_Shader() {};
 
-		if (program == 0)
-		{
-			//Lina_Console cons;
-			//cons.AddConsoleMsg("Shader Construction Failed!", Lina_Console::MsgType::Error, "Shader");
-		}
-		
-	}
-
-	void AddVertexShader(const char*);
-	void AddGeometryShader(const char*);
-	void AddFragmentShader(const char*);
+	void Init();
+	void AddVertexShader(std::string);
+	void AddGeometryShader(std::string);
+	void AddFragmentShader(std::string);
 	void CompileShader();
-	void CheckError(unsigned int ID, int type);
+	void Bind();
+	void CheckError(unsigned int, int, std::string);
 
 private:
 
-	void AddProgram(const char*, int); 
+	void AddToProgram(std::string, int); 
 	unsigned int program;
+
 };
 
 

@@ -25,16 +25,13 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include <sstream>
 #include <iostream>
 
-Lina_ResourceLoader::Lina_ResourceLoader()
-{
 
-}
 
 // Loads shader from a source.
-static std::string LoadShader(const char* path)
+std::string Lina_ResourceLoader::LoadShader(const char* path)
 {
 	//These to string files will hold the contents of the file.
-	std::string vertexCode;
+	std::string shaderCode;
 
 	//the objects that will manage the files.
 	std::ifstream vShaderFile;
@@ -49,13 +46,13 @@ static std::string LoadShader(const char* path)
 		vShaderFile.open(path);
 
 		//Read the files' content from buffer into streams.
-		std::stringstream vShaderStream, fShaderStream;
+		std::stringstream vShaderStream;
 		vShaderStream << vShaderFile.rdbuf();
 
 		vShaderFile.close();
 
 		//Convert the streams to string
-		vertexCode = vShaderStream.str();
+		shaderCode = vShaderStream.str();
 	}
 	catch (std::ifstream::failure e)
 	{
@@ -63,7 +60,7 @@ static std::string LoadShader(const char* path)
 	}
 
 	//Since OpgenGL wants the shader code as char arrays we convert strings that hold the files' content into char array.
-	const char* vShaderCode = vertexCode.c_str();
-
+	//const char* cShaderCode = shaderCode.c_str();
+	return shaderCode;
 }
 

@@ -37,6 +37,9 @@
     <Filter Include="Source Files\Utility">
       <UniqueIdentifier>{b52835d8-b383-4ad5-9631-f187e6f5925a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders">
+      <UniqueIdentifier>{b025b26c-64e3-4063-a331-c68b8522acb1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
@@ -163,11 +166,17 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Shaders\basic.frag">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="Resources\Shaders\basic.vert">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\basic.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\Lina_BasicFragment.fs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\Lina_BasicVertex.vs">
+      <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

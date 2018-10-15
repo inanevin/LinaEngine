@@ -21,7 +21,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pch.h"
 #include "Lina_GameCore.h"  
-
+#include "Utility/Lina_ResourceLoader.h"
 
 void Lina_GameCore::Wake()
 {
@@ -38,9 +38,17 @@ void Lina_GameCore::Wake()
 	//Lina_Vertex vertices[] = { Lina_Vertex(Vector3(-1,-1,0)), Lina_Vertex(Vector3(0,1,0)) , Lina_Vertex(Vector3(-1,1,0))};
 	//Triangle
 
+	
+	s.Init();
+	std::string t = Lina_ResourceLoader::LoadShader("./Resources/Shaders/Lina_BasicVertex.vs");
+	std::string t2 = Lina_ResourceLoader::LoadShader("./Resources/Shaders/Lina_BasicFragment.fs");
+
+	s.AddVertexShader(t);
+	s.AddFragmentShader(t2);
+	s.CompileShader();
+
 	m.InitMesh();
 	m.AddVertices(vertices, sizeof(vertices) / sizeof(vertices[0]));
-
 }
 
 void Lina_GameCore::Start()
@@ -61,7 +69,9 @@ void Lina_GameCore::Update()
 void Lina_GameCore::Render()
 {
 	//s.Use();
+	s.Bind();
 	m.Draw();
+
 }
 
 

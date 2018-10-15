@@ -269,6 +269,8 @@
   <ItemGroup>
     <None Include="Resources\Shaders\basic.frag" />
     <None Include="Resources\Shaders\basic.vert" />
+    <None Include="Resources\Shaders\Lina_BasicFragment.fs" />
+    <None Include="Resources\Shaders\Lina_BasicVertex.vs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\Textures\container2.png" />

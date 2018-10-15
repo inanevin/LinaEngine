@@ -47,7 +47,7 @@ void Lina_Mesh::Draw()
 
 	// Bind buffers & draw.
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * 4, (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, false, Lina_Vertex::SIZE * 4, (void*)0);
 	glDrawArrays(GL_TRIANGLES, 0, size);
 
 	glDisableVertexAttribArray(0);

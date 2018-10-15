@@ -32,11 +32,11 @@ Redistribution and use in source and binary forms, with or without modification,
 #include <sstream>
 #include <iostream>
 
-Lina_Shader::Lina_Shader()
+Lina_ShaderS::Lina_ShaderS()
 {
 }
 
-void Lina_Shader::LoadAndCompile(const char* vertexPath, const char* fragmentPath)
+void Lina_ShaderS::LoadAndCompile(const char* vertexPath, const char* fragmentPath)
 {
 	//These to string files will hold the contents of the file.
 	std::string vertexCode;
@@ -80,12 +80,12 @@ void Lina_Shader::LoadAndCompile(const char* vertexPath, const char* fragmentPat
 	Compile(vShaderCode, fShaderCode);
 }
 
-void Lina_Shader::Use()
+void Lina_ShaderS::Use()
 {
 	glUseProgram(ID);
 }
 
-void Lina_Shader::Compile(const char* vertexShader, const char* fragmentShader)
+void Lina_ShaderS::Compile(const char* vertexShader, const char* fragmentShader)
 {
 	//Create ID for both shaders. As with most of the OpenGL objects shaders also works with IDs.
 	//Each shader object will have unique ID.
@@ -116,7 +116,7 @@ void Lina_Shader::Compile(const char* vertexShader, const char* fragmentShader)
 	glDeleteShader(fragment);
 }
 
-void Lina_Shader::SetFloat(const std::string& name, float value) const
+void Lina_ShaderS::SetFloat(const std::string& name, float value) const
 {
 	//This function is wrapper example for using uniform funtionality of opengl.
 	//In order to use uniforms we must declare a uniform in the GLSL code and find the location of the uniform
@@ -125,12 +125,12 @@ void Lina_Shader::SetFloat(const std::string& name, float value) const
 	glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
 
-void Lina_Shader::SetInt(const std::string & name, int value) const
+void Lina_ShaderS::SetInt(const std::string & name, int value) const
 {
 	glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }
 
-void Lina_Shader::CheckErrors(unsigned int ID, std::string type)
+void Lina_ShaderS::CheckErrors(unsigned int ID, std::string type)
 {
 	//Since GLSL is itself a programming language we use OpenGL funtions to check shader erorrs.
 	//After compiling the shaders or linking the shader program, we check if there is an error in the process.

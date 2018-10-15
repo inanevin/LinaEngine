@@ -49,13 +49,13 @@ void Lina_RenderingEngine::Initialize()
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	// Every face in clock-wise order is front.
-	//glFrontFace(GL_CW);
+	glFrontFace(GL_CW);
 
 	// Get rid of the back face.
-	//glCullFace(GL_BACK);
+	glCullFace(GL_BACK);
 
 	// Enable culling faces for now to prevent extra faces.
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 
 	// Enable depth test -> enable Z draw-order.
 	glEnable(GL_DEPTH_TEST);

@@ -26,14 +26,14 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "Math/Lina_Vector3F.h"
 
-struct Lina_Vertex
+class Lina_Vertex
 {
 public:
 
 	Lina_Vertex(Vector3 position) : m_Position(position) {};
 
-public:
 	Vector3 m_Position;
+	static const int SIZE = 3;
 };
 
 typedef Lina_Vertex Vertex; 

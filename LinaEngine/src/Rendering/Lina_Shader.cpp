@@ -22,40 +22,52 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "pch.h"
 #include "Rendering/Lina_Shader.h"  
 
+#include <fstream>
+#include <sstream>
+#include <iostream>
 
-void Lina_Shader::AddVertexShader(const char* text)
+void Lina_Shader::Init()
 {
-	AddProgram(text, GL_VERTEX_SHADER);
+	program = glCreateProgram();
 }
 
-void Lina_Shader::AddGeometryShader(const char* text)
+void Lina_Shader::AddVertexShader(std::string text)
 {
-	AddProgram(text, GL_GEOMETRY_SHADER);
+	AddToProgram(text, GL_VERTEX_SHADER);
 }
 
-void Lina_Shader::AddFragmentShader(const char* text)
+void Lina_Shader::AddGeometryShader(std::string text)
 {
-	AddProgram(text, GL_FRAGMENT_SHADER);
+	AddToProgram(text, GL_GEOMETRY_SHADER);
 }
 
-void Lina_Shader::AddProgram(const char* text, int type)
+void Lina_Shader::AddFragmentShader(std::string text)
 {
+	AddToProgram(text, GL_FRAGMENT_SHADER);
+}
+
+void Lina_Shader::AddToProgram(std::string text, int type)
+{
+
+
 	unsigned int shader = glCreateShader(type);
 
 	if (shader == 0)
 	{
 		Lina_Console cons;
-		cons.AddConsoleMsg("Shader Program Insert Failed!", Lina_Console::MsgType::Error, "Shader");
+		cons.AddConsoleMsg("Shader Creation Insert Failed!", Lina_Console::MsgType::Error, "Shader");
 		return;
 	}
 
+	const char* t = text.c_str();
+	
 	// Init shader source & compile the text.
-	glShaderSource(shader, 1, &text, NULL);
+	glShaderSource(shader, 1, &t, NULL);
 	glCompileShader(shader);
-	CheckError(shader, GL_COMPILE_STATUS);
+	CheckError(shader, GL_COMPILE_STATUS, "SHADER");
 
 	// Attach said shader to the program.
-	glAttachShader(shader, program);
+	glAttachShader(program, shader);
 
 }
 
@@ -66,22 +78,37 @@ void Lina_Shader::CompileShader()
 	glLinkProgram(program);
 
 	// Check for errors.
-	CheckError(program, GL_LINK_STATUS);
+	CheckError(program, GL_LINK_STATUS, "PROGRAM");
 
 	// Validate program.
 	glValidateProgram(program);
 }
 
-void Lina_Shader::CheckError(unsigned int ID, int type)
+void Lina_Shader::Bind()
+{
+	glUseProgram(program);
+}
+
+void Lina_Shader::CheckError(unsigned int ID, int type, std::string typeID)
 {
 	int success;
 	char infoLog[1024];
-
-	glGetShaderiv(ID, type, &success);
-
-	if (!success)
+	if (typeID != "PROGRAM")
 	{
-		glGetShaderInfoLog(ID, 1024, NULL, infoLog);
-		std::cout << "Shader ERR:" << type << " Shader\n" << infoLog << "--------\n" << std::endl;
+		glGetShaderiv(ID, type, &success);
+		if (!success)
+		{
+			glGetShaderInfoLog(ID, 1024, NULL, infoLog);
+			std::cout << "ERR: " << typeID << " Shader\n" << infoLog << "--------\n" << std::endl;
+		}
+	}
+	else
+	{
+		glGetProgramiv(ID, type, &success);
+		if (!success)
+		{
+			glGetProgramInfoLog(ID, 1024, NULL, infoLog);
+			std::cout << "ERR " << typeID << "\n" << infoLog << "--------\n" << std::endl;
+		}
 	}
 }

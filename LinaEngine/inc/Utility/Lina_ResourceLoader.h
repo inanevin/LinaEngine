@@ -29,9 +29,9 @@ class Lina_ResourceLoader
 
 public:
 
-	Lina_ResourceLoader();
+	Lina_ResourceLoader() {};
 
-	static void LoadShader(const char* fileName);
+	static std::string LoadShader(const char* fileName);
 
 };
 

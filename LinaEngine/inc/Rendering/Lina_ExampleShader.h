@@ -29,10 +29,10 @@ Redistribution and use in source and binary forms, with or without modification,
 
 #include <string>
 
-class Lina_Shader
+class Lina_ShaderS
 {
 public:
-	Lina_Shader();
+	Lina_ShaderS();
 
 	void Use();
 	void LoadAndCompile(const char* vertexPath, const char* fragmentPath);
