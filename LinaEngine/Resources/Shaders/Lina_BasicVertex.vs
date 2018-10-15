@@ -3,22 +3,19 @@
 //As we stated in glVertexAttribPointer we declare position at the location 0.
 layout (location = 0) in vec3 pos;
 
-uniform float uF;
-uniform vec3 uV;
-uniform int uI;
-uniform mat4 uM;
-out float time;
-
 out vec4 color;
+uniform mat4 transform;
+
+
 
 void main()
 {
 
-	color = vec4(clamp(pos, 0.0, uM[0][2]), 1.0);
+	color = vec4(clamp(pos, 0.0, 1.0), 1.0);
 	
 	//We are using built in GLSL variable gl_Position for passing our Position data which we stored as Vertex structs.
 	//By using gl_Position we pass our vertex data(in this case just a position) next step of the rendering pipeline.
 	
-	gl_Position = vec4(0.5 * pos, 1.0);
+	gl_Position = transform * vec4(0.5 * pos, 1.0);
 
 }

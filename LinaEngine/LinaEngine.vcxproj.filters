@@ -40,6 +40,9 @@
     <Filter Include="Resource Files\Shaders">
       <UniqueIdentifier>{b025b26c-64e3-4063-a331-c68b8522acb1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Math">
+      <UniqueIdentifier>{8941d66d-58fe-4a57-8e7b-2645eba9eb8f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
@@ -89,6 +92,9 @@
     </ClCompile>
     <ClCompile Include="src\Rendering\Lina_Shader.cpp">
       <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Lina_Transform.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -163,6 +169,9 @@
     </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_Shader.h">
       <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Lina_Transform.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

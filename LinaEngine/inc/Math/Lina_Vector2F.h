@@ -25,12 +25,16 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_Vector2F_H
 
 #include "Math/Lina_Math.h"
-#include <string>
+using namespace std;
 
 class Lina_Vector2F
 {
 
 public:
+
+	static Lina_Vector2F zero() { return Lina_Vector2F(0, 0); }
+	static Lina_Vector2F one() { return Lina_Vector2F(1, 1); }
+
 	float x, y;
 	Lina_Vector2F() { x = y = 0.0; }	// Empty const.
 	Lina_Vector2F(const Lina_Vector2F& rhs) {

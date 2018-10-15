@@ -24,15 +24,16 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_Vector3F_H
 #define Lina_Vector3F_H
 
-#include <iostream>
 #include "Math/Lina_Math.h"
-#include <string>
-
+using namespace std;
 
 class Lina_Vector3F
 {
 
 public:
+
+	static Lina_Vector3F zero() { return Lina_Vector3F(0, 0, 0); }
+	static Lina_Vector3F one() { return Lina_Vector3F(1, 1, 1); }
 
 	float x, y, z;
 	Lina_Vector3F() { x = y = z = 0.0; }	// Empty const.

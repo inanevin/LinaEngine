@@ -107,7 +107,7 @@ void Lina_Shader::SetUniform(const std::string& name, Vector3 value) const
 
 void Lina_Shader::SetUniform(const std::string& name, GLfloat* val) const
 {
-	glUniformMatrix4fv(glGetUniformLocation(program, name.c_str()), 1, false, val);
+	glUniformMatrix4fv(glGetUniformLocation(program, name.c_str()), 1, true, val);
 }
 
 void Lina_Shader::CheckError(unsigned int ID, int type, std::string typeID)

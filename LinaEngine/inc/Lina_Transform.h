@@ -15,39 +15,31 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/1/2018 5:57:03 AM
+10/16/2018 12:38:18 AM
 
 */
 
 #pragma once
 
-#ifndef Lina_Game_H
-#define Lina_Game_H
+#ifndef Lina_Transform_H
+#define Lina_Transform_H
 
-#include "Rendering/Lina_Mesh.h"
-#include "Rendering/Lina_Shader.h"
-#include "Lina_ObjectHandler.h"
-#include "Lina_Transform.h"
+#include "Math/Lina_Vector3F.h"
+#include "Math/Lina_Matrix4F.h"
 
-class Lina_GameCore
+class Lina_Transform
 {
 
 public:
-	Lina_GameCore() {};
-	~Lina_GameCore() {};
-	void Wake();
-	void Start();
-	void ProcessInput();
-	void Update();
-	void Render();
-	Lina_ObjectHandler handler;
+
+	Lina_Transform();
+	Vector3 GetTranslation();
+	void SetTranslation(Vector3 t);
+	void SetTranslation(float x, float y, float z);
+	Matrix4 GetTransformation();
 private:
 
-	Lina_GameCore(const Lina_GameCore& r) = delete;
-	Lina_Matrix4F mat;
-	Lina_Mesh m;
-	Lina_Shader s;
-	Lina_Transform transform;
+	Vector3 translation;
 };
 
 

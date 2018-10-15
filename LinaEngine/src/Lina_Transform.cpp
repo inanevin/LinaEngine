@@ -15,73 +15,42 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/1/2018 6:00:05 AM
+10/16/2018 12:38:30 AM
 
 */
 
 #include "pch.h"
-#include "Lina_GameCore.h"  
-#include "Utility/Lina_ResourceLoader.h"
-#include "Math/Lina_Math.h"
-#include "Utility/Lina_Time.h"
+#include "Lina_Transform.h"  
 
-void Lina_GameCore::Wake()
+Lina_Transform::Lina_Transform() {
+
+	translation = Vector3::zero();
+
+}
+
+Vector3 Lina_Transform::GetTranslation()
 {
-	//Triangle
+	return translation;
+}
+
+void Lina_Transform::SetTranslation(Vector3 t)
+{
+	translation = t;
+}
+
+void Lina_Transform::SetTranslation(float x, float y, float z)
+{
+	translation = Vector3(x, y, z);
+}
+
+Matrix4 Lina_Transform::GetTransformation()
+{
+	Matrix4 m;
+
+	// Init matrix with the desired translation.
+	m.InitTranslation(translation.x, translation.y, translation.z);;
+
 	
-	//Triangle
-	Vertex vertices[] = {
-		//Position					//TexCoords
-	Vertex(Vector3(-1, -1, 0.0)),
-	Vertex(Vector3(0, 1, 0.0)),
-	Vertex(Vector3(1, -1, 0.0)),
-	};
-
-	//Lina_Vertex vertices[] = { Lina_Vertex(Vector3(-1,-1,0)), Lina_Vertex(Vector3(0,1,0)) , Lina_Vertex(Vector3(-1,1,0))};
-	//Triangle
-
-	handler.Initialize();
-	s.Init();
-	std::string t = Lina_ResourceLoader::LoadShader("./Resources/Shaders/Lina_BasicVertex.vs");
-	std::string t2 = Lina_ResourceLoader::LoadShader("./Resources/Shaders/Lina_BasicFragment.fs");
-
-	s.AddVertexShader(t);
-	s.AddFragmentShader(t2);
-	s.CompileShader();
-
-	m.InitMesh();
-	m.AddVertices(vertices, sizeof(vertices) / sizeof(vertices[0]));
-
-
+	return m;
 }
-
-void Lina_GameCore::Start()
-{
-	
-}
-
-void Lina_GameCore::ProcessInput()
-{
-
-}
-float temp = 0.0f;
-
-void Lina_GameCore::Update()
-{
-	temp += Lina_Time::GetDelta();
-	transform.SetTranslation(sin(temp), 0, 0);
-
-}
-
-
-
-void Lina_GameCore::Render()
-{
-	s.Bind();
-	s.SetUniform("transform", *(transform.GetTransformation().m));
-
-	m.Draw();
-
-}
-
 
