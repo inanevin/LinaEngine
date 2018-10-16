@@ -24,6 +24,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_ResourceLoader_H
 #define Lina_ResourceLoader_H
 
+#include "Rendering/Lina_Mesh.h"
+#include "Math/Lina_Vector2F.h"
+
 class Lina_ResourceLoader
 {
 
@@ -31,8 +34,8 @@ public:
 
 	Lina_ResourceLoader() {};
 
-	static std::string LoadShader(const char* fileName);
-
+	static std::string LoadShader(std::string);
+	static Lina_Mesh LoadMesh(std::string);
 };
 
 

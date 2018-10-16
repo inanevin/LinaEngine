@@ -121,9 +121,14 @@ public:
 		return *this;
 	}
 
+	bool operator!=(const Lina_Vector3F& other) const
+	{
+		return !(this->x == other.x && this->y == other.y && this->z == other.z);
+	}
+
 	/* OVERLOADS FOR COPY CALCULATIONS VIA FLOAT */
 
-	Lina_Vector3F operator+(const float& rhs)
+	Lina_Vector3F operator+(const float& rhs) const
 	{
 		Lina_Vector3F v;
 		v.x = this->x + rhs;
@@ -131,7 +136,7 @@ public:
 		v.z = this->z + rhs;
 		return v;
 	}
-	Lina_Vector3F operator-(const float& rhs)
+	Lina_Vector3F operator-(const float& rhs) const
 	{
 		Lina_Vector3F v;
 		v.x = this->x - rhs;
@@ -139,24 +144,24 @@ public:
 		v.z = this->z - rhs;
 		return v;
 	}
-	Lina_Vector3F operator*(const float& rhs)
+	Lina_Vector3F operator*(const float& rhs) const
 	{
 		Lina_Vector3F v;
-		v.x = this->x - rhs;
-		v.y = this->y - rhs;
-		v.z = this->z - rhs;
+		v.x = this->x * rhs;
+		v.y = this->y * rhs;
+		v.z = this->z * rhs;
 		return v;
 	}
-	Lina_Vector3F operator/(const float& rhs)
+	Lina_Vector3F operator/(const float& rhs) const
 	{
 		Lina_Vector3F v;
-		v.x = this->x - rhs;
-		v.y = this->y - rhs;
-		v.z = this->z - rhs;
+		v.x = this->x / rhs;
+		v.y = this->y / rhs;
+		v.z = this->z / rhs;
 		return v;
 	}
 
-	bool operator== (const Lina_Vector3F& rhs)
+	bool operator== (const Lina_Vector3F& rhs) const
 	{
 		return (this->x == rhs.x && this->y == rhs.y && this->z == rhs.z);
 	}
@@ -167,16 +172,21 @@ public:
 
 
 	// Get magnitude of a vector.
-	float magnitude()
+	float Magnitude()
 	{
 		return sqrt(this->x * this->x + this->y * this->y + this->z *this->z);
+	}
+
+	static float Magnitude(Lina_Vector3F a)
+	{
+		return sqrt(a.x*a.x + a.y*a.y + a.z*a.z);
 	}
 
 	// Normalize the vector and return a copy.
 	Lina_Vector3F normalized()
 	{
 		Lina_Vector3F v = Lina_Vector3F(*this);
-		float mag = magnitude();
+		float mag = Magnitude();
 		v.x /= mag;
 		v.y /= mag;
 		v.z /= mag;
@@ -186,7 +196,7 @@ public:
 	// Normalize the vector and return a copy.
 	void Normalize(Lina_Vector3F& v)
 	{
-		float mag = v.magnitude();
+		float mag = v.Magnitude();
 		v.x /= mag;
 		v.y /= mag;
 		v.z /= mag;
@@ -235,7 +245,7 @@ public:
 	}
 
 	// Cross product of two vectors.
-	static Lina_Vector3F Cross(Lina_Vector3F& v1, Lina_Vector3F& v2)
+	static Lina_Vector3F Cross(Lina_Vector3F v1, Lina_Vector3F v2)
 	{
 		Lina_Vector3F crossP = Lina_Vector3F();
 		crossP.x = Lina_Math::det(v1.y, v1.z, v2.y, v2.z);
@@ -249,6 +259,23 @@ public:
 	{
 		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 	}
+
+
+	// Angle between 2 Vector3 Objects
+	static float AngleBetween(const Lina_Vector3F a, const Lina_Vector3F b)
+	{
+		float angle = Dot(a, b);
+		angle /= (Lina_Vector3F::Magnitude(a) * Lina_Vector3F::Magnitude(b));
+		return angle = acosf(angle);
+	}
+
+	// Projection Calculation of a onto b
+	static Lina_Vector3F Projection(const Lina_Vector3F a, const Lina_Vector3F b)
+	{
+		Lina_Vector3F bn = b / Lina_Vector3F::Magnitude(b);
+		return bn * Dot(a, bn);
+	}
+
 
 #pragma endregion
 

@@ -122,6 +122,8 @@ public:
 	{
 		return (radians * M_PI) / 180.0;
 	}
+
+
 };
 
 

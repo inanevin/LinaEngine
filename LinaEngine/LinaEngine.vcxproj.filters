@@ -49,6 +49,9 @@
     <Filter Include="Source Files\Scene">
       <UniqueIdentifier>{8f117c1b-733e-4c38-9856-8be237461214}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Meshes">
+      <UniqueIdentifier>{04c66bdb-3808-4b7a-ac22-3588a8247fe9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">

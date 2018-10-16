@@ -28,42 +28,42 @@ Lina_Scene::Lina_Scene()
 {
 
 }
-
+float temp = 0.0f;
+void TestMethod()
+{
+	std::cout << "amk";
+}
 void Lina_Scene::Wake()
 {
-	//Triangle
 
 	//Triangle
 	Vertex vertices[] = {
-		//Position					//TexCoords
 	Vertex(Vector3(-1, -1, 0.0)),
 	Vertex(Vector3(0, 1, 0.0)),
 	Vertex(Vector3(1, -1, 0.0)),
 	Vertex(Vector3(0,-1,1))
 	};
+	int indices[] = { 0, 1, 3,
+					 3, 1, 2,
+					 2, 1, 0,
+					 0, 2, 3
+	};
 
-	//Lina_Vertex vertices[] = { Lina_Vertex(Vector3(-1,-1,0)), Lina_Vertex(Vector3(0,1,0)) , Lina_Vertex(Vector3(-1,1,0))};
-	//Triangle
 
 	s.Init();
-	std::string t = Lina_ResourceLoader::LoadShader("./Resources/Shaders/Lina_BasicVertex.vs");
-	std::string t2 = Lina_ResourceLoader::LoadShader("./Resources/Shaders/Lina_BasicFragment.fs");
+	std::string t = Lina_ResourceLoader::LoadShader("Lina_BasicVertex.vs");
+	std::string t2 = Lina_ResourceLoader::LoadShader("Lina_BasicFragment.fs");
 
 	s.AddVertexShader(t);
 	s.AddFragmentShader(t2);
 	s.CompileShader();
 
+	m = Lina_ResourceLoader::LoadMesh("cube.obj");
+
 	m.InitMesh();
+	m.InitBuffers();
 
-	int indices[] = {0, 1, 3,
-					 3, 1, 2,
-					 2, 1, 0,
-					 0, 2, 3
-	};
-	m.AddVertices(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices) / sizeof(indices[0]));
 }
-
-float temp = 0.0f;
 
 
 void Lina_Scene::Start()
@@ -75,13 +75,15 @@ void Lina_Scene::ProcessInput()
 {
 }
 
-
+float t = 0.0;
 void Lina_Scene::Update()
 {
-	temp += (float)Lina_Time::GetDelta();
-	transform.SetRotation(0, (float)sin(temp) * 180 ,0);
-	transform.SetPosition(sin(temp), 0, 0);
-	//transform.SetScale(sin(temp), sin(temp), sin(temp));
+	temp += Lina_Time::GetDelta() * 12;
+	//temp = m_ObjectHandler.GetMouseButton(0);
+	//temp += (float)Lina_Time::GetDelta();
+	transform.SetRotation(0, temp,0);
+//	transform.SetPosition(0, t, 0);
+	transform.SetScale(Vector3::one() / 2);
 }
 
 void Lina_Scene::Render()
@@ -89,6 +91,7 @@ void Lina_Scene::Render()
 	s.Bind();
 	s.SetUniform("transform", *(transform.GetTransformation().m));
 	m.Draw();
+
 }
 
 void Lina_Scene::CleanUp()

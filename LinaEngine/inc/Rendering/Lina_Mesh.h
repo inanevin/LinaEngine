@@ -27,23 +27,38 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Lina_Vertex.h"
 #include <GL/glew.h>
 
+
+
+
 class Lina_Mesh
 {
 
 public:
 	Lina_Mesh() {};
+
 	void InitMesh();
+	void InitBuffers();
 	void AddVertices(Vertex*, unsigned int, int*, unsigned int);
 	void Draw();
 
+	Vertex* m_Vertices;
+	int* m_Indices;
+	int vSize;
+	int iSize;
+
 private:
 
+	
 	unsigned int size;
 	GLuint m_VBO;
 	GLuint m_IBO;
 	GLuint m_VAO;
 
+
+	
+
 };
+
 
 
 #endif

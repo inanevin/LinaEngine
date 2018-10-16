@@ -27,10 +27,12 @@ void Lina_Mesh::InitMesh()
 	//This function assigns unique ID to our Vertex Buffer Object & Index Buffer Object. 
 	glCreateBuffers(1, &m_VBO);
 	glCreateBuffers(1, &m_IBO);
+
 	size = 0;
+
 }
 
-void Lina_Mesh::AddVertices(Vertex* vertices, unsigned int vSize, int* indices, unsigned int iSize)
+void Lina_Mesh::InitBuffers()
 {
 	size = iSize;
 
@@ -38,11 +40,26 @@ void Lina_Mesh::AddVertices(Vertex* vertices, unsigned int vSize, int* indices, 
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 
 	//After binding the buffer we specify the size of the data and the actual data itself.
-	glBufferData(GL_ARRAY_BUFFER, vSize * sizeof(vertices[0]), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vSize * sizeof(m_Vertices[0]), m_Vertices, GL_STATIC_DRAW);
 
 	// Bind & Buffer for index buffer object.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, iSize * sizeof(indices[0]), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, iSize * sizeof(m_Indices[0]), m_Indices, GL_STATIC_DRAW);
+}
+
+void Lina_Mesh::AddVertices(Vertex* vertices, unsigned int vsize, int* indices, unsigned int isize)
+{
+	size = iSize;
+
+	//This function binds the Vertex Buffer Object..
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+
+	//After binding the buffer we specify the size of the data and the actual data itself.
+	glBufferData(GL_ARRAY_BUFFER, vsize * sizeof(vertices[0]), vertices, GL_STATIC_DRAW);
+
+	// Bind & Buffer for index buffer object.
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, isize * sizeof(indices[0]), indices, GL_STATIC_DRAW);
 }
 
 void Lina_Mesh::Draw()

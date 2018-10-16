@@ -64,6 +64,9 @@ void Lina_Shader::AddToProgram(std::string text, int type)
 	// Attach said shader to the program.
 	glAttachShader(program, shader);
 
+	// Delete the shader from temp memory after attaching.
+	glDeleteShader(shader);
+
 }
 
 
