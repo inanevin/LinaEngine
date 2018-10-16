@@ -161,7 +161,6 @@
     <ClCompile Include="src\Lina_CoreMessageBus.cpp" />
     <ClCompile Include="src\Lina_ObjectHandler.cpp" />
     <ClCompile Include="src\Input\Lina_InputEngine.cpp" />
-    <ClCompile Include="src\Lina_Transform.cpp" />
     <ClCompile Include="src\Rendering\Lina_ExampleShader.cpp" />
     <ClCompile Include="src\Rendering\Lina_Mesh.cpp" />
     <ClCompile Include="src\Rendering\Lina_RenderingEngine.cpp" />

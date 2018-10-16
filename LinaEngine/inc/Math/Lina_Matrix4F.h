@@ -84,20 +84,18 @@ public:
 
 	void InitIdentityMatrix()
 	{
-		m[0][0] = 1;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = 0;
-		m[1][0] = 0;	m[1][1] = 1;	m[1][2] = 0;	m[1][3] = 0;
-		m[2][0] = 0;	m[2][1] = 0;	m[2][2] = 1;	m[2][3] = 0;
-		m[3][0] = 0;	m[3][1] = 0;	m[3][2] = 0;	m[3][3] = 1;
+		m[0][0] = 1;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = 0;	// Final X Component
+		m[1][0] = 0;	m[1][1] = 1;	m[1][2] = 0;	m[1][3] = 0;	// Final Y Component
+		m[2][0] = 0;	m[2][1] = 0;	m[2][2] = 1;	m[2][3] = 0;	// Final Z Component
+		m[3][0] = 0;	m[3][1] = 0;	m[3][2] = 0;	m[3][3] = 1;	// Final W Component
 	}
 
-	void InitTranslation(float x, float y, float z)
+	void InitPosition(float x, float y, float z)
 	{
-
 		m[0][0] = 1;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = x;
 		m[1][0] = 0;	m[1][1] = 1;	m[1][2] = 0;	m[1][3] = y;
 		m[2][0] = 0;	m[2][1] = 0;	m[2][2] = 1;	m[2][3] = z;
 		m[3][0] = 0;	m[3][1] = 0;	m[3][2] = 0;	m[3][3] = 1;
-
 	}
 
 	void InitRotation(float x, float y, float z)
@@ -135,6 +133,15 @@ public:
 		// Set the inner-outer multiplication result as this matrix.
 		SetMatrix(result.m);
 	}
+
+	void InitScale(float x, float y, float z)
+	{
+		m[0][0] = x;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = 0;
+		m[1][0] = 0;	m[1][1] = y;	m[1][2] = 0;	m[1][3] = 0;
+		m[2][0] = 0;	m[2][1] = 0;	m[2][2] = z;	m[2][3] = 0;
+		m[3][0] = 0;	m[3][1] = 0;	m[3][2] = 0;	m[3][3] = 1;
+	}
+
 
 	void SetMatrix(float(&arr)[4][4]) { std::memcpy(this->m, arr, sizeof(float) * 16); }
 	float GetElement(int x, int y) const { return this->m[x][y]; }

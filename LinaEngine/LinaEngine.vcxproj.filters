@@ -93,9 +93,6 @@
     <ClCompile Include="src\Rendering\Lina_Shader.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="src\Lina_Transform.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\pch.h">

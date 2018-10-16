@@ -32,21 +32,42 @@ class Lina_Transform
 
 public:
 
-	Lina_Transform();
+	Lina_Transform() 
+	{
+		position = Vector3::zero();
+		rotation = Vector3::zero();
+		scale = Vector3::one();
+	}
 
-	Vector3 GetTranslation() { return translation; }
+	Vector3 GetPosition() { return position; }
 	Vector3 GetRotation() { return rotation; }
-	void SetTranslation(Vector3 t) { translation = t; }
-	void SetTranslation(float x, float y, float z) { translation = Vector3(x, y, z); }
+	Vector3 GetScale() { return scale; }
+
+	void SetPosition(Vector3 t) { position = t; }
+	void SetPosition(float x, float y, float z) { position = Vector3(x, y, z); }
 	void SetRotation(Vector3 r) { rotation = r; }
 	void SetRotation(float x, float y, float z) { rotation = Vector3(x, y, z); }
+	void SetScale(Vector3 s) { scale = s; }
+	void SetScale(float x, float y, float z) { scale = Vector3(x, y, z); }
 
-	Matrix4 GetTransformation();
+	Matrix4 GetTransformation()
+	{
+		Matrix4 t;	// Translation
+		Matrix4 r;	// Rotation
+		Matrix4 s;	// Scale
 
+		// Init matrix with the desired translation.
+		t.InitPosition(position.x, position.y, position.z);
+		r.InitRotation(rotation.x, rotation.y, rotation.z);
+		s.InitScale(scale.x, scale.y, scale.z);
 
-private:
+		// Return the multiplied scale with rotation with translation, inner-outer order.
+		return t.Multiply(r.Multiply(s));
+	}
+
 	Vector3 rotation;
-	Vector3 translation;
+	Vector3 position;
+	Vector3 scale;
 };
 
 

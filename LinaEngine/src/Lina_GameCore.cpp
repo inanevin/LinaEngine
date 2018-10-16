@@ -70,8 +70,9 @@ float temp = 0.0f;
 void Lina_GameCore::Update()
 {
 	temp += Lina_Time::GetDelta();
-	transform.SetRotation(0, 0, (float)sin(temp) * 180);
-	//transform.SetTranslation(sin(temp), 0, 0);
+	//transform.SetRotation(0, 0, (float)sin(temp) * 180);
+	//transform.SetPosition(sin(temp), 0, 0);
+	transform.SetScale(sin(temp), sin(temp), sin(temp));
 }
 
 
