@@ -168,6 +168,7 @@
     <ClCompile Include="src\Lina_GameCore.cpp" />
     <ClCompile Include="src\Lina_SDLHandler.cpp" />
     <ClCompile Include="src\Rendering\Lina_Shader.cpp" />
+    <ClCompile Include="src\Scene\Lina_Scene.cpp" />
     <ClCompile Include="src\Utility\Lina_ResourceLoader.cpp" />
     <ClCompile Include="src\Utility\Lina_Time.cpp" />
     <ClCompile Include="src\Rendering\Lina_Window.cpp" />
@@ -199,6 +200,10 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_Vertex.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Scene\Lina_Scene.h">
       <SubType>
       </SubType>
     </ClInclude>

@@ -15,44 +15,41 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/1/2018 6:00:05 AM
+10/16/2018 6:11:44 PM
 
 */
 
-#include "pch.h"
-#include "Lina_GameCore.h"  
-#include "Utility/Lina_ResourceLoader.h"
-#include "Math/Lina_Math.h"
-#include "Utility/Lina_Time.h"
+#pragma once
 
-void Lina_GameCore::Wake()
+#ifndef Lina_Scene_H
+#define Lina_Scene_H
+
+
+#include "Rendering/Lina_Mesh.h"
+#include "Rendering/Lina_Shader.h"
+#include "Lina_Transform.h"
+
+
+class Lina_Scene
 {
-	m_TestScene.Wake();
 
-}
+public:
 
-void Lina_GameCore::Start()
-{
-	m_TestScene.Start();
-}
+	Lina_Scene();
+	void Wake();
+	void Start();
+	void ProcessInput();
+	void Update();
+	void Render();
+	void CleanUp();
 
-void Lina_GameCore::ProcessInput()
-{
-	m_TestScene.ProcessInput();
-}
+private:
 
-
-void Lina_GameCore::Update()
-{
-	m_TestScene.Update();
-}
-
+	Lina_Matrix4F mat;
+	Lina_Mesh m;
+	Lina_Shader s;
+	Lina_Transform transform;
+};
 
 
-void Lina_GameCore::Render()
-{
-	m_TestScene.Render();
-
-}
-
-
+#endif
