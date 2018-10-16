@@ -35,7 +35,15 @@ public:
 
 	Lina_ObjectHandler() {};
 	~Lina_ObjectHandler() {};
-	void Initialize();
+
+	void Initialize()
+	{
+		// Retrieve the input engine pointer from the message bus.
+		inputEngine = Lina_CoreMessageBus::Instance().GetInputEngine();
+		inputDispatcher = inputEngine->GetInputDispatcher();
+	}
+
+#pragma region ActionSubscriptionOverloads
 
 	void SubscribeToAction(ActionType at, std::function<void()>const&& cb)
 	{
@@ -372,14 +380,66 @@ public:
 		}
 	}
 
-	float GetMouseX();
-	float GetMouseY();
-	float GetRawMouseX();
-	float GetRawMouseY();
-	bool GetMouseButton(int);
-	bool GetMouseButtonDown(int);
-	bool GetMouseButtonUp(int);
+#pragma endregion
 
+#pragma region InputPollers
+
+	bool GetKey(SDL_Scancode k)
+	{
+		return inputEngine->GetKey(k);
+	}
+
+	bool GetKeyDown(SDL_Scancode k)
+	{
+		return inputEngine->GetKeyDown(k);
+	}
+
+	bool GetKeyUp(SDL_Scancode k)
+	{
+		return inputEngine->GetKeyUp(k);
+	}
+	// Returns the smoothed delta mouse x value.
+	float GetMouseX()
+	{
+		return inputEngine->GetMouseX();
+	}
+
+	// Returns the smoothed delta mouse y value.
+	float GetMouseY()
+	{
+		return inputEngine->GetMouseY();
+	}
+
+	// Returns the raw delta mouse x value.
+	float GetRawMouseX()
+	{
+		return inputEngine->GetRawMouseX();
+	}
+
+	// Returns the raw delta mouse y value.
+	float GetRawMouseY()
+	{
+		return inputEngine->GetRawMouseY();
+	}
+
+	bool GetMouseButton(int button)
+	{
+		return inputEngine->GetMouseButton(button);
+	}
+
+	bool GetMouseButtonDown(int button)
+	{
+		return inputEngine->GetMouseButtonDown(button);
+	}
+
+	bool GetMouseButtonUp(int button)
+	{
+		return inputEngine->GetMouseButtonUp(button);
+	}
+
+#pragma endregion
+
+private:
 
 	std::list<std::shared_ptr<Lina_ActionHandlerBase>> m_Handlers;
 	Lina_InputEngine* inputEngine;

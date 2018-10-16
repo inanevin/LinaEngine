@@ -28,7 +28,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Lina_Mesh.h"
 #include "Rendering/Lina_Shader.h"
 #include "Lina_Transform.h"
-
+#include "Lina_ObjectHandler.h"
 class Lina_Scene
 {
 

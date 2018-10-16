@@ -49,7 +49,7 @@ void Lina_Mesh::InitBuffers()
 
 void Lina_Mesh::AddVertices(Vertex* vertices, unsigned int vsize, int* indices, unsigned int isize)
 {
-	size = iSize;
+	size = isize;
 
 	//This function binds the Vertex Buffer Object..
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);

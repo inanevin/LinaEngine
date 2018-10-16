@@ -28,11 +28,7 @@ Lina_Scene::Lina_Scene()
 {
 
 }
-float temp = 0.0f;
-void TestMethod()
-{
-	std::cout << "amk";
-}
+
 void Lina_Scene::Wake()
 {
 
@@ -43,6 +39,7 @@ void Lina_Scene::Wake()
 	Vertex(Vector3(1, -1, 0.0)),
 	Vertex(Vector3(0,-1,1))
 	};
+
 	int indices[] = { 0, 1, 3,
 					 3, 1, 2,
 					 2, 1, 0,
@@ -62,28 +59,33 @@ void Lina_Scene::Wake()
 
 	m.InitMesh();
 	m.InitBuffers();
-
+	//m.AddVertices(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices) / sizeof(indices[0]));
 }
 
 
 void Lina_Scene::Start()
 {
+
 }
 
 
 void Lina_Scene::ProcessInput()
 {
+
+
 }
 
-float t = 0.0;
+float temp = 0.0f;
+
 void Lina_Scene::Update()
 {
-	temp += Lina_Time::GetDelta() * 12;
+	temp += Lina_Time::GetDelta() * 40;
 	//temp = m_ObjectHandler.GetMouseButton(0);
 	//temp += (float)Lina_Time::GetDelta();
 	transform.SetRotation(0, temp,0);
-//	transform.SetPosition(0, t, 0);
-	transform.SetScale(Vector3::one() / 2);
+	transform.SetScale(Vector3::one() / 3);
+
+
 }
 
 void Lina_Scene::Render()
