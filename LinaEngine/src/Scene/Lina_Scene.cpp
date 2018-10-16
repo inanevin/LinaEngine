@@ -39,6 +39,7 @@ void Lina_Scene::Wake()
 	Vertex(Vector3(-1, -1, 0.0)),
 	Vertex(Vector3(0, 1, 0.0)),
 	Vertex(Vector3(1, -1, 0.0)),
+	Vertex(Vector3(0,-1,1))
 	};
 
 	//Lina_Vertex vertices[] = { Lina_Vertex(Vector3(-1,-1,0)), Lina_Vertex(Vector3(0,1,0)) , Lina_Vertex(Vector3(-1,1,0))};
@@ -53,7 +54,13 @@ void Lina_Scene::Wake()
 	s.CompileShader();
 
 	m.InitMesh();
-	m.AddVertices(vertices, sizeof(vertices) / sizeof(vertices[0]));
+
+	int indices[] = {0, 1, 3,
+					 3, 1, 2,
+					 2, 1, 0,
+					 0, 2, 3
+	};
+	m.AddVertices(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices) / sizeof(indices[0]));
 }
 
 float temp = 0.0f;
@@ -71,10 +78,10 @@ void Lina_Scene::ProcessInput()
 
 void Lina_Scene::Update()
 {
-	temp += Lina_Time::GetDelta();
-	//transform.SetRotation(0, 0, (float)sin(temp) * 180);
-	//transform.SetPosition(sin(temp), 0, 0);
-	transform.SetScale(sin(temp), sin(temp), sin(temp));
+	temp += (float)Lina_Time::GetDelta();
+	transform.SetRotation(0, (float)sin(temp) * 180 ,0);
+	transform.SetPosition(sin(temp), 0, 0);
+	//transform.SetScale(sin(temp), sin(temp), sin(temp));
 }
 
 void Lina_Scene::Render()

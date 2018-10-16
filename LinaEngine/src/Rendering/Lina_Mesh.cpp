@@ -24,20 +24,25 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 void Lina_Mesh::InitMesh()
 {
-	//This function assigns unique ID to our Vertex Buffer Object.
+	//This function assigns unique ID to our Vertex Buffer Object & Index Buffer Object. 
 	glCreateBuffers(1, &m_VBO);
+	glCreateBuffers(1, &m_IBO);
 	size = 0;
 }
 
-void Lina_Mesh::AddVertices(Vertex* vertices, unsigned int vSize)
+void Lina_Mesh::AddVertices(Vertex* vertices, unsigned int vSize, int* indices, unsigned int iSize)
 {
-	size = vSize;
+	size = iSize;
 
 	//This function binds the Vertex Buffer Object..
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 
 	//After binding the buffer we specify the size of the data and the actual data itself.
 	glBufferData(GL_ARRAY_BUFFER, vSize * sizeof(vertices[0]), vertices, GL_STATIC_DRAW);
+
+	// Bind & Buffer for index buffer object.
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, iSize * sizeof(indices[0]), indices, GL_STATIC_DRAW);
 }
 
 void Lina_Mesh::Draw()
@@ -48,7 +53,9 @@ void Lina_Mesh::Draw()
 	// Bind buffers & draw.
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, false, Lina_Vertex::SIZE * 4, (void*)0);
-	glDrawArrays(GL_TRIANGLES, 0, size);
+	
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+	glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
 
 	glDisableVertexAttribArray(0);
 

@@ -104,9 +104,9 @@ public:
 		Lina_Matrix4F rX, rY, rZ;
 
 		// Get radians out of rotation degrees.
-		const float xR = Lina_Math::ToRadians(x);
-		const float yR = Lina_Math::ToRadians(y);
-		const float zR = Lina_Math::ToRadians(z);
+		const float xR = (float)Lina_Math::ToRadians(x);
+		const float yR = (float)Lina_Math::ToRadians(y);
+		const float zR = (float)Lina_Math::ToRadians(z);
 
 		// Set matrices with rotation.
 

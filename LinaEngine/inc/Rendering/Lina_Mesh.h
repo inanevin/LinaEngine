@@ -33,13 +33,14 @@ class Lina_Mesh
 public:
 	Lina_Mesh() {};
 	void InitMesh();
-	void AddVertices(Vertex* vertices, unsigned int vSize);
+	void AddVertices(Vertex*, unsigned int, int*, unsigned int);
 	void Draw();
 
 private:
 
 	unsigned int size;
 	GLuint m_VBO;
+	GLuint m_IBO;
 	GLuint m_VAO;
 
 };

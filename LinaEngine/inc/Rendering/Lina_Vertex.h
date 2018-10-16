@@ -33,6 +33,7 @@ public:
 	Lina_Vertex(Vector3 position) : m_Position(position) {};
 
 	Vector3 m_Position;
+
 	static const int SIZE = 3;
 };
 
