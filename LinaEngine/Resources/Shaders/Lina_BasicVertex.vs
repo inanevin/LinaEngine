@@ -16,6 +16,6 @@ void main()
 	//We are using built in GLSL variable gl_Position for passing our Position data which we stored as Vertex structs.
 	//By using gl_Position we pass our vertex data(in this case just a position) next step of the rendering pipeline.
 	
-	gl_Position = transform * vec4(0.5 * pos, 1.0);
+	gl_Position = transform * vec4( pos, 1.0);
 
 }

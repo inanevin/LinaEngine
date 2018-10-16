@@ -64,13 +64,14 @@ void Lina_GameCore::ProcessInput()
 {
 
 }
+
 float temp = 0.0f;
 
 void Lina_GameCore::Update()
 {
 	temp += Lina_Time::GetDelta();
-	transform.SetTranslation(sin(temp), 0, 0);
-
+	transform.SetRotation(0, 0, (float)sin(temp) * 180);
+	//transform.SetTranslation(sin(temp), 0, 0);
 }
 
 
@@ -79,7 +80,6 @@ void Lina_GameCore::Render()
 {
 	s.Bind();
 	s.SetUniform("transform", *(transform.GetTransformation().m));
-
 	m.Draw();
 
 }

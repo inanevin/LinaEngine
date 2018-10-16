@@ -25,32 +25,21 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 Lina_Transform::Lina_Transform() {
 
 	translation = Vector3::zero();
-
+	rotation = Vector3::zero();
 }
 
-Vector3 Lina_Transform::GetTranslation()
-{
-	return translation;
-}
 
-void Lina_Transform::SetTranslation(Vector3 t)
-{
-	translation = t;
-}
-
-void Lina_Transform::SetTranslation(float x, float y, float z)
-{
-	translation = Vector3(x, y, z);
-}
 
 Matrix4 Lina_Transform::GetTransformation()
 {
-	Matrix4 m;
+	Matrix4 t;	// Translation
+	Matrix4 r;	// Rotation
 
 	// Init matrix with the desired translation.
-	m.InitTranslation(translation.x, translation.y, translation.z);;
+	t.InitTranslation(translation.x, translation.y, translation.z);
+	r.InitRotation(rotation.x, rotation.y, rotation.z);
 
-	
-	return m;
+	// Return the multiplied rotation with translation, inner-outer order.
+	return t.Multiply(r);
 }
 

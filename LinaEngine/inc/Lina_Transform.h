@@ -33,12 +33,19 @@ class Lina_Transform
 public:
 
 	Lina_Transform();
-	Vector3 GetTranslation();
-	void SetTranslation(Vector3 t);
-	void SetTranslation(float x, float y, float z);
-	Matrix4 GetTransformation();
-private:
 
+	Vector3 GetTranslation() { return translation; }
+	Vector3 GetRotation() { return rotation; }
+	void SetTranslation(Vector3 t) { translation = t; }
+	void SetTranslation(float x, float y, float z) { translation = Vector3(x, y, z); }
+	void SetRotation(Vector3 r) { rotation = r; }
+	void SetRotation(float x, float y, float z) { rotation = Vector3(x, y, z); }
+
+	Matrix4 GetTransformation();
+
+
+private:
+	Vector3 rotation;
 	Vector3 translation;
 };
 
