@@ -24,11 +24,13 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Utility/Lina_ResourceLoader.h"
 #include "Utility/Lina_Time.h"
 #include "Utility/Lina_Globals.h"
-
+#include "Scene/Lina_Camera.h"
 Lina_Scene::Lina_Scene()
 {
 
 }
+
+Lina_Camera Lina_Scene::GetCamera() { return sceneCamera; }
 
 void Lina_Scene::Wake()
 {
@@ -47,6 +49,8 @@ void Lina_Scene::Wake()
 					 0, 2, 3
 	};
 
+	
+	transform.SetCamera(sceneCamera);
 
 	transform.SetProjection(FIELD_OF_VIEW, WINDOW_WIDTH, WINDOW_HEIGHT, CLIPPING_PLANE_NEAR, CLIPPING_PLANE_FAR);
 
@@ -99,7 +103,7 @@ void Lina_Scene::Update()
 	transform.SetPosition(0, 0, 5);
 	transform.SetRotation(0,temp,0);
 //	transform.SetScale(Vector3::one() / 3);
-
+	sceneCamera.TempInput();
 
 }
 

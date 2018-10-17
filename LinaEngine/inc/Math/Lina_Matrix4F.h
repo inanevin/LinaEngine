@@ -24,6 +24,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_Matrix4F_H
 #define Lina_Matrix4F_H
 
+#include "Lina_Vector3F.h"
+
 #include "GL/glew.h"
 class Lina_Matrix4F
 {
@@ -37,6 +39,7 @@ public:
 	void InitPosition(float, float, float);
 	void InitRotation(float, float, float);
 	void InitScale(float, float, float);
+	void InitCamera(Vector3, Vector3);
 	void SetMatrix(float(&arr)[4][4]);
 	float GetElement(int, int) const;
 	void SetElement(int, int, float);

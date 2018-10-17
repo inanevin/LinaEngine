@@ -37,8 +37,8 @@ public:
 	float Length();
 	void Normalize();
 	void Conjugate();
-	void Multiply(const Lina_Quaternion&);
-	void Multiply(const Lina_Vector3F&);
+	Lina_Quaternion Multiply(const Lina_Quaternion&);
+	Lina_Quaternion Multiply(const Lina_Vector3F&);
 	static Lina_Quaternion Multiply(const Lina_Quaternion&, const Lina_Vector3F&);
 	static Lina_Quaternion Multiply(const Lina_Quaternion&, const Lina_Quaternion&);
 	Lina_Quaternion normalized();

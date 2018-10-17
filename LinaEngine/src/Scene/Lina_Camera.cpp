@@ -21,17 +21,67 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pch.h"
 #include "Scene/Lina_Camera.h"  
+#include "Utility/Lina_Time.h"
+#include "Lina_CoreMessageBus.h"
 
-Lina_Camera::Lina_Camera() {}
-Lina_Camera::Lina_Camera() { Lina_Camera(Vector3::one(), Vector3(0, 0, 1), Vector3(0, 1, 0)); };
-Lina_Camera::Lina_Camera(Vector3 p, Vector3 f, Vector3 u) : position(p), forward(f), up(u) {};
-
+Lina_Camera::Lina_Camera(Vector3 p, Vector3 f, Vector3 u) : position(p),  up(u), forward(f) {};
 Vector3 Lina_Camera::GetPosition() { return position; }
-Vector3 Lina_Camera::SetPosition(Vector3 p) { position = p; };
 Vector3 Lina_Camera::GetForward() { return forward; }
-Vector3 Lina_Camera::SetForward(Vector3 p) { forward = p; };
 Vector3 Lina_Camera::GetUp() { return up; }
-Vector3 Lina_Camera::SetUp(Vector3 p) { up = p; };
+void Lina_Camera::SetPosition(Vector3 p) { position = p; };
+void Lina_Camera::SetForward(Vector3 p) { forward = p; };
+void Lina_Camera::SetUp(Vector3 p) { up = p; };
+
+Lina_Camera::Lina_Camera() {
+	this->position = Vector3::zero();
+	this->up = Vector3(0, 1, 0);
+	this->forward = Vector3(0, 0, 1);
+};
+
+void Lina_Camera::TempInput()
+{
+	float move = (float)(10 * Lina_Time::GetDelta());
+	float rot = (float)(50* Lina_Time::GetDelta());
+	
+	if (Lina_CoreMessageBus::Instance().GetInputEngine()->GetKey(SDL_SCANCODE_W))
+	{
+		Move(GetForward(), move);
+	}
+	if (Lina_CoreMessageBus::Instance().GetInputEngine()->GetKey(SDL_SCANCODE_S))
+	{
+		Move(GetForward(), -move);
+	}
+	if (Lina_CoreMessageBus::Instance().GetInputEngine()->GetKey(SDL_SCANCODE_A))
+	{
+		Move(GetLeft(), move);
+
+	}
+	if (Lina_CoreMessageBus::Instance().GetInputEngine()->GetKey(SDL_SCANCODE_D))
+	{
+		Move(GetRight(), move);
+
+	}
+
+	if (Lina_CoreMessageBus::Instance().GetInputEngine()->GetKey(SDL_SCANCODE_UP))
+	{
+		RotateX(-rot);
+	}
+
+	if (Lina_CoreMessageBus::Instance().GetInputEngine()->GetKey(SDL_SCANCODE_DOWN))
+	{
+		RotateX(rot);
+	}
+
+	if (Lina_CoreMessageBus::Instance().GetInputEngine()->GetKey(SDL_SCANCODE_LEFT))
+	{
+		RotateY(-rot);
+	}
+
+	if (Lina_CoreMessageBus::Instance().GetInputEngine()->GetKey(SDL_SCANCODE_RIGHT))
+	{
+		RotateY(rot);
+	}
+}
 
 void Lina_Camera::Move(Vector3 dir, float amount)
 {
@@ -40,42 +90,43 @@ void Lina_Camera::Move(Vector3 dir, float amount)
 
 void Lina_Camera::RotateX(float angle)
 {
-	Vector3 horizontal = Vector3::Cross(Vector3::yAxis, forward);
+	Vector3 horizontal = Vector3(0, 1, 0).Cross(forward);
 	horizontal.Normalize();
 
 	// Rotate the forward axis with respect to the World's horizontal axis.
 	forward.Rotate(angle, horizontal);
 	forward.Normalize();
-
 	// Update the up vector.
-	up = Vector3::Cross(forward, horizontal);
+	up = forward.Cross(horizontal);
 	up.Normalize();
 }
 
 void Lina_Camera::RotateY(float angle)
 {
-	Vector3 horizontal = Vector3::Cross(Vector3::yAxis, forward);
+	Vector3 horizontal = Vector3(0,1,0).Cross(forward);
 	horizontal.Normalize();
-
+	
 	// Rotate the forward axis with respect to the World's horizontal axis.
-	forward.Rotate(angle, horizontal);
+	forward.Rotate(angle, Vector3::yAxis);
 	forward.Normalize();
 
+	//std::cout << Vector3::VToString(forward) << std::endl;
 	// Update the up vector.
-	up = Vector3::Cross(forward, horizontal);
+	up = forward.Cross(horizontal);
 	up.Normalize();
+
 }
 
 Vector3 Lina_Camera::GetLeft()
 {
-	Vector3 left = Vector3::Cross(up, forward);
+	Vector3 left = forward.Cross(up);
 	left.Normalize();
 	return left;
 }
 
 Vector3 Lina_Camera::GetRight()
 {
-	Vector3 right = Vector3::Cross(forward, up);
+	Vector3 right = up.Cross(forward);
 	right.Normalize();
 	return right;
 }

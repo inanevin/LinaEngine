@@ -160,6 +160,7 @@
   <ItemGroup>
     <ClCompile Include="src\Lina_CoreMessageBus.cpp" />
     <ClCompile Include="src\Input\Lina_InputEngine.cpp" />
+    <ClCompile Include="src\Lina_Transform.cpp" />
     <ClCompile Include="src\Math\Lina_Math.cpp" />
     <ClCompile Include="src\Math\Lina_Matrix4F.cpp" />
     <ClCompile Include="src\Math\Lina_Quaternion.cpp" />
@@ -172,6 +173,7 @@
     <ClCompile Include="src\Lina_GameCore.cpp" />
     <ClCompile Include="src\Lina_SDLHandler.cpp" />
     <ClCompile Include="src\Rendering\Lina_Shader.cpp" />
+    <ClCompile Include="src\Scene\Lina_Camera.cpp" />
     <ClCompile Include="src\Scene\Lina_Scene.cpp" />
     <ClCompile Include="src\Utility\Lina_ResourceLoader.cpp" />
     <ClCompile Include="src\Utility\Lina_Time.cpp" />

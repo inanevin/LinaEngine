@@ -24,8 +24,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_Transform_H
 #define Lina_Transform_H
 
-#include "Math/Lina_Math.h"
 #include "Math/Lina_Matrix4F.h"
+#include "Math/Lina_Vector3F.h"
+#include "Scene/Lina_Camera.h"
 
 static float zNear;
 static float zFar;
@@ -38,67 +39,31 @@ class Lina_Transform
 
 public:
 
-	Lina_Transform() 
-	{
-		position = Vector3::zero();
-		rotation = Vector3::zero();
-		scale = Vector3::one();
-	}
-
-	Vector3 GetPosition() { return position; }
-	Vector3 GetRotation() { return rotation; }
-	Vector3 GetScale() { return scale; }
-
-	void SetPosition(Vector3 t) { position = t; }
-	void SetPosition(float x, float y, float z) { position = Vector3(x, y, z); }
-	void SetRotation(Vector3 r) { rotation = r; }
-	void SetRotation(float x, float y, float z) { rotation = Vector3(x, y, z); }
-	void SetScale(Vector3 s) { scale = s; }
-	void SetScale(float x, float y, float z) { scale = Vector3(x, y, z); }
+	Lina_Transform();
+	Vector3 GetPosition();
+	Vector3 GetRotation();
+	Vector3 GetScale();
+	void SetPosition(Vector3);
+	void SetPosition(float, float, float);
+	void SetRotation(Vector3);
+	void SetRotation(float, float, float);
+	void SetScale(Vector3);
+	void SetScale(float, float, float);
+	void SetCamera(Lina_Camera&);
 
 	// Get transformation matrix composed of position & rotation & scale.
-	Matrix4 GetTransformation()
-	{
-		Matrix4 t;	// Translation
-		Matrix4 r;	// Rotation
-		Matrix4 s;	// Scale
-
-		// Init matrix with the desired translation.
-		t.InitPosition(position.x, position.y, position.z);
-		r.InitRotation(rotation.x, rotation.y, rotation.z);
-		s.InitScale(scale.x, scale.y, scale.z);
-
-		// Return the multiplied scale with rotation with translation, inner-outer order.
-		return t.Multiply(r.Multiply(s));
-	}
-
+	Matrix4 GetTransformation();
 	// Perspective transformation projections.
-	Matrix4 GetProjectedTransformation()
-	{
-		Matrix4 transformationMatrix = GetTransformation();
-		Matrix4 projectionMatrix;
-
-		projectionMatrix.InitProjection(fov, width, height, zNear, zFar);
-
-		return projectionMatrix.Multiply(transformationMatrix);
-	}
+	Matrix4 GetProjectedTransformation();
 
 	// Sets projection
-	static void SetProjection(float f, float w, float h, float zN, float zF)
-	{
-		fov = f;
-		width = w;
-		height = h;
-		zNear = zN;
-		zFar = zF;
-	}
+	static void SetProjection(float, float, float, float, float);
 
 private:
-
+	Lina_Camera* sceneCamera;
 	Vector3 rotation;
 	Vector3 position;
 	Vector3 scale;
-
 };
 
 

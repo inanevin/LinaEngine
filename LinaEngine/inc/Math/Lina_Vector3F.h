@@ -33,7 +33,7 @@ class Lina_Vector3F
 {
 
 public:
-	static const Lina_Vector3F yAxis ;
+	static const Lina_Vector3F yAxis;
 
 	static Lina_Vector3F zero();
 	static Lina_Vector3F one();
@@ -77,9 +77,6 @@ public:
 
 #pragma endregion
 
-#pragma region MemberOperations
-
-
 	// Get magnitude of a vector.
 	float Magnitude();
 
@@ -100,10 +97,6 @@ public:
 	// Returns a vector that is the rotated copy of the original.
 	Lina_Vector3F rotated(float, Lina_Vector3F);
 
-#pragma endregion
-
-#pragma region Utility
-
 	// Get random vector bw min & max.
 	static Lina_Vector3F GetRandomVector(float, float);
 
@@ -115,6 +108,8 @@ public:
 	// Cross product of two vectors.
 	static Lina_Vector3F Cross(Lina_Vector3F, Lina_Vector3F);
 
+	Lina_Vector3F Cross(Lina_Vector3F&);
+
 	// Dot product of two vectors.
 	static float Dot(Lina_Vector3F, Lina_Vector3F);
 
@@ -123,8 +118,6 @@ public:
 
 	// Projection Calculation of a onto b
 	static Lina_Vector3F Projection(const Lina_Vector3F, const Lina_Vector3F);
-
-#pragma endregion
 
 };
 

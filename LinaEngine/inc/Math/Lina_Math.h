@@ -28,7 +28,7 @@ Redistribution and use in source and binary forms, with or without modification,
 #ifndef Lina_Math_H
 #define Lina_Math_H
 
-static class Lina_Math
+class Lina_Math
 {
 public:
 	template<typename T>

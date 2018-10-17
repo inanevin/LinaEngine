@@ -30,22 +30,23 @@ class Lina_Camera
 {
 
 public:
-
 	Lina_Camera();
 	Lina_Camera(Vector3, Vector3, Vector3);
 	Vector3 GetPosition();
-	Vector3 SetPosition(Vector3);
 	Vector3 GetForward();
-	Vector3 SetForward(Vector3);
 	Vector3 GetUp();
-	Vector3 SetUp(Vector3);
 	Vector3 GetLeft();
 	Vector3 GetRight();
+	void TempInput();
+	void SetPosition(Vector3);
+	void SetUp(Vector3);
+	void SetForward(Vector3);
 	void Move(Vector3, float);
 	void RotateX(float);
 	void RotateY(float);
 
 private:
+
 	Vector3 position;
 	Vector3 forward;
 	Vector3 up;

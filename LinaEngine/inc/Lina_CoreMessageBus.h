@@ -24,7 +24,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_CoreMessageBus_H
 #define Lina_CoreMessageBus_H
 
-class Lina_InputEngine;
+#include "Input/Lina_InputEngine.h"
 class Lina_Core;
 class Lina_RenderingEngine;
 class Lina_SDLHandler;

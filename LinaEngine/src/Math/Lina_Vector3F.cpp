@@ -23,7 +23,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Math/Lina_Vector3F.h"  
 #include "Math/Lina_Quaternion.h"
 
-static const Lina_Vector3F yAxis = Lina_Vector3F(0, 1, 0);
+const Lina_Vector3F Lina_Vector3F::yAxis = Vector3(0, 1, 0);
 
 Lina_Vector3F Lina_Vector3F::zero() { return Lina_Vector3F(0, 0, 0); }
 Lina_Vector3F Lina_Vector3F::one() { return Lina_Vector3F(1, 1, 1); }
@@ -235,25 +235,28 @@ void Lina_Vector3F::Normalize(Lina_Vector3F& v)
 // Rotates a direction vector by angles.
 void Lina_Vector3F::Rotate(float angle, Lina_Vector3F axis)
 {
+	
 	// In order to convert axis of rotation into quaternion we need the half angles.
 	float sinHAngle = (float)sin(Lina_Math::ToRadians(angle / 2));
 	float cosHAngle = (float)cos(Lina_Math::ToRadians(angle / 2));
-
+	
 	// A quaternion is essentially a complex number, we can think x-y-z as imaginary, w as real part.
 	// Distribute the angle accordingly.
 	float rotX = axis.x * sinHAngle;
 	float rotY = axis.y * sinHAngle;
 	float rotZ = axis.z * sinHAngle;
-	float rotW = 1 * cosHAngle;
+	float rotW = cosHAngle;
 
+	
 	Quaternion rotation = Quaternion(rotX, rotY, rotZ, rotW);
 	Quaternion conjugate = rotation.conjugated();
-	Quaternion w = Quaternion::Multiply(rotation, Quaternion::Multiply(conjugate, *this));
+	//std::cout << "ROTX: " << conjugate.x << " ROTY: " << conjugate.y <<  " ROTZ: " << conjugate.z << ::endl;
+
+	Quaternion w = rotation.Multiply(*this).Multiply(conjugate);
 
 	this->x = w.x;
 	this->y = w.y;
 	this->z = w.z;
-
 }
 
 // Returns a vector that is the rotated copy of the original.
@@ -317,10 +320,21 @@ std::string Lina_Vector3F::VToString(const Lina_Vector3F& v)
 Lina_Vector3F Lina_Vector3F::Cross(Lina_Vector3F v1, Lina_Vector3F v2)
 {
 	Lina_Vector3F crossP = Lina_Vector3F();
-	crossP.x = Lina_Math::det(v1.y, v1.z, v2.y, v2.z);
-	crossP.y = -1 * Lina_Math::det(v1.x, v1.z, v2.x, v2.z);
-	crossP.z = Lina_Math::det(v1.x, v1.y, v2.x, v2.y);
+	//crossP.x = Lina_Math::det(v1.y, v1.z, v2.y, v2.z);
+	//crossP.y = -1 * Lina_Math::det(v1.x, v1.z, v2.x, v2.z);
+	//crossP.z = Lina_Math::det(v1.x, v1.y, v2.x, v2.y);
+	crossP.x = v1.y * v2.z - v1.z * v2.y;
+	crossP.y = v1.z * v2.x - v1.x * v2.z;
+	crossP.z = v1.x * v2.y - v1.y * v2.x;
 	return crossP;
+}
+
+Lina_Vector3F Lina_Vector3F::Cross(Lina_Vector3F& r)
+{
+	float x_ = y * r.z - z * r.y;
+	float y_ = z * r.x - x * r.z;
+	float z_ = x * r.y - y * r.x;
+	return Lina_Vector3F(x_, y_, z_);
 }
 
 // Dot product of two vectors.

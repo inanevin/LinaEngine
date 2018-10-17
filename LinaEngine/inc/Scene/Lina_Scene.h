@@ -43,6 +43,7 @@ public:
 	void Update();
 	void Render();
 	void CleanUp();
+	Lina_Camera GetCamera();
 
 private:
 	//bool loadout;
@@ -51,6 +52,8 @@ private:
 	Lina_Mesh m;
 	Lina_Shader s;
 	Lina_Transform transform;
+	Lina_Camera sceneCamera;
+
 };
 
 

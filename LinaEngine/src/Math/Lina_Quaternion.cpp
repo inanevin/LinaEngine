@@ -70,31 +70,27 @@ void Lina_Quaternion::Conjugate()
 	this->w = -this->w;
 }
 
-void Lina_Quaternion::Multiply(const Lina_Quaternion& q)
+Lina_Quaternion Lina_Quaternion::Multiply(const Lina_Quaternion& q)
 {
 	float w_ = this->w * q.w - this->x * q.x - this->y * q.y - this->z * q.z;
-	float x_ = this->x * q.x + this->w * q.x + this->y * q.z - this->z * q.y;
+	float x_ = this->x * q.w + this->w * q.x + this->y * q.z - this->z * q.y;
 	float y_ = this->y * q.w + this->w * q.y + this->z * q.x - this->x * q.z;
 	float z_ = this->z * q.w + this->w * q.z + this->x * q.y - this->y * q.x;
 
-	this->x = x_;
-	this->y = y_;
-	this->z = z_;
-	this->w = w_;
+	return Lina_Quaternion(x_, y_, z_, w_);
 }
 
-void Lina_Quaternion::Multiply(const Lina_Vector3F& v)
+Lina_Quaternion Lina_Quaternion::Multiply(const Lina_Vector3F& v)
 {
 	float w_ = -this->x * v.x - this->y * v.y - this->z * v.z;
 	float x_ = this->w * v.x + this->y * v.z - this->z * v.y;
 	float y_ = this->w * v.y + this->z * v.x - this->x * v.z;
 	float z_ = this->w * v.z + this->x * v.y - this->y * v.x;
 
-	this->x = x_;
-	this->y = y_;
-	this->z = z_;
-	this->w = w_;
+	return Lina_Quaternion(x_,y_,z_,w_);
 }
+
+
 
 Lina_Quaternion Lina_Quaternion::Multiply(const Lina_Quaternion&q1, const Lina_Vector3F& v)
 {
