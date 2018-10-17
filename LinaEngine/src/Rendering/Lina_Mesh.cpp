@@ -21,6 +21,13 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pch.h"
 #include "Rendering/Lina_Mesh.h"  
+#include <vector>
+
+Lina_Mesh::Lina_Mesh(std::vector<Vertex>& _Vertices, std::vector<unsigned int>& _Indices)
+{
+	Vertices = _Vertices;
+	Indices = _Indices;
+}
 
 void Lina_Mesh::InitMesh()
 {
@@ -29,6 +36,32 @@ void Lina_Mesh::InitMesh()
 	glCreateBuffers(1, &m_IBO);
 
 	size = 0;
+
+
+	// Init Index & Vertex array.
+	m_Indices = new unsigned int[Indices.size() * sizeof(int)];
+	m_Vertices = new Vertex[Vertices.size() * sizeof(Vertex)];
+
+	// Set index & vertex array elements.
+	int counter = 0;
+
+	for (std::vector<Vertex>::iterator it = Vertices.begin(); it != Vertices.end(); it++)
+	{
+		m_Vertices[counter] = *it;
+		counter++;
+	}
+	counter = 0;
+	for (std::vector<unsigned int>::iterator it = Indices.begin(); it != Indices.end(); it++)
+	{
+		m_Indices[counter] = (*it) - 1;
+		counter++;
+	}
+
+	// Set sizes.
+	iSize = Indices.size();
+	vSize = Vertices.size();
+
+	
 
 }
 

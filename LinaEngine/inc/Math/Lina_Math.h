@@ -33,6 +33,7 @@ Redistribution and use in source and binary forms, with or without modification,
 #include <cmath> 
 #include <math.h>
 
+
 class Lina_Math
 {
 public:

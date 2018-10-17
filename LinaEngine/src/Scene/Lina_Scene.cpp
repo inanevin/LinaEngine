@@ -58,10 +58,23 @@ void Lina_Scene::Wake()
 	s.AddFragmentShader(t2);
 	s.CompileShader();
 
-	m = Lina_ResourceLoader::LoadMesh("cube.obj");
+	
+	// Load .obj File
+	/*loadout = objLoader.LoadFile("./Resources/Meshes/cube.obj");
+	if (loadout)
+	{
+		// Go through each loaded mesh and out its contents
+		for (int i = 0; i < objLoader.LoadedMeshes.size(); i++)
+		{
+			// Copy one of the loaded meshes to be our current mesh
+			objLoader.LoadedMeshes[i].InitMesh();
+			objLoader.LoadedMeshes[i].InitBuffers();
+		}
+	}*/
 
-	m.InitMesh();
-	m.InitBuffers();
+	//m = Lina_ResourceLoader::LoadMesh("cube.obj");
+	//m.InitMesh();
+	//m.InitBuffers();
 	//m.AddVertices(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices) / sizeof(indices[0]));
 }
 
@@ -83,9 +96,7 @@ float temp = 0.0f;
 void Lina_Scene::Update()
 {
 	temp += Lina_Time::GetDelta() * 90;
-	//temp = m_ObjectHandler.GetMouseButton(0);
-	//temp += (float)Lina_Time::GetDelta();
-	transform.SetPosition(sin(temp / 100), 0, 5);
+	transform.SetPosition(0, 0, 5);
 	transform.SetRotation(0,temp,0);
 //	transform.SetScale(Vector3::one() / 3);
 
@@ -97,6 +108,12 @@ void Lina_Scene::Render()
 	s.Bind();
 	s.SetUniform("transform", *(transform.GetProjectedTransformation().m));
 	m.Draw();
+
+	/*// Go through each loaded mesh and out its contents
+	for (int i = 0; i < objLoader.LoadedMeshes.size(); i++)
+	{
+		objLoader.LoadedMeshes[i].Draw();
+	}*/
 
 }
 

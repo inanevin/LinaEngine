@@ -32,12 +32,12 @@ class Lina_Vertex
 public:
 
 	Lina_Vertex() {};
-	Lina_Vertex(Vector3 position) : position(position) {};
+	Lina_Vertex(Vector3 position) : Position(position) {};
 
-	Vector3 position;
-	//Vector3 Normal;
-//	Vector2 TextureCoordinate;
-	static const int SIZE = 3;
+	Vector3 Position;
+	Vector3 Normal;
+	Vector2 TextureCoordinate;
+	static const int SIZE = 8;
 };
 
 typedef Lina_Vertex Vertex; 

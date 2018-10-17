@@ -185,6 +185,9 @@
     <ClInclude Include="inc\Utility\Lina_Globals.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="inc\Utility\OBJ_Loader.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\basic.vert">
