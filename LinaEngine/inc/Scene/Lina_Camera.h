@@ -66,7 +66,7 @@ public:
 		horizontal.Normalize();
 
 		// Rotate the forward axis with respect to the World's horizontal axis.
-		forward.Rotate(angle, yAxis);
+		forward.Rotate(angle, horizontal);
 		forward.Normalize();
 
 		// Update the up vector.

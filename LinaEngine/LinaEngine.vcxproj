@@ -160,6 +160,11 @@
   <ItemGroup>
     <ClCompile Include="src\Lina_CoreMessageBus.cpp" />
     <ClCompile Include="src\Input\Lina_InputEngine.cpp" />
+    <ClCompile Include="src\Math\Lina_Math.cpp" />
+    <ClCompile Include="src\Math\Lina_Matrix4F.cpp" />
+    <ClCompile Include="src\Math\Lina_Quaternion.cpp" />
+    <ClCompile Include="src\Math\Lina_Vector2F.cpp" />
+    <ClCompile Include="src\Math\Lina_Vector3F.cpp" />
     <ClCompile Include="src\Rendering\Lina_ExampleShader.cpp" />
     <ClCompile Include="src\Rendering\Lina_Mesh.cpp" />
     <ClCompile Include="src\Rendering\Lina_RenderingEngine.cpp" />

@@ -32,205 +32,72 @@ class Lina_Vector2F
 
 public:
 
-	static Lina_Vector2F zero() { return Lina_Vector2F(0, 0); }
-	static Lina_Vector2F one() { return Lina_Vector2F(1, 1); }
-
 	float x, y;
-	Lina_Vector2F() { x = y = 0.0; }	// Empty const.
-	Lina_Vector2F(const Lina_Vector2F& rhs) {
-		this->x = rhs.x;
-		this->y = rhs.y;
-	}
-	Lina_Vector2F(float a, float b) : x(a), y(b) {}
+	static Lina_Vector2F zero();
+	static Lina_Vector2F one();
+
+	Lina_Vector2F();	// Empty const.
+	Lina_Vector2F(const Lina_Vector2F&);
+	Lina_Vector2F(float, float);
 
 #pragma region OperatorOverloads
 
 	/* OVERLOADS FOR TWO VECTORS */
-	Lina_Vector2F operator= (const Lina_Vector2F& rhs)
-	{
-		if (this != &rhs) {
-			this->x = rhs.x;
-			this->y = rhs.y;
-		}
-
-		return *this;
-	}
-	Lina_Vector2F operator+ (const Lina_Vector2F& rhs)
-	{
-		Lina_Vector2F v;
-		v.x = this->x + rhs.x;
-		v.y = this->y + rhs.y;
-		return v;
-	}
-	Lina_Vector2F operator- (const Lina_Vector2F& rhs)
-	{
-		Lina_Vector2F v;
-		v.x = this->x - rhs.x;
-		v.y = this->y - rhs.y;
-		return v;
-	}
-	Lina_Vector2F operator* (const Lina_Vector2F& rhs)
-	{
-		Lina_Vector2F v;
-		v.x = this->x * rhs.x;
-		v.y = this->y * rhs.y;
-		return v;
-	}
-	Lina_Vector2F operator/ (const Lina_Vector2F& rhs)
-	{
-		Lina_Vector2F v;
-		v.x = this->x / rhs.x;
-		v.y = this->y / rhs.y;
-		return v;
-	}
+	Lina_Vector2F operator= (const Lina_Vector2F&);
+	Lina_Vector2F operator+ (const Lina_Vector2F&);
+	Lina_Vector2F operator- (const Lina_Vector2F&);
+	Lina_Vector2F operator* (const Lina_Vector2F&);
+	Lina_Vector2F operator/ (const Lina_Vector2F&);
 
 	/* OVERLOADS FOR ARITHMETIC CALCULATIONS VIA FLOAT ON A SINGLE VECTOR */
 
-	Lina_Vector2F& operator+=(const float& rhs)
-	{
-		this->x += rhs;
-		this->y += rhs;
-		return *this;
-	}
-	Lina_Vector2F& operator-=(const float& rhs)
-	{
-		this->x -= rhs;
-		this->y -= rhs;
-		return *this;
-	}
-	Lina_Vector2F& operator*=(const float& rhs)
-	{
-		this->x *= rhs;
-		this->y *= rhs;
-		return *this;
-	}
-	Lina_Vector2F& operator/=(const float& rhs)
-	{
-		this->x /= rhs;
-		this->y /= rhs;
-		return *this;
-	}
+	Lina_Vector2F& operator+=(const float&);
+	Lina_Vector2F& operator-=(const float&);
+	Lina_Vector2F& operator*=(const float&);
+	Lina_Vector2F& operator/=(const float&);
 
 	/* OVERLOADS FOR COPY CALCULATIONS VIA FLOAT */
 
-	Lina_Vector2F operator+(const float& rhs)
-	{
-		Lina_Vector2F v;
-		v.x = this->x + rhs;
-		v.y = this->y + rhs;
-		return v;
-	}
-	Lina_Vector2F operator-(const float& rhs)
-	{
-		Lina_Vector2F v;
-		v.x = this->x - rhs;
-		v.y = this->y - rhs;
-		return v;
-	}
-	Lina_Vector2F operator*(const float& rhs)
-	{
-		Lina_Vector2F v;
-		v.x = this->x - rhs;
-		v.y = this->y - rhs;
-		return v;
-	}
-	Lina_Vector2F operator/(const float& rhs)
-	{
-		Lina_Vector2F v;
-		v.x = this->x - rhs;
-		v.y = this->y - rhs;
-		return v;
-	}
-
-	bool operator== (const Lina_Vector2F& rhs)
-	{
-		return (this->x == rhs.x && this->y == rhs.y);
-	}
+	Lina_Vector2F operator+(const float&);
+	Lina_Vector2F operator-(const float&);
+	Lina_Vector2F operator*(const float&);
+	Lina_Vector2F operator/(const float&);
+	bool operator== (const Lina_Vector2F&);
 
 #pragma endregion
 
 #pragma region MemberOperations
 
 	// Get magnitude of a vector.
-	float magnitude()
-	{
-		return sqrt(this->x * this->x + this->y * this->y);
-	}
+	float Magnitude();
 
 	// Normalize the vector and return a copy.
-	Lina_Vector2F normalized()
-	{
-		Lina_Vector2F v = Lina_Vector2F(*this);
-		float mag = magnitude();
-		v.x /= mag;
-		v.y /= mag;
-		return v;
-	}
+	Lina_Vector2F normalized();
 
 	// Normalize the vector and return a copy.
-	void Normalize(Lina_Vector2F& v)
-	{
-		float mag = v.magnitude();
-		v.x /= mag;
-		v.y /= mag;
-	}
-	
+	void Normalize(Lina_Vector2F&);
+
 	// Rotates a direction vector by angles.
-	void Rotate(float angle)
-	{
-		double rad = Lina_Math::ToRadians(angle);
-		double cosVal = cos(rad);
-		double sinVal = sin(rad);
-
-		this->x = x * cosVal - y * sinVal;
-		this->y = x * sinVal + y * cosVal;
-	}
+	void Rotate(float);
 
 	// Returns a vector that is the rotated copy of the original.
-	Lina_Vector2F rotated(float angle)
-	{
-		double rad = Lina_Math::ToRadians(angle);
-		double cosVal = cos(rad);
-		double sinVal = sin(rad);
-
-		return Lina_Vector2F(x * cosVal - y * sinVal, x * sinVal + y * cosVal);
-	}
+	Lina_Vector2F rotated(float);
 
 #pragma endregion
 
 #pragma region Utility
 
 	// Get random vector bw min & max.
-	static Lina_Vector2F GetRandomVector(float min, float max)
-	{
-		Lina_Vector2F(Lina_Math::GetRandom(min, max), Lina_Math::GetRandom(min, max));
-	}
+	static Lina_Vector2F GetRandomVector(float, float);
 
 	// Get random vector bw seperate min & max.
-	static Lina_Vector2F GetRandomVector(float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
-	{
-		float x = Lina_Math::GetRandom(minX, maxX);
-		float y = Lina_Math::GetRandom(minY, maxY);
-		float z = Lina_Math::GetRandom(minZ, maxZ);
-		return Lina_Vector2F(x, y);
-	}
+	static Lina_Vector2F GetRandomVector(float, float, float, float, float, float);
 
 	// Return a string containing info on the vector attributes.
-	static std::string VToString(const Lina_Vector2F& v)
-	{
-		std::string s = "";
-		s += "(x:" + std::to_string(v.x);
-		s += " y:" + std::to_string(v.y);
-			+ ")";
-		return s;
-	}
+	static std::string VToString(const Lina_Vector2F&);
 
 	// Dot product of two vectors.
-	static float dot(Lina_Vector2F v1, Lina_Vector2F v2)
-	{
-		return v1.x * v2.x + v1.y * v2.y;
-	}
-
+	static float Dot(Lina_Vector2F v1, Lina_Vector2F v2);
 
 #pragma endregion
 

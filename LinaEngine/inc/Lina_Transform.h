@@ -24,7 +24,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_Transform_H
 #define Lina_Transform_H
 
-#include "Math/Lina_Vector3F.h"
+#include "Math/Lina_Math.h"
 #include "Math/Lina_Matrix4F.h"
 
 static float zNear;

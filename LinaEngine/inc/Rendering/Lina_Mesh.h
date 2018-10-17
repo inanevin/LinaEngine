@@ -76,7 +76,7 @@ public:
 
 	Lina_Mesh() {};
 
-	Lina_Mesh(std::vector<Vertex>&, std::vector<unsigned int>&);
+	//Lina_Mesh(std::vector<Vertex>&, std::vector<unsigned int>&);
 	void InitMesh();
 	void InitMeshWithExistingVertices();
 	void InitBuffers();
@@ -89,11 +89,11 @@ public:
 	int iSize;
 
 	// Mesh Name
-	std::string MeshName;
+	//std::string MeshName;
 	// Vertex List
-	std::vector<Vertex> Vertices;
+	//std::vector<Vertex> Vertices;
 	// Index List
-	std::vector<unsigned int> Indices;
+	//std::vector<unsigned int> Indices;
 
 	Material MeshMaterial;
 

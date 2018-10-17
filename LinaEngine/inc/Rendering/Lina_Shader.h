@@ -25,8 +25,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_Shader_H
 
 #include <GL/glew.h>
+#include "Math/Lina_Math.h"
 #include "Math/Lina_Vector3F.h"
-#include "Math/Lina_Matrix4F.h"
 
 class Lina_Shader
 {

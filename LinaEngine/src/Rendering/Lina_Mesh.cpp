@@ -23,23 +23,22 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Lina_Mesh.h"  
 #include <vector>
 
-Lina_Mesh::Lina_Mesh(std::vector<Vertex>& _Vertices, std::vector<unsigned int>& _Indices)
+/*Lina_Mesh::Lina_Mesh(std::vector<Vertex>& _Vertices, std::vector<unsigned int>& _Indices)
 {
 	Vertices = _Vertices;
 	Indices = _Indices;
-}
+}*/
 
 void Lina_Mesh::InitMesh()
 {
 	//This function assigns unique ID to our Vertex Buffer Object & Index Buffer Object. 
 	glCreateBuffers(1, &m_VBO);
 	glCreateBuffers(1, &m_IBO);
-
 	size = 0;
 }
 
 
-void Lina_Mesh::InitMeshWithExistingVertices()
+/*void Lina_Mesh::InitMeshWithExistingVertices()
 {
 	//This function assigns unique ID to our Vertex Buffer Object & Index Buffer Object. 
 	glCreateBuffers(1, &m_VBO);
@@ -70,10 +69,7 @@ void Lina_Mesh::InitMeshWithExistingVertices()
 	// Set sizes.
 	iSize = Indices.size();
 	vSize = Vertices.size();
-
-
-
-}
+}*/
 
 void Lina_Mesh::InitBuffers()
 {
