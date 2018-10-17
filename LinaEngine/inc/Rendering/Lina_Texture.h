@@ -23,21 +23,18 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #ifndef Lina_Texture_H
 #define Lina_Texture_H
-
+#include "stb_image.h"
+#include "GL/glew.h"
 class Lina_Texture
 {
 
 public:
 
-	Lina_Texture() {};
+	Lina_Texture();
 	Lina_Texture(int);
 	void Bind();
-	int getID();
+	unsigned int m_ID;
 
-
-private:
-
-	int id;
 };
 
 

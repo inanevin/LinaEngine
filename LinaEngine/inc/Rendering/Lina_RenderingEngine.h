@@ -40,6 +40,8 @@ public:
 	void ClearScreen();
 	void Render();
 	void CleanUp();
+	void SetTextures(bool);
+	void ClearColors(float, float, float, float);
 
 	std::shared_ptr<Lina_Window> m_ActiveWindow;
 	Lina_ObjectHandler eventHandler;

@@ -37,19 +37,20 @@ void Lina_Scene::Wake()
 
 	//Triangle
 	Vertex vertices[] = {
-	Vertex(Vector3(-1, -1, 0.0)),
-	Vertex(Vector3(0, 1, 0.0)),
-	Vertex(Vector3(1, -1, 0.0)),
-	Vertex(Vector3(0,-1,1))
+	Vertex(Vector3(-1, -1, 0.0), Vector2(0,0)),
+	Vertex(Vector3(0, 1, 0.0), Vector2(0.5, 0)),
+	Vertex(Vector3(1, -1, 0.0), Vector2(1.0, 0.0)),
+	Vertex(Vector3(0,-1,1), Vector2(0.0, 0.5f))
 	};
 
-	int indices[] = { 0, 1, 3,
-					 3, 1, 2,
-					 2, 1, 0,
+	int indices[] = { 3, 1, 0,
+					 2, 1, 3,
+					 0, 1, 2,
 					 0, 2, 3
 	};
 
-	
+	texture = Lina_ResourceLoader::LoadTexture("grid.png");
+	//texture = Lina_ResourceLoader::LoadTexture("grid.png");
 	transform.SetCamera(sceneCamera);
 
 	transform.SetProjection(FIELD_OF_VIEW, WINDOW_WIDTH, WINDOW_HEIGHT, CLIPPING_PLANE_NEAR, CLIPPING_PLANE_FAR);
@@ -76,10 +77,10 @@ void Lina_Scene::Wake()
 		}
 	}*/
 
-	m = Lina_ResourceLoader::LoadMesh("cube.obj");
+	//m = Lina_ResourceLoader::LoadMesh("cube.obj");
 	m.InitMesh();
-	m.InitBuffers();
-	//m.AddVertices(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices) / sizeof(indices[0]));
+	//m.InitBuffers();
+	m.AddVertices(vertices, sizeof(vertices), indices, sizeof(indices));
 }
 
 
@@ -109,10 +110,10 @@ void Lina_Scene::Update()
 
 void Lina_Scene::Render()
 {
+	texture.Bind();
 	s.Bind();
 	s.SetUniform("transform", *(transform.GetProjectedTransformation().m));
 	m.Draw();
-
 	/*// Go through each loaded mesh and out its contents
 	for (int i = 0; i < objLoader.LoadedMeshes.size(); i++)
 	{

@@ -27,13 +27,15 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Lina_Mesh.h"
 #include "Math/Lina_Vector2F.h"
 
+class Lina_Texture;
+
 class Lina_ResourceLoader
 {
 
 public:
 
 	Lina_ResourceLoader() {};
-
+	static Lina_Texture LoadTexture(std::string);
 	static std::string LoadShader(std::string);
 	static Lina_Mesh LoadMesh(std::string);
 };

@@ -30,15 +30,12 @@ Lina_Texture::Lina_Texture()
 
 Lina_Texture::Lina_Texture(int id)
 {
-	this->id = id;
+	//this->m_ID = id;
 }
 
 void Lina_Texture::Bind()
 {
-	glBindTexture(GL_TEXTURE_2D, id);
+	glBindTexture(GL_TEXTURE_2D, m_ID);
+
 }
 
-int Lina_Texture::getID()
-{
-	return this->id;
-}

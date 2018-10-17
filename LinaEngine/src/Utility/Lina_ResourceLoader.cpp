@@ -21,11 +21,61 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pch.h"
 #include "Utility/Lina_ResourceLoader.h"  
+#include "Rendering/Lina_Texture.h"
+#include "stb_image.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <list>
 
+
+Lina_Texture Lina_ResourceLoader::LoadTexture(std::string p)
+{
+	std::string fullPath = "./Resources/Textures/" + p;
+	const char* path = fullPath.c_str();
+
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
+
+	Lina_Texture texture;
+
+	glGenTextures(1, &texture.m_ID);
+
+	if (data)
+	{
+		GLenum format;
+		if (nrChannels == 1)
+			format = GL_RED;
+		else if (nrChannels == 3)
+			format = GL_RGB;
+		else if (nrChannels == 4)
+			format = GL_RGBA;
+
+		glBindTexture(GL_TEXTURE_2D, texture.m_ID);
+		//This function genearates texture image at the currently bound texture.
+		//2nd parameter is for setting mipmap level manually which is irrelevant right now.
+		//6th paramter is 0 for legacy reasons.
+		//8th paramter asks what format we store the data which is unsigned char
+		//last parameter is for actual image data.
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		//First two funciton decides how the texture image will be wrapped on the objects surface.
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		//Last two functions are for mipmap
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		stbi_image_free(data);
+	}
+	else
+	{
+		std::cout << "Could not read texture!" << std::endl;
+	}
+
+	return texture;
+}
 
 // Loads shader from a source.
 std::string Lina_ResourceLoader::LoadShader(std::string p)
@@ -38,7 +88,6 @@ std::string Lina_ResourceLoader::LoadShader(std::string p)
 
 	//the objects that will manage the files.
 	std::ifstream vShaderFile;
-	
 
 	//Be sure that ifstream object can throw exceptions
 	vShaderFile.exceptions(std::ifstream::failbit || std::ifstream::badbit);

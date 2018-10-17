@@ -25,19 +25,20 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_Vertex_H
 
 #include "Math/Lina_Vector3F.h"
+#include "Math/Lina_Vector2F.h"
 
 
 class Lina_Vertex
 {
 public:
 
-	Lina_Vertex() {};
-	Lina_Vertex(Vector3 position) : Position(position) {};
-
+	Lina_Vertex() { Position = Vector3::one(); TextureCoordinate = Vector2::zero(); };
+	Lina_Vertex(Vector3 position, Vector2 textureCoord) : Position(position), TextureCoordinate(textureCoord) {};
+	Lina_Vertex(Vector3 position) : Position(position) { TextureCoordinate = Vector2::zero(); }
 	Vector3 Position;
+	Vector2 TextureCoordinate;
 	//Vector3 Normal;
-	//Vector2 TextureCoordinate;
-	static const int SIZE = 3;
+	static const int SIZE = 5;
 };
 
 typedef Lina_Vertex Vertex; 

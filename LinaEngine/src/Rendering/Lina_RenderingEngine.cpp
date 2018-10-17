@@ -46,8 +46,8 @@ void Lina_RenderingEngine::Initialize()
 	// Create a window.
 	CreateDisplayWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Lina Engine 3D");
 
-	// Clear color.
-	glClearColor(0.0, 0.0, 0.0, 0.0);
+	// Clear colors.
+	ClearColors(0.0, 0.0, 0.0, 1.0);
 
 	// Every face in clock-wise order is front.
 	glFrontFace(GL_CW);
@@ -65,6 +65,9 @@ void Lina_RenderingEngine::Initialize()
 
 	// Get free gamma correction.
 	glEnable(GL_FRAMEBUFFER_SRGB);
+
+	// Enable Textures
+	SetTextures(true);
 }
 
 // Destructor.
@@ -103,6 +106,20 @@ void Lina_RenderingEngine::CleanUp()
 	if (m_ActiveWindow != nullptr)
 		m_ActiveWindow.reset();
 
+}
+
+void Lina_RenderingEngine::SetTextures(bool enabled)
+{
+	if (enabled)
+		glEnable(GL_TEXTURE_2D);
+	else
+		glDisable(GL_TEXTURE_2D);
+}
+
+void Lina_RenderingEngine::ClearColors(float r, float g, float b, float a)
+{
+	// Clear color.
+	glClearColor(r,g,b,a);
 }
 
 

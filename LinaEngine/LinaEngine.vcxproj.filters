@@ -52,6 +52,9 @@
     <Filter Include="Resource Files\Meshes">
       <UniqueIdentifier>{04c66bdb-3808-4b7a-ac22-3588a8247fe9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Textures">
+      <UniqueIdentifier>{bcc8c641-067e-4999-a2ba-656f3f99cfa5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
@@ -122,6 +125,9 @@
     </ClCompile>
     <ClCompile Include="src\Lina_Transform.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rendering\Lina_Texture.cpp">
+      <Filter>Source Files\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -209,6 +215,9 @@
     <ClInclude Include="inc\Scene\Lina_Camera.h">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Texture.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\basic.vert">
@@ -226,7 +235,10 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\Textures\container2.png">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="Resources\Textures\grid.png">
+      <Filter>Resource Files\Textures</Filter>
     </Image>
   </ItemGroup>
 </Project>

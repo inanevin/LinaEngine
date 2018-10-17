@@ -173,6 +173,7 @@
     <ClCompile Include="src\Lina_GameCore.cpp" />
     <ClCompile Include="src\Lina_SDLHandler.cpp" />
     <ClCompile Include="src\Rendering\Lina_Shader.cpp" />
+    <ClCompile Include="src\Rendering\Lina_Texture.cpp" />
     <ClCompile Include="src\Scene\Lina_Camera.cpp" />
     <ClCompile Include="src\Scene\Lina_Scene.cpp" />
     <ClCompile Include="src\Utility\Lina_ResourceLoader.cpp" />
@@ -202,6 +203,10 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_Shader.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Texture.h">
       <SubType>
       </SubType>
     </ClInclude>
@@ -297,6 +302,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\Textures\container2.png" />
+    <Image Include="Resources\Textures\grid.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
