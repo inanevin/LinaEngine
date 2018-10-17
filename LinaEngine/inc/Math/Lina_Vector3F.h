@@ -98,7 +98,8 @@ public:
 	void Rotate(float, Lina_Vector3F);
 
 	// Returns a vector that is the rotated copy of the original.
-	Lina_Vector3F rotated(float angle);
+	Lina_Vector3F rotated(float, Lina_Vector3F);
+
 #pragma endregion
 
 #pragma region Utility

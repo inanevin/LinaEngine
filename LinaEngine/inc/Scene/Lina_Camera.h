@@ -31,70 +31,24 @@ class Lina_Camera
 
 public:
 
-	Lina_Camera() { Lina_Camera(Vector3::one(), Vector3(0, 0, 1), Vector3(0, 1, 0)); };
-	Lina_Camera(Vector3 p, Vector3 f, Vector3 u) : position(p), forward(f), up(u) {};
-
-	Vector3 GetPosition() { return position; }
-	Vector3 SetPosition(Vector3 p) { position = p; };
-	Vector3 GetForward() { return forward; }
-	Vector3 SetForward(Vector3 p) { forward = p; };
-	Vector3 GetUp() { return up; }
-	Vector3 SetUp(Vector3 p) { up = p; };
-
-	void Move(Vector3 dir, float amount)
-	{
-		position += (dir * amount);
-	}
-
-	void RotateX(float angle)
-	{
-		Vector3 horizontal = Vector3::Cross(yAxis, forward);
-		horizontal.Normalize();
-
-		// Rotate the forward axis with respect to the World's horizontal axis.
-		forward.Rotate(angle, horizontal);
-		forward.Normalize();
-
-		// Update the up vector.
-		up = Vector3::Cross(forward, horizontal);
-		up.Normalize();
-	}
-
-	void RotateY(float angle)
-	{
-		Vector3 horizontal = Vector3::Cross(yAxis, forward);
-		horizontal.Normalize();
-
-		// Rotate the forward axis with respect to the World's horizontal axis.
-		forward.Rotate(angle, horizontal);
-		forward.Normalize();
-
-		// Update the up vector.
-		up = Vector3::Cross(forward, horizontal);
-		up.Normalize();
-	}
-
-	Vector3 GetLeft()
-	{
-		Vector3 left = Vector3::Cross(up, forward);
-		left.Normalize();
-		return left;
-	}
-
-	Vector3 GetRight()
-	{
-		Vector3 right = Vector3::Cross(forward, up);
-		right.Normalize();
-		return right;
-	}
-
+	Lina_Camera();
+	Lina_Camera(Vector3, Vector3, Vector3);
+	Vector3 GetPosition();
+	Vector3 SetPosition(Vector3);
+	Vector3 GetForward();
+	Vector3 SetForward(Vector3);
+	Vector3 GetUp();
+	Vector3 SetUp(Vector3);
+	Vector3 GetLeft();
+	Vector3 GetRight();
+	void Move(Vector3, float);
+	void RotateX(float);
+	void RotateY(float);
 
 private:
-
 	Vector3 position;
 	Vector3 forward;
 	Vector3 up;
-
 };
 
 
