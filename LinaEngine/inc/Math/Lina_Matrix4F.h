@@ -90,6 +90,24 @@ public:
 		m[3][0] = 0;	m[3][1] = 0;	m[3][2] = 0;	m[3][3] = 1;	// Final W Component
 	}
 
+	void InitProjection(float fov, float width, float height, float zNear, float zFar)
+	{
+		float aspectRatio = width / height;
+
+		// Calculate distance from the edges to the center.
+		float tanHFOV = tan(Lina_Math::ToRadians(fov / 2));
+
+		// How much space we have in the depth. We will scale z comp in to the range, taking the clipping into account.
+		float zRng = zNear - zFar;
+
+		// Override w component for depth division later on, store z for now.
+		// Scale all the points into a 1:1 box in X-Y plane, taking aspect ratio into account.
+		m[0][0] = 1.0f / (tanHFOV * aspectRatio);	m[0][1] = 0;				m[0][2] = 0;					m[0][3] = 0;	
+		m[1][0] = 0;								m[1][1] = 1.0f / tanHFOV;	m[1][2] = 0;					m[1][3] = 0;	
+		m[2][0] = 0;								m[2][1] = 0;				m[2][2] = (-zNear -zFar)/zRng;	m[2][3] = 2 * zFar * zNear / zRng;	
+		m[3][0] = 0;								m[3][1] = 0;				m[3][2] = 1;					m[3][3] = 0;	
+	}
+
 	void InitPosition(float x, float y, float z)
 	{
 		m[0][0] = 1;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = x;

@@ -15,32 +15,27 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/1/2018 3:34:14 AM
+10/17/2018 4:06:26 AM
 
 */
 
-#include "pch.h"
-#include "Utility/Lina_Time.h"  
+#pragma once
 
-double Lina_Time::delta;
+#ifndef Lina_Globals_H
+#define Lina_Globals_H
 
-long Lina_Time::GetCurrentTimeInNano()
+#define FIELD_OF_VIEW 70
+#define WINDOW_WIDTH 1024
+#define WINDOW_HEIGHT 768
+#define CLIPPING_PLANE_NEAR 0.1f
+#define CLIPPING_PLANE_FAR 1000
+
+/*class Lina_Globals
 {
-	// Get time traffic
-	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
 
-	// Get time traffic with presicion of nanoseconds.
-	auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
+public:
+	Lina_Globals();
 
-	// Now get the time as std::chrono::nanoseconds type.
-	auto duration = now_ns.time_since_epoch();
-
-	// cast the duration
-	auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(duration);
-
-	// Return the long.
-	return nanoseconds.count();
-}
-
-
-
+};
+*/
+#endif

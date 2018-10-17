@@ -27,6 +27,12 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Math/Lina_Vector3F.h"
 #include "Math/Lina_Matrix4F.h"
 
+static float zNear;
+static float zFar;
+static float width;
+static float height;
+static float fov;
+
 class Lina_Transform
 {
 
@@ -50,6 +56,7 @@ public:
 	void SetScale(Vector3 s) { scale = s; }
 	void SetScale(float x, float y, float z) { scale = Vector3(x, y, z); }
 
+	// Get transformation matrix composed of position & rotation & scale.
 	Matrix4 GetTransformation()
 	{
 		Matrix4 t;	// Translation
@@ -65,9 +72,33 @@ public:
 		return t.Multiply(r.Multiply(s));
 	}
 
+	// Perspective transformation projections.
+	Matrix4 GetProjectedTransformation()
+	{
+		Matrix4 transformationMatrix = GetTransformation();
+		Matrix4 projectionMatrix;
+
+		projectionMatrix.InitProjection(fov, width, height, zNear, zFar);
+
+		return projectionMatrix.Multiply(transformationMatrix);
+	}
+
+	// Sets projection
+	static void SetProjection(float f, float w, float h, float zN, float zF)
+	{
+		fov = f;
+		width = w;
+		height = h;
+		zNear = zN;
+		zFar = zF;
+	}
+
+private:
+
 	Vector3 rotation;
 	Vector3 position;
 	Vector3 scale;
+
 };
 
 

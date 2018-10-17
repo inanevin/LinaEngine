@@ -69,9 +69,6 @@
     <ClCompile Include="src\Lina_SDLHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Lina_ObjectHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\stb_image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -184,6 +181,9 @@
     </ClInclude>
     <ClInclude Include="inc\Scene\Lina_Scene.h">
       <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Utility\Lina_Globals.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

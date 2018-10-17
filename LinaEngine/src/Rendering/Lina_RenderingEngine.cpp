@@ -20,6 +20,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
+#include "Utility/Lina_Globals.h"
 #include "Rendering/Lina_RenderingEngine.h"  
 
 
@@ -43,7 +44,7 @@ void Lina_RenderingEngine::Initialize()
 	eventHandler.SubscribeToAction(ActionType::SDLQuit, [this]() { m_ActiveWindow->CloseWindow(); });
 
 	// Create a window.
-	CreateDisplayWindow(1024, 768, "Lina Engine 3D");
+	CreateDisplayWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Lina Engine 3D");
 
 	// Clear color.
 	glClearColor(0.0, 0.0, 0.0, 0.0);

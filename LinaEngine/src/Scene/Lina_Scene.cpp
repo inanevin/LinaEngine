@@ -23,6 +23,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Scene/Lina_Scene.h"  
 #include "Utility/Lina_ResourceLoader.h"
 #include "Utility/Lina_Time.h"
+#include "Utility/Lina_Globals.h"
 
 Lina_Scene::Lina_Scene()
 {
@@ -46,6 +47,8 @@ void Lina_Scene::Wake()
 					 0, 2, 3
 	};
 
+
+	transform.SetProjection(FIELD_OF_VIEW, WINDOW_WIDTH, WINDOW_HEIGHT, CLIPPING_PLANE_NEAR, CLIPPING_PLANE_FAR);
 
 	s.Init();
 	std::string t = Lina_ResourceLoader::LoadShader("Lina_BasicVertex.vs");
@@ -79,11 +82,12 @@ float temp = 0.0f;
 
 void Lina_Scene::Update()
 {
-	temp += Lina_Time::GetDelta() * 40;
+	temp += Lina_Time::GetDelta() * 90;
 	//temp = m_ObjectHandler.GetMouseButton(0);
 	//temp += (float)Lina_Time::GetDelta();
-	transform.SetRotation(0, temp,0);
-	transform.SetScale(Vector3::one() / 3);
+	transform.SetPosition(sin(temp / 100), 0, 5);
+	transform.SetRotation(0,temp,0);
+//	transform.SetScale(Vector3::one() / 3);
 
 
 }
@@ -91,7 +95,7 @@ void Lina_Scene::Update()
 void Lina_Scene::Render()
 {
 	s.Bind();
-	s.SetUniform("transform", *(transform.GetTransformation().m));
+	s.SetUniform("transform", *(transform.GetProjectedTransformation().m));
 	m.Draw();
 
 }

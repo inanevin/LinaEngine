@@ -159,7 +159,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Lina_CoreMessageBus.cpp" />
-    <ClCompile Include="src\Lina_ObjectHandler.cpp" />
     <ClCompile Include="src\Input\Lina_InputEngine.cpp" />
     <ClCompile Include="src\Rendering\Lina_ExampleShader.cpp" />
     <ClCompile Include="src\Rendering\Lina_Mesh.cpp" />
@@ -245,6 +244,10 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\Lina_SDLHandler.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Utility\Lina_Globals.h">
       <SubType>
       </SubType>
     </ClInclude>
