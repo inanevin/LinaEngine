@@ -78,6 +78,7 @@ public:
 
 	Lina_Mesh(std::vector<Vertex>&, std::vector<unsigned int>&);
 	void InitMesh();
+	void InitMeshWithExistingVertices();
 	void InitBuffers();
 	void AddVertices(Vertex*, unsigned int, int*, unsigned int);
 	void Draw();

@@ -185,8 +185,8 @@
     <ClInclude Include="inc\Utility\Lina_Globals.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Utility\OBJ_Loader.h">
-      <Filter>Header Files\Utility</Filter>
+    <ClInclude Include="inc\Scene\Lina_Camera.h">
+      <Filter>Header Files\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

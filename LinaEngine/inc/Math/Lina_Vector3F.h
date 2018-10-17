@@ -27,6 +27,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Math/Lina_Math.h"
 using namespace std;
 
+static const Lina_Vector3F yAxis = Lina_Vector3F(0, 1, 0);
+
 class Lina_Vector3F
 {
 
@@ -36,6 +38,7 @@ public:
 	static Lina_Vector3F one() { return Lina_Vector3F(1, 1, 1); }
 
 	float x, y, z;
+
 	Lina_Vector3F() { x = y = z = 0.0; }	// Empty const.
 	Lina_Vector3F(const Lina_Vector3F& rhs) {
 		this->x = rhs.x;
@@ -121,6 +124,36 @@ public:
 		return *this;
 	}
 
+	Lina_Vector3F& operator+=(const Lina_Vector3F& rhs)
+	{
+		this->x += rhs.x;
+		this->y += rhs.y;
+		this->z += rhs.z;
+		return *this;
+	}
+	Lina_Vector3F& operator-=(const Lina_Vector3F& rhs)
+	{
+		this->x -= rhs.x;
+		this->y -= rhs.y;
+		this->z -= rhs.z;
+		return *this;
+	}
+	Lina_Vector3F& operator*=(const Lina_Vector3F& rhs)
+	{
+		this->x *= rhs.x;
+		this->y *= rhs.y;
+		this->z *= rhs.z;
+		return *this;
+	}
+	Lina_Vector3F& operator/=(const Lina_Vector3F& rhs)
+	{
+		this->x /= rhs.x;
+		this->y /= rhs.y;
+		this->z /= rhs.z;
+		return *this;
+	}
+
+
 	bool operator!=(const Lina_Vector3F& other) const
 	{
 		return !(this->x == other.x && this->y == other.y && this->z == other.z);
@@ -193,6 +226,15 @@ public:
 		return v;
 	}
 
+	// Normalize the vector itself..
+	void Normalize()
+	{
+		float mag = Magnitude();
+		this->x /= mag;
+		this->y /= mag;
+		this->z /= mag;
+	}
+
 	// Normalize the vector and return a copy.
 	void Normalize(Lina_Vector3F& v)
 	{
@@ -203,9 +245,9 @@ public:
 	}
 
 	// Rotates a direction vector by angles.
-	void Rotate(float angle)
+	void Rotate(float angle, Lina_Vector3F axis)
 	{
-	
+		
 	}
 
 	// Returns a vector that is the rotated copy of the original.

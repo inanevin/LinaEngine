@@ -156,8 +156,8 @@ Lina_Mesh Lina_ResourceLoader::LoadMesh(std::string fileName)
 
 	Lina_Mesh mesh;
 
-/*	// Init Index & Vertex array.
-	mesh.m_Indices = new int[indices.size() * sizeof(int)];
+	// Init Index & Vertex array.
+	mesh.m_Indices = new unsigned int[indices.size() * sizeof(int)];
 	mesh.m_Vertices = new Vertex[vertices.size() * sizeof(Vertex)];
 
 	// Set index & vertex array elements.
@@ -176,7 +176,7 @@ Lina_Mesh Lina_ResourceLoader::LoadMesh(std::string fileName)
 
 	// Set sizes.
 	mesh.iSize = indices.size();
-	mesh.vSize = vertices.size();*/
+	mesh.vSize = vertices.size();
 
 	return mesh;
 }

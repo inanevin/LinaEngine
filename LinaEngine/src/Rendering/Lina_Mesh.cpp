@@ -36,6 +36,16 @@ void Lina_Mesh::InitMesh()
 	glCreateBuffers(1, &m_IBO);
 
 	size = 0;
+}
+
+
+void Lina_Mesh::InitMeshWithExistingVertices()
+{
+	//This function assigns unique ID to our Vertex Buffer Object & Index Buffer Object. 
+	glCreateBuffers(1, &m_VBO);
+	glCreateBuffers(1, &m_IBO);
+
+	size = 0;
 
 
 	// Init Index & Vertex array.
@@ -61,7 +71,7 @@ void Lina_Mesh::InitMesh()
 	iSize = Indices.size();
 	vSize = Vertices.size();
 
-	
+
 
 }
 

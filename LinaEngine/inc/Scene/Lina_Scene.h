@@ -29,7 +29,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Lina_Shader.h"
 #include "Lina_Transform.h"
 #include "Lina_ObjectHandler.h"
-#include "Utility/OBJ_Loader.h"
+
 
 class Lina_Scene
 {
@@ -45,8 +45,8 @@ public:
 	void CleanUp();
 
 private:
-	bool loadout;
-	Loader objLoader;
+	//bool loadout;
+	//Loader objLoader;
 	Lina_Matrix4F mat;
 	Lina_Mesh m;
 	Lina_Shader s;

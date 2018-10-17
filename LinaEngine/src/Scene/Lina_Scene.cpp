@@ -72,9 +72,9 @@ void Lina_Scene::Wake()
 		}
 	}*/
 
-	//m = Lina_ResourceLoader::LoadMesh("cube.obj");
-	//m.InitMesh();
-	//m.InitBuffers();
+	m = Lina_ResourceLoader::LoadMesh("cube.obj");
+	m.InitMesh();
+	m.InitBuffers();
 	//m.AddVertices(vertices, sizeof(vertices) / sizeof(vertices[0]), indices, sizeof(indices) / sizeof(indices[0]));
 }
 

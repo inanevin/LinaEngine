@@ -202,6 +202,10 @@
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="inc\Scene\Lina_Camera.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="inc\Scene\Lina_Scene.h">
       <SubType>
       </SubType>
@@ -277,7 +281,6 @@
     </ClInclude>
     <ClInclude Include="inc\pch.h" />
     <ClInclude Include="inc\stb_image.h" />
-    <ClInclude Include="inc\Utility\OBJ_Loader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\basic.frag" />
