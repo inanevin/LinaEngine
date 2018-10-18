@@ -90,30 +90,26 @@ void Lina_Camera::Move(Vector3 dir, float amount)
 
 void Lina_Camera::RotateX(float angle)
 {
-	Vector3 horizontal = Vector3(0, 1, 0).Cross(forward);
-	horizontal.Normalize();
+	Vector3 horizontal = Vector3(0, 1, 0).Cross(forward).normalized();
 
 	// Rotate the forward axis with respect to the World's horizontal axis.
 	forward.Rotate(angle, horizontal);
 	forward.Normalize();
+
 	// Update the up vector.
-	up = forward.Cross(horizontal);
-	up.Normalize();
+	up = forward.Cross(horizontal).normalized();
 }
 
 void Lina_Camera::RotateY(float angle)
 {
-	Vector3 horizontal = Vector3(0,1,0).Cross(forward);
-	horizontal.Normalize();
+	Vector3 horizontal = Vector3(0,1,0).Cross(forward).normalized();
 	
 	// Rotate the forward axis with respect to the World's horizontal axis.
 	forward.Rotate(angle, Vector3::yAxis);
 	forward.Normalize();
 
-	//std::cout << Vector3::VToString(forward) << std::endl;
 	// Update the up vector.
-	up = forward.Cross(horizontal);
-	up.Normalize();
+	up = forward.Cross(horizontal).normalized();
 
 }
 
