@@ -3,11 +3,8 @@
 
 //GLSL doesn't have any built in color passing variable so we declare for ourselves as build in vec4 type.
 in vec2 texCoord0;
+in vec3 normal0;
 out vec4 fragColor;
-
-uniform vec3 baseColor;
-uniform vec3 ambientLight;
-uniform sampler2D sampler;
 
 struct BaseLight
 {
@@ -20,6 +17,13 @@ struct DirectionalLight
 	BaseLight base;
 	vec3 direction;
 };
+
+
+uniform vec3 baseColor;
+uniform vec3 ambientLight;
+uniform sampler2D sampler;
+uniform DirectionalLight directionalLight;
+
 
 vec4 CalculateLight(BaseLight base, vec3 dir, vec3 normal)
 {
@@ -49,6 +53,9 @@ void main()
 	
 	if(textureColor != vec4(0,0,0,0))
 		color *= textureColor;
+		
+	vec3 normal = normalize(normal0);
+	totalLight += CalculateDirectionalLight(directionalLight, normal);
 	
 	fragColor = color * totalLight;
 }
