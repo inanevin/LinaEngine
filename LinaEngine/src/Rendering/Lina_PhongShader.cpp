@@ -15,47 +15,41 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/16/2018 6:11:44 PM
+10/18/2018 8:06:08 PM
 
 */
 
-#pragma once
+#include "pch.h"
+#include "Rendering/Lina_PhongShader.h"  
+#include "Utility/Lina_ResourceLoader.h"
 
-#ifndef Lina_Scene_H
-#define Lina_Scene_H
-
-
-#include "Rendering/Lina_Mesh.h"
-#include "Rendering/Lina_PhongShader.h"
-#include "Lina_Transform.h"
-#include "Lina_ObjectHandler.h"
-#include "Rendering/Lina_Texture.h"
-
-class Lina_Scene
+Lina_PhongShader::Lina_PhongShader()
 {
+	Lina_Shader::Lina_Shader();
+}
 
-public:
+void Lina_PhongShader::Init()
+{
+	Lina_Shader::Init();
 
-	Lina_Scene();
-	void Wake();
-	void Start();
-	void ProcessInput();
-	void Update();
-	void Render();
-	void CleanUp();
-	Lina_Camera GetCamera();
+	ambientLight = Vector3(.1, .1, .1);
+	std::string vertexShaderText = Lina_ResourceLoader::LoadShader("Lina_PhongVertex.vs");
+	std::string fragmentShaderText = Lina_ResourceLoader::LoadShader("Lina_PhongFragment.fs");
 
-private:
-	//bool loadout;
-	//Loader objLoader;
-	Lina_Matrix4F mat;
-	Lina_Mesh m;
-	Lina_PhongShader s;
-	Lina_Transform transform;
-	Lina_Camera sceneCamera;
-	Lina_Material material;
+	AddVertexShader(vertexShaderText);
+	AddFragmentShader(fragmentShaderText);
+	CompileShader();
 
-};
+	AddUniform("transform");
+	AddUniform("baseColor");
+	AddUniform("ambientLight");
+}
 
-
-#endif
+void Lina_PhongShader::UpdateUniforms(Matrix4 world, Matrix4 projected, Lina_Material mat)
+{
+	// UNBIND IF TEXTURE IS NULL?
+	mat.GetTexture().Bind();
+	SetUniform("transform", *(projected.m));
+	SetUniform("baseColor", mat.GetColor());
+	SetUniform("ambientLight", ambientLight);
+}

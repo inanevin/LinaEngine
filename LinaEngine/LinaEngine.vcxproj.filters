@@ -132,6 +132,12 @@
     <ClCompile Include="src\Rendering\Lina_BasicShader.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="src\Rendering\Lina_Material.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rendering\Lina_PhongShader.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\pch.h">
@@ -222,6 +228,12 @@
       <Filter>Header Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_BasicShader.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Material.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_PhongShader.h">
       <Filter>Header Files\Rendering</Filter>
     </ClInclude>
   </ItemGroup>

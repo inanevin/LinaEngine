@@ -50,7 +50,8 @@ void Lina_Scene::Wake()
 					 0, 2, 3
 	};
 
-	texture = Lina_ResourceLoader::LoadTexture("grid.png");
+	material.SetColor(Vector3(1, 1, 1));
+	material.SetTexture(Lina_ResourceLoader::LoadTexture("grid.png"));
 	//texture = Lina_ResourceLoader::LoadTexture("grid.png");
 	transform.SetCamera(sceneCamera);
 
@@ -111,10 +112,9 @@ void Lina_Scene::Update()
 
 void Lina_Scene::Render()
 {
-	texture.Bind();
 	s.Bind();
-	s.SetUniform("transform", *(transform.GetProjectedTransformation().m));
 	m.Draw();
+	s.UpdateUniforms(transform.GetTransformation(), transform.GetProjectedTransformation(), material);
 	/*// Go through each loaded mesh and out its contents
 	for (int i = 0; i < objLoader.LoadedMeshes.size(); i++)
 	{

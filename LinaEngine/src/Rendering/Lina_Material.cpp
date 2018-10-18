@@ -15,47 +15,42 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/16/2018 6:11:44 PM
+10/18/2018 6:17:28 PM
 
 */
 
-#pragma once
+#include "pch.h"
+#include "Rendering/Lina_Material.h"  
 
-#ifndef Lina_Scene_H
-#define Lina_Scene_H
-
-
-#include "Rendering/Lina_Mesh.h"
-#include "Rendering/Lina_PhongShader.h"
-#include "Lina_Transform.h"
-#include "Lina_ObjectHandler.h"
-#include "Rendering/Lina_Texture.h"
-
-class Lina_Scene
+Lina_Material::Lina_Material()
 {
 
-public:
+}
 
-	Lina_Scene();
-	void Wake();
-	void Start();
-	void ProcessInput();
-	void Update();
-	void Render();
-	void CleanUp();
-	Lina_Camera GetCamera();
+Lina_Material::Lina_Material(Lina_Texture txt, Vector3 col )
+{
+	m_Texture = txt;
+	m_Color = col;
+}
 
-private:
-	//bool loadout;
-	//Loader objLoader;
-	Lina_Matrix4F mat;
-	Lina_Mesh m;
-	Lina_PhongShader s;
-	Lina_Transform transform;
-	Lina_Camera sceneCamera;
-	Lina_Material material;
+Vector3 Lina_Material::GetColor()
+{
+	return m_Color;
+}
 
-};
+Lina_Texture Lina_Material::GetTexture()
+{
+	return m_Texture;
+}
 
 
-#endif
+void Lina_Material::SetColor(Vector3 v)
+{
+	m_Color = v;
+}
+
+void Lina_Material::SetTexture(Lina_Texture txt)
+{
+	m_Texture = txt;
+}
+

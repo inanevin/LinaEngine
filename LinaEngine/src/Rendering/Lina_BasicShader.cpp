@@ -40,5 +40,15 @@ void Lina_BasicShader::Init()
 	CompileShader();
 
 	AddUniform("transform");
+	AddUniform("color");
+}
+
+void Lina_BasicShader::UpdateUniforms(Matrix4 world, Matrix4 projected, Lina_Material mat)
+{
+	// UNBIND IF TEXTURE IS NULL?
+	mat.GetTexture().Bind();
+	SetUniform("transform", *(projected.m));
+	SetUniform("color", mat.GetColor());
+	
 }
 

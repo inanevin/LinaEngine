@@ -15,45 +15,30 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/16/2018 6:11:44 PM
+10/18/2018 8:05:51 PM
 
 */
 
 #pragma once
 
-#ifndef Lina_Scene_H
-#define Lina_Scene_H
+#ifndef Lina_PhongShader_H
+#define Lina_PhongShader_H
 
-
-#include "Rendering/Lina_Mesh.h"
-#include "Rendering/Lina_PhongShader.h"
-#include "Lina_Transform.h"
-#include "Lina_ObjectHandler.h"
-#include "Rendering/Lina_Texture.h"
-
-class Lina_Scene
+#include "Rendering/Lina_Shader.h"
+#include "Math/Lina_Vector3F.h"
+class Lina_PhongShader : public Lina_Shader
 {
 
 public:
 
-	Lina_Scene();
-	void Wake();
-	void Start();
-	void ProcessInput();
-	void Update();
-	void Render();
-	void CleanUp();
-	Lina_Camera GetCamera();
+	Lina_PhongShader();
+	void Init() override;
+	void UpdateUniforms(Matrix4, Matrix4, Lina_Material) override;
+
+	Vector3 ambientLight;
+
 
 private:
-	//bool loadout;
-	//Loader objLoader;
-	Lina_Matrix4F mat;
-	Lina_Mesh m;
-	Lina_PhongShader s;
-	Lina_Transform transform;
-	Lina_Camera sceneCamera;
-	Lina_Material material;
 
 };
 

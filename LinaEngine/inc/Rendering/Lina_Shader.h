@@ -28,6 +28,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Math/Lina_Math.h"
 #include "Math/Lina_Vector3F.h"
 #include "Math/Lina_Matrix4F.h"
+#include "Rendering/Lina_Material.h"
 #include <map>
 
 class Lina_Shader
@@ -39,7 +40,7 @@ public:
 
 	virtual void Init();
 	virtual void Bind();
-	virtual void UpdateUniforms(Matrix4, Matrix4);
+	virtual void UpdateUniforms(Matrix4, Matrix4, Lina_Material);
 	void AddVertexShader(std::string);
 	void AddGeometryShader(std::string);
 	void AddFragmentShader(std::string);

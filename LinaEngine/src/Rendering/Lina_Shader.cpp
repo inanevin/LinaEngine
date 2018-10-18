@@ -42,7 +42,7 @@ void Lina_Shader::AddFragmentShader(std::string text)
 	AddToProgram(text, GL_FRAGMENT_SHADER);
 }
 
-void Lina_Shader::AddToProgram(std::string text, int type)
+void Lina_Shader::AddToProgram(std::string text, GLint type)
 {
 
 	unsigned int shader = glCreateShader(type);
@@ -126,7 +126,7 @@ void Lina_Shader::SetUniform(const std::string& name, GLfloat* val) const
 	glUniformMatrix4fv(m_Uniforms.find(name)->second, 1, true, val);
 }
 
-void Lina_Shader::UpdateUniforms(Matrix4 world, Matrix4 projected)
+void Lina_Shader::UpdateUniforms(Matrix4 world, Matrix4 projected, Lina_Material)
 {
 
 }
