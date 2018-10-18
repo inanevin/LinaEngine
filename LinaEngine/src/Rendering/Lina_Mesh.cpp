@@ -87,9 +87,18 @@ void Lina_Mesh::InitBuffers()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, iSize * sizeof(m_Indices[0]), m_Indices, GL_STATIC_DRAW);
 }
 
-// Used for manually created meshes.
-void Lina_Mesh::AddVertices(Vertex* vertices, unsigned int vsize, int* indices, unsigned int isize)
+void Lina_Mesh::AddVertices(Vertex* vertices, unsigned int vSize, int* indices, unsigned int iSize)
 {
+	AddVertices(vertices, vSize, indices, iSize, false);
+}
+
+// Used for manually created meshes.
+void Lina_Mesh::AddVertices(Vertex* vertices, unsigned int vsize, int* indices, unsigned int isize, bool calculateNormals)
+{
+
+	if (calculateNormals)
+		CalculateNormals(vertices, vsize, indices, isize);
+
 	size = isize;
 
 	//This function binds the Vertex Buffer Object..
@@ -106,18 +115,47 @@ void Lina_Mesh::AddVertices(Vertex* vertices, unsigned int vsize, int* indices, 
 void Lina_Mesh::Draw()
 {
 
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(0);	// Positions
+	glEnableVertexAttribArray(1);	// Texture Coordinates
+	glEnableVertexAttribArray(2);	// Normals
 
 	// Bind buffers & draw.
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, false, Lina_Vertex::SIZE * 4, (void*)0);	// Positions.
 	glVertexAttribPointer(1, 2, GL_FLOAT, false, Lina_Vertex::SIZE * 4, (void*)12);	// Texture coords. 4 bytes per floating point number. x-y-z-xCor-yCor.
+	glVertexAttribPointer(2, 3, GL_FLOAT, false, Lina_Vertex::SIZE * 4, (void*)20);	// Normals
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
 	glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
 
+}
+
+void Lina_Mesh::CalculateNormals(Vertex* vertices, int vSize, int* indices, int iSize)
+{
+	for (int i = 0; i < iSize; i += 3)
+	{
+		int i0 = indices[i];
+		int i1 = indices[i + 1];
+		int i2 = indices[i + 2];
+
+		// Form 2 lines that will have the up direction as their cross product.
+		Vector3 v1 = vertices[i1].GetPosition() - vertices[i0].GetPosition();
+		Vector3 v2 = vertices[i2].GetPosition() - vertices[i0].GetPosition();
+
+		// Calculate up.
+		Vector3 normal = Vector3::Cross(v1, v2).normalized();
+
+		// Add normals to the vertices.
+		vertices[i0].SetNormal(vertices[i0].GetNormal() + normal);
+		vertices[i1].SetNormal(vertices[i0].GetNormal() + normal);
+		vertices[i2].SetNormal(vertices[i0].GetNormal() + normal);
+	}
+
+	// Set the length to one to get the appropriate normalized length & direction for every single vertex.
+	for (int i = 0; i < vSize; i++)
+		vertices[i].SetNormal(vertices[i].GetNormal().normalized());
 }

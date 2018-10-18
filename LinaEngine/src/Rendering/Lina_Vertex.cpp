@@ -15,41 +15,47 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/18/2018 8:06:08 PM
+10/18/2018 9:33:38 PM
 
 */
 
 #include "pch.h"
-#include "Rendering/Lina_PhongShader.h"  
-#include "Utility/Lina_ResourceLoader.h"
+#include "Rendering/Lina_Vertex.h"  
 
-Lina_PhongShader::Lina_PhongShader()
+Lina_Vertex::Lina_Vertex()
 {
-	Lina_Shader::Lina_Shader();
+	m_Position = Vector3::one();
+	m_Normal = Vector3::zero();
+	m_TextureCoordinates = Vector2::zero();
 }
 
-void Lina_PhongShader::Init()
+void Lina_Vertex::SetPosition(Vector3 v)
 {
-	Lina_Shader::Init();
-
-	ambientLight = Vector3(1, 1, 1);
-	std::string vertexShaderText = Lina_ResourceLoader::LoadShader("Lina_PhongVertex.vs");
-	std::string fragmentShaderText = Lina_ResourceLoader::LoadShader("Lina_PhongFragment.fs");
-
-	AddVertexShader(vertexShaderText);
-	AddFragmentShader(fragmentShaderText);
-	CompileShader();
-
-	AddUniform("transform");
-	AddUniform("baseColor");
-	AddUniform("ambientLight");
+	m_Position = v;
 }
 
-void Lina_PhongShader::UpdateUniforms(Matrix4 world, Matrix4 projected, Lina_Material mat)
+void Lina_Vertex::SetNormal(Vector3 n)
 {
-	// UNBIND IF TEXTURE IS NULL?
-	mat.GetTexture().Bind();
-	SetUniform("transform", *(projected.m));
-	SetUniform("baseColor", mat.GetColor());
-	SetUniform("ambientLight", ambientLight);
+	m_Normal = n;
 }
+
+void Lina_Vertex::SetTextureCoordinates(Vector2 tc)
+{
+	m_TextureCoordinates = tc;
+}
+
+Vector3 Lina_Vertex::GetPosition()
+{
+	return m_Position;
+}
+
+Vector3 Lina_Vertex::GetNormal()
+{
+	return m_Normal;
+}
+
+Vector2 Lina_Vertex::GetTextureCoordinates()
+{
+	return m_TextureCoordinates;
+}
+

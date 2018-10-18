@@ -177,6 +177,7 @@
     <ClCompile Include="src\Lina_SDLHandler.cpp" />
     <ClCompile Include="src\Rendering\Lina_Shader.cpp" />
     <ClCompile Include="src\Rendering\Lina_Texture.cpp" />
+    <ClCompile Include="src\Rendering\Lina_Vertex.cpp" />
     <ClCompile Include="src\Scene\Lina_Camera.cpp" />
     <ClCompile Include="src\Scene\Lina_Scene.cpp" />
     <ClCompile Include="src\Utility\Lina_ResourceLoader.cpp" />

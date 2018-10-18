@@ -25,8 +25,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_CoreMessageBus_H
 
 #include "Input/Lina_InputEngine.h"
-class Lina_Core;
+
 class Lina_RenderingEngine;
+class Lina_Core;
 class Lina_SDLHandler;
 
 class Lina_CoreMessageBus
@@ -41,6 +42,7 @@ public:
 		return instance;
 	}
 
+	Lina_RenderingEngine* GetRenderingEngine() { return renderingEngine; }
 	Lina_InputEngine* GetInputEngine() { return inputEngine; }
 	void SetInputEngine(Lina_InputEngine* inp) { inputEngine = inp; }
 

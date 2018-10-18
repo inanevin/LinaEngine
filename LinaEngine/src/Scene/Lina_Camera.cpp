@@ -83,6 +83,7 @@ void Lina_Camera::TempInput()
 	}
 }
 
+
 void Lina_Camera::Move(Vector3 dir, float amount)
 {
 	position += (dir * amount);

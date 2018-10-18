@@ -32,13 +32,27 @@ class Lina_Vertex
 {
 public:
 
-	Lina_Vertex() { Position = Vector3::one(); TextureCoordinate = Vector2::zero(); };
-	Lina_Vertex(Vector3 position, Vector2 textureCoord) : Position(position), TextureCoordinate(textureCoord) {};
-	Lina_Vertex(Vector3 position) : Position(position) { TextureCoordinate = Vector2::zero(); }
-	Vector3 Position;
-	Vector2 TextureCoordinate;
-	//Vector3 Normal;
-	static const int SIZE = 5;
+	static const int SIZE = 8;
+
+
+	Lina_Vertex();
+	Lina_Vertex(Vector3 position, Vector2 textureCoord, Vector3 n) : m_Position(position), m_TextureCoordinates(textureCoord) , m_Normal(n) {};
+	Lina_Vertex(Vector3 position, Vector2 textureCoord) : m_Position(position), m_TextureCoordinates(textureCoord), m_Normal(Vector3::zero()) {};
+	Lina_Vertex(Vector3 position) : m_Position(position), m_TextureCoordinates(Vector2::zero()), m_Normal(Vector3::zero()) {};
+
+	void SetPosition(Vector3);
+	void SetNormal(Vector3);
+	void SetTextureCoordinates(Vector2);
+	Vector3 GetPosition();
+	Vector3 GetNormal();
+	Vector2 GetTextureCoordinates();
+
+private:
+
+	Vector3 m_Position;	// ORDER IMPORTANT
+	Vector2 m_TextureCoordinates;	// ORDER IMPORTANT
+	Vector3 m_Normal;	// ORDER IMPORTANT
+
 };
 
 typedef Lina_Vertex Vertex; 

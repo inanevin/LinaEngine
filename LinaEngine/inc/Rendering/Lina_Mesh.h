@@ -27,7 +27,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Lina_Vertex.h"
 #include <GL/glew.h>
 
-struct Material
+/*struct Material
 {
 	Material()
 	{
@@ -66,7 +66,7 @@ struct Material
 	std::string map_d;
 	// Bump Map
 	std::string map_bump;
-};
+};*/
 
 
 class Lina_Mesh
@@ -80,8 +80,10 @@ public:
 	void InitMesh();
 	void InitMeshWithExistingVertices();
 	void InitBuffers();
+	void AddVertices(Vertex*, unsigned int, int*, unsigned int, bool);
 	void AddVertices(Vertex*, unsigned int, int*, unsigned int);
 	void Draw();
+	void CalculateNormals(Vertex*, int, int*, int);
 
 	Vertex* m_Vertices;
 	unsigned int* m_Indices;
@@ -95,7 +97,7 @@ public:
 	// Index List
 	//std::vector<unsigned int> Indices;
 
-	Material MeshMaterial;
+	//Material MeshMaterial;
 
 private:
 

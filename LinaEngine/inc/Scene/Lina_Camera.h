@@ -46,7 +46,6 @@ public:
 	void RotateY(float);
 
 private:
-
 	Vector3 position;
 	Vector3 forward;
 	Vector3 up;

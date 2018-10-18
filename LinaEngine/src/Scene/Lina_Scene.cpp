@@ -39,9 +39,9 @@ void Lina_Scene::Wake()
 	//Triangle
 	Vertex vertices[] = {
 	Vertex(Vector3(-1, -1, 0.0), Vector2(0,0)),
-	Vertex(Vector3(0, 1, 0.0), Vector2(0.5, 0)),
+	Vertex(Vector3(0, 1, 0.0), Vector2(0.5, 1)),
 	Vertex(Vector3(1, -1, 0.0), Vector2(1.0, 0.0)),
-	Vertex(Vector3(0,-1,1), Vector2(0.0, 0.5f))
+	Vertex(Vector3(0,-1,1), Vector2(0.0, 1.0f))
 	};
 
 	int indices[] = { 3, 1, 0,
@@ -51,7 +51,7 @@ void Lina_Scene::Wake()
 	};
 
 	material.SetColor(Vector3(1, 1, 1));
-	material.SetTexture(Lina_ResourceLoader::LoadTexture("grid.png"));
+	material.SetTexture(Lina_ResourceLoader::LoadTexture("bf1.png"));
 	//texture = Lina_ResourceLoader::LoadTexture("grid.png");
 	transform.SetCamera(sceneCamera);
 
@@ -103,8 +103,8 @@ float temp = 0.0f;
 void Lina_Scene::Update()
 {
 	temp += Lina_Time::GetDelta() * 90;
-	transform.SetPosition(0, 0, 5);
-	transform.SetRotation(0,temp,0);
+	transform.SetPosition(0, 0, 1);
+	transform.SetRotation(180,temp,0);
 //	transform.SetScale(Vector3::one() / 3);
 	sceneCamera.TempInput();
 
