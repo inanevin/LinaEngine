@@ -166,6 +166,7 @@
     <ClCompile Include="src\Math\Lina_Quaternion.cpp" />
     <ClCompile Include="src\Math\Lina_Vector2F.cpp" />
     <ClCompile Include="src\Math\Lina_Vector3F.cpp" />
+    <ClCompile Include="src\Rendering\Lina_BasicShader.cpp" />
     <ClCompile Include="src\Rendering\Lina_ExampleShader.cpp" />
     <ClCompile Include="src\Rendering\Lina_Mesh.cpp" />
     <ClCompile Include="src\Rendering\Lina_RenderingEngine.cpp" />
@@ -194,6 +195,10 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\Lina_Transform.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_BasicShader.h">
       <SubType>
       </SubType>
     </ClInclude>

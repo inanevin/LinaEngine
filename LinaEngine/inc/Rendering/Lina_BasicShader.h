@@ -15,51 +15,25 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/15/2018 7:16:21 PM
+10/18/2018 5:41:04 PM
 
 */
 
 #pragma once
 
-#ifndef Lina_Shader_H
-#define Lina_Shader_H
+#ifndef Lina_BasicShader_H
+#define Lina_BasicShader_H
 
-#include <GL/glew.h>
-#include "Math/Lina_Math.h"
-#include "Math/Lina_Vector3F.h"
-#include "Math/Lina_Matrix4F.h"
-#include <map>
+#include "Rendering/Lina_Shader.h"
 
-class Lina_Shader
+class Lina_BasicShader : public Lina_Shader
 {
 
 public:
 
-	Lina_Shader() {};
-
-	virtual void Init();
-	virtual void Bind();
-	virtual void UpdateUniforms(Matrix4, Matrix4);
-	void AddVertexShader(std::string);
-	void AddGeometryShader(std::string);
-	void AddFragmentShader(std::string);
-	void CompileShader();
-	void AddUniform(const std::string&);
-	void SetUniform(const std::string&, float) const;
-	void SetUniform(const std::string&, int) const;
-	void SetUniform(const std::string&, Vector3) const;
-	void SetUniform(const std::string&, GLfloat*) const;
-	void CheckError(unsigned int, int, std::string);
-
-private:
-
-	std::map<std::string, int> m_Uniforms;
-	void AddToProgram(std::string, GLint); 
-	unsigned int program;
+	Lina_BasicShader();
+	void Init() override;
 
 };
-
-
-
 
 #endif

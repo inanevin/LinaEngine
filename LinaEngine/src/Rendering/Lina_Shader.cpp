@@ -87,6 +87,19 @@ void Lina_Shader::Bind()
 	glUseProgram(program);
 }
 
+void Lina_Shader::AddUniform(const std::string& name)
+{
+	GLint location = glGetUniformLocation(program, name.c_str());
+
+	if (location == 0xFFFFFFFF)
+	{
+		std::cout << "No uniform exists with that name!" << std::endl;
+		return;
+	}
+
+	// Add the uniform into our mapped list.
+	m_Uniforms.emplace(name, location);
+}
 
 void Lina_Shader::SetUniform(const std::string& name, float value) const
 {
@@ -94,23 +107,28 @@ void Lina_Shader::SetUniform(const std::string& name, float value) const
 	//In order to use uniforms we must declare a uniform in the GLSL code and find the location of the uniform
 	//with glGetUniformLocation, using ID of shader program and the name of the uniform in the GLSL code.
 	//After that we set the uniform given value. For float we use glUniform1f.
-	glUniform1f(glGetUniformLocation(program, name.c_str()), value);
+	glUniform1f(m_Uniforms.find(name)->second, value);
 }
 
 void Lina_Shader::SetUniform(const std::string& name, int value) const
 {
-	glUniform1i(glGetUniformLocation(program, name.c_str()), value);
+	glUniform1i(m_Uniforms.find(name)->second, value);
 }
 
 
 void Lina_Shader::SetUniform(const std::string& name, Vector3 value) const
 {
-	glUniform3f(glGetUniformLocation(program, name.c_str()), value.x, value.y, value.z);
+	glUniform3f(m_Uniforms.find(name)->second, value.x, value.y, value.z);
 }
 
 void Lina_Shader::SetUniform(const std::string& name, GLfloat* val) const
 {
-	glUniformMatrix4fv(glGetUniformLocation(program, name.c_str()), 1, true, val);
+	glUniformMatrix4fv(m_Uniforms.find(name)->second, 1, true, val);
+}
+
+void Lina_Shader::UpdateUniforms(Matrix4 world, Matrix4 projected)
+{
+
 }
 
 void Lina_Shader::CheckError(unsigned int ID, int type, std::string typeID)

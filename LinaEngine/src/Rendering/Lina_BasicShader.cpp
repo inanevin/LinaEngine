@@ -15,51 +15,30 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/15/2018 7:16:21 PM
+10/18/2018 5:26:06 PM
 
 */
 
-#pragma once
+#include "pch.h"
+#include "Rendering/Lina_BasicShader.h"  
+#include "Utility/Lina_ResourceLoader.h"
 
-#ifndef Lina_Shader_H
-#define Lina_Shader_H
-
-#include <GL/glew.h>
-#include "Math/Lina_Math.h"
-#include "Math/Lina_Vector3F.h"
-#include "Math/Lina_Matrix4F.h"
-#include <map>
-
-class Lina_Shader
+Lina_BasicShader::Lina_BasicShader()
 {
+	Lina_Shader::Lina_Shader();	
+}
 
-public:
+void Lina_BasicShader::Init()
+{
+	Lina_Shader::Init();
 
-	Lina_Shader() {};
+	std::string vertexShaderText = Lina_ResourceLoader::LoadShader("Lina_BasicVertex.vs");
+	std::string fragmentShaderText = Lina_ResourceLoader::LoadShader("Lina_BasicFragment.fs");
 
-	virtual void Init();
-	virtual void Bind();
-	virtual void UpdateUniforms(Matrix4, Matrix4);
-	void AddVertexShader(std::string);
-	void AddGeometryShader(std::string);
-	void AddFragmentShader(std::string);
-	void CompileShader();
-	void AddUniform(const std::string&);
-	void SetUniform(const std::string&, float) const;
-	void SetUniform(const std::string&, int) const;
-	void SetUniform(const std::string&, Vector3) const;
-	void SetUniform(const std::string&, GLfloat*) const;
-	void CheckError(unsigned int, int, std::string);
+	AddVertexShader(vertexShaderText);
+	AddFragmentShader(fragmentShaderText);
+	CompileShader();
 
-private:
+	AddUniform("transform");
+}
 
-	std::map<std::string, int> m_Uniforms;
-	void AddToProgram(std::string, GLint); 
-	unsigned int program;
-
-};
-
-
-
-
-#endif

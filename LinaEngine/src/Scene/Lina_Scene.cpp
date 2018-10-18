@@ -25,6 +25,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Utility/Lina_Time.h"
 #include "Utility/Lina_Globals.h"
 #include "Scene/Lina_Camera.h"
+
 Lina_Scene::Lina_Scene()
 {
 
@@ -56,12 +57,12 @@ void Lina_Scene::Wake()
 	transform.SetProjection(FIELD_OF_VIEW, WINDOW_WIDTH, WINDOW_HEIGHT, CLIPPING_PLANE_NEAR, CLIPPING_PLANE_FAR);
 
 	s.Init();
-	std::string t = Lina_ResourceLoader::LoadShader("Lina_BasicVertex.vs");
-	std::string t2 = Lina_ResourceLoader::LoadShader("Lina_BasicFragment.fs");
+	//std::string t = Lina_ResourceLoader::LoadShader("Lina_BasicVertex.vs");
+	//std::string t2 = Lina_ResourceLoader::LoadShader("Lina_BasicFragment.fs");
 
-	s.AddVertexShader(t);
-	s.AddFragmentShader(t2);
-	s.CompileShader();
+	//s.AddVertexShader(t);
+	//s.AddFragmentShader(t2);
+	//s.CompileShader();
 
 	
 	// Load .obj File
