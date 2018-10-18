@@ -15,35 +15,17 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/18/2018 8:05:51 PM
+10/18/2018 10:14:51 PM
 
 */
 
-#pragma once
+#include "pch.h"
+#include "Rendering/Lina_DirectionalLight.h"  
 
-#ifndef Lina_PhongShader_H
-#define Lina_PhongShader_H
+Lina_DirectionalLight::Lina_DirectionalLight() : m_Base(Lina_BaseLight(Vector3::zero(),0)), m_Direction(Vector3::zero()) {};
+Lina_DirectionalLight::Lina_DirectionalLight(Lina_BaseLight b, Vector3 dir) : m_Base(b), m_Direction(dir) {};
+Lina_BaseLight& Lina_DirectionalLight::GetBase() { return m_Base; }
+Vector3 Lina_DirectionalLight::GetDirection() { return m_Direction; }
+void Lina_DirectionalLight::SetBase(Lina_BaseLight b) { m_Base = b; }
+void Lina_DirectionalLight::SetDirection(Vector3 dir) { m_Direction = dir; }
 
-#include "Rendering/Lina_Shader.h"
-#include "Math/Lina_Vector3F.h"
-#include "Rendering/Lina_DirectionalLight.h"
-
-class Lina_PhongShader : public Lina_Shader
-{
-
-public:
-
-	Lina_PhongShader();
-	void Init() override;
-	void UpdateUniforms(Matrix4, Matrix4, Lina_Material) override;
-	void SetUniformBaseLight(std::string, Lina_BaseLight);
-	void SetUniformLight(std::string, Lina_DirectionalLight);
-	Vector3 ambientLight;
-	Lina_DirectionalLight dirLight;
-
-private:
-
-};
-
-
-#endif

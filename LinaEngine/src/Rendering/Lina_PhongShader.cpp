@@ -33,6 +33,7 @@ void Lina_PhongShader::Init()
 	Lina_Shader::Init();
 
 	ambientLight = Vector3(1, 1, 1);
+	dirLight.GetBase().SetIntensity(0.0f);
 	std::string vertexShaderText = Lina_ResourceLoader::LoadShader("Lina_PhongVertex.vs");
 	std::string fragmentShaderText = Lina_ResourceLoader::LoadShader("Lina_PhongFragment.fs");
 
@@ -43,6 +44,10 @@ void Lina_PhongShader::Init()
 	AddUniform("transform");
 	AddUniform("baseColor");
 	AddUniform("ambientLight");
+	AddUniform("directionalLight.base.color");
+	AddUniform("directionalLight.base.intensity");
+	AddUniform("directionalLight.direction");
+
 }
 
 void Lina_PhongShader::UpdateUniforms(Matrix4 world, Matrix4 projected, Lina_Material mat)
@@ -52,4 +57,16 @@ void Lina_PhongShader::UpdateUniforms(Matrix4 world, Matrix4 projected, Lina_Mat
 	SetUniform("transform", *(projected.m));
 	SetUniform("baseColor", mat.GetColor());
 	SetUniform("ambientLight", ambientLight);
+}
+
+void Lina_PhongShader::SetUniformBaseLight(std::string name, Lina_BaseLight b)
+{
+	SetUniform(name + ".color", b.GetColor());
+	SetUniform(name + ".intensity", b.GetIntensity());
+}
+
+void Lina_PhongShader::SetUniformLight(std::string name, Lina_DirectionalLight directionalLight)
+{
+	SetUniformBaseLight(name + ".base", directionalLight.GetBase());
+	SetUniform(name + ".direction", directionalLight.GetDirection());
 }

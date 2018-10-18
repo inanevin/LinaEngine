@@ -15,34 +15,33 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/18/2018 8:05:51 PM
+10/18/2018 9:59:27 PM
 
 */
 
 #pragma once
 
-#ifndef Lina_PhongShader_H
-#define Lina_PhongShader_H
+#ifndef Lina_DirectionalLight_H
+#define Lina_DirectionalLight_H
 
-#include "Rendering/Lina_Shader.h"
-#include "Math/Lina_Vector3F.h"
-#include "Rendering/Lina_DirectionalLight.h"
+#include "Rendering/Lina_BaseLight.h"
 
-class Lina_PhongShader : public Lina_Shader
+class Lina_DirectionalLight
 {
 
 public:
 
-	Lina_PhongShader();
-	void Init() override;
-	void UpdateUniforms(Matrix4, Matrix4, Lina_Material) override;
-	void SetUniformBaseLight(std::string, Lina_BaseLight);
-	void SetUniformLight(std::string, Lina_DirectionalLight);
-	Vector3 ambientLight;
-	Lina_DirectionalLight dirLight;
+	Lina_DirectionalLight();
+	Lina_DirectionalLight(Lina_BaseLight, Vector3);
+	Lina_BaseLight& GetBase();
+	Vector3 GetDirection();
+	void SetBase(Lina_BaseLight);
+	void SetDirection(Vector3);
 
 private:
 
+	Lina_BaseLight m_Base;
+	Vector3 m_Direction;
 };
 
 
