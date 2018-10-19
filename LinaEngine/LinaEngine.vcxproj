@@ -166,7 +166,9 @@
     <ClCompile Include="src\Math\Lina_Quaternion.cpp" />
     <ClCompile Include="src\Math\Lina_Vector2F.cpp" />
     <ClCompile Include="src\Math\Lina_Vector3F.cpp" />
+    <ClCompile Include="src\Rendering\Lina_BaseLight.cpp" />
     <ClCompile Include="src\Rendering\Lina_BasicShader.cpp" />
+    <ClCompile Include="src\Rendering\Lina_DirectionalLight.cpp" />
     <ClCompile Include="src\Rendering\Lina_ExampleShader.cpp" />
     <ClCompile Include="src\Rendering\Lina_Material.cpp" />
     <ClCompile Include="src\Rendering\Lina_Mesh.cpp" />
@@ -201,7 +203,15 @@
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_BaseLight.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_BasicShader.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_DirectionalLight.h">
       <SubType>
       </SubType>
     </ClInclude>
@@ -215,6 +225,10 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_PhongShader.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_PointLight.h">
       <SubType>
       </SubType>
     </ClInclude>

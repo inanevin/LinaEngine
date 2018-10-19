@@ -55,6 +55,12 @@
     <Filter Include="Resource Files\Textures">
       <UniqueIdentifier>{bcc8c641-067e-4999-a2ba-656f3f99cfa5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Rendering\Lights">
+      <UniqueIdentifier>{0879853a-7b1c-4c95-adfb-9e2809898191}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendering\Lights">
+      <UniqueIdentifier>{9366a018-15a0-475c-bc8e-41db04689a68}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
@@ -140,6 +146,12 @@
     </ClCompile>
     <ClCompile Include="src\Rendering\Lina_Vertex.cpp">
       <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rendering\Lina_BaseLight.cpp">
+      <Filter>Source Files\Rendering\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rendering\Lina_DirectionalLight.cpp">
+      <Filter>Source Files\Rendering\Lights</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -238,6 +250,15 @@
     </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_PhongShader.h">
       <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_DirectionalLight.h">
+      <Filter>Header Files\Rendering\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_BaseLight.h">
+      <Filter>Header Files\Rendering\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_PointLight.h">
+      <Filter>Header Files\Rendering\Lights</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

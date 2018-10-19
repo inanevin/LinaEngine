@@ -141,8 +141,8 @@ Lina_Mesh Lina_ResourceLoader::LoadMesh(std::string fileName)
 	}
 
 	// Create lists for storing vertices & indices out of obj file.
-	std::list<Vertex> vertices;
-	std::list<int> indices;
+	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indices;
 
 	// Retrieve mesh from the meshes folder for now.
 	std::string fullPath = "./Resources/Meshes/" + fileName;
@@ -205,27 +205,7 @@ Lina_Mesh Lina_ResourceLoader::LoadMesh(std::string fileName)
 
 	Lina_Mesh mesh;
 
-	// Init Index & Vertex array.
-	mesh.m_Indices = new unsigned int[indices.size() * sizeof(int)];
-	mesh.m_Vertices = new Vertex[vertices.size() * sizeof(Vertex)];
-
-	// Set index & vertex array elements.
-	int counter = 0;
-	for (std::list<Vertex>::iterator it = vertices.begin(); it != vertices.end(); it++)
-	{
-		mesh.m_Vertices[counter] = *it;
-		counter++;
-	}
-	counter = 0;
-	for (std::list<int>::iterator it = indices.begin(); it != indices.end(); it++) 
-	{
-		mesh.m_Indices[counter] = (*it)-1;
-		counter++;
-	}
-
-	// Set sizes.
-	mesh.iSize = indices.size();
-	mesh.vSize = vertices.size();
+	mesh.AddVertices(vertices, indices, false);
 
 	return mesh;
 }

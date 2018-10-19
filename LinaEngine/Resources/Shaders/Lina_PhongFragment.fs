@@ -27,7 +27,7 @@ uniform DirectionalLight directionalLight;
 
 vec4 CalculateLight(BaseLight base, vec3 dir, vec3 normal)
 {
-	float diffuseFac = dot(-dir, normal);
+	float diffuseFac = dot(normal, -dir);
 	
 	vec4 diffuseColor = vec4(0,0,0,0);
 	
@@ -42,7 +42,7 @@ vec4 CalculateLight(BaseLight base, vec3 dir, vec3 normal)
 
 vec4 CalculateDirectionalLight(DirectionalLight dirLight, vec3 normal)
 {
-	return CalculateLight(dirLight.base, dirLight.direction, normal);
+	return CalculateLight(dirLight.base, -dirLight.direction, normal);
 }
 
 void main()

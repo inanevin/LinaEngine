@@ -38,11 +38,13 @@ public:
 	void UpdateUniforms(Matrix4, Matrix4, Lina_Material) override;
 	void SetUniformBaseLight(std::string, Lina_BaseLight);
 	void SetUniformLight(std::string, Lina_DirectionalLight);
-	Vector3 ambientLight;
-	Lina_DirectionalLight dirLight;
+	void SetDirectionalLight(Lina_DirectionalLight&);
+
 
 private:
 
+	Vector3 ambientLight;
+	Lina_DirectionalLight dirLight;
 };
 
 

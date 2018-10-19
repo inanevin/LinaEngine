@@ -26,7 +26,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "Lina_Vertex.h"
 #include <GL/glew.h>
-
+#include <vector>
 /*struct Material
 {
 	Material()
@@ -77,13 +77,10 @@ public:
 	Lina_Mesh() {};
 
 	//Lina_Mesh(std::vector<Vertex>&, std::vector<unsigned int>&);
-	void InitMesh();
-	void InitMeshWithExistingVertices();
-	void InitBuffers();
-	void AddVertices(Vertex*, unsigned int, int*, unsigned int, bool);
-	void AddVertices(Vertex*, unsigned int, int*, unsigned int);
+	void InitMesh();	
+	void AddVertices(std::vector<Vertex>&, std::vector<unsigned int>&, bool);
 	void Draw();
-	void CalculateNormals(Vertex*, int, int*, int);
+	void CalculateNormals();
 
 	Vertex* m_Vertices;
 	unsigned int* m_Indices;
@@ -101,7 +98,10 @@ public:
 
 private:
 
-	
+	void AddVertices(Vertex*, unsigned int, unsigned int*, unsigned int, bool);
+
+	int m_IndicesElementCount;
+	int m_VerticesElementCount;
 	unsigned int size;
 	GLuint m_VBO;
 	GLuint m_IBO;

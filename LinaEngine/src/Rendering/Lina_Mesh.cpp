@@ -37,79 +37,59 @@ void Lina_Mesh::InitMesh()
 	size = 0;
 }
 
-
-/*void Lina_Mesh::InitMeshWithExistingVertices()
+void Lina_Mesh::AddVertices(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, bool calcNormals)
 {
-	//This function assigns unique ID to our Vertex Buffer Object & Index Buffer Object. 
-	glCreateBuffers(1, &m_VBO);
-	glCreateBuffers(1, &m_IBO);
-
-	size = 0;
-
 
 	// Init Index & Vertex array.
-	m_Indices = new unsigned int[Indices.size() * sizeof(int)];
-	m_Vertices = new Vertex[Vertices.size() * sizeof(Vertex)];
+	m_Indices = new unsigned int[sizeof(indices)];
+	m_Vertices = new Vertex[sizeof(vertices)];
 
 	// Set index & vertex array elements.
 	int counter = 0;
 
-	for (std::vector<Vertex>::iterator it = Vertices.begin(); it != Vertices.end(); it++)
+	// Set the related arrays.
+	std::vector<Vertex>::iterator itv;
+	for (itv = vertices.begin(); itv != vertices.end(); itv++)
 	{
-		m_Vertices[counter] = *it;
+		m_Vertices[counter] = *itv;
 		counter++;
 	}
+
+	std::vector<unsigned int>::iterator iti;
 	counter = 0;
-	for (std::vector<unsigned int>::iterator it = Indices.begin(); it != Indices.end(); it++)
+	for (iti = indices.begin(); iti != indices.end(); iti++)
 	{
-		m_Indices[counter] = (*it) - 1;
+		m_Indices[counter] = *iti;
 		counter++;
 	}
 
-	// Set sizes.
-	iSize = Indices.size();
-	vSize = Vertices.size();
-}*/
+	// Set array element counts.
+	m_VerticesElementCount = vertices.size();
+	m_IndicesElementCount = indices.size();
 
-// Used for loaded .obj files. 
-void Lina_Mesh::InitBuffers()
+	// Add vertices
+	AddVertices(m_Vertices, sizeof(m_Vertices[0]) * m_VerticesElementCount, m_Indices, sizeof(m_Indices[0]) * m_IndicesElementCount, calcNormals);
+}
+
+
+// Used for manually created meshes.
+void Lina_Mesh::AddVertices(Vertex* vertices, unsigned int vSize, unsigned int* indices, unsigned int iSize, bool calculateNormals)
 {
+	// Calculate normals if asked.
+	if (calculateNormals)
+		CalculateNormals();
+
 	size = iSize;
 
 	//This function binds the Vertex Buffer Object..
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 
 	//After binding the buffer we specify the size of the data and the actual data itself.
-	glBufferData(GL_ARRAY_BUFFER, vSize * sizeof(m_Vertices[0]), m_Vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vSize, vertices, GL_STATIC_DRAW);
 
 	// Bind & Buffer for index buffer object.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, iSize * sizeof(m_Indices[0]), m_Indices, GL_STATIC_DRAW);
-}
-
-void Lina_Mesh::AddVertices(Vertex* vertices, unsigned int vSize, int* indices, unsigned int iSize)
-{
-	AddVertices(vertices, vSize, indices, iSize, false);
-}
-
-// Used for manually created meshes.
-void Lina_Mesh::AddVertices(Vertex* vertices, unsigned int vsize, int* indices, unsigned int isize, bool calculateNormals)
-{
-
-	if (calculateNormals)
-		CalculateNormals(vertices, vsize, indices, isize);
-
-	size = isize;
-
-	//This function binds the Vertex Buffer Object..
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-
-	//After binding the buffer we specify the size of the data and the actual data itself.
-	glBufferData(GL_ARRAY_BUFFER, vsize, vertices, GL_STATIC_DRAW);
-
-	// Bind & Buffer for index buffer object.
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, isize , indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, iSize , indices, GL_STATIC_DRAW);
 }
 
 void Lina_Mesh::Draw()
@@ -134,28 +114,29 @@ void Lina_Mesh::Draw()
 
 }
 
-void Lina_Mesh::CalculateNormals(Vertex* vertices, int vSize, int* indices, int iSize)
+void Lina_Mesh::CalculateNormals()
 {
-	for (int i = 0; i < iSize; i += 3)
+	for (int i = 0; i < m_IndicesElementCount; i += 3)
 	{
-		int i0 = indices[i];
-		int i1 = indices[i + 1];
-		int i2 = indices[i + 2];
+		int i0 = m_Indices[i];
+		int i1 = m_Indices[i + 1];
+		int i2 = m_Indices[i + 2];
 
 		// Form 2 lines that will have the up direction as their cross product.
-		Vector3 v1 = vertices[i1].GetPosition() - vertices[i0].GetPosition();
-		Vector3 v2 = vertices[i2].GetPosition() - vertices[i0].GetPosition();
-
+		Vector3 v1 = m_Vertices[i1].GetPosition() - m_Vertices[i0].GetPosition();
+		Vector3 v2 = m_Vertices[i2].GetPosition() - m_Vertices[i0].GetPosition();
+	
 		// Calculate up.
 		Vector3 normal = Vector3::Cross(v1, v2).normalized();
 
 		// Add normals to the vertices.
-		vertices[i0].SetNormal(vertices[i0].GetNormal() + normal);
-		vertices[i1].SetNormal(vertices[i0].GetNormal() + normal);
-		vertices[i2].SetNormal(vertices[i0].GetNormal() + normal);
+		m_Vertices[i0].SetNormal(m_Vertices[i0].GetNormal() + normal);
+		m_Vertices[i1].SetNormal(m_Vertices[i1].GetNormal() + normal);
+		m_Vertices[i2].SetNormal(m_Vertices[i2].GetNormal() + normal);
 	}
 
 	// Set the length to one to get the appropriate normalized length & direction for every single vertex.
-	for (int i = 0; i < vSize; i++)
-		vertices[i].SetNormal(vertices[i].GetNormal().normalized());
+	for (int i = 0; i < m_VerticesElementCount; i++)
+		m_Vertices[i].SetNormal(m_Vertices[i].GetNormal().normalized());
 }
+

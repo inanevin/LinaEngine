@@ -27,5 +27,5 @@ Lina_DirectionalLight::Lina_DirectionalLight(Lina_BaseLight b, Vector3 dir) : m_
 Lina_BaseLight& Lina_DirectionalLight::GetBase() { return m_Base; }
 Vector3 Lina_DirectionalLight::GetDirection() { return m_Direction; }
 void Lina_DirectionalLight::SetBase(Lina_BaseLight b) { m_Base = b; }
-void Lina_DirectionalLight::SetDirection(Vector3 dir) { m_Direction = dir; }
+void Lina_DirectionalLight::SetDirection(Vector3 dir) { m_Direction = dir.normalized(); }
 
