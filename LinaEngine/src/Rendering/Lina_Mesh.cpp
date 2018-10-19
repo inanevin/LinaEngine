@@ -114,6 +114,8 @@ void Lina_Mesh::Draw()
 
 }
 
+
+
 void Lina_Mesh::CalculateNormals()
 {
 	for (int i = 0; i < m_IndicesElementCount; i += 3)

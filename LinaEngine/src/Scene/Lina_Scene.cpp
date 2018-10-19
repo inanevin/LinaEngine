@@ -39,12 +39,10 @@ void Lina_Scene::Wake()
 	//Triangle
 	std::vector<Vertex> verticesList;
 
-
 	verticesList.push_back(Vertex(Vector3(-1, -1, 0.0), Vector2(0, 0)));
 	verticesList.push_back(Vertex(Vector3(0, 1, 0.0), Vector2(0.5, 1)));
 	verticesList.push_back(Vertex(Vector3(1, -1, 0.0), Vector2(1.0, 0.0)));
 	verticesList.push_back(Vertex(Vector3(0, -1, 1), Vector2(0.0, 1.0f)));
-
 	std::vector<unsigned int> indicesList =
 	{				 3, 1, 0,
 					 2, 1, 3,
@@ -52,50 +50,15 @@ void Lina_Scene::Wake()
 					 0, 2, 3
 	};
 
-	Vertex vertices[] = {
-		Vertex(Vector3(-1, -1, 0.0), Vector2(0, 0)),
-		Vertex(Vector3(0, 1, 0.0), Vector2(0.5, 1)),
-		Vertex(Vector3(1, -1, 0.0), Vector2(1.0, 0.0)),
-		Vertex(Vector3(0, -1, 1), Vector2(0.0, 1.0f))
-
-	};
-
-	int indices[] = {
-	 3, 1, 0,
-					 2, 1, 3,
-					 0, 1, 2,
-					 0, 2, 3
-	};
 	material.SetColor(Vector3(1, 1, 1));
 	material.SetTexture(Lina_ResourceLoader::LoadTexture("grid2.png"));
-	//texture = Lina_ResourceLoader::LoadTexture("grid.png");
+	
 	transform.SetCamera(sceneCamera);
 
 	transform.SetProjection(FIELD_OF_VIEW, WINDOW_WIDTH, WINDOW_HEIGHT, CLIPPING_PLANE_NEAR, CLIPPING_PLANE_FAR);
 
 	s.Init();
-	//std::string t = Lina_ResourceLoader::LoadShader("Lina_BasicVertex.vs");
-	//std::string t2 = Lina_ResourceLoader::LoadShader("Lina_BasicFragment.fs");
 
-	//s.AddVertexShader(t);
-	//s.AddFragmentShader(t2);
-	//s.CompileShader();
-
-
-	// Load .obj File
-	/*loadout = objLoader.LoadFile("./Resources/Meshes/cube.obj");
-	if (loadout)
-	{
-		// Go through each loaded mesh and out its contents
-		for (int i = 0; i < objLoader.LoadedMeshes.size(); i++)
-		{
-			// Copy one of the loaded meshes to be our current mesh
-			objLoader.LoadedMeshes[i].InitMesh();
-			objLoader.LoadedMeshes[i].InitBuffers();
-		}
-	}*/
-
-	//m = Lina_ResourceLoader::LoadMesh("cube.obj");
 	m.InitMesh();
 	
 	m.AddVertices(verticesList, indicesList, true);

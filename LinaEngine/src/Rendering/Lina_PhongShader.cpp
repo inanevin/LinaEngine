@@ -32,11 +32,6 @@ void Lina_PhongShader::Init()
 {
 	Lina_Shader::Init();
 
-	ambientLight = Vector3(.1f, .1f, .1f);
-	dirLight.GetBase().SetIntensity(0.1f);
-	dirLight.GetBase().SetColor(Vector3(1,1,1));
-	dirLight.SetDirection(Vector3(1, 1, 1));
-
 	std::string vertexShaderText = Lina_ResourceLoader::LoadShader("Lina_PhongVertex.vs");
 	std::string fragmentShaderText = Lina_ResourceLoader::LoadShader("Lina_PhongFragment.fs");
 
@@ -59,26 +54,31 @@ void Lina_PhongShader::UpdateUniforms(Matrix4 world, Matrix4 projected, Lina_Mat
 {
 	// UNBIND IF TEXTURE IS NULL?
 	mat.GetTexture().Bind();
-	SetUniform("projectedTransform", *(projected.m));
-	SetUniform("transform", *(world.m));
-	SetUniform("baseColor", mat.GetColor());
-	SetUniform("ambientLight", ambientLight);
-	SetUniformLight("directionalLight", dirLight);
+	Lina_Shader::SetUniform("projectedTransform", *(projected.m));
+	Lina_Shader::SetUniform("transform", *(world.m));
+	Lina_Shader::SetUniform("baseColor", mat.GetColor());
+	Lina_Shader::SetUniform("ambientLight", m_AmbientLight);
+	this->SetUniform("directionalLight", m_DirectionalLight);
 }
 
-void Lina_PhongShader::SetUniformBaseLight(std::string name, Lina_BaseLight b)
+void Lina_PhongShader::SetUniform(std::string name, Lina_BaseLight b)
 {
-	SetUniform(name + ".color", b.GetColor());
-	SetUniform(name + ".intensity", b.GetIntensity());
+	Lina_Shader::SetUniform(name + ".color", b.GetColor());
+	Lina_Shader::SetUniform(name + ".intensity", b.GetIntensity());
 }
 
-void Lina_PhongShader::SetUniformLight(std::string name, Lina_DirectionalLight directionalLight)
+void Lina_PhongShader::SetUniform(std::string name, Lina_DirectionalLight directionalLight)
 {
-	SetUniformBaseLight(name + ".base", directionalLight.GetBase());
-	SetUniform(name + ".direction", directionalLight.GetDirection());
+	this->SetUniform(name + ".base", directionalLight.GetBase());
+	Lina_Shader::SetUniform(name + ".direction", directionalLight.GetDirection());
 }
 
-void Lina_PhongShader::SetDirectionalLight(Lina_DirectionalLight& light)
+void Lina_PhongShader::SetDirectionalLight(Lina_DirectionalLight light)
 {
-	dirLight = light;
+	m_DirectionalLight = light;
+}
+
+void Lina_PhongShader::SetAmbientLight(Vector3 v)
+{
+	m_AmbientLight = v;
 }
