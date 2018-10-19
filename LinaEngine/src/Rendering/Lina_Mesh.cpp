@@ -29,6 +29,17 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 	Indices = _Indices;
 }*/
 
+Lina_Mesh::~Lina_Mesh()
+{
+	glDeleteBuffers(1, &m_VBO);
+
+	if (m_IBO != 0)
+		glDeleteBuffers(1, &m_IBO);
+
+	glDeleteVertexArrays(1, &m_VAO);
+	
+}
+
 void Lina_Mesh::InitMesh()
 {
 	//This function assigns unique ID to our Vertex Buffer Object & Index Buffer Object. 
@@ -59,7 +70,7 @@ void Lina_Mesh::AddVertices(std::vector<Vertex>& vertices, std::vector<unsigned 
 	counter = 0;
 	for (iti = indices.begin(); iti != indices.end(); iti++)
 	{
-		m_Indices[counter] = *iti;
+		m_Indices[counter] = (*iti);
 		counter++;
 	}
 

@@ -76,8 +76,8 @@ class Lina_Mesh
 public:
 
 	Lina_Mesh() {};
-
-	void InitMesh();	
+	~Lina_Mesh();
+	virtual void InitMesh();	
 	void AddVertices(std::vector<Vertex>&, std::vector<unsigned int>&, bool);
 	void CalculateNormals();
 	void Draw();

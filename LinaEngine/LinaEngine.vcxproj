@@ -211,6 +211,10 @@
       <SubType>
       </SubType>
     </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_DefaultCubeMesh.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_DirectionalLight.h">
       <SubType>
       </SubType>

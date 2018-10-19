@@ -25,7 +25,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_Scene_H
 
 
-#include "Rendering/Lina_Mesh.h"
+#include "Rendering/Lina_DefaultCubeMesh.h"
 #include "Rendering/Lina_PhongShader.h"
 #include "Lina_Transform.h"
 #include "Lina_ObjectHandler.h"
@@ -49,7 +49,7 @@ private:
 	//bool loadout;
 	//Loader objLoader;
 	Lina_Matrix4F mat;
-	Lina_Mesh m;
+	Lina_DefaultCubeMesh m;
 	Lina_PhongShader s;
 	Lina_Transform transform;
 	Lina_Camera sceneCamera;

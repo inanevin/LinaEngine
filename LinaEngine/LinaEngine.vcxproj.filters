@@ -61,6 +61,9 @@
     <Filter Include="Source Files\Rendering\Lights">
       <UniqueIdentifier>{9366a018-15a0-475c-bc8e-41db04689a68}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Rendering\Shapes">
+      <UniqueIdentifier>{be5f948f-3910-4f4e-b3a7-cbf242bd3f35}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
@@ -259,6 +262,9 @@
     </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_PointLight.h">
       <Filter>Header Files\Rendering\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_DefaultCubeMesh.h">
+      <Filter>Header Files\Rendering\Shapes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -39,10 +39,12 @@ void Lina_Scene::Wake()
 	//Triangle
 	std::vector<Vertex> verticesList;
 
+
 	verticesList.push_back(Vertex(Vector3(-1, -1, 0.0), Vector2(0, 0)));
 	verticesList.push_back(Vertex(Vector3(0, 1, 0.0), Vector2(0.5, 1)));
 	verticesList.push_back(Vertex(Vector3(1, -1, 0.0), Vector2(1.0, 0.0)));
 	verticesList.push_back(Vertex(Vector3(0, -1, 1), Vector2(0.0, 1.0f)));
+
 	std::vector<unsigned int> indicesList =
 	{				 3, 1, 0,
 					 2, 1, 3,
@@ -52,16 +54,16 @@ void Lina_Scene::Wake()
 
 	material.SetColor(Vector3(1, 1, 1));
 	material.SetTexture(Lina_ResourceLoader::LoadTexture("grid2.png"));
-	
 	transform.SetCamera(sceneCamera);
 
 	transform.SetProjection(FIELD_OF_VIEW, WINDOW_WIDTH, WINDOW_HEIGHT, CLIPPING_PLANE_NEAR, CLIPPING_PLANE_FAR);
 
 	s.Init();
-
+	s.SetAmbientLight(Vector3(0.1f, 0.1f, 0.1f));
+	s.SetDirectionalLight(Lina_DirectionalLight(Lina_BaseLight(Vector3(1,1,1), 0.8f), Vector3(1,1,0)));
 	m.InitMesh();
 	
-	m.AddVertices(verticesList, indicesList, true);
+	//m.AddVertices(verticesList, indicesList, true);
 }
 
 
