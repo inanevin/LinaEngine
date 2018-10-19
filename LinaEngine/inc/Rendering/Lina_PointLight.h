@@ -33,12 +33,9 @@ class Lina_PointLight
 public:
 
 	Lina_PointLight() {};
-	Lina_PointLight(Vector3 pos) : position(pos) {};
-	Lina_PointLight(Vector3 color, float intensity) : base(Lina_BaseLight(color, intensity)) {};
-	Lina_PointLight(Vector3 color, float intensity, Vector3 pos) : base(Lina_BaseLight(color, intensity)), position(pos) {};
-	Lina_PointLight(Vector3 color, float intensity, Vector3 pos, float constant, float linear, float at) : base(Lina_BaseLight(color, intensity)), position(pos), attenuation(Lina_Attenuation(constant, linear, at)) {};
-	Lina_PointLight(Lina_BaseLight b, Lina_Attenuation at) : base(b), attenuation(at) {};
+	Lina_PointLight(Lina_BaseLight b, Lina_Attenuation at, Vector3 p, float r) : base(b), attenuation(at), position(p), range(r) {};
 
+	float range;
 	Vector3 position;
 	Lina_BaseLight base;
 	Lina_Attenuation attenuation;

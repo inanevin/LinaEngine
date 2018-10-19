@@ -39,5 +39,14 @@ public:
 
 };
 
+static Lina_Attenuation AT_CONSTANT = Lina_Attenuation(1.0f, 0.0f, 0.0f);
+static Lina_Attenuation AT_CONSTLIN = Lina_Attenuation(0.66f, 0.33f, 0.0f);
+static Lina_Attenuation AT_CONSTQUAD = Lina_Attenuation(0.66f, 0.0f, 0.33f);
+static Lina_Attenuation AT_LINEAR = Lina_Attenuation(0.0f, 1.0f, 0.0f);
+static Lina_Attenuation AT_LINCONST = Lina_Attenuation(0.33f, 0.66f, 0.0f);
+static Lina_Attenuation AT_LINQUAD = Lina_Attenuation(0.0f, 0.66f, 0.33f);
+static Lina_Attenuation AT_QUADRATIC = Lina_Attenuation(0.0f, 0.0f, 1.0f);
+static Lina_Attenuation AT_QUADCONST = Lina_Attenuation(0.33f, 0.0f, 0.66f);
+static Lina_Attenuation AT_QUADLIN = Lina_Attenuation(0.0f, 0.33f, 0.66f);
 
 #endif

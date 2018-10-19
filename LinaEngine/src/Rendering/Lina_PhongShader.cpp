@@ -59,6 +59,7 @@ void Lina_PhongShader::Init()
 		AddUniform("pointLights[" + std::to_string(i) + "].attenuation.linear");
 		AddUniform("pointLights[" + std::to_string(i) + "].attenuation.exponent");
 		AddUniform("pointLights[" + std::to_string(i) + "].position");
+		AddUniform("pointLights[" + std::to_string(i) + "].range");
 	}
 
 }
@@ -103,7 +104,8 @@ void Lina_PhongShader::SetUniform(std::string name, Lina_PointLight pLight)
 	Lina_Shader::SetUniform(name + ".attenuation.linear", pLight.attenuation.linear);
 	Lina_Shader::SetUniform(name + ".attenuation.exponent", pLight.attenuation.exponent);
 	Lina_Shader::SetUniform(name + ".position", pLight.position);
-
+	Lina_Shader::SetUniform(name + ".range", pLight.range);
+	
 }
 
 void Lina_PhongShader::SetDirectionalLight(Lina_DirectionalLight light)

@@ -34,6 +34,7 @@ struct PointLight
 	BaseLight base;
 	Attenuation attenuation;
 	vec3 position;
+	float range;
 };
 
 uniform float specularIntensity;
@@ -84,6 +85,10 @@ vec4 CalculatePointLight(PointLight pLight, vec3 normal)
 {
 	vec3 lDir = worldPos0 - pLight.position;	// pixel pos - light pos
 	float distToLight = length(lDir);
+	
+	if(distToLight > pLight.range)
+		return vec4(0,0,0,0);
+	
 	lDir = normalize(lDir);
 	
 	vec4 color = CalculateLight(pLight.base, lDir, normal);
@@ -108,7 +113,8 @@ void main()
 	
 	for(int i = 0; i < POINT_LIGHT_PIXEL_COUNT; i++)
 	{
-		totalLight += CalculatePointLight(pointLights[i], normal);
+		if(pointLights[i].base.intensity > 0)
+			totalLight += CalculatePointLight(pointLights[i], normal);
 	}
 	
 	fragColor = color * totalLight;

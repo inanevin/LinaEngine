@@ -41,10 +41,10 @@ void Lina_Scene::Wake()
 
 	float depth = 10.0f;
 	float width = 10.0f;
-	vertices.push_back(Vertex(Vector3(-width, 0.0, -depth), Vector2(0.0, 0.0)));
-	vertices.push_back(Vertex(Vector3(-width, 0.0, depth *3), Vector2(0.0, 1.0)));
-	vertices.push_back(Vertex(Vector3(width *3, 0.0f, -depth), Vector2(1.0, 0.0)));
-	vertices.push_back(Vertex(Vector3(width * 3, 0.0f, depth * 3), Vector2(1.0, 1.0f)));
+	vertices.push_back(Vertex(Vector3(-width *2, 0.0, -depth * 2), Vector2(0.0, 0.0)));
+	vertices.push_back(Vertex(Vector3(-width *2, 0.0, depth *2), Vector2(0.0, 1.0)));
+	vertices.push_back(Vertex(Vector3(width *2, 0.0f, -depth *2), Vector2(1.0, 0.0)));
+	vertices.push_back(Vertex(Vector3(width *2, 0.0f, depth * 2), Vector2(1.0, 1.0f)));
 
 	for (int i = 0; i < vertices.size(); i++)
 	{
@@ -57,20 +57,27 @@ void Lina_Scene::Wake()
 
 
 	material.color = (Vector3(1, 1, 1));
-	material.texture = (Lina_ResourceLoader::LoadTexture("grid.png"));
-	material.specularIntensity = 2;
+	material.texture = (Lina_ResourceLoader::LoadTexture("grid2.png"));
+	material.specularIntensity = 1;
 	material.specularExponent = 8;
 
 	transform.SetCamera(sceneCamera);
 	transform.SetProjection(FIELD_OF_VIEW, WINDOW_WIDTH, WINDOW_HEIGHT, CLIPPING_PLANE_NEAR, CLIPPING_PLANE_FAR);
 
-	s.SetAmbientLight(Vector3(0.1f, 0.1f, 0.1f));
-//	s.SetDirectionalLight(Lina_DirectionalLight(Lina_BaseLight(Vector3(1,1,1) * 0.5f, 0.1f), Vector3(1,1,1)));
-	p1 = Lina_PointLight(Vector3(1, 0, 0), 5.0f, Vector3(12.5, 0.5, 0), 0, 0, 1);
-	p2 = Lina_PointLight(Vector3(0, 0, 1), 5.0f, Vector3(0, 0.5, 0), 0,0,2);
+	s.SetAmbientLight(COLOR_WHITE * 0.05f);
+	//s.SetDirectionalLight(Lina_DirectionalLight(Lina_BaseLight(COLOR_WHITE * 0.5f, 0.1f), Vector3(1,1,1)));
+	p1 = Lina_PointLight(Lina_BaseLight(Vector3(1, 0, 0), 5.0f), Lina_Attenuation(0, 0, 1), Vector3(-5, 3.0f, -5), 20.0);
+	p2 = Lina_PointLight(Lina_BaseLight(Vector3(0, 1, 0), 2.0f), Lina_Attenuation(0, 0, 1), Vector3(5, 3.0f, -5), 20.0);
+
+	//p2 = Lina_PointLight(Lina_BaseLight(Vector3(0, 0, 1), 0.5f), Lina_Attenuation(1, 0, 0), Vector3(2, 1, -5), 10.0);
+	//	p3 = Lina_PointLight(Vector3(0, 1, 0), 0.5f, Vector3(-2, 1, -10), 1, 0, 0);
+	//p4 = Lina_PointLight(Vector3(1, 0, 1), 0.5f, Vector3(-2, 1, 10), 1, 0, 0);
 
 	pLights.push_back(p1);
 	pLights.push_back(p2);
+	//pLights.push_back(p3);
+//	pLights.push_back(p4);
+
 	s.SetPointLights(pLights);
 
 	s.Init();

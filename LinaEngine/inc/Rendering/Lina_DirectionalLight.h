@@ -32,8 +32,6 @@ class Lina_DirectionalLight
 public:
 
 	Lina_DirectionalLight() {};
-	Lina_DirectionalLight(Vector3 color, float intensity, Vector3 dir) : base(Lina_BaseLight(color,intensity)), direction(dir) {};
-	Lina_DirectionalLight(Vector3 dir) : direction(dir) {};
 	Lina_DirectionalLight(Lina_BaseLight b, Vector3 v) : base(b), direction(v) {};
 
 	Lina_BaseLight base;

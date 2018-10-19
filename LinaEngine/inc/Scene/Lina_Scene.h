@@ -56,6 +56,9 @@ private:
 	Lina_Material material;
 	Lina_PointLight p1;
 	Lina_PointLight p2;
+	Lina_PointLight p3;
+	Lina_PointLight p4;
+
 	std::vector<Lina_PointLight> pLights;
 
 };
