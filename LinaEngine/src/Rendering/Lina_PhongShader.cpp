@@ -32,11 +32,8 @@ void Lina_PhongShader::Init()
 {
 	Lina_Shader::Init();
 
-	std::string vertexShaderText = Lina_ResourceLoader::LoadShader("Lina_PhongVertex.vs");
-	std::string fragmentShaderText = Lina_ResourceLoader::LoadShader("Lina_PhongFragment.fs");
-
-	AddVertexShader(vertexShaderText);
-	AddFragmentShader(fragmentShaderText);
+	AddVertexShader(LoadShader("Lina_PhongVertex.vs"));
+	AddFragmentShader(LoadShader("Lina_PhongFragment.fs"));
 	CompileShader();
 
 	AddUniform("transform");
@@ -82,6 +79,7 @@ void Lina_PhongShader::UpdateUniforms(Matrix4 world, Matrix4 projected, Vector3 
 {
 	// UNBIND IF TEXTURE IS NULL?
 	mat.texture.Bind();
+
 	Lina_Shader::SetUniform("projectedTransform", *(projected.m));
 	Lina_Shader::SetUniform("transform", *(world.m));
 	Lina_Shader::SetUniform("baseColor", mat.color);

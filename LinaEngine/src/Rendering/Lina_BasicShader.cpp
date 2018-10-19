@@ -32,11 +32,9 @@ void Lina_BasicShader::Init()
 {
 	Lina_Shader::Init();
 
-	std::string vertexShaderText = Lina_ResourceLoader::LoadShader("Lina_BasicVertex.vs");
-	std::string fragmentShaderText = Lina_ResourceLoader::LoadShader("Lina_BasicFragment.fs");
 
-	AddVertexShader(vertexShaderText);
-	AddFragmentShader(fragmentShaderText);
+	AddVertexShader(LoadShader("Lina_BasicVertex.vs"));
+	AddFragmentShader(LoadShader("Lina_BasicFragment.fs"));
 	CompileShader();
 
 	AddUniform("transform");

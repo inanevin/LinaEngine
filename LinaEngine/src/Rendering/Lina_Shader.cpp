@@ -21,6 +21,49 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pch.h"
 #include "Rendering/Lina_Shader.h"  
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <list>
+
+// Loads shader from a source.
+std::string Lina_Shader::LoadShader(std::string p)
+{
+	std::string fullPath = "./Resources/Shaders/" + p;
+	const char* path = fullPath.c_str();
+
+	//These to string files will hold the contents of the file.
+	std::string shaderCode;
+
+	//the objects that will manage the files.
+	std::ifstream vShaderFile;
+
+	//Be sure that ifstream object can throw exceptions
+	vShaderFile.exceptions(std::ifstream::failbit || std::ifstream::badbit);
+
+	try
+	{
+		//open the shader files
+		vShaderFile.open(path);
+
+		//Read the files' content from buffer into streams.
+		std::stringstream vShaderStream;
+		vShaderStream << vShaderFile.rdbuf();
+
+		vShaderFile.close();
+
+		//Convert the streams to string
+		shaderCode = vShaderStream.str();
+	}
+	catch (std::ifstream::failure e)
+	{
+		std::cout << "Shader file did not read successfully" << std::endl;
+	}
+
+	//Since OpgenGL wants the shader code as char arrays we convert strings that hold the files' content into char array.
+	//const char* cShaderCode = shaderCode.c_str();
+	return shaderCode;
+}
 
 void Lina_Shader::Init()
 {
@@ -90,7 +133,7 @@ void Lina_Shader::Bind()
 void Lina_Shader::AddUniform(const std::string& name)
 {
 	GLint location = glGetUniformLocation(program, name.c_str());
-	std::cout << name.c_str() << std::endl;
+
 	if (location == 0xFFFFFFFF)
 	{
 		std::cout << "No uniform exists with that name!" << std::endl;

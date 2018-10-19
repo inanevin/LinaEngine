@@ -52,6 +52,9 @@ public:
 	void SetUniform(const std::string&, GLfloat*) const;
 	void CheckError(unsigned int, int, std::string);
 
+protected:
+	std::string LoadShader(std::string);
+
 private:
 
 	std::map<std::string, int> m_Uniforms;

@@ -57,7 +57,7 @@ void Lina_Scene::Wake()
 
 
 	material.color = (Vector3(1, 1, 1));
-	material.texture = (Lina_ResourceLoader::LoadTexture("grid2.png"));
+	material.texture.LoadTexture("grid.png");
 	material.specularIntensity = 1;
 	material.specularExponent = 8;
 
@@ -87,7 +87,7 @@ void Lina_Scene::Wake()
 		Lina_Attenuation(0, 0, 0.01f),
 		Vector3(-6, 1, 2), 40.0f),
 		Vector3::one(),
-		0.8f);
+		0.5f);
 	spots.push_back(sp1);
 	s.SetSpotLights(spots);
 
