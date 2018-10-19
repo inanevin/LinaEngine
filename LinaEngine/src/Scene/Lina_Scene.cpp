@@ -55,8 +55,8 @@ void Lina_Scene::Wake()
 
 	material.SetColor(Vector3(1, 1, 1));
 	material.SetTexture(Lina_ResourceLoader::LoadTexture("grid2.png"));
-	material.SetSpecularIntensity(1);
-	material.SetSpecularExponent(64);
+	material.SetSpecularIntensity(2);
+	material.SetSpecularExponent(32);
 	transform.SetCamera(sceneCamera);
 
 	transform.SetProjection(FIELD_OF_VIEW, WINDOW_WIDTH, WINDOW_HEIGHT, CLIPPING_PLANE_NEAR, CLIPPING_PLANE_FAR);
@@ -65,7 +65,8 @@ void Lina_Scene::Wake()
 	s.SetAmbientLight(Vector3(0.1f, 0.1f, 0.1f));
 	s.SetDirectionalLight(Lina_DirectionalLight(Lina_BaseLight(Vector3(1,1,1), 0.8f), Vector3(1,1,1)));
 	m.InitMesh();
-	
+	//mm.InitMesh();
+	//Lina_ResourceLoader::LoadMesh("sphere.obj");
 	//m.AddVertices(vertices, indices, true);
 }
 
@@ -86,9 +87,9 @@ float temp = 0.0f;
 
 void Lina_Scene::Update()
 {
-	temp += Lina_Time::GetDelta() * 90;
+	temp += Lina_Time::GetDelta() ;
 	transform.SetPosition(0, 0, 5);
-	transform.SetRotation(0, temp, 0);
+	transform.SetRotation(0, sin(temp) * 180, 0);
 	//	transform.SetScale(Vector3::one() / 3);
 	sceneCamera.TempInput();
 

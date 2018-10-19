@@ -23,7 +23,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Lina_DirectionalLight.h"  
 
 Lina_DirectionalLight::Lina_DirectionalLight() : m_Base(Lina_BaseLight(Vector3::zero(),0)), m_Direction(Vector3::zero()) {};
-Lina_DirectionalLight::Lina_DirectionalLight(Lina_BaseLight b, Vector3 dir) : m_Base(b), m_Direction(dir) {};
+Lina_DirectionalLight::Lina_DirectionalLight(Lina_BaseLight b, Vector3 dir) : m_Base(b), m_Direction(dir.normalized()) {};
 Lina_BaseLight& Lina_DirectionalLight::GetBase() { return m_Base; }
 Vector3 Lina_DirectionalLight::GetDirection() { return m_Direction; }
 void Lina_DirectionalLight::SetBase(Lina_BaseLight b) { m_Base = b; }

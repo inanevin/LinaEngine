@@ -37,8 +37,9 @@ public:
 	Lina_ResourceLoader() {};
 	static Lina_Texture LoadTexture(std::string);
 	static std::string LoadShader(std::string);
-	static Lina_Mesh LoadMesh(std::string);
-};
+	static void LoadMesh(std::string);
 
+};
+static Lina_Mesh mm;
 
 #endif

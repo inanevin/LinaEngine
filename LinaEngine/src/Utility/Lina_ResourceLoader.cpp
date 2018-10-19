@@ -117,7 +117,7 @@ std::string Lina_ResourceLoader::LoadShader(std::string p)
 }
 
 // Loads a given mesh.
-Lina_Mesh Lina_ResourceLoader::LoadMesh(std::string fileName)
+void Lina_ResourceLoader::LoadMesh(std::string fileName)
 {
 	// Split filename to extract the extension.
 	std::string::size_type idx;
@@ -131,13 +131,13 @@ Lina_Mesh Lina_ResourceLoader::LoadMesh(std::string fileName)
 		if (extension != "obj")
 		{
 			std::cout << "File is not an Obj file!" << std::endl;
-			return Lina_Mesh();
+		//	return Lina_Mesh();
 		}
 	}
 	else
 	{
 		std::cout << "No extension on the filename was found!" << std::endl;
-		return Lina_Mesh();
+	//	return Lina_Mesh();
 	}
 
 	// Create lists for storing vertices & indices out of obj file.
@@ -156,7 +156,7 @@ Lina_Mesh Lina_ResourceLoader::LoadMesh(std::string fileName)
 	if (file == NULL)
 	{
 		std::cout << "File can not be read!" << std::endl;
-		return Lina_Mesh();
+	//	return Lina_Mesh();
 	}
 
 	// Iterate every line.
@@ -202,11 +202,10 @@ Lina_Mesh Lina_ResourceLoader::LoadMesh(std::string fileName)
 	}
 
 	
+	
 
-	Lina_Mesh mesh;
+	mm.AddVertices(vertices, indices, true);
 
-	mesh.AddVertices(vertices, indices, false);
-
-	return mesh;
+	
 }
 

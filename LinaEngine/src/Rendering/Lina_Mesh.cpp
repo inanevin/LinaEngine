@@ -31,15 +31,17 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 Lina_Mesh::~Lina_Mesh()
 {
-	glDeleteBuffers(1, &m_VBO);
+	if (m_VBO)
+		glDeleteBuffers(1, &m_VBO);
 
 	if (m_IBO != 0)
 		glDeleteBuffers(1, &m_IBO);
 
-
+	m_VBO = 0;
+	m_IBO = 0;
 	m_Indices = nullptr;
 	m_Vertices = nullptr;
-	
+
 }
 
 void Lina_Mesh::InitMesh()
@@ -56,7 +58,7 @@ void Lina_Mesh::AddVertices(std::vector<Vertex>& vertices, std::vector<unsigned 
 	// Init Index & Vertex array.
 	m_Indices = new unsigned int[indices.size()];
 	m_Vertices = new Vertex[vertices.size()];
-	std::cout << indices.size();
+
 	// Set index & vertex array elements.
 	int counter = 0;
 
@@ -79,7 +81,6 @@ void Lina_Mesh::AddVertices(std::vector<Vertex>& vertices, std::vector<unsigned 
 	// Set array element counts.
 	m_VerticesElementCount = vertices.size();
 	m_IndicesElementCount = indices.size();
-
 	// Add vertices
 	AddVertices(m_Vertices, sizeof(m_Vertices[0]) * m_VerticesElementCount, m_Indices, sizeof(m_Indices[0]) * m_IndicesElementCount, calcNormals);
 }
@@ -92,6 +93,7 @@ void Lina_Mesh::AddVertices(Vertex* vertices, unsigned int vSize, unsigned int* 
 	if (calculateNormals)
 		CalculateNormals();
 
+
 	size = iSize;
 
 	//This function binds the Vertex Buffer Object..
@@ -102,7 +104,8 @@ void Lina_Mesh::AddVertices(Vertex* vertices, unsigned int vSize, unsigned int* 
 
 	// Bind & Buffer for index buffer object.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, iSize , indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, iSize, indices, GL_STATIC_DRAW);
+
 }
 
 void Lina_Mesh::Draw()
@@ -140,7 +143,7 @@ void Lina_Mesh::CalculateNormals()
 		// Form 2 lines that will have the up direction as their cross product.
 		Vector3 v1 = m_Vertices[i1].GetPosition() - m_Vertices[i0].GetPosition();
 		Vector3 v2 = m_Vertices[i2].GetPosition() - m_Vertices[i0].GetPosition();
-	
+
 		// Calculate up.
 		Vector3 normal = Vector3::Cross(v1, v2).normalized();
 

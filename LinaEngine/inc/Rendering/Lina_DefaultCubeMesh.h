@@ -48,6 +48,7 @@ public:
 			vertices.push_back(Vertex(Vector3(-1.000000, 1.000000, 1.000000), Vector2(0.333333, 0.000000)));
 			vertices.push_back(Vertex(Vector3(-1.000000, 1.000000, - 1.000000), Vector2(0.666667, 0.000000)));
 
+
 			std::vector<unsigned int> indices =
 			{
 	2-1, 3-1, 4-1,
