@@ -84,3 +84,5 @@ void Lina_Transform::SetCamera(Lina_Camera& cam)
 {
 	sceneCamera = &cam;
 }
+
+

@@ -333,6 +333,8 @@
     <None Include="Resources\Shaders\basic.vert" />
     <None Include="Resources\Shaders\Lina_BasicFragment.fs" />
     <None Include="Resources\Shaders\Lina_BasicVertex.vs" />
+    <None Include="Resources\Shaders\Lina_PhongFragment.fs" />
+    <None Include="Resources\Shaders\Lina_PhongVertex.vs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\Textures\container2.png" />

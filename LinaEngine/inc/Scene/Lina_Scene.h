@@ -48,7 +48,7 @@ public:
 private:
 	//bool loadout;
 	//Loader objLoader;
-	Lina_Matrix4F mat;
+	
 	Lina_DefaultCubeMesh m;
 	Lina_PhongShader s;
 	Lina_Transform transform;

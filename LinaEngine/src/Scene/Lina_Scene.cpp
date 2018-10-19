@@ -37,33 +37,36 @@ void Lina_Scene::Wake()
 {
 
 	//Triangle
-	std::vector<Vertex> verticesList;
+	std::vector<Vertex> vertices;
 
+	vertices.push_back(Vertex(Vector3(-1, -1, 0.0), Vector2(0, 0)));
+	vertices.push_back(Vertex(Vector3(0, 1, 0.0), Vector2(0.5, 1)));
+	vertices.push_back(Vertex(Vector3(1, -1, 0.0), Vector2(1.0, 0.0)));
+	vertices.push_back(Vertex(Vector3(0, -1, 1), Vector2(0.0, 1.0f)));
 
-	verticesList.push_back(Vertex(Vector3(-1, -1, 0.0), Vector2(0, 0)));
-	verticesList.push_back(Vertex(Vector3(0, 1, 0.0), Vector2(0.5, 1)));
-	verticesList.push_back(Vertex(Vector3(1, -1, 0.0), Vector2(1.0, 0.0)));
-	verticesList.push_back(Vertex(Vector3(0, -1, 1), Vector2(0.0, 1.0f)));
-
-	std::vector<unsigned int> indicesList =
+	std::vector<unsigned int> indices =
 	{				 3, 1, 0,
 					 2, 1, 3,
 					 0, 1, 2,
 					 0, 2, 3
 	};
 
+
+
 	material.SetColor(Vector3(1, 1, 1));
 	material.SetTexture(Lina_ResourceLoader::LoadTexture("grid2.png"));
+	material.SetSpecularIntensity(1);
+	material.SetSpecularExponent(64);
 	transform.SetCamera(sceneCamera);
 
 	transform.SetProjection(FIELD_OF_VIEW, WINDOW_WIDTH, WINDOW_HEIGHT, CLIPPING_PLANE_NEAR, CLIPPING_PLANE_FAR);
 
 	s.Init();
 	s.SetAmbientLight(Vector3(0.1f, 0.1f, 0.1f));
-	s.SetDirectionalLight(Lina_DirectionalLight(Lina_BaseLight(Vector3(1,1,1), 0.8f), Vector3(1,1,0)));
+	s.SetDirectionalLight(Lina_DirectionalLight(Lina_BaseLight(Vector3(1,1,1), 0.8f), Vector3(1,1,1)));
 	m.InitMesh();
 	
-	//m.AddVertices(verticesList, indicesList, true);
+	//m.AddVertices(vertices, indices, true);
 }
 
 
@@ -95,7 +98,7 @@ void Lina_Scene::Render()
 {
 	s.Bind();
 	m.Draw();
-	s.UpdateUniforms(transform.GetTransformation(), transform.GetProjectedTransformation(), material);
+	s.UpdateUniforms(transform.GetTransformation(), transform.GetProjectedTransformation(), sceneCamera.GetPosition(), material);
 	/*// Go through each loaded mesh and out its contents
 	for (int i = 0; i < objLoader.LoadedMeshes.size(); i++)
 	{

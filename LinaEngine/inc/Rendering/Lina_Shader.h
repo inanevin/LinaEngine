@@ -40,7 +40,7 @@ public:
 
 	virtual void Init();
 	virtual void Bind();
-	virtual void UpdateUniforms(Matrix4, Matrix4, Lina_Material);
+	virtual void UpdateUniforms(Matrix4, Matrix4, Vector3, Lina_Material);
 	void AddVertexShader(std::string);
 	void AddGeometryShader(std::string);
 	void AddFragmentShader(std::string);

@@ -82,13 +82,13 @@ public:
 	void CalculateNormals();
 	void Draw();
 
+	void AddVertices(Vertex*, unsigned int, unsigned int*, unsigned int, bool);
 
 	Vertex* m_Vertices;
 	unsigned int* m_Indices;
 
 private:
 
-	void AddVertices(Vertex*, unsigned int, unsigned int*, unsigned int, bool);
 
 	int m_IndicesElementCount;
 	int m_VerticesElementCount;

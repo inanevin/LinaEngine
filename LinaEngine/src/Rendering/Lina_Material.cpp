@@ -31,6 +31,17 @@ Lina_Material::Lina_Material(Lina_Texture txt, Vector3 col )
 {
 	m_Texture = txt;
 	m_Color = col;
+	m_SpecularIntensity = 2;
+	m_SpecularExponent = 32;
+}
+
+
+Lina_Material::Lina_Material(Lina_Texture txt, Vector3 col, float specInt, float specExp)
+{
+	m_Texture = txt;
+	m_Color = col;
+	m_SpecularIntensity = specInt;
+	m_SpecularExponent = specExp;
 }
 
 Vector3 Lina_Material::GetColor()
@@ -52,5 +63,25 @@ void Lina_Material::SetColor(Vector3 v)
 void Lina_Material::SetTexture(Lina_Texture txt)
 {
 	m_Texture = txt;
+}
+
+void Lina_Material::SetSpecularIntensity(float f)
+{
+	m_SpecularIntensity = f;
+}
+
+void Lina_Material::SetSpecularExponent(float f)
+{
+	m_SpecularExponent = f;
+}
+
+float Lina_Material::GetSpecularIntensity()
+{
+	return m_SpecularIntensity;
+}
+
+float Lina_Material::GetSpecularExponent()
+{
+	return m_SpecularExponent;
 }
 

@@ -44,13 +44,16 @@ void Lina_PhongShader::Init()
 	AddUniform("ambientLight");
 	AddUniform("projectedTransform");
 	AddUniform("transform");
+	AddUniform("specularIntensity");
+	AddUniform("specularExponent");
+	AddUniform("camPos");
 	AddUniform("directionalLight.base.color");
 	AddUniform("directionalLight.base.intensity");
 	AddUniform("directionalLight.direction");
 
 }
 
-void Lina_PhongShader::UpdateUniforms(Matrix4 world, Matrix4 projected, Lina_Material mat)
+void Lina_PhongShader::UpdateUniforms(Matrix4 world, Matrix4 projected, Vector3 camPos, Lina_Material mat)
 {
 	// UNBIND IF TEXTURE IS NULL?
 	mat.GetTexture().Bind();
@@ -58,6 +61,9 @@ void Lina_PhongShader::UpdateUniforms(Matrix4 world, Matrix4 projected, Lina_Mat
 	Lina_Shader::SetUniform("transform", *(world.m));
 	Lina_Shader::SetUniform("baseColor", mat.GetColor());
 	Lina_Shader::SetUniform("ambientLight", m_AmbientLight);
+	Lina_Shader::SetUniform("specularIntensity", mat.GetSpecularIntensity());
+	Lina_Shader::SetUniform("specularExponent", mat.GetSpecularExponent());
+	Lina_Shader::SetUniform("camPos", camPos);
 	this->SetUniform("directionalLight", m_DirectionalLight);
 }
 

@@ -36,51 +36,35 @@ public:
 	{
 		Lina_Mesh::InitMesh();
 
-		std::vector<Vertex> vertices;
+			std::vector<Vertex> vertices;
 
 
-	//vertices.push_back(Vertex(Vector3(-1.0, -1.0, -1.0), Vector2(0, 0)));
-	//vertices.push_back(Vertex(Vector3(1.0, -1.0, 1.0), Vector2(0.5, 1)));
-	//vertices.push_back(Vertex(Vector3(-1.0, -1.0, 1.0), Vector2(1.0, 0.0)));
-	//vertices.push_back(Vertex(Vector3(-1.0, -1.0, -1.0), Vector2(0.0, 1.0f)));
-	//vertices.push_back(Vertex(Vector3(1.0, 1.0, -0.999999), Vector2(0.0, 1.0f)));
-	//vertices.push_back(Vertex(Vector3(0.999999, 1.0, 1.000001), Vector2(0.0, 1.0f)));
-	//vertices.push_back(Vertex(Vector3(-1.0, 1.0, 1.0), Vector2(0.0, 0.0f)));
-	//vertices.push_back(Vertex(Vector3(-1.0, 1.0, -1.0), Vector2(0.0, 0.0f)));
+			vertices.push_back(Vertex(Vector3(1.000000, -1.000000, -1.000000), Vector2(0.333333, 0.666667)));
+			vertices.push_back(Vertex(Vector3(1.000000, -1.000000, 1.000000), Vector2(0.333333, 1.000000)));
+			vertices.push_back(Vertex(Vector3(-1.000000, -1.000000, 1.000000), Vector2(0.000000, 1.000000)));
+			vertices.push_back(Vertex(Vector3(-1.000000, -1.000000, -1.000000), Vector2(0.000000, 0.666667)));
+			vertices.push_back(Vertex(Vector3(1.000000, 1.000000, -0.999999), Vector2(0.000000, 0.333333)));
+			vertices.push_back(Vertex(Vector3(0.999999, 1.000000, 1.000001), Vector2(0.333333, 0.333333)));
+			vertices.push_back(Vertex(Vector3(-1.000000, 1.000000, 1.000000), Vector2(0.333333, 0.000000)));
+			vertices.push_back(Vertex(Vector3(-1.000000, 1.000000, - 1.000000), Vector2(0.666667, 0.000000)));
 
-		
-	
-		
-		
-		
-		
-		
+			std::vector<unsigned int> indices =
+			{
+	2-1, 3-1, 4-1,
+	8-1, 7-1, 6-1,
+	5-1, 6-1, 2-1,
+	6-1, 7-1, 3-1,
+	3-1, 7-1, 8-1,
+	1-1, 4-1, 8-1,
+	1-1, 2-1, 4-1,
+	5-1, 8-1, 6-1,
+	1-1, 5-1, 2-1,
+	2-1, 6-1, 3-1,
+	4-1, 3-1, 8-1,
+	5-1, 1-1, 8-1
 
-		vertices.push_back(Vertex(Vector3(1.000000, -1.000000, -1.000000), Vector2(0.333333, 0.666667)));
-		vertices.push_back(Vertex(Vector3(1.000000, -1.000000, 1.000000), Vector2(0.333333, 1.000000)));
-		vertices.push_back(Vertex(Vector3(-1.000000, -1.000000, 1.000000), Vector2(0.000000, 1.000000)));
-		vertices.push_back(Vertex(Vector3(-1.000000, -1.000000, -1.000000), Vector2(0.000000, 0.666667)));
-		vertices.push_back(Vertex(Vector3(1.000000, 1.000000, -0.999999), Vector2(0.000000, 0.333333)));
-		vertices.push_back(Vertex(Vector3(0.999999, 1.000000, 1.000001), Vector2(0.333333, 0.333333)));
-		vertices.push_back(Vertex(Vector3(-1.000000, 1.000000, 1.000000), Vector2(0.333333, 0.000000)));
-		vertices.push_back(Vertex(Vector3(-1.000000, 1.000000, - 1.000000), Vector2(0.666667, 0.000000)));
+			};
 
-		std::vector<unsigned int> indices =
-		{
-2-1, 3-1, 4-1,
-8-1, 7-1, 6-1,
-5-1, 6-1, 2-1,
-6-1, 7-1, 3-1,
-3-1, 7-1, 8-1,
-1-1, 4-1, 8-1,
-1-1, 2-1, 4-1,
-5-1, 8-1, 6-1,
-1-1, 5-1, 2-1,
-2-1, 6-1, 3-1,
-4-1, 3-1, 8-1,
-5-1, 1-1, 8-1
-
-		};
 
 		AddVertices(vertices, indices, true);
 	};

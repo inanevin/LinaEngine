@@ -36,7 +36,9 @@ Lina_Mesh::~Lina_Mesh()
 	if (m_IBO != 0)
 		glDeleteBuffers(1, &m_IBO);
 
-	glDeleteVertexArrays(1, &m_VAO);
+
+	m_Indices = nullptr;
+	m_Vertices = nullptr;
 	
 }
 
@@ -52,9 +54,9 @@ void Lina_Mesh::AddVertices(std::vector<Vertex>& vertices, std::vector<unsigned 
 {
 
 	// Init Index & Vertex array.
-	m_Indices = new unsigned int[sizeof(indices)];
-	m_Vertices = new Vertex[sizeof(vertices)];
-
+	m_Indices = new unsigned int[indices.size()];
+	m_Vertices = new Vertex[vertices.size()];
+	std::cout << indices.size();
 	// Set index & vertex array elements.
 	int counter = 0;
 

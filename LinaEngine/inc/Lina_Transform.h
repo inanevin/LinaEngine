@@ -51,6 +51,7 @@ public:
 	void SetScale(float, float, float);
 	void SetCamera(Lina_Camera&);
 
+
 	// Get transformation matrix composed of position & rotation & scale.
 	Matrix4 GetTransformation();
 	// Perspective transformation projections.
