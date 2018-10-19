@@ -58,9 +58,6 @@
     <Filter Include="Header Files\Rendering\Lights">
       <UniqueIdentifier>{0879853a-7b1c-4c95-adfb-9e2809898191}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Rendering\Lights">
-      <UniqueIdentifier>{9366a018-15a0-475c-bc8e-41db04689a68}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Rendering\Shapes">
       <UniqueIdentifier>{be5f948f-3910-4f4e-b3a7-cbf242bd3f35}</UniqueIdentifier>
     </Filter>
@@ -149,12 +146,6 @@
     </ClCompile>
     <ClCompile Include="src\Rendering\Lina_Vertex.cpp">
       <Filter>Source Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Rendering\Lina_BaseLight.cpp">
-      <Filter>Source Files\Rendering\Lights</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Rendering\Lina_DirectionalLight.cpp">
-      <Filter>Source Files\Rendering\Lights</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -265,6 +256,9 @@
     </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_DefaultCubeMesh.h">
       <Filter>Header Files\Rendering\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Attenuation.h">
+      <Filter>Header Files\Rendering\Lights</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

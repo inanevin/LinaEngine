@@ -51,32 +51,59 @@ void Lina_PhongShader::Init()
 	AddUniform("directionalLight.base.intensity");
 	AddUniform("directionalLight.direction");
 
+	for (int i = 0; i < PIXEL_LIGHT_COUNT; i++)
+	{
+		AddUniform("pointLights[" + std::to_string(i) + "].base.color");
+		AddUniform("pointLights[" + std::to_string(i) + "].base.intensity");
+		AddUniform("pointLights[" + std::to_string(i) + "].attenuation.constant");
+		AddUniform("pointLights[" + std::to_string(i) + "].attenuation.linear");
+		AddUniform("pointLights[" + std::to_string(i) + "].attenuation.exponent");
+		AddUniform("pointLights[" + std::to_string(i) + "].position");
+	}
+
 }
 
 void Lina_PhongShader::UpdateUniforms(Matrix4 world, Matrix4 projected, Vector3 camPos, Lina_Material mat)
 {
 	// UNBIND IF TEXTURE IS NULL?
-	mat.GetTexture().Bind();
+	mat.texture.Bind();
 	Lina_Shader::SetUniform("projectedTransform", *(projected.m));
 	Lina_Shader::SetUniform("transform", *(world.m));
-	Lina_Shader::SetUniform("baseColor", mat.GetColor());
+	Lina_Shader::SetUniform("baseColor", mat.color);
 	Lina_Shader::SetUniform("ambientLight", m_AmbientLight);
-	Lina_Shader::SetUniform("specularIntensity", mat.GetSpecularIntensity());
-	Lina_Shader::SetUniform("specularExponent", mat.GetSpecularExponent());
+	Lina_Shader::SetUniform("specularIntensity", mat.specularIntensity);
+	Lina_Shader::SetUniform("specularExponent", mat.specularExponent);
 	Lina_Shader::SetUniform("camPos", camPos);
 	this->SetUniform("directionalLight", m_DirectionalLight);
+
+	for (int i = 0; i < pointLights.size(); i++)
+	{
+		this->SetUniform("pointLights[" + std::to_string(i) + "]", pointLights[i]);
+	}
+
+
 }
 
 void Lina_PhongShader::SetUniform(std::string name, Lina_BaseLight b)
 {
-	Lina_Shader::SetUniform(name + ".color", b.GetColor());
-	Lina_Shader::SetUniform(name + ".intensity", b.GetIntensity());
+	Lina_Shader::SetUniform(name + ".color", b.color);
+	Lina_Shader::SetUniform(name + ".intensity", b.intensity);
 }
 
 void Lina_PhongShader::SetUniform(std::string name, Lina_DirectionalLight directionalLight)
 {
-	this->SetUniform(name + ".base", directionalLight.GetBase());
-	Lina_Shader::SetUniform(name + ".direction", directionalLight.GetDirection());
+	this->SetUniform(name + ".base", directionalLight.base);
+	Lina_Shader::SetUniform(name + ".direction", directionalLight.direction);
+}
+
+void Lina_PhongShader::SetUniform(std::string name, Lina_PointLight pLight)
+{
+	this->SetUniform(name + ".base", pLight.base);
+	Lina_Shader::SetUniform(name + ".attenuation.constant", pLight.attenuation.constant);
+	Lina_Shader::SetUniform(name + ".attenuation.linear", pLight.attenuation.linear);
+	Lina_Shader::SetUniform(name + ".attenuation.exponent", pLight.attenuation.exponent);
+	Lina_Shader::SetUniform(name + ".position", pLight.position);
+
 }
 
 void Lina_PhongShader::SetDirectionalLight(Lina_DirectionalLight light)
@@ -87,4 +114,24 @@ void Lina_PhongShader::SetDirectionalLight(Lina_DirectionalLight light)
 void Lina_PhongShader::SetAmbientLight(Vector3 v)
 {
 	m_AmbientLight = v;
+}
+
+void Lina_PhongShader::SetPointLights(std::vector<Lina_PointLight>& pLights)
+{
+	if (pLights.size() > PIXEL_LIGHT_COUNT)
+	{
+		std::cout << "Pixel light count exceeded!" << std::endl;
+		return;
+	}
+
+	for (int i = 0; i < pLights.size(); i++)
+	{
+		pointLights.push_back(pLights[i]);
+	}
+
+	for (int i = 0; i < pointLights.size(); i++)
+	{
+		std::cout << Vector3::VToString(pointLights[i].base.color) << std::endl;
+	}
+
 }

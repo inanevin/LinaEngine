@@ -41,8 +41,8 @@ public:
 
 			vertices.push_back(Vertex(Vector3(1.000000, -1.000000, -1.000000), Vector2(0.333333, 0.666667)));
 			vertices.push_back(Vertex(Vector3(1.000000, -1.000000, 1.000000), Vector2(0.333333, 1.000000)));
-			vertices.push_back(Vertex(Vector3(-1.000000, -1.000000, 1.000000), Vector2(0.000000, 1.000000)));
-			vertices.push_back(Vertex(Vector3(-1.000000, -1.000000, -1.000000), Vector2(0.000000, 0.666667)));
+			vertices.push_back(Vertex(Vector3(-1.000000, -1.000000, 1.000000), Vector2(0.333333, 1.000000)));
+			vertices.push_back(Vertex(Vector3(-1.000000, -1.000000, -1.000000), Vector2(1.000000, 0.666667)));
 			vertices.push_back(Vertex(Vector3(1.000000, 1.000000, -0.999999), Vector2(0.000000, 0.333333)));
 			vertices.push_back(Vertex(Vector3(0.999999, 1.000000, 1.000001), Vector2(0.333333, 0.333333)));
 			vertices.push_back(Vertex(Vector3(-1.000000, 1.000000, 1.000000), Vector2(0.333333, 0.000000)));

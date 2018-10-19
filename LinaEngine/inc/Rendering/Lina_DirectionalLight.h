@@ -31,17 +31,13 @@ class Lina_DirectionalLight
 
 public:
 
-	Lina_DirectionalLight();
-	Lina_DirectionalLight(Lina_BaseLight, Vector3);
-	Lina_BaseLight& GetBase();
-	Vector3 GetDirection();
-	void SetBase(Lina_BaseLight);
-	void SetDirection(Vector3);
+	Lina_DirectionalLight() {};
+	Lina_DirectionalLight(Vector3 color, float intensity, Vector3 dir) : base(Lina_BaseLight(color,intensity)), direction(dir) {};
+	Lina_DirectionalLight(Vector3 dir) : direction(dir) {};
+	Lina_DirectionalLight(Lina_BaseLight b, Vector3 v) : base(b), direction(v) {};
 
-private:
-
-	Lina_BaseLight m_Base;
-	Vector3 m_Direction;
+	Lina_BaseLight base;
+	Vector3 direction;
 };
 
 

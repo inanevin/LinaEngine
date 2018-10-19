@@ -81,6 +81,7 @@ void Lina_Mesh::AddVertices(std::vector<Vertex>& vertices, std::vector<unsigned 
 	// Set array element counts.
 	m_VerticesElementCount = vertices.size();
 	m_IndicesElementCount = indices.size();
+	
 	// Add vertices
 	AddVertices(m_Vertices, sizeof(m_Vertices[0]) * m_VerticesElementCount, m_Indices, sizeof(m_Indices[0]) * m_IndicesElementCount, calcNormals);
 }

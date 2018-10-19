@@ -7,6 +7,8 @@ in vec3 normal0;
 in vec3 worldPos0;
 out vec4 fragColor;
 
+const int POINT_LIGHT_PIXEL_COUNT = 4;
+
 struct BaseLight
 {
 	vec3 color;
@@ -19,13 +21,32 @@ struct DirectionalLight
 	vec3 direction;
 };
 
+// How quickly point light fades out, weakens
+struct Attenuation
+{
+	float constant;
+	float linear;
+	float exponent;
+};
+
+struct PointLight
+{
+	BaseLight base;
+	Attenuation attenuation;
+	vec3 position;
+};
+
 uniform float specularIntensity;
 uniform float specularExponent;
 uniform vec3 camPos;
 uniform vec3 baseColor;
 uniform vec3 ambientLight;
 uniform sampler2D sampler;
+
 uniform DirectionalLight directionalLight;
+uniform PointLight pointLights[POINT_LIGHT_PIXEL_COUNT];
+
+
 
 
 vec4 CalculateLight(BaseLight base, vec3 dir, vec3 normal)
@@ -59,6 +80,19 @@ vec4 CalculateDirectionalLight(DirectionalLight dirLight, vec3 normal)
 	return CalculateLight(dirLight.base, -dirLight.direction, normal);
 }
 
+vec4 CalculatePointLight(PointLight pLight, vec3 normal)
+{
+	vec3 lDir = worldPos0 - pLight.position;	// pixel pos - light pos
+	float distToLight = length(lDir);
+	lDir = normalize(lDir);
+	
+	vec4 color = CalculateLight(pLight.base, lDir, normal);
+	
+	float atten = pLight.attenuation.constant + pLight.attenuation.linear * distToLight + pLight.attenuation.exponent * distToLight * distToLight + 0.00001f;	// prevent division by zero
+	
+	return color/atten;
+}
+
 void main()
 {
 	vec4 totalLight = vec4(ambientLight,1);
@@ -69,7 +103,13 @@ void main()
 		color *= textureColor;
 		
 	vec3 normal = normalize(normal0);
+	
 	totalLight += CalculateDirectionalLight(directionalLight, normal);
+	
+	for(int i = 0; i < POINT_LIGHT_PIXEL_COUNT; i++)
+	{
+		totalLight += CalculatePointLight(pointLights[i], normal);
+	}
 	
 	fragColor = color * totalLight;
 }

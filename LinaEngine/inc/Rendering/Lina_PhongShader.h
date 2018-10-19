@@ -27,6 +27,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Lina_Shader.h"
 #include "Math/Lina_Vector3F.h"
 #include "Rendering/Lina_DirectionalLight.h"
+#include "Lina_PointLight.h"
+#include <vector>
 
 class Lina_PhongShader : public Lina_Shader
 {
@@ -38,13 +40,17 @@ public:
 	void UpdateUniforms(Matrix4, Matrix4, Vector3, Lina_Material) override;
 	void SetUniform(std::string, Lina_BaseLight);
 	void SetUniform(std::string, Lina_DirectionalLight);
+	void SetUniform(std::string, Lina_PointLight);
 
 	void SetDirectionalLight(Lina_DirectionalLight);
 	void SetAmbientLight(Vector3);
+	void SetPointLights(std::vector<Lina_PointLight>&);
 
 private:
 
+	static const int PIXEL_LIGHT_COUNT = 4;
 	Vector3 m_AmbientLight;
+    std::vector<Lina_PointLight> pointLights;
 	Lina_DirectionalLight m_DirectionalLight;
 };
 

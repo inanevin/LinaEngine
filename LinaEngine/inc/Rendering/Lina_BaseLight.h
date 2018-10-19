@@ -31,17 +31,11 @@ class Lina_BaseLight
 
 public:
 
-	Lina_BaseLight();
-	Lina_BaseLight(Vector3, float);
-	Vector3 GetColor();
-	void SetColor(Vector3);
-	float GetIntensity();
-	void SetIntensity(float);
+	Lina_BaseLight() : color(Vector3::one()), intensity(0.0) {};
+	Lina_BaseLight(Vector3 c, float f) : color(c), intensity(f) {};
 
-private:
-
-	Vector3 m_Color;
-	float m_Intensity;
+	Vector3 color;
+	float intensity;
 };
 
 

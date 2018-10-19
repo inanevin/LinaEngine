@@ -49,6 +49,9 @@ void Lina_RenderingEngine::Initialize()
 	// Clear colors.
 	ClearColors(0.0, 0.0, 0.0, 1.0);
 
+	// Enable Textures
+	SetTextures(true);
+
 	// Every face in clock-wise order is front.
 	glFrontFace(GL_CW);
 
@@ -61,13 +64,12 @@ void Lina_RenderingEngine::Initialize()
 	// Enable depth test -> enable Z draw-order.
 	glEnable(GL_DEPTH_TEST);
 
-	// depth clamp.
+	// depth clamp
+	glEnable(GL_DEPTH_CLAMP);
 
 	// Get free gamma correction.
-	glEnable(GL_FRAMEBUFFER_SRGB);
+	//glEnable(GL_FRAMEBUFFER_SRGB);
 
-	// Enable Textures
-	SetTextures(true);
 }
 
 // Destructor.

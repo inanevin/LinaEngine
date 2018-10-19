@@ -35,22 +35,11 @@ public:
 	Lina_Material();
 	Lina_Material(Lina_Texture, Vector3);
 	Lina_Material(Lina_Texture, Vector3, float, float);
-	Vector3 GetColor();
-	Lina_Texture GetTexture();
-	void SetColor(Vector3);
-	void SetTexture(Lina_Texture);
 
-	void SetSpecularIntensity(float);
-	void SetSpecularExponent(float);
-	float GetSpecularIntensity();
-	float GetSpecularExponent();
-
-private:
-
-	Lina_Texture m_Texture;
-	Vector3 m_Color;
-	float m_SpecularIntensity;
-	float m_SpecularExponent;
+	Lina_Texture texture;
+	Vector3 color;
+	float specularIntensity;
+	float specularExponent;
 
 };
 

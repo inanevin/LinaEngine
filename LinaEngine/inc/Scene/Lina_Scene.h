@@ -49,11 +49,14 @@ private:
 	//bool loadout;
 	//Loader objLoader;
 	
-	Lina_DefaultCubeMesh m;
+	Lina_Mesh m;
 	Lina_PhongShader s;
 	Lina_Transform transform;
 	Lina_Camera sceneCamera;
 	Lina_Material material;
+	Lina_PointLight p1;
+	Lina_PointLight p2;
+	std::vector<Lina_PointLight> pLights;
 
 };
 

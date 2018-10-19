@@ -36,38 +36,48 @@ Lina_Camera Lina_Scene::GetCamera() { return sceneCamera; }
 void Lina_Scene::Wake()
 {
 
-	//Triangle
+	// Plane 
 	std::vector<Vertex> vertices;
 
-	vertices.push_back(Vertex(Vector3(-1, -1, 0.0), Vector2(0, 0)));
-	vertices.push_back(Vertex(Vector3(0, 1, 0.0), Vector2(0.5, 1)));
-	vertices.push_back(Vertex(Vector3(1, -1, 0.0), Vector2(1.0, 0.0)));
-	vertices.push_back(Vertex(Vector3(0, -1, 1), Vector2(0.0, 1.0f)));
+	float depth = 10.0f;
+	float width = 10.0f;
+	vertices.push_back(Vertex(Vector3(-width, 0.0, -depth), Vector2(0.0, 0.0)));
+	vertices.push_back(Vertex(Vector3(-width, 0.0, depth *3), Vector2(0.0, 1.0)));
+	vertices.push_back(Vertex(Vector3(width *3, 0.0f, -depth), Vector2(1.0, 0.0)));
+	vertices.push_back(Vertex(Vector3(width * 3, 0.0f, depth * 3), Vector2(1.0, 1.0f)));
 
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		std::cout << Vector3::VToString(vertices[i].GetPosition()) << std::endl;
+	}
 	std::vector<unsigned int> indices =
-	{				 3, 1, 0,
-					 2, 1, 3,
-					 0, 1, 2,
-					 0, 2, 3
+	{				0,1,2,2,1,3
 	};
 
 
 
-	material.SetColor(Vector3(1, 1, 1));
-	material.SetTexture(Lina_ResourceLoader::LoadTexture("grid2.png"));
-	material.SetSpecularIntensity(2);
-	material.SetSpecularExponent(32);
-	transform.SetCamera(sceneCamera);
+	material.color = (Vector3(1, 1, 1));
+	material.texture = (Lina_ResourceLoader::LoadTexture("grid.png"));
+	material.specularIntensity = 2;
+	material.specularExponent = 8;
 
+	transform.SetCamera(sceneCamera);
 	transform.SetProjection(FIELD_OF_VIEW, WINDOW_WIDTH, WINDOW_HEIGHT, CLIPPING_PLANE_NEAR, CLIPPING_PLANE_FAR);
 
-	s.Init();
 	s.SetAmbientLight(Vector3(0.1f, 0.1f, 0.1f));
-	s.SetDirectionalLight(Lina_DirectionalLight(Lina_BaseLight(Vector3(1,1,1), 0.8f), Vector3(1,1,1)));
+//	s.SetDirectionalLight(Lina_DirectionalLight(Lina_BaseLight(Vector3(1,1,1) * 0.5f, 0.1f), Vector3(1,1,1)));
+	p1 = Lina_PointLight(Vector3(1, 0, 0), 5.0f, Vector3(12.5, 0.5, 0), 0, 0, 1);
+	p2 = Lina_PointLight(Vector3(0, 0, 1), 5.0f, Vector3(0, 0.5, 0), 0,0,2);
+
+	pLights.push_back(p1);
+	pLights.push_back(p2);
+	s.SetPointLights(pLights);
+
+	s.Init();
+
 	m.InitMesh();
-	//mm.InitMesh();
 	//Lina_ResourceLoader::LoadMesh("sphere.obj");
-	//m.AddVertices(vertices, indices, true);
+	m.AddVertices(vertices, indices, true);
 }
 
 
@@ -88,10 +98,11 @@ float temp = 0.0f;
 void Lina_Scene::Update()
 {
 	temp += Lina_Time::GetDelta() ;
-	transform.SetPosition(0, 0, 5);
-	transform.SetRotation(0, sin(temp) * 180, 0);
-	//	transform.SetScale(Vector3::one() / 3);
+	transform.SetPosition(0, -1, 0);
+//	transform.SetRotation(0, sin(temp) * 180, 0);
 	sceneCamera.TempInput();
+
+	//s.SetPointLights(pLights);
 
 }
 

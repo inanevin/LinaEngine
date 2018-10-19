@@ -15,17 +15,29 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/18/2018 10:14:51 PM
+10/19/2018 4:53:13 PM
 
 */
 
-#include "pch.h"
-#include "Rendering/Lina_DirectionalLight.h"  
+#pragma once
 
-Lina_DirectionalLight::Lina_DirectionalLight() : m_Base(Lina_BaseLight(Vector3::zero(),0)), m_Direction(Vector3::zero()) {};
-Lina_DirectionalLight::Lina_DirectionalLight(Lina_BaseLight b, Vector3 dir) : m_Base(b), m_Direction(dir.normalized()) {};
-Lina_BaseLight& Lina_DirectionalLight::GetBase() { return m_Base; }
-Vector3 Lina_DirectionalLight::GetDirection() { return m_Direction; }
-void Lina_DirectionalLight::SetBase(Lina_BaseLight b) { m_Base = b; }
-void Lina_DirectionalLight::SetDirection(Vector3 dir) { m_Direction = dir.normalized(); }
+#ifndef Lina_Attenuation_H
+#define Lina_Attenuation_H
 
+class Lina_Attenuation
+{
+
+public:
+
+	Lina_Attenuation() : constant(0), linear(0), exponent(1.0f) {};
+	Lina_Attenuation(float c, float l, float e) : constant(c), linear(l), exponent(e) {};
+
+
+	float constant;
+	float linear;
+	float exponent;
+
+};
+
+
+#endif
