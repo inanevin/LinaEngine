@@ -78,7 +78,18 @@ void Lina_Scene::Wake()
 	//pLights.push_back(p3);
 //	pLights.push_back(p4);
 
-	s.SetPointLights(pLights);
+	//s.SetPointLights(pLights);
+
+	std::vector<Lina_SpotLight> spots;
+
+	Lina_SpotLight sp1 = Lina_SpotLight(
+		Lina_PointLight(Lina_BaseLight(Vector3(0, 1, 1), 12),
+		Lina_Attenuation(0, 0, 0.01f),
+		Vector3(-6, 1, 2), 40.0f),
+		Vector3::one(),
+		0.8f);
+	spots.push_back(sp1);
+	s.SetSpotLights(spots);
 
 	s.Init();
 

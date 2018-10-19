@@ -260,6 +260,9 @@
     <ClInclude Include="inc\Rendering\Lina_Attenuation.h">
       <Filter>Header Files\Rendering\Lights</Filter>
     </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Spotlight.h">
+      <Filter>Header Files\Rendering\Lights</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\basic.vert">

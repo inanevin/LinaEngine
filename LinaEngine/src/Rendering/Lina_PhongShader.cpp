@@ -62,6 +62,20 @@ void Lina_PhongShader::Init()
 		AddUniform("pointLights[" + std::to_string(i) + "].range");
 	}
 
+	for (int i = 0; i < PIXEL_LIGHT_COUNT; i++)
+	{
+		AddUniform("spotLights[" + std::to_string(i) + "].pointLight.base.color");
+		AddUniform("spotLights[" + std::to_string(i) + "].pointLight.base.intensity");
+		AddUniform("spotLights[" + std::to_string(i) + "].pointLight.attenuation.constant");
+		AddUniform("spotLights[" + std::to_string(i) + "].pointLight.attenuation.linear");
+		AddUniform("spotLights[" + std::to_string(i) + "].pointLight.attenuation.exponent");
+		AddUniform("spotLights[" + std::to_string(i) + "].pointLight.position");
+		AddUniform("spotLights[" + std::to_string(i) + "].pointLight.range");
+		AddUniform("spotLights[" + std::to_string(i) + "].cutoff");
+		AddUniform("spotLights[" + std::to_string(i) + "].direction");
+	}
+	
+	
 }
 
 void Lina_PhongShader::UpdateUniforms(Matrix4 world, Matrix4 projected, Vector3 camPos, Lina_Material mat)
@@ -82,6 +96,12 @@ void Lina_PhongShader::UpdateUniforms(Matrix4 world, Matrix4 projected, Vector3 
 		this->SetUniform("pointLights[" + std::to_string(i) + "]", pointLights[i]);
 	}
 
+
+	for (int i = 0; i < spotLights.size(); i++)
+	{
+		this->SetUniform("spotLights[" + std::to_string(i) + "]", spotLights[i]);
+	}
+	
 
 }
 
@@ -108,6 +128,13 @@ void Lina_PhongShader::SetUniform(std::string name, Lina_PointLight pLight)
 	
 }
 
+void Lina_PhongShader::SetUniform(std::string name, Lina_SpotLight sLight)
+{
+	this->SetUniform(name + ".pointLight", sLight.pointLight);
+	Lina_Shader::SetUniform(name + ".direction", sLight.direction);
+	Lina_Shader::SetUniform(name + ".cutoff", sLight.cutoff);
+}
+
 void Lina_PhongShader::SetDirectionalLight(Lina_DirectionalLight light)
 {
 	m_DirectionalLight = light;
@@ -131,9 +158,21 @@ void Lina_PhongShader::SetPointLights(std::vector<Lina_PointLight>& pLights)
 		pointLights.push_back(pLights[i]);
 	}
 
-	for (int i = 0; i < pointLights.size(); i++)
+
+}
+
+void Lina_PhongShader::SetSpotLights(std::vector<Lina_SpotLight>& sLights)
+{
+	if (sLights.size() > PIXEL_LIGHT_COUNT)
 	{
-		std::cout << Vector3::VToString(pointLights[i].base.color) << std::endl;
+		std::cout << "Pixel light count exceeded!" << std::endl;
+		return;
 	}
+
+	for (int i = 0; i < sLights.size(); i++)
+	{
+		spotLights.push_back(sLights[i]);
+	}
+
 
 }

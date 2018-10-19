@@ -8,6 +8,7 @@ in vec3 worldPos0;
 out vec4 fragColor;
 
 const int POINT_LIGHT_PIXEL_COUNT = 4;
+const int SPOT_LIGHT_PIXEL_COUNT = 4;
 
 struct BaseLight
 {
@@ -37,6 +38,13 @@ struct PointLight
 	float range;
 };
 
+struct SpotLight
+{
+	vec3 direction;
+	float cutoff;
+	PointLight pointLight;
+};
+
 uniform float specularIntensity;
 uniform float specularExponent;
 uniform vec3 camPos;
@@ -46,6 +54,7 @@ uniform sampler2D sampler;
 
 uniform DirectionalLight directionalLight;
 uniform PointLight pointLights[POINT_LIGHT_PIXEL_COUNT];
+uniform SpotLight spotLights[SPOT_LIGHT_PIXEL_COUNT];
 
 
 
@@ -98,6 +107,21 @@ vec4 CalculatePointLight(PointLight pLight, vec3 normal)
 	return color/atten;
 }
 
+vec4 CalculateSpotLight(SpotLight sLight, vec3 normal)
+{
+	vec3 lightDir = normalize(worldPos0 - sLight.pointLight.position);
+	float spotMultiplier = dot(lightDir, sLight.direction);
+	
+	vec4 color = vec4(0,0,0,0);
+	
+	if(spotMultiplier > sLight.cutoff)
+	{
+		color = CalculatePointLight(sLight.pointLight, normal) * (1.0 - (1.0 - spotMultiplier) / (1.0- sLight.cutoff));	// Last part is interpolation.
+	}
+	
+	return color;
+}
+
 void main()
 {
 	vec4 totalLight = vec4(ambientLight,1);
@@ -115,6 +139,13 @@ void main()
 	{
 		if(pointLights[i].base.intensity > 0)
 			totalLight += CalculatePointLight(pointLights[i], normal);
+	}
+	
+	
+	for(int i = 0; i < SPOT_LIGHT_PIXEL_COUNT; i++)
+	{
+		if(spotLights[i].pointLight.base.intensity > 0)
+			totalLight += CalculateSpotLight(spotLights[i], normal);
 	}
 	
 	fragColor = color * totalLight;

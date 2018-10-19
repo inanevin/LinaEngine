@@ -90,7 +90,7 @@ void Lina_Shader::Bind()
 void Lina_Shader::AddUniform(const std::string& name)
 {
 	GLint location = glGetUniformLocation(program, name.c_str());
-
+	std::cout << name.c_str() << std::endl;
 	if (location == 0xFFFFFFFF)
 	{
 		std::cout << "No uniform exists with that name!" << std::endl;
