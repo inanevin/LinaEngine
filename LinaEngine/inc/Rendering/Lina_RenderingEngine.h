@@ -25,8 +25,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_RenderingEngine_H
 
 //#include<list>
-#include "Lina_Window.h"
-#include "Lina_ObjectHandler.h"
+#include "Rendering/Lina_Window.h"
+#include "Core/Lina_ObjectHandler.h"
 
 class Lina_RenderingEngine
 {

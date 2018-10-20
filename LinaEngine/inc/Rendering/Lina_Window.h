@@ -24,7 +24,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_Display_H
 #define Lina_Display_H
 
-#include <Lina_SDLHandler.h>
+#include "Core/Lina_SDLHandler.h"
+
 #undef main
 #include "GL/glew.h"
 

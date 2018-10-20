@@ -27,8 +27,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "Rendering/Lina_DefaultCubeMesh.h"
 #include "Rendering/Lina_PhongShader.h"
-#include "Lina_Transform.h"
-#include "Lina_ObjectHandler.h"
+#include "Core/Lina_Transform.h"
+#include "Core/Lina_ObjectHandler.h"
 #include "Rendering/Lina_Texture.h"
 
 class Lina_Scene
@@ -50,6 +50,8 @@ private:
 	//Loader objLoader;
 	
 	Lina_Mesh m;
+	Lina_Mesh m2;
+
 	Lina_PhongShader s;
 	Lina_Transform transform;
 	Lina_Camera sceneCamera;

@@ -25,7 +25,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_InputEngine_H
 
 #include "Events/Lina_Actions.h"
-#include "Lina_SDLHandler.h"
+#include "Core/Lina_SDLHandler.h"
 
 class Lina_InputEngine
 {

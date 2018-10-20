@@ -14,15 +14,45 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+4.0.30319.42000
+10/1/2018 6:00:05 AM
 
 */
 
 #include "pch.h"
-#include <iostream>
-#include "Lina_Core.h"
+#include "Core/Lina_GameCore.h"  
+#include "Utility/Lina_ResourceLoader.h"
+#include "Math/Lina_Math.h"
+#include "Utility/Lina_Time.h"
 
-int main()
+void Lina_GameCore::Wake()
 {
-	Lina_Core core;
-	//return 0;
+	m_TestScene.Wake();
+
 }
+
+void Lina_GameCore::Start()
+{
+	m_TestScene.Start();
+}
+
+void Lina_GameCore::ProcessInput()
+{
+	m_TestScene.ProcessInput();
+}
+
+
+void Lina_GameCore::Update()
+{
+	m_TestScene.Update();
+}
+
+
+
+void Lina_GameCore::Render()
+{
+	m_TestScene.Render();
+
+}
+
+

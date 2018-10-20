@@ -61,26 +61,14 @@
     <Filter Include="Header Files\Rendering\Shapes">
       <UniqueIdentifier>{be5f948f-3910-4f4e-b3a7-cbf242bd3f35}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Core">
+      <UniqueIdentifier>{43a5baec-6794-4206-88bb-24171da579df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core">
+      <UniqueIdentifier>{49812430-b827-4f5b-9591-d3308a4639e3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\pch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Lina_Core.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Lina_Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Lina_GameCore.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Lina_SDLHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\stb_image.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Rendering\Lina_RenderingEngine.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
@@ -92,9 +80,6 @@
     </ClCompile>
     <ClCompile Include="src\Utility\Lina_Time.cpp">
       <Filter>Source Files\Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Lina_CoreMessageBus.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Rendering\Lina_Mesh.cpp">
       <Filter>Source Files\Rendering</Filter>
@@ -129,9 +114,6 @@
     <ClCompile Include="src\Scene\Lina_Camera.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\Lina_Transform.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Rendering\Lina_Texture.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
@@ -147,23 +129,32 @@
     <ClCompile Include="src\Rendering\Lina_Vertex.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Lina_Core.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Lina_CoreMessageBus.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Lina_GameCore.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Lina_Main.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Lina_SDLHandler.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Lina_Transform.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utility\stb_image.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utility\pch.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="inc\pch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Lina_Core.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Lina_GameCore.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Lina_ObjectHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\stb_image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Math\Lina_Math.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -194,17 +185,11 @@
     <ClInclude Include="inc\Input\Lina_InputEngine.h">
       <Filter>Header Files\Input</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Lina_SDLHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Utility\Lina_Time.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="inc\Utility\Lina_Console.h">
       <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Lina_CoreMessageBus.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_Vertex.h">
       <Filter>Header Files\Rendering</Filter>
@@ -220,9 +205,6 @@
     </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_Shader.h">
       <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Lina_Transform.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="inc\Scene\Lina_Scene.h">
       <Filter>Header Files\Scene</Filter>
@@ -262,6 +244,30 @@
     </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_Spotlight.h">
       <Filter>Header Files\Rendering\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Core\Lina_Core.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Core\Lina_CoreMessageBus.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Core\Lina_GameCore.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Core\Lina_ObjectHandler.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Core\Lina_SDLHandler.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Core\Lina_Transform.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Utility\stb_image.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\pch.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

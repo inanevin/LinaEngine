@@ -158,9 +158,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Lina_CoreMessageBus.cpp" />
+    <ClCompile Include="src\Core\Lina_CoreMessageBus.cpp" />
     <ClCompile Include="src\Input\Lina_InputEngine.cpp" />
-    <ClCompile Include="src\Lina_Transform.cpp" />
+    <ClCompile Include="src\Core\Lina_Transform.cpp" />
     <ClCompile Include="src\Math\Lina_Math.cpp" />
     <ClCompile Include="src\Math\Lina_Matrix4F.cpp" />
     <ClCompile Include="src\Math\Lina_Quaternion.cpp" />
@@ -172,9 +172,9 @@
     <ClCompile Include="src\Rendering\Lina_Mesh.cpp" />
     <ClCompile Include="src\Rendering\Lina_PhongShader.cpp" />
     <ClCompile Include="src\Rendering\Lina_RenderingEngine.cpp" />
-    <ClCompile Include="src\Lina_Core.cpp" />
-    <ClCompile Include="src\Lina_GameCore.cpp" />
-    <ClCompile Include="src\Lina_SDLHandler.cpp" />
+    <ClCompile Include="src\Core\Lina_Core.cpp" />
+    <ClCompile Include="src\Core\Lina_GameCore.cpp" />
+    <ClCompile Include="src\Core\Lina_SDLHandler.cpp" />
     <ClCompile Include="src\Rendering\Lina_Shader.cpp" />
     <ClCompile Include="src\Rendering\Lina_Texture.cpp" />
     <ClCompile Include="src\Rendering\Lina_Vertex.cpp" />
@@ -183,21 +183,21 @@
     <ClCompile Include="src\Utility\Lina_ResourceLoader.cpp" />
     <ClCompile Include="src\Utility\Lina_Time.cpp" />
     <ClCompile Include="src\Rendering\Lina_Window.cpp" />
-    <ClCompile Include="src\Lina_Main.cpp" />
-    <ClCompile Include="src\pch.cpp">
+    <ClCompile Include="src\Core\Lina_Main.cpp" />
+    <ClCompile Include="src\Utility\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\stb_image.cpp" />
+    <ClCompile Include="src\Utility\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\Events\Lina_Actions.h">
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Lina_Transform.h">
+    <ClInclude Include="inc\Core\Lina_Transform.h">
       <SubType>
       </SubType>
     </ClInclude>
@@ -266,8 +266,8 @@
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Lina_Core.h" />
-    <ClInclude Include="inc\Lina_CoreMessageBus.h">
+    <ClInclude Include="inc\Core\Lina_Core.h" />
+    <ClInclude Include="inc\Core\Lina_CoreMessageBus.h">
       <SubType>
       </SubType>
     </ClInclude>
@@ -275,7 +275,7 @@
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Lina_ObjectHandler.h">
+    <ClInclude Include="inc\Core\Lina_ObjectHandler.h">
       <SubType>
       </SubType>
     </ClInclude>
@@ -295,11 +295,11 @@
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Lina_GameCore.h">
+    <ClInclude Include="inc\Core\Lina_GameCore.h">
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Lina_SDLHandler.h">
+    <ClInclude Include="inc\Core\Lina_SDLHandler.h">
       <SubType>
       </SubType>
     </ClInclude>
@@ -332,7 +332,7 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\pch.h" />
-    <ClInclude Include="inc\stb_image.h" />
+    <ClInclude Include="inc\Utility\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\basic.frag" />

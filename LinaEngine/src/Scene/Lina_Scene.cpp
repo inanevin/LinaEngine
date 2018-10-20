@@ -57,7 +57,7 @@ void Lina_Scene::Wake()
 
 
 	material.color = (Vector3(1, 1, 1));
-	material.texture.LoadTexture("grid.png");
+	material.texture.LoadTexture("grid4.png");
 	material.specularIntensity = 1;
 	material.specularExponent = 8;
 
@@ -65,7 +65,7 @@ void Lina_Scene::Wake()
 	transform.SetProjection(FIELD_OF_VIEW, WINDOW_WIDTH, WINDOW_HEIGHT, CLIPPING_PLANE_NEAR, CLIPPING_PLANE_FAR);
 
 	s.SetAmbientLight(COLOR_WHITE * 0.05f);
-	//s.SetDirectionalLight(Lina_DirectionalLight(Lina_BaseLight(COLOR_WHITE * 0.5f, 0.1f), Vector3(1,1,1)));
+	s.SetDirectionalLight(Lina_DirectionalLight(Lina_BaseLight(COLOR_WHITE * 0.5f, 0.1f), Vector3(1,1,1)));
 	p1 = Lina_PointLight(Lina_BaseLight(Vector3(1, 0, 0), 5.0f), Lina_Attenuation(0, 0, 1), Vector3(-5, 3.0f, -5), 20.0);
 	p2 = Lina_PointLight(Lina_BaseLight(Vector3(0, 1, 0), 2.0f), Lina_Attenuation(0, 0, 1), Vector3(5, 3.0f, -5), 20.0);
 
@@ -83,7 +83,7 @@ void Lina_Scene::Wake()
 	std::vector<Lina_SpotLight> spots;
 
 	Lina_SpotLight sp1 = Lina_SpotLight(
-		Lina_PointLight(Lina_BaseLight(Vector3(0, 1, 1), 12),
+		Lina_PointLight(Lina_BaseLight(Vector3(0, 1, 1), 5),
 		Lina_Attenuation(0, 0, 0.01f),
 		Vector3(-6, 1, 2), 40.0f),
 		Vector3::one(),
@@ -94,8 +94,11 @@ void Lina_Scene::Wake()
 	s.Init();
 
 	m.InitMesh();
+	m2.InitMesh();
+
 	//Lina_ResourceLoader::LoadMesh("sphere.obj");
 	m.AddVertices(vertices, indices, true);
+
 }
 
 
