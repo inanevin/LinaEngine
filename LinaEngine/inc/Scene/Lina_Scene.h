@@ -25,11 +25,14 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_Scene_H
 
 
-#include "Rendering/Lina_DefaultCubeMesh.h"
+#include "Rendering/Lina_Mesh.h"
 #include "Rendering/Lina_PhongShader.h"
+#include "Rendering/Lina_BasicShader.h"
+
 #include "Core/Lina_Transform.h"
 #include "Core/Lina_ObjectHandler.h"
 #include "Rendering/Lina_Texture.h"
+#include "Utility/Lina_Time.h"
 
 class Lina_Scene
 {
@@ -37,31 +40,20 @@ class Lina_Scene
 public:
 
 	Lina_Scene();
-	void Wake();
-	void Start();
-	void ProcessInput();
-	void Update();
-	void Render();
-	void CleanUp();
-	Lina_Camera GetCamera();
+	virtual void Wake();
+	virtual void Start();
+	virtual void ProcessInput();
+	virtual void Update();
+	virtual void Render();
+	virtual void Stop();
+	virtual void CleanUp();
+	virtual Lina_Camera GetCurrentActiveCamera();
 
-private:
-	//bool loadout;
-	//Loader objLoader;
-	
-	Lina_Mesh m;
-	Lina_Mesh m2;
+protected:
 
-	Lina_PhongShader s;
-	Lina_Transform transform;
-	Lina_Camera sceneCamera;
-	Lina_Material material;
-	Lina_PointLight p1;
-	Lina_PointLight p2;
-	Lina_PointLight p3;
-	Lina_PointLight p4;
+	Lina_Camera currentActiveCamera;
 
-	std::vector<Lina_PointLight> pLights;
+
 
 };
 

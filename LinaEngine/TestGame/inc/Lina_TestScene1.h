@@ -14,40 +14,47 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+4.0.30319.42000
+10/20/2018 6:25:52 PM
 
 */
 
-#include "pch.h"
-#include <iostream>
-#include "Core/Lina_Core.h"
-#include "Core/Lina_SDLHandler.h"
-#include "TestGame/inc/Lina_TestGame.h"
+#pragma once
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+#ifndef Lina_TestScene1_H
+#define Lina_TestScene1_H
 
-Lina_SDLHandler sdlHandler;
+#include "Scene/Lina_Scene.h"
 
-void StartEngine()
+class Lina_TestScene : public Lina_Scene
 {
-	Lina_TestGame game = Lina_TestGame();
 
-	Lina_Core(game, WINDOW_WIDTH, WINDOW_HEIGHT);
-}
+public:
 
-void Initialize()
-{
-	// Initialize SDL Handler
-	sdlHandler.Initialize();
+	Lina_TestScene();
+	virtual void Wake();
+	virtual void Start();
+	virtual void ProcessInput();
+	virtual void Update();
+	virtual void Render();
+	virtual void Stop();
+	virtual void CleanUp();
+	virtual Lina_Camera GetCurrentActiveCamera();
 
-	// Start Engine
-	StartEngine();
-}
+	Lina_Mesh m;
+
+	Lina_PhongShader s;
+	Lina_Transform transform;
+	Lina_Camera sceneCamera;
+	Lina_Material material;
+	Lina_PointLight p1;
+	Lina_PointLight p2;
+	Lina_PointLight p3;
+	Lina_PointLight p4;
+
+	std::vector<Lina_PointLight> pLights;
+
+};
 
 
-int main()
-{
-	Initialize();
-	return 0;
-}
-
+#endif

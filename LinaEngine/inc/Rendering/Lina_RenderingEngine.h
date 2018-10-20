@@ -27,6 +27,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 //#include<list>
 #include "Rendering/Lina_Window.h"
 #include "Core/Lina_ObjectHandler.h"
+#include "Rendering/Lina_PhongShader.h"
+#include "Rendering/Lina_BasicShader.h"
 
 class Lina_RenderingEngine
 {
@@ -35,19 +37,28 @@ public:
 	Lina_RenderingEngine() {};
 	~Lina_RenderingEngine();
 
-	void Initialize();
-    void CreateDisplayWindow(int, int, const std::string&);
+	void Initialize(int, int);
+
 	void ClearScreen();
 	void Render();
 	void CleanUp();
 	void SetTextures(bool);
 	void ClearColors(float, float, float, float);
-
+	
 	std::shared_ptr<Lina_Window> m_ActiveWindow;
 	Lina_ObjectHandler eventHandler;
 
+	Lina_PhongShader* GetPhongShader();
+	Lina_BasicShader* GetBasicShader();
 
 private:
+
+	void InitializeShaders();
+	void CreateDisplayWindow(int, int, const std::string&);
+
+	Lina_PhongShader phongShader;
+	Lina_BasicShader basicShader;
+
 	Lina_RenderingEngine(const Lina_RenderingEngine&) = delete;
 	Lina_RenderingEngine& operator= (const Lina_RenderingEngine&) = delete;
 	

@@ -28,13 +28,12 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 class Lina_RenderingEngine;
 class Lina_Core;
-class Lina_SDLHandler;
 
 class Lina_CoreMessageBus
 {
 public:
 
-	void Initialize(Lina_SDLHandler*, Lina_InputEngine*, Lina_RenderingEngine*);
+	void Initialize(Lina_InputEngine*, Lina_RenderingEngine*);
 
 	static Lina_CoreMessageBus& Instance()
 	{
@@ -52,7 +51,6 @@ private:
 
 	/* INSTANCES */
 	Lina_InputEngine* inputEngine;
-	Lina_SDLHandler* sdlHandler;
 	Lina_Core* coreEngine;
 	Lina_RenderingEngine* renderingEngine;
 

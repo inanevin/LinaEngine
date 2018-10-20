@@ -14,40 +14,39 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+4.0.30319.42000
+10/1/2018 5:57:03 AM
 
 */
 
-#include "pch.h"
-#include <iostream>
-#include "Core/Lina_Core.h"
-#include "Core/Lina_SDLHandler.h"
-#include "TestGame/inc/Lina_TestGame.h"
+#pragma once
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+#ifndef Lina_GameCore_H
+#define Lina_GameCore_H
 
-Lina_SDLHandler sdlHandler;
+#include "Scene/Lina_Scene.h"
 
-void StartEngine()
+class Lina_GameCore
 {
-	Lina_TestGame game = Lina_TestGame();
 
-	Lina_Core(game, WINDOW_WIDTH, WINDOW_HEIGHT);
-}
+public:
 
-void Initialize()
-{
-	// Initialize SDL Handler
-	sdlHandler.Initialize();
+	Lina_GameCore() {};
+	~Lina_GameCore();
+	virtual void Initialize();
+	virtual void Wake();
+	virtual void Start();
+	virtual void ProcessInput();
+	virtual void Update();
+	virtual void Render();
+	virtual void Stop();
+	virtual void CleanUp();
 
-	// Start Engine
-	StartEngine();
-}
+protected:
+
+	Lina_Scene* m_ActiveScene;
+	
+};
 
 
-int main()
-{
-	Initialize();
-	return 0;
-}
-
+#endif

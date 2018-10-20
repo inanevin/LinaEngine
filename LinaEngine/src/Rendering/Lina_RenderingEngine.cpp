@@ -31,7 +31,7 @@ void Lina_RenderingEngine::CreateDisplayWindow(int width, int height, const std:
 }
 
 // Init rendering engine.
-void Lina_RenderingEngine::Initialize() 
+void Lina_RenderingEngine::Initialize(int width, int height) 
 {
 	// Add a console message.
 	Lina_Console cons = Lina_Console();
@@ -44,7 +44,7 @@ void Lina_RenderingEngine::Initialize()
 	eventHandler.SubscribeToAction(ActionType::SDLQuit, [this]() { m_ActiveWindow->CloseWindow(); });
 
 	// Create a window.
-	CreateDisplayWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Lina Engine 3D");
+	CreateDisplayWindow(width, height, "Lina Engine 3D");
 
 	// Clear colors.
 	ClearColors(0.0, 0.0, 0.0, 1.0);
@@ -70,6 +70,14 @@ void Lina_RenderingEngine::Initialize()
 	// Get free gamma correction.
 	//glEnable(GL_FRAMEBUFFER_SRGB);
 
+	// Init shaders
+	InitializeShaders();
+}
+
+void Lina_RenderingEngine::InitializeShaders()
+{
+	phongShader.Init();
+	basicShader.Init();
 }
 
 // Destructor.
@@ -122,6 +130,17 @@ void Lina_RenderingEngine::ClearColors(float r, float g, float b, float a)
 {
 	// Clear color.
 	glClearColor(r,g,b,a);
+}
+
+
+Lina_BasicShader* Lina_RenderingEngine::GetBasicShader()
+{
+	return &basicShader;
+}
+
+Lina_PhongShader* Lina_RenderingEngine::GetPhongShader()
+{
+	return &phongShader;
 }
 
 

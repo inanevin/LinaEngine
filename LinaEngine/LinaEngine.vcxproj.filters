@@ -67,6 +67,18 @@
     <Filter Include="Source Files\Core">
       <UniqueIdentifier>{49812430-b827-4f5b-9591-d3308a4639e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Game">
+      <UniqueIdentifier>{187b3832-d73f-4ab9-ae25-03a9ef6457dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game">
+      <UniqueIdentifier>{bf8110ac-756d-4122-8ad7-90cb9a1d9ae9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\TestGame">
+      <UniqueIdentifier>{0cd3a96a-f3a2-45d3-ae63-6fb94f6f62a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\TestGame">
+      <UniqueIdentifier>{a6801b76-970b-43cd-a1d2-58cb9f5d5322}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Rendering\Lina_RenderingEngine.cpp">
@@ -135,9 +147,6 @@
     <ClCompile Include="src\Core\Lina_CoreMessageBus.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Lina_GameCore.cpp">
-      <Filter>Source Files\Core</Filter>
-    </ClCompile>
     <ClCompile Include="src\Core\Lina_Main.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
@@ -152,6 +161,15 @@
     </ClCompile>
     <ClCompile Include="src\pch.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestGame\src\Lina_TestGame.cpp">
+      <Filter>Source Files\TestGame</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Lina_GameCore.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="TestGame\src\Lina_TestScene1.cpp">
+      <Filter>Source Files\TestGame</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -251,9 +269,6 @@
     <ClInclude Include="inc\Core\Lina_CoreMessageBus.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Core\Lina_GameCore.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Core\Lina_ObjectHandler.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
@@ -268,6 +283,15 @@
     </ClInclude>
     <ClInclude Include="inc\pch.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestGame\inc\Lina_TestGame.h">
+      <Filter>Header Files\TestGame</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Game\Lina_GameCore.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="TestGame\inc\Lina_TestScene1.h">
+      <Filter>Header Files\TestGame</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -75,12 +75,20 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Github-Rep\LinaEngine\LinaEngine\opengl_inc;C:\Github-Rep\LinaEngine\LinaEngine\inc;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Github-Rep\LinaEngine\Debug;C:\Github-Rep\LinaEngine\LinaEngine\opengl_lib;$(LibraryPath)</LibraryPath>
+    <SourcePath>C:\Github-Rep\LinaEngine\Debug;C:\Github-Rep\LinaEngine\LinaEngine\opengl_lib;C:\Github-Rep\LinaEngine\LinaEngine\opengl_inc;C:\Github-Rep\LinaEngine\LinaEngine\src;$(SourcePath)</SourcePath>
+    <ExecutablePath>C:\Github-Rep\LinaEngine\LinaEngine\Debug;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\Github-Rep\LinaEngine\LinaEngine\opengl_inc;C:\Github-Rep\LinaEngine\LinaEngine\inc;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Github-Rep\LinaEngine\Debug;C:\Github-Rep\LinaEngine\LinaEngine\opengl_lib;$(LibraryPath)</LibraryPath>
+    <SourcePath>C:\Github-Rep\LinaEngine\Debug;C:\Github-Rep\LinaEngine\LinaEngine\opengl_lib;C:\Github-Rep\LinaEngine\LinaEngine\opengl_inc;C:\Github-Rep\LinaEngine\LinaEngine\src;$(SourcePath)</SourcePath>
+    <ExecutablePath>C:\Github-Rep\LinaEngine\LinaEngine\Debug;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -91,12 +99,12 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>.\opengl_inc;.\;.\inc;.\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Github-Rep\LinaEngine\LinaEngine\TestGame\inc;.\opengl_inc;.\;.\inc;.\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>.\opengl_lib;.\;.\inc;.\src;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Github-Rep\LinaEngine\LinaEngine\TestGame\inc;.\opengl_lib;.\;.\inc;.\src;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glew32.lib;glew32s.lib;SDL2.lib;SDL2main.lib;SDL2test.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
@@ -173,7 +181,7 @@
     <ClCompile Include="src\Rendering\Lina_PhongShader.cpp" />
     <ClCompile Include="src\Rendering\Lina_RenderingEngine.cpp" />
     <ClCompile Include="src\Core\Lina_Core.cpp" />
-    <ClCompile Include="src\Core\Lina_GameCore.cpp" />
+    <ClCompile Include="src\Game\Lina_GameCore.cpp" />
     <ClCompile Include="src\Core\Lina_SDLHandler.cpp" />
     <ClCompile Include="src\Rendering\Lina_Shader.cpp" />
     <ClCompile Include="src\Rendering\Lina_Texture.cpp" />
@@ -191,6 +199,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Utility\stb_image.cpp" />
+    <ClCompile Include="TestGame\src\Lina_TestGame.cpp" />
+    <ClCompile Include="TestGame\src\Lina_TestScene1.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\Events\Lina_Actions.h">
@@ -295,7 +305,7 @@
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Core\Lina_GameCore.h">
+    <ClInclude Include="inc\Game\Lina_GameCore.h">
       <SubType>
       </SubType>
     </ClInclude>
@@ -333,6 +343,14 @@
     </ClInclude>
     <ClInclude Include="inc\pch.h" />
     <ClInclude Include="inc\Utility\stb_image.h" />
+    <ClInclude Include="TestGame\inc\Lina_TestGame.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="TestGame\inc\Lina_TestScene1.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\basic.frag" />

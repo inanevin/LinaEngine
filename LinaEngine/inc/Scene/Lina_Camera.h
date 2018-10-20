@@ -45,6 +45,10 @@ public:
 	void RotateX(float);
 	void RotateY(float);
 
+	float fov = 70;
+	float nearClippingPlane = 0.1f;
+	float farClippingPlane = 1000;
+
 private:
 	Vector3 position;
 	Vector3 forward;

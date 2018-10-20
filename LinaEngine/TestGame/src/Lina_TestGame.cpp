@@ -14,40 +14,86 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+4.0.30319.42000
+10/20/2018 5:59:47 PM
 
 */
 
 #include "pch.h"
-#include <iostream>
-#include "Core/Lina_Core.h"
-#include "Core/Lina_SDLHandler.h"
-#include "TestGame/inc/Lina_TestGame.h"
+#include "Lina_TestGame.h"  
+#include "TestGame/inc/Lina_TestScene1.h"
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
-
-Lina_SDLHandler sdlHandler;
-
-void StartEngine()
+Lina_TestGame::Lina_TestGame()
 {
-	Lina_TestGame game = Lina_TestGame();
-
-	Lina_Core(game, WINDOW_WIDTH, WINDOW_HEIGHT);
+	
 }
 
-void Initialize()
+Lina_TestGame::~Lina_TestGame()
 {
-	// Initialize SDL Handler
-	sdlHandler.Initialize();
+	
+}
 
-	// Start Engine
-	StartEngine();
+void Lina_TestGame::Initialize()
+{
+	Lina_GameCore::Initialize();
+
+	// Set active scene.
+	m_ActiveScene = new Lina_TestScene();
+}
+
+void Lina_TestGame::Wake()
+{
+	Lina_GameCore::Wake();
+
+	// Wake the active scene.
+	m_ActiveScene->Wake();
+}
+
+void Lina_TestGame::Start()
+{
+	Lina_GameCore::Start();
+
+	// Start the active scene.
+	m_ActiveScene->Start();
+}
+
+void Lina_TestGame::ProcessInput()
+{
+	Lina_GameCore::ProcessInput();
+
+	// Process input on active scene.
+	m_ActiveScene->ProcessInput();
+}
+
+void Lina_TestGame::Update()
+{
+	Lina_GameCore::Update();
+
+	// Update active scene.
+	m_ActiveScene->Update();
 }
 
 
-int main()
+void Lina_TestGame::Render()
 {
-	Initialize();
-	return 0;
+	Lina_GameCore::Render();
+
+	// Render active scene.
+	m_ActiveScene->Render();
 }
 
+void Lina_TestGame::Stop()
+{
+	Lina_GameCore::Stop();
+
+	// Stop active scene.
+	m_ActiveScene->Stop();
+}
+
+void Lina_TestGame::CleanUp()
+{
+	Lina_GameCore::CleanUp();
+
+	// Clean active scene.
+	m_ActiveScene->CleanUp();
+}

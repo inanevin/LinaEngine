@@ -15,34 +15,56 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/1/2018 5:57:03 AM
+10/1/2018 6:00:05 AM
 
 */
 
-#pragma once
+#include "pch.h"
+#include "Game/Lina_GameCore.h"  
 
-#ifndef Lina_Game_H
-#define Lina_Game_H
-
-#include "Scene/Lina_Scene.h"
-
-class Lina_GameCore
+Lina_GameCore::~Lina_GameCore()
 {
+	delete m_ActiveScene;
+}
 
-public:
-	Lina_GameCore() {};
-	~Lina_GameCore() {};
-	void Wake();
-	void Start();
-	void ProcessInput();
-	void Update();
-	void Render();
+void Lina_GameCore::Initialize()
+{
+	
+}
 
-private:
+void Lina_GameCore::Wake()
+{
+	
+}
 
-	Lina_GameCore(const Lina_GameCore& r) = delete;
-	Lina_Scene m_TestScene;
-};
+void Lina_GameCore::Start()
+{
+	
+}
+
+void Lina_GameCore::ProcessInput()
+{
+	
+}
+
+void Lina_GameCore::Update()
+{
+	
+}
+
+void Lina_GameCore::Render()
+{
+	
+}
+
+void Lina_GameCore::Stop()
+{
+	
+}
+
+void Lina_GameCore::CleanUp()
+{
+	
+}
 
 
-#endif

@@ -21,13 +21,13 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Core/Lina_Core.h"
 #include "Utility/Lina_Time.h"
 
-
 static const double FRAME_CAP = 5000.0;	// max frame limit we can draw. (ex.5000 frames in a sec)
 static const long SECOND = 1000000000;	// time in nanosecs
 
 // Constructor, initialize components.
-Lina_Core::Lina_Core()
+Lina_Core::Lina_Core(Lina_GameCore& mGame, float screenWidth, float screenHeight)
 {
+
 	// Add a console message.
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Core initialized.", Lina_Console::MsgType::Initialization, "Core");
@@ -35,11 +35,28 @@ Lina_Core::Lina_Core()
 	// Set running.
 	isRunning = false;
 
-	// Wake the systems.
-	Wake();
+	// Set game.
+	game = &mGame;
 
-	// Start the game.
-	Start();
+	// Initialize the systems.
+
+	// Initialize Message Bus.
+	Lina_CoreMessageBus::Instance().Initialize(&inputEngine, &renderingEngine);
+
+	// Initialize input engine.
+	inputEngine.Initialize();
+
+	// Initialize rendering engine.
+	renderingEngine.Initialize(screenWidth, screenHeight);
+
+	// Initialize event handler.
+	objectHandler.Initialize();
+	
+	// Initialize game core.
+	game->Initialize();
+
+	// Start game loop.
+	StartSystems();
 }
 
 // Destructor.
@@ -49,31 +66,8 @@ Lina_Core::~Lina_Core()
 	cons.AddConsoleMsg("Core deinitialized.", Lina_Console::MsgType::Deinitialization, "Core");
 }
 
-// Initialization before start.
-void Lina_Core::Wake()
-{
-	// Initialize Message Bus.
-	Lina_CoreMessageBus::Instance().Initialize(&sdlHandler, &inputEngine, &renderingEngine);
-
-	// Initialize SDL handler.
-	sdlHandler.Initialize();
-
-	// Initialize input engine.
-	inputEngine.Initialize();
-
-	// Initialize rendering engine.
-	renderingEngine.Initialize();
-
-	// Initialize game core.
-	gameCore.Wake();
-
-	// Initialize event handler.
-	objectHandler.Initialize();
-}
-
-
 // Initialization method for the game core.
-void Lina_Core::Start()
+void Lina_Core::StartSystems()
 {
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Game engine loop starting...", Lina_Console::MsgType::Initialization, "Core Engine");
@@ -81,8 +75,11 @@ void Lina_Core::Start()
 	// Can not start if we are already running.
 	if (isRunning) return;
 
+	// Call wake for game core.
+	game->Wake();
+
 	// Call start for game core.
-	gameCore.Start();
+	game->Start();
 
 	// Start the main game loop.
 	Run();
@@ -93,11 +90,15 @@ void Lina_Core::Stop()
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Game engine loop stopping...", Lina_Console::MsgType::Deinitialization, "Core Engine");
 
+	// Stop game core.
+	game->Stop();
+
 	// Can not stop if we are not running.
 	if (!isRunning) return;
 
 	// Stop running the engine.
 	isRunning = false;
+
 }
 
 void Lina_Core::Run()
@@ -116,6 +117,7 @@ void Lina_Core::Run()
 	// Frame counter.
 	int frames = 0;
 	long frameCounter = 0;
+
 
 	// For now the only condition is to have an active window to keep the rendering.
 	while (isRunning)
@@ -167,8 +169,8 @@ void Lina_Core::Run()
 			Lina_Time::SetDelta(frameTime);
 			
 			// TODO: Update game loop
-			gameCore.ProcessInput();
-			gameCore.Update();
+			game->ProcessInput();
+			game->Update();
 			
 			// print the frame counter every second.
 			if (frameCounter >= SECOND)
@@ -212,7 +214,7 @@ void Lina_Core::Run()
 void Lina_Core::Render()
 {
 	renderingEngine.ClearScreen();
-	gameCore.Render();
+	game->Render();
 	renderingEngine.Render();
 }
 
@@ -223,4 +225,7 @@ void Lina_Core::CleanUp()
 
 	// Clean up render engine.
 	renderingEngine.CleanUp();
+
+	// Clean up game core.
+	game->CleanUp();
 }

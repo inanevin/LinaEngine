@@ -24,7 +24,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define LINA_CORE_H
 
 #include "Rendering/Lina_RenderingEngine.h"
-#include "Lina_GameCore.h"
+#include "Game/Lina_GameCore.h"
 #include "Input/Lina_InputEngine.h"
 #include "Lina_ObjectHandler.h"
 
@@ -35,18 +35,13 @@ class Lina_Core {
 
 public:
 
-    Lina_Core();
+    Lina_Core(Lina_GameCore&, float, float);
 	~Lina_Core();
-
-	
+	//Lina_Core(const Lina_Core& r) {};
 
 private:
 
-	int movementspeed;
-	float torque;
-
-	void Wake();
-	void Start();
+	void StartSystems();
 	void Stop();
 	void Run();
 	void Render();
@@ -55,13 +50,11 @@ private:
 
 	Lina_InputEngine inputEngine;
 	Lina_RenderingEngine renderingEngine;
-	Lina_GameCore gameCore;
-	Lina_SDLHandler sdlHandler;
+	Lina_GameCore* game;
 
 	// Object Specific
 	Lina_ObjectHandler objectHandler;
 
-	Lina_Core(const Lina_Core& r) = delete;
 
 };
 

@@ -31,112 +31,35 @@ Lina_Scene::Lina_Scene()
 
 }
 
-Lina_Camera Lina_Scene::GetCamera() { return sceneCamera; }
+Lina_Camera Lina_Scene::GetCurrentActiveCamera() { return currentActiveCamera; }
 
 void Lina_Scene::Wake()
 {
 
-	// Plane 
-	std::vector<Vertex> vertices;
-
-	float depth = 10.0f;
-	float width = 10.0f;
-	vertices.push_back(Vertex(Vector3(-width *2, 0.0, -depth * 2), Vector2(0.0, 0.0)));
-	vertices.push_back(Vertex(Vector3(-width *2, 0.0, depth *2), Vector2(0.0, 1.0)));
-	vertices.push_back(Vertex(Vector3(width *2, 0.0f, -depth *2), Vector2(1.0, 0.0)));
-	vertices.push_back(Vertex(Vector3(width *2, 0.0f, depth * 2), Vector2(1.0, 1.0f)));
-
-	for (int i = 0; i < vertices.size(); i++)
-	{
-		std::cout << Vector3::VToString(vertices[i].GetPosition()) << std::endl;
-	}
-	std::vector<unsigned int> indices =
-	{				0,1,2,2,1,3
-	};
-
-
-
-	material.color = (Vector3(1, 1, 1));
-	material.texture.LoadTexture("grid4.png");
-	material.specularIntensity = 1;
-	material.specularExponent = 8;
-
-	transform.SetCamera(sceneCamera);
-	transform.SetProjection(FIELD_OF_VIEW, WINDOW_WIDTH, WINDOW_HEIGHT, CLIPPING_PLANE_NEAR, CLIPPING_PLANE_FAR);
-
-	s.SetAmbientLight(COLOR_WHITE * 0.05f);
-	s.SetDirectionalLight(Lina_DirectionalLight(Lina_BaseLight(COLOR_WHITE * 0.5f, 0.1f), Vector3(1,1,1)));
-	p1 = Lina_PointLight(Lina_BaseLight(Vector3(1, 0, 0), 5.0f), Lina_Attenuation(0, 0, 1), Vector3(-5, 3.0f, -5), 20.0);
-	p2 = Lina_PointLight(Lina_BaseLight(Vector3(0, 1, 0), 2.0f), Lina_Attenuation(0, 0, 1), Vector3(5, 3.0f, -5), 20.0);
-
-	//p2 = Lina_PointLight(Lina_BaseLight(Vector3(0, 0, 1), 0.5f), Lina_Attenuation(1, 0, 0), Vector3(2, 1, -5), 10.0);
-	//	p3 = Lina_PointLight(Vector3(0, 1, 0), 0.5f, Vector3(-2, 1, -10), 1, 0, 0);
-	//p4 = Lina_PointLight(Vector3(1, 0, 1), 0.5f, Vector3(-2, 1, 10), 1, 0, 0);
-
-	pLights.push_back(p1);
-	pLights.push_back(p2);
-	//pLights.push_back(p3);
-//	pLights.push_back(p4);
-
-	//s.SetPointLights(pLights);
-
-	std::vector<Lina_SpotLight> spots;
-
-	Lina_SpotLight sp1 = Lina_SpotLight(
-		Lina_PointLight(Lina_BaseLight(Vector3(0, 1, 1), 5),
-		Lina_Attenuation(0, 0, 0.01f),
-		Vector3(-6, 1, 2), 40.0f),
-		Vector3::one(),
-		0.5f);
-	spots.push_back(sp1);
-	s.SetSpotLights(spots);
-
-	s.Init();
-
-	m.InitMesh();
-	m2.InitMesh();
-
-	//Lina_ResourceLoader::LoadMesh("sphere.obj");
-	m.AddVertices(vertices, indices, true);
-
 }
-
 
 void Lina_Scene::Start()
 {
 
 }
 
-
 void Lina_Scene::ProcessInput()
 {
 
-
 }
-
-float temp = 0.0f;
 
 void Lina_Scene::Update()
 {
-	temp += Lina_Time::GetDelta() ;
-	transform.SetPosition(0, -1, 0);
-//	transform.SetRotation(0, sin(temp) * 180, 0);
-	sceneCamera.TempInput();
-
-	//s.SetPointLights(pLights);
 
 }
 
 void Lina_Scene::Render()
 {
-	s.Bind();
-	m.Draw();
-	s.UpdateUniforms(transform.GetTransformation(), transform.GetProjectedTransformation(), sceneCamera.GetPosition(), material);
-	/*// Go through each loaded mesh and out its contents
-	for (int i = 0; i < objLoader.LoadedMeshes.size(); i++)
-	{
-		objLoader.LoadedMeshes[i].Draw();
-	}*/
+
+}
+
+void Lina_Scene::Stop()
+{
 
 }
 
