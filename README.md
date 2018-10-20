@@ -15,6 +15,7 @@ Visual Studio 2017
 - OpenGL 4.6
 - GLEW 2.1.0
 - GLM
+- stb
 
 ## License
 Under MIT license. See [LICENSE](https://github.com/lineupthesky/LinaEngine/blob/master/LICENSE.md) for details.
