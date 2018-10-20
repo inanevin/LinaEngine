@@ -150,8 +150,8 @@
     <ClCompile Include="src\Utility\stb_image.cpp">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utility\pch.cpp">
-      <Filter>Source Files\Utility</Filter>
+    <ClCompile Include="src\pch.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

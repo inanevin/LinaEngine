@@ -112,11 +112,9 @@ void Lina_InputEngine::Update()
 	//smoothDeltaMouseY = Lina_Math::Lerp(smoothDeltaMouseY, deltaMouseY, Lina_Time::GetDelta() * MOUSE_SMOOTH);
 
 	// Store the previous keys.
-	m_PreviousKeys = new Uint8[numKeys];
 	memcpy(m_PreviousKeys, m_CurrentKeys, sizeof(Uint8) * numKeys);
 
 	// Update the current keys, copy the current keys to pressed keys.
-	m_CurrentKeys = new Uint8[numKeys];
 	memcpy(m_CurrentKeys, m_KeyboardState, sizeof(Uint8) * numKeys);
 
 	// Store previous mouse states.
