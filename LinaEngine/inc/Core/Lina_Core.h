@@ -28,16 +28,17 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Input/Lina_InputEngine.h"
 #include "Lina_ObjectHandler.h"
 
-extern const double FRAME_CAP;
 extern const long SECOND;
 
 class Lina_Core {
 
 public:
 
-    Lina_Core(Lina_GameCore&, float, float);
+    Lina_Core(Lina_GameCore&, std::string, float, float, double);
+	Lina_Core(const Lina_Core& r) {};
 	~Lina_Core();
-	//Lina_Core(const Lina_Core& r) {};
+
+	void Initialize();
 
 private:
 
@@ -47,6 +48,11 @@ private:
 	void Render();
 	void CleanUp();
 	bool isRunning;
+
+	double m_FrameCap;
+	float m_ScreenWidth;
+	float m_ScreenHeight;
+	std::string m_Title;
 
 	Lina_InputEngine inputEngine;
 	Lina_RenderingEngine renderingEngine;

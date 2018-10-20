@@ -31,8 +31,8 @@ Lina_SDLHandler sdlHandler;
 void StartEngine()
 {
 	Lina_TestGame game = Lina_TestGame();
-
-	Lina_Core(game, WINDOW_WIDTH, WINDOW_HEIGHT);
+	Lina_Core core = Lina_Core(game, "Test Game", WINDOW_WIDTH, WINDOW_HEIGHT, 120);
+	core.Initialize();
 }
 
 void Initialize()

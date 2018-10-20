@@ -21,11 +21,10 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Core/Lina_Core.h"
 #include "Utility/Lina_Time.h"
 
-static const double FRAME_CAP = 5000.0;	// max frame limit we can draw. (ex.5000 frames in a sec)
 static const long SECOND = 1000000000;	// time in nanosecs
 
 // Constructor, initialize components.
-Lina_Core::Lina_Core(Lina_GameCore& mGame, float screenWidth, float screenHeight)
+Lina_Core::Lina_Core(Lina_GameCore& mGame, std::string title, float screenWidth, float screenHeight, double frameCap)
 {
 
 	// Add a console message.
@@ -38,25 +37,12 @@ Lina_Core::Lina_Core(Lina_GameCore& mGame, float screenWidth, float screenHeight
 	// Set game.
 	game = &mGame;
 
-	// Initialize the systems.
+	// Set width & height & title & frame cap.
+	m_ScreenWidth = screenWidth;
+	m_ScreenHeight = screenHeight;
+	m_Title = title;
+	m_FrameCap = frameCap;
 
-	// Initialize Message Bus.
-	Lina_CoreMessageBus::Instance().Initialize(&inputEngine, &renderingEngine);
-
-	// Initialize input engine.
-	inputEngine.Initialize();
-
-	// Initialize rendering engine.
-	renderingEngine.Initialize(screenWidth, screenHeight);
-
-	// Initialize event handler.
-	objectHandler.Initialize();
-	
-	// Initialize game core.
-	game->Initialize();
-
-	// Start game loop.
-	StartSystems();
 }
 
 // Destructor.
@@ -64,6 +50,28 @@ Lina_Core::~Lina_Core()
 {
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Core deinitialized.", Lina_Console::MsgType::Deinitialization, "Core");
+}
+
+
+void Lina_Core::Initialize()
+{
+	// Initialize Message Bus.
+	Lina_CoreMessageBus::Instance().Initialize(&inputEngine, &renderingEngine);
+
+	// Initialize input engine.
+	inputEngine.Initialize();
+
+	// Initialize rendering engine.
+	renderingEngine.Initialize(m_ScreenWidth, m_ScreenHeight, m_Title);
+
+	// Initialize event handler.
+	objectHandler.Initialize();
+
+	// Initialize game core.
+	game->Initialize();
+
+	// Start game loop.
+	StartSystems();
 }
 
 // Initialization method for the game core.
@@ -106,7 +114,7 @@ void Lina_Core::Run()
 	isRunning = true;
 
 	// Amount of time one frame takes.
-	const double frameTime = 1.0 / FRAME_CAP;
+	const double frameTime = 1.0 / m_FrameCap;
 
 	// Time that prev frame started running.
 	long lastTime = Lina_Time::GetCurrentTimeInNano();

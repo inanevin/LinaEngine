@@ -31,7 +31,7 @@ void Lina_RenderingEngine::CreateDisplayWindow(int width, int height, const std:
 }
 
 // Init rendering engine.
-void Lina_RenderingEngine::Initialize(int width, int height) 
+void Lina_RenderingEngine::Initialize(int width, int height, std::string title) 
 {
 	// Add a console message.
 	Lina_Console cons = Lina_Console();
@@ -44,7 +44,7 @@ void Lina_RenderingEngine::Initialize(int width, int height)
 	eventHandler.SubscribeToAction(ActionType::SDLQuit, [this]() { m_ActiveWindow->CloseWindow(); });
 
 	// Create a window.
-	CreateDisplayWindow(width, height, "Lina Engine 3D");
+	CreateDisplayWindow(width, height, title);
 
 	// Clear colors.
 	ClearColors(0.0, 0.0, 0.0, 1.0);

@@ -37,7 +37,7 @@ public:
 	Lina_RenderingEngine() {};
 	~Lina_RenderingEngine();
 
-	void Initialize(int, int);
+	void Initialize(int, int, std::string);
 
 	void ClearScreen();
 	void Render();
