@@ -2,13 +2,9 @@
 Lina Engine is an open-source , modular, tiny and fast C++ game engine, aimed to develop 3D cross-platform desktop games.
 
 ## Prequisites
-Visual Studio 2017
-
-## Installation
-- git clone https://github.com/lineupthesky/LinaEngine --recursive
-- Open the .sln file
-- Run x86 Build
-- Open Debug/LinaEngine.exe
+Visual Studio 2017 15.8.5 or newer
+Microsoft .NET Framework 4.7.02558
+Visual C++ 2017
 
 ## Dependencies
 - SDL 2.0
@@ -16,6 +12,12 @@ Visual Studio 2017
 - GLEW 2.1.0
 - GLM
 - stb
+
+## Installation
+- git clone https://github.com/inanevin/LinaEngine
+- Open the .sln file in mentioned VS version.
+- Run x86 Build
+- Open Debug/LinaEngine.exe
 
 ## License
 Under MIT license. See [LICENSE](https://github.com/lineupthesky/LinaEngine/blob/master/LICENSE.md) for details.
