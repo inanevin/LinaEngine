@@ -25,15 +25,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_Scene_H
 
 
-#include "Rendering/Lina_Mesh.h"
-#include "Rendering/Lina_PhongShader.h"
-#include "Rendering/Lina_BasicShader.h"
 
-#include "Core/Lina_Transform.h"
-#include "Core/Lina_ObjectHandler.h"
-#include "Rendering/Lina_Texture.h"
 
-#include "Utility/Lina_Time.h"
 #include "Game/Lina_Actor.h"
 #include "Game/Components/Lina_MeshRenderer.h"
 #include "Rendering/Lina_RenderingEngine.h"
