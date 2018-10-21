@@ -22,6 +22,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "pch.h"
 #include "Rendering/Lina_PhongShader.h"  
 #include "Utility/Lina_ResourceLoader.h"
+#include "Core/Lina_CoreMessageBus.h"
+#include "Rendering/Lina_RenderingEngine.h"
+#include "Scene/Lina_Camera.h"
 
 Lina_PhongShader::Lina_PhongShader()
 {
@@ -75,7 +78,7 @@ void Lina_PhongShader::Init()
 	
 }
 
-void Lina_PhongShader::UpdateUniforms(Matrix4 world, Matrix4 projected, Vector3 camPos, Lina_Material mat)
+void Lina_PhongShader::UpdateUniforms(Matrix4 world, Matrix4 projected, Lina_Material mat)
 {
 	// UNBIND IF TEXTURE IS NULL?
 	mat.texture.Bind();
@@ -86,7 +89,8 @@ void Lina_PhongShader::UpdateUniforms(Matrix4 world, Matrix4 projected, Vector3 
 	Lina_Shader::SetUniform("ambientLight", m_AmbientLight);
 	Lina_Shader::SetUniform("specularIntensity", mat.specularIntensity);
 	Lina_Shader::SetUniform("specularExponent", mat.specularExponent);
-	Lina_Shader::SetUniform("camPos", camPos);
+	Lina_Shader::SetUniform("camPos",  Lina_CoreMessageBus::Instance().GetRenderingEngine()->GetCurrentActiveCamera()->GetPosition());
+
 	this->SetUniform("directionalLight", m_DirectionalLight);
 
 	for (int i = 0; i < pointLights.size(); i++)

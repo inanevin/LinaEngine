@@ -20,18 +20,29 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
-#include "Utility/Lina_Globals.h"
 #include "Rendering/Lina_RenderingEngine.h"  
+#include "Rendering/Lina_PhongShader.h"
+#include "Rendering/Lina_BasicShader.h"
+#include "Scene/Lina_Camera.h"
 
+// Destructor.
+Lina_RenderingEngine::~Lina_RenderingEngine()
+{
+	Lina_Console cons = Lina_Console();
+	cons.AddConsoleMsg("Rendering deinitialized.", Lina_Console::MsgType::Deinitialization, "Render Engine");
 
-void Lina_RenderingEngine::CreateDisplayWindow(int width, int height, const std::string& title)
+	delete phongShader;
+	delete basicShader;
+}
+
+void Lina_RenderingEngine::CreateDisplayWindow()
 {
 	// Initialize display.
-	m_ActiveWindow = std::make_shared<Lina_Window>(width, height, title);
+	m_ActiveWindow = std::make_shared<Lina_Window>(ScreenWidth, ScreenHeight, ScreenTitle);
 }
 
 // Init rendering engine.
-void Lina_RenderingEngine::Initialize(int width, int height, std::string title) 
+void Lina_RenderingEngine::Initialize() 
 {
 	// Add a console message.
 	Lina_Console cons = Lina_Console();
@@ -44,7 +55,7 @@ void Lina_RenderingEngine::Initialize(int width, int height, std::string title)
 	eventHandler.SubscribeToAction(ActionType::SDLQuit, [this]() { m_ActiveWindow->CloseWindow(); });
 
 	// Create a window.
-	CreateDisplayWindow(width, height, title);
+	CreateDisplayWindow();
 
 	// Clear colors.
 	ClearColors(0.0, 0.0, 0.0, 1.0);
@@ -76,17 +87,12 @@ void Lina_RenderingEngine::Initialize(int width, int height, std::string title)
 
 void Lina_RenderingEngine::InitializeShaders()
 {
-	phongShader.Init();
-	basicShader.Init();
-}
+	phongShader = new Lina_PhongShader();
+	basicShader = new Lina_BasicShader();
 
-// Destructor.
-Lina_RenderingEngine::~Lina_RenderingEngine()
-{
-	Lina_Console cons = Lina_Console();
-	cons.AddConsoleMsg("Rendering deinitialized.", Lina_Console::MsgType::Deinitialization, "Render Engine");
+	phongShader->Init();
+	basicShader->Init();
 }
-
 
 void Lina_RenderingEngine::ClearScreen()
 {
@@ -132,15 +138,27 @@ void Lina_RenderingEngine::ClearColors(float r, float g, float b, float a)
 	glClearColor(r,g,b,a);
 }
 
+void Lina_RenderingEngine::SetCurrentActiveCamera(Lina_Camera* cam)
+{
+	currentActiveCamera = cam;
+}
+
+Lina_Camera * Lina_RenderingEngine::GetCurrentActiveCamera()
+{
+	if (currentActiveCamera == nullptr)
+		std::cout << "ERR! Trying to get a deleted camera!";
+
+	return currentActiveCamera;
+}
 
 Lina_BasicShader* Lina_RenderingEngine::GetBasicShader()
 {
-	return &basicShader;
+	return basicShader;
 }
 
 Lina_PhongShader* Lina_RenderingEngine::GetPhongShader()
 {
-	return &phongShader;
+	return phongShader;
 }
 
 

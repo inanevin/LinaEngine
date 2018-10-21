@@ -21,12 +21,41 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pch.h"
 #include "Core/Lina_CoreMessageBus.h"  
+#include "Rendering/Lina_RenderingEngine.h"
+#include "Input/Lina_InputEngine.h"
 
-void Lina_CoreMessageBus::Initialize(Lina_InputEngine* inpE, Lina_RenderingEngine* rndE)
+void Lina_CoreMessageBus::Initialize()
 {
 	Lina_Console c;
 	c.AddConsoleMsg("Message Bus Initialized", Lina_Console::MsgType::Initialization, "Message Bus");
+}
 
-	inputEngine = inpE;
-	renderingEngine = rndE;
+Lina_InputEngine* Lina_CoreMessageBus::GetInputEngine()
+{
+	return inputEngine;
+}
+
+Lina_RenderingEngine* Lina_CoreMessageBus::GetRenderingEngine()
+{
+	return renderingEngine;
+}
+
+Lina_Core* Lina_CoreMessageBus::GetCoreEngine()
+{
+	return coreEngine;
+}
+
+void Lina_CoreMessageBus::SetInputEngine(Lina_InputEngine* inp)
+{
+	inputEngine = inp;
+}
+
+void Lina_CoreMessageBus::SetRenderingEngine(Lina_RenderingEngine* rnd)
+{
+	renderingEngine = rnd;
+}
+
+void Lina_CoreMessageBus::SetCore(Lina_Core* c)
+{
+	coreEngine = c;
 }

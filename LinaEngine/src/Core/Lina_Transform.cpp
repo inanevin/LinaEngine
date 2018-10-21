@@ -22,6 +22,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "pch.h"
 #include "Core/Lina_Transform.h"  
 #include "Scene/Lina_Scene.h"
+#include "Core/Lina_CoreMessageBus.h"
+#include "Rendering/Lina_RenderingEngine.h"
 
 Vector3 Lina_Transform::GetPosition() { return position; }
 Vector3 Lina_Transform::GetRotation() { return rotation; }
@@ -64,25 +66,15 @@ Matrix4 Lina_Transform::GetProjectedTransformation()
 	Matrix4 cameraRotation;
 	Matrix4 cameraTranslation;
 
-	projectionMatrix.InitProjection(fov, width, height, zNear, zFar);
-	cameraRotation.InitCamera(sceneCamera->GetForward(), sceneCamera->GetUp());
-	cameraTranslation.InitPosition(-sceneCamera->GetPosition().x, -sceneCamera->GetPosition().y, -sceneCamera->GetPosition().z);
+	Lina_Camera* currentCam = Lina_CoreMessageBus::Instance().GetRenderingEngine()->GetCurrentActiveCamera();
+	Lina_RenderingEngine* rnd = Lina_CoreMessageBus::Instance().GetRenderingEngine();
+
+	
+	projectionMatrix.InitProjection(currentCam->fov, rnd->ScreenWidth, rnd->ScreenHeight, currentCam->nearClippingPlane, currentCam->farClippingPlane);
+	cameraRotation.InitCamera(currentCam->GetForward(), currentCam->GetUp());
+	cameraTranslation.InitPosition(-currentCam->GetPosition().x, -currentCam->GetPosition().y, -currentCam->GetPosition().z);
 	return projectionMatrix.Multiply(cameraRotation.Multiply(cameraTranslation.Multiply(transformationMatrix)));
 }
 
-// Sets projection
-void Lina_Transform::SetProjection(float f, float w, float h, float zN, float zF)
-{
-	fov = f;
-	width = w;
-	height = h;
-	zNear = zN;
-	zFar = zF;
-}
-
-void Lina_Transform::SetCamera(Lina_Camera& cam)
-{
-	sceneCamera = &cam;
-}
 
 

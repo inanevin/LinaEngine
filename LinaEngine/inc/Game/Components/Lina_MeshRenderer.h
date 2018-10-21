@@ -15,52 +15,41 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/9/2018 4:44:45 AM
+10/20/2018 10:06:28 PM
 
 */
 
 #pragma once
 
-#ifndef Lina_CoreMessageBus_H
-#define Lina_CoreMessageBus_H
+#ifndef Lina_MeshRenderer_H
+#define Lina_MeshRenderer_H
 
-class Lina_InputEngine;
-class Lina_Core;
-class Lina_RenderingEngine;
+#include "Game/Lina_ActorComponent.h"
+#include "Rendering/Lina_Mesh.h"
+#include "Rendering/Lina_Material.h"
+#include "Rendering/Lina_Shader.h"
+#include "Rendering/Lina_BasicShader.h"
 
-class Lina_CoreMessageBus
+class Lina_MeshRenderer : public Lina_ActorComponent
 {
+
 public:
 
-	void Initialize();
+	Lina_MeshRenderer();
 
-	static Lina_CoreMessageBus& Instance()
-	{
-		static Lina_CoreMessageBus instance; 				  
-		return instance;
-	}
-
-	Lina_InputEngine* GetInputEngine();
-	Lina_RenderingEngine* GetRenderingEngine();
-	Lina_Core* GetCoreEngine();
-
-	void SetInputEngine(Lina_InputEngine*);
-	void SetRenderingEngine(Lina_RenderingEngine*);
-	void SetCore(Lina_Core*);
-
+	void SetMesh(std::string);
+	void SetMaterial(const Lina_Material&);
+	void SetShader(Lina_Shader*);
+	void Wake() override;
+	void Render() override;
+	void CleanUp() override;
 
 private:
 
-	Lina_CoreMessageBus() {}
-
-	Lina_InputEngine* inputEngine;
-	Lina_Core* coreEngine;
-	Lina_RenderingEngine* renderingEngine;
-
-public:
-
-	Lina_CoreMessageBus(Lina_CoreMessageBus const&) = delete;
-	void operator=(Lina_CoreMessageBus const&) = delete;
+	Lina_BasicShader basicShader;
+	Lina_Shader* m_Shader;
+	Lina_Mesh* m_Mesh;
+	Lina_Material m_Material;
 
 };
 

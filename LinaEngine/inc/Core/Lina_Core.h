@@ -37,8 +37,8 @@ public:
     Lina_Core(Lina_GameCore&, std::string, float, float, double);
 	Lina_Core(const Lina_Core& r) {};
 	~Lina_Core();
-
 	void Initialize();
+
 
 private:
 
@@ -50,9 +50,6 @@ private:
 	bool isRunning;
 
 	double m_FrameCap;
-	float m_ScreenWidth;
-	float m_ScreenHeight;
-	std::string m_Title;
 
 	Lina_InputEngine inputEngine;
 	Lina_RenderingEngine renderingEngine;

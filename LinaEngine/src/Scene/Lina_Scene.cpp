@@ -20,18 +20,25 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
-#include "Scene/Lina_Scene.h"  
-#include "Utility/Lina_ResourceLoader.h"
-#include "Utility/Lina_Time.h"
-#include "Utility/Lina_Globals.h"
-#include "Scene/Lina_Camera.h"
+#include "Scene/Lina_Scene.h" 
+#include "Core/Lina_CoreMessageBus.h"
+#include "Rendering/Lina_RenderingEngine.h"
 
 Lina_Scene::Lina_Scene()
 {
 
 }
 
-Lina_Camera Lina_Scene::GetCurrentActiveCamera() { return currentActiveCamera; }
+void Lina_Scene::SetCurrentActiveCamera(Lina_Camera& cam)
+{
+	currentActiveCamera = &cam;
+	Lina_CoreMessageBus::Instance().GetRenderingEngine()->SetCurrentActiveCamera(currentActiveCamera);
+}
+
+Lina_Camera* Lina_Scene::GetCurrentActiveCamera()
+{ 
+	return currentActiveCamera; 
+}
 
 void Lina_Scene::Wake()
 {

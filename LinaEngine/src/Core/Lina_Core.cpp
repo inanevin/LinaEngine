@@ -38,9 +38,9 @@ Lina_Core::Lina_Core(Lina_GameCore& mGame, std::string title, float screenWidth,
 	game = &mGame;
 
 	// Set width & height & title & frame cap.
-	m_ScreenWidth = screenWidth;
-	m_ScreenHeight = screenHeight;
-	m_Title = title;
+	renderingEngine.ScreenHeight = screenHeight;
+	renderingEngine.ScreenWidth = screenWidth;
+	renderingEngine.ScreenTitle = title;
 	m_FrameCap = frameCap;
 
 }
@@ -56,13 +56,16 @@ Lina_Core::~Lina_Core()
 void Lina_Core::Initialize()
 {
 	// Initialize Message Bus.
-	Lina_CoreMessageBus::Instance().Initialize(&inputEngine, &renderingEngine);
+	Lina_CoreMessageBus::Instance().Initialize();
+	Lina_CoreMessageBus::Instance().SetCore(this);
+	Lina_CoreMessageBus::Instance().SetRenderingEngine(&renderingEngine);
+	Lina_CoreMessageBus::Instance().SetInputEngine(&inputEngine);
 
 	// Initialize input engine.
 	inputEngine.Initialize();
 
 	// Initialize rendering engine.
-	renderingEngine.Initialize(m_ScreenWidth, m_ScreenHeight, m_Title);
+	renderingEngine.Initialize();
 
 	// Initialize event handler.
 	objectHandler.Initialize();

@@ -27,23 +27,26 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 //#include<list>
 #include "Rendering/Lina_Window.h"
 #include "Core/Lina_ObjectHandler.h"
-#include "Rendering/Lina_PhongShader.h"
-#include "Rendering/Lina_BasicShader.h"
+
+
+class Lina_PhongShader;
+class Lina_BasicShader;
+class Lina_Camera;
 
 class Lina_RenderingEngine
 {
 
 public:
+
 	Lina_RenderingEngine() {};
 	~Lina_RenderingEngine();
 
-	void Initialize(int, int, std::string);
-
-	void ClearScreen();
+	void Initialize();
 	void Render();
 	void CleanUp();
-	void SetTextures(bool);
-	void ClearColors(float, float, float, float);
+
+	void SetCurrentActiveCamera(Lina_Camera*);
+	Lina_Camera* GetCurrentActiveCamera();
 	
 	std::shared_ptr<Lina_Window> m_ActiveWindow;
 	Lina_ObjectHandler eventHandler;
@@ -51,16 +54,27 @@ public:
 	Lina_PhongShader* GetPhongShader();
 	Lina_BasicShader* GetBasicShader();
 
+	int ScreenHeight;
+	int ScreenWidth;
+	std::string ScreenTitle;
+	void ClearScreen();
+
 private:
 
 	void InitializeShaders();
-	void CreateDisplayWindow(int, int, const std::string&);
+	void SetTextures(bool);
+	void ClearColors(float, float, float, float);
+	void CreateDisplayWindow();
 
-	Lina_PhongShader phongShader;
-	Lina_BasicShader basicShader;
+	Lina_PhongShader* phongShader;
+	Lina_BasicShader* basicShader;
+	Lina_Camera* currentActiveCamera;
+
+
 
 	Lina_RenderingEngine(const Lina_RenderingEngine&) = delete;
 	Lina_RenderingEngine& operator= (const Lina_RenderingEngine&) = delete;
+
 	
 };
 

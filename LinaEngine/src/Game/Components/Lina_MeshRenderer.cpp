@@ -15,54 +15,60 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/9/2018 4:44:45 AM
+10/20/2018 10:05:19 PM
 
 */
 
-#pragma once
+#include "pch.h"
+#include "Game/Components/Lina_MeshRenderer.h"  
+#include "Game/Lina_Actor.h"
 
-#ifndef Lina_CoreMessageBus_H
-#define Lina_CoreMessageBus_H
-
-class Lina_InputEngine;
-class Lina_Core;
-class Lina_RenderingEngine;
-
-class Lina_CoreMessageBus
+Lina_MeshRenderer::Lina_MeshRenderer()
 {
-public:
 
-	void Initialize();
+}
 
-	static Lina_CoreMessageBus& Instance()
+void Lina_MeshRenderer::SetMesh(std::string path)
+{
+	if (path == "plane")
 	{
-		static Lina_CoreMessageBus instance; 				  
-		return instance;
+		m_Mesh = new Lina_DefaultCubeMesh();
+		m_Mesh->InitMesh();
 	}
+	else
+	{
+		// LOAD OBJ
+	}
+}
 
-	Lina_InputEngine* GetInputEngine();
-	Lina_RenderingEngine* GetRenderingEngine();
-	Lina_Core* GetCoreEngine();
+void Lina_MeshRenderer::SetMaterial(const Lina_Material& mat)
+{
+	m_Material = mat;
+}
 
-	void SetInputEngine(Lina_InputEngine*);
-	void SetRenderingEngine(Lina_RenderingEngine*);
-	void SetCore(Lina_Core*);
+void Lina_MeshRenderer::SetShader(Lina_Shader* shader)
+{
+	m_Shader = shader;
+}
 
+void Lina_MeshRenderer::Wake()
+{
+	Lina_ActorComponent::Wake();
+}
 
-private:
+void Lina_MeshRenderer::Render()
+{
+	Lina_ActorComponent::Render();
 
-	Lina_CoreMessageBus() {}
+	m_Shader->Bind();
+	m_Shader->UpdateUniforms(m_Actor->transform.GetTransformation(), m_Actor->transform.GetProjectedTransformation(), m_Material);
+	m_Mesh->Draw();
+}
 
-	Lina_InputEngine* inputEngine;
-	Lina_Core* coreEngine;
-	Lina_RenderingEngine* renderingEngine;
+void Lina_MeshRenderer::CleanUp()
+{
+	Lina_ActorComponent::CleanUp();
+	delete m_Mesh;
 
-public:
+}
 
-	Lina_CoreMessageBus(Lina_CoreMessageBus const&) = delete;
-	void operator=(Lina_CoreMessageBus const&) = delete;
-
-};
-
-
-#endif

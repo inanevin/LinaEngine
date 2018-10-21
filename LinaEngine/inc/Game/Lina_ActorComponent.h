@@ -15,52 +15,36 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/9/2018 4:44:45 AM
+10/20/2018 7:44:48 PM
 
 */
 
 #pragma once
 
-#ifndef Lina_CoreMessageBus_H
-#define Lina_CoreMessageBus_H
+#ifndef Lina_GameActorComponent_H
+#define Lina_GameActorComponent_H
 
-class Lina_InputEngine;
-class Lina_Core;
-class Lina_RenderingEngine;
+class Lina_Actor;
 
-class Lina_CoreMessageBus
+class Lina_ActorComponent
 {
-public:
-
-	void Initialize();
-
-	static Lina_CoreMessageBus& Instance()
-	{
-		static Lina_CoreMessageBus instance; 				  
-		return instance;
-	}
-
-	Lina_InputEngine* GetInputEngine();
-	Lina_RenderingEngine* GetRenderingEngine();
-	Lina_Core* GetCoreEngine();
-
-	void SetInputEngine(Lina_InputEngine*);
-	void SetRenderingEngine(Lina_RenderingEngine*);
-	void SetCore(Lina_Core*);
-
-
-private:
-
-	Lina_CoreMessageBus() {}
-
-	Lina_InputEngine* inputEngine;
-	Lina_Core* coreEngine;
-	Lina_RenderingEngine* renderingEngine;
 
 public:
 
-	Lina_CoreMessageBus(Lina_CoreMessageBus const&) = delete;
-	void operator=(Lina_CoreMessageBus const&) = delete;
+	Lina_ActorComponent();
+	Lina_ActorComponent(const Lina_ActorComponent&);
+	void SetActor(Lina_Actor*);
+	virtual void Wake();
+	virtual void Start();
+	virtual void ProcessInput();
+	virtual void Update();
+	virtual void Render();
+	virtual void Stop();
+	virtual void CleanUp();
+
+protected:
+
+	Lina_Actor* m_Actor;
 
 };
 

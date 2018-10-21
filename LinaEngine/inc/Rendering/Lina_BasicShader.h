@@ -33,7 +33,7 @@ public:
 
 	Lina_BasicShader();
 	void Init() override;
-	void UpdateUniforms(Matrix4, Matrix4, Vector3, Lina_Material) override;
+	void UpdateUniforms(Matrix4, Matrix4, Lina_Material) override;
 };
 
 #endif

@@ -79,6 +79,12 @@
     <Filter Include="Source Files\TestGame">
       <UniqueIdentifier>{a6801b76-970b-43cd-a1d2-58cb9f5d5322}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Game\Components">
+      <UniqueIdentifier>{4fe0c51e-4266-47d3-b053-6db629fa635a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\Components">
+      <UniqueIdentifier>{919781da-b315-4ffc-9aa1-18c2cc828108}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Rendering\Lina_RenderingEngine.cpp">
@@ -170,6 +176,15 @@
     </ClCompile>
     <ClCompile Include="TestGame\src\Lina_TestScene1.cpp">
       <Filter>Source Files\TestGame</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Lina_Actor.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Lina_ActorComponent.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Components\Lina_MeshRenderer.cpp">
+      <Filter>Source Files\Game\Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -292,6 +307,15 @@
     </ClInclude>
     <ClInclude Include="TestGame\inc\Lina_TestScene1.h">
       <Filter>Header Files\TestGame</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Game\Lina_Actor.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Game\Lina_ActorComponent.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Game\Components\Lina_MeshRenderer.h">
+      <Filter>Header Files\Game\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

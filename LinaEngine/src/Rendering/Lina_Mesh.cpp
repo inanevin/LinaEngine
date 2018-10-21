@@ -159,3 +159,24 @@ void Lina_Mesh::CalculateNormals()
 		m_Vertices[i].SetNormal(m_Vertices[i].GetNormal().normalized());
 }
 
+void Lina_DefaultCubeMesh::InitMesh()
+{
+	// Plane
+	std::vector<Vertex> vertices;
+
+	float depth = 10.0f;
+	float width = 10.0f;
+	vertices.push_back(Vertex(Vector3(-width * 2, 0.0, -depth * 2), Vector2(0.0, 0.0)));
+	vertices.push_back(Vertex(Vector3(-width * 2, 0.0, depth * 2), Vector2(0.0, 1.0)));
+	vertices.push_back(Vertex(Vector3(width * 2, 0.0f, -depth * 2), Vector2(1.0, 0.0)));
+	vertices.push_back(Vertex(Vector3(width * 2, 0.0f, depth * 2), Vector2(1.0, 1.0f)));
+
+	std::vector<unsigned int> indices =
+	{ 0,1,2,2,1,3
+	};
+
+	Lina_Mesh::InitMesh();
+
+	AddVertices(vertices, indices, true);
+
+}

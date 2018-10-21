@@ -15,53 +15,42 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/9/2018 4:44:45 AM
+10/20/2018 7:39:20 PM
 
 */
 
 #pragma once
 
-#ifndef Lina_CoreMessageBus_H
-#define Lina_CoreMessageBus_H
+#ifndef Lina_Actor_H
+#define Lina_Actor_H
 
-class Lina_InputEngine;
-class Lina_Core;
-class Lina_RenderingEngine;
+#include "Core/Lina_Transform.h"
+#include <vector>
 
-class Lina_CoreMessageBus
+class Lina_ActorComponent;
+
+class Lina_Actor
 {
+
 public:
 
-	void Initialize();
+	Lina_Actor();
 
-	static Lina_CoreMessageBus& Instance()
-	{
-		static Lina_CoreMessageBus instance; 				  
-		return instance;
-	}
+	void AddComponent(Lina_ActorComponent*);
+	void AddChild(Lina_Actor);
+	void Wake();
+	void Start();
+	void ProcessInput();
+	void Update();
+	void Render();
+	void Stop();
+	void CleanUp();
 
-	Lina_InputEngine* GetInputEngine();
-	Lina_RenderingEngine* GetRenderingEngine();
-	Lina_Core* GetCoreEngine();
-
-	void SetInputEngine(Lina_InputEngine*);
-	void SetRenderingEngine(Lina_RenderingEngine*);
-	void SetCore(Lina_Core*);
-
+	Lina_Transform transform;
 
 private:
-
-	Lina_CoreMessageBus() {}
-
-	Lina_InputEngine* inputEngine;
-	Lina_Core* coreEngine;
-	Lina_RenderingEngine* renderingEngine;
-
-public:
-
-	Lina_CoreMessageBus(Lina_CoreMessageBus const&) = delete;
-	void operator=(Lina_CoreMessageBus const&) = delete;
-
+	std::vector<Lina_ActorComponent*> components;
+	std::vector<Lina_Actor> children;
 };
 
 

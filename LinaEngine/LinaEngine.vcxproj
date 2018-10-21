@@ -167,6 +167,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Lina_CoreMessageBus.cpp" />
+    <ClCompile Include="src\Game\Components\Lina_MeshRenderer.cpp" />
+    <ClCompile Include="src\Game\Lina_Actor.cpp" />
+    <ClCompile Include="src\Game\Lina_ActorComponent.cpp" />
     <ClCompile Include="src\Input\Lina_InputEngine.cpp" />
     <ClCompile Include="src\Core\Lina_Transform.cpp" />
     <ClCompile Include="src\Math\Lina_Math.cpp" />
@@ -208,6 +211,18 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\Core\Lina_Transform.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Game\Components\Lina_MeshRenderer.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Game\Lina_Actor.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Game\Lina_ActorComponent.h">
       <SubType>
       </SubType>
     </ClInclude>

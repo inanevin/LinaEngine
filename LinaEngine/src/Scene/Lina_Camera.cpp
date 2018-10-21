@@ -23,6 +23,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Scene/Lina_Camera.h"  
 #include "Utility/Lina_Time.h"
 #include "Core/Lina_CoreMessageBus.h"
+#include "Input/Lina_InputEngine.h"
 
 Lina_Camera::Lina_Camera(Vector3 p, Vector3 f, Vector3 u) : position(p),  up(u), forward(f) {};
 Vector3 Lina_Camera::GetPosition() { return position; }

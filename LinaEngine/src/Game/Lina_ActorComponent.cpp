@@ -15,54 +15,53 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/9/2018 4:44:45 AM
+10/20/2018 7:45:24 PM
 
 */
 
-#pragma once
+#include "pch.h"
+#include "Game/Lina_ActorComponent.h"  
+#include "Game/Lina_Actor.h"
 
-#ifndef Lina_CoreMessageBus_H
-#define Lina_CoreMessageBus_H
-
-class Lina_InputEngine;
-class Lina_Core;
-class Lina_RenderingEngine;
-
-class Lina_CoreMessageBus
+Lina_ActorComponent::Lina_ActorComponent()
 {
-public:
 
-	void Initialize();
+}
 
-	static Lina_CoreMessageBus& Instance()
-	{
-		static Lina_CoreMessageBus instance; 				  
-		return instance;
-	}
+Lina_ActorComponent::Lina_ActorComponent(const Lina_ActorComponent &)
+{
 
-	Lina_InputEngine* GetInputEngine();
-	Lina_RenderingEngine* GetRenderingEngine();
-	Lina_Core* GetCoreEngine();
+}
 
-	void SetInputEngine(Lina_InputEngine*);
-	void SetRenderingEngine(Lina_RenderingEngine*);
-	void SetCore(Lina_Core*);
+void Lina_ActorComponent::SetActor(Lina_Actor* act)
+{
+	m_Actor = act;
+}
 
+void Lina_ActorComponent::Wake()
+{
+}
 
-private:
+void Lina_ActorComponent::Start()
+{
+}
 
-	Lina_CoreMessageBus() {}
+void Lina_ActorComponent::ProcessInput()
+{
+}
 
-	Lina_InputEngine* inputEngine;
-	Lina_Core* coreEngine;
-	Lina_RenderingEngine* renderingEngine;
+void Lina_ActorComponent::Update()
+{
+}
 
-public:
+void Lina_ActorComponent::Render()
+{
+}
 
-	Lina_CoreMessageBus(Lina_CoreMessageBus const&) = delete;
-	void operator=(Lina_CoreMessageBus const&) = delete;
+void Lina_ActorComponent::Stop()
+{
+}
 
-};
-
-
-#endif
+void Lina_ActorComponent::CleanUp()
+{
+}

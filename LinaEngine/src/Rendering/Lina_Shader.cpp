@@ -169,7 +169,7 @@ void Lina_Shader::SetUniform(const std::string& name, GLfloat* val) const
 	glUniformMatrix4fv(m_Uniforms.find(name)->second, 1, true, val);
 }
 
-void Lina_Shader::UpdateUniforms(Matrix4 world, Matrix4 projected, Vector3, Lina_Material)
+void Lina_Shader::UpdateUniforms(Matrix4 world, Matrix4 projected, Lina_Material)
 {
 
 }

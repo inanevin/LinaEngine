@@ -39,20 +39,9 @@ public:
 	virtual void Render();
 	virtual void Stop();
 	virtual void CleanUp();
-	virtual Lina_Camera GetCurrentActiveCamera();
 
-	Lina_Mesh m;
-
-	Lina_PhongShader s;
-	Lina_Transform transform;
 	Lina_Camera sceneCamera;
-	Lina_Material material;
-	Lina_PointLight p1;
-	Lina_PointLight p2;
-	Lina_PointLight p3;
-	Lina_PointLight p4;
-
-	std::vector<Lina_PointLight> pLights;
+	Lina_Actor rootActor;
 
 };
 

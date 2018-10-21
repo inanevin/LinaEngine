@@ -98,8 +98,13 @@ private:
 	GLuint m_IBO;
 	GLuint m_VAO;
 
+};
 
-
+class Lina_DefaultCubeMesh : public Lina_Mesh
+{
+public:
+	Lina_DefaultCubeMesh() {};
+	void InitMesh() override;
 };
 
 

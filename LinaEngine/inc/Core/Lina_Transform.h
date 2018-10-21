@@ -28,11 +28,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Math/Lina_Vector3F.h"
 #include "Scene/Lina_Camera.h"
 
-static float zNear;
-static float zFar;
-static float width;
-static float height;
-static float fov;
+
 
 class Lina_Transform
 {
@@ -49,19 +45,16 @@ public:
 	void SetRotation(float, float, float);
 	void SetScale(Vector3);
 	void SetScale(float, float, float);
-	void SetCamera(Lina_Camera&);
-
 
 	// Get transformation matrix composed of position & rotation & scale.
 	Matrix4 GetTransformation();
 	// Perspective transformation projections.
 	Matrix4 GetProjectedTransformation();
 
-	// Sets projection
-	static void SetProjection(float, float, float, float, float);
+
 
 private:
-	Lina_Camera* sceneCamera;
+
 	Vector3 rotation;
 	Vector3 position;
 	Vector3 scale;
