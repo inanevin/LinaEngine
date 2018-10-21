@@ -20,51 +20,75 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
+#include "Scene/Lina_Scene.h"
 #include "Game/Lina_GameCore.h"  
+#include "Core/Lina_Core.h"
 
 Lina_GameCore::~Lina_GameCore()
 {
-	delete m_ActiveScene;
+	for (std::vector<Lina_Scene*>::iterator it = m_Scenes.begin(); it != m_Scenes.end(); ++it)
+		delete (*it);
+
+	m_Scenes.clear();
 }
 
-void Lina_GameCore::Initialize()
-{
-	
-}
 
 void Lina_GameCore::Wake()
 {
-	
+	assert(m_ActiveScene != nullptr);
 }
 
 void Lina_GameCore::Start()
 {
-	
+	assert(m_ActiveScene != nullptr);
 }
 
 void Lina_GameCore::ProcessInput()
 {
-	
+	assert(m_ActiveScene != nullptr);
+
 }
 
 void Lina_GameCore::Update()
 {
-	
+	assert(m_ActiveScene != nullptr);
+
 }
 
 void Lina_GameCore::Render()
 {
-	
+	assert(m_ActiveScene != nullptr);
+
 }
 
 void Lina_GameCore::Stop()
 {
-	
+	assert(m_ActiveScene != nullptr);
+
 }
 
 void Lina_GameCore::CleanUp()
 {
-	
+	assert(m_ActiveScene != nullptr);
+
+}
+
+void Lina_GameCore::SetEngineInstances(Lina_EngineInstances* eng)
+{
+	engineInstances = eng;
+}
+
+void Lina_GameCore::AddScene(Lina_Scene* s)
+{
+	m_Scenes.emplace_back(std::move(s));
+}
+
+void Lina_GameCore::SetActiveScene(int index)
+{
+	// If the index doesnt exist inside the scenes, abort, else set the active one to it.
+	assert(index < m_Scenes.size());
+	m_ActiveScene = m_Scenes[index];
+
 }
 
 

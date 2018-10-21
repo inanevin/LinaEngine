@@ -33,12 +33,19 @@ Lina_TestGame::~Lina_TestGame()
 	
 }
 
-void Lina_TestGame::Initialize()
+void Lina_TestGame::Initialize(Lina_EngineInstances* eng)
 {
-	Lina_GameCore::Initialize();
+	SetEngineInstances(eng);
 
-	// Set active scene.
-	m_ActiveScene = new Lina_TestScene();
+	assert(engineInstances != nullptr);
+
+	//Add a new test scene and set it active.
+	Lina_Scene* scene = new Lina_TestScene();
+
+	scene->Initialize(eng);
+
+	AddScene(scene);
+	SetActiveScene(0);
 }
 
 void Lina_TestGame::Wake()

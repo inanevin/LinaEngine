@@ -24,7 +24,10 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_GameCore_H
 #define Lina_GameCore_H
 
-#include "Scene/Lina_Scene.h"
+#include <vector>
+
+class Lina_Scene;
+class Lina_EngineInstances;
 
 class Lina_GameCore
 {
@@ -33,7 +36,7 @@ public:
 
 	Lina_GameCore() {};
 	~Lina_GameCore();
-	virtual void Initialize();
+	virtual void Initialize(Lina_EngineInstances*) = 0;
 	virtual void Wake();
 	virtual void Start();
 	virtual void ProcessInput();
@@ -41,10 +44,15 @@ public:
 	virtual void Render();
 	virtual void Stop();
 	virtual void CleanUp();
+	void SetEngineInstances(Lina_EngineInstances*);
+	void AddScene(Lina_Scene*);
+	void SetActiveScene(int);
 
 protected:
 
+	Lina_EngineInstances* engineInstances;
 	Lina_Scene* m_ActiveScene;
+	std::vector<Lina_Scene*> m_Scenes;
 	
 };
 

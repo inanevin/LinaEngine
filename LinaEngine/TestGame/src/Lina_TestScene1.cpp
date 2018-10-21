@@ -22,18 +22,28 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "pch.h"
 #include "Lina_TestScene1.h"  
 
-
 Lina_TestScene::Lina_TestScene()
 {
-	sceneCamera = Lina_Camera(Lina_Math::ToRadians(70), Lina_CoreMessageBus::Instance().GetRenderingEngine()->ScreenWidth / Lina_CoreMessageBus::Instance().GetRenderingEngine()->ScreenHeight, 0.01f, 1000.0f);
-	SetCurrentActiveCamera(sceneCamera);
+
 }
 
+void Lina_TestScene::Initialize(Lina_EngineInstances* eng)
+{
+	// Set Engine Instances
+	SetEngineInstances(eng);
+
+	// Check if instances are well set.
+	assert(Lina != nullptr);
+
+	// Set scene camera and set it as the active one.
+	sceneCamera = Lina_Camera(Lina_Math::ToRadians(70), Lina->RenderingEngine()->GetAspectRatio(), 0.01f, 1000.0f);
+	SetCurrentActiveCamera(sceneCamera);
+}
 
 void Lina_TestScene::Wake()
 {
 	Lina_Scene::Wake();
-
+	
 	Lina_Material material;
 	material.color = (Vector3(1, 1, 1));
 	material.texture.LoadTexture("grid.png");
@@ -45,13 +55,15 @@ void Lina_TestScene::Wake()
 	Lina_MeshRenderer* meshRenderer = new Lina_MeshRenderer();
 	meshRenderer->SetMaterial(material);
 	meshRenderer->SetMesh("plane");
-	meshRenderer->SetShader(Lina_CoreMessageBus::Instance().GetRenderingEngine()->GetBasicShader());
+	meshRenderer->SetShader(Lina->RenderingEngine()->GetBasicShader());
 
 	Lina_MeshRenderer* meshRenderer2 = new Lina_MeshRenderer();
 	meshRenderer2->SetMaterial(material2);
 	meshRenderer2->SetMesh("plane");
-	meshRenderer2->SetShader(Lina_CoreMessageBus::Instance().GetRenderingEngine()->GetPhongShader());
-	Lina_CoreMessageBus::Instance().GetRenderingEngine()->GetPhongShader()->SetAmbientLight(Vector3::one() * 0.1f);
+	meshRenderer2->SetShader(Lina->RenderingEngine()->GetPhongShader());
+
+	Lina->RenderingEngine()->GetPhongShader()->SetAmbientLight(Vector3(0.7,0,0));
+	
 	floor.AddComponent(meshRenderer);
 	floor2.AddComponent(meshRenderer2);
 

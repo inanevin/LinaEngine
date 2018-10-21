@@ -23,12 +23,11 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #ifndef Lina_PhongShader_H
 #define Lina_PhongShader_H
+#include <vector>
 
 #include "Rendering/Lina_Shader.h"
-#include "Math/Lina_Vector3F.h"
 #include "Rendering/Lina_DirectionalLight.h"
-#include "Lina_SpotLight.h"
-#include <vector>
+#include "Rendering/Lina_SpotLight.h"
 
 class Lina_PhongShader : public Lina_Shader
 {

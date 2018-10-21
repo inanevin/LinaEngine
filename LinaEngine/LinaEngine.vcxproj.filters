@@ -102,9 +102,6 @@
     <ClCompile Include="src\Rendering\Lina_Mesh.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="src\Rendering\Lina_ExampleShader.cpp">
-      <Filter>Source Files\Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="src\Utility\Lina_ResourceLoader.cpp">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
@@ -186,6 +183,9 @@
     <ClCompile Include="src\Game\Components\Lina_MeshRenderer.cpp">
       <Filter>Source Files\Game\Components</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Lina_EngineInstances.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\Math\Lina_Math.h">
@@ -228,9 +228,6 @@
       <Filter>Header Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_Mesh.h">
-      <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_ExampleShader.h">
       <Filter>Header Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="inc\Utility\Lina_ResourceLoader.h">
@@ -316,6 +313,9 @@
     </ClInclude>
     <ClInclude Include="inc\Game\Components\Lina_MeshRenderer.h">
       <Filter>Header Files\Game\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Core\Lina_EngineInstances.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

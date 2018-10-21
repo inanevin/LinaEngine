@@ -33,7 +33,7 @@ public:
 
 	Lina_TestGame();
 	~Lina_TestGame();
-	void Initialize() override;
+	void Initialize(Lina_EngineInstances*) override;
 	void Wake() override;
 	void Start() override;
 	void ProcessInput() override;

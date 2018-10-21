@@ -24,11 +24,13 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define LINA_CORE_H
 
 #include "Rendering/Lina_RenderingEngine.h"
-#include "Game/Lina_GameCore.h"
 #include "Input/Lina_InputEngine.h"
 #include "Lina_ObjectHandler.h"
 
 extern const long SECOND;
+
+class Lina_GameCore;
+class Lina_EngineInstances;
 
 class Lina_Core {
 
@@ -54,6 +56,7 @@ private:
 	Lina_InputEngine inputEngine;
 	Lina_RenderingEngine renderingEngine;
 	Lina_GameCore* game;
+	Lina_EngineInstances* engineInstances;
 
 	// Object Specific
 	Lina_ObjectHandler objectHandler;

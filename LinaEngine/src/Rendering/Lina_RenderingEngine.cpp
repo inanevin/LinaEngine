@@ -39,7 +39,7 @@ Lina_RenderingEngine::~Lina_RenderingEngine()
 void Lina_RenderingEngine::CreateDisplayWindow()
 {
 	// Initialize display.
-	m_ActiveWindow = std::make_shared<Lina_Window>(ScreenWidth, ScreenHeight, ScreenTitle);
+	m_ActiveWindow = std::make_shared<Lina_Window>(screenWidth, screenHeight, screenTitle);
 }
 
 // Init rendering engine.
@@ -93,7 +93,6 @@ void Lina_RenderingEngine::InitializeShaders()
 {
 	phongShader = new Lina_PhongShader();
 	basicShader = new Lina_BasicShader();
-
 	phongShader->Init();
 	basicShader->Init();
 }
@@ -163,10 +162,28 @@ Lina_BasicShader* Lina_RenderingEngine::GetBasicShader()
 	return basicShader;
 }
 
+
 Lina_PhongShader* Lina_RenderingEngine::GetPhongShader()
 {
 	return phongShader;
 }
+
+
+float Lina_RenderingEngine::GetAspectRatio()
+{
+	return (float)screenWidth / (float)screenHeight;
+}
+
+int Lina_RenderingEngine::GetScreenWidth()
+{
+	return screenWidth;
+}
+
+int Lina_RenderingEngine::GetScreenHeight()
+{
+	return screenHeight;
+}
+
 
 
 

@@ -26,15 +26,18 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "Game/Lina_Actor.h"
 #include "Game/Components/Lina_MeshRenderer.h"
-#include "Rendering/Lina_RenderingEngine.h"
-#include "Rendering/Lina_PhongShader.h"
+#include "Core/Lina_EngineInstances.h"
+
 
 class Lina_Scene
 {
 
 public:
 
+	
 	Lina_Scene();
+
+	virtual void Initialize(Lina_EngineInstances*) = 0;
 	virtual void Wake();
 	virtual void Start();
 	virtual void ProcessInput();
@@ -42,12 +45,15 @@ public:
 	virtual void Render();
 	virtual void Stop();
 	virtual void CleanUp();
+	void SetEngineInstances(Lina_EngineInstances*);
 
 	void SetCurrentActiveCamera(Lina_Camera&);
 	Lina_Camera* GetCurrentActiveCamera();
 
+
 protected:
 
+	Lina_EngineInstances* Lina;
 	Lina_Actor rootActor;
 	Lina_Camera* currentActiveCamera;
 

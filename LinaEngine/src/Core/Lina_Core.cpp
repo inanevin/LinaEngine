@@ -18,9 +18,10 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 
 #include "pch.h"
+#include "Game/Lina_GameCore.h"
 #include "Core/Lina_Core.h"
 #include "Utility/Lina_Time.h"
-
+#include "Core/Lina_EngineInstances.h"
 static const long SECOND = 1000000000;	// time in nanosecs
 
 // Constructor, initialize components.
@@ -38,9 +39,9 @@ Lina_Core::Lina_Core(Lina_GameCore& mGame, std::string title, float screenWidth,
 	game = &mGame;
 
 	// Set width & height & title & frame cap.
-	renderingEngine.ScreenHeight = screenHeight;
-	renderingEngine.ScreenWidth = screenWidth;
-	renderingEngine.ScreenTitle = title;
+	renderingEngine.screenHeight = screenHeight;
+	renderingEngine.screenWidth = screenWidth;
+	renderingEngine.screenTitle = title;
 	m_FrameCap = frameCap;
 
 }
@@ -50,6 +51,9 @@ Lina_Core::~Lina_Core()
 {
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Core deinitialized.", Lina_Console::MsgType::Deinitialization, "Core");
+
+	delete game;
+	delete engineInstances;
 }
 
 
@@ -61,6 +65,12 @@ void Lina_Core::Initialize()
 	Lina_CoreMessageBus::Instance().SetRenderingEngine(&renderingEngine);
 	Lina_CoreMessageBus::Instance().SetInputEngine(&inputEngine);
 
+	// Set engine instances.
+	engineInstances = new Lina_EngineInstances();
+	engineInstances->core = this;
+	engineInstances->renderingEngine = &renderingEngine;
+	engineInstances->inputEngine = &inputEngine;
+
 	// Initialize input engine.
 	inputEngine.Initialize();
 
@@ -71,7 +81,7 @@ void Lina_Core::Initialize()
 	objectHandler.Initialize();
 
 	// Initialize game core.
-	game->Initialize();
+	game->Initialize(engineInstances);
 
 	// Start game loop.
 	StartSystems();

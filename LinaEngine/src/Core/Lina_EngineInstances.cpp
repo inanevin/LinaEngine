@@ -15,44 +15,30 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/18/2018 5:26:06 PM
+10/21/2018 6:13:32 AM
 
 */
 
 #include "pch.h"
-#include "Rendering/Lina_BasicShader.h"  
-#include "Core/Lina_Transform.h"
-#include "Core/Lina_CoreMessageBus.h"
-#include "Rendering/Lina_RenderingEngine.h"
+#include "Core/Lina_EngineInstances.h"  
 
-Lina_BasicShader::Lina_BasicShader()
+Lina_EngineInstances::Lina_EngineInstances()
 {
-	Lina_Shader::Lina_Shader();	
+
 }
 
-void Lina_BasicShader::Init()
+Lina_Core* Lina_EngineInstances::Core()
 {
-	Lina_Shader::Init();
-
-
-	AddVertexShader(LoadShader("Lina_BasicVertex.vs"));
-	AddFragmentShader(LoadShader("Lina_BasicFragment.fs"));
-	CompileShader();
-
-	AddUniform("transform");
-	AddUniform("color");
+	return core;
 }
 
-void Lina_BasicShader::UpdateUniforms(Lina_Transform& t, Lina_Material mat)
+Lina_RenderingEngine* Lina_EngineInstances::RenderingEngine()
 {
-	Matrix4 world = t.GetTransformation();
-	Matrix4 projected = Lina_CoreMessageBus::Instance().GetRenderingEngine()->GetCurrentActiveCamera()->GetViewProjection().Multiply(world);
+	return renderingEngine;
+}
 
-	// UNBIND IF TEXTURE IS NULL?
-	mat.texture.Bind();
-
-	SetUniform("transform", *(projected.m));
-	SetUniform("color", mat.color);
-	
+Lina_InputEngine* Lina_EngineInstances::InputEngine()
+{
+	return inputEngine;
 }
 

@@ -21,10 +21,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pch.h"
 #include "Rendering/Lina_PhongShader.h"  
-#include "Utility/Lina_ResourceLoader.h"
 #include "Core/Lina_CoreMessageBus.h"
 #include "Rendering/Lina_RenderingEngine.h"
-#include "Scene/Lina_Camera.h"
 #include "Core/Lina_Transform.h"
 
 Lina_PhongShader::Lina_PhongShader()

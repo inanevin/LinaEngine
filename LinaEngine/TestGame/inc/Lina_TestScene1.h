@@ -32,6 +32,8 @@ class Lina_TestScene : public Lina_Scene
 public:
 
 	Lina_TestScene();
+
+	void Initialize(Lina_EngineInstances*) override;
 	virtual void Wake();
 	virtual void Start();
 	virtual void ProcessInput();
@@ -39,6 +41,7 @@ public:
 	virtual void Render();
 	virtual void Stop();
 	virtual void CleanUp();
+	
 
 private:
 	Lina_Actor floor;

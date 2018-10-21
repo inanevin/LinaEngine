@@ -75,3 +75,8 @@ void Lina_Scene::CleanUp()
 
 }
 
+void Lina_Scene::SetEngineInstances(Lina_EngineInstances* eng)
+{
+	Lina = eng;
+}
+
