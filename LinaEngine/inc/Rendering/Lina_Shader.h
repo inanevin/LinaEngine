@@ -31,6 +31,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Lina_Material.h"
 #include <map>
 
+class Lina_Transform;
+class Lina_Camera;
+
 class Lina_Shader
 {
 
@@ -40,7 +43,7 @@ public:
 
 	virtual void Init();
 	virtual void Bind();
-	virtual void UpdateUniforms(Matrix4, Matrix4, Lina_Material);
+	virtual void UpdateUniforms(Lina_Transform&, Lina_Material);
 	void AddVertexShader(std::string);
 	void AddGeometryShader(std::string);
 	void AddFragmentShader(std::string);

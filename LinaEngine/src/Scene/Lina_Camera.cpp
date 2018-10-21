@@ -25,7 +25,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Core/Lina_CoreMessageBus.h"
 #include "Input/Lina_InputEngine.h"
 
-Lina_Camera::Lina_Camera(Vector3 p, Vector3 f, Vector3 u) : position(p),  up(u), forward(f) {};
 Vector3 Lina_Camera::GetPosition() { return position; }
 Vector3 Lina_Camera::GetForward() { return forward; }
 Vector3 Lina_Camera::GetUp() { return up; }
@@ -33,10 +32,18 @@ void Lina_Camera::SetPosition(Vector3 p) { position = p; };
 void Lina_Camera::SetForward(Vector3 p) { forward = p; };
 void Lina_Camera::SetUp(Vector3 p) { up = p; };
 
-Lina_Camera::Lina_Camera() {
+Lina_Camera::Lina_Camera()
+{
+
+	this->projection.InitPerspectiveProjection((float)Lina_Math::ToRadians(60), 1.33f, 0.1f, 1000.0f);
+}
+
+Lina_Camera::Lina_Camera(float fov, float aspect, float zNear, float zFar)
+{
 	this->position = Vector3::zero();
 	this->up = Vector3(0, 1, 0);
 	this->forward = Vector3(0, 0, 1);
+	this->projection.InitPerspectiveProjection(fov, aspect, zNear, zFar);
 };
 
 void Lina_Camera::TempInput()
@@ -112,6 +119,18 @@ void Lina_Camera::RotateY(float angle)
 
 	// Update the up vector.
 	up = forward.Cross(horizontal).normalized();
+
+}
+
+Matrix4 Lina_Camera::GetViewProjection()
+{
+	Matrix4 cameraRotation;
+	Matrix4 cameraTranslation;
+
+	cameraRotation.InitRotation(forward, up);
+	cameraTranslation.InitPosition(-position.x, -position.y, -position.z);
+
+	return projection.Multiply(cameraRotation.Multiply(cameraTranslation));
 
 }
 

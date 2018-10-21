@@ -21,7 +21,10 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pch.h"
 #include "Rendering/Lina_BasicShader.h"  
-#include "Utility/Lina_ResourceLoader.h"
+#include "Core/Lina_Transform.h"
+#include "Scene/Lina_Camera.h"
+#include "Core/Lina_CoreMessageBus.h"
+#include "Rendering/Lina_RenderingEngine.h"
 
 Lina_BasicShader::Lina_BasicShader()
 {
@@ -41,10 +44,14 @@ void Lina_BasicShader::Init()
 	AddUniform("color");
 }
 
-void Lina_BasicShader::UpdateUniforms(Matrix4 world, Matrix4 projected, Lina_Material mat)
+void Lina_BasicShader::UpdateUniforms(Lina_Transform& t, Lina_Material mat)
 {
+	Matrix4 world = t.GetTransformation();
+	Matrix4 projected = Lina_CoreMessageBus::Instance().GetRenderingEngine()->GetCurrentActiveCamera()->GetViewProjection().Multiply(world);
+
 	// UNBIND IF TEXTURE IS NULL?
 	mat.texture.Bind();
+
 	SetUniform("transform", *(projected.m));
 	SetUniform("color", mat.color);
 	

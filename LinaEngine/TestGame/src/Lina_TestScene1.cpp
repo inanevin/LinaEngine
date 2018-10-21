@@ -25,6 +25,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 Lina_TestScene::Lina_TestScene()
 {
+	sceneCamera = Lina_Camera(Lina_Math::ToRadians(70), Lina_CoreMessageBus::Instance().GetRenderingEngine()->ScreenWidth / Lina_CoreMessageBus::Instance().GetRenderingEngine()->ScreenHeight, 0.01f, 1000.0f);
 	SetCurrentActiveCamera(sceneCamera);
 }
 
@@ -33,7 +34,6 @@ void Lina_TestScene::Wake()
 {
 	Lina_Scene::Wake();
 
-	
 	Lina_Material material;
 	material.color = (Vector3(1, 1, 1));
 	material.texture.LoadTexture("grid.png");

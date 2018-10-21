@@ -80,12 +80,11 @@ void Lina_Matrix4F::InitIdentityMatrix()
 	m[3][0] = 0;	m[3][1] = 0;	m[3][2] = 0;	m[3][3] = 1;	// Final W Component
 }
 
-void Lina_Matrix4F::InitProjection(float fov, float width, float height, float zNear, float zFar)
+void Lina_Matrix4F::InitPerspectiveProjection(float fov, float aspectRatio, float zNear, float zFar)
 {
-	float aspectRatio = width / height;
 
 	// Calculate distance from the edges to the center.
-	float tanHFOV = (float)tan(Lina_Math::ToRadians(fov / 2));
+	float tanHFOV = (float)tan(fov / 2);
 
 	// How much space we have in the depth. We will scale z comp in to the range, taking the clipping into account.
 	float zRng = zNear - zFar;
@@ -150,7 +149,7 @@ void Lina_Matrix4F::InitScale(float x, float y, float z)
 	m[3][0] = 0;	m[3][1] = 0;	m[3][2] = 0;	m[3][3] = 1;
 }
 
-void Lina_Matrix4F::InitCamera(Vector3 forward, Vector3 up) 
+void Lina_Matrix4F::InitRotation(Vector3 forward, Vector3 up) 
 {
 	Vector3 f = forward;
 	f.Normalize();

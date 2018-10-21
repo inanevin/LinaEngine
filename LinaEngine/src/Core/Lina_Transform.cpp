@@ -59,22 +59,12 @@ Matrix4 Lina_Transform::GetTransformation()
 }
 
 // Perspective transformation projections.
-Matrix4 Lina_Transform::GetProjectedTransformation()
+/*Matrix4 Lina_Transform::GetProjectedTransformation()
 {
-	Matrix4 transformationMatrix = GetTransformation();
-	Matrix4 projectionMatrix;
-	Matrix4 cameraRotation;
-	Matrix4 cameraTranslation;
-
 	Lina_Camera* currentCam = Lina_CoreMessageBus::Instance().GetRenderingEngine()->GetCurrentActiveCamera();
 	Lina_RenderingEngine* rnd = Lina_CoreMessageBus::Instance().GetRenderingEngine();
 
-	
-	projectionMatrix.InitProjection(currentCam->fov, rnd->ScreenWidth, rnd->ScreenHeight, currentCam->nearClippingPlane, currentCam->farClippingPlane);
-	cameraRotation.InitCamera(currentCam->GetForward(), currentCam->GetUp());
-	cameraTranslation.InitPosition(-currentCam->GetPosition().x, -currentCam->GetPosition().y, -currentCam->GetPosition().z);
-	return projectionMatrix.Multiply(cameraRotation.Multiply(cameraTranslation.Multiply(transformationMatrix)));
-}
-
+	return currentCam->GetViewProjection().Multiply(GetTransformation());
+}*/
 
 

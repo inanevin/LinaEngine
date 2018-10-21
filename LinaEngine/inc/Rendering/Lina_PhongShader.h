@@ -37,7 +37,7 @@ public:
 
 	Lina_PhongShader();
 	void Init() override;
-	void UpdateUniforms(Matrix4, Matrix4, Lina_Material) override;
+	void UpdateUniforms(Lina_Transform&,  Lina_Material) override;
 	void SetUniform(std::string, Lina_BaseLight);
 	void SetUniform(std::string, Lina_DirectionalLight);
 	void SetUniform(std::string, Lina_PointLight);

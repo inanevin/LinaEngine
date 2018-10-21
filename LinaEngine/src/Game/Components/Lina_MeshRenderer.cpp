@@ -59,9 +59,9 @@ void Lina_MeshRenderer::Wake()
 void Lina_MeshRenderer::Render()
 {
 	Lina_ActorComponent::Render();
-
+	
 	m_Shader->Bind();
-	m_Shader->UpdateUniforms(m_Actor->transform.GetTransformation(), m_Actor->transform.GetProjectedTransformation(), m_Material);
+	m_Shader->UpdateUniforms(m_Actor->transform, m_Material);
 	m_Mesh->Draw();
 }
 

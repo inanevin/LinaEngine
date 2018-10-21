@@ -35,11 +35,11 @@ public:
 	static Lina_Matrix4F Multiply(const Lina_Matrix4F&, const Lina_Matrix4F&);
 	Lina_Matrix4F Multiply(const Lina_Matrix4F&);
 	void InitIdentityMatrix();
-	void InitProjection(float, float, float, float, float);
+	void InitPerspectiveProjection(float, float, float, float);
 	void InitPosition(float, float, float);
 	void InitRotation(float, float, float);
 	void InitScale(float, float, float);
-	void InitCamera(Vector3, Vector3);
+	void InitRotation(Vector3, Vector3);
 	void SetMatrix(float(&arr)[4][4]);
 	float GetElement(int, int) const;
 	void SetElement(int, int, float);

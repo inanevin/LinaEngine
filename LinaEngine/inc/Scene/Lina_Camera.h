@@ -25,6 +25,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_Camera_H
 
 #include "Math/Lina_Vector3F.h"
+#include "Math/Lina_Matrix4F.h"
 
 class Lina_Camera
 {
@@ -32,7 +33,7 @@ class Lina_Camera
 public:
 
 	Lina_Camera();
-	Lina_Camera(Vector3, Vector3, Vector3);
+	Lina_Camera(float,float,float,float);
 	Vector3 GetPosition();
 	Vector3 GetForward();
 	Vector3 GetUp();
@@ -45,12 +46,11 @@ public:
 	void Move(Vector3, float);
 	void RotateX(float);
 	void RotateY(float);
-
-	float fov = 70;
-	float nearClippingPlane = 0.1f;
-	float farClippingPlane = 1000;
+	Matrix4 GetViewProjection();
 
 private:
+
+	Matrix4 projection;
 	Vector3 position;
 	Vector3 forward;
 	Vector3 up;

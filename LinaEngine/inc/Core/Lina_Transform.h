@@ -49,7 +49,7 @@ public:
 	// Get transformation matrix composed of position & rotation & scale.
 	Matrix4 GetTransformation();
 	// Perspective transformation projections.
-	Matrix4 GetProjectedTransformation();
+	//Matrix4 GetProjectedTransformation();
 
 
 

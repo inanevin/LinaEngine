@@ -21,6 +21,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pch.h"
 #include "Rendering/Lina_Shader.h"  
+#include "Core/Lina_Transform.h"
+#include "Scene/Lina_Camera.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -169,7 +171,7 @@ void Lina_Shader::SetUniform(const std::string& name, GLfloat* val) const
 	glUniformMatrix4fv(m_Uniforms.find(name)->second, 1, true, val);
 }
 
-void Lina_Shader::UpdateUniforms(Matrix4 world, Matrix4 projected, Lina_Material)
+void Lina_Shader::UpdateUniforms(Lina_Transform&, Lina_Material)
 {
 
 }

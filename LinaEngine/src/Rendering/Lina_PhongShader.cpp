@@ -25,6 +25,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Core/Lina_CoreMessageBus.h"
 #include "Rendering/Lina_RenderingEngine.h"
 #include "Scene/Lina_Camera.h"
+#include "Core/Lina_Transform.h"
 
 Lina_PhongShader::Lina_PhongShader()
 {
@@ -78,8 +79,11 @@ void Lina_PhongShader::Init()
 	
 }
 
-void Lina_PhongShader::UpdateUniforms(Matrix4 world, Matrix4 projected, Lina_Material mat)
+void Lina_PhongShader::UpdateUniforms(Lina_Transform& t, Lina_Material mat)
 {
+	Matrix4 world = t.GetTransformation();
+	Matrix4 projected = Lina_CoreMessageBus::Instance().GetRenderingEngine()->GetCurrentActiveCamera()->GetViewProjection().Multiply(world);
+
 	// UNBIND IF TEXTURE IS NULL?
 	mat.texture.Bind();
 
