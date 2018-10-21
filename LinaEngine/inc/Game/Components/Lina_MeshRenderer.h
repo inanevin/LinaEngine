@@ -46,7 +46,6 @@ public:
 
 private:
 
-	Lina_BasicShader basicShader;
 	Lina_Shader* m_Shader;
 	Lina_Mesh* m_Mesh;
 	Lina_Material m_Material;

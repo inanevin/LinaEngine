@@ -24,12 +24,10 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_Scene_H
 #define Lina_Scene_H
 
-
-
-
 #include "Game/Lina_Actor.h"
 #include "Game/Components/Lina_MeshRenderer.h"
 #include "Rendering/Lina_RenderingEngine.h"
+#include "Rendering/Lina_PhongShader.h"
 
 class Lina_Scene
 {
@@ -50,6 +48,7 @@ public:
 
 protected:
 
+	Lina_Actor rootActor;
 	Lina_Camera* currentActiveCamera;
 
 

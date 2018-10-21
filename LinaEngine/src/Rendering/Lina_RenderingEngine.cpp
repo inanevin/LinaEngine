@@ -24,6 +24,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Lina_PhongShader.h"
 #include "Rendering/Lina_BasicShader.h"
 #include "Scene/Lina_Camera.h"
+#include "Game/Lina_GameCore.h"
 
 // Destructor.
 Lina_RenderingEngine::~Lina_RenderingEngine()
@@ -42,11 +43,14 @@ void Lina_RenderingEngine::CreateDisplayWindow()
 }
 
 // Init rendering engine.
-void Lina_RenderingEngine::Initialize() 
+void Lina_RenderingEngine::Initialize(Lina_GameCore* g) 
 {
 	// Add a console message.
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Rendering engine initialized.", Lina_Console::MsgType::Initialization, "Render Engine");
+
+	// Assign game.
+	game = g;
 
 	// Initialize event handler.
 	eventHandler.Initialize();
@@ -103,6 +107,9 @@ void Lina_RenderingEngine::ClearScreen()
 // Main method to render.
 void Lina_RenderingEngine::Render()
 {
+	// Render the game.
+	game->Render();
+
 	// Check if active window points to an object.
 	if (m_ActiveWindow == nullptr)
 	{

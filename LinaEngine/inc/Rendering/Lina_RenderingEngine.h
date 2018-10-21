@@ -32,6 +32,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 class Lina_PhongShader;
 class Lina_BasicShader;
 class Lina_Camera;
+class Lina_GameCore;
 
 class Lina_RenderingEngine
 {
@@ -41,7 +42,7 @@ public:
 	Lina_RenderingEngine() {};
 	~Lina_RenderingEngine();
 
-	void Initialize();
+	void Initialize(Lina_GameCore*);
 	void Render();
 	void CleanUp();
 
@@ -69,7 +70,7 @@ private:
 	Lina_PhongShader* phongShader;
 	Lina_BasicShader* basicShader;
 	Lina_Camera* currentActiveCamera;
-
+	Lina_GameCore* game;
 
 
 	Lina_RenderingEngine(const Lina_RenderingEngine&) = delete;

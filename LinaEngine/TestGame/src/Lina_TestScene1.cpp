@@ -22,6 +22,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "pch.h"
 #include "Lina_TestScene1.h"  
 
+
 Lina_TestScene::Lina_TestScene()
 {
 	SetCurrentActiveCamera(sceneCamera);
@@ -37,12 +38,25 @@ void Lina_TestScene::Wake()
 	material.color = (Vector3(1, 1, 1));
 	material.texture.LoadTexture("grid.png");
 
+	Lina_Material material2;
+	material2.color = (Vector3(1, 1, 1));
+	material2.texture.LoadTexture("grid4.png");
+
 	Lina_MeshRenderer* meshRenderer = new Lina_MeshRenderer();
 	meshRenderer->SetMaterial(material);
 	meshRenderer->SetMesh("plane");
 	meshRenderer->SetShader(Lina_CoreMessageBus::Instance().GetRenderingEngine()->GetBasicShader());
 
-	rootActor.AddComponent(meshRenderer);
+	Lina_MeshRenderer* meshRenderer2 = new Lina_MeshRenderer();
+	meshRenderer2->SetMaterial(material2);
+	meshRenderer2->SetMesh("plane");
+	meshRenderer2->SetShader(Lina_CoreMessageBus::Instance().GetRenderingEngine()->GetPhongShader());
+	Lina_CoreMessageBus::Instance().GetRenderingEngine()->GetPhongShader()->SetAmbientLight(Vector3::one() * 0.1f);
+	floor.AddComponent(meshRenderer);
+	floor2.AddComponent(meshRenderer2);
+
+	rootActor.AddChild(floor2);
+	rootActor.AddChild(floor);
 
 	rootActor.Wake();
 }
@@ -67,7 +81,10 @@ void Lina_TestScene::Update()
 {
 	Lina_Scene::Update();
 	rootActor.Update();
-	rootActor.transform.SetPosition(Vector3(0, -2, 0));
+	floor.transform.SetPosition(Vector3(25, -15, 0));
+
+	floor2.transform.SetPosition(Vector3(-25, -15, 0));
+
 }
 
 void Lina_TestScene::Render()

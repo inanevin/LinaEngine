@@ -40,8 +40,10 @@ public:
 	virtual void Stop();
 	virtual void CleanUp();
 
+private:
+	Lina_Actor floor;
+	Lina_Actor floor2;
 	Lina_Camera sceneCamera;
-	Lina_Actor rootActor;
 
 };
 

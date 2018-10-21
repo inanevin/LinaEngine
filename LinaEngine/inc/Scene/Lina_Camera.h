@@ -30,6 +30,7 @@ class Lina_Camera
 {
 
 public:
+
 	Lina_Camera();
 	Lina_Camera(Vector3, Vector3, Vector3);
 	Vector3 GetPosition();

@@ -65,7 +65,7 @@ void Lina_Core::Initialize()
 	inputEngine.Initialize();
 
 	// Initialize rendering engine.
-	renderingEngine.Initialize();
+	renderingEngine.Initialize(game);
 
 	// Initialize event handler.
 	objectHandler.Initialize();
@@ -225,7 +225,6 @@ void Lina_Core::Run()
 void Lina_Core::Render()
 {
 	renderingEngine.ClearScreen();
-	game->Render();
 	renderingEngine.Render();
 }
 
