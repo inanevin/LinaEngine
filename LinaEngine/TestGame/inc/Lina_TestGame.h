@@ -36,8 +36,8 @@ public:
 	void Initialize(Lina_EngineInstances*) override;
 	void Wake() override;
 	void Start() override;
-	void ProcessInput() override;
-	void Update() override;
+	void ProcessInput(float) override;
+	void Update(float) override;
 	void Render() override;
 	void Stop() override;
 	void CleanUp() override;

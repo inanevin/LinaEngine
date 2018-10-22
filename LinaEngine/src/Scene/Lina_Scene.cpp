@@ -49,14 +49,14 @@ void Lina_Scene::Start()
 
 }
 
-void Lina_Scene::ProcessInput()
+void Lina_Scene::ProcessInput(float tickRate)
 {
-
+	rootActor.ProcessInput(tickRate);
 }
 
-void Lina_Scene::Update()
+void Lina_Scene::Update(float tickRate)
 {
-
+	rootActor.Update(tickRate);
 }
 
 void Lina_Scene::Render()

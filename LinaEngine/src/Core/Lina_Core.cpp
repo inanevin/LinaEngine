@@ -183,15 +183,13 @@ void Lina_Core::Run()
 			while (SDL_PollEvent(&event))
 				inputEngine.HandleEvents(event);
 			
+			Lina_Time::SetDelta(frameTime);
 			// Update the input engine.
 			inputEngine.Update();
 
-			// Set delta. (Change later, no effect for now)
-			Lina_Time::SetDelta(frameTime);
-
 			// TODO: Update game loop
-			game->ProcessInput();
-			game->Update();
+			game->ProcessInput(frameTime);
+			game->Update(frameTime);
 			
 			// print the frame counter every second.
 			if (frameCounter >= 1.0)

@@ -65,20 +65,20 @@ void Lina_TestGame::Start()
 	m_ActiveScene->Start();
 }
 
-void Lina_TestGame::ProcessInput()
+void Lina_TestGame::ProcessInput(float tickRate)
 {
-	Lina_GameCore::ProcessInput();
+	Lina_GameCore::ProcessInput(tickRate);
 
 	// Process input on active scene.
-	m_ActiveScene->ProcessInput();
+	m_ActiveScene->ProcessInput(tickRate);
 }
 
-void Lina_TestGame::Update()
+void Lina_TestGame::Update(float tickRate)
 {
-	Lina_GameCore::Update();
+	Lina_GameCore::Update(tickRate);
 
 	// Update active scene.
-	m_ActiveScene->Update();
+	m_ActiveScene->Update(tickRate);
 }
 
 

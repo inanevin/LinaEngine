@@ -44,13 +44,13 @@ void Lina_GameCore::Start()
 	assert(m_ActiveScene != nullptr);
 }
 
-void Lina_GameCore::ProcessInput()
+void Lina_GameCore::ProcessInput(float tickRate)
 {
 	assert(m_ActiveScene != nullptr);
 
 }
 
-void Lina_GameCore::Update()
+void Lina_GameCore::Update(float tickRate)
 {
 	assert(m_ActiveScene != nullptr);
 

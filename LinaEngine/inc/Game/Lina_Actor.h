@@ -40,8 +40,8 @@ public:
 	void AddChild(Lina_Actor);
 	void Wake();
 	void Start();
-	void ProcessInput();
-	void Update();
+	void ProcessInput(float);
+	void Update(float);
 	void Render();
 	void Stop();
 	void CleanUp();

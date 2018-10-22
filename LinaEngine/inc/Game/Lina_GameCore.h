@@ -39,8 +39,8 @@ public:
 	virtual void Initialize(Lina_EngineInstances*) = 0;
 	virtual void Wake();
 	virtual void Start();
-	virtual void ProcessInput();
-	virtual void Update();
+	virtual void ProcessInput(float);
+	virtual void Update(float);
 	virtual void Render();
 	virtual void Stop();
 	virtual void CleanUp();

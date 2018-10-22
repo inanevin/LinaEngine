@@ -74,7 +74,7 @@ void Lina_TestScene::Wake()
 
 	rootActor.AddChild(floor2);
 	rootActor.AddChild(floor);
-
+	
 	rootActor.Wake();
 }
 
@@ -86,20 +86,20 @@ void Lina_TestScene::Start()
 }
 
 
-void Lina_TestScene::ProcessInput()
+void Lina_TestScene::ProcessInput(float tickRate)
 {
-	Lina_Scene::ProcessInput();
+	Lina_Scene::ProcessInput(tickRate);
+
 	sceneCamera.TempInput();
-	rootActor.ProcessInput();
+
 }
 
 
-void Lina_TestScene::Update()
+void Lina_TestScene::Update(float tickRate)
 {
-	Lina_Scene::Update();
-	rootActor.Update();
-	floor.transform.SetPosition(Vector3(25, -15, 0));
+	Lina_Scene::Update(tickRate);
 
+	floor.transform.SetPosition(25, -15, 0);
 	floor2.transform.SetPosition(Vector3(-25, -15, 0));
 
 }

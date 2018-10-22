@@ -57,22 +57,22 @@ void Lina_Actor::Start()
 		(*it)->Start();
 }
 
-void Lina_Actor::ProcessInput()
+void Lina_Actor::ProcessInput(float tickRate)
 {
 	for (std::vector<Lina_Actor>::iterator it = children.begin(); it != children.end(); it++)
-		it->ProcessInput();
+		it->ProcessInput(tickRate);
 
 	for (std::vector<Lina_ActorComponent*>::iterator it = components.begin(); it != components.end(); it++)
-		(*it)->ProcessInput();
+		(*it)->ProcessInput(tickRate);
 }
 
-void Lina_Actor::Update()
+void Lina_Actor::Update(float tickRate)
 {
 	for (std::vector<Lina_Actor>::iterator it = children.begin(); it != children.end(); it++)
-		it->Update();
+		it->Update(tickRate);
 
 	for (std::vector<Lina_ActorComponent*>::iterator it = components.begin(); it != components.end(); it++)
-		(*it)->Update();
+		(*it)->Update(tickRate);
 }
 
 void Lina_Actor::Render()

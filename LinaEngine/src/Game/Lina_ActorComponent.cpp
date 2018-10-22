@@ -46,11 +46,11 @@ void Lina_ActorComponent::Start()
 {
 }
 
-void Lina_ActorComponent::ProcessInput()
+void Lina_ActorComponent::ProcessInput(float tickRate)
 {
 }
 
-void Lina_ActorComponent::Update()
+void Lina_ActorComponent::Update(float tickRate)
 {
 }
 
