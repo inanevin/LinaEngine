@@ -54,7 +54,7 @@ void Lina_ActorComponent::Update(float tickRate)
 {
 }
 
-void Lina_ActorComponent::Render()
+void Lina_ActorComponent::Render(Lina_Shader* shader)
 {
 }
 

@@ -32,6 +32,7 @@ class Lina_PhongShader;
 class Lina_BasicShader;
 class Lina_Camera;
 class Lina_GameCore;
+class Lina_Actor;
 
 class Lina_RenderingEngine
 {

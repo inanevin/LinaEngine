@@ -28,6 +28,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 class Lina_Scene;
 class Lina_EngineInstances;
+class Lina_Shader;
 
 class Lina_GameCore
 {
@@ -41,7 +42,7 @@ public:
 	virtual void Start();
 	virtual void ProcessInput(float);
 	virtual void Update(float);
-	virtual void Render();
+	virtual void Render(Lina_Shader*);
 	virtual void Stop();
 	virtual void CleanUp();
 	void SetEngineInstances(Lina_EngineInstances*);
@@ -50,10 +51,15 @@ public:
 
 protected:
 
+	
 	Lina_EngineInstances* engineInstances;
 	Lina_Scene* m_ActiveScene;
 	std::vector<Lina_Scene*> m_Scenes;
 	
+
+private:
+	friend class Lina_Core;
+	Lina_Scene* GetActiveScene();
 };
 
 

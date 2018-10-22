@@ -111,7 +111,7 @@ void Lina_RenderingEngine::ClearScreen()
 void Lina_RenderingEngine::Render()
 {
 	// Render the game.
-	game->Render();
+	game->Render(basicShader);
 
 	// Check if active window points to an object.
 	if (m_GameWindow == nullptr)

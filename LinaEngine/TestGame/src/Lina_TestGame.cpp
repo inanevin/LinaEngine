@@ -82,12 +82,12 @@ void Lina_TestGame::Update(float tickRate)
 }
 
 
-void Lina_TestGame::Render()
+void Lina_TestGame::Render(Lina_Shader* shader)
 {
-	Lina_GameCore::Render();
+	Lina_GameCore::Render(shader);
 
 	// Render active scene.
-	m_ActiveScene->Render();
+	m_ActiveScene->Render(shader);
 }
 
 void Lina_TestGame::Stop()

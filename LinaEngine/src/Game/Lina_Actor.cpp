@@ -75,13 +75,13 @@ void Lina_Actor::Update(float tickRate)
 		(*it)->Update(tickRate);
 }
 
-void Lina_Actor::Render()
+void Lina_Actor::Render(Lina_Shader* shader)
 {
 	for (std::vector<Lina_Actor>::iterator it = children.begin(); it != children.end(); it++)
-		it->Render();
+		it->Render(shader);
 
 	for (std::vector<Lina_ActorComponent*>::iterator it = components.begin(); it != components.end(); it++)
-		(*it)->Render();
+		(*it)->Render(shader);
 }
 
 void Lina_Actor::Stop()

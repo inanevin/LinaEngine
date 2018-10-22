@@ -47,22 +47,18 @@ void Lina_MeshRenderer::SetMaterial(const Lina_Material& mat)
 	m_Material = mat;
 }
 
-void Lina_MeshRenderer::SetShader(Lina_Shader* shader)
-{
-	m_Shader = shader;
-}
 
 void Lina_MeshRenderer::Wake()
 {
 	Lina_ActorComponent::Wake();
 }
 
-void Lina_MeshRenderer::Render()
+void Lina_MeshRenderer::Render(Lina_Shader* shader)
 {
-	Lina_ActorComponent::Render();
+	Lina_ActorComponent::Render(shader);
 	
-	m_Shader->Bind();
-	m_Shader->UpdateUniforms(m_Actor->transform, m_Material);
+	shader->Bind();
+	shader->UpdateUniforms(m_Actor->transform, m_Material);
 	m_Mesh->Draw();
 }
 

@@ -41,12 +41,12 @@ Lina_Camera* Lina_Scene::GetCurrentActiveCamera()
 
 void Lina_Scene::Wake()
 {
-
+	rootActor.Wake();
 }
 
 void Lina_Scene::Start()
 {
-
+	rootActor.Start();
 }
 
 void Lina_Scene::ProcessInput(float tickRate)
@@ -59,19 +59,19 @@ void Lina_Scene::Update(float tickRate)
 	rootActor.Update(tickRate);
 }
 
-void Lina_Scene::Render()
+void Lina_Scene::Render(Lina_Shader* shader)
 {
-
+	rootActor.Render(shader);
 }
 
 void Lina_Scene::Stop()
 {
-
+	rootActor.Stop();
 }
 
 void Lina_Scene::CleanUp()
 {
-
+	rootActor.CleanUp();
 }
 
 void Lina_Scene::SetEngineInstances(Lina_EngineInstances* eng)

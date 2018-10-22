@@ -48,7 +48,7 @@ void Lina_TestScene::Initialize(Lina_EngineInstances* eng)
 void Lina_TestScene::Wake()
 {
 	Lina_Scene::Wake();
-	
+
 	Lina_Material material;
 	material.color = (Vector3(1, 1, 1));
 	material.texture.LoadTexture("grid.png");
@@ -60,14 +60,12 @@ void Lina_TestScene::Wake()
 	Lina_MeshRenderer* meshRenderer = new Lina_MeshRenderer();
 	meshRenderer->SetMaterial(material);
 	meshRenderer->SetMesh("plane");
-	meshRenderer->SetShader(Lina->RenderingEngine()->GetBasicShader());
 
 	Lina_MeshRenderer* meshRenderer2 = new Lina_MeshRenderer();
 	meshRenderer2->SetMaterial(material2);
 	meshRenderer2->SetMesh("plane");
-	meshRenderer2->SetShader(Lina->RenderingEngine()->GetPhongShader());
 
-	Lina->RenderingEngine()->GetPhongShader()->SetAmbientLight(Vector3(0.7,0,0));
+//	Lina->RenderingEngine()->GetPhongShader()->SetAmbientLight(Vector3(0.7,0.6,0));
 	
 	floor.AddComponent(meshRenderer);
 	floor2.AddComponent(meshRenderer2);
@@ -75,14 +73,13 @@ void Lina_TestScene::Wake()
 	rootActor.AddChild(floor2);
 	rootActor.AddChild(floor);
 	
-	rootActor.Wake();
+
 }
 
 
 void Lina_TestScene::Start()
 {
 	Lina_Scene::Start();
-	rootActor.Start();
 }
 
 
@@ -104,20 +101,17 @@ void Lina_TestScene::Update(float tickRate)
 
 }
 
-void Lina_TestScene::Render()
+void Lina_TestScene::Render(Lina_Shader* shader)
 {
-	Lina_Scene::Render();
-	rootActor.Render();
+	Lina_Scene::Render(shader);
 }
 
 void Lina_TestScene::Stop()
 {
 	Lina_Scene::Stop();
-	rootActor.Stop();
 }
 
 void Lina_TestScene::CleanUp()
 {
 	Lina_Scene::CleanUp();
-	rootActor.CleanUp();
 }

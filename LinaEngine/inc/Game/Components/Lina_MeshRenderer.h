@@ -31,6 +31,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Lina_BasicShader.h"
 #include "Rendering/Lina_PhongShader.h"
 
+
 class Lina_MeshRenderer : public Lina_ActorComponent
 {
 
@@ -40,14 +41,12 @@ public:
 
 	void SetMesh(std::string);
 	void SetMaterial(const Lina_Material&);
-	void SetShader(Lina_Shader*);
 	void Wake() override;
-	void Render() override;
+	void Render(Lina_Shader*) override;
 	void CleanUp() override;
 
 private:
 
-	Lina_Shader* m_Shader;
 	Lina_Mesh* m_Mesh;
 	Lina_Material m_Material;
 

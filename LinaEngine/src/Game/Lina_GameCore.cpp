@@ -56,7 +56,7 @@ void Lina_GameCore::Update(float tickRate)
 
 }
 
-void Lina_GameCore::Render()
+void Lina_GameCore::Render(Lina_Shader*)
 {
 	assert(m_ActiveScene != nullptr);
 
@@ -89,6 +89,11 @@ void Lina_GameCore::SetActiveScene(int index)
 	assert(index < m_Scenes.size());
 	m_ActiveScene = m_Scenes[index];
 
+}
+
+Lina_Scene * Lina_GameCore::GetActiveScene()
+{
+	return m_ActiveScene;
 }
 
 

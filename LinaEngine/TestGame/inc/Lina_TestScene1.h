@@ -38,7 +38,7 @@ public:
 	virtual void Start();
 	virtual void ProcessInput(float);
 	virtual void Update(float);
-	virtual void Render();
+	virtual void Render(Lina_Shader*);
 	virtual void Stop();
 	virtual void CleanUp();
 	

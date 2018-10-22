@@ -25,6 +25,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_GameActorComponent_H
 
 class Lina_Actor;
+class Lina_Shader;
 
 class Lina_ActorComponent
 {
@@ -38,7 +39,7 @@ public:
 	virtual void Start();
 	virtual void ProcessInput(float);
 	virtual void Update(float);
-	virtual void Render();
+	virtual void Render(Lina_Shader*);
 	virtual void Stop();
 	virtual void CleanUp();
 

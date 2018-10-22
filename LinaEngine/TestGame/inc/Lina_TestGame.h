@@ -26,6 +26,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "Game/Lina_GameCore.h"
 
+class Lina_Shader;
+
 class Lina_TestGame : public Lina_GameCore
 {
 
@@ -38,7 +40,7 @@ public:
 	void Start() override;
 	void ProcessInput(float) override;
 	void Update(float) override;
-	void Render() override;
+	void Render(Lina_Shader*) override;
 	void Stop() override;
 	void CleanUp() override;
 };

@@ -28,6 +28,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Game/Components/Lina_MeshRenderer.h"
 #include "Core/Lina_EngineInstances.h"
 
+class Lina_Shader;
 
 class Lina_Scene
 {
@@ -42,7 +43,7 @@ public:
 	virtual void Start();
 	virtual void ProcessInput(float);
 	virtual void Update(float);
-	virtual void Render();
+	virtual void Render(Lina_Shader*);
 	virtual void Stop();
 	virtual void CleanUp();
 	void SetEngineInstances(Lina_EngineInstances*);
