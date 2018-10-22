@@ -15,26 +15,47 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/18/2018 5:41:04 PM
+10/22/2018 3:03:02 PM
 
 */
 
-#pragma once
+#include "pch.h"
+#include "Rendering/Lina_RenderingEngine.h"
+#include "Rendering/Shaders/Lina_ForwardAmbientShader.h"  
+#include "Core/Lina_Transform.h"
 
-#ifndef Lina_BasicShader_H
-#define Lina_BasicShader_H
-
-#include "Rendering/Lina_Shader.h"
-
-
-class Lina_BasicShader : public Lina_Shader
+Lina_ForwardAmbientShader::Lina_ForwardAmbientShader()
 {
+	Lina_Shader::Lina_Shader();
+}
 
-public:
 
-	Lina_BasicShader();
-	void Init() override;
-	void UpdateUniforms(Lina_Transform&, Lina_Material) override;
-};
+void Lina_ForwardAmbientShader::Init()
+{
+	Lina_Shader::Init();
 
-#endif
+
+	AddVertexShader(LoadShader("Lina_ForwardAmbient.vs"));
+	AddFragmentShader(LoadShader("Lina_ForwardAmbient.fs"));
+
+	SetAttributeLocation(0, "position");
+	SetAttributeLocation(1, "texCoord");
+
+	CompileShader();
+
+	AddUniform("modelViewProjection");
+	AddUniform("ambient");
+}
+
+void Lina_ForwardAmbientShader::UpdateUniforms(Lina_Transform& t, Lina_Material mat)
+{
+	Matrix4 world = t.GetTransformation();
+	Matrix4 projected = RenderingEngine->GetCurrentActiveCamera()->GetViewProjection().Multiply(world);
+
+	// UNBIND IF TEXTURE IS NULL?
+	mat.texture.Bind();
+
+	SetUniform("modelViewProjection", *(projected.m));
+	SetUniform("ambient", RenderingEngine->GetAmbientLight());
+
+}

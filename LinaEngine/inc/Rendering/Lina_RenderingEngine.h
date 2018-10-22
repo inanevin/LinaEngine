@@ -27,9 +27,11 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 //#include<list>
 #include "Rendering/Lina_Window.h"
 #include "Core/Lina_ObjectHandler.h"
+#include "Math/Lina_Vector3F.h"
 
 class Lina_PhongShader;
 class Lina_BasicShader;
+class Lina_ForwardAmbientShader;
 class Lina_Camera;
 class Lina_GameCore;
 class Lina_Actor;
@@ -39,7 +41,7 @@ class Lina_RenderingEngine
 
 public:
 
-	Lina_RenderingEngine() {};
+	Lina_RenderingEngine();
 	~Lina_RenderingEngine();
 
 	void SetCurrentActiveCamera(Lina_Camera*);
@@ -54,6 +56,8 @@ public:
 	float GetAspectRatio();
 	int GetScreenWidth();
 	int GetScreenHeight();
+
+	Lina_Vector3F GetAmbientLight();
 
 private:
 
@@ -71,6 +75,8 @@ private:
 
 	Lina_BasicShader* basicShader;
 	Lina_PhongShader* phongShader;
+	Lina_ForwardAmbientShader* forwardAmbientShader;
+
 	Lina_Camera* currentActiveCamera;
 	Lina_GameCore* game;
 
@@ -81,6 +87,7 @@ private:
 	Lina_RenderingEngine(const Lina_RenderingEngine&) = delete;
 	Lina_RenderingEngine& operator= (const Lina_RenderingEngine&) = delete;
 
+	Lina_Vector3F ambientLight;
 	
 };
 

@@ -15,25 +15,43 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/18/2018 5:25:39 PM
+10/18/2018 5:26:06 PM
 
 */
 
-#pragma once
+#include "pch.h"
+#include "Rendering/Shaders/Lina_BasicShader.h"  
+#include "Core/Lina_Transform.h"
+#include "Rendering/Lina_RenderingEngine.h"
 
-#ifndef Lina_BasicShader_H
-#define Lina_BasicShader_H
-#include "Rendering/Lina_Shader.h"
-
-class Lina_BasicShader : public Lina_Shader
+Lina_BasicShader::Lina_BasicShader()
 {
+	Lina_Shader::Lina_Shader();	
+}
 
-public:
-
-	Lina_BasicShader();
-	void Inita();
-
-};
+void Lina_BasicShader::Init()
+{
+	Lina_Shader::Init();
 
 
-#endif
+	AddVertexShader(LoadShader("Lina_BasicVertex.vs"));
+	AddFragmentShader(LoadShader("Lina_BasicFragment.fs"));
+	CompileShader();
+
+	AddUniform("transform");
+	AddUniform("color");
+}
+
+void Lina_BasicShader::UpdateUniforms(Lina_Transform& t, Lina_Material mat)
+{
+	Matrix4 world = t.GetTransformation();
+	Matrix4 projected = RenderingEngine->GetCurrentActiveCamera()->GetViewProjection().Multiply(world);
+
+	// UNBIND IF TEXTURE IS NULL?
+	mat.texture.Bind();
+
+	SetUniform("transform", *(projected.m));
+	SetUniform("color", mat.color);
+	
+}
+

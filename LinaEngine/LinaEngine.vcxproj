@@ -178,15 +178,16 @@
     <ClCompile Include="src\Math\Lina_Quaternion.cpp" />
     <ClCompile Include="src\Math\Lina_Vector2F.cpp" />
     <ClCompile Include="src\Math\Lina_Vector3F.cpp" />
-    <ClCompile Include="src\Rendering\Lina_BasicShader.cpp" />
+    <ClCompile Include="src\Rendering\Shaders\Lina_BasicShader.cpp" />
     <ClCompile Include="src\Rendering\Lina_Material.cpp" />
     <ClCompile Include="src\Rendering\Lina_Mesh.cpp" />
-    <ClCompile Include="src\Rendering\Lina_PhongShader.cpp" />
+    <ClCompile Include="src\Rendering\Shaders\Lina_ForwardAmbientShader.cpp" />
+    <ClCompile Include="src\Rendering\Shaders\Lina_PhongShader.cpp" />
     <ClCompile Include="src\Rendering\Lina_RenderingEngine.cpp" />
     <ClCompile Include="src\Core\Lina_Core.cpp" />
     <ClCompile Include="src\Game\Lina_GameCore.cpp" />
     <ClCompile Include="src\Core\Lina_SDLHandler.cpp" />
-    <ClCompile Include="src\Rendering\Lina_Shader.cpp" />
+    <ClCompile Include="src\Rendering\Shaders\Lina_Shader.cpp" />
     <ClCompile Include="src\Rendering\Lina_Texture.cpp" />
     <ClCompile Include="src\Rendering\Lina_Vertex.cpp" />
     <ClCompile Include="src\Scene\Lina_Camera.cpp" />
@@ -230,15 +231,15 @@
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_Attenuation.h">
+    <ClInclude Include="inc\Rendering\Lights\Lina_Attenuation.h">
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_BaseLight.h">
+    <ClInclude Include="inc\Rendering\Lights\Lina_BaseLight.h">
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_BasicShader.h">
+    <ClInclude Include="inc\Rendering\Shaders\Lina_BasicShader.h">
       <SubType>
       </SubType>
     </ClInclude>
@@ -246,7 +247,7 @@
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_DirectionalLight.h">
+    <ClInclude Include="inc\Rendering\Lights\Lina_DirectionalLight.h">
       <SubType>
       </SubType>
     </ClInclude>
@@ -258,19 +259,23 @@
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_PhongShader.h">
+    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardAmbientShader.h">
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_PointLight.h">
+    <ClInclude Include="inc\Rendering\Shaders\Lina_PhongShader.h">
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_Shader.h">
+    <ClInclude Include="inc\Rendering\Lights\Lina_PointLight.h">
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_Spotlight.h">
+    <ClInclude Include="inc\Rendering\Shaders\Lina_Shader.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lights\Lina_Spotlight.h">
       <SubType>
       </SubType>
     </ClInclude>

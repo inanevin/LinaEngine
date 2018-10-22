@@ -15,66 +15,47 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/15/2018 7:16:21 PM
+10/18/2018 8:05:51 PM
 
 */
 
 #pragma once
 
-#ifndef Lina_Shader_H
-#define Lina_Shader_H
+#ifndef Lina_PhongShader_H
+#define Lina_PhongShader_H
 
-#include <GL/glew.h>
-#include "Math/Lina_Math.h"
-#include "Math/Lina_Vector3F.h"
-#include "Math/Lina_Matrix4F.h"
-#include "Rendering/Lina_Material.h"
-#include <map>
+#include "Rendering/Shaders/Lina_Shader.h"
+#include "Rendering/Lights/Lina_DirectionalLight.h"
+#include "Rendering/Lights/Lina_SpotLight.h"
 
-class Lina_Transform;
-class Lina_RenderingEngine;
+#include <vector>
 
-class Lina_Shader
+class Lina_PhongShader : public Lina_Shader
 {
 
 public:
 
-	Lina_Shader() {};
+	Lina_PhongShader();
+	void Init() override;
+	void UpdateUniforms(Lina_Transform&,  Lina_Material) override;
+	void SetUniform(std::string, Lina_BaseLight);
+	void SetUniform(std::string, Lina_DirectionalLight);
+	void SetUniform(std::string, Lina_PointLight);
+	void SetUniform(std::string, Lina_SpotLight);
 
-	virtual void Init();
-	virtual void Bind();
-	virtual void UpdateUniforms(Lina_Transform&, Lina_Material);
-	
-	void AddVertexShader(std::string);
-	void AddGeometryShader(std::string);
-	void AddFragmentShader(std::string);
-	void CompileShader();
-	void AddUniform(const std::string&);
-	void SetUniform(const std::string&, float) const;
-	void SetUniform(const std::string&, int) const;
-	void SetUniform(const std::string&, Vector3) const;
-	void SetUniform(const std::string&, GLfloat*) const;
-	void CheckError(unsigned int, int, std::string);
-
-protected:
-
-	std::string LoadShader(std::string);
-	Lina_RenderingEngine* RenderingEngine;
+	void SetDirectionalLight(Lina_DirectionalLight);
+	void SetAmbientLight(Vector3);
+	void SetPointLights(std::vector<Lina_PointLight>&);
+	void SetSpotLights(std::vector<Lina_SpotLight>&);
 
 private:
 
-	friend class Lina_RenderingEngine;
-
-	void SetRenderingEngine(Lina_RenderingEngine*);
-	void AddToProgram(std::string, GLint); 
-
-
-	std::map<std::string, int> m_Uniforms;
-	unsigned int program;
-
+	static const int PIXEL_LIGHT_COUNT = 4;
+	Vector3 m_AmbientLight;
+    std::vector<Lina_PointLight> pointLights;
+	std::vector<Lina_SpotLight> spotLights;
+	Lina_DirectionalLight m_DirectionalLight;
 };
-
-
 
 
 #endif

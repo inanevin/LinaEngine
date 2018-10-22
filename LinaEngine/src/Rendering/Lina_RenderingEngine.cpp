@@ -21,10 +21,18 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pch.h"
 #include "Rendering/Lina_RenderingEngine.h"  
-#include "Rendering/Lina_PhongShader.h"
-#include "Rendering/Lina_BasicShader.h"
+#include "Rendering/Shaders/Lina_PhongShader.h"
+#include "Rendering/Shaders/Lina_BasicShader.h"
+#include "Rendering/Shaders/Lina_ForwardAmbientShader.h"
 #include "Scene/Lina_Camera.h"
 #include "Game/Lina_GameCore.h"
+
+Lina_RenderingEngine::Lina_RenderingEngine()
+{
+	screenHeight = screenWidth = 0;
+	screenTitle = "";
+	ambientLight = Vector3(0.1f, 0.1f, 0.1f);
+}
 
 // Destructor.
 Lina_RenderingEngine::~Lina_RenderingEngine()
@@ -35,6 +43,7 @@ Lina_RenderingEngine::~Lina_RenderingEngine()
 	delete m_GameWindow;
 	delete phongShader;
 	delete basicShader;
+	delete forwardAmbientShader;
 }
 
 void Lina_RenderingEngine::CreateDisplayWindow()
@@ -95,10 +104,13 @@ void Lina_RenderingEngine::InitializeShaders()
 {
 	phongShader = new Lina_PhongShader();
 	basicShader = new Lina_BasicShader();
+	forwardAmbientShader = new Lina_ForwardAmbientShader();
 	phongShader->SetRenderingEngine(this);
 	basicShader->SetRenderingEngine(this);
+	forwardAmbientShader->SetRenderingEngine(this);
 	phongShader->Init();
 	basicShader->Init();
+	forwardAmbientShader->Init();
 }
 
 void Lina_RenderingEngine::ClearScreen()
@@ -110,8 +122,10 @@ void Lina_RenderingEngine::ClearScreen()
 // Main method to render.
 void Lina_RenderingEngine::Render()
 {
+	forwardAmbientShader->Bind();
+
 	// Render the game.
-	game->Render(basicShader);
+	game->Render(forwardAmbientShader);
 
 	// Check if active window points to an object.
 	if (m_GameWindow == nullptr)
@@ -182,6 +196,11 @@ int Lina_RenderingEngine::GetScreenWidth()
 int Lina_RenderingEngine::GetScreenHeight()
 {
 	return screenHeight;
+}
+
+Lina_Vector3F Lina_RenderingEngine::GetAmbientLight()
+{
+	return ambientLight;
 }
 
 

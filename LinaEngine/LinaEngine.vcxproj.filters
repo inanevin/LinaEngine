@@ -85,6 +85,12 @@
     <Filter Include="Source Files\Game\Components">
       <UniqueIdentifier>{919781da-b315-4ffc-9aa1-18c2cc828108}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Rendering\Shaders">
+      <UniqueIdentifier>{85fbb43a-2faf-42f3-8a8a-01bb84ed0c52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendering\Shaders">
+      <UniqueIdentifier>{8658a724-d16b-4af5-a588-c7e3bf420c78}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Rendering\Lina_RenderingEngine.cpp">
@@ -104,9 +110,6 @@
     </ClCompile>
     <ClCompile Include="src\Utility\Lina_ResourceLoader.cpp">
       <Filter>Source Files\Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Rendering\Lina_Shader.cpp">
-      <Filter>Source Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="src\Scene\Lina_Scene.cpp">
       <Filter>Source Files\Scene</Filter>
@@ -132,13 +135,7 @@
     <ClCompile Include="src\Rendering\Lina_Texture.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="src\Rendering\Lina_BasicShader.cpp">
-      <Filter>Source Files\Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="src\Rendering\Lina_Material.cpp">
-      <Filter>Source Files\Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Rendering\Lina_PhongShader.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="src\Rendering\Lina_Vertex.cpp">
@@ -185,6 +182,18 @@
     </ClCompile>
     <ClCompile Include="src\Core\Lina_EngineInstances.cpp">
       <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rendering\Shaders\Lina_BasicShader.cpp">
+      <Filter>Source Files\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rendering\Shaders\Lina_PhongShader.cpp">
+      <Filter>Source Files\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rendering\Shaders\Lina_Shader.cpp">
+      <Filter>Source Files\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rendering\Shaders\Lina_ForwardAmbientShader.cpp">
+      <Filter>Source Files\Rendering\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -233,9 +242,6 @@
     <ClInclude Include="inc\Utility\Lina_ResourceLoader.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_Shader.h">
-      <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Scene\Lina_Scene.h">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
@@ -248,32 +254,11 @@
     <ClInclude Include="inc\Rendering\Lina_Texture.h">
       <Filter>Header Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_BasicShader.h">
-      <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_Material.h">
       <Filter>Header Files\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_PhongShader.h">
-      <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_DirectionalLight.h">
-      <Filter>Header Files\Rendering\Lights</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_BaseLight.h">
-      <Filter>Header Files\Rendering\Lights</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_PointLight.h">
-      <Filter>Header Files\Rendering\Lights</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_DefaultCubeMesh.h">
       <Filter>Header Files\Rendering\Shapes</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_Attenuation.h">
-      <Filter>Header Files\Rendering\Lights</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_Spotlight.h">
-      <Filter>Header Files\Rendering\Lights</Filter>
     </ClInclude>
     <ClInclude Include="inc\Core\Lina_Core.h">
       <Filter>Header Files\Core</Filter>
@@ -316,6 +301,33 @@
     </ClInclude>
     <ClInclude Include="inc\Core\Lina_EngineInstances.h">
       <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lights\Lina_Attenuation.h">
+      <Filter>Header Files\Rendering\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lights\Lina_BaseLight.h">
+      <Filter>Header Files\Rendering\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lights\Lina_DirectionalLight.h">
+      <Filter>Header Files\Rendering\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lights\Lina_PointLight.h">
+      <Filter>Header Files\Rendering\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lights\Lina_Spotlight.h">
+      <Filter>Header Files\Rendering\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Shaders\Lina_BasicShader.h">
+      <Filter>Header Files\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Shaders\Lina_PhongShader.h">
+      <Filter>Header Files\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Shaders\Lina_Shader.h">
+      <Filter>Header Files\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardAmbientShader.h">
+      <Filter>Header Files\Rendering\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

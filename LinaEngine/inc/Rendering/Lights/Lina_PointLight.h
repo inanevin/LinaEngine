@@ -15,45 +15,30 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/18/2018 8:05:51 PM
+10/18/2018 9:59:35 PM
 
 */
 
 #pragma once
 
-#ifndef Lina_PhongShader_H
-#define Lina_PhongShader_H
-#include <vector>
+#ifndef Lina_PointLight_H
+#define Lina_PointLight_H
 
-#include "Rendering/Lina_Shader.h"
-#include "Rendering/Lina_DirectionalLight.h"
-#include "Rendering/Lina_SpotLight.h"
+#include "Rendering/Lights/Lina_BaseLight.h"
+#include "Rendering/Lights/Lina_Attenuation.h"
 
-class Lina_PhongShader : public Lina_Shader
+class Lina_PointLight
 {
 
 public:
 
-	Lina_PhongShader();
-	void Init() override;
-	void UpdateUniforms(Lina_Transform&,  Lina_Material) override;
-	void SetUniform(std::string, Lina_BaseLight);
-	void SetUniform(std::string, Lina_DirectionalLight);
-	void SetUniform(std::string, Lina_PointLight);
-	void SetUniform(std::string, Lina_SpotLight);
+	Lina_PointLight() {};
+	Lina_PointLight(Lina_BaseLight b, Lina_Attenuation at, Vector3 p, float r) : base(b), attenuation(at), position(p), range(r) {};
 
-	void SetDirectionalLight(Lina_DirectionalLight);
-	void SetAmbientLight(Vector3);
-	void SetPointLights(std::vector<Lina_PointLight>&);
-	void SetSpotLights(std::vector<Lina_SpotLight>&);
-
-private:
-
-	static const int PIXEL_LIGHT_COUNT = 4;
-	Vector3 m_AmbientLight;
-    std::vector<Lina_PointLight> pointLights;
-	std::vector<Lina_SpotLight> spotLights;
-	Lina_DirectionalLight m_DirectionalLight;
+	float range;
+	Vector3 position;
+	Lina_BaseLight base;
+	Lina_Attenuation attenuation;
 };
 
 

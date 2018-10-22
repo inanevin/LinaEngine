@@ -15,30 +15,28 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/18/2018 9:59:35 PM
+10/20/2018 1:01:33 AM
 
 */
 
 #pragma once
 
-#ifndef Lina_PointLight_H
-#define Lina_PointLight_H
+#ifndef Lina_Spotlight_H
+#define Lina_Spotlight_H
 
-#include "Lina_BaseLight.h"
-#include "Lina_Attenuation.h"
+#include "Rendering/Lights/Lina_PointLight.h"
 
-class Lina_PointLight
+class Lina_SpotLight
 {
 
 public:
 
-	Lina_PointLight() {};
-	Lina_PointLight(Lina_BaseLight b, Lina_Attenuation at, Vector3 p, float r) : base(b), attenuation(at), position(p), range(r) {};
+	Lina_SpotLight() {};
+	Lina_SpotLight(Lina_PointLight pL, Vector3 dir, float cut) : pointLight(pL), direction(dir.normalized()), cutoff(cut) {};
 
-	float range;
-	Vector3 position;
-	Lina_BaseLight base;
-	Lina_Attenuation attenuation;
+	float cutoff;
+	Lina_PointLight pointLight;
+	Vector3 direction;
 };
 
 

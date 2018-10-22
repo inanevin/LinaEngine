@@ -15,29 +15,26 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/20/2018 1:01:33 AM
+10/18/2018 5:41:04 PM
 
 */
 
 #pragma once
 
-#ifndef Lina_Spotlight_H
-#define Lina_Spotlight_H
+#ifndef Lina_BasicShader_H
+#define Lina_BasicShader_H
 
-#include "Lina_PointLight.h"
+#include "Rendering/Shaders/Lina_Shader.h"
 
-class Lina_SpotLight
+
+class Lina_BasicShader : public Lina_Shader
 {
 
 public:
 
-	Lina_SpotLight() {};
-	Lina_SpotLight(Lina_PointLight pL, Vector3 dir, float cut) : pointLight(pL), direction(dir.normalized()), cutoff(cut) {};
-
-	float cutoff;
-	Lina_PointLight pointLight;
-	Vector3 direction;
+	Lina_BasicShader();
+	void Init() override;
+	void UpdateUniforms(Lina_Transform&, Lina_Material) override;
 };
-
 
 #endif
