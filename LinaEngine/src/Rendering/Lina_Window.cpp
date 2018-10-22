@@ -81,6 +81,11 @@ void Lina_Window::CloseWindow()
 	m_IsClosed = true;
 }
 
+void Lina_Window::SetFullScreen(int flag)
+{
+	SDL_SetWindowFullscreen(m_Window, flag);
+}
+
 void Lina_Window::Update()
 {
 	// We had allocated space for 2 windows space via SDL_GL_SetAttribute. First both of them are empty, our window will only display the first one.

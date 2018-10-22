@@ -32,7 +32,7 @@ Lina_RenderingEngine::~Lina_RenderingEngine()
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Rendering deinitialized.", Lina_Console::MsgType::Deinitialization, "Render Engine");
 
-	delete m_ActiveWindow;
+	delete m_GameWindow;
 	delete phongShader;
 	delete basicShader;
 }
@@ -40,7 +40,7 @@ Lina_RenderingEngine::~Lina_RenderingEngine()
 void Lina_RenderingEngine::CreateDisplayWindow()
 {
 	// Initialize display.
-	m_ActiveWindow = new Lina_Window(screenWidth, screenHeight, screenTitle);
+	m_GameWindow = new Lina_Window(screenWidth, screenHeight, screenTitle);
 }
 
 // Init rendering engine.
@@ -57,7 +57,7 @@ void Lina_RenderingEngine::Initialize(Lina_GameCore* g)
 	eventHandler.Initialize();
 
 	// Register window events.
-	eventHandler.SubscribeToAction(ActionType::SDLQuit, [this]() { m_ActiveWindow->CloseWindow(); });
+	eventHandler.SubscribeToAction(ActionType::SDLQuit, [this]() { m_GameWindow->CloseWindow(); });
 
 	// Create a window.
 	CreateDisplayWindow();
@@ -88,12 +88,15 @@ void Lina_RenderingEngine::Initialize(Lina_GameCore* g)
 
 	// Init shaders
 	InitializeShaders();
+
 }
 
 void Lina_RenderingEngine::InitializeShaders()
 {
 	phongShader = new Lina_PhongShader();
 	basicShader = new Lina_BasicShader();
+	phongShader->SetRenderingEngine(this);
+	basicShader->SetRenderingEngine(this);
 	phongShader->Init();
 	basicShader->Init();
 }
@@ -111,13 +114,13 @@ void Lina_RenderingEngine::Render()
 	game->Render();
 
 	// Check if active window points to an object.
-	if (m_ActiveWindow == nullptr)
+	if (m_GameWindow == nullptr)
 	{
 		return;
 	}
 
 	// Call render method on active window.
-	m_ActiveWindow->Update();
+	m_GameWindow->Update();
 }
 
 void Lina_RenderingEngine::CleanUp()

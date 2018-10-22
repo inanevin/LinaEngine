@@ -22,9 +22,10 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "pch.h"
 #include "Utility/Lina_Time.h"  
 
+static const long SECOND = 1000000000;	// time in nanosecs
 double Lina_Time::delta;
 
-long Lina_Time::GetCurrentTimeInNano()
+double Lina_Time::GetTime()
 {
 	// Get time traffic
 	std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
@@ -38,8 +39,7 @@ long Lina_Time::GetCurrentTimeInNano()
 	// cast the duration
 	auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(duration);
 
-	// Return the long.
-	return nanoseconds.count();
+	return (double)(nanoseconds.count() / static_cast<double>(SECOND));
 }
 
 

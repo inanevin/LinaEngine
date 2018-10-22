@@ -20,6 +20,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
+#include "Rendering/Lina_RenderingEngine.h"
 #include "Rendering/Lina_Shader.h"  
 #include "Core/Lina_Transform.h"
 #include "Scene/Lina_Camera.h"
@@ -85,6 +86,11 @@ void Lina_Shader::AddGeometryShader(std::string text)
 void Lina_Shader::AddFragmentShader(std::string text)
 {
 	AddToProgram(text, GL_FRAGMENT_SHADER);
+}
+
+void Lina_Shader::SetRenderingEngine(Lina_RenderingEngine* eng)
+{
+	RenderingEngine = eng;
 }
 
 void Lina_Shader::AddToProgram(std::string text, GLint type)

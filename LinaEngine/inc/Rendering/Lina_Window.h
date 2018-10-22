@@ -33,23 +33,24 @@ class Lina_Window
 {
 public:
 
-/*	static std::unique_ptr<Lina_Window> CreateDisplayWindow(int width, int height, const std::string& title)
-	{
-	  std::unique_ptr<Lina_Window> p(new Lina_Window(width,height,title));
-	  return std::move(p);
-	}
-	*/
+	/*	static std::unique_ptr<Lina_Window> CreateDisplayWindow(int width, int height, const std::string& title)
+		{
+		  std::unique_ptr<Lina_Window> p(new Lina_Window(width,height,title));
+		  return std::move(p);
+		}
+		*/
 
 	Lina_Window(int, int, const std::string&);
 	~Lina_Window();
 
+	void SetFullScreen(int);
 	void Update();
 	void CloseWindow();
 
 	bool IsClosed();
-	inline int GetWidth() { return m_Width; }
-	inline int GetHeight() { return m_Height; }
-	inline std::string GetTitle() { return m_Title; }
+	int GetWidth() { return m_Width; }
+	int GetHeight() { return m_Height; }
+	std::string GetTitle() { return m_Title; }
 	void operator=(const Lina_Window& other) {}
 
 private:

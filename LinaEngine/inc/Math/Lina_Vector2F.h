@@ -87,6 +87,9 @@ public:
 
 #pragma region Utility
 
+	// Linear interpolation for vectors
+	static Lina_Vector2F Lerp(Lina_Vector2F, Lina_Vector2F, float);
+
 	// Get random vector bw min & max.
 	static Lina_Vector2F GetRandomVector(float, float);
 
@@ -97,7 +100,10 @@ public:
 	static std::string VToString(const Lina_Vector2F&);
 
 	// Dot product of two vectors.
-	static float Dot(Lina_Vector2F v1, Lina_Vector2F v2);
+	static float Dot(Lina_Vector2F, Lina_Vector2F);
+
+	// Cross product between vectors
+	static float Cross(Lina_Vector2F, Lina_Vector2F);
 
 #pragma endregion
 

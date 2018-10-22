@@ -99,26 +99,26 @@ void Lina_Camera::Move(Vector3 dir, float amount)
 
 void Lina_Camera::RotateX(float angle)
 {
-	Vector3 horizontal = Vector3(0, 1, 0).Cross(forward).normalized();
+	Vector3 horizontal = Vector3::Cross(Vector3::yAxis, forward).normalized();
 
 	// Rotate the forward axis with respect to the World's horizontal axis.
 	forward.Rotate(angle, horizontal);
 	forward.Normalize();
 
 	// Update the up vector.
-	up = forward.Cross(horizontal).normalized();
+	up = Vector3::Cross(forward,horizontal).normalized();
 }
 
 void Lina_Camera::RotateY(float angle)
 {
-	Vector3 horizontal = Vector3(0,1,0).Cross(forward).normalized();
-	
+	Vector3 horizontal = Vector3::Cross(Vector3::yAxis, forward).normalized();
+
 	// Rotate the forward axis with respect to the World's horizontal axis.
 	forward.Rotate(angle, Vector3::yAxis);
 	forward.Normalize();
 
 	// Update the up vector.
-	up = forward.Cross(horizontal).normalized();
+	up = Vector3::Cross(forward, horizontal).normalized();
 
 }
 
@@ -136,14 +136,14 @@ Matrix4 Lina_Camera::GetViewProjection()
 
 Vector3 Lina_Camera::GetLeft()
 {
-	Vector3 left = forward.Cross(up);
+	Vector3 left = Vector3::Cross(forward, up);
 	left.Normalize();
 	return left;
 }
 
 Vector3 Lina_Camera::GetRight()
 {
-	Vector3 right = up.Cross(forward);
+	Vector3 right = Vector3::Cross(up, forward);
 	right.Normalize();
 	return right;
 }

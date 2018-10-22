@@ -32,7 +32,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include <map>
 
 class Lina_Transform;
-class Lina_Camera;
+class Lina_RenderingEngine;
 
 class Lina_Shader
 {
@@ -44,6 +44,7 @@ public:
 	virtual void Init();
 	virtual void Bind();
 	virtual void UpdateUniforms(Lina_Transform&, Lina_Material);
+	
 	void AddVertexShader(std::string);
 	void AddGeometryShader(std::string);
 	void AddFragmentShader(std::string);
@@ -56,12 +57,19 @@ public:
 	void CheckError(unsigned int, int, std::string);
 
 protected:
+
 	std::string LoadShader(std::string);
+	Lina_RenderingEngine* RenderingEngine;
 
 private:
 
-	std::map<std::string, int> m_Uniforms;
+	friend class Lina_RenderingEngine;
+
+	void SetRenderingEngine(Lina_RenderingEngine*);
 	void AddToProgram(std::string, GLint); 
+
+
+	std::map<std::string, int> m_Uniforms;
 	unsigned int program;
 
 };

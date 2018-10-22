@@ -36,6 +36,7 @@ public:
 	Lina_Matrix4F Multiply(const Lina_Matrix4F&);
 	void InitIdentityMatrix();
 	void InitPerspectiveProjection(float, float, float, float);
+	void InitOrtoProjection(float, float, float, float, float, float);
 	void InitPosition(float, float, float);
 	void InitRotation(float, float, float);
 	void InitScale(float, float, float);

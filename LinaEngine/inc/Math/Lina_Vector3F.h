@@ -27,7 +27,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Math/Lina_Math.h"
 
 using namespace std;
-
+class Lina_Vector2F;
 
 class Lina_Vector3F
 {
@@ -97,6 +97,17 @@ public:
 	// Returns a vector that is the rotated copy of the original.
 	Lina_Vector3F rotated(float, Lina_Vector3F);
 
+	// Swizzling.
+	Lina_Vector2F xy();
+	Lina_Vector2F xz();
+	Lina_Vector2F yz();
+	Lina_Vector2F yx();
+	Lina_Vector2F zx();
+	Lina_Vector2F zy();
+
+	// Linear interpolation for vectors
+	static Lina_Vector3F Lerp(Lina_Vector3F, Lina_Vector3F, float);
+
 	// Get random vector bw min & max.
 	static Lina_Vector3F GetRandomVector(float, float);
 
@@ -105,10 +116,10 @@ public:
 
 	// Return a string containing info on the vector attributes.
 	static std::string VToString(const Lina_Vector3F&);
+
 	// Cross product of two vectors.
 	static Lina_Vector3F Cross(Lina_Vector3F, Lina_Vector3F);
 
-	Lina_Vector3F Cross(Lina_Vector3F&);
 
 	// Dot product of two vectors.
 	static float Dot(Lina_Vector3F, Lina_Vector3F);

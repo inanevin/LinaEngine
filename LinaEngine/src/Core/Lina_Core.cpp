@@ -22,6 +22,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Core/Lina_Core.h"
 #include "Utility/Lina_Time.h"
 #include "Core/Lina_EngineInstances.h"
+#include "Math/Lina_Vector3F.h"
 static const long SECOND = 1000000000;	// time in nanosecs
 
 // Constructor, initialize components.
@@ -130,14 +131,14 @@ void Lina_Core::Run()
 	const double frameTime = 1.0 / m_FrameCap;
 
 	// Time that prev frame started running.
-	long lastTime = Lina_Time::GetCurrentTimeInNano();
+	double lastTime = Lina_Time::GetTime();
 
 	// Cumilator -> Keep track of how much times we still need to update the game.
 	double unprocessedTime = 0;
 
 	// Frame counter.
 	int frames = 0;
-	long frameCounter = 0;
+	double frameCounter = 0;
 
 
 	// For now the only condition is to have an active window to keep the rendering.
@@ -147,17 +148,17 @@ void Lina_Core::Run()
 		bool renderFrame = false;
 
 		// Time that this frame started running.
-		long startTime = Lina_Time::GetCurrentTimeInNano();
+		double startTime = Lina_Time::GetTime();
 
 		// amount of the it took for the frame.
-		long passedTime = startTime - lastTime;
+		double passedTime = startTime - lastTime;
 		//std::cout << passedTime << std::endl;
 
 		// this frame is now the previous frame.
 		lastTime = startTime;
 
 		// How much time has passed in doubles. (running total of time passed)
-		unprocessedTime += passedTime / static_cast<double>(SECOND);
+		unprocessedTime += passedTime;
 
 		// Increment frame counter.
 		frameCounter += passedTime;
@@ -165,14 +166,13 @@ void Lina_Core::Run()
 		// While total time is greater than time one frame is supposed to take. (update time)
 		while (unprocessedTime > frameTime)
 		{
-
 			renderFrame = true;
 
 			// decrease time to process.
 			unprocessedTime -= frameTime;
 
 			// If we don't have an active window or is closed stop.
-			if (renderingEngine.m_ActiveWindow == nullptr || renderingEngine.m_ActiveWindow->IsClosed())
+			if (renderingEngine.m_GameWindow == nullptr || renderingEngine.m_GameWindow->IsClosed())
 			{
 				Stop();
 				break;
@@ -188,13 +188,13 @@ void Lina_Core::Run()
 
 			// Set delta. (Change later, no effect for now)
 			Lina_Time::SetDelta(frameTime);
-			
+
 			// TODO: Update game loop
 			game->ProcessInput();
 			game->Update();
 			
 			// print the frame counter every second.
-			if (frameCounter >= SECOND)
+			if (frameCounter >= 1.0)
 			{
 				// Debug frames.
 				Lina_Console cons = Lina_Console();

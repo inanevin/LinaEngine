@@ -91,10 +91,25 @@ void Lina_Matrix4F::InitPerspectiveProjection(float fov, float aspectRatio, floa
 
 	// Override w component for depth division later on, store z for now.
 	// Scale all the points into a 1:1 box in X-Y plane, taking aspect ratio into account.
-	m[0][0] = 1.0f / (tanHFOV * aspectRatio);	m[0][1] = 0;				m[0][2] = 0;					m[0][3] = 0;
-	m[1][0] = 0;								m[1][1] = 1.0f / tanHFOV;	m[1][2] = 0;					m[1][3] = 0;
+	m[0][0] = 1.0f / (tanHFOV * aspectRatio);	m[0][1] = 0;				m[0][2] = 0;						m[0][3] = 0;
+	m[1][0] = 0;								m[1][1] = 1.0f / tanHFOV;	m[1][2] = 0;						m[1][3] = 0;
 	m[2][0] = 0;								m[2][1] = 0;				m[2][2] = (-zNear - zFar) / zRng;	m[2][3] = 2 * zFar * zNear / zRng;
-	m[3][0] = 0;								m[3][1] = 0;				m[3][2] = 1;					m[3][3] = 0;
+	m[3][0] = 0;								m[3][1] = 0;				m[3][2] = 1;						m[3][3] = 0;
+}
+
+void Lina_Matrix4F::InitOrtoProjection(float left, float right, float bottom, float top, float nNear, float fFar)
+{
+	float width = right - left;
+	float height = top - bottom;
+	float depth = fFar - nNear;
+
+	// 4 th column is translation
+	// 1st row x, 2nd row y and 3rd row z are scaling.
+	// Its backwards translation, thats why its negative.
+	m[0][0] = 2/width;	m[0][1] = 0;			m[0][2] = 0;			m[0][3] = -(right+left)/width;	
+	m[1][0] = 0;		m[1][1] = 2 / height;	m[1][2] = 0;			m[1][3] = -(top + bottom) / height;
+	m[2][0] = 0;		m[2][1] = 0;			m[2][2] = -2 / depth;	m[2][3] = -(fFar + nNear) / depth;
+	m[3][0] = 0;		m[3][1] = 0;			m[3][2] = 0;			m[3][3] = 1;	
 }
 
 void Lina_Matrix4F::InitPosition(float x, float y, float z)
@@ -156,9 +171,9 @@ void Lina_Matrix4F::InitRotation(Vector3 forward, Vector3 up)
 
 	Vector3 r = up;
 	r.Normalize();
-	r = r.Cross(f);
+	r = Vector3::Cross(r, f);
 
-	Vector3 u = f.Cross(r);
+	Vector3 u = Vector3::Cross(f, r);
 
 	m[0][0] = r.x;	m[0][1] = r.y;	m[0][2] = r.z;	m[0][3] = 0;	
 	m[1][0] = u.x;	m[1][1] = u.y;	m[1][2] = u.z;	m[1][3] = 0;	

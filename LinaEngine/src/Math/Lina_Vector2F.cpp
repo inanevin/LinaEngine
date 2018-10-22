@@ -189,6 +189,13 @@ Lina_Vector2F Lina_Vector2F::rotated(float angle)
 
 #pragma region Utility
 
+// Linear interpolation for vectors.
+Lina_Vector2F Lina_Vector2F::Lerp(Lina_Vector2F bgn, Lina_Vector2F dest, float i)
+{
+	Lina_Vector2F f = (dest - bgn) * i;
+	return f + bgn;
+}
+
 // Get random vector bw min & max.
 Lina_Vector2F Lina_Vector2F::GetRandomVector(float min, float max)
 {
@@ -218,5 +225,11 @@ std::string Lina_Vector2F::VToString(const Lina_Vector2F& v)
 float Lina_Vector2F::Dot(Lina_Vector2F v1, Lina_Vector2F v2)
 {
 	return v1.x * v2.x + v1.y * v2.y;
+}
+
+// Cross product of two vectors.
+float Lina_Vector2F::Cross(Lina_Vector2F v1, Lina_Vector2F v2)
+{
+	return v1.x * v2.y - v1.y * v2.x;
 }
 

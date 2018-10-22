@@ -22,6 +22,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "pch.h"
 #include "Math/Lina_Vector3F.h"  
 #include "Math/Lina_Quaternion.h"
+#include "Math/Lina_Vector2F.h"
 
 const Lina_Vector3F Lina_Vector3F::yAxis = Vector3(0, 1, 0);
 
@@ -290,6 +291,43 @@ Lina_Vector3F Lina_Vector3F::rotated(float angle, Lina_Vector3F axis)
 
 #pragma region Utility
 
+// Swizzle methods.
+Lina_Vector2F Lina_Vector3F::xy()
+{
+	return Lina_Vector2F(x,y);
+}
+
+Lina_Vector2F Lina_Vector3F::xz()
+{
+	return Lina_Vector2F(x,z);
+}
+
+Lina_Vector2F Lina_Vector3F::yz()
+{
+	return Lina_Vector2F(y, z);
+}
+
+Lina_Vector2F Lina_Vector3F::yx()
+{
+	return Lina_Vector2F(y,x);
+}
+
+Lina_Vector2F Lina_Vector3F::zx()
+{
+	return Lina_Vector2F(z,x);
+}
+
+Lina_Vector2F Lina_Vector3F::zy()
+{
+	return Lina_Vector2F(z,y);
+}
+
+Lina_Vector3F Lina_Vector3F::Lerp(Lina_Vector3F bgn, Lina_Vector3F dest, float i)
+{
+	Lina_Vector3F f = (dest - bgn) * i;
+	return f + bgn;
+}
+
 // Get random vector bw min & max.
 Lina_Vector3F Lina_Vector3F::GetRandomVector(float min, float max)
 {
@@ -320,22 +358,12 @@ std::string Lina_Vector3F::VToString(const Lina_Vector3F& v)
 Lina_Vector3F Lina_Vector3F::Cross(Lina_Vector3F v1, Lina_Vector3F v2)
 {
 	Lina_Vector3F crossP = Lina_Vector3F();
-	//crossP.x = Lina_Math::det(v1.y, v1.z, v2.y, v2.z);
-	//crossP.y = -1 * Lina_Math::det(v1.x, v1.z, v2.x, v2.z);
-	//crossP.z = Lina_Math::det(v1.x, v1.y, v2.x, v2.y);
 	crossP.x = v1.y * v2.z - v1.z * v2.y;
 	crossP.y = v1.z * v2.x - v1.x * v2.z;
 	crossP.z = v1.x * v2.y - v1.y * v2.x;
 	return crossP;
 }
 
-Lina_Vector3F Lina_Vector3F::Cross(Lina_Vector3F& r)
-{
-	float x_ = y * r.z - z * r.y;
-	float y_ = z * r.x - x * r.z;
-	float z_ = x * r.y - y * r.x;
-	return Lina_Vector3F(x_, y_, z_);
-}
 
 // Dot product of two vectors.
 float Lina_Vector3F::Dot(Lina_Vector3F v1, Lina_Vector3F v2)
