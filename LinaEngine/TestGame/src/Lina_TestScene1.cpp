@@ -65,7 +65,7 @@ void Lina_TestScene::Wake()
 	meshRenderer2->SetMaterial(material2);
 	meshRenderer2->SetMesh("plane");
 
-//	Lina->RenderingEngine()->GetPhongShader()->SetAmbientLight(Vector3(0.7,0.6,0));
+	Lina->RenderingEngine()->GetPhongShader()->SetAmbientLight(Vector3(0.7,0.6,0));
 	
 	floor.AddComponent(meshRenderer);
 	floor2.AddComponent(meshRenderer2);
