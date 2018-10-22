@@ -28,10 +28,12 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Lina_Window.h"
 #include "Core/Lina_ObjectHandler.h"
 #include "Math/Lina_Vector3F.h"
+#include "Rendering/Lights/Lina_DirectionalLight.h"
 
 class Lina_PhongShader;
 class Lina_BasicShader;
 class Lina_ForwardAmbientShader;
+class Lina_ForwardDirectionalShader;
 class Lina_Camera;
 class Lina_GameCore;
 class Lina_Actor;
@@ -58,6 +60,7 @@ public:
 	int GetScreenHeight();
 
 	Lina_Vector3F GetAmbientLight();
+	Lina_DirectionalLight GetDirectionalLight();
 
 private:
 
@@ -76,18 +79,20 @@ private:
 	Lina_BasicShader* basicShader;
 	Lina_PhongShader* phongShader;
 	Lina_ForwardAmbientShader* forwardAmbientShader;
+	Lina_ForwardDirectionalShader* forwardDirectionalShader;
 
 	Lina_Camera* currentActiveCamera;
 	Lina_GameCore* game;
 
-	int screenHeight;
-	int screenWidth;
-	std::string screenTitle;
+	int screenHeight = 0;
+	int screenWidth = 0;
+	std::string screenTitle = "";
 
 	Lina_RenderingEngine(const Lina_RenderingEngine&) = delete;
 	Lina_RenderingEngine& operator= (const Lina_RenderingEngine&) = delete;
 
-	Lina_Vector3F ambientLight;
+	Lina_Vector3F ambientLight = Vector3(0.3f, 0.3f, 0.3f);
+	Lina_DirectionalLight directionalLight;
 	
 };
 

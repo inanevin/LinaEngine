@@ -232,7 +232,6 @@ void Lina_Core::Run()
 // Rendering loop.
 void Lina_Core::Render()
 {
-	renderingEngine.ClearScreen();
 	renderingEngine.Render();
 }
 

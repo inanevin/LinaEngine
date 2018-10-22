@@ -38,10 +38,6 @@ public:
 	Lina_PhongShader();
 	void Init() override;
 	void UpdateUniforms(Lina_Transform&,  Lina_Material) override;
-	void SetUniform(std::string, Lina_BaseLight);
-	void SetUniform(std::string, Lina_DirectionalLight);
-	void SetUniform(std::string, Lina_PointLight);
-	void SetUniform(std::string, Lina_SpotLight);
 
 	void SetDirectionalLight(Lina_DirectionalLight);
 	void SetAmbientLight(Vector3);

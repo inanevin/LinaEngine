@@ -37,9 +37,9 @@ public:
 	Lina_Material(Lina_Texture, Vector3, float, float);
 
 	Lina_Texture texture;
-	Vector3 color;
-	float specularIntensity;
-	float specularExponent;
+	Vector3 color = Vector3::one();
+	float specularIntensity = 1;
+	float specularExponent = 8;
 
 };
 

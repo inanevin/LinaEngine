@@ -177,6 +177,37 @@ void Lina_Shader::SetUniform(const std::string& name, GLfloat* val) const
 	glUniformMatrix4fv(m_Uniforms.find(name)->second, 1, true, val);
 }
 
+
+void Lina_Shader::SetUniform(const std::string& name, Lina_BaseLight b)
+{
+	SetUniform(name + ".color", b.color);
+	SetUniform(name + ".intensity", b.intensity);
+}
+
+void Lina_Shader::SetUniform(const std::string& name, Lina_DirectionalLight directionalLight)
+{
+	SetUniform(name + ".base", directionalLight.base);
+	SetUniform(name + ".direction", directionalLight.direction);
+}
+
+void Lina_Shader::SetUniform(const std::string& name, Lina_PointLight pLight)
+{
+	SetUniform(name + ".base", pLight.base);
+	SetUniform(name + ".attenuation.constant", pLight.attenuation.constant);
+	SetUniform(name + ".attenuation.linear", pLight.attenuation.linear);
+	SetUniform(name + ".attenuation.exponent", pLight.attenuation.exponent);
+	SetUniform(name + ".position", pLight.position);
+	SetUniform(name + ".range", pLight.range);
+
+}
+
+void Lina_Shader::SetUniform(const std::string& name, Lina_SpotLight sLight)
+{
+	SetUniform(name + ".pointLight", sLight.pointLight);
+	SetUniform(name + ".direction", sLight.direction);
+	SetUniform(name + ".cutoff", sLight.cutoff);
+}
+
 void Lina_Shader::UpdateUniforms(Lina_Transform&, Lina_Material)
 {
 

@@ -58,13 +58,5 @@ Matrix4 Lina_Transform::GetTransformation()
 	return t.Multiply(r.Multiply(s));
 }
 
-// Perspective transformation projections.
-/*Matrix4 Lina_Transform::GetProjectedTransformation()
-{
-	Lina_Camera* currentCam = Lina_CoreMessageBus::Instance().GetRenderingEngine()->GetCurrentActiveCamera();
-	Lina_RenderingEngine* rnd = Lina_CoreMessageBus::Instance().GetRenderingEngine();
-
-	return currentCam->GetViewProjection().Multiply(GetTransformation());
-}*/
 
 

@@ -15,46 +15,60 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/22/2018 3:03:02 PM
+10/22/2018 6:39:01 PM
 
 */
 
 #include "pch.h"
 #include "Rendering/Lina_RenderingEngine.h"
-#include "Rendering/Shaders/Lina_ForwardAmbientShader.h"  
+#include "Rendering/Shaders/Lina_ForwardDirectionalShader.h"  
 #include "Core/Lina_Transform.h"
 
-Lina_ForwardAmbientShader::Lina_ForwardAmbientShader()
+Lina_ForwardDirectionalShader::Lina_ForwardDirectionalShader()
 {
-	Lina_Shader::Lina_Shader();
+
 }
 
 
-void Lina_ForwardAmbientShader::Init()
+void Lina_ForwardDirectionalShader::Init()
 {
 	Lina_Shader::Init();
 
 
-	AddVertexShader(LoadShader("Lina_ForwardAmbient.vs"));
-	AddFragmentShader(LoadShader("Lina_ForwardAmbient.fs"));
+	AddVertexShader(LoadShader("Lina_ForwardDirectional.vs"));
+	AddFragmentShader(LoadShader("Lina_ForwardDirectional.fs"));
 
 	SetAttributeLocation(0, "position");
 	SetAttributeLocation(1, "texCoord");
+	SetAttributeLocation(2, "normal");
 
 	CompileShader();
 
 	AddUniform("modelViewProjection");
-	AddUniform("ambient");
+	AddUniform("model");
+
+	AddUniform("specularIntensity");
+	AddUniform("specularExponent");
+	AddUniform("camPos");
+
+	AddUniform("directionalLight.base.color");
+	AddUniform("directionalLight.base.intensity");
+	AddUniform("directionalLight.direction");
 }
 
-void Lina_ForwardAmbientShader::UpdateUniforms(Lina_Transform& t, Lina_Material mat)
+void Lina_ForwardDirectionalShader::UpdateUniforms(Lina_Transform& t, Lina_Material mat)
 {
+	
 	Matrix4 world = t.GetTransformation();
 	Matrix4 projected = RenderingEngine->GetCurrentActiveCamera()->GetViewProjection().Multiply(world);
-
 	mat.texture.Bind();
 
 	SetUniform("modelViewProjection", *(projected.m));
-	SetUniform("ambient", RenderingEngine->GetAmbientLight());
+	SetUniform("model", *(world.m));
+	SetUniform("specularIntensity", mat.specularIntensity);
+	SetUniform("specularExponent", mat.specularExponent);
+	SetUniform("camPos", RenderingEngine->GetCurrentActiveCamera()->GetPosition());
+	SetUniform("directionalLight", RenderingEngine->GetDirectionalLight());
 
 }
+

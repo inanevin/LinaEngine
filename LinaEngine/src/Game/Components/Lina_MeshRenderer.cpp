@@ -46,6 +46,7 @@ void Lina_MeshRenderer::SetMesh(std::string path)
 void Lina_MeshRenderer::SetMaterial(const Lina_Material& mat)
 {
 	m_Material = mat;
+	std::cout << "exp" << mat.specularExponent;
 }
 
 
@@ -58,7 +59,7 @@ void Lina_MeshRenderer::Render(Lina_Shader* shader)
 {
 	Lina_ActorComponent::Render(shader);
 	
-	//shader->Bind();
+	shader->Bind();
 	shader->UpdateUniforms(m_Actor->transform, m_Material);
 	m_Mesh->Draw();
 }

@@ -21,6 +21,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pch.h"
 #include "Lina_TestScene1.h"  
+#include "Rendering/Shaders/Lina_BasicShader.h"
+#include "Rendering/Shaders/Lina_PhongShader.h"
 
 Lina_TestScene::Lina_TestScene()
 {
@@ -51,7 +53,9 @@ void Lina_TestScene::Wake()
 
 	Lina_Material material;
 	material.color = (Vector3(1, 1, 1));
-	material.texture.LoadTexture("grid.png");
+	material.texture.LoadTexture("grid4.png");
+	material.specularIntensity = .5f;
+	material.specularExponent = 4;
 
 	Lina_Material material2;
 	material2.color = (Vector3(1, 1, 1));
@@ -61,17 +65,13 @@ void Lina_TestScene::Wake()
 	meshRenderer->SetMaterial(material);
 	meshRenderer->SetMesh("plane");
 
-	Lina_MeshRenderer* meshRenderer2 = new Lina_MeshRenderer();
-	meshRenderer2->SetMaterial(material2);
-	meshRenderer2->SetMesh("plane");
 
-	//Lina->RenderingEngine()->GetPhongShader()->SetAmbientLight(Vector3(0.7,0.6,0));
-	
+
+	//floor.AddComponent(meshRenderer);
 	floor.AddComponent(meshRenderer);
-	floor2.AddComponent(meshRenderer2);
 
-	rootActor.AddChild(floor2);
 	rootActor.AddChild(floor);
+	//rootActor.AddChild(floor);
 	
 
 }
@@ -96,8 +96,8 @@ void Lina_TestScene::Update(float tickRate)
 {
 	Lina_Scene::Update(tickRate);
 
-	floor.transform.SetPosition(25, -15, 0);
-	floor2.transform.SetPosition(Vector3(-25, -15, 0));
+	//floor.transform.SetPosition(25, -15, 0);
+	floor.transform.SetPosition(Vector3(0,-2,0));
 
 }
 

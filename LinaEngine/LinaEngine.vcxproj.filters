@@ -195,6 +195,9 @@
     <ClCompile Include="src\Rendering\Shaders\Lina_ForwardAmbientShader.cpp">
       <Filter>Source Files\Rendering\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="src\Rendering\Shaders\Lina_ForwardDirectionalShader.cpp">
+      <Filter>Source Files\Rendering\Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\Math\Lina_Math.h">
@@ -327,6 +330,9 @@
       <Filter>Header Files\Rendering\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardAmbientShader.h">
+      <Filter>Header Files\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardDirectionalShader.h">
       <Filter>Header Files\Rendering\Shaders</Filter>
     </ClInclude>
   </ItemGroup>

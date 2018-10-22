@@ -182,6 +182,7 @@
     <ClCompile Include="src\Rendering\Lina_Material.cpp" />
     <ClCompile Include="src\Rendering\Lina_Mesh.cpp" />
     <ClCompile Include="src\Rendering\Shaders\Lina_ForwardAmbientShader.cpp" />
+    <ClCompile Include="src\Rendering\Shaders\Lina_ForwardDirectionalShader.cpp" />
     <ClCompile Include="src\Rendering\Shaders\Lina_PhongShader.cpp" />
     <ClCompile Include="src\Rendering\Lina_RenderingEngine.cpp" />
     <ClCompile Include="src\Core\Lina_Core.cpp" />
@@ -260,6 +261,10 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardAmbientShader.h">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardDirectionalShader.h">
       <SubType>
       </SubType>
     </ClInclude>

@@ -38,7 +38,7 @@ void Lina_BasicShader::Init()
 	AddFragmentShader(LoadShader("Lina_BasicFragment.fs"));
 	CompileShader();
 
-	AddUniform("transform");
+	AddUniform("model");
 	AddUniform("color");
 }
 
@@ -47,10 +47,9 @@ void Lina_BasicShader::UpdateUniforms(Lina_Transform& t, Lina_Material mat)
 	Matrix4 world = t.GetTransformation();
 	Matrix4 projected = RenderingEngine->GetCurrentActiveCamera()->GetViewProjection().Multiply(world);
 
-	// UNBIND IF TEXTURE IS NULL?
 	mat.texture.Bind();
 
-	SetUniform("transform", *(projected.m));
+	SetUniform("model", *(projected.m));
 	SetUniform("color", mat.color);
 	
 }

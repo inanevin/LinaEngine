@@ -24,14 +24,15 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Shaders/Lina_PhongShader.h"
 #include "Rendering/Shaders/Lina_BasicShader.h"
 #include "Rendering/Shaders/Lina_ForwardAmbientShader.h"
+#include "Rendering/Shaders/Lina_ForwardDirectionalShader.h"
 #include "Scene/Lina_Camera.h"
 #include "Game/Lina_GameCore.h"
 
 Lina_RenderingEngine::Lina_RenderingEngine()
 {
-	screenHeight = screenWidth = 0;
-	screenTitle = "";
-	ambientLight = Vector3(0.1f, 0.1f, 0.1f);
+
+	ambientLight = Vector3(0.3f, 0.3f, 0.3f);
+	directionalLight = Lina_DirectionalLight(Lina_BaseLight(Vector3(1, 1, 1), 0.3f), Vector3(1, 1, 1));
 }
 
 // Destructor.
@@ -44,6 +45,7 @@ Lina_RenderingEngine::~Lina_RenderingEngine()
 	delete phongShader;
 	delete basicShader;
 	delete forwardAmbientShader;
+	delete forwardDirectionalShader;
 }
 
 void Lina_RenderingEngine::CreateDisplayWindow()
@@ -92,9 +94,6 @@ void Lina_RenderingEngine::Initialize(Lina_GameCore* g)
 	// depth clamp
 	glEnable(GL_DEPTH_CLAMP);
 
-	// Get free gamma correction.
-	//glEnable(GL_FRAMEBUFFER_SRGB);
-
 	// Init shaders
 	InitializeShaders();
 
@@ -105,12 +104,18 @@ void Lina_RenderingEngine::InitializeShaders()
 	phongShader = new Lina_PhongShader();
 	basicShader = new Lina_BasicShader();
 	forwardAmbientShader = new Lina_ForwardAmbientShader();
+	forwardDirectionalShader = new Lina_ForwardDirectionalShader();
+
 	phongShader->SetRenderingEngine(this);
 	basicShader->SetRenderingEngine(this);
 	forwardAmbientShader->SetRenderingEngine(this);
+	forwardDirectionalShader->SetRenderingEngine(this);
+
 	phongShader->Init();
 	basicShader->Init();
 	forwardAmbientShader->Init();
+	forwardDirectionalShader->Init();
+
 }
 
 void Lina_RenderingEngine::ClearScreen()
@@ -122,18 +127,37 @@ void Lina_RenderingEngine::ClearScreen()
 // Main method to render.
 void Lina_RenderingEngine::Render()
 {
-	forwardAmbientShader->Bind();
+	// Clar screen.
+	ClearScreen();
 
 	// Render the game.
 	game->Render(forwardAmbientShader);
 
-	// Check if active window points to an object.
-	if (m_GameWindow == nullptr)
-	{
-		return;
-	}
+	// Enable color blending.
+	glEnable(GL_BLEND);
 
-	// Call render method on active window.
+	// Existing color * 1 + new color * 1
+	glBlendFunc(GL_ONE, GL_ONE);
+
+	// Disable depth buffer while adding more color, because objects are the same and no need to write it to the buffer.
+	glDepthMask(false);
+
+	// Only try adding on new pixels if they have the exact same depth.
+	// (Only do lighting for pixels that make it into the final image)
+	glDepthFunc(GL_EQUAL);
+
+	game->Render(forwardDirectionalShader);
+
+	// Set depth calculations back.
+	glDepthFunc(GL_LESS);
+
+	// Enable depth buffer.
+	glDepthMask(true);
+
+	// Disable color blending.
+	glDisable(GL_BLEND);
+	
+	// Call swap buffers on active window.
 	m_GameWindow->Update();
 }
 
@@ -201,6 +225,11 @@ int Lina_RenderingEngine::GetScreenHeight()
 Lina_Vector3F Lina_RenderingEngine::GetAmbientLight()
 {
 	return ambientLight;
+}
+
+Lina_DirectionalLight Lina_RenderingEngine::GetDirectionalLight()
+{
+	return directionalLight;
 }
 
 
