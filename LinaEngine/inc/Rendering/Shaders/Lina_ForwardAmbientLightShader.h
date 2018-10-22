@@ -15,58 +15,26 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/20/2018 10:05:19 PM
+10/22/2018 3:02:38 PM
 
 */
 
-#include "pch.h"
-#include "Game/Components/Lina_MeshRenderer.h"  
-#include "Rendering/Lina_Mesh.h"
+#pragma once
+
+#ifndef Lina_ForwardAmbientShader_H
+#define Lina_ForwardAmbientShader_H
+
 #include "Rendering/Shaders/Lina_Shader.h"
-#include "Game/Lina_Actor.h"
 
-Lina_MeshRenderer::Lina_MeshRenderer()
+class Lina_ForwardAmbientLightShader : public Lina_Shader
 {
 
-}
+public:
 
-void Lina_MeshRenderer::SetMesh(std::string path)
-{
-	if (path == "plane")
-	{
-		m_Mesh = new Lina_DefaultCubeMesh();
-		m_Mesh->InitMesh();
-	}
-	else
-	{
-		// LOAD OBJ
-	}
-}
-
-void Lina_MeshRenderer::SetMaterial(const Lina_Material& mat)
-{
-	m_Material = mat;
-}
+	Lina_ForwardAmbientLightShader();
+	void Init() override;
+	void UpdateUniforms(Lina_Transform&, Lina_Material) override;
+};
 
 
-void Lina_MeshRenderer::Wake()
-{
-	Lina_ActorComponent::Wake();
-}
-
-void Lina_MeshRenderer::Render(Lina_Shader* shader)
-{
-	Lina_ActorComponent::Render(shader);
-	
-	shader->Bind();
-	shader->UpdateUniforms(m_Actor->transform, m_Material);
-	m_Mesh->Draw();
-}
-
-void Lina_MeshRenderer::CleanUp()
-{
-	Lina_ActorComponent::CleanUp();
-	delete m_Mesh;
-
-}
-
+#endif

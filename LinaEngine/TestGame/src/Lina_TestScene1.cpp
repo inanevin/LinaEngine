@@ -54,8 +54,8 @@ void Lina_TestScene::Wake()
 	Lina_Material material;
 	material.color = (Vector3(1, 1, 1));
 	material.texture.LoadTexture("grid4.png");
-	material.specularIntensity = .5f;
-	material.specularExponent = 4;
+	material.specularIntensity = 1;
+	material.specularExponent = 8;
 
 	Lina_Material material2;
 	material2.color = (Vector3(1, 1, 1));

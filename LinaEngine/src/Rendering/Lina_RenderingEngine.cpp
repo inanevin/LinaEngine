@@ -23,16 +23,20 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Lina_RenderingEngine.h"  
 #include "Rendering/Shaders/Lina_PhongShader.h"
 #include "Rendering/Shaders/Lina_BasicShader.h"
-#include "Rendering/Shaders/Lina_ForwardAmbientShader.h"
-#include "Rendering/Shaders/Lina_ForwardDirectionalShader.h"
+#include "Rendering/Shaders/Lina_ForwardAmbientLightShader.h"
+#include "Rendering/Shaders/Lina_ForwardDirectionalLightShader.h"
+#include "Rendering/Shaders/Lina_ForwardPointLightShader.h"
+#include "Rendering/Shaders/Lina_ForwardSpotLightShader.h"
 #include "Scene/Lina_Camera.h"
 #include "Game/Lina_GameCore.h"
 
 Lina_RenderingEngine::Lina_RenderingEngine()
 {
 
-	ambientLight = Vector3(0.3f, 0.3f, 0.3f);
-	directionalLight = Lina_DirectionalLight(Lina_BaseLight(Vector3(1, 1, 1), 0.3f), Vector3(1, 1, 1));
+	ambientLight = Vector3(0.2f, 0.2f, 0.2f);
+	directionalLight = Lina_DirectionalLight(Lina_BaseLight(Vector3(1,1,1), 0.2f), Vector3(1, 1, 1));
+	pointLight = Lina_PointLight(Lina_BaseLight(Vector3(0,1,0), 7), Lina_Attenuation(0, 0, 1), Vector3(5, 2, 5), 125);
+	spotLight = Lina_SpotLight(Lina_PointLight(Lina_BaseLight(Vector3(0,1,1), 2.2f), Lina_Attenuation(0, 0, 0.1f), Vector3(0, 0, 0), 100), Vector3(1,0,0), 0.7f);
 }
 
 // Destructor.
@@ -46,6 +50,9 @@ Lina_RenderingEngine::~Lina_RenderingEngine()
 	delete basicShader;
 	delete forwardAmbientShader;
 	delete forwardDirectionalShader;
+	delete forwardPointShader;
+	delete forwardSpotShader;
+
 }
 
 void Lina_RenderingEngine::CreateDisplayWindow()
@@ -103,18 +110,24 @@ void Lina_RenderingEngine::InitializeShaders()
 {
 	phongShader = new Lina_PhongShader();
 	basicShader = new Lina_BasicShader();
-	forwardAmbientShader = new Lina_ForwardAmbientShader();
-	forwardDirectionalShader = new Lina_ForwardDirectionalShader();
+	forwardAmbientShader = new Lina_ForwardAmbientLightShader();
+	forwardDirectionalShader = new Lina_ForwardDirectionalLightShader();
+	forwardPointShader = new Lina_ForwardPointLightShader();
+	forwardSpotShader = new Lina_ForwardSpotLightShader();
 
 	phongShader->SetRenderingEngine(this);
 	basicShader->SetRenderingEngine(this);
 	forwardAmbientShader->SetRenderingEngine(this);
 	forwardDirectionalShader->SetRenderingEngine(this);
+	forwardPointShader->SetRenderingEngine(this);
+	forwardSpotShader->SetRenderingEngine(this);
 
 	phongShader->Init();
 	basicShader->Init();
 	forwardAmbientShader->Init();
 	forwardDirectionalShader->Init();
+	forwardPointShader->Init();
+	forwardSpotShader->Init();
 
 }
 
@@ -147,6 +160,10 @@ void Lina_RenderingEngine::Render()
 	glDepthFunc(GL_EQUAL);
 
 	game->Render(forwardDirectionalShader);
+
+	game->Render(forwardPointShader);
+
+	game->Render(forwardSpotShader);
 
 	// Set depth calculations back.
 	glDepthFunc(GL_LESS);
@@ -230,6 +247,16 @@ Lina_Vector3F Lina_RenderingEngine::GetAmbientLight()
 Lina_DirectionalLight Lina_RenderingEngine::GetDirectionalLight()
 {
 	return directionalLight;
+}
+
+Lina_PointLight Lina_RenderingEngine::GetPointLight()
+{
+	return pointLight;
+}
+
+Lina_SpotLight Lina_RenderingEngine::GetSpotLight()
+{
+	return spotLight;
 }
 
 

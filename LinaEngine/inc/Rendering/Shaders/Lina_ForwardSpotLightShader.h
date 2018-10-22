@@ -15,23 +15,21 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/22/2018 3:02:38 PM
+10/22/2018 10:21:45 PM
 
 */
 
 #pragma once
 
-#ifndef Lina_ForwardAmbientShader_H
-#define Lina_ForwardAmbientShader_H
-
+#ifndef Lina_ForwardSpotLightShader_H
+#define Lina_ForwardSpotLightShader_H
 #include "Rendering/Shaders/Lina_Shader.h"
 
-class Lina_ForwardAmbientShader : public Lina_Shader
+class Lina_ForwardSpotLightShader : public Lina_Shader
 {
 
 public:
-
-	Lina_ForwardAmbientShader();
+	Lina_ForwardSpotLightShader();
 	void Init() override;
 	void UpdateUniforms(Lina_Transform&, Lina_Material) override;
 };

@@ -15,28 +15,27 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/22/2018 6:39:01 PM
+10/22/2018 10:05:41 PM
 
 */
 
 #include "pch.h"
 #include "Rendering/Lina_RenderingEngine.h"
-#include "Rendering/Shaders/Lina_ForwardDirectionalShader.h"  
+#include "Rendering/Shaders/Lina_ForwardPointLightShader.h"  
 #include "Core/Lina_Transform.h"
 
-Lina_ForwardDirectionalShader::Lina_ForwardDirectionalShader()
+Lina_ForwardPointLightShader::Lina_ForwardPointLightShader()
 {
 
 }
 
-
-void Lina_ForwardDirectionalShader::Init()
+void Lina_ForwardPointLightShader::Init()
 {
 	Lina_Shader::Init();
 
 
-	AddVertexShader(LoadShader("Lina_ForwardDirectional.vs"));
-	AddFragmentShader(LoadShader("Lina_ForwardDirectional.fs"));
+	AddVertexShader(LoadShader("Lina_ForwardPoint.vs"));
+	AddFragmentShader(LoadShader("Lina_ForwardPoint.fs"));
 
 	SetAttributeLocation(0, "position");
 	SetAttributeLocation(1, "texCoord");
@@ -51,14 +50,18 @@ void Lina_ForwardDirectionalShader::Init()
 	AddUniform("specularExponent");
 	AddUniform("camPos");
 
-	AddUniform("directionalLight.base.color");
-	AddUniform("directionalLight.base.intensity");
-	AddUniform("directionalLight.direction");
+	AddUniform("pointLight.base.color");
+	AddUniform("pointLight.base.intensity");
+	AddUniform("pointLight.attenuation.constant");
+	AddUniform("pointLight.attenuation.linear");
+	AddUniform("pointLight.attenuation.exponent");
+	AddUniform("pointLight.position");
+	AddUniform("pointLight.range");
 }
 
-void Lina_ForwardDirectionalShader::UpdateUniforms(Lina_Transform& t, Lina_Material mat)
+void Lina_ForwardPointLightShader::UpdateUniforms(Lina_Transform& t, Lina_Material mat)
 {
-	
+
 	Matrix4 world = t.GetTransformation();
 	Matrix4 projected = RenderingEngine->GetCurrentActiveCamera()->GetViewProjection().Multiply(world);
 	mat.texture.Bind();
@@ -68,7 +71,5 @@ void Lina_ForwardDirectionalShader::UpdateUniforms(Lina_Transform& t, Lina_Mater
 	SetUniform("specularIntensity", mat.specularIntensity);
 	SetUniform("specularExponent", mat.specularExponent);
 	SetUniform("camPos", RenderingEngine->GetCurrentActiveCamera()->GetPosition());
-	SetUniform("directionalLight", RenderingEngine->GetDirectionalLight());
-
+	SetUniform("pointLight", RenderingEngine->GetPointLight());
 }
-

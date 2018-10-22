@@ -29,11 +29,14 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Core/Lina_ObjectHandler.h"
 #include "Math/Lina_Vector3F.h"
 #include "Rendering/Lights/Lina_DirectionalLight.h"
+#include "Rendering/Lights/Lina_SpotLight.h"
 
 class Lina_PhongShader;
 class Lina_BasicShader;
-class Lina_ForwardAmbientShader;
-class Lina_ForwardDirectionalShader;
+class Lina_ForwardAmbientLightShader;
+class Lina_ForwardDirectionalLightShader;
+class Lina_ForwardPointLightShader;
+class Lina_ForwardSpotLightShader;
 class Lina_Camera;
 class Lina_GameCore;
 class Lina_Actor;
@@ -61,6 +64,8 @@ public:
 
 	Lina_Vector3F GetAmbientLight();
 	Lina_DirectionalLight GetDirectionalLight();
+	Lina_PointLight GetPointLight();
+	Lina_SpotLight GetSpotLight();
 
 private:
 
@@ -78,8 +83,10 @@ private:
 
 	Lina_BasicShader* basicShader;
 	Lina_PhongShader* phongShader;
-	Lina_ForwardAmbientShader* forwardAmbientShader;
-	Lina_ForwardDirectionalShader* forwardDirectionalShader;
+	Lina_ForwardAmbientLightShader* forwardAmbientShader;
+	Lina_ForwardDirectionalLightShader* forwardDirectionalShader;
+	Lina_ForwardPointLightShader* forwardPointShader;
+	Lina_ForwardSpotLightShader* forwardSpotShader;
 
 	Lina_Camera* currentActiveCamera;
 	Lina_GameCore* game;
@@ -93,7 +100,8 @@ private:
 
 	Lina_Vector3F ambientLight = Vector3(0.3f, 0.3f, 0.3f);
 	Lina_DirectionalLight directionalLight;
-	
+	Lina_PointLight pointLight;
+	Lina_SpotLight spotLight;
 };
 
 

@@ -192,10 +192,16 @@
     <ClCompile Include="src\Rendering\Shaders\Lina_Shader.cpp">
       <Filter>Source Files\Rendering\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="src\Rendering\Shaders\Lina_ForwardAmbientShader.cpp">
+    <ClCompile Include="src\Rendering\Shaders\Lina_ForwardSpotLightShader.cpp">
       <Filter>Source Files\Rendering\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="src\Rendering\Shaders\Lina_ForwardDirectionalShader.cpp">
+    <ClCompile Include="src\Rendering\Shaders\Lina_ForwardPointLightShader.cpp">
+      <Filter>Source Files\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rendering\Shaders\Lina_ForwardDirectionalLightShader.cpp">
+      <Filter>Source Files\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rendering\Shaders\Lina_ForwardAmbientLightShader.cpp">
       <Filter>Source Files\Rendering\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
@@ -329,10 +335,16 @@
     <ClInclude Include="inc\Rendering\Shaders\Lina_Shader.h">
       <Filter>Header Files\Rendering\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardAmbientShader.h">
+    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardSpotLightShader.h">
       <Filter>Header Files\Rendering\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardDirectionalShader.h">
+    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardAmbientLightShader.h">
+      <Filter>Header Files\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardDirectionalLightShader.h">
+      <Filter>Header Files\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardPointLightShader.h">
       <Filter>Header Files\Rendering\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
