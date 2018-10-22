@@ -26,10 +26,11 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 Lina_GameCore::~Lina_GameCore()
 {
-	for (std::vector<Lina_Scene*>::iterator it = m_Scenes.begin(); it != m_Scenes.end(); ++it)
+	 for (std::vector<Lina_Scene*>::iterator it = m_Scenes.begin(); it != m_Scenes.end(); ++it)
 		delete (*it);
 
 	m_Scenes.clear();
+
 }
 
 
@@ -64,7 +65,6 @@ void Lina_GameCore::Render()
 void Lina_GameCore::Stop()
 {
 	assert(m_ActiveScene != nullptr);
-
 }
 
 void Lina_GameCore::CleanUp()

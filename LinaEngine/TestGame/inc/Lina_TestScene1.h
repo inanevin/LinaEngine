@@ -32,7 +32,7 @@ class Lina_TestScene : public Lina_Scene
 public:
 
 	Lina_TestScene();
-
+	~Lina_TestScene();
 	void Initialize(Lina_EngineInstances*) override;
 	virtual void Wake();
 	virtual void Start();

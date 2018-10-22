@@ -91,6 +91,7 @@ void Lina_Actor::Stop()
 
 	for (std::vector<Lina_ActorComponent*>::iterator it = components.begin(); it != components.end(); it++)
 		(*it)->Stop();
+
 }
 
 void Lina_Actor::CleanUp()
@@ -108,5 +109,6 @@ void Lina_Actor::CleanUp()
 	// Clear lists.
 	components.clear();
 	children.clear();
+
 }
 

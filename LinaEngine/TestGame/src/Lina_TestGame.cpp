@@ -35,6 +35,7 @@ Lina_TestGame::~Lina_TestGame()
 
 void Lina_TestGame::Initialize(Lina_EngineInstances* eng)
 {
+
 	SetEngineInstances(eng);
 
 	assert(engineInstances != nullptr);
@@ -103,4 +104,6 @@ void Lina_TestGame::CleanUp()
 
 	// Clean active scene.
 	m_ActiveScene->CleanUp();
+
+
 }

@@ -44,7 +44,7 @@ public:
 	void SetCurrentActiveCamera(Lina_Camera*);
 	Lina_Camera* GetCurrentActiveCamera();
 	
-	std::shared_ptr<Lina_Window> m_ActiveWindow;
+	Lina_Window* m_ActiveWindow;
 
 	Lina_ObjectHandler eventHandler;
 	Lina_PhongShader* GetPhongShader();

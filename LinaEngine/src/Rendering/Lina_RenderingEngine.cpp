@@ -32,6 +32,7 @@ Lina_RenderingEngine::~Lina_RenderingEngine()
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Rendering deinitialized.", Lina_Console::MsgType::Deinitialization, "Render Engine");
 
+	delete m_ActiveWindow;
 	delete phongShader;
 	delete basicShader;
 }
@@ -39,7 +40,7 @@ Lina_RenderingEngine::~Lina_RenderingEngine()
 void Lina_RenderingEngine::CreateDisplayWindow()
 {
 	// Initialize display.
-	m_ActiveWindow = std::make_shared<Lina_Window>(screenWidth, screenHeight, screenTitle);
+	m_ActiveWindow = new Lina_Window(screenWidth, screenHeight, screenTitle);
 }
 
 // Init rendering engine.
@@ -123,10 +124,6 @@ void Lina_RenderingEngine::CleanUp()
 {
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Cleaning up rendering engine...", Lina_Console::MsgType::Deinitialization, "Render Engine");
-
-	// If we have an active window decrement the shared pointer of it.
-	if (m_ActiveWindow != nullptr)
-		m_ActiveWindow.reset();
 
 }
 

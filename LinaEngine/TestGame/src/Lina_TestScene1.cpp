@@ -27,6 +27,11 @@ Lina_TestScene::Lina_TestScene()
 
 }
 
+Lina_TestScene::~Lina_TestScene()
+{
+
+}
+
 void Lina_TestScene::Initialize(Lina_EngineInstances* eng)
 {
 	// Set Engine Instances

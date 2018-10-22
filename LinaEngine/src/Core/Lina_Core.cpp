@@ -52,8 +52,8 @@ Lina_Core::~Lina_Core()
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Core deinitialized.", Lina_Console::MsgType::Deinitialization, "Core");
 
-	delete game;
 	delete engineInstances;
+
 }
 
 

@@ -49,7 +49,7 @@ private:
 	void Run();
 	void Render();
 	void CleanUp();
-	bool isRunning;
+	bool isRunning = false;
 
 	double m_FrameCap;
 

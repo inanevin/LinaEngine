@@ -48,6 +48,7 @@ void Initialize()
 int main()
 {
 	Initialize();
+
 	return 0;
 }
 
