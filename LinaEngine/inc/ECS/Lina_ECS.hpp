@@ -28,16 +28,16 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "ECS/Lina_ECSSystem.hpp"
 #include <map>
 
-typedef std::pair<uint32, uint32> componentPair;
-typedef Lina_DSArray<componentPair> entityData;
-typedef std::pair<uint32, entityData> entityPairs;
+typedef std::pair<uint32, uint32> ComponentPair;
+typedef Lina_DSArray<ComponentPair> Entity;
+typedef std::pair<uint32, Entity> IndexEntityPair;
 
 class Lina_ECS
 {
 
 public:
 
-	Lina_ECS() {};
+	Lina_ECS();
 	~Lina_ECS();
 
 	/* ENTITY FUNCTIONS */
@@ -47,7 +47,10 @@ public:
 	/* COMPONENT FUNCTIONS */
 
 	template<class Component>
-	void AddComponent(Lina_EntityHandle* entity, Component* component);
+	inline void AddComponent(Lina_EntityHandle* entity, Component* component)
+	{
+		AddComponentInternal(HandleToEntity(entity), Component::ID, component);
+	}
 
 	template<class Component>
 	void RemoveComponent(Lina_EntityHandle* entity);
@@ -55,10 +58,7 @@ public:
 	void GetComponent(Lina_EntityHandle* entity);
 
 	/* SYSTEM FUNCTIONS */
-	void AddSystem(Lina_ECSBaseSystem& system)
-	{
-		systems.push_back(&system);
-	}
+	void AddSystem(Lina_ECSBaseSystem& system);
 
 	void UpdateSystems(float delta);
 
@@ -68,11 +68,11 @@ private:
 
 	Lina_DSArray<Lina_ECSBaseSystem*> systems;
 	std::map<uint32, Lina_DSArray<uint8>> components;
-	Lina_DSArray <entityPairs*> entities;
+	Lina_DSArray <IndexEntityPair*> entities;
 
-	inline entityPairs* HandleToRawType(Lina_EntityHandle* handle)
+	inline IndexEntityPair* HandleToRawType(Lina_EntityHandle* handle)
 	{
-		(entityPairs*)handle;
+		return (IndexEntityPair*)handle;
 	}
 
 	inline uint32 HandleToEntityIndex(Lina_EntityHandle* handle)
@@ -80,13 +80,17 @@ private:
 		return HandleToRawType(handle)->first;
 	}
 
-	inline entityData& HandleToEntity(Lina_EntityHandle* handle)
+	inline Entity& HandleToEntity(Lina_EntityHandle* handle)
 	{
 		return HandleToRawType(handle)->second;
 	}
+
+	void AddComponentInternal(Entity& entity, uint32 componentID, Lina_ECSBaseComponent* component);
+	void DeleteComponent(uint32 componentID, uint32 index);
 
 	NULL_COPY_AND_ASSIGN(Lina_ECS);
 };
 
 
 #endif
+

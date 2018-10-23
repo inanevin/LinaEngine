@@ -24,9 +24,12 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
  Lina_DSArray < std::tuple<Lina_ECSComponentCreateFunction, Lina_ECSComponentFreeFunction, size_t>> Lina_ECSBaseComponent::componentTypes;
 
+ // Registers component type.
 uint32 Lina_ECSBaseComponent::RegisterComponentType(Lina_ECSComponentCreateFunction createfn, Lina_ECSComponentFreeFunction freefn, size_t size)
 {
+	// Get id
 	uint32 componentID = componentTypes.size();
+	// add the type as a tuple of create func, free func and size.
 	componentTypes.push_back(std::tuple<Lina_ECSComponentCreateFunction, Lina_ECSComponentFreeFunction, size_t>(createfn, freefn, size));
 	return componentID++;
 }

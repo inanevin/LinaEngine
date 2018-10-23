@@ -43,23 +43,32 @@ struct Lina_ECSBaseComponent
 
 public:
 
-	// General ID for generating comps with different IDs each time a component of type T is created.
+	// Registers component type.
 	static uint32 RegisterComponentType(Lina_ECSComponentCreateFunction createfn, Lina_ECSComponentFreeFunction freefn, size_t size);
 	Lina_EntityHandle entity = NULL_ENTITY_HANDLE;
 
-	inline static Lina_ECSComponentCreateFunction getTypeCreateFunction(uint32 id)
+	// Returns the create function for particular component typed t.
+	inline static Lina_ECSComponentCreateFunction GetTypeCreateFunction(uint32 id)
 	{
 		return std::get<0>(componentTypes[id]);
 	}
 
-	inline static Lina_ECSComponentFreeFunction getTypeFreeFunction(uint32 id)
+	// Returns the free function for particular component typed t.
+	inline static Lina_ECSComponentFreeFunction GetTypeFreeFunction(uint32 id)
 	{
 		return std::get<1>(componentTypes[id]);
 	}
 
-	inline static size_t getTypeSize(uint32 id)
+	// Returns the size for particular component typed t.
+	inline static size_t GetTypeSize(uint32 id)
 	{
 		return std::get<2>(componentTypes[id]);
+	}
+
+	// Check if component type exists.
+	inline static bool DoesTypeExist(uint32 id)
+	{
+		return id < componentTypes.size();
 	}
 
 
@@ -68,13 +77,13 @@ private:
 	static Lina_DSArray < std::tuple<Lina_ECSComponentCreateFunction, Lina_ECSComponentFreeFunction, size_t>> componentTypes;
 };
 
-// Wrapper for static component type ID per type.
+// Wrapper for static components per type.
 template<typename T>
 struct Lina_ECSComponent : public Lina_ECSBaseComponent
 {
 	static const Lina_ECSComponentCreateFunction CREATE_FUNCTION;
 	static const Lina_ECSComponentFreeFunction FREE_FUNCTION;
-	static const uint32 ID;
+	static const uint32 ID;		// unique id.
 	static const size_t SIZE;	// How big every component is.
 };
 
@@ -109,7 +118,7 @@ const size_t Lina_ECSComponent<T>::SIZE(sizeof(T));
 template<typename T>
 const Lina_ECSComponentCreateFunction Lina_ECSComponent<T>::CREATE_FUNCTION(Lina_ECSComponentCreate<T>);
 
-// Set Create Function
+// Set Free Function
 template<typename T>
 const Lina_ECSComponentFreeFunction Lina_ECSComponent<T>::FREE_FUNCTION(Lina_ECSComponentFree<T>);
 
