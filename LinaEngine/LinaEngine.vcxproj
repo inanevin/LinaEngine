@@ -166,7 +166,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="inc\ECS\Lina_ECSBaseComponent.cpp" />
     <ClCompile Include="src\ECS\Lina_ECSComponent.cpp" />
     <ClCompile Include="src\Rendering\Lights\Lina_DirectionalLight.cpp" />
     <ClCompile Include="src\Rendering\Lights\Lina_Spotlight.cpp" />
@@ -219,7 +218,19 @@
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\ECS\Lina_ECSBaseComponent.hpp">
+    <ClInclude Include="inc\DataStructures\Lina_DSArray.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\ECS\Lina_ECS.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\ECS\Lina_ECSComponent.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\ECS\Lina_ECSSystem.hpp">
       <SubType>
       </SubType>
     </ClInclude>
@@ -316,6 +327,10 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\Scene\Lina_Scene.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Utility\Lina_Common.hpp">
       <SubType>
       </SubType>
     </ClInclude>

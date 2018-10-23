@@ -20,6 +20,13 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
-#include "ECS/Lina_ECSBaseComponent.hpp"  
+#include "ECS/Lina_ECSComponent.hpp"  
 
+ Lina_DSArray < std::tuple<Lina_ECSComponentCreateFunction, Lina_ECSComponentFreeFunction, size_t>> Lina_ECSBaseComponent::componentTypes;
 
+uint32 Lina_ECSBaseComponent::RegisterComponentType(Lina_ECSComponentCreateFunction createfn, Lina_ECSComponentFreeFunction freefn, size_t size)
+{
+	uint32 componentID = componentTypes.size();
+	componentTypes.push_back(std::tuple<Lina_ECSComponentCreateFunction, Lina_ECSComponentFreeFunction, size_t>(createfn, freefn, size));
+	return componentID++;
+}

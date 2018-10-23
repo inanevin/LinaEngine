@@ -15,29 +15,31 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/23/2018 10:55:22 PM
+10/23/2018 11:25:18 PM
 
 */
 
 #pragma once
 
-#ifndef Lina_DSArray_HPP
-#define Lina_DSArray_HPP
+#ifndef Lina_ECSSystem_HPP
+#define Lina_ECSSystem_HPP
 
-#include <vector>
+#include "Lina_ECSComponent.hpp"
 
-template<typename T>
-class Lina_DSArray : public std::vector<T>
+class Lina_ECSBaseSystem
 {
-public:
-	Lina_DSArray<T>() : std::vector<T>() {}
-	Lina_DSArray<T>(size_t n) : std::vector<T>(n) {}
 
-	void swap_remove(size_t index)
-	{
-		std::swap((*this)[index], (*this)[this->size() - 1]);
-		this->pop_back();
-	}
+public:
+	
+	Lina_ECSBaseSystem(const Lina_DSArray<uint32>& componentTypesIn) : componentTypes(componentTypesIn) {};
+	virtual void UpdateComponents(float delta, Lina_ECSBaseComponent** components) {};
+	const Lina_DSArray<uint32>& GetComponentTypes() { return componentTypes; }
+
+private:
+
+	Lina_DSArray<uint32> componentTypes;
+
 };
+
 
 #endif

@@ -26,20 +26,46 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include <stdint.h>
 #include <array>
+#include <tuple>
+
 #include "DataStructures/Lina_DSArray.hpp"
+#include "Utility/Lina_Common.hpp"
 
 #define NULL_ENTITY_HANDLE nullptr
 struct Lina_ECSBaseComponent;
 typedef void* Lina_EntityHandle;
-typedef uint32_t (*Lina_ECSComponentCreateFunction)(Lina_DSArray<uint8_t>& memory, Lina_EntityHandle entity, Lina_ECSBaseComponent* comp);
+typedef uint32 (*Lina_ECSComponentCreateFunction)(Lina_DSArray<uint8_t>& memory, Lina_EntityHandle entity, Lina_ECSBaseComponent* comp);
 typedef void (*Lina_ECSComponentFreeFunction)(Lina_ECSBaseComponent* comp);
 
 
 struct Lina_ECSBaseComponent
 {
+
+public:
+
 	// General ID for generating comps with different IDs each time a component of type T is created.
-	static uint32_t nextID();
+	static uint32 RegisterComponentType(Lina_ECSComponentCreateFunction createfn, Lina_ECSComponentFreeFunction freefn, size_t size);
 	Lina_EntityHandle entity = NULL_ENTITY_HANDLE;
+
+	inline static Lina_ECSComponentCreateFunction getTypeCreateFunction(uint32 id)
+	{
+		return std::get<0>(componentTypes[id]);
+	}
+
+	inline static Lina_ECSComponentFreeFunction getTypeFreeFunction(uint32 id)
+	{
+		return std::get<1>(componentTypes[id]);
+	}
+
+	inline static size_t getTypeSize(uint32 id)
+	{
+		return std::get<2>(componentTypes[id]);
+	}
+
+
+private:
+
+	static Lina_DSArray < std::tuple<Lina_ECSComponentCreateFunction, Lina_ECSComponentFreeFunction, size_t>> componentTypes;
 };
 
 // Wrapper for static component type ID per type.
@@ -48,15 +74,15 @@ struct Lina_ECSComponent : public Lina_ECSBaseComponent
 {
 	static const Lina_ECSComponentCreateFunction CREATE_FUNCTION;
 	static const Lina_ECSComponentFreeFunction FREE_FUNCTION;
-	static const uint32_t ID;
+	static const uint32 ID;
 	static const size_t SIZE;	// How big every component is.
 };
 
 // Dynamic component creation
 template<typename Component>
-uint32_t Lina_ECSComponentCreate(Lina_DSArray<uint8_t>& memory, Lina_EntityHandle entity, Lina_ECSBaseComponent* comp)
+uint32 Lina_ECSComponentCreate(Lina_DSArray<uint8_t>& memory, Lina_EntityHandle entity, Lina_ECSBaseComponent* comp)
 {
-	uint32_t index = memory.size();
+	uint32 index = memory.size();
 	memory.resize(index + Component::SIZE);
 	Component* component = new(memory[index]) Component(*(Component*)comp);
 	component->entity = entity;
@@ -67,17 +93,17 @@ uint32_t Lina_ECSComponentCreate(Lina_DSArray<uint8_t>& memory, Lina_EntityHandl
 template<typename Component>
 void Lina_ECSComponentFree(Lina_ECSBaseComponent* comp)
 {
-	Component* comp = (T*)comp;
+	Component* component = (Component*)comp;
 	component->~Component();
 }
 
 // SET ID
 template<typename T>
-const uint32_t Lina_ECSComponent<T>::ID(Lina_ECSBaseComponent::nextID());
+const uint32 Lina_ECSComponent<T>::ID(Lina_ECSBaseComponent::RegisterComponentType(Lina_ECSComponentCreate<T>, Lina_ECSComponentFree<T>, sizeof(T)));
 
 // Set SIZE
 template<typename T>
-const uint32_t Lina_ECSComponent<T>::SIZE(sizeof(T));
+const size_t Lina_ECSComponent<T>::SIZE(sizeof(T));
 
 // Set Create Function
 template<typename T>
@@ -86,8 +112,6 @@ const Lina_ECSComponentCreateFunction Lina_ECSComponent<T>::CREATE_FUNCTION(Lina
 // Set Create Function
 template<typename T>
 const Lina_ECSComponentFreeFunction Lina_ECSComponent<T>::FREE_FUNCTION(Lina_ECSComponentFree<T>);
-
-
 
 /* TEST */
 struct TestComponent : public Lina_ECSComponent<TestComponent>

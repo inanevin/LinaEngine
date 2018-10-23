@@ -100,6 +100,9 @@
     <Filter Include="Source Files\Entity Component System">
       <UniqueIdentifier>{f100409e-3093-44b7-b53e-c5b374de6f4b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\DataStructures">
+      <UniqueIdentifier>{944da66c-ca40-43ef-a81d-ef6da026deed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Rendering\Lina_RenderingEngine.cpp">
@@ -224,9 +227,6 @@
     </ClCompile>
     <ClCompile Include="src\ECS\Lina_ECSComponent.cpp">
       <Filter>Source Files\Entity Component System</Filter>
-    </ClCompile>
-    <ClCompile Include="inc\ECS\Lina_ECSBaseComponent.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -371,7 +371,19 @@
     <ClInclude Include="inc\Utility\Lina_Time.hpp">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="inc\ECS\Lina_ECSBaseComponent.hpp">
+    <ClInclude Include="inc\DataStructures\Lina_DSArray.hpp">
+      <Filter>Header Files\DataStructures</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Utility\Lina_Common.hpp">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\ECS\Lina_ECSComponent.hpp">
+      <Filter>Header Files\Entity Component System</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\ECS\Lina_ECSSystem.hpp">
+      <Filter>Header Files\Entity Component System</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\ECS\Lina_ECS.hpp">
       <Filter>Header Files\Entity Component System</Filter>
     </ClInclude>
   </ItemGroup>
