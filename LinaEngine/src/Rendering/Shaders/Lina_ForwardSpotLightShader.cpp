@@ -20,9 +20,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
-#include "Rendering/Shaders/Lina_ForwardSpotLightShader.h"  
-#include "Rendering/Lina_RenderingEngine.h"
-#include "Core/Lina_Transform.h"
+#include "Rendering/Shaders/Lina_ForwardSpotLightShader.hpp"  
+#include "Rendering/Lina_RenderingEngine.hpp"
+#include "Core/Lina_Transform.hpp"
 
 Lina_ForwardSpotLightShader::Lina_ForwardSpotLightShader()
 {

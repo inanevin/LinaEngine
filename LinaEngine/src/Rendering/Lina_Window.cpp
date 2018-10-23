@@ -20,7 +20,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
-#include "Rendering/Lina_Window.h"  
+#include "Rendering/Lina_Window.hpp"  
 
 Lina_Window::Lina_Window(int width, int height, const std::string& title) : m_Width(width), m_Height(height), m_Title(title)
 {

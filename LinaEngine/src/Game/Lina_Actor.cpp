@@ -20,8 +20,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
-#include "Game/Lina_Actor.h"  
-#include "Game//Lina_ActorComponent.h"
+#include "Game/Lina_Actor.hpp"  
+#include "Game//Lina_ActorComponent.hpp"
 
 
 void Lina_Actor::SetEngineInstances(Lina_EngineInstances* ins)
@@ -111,10 +111,7 @@ void Lina_Actor::CleanUp()
 
 	// Clean component memory.
 	for (std::vector<Lina_ActorComponent*>::iterator it = components.begin(); it != components.end(); ++it)
-	{
-		std::cout << "deleted: " << (*it) << std::endl;
 		delete(*it);
-	}
 
 	// Clear lists.
 	components.clear();

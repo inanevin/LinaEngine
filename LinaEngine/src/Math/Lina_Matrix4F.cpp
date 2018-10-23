@@ -20,8 +20,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
-#include "Math/Lina_Matrix4F.h"  
-#include "Math/Lina_Math.h"
+#include "Math/Lina_Matrix4F.hpp"  
+#include "Math/Lina_Math.hpp"
 
 Lina_Matrix4F::Lina_Matrix4F()
 {

@@ -20,9 +20,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
-#include "Scene/Lina_Scene.h"
-#include "Game/Lina_GameCore.h"  
-#include "Core/Lina_Core.h"
+#include "Scene/Lina_Scene.hpp"
+#include "Game/Lina_GameCore.hpp"  
+#include "Core/Lina_Core.hpp"
 
 Lina_GameCore::~Lina_GameCore()
 {

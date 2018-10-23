@@ -20,9 +20,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
-#include "Math/Lina_Vector3F.h"  
-#include "Math/Lina_Quaternion.h"
-#include "Math/Lina_Vector2F.h"
+#include "Math/Lina_Vector3F.hpp"  
+#include "Math/Lina_Quaternion.hpp"
+#include "Math/Lina_Vector2F.hpp"
 
 const Lina_Vector3F Lina_Vector3F::yAxis = Vector3(0, 1, 0);
 

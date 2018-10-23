@@ -20,7 +20,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
-#include "Rendering/Lina_Texture.h"  
+#include "Rendering/Lina_Texture.hpp"  
 #include "GL/glew.h"
 
 Lina_Texture::Lina_Texture()

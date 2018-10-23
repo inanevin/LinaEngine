@@ -20,10 +20,10 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
-#include "Core/Lina_Transform.h"  
-#include "Scene/Lina_Scene.h"
-#include "Core/Lina_CoreMessageBus.h"
-#include "Rendering/Lina_RenderingEngine.h"
+#include "Core/Lina_Transform.hpp"  
+#include "Scene/Lina_Scene.hpp"
+#include "Core/Lina_CoreMessageBus.hpp"
+#include "Rendering/Lina_RenderingEngine.hpp"
 
 Vector3 Lina_Transform::GetPosition() { return position; }
 Vector3 Lina_Transform::GetRotation() { return rotation; }

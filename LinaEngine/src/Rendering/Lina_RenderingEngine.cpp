@@ -20,15 +20,15 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
-#include "Rendering/Lina_RenderingEngine.h"  
-#include "Rendering/Shaders/Lina_PhongShader.h"
-#include "Rendering/Shaders/Lina_BasicShader.h"
-#include "Rendering/Shaders/Lina_ForwardAmbientLightShader.h"
-#include "Rendering/Shaders/Lina_ForwardDirectionalLightShader.h"
-#include "Rendering/Shaders/Lina_ForwardPointLightShader.h"
-#include "Rendering/Shaders/Lina_ForwardSpotLightShader.h"
-#include "Scene/Lina_Camera.h"
-#include "Game/Lina_GameCore.h"
+#include "Rendering/Lina_RenderingEngine.hpp"  
+#include "Rendering/Shaders/Lina_PhongShader.hpp"
+#include "Rendering/Shaders/Lina_BasicShader.hpp"
+#include "Rendering/Shaders/Lina_ForwardAmbientLightShader.hpp"
+#include "Rendering/Shaders/Lina_ForwardDirectionalLightShader.hpp"
+#include "Rendering/Shaders/Lina_ForwardPointLightShader.hpp"
+#include "Rendering/Shaders/Lina_ForwardSpotLightShader.hpp"
+#include "Scene/Lina_Camera.hpp"
+#include "Game/Lina_GameCore.hpp"
 
 Lina_RenderingEngine::Lina_RenderingEngine()
 {

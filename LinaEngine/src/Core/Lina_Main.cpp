@@ -19,9 +19,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pch.h"
 #include <iostream>
-#include "Core/Lina_Core.h"
-#include "Core/Lina_SDLHandler.h"
-#include "TestGame/inc/Lina_TestGame.h"
+#include "Core/Lina_Core.hpp"
+#include "Core/Lina_SDLHandler.hpp"
+#include "TestGame/inc/Lina_TestGame.hpp"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600

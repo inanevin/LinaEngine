@@ -20,9 +20,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
-#include "Core/Lina_CoreMessageBus.h"  
-#include "Rendering/Lina_RenderingEngine.h"
-#include "Input/Lina_InputEngine.h"
+#include "Core/Lina_CoreMessageBus.hpp"  
+#include "Rendering/Lina_RenderingEngine.hpp"
+#include "Input/Lina_InputEngine.hpp"
 
 void Lina_CoreMessageBus::Initialize()
 {

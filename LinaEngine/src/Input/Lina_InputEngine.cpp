@@ -20,10 +20,10 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
-#include "Input/Lina_InputEngine.h"  
-#include "Core/Lina_CoreMessageBus.h"
-#include "Math/Lina_Math.h"
-#include "Utility/Lina_Time.h"
+#include "Input/Lina_InputEngine.hpp"  
+#include "Core/Lina_CoreMessageBus.hpp"
+#include "Math/Lina_Math.hpp"
+#include "Utility/Lina_Time.hpp"
 
 #define MOUSE_ACCURACY	10
 #define MOUSE_SMOOTH 25

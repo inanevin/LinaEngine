@@ -20,8 +20,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
-#include "Rendering/Lights/Lina_PointLight.h"
-#include "Game/Lina_Actor.h"
+#include "Rendering/Lights/Lina_PointLight.hpp"
+#include "Game/Lina_Actor.hpp"
 
 void Lina_PointLight::AttachToActor(Lina_Actor& act)
 {

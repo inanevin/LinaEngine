@@ -94,6 +94,12 @@
     <Filter Include="Source Files\Rendering\Lights">
       <UniqueIdentifier>{acc62d40-fc51-43f3-8abd-76e3efad31cf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Entity Component System">
+      <UniqueIdentifier>{9f2a4fc0-de59-4159-9b5c-85a4ba187155}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entity Component System">
+      <UniqueIdentifier>{f100409e-3093-44b7-b53e-c5b374de6f4b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Rendering\Lina_RenderingEngine.cpp">
@@ -218,146 +224,149 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="inc\Math\Lina_Math.h">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Math\Lina_Matrix4F.h">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Math\Lina_Quaternion.h">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Math\Lina_Vector2F.h">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Math\Lina_Vector3F.h">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Events\Lina_Actions.h">
-      <Filter>Header Files\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Events\Lina_Signals.h">
-      <Filter>Header Files\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_Window.h">
-      <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_RenderingEngine.h">
-      <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Input\Lina_InputEngine.h">
-      <Filter>Header Files\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Utility\Lina_Time.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Utility\Lina_Console.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_Vertex.h">
-      <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_Mesh.h">
-      <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Utility\Lina_ResourceLoader.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Scene\Lina_Scene.h">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Utility\Lina_Globals.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Scene\Lina_Camera.h">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_Texture.h">
-      <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_Material.h">
-      <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Rendering\Lina_DefaultCubeMesh.h">
-      <Filter>Header Files\Rendering\Shapes</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Core\Lina_Core.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Core\Lina_CoreMessageBus.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Core\Lina_ObjectHandler.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Core\Lina_SDLHandler.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Core\Lina_Transform.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Utility\stb_image.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="inc\pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TestGame\inc\Lina_TestGame.h">
-      <Filter>Header Files\TestGame</Filter>
+    <ClInclude Include="src\EntityComponentSystem\Lina_ECSComponent.h">
+      <Filter>Header Files\Entity Component System</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Game\Lina_GameCore.h">
-      <Filter>Header Files\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="TestGame\inc\Lina_TestScene1.h">
-      <Filter>Header Files\TestGame</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Game\Lina_Actor.h">
-      <Filter>Header Files\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Game\Lina_ActorComponent.h">
-      <Filter>Header Files\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Game\Components\Lina_MeshRenderer.h">
-      <Filter>Header Files\Game\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Core\Lina_EngineInstances.h">
+    <ClInclude Include="inc\Core\Lina_Core.hpp">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Lights\Lina_Attenuation.h">
+    <ClInclude Include="inc\Core\Lina_CoreMessageBus.hpp">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Core\Lina_EngineInstances.hpp">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Core\Lina_ObjectHandler.hpp">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Core\Lina_SDLHandler.hpp">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Core\Lina_Transform.hpp">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Events\Lina_Actions.hpp">
+      <Filter>Header Files\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Events\Lina_Signals.hpp">
+      <Filter>Header Files\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Game\Components\Lina_MeshRenderer.hpp">
+      <Filter>Header Files\Game\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Game\Lina_ActorComponent.hpp">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Game\Lina_GameCore.hpp">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Game\Lina_Actor.hpp">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Input\Lina_InputEngine.hpp">
+      <Filter>Header Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Math\Lina_Math.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Math\Lina_Matrix4F.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Math\Lina_Quaternion.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Math\Lina_Vector2F.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Math\Lina_Vector3F.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Mesh.hpp">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Material.hpp">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_RenderingEngine.hpp">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Texture.hpp">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Vertex.hpp">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Window.hpp">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lights\Lina_Attenuation.hpp">
       <Filter>Header Files\Rendering\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Lights\Lina_BaseLight.h">
+    <ClInclude Include="inc\Rendering\Lights\Lina_BaseLight.hpp">
       <Filter>Header Files\Rendering\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Lights\Lina_DirectionalLight.h">
+    <ClInclude Include="inc\Rendering\Lights\Lina_DirectionalLight.hpp">
       <Filter>Header Files\Rendering\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Lights\Lina_PointLight.h">
+    <ClInclude Include="inc\Rendering\Lights\Lina_Spotlight.hpp">
       <Filter>Header Files\Rendering\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Lights\Lina_Spotlight.h">
+    <ClInclude Include="inc\Rendering\Lights\Lina_PointLight.hpp">
       <Filter>Header Files\Rendering\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Shaders\Lina_BasicShader.h">
+    <ClInclude Include="inc\Rendering\Shaders\Lina_BasicShader.hpp">
       <Filter>Header Files\Rendering\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Shaders\Lina_PhongShader.h">
+    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardAmbientLightShader.hpp">
       <Filter>Header Files\Rendering\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Shaders\Lina_Shader.h">
+    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardDirectionalLightShader.hpp">
       <Filter>Header Files\Rendering\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardSpotLightShader.h">
+    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardPointLightShader.hpp">
       <Filter>Header Files\Rendering\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardAmbientLightShader.h">
+    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardSpotLightShader.hpp">
       <Filter>Header Files\Rendering\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardDirectionalLightShader.h">
+    <ClInclude Include="inc\Rendering\Shaders\Lina_PhongShader.hpp">
       <Filter>Header Files\Rendering\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardPointLightShader.h">
+    <ClInclude Include="inc\Rendering\Shaders\Lina_Shader.hpp">
       <Filter>Header Files\Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_DefaultCubeMesh.hpp">
+      <Filter>Header Files\Rendering\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Scene\Lina_Camera.hpp">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Scene\Lina_Scene.hpp">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="TestGame\inc\Lina_TestGame.hpp">
+      <Filter>Header Files\TestGame</Filter>
+    </ClInclude>
+    <ClInclude Include="TestGame\inc\Lina_TestScene1.hpp">
+      <Filter>Header Files\TestGame</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Utility\Lina_Console.hpp">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Utility\Lina_ResourceLoader.hpp">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Utility\Lina_Globals.hpp">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Utility\Lina_Time.hpp">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

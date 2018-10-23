@@ -20,8 +20,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "pch.h"
-#include "Math/Lina_Quaternion.h"  
-#include "Math/Lina_Vector3F.h"
+#include "Math/Lina_Quaternion.hpp"  
+#include "Math/Lina_Vector3F.hpp"
 
 Lina_Quaternion::Lina_Quaternion() {}
 Lina_Quaternion::Lina_Quaternion(float a, float b, float c, float d) : x(a), y(b), z(c), w(d) {};
