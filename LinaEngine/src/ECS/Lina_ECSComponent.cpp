@@ -15,23 +15,11 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/23/2018 9:50:49 PM
+10/23/2018 10:24:05 PM
 
 */
 
-#pragma once
-
-#ifndef Lina_ECSComponent_H
-#define Lina_ECSComponent_H
-
-class Lina_ECSComponent
-{
-
-public:
-
-	Lina_ECSComponent();
-
-};
+#include "pch.h"
+#include "ECS/Lina_ECSBaseComponent.hpp"  
 
 
-#endif

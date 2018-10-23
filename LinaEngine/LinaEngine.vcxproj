@@ -166,6 +166,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="inc\ECS\Lina_ECSBaseComponent.cpp" />
+    <ClCompile Include="src\ECS\Lina_ECSComponent.cpp" />
     <ClCompile Include="src\Rendering\Lights\Lina_DirectionalLight.cpp" />
     <ClCompile Include="src\Rendering\Lights\Lina_Spotlight.cpp" />
     <ClCompile Include="src\Rendering\Lights\Lina_PointLight.cpp" />
@@ -214,6 +216,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\Core\Lina_EngineInstances.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\ECS\Lina_ECSBaseComponent.hpp">
       <SubType>
       </SubType>
     </ClInclude>
@@ -384,10 +390,6 @@
     </ClInclude>
     <ClInclude Include="inc\pch.h" />
     <ClInclude Include="inc\Utility\stb_image.h" />
-    <ClInclude Include="src\EntityComponentSystem\Lina_ECSComponent.h">
-      <SubType>
-      </SubType>
-    </ClInclude>
     <ClInclude Include="TestGame\inc\Lina_TestGame.hpp">
       <SubType>
       </SubType>

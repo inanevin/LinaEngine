@@ -222,6 +222,12 @@
     <ClCompile Include="src\Rendering\Lights\Lina_DirectionalLight.cpp">
       <Filter>Source Files\Rendering\Lights</Filter>
     </ClCompile>
+    <ClCompile Include="src\ECS\Lina_ECSComponent.cpp">
+      <Filter>Source Files\Entity Component System</Filter>
+    </ClCompile>
+    <ClCompile Include="inc\ECS\Lina_ECSBaseComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\Utility\stb_image.h">
@@ -229,9 +235,6 @@
     </ClInclude>
     <ClInclude Include="inc\pch.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\EntityComponentSystem\Lina_ECSComponent.h">
-      <Filter>Header Files\Entity Component System</Filter>
     </ClInclude>
     <ClInclude Include="inc\Core\Lina_Core.hpp">
       <Filter>Header Files\Core</Filter>
@@ -367,6 +370,9 @@
     </ClInclude>
     <ClInclude Include="inc\Utility\Lina_Time.hpp">
       <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\ECS\Lina_ECSBaseComponent.hpp">
+      <Filter>Header Files\Entity Component System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
