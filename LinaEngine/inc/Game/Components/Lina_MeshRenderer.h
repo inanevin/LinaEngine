@@ -36,7 +36,7 @@ class Lina_MeshRenderer : public Lina_ActorComponent
 public:
 
 	Lina_MeshRenderer();
-
+	void AttachToActor(Lina_Actor&) override;
 	void SetMesh(std::string);
 	void SetMaterial(const Lina_Material&);
 	void Wake() override;

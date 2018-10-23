@@ -21,8 +21,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pch.h"
 #include "Lina_TestScene1.h"  
-#include "Rendering/Shaders/Lina_BasicShader.h"
-#include "Rendering/Shaders/Lina_PhongShader.h"
+
 
 Lina_TestScene::Lina_TestScene()
 {
@@ -51,28 +50,42 @@ void Lina_TestScene::Wake()
 {
 	Lina_Scene::Wake();
 
+	floor.SetEngineInstances(Lina);
+	lightHolder.SetEngineInstances(Lina);
+
 	Lina_Material material;
 	material.color = (Vector3(1, 1, 1));
 	material.texture.LoadTexture("grid4.png");
 	material.specularIntensity = 1;
 	material.specularExponent = 8;
 
-	Lina_Material material2;
-	material2.color = (Vector3(1, 1, 1));
-	material2.texture.LoadTexture("grid4.png");
 
 	Lina_MeshRenderer* meshRenderer = new Lina_MeshRenderer();
 	meshRenderer->SetMaterial(material);
 	meshRenderer->SetMesh("plane");
 
+	//Lina_MeshRenderer* meshRenderer2 = new Lina_MeshRenderer();
+	//meshRenderer2->SetMaterial(material);
+	//meshRenderer2->SetMesh("plane");
 
+	Lina_PointLight* pLight = new Lina_PointLight();
+	pLight->base = Lina_BaseLight(Vector3(0, 1, 0), 0.34f);
+	pLight->attenuation = Lina_Attenuation(0, 0, 0.2f);
+	pLight->range = 80;
 
-	//floor.AddComponent(meshRenderer);
+	std::cout << "mr1: " << meshRenderer << std::endl;
+	//std::cout << "mr2: " << meshRenderer2 << std::endl;
+	std::cout << "pl1: " << pLight << std::endl;
+
+	//Lina_DirectionalLight* dLight = new Lina_DirectionalLight(Lina_BaseLight(Vector3(0, 1, 0), 0.002f), Vector3::one());
+	//Lina_SpotLight* sLight = new Lina_SpotLight(Lina_PointLight(Lina_BaseLight(Vector3(0, 0, 1), 4.2f), Lina_Attenuation(0, 0, 1), 15.0f), Vector3(1, -0.5f, 1), .8f);
+	
+	lightHolder.AddComponent(pLight);
 	floor.AddComponent(meshRenderer);
 
-	rootActor.AddChild(floor);
-	//rootActor.AddChild(floor);
-	
+	rootActor.AddChild(&floor);
+	rootActor.AddChild(&lightHolder);
+
 
 }
 
@@ -91,14 +104,15 @@ void Lina_TestScene::ProcessInput(float tickRate)
 
 }
 
+float temp;
 
 void Lina_TestScene::Update(float tickRate)
 {
 	Lina_Scene::Update(tickRate);
+	temp += tickRate * 5;
 
-	//floor.transform.SetPosition(25, -15, 0);
 	floor.transform.SetPosition(Vector3(0,-2,0));
-
+	lightHolder.transform.SetPosition(Vector3(sin(temp)*6, 2, 5));
 }
 
 void Lina_TestScene::Render(Lina_Shader* shader)

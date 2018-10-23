@@ -26,19 +26,22 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "Core/Lina_Transform.h"
 #include <vector>
+#include "Core/Lina_EngineInstances.h"
 
 class Lina_ActorComponent;
 class Lina_Shader;
+
 
 class Lina_Actor
 {
 
 public:
 
-	Lina_Actor();
-
+	Lina_Actor() {};
+	void SetEngineInstances(Lina_EngineInstances*);
+	
 	void AddComponent(Lina_ActorComponent*);
-	void AddChild(Lina_Actor);
+	void AddChild(Lina_Actor*);
 	void Wake();
 	void Start();
 	void ProcessInput(float);
@@ -49,9 +52,14 @@ public:
 
 	Lina_Transform transform;
 
+
+
+	Lina_EngineInstances* Lina;
+
 private:
+
 	std::vector<Lina_ActorComponent*> components;
-	std::vector<Lina_Actor> children;
+	std::vector<Lina_Actor*> children;
 };
 
 

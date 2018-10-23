@@ -23,26 +23,28 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Game/Lina_Actor.h"  
 #include "Game//Lina_ActorComponent.h"
 
-Lina_Actor::Lina_Actor()
+
+void Lina_Actor::SetEngineInstances(Lina_EngineInstances* ins)
 {
-	
+	Lina = ins;
 }
 
 void Lina_Actor::AddComponent(Lina_ActorComponent* component)
 {
 	components.emplace_back(std::move(component));
-	components.front()->SetActor(this);
+	component->AttachToActor(*this);
 }
 
-void Lina_Actor::AddChild(Lina_Actor child)
+void Lina_Actor::AddChild(Lina_Actor* child)
 {
 	children.push_back(child);
 }
 
 void Lina_Actor::Wake()
 {
-	for (std::vector<Lina_Actor>::iterator it = children.begin(); it != children.end(); it++)
-		it->Wake();
+	
+	for (std::vector<Lina_Actor*>::iterator it = children.begin(); it != children.end(); it++)
+		(*it)->Wake();
 
 	for (std::vector<Lina_ActorComponent*>::iterator it = components.begin(); it != components.end(); it++)
 		(*it)->Wake();
@@ -50,8 +52,9 @@ void Lina_Actor::Wake()
 
 void Lina_Actor::Start()
 {
-	for (std::vector<Lina_Actor>::iterator it = children.begin(); it != children.end(); it++)
-		it->Start();
+	
+	for (std::vector<Lina_Actor*>::iterator it = children.begin(); it != children.end(); it++)
+		(*it)->Start();
 
 	for (std::vector<Lina_ActorComponent*>::iterator it = components.begin(); it != components.end(); it++)
 		(*it)->Start();
@@ -59,8 +62,9 @@ void Lina_Actor::Start()
 
 void Lina_Actor::ProcessInput(float tickRate)
 {
-	for (std::vector<Lina_Actor>::iterator it = children.begin(); it != children.end(); it++)
-		it->ProcessInput(tickRate);
+
+	for (std::vector<Lina_Actor*>::iterator it = children.begin(); it != children.end(); it++)
+		(*it)->ProcessInput(tickRate);
 
 	for (std::vector<Lina_ActorComponent*>::iterator it = components.begin(); it != components.end(); it++)
 		(*it)->ProcessInput(tickRate);
@@ -68,8 +72,9 @@ void Lina_Actor::ProcessInput(float tickRate)
 
 void Lina_Actor::Update(float tickRate)
 {
-	for (std::vector<Lina_Actor>::iterator it = children.begin(); it != children.end(); it++)
-		it->Update(tickRate);
+
+	for (std::vector<Lina_Actor*>::iterator it = children.begin(); it != children.end(); it++)
+		(*it)->Update(tickRate);
 
 	for (std::vector<Lina_ActorComponent*>::iterator it = components.begin(); it != components.end(); it++)
 		(*it)->Update(tickRate);
@@ -77,8 +82,8 @@ void Lina_Actor::Update(float tickRate)
 
 void Lina_Actor::Render(Lina_Shader* shader)
 {
-	for (std::vector<Lina_Actor>::iterator it = children.begin(); it != children.end(); it++)
-		it->Render(shader);
+	for (std::vector<Lina_Actor*>::iterator it = children.begin(); it != children.end(); it++)
+		(*it)->Render(shader);
 
 	for (std::vector<Lina_ActorComponent*>::iterator it = components.begin(); it != components.end(); it++)
 		(*it)->Render(shader);
@@ -86,8 +91,9 @@ void Lina_Actor::Render(Lina_Shader* shader)
 
 void Lina_Actor::Stop()
 {
-	for (std::vector<Lina_Actor>::iterator it = children.begin(); it != children.end(); it++)
-		it->Stop();
+
+	for (std::vector<Lina_Actor*>::iterator it = children.begin(); it != children.end(); it++)
+		(*it)->Stop();
 
 	for (std::vector<Lina_ActorComponent*>::iterator it = components.begin(); it != components.end(); it++)
 		(*it)->Stop();
@@ -96,15 +102,19 @@ void Lina_Actor::Stop()
 
 void Lina_Actor::CleanUp()
 {
-	for (std::vector<Lina_Actor>::iterator it = children.begin(); it != children.end(); it++)
-		it->CleanUp();
+
+	for (std::vector<Lina_Actor*>::iterator it = children.begin(); it != children.end(); it++)
+		(*it)->CleanUp();
 
 	for (std::vector<Lina_ActorComponent*>::iterator it = components.begin(); it != components.end(); it++)
 		(*it)->CleanUp();
 
 	// Clean component memory.
 	for (std::vector<Lina_ActorComponent*>::iterator it = components.begin(); it != components.end(); ++it)
-		delete (*it);
+	{
+		std::cout << "deleted: " << (*it) << std::endl;
+		delete(*it);
+	}
 
 	// Clear lists.
 	components.clear();

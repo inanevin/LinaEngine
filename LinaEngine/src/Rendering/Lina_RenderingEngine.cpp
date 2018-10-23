@@ -34,10 +34,10 @@ Lina_RenderingEngine::Lina_RenderingEngine()
 {
 
 	ambientLight = Vector3(0.2f, 0.2f, 0.2f);
-	directionalLight = Lina_DirectionalLight(Lina_BaseLight(Vector3(1,1,1), 0.2f), Vector3(1, 1, 1));
-	pointLight = Lina_PointLight(Lina_BaseLight(Vector3(0,1,0), 7), Lina_Attenuation(0, 0, 1), Vector3(5, 2, 5), 125);
-	spotLight = Lina_SpotLight(Lina_PointLight(Lina_BaseLight(Vector3(0,1,1), 2.2f), Lina_Attenuation(0, 0, 0.1f), Vector3(0, 0, 0), 100), Vector3(1,0,0), 0.7f);
-}
+
+
+}	
+
 
 // Destructor.
 Lina_RenderingEngine::~Lina_RenderingEngine()
@@ -143,7 +143,7 @@ void Lina_RenderingEngine::Render()
 	// Clar screen.
 	ClearScreen();
 
-	// Render the game.
+	// Render the ambient lighting first.
 	game->Render(forwardAmbientShader);
 
 	// Enable color blending.
@@ -159,11 +159,25 @@ void Lina_RenderingEngine::Render()
 	// (Only do lighting for pixels that make it into the final image)
 	glDepthFunc(GL_EQUAL);
 
-	game->Render(forwardDirectionalShader);
+	// Render in multiple passes, for every light.
 
-	game->Render(forwardPointShader);
+	for (std::vector<Lina_DirectionalLight*>::iterator it = currentDirectionalLights.begin(); it != currentDirectionalLights.end(); ++it)
+	{
+		activeDirectionalLight = *(*it);
+		game->Render(forwardDirectionalShader);
+	}
 
-	game->Render(forwardSpotShader);
+	for (std::vector<Lina_PointLight*>::iterator it = currentPointLights.begin(); it != currentPointLights.end(); ++it)
+	{
+		activePointLight = *(*it);
+		game->Render(forwardPointShader);
+	}
+
+	for (std::vector<Lina_SpotLight*>::iterator it = currentSpotLights.begin(); it != currentSpotLights.end(); ++it)
+	{
+		activeSpotLight = *(*it);
+		game->Render(forwardSpotShader);
+	}
 
 	// Set depth calculations back.
 	glDepthFunc(GL_LESS);
@@ -198,6 +212,14 @@ void Lina_RenderingEngine::ClearColors(float r, float g, float b, float a)
 	// Clear color.
 	glClearColor(r,g,b,a);
 }
+
+void Lina_RenderingEngine::ClearLights()
+{
+	currentSpotLights.clear();
+	currentDirectionalLights.clear();
+	currentPointLights.clear();
+}
+
 
 void Lina_RenderingEngine::SetCurrentActiveCamera(Lina_Camera* cam)
 {
@@ -239,25 +261,41 @@ int Lina_RenderingEngine::GetScreenHeight()
 	return screenHeight;
 }
 
-Lina_Vector3F Lina_RenderingEngine::GetAmbientLight()
+Lina_Vector3F& Lina_RenderingEngine::GetAmbientLight()
 {
 	return ambientLight;
 }
 
-Lina_DirectionalLight Lina_RenderingEngine::GetDirectionalLight()
+Lina_DirectionalLight& Lina_RenderingEngine::GetDirectionalLight()
 {
-	return directionalLight;
+	return activeDirectionalLight;
 }
 
-Lina_PointLight Lina_RenderingEngine::GetPointLight()
+Lina_PointLight& Lina_RenderingEngine::GetPointLight()
 {
-	return pointLight;
+	return activePointLight;
 }
 
-Lina_SpotLight Lina_RenderingEngine::GetSpotLight()
+Lina_SpotLight& Lina_RenderingEngine::GetSpotLight()
 {
-	return spotLight;
+	return activeSpotLight;
 }
+
+void Lina_RenderingEngine::AddDirectionalLight(Lina_DirectionalLight* light)
+{
+	currentDirectionalLights.push_back(light);
+}
+
+void Lina_RenderingEngine::AddSpotLight(Lina_SpotLight* light)
+{
+	currentSpotLights.push_back(light);
+}
+
+void Lina_RenderingEngine::AddPointLight(Lina_PointLight* light)
+{
+	currentPointLights.push_back(light);
+}
+
 
 
 

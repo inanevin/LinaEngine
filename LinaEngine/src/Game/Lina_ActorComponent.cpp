@@ -23,6 +23,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Game/Lina_ActorComponent.h"  
 #include "Game/Lina_Actor.h"
 
+
 Lina_ActorComponent::Lina_ActorComponent()
 {
 
@@ -33,9 +34,9 @@ Lina_ActorComponent::Lina_ActorComponent(const Lina_ActorComponent &)
 
 }
 
-void Lina_ActorComponent::SetActor(Lina_Actor* act)
+void Lina_ActorComponent::AttachToActor(Lina_Actor& act)
 {
-	m_Actor = act;
+	m_Actor = &act;
 }
 
 void Lina_ActorComponent::Wake()

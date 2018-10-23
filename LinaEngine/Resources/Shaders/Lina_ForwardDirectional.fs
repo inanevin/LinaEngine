@@ -42,9 +42,9 @@ vec4 CalculateLight(BaseLight base, vec3 dir, vec3 normal)
 		
 		if(specFactor > 0)
 		{
-			//specColor = vec4(base.color, 1.0) * specularIntensity * specFactor;
+			//specColor = vec4(base.color, 1.0) * base.intensity * specularIntensity * specFactor;
 
-			specColor = vec4(base.color, 1.0) * base.intensity * specularIntensity * specFactor;
+			specColor = vec4(base.color, 1.0)  * specularIntensity * specFactor;
 		}
 	}
 	

@@ -44,8 +44,8 @@ public:
 	
 
 private:
+	Lina_Actor lightHolder;
 	Lina_Actor floor;
-	Lina_Actor floor2;
 	Lina_Camera sceneCamera;
 
 };

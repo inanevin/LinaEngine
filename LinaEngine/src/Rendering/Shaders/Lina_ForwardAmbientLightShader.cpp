@@ -49,6 +49,7 @@ void Lina_ForwardAmbientLightShader::Init()
 
 void Lina_ForwardAmbientLightShader::UpdateUniforms(Lina_Transform& t, Lina_Material mat)
 {
+
 	Matrix4 world = t.GetTransformation();
 	Matrix4 projected = RenderingEngine->GetCurrentActiveCamera()->GetViewProjection().Multiply(world);
 

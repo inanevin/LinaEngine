@@ -91,6 +91,9 @@
     <Filter Include="Source Files\Rendering\Shaders">
       <UniqueIdentifier>{8658a724-d16b-4af5-a588-c7e3bf420c78}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Rendering\Lights">
+      <UniqueIdentifier>{acc62d40-fc51-43f3-8abd-76e3efad31cf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Rendering\Lina_RenderingEngine.cpp">
@@ -203,6 +206,15 @@
     </ClCompile>
     <ClCompile Include="src\Rendering\Shaders\Lina_ForwardAmbientLightShader.cpp">
       <Filter>Source Files\Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rendering\Lights\Lina_PointLight.cpp">
+      <Filter>Source Files\Rendering\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rendering\Lights\Lina_Spotlight.cpp">
+      <Filter>Source Files\Rendering\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rendering\Lights\Lina_DirectionalLight.cpp">
+      <Filter>Source Files\Rendering\Lights</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

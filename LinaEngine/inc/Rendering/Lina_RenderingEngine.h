@@ -30,6 +30,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Math/Lina_Vector3F.h"
 #include "Rendering/Lights/Lina_DirectionalLight.h"
 #include "Rendering/Lights/Lina_SpotLight.h"
+#include <vector>
 
 class Lina_PhongShader;
 class Lina_BasicShader;
@@ -62,10 +63,15 @@ public:
 	int GetScreenWidth();
 	int GetScreenHeight();
 
-	Lina_Vector3F GetAmbientLight();
-	Lina_DirectionalLight GetDirectionalLight();
-	Lina_PointLight GetPointLight();
-	Lina_SpotLight GetSpotLight();
+	Lina_Vector3F& GetAmbientLight();
+	Lina_DirectionalLight& GetDirectionalLight();
+	Lina_PointLight& GetPointLight();
+	Lina_SpotLight& GetSpotLight();
+
+	void AddDirectionalLight(Lina_DirectionalLight*);
+	void AddSpotLight(Lina_SpotLight*);
+	void AddPointLight(Lina_PointLight*);
+	void ClearLights();
 
 private:
 
@@ -99,9 +105,14 @@ private:
 	Lina_RenderingEngine& operator= (const Lina_RenderingEngine&) = delete;
 
 	Lina_Vector3F ambientLight = Vector3(0.3f, 0.3f, 0.3f);
-	Lina_DirectionalLight directionalLight;
-	Lina_PointLight pointLight;
-	Lina_SpotLight spotLight;
+	Lina_DirectionalLight activeDirectionalLight;
+	Lina_PointLight activePointLight;
+	Lina_SpotLight activeSpotLight;
+
+
+	std::vector<Lina_DirectionalLight*> currentDirectionalLights;
+	std::vector<Lina_SpotLight*> currentSpotLights;
+	std::vector<Lina_PointLight*> currentPointLights;
 };
 
 

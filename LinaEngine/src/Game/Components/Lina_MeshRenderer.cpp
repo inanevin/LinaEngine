@@ -30,6 +30,13 @@ Lina_MeshRenderer::Lina_MeshRenderer()
 
 }
 
+void Lina_MeshRenderer::AttachToActor(Lina_Actor& act)
+{
+	Lina_ActorComponent::AttachToActor(act);
+
+}
+
+
 void Lina_MeshRenderer::SetMesh(std::string path)
 {
 	if (path == "plane")

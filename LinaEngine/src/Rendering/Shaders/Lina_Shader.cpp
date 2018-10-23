@@ -178,19 +178,19 @@ void Lina_Shader::SetUniform(const std::string& name, GLfloat* val) const
 }
 
 
-void Lina_Shader::SetUniform(const std::string& name, Lina_BaseLight b)
+void Lina_Shader::SetUniform(const std::string& name, Lina_BaseLight& b)
 {
 	SetUniform(name + ".color", b.color);
 	SetUniform(name + ".intensity", b.intensity);
 }
 
-void Lina_Shader::SetUniform(const std::string& name, Lina_DirectionalLight directionalLight)
+void Lina_Shader::SetUniform(const std::string& name, Lina_DirectionalLight& directionalLight)
 {
 	SetUniform(name + ".base", directionalLight.base);
 	SetUniform(name + ".direction", directionalLight.direction);
 }
 
-void Lina_Shader::SetUniform(const std::string& name, Lina_PointLight pLight)
+void Lina_Shader::SetUniform(const std::string& name, Lina_PointLight& pLight)
 {
 	SetUniform(name + ".base", pLight.base);
 	SetUniform(name + ".attenuation.constant", pLight.attenuation.constant);
@@ -201,7 +201,7 @@ void Lina_Shader::SetUniform(const std::string& name, Lina_PointLight pLight)
 
 }
 
-void Lina_Shader::SetUniform(const std::string& name, Lina_SpotLight sLight)
+void Lina_Shader::SetUniform(const std::string& name, Lina_SpotLight& sLight)
 {
 	SetUniform(name + ".pointLight", sLight.pointLight);
 	SetUniform(name + ".direction", sLight.direction);

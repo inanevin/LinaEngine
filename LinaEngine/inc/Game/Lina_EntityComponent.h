@@ -15,29 +15,21 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/20/2018 1:01:33 AM
+10/23/2018 6:51:20 PM
 
 */
 
 #pragma once
 
-#ifndef Lina_Spotlight_H
-#define Lina_Spotlight_H
+#ifndef Lina_EntityComponent_H
+#define Lina_EntityComponent_H
 
-#include "Rendering/Lights/Lina_PointLight.h"
-#include "Game/Lina_ActorComponent.h"
-
-class Lina_SpotLight : public Lina_ActorComponent
+class Lina_EntityComponent
 {
 
 public:
+	Lina_EntityComponent();
 
-	Lina_SpotLight() {};
-	Lina_SpotLight(Lina_PointLight pL, Vector3 dir, float cut) : pointLight(pL), direction(dir.normalized()), cutoff(cut) {};
-	void AttachToActor(Lina_Actor&) override;
-	float cutoff;
-	Lina_PointLight pointLight;
-	Vector3 direction;
 };
 
 

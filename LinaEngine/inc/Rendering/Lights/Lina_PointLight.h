@@ -26,19 +26,26 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "Rendering/Lights/Lina_BaseLight.h"
 #include "Rendering/Lights/Lina_Attenuation.h"
+#include "Game/Lina_ActorComponent.h"
 
-class Lina_PointLight
+class Lina_PointLight : public Lina_ActorComponent
 {
 
 public:
 
 	Lina_PointLight() {};
-	Lina_PointLight(Lina_BaseLight b, Lina_Attenuation at, Vector3 p, float r) : base(b), attenuation(at), position(p), range(r) {};
+	Lina_PointLight(Lina_BaseLight b, Lina_Attenuation at, float r) : base(b), attenuation(at), range(r) {};
 
-	float range;
+	void AttachToActor(Lina_Actor&) override;
+	void Update(float) override;
 	Vector3 position;
+	float range;
+	
 	Lina_BaseLight base;
 	Lina_Attenuation attenuation;
+
+private:
+
 };
 
 

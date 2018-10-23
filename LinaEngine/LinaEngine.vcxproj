@@ -166,6 +166,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Rendering\Lights\Lina_DirectionalLight.cpp" />
+    <ClCompile Include="src\Rendering\Lights\Lina_Spotlight.cpp" />
+    <ClCompile Include="src\Rendering\Lights\Lina_PointLight.cpp" />
     <ClCompile Include="src\Core\Lina_CoreMessageBus.cpp" />
     <ClCompile Include="src\Core\Lina_EngineInstances.cpp" />
     <ClCompile Include="src\Game\Components\Lina_MeshRenderer.cpp" />

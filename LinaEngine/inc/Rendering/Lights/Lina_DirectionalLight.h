@@ -25,15 +25,16 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_DirectionalLight_H
 
 #include "Rendering/Lights/Lina_BaseLight.h"
+#include "Game/Lina_ActorComponent.h"
 
-class Lina_DirectionalLight
+class Lina_DirectionalLight : public Lina_ActorComponent
 {
 
 public:
 
 	Lina_DirectionalLight() {};
 	Lina_DirectionalLight(Lina_BaseLight b, Vector3 v) : base(b), direction(v) {};
-
+	void AttachToActor(Lina_Actor&) override;
 	Lina_BaseLight base;
 	Vector3 direction;
 };
