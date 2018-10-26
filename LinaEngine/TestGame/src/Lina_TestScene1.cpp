@@ -73,7 +73,6 @@ void Lina_TestScene::Wake()
 	//Lina_SpotLight* sLight = new Lina_SpotLight(Lina_PointLight(Lina_BaseLight(Vector3(0, 0, 1), 8.2f), Lina_Attenuation(0, 0, .5f), 55.0f), Vector3(1, -0.5f, 1), .5f);
 	
 	lightHolder.AddComponent(pLight);
-
 	floor.AddComponent(meshRenderer);
 
 	rootActor.AddChild(&floor);

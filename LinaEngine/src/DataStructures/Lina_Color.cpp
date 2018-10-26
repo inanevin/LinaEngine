@@ -15,40 +15,15 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/18/2018 9:59:19 PM
+10/26/2018 7:19:51 PM
 
 */
 
-#pragma once
+#include "pch.h"
+#include "DataStructures/Lina_Color.hpp"  
 
-#ifndef Lina_BaseLight_HPP
-#define Lina_BaseLight_HPP
-
-#include "Math/Lina_Vector3F.hpp"
-#include "Game/Lina_ActorComponent.hpp"
-
-class Lina_Shader;
-
-class Lina_BaseLight : public Lina_ActorComponent
+Lina_Color::Lina_Color()
 {
 
-public:
+}
 
-	Lina_BaseLight() : color(Vector3::one()), intensity(0.0) {};
-	Lina_BaseLight(Vector3 c, float f) : color(c), intensity(f) {};
-
-	virtual void SetShader(Lina_Shader&);
-
-
-	Vector3 color;
-	float intensity;
-
-private:
-
-	Lina_Shader* m_Shader;
-
-};
-
-
-
-#endif
