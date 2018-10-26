@@ -22,139 +22,113 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "pch.h"
 #include "ECS/Lina_ECS.hpp"  
 
-Lina_ECS::Lina_ECS()
-{
-
-}
-
 Lina_ECS::~Lina_ECS()
 {
-	// Delete components for every single array.
-	for (std::map<uint32, Lina_DSArray<uint8>>::iterator it = components.begin(); it != components.end(); ++it)
-	{
-		// Get type size and free functions of the iterated component.
+	for (std::map<uint32, Lina_DSArray<uint8>>::iterator it = components.begin(); it != components.end(); ++it) {
 		size_t typeSize = Lina_ECSBaseComponent::GetTypeSize(it->first);
 		Lina_ECSComponentFreeFunction freefn = Lina_ECSBaseComponent::GetTypeFreeFunction(it->first);
-
-		// Iterate the block of memory reserved for components.
-		for (uint32 i = 0; i < it->second.size(); i += typeSize)
-		{
-			// Free every single component in the array.
+		for (uint32 i = 0; i < it->second.size(); i += typeSize) {
 			freefn((Lina_ECSBaseComponent*)&it->second[i]);
 		}
 	}
 
-	// Delete entities.
-	for (uint32 i = 0; i < entities.size(); i++)
+	for (uint32 i = 0; i < entities.size(); i++) {
 		delete entities[i];
+	}
 }
 
-Lina_EntityHandle Lina_ECS::MakeEntity(Lina_ECSBaseComponent * entityComponents, const uint32 * componentIDs, size_t componentCount)
+EntityHandle Lina_ECS::MakeEntity(Lina_ECSBaseComponent* entityComponents, const uint32* componentIDs, size_t numComponents)
 {
-	// Create entity get handle.
-	IndexEntityPair* newEntity = new Entity();
-	Lina_EntityHandle handle = (Lina_EntityHandle)newEntity;
-
-	// Handle components.
-	for (uint32 i = 0; i < componentCount; i++)
-	{
-		// Check component id.
-		if (!Lina_ECSBaseComponent::DoesTypeExist(componentIDs[i]))
-		{
-			DEBUG_LOG("ECS", LOG_ERROR, "'%u' Component type doesn't exist!", componentIDs[i]);
+	std::pair<uint32, Lina_DSArray<std::pair<uint32, uint32> > >* newEntity = new std::pair<uint32, Lina_DSArray<std::pair<uint32, uint32> > >();
+	EntityHandle handle = (EntityHandle)newEntity;
+	for (uint32 i = 0; i < numComponents; i++) {
+		if (!Lina_ECSBaseComponent::IsTypeValid(componentIDs[i])) {
+			DEBUG_LOG("ECS", LOG_ERROR, "'%u' is not a valid component type.", componentIDs[i]);
 			delete newEntity;
 			return NULL_ENTITY_HANDLE;
 		}
 
-		// Add component.
-		AddComponentInternal(newEntity->second, componentIDs[i], &entityComponents[i]);
+		AddComponentInternal(handle, newEntity->second, componentIDs[i], &entityComponents[i]);
 	}
 
-	// assign index add entity to the list.
 	newEntity->first = entities.size();
 	entities.push_back(newEntity);
 	return handle;
 }
 
-void Lina_ECS::RemoveEntity(Lina_EntityHandle * handle)
+void Lina_ECS::removeEntity(EntityHandle handle)
 {
-	Entity& entity = HandleToEntity(handle);
+	Lina_DSArray<std::pair<uint32, uint32> >& entity = HandleToEntity(handle);
+	for (uint32 i = 0; i < entity.size(); i++) {
+		DeleteComponent(entity[i].first, entity[i].second);
+	}
 
-	// Remove components
-	for (uint32 i = 0; i < entity.size(); i++)
-		RemoveComponentInternal(entity[i].first, entity[i].second);
-
-	uint32 destinationIndex = HandleToEntityIndex(handle);
-	uint32 sourceIndex = entities.size() - 1;
-
-	// Delete the entity.
-	delete entities[destinationIndex];
-
-	// Move the last entity to the deleted entity's position.
-	entities[destinationIndex] = entities[sourceIndex];
-	
-	// Remove last, which is the one we wanted to deleted just now..
+	uint32 destIndex = HandleToEntityIndex(handle);
+	uint32 srcIndex = entities.size() - 1;
+	delete entities[destIndex];
+	entities[destIndex] = entities[srcIndex];
 	entities.pop_back();
 }
 
-
-
-void Lina_ECS::GetComponent(Lina_EntityHandle * entity)
+void Lina_ECS::AddComponentInternal(EntityHandle handle, Lina_DSArray<std::pair<uint32, uint32> >& entity, uint32 componentID, Lina_ECSBaseComponent* component)
 {
-
-}
-
-void Lina_ECS::AddSystem(Lina_ECSBaseSystem & system)
-{
-	systems.push_back(&system);
-}
-
-void Lina_ECS::UpdateSystems(float delta)
-{
-}
-
-void Lina_ECS::RemoveSystems(Lina_ECSBaseSystem & system)
-{
-
-}
-
-
-void Lina_ECS::AddComponentInternal(Entity & entity, uint32 componentID, Lina_ECSBaseComponent * component)
-{
-	// Get the functor of the particular component.
 	Lina_ECSComponentCreateFunction createfn = Lina_ECSBaseComponent::GetTypeCreateFunction(componentID);
-
-	ComponentPair newPair;
-
-	// Init pair.
+	std::pair<uint32, uint32> newPair;
 	newPair.first = componentID;
-
-	/* TODO: FIX HANDLE CAST */
-	//newPair.second = createfn(components[componentID], handle, component);
-
-	// Add entity.
+	newPair.second = createfn(components[componentID], handle, component);
 	entity.push_back(newPair);
 }
 
-
 void Lina_ECS::DeleteComponent(uint32 componentID, uint32 index)
 {
-	Lina_DSArray<uint8>& arr = components[componentID];
+	Lina_DSArray<uint8>& array = components[componentID];
 	Lina_ECSComponentFreeFunction freefn = Lina_ECSBaseComponent::GetTypeFreeFunction(componentID);
 	size_t typeSize = Lina_ECSBaseComponent::GetTypeSize(componentID);
-	uint32 sourceIndex = arr.size() - typeSize;
+	uint32 srcIndex = array.size() - typeSize;
 
-	Lina_ECSBaseComponent* baseComp = (Lina_ECSBaseComponent*)&arr[sourceIndex];
-	Lina_ECSBaseComponent* destinationComp = (Lina_ECSBaseComponent*)&arr[index];
-	freefn(destinationComp);
+	Lina_ECSBaseComponent* destComponent = (Lina_ECSBaseComponent*)&array[index];
+	Lina_ECSBaseComponent* srcComponent = (Lina_ECSBaseComponent*)&array[srcIndex];
+	freefn(destComponent);
 
-	// If we are removing the final element of the array.
-	if (index == sourceIndex)
-	{
-		arr.resize(sourceIndex);
+	if (index == srcIndex) {
+		array.resize(srcIndex);
 		return;
 	}
+	std::memcpy(destComponent, srcComponent, typeSize);
 
-	// Update the entities that are referring to the deleted components.
-	/* TODO: INTEGRATE MATH LIB AND DO A MEM CPY */
+	Lina_DSArray<std::pair<uint32, uint32> >& srcComponents = HandleToEntity(srcComponent->entity);
+	for (uint32 i = 0; i < srcComponents.size(); i++) {
+		if (componentID == srcComponents[i].first && srcIndex == srcComponents[i].second) {
+			srcComponents[i].second = index;
+			break;
+		}
+	}
+
+	array.resize(srcIndex);
+}
+
+bool Lina_ECS::RemoveComponentInternal(EntityHandle handle, uint32 componentID)
+{
+	Lina_DSArray<std::pair<uint32, uint32> >& entityComponents = HandleToEntity(handle);
+	for (uint32 i = 0; i < entityComponents.size(); i++) {
+		if (componentID == entityComponents[i].first) {
+			DeleteComponent(entityComponents[i].first, entityComponents[i].second);
+			uint32 srcIndex = entityComponents.size() - 1;
+			uint32 destIndex = i;
+			entityComponents[destIndex] = entityComponents[srcIndex];
+			entityComponents.pop_back();
+			return true;
+		}
+	}
+	return false;
+}
+
+Lina_ECSBaseComponent* Lina_ECS::GetComponentInternal(Lina_DSArray<std::pair<uint32, uint32> >& entityComponents, uint32 componentID)
+{
+	for (uint32 i = 0; i < entityComponents.size(); i++) {
+		if (componentID == entityComponents[i].first) {
+			return (Lina_ECSBaseComponent*)&components[componentID][entityComponents[i].second];
+		}
+	}
+	return nullptr;
 }

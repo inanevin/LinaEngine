@@ -66,7 +66,7 @@ void Lina_MeshRenderer::Render(Lina_Shader* shader)
 	Lina_ActorComponent::Render(shader);
 	
 	shader->Bind();
-	shader->UpdateUniforms(m_Actor->transform, m_Material);
+	shader->UpdateUniforms(Actor()->Transform(), m_Material);
 	m_Mesh->Draw();
 }
 

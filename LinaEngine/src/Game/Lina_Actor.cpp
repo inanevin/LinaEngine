@@ -24,25 +24,31 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Game//Lina_ActorComponent.hpp"
 
 
-void Lina_Actor::SetEngineInstances(Lina_EngineInstances* ins)
+void Lina_Actor::Initialize(Lina_EngineInstances* ins)
 {
-	Lina = ins;
+	engineInstances = ins;
+	b_Initialized = true;
 }
 
 void Lina_Actor::AddComponent(Lina_ActorComponent* component)
 {
+	if (!b_Initialized) return;
+
 	components.emplace_back(std::move(component));
 	component->AttachToActor(*this);
 }
 
 void Lina_Actor::AddChild(Lina_Actor* child)
 {
+	if (!b_Initialized) return;
+
 	children.push_back(child);
 }
 
 void Lina_Actor::Wake()
 {
-	
+	if (!b_Initialized) return;
+
 	for (std::vector<Lina_Actor*>::iterator it = children.begin(); it != children.end(); it++)
 		(*it)->Wake();
 
@@ -52,7 +58,8 @@ void Lina_Actor::Wake()
 
 void Lina_Actor::Start()
 {
-	
+	if (!b_Initialized) return;
+
 	for (std::vector<Lina_Actor*>::iterator it = children.begin(); it != children.end(); it++)
 		(*it)->Start();
 
@@ -62,6 +69,7 @@ void Lina_Actor::Start()
 
 void Lina_Actor::ProcessInput(float tickRate)
 {
+	if (!b_Initialized) return;
 
 	for (std::vector<Lina_Actor*>::iterator it = children.begin(); it != children.end(); it++)
 		(*it)->ProcessInput(tickRate);
@@ -72,6 +80,7 @@ void Lina_Actor::ProcessInput(float tickRate)
 
 void Lina_Actor::Update(float tickRate)
 {
+	if (!b_Initialized) return;
 
 	for (std::vector<Lina_Actor*>::iterator it = children.begin(); it != children.end(); it++)
 		(*it)->Update(tickRate);
@@ -82,6 +91,8 @@ void Lina_Actor::Update(float tickRate)
 
 void Lina_Actor::Render(Lina_Shader* shader)
 {
+	if (!b_Initialized) return;
+
 	for (std::vector<Lina_Actor*>::iterator it = children.begin(); it != children.end(); it++)
 		(*it)->Render(shader);
 
@@ -91,6 +102,7 @@ void Lina_Actor::Render(Lina_Shader* shader)
 
 void Lina_Actor::Stop()
 {
+	if (!b_Initialized) return;
 
 	for (std::vector<Lina_Actor*>::iterator it = children.begin(); it != children.end(); it++)
 		(*it)->Stop();
@@ -102,6 +114,7 @@ void Lina_Actor::Stop()
 
 void Lina_Actor::CleanUp()
 {
+	if (!b_Initialized) return;
 
 	for (std::vector<Lina_Actor*>::iterator it = children.begin(); it != children.end(); it++)
 		(*it)->CleanUp();

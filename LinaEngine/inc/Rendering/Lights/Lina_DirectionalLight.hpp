@@ -33,10 +33,15 @@ class Lina_DirectionalLight : public Lina_BaseLight
 public:
 
 	Lina_DirectionalLight() {};
-	Lina_DirectionalLight(Lina_BaseLight b, Vector3 v) : base(b), direction(v) {};
-	void AttachToActor(Lina_Actor&) override;
+	Lina_DirectionalLight(Vector3 color, float intensity, Vector3 v) : Lina_BaseLight::Lina_BaseLight(color,intensity) , direction(v) {};
+
 	Lina_BaseLight base;
 	Vector3 direction;
+
+private:
+
+	void AttachToActor(Lina_Actor&) override;
+
 };
 
 

@@ -38,26 +38,31 @@ class Lina_Actor
 public:
 
 	Lina_Actor() {};
-	void SetEngineInstances(Lina_EngineInstances*);
-	
+
+	void Initialize(Lina_EngineInstances*);
 	void AddComponent(Lina_ActorComponent*);
 	void AddChild(Lina_Actor*);
-	void Wake();
-	void Start();
-	void ProcessInput(float);
-	void Update(float);
-	void Render(Lina_Shader*);
-	void Stop();
-	void CleanUp();
 
-	Lina_Transform transform;
+	inline Lina_Transform& Transform() { return transform; }
+	inline Lina_EngineInstances* Engine() { return engineInstances; }
 
+protected:
 
+	friend class Lina_Scene;
 
-	Lina_EngineInstances* Lina;
+	virtual void Wake();
+	virtual void Start();
+	virtual void ProcessInput(float);
+	virtual void Update(float);
+	virtual void Render(Lina_Shader*);
+	virtual void Stop();
+	virtual void CleanUp();
 
 private:
 
+	bool b_Initialized;
+	Lina_Transform transform;
+	Lina_EngineInstances* engineInstances;
 	std::vector<Lina_ActorComponent*> components;
 	std::vector<Lina_Actor*> children;
 };

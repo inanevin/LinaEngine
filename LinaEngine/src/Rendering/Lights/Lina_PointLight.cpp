@@ -27,13 +27,13 @@ void Lina_PointLight::AttachToActor(Lina_Actor& act)
 {
 	Lina_ActorComponent::AttachToActor(act);
 
-	m_Actor->Lina->RenderingEngine()->AddPointLight(this);
+	Actor()->Engine()->RenderingEngine()->AddPointLight(this);
 
 }
 
 void Lina_PointLight::Update(float tickRate)
 {
-	position = m_Actor->transform.GetPosition();
+	position = Actor()->Transform().GetPosition();
 }
 
 

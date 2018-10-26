@@ -7,5 +7,5 @@ void Lina_SpotLight::AttachToActor(Lina_Actor& act)
 
 	Lina_ActorComponent::AttachToActor(act);
 
-	m_Actor->Lina->RenderingEngine()->AddSpotLight(this);
+	Actor()->Engine()->RenderingEngine()->AddSpotLight(this);
 }

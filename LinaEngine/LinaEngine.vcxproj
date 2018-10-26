@@ -166,6 +166,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="inc\Rendering\Lights\Lina_BaseLight.cpp" />
+    <ClCompile Include="src\ECS\Lina_ECS.cpp" />
     <ClCompile Include="src\ECS\Lina_ECSComponent.cpp" />
     <ClCompile Include="src\Rendering\Lights\Lina_DirectionalLight.cpp" />
     <ClCompile Include="src\Rendering\Lights\Lina_Spotlight.cpp" />

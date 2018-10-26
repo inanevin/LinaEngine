@@ -34,63 +34,67 @@ typedef std::pair<uint32, Entity> IndexEntityPair;
 
 class Lina_ECS
 {
-
 public:
-
-	Lina_ECS();
+	Lina_ECS() {}
 	~Lina_ECS();
 
-	/* ENTITY FUNCTIONS */
-	Lina_EntityHandle MakeEntity(Lina_ECSBaseComponent* components, const uint32* componentIDs, size_t componentCount);
-	void RemoveEntity(Lina_EntityHandle* handle);
+	// Entity methods
+	EntityHandle MakeEntity(Lina_ECSBaseComponent* components, const uint32* componentIDs, size_t numComponents);
+	void removeEntity(EntityHandle handle);
 
-	/* COMPONENT FUNCTIONS */
-
+	// Component methods
 	template<class Component>
-	inline void AddComponent(Lina_EntityHandle* entity, Component* component)
+	inline void AddComponent(EntityHandle entity, Component* component)
 	{
-		AddComponentInternal(HandleToEntity(entity), Component::ID, component);
+		AddComponentInternal(entity, HandleToEntity(entity), Component::ID, component);
 	}
 
 	template<class Component>
-	void RemoveComponent(Lina_EntityHandle* entity);
+	bool RemoveComponent(EntityHandle entity)
+	{
+		return RemoveComponentInternal(entity, Component::ID);
+	}
 
-	void GetComponent(Lina_EntityHandle* entity);
+	template<class Component>
+	Component* GetComponent(EntityHandle entity)
+	{
+		GetComponentInternal(HandleToEntity(entity), Component::ID);
+	}
 
-	/* SYSTEM FUNCTIONS */
-	void AddSystem(Lina_ECSBaseSystem& system);
-
+	// System methods
+	inline void AddSystem(Lina_ECSBaseSystem& system)
+	{
+		systems.push_back(&system);
+	}
 	void UpdateSystems(float delta);
-
 	void RemoveSystems(Lina_ECSBaseSystem& system);
-
 private:
-
 	Lina_DSArray<Lina_ECSBaseSystem*> systems;
 	std::map<uint32, Lina_DSArray<uint8>> components;
-	Lina_DSArray <IndexEntityPair*> entities;
+	Lina_DSArray<std::pair<uint32, Lina_DSArray<std::pair<uint32, uint32> > >* > entities;
 
-	inline IndexEntityPair* HandleToRawType(Lina_EntityHandle* handle)
+	inline std::pair<uint32, Lina_DSArray<std::pair<uint32, uint32> > >* HandleToRaw(EntityHandle handle)
 	{
-		return (IndexEntityPair*)handle;
+		return (std::pair<uint32, Lina_DSArray<std::pair<uint32, uint32> > >*)handle;
 	}
 
-	inline uint32 HandleToEntityIndex(Lina_EntityHandle* handle)
+	inline uint32 HandleToEntityIndex(EntityHandle handle)
 	{
-		return HandleToRawType(handle)->first;
+		return HandleToRaw(handle)->first;
 	}
 
-	inline Entity& HandleToEntity(Lina_EntityHandle* handle)
+	inline Lina_DSArray<std::pair<uint32, uint32> >& HandleToEntity(EntityHandle handle)
 	{
-		return HandleToRawType(handle)->second;
+		return HandleToRaw(handle)->second;
 	}
 
-	void AddComponentInternal(Entity& entity, uint32 componentID, Lina_ECSBaseComponent* component);
 	void DeleteComponent(uint32 componentID, uint32 index);
+	bool RemoveComponentInternal(EntityHandle handle, uint32 componentID);
+	void AddComponentInternal(EntityHandle handle, Lina_DSArray<std::pair<uint32, uint32> >& entity, uint32 componentID, Lina_ECSBaseComponent* component);
+	Lina_ECSBaseComponent* GetComponentInternal(Lina_DSArray<std::pair<uint32, uint32> >& entityComponents, uint32 componentID);
 
 	NULL_COPY_AND_ASSIGN(Lina_ECS);
 };
-
 
 #endif
 

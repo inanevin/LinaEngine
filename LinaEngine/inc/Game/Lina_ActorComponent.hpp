@@ -21,12 +21,12 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #pragma once
 
-#ifndef Lina_GameActorComponent_HPP
-#define Lina_GameActorComponent_HPP
+#ifndef Lina_ActorComponent_HPP
+#define Lina_ActorComponent_HPP
 
 class Lina_Actor;
 class Lina_Shader;
-class Lina_RenderingEngine;
+class Lina_EngineInstances;
 
 class Lina_ActorComponent
 {
@@ -35,7 +35,11 @@ public:
 
 	Lina_ActorComponent();
 	Lina_ActorComponent(const Lina_ActorComponent&);
-	virtual void AttachToActor(Lina_Actor&);
+	inline Lina_EngineInstances* Engine() { return engineInstances; }
+	inline Lina_Actor* Actor() { return m_Actor; }
+
+protected:
+	
 	virtual void Wake();
 	virtual void Start();
 	virtual void ProcessInput(float);
@@ -43,11 +47,14 @@ public:
 	virtual void Render(Lina_Shader*);
 	virtual void Stop();
 	virtual void CleanUp();
+	virtual void AttachToActor(Lina_Actor&);
 
-protected:
+private:
+
+	friend class Lina_Actor;
 	
 	Lina_Actor* m_Actor;
-	Lina_RenderingEngine* rnd;
+	Lina_EngineInstances* engineInstances;
 };
 
 

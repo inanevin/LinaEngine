@@ -28,18 +28,15 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 class Lina_ECSBaseSystem
 {
-
 public:
-	
-	Lina_ECSBaseSystem(const Lina_DSArray<uint32>& componentTypesIn) : componentTypes(componentTypesIn) {};
-	virtual void UpdateComponents(float delta, Lina_ECSBaseComponent** components) {};
-	const Lina_DSArray<uint32>& GetComponentTypes() { return componentTypes; }
-
+	Lina_ECSBaseSystem(const Lina_DSArray<uint32>& componentTypesIn) : componentTypes(componentTypesIn) {}
+	virtual void UpdateComponents(float delta, Lina_ECSBaseComponent** components) {}
+	const Lina_DSArray<uint32>& GetComponentTypes()
+	{
+		return componentTypes;
+	}
 private:
-
 	Lina_DSArray<uint32> componentTypes;
-
 };
-
 
 #endif

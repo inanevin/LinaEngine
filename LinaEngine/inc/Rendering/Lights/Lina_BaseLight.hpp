@@ -39,10 +39,14 @@ public:
 
 	Vector3 color;
 	float intensity;
-	//virtual void SetShader(Lina_Shader&) = 0;
+
+	virtual void SetShader(Lina_Shader&);
+
 
 private:
+
 	Lina_Shader* m_Shader;
+
 };
 
 

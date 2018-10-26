@@ -49,30 +49,31 @@ void Lina_TestScene::Initialize(Lina_EngineInstances* eng)
 void Lina_TestScene::Wake()
 {
 	Lina_Scene::Wake();
-
-	floor.SetEngineInstances(Lina);
-	lightHolder.SetEngineInstances(Lina);
+	
+	rootActor.Initialize(Lina);
+	floor.Initialize(Lina);
+	lightHolder.Initialize(Lina);
 
 	Lina_Material material;
 	material.color = (Vector3(1, 1, 1));
-	material.texture.LoadTexture("grid4.png");
+	material.texture.LoadTexture("fero.png");
 	material.specularIntensity = 1;
 	material.specularExponent = 8;
-
 
 	Lina_MeshRenderer* meshRenderer = new Lina_MeshRenderer();
 	meshRenderer->SetMaterial(material);
 	meshRenderer->SetMesh("plane");
 
 	Lina_PointLight* pLight = new Lina_PointLight();
-	pLight->base = Lina_BaseLight(Vector3(0, 1, 0), 0.34f);
+	pLight->base = Lina_BaseLight(Vector3(0, 1, 0), 0.9f);
 	pLight->attenuation = Lina_Attenuation(0, 0, 0.2f);
 	pLight->range = 80;
 
 	//Lina_DirectionalLight* dLight = new Lina_DirectionalLight(Lina_BaseLight(Vector3(0, 1, 0), 0.002f), Vector3::one());
-	//Lina_SpotLight* sLight = new Lina_SpotLight(Lina_PointLight(Lina_BaseLight(Vector3(0, 0, 1), 4.2f), Lina_Attenuation(0, 0, 1), 15.0f), Vector3(1, -0.5f, 1), .8f);
+	//Lina_SpotLight* sLight = new Lina_SpotLight(Lina_PointLight(Lina_BaseLight(Vector3(0, 0, 1), 8.2f), Lina_Attenuation(0, 0, .5f), 55.0f), Vector3(1, -0.5f, 1), .5f);
 	
 	lightHolder.AddComponent(pLight);
+
 	floor.AddComponent(meshRenderer);
 
 	rootActor.AddChild(&floor);
@@ -103,8 +104,8 @@ void Lina_TestScene::Update(float tickRate)
 	Lina_Scene::Update(tickRate);
 	temp += tickRate * 5;
 
-	floor.transform.SetPosition(Vector3(0,-2,0));
-	lightHolder.transform.SetPosition(Vector3(sin(temp)*6, 2, 5));
+	floor.Transform().SetPosition(Vector3(0,-2,0));
+	lightHolder.Transform().SetPosition(Vector3(sin(temp)*6, 2, 5));
 }
 
 void Lina_TestScene::Render(Lina_Shader* shader)
