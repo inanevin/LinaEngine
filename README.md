@@ -2,9 +2,9 @@
 Lina Engine is an open-source , modular, tiny and fast C++ game engine, aimed to develop 3D cross-platform desktop games.
 
 ## Prequisites
-Visual Studio 2017 15.8.5 or newer
-Microsoft .NET Framework 4.7.02558
-Visual C++ 2017
+- Visual Studio 2017 15.8.5 or newer
+- Microsoft .NET Framework 4.7.02558
+- Visual C++ 2017
 
 ## Dependencies
 - SDL 2.0
