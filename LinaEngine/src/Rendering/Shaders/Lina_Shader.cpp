@@ -178,34 +178,30 @@ void Lina_Shader::SetUniform(const std::string& name, GLfloat* val) const
 }
 
 
-void Lina_Shader::SetUniform(const std::string& name, Lina_BaseLight& b)
+void Lina_Shader::SetUniform(const std::string& name, Lina_DirectionalLight* directionalLight)
 {
-	SetUniform(name + ".color", b.color);
-	SetUniform(name + ".intensity", b.intensity);
+	SetUniform(name + ".base.color", directionalLight->color.ToVector3());
+	SetUniform(name + ".base.intensity", directionalLight->intensity);
+	SetUniform(name + ".direction", directionalLight->direction);
 }
 
-void Lina_Shader::SetUniform(const std::string& name, Lina_DirectionalLight& directionalLight)
+void Lina_Shader::SetUniform(const std::string& name, Lina_PointLight* pLight)
 {
-	SetUniform(name + ".base", directionalLight.base);
-	SetUniform(name + ".direction", directionalLight.direction);
-}
-
-void Lina_Shader::SetUniform(const std::string& name, Lina_PointLight& pLight)
-{
-	SetUniform(name + ".base", pLight.base);
-	SetUniform(name + ".attenuation.constant", pLight.attenuation.constant);
-	SetUniform(name + ".attenuation.linear", pLight.attenuation.linear);
-	SetUniform(name + ".attenuation.exponent", pLight.attenuation.exponent);
-	SetUniform(name + ".position", pLight.position);
-	SetUniform(name + ".range", pLight.range);
+	SetUniform(name + ".base.color", pLight->color.ToVector3());
+	SetUniform(name + ".base.intensity", pLight->intensity);
+	SetUniform(name + ".attenuation.constant", pLight->attenuation.constant);
+	SetUniform(name + ".attenuation.linear", pLight->attenuation.linear);
+	SetUniform(name + ".attenuation.exponent", pLight->attenuation.exponent);
+	SetUniform(name + ".position", pLight->position);
+	SetUniform(name + ".range", pLight->range);
 
 }
 
-void Lina_Shader::SetUniform(const std::string& name, Lina_SpotLight& sLight)
+void Lina_Shader::SetUniform(const std::string& name, Lina_SpotLight* sLight)
 {
-	SetUniform(name + ".pointLight", sLight.pointLight);
-	SetUniform(name + ".direction", sLight.direction);
-	SetUniform(name + ".cutoff", sLight.cutoff);
+	SetUniform(name + ".pointLight", sLight);
+	SetUniform(name + ".direction", sLight->direction);
+	SetUniform(name + ".cutoff", sLight->cutoff);
 }
 
 void Lina_Shader::UpdateUniforms(Lina_Transform&, Lina_Material)

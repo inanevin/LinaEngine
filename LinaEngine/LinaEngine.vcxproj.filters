@@ -100,7 +100,10 @@
     <Filter Include="Source Files\Entity Component System">
       <UniqueIdentifier>{f100409e-3093-44b7-b53e-c5b374de6f4b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\DataStructures">
+    <Filter Include="Source Files\Data Stuctures">
+      <UniqueIdentifier>{c46aab80-3c0b-4a13-8f13-c06cd54f2855}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Data Structures">
       <UniqueIdentifier>{944da66c-ca40-43ef-a81d-ef6da026deed}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -231,8 +234,8 @@
     <ClCompile Include="src\ECS\Lina_ECS.cpp">
       <Filter>Source Files\Entity Component System</Filter>
     </ClCompile>
-    <ClCompile Include="inc\Rendering\Lights\Lina_BaseLight.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\DataStructures\Lina_Color.cpp">
+      <Filter>Source Files\Data Stuctures</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -378,7 +381,7 @@
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="inc\DataStructures\Lina_DSArray.hpp">
-      <Filter>Header Files\DataStructures</Filter>
+      <Filter>Header Files\Data Structures</Filter>
     </ClInclude>
     <ClInclude Include="inc\Utility\Lina_Common.hpp">
       <Filter>Header Files\Utility</Filter>
@@ -391,6 +394,9 @@
     </ClInclude>
     <ClInclude Include="inc\ECS\Lina_ECS.hpp">
       <Filter>Header Files\Entity Component System</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\DataStructures\Lina_Color.hpp">
+      <Filter>Header Files\Data Structures</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

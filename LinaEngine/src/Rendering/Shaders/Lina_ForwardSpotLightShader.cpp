@@ -74,5 +74,5 @@ void Lina_ForwardSpotLightShader::UpdateUniforms(Lina_Transform& t, Lina_Materia
 	SetUniform("specularIntensity", mat.specularIntensity);
 	SetUniform("specularExponent", mat.specularExponent);
 	SetUniform("camPos", RenderingEngine->GetCurrentActiveCamera()->GetPosition());
-	SetUniform("spotLight", RenderingEngine->GetSpotLight());
+	SetUniform("spotLight", &RenderingEngine->GetSpotLight());
 }

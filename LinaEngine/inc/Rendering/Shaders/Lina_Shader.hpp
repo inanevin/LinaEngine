@@ -38,6 +38,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 class Lina_Transform;
 class Lina_RenderingEngine;
 
+
+
 class Lina_Shader
 {
 
@@ -58,10 +60,9 @@ public:
 	void SetUniform(const std::string&, int) const;
 	void SetUniform(const std::string&, Vector3) const;
 	void SetUniform(const std::string&, GLfloat*) const;
-	void SetUniform(const std::string&, Lina_BaseLight&);
-	void SetUniform(const std::string&, Lina_DirectionalLight&);
-	void SetUniform(const std::string&, Lina_PointLight&);
-	void SetUniform(const std::string&, Lina_SpotLight&);
+	void SetUniform(const std::string&, Lina_DirectionalLight*);
+	void SetUniform(const std::string&, Lina_PointLight*);
+	void SetUniform(const std::string&, Lina_SpotLight*);
 
 	void CheckError(unsigned int, int, std::string);
 	void SetAttributeLocation(int, std::string);

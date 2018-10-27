@@ -36,6 +36,7 @@ void Lina_Actor::AddComponent(Lina_ActorComponent* component)
 
 	components.emplace_back(std::move(component));
 	component->AttachToActor(*this);
+
 }
 
 void Lina_Actor::AddChild(Lina_Actor* child)

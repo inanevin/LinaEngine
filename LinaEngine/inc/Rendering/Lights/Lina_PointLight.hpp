@@ -26,25 +26,34 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "Rendering/Lights/Lina_BaseLight.hpp"
 #include "Rendering/Lights/Lina_Attenuation.hpp"
-#include "Game/Lina_ActorComponent.hpp"
+#include "Math/Lina_Vector3F.hpp"
+#include "Core/Lina_EngineInstances.hpp"
 
-class Lina_PointLight : public Lina_ActorComponent
+class Lina_Shader;
+
+class Lina_PointLight : public Lina_BaseLight
 {
 
 public:
 
-	Lina_PointLight() {};
-	Lina_PointLight(Lina_BaseLight b, Lina_Attenuation at, float r) : base(b), attenuation(at), range(r) {};
+	Lina_PointLight(Lina_Shader* s) : Lina_BaseLight(s), attenuation(AT_QUADRATIC), range(10) {};
+	Lina_PointLight() : Lina_BaseLight(Engine()->RenderingEngine()->GetForwardPointShader()) , attenuation(AT_QUADRATIC), range(10) {};
+	Lina_PointLight(Color c, float i) : Lina_BaseLight(c, i, Engine()->RenderingEngine()->GetForwardPointShader()) {};
+	Lina_PointLight(Color c, float i, Lina_Shader* s) : Lina_BaseLight(c, i, s) {};
+
+	Lina_Attenuation attenuation;
+	float range;
+
+protected:
 
 	void AttachToActor(Lina_Actor&) override;
-	void Update(float) override;
-	Vector3 position;
-	float range;
 	
-	Lina_BaseLight base;
-	Lina_Attenuation attenuation;
 
 private:
+
+	friend class Lina_Shader;	// Shader uses position.
+	Vector3 position;	// Updated via attached actor transform.
+	void Update(float) override;
 
 };
 

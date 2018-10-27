@@ -71,5 +71,5 @@ void Lina_ForwardPointLightShader::UpdateUniforms(Lina_Transform& t, Lina_Materi
 	SetUniform("specularIntensity", mat.specularIntensity);
 	SetUniform("specularExponent", mat.specularExponent);
 	SetUniform("camPos", RenderingEngine->GetCurrentActiveCamera()->GetPosition());
-	SetUniform("pointLight", RenderingEngine->GetPointLight());
+	SetUniform("pointLight", &RenderingEngine->GetPointLight());
 }

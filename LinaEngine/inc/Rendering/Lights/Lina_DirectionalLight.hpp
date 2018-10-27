@@ -25,24 +25,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_DirectionalLight_HPP
 
 #include "Rendering/Lights/Lina_BaseLight.hpp"
-#include "Game/Lina_ActorComponent.hpp"
-
-class Lina_DirectionalLight : public Lina_BaseLight
-{
-
-public:
-
-	Lina_DirectionalLight() {};
-	Lina_DirectionalLight(Vector3 color, float intensity, Vector3 v) : Lina_BaseLight::Lina_BaseLight(color,intensity) , direction(v) {};
-
-	Lina_BaseLight base;
-	Vector3 direction;
-
-private:
-
-	void AttachToActor(Lina_Actor&) override;
-
-};
+#include "Math/Lina_Vector3F.hpp"
+#include "Core/Lina_EngineInstances.hpp"
 
 
 #endif

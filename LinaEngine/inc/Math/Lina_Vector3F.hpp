@@ -134,13 +134,5 @@ public:
 
 typedef Lina_Vector3F Vector3;
 
-static Vector3 COLOR_RED = Vector3(1, 0, 0);
-static Vector3 COLOR_GREEN = Vector3(0, 1, 0);
-static Vector3 COLOR_BLUE = Vector3(0, 0, 1);
-static Vector3 COLOR_CYAN = Vector3(0, 1, 1);
-static Vector3 COLOR_YELLOW = Vector3(1, 1, 0);
-static Vector3 COLOR_BLACK = Vector3(0, 0, 0);
-static Vector3 COLOR_WHITE = Vector3(1, 1, 1);
-static Vector3 COLOR_PURPLE = Vector3(1, 0, 1);
 
 #endif

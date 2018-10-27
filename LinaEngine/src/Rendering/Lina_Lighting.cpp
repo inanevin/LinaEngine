@@ -15,38 +15,18 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 4.0.30319.42000
-10/19/2018 4:53:13 PM
+10/27/2018 8:30:15 PM
 
 */
 
-#pragma once
+#include "pch.h"
+#include "Rendering/Lina_Lighting.hpp"  
 
-#ifndef Lina_Attenuation_HPP
-#define Lina_Attenuation_HPP
 
-struct Lina_Attenuation
+void Lina_DirectionalLight::AttachToActor(Lina_Actor& act)
 {
-
-public:
-
-	Lina_Attenuation() : constant(0), linear(0), exponent(1.0f) {};
-	Lina_Attenuation(float c, float l, float e) : constant(c), linear(l), exponent(e) {};
+	Lina_ActorComponent::AttachToActor(act);
+	//Actor()->Engine()->RenderingEngine()->AddDirectionalLight(this);
+}
 
 
-	float constant;
-	float linear;
-	float exponent;
-
-};
-
-static Lina_Attenuation AT_CONSTANT = Lina_Attenuation(1.0f, 0.0f, 0.0f);
-static Lina_Attenuation AT_CONSTLIN = Lina_Attenuation(0.66f, 0.33f, 0.0f);
-static Lina_Attenuation AT_CONSTQUAD = Lina_Attenuation(0.66f, 0.0f, 0.33f);
-static Lina_Attenuation AT_LINEAR = Lina_Attenuation(0.0f, 1.0f, 0.0f);
-static Lina_Attenuation AT_LINCONST = Lina_Attenuation(0.33f, 0.66f, 0.0f);
-static Lina_Attenuation AT_LINQUAD = Lina_Attenuation(0.0f, 0.66f, 0.33f);
-static Lina_Attenuation AT_QUADRATIC = Lina_Attenuation(0.0f, 0.0f, 1.0f);
-static Lina_Attenuation AT_QUADCONST = Lina_Attenuation(0.33f, 0.0f, 0.66f);
-static Lina_Attenuation AT_QUADLIN = Lina_Attenuation(0.0f, 0.33f, 0.66f);
-
-#endif

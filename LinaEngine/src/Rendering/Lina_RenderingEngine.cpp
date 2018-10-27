@@ -281,6 +281,26 @@ Lina_SpotLight& Lina_RenderingEngine::GetSpotLight()
 	return activeSpotLight;
 }
 
+Lina_Shader* Lina_RenderingEngine::GetForwardAmbientShader()
+{
+	return forwardAmbientShader;
+}
+
+Lina_Shader* Lina_RenderingEngine::GetForwardDirectionalShader()
+{
+	return forwardDirectionalShader;
+}
+
+Lina_Shader* Lina_RenderingEngine::GetForwardPointShader()
+{
+	return forwardPointShader;
+}
+
+Lina_Shader* Lina_RenderingEngine::GetForwardSpotShader()
+{
+	return forwardSpotShader;
+}
+
 void Lina_RenderingEngine::AddDirectionalLight(Lina_DirectionalLight* light)
 {
 	currentDirectionalLights.push_back(light);

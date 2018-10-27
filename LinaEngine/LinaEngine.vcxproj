@@ -166,7 +166,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="inc\Rendering\Lights\Lina_BaseLight.cpp" />
+    <ClCompile Include="src\DataStructures\Lina_Color.cpp" />
     <ClCompile Include="src\ECS\Lina_ECS.cpp" />
     <ClCompile Include="src\ECS\Lina_ECSComponent.cpp" />
     <ClCompile Include="src\Rendering\Lights\Lina_DirectionalLight.cpp" />
@@ -217,6 +217,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\Core\Lina_EngineInstances.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\DataStructures\Lina_Color.hpp">
       <SubType>
       </SubType>
     </ClInclude>

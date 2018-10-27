@@ -25,19 +25,27 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_Spotlight_HPP
 
 #include "Rendering/Lights/Lina_PointLight.hpp"
-#include "Game/Lina_ActorComponent.hpp"
+#include "Math/Lina_Vector3F.hpp"
+#include "Core/Lina_EngineInstances.hpp"
 
-class Lina_SpotLight : public Lina_ActorComponent
+class Lina_SpotLight : public Lina_PointLight
 {
 
 public:
 
-	Lina_SpotLight() {};
-	Lina_SpotLight(Lina_PointLight pL, Vector3 dir, float cut) : pointLight(pL), direction(dir.normalized()), cutoff(cut) {};
-	void AttachToActor(Lina_Actor&) override;
+	Lina_SpotLight() : Lina_PointLight(Engine()->RenderingEngine()->GetForwardSpotShader()), cutoff(0.5f) {};
+	Lina_SpotLight(Color c, float i) : Lina_PointLight(c, i, Engine()->RenderingEngine()->GetForwardSpotShader()), cutoff(0.5f), direction(Vector3::one()) {};
 	float cutoff;
-	Lina_PointLight pointLight;
 	Vector3 direction;
+
+protected:
+
+
+
+private:
+
+	void AttachToActor(Lina_Actor&) override;
+
 };
 
 

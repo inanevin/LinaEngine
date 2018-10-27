@@ -23,12 +23,11 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Lights/Lina_PointLight.hpp"
 #include "Game/Lina_Actor.hpp"
 
+
 void Lina_PointLight::AttachToActor(Lina_Actor& act)
 {
 	Lina_ActorComponent::AttachToActor(act);
-
 	Actor()->Engine()->RenderingEngine()->AddPointLight(this);
-
 }
 
 void Lina_PointLight::Update(float tickRate)

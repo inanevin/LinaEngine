@@ -24,8 +24,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_BaseLight_HPP
 #define Lina_BaseLight_HPP
 
-#include "Math/Lina_Vector3F.hpp"
+
 #include "Game/Lina_ActorComponent.hpp"
+#include "DataStructures/Lina_Color.hpp"
 
 class Lina_Shader;
 
@@ -33,15 +34,15 @@ class Lina_BaseLight : public Lina_ActorComponent
 {
 
 public:
-
-	Lina_BaseLight() : color(Vector3::one()), intensity(0.0) {};
-	Lina_BaseLight(Vector3 c, float f) : color(c), intensity(f) {};
-
-	virtual void SetShader(Lina_Shader&);
-
-
-	Vector3 color;
+	
+	Color color;
 	float intensity;
+
+protected:
+
+	Lina_BaseLight() {};
+	Lina_BaseLight(Color c, float i, Lina_Shader* s) : color(c), intensity(i), m_Shader(s) {};
+	Lina_BaseLight(Lina_Shader* s) : color(COLOR_Black), intensity(0.0f), m_Shader(s) {};
 
 private:
 

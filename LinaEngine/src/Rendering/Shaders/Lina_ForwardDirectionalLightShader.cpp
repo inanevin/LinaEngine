@@ -68,7 +68,7 @@ void Lina_ForwardDirectionalLightShader::UpdateUniforms(Lina_Transform& t, Lina_
 	SetUniform("specularIntensity", mat.specularIntensity);
 	SetUniform("specularExponent", mat.specularExponent);
 	SetUniform("camPos", RenderingEngine->GetCurrentActiveCamera()->GetPosition());
-	SetUniform("directionalLight", RenderingEngine->GetDirectionalLight());
+	SetUniform("directionalLight", &RenderingEngine->GetDirectionalLight());
 
 }
 

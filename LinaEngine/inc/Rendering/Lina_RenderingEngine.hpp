@@ -58,6 +58,7 @@ public:
 	Lina_ObjectHandler eventHandler;
 	Lina_PhongShader* GetPhongShader();
 	Lina_BasicShader* GetBasicShader();
+	
 
 	float GetAspectRatio();
 	int GetScreenWidth();
@@ -67,6 +68,11 @@ public:
 	Lina_DirectionalLight& GetDirectionalLight();
 	Lina_PointLight& GetPointLight();
 	Lina_SpotLight& GetSpotLight();
+
+	Lina_Shader* GetForwardAmbientShader();
+	Lina_Shader* GetForwardDirectionalShader();
+	Lina_Shader* GetForwardPointShader();
+	Lina_Shader* GetForwardSpotShader();
 
 	void AddDirectionalLight(Lina_DirectionalLight*);
 	void AddSpotLight(Lina_SpotLight*);

@@ -90,17 +90,17 @@ void Lina_PhongShader::UpdateUniforms(Lina_Transform& t, Lina_Material mat)
 	Lina_Shader::SetUniform("specularExponent", mat.specularExponent);
 	Lina_Shader::SetUniform("camPos", RenderingEngine->GetCurrentActiveCamera()->GetPosition());
 
-	Lina_Shader::SetUniform("directionalLight", m_DirectionalLight);
+	//Lina_Shader::SetUniform("directionalLight", m_DirectionalLight);
 
 	for (int i = 0; i < pointLights.size(); i++)
 	{
-		Lina_Shader::SetUniform("pointLights[" + std::to_string(i) + "]", pointLights[i]);
+		//Lina_Shader::SetUniform("pointLights[" + std::to_string(i) + "]", pointLights[i]);
 	}
 
 
 	for (int i = 0; i < spotLights.size(); i++)
 	{
-		Lina_Shader::SetUniform("spotLights[" + std::to_string(i) + "]", spotLights[i]);
+		//Lina_Shader::SetUniform("spotLights[" + std::to_string(i) + "]", spotLights[i]);
 	}
 	
 

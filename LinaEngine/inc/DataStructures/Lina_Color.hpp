@@ -24,21 +24,35 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_Color_HPP
 #define Lina_Color_HPP
 
-
+class Lina_Vector3F;
 
 class Lina_Color
 {
 
 public:
 
-	Lina_Color();
+	Lina_Color() : red(0), green(0), blue(0), alpha(1) {};
+	Lina_Color(float r, float g, float b, float a = 1.0f) : red(r), green(g), blue(b), alpha(a) {};
+	
+	float red, green, blue, alpha;
 
-	
-private:
-	
-	float r, g, b, a;
+	Lina_Vector3F ToVector3();
 
 };
 
+typedef Lina_Color Color;
+
+static const Lina_Color COLOR_Red = Lina_Color(255, 0, 0);
+static const Lina_Color COLOR_Green = Lina_Color(0, 255, 0);
+static const Lina_Color COLOR_Blue = Lina_Color(0, 0, 255);
+static const Lina_Color COLOR_Cyan = Lina_Color(0, 255, 255);
+static const Lina_Color COLOR_Yellow = Lina_Color(255, 255, 0);
+static const Lina_Color COLOR_Black = Lina_Color(0, 0, 0);
+static const Lina_Color COLOR_White = Lina_Color(255, 255, 255);
+static const Lina_Color COLOR_Purple = Lina_Color(255, 0, 255);
+static const Lina_Color COLOR_Maroon = Lina_Color(128, 0, 0);
+static const Lina_Color COLOR_Beige = Lina_Color(245, 245, 220);
+static const Lina_Color COLOR_Brown = Lina_Color(165, 42, 42);
+static const Lina_Color COLOR_Gray = Lina_Color(128, 128, 128);
 
 #endif
