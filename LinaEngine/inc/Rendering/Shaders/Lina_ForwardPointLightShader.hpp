@@ -29,9 +29,22 @@ class Lina_ForwardPointLightShader : public Lina_Shader
 {
 
 public:
-	Lina_ForwardPointLightShader();
+
+	static Lina_ForwardPointLightShader& Instance()
+	{
+		static Lina_ForwardPointLightShader instance;
+		return instance;
+	}
+
 	void Init() override;
 	void UpdateUniforms(Lina_Transform&, Lina_Material) override;
+
+	Lina_ForwardPointLightShader(Lina_ForwardPointLightShader const&) = delete;
+	void operator=(Lina_ForwardPointLightShader const&) = delete;
+
+private:
+	friend class Lina_RenderingEngine;
+	Lina_ForwardPointLightShader() {}
 };
 
 

@@ -26,8 +26,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "Game/Lina_ActorComponent.hpp"
 #include "DataStructures/Lina_Color.hpp"
-#include "Rendering/Shaders/Lina_Shader.hpp"
-
+#include "Rendering/Shaders/Lina_ForwardDirectionalLightShader.hpp"
+#include "Rendering/Shaders/Lina_ForwardPointLightShader.hpp"
+#include "Rendering/Shaders/Lina_ForwardSpotLightShader.hpp"
 
 /* BASE LIGHT */
 class Lina_BaseLight : public Lina_ActorComponent
@@ -57,13 +58,10 @@ class Lina_DirectionalLight : public Lina_BaseLight
 public:
 
 	Lina_DirectionalLight(const Color c = COLOR_Black, float i = 0, Vector3 dir = Vector3::one()) :
-		Lina_BaseLight(Engine()->RenderingEngine()->GetForwardDirectionalShader(), c, i) , direction(dir) {};
+		Lina_BaseLight(&Lina_ForwardDirectionalLightShader::Instance(), c, i) , direction(dir) {};
 
 	Vector3 direction;
 
-protected:
-
-	void AttachToActor(Lina_Actor&) override;
 
 };
 
@@ -95,16 +93,7 @@ public:
 	static Lina_Attenuation AT_QUADLIN;
 };
 
-				 
-Lina_Attenuation Lina_Attenuation::AT_CONSTANT = Lina_Attenuation(1.0f, 0.0f, 0.0f);
-Lina_Attenuation Lina_Attenuation::AT_CONSTLIN = Lina_Attenuation(0.66f, 0.33f, 0.0f);
-Lina_Attenuation Lina_Attenuation::AT_CONSTQUAD = Lina_Attenuation(0.66f, 0.0f, 0.33f);
-Lina_Attenuation Lina_Attenuation::AT_LINEAR = Lina_Attenuation(0.0f, 1.0f, 0.0f);
-Lina_Attenuation Lina_Attenuation::AT_LINCONST = Lina_Attenuation(0.33f, 0.66f, 0.0f);
-Lina_Attenuation Lina_Attenuation::AT_LINQUAD = Lina_Attenuation(0.0f, 0.66f, 0.33f);
-Lina_Attenuation Lina_Attenuation::AT_QUADRATIC = Lina_Attenuation(0.0f, 0.0f, 1.0f);
-Lina_Attenuation Lina_Attenuation::AT_QUADCONST = Lina_Attenuation(0.33f, 0.0f, 0.66f);
-Lina_Attenuation Lina_Attenuation::AT_QUADLIN = Lina_Attenuation(0.0f, 0.33f, 0.66f);
+
 
 
 /* POINT LIGHT */
@@ -115,7 +104,7 @@ class Lina_PointLight : public Lina_BaseLight
 public:
 
 	Lina_PointLight(Color c = COLOR_Black, float i = 0.0f, float r = 0.0f, Lina_Attenuation at = Lina_Attenuation::AT_QUADRATIC)
-		: Lina_BaseLight(Engine()->RenderingEngine()->GetForwardPointShader(), c, i), range(r), attenuation(at) {};
+		: Lina_BaseLight(&Lina_ForwardPointLightShader::Instance(), c, i), range(r), attenuation(at) {};
 
 	float range;
 	
@@ -125,15 +114,11 @@ protected:
 	Lina_PointLight(Lina_Shader* s, Color c = COLOR_Black, float i = 0.0f, float r = 0.0f, Lina_Attenuation at = Lina_Attenuation::AT_QUADRATIC)
 		: Lina_BaseLight(s, c, i), range(r), attenuation(at) {};
 
-	void AttachToActor(Lina_Actor&) override;
-
 private:
 
 	Lina_Attenuation attenuation;
 	friend class Lina_Shader;	// Shader uses position.
 	Vector3 position;	// Updated via attached actor transform.
-	void Update(float) override;
-	void AttachToActor(Lina_Actor&) override;
 
 };
 
@@ -144,13 +129,11 @@ class Lina_SpotLight : public Lina_PointLight
 public:
 
 	Lina_SpotLight(Color c = COLOR_Black, float i = 0.0f, float r = 0.0f, float co = 0.1f, Vector3 dir = Vector3::one()) :
-		Lina_PointLight(Engine()->RenderingEngine()->GetForwardSpotShader(), c, i, r), direction(dir), cutoff(co) {};
+		Lina_PointLight(&Lina_ForwardSpotLightShader::Instance(), c, i, r), direction(dir), cutoff(co) {};
 	
 	float cutoff;
 	Vector3 direction;
 
-private:
-	void AttachToActor(Lina_Actor&) override;
 
 };
 

@@ -24,10 +24,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Lina_RenderingEngine.hpp"
 #include "Core/Lina_Transform.hpp"
 
-Lina_ForwardSpotLightShader::Lina_ForwardSpotLightShader()
-{
-
-}
 
 void Lina_ForwardSpotLightShader::Init()
 {
@@ -66,13 +62,13 @@ void Lina_ForwardSpotLightShader::UpdateUniforms(Lina_Transform& t, Lina_Materia
 {
 
 	Matrix4 world = t.GetTransformation();
-	Matrix4 projected = RenderingEngine->GetCurrentActiveCamera()->GetViewProjection().Multiply(world);
+	Matrix4 projected = RenderingEngine->GetCurrentActiveCamera().GetViewProjection().Multiply(world);
 	mat.texture.Bind();
 
 	SetUniform("modelViewProjection", *(projected.m));
 	SetUniform("model", *(world.m));
 	SetUniform("specularIntensity", mat.specularIntensity);
 	SetUniform("specularExponent", mat.specularExponent);
-	SetUniform("camPos", RenderingEngine->GetCurrentActiveCamera()->GetPosition());
-	SetUniform("spotLight", &RenderingEngine->GetSpotLight());
+	SetUniform("camPos", RenderingEngine->GetCurrentActiveCamera().GetPosition());
+	SetUniform("spotLight", *(const Lina_DirectionalLight*)&RenderingEngine->GetActiveLight());
 }

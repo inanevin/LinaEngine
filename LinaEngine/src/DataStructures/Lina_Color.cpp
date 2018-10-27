@@ -23,7 +23,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "DataStructures/Lina_Color.hpp"  
 #include "Math/Lina_Vector3F.hpp"
 
-Lina_Vector3F Lina_Color::ToVector3()
+Lina_Vector3F Lina_Color::ToVector3() const
 {
 	return Lina_Vector3F(red, green, blue);
 }

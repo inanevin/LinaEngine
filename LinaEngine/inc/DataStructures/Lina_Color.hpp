@@ -36,7 +36,7 @@ public:
 	
 	float red, green, blue, alpha;
 
-	Lina_Vector3F ToVector3();
+	Lina_Vector3F ToVector3() const;
 
 };
 

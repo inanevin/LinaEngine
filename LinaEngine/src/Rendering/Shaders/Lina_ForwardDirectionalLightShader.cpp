@@ -24,10 +24,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Shaders/Lina_ForwardDirectionalLightShader.hpp"  
 #include "Core/Lina_Transform.hpp"
 
-Lina_ForwardDirectionalLightShader::Lina_ForwardDirectionalLightShader()
-{
-
-}
 
 
 void Lina_ForwardDirectionalLightShader::Init()
@@ -60,15 +56,15 @@ void Lina_ForwardDirectionalLightShader::UpdateUniforms(Lina_Transform& t, Lina_
 {
 	
 	Matrix4 world = t.GetTransformation();
-	Matrix4 projected = RenderingEngine->GetCurrentActiveCamera()->GetViewProjection().Multiply(world);
+	Matrix4 projected = RenderingEngine->GetCurrentActiveCamera().GetViewProjection().Multiply(world);
 	mat.texture.Bind();
 
 	SetUniform("modelViewProjection", *(projected.m));
 	SetUniform("model", *(world.m));
 	SetUniform("specularIntensity", mat.specularIntensity);
 	SetUniform("specularExponent", mat.specularExponent);
-	SetUniform("camPos", RenderingEngine->GetCurrentActiveCamera()->GetPosition());
-	SetUniform("directionalLight", &RenderingEngine->GetDirectionalLight());
+	SetUniform("camPos", RenderingEngine->GetCurrentActiveCamera().GetPosition());
+	SetUniform("directionalLight", *(const Lina_DirectionalLight*)&RenderingEngine->GetActiveLight());
 
 }
 

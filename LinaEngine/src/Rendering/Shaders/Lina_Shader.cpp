@@ -24,6 +24,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Shaders/Lina_Shader.hpp"  
 #include "Core/Lina_Transform.hpp"
 #include "Scene/Lina_Camera.hpp"
+#include "Rendering/Lina_Lighting.hpp"
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -86,11 +87,6 @@ void Lina_Shader::AddGeometryShader(std::string text)
 void Lina_Shader::AddFragmentShader(std::string text)
 {
 	AddToProgram(text, GL_FRAGMENT_SHADER);
-}
-
-void Lina_Shader::SetRenderingEngine(Lina_RenderingEngine* eng)
-{
-	RenderingEngine = eng;
 }
 
 void Lina_Shader::AddToProgram(std::string text, GLint type)
@@ -178,30 +174,36 @@ void Lina_Shader::SetUniform(const std::string& name, GLfloat* val) const
 }
 
 
-void Lina_Shader::SetUniform(const std::string& name, Lina_DirectionalLight* directionalLight)
+void Lina_Shader::SetUniform(const std::string& name, const Lina_DirectionalLight& directionalLight) const
 {
-	SetUniform(name + ".base.color", directionalLight->color.ToVector3());
-	SetUniform(name + ".base.intensity", directionalLight->intensity);
-	SetUniform(name + ".direction", directionalLight->direction);
+	SetUniform(name + ".base.color", directionalLight.color.ToVector3());
+	SetUniform(name + ".base.intensity", directionalLight.intensity);
+	SetUniform(name + ".direction", directionalLight.direction);
 }
 
-void Lina_Shader::SetUniform(const std::string& name, Lina_PointLight* pLight)
+void Lina_Shader::SetUniform(const std::string& name, const Lina_PointLight& pLight) const
 {
-	SetUniform(name + ".base.color", pLight->color.ToVector3());
-	SetUniform(name + ".base.intensity", pLight->intensity);
-	SetUniform(name + ".attenuation.constant", pLight->attenuation.constant);
-	SetUniform(name + ".attenuation.linear", pLight->attenuation.linear);
-	SetUniform(name + ".attenuation.exponent", pLight->attenuation.exponent);
-	SetUniform(name + ".position", pLight->position);
-	SetUniform(name + ".range", pLight->range);
+	SetUniform(name + ".base.color", pLight.color.ToVector3());
+	SetUniform(name + ".base.intensity", pLight.intensity);
+	SetUniform(name + ".attenuation.constant", pLight.attenuation.constant);
+	SetUniform(name + ".attenuation.linear", pLight.attenuation.linear);
+	SetUniform(name + ".attenuation.exponent", pLight.attenuation.exponent);
+	SetUniform(name + ".position", pLight.position);
+	SetUniform(name + ".range", pLight.range);
 
 }
 
-void Lina_Shader::SetUniform(const std::string& name, Lina_SpotLight* sLight)
+void Lina_Shader::SetUniform(const std::string& name, const Lina_SpotLight& sLight) const
 {
-	SetUniform(name + ".pointLight", sLight);
-	SetUniform(name + ".direction", sLight->direction);
-	SetUniform(name + ".cutoff", sLight->cutoff);
+	SetUniform(name + "pointLight.base.color", sLight.color.ToVector3());
+	SetUniform(name + "pointLight.base.intensity", sLight.intensity);
+	SetUniform(name + "pointLight.attenuation.constant", sLight.attenuation.constant);
+	SetUniform(name + "pointLight.attenuation.linear", sLight.attenuation.linear);
+	SetUniform(name + "pointLight.attenuation.exponent", sLight.attenuation.exponent);
+	SetUniform(name + "pointLight.position", sLight.position);
+	SetUniform(name + "pointLight.range", sLight.range);
+	SetUniform(name + ".direction", sLight.direction);
+	SetUniform(name + ".cutoff", sLight.cutoff);
 }
 
 void Lina_Shader::UpdateUniforms(Lina_Transform&, Lina_Material)

@@ -172,7 +172,7 @@ void Lina_Core::Run()
 			unprocessedTime -= frameTime;
 
 			// If we don't have an active window or is closed stop.
-			if (renderingEngine.m_GameWindow == nullptr || renderingEngine.m_GameWindow->IsClosed())
+			if (renderingEngine.IsWindowClosed())
 			{
 				Stop();
 				break;

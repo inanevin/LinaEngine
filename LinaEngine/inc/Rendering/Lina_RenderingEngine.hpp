@@ -28,11 +28,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Lina_Window.hpp"
 #include "Core/Lina_ObjectHandler.hpp"
 #include "Math/Lina_Vector3F.hpp"
-#include "Rendering/Lights/Lina_DirectionalLight.hpp"
-#include "Rendering/Lights/Lina_SpotLight.hpp"
+#include "Rendering/Lina_Lighting.hpp"
 #include <vector>
 
-class Lina_PhongShader;
 class Lina_BasicShader;
 class Lina_ForwardAmbientLightShader;
 class Lina_ForwardDirectionalLightShader;
@@ -51,37 +49,27 @@ public:
 	~Lina_RenderingEngine();
 
 	void SetCurrentActiveCamera(Lina_Camera*);
-	Lina_Camera* GetCurrentActiveCamera();
 	
-	Lina_Window* m_GameWindow;
 
 	Lina_ObjectHandler eventHandler;
-	Lina_PhongShader* GetPhongShader();
-	Lina_BasicShader* GetBasicShader();
-	
 
-	float GetAspectRatio();
-	int GetScreenWidth();
-	int GetScreenHeight();
+	inline float GetAspectRatio() { return (float)screenWidth / (float)screenHeight; };
+	inline int GetScreenWidth() { return screenWidth; };
+	inline int GetScreenHeight() { return screenHeight; };
+	inline Lina_Camera& GetCurrentActiveCamera() { return *currentActiveCamera; };
+	inline const Lina_BaseLight& GetActiveLight() const { return *activeLight; };
 
 	Lina_Vector3F& GetAmbientLight();
-	Lina_DirectionalLight& GetDirectionalLight();
-	Lina_PointLight& GetPointLight();
-	Lina_SpotLight& GetSpotLight();
 
-	Lina_Shader* GetForwardAmbientShader();
-	Lina_Shader* GetForwardDirectionalShader();
-	Lina_Shader* GetForwardPointShader();
-	Lina_Shader* GetForwardSpotShader();
-
-	void AddDirectionalLight(Lina_DirectionalLight*);
-	void AddSpotLight(Lina_SpotLight*);
-	void AddPointLight(Lina_PointLight*);
+	inline void AddLight(const Lina_BaseLight& light) { currentLights.push_back(&light); };
 	void ClearLights();
 
 private:
 
 	friend class Lina_Core;
+
+	Lina_Window* m_GameWindow;
+	inline bool IsWindowClosed() { return (m_GameWindow == nullptr || m_GameWindow->IsClosed()); }
 
 	void Initialize(Lina_GameCore*);
 	void Render();
@@ -94,14 +82,13 @@ private:
 	void CreateDisplayWindow();
 
 	Lina_BasicShader* basicShader;
-	Lina_PhongShader* phongShader;
 	Lina_ForwardAmbientLightShader* forwardAmbientShader;
 	Lina_ForwardDirectionalLightShader* forwardDirectionalShader;
 	Lina_ForwardPointLightShader* forwardPointShader;
 	Lina_ForwardSpotLightShader* forwardSpotShader;
 
 	Lina_Camera* currentActiveCamera;
-	Lina_GameCore* game;
+    Lina_GameCore* game;
 
 	int screenHeight = 0;
 	int screenWidth = 0;
@@ -111,14 +98,10 @@ private:
 	Lina_RenderingEngine& operator= (const Lina_RenderingEngine&) = delete;
 
 	Lina_Vector3F ambientLight = Vector3(0.3f, 0.3f, 0.3f);
-	Lina_DirectionalLight activeDirectionalLight;
-	Lina_PointLight activePointLight;
-	Lina_SpotLight activeSpotLight;
 
+	std::vector<const Lina_BaseLight*> currentLights;
+	const Lina_BaseLight* activeLight;
 
-	std::vector<Lina_DirectionalLight*> currentDirectionalLights;
-	std::vector<Lina_SpotLight*> currentSpotLights;
-	std::vector<Lina_PointLight*> currentPointLights;
 };
 
 

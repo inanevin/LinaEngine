@@ -169,9 +169,6 @@
     <ClCompile Include="src\DataStructures\Lina_Color.cpp" />
     <ClCompile Include="src\ECS\Lina_ECS.cpp" />
     <ClCompile Include="src\ECS\Lina_ECSComponent.cpp" />
-    <ClCompile Include="src\Rendering\Lights\Lina_DirectionalLight.cpp" />
-    <ClCompile Include="src\Rendering\Lights\Lina_Spotlight.cpp" />
-    <ClCompile Include="src\Rendering\Lights\Lina_PointLight.cpp" />
     <ClCompile Include="src\Core\Lina_CoreMessageBus.cpp" />
     <ClCompile Include="src\Core\Lina_EngineInstances.cpp" />
     <ClCompile Include="src\Game\Components\Lina_MeshRenderer.cpp" />
@@ -184,6 +181,7 @@
     <ClCompile Include="src\Math\Lina_Quaternion.cpp" />
     <ClCompile Include="src\Math\Lina_Vector2F.cpp" />
     <ClCompile Include="src\Math\Lina_Vector3F.cpp" />
+    <ClCompile Include="src\Rendering\Lina_Lighting.cpp" />
     <ClCompile Include="src\Rendering\Shaders\Lina_BasicShader.cpp" />
     <ClCompile Include="src\Rendering\Lina_Material.cpp" />
     <ClCompile Include="src\Rendering\Lina_Mesh.cpp" />
@@ -191,7 +189,6 @@
     <ClCompile Include="src\Rendering\Shaders\Lina_ForwardDirectionalLightShader.cpp" />
     <ClCompile Include="src\Rendering\Shaders\Lina_ForwardPointLightShader.cpp" />
     <ClCompile Include="src\Rendering\Shaders\Lina_ForwardSpotLightShader.cpp" />
-    <ClCompile Include="src\Rendering\Shaders\Lina_PhongShader.cpp" />
     <ClCompile Include="src\Rendering\Lina_RenderingEngine.cpp" />
     <ClCompile Include="src\Core\Lina_Core.cpp" />
     <ClCompile Include="src\Game\Lina_GameCore.cpp" />
@@ -260,11 +257,7 @@
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Lights\Lina_Attenuation.hpp">
-      <SubType>
-      </SubType>
-    </ClInclude>
-    <ClInclude Include="inc\Rendering\Lights\Lina_BaseLight.hpp">
+    <ClInclude Include="inc\Rendering\Lina_Lighting.hpp">
       <SubType>
       </SubType>
     </ClInclude>
@@ -273,10 +266,6 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_DefaultCubeMesh.hpp">
-      <SubType>
-      </SubType>
-    </ClInclude>
-    <ClInclude Include="inc\Rendering\Lights\Lina_DirectionalLight.hpp">
       <SubType>
       </SubType>
     </ClInclude>
@@ -304,19 +293,7 @@
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Rendering\Shaders\Lina_PhongShader.hpp">
-      <SubType>
-      </SubType>
-    </ClInclude>
-    <ClInclude Include="inc\Rendering\Lights\Lina_PointLight.hpp">
-      <SubType>
-      </SubType>
-    </ClInclude>
     <ClInclude Include="inc\Rendering\Shaders\Lina_Shader.hpp">
-      <SubType>
-      </SubType>
-    </ClInclude>
-    <ClInclude Include="inc\Rendering\Lights\Lina_Spotlight.hpp">
       <SubType>
       </SubType>
     </ClInclude>

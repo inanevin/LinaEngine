@@ -45,8 +45,8 @@ void Lina_BasicShader::Init()
 void Lina_BasicShader::UpdateUniforms(Lina_Transform& t, Lina_Material mat)
 {
 	Matrix4 world = t.GetTransformation();
-	Matrix4 projected = RenderingEngine->GetCurrentActiveCamera()->GetViewProjection().Multiply(world);
-
+	Matrix4 projected = RenderingEngine->GetCurrentActiveCamera().GetViewProjection().Multiply(world);
+	
 	mat.texture.Bind();
 
 	SetUniform("model", *(projected.m));

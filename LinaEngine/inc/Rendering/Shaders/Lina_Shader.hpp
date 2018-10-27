@@ -31,13 +31,11 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Lina_Material.hpp"
 #include <map>
 
-#include "Rendering/Lights/Lina_DirectionalLight.hpp"
-#include "Rendering/Lights/Lina_PointLight.hpp"
-#include "Rendering/Lights/Lina_Spotlight.hpp"
-
 class Lina_Transform;
 class Lina_RenderingEngine;
-
+class Lina_DirectionalLight;
+class Lina_PointLight;
+class Lina_SpotLight;
 
 
 class Lina_Shader
@@ -60,9 +58,9 @@ public:
 	void SetUniform(const std::string&, int) const;
 	void SetUniform(const std::string&, Vector3) const;
 	void SetUniform(const std::string&, GLfloat*) const;
-	void SetUniform(const std::string&, Lina_DirectionalLight*);
-	void SetUniform(const std::string&, Lina_PointLight*);
-	void SetUniform(const std::string&, Lina_SpotLight*);
+	void SetUniform(const std::string&, const Lina_DirectionalLight&) const;
+	void SetUniform(const std::string&, const Lina_PointLight&) const;
+	void SetUniform(const std::string&, const Lina_SpotLight&) const;
 
 	void CheckError(unsigned int, int, std::string);
 	void SetAttributeLocation(int, std::string);
@@ -76,7 +74,7 @@ private:
 
 	friend class Lina_RenderingEngine;
 
-	void SetRenderingEngine(Lina_RenderingEngine*);
+	inline void SetRenderingEngine(Lina_RenderingEngine* eng) { std::cout << &eng; RenderingEngine = eng; };
 	void AddToProgram(std::string, GLint); 
 
 	unsigned int program;
