@@ -38,7 +38,7 @@ public:
 
 	Color color;
 	float intensity;
-	inline const Lina_Shader* GetShader() const { return m_Shader; }
+	inline Lina_Shader* GetShader() const { return m_Shader; }
 
 protected:
 
@@ -62,7 +62,9 @@ public:
 
 	Vector3 direction;
 
+protected:
 
+	void AttachToActor(Lina_Actor&) override;
 };
 
 /* ATTENUATION */
@@ -114,6 +116,10 @@ protected:
 	Lina_PointLight(Lina_Shader* s, Color c = COLOR_Black, float i = 0.0f, float r = 0.0f, Lina_Attenuation at = Lina_Attenuation::AT_QUADRATIC)
 		: Lina_BaseLight(s, c, i), range(r), attenuation(at) {};
 
+
+	void AttachToActor(Lina_Actor&) override;
+	void Update(float) override;
+
 private:
 
 	Lina_Attenuation attenuation;
@@ -128,12 +134,15 @@ class Lina_SpotLight : public Lina_PointLight
 
 public:
 
-	Lina_SpotLight(Color c = COLOR_Black, float i = 0.0f, float r = 0.0f, float co = 0.1f, Vector3 dir = Vector3::one()) :
-		Lina_PointLight(&Lina_ForwardSpotLightShader::Instance(), c, i, r), direction(dir), cutoff(co) {};
+	Lina_SpotLight(Color c = COLOR_Black, float i = 0.0f, float r = 0.0f, float co = 0.1f, Lina_Attenuation at = Lina_Attenuation::AT_QUADRATIC, Vector3 dir = Vector3::one()) :
+		Lina_PointLight(&Lina_ForwardSpotLightShader::Instance(), c, i, r, at), direction(dir), cutoff(co) {};
 	
 	float cutoff;
 	Vector3 direction;
 
+protected:
+
+	void AttachToActor(Lina_Actor&) override;
 
 };
 

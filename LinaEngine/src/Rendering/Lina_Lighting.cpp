@@ -21,7 +21,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pch.h"
 #include "Rendering/Lina_Lighting.hpp"  
-
+#include "Game/Lina_Actor.hpp"
 
 Lina_Attenuation Lina_Attenuation::AT_CONSTANT = Lina_Attenuation(1.0f, 0.0f, 0.0f);
 Lina_Attenuation Lina_Attenuation::AT_CONSTLIN = Lina_Attenuation(0.66f, 0.33f, 0.0f);
@@ -32,3 +32,26 @@ Lina_Attenuation Lina_Attenuation::AT_LINQUAD = Lina_Attenuation(0.0f, 0.66f, 0.
 Lina_Attenuation Lina_Attenuation::AT_QUADRATIC = Lina_Attenuation(0.0f, 0.0f, 1.0f);
 Lina_Attenuation Lina_Attenuation::AT_QUADCONST = Lina_Attenuation(0.33f, 0.0f, 0.66f);
 Lina_Attenuation Lina_Attenuation::AT_QUADLIN = Lina_Attenuation(0.0f, 0.33f, 0.66f);
+
+void Lina_DirectionalLight::AttachToActor(Lina_Actor & act)
+{
+	Lina_ActorComponent::AttachToActor(act);
+	act.Engine()->RenderingEngine()->AddLight(*this);
+}
+
+void Lina_PointLight::AttachToActor(Lina_Actor & act)
+{
+	Lina_ActorComponent::AttachToActor(act);
+	act.Engine()->RenderingEngine()->AddLight(*this);
+}
+
+void Lina_PointLight::Update(float tickRate)
+{
+	position = m_Actor->Transform().GetPosition();
+}
+
+void Lina_SpotLight::AttachToActor(Lina_Actor & act)
+{
+	Lina_ActorComponent::AttachToActor(act);
+	act.Engine()->RenderingEngine()->AddLight(*this);
+}

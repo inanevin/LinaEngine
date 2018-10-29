@@ -44,9 +44,10 @@ Lina_RenderingEngine::~Lina_RenderingEngine()
 	delete m_GameWindow;
 	delete basicShader;
 	delete forwardAmbientShader;
-	delete forwardDirectionalShader;
-	delete forwardPointShader;
-	delete forwardSpotShader;
+	// BELOW ARE CONVERTED TO SINGLETONS SO NO NEED TO DELETE NOW //
+	//delete forwardDirectionalShader;
+	//delete forwardPointShader;
+	//delete forwardSpotShader;
 
 }
 
@@ -106,9 +107,9 @@ void Lina_RenderingEngine::InitializeShaders()
 
 	basicShader = new Lina_BasicShader();
 	forwardAmbientShader = new Lina_ForwardAmbientLightShader();
-	forwardDirectionalShader = new Lina_ForwardDirectionalLightShader();
-	forwardPointShader = new Lina_ForwardPointLightShader();
-	forwardSpotShader = new Lina_ForwardSpotLightShader();
+	forwardDirectionalShader = &Lina_ForwardDirectionalLightShader::Instance();
+	forwardPointShader = &Lina_ForwardPointLightShader::Instance();
+	forwardSpotShader = &Lina_ForwardSpotLightShader::Instance();
 
 	basicShader->SetRenderingEngine(this);
 	forwardAmbientShader->SetRenderingEngine(this);
@@ -133,6 +134,7 @@ void Lina_RenderingEngine::ClearScreen()
 // Main method to render.
 void Lina_RenderingEngine::Render()
 {
+
 	// Clar screen.
 	ClearScreen();
 
@@ -153,11 +155,11 @@ void Lina_RenderingEngine::Render()
 	glDepthFunc(GL_EQUAL);
 
 	// Render in multiple passes, for every light.
-	/*for (std::vector<const Lina_BaseLight*>::iterator it = currentLights.begin(); it != currentLights.end(); ++it)
+	for (std::vector<const Lina_BaseLight*>::iterator it = currentLights.begin(); it != currentLights.end(); ++it)
 	{
 		activeLight = (*it);
-		game->Render()
-	}*/
+		game->Render(activeLight->GetShader());
+	}
 
 	// Set depth calculations back.
 	glDepthFunc(GL_LESS);
@@ -176,7 +178,7 @@ void Lina_RenderingEngine::CleanUp()
 {
 	Lina_Console cons = Lina_Console();
 	cons.AddConsoleMsg("Cleaning up rendering engine...", Lina_Console::MsgType::Deinitialization, "Render Engine");
-
+	ClearLights();
 }
 
 void Lina_RenderingEngine::SetTextures(bool enabled)
@@ -195,15 +197,14 @@ void Lina_RenderingEngine::ClearColors(float r, float g, float b, float a)
 
 void Lina_RenderingEngine::ClearLights()
 {
+	for (std::vector<const Lina_BaseLight*>::iterator it = currentLights.begin(); it != currentLights.end(); ++it) 
+	{
+		std::cout << "Deleted: " << *it << std::endl;
+		delete *it;
+	}
+
 	currentLights.clear();
 }
-
-
-void Lina_RenderingEngine::SetCurrentActiveCamera(Lina_Camera* cam)
-{
-	currentActiveCamera = cam;
-}
-
 
 
 Lina_Vector3F& Lina_RenderingEngine::GetAmbientLight()

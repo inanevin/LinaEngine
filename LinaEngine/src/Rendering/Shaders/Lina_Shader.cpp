@@ -183,6 +183,7 @@ void Lina_Shader::SetUniform(const std::string& name, const Lina_DirectionalLigh
 
 void Lina_Shader::SetUniform(const std::string& name, const Lina_PointLight& pLight) const
 {
+
 	SetUniform(name + ".base.color", pLight.color.ToVector3());
 	SetUniform(name + ".base.intensity", pLight.intensity);
 	SetUniform(name + ".attenuation.constant", pLight.attenuation.constant);
@@ -195,13 +196,14 @@ void Lina_Shader::SetUniform(const std::string& name, const Lina_PointLight& pLi
 
 void Lina_Shader::SetUniform(const std::string& name, const Lina_SpotLight& sLight) const
 {
-	SetUniform(name + "pointLight.base.color", sLight.color.ToVector3());
-	SetUniform(name + "pointLight.base.intensity", sLight.intensity);
-	SetUniform(name + "pointLight.attenuation.constant", sLight.attenuation.constant);
-	SetUniform(name + "pointLight.attenuation.linear", sLight.attenuation.linear);
-	SetUniform(name + "pointLight.attenuation.exponent", sLight.attenuation.exponent);
-	SetUniform(name + "pointLight.position", sLight.position);
-	SetUniform(name + "pointLight.range", sLight.range);
+	
+	SetUniform(name + ".pointLight.base.color", sLight.color.ToVector3());
+	SetUniform(name + ".pointLight.base.intensity", sLight.intensity);
+	SetUniform(name + ".pointLight.attenuation.constant", sLight.attenuation.constant);
+	SetUniform(name + ".pointLight.attenuation.linear", sLight.attenuation.linear);
+	SetUniform(name + ".pointLight.attenuation.exponent", sLight.attenuation.exponent);
+	SetUniform(name + ".pointLight.position", sLight.position);
+	SetUniform(name + ".pointLight.range", sLight.range);
 	SetUniform(name + ".direction", sLight.direction);
 	SetUniform(name + ".cutoff", sLight.cutoff);
 }

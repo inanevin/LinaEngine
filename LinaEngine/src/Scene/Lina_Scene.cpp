@@ -31,7 +31,7 @@ Lina_Scene::Lina_Scene()
 void Lina_Scene::SetCurrentActiveCamera(Lina_Camera& cam)
 {
 	currentActiveCamera = &cam;
-	Lina->RenderingEngine()->SetCurrentActiveCamera(currentActiveCamera);
+	Lina->RenderingEngine()->SetCurrentActiveCamera(cam);
 }
 
 Lina_Camera* Lina_Scene::GetCurrentActiveCamera()

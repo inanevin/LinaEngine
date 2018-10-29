@@ -48,15 +48,15 @@ public:
 	Lina_RenderingEngine();
 	~Lina_RenderingEngine();
 
-	void SetCurrentActiveCamera(Lina_Camera*);
-	
+	inline void SetCurrentActiveCamera(Lina_Camera& cam) { currentActiveCamera = &cam;};
+
 
 	Lina_ObjectHandler eventHandler;
 
 	inline float GetAspectRatio() { return (float)screenWidth / (float)screenHeight; };
 	inline int GetScreenWidth() { return screenWidth; };
 	inline int GetScreenHeight() { return screenHeight; };
-	inline Lina_Camera& GetCurrentActiveCamera() { return *currentActiveCamera; };
+	inline Lina_Camera* GetCurrentActiveCamera() { return currentActiveCamera; };
 	inline const Lina_BaseLight& GetActiveLight() const { return *activeLight; };
 
 	Lina_Vector3F& GetAmbientLight();
@@ -88,7 +88,7 @@ private:
 	Lina_ForwardSpotLightShader* forwardSpotShader;
 
 	Lina_Camera* currentActiveCamera;
-    Lina_GameCore* game;
+	Lina_GameCore* game;
 
 	int screenHeight = 0;
 	int screenWidth = 0;

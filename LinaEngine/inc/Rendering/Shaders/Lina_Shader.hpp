@@ -74,7 +74,7 @@ private:
 
 	friend class Lina_RenderingEngine;
 
-	inline void SetRenderingEngine(Lina_RenderingEngine* eng) { std::cout << &eng; RenderingEngine = eng; };
+	inline void SetRenderingEngine(Lina_RenderingEngine* eng) { RenderingEngine = eng; };
 	void AddToProgram(std::string, GLint); 
 
 	unsigned int program;

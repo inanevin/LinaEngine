@@ -37,7 +37,8 @@ public:
 	inline Lina_Actor* Actor() { return m_Actor; }
 
 protected:
-	
+	friend class Lina_Actor;
+
 	virtual void Wake();
 	virtual void Start();
 	virtual void ProcessInput(float);
@@ -46,12 +47,11 @@ protected:
 	virtual void Stop();
 	virtual void CleanUp();
 	virtual void AttachToActor(Lina_Actor&);
+	Lina_Actor* m_Actor;
 
 private:
 
-	friend class Lina_Actor;
 	
-	Lina_Actor* m_Actor;
 };
 
 

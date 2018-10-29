@@ -64,16 +64,22 @@ void Lina_TestScene::Wake()
 	meshRenderer->SetMaterial(material);
 	meshRenderer->SetMesh("plane");
 
-	//Lina_PointLight* pLight = new Lina_PointLight();
-
-	//Lina_DirectionalLight* dLight = new Lina_DirectionalLight(Lina_BaseLight(Vector3(0, 1, 0), 0.002f), Vector3::one());
-	//Lina_SpotLight* sLight = new Lina_SpotLight(Lina_PointLight(Lina_BaseLight(Vector3(0, 0, 1), 8.2f), Lina_Attenuation(0, 0, .5f), 55.0f), Vector3(1, -0.5f, 1), .5f);
+	Lina_PointLight* pLight = new Lina_PointLight(COLOR_Blue, 35, 12, Lina_Attenuation(0, 0, 0.9f));
 	
-	//lightHolder.AddComponent(pLight);
+	
+
+	Lina_DirectionalLight* dLight = new Lina_DirectionalLight(COLOR_White, 1);
+
+
+
+	Lina_SpotLight* sLight = new Lina_SpotLight(COLOR_Green, 255, 30, 0.1f, Lina_Attenuation(0,0, 0.9f), Vector3::one());
+	
+	lightHolder.AddComponent(pLight);
+	
 	floor.AddComponent(meshRenderer);
 
 	rootActor.AddChild(&floor);
-//	rootActor.AddChild(&lightHolder);
+	rootActor.AddChild(&lightHolder);
 
 
 }

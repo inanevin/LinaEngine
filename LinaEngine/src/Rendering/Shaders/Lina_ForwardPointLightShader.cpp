@@ -60,13 +60,13 @@ void Lina_ForwardPointLightShader::UpdateUniforms(Lina_Transform& t, Lina_Materi
 {
 
 	Matrix4 world = t.GetTransformation();
-	Matrix4 projected = RenderingEngine->GetCurrentActiveCamera().GetViewProjection().Multiply(world);
+	Matrix4 projected = RenderingEngine->GetCurrentActiveCamera()->GetViewProjection().Multiply(world);
 	mat.texture.Bind();
 	
 	SetUniform("modelViewProjection", *(projected.m));
 	SetUniform("model", *(world.m));
 	SetUniform("specularIntensity", mat.specularIntensity);
 	SetUniform("specularExponent", mat.specularExponent);
-	SetUniform("camPos", RenderingEngine->GetCurrentActiveCamera().GetPosition());
+	SetUniform("camPos", RenderingEngine->GetCurrentActiveCamera()->GetPosition());
 	SetUniform("pointLight", *(const Lina_PointLight*)&RenderingEngine->GetActiveLight());
 }

@@ -1,0 +1,4 @@
+Light Component Creation:
+
+- Currently we have to create lights by dynamic allocation and also add them to the rendering engine at where they were created.
+Change this into an automatic object factory system, user should not have to create them dynamically and also add them by hand.

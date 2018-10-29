@@ -42,17 +42,17 @@ public:
 
 typedef Lina_Color Color;
 
-static const Lina_Color COLOR_Red = Lina_Color(255, 0, 0);
-static const Lina_Color COLOR_Green = Lina_Color(0, 255, 0);
-static const Lina_Color COLOR_Blue = Lina_Color(0, 0, 255);
-static const Lina_Color COLOR_Cyan = Lina_Color(0, 255, 255);
-static const Lina_Color COLOR_Yellow = Lina_Color(255, 255, 0);
+static const Lina_Color COLOR_Red = Lina_Color(1, 0, 0);
+static const Lina_Color COLOR_Green = Lina_Color(0, 1, 0);
+static const Lina_Color COLOR_Blue = Lina_Color(0, 0, 1);
+static const Lina_Color COLOR_Cyan = Lina_Color(0, 1, 1);
+static const Lina_Color COLOR_Yellow = Lina_Color(1, 1, 0);
 static const Lina_Color COLOR_Black = Lina_Color(0, 0, 0);
-static const Lina_Color COLOR_White = Lina_Color(255, 255, 255);
-static const Lina_Color COLOR_Purple = Lina_Color(255, 0, 255);
-static const Lina_Color COLOR_Maroon = Lina_Color(128, 0, 0);
-static const Lina_Color COLOR_Beige = Lina_Color(245, 245, 220);
-static const Lina_Color COLOR_Brown = Lina_Color(165, 42, 42);
-static const Lina_Color COLOR_Gray = Lina_Color(128, 128, 128);
+static const Lina_Color COLOR_White = Lina_Color(1, 1, 1);
+static const Lina_Color COLOR_Purple = Lina_Color(1, 0, 1);
+static const Lina_Color COLOR_Maroon = Lina_Color(0.5f, 0, 0);
+static const Lina_Color COLOR_Beige = Lina_Color(0.96f, 0.96f, 0.862f);
+static const Lina_Color COLOR_Brown = Lina_Color(0.647f, 0.164f, 0.164f);
+static const Lina_Color COLOR_Gray = Lina_Color(0.5f, 0.5f, 0.5f);
 
 #endif
