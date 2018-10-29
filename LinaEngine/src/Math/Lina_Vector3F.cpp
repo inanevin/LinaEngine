@@ -322,6 +322,18 @@ Lina_Vector2F Lina_Vector3F::zy()
 	return Lina_Vector2F(z,y);
 }
 
+float Lina_Vector3F::Max()
+{
+	float max = this->x;
+	
+	if (y > x)
+		max = y;
+	if (z > y)
+		max = z;
+
+	return max;
+}
+
 Lina_Vector3F Lina_Vector3F::Lerp(Lina_Vector3F bgn, Lina_Vector3F dest, float i)
 {
 	Lina_Vector3F f = (dest - bgn) * i;

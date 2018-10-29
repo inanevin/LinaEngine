@@ -105,6 +105,10 @@ public:
 	Lina_Vector2F zx();
 	Lina_Vector2F zy();
 
+
+	// returns the highest component of the vector.
+	float Max();
+
 	// Linear interpolation for vectors
 	static Lina_Vector3F Lerp(Lina_Vector3F, Lina_Vector3F, float);
 

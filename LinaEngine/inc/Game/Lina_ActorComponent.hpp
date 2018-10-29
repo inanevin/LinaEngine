@@ -26,6 +26,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 class Lina_Actor;
 class Lina_Shader;
+class Lina_Transform;
 
 class Lina_ActorComponent
 {
@@ -35,6 +36,7 @@ public:
 	Lina_ActorComponent();
 	Lina_ActorComponent(const Lina_ActorComponent&);
 	inline Lina_Actor* Actor() { return m_Actor; }
+	Lina_Transform& GetTransform() const;
 
 protected:
 	friend class Lina_Actor;

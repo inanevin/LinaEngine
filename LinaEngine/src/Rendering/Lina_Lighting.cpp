@@ -23,6 +23,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Rendering/Lina_Lighting.hpp"  
 #include "Game/Lina_Actor.hpp"
 
+static float COLOR_DEPTH = 256;
+
+
 Lina_Attenuation Lina_Attenuation::AT_CONSTANT = Lina_Attenuation(1.0f, 0.0f, 0.0f);
 Lina_Attenuation Lina_Attenuation::AT_CONSTLIN = Lina_Attenuation(0.66f, 0.33f, 0.0f);
 Lina_Attenuation Lina_Attenuation::AT_CONSTQUAD = Lina_Attenuation(0.66f, 0.0f, 0.33f);
@@ -39,15 +42,25 @@ void Lina_DirectionalLight::AttachToActor(Lina_Actor & act)
 	act.Engine()->RenderingEngine()->AddLight(*this);
 }
 
+Lina_PointLight::Lina_PointLight(Color c, float i, Lina_Attenuation at) : Lina_BaseLight(&Lina_ForwardPointLightShader::Instance(), c, i), attenuation(at)
+{
+	float k = at.exponent;
+	float l = at.linear;
+	float m = at.constant - COLOR_DEPTH * i * max(c.red, c.green, c.blue);
+
+	range = (-l + sqrtf(l*l - 4 * k * m)) / (2 * k);
+
+}
+
+Lina_PointLight::Lina_PointLight(Lina_Shader * s, Color c, float i, Lina_Attenuation at) : Lina_BaseLight(s, c, i), attenuation(at)
+{
+
+}
+
 void Lina_PointLight::AttachToActor(Lina_Actor & act)
 {
 	Lina_ActorComponent::AttachToActor(act);
 	act.Engine()->RenderingEngine()->AddLight(*this);
-}
-
-void Lina_PointLight::Update(float tickRate)
-{
-	position = m_Actor->Transform().GetPosition();
 }
 
 void Lina_SpotLight::AttachToActor(Lina_Actor & act)

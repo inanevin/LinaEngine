@@ -185,6 +185,7 @@ Lina_Vector2F Lina_Vector2F::rotated(float angle)
 	return Lina_Vector2F(x * cosVal - y * sinVal, x * sinVal + y * cosVal);
 }
 
+
 #pragma endregion
 
 #pragma region Utility

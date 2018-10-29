@@ -34,6 +34,11 @@ Lina_ActorComponent::Lina_ActorComponent(const Lina_ActorComponent &)
 
 }
 
+ Lina_Transform& Lina_ActorComponent::GetTransform() const
+{
+	return m_Actor->Transform();
+}
+
 void Lina_ActorComponent::AttachToActor(Lina_Actor& act)
 {
 	m_Actor = &act;

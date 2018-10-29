@@ -105,26 +105,17 @@ class Lina_PointLight : public Lina_BaseLight
 
 public:
 
-	Lina_PointLight(Color c = COLOR_Black, float i = 0.0f, float r = 0.0f, Lina_Attenuation at = Lina_Attenuation::AT_QUADRATIC)
-		: Lina_BaseLight(&Lina_ForwardPointLightShader::Instance(), c, i), range(r), attenuation(at) {};
+	Lina_PointLight(Color c = COLOR_Black, float i = 0.0f, Lina_Attenuation at = Lina_Attenuation::AT_QUADRATIC);
 
 	float range;
-	
+	Lina_Attenuation attenuation;
+
 
 protected:
 
-	Lina_PointLight(Lina_Shader* s, Color c = COLOR_Black, float i = 0.0f, float r = 0.0f, Lina_Attenuation at = Lina_Attenuation::AT_QUADRATIC)
-		: Lina_BaseLight(s, c, i), range(r), attenuation(at) {};
-
+	Lina_PointLight(Lina_Shader* s, Color c = COLOR_Black, float i = 0.0f, Lina_Attenuation at = Lina_Attenuation::AT_QUADRATIC);
 
 	void AttachToActor(Lina_Actor&) override;
-	void Update(float) override;
-
-private:
-
-	Lina_Attenuation attenuation;
-	friend class Lina_Shader;	// Shader uses position.
-	Vector3 position;	// Updated via attached actor transform.
 
 };
 
@@ -134,8 +125,8 @@ class Lina_SpotLight : public Lina_PointLight
 
 public:
 
-	Lina_SpotLight(Color c = COLOR_Black, float i = 0.0f, float r = 0.0f, float co = 0.1f, Lina_Attenuation at = Lina_Attenuation::AT_QUADRATIC, Vector3 dir = Vector3::one()) :
-		Lina_PointLight(&Lina_ForwardSpotLightShader::Instance(), c, i, r, at), direction(dir), cutoff(co) {};
+	Lina_SpotLight(Color c = COLOR_Black, float i = 0.0f, float co = 0.1f, Lina_Attenuation at = Lina_Attenuation::AT_QUADRATIC, Vector3 dir = Vector3::one()) :
+		Lina_PointLight(&Lina_ForwardSpotLightShader::Instance(), c, i, at), direction(dir), cutoff(co) {};
 	
 	float cutoff;
 	Vector3 direction;
