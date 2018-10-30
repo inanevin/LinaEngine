@@ -62,39 +62,6 @@ Lina_Matrix<T, D>  Lina_Matrix<T, D>::InitScale(const Lina_Vector<T, D - 1>& rhs
 template<typename T, unsigned int D>
 Lina_Matrix<T, D> Lina_Matrix<T, D>::InitTranslation(const Lina_Vector<T, D - 1>& rhs)
 {
-	for (unsigned int i = 0; i < D; i++)
-	{
-		for (unsigned int j = 0; j < D; j++)
-		{
-			if (i == D - 1 && j != D - 1)
-				m[i][j] = rhs[j];
-			else if (i == j)
-				m[i][j] = T(1);
-			else
-				m[i][j] = T(0);
-		}
-	}
-
-	m[D - 1][D - 1] = T(1);
-
-	return *this;
-}
-
-template<typename T, unsigned int D>
-Lina_Matrix<T, D> Lina_Matrix<T, D>::Transpose() const
-{
-	Lina_Matrix<T, D> t;
-	for (int j = 0; j < D; j++) {
-		for (int i = 0; i < D; i++) {
-			t[i][j] = m[j][i];
-		}
-	}
-	return t;
-}
-
-template<typename T, unsigned int D>
-Lina_Matrix<T, D> Lina_Matrix<T, D>::Inverse() const
-{
 	int i, j, k;
 	Lina_Matrix<T, D> s;
 	Lina_Matrix<T, D> t(*this);
@@ -121,6 +88,7 @@ Lina_Matrix<T, D> Lina_Matrix<T, D>::Inverse() const
 		}
 
 		if (pivotsize == 0) {
+			
 			// No inversion.
 			return Lina_Matrix<T, D>();
 		}
@@ -147,8 +115,33 @@ Lina_Matrix<T, D> Lina_Matrix<T, D>::Inverse() const
 				s[j][k] -= f * s[i][k];
 			}
 		}
-
 	}
+
+	// Backward substitution
+	for (i = D - 1; i >= 0; --i) {
+		T f;
+
+		if ((f = t[i][i]) == 0) {
+			// no inversion
+			return Lina_Matrix<T, D>();
+		}
+
+		for (j = 0; j < D; j++) {
+			t[i][j] /= f;
+			s[i][j] /= f;
+		}
+
+		for (j = 0; j < i; j++) {
+			f = t[j][i];
+
+			for (k = 0; k < D; k++) {
+				t[j][k] -= f * t[i][k];
+				s[j][k] -= f * s[i][k];
+			}
+		}
+	}
+
+	return s;
 }
 
 template<typename T, unsigned int D>
