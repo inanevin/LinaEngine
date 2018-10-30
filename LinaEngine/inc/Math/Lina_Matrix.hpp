@@ -38,10 +38,10 @@ public:
 	Lina_Matrix<T, D> InitScale(const Lina_Vector<T, D - 1>& rhs);
 	Lina_Matrix<T, D> InitTranslation(const Lina_Vector<T, D - 1>& rhs);
 	Lina_Matrix<T, D> Transpose() const;
+	Lina_Matrix<T, D> Inverse() const;
 	Lina_Vector<T, D> Transform(const Lina_Vector<T, D>& rhs) const;
 	Lina_Vector<T, D - 1> Transform(const Lina_Vector<T, D - 1>& rhs) const;
 	Lina_Matrix<T, D> operator*(const Lina_Matrix<T, D>& rhs) const;
-
 	inline void Set(unsigned int x, unsigned int y, T val) { m[x][y] = val; }
 	inline const T* operator[](int index) const { return m[index]; }
 	inline T* operator[](int index) { return m[index]; }

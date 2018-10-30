@@ -24,7 +24,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 
 template<typename T, unsigned int D>
-Lina_Matrix<T, D> Lina_Matrix<T,D>::InitIdentity()
+Lina_Matrix<T, D> Lina_Matrix<T, D>::InitIdentity()
 {
 	for (unsigned int i = 0; i < D; i++)
 	{
@@ -90,6 +90,65 @@ Lina_Matrix<T, D> Lina_Matrix<T, D>::Transpose() const
 		}
 	}
 	return t;
+}
+
+template<typename T, unsigned int D>
+Lina_Matrix<T, D> Lina_Matrix<T, D>::Inverse() const
+{
+	int i, j, k;
+	Lina_Matrix<T, D> s;
+	Lina_Matrix<T, D> t(*this);
+
+	// Forward elimination
+	for (i = 0; i < D - 1; i++) {
+		int pivot = i;
+
+		T pivotsize = t[i][i];
+
+		if (pivotsize < 0)
+			pivotsize = -pivotsize;
+
+		for (j = i + 1; j < D; j++) {
+			T tmp = t[j][i];
+
+			if (tmp < 0)
+				tmp = -tmp;
+
+			if (tmp > pivotsize) {
+				pivot = j;
+				pivotsize = tmp;
+			}
+		}
+
+		if (pivotsize == 0) {
+			// No inversion.
+			return Lina_Matrix<T, D>();
+		}
+
+		if (pivot != i) {
+			for (j = 0; j < D; j++) {
+				T tmp;
+
+				tmp = t[i][j];
+				t[i][j] = t[pivot][j];
+				t[pivot][j] = tmp;
+
+				tmp = s[i][j];
+				s[i][j] = s[pivot][j];
+				s[pivot][j] = tmp;
+			}
+		}
+
+		for (j = i + 1; j < D; j++) {
+			T f = t[j][i] / t[i][i];
+
+			for (k = 0; k < D; k++) {
+				t[j][k] -= f * t[i][k];
+				s[j][k] -= f * s[i][k];
+			}
+		}
+
+	}
 }
 
 template<typename T, unsigned int D>
