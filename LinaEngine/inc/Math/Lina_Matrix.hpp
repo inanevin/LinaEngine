@@ -54,5 +54,25 @@ private:
 
 };
 
+template<typename T>
+class Lina_Matrix4 : public Lina_Matrix<T, 4>
+{
+public:
+	Lina_Matrix4() { }
+
+	template<unsigned int D>
+	Lina_Matrix4(const Lina_Matrix<T, D>& r);
+
+	Lina_Matrix4<T> InitRotationEuler(T rotateX, T rotateY, T rotateZ);
+	Lina_Matrix4<T> InitRotationFromVectors(const Lina_Vector3<T>& n, const Lina_Vector3<T>& v, const Lina_Vector3<T>& u);
+	Lina_Matrix4<T> InitRotationFromDirection(const Lina_Vector3<T>& forward, const Lina_Vector3<T>& up);
+	Lina_Matrix4<T> InitPerspective(T fov, T aspectRatio, T zNear, T zFar);
+	Lina_Matrix4<T> InitOrthographic(T left, T right, T bottom, T top, T nearR, T farR);
+
+protected:
+private:
+};
+
 
 #endif
+

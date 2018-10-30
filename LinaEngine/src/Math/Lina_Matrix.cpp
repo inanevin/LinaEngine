@@ -59,8 +59,42 @@ Lina_Matrix<T, D>  Lina_Matrix<T, D>::InitScale(const Lina_Vector<T, D - 1>& rhs
 	return *this;
 }
 
+
 template<typename T, unsigned int D>
 Lina_Matrix<T, D> Lina_Matrix<T, D>::InitTranslation(const Lina_Vector<T, D - 1>& rhs)
+{
+	for (unsigned int i = 0; i < D; i++)
+	{
+		for (unsigned int j = 0; j < D; j++)
+		{
+			if (i == D - 1 && j != D - 1)
+				m[i][j] = rhs[j];
+			else if (i == j)
+				m[i][j] = T(1);
+			else
+				m[i][j] = T(0);
+		}
+	}
+
+	m[D - 1][D - 1] = T(1);
+
+	return *this;
+}
+
+template<typename T, unsigned int D>
+Lina_Matrix<T, D> Lina_Matrix<T, D>::Transpose() const
+{
+	Lina_Matrix<T, D> t;
+	for (int j = 0; j < D; j++) {
+		for (int i = 0; i < D; i++) {
+			t[i][j] = m[j][i];
+		}
+	}
+	return t;
+}
+
+template<typename T, unsigned int D>
+Lina_Matrix<T, D> Lina_Matrix<T, D>::Inverse() const
 {
 	int i, j, k;
 	Lina_Matrix<T, D> s;
@@ -193,4 +227,104 @@ Lina_Vector<T, D - 1> Lina_Matrix<T, D>::Transform(const Lina_Vector<T, D - 1>& 
 		ret[i] = ret2[i];
 
 	return ret;
+}
+
+template<typename T>
+template<unsigned int D>
+Lina_Matrix4<T>::Lina_Matrix4(const Lina_Matrix<T, D>& r)
+{
+	if (D < 4)
+	{
+		this->InitIdentity();
+
+		for (unsigned int i = 0; i < D; i++)
+			for (unsigned int j = 0; j < D; j++)
+				(*this)[i][j] = r[i][j];
+	}
+	else
+	{
+		for (unsigned int i = 0; i < 4; i++)
+			for (unsigned int j = 0; j < 4; j++)
+				(*this)[i][j] = r[i][j];
+	}
+}
+
+template<typename T>
+Lina_Matrix4<T> Lina_Matrix4<T>::InitRotationEuler(T rotateX, T rotateY, T rotateZ)
+{
+	Lina_Matrix4<T> rx, ry, rz;
+
+	const T x = rotateX;
+	const T y = rotateY;
+	const T z = rotateZ;
+
+	rx[0][0] = T(1);   rx[1][0] = T(0);  rx[2][0] = T(0); rx[3][0] = T(0);
+	rx[0][1] = T(0);   rx[1][1] = cos(x);  rx[2][1] = -sin(x); rx[3][1] = T(0);
+	rx[0][2] = T(0);   rx[1][2] = sin(x);  rx[2][2] = cos(x); rx[3][2] = T(0);
+	rx[0][3] = T(0);   rx[1][3] = T(0);  rx[2][3] = T(0); rx[3][3] = T(1);
+
+	ry[0][0] = cos(y); ry[1][0] = T(0);    ry[2][0] = -sin(y); ry[3][0] = T(0);
+	ry[0][1] = T(0); ry[1][1] = T(1);    ry[2][1] = T(0); ry[3][1] = T(0);
+	ry[0][2] = sin(y); ry[1][2] = T(0);    ry[2][2] = cos(y); ry[3][2] = T(0);
+	ry[0][3] = T(0); ry[1][3] = T(0);    ry[2][3] = T(0); ry[3][3] = T(1);
+
+	rz[0][0] = cos(z); rz[1][0] = -sin(z); rz[2][0] = T(0);    rz[3][0] = T(0);
+	rz[0][1] = sin(z); rz[1][1] = cos(z); rz[2][1] = T(0);    rz[3][1] = T(0);
+	rz[0][2] = T(0); rz[1][2] = T(0); rz[2][2] = T(1);    rz[3][2] = T(0);
+	rz[0][3] = T(0); rz[1][3] = T(0); rz[2][3] = T(0);    rz[3][3] = T(1);
+
+	*this = rz * ry * rx;
+
+	return *this;
+}
+
+
+template<typename T>
+Lina_Matrix4<T> Lina_Matrix4<T>::InitRotationFromVectors(const Lina_Vector3<T>& n, const Lina_Vector3<T>& v, const Lina_Vector3<T>& u)
+{
+	(*this)[0][0] = u.GetX();   (*this)[1][0] = u.GetY();   (*this)[2][0] = u.GetZ();   (*this)[3][0] = T(0);
+	(*this)[0][1] = v.GetX();   (*this)[1][1] = v.GetY();   (*this)[2][1] = v.GetZ();   (*this)[3][1] = T(0);
+	(*this)[0][2] = n.GetX();   (*this)[1][2] = n.GetY();   (*this)[2][2] = n.GetZ();   (*this)[3][2] = T(0);
+	(*this)[0][3] = T(0);       (*this)[1][3] = T(0);       (*this)[2][3] = T(0);       (*this)[3][3] = T(1);
+
+	return *this;
+}
+
+template<typename T>
+Lina_Matrix4<T> Lina_Matrix4<T>::InitRotationFromDirection(const Lina_Vector3<T>& forward, const Lina_Vector3<T>& up)
+{
+	Lina_Vector3<T> n = forward.Normalized();
+	Lina_Vector3<T> u = Lina_Vector3<T>(up.Normalized()).Cross(n);
+	Lina_Vector3<T> v = n.Cross(u);
+
+	return InitRotationFromVectors(n, v, u);
+}
+
+template<typename T>
+Lina_Matrix4<T> Lina_Matrix4<T>::InitPerspective(T fov, T aspectRatio, T zNear, T zFar)
+{
+	const T zRange = zNear - zFar;
+	const T tanHalfFOV = tanf(fov / T(2));
+
+	(*this)[0][0] = T(1) / (tanHalfFOV * aspectRatio); (*this)[1][0] = T(0);   (*this)[2][0] = T(0);            (*this)[3][0] = T(0);
+	(*this)[0][1] = T(0);                   (*this)[1][1] = T(1) / tanHalfFOV; (*this)[2][1] = T(0);            (*this)[3][1] = T(0);
+	(*this)[0][2] = T(0);                   (*this)[1][2] = T(0);            (*this)[2][2] = (-zNear - zFar) / zRange; (*this)[3][2] = T(2)*zFar*zNear / zRange;
+	(*this)[0][3] = T(0);                   (*this)[1][3] = T(0);            (*this)[2][3] = T(1);            (*this)[3][3] = T(0);
+
+	return *this;
+}
+
+template<typename T>
+Lina_Matrix4<T> Lina_Matrix4<T>::InitOrthographic(T left, T right, T bottom, T top, T farR, T nearR)
+{
+	const T width = (right - left);
+	const T height = (top - bottom);
+	const T depth = (farR - nearR);
+
+	(*this)[0][0] = T(2) / width; (*this)[1][0] = T(0);        (*this)[2][0] = T(0);        (*this)[3][0] = -(right + left) / width;
+	(*this)[0][1] = T(0);       (*this)[1][1] = T(2) / height; (*this)[2][1] = T(0);        (*this)[3][1] = -(top + bottom) / height;
+	(*this)[0][2] = T(0);       (*this)[1][2] = T(0);        (*this)[2][2] = T(-2) / depth; (*this)[3][2] = -(farR + nearR) / depth;
+	(*this)[0][3] = T(0);       (*this)[1][3] = T(0);        (*this)[2][3] = T(0);        (*this)[3][3] = T(1);
+
+	return *this;
 }
