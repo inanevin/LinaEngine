@@ -24,6 +24,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_Quaternion_HPP
 #define Lina_Quaternion_HPP
 
+#include "Math/Lina_Matrix4F.hpp"
+
 class Lina_Vector3F;
 
 class Lina_Quaternion
@@ -31,9 +33,11 @@ class Lina_Quaternion
 
 public:
 	float x, y, z, w;
-	Lina_Quaternion();
-	Lina_Quaternion(const Lina_Quaternion&);
-	Lina_Quaternion(float, float, float, float);
+
+	Lina_Quaternion(const Lina_Quaternion& rhs);
+	Lina_Quaternion(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 1.0f);
+	Lina_Quaternion(const Vector3& inVector, float angle);
+	
 	float Length();
 	void Normalize();
 	void Conjugate();
@@ -43,6 +47,15 @@ public:
 	static Lina_Quaternion Multiply(const Lina_Quaternion&, const Lina_Quaternion&);
 	Lina_Quaternion normalized();
 	Lina_Quaternion conjugated();
+	Lina_Matrix4F ToRotationMatrix();
+
+	inline Lina_Vector3F GetForward() const;
+	inline Lina_Vector3F GetBack() const;
+	inline Lina_Vector3F GetUp() const;
+	inline Lina_Vector3F GetDown() const;
+	inline Lina_Vector3F GetRight() const;
+	inline Lina_Vector3F GetLeft() const;
+
 };
 
 typedef Lina_Quaternion Quaternion;

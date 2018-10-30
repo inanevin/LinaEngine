@@ -186,6 +186,8 @@ void Lina_Matrix4F::SetMatrix(float(&arr)[4][4])
 	std::memcpy(this->m, arr, sizeof(float) * 16);
 }
 
+
+
 float Lina_Matrix4F::GetElement(int x, int y) const
 {
 	return this->m[x][y];

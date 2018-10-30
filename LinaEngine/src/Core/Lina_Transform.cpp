@@ -25,22 +25,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Core/Lina_CoreMessageBus.hpp"
 #include "Rendering/Lina_RenderingEngine.hpp"
 
-Vector3 Lina_Transform::GetPosition() { return position; }
-Vector3 Lina_Transform::GetRotation() { return rotation; }
-Vector3 Lina_Transform::GetScale() { return scale; }
-void Lina_Transform::SetPosition(Vector3 t) { position = t; }
-void Lina_Transform::SetPosition(float x, float y, float z) { position = Vector3(x, y, z); }
-void Lina_Transform::SetRotation(Vector3 r) { rotation = r; }
-void Lina_Transform::SetRotation(float x, float y, float z) { rotation = Vector3(x, y, z); }
-void Lina_Transform::SetScale(Vector3 s) { scale = s; }
-void Lina_Transform::SetScale(float x, float y, float z) { scale = Vector3(x, y, z); }
 
-Lina_Transform::Lina_Transform()
-{
-	position = Vector3::zero();
-	rotation = Vector3::zero();
-	scale = Vector3::one();
-}
+
 
 // Get transformation matrix composed of position & rotation & scale.
 Matrix4 Lina_Transform::GetTransformation()
@@ -51,7 +37,7 @@ Matrix4 Lina_Transform::GetTransformation()
 
 	// Init matrix with the desired translation.
 	t.InitPosition(position.x, position.y, position.z);
-	r.InitRotation(rotation.x, rotation.y, rotation.z);
+	//rotation.ToRotationMatrix();
 	s.InitScale(scale.x, scale.y, scale.z);
 
 	// Return the multiplied scale with rotation with translation, inner-outer order.

@@ -27,7 +27,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Math/Lina_Matrix4F.hpp"
 #include "Math/Lina_Vector3F.hpp"
 #include "Scene/Lina_Camera.hpp"
-
+#include "Math/Lina_Quaternion.hpp"
 
 
 class Lina_Transform
@@ -35,16 +35,16 @@ class Lina_Transform
 
 public:
 
-	Lina_Transform();
-	Vector3 GetPosition();
-	Vector3 GetRotation();
-	Vector3 GetScale();
-	void SetPosition(Vector3);
-	void SetPosition(float, float, float);
-	void SetRotation(Vector3);
-	void SetRotation(float, float, float);
-	void SetScale(Vector3);
-	void SetScale(float, float, float);
+	Lina_Transform() : position(Vector3::zero()), scale(Vector3::one()) {};
+	inline Vector3 GetPosition() { return position; };
+	inline Quaternion GetRotation() { return rotation; };
+	inline Vector3 GetScale() { return scale; }
+	inline void SetPosition(Vector3 v) { position = v; };
+	inline void SetPosition(float x, float y, float z) { position = Vector3(x, y, z); };
+	inline void SetRotation(Quaternion q) { rotation = q; };
+	inline void SetRotation(float x, float y, float z) { rotation = Quaternion(x, y, z, rotation.w); };
+	inline void SetScale(Vector3 v) { scale = v; };
+	inline void SetScale(float x, float y, float z) { scale = Vector3(x, y, z); };
 
 	// Get transformation matrix composed of position & rotation & scale.
 	Matrix4 GetTransformation();
@@ -55,7 +55,7 @@ public:
 
 private:
 
-	Vector3 rotation;
+	Quaternion rotation;
 	Vector3 position;
 	Vector3 scale;
 };

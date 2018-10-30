@@ -23,8 +23,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Math/Lina_Quaternion.hpp"  
 #include "Math/Lina_Vector3F.hpp"
 
-Lina_Quaternion::Lina_Quaternion() {}
+
 Lina_Quaternion::Lina_Quaternion(float a, float b, float c, float d) : x(a), y(b), z(c), w(d) {};
+
 Lina_Quaternion::Lina_Quaternion(const Lina_Quaternion& rh) {
 	this->x = rh.x;
 	this->y = rh.y;
@@ -110,4 +111,11 @@ Lina_Quaternion Lina_Quaternion::Multiply(const Lina_Quaternion& q1, const Lina_
 	float z_ = q1.z * q2.w + q1.w * q2.z + q1.x * q2.y - q1.y * q2.x;
 
 	return Lina_Quaternion(x_, y_, z_, w_);
+}
+
+inline Lina_Vector3F Lina_Quaternion::GetForward() const
+{
+	Vector3 f = Vector3(0, 0, 1);
+//	f.Rotate((*this));
+	return f;
 }

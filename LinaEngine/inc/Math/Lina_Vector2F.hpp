@@ -25,6 +25,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_Vector2F_HPP
 
 #include "Math/Lina_Math.hpp"
+
 using namespace std;
 
 class Lina_Vector2F

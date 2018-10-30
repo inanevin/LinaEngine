@@ -222,6 +222,9 @@
     <ClCompile Include="src\Rendering\Lina_Lighting.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="src\Math\Lina_Vector.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\Utility\stb_image.h">
@@ -367,6 +370,9 @@
     </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_Lighting.hpp">
       <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Math\Lina_Vector.hpp">
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -94,6 +94,9 @@ public:
 	// Rotates a direction vector by angles.
 	void Rotate(float, Lina_Vector3F);
 
+	// Rotates a direction vector by a quaternion.
+//	void Rotate(const Lina_Quaternion& rotation) const;
+
 	// Returns a vector that is the rotated copy of the original.
 	Lina_Vector3F rotated(float, Lina_Vector3F);
 

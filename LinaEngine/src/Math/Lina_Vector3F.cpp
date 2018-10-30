@@ -260,6 +260,11 @@ void Lina_Vector3F::Rotate(float angle, Lina_Vector3F axis)
 	this->z = w.z;
 }
 
+//void Lina_Vector3F::Rotate(const Lina_Quaternion & rotation) const
+//{
+	
+//}
+
 // Returns a vector that is the rotated copy of the original.
 Lina_Vector3F Lina_Vector3F::rotated(float angle, Lina_Vector3F axis)
 {
