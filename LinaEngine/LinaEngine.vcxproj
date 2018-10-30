@@ -177,6 +177,7 @@
     <ClCompile Include="src\Input\Lina_InputEngine.cpp" />
     <ClCompile Include="src\Core\Lina_Transform.cpp" />
     <ClCompile Include="src\Math\Lina_Math.cpp" />
+    <ClCompile Include="src\Math\Lina_Matrix.cpp" />
     <ClCompile Include="src\Math\Lina_Matrix4F.cpp" />
     <ClCompile Include="src\Math\Lina_Quaternion.cpp" />
     <ClCompile Include="src\Math\Lina_Vector.cpp" />
@@ -255,6 +256,10 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\Game\Lina_ActorComponent.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Math\Lina_Matrix.hpp">
       <SubType>
       </SubType>
     </ClInclude>

@@ -38,11 +38,11 @@ public:
 	T MagnitudeSq() const;
 	T Magnitude() const;
 	T AngleBetween(const Lina_Vector<T, D>& rhs) const;
-	T Dot(const Lina_Vector<T, D>& r) const;
+	T Dot(const Lina_Vector<T, D>& rhs) const;
 
 
 	Lina_Vector<T, D> Reflect(const Lina_Vector<T, D>& normal) const;
-	Lina_Vector<T, D> Max(const Lina_Vector<T, D>& rrhs) const;
+	Lina_Vector<T, D> Max(const Lina_Vector<T, D>& rhs) const;
 	Lina_Vector<T, D> Normalized() const;
 	Lina_Vector<T, D> Lerp(const Lina_Vector<T, D>& rhs, T lerpFactor) const;
 	Lina_Vector<T, D> Project(const Lina_Vector<T, D>& rhs) const;
@@ -70,11 +70,11 @@ public:
 
 	T& operator [] (unsigned int i);
 	T operator [] (unsigned int i) const;
-	inline bool operator==(const Lina_Vector<T, D>& rhs) const;
-	inline bool operator!=(const Lina_Vector<T, D>& rhs) const;
+	bool operator==(const Lina_Vector<T, D>& rhs) const;
+	bool operator!=(const Lina_Vector<T, D>& rhs) const;
 
-	inline static Lina_Vector<T, D> One();
-	inline static Lina_Vector<T, D> Zero();
+	static Lina_Vector<T, D> One();
+	static Lina_Vector<T, D> Zero();
 
 private:
 
