@@ -37,7 +37,7 @@ Matrix4 Lina_Transform::GetTransformation()
 
 	// Init matrix with the desired translation.
 	t.InitPosition(position.x, position.y, position.z);
-	//rotation.ToRotationMatrix();
+	r.InitRotation(rotation.x, rotation.y, rotation.z);
 	s.InitScale(scale.x, scale.y, scale.z);
 
 	// Return the multiplied scale with rotation with translation, inner-outer order.

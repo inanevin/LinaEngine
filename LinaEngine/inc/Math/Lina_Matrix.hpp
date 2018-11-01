@@ -18,7 +18,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 10/30/2018 1:00:25 PM
 
 */
-
+/*
 #pragma once
 
 #ifndef Lina_Matrix_HPP
@@ -76,3 +76,4 @@ private:
 
 #endif
 
+*/

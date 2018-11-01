@@ -21,7 +21,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pch.h"
 #include "Math/Lina_Matrix.hpp"  
-
+/*
 
 template<typename T, unsigned int D>
 Lina_Matrix<T, D> Lina_Matrix<T, D>::InitIdentity()
@@ -328,3 +328,4 @@ Lina_Matrix4<T> Lina_Matrix4<T>::InitOrthographic(T left, T right, T bottom, T t
 
 	return *this;
 }
+*/

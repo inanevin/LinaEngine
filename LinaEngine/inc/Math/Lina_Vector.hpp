@@ -18,7 +18,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 10/29/2018 11:04:54 PM
 
 */
-
+/*
 #pragma once
 
 #ifndef Lina_Vector_HPP
@@ -26,6 +26,150 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 class Lina_Quaternion;
 
+
+class Lina_Vector4F
+{
+public:
+
+	Lina_Vector4F() {};
+
+	float Max() const;
+	float MagnitudeSq() const;
+	float Magnitude() const;
+	float AngleBetween(const Lina_Vector4F& rhs) const;
+	float Dot(const Lina_Vector4F& rhs) const;
+
+	Lina_Vector4F Reflect(const Lina_Vector4F& normal) const;
+	Lina_Vector4F Max(const Lina_Vector4F& rhs) const;
+	Lina_Vector4F Normalized() const;
+	Lina_Vector4F Lerp(const Lina_Vector4F& rhs, float lerpFactor) const;
+	Lina_Vector4F Project(const Lina_Vector4F& rhs) const;
+	void Normalize() const;
+
+
+	inline Lina_Vector4F operator+(const Lina_Vector4F& rhs) const;
+	inline Lina_Vector4F operator-(const Lina_Vector4F& rhs) const;
+	inline Lina_Vector4F operator*(const Lina_Vector4F&) const;
+	inline Lina_Vector4F operator/(const Lina_Vector4F&) const;
+					  
+	inline Lina_Vector4F operator+(const float& rhs) const;
+	inline Lina_Vector4F operator-(const float& rhs) const;
+	inline Lina_Vector4F operator*(const float& rhs) const;
+	inline Lina_Vector4F operator/(const float& rhs) const;
+					  
+	inline Lina_Vector4F& operator+=(const Lina_Vector4F& rhs);
+	inline Lina_Vector4F& operator-=(const Lina_Vector4F& rhs);
+	inline Lina_Vector4F& operator*=(const Lina_Vector4F& rhs);
+	inline Lina_Vector4F& operator/=(const Lina_Vector4F& rhs);
+					  
+	inline Lina_Vector4F& operator+=(const float& rhs);
+	inline Lina_Vector4F& operator-=(const float& rhs);
+	inline Lina_Vector4F& operator*=(const float& rhs);
+	inline Lina_Vector4F& operator/=(const float& rhs);
+
+	bool operator==(const Lina_Vector4F& rhs) const;
+	bool operator!=(const Lina_Vector4F& rhs) const;
+
+	static Lina_Vector4F One();
+	static Lina_Vector4F Zero();
+};
+
+class Lina_Vector3F 
+{
+public:
+
+	Lina_Vector3F() {};
+
+	float Max() const;
+	float MagnitudeSq() const;
+	float Magnitude() const;
+	float AngleBetween(const Lina_Vector3F& rhs) const;
+	float Dot(const Lina_Vector3F& rhs) const;
+
+	Lina_Vector3F Reflect(const Lina_Vector3F& normal) const;
+	Lina_Vector3F Max(const Lina_Vector3F& rhs) const;
+	Lina_Vector3F Normalized() const;
+	Lina_Vector3F Lerp(const Lina_Vector3F& rhs, float lerpFactor) const;
+	Lina_Vector3F Project(const Lina_Vector3F& rhs) const;
+	void Normalize() const;
+
+	bool operator==(const Lina_Vector3F& rhs) const;
+	bool operator!=(const Lina_Vector3F& rhs) const;
+
+	inline Lina_Vector3F operator+(const Lina_Vector3F& rhs) const;
+	inline Lina_Vector3F operator-(const Lina_Vector3F& rhs) const;
+	inline Lina_Vector3F operator*(const Lina_Vector3F&) const;
+	inline Lina_Vector3F operator/(const Lina_Vector3F&) const;
+					  
+	inline Lina_Vector3F operator+(const float& rhs) const;
+	inline Lina_Vector3F operator-(const float& rhs) const;
+	inline Lina_Vector3F operator*(const float& rhs) const;
+	inline Lina_Vector3F operator/(const float& rhs) const;
+					  
+	inline Lina_Vector3F& operator+=(const Lina_Vector3F& rhs);
+	inline Lina_Vector3F& operator-=(const Lina_Vector3F& rhs);
+	inline Lina_Vector3F& operator*=(const Lina_Vector3F& rhs);
+	inline Lina_Vector3F& operator/=(const Lina_Vector3F& rhs);
+					  
+	inline Lina_Vector3F& operator+=(const float& rhs);
+	inline Lina_Vector3F& operator-=(const float& rhs);
+	inline Lina_Vector3F& operator*=(const float& rhs);
+	inline Lina_Vector3F& operator/=(const float& rhs);
+
+
+	static Lina_Vector3F One();
+	static Lina_Vector3F Zero();
+};
+
+class Lina_Vector2F 
+{
+public:
+
+	Lina_Vector2F() {};
+
+	float Max() const;
+	float MagnitudeSq() const;
+	float Magnitude() const;
+	float AngleBetween(const Lina_Vector2F& rhs) const;
+	float Dot(const Lina_Vector2F& rhs) const;
+	float Cross(const Lina_Vector2F& rhs) const;
+
+	Lina_Vector2F Reflect(const Lina_Vector2F& normal) const;
+	Lina_Vector2F Max(const Lina_Vector2F& rhs) const;
+	Lina_Vector2F Normalized() const;
+	Lina_Vector2F Lerp(const Lina_Vector2F& rhs, float lerpFactor) const;
+	Lina_Vector2F Project(const Lina_Vector2F& rhs) const;
+	void Normalize() const;
+
+	bool operator==(const Lina_Vector2F& rhs) const;
+	bool operator!=(const Lina_Vector2F& rhs) const;
+
+	inline Lina_Vector2F operator+(const Lina_Vector2F& rhs) const;
+	inline Lina_Vector2F operator-(const Lina_Vector2F& rhs) const;
+	inline Lina_Vector2F operator*(const Lina_Vector2F&) const;
+	inline Lina_Vector2F operator/(const Lina_Vector2F&) const;
+					  
+	inline Lina_Vector2F operator+(const float& rhs) const;
+	inline Lina_Vector2F operator-(const float& rhs) const;
+	inline Lina_Vector2F operator*(const float& rhs) const;
+	inline Lina_Vector2F operator/(const float& rhs) const;
+					  
+	inline Lina_Vector2F& operator+=(const Lina_Vector2F& rhs);
+	inline Lina_Vector2F& operator-=(const Lina_Vector2F& rhs);
+	inline Lina_Vector2F& operator*=(const Lina_Vector2F& rhs);
+	inline Lina_Vector2F& operator/=(const Lina_Vector2F& rhs);
+					  
+	inline Lina_Vector2F& operator+=(const float& rhs);
+	inline Lina_Vector2F& operator-=(const float& rhs);
+	inline Lina_Vector2F& operator*=(const float& rhs);
+	inline Lina_Vector2F& operator/=(const float& rhs);
+
+
+	static Lina_Vector2F One();
+	static Lina_Vector2F Zero();
+};
+
+/*
 template<typename T, unsigned int D>
 class Lina_Vector
 {
@@ -39,7 +183,6 @@ public:
 	T Magnitude() const;
 	T AngleBetween(const Lina_Vector<T, D>& rhs) const;
 	T Dot(const Lina_Vector<T, D>& rhs) const;
-
 
 	Lina_Vector<T, D> Reflect(const Lina_Vector<T, D>& normal) const;
 	Lina_Vector<T, D> Max(const Lina_Vector<T, D>& rhs) const;
@@ -177,7 +320,9 @@ typedef Lina_Vector4<float> Vector4F;
 typedef Lina_Vector2<double> Vector2do;
 typedef Lina_Vector3<double> Vector3do;
 typedef Lina_Vector4<double> Vector4do;
+*/
 
-
+/*
 #endif
 
+*/

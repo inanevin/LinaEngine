@@ -23,6 +23,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Math/Lina_Vector.hpp"  
 #include "Math/Lina_Quaternion.hpp"
 
+/*
 template<typename T, unsigned int D>
 T Lina_Vector<T, D>::MagnitudeSq() const
 {
@@ -415,3 +416,4 @@ Lina_Vector4<T>::Lina_Vector4(T x, T y, T z, T w)
 	(*this)[3] = w;
 }
 
+*/
