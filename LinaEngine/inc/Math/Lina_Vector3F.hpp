@@ -59,6 +59,7 @@ public:
 	Lina_Vector3F& operator-=(const float&);
 	Lina_Vector3F& operator*=(const float&);
 	Lina_Vector3F& operator/=(const float&);
+
 	Lina_Vector3F& operator+=(const Lina_Vector3F&);
 	Lina_Vector3F& operator-=(const Lina_Vector3F&);
 	Lina_Vector3F& operator*=(const Lina_Vector3F&);

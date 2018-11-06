@@ -23,6 +23,33 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Math/Lina_Vector.hpp"  
 #include "Math/Lina_Quaternion.hpp"
 
+float Lina_Vector4F::Max() const
+{
+
+}
+
+float Lina_Vector4F::MagnitudeSq() const
+{
+	return 0.0f;
+}
+
+float Lina_Vector4F::Magnitude() const
+{
+	return 0.0f;
+}
+
+float Lina_Vector4F::AngleBetween(const Lina_Vector4F & rhs) const
+{
+	return 0.0f;
+}
+
+float Lina_Vector4F::Dot(const Lina_Vector4F & rhs) const
+{
+	return 0.0f;
+}
+
+
+
 /*
 template<typename T, unsigned int D>
 T Lina_Vector<T, D>::MagnitudeSq() const
@@ -417,3 +444,32 @@ Lina_Vector4<T>::Lina_Vector4(T x, T y, T z, T w)
 }
 
 */
+
+Lina_Vector4F Lina_Vector4F::Reflect(const Lina_Vector4F & normal) const
+{
+	return Lina_Vector4F();
+}
+
+Lina_Vector4F Lina_Vector4F::Max(const Lina_Vector4F & rhs) const
+{
+	return Lina_Vector4F();
+}
+
+Lina_Vector4F Lina_Vector4F::Normalized() const
+{
+	return Lina_Vector4F();
+}
+
+Lina_Vector4F Lina_Vector4F::Lerp(const Lina_Vector4F & rhs, float lerpFactor) const
+{
+	return Lina_Vector4F();
+}
+
+Lina_Vector4F Lina_Vector4F::Project(const Lina_Vector4F & rhs) const
+{
+	return Lina_Vector4F();
+}
+
+void Lina_Vector4F::Normalize() const
+{
+}

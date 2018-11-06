@@ -69,7 +69,7 @@ void Lina_RenderingEngine::Initialize(Lina_GameCore* g)
 
 	// Initialize event handler.
 	eventHandler.Initialize();
-
+	
 	// Register window events.
 	eventHandler.SubscribeToAction(ActionType::SDLQuit, [this]() { m_GameWindow->CloseWindow(); });
 

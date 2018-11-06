@@ -108,7 +108,7 @@ void Lina_TestScene::Update(float tickRate)
 	temp += tickRate * 5;
 
 	floor.Transform().SetPosition(Vector3(0,-2,0));
-	//lightHolder.Transform().SetPosition(Vector3(sin(temp)*6, 2, 5));
+	lightHolder.Transform().SetPosition(Vector3(sin(temp)*6, 2, 5));
 }
 
 void Lina_TestScene::Render(Lina_Shader* shader)

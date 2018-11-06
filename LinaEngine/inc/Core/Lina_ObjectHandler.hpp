@@ -370,7 +370,6 @@ public:
 		Subscribe(at, wptr);
 	}
 
-
 	void Subscribe(ActionType at, std::weak_ptr<Lina_ActionHandlerBase> wptr)
 	{
 		if (at == ActionType::KeyPressed || at == ActionType::KeyReleased || at == ActionType::MouseButtonPressed || at == ActionType::MouseButtonReleased ||
