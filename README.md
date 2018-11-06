@@ -10,6 +10,7 @@ Lina Engine is an open-source , modular, tiny and fast C++ game engine, aimed to
 - SDL 2.0
 - OpenGL 4.6
 - GLEW 2.1.0
+- OpenAL
 - GLM
 - stb
 
@@ -21,6 +22,9 @@ Lina Engine is an open-source , modular, tiny and fast C++ game engine, aimed to
 
 ## License
 Under MIT license. See [LICENSE](https://github.com/lineupthesky/LinaEngine/blob/master/LICENSE.md) for details.
+
+## Notes
+- OpenGL version guards have not been implemented yet, so if you are recieving memory crashes due to OpenGL buffers, please do update your graphics card to the latest version. Especially if you are running Intel HD chipsets.
 
 ## Other
 
