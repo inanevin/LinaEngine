@@ -56,7 +56,7 @@ void Lina_ForwardDirectionalLightShader::UpdateUniforms(Lina_Transform& t, Lina_
 {
 	
 	Matrix4 world = t.GetTransformation();
-	Matrix4 projected = RenderingEngine->GetCurrentActiveCamera()->GetViewProjection().Multiply(world);
+	Matrix4 projected = RenderingEngine->GetCurrentActiveCamera()->GetViewProjection() * world;
 	mat.texture.Bind();
 
 	SetUniform("modelViewProjection", *(projected.m));

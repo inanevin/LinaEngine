@@ -25,7 +25,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_ResourceLoader_HPP
 
 #include "Rendering/Lina_Mesh.hpp"
-#include "Math/Lina_Vector2F.hpp"
 
 class Lina_Texture;
 

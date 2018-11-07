@@ -21,101 +21,100 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pch.h"
 #include "Math/Lina_Quaternion.hpp"  
-#include "Math/Lina_Vector3F.hpp"
+#include "Math/Lina_Matrix.hpp"
 
 
-Lina_Quaternion::Lina_Quaternion(float a, float b, float c, float d) : x(a), y(b), z(c), w(d) {};
-
-Lina_Quaternion::Lina_Quaternion(const Lina_Quaternion& rh) {
-	this->x = rh.x;
-	this->y = rh.y;
-	this->z = rh.z;
-	this->w = rh.w;
-};
-
-float Lina_Quaternion::Length()
+Lina_Quaternion::Lina_Quaternion(const Lina_Matrix4F & m)
 {
-	return sqrt(x*x* +y * y + z * z + w * w);
+
+	float trace = m[0][0] + m[1][1] + m[2][2];
+
+	if (trace > 0)
+	{
+		float s = 0.5f / sqrtf(trace + 1.0f);
+		w = 0.25f / s;
+		x = (m[1][2] - m[2][1]) * s;
+		y = (m[2][0] - m[0][2]) * s;
+		z = (m[0][1] - m[1][0]) * s;
+	}
+	else if (m[0][0] > m[1][1] && m[0][0] > m[2][2])
+	{
+		float s = 2.0f * sqrtf(1.0f + m[0][0] - m[1][1] - m[2][2]);
+		w = (m[1][2] - m[2][1]) / s;
+		x = 0.25f * s;
+		y = (m[1][0] + m[0][1]) / s;
+		z = (m[2][0] + m[0][2]) / s;
+	}
+	else if (m[1][1] > m[2][2])
+	{
+		float s = 2.0f * sqrtf(1.0f + m[1][1] - m[0][0] - m[2][2]);
+		w = (m[2][0] - m[0][2]) / s;
+		x = (m[1][0] + m[0][1]) / s;
+		y = 0.25f * s;
+		z = (m[2][1] + m[1][2]) / s;
+	}
+	else
+	{
+		float s = 2.0f * sqrtf(1.0f + m[2][2] - m[1][1] - m[0][0]);
+		w = (m[0][1] - m[1][0]) / s;
+		x = (m[2][0] + m[0][2]) / s;
+		y = (m[1][2] + m[2][1]) / s;
+		z = 0.25f * s;
+	}
+
+	float length = Magnitude();
+	w /= length;
+	x /= length;
+	y /= length;
+	z /= length;
 }
 
-Lina_Quaternion Lina_Quaternion::normalized()
+Lina_Quaternion Lina_Quaternion::NLerp(const Lina_Quaternion & r, float lerpFactor, bool shortestPath) const
 {
-	Lina_Quaternion q = Lina_Quaternion(*this);
-	float mag = this->Length();
-	q.x /= mag;
-	q.y /= mag;
-	q.z /= mag;
-	q.w /= mag;
-	return q;
+	Lina_Quaternion correctedDest;
+
+	if (shortestPath && this->Dot(r) < 0)
+		correctedDest = r * -1;
+	else
+		correctedDest = r;
+	
+	return Lina_Quaternion(Lerp(correctedDest, lerpFactor).Normalized());
 }
 
-void Lina_Quaternion::Normalize()
+Lina_Quaternion Lina_Quaternion::SLerp(const Lina_Quaternion & r, float lerpFactor, bool shortestPath) const
 {
-	float mag = this->Length();
-	this->x /= mag;
-	this->y /= mag;
-	this->z /= mag;
-	this->w /= mag;
+	static const float EPSILON = 1e3;
+
+	float cos = this->Dot(r);
+	Lina_Quaternion correctedDest;
+
+	if (shortestPath && cos < 0)
+	{
+		cos *= -1;
+		correctedDest = r * -1;
+	}
+	else
+		correctedDest = r;
+
+	if (fabs(cos) > (1 - EPSILON))
+		return NLerp(correctedDest, lerpFactor, false);
+
+	float sin = (float)sqrtf(1.0f - cos * cos);
+	float angle = atan2(sin, cos);
+	float invSin = 1.0f / sin;
+
+	float srcFactor = sinf((1.0f - lerpFactor) * angle) * invSin;
+	float destFactor = sinf((lerpFactor)* angle) * invSin;
+
+	return Lina_Quaternion((*this) * srcFactor + correctedDest * destFactor);
 }
 
-Lina_Quaternion Lina_Quaternion::conjugated()
+Lina_Matrix4F Lina_Quaternion::ToRotationMatrix() const
 {
-	return Lina_Quaternion(-this->x, -this->y, -this->z, w);
+	Lina_Vector3F forward = Lina_Vector3F(2.0f * (x * z - w * y), 2.0f * (y * z + w * x), 1.0f - 2.0f * (x * x + y * y));
+	Lina_Vector3F up = Lina_Vector3F(2.0f * (x*y + w*z), 1.0f - 2.0f * (x*x + z*z), 2.0f * (y*z - w*x));
+	Lina_Vector3F right = Lina_Vector3F(1.0f - 2.0f * (y*y + z*z), 2.0f * (x*y - w*z), 2.0f * (x*z + w*y));
+
+	return Lina_Matrix4F().InitRotationFromVectors(forward, up, right);
 }
 
-void Lina_Quaternion::Conjugate()
-{
-	this->x = -this->x;
-	this->y = -this->y;
-	this->z = -this->z;
-	this->w = -this->w;
-}
-
-Lina_Quaternion Lina_Quaternion::Multiply(const Lina_Quaternion& q)
-{
-	float w_ = this->w * q.w - this->x * q.x - this->y * q.y - this->z * q.z;
-	float x_ = this->x * q.w + this->w * q.x + this->y * q.z - this->z * q.y;
-	float y_ = this->y * q.w + this->w * q.y + this->z * q.x - this->x * q.z;
-	float z_ = this->z * q.w + this->w * q.z + this->x * q.y - this->y * q.x;
-
-	return Lina_Quaternion(x_, y_, z_, w_);
-}
-
-Lina_Quaternion Lina_Quaternion::Multiply(const Lina_Vector3F& v)
-{
-	float w_ = -this->x * v.x - this->y * v.y - this->z * v.z;
-	float x_ = this->w * v.x + this->y * v.z - this->z * v.y;
-	float y_ = this->w * v.y + this->z * v.x - this->x * v.z;
-	float z_ = this->w * v.z + this->x * v.y - this->y * v.x;
-
-	return Lina_Quaternion(x_,y_,z_,w_);
-}
-
-
-
-Lina_Quaternion Lina_Quaternion::Multiply(const Lina_Quaternion&q1, const Lina_Vector3F& v)
-{
-	float w_ = -q1.x * v.x - q1.y * v.y - q1.z * v.z;
-	float x_ = q1.w * v.x + q1.y * v.z - q1.z * v.y;
-	float y_ = q1.w * v.y + q1.z * v.x - q1.x * v.z;
-	float z_ = q1.w * v.z + q1.x * v.y - q1.y * v.x;
-
-	return Lina_Quaternion(x_, y_, z_, w_);
-}
-
-Lina_Quaternion Lina_Quaternion::Multiply(const Lina_Quaternion& q1, const Lina_Quaternion& q2)
-{
-	float w_ = q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z;
-	float x_ = q1.x * q2.x + q1.w * q2.x + q1.y * q2.z - q1.z * q2.y;
-	float y_ = q1.y * q2.w + q1.w * q2.y + q1.z * q2.x - q1.x * q2.z;
-	float z_ = q1.z * q2.w + q1.w * q2.z + q1.x * q2.y - q1.y * q2.x;
-
-	return Lina_Quaternion(x_, y_, z_, w_);
-}
-
-inline Lina_Vector3F Lina_Quaternion::GetForward() const
-{
-	Vector3 f = Vector3(0, 0, 1);
-//	f.Rotate((*this));
-	return f;
-}

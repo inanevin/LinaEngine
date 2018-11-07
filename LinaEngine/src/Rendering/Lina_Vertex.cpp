@@ -24,9 +24,9 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 Lina_Vertex::Lina_Vertex()
 {
-	m_Position = Vector3::one();
-	m_Normal = Vector3::zero();
-	m_TextureCoordinates = Vector2::zero();
+	m_Position = Vector3::One();
+	m_Normal = Vector3::Zero();
+	m_TextureCoordinates = Vector2::Zero();
 }
 
 void Lina_Vertex::SetPosition(Vector3 v)

@@ -22,7 +22,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Core/Lina_Core.hpp"
 #include "Utility/Lina_Time.hpp"
 #include "Core/Lina_EngineInstances.hpp"
-#include "Math/Lina_Vector3F.hpp"
 static const long SECOND = 1000000000;	// time in nanosecs
 
 // Constructor, initialize components.

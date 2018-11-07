@@ -24,8 +24,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_Vertex_HPP
 #define Lina_Vertex_HPP
 
-#include "Math/Lina_Vector3F.hpp"
-#include "Math/Lina_Vector2F.hpp"
+#include "Math/Lina_Vector.hpp"
 
 
 class Lina_Vertex
@@ -37,8 +36,8 @@ public:
 
 	Lina_Vertex();
 	Lina_Vertex(Vector3 position, Vector2 textureCoord, Vector3 n) : m_Position(position), m_TextureCoordinates(textureCoord) , m_Normal(n) {};
-	Lina_Vertex(Vector3 position, Vector2 textureCoord) : m_Position(position), m_TextureCoordinates(textureCoord), m_Normal(Vector3::zero()) {};
-	Lina_Vertex(Vector3 position) : m_Position(position), m_TextureCoordinates(Vector2::zero()), m_Normal(Vector3::zero()) {};
+	Lina_Vertex(Vector3 position, Vector2 textureCoord) : m_Position(position), m_TextureCoordinates(textureCoord), m_Normal(Vector3::Zero()) {};
+	Lina_Vertex(Vector3 position) : m_Position(position), m_TextureCoordinates(Vector2::Zero()), m_Normal(Vector3::Zero()) {};
 
 	void SetPosition(Vector3);
 	void SetNormal(Vector3);

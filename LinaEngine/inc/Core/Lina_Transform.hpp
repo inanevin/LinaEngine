@@ -24,8 +24,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_Transform_HPP
 #define Lina_Transform_HPP
 
-#include "Math/Lina_Matrix4F.hpp"
-#include "Math/Lina_Vector3F.hpp"
+#include "Math/Lina_Matrix.hpp"
+#include "Math/Lina_Vector.hpp"
 #include "Scene/Lina_Camera.hpp"
 #include "Math/Lina_Quaternion.hpp"
 
@@ -35,7 +35,7 @@ class Lina_Transform
 
 public:
 
-	Lina_Transform() : position(Vector3::zero()), scale(Vector3::one()) {};
+	Lina_Transform() : position(Vector3::Zero()), scale(Vector3::One()) {};
 	inline Vector3 GetPosition() { return position; };
 	inline Quaternion GetRotation() { return rotation; };
 	inline Vector3 GetScale() { return scale; }

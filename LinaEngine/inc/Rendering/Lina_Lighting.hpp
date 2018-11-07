@@ -57,7 +57,7 @@ class Lina_DirectionalLight : public Lina_BaseLight
 
 public:
 
-	Lina_DirectionalLight(const Color c = COLOR_Black, float i = 0, Vector3 dir = Vector3::one()) :
+	Lina_DirectionalLight(const Color c = COLOR_Black, float i = 0, Vector3 dir = Vector3::One()) :
 		Lina_BaseLight(&Lina_ForwardDirectionalLightShader::Instance(), c, i) , direction(dir) {};
 
 	Vector3 direction;
@@ -125,7 +125,7 @@ class Lina_SpotLight : public Lina_PointLight
 
 public:
 
-	Lina_SpotLight(Color c = COLOR_Black, float i = 0.0f, float co = 0.1f, Lina_Attenuation at = Lina_Attenuation::AT_QUADRATIC, Vector3 dir = Vector3::one()) :
+	Lina_SpotLight(Color c = COLOR_Black, float i = 0.0f, float co = 0.1f, Lina_Attenuation at = Lina_Attenuation::AT_QUADRATIC, Vector3 dir = Vector3::One()) :
 		Lina_PointLight(&Lina_ForwardSpotLightShader::Instance(), c, i, at), direction(dir), cutoff(co) {};
 	
 	float cutoff;

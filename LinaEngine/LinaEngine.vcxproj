@@ -178,11 +178,8 @@
     <ClCompile Include="src\Core\Lina_Transform.cpp" />
     <ClCompile Include="src\Math\Lina_Math.cpp" />
     <ClCompile Include="src\Math\Lina_Matrix.cpp" />
-    <ClCompile Include="src\Math\Lina_Matrix4F.cpp" />
     <ClCompile Include="src\Math\Lina_Quaternion.cpp" />
     <ClCompile Include="src\Math\Lina_Vector.cpp" />
-    <ClCompile Include="src\Math\Lina_Vector2F.cpp" />
-    <ClCompile Include="src\Math\Lina_Vector3F.cpp" />
     <ClCompile Include="src\Rendering\Lina_Lighting.cpp" />
     <ClCompile Include="src\Rendering\Shaders\Lina_BasicShader.cpp" />
     <ClCompile Include="src\Rendering\Lina_Material.cpp" />
@@ -336,10 +333,6 @@
       <SubType>
       </SubType>
     </ClInclude>
-    <ClInclude Include="inc\Math\Lina_Matrix4F.hpp">
-      <SubType>
-      </SubType>
-    </ClInclude>
     <ClInclude Include="inc\Core\Lina_ObjectHandler.hpp">
       <SubType>
       </SubType>
@@ -377,14 +370,6 @@
       </SubType>
     </ClInclude>
     <ClInclude Include="inc\Utility\Lina_Time.hpp">
-      <SubType>
-      </SubType>
-    </ClInclude>
-    <ClInclude Include="inc\Math\Lina_Vector2F.hpp">
-      <SubType>
-      </SubType>
-    </ClInclude>
-    <ClInclude Include="inc\Math\Lina_Vector3F.hpp">
       <SubType>
       </SubType>
     </ClInclude>

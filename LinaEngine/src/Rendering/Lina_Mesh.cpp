@@ -146,7 +146,7 @@ void Lina_Mesh::CalculateNormals()
 		Vector3 v2 = m_Vertices[i2].GetPosition() - m_Vertices[i0].GetPosition();
 
 		// Calculate up.
-		Vector3 normal = Vector3::Cross(v1, v2).normalized();
+		Vector3 normal = v1.Cross(v2).Normalized();
 
 		// Add normals to the vertices.
 		m_Vertices[i0].SetNormal(m_Vertices[i0].GetNormal() + normal);
@@ -156,7 +156,7 @@ void Lina_Mesh::CalculateNormals()
 
 	// Set the length to one to get the appropriate normalized length & direction for every single vertex.
 	for (int i = 0; i < m_VerticesElementCount; i++)
-		m_Vertices[i].SetNormal(m_Vertices[i].GetNormal().normalized());
+		m_Vertices[i].SetNormal(m_Vertices[i].GetNormal().Normalized());
 }
 
 void Lina_DefaultCubeMesh::InitMesh()

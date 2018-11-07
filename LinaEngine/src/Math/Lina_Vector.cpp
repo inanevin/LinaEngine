@@ -21,448 +21,69 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pch.h"
 #include "Math/Lina_Vector.hpp"  
+#include "Math/Lina_Math.hpp"
 #include "Math/Lina_Quaternion.hpp"
+
+#pragma region Vector4
 
 float Lina_Vector4F::Max() const
 {
+	float max = x;
+	if (y > x)
+		max = y;
+	if (z > y)
+		max = z;
+	if (w > z)
+		max = w;
 
+	return max;
 }
 
 float Lina_Vector4F::MagnitudeSq() const
 {
-	return 0.0f;
+	return this->Dot(*this);
 }
 
 float Lina_Vector4F::Magnitude() const
 {
-	return 0.0f;
+	return sqrt(MagnitudeSq());
 }
 
 float Lina_Vector4F::AngleBetween(const Lina_Vector4F & rhs) const
 {
-	return 0.0f;
+	float angle = this->Dot(rhs);
+	angle /= (this->Magnitude() * rhs.Magnitude());
+	return angle = acosf(angle);
 }
 
 float Lina_Vector4F::Dot(const Lina_Vector4F & rhs) const
 {
-	return 0.0f;
+	return x * rhs.x + y * rhs.y + z * rhs.z + w * rhs.w;
 }
 
-
-
-/*
-template<typename T, unsigned int D>
-T Lina_Vector<T, D>::MagnitudeSq() const
-{
-	return this->Dot(*this);
-}
-
-template<typename T, unsigned int D>
-T Lina_Vector<T, D>::Magnitude() const
-{
-	return sqrt(MagnitudeSq());
-}
-
-template<typename T, unsigned int D>
-T Lina_Vector<T, D>::AngleBetween(const Lina_Vector<T,D>& rhs) const
-{
-	T angle = this->Dot( rhs);
-	angle /= (this->Magnitude() * rhs.Magnitude());
-	return acosf(angle);
-}
-
-template<typename T, unsigned int D>
-T Lina_Vector<T, D>::Dot(const Lina_Vector<T, D>& r) const
-{
-	T result = T(0);
-	for (unsigned int i = 0; i < D; i++)
-		result += (*this)[i] * r[i];
-
-	return result;
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D> Lina_Vector<T, D>::Reflect(const Lina_Vector<T, D>& normal) const
+Lina_Vector4F Lina_Vector4F::Reflect(const Lina_Vector4F & normal) const
 {
 	return *this - (normal * (this->Dot(normal) * 2));
 }
 
-template<typename T, unsigned int D>
-Lina_Vector<T, D> Lina_Vector<T, D>::Max(const Lina_Vector<T, D>& r) const
-{
-	Lina_Vector<T, D> result;
-	for (unsigned int i = 0; i < D; i++)
-	{
-		result[i] = values[i] > r[i] ? values[i] : r[i];
-	}
-
-	return result;
-}
-
-template<typename T, unsigned int D>
-T Lina_Vector<T, D>::Max() const
-{
-	T maxVal = (*this)[0];
-
-	for (int i = 0; i < D; i++)
-		if ((*this)[i] > maxVal)
-			maxVal = (*this)[i];
-
-	return maxVal;
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D> Lina_Vector<T, D>::Normalized() const
-{
-	Lina_Vector<T, D> v = Lina_Vector<T, D>(*this);
-	return v / Magnitude();
-}
-
-template<typename T, unsigned int D>
-void Lina_Vector<T, D>::Normalize() const
-{
-	*this /= Magnitude();
-}
-
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D> Lina_Vector<T, D>::Lerp(const Lina_Vector<T, D>& r, T lerpFactor) const
-{
-	return (r - *this) * lerpFactor + *this;
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D> Lina_Vector<T, D>::Project(const Lina_Vector<T, D>& rhs) const
-{
-	Lina_Vector<T, D> bn = rhs / rhs.Magnitude();
-	return bn * this->Dot(rhs);
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D> Lina_Vector<T, D>::operator+(const Lina_Vector<T, D>& r) const
-{
-	Lina_Vector<T, D> result;
-	for (unsigned int i = 0; i < D; i++)
-		result[i] = values[i] + r[i];
-
-	return result;
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D> Lina_Vector<T, D>::operator-(const Lina_Vector<T, D>& r) const
-{
-	Lina_Vector<T, D> result;
-	for (unsigned int i = 0; i < D; i++)
-		result[i] = values[i] - r[i];
-
-	return result;
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D> Lina_Vector<T, D>::operator*(const Lina_Vector<T, D>& r) const
-{
-	Lina_Vector<T, D> result;
-	for (unsigned int i = 0; i < D; i++)
-		result[i] = values[i] * r[i];
-
-	return result;
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D> Lina_Vector<T, D>::operator/(const Lina_Vector<T, D>& r) const
-{
-	Lina_Vector<T, D> result;
-	for (unsigned int i = 0; i < D; i++)
-	{
-		if (r[i] == 0.0)
-			result[i] = 0.0f;
-		else
-			result[i] = values[i] / r[i];
-	}
-
-	return result;
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D> Lina_Vector<T, D>::operator+(const T & r) const
-{
-	Lina_Vector<T, D> result;
-	for (unsigned int i = 0; i < D; i++)
-		result[i] = values[i] + r;
-
-	return result;
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D> Lina_Vector<T, D>::operator-(const T & r) const
-{
-	Lina_Vector<T, D> result;
-	for (unsigned int i = 0; i < D; i++)
-		result[i] = values[i] - r;
-
-	return result;
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D> Lina_Vector<T, D>::operator*(const T & r) const
-{
-	Lina_Vector<T, D> result;
-	for (unsigned int i = 0; i < D; i++)
-		result[i] = values[i] * r;
-
-	return result;
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D> Lina_Vector<T, D>::operator/(const T & r) const
-{
-	if (r == 0.0f)
-		return Lina_Vector<T, D>::Zero();
-
-	Lina_Vector<T, D> result;
-
-	for (unsigned int i = 0; i < D; i++)
-		result[i] = values[i] / r;
-
-	return result;
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D>& Lina_Vector<T, D>::operator+=(const Lina_Vector<T, D>& r)
-{
-	for (unsigned int i = 0; i < D; i++)
-		(*this)[i] = values[i] + r[i];
-
-	return *this;
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D>& Lina_Vector<T, D>::operator-=(const Lina_Vector<T, D>& r)
-{
-	for (unsigned int i = 0; i < D; i++)
-		(*this)[i] = values[i] - r[i];
-
-	return *this;
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D>& Lina_Vector<T, D>::operator*=(const Lina_Vector<T, D>& r)
-{
-	for (unsigned int i = 0; i < D; i++)
-		(*this)[i] = values[i] * r[i];
-
-	return *this;
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D>& Lina_Vector<T, D>::operator/=(const Lina_Vector<T, D>& r)
-{
-	for (unsigned int i = 0; i < D; i++)
-	{
-		if (r[i] == 0.0f)
-			(*this)[i] = 0.0f;
-		else
-			(*this)[i] = values[i] / r[i];
-	}
-
-
-	return *this;
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D>& Lina_Vector<T, D>::operator+=(const T & r)
-{
-	for (unsigned int i = 0; i < D; i++)
-		(*this)[i] = values[i] + r;
-
-	return *this;
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D>& Lina_Vector<T, D>::operator-=(const T & r)
-{
-	for (unsigned int i = 0; i < D; i++)
-		(*this)[i] = values[i] - r;
-
-	return *this;
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D>& Lina_Vector<T, D>::operator*=(const T & r)
-{
-	for (unsigned int i = 0; i < D; i++)
-		(*this)[i] = values[i] * r;
-
-	return *this;
-}
-
-template<typename T, unsigned int D>
-Lina_Vector<T, D>& Lina_Vector<T, D>::operator/=(const T & r)
-{
-	if (r == 0.0f)
-		return Lina_Vector<T, D>::Zero();
-
-	for (unsigned int i = 0; i < D; i++)
-		(*this)[i] = values[i] / r;
-
-	return *this;
-}
-
-template<typename T, unsigned int D>
-T & Lina_Vector<T, D>::operator[](unsigned int i)
-{
-	return values[i];
-}
-
-template<typename T, unsigned int D>
-T Lina_Vector<T, D>::operator[](unsigned int i) const
-{
-	return values[i];
-}
-
-template<typename T, unsigned int D>
-bool Lina_Vector<T, D>::operator==(const Lina_Vector<T, D>& r) const
-{
-	for (unsigned int i = 0; i < D; i++)
-		if ((*this)[i] != r[i])
-			return false;
-	return true;
-}
-
-template<typename T, unsigned int D>
-bool Lina_Vector<T, D>::operator!=(const Lina_Vector<T, D>& r) const
-{
-	return !operator==(r);
-}
-
-template<typename T, unsigned int D>
-inline Lina_Vector<T, D> Lina_Vector<T, D>::One()
-{
-	Lina_Vector<T, D> v;
-
-	for (unsigned int i = 0; i < D; i++)
-		v[i] = (T)1.0;
-
-	return v;
-}
-
-template<typename T, unsigned int D>
-inline Lina_Vector<T, D> Lina_Vector<T, D>::Zero()
-{
-	Lina_Vector<T, D> v;
-
-	for (unsigned int i = 0; i < D; i++)
-		v[i] = (T)0.0;
-
-	return v;
-}
-
-template<typename T>
-Lina_Vector2<T>::Lina_Vector2(const Lina_Vector<T, 2>& r)
-{
-	(*this)[0] = r[0];
-	(*this)[1] = r[1];
-}
-
-template<typename T>
-Lina_Vector2<T>::Lina_Vector2(T x, T y)
-{
-	(*this)[0] = x;
-	(*this)[1] = y;
-}
-
-template<typename T>
-T Lina_Vector2<T>::Cross(const Lina_Vector2<T>& r) const
-{
-	return GetX() * r.GetY() - GetY() * r.GetX();
-}
-
-template<typename T>
-Lina_Vector3<T>::Lina_Vector3(const Lina_Vector<T, 3>& r)
-{
-	(*this)[0] = r[0];
-	(*this)[1] = r[1];
-	(*this)[2] = r[2];
-}
-
-template<typename T>
-Lina_Vector3<T>::Lina_Vector3(T x, T y, T z)
-{
-	(*this)[0] = x;
-	(*this)[1] = y;
-	(*this)[2] = z;
-}
-
-template<typename T>
-Lina_Vector3<T> Lina_Vector3<T>::Cross(const Lina_Vector3<T>& r) const
-{
-	T x = (*this)[1] * r[2] - (*this)[2] * r[1];
-	T y = (*this)[2] * r[0] - (*this)[0] * r[2];
-	T z = (*this)[0] * r[1] - (*this)[1] * r[0];
-
-	return Vector3<T>(x, y, z);
-}
-
-template<typename T>
-Lina_Vector3<T> Lina_Vector3<T>::Rotate(T angle, const Lina_Vector3<T>& axis) const
-{
-	const T sinAngle = sin(-angle);
-	const T cosAngle = cos(-angle);
-
-	return this->Cross(axis * sinAngle) +        //Rotation on local X
-		(*this * cosAngle) +                     //Rotation on local Z
-		axis * this->Dot(axis * (1 - cosAngle)); //Rotation on local Y
-}
-
-template<typename T>
-Lina_Vector3<T> Lina_Vector3<T>::Rotate(const Lina_Quaternion& rotation) const
-{
-	Quaternion conjugateQ = rotation.Conjugate();
-	Quaternion w = rotation * (*this) * conjugateQ;
-
-	Lina_Vector3<T> ret(w.GetX(), w.GetY(), w.GetZ());
-
-	return ret;
-}
-
-template<typename T>
-Lina_Vector4<T>::Lina_Vector4(const Lina_Vector<T, 4>& r)
-{
-	(*this)[0] = r[0];
-	(*this)[1] = r[1];
-	(*this)[2] = r[2];
-	(*this)[3] = r[3];
-}
-
-template<typename T>
-Lina_Vector4<T>::Lina_Vector4(T x, T y, T z, T w)
-{
-	(*this)[0] = x;
-	(*this)[1] = y;
-	(*this)[2] = z;
-	(*this)[3] = w;
-}
-
-*/
-
-Lina_Vector4F Lina_Vector4F::Reflect(const Lina_Vector4F & normal) const
-{
-	return Lina_Vector4F();
-}
-
 Lina_Vector4F Lina_Vector4F::Max(const Lina_Vector4F & rhs) const
 {
-	return Lina_Vector4F();
+	if (*this > rhs)
+		return *this;
+	else
+		return rhs;
 }
 
 Lina_Vector4F Lina_Vector4F::Normalized() const
 {
-	return Lina_Vector4F();
+	Lina_Vector4F normalized = Lina_Vector4F(*this);
+	normalized.Normalize();
+	return normalized;
 }
 
 Lina_Vector4F Lina_Vector4F::Lerp(const Lina_Vector4F & rhs, float lerpFactor) const
 {
-	return Lina_Vector4F();
+	return (rhs - *this) * lerpFactor + *this;
 }
 
 Lina_Vector4F Lina_Vector4F::Project(const Lina_Vector4F & rhs) const
@@ -470,6 +91,188 @@ Lina_Vector4F Lina_Vector4F::Project(const Lina_Vector4F & rhs) const
 	return Lina_Vector4F();
 }
 
-void Lina_Vector4F::Normalize() const
+void Lina_Vector4F::Normalize()
 {
+	*this /= this->Magnitude();
 }
+
+#pragma endregion
+
+#pragma region Vector3
+
+float Lina_Vector3F::Max() const
+{
+	float max = x;
+	if (y > x)
+		max = y;
+	if (z > y)
+		max = z;
+
+	return max;
+}
+
+float Lina_Vector3F::MagnitudeSq() const
+{
+	return this->Dot(*this);
+}
+
+float Lina_Vector3F::Magnitude() const
+{
+	return sqrt(this->MagnitudeSq());
+}
+
+float Lina_Vector3F::AngleBetween(const Lina_Vector3F & rhs) const
+{
+	float angle = this->Dot(rhs);
+	angle /= (this->Magnitude() * rhs.Magnitude());
+	return angle = acosf(angle);
+}
+
+float Lina_Vector3F::Dot(const Lina_Vector3F & rhs) const
+{
+	return x * rhs.x + y * rhs.y + z * rhs.z;
+}
+
+Lina_Vector3F Lina_Vector3F::Cross(const Lina_Vector3F & rhs) const
+{
+	return Lina_Vector3F
+	(
+		this->y * rhs.z - this->z * rhs.y,
+		this->z * rhs.x - this->x * rhs.z,
+		this->x * rhs.y - this->y * rhs.x
+	);
+}
+
+Lina_Vector3F Lina_Vector3F::Rotate(float angle, const Lina_Vector3F & axis) const
+{
+	const float sinAngle = sin(-angle);
+	const float cosAngle = cos(-angle);
+
+	return this->Cross(axis * sinAngle) +        //Rotation on local X
+		(*this * cosAngle) +                     //Rotation on local Z
+		axis * this->Dot(axis * (1 - cosAngle)); //Rotation on local Y
+}
+
+Lina_Vector3F Lina_Vector3F::Rotate(const Lina_Quaternion& rotation) const
+{
+	Lina_Quaternion conjugateQ = rotation.Conjugate();
+	Lina_Quaternion w = rotation * (*this) * conjugateQ;
+
+	Lina_Vector3F ret = Lina_Vector3F(w.x, w.y, w.z);
+
+	return ret;
+}
+
+Lina_Vector3F Lina_Vector3F::Reflect(const Lina_Vector3F & normal) const
+{
+	return *this - (normal * (this->Dot(normal) * 2));
+}
+
+Lina_Vector3F Lina_Vector3F::Max(const Lina_Vector3F & rhs) const
+{
+	if (*this > rhs)
+		return *this;
+	else
+		return rhs;
+}
+
+Lina_Vector3F Lina_Vector3F::Normalized() const
+{
+	Lina_Vector3F normalized = Lina_Vector3F(*this);
+	normalized.Normalize();
+	return normalized;
+}
+
+Lina_Vector3F Lina_Vector3F::Lerp(const Lina_Vector3F & rhs, float lerpFactor) const
+{
+	return (rhs - *this) * lerpFactor + *this;
+}
+
+Lina_Vector3F Lina_Vector3F::Project(const Lina_Vector3F & rhs) const
+{
+	return rhs.Normalized() * this->Dot(rhs);
+}
+
+void Lina_Vector3F::Normalize()
+{
+	*this /= this->Magnitude();
+}
+
+#pragma endregion
+
+#pragma region Vector2
+
+float Lina_Vector2F::Max() const
+{
+	float max = x;
+
+	if (y > x)
+		max = y;
+
+	return max;
+}
+
+float Lina_Vector2F::MagnitudeSq() const
+{
+	return this->Dot(*this);
+}
+
+float Lina_Vector2F::Magnitude() const
+{
+	return sqrt(this->MagnitudeSq());
+}
+
+float Lina_Vector2F::AngleBetween(const Lina_Vector2F & rhs) const
+{
+	float angle = this->Dot(rhs);
+	angle /= (this->Magnitude() * rhs.Magnitude());
+	return angle = acosf(angle);
+}
+
+float Lina_Vector2F::Dot(const Lina_Vector2F & rhs) const
+{
+	return x * rhs.x + y * rhs.y;
+}
+
+float Lina_Vector2F::Cross(const Lina_Vector2F & rhs) const
+{
+	return this->x * rhs.y - this->y * rhs.x;
+}
+
+Lina_Vector2F Lina_Vector2F::Reflect(const Lina_Vector2F & normal) const
+{
+	return *this - (normal * (this->Dot(normal) * 2));
+}
+
+Lina_Vector2F Lina_Vector2F::Max(const Lina_Vector2F & rhs) const
+{
+	if (*this > rhs)
+		return *this;
+	else
+		return rhs;
+}
+
+Lina_Vector2F Lina_Vector2F::Normalized() const
+{
+	Lina_Vector2F normalized = Lina_Vector2F(*this);
+	normalized.Normalize();
+	return normalized;
+}
+
+Lina_Vector2F Lina_Vector2F::Lerp(const Lina_Vector2F & rhs, float lerpFactor) const
+{
+	return (rhs - *this) * lerpFactor + *this;
+}
+
+Lina_Vector2F Lina_Vector2F::Project(const Lina_Vector2F & rhs) const
+{
+	return rhs.Normalized() * this->Dot(rhs);
+}
+
+void Lina_Vector2F::Normalize()
+{
+	*this /= this->Magnitude();
+}
+
+#pragma endregion
+

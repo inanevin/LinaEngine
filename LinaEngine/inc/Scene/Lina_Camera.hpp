@@ -24,8 +24,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_Camera_HPP
 #define Lina_Camera_HPP
 
-#include "Math/Lina_Vector3F.hpp"
-#include "Math/Lina_Matrix4F.hpp"
+#include "Math/Lina_Vector.hpp"
+#include "Math/Lina_Matrix.hpp"
 
 class Lina_Camera
 {

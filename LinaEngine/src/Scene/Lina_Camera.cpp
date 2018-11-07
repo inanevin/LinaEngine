@@ -24,6 +24,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Utility/Lina_Time.hpp"
 #include "Core/Lina_CoreMessageBus.hpp"
 #include "Input/Lina_InputEngine.hpp"
+#include "Math/Lina_Math.hpp"
 
 Vector3 Lina_Camera::GetPosition() { return position; }
 Vector3 Lina_Camera::GetForward() { return forward; }
@@ -34,23 +35,22 @@ void Lina_Camera::SetUp(Vector3 p) { up = p; };
 
 Lina_Camera::Lina_Camera()
 {
-
-	this->projection.InitPerspectiveProjection((float)Lina_Math::ToRadians(60), 1.33f, 0.1f, 1000.0f);
+	this->projection.InitPerspective((float)Lina_Math::ToRadians(60), 1.33f, 0.1f, 1000.0f);
 }
 
 Lina_Camera::Lina_Camera(float fov, float aspect, float zNear, float zFar)
 {
-	this->position = Vector3::zero();
+	this->position = Vector3::Zero();
 	this->up = Vector3(0, 1, 0);
 	this->forward = Vector3(0, 0, 1);
-	this->projection.InitPerspectiveProjection(fov, aspect, zNear, zFar);
+	this->projection.InitPerspective(fov, aspect, zNear, zFar);
 };
 
 void Lina_Camera::TempInput()
 {
 	float move = (float)(10 * Lina_Time::GetDelta());
-	float rot = (float)(50* Lina_Time::GetDelta());
-	
+	float rot = (float)(50 * Lina_Time::GetDelta());
+
 	if (Lina_CoreMessageBus::Instance().GetInputEngine()->GetKey(SDL_SCANCODE_W))
 	{
 		Move(GetForward(), move);
@@ -99,26 +99,26 @@ void Lina_Camera::Move(Vector3 dir, float amount)
 
 void Lina_Camera::RotateX(float angle)
 {
-	Vector3 horizontal = Vector3::Cross(Vector3::yAxis, forward).normalized();
+	Vector3 horizontal = Vector3::Up().Cross(forward).Normalized();
 
 	// Rotate the forward axis with respect to the World's horizontal axis.
 	forward.Rotate(angle, horizontal);
 	forward.Normalize();
 
 	// Update the up vector.
-	up = Vector3::Cross(forward,horizontal).normalized();
+	up = forward.Cross(horizontal).Normalized();
 }
 
 void Lina_Camera::RotateY(float angle)
 {
-	Vector3 horizontal = Vector3::Cross(Vector3::yAxis, forward).normalized();
+	Vector3 horizontal = Vector3::Up().Cross(forward).Normalized();
 
 	// Rotate the forward axis with respect to the World's horizontal axis.
-	forward.Rotate(angle, Vector3::yAxis);
+	forward.Rotate(angle, Vector3::Up());
 	forward.Normalize();
 
 	// Update the up vector.
-	up = Vector3::Cross(forward, horizontal).normalized();
+	up = forward.Cross(horizontal).Normalized();
 
 }
 
@@ -127,23 +127,23 @@ Matrix4 Lina_Camera::GetViewProjection()
 	Matrix4 cameraRotation;
 	Matrix4 cameraTranslation;
 
-	cameraRotation.InitRotation(forward, up);
-	cameraTranslation.InitPosition(-position.x, -position.y, -position.z);
+	//cameraRotation.InitRotation(forward, up);
+	cameraTranslation.InitTranslation(Vector3(-position.x, -position.y, -position.z));
 
-	return projection.Multiply(cameraRotation.Multiply(cameraTranslation));
+	return projection * (cameraRotation * cameraTranslation);
 
 }
 
 Vector3 Lina_Camera::GetLeft()
 {
-	Vector3 left = Vector3::Cross(forward, up);
+	Vector3 left = forward.Cross(up);
 	left.Normalize();
 	return left;
 }
 
 Vector3 Lina_Camera::GetRight()
 {
-	Vector3 right = Vector3::Cross(up, forward);
+	Vector3 right = up.Cross(forward);
 	right.Normalize();
 	return right;
 }

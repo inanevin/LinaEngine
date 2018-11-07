@@ -25,7 +25,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_Material_HPP
 
 #include "Rendering/Lina_Texture.hpp"
-#include "Math/Lina_Vector3F.hpp"
+#include "Math/Lina_Vector.hpp"
 
 class Lina_Material
 {
@@ -37,7 +37,7 @@ public:
 	Lina_Material(Lina_Texture, Vector3, float, float);
 
 	Lina_Texture texture;
-	Vector3 color = Vector3::one();
+	Vector3 color = Vector3::One();
 	float specularIntensity = 1;
 	float specularExponent = 8;
 

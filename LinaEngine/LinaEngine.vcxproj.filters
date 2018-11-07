@@ -126,15 +126,6 @@
     <ClCompile Include="src\Math\Lina_Quaternion.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="src\Math\Lina_Vector2F.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Math\Lina_Vector3F.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Math\Lina_Matrix4F.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
     <ClCompile Include="src\Math\Lina_Math.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
@@ -278,16 +269,7 @@
     <ClInclude Include="inc\Math\Lina_Math.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Math\Lina_Matrix4F.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Math\Lina_Quaternion.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Math\Lina_Vector2F.hpp">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Math\Lina_Vector3F.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="inc\Rendering\Lina_Mesh.hpp">
