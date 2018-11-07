@@ -35,7 +35,7 @@ void Lina_Camera::SetUp(Vector3 p) { up = p; };
 
 Lina_Camera::Lina_Camera()
 {
-	this->projection.InitPerspective((float)Lina_Math::ToRadians(60), 1.33f, 0.1f, 1000.0f);
+	this->projection.InitPerspective((float)Lina_Math::ToRadians(70), 1.33f, 0.1f, 1000.0f);
 }
 
 Lina_Camera::Lina_Camera(float fov, float aspect, float zNear, float zFar)
@@ -103,6 +103,8 @@ void Lina_Camera::RotateX(float angle)
 
 	// Rotate the forward axis with respect to the World's horizontal axis.
 	forward.Rotate(angle, horizontal);
+	std::cout << "x: " << forward.x << "y: " << forward.y << "z: " << forward.z << std::endl;
+
 	forward.Normalize();
 
 	// Update the up vector.
@@ -127,8 +129,10 @@ Matrix4 Lina_Camera::GetViewProjection()
 	Matrix4 cameraRotation;
 	Matrix4 cameraTranslation;
 
-	//cameraRotation.InitRotation(forward, up);
+	cameraRotation.InitRotation(forward, up);
 	cameraTranslation.InitTranslation(Vector3(-position.x, -position.y, -position.z));
+
+
 
 	return projection * (cameraRotation * cameraTranslation);
 

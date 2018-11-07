@@ -263,7 +263,7 @@ public:
 	float AngleBetween(const Lina_Vector3F& rhs) const;
 	float Dot(const Lina_Vector3F& rhs) const;
 	Lina_Vector3F Cross(const Lina_Vector3F& rhs) const;
-	Lina_Vector3F Rotate(float angle, const Lina_Vector3F& axis) const;
+	Lina_Vector3F Rotate(float angle, const Lina_Vector3F& axis);
 	Lina_Vector3F Rotate(const Lina_Quaternion& rotation) const;
 
 	Lina_Vector3F Reflect(const Lina_Vector3F& normal) const;

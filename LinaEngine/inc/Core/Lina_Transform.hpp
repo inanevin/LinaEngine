@@ -35,7 +35,7 @@ class Lina_Transform
 
 public:
 
-	Lina_Transform() : position(Vector3::Zero()), scale(Vector3::One()) {};
+	Lina_Transform() : position(Vector3::Zero()), rotation(Quaternion::Zero()), scale(Vector3::One()) {};
 	inline Vector3 GetPosition() { return position; };
 	inline Quaternion GetRotation() { return rotation; };
 	inline Vector3 GetScale() { return scale; }
@@ -46,10 +46,7 @@ public:
 	inline void SetScale(Vector3 v) { scale = v; };
 	inline void SetScale(float x, float y, float z) { scale = Vector3(x, y, z); };
 
-	// Get transformation matrix composed of position & rotation & scale.
 	Matrix4 GetTransformation();
-	// Perspective transformation projections.
-	//Matrix4 GetProjectedTransformation();
 
 
 

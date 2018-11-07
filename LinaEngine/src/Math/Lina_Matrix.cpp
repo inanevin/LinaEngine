@@ -21,6 +21,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "pch.h"
 #include "Math/Lina_Matrix.hpp"  
+#include "Math/Lina_Math.hpp"
 
 #pragma region Matrix4
 
@@ -66,25 +67,29 @@ Lina_Matrix4F Lina_Matrix4F::InitScale(const Lina_Vector3F& rhs)
 	return *this;
 }
 
+void Lina_Matrix4F::InitRotation(Vector3& forward, Vector3& up)
+{
+	Vector3 f = forward;
+	f.Normalize();
 
+	Vector3 r = up;
+	r.Normalize();
+	//r = Vector3::Cross(r, f);
+	r = r.Cross(f);
+	//Vector3 u = Vector3::Cross(f, r);
+	Vector3 u = f.Cross(r);
+	m[0][0] = r.x;	m[0][1] = r.y;	m[0][2] = r.z;	m[0][3] = 0;
+	m[1][0] = u.x;	m[1][1] = u.y;	m[1][2] = u.z;	m[1][3] = 0;
+	m[2][0] = f.x;	m[2][1] = f.y;	m[2][2] = f.z;	m[2][3] = 0;
+	m[3][0] = 0;	m[3][1] = 0;	m[3][2] = 0;	m[3][3] = 1;
+}
 
 Lina_Matrix4F Lina_Matrix4F::InitTranslation(const Lina_Vector3F& rhs)
 {
-	for (unsigned int i = 0; i < 4; i++)
-	{
-		for (unsigned int j = 0; j < 4; j++)
-		{
-			if (i == 3 && j != 3)
-				m[i][j] = rhs[j];
-
-			else if (i == j)
-				m[i][j] = 1.0f;
-			else
-				m[i][j] = 0.0f;
-		}
-	}
-
-	m[3][3] = 1.0f;
+	m[0][0] = 1;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = rhs.x;
+	m[1][0] = 0;	m[1][1] = 1;	m[1][2] = 0;	m[1][3] = rhs.y;
+	m[2][0] = 0;	m[2][1] = 0;	m[2][2] = 1;	m[2][3] = rhs.z;
+	m[3][0] = 0;	m[3][1] = 0;	m[3][2] = 0;	m[3][3] = 1;
 
 	return *this;
 }
@@ -133,15 +138,16 @@ Lina_Vector3F Lina_Matrix4F::Transform(const Lina_Vector3F& rhs) const
 	return ret;
 }
 
+
 Lina_Matrix4F Lina_Matrix4F::InitEulerRotation(float xR, float yR, float zR)
 {
 	Lina_Matrix4F rx, ry, rz;
 
-	const float x = xR;
-	const float y = yR;
-	const float z = zR;
+	const float x = (float)Lina_Math::ToRadians(xR);
+	const float y = (float)Lina_Math::ToRadians(yR);
+	const float z = (float)Lina_Math::ToRadians(zR);
 
-	rx[0][0] = 0.0f;   rx[1][0] = 0.0f;  rx[2][0] = 0.0f; rx[3][0] = 0.0f;
+	rx[0][0] = 1.0f;   rx[1][0] = 0.0f;  rx[2][0] = 0.0f; rx[3][0] = 0.0f;
 	rx[0][1] = 0.0f;   rx[1][1] = cos(x);  rx[2][1] = -sin(x); rx[3][1] = 0.0f;
 	rx[0][2] = 0.0f;   rx[1][2] = sin(x);  rx[2][2] = cos(x); rx[3][2] = 0.0f;
 	rx[0][3] = 0.0f;   rx[1][3] = 0.0f;  rx[2][3] = 0.0f; rx[3][3] = 1.0f;
@@ -166,7 +172,7 @@ Lina_Matrix4F Lina_Matrix4F::InitRotationFromVectors(const Lina_Vector3F & n, co
 	(*this)[0][0] = u.x;   (*this)[1][0] = u.y;   (*this)[2][0] = u.z;   (*this)[3][0] = 0.0f;
 	(*this)[0][1] = v.x;   (*this)[1][1] = v.y;   (*this)[2][1] = v.z;   (*this)[3][1] = 0.0f;
 	(*this)[0][2] = n.x;   (*this)[1][2] = n.y;   (*this)[2][2] = n.z;   (*this)[3][2] = 0.0f;
-	(*this)[0][3] = 0.0;       (*this)[1][3] = 0.0f;       (*this)[2][3] = 0.0f;       (*this)[3][3] = 1.0f;
+	(*this)[0][3] = 0.0;   (*this)[1][3] = 0.0f;  (*this)[2][3] = 0.0f;  (*this)[3][3] = 1.0f;
 
 	return *this;
 }
@@ -182,13 +188,14 @@ Lina_Matrix4F Lina_Matrix4F::InitRotationFromDirection(const Lina_Vector3F & for
 
 Lina_Matrix4F Lina_Matrix4F::InitPerspective(float fov, float aspectRatio, float zNear, float zFar)
 {
-	const float zRange = zNear - zFar;
-	const float tanHalfFOV = tanf(fov / 2.0f);
+	const float zRng = zNear - zFar;
+	const float tanHFOV = tanf(fov / 2.0f);
 
-	(*this)[0][0] = 1.0f / (tanHalfFOV * aspectRatio); (*this)[1][0] = 0.0f;   (*this)[2][0] = 0.0f;            (*this)[3][0] = 0.0f;
-	(*this)[0][1] = 0.0f;                   (*this)[1][1] = 1.0f / tanHalfFOV; (*this)[2][1] = 0.0f;            (*this)[3][1] = 0.0f;
-	(*this)[0][2] = 0.0f;                   (*this)[1][2] = 0.0f;            (*this)[2][2] = (-zNear - zFar) / zRange; (*this)[3][2] = 2.0f*zFar*zNear / zRange;
-	(*this)[0][3] = 0.0f;                   (*this)[1][3] = 0.0f;            (*this)[2][3] = 1.0f;            (*this)[3][3] = 0.0f;
+
+	m[0][0] = 1.0f / (tanHFOV * aspectRatio);	m[0][1] = 0;				m[0][2] = 0;						m[0][3] = 0;
+	m[1][0] = 0;								m[1][1] = 1.0f / tanHFOV;	m[1][2] = 0;						m[1][3] = 0;
+	m[2][0] = 0;								m[2][1] = 0;				m[2][2] = (-zNear - zFar) / zRng;	m[2][3] = 2 * zFar * zNear / zRng;
+	m[3][0] = 0;								m[3][1] = 0;				m[3][2] = 1;						m[3][3] = 0;
 
 	return *this;
 }
@@ -199,13 +206,15 @@ Lina_Matrix4F Lina_Matrix4F::InitOrto(float left, float right, float bot, float 
 	const float height = (top - bot);
 	const float depth = (fr - nr);
 
-	(*this)[0][0] = 2.0f / width; (*this)[1][0] = 0.0f;        (*this)[2][0] = 0.0f;        (*this)[3][0] = -(right + left) / width;
-	(*this)[0][1] = 0.0f;       (*this)[1][1] = 2.0f / height; (*this)[2][1] = 0.0f;        (*this)[3][1] = -(top + bot) / height;
-	(*this)[0][2] = 0.0f;       (*this)[1][2] = 0.0f;        (*this)[2][2] = 2.0f / depth; (*this)[3][2] = -(fr + nr) / depth;
-	(*this)[0][3] = 0.0f;       (*this)[1][3] = 0.0f;        (*this)[2][3] = 0.0f;        (*this)[3][3] = 1.0f;
+	(*this)[0][0] = 2.0f / width;	(*this)[1][0] = 0.0f;			(*this)[2][0] = 0.0f;			(*this)[3][0] = -(right + left) / width;
+	(*this)[0][1] = 0.0f;			(*this)[1][1] = 2.0f / height;	(*this)[2][1] = 0.0f;			(*this)[3][1] = -(top + bot) / height;
+	(*this)[0][2] = 0.0f;			(*this)[1][2] = 0.0f;			(*this)[2][2] = 2.0f / depth;	(*this)[3][2] = -(fr + nr) / depth;
+	(*this)[0][3] = 0.0f;			(*this)[1][3] = 0.0f;			(*this)[2][3] = 0.0f;			(*this)[3][3] = 1.0f;
 
 	return *this;
 }
+
+
 
 
 Lina_Matrix4F Lina_Matrix4F::Inverse() const
@@ -330,7 +339,7 @@ Lina_Matrix3F Lina_Matrix3F::InitScale(const Lina_Vector3F& rhs)
 		}
 	}
 
-	m[3][3] = 1.0f;
+	m[2][2] = 1.0f;
 
 	return *this;
 }
@@ -353,7 +362,7 @@ Lina_Matrix3F Lina_Matrix3F::InitTranslation(const Lina_Vector3F& rhs)
 		}
 	}
 
-	m[3][3] = 1.0f;
+	m[2][2] = 1.0f;
 
 	return *this;
 }

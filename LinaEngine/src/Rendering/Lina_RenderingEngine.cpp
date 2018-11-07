@@ -31,7 +31,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 Lina_RenderingEngine::Lina_RenderingEngine()
 {
-	ambientLight = Vector3(0.2f, 0.2f, 0.2f);
+	ambientLight = Vector3(0.4f, 0.4f, 0.4f);
 }	
 
 
@@ -77,7 +77,7 @@ void Lina_RenderingEngine::Initialize(Lina_GameCore* g)
 	CreateDisplayWindow();
 
 	// Clear colors.
-	ClearColors(0.0, 0.0, 0.0, 1.0);
+	ClearColors(0.2, 0.0, 0.0, 1.0);
 
 	// Enable Textures
 	SetTextures(true);

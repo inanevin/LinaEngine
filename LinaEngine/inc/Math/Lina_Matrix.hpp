@@ -40,7 +40,7 @@ public:
 
 	Lina_Vector4F Transform(const Lina_Vector4F& rhs) const;
 	Lina_Vector3F Transform(const Lina_Vector3F& rhs) const;
-
+	void InitRotation(Vector3& forward, Vector3& up);
 	Lina_Matrix4F InitEulerRotation(float xR, float yR, float zR);
 	Lina_Matrix4F InitRotationFromVectors(const Lina_Vector3F&, const Lina_Vector3F&, const Lina_Vector3F&);
 	Lina_Matrix4F InitRotationFromDirection(const Lina_Vector3F& forward, const Lina_Vector3F& up);
@@ -51,9 +51,26 @@ public:
 	inline const float* operator[](int index) const { return m[index]; }
 	inline float* operator[](int index) { return m[index]; }
 
-	inline Lina_Matrix4F operator*(const Lina_Matrix4F& rhs) const
+
+	inline Lina_Matrix4F operator*(const Lina_Matrix4F& r2) const
 	{
-		Lina_Matrix4F ret;
+		Lina_Matrix4F result;
+
+		for (int i = 0; i < 4; i++)
+		{
+			for (int j = 0; j < 4; j++)
+			{
+				result.SetElement(i, j, GetElement(i, 0) * r2.GetElement(0, j) +
+					GetElement(i, 1) * r2.GetElement(1, j) +
+					GetElement(i, 2) * r2.GetElement(2, j) +
+					GetElement(i, 3) * r2.GetElement(3, j)
+				);
+			}
+		}
+
+		return result;
+
+	/*	Lina_Matrix4F ret;
 		for (unsigned int i = 0; i < 4; i++)
 		{
 			for (unsigned int j = 0; j < 4; j++)
@@ -63,8 +80,19 @@ public:
 					ret.m[i][j] += m[k][j] * rhs.m[i][k];
 			}
 		}
-		return ret;
+		return ret;*/
 	}
+
+	inline float GetElement(int x, int y) const
+	{
+		return this->m[x][y];
+	}
+
+	inline void SetElement(int x, int y, float val)
+	{
+		this->m[x][y] = val;
+	}
+
 	
 	float m[4][4];
 };
@@ -107,7 +135,7 @@ public:
 		return ret;
 	}
 
-	float m[4][4];
+	float m[3][3];
 };
 
 typedef Lina_Matrix3F Matrix3;

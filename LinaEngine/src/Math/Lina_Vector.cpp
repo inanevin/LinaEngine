@@ -143,20 +143,36 @@ Lina_Vector3F Lina_Vector3F::Cross(const Lina_Vector3F & rhs) const
 	);
 }
 
-Lina_Vector3F Lina_Vector3F::Rotate(float angle, const Lina_Vector3F & axis) const
+Lina_Vector3F Lina_Vector3F::Rotate(float angle, const Lina_Vector3F & axis) 
 {
-	const float sinAngle = sin(-angle);
-	const float cosAngle = cos(-angle);
+	float sinAngle = (float)sin(Lina_Math::ToRadians(angle / 2));
+	float cosAngle = (float)cos(Lina_Math::ToRadians(angle / 2));
 
-	return this->Cross(axis * sinAngle) +        //Rotation on local X
-		(*this * cosAngle) +                     //Rotation on local Z
-		axis * this->Dot(axis * (1 - cosAngle)); //Rotation on local Y
+
+	// A quaternion is essentially a complex number, we can think x-y-z as imaginary, w as real part.
+	// Distribute the angle accordingly.
+	float rotX = axis.x * sinAngle;
+	float rotY = axis.y * sinAngle;
+	float rotZ = axis.z * sinAngle;
+	float rotW = cosAngle;
+
+
+	Quaternion rotation = Quaternion(rotX, rotY, rotZ, rotW);
+	Quaternion conjugate = rotation.Conjugate();
+	//std::cout << "ROTX: " << conjugate.x << " ROTY: " << conjugate.y <<  " ROTZ: " << conjugate.z << ::endl;
+
+	Quaternion w = rotation * (*this) * (conjugate);
+
+	this->x = w.x;
+	this->y = w.y;
+	this->z = w.z;
+	return *this;
 }
 
 Lina_Vector3F Lina_Vector3F::Rotate(const Lina_Quaternion& rotation) const
 {
 	Lina_Quaternion conjugateQ = rotation.Conjugate();
-	Lina_Quaternion w = rotation * (*this) * conjugateQ;
+	Lina_Quaternion w = rotation * (*this) * conjugateQ ;
 
 	Lina_Vector3F ret = Lina_Vector3F(w.x, w.y, w.z);
 
