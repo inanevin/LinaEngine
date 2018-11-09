@@ -40,9 +40,6 @@ Matrix4 Lina_Transform::GetTransformation()
 	r = rotation.ToRotationMatrix();
 	s.InitScale(Vector3(scale.x, scale.y, scale.z));
 
-	
-	
-
 	// Return the multiplied scale with rotation with translation, inner-outer order.
 	return t * (r * s);
 }
