@@ -32,3 +32,4 @@ Under MIT license. See [LICENSE](https://github.com/lineupthesky/LinaEngine/blob
 
 ## Current Class Diagrams
 ![Diagram 1](Docs/Images/CD1.png?raw=true "Title")
+![Diagram 2](Docs/Images/CD2.png?raw=true "Title")
