@@ -34,7 +34,6 @@ void Lina_Actor::AddComponent(Lina_ActorComponent* component)
 {
 	if (!b_Initialized) return;
 
-	std::cout << "Added Component: " << component << std::endl;
 	components.emplace_back(std::move(component));
 	component->AttachToActor(*this);
 
@@ -123,7 +122,6 @@ void Lina_Actor::CleanUp()
 
 	for (std::vector<Lina_ActorComponent*>::iterator it = components.begin(); it != components.end(); it++)
 	{
-		std::cout << "Removing Component: " << *it << std::endl;
 		(*it)->CleanUp();
 	}
 		

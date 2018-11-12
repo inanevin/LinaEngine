@@ -38,15 +38,7 @@ public:
 		Lina_Vector4F(X, Y, Z, W)
 	{};
 
-	Lina_Quaternion(const Vector3& axis, float angle) {
-
-		float sinHalfAngle = sinf(angle / 2);
-		float cosHalfAngle = cosf(angle / 2);
-		x = axis.x * sinHalfAngle;
-		y = axis.y * sinHalfAngle;
-		z = axis.z * sinHalfAngle;
-		w = cosHalfAngle;
-	}
+	Lina_Quaternion(const Vector3& axis, float angle);
 
 	Lina_Quaternion(const Lina_Matrix4F& m);
 	Lina_Quaternion NLerp(const Lina_Quaternion& r, float lerpFactor, bool shortestPath) const;

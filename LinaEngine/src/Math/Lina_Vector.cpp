@@ -145,7 +145,7 @@ Lina_Vector3F Lina_Vector3F::Cross(const Lina_Vector3F & rhs) const
 
 Lina_Vector3F Lina_Vector3F::Rotate(float angle, const Lina_Vector3F & axis) 
 {
-	float sinAngle = (float)sin(Lina_Math::ToRadians(angle / 2));
+	/*float sinAngle = (float)sin(Lina_Math::ToRadians(angle / 2));
 	float cosAngle = (float)cos(Lina_Math::ToRadians(angle / 2));
 
 
@@ -155,11 +155,10 @@ Lina_Vector3F Lina_Vector3F::Rotate(float angle, const Lina_Vector3F & axis)
 	float rotY = axis.y * sinAngle;
 	float rotZ = axis.z * sinAngle;
 	float rotW = cosAngle;
+	*/
 
-
-	Quaternion rotation = Quaternion(rotX, rotY, rotZ, rotW);
+	Quaternion rotation = Quaternion(axis, angle);
 	Quaternion conjugate = rotation.Conjugate();
-	//std::cout << "ROTX: " << conjugate.x << " ROTY: " << conjugate.y <<  " ROTZ: " << conjugate.z << ::endl;
 
 	Quaternion w = rotation * (*this) * (conjugate);
 

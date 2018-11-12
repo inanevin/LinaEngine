@@ -22,7 +22,19 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "pch.h"
 #include "Math/Lina_Quaternion.hpp"  
 #include "Math/Lina_Matrix.hpp"
+#include "Math/Lina_Math.hpp"
 
+
+Lina_Quaternion::Lina_Quaternion(const Vector3 & axis, float angle)
+{
+	angle = Lina_Math::ToRadians(angle);
+	float sinHalfAngle = sinf(angle / 2);
+	float cosHalfAngle = cosf(angle / 2);
+	x = axis.x * sinHalfAngle;
+	y = axis.y * sinHalfAngle;
+	z = axis.z * sinHalfAngle;
+	w = cosHalfAngle;
+}
 
 Lina_Quaternion::Lina_Quaternion(const Lina_Matrix4F & m)
 {

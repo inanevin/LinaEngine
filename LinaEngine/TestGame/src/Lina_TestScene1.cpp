@@ -72,19 +72,18 @@ void Lina_TestScene::Wake()
 
 
 
-	Lina_SpotLight* sLight = new Lina_SpotLight(COLOR_Blue, 3.0f, 0.7f, Lina_Attenuation(1,0, 0.0f));
+	Lina_SpotLight* sLight = new Lina_SpotLight(COLOR_Blue, 15.0f, 0.6f, Lina_Attenuation(1,0, 0));
 	
 	lightHolder.AddComponent(sLight);
 	//lightHolder.AddComponent(pLight);
 	lightHolder.Transform().SetRotation(1,1, 1);
-	lightHolder.Transform().SetPosition(0, 0, 0);
+	lightHolder.Transform().SetPosition(8, 0, 0);
 
 	floor.AddComponent(meshRenderer);
 	floor.Transform().SetPosition(0, -1, 0);
 	
 	rootActor.AddChild(&floor);
 	rootActor.AddChild(&lightHolder);
-
 //	pLight->GetTransform().SetPosition(-10, 0, 0);
 
 }
@@ -109,10 +108,13 @@ float temp;
 void Lina_TestScene::Update(float tickRate)
 {
 	Lina_Scene::Update(tickRate);
-	temp += tickRate * 5;
+	temp += tickRate * 55;
 
 	//floor.Transform().SetPosition(Vector3(0,-2,0));
 //	lightHolder.Transform().SetPosition(Vector3(sin(temp)*6, 0, 0));
+	//lightHolder.Transform().SetRotation(0,0,sin(temp) * 15);
+	lightHolder.Transform().SetRotation(Lina_Quaternion(Vector3(0, 1, 0),temp));
+
 }
 
 void Lina_TestScene::Render(Lina_Shader* shader)
