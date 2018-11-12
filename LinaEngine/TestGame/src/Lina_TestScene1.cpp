@@ -64,7 +64,7 @@ void Lina_TestScene::Wake()
 	meshRenderer->SetMaterial(material);
 	meshRenderer->SetMesh("plane");
 
-	Lina_PointLight* pLight = new Lina_PointLight(COLOR_Blue, 1, Lina_Attenuation(1, 0, 0));
+	//Lina_PointLight* pLight = new Lina_PointLight(COLOR_Blue, 4, Lina_Attenuation(1, 0, 0));
 	
 	
 
@@ -72,16 +72,20 @@ void Lina_TestScene::Wake()
 
 
 
-	//Lina_SpotLight* sLight = new Lina_SpotLight(COLOR_Green, 255, 30, 0.1f, Lina_Attenuation(0,0, 0.9f), Vector3::one());
+	Lina_SpotLight* sLight = new Lina_SpotLight(COLOR_Blue, 3.0f, 0.7f, Lina_Attenuation(1,0, 0.0f));
 	
-	lightHolder.AddComponent(pLight);
-	
-	floor.AddComponent(meshRenderer);
+	lightHolder.AddComponent(sLight);
+	//lightHolder.AddComponent(pLight);
+	lightHolder.Transform().SetRotation(1,1, 1);
+	lightHolder.Transform().SetPosition(0, 0, 0);
 
+	floor.AddComponent(meshRenderer);
+	floor.Transform().SetPosition(0, -1, 0);
+	
 	rootActor.AddChild(&floor);
 	rootActor.AddChild(&lightHolder);
 
-	pLight->GetTransform().SetPosition(-10, 0, 0);
+//	pLight->GetTransform().SetPosition(-10, 0, 0);
 
 }
 
@@ -107,8 +111,8 @@ void Lina_TestScene::Update(float tickRate)
 	Lina_Scene::Update(tickRate);
 	temp += tickRate * 5;
 
-	floor.Transform().SetPosition(Vector3(0,-2,0));
-	//lightHolder.Transform().SetPosition(Vector3(sin(temp)*6, 2, 5));
+	//floor.Transform().SetPosition(Vector3(0,-2,0));
+//	lightHolder.Transform().SetPosition(Vector3(sin(temp)*6, 0, 0));
 }
 
 void Lina_TestScene::Render(Lina_Shader* shader)

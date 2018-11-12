@@ -77,7 +77,7 @@ void Lina_RenderingEngine::Initialize(Lina_GameCore* g)
 	CreateDisplayWindow();
 
 	// Clear colors.
-	ClearColors(0.2, 0.0, 0.0, 1.0);
+	ClearColors(0.0, 0.0, 0.0, 1.0);
 
 	// Enable Textures
 	SetTextures(true);
@@ -197,12 +197,13 @@ void Lina_RenderingEngine::ClearColors(float r, float g, float b, float a)
 
 void Lina_RenderingEngine::ClearLights()
 {
-	for (std::vector<const Lina_BaseLight*>::iterator it = currentLights.begin(); it != currentLights.end(); ++it) 
+	// Light components will already be deallocated from the memory by the actors that hold them.
+
+	/*for (std::vector<const Lina_BaseLight*>::iterator it = currentLights.begin(); it != currentLights.end(); ++it) 
 	{
-		std::cout << "Deleted: " << *it << std::endl;
 		delete *it;
 	}
-
+	*/
 	currentLights.clear();
 }
 

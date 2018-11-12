@@ -191,11 +191,20 @@ Lina_Matrix4F Lina_Matrix4F::InitPerspective(float fov, float aspectRatio, float
 	const float zRng = zNear - zFar;
 	const float tanHFOV = tanf(fov / 2.0f);
 
-
+	
 	m[0][0] = 1.0f / (tanHFOV * aspectRatio);	m[0][1] = 0;				m[0][2] = 0;						m[0][3] = 0;
 	m[1][0] = 0;								m[1][1] = 1.0f / tanHFOV;	m[1][2] = 0;						m[1][3] = 0;
 	m[2][0] = 0;								m[2][1] = 0;				m[2][2] = (-zNear - zFar) / zRng;	m[2][3] = 2 * zFar * zNear / zRng;
 	m[3][0] = 0;								m[3][1] = 0;				m[3][2] = 1;						m[3][3] = 0;
+	
+
+	// MAJOR ROW - COLUMN
+	/*
+	(*this)[0][0] = 1.0f / (tanHFOV * aspectRatio); (*this)[1][0] = 0.0f;   (*this)[2][0] = 0.0f;            (*this)[3][0] = 0.0f;
+	(*this)[0][1] = 0.0f;                   (*this)[1][1] = 1.0f / tanHFOV; (*this)[2][1] = 0.0f;            (*this)[3][1] = 0.0f;
+	(*this)[0][2] = 0.0f;                   (*this)[1][2] = 0.0f;            (*this)[2][2] = (-zNear - zFar) / zRng; (*this)[3][2] = 2 * zFar * zNear / zRng;
+	(*this)[0][3] = 0.0f;                   (*this)[1][3] = 0.0f;            (*this)[2][3] = 1.0f;            (*this)[3][3] = 0.0f;
+	*/
 
 	return *this;
 }

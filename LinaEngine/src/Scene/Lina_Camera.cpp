@@ -103,7 +103,6 @@ void Lina_Camera::RotateX(float angle)
 
 	// Rotate the forward axis with respect to the World's horizontal axis.
 	forward.Rotate(angle, horizontal);
-	std::cout << "x: " << forward.x << "y: " << forward.y << "z: " << forward.z << std::endl;
 
 	forward.Normalize();
 

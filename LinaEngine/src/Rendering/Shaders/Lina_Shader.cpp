@@ -25,6 +25,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Core/Lina_Transform.hpp"
 #include "Scene/Lina_Camera.hpp"
 #include "Rendering/Lina_Lighting.hpp"
+#include "Math/Lina_Matrix.hpp"
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -168,9 +169,9 @@ void Lina_Shader::SetUniform(const std::string& name, Vector3 value) const
 	glUniform3f(m_Uniforms.find(name)->second, value.x, value.y, value.z);
 }
 
-void Lina_Shader::SetUniform(const std::string& name, GLfloat* val) const
+void Lina_Shader::SetUniform(const std::string& name, const Matrix4& val) const
 {
-	glUniformMatrix4fv(m_Uniforms.find(name)->second, 1, true, val);
+	glUniformMatrix4fv(m_Uniforms.find(name)->second, 1, true, &(val[0][0]));
 }
 
 
@@ -204,7 +205,7 @@ void Lina_Shader::SetUniform(const std::string& name, const Lina_SpotLight& sLig
 	SetUniform(name + ".pointLight.attenuation.exponent", sLight.attenuation.exponent);
 	SetUniform(name + ".pointLight.position", sLight.GetTransform().GetPosition());
 	SetUniform(name + ".pointLight.range", sLight.range);
-	SetUniform(name + ".direction", sLight.direction);
+	SetUniform(name + ".direction", sLight.GetDirection());
 	SetUniform(name + ".cutoff", sLight.cutoff);
 }
 

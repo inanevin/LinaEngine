@@ -49,7 +49,7 @@ void Lina_BasicShader::UpdateUniforms(Lina_Transform& t, Lina_Material mat)
 	
 	mat.texture.Bind();
 
-	SetUniform("model", *(projected.m));
+	SetUniform("model", (projected));
 	SetUniform("color", mat.color);
 	
 }

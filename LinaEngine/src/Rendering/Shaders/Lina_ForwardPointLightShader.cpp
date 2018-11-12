@@ -63,8 +63,8 @@ void Lina_ForwardPointLightShader::UpdateUniforms(Lina_Transform& t, Lina_Materi
 	Matrix4 projected = RenderingEngine->GetCurrentActiveCamera()->GetViewProjection() * world;
 	mat.texture.Bind();
 	
-	SetUniform("modelViewProjection", *(projected.m));
-	SetUniform("model", *(world.m));
+	SetUniform("modelViewProjection", (projected));
+	SetUniform("model", (world));
 	SetUniform("specularIntensity", mat.specularIntensity);
 	SetUniform("specularExponent", mat.specularExponent);
 	SetUniform("camPos", RenderingEngine->GetCurrentActiveCamera()->GetPosition());

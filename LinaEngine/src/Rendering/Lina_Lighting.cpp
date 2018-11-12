@@ -54,13 +54,22 @@ Lina_PointLight::Lina_PointLight(Color c, float i, Lina_Attenuation at) : Lina_B
 
 Lina_PointLight::Lina_PointLight(Lina_Shader * s, Color c, float i, Lina_Attenuation at) : Lina_BaseLight(s, c, i), attenuation(at)
 {
+	float k = at.exponent;
+	float l = at.linear;
+	float m = at.constant - COLOR_DEPTH * i * max(c.red, c.green, c.blue);
 
+	range = (-l + sqrtf(l*l - 4 * k * m)) / (2 * k);
 }
 
 void Lina_PointLight::AttachToActor(Lina_Actor & act)
 {
 	Lina_ActorComponent::AttachToActor(act);
 	act.Engine()->RenderingEngine()->AddLight(*this);
+}
+
+Vector3 Lina_SpotLight::GetDirection() const
+{
+	return m_Actor->Transform().GetRotation().GetForward();
 }
 
 void Lina_SpotLight::AttachToActor(Lina_Actor & act)

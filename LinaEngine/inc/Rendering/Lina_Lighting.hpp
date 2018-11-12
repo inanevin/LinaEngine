@@ -125,15 +125,21 @@ class Lina_SpotLight : public Lina_PointLight
 
 public:
 
-	Lina_SpotLight(Color c = COLOR_Black, float i = 0.0f, float co = 0.1f, Lina_Attenuation at = Lina_Attenuation::AT_QUADRATIC, Vector3 dir = Vector3::One()) :
-		Lina_PointLight(&Lina_ForwardSpotLightShader::Instance(), c, i, at), direction(dir), cutoff(co) {};
+	Lina_SpotLight(Color c = COLOR_Black, float i = 0.0f, float co = 0.1f, Lina_Attenuation at = Lina_Attenuation::AT_QUADRATIC) :
+		Lina_PointLight(&Lina_ForwardSpotLightShader::Instance(), c, i, at), cutoff(co) {};
 	
+	Vector3 GetDirection() const;
+
 	float cutoff;
-	Vector3 direction;
 
 protected:
 
 	void AttachToActor(Lina_Actor&) override;
+
+private:
+
+	Vector3 direction;
+
 
 };
 

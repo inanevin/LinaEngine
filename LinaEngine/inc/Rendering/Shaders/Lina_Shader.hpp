@@ -57,7 +57,7 @@ public:
 	void SetUniform(const std::string&, float) const;
 	void SetUniform(const std::string&, int) const;
 	void SetUniform(const std::string&, Vector3) const;
-	void SetUniform(const std::string&, GLfloat*) const;
+	void SetUniform(const std::string&, const Matrix4& val) const;
 	void SetUniform(const std::string&, const Lina_DirectionalLight&) const;
 	void SetUniform(const std::string&, const Lina_PointLight&) const;
 	void SetUniform(const std::string&, const Lina_SpotLight&) const;

@@ -56,7 +56,7 @@ void Lina_ForwardAmbientLightShader::UpdateUniforms(Lina_Transform& t, Lina_Mate
 
 	mat.texture.Bind();
 
-	SetUniform("modelViewProjection", *(projected.m));
+	SetUniform("modelViewProjection", (projected));
 	SetUniform("ambient", RenderingEngine->GetAmbientLight());
 
 }
