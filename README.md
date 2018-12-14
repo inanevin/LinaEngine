@@ -40,4 +40,4 @@ Under MIT license. See [LICENSE](https://github.com/lineupthesky/LinaEngine/blob
 
 ## Design Document
 
-[Link to the Software Design Document of Lina Engine] (https://docs.google.com/document/d/13Z1D77WbLJkyq0Q2Q9DdKKSM4tfqiZHQi_j_x0Rs5Ec/edit?usp=sharing)
+[Link to the Software Design Document of Lina Engine](https://docs.google.com/document/d/13Z1D77WbLJkyq0Q2Q9DdKKSM4tfqiZHQi_j_x0Rs5Ec/edit?usp=sharing)
