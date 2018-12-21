@@ -33,7 +33,7 @@ Under MIT license. See [LICENSE](https://github.com/lineupthesky/LinaEngine/blob
 ## Design Diagrams
 
 #### System Architecture
-![Diagram 1](Docs/Images/System Architecture.png?raw=true "Title")
+![Diagram 1](Docs/Images/SystemArchitecture.png?raw=true "Title")
 
 
 ## Design Document
