@@ -20,6 +20,7 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 - Visual C++ 2017
 
 ## Dependencies
+- SPD Logger
 - SDL 2.0
 - OpenGL 4.6
 - GLEW 2.1.0
