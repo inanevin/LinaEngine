@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{B49B104C-358D-4185-8D7C-8E9BE7D74AB2}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>LinaEngine</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Github-Rep\LinaEngine\LinaEngine\opengl_inc;C:\Github-Rep\LinaEngine\LinaEngine\inc;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Github-Rep\LinaEngine\Debug;C:\Github-Rep\LinaEngine\LinaEngine\opengl_lib;$(LibraryPath)</LibraryPath>
+    <SourcePath>C:\Github-Rep\LinaEngine\Debug;C:\Github-Rep\LinaEngine\LinaEngine\opengl_lib;C:\Github-Rep\LinaEngine\LinaEngine\opengl_inc;C:\Github-Rep\LinaEngine\LinaEngine\src;$(SourcePath)</SourcePath>
+    <ExecutablePath>C:\Github-Rep\LinaEngine\LinaEngine\Debug;$(ExecutablePath)</ExecutablePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\Github-Rep\LinaEngine\LinaEngine\opengl_inc;C:\Github-Rep\LinaEngine\LinaEngine\inc;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Github-Rep\LinaEngine\Debug;C:\Github-Rep\LinaEngine\LinaEngine\opengl_lib;$(LibraryPath)</LibraryPath>
+    <SourcePath>C:\Github-Rep\LinaEngine\Debug;C:\Github-Rep\LinaEngine\LinaEngine\opengl_lib;C:\Github-Rep\LinaEngine\LinaEngine\opengl_inc;C:\Github-Rep\LinaEngine\LinaEngine\src;$(SourcePath)</SourcePath>
+    <ExecutablePath>C:\Github-Rep\LinaEngine\LinaEngine\Debug;$(ExecutablePath)</ExecutablePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>C:\Github-Rep\LinaEngine\LinaEngine\TestGame\inc;.\opengl_inc;.\;.\inc;.\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Github-Rep\LinaEngine\LinaEngine\TestGame\inc;.\opengl_lib;.\;.\inc;.\src;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32.lib;glew32s.lib;SDL2.lib;SDL2main.lib;SDL2test.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;SDL_INPUT_API;SDL_INPUT_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>
+      </LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\DataStructures\Lina_Color.cpp" />
+    <ClCompile Include="src\ECS\Lina_ECS.cpp" />
+    <ClCompile Include="src\ECS\Lina_ECSComponent.cpp" />
+    <ClCompile Include="src\Core\Lina_CoreMessageBus.cpp" />
+    <ClCompile Include="src\Game\Components\Lina_MeshRenderer.cpp" />
+    <ClCompile Include="src\Game\Lina_Actor.cpp" />
+    <ClCompile Include="src\Game\Lina_ActorComponent.cpp" />
+    <ClCompile Include="src\Input\Lina_InputEngine.cpp" />
+    <ClCompile Include="src\Core\Lina_Transform.cpp" />
+    <ClCompile Include="src\Math\Lina_Math.cpp" />
+    <ClCompile Include="src\Math\Lina_Matrix.cpp" />
+    <ClCompile Include="src\Math\Lina_Quaternion.cpp" />
+    <ClCompile Include="src\Math\Lina_Vector.cpp" />
+    <ClCompile Include="src\Rendering\Lina_Lighting.cpp" />
+    <ClCompile Include="src\Rendering\Shaders\Lina_BasicShader.cpp" />
+    <ClCompile Include="src\Rendering\Lina_Material.cpp" />
+    <ClCompile Include="src\Rendering\Lina_Mesh.cpp" />
+    <ClCompile Include="src\Rendering\Shaders\Lina_ForwardAmbientLightShader.cpp" />
+    <ClCompile Include="src\Rendering\Shaders\Lina_ForwardDirectionalLightShader.cpp" />
+    <ClCompile Include="src\Rendering\Shaders\Lina_ForwardPointLightShader.cpp" />
+    <ClCompile Include="src\Rendering\Shaders\Lina_ForwardSpotLightShader.cpp" />
+    <ClCompile Include="src\Rendering\Lina_RenderingEngine.cpp" />
+    <ClCompile Include="src\Core\Lina_Core.cpp" />
+    <ClCompile Include="src\Game\Lina_GameCore.cpp" />
+    <ClCompile Include="src\Core\Lina_SDLHandler.cpp" />
+    <ClCompile Include="src\Rendering\Shaders\Lina_Shader.cpp" />
+    <ClCompile Include="src\Rendering\Lina_Texture.cpp" />
+    <ClCompile Include="src\Rendering\Lina_Vertex.cpp" />
+    <ClCompile Include="src\Scene\Lina_Camera.cpp" />
+    <ClCompile Include="src\Scene\Lina_Scene.cpp" />
+    <ClCompile Include="src\Utility\Lina_ResourceLoader.cpp" />
+    <ClCompile Include="src\Utility\Lina_Time.cpp" />
+    <ClCompile Include="src\Rendering\Lina_Window.cpp" />
+    <ClCompile Include="src\Core\Lina_Main.cpp" />
+    <ClCompile Include="src\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\Utility\stb_image.cpp" />
+    <ClCompile Include="TestGame\src\Lina_TestGame.cpp" />
+    <ClCompile Include="TestGame\src\Lina_TestScene1.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="inc\Core\Lina_EngineInstances.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\DataStructures\Lina_Color.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\DataStructures\Lina_DSArray.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\ECS\Lina_ECS.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\ECS\Lina_ECSComponent.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\ECS\Lina_ECSSystem.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Events\Lina_Actions.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Core\Lina_Transform.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Game\Components\Lina_MeshRenderer.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Game\Lina_Actor.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Game\Lina_ActorComponent.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Math\Lina_Matrix.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Math\Lina_Vector.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Lighting.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Shaders\Lina_BasicShader.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_DefaultCubeMesh.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Material.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Mesh.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardAmbientLightShader.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardDirectionalLightShader.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardPointLightShader.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Shaders\Lina_ForwardSpotLightShader.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Shaders\Lina_Shader.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Texture.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Vertex.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Scene\Lina_Camera.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Scene\Lina_Scene.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Utility\Lina_Common.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Utility\Lina_Console.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Core\Lina_Core.hpp" />
+    <ClInclude Include="inc\Core\Lina_CoreMessageBus.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Core\Lina_ObjectHandler.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Input\Lina_InputEngine.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Math\Lina_Math.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Math\Lina_Quaternion.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Events\Lina_Signals.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Game\Lina_GameCore.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Core\Lina_SDLHandler.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Utility\Lina_Globals.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Utility\Lina_ResourceLoader.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Utility\Lina_Time.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_Window.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\Rendering\Lina_RenderingEngine.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="inc\pch.h" />
+    <ClInclude Include="inc\Utility\stb_image.h" />
+    <ClInclude Include="TestGame\inc\Lina_TestGame.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+    <ClInclude Include="TestGame\inc\Lina_TestScene1.hpp">
+      <SubType>
+      </SubType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Shaders\basic.frag" />
+    <None Include="Resources\Shaders\basic.vert" />
+    <None Include="Resources\Shaders\Lina_BasicFragment.fs" />
+    <None Include="Resources\Shaders\Lina_BasicVertex.vs" />
+    <None Include="Resources\Shaders\Lina_PhongFragment.fs" />
+    <None Include="Resources\Shaders\Lina_PhongVertex.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\Textures\container2.png" />
+    <Image Include="Resources\Textures\grid.png" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
