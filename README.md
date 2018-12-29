@@ -1,9 +1,10 @@
+[Lina Engine](#lina-engine)
 
 ## Announcements
 
 Lina Engine is currently being carried over to a new version (30.12.2018). There exists _LinaEngine_ and _Sandbox_ folders which is consists of the structure for sandbox application and DLL linkage setup. The old project files, that include examples for input, rendering, event and ECS systems can be found under the folder __VERSION0_SRC_.  
 
-## LinaEngine
+## Lina Engine
 
 Lina Engine is an open-source game engine, that is dedicated to bring alternative and unique solutions to solve existing problems in the architecture of many game engines. It offers an architecture that has the purpose to create lightweight systems and focus on the robustness of core structure rather than stacking thousands of features for market competence. 
 
