@@ -30,10 +30,12 @@ Under MIT license. See [LICENSE](https://github.com/lineupthesky/LinaEngine/blob
 
 [View Project Timeline on TeamGantt](https://prod.teamgantt.com/gantt/schedule/?ids=1324878&public_keys=HmDPAs8HHBwi&zoom=d100&font_size=12&estimated_hours=0&assigned_resources=0&percent_complete=0&documents=0&comments=0&col_width=355&hide_header_tabs=0&menu_view=1&resource_filter=1&name_in_bar=0&name_next_to_bar=0&resource_names=1#user=&company=&custom=&date_filter=&hide_completed=false&color_filter=)
 
-## Current Class Diagrams
+## Design Diagrams
 
-#### Diagram1
-![Diagram 1](Docs/Images/CD1.png?raw=true "Title")
+#### System Architecture
+![Diagram 1](Docs/Images/SystemArchitecture.png?raw=true "Title")
 
-#### Diagram2
-![Diagram 2](Docs/Images/CD2.png?raw=true "Title")
+
+## Design Document
+
+[Link to the Software Design Document of Lina Engine](https://docs.google.com/document/d/13Z1D77WbLJkyq0Q2Q9DdKKSM4tfqiZHQi_j_x0Rs5Ec/edit?usp=sharing)
