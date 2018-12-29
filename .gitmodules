@@ -1,0 +1,3 @@
+[submodule "LinaEngine/vendor/spdlog"]
+	path = LinaEngine/vendor/spdlog
+	url = https://github.com/gabime/spdlog

@@ -25,6 +25,10 @@ extern LinaEngine::Lina_Application* LinaEngine::CreateApplication();
 
 int main(int argc, char** argv)
 {
+	LinaEngine::Lina_Log::Init();
+	LINA_CORE_WARN("Initialized core logger!");
+	LINA_CLIENT_INFO("Initialized client logger");
+
 	auto app = LinaEngine::CreateApplication();
 	app->Run();
 	delete app;

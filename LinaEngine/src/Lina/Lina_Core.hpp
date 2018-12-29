@@ -33,7 +33,6 @@ Timestamp: 12/29/2018 10:43:46 PM
 	#error Lina supports Windows only for now.
 #endif
 
-
 namespace LinaEngine
 {
 	class Lina_Core

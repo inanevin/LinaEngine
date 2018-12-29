@@ -27,9 +27,15 @@
     <ClInclude Include="src\Lina.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Lina\Engine Utility\Lina_Log.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Lina\Lina_Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Lina\Engine Utility\Lina_Log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
