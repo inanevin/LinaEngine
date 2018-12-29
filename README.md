@@ -1,4 +1,4 @@
-[Lina Engine](#lina-engine)
+[Lina Engine](https://github.com/inanevin/LinaEngine#announcements)
 
 ## Announcements
 
