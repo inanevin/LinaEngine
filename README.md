@@ -1,5 +1,20 @@
-# Lina Engine
-Lina Engine is an open-source , modular, tiny and fast C++ game engine, aimed to develop 3D cross-platform desktop games.
+![Size](https://github-size-badge.herokuapp.com/inanevin/LinaEngine.svg)
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/12c68c16c719427786597403aee43eb4)](https://app.codacy.com/app/inanevin/LinaEngine?utm_source=github.com&utm_medium=referral&utm_content=inanevin/LinaEngine&utm_campaign=Badge_Grade_Dashboard)
+
+## Announcements
+
+Lina Engine is currently being carried over to a new version (30.12.2018). There exists _LinaEngine_ and _Sandbox_ folders which is consists of the structure for sandbox application and DLL linkage setup. The old project files, that include examples for input, rendering, event and ECS systems can be found under the folder __VERSION0_SRC_.  
+
+## Lina Engine
+
+Lina Engine is an open-source game engine, that is dedicated to bring alternative and unique solutions to solve existing problems in the architecture of many game engines. It offers an architecture that has the purpose to create lightweight systems and focus on the robustness of core structure rather than stacking thousands of features for market competence. 
+
+Lina Engine is a research project, and it is aimed to be the basis of development for more open-source game engine projects. It is our hope that the techniques and architecture used in this game engine can play the initiative role for more projects to develop open source game engines.
+
+## Important
+
+- The new version under development works on only Windows platform for now. The build process requires the given mention of VS in the _Prequisites_. Later on CMake integration will be added for abstract build support.
 
 ## Prequisites
 - Visual Studio 2017 15.8.5 or newer
@@ -16,25 +31,23 @@ Lina Engine is an open-source , modular, tiny and fast C++ game engine, aimed to
 
 ## Installation
 - git clone https://github.com/inanevin/LinaEngine
-- Open the .sln file in mentioned VS version.
-- Run x86 Build
-- Open Debug/LinaEngine.exe
+- Open LinaEngine.sln in the VS version mentioned in _Prequisites_.
+- Build LinaEngine project, then build Sandbox project.
+
+## Run
+- Copy bin/Debug-x64/LinaEngine/LinaEngine.dll into bin/Sandbox/ directory.
+- Run Sandbox.exe
 
 ## License
-Under MIT license. See [LICENSE](https://github.com/lineupthesky/LinaEngine/blob/master/LICENSE.md) for details.
+Licensed under the Apache License, Version 2.0 See [LICENSE](https://github.com/lineupthesky/LinaEngine/blob/master/LICENSE.md) for details.
 
 ## Notes
 - OpenGL version guards have not been implemented yet, so if you are recieving memory crashes due to OpenGL buffers, please do update your graphics card to the latest version. Especially if you are running Intel HD chipsets.
-
-## Other
-
-[View Project Timeline on TeamGantt](https://prod.teamgantt.com/gantt/schedule/?ids=1324878&public_keys=HmDPAs8HHBwi&zoom=d100&font_size=12&estimated_hours=0&assigned_resources=0&percent_complete=0&documents=0&comments=0&col_width=355&hide_header_tabs=0&menu_view=1&resource_filter=1&name_in_bar=0&name_next_to_bar=0&resource_names=1#user=&company=&custom=&date_filter=&hide_completed=false&color_filter=)
 
 ## Design Diagrams
 
 #### System Architecture
 ![Diagram 1](Docs/Images/SystemArchitecture.png?raw=true "Title")
-
 
 ## Design Document
 
