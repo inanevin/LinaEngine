@@ -47,7 +47,7 @@ in the following builds.
 ## Design Diagrams
 
 #### System Architecture
-![Diagram 1](Docs/Images/SystemArchitecture.png?raw=true "Title")
+![Diagram 1](Docs/Images/SCS.png?raw=true "Title")
 
 ## Design Document
 
