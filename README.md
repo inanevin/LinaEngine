@@ -2,7 +2,9 @@
 
 Lina Engine is currently being carried over to a new version (30.12.2018). There exists _LinaEngine_ and _Sandbox_ folders which is consists of the structure for sandbox application and new engine version. The old project files, that include examples for input, rendering, event and ECS systems can be found under the folder __VERSION0_SRC__. There is no build generation for the old version. 
 
-## Lina Engine ![Size](https://github-size-badge.herokuapp.com/inanevin/LinaEngine.svg) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/12c68c16c719427786597403aee43eb4)](https://app.codacy.com/app/inanevin/LinaEngine?utm_source=github.com&utm_medium=referral&utm_content=inanevin/LinaEngine&utm_campaign=Badge_Grade_Dashboard)
+## Lina Engine ![Size](https://github-size-badge.herokuapp.com/inanevin/LinaEngine.svg) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/12c68c16c719427786597403aee43eb4)](https://app.codacy.com/app/inanevin/LinaEngine?utm_source=github.com&utm_medium=referral&utm_content=inanevin/LinaEngine&utm_campaign=Badge_Grade_Dashboard) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+
 
 Lina Engine is an open-source game engine, that is dedicated to bring alternative and unique solutions to solve existing problems in the architecture of many game engines. It offers an architecture that has the purpose to create lightweight systems and focus on the robustness of core structure rather than stacking thousands of features for market competence. 
 
@@ -33,7 +35,8 @@ in the following builds.
 - Run Sandbox.exe
 
 ## License
-Licensed under the Apache License, Version 2.0 See [LICENSE](https://github.com/lineupthesky/LinaEngine/blob/master/LICENSE.md) for details.
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Notes
 - OpenGL version guards have not been implemented yet, so if you are recieving memory crashes due to OpenGL buffers, please do update your graphics card to the latest version. Especially if you are running Intel HD chipsets.
