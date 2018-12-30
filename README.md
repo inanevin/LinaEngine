@@ -20,6 +20,7 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 ## Installation
 
 - git clone https://github.com/inanevin/LinaEngine
+- This project uses Premake5, .bat files for various environments are generated & inside the root directory.
 - Run one of the .bat files to generate projects for Visual Studio, GNU Make, XCode or CodeLite.
 - Open your project files in your IDE, build the projects. 
 - After first build, you might receive path error, if so just build again, this will disappear 
