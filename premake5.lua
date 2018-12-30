@@ -1,3 +1,4 @@
+
 workspace "LinaEngine"
 	architecture "x64"
 	
@@ -29,7 +30,7 @@ project "LinaEngine"
 	{
 		"%{prj.name}/vendor/spdlog/include"
 	}
-	
+			
 	filter "system:windows"
 		cppdialect "C++17"
 		staticruntime "On"
@@ -40,9 +41,9 @@ project "LinaEngine"
 			"LINA_PLATFORM_WINDOWS",
 			"LINA_BUILD_DLL"
 		}
-		
+
 		postbuildcommands
-		{
+		{	
 			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
 		}
 		
@@ -113,4 +114,7 @@ project "Sandbox"
 	filter "configurations:Debug"
 		defines "LINA_DIST"
 		symbols "On"
+		
+				
+
 	

@@ -74,6 +74,10 @@ artifacts/
 !/LinaEngine/*/*.lib
 !/Debug/*.dll
 *.lina
+*.sln
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
 
 # Chutzpah Test files
 _Chutzpah*
