@@ -12,37 +12,10 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: Lina_Core
-Timestamp: 12/29/2018 10:43:46 PM
+Class: pch
+Timestamp: 12/30/2018 5:46:38 PM
 
 */
 
-#pragma once
+#include "LinaPch.hpp"  
 
-#ifndef Lina_Core_HPP
-#define Lina_Core_HPP
- 
-
-#ifdef LINA_PLATFORM_WINDOWS
-	#ifdef LINA_BUILD_DLL
-		#define LINA_API __declspec(dllexport)
-	#else
-		#define LINA_API __declspec(dllimport)
-	#endif
-#else
-	#error Lina supports Windows only for now.
-#endif
-
-namespace LinaEngine
-{
-	class Lina_Core
-	{
-	public:
-
-		Lina_Core();
-
-	};
-}
-
-
-#endif

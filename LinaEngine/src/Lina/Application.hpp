@@ -22,21 +22,21 @@ Timestamp: 12/29/2018 10:43:46 PM
 #define Lina_Application_HPP
 
 
-#include "Lina_Core.hpp"
+#include "Core.hpp"
 
 namespace LinaEngine
 {
-	class LINA_API Lina_Application
+	class LINA_API Application
 	{
 	public:
 
-		Lina_Application();
-		virtual ~Lina_Application();
+		Application();
+		virtual ~Application();
 		void Run();
 	};
 
 	// Defined in client.
-	Lina_Application* CreateApplication();
+	Application* CreateApplication();
 }
 
 

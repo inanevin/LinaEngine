@@ -11,6 +11,15 @@ workspace "LinaEngine"
 	
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 	
+IncludeDir = {}
+IncludeDir["SDL"] = "LinaEngine/vendor/SDL2-2.0.9/include"
+
+DLLDir = {}
+DLLDir["SDL"] = "LinaEngine/vendor/SDL2-2.0.9/lib/x64"
+DLLDir["LinaEngine"] = "bin/" .. outputdir .. "/LinaEngine"
+
+
+
 project "LinaEngine"
 	location "LinaEngine"
 	kind "SharedLib"
@@ -18,6 +27,9 @@ project "LinaEngine"
 	
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-obj/" .. outputdir .. "/%{prj.name}")
+	
+	pchheader "LinaPch.hpp"
+	pchsource "LinaEngine/src/LinaPch.cpp"
 	
 	files
 	{
@@ -28,10 +40,24 @@ project "LinaEngine"
 	
 	includedirs
 	{
-		"%{prj.name}/vendor/spdlog/include"
+		"%{prj.name}/src",
+		"%{prj.name}/vendor/spdlog/include",
+		"%{IncludeDir.SDL}"
+	}
+	
+	libdirs
+	{
+		"%{prj.name}/vendor/SDL2-2.0.9/lib/x64"
+	}
+	
+	links
+	{
+		"SDL2.lib",
+		"SDL2",
+		"SDL2main.lib"
 	}
 			
-	filter "system:windows"
+		filter "system:windows"
 		cppdialect "C++17"
 		staticruntime "On"
 		systemversion "latest"
@@ -42,10 +68,7 @@ project "LinaEngine"
 			"LINA_BUILD_DLL"
 		}
 
-		postbuildcommands
-		{	
-			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
-		}
+	
 		
 	filter "configurations:Debug"
 		defines "LINA_DEBUG"
@@ -100,6 +123,15 @@ project "Sandbox"
 		defines
 		{
 			"LINA_PLATFORM_WINDOWS"
+		}
+		
+		postbuildcommands
+		{	
+			
+			("{COPY}  ../%{DLLDir.LinaEngine}/LinaEngine.dll  ../bin/" .. outputdir .. "/Sandbox"),
+			("{COPY} ../%{DLLDir.SDL}/SDL2.dll ../bin/" .. outputdir .. "/Sandbox")
+			--- ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox"),	
+			--- ("{COPY} ../%{DLLDir.SDL}/SDL2.dll ../bin/" .. outputdir .. "/Sandbox")
 		}
 
 		

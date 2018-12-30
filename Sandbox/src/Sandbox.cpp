@@ -19,14 +19,16 @@ Timestamp: 12/29/2018 11:15:41 PM
 
 #include <Lina.hpp>
 
-class Sandbox : public LinaEngine::Lina_Application
+class Sandbox : public LinaEngine::Application
 {
 public:
 	Sandbox() {}
 	~ Sandbox(){}
+
+
 };
 
-LinaEngine::Lina_Application* LinaEngine::CreateApplication()
+LinaEngine::Application* LinaEngine::CreateApplication()
 {
 	return new Sandbox();
 }

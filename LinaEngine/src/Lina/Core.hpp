@@ -12,28 +12,28 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: Lina_Application
+Class: Lina_Core
 Timestamp: 12/29/2018 10:43:46 PM
 
 */
 
-#include "Lina_Application.hpp"  
+#pragma once
 
-namespace LinaEngine
-{
-	Lina_Application::Lina_Application()
-	{
+#ifndef Lina_Core_HPP
+#define Lina_Core_HPP
+ 
 
-	}
+#ifdef LINA_PLATFORM_WINDOWS
+	#ifdef LINA_BUILD_DLL
+		#define LINA_API __declspec(dllexport)
+	#else
+		#define LINA_API __declspec(dllimport)
+	#endif
+#else
+	#error Lina supports Windows only for now.
+#endif
 
-	Lina_Application::~Lina_Application()
-	{
+#define BIT(x) (1 << x)
 
-	}
 
-	void Lina_Application::Run()
-	{
-		while (true);
-	}
-}
-
+#endif

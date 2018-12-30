@@ -19,36 +19,36 @@ Timestamp: 12/30/2018 1:54:10 AM
 
 #pragma once
 
-#ifndef Lina_Log_HPP
-#define Lina_Log_HPP
+#ifndef Log_HPP
+#define Log_HPP
 
 // ****************** CORE LOG MACROS ******************
-#define LINA_CORE_ERR(...)		::LinaEngine::Lina_Log::GetCoreLogger()->error(__VA_ARGS__)
-#define LINA_CORE_WARN(...)		::LinaEngine::Lina_Log::GetCoreLogger()->warn(__VA_ARGS__)
-#define LINA_CORE_INFO(...)		::LinaEngine::Lina_Log::GetCoreLogger()->info(__VA_ARGS__)
-#define LINA_CORE_TRACE(...)	::LinaEngine::Lina_Log::GetCoreLogger()->trace(__VA_ARGS__)
-#define LINA_CORE_FATAL(...)	::LinaEngine::Lina_Log::GetCoreLogger()->fatal(__VA_ARGS__)
+#define LINA_CORE_ERR(...)		::LinaEngine::Log::GetCoreLogger()->error(__VA_ARGS__)
+#define LINA_CORE_WARN(...)		::LinaEngine::Log::GetCoreLogger()->warn(__VA_ARGS__)
+#define LINA_CORE_INFO(...)		::LinaEngine::Log::GetCoreLogger()->info(__VA_ARGS__)
+#define LINA_CORE_TRACE(...)	::LinaEngine::Log::GetCoreLogger()->trace(__VA_ARGS__)
+#define LINA_CORE_FATAL(...)	::LinaEngine::Log::GetCoreLogger()->fatal(__VA_ARGS__)
 // ****************** CORE LOG MACROS ******************
 
 
 // ****************** CLIENT LOG MACROS ******************
-#define LINA_CLIENT_ERR(...)		::LinaEngine::Lina_Log::GetClientLogger()->error(__VA_ARGS__)
-#define LINA_CLIENT_WARN(...)		::LinaEngine::Lina_Log::GetClientLogger()->warn(__VA_ARGS__)
-#define LINA_CLIENT_INFO(...)		::LinaEngine::Lina_Log::GetClientLogger()->info(__VA_ARGS__)
-#define LINA_CLIENT_TRACE(...)	::LinaEngine::Lina_Log::GetClientLogger()->trace(__VA_ARGS__)
-#define LINA_CLIENT_FATAL(...)	::LinaEngine::Lina_Log::GetClientLogger()->fatal(__VA_ARGS__)
+#define LINA_CLIENT_ERR(...)		::LinaEngine::Log::GetClientLogger()->error(__VA_ARGS__)
+#define LINA_CLIENT_WARN(...)		::LinaEngine::Log::GetClientLogger()->warn(__VA_ARGS__)
+#define LINA_CLIENT_INFO(...)		::LinaEngine::Log::GetClientLogger()->info(__VA_ARGS__)
+#define LINA_CLIENT_TRACE(...)	::LinaEngine::Log::GetClientLogger()->trace(__VA_ARGS__)
+#define LINA_CLIENT_FATAL(...)	::LinaEngine::Log::GetClientLogger()->fatal(__VA_ARGS__)
 // ****************** CLIENT LOG MACROS ******************
 
 // DISABLE LOGGERS IN DISTRIBUTION BUILDS
 
 
-#include <memory>
-#include "../Lina_Core.hpp"
+#include "Lina/Core.hpp"
 #include "spdlog/spdlog.h"
+#include "spdlog/fmt/ostr.h"
 
 namespace LinaEngine
 {
-	class LINA_API Lina_Log
+	class LINA_API Log
 	{
 	public:
 

@@ -12,26 +12,29 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: LinaEngine
-Timestamp: 12/29/2018 11:21:31 PM
+Class: Lina_EntryPoint
+Timestamp: 12/29/2018 11:28:02 PM
 
 */
 
 #pragma once
-#ifndef LinaEngine_HPP
-#define LinaEngine_HPP
 
 
-// To be used by Lina applications.
+#ifdef LINA_PLATFORM_WINDOWS
 
 
-#include "Lina/Application.hpp"
-#include "Lina/Engine Utility/Log.hpp"
 
-// *********** ENTRY POINT *********** 
-#include "Lina/EntryPoint.hpp"
-// *********** ENTRY POINT *********** 
+extern LinaEngine::Application* LinaEngine::CreateApplication();
 
-
+int main(int argc, char** argv)
+{
+	LinaEngine::Log::Init();
+	
+	auto app = LinaEngine::CreateApplication();
+	app->Run();
+	delete app;
+}
 
 #endif
+
+

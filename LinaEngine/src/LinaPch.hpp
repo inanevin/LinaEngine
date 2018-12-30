@@ -12,28 +12,27 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: Lina_EntryPoint
-Timestamp: 12/29/2018 11:28:02 PM
+Class: Lina_Pch
+Timestamp: 12/30/2018 5:29:20 PM
 
 */
 
 #pragma once
 
+#include <iostream>
+#include <memory>
+#include <utility>
+#include <algorithm>
+#include <functional>
+
+#include <string>
+#include <sstream>
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+
+#include "Lina/Engine Utility/Log.hpp"
+
 #ifdef LINA_PLATFORM_WINDOWS
-
-extern LinaEngine::Lina_Application* LinaEngine::CreateApplication();
-
-int main(int argc, char** argv)
-{
-	LinaEngine::Lina_Log::Init();
-	LINA_CORE_WARN("Initialized core logger!");
-	LINA_CLIENT_INFO("Initialized client logger");
-
-	auto app = LinaEngine::CreateApplication();
-	app->Run();
-	delete app;
-}
-
+#include <Windows.h>
 #endif
-
-
