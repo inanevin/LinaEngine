@@ -22,15 +22,19 @@ Timestamp: 12/31/2018 1:46:13 AM
 #ifndef GraphicsAdapter_HPP
 #define GraphicsAdapter_HPP
 
-#ifdef LLF_WINDOWCONTEXT_SDL
 
-#define WINDOWCREATEFUNC(PARAM) Window* CreateEngineWindow(const WindowProps& props = WindowProps()) { return SDLWindow::Create(props); }
+#ifdef LLF_GRAPHICS_SDLOpenGL
 
-#include "Low Level Framework/SDLWindow.hpp"
+#include "Low Level Framework/SDLOpenGLWindow.hpp"
+
+#define WINDOWCREATEFUNC(PARAM) inline Window* CreateEngineWindow(const WindowProps& props = WindowProps()) { return SDLOpenGLWindow::Create(props); }
+
 
 #else
 
-#define WINDOWCREATEFUNC(PARAM) Window* CreateEngineWindow(const WindowProps& props = WindowProps()) { LINA_CORE_ERR("No LLF is defined for Window & Context Handling! Aborting."); exit(EXIT_FAILURE); }
+#include "Lina/Window.hpp"
+
+#define WINDOWCREATEFUNC(PARAM) inline Window* CreateEngineWindow(const WindowProps& props = WindowProps()) { LINA_CORE_ERR("No LLF is defined for Graphics Handling! Aborting."); exit(EXIT_FAILURE); }
 
 #endif
 
@@ -44,12 +48,13 @@ namespace LinaEngine
 	public:
 
 		GraphicsAdapter();
-		~GraphicsAdapter();
+		~GraphicsAdapter() {};
 
 		WINDOWCREATEFUNC(PARAM);
 
 	};
 }
+
 
 
 #endif

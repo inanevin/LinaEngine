@@ -66,7 +66,9 @@ project "LinaEngine"
 		{
 			"LINA_PLATFORM_WINDOWS",
 			"LINA_BUILD_DLL",
-			"LLF_WINDOWCONTEXT_SDL",
+			"LLF_GRAPHICS_SDLOpenGL",
+			"LINA_ENABLE_ASSERTS",
+			"LINA_ENABLE_LOGGING",
 		}
 
 	

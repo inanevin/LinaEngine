@@ -23,7 +23,6 @@ Timestamp: 12/31/2018 1:43:13 AM
 #ifndef Window_HPP
 #define Window_HPP
 
-#include "LinaPch.hpp"
 #include "Events/Event.hpp"
 
 namespace LinaEngine
@@ -34,7 +33,7 @@ namespace LinaEngine
 		unsigned int Width;
 		unsigned int Height;
 
-		WindowProps(const std::string& title = "Hazel Engine",
+		WindowProps(const std::string& title = "Lina Engine",
 			unsigned int width = 1280,
 			unsigned int height = 720)
 			: Title(title), Width(width), Height(height)

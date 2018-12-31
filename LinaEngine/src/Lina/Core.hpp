@@ -21,16 +21,29 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 #ifndef Lina_Core_HPP
 #define Lina_Core_HPP
- 
+
 
 #ifdef LINA_PLATFORM_WINDOWS
-	#ifdef LINA_BUILD_DLL
-		#define LINA_API __declspec(dllexport)
-	#else
-		#define LINA_API __declspec(dllimport)
-	#endif
+#ifdef LINA_BUILD_DLL
+#define LINA_API __declspec(dllexport)
 #else
-	#error Lina supports Windows only for now.
+#define LINA_API __declspec(dllimport)
+#endif
+#else
+#error Lina supports Windows only for now.
+#endif
+
+
+#ifdef LINA_ENABLE_ASSERTS
+
+#define LINA_CLIENT_ASSERT(x,...) { if((x)) { LINA_CLIENT_ERR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+#define LINA_CORE_ASSERT(x,...)  { if((x)) { LINA_CORE_ERR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+
+#else
+
+#define LINA_CLIENT_ASSERT(x,...)
+#define LINA_CORE_ASSERT(x,...)
+
 #endif
 
 #define BIT(x) (1 << x)

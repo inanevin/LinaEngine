@@ -22,6 +22,8 @@ Timestamp: 12/30/2018 1:54:10 AM
 #ifndef Log_HPP
 #define Log_HPP
 
+#ifdef LINA_ENABLE_LOGGING
+
 // ****************** CORE LOG MACROS ******************
 #define LINA_CORE_ERR(...)		::LinaEngine::Log::GetCoreLogger()->error(__VA_ARGS__)
 #define LINA_CORE_WARN(...)		::LinaEngine::Log::GetCoreLogger()->warn(__VA_ARGS__)
@@ -40,7 +42,24 @@ Timestamp: 12/30/2018 1:54:10 AM
 #define LINA_CLIENT_FATAL(...)	::LinaEngine::Log::GetClientLogger()->fatal(__VA_ARGS__)
 // ****************** CLIENT LOG MACROS ******************
 
+#else
+
+#define LINA_CORE_ERR(...)		
+#define LINA_CORE_WARN(...)		
+#define LINA_CORE_INFO(...)		
+#define LINA_CORE_TRACE(...)	
+#define LINA_CORE_FATAL(...)	
+#define LINA_CLIENT_ERR(...)		
+#define LINA_CLIENT_WARN(...)		
+#define LINA_CLIENT_INFO(...)		
+#define LINA_CLIENT_TRACE(...)
+#define LINA_CLIENT_FATAL(...)
+
+#endif
+
+
 // DISABLE LOGGERS IN DISTRIBUTION BUILDS
+
 
 
 #include "Lina/Core.hpp"

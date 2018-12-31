@@ -8,8 +8,8 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 
 http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
 Class: SDLWindow
@@ -20,10 +20,11 @@ Timestamp: 12/31/2018 2:05:56 AM
 #pragma once
 
 
-#ifdef LLF_WINDOWCONTEXT_SDL
+#ifdef LLF_GRAPHICS_SDLOpenGL
 
 #ifndef SDLWindow_HPP
 #define SDLWindow_HPP
+
 
 #include "SDL.h"
 #include "Lina/Window.hpp"
@@ -31,11 +32,11 @@ Timestamp: 12/31/2018 2:05:56 AM
 namespace LinaEngine
 {
 
-	class SDLWindow : public Window
+	class SDLOpenGLWindow : public Window
 	{
 	public:
-		SDLWindow(const WindowProps& props);
-		virtual ~SDLWindow();
+		SDLOpenGLWindow(const WindowProps& props);
+		virtual ~SDLOpenGLWindow();
 
 		void OnUpdate() override;
 
@@ -57,6 +58,7 @@ namespace LinaEngine
 	private:
 
 		SDL_Window* m_Window;
+		SDL_GLContext m_GLContext;
 
 		struct WindowData
 		{
