@@ -30,8 +30,7 @@ Lina Engine is currently being carried over to a new version (30.12.2018). There
 - This project uses Premake5, .bat files for various environments are generated & inside the root directory.
 - Run one of the .bat files to generate projects for Visual Studio, GNU Make, XCode or CodeLite.
 - Open your project files in your IDE, build the projects. 
-- After first build, you might receive path error, if so just build again, this will disappear 
-in the following builds.
+- Build.
 - Now you can work on the sandbox project as well as the engine source code via your IDE. 
 
 ## Run
