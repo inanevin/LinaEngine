@@ -40,6 +40,7 @@ namespace LinaEngine
 		LINA_CORE_WARN("Initialized core logger!");
 		LINA_CLIENT_INFO("Initialized client logger");
 
+		
 	}
 }
 

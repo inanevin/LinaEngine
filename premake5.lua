@@ -65,7 +65,8 @@ project "LinaEngine"
 		defines
 		{
 			"LINA_PLATFORM_WINDOWS",
-			"LINA_BUILD_DLL"
+			"LINA_BUILD_DLL",
+			"LLF_WINDOWCONTEXT_SDL",
 		}
 
 	

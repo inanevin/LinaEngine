@@ -12,37 +12,17 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: Lina_Application
-Timestamp: 12/29/2018 10:43:46 PM
+Class: GraphicsAdapter
+Timestamp: 12/31/2018 1:46:13 AM
 
 */
-
 #include "LinaPch.hpp"
-#include "Application.hpp"  
-#include "Package Manager/GraphicsAdapter.hpp"
+#include "GraphicsAdapter.hpp"  
 
 namespace LinaEngine
 {
-	Application::Application()
+	GraphicsAdapter::GraphicsAdapter()
 	{
-
-	}
-
-	Application::~Application()
-	{
-
-	}
-
-	void Application::Run()
-	{
-
-		GraphicsAdapter* newAdapter = new GraphicsAdapter();
-		Window* w = newAdapter->CreateEngineWindow();
-
-		while (true)
-		{
-
-		}
 
 	}
 }
