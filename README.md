@@ -17,12 +17,9 @@ Lina Engine is currently being carried over to a new version (30.12.2018). There
 
 ## Dependencies
 - [spdlog](https://github.com/gabime/spdlog)
-- SDL 2.0
-- OpenGL 4.6
-- GLEW 2.1.0
-- OpenAL
-- GLM
-- stb
+- [SDL2](https://www.libsdl.org/)
+- [OpenGL](https://www.opengl.org/)
+- [GLEW](http://glew.sourceforge.net/)
 
 ## Installation
 
