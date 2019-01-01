@@ -23,7 +23,7 @@ Timestamp: 12/31/2018 1:43:13 AM
 #ifndef Window_HPP
 #define Window_HPP
 
-#include "Events/Event.hpp"
+#include "Lina/Events/Event.hpp"
 
 namespace LinaEngine
 {
@@ -47,6 +47,7 @@ namespace LinaEngine
 	public:
 		using EventCallbackFn = std::function<void(Event&)>;
 
+		
 		virtual ~Window() {}
 
 		virtual void OnUpdate() = 0;

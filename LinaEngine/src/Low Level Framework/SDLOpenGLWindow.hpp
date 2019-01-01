@@ -25,9 +25,10 @@ Timestamp: 12/31/2018 2:05:56 AM
 #ifndef SDLWindow_HPP
 #define SDLWindow_HPP
 
+#include "Lina/Window.hpp"
 
 #include "SDL.h"
-#include "Lina/Window.hpp"
+#include "SDL_events.h"
 
 namespace LinaEngine
 {
@@ -70,6 +71,8 @@ namespace LinaEngine
 		};
 
 		WindowData m_Data;
+
+		static int WindowEventFilter(void* userdata, SDL_Event* event);
 	};
 }
 

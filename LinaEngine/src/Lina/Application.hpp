@@ -21,8 +21,9 @@ Timestamp: 12/29/2018 10:43:46 PM
 #ifndef Lina_Application_HPP
 #define Lina_Application_HPP
 
-
 #include "Core.hpp"
+#include "Package Manager/GraphicsAdapter.hpp"
+
 
 namespace LinaEngine
 {
@@ -33,6 +34,12 @@ namespace LinaEngine
 		Application();
 		virtual ~Application();
 		void Run();
+		void OnEvent(Event& e);
+
+	private:
+
+		std::unique_ptr<Window> m_Window;
+		bool m_Running = false;
 	};
 
 	// Defined in client.

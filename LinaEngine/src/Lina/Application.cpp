@@ -19,13 +19,24 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 #include "LinaPch.hpp"
 #include "Application.hpp"  
-#include "Package Manager/GraphicsAdapter.hpp"
+
 
 namespace LinaEngine
 {
+#define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
+
 	Application::Application()
 	{
+		m_Running = true;
 
+		// Init graphics adapter.
+		GraphicsAdapter* newAdapter = new GraphicsAdapter();
+
+		// Get Window.
+		m_Window = std::unique_ptr<Window>(newAdapter->CreateEngineWindow());
+	
+		// Set window callbacks.
+		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 	}
 
 	Application::~Application()
@@ -35,15 +46,17 @@ namespace LinaEngine
 
 	void Application::Run()
 	{
-
-		GraphicsAdapter* newAdapter = new GraphicsAdapter();
-		Window* w = newAdapter->CreateEngineWindow();
-
-		while (true)
+		while (m_Running)
 		{
-
+			m_Window->OnUpdate();
 		}
 
 	}
+
+	void Application::OnEvent(Event & e)
+	{
+		LINA_CORE_INFO("{0}", e);
+	}
+
 }
 

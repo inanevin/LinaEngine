@@ -56,6 +56,30 @@ namespace LinaEngine
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
+	class LINA_API WindowFocusEvent : public Event
+	{
+	public:
+		WindowFocusEvent() {}
+		EVENT_CLASS_TYPE(WindowFocus)
+			EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
+	class LINA_API WindowFocusLostEvent : public Event
+	{
+	public:
+		WindowFocusLostEvent() {}
+		EVENT_CLASS_TYPE(WindowLostFocus)
+			EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
+	class LINA_API WindowMovedEvent : public Event
+	{
+	public:
+		WindowMovedEvent(unsigned int posX, unsigned int posY) {}
+		EVENT_CLASS_TYPE(WindowMoved)
+			EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
 	class LINA_API AppTickEvent : public Event
 	{
 	public:

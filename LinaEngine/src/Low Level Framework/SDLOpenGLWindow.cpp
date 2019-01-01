@@ -24,6 +24,7 @@ Timestamp: 12/31/2018 2:05:56 AM
 #ifdef LLF_GRAPHICS_SDLOpenGL
 
 #include "SDLOpenGLWindow.hpp"  
+#include "Lina/Events/ApplicationEvent.hpp"
 
 namespace LinaEngine
 {
@@ -52,18 +53,18 @@ namespace LinaEngine
 
 	void SDLOpenGLWindow::Init(const WindowProps& props)
 	{
-	
+
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
 
 		LINA_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
-		
+
 		// Initialize SDL, assert err check.
 		if (!isSDLInitialized)
 		{
 			int status = SDL_Init(SDL_INIT_VIDEO);
-			if (status!=0) SDLErrorCallback(SDL_GetError());
+			if (status != 0) SDLErrorCallback(SDL_GetError());
 			LINA_CORE_ASSERT(status, "Could not initialize SDL!");
 			isSDLInitialized = true;
 		}
@@ -76,35 +77,178 @@ namespace LinaEngine
 		SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);	// How much data will SDL allocate for a single pixel.
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);	// Alloc an area for 2 blocks of display mem.
 
+
 		// Create window
 		m_Window = SDL_CreateWindow(m_Data.Title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_Data.Width, m_Data.Height, SDL_WINDOW_OPENGL);
 
 		// We create a context using our window, so we will have power over our window via OpenGL -> GPU.
 		m_GLContext = SDL_GL_CreateContext(m_Window);
-		
+
 		// Enable VSync
 		SetVSync(true);
 
-		
-		
+		// Add customized event watch for this window.
+		SDL_AddEventWatch(WindowEventFilter, &m_Data);
+
+
+
+
+		/*
+
+		glfwMakeContextCurrent(m_Window);
+		glfwSetWindowUserPointer(m_Window, &m_Data);
+		SetVSync(true);
+
+		// Set GLFW callbacks
+		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+			data.Width = width;
+			data.Height = height;
+
+			WindowResizeEvent event(width, height);
+			data.EventCallback(event);
+		});
+
+		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+			WindowCloseEvent event;
+			data.EventCallback(event);
+		});
+
+		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
+			switch (action)
+			{
+			case GLFW_PRESS:
+			{
+				KeyPressedEvent event(key, 0);
+				data.EventCallback(event);
+				break;
+			}
+			case GLFW_RELEASE:
+			{
+				KeyReleasedEvent event(key);
+				data.EventCallback(event);
+				break;
+			}
+			case GLFW_REPEAT:
+			{
+				KeyPressedEvent event(key, 1);
+				data.EventCallback(event);
+				break;
+			}
+			}
+		});
+
+		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
+			switch (action)
+			{
+			case GLFW_PRESS:
+			{
+				MouseButtonPressedEvent event(button);
+				data.EventCallback(event);
+				break;
+			}
+			case GLFW_RELEASE:
+			{
+				MouseButtonReleasedEvent event(button);
+				data.EventCallback(event);
+				break;
+			}
+			}
+		});
+
+		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset)
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
+			MouseScrolledEvent event((float)xOffset, (float)yOffset);
+			data.EventCallback(event);
+		});
+
+		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
+			MouseMovedEvent event((float)xPos, (float)yPos);
+			data.EventCallback(event);
+		});*/
+
 	}
 
 
 
 	void SDLOpenGLWindow::Shutdown()
 	{
+		// Remove event watch for the window.
+		SDL_DelEventWatch(WindowEventFilter, this);
+
 		// Deallocate GL context and window. (m_Window pointer is deleted via SDL_DestroyWindow already so no need to use delete again on that.)
 		SDL_GL_DeleteContext(m_GLContext);
 		SDL_DestroyWindow(m_Window);
 	}
 
+	int SDLOpenGLWindow::WindowEventFilter(void * userdata, SDL_Event * event)
+	{
+		// Get the window events from filter.
+		// Create a window event and call the callback.
+		// The callback for windows is binded to the OnEvent function of the Application class.
+		// So basically, whenever a window event is caught from the SDL, OnEvent function of Application is called with that event.
+
+		auto data = static_cast<WindowData *>(userdata);
+
+		if (event->type == SDL_WINDOWEVENT)
+		{
+			// Maybe check for window IDs whether they match or not?
+
+			switch (event->window.event)
+			{
+			case SDL_WINDOWEVENT_CLOSE:
+				data->EventCallback(WindowCloseEvent());
+				break;
+
+			case SDL_WINDOWEVENT_SIZE_CHANGED:
+
+				data->Width = event->window.data1;
+				data->Height = event->window.data2;
+				data->EventCallback(WindowResizeEvent(data->Width, data->Height));
+				break;
+
+			case SDL_WINDOWEVENT_FOCUS_GAINED:
+				data->EventCallback(WindowFocusEvent());
+				break;
+
+			case SDL_WINDOWEVENT_FOCUS_LOST:
+				data->EventCallback(WindowFocusLostEvent());
+				break;
+
+			case SDL_WINDOWEVENT_MOVED:
+				data->EventCallback(WindowMovedEvent(event->window.data1, event->window.data2));
+				break;
+
+			default:
+				break;
+			}
+
+		}
+		return 0;
+
+	}
+
 	void SDLOpenGLWindow::OnUpdate()
 	{
-		// Pumo Events
-		SDL_PumpEvents();
-
 		// Swap Buffers
 		SDL_GL_SwapWindow(m_Window);
+
+		// Pump SDL Events
+		SDL_PumpEvents();
 	}
 
 	void SDLOpenGLWindow::SetVSync(bool enabled)
@@ -120,7 +264,7 @@ namespace LinaEngine
 	bool SDLOpenGLWindow::IsVSync() const
 	{
 		return m_Data.VSync;
-	}	
+	}
 
 
 

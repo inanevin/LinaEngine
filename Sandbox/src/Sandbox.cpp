@@ -22,7 +22,7 @@ Timestamp: 12/29/2018 11:15:41 PM
 class Sandbox : public LinaEngine::Application
 {
 public:
-	Sandbox() {}
+	Sandbox() { }
 	~ Sandbox(){}
 
 
