@@ -28,6 +28,8 @@ Timestamp: 12/31/2018 2:05:56 AM
 
 namespace LinaEngine
 {
+
+	
 	static bool isSDLInitialized = false;
 
 	static void SDLErrorCallback(const char* description)
@@ -90,110 +92,8 @@ namespace LinaEngine
 		// Add customized event watch for this window.
 		SDL_AddEventWatch(WindowEventFilter, &m_Data);
 
-
-
-
-		/*
-
-		glfwMakeContextCurrent(m_Window);
-		glfwSetWindowUserPointer(m_Window, &m_Data);
-		SetVSync(true);
-
-		// Set GLFW callbacks
-		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
-		{
-			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-			data.Width = width;
-			data.Height = height;
-
-			WindowResizeEvent event(width, height);
-			data.EventCallback(event);
-		});
-
-		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
-		{
-			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-			WindowCloseEvent event;
-			data.EventCallback(event);
-		});
-
-		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
-		{
-			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-
-			switch (action)
-			{
-			case GLFW_PRESS:
-			{
-				KeyPressedEvent event(key, 0);
-				data.EventCallback(event);
-				break;
-			}
-			case GLFW_RELEASE:
-			{
-				KeyReleasedEvent event(key);
-				data.EventCallback(event);
-				break;
-			}
-			case GLFW_REPEAT:
-			{
-				KeyPressedEvent event(key, 1);
-				data.EventCallback(event);
-				break;
-			}
-			}
-		});
-
-		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
-		{
-			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-
-			switch (action)
-			{
-			case GLFW_PRESS:
-			{
-				MouseButtonPressedEvent event(button);
-				data.EventCallback(event);
-				break;
-			}
-			case GLFW_RELEASE:
-			{
-				MouseButtonReleasedEvent event(button);
-				data.EventCallback(event);
-				break;
-			}
-			}
-		});
-
-		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset)
-		{
-			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-
-			MouseScrolledEvent event((float)xOffset, (float)yOffset);
-			data.EventCallback(event);
-		});
-
-		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
-		{
-			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-
-			MouseMovedEvent event((float)xPos, (float)yPos);
-			data.EventCallback(event);
-		});*/
-
 	}
 
-
-
-	void SDLOpenGLWindow::Shutdown()
-	{
-		// Remove event watch for the window.
-		SDL_DelEventWatch(WindowEventFilter, this);
-
-		// Deallocate GL context and window. (m_Window pointer is deleted via SDL_DestroyWindow already so no need to use delete again on that.)
-		SDL_GL_DeleteContext(m_GLContext);
-		SDL_DestroyWindow(m_Window);
-	}
 
 	int SDLOpenGLWindow::WindowEventFilter(void * userdata, SDL_Event * event)
 	{
@@ -236,10 +136,8 @@ namespace LinaEngine
 			default:
 				break;
 			}
-
 		}
 		return 0;
-
 	}
 
 	void SDLOpenGLWindow::OnUpdate()
@@ -266,6 +164,19 @@ namespace LinaEngine
 		return m_Data.VSync;
 	}
 
+
+	void SDLOpenGLWindow::Shutdown()
+	{
+
+		LINA_CORE_INFO("Shutting SDL Window");
+		
+		// Remove event watch for the window.
+		SDL_DelEventWatch(WindowEventFilter, this);
+
+		// Deallocate GL context and window. (m_Window pointer is deleted via SDL_DestroyWindow already so no need to use delete again on that.)
+		SDL_GL_DeleteContext(m_GLContext);
+		SDL_DestroyWindow(m_Window);
+	}
 
 
 }

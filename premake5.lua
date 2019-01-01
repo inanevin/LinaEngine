@@ -66,24 +66,27 @@ project "LinaEngine"
 		{
 			"LINA_PLATFORM_WINDOWS",
 			"LINA_BUILD_DLL",
-			"LLF_GRAPHICS_SDLOpenGL",
 			"LINA_ENABLE_ASSERTS",
 			"LINA_ENABLE_LOGGING",
+			"LLF_GRAPHICS_SDLOpenGL",
 		}
 
 	
 		
 	filter "configurations:Debug"
 		defines "LINA_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 		
 	filter "configurations:Release"
 		defines "LINA_RELEASE"
-		symbols "On"
+		buildoptions "/MD"
+		optimize "On"
 		
-	filter "configurations:Debug"
+	filter "configurations:Dist"
 		defines "LINA_DIST"
-		symbols "On"
+		buildoptions "/MD"
+		optimize "On"
 
 	--[[
 	filters {"system:windows", "configurations:Release"}
@@ -125,7 +128,8 @@ project "Sandbox"
 		
 		defines
 		{
-			"LINA_PLATFORM_WINDOWS"
+			"LINA_PLATFORM_WINDOWS",
+			"LINA_ENABLE_LOGGING",
 		}
 		
 		postbuildcommands
@@ -140,15 +144,18 @@ project "Sandbox"
 		
 	filter "configurations:Debug"
 		defines "LINA_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 		
 	filter "configurations:Release"
 		defines "LINA_RELEASE"
-		symbols "On"
+		buildoptions "/MD"
+		optimize "On"
 		
-	filter "configurations:Debug"
+	filter "configurations:Dist"
 		defines "LINA_DIST"
-		symbols "On"
+		buildoptions "/MD"
+		optimize "On"
 		
 				
 

@@ -49,7 +49,7 @@ namespace LinaEngine
 
 		GraphicsAdapter();
 		~GraphicsAdapter() {};
-
+		
 		WINDOWCREATEFUNC(PARAM);
 
 	};

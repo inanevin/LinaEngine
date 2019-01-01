@@ -26,6 +26,7 @@ Timestamp: 12/29/2018 11:21:31 PM
 
 
 #include "Lina/Application.hpp"
+#include "Lina/Layer.hpp"
 #include "Lina/Engine Utility/Log.hpp"
 
 // *********** ENTRY POINT *********** 

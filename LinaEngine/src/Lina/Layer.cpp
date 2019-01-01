@@ -12,49 +12,23 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: SB_Application
-Timestamp: 12/29/2018 11:15:41 PM
+Class: Layer
+Timestamp: 1/2/2019 1:42:06 AM
 
 */
+#include "LinaPch.hpp"
+#include "Layer.hpp"  
 
-#include <Lina.hpp>
-
-class TestLayer : public LinaEngine::Layer
+namespace LinaEngine
 {
-public:
+	Layer::Layer(const std::string& debugName)
+		: m_DebugName(debugName)
+	{
+	}
 
-	TestLayer() : Layer("Test")
+	Layer::~Layer()
 	{
 
 	}
-
-	void OnUpdate() override
-	{
-		LINA_CLIENT_INFO("TestLayer Update");
-	}
-
-	void OnEvent(LinaEngine::Event& e) override
-	{
-		LINA_CLIENT_TRACE("{0}", e);
-	}
-};
-
-class Sandbox : public LinaEngine::Application
-{
-public:
-	Sandbox() { 
-		
-		LinaEngine::Layer* l = new TestLayer();
-		
-		PushLayer(l);
-	}
-	~ Sandbox(){}
-
-	
-};
-
-LinaEngine::Application* LinaEngine::CreateApplication()
-{
-	return new Sandbox();
 }
 

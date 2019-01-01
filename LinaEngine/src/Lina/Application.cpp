@@ -37,6 +37,7 @@ namespace LinaEngine
 	
 		// Set window callbacks.
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
+
 	}
 
 	Application::~Application()
@@ -44,19 +45,48 @@ namespace LinaEngine
 
 	}
 
+	void Application::OnEvent(Event & e)
+	{
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
+
+		LINA_CORE_TRACE("{0}", e);
+
+		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
+		{
+			(*--it)->OnEvent(e);
+			if (e.isHandled)
+				break;
+		}
+	}
+
 	void Application::Run()
 	{
 		while (m_Running)
 		{
 			m_Window->OnUpdate();
+
+			for (Layer* layer : m_LayerStack)
+				layer->OnUpdate();
 		}
 
 	}
 
-	void Application::OnEvent(Event & e)
+
+
+	bool Application::OnWindowClose(WindowCloseEvent&e)
 	{
-		LINA_CORE_INFO("{0}", e);
+		m_Running = false;
+		return true;
 	}
 
+	void Application::PushLayer(Layer * layer)
+	{
+		m_LayerStack.PushLayer(layer);
+	}
+	void Application::PushOverlay(Layer * layer)
+	{
+		m_LayerStack.PushOverlay(layer);
+	}
 }
 

@@ -34,12 +34,7 @@ namespace LinaEngine
 		inline unsigned int GetWidth() const { return m_Width; }
 		inline unsigned int GetHeight() const { return m_Height; }
 
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "WindowResizeEvent Created: " << m_Width << ", " << m_Height;
-			return ss.str();
-		}
+
 
 		EVENT_CLASS_TYPE(WindowResize)
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
@@ -52,6 +47,8 @@ namespace LinaEngine
 	public:
 		WindowCloseEvent() {}
 
+	
+
 		EVENT_CLASS_TYPE(WindowClose)
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
@@ -60,6 +57,10 @@ namespace LinaEngine
 	{
 	public:
 		WindowFocusEvent() {}
+
+	
+
+
 		EVENT_CLASS_TYPE(WindowFocus)
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
@@ -68,6 +69,7 @@ namespace LinaEngine
 	{
 	public:
 		WindowFocusLostEvent() {}
+
 		EVENT_CLASS_TYPE(WindowLostFocus)
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
@@ -76,6 +78,8 @@ namespace LinaEngine
 	{
 	public:
 		WindowMovedEvent(unsigned int posX, unsigned int posY) {}
+
+		
 		EVENT_CLASS_TYPE(WindowMoved)
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};

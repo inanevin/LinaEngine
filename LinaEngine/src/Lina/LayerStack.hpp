@@ -12,44 +12,39 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: Lina_Application
-Timestamp: 12/29/2018 10:43:46 PM
+Class: LayerStack
+Timestamp: 1/2/2019 1:43:13 AM
 
 */
 
 #pragma once
-#ifndef Lina_Application_HPP
-#define Lina_Application_HPP
+#ifndef LayerStack_HPP
+#define LayerStack_HPP
 
-#include "Core.hpp"
-#include "Package Manager/GraphicsAdapter.hpp"
-#include "Lina/Events/ApplicationEvent.hpp"
-#include "LayerStack.hpp"
+#include "Lina/Core.hpp"
+#include "Layer.hpp"
+
+#pragma once
 
 namespace LinaEngine
 {
-	class LINA_API Application
+	class LINA_API LayerStack
 	{
 	public:
-
-		Application();
-		virtual ~Application();
-		void Run();
-	    void OnEvent(Event& e);
-		bool OnWindowClose(WindowCloseEvent& e);
+		LayerStack();
+		~LayerStack();
 
 		void PushLayer(Layer* layer);
-		void PushOverlay(Layer* layer);
+		void PushOverlay(Layer* overlay);
+		void PopLayer(Layer* layer);
+		void PopOverlay(Layer* overlay);
 
+		std::vector<Layer*>::iterator begin() { return m_Layers.begin(); }
+		std::vector<Layer*>::iterator end() { return m_Layers.end(); }
 	private:
-
-		std::unique_ptr<Window> m_Window;
-		bool m_Running = false;
-		LayerStack m_LayerStack;
+		std::vector<Layer*> m_Layers;
+		std::vector<Layer*>::iterator m_LayerInsert;
 	};
-
-	// Defined in client.
-	Application* CreateApplication();
 }
 
 

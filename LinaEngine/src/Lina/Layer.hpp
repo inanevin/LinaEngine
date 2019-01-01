@@ -12,44 +12,36 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: Lina_Application
-Timestamp: 12/29/2018 10:43:46 PM
+Class: Layer
+Timestamp: 1/2/2019 1:42:06 AM
 
 */
 
 #pragma once
-#ifndef Lina_Application_HPP
-#define Lina_Application_HPP
+#ifndef Layer_HPP
+#define Layer_HPP
 
-#include "Core.hpp"
-#include "Package Manager/GraphicsAdapter.hpp"
-#include "Lina/Events/ApplicationEvent.hpp"
-#include "LayerStack.hpp"
+#include "Lina/Core.hpp"
+#include "Lina/Events/Event.hpp"
 
 namespace LinaEngine
 {
-	class LINA_API Application
+	class LINA_API Layer
 	{
 	public:
+		Layer(const std::string& name = "Layer");
+		virtual ~Layer();
 
-		Application();
-		virtual ~Application();
-		void Run();
-	    void OnEvent(Event& e);
-		bool OnWindowClose(WindowCloseEvent& e);
+		virtual void OnAttach() {}
+		virtual void OnDetach() {}
+		virtual void OnUpdate() {}
+		virtual void OnEvent(Event& event) {}
 
-		void PushLayer(Layer* layer);
-		void PushOverlay(Layer* layer);
+		inline const std::string& GetName() const { return m_DebugName; }
+	protected:
+		std::string m_DebugName;
 
-	private:
-
-		std::unique_ptr<Window> m_Window;
-		bool m_Running = false;
-		LayerStack m_LayerStack;
 	};
-
-	// Defined in client.
-	Application* CreateApplication();
 }
 
 
