@@ -24,7 +24,7 @@ Lina Engine is currently being carried over to a new version (30.12.2018). There
 
 -  [Git Clone Lina Engine](https://github.com/inanevin/LinaEngine)
 -  You need to install dependencies first, as they are not automated so far. See each dependency installation below, then continue
-from this step.
+from the next step.
 -  This project uses Premake5, .bat files for various environments are generated & inside the root directory.
 -  After you installed all the dependencies as instructed, run one of the .bat files to generate projects for Visual Studio, GNU Make, XCode or CodeLite.
 -  Open your project files in your IDE, build the projects. 
