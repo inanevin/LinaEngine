@@ -23,12 +23,27 @@ Timestamp: 1/2/2019 11:44:41 PM
 
 namespace LinaEngine
 {
+	GLuint VBO;
+
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
 	{
 		// Initialize GLEW
 		GLenum res = glewInit();
 		LINA_CORE_ASSERT(res != GLEW_OK, "Glew is not initialized properly");
 
+		Vector3F vertices[1];
+		vertices[0] = Vector3F(0.0f, 0.0f, 0.0f);
+
+		// Generate buffers
+		glGenBuffers(1, &VBO);
+
+		// Bind buffer. VBO will contain array of vertices. (element buffer = array contains indices of vertices in another buffer)
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+		// Fill the binded object with data.
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+		
 	}
 
 	RenderingEngine_OpenGL::~RenderingEngine_OpenGL()
@@ -38,8 +53,28 @@ namespace LinaEngine
 
 	void RenderingEngine_OpenGL::OnUpdate()
 	{
+		// Clear buffer
+		glClear(GL_COLOR_BUFFER_BIT);
 
+
+		// vertex attribute index 0 is fixed for vertex position, so activate the attribute.
+		glEnableVertexAttribArray(0);
+
+		// Update the pipeline state of the buffer we want to use.
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+		// Tell the pipeline how to interpret the data. First attrib is 0 as we only use it for now, but it will be the index of shaders once they come into place.
+		// 3 is # of components, xyz.
+		// 4th param is whether to normalize the data, 5th is stride, # of bytes bw two instances of that attribute in the buffer. (Pass the size of struct, only one type of data for now.)
+		// Last param is the offset inside the structure where the pipeline will find our attribute.
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		
+		// Draw the geometry. Every vertex is one point. 0 is the index of the first vertex. 1 is the number of vertices to draw.
+		glDrawArrays(GL_POINTS, 0, 1);
+
+		// Good practice to disable each vertex attribute when not used.
+		glDisableVertexAttribArray(0);
+
 		RenderingEngine::OnUpdate();
 	}
 }
