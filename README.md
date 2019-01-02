@@ -12,19 +12,20 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 
 ## Announcements
 
-Lina Engine is currently being carried over to a new version (30.12.2018). There exists _LinaEngine_ and _Sandbox_ folders which is consists of the structure for sandbox application and new engine version. The old project files, that include examples for input, rendering, event and ECS systems can be found under the folder __VERSION0_SRC__. There is no build generation support for the old version. 
+-  Lina Engine is currently being carried over to a new version (30.12.2018). There exists _LinaEngine_ and _Sandbox_ folders which is consists of the structure for sandbox application and new engine version. The old project files, that include examples for input, rendering, event and ECS systems can be found under the folder __VERSION0_SRC__. There is no build generation support for the old version. 
+-  The dependency installations for used libraries in Lina Engine are not automated yet. This repository includes the dependency packages as they are, for Windows builds. That is why, the current version of Lina Engine is for Windows only. The dependency installation will be transferred to CMake soon and the libraries will be removed from the repository. It is still possible to build the engine in Linux and MacOS, as it requires manual edit on premake file for dynamic linking as well as downloading the relative binaries and putting them into the include directories.
 
 ## Dependencies
 -  [spdlog](https://github.com/gabime/spdlog)
 -  [SDL2](https://www.libsdl.org/)
--  [OpenGL](https://www.opengl.org/)
+-  [OpenGL Mathematics(GLM)](https://glm.g-truc.net/0.9.9/index.html)
 -  [GLEW](http://glew.sourceforge.net/)
 
 ## Installation
 
--  git clone (https://github.com/inanevin/LinaEngine)
+-  [Git Clone Lina Engine](https://github.com/inanevin/LinaEngine)
 -  This project uses Premake5, .bat files for various environments are generated & inside the root directory.
--  Run one of the .bat files to generate projects for Visual Studio, GNU Make, XCode or CodeLite.
+-  After you installed all the dependencies as instructed, run one of the .bat files to generate projects for Visual Studio, GNU Make, XCode or CodeLite.
 -  Open your project files in your IDE, build the projects. 
 -  Build.
 -  Now you can work on the sandbox project as well as the engine source code via your IDE. 
