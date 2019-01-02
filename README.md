@@ -37,7 +37,6 @@ from the next step.
 -  Copy the include folder as it is.
 -  Navigate to the root directory of cloned Lina Engine. From the root, navigate to LinaEngine/vendor/spdlog and paste the include file you copied over there. The final path for the include directory should be: Root(Where .bat files are present)/LinaEngine/vendor/spdlog/include
 -  Note: It is advised to copy the license and readme files of spdlog into the include directory as well if you are going to distribute a modified version on your own.
--  spdlog is header-only, so no need to worry about any DLL linkage, even so most of the linkage and copying is done automatically when generating project files via premake configurations.
 
 ## Run
 
