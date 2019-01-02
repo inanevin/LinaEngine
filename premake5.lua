@@ -13,12 +13,18 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 	
 IncludeDir = {}
 IncludeDir["SDL"] = "LinaEngine/vendor/SDL2-2.0.9/include"
+IncludeDir["GLEW"] = "LinaEngine/vendor/glew-2.1.0/include/GL"
+IncludeDir["SPDLOG"] = "LinaEngine/vendor/spdlog/include"
+IncludeDir["GLM"] = "LinaEngine/vendor/glm"
 
 DLLDir = {}
 DLLDir["SDL"] = "LinaEngine/vendor/SDL2-2.0.9/lib/x64"
+DLLDir["GLEW"] = "LinaEngine/vendor/glew-2.1.0/bin/Release/x64"
 DLLDir["LinaEngine"] = "bin/" .. outputdir .. "/LinaEngine"
 
-
+LibDir = {}
+LibDir["SDL"] = "LinaEngine/vendor/SDL2-2.0.9/lib/x64"
+LibDir["GLEW"] = "LinaEngine/vendor/glew-2.1.0/lib/Release/x64"
 
 project "LinaEngine"
 	location "LinaEngine"
@@ -41,20 +47,24 @@ project "LinaEngine"
 	includedirs
 	{
 		"%{prj.name}/src",
-		"%{prj.name}/vendor/spdlog/include",
-		"%{IncludeDir.SDL}"
+		"%{IncludeDir.SPDLOG}",
+		"%{IncludeDir.GLEW}",
+		"%{IncludeDir.SDL}",
+		"%{IncludeDir.GLM}"
 	}
 	
 	libdirs
 	{
-		"%{prj.name}/vendor/SDL2-2.0.9/lib/x64"
+		"%{LibDir.SDL}",
+		"%{LibDir.GLEW}"
 	}
 	
 	links
 	{
 		"SDL2.lib",
-		"SDL2",
-		"SDL2main.lib"
+		"SDL2main.lib",
+		"glew32.lib",
+		"glew32s.lib"
 	}
 			
 		filter "system:windows"
@@ -136,7 +146,8 @@ project "Sandbox"
 		{	
 			
 			("{COPY}  ../%{DLLDir.LinaEngine}/LinaEngine.dll  ../bin/" .. outputdir .. "/Sandbox"),
-			("{COPY} ../%{DLLDir.SDL}/SDL2.dll ../bin/" .. outputdir .. "/Sandbox")
+			("{COPY} ../%{DLLDir.SDL}/SDL2.dll ../bin/" .. outputdir .. "/Sandbox"),
+			("{COPY} ../%{DLLDir.GLEW}/glew32.dll ../bin/" .. outputdir .. "/Sandbox")
 			--- ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox"),	
 			--- ("{COPY} ../%{DLLDir.SDL}/SDL2.dll ../bin/" .. outputdir .. "/Sandbox")
 		}
