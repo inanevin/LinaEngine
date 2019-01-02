@@ -29,7 +29,6 @@ Timestamp: 12/31/2018 1:46:13 AM
 
 #define WINDOWCREATEFUNC(PARAM) inline Window* CreateEngineWindow(const WindowProps& props = WindowProps()) { return SDLOpenGLWindow::Create(props); }
 
-
 #else
 
 #include "Lina/Window.hpp"

@@ -19,7 +19,8 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 #include "LinaPch.hpp"
 #include "Application.hpp"  
-//#include "glew.h"
+#include "RenderingEngine.hpp"
+
 
 namespace LinaEngine
 {
@@ -27,30 +28,27 @@ namespace LinaEngine
 
 	Application::Application()
 	{
+		
+		// Init rendering engine.
+		m_RenderingEngine = std::make_unique<RenderingEngine>();
+
+		// Set event callback for the main window.
+		m_RenderingEngine->GetMainWindow().SetEventCallback(BIND_EVENT_FN(OnEventFromWindow));
+
 		m_Running = true;
-
-		// Init graphics adapter.
-		GraphicsAdapter* newAdapter = new GraphicsAdapter();
-
-		// Get Window.
-		m_Window = std::unique_ptr<Window>(newAdapter->CreateEngineWindow());
-	
-		// Set window callbacks.
-		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
-
 	}
 
 	Application::~Application()
 	{
-
+		
 	}
 
-	void Application::OnEvent(Event & e)
+	void Application::OnEventFromWindow(Event & e)
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
 
-		LINA_CORE_TRACE("{0}", e);
+		LINA_CORE_INFO(e);
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{
@@ -64,9 +62,8 @@ namespace LinaEngine
 	{
 		while (m_Running)
 		{
-			
-
-			m_Window->OnUpdate();
+			// Update rendering engine.
+			m_RenderingEngine->OnUpdate();
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
@@ -74,8 +71,6 @@ namespace LinaEngine
 		}
 
 	}
-
-
 
 	bool Application::OnWindowClose(WindowCloseEvent&e)
 	{
