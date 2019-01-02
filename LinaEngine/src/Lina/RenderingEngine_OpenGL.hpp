@@ -12,41 +12,25 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: RenderingEngine
-Timestamp: 1/2/2019 10:51:47 PM
+Class: RenderingEngine_OpenGL
+Timestamp: 1/2/2019 11:44:41 PM
 
 */
 
 #pragma once
-#ifndef RenderingEngine_HPP
-#define RenderingEngine_HPP
+#ifndef RenderingEngine_OpenGL_HPP
+#define RenderingEngine_OpenGL_HPP
 
-#include "Core.hpp"
-#include "Window.hpp"
+#include "RenderingEngine.hpp"
 
 namespace LinaEngine
 {
-
-	class LINA_API RenderingEngine
+	class LINA_API RenderingEngine_OpenGL : public RenderingEngine
 	{
 	public:
 
-		RenderingEngine();
-		virtual ~RenderingEngine();
-
-		void OnUpdate();
-
-		inline Window& GetMainWindow() const
-		{ 
-			LINA_CORE_ASSERT(!m_Window, "Window pointer is null!");
-			return *m_Window;
-		}
-		
-	private:
-
-		std::unique_ptr<Window> m_Window;
-		
-
+		RenderingEngine_OpenGL();
+		~RenderingEngine_OpenGL();
 	};
 }
 

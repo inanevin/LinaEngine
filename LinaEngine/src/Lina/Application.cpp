@@ -20,7 +20,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "LinaPch.hpp"
 #include "Application.hpp"  
 #include "RenderingEngine.hpp"
-
+#include "Package Manager/GraphicsAdapter.hpp"
 
 namespace LinaEngine
 {
@@ -28,13 +28,16 @@ namespace LinaEngine
 
 	Application::Application()
 	{
-		
-		// Init rendering engine.
-		m_RenderingEngine = std::make_unique<RenderingEngine>();
+		// Get a graphics adapter.
+		GraphicsAdapter adpt;
+
+		// Create unique ptr for rendering engine returned by the adapter.
+		m_RenderingEngine = std::unique_ptr<RenderingEngine>(adpt.CreateRenderingEngine());
 
 		// Set event callback for the main window.
 		m_RenderingEngine->GetMainWindow().SetEventCallback(BIND_EVENT_FN(OnEventFromWindow));
 
+		// Set running flag.
 		m_Running = true;
 	}
 

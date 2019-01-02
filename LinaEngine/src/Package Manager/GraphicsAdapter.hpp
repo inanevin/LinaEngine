@@ -22,20 +22,34 @@ Timestamp: 12/31/2018 1:46:13 AM
 #ifndef GraphicsAdapter_HPP
 #define GraphicsAdapter_HPP
 
+#ifdef LLF_GRAPHICS_OPENGL
 
-#ifdef LLF_GRAPHICS_SDLOpenGL
+	#include "Lina/RenderingEngine_OpenGL.hpp"
+	#define RENDERINGENGINE_CREATEFUNC(PARAM) inline RenderingEngine* CreateRenderingEngine() { return new RenderingEngine_OpenGL(); }
 
-#include "Low Level Framework/SDLOpenGLWindow.hpp"
+	#ifdef LLF_GRAPHICS_SDLOpenGL
 
-#define WINDOWCREATEFUNC(PARAM) inline Window* CreateEngineWindow(const WindowProps& props = WindowProps()) { return SDLOpenGLWindow::Create(props); }
+		#include "Low Level Framework/SDLOpenGLWindow.hpp"
+
+		#define WINDOWCREATEFUNC(PARAM) inline Window* CreateEngineWindow(const WindowProps& props = WindowProps()) { return SDLOpenGLWindow::Create(props); }
+
+	#else
+
+		#include "Lina/Window.hpp"
+
+		#define WINDOWCREATEFUNC(PARAM) inline Window* CreateEngineWindow(const WindowProps& props = WindowProps()) { LINA_CORE_ERR("No LLF is defined for Graphics Handling! Aborting."); exit(EXIT_FAILURE); }
+
+	#endif
 
 #else
 
-#include "Lina/Window.hpp"
+	#include "Lina/RenderingEngine.hpp"
 
-#define WINDOWCREATEFUNC(PARAM) inline Window* CreateEngineWindow(const WindowProps& props = WindowProps()) { LINA_CORE_ERR("No LLF is defined for Graphics Handling! Aborting."); exit(EXIT_FAILURE); }
+	#define RENDERINGENGINE_CREATEFUNC(PARAM) inline RenderingEngine* CreateRenderingEngine() { LINA_CORE_ERR("No LLF is defined for rendering! Aborting!");  exit(EXIT_FAILURE); };
 
-#endif
+#endif 
+
+
 
 
 
@@ -50,7 +64,7 @@ namespace LinaEngine
 		~GraphicsAdapter() {};
 		
 		WINDOWCREATEFUNC(PARAM);
-
+		RENDERINGENGINE_CREATEFUNC(PARAM);
 	};
 }
 
