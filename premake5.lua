@@ -64,7 +64,8 @@ project "LinaEngine"
 		"SDL2.lib",
 		"SDL2main.lib",
 		"glew32.lib",
-		"glew32s.lib"
+		"glew32s.lib",
+		"OpenGL32.lib"
 	}
 			
 		filter "system:windows"
