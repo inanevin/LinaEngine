@@ -63,9 +63,6 @@ artifacts/
 *.scc
 *.resx
 *.ico
-!/LinaEngine/*/*.lib
-!/Debug/*.dll
-*.lina
 *.sln
 *.vcxproj
 *.vcxproj.user
