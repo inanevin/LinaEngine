@@ -27,6 +27,7 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 -  This project uses Premake5, .bat files for various environments are generated & inside the root directory.
 -  After you installed all the dependencies as instructed, run one of the .bat files to generate projects for Visual Studio, GNU Make, XCode or CodeLite.
 -  Open your project files in your IDE, build the projects. 
+-  Set the sandbox project as the startup project.
 -  Build.
 -  Now you can work on the sandbox project as well as the engine source code via your IDE. 
 
