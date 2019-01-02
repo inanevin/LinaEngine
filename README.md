@@ -22,7 +22,7 @@ Lina Engine is currently being carried over to a new version (30.12.2018). There
 
 ## Installation
 
--  [Git Clone Lina Engine] (https://github.com/inanevin/LinaEngine)
+-  [Git Clone Lina Engine](https://github.com/inanevin/LinaEngine)
 -  You need to install dependencies first, as they are not automated so far. See each dependency installation below, then continue
 from this step.
 -  This project uses Premake5, .bat files for various environments are generated & inside the root directory.
@@ -33,7 +33,7 @@ from this step.
 
 ### Depenceny Installation: spdlog
 
--  [Clone/Download spdlog] (https://github.com/gabime/spdlog)
+-  [Clone/Download spdlog](https://github.com/gabime/spdlog)
 -  Copy the include folder as it is.
 -  Navigate to the root directory of cloned Lina Engine. From the root, navigate to LinaEngine/vendor/spdlog and paste the include file you copied over there. The final path for the include directory should be: Root(Where .bat files are present)/LinaEngine/vendor/spdlog/include
 -  Note: It is advised to copy the license and readme files of spdlog into the include directory as well if you are going to distribute a modified version on your own.
