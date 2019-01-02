@@ -31,7 +31,7 @@ from the next step.
 -  Build.
 -  Now you can work on the sandbox project as well as the engine source code via your IDE. 
 
-### Depenceny Installation: spdlog
+### Dependency Installation: spdlog
 
 -  [Clone/Download spdlog](https://github.com/gabime/spdlog)
 -  Copy the include folder as it is.
