@@ -32,6 +32,9 @@ Timestamp: 12/30/2018 5:29:20 PM
 #include <unordered_set>
 
 #include "Lina/Engine Utility/Log.hpp"
+#include "Utility/Math/Lina_Math.hpp"
+
+
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include <Windows.h>

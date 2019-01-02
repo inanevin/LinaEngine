@@ -39,6 +39,7 @@ namespace LinaEngine
 	{
 
 	}
+
 	void RenderingEngine::OnUpdate()
 	{
 		// Update window.

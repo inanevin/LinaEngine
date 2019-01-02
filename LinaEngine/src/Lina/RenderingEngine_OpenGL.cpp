@@ -18,17 +18,29 @@ Timestamp: 1/2/2019 11:44:41 PM
 */
 #include "LinaPch.hpp"
 #include "RenderingEngine_OpenGL.hpp"  
+#include "glew.h"
+
 
 namespace LinaEngine
 {
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
 	{
+		// Initialize GLEW
+		GLenum res = glewInit();
+		LINA_CORE_ASSERT(res != GLEW_OK, "Glew is not initialized properly");
 
 	}
 
 	RenderingEngine_OpenGL::~RenderingEngine_OpenGL()
 	{
 
+	}
+
+	void RenderingEngine_OpenGL::OnUpdate()
+	{
+
+		
+		RenderingEngine::OnUpdate();
 	}
 }
 

@@ -23,6 +23,7 @@ Timestamp: 1/2/2019 11:44:41 PM
 
 #include "RenderingEngine.hpp"
 
+
 namespace LinaEngine
 {
 	class LINA_API RenderingEngine_OpenGL : public RenderingEngine
@@ -31,6 +32,8 @@ namespace LinaEngine
 
 		RenderingEngine_OpenGL();
 		~RenderingEngine_OpenGL();
+
+		void OnUpdate() override;
 	};
 }
 

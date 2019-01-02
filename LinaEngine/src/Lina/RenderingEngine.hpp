@@ -34,7 +34,7 @@ namespace LinaEngine
 		RenderingEngine();
 		virtual ~RenderingEngine();
 
-		void OnUpdate();
+		virtual void OnUpdate();
 
 		inline Window& GetMainWindow() const
 		{ 
