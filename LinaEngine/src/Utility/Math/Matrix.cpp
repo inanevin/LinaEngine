@@ -25,14 +25,14 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #pragma region Matrix4
 
-Lina_Matrix4F::Lina_Matrix4F(const Lina_Matrix4F& rhs) 
+Matrix4F::Matrix4F(const Matrix4F& rhs) 
 {
 	for (unsigned int i = 0; i < 4; i++)
 		for (unsigned int j = 0; j < 4; j++)
 			(*this)[i][j] = rhs[i][j];
 }
 
-Lina_Matrix4F Lina_Matrix4F::InitIdentityMatrix()
+Matrix4F Matrix4F::InitIdentityMatrix()
 {
 	for (unsigned int i = 0; i < 4; i++)
 	{
@@ -49,7 +49,7 @@ Lina_Matrix4F Lina_Matrix4F::InitIdentityMatrix()
 }
 
 
-Lina_Matrix4F Lina_Matrix4F::InitScale(const Vector3F& rhs)
+Matrix4F Matrix4F::InitScale(const Vector3F& rhs)
 {
 	for (unsigned int i = 0; i < 4; i++)
 	{
@@ -68,7 +68,7 @@ Lina_Matrix4F Lina_Matrix4F::InitScale(const Vector3F& rhs)
 }
 
 
-Lina_Matrix4F Lina_Matrix4F::InitTranslation(const Vector3F& rhs)
+Matrix4F Matrix4F::InitTranslation(const Vector3F& rhs)
 {
 	for (unsigned int i = 0; i < 4; i++)
 	{
@@ -88,9 +88,9 @@ Lina_Matrix4F Lina_Matrix4F::InitTranslation(const Vector3F& rhs)
 	return *this;
 }
 
-Lina_Matrix4F Lina_Matrix4F::Transpose() const
+Matrix4F Matrix4F::Transpose() const
 {
-	Lina_Matrix4F t;
+	Matrix4F t;
 	for (int j = 0; j < 4; j++) {
 
 		for (int i = 0; i < 4; i++) {
@@ -100,7 +100,7 @@ Lina_Matrix4F Lina_Matrix4F::Transpose() const
 	return t;
 }
 
-Vector4F Lina_Matrix4F::Transform(const Vector4F& rhs) const
+Vector4F Matrix4F::Transform(const Vector4F& rhs) const
 {
 	Vector4F ret;
 
@@ -114,7 +114,7 @@ Vector4F Lina_Matrix4F::Transform(const Vector4F& rhs) const
 	return ret;
 }
 
-Vector3F Lina_Matrix4F::Transform(const Vector3F& rhs) const
+Vector3F Matrix4F::Transform(const Vector3F& rhs) const
 {
 	Vector3F r2;
 
@@ -133,9 +133,9 @@ Vector3F Lina_Matrix4F::Transform(const Vector3F& rhs) const
 }
 
 
-Lina_Matrix4F Lina_Matrix4F::InitEulerRotation(float xR, float yR, float zR)
+Matrix4F Matrix4F::InitEulerRotation(float xR, float yR, float zR)
 {
-	Lina_Matrix4F rx, ry, rz;
+	Matrix4F rx, ry, rz;
 
 	const float x = xR;
 	const float y = yR;
@@ -161,7 +161,7 @@ Lina_Matrix4F Lina_Matrix4F::InitEulerRotation(float xR, float yR, float zR)
 	return *this;
 }
 
-Lina_Matrix4F Lina_Matrix4F::InitRotationFromVectors(const Vector3F & n, const Vector3F & v, const Vector3F & u)
+Matrix4F Matrix4F::InitRotationFromVectors(const Vector3F & n, const Vector3F & v, const Vector3F & u)
 {
 	(*this)[0][0] = u.x;   (*this)[1][0] = u.y;   (*this)[2][0] = u.z;   (*this)[3][0] = 0.0f;
 	(*this)[0][1] = v.x;   (*this)[1][1] = v.y;   (*this)[2][1] = v.z;   (*this)[3][1] = 0.0f;
@@ -179,7 +179,7 @@ Lina_Matrix4F Lina_Matrix4F::InitRotationFromVectors(const Vector3F & n, const V
 	return *this;
 }
 
-Lina_Matrix4F Lina_Matrix4F::InitRotationFromDirection(const Vector3F & forward, const Vector3F & up)
+Matrix4F Matrix4F::InitRotationFromDirection(const Vector3F & forward, const Vector3F & up)
 {
 
 	Vector3F n = forward.Normalized();
@@ -189,7 +189,7 @@ Lina_Matrix4F Lina_Matrix4F::InitRotationFromDirection(const Vector3F & forward,
 	return InitRotationFromVectors(n, v, u);
 }
 
-Lina_Matrix4F Lina_Matrix4F::InitPerspective(float fov, float aspectRatio, float zNear, float zFar)
+Matrix4F Matrix4F::InitPerspective(float fov, float aspectRatio, float zNear, float zFar)
 {
 	const float zRng = zNear - zFar;
 	const float tanHFOV = tanf(fov / 2.0f);
@@ -211,7 +211,7 @@ Lina_Matrix4F Lina_Matrix4F::InitPerspective(float fov, float aspectRatio, float
 	return *this;
 }
 
-Lina_Matrix4F Lina_Matrix4F::InitOrto(float left, float right, float bot, float top, float nr, float fr)
+Matrix4F Matrix4F::InitOrto(float left, float right, float bot, float top, float nr, float fr)
 {
 	const float width = (right - left);
 	const float height = (top - bot);
@@ -228,11 +228,11 @@ Lina_Matrix4F Lina_Matrix4F::InitOrto(float left, float right, float bot, float 
 
 
 
-Lina_Matrix4F Lina_Matrix4F::Inverse() const
+Matrix4F Matrix4F::Inverse() const
 {
 	int i, j, k;
-	Lina_Matrix4F s;
-	Lina_Matrix4F t(*this);
+	Matrix4F s;
+	Matrix4F t(*this);
 
 	for (i = 0; i < 3; i++) {
 		int pivot = i;
@@ -256,7 +256,7 @@ Lina_Matrix4F Lina_Matrix4F::Inverse() const
 
 		if (pivotsize == 0) {
 
-			return Lina_Matrix4F();
+			return Matrix4F();
 		}
 
 		if (pivot != i) {
@@ -288,7 +288,7 @@ Lina_Matrix4F Lina_Matrix4F::Inverse() const
 
 		if ((f = t[i][i]) == 0) {
 			// no inversion
-			return Lina_Matrix4F();
+			return Matrix4F();
 		}
 
 		for (j = 0; j < 4; j++) {
@@ -313,14 +313,14 @@ Lina_Matrix4F Lina_Matrix4F::Inverse() const
 
 #pragma region Matrix3
 
-Lina_Matrix3F::Lina_Matrix3F(const Lina_Matrix3F& rhs)
+Matrix3F::Matrix3F(const Matrix3F& rhs)
 {
 	for (unsigned int i = 0; i < 3; i++)
 		for (unsigned int j = 0; j < 3; j++)
 			(*this)[i][j] = rhs[i][j];
 }
 
-Lina_Matrix3F Lina_Matrix3F::InitIdentityMatrix()
+Matrix3F Matrix3F::InitIdentityMatrix()
 {
 	for (unsigned int i = 0; i < 3; i++)
 	{
@@ -337,7 +337,7 @@ Lina_Matrix3F Lina_Matrix3F::InitIdentityMatrix()
 }
 
 
-Lina_Matrix3F Lina_Matrix3F::InitScale(const Vector3F& rhs)
+Matrix3F Matrix3F::InitScale(const Vector3F& rhs)
 {
 	for (unsigned int i = 0; i < 3; i++)
 	{
@@ -357,7 +357,7 @@ Lina_Matrix3F Lina_Matrix3F::InitScale(const Vector3F& rhs)
 
 
 
-Lina_Matrix3F Lina_Matrix3F::InitTranslation(const Vector3F& rhs)
+Matrix3F Matrix3F::InitTranslation(const Vector3F& rhs)
 {
 	for (unsigned int i = 0; i < 3; i++)
 	{
@@ -378,9 +378,9 @@ Lina_Matrix3F Lina_Matrix3F::InitTranslation(const Vector3F& rhs)
 	return *this;
 }
 
-Lina_Matrix3F Lina_Matrix3F::Transpose() const
+Matrix3F Matrix3F::Transpose() const
 {
-	Lina_Matrix3F t;
+	Matrix3F t;
 	for (int j = 0; j < 3; j++) {
 
 		for (int i = 0; i < 3; i++) {
@@ -390,7 +390,7 @@ Lina_Matrix3F Lina_Matrix3F::Transpose() const
 	return t;
 }
 
-Vector4F Lina_Matrix3F::Transform(const Vector4F& rhs) const
+Vector4F Matrix3F::Transform(const Vector4F& rhs) const
 {
 	Vector4F ret;
 
@@ -404,7 +404,7 @@ Vector4F Lina_Matrix3F::Transform(const Vector4F& rhs) const
 	return ret;
 }
 
-Vector3F Lina_Matrix3F::Transform(const Vector3F& rhs) const
+Vector3F Matrix3F::Transform(const Vector3F& rhs) const
 {
 	Vector3F r2;
 
@@ -422,11 +422,11 @@ Vector3F Lina_Matrix3F::Transform(const Vector3F& rhs) const
 	return ret;
 }
 
-Lina_Matrix3F Lina_Matrix3F::Inverse() const
+Matrix3F Matrix3F::Inverse() const
 {
 	int i, j, k;
-	Lina_Matrix3F s;
-	Lina_Matrix3F t(*this);
+	Matrix3F s;
+	Matrix3F t(*this);
 
 	for (i = 0; i < 2; i++) {
 		int pivot = i;
@@ -449,7 +449,7 @@ Lina_Matrix3F Lina_Matrix3F::Inverse() const
 		}
 
 		if (pivotsize == 0) {	
-			return Lina_Matrix3F();
+			return Matrix3F();
 		}
 
 		if (pivot != i) {
@@ -481,7 +481,7 @@ Lina_Matrix3F Lina_Matrix3F::Inverse() const
 
 		if ((f = t[i][i]) == 0) {
 	
-			return Lina_Matrix3F();
+			return Matrix3F();
 		}
 
 		for (j = 0; j < 3; j++) {

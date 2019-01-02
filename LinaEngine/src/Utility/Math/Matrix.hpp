@@ -21,8 +21,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #pragma once
 
-#ifndef Lina_Matrix_HPP
-#define Lina_Matrix_HPP
+#ifndef Matrix_HPP
+#define Matrix_HPP
 
 #include "Vector.hpp"
 

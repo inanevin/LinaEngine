@@ -25,12 +25,10 @@ Redistribution and use in source and binary forms, with or without modification,
 */
 
 #pragma once
-#ifndef Lina_Math_HPP
-#define Lina_Math_HPP
+#ifndef Math_HPP
+#define Math_HPP
 
-
-
-class Lina_Math
+class Math
 {
 public:
 	template<typename T>

@@ -21,8 +21,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #pragma once
 
-#ifndef Lina_Quaternion_HPP
-#define Lina_Quaternion_HPP
+#ifndef Quaternion_HPP
+#define Quaternion_HPP
 
 #include "Vector.hpp"
 #include "Matrix.hpp"

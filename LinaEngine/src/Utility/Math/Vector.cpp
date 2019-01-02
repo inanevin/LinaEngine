@@ -22,7 +22,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "LinaPch.hpp"
 #include "Vector.hpp"  
 #include "Math.hpp"
-#include "Math/Lina_Quaternion.hpp"
+#include "Quaternion.hpp"
 
 #pragma region Vector4
 
@@ -148,9 +148,9 @@ Vector3F Vector3F::Rotate(float angle, const Vector3F & axis)
 	float sinAngle = sin(-angle);
 	float cosAngle = cos(-angle);
 
-	Vector3 x = this->Cross(axis * sinAngle);
-	Vector3 y = (*this * cosAngle);
-	Vector3 z = axis * this->Dot(axis * (1 - cosAngle));
+	Vector3F x = this->Cross(axis * sinAngle);
+	Vector3F y = (*this * cosAngle);
+	Vector3F z = axis * this->Dot(axis * (1 - cosAngle));
 
 	*this = x + y + z;
 	return *this;
@@ -166,10 +166,10 @@ Vector3F Vector3F::Rotate(float angle, const Vector3F & axis)
 	return *this;*/
 }
 
-Vector3F Vector3F::Rotate(const Lina_Quaternion& rotation) const
+Vector3F Vector3F::Rotate(const Quaternion& rotation) const
 {
-	Lina_Quaternion conjugateQ = rotation.Conjugate();
-	Lina_Quaternion w = rotation * (*this) * conjugateQ;
+	Quaternion conjugateQ = rotation.Conjugate();
+	Quaternion w = rotation * (*this) * conjugateQ;
 
 	Vector3F dir = Vector3F(w.x, w.y, w.z);
 

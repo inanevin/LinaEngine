@@ -21,10 +21,10 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #pragma once
 
-#ifndef Lina_Vector_HPP
-#define Lina_Vector_HPP
+#ifndef Vector_HPP
+#define Vector_HPP
 
-class Lina_Quaternion;
+class Quaternion;
 
 
 class Vector4F
@@ -263,7 +263,7 @@ public:
 	float Dot(const Vector3F& rhs) const;
 	Vector3F Cross(const Vector3F& rhs) const;
 	Vector3F Rotate(float angle, const Vector3F& axis);
-	Vector3F Rotate(const Lina_Quaternion& rotation) const;
+	Vector3F Rotate(const Quaternion& rotation) const;
 
 	Vector3F Reflect(const Vector3F& normal) const;
 	Vector3F Max(const Vector3F& rhs) const;
