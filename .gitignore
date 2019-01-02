@@ -72,6 +72,8 @@ artifacts/
 *.scc
 *.resx
 *.ico
+!/vendor/bin/premake/LICENCE.txt
+!/vendor/bin/premake/premake5.exe
 !/LinaEngine/*/*.lib
 !/Debug/*.dll
 *.lina
