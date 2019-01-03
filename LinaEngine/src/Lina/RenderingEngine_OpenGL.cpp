@@ -19,6 +19,7 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "LinaPch.hpp"
 #include "RenderingEngine_OpenGL.hpp"  
 #include "glew.h"
+#include "Utility/Math/Color.hpp"
 
 
 namespace LinaEngine
@@ -31,8 +32,10 @@ namespace LinaEngine
 		GLenum res = glewInit();
 		LINA_CORE_ASSERT(res != GLEW_OK, "Glew is not initialized properly");
 
-		Vector3F vertices[1];
-		vertices[0] = Vector3F(0.0f, 0.0f, 0.0f);
+		Vector3F vertices[3];
+		vertices[0] = Vector3F(-1.0f, -1.0f, 0.0f);
+		vertices[1] = Vector3F(1.0f, -1.0f, 0.0f);
+		vertices[2] = Vector3F(0.0f, 1.0f, 0.0f);
 
 		// Generate buffers
 		glGenBuffers(1, &VBO);
@@ -56,7 +59,6 @@ namespace LinaEngine
 		// Clear buffer
 		glClear(GL_COLOR_BUFFER_BIT);
 
-
 		// vertex attribute index 0 is fixed for vertex position, so activate the attribute.
 		glEnableVertexAttribArray(0);
 
@@ -70,7 +72,7 @@ namespace LinaEngine
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		
 		// Draw the geometry. Every vertex is one point. 0 is the index of the first vertex. 1 is the number of vertices to draw.
-		glDrawArrays(GL_POINTS, 0, 1);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		// Good practice to disable each vertex attribute when not used.
 		glDisableVertexAttribArray(0);

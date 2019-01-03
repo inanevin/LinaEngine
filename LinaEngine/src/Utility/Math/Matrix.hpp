@@ -26,7 +26,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "Vector.hpp"
 
-class Matrix4F
+class LINA_API Matrix4F
 {
 public:
 

@@ -28,7 +28,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Matrix.hpp"
 
 
-class Quaternion : public Vector4F
+class LINA_API Quaternion : public Vector4F
 {
 
 public:

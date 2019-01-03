@@ -28,7 +28,10 @@ Redistribution and use in source and binary forms, with or without modification,
 #ifndef Math_HPP
 #define Math_HPP
 
-class Math
+#include "Lina/Core.hpp"
+
+
+class LINA_API Math
 {
 public:
 	template<typename T>
