@@ -27,7 +27,8 @@ Timestamp: 12/29/2018 11:21:31 PM
 
 #include "Lina/Application.hpp"
 #include "Lina/Layer.hpp"
-#include "Lina/Engine Utility/Log.hpp"
+#include "Lina/Utility/Log.hpp"
+#include "Lina/Utility/Math/Vector.hpp"
 
 // *********** ENTRY POINT *********** 
 #include "Lina/EntryPoint.hpp"

@@ -12,40 +12,34 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: RenderingEngine
-Timestamp: 1/2/2019 10:51:47 PM
+Class: Shader_GLSL
+Timestamp: 1/5/2019 12:53:08 AM
 
 */
 
 #pragma once
-#ifndef RenderingEngine_HPP
-#define RenderingEngine_HPP
+#ifndef Shader_GLSL_HPP
+#define Shader_GLSL_HPP
 
-#include "Core.hpp"
-#include "Window.hpp"
+
 
 namespace LinaEngine
 {
-
-	class LINA_API RenderingEngine
+	class Shader_GLSL
 	{
 	public:
 
-		RenderingEngine();
-		virtual ~RenderingEngine();
+		Shader_GLSL();
+		void AddShader(const char* pShaderText, unsigned int ShaderType);
+		void CompileShaders();
+		void Bind();
 
-		virtual void OnUpdate();
-
-		inline Window& GetMainWindow() const
-		{ 
-			LINA_CORE_ASSERT(!m_Window, "Window pointer is null!");
-			return *m_Window;
-		}
-		
 	private:
 
-		std::unique_ptr<Window> m_Window;
-		
+		void CheckError(unsigned int, int, std::string);
+		static const char* LoadShader(std::string path);
+
+		unsigned int m_Program;
 
 	};
 }

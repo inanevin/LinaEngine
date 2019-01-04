@@ -19,8 +19,8 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "LinaPch.hpp"
 #include "RenderingEngine_OpenGL.hpp"  
 #include "glew.h"
-#include "Utility/Math/Color.hpp"
-
+#include "Lina/Utility/Math/Color.hpp"
+#include "Shaders/Shader_GLSL.hpp"
 
 namespace LinaEngine
 {
@@ -32,6 +32,7 @@ namespace LinaEngine
 		GLenum res = glewInit();
 		LINA_CORE_ASSERT(res != GLEW_OK, "Glew is not initialized properly");
 
+		/* CREATE VERTEX BUFFER */
 		Vector3F vertices[3];
 		vertices[0] = Vector3F(-1.0f, -1.0f, 0.0f);
 		vertices[1] = Vector3F(1.0f, -1.0f, 0.0f);
@@ -46,7 +47,14 @@ namespace LinaEngine
 		// Fill the binded object with data.
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-		
+		/* CREATE VERTEX BUFFER */
+
+		// * ADD SHADERS, COMPILE, BIND *//
+
+
+
+		// * ADD SHADERS, COMPILE, BIND *//
+
 	}
 
 	RenderingEngine_OpenGL::~RenderingEngine_OpenGL()
@@ -56,6 +64,7 @@ namespace LinaEngine
 
 	void RenderingEngine_OpenGL::OnUpdate()
 	{
+		/* MAIN LOOP RENDER */
 		// Clear buffer
 		glClear(GL_COLOR_BUFFER_BIT);
 
@@ -70,14 +79,18 @@ namespace LinaEngine
 		// 4th param is whether to normalize the data, 5th is stride, # of bytes bw two instances of that attribute in the buffer. (Pass the size of struct, only one type of data for now.)
 		// Last param is the offset inside the structure where the pipeline will find our attribute.
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		
+
 		// Draw the geometry. Every vertex is one point. 0 is the index of the first vertex. 1 is the number of vertices to draw.
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		// Good practice to disable each vertex attribute when not used.
 		glDisableVertexAttribArray(0);
 
+		/* MAIN LOOP RENDER */
+
 		RenderingEngine::OnUpdate();
+
+
 	}
 }
 

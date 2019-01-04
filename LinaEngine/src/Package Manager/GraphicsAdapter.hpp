@@ -24,7 +24,7 @@ Timestamp: 12/31/2018 1:46:13 AM
 
 #ifdef LLF_GRAPHICS_OPENGL
 
-	#include "Lina/RenderingEngine_OpenGL.hpp"
+	#include "Lina/Rendering/RenderingEngine_OpenGL.hpp"
 	#define RENDERINGENGINE_CREATEFUNC(PARAM) inline RenderingEngine* CreateRenderingEngine() { return new RenderingEngine_OpenGL(); }
 
 	#ifdef LLF_GRAPHICS_SDLOpenGL
@@ -35,7 +35,7 @@ Timestamp: 12/31/2018 1:46:13 AM
 
 	#else
 
-		#include "Lina/Window.hpp"
+		#include "Lina/Rendering/Window.hpp"
 
 		#define WINDOWCREATEFUNC(PARAM) inline Window* CreateEngineWindow(const WindowProps& props = WindowProps()) { LINA_CORE_ERR("No LLF is defined for Graphics Handling! Aborting."); exit(EXIT_FAILURE); }
 
@@ -43,7 +43,7 @@ Timestamp: 12/31/2018 1:46:13 AM
 
 #else
 
-	#include "Lina/RenderingEngine.hpp"
+	#include "Lina/Rendering/RenderingEngine.hpp"
 
 	#define RENDERINGENGINE_CREATEFUNC(PARAM) inline RenderingEngine* CreateRenderingEngine() { LINA_CORE_ERR("No LLF is defined for rendering! Aborting!");  exit(EXIT_FAILURE); };
 

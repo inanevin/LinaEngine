@@ -19,7 +19,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 #include "LinaPch.hpp"
 #include "Application.hpp"  
-#include "RenderingEngine.hpp"
+#include "Rendering/RenderingEngine.hpp"
 #include "Package Manager/GraphicsAdapter.hpp"
 
 namespace LinaEngine

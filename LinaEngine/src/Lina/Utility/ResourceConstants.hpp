@@ -12,32 +12,33 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: Lina_Pch
-Timestamp: 12/30/2018 5:29:20 PM
+Class: ResourceConstants
+Timestamp: 1/5/2019 12:42:58 AM
 
 */
 
 #pragma once
 
-#include <iostream>
-#include <memory>
-#include <utility>
-#include <algorithm>
-#include <functional>
+#ifndef ResourceConstants_HPP
+#define ResourceConstants_HPP
 
+#include <stdio.h>
 #include <string>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <unordered_map>
-#include <unordered_set>
 
-#include "Lina/Utility/Log.hpp"
-#include "Lina/Utility/Math/Math.hpp"
-#include "Lina/Utility/Math/Quaternion.hpp"
-#include "Lina/Utility/ResourceConstants.hpp"
+namespace LinaEngine
+{
+	class ResourceConstants
+	{
+
+	public:
+		static const std::string& GLSL_BasicFragmentPath;
+		static const std::string& GLSL_BasicVertexPath;
+	};
+
+	const std::string& ResourceConstants::GLSL_BasicFragmentPath = "./Resources/Shaders/GLSL/Basic.fs";
+	const std::string& ResourceConstants::GLSL_BasicVertexPath = "./Resources/Shaders/GLSL/Basic.vs";
+}
 
 
-#ifdef LINA_PLATFORM_WINDOWS
-#include <Windows.h>
+
 #endif

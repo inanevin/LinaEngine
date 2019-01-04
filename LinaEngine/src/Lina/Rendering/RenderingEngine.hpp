@@ -12,28 +12,42 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: Shader
-Timestamp: 1/3/2019 2:03:50 AM
+Class: RenderingEngine
+Timestamp: 1/2/2019 10:51:47 PM
 
 */
 
 #pragma once
-#ifndef Shader_HPP
-#define Shader_HPP
+#ifndef RenderingEngine_HPP
+#define RenderingEngine_HPP
 
-#pragma once
+#include "../Core.hpp"
+#include "Window.hpp"
 
 namespace LinaEngine
 {
-	class Shader
+
+	class LINA_API RenderingEngine
 	{
 	public:
 
-		Shader();
+		RenderingEngine();
+		virtual ~RenderingEngine();
+
+		virtual void OnUpdate();
+
+		inline Window& GetMainWindow() const
+		{ 
+			LINA_CORE_ASSERT(!m_Window, "Window pointer is null!");
+			return *m_Window;
+		}
+		
+	private:
+
+		std::unique_ptr<Window> m_Window;
+		
 
 	};
-
-
 }
 
 
