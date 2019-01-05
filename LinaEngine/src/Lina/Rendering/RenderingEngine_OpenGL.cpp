@@ -101,7 +101,7 @@ namespace LinaEngine
 		sc += 0.01f;
 
 		
-		Matrix4F worldMatrix = Matrix4F().InitScale(Vector3F(sinf(sc), sinf(sc), sinf(sc)));
+		Matrix4F worldMatrix = Matrix4F().InitIdentityMatrix();
 		test->SetUniform("gWorld", worldMatrix);
 
 		/* MAIN LOOP RENDER */

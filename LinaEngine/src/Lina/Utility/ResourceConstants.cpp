@@ -21,7 +21,10 @@ Timestamp: 1/5/2019 1:39:45 PM
 
 namespace LinaEngine
 {
-	const std::string& ResourceConstants::GLSL_BasicFragmentPath = "..\\LinaEngine\\Resources\\Shaders\\GLSL\\Basic.fs";
-	const std::string& ResourceConstants::GLSL_BasicVertexPath = "..\\LinaEngine\\Resources\\Shaders\\GLSL\\Basic.vs";
+
+	#define LINA_RESOURCESPATH "Resources\\"
+
+	std::string& ResourceConstants::GLSL_BasicFragmentPath = std::string(LINA_RESOURCESPATH) + std::string("Shaders\\GLSL\\Basic.fs");
+	std::string& ResourceConstants::GLSL_BasicVertexPath = std::string(LINA_RESOURCESPATH) + std::string("Shaders\\GLSL\\Basic.vs");
 }
 

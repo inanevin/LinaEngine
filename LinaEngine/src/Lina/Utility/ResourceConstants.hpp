@@ -31,8 +31,8 @@ namespace LinaEngine
 	{
 
 	public:
-		static const std::string& GLSL_BasicFragmentPath;
-		static const std::string& GLSL_BasicVertexPath;
+		static  std::string& GLSL_BasicFragmentPath;
+		static  std::string& GLSL_BasicVertexPath;
 	};
 
 }

@@ -26,6 +26,8 @@ LibDir = {}
 LibDir["SDL"] = "LinaEngine/vendor/SDL2-2.0.9/lib/x64"
 LibDir["GLEW"] = "LinaEngine/vendor/glew-2.1.0/lib/Release/x64"
 
+
+
 project "LinaEngine"
 	location "LinaEngine"
 	kind "SharedLib"
@@ -150,7 +152,8 @@ project "Sandbox"
 			
 			("{COPY}  ../%{DLLDir.LinaEngine}/LinaEngine.dll  ../bin/" .. outputdir .. "/Sandbox"),
 			("{COPY} ../%{DLLDir.SDL}/SDL2.dll ../bin/" .. outputdir .. "/Sandbox"),
-			("{COPY} ../%{DLLDir.GLEW}/glew32.dll ../bin/" .. outputdir .. "/Sandbox")
+			("{COPY} ../%{DLLDir.GLEW}/glew32.dll ../bin/" .. outputdir .. "/Sandbox"),
+			("{COPY} ../LinaEngine/rsr ../bin/" .. outputdir .. "/Sandbox")
 			--- ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox"),	
 			--- ("{COPY} ../%{DLLDir.SDL}/SDL2.dll ../bin/" .. outputdir .. "/Sandbox")
 		}
