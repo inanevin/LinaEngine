@@ -150,6 +150,60 @@ namespace LinaEngine
 	}
 
 
+	Matrix4F Matrix4F::InitRotationFromDirection(const Vector3F & forward, const Vector3F & up)
+	{
+		Vector3F n = forward.Normalized();
+		Vector3F u = Vector3F::Cross(up, n).Normalized();
+		Vector3F v = Vector3F::Cross(n, u);
+	
+		return InitRotationFromVectors(u,v,n);
+	}
+
+	Matrix4F Matrix4F::InitPerspectiveProjection(float FOV, float width, float height, float zNear, float zFar)
+	{
+	
+		const float zRng = zNear - zFar;
+		const float tanHFOV = tanf(Math::ToRadians(FOV / 2.0f));
+		float aspectRatio = width / height;
+		
+		m[0][0] = 1.0f / (tanHFOV * aspectRatio);	m[0][1] = 0;				m[0][2] = 0;						m[0][3] = 0;
+		m[1][0] = 0;								m[1][1] = 1.0f / tanHFOV;	m[1][2] = 0;						m[1][3] = 0;
+		m[2][0] = 0;								m[2][1] = 0;				m[2][2] = (-zNear - zFar) / zRng;	m[2][3] = 2 * zFar * zNear / zRng;
+		m[3][0] = 0;								m[3][1] = 0;				m[3][2] = 1;						m[3][3] = 0;
+
+		return *this;
+	}
+
+	Matrix4F Matrix4F::InitOrto(float left, float right, float bot, float top, float nr, float fr)
+	{
+		const float width = (right - left);
+		const float height = (top - bot);
+		const float depth = (fr - nr);
+
+		(*this)[0][0] = 2.0f / width;	(*this)[1][0] = 0.0f;			(*this)[2][0] = 0.0f;			(*this)[3][0] = -(right + left) / width;
+		(*this)[0][1] = 0.0f;			(*this)[1][1] = 2.0f / height;	(*this)[2][1] = 0.0f;			(*this)[3][1] = -(top + bot) / height;
+		(*this)[0][2] = 0.0f;			(*this)[1][2] = 0.0f;			(*this)[2][2] = 2.0f / depth;	(*this)[3][2] = -(fr + nr) / depth;
+		(*this)[0][3] = 0.0f;			(*this)[1][3] = 0.0f;			(*this)[2][3] = 0.0f;			(*this)[3][3] = 1.0f;
+
+		return *this;
+	}
+
+
+
+	Matrix4F Matrix4F::InitRotationFromVectors(const Vector3F & u, const Vector3F & v, const Vector3F & n)
+	{
+
+		(*this)[0][0] = u.x;   (*this)[0][1] = u.y;   (*this)[0][2] = u.z;   (*this)[0][3] = 0.0f;
+		(*this)[1][0] = v.x;   (*this)[1][1] = v.y;   (*this)[1][2] = v.z;   (*this)[1][3] = 0.0f;
+		(*this)[2][0] = n.x;   (*this)[2][1] = n.y;   (*this)[2][2] = n.z;   (*this)[2][3] = 0.0f;
+		(*this)[3][0] = 0.0;   (*this)[3][1] = 0.0f;  (*this)[3][2] = 0.0f;  (*this)[3][3] = 1.0f;
+
+		return *this;
+	}
+
+
+
+
 	Matrix4F Matrix4F::Transpose() const
 	{
 		Matrix4F t;
@@ -193,75 +247,6 @@ namespace LinaEngine
 
 		return ret;
 	}
-
-
-
-	Matrix4F Matrix4F::InitRotationFromVectors(const Vector3F & n, const Vector3F & v, const Vector3F & u)
-	{
-		(*this)[0][0] = u.x;   (*this)[1][0] = u.y;   (*this)[2][0] = u.z;   (*this)[3][0] = 0.0f;
-		(*this)[0][1] = v.x;   (*this)[1][1] = v.y;   (*this)[2][1] = v.z;   (*this)[3][1] = 0.0f;
-		(*this)[0][2] = n.x;   (*this)[1][2] = n.y;   (*this)[2][2] = n.z;   (*this)[3][2] = 0.0f;
-		(*this)[0][3] = 0.0;   (*this)[1][3] = 0.0f;  (*this)[2][3] = 0.0f;  (*this)[3][3] = 1.0f;
-
-		/*
-		(*this)[0][0] = u.x;   (*this)[0][1] = u.y;   (*this)[0][2] = u.z;   (*this)[0][3] = 0.0f;
-		(*this)[1][0] = v.x;   (*this)[1][1] = v.y;   (*this)[1][2] = v.z;   (*this)[1][3] = 0.0f;
-		(*this)[2][0] = n.x;   (*this)[2][1] = n.y;   (*this)[2][2] = n.z;   (*this)[2][3] = 0.0f;
-		(*this)[3][0] = 0.0;   (*this)[3][1] = 0.0f;  (*this)[3][2] = 0.0f;  (*this)[3][3] = 1.0f;
-
-			*/
-
-		return *this;
-	}
-
-	Matrix4F Matrix4F::InitRotationFromDirection(const Vector3F & forward, const Vector3F & up)
-	{
-
-		Vector3F n = forward.Normalized();
-		Vector3F u = Vector3F(up.Normalized()).Cross(n);
-		Vector3F v = n.Cross(u);
-
-		return InitRotationFromVectors(n, v, u);
-	}
-
-	Matrix4F Matrix4F::InitPerspectiveProjection(PerspectiveInformation p)
-	{
-	
-		const float zRng = p.zNear - p.zFar;
-		const float tanHFOV = tanf(Math::ToRadians(p.FOV / 2.0f));
-		float aspectRatio = p.width / p.height;
-		
-		m[0][0] = 1.0f / (tanHFOV * aspectRatio);	m[0][1] = 0;				m[0][2] = 0;						m[0][3] = 0;
-		m[1][0] = 0;								m[1][1] = 1.0f / tanHFOV;	m[1][2] = 0;						m[1][3] = 0;
-		m[2][0] = 0;								m[2][1] = 0;				m[2][2] = (-p.zNear - p.zFar) / zRng;	m[2][3] = 2 * p.zFar * p.zNear / zRng;
-		m[3][0] = 0;								m[3][1] = 0;				m[3][2] = 1;						m[3][3] = 0;
-		
-		// MAJOR ROW - COLUMN
-
-		/*(*this)[0][0] = 1.0f / (tanHFOV * aspectRatio); (*this)[1][0] = 0.0f;   (*this)[2][0] = 0.0f;            (*this)[3][0] = 0.0f;
-		(*this)[0][1] = 0.0f;                   (*this)[1][1] = 1.0f / tanHFOV; (*this)[2][1] = 0.0f;            (*this)[3][1] = 0.0f;
-		(*this)[0][2] = 0.0f;                   (*this)[1][2] = 0.0f;            (*this)[2][2] = (-zNear - zFar) / zRng; (*this)[3][2] = 2 * zFar * zNear / zRng;
-		(*this)[0][3] = 0.0f;                   (*this)[1][3] = 0.0f;            (*this)[2][3] = 1.0f;            (*this)[3][3] = 0.0f;
-		*/
-
-		return *this;
-	}
-
-	Matrix4F Matrix4F::InitOrto(float left, float right, float bot, float top, float nr, float fr)
-	{
-		const float width = (right - left);
-		const float height = (top - bot);
-		const float depth = (fr - nr);
-
-		(*this)[0][0] = 2.0f / width;	(*this)[1][0] = 0.0f;			(*this)[2][0] = 0.0f;			(*this)[3][0] = -(right + left) / width;
-		(*this)[0][1] = 0.0f;			(*this)[1][1] = 2.0f / height;	(*this)[2][1] = 0.0f;			(*this)[3][1] = -(top + bot) / height;
-		(*this)[0][2] = 0.0f;			(*this)[1][2] = 0.0f;			(*this)[2][2] = 2.0f / depth;	(*this)[3][2] = -(fr + nr) / depth;
-		(*this)[0][3] = 0.0f;			(*this)[1][3] = 0.0f;			(*this)[2][3] = 0.0f;			(*this)[3][3] = 1.0f;
-
-		return *this;
-	}
-
-
 
 
 	Matrix4F Matrix4F::Inverse() const

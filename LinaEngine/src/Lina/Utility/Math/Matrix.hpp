@@ -28,14 +28,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 namespace LinaEngine
 {
-	struct PerspectiveInformation
-	{
-		float FOV;
-		float width;
-		float height;
-		float zNear;
-		float zFar;
-	};
+
+
 
 	class LINA_API Matrix4F
 	{
@@ -49,17 +43,16 @@ namespace LinaEngine
 		Matrix4F InitTranslationTransform(float x, float y, float z);
 		Matrix4F InitRotationTransform(float xR, float yR, float zR);
 		Matrix4F InitRotationTransform(const Quaternion& quat);
+		Matrix4F InitRotationFromVectors(const Vector3F&, const Vector3F&, const Vector3F&);
+		Matrix4F InitRotationFromDirection(const Vector3F& forward, const Vector3F& up);
+		Matrix4F InitPerspectiveProjection(float FOV, float width, float height, float zNear, float zFar);
+		Matrix4F InitOrto(float left, float right, float bot, float top, float nr, float);
 
 		Matrix4F Transpose() const;
 
 		Vector4F Transform(const Vector4F& rhs) const;
 		Vector3F Transform(const Vector3F& rhs) const;
-		
-	
-		Matrix4F InitRotationFromVectors(const Vector3F&, const Vector3F&, const Vector3F&);
-		Matrix4F InitRotationFromDirection(const Vector3F& forward, const Vector3F& up);
-		Matrix4F InitPerspectiveProjection(PerspectiveInformation persInfo);
-		Matrix4F InitOrto(float left, float right, float bot, float top, float nr, float);
+
 		Matrix4F Inverse() const;
 
 		inline const float* operator[](int index) const { return m[index]; }
@@ -94,6 +87,10 @@ namespace LinaEngine
 
 
 		float m[4][4];
+
+	private:
+
+		
 	};
 
 

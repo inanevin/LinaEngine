@@ -36,16 +36,6 @@ namespace LinaEngine
 
 		return m_WorldTransformation;
 	}
-	const Matrix4F & Transform::GetWorldProjectedTransformation()
-	{
-		Matrix4F perspective;
-		
-		// Init perspective & multiply w/ world transformation.
-		perspective.InitPerspectiveProjection(m_PersInfo);
-		m_WorldProjectedTransformation = perspective * GetWorldTransformation();
 
-		return m_WorldProjectedTransformation;
-
-	}
 }
 

@@ -12,41 +12,46 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: RenderingEngine_OpenGL
-Timestamp: 1/2/2019 11:44:41 PM
+Class: Camera
+Timestamp: 1/5/2019 9:51:42 PM
 
 */
 
 #pragma once
-#ifndef RenderingEngine_OpenGL_HPP
-#define RenderingEngine_OpenGL_HPP
+#ifndef Camera_HPP
+#define Camera_HPP
 
-#include "RenderingEngine.hpp"
-#include "glew.h"
-#include "../Camera.hpp"
-
+#pragma once
 
 namespace LinaEngine
 {
-	class Shader_GLSL;
+	struct PerspectiveInformation
+	{
+		float FOV;
+		float width;
+		float height;
+		float zNear;
+		float zFar;
+	};
 
-	class LINA_API RenderingEngine_OpenGL : public RenderingEngine
+	class Camera
 	{
 	public:
 
-		RenderingEngine_OpenGL();
-		~RenderingEngine_OpenGL();
+		Camera(PerspectiveInformation p = PerspectiveInformation());
+		Matrix4F GetViewProjection();
+		void SetPerspectiveInformation(PerspectiveInformation p);
 
-		void OnUpdate() override;
-		void CreateVertexBuffer();
-		void CreateIndexBuffer();
-
+		Vector3F position;
+		Vector3F forward;
+		Vector3F up;
 	private:
-		Camera cam;
-		Shader_GLSL* test;
-		GLuint m_VAO;
-		GLuint m_VAB;
-		int drawCount;
+
+		
+		Matrix4F m_PerspectiveProjection;
+		Matrix4F m_ViewProjection;
+		PerspectiveInformation m_PersInfo;
+	
 	};
 }
 

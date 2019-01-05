@@ -48,15 +48,15 @@ namespace LinaEngine
 		test->CompileShaders();
 		test->Bind();
 
-		test->AddUniform("gWorld", "mat4");
+		test->AddUniform("gWVP", "mat4");
 
 		p.FOV = 60;
 		p.zFar = 1000;
 		p.zNear = 0.1f;
 		p.width = GetMainWindow().GetWidth();
 		p.height = GetMainWindow().GetHeight();
-		t.SetPerspectiveInformation(p);
-
+		
+		cam.SetPerspectiveInformation(p);
 		// * ADD SHADERS, COMPILE, BIND *//
 
 	}
@@ -100,11 +100,11 @@ namespace LinaEngine
 		sc += 0.01f;
 		
 		t.SetScale(0.5f, 0.5f, 0.5f);
-		t.SetPosition(sinf(sc), 0.0f, 5.0f);
-		t.SetRotation(0.0f, sc *5, 0.0f);
+		t.SetPosition(0, 0.0f, 5.0f);
+		t.SetRotation(0.0f, sinf(sc), 0.0f);
 	
-		Matrix4F worldMatrix = t.GetWorldProjectedTransformation();
-		test->SetUniform("gWorld", worldMatrix);
+		Matrix4F worldViewMatrix =  cam.GetViewProjection() * t.GetWorldTransformation();
+		test->SetUniform("gWVP", worldViewMatrix);
 
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);

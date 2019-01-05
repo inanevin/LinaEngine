@@ -145,6 +145,16 @@ namespace LinaEngine
 		);
 	}
 
+	Vector3F Vector3F::Cross(const Vector3F & lhs, const Vector3F & rhs)
+	{
+		return Vector3F
+		(
+			lhs.y * rhs.z - lhs.z * rhs.y,
+			lhs.z * rhs.x - lhs.x * rhs.z,
+			lhs.x * rhs.y - lhs.y * rhs.x
+		);
+	}
+
 	Vector3F Vector3F::Rotate(float angle, const Vector3F & axis)
 	{
 		float sinAngle = sin(-angle);

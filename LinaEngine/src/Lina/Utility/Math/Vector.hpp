@@ -25,7 +25,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Vector_HPP
 
 #include "Lina/Core.hpp"
-
 namespace LinaEngine
 {
 
@@ -244,6 +243,24 @@ namespace LinaEngine
 				return w;
 		}
 
+		inline Vector4F operator-() const
+		{
+			return Vector4F(-x, -y, -z, -w);
+		}
+
+		inline std::ostream& operator<<(std::ostream& os)
+		{
+			return os << "(X: " << x << " Y: " << y << " Z: " << z << " W: " << w << ")";
+		}
+
+		inline std::string ToString()
+		{
+			std::stringstream ss;
+			ss << "(X: " << x << " Y: " << y << " Z: " << z << " W: " << w << ")";
+			return ss.str();
+		}
+
+
 #pragma endregion
 
 
@@ -266,6 +283,7 @@ namespace LinaEngine
 		float AngleBetween(const Vector3F& rhs) const;
 		float Dot(const Vector3F& rhs) const;
 		Vector3F Cross(const Vector3F& rhs) const;
+		static Vector3F Cross(const Vector3F& lhs, const Vector3F& rhs);
 		Vector3F Rotate(float angle, const Vector3F& axis);
 		Vector3F Rotate(const Quaternion& rotation) const;
 
@@ -447,6 +465,23 @@ namespace LinaEngine
 				return y;
 			else
 				return z;
+		}
+
+		inline Vector3F operator-() const
+		{
+			return Vector3F(-x, -y, -z);
+		}
+
+		inline std::ostream& operator<<(std::ostream& os)
+		{
+			return os << "(X: " << x << " Y: " << y << " Z: " << z << ")";
+		}
+
+		inline std::string ToString()
+		{
+			std::stringstream ss;
+			ss << "(X: " << x << " Y: " << y << " Z: " << z << ")";
+			return ss.str();
 		}
 
 #pragma endregion
@@ -635,6 +670,23 @@ namespace LinaEngine
 				return x;
 			else
 				return y;
+		}
+
+		inline Vector2F operator-() const
+		{
+			return Vector2F(-x, -y);
+		}
+
+		inline std::ostream& operator<<(std::ostream& os)
+		{
+			return os << "(X: " << x << " Y: " << y << ")";
+		}
+
+		inline std::string ToString()
+		{
+			std::stringstream ss;
+			ss << "(X: " << x << " Y: " << y << " Z: " << ")";
+			return ss.str();
 		}
 
 #pragma endregion
