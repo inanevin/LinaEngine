@@ -18,13 +18,15 @@ Timestamp: 1/2/2019 11:44:41 PM
 */
 #include "LinaPch.hpp"
 #include "RenderingEngine_OpenGL.hpp"  
-#include "glew.h"
 #include "Lina/Utility/Math/Color.hpp"
 #include "Shaders/Shader_GLSL.hpp"
+#include "../Transform.hpp"
 
 namespace LinaEngine
 {
+	
 	GLuint VBO;
+	GLuint IBO;
 
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
 	{
@@ -32,34 +34,17 @@ namespace LinaEngine
 		GLenum res = glewInit();
 		LINA_CORE_ASSERT(res == GLEW_OK, "Glew is not initialized properly");
 
-		test = new Shader_GLSL();
-
-		/* CREATE VERTEX BUFFER */
-		Vector3F vertices[3];
-		vertices[0] = Vector3F(-1.0f, -1.0f, 0.0f);
-		vertices[1] = Vector3F(1.0f, -1.0f, 0.0f);
-		vertices[2] = Vector3F(0.0f, 1.0f, 0.0f);
-
-		// Generate buffers
-		glGenBuffers(1, &VBO);
-
-		// Bind buffer. VBO will contain array of vertices. (element buffer = array contains indices of vertices in another buffer)
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-		// Fill the binded object with data.
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-		/* CREATE VERTEX BUFFER */
+		CreateVertexBuffer();
+		CreateIndexBuffer();
 
 		// * ADD SHADERS, COMPILE, BIND *//
 
-		
+		test = new Shader_GLSL();
+
 		test->AddShader(Shader_GLSL::LoadShader(ResourceConstants::GLSL_BasicVertexPath), GL_VERTEX_SHADER);
 		test->AddShader(Shader_GLSL::LoadShader(ResourceConstants::GLSL_BasicFragmentPath), GL_FRAGMENT_SHADER);
 		test->CompileShaders();
 		test->Bind();
-
-		
 
 		test->AddUniform("gWorld", "mat4");
 		
@@ -79,11 +64,12 @@ namespace LinaEngine
 		// Clear buffer
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// vertex attribute index 0 is fixed for vertex position, so activate the attribute.
+
+	/*	// vertex attribute index 0 is fixed for vertex position, so activate the attribute.
 		glEnableVertexAttribArray(0);
 
 		// Update the pipeline state of the buffer we want to use.
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, m_VAO);
 
 		// Tell the pipeline how to interpret the data. First attrib is 0 as we only use it for now, but it will be the index of shaders once they come into place.
 		// 3 is # of components, xyz.
@@ -91,24 +77,95 @@ namespace LinaEngine
 		// Last param is the offset inside the structure where the pipeline will find our attribute.
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VAB);
+
+		//glDrawElements(GL_TRIANGLES, drawCount, GL_UNSIGNED_INT, 0);
+
 		// Draw the geometry. Every vertex is one point. 0 is the index of the first vertex. 1 is the number of vertices to draw.
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		// Good practice to disable each vertex attribute when not used.
-		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(0);*/
+
 
 		static float sc = 0.0f;
 		sc += 0.01f;
+		Transform t;
 
-		
-		Matrix4F worldMatrix = Matrix4F().InitIdentityMatrix();
+		t.SetScale(0.5f, 0.5f, 0.5f);
+		t.SetPosition(sinf(sc), 0.0f, 0.0f);
+		t.SetRotation(0.0f, sc *5, 0.0f);
+
+
+		Matrix4F worldMatrix = t.GetWorldTransformation();
 		test->SetUniform("gWorld", worldMatrix);
+
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+
+		glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+
+		glDisableVertexAttribArray(0);
+
 
 		/* MAIN LOOP RENDER */
 
 		RenderingEngine::OnUpdate();
 
 
+	}
+	void RenderingEngine_OpenGL::CreateVertexBuffer()
+	{
+		/*Vector3F Vertices[3];
+		Vertices[0] = Vector3F(-1.0f, -1.0f, 0.0f);
+		Vertices[1] = Vector3F(1.0f, -1.0f, 0.0f);
+		Vertices[2] = Vector3F(0.0f, 1.0f, 0.0f);
+
+		glGenBuffers(1, &VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);*/
+
+		Vector3F Vertices[4];
+		Vertices[0] = Vector3F(-1.0f, -1.0f, 0.0f);
+		Vertices[1] = Vector3F(0.0f, -1.0f, 1.0f);
+		Vertices[2] = Vector3F(1.0f, -1.0f, 0.0f);
+		Vertices[3] = Vector3F(0.0f, 1.0f, 0.0f);
+
+		glGenBuffers(1, &VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
+
+		/*
+		
+		Vector3F vertices[4];
+		vertices[0] = Vector3F(-1.0f, -1.0f, 0.0f);
+		vertices[1] = Vector3F(0.0f, -1.0f, 1.0f);
+		vertices[2] = Vector3F(1.0f, -1.0f, 0.0f);
+		vertices[3] = Vector3F(0.0f, 1.0f, 0.0f);
+
+		int vSize = 4;
+
+		// Generate buffers
+		glGenBuffers(1, &m_VAO);
+
+		// Bind buffer. VBO will contain array of vertices. (element buffer = array contains indices of vertices in another buffer)
+		glBindBuffer(GL_ARRAY_BUFFER, m_VAO);
+
+		// Fill the binded object with data.
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[0]) * vSize, vertices, GL_STATIC_DRAW);*/
+	}
+	void RenderingEngine_OpenGL::CreateIndexBuffer()
+	{
+		unsigned int Indices[] = { 0, 3, 1,
+								   1, 3, 2,
+								   2, 3, 0,
+								   0, 1, 2 };
+
+		glGenBuffers(1, &IBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 	}
 }
 

@@ -153,7 +153,7 @@ project "Sandbox"
 			("{COPY}  ../%{DLLDir.LinaEngine}/LinaEngine.dll  ../bin/" .. outputdir .. "/Sandbox"),
 			("{COPY} ../%{DLLDir.SDL}/SDL2.dll ../bin/" .. outputdir .. "/Sandbox"),
 			("{COPY} ../%{DLLDir.GLEW}/glew32.dll ../bin/" .. outputdir .. "/Sandbox"),
-			("{COPY} ../LinaEngine/rsr ../bin/" .. outputdir .. "/Sandbox")
+			("{COPY} ../Sandbox/Resources ../bin/" .. outputdir .. "/Sandbox/Resources")
 			--- ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox"),	
 			--- ("{COPY} ../%{DLLDir.SDL}/SDL2.dll ../bin/" .. outputdir .. "/Sandbox")
 		}

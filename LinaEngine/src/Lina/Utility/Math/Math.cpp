@@ -27,76 +27,82 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include <cmath> 
 #include <math.h>
 
-float Math::Lerp(float v0, float v1, float t) {
-	return (1 - t) * v0 + t * v1;
-}
-
-float Math::LerpFast(float v0, float v1, float t) {
-	return v0 + t * (v1 - v0);
-}
-
-// Get absolute value.
-float Math::abs(float f1)
+namespace LinaEngine
 {
-	if (f1 < 0) return -f1;
-	else return f1;
-}
 
-// Get sqrt with Newton's Method.
-float Math::sqrtNewton(float f1, float est)
-{
-	float err = abs(est*est - f1);
 
-	if (err <= 0.0001f)
-		return est;
 
-	float newEst = (((f1 / est) + est) / 2);
-	return sqrtNewton(f1, newEst);
-}
-
-// Get square root.
-float Math::sqrt(float f1)
-{
-	if (f1 < 0) return -1;
-
-	return sqrtNewton(f1, 1.0f);
-}
-
-// Get determinant.
-float Math::det(float a, float b, float c, float d)
-{
-	return a * d - b * c;
-}
-
-// Get power to the i.
-float Math::pow(float f1, int i1)
-{
-	for (int i = 0; i < i1; i++)
-	{
-		f1 *= f1;
+	float Math::Lerp(float v0, float v1, float t) {
+		return (1 - t) * v0 + t * v1;
 	}
 
-	return f1;
-}
+	float Math::LerpFast(float v0, float v1, float t) {
+		return v0 + t * (v1 - v0);
+	}
 
-// Get a random float bw min & max.
-float Math::GetRandom(float min, float max)
-{
-	std::random_device rd;     // only used once to initialise (seed) engine
-	std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
-	std::uniform_real_distribution<float> uni(min, max);
-	auto random = uni(rng);
-	return random;
-}
+	// Get absolute value.
+	float Math::abs(float f1)
+	{
+		if (f1 < 0) return -f1;
+		else return f1;
+	}
 
-// Convert a degree to radians.
-double Math::ToRadians(float deg)
-{
-	return deg / 180.0 * M_PI;
-}
+	// Get sqrt with Newton's Method.
+	float Math::sqrtNewton(float f1, float est)
+	{
+		float err = abs(est*est - f1);
 
-// Convert radians into degrees.
-double Math::ToDegree(float radians)
-{
-	return (radians * M_PI) / 180.0;
+		if (err <= 0.0001f)
+			return est;
+
+		float newEst = (((f1 / est) + est) / 2);
+		return sqrtNewton(f1, newEst);
+	}
+
+	// Get square root.
+	float Math::sqrt(float f1)
+	{
+		if (f1 < 0) return -1;
+
+		return sqrtNewton(f1, 1.0f);
+	}
+
+	// Get determinant.
+	float Math::det(float a, float b, float c, float d)
+	{
+		return a * d - b * c;
+	}
+
+	// Get power to the i.
+	float Math::pow(float f1, int i1)
+	{
+		for (int i = 0; i < i1; i++)
+		{
+			f1 *= f1;
+		}
+
+		return f1;
+	}
+
+	// Get a random float bw min & max.
+	float Math::GetRandom(float min, float max)
+	{
+		std::random_device rd;     // only used once to initialise (seed) engine
+		std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
+		std::uniform_real_distribution<float> uni(min, max);
+		auto random = uni(rng);
+		return random;
+	}
+
+	// Convert a degree to radians.
+	double Math::ToRadians(float deg)
+	{
+		return deg / 180.0 * M_PI;
+	}
+
+	// Convert radians into degrees.
+	double Math::ToDegree(float radians)
+	{
+		return (radians * M_PI) / 180.0;
+	}
 }

@@ -22,7 +22,7 @@ Timestamp: 1/2/2019 11:44:41 PM
 #define RenderingEngine_OpenGL_HPP
 
 #include "RenderingEngine.hpp"
-
+#include "glew.h"
 
 
 namespace LinaEngine
@@ -37,9 +37,14 @@ namespace LinaEngine
 		~RenderingEngine_OpenGL();
 
 		void OnUpdate() override;
+		void CreateVertexBuffer();
+		void CreateIndexBuffer();
 
 	private:
 		Shader_GLSL* test;
+		GLuint m_VAO;
+		GLuint m_VAB;
+		int drawCount;
 	};
 }
 

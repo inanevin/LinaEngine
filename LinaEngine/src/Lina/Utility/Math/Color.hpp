@@ -26,28 +26,32 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "Vector.hpp"
 
-class LINA_API Color : public Vector4F
+namespace LinaEngine
 {
+	class LINA_API Color : public Vector4F
+	{
 
-public:
+	public:
 
-	Color(float r = 1.0f, float g = 1.0f, float b = 1.0f, float a = 1.0f) : Vector4F(r,g,b,a) {};
+		Color(float r = 1.0f, float g = 1.0f, float b = 1.0f, float a = 1.0f) : Vector4F(r, g, b, a) {};
 
-};
+	};
 
-typedef Color Color;
+	typedef Color Color;
 
-static const Color COLOR_Red = Color(1, 0, 0);
-static const Color COLOR_Green = Color(0, 1, 0);
-static const Color COLOR_Blue = Color(0, 0, 1);
-static const Color COLOR_Cyan = Color(0, 1, 1);
-static const Color COLOR_Yellow = Color(1, 1, 0);
-static const Color COLOR_Black = Color(0, 0, 0);
-static const Color COLOR_White = Color(1, 1, 1);
-static const Color COLOR_Purple = Color(1, 0, 1);
-static const Color COLOR_Maroon = Color(0.5f, 0, 0);
-static const Color COLOR_Beige = Color(0.96f, 0.96f, 0.862f);
-static const Color COLOR_Brown = Color(0.647f, 0.164f, 0.164f);
-static const Color COLOR_Gray = Color(0.5f, 0.5f, 0.5f);
+	static const Color COLOR_Red = Color(1, 0, 0);
+	static const Color COLOR_Green = Color(0, 1, 0);
+	static const Color COLOR_Blue = Color(0, 0, 1);
+	static const Color COLOR_Cyan = Color(0, 1, 1);
+	static const Color COLOR_Yellow = Color(1, 1, 0);
+	static const Color COLOR_Black = Color(0, 0, 0);
+	static const Color COLOR_White = Color(1, 1, 1);
+	static const Color COLOR_Purple = Color(1, 0, 1);
+	static const Color COLOR_Maroon = Color(0.5f, 0, 0);
+	static const Color COLOR_Beige = Color(0.96f, 0.96f, 0.862f);
+	static const Color COLOR_Brown = Color(0.647f, 0.164f, 0.164f);
+	static const Color COLOR_Gray = Color(0.5f, 0.5f, 0.5f);
+}
+
 
 #endif
