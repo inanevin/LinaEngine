@@ -67,7 +67,7 @@ namespace LinaEngine
 		{
 			int status = SDL_Init(SDL_INIT_VIDEO);
 			if (status != 0) SDLErrorCallback(SDL_GetError());
-			LINA_CORE_ASSERT(status, "Could not initialize SDL!");
+			LINA_CORE_ASSERT(status == 0, "Could not initialize SDL!");
 			isSDLInitialized = true;
 		}
 

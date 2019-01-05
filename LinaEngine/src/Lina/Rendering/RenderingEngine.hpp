@@ -38,7 +38,7 @@ namespace LinaEngine
 
 		inline Window& GetMainWindow() const
 		{ 
-			LINA_CORE_ASSERT(!m_Window, "Window pointer is null!");
+			LINA_CORE_ASSERT(m_Window, "Window pointer is null!");
 			return *m_Window;
 		}
 		

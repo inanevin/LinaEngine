@@ -74,8 +74,8 @@ Matrix4F Matrix4F::InitTranslation(const Vector3F& rhs)
 	{
 		for (unsigned int j = 0; j < 4; j++)
 		{
-			if (i == 4 - 1 && j != 3)
-				m[i][j] = rhs[j];
+			if (j == 3 && i != 3)
+				m[i][j] = rhs[i];
 			else if (i == j)
 				m[i][j] = 1.0;
 			else

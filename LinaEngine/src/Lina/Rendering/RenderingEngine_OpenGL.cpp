@@ -30,7 +30,9 @@ namespace LinaEngine
 	{
 		// Initialize GLEW
 		GLenum res = glewInit();
-		LINA_CORE_ASSERT(res != GLEW_OK, "Glew is not initialized properly");
+		LINA_CORE_ASSERT(res == GLEW_OK, "Glew is not initialized properly");
+
+		test = new Shader_GLSL();
 
 		/* CREATE VERTEX BUFFER */
 		Vector3F vertices[3];
@@ -51,11 +53,16 @@ namespace LinaEngine
 
 		// * ADD SHADERS, COMPILE, BIND *//
 
-		Shader_GLSL test;
-		test.AddShader(Shader_GLSL::LoadShader(ResourceConstants::GLSL_BasicVertexPath), GL_VERTEX_SHADER);
-		test.AddShader(Shader_GLSL::LoadShader(ResourceConstants::GLSL_BasicFragmentPath), GL_FRAGMENT_SHADER);
-		test.CompileShaders();
-		test.Bind();
+		
+		test->AddShader(Shader_GLSL::LoadShader(ResourceConstants::GLSL_BasicVertexPath), GL_VERTEX_SHADER);
+		test->AddShader(Shader_GLSL::LoadShader(ResourceConstants::GLSL_BasicFragmentPath), GL_FRAGMENT_SHADER);
+		test->CompileShaders();
+		test->Bind();
+
+		
+
+		test->AddUniform("gWorld", "mat4");
+		
 
 		// * ADD SHADERS, COMPILE, BIND *//
 
@@ -63,7 +70,7 @@ namespace LinaEngine
 
 	RenderingEngine_OpenGL::~RenderingEngine_OpenGL()
 	{
-
+		delete test;
 	}
 
 	void RenderingEngine_OpenGL::OnUpdate()
@@ -89,6 +96,13 @@ namespace LinaEngine
 
 		// Good practice to disable each vertex attribute when not used.
 		glDisableVertexAttribArray(0);
+
+		static float sc = 0.0f;
+		sc += 0.001f;
+
+		Vector3F v(sc, sc, sc);
+		Matrix4F worldMatrix = Matrix4F().InitTranslation(v);
+		test->SetUniform("gWorld", worldMatrix);
 
 		/* MAIN LOOP RENDER */
 

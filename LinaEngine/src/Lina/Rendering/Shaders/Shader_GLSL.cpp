@@ -21,6 +21,9 @@ Timestamp: 1/5/2019 12:53:08 AM
 #include "Shader_GLSL.hpp"  
 #include "glew.h"
 
+
+
+
 namespace LinaEngine
 {
 	Shader_GLSL::Shader_GLSL()
@@ -91,6 +94,57 @@ namespace LinaEngine
 	void Shader_GLSL::Bind()
 	{
 		glUseProgram(m_Program);
+	}
+
+	void Shader_GLSL::AddUniform(const std::string& uniformName, const std::string& uniformType)
+	{
+		/*
+		// Add flag.
+		bool addThis = true;
+		
+	
+		// Iterate uniform structs.
+		for (unsigned int i = 0; i < structs.size(); i++)
+		{
+			// Compare struct name with target.
+			if (structs[i].GetName().compare(uniformType) == 0)
+			{
+				addThis = false;
+				for (unsigned int j = 0; j < structs[i].GetMemberNames().size(); j++)
+				{
+					AddUniform(uniformName + "." + structs[i].GetMemberNames()[j].GetName(), structs[i].GetMemberNames()[j].GetType(), structs);
+				}
+			}
+		}
+
+		if (!addThis)
+			return;
+		*/
+		unsigned int location = glGetUniformLocation(m_Program, uniformName.c_str());
+	
+		LINA_CORE_ASSERT(location != INVALID_VALUE, "Location Unknown!");
+
+		m_UniformMap.insert(std::pair<std::string, unsigned int>(uniformName, location));
+	}
+
+	void Shader_GLSL::SetUniform(const std::string& uniformName, int value) const
+	{
+		glUniform1i(m_UniformMap.at(uniformName), value);
+	}
+
+	void Shader_GLSL::SetUniform(const std::string& uniformName, float value) const
+	{
+		glUniform1f(m_UniformMap.at(uniformName), value);
+	}
+
+	void Shader_GLSL::SetUniform(const std::string& uniformName, const Vector3F & value) const
+	{
+		glUniform3f(m_UniformMap.at(uniformName), value.x, value.y, value.z);
+	}
+
+	void Shader_GLSL::SetUniform(const std::string& uniformName, const Matrix4F & value) const
+	{
+		glUniformMatrix4fv(m_UniformMap.at(uniformName), 1, GL_TRUE, &(value[0][0]));
 	}
 
 	std::string Shader_GLSL::LoadShader(std::string p)

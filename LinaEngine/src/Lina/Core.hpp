@@ -36,8 +36,8 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 #ifdef LINA_ENABLE_ASSERTS
 
-#define LINA_CLIENT_ASSERT(x,...) { if((x)) { LINA_CLIENT_ERR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
-#define LINA_CORE_ASSERT(x,...)  { if((x)) { LINA_CORE_ERR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+#define LINA_CLIENT_ASSERT(x,...) { if(!(x)) { LINA_CLIENT_ERR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+#define LINA_CORE_ASSERT(x,...)  { if(!(x)) { LINA_CORE_ERR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 
 #else
 
@@ -47,6 +47,6 @@ Timestamp: 12/29/2018 10:43:46 PM
 #endif
 
 #define BIT(x) (1 << x)
-
+#define INVALID_VALUE 0xFFFFFFFF
 
 #endif

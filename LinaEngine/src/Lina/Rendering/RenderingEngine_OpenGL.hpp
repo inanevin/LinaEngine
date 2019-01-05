@@ -24,8 +24,11 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "RenderingEngine.hpp"
 
 
+
 namespace LinaEngine
 {
+	class Shader_GLSL;
+
 	class LINA_API RenderingEngine_OpenGL : public RenderingEngine
 	{
 	public:
@@ -34,6 +37,9 @@ namespace LinaEngine
 		~RenderingEngine_OpenGL();
 
 		void OnUpdate() override;
+
+	private:
+		Shader_GLSL* test;
 	};
 }
 
