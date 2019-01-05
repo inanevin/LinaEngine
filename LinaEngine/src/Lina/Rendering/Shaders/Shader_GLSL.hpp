@@ -30,6 +30,7 @@ namespace LinaEngine
 	public:
 
 		Shader_GLSL();
+		~Shader_GLSL();
 		void AddShader(std::string pShaderText, unsigned int ShaderType);
 		void CompileShaders();
 		void Bind();
@@ -40,6 +41,7 @@ namespace LinaEngine
 		void CheckError(unsigned int, int, std::string);
 
 		unsigned int m_Program;
+		std::vector<int> m_Shaders;
 
 	};
 }

@@ -30,6 +30,16 @@ namespace LinaEngine
 		
 	}
 
+	Shader_GLSL::~Shader_GLSL()
+	{
+		for (std::vector<int>::iterator it = m_Shaders.begin(); it != m_Shaders.end(); ++it)
+		{
+			glDetachShader(m_Program, *it);
+			glDeleteShader(*it);
+		}
+		glDeleteProgram(m_Program);
+	}
+
 	void Shader_GLSL::AddShader(std::string pShaderText, unsigned int shaderType)
 	{
 		const char* shaderText = pShaderText.c_str();
@@ -58,8 +68,8 @@ namespace LinaEngine
 		// Attach said shader to the program.
 		glAttachShader(m_Program, shader);
 
-		// Delete the shader from temp memory after attaching.
-		//glDeleteShader(shader);
+		// Put shader object to the list
+		m_Shaders.push_back(shader);
 	}
 
 
@@ -76,7 +86,6 @@ namespace LinaEngine
 
 		// Check for errors.
 		CheckError(m_Program, GL_VALIDATE_STATUS, "PROGRAM");
-
 	}
 
 	void Shader_GLSL::Bind()
@@ -117,7 +126,7 @@ namespace LinaEngine
 			//Convert the streams to string
 			shaderCode = vShaderStream.str();
 
-			LINA_CORE_TRACE("{0}", shaderCode);
+			// LINA_CORE_TRACE("{0}", shaderCode);
 		}
 		catch (std::ifstream::failure e)
 		{
