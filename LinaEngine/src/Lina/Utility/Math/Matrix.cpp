@@ -51,18 +51,10 @@ Matrix4F Matrix4F::InitIdentityMatrix()
 
 Matrix4F Matrix4F::InitScale(const Vector3F& rhs)
 {
-	for (unsigned int i = 0; i < 4; i++)
-	{
-		for (unsigned int j = 0; j < 4; j++)
-		{
-			if (i == j && i != 3)
-				m[i][j] = rhs[i];
-			else
-				m[i][j] = 0.0f;
-		}
-	}
-
-	m[3][3] = 1.0f;
+	m[0][0] = rhs.x;	m[0][1] = 0.0f;		m[0][2] = 0.0f;		m[0][3] = 0.0f;
+	m[1][0] = 0.0f;		m[1][1] = rhs.y;	m[1][2] = 0.0f;		m[1][3] = 0.0f;
+	m[2][0] = 0.0f;		m[2][1] = 0.0f;		m[2][2] = rhs.z;	m[2][3] = 0.0f;
+	m[3][0] = 0.0f;		m[3][1] = 0.0f;		m[3][2] = 0.0f;		m[3][3] = 1.0f;
 
 	return *this;
 }
@@ -141,20 +133,24 @@ Matrix4F Matrix4F::InitEulerRotation(float xR, float yR, float zR)
 	const float y = yR;
 	const float z = zR;
 
-	rx[0][0] = 1.0f;   rx[1][0] = 0.0f;  rx[2][0] = 0.0f; rx[3][0] = 0.0f;
-	rx[0][1] = 0.0f;   rx[1][1] = cos(x);  rx[2][1] = -sin(x); rx[3][1] = 0.0f;
-	rx[0][2] = 0.0f;   rx[1][2] = sin(x);  rx[2][2] = cos(x); rx[3][2] = 0.0f;
-	rx[0][3] = 0.0f;   rx[1][3] = 0.0f;  rx[2][3] = 0.0f; rx[3][3] = 1.0f;
+	rx[0][0] = 1.0f;   rx[0][1] = 0.0f;		rx[0][2] = 0.0f;	rx[0][3] = 0.0f;
+	rx[1][0] = 0.0f;   rx[1][1] = cos(x);	rx[1][2] = -sin(x); rx[1][3] = 0.0f;
+	rx[2][0] = 0.0f;   rx[2][1] = sin(x);	rx[2][2] = cos(x);	rx[2][3] = 0.0f;
+	rx[3][0] = 0.0f;   rx[3][1] = 0.0f;		rx[3][2] = 0.0f;	rx[3][3] = 1.0f;
 
-	ry[0][0] = cos(y); ry[1][0] = 0.0f;    ry[2][0] = -sin(y); ry[3][0] = 0.0f;
-	ry[0][1] = 0.0f; ry[1][1] = 1.0f;    ry[2][1] = 0.0f; ry[3][1] = 0.0f;
-	ry[0][2] = sin(y); ry[1][2] = 0.0f;    ry[2][2] = cos(y); ry[3][2] = 0.0f;
-	ry[0][3] = 0.0f; ry[1][3] = 0.0f;    ry[2][3] = 0.0f; ry[3][3] = 1.0f;
+	// Rotation around y axis
+	ry[0][0] = cos(y);	ry[0][1] = 0.0f;    ry[0][2] = -sin(y); ry[0][3] = 0.0f;
+	ry[1][0] = 0.0f;	ry[1][1] = 1.0f;    ry[1][2] = 0.0f;	ry[1][3] = 0.0f;
+	ry[2][0] = sin(y);	ry[2][1] = 0.0f;    ry[2][2] = cos(y);	ry[2][3] = 0.0f;
+	ry[3][0] = 0.0f;	ry[3][1] = 0.0f;    ry[3][2] = 0.0f;	ry[3][3] = 1.0f;
 
-	rz[0][0] = cos(z); rz[1][0] = -sin(z); rz[2][0] = 0.0f;    rz[3][0] = 0.0f;
-	rz[0][1] = sin(z); rz[1][1] = cos(z); rz[2][1] = 0.0f;    rz[3][1] = 0.0f;
-	rz[0][2] = 0.0f; rz[1][2] = 0.0f; rz[2][2] = 1.0f;    rz[3][2] = 0.0f;
-	rz[0][3] = 0.0f; rz[1][3] = 0.0f; rz[2][3] = 0.0f;    rz[3][3] = 1.0f;
+
+	// Rotation around Z axis.
+	rz[0][0] = cos(z);	rz[0][1] = -sin(z);	rz[0][2] = 0.0f;    rz[0][3] = 0.0f;
+	rz[1][0] = sin(z);	rz[1][1] = cos(z);	rz[1][2] = 0.0f;    rz[1][3] = 0.0f;
+	rz[2][0] = 0.0f;	rz[2][1] = 0.0f;	rz[2][2] = 1.0f;    rz[2][3] = 0.0f;
+	rz[3][0] = 0.0f;	rz[3][1] = 0.0f;	rz[3][2] = 0.0f;    rz[3][3] = 1.0f;
+
 
 	*this = rz * ry * rx;
 

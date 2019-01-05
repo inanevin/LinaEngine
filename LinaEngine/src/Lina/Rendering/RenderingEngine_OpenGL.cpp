@@ -98,10 +98,10 @@ namespace LinaEngine
 		glDisableVertexAttribArray(0);
 
 		static float sc = 0.0f;
-		sc += 0.001f;
+		sc += 0.01f;
 
-		Vector3F v(sc, sc, sc);
-		Matrix4F worldMatrix = Matrix4F().InitTranslation(v);
+		
+		Matrix4F worldMatrix = Matrix4F().InitScale(Vector3F(sinf(sc), sinf(sc), sinf(sc)));
 		test->SetUniform("gWorld", worldMatrix);
 
 		/* MAIN LOOP RENDER */

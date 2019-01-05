@@ -195,6 +195,8 @@ namespace LinaEngine
 
 	void Shader_GLSL::CheckError(unsigned int ID, int type, std::string typeID)
 	{
+#ifdef LINA_ENABLE_LOGGING
+
 		int success;
 		char infoLog[1024];
 		if (typeID != "PROGRAM")
@@ -220,5 +222,6 @@ namespace LinaEngine
 		}
 		
 	}
+#endif
 }
 
