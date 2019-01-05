@@ -28,7 +28,14 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 namespace LinaEngine
 {
-
+	struct PerspectiveInformation
+	{
+		float FOV;
+		float width;
+		float height;
+		float zNear;
+		float zFar;
+	};
 
 	class LINA_API Matrix4F
 	{
@@ -51,7 +58,7 @@ namespace LinaEngine
 	
 		Matrix4F InitRotationFromVectors(const Vector3F&, const Vector3F&, const Vector3F&);
 		Matrix4F InitRotationFromDirection(const Vector3F& forward, const Vector3F& up);
-		Matrix4F InitPerspective(float fov, float aspectRatio, float zNear, float zFar);
+		Matrix4F InitPerspectiveProjection(PerspectiveInformation persInfo);
 		Matrix4F InitOrto(float left, float right, float bot, float top, float nr, float);
 		Matrix4F Inverse() const;
 

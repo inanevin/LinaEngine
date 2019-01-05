@@ -27,6 +27,8 @@ namespace LinaEngine
 	
 	GLuint VBO;
 	GLuint IBO;
+	PerspectiveInformation p;
+	Transform t;
 
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
 	{
@@ -47,7 +49,13 @@ namespace LinaEngine
 		test->Bind();
 
 		test->AddUniform("gWorld", "mat4");
-		
+
+		p.FOV = 60;
+		p.zFar = 1000;
+		p.zNear = 0.1f;
+		p.width = GetMainWindow().GetWidth();
+		p.height = GetMainWindow().GetHeight();
+		t.SetPerspectiveInformation(p);
 
 		// * ADD SHADERS, COMPILE, BIND *//
 
@@ -90,14 +98,12 @@ namespace LinaEngine
 
 		static float sc = 0.0f;
 		sc += 0.01f;
-		Transform t;
-
+		
 		t.SetScale(0.5f, 0.5f, 0.5f);
-		t.SetPosition(sinf(sc), 0.0f, 0.0f);
+		t.SetPosition(sinf(sc), 0.0f, 5.0f);
 		t.SetRotation(0.0f, sc *5, 0.0f);
-
-
-		Matrix4F worldMatrix = t.GetWorldTransformation();
+	
+		Matrix4F worldMatrix = t.GetWorldProjectedTransformation();
 		test->SetUniform("gWorld", worldMatrix);
 
 		glEnableVertexAttribArray(0);

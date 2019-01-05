@@ -24,6 +24,8 @@ Timestamp: 1/5/2019 7:52:35 PM
 
 namespace LinaEngine
 {
+
+
 	class Transform
 	{
 	public:
@@ -52,12 +54,19 @@ namespace LinaEngine
 		inline void SetScaleY(float y) { scale.y = y; }
 		inline void SetScaleZ(float z) { scale.z = z; }
 
+		inline void SetPerspectiveInformation(PerspectiveInformation p) { m_PersInfo = p; }
+
 		const Matrix4F& GetWorldTransformation();
+		const Matrix4F& GetWorldProjectedTransformation();
 		
 		Matrix4F m_WorldTransformation;
+		Matrix4F m_WorldProjectedTransformation;
+
 		Vector3F position;
 		Vector3F rotation;
 		Vector3F scale;
+
+		PerspectiveInformation m_PersInfo;
 
 
 	};
