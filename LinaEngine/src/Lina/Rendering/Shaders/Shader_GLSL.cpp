@@ -30,8 +30,10 @@ namespace LinaEngine
 		
 	}
 
-	void Shader_GLSL::AddShader(const char* pShaderText, unsigned int shaderType)
+	void Shader_GLSL::AddShader(std::string pShaderText, unsigned int shaderType)
 	{
+		const char* shaderText = pShaderText.c_str();
+
 		GLuint shader = glCreateShader(shaderType);
 
 		if (shader == 0)
@@ -41,10 +43,10 @@ namespace LinaEngine
 		}
 
 		const GLchar* p[1];
-		p[0] = pShaderText;
+		p[0] = shaderText;
 
 		GLint lengths[1];
-		lengths[0] = strlen(pShaderText);
+		lengths[0] = strlen(shaderText);
 
 		// Init shader source & compile the text.
 		glShaderSource(shader, 1, p, lengths);
@@ -57,7 +59,7 @@ namespace LinaEngine
 		glAttachShader(m_Program, shader);
 
 		// Delete the shader from temp memory after attaching.
-		glDeleteShader(shader);
+		//glDeleteShader(shader);
 	}
 
 
@@ -82,7 +84,7 @@ namespace LinaEngine
 		glUseProgram(m_Program);
 	}
 
-	const char* Shader_GLSL::LoadShader(std::string p)
+	std::string Shader_GLSL::LoadShader(std::string p)
 	{
 		const char* path = p.c_str();
 
@@ -100,6 +102,12 @@ namespace LinaEngine
 			//open the shader files
 			vShaderFile.open(path);
 
+			if (vShaderFile.fail())
+			{
+				LINA_CORE_ERR("File does not exists {0}", path);
+				return "";
+			}
+
 			//Read the files' content from buffer into streams.
 			std::stringstream vShaderStream;
 			vShaderStream << vShaderFile.rdbuf();
@@ -108,6 +116,8 @@ namespace LinaEngine
 
 			//Convert the streams to string
 			shaderCode = vShaderStream.str();
+
+			LINA_CORE_TRACE("{0}", shaderCode);
 		}
 		catch (std::ifstream::failure e)
 		{
@@ -116,8 +126,8 @@ namespace LinaEngine
 		}
 
 		//Since OpgenGL wants the shader code as char arrays we convert strings that hold the files' content into char array.
-		const char* cShaderCode = shaderCode.c_str();
-		return cShaderCode;
+		//const char* cShaderCode = shaderCode.c_str();
+		return shaderCode;
 	}
 
 	void Shader_GLSL::CheckError(unsigned int ID, int type, std::string typeID)
@@ -130,7 +140,7 @@ namespace LinaEngine
 			if (!success)
 			{
 				glGetShaderInfoLog(ID, 1024, NULL, infoLog);
-				LINA_CORE_ERR("Shader Error typeID: {0}, Shader: {1}", typeID, infoLog);
+				LINA_CORE_ERR("{0}, {1}", typeID, infoLog);
 
 			}
 
@@ -142,7 +152,7 @@ namespace LinaEngine
 			if (!success)
 			{
 				glGetProgramInfoLog(ID, 1024, NULL, infoLog);
-				LINA_CORE_ERR("Shader Error typeID: {0}, Shader: {1}", typeID, infoLog);
+				LINA_CORE_ERR(" {0}, {1}", typeID, infoLog);
 			}
 		}
 		

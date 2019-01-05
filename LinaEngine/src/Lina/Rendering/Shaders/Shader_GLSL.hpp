@@ -30,14 +30,14 @@ namespace LinaEngine
 	public:
 
 		Shader_GLSL();
-		void AddShader(const char* pShaderText, unsigned int ShaderType);
+		void AddShader(std::string pShaderText, unsigned int ShaderType);
 		void CompileShaders();
 		void Bind();
+		static std::string LoadShader(std::string path);
 
 	private:
 
 		void CheckError(unsigned int, int, std::string);
-		static const char* LoadShader(std::string path);
 
 		unsigned int m_Program;
 

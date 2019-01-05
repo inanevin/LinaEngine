@@ -51,7 +51,11 @@ namespace LinaEngine
 
 		// * ADD SHADERS, COMPILE, BIND *//
 
-
+		Shader_GLSL test;
+		test.AddShader(Shader_GLSL::LoadShader(ResourceConstants::GLSL_BasicVertexPath), GL_VERTEX_SHADER);
+		test.AddShader(Shader_GLSL::LoadShader(ResourceConstants::GLSL_BasicFragmentPath), GL_FRAGMENT_SHADER);
+		test.CompileShaders();
+		test.Bind();
 
 		// * ADD SHADERS, COMPILE, BIND *//
 
