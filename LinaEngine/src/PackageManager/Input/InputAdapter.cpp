@@ -12,39 +12,19 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: RenderingEngine
-Timestamp: 1/2/2019 10:51:47 PM
+Class: InputAdapter
+Timestamp: 1/6/2019 2:16:29 AM
 
 */
 
 #include "LinaPch.hpp"
-#include "RenderingEngine.hpp"  
-#include "PackageManager/Graphics/GraphicsAdapter.hpp"
+#include "InputAdapter.hpp"  
 
 namespace LinaEngine
 {
-#define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
-
-	RenderingEngine::RenderingEngine()
-	{
-		// Get a graphics adapter.
-		GraphicsAdapter graphicsAdapter;
-
-		// Get window from the adapter.
-		m_Window = std::unique_ptr<Window>(graphicsAdapter.CreateEngineWindow());
-		
-	}
-
-	RenderingEngine::~RenderingEngine()
+	InputAdapter::InputAdapter()
 	{
 
 	}
-
-	void RenderingEngine::OnUpdate()
-	{
-		// Update window.
-		m_Window->OnUpdate();
-	}
-
 }
 

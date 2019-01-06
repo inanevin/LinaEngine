@@ -37,7 +37,7 @@ namespace LinaEngine
 
 
 		EVENT_CLASS_TYPE(WindowResize)
-			EVENT_CLASS_CATEGORY(EventCategoryApplication)
+			EVENT_CLASS_CATEGORY(EventCategoryWindow)
 	private:
 		unsigned int m_Width, m_Height;
 	};
@@ -50,7 +50,7 @@ namespace LinaEngine
 	
 
 		EVENT_CLASS_TYPE(WindowClose)
-			EVENT_CLASS_CATEGORY(EventCategoryApplication)
+			EVENT_CLASS_CATEGORY(EventCategoryWindow)
 	};
 
 	class LINA_API WindowFocusEvent : public Event
@@ -62,7 +62,7 @@ namespace LinaEngine
 
 
 		EVENT_CLASS_TYPE(WindowFocus)
-			EVENT_CLASS_CATEGORY(EventCategoryApplication)
+			EVENT_CLASS_CATEGORY(EventCategoryWindow)
 	};
 
 	class LINA_API WindowFocusLostEvent : public Event
@@ -71,7 +71,7 @@ namespace LinaEngine
 		WindowFocusLostEvent() {}
 
 		EVENT_CLASS_TYPE(WindowLostFocus)
-			EVENT_CLASS_CATEGORY(EventCategoryApplication)
+			EVENT_CLASS_CATEGORY(EventCategoryWindow)
 	};
 
 	class LINA_API WindowMovedEvent : public Event
@@ -81,7 +81,7 @@ namespace LinaEngine
 
 		
 		EVENT_CLASS_TYPE(WindowMoved)
-			EVENT_CLASS_CATEGORY(EventCategoryApplication)
+			EVENT_CLASS_CATEGORY(EventCategoryWindow)
 	};
 
 	class LINA_API AppTickEvent : public Event

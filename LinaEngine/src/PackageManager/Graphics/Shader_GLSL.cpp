@@ -22,8 +22,6 @@ Timestamp: 1/5/2019 12:53:08 AM
 #include "glew.h"
 
 
-
-
 namespace LinaEngine
 {
 	Shader_GLSL::Shader_GLSL()

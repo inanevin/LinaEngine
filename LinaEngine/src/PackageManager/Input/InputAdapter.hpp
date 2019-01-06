@@ -12,41 +12,39 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: RenderingEngine
-Timestamp: 1/2/2019 10:51:47 PM
+Class: InputAdapter
+Timestamp: 1/6/2019 2:16:29 AM
 
 */
 
 #pragma once
-#ifndef RenderingEngine_HPP
-#define RenderingEngine_HPP
+#ifndef InputAdapter_HPP
+#define InputAdapter_HPP
 
-#include "../Core.hpp"
-#include "Window.hpp"
+
+#ifdef LLF_INPUTANDWINDOW_SDL
+
+#include "InputEngine_SDL.hpp";
+
+#define INPUTENGINE_CREATEFUNC(PARAM) inline InputEngine* CreateInputEngine() { return new InputEngine_SDL(); }
+
+#else
+
+#include "Lina/Input/InputEngine.hpp"
+
+#define INPUTENGINE_CREATEFUNC(PARAM) inline InputEngine* CreateInputEngine() { LINA_CORE_ERR("No LLF is defined for input! Aborting!");  exit(EXIT_FAILURE); };
+
+#endif
 
 namespace LinaEngine
 {
-	class Event;
-	class LINA_API RenderingEngine
+	class InputAdapter
 	{
 	public:
 
-		RenderingEngine();
-		virtual ~RenderingEngine();
-
-		virtual void OnUpdate();
-		virtual void OnWindowEvent(Event& e) = 0;
-
-		inline Window& GetMainWindow() const
-		{ 
-			LINA_CORE_ASSERT(m_Window, "Window pointer is null!");
-			return *m_Window;
-		}
-		
-	private:
-
-		std::unique_ptr<Window> m_Window;
-		
+		InputAdapter();
+		~InputAdapter() {};
+		INPUTENGINE_CREATEFUNC(PARAM);
 
 	};
 }

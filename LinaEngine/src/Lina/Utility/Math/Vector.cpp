@@ -210,6 +210,7 @@ namespace LinaEngine
 
 	Vector3F Vector3F::Lerp(const Vector3F & rhs, float lerpFactor) const
 	{
+	
 		return (rhs - *this) * lerpFactor + *this;
 	}
 

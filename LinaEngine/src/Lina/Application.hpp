@@ -28,6 +28,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 namespace LinaEngine
 {
 	class RenderingEngine;
+	class InputEngine;
 
 	class LINA_API Application
 	{
@@ -36,7 +37,7 @@ namespace LinaEngine
 		Application();
 		virtual ~Application();
 		void Run();
-	    void OnEventFromWindow(Event& e);
+	    void OnEvent(Event& e);
 		bool OnWindowClose(WindowCloseEvent& e);
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
@@ -47,6 +48,7 @@ namespace LinaEngine
 		bool m_Running = false;
 		LayerStack m_LayerStack;
 		std::unique_ptr<RenderingEngine> m_RenderingEngine;
+		std::unique_ptr<InputEngine> m_InputEngine;
 	};
 
 	// Defined in client.

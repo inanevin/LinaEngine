@@ -12,41 +12,32 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: RenderingEngine
-Timestamp: 1/2/2019 10:51:47 PM
+Class: InputEngine
+Timestamp: 1/6/2019 2:17:55 AM
 
 */
 
 #pragma once
-#ifndef RenderingEngine_HPP
-#define RenderingEngine_HPP
+#ifndef InputEngine_HPP
+#define InputEngine_HPP
 
-#include "../Core.hpp"
-#include "Window.hpp"
+#pragma once
 
 namespace LinaEngine
 {
 	class Event;
-	class LINA_API RenderingEngine
+
+	class InputEngine
 	{
+
 	public:
 
-		RenderingEngine();
-		virtual ~RenderingEngine();
+		InputEngine();
+		virtual ~InputEngine();
 
-		virtual void OnUpdate();
-		virtual void OnWindowEvent(Event& e) = 0;
+		virtual void OnUpdate() = 0;
+		virtual void OnInputEvent(Event& e) = 0;
 
-		inline Window& GetMainWindow() const
-		{ 
-			LINA_CORE_ASSERT(m_Window, "Window pointer is null!");
-			return *m_Window;
-		}
-		
-	private:
-
-		std::unique_ptr<Window> m_Window;
-		
 
 	};
 }

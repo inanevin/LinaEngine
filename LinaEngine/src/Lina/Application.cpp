@@ -20,7 +20,9 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "LinaPch.hpp"
 #include "Application.hpp"  
 #include "Rendering/RenderingEngine.hpp"
-#include "Package Manager/GraphicsAdapter.hpp"
+#include "Input/InputEngine.hpp"
+#include "PackageManager/Graphics/GraphicsAdapter.hpp"
+#include "PackageManager/Input/InputAdapter.hpp"
 
 namespace LinaEngine
 {
@@ -35,7 +37,14 @@ namespace LinaEngine
 		m_RenderingEngine = std::unique_ptr<RenderingEngine>(adpt.CreateRenderingEngine());
 
 		// Set event callback for the main window.
-		m_RenderingEngine->GetMainWindow().SetEventCallback(BIND_EVENT_FN(OnEventFromWindow));
+		m_RenderingEngine->GetMainWindow().SetEventCallback(BIND_EVENT_FN(OnEvent));
+
+		// Get an input adapter.
+		InputAdapter inpAdpt;
+
+		// Create input engine.
+		m_InputEngine = std::unique_ptr<InputEngine>(inpAdpt.CreateInputEngine());
+
 
 		// Set running flag.
 		m_Running = true;
@@ -46,8 +55,14 @@ namespace LinaEngine
 		
 	}
 
-	void Application::OnEventFromWindow(Event & e)
+	void Application::OnEvent(Event & e)
 	{
+		
+		if (e.GetCategoryFlags() == EventCategory::EventCategoryWindow)
+			m_RenderingEngine->OnWindowEvent(e);
+		else if (e.GetCategoryFlags() == EventCategory::EventCategoryInput)
+			m_InputEngine->OnInputEvent(e);
+
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
 

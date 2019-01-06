@@ -19,8 +19,8 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "LinaPch.hpp"
 #include "RenderingEngine_OpenGL.hpp"  
 #include "Lina/Utility/Math/Color.hpp"
-#include "Shaders/Shader_GLSL.hpp"
-#include "../Transform.hpp"
+#include "Shader_GLSL.hpp"
+#include "Lina/Transform.hpp"
 
 namespace LinaEngine
 {
@@ -95,13 +95,12 @@ namespace LinaEngine
 		// Good practice to disable each vertex attribute when not used.
 		glDisableVertexAttribArray(0);*/
 
-
 		static float sc = 0.0f;
-		sc += 0.01f;
-		
+
+
 		t.SetScale(0.5f, 0.5f, 0.5f);
 		t.SetPosition(0, 0.0f, 5.0f);
-		t.SetRotation(0.0f, sinf(sc), 0.0f);
+		t.SetRotation(0.0f, 0.0f, 0.0f);
 	
 		Matrix4F worldViewMatrix =  cam.GetViewProjection() * t.GetWorldTransformation();
 		test->SetUniform("gWVP", worldViewMatrix);
@@ -122,6 +121,18 @@ namespace LinaEngine
 
 
 	}
+	void RenderingEngine_OpenGL::OnWindowEvent(Event & e)
+	{
+		if (e.GetEventType() == EventType::WindowResize)
+		{
+			p.width = GetMainWindow().GetWidth();
+			p.height = GetMainWindow().GetHeight();
+
+			cam.SetPerspectiveInformation(p);
+		}
+	}
+
+
 	void RenderingEngine_OpenGL::CreateVertexBuffer()
 	{
 		/*Vector3F Vertices[3];

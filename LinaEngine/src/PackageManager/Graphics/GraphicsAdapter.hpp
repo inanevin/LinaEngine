@@ -24,13 +24,12 @@ Timestamp: 12/31/2018 1:46:13 AM
 
 #ifdef LLF_GRAPHICS_OPENGL
 
-	#include "Lina/Rendering/RenderingEngine_OpenGL.hpp"
+	#include "RenderingEngine_OpenGL.hpp"
 	#define RENDERINGENGINE_CREATEFUNC(PARAM) inline RenderingEngine* CreateRenderingEngine() { return new RenderingEngine_OpenGL(); }
 
-	#ifdef LLF_GRAPHICS_SDLOpenGL
+	#ifdef LLF_INPUTANDWINDOW_SDL
 
-		#include "Low Level Framework/SDLOpenGLWindow.hpp"
-
+		#include "SDLOpenGLWindow.hpp"
 		#define WINDOWCREATEFUNC(PARAM) inline Window* CreateEngineWindow(const WindowProps& props = WindowProps()) { return SDLOpenGLWindow::Create(props); }
 
 	#else
@@ -63,8 +62,9 @@ namespace LinaEngine
 		GraphicsAdapter();
 		~GraphicsAdapter() {};
 		
-		WINDOWCREATEFUNC(PARAM);
+
 		RENDERINGENGINE_CREATEFUNC(PARAM);
+		WINDOWCREATEFUNC(PARAM);
 	};
 }
 

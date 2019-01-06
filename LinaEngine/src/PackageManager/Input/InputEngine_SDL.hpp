@@ -12,41 +12,31 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: RenderingEngine_OpenGL
-Timestamp: 1/2/2019 11:44:41 PM
+Class: InputEngine_SDL
+Timestamp: 1/6/2019 2:18:10 AM
 
 */
 
 #pragma once
-#ifndef RenderingEngine_OpenGL_HPP
-#define RenderingEngine_OpenGL_HPP
+#ifndef InputEngine_SDL_HPP
+#define InputEngine_SDL_HPP
 
-#include "RenderingEngine.hpp"
-#include "glew.h"
-#include "../Camera.hpp"
-
+#include "Lina/Input/InputEngine.hpp"
 
 namespace LinaEngine
 {
-	class Shader_GLSL;
-
-	class LINA_API RenderingEngine_OpenGL : public RenderingEngine
+	
+	class LINA_API InputEngine_SDL : public InputEngine
 	{
 	public:
 
-		RenderingEngine_OpenGL();
-		~RenderingEngine_OpenGL();
+		InputEngine_SDL();
+		~InputEngine_SDL();
 
 		void OnUpdate() override;
-		void CreateVertexBuffer();
-		void CreateIndexBuffer();
+		void OnInputEvent(Event& e) override;
 
-	private:
-		Camera cam;
-		Shader_GLSL* test;
-		GLuint m_VAO;
-		GLuint m_VAB;
-		int drawCount;
+
 	};
 }
 

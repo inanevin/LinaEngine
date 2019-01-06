@@ -12,42 +12,43 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: RenderingEngine
-Timestamp: 1/2/2019 10:51:47 PM
+Class: RenderingEngine_OpenGL
+Timestamp: 1/2/2019 11:44:41 PM
 
 */
 
 #pragma once
-#ifndef RenderingEngine_HPP
-#define RenderingEngine_HPP
+#ifndef RenderingEngine_OpenGL_HPP
+#define RenderingEngine_OpenGL_HPP
 
-#include "../Core.hpp"
-#include "Window.hpp"
+#include "Lina/Rendering/RenderingEngine.hpp"
+#include "glew.h"
+#include "Lina/Camera.hpp"
+
 
 namespace LinaEngine
 {
-	class Event;
-	class LINA_API RenderingEngine
+	
+	class Shader_GLSL;
+
+	class LINA_API RenderingEngine_OpenGL : public RenderingEngine
 	{
 	public:
 
-		RenderingEngine();
-		virtual ~RenderingEngine();
+		RenderingEngine_OpenGL();
+		~RenderingEngine_OpenGL();
 
-		virtual void OnUpdate();
-		virtual void OnWindowEvent(Event& e) = 0;
+		void OnUpdate() override;
+		void OnWindowEvent(Event& e) override;
+		void CreateVertexBuffer();
+		void CreateIndexBuffer();
 
-		inline Window& GetMainWindow() const
-		{ 
-			LINA_CORE_ASSERT(m_Window, "Window pointer is null!");
-			return *m_Window;
-		}
-		
 	private:
-
-		std::unique_ptr<Window> m_Window;
-		
-
+		Camera cam;
+		Shader_GLSL* test;
+		GLuint m_VAO;
+		GLuint m_VAB;
+		int drawCount;
 	};
 }
 

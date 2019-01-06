@@ -20,7 +20,7 @@ Timestamp: 12/31/2018 2:05:56 AM
 #pragma once
 
 
-#ifdef LLF_GRAPHICS_SDLOpenGL
+#ifdef LLF_INPUTANDWINDOW_SDL
 
 #ifndef SDLWindow_HPP
 #define SDLWindow_HPP

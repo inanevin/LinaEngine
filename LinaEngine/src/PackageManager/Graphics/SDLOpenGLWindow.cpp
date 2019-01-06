@@ -21,7 +21,7 @@ Timestamp: 12/31/2018 2:05:56 AM
 
 #include "LinaPch.hpp"
 
-#ifdef LLF_GRAPHICS_SDLOpenGL
+#ifdef LLF_INPUTANDWINDOW_SDL
 
 #include "SDLOpenGLWindow.hpp"  
 #include "Lina/Events/ApplicationEvent.hpp"
