@@ -58,15 +58,12 @@ namespace LinaEngine
 	void Application::OnEvent(Event & e)
 	{
 		
-		if (e.GetCategoryFlags() == EventCategory::EventCategoryWindow)
-			m_RenderingEngine->OnWindowEvent(e);
-		else if (e.GetCategoryFlags() == EventCategory::EventCategoryInput)
-			m_InputEngine->OnInputEvent(e);
+
 
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
-
-		LINA_CORE_INFO(e);
+	
+		//LINA_CORE_INFO(e);
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{
@@ -80,11 +77,19 @@ namespace LinaEngine
 	{
 		while (m_Running)
 		{
+			m_InputEngine->OnUpdate();
+
 			// Update rendering engine.
 			m_RenderingEngine->OnUpdate();
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
+
+
+			if (m_InputEngine->GetKey(KEY_A))
+			{
+				LINA_CORE_INFO("Well...");
+			}
 
 		}
 

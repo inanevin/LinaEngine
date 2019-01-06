@@ -32,6 +32,23 @@ namespace LinaEngine
 		float height;
 		float zNear;
 		float zFar;
+
+		PerspectiveInformation()
+		{
+			FOV = 90.0f;
+			width = 1920;
+			height = 1080;
+			zNear = 0.1f;
+			zFar = 1000.0f;
+		}
+		PerspectiveInformation(const PerspectiveInformation& p)
+		{
+			this->FOV = p.FOV;
+			this->width = p.width;
+			this->height = p.height;
+			this->zNear = p.zNear;
+			this->zFar = p.zFar;
+		}
 	};
 
 	class Camera
@@ -41,7 +58,7 @@ namespace LinaEngine
 		Camera(PerspectiveInformation p = PerspectiveInformation());
 		Matrix4F GetViewProjection();
 		void SetPerspectiveInformation(PerspectiveInformation p);
-
+		inline PerspectiveInformation GetPerspectiveInformation() { return m_PersInfo; }
 		Vector3F position;
 		Vector3F forward;
 		Vector3F up;

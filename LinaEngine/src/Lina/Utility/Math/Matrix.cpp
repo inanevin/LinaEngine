@@ -164,7 +164,7 @@ namespace LinaEngine
 	
 		const float zRng = zNear - zFar;
 		const float tanHFOV = tanf(Math::ToRadians(FOV / 2.0f));
-		float aspectRatio = width / height;
+		const float aspectRatio = width / height;
 		
 		m[0][0] = 1.0f / (tanHFOV * aspectRatio);	m[0][1] = 0;				m[0][2] = 0;						m[0][3] = 0;
 		m[1][0] = 0;								m[1][1] = 1.0f / tanHFOV;	m[1][2] = 0;						m[1][3] = 0;

@@ -21,13 +21,15 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "Lina/Utility/Math/Color.hpp"
 #include "Shader_GLSL.hpp"
 #include "Lina/Transform.hpp"
+#include "Lina/Events/ApplicationEvent.hpp"
 
 namespace LinaEngine
 {
-	
+#define BIND_EVENT_FN(x) std::bind(&RenderingEngine_OpenGL::x, this, std::placeholders::_1)
+
 	GLuint VBO;
 	GLuint IBO;
-	PerspectiveInformation p;
+
 	Transform t;
 
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
@@ -50,6 +52,7 @@ namespace LinaEngine
 
 		test->AddUniform("gWVP", "mat4");
 
+		PerspectiveInformation p;
 		p.FOV = 60;
 		p.zFar = 1000;
 		p.zNear = 0.1f;
@@ -119,17 +122,11 @@ namespace LinaEngine
 
 		RenderingEngine::OnUpdate();
 
-
 	}
+
 	void RenderingEngine_OpenGL::OnWindowEvent(Event & e)
 	{
-		if (e.GetEventType() == EventType::WindowResize)
-		{
-			p.width = GetMainWindow().GetWidth();
-			p.height = GetMainWindow().GetHeight();
-
-			cam.SetPerspectiveInformation(p);
-		}
+		
 	}
 
 
@@ -184,5 +181,6 @@ namespace LinaEngine
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 	}
+
 }
 

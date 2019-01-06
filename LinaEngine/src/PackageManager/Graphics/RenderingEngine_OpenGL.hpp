@@ -44,6 +44,9 @@ namespace LinaEngine
 		void CreateIndexBuffer();
 
 	private:
+
+		
+
 		Camera cam;
 		Shader_GLSL* test;
 		GLuint m_VAO;

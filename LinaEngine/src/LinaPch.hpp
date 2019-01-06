@@ -25,6 +25,9 @@ Timestamp: 12/30/2018 5:29:20 PM
 #include <algorithm>
 #include <functional>
 
+#include <cstdint>
+
+
 #include <string>
 #include <sstream>
 #include <fstream>

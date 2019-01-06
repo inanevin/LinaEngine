@@ -24,9 +24,12 @@ Timestamp: 1/2/2019 10:51:47 PM
 #include "../Core.hpp"
 #include "Window.hpp"
 
+
 namespace LinaEngine
 {
 	class Event;
+	class WindowResizeEvent;
+
 	class LINA_API RenderingEngine
 	{
 	public:

@@ -26,6 +26,7 @@ Timestamp: 12/31/2018 2:05:56 AM
 #include "SDLOpenGLWindow.hpp"  
 #include "Lina/Events/ApplicationEvent.hpp"
 
+
 namespace LinaEngine
 {
 
@@ -67,7 +68,7 @@ namespace LinaEngine
 		{
 			int status = SDL_Init(SDL_INIT_VIDEO);
 			if (status != 0) SDLErrorCallback(SDL_GetError());
-			LINA_CORE_ASSERT(status == 0, "Could not initialize SDL!");
+			LINA_CORE_ASSERT(status == 0, "Could not initialize SDL video mode!");
 			isSDLInitialized = true;
 		}
 
@@ -155,6 +156,8 @@ namespace LinaEngine
 				break;
 			}
 		}
+
+		
 		return 0;
 	}
 

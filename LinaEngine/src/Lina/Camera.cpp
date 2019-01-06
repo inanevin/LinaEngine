@@ -48,6 +48,7 @@ namespace LinaEngine
 	{
 		m_PersInfo = p;
 		m_PerspectiveProjection.InitPerspectiveProjection(p.FOV, p.width, p.height, p.zNear, p.zFar);
+		
 	}
 }
 
