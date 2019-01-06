@@ -685,7 +685,7 @@ namespace LinaEngine
 		inline std::string ToString()
 		{
 			std::stringstream ss;
-			ss << "(X: " << x << " Y: " << y << " Z: " << ")";
+			ss << "(X: " << x << " Y: " << y <<  ")";
 			return ss.str();
 		}
 

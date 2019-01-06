@@ -39,15 +39,20 @@ namespace LinaEngine
 		// Set event callback for the main window.
 		m_RenderingEngine->GetMainWindow().SetEventCallback(BIND_EVENT_FN(OnEvent));
 
+		// Set application reference.
+		m_RenderingEngine->SetApplication(*this);
+
 		// Get an input adapter.
 		InputAdapter inpAdpt;
 
 		// Create input engine.
 		m_InputEngine = std::unique_ptr<InputEngine>(inpAdpt.CreateInputEngine());
 
-
 		// Set running flag.
 		m_Running = true;
+
+		// Start rendering engine.
+		m_RenderingEngine->Start();
 	}
 
 	Application::~Application()
@@ -84,12 +89,7 @@ namespace LinaEngine
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
-
-
-			if (m_InputEngine->GetKey(KEY_A))
-			{
-				LINA_CORE_INFO("Well...");
-			}
+			
 
 		}
 
@@ -109,5 +109,6 @@ namespace LinaEngine
 	{
 		m_LayerStack.PushOverlay(layer);
 	}
+
 }
 

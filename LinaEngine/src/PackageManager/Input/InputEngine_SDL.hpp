@@ -18,15 +18,19 @@ Timestamp: 1/6/2019 2:18:10 AM
 */
 
 #pragma once
+
+#ifdef LLF_INPUTANDWINDOW_SDL
+
 #ifndef InputEngine_SDL_HPP
 #define InputEngine_SDL_HPP
 
 #include "Lina/Input/InputEngine.hpp"
 #include "SDL.h"
+#include "Lina/Events/Action.hpp"
 
 namespace LinaEngine
 {
-	class MouseButtonPressedEvent;
+	
 	class LINA_API InputEngine_SDL : public InputEngine
 	{
 	public:
@@ -63,8 +67,10 @@ namespace LinaEngine
 			else if (mouse == 2)
 				return mouse2Previous && !mouse2Current;
 		}
-		inline Vector2F GetRawMouse() { return Vector2F(deltaMouseX, deltaMouseY); };
-		inline Vector2F GetMouse() { return Vector2F(smoothDeltaMouseX, smoothDeltaMouseY); };
+		inline Vector2F GetRawMouseAxis() { return Vector2F(deltaMouseX, deltaMouseY); };
+		inline Vector2F GetMouseAxis() { return Vector2F(smoothDeltaMouseX, smoothDeltaMouseY); };
+
+	
 
 	private:
 
@@ -91,8 +97,12 @@ namespace LinaEngine
 		bool mouse0Current;
 		bool mouse1Current;
 		bool mouse2Current;
+
+		
 	};
 }
 
+
+#endif
 
 #endif

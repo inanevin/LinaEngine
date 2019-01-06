@@ -18,6 +18,9 @@ Timestamp: 1/6/2019 2:18:10 AM
 */
 
 #include "LinaPch.hpp"
+
+#ifdef LLF_INPUTANDWINDOW_SDL
+
 #include "InputEngine_SDL.hpp" 
 
 
@@ -70,6 +73,41 @@ namespace LinaEngine
 
 	void InputEngine_SDL::OnUpdate()
 	{
+		SDL_Event e;
+		while(SDL_PollEvent(&e))
+		{
+			// Set the data for the actions and dispatch them.
+			if (e.type == SDL_KEYDOWN)
+			{
+				Action<int> keyPressed = Action<int>(KeyPressed);
+				keyPressed.SetData(e.key.keysym.scancode);
+				m_InputDispatcher.DispatchAction(keyPressed);
+			}
+			else if (e.type == SDL_KEYUP)
+			{
+				Action<int> keyReleased = Action<int>(KeyReleased);
+				keyReleased.SetData(e.key.keysym.scancode);
+				m_InputDispatcher.DispatchAction(keyReleased);
+			}
+			else if (e.type == SDL_MOUSEBUTTONDOWN)
+			{
+				Action<int> mouseButtonDown = Action<int>(MouseButtonPressed);
+				mouseButtonDown.SetData(e.button.button);
+				m_InputDispatcher.DispatchAction(mouseButtonDown);
+			}
+			else if (e.type == SDL_MOUSEBUTTONUP)
+			{
+				Action<int> mouseButtonUp = Action<int>(MouseButtonReleased);
+				mouseButtonUp.SetData(e.button.button);
+				m_InputDispatcher.DispatchAction(mouseButtonUp);
+			}
+			else if (e.type == SDL_QUIT)
+			{
+				Action<> sdlQuit = Action<>(SDLQuit);
+				m_InputDispatcher.DispatchAction(sdlQuit);
+			}
+		}
+
 		// Store current mouse coordinates.
 		SDL_GetRelativeMouseState(&mouseXState, &mouseYState);
 
@@ -79,13 +117,13 @@ namespace LinaEngine
 
 		// Divide the current values by an accuracy value to create precision.
 		deltaMouseX = float((currentMouseX) / MOUSE_ACCURACY);
-		deltaMouseX = float((currentMouseX) / MOUSE_ACCURACY);
+		deltaMouseY = float((currentMouseY) / MOUSE_ACCURACY);
 
 		// Interpolate smoothed mouse input. TODO: Interpolate smoothing later.
 		smoothDeltaMouseX = deltaMouseX;
 		smoothDeltaMouseY = deltaMouseY;
-		//smoothDeltaMouseX = Lina_Math::Lerp(smoothDeltaMouseX, deltaMouseX, Lina_Time::GetDelta() * MOUSE_SMOOTH);
-		//smoothDeltaMouseY = Lina_Math::Lerp(smoothDeltaMouseY, deltaMouseY, Lina_Time::GetDelta() * MOUSE_SMOOTH);
+		smoothDeltaMouseX = Math::Lerp(smoothDeltaMouseX, deltaMouseX, 0.1f * MOUSE_SMOOTH);
+		smoothDeltaMouseY = Math::Lerp(smoothDeltaMouseY, deltaMouseY, 0.1f * MOUSE_SMOOTH);
 
 		// Store the previous keys.
 		memcpy(m_PreviousKeys, m_CurrentKeys, sizeof(Uint8) * numKeys);
@@ -106,3 +144,4 @@ namespace LinaEngine
 
 }
 
+#endif

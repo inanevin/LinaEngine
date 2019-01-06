@@ -42,6 +42,12 @@ namespace LinaEngine
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
 
+		inline InputEngine& GetInputEngine() const
+		{
+			LINA_CORE_ASSERT(m_InputEngine, "Window pointer is null!");
+			return *m_InputEngine;
+		}
+
 	private:
 
 		

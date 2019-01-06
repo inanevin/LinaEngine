@@ -29,6 +29,7 @@ namespace LinaEngine
 {
 	class Event;
 	class WindowResizeEvent;
+	class Application;
 
 	class LINA_API RenderingEngine
 	{
@@ -37,8 +38,10 @@ namespace LinaEngine
 		RenderingEngine();
 		virtual ~RenderingEngine();
 
+		virtual void Start() = 0;
 		virtual void OnUpdate();
 		virtual void OnWindowEvent(Event& e) = 0;
+		virtual void SetApplication(Application&) = 0;
 
 		inline Window& GetMainWindow() const
 		{ 

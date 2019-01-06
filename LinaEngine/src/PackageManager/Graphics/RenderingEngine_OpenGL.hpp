@@ -18,6 +18,10 @@ Timestamp: 1/2/2019 11:44:41 PM
 */
 
 #pragma once
+
+#ifdef LLF_GRAPHICS_OPENGL
+
+
 #ifndef RenderingEngine_OpenGL_HPP
 #define RenderingEngine_OpenGL_HPP
 
@@ -38,15 +42,17 @@ namespace LinaEngine
 		RenderingEngine_OpenGL();
 		~RenderingEngine_OpenGL();
 
+		void Start() override;
 		void OnUpdate() override;
 		void OnWindowEvent(Event& e) override;
 		void CreateVertexBuffer();
 		void CreateIndexBuffer();
-
+		void SetApplication(Application& app) override;
+		void Test();
 	private:
 
 		
-
+		Application* app;
 		Camera cam;
 		Shader_GLSL* test;
 		GLuint m_VAO;
@@ -56,4 +62,5 @@ namespace LinaEngine
 }
 
 
+#endif
 #endif

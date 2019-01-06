@@ -42,7 +42,17 @@ Timestamp: 12/30/2018 5:29:20 PM
 #include "Lina/Utility/ResourceConstants.hpp"
 
 
-
+namespace LinaEngine
+{
+	namespace Internal
+	{
+		template <typename T> struct comparison_traits {
+			static bool equal(const T& a, const T& b) {
+				return a == b;
+			}
+		};
+	}
+}
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include <Windows.h>
