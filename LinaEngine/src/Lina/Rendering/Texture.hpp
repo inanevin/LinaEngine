@@ -30,6 +30,7 @@ namespace LinaEngine
 	{
 	public:
 
+		Texture() {};
 		Texture(GLenum textureTarget);
 
 		bool Load(const std::string& fileName);

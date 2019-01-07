@@ -27,6 +27,8 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "Lina/Input/InputEngine.hpp"
 #include "Lina/Events/Action.hpp"
 #include "Shader_GLSL.hpp"
+#include "Lina/Rendering/Vertex.hpp"
+
 
 namespace LinaEngine
 {
@@ -38,7 +40,7 @@ namespace LinaEngine
 
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
 	{
-		
+		testTexture = Texture(GL_TEXTURE_2D);
 
 	}
 
@@ -56,6 +58,11 @@ namespace LinaEngine
 		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, [this](int i) { cam.OnKeyPress(i); });
 		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, );
 
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glFrontFace(GL_CW);
+		glCullFace(GL_BACK);
+		glEnable(GL_CULL_FACE);
+
 		CreateVertexBuffer();
 		CreateIndexBuffer();
 
@@ -68,6 +75,7 @@ namespace LinaEngine
 		test->Bind();
 
 		test->AddUniform("gWVP", "mat4");
+		test->AddUniform("gSampler", "sampler2D");
 
 		PerspectiveInformation p;
 		p.FOV = 60;
@@ -77,6 +85,8 @@ namespace LinaEngine
 		p.height = GetMainWindow().GetHeight();
 
 		cam = Camera(p);
+
+		testTexture.Load(ResourceConstants::BasicTexturePath);
 		//cam.SetPerspectiveInformation(p);
 
 
@@ -105,6 +115,8 @@ namespace LinaEngine
 		// vertex attribute index 0 is fixed for vertex position, so activate the attribute.
 		glEnableVertexAttribArray(0);
 
+		glEnableVertexAttribArray(1);
+
 		// Update the pipeline state of the buffer we want to use.
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
@@ -113,15 +125,17 @@ namespace LinaEngine
 		// 3 is # of components, xyz.
 		// 4th param is whether to normalize the data, 5th is stride, # of bytes bw two instances of that attribute in the buffer. (Pass the size of struct, only one type of data for now.)
 		// Last param is the offset inside the structure where the pipeline will find our attribute.
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)12);
 
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-
+		testTexture.Bind(GL_TEXTURE0);
 		glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
 
 		// Good practice to disable each vertex attribute when not used.
 		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
 
 	
 
@@ -144,11 +158,10 @@ namespace LinaEngine
 	{
 
 
-		Vector3F Vertices[4];
-		Vertices[0] = Vector3F(-1.0f, -1.0f, 0.0f);
-		Vertices[1] = Vector3F(0.0f, -1.0f, 1.0f);
-		Vertices[2] = Vector3F(1.0f, -1.0f, 0.0f);
-		Vertices[3] = Vector3F(0.0f, 1.0f, 0.0f);
+		Vertex Vertices[4] = { Vertex(Vector3F(-1.0f, -1.0f, 0.5773f), Vector2F(0.0f, 0.0f)),
+							 Vertex(Vector3F(0.0f, -1.0f, -1.15475f), Vector2F(0.5f, 0.0f)),
+							 Vertex(Vector3F(1.0f, -1.0f, 0.5773f),  Vector2F(1.0f, 0.0f)),
+							 Vertex(Vector3F(0.0f, 1.0f, 0.0f),      Vector2F(0.5f, 1.0f)) };
 
 		glGenBuffers(1, &VBO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);

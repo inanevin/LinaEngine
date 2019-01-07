@@ -23,7 +23,8 @@ Timestamp: 1/2/2019 10:51:47 PM
 
 #include "../Core.hpp"
 #include "Window.hpp"
-
+#include "Lina/Rendering/Texture.hpp"
+#include "Lina/Camera.hpp"
 
 namespace LinaEngine
 {

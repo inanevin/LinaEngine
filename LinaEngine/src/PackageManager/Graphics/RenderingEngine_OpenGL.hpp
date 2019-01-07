@@ -26,7 +26,7 @@ Timestamp: 1/2/2019 11:44:41 PM
 #define RenderingEngine_OpenGL_HPP
 
 #include "Lina/Rendering/RenderingEngine.hpp"
-#include "Lina/Camera.hpp"
+
 #include "glad/glad.h"
 
 
@@ -34,6 +34,7 @@ namespace LinaEngine
 {
 	
 	class Shader_GLSL;
+	class Texture;
 
 	class LINA_API RenderingEngine_OpenGL : public RenderingEngine
 	{
@@ -52,7 +53,7 @@ namespace LinaEngine
 
 	private:
 
-		
+		Texture testTexture;
 		Application* app;
 		Camera cam;
 		Shader_GLSL* test;

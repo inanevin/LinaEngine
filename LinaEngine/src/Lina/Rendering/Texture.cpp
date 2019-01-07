@@ -38,7 +38,7 @@ namespace LinaEngine
 		//channel values.
 		int width, height, nrChannels;
 		unsigned char* data = stbi_load(filePath, &width, &height, &nrChannels, 0);
-
+		
 		if (data)
 		{
 			GLenum format;
