@@ -29,7 +29,7 @@ Timestamp: 12/31/2018 1:46:13 AM
 
 	#ifdef LLF_INPUTANDWINDOW_SDL
 
-		#include "SDLOpenGLWindow.hpp"
+		#include "Window_SDLGL.hpp"
 		#define WINDOWCREATEFUNC(PARAM) inline Window* CreateEngineWindow(const WindowProps& props = WindowProps()) { return SDLOpenGLWindow::Create(props); }
 
 	#else

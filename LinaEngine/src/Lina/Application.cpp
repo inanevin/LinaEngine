@@ -89,7 +89,8 @@ namespace LinaEngine
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
-			
+
+			LINA_CORE_WARN("Add a method to remove subscription from action dispatcher!");
 
 		}
 

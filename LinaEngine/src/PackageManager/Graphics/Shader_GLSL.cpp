@@ -19,13 +19,14 @@ Timestamp: 1/5/2019 12:53:08 AM
 
 #include "LinaPch.hpp"
 #include "Shader_GLSL.hpp"  
-#include "glew.h"
+#include "glad/glad.h"
 
 
 namespace LinaEngine
 {
 	Shader_GLSL::Shader_GLSL()
 	{
+		LINA_CORE_WARN("Shader is created!");
 		// Init program.
 		m_Program = glCreateProgram();
 		

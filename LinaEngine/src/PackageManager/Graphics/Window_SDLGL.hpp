@@ -26,7 +26,6 @@ Timestamp: 12/31/2018 2:05:56 AM
 #define SDLWindow_HPP
 
 #include "Lina/Rendering/Window.hpp"
-
 #include "SDL.h"
 #include "SDL_events.h"
 

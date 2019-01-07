@@ -26,8 +26,8 @@ Timestamp: 1/2/2019 11:44:41 PM
 #define RenderingEngine_OpenGL_HPP
 
 #include "Lina/Rendering/RenderingEngine.hpp"
-#include "glew.h"
 #include "Lina/Camera.hpp"
+#include "glad/glad.h"
 
 
 namespace LinaEngine

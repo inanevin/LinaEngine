@@ -23,8 +23,9 @@ Timestamp: 12/31/2018 2:05:56 AM
 
 #ifdef LLF_INPUTANDWINDOW_SDL
 
-#include "SDLOpenGLWindow.hpp"  
+#include "Window_SDLGL.hpp"
 #include "Lina/Events/ApplicationEvent.hpp"
+#include <../glad/include/glad/glad.h>
 
 
 namespace LinaEngine
@@ -104,6 +105,12 @@ namespace LinaEngine
 
 		// We create a context using our window, so we will have power over our window via OpenGL -> GPU.
 		m_GLContext = SDL_GL_CreateContext(m_Window);
+
+
+		// Initialize glad.
+		int status = gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
+		LINA_CORE_ASSERT(status, "Failed to initialize GLAD!");
+
 
 		// Enable VSync
 		SetVSync(true);

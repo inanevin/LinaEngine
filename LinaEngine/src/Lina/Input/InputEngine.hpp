@@ -61,7 +61,6 @@ namespace LinaEngine
 			// Get the shared ptr pushed just now.
 			std::list<std::shared_ptr<ActionHandlerBase>>::iterator iter = std::prev(m_Handlers.end());
 
-
 			// construct a weakptr out of the shared.
 			std::weak_ptr<ActionHandlerBase> wptr = *iter;
 

@@ -1,4 +1,3 @@
-
 workspace "LinaEngine"
 	architecture "x64"
 	
@@ -13,19 +12,18 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 	
 IncludeDir = {}
 IncludeDir["SDL"] = "LinaEngine/vendor/SDL2-2.0.9/include"
-IncludeDir["GLEW"] = "LinaEngine/vendor/glew-2.1.0/include/GL"
 IncludeDir["SPDLOG"] = "LinaEngine/vendor/spdlog/include"
 IncludeDir["GLM"] = "LinaEngine/vendor/glm"
+IncludeDir["GLAD"] = "LinaEngine/vendor/glad/include"
 
 DLLDir = {}
 DLLDir["SDL"] = "LinaEngine/vendor/SDL2-2.0.9/lib/x64"
-DLLDir["GLEW"] = "LinaEngine/vendor/glew-2.1.0/bin/Release/x64"
 DLLDir["LinaEngine"] = "bin/" .. outputdir .. "/LinaEngine"
 
 LibDir = {}
 LibDir["SDL"] = "LinaEngine/vendor/SDL2-2.0.9/lib/x64"
-LibDir["GLEW"] = "LinaEngine/vendor/glew-2.1.0/lib/Release/x64"
 
+include "LinaEngine/vendor/glad"
 
 
 project "LinaEngine"
@@ -50,24 +48,22 @@ project "LinaEngine"
 	{
 		"%{prj.name}/src",
 		"%{IncludeDir.SPDLOG}",
-		"%{IncludeDir.GLEW}",
 		"%{IncludeDir.SDL}",
-		"%{IncludeDir.GLM}"
+		"%{IncludeDir.GLM}",
+		"%{IncludeDir.GLAD}"
 	}
 	
 	libdirs
 	{
-		"%{LibDir.SDL}",
-		"%{LibDir.GLEW}"
+		"%{LibDir.SDL}"
 	}
 	
 	links
 	{
 		"SDL2.lib",
 		"SDL2main.lib",
-		"glew32.lib",
-		"glew32s.lib",
-		"OpenGL32.lib"
+		"glad",
+		"opengl32.lib"
 	}
 			
 		filter "system:windows"
@@ -83,7 +79,7 @@ project "LinaEngine"
 			"LINA_ENABLE_LOGGING",
 			"LLF_INPUTANDWINDOW_SDL",
 			"LLF_GRAPHICS_OPENGL",
-			"IMGUI_IMPL_OPENGL_LOADER_GLEW",
+			"IMGUI_IMPL_OPENGL_LOADER_GLAD",
 		}
 
 	
@@ -152,7 +148,6 @@ project "Sandbox"
 			
 			("{COPY}  ../%{DLLDir.LinaEngine}/LinaEngine.dll  ../bin/" .. outputdir .. "/Sandbox"),
 			("{COPY} ../%{DLLDir.SDL}/SDL2.dll ../bin/" .. outputdir .. "/Sandbox"),
-			("{COPY} ../%{DLLDir.GLEW}/glew32.dll ../bin/" .. outputdir .. "/Sandbox"),
 			("{COPY} ../Sandbox/Resources ../bin/" .. outputdir .. "/Sandbox/Resources")
 			--- ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox"),	
 			--- ("{COPY} ../%{DLLDir.SDL}/SDL2.dll ../bin/" .. outputdir .. "/Sandbox")

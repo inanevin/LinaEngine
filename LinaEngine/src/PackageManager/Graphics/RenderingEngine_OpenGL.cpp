@@ -22,11 +22,11 @@ Timestamp: 1/2/2019 11:44:41 PM
 
 #include "RenderingEngine_OpenGL.hpp"  
 #include "Lina/Utility/Math/Color.hpp"
-#include "Shader_GLSL.hpp"
 #include "Lina/Transform.hpp"
 #include "Lina/Application.hpp"
 #include "Lina/Input/InputEngine.hpp"
 #include "Lina/Events/Action.hpp"
+#include "Shader_GLSL.hpp"
 
 namespace LinaEngine
 {
@@ -34,14 +34,23 @@ namespace LinaEngine
 
 	GLuint VBO;
 	GLuint IBO;
-
 	Transform t;
 
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
 	{
-		// Initialize GLEW
-		GLenum res = glewInit();
-		LINA_CORE_ASSERT(res == GLEW_OK, "Glew is not initialized properly");
+		
+
+	}
+
+	RenderingEngine_OpenGL::~RenderingEngine_OpenGL()
+	{
+		delete test;
+	}
+
+	void RenderingEngine_OpenGL::Start()
+	{
+		app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, KEY_K, [this]() { this->Test(); });
+
 
 		CreateVertexBuffer();
 		CreateIndexBuffer();
@@ -49,7 +58,6 @@ namespace LinaEngine
 		// * ADD SHADERS, COMPILE, BIND *//
 
 		test = new Shader_GLSL();
-
 		test->AddShader(Shader_GLSL::LoadShader(ResourceConstants::GLSL_BasicVertexPath), GL_VERTEX_SHADER);
 		test->AddShader(Shader_GLSL::LoadShader(ResourceConstants::GLSL_BasicFragmentPath), GL_FRAGMENT_SHADER);
 		test->CompileShaders();
@@ -63,22 +71,12 @@ namespace LinaEngine
 		p.zNear = 0.1f;
 		p.width = GetMainWindow().GetWidth();
 		p.height = GetMainWindow().GetHeight();
-		
+
 		cam.SetPerspectiveInformation(p);
 
 
 		// * ADD SHADERS, COMPILE, BIND *//
 
-	}
-
-	RenderingEngine_OpenGL::~RenderingEngine_OpenGL()
-	{
-		delete test;
-	}
-
-	void RenderingEngine_OpenGL::Start()
-	{
-		app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, KEY_K, [this]() { this->Test(); });
 	}
 
 	void RenderingEngine_OpenGL::OnUpdate()
