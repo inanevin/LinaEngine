@@ -58,6 +58,7 @@ namespace LinaEngine
 		Camera(PerspectiveInformation p = PerspectiveInformation());
 		Matrix4F GetViewProjection();
 		void SetPerspectiveInformation(PerspectiveInformation p);
+		void OnKeyPress(int keycode);
 		inline PerspectiveInformation GetPerspectiveInformation() { return m_PersInfo; }
 		Vector3F position;
 		Vector3F forward;

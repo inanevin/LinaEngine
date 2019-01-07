@@ -40,6 +40,7 @@ Timestamp: 12/30/2018 5:29:20 PM
 #include "Lina/Utility/Math/Math.hpp"
 #include "Lina/Utility/Math/Quaternion.hpp"
 #include "Lina/Utility/ResourceConstants.hpp"
+#include "Lina/Input/InputMappings.hpp"
 
 
 namespace LinaEngine

@@ -26,7 +26,7 @@ namespace LinaEngine
 {
 	Shader_GLSL::Shader_GLSL()
 	{
-		LINA_CORE_WARN("Shader is created!");
+		
 		// Init program.
 		m_Program = glCreateProgram();
 		

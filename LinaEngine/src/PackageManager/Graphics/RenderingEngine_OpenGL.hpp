@@ -48,7 +48,7 @@ namespace LinaEngine
 		void CreateVertexBuffer();
 		void CreateIndexBuffer();
 		void SetApplication(Application& app) override;
-		void Test();
+
 	private:
 
 		

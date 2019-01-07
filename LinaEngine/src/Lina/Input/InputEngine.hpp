@@ -21,7 +21,6 @@ Timestamp: 1/6/2019 2:17:55 AM
 #ifndef InputEngine_HPP
 #define InputEngine_HPP
 
-#include "InputMappings.hpp"
 #include "Lina/Events/Action.hpp"
 
 namespace LinaEngine
@@ -45,7 +44,7 @@ namespace LinaEngine
 		virtual Vector2F GetMouseAxis() = 0;
 		
 		template<typename T>
-		void SubscribeToAction(ActionType at, T condition, std::function<void()>const&& cb)
+		void SubscribeToAction(ActionType at, T condition, const std::function<void()>& cbp)
 		{
 			
 			// Init the handler.
@@ -65,6 +64,27 @@ namespace LinaEngine
 			std::weak_ptr<ActionHandlerBase> wptr = *iter;
 
 			
+			// Call the subscription to subscribe to relevant dispatcher.
+			Subscribe(at, wptr);
+		}
+
+		template<typename T>
+		void SubscribeToAction(ActionType at, const std::function<void(T&)>& cbp)
+		{
+			// Init the handler.
+			ActionHandler<T> handler(at);
+			handler.SetUseParamCallback(true);
+			handler.SetParamCallback(cbp);
+
+			// Push it a shared ptr to the handler to the list.
+			m_Handlers.push_back(std::make_shared<ActionHandler<T>>(handler));
+
+			// Get the shared ptr pushed just now.
+			std::list<std::shared_ptr<ActionHandlerBase>>::iterator iter = std::prev(m_Handlers.end());
+
+			// construct a weakptr out of the shared.
+			std::weak_ptr<ActionHandlerBase> wptr = *iter;
+
 			// Call the subscription to subscribe to relevant dispatcher.
 			Subscribe(at, wptr);
 		}

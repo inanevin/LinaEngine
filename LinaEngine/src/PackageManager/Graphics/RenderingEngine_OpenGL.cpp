@@ -49,8 +49,12 @@ namespace LinaEngine
 
 	void RenderingEngine_OpenGL::Start()
 	{
-		app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, KEY_K, [this]() { this->Test(); });
-
+		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, KEY_K, [this]() { this->Test(); });
+		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, KEY_K, std::bind(&Camera::OnKeyPress, cam, std::placeholders::_1));
+		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, std::bind(&Camera::OnKeyPress, cam, std::placeholders::_1));
+	
+		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, [this](int i) { cam.OnKeyPress(i); });
+		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, );
 
 		CreateVertexBuffer();
 		CreateIndexBuffer();
@@ -94,6 +98,7 @@ namespace LinaEngine
 		t.SetRotation(0.0f, 0.0f, 0.0f);
 	
 		Matrix4F worldViewMatrix =  cam.GetViewProjection() * t.GetWorldTransformation();
+		
 		test->SetUniform("gWVP", worldViewMatrix);
 
 		// vertex attribute index 0 is fixed for vertex position, so activate the attribute.
@@ -117,6 +122,25 @@ namespace LinaEngine
 		// Good practice to disable each vertex attribute when not used.
 		glDisableVertexAttribArray(0);
 
+		if (app->GetInputEngine().GetKey(KEY_W))
+		{
+			cam.OnKeyPress(KEY_W);
+		}
+		if(app->GetInputEngine().GetKey(KEY_S))
+		{
+			cam.OnKeyPress(KEY_S);
+
+		}
+		if (app->GetInputEngine().GetKey(KEY_A))
+		{
+			cam.OnKeyPress(KEY_A);
+
+		}
+		 if (app->GetInputEngine().GetKey(KEY_D))
+		{
+			cam.OnKeyPress(KEY_D);
+
+		}
 
 		/* MAIN LOOP RENDER */
 
@@ -132,14 +156,7 @@ namespace LinaEngine
 
 	void RenderingEngine_OpenGL::CreateVertexBuffer()
 	{
-		/*Vector3F Vertices[3];
-		Vertices[0] = Vector3F(-1.0f, -1.0f, 0.0f);
-		Vertices[1] = Vector3F(1.0f, -1.0f, 0.0f);
-		Vertices[2] = Vector3F(0.0f, 1.0f, 0.0f);
 
-		glGenBuffers(1, &VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);*/
 
 		Vector3F Vertices[4];
 		Vertices[0] = Vector3F(-1.0f, -1.0f, 0.0f);
@@ -151,24 +168,6 @@ namespace LinaEngine
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
 
-		/*
-		
-		Vector3F vertices[4];
-		vertices[0] = Vector3F(-1.0f, -1.0f, 0.0f);
-		vertices[1] = Vector3F(0.0f, -1.0f, 1.0f);
-		vertices[2] = Vector3F(1.0f, -1.0f, 0.0f);
-		vertices[3] = Vector3F(0.0f, 1.0f, 0.0f);
-
-		int vSize = 4;
-
-		// Generate buffers
-		glGenBuffers(1, &m_VAO);
-
-		// Bind buffer. VBO will contain array of vertices. (element buffer = array contains indices of vertices in another buffer)
-		glBindBuffer(GL_ARRAY_BUFFER, m_VAO);
-
-		// Fill the binded object with data.
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[0]) * vSize, vertices, GL_STATIC_DRAW);*/
 	}
 	void RenderingEngine_OpenGL::CreateIndexBuffer()
 	{
@@ -188,10 +187,7 @@ namespace LinaEngine
 		this->app = &p;
 	}
 
-	void RenderingEngine_OpenGL::Test()
-	{
-		std::cout << "test";
-	}
+
 
 }
 

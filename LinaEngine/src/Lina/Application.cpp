@@ -62,8 +62,6 @@ namespace LinaEngine
 
 	void Application::OnEvent(Event & e)
 	{
-		
-
 
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
@@ -90,7 +88,7 @@ namespace LinaEngine
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 
-			LINA_CORE_WARN("Add a method to remove subscription from action dispatcher!");
+			//LINA_CORE_WARN("Add a method to remove subscription from action dispatcher!");
 
 		}
 

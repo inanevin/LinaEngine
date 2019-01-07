@@ -175,8 +175,8 @@ namespace LinaEngine
 		inline bool GetUseParamCallback() { return m_UseParamCallback; }
 		inline bool GetUseNoParamCallback() { return m_UseNoParamCallback; }
 
-		inline void SetParamCallback(std::function<void(T)> const& cbp) { m_CallbackParam = cbp; }
-		inline void SetNoParamCallback(std::function<void()> const& cb) { m_CallbackNoParam = cb; }
+		inline void SetParamCallback(const std::function<void(T&)>& cbp) { m_CallbackParam = cbp; }
+		inline void SetNoParamCallback(const std::function<void()>& cb) { m_CallbackNoParam = cb; }
 		inline void SetBinding(T* binding) { m_Binding = binding; }
 
 
@@ -232,7 +232,7 @@ namespace LinaEngine
 		bool m_UseCondition = false;
 		T* m_Binding;
 		std::function<void()> m_CallbackNoParam;
-		std::function<void(T)> m_CallbackParam;
+		std::function<void(T&)> m_CallbackParam;
 	};
 
 	class TestClass;

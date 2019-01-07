@@ -22,6 +22,7 @@ Timestamp: 1/5/2019 9:51:42 PM
 
 namespace LinaEngine
 {
+	const static float movementSpeed = 0.25f;
 
 	Camera::Camera(PerspectiveInformation p)
 	{
@@ -35,11 +36,12 @@ namespace LinaEngine
 	Matrix4F Camera::GetViewProjection()
 	{
 		Matrix4F rotationM, translationM;
-
+		
 		translationM.InitTranslationTransform(-position.x, -position.y, -position.z);
 		rotationM.InitRotationFromDirection(forward, up);
 
 		Matrix4F viewTransformation = rotationM * translationM;
+		
 		m_ViewProjection = m_PerspectiveProjection * viewTransformation;
 
 		return m_ViewProjection;
@@ -49,6 +51,31 @@ namespace LinaEngine
 		m_PersInfo = p;
 		m_PerspectiveProjection.InitPerspectiveProjection(p.FOV, p.width, p.height, p.zNear, p.zFar);
 		
+	}
+
+	void Camera::OnKeyPress(int keycode)
+	{
+		
+		if (keycode == KEY_W)
+			this->position += (forward * movementSpeed);
+		if(keycode == KEY_S)
+			this->position -= (forward * movementSpeed);
+		if (keycode == KEY_A)
+		{
+			Vector3F left = forward.Cross(up);
+			left.Normalize();
+			left *= movementSpeed;
+			this->position += left;
+			
+		}
+		 if (keycode == KEY_D)
+		{
+			Vector3F right = up.Cross(forward);
+			right.Normalize();
+			right *= movementSpeed;
+			this->position += right;
+		}
+
 	}
 }
 

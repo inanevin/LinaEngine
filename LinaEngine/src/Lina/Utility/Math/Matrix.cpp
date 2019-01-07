@@ -64,20 +64,6 @@ namespace LinaEngine
 
 	Matrix4F Matrix4F::InitTranslationTransform(float x, float y, float z)
 	{
-		/*for (unsigned int i = 0; i < 4; i++)
-		{
-			for (unsigned int j = 0; j < 4; j++)
-			{
-				if (j == 3 && i != 3)
-					m[i][j] = rhs[i];
-				else if (i == j)
-					m[i][j] = 1.0;
-				else
-					m[i][j] = 0.0;
-			}
-		}
-
-		m[3][3] = 1.0;*/
 
 		m[0][0] = 1.0f; m[0][1] = 0.0f; m[0][2] = 0.0f; m[0][3] = x;
 		m[1][0] = 0.0f; m[1][1] = 1.0f; m[1][2] = 0.0f; m[1][3] = y;
