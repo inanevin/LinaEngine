@@ -19,7 +19,7 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 -  [spdlog](https://github.com/gabime/spdlog)
 -  [SDL2](https://www.libsdl.org/)
 -  [OpenGL Mathematics(GLM)](https://glm.g-truc.net/0.9.9/index.html)
--  [GLEW](http://glew.sourceforge.net/)
+-  [Glad](https://github.com/Dav1dde/glad)
 -  [imgui](https://github.com/ocornut/imgui)
 
 ## Installation
