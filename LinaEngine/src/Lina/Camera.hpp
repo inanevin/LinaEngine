@@ -59,11 +59,8 @@ namespace LinaEngine
 		Camera(PerspectiveInformation p = PerspectiveInformation());
 		Matrix4F GetViewProjection();
 		void SetPerspectiveInformation(PerspectiveInformation p);
-		void OnKeyPress(int keycode);
-		void OnMouse(Vector2F);
+
 		void OnInput(InputEngine& i);
-		void OnRender();
-		void Update();
 		inline PerspectiveInformation GetPerspectiveInformation() { return m_PersInfo; }
 		Vector3F position;
 		Quaternion rotation;

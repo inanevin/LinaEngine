@@ -12,32 +12,34 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: ResourceConstants
-Timestamp: 1/5/2019 12:42:58 AM
+Class: Texture
+Timestamp: 1/7/2019 1:55:47 PM
 
 */
 
 #pragma once
 
-#ifndef ResourceConstants_HPP
-#define ResourceConstants_HPP
+#ifndef Texture_HPP
+#define Texture_HPP
 
-#include <stdio.h>
-#include <string>
+#include <glad/glad.h>
 
 namespace LinaEngine
 {
-	class ResourceConstants
+	class Texture
 	{
-
 	public:
-		static  std::string& GLSL_BasicFragmentPath;
-		static  std::string& GLSL_BasicVertexPath;
-		static	std::string& BasicTexturePath;
+
+		Texture(GLenum textureTarget);
+
+		bool Load(const std::string& fileName);
+		void Bind(GLenum textureUnit);
+
+	private:
+		GLenum m_TextureTarget;
+		GLuint m_TextureObj;
 	};
-
 }
-
 
 
 #endif

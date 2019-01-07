@@ -55,36 +55,39 @@ namespace LinaEngine
 		
 	}
 
-	void Camera::OnKeyPress(int keycode)
+
+	void Camera::OnInput(InputEngine & i)
 	{
-		
-		if (keycode == KEY_W)
+
+		if (i.GetKey(KEY_W))
+		{
 			this->position += (rotation.GetForward() * movementSpeed);
-		if(keycode == KEY_S)
+
+		}
+		if (i.GetKey(KEY_S))
+		{
 			this->position -= (rotation.GetForward() * movementSpeed);
-		if (keycode == KEY_A)
+
+
+		}
+		if (i.GetKey(KEY_A))
 		{
 			Vector3F left = rotation.GetLeft();
 			left.Normalize();
 			left *= movementSpeed;
 			this->position += left;
-			
+
 		}
-		 if (keycode == KEY_D)
+		if (i.GetKey(KEY_D))
 		{
-			 Vector3F right = rotation.GetRight();
+			Vector3F right = rotation.GetRight();
 			right.Normalize();
 			right *= movementSpeed;
 			this->position += right;
+
 		}
 
-	}
-	void Camera::OnMouse(Vector2F c)
-	{
-		
-	}
-	void Camera::OnInput(InputEngine & i)
-	{
+
 		if (i.GetMouseDown(0))
 		{
 			i.SetMousePosition(m_windowCenter);
@@ -125,13 +128,6 @@ namespace LinaEngine
 
 
 	}
-	void Camera::OnRender()
-	{
-		
-	}
-	void Camera::Update()
-	{
-		
-	}
+
 }
 

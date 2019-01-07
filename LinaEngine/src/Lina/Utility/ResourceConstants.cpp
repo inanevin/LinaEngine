@@ -26,5 +26,6 @@ namespace LinaEngine
 
 	std::string& ResourceConstants::GLSL_BasicFragmentPath = std::string(LINA_RESOURCESPATH) + std::string("Shaders\\GLSL\\Basic.fs");
 	std::string& ResourceConstants::GLSL_BasicVertexPath = std::string(LINA_RESOURCESPATH) + std::string("Shaders\\GLSL\\Basic.vs");
+	std::string& ResourceConstants::BasicTexturePath = std::string(LINA_RESOURCESPATH) + std::string("Textures\\test.png");
 }
 

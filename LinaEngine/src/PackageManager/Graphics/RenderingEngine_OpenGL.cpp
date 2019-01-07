@@ -123,26 +123,7 @@ namespace LinaEngine
 		// Good practice to disable each vertex attribute when not used.
 		glDisableVertexAttribArray(0);
 
-		if (app->GetInputEngine().GetKey(KEY_W))
-		{
-			cam.OnKeyPress(KEY_W);
-		}
-		if(app->GetInputEngine().GetKey(KEY_S))
-		{
-			cam.OnKeyPress(KEY_S);
-
-		}
-		if (app->GetInputEngine().GetKey(KEY_A))
-		{
-			cam.OnKeyPress(KEY_A);
-
-		}
-		 if (app->GetInputEngine().GetKey(KEY_D))
-		{
-			cam.OnKeyPress(KEY_D);
-
-		}
-
+	
 
 		 cam.OnInput(app->GetInputEngine());
 
