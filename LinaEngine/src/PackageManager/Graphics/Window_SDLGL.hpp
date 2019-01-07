@@ -32,11 +32,11 @@ Timestamp: 12/31/2018 2:05:56 AM
 namespace LinaEngine
 {
 
-	class SDLOpenGLWindow : public Window
+	class Window_SDLGL : public Window
 	{
 	public:
-		SDLOpenGLWindow(const WindowProps& props);
-		virtual ~SDLOpenGLWindow();
+		Window_SDLGL(const WindowProps& props);
+		virtual ~Window_SDLGL();
 
 		void OnUpdate() override;
 
@@ -49,6 +49,8 @@ namespace LinaEngine
 		bool IsVSync() const override;
 
 		static Window* Create(const WindowProps& props = WindowProps());
+		
+		void SetMousePosition(const Vector2F& v) override;
 
 	private:
 

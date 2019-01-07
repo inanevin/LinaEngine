@@ -19,18 +19,20 @@ Timestamp: 1/5/2019 9:51:42 PM
 
 #include "LinaPch.hpp"
 #include "Camera.hpp"  
+#include "Input/InputEngine.hpp"
 
 namespace LinaEngine
 {
 	const static float movementSpeed = 0.25f;
-
+	const static float m_sensitivity = 0.1f;
 	Camera::Camera(PerspectiveInformation p)
 	{
 		this->m_PersInfo = p;
 		this->position = Vector3F::Zero();
-		this->up = Vector3F(0, 1, 0);
-		this->forward = Vector3F(0, 0, 1);
+		
 		this->m_PerspectiveProjection.InitPerspectiveProjection(p.FOV, p.width, p.height, p.zNear, p.zFar);
+
+		m_windowCenter = Vector2F(p.width / 2, p.height / 2);
 	}
 
 	Matrix4F Camera::GetViewProjection()
@@ -38,7 +40,7 @@ namespace LinaEngine
 		Matrix4F rotationM, translationM;
 		
 		translationM.InitTranslationTransform(-position.x, -position.y, -position.z);
-		rotationM.InitRotationFromDirection(forward, up);
+		rotationM.InitRotationFromDirection(rotation.GetForward(), rotation.GetUp());
 
 		Matrix4F viewTransformation = rotationM * translationM;
 		
@@ -57,12 +59,12 @@ namespace LinaEngine
 	{
 		
 		if (keycode == KEY_W)
-			this->position += (forward * movementSpeed);
+			this->position += (rotation.GetForward() * movementSpeed);
 		if(keycode == KEY_S)
-			this->position -= (forward * movementSpeed);
+			this->position -= (rotation.GetForward() * movementSpeed);
 		if (keycode == KEY_A)
 		{
-			Vector3F left = forward.Cross(up);
+			Vector3F left = rotation.GetLeft();
 			left.Normalize();
 			left *= movementSpeed;
 			this->position += left;
@@ -70,12 +72,66 @@ namespace LinaEngine
 		}
 		 if (keycode == KEY_D)
 		{
-			Vector3F right = up.Cross(forward);
+			 Vector3F right = rotation.GetRight();
 			right.Normalize();
 			right *= movementSpeed;
 			this->position += right;
 		}
 
+	}
+	void Camera::OnMouse(Vector2F c)
+	{
+		
+	}
+	void Camera::OnInput(InputEngine & i)
+	{
+		if (i.GetMouseDown(0))
+		{
+			i.SetMousePosition(m_windowCenter);
+			i.SetCursor(false);
+			m_mouseLocked = true;
+		}
+
+		if (i.GetMouseUp(0))
+		{
+			i.SetCursor(true);
+			m_mouseLocked = false;
+		}
+
+		if (m_mouseLocked)
+		{
+			Vector2F deltaPos = i.GetMousePosition() - m_windowCenter;
+
+		
+			bool rotY = deltaPos.x != 0;
+			bool rotX = deltaPos.y != 0;
+
+
+			if (rotY)
+			{
+				Quaternion q = Quaternion(Vector3F(0, 1, 0), (deltaPos.x * m_sensitivity));
+				rotation = Quaternion((q * rotation).Normalized());
+			}
+			if (rotX)
+			{
+				Quaternion q = Quaternion(rotation.GetRight(), (deltaPos.y * m_sensitivity));
+				rotation = Quaternion((q * rotation).Normalized());
+			}
+
+			if (rotY || rotX)
+				i.SetMousePosition(m_windowCenter);
+		}
+
+
+
+	}
+	void Camera::OnRender()
+	{
+		
+	}
+	void Camera::Update()
+	{
+		
 	}
 }
 

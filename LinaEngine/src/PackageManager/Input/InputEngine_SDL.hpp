@@ -67,10 +67,12 @@ namespace LinaEngine
 			else if (mouse == 2)
 				return mouse2Previous && !mouse2Current;
 		}
-		inline Vector2F GetRawMouseAxis() { return Vector2F(deltaMouseX, deltaMouseY); };
-		inline Vector2F GetMouseAxis() { return Vector2F(smoothDeltaMouseX, smoothDeltaMouseY); };
-
+		inline Vector2F GetRawMouseAxis() override { return Vector2F(deltaMouseX, deltaMouseY); };
+		inline Vector2F GetMouseAxis() override { return Vector2F(smoothDeltaMouseX, smoothDeltaMouseY); };
+		inline Vector2F GetMousePosition() override { return Vector2F(currentMouseX, currentMouseY); }
 	
+		void SetCursor(bool visible) const override;
+		void SetMousePosition(const Vector2F& v) const override;
 
 	private:
 

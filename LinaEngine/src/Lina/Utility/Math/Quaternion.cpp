@@ -31,7 +31,7 @@ namespace LinaEngine
 
 	Quaternion::Quaternion(const Vector3F & axis, float angle)
 	{
-		//	angle = Lina_Math::ToRadians(angle);
+		angle = Math::ToRadians(angle);
 		float sinHalfAngle = sinf(angle / 2);
 		float cosHalfAngle = cosf(angle / 2);
 		x = axis.x * sinHalfAngle;

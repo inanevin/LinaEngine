@@ -76,7 +76,8 @@ namespace LinaEngine
 		p.width = GetMainWindow().GetWidth();
 		p.height = GetMainWindow().GetHeight();
 
-		cam.SetPerspectiveInformation(p);
+		cam = Camera(p);
+		//cam.SetPerspectiveInformation(p);
 
 
 		// * ADD SHADERS, COMPILE, BIND *//
@@ -142,6 +143,10 @@ namespace LinaEngine
 
 		}
 
+
+		 cam.OnInput(app->GetInputEngine());
+
+		// cam.OnRender();
 		/* MAIN LOOP RENDER */
 
 		RenderingEngine::OnUpdate();

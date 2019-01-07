@@ -48,6 +48,9 @@ namespace LinaEngine
 		// Create input engine.
 		m_InputEngine = std::unique_ptr<InputEngine>(inpAdpt.CreateInputEngine());
 
+		// Set window reference in input engine.
+		m_InputEngine->SetApplication(*this);
+
 		// Set running flag.
 		m_Running = true;
 

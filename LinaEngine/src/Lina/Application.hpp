@@ -48,6 +48,12 @@ namespace LinaEngine
 			return *m_InputEngine;
 		}
 
+		inline RenderingEngine& GetRenderingEngine() const
+		{
+			LINA_CORE_ASSERT(m_RenderingEngine, "Window pointer is null!");
+			return *m_RenderingEngine;
+		}
+
 	private:
 
 		

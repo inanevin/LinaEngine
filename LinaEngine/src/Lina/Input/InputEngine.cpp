@@ -19,16 +19,24 @@ Timestamp: 1/6/2019 2:17:55 AM
 
 #include "LinaPch.hpp"
 #include "InputEngine.hpp"  
+#include "Lina/Application.hpp"
 
 namespace LinaEngine
 {
 	InputEngine::InputEngine()
 	{
-
+		
 	}
 	InputEngine::~InputEngine()
 	{
 
 	}
+
+	void InputEngine::SetApplication(Application& app)
+	{
+		LINA_CORE_ASSERT(&app != NULL, "Application pointer is invalid!");
+		this->app = &app;
+	}
+	
 }
 

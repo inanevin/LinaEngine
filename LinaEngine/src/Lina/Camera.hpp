@@ -51,6 +51,7 @@ namespace LinaEngine
 		}
 	};
 
+	class InputEngine;
 	class Camera
 	{
 	public:
@@ -59,16 +60,22 @@ namespace LinaEngine
 		Matrix4F GetViewProjection();
 		void SetPerspectiveInformation(PerspectiveInformation p);
 		void OnKeyPress(int keycode);
+		void OnMouse(Vector2F);
+		void OnInput(InputEngine& i);
+		void OnRender();
+		void Update();
 		inline PerspectiveInformation GetPerspectiveInformation() { return m_PersInfo; }
 		Vector3F position;
-		Vector3F forward;
-		Vector3F up;
+		Quaternion rotation;
+
 	private:
 
 		
 		Matrix4F m_PerspectiveProjection;
 		Matrix4F m_ViewProjection;
 		PerspectiveInformation m_PersInfo;
+		Vector2F m_windowCenter;
+		bool     m_mouseLocked;
 	
 	};
 }

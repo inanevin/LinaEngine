@@ -25,6 +25,8 @@ Timestamp: 1/6/2019 2:17:55 AM
 
 namespace LinaEngine
 {
+
+	class Application;
 	class InputEngine
 	{
 
@@ -42,7 +44,11 @@ namespace LinaEngine
 		virtual bool GetMouseUp(int mouse) = 0;
 		virtual Vector2F GetRawMouseAxis() = 0;
 		virtual Vector2F GetMouseAxis() = 0;
-		
+		virtual Vector2F GetMousePosition() = 0;
+		virtual void SetCursor(bool visible) const = 0;
+		virtual void SetMousePosition(const Vector2F& v) const = 0;
+		void SetApplication(Application& app);
+
 		template<typename T>
 		void SubscribeToAction(ActionType at, T condition, const std::function<void()>& cbp)
 		{
@@ -99,8 +105,10 @@ namespace LinaEngine
 		}
 		
 	protected:
+
 		std::list<std::shared_ptr<ActionHandlerBase>> m_Handlers;
 		ActionDispatcher m_InputDispatcher;
+		Application* app;
 	};
 }
 

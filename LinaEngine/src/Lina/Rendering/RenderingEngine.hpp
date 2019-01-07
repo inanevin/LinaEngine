@@ -42,6 +42,7 @@ namespace LinaEngine
 		virtual void OnUpdate();
 		virtual void OnWindowEvent(Event& e) = 0;
 		virtual void SetApplication(Application&) = 0;
+		virtual void SetMousePosition(const Vector2F& v) = 0;
 
 		inline Window& GetMainWindow() const
 		{ 

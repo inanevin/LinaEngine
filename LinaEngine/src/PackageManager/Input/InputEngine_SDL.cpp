@@ -22,7 +22,9 @@ Timestamp: 1/6/2019 2:18:10 AM
 #ifdef LLF_INPUTANDWINDOW_SDL
 
 #include "InputEngine_SDL.hpp" 
-
+#include "PackageManager/Graphics/Window_SDLGL.hpp"
+#include "Lina/Application.hpp"
+#include "Lina/Rendering/RenderingEngine.hpp"
 
 namespace LinaEngine
 {
@@ -32,6 +34,16 @@ namespace LinaEngine
 
 
 	static bool isSDLInputInitialized = false;
+
+	void InputEngine_SDL::SetCursor(bool visible) const
+	{
+		SDL_ShowCursor(visible);
+	}
+
+	void InputEngine_SDL::SetMousePosition(const Vector2F & v) const
+	{
+		app->GetRenderingEngine().SetMousePosition(v);
+	}
 
 	void InputEngine_SDL::SDLErrorCallback(const char* description)
 	{
@@ -109,7 +121,7 @@ namespace LinaEngine
 		}
 
 		// Store current mouse coordinates.
-		SDL_GetRelativeMouseState(&mouseXState, &mouseYState);
+		SDL_GetMouseState(&mouseXState, &mouseYState);
 
 		// Update mouse x & y state into float variables.
 		currentMouseX = mouseXState;

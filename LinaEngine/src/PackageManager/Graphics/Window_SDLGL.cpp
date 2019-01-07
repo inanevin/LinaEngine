@@ -39,23 +39,28 @@ namespace LinaEngine
 		LINA_CORE_ERR("SDL Error: {1}", description);
 	}
 
-	Window* SDLOpenGLWindow::Create(const WindowProps& props)
+	Window* Window_SDLGL::Create(const WindowProps& props)
 	{
 		LINA_CORE_INFO("SDL Window Created!");
-		return new SDLOpenGLWindow(props);
+		return new Window_SDLGL(props);
 	}
 
-	SDLOpenGLWindow::SDLOpenGLWindow(const WindowProps& props)
+	void Window_SDLGL::SetMousePosition(const Vector2F & v)
+	{
+		SDL_WarpMouseInWindow(m_Window, (int)v.x, (int)v.y);
+	}
+
+	Window_SDLGL::Window_SDLGL(const WindowProps& props)
 	{
 		Init(props);
 	}
 
-	SDLOpenGLWindow::~SDLOpenGLWindow()
+	Window_SDLGL::~Window_SDLGL()
 	{
 		Shutdown();
 	}
 
-	void SDLOpenGLWindow::Init(const WindowProps& props)
+	void Window_SDLGL::Init(const WindowProps& props)
 	{
 
 		m_Data.Title = props.Title;
@@ -118,10 +123,16 @@ namespace LinaEngine
 		// Add customized event watch for this window.
 		SDL_AddEventWatch(WindowEventFilter, &m_Data);
 
+		// Set the cursor to center.
+		int x = 0;
+		int y = 0;
+		SDL_GetWindowSize(m_Window, &x, &y);
+		SDL_WarpMouseInWindow(m_Window, x/2, y/2);
+
 	}
 
 
-	int SDLOpenGLWindow::WindowEventFilter(void * userdata, SDL_Event * event)
+	int Window_SDLGL::WindowEventFilter(void * userdata, SDL_Event * event)
 	{
 		// Get the window events from filter.
 		// Create a window event and call the callback.
@@ -168,7 +179,7 @@ namespace LinaEngine
 		return 0;
 	}
 
-	void SDLOpenGLWindow::OnUpdate()
+	void Window_SDLGL::OnUpdate()
 	{
 		// Swap Buffers
 		SDL_GL_SwapWindow(m_Window);
@@ -177,7 +188,7 @@ namespace LinaEngine
 		SDL_PumpEvents();
 	}
 
-	void SDLOpenGLWindow::SetVSync(bool enabled)
+	void Window_SDLGL::SetVSync(bool enabled)
 	{
 		if (enabled)
 			SDL_GL_SetSwapInterval(1);
@@ -187,13 +198,13 @@ namespace LinaEngine
 		m_Data.VSync = enabled;
 	}
 
-	bool SDLOpenGLWindow::IsVSync() const
+	bool Window_SDLGL::IsVSync() const
 	{
 		return m_Data.VSync;
 	}
 
 
-	void SDLOpenGLWindow::Shutdown()
+	void Window_SDLGL::Shutdown()
 	{
 
 		LINA_CORE_INFO("Shutting SDL Window");
