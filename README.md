@@ -12,7 +12,7 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 
 ## Announcements
 
--  Lina Engine is currently being carried over to a new version (30.12.2018). There exists _LinaEngine_ and _Sandbox_ folders which is consists of the structure for sandbox application and new engine version. The old project files, that include examples for input, rendering, event and ECS systems can be found under the folder __VERSION0_SRC__. There is no build generation support for the old version. 
+-  Lina Engine is currently being carried over to a new version (30.12.2018). The old project files, that include examples for input, rendering, event and ECS systems can be found under the folder __VERSION0_SRC__. There is no build generation support for the old version. 
 -  The dependency installations for used libraries in Lina Engine are not automated yet. This repository includes the dependency packages as they are, for Windows builds. That is why, the current version of Lina Engine is for Windows only. The dependency installation will be transferred to CMake soon and the libraries will be removed from the repository. It is still possible to build the engine in Linux and MacOS, as it requires manual edit on premake file for dynamic linking as well as downloading the relative binaries and putting them into the include directories.
 
 ## Dependencies
