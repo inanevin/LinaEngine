@@ -12,28 +12,29 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: Shader
-Timestamp: 2/16/2019 1:47:28 AM
+Class: Shader_GLSLBasic
+Timestamp: 2/19/2019 10:53:02 AM
 
 */
 
 #pragma once
 
-#ifndef Shader_HPP
-#define Shader_HPP
+#ifndef Shader_GLSLBasic_HPP
+#define Shader_GLSLBasic_HPP
 
-
+#include "Shader_GLSL.hpp"
 
 namespace LinaEngine
 {
-	class Shader
+	class Shader_GLSLBasic : public Shader_GLSL
 	{
+
 	public:
 
-		Shader();
-		~Shader();
+		Shader_GLSLBasic();
+		void Initialize();
+		void SetWVP(const Matrix4F& wvp);
 
-	
 	};
 }
 

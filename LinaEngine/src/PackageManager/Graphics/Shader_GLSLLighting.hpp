@@ -12,28 +12,26 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: Shader
-Timestamp: 2/16/2019 1:47:28 AM
+Class: Shader_GLSLLighting
+Timestamp: 2/19/2019 11:48:25 AM
 
 */
 
 #pragma once
 
-#ifndef Shader_HPP
-#define Shader_HPP
+#ifndef Shader_GLSLLighting_HPP
+#define Shader_GLSLLighting_HPP
 
 
 
 namespace LinaEngine
 {
-	class Shader
+	class Shader_GLSLLighting
 	{
 	public:
 
-		Shader();
-		~Shader();
+		Shader_GLSLLighting();
 
-	
 	};
 }
 

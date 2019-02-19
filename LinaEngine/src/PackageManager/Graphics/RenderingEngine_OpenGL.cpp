@@ -26,7 +26,7 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "Lina/Application.hpp"
 #include "Lina/Input/InputEngine.hpp"
 #include "Lina/Events/Action.hpp"
-#include "Shader_GLSL.hpp"
+#include "Shader_GLSLBasic.hpp"
 #include "Lina/Rendering/Vertex.hpp"
 
 
@@ -41,7 +41,6 @@ namespace LinaEngine
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
 	{
 		testTexture = Texture(GL_TEXTURE_2D);
-
 	}
 
 	RenderingEngine_OpenGL::~RenderingEngine_OpenGL()
@@ -67,12 +66,10 @@ namespace LinaEngine
 		CreateVertexBuffer();
 		CreateIndexBuffer();
 
-		// * ADD SHADERS, COMPILE, BIND *//
 
-		test = new Shader_GLSL("Basic");
+		test = new Shader_GLSLBasic();
 		test->Initialize();
-
-
+		test->Enable();
 
 		PerspectiveInformation p;
 		p.FOV = 60;
@@ -80,14 +77,11 @@ namespace LinaEngine
 		p.zNear = 0.1f;
 		p.width = GetMainWindow().GetWidth();
 		p.height = GetMainWindow().GetHeight();
-
 		cam = Camera(p);
 
 		testTexture.Load(ResourceConstants::BasicTexturePath);
-		//cam.SetPerspectiveInformation(p);
 
 
-		// * ADD SHADERS, COMPILE, BIND *//
 
 	}
 
@@ -107,11 +101,10 @@ namespace LinaEngine
 
 		Matrix4F worldViewMatrix = cam.GetViewProjection() * t.GetWorldTransformation();
 
-		test->SetUniform("gWVP", worldViewMatrix);
+		test->SetWVP(worldViewMatrix);
 
-		// vertex attribute index 0 is fixed for vertex position, so activate the attribute.
+		// vertex attribute index 0 is fixed for vertex position, so activate the attribute, 1 is texture coordinates..
 		glEnableVertexAttribArray(0);
-
 		glEnableVertexAttribArray(1);
 
 		// Update the pipeline state of the buffer we want to use.
@@ -124,8 +117,6 @@ namespace LinaEngine
 		// Last param is the offset inside the structure where the pipeline will find our attribute.
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)12);
-
-
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 		testTexture.Bind(GL_TEXTURE0);
 		glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
@@ -134,13 +125,9 @@ namespace LinaEngine
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 
-
-
 		cam.OnInput(app->GetInputEngine());
 
 		
-		/* MAIN LOOP RENDER */
-
 		RenderingEngine::OnUpdate();
 
 	}

@@ -54,7 +54,7 @@ namespace LinaEngine
 
 		Texture testTexture;
 		class Application* app = NULL;
-		class Shader_GLSL* test = NULL;
+		class Shader_GLSLBasic* test = NULL;
 		Camera cam;
 		GLuint m_VAO;
 		GLuint m_VAB;

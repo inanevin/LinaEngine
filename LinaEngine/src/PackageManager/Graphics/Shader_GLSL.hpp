@@ -21,70 +21,63 @@ Timestamp: 1/5/2019 12:53:08 AM
 #ifndef Shader_GLSL_HPP
 #define Shader_GLSL_HPP
 
-#include "Lina/Rendering/Shader.hpp"
+
 #include "glad/glad.h"
 
 
 namespace LinaEngine
 {
-	class TypedData
+	class Shader_GLSL 
 	{
 	public:
-		TypedData(const std::string& name, const std::string& type) :
-			m_Name(name),
-			m_Type(type) {}
 
-		inline const std::string& GetName() const { return m_Name; }
-		inline const std::string& GetType() const { return m_Type; }
-	private:
-		std::string m_Name;
-		std::string m_Type;
-	};
-
-	class UniformStruct
-	{
-	public:
-		UniformStruct(const std::string& name, const std::vector<TypedData>& memberNames) :
-			m_Name(name),
-			m_MemberNames(memberNames) {}
-
-		inline const std::string& GetName()                   const { return m_Name; }
-		inline const std::vector<TypedData>& GetMemberNames() const { return m_MemberNames; }
-	private:
-		std::string            m_Name;
-		std::vector<TypedData> m_MemberNames;
-	};
-
-	class Shader_GLSL : public Shader
-	{
-	public:
 
 		Shader_GLSL();
-		Shader_GLSL(const std::string& filename = "Basic");
-		~Shader_GLSL();
-	
-		void Initialize() override;
-		
-		void SetUniform(const std::string& uniformName, int value) const;
-		void SetUniform(const std::string& uniformName, float value) const;
-		void SetUniform(const std::string& uniformName, const Vector3F& value) const;
-		void SetUniform(const std::string& uniformName, const Matrix4F& value) const;
+		virtual ~Shader_GLSL();
+
+		/* Binds the shader. */
+		void Enable();
 
 	protected:
 
-		void CompileShaders() override;
-		void AddShader(std::string pShaderText, GLenum ShaderType) override;
+
+		/* Initializes the shader, is supposed to compile, enable and then add the uniforms. */
+		virtual void Initialize(const std::string& fileName);
+
+		/* Adds a uniform with its stringfied type. */
 		void AddUniform(const std::string& uniformName, const std::string& uniformType);
-	
-		void Enable() override;
+
+		/* Sets uniform of integer type. */
+		virtual void SetUniform(const std::string& uniformName, int value) const;
+
+		/* Sets uniform of float type. */
+		virtual void SetUniform(const std::string& uniformName, float value) const;
+
+		/* Sets uniform of Vector3 type. */
+		virtual void SetUniform(const std::string& uniformName, const Vector3F& value) const;
+
+		/* Sets uniform of Matrix4F type. */
+		virtual void SetUniform(const std::string& uniformName, const Matrix4F& value) const;
+
+		/* Returns a program param. */
+		GLuint GetProgramParam(GLuint param);
 
 	private:
 
+		/* Links and validates the program. */
+		void Finalize();
+
+		/* Adds the shader text into the program. */
+		void AddShader(std::string pShaderText, GLenum ShaderType);
+
+		/* Checks open gl errors, debug mode only. */
 		void CheckError(unsigned int, int, std::string);
 
+		/* Loads a shader as a char array from the hard drive. */
+		static std::string LoadShader(std::string path);
+
 		GLuint m_Program;
-		std::string m_FileName;
-		std::vector<int> m_Shaders;
+		std::list<GLuint> m_ShaderObjects;
 		std::map<std::string, unsigned int> m_UniformMap;
 	};
 }
