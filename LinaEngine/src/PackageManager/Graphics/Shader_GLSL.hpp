@@ -56,6 +56,10 @@ namespace LinaEngine
 		/* Sets uniform of Vector3 type. */
 		virtual void SetUniform(const std::string& uniformName, const Vector3F& value) const;
 
+		/* Sets uniform of Color type. */
+		virtual void SetUniform(const std::string& uniformName, const class Color& value) const;
+
+
 		/* Sets uniform of Matrix4F type. */
 		virtual void SetUniform(const std::string& uniformName, const Matrix4F& value) const;
 

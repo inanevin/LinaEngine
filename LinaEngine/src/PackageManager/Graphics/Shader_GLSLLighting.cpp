@@ -19,6 +19,7 @@ Timestamp: 2/19/2019 11:48:25 AM
 
 #include "LinaPch.hpp"
 #include "Shader_GLSLLighting.hpp"  
+#include "Lina/Rendering/Lighting.hpp"
 
 namespace LinaEngine
 {
@@ -26,5 +27,32 @@ namespace LinaEngine
 	{
 
 	}
+	void Shader_GLSLLighting::Initialize()
+	{
+		Shader_GLSL::Initialize("Lighting");
+
+		// Add uniforms.
+		AddUniform("gWVP", "mat4");
+		AddUniform("gSampler", "sampler2D");
+		AddUniform("gDirectionalLight.Color", "Vector3");
+		AddUniform("gDirectionalLight.AmbientIntensity", "float");
+	}
+
+	void Shader_GLSLLighting::SetWVP(const Matrix4F & wvp)
+	{
+		SetUniform("gWVP", wvp);
+	}
+	void Shader_GLSLLighting::SetTextureUnit(unsigned int textureUnit)
+	{
+		SetUniform("gSampler", (int)textureUnit);
+	}
+
+	void Shader_GLSLLighting::SetDirectionalLight(const DirectionalLight & dl)
+	{
+		SetUniform("gDirectionalLight.Color", dl.color);
+		SetUniform("gDirectionalLight.AmbientIntensity", dl.AmbientIntensity);
+	}
+
+
 }
 

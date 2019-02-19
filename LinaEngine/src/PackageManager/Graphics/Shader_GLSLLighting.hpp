@@ -22,16 +22,19 @@ Timestamp: 2/19/2019 11:48:25 AM
 #ifndef Shader_GLSLLighting_HPP
 #define Shader_GLSLLighting_HPP
 
-
+#include "Shader_GLSL.hpp"
 
 namespace LinaEngine
 {
-	class Shader_GLSLLighting
+	class Shader_GLSLLighting : public Shader_GLSL
 	{
 	public:
 
 		Shader_GLSLLighting();
-
+		void Initialize();
+		void SetWVP(const Matrix4F& wvp);
+		void SetTextureUnit(unsigned int textureUnit);
+		void SetDirectionalLight(const class DirectionalLight& dl);
 	};
 }
 

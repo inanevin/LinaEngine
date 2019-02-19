@@ -36,25 +36,25 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 #ifdef LINA_ENABLE_ASSERTS
 
-#include"stdio.h"
-#include"stdlib.h"
+//#include"stdio.h"
+//#include"stdlib.h"
 
 #define LINA_CLIENT_ASSERT(x,...) { if(!(x)) { LINA_CLIENT_ERR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+#define LINA_CLIENT_ENSURE_ASSERT(x,y,...) { if(!(x)) { LINA_CLIENT_ERR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); return y; } }
 #define LINA_CORE_ASSERT(x,...)  {	if(!(x)) { LINA_CORE_ERR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
-
-#define check(x) if(x == NULL) {LINA_CORE_ERR("CHECK failed!\nLine: {0}\nFunc: {1}\nFile: {2}", __LINE__,__FUNCTION__,__FILE__); __debugbreak();}
-#define ensure(x) if(x == NULL) {LINA_CORE_ERR("CHECK failed!\nLine: {0}\nFunc: {1}\nFile: {2}", __LINE__,__FUNCTION__,__FILE__); __debugbreak(); return;}
-
+#define LINA_CORE_ENSURE_ASSERT(x,y,...)  {	if(!(x)) { LINA_CORE_ERR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); return y; } }
 
 #else
 
 
 #define LINA_CLIENT_ASSERT(x,...)
+#define LINA_CLIENT_ENSURE_ASSERT(x,...)
 #define LINA_CORE_ASSERT(x,...)
-#define check(x)
+#define LINA_CORE_ENSURE_ASSERT(x,...)
 
 #endif
 
+//#define check(x,y) if(!(x)) {LINA_CORE_ERR("CHECK failed!\nLine: {0}\nFunc: {1}\nFile: {2}", __LINE__,__FUNCTION__,__FILE__); __debugbreak(); return y;}
 
 #define BIT(x) (1 << x)
 #define INVALID_VALUE 0xFFFFFFFF

@@ -12,31 +12,16 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: InputEngine
-Timestamp: 1/6/2019 2:17:55 AM
+Class: Lighting
+Timestamp: 2/19/2019 12:35:56 PM
 
 */
 
 #include "LinaPch.hpp"
-#include "InputEngine.hpp"  
-#include "Lina/Application.hpp"
+#include "Lighting.hpp"  
 
 namespace LinaEngine
 {
-	InputEngine::InputEngine()
-	{
-		
-	}
-	InputEngine::~InputEngine()
-	{
-
-	}
-
-	void InputEngine::SetApplication(Application& app)
-	{
-		LINA_CORE_ASSERT(&app, "Application is nullptr!");
-		this->app = &app;
-	}
 	
 }
 

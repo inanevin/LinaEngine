@@ -20,6 +20,7 @@ Timestamp: 1/5/2019 12:53:08 AM
 #include "LinaPch.hpp"
 #include "Shader_GLSL.hpp"  
 #include "glad/glad.h"
+#include "Lina/Utility/Math/Color.hpp"
 
 
 namespace LinaEngine
@@ -39,7 +40,7 @@ namespace LinaEngine
 			glDeleteShader(*it);
 		}
 
-		LINA_CORE_ASSERT(m_Program != 0, "Shader program is already deleted!");
+		LINA_CORE_ASSERT(m_Program != 0, nullptr, "Shader program is already deleted!");
 		
 		// Delete program.
 		glDeleteProgram(m_Program);
@@ -118,6 +119,11 @@ namespace LinaEngine
 		glUniform3f(m_UniformMap.at(uniformName), value.x, value.y, value.z);
 	}
 
+	void Shader_GLSL::SetUniform(const std::string & uniformName, const Color & value) const
+	{
+		glUniform3f(m_UniformMap.at(uniformName), value.x, value.y, value.z);
+	}
+
 	void Shader_GLSL::SetUniform(const std::string& uniformName, const Matrix4F & value) const
 	{
 		glUniformMatrix4fv(m_UniformMap.at(uniformName), 1, GL_TRUE, &(value[0][0]));
@@ -160,11 +166,7 @@ namespace LinaEngine
 
 		GLuint shader = glCreateShader(shaderType);
 
-		if (shader == 0)
-		{
-			LINA_CORE_ERR("Shader could not be added to program!");
-
-		}
+		LINA_CORE_ASSERT(shader != 0, "Shader creatin failed!");
 
 		const GLchar* p[1];
 		p[0] = shaderText;
@@ -210,6 +212,8 @@ namespace LinaEngine
 				LINA_CORE_ERR("File does not exists {0}", path);
 				return "";
 			}
+
+		
 
 			//Read the files' content from buffer into streams.
 			std::stringstream vShaderStream;

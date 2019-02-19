@@ -44,13 +44,13 @@ namespace LinaEngine
 
 		inline InputEngine& GetInputEngine() const
 		{
-			check(m_InputEngine);
+			LINA_CORE_ASSERT(m_InputEngine, "Input Engine is nullptr!");
 			return *m_InputEngine;
 		}
 
 		inline RenderingEngine& GetRenderingEngine() const
 		{
-			check(m_RenderingEngine);
+			LINA_CORE_ASSERT(m_RenderingEngine, "Rendering Engine is nullptr!");
 			return *m_RenderingEngine;
 		}
 

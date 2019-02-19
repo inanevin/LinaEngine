@@ -54,7 +54,7 @@ namespace LinaEngine
 		virtual void SetMousePosition(const Vector2F& v) = 0;
 
 		/* return the main window reference. */
-		inline Window& GetMainWindow() const { check(m_Window); return *m_Window; }
+		inline Window& GetMainWindow() const { LINA_CORE_ASSERT(m_Window, "Window is nullptr!"); return *m_Window; }
 
 	private:
 

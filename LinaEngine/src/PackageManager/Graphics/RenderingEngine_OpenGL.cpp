@@ -26,9 +26,9 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "Lina/Application.hpp"
 #include "Lina/Input/InputEngine.hpp"
 #include "Lina/Events/Action.hpp"
-#include "Shader_GLSLBasic.hpp"
+#include "Shader_GLSLLighting.hpp"
 #include "Lina/Rendering/Vertex.hpp"
-
+#include "Lina/Rendering/Lighting.hpp"
 
 namespace LinaEngine
 {
@@ -45,8 +45,10 @@ namespace LinaEngine
 
 	RenderingEngine_OpenGL::~RenderingEngine_OpenGL()
 	{
-		ensure(test);
-		delete test;
+		LINA_CORE_ASSERT(test, "Destructor Rendering Engine is nullptr!");
+
+		if (test)
+			delete test;
 	}
 
 	void RenderingEngine_OpenGL::Start()
@@ -66,10 +68,15 @@ namespace LinaEngine
 		CreateVertexBuffer();
 		CreateIndexBuffer();
 
+		DirectionalLight l;
+		l.color = COLOR_Red;
+		l.AmbientIntensity = 15.0f;
 
-		test = new Shader_GLSLBasic();
+		test = new Shader_GLSLLighting();
 		test->Initialize();
 		test->Enable();
+		test->SetTextureUnit(0);
+		test->SetDirectionalLight(l);
 
 		PerspectiveInformation p;
 		p.FOV = 60;
@@ -127,7 +134,7 @@ namespace LinaEngine
 
 		cam.OnInput(app->GetInputEngine());
 
-		
+
 		RenderingEngine::OnUpdate();
 
 	}
@@ -166,7 +173,7 @@ namespace LinaEngine
 
 	void RenderingEngine_OpenGL::SetApplication(Application& p)
 	{
-		check(&p);
+		LINA_CORE_ASSERT(&p, "Application is nullptr!");
 		this->app = &p;
 	}
 
