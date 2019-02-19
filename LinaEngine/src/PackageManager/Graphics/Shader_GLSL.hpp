@@ -21,6 +21,10 @@ Timestamp: 1/5/2019 12:53:08 AM
 #ifndef Shader_GLSL_HPP
 #define Shader_GLSL_HPP
 
+#include "Lina/Rendering/Shader.hpp"
+#include "glad/glad.h"
+
+
 namespace LinaEngine
 {
 	class TypedData
@@ -51,32 +55,35 @@ namespace LinaEngine
 		std::vector<TypedData> m_MemberNames;
 	};
 
-	class Shader_GLSL
+	class Shader_GLSL : public Shader
 	{
 	public:
 
 		Shader_GLSL();
+		Shader_GLSL(const std::string& filename = "Basic");
 		~Shader_GLSL();
-		void AddShader(std::string pShaderText, unsigned int ShaderType);
-		void CompileShaders();
-		void Bind();
-
-		void AddUniform(const std::string& uniformName, const std::string& uniformType);
-
+	
+		void Initialize() override;
+		
 		void SetUniform(const std::string& uniformName, int value) const;
 		void SetUniform(const std::string& uniformName, float value) const;
 		void SetUniform(const std::string& uniformName, const Vector3F& value) const;
 		void SetUniform(const std::string& uniformName, const Matrix4F& value) const;
 
+	protected:
 
-		static std::string LoadShader(std::string path);
+		void CompileShaders() override;
+		void AddShader(std::string pShaderText, GLenum ShaderType) override;
+		void AddUniform(const std::string& uniformName, const std::string& uniformType);
+	
+		void Enable() override;
 
 	private:
 
-		
 		void CheckError(unsigned int, int, std::string);
 
-		unsigned int m_Program;
+		GLuint m_Program;
+		std::string m_FileName;
 		std::vector<int> m_Shaders;
 		std::map<std::string, unsigned int> m_UniformMap;
 	};

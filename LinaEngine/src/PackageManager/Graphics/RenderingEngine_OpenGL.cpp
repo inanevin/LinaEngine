@@ -46,6 +46,7 @@ namespace LinaEngine
 
 	RenderingEngine_OpenGL::~RenderingEngine_OpenGL()
 	{
+		ensure(test);
 		delete test;
 	}
 
@@ -54,7 +55,7 @@ namespace LinaEngine
 		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, KEY_K, [this]() { this->Test(); });
 		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, KEY_K, std::bind(&Camera::OnKeyPress, cam, std::placeholders::_1));
 		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, std::bind(&Camera::OnKeyPress, cam, std::placeholders::_1));
-	
+
 		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, [this](int i) { cam.OnKeyPress(i); });
 		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, );
 
@@ -68,14 +69,10 @@ namespace LinaEngine
 
 		// * ADD SHADERS, COMPILE, BIND *//
 
-		test = new Shader_GLSL();
-		test->AddShader(Shader_GLSL::LoadShader(ResourceConstants::GLSL_BasicVertexPath), GL_VERTEX_SHADER);
-		test->AddShader(Shader_GLSL::LoadShader(ResourceConstants::GLSL_BasicFragmentPath), GL_FRAGMENT_SHADER);
-		test->CompileShaders();
-		test->Bind();
+		test = new Shader_GLSL("Basic");
+		test->Initialize();
 
-		test->AddUniform("gWVP", "mat4");
-		test->AddUniform("gSampler", "sampler2D");
+
 
 		PerspectiveInformation p;
 		p.FOV = 60;
@@ -107,9 +104,9 @@ namespace LinaEngine
 		t.SetScale(0.5f, 0.5f, 0.5f);
 		t.SetPosition(0, 0.0f, 5.0f);
 		t.SetRotation(0.0f, 0.0f, 0.0f);
-	
-		Matrix4F worldViewMatrix =  cam.GetViewProjection() * t.GetWorldTransformation();
-		
+
+		Matrix4F worldViewMatrix = cam.GetViewProjection() * t.GetWorldTransformation();
+
 		test->SetUniform("gWVP", worldViewMatrix);
 
 		// vertex attribute index 0 is fixed for vertex position, so activate the attribute.
@@ -137,11 +134,11 @@ namespace LinaEngine
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 
-	
 
-		 cam.OnInput(app->GetInputEngine());
 
-		// cam.OnRender();
+		cam.OnInput(app->GetInputEngine());
+
+		
 		/* MAIN LOOP RENDER */
 
 		RenderingEngine::OnUpdate();
@@ -150,7 +147,7 @@ namespace LinaEngine
 
 	void RenderingEngine_OpenGL::OnWindowEvent(Event & e)
 	{
-		
+
 	}
 
 
@@ -182,7 +179,7 @@ namespace LinaEngine
 
 	void RenderingEngine_OpenGL::SetApplication(Application& p)
 	{
-		LINA_CORE_ASSERT(&p != NULL, "Application pointer is invalid!");
+		check(&p);
 		this->app = &p;
 	}
 

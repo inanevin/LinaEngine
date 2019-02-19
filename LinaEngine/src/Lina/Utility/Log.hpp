@@ -31,6 +31,8 @@ Timestamp: 12/30/2018 1:54:10 AM
 #define LINA_CORE_TRACE(...)	::LinaEngine::Log::GetCoreLogger()->trace(__VA_ARGS__)
 #define LINA_CORE_FATAL(...)	::LinaEngine::Log::GetCoreLogger()->fatal(__VA_ARGS__)
 
+
+
 // ****************** CORE LOG MACROS ******************
 
 

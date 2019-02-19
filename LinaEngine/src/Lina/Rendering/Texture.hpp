@@ -33,10 +33,14 @@ namespace LinaEngine
 		Texture() {};
 		Texture(GLenum textureTarget);
 
+		/* Loads the texture with a given filename. */
 		bool Load(const std::string& fileName);
+
+		/* Binds the loaded texture as a unit to the program. */
 		void Bind(GLenum textureUnit);
 
 	private:
+
 		GLenum m_TextureTarget;
 		GLuint m_TextureObj;
 	};

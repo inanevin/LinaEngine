@@ -34,7 +34,7 @@ namespace LinaEngine
 
 	void InputEngine::SetApplication(Application& app)
 	{
-		LINA_CORE_ASSERT(&app != NULL, "Application pointer is invalid!");
+		check(&app);
 		this->app = &app;
 	}
 	

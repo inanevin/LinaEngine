@@ -24,12 +24,30 @@ Timestamp: 1/5/2019 12:53:08 AM
 
 namespace LinaEngine
 {
+
 	Shader_GLSL::Shader_GLSL()
+	{
+
+	}
+
+	Shader_GLSL::Shader_GLSL(const std::string& fileName)
 	{
 		
 		// Init program.
 		m_Program = glCreateProgram();
-		
+		m_FileName = fileName;
+
+		if (m_Program == 0)
+		{
+			LINA_CORE_ERR("Error creating shader program!");
+		}
+
+		std::string vertex = m_FileName + ".vs";
+		std::string frag = m_FileName + ".fs";
+
+		// Add shaders
+		AddShader(Shader::LoadShader(vertex), GL_VERTEX_SHADER);
+		AddShader(Shader::LoadShader(frag), GL_FRAGMENT_SHADER);
 	}
 
 	Shader_GLSL::~Shader_GLSL()
@@ -42,7 +60,7 @@ namespace LinaEngine
 		glDeleteProgram(m_Program);
 	}
 
-	void Shader_GLSL::AddShader(std::string pShaderText, unsigned int shaderType)
+	void Shader_GLSL::AddShader(std::string pShaderText, GLenum shaderType)
 	{
 		const char* shaderText = pShaderText.c_str();
 
@@ -51,7 +69,7 @@ namespace LinaEngine
 		if (shader == 0)
 		{
 			LINA_CORE_ERR("Shader could not be added to program!");
-			return;
+
 		}
 
 		const GLchar* p[1];
@@ -63,7 +81,7 @@ namespace LinaEngine
 		// Init shader source & compile the text.
 		glShaderSource(shader, 1, p, lengths);
 		glCompileShader(shader);
-		
+
 		// Check any compile error.
 		CheckError(shader, GL_COMPILE_STATUS, "SHADER");
 
@@ -72,8 +90,24 @@ namespace LinaEngine
 
 		// Put shader object to the list
 		m_Shaders.push_back(shader);
+
+
 	}
 
+	void Shader_GLSL::Initialize()
+	{
+		CompileShaders();
+		Enable();
+
+		// Add uniforms.
+		AddUniform("gWVP", "mat4");
+		AddUniform("gSampler", "sampler2D");
+	}
+
+	void Shader_GLSL::Enable()
+	{
+		glUseProgram(m_Program);
+	}
 
 	void Shader_GLSL::CompileShaders()
 	{
@@ -88,11 +122,6 @@ namespace LinaEngine
 
 		// Check for errors.
 		CheckError(m_Program, GL_VALIDATE_STATUS, "PROGRAM");
-	}
-
-	void Shader_GLSL::Bind()
-	{
-		glUseProgram(m_Program);
 	}
 
 	void Shader_GLSL::AddUniform(const std::string& uniformName, const std::string& uniformType)
@@ -144,52 +173,6 @@ namespace LinaEngine
 	void Shader_GLSL::SetUniform(const std::string& uniformName, const Matrix4F & value) const
 	{
 		glUniformMatrix4fv(m_UniformMap.at(uniformName), 1, GL_TRUE, &(value[0][0]));
-	}
-
-	std::string Shader_GLSL::LoadShader(std::string p)
-	{
-		const char* path = p.c_str();
-
-		//These to string files will hold the contents of the file.
-		std::string shaderCode;
-
-		//the objects that will manage the files.
-		std::ifstream vShaderFile;
-
-		//Be sure that ifstream object can throw exceptions
-		vShaderFile.exceptions(std::ifstream::failbit || std::ifstream::badbit);
-
-		try
-		{
-			//open the shader files
-			vShaderFile.open(path);
-
-			if (vShaderFile.fail())
-			{
-				LINA_CORE_ERR("File does not exists {0}", path);
-				return "";
-			}
-
-			//Read the files' content from buffer into streams.
-			std::stringstream vShaderStream;
-			vShaderStream << vShaderFile.rdbuf();
-
-			vShaderFile.close();
-
-			//Convert the streams to string
-			shaderCode = vShaderStream.str();
-
-			// LINA_CORE_TRACE("{0}", shaderCode);
-		}
-		catch (std::ifstream::failure e)
-		{
-			LINA_CORE_ERR("Shader can not be read!");
-			return "";
-		}
-
-		//Since OpgenGL wants the shader code as char arrays we convert strings that hold the files' content into char array.
-		//const char* cShaderCode = shaderCode.c_str();
-		return shaderCode;
 	}
 
 	void Shader_GLSL::CheckError(unsigned int ID, int type, std::string typeID)

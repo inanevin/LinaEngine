@@ -8,8 +8,8 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 
 http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
 Class: RenderingEngine_OpenGL
@@ -32,9 +32,8 @@ Timestamp: 1/2/2019 11:44:41 PM
 
 namespace LinaEngine
 {
-	
-	class Shader_GLSL;
-	class Texture;
+
+
 
 	class LINA_API RenderingEngine_OpenGL : public RenderingEngine
 	{
@@ -48,15 +47,15 @@ namespace LinaEngine
 		void OnWindowEvent(Event& e) override;
 		void CreateVertexBuffer();
 		void CreateIndexBuffer();
-		void SetApplication(Application& app) override;
+		void SetApplication(class Application& app) override;
 		void SetMousePosition(const Vector2F& v) override { GetMainWindow().SetMousePosition(v); }
 
 	private:
 
 		Texture testTexture;
-		Application* app;
+		class Application* app = NULL;
+		class Shader_GLSL* test = NULL;
 		Camera cam;
-		Shader_GLSL* test;
 		GLuint m_VAO;
 		GLuint m_VAB;
 		int drawCount;

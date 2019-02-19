@@ -35,6 +35,7 @@ namespace LinaEngine
 		Vertex(Vector3F position, Vector2F textureCoord) : m_Position(position), m_TextureCoordinates(textureCoord), m_Normal(Vector3F::Zero()) {};
 		Vertex(Vector3F position) : m_Position(position), m_TextureCoordinates(Vector2F::Zero()), m_Normal(Vector3F::Zero()) {};
 
+		/* Setters and getters for position, normal and texture coordinates. */
 		inline void SetPosition(const Vector3F& v) { m_Position = v; }
 		inline void SetNormal(const Vector3F& v) { m_Normal = v; }
 		inline void SetTextureCoordinates(Vector2F v) { m_TextureCoordinates = v; }

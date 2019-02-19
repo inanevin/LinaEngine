@@ -35,18 +35,43 @@ namespace LinaEngine
 		InputEngine();
 		virtual ~InputEngine();
 
+		/* Called when updating the input engine. */
 		virtual void OnUpdate() = 0;
+
+		/* Returns true each frame key mapped with the keyCode is pressed */
 		virtual bool GetKey(int keyCode) = 0;
+
+		/* Returns true in the frame key mapped with the keyCode is pressed. */
 		virtual bool GetKeyDown(int keyCode) = 0;
+
+		/* Returns true in the frame key mapped with the keyCode is stopped being pressed. */
 		virtual bool GetKeyUp(int keyCode) = 0;
-		virtual bool GetMouse(int keyCode) = 0;
-		virtual bool GetMouseDown(int mouse) = 0;
-		virtual bool GetMouseUp(int mouse) = 0;
+
+		/* Returns true each frame mouse button mapped with the index is pressed */
+		virtual bool GetMouse(int index) = 0;
+
+		/* Returns true in the frame mouse button mapped with the index is pressed. */
+		virtual bool GetMouseDown(int index) = 0;
+
+		/* Returns true in the frame mouse mapped with the index is stopped being pressed. */
+		virtual bool GetMouseUp(int index) = 0;
+
+		/* Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Not smoothed.*/
 		virtual Vector2F GetRawMouseAxis() = 0;
+
+		/* Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Delta smoothed.*/
 		virtual Vector2F GetMouseAxis() = 0;
+
+		/* Returns a Vector2 containing mouse positions.*/
 		virtual Vector2F GetMousePosition() = 0;
+
+		/* Sets the cursor visible.*/
 		virtual void SetCursor(bool visible) const = 0;
+
+		/* Sets mouse position to desired screen space coordinates. */
 		virtual void SetMousePosition(const Vector2F& v) const = 0;
+
+		/* Set method for application reference. */
 		void SetApplication(Application& app);
 
 		template<typename T>
@@ -106,8 +131,13 @@ namespace LinaEngine
 		
 	protected:
 
+		/* Subscribed action handlers. */
 		std::list<std::shared_ptr<ActionHandlerBase>> m_Handlers;
+
+		/* Input dispatcher for actions. */
 		ActionDispatcher m_InputDispatcher;
+
+		/* Reference to the running game application. */
 		Application* app;
 	};
 }

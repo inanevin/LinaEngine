@@ -8,8 +8,8 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 
 http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
 Class: RenderingEngine
@@ -28,9 +28,8 @@ Timestamp: 1/2/2019 10:51:47 PM
 
 namespace LinaEngine
 {
-	class Event;
 	class WindowResizeEvent;
-	class Application;
+
 
 	class LINA_API RenderingEngine
 	{
@@ -39,22 +38,29 @@ namespace LinaEngine
 		RenderingEngine();
 		virtual ~RenderingEngine();
 
+		/* Initializes the rendering engine. */
 		virtual void Start() = 0;
+
+		/* Called in each frame. */
 		virtual void OnUpdate();
-		virtual void OnWindowEvent(Event& e) = 0;
-		virtual void SetApplication(Application&) = 0;
+
+		/* Called when a window event occurs. */
+		virtual void OnWindowEvent(class Event& e) = 0;
+
+		/* Sets the application reference. */
+		virtual void SetApplication(class Application&) = 0;
+
+		/* Sets the mouse position to desired screen space coordinates. */
 		virtual void SetMousePosition(const Vector2F& v) = 0;
 
-		inline Window& GetMainWindow() const
-		{ 
-			LINA_CORE_ASSERT(m_Window, "Window pointer is null!");
-			return *m_Window;
-		}
-		
+		/* return the main window reference. */
+		inline Window& GetMainWindow() const { check(m_Window); return *m_Window; }
+
 	private:
 
+		/* Window that the rendering engine is rendering within. */
 		std::unique_ptr<Window> m_Window;
-		
+
 
 	};
 }

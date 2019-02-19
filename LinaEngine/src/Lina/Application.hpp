@@ -44,13 +44,13 @@ namespace LinaEngine
 
 		inline InputEngine& GetInputEngine() const
 		{
-			LINA_CORE_ASSERT(m_InputEngine, "Window pointer is null!");
+			check(m_InputEngine);
 			return *m_InputEngine;
 		}
 
 		inline RenderingEngine& GetRenderingEngine() const
 		{
-			LINA_CORE_ASSERT(m_RenderingEngine, "Window pointer is null!");
+			check(m_RenderingEngine);
 			return *m_RenderingEngine;
 		}
 
