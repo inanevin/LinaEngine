@@ -43,6 +43,7 @@ namespace LinaEngine
 		inline Vector3F GetNormal() { return m_Normal; }
 		inline Vector2F GetTextureCoordinates() { return m_TextureCoordinates; }
 
+		static void CalcNormals(const unsigned int* pIndices, unsigned int IndexCount, Vertex* pVertices, unsigned int VertexCount);
 	private:
 
 		Vector3F m_Position;	// ORDER IMPORTANT

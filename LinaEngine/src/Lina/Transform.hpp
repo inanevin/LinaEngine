@@ -30,7 +30,7 @@ namespace LinaEngine
 	{
 	public:
 
-		Transform(Vector3F pos = Vector3F::Zero(), Vector3F rot = Vector3F::Zero(), Vector3F scl = Vector3F::One()) : position(pos), rotation(rot), scale(scl) {};
+		Transform(Vector3F pos = Vector3F::Zero(), Vector3F rot = Vector3F::Zero(), Vector3F scl = Vector3F::One()) : position(pos), rotation(rot.x, rot.y, rot.z), scale(scl) {};
 		Transform(const Transform& rhs) { this->position = rhs.position; this->rotation = rhs.rotation; this->scale = rhs.scale; }
 
 		inline void SetPosition(float x, float y, float z) { position.x = x; position.y = y; position.z = z; }
@@ -41,8 +41,8 @@ namespace LinaEngine
 		inline void SetPositionZ(float z) { position.z = z; }
 
 		inline void SetRotation(float x, float y, float z) { rotation.x = x; rotation.y = y; rotation.z = z; };
-		inline void SetRotation(const Vector3F& rhs) { rotation = rhs; }
-		inline void SetRotation(const Vector2F& rhs) { rotation = Vector3F(rhs.x, rhs.y, 0.0f); }
+		//inline void SetRotation(const Vector3F& rhs) { rotation = rhs; }
+		//inline void SetRotation(const Vector2F& rhs) { rotation = Vector3F(rhs.x, rhs.y, 0.0f); }
 		inline void SetRotationX(float x) { rotation.x = x; }
 		inline void SetRotationY(float y) { rotation.y = y; }
 		inline void SetRotationZ(float z) { rotation.z = z; }
@@ -59,7 +59,7 @@ namespace LinaEngine
 		
 		
 		Vector3F position;
-		Vector3F rotation;
+		Quaternion rotation;
 		Vector3F scale;
 
 	private:

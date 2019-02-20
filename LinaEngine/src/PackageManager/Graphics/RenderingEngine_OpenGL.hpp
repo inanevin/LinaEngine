@@ -45,8 +45,8 @@ namespace LinaEngine
 		void Start() override;
 		void OnUpdate() override;
 		void OnWindowEvent(Event& e) override;
-		void CreateVertexBuffer();
-		void CreateIndexBuffer();
+		void CreateVertexBuffer(const unsigned int* pIndices, unsigned int indexCount);
+		void CreateIndexBuffer(const unsigned int* pIndices, unsigned int sizeInBytes);
 		void SetApplication(class Application& app) override;
 		void SetMousePosition(const Vector2F& v) override { GetMainWindow().SetMousePosition(v); }
 

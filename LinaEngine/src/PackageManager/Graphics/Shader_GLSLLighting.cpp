@@ -33,14 +33,22 @@ namespace LinaEngine
 
 		// Add uniforms.
 		AddUniform("gWVP", "mat4");
+		AddUniform("gWorld", "mat4");
+		AddUniform("gEyeWorldPos", "Vector3");
 		AddUniform("gSampler", "sampler2D");
 		AddUniform("gDirectionalLight.Color", "Vector3");
 		AddUniform("gDirectionalLight.AmbientIntensity", "float");
+		AddUniform("gDirectionalLight.Direction", "Vector3");
+		AddUniform("gDirectionalLight.DiffuseIntensity", "float");
 	}
 
 	void Shader_GLSLLighting::SetWVP(const Matrix4F & wvp)
 	{
 		SetUniform("gWVP", wvp);
+	}
+	void Shader_GLSLLighting::SetWorldMatrix(const Matrix4F & wvpInverse)
+	{
+		SetUniform("gWorld", wvpInverse);
 	}
 	void Shader_GLSLLighting::SetTextureUnit(unsigned int textureUnit)
 	{
@@ -51,7 +59,27 @@ namespace LinaEngine
 	{
 		SetUniform("gDirectionalLight.Color", dl.color);
 		SetUniform("gDirectionalLight.AmbientIntensity", dl.AmbientIntensity);
+		Vector3F dir = dl.Direction;
+		dir.Normalize();
+		SetUniform("gDirectionalLight.Direction", dir);
+		SetUniform("gDirectionalLight.DiffuseIntensity", dl.DiffuseIntensity);
+
 	}
+
+	void Shader_GLSLLighting::SetEyeWorldPos(const Vector3F & EyeWorldPos)
+	{
+		SetUniform("gEyeWorldPos", EyeWorldPos);
+	}
+
+	void Shader_GLSLLighting::SetMatSpecularIntensity(float Intensity)
+	{
+	}
+
+	void Shader_GLSLLighting::SetMatSpecularPower(float Power)
+	{
+	}
+
+
 
 
 }

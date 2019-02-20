@@ -33,8 +33,12 @@ namespace LinaEngine
 		Shader_GLSLLighting();
 		void Initialize();
 		void SetWVP(const Matrix4F& wvp);
+		void SetWorldMatrix(const Matrix4F& wvp);
 		void SetTextureUnit(unsigned int textureUnit);
 		void SetDirectionalLight(const class DirectionalLight& dl);
+		void SetEyeWorldPos(const Vector3F& EyeWorldPos);
+		void SetMatSpecularIntensity(float Intensity);
+		void SetMatSpecularPower(float Power);
 	};
 }
 

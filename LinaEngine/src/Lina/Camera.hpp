@@ -21,6 +21,8 @@ Timestamp: 1/5/2019 9:51:42 PM
 #ifndef Camera_HPP
 #define Camera_HPP
 
+#include "Transform.hpp"
+
 #pragma once
 
 namespace LinaEngine
@@ -51,19 +53,21 @@ namespace LinaEngine
 		}
 	};
 
-	class InputEngine;
+	
 	class Camera
 	{
 	public:
 
 		Camera(PerspectiveInformation p = PerspectiveInformation());
+		
 		Matrix4F GetViewProjection();
+		inline Matrix4F GetPerspectiveProjection() { return m_PerspectiveProjection; };
 		void SetPerspectiveInformation(PerspectiveInformation p);
 
-		void OnInput(InputEngine& i);
+		void OnInput(class InputEngine& i);
 		inline PerspectiveInformation GetPerspectiveInformation() { return m_PersInfo; }
-		Vector3F position;
-		Quaternion rotation;
+		
+		Transform m_Transform;
 
 	private:
 

@@ -65,18 +65,22 @@ namespace LinaEngine
 		glCullFace(GL_BACK);
 		glEnable(GL_CULL_FACE);
 
-		CreateVertexBuffer();
-		CreateIndexBuffer();
+		unsigned int Indices[] = { 0, 3, 1,
+						   1, 3, 2,
+						   2, 3, 0,
+						   0, 1, 2 };
 
-		DirectionalLight l;
-		l.color = COLOR_Red;
-		l.AmbientIntensity = 15.0f;
+
+		CreateIndexBuffer(Indices, sizeof(Indices));
+		CreateVertexBuffer(Indices, ARRAY_SIZE_IN_ELEMENTS(Indices));
+
+		
 
 		test = new Shader_GLSLLighting();
 		test->Initialize();
 		test->Enable();
 		test->SetTextureUnit(0);
-		test->SetDirectionalLight(l);
+	
 
 		PerspectiveInformation p;
 		p.FOV = 60;
@@ -101,18 +105,28 @@ namespace LinaEngine
 
 		static float sc = 0.0f;
 
-
 		t.SetScale(0.5f, 0.5f, 0.5f);
 		t.SetPosition(0, 0.0f, 5.0f);
 		t.SetRotation(0.0f, 0.0f, 0.0f);
 
-		Matrix4F worldViewMatrix = cam.GetViewProjection() * t.GetWorldTransformation();
 
-		test->SetWVP(worldViewMatrix);
+		Matrix4F wvp = cam.GetViewProjection() * t.GetWorldTransformation();
+		test->SetWVP(wvp);
+
+		Matrix4F worldViewMatrix = t.GetWorldTransformation();
+		test->SetWorldMatrix(worldViewMatrix);
+
+		DirectionalLight l;
+		l.color = Color(1, 1, 1);
+		l.AmbientIntensity = 0.5f;
+		l.DiffuseIntensity = 15.0f;
+		l.Direction = Vector3F(1.0f, 1.0f, 0.0f);
+		test->SetDirectionalLight(l);
 
 		// vertex attribute index 0 is fixed for vertex position, so activate the attribute, 1 is texture coordinates..
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
 
 		// Update the pipeline state of the buffer we want to use.
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -124,6 +138,8 @@ namespace LinaEngine
 		// Last param is the offset inside the structure where the pipeline will find our attribute.
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)12);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)20);
+
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 		testTexture.Bind(GL_TEXTURE0);
 		glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
@@ -131,6 +147,7 @@ namespace LinaEngine
 		// Good practice to disable each vertex attribute when not used.
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
 
 		cam.OnInput(app->GetInputEngine());
 
@@ -145,7 +162,7 @@ namespace LinaEngine
 	}
 
 
-	void RenderingEngine_OpenGL::CreateVertexBuffer()
+	void RenderingEngine_OpenGL::CreateVertexBuffer(const unsigned int* pIndices, unsigned int indexCount)
 	{
 
 
@@ -154,21 +171,20 @@ namespace LinaEngine
 							 Vertex(Vector3F(1.0f, -1.0f, 0.5773f),  Vector2F(1.0f, 0.0f)),
 							 Vertex(Vector3F(0.0f, 1.0f, 0.0f),      Vector2F(0.5f, 1.0f)) };
 
+		unsigned int vertexCount = ARRAY_SIZE_IN_ELEMENTS(Vertices);
+
+		Vertex::CalcNormals(pIndices, indexCount, Vertices, vertexCount);
+
 		glGenBuffers(1, &VBO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
 
 	}
-	void RenderingEngine_OpenGL::CreateIndexBuffer()
+	void RenderingEngine_OpenGL::CreateIndexBuffer(const unsigned int* pIndices, unsigned int sizeInBytes)
 	{
-		unsigned int Indices[] = { 0, 3, 1,
-								   1, 3, 2,
-								   2, 3, 0,
-								   0, 1, 2 };
-
 		glGenBuffers(1, &IBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeInBytes, pIndices, GL_STATIC_DRAW);
 	}
 
 	void RenderingEngine_OpenGL::SetApplication(Application& p)

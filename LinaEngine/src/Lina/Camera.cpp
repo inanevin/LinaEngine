@@ -25,10 +25,11 @@ namespace LinaEngine
 {
 	const static float movementSpeed = 0.25f;
 	const static float m_sensitivity = 0.1f;
+
 	Camera::Camera(PerspectiveInformation p)
 	{
 		this->m_PersInfo = p;
-		this->position = Vector3F::Zero();
+		this->m_Transform.position = Vector3F::Zero();
 		
 		this->m_PerspectiveProjection.InitPerspectiveProjection(p.FOV, p.width, p.height, p.zNear, p.zFar);
 
@@ -39,8 +40,8 @@ namespace LinaEngine
 	{
 		Matrix4F rotationM, translationM;
 		
-		translationM.InitTranslationTransform(-position.x, -position.y, -position.z);
-		rotationM.InitRotationFromDirection(rotation.GetForward(), rotation.GetUp());
+		translationM.InitTranslationTransform(-m_Transform.position.x, -m_Transform.position.y, -m_Transform.position.z);
+		rotationM.InitRotationFromDirection(m_Transform.rotation.GetForward(), m_Transform.rotation.GetUp());
 
 		Matrix4F viewTransformation = rotationM * translationM;
 		
@@ -48,11 +49,13 @@ namespace LinaEngine
 
 		return m_ViewProjection;
 	}
+
+
+
 	void Camera::SetPerspectiveInformation(PerspectiveInformation p)
 	{
 		m_PersInfo = p;
 		m_PerspectiveProjection.InitPerspectiveProjection(p.FOV, p.width, p.height, p.zNear, p.zFar);
-		
 	}
 
 
@@ -61,29 +64,29 @@ namespace LinaEngine
 
 		if (i.GetKey(KEY_W))
 		{
-			this->position += (rotation.GetForward() * movementSpeed);
+			this->m_Transform.position += (m_Transform.rotation.GetForward() * movementSpeed);
 
 		}
 		if (i.GetKey(KEY_S))
 		{
-			this->position -= (rotation.GetForward() * movementSpeed);
+			this->m_Transform.position -= (m_Transform.rotation.GetForward() * movementSpeed);
 
 
 		}
 		if (i.GetKey(KEY_A))
 		{
-			Vector3F left = rotation.GetLeft();
+			Vector3F left = m_Transform.rotation.GetLeft();
 			left.Normalize();
 			left *= movementSpeed;
-			this->position += left;
+			this->m_Transform.position += left;
 
 		}
 		if (i.GetKey(KEY_D))
 		{
-			Vector3F right = rotation.GetRight();
+			Vector3F right = m_Transform.rotation.GetRight();
 			right.Normalize();
 			right *= movementSpeed;
-			this->position += right;
+			this->m_Transform.position += right;
 
 		}
 
@@ -113,12 +116,12 @@ namespace LinaEngine
 			if (rotY)
 			{
 				Quaternion q = Quaternion(Vector3F(0, 1, 0), (deltaPos.x * m_sensitivity));
-				rotation = Quaternion((q * rotation).Normalized());
+				m_Transform.rotation = Quaternion((q * m_Transform.rotation).Normalized());
 			}
 			if (rotX)
 			{
-				Quaternion q = Quaternion(rotation.GetRight(), (deltaPos.y * m_sensitivity));
-				rotation = Quaternion((q * rotation).Normalized());
+				Quaternion q = Quaternion(m_Transform.rotation.GetRight(), (deltaPos.y * m_sensitivity));
+				m_Transform.rotation = Quaternion((q * m_Transform.rotation).Normalized());
 			}
 
 			if (rotY || rotX)
