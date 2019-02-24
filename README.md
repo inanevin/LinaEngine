@@ -51,4 +51,4 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 
 ### Design Document
 
-[Link to the Software Design Document of Lina Engine](https://docs.google.com/document/d/13Z1D77WbLJkyq0Q2Q9DdKKSM4tfqiZHQi_j_x0Rs5Ec/edit?usp=sharing)
+[Link to the Software Design Document of Lina Engine (PDF)](https://docs.wixstatic.com/ugd/816f17_eef322d102a94845859da33004254fff.pdf)
