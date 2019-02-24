@@ -24,8 +24,17 @@ Timestamp: 2/19/2019 11:48:25 AM
 
 #include "Shader_GLSL.hpp"
 
+
 namespace LinaEngine
 {
+
+	struct DirectionalLight {
+		Vector3F Color;
+		float AmbientIntensity;
+		Vector3F Direction;
+		float DiffuseIntensity;
+	};
+
 	class Shader_GLSLLighting : public Shader_GLSL
 	{
 	public:

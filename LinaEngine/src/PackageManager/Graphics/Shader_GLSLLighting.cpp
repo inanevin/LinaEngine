@@ -19,7 +19,6 @@ Timestamp: 2/19/2019 11:48:25 AM
 
 #include "LinaPch.hpp"
 #include "Shader_GLSLLighting.hpp"  
-#include "Lina/Rendering/Lighting.hpp"
 
 namespace LinaEngine
 {
@@ -40,6 +39,8 @@ namespace LinaEngine
 		AddUniform("gDirectionalLight.AmbientIntensity", "float");
 		AddUniform("gDirectionalLight.Direction", "Vector3");
 		AddUniform("gDirectionalLight.DiffuseIntensity", "float");
+		AddUniform("gMatSpecularIntensity", "float");
+		AddUniform("gSpecularPower", "float");
 	}
 
 	void Shader_GLSLLighting::SetWVP(const Matrix4F & wvp)
@@ -57,7 +58,7 @@ namespace LinaEngine
 
 	void Shader_GLSLLighting::SetDirectionalLight(const DirectionalLight & dl)
 	{
-		SetUniform("gDirectionalLight.Color", dl.color);
+		SetUniform("gDirectionalLight.Color", dl.Color);
 		SetUniform("gDirectionalLight.AmbientIntensity", dl.AmbientIntensity);
 		Vector3F dir = dl.Direction;
 		dir.Normalize();
@@ -73,10 +74,12 @@ namespace LinaEngine
 
 	void Shader_GLSLLighting::SetMatSpecularIntensity(float Intensity)
 	{
+		SetUniform("gMatSpecularIntensity", Intensity);
 	}
 
 	void Shader_GLSLLighting::SetMatSpecularPower(float Power)
 	{
+		SetUniform("gSpecularPower", Power);
 	}
 
 

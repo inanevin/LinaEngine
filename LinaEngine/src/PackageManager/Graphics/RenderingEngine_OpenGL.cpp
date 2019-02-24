@@ -28,7 +28,7 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "Lina/Events/Action.hpp"
 #include "Shader_GLSLLighting.hpp"
 #include "Lina/Rendering/Vertex.hpp"
-#include "Lina/Rendering/Lighting.hpp"
+
 
 namespace LinaEngine
 {
@@ -37,6 +37,7 @@ namespace LinaEngine
 	GLuint VBO;
 	GLuint IBO;
 	Transform t;
+	DirectionalLight l;
 
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
 	{
@@ -105,7 +106,7 @@ namespace LinaEngine
 
 		static float sc = 0.0f;
 
-		t.SetScale(0.5f, 0.5f, 0.5f);
+		t.SetScale(1, 1, 1.0f);
 		t.SetPosition(0, 0.0f, 5.0f);
 		t.SetRotation(0.0f, 0.0f, 0.0f);
 
@@ -116,13 +117,15 @@ namespace LinaEngine
 		Matrix4F worldViewMatrix = t.GetWorldTransformation();
 		test->SetWorldMatrix(worldViewMatrix);
 
-		DirectionalLight l;
-		l.color = Color(1, 1, 1);
-		l.AmbientIntensity = 0.5f;
-		l.DiffuseIntensity = 15.0f;
-		l.Direction = Vector3F(1.0f, 1.0f, 0.0f);
+		l.Color = Vector3F(1, 1, 1);
+		l.AmbientIntensity = .3f;
+		l.DiffuseIntensity = 7.0f;
+		l.Direction = Vector3F(0.0f, 0.0f, 1.0f);
 		test->SetDirectionalLight(l);
-
+		test->SetEyeWorldPos(cam.m_Transform.position);
+		test->SetMatSpecularIntensity(4.0f);
+		test->SetMatSpecularPower(8);
+			
 		// vertex attribute index 0 is fixed for vertex position, so activate the attribute, 1 is texture coordinates..
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
