@@ -36,16 +36,13 @@ namespace LinaEngine
 		//AddUniform("gSampler", "sampler2D");
 		AddUniform("texture1", "sampler2D");
 		AddUniform("texture2", "sampler2D");
-		AddUniform("model", "mat4");
-		AddUniform("view", "mat4");
-		AddUniform("projection", "mat4");
-
+		//AddUniform("model", "mat4");
+		//AddUniform("view", "mat4");
+		//AddUniform("projection", "mat4");
+		AddUniform("gWVP", "mat4");
 
 	}
-	void Shader_GLSLBasic::SetWVP(const Matrix4F & wvp)
-	{
-		//SetUniform("gWVP", wvp);
-	}
+
 
 	void Shader_GLSLBasic::SetTextureUnit1()
 	{
@@ -73,4 +70,8 @@ namespace LinaEngine
 		SetUniform("projection", mat);
 	}
 
+	void Shader_GLSLBasic::SetWVP(const Matrix4F& mat)
+	{
+		SetUniform("gWVP", mat);
+	}
 }

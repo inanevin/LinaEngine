@@ -33,6 +33,8 @@ Timestamp: 1/2/2019 11:44:41 PM
 
 #include "glm/gtc/matrix_transform.hpp"
 #include "GLFW/glfw3.h"
+#include "Lina/Camera.hpp"
+#include "Lina/Transform.hpp"
 
 namespace LinaEngine
 {
@@ -46,6 +48,8 @@ namespace LinaEngine
 	Texture2D baseTexture;
 	Texture2D overlayTexture;
 	Shader_GLSLBasic basicShader;
+	Camera sceneCamera;
+	Transform cubeTransform;
 
 	// world space positions of our cubes
 	glm::vec3 cubePositions[] = {
@@ -60,6 +64,8 @@ namespace LinaEngine
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
+
+
 
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
 	{
@@ -89,6 +95,11 @@ namespace LinaEngine
 
 		//basicShader = Shader_GLSLBasic();
 
+		sceneCamera.SetPerspectiveInformation(PerspectiveInformation(60.0f, m_WindowProps.Width, m_WindowProps.Height, 0.01f, 100.0f));
+		sceneCamera.m_Transform.SetPosition(0, 0, -6);
+		cubeTransform.SetPosition(0, 0, 0);
+		cubeTransform.SetScale(1, 1, 1);
+		cubeTransform.SetRotation(15, 0, 0);
 
 		basicShader.Initialize();
 
@@ -197,32 +208,40 @@ namespace LinaEngine
 		basicShader.Use();
 
 		// camera/view transformation
-		glm::mat4 view = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-		float radius = 10.0f;
-		float camX = sin(glfwGetTime()) * radius;
-		float camZ = cos(glfwGetTime()) * radius;
-		view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		//glm::mat4 view = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+		//float radius = 10.0f;
+		//float camX = sin(glfwGetTime()) * radius;
+		//float camZ = cos(glfwGetTime()) * radius;
+		//float camX = 0.0f;
+		//float camZ = 0.0f;
+		//view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-		glm::mat4 projection = glm::mat4(1.0f);
-		projection = glm::perspective(glm::radians(45.0f), (float)m_WindowProps.Width / (float)m_WindowProps.Height, 0.1f, 100.0f);
+		//glm::mat4 projection = glm::mat4(1.0f);
+		//projection = glm::perspective(glm::radians(45.0f), (float)m_WindowProps.Width / (float)m_WindowProps.Height, 0.1f, 100.0f);
 		//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
+		Matrix4F transformation = cubeTransform.GetWorldTransformation();
+		Matrix4F camView = sceneCamera.GetViewProjection();
+		Matrix4F WVP = camView * transformation;
+		basicShader.SetWVP(WVP);
+		//basicShader.SetView(view);
+		//basicShader.SetProjection(projection);
 
-		basicShader.SetView(view);
-		basicShader.SetProjection(projection);
+
+
 
 		glBindVertexArray(VAO);
 
 		for (unsigned int i = 0; i < 10; i++)
 		{
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
-			float angle = 20.0f * i;
-			if (i == 2 || i == 5 || i == 8)
+			//glm::mat4 model = glm::mat4(1.0f);
+			//model = glm::translate(model, cubePositions[i]);
+			//float angle = 20.0f * i;
+			/*if (i == 2 || i == 5 || i == 8)
 				model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 			else
-				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-			basicShader.SetModel(model);
+				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));*/
+			//basicShader.SetModel(model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		//	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

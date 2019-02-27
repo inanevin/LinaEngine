@@ -43,6 +43,16 @@ namespace LinaEngine
 			zNear = 0.1f;
 			zFar = 1000.0f;
 		}
+
+		PerspectiveInformation(float fieldOfView, float w, float h, float zn, float zf)
+		{
+			FOV = fieldOfView;
+			width = w;
+			height = h;
+			zNear = zn;
+			zFar = zf;
+		}
+
 		PerspectiveInformation(const PerspectiveInformation& p)
 		{
 			this->FOV = p.FOV;
