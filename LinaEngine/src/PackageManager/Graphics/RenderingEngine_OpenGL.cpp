@@ -43,8 +43,8 @@ namespace LinaEngine
 	unsigned int EBO;
 
 	typedef Texture_OpenGL Texture2D;
-	Texture2D containerTexture;
-	Texture2D bricksTexture;
+	Texture2D baseTexture;
+	Texture2D overlayTexture;
 	Shader_GLSLBasic basicShader;
 
 	// world space positions of our cubes
@@ -63,7 +63,7 @@ namespace LinaEngine
 
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
 	{
-		
+
 	}
 
 	RenderingEngine_OpenGL::~RenderingEngine_OpenGL()
@@ -163,8 +163,8 @@ namespace LinaEngine
 		//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 		//glEnableVertexAttribArray(2);
 
-		containerTexture = Texture2D(GL_TEXTURE0, true, "container.jpg");
-		bricksTexture = Texture2D(GL_TEXTURE1, true, "awesomeface2.png");
+		baseTexture = Texture2D(GL_TEXTURE0, true, "base1.png");
+		overlayTexture = Texture2D(GL_TEXTURE1, true, "overlay.png");
 
 		basicShader.Use();
 		basicShader.SetTextureUnit1();
@@ -180,20 +180,20 @@ namespace LinaEngine
 	//	glBindVertexArray(0);
 
 
-	
+
 	}
 
 	void RenderingEngine_OpenGL::OnUpdate()
 	{
 		RenderingEngine::OnUpdate();
 
-	
-		
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+
+
+		glClearColor(0.2f, 0.7f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
-		containerTexture.Use();
-		bricksTexture.Use();
+		baseTexture.Use();
+		overlayTexture.Use();
 		basicShader.Use();
 
 		glm::mat4 view = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
@@ -201,7 +201,7 @@ namespace LinaEngine
 		projection = glm::perspective(glm::radians(45.0f), (float)m_WindowProps.Width / (float)m_WindowProps.Height, 0.1f, 100.0f);
 		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
-		
+
 		basicShader.SetView(view);
 		basicShader.SetProjection(projection);
 
@@ -212,12 +212,15 @@ namespace LinaEngine
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
 			float angle = 20.0f * i;
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			if (i == 2 || i == 5 || i == 8)
+				model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+			else
+				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 			basicShader.SetModel(model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-	//	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		
+		//	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
 
 
 	}
@@ -228,7 +231,7 @@ namespace LinaEngine
 	}
 
 
-	
+
 
 	void RenderingEngine_OpenGL::SetApplication(Application& p)
 	{
