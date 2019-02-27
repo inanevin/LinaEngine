@@ -47,7 +47,19 @@ namespace LinaEngine
 	Texture2D bricksTexture;
 	Shader_GLSLBasic basicShader;
 
-
+	// world space positions of our cubes
+	glm::vec3 cubePositions[] = {
+		glm::vec3(0.0f,  0.0f,  0.0f),
+		glm::vec3(2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
 
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
 	{
@@ -129,17 +141,8 @@ namespace LinaEngine
 	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 		};
 
-
-
-		unsigned int indices[] = {
-		0, 1, 3, // first triangle
-		1, 2, 3  // second triangle
-		};
-
-	
-
-		glGenBuffers(1, &VBO);
 		glGenVertexArrays(1, &VAO);
+		glGenBuffers(1, &VBO);
 		//glGenBuffers(1, &EBO);
 
 		glBindVertexArray(VAO);
@@ -162,6 +165,7 @@ namespace LinaEngine
 
 		containerTexture = Texture2D(GL_TEXTURE0, true, "container.jpg");
 		bricksTexture = Texture2D(GL_TEXTURE1, true, "awesomeface2.png");
+
 		basicShader.Use();
 		basicShader.SetTextureUnit1();
 		basicShader.SetTextureUnit2();
@@ -183,22 +187,10 @@ namespace LinaEngine
 	{
 		RenderingEngine::OnUpdate();
 
-		// world space positions of our cubes
-		glm::vec3 cubePositions[] = {
-			glm::vec3(0.0f,  0.0f,  0.0f),
-			glm::vec3(2.0f,  5.0f, -15.0f),
-			glm::vec3(-1.5f, -2.2f, -2.5f),
-			glm::vec3(-3.8f, -2.0f, -12.3f),
-			glm::vec3(2.4f, -0.4f, -3.5f),
-			glm::vec3(-1.7f,  3.0f, -7.5f),
-			glm::vec3(1.3f, -2.0f, -2.5f),
-			glm::vec3(1.5f,  2.0f, -2.5f),
-			glm::vec3(1.5f,  0.2f, -1.5f),
-			glm::vec3(-1.3f,  1.0f, -1.5f)
-		};
+	
 		
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
 		containerTexture.Use();
 		bricksTexture.Use();
