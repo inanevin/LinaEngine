@@ -21,7 +21,7 @@ Timestamp: 1/5/2019 12:53:08 AM
 #include "Shader_GLSL.hpp"  
 #include "glad/glad.h"
 #include "Lina/Utility/Math/Color.hpp"
-
+#include "glm/gtc/matrix_transform.hpp"
 
 namespace LinaEngine
 {
@@ -122,6 +122,11 @@ namespace LinaEngine
 	void Shader_GLSL::SetUniform(const std::string & uniformName, const Color & value) const
 	{
 		glUniform3f(m_UniformMap.at(uniformName), value.x, value.y, value.z);
+	}
+
+	void Shader_GLSL::SetUniform(const std::string & uniformName, const glm::mat4& value) const
+	{
+		glUniformMatrix4fv(m_UniformMap.at(uniformName), 1, GL_FALSE, &(value[0][0]));
 	}
 
 	void Shader_GLSL::SetUniform(const std::string& uniformName, const Matrix4F & value) const

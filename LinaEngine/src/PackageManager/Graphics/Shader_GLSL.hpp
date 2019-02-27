@@ -21,9 +21,8 @@ Timestamp: 1/5/2019 12:53:08 AM
 #ifndef Shader_GLSL_HPP
 #define Shader_GLSL_HPP
 
-
 #include "glad/glad.h"
-
+#include <glm/glm.hpp>
 
 namespace LinaEngine
 {
@@ -59,6 +58,8 @@ namespace LinaEngine
 		/* Sets uniform of Color type. */
 		virtual void SetUniform(const std::string& uniformName, const class Color& value) const;
 
+		/* Sets uniform of glm mat4 type. */
+		virtual void SetUniform(const std::string& uniformName, const glm::mat4& value) const;
 
 		/* Sets uniform of Matrix4F type. */
 		virtual void SetUniform(const std::string& uniformName, const Matrix4F& value) const;

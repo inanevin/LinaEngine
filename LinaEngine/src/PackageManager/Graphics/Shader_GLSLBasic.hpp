@@ -24,6 +24,7 @@ Timestamp: 2/19/2019 10:53:02 AM
 
 #include "Shader_GLSL.hpp"
 
+
 namespace LinaEngine
 {
 	class Shader_GLSLBasic : public Shader_GLSL
@@ -36,7 +37,7 @@ namespace LinaEngine
 		void SetWVP(const Matrix4F& wvp);
 		void SetTextureUnit1();
 		void SetTextureUnit2();
-
+		void SetTransform(const glm::mat4&);
 
 	};
 }

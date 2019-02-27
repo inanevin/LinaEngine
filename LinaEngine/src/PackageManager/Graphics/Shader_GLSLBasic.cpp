@@ -36,6 +36,7 @@ namespace LinaEngine
 		//AddUniform("gSampler", "sampler2D");
 		AddUniform("texture1", "sampler2D");
 		AddUniform("texture2", "sampler2D");
+		AddUniform("transform", "mat4");
 
 
 	}
@@ -53,6 +54,11 @@ namespace LinaEngine
 	{
 		SetUniform("texture2", 1);
 
+	}
+
+	void Shader_GLSLBasic::SetTransform(const glm::mat4& trans)
+	{
+		SetUniform("transform", trans);
 	}
 
 }

@@ -31,7 +31,7 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "PackageManager/Graphics/Shader_GLSLBasic.hpp"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
-
+#include "GLFW/glfw3.h"
 
 namespace LinaEngine
 {
@@ -81,11 +81,11 @@ namespace LinaEngine
 		};*/
 
 		float vertices[] = {
-			// positions          // colors           // texture coords
-			 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-			 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-			-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-			-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+			// positions          // texture coords
+			 0.5f,  0.5f, 0.0f,   1.0f, 1.0f, // top right
+			 0.5f, -0.5f, 0.0f,   1.0f, 0.0f, // bottom right
+			-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, // bottom left
+			-0.5f,  0.5f, 0.0f,   0.0f, 1.0f  // top left 
 		};
 
 		unsigned int indices[] = {
@@ -93,10 +93,7 @@ namespace LinaEngine
 		1, 2, 3  // second triangle
 		};
 
-		glm::mat4 trans = glm::mat4(1.0f);
-		trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
-		trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
-		
+	
 
 		glGenBuffers(1, &VBO);
 		glGenVertexArrays(1, &VAO);
@@ -143,6 +140,13 @@ namespace LinaEngine
 		containerTexture.Use();
 		bricksTexture.Use();
 		basicShader.Use();
+
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+		basicShader.SetTransform(trans);
+
+	
 		basicShader.SetTextureUnit1();
 		basicShader.SetTextureUnit2();
 		glBindVertexArray(VAO);
