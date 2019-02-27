@@ -29,7 +29,7 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "Lina/Rendering/Vertex.hpp"
 #include "Texture_OpenGL.hpp"
 #include "PackageManager/Graphics/Shader_GLSLBasic.hpp"
-
+#include <glm.hpp>
 
 namespace LinaEngine
 {
@@ -91,6 +91,9 @@ namespace LinaEngine
 		1, 2, 3  // second triangle
 		};
 
+		glm::vec4 vec(1, 0, 0, 1);
+		glm::mat4 trans = glm::mat4(1.0f);
+		
 
 		glGenBuffers(1, &VBO);
 		glGenVertexArrays(1, &VAO);
