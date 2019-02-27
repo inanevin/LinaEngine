@@ -36,7 +36,9 @@ namespace LinaEngine
 		//AddUniform("gSampler", "sampler2D");
 		AddUniform("texture1", "sampler2D");
 		AddUniform("texture2", "sampler2D");
-		AddUniform("transform", "mat4");
+		AddUniform("model", "mat4");
+		AddUniform("view", "mat4");
+		AddUniform("projection", "mat4");
 
 
 	}
@@ -56,9 +58,19 @@ namespace LinaEngine
 
 	}
 
-	void Shader_GLSLBasic::SetTransform(const glm::mat4& trans)
+	void Shader_GLSLBasic::SetView(const glm::mat4& mat)
 	{
-		SetUniform("transform", trans);
+		SetUniform("view", mat);
+	}
+
+	void Shader_GLSLBasic::SetModel(const glm::mat4& mat)
+	{
+		SetUniform("model", mat);
+	}
+
+	void Shader_GLSLBasic::SetProjection(const glm::mat4& mat)
+	{
+		SetUniform("projection", mat);
 	}
 
 }

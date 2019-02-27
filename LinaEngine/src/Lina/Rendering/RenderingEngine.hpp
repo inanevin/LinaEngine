@@ -67,11 +67,13 @@ namespace LinaEngine
 	protected:
 
 		bool isWireframeModeActive;
+		WindowProps m_WindowProps;
 
 	private:
 
 		/* Window that the rendering engine is rendering within. */
 		std::unique_ptr<Window> m_Window;
+
 
 	};
 }

@@ -30,6 +30,7 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "Texture_OpenGL.hpp"
 #include "PackageManager/Graphics/Shader_GLSLBasic.hpp"
 #include "glm/glm.hpp"
+
 #include "glm/gtc/matrix_transform.hpp"
 #include "GLFW/glfw3.h"
 
@@ -45,6 +46,7 @@ namespace LinaEngine
 	Texture2D containerTexture;
 	Texture2D bricksTexture;
 	Shader_GLSLBasic basicShader;
+
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
 	{
 		
@@ -72,20 +74,57 @@ namespace LinaEngine
 		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, );
 
 		//basicShader = Shader_GLSLBasic();
+
+
 		basicShader.Initialize();
-		
-	/*	Vertex vertices[] = {
-			Vertex(Vector3F(0.5f, -0.5f, 0.0f), Vector2F(0.0f, 0.0f)),
-			Vertex(Vector3F(-0.5f, -0.5f, 0.0f), Vector2F(1.0f, 0.0f)),
-			Vertex(Vector3F(0.0f, 0.5f, 0.0f), Vector2F(0.5f, 1.0f))
-		};*/
+
+		// configure global opengl state
+		// -----------------------------
+		glEnable(GL_DEPTH_TEST);
+
 
 		float vertices[] = {
-			// positions          // texture coords
-			 0.5f,  0.5f, 0.0f,   1.0f, 1.0f, // top right
-			 0.5f, -0.5f, 0.0f,   1.0f, 0.0f, // bottom right
-			-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, // bottom left
-			-0.5f,  0.5f, 0.0f,   0.0f, 1.0f  // top left 
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 		};
 
 		unsigned int indices[] = {
@@ -97,26 +136,25 @@ namespace LinaEngine
 
 		glGenBuffers(1, &VBO);
 		glGenVertexArrays(1, &VAO);
-		glGenBuffers(1, &EBO);
+		//glGenBuffers(1, &EBO);
 
 		glBindVertexArray(VAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		// position attribute
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
-
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		// texture coord attribute
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 		glEnableVertexAttribArray(1);
 
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-		glEnableVertexAttribArray(2);
+		//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		//glEnableVertexAttribArray(2);
 
-		containerTexture = Texture2D(GL_TEXTURE0, true, "container.jpg");
-		bricksTexture = Texture2D(GL_TEXTURE1, true, "awesomeface2.png");
 
 		// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -127,6 +165,13 @@ namespace LinaEngine
 		// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
 		// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 		glBindVertexArray(0);
+
+
+		containerTexture = Texture2D(GL_TEXTURE0, true, "container.jpg");
+		bricksTexture = Texture2D(GL_TEXTURE1, true, "awesomeface2.png");
+
+		basicShader.SetTextureUnit1();
+		basicShader.SetTextureUnit2();
 	}
 
 	void RenderingEngine_OpenGL::OnUpdate()
@@ -141,17 +186,20 @@ namespace LinaEngine
 		bricksTexture.Use();
 		basicShader.Use();
 
-		glm::mat4 trans = glm::mat4(1.0f);
-		trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-		basicShader.SetTransform(trans);
-
+		glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+		glm::mat4 view = glm::mat4(1.0f);
+		glm::mat4 projection = glm::mat4(1.0f);
+		model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
+		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+		projection = glm::perspective(glm::radians(45.0f), (float)m_WindowProps.Width / (float)m_WindowProps.Height, 0.1f, 100.0f);
 	
-		basicShader.SetTextureUnit1();
-		basicShader.SetTextureUnit2();
+		basicShader.SetModel(model);
+		basicShader.SetView(view);
+		basicShader.SetProjection(projection);
+
 		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		
+	//	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
 	}

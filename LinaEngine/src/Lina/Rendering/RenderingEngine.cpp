@@ -30,8 +30,10 @@ namespace LinaEngine
 		// Get a graphics adapter.
 		GraphicsAdapter graphicsAdapter;
 
+		m_WindowProps = WindowProps("Lina Engine", 1280, 720);
+
 		// Get window from the adapter.
-		m_Window = std::unique_ptr<Window>(graphicsAdapter.CreateEngineWindow());
+		m_Window = std::unique_ptr<Window>(graphicsAdapter.CreateEngineWindow(m_WindowProps));
 		
 	}
 

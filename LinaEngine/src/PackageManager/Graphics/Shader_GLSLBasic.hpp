@@ -37,7 +37,9 @@ namespace LinaEngine
 		void SetWVP(const Matrix4F& wvp);
 		void SetTextureUnit1();
 		void SetTextureUnit2();
-		void SetTransform(const glm::mat4&);
+		void SetModel(const glm::mat4&);
+		void SetView(const glm::mat4&);
+		void SetProjection(const glm::mat4&);
 
 	};
 }
