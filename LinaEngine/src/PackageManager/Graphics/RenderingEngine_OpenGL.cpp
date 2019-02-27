@@ -49,7 +49,15 @@ namespace LinaEngine
 	Texture2D overlayTexture;
 	Shader_GLSLBasic basicShader;
 	Camera sceneCamera;
-	Transform cubeTransform;
+	Transform cubeTransforms [] = {
+		Transform(Vector3F(0.0f,  0.0f,  0.0f)),
+		Transform(Vector3F(2.0f,  5.0f, -15.0f)),
+		Transform(Vector3F(-1.5f, -2.2f, -2.5f)),
+		Transform(Vector3F(-3.8f, -2.0f, -12.3f)),
+		Transform(Vector3F(2.4f, -0.4f, -3.5f)),
+		Transform(Vector3F(-1.7f,  3.0f, -7.5f)),
+		Transform(Vector3F(1.3f, -2.0f, -2.5f))
+	};
 
 	// world space positions of our cubes
 	glm::vec3 cubePositions[] = {
@@ -97,9 +105,7 @@ namespace LinaEngine
 
 		sceneCamera.SetPerspectiveInformation(PerspectiveInformation(60.0f, m_WindowProps.Width, m_WindowProps.Height, 0.01f, 100.0f));
 		sceneCamera.m_Transform.SetPosition(0, 0, -6);
-		cubeTransform.SetPosition(0, 0, 0);
-		cubeTransform.SetScale(1, 1, 1);
-		cubeTransform.SetRotation(15, 0, 0);
+
 
 		basicShader.Initialize();
 
@@ -190,7 +196,7 @@ namespace LinaEngine
 		// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 	//	glBindVertexArray(0);
 
-
+		sceneCamera.OnInput(app->GetInputEngine());
 
 	}
 
@@ -220,10 +226,7 @@ namespace LinaEngine
 		//projection = glm::perspective(glm::radians(45.0f), (float)m_WindowProps.Width / (float)m_WindowProps.Height, 0.1f, 100.0f);
 		//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
-		Matrix4F transformation = cubeTransform.GetWorldTransformation();
-		Matrix4F camView = sceneCamera.GetViewProjection();
-		Matrix4F WVP = camView * transformation;
-		basicShader.SetWVP(WVP);
+		sceneCamera.m_Transform.SetRotationX(-15);
 		//basicShader.SetView(view);
 		//basicShader.SetProjection(projection);
 
@@ -232,8 +235,13 @@ namespace LinaEngine
 
 		glBindVertexArray(VAO);
 
-		for (unsigned int i = 0; i < 10; i++)
+		for (unsigned int i = 0; i < 7; i++)
 		{
+			Matrix4F transformation = cubeTransforms[i].GetWorldTransformation();
+			Matrix4F camView = sceneCamera.GetViewProjection();
+			Matrix4F WVP = camView * transformation;
+			basicShader.SetWVP(WVP);
+
 			//glm::mat4 model = glm::mat4(1.0f);
 			//model = glm::translate(model, cubePositions[i]);
 			//float angle = 20.0f * i;

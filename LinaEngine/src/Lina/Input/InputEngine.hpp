@@ -147,6 +147,8 @@ namespace LinaEngine
 
 		/* Reference to the running game application. */
 		Application* app;
+
+		/* Input mappings struct to be overriden by children. */
 	};
 }
 

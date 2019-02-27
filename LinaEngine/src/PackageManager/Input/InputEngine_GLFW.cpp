@@ -66,6 +66,8 @@ namespace LinaEngine
 		// Toggle wireframe mode using F1.
 		if (glfwGetKey(glfwWindow, GLFW_KEY_F1) == GLFW_PRESS)
 			WireframeModeToggle();
+
+	
 	}
 
 	bool InputEngine_GLFW::GetKey(int keyCode)
