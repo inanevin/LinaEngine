@@ -22,12 +22,8 @@ Timestamp: 1/7/2019 2:10:38 PM
 
 namespace LinaEngine
 {
-	Vertex::Vertex()
-	{
 
-	}
-
-	void Vertex::CalcNormals(const unsigned int* pIndices, unsigned int IndexCount, Vertex* pVertices, unsigned int VertexCount)
+	/*void Vertex::CalcNormals(const unsigned int* pIndices, unsigned int IndexCount, Vertex* pVertices, unsigned int VertexCount)
 	{
 		// Accumulate each triangle normal into each of the triangle vertices
 		for (unsigned int i = 0; i < IndexCount; i += 3) {
@@ -48,6 +44,6 @@ namespace LinaEngine
 		for (unsigned int i = 0; i < VertexCount; i++) {
 			pVertices[i].GetNormal().Normalize();
 		}
-	}
+	}*/
 }
 

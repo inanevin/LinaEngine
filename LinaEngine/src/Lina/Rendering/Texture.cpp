@@ -19,11 +19,11 @@ Timestamp: 1/7/2019 1:55:47 PM
 
 #include "LinaPch.hpp"
 #include "Texture.hpp"  
-#include "Lina/Utility/stb_image.h"
+
 
 namespace LinaEngine
 {
-	Texture::Texture(GLenum TextureTarget)
+	/*Texture::Texture(GLenum TextureTarget)
 	{
 		m_TextureTarget = TextureTarget;
 	}
@@ -82,6 +82,6 @@ namespace LinaEngine
 	{
 		glActiveTexture(textureUnit);
 		glBindTexture(GL_TEXTURE_2D, m_TextureObj);
-	}
+	}*/
 }
 

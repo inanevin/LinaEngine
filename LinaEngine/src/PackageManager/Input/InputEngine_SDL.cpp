@@ -35,24 +35,8 @@ namespace LinaEngine
 
 	static bool isSDLInputInitialized = false;
 
-	void InputEngine_SDL::SetCursor(bool visible) const
+	void InputEngine_SDL::Initialize()
 	{
-		SDL_ShowCursor(visible);
-	}
-
-	void InputEngine_SDL::SetMousePosition(const Vector2F & v) const
-	{
-		app->GetRenderingEngine().SetMousePosition(v);
-	}
-
-	void InputEngine_SDL::SDLErrorCallback(const char* description)
-	{
-		LINA_CORE_ERR("SDL Error: {1}", description);
-	}
-
-	InputEngine_SDL::InputEngine_SDL()
-	{
-
 		// Initialize the array.
 		m_PreviousKeys = new Uint8[numKeys];
 
@@ -74,6 +58,25 @@ namespace LinaEngine
 			isSDLInputInitialized = true;
 		}
 
+	}
+
+	void InputEngine_SDL::SetCursor(bool visible) const
+	{
+		SDL_ShowCursor(visible);
+	}
+
+	void InputEngine_SDL::SetMousePosition(const Vector2F & v) const
+	{
+		app->GetRenderingEngine().SetMousePosition(v);
+	}
+
+	void InputEngine_SDL::SDLErrorCallback(const char* description)
+	{
+		LINA_CORE_ERR("SDL Error: {1}", description);
+	}
+
+	InputEngine_SDL::InputEngine_SDL()
+	{
 
 	}
 

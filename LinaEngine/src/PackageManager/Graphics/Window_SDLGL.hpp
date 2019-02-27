@@ -40,11 +40,8 @@ namespace LinaEngine
 
 		void OnUpdate() override;
 
-		inline unsigned int GetWidth() const override { return m_Data.Width; }
-		inline unsigned int GetHeight() const override { return m_Data.Height; }
 
 		// Window attributes
-		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
 
@@ -54,24 +51,13 @@ namespace LinaEngine
 
 	private:
 
-		virtual void Init(const WindowProps& props);
+		virtual void Init();
 		virtual void Shutdown();
 
 	private:
 
 		SDL_Window* m_Window;
 		SDL_GLContext m_GLContext;
-
-		struct WindowData
-		{
-			std::string Title;
-			unsigned int Width, Height;
-			bool VSync;
-
-			EventCallbackFn EventCallback;
-		};
-
-		WindowData m_Data;
 
 		static int WindowEventFilter(void* userdata, SDL_Event* event);
 	};

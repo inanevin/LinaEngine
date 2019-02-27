@@ -15,6 +15,7 @@ IncludeDir["SDL"] = "LinaEngine/vendor/SDL2-2.0.9/include"
 IncludeDir["SPDLOG"] = "LinaEngine/vendor/spdlog/include"
 IncludeDir["GLM"] = "LinaEngine/vendor/glm"
 IncludeDir["GLAD"] = "LinaEngine/vendor/glad/include"
+IncludeDir["GLFW"] = "LinaEngine/vendor/GLFW/include"
 
 DLLDir = {}
 DLLDir["SDL"] = "LinaEngine/vendor/SDL2-2.0.9/lib/x64"
@@ -24,7 +25,7 @@ LibDir = {}
 LibDir["SDL"] = "LinaEngine/vendor/SDL2-2.0.9/lib/x64"
 
 include "LinaEngine/vendor/glad"
-
+include "LinaEngine/vendor/GLFW"
 
 project "LinaEngine"
 	location "LinaEngine"
@@ -50,7 +51,8 @@ project "LinaEngine"
 		"%{IncludeDir.SPDLOG}",
 		"%{IncludeDir.SDL}",
 		"%{IncludeDir.GLM}",
-		"%{IncludeDir.GLAD}"
+		"%{IncludeDir.GLAD}",
+		"%{IncludeDir.GLFW}"
 	}
 	
 	libdirs
@@ -63,7 +65,8 @@ project "LinaEngine"
 		"SDL2.lib",
 		"SDL2main.lib",
 		"glad",
-		"opengl32.lib"
+		"opengl32.lib",
+		"GLFW"
 	}
 			
 		filter "system:windows"
@@ -77,7 +80,7 @@ project "LinaEngine"
 			"LINA_BUILD_DLL",
 			"LINA_ENABLE_ASSERTS",
 			"LINA_ENABLE_LOGGING",
-			"LLF_INPUTANDWINDOW_SDL",
+			"LLF_INPUTANDWINDOW_GLFW",
 			"LLF_GRAPHICS_OPENGL",
 			"IMGUI_IMPL_OPENGL_LOADER_GLAD",
 			"STB_IMAGE_IMPLEMENTATION"

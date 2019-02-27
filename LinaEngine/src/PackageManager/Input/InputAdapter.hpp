@@ -28,6 +28,11 @@ Timestamp: 1/6/2019 2:16:29 AM
 
 #define INPUTENGINE_CREATEFUNC(PARAM) inline InputEngine* CreateInputEngine() { return new InputEngine_SDL(); }
 
+#elif LLF_INPUTANDWINDOW_GLFW
+
+#include "InputEngine_GLFW.hpp"
+#define INPUTENGINE_CREATEFUNC(PARAM) inline InputEngine* CreateInputEngine() { return new InputEngine_GLFW(); }
+
 #else
 
 #include "Lina/Input/InputEngine.hpp"

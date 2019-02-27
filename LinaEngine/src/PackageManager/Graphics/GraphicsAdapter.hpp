@@ -32,6 +32,10 @@ Timestamp: 12/31/2018 1:46:13 AM
 		#include "Window_SDLGL.hpp"
 		#define WINDOWCREATEFUNC(PARAM) inline Window* CreateEngineWindow(const WindowProps& props = WindowProps()) { return Window_SDLGL::Create(props); }
 
+	#elif LLF_INPUTANDWINDOW_GLFW
+		#include "Window_GLFWGL.hpp"
+		#define WINDOWCREATEFUNC(PARAM) inline Window* CreateEngineWindow(const WindowProps& props = WindowProps()) { return Window_GLFWGL::Create(props); }
+
 	#else
 
 		#include "Lina/Rendering/Window.hpp"

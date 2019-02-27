@@ -26,30 +26,38 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "Lina/Application.hpp"
 #include "Lina/Input/InputEngine.hpp"
 #include "Lina/Events/Action.hpp"
-#include "Shader_GLSLLighting.hpp"
 #include "Lina/Rendering/Vertex.hpp"
+#include "Texture_OpenGL.hpp"
+#include "PackageManager/Graphics/Shader_GLSLBasic.hpp"
 
 
 namespace LinaEngine
 {
 #define BIND_EVENT_FN(x) std::bind(&RenderingEngine_OpenGL::x, this, std::placeholders::_1)
 
-	GLuint VBO;
-	GLuint IBO;
-	Transform t;
-	DirectionalLight l;
+	unsigned int VBO;
+	unsigned int VAO;
+	unsigned int EBO;
 
+	typedef Texture_OpenGL Texture2D;
+	Texture2D containerTexture;
+	Texture2D bricksTexture;
+	Shader_GLSLBasic basicShader;
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
 	{
-		testTexture = Texture(GL_TEXTURE_2D);
+		
 	}
 
 	RenderingEngine_OpenGL::~RenderingEngine_OpenGL()
 	{
-		LINA_CORE_ASSERT(test, "Destructor Rendering Engine is nullptr!");
+		glDeleteVertexArrays(1, &VAO);
+		glDeleteBuffers(1, &VBO);
+		glDeleteBuffers(1, &EBO);
+	}
 
-		if (test)
-			delete test;
+	void RenderingEngine_OpenGL::Initialize()
+	{
+
 	}
 
 	void RenderingEngine_OpenGL::Start()
@@ -61,101 +69,80 @@ namespace LinaEngine
 		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, [this](int i) { cam.OnKeyPress(i); });
 		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, );
 
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glFrontFace(GL_CW);
-		glCullFace(GL_BACK);
-		glEnable(GL_CULL_FACE);
-
-		unsigned int Indices[] = { 0, 3, 1,
-						   1, 3, 2,
-						   2, 3, 0,
-						   0, 1, 2 };
-
-
-		CreateIndexBuffer(Indices, sizeof(Indices));
-		CreateVertexBuffer(Indices, ARRAY_SIZE_IN_ELEMENTS(Indices));
-
+		//basicShader = Shader_GLSLBasic();
+		basicShader.Initialize();
 		
+	/*	Vertex vertices[] = {
+			Vertex(Vector3F(0.5f, -0.5f, 0.0f), Vector2F(0.0f, 0.0f)),
+			Vertex(Vector3F(-0.5f, -0.5f, 0.0f), Vector2F(1.0f, 0.0f)),
+			Vertex(Vector3F(0.0f, 0.5f, 0.0f), Vector2F(0.5f, 1.0f))
+		};*/
 
-		test = new Shader_GLSLLighting();
-		test->Initialize();
-		test->Enable();
-		test->SetTextureUnit(0);
-	
+		float vertices[] = {
+			// positions          // colors           // texture coords
+			 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+			 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+			-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+			-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+		};
 
-		PerspectiveInformation p;
-		p.FOV = 60;
-		p.zFar = 1000;
-		p.zNear = 0.1f;
-		p.width = GetMainWindow().GetWidth();
-		p.height = GetMainWindow().GetHeight();
-		cam = Camera(p);
-
-		testTexture.Load(ResourceConstants::BasicTexturePath);
+		unsigned int indices[] = {
+		0, 1, 3, // first triangle
+		1, 2, 3  // second triangle
+		};
 
 
+		glGenBuffers(1, &VBO);
+		glGenVertexArrays(1, &VAO);
+		glGenBuffers(1, &EBO);
 
+		glBindVertexArray(VAO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(1);
+
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+
+		containerTexture = Texture2D(GL_TEXTURE0, true, "container.jpg");
+		bricksTexture = Texture2D(GL_TEXTURE1, true, "awesomeface2.png");
+
+		// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+		// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+		glBindVertexArray(0);
 	}
 
 	void RenderingEngine_OpenGL::OnUpdate()
 	{
-		/* MAIN LOOP RENDER */
-		// Clear buffer
+		RenderingEngine::OnUpdate();
+
+		
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		containerTexture.Use();
+		bricksTexture.Use();
+		basicShader.Use();
+		basicShader.SetTextureUnit1();
+		basicShader.SetTextureUnit2();
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		
 
-		static float sc = 0.0f;
-
-		t.SetScale(1, 1, 1.0f);
-		t.SetPosition(0, 0.0f, 5.0f);
-		t.SetRotation(0.0f, 0.0f, 0.0f);
-
-
-		Matrix4F wvp = cam.GetViewProjection() * t.GetWorldTransformation();
-		test->SetWVP(wvp);
-
-		Matrix4F worldViewMatrix = t.GetWorldTransformation();
-		test->SetWorldMatrix(worldViewMatrix);
-
-		l.Color = Vector3F(1, 1, 1);
-		l.AmbientIntensity = .3f;
-		l.DiffuseIntensity = 7.0f;
-		l.Direction = Vector3F(0.0f, 0.0f, 1.0f);
-		test->SetDirectionalLight(l);
-		test->SetEyeWorldPos(cam.m_Transform.position);
-		test->SetMatSpecularIntensity(4.0f);
-		test->SetMatSpecularPower(8);
-			
-		// vertex attribute index 0 is fixed for vertex position, so activate the attribute, 1 is texture coordinates..
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
-
-		// Update the pipeline state of the buffer we want to use.
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-
-		// Tell the pipeline how to interpret the data. First attrib is 0 as we only use it for now, but it will be the index of shaders once they come into place.
-		// 3 is # of components, xyz.
-		// 4th param is whether to normalize the data, 5th is stride, # of bytes bw two instances of that attribute in the buffer. (Pass the size of struct, only one type of data for now.)
-		// Last param is the offset inside the structure where the pipeline will find our attribute.
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)12);
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)20);
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-		testTexture.Bind(GL_TEXTURE0);
-		glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
-
-		// Good practice to disable each vertex attribute when not used.
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
-		glDisableVertexAttribArray(2);
-
-		cam.OnInput(app->GetInputEngine());
-
-
-		RenderingEngine::OnUpdate();
 
 	}
 
@@ -165,35 +152,22 @@ namespace LinaEngine
 	}
 
 
-	void RenderingEngine_OpenGL::CreateVertexBuffer(const unsigned int* pIndices, unsigned int indexCount)
-	{
-
-
-		Vertex Vertices[4] = { Vertex(Vector3F(-1.0f, -1.0f, 0.5773f), Vector2F(0.0f, 0.0f)),
-							 Vertex(Vector3F(0.0f, -1.0f, -1.15475f), Vector2F(0.5f, 0.0f)),
-							 Vertex(Vector3F(1.0f, -1.0f, 0.5773f),  Vector2F(1.0f, 0.0f)),
-							 Vertex(Vector3F(0.0f, 1.0f, 0.0f),      Vector2F(0.5f, 1.0f)) };
-
-		unsigned int vertexCount = ARRAY_SIZE_IN_ELEMENTS(Vertices);
-
-		Vertex::CalcNormals(pIndices, indexCount, Vertices, vertexCount);
-
-		glGenBuffers(1, &VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
-
-	}
-	void RenderingEngine_OpenGL::CreateIndexBuffer(const unsigned int* pIndices, unsigned int sizeInBytes)
-	{
-		glGenBuffers(1, &IBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeInBytes, pIndices, GL_STATIC_DRAW);
-	}
+	
 
 	void RenderingEngine_OpenGL::SetApplication(Application& p)
 	{
 		LINA_CORE_ASSERT(&p, "Application is nullptr!");
 		this->app = &p;
+	}
+
+	void RenderingEngine_OpenGL::SetWireframeMode(bool activation)
+	{
+		if (activation)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		else
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		isWireframeModeActive = activation;
 	}
 
 

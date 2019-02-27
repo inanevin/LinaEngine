@@ -35,6 +35,9 @@ namespace LinaEngine
 		InputEngine();
 		virtual ~InputEngine();
 
+		/* Called when input engine is initialized. */
+		virtual void Initialize() = 0;
+
 		/* Called when updating the input engine. */
 		virtual void OnUpdate() = 0;
 
@@ -70,6 +73,8 @@ namespace LinaEngine
 
 		/* Sets mouse position to desired screen space coordinates. */
 		virtual void SetMousePosition(const Vector2F& v) const = 0;
+
+	
 
 		/* Set method for application reference. */
 		void SetApplication(Application& app);
@@ -130,6 +135,9 @@ namespace LinaEngine
 		}
 		
 	protected:
+
+		/* Calls corresponding method on the rendering engine to toggle wireframe mode. Must be called from input engine implementation. */
+		void WireframeModeToggle();
 
 		/* Subscribed action handlers. */
 		std::list<std::shared_ptr<ActionHandlerBase>> m_Handlers;

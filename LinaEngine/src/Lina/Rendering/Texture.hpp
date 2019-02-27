@@ -22,7 +22,7 @@ Timestamp: 1/7/2019 1:55:47 PM
 #ifndef Texture_HPP
 #define Texture_HPP
 
-#include <glad/glad.h>
+
 
 namespace LinaEngine
 {
@@ -30,19 +30,19 @@ namespace LinaEngine
 	{
 	public:
 
-		Texture() {};
-		Texture(GLenum textureTarget);
+		//Texture() {};
+		//Texture(GLenum textureTarget);
 
 		/* Loads the texture with a given filename. */
-		bool Load(const std::string& fileName);
+		//bool Load(const std::string& fileName);
 
 		/* Binds the loaded texture as a unit to the program. */
-		void Bind(GLenum textureUnit);
-
+		//void Bind(GLenum textureUnit);
+	
 	private:
 
-		GLenum m_TextureTarget;
-		GLuint m_TextureObj;
+		//GLenum m_TextureTarget;
+		//GLuint m_TextureObj;
 	};
 }
 

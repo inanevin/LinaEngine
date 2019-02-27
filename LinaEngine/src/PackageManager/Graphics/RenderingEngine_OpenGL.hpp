@@ -27,7 +27,6 @@ Timestamp: 1/2/2019 11:44:41 PM
 
 #include "Lina/Rendering/RenderingEngine.hpp"
 
-#include "glad/glad.h"
 
 
 namespace LinaEngine
@@ -41,24 +40,19 @@ namespace LinaEngine
 
 		RenderingEngine_OpenGL();
 		~RenderingEngine_OpenGL();
-
+		
+		void Initialize() override;
 		void Start() override;
 		void OnUpdate() override;
 		void OnWindowEvent(Event& e) override;
-		void CreateVertexBuffer(const unsigned int* pIndices, unsigned int indexCount);
-		void CreateIndexBuffer(const unsigned int* pIndices, unsigned int sizeInBytes);
 		void SetApplication(class Application& app) override;
 		void SetMousePosition(const Vector2F& v) override { GetMainWindow().SetMousePosition(v); }
+		void SetWireframeMode(bool activation) override;
 
 	private:
-
-		Texture testTexture;
+		
 		class Application* app = NULL;
-		class Shader_GLSLLighting* test = NULL;
-		Camera cam;
-		GLuint m_VAO;
-		GLuint m_VAB;
-		int drawCount;
+	
 	};
 }
 

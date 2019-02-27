@@ -38,6 +38,8 @@ namespace LinaEngine
 		InputEngine_SDL();
 		~InputEngine_SDL();
 
+		void Initialize() override;
+
 		void OnUpdate() override;
 
 		inline bool GetKey(int keyCode)            override { return *(m_CurrentKeys + keyCode); }

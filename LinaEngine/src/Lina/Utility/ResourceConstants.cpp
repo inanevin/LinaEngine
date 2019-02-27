@@ -22,9 +22,33 @@ Timestamp: 1/5/2019 1:39:45 PM
 namespace LinaEngine
 {
 
-	#define LINA_RESOURCESPATH "Resources\\"
+#ifdef LINA_PLATFORM_WINDOWS
+#include <direct.h>
+#define GetCurrentDir _getcwd
+
+	std::string getResourcesPath()
+	{
+		char cCurrentPath[FILENAME_MAX];
+
+		if (!GetCurrentDir(cCurrentPath, sizeof(cCurrentPath)))
+		{
+			return "";
+		}
+
+		cCurrentPath[sizeof(cCurrentPath) - 1] = '\0'; /* not really required */
+
+		printf("The current working directory is %s", cCurrentPath);
+	}
+
+
+#endif
+
+
+
+#define LINA_RESOURCESPATH "Resources\\"
+
 
 	std::string& ResourceConstants::ShadersPath = std::string(LINA_RESOURCESPATH) + std::string("Shaders\\GLSL\\");
-	std::string& ResourceConstants::BasicTexturePath = std::string(LINA_RESOURCESPATH) + std::string("Textures\\test.png");
+	std::string& ResourceConstants::TexturesPath = std::string(LINA_RESOURCESPATH) + std::string("Textures\\");
 }
 

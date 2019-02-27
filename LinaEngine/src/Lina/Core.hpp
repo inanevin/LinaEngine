@@ -43,6 +43,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #define LINA_CLIENT_ENSURE_ASSERT(x,y,...) { if(!(x)) { LINA_CLIENT_ERR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); return y; } }
 #define LINA_CORE_ASSERT(x,...)  {	if(!(x)) { LINA_CORE_ERR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 #define LINA_CORE_ENSURE_ASSERT(x,y,...)  {	if(!(x)) { LINA_CORE_ERR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); return y; } }
+#define LINA_CORE_ENSURE_ASSERTFUNC(x,y,z,...)  {	if(!(x)) { LINA_CORE_ERR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); z return y; } }
 
 #else
 
@@ -50,7 +51,8 @@ Timestamp: 12/29/2018 10:43:46 PM
 #define LINA_CLIENT_ASSERT(x,...)
 #define LINA_CLIENT_ENSURE_ASSERT(x,...)
 #define LINA_CORE_ASSERT(x,...)
-#define LINA_CORE_ENSURE_ASSERT(x,...)
+#define LINA_CORE_ENSURE_ASSERT(x,...)  {	if(!(x)) { return y; } }
+#define LINA_CORE_ENSURE_ASSERTFUNC(x,y,z,...) {if(!(x)) { z return y; }}
 
 #endif
 

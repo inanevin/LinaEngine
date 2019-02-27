@@ -32,13 +32,27 @@ namespace LinaEngine
 		Shader_GLSL::Initialize("Basic");
 
 		// Add uniforms.
-		AddUniform("gWVP", "mat4");
-		AddUniform("gSampler", "sampler2D");
+		//AddUniform("gWVP", "mat4");
+		//AddUniform("gSampler", "sampler2D");
+		AddUniform("texture1", "sampler2D");
+		AddUniform("texture2", "sampler2D");
+
 
 	}
 	void Shader_GLSLBasic::SetWVP(const Matrix4F & wvp)
 	{
-		SetUniform("gWVP", wvp);
+		//SetUniform("gWVP", wvp);
 	}
-}
 
+	void Shader_GLSLBasic::SetTextureUnit1()
+	{
+		SetUniform("texture1", 0);
+	}
+
+	void Shader_GLSLBasic::SetTextureUnit2()
+	{
+		SetUniform("texture2", 1);
+
+	}
+
+}

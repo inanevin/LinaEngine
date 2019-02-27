@@ -20,6 +20,7 @@ Timestamp: 1/6/2019 2:17:55 AM
 #include "LinaPch.hpp"
 #include "InputEngine.hpp"  
 #include "Lina/Application.hpp"
+#include "Lina/Rendering/RenderingEngine.hpp"
 
 namespace LinaEngine
 {
@@ -36,6 +37,12 @@ namespace LinaEngine
 	{
 		LINA_CORE_ASSERT(&app, "Application is nullptr!");
 		this->app = &app;
+	}
+
+	void InputEngine::WireframeModeToggle()
+	{
+		LINA_CORE_ENSURE_ASSERT(app != NULL, , "App is null!");
+		app->GetRenderingEngine().SetWireframeMode(!app->GetRenderingEngine().GetIsWireframeModeActive());
 	}
 	
 }

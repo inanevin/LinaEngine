@@ -39,6 +39,9 @@ namespace LinaEngine
 		virtual ~RenderingEngine();
 
 		/* Initializes the rendering engine. */
+		virtual void Initialize() = 0;
+
+		/* Starts the rendering engine. */
 		virtual void Start() = 0;
 
 		/* Called in each frame. */
@@ -53,14 +56,22 @@ namespace LinaEngine
 		/* Sets the mouse position to desired screen space coordinates. */
 		virtual void SetMousePosition(const Vector2F& v) = 0;
 
+		/* Enables & Disables wireframe mode.*/
+		virtual void SetWireframeMode(bool activation) = 0;
+
 		/* return the main window reference. */
 		inline Window& GetMainWindow() const { LINA_CORE_ASSERT(m_Window, "Window is nullptr!"); return *m_Window; }
+
+		inline bool GetIsWireframeModeActive() { return isWireframeModeActive; }
+
+	protected:
+
+		bool isWireframeModeActive;
 
 	private:
 
 		/* Window that the rendering engine is rendering within. */
 		std::unique_ptr<Window> m_Window;
-
 
 	};
 }

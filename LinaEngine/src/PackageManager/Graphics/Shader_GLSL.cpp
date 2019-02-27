@@ -40,8 +40,9 @@ namespace LinaEngine
 			glDeleteShader(*it);
 		}
 
+		std::cout << m_Program;
 		LINA_CORE_ASSERT(m_Program != 0, nullptr, "Shader program is already deleted!");
-		
+
 		// Delete program.
 		glDeleteProgram(m_Program);
 		m_Program = 0;
@@ -49,7 +50,6 @@ namespace LinaEngine
 
 	void Shader_GLSL::Initialize(const std::string& fileName)
 	{
-
 		// Create program.
 		m_Program = glCreateProgram();
 
@@ -65,7 +65,7 @@ namespace LinaEngine
 		Finalize();
 	}
 
-	void Shader_GLSL::Enable()
+	void Shader_GLSL::Use()
 	{
 		glUseProgram(m_Program);
 	}
@@ -157,7 +157,7 @@ namespace LinaEngine
 			}
 		}
 #endif
-		
+
 	}
 
 	void Shader_GLSL::AddShader(std::string pShaderText, GLenum shaderType)
@@ -213,7 +213,7 @@ namespace LinaEngine
 				return "";
 			}
 
-		
+
 
 			//Read the files' content from buffer into streams.
 			std::stringstream vShaderStream;
@@ -244,4 +244,3 @@ namespace LinaEngine
 		return ret;
 	}
 }
-

@@ -33,31 +33,36 @@ namespace LinaEngine
 		std::string Title;
 		unsigned int Width;
 		unsigned int Height;
+		bool VSync;
 
 		WindowProps(const std::string& title = "Lina Engine",
 			unsigned int width = 1280,
 			unsigned int height = 720)
-			: Title(title), Width(width), Height(height)
+			: Title(title), Width(width), Height(height), VSync(false)
 		{
 		}
+
+		std::function<void(Event&)> EventCallback;
 	};
 
 	// Interface representing a desktop system based Window
 	class LINA_API Window
 	{
 	public:
+
 		using EventCallbackFn = std::function<void(Event&)>;
+		Window(const WindowProps& wp = WindowProps());
 		virtual ~Window() {}
 
 		/* Gets called when the window updates each frame. */
 		virtual void OnUpdate() = 0;
 
 		/* Returns absolute width & height of the window. */
-		virtual unsigned int GetWidth() const = 0;
-		virtual unsigned int GetHeight() const = 0;
+		unsigned int GetWidth() const { return m_WindowProps.Width; }
+		unsigned int GetHeight() const { return m_WindowProps.Height; }
 
 		/* Sets a function pointer as a callback to the desired event.*/
-		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
+		inline void SetEventCallback(const EventCallbackFn& callback) { m_WindowProps.EventCallback = callback; }
 
 		/* Enables/Disables vertical sync. */
 		virtual void SetVSync(bool enabled) = 0;
@@ -68,8 +73,14 @@ namespace LinaEngine
 		/* Sets mouse to the desired coordinates in the screen space. */
 		virtual void SetMousePosition(const Vector2F&) = 0;
 
+	protected:
+
+		WindowProps m_WindowProps;
+
 		//static Window* Create(const WindowProps& props = WindowProps());
 	};
+
+
 }
 
 

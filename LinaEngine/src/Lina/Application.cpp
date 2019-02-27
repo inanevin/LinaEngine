@@ -42,6 +42,9 @@ namespace LinaEngine
 		// Set application reference.
 		m_RenderingEngine->SetApplication(*this);
 
+		// Initialize rendering engine.
+		m_RenderingEngine->Initialize();
+
 		// Get an input adapter.
 		InputAdapter inpAdpt;
 
@@ -50,6 +53,9 @@ namespace LinaEngine
 
 		// Set window reference in input engine.
 		m_InputEngine->SetApplication(*this);
+
+		// Initialize input engine.
+		m_InputEngine->Initialize();
 
 		// Set running flag.
 		m_Running = true;
@@ -69,7 +75,6 @@ namespace LinaEngine
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
 	
-		//LINA_CORE_INFO(e);
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{
@@ -83,6 +88,7 @@ namespace LinaEngine
 	{
 		while (m_Running)
 		{
+			
 			m_InputEngine->OnUpdate();
 
 			// Update rendering engine.
@@ -91,7 +97,6 @@ namespace LinaEngine
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 
-			//LINA_CORE_WARN("Add a method to remove subscription from action dispatcher!");
 
 		}
 

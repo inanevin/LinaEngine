@@ -50,9 +50,11 @@ namespace LinaEngine
 		SDL_WarpMouseInWindow(m_Window, (int)v.x, (int)v.y);
 	}
 
-	Window_SDLGL::Window_SDLGL(const WindowProps& props)
+	Window_SDLGL::Window_SDLGL(const WindowProps& props) : Window::Window(props)
 	{
-		Init(props);
+		Init();
+
+		LINA_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 	}
 
 	Window_SDLGL::~Window_SDLGL()
@@ -60,14 +62,8 @@ namespace LinaEngine
 		Shutdown();
 	}
 
-	void Window_SDLGL::Init(const WindowProps& props)
+	void Window_SDLGL::Init()
 	{
-
-		m_Data.Title = props.Title;
-		m_Data.Width = props.Width;
-		m_Data.Height = props.Height;
-
-		LINA_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
 		// Initialize SDL, assert err check.
 		if (!isSDLInitialized)
@@ -106,7 +102,7 @@ namespace LinaEngine
 
 
 		// Create window
-		m_Window = SDL_CreateWindow(m_Data.Title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_Data.Width, m_Data.Height, SDL_WINDOW_OPENGL| SDL_WINDOW_RESIZABLE);
+		m_Window = SDL_CreateWindow(m_WindowProps.Title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_WindowProps.Width, m_WindowProps.Height, SDL_WINDOW_OPENGL| SDL_WINDOW_RESIZABLE);
 
 		// We create a context using our window, so we will have power over our window via OpenGL -> GPU.
 		m_GLContext = SDL_GL_CreateContext(m_Window);
@@ -121,7 +117,7 @@ namespace LinaEngine
 		SetVSync(true);
 
 		// Add customized event watch for this window.
-		SDL_AddEventWatch(WindowEventFilter, &m_Data);
+		SDL_AddEventWatch(WindowEventFilter, &m_WindowProps);
 
 		// Set the cursor to center.
 		int x = 0;
@@ -139,7 +135,7 @@ namespace LinaEngine
 		// The callback for windows is binded to the OnEvent function of the Application class.
 		// So basically, whenever a window event is caught from the SDL, OnEvent function of Application is called with that event.
 
-		auto data = static_cast<WindowData *>(userdata);
+		auto data = static_cast<WindowProps*>(userdata);
 
 		if (event->type == SDL_WINDOWEVENT)
 		{
@@ -195,12 +191,12 @@ namespace LinaEngine
 		else
 			SDL_GL_SetSwapInterval(0);
 
-		m_Data.VSync = enabled;
+		m_WindowProps.VSync = enabled;
 	}
 
 	bool Window_SDLGL::IsVSync() const
 	{
-		return m_Data.VSync;
+		return m_WindowProps.VSync;
 	}
 
 

@@ -30,25 +30,23 @@ namespace LinaEngine
 	{
 	public:
 
-		Vertex();
-		Vertex(Vector3F position, Vector2F textureCoord, Vector3F n) : m_Position(position), m_TextureCoordinates(textureCoord), m_Normal(n) {};
-		Vertex(Vector3F position, Vector2F textureCoord) : m_Position(position), m_TextureCoordinates(textureCoord), m_Normal(Vector3F::Zero()) {};
-		Vertex(Vector3F position) : m_Position(position), m_TextureCoordinates(Vector2F::Zero()), m_Normal(Vector3F::Zero()) {};
-
+	
+		Vertex(Vector3F position = Vector3F::Zero(), Vector2F textureCoord = Vector2F::Zero(), Vector3F n = Vector3F::Zero()) : m_Position(position), m_TextureCoordinates(textureCoord) /*,m_Normal(n)*/ {};
+		
 		/* Setters and getters for position, normal and texture coordinates. */
 		inline void SetPosition(const Vector3F& v) { m_Position = v; }
-		inline void SetNormal(const Vector3F& v) { m_Normal = v; }
+		//inline void SetNormal(const Vector3F& v) { m_Normal = v; }
 		inline void SetTextureCoordinates(Vector2F v) { m_TextureCoordinates = v; }
 		inline Vector3F GetPosition() { return m_Position; }
-		inline Vector3F GetNormal() { return m_Normal; }
+		//inline Vector3F GetNormal() { return m_Normal; }
 		inline Vector2F GetTextureCoordinates() { return m_TextureCoordinates; }
 
-		static void CalcNormals(const unsigned int* pIndices, unsigned int IndexCount, Vertex* pVertices, unsigned int VertexCount);
+		//static void CalcNormals(const unsigned int* pIndices, unsigned int IndexCount, Vertex* pVertices, unsigned int VertexCount);
 	private:
 
 		Vector3F m_Position;	// ORDER IMPORTANT
 		Vector2F m_TextureCoordinates;	// ORDER IMPORTANT
-		Vector3F m_Normal;	// ORDER IMPORTANT
+		//Vector3F m_Normal;	// ORDER IMPORTANT
 	};
 }
 

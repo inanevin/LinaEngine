@@ -27,12 +27,16 @@ Timestamp: 1/5/2019 12:42:58 AM
 
 namespace LinaEngine
 {
+	extern std::string getResourcesPath();
+
 	class ResourceConstants
 	{
 
 	public:
 		static  std::string& ShadersPath;
-		static	std::string& BasicTexturePath;
+		static	std::string& TexturesPath;
+
+		
 	};
 
 }
