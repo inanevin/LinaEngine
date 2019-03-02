@@ -21,13 +21,13 @@ Timestamp: 1/6/2019 2:17:55 AM
 #ifndef InputEngine_HPP
 #define InputEngine_HPP
 
-#include "Lina/Events/Action.hpp"
+#include "Lina/Events/ActionSource.hpp"
 
 namespace LinaEngine
 {
 
 	class Application;
-	class InputEngine
+	class LINA_API InputEngine : public ActionSource
 	{
 
 	public:
@@ -79,76 +79,16 @@ namespace LinaEngine
 		/* Set method for application reference. */
 		void SetApplication(Application& app);
 
-		template<typename T>
-		void SubscribeToAction(ActionType at, T condition, const std::function<void()>& cbp)
-		{
-			
-			// Init the handler.
-			ActionHandler<T> handler(at);
-			handler.SetUseNoParamCallback(true);
-			handler.SetUseCondition(true);
-			handler.SetNoParamCallback(cb);
-			handler.SetCondition(condition);
-
-			// Push it as a shared ptr to the handler list.
-			m_Handlers.push_back(std::make_shared<ActionHandler<T>>(handler));
-
-			// Get the shared ptr pushed just now.
-			std::list<std::shared_ptr<ActionHandlerBase>>::iterator iter = std::prev(m_Handlers.end());
-
-			// construct a weakptr out of the shared.
-			std::weak_ptr<ActionHandlerBase> wptr = *iter;
-
-			
-			// Call the subscription to subscribe to relevant dispatcher.
-			Subscribe(at, wptr);
-		}
-
-		template<typename T>
-		void SubscribeToAction(ActionType at, const std::function<void(T&)>& cbp)
-		{
-			// Init the handler.
-			ActionHandler<T> handler(at);
-			handler.SetUseParamCallback(true);
-			handler.SetParamCallback(cbp);
-
-			// Push it a shared ptr to the handler to the list.
-			m_Handlers.push_back(std::make_shared<ActionHandler<T>>(handler));
-
-			// Get the shared ptr pushed just now.
-			std::list<std::shared_ptr<ActionHandlerBase>>::iterator iter = std::prev(m_Handlers.end());
-
-			// construct a weakptr out of the shared.
-			std::weak_ptr<ActionHandlerBase> wptr = *iter;
-
-			// Call the subscription to subscribe to relevant dispatcher.
-			Subscribe(at, wptr);
-		}
-
-		inline void Subscribe(ActionType at, std::weak_ptr<ActionHandlerBase> wptr)
-		{
-			if (at == ActionType::KeyPressed || at == ActionType::KeyReleased || at == ActionType::MouseButtonPressed || at == ActionType::MouseButtonReleased ||
-				at == ActionType::MouseMotionX || at == ActionType::MouseMotionY || at == ActionType::SDLQuit)
-			{
-				m_InputDispatcher.SubscribeHandler(wptr);
-			}
-		}
 		
 	protected:
 
 		/* Calls corresponding method on the rendering engine to toggle wireframe mode. Must be called from input engine implementation. */
 		void WireframeModeToggle();
 
-		/* Subscribed action handlers. */
-		std::list<std::shared_ptr<ActionHandlerBase>> m_Handlers;
-
-		/* Input dispatcher for actions. */
-		ActionDispatcher m_InputDispatcher;
-
 		/* Reference to the running game application. */
 		Application* app;
 
-		/* Input mappings struct to be overriden by children. */
+		
 	};
 }
 

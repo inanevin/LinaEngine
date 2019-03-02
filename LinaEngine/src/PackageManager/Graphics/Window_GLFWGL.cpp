@@ -53,8 +53,6 @@ namespace LinaEngine
 			// Swap Buffers
 			glfwSwapBuffers(m_Window);
 
-			// Poll Events
-			glfwPollEvents();
 		}
 		else
 		{

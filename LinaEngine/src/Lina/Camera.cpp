@@ -62,7 +62,7 @@ namespace LinaEngine
 	void Camera::OnInput(InputEngine & i)
 	{
 
-		if (i.GetKey(KEY_W))
+		/*if (i.GetKey(KEY_W))
 		{
 			this->m_Transform.position += (m_Transform.rotation.GetForward() * movementSpeed);
 
@@ -88,7 +88,7 @@ namespace LinaEngine
 			right *= movementSpeed;
 			this->m_Transform.position += right;
 
-		}
+		}*/
 
 
 		if (i.GetMouseDown(0))

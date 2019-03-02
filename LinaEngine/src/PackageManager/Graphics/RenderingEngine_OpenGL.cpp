@@ -49,7 +49,7 @@ namespace LinaEngine
 	Texture2D overlayTexture;
 	Shader_GLSLBasic basicShader;
 	Camera sceneCamera;
-	Transform cubeTransforms [] = {
+	Transform cubeTransforms[] = {
 		Transform(Vector3F(0.0f,  0.0f,  0.0f)),
 		Transform(Vector3F(2.0f,  5.0f, -15.0f)),
 		Transform(Vector3F(-1.5f, -2.2f, -2.5f)),
@@ -87,6 +87,10 @@ namespace LinaEngine
 		glDeleteBuffers(1, &EBO);
 	}
 
+	void RenderingEngine_OpenGL::Test()
+	{
+		std::cout << "yey";
+	}
 	void RenderingEngine_OpenGL::Initialize()
 	{
 
@@ -94,6 +98,14 @@ namespace LinaEngine
 
 	void RenderingEngine_OpenGL::Start()
 	{
+		ActionParams<int> params;
+		params.actionType = ActionType::KeyPressed;
+		params.condition = LINA_KEY_F2;
+		params.callback = BIND_ACTION(RenderingEngine_OpenGL::Test, this);
+		//params.callbackWithParameter = BIND_ACTION_PARAM(RenderingEngine_OpenGL::Test, this);
+
+		app->GetInputEngine().SubscribeToAction(params);
+		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, LINA_KEY_F2, [this]() { this->Test(); });
 		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, KEY_K, [this]() { this->Test(); });
 		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, KEY_K, std::bind(&Camera::OnKeyPress, cam, std::placeholders::_1));
 		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, std::bind(&Camera::OnKeyPress, cam, std::placeholders::_1));
@@ -249,7 +261,7 @@ namespace LinaEngine
 				model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 			else
 				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));*/
-			//basicShader.SetModel(model);
+				//basicShader.SetModel(model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		//	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

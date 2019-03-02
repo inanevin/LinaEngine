@@ -35,6 +35,11 @@ namespace LinaEngine
 
 	static bool isSDLInputInitialized = false;
 
+	InputEngine_SDL::InputEngine_SDL()
+	{
+
+	}
+
 	void InputEngine_SDL::Initialize()
 	{
 		// Initialize the array.
@@ -75,10 +80,6 @@ namespace LinaEngine
 		LINA_CORE_ERR("SDL Error: {1}", description);
 	}
 
-	InputEngine_SDL::InputEngine_SDL()
-	{
-
-	}
 
 	InputEngine_SDL::~InputEngine_SDL()
 	{
@@ -102,24 +103,24 @@ namespace LinaEngine
 			{
 				Action<int> keyReleased = Action<int>(KeyReleased);
 				keyReleased.SetData(e.key.keysym.scancode);
-				m_InputDispatcher.DispatchAction(keyReleased);
+				m_ActionDispatcher.DispatchAction(keyReleased);
 			}
 			else if (e.type == SDL_MOUSEBUTTONDOWN)
 			{
 				Action<int> mouseButtonDown = Action<int>(MouseButtonPressed);
 				mouseButtonDown.SetData(e.button.button);
-				m_InputDispatcher.DispatchAction(mouseButtonDown);
+				m_ActionDispatcher.DispatchAction(mouseButtonDown);
 			}
 			else if (e.type == SDL_MOUSEBUTTONUP)
 			{
 				Action<int> mouseButtonUp = Action<int>(MouseButtonReleased);
 				mouseButtonUp.SetData(e.button.button);
-				m_InputDispatcher.DispatchAction(mouseButtonUp);
+				m_ActionDispatcher.DispatchAction(mouseButtonUp);
 			}
 			else if (e.type == SDL_QUIT)
 			{
 				Action<> sdlQuit = Action<>(SDLQuit);
-				m_InputDispatcher.DispatchAction(sdlQuit);
+				m_ActionDispatcher.DispatchAction(sdlQuit);
 			}
 		}
 

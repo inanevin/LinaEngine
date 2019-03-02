@@ -25,7 +25,7 @@ Timestamp: 2/25/2019 9:43:54 AM
 #define InputEngine_GLFW_HPP
 
 #include "Lina/Input/InputEngine.hpp"
-
+#include "PackageManager/Graphics/Window_GLFWGL.hpp"
 
 namespace LinaEngine
 {
@@ -74,6 +74,11 @@ namespace LinaEngine
 
 		/* Sets mouse position to desired screen space coordinates. */
 		void SetMousePosition(const Vector2F& v) const;
+
+	private:
+
+		bool isInitialized = false;
+		GLFWwindow* glfwWindow;
 	};
 }
 

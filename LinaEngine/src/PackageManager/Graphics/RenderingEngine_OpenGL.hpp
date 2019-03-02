@@ -51,6 +51,7 @@ namespace LinaEngine
 
 	private:
 		
+		void Test();
 		class Application* app = NULL;
 	
 	};
