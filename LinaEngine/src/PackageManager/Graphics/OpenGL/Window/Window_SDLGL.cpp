@@ -107,7 +107,6 @@ namespace LinaEngine
 		// We create a context using our window, so we will have power over our window via OpenGL -> GPU.
 		m_GLContext = SDL_GL_CreateContext(m_Window);
 
-
 		// Initialize glad.
 		int status = gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
 		LINA_CORE_ASSERT(status, "Failed to initialize GLAD!");

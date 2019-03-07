@@ -25,7 +25,7 @@ Timestamp: 2/25/2019 9:43:54 AM
 #define InputEngine_GLFW_HPP
 
 #include "Lina/Input/InputEngine.hpp"
-#include "PackageManager/Graphics/Window_GLFWGL.hpp"
+#include "PackageManager/Graphics/OpenGL/Window/Window_GLFWGL.hpp"
 
 namespace LinaEngine
 {

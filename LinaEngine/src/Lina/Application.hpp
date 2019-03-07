@@ -41,6 +41,8 @@ namespace LinaEngine
 		bool OnWindowClose(WindowCloseEvent& e);
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
+		
+		inline static Application& Get() { return *instance; }
 
 		inline InputEngine& GetInputEngine() const
 		{
@@ -56,7 +58,7 @@ namespace LinaEngine
 
 	private:
 
-		
+		static Application* instance;
 		bool m_Running = false;
 		LayerStack m_LayerStack;
 		std::unique_ptr<RenderingEngine> m_RenderingEngine;

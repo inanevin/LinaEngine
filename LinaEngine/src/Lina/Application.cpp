@@ -28,8 +28,15 @@ namespace LinaEngine
 {
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
+	Application* Application::instance = nullptr;
+
 	Application::Application()
 	{
+		LINA_CORE_ASSERT(!instance, "Application already exists!");
+
+		// Set singleton instance.
+		instance = this;
+
 		// Get a graphics adapter.
 		GraphicsAdapter adpt;
 
@@ -112,10 +119,12 @@ namespace LinaEngine
 	void Application::PushLayer(Layer * layer)
 	{
 		m_LayerStack.PushLayer(layer);
+		layer->OnAttach();
 	}
 	void Application::PushOverlay(Layer * layer)
 	{
 		m_LayerStack.PushOverlay(layer);
+		layer->OnAttach();
 	}
 
 }

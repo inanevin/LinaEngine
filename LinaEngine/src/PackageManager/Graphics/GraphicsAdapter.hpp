@@ -24,16 +24,16 @@ Timestamp: 12/31/2018 1:46:13 AM
 
 #ifdef LLF_GRAPHICS_OPENGL
 
-	#include "RenderingEngine_OpenGL.hpp"
+	#include "OpenGL/RenderingEngine_OpenGL.hpp"
 	#define RENDERINGENGINE_CREATEFUNC(PARAM) inline RenderingEngine* CreateRenderingEngine() { return new RenderingEngine_OpenGL(); }
 
 	#ifdef LLF_INPUTANDWINDOW_SDL
 
-		#include "Window_SDLGL.hpp"
+		#include "OpenGL/Window/Window_SDLGL.hpp"
 		#define WINDOWCREATEFUNC(PARAM) inline Window* CreateEngineWindow(const WindowProps& props = WindowProps()) { return Window_SDLGL::Create(props); }
 
 	#elif LLF_INPUTANDWINDOW_GLFW
-		#include "Window_GLFWGL.hpp"
+		#include "OpenGL/Window/Window_GLFWGL.hpp"
 		#define WINDOWCREATEFUNC(PARAM) inline Window* CreateEngineWindow(const WindowProps& props = WindowProps()) { return Window_GLFWGL::Create(props); }
 
 	#else
