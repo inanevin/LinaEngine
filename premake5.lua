@@ -16,6 +16,7 @@ IncludeDir["SPDLOG"] = "LinaEngine/vendor/spdlog/include"
 IncludeDir["GLM"] = "LinaEngine/vendor/glm"
 IncludeDir["GLAD"] = "LinaEngine/vendor/glad/include"
 IncludeDir["GLFW"] = "LinaEngine/vendor/GLFW/include"
+IncludeDir["IMGUI"] = "LinaEngine/vendor/imgui"
 
 DLLDir = {}
 DLLDir["SDL"] = "LinaEngine/vendor/SDL2-2.0.9/lib/x64"
@@ -26,6 +27,7 @@ LibDir["SDL"] = "LinaEngine/vendor/SDL2-2.0.9/lib/x64"
 
 include "LinaEngine/vendor/glad"
 include "LinaEngine/vendor/GLFW"
+include "LinaEngine/vendor/imgui"
 
 project "LinaEngine"
 	location "LinaEngine"
@@ -52,7 +54,8 @@ project "LinaEngine"
 		"%{IncludeDir.SDL}",
 		"%{IncludeDir.GLM}",
 		"%{IncludeDir.GLAD}",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.IMGUI}",
 	}
 	
 	libdirs
@@ -66,7 +69,8 @@ project "LinaEngine"
 		"SDL2main.lib",
 		"glad",
 		"opengl32.lib",
-		"GLFW"
+		"GLFW",
+		"IMGUI"
 	}
 			
 		filter "system:windows"
