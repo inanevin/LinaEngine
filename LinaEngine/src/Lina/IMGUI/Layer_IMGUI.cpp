@@ -78,7 +78,7 @@ namespace LinaEngine
 
 #ifdef LLF_GRAPHICS_OPENGL
 
-		ImGui_ImplOpenGL3_Init("#version 410");
+		ImGui_ImplOpenGL3_Init();
 
 #endif
 		
