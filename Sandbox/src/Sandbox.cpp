@@ -31,12 +31,13 @@ public:
 
 	void OnUpdate() override
 	{
-		//LINA_CLIENT_INFO("TestLayer Update");
+		LINA_CLIENT_INFO("TestLayer Update");
 	}
 
 	void OnEvent(LinaEngine::Event& e) override
 	{
-		//LINA_CLIENT_TRACE("{0}", e);
+		LINA_CLIENT_TRACE("{0}", e);
+		
 	}
 };
 

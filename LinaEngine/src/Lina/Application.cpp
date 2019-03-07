@@ -71,7 +71,7 @@ namespace LinaEngine
 
 	void Application::OnEvent(Event & e)
 	{
-		LINA_CORE_TRACE("Event: {0}", e);
+		//LINA_CORE_TRACE("Event: {0}", e);
 
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));

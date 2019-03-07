@@ -97,7 +97,7 @@ namespace LinaEngine
 			{
 				Action<int> keyPressed = Action<int>(KeyPressed);
 				keyPressed.SetData(e.key.keysym.scancode);
-				m_InputDispatcher.DispatchAction(keyPressed);
+				m_ActionDispatcher.DispatchAction(keyPressed);
 			}
 			else if (e.type == SDL_KEYUP)
 			{
