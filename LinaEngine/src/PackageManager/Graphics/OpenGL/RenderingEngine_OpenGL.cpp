@@ -218,6 +218,8 @@ namespace LinaEngine
 		RenderingEngine::OnUpdate();
 
 
+		glClearColor(1, 1, 1, 1);
+		glClear(GL_COLOR_BUFFER_BIT);
 
 		/*glClearColor(0.2f, 0.7f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
@@ -287,12 +289,12 @@ namespace LinaEngine
 
 	void RenderingEngine_OpenGL::SetWireframeMode(bool activation)
 	{
-		if (activation)
+	/*	if (activation)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		else
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		isWireframeModeActive = activation;
+		isWireframeModeActive = activation;*/
 	}
 
 

@@ -23,7 +23,9 @@ Timestamp: 3/7/2019 1:58:49 PM
 #define Layer_IMGUI_HPP
 
 #include "Lina/Layer.hpp"
-
+#include "Lina/Events/KeyEvent.hpp"
+#include "Lina/Events/ApplicationEvent.hpp"
+#include "Lina/Events/MouseEvent.hpp"
 namespace LinaEngine
 {
 	class LINA_API Layer_IMGUI : public Layer
@@ -38,6 +40,17 @@ namespace LinaEngine
 		void OnDetach() override;
 		void OnUpdate() override;
 		void OnEvent(Event& e) override;
+
+	private:
+
+		bool OnMouseButtonPressedEvent(MouseButtonPressedEvent& e);
+		bool OnMouseButtonReleasedEvent(MouseButtonReleasedEvent& e);
+		bool OnMouseMovedEvent(MouseMovedEvent& e);
+		bool OnMouseScrolledEvent(MouseScrolledEvent& e);
+		bool OnKeyPressedEvent(KeyPressedEvent& e);
+		bool OnKeyReleasedEvent(KeyReleasedEvent& e);
+		//void OnKeyTypedEvent(KeyTypedEvent& e);
+		bool OnWindowResizeEvent(WindowResizeEvent& e);
 
 	private:
 

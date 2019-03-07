@@ -99,12 +99,13 @@ namespace LinaEngine
 			
 			m_InputEngine->OnUpdate();
 
+
 			// Update rendering engine.
 			m_RenderingEngine->OnUpdate();
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
-
+		
 
 		}
 

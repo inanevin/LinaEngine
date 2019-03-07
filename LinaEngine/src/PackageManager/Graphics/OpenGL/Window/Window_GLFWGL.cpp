@@ -49,6 +49,7 @@ namespace LinaEngine
 
 	void Window_GLFWGL::OnUpdate()
 	{
+		glfwPollEvents();
 		if (!glfwWindowShouldClose(m_Window))
 		{
 			// Swap Buffers
@@ -162,6 +163,8 @@ namespace LinaEngine
 		glfwSetScrollCallback(m_Window, windowMouseScrollFunc);
 		glfwSetCursorPosCallback(m_Window, windowCursorPosFunc);
 		glfwSetWindowFocusCallback(m_Window, windowFocusFunc);
+
+		SetVSync(true);
 	}
 
 	void Window_GLFWGL::Terminate()

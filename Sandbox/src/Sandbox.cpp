@@ -49,7 +49,7 @@ public:
 		LinaEngine::Layer* l = new TestLayer();
 		
 		PushLayer(l);
-		PushOverlay(new LinaEngine::Layer_IMGUI);
+		PushOverlay(new LinaEngine::Layer_IMGUI());
 	}
 	~ Sandbox(){}
 
