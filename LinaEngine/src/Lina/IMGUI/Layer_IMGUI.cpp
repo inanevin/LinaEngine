@@ -127,7 +127,7 @@ namespace LinaEngine
 		dispatcher.Dispatch<MouseScrolledEvent>(LINA_BIND_EVENT_FN(Layer_IMGUI::OnMouseScrolledEvent));
 		dispatcher.Dispatch<KeyPressedEvent>(LINA_BIND_EVENT_FN(Layer_IMGUI::OnKeyPressedEvent));
 		dispatcher.Dispatch<KeyReleasedEvent>(LINA_BIND_EVENT_FN(Layer_IMGUI::OnKeyReleasedEvent));
-	//	dispatcher.Dispatch<KeyTypedEvent>(LINA_BIND_EVENT_FN(Layer_IMGUI::OnMouseButtonPressedEvent));
+		dispatcher.Dispatch<KeyTypedEvent>(LINA_BIND_EVENT_FN(Layer_IMGUI::OnKeyTypedEvent));
 		dispatcher.Dispatch<WindowResizeEvent>(LINA_BIND_EVENT_FN(Layer_IMGUI::OnWindowResizeEvent));
 
 	}
@@ -182,6 +182,16 @@ namespace LinaEngine
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[e.GetKeyCode()] = false;
+
+		return false;
+	}
+
+	bool Layer_IMGUI::OnKeyTypedEvent(KeyTypedEvent& e)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		int keycode = e.GetKeyCode();
+		if (keycode > 0 && keycode < 0x10000)
+			io.AddInputCharacter((unsigned short)keycode);
 
 		return false;
 	}

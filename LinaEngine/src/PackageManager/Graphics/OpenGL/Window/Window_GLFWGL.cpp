@@ -155,6 +155,11 @@ namespace LinaEngine
 			static_cast<Window_GLFWGL*>(glfwGetWindowUserPointer(w))->WindowFocusCallback(w, f);
 		};
 
+		auto charFunc = [](GLFWwindow* w, unsigned int k)
+		{
+			static_cast<Window_GLFWGL*>(glfwGetWindowUserPointer(w))->CharCallback(w, k);
+		};
+
 		// Register window callbacks.
 		glfwSetFramebufferSizeCallback(m_Window, windowResizeFunc);
 		glfwSetWindowCloseCallback(m_Window, windowCloseFunc);
@@ -163,6 +168,7 @@ namespace LinaEngine
 		glfwSetScrollCallback(m_Window, windowMouseScrollFunc);
 		glfwSetCursorPosCallback(m_Window, windowCursorPosFunc);
 		glfwSetWindowFocusCallback(m_Window, windowFocusFunc);
+		glfwSetCharCallback(m_Window, charFunc);
 
 		SetVSync(true);
 	}
@@ -233,6 +239,11 @@ namespace LinaEngine
 		if (focused) m_WindowProps.EventCallback(WindowFocusEvent());
 		else
 			m_WindowProps.EventCallback(WindowFocusLostEvent());
+	}
+
+	void Window_GLFWGL::CharCallback(GLFWwindow * window, unsigned int keycode)
+	{
+		m_WindowProps.EventCallback(KeyTypedEvent(keycode));
 	}
 
 

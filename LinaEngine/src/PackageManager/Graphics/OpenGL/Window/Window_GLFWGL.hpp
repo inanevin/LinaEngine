@@ -65,6 +65,7 @@ namespace LinaEngine
 		void WindowMouseScrollCallback(GLFWwindow* window, double xOff, double yOff);
 		void WindowCursorPosCallback(GLFWwindow* window, double xPos, double yPos);
 		void WindowFocusCallback(GLFWwindow* window, int focused);
+		void CharCallback(GLFWwindow* window, unsigned int keycode);
 		bool m_IsInitialized = false;
 		GLFWwindow* m_Window = NULL;
 	};
