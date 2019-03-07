@@ -38,9 +38,9 @@ Timestamp: 1/2/2019 11:44:41 PM
 
 namespace LinaEngine
 {
-#define BIND_EVENT_FN(x) std::bind(&RenderingEngine_OpenGL::x, this, std::placeholders::_1)
 
-	unsigned int VBO;
+
+	/*unsigned int VBO;
 	unsigned int VAO;
 	unsigned int EBO;
 
@@ -72,7 +72,7 @@ namespace LinaEngine
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
-
+	*/
 
 
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
@@ -82,15 +82,23 @@ namespace LinaEngine
 
 	RenderingEngine_OpenGL::~RenderingEngine_OpenGL()
 	{
-		glDeleteVertexArrays(1, &VAO);
+		/*glDeleteVertexArrays(1, &VAO);
 		glDeleteBuffers(1, &VBO);
-		glDeleteBuffers(1, &EBO);
+		glDeleteBuffers(1, &EBO);*/
 	}
 
 	void RenderingEngine_OpenGL::Test()
 	{
-		std::cout << "yey";
+		LINA_CORE_WARN("Rendering engine test is called! Deleting test object!");
+		std::cout << test << std::endl;
+		if (test)
+		{
+			delete test;
+			test = nullptr;
+		}
+		
 	}
+
 	void RenderingEngine_OpenGL::Initialize()
 	{
 
@@ -98,22 +106,15 @@ namespace LinaEngine
 
 	void RenderingEngine_OpenGL::Start()
 	{
-		ActionParams<int> params;
+		/*ActionParams<int> params;
+		params.binding = &keyData;
 		params.actionType = ActionType::KeyPressed;
 		params.condition = LINA_KEY_F2;
 		params.callback = BIND_ACTION(RenderingEngine_OpenGL::Test, this);
-		//params.callbackWithParameter = BIND_ACTION_PARAM(RenderingEngine_OpenGL::Test, this);
-
 		app->GetInputEngine().SubscribeToAction(params);
-		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, LINA_KEY_F2, [this]() { this->Test(); });
-		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, KEY_K, [this]() { this->Test(); });
-		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, KEY_K, std::bind(&Camera::OnKeyPress, cam, std::placeholders::_1));
-		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, std::bind(&Camera::OnKeyPress, cam, std::placeholders::_1));
 
-		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, [this](int i) { cam.OnKeyPress(i); });
-		//app->GetInputEngine().SubscribeToAction<int>(ActionType::KeyPressed, );
-
-		//basicShader = Shader_GLSLBasic();
+		test = new ActionTest();
+		test->SetAction(&app->GetInputEngine());
 
 		sceneCamera.SetPerspectiveInformation(PerspectiveInformation(60.0f, m_WindowProps.Width, m_WindowProps.Height, 0.01f, 100.0f));
 		sceneCamera.m_Transform.SetPosition(0, 0, -6);
@@ -209,7 +210,7 @@ namespace LinaEngine
 	//	glBindVertexArray(0);
 
 		sceneCamera.OnInput(app->GetInputEngine());
-
+		*/
 	}
 
 	void RenderingEngine_OpenGL::OnUpdate()
@@ -218,7 +219,7 @@ namespace LinaEngine
 
 
 
-		glClearColor(0.2f, 0.7f, 0.3f, 1.0f);
+		/*glClearColor(0.2f, 0.7f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
 		baseTexture.Use();
@@ -242,17 +243,17 @@ namespace LinaEngine
 		//basicShader.SetView(view);
 		//basicShader.SetProjection(projection);
 
+		*/
 
 
+		//glBindVertexArray(VAO);
 
-		glBindVertexArray(VAO);
-
-		for (unsigned int i = 0; i < 7; i++)
-		{
-			Matrix4F transformation = cubeTransforms[i].GetWorldTransformation();
-			Matrix4F camView = sceneCamera.GetViewProjection();
-			Matrix4F WVP = camView * transformation;
-			basicShader.SetWVP(WVP);
+		//for (unsigned int i = 0; i < 7; i++)
+		//{
+			//Matrix4F transformation = cubeTransforms[i].GetWorldTransformation();
+			//Matrix4F camView = sceneCamera.GetViewProjection();
+			//Matrix4F WVP = camView * transformation;
+			//basicShader.SetWVP(WVP);
 
 			//glm::mat4 model = glm::mat4(1.0f);
 			//model = glm::translate(model, cubePositions[i]);
@@ -262,8 +263,8 @@ namespace LinaEngine
 			else
 				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));*/
 				//basicShader.SetModel(model);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
+			//glDrawArrays(GL_TRIANGLES, 0, 36);
+		//}
 		//	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 

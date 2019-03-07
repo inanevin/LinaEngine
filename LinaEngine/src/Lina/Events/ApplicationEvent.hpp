@@ -58,8 +58,6 @@ namespace LinaEngine
 	public:
 		WindowFocusEvent() {}
 
-	
-
 
 		EVENT_CLASS_TYPE(WindowFocus)
 			EVENT_CLASS_CATEGORY(EventCategoryWindow)

@@ -195,10 +195,6 @@ namespace LinaEngine
 
 		virtual void Execute(ActionBase& action) override
 		{
-			// Call the callback with no parameters
-			if (m_UseNoParamCallback)
-				m_CallbackNoParam();
-
 			// If we use parameterized callback or binding, we will extract the value from the action.
 			// However, if we have not used condition, it means whe have not typed checked this value. So type check it first.
 			if ((m_UseParamCallback || m_UseBinding))
@@ -221,6 +217,10 @@ namespace LinaEngine
 				if (m_UseParamCallback)
 					m_CallbackParam(*typePointer);
 			}
+
+			// Call the callback with no parameters
+			if (m_UseNoParamCallback)
+				m_CallbackNoParam();
 
 		}
 
@@ -280,7 +280,7 @@ namespace LinaEngine
 
 		}
 
-		void SubscribeHandler(std::weak_ptr<ActionHandlerBase> ptr)
+		void SubscribeHandler(const std::weak_ptr<ActionHandlerBase> ptr)
 		{
 			// Add the weak pointer to the list.
 			m_ActionHandlers.push_back(ptr);

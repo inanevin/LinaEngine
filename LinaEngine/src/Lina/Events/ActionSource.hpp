@@ -35,7 +35,7 @@ namespace LinaEngine
 	public:
 
 		ActionParams() {};
-
+		std::weak_ptr<void*> caller;
 		ActionType actionType;
 		T condition = NULL;
 		std::function<void()> callback;

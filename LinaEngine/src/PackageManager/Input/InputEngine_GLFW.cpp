@@ -75,7 +75,12 @@ namespace LinaEngine
 			keyPress.SetData(GLFW_KEY_F2);
 			m_ActionDispatcher.DispatchAction(keyPress);
 		}
-
+		if (glfwGetKey(glfwWindow, GLFW_KEY_F3) == GLFW_PRESS)
+		{
+			Action<int> keyPress = Action<int>(KeyPressed);
+			keyPress.SetData(GLFW_KEY_F3);
+			m_ActionDispatcher.DispatchAction(keyPress);
+		}
 	
 	}
 

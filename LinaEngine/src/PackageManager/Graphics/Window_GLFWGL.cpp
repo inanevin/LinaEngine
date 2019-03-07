@@ -20,14 +20,15 @@ Timestamp: 2/25/2019 9:20:33 AM
 #include "LinaPch.hpp"
 #include "Window_GLFWGL.hpp"  
 #include "Lina/Events/ApplicationEvent.hpp"
-
+#include "Lina/Events/KeyEvent.hpp"
+#include "Lina/Events/MouseEvent.hpp"
 
 namespace LinaEngine
 {
 
 	Window* Window_GLFWGL::Create(const WindowProps& props)
 	{
-		LINA_CORE_INFO("SDL Window Created!");
+		LINA_CORE_INFO("GLFWGL Window Created!");
 		return new Window_GLFWGL(props);
 	}
 
@@ -77,6 +78,11 @@ namespace LinaEngine
 
 	}
 
+	static void GLFWErrorCallback(int error, const char* desc)
+	{
+		LINA_CORE_ERR("GLFW Error ({0}): {1}", error, desc);
+	}
+
 	void Window_GLFWGL::Init()
 	{
 		// Initialize glfw & set window hints
@@ -95,6 +101,9 @@ namespace LinaEngine
 		// Assert window creation.
 		LINA_CORE_ENSURE_ASSERTFUNC(m_Window != NULL, , Terminate();, "GLFW Window is null!");
 
+		// Set error callback
+		glfwSetErrorCallback(GLFWErrorCallback);
+
 		// Set window context initialized.
 		m_IsInitialized = true;
 
@@ -110,14 +119,49 @@ namespace LinaEngine
 		// set user pointer for callbacks.
 		glfwSetWindowUserPointer(m_Window, this);
 
-		auto func = [](GLFWwindow* w, int wi, int he)
+		auto windowResizeFunc = [](GLFWwindow* w, int wi, int he)
 		{
 			static_cast<Window_GLFWGL*>(glfwGetWindowUserPointer(w))->WindowResized(w, wi, he);
 		};
 
-	
-		// Register window resize callback.
-		glfwSetFramebufferSizeCallback(m_Window, func);
+		auto windowCloseFunc = [](GLFWwindow* w)
+		{
+			static_cast<Window_GLFWGL*>(glfwGetWindowUserPointer(w))->WindowClosed(w);
+		};
+
+		auto windowKeyFunc = [](GLFWwindow* w, int k, int s, int a, int m)
+		{
+			static_cast<Window_GLFWGL*>(glfwGetWindowUserPointer(w))->WindowKeyCallback(w, k, s, a, m);
+		};
+
+		auto windowButtonFunc = [](GLFWwindow* w, int b, int a, int m)
+		{
+			static_cast<Window_GLFWGL*>(glfwGetWindowUserPointer(w))->WindowMouseButtonCallback(w, b, a, m);
+		};
+
+		auto windowMouseScrollFunc = [](GLFWwindow* w, double xOff, double yOff)
+		{
+			static_cast<Window_GLFWGL*>(glfwGetWindowUserPointer(w))->WindowMouseScrollCallback(w, xOff, yOff);
+		};
+
+		auto windowCursorPosFunc = [](GLFWwindow* w, double xPos, double yPos)
+		{
+			static_cast<Window_GLFWGL*>(glfwGetWindowUserPointer(w))->WindowCursorPosCallback(w, xPos, yPos);
+		};
+
+		auto windowFocusFunc = [](GLFWwindow* w, int f)
+		{
+			static_cast<Window_GLFWGL*>(glfwGetWindowUserPointer(w))->WindowFocusCallback(w, f);
+		};
+
+		// Register window callbacks.
+		glfwSetFramebufferSizeCallback(m_Window, windowResizeFunc);
+		glfwSetWindowCloseCallback(m_Window, windowCloseFunc);
+		glfwSetKeyCallback(m_Window, windowKeyFunc);
+		glfwSetMouseButtonCallback(m_Window, windowButtonFunc);
+		glfwSetScrollCallback(m_Window, windowMouseScrollFunc);
+		glfwSetCursorPosCallback(m_Window, windowCursorPosFunc);
+		glfwSetWindowFocusCallback(m_Window, windowFocusFunc);
 	}
 
 	void Window_GLFWGL::Terminate()
@@ -128,10 +172,64 @@ namespace LinaEngine
 
 	void Window_GLFWGL::WindowResized(GLFWwindow * window, int width, int height)
 	{
-		glViewport(0, 0, width, height);
+		m_WindowProps.Width = width;
+		m_WindowProps.Height = height;
 
 		// Notify listeners.
 		m_WindowProps.EventCallback(WindowResizeEvent(m_WindowProps.Width, m_WindowProps.Height));
+	}
+
+	void Window_GLFWGL::WindowClosed(GLFWwindow* window)
+	{
+		m_WindowProps.EventCallback(WindowCloseEvent());
+	}
+
+	void Window_GLFWGL::WindowKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	{
+		switch (action)
+		{
+		case GLFW_PRESS:
+			m_WindowProps.EventCallback(KeyPressedEvent(key, 0));
+			break;
+		case GLFW_RELEASE:
+			m_WindowProps.EventCallback(KeyReleasedEvent(key));
+			break;
+
+		case GLFW_REPEAT:
+			m_WindowProps.EventCallback(KeyPressedEvent(key, 1));
+			break;
+		}
+	}
+
+	void Window_GLFWGL::WindowMouseButtonCallback(GLFWwindow * window, int button, int action, int modes)
+	{
+		switch (action)
+		{
+		case GLFW_PRESS:
+			m_WindowProps.EventCallback(MouseButtonPressedEvent(button));
+			break;
+
+		case GLFW_RELEASE:
+			m_WindowProps.EventCallback(MouseButtonReleasedEvent(button));
+			break;
+		}
+	}
+
+	void Window_GLFWGL::WindowMouseScrollCallback(GLFWwindow * window, double xOff, double yOff)
+	{
+		m_WindowProps.EventCallback(MouseScrolledEvent((float)xOff, (float)yOff));
+	}
+
+	void Window_GLFWGL::WindowCursorPosCallback(GLFWwindow * window, double xPos, double yPos)
+	{
+		m_WindowProps.EventCallback(MouseMovedEvent((float)xPos, (float)yPos));
+	}
+
+	void Window_GLFWGL::WindowFocusCallback(GLFWwindow * window, int focused)
+	{
+		if (focused) m_WindowProps.EventCallback(WindowFocusEvent());
+		else
+			m_WindowProps.EventCallback(WindowFocusLostEvent());
 	}
 
 

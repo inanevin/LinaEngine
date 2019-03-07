@@ -12,50 +12,35 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: SB_Application
-Timestamp: 12/29/2018 11:15:41 PM
+Class: ActionTest
+Timestamp: 3/3/2019 1:51:34 PM
 
 */
 
-#include <Lina.hpp>
+#include "LinaPch.hpp"
+#include "ActionTest.hpp"  
+#include "Lina/Input/InputEngine.hpp"
 
-
-class TestLayer : public LinaEngine::Layer
+namespace LinaEngine
 {
-public:
-
-	TestLayer() : Layer("Test")
+	ActionTest::ActionTest()
 	{
 
 	}
 
-	void OnUpdate() override
+	void ActionTest::SetAction(InputEngine* inp)
 	{
-		//LINA_CLIENT_INFO("TestLayer Update");
-	}
-
-	void OnEvent(LinaEngine::Event& e) override
-	{
-		//LINA_CLIENT_TRACE("{0}", e);
-	}
-};
-
-class Sandbox : public LinaEngine::Application
-{
-public:
-	Sandbox() { 
+		ActionParams<int> params;
 		
-		LinaEngine::Layer* l = new TestLayer();
-		
-		PushLayer(l);
+		params.actionType = ActionType::KeyPressed;
+		params.condition = LINA_KEY_F3;
+		params.callback = BIND_ACTION(ActionTest::Test, this);
+		inp->SubscribeToAction(params);
 	}
-	~ Sandbox(){}
 
-	
-};
-
-LinaEngine::Application* LinaEngine::CreateApplication()
-{
-	return new Sandbox();
+	void ActionTest::Test()
+	{
+		std::cout << "Test object callback is called! " << this << std::endl;
+	}
 }
 
