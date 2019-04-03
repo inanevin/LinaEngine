@@ -39,11 +39,8 @@ namespace LinaEngine
 
 	void InputEngine_GLFW::Initialize()
 	{
-		Window_GLFWGL* glfwWindowObj = dynamic_cast<Window_GLFWGL*>(&app->GetRenderingEngine().GetMainWindow());
-		LINA_CORE_ENSURE_ASSERT(glfwWindowObj != NULL, , "GLFW Window Obj is null!");
-		glfwWindow = glfwWindowObj->GetGLFWWindow();
+		glfwWindow = static_cast<GLFWwindow*>(Application::Get().GetRenderingEngine().GetMainWindow().GetNativeWindow());
 		LINA_CORE_ENSURE_ASSERT(glfwWindow != NULL, , "GLFW Window is null!");
-		LINA_CORE_ENSURE_ASSERT(glfwWindowObj->IsInitialized() != false, , "Window context is not initialized, quitting input engine initialization!");
 	}
 
 	void InputEngine_GLFW::OnUpdate()
@@ -78,8 +75,7 @@ namespace LinaEngine
 
 	bool InputEngine_GLFW::GetKey(int keycode)
 	{
-		auto window = static_cast<GLFWwindow*>(Application::Get().GetRenderingEngine().GetMainWindow().GetNativeWindow());
-		auto state = glfwGetKey(window, keycode);
+		auto state = glfwGetKey(glfwWindow, keycode);
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
 
@@ -94,8 +90,7 @@ namespace LinaEngine
 	}
 	bool InputEngine_GLFW::GetMouse(int button)
 	{
-		auto window = static_cast<GLFWwindow*>(Application::Get().GetRenderingEngine().GetMainWindow().GetNativeWindow());
-		auto state = glfwGetKey(window, button);
+		int state = glfwGetMouseButton(glfwWindow, button);
 		return state == GLFW_PRESS;
 	}
 	bool InputEngine_GLFW::GetMouseDown(int index)
@@ -117,9 +112,8 @@ namespace LinaEngine
 
 	Vector2F InputEngine_GLFW::GetMousePosition()
 	{
-		auto window = static_cast<GLFWwindow*>(Application::Get().GetRenderingEngine().GetMainWindow().GetNativeWindow());
 		double xpos, ypos;
-		glfwGetCursorPos(window, &xpos, &ypos);
+		glfwGetCursorPos(glfwWindow, &xpos, &ypos);
 		return Vector2F(xpos, ypos);
 	}
 
