@@ -75,7 +75,15 @@ namespace LinaEngine
 
 	private:
 
+		void KeyCallback(GLFWwindow* w, int key, int scancode, int action, int mods);
+		void MouseCallback(GLFWwindow* w, int button, int action, int mods);
+
+	private:
+
+
 		GLFWwindow* glfwWindow;
+		int previousKeys[NUM_KEY_STATES];
+		int currentKeys[NUM_KEY_STATES];
 	
 	};
 }

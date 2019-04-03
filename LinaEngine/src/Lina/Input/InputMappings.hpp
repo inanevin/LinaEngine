@@ -24,6 +24,8 @@ Timestamp: 1/6/2019 4:33:31 AM
 namespace LinaEngine
 {
 
+#define NUM_KEY_STATES 380
+
 #ifdef LLF_INPUTANDWINDOW_SDL
 
 #define LINA_MOUSE_1         1

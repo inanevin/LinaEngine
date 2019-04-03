@@ -35,17 +35,37 @@ namespace LinaEngine
 
 	InputEngine_GLFW::~InputEngine_GLFW()
 	{
+		delete previousKeys;
+		delete currentKeys;
 	}
 
 	void InputEngine_GLFW::Initialize()
 	{
 		glfwWindow = static_cast<GLFWwindow*>(Application::Get().GetRenderingEngine().GetMainWindow().GetNativeWindow());
 		LINA_CORE_ENSURE_ASSERT(glfwWindow != NULL, , "GLFW Window is null!");
+		LINA_CORE_INFO("Input Engine GLFW Initialized");
+
+
+		auto keyPressedFunc = [](GLFWwindow* w, int key, int scancode, int action, int mods)
+		{
+			static_cast<InputEngine_GLFW*>(glfwGetWindowUserPointer(w))->KeyCallback(w, key, scancode, action, mods);
+		};
+
+		auto mousePressedFunc = [](GLFWwindow* w, int button, int action, int mods)
+		{
+			static_cast<InputEngine_GLFW*>(glfwGetWindowUserPointer(w))->MouseCallback(w, button, action, mods);
+		};
+
+
+		glfwSetKeyCallback(glfwWindow, keyPressedFunc);
+		glfwSetMouseButtonCallback(glfwWindow, mousePressedFunc);
 	}
 
 	void InputEngine_GLFW::OnUpdate()
 	{
 	
+		//memcpy(previousKeys, currentKeys, sizeof(bool) * NUM_KEY_STATES);
+
 	/*
 		// Poll Events
 		glfwPollEvents();
@@ -81,8 +101,11 @@ namespace LinaEngine
 
 	bool InputEngine_GLFW::GetKeyDown(int keyCode)
 	{
-		
-		return false;
+		static int* oldState = new int[NUM_KEY_STATES];
+		int newState = glfwGetKey(glfwWindow, keyCode);
+		bool flag = (newState == GLFW_PRESS && oldState[keyCode] == GLFW_RELEASE) ? true : false;
+		oldState[keyCode] = newState;
+		return flag;
 	}
 	bool InputEngine_GLFW::GetKeyUp(int keyCode)
 	{
@@ -119,9 +142,22 @@ namespace LinaEngine
 
 	void InputEngine_GLFW::SetCursor(bool visible) const
 	{
+
 	}
+
 	void InputEngine_GLFW::SetMousePosition(const Vector2F & v) const
 	{
+
+	}
+
+	void InputEngine_GLFW::KeyCallback(GLFWwindow * w, int key, int scancode, int action, int mods)
+	{
+
+	}
+
+	void InputEngine_GLFW::MouseCallback(GLFWwindow * w, int button, int action, int mods)
+	{
+
 	}
 }
 

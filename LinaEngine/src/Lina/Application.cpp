@@ -101,7 +101,7 @@ namespace LinaEngine
 			// Update rendering engine.
 			m_RenderingEngine->OnUpdate();
 
-			if (m_InputEngine->GetKey(LINA_KEY_A))
+			if (m_InputEngine->GetKeyDown(LINA_KEY_A))
 				LINA_CORE_INFO("a pressed!");
 
 			for (Layer* layer : m_LayerStack)
