@@ -73,13 +73,12 @@ namespace LinaEngine
 
 	Application::~Application()
 	{
-		
+
 	}
 
 	void Application::OnEvent(Event & e)
 	{
-		//LINA_CORE_TRACE("Event: {0}", e);
-
+	
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
 	
@@ -99,14 +98,14 @@ namespace LinaEngine
 			
 			m_InputEngine->OnUpdate();
 
-
 			// Update rendering engine.
 			m_RenderingEngine->OnUpdate();
 
+			if (m_InputEngine->GetKey(LINA_KEY_A))
+				LINA_CORE_INFO("a pressed!");
+
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
-		
-
 		}
 
 	}

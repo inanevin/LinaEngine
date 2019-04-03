@@ -54,6 +54,8 @@ namespace LinaEngine
 
 		inline GLFWwindow* GetGLFWWindow() { return m_Window; }
 
+		inline virtual void* GetNativeWindow() const { return m_Window; }
+
 	private:
 
 		void Init();

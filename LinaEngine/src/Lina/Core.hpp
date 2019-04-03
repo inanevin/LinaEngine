@@ -33,6 +33,9 @@ Timestamp: 12/29/2018 10:43:46 PM
 #error Lina supports Windows only for now.
 #endif
 
+#ifdef LINA_DEBUG
+#define LINA_ENABLE_ASSERTS
+#endif
 
 #ifdef LINA_ENABLE_ASSERTS
 

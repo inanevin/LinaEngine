@@ -33,7 +33,6 @@ namespace LinaEngine
 	{
 	public:
 
-		InputEngine_GLFW();
 		~InputEngine_GLFW();
 
 		/* Initializes input engine */
@@ -66,7 +65,6 @@ namespace LinaEngine
 		/* Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Delta smoothed.*/
 		Vector2F GetMouseAxis() override;
 
-		/* Returns a Vector2 containing mouse positions.*/
 		Vector2F GetMousePosition() override;
 
 		/* Sets the cursor visible.*/
@@ -77,8 +75,8 @@ namespace LinaEngine
 
 	private:
 
-		bool isInitialized = false;
 		GLFWwindow* glfwWindow;
+	
 	};
 }
 

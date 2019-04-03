@@ -24,26 +24,9 @@ Timestamp: 1/6/2019 2:17:55 AM
 
 namespace LinaEngine
 {
-	InputEngine::InputEngine()
-	{
-		
-	}
-	InputEngine::~InputEngine()
-	{
 
-	}
 
-	void InputEngine::SetApplication(Application& app)
-	{
-		LINA_CORE_ASSERT(&app, "Application is nullptr!");
-		this->app = &app;
-	}
 
-	void InputEngine::WireframeModeToggle()
-	{
-		LINA_CORE_ENSURE_ASSERT(app != NULL, , "App is null!");
-		app->GetRenderingEngine().SetWireframeMode(!app->GetRenderingEngine().GetIsWireframeModeActive());
-	}
-	
+
 }
 

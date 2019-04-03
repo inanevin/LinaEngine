@@ -27,13 +27,11 @@ namespace LinaEngine
 {
 
 	class Application;
+
 	class LINA_API InputEngine : public ActionSource
 	{
 
 	public:
-
-		InputEngine();
-		virtual ~InputEngine();
 
 		/* Called when input engine is initialized. */
 		virtual void Initialize() = 0;
@@ -65,7 +63,7 @@ namespace LinaEngine
 		/* Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Delta smoothed.*/
 		virtual Vector2F GetMouseAxis() = 0;
 
-		/* Returns a Vector2 containing mouse positions.*/
+		/* Returns the mouse position as Vector2 */
 		virtual Vector2F GetMousePosition() = 0;
 
 		/* Sets the cursor visible.*/
@@ -74,21 +72,12 @@ namespace LinaEngine
 		/* Sets mouse position to desired screen space coordinates. */
 		virtual void SetMousePosition(const Vector2F& v) const = 0;
 
-	
+		/* Sets the Application reference */
+		inline void SetApplication(Application& const application) { app = &application; }
 
-		/* Set method for application reference. */
-		void SetApplication(Application& app);
-
-		
 	protected:
 
-		/* Calls corresponding method on the rendering engine to toggle wireframe mode. Must be called from input engine implementation. */
-		void WireframeModeToggle();
-
-		/* Reference to the running game application. */
 		Application* app;
-
-		
 	};
 }
 

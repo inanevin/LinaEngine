@@ -80,6 +80,7 @@ project "LinaEngine"
 		
 		defines
 		{
+			"LINA_DEBUG",
 			"LINA_PLATFORM_WINDOWS",
 			"LINA_BUILD_DLL",
 			"LINA_ENABLE_ASSERTS",

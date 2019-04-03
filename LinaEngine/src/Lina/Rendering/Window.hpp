@@ -73,6 +73,8 @@ namespace LinaEngine
 		/* Sets mouse to the desired coordinates in the screen space. */
 		virtual void SetMousePosition(const Vector2F&) = 0;
 
+		virtual void* GetNativeWindow() const = 0;
+
 	protected:
 
 		WindowProps m_WindowProps;

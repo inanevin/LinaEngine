@@ -90,7 +90,7 @@ namespace LinaEngine
 
 		}*/
 
-
+		/*
 		if (i.GetMouseDown(0))
 		{
 			i.SetMousePosition(m_windowCenter);
@@ -126,7 +126,7 @@ namespace LinaEngine
 
 			if (rotY || rotX)
 				i.SetMousePosition(m_windowCenter);
-		}
+		}*/
 
 
 

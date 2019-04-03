@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 and limitations under the License.
 
 Class: InputAdapter
-Timestamp: 1/6/2019 2:16:29 AM
+Timestamp: 4/2/2019 7:41:14 PM
 
 */
 
@@ -22,9 +22,6 @@ Timestamp: 1/6/2019 2:16:29 AM
 
 namespace LinaEngine
 {
-	InputAdapter::InputAdapter()
-	{
 
-	}
 }
 
