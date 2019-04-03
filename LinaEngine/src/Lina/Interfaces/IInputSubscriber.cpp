@@ -12,35 +12,26 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: ActionTest
-Timestamp: 3/3/2019 1:51:34 PM
+Class: IInputSubscriber
+Timestamp: 4/4/2019 2:29:37 AM
 
 */
 
 #include "LinaPch.hpp"
-#include "ActionTest.hpp"  
-
+#include "IInputSubscriber.hpp"  
+#include "Lina/Input/InputEngine.hpp"
+#include "Lina/Application.hpp"
 
 namespace LinaEngine
 {
-	ActionTest::ActionTest()
+	IInputSubscriber::IInputSubscriber()
 	{
-		std::cout << "TestObject CTOR With MemAddr: " << this << std::endl;
+		inputEngine = &Application::Get().GetInputEngine();
 	}
 
-	void ActionTest::SetAction()
+	IInputSubscriber::~IInputSubscriber()
 	{
-		ActionParams<int> params;
-		
-		params.actionType = ActionType::KeyPressed;
-		params.condition = LINA_KEY_F2;
-		params.callback = BIND_ACTION(ActionTest::Test, this);
-		SubscribeInputAction(params, this);
-	}
-
-	void ActionTest::Test()
-	{
-		std::cout << "Test object callback is called! " << this << std::endl;
+		inputEngine->UnsubscribeFromAction(m_CallerAddr);
 	}
 }
 

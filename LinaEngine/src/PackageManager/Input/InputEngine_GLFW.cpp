@@ -63,6 +63,12 @@ namespace LinaEngine
 
 	void InputEngine_GLFW::OnUpdate()
 	{
+		if (glfwGetKey(glfwWindow, GLFW_KEY_F2) == GLFW_PRESS)
+		{
+			Action<int> keyPress = Action<int>(KeyPressed);
+			keyPress.SetData(GLFW_KEY_F2);
+			m_ActionDispatcher.DispatchAction(keyPress);
+		}
 	
 		//memcpy(previousKeys, currentKeys, sizeof(bool) * NUM_KEY_STATES);
 

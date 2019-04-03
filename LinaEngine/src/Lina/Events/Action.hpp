@@ -78,21 +78,22 @@ namespace LinaEngine
 	{
 	public:
 
-		ActionHandlerBase() {}
+		
 		~ActionHandlerBase() {};
-		ActionHandlerBase(ActionType at) : m_ActionType(at) { };
+		ActionHandlerBase(ActionType at, void* caller) : m_ActionType(at), m_Caller(caller) { };
 
 		inline ActionType GetActionType() { return m_ActionType; }
 		inline void SetActionType(ActionType t) { m_ActionType = t; }
 
 	protected:
-		friend class ActionDispatcher;
 
+		friend class ActionDispatcher;
 		virtual void Control(ActionBase& action) { };
 		virtual void Execute(ActionBase& action) {};
-
+		void* m_Caller;
 
 	private:
+		
 		ActionType m_ActionType;
 	};
 
@@ -103,10 +104,10 @@ namespace LinaEngine
 
 	public:
 
-		ActionHandler_ConditionCheck() {};
+	
 		~ActionHandler_ConditionCheck() {};
-		ActionHandler_ConditionCheck(ActionType at) :
-			ActionHandlerBase::ActionHandlerBase(at) { };
+		ActionHandler_ConditionCheck(ActionType at, void* caller) :
+			ActionHandlerBase::ActionHandlerBase(at, caller) { };
 
 		inline void SetCondition(T t) { m_Condition = t; }
 		inline T GetCondition() { return m_Condition; }
@@ -158,10 +159,10 @@ namespace LinaEngine
 	{
 	public:
 
-		ActionHandler() {}
+
 		~ActionHandler() {}
-		ActionHandler(ActionType at) :
-			ActionHandler_ConditionCheck<T>::ActionHandler_ConditionCheck(at) {
+		ActionHandler(ActionType at, void* caller) :
+			ActionHandler_ConditionCheck<T>::ActionHandler_ConditionCheck(at, caller) {
 		};
 
 		inline void SetUseCondition(bool b) { m_UseCondition = b; }
@@ -230,7 +231,7 @@ namespace LinaEngine
 		bool m_UseNoParamCallback = false;
 		bool m_UseBinding = false;
 		bool m_UseCondition = false;
-		T* m_Binding;
+		T* m_Binding = NULL;
 		std::function<void()> m_CallbackNoParam;
 		std::function<void(T&)> m_CallbackParam;
 	};
@@ -240,7 +241,7 @@ namespace LinaEngine
 	// Dispatcher class for actions.
 	class ActionDispatcher
 	{
-		typename std::list<std::weak_ptr<ActionHandlerBase>>::iterator it;
+		typename std::list<ActionHandlerBase*>::iterator it;
 
 	public:
 
@@ -259,36 +260,52 @@ namespace LinaEngine
 			for (it = m_ActionHandlers.begin(); it != m_ActionHandlers.end(); it++)
 			{
 				// Check if the the object is alive.
-				if (auto tmp = it->lock())
+				if ((*it)->m_Caller != NULL)
 				{
+					std::cout << "Caller mem id: " << (*it)->m_Caller << std::endl;
+
 					// Check if the action types match.
-					if (action.GetActionType() == tmp->GetActionType())
+					if (action.GetActionType() == (*it)->GetActionType())
 					{
 						// Tell the handler to check the action.
-						tmp->Control(action);
+						(*it)->Control(action);
 					}
 				}
 			}
 
 			// Check the handlers if any of the pointed objects are dead, remove it from the list if so.
-			m_ActionHandlers.erase(std::remove_if(m_ActionHandlers.begin(), m_ActionHandlers.end(),
+			/*m_ActionHandlers.erase(std::remove_if(m_ActionHandlers.begin(), m_ActionHandlers.end(),
 				[](std::weak_ptr<ActionHandlerBase> handler)
 			{
 				return handler.expired();	// LOCK OR EXPIRED?
-			}), m_ActionHandlers.end());
+			}), m_ActionHandlers.end());*/
 
 
 		}
 
-		void SubscribeHandler(const std::weak_ptr<ActionHandlerBase> ptr)
+		void SubscribeHandler(ActionHandlerBase* ptr)
 		{
 			// Add the weak pointer to the list.
-			m_ActionHandlers.push_back(ptr);
+			m_ActionHandlers.push_back(std::move(ptr));
+		}
+
+		void UnsubscribeHandler(void* addr)
+		{
+			for (it = m_ActionHandlers.begin(); it != m_ActionHandlers.end();)
+			{
+				if ((*it)->m_Caller == addr)
+				{
+					it = m_ActionHandlers.erase(it);
+					break;
+				}
+				else
+					++it;
+			}
 		}
 
 	private:
 
-		std::list<std::weak_ptr<ActionHandlerBase>> m_ActionHandlers;
+		std::list<ActionHandlerBase*> m_ActionHandlers;
 
 	};
 }

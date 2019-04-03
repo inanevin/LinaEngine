@@ -12,31 +12,43 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: ActionTest
-Timestamp: 3/3/2019 1:51:34 PM
+Class: IInputSubscriber
+Timestamp: 4/4/2019 2:29:37 AM
 
 */
 
 #pragma once
 
-#ifndef ActionTest_HPP
-#define ActionTest_HPP
+#ifndef IInputSubscriber_HPP
+#define IInputSubscriber_HPP
 
-#include "Lina/Interfaces/IInputSubscriber.hpp"
+#include "Lina/Input/InputEngine.hpp"
 
 namespace LinaEngine
 {
-	class ActionTest : public IInputSubscriber
+	class LINA_API IInputSubscriber
 	{
+
 	public:
 
-		ActionTest();
-		~ActionTest() { std::cout << "Test object destructor!" << std::endl; };
+		IInputSubscriber();
+		~IInputSubscriber();
 
-		void SetAction();
-		void Test();
+	protected:
+
+		template<typename T>
+		void SubscribeInputAction(ActionParams<T> params, void* callerAddr)
+		{
+			m_CallerAddr = callerAddr;
+			params.caller = m_CallerAddr;
+			inputEngine->SubscribeToAction(params);
+		};
+
+	private:
+
+		void* m_CallerAddr;
+		class InputEngine* inputEngine;
 	};
 }
-
 
 #endif

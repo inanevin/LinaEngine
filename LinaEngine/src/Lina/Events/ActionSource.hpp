@@ -35,12 +35,18 @@ namespace LinaEngine
 	public:
 
 		ActionParams() {};
-		std::weak_ptr<void*> caller;
 		ActionType actionType;
 		T condition = NULL;
 		std::function<void()> callback;
 		std::function<void(T)> callbackWithParameter;
 		T* binding = NULL;
+
+	private:
+
+		friend class IInputSubscriber;
+		friend class ActionSource;
+		void* caller;
+
 	};
 
 	class ActionSource
@@ -50,69 +56,80 @@ namespace LinaEngine
 		ActionSource() {};
 		~ActionSource() {};
 
+	private:
+
+		friend class IInputSubscriber;
+
 		template<typename T>
-		void SubscribeToAction(ActionParams<T> params)
+		void SubscribeToAction(const ActionParams<T>& params)
 		{
 			if (params.condition != NULL || params.binding != NULL)
 			{
 				// Init handler depending on param settings.
-				ActionHandler<T> handler(params.actionType);
+				ActionHandler<T>* handler = new ActionHandler<T>(params.actionType, params.caller);
 				
 				if (params.callback)
 				{
-					handler.SetNoParamCallback(params.callback);
-					handler.SetUseNoParamCallback(true);
+					handler->SetNoParamCallback(params.callback);
+					handler->SetUseNoParamCallback(true);
 				}
 
 				if (params.callbackWithParameter)
 				{
-					handler.SetUseParamCallback(true);
-					handler.SetParamCallback(params.callbackWithParameter);
+					handler->SetUseParamCallback(true);
+					handler->SetParamCallback(params.callbackWithParameter);
 				}
 
 				if (params.condition != NULL)
 				{
-					handler.SetUseCondition(true);
-					handler.SetCondition(params.condition);
+					handler->SetUseCondition(true);
+					handler->SetCondition(params.condition);
 				}
 
 				if (params.binding != NULL)
 				{
-					handler.SetUseBinding(true);
-					handler.SetBinding(params.binding);
+					handler->SetUseBinding(true);
+					handler->SetBinding(params.binding);
 				}
 
 				// Push it a shared ptr to the handler to the list.
-				m_Handlers.push_back(std::make_shared<ActionHandler<T>>(handler));
+				//m_Handlers.push_back(std::move(handler));
+
+				m_ActionDispatcher.SubscribeHandler(handler);
 
 			}
 			else
 			{
-				ActionHandler<> handler(params.actionType);
+				ActionHandler<>* handler = new ActionHandler<>(params.actionType, params.caller);
 
 				if (params.callback != NULL)
 				{
-					handler.SetUseNoParamCallback(true);
-					handler.SetNoParamCallback(params.callback);
+					handler->SetUseNoParamCallback(true);
+					handler->SetNoParamCallback(params.callback);
 				}
 
 				// Push it a shared ptr to the handler to the list.
-				m_Handlers.push_back(std::make_shared<ActionHandler<>>(handler));
+				//m_Handlers.push_back(std::move(handler));
 
-			
+				m_ActionDispatcher.SubscribeHandler(handler);
 			}
 
 			// construct a weakptr out of the shared.
-			std::weak_ptr<ActionHandlerBase> wptr = *(std::prev(m_Handlers.end()));
+			//std::weak_ptr<ActionHandlerBase> wptr = *(std::prev(m_Handlers.end()));
 
 			// Subscribe the handler.
-			m_ActionDispatcher.SubscribeHandler(wptr);
+			//m_ActionDispatcher.SubscribeHandler(wptr);
+		}
+
+		void UnsubscribeFromAction(void* addr)
+		{
+			m_ActionDispatcher.UnsubscribeHandler(addr);
 		}
 
 	protected:
 
 		/* Subscribed action handlers. */
-		std::list<std::shared_ptr<ActionHandlerBase>> m_Handlers;
+		std::list<ActionHandlerBase*> m_Handlers;
 
 		/* Input dispatcher for actions. */
 		ActionDispatcher m_ActionDispatcher;
