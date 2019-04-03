@@ -25,6 +25,7 @@ namespace LinaEngine
 {
 
 #define NUM_KEY_STATES 380
+#define NUM_MOUSE_STATES 8
 
 #ifdef LLF_INPUTANDWINDOW_SDL
 

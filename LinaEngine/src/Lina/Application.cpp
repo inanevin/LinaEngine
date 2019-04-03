@@ -104,6 +104,21 @@ namespace LinaEngine
 			if (m_InputEngine->GetKeyDown(LINA_KEY_A))
 				LINA_CORE_INFO("a pressed!");
 
+			if (m_InputEngine->GetKeyUp(LINA_KEY_A))
+				LINA_CORE_INFO("a released!");
+
+			if (m_InputEngine->GetMouseDown(LINA_MOUSE_LEFT))
+				LINA_CORE_INFO("mouse left down!");
+
+			if (m_InputEngine->GetMouseUp(LINA_MOUSE_RIGHT))
+				LINA_CORE_INFO("mouse right up!");
+
+			if (m_InputEngine->GetMouse(LINA_MOUSE_MIDDLE))
+				LINA_CORE_INFO("mouse mid down!");
+
+			if (m_InputEngine->GetKey(LINA_KEY_K))
+				LINA_CORE_INFO("key K ");
+
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 		}

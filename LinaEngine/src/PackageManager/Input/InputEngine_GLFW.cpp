@@ -95,7 +95,7 @@ namespace LinaEngine
 
 	bool InputEngine_GLFW::GetKey(int keycode)
 	{
-		auto state = glfwGetKey(glfwWindow, keycode);
+		int state = glfwGetKey(glfwWindow, keycode);
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
 
@@ -109,21 +109,34 @@ namespace LinaEngine
 	}
 	bool InputEngine_GLFW::GetKeyUp(int keyCode)
 	{
-		return false;
+		static int* oldState = new int[NUM_KEY_STATES];
+		int newState = glfwGetKey(glfwWindow, keyCode);
+		bool flag = (newState == GLFW_RELEASE && oldState[keyCode] == GLFW_PRESS) ? true : false;
+		oldState[keyCode] = newState;
+		return flag;
 	}
 	bool InputEngine_GLFW::GetMouse(int button)
 	{
 		int state = glfwGetMouseButton(glfwWindow, button);
-		return state == GLFW_PRESS;
+		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
-	bool InputEngine_GLFW::GetMouseDown(int index)
+	bool InputEngine_GLFW::GetMouseDown(int button)
 	{
-		return false;
+		static int* oldState = new int[NUM_MOUSE_STATES];
+		int newState = glfwGetMouseButton(glfwWindow, button);
+		bool flag = (newState == GLFW_PRESS && oldState[button] == GLFW_RELEASE) ? true : false;
+		oldState[button] = newState;
+		return flag;
 	}
-	bool InputEngine_GLFW::GetMouseUp(int index)
+	bool InputEngine_GLFW::GetMouseUp(int button)
 	{
-		return false;
+		static int* oldState = new int[NUM_MOUSE_STATES];
+		int newState = glfwGetMouseButton(glfwWindow, button);
+		bool flag = (newState == GLFW_RELEASE && oldState[button] == GLFW_PRESS) ? true : false;
+		oldState[button] = newState;
+		return flag;
 	}
+
 	Vector2F InputEngine_GLFW::GetRawMouseAxis()
 	{
 		return Vector2F();
