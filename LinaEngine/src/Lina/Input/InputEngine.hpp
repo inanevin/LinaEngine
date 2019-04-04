@@ -49,13 +49,13 @@ namespace LinaEngine
 		virtual bool GetKeyUp(int keyCode) = 0;
 
 		/* Returns true each frame mouse button mapped with the index is pressed */
-		virtual bool GetMouse(int index) = 0;
+		virtual bool GetMouseButton(int index) = 0;
 
 		/* Returns true in the frame mouse button mapped with the index is pressed. */
-		virtual bool GetMouseDown(int index) = 0;
+		virtual bool GetMouseButtonDown(int index) = 0;
 
 		/* Returns true in the frame mouse mapped with the index is stopped being pressed. */
-		virtual bool GetMouseUp(int index) = 0;
+		virtual bool GetMouseButtonUp(int index) = 0;
 
 		/* Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Not smoothed.*/
 		virtual Vector2F GetRawMouseAxis() = 0;

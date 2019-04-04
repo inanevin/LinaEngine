@@ -101,6 +101,7 @@ namespace LinaEngine
 			// Update rendering engine.
 			m_RenderingEngine->OnUpdate();
 
+
 			std::cout << m_InputEngine->GetMouseAxis().ToString() << std::endl;
 
 			if (m_InputEngine->GetKeyDown(LINA_KEY_K))

@@ -51,13 +51,13 @@ namespace LinaEngine
 		bool GetKeyUp(int keyCode) override;
 
 		/* Returns true each frame mouse button mapped with the index is pressed */
-		bool GetMouse(int index) override;
+		bool GetMouseButton(int index) override;
 
 		/* Returns true in the frame mouse button mapped with the index is pressed. */
-		bool GetMouseDown(int index) override;
+		bool GetMouseButtonDown(int index) override;
 
 		/* Returns true in the frame mouse mapped with the index is stopped being pressed. */
-		bool GetMouseUp(int index) override;
+		bool GetMouseButtonUp(int index) override;
 
 		/* Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Not smoothed.*/
 		Vector2F GetRawMouseAxis() override;

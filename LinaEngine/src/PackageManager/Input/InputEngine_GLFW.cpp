@@ -71,12 +71,12 @@ namespace LinaEngine
 		oldState[keyCode] = newState;
 		return flag;
 	}
-	bool InputEngine_GLFW::GetMouse(int button)
+	bool InputEngine_GLFW::GetMouseButton(int button)
 	{
 		int state = glfwGetMouseButton(glfwWindow, button);
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
-	bool InputEngine_GLFW::GetMouseDown(int button)
+	bool InputEngine_GLFW::GetMouseButtonDown(int button)
 	{
 		static int* oldState = new int[NUM_MOUSE_STATES];
 		int newState = glfwGetMouseButton(glfwWindow, button);
@@ -84,7 +84,7 @@ namespace LinaEngine
 		oldState[button] = newState;
 		return flag;
 	}
-	bool InputEngine_GLFW::GetMouseUp(int button)
+	bool InputEngine_GLFW::GetMouseButtonUp(int button)
 	{
 		static int* oldState = new int[NUM_MOUSE_STATES];
 		int newState = glfwGetMouseButton(glfwWindow, button);
@@ -101,10 +101,11 @@ namespace LinaEngine
 		Vector2F currentMousePosition = Vector2F(posX, posY);
 		Vector2F diff = currentMousePosition - oldMousePosition;
 		Vector2F raw = Vector2F::Zero();
-		if (diff.x > 0) raw.x = 1.0f;
-		else if (diff.x < 0) raw.x = -1.0f;
-		if (diff.y > 0) raw.y = 1.0f;
-		else if (diff.y < 0) raw.y = -1.0f;
+		if (diff.x > 0.0f) raw.x = 1.0f;
+		else if (diff.x < 0.0f) raw.x = -1.0f;
+		if (diff.y > 0) raw.y = -1.0f;
+		else if (diff.y < 0) raw.y = 1.0f;
+
 		oldMousePosition = currentMousePosition;
 		return raw;
 	}

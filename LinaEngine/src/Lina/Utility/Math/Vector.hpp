@@ -513,8 +513,8 @@ namespace LinaEngine
 		Vector2F Project(const Vector2F& rhs) const;
 		void Normalize();
 
-		inline static Vector2F One() { return Vector2F(0, 0); };
-		inline static Vector2F Zero() { return Vector2F(1, 1); };
+		inline static Vector2F One() { return Vector2F(1, 1); };
+		inline static Vector2F Zero() { return Vector2F(0, 0); };
 
 #pragma region OperatorOverloads
 
