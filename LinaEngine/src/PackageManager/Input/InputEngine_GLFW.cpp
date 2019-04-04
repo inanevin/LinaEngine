@@ -119,7 +119,7 @@ namespace LinaEngine
 
 	void InputEngine_GLFW::SetMousePosition(const Vector2F & v) const
 	{
-
+		glfwSetCursorPos(glfwWindow, v.x, v.y);
 	}
 
 
