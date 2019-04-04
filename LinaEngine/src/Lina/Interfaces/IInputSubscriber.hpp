@@ -37,16 +37,14 @@ namespace LinaEngine
 	protected:
 
 		template<typename T>
-		void SubscribeInputAction(ActionParams<T> params, void* callerAddr)
+		void SubscribeInputAction(ActionParams<T> params)
 		{
-			m_CallerAddr = callerAddr;
-			params.caller = m_CallerAddr;
+			params.caller = this;
 			inputEngine->SubscribeToAction(params);
 		};
 
 	private:
 
-		void* m_CallerAddr;
 		class InputEngine* inputEngine;
 	};
 }

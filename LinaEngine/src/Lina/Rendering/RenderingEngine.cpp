@@ -42,6 +42,12 @@ namespace LinaEngine
 
 	}
 
+	void RenderingEngine::Initialize()
+	{
+		// Ini main window.
+		m_Window->Initialize();
+	}
+
 	void RenderingEngine::OnUpdate()
 	{
 		// Update window.

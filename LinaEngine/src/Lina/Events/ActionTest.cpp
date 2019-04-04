@@ -35,7 +35,12 @@ namespace LinaEngine
 		params.actionType = ActionType::KeyPressed;
 		params.condition = LINA_KEY_F2;
 		params.callback = BIND_ACTION(ActionTest::Test, this);
-		SubscribeInputAction(params, this);
+		SubscribeInputAction(params);
+
+		ActionParams<int> params2;
+		params2.actionType = ActionType::KeyPressed;
+		params2.callback = BIND_ACTION(ActionTest::Test, this);
+		//SubscribeInputAction(params2);
 	}
 
 	void ActionTest::Test()

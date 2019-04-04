@@ -19,9 +19,11 @@ Timestamp: 2/25/2019 9:20:33 AM
 
 #include "LinaPch.hpp"
 #include "Window_GLFWGL.hpp"  
+#include "Lina/Application.hpp"
 #include "Lina/Events/ApplicationEvent.hpp"
 #include "Lina/Events/KeyEvent.hpp"
 #include "Lina/Events/MouseEvent.hpp"
+#include "Lina/Input/InputEngine.hpp"
 
 namespace LinaEngine
 {
@@ -34,12 +36,12 @@ namespace LinaEngine
 
 	Window_GLFWGL::Window_GLFWGL() : Window::Window()
 	{
-		Init();
+		
 	}
 
 	Window_GLFWGL::Window_GLFWGL(const WindowProps & props) : Window::Window(props)
 	{
-		Init();
+		
 	}
 
 	Window_GLFWGL::~Window_GLFWGL()
@@ -84,8 +86,12 @@ namespace LinaEngine
 		LINA_CORE_ERR("GLFW Error ({0}): {1}", error, desc);
 	}
 
-	void Window_GLFWGL::Init()
+	void Window_GLFWGL::Initialize()
 	{
+
+		// Get input engine.
+		inputEngine = &(Application::Get().GetInputEngine());
+
 		// Initialize glfw & set window hints
 		glfwInit();
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -160,6 +166,19 @@ namespace LinaEngine
 			static_cast<Window_GLFWGL*>(glfwGetWindowUserPointer(w))->CharCallback(w, k);
 		};
 
+
+
+		auto keyPressedFunc = [](GLFWwindow* w, int key, int scancode, int action, int mods)
+		{
+			static_cast<Window_GLFWGL*>(glfwGetWindowUserPointer(w))->KeyCallback(w, key, scancode, action, mods);
+		};
+
+		auto mousePressedFunc = [](GLFWwindow* w, int button, int action, int mods)
+		{
+			static_cast<Window_GLFWGL*>(glfwGetWindowUserPointer(w))->MouseCallback(w, button, action, mods);
+		};
+
+
 		// Register window callbacks.
 		glfwSetFramebufferSizeCallback(m_Window, windowResizeFunc);
 		glfwSetWindowCloseCallback(m_Window, windowCloseFunc);
@@ -169,6 +188,8 @@ namespace LinaEngine
 		glfwSetCursorPosCallback(m_Window, windowCursorPosFunc);
 		glfwSetWindowFocusCallback(m_Window, windowFocusFunc);
 		glfwSetCharCallback(m_Window, charFunc);
+		glfwSetKeyCallback(m_Window, keyPressedFunc);
+		glfwSetMouseButtonCallback(m_Window, mousePressedFunc);
 
 		SetVSync(true);
 	}
@@ -244,6 +265,16 @@ namespace LinaEngine
 	void Window_GLFWGL::CharCallback(GLFWwindow * window, unsigned int keycode)
 	{
 		m_WindowProps.EventCallback(KeyTypedEvent(keycode));
+	}
+
+	void Window_GLFWGL::KeyCallback(GLFWwindow * w, int key, int scancode, int action, int mods)
+	{
+		inputEngine->DispatchKeyAction(key, action);
+	}
+
+	void Window_GLFWGL::MouseCallback(GLFWwindow * w, int button, int action, int mods)
+	{
+		inputEngine->DispatchMouseAction(button, action);
 	}
 
 

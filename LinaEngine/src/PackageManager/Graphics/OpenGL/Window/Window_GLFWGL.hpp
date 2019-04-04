@@ -58,7 +58,7 @@ namespace LinaEngine
 
 	private:
 
-		void Init();
+		void Initialize();
 		void Terminate();
 		void WindowResized(GLFWwindow* window, int width, int height);
 		void WindowClosed(GLFWwindow* window);
@@ -68,8 +68,12 @@ namespace LinaEngine
 		void WindowCursorPosCallback(GLFWwindow* window, double xPos, double yPos);
 		void WindowFocusCallback(GLFWwindow* window, int focused);
 		void CharCallback(GLFWwindow* window, unsigned int keycode);
+		void KeyCallback(GLFWwindow* w, int key, int scancode, int action, int mods);
+		void MouseCallback(GLFWwindow* w, int button, int action, int mods);
+
 		bool m_IsInitialized = false;
 		GLFWwindow* m_Window = NULL;
+		class InputEngine* inputEngine;
 	};
 }
 

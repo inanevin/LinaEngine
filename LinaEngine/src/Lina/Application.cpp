@@ -49,9 +49,6 @@ namespace LinaEngine
 		// Set application reference.
 		m_RenderingEngine->SetApplication(*this);
 
-		// Initialize rendering engine.
-		m_RenderingEngine->Initialize();
-
 		// Get an input adapter.
 		InputAdapter inpAdpt;
 
@@ -61,14 +58,14 @@ namespace LinaEngine
 		// Set window reference in input engine.
 		m_InputEngine->SetApplication(*this);
 
-		// Initialize input engine.
-		m_InputEngine->Initialize();
-
 		// Set running flag.
 		m_Running = true;
 
-		// Start rendering engine.
-		m_RenderingEngine->Start();
+		// Initialize rendering engine.
+		m_RenderingEngine->Initialize();
+
+		// Initialize input engine.
+		m_InputEngine->Initialize();
 
 		test = new ActionTest();
 		test->SetAction();

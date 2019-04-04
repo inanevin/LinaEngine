@@ -54,6 +54,9 @@ namespace LinaEngine
 		Window(const WindowProps& wp = WindowProps());
 		virtual ~Window() {}
 
+		/* Gets called after rendering engine is initialized. */
+		virtual void Initialize() = 0;
+
 		/* Gets called when the window updates each frame. */
 		virtual void OnUpdate() = 0;
 

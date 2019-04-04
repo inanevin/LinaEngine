@@ -44,32 +44,11 @@ namespace LinaEngine
 		glfwWindow = static_cast<GLFWwindow*>(Application::Get().GetRenderingEngine().GetMainWindow().GetNativeWindow());
 		LINA_CORE_ENSURE_ASSERT(glfwWindow != NULL, , "GLFW Window is null!");
 		LINA_CORE_INFO("Input Engine GLFW Initialized");
-
-
-		auto keyPressedFunc = [](GLFWwindow* w, int key, int scancode, int action, int mods)
-		{
-			static_cast<InputEngine_GLFW*>(glfwGetWindowUserPointer(w))->KeyCallback(w, key, scancode, action, mods);
-		};
-
-		auto mousePressedFunc = [](GLFWwindow* w, int button, int action, int mods)
-		{
-			static_cast<InputEngine_GLFW*>(glfwGetWindowUserPointer(w))->MouseCallback(w, button, action, mods);
-		};
-
-
-		glfwSetKeyCallback(glfwWindow, keyPressedFunc);
-		glfwSetMouseButtonCallback(glfwWindow, mousePressedFunc);
 	}
 
 	void InputEngine_GLFW::OnUpdate()
 	{
-		if (glfwGetKey(glfwWindow, GLFW_KEY_F2) == GLFW_PRESS)
-		{
-			Action<int> keyPress = Action<int>(KeyPressed);
-			keyPress.SetData(GLFW_KEY_F2);
-			m_ActionDispatcher.DispatchAction(keyPress);
-		}
-	
+
 		//memcpy(previousKeys, currentKeys, sizeof(bool) * NUM_KEY_STATES);
 
 	/*
@@ -169,14 +148,37 @@ namespace LinaEngine
 
 	}
 
-	void InputEngine_GLFW::KeyCallback(GLFWwindow * w, int key, int scancode, int action, int mods)
-	{
 
+	void InputEngine_GLFW::DispatchKeyAction(int key, int action)
+	{
+		if (action == GLFW_PRESS)
+		{
+			Action<int> keyPress = Action<int>(KeyPressed);
+			keyPress.SetData(key);
+			m_ActionDispatcher.DispatchAction(keyPress);
+		}
+		else if (action == GLFW_RELEASE)
+		{
+			Action<int> keyPress = Action<int>(KeyReleased);
+			keyPress.SetData(key);
+			m_ActionDispatcher.DispatchAction(keyPress);
+		}
 	}
 
-	void InputEngine_GLFW::MouseCallback(GLFWwindow * w, int button, int action, int mods)
+	void InputEngine_GLFW::DispatchMouseAction(int button, int action)
 	{
-
+		if (action == GLFW_PRESS)
+		{
+			Action<int> mousePress = Action<int>(MouseButtonPressed);
+			mousePress.SetData(button);
+			m_ActionDispatcher.DispatchAction(mousePress);
+		}
+		else if (action == GLFW_RELEASE)
+		{
+			Action<int> mousePress = Action<int>(MouseButtonReleased);
+			mousePress.SetData(button);
+			m_ActionDispatcher.DispatchAction(mousePress);
+		}
 	}
 }
 

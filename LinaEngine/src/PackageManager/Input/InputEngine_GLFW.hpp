@@ -73,10 +73,10 @@ namespace LinaEngine
 		/* Sets mouse position to desired screen space coordinates. */
 		void SetMousePosition(const Vector2F& v) const;
 
-	private:
+		void DispatchKeyAction(int key, int action) override;
+		void DispatchMouseAction(int button, int action) override;
 
-		void KeyCallback(GLFWwindow* w, int key, int scancode, int action, int mods);
-		void MouseCallback(GLFWwindow* w, int button, int action, int mods);
+
 
 	private:
 

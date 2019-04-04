@@ -31,7 +31,7 @@ namespace LinaEngine
 
 	IInputSubscriber::~IInputSubscriber()
 	{
-		inputEngine->UnsubscribeFromAction(m_CallerAddr);
+		inputEngine->UnsubscribeFromAction(this);
 	}
 }
 

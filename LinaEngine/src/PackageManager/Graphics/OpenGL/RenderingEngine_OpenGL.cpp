@@ -77,7 +77,7 @@ namespace LinaEngine
 
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
 	{
-
+		
 	}
 
 	RenderingEngine_OpenGL::~RenderingEngine_OpenGL()
@@ -101,7 +101,7 @@ namespace LinaEngine
 
 	void RenderingEngine_OpenGL::Initialize()
 	{
-
+		RenderingEngine::Initialize();
 	}
 
 	void RenderingEngine_OpenGL::Start()

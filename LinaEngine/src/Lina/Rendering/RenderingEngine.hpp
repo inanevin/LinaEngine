@@ -39,7 +39,7 @@ namespace LinaEngine
 		virtual ~RenderingEngine();
 
 		/* Initializes the rendering engine. */
-		virtual void Initialize() = 0;
+		virtual void Initialize();
 
 		/* Starts the rendering engine. */
 		virtual void Start() = 0;

@@ -37,8 +37,7 @@ namespace LinaEngine
 		MouseButtonPressed,
 		MouseButtonReleased,
 		MouseMotionX,
-		MouseMotionY,
-		SDLQuit
+		MouseMotionY
 	};
 
 	// Base wrapper class for actions.
@@ -256,13 +255,13 @@ namespace LinaEngine
 
 		void DispatchAction(ActionBase& action)
 		{
+			if (m_ActionHandlers.size() == 0) return;
 
 			for (it = m_ActionHandlers.begin(); it != m_ActionHandlers.end(); it++)
 			{
 				// Check if the the object is alive.
 				if ((*it)->m_Caller != NULL)
 				{
-					std::cout << "Caller mem id: " << (*it)->m_Caller << std::endl;
 
 					// Check if the action types match.
 					if (action.GetActionType() == (*it)->GetActionType())
@@ -271,22 +270,18 @@ namespace LinaEngine
 						(*it)->Control(action);
 					}
 				}
+				else
+				{
+					LINA_CORE_ERR("Fatal error in action source! Non-deleted action handler exists in handler list!");
+				}
 			}
-
-			// Check the handlers if any of the pointed objects are dead, remove it from the list if so.
-			/*m_ActionHandlers.erase(std::remove_if(m_ActionHandlers.begin(), m_ActionHandlers.end(),
-				[](std::weak_ptr<ActionHandlerBase> handler)
-			{
-				return handler.expired();	// LOCK OR EXPIRED?
-			}), m_ActionHandlers.end());*/
-
 
 		}
 
 		void SubscribeHandler(ActionHandlerBase* ptr)
 		{
 			// Add the weak pointer to the list.
-			m_ActionHandlers.push_back(std::move(ptr));
+			m_ActionHandlers.push_back(ptr);
 		}
 
 		void UnsubscribeHandler(void* addr)
@@ -296,7 +291,6 @@ namespace LinaEngine
 				if ((*it)->m_Caller == addr)
 				{
 					it = m_ActionHandlers.erase(it);
-					break;
 				}
 				else
 					++it;
