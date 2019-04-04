@@ -52,6 +52,7 @@ namespace LinaEngine
 	void Window_GLFWGL::OnUpdate()
 	{
 		glfwPollEvents();
+
 		if (!glfwWindowShouldClose(m_Window))
 		{
 			// Swap Buffers
@@ -68,7 +69,7 @@ namespace LinaEngine
 
 	void Window_GLFWGL::SetVSync(bool enabled)
 	{
-
+		glfwSwapInterval(enabled);
 	}
 
 	bool Window_GLFWGL::IsVSync() const

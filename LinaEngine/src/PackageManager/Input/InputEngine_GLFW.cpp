@@ -95,11 +95,24 @@ namespace LinaEngine
 
 	Vector2F InputEngine_GLFW::GetRawMouseAxis()
 	{
-		return Vector2F();
+		double posX, posY;
+		glfwGetCursorPos(glfwWindow, &posX, &posY);
+		static Vector2F oldMousePosition;
+		Vector2F currentMousePosition = Vector2F(posX, posY);
+		Vector2F diff = currentMousePosition - oldMousePosition;
+		Vector2F raw = Vector2F::Zero();
+		if (diff.x > 0) raw.x = 1.0f;
+		else if (diff.x < 0) raw.x = -1.0f;
+		if (diff.y > 0) raw.y = 1.0f;
+		else if (diff.y < 0) raw.y = -1.0f;
+		oldMousePosition = currentMousePosition;
+		return raw;
 	}
+
 	Vector2F InputEngine_GLFW::GetMouseAxis()
 	{
-		return Vector2F();
+		// TODO: This returns the raw mouse axis for now, smooth the raw & map between -1 & 1 later.
+		return GetRawMouseAxis();
 	}
 
 	Vector2F InputEngine_GLFW::GetMousePosition()
