@@ -58,17 +58,19 @@ namespace LinaEngine
 		// Set window reference in input engine.
 		m_InputEngine->SetApplication(*this);
 
-		// Set running flag.
-		m_Running = true;
-
 		// Initialize rendering engine.
 		m_RenderingEngine->Initialize();
 
 		// Initialize input engine.
 		m_InputEngine->Initialize();
 
-		test = new ActionTest();
-		test->SetAction();
+		// TODO: Carry start to different block.
+		// Start the rendering engine.
+		m_RenderingEngine->Start();
+
+		// Set running flag.
+		m_Running = true;
+
 	}
 
 	Application::~Application()
@@ -100,12 +102,6 @@ namespace LinaEngine
 
 			// Update rendering engine.
 			m_RenderingEngine->OnUpdate();
-
-
-			std::cout << m_InputEngine->GetMouseAxis().ToString() << std::endl;
-
-			if (m_InputEngine->GetKeyDown(LINA_KEY_K))
-				delete test;
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();

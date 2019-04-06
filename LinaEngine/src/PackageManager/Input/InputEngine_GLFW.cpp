@@ -105,7 +105,6 @@ namespace LinaEngine
 		else if (diff.x < 0.0f) raw.x = -1.0f;
 		if (diff.y > 0) raw.y = -1.0f;
 		else if (diff.y < 0) raw.y = 1.0f;
-
 		oldMousePosition = currentMousePosition;
 		return raw;
 	}

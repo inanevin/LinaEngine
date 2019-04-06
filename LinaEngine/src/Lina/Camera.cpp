@@ -62,18 +62,24 @@ namespace LinaEngine
 	void Camera::OnInput(InputEngine & i)
 	{
 
-		/*if (i.GetKey(KEY_W))
+		if (i.GetKey(LINA_KEY_W))
 		{
-			this->m_Transform.position += (m_Transform.rotation.GetForward() * movementSpeed);
+			Vector3F forward = m_Transform.rotation.GetForward();
+			forward.Normalize();
+			forward *= movementSpeed;
+			this->m_Transform.position += forward;
 
 		}
-		if (i.GetKey(KEY_S))
+		if (i.GetKey(LINA_KEY_S))
 		{
-			this->m_Transform.position -= (m_Transform.rotation.GetForward() * movementSpeed);
+			Vector3F back = m_Transform.rotation.GetBack();
+			back.Normalize();
+			back *= movementSpeed;
+			this->m_Transform.position += back;
 
 
 		}
-		if (i.GetKey(KEY_A))
+		if (i.GetKey(LINA_KEY_A))
 		{
 			Vector3F left = m_Transform.rotation.GetLeft();
 			left.Normalize();
@@ -81,14 +87,14 @@ namespace LinaEngine
 			this->m_Transform.position += left;
 
 		}
-		if (i.GetKey(KEY_D))
+		if (i.GetKey(LINA_KEY_D))
 		{
 			Vector3F right = m_Transform.rotation.GetRight();
 			right.Normalize();
 			right *= movementSpeed;
 			this->m_Transform.position += right;
 
-		}*/
+		}
 
 		/*
 		if (i.GetMouseDown(0))

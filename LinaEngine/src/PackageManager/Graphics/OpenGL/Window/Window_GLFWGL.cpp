@@ -168,7 +168,6 @@ namespace LinaEngine
 		};
 
 
-
 		auto keyPressedFunc = [](GLFWwindow* w, int key, int scancode, int action, int mods)
 		{
 			static_cast<Window_GLFWGL*>(glfwGetWindowUserPointer(w))->KeyCallback(w, key, scancode, action, mods);

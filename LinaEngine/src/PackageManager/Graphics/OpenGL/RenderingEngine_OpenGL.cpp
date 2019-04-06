@@ -28,7 +28,7 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "Lina/Events/Action.hpp"
 #include "Lina/Rendering/Vertex.hpp"
 #include "Texture_OpenGL.hpp"
-//#include "PackageManager/Graphics/Shader_GLSLBasic.hpp"
+#include "PackageManager/Graphics/OpenGL/Shaders/Shader_GLSLBasic.hpp"
 #include "glm/glm.hpp"
 
 #include "glm/gtc/matrix_transform.hpp"
@@ -40,7 +40,7 @@ namespace LinaEngine
 {
 
 
-	/*unsigned int VBO;
+	unsigned int VBO;
 	unsigned int VAO;
 	unsigned int EBO;
 
@@ -72,7 +72,7 @@ namespace LinaEngine
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
-	*/
+	
 
 
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
@@ -82,20 +82,14 @@ namespace LinaEngine
 
 	RenderingEngine_OpenGL::~RenderingEngine_OpenGL()
 	{
-		/*glDeleteVertexArrays(1, &VAO);
+		glDeleteVertexArrays(1, &VAO);
 		glDeleteBuffers(1, &VBO);
-		glDeleteBuffers(1, &EBO);*/
+		glDeleteBuffers(1, &EBO);
 	}
 
 	void RenderingEngine_OpenGL::Test()
 	{
-		LINA_CORE_WARN("Rendering engine test is called! Deleting test object!");
-		std::cout << test << std::endl;
-		if (test)
-		{
-			delete test;
-			test = nullptr;
-		}
+		
 		
 	}
 
@@ -115,7 +109,7 @@ namespace LinaEngine
 
 		test = new ActionTest();
 		test->SetAction(&app->GetInputEngine());
-
+		*/
 		sceneCamera.SetPerspectiveInformation(PerspectiveInformation(60.0f, m_WindowProps.Width, m_WindowProps.Height, 0.01f, 100.0f));
 		sceneCamera.m_Transform.SetPosition(0, 0, -6);
 
@@ -209,19 +203,17 @@ namespace LinaEngine
 		// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 	//	glBindVertexArray(0);
 
-		sceneCamera.OnInput(app->GetInputEngine());
-		*/
+		
+		
 	}
 
 	void RenderingEngine_OpenGL::OnUpdate()
 	{
 		RenderingEngine::OnUpdate();
 
-
-		glClearColor(1, 1, 1, 1);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		/*glClearColor(0.2f, 0.7f, 0.3f, 1.0f);
+		sceneCamera.OnInput(app->GetInputEngine());
+		
+		glClearColor(0.2f, 0.1f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
 		baseTexture.Use();
@@ -245,28 +237,30 @@ namespace LinaEngine
 		//basicShader.SetView(view);
 		//basicShader.SetProjection(projection);
 
-		*/
+		
 
 
-		//glBindVertexArray(VAO);
+		glBindVertexArray(VAO);
 
-		//for (unsigned int i = 0; i < 7; i++)
-		//{
-			//Matrix4F transformation = cubeTransforms[i].GetWorldTransformation();
-			//Matrix4F camView = sceneCamera.GetViewProjection();
-			//Matrix4F WVP = camView * transformation;
-			//basicShader.SetWVP(WVP);
+		for (unsigned int i = 0; i < 7; i++)
+		{
+			Matrix4F transformation = cubeTransforms[i].GetWorldTransformation();
+			Matrix4F camView = sceneCamera.GetViewProjection();
+			Matrix4F WVP = camView * transformation;
+			basicShader.SetWVP(WVP);
 
-			//glm::mat4 model = glm::mat4(1.0f);
-			//model = glm::translate(model, cubePositions[i]);
-			//float angle = 20.0f * i;
-			/*if (i == 2 || i == 5 || i == 8)
+			/*glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+
+			if (i == 2 || i == 5 || i == 8)
 				model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 			else
-				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));*/
-				//basicShader.SetModel(model);
-			//glDrawArrays(GL_TRIANGLES, 0, 36);
-		//}
+				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+
+			basicShader.SetModel(model);	*/
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 		//	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 

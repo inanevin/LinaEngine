@@ -24,7 +24,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "Core.hpp"
 #include "Lina/Events/ApplicationEvent.hpp"
 #include "LayerStack.hpp"
-#include "Events/ActionTest.hpp"
+
 
 namespace LinaEngine
 {
@@ -58,7 +58,7 @@ namespace LinaEngine
 		}
 
 	private:
-		ActionTest* test;
+
 		static Application* instance;
 		bool m_Running = false;
 		LayerStack m_LayerStack;
