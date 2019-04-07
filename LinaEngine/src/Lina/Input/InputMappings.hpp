@@ -227,10 +227,10 @@ namespace LinaEngine
 #define LINA_MOUSE_3         2
 #define LINA_MOUSE_4         3
 #define LINA_MOUSE_5         4
-/*#define LINA_MOUSE_6         5
+#define LINA_MOUSE_6         5
 #define LINA_MOUSE_7         6
 #define LINA_MOUSE_8         7
-#define LINA_MOUSE_LAST      LINA_MOUSE_8*/
+#define LINA_MOUSE_LAST      LINA_MOUSE_8
 #define LINA_MOUSE_LEFT      LINA_MOUSE_1
 #define LINA_MOUSE_RIGHT     LINA_MOUSE_2
 #define LINA_MOUSE_MIDDLE    LINA_MOUSE_3
@@ -535,6 +535,31 @@ struct LinaKey
 	const static int RGUI = LINA_KEY_RGUI;
 };
 	
+struct LinaMouse
+{
+const static int  Mouse1 = LINA_MOUSE_1;       
+const static int  Mouse2 = LINA_MOUSE_2;       
+const static int  Mouse3 = LINA_MOUSE_3;       
+const static int  Mouse4 = LINA_MOUSE_4;       
+const static int  Mouse5 = LINA_MOUSE_5;       
+const static int  Mouse6 = LINA_MOUSE_6;       
+const static int  Mouse7 = LINA_MOUSE_7;       
+const static int  Mouse8 = LINA_MOUSE_8;       
+const static int  MouseLast = LINA_MOUSE_LAST;    
+const static int  MouseLeft = LINA_MOUSE_LEFT;     
+const static int  MouseRight = LINA_MOUSE_RIGHT;    
+const static int  MouseMiddle = LINA_MOUSE_MIDDLE;   
+};
+
+struct LinaJoystick
+{
+
+};
+
+struct LinaGamepad
+{
+
+};
 }
 
 
