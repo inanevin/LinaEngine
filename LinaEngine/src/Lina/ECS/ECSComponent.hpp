@@ -84,7 +84,7 @@ namespace LinaEngine
 	template<typename Component>
 	void ECSComponentFree(BaseECSComponent* component)
 	{
-		Component* component = (T*)comp;
+		Component* component = (Component*)comp;
 		component->~Component();
 	}
 
