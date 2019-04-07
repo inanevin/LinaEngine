@@ -54,6 +54,14 @@ namespace LinaEngine
 		inline void SetScaleY(float y) { scale.y = y; }
 		inline void SetScaleZ(float z) { scale.z = z; }
 
+		void Rotate(const Vector3F& axis, float angle);
+		void Rotate(const Quaternion& rotation);
+		void LookAt(const Vector3F& point, const Vector3F& up);
+
+		inline Quaternion GetLookAtRotation(const Vector3F& point, const Vector3F& up)
+		{
+			return Quaternion(Matrix4F().InitRotationFromDirection((point - position).Normalized(), up));
+		}
 
 		const Matrix4F& GetWorldTransformation();
 		

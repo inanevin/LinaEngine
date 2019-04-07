@@ -41,8 +41,8 @@ namespace LinaEngine
 		{};
 
 		Quaternion(const Vector3F& axis, float angle);
-
 		Quaternion(const Matrix4F& m);
+
 		Quaternion NLerp(const Quaternion& r, float lerpFactor, bool shortestPath) const;
 		Quaternion SLerp(const Quaternion& r, float lerpFactor, bool shortestPath) const;
 		Matrix4F ToRotationMatrix() const;
@@ -75,6 +75,7 @@ namespace LinaEngine
 
 			return Quaternion(_x, _y, _z, _w);
 		}
+
 
 
 	};

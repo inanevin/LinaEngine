@@ -233,7 +233,7 @@ namespace LinaEngine
 		//projection = glm::perspective(glm::radians(45.0f), (float)m_WindowProps.Width / (float)m_WindowProps.Height, 0.1f, 100.0f);
 		//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
-		sceneCamera.m_Transform.SetRotationX(-15);
+		//sceneCamera.m_Transform.SetRotationX(-15);
 		//basicShader.SetView(view);
 		//basicShader.SetProjection(projection);
 

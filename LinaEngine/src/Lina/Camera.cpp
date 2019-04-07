@@ -26,6 +26,9 @@ namespace LinaEngine
 	const static float movementSpeed = 0.25f;
 	const static float m_sensitivity = 0.1f;
 
+	float xInput;
+	float yInput;
+
 	Camera::Camera(PerspectiveInformation p)
 	{
 		this->m_PersInfo = p;
@@ -96,43 +99,48 @@ namespace LinaEngine
 
 		}
 
-		/*
-		if (i.GetMouseDown(0))
+		
+		if (i.GetMouseButtonDown(LINA_MOUSE_LEFT))
 		{
-			i.SetMousePosition(m_windowCenter);
-			i.SetCursor(false);
 			m_mouseLocked = true;
+			i.SetCursor(false);
+			i.SetMousePosition(m_windowCenter);
 		}
 
-		if (i.GetMouseUp(0))
+		if (i.GetMouseButtonUp(LINA_MOUSE_LEFT))
 		{
-			i.SetCursor(true);
 			m_mouseLocked = false;
+			i.SetCursor(true);
 		}
+
+		//xInput += 0.05f;
+		std::cout << "Rotation: " << m_Transform.rotation.ToString() << std::endl;
+		std::cout << "X Input: " << xInput << std::endl;
+		//m_Transform.Rotate(m_Transform.rotation.GetRight(), xInput);
+		//m_Transform.SetRotationX(xInput);
+		
 
 		if (m_mouseLocked)
 		{
 			Vector2F deltaPos = i.GetMousePosition() - m_windowCenter;
 
-		
 			bool rotY = deltaPos.x != 0;
 			bool rotX = deltaPos.y != 0;
 
-
 			if (rotY)
 			{
-				Quaternion q = Quaternion(Vector3F(0, 1, 0), (deltaPos.x * m_sensitivity));
-				m_Transform.rotation = Quaternion((q * m_Transform.rotation).Normalized());
+				m_Transform.Rotate(Vector3F(0, 1, 0), deltaPos.x * m_sensitivity);
 			}
 			if (rotX)
 			{
-				Quaternion q = Quaternion(m_Transform.rotation.GetRight(), (deltaPos.y * m_sensitivity));
-				m_Transform.rotation = Quaternion((q * m_Transform.rotation).Normalized());
+				m_Transform.Rotate(m_Transform.rotation.GetRight(),deltaPos.y * m_sensitivity);
 			}
 
 			if (rotY || rotX)
+			{
 				i.SetMousePosition(m_windowCenter);
-		}*/
+			}
+		}
 
 
 

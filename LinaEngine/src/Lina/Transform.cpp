@@ -37,5 +37,20 @@ namespace LinaEngine
 		return m_WorldTransformation;
 	}
 
+	void Transform::Rotate(const Vector3F& axis, float angle)
+	{
+		Rotate(Quaternion(axis, angle));
+	}
+
+	void Transform::Rotate(const Quaternion& r)
+	{
+		rotation = Quaternion((r * rotation).Normalized());
+	}
+
+	void Transform::LookAt(const Vector3F& point, const Vector3F& up)
+	{
+		rotation = GetLookAtRotation(point, up);
+	}
+
 }
 
