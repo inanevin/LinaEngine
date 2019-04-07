@@ -129,7 +129,7 @@ namespace LinaEngine
 
 			if (rotY)
 			{
-				m_Transform.Rotate(Vector3F(0, 1, 0), deltaPos.x * m_sensitivity);
+				m_Transform.Rotate(Vector3F::Up(), deltaPos.x * m_sensitivity);
 			}
 			if (rotX)
 			{

@@ -24,10 +24,7 @@ Timestamp: 12/30/2018 5:29:20 PM
 #include <utility>
 #include <algorithm>
 #include <functional>
-
 #include <cstdint>
-
-
 #include <string>
 #include <sstream>
 #include <fstream>
@@ -41,6 +38,7 @@ Timestamp: 12/30/2018 5:29:20 PM
 #include "Lina/Utility/Math/Quaternion.hpp"
 #include "Lina/Utility/ResourceConstants.hpp"
 #include "Lina/Input/InputMappings.hpp"
+#include "Lina/Common.hpp"
 
 namespace LinaEngine
 {
