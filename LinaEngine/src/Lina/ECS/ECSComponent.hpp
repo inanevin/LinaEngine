@@ -26,8 +26,16 @@ Timestamp: 4/7/2019 3:24:08 PM
 namespace LinaEngine
 {
 
+	/* Forward definition for base ecs component. */
+	struct BaseECSComponent;
+
 	/* We don't have to know about the entity, we just keep a void pointer. */
 	typedef void* EntityHandle;
+
+
+	/* Defines for create & free functions */
+	typedef uint32 (*ECSComponentCreateFunction)(std::vector<uint8>& memory, EntityHandle entity, BaseECSComponent* comp);
+	typedef void (*ECSComponentFreeFunction)(BaseECSComponent* component);
 
 	/* Null pointer for entitites */
 #define NULL_ENTITY_HANDLE nullptr
@@ -63,9 +71,21 @@ namespace LinaEngine
 
 	/* Creates a component from a base reference */
 	template<typename Component>
-	uint32 ECSComponentCreateFunction(std::vector<uint8>& memory, EntityHandle entity, BaseECSComponent* comp)
+	uint32 ECSComponentCreate(std::vector<uint8>& memory, EntityHandle entity, BaseECSComponent* comp)
 	{
-		
+		uint32 index = memory.size();
+		memory.resize(index + Component::SIZE);
+		Component* component = new(&memory[index]) Component(*(Component*)comp);
+		component->entity = entity;
+		return index;
+	}
+
+	/* Frees a particular component */
+	template<typename Component>
+	void ECSComponentFree(BaseECSComponent* component)
+	{
+		Component* component = (T*)comp;
+		component->~Component();
 	}
 
 	/* Define ID for mid ECSComponent class. */
@@ -76,6 +96,13 @@ namespace LinaEngine
 	template<typename T>
 	const size_t ECSComponent<T>::SIZE(sizeof(T));
 
+	/* Def create func */
+	template<typename T>
+	const ECSComponentCreateFunction ECSComponent<T>::CREATE_FUNCTION(ECSComponentCreate<T>);
+
+	/* Def free func */
+	template<typename T>
+	const ECSComponentFreeFunction ECSComponent<T>::FREE_FUNCTION(ECSComponentFree<T>);
 
 
 	struct TestComponent : public ECSComponent<TestComponent>
