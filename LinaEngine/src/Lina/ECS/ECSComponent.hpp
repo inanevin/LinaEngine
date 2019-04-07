@@ -41,7 +41,13 @@ namespace LinaEngine
 
 	};
 
-	struct TestComponent : public BaseECSComponent
+	template<typename T>
+	struct ECSComponent : public BaseECSComponent
+	{
+
+	};
+
+	struct TestComponent : public ECSComponent<TestComponent>
 	{
 		
 	};
