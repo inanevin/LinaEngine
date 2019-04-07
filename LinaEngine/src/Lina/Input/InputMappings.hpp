@@ -553,7 +553,23 @@ const static int  MouseMiddle = LINA_MOUSE_MIDDLE;
 
 struct LinaJoystick
 {
-
+const static int Joystick1 = LINA_JOYSTICK_1;     
+const static int Joystick2 = LINA_JOYSTICK_2;     
+const static int Joystick3 = LINA_JOYSTICK_3;     
+const static int Joystick4 = LINA_JOYSTICK_4;     
+const static int Joystick5 = LINA_JOYSTICK_5;     
+const static int Joystick6 = LINA_JOYSTICK_6;     
+const static int Joystick7 = LINA_JOYSTICK_7;     
+const static int Joystick8 = LINA_JOYSTICK_8;     
+const static int Joystick9 = LINA_JOYSTICK_9;     
+const static int Joystick10 = LINA_JOYSTICK_10;    
+const static int Joystick11 = LINA_JOYSTICK_11;    
+const static int Joystick12 = LINA_JOYSTICK_12;    
+const static int Joystick13 = LINA_JOYSTICK_13;    
+const static int Joystick14 = LINA_JOYSTICK_14;    
+const static int Joystick15 = LINA_JOYSTICK_15;    
+const static int Joystick16 = LINA_JOYSTICK_16;    
+const static int JoystickLast = LINA_JOYSTICK_LAST;  
 };
 
 struct LinaGamepad
@@ -587,6 +603,7 @@ const static int LTrigger = LINA_GAMEPAD_LEFT_TRIGGER;
 const static int RTrigger = LINA_GAMEPAD_RIGHT_TRIGGER;
 const static int Last = LINA_GAMEPAD_LAST;         
 };
+
 }
 
 
