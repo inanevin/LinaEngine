@@ -559,6 +559,33 @@ struct LinaJoystick
 struct LinaGamepad
 {
 
+const static int A = LINA_GAMEPAD_A;          
+const static int B = LINA_GAMEPAD_B;          
+const static int X = LINA_GAMEPAD_X;          
+const static int Y = LINA_GAMEPAD_Y;          
+const static int LBumper = LINA_GAMEPAD_LEFT_BUMPER; 
+const static int RBumper = LINA_GAMEPAD_RIGHT_BUMPER;
+const static int Back = LINA_GAMEPAD_BACK;        
+const static int Start = LINA_GAMEPAD_START;       
+const static int Guide = LINA_GAMEPAD_GUIDE;       
+const static int LThumb= LINA_GAMEPAD_LEFT_THUMB;  
+const static int RThumb = LINA_GAMEPAD_RIGHT_THUMB; 
+const static int DpadUp = LINA_GAMEPAD_DPAD_UP;     
+const static int DpadRight = LINA_GAMEPAD_DPAD_RIGHT;  
+const static int DpadDown = LINA_GAMEPAD_DPAD_DOWN;   
+const static int DpadLeft = LINA_GAMEPAD_DPAD_LEFT;   
+const static int DpadLast = LINA_GAMEPAD_LAST;        
+const static int Cross = LINA_GAMEPAD_CROSS;      
+const static int Circle = LINA_GAMEPAD_CIRCLE;     
+const static int Square = LINA_GAMEPAD_SQUARE;     
+const static int Triangle = LINA_GAMEPAD_TRIANGLE;   
+const static int LeftX = LINA_GAMEPAD_LEFT_X;       
+const static int LeftY = LINA_GAMEPAD_LEFT_Y;       
+const static int RightX = LINA_GAMEPAD_RIGHT_X;      
+const static int RightY = LINA_GAMEPAD_RIGHT_Y;      
+const static int LTrigger = LINA_GAMEPAD_LEFT_TRIGGER;
+const static int RTrigger = LINA_GAMEPAD_RIGHT_TRIGGER;
+const static int Last = LINA_GAMEPAD_LAST;         
 };
 }
 
