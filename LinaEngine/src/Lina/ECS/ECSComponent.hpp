@@ -61,6 +61,7 @@ namespace LinaEngine
 		static const size_t SIZE;
 	};
 
+	/* Creates a component from a base reference */
 	template<typename Component>
 	uint32 ECSComponentCreateFunction(std::vector<uint8>& memory, EntityHandle entity, BaseECSComponent* comp)
 	{

@@ -80,5 +80,12 @@ typedef uint64_t uint64;
 typedef intptr_t intptr;
 typedef uintptr_t uintptr;
 
+#ifdef COMPILER_MSVC
+#define FORCEINLINE __forceinline
+#elif defined(COMPILER_GCC) || defined(COMPILER_CLANG)
+#define FORCEINLINE inline __attribute__ ((always_inline))
+#else
+#define FORCEINLINE inline
+#endif
 
 #endif
