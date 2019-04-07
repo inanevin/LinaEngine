@@ -357,7 +357,7 @@ namespace LinaEngine
 #define LINA_KEY_F11 300
 #define LINA_KEY_F12 301
 
-#define LINA_KEY_PRINTSCREEN 
+#define LINA_KEY_PRINTSCREEN LINA_KEY_UNKNOWN
 #define LINA_KEY_SCROLLLOCK 281
 #define LINA_KEY_PAUSE 284
 #define LINA_KEY_INSERT 260
@@ -415,7 +415,125 @@ namespace LinaEngine
 
 #endif
 
-
+struct LinaKey
+{
+	const static int Unknown = LINA_KEY_UNKNOWN;
+	const static int A = LINA_KEY_A;
+	const static int B = LINA_KEY_B;
+	const static int C = LINA_KEY_C;
+	const static int D = LINA_KEY_D;
+	const static int E = LINA_KEY_E;
+	const static int F = LINA_KEY_F;
+	const static int G = LINA_KEY_G;
+	const static int H = LINA_KEY_H;
+	const static int I = LINA_KEY_I;
+	const static int J = LINA_KEY_J;
+	const static int K = LINA_KEY_K;
+	const static int L = LINA_KEY_L;
+	const static int M = LINA_KEY_M;
+	const static int N = LINA_KEY_N;
+	const static int O = LINA_KEY_O;
+	const static int P = LINA_KEY_P;
+	const static int Q = LINA_KEY_Q;
+	const static int R = LINA_KEY_R;
+	const static int S = LINA_KEY_S;
+	const static int T = LINA_KEY_T;
+	const static int U = LINA_KEY_U;
+	const static int V = LINA_KEY_V;
+	const static int W = LINA_KEY_W;
+	const static int X = LINA_KEY_X;
+	const static int Y = LINA_KEY_Y;
+	const static int Z = LINA_KEY_Z;
+	const static int Alpha0 = LINA_KEY_0;
+	const static int Alpha1 = LINA_KEY_1;
+	const static int Alpha2 = LINA_KEY_2;
+	const static int Alpha3 = LINA_KEY_3;
+	const static int Alpha4 = LINA_KEY_4;
+	const static int Alpha5 = LINA_KEY_5;
+	const static int Alpha6 = LINA_KEY_6;
+	const static int Alpha7 = LINA_KEY_7;
+	const static int Alpha8 = LINA_KEY_8;
+	const static int Alpha8 = LINA_KEY_9;
+	const static int Return = LINA_KEY_RETURN;
+	const static int Escape = LINA_KEY_ESCAPE;
+	const static int Backspace = LINA_KEY_BACKSPACE;
+	const static int Tab = LINA_KEY_TAB;
+	const static int Space = LINA_KEY_SPACE;
+	const static int Minus = LINA_KEY_MINUS;
+	const static int Equals = LINA_KEY_EQUALS;
+	const static int Leftbracket = LINA_KEY_LEFTBRACKET;
+	const static int Rightbracket = LINA_KEY_RIGHTBRACKET;
+	const static int Backslash = LINA_KEY_BACKSLASH;
+	const static int Semicolon = LINA_KEY_SEMICOLON;
+	const static int Apostrophe = LINA_KEY_APOSTROPHE;
+	const static int Grave = LINA_KEY_GRAVE;
+	const static int Comma = LINA_KEY_COMMA;
+	const static int Period = LINA_KEY_PERIOD;
+	const static int Slash = LINA_KEY_SLASH;
+	const static int Capslock = LINA_KEY_CAPSLOCK;
+	const static int F1 = LINA_KEY_F1;
+	const static int F2 = LINA_KEY_F2;
+	const static int F3 = LINA_KEY_F3;
+	const static int F4 = LINA_KEY_F4;
+	const static int F5 = LINA_KEY_F5;
+	const static int F6 = LINA_KEY_F6;
+	const static int F7 = LINA_KEY_F7;
+	const static int F8 = LINA_KEY_F8;
+	const static int F9 = LINA_KEY_F9;
+	const static int F10 = LINA_KEY_F10;
+	const static int F11 = LINA_KEY_F11;
+	const static int F12 = LINA_KEY_F12;
+	const static int Printscreen = LINA_KEY_PRINTSCREEN;
+	const static int Scrolllock = LINA_KEY_SCROLLLOCK;
+	const static int Pause = LINA_KEY_PAUSE;
+	const static int Insert = LINA_KEY_INSERT;
+	const static int Home = LINA_KEY_HOME;
+	const static int Pageup = LINA_KEY_PAGEUP;
+	const static int Delete = LINA_KEY_DELETE;
+	const static int End = LINA_KEY_END;
+	const static int Pagedown = LINA_KEY_PAGEDOWN;
+	const static int Right = LINA_KEY_RIGHT;
+	const static int Left = LINA_KEY_LEFT;
+	const static int Down = LINA_KEY_DOWN;
+	const static int Up = LINA_KEY_UP;
+	const static int NumlockClear = LINA_KEY_NUMLOCKCLEAR;
+	const static int KeypadDecimal = LINA_KEY_KP_DECIMAL;
+	const static int KeypadDivide = LINA_KEY_KP_DIVIDE;
+	const static int KeypadMultiply = LINA_KEY_KP_MULTIPLY;
+	const static int KeypadMinus = LINA_KEY_KP_MINUS;
+	const static int KeypadPlus = LINA_KEY_KP_PLUS;
+	const static int KeypadEnter = LINA_KEY_KP_ENTER;
+	const static int Keypad1 = LINA_KEY_KP_1; 
+	const static int Keypad2 = LINA_KEY_KP_2; 
+	const static int Keypad3 = LINA_KEY_KP_3; 
+	const static int Keypad4 = LINA_KEY_KP_4; 
+	const static int Keypad5 = LINA_KEY_KP_5; 
+	const static int Keypad6 = LINA_KEY_KP_6; 
+	const static int Keypad7 = LINA_KEY_KP_7; 
+	const static int Keypad8 = LINA_KEY_KP_8; 
+	const static int Keypad9 = LINA_KEY_KP_9; 
+	const static int Keypad0 = LINA_KEY_KP_0; 
+	const static int F13 = LINA_KEY_F13; 
+	const static int F14 = LINA_KEY_F14; 
+	const static int F15 = LINA_KEY_F15; 
+	const static int F16 = LINA_KEY_F16; 
+	const static int F17 = LINA_KEY_F17; 
+	const static int F18 = LINA_KEY_F18; 
+	const static int F19 = LINA_KEY_F19; 
+	const static int F20 = LINA_KEY_F20; 
+	const static int F21 = LINA_KEY_F21; 
+	const static int F22 = LINA_KEY_F22; 
+	const static int F23= LINA_KEY_F23; 
+	const static int F24 = LINA_KEY_F24; 
+	const static int LCTRL = LINA_KEY_LCTRL;
+	const static int LSHIFT = LINA_KEY_LSHIFT;
+	const static int LALT = LINA_KEY_LALT;
+	const static int LGUI = LINA_KEY_LGUI;
+	const static int RCTRL = LINA_KEY_RCTRL;
+	const static int RSHIFT = LINA_KEY_RSHIFT;
+	const static int RALT = LINA_KEY_RALT;
+	const static int RGUI = LINA_KEY_RGUI;
+};
 	
 }
 

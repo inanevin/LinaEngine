@@ -27,7 +27,7 @@ Timestamp: 3/2/2019 7:13:07 PM
 namespace LinaEngine
 {
 #define BIND_ACTION(x,y) std::bind(&x, y)
-#define BIND_ACTION_PARAM(x,y) [y](int i) { y->x(i); };
+#define BIND_ACTION_PARAM(x,y, z) [y](z i) { y->x(i); };
 
 	template<typename T>
 	class ActionParams
@@ -35,6 +35,10 @@ namespace LinaEngine
 	public:
 
 		ActionParams() {};
+
+		ActionParams(ActionType type, T c = NULL, std::function<void()> cb = NULL, std::function<void(T)> cbp = NULL, T* b = NULL)
+			: actionType(type), condition(c), callback(cb), callbackWithParameter(cbp) {};
+
 		ActionType actionType;
 		T condition = NULL;
 		std::function<void()> callback;

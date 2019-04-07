@@ -113,11 +113,6 @@ namespace LinaEngine
 			i.SetCursor(true);
 		}
 
-		//xInput += 0.05f;
-		std::cout << "Rotation: " << m_Transform.rotation.ToString() << std::endl;
-		std::cout << "X Input: " << xInput << std::endl;
-		//m_Transform.Rotate(m_Transform.rotation.GetRight(), xInput);
-		//m_Transform.SetRotationX(xInput);
 		
 
 		if (m_mouseLocked)

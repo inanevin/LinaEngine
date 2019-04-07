@@ -43,6 +43,18 @@ namespace LinaEngine
 			inputEngine->SubscribeToAction(params);
 		};
 
+		void SubscribeKeyPressedAction();
+
+
+		void SubscribeKeyReleasedAction();
+
+
+		void SubscribeMousePressedAction();
+
+
+		void SubscribeMouseReleasedAction();
+
+
 	private:
 
 		class InputEngine* inputEngine;

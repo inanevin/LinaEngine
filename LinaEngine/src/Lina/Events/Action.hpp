@@ -30,14 +30,14 @@ Timestamp: 1/6/2019 5:41:20 AM
 namespace LinaEngine
 {
 
+	typedef int InputActionType;
+
 	enum ActionType
 	{
 		KeyPressed,
 		KeyReleased,
 		MouseButtonPressed,
-		MouseButtonReleased,
-		MouseMotionX,
-		MouseMotionY
+		MouseButtonReleased
 	};
 
 	// Base wrapper class for actions.

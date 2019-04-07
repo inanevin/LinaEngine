@@ -32,7 +32,6 @@ namespace LinaEngine
 	/* We don't have to know about the entity, we just keep a void pointer. */
 	typedef void* EntityHandle;
 
-
 	/* Defines for create & free functions */
 	typedef uint32 (*ECSComponentCreateFunction)(std::vector<uint8>& memory, EntityHandle entity, BaseECSComponent* comp);
 	typedef void (*ECSComponentFreeFunction)(BaseECSComponent* component);

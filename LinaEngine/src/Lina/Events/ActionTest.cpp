@@ -33,19 +33,24 @@ namespace LinaEngine
 		ActionParams<int> params;
 		
 		params.actionType = ActionType::KeyPressed;
-		params.condition = LINA_KEY_F2;
+		params.condition = LINA_KEY_A;
 		params.callback = BIND_ACTION(ActionTest::Test, this);
-		SubscribeInputAction(params);
+		params.callbackWithParameter = BIND_ACTION_PARAM(ActionTest::TestParam, this, int);
+		//SubscribeInputAction(params);
 
 		ActionParams<int> params2;
 		params2.actionType = ActionType::KeyPressed;
 		params2.callback = BIND_ACTION(ActionTest::Test, this);
-		//SubscribeInputAction(params2);
+		SubscribeInputAction(params2);
 	}
 
 	void ActionTest::Test()
 	{
 		std::cout << "Test object callback is called! " << this << std::endl;
+	}
+	void ActionTest::TestParam(int i)
+	{
+		std::cout << "Test object callback is called! " << i << std::endl;
 	}
 }
 
