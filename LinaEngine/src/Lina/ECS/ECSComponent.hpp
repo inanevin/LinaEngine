@@ -29,6 +29,9 @@ namespace LinaEngine
 	/* We don't have to know about the entity, we just keep a void pointer. */
 	typedef void* EntityHandle;
 
+	/* Null pointer for entitites */
+#define NULL_ENTITY_HANDLE nullptr
+
 	/* Base strcut for ECS components. */
 	struct BaseECSComponent
 	{
@@ -37,19 +40,32 @@ namespace LinaEngine
 		static uint32 nextID();
 
 		/* Entity reference */
-		EntityHandle entityID;
+		EntityHandle entity = NULL_ENTITY_HANDLE;
 
 	};
 
 	template<typename T>
 	struct ECSComponent : public BaseECSComponent
 	{
+
+		/* Create function for creating ecs components. */
+		static const ECSComponentCreateFunction CREATE_FUNCTION;
+
+		/* Free function for freeing an ecs component. */
+		static const ECSComponentFreeFunction FREE_FUNCTION;
+
 		/* Component ID */
 		static const uint32 ID;
 
 		/* How big every component is */
 		static const size_t SIZE;
 	};
+
+	template<typename Component>
+	uint32 ECSComponentCreateFunction(std::vector<uint8>& memory, EntityHandle entity, BaseECSComponent* comp)
+	{
+		
+	}
 
 	/* Define ID for mid ECSComponent class. */
 	template<typename T>
