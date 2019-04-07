@@ -150,6 +150,7 @@ project "Sandbox"
 		{
 			"LINA_PLATFORM_WINDOWS",
 			"LINA_ENABLE_LOGGING",
+			"LLF_INPUTANDWINDOW_GLFW",
 		}
 		
 		postbuildcommands

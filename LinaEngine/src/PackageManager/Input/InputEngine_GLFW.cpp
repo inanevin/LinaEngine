@@ -140,13 +140,13 @@ namespace LinaEngine
 	{
 		if (action == GLFW_PRESS)
 		{
-			Action<LinaKey> keyPress = Action<LinaKey>(KeyPressed);
-			keyPress.SetData(key);
+			Action<Input::Key> keyPress = Action<Input::Key>(KeyPressed);
+			keyPress.SetData(static_cast<Input::Key>(key));
 			m_ActionDispatcher.DispatchAction(keyPress);
 		}
 		else if (action == GLFW_RELEASE)
 		{
-			Action<LinaKey> keyPress = Action<LinaKey>(KeyReleased);
+			Action<int> keyPress = Action<int>(KeyReleased);
 			keyPress.SetData(key);
 			m_ActionDispatcher.DispatchAction(keyPress);
 		}
@@ -156,13 +156,13 @@ namespace LinaEngine
 	{
 		if (action == GLFW_PRESS)
 		{
-			Action<LinaMouse> mousePress = Action<LinaMouse>(MouseButtonPressed);
+			Action<int> mousePress = Action<int>(MouseButtonPressed);
 			mousePress.SetData(button);
 			m_ActionDispatcher.DispatchAction(mousePress);
 		}
 		else if (action == GLFW_RELEASE)
 		{
-			Action<LinaMouse> mousePress = Action<LinaMouse>(MouseButtonReleased);
+			Action<int> mousePress = Action<int>(MouseButtonReleased);
 			mousePress.SetData(button);
 			m_ActionDispatcher.DispatchAction(mousePress);
 		}

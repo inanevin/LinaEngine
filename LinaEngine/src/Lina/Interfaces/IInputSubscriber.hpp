@@ -36,6 +36,28 @@ namespace LinaEngine
 
 	protected:
 
+		void test(std::function<void(bool)> sea)
+		{
+
+		}
+		void test2(std::function<void()> sea)
+		{
+
+		}
+
+		/*void SubscribeKeyPressedAction(std::function<void()> cb, Input::Key key = Input::Key::Unknown);
+		void SubscribeKeyPressedAction(std::function<void(Input::Key)> cbp, Input::Key key = Input::Key::Unknown);
+		void SubscribeKeyPressedAction(std::function<void()> cb, std::function<void(Input::Key)> cbp, Input::Key key = Input::Key::Unknown);
+		void SubscribeKeyReleasedAction(std::function<void()> cb, Input::Key key = Input::Key::Unknown);
+		void SubscribeKeyReleasedAction(std::function<void(Input::Key)> cbp, Input::Key key = Input::Key::Unknown);
+		void SubscribeKeyReleasedAction(std::function<void()> cb, std::function<void(Input::Key)> cbp, Input::Key key = Input::Key::Unknown);
+		void SubscribeMouseButtonPressedAction(std::function<void()> cb, Input::Mouse button = Input::Mouse::MouseUnknown);
+		void SubscribeMouseButtonPressedAction(std::function<void(Input::Mouse)> cbp, Input::Mouse button = Input::Mouse::MouseUnknown);
+		void SubscribeMouseButtonPressedAction(std::function<void()> cb, std::function<void(Input::Mouse)> cbp, Input::Mouse button = Input::Mouse::MouseUnknown);
+		void SubscribeMouseButtonReleasedAction(std::function<void()> cb, Input::Mouse button= Input::Mouse::MouseUnknown);
+		void SubscribeMouseButtonReleasedAction(std::function<void(Input::Mouse)> cbp, Input::Mouse button = Input::Mouse::MouseUnknown);
+		void SubscribeMouseButtonReleasedAction(std::function<void()> cb, std::function<void(Input::Mouse)> cbp, Input::Mouse button = Input::Mouse::MouseUnknown);
+		*/
 		template<typename T>
 		void SubscribeInputAction(ActionParams<T> params)
 		{
@@ -43,21 +65,10 @@ namespace LinaEngine
 			inputEngine->SubscribeToAction(params);
 		};
 
-		void SubscribeKeyPressedAction(std::function<void()> cb, LinaKey key = LinaKey::Unknown);
-		void SubscribeKeyPressedAction(std::function<void(LinaKey)> cbp, LinaKey key = LinaKey::Unknown);
-		void SubscribeKeyPressedAction(std::function<void()> cb, std::function<void(LinaKey)> cbp, LinaKey key = LinaKey::Unknown);
-		void SubscribeKeyReleasedAction(std::function<void()> cb, LinaKey key = LinaKey::Unknown);
-		void SubscribeKeyReleasedAction(std::function<void(LinaKey)> cbp, LinaKey key = LinaKey::Unknown);
-		void SubscribeKeyReleasedAction(std::function<void()> cb, std::function<void(LinaKey)> cbp, LinaKey key = LinaKey::Unknown);
-
-		void SubscribeMouseButtonPressedAction(std::function<void()> cb, LinaMouse key = LinaMouse::Unknown);
-		void SubscribeMouseButtonPressedAction(std::function<void(LinaMouse)> cbp, LinaMouse key = LinaMouse::Unknown);
-		void SubscribeMouseButtonPressedAction(std::function<void()> cb, std::function<void(LinaMouse)> cbp, LinaMouse key = LinaMouse::Unknown);
-		void SubscribeMouseButtonReleasedAction(std::function<void()> cb, LinaMouse key = LinaMouse::Unknown);
-		void SubscribeMouseButtonReleasedAction(std::function<void(LinaMouse)> cbp, LinaMouse key = LinaMouse::Unknown);
-		void SubscribeMouseButtonReleasedAction(std::function<void()> cb, std::function<void(LinaMouse)> cbp, LinaMouse key = LinaMouse::Unknown);
 
 	private:
+
+	
 
 		class InputEngine* inputEngine;
 	};

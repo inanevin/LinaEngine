@@ -34,7 +34,7 @@ namespace LinaEngine
 		~ActionTest() { std::cout << "Test object destructor!" << std::endl; };
 
 		void SetAction();
-		void TestParam(int i);
+		void TestParam(Input::Key i);
 		void Test();
 	};
 }

@@ -36,11 +36,11 @@ namespace LinaEngine
 
 	/* KEY ACTIONS */
 
-	void IInputSubscriber::SubscribeKeyPressedAction(std::function<void()> cb, LinaKey key = LinaKey::Unknown)
+	/*void IInputSubscriber::SubscribeKeyPressedAction(std::function<void()> cb, Input::Key key)
 	{
-		ActionParams<LinaKey> params;
+		ActionParams<Input::Key> params;
 
-		if (key != LinaKey::Unknown)
+		if (key != Input::Key::Unknown)
 			params.condition = key;
 
 		params.actionType = ActionType::KeyPressed;
@@ -48,11 +48,11 @@ namespace LinaEngine
 		SubscribeInputAction(params);
 	}
 
-	void IInputSubscriber::SubscribeKeyPressedAction(std::function<void(LinaKey)> cbp, LinaKey key = LinaKey::Unknown)
+	void IInputSubscriber::SubscribeKeyPressedAction(std::function<void(Input::Key)> cbp, Input::Key key)
 	{
-		ActionParams<LinaKey> params;
-
-		if (key != LinaKey::Unknown)
+		ActionParams<Input::Key> params;
+		
+		if (key != Input::Key::Unknown)
 			params.condition = key;
 
 		params.actionType = ActionType::KeyPressed;
@@ -60,11 +60,11 @@ namespace LinaEngine
 		SubscribeInputAction(params);
 	}
 
-	void IInputSubscriber::SubscribeKeyPressedAction(std::function<void()> cb, std::function<void(LinaKey)> cbp, LinaKey key = LinaKey::Unknown)
+	void IInputSubscriber::SubscribeKeyPressedAction(std::function<void()> cb, std::function<void(Input::Key)> cbp, Input::Key key)
 	{
-		ActionParams<LinaKey> params;
+		ActionParams<Input::Key> params;
 
-		if (key != LinaKey::Unknown)
+		if (key != Input::Key::Unknown)
 			params.condition = key;
 
 		params.actionType = ActionType::KeyPressed;
@@ -74,11 +74,11 @@ namespace LinaEngine
 	}
 
 
-	void IInputSubscriber::SubscribeKeyReleasedAction(std::function<void()> cb, LinaKey key = LinaKey::Unknown)
+	void IInputSubscriber::SubscribeKeyReleasedAction(std::function<void()> cb, Input::Key key)
 	{
-		ActionParams<LinaKey> params;
+		ActionParams<Input::Key> params;
 
-		if (key != LinaKey::Unknown)
+		if (key != Input::Key::Unknown)
 			params.condition = key;
 
 		params.actionType = ActionType::KeyReleased;
@@ -86,11 +86,11 @@ namespace LinaEngine
 		SubscribeInputAction(params);
 	}
 
-	void IInputSubscriber::SubscribeKeyReleasedAction(std::function<void(LinaKey)> cbp, LinaKey key = LinaKey::Unknown)
+	void IInputSubscriber::SubscribeKeyReleasedAction(std::function<void(Input::Key)> cbp, Input::Key key)
 	{
-		ActionParams<LinaKey> params;
+		ActionParams<Input::Key> params;
 
-		if (key != LinaKey::Unknown)
+		if (key != Input::Key::Unknown)
 			params.condition = key;
 
 		params.actionType = ActionType::KeyReleased;
@@ -98,11 +98,11 @@ namespace LinaEngine
 		SubscribeInputAction(params);
 	}
 
-	void IInputSubscriber::SubscribeKeyReleasedAction(std::function<void()> cb, std::function<void(LinaKey)> cbp, LinaKey key = LinaKey::Unknown)
+	void IInputSubscriber::SubscribeKeyReleasedAction(std::function<void()> cb, std::function<void(Input::Key)> cbp, Input::Key key)
 	{
-		ActionParams<LinaKey> params;
+		ActionParams<Input::Key> params;
 
-		if (key != LinaKey::Unknown)
+		if (key != Input::Key::Unknown)
 			params.condition = key;
 
 		params.actionType = ActionType::KeyReleased;
@@ -112,37 +112,37 @@ namespace LinaEngine
 	}
 
 	/* MOUSE BUTTON ACTIONS */
-
-	void IInputSubscriber::SubscribeMouseButtonPressedAction(std::function<void()> cb, LinaMouse key = LinaMouse::Unknown)
+	/*
+	void IInputSubscriber::SubscribeMouseButtonPressedAction(std::function<void()> cb, Input::Mouse button )
 	{
-		ActionParams<LinaMouse> params;
-
-		if (key != LinaMouse::Unknown)
-			params.condition = key;
+		ActionParams<Input::Mouse> params;
+		
+		if (button != Input::Mouse::MouseUnknown)
+			params.condition = button;
 
 		params.actionType = ActionType::MouseButtonPressed;
 		params.callback = cb;
 		SubscribeInputAction(params);
 	}
 
-	void IInputSubscriber::SubscribeMouseButtonPressedAction(std::function<void(LinaMouse)> cbp, LinaMouse key = LinaMouse::Unknown)
+	void IInputSubscriber::SubscribeMouseButtonPressedAction(std::function<void(Input::Mouse)> cbp, Input::Mouse button)
 	{
-		ActionParams<LinaMouse> params;
+		ActionParams<Input::Mouse> params;
 
-		if (key != LinaMouse::Unknown)
-			params.condition = key;
+		if (button != Input::Mouse::MouseUnknown)
+			params.condition = button;
 
 		params.actionType = ActionType::MouseButtonPressed;
 		params.callbackWithParameter = cbp;
 		SubscribeInputAction(params);
 	}
 
-	void IInputSubscriber::SubscribeMouseButtonPressedAction(std::function<void()> cb, std::function<void(LinaMouse)> cbp, LinaMouse key = LinaMouse::Unknown)
+	void IInputSubscriber::SubscribeMouseButtonPressedAction(std::function<void()> cb, std::function<void(Input::Mouse)> cbp, Input::Mouse button)
 	{
-		ActionParams<LinaMouse> params;
+		ActionParams<Input::Mouse> params;
 
-		if (key != LinaMouse::Unknown)
-			params.condition = key;
+		if (button != Input::Mouse::MouseUnknown)
+			params.condition = button;
 
 		params.actionType = ActionType::MouseButtonPressed;
 		params.callback = cb;
@@ -151,42 +151,42 @@ namespace LinaEngine
 	}
 
 
-	void IInputSubscriber::SubscribeMouseButtonReleasedAction(std::function<void()> cb, LinaMouse key = LinaMouse::Unknown)
+	void IInputSubscriber::SubscribeMouseButtonReleasedAction(std::function<void()> cb, Input::Mouse button)
 	{
-		ActionParams<LinaMouse> params;
+		ActionParams<Input::Mouse> params;
 
-		if (key != LinaMouse::Unknown)
-			params.condition = key;
+		if (button != Input::Mouse::MouseUnknown)
+			params.condition = button;
 
 		params.actionType = ActionType::MouseButtonReleased;
 		params.callback = cb;
 		SubscribeInputAction(params);
 	}
 
-	void IInputSubscriber::SubscribeMouseButtonReleasedAction(std::function<void(LinaMouse)> cbp, LinaMouse key = LinaMouse::Unknown)
+	void IInputSubscriber::SubscribeMouseButtonReleasedAction(std::function<void(Input::Mouse)> cbp, Input::Mouse button)
 	{
-		ActionParams<LinaMouse> params;
+		ActionParams<Input::Mouse> params;
 
-		if (key != LinaMouse::Unknown)
-			params.condition = key;
+		if (button != Input::Mouse::MouseUnknown)
+			params.condition = button;
 
 		params.actionType = ActionType::MouseButtonReleased;
 		params.callbackWithParameter = cbp;
 		SubscribeInputAction(params);
 	}
 
-	void IInputSubscriber::SubscribeMouseButtonReleasedAction(std::function<void()> cb, std::function<void(LinaMouse)> cbp, LinaMouse key = LinaMouse::Unknown)
+	void IInputSubscriber::SubscribeMouseButtonReleasedAction(std::function<void()> cb, std::function<void(Input::Mouse)> cbp, Input::Mouse button)
 	{
-		ActionParams<LinaMouse> params;
+		ActionParams<Input::Mouse> params;
 
-		if (key != LinaMouse::Unknown)
-			params.condition = key;
+		if (button != Input::Mouse::MouseUnknown)
+			params.condition = button;
 
 		params.actionType = ActionType::MouseButtonReleased;
 		params.callback = cb;
 		params.callbackWithParameter = cbp;
 		SubscribeInputAction(params);
-	}
+	}*/
 
 
 }
