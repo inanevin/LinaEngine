@@ -65,6 +65,7 @@ namespace LinaEngine
 		/* Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Delta smoothed.*/
 		Vector2F GetMouseAxis() override;
 
+		/* Returns a Vector2 containing screen space mouse positions */
 		Vector2F GetMousePosition() override;
 
 		/* Sets the cursor visible.*/
@@ -73,10 +74,11 @@ namespace LinaEngine
 		/* Sets mouse position to desired screen space coordinates. */
 		void SetMousePosition(const Vector2F& v) const;
 
-		void DispatchKeyAction(int  key, int action) override;
-		void DispatchMouseAction(int button, int action) override;
+		/* Dispatches a key action based on key params coming from platform-specific window. */
+		void DispatchKeyAction(Input::Key  key, int action) override;
 
-
+		/* Dispatches a mouse button action based on key params coming from platform-specific window. */
+		void DispatchMouseAction(Input::Mouse button, int action) override;
 
 	private:
 

@@ -269,12 +269,12 @@ namespace LinaEngine
 
 	void Window_GLFWGL::KeyCallback(GLFWwindow * w, int key, int scancode, int action, int mods)
 	{
-		inputEngine->DispatchKeyAction(key, action);
+		inputEngine->DispatchKeyAction(static_cast<Input::Key>(key), action);
 	}
 
 	void Window_GLFWGL::MouseCallback(GLFWwindow * w, int button, int action, int mods)
 	{
-		inputEngine->DispatchMouseAction(button, action);
+		inputEngine->DispatchMouseAction(static_cast<Input::Mouse>(button), action);
 	}
 
 

@@ -74,10 +74,10 @@ namespace LinaEngine
 		virtual void SetMousePosition(const Vector2F& v) const = 0;
 
 		/* Dispatches the key actions */
-		virtual void DispatchKeyAction(int key, int action) = 0;
+		virtual void DispatchKeyAction(Input::Key key, int action) = 0;
 
 		/* Dispatches the mouse actions */
-		virtual void DispatchMouseAction(int button, int action) = 0;
+		virtual void DispatchMouseAction(Input::Mouse button, int action) = 0;
 
 		/* Sets the Application reference */
 		inline void SetApplication(Application& const application) { app = &application; }
