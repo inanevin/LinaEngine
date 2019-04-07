@@ -33,7 +33,7 @@ namespace LinaEngine
 	struct BaseECSComponent
 	{
 
-		/* Increments id */
+		/* Increments id for new components */
 		static uint32 nextID();
 
 		/* Entity reference */
@@ -44,12 +44,27 @@ namespace LinaEngine
 	template<typename T>
 	struct ECSComponent : public BaseECSComponent
 	{
+		/* Component ID */
+		static const uint32 ID;
 
+		/* How big every component is */
+		static const size_t SIZE;
 	};
+
+	/* Define ID for mid ECSComponent class. */
+	template<typename T>
+	const uint32 ECSComponent<T>::ID(BaseECSComponent::nextID());
+
+	/* Define SIZE for mid ECSComponent class. */
+	template<typename T>
+	const size_t ECSComponent<T>::SIZE(sizeof(T));
+
+
 
 	struct TestComponent : public ECSComponent<TestComponent>
 	{
-		
+		float x;
+		float y;
 	};
 }
 
