@@ -57,7 +57,7 @@ namespace LinaEngine
 		template<class Component>
 		void GetComponent(EntityHandle entity)
 		{
-			GetComponentInternal(HandleToEntity(entity), Component::ID);
+			GetComponentInternal(HandleToEntity(entity), components[Component::ID], Component::ID);
 		}
 
 		/* Adds a system */
@@ -104,8 +104,9 @@ namespace LinaEngine
 		void DeleteComponent(uint32 componentID, uint32 index);
 		bool RemoveComponentInternal(EntityHandle, uint32 componentID);
 		void AddComponentInternal(EntityHandle handle, LinaArray<LinaPair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent* component);
-		BaseECSComponent* GetComponentInternal(LinaArray<LinaPair<uint32, uint32>>& entityComponents, uint32 componentID);
-		void UpdateSystemMultipleComponentsInternal(uint32 index, float delta, const LinaArray<uint32>& componentTypes, LinaArray<BaseECSComponent*>& componentParam);
+		BaseECSComponent* GetComponentInternal(LinaArray<LinaPair<uint32, uint32>>& entityComponents, LinaArray<uint8>& arr, uint32 componentID);
+		void UpdateSystemMultipleComponentsInternal(uint32 index, float delta, const LinaArray<uint32>& componentTypes, LinaArray<BaseECSComponent*>& componentParam, LinaArray<LinaArray<uint8>*>& componentArrays);
+		uint32 FindLeastCommonComponent(const LinaArray<uint32>& componentTypes);
 
 		NULL_COPY_AND_ASSIGN(ECS);
 	};

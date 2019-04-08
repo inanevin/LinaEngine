@@ -99,8 +99,8 @@ namespace LinaEngine
 	void ECS::UpdateSystems(float delta)
 	{
 		// Components.
-		LinaArray<BaseECSComponent*> componentParams;
-
+		LinaArray<BaseECSComponent*> componentParam;
+		LinaArray<LinaArray<uint8>*> componetnArrays;
 		// Iterate through the systems.
 		for (uint32 i = 0; i < systems.size(); i++)
 		{
@@ -127,7 +127,7 @@ namespace LinaEngine
 			else
 			{
 				// If multiple types exist, switch the update logic.
-				UpdateSystemMultipleComponentsInternal(i, delta, componentTypes, componentParams);
+				UpdateSystemMultipleComponentsInternal(i, delta, componentTypes, componentParam, componentArrays);
 			}
 		}
 	}
@@ -223,13 +223,13 @@ namespace LinaEngine
 	}
 
 
-	BaseECSComponent* ECS::GetComponentInternal(LinaArray<LinaPair<uint32, uint32>>& entityComponents, uint32 componentID)
+	BaseECSComponent* ECS::GetComponentInternal(LinaArray<LinaPair<uint32, uint32>>& entityComponents, LinaArray<uint8>& arr, uint32 componentID)
 	{
 		for (uint32 i = 0; i < entityComponents.size(); i++)
 		{
 			if (componentID == entityComponents[i].first)
 			{
-				return (BaseECSComponent*)&components[componentID][entityComponents[i].second];
+				return (BaseECSComponent*)&arr[entityComponents[i].second];
 			}
 		}
 
@@ -237,30 +237,37 @@ namespace LinaEngine
 	}
 
 	// TODO : Optimize for cache friendliness
-	void ECS::UpdateSystemMultipleComponentsInternal(uint32 index, float delta, const LinaArray<uint32>& componentTypes, LinaArray<BaseECSComponent*>& componentParam)
+	void ECS::UpdateSystemMultipleComponentsInternal(uint32 index, float delta, const LinaArray<uint32>& componentTypes, LinaArray<BaseECSComponent*>& componentParam, LinaArray<LinaArray<uint8>*>& componentArrays)
 	{
 		componentParam.resize(Math::Max(componentParam.size(), componentTypes.size()));
+		componentArrays.resize(Math::Max(componentParam.size(), componentTypes.size()));
+
+		for (uint32 i = 0; i < componentTypes.size(); i++)
+		{
+			componentArrays[i] = &components[componentTypes[i]];
+		}
+
+		uint32 minSizeIndex = FindLeastCommonComponent(componentTypes);
 
 		// Start with the first component type
-		size_t typeSize = BaseECSComponent::GetTypeSize(componentTypes[0]);
-		LinaArray<uint8>& arr = components[componentTypes[0]];
-
+		size_t typeSize = BaseECSComponent::GetTypeSize(componentTypes[minSizeIndex]);
+		LinaArray<uint8>& arr = *componentArrays[minSizeIndex];
 		// For every component type
 		for (uint32 i = 0; i < arr.size(); i += typeSize)
 		{
-			componentParam[0] = (BaseECSComponent*)&arr[i];
+			componentParam[minSizeIndex] = (BaseECSComponent*)&arr[i];
 
 			// Find the entity attached to the component.
-			LinaArray<LinaPair<uint32, uint32>>& entityComponents = HandleToEntity(componentParam[0]->entity);
+			LinaArray<LinaPair<uint32, uint32>>& entityComponents = HandleToEntity(componentParam[minSizeIndex]->entity);
 
 			bool isValid = true;
 
 			// If the entity has all the remaining components we are interested in, update it, otherwise skip it.
 			for (uint32 j = 0; j < componentTypes.size(); j++)
 			{
-				if (j == 0) continue;
+				if (j == minSizeIndex) continue;
 
-				componentParam[j] = GetComponentInternal(entityComponents, componentTypes[j]);
+				componentParam[j] = GetComponentInternal(entityComponents, *componentArrays[j], componentTypes[j]);
 
 				if (componentParam[j] == nullptr)
 				{
@@ -276,6 +283,28 @@ namespace LinaEngine
 		
 		}
 
+	}
+
+	uint32 ECS::FindLeastCommonComponent(const LinaArray<uint32>& componentTypes)
+	{
+		uint32 minSize = components[componentTypes[0]].size() / BaseECSComponent::GetTypeSize(componentTypes[0]);
+		uint32 minIndex = 0;
+		
+		for (uint32 i = 1; i < componentTypes.size(); i++)
+		{
+			size_t typeSize = BaseECSComponent::GetTypeSize(componentTypes[i]);
+
+			// Actual # of components.
+			uint32 size = components[componentTypes[i]].size() / typeSize;
+
+			if (size < minSize)
+			{
+				minSize = size;
+				minIndex = i;
+			}
+		}
+
+		return minIndex;
 	}
 
 
