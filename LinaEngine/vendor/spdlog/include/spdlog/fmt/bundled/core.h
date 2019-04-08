@@ -385,7 +385,7 @@ class basic_buffer {
     FMT_NOEXCEPT: ptr_(p), size_(sz), capacity_(cap) {}
 
   /** Sets the buffer data and capacity. */
-  void set(T *buf_data, std::size_t buf_capacity) FMT_NOEXCEPT {
+  void Set(T *buf_data, std::size_t buf_capacity) FMT_NOEXCEPT {
     ptr_ = buf_data;
     capacity_ = buf_capacity;
   }
@@ -456,7 +456,7 @@ class container_buffer : public basic_buffer<typename Container::value_type> {
  protected:
   void grow(std::size_t capacity) FMT_OVERRIDE {
     container_.resize(capacity);
-    this->set(&container_[0], capacity);
+    this->Set(&container_[0], capacity);
   }
 
  public:

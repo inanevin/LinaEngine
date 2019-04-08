@@ -524,7 +524,7 @@ class basic_memory_buffer: private Allocator, public internal::basic_buffer<T> {
  public:
   explicit basic_memory_buffer(const Allocator &alloc = Allocator())
       : Allocator(alloc) {
-    this->set(store_, SIZE);
+    this->Set(store_, SIZE);
   }
   ~basic_memory_buffer() { deallocate(); }
 
@@ -536,14 +536,14 @@ class basic_memory_buffer: private Allocator, public internal::basic_buffer<T> {
     T* data = other.data();
     std::size_t size = other.size(), capacity = other.capacity();
     if (data == other.store_) {
-      this->set(store_, capacity);
+      this->Set(store_, capacity);
       std::uninitialized_copy(other.store_, other.store_ + size,
                               internal::make_checked(store_, capacity));
     } else {
-      this->set(data, capacity);
+      this->Set(data, capacity);
       // Set pointer to the inline array so that delete is not called
       // when deallocating.
-      other.set(other.store_, 0);
+      other.Set(other.store_, 0);
     }
     this->resize(size);
   }
@@ -586,7 +586,7 @@ void basic_memory_buffer<T, SIZE, Allocator>::grow(std::size_t size) {
   // The following code doesn't throw, so the raw pointer above doesn't leak.
   std::uninitialized_copy(old_data, old_data + this->size(),
                           internal::make_checked(new_data, new_capacity));
-  this->set(new_data, new_capacity);
+  this->Set(new_data, new_capacity);
   // deallocate must not throw according to the standard, but even if it does,
   // the buffer already uses the new storage and will deallocate it in
   // destructor.
@@ -616,7 +616,7 @@ class basic_fixed_buffer : public internal::basic_buffer<Char> {
    \endrst
    */
   basic_fixed_buffer(Char *array, std::size_t size) {
-    this->set(array, size);
+    this->Set(array, size);
   }
 
   /**
@@ -627,7 +627,7 @@ class basic_fixed_buffer : public internal::basic_buffer<Char> {
    */
   template <std::size_t SIZE>
   explicit basic_fixed_buffer(Char (&array)[SIZE]) {
-    this->set(array, SIZE);
+    this->Set(array, SIZE);
   }
 
  protected:

@@ -135,10 +135,10 @@ namespace LinaEngine
 					// [-pi/2, pi/2]. If angle is outside that range, convert it to that
 					// range and find the appropriate sign to adjust the result.
 			angle = MATH_PI - angle;
-			float sign = -1.0f;
+			float Sign = -1.0f;
 			if (fabsf(angle) >= MATH_HALF_PI) {
 				angle = Select(angle, MATH_PI, -MATH_PI) - angle;
-				sign = 1.0f;
+				Sign = 1.0f;
 			}
 
 			// Sine and cosine are calculated with their respective taylor series
@@ -173,7 +173,7 @@ namespace LinaEngine
 			float a2 = angle * angle;
 			*outSin = angle * (((((-2.39e-08f * a2 + 2.7526e-06f) * a2 - 1.98409e-04f) *
 				a2 + 8.3333315e-03f) * a2 - 1.666666664e-01f) * a2 + 1.0f);
-			*outCos = sign * (((((-2.605e-07f * a2 + 2.47609e-05f) * a2 - 1.3888397e-03f) *
+			*outCos = Sign * (((((-2.605e-07f * a2 + 2.47609e-05f) * a2 - 1.3888397e-03f) *
 				a2 + 4.16666418e-02f) * a2 - 4.999999963e-01f) * a2 + 1.0f);
 		}
 
@@ -210,7 +210,7 @@ namespace LinaEngine
 		static FORCEINLINE int32 Rand() { return ::rand(); }
 		static FORCEINLINE void SeedRand(int32 seed) { srand((uint32)seed); }
 		static FORCEINLINE float RandF() { return ::rand() / (float)RAND_MAX; }
-		static FORCEINLINE float RandF(float min, float max) { return Lerp(min, max, RandF()); }
+		static FORCEINLINE float RandF(float Min, float Max) { return Lerp(Min, Max, RandF()); }
 
 		static FORCEINLINE uint32 FloorLog2(uint32 val)
 		{
@@ -348,16 +348,16 @@ namespace LinaEngine
 		}
 
 		template<typename T>
-		static FORCEINLINE T Clamp(const T& val, const T& min, const T& max)
+		static FORCEINLINE T Clamp(const T& val, const T& Min, const T& Max)
 		{
-			if (val > max) {
-				return max;
+			if (val > Max) {
+				return Max;
 			}
-			else if (val > min) {
+			else if (val > Min) {
 				return val;
 			}
 			else {
-				return min;
+				return Min;
 			}
 		}
 

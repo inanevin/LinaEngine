@@ -24,13 +24,7 @@ Timestamp: 4/8/2019 9:14:13 PM
 
 #include "Generic/GenericMath.hpp"
 
-
-namespace LinaEngine
-{
-
-typedef GenericMath PlatformMath;
-
-}
+typedef LinaEngine::GenericMath PlatformMath;
 
 
 

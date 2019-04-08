@@ -27,6 +27,9 @@ Timestamp: 4/9/2019 12:33:52 AM
 #include "Lina/Memory.hpp"
 #include "Lina/Core.hpp"
 
+namespace LinaEngine
+{
+
 #define SSEVector_SHUFFLEMASK(a0,a1,b2,b3) ((a0) | ((a1)<<2) | ((b2)<<4) | ((b3)<<6))
 #define SSEVector_Swizzle_0101(vec)               _mm_movelh_ps(vec, vec)
 #define SSEVector_Swizzle_2323(vec)               _mm_movehl_ps(vec, vec)
@@ -37,8 +40,7 @@ Timestamp: 4/9/2019 12:33:52 AM
 #define SSEVector_Shuffle_0101(vec1, vec2)        _mm_movelh_ps(vec1, vec2)
 #define SSEVector_Shuffle_2323(vec1, vec2)        _mm_movehl_ps(vec2, vec1)
 
-namespace LinaEngine
-{
+
 	struct SSEVector
 	{
 	public:
@@ -49,25 +51,25 @@ namespace LinaEngine
 			SSEVector* r = (SSEVector*)result;
 			SSEVector temp, r0, r1, r2, r3;
 
-			temp = m1[0].replicate(0) * m2[0];
-			temp = m1[0].replicate(1).mad(m2[1], temp);
-			temp = m1[0].replicate(2).mad(m2[2], temp);
-			r0 = m1[0].replicate(3).mad(m2[3], temp);
+			temp = m1[0].Replicate(0) * m2[0];
+			temp = m1[0].Replicate(1).Mad(m2[1], temp);
+			temp = m1[0].Replicate(2).Mad(m2[2], temp);
+			r0 = m1[0].Replicate(3).Mad(m2[3], temp);
 
-			temp = m1[1].replicate(0) * m2[0];
-			temp = m1[1].replicate(1).mad(m2[1], temp);
-			temp = m1[1].replicate(2).mad(m2[2], temp);
-			r1 = m1[1].replicate(3).mad(m2[3], temp);
+			temp = m1[1].Replicate(0) * m2[0];
+			temp = m1[1].Replicate(1).Mad(m2[1], temp);
+			temp = m1[1].Replicate(2).Mad(m2[2], temp);
+			r1 = m1[1].Replicate(3).Mad(m2[3], temp);
 
-			temp = m1[2].replicate(0) * m2[0];
-			temp = m1[2].replicate(1).mad(m2[1], temp);
-			temp = m1[2].replicate(2).mad(m2[2], temp);
-			r2 = m1[2].replicate(3).mad(m2[3], temp);
+			temp = m1[2].Replicate(0) * m2[0];
+			temp = m1[2].Replicate(1).Mad(m2[1], temp);
+			temp = m1[2].Replicate(2).Mad(m2[2], temp);
+			r2 = m1[2].Replicate(3).Mad(m2[3], temp);
 
-			temp = m1[3].replicate(0) * m2[0];
-			temp = m1[3].replicate(1).mad(m2[1], temp);
-			temp = m1[3].replicate(2).mad(m2[2], temp);
-			r3 = m1[3].replicate(3).mad(m2[3], temp);
+			temp = m1[3].Replicate(0) * m2[0];
+			temp = m1[3].Replicate(1).Mad(m2[1], temp);
+			temp = m1[3].Replicate(2).Mad(m2[2], temp);
+			r3 = m1[3].Replicate(3).Mad(m2[3], temp);
 
 			r[0] = r0;
 			r[1] = r1;
@@ -79,7 +81,7 @@ namespace LinaEngine
 		{
 			float M[4][4];
 			for (uint32 i = 0; i < 4; i++) {
-				m[i].store4f(M[i]);
+				m[i].Store4F(M[i]);
 			}
 			return
 				M[0][0] * (M[1][1] * M[2][2] - M[1][2] * M[2][1]) -
@@ -87,7 +89,7 @@ namespace LinaEngine
 				M[2][0] * (M[0][1] * M[1][2] - M[0][2] * M[1][1]);
 		}
 
-		static FORCEINLINE float matrixDeterminant4x4(float* outS,
+		static FORCEINLINE float MatrixDeterminant4x4(float* outS,
 			float* outC, const void* mat)
 		{
 			float sVals[6];
@@ -99,7 +101,7 @@ namespace LinaEngine
 			SSEVector* m = (SSEVector*)mat;
 			float M[4][4];
 			for (uint32 i = 0; i < 4; i++) {
-				m[i].store4f(M[i]);
+				m[i].Store4F(M[i]);
 			}
 
 			s[0] = M[0][0] * M[1][1] - M[1][0] * M[0][1];
@@ -120,7 +122,7 @@ namespace LinaEngine
 		}
 
 		// Based on https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html
-		static FORCEINLINE void matrixInverse(void* dest, const void* src)
+		static FORCEINLINE void MatrixInverse(void* dest, const void* src)
 		{
 			__m128* mVec = (__m128*)src;
 			float* m = (float*)src;
@@ -162,18 +164,18 @@ namespace LinaEngine
 			rmVec[3] = SSEVector_Shuffle(Z_, W_, 2, 0, 2, 0);
 		}
 
-		static FORCEINLINE void createTransformMatrix(void* dest, const SSEVector& translation, const SSEVector& quatRotation, const SSEVector& scaleVec)
+		static FORCEINLINE void CreateTransformMatrix(void* dest, const SSEVector& translation, const SSEVector& quatRotation, const SSEVector& scaleVec)
 		{
 			// NOTE: This can be further vectorized!
 			// NOTE: This may actually be faster without vectorization, but testing is inconclusive.
-			static const SSEVector MASK_W(SSEVector::make((uint32)0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0));
+			static const SSEVector MASK_W(SSEVector::Make((uint32)0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0));
 			SSEVector rot2 = quatRotation + quatRotation;
 			SSEVector rs12 = quatRotation * rot2;
 			SSEVector rs22;
 			rs22.data = _mm_mul_ps(
 				SSEVector_Swizzle(quatRotation.data, 0, 1, 0, 3),
 				SSEVector_Swizzle(rot2.data, 1, 2, 2, 3));
-			SSEVector rs32 = quatRotation.replicate(3)*rot2;
+			SSEVector rs32 = quatRotation.Replicate(3)*rot2;
 
 			float xx2 = rs12[0];
 			float yy2 = rs12[1];
@@ -185,15 +187,15 @@ namespace LinaEngine
 			float yw2 = rs32[1];
 			float zw2 = rs32[2];
 
-			SSEVector newScale = scaleVec.select(MASK_W, SSEVector::load1f(1.0f));
+			SSEVector newScale = scaleVec.select(MASK_W, SSEVector::Load1F(1.0f));
 			SSEVector* mat = (SSEVector*)dest;
-			mat[0] = newScale * make((1.0f - (yy2 + zz2)), (xy2 - zw2), (xz2 + yw2), translation[0]);
-			mat[1] = newScale * make((xy2 + zw2), (1.0f - (xx2 + zz2)), (yz2 - xw2), translation[1]);
-			mat[2] = newScale * make((xz2 - yw2), (yz2 + xw2), (1.0f - (xx2 + yy2)), translation[2]);
-			mat[3] = make(0.0f, 0.0f, 0.0f, 1.0f);
+			mat[0] = newScale * Make((1.0f - (yy2 + zz2)), (xy2 - zw2), (xz2 + yw2), translation[0]);
+			mat[1] = newScale * Make((xy2 + zw2), (1.0f - (xx2 + zz2)), (yz2 - xw2), translation[1]);
+			mat[2] = newScale * Make((xz2 - yw2), (yz2 + xw2), (1.0f - (xx2 + yy2)), translation[2]);
+			mat[3] = Make(0.0f, 0.0f, 0.0f, 1.0f);
 		}
 
-		static FORCEINLINE SSEVector make(uint32 x, uint32 y, uint32 z, uint32 w)
+		static FORCEINLINE SSEVector Make(uint32 x, uint32 y, uint32 z, uint32 w)
 		{
 			union { __m128 vecf; __m128i veci; } vecData;
 			vecData.veci = _mm_setr_epi32(x, y, z, w);
@@ -205,86 +207,86 @@ namespace LinaEngine
 		static FORCEINLINE const SSEVector mask(uint32 index)
 		{
 			static const SSEVector masks[4] = {
-				SSEVector::make((uint32)0, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF),
-				SSEVector::make((uint32)0xFFFFFFFF, 0, 0xFFFFFFFF, 0xFFFFFFFF),
-				SSEVector::make((uint32)0xFFFFFFFF, 0xFFFFFFFF, 0, 0xFFFFFFFF),
-				SSEVector::make((uint32)0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0) };
+				SSEVector::Make((uint32)0, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF),
+				SSEVector::Make((uint32)0xFFFFFFFF, 0, 0xFFFFFFFF, 0xFFFFFFFF),
+				SSEVector::Make((uint32)0xFFFFFFFF, 0xFFFFFFFF, 0, 0xFFFFFFFF),
+				SSEVector::Make((uint32)0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0) };
 			LINA_CORE_ASSERT(index < 4, "Index is bigger than 4!");
 			return masks[index];
 		}
 
-		static FORCEINLINE SSEVector make(float x, float y, float z, float w)
+		static FORCEINLINE SSEVector Make(float x, float y, float z, float w)
 		{
 			SSEVector vec;
 			vec.data = _mm_setr_ps(x, y, z, w);
 			return vec;
 		}
 
-		static FORCEINLINE SSEVector load4f(const float* vals)
+		static FORCEINLINE SSEVector Load4F(const float* vals)
 		{
 			SSEVector vec;
 			vec.data = _mm_loadu_ps(vals);
 			return vec;
 		}
 
-		static FORCEINLINE SSEVector load3f(const float* vals, float w)
+		static FORCEINLINE SSEVector Load3F(const float* vals, float w)
 		{
-			return make(vals[0], vals[1], vals[2], w);
+			return Make(vals[0], vals[1], vals[2], w);
 		}
 
-		static FORCEINLINE SSEVector load1f(float val)
+		static FORCEINLINE SSEVector Load1F(float val)
 		{
 			SSEVector vec;
 			vec.data = _mm_set1_ps(val);
 			return vec;
 		}
 
-		static FORCEINLINE SSEVector loadAligned(const float* vals)
+		static FORCEINLINE SSEVector LoadAligned(const float* vals)
 		{
 			SSEVector vec;
 			vec.data = _mm_load_ps(vals);
 			return vec;
 		}
 
-		static FORCEINLINE SSEVector set(float x, float y, float z)
+		static FORCEINLINE SSEVector Set(float x, float y, float z)
 		{
-			return make(x, y, z, 0.0f);
+			return Make(x, y, z, 0.0f);
 		}
 
-		static FORCEINLINE SSEVector set(float x, float y, float z, float w)
+		static FORCEINLINE SSEVector Set(float x, float y, float z, float w)
 		{
-			return make(x, y, z, w);
+			return Make(x, y, z, w);
 		}
 
-		FORCEINLINE void store4f(float* result) const
+		FORCEINLINE void Store4F(float* result) const
 		{
 			_mm_storeu_ps(result, data);
 		}
 
-		FORCEINLINE void store3f(float* result) const
+		FORCEINLINE void Store3f(float* result) const
 		{
 			Memory::memcpy(result, &data, sizeof(float) * 3);
 		}
 
-		FORCEINLINE void store1f(float* result) const
+		FORCEINLINE void Store1f(float* result) const
 		{
 			_mm_store_ss(result, data);
 		}
 
-		FORCEINLINE void storeAligned(float* result) const
+		FORCEINLINE void StoreAligned(float* result) const
 		{
 			_mm_store_ps(result, data);
 		}
 
-		FORCEINLINE void storeAlignedStreamed(float* result) const
+		FORCEINLINE void StoreAlignedStreamed(float* result) const
 		{
 			_mm_stream_ps(result, data);
 		}
 
-		FORCEINLINE SSEVector replicate(uint32 index) const
+		FORCEINLINE SSEVector Replicate(uint32 index) const
 		{
 			//assertCheck(index <= 3);
-			return SSEVector::load1f((*this)[index]);
+			return SSEVector::Load1F((*this)[index]);
 		}
 
 		//	FORCEINLINE SSEVector swizzle(const uint32 x, const uint32 y, const uint32 z, const uint32 w) const
@@ -299,39 +301,39 @@ namespace LinaEngine
 		//		return vec;
 		//	}
 
-		FORCEINLINE SSEVector abs() const
+		FORCEINLINE SSEVector Abs() const
 		{
 			static const SSEVector sign_mask(
-				SSEVector::make((uint32)0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF));
+				SSEVector::Make((uint32)0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF));
 			SSEVector vec;
 			vec.data = _mm_and_ps(data, sign_mask.data);
 			return vec;
 		}
 
-		FORCEINLINE SSEVector sign() const
+		FORCEINLINE SSEVector Sign() const
 		{
 			static const SSEVector sign_mask(
-				SSEVector::make((uint32)0x80000000, 0x80000000, 0x80000000, 0x80000000));
+				SSEVector::Make((uint32)0x80000000, 0x80000000, 0x80000000, 0x80000000));
 			SSEVector vec;
 			vec.data = _mm_and_ps(data, sign_mask.data);
 			return vec;
 		}
 
-		FORCEINLINE SSEVector min(const SSEVector& other) const
+		FORCEINLINE SSEVector Min(const SSEVector& other) const
 		{
 			SSEVector vec;
 			vec.data = _mm_min_ps(data, other.data);
 			return vec;
 		}
 
-		FORCEINLINE SSEVector max(const SSEVector& other) const
+		FORCEINLINE SSEVector Max(const SSEVector& other) const
 		{
 			SSEVector vec;
 			vec.data = _mm_max_ps(data, other.data);
 			return vec;
 		}
 
-		FORCEINLINE SSEVector neg() const
+		FORCEINLINE SSEVector Neg() const
 		{
 			SSEVector vec;
 			vec.data = _mm_xor_ps(data, _mm_set1_ps(-0.f));
@@ -340,10 +342,10 @@ namespace LinaEngine
 
 		FORCEINLINE SSEVector operator-() const
 		{
-			return neg();
+			return Neg();
 		}
 
-		FORCEINLINE SSEVector dot3(const SSEVector& other) const
+		FORCEINLINE SSEVector Dot3(const SSEVector& other) const
 		{
 			const __m128 mul = _mm_mul_ps(data, other.data);
 			const __m128 x = _mm_shuffle_ps(mul, mul, SSEVector_SHUFFLEMASK(0, 0, 0, 0));
@@ -354,7 +356,7 @@ namespace LinaEngine
 			return vec;
 		}
 
-		FORCEINLINE SSEVector dot4(const SSEVector& other) const
+		FORCEINLINE SSEVector Dot4(const SSEVector& other) const
 		{
 			const __m128 t0 = _mm_mul_ps(data, other.data);
 			SSEVector vec;
@@ -362,7 +364,7 @@ namespace LinaEngine
 			return vec;
 		}
 
-		FORCEINLINE SSEVector cross3(const SSEVector& other) const
+		FORCEINLINE SSEVector Cross3(const SSEVector& other) const
 		{
 			const __m128 t0 = _mm_shuffle_ps(data, data, SSEVector_SHUFFLEMASK(1, 2, 0, 3));
 			const __m128 t1 = _mm_shuffle_ps(other.data, other.data,
@@ -374,52 +376,52 @@ namespace LinaEngine
 			return vec;
 		}
 
-		FORCEINLINE SSEVector pow(const SSEVector& exp) const
+		FORCEINLINE SSEVector Pow(const SSEVector& exp) const
 		{
-			return make(
+			return Make(
 				Math::Pow((*this)[0], exp[0]),
 				Math::Pow((*this)[1], exp[1]),
 				Math::Pow((*this)[2], exp[2]),
 				Math::Pow((*this)[3], exp[3]));
 		}
 
-		FORCEINLINE SSEVector rsqrt() const
+		FORCEINLINE SSEVector RSqrt() const
 		{
-			const SSEVector ONE(SSEVector::load1f(1.0f));
+			const SSEVector ONE(SSEVector::Load1F(1.0f));
 			SSEVector vec;
 			vec.data = _mm_div_ps(ONE.data, _mm_sqrt_ps(data));
 			return vec;
 		}
 
-		FORCEINLINE SSEVector reciprocal() const
+		FORCEINLINE SSEVector Reciprocal() const
 		{
-			const SSEVector ONE(SSEVector::load1f(1.0f));
+			const SSEVector ONE(SSEVector::Load1F(1.0f));
 			SSEVector vec;
 			vec.data = _mm_div_ps(ONE.data, data);
 			return vec;
 		}
 
-		FORCEINLINE SSEVector rlen4() const
+		FORCEINLINE SSEVector RLen4() const
 		{
-			return dot4(*this).rsqrt();
+			return Dot4(*this).RSqrt();
 		}
 
-		FORCEINLINE SSEVector rlen3() const
+		FORCEINLINE SSEVector Rlen3() const
 		{
-			return dot3(*this).rsqrt();
+			return Dot3(*this).RSqrt();
 		}
 
-		FORCEINLINE SSEVector normalize4() const
+		FORCEINLINE SSEVector Normalize4() const
 		{
-			return (*this) * rlen4();
+			return (*this) * RLen4();
 		}
 
-		FORCEINLINE SSEVector normalize3() const
+		FORCEINLINE SSEVector Normalize3() const
 		{
-			return (*this) * rlen3();
+			return (*this) * Rlen3();
 		}
 
-		FORCEINLINE void sincos(SSEVector* outSin, SSEVector* outCos) const
+		FORCEINLINE void SinCos(SSEVector* outSin, SSEVector* outCos) const
 		{
 			float outSinVals[4];
 			float outCosVals[4];
@@ -427,37 +429,37 @@ namespace LinaEngine
 			Math::SinCos(&outSinVals[1], &outCosVals[1], (*this)[1]);
 			Math::SinCos(&outSinVals[2], &outCosVals[2], (*this)[2]);
 			Math::SinCos(&outSinVals[3], &outCosVals[3], (*this)[3]);
-			*outSin = SSEVector::load4f(outSinVals);
-			*outCos = SSEVector::load4f(outCosVals);
+			*outSin = SSEVector::Load4F(outSinVals);
+			*outCos = SSEVector::Load4F(outCosVals);
 		}
 
-		FORCEINLINE SSEVector quatMul(const SSEVector& other) const
+		FORCEINLINE SSEVector QuatMul(const SSEVector& other) const
 		{
-			static const SSEVector mask(SSEVector::make(0.0f, 0.0f, 0.0f, -0.0f));
+			static const SSEVector mask(SSEVector::Make(0.0f, 0.0f, 0.0f, -0.0f));
 			SSEVector comp1, comp2, comp3;
 			comp1.data = _mm_mul_ps(SSEVector_Swizzle(data, 0, 1, 2, 0), SSEVector_Swizzle(other.data, 3, 3, 3, 0));
 			comp2.data = _mm_mul_ps(SSEVector_Swizzle(data, 1, 2, 0, 1), SSEVector_Swizzle(other.data, 2, 0, 1, 1));
 			comp3.data = _mm_mul_ps(SSEVector_Swizzle(data, 2, 0, 1, 2), SSEVector_Swizzle(other.data, 1, 2, 0, 2));
-			return replicate(3)*other - comp3 + ((comp1 + comp2) ^ mask);
+			return Replicate(3)*other - comp3 + ((comp1 + comp2) ^ mask);
 		}
 
-		FORCEINLINE SSEVector quatRotateVec(const SSEVector& vec) const
+		FORCEINLINE SSEVector QuatRotateVec(const SSEVector& vec) const
 		{
-			SSEVector tmp = SSEVector::load1f(2.0f) * cross3(vec);
-			return vec + (tmp * replicate(3)) + cross3(tmp);
+			SSEVector tmp = SSEVector::Load1F(2.0f) * Cross3(vec);
+			return vec + (tmp * Replicate(3)) + Cross3(tmp);
 		}
 
-		FORCEINLINE SSEVector mad(const SSEVector& mul, const SSEVector& add) const
+		FORCEINLINE SSEVector Mad(const SSEVector& mul, const SSEVector& add) const
 		{
 			SSEVector vec;
 			vec.data = _mm_add_ps(_mm_mul_ps(data, mul.data), add.data);
 			return vec;
 		}
 
-		FORCEINLINE SSEVector transform(const void* matrix) const
+		FORCEINLINE SSEVector Transform(const void* matrix) const
 		{
 			const SSEVector* m = (const SSEVector*)matrix;
-			return make(dot4(m[0])[0], dot4(m[1])[0], dot4(m[2])[0], dot4(m[3])[0]);
+			return Make(Dot4(m[0])[0], Dot4(m[1])[0], Dot4(m[2])[0], Dot4(m[3])[0]);
 		}
 
 		FORCEINLINE SSEVector operator+(const SSEVector& other) const
@@ -488,12 +490,12 @@ namespace LinaEngine
 			return vec;
 		}
 
-		FORCEINLINE bool isZero3f() const
+		FORCEINLINE bool IsZero3f() const
 		{
 			return !(_mm_movemask_ps(data) & 0x07);
 		}
 
-		FORCEINLINE bool isZero4f() const
+		FORCEINLINE bool IsZero4f() const
 		{
 			return !_mm_movemask_ps(data);
 		}
@@ -505,14 +507,14 @@ namespace LinaEngine
 			return vec;
 		}
 
-		FORCEINLINE SSEVector equals(const SSEVector& other, float errorMargin) const
+		FORCEINLINE SSEVector Equals(const SSEVector& other, float errorMargin) const
 		{
-			return (*this - other).abs() < SSEVector::load1f(errorMargin);
+			return (*this - other).Abs() < SSEVector::Load1F(errorMargin);
 		}
 
-		FORCEINLINE SSEVector notEquals(const SSEVector& other, float errorMargin) const
+		FORCEINLINE SSEVector NotEquals(const SSEVector& other, float errorMargin) const
 		{
-			return (*this - other).abs() >= SSEVector::load1f(errorMargin);
+			return (*this - other).Abs() >= SSEVector::Load1F(errorMargin);
 		}
 
 		FORCEINLINE SSEVector operator!=(const SSEVector& other) const

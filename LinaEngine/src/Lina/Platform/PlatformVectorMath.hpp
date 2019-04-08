@@ -12,18 +12,27 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: PlatformMemory
-Timestamp: 4/8/2019 9:04:49 PM
+Class: PlatformVectorMath
+Timestamp: 4/9/2019 12:55:47 AM
 
 */
 
 #pragma once
 
-#ifndef PlatformMemory_HPP
-#define PlatformMemory_HPP
+#ifndef PlatformVectorMath_HPP
+#define PlatformVectorMath_HPP
 
-#include "Generic/GenericMemory.hpp"
+#include "Platform.hpp"
 
-typedef LinaEngine::GenericMemory PlatformMemory;
+#if defined(SIMD_CPU_ARCH_x86) || defined(SIMD_CPU_ARCH_x86_64)
+
+#include "SSE/SSEVectorMath.hpp"
+typedef LinaEngine::SSEVector PlatformVector;
+
+#else
+#include "Generic/GenericVectorMath.hpp"
+typedef LinaEngine::GenericVector PlatformVector;
+#endif
+
 
 #endif
