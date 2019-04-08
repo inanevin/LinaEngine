@@ -43,7 +43,7 @@ namespace LinaEngine
 		template<class Component>
 		FORCEINLINE void AddComponent(EntityHandle entity, Component* component)
 		{
-			AddComponentInternal(HandleToEntity(entity), Component::ID, component);
+			AddComponentInternal(entity, HandleToEntity(entity), Component::ID, component);
 		}
 
 		/* Removes component from an entity */
@@ -96,7 +96,8 @@ namespace LinaEngine
 		}
 
 		void DeleteComponent(uint32 componentID, uint32 index);
-		void AddComponentInternal(LinaArray<LinaPair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent* component);
+		void RemoveComponentInternal(EntityHandle, uint32 componentID);
+		void AddComponentInternal(EntityHandle handle, LinaArray<LinaPair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent* component);
 
 		NULL_COPY_AND_ASSIGN(ECS);
 	};

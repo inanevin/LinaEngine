@@ -19,6 +19,7 @@ Timestamp: 4/8/2019 6:03:20 PM
 
 #include "LinaPch.hpp"
 #include "ECS.hpp"  
+#include "Lina/Memory.hpp"
 
 namespace LinaEngine
 {
@@ -60,7 +61,7 @@ namespace LinaEngine
 				return NULL_ENTITY_HANDLE;
 			}
 
-			AddComponentInternal(newEntity->second, componentIDs[i], &entityComponents[i]);
+			AddComponentInternal(handle, newEntity->second, componentIDs[i], &entityComponents[i]);
 		}
 
 		newEntity->first = entities.size();
@@ -89,12 +90,12 @@ namespace LinaEngine
 		entities.pop_back();
 	}
 
-	void ECS::AddComponentInternal(LinaArray<LinaPair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent * component)
+	void ECS::AddComponentInternal(EntityHandle handle, LinaArray<LinaPair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent * component)
 	{
 		ECSComponentCreateFunction createfn = BaseECSComponent::GetTypeCreateFunction(componentID);
 		LinaPair<uint32, uint32> newPair;
 		newPair.first = componentID;
-		//newPair.second = createfn(components[componentID], handle, component);
+		newPair.second = createfn(components[componentID], handle, component);
 		entity.push_back(newPair);
 	}
 
@@ -116,7 +117,20 @@ namespace LinaEngine
 			return;
 		}
 
+		Memory::memcpy(destComponent, sourceComponent, typeSize);
 
+		LinaArray<LinaPair<uint32,uint32>>& sourceComponents = HandleToEntity(sourceComponent->entity);
+
+		for (uint32 i = 0; i < sourceComponents.size(); i++)
+		{
+			if (componentID == sourceComponents[i].first && srcIndex == sourceComponents[i].second)
+			{
+				sourceComponents[i].second = index;
+				break;
+			}
+		}
+
+		arr.resize(srcIndex);
 	}
 
 }
