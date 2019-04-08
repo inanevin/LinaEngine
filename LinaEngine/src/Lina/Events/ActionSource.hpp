@@ -26,7 +26,8 @@ Timestamp: 3/2/2019 7:13:07 PM
 
 namespace LinaEngine
 {
-#define BIND_ACTION(x,y) std::bind(&x, y)
+#define LINA_ACTION_CALLBACK(x) std::bind(&x, this)
+#define LINA_ACTION_CALLBACK_PARAM1(x) std::bind(&x, this, std::placeholders::_1)
 #define BIND_ACTION_PARAM(x,y, z) [y](z i) { y->x(i); };
 
 
@@ -40,17 +41,15 @@ namespace LinaEngine
 
 		ActionParams() {};
 
-		ActionParams(ActionType type, T c = NULL, std::function<void()> cb = NULL, std::function<void(T)> cbp = NULL, T* b = NULL)
+		ActionParams(ActionType type, T c = NULL, std::function<void(T)> cbp = NULL, T* b = NULL)
 			: actionType(type), condition(c), callback(cb), callbackWithParameter(cbp) {};
 
 		bool useCondition = false;
 		bool useCallback = false;
-		bool useParamCallback = false;
 		bool useBinding = false;
 		ActionType actionType;
 		T condition;
-		std::function<void()> callback;
-		std::function<void(T)> callbackWithParameter;
+		std::function<void(T&)> callback;
 		T* binding;
 		void* caller;
 
@@ -70,52 +69,25 @@ namespace LinaEngine
 		template<typename T>
 		void SubscribeToAction(const ActionParams<T>& params)
 		{
-			if (params.useCondition || params.useBinding || params.useParamCallback)
+			// Init handler depending on param settings.
+			ActionHandler<T>* handler = new ActionHandler<T>(params.actionType, params.caller);
+
+			if (params.useCallback)
 			{
-				// Init handler depending on param settings.
-				ActionHandler<T>* handler = new ActionHandler<T>(params.actionType, params.caller);
-				
-				if (params.useCallback)
-				{
-					handler->SetNoParamCallback(params.callback);
-					handler->SetUseNoParamCallback(true);
-				}
-
-				if (params.useParamCallback)
-				{
-					handler->SetUseParamCallback(true);
-					handler->SetParamCallback(params.callbackWithParameter);
-				}
-
-				if (params.useCondition)
-				{
-					handler->SetUseCondition(true);
-					handler->SetCondition(params.condition);
-				}
-
-				if (params.useBinding)
-				{
-					handler->SetUseBinding(true);
-					handler->SetBinding(params.binding);
-				}
-
-
-				m_ActionDispatcher.SubscribeHandler(handler);
-
-			}
-			else
-			{
-				ActionHandler<>* handler = new ActionHandler<>(params.actionType, params.caller);
-
-				if (params.useCallback)
-				{
-					handler->SetUseNoParamCallback(true);
-					handler->SetNoParamCallback(params.callback);
-				}
-
-				m_ActionDispatcher.SubscribeHandler(handler);
+				handler->SetCallback(params.callback);
 			}
 
+			if (params.useCondition)
+			{
+				handler->SetCondition(params.condition);
+			}
+
+			if (params.useBinding)
+			{
+				handler->SetBinding(params.binding);
+			}
+
+			m_ActionDispatcher.SubscribeHandler(handler);
 
 		}
 

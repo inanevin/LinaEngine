@@ -8,8 +8,8 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 
 http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
 Class: Action
@@ -29,9 +29,6 @@ Timestamp: 1/6/2019 5:41:20 AM
 
 namespace LinaEngine
 {
-
-
-
 	enum ActionType
 	{
 		KeyPressed,
@@ -43,16 +40,14 @@ namespace LinaEngine
 	// Base wrapper class for actions.
 	class ActionBase
 	{
-
 	public:
+		virtual void* GetData() { return 0; }
+		FORCEINLINE ActionType GetActionType() { return m_ActionType; }
+		FORCEINLINE void SetActionType(ActionType t) { m_ActionType = t; }
+	protected:
 		ActionBase() {};
 		ActionBase(ActionType t) : m_ActionType(t) {};
-		virtual void* GetData() { return 0; }
-		inline ActionType GetActionType() { return m_ActionType; }
-		inline void SetActionType(ActionType t) { m_ActionType = t; }
-
 	private:
-		//Lina_ActionBase(const Lina_ActionBase& rhs) = delete;
 		ActionType m_ActionType;
 	};
 
@@ -60,39 +55,28 @@ namespace LinaEngine
 	template<typename T = int>
 	class Action : public ActionBase
 	{
-
 	public:
-		Action() {};
 		Action(ActionType t) : ActionBase::ActionBase(t) { }
-		inline void SetData(T t) { m_Value = t; }
-		virtual void* GetData() { return &m_Value; }
-
+		FORCEINLINE void SetData(const T& t) { m_Data = t; }
+		FORCEINLINE virtual void* GetData() { return &m_Data; }
 	private:
-		T m_Value;
-
+		T m_Data;
 	};
 
 	// Base wrapper class for action handlers.
 	class ActionHandlerBase
 	{
 	public:
-
-		
+		FORCEINLINE ActionType GetActionType() { return m_ActionType; }
+		FORCEINLINE void SetActionType(ActionType t) { m_ActionType = t; }
+	protected:
+		friend class ActionDispatcher;
 		~ActionHandlerBase() {};
 		ActionHandlerBase(ActionType at, void* caller) : m_ActionType(at), m_Caller(caller) { };
-
-		inline ActionType GetActionType() { return m_ActionType; }
-		inline void SetActionType(ActionType t) { m_ActionType = t; }
-
-	protected:
-
-		friend class ActionDispatcher;
 		virtual void Control(ActionBase& action) { };
 		virtual void Execute(ActionBase& action) {};
 		void* m_Caller;
-
 	private:
-		
 		ActionType m_ActionType;
 	};
 
@@ -100,25 +84,27 @@ namespace LinaEngine
 	template<typename T>
 	class ActionHandler_ConditionCheck : public ActionHandlerBase
 	{
-
 	public:
+		FORCEINLINE void SetCondition(const T& t) { m_Condition = t;  m_UseCondition = true; }
+		FORCEINLINE void SetCallback(const std::function<void(T&)>& cb) { m_Callback = cb; m_UseCallback = true; }
+		FORCEINLINE void SetBinding(T* binding) { m_Binding = binding; m_UseBinding = true; }
 
-	
+		FORCEINLINE T& GetCondition() { return m_Condition; }
+		FORCEINLINE bool GetUseBinding() { return m_UseBinding; }
+		FORCEINLINE bool GetConditionCheck() { return m_UseCondition; }
+		FORCEINLINE bool GetUseCallback() { return m_UseCallback; }
+
+	protected:
 		~ActionHandler_ConditionCheck() {};
 		ActionHandler_ConditionCheck(ActionType at, void* caller) :
 			ActionHandlerBase::ActionHandlerBase(at, caller) { };
-
-		inline void SetCondition(T t) { m_Condition = t; }
-		inline T GetCondition() { return m_Condition; }
-
-	protected:
 
 		friend class ActionDispatcher;
 
 		// Control block called by the dispatchers.
 		virtual void Control(ActionBase& action) override
 		{
-
+			
 			// Cast from polymorphic action base class void* type to T*.
 			T* typePointer = static_cast<T*>(action.GetData());
 
@@ -145,41 +131,23 @@ namespace LinaEngine
 		}
 
 
-	private:
+		bool m_UseCallback = false;
+		bool m_UseBinding = false;
+		bool m_UseCondition = false;
 		T m_Condition;
-
+		T* m_Binding = NULL;
+		std::function<void(T&)> m_Callback;
 	};
-
-
 
 	// Main derived class used for action handlers.
 	template<typename T = int>
 	class ActionHandler : public ActionHandler_ConditionCheck<T>
 	{
 	public:
-
-
 		~ActionHandler() {}
 		ActionHandler(ActionType at, void* caller) :
 			ActionHandler_ConditionCheck<T>::ActionHandler_ConditionCheck(at, caller) {
 		};
-
-		inline void SetUseCondition(bool b) { m_UseCondition = b; }
-		inline void SetUseBinding(bool b) { m_UseBinding = b; }
-		inline void SetUseParamCallback(bool b) { m_UseParamCallback = b; }
-		inline void SetUseNoParamCallback(bool b) { m_UseNoParamCallback = b; }
-
-
-		inline bool GetUseBinding() { return m_UseBinding; }
-		inline bool GetConditionCheck() { return m_UseCondition; }
-		inline bool GetUseParamCallback() { return m_UseParamCallback; }
-		inline bool GetUseNoParamCallback() { return m_UseNoParamCallback; }
-
-		inline void SetParamCallback(const std::function<void(T&)>& cbp) { m_CallbackParam = cbp; }
-		inline void SetNoParamCallback(const std::function<void()>& cb) { m_CallbackNoParam = cb; }
-		inline void SetBinding(T* binding) { m_Binding = binding; }
-
-
 	protected:
 
 		friend class ActionDispatcher;
@@ -197,7 +165,7 @@ namespace LinaEngine
 		{
 			// If we use parameterized callback or binding, we will extract the value from the action.
 			// However, if we have not used condition, it means whe have not typed checked this value. So type check it first.
-			if ((m_UseParamCallback || m_UseBinding))
+			if ((m_UseCallback || m_UseBinding))
 			{
 				// Cast from polymorphic action base class void* type to T*.
 				T* typePointer = static_cast<T*>(action.GetData());
@@ -214,28 +182,13 @@ namespace LinaEngine
 					*m_Binding = *typePointer;
 
 				// Call the callback with parameters, cast and pass in the data from the action.
-				if (m_UseParamCallback)
-					m_CallbackParam(*typePointer);
+				if (m_UseCallback)
+					m_Callback(*typePointer);
 			}
-
-			// Call the callback with no parameters
-			if (m_UseNoParamCallback)
-				m_CallbackNoParam();
-
 		}
-
-	private:
-
-		bool m_UseParamCallback = false;
-		bool m_UseNoParamCallback = false;
-		bool m_UseBinding = false;
-		bool m_UseCondition = false;
-		T* m_Binding = NULL;
-		std::function<void()> m_CallbackNoParam;
-		std::function<void(T&)> m_CallbackParam;
 	};
 
-	class TestClass;
+
 
 	// Dispatcher class for actions.
 	class ActionDispatcher

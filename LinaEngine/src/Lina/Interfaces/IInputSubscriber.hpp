@@ -36,14 +36,6 @@ namespace LinaEngine
 
 	protected:
 
-		void test(std::function<void(bool)> sea)
-		{
-
-		}
-		void test2(std::function<void()> sea)
-		{
-
-		}
 
 		/*void SubscribeKeyPressedAction(std::function<void()> cb, Input::Key key = Input::Key::Unknown);
 		void SubscribeKeyPressedAction(std::function<void(Input::Key)> cbp, Input::Key key = Input::Key::Unknown);
@@ -58,6 +50,20 @@ namespace LinaEngine
 		void SubscribeMouseButtonReleasedAction(std::function<void(Input::Mouse)> cbp, Input::Mouse button = Input::Mouse::MouseUnknown);
 		void SubscribeMouseButtonReleasedAction(std::function<void()> cb, std::function<void(Input::Mouse)> cbp, Input::Mouse button = Input::Mouse::MouseUnknown);
 		*/
+
+		template<typename T>
+		void SubscribeKeyPressedAction(std::function<void(T)>&& cb, Input::Key key = Input::Key::Unknown)
+		{
+			ActionParams<Input::Key> params;
+			params.actionType = ActionType::KeyPressed;
+			params.useCallback = true;
+			params.callback = cb;
+			SubscribeInputAction(params);
+		}
+
+
+
+
 		template<typename T>
 		void SubscribeInputAction(ActionParams<T> params)
 		{

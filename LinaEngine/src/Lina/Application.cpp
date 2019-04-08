@@ -29,7 +29,7 @@ namespace LinaEngine
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
 	Application* Application::instance = nullptr;
-	ActionTest* t;
+
 	Application::Application()
 	{
 		LINA_CORE_ASSERT(!instance, "Application already exists!");
@@ -71,8 +71,6 @@ namespace LinaEngine
 		// Set running flag.
 		m_Running = true;
 
-		t = new ActionTest();
-		t->SetAction();
 
 	}
 
@@ -86,7 +84,6 @@ namespace LinaEngine
 	
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
-	
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{

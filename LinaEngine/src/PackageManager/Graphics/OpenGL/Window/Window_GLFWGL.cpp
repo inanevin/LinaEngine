@@ -257,7 +257,8 @@ namespace LinaEngine
 
 	void Window_GLFWGL::WindowFocusCallback(GLFWwindow * window, int focused)
 	{
-		if (focused) m_WindowProps.EventCallback(WindowFocusEvent());
+		if (focused)
+			m_WindowProps.EventCallback(WindowFocusEvent());
 		else
 			m_WindowProps.EventCallback(WindowFocusLostEvent());
 	}
