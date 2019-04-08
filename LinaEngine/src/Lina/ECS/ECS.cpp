@@ -236,7 +236,6 @@ namespace LinaEngine
 		return nullptr;
 	}
 
-	// TODO : Optimize for cache friendliness
 	void ECS::UpdateSystemMultipleComponentsInternal(uint32 index, float delta, const LinaArray<uint32>& componentTypes, LinaArray<BaseECSComponent*>& componentParam, LinaArray<LinaArray<uint8>*>& componentArrays)
 	{
 		componentParam.resize(Math::Max(componentParam.size(), componentTypes.size()));
@@ -257,8 +256,10 @@ namespace LinaEngine
 		{
 			componentParam[minSizeIndex] = (BaseECSComponent*)&arr[i];
 
+			/******************** TODO: CACHE OPTIMIZATION ***********************/
 			// Find the entity attached to the component.
 			LinaArray<LinaPair<uint32, uint32>>& entityComponents = HandleToEntity(componentParam[minSizeIndex]->entity);
+			/******************** TODO: CACHE OPTIMIZATION ***********************/
 
 			bool isValid = true;
 

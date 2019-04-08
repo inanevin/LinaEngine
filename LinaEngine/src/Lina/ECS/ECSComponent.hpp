@@ -52,27 +52,27 @@ namespace LinaEngine
 
 		FORCEINLINE static ECSComponentCreateFunction GetTypeCreateFunction(uint32 id)
 		{
-			return std::get<0>(componentTypes[id]);
+			return std::get<0>((*componentTypes)[id]);
 		}
 
 		FORCEINLINE static ECSComponentFreeFunction GetTypeFreeFunction(uint32 id)
 		{
-			return std::get<1>(componentTypes[id]);
+			return std::get<1>((*componentTypes)[id]);
 		}
 
 		FORCEINLINE static size_t GetTypeSize(uint32 id)
 		{
-			return std::get<2>(componentTypes[id]);
+			return std::get<2>((*componentTypes)[id]);
 		}
 
 		FORCEINLINE static bool isTypeValid(uint32 id)
 		{
-			return id < componentTypes.size();
+			return id < componentTypes->size();
 		}
 
 	private:
 		/* Component types, warning = global dynamic mem alloc. */
-		static LinaArray<LinaTuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>> componentTypes;
+		static LinaArray<LinaTuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>>* componentTypes;
 	};
 
 	template<typename T>

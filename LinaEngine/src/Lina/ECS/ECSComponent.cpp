@@ -22,12 +22,17 @@ Timestamp: 4/7/2019 3:24:08 PM
 
 namespace LinaEngine
 {
-	LinaArray<std::tuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>> BaseECSComponent::componentTypes;
+	LinaArray<std::tuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>>* BaseECSComponent::componentTypes;
 
 	uint32 BaseECSComponent::registerComponentType(ECSComponentCreateFunction createfn, ECSComponentFreeFunction freefn, size_t size)
 	{
-		uint32 componentID = componentTypes.size();
-		componentTypes.push_back(LinaTuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>(createfn, freefn, size));
+		if (componentTypes == nullptr)
+		{
+			componentTypes = new LinaArray<LinaTuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>>();
+		}
+
+		uint32 componentID = componentTypes->size();
+		componentTypes->push_back(LinaTuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>(createfn, freefn, size));
 		return componentID;
 	}
 }
