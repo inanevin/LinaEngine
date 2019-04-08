@@ -72,7 +72,31 @@ namespace LinaEngine
 		return handle;
 	}
 
+	void ECS::RemoveEntity(EntityHandle handle)
+	{
+		Array<Pair<uint32, uint32>>& entity = HandleToEntity(handle);
 
+		for (uint32 i = 0; i < entity.size(); i++)
+		{
+			RemoveComponentInternal(entity[i].first, entity[i].second);
+		}
+
+		// Where our entity in the list of entities.
+		uint32 destIndex = HandleToEntityIndex(handle);
+		uint32 srcIndex = entities.size() - 1;
+
+		// Delete the entity.
+		delete entities[destIndex];
+
+		// Move the last entity in the list to where the entity being deleted is.
+		entities[destIndex] = entities[srcIndex];
+		entities.pop_back();
+	}
+
+	void ECS::RemoveComponentInternal(uint32 componentID, uint32 index)
+	{
+
+	}
 
 }
 

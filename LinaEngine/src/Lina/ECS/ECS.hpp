@@ -92,7 +92,9 @@ namespace LinaEngine
 			return HandleToRawType(handle)->second;
 		}
 
-		//void RemoveComponentInternal(uint32 componentID, uint32 index);
+		void RemoveComponentInternal(uint32 componentID, uint32 index) {};
+
+		NULL_COPY_AND_ASSIGN(ECS);
 	};
 }
 
