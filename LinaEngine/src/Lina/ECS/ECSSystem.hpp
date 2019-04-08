@@ -33,13 +33,13 @@ namespace LinaEngine
 
 	public:
 
-		BaseECSSystem(const Array<uint32>& componentTypesIn) : componentTypes(componentTypesIn) {};
+		BaseECSSystem(const LinaArray<uint32>& componentTypesIn) : componentTypes(componentTypesIn) {};
 		virtual void updateComponents(float delta, BaseECSComponent** components) {};
-		FORCEINLINE const Array<uint32> GetComponentTypes() { return componentTypes; }
+		FORCEINLINE const LinaArray<uint32> GetComponentTypes() { return componentTypes; }
 
 	private:
 
-		Array<uint32> componentTypes;
+		LinaArray<uint32> componentTypes;
 	
 		
 	};

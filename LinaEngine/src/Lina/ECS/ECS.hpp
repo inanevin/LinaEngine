@@ -69,18 +69,18 @@ namespace LinaEngine
 	private:
 
 		/* Array of ECS systems */
-		Array<BaseECSSystem*> systems;
+		LinaArray<BaseECSSystem*> systems;
 
 		/* Map of id & for each id a seperate array for each comp type */
-		Map<uint32, Array<uint8>> components;
+		LinaMap<uint32, LinaArray<uint8>> components;
 		
 		/* Entities with pair ids. */
-		Array<Pair<uint32, Array<Pair<uint32, uint32>>>*> entities;
+		LinaArray<LinaPair<uint32, LinaArray<LinaPair<uint32, uint32>>>*> entities;
 
 		/* Converts an entity handle to raw type */
-		FORCEINLINE Pair<uint32, Array<Pair<uint32, uint32> > >* HandleToRawType(EntityHandle handle)
+		FORCEINLINE LinaPair<uint32, LinaArray<LinaPair<uint32, uint32> > >* HandleToRawType(EntityHandle handle)
 		{
-			return (Pair<uint32, Array<Pair<uint32, uint32> > >*)handle;
+			return (LinaPair<uint32, LinaArray<LinaPair<uint32, uint32> > >*)handle;
 		}
 
 		/* Pulls the index out of an entity handle. */
@@ -90,13 +90,13 @@ namespace LinaEngine
 		}
 
 		/* Converts an entity handle to entity type */
-		FORCEINLINE Array<Pair<uint32, uint32> >& HandleToEntity(EntityHandle handle)
+		FORCEINLINE LinaArray<LinaPair<uint32, uint32> >& HandleToEntity(EntityHandle handle)
 		{
 			return HandleToRawType(handle)->second;
 		}
 
 		void DeleteComponent(uint32 componentID, uint32 index);
-		void AddComponentInternal(Array<Pair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent* component);
+		void AddComponentInternal(LinaArray<LinaPair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent* component);
 
 		NULL_COPY_AND_ASSIGN(ECS);
 	};

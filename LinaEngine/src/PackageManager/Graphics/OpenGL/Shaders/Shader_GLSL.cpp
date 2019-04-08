@@ -34,7 +34,7 @@ namespace LinaEngine
 	Shader_GLSL::~Shader_GLSL()
 	{
 		// Delete shader objects & detach.
-		for (List<GLuint>::iterator it = m_ShaderObjects.begin(); it != m_ShaderObjects.end(); ++it)
+		for (LinaList<GLuint>::iterator it = m_ShaderObjects.begin(); it != m_ShaderObjects.end(); ++it)
 		{
 			glDetachShader(m_Program, *it);
 			glDeleteShader(*it);
@@ -85,7 +85,7 @@ namespace LinaEngine
 		CheckError(m_Program, GL_VALIDATE_STATUS, "PROGRAM");
 
 		// Delete intermediate sharder objects.
-		for (List<GLuint>::iterator it = m_ShaderObjects.begin(); it != m_ShaderObjects.end(); it++) {
+		for (LinaList<GLuint>::iterator it = m_ShaderObjects.begin(); it != m_ShaderObjects.end(); it++) {
 			glDeleteShader(*it);
 		}
 

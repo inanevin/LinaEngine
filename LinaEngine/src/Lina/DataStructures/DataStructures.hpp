@@ -27,11 +27,11 @@ Timestamp: 4/8/2019 5:45:12 PM
 
 namespace LinaEngine
 {
-#define Array std::vector
-#define Map std::map
-#define List std::list
-#define Tuple std::tuple
-#define Pair std::pair
+#define LinaArray std::vector
+#define LinaMap std::map
+#define LinaList std::list
+#define LinaTuple std::tuple
+#define LinaPair std::pair
 
 }
 

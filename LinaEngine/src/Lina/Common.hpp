@@ -22,7 +22,7 @@ Timestamp: 4/7/2019 3:29:18 PM
 #ifndef Common_HPP
 #define Common_HPP
 
-#include "Lina/Platform.hpp"
+#include "Lina/Platform/Platform.hpp"
 
 #if defined(__GNUC__) || defined(__clang__) || (defined(_MSC_VER) && _MSC_VER >= 1600)
 #include <stdint.h>

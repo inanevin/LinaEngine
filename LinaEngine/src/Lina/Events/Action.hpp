@@ -191,7 +191,7 @@ namespace LinaEngine
 	// Dispatcher class for actions.
 	class ActionDispatcher
 	{
-		typename List<ActionHandlerBase*>::iterator it;
+		typename LinaList<ActionHandlerBase*>::iterator it;
 
 	public:
 
@@ -250,7 +250,7 @@ namespace LinaEngine
 
 	private:
 
-		List<ActionHandlerBase*> m_ActionHandlers;
+		LinaList<ActionHandlerBase*> m_ActionHandlers;
 
 	};
 }

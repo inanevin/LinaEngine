@@ -25,7 +25,7 @@ namespace LinaEngine
 	ECS::~ECS()
 	{
 		// Remove components.
-		for (Map<uint32, Array<uint8>>::iterator it = components.begin(); it != components.end(); ++it)
+		for (LinaMap<uint32, LinaArray<uint8>>::iterator it = components.begin(); it != components.end(); ++it)
 		{
 			size_t typeSize = BaseECSComponent::GetTypeSize(it->first);
 			ECSComponentFreeFunction freefn = BaseECSComponent::GetTypeFreeFunction(it->first);
@@ -46,7 +46,7 @@ namespace LinaEngine
 
 	EntityHandle ECS::MakeEntity(BaseECSComponent* entityComponents, const uint32* componentIDs, size_t numComponents)
 	{
-		Pair<uint32, Array<Pair<uint32, uint32>>>* newEntity = new Pair<uint32, Array<Pair<uint32, uint32>>>();
+		LinaPair<uint32, LinaArray<LinaPair<uint32, uint32>>>* newEntity = new LinaPair<uint32, LinaArray<LinaPair<uint32, uint32>>>();
 		EntityHandle handle = (EntityHandle)newEntity;
 
 		// Iterate through components
@@ -70,7 +70,7 @@ namespace LinaEngine
 
 	void ECS::RemoveEntity(EntityHandle handle)
 	{
-		Array<Pair<uint32, uint32>>& entity = HandleToEntity(handle);
+		LinaArray<LinaPair<uint32, uint32>>& entity = HandleToEntity(handle);
 
 		for (uint32 i = 0; i < entity.size(); i++)
 		{
@@ -89,10 +89,10 @@ namespace LinaEngine
 		entities.pop_back();
 	}
 
-	void ECS::AddComponentInternal(Array<Pair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent * component)
+	void ECS::AddComponentInternal(LinaArray<LinaPair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent * component)
 	{
 		ECSComponentCreateFunction createfn = BaseECSComponent::GetTypeCreateFunction(componentID);
-		Pair<uint32, uint32> newPair;
+		LinaPair<uint32, uint32> newPair;
 		newPair.first = componentID;
 		//newPair.second = createfn(components[componentID], handle, component);
 		entity.push_back(newPair);
@@ -100,7 +100,7 @@ namespace LinaEngine
 
 	void ECS::DeleteComponent(uint32 componentID, uint32 index)
 	{
-		Array<uint8>& arr = components[componentID];
+		LinaArray<uint8>& arr = components[componentID];
 		ECSComponentFreeFunction freefn = BaseECSComponent::GetTypeFreeFunction(componentID);
 		size_t typeSize = BaseECSComponent::GetTypeSize(componentID);
 		uint32 srcIndex = arr.size() - typeSize;

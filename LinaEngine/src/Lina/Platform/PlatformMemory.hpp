@@ -22,7 +22,11 @@ Timestamp: 4/8/2019 9:04:49 PM
 #ifndef PlatformMemory_HPP
 #define PlatformMemory_HPP
 
+#include "Generic/GenericMemory.hpp"
 
-
+namespace LinaEngine
+{
+	typedef GenericMemory PlatformMemory;
+}
 
 #endif

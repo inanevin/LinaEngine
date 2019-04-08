@@ -90,7 +90,7 @@ namespace LinaEngine
 		static void bigmemswap(void* a, void* b, uintptr size);
 		static void smallmemswap(void* a, void* b, uintptr size)
 		{
-			LINA_CORE_ASSERT(size <= GENERIC_MEMORY_SMALL_MEMSWAP_MAX);
+			//LINA_CORE_ASSERT(size <= GENERIC_MEMORY_SMALL_MEMSWAP_MAX);
 			char temp_data[GENERIC_MEMORY_SMALL_MEMSWAP_MAX];
 			void* temp = (void*)&temp_data;
 			GenericMemory::memcpy(temp, a, size);

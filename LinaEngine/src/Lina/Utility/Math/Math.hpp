@@ -28,37 +28,11 @@ Redistribution and use in source and binary forms, with or without modification,
 #ifndef Math_HPP
 #define Math_HPP
 
-#include "Lina/Core.hpp"
+#include "Lina/Platform/PlatformMath.hpp"
 
 namespace LinaEngine
 {
-
-	class LINA_API Math
-	{
-	public:
-		template<typename T>
-		static T ClampMinMax(T val, T min, T max)
-		{
-
-			if (val > max)
-				val = max;
-			else if (val < min)
-				val = min;
-
-			return val;
-		}
-		static float Lerp(float, float, float);
-		static float LerpFast(float, float, float);
-		static float abs(float);
-		static float sqrtNewton(float, float);
-		static float sqrt(float);
-		static float det(float, float, float, float);
-		static float pow(float, int);
-		static float GetRandom(float, float);
-		static double ToRadians(float);
-		static double ToDegree(float);
-
-	};
+	typedef PlatformMath Math;
 }
 
 
