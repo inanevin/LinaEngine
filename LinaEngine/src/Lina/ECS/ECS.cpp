@@ -90,6 +90,46 @@ namespace LinaEngine
 		entities.pop_back();
 	}
 
+
+	void ECS::UpdateSystems(float delta)
+	{
+		for (uint32 i = 0; i < systems.size(); i++)
+		{
+			const LinaArray<uint32>& componentTypes = systems[i]->GetComponentTypes();
+
+			if (componentTypes.size() == 1)
+			{
+				size_t typeSize = BaseECSComponent::GetTypeSize(componentTypes[0]);
+				LinaArray<uint8>& arr = components[componentTypes[0]];
+
+				/* Update the components of the same type */
+				for (uint32 i = 0; i < arr.size(); i += typeSize)
+				{
+					BaseECSComponent* component = (BaseECSComponent*)&arr[i];
+					systems[i]->updateComponents(delta, &component);
+				}
+			}
+			else
+			{
+
+			}
+		}
+	}
+
+	bool ECS::RemoveSystem(BaseECSSystem& system)
+	{
+		for (uint32 i = 0; i < systems.size(); i++)
+		{
+			if (&system == systems[i])
+			{
+				systems.erase(systems.begin() + i);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	void ECS::AddComponentInternal(EntityHandle handle, LinaArray<LinaPair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent * component)
 	{
 		ECSComponentCreateFunction createfn = BaseECSComponent::GetTypeCreateFunction(componentID);
@@ -167,19 +207,6 @@ namespace LinaEngine
 		return nullptr;
 	}
 
-	bool ECS::RemoveSystem(BaseECSSystem& system)
-	{
-		for (uint32 i = 0; i < systems.size(); i++)
-		{
-			if (&system == systems[i])
-			{
-				systems.erase(systems.begin() + i);
-				return true;
-			}
-		}
-
-		return false;
-	}
 
 
 }
