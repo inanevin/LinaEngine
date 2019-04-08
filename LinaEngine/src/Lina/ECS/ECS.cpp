@@ -133,7 +133,7 @@ namespace LinaEngine
 		arr.resize(srcIndex);
 	}
 
-	void ECS::RemoveComponentInternal(EntityHandle handle, uint32 componentID)
+	bool ECS::RemoveComponentInternal(EntityHandle handle, uint32 componentID)
 	{
 		LinaArray<LinaPair<uint32, uint32>>& entityComponents = HandleToEntity(handle);
 
@@ -146,10 +146,27 @@ namespace LinaEngine
 				uint32 destIndex = i;
 				entityComponents[destIndex] = entityComponents[srcIndex];
 				entityComponents.pop_back();
-				return;
+				return true;
 			}
 		}
+
+		return false;
 	}
+
+
+	BaseECSComponent* ECS::GetComponentInternal(LinaArray<LinaPair<uint32, uint32>>& entityComponents, uint32 componentID)
+	{
+		for (uint32 i = 0; i < entityComponents.size(); i++)
+		{
+			if (componentID == entityComponents[i].first)
+			{
+				return (BaseECSComponent*)&components[componentID][entityComponents[i].second];
+			}
+		}
+
+		return nullptr;
+	}
+
 
 }
 
