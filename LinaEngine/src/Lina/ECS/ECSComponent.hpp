@@ -65,6 +65,11 @@ namespace LinaEngine
 			return std::get<2>(componentTypes[id]);
 		}
 
+		FORCEINLINE static bool isTypeValid(uint32 id)
+		{
+			return id < componentTypes.size();
+		}
+
 	private:
 		/* Component types, warning = global dynamic mem alloc. */
 		static Array<Tuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>> componentTypes;

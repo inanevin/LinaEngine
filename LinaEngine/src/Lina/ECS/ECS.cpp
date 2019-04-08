@@ -44,11 +44,35 @@ namespace LinaEngine
 		}
 	}
 
-	EntityHandle ECS::MakeEntity(BaseECSComponent* components, const uint32* componentIDs, size_t numComponents)
+	EntityHandle ECS::MakeEntity(BaseECSComponent* entityComponents, const uint32* componentIDs, size_t numComponents)
 	{
 		Pair<uint32, Array<Pair<uint32, uint32>>>* newEntity = new Pair<uint32, Array<Pair<uint32, uint32>>>();
-		//EntityHandle handle 
+		EntityHandle handle = (EntityHandle)newEntity;
+
+		// Iterate through components
+		for (uint32 i = 0; i < numComponents; i++)
+		{
+			// Delete entity & return if type is invalid.
+			if (!BaseECSComponent::isTypeValid(componentIDs[i]))
+			{
+				LINA_CORE_ERR("ECS: Component type is not valid! {0}", componentIDs[i]);
+				delete newEntity;
+				return NULL_ENTITY_HANDLE;
+			}
+
+			ECSComponentCreateFunction createfn = BaseECSComponent::getTypeCreateFunction(componentIDs[i]);
+			Pair<uint32, uint32> newPair;
+			newPair.first = componentIDs[i];
+			newPair.second = createfn(components[componentIDs[i]], handle, &entityComponents[i]);
+			newEntity->second.push_back(newPair);
+		}
+
+		newEntity->first = entities.size();
+		entities.push_back(newEntity);
+		return handle;
 	}
+
+
 
 }
 

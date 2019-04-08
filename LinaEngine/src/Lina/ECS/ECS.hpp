@@ -75,22 +75,24 @@ namespace LinaEngine
 		Array<Pair<uint32, Array<Pair<uint32, uint32>>>*> entities;
 
 		/* Converts an entity handle to raw type */
-		FORCEINLINE Pair<uint32, Array<Pair<uint32, uint32> > >* handleToRawType(EntityHandle handle)
+		FORCEINLINE Pair<uint32, Array<Pair<uint32, uint32> > >* HandleToRawType(EntityHandle handle)
 		{
-			(Pair<uint32, Array<Pair<uint32, uint32> > >*)handle;
+			return (Pair<uint32, Array<Pair<uint32, uint32> > >*)handle;
 		}
 
 		/* Pulls the index out of an entity handle. */
-		FORCEINLINE uint32 handleToEntityIndex(EntityHandle handle)
+		FORCEINLINE uint32 HandleToEntityIndex(EntityHandle handle)
 		{
-			return handleToRawType(handle)->first;
+			return HandleToRawType(handle)->first;
 		}
 
 		/* Converts an entity handle to entity type */
-		FORCEINLINE Array<Pair<uint32, uint32> >& handleToEntity(EntityHandle handle)
+		FORCEINLINE Array<Pair<uint32, uint32> >& HandleToEntity(EntityHandle handle)
 		{
-			return handleToRawType(handle)->second;
+			return HandleToRawType(handle)->second;
 		}
+
+		//void RemoveComponentInternal(uint32 componentID, uint32 index);
 	};
 }
 
