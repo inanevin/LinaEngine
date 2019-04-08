@@ -22,6 +22,7 @@ Timestamp: 4/7/2019 3:24:08 PM
 #ifndef ECSComponent_HPP
 #define ECSComponent_HPP
 
+#include "LinaPch.hpp"
 
 namespace LinaEngine
 {

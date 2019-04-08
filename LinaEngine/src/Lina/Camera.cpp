@@ -99,7 +99,6 @@ namespace LinaEngine
 
 		}
 
-		
 		if (i.GetMouseButtonDown(LINA_MOUSE_LEFT))
 		{
 			m_mouseLocked = true;

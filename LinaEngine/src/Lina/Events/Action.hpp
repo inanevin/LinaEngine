@@ -24,8 +24,6 @@ Timestamp: 1/6/2019 5:41:20 AM
 
 #include "LinaPch.hpp"
 
-#include <list>
-#include <type_traits>
 
 namespace LinaEngine
 {
