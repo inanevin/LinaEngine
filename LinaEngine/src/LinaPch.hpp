@@ -33,6 +33,7 @@ Timestamp: 12/30/2018 5:29:20 PM
 #include <unordered_map>
 #include <unordered_set>
 
+#include "Lina/DataStructures/DataStructures.hpp"
 #include "Lina/Utility/Log.hpp"
 #include "Lina/Utility/Math/Math.hpp"
 #include "Lina/Utility/Math/Quaternion.hpp"

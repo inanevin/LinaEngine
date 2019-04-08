@@ -12,36 +12,26 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: ECSSystem
-Timestamp: 4/8/2019 5:28:34 PM
+Class: ECS
+Timestamp: 4/8/2019 5:43:51 PM
 
 */
 
 #pragma once
 
-#ifndef ECSSystem_HPP
-#define ECSSystem_HPP
+#ifndef ECS_HPP
+#define ECS_HPP
 
-
-#include "ECSComponent.hpp"
-
+#include "ECSSystem.hpp"
 
 namespace LinaEngine
 {
-	class BaseECSSystem
+	class ECS
 	{
-
 	public:
-
-		BaseECSSystem(const Array<uint32>& componentTypesIn) : componentTypes(componentTypesIn) {};
-		virtual void updateComponents(float delta, BaseECSComponent** components) {};
-		FORCEINLINE const Array<uint32> GetComponentTypes() { return componentTypes; }
-
-	private:
-
-		Array<uint32> componentTypes;
-	
 		
+		
+
 	};
 }
 

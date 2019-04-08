@@ -34,7 +34,7 @@ namespace LinaEngine
 	typedef void* EntityHandle;
 
 	/* Defines for create & free functions */
-	typedef uint32 (*ECSComponentCreateFunction)(std::vector<uint8>& memory, EntityHandle entity, BaseECSComponent* comp);
+	typedef uint32 (*ECSComponentCreateFunction)(Array<uint8>& memory, EntityHandle entity, BaseECSComponent* comp);
 	typedef void (*ECSComponentFreeFunction)(BaseECSComponent* component);
 
 	/* Null pointer for entitites */
@@ -67,7 +67,7 @@ namespace LinaEngine
 
 	private:
 		/* Component types, warning = global dynamic mem alloc. */
-		static std::vector<std::tuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>> componentTypes;
+		static Array<Tuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>> componentTypes;
 	};
 
 	template<typename T>
@@ -89,7 +89,7 @@ namespace LinaEngine
 
 	/* Creates a component from a base reference */
 	template<typename Component>
-	uint32 ECSComponentCreate(std::vector<uint8>& memory, EntityHandle entity, BaseECSComponent* comp)
+	uint32 ECSComponentCreate(Array<uint8>& memory, EntityHandle entity, BaseECSComponent* comp)
 	{
 		uint32 index = memory.size();
 		memory.resize(index + Component::SIZE);
@@ -108,7 +108,7 @@ namespace LinaEngine
 
 	/* Define ID for mid ECSComponent class. */
 	template<typename T>
-	const uint32 ECSComponent<T>::ID(BaseECSComponent::registerComponentType());
+	const uint32 ECSComponent<T>::ID(BaseECSComponent::registerComponentType(ECSComponentCreate<T>, ECSComponentFree<T>, sizeof(T)));
 
 	/* Define SIZE for mid ECSComponent class. */
 	template<typename T>

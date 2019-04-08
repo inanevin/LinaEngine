@@ -82,8 +82,8 @@ namespace LinaEngine
 		static std::string LoadShader(std::string path);
 
 		GLuint m_Program;
-		std::list<GLuint> m_ShaderObjects;
-		std::map<std::string, unsigned int> m_UniformMap;
+		List<GLuint> m_ShaderObjects;
+		Map<std::string, unsigned int> m_UniformMap;
 	};
 }
 

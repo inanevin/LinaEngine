@@ -39,11 +39,11 @@ namespace LinaEngine
 		void PopLayer(Layer* layer);
 		void PopOverlay(Layer* overlay);
 
-		std::vector<Layer*>::iterator begin() { return m_Layers.begin(); }
-		std::vector<Layer*>::iterator end() { return m_Layers.end(); }
+		Array<Layer*>::iterator begin() { return m_Layers.begin(); }
+		Array<Layer*>::iterator end() { return m_Layers.end(); }
 	private:
-		std::vector<Layer*> m_Layers;
-		std::vector<Layer*>::iterator m_LayerInsert;
+		Array<Layer*> m_Layers;
+		Array<Layer*>::iterator m_LayerInsert;
 	};
 }
 
