@@ -32,5 +32,21 @@ namespace LinaEngine
 
 		return false;
 	}
+
+	bool ECSSystemList::RemoveSystem(BaseECSSystem& system)
+	{
+		// Iterate through systems.
+		for (uint32 i = 0; i < systems.size(); i++)
+		{
+			// If the addr of the target system matches any system, erase it from the array.
+			if (&system == systems[i])
+			{
+				systems.erase(systems.begin() + i);
+				return true;
+			}
+		}
+
+		return false;
+	}
 }
 

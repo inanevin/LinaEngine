@@ -58,6 +58,38 @@ namespace LinaEngine
 		LinaArray<uint32> componentFlags;
 		
 	};
+
+	class ECSSystemList
+	{
+	public:
+
+		/* Adds a system */
+		FORCEINLINE bool AddSystem(BaseECSSystem& system)
+		{
+			if (!system.IsValid()) return false;
+			systems.push_back(&system);
+			return true;
+		}
+
+		FORCEINLINE size_t Size()
+		{
+			return systems.size();
+		}
+
+		FORCEINLINE BaseECSSystem* operator[](uint32 index)
+		{
+			return systems[index];
+		}
+
+		/* Remove a system */
+		bool RemoveSystem(BaseECSSystem& system);
+
+
+	private:
+
+		/* Array of ECS systems */
+		LinaArray<BaseECSSystem*> systems;
+	};
 }
 
 

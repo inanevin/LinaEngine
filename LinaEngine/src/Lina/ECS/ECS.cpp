@@ -97,13 +97,13 @@ namespace LinaEngine
 	}
 
 
-	void ECS::UpdateSystems(float delta)
+	void ECS::UpdateSystems(ECSSystemList& systems, float delta)
 	{
 		// Components.
 		LinaArray<BaseECSComponent*> componentParam;
 		LinaArray<LinaArray<uint8>*> componentArrays;
 		// Iterate through the systems.
-		for (uint32 i = 0; i < systems.size(); i++)
+		for (uint32 i = 0; i < systems.Size(); i++)
 		{
 			// Get the component types of the current system, if multiple we are going to do a different
 			// deletion logic.
@@ -128,26 +128,11 @@ namespace LinaEngine
 			else
 			{
 				// If multiple types exist, switch the update logic.
-				UpdateSystemMultipleComponentsInternal(i, delta, componentTypes, componentParam, componentArrays);
+				UpdateSystemMultipleComponentsInternal(i, systems, delta, componentTypes, componentParam, componentArrays);
 			}
 		}
 	}
 
-	bool ECS::RemoveSystem(BaseECSSystem& system)
-	{
-		// Iterate through systems.
-		for (uint32 i = 0; i < systems.size(); i++)
-		{
-			// If the addr of the target system matches any system, erase it from the array.
-			if (&system == systems[i])
-			{
-				systems.erase(systems.begin() + i);
-				return true;
-			}
-		}
-
-		return false;
-	}
 
 	void ECS::AddComponentInternal(EntityHandle handle, LinaArray<LinaPair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent * component)
 	{
@@ -237,7 +222,7 @@ namespace LinaEngine
 		return nullptr;
 	}
 
-	void ECS::UpdateSystemMultipleComponentsInternal(uint32 index, float delta, const LinaArray<uint32>& componentTypes, LinaArray<BaseECSComponent*>& componentParam, LinaArray<LinaArray<uint8>*>& componentArrays)
+	void ECS::UpdateSystemMultipleComponentsInternal(uint32 index, ECSSystemList& systems, float delta, const LinaArray<uint32>& componentTypes, LinaArray<BaseECSComponent*>& componentParam, LinaArray<LinaArray<uint8>*>& componentArrays)
 	{
 
 		const LinaArray<uint32>& componentFlags = systems[index]->GetComponentFlags();
