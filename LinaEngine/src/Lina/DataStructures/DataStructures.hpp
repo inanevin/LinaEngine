@@ -31,6 +31,7 @@ namespace LinaEngine
 #define Map std::map
 #define List std::list
 #define Tuple std::tuple
+#define Pair std::pair
 
 }
 

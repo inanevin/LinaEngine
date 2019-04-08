@@ -30,8 +30,31 @@ namespace LinaEngine
 	{
 	public:
 		
-		
+	private:
 
+		/* Array of ECS systems */
+		Array<BaseECSSystem*> systems;
+
+		/* Map of id & for each id a seperate array for each comp type */
+		Map<uint32, Array<uint8>> components;
+		
+		/* Entities with pair ids. */
+		Array<Pair<uint32, Array<Pair<uint32, uint32>>>*> entities;
+
+		FORCEINLINE Pair<uint32, Array<Pair<uint32, uint32> > >* handleToRawType(EntityHandle handle)
+		{
+			(Pair<uint32, Array<Pair<uint32, uint32> > >*)handle;
+		}
+
+		FORCEINLINE uint32 handleToEntityIndex(EntityHandle handle)
+		{
+			return handleToRawType(handle)->first;
+		}
+
+		FORCEINLINE Array<Pair<uint32, uint32> >& handleToEntity(EntityHandle handle)
+		{
+			return handleToRawType(handle)->second;
+		}
 	};
 }
 
