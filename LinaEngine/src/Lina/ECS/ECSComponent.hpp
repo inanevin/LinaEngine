@@ -45,11 +45,29 @@ namespace LinaEngine
 	{
 
 		/* Increments id for new components */
-		static uint32 nextID();
+		static uint32 registerComponentType(ECSComponentCreateFunction createfn, ECSComponentFreeFunction freefn, size_t size);
 
 		/* Entity reference */
 		EntityHandle entity = NULL_ENTITY_HANDLE;
 
+		FORCEINLINE static ECSComponentCreateFunction getTypeCreateFunction(uint32 id)
+		{
+			return std::get<0>(componentTypes[id]);
+		}
+
+		FORCEINLINE static ECSComponentFreeFunction getTypeFreeFunction(uint32 id)
+		{
+			return std::get<1>(componentTypes[id]);
+		}
+
+		FORCEINLINE static size_t getTypeSize(uint32 id)
+		{
+			return std::get<2>(componentTypes[id]);
+		}
+
+	private:
+		/* Component types, warning = global dynamic mem alloc. */
+		static std::vector<std::tuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>> componentTypes;
 	};
 
 	template<typename T>
@@ -90,7 +108,7 @@ namespace LinaEngine
 
 	/* Define ID for mid ECSComponent class. */
 	template<typename T>
-	const uint32 ECSComponent<T>::ID(BaseECSComponent::nextID());
+	const uint32 ECSComponent<T>::ID(BaseECSComponent::registerComponentType());
 
 	/* Define SIZE for mid ECSComponent class. */
 	template<typename T>

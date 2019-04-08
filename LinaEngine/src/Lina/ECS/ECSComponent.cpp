@@ -22,11 +22,12 @@ Timestamp: 4/7/2019 3:24:08 PM
 
 namespace LinaEngine
 {
-	static uint32 componentID = 0;
 
-	uint32 BaseECSComponent::nextID()
+	uint32 BaseECSComponent::registerComponentType(ECSComponentCreateFunction createfn, ECSComponentFreeFunction freefn, size_t size)
 	{
-		return componentID++;
+		uint32 componentID = componentTypes.size();
+		componentTypes.push_back(std::tuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>(createfn, freefn, size));
+		return componentID;
 	}
 }
 
