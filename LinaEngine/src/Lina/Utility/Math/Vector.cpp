@@ -48,7 +48,7 @@ namespace LinaEngine
 
 	float Vector4F::Magnitude() const
 	{
-		return sqrt(MagnitudeSq());
+		return Math::Sqrt(MagnitudeSq());
 	}
 
 	float Vector4F::AngleBetween(const Vector4F & rhs) const
@@ -120,7 +120,7 @@ namespace LinaEngine
 
 	float Vector3F::Magnitude() const
 	{
-		return sqrt(this->MagnitudeSq());
+		return Math::Sqrt(this->MagnitudeSq());
 	}
 
 	float Vector3F::AngleBetween(const Vector3F & rhs) const
@@ -157,8 +157,8 @@ namespace LinaEngine
 
 	Vector3F Vector3F::Rotate(float angle, const Vector3F & axis)
 	{
-		float sinAngle = sin(-angle);
-		float cosAngle = cos(-angle);
+		float sinAngle = Math::Sin(-angle);
+		float cosAngle = Math::Cos(-angle);
 
 		Vector3F x = this->Cross(axis * sinAngle);
 		Vector3F y = (*this * cosAngle);
@@ -245,7 +245,7 @@ namespace LinaEngine
 
 	float Vector2F::Magnitude() const
 	{
-		return sqrt(this->MagnitudeSq());
+		return Math::Sqrt(this->MagnitudeSq());
 	}
 
 	float Vector2F::AngleBetween(const Vector2F & rhs) const

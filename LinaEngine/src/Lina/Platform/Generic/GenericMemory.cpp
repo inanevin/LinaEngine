@@ -26,7 +26,7 @@ namespace LinaEngine
 {
 	void* GenericMemory::malloc(uintptr amt, uint32 alignment)
 	{
-		alignment = Math::max(amt >= 16 ? 16u : 8u, alignment);
+		alignment = Math::Max(amt >= 16 ? 16u : 8u, alignment);
 		void* ptr = ::malloc(amt + alignment + sizeof(void*) + sizeof(uintptr));
 		void* result = align((uint8*)ptr + sizeof(void*) + sizeof(uintptr), (uintptr)alignment);
 		*((void**)((uint8*)result - sizeof(void*))) = ptr;
@@ -36,7 +36,7 @@ namespace LinaEngine
 
 	void* GenericMemory::realloc(void* ptr, uintptr amt, uint32 alignment)
 	{
-		alignment = Math::max(amt >= 16 ? 16u : 8u, alignment);
+		alignment = Math::Max(amt >= 16 ? 16u : 8u, alignment);
 		if (ptr == nullptr) {
 			return GenericMemory::malloc(amt, alignment);
 		}
@@ -48,7 +48,7 @@ namespace LinaEngine
 
 		void* result = malloc(amt, alignment);
 		uintptr size = GenericMemory::getAllocSize(ptr);
-		GenericMemory::memcpy(result, ptr, Math::min(size, amt));
+		GenericMemory::memcpy(result, ptr, Math::Min(size, amt));
 		free(ptr);
 
 		return result;

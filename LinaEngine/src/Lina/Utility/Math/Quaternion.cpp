@@ -101,23 +101,23 @@ namespace LinaEngine
 	{
 		static const float EPSILON = 1e3;
 
-		float cos = this->Dot(r);
+		float Cos = this->Dot(r);
 		Quaternion correctedDest;
 
-		if (shortestPath && cos < 0)
+		if (shortestPath && Cos < 0)
 		{
-			cos *= -1;
+			Cos *= -1;
 			correctedDest = r * -1;
 		}
 		else
 			correctedDest = r;
 
-		if (fabs(cos) > (1 - EPSILON))
+		if (fabs(Cos) > (1 - EPSILON))
 			return NLerp(correctedDest, lerpFactor, false);
 
-		float sin = (float)sqrtf(1.0f - cos * cos);
-		float angle = atan2(sin, cos);
-		float invSin = 1.0f / sin;
+		float Sin = (float)sqrtf(1.0f - Cos * Cos);
+		float angle = atan2(Sin, Cos);
+		float invSin = 1.0f / Sin;
 
 		float srcFactor = sinf((1.0f - lerpFactor) * angle) * invSin;
 		float destFactor = sinf((lerpFactor)* angle) * invSin;

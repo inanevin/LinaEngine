@@ -22,7 +22,7 @@ Timestamp: 4/8/2019 9:21:02 PM
 #include "Memory.hpp"  
 #include <new>
 
-static void* newFunc(std::size_t size)
+static void* NewFunc(std::size_t size)
 {
 	void* p = nullptr;
 	while ((p = LinaEngine::Memory::malloc(size)) == nullptr) {
@@ -38,7 +38,7 @@ static void* newFunc(std::size_t size)
 	return p;
 }
 
-static void deleteFunc(void* p)
+static void DeleteFunc(void* p)
 {
 	if (p == nullptr) {
 		return;
@@ -48,7 +48,7 @@ static void deleteFunc(void* p)
 
 void* operator new(std::size_t size)
 {
-	void* result = newFunc(size);
+	void* result = NewFunc(size);
 	if (result == nullptr) {
 		throw std::bad_alloc();
 	}
@@ -57,16 +57,16 @@ void* operator new(std::size_t size)
 
 void* operator new (std::size_t size, const std::nothrow_t& nothrow_value) throw()
 {
-	return newFunc(size);
+	return NewFunc(size);
 }
 
 void operator delete(void * p) throw()
 {
-	deleteFunc(p);
+	DeleteFunc(p);
 }
 void* operator new[](std::size_t size)
 {
-	void* result = newFunc(size);
+	void* result = NewFunc(size);
 	if (result == nullptr) {
 		throw std::bad_alloc();
 	}
@@ -74,5 +74,5 @@ void* operator new[](std::size_t size)
 }
 void operator delete[](void *p) throw()
 {
-	deleteFunc(p);
+	DeleteFunc(p);
 }
