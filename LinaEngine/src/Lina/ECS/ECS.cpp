@@ -239,6 +239,9 @@ namespace LinaEngine
 
 	void ECS::UpdateSystemMultipleComponentsInternal(uint32 index, float delta, const LinaArray<uint32>& componentTypes, LinaArray<BaseECSComponent*>& componentParam, LinaArray<LinaArray<uint8>*>& componentArrays)
 	{
+
+		const LinaArray<uint32>& componentFlags = systems[index]->GetComponentFlags();
+
 		componentParam.resize(Math::Max(componentParam.size(), componentTypes.size()));
 		componentArrays.resize(Math::Max(componentParam.size(), componentTypes.size()));
 
@@ -247,7 +250,8 @@ namespace LinaEngine
 			componentArrays[i] = &components[componentTypes[i]];
 		}
 
-		uint32 minSizeIndex = FindLeastCommonComponent(componentTypes);
+		// Get the least common component.
+		uint32 minSizeIndex = FindLeastCommonComponent(componentTypes, componentFlags);
 
 		// Start with the first component type
 		size_t typeSize = BaseECSComponent::GetTypeSize(componentTypes[minSizeIndex]);
@@ -271,7 +275,8 @@ namespace LinaEngine
 
 				componentParam[j] = GetComponentInternal(entityComponents, *componentArrays[j], componentTypes[j]);
 
-				if (componentParam[j] == nullptr)
+				// If the entity is not a match (null and the component is not optional ) for the system break.
+				if (componentParam[j] == nullptr && (componentFlags[j] & BaseECSSystem::FLAG_OPTIONAL == 0))
 				{
 					isValid = false;
 					break;
@@ -287,19 +292,21 @@ namespace LinaEngine
 
 	}
 
-	uint32 ECS::FindLeastCommonComponent(const LinaArray<uint32>& componentTypes)
+	uint32 ECS::FindLeastCommonComponent(const LinaArray<uint32>& componentTypes, const LinaArray<uint32>& componentFlags)
 	{
-		uint32 minSize = components[componentTypes[0]].size() / BaseECSComponent::GetTypeSize(componentTypes[0]);
-		uint32 minIndex = 0;
+		uint32 minSize = (uint32)-1;
+		uint32 minIndex = (uint32)-1;
 		
-		for (uint32 i = 1; i < componentTypes.size(); i++)
+		for (uint32 i = 0; i < componentTypes.size(); i++)
 		{
+			if (componentFlags[i] & BaseECSSystem::FLAG_OPTIONAL != 0) continue;
+		
 			size_t typeSize = BaseECSComponent::GetTypeSize(componentTypes[i]);
 
 			// Actual # of components.
 			uint32 size = components[componentTypes[i]].size() / typeSize;
 
-			if (size < minSize)
+			if (size <= minSize)
 			{
 				minSize = size;
 				minIndex = i;
