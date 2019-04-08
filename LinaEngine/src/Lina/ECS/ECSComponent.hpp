@@ -50,17 +50,17 @@ namespace LinaEngine
 		/* Entity reference */
 		EntityHandle entity = NULL_ENTITY_HANDLE;
 
-		FORCEINLINE static ECSComponentCreateFunction getTypeCreateFunction(uint32 id)
+		FORCEINLINE static ECSComponentCreateFunction GetTypeCreateFunction(uint32 id)
 		{
 			return std::get<0>(componentTypes[id]);
 		}
 
-		FORCEINLINE static ECSComponentFreeFunction getTypeFreeFunction(uint32 id)
+		FORCEINLINE static ECSComponentFreeFunction GetTypeFreeFunction(uint32 id)
 		{
 			return std::get<1>(componentTypes[id]);
 		}
 
-		FORCEINLINE static size_t getTypeSize(uint32 id)
+		FORCEINLINE static size_t GetTypeSize(uint32 id)
 		{
 			return std::get<2>(componentTypes[id]);
 		}

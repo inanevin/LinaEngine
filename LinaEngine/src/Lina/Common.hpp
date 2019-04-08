@@ -82,6 +82,13 @@ typedef uint64_t uint64;
 typedef intptr_t intptr;
 typedef uintptr_t uintptr;
 
+#if __cplusplus < 201103L
+#define nullptr NULL
+#define CONSTEXPR
+#else
+#define CONSTEXPR constexpr
+#endif
+
 #define NULL_COPY_AND_ASSIGN(T) \
 	T(const T& other) {(void)other;} \
 	void operator=(const T& other) { (void)other; }

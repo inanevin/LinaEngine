@@ -41,7 +41,10 @@ namespace LinaEngine
 
 		/* Adds component to an entity */
 		template<class Component>
-		void AddComponent(EntityHandle entity, Component* component);
+		FORCEINLINE void AddComponent(EntityHandle entity, Component* component)
+		{
+			AddComponentInternal(HandleToEntity(entity), Component::ID, component);
+		}
 
 		/* Removes component from an entity */
 		template<class Component>
@@ -92,10 +95,12 @@ namespace LinaEngine
 			return HandleToRawType(handle)->second;
 		}
 
-		void RemoveComponentInternal(uint32 componentID, uint32 index) {};
+		void DeleteComponent(uint32 componentID, uint32 index);
+		void AddComponentInternal(Array<Pair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent* component);
 
 		NULL_COPY_AND_ASSIGN(ECS);
 	};
+
 }
 
 

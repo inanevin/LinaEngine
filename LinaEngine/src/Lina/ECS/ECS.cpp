@@ -27,8 +27,8 @@ namespace LinaEngine
 		// Remove components.
 		for (Map<uint32, Array<uint8>>::iterator it = components.begin(); it != components.end(); ++it)
 		{
-			size_t typeSize = BaseECSComponent::getTypeSize(it->first);
-			ECSComponentFreeFunction freefn = BaseECSComponent::getTypeFreeFunction(it->first);
+			size_t typeSize = BaseECSComponent::GetTypeSize(it->first);
+			ECSComponentFreeFunction freefn = BaseECSComponent::GetTypeFreeFunction(it->first);
 
 			// Iterate every single component in the memory block by size.
 			for (uint32 i = 0; i < it->second.size(); i += typeSize)
@@ -60,11 +60,7 @@ namespace LinaEngine
 				return NULL_ENTITY_HANDLE;
 			}
 
-			ECSComponentCreateFunction createfn = BaseECSComponent::getTypeCreateFunction(componentIDs[i]);
-			Pair<uint32, uint32> newPair;
-			newPair.first = componentIDs[i];
-			newPair.second = createfn(components[componentIDs[i]], handle, &entityComponents[i]);
-			newEntity->second.push_back(newPair);
+			AddComponentInternal(newEntity->second, componentIDs[i], &entityComponents[i]);
 		}
 
 		newEntity->first = entities.size();
@@ -78,7 +74,7 @@ namespace LinaEngine
 
 		for (uint32 i = 0; i < entity.size(); i++)
 		{
-			RemoveComponentInternal(entity[i].first, entity[i].second);
+			DeleteComponent(entity[i].first, entity[i].second);
 		}
 
 		// Where our entity in the list of entities.
@@ -93,8 +89,33 @@ namespace LinaEngine
 		entities.pop_back();
 	}
 
-	void ECS::RemoveComponentInternal(uint32 componentID, uint32 index)
+	void ECS::AddComponentInternal(Array<Pair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent * component)
 	{
+		ECSComponentCreateFunction createfn = BaseECSComponent::GetTypeCreateFunction(componentID);
+		Pair<uint32, uint32> newPair;
+		newPair.first = componentID;
+		//newPair.second = createfn(components[componentID], handle, component);
+		entity.push_back(newPair);
+	}
+
+	void ECS::DeleteComponent(uint32 componentID, uint32 index)
+	{
+		Array<uint8>& arr = components[componentID];
+		ECSComponentFreeFunction freefn = BaseECSComponent::GetTypeFreeFunction(componentID);
+		size_t typeSize = BaseECSComponent::GetTypeSize(componentID);
+		uint32 srcIndex = arr.size() - typeSize;
+
+		BaseECSComponent* sourceComponent = (BaseECSComponent*)&arr[srcIndex];
+		BaseECSComponent* destComponent = (BaseECSComponent*)&arr[index];
+		freefn(destComponent);
+
+		// If the element in question is final in the array.
+		if (index == srcIndex)
+		{
+			arr.resize(srcIndex);
+			return;
+		}
+
 
 	}
 
