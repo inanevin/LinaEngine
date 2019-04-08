@@ -1,5 +1,5 @@
 /*
-Author: Inan Evin
+Author: Inan Evin - Thanks to the lectures & contributions of Benny Bobaganoosh, thebennybox.
 www.inanevin.com
 
 Copyright 2018 Inan Evin

@@ -1,5 +1,5 @@
 /*
-Author: Inan Evin
+Author: Inan Evin - Thanks to the lectures & contributions of Benny Bobaganoosh, thebennybox.
 www.inanevin.com
 
 Copyright 2018 Inan Evin
@@ -34,10 +34,38 @@ namespace LinaEngine
 		~ECS();
 		
 		/* Entity Creator */
-		EntityHandle MakeEntity(BaseECSComponent* components, const uint32* componentIDs, size_t numComponents);
+		EntityHandle MakeEntity(BaseECSComponent** components, const uint32* componentIDs, size_t numComponents);
 		
 		/* Removes an entity from the sys */
 		void RemoveEntity(EntityHandle handle);
+
+		template<class... Args> 
+		EntityHandle MakeEntity(Args...args)
+		{
+			const size_t n = sizeof...(Args);
+			BaseECSComponent* components[n] = { nullptr };
+			uint32 componentIDs[n] = { 0 };
+
+			int index = 0;
+
+			for (auto type : args)
+			{
+				components[index] = &type;
+				componentIDs[index] = type::ID;
+				index++;
+			}
+
+			return MakeEntity(components, componentIDs, n);
+		}
+
+		template<class A, class B, class C>
+		EntityHandle MakeEntity(A& c1, B& c2, C& c3)
+		{
+			BaseECSComponent* components[] = { &c1, &c2, &c3 };
+			uint32 componentIDs[] = { A::ID, B::ID, C::ID };
+			return MakeEntity(components, componentIDs, 3);
+		}
+
 
 		/* Adds component to an entity */
 		template<class Component>
@@ -55,9 +83,9 @@ namespace LinaEngine
 
 		/* Gets the typed component out of the entity. */
 		template<class Component>
-		void GetComponent(EntityHandle entity)
+		Component* GetComponent(EntityHandle entity)
 		{
-			GetComponentInternal(HandleToEntity(entity), components[Component::ID], Component::ID);
+			return (Component*)GetComponentInternal(HandleToEntity(entity), components[Component::ID], Component::ID);
 		}
 
 		/* System Tick */

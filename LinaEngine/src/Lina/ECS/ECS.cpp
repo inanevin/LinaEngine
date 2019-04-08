@@ -1,5 +1,5 @@
 /*
-Author: Inan Evin
+Author: Inan Evin - Thanks to the lectures & contributions of Benny Bobaganoosh, thebennybox.
 www.inanevin.com
 
 Copyright 2018 Inan Evin
@@ -45,7 +45,7 @@ namespace LinaEngine
 		}
 	}
 
-	EntityHandle ECS::MakeEntity(BaseECSComponent* entityComponents, const uint32* componentIDs, size_t numComponents)
+	EntityHandle ECS::MakeEntity(BaseECSComponent** entityComponents, const uint32* componentIDs, size_t numComponents)
 	{
 		// Create entity & handle
 		LinaPair<uint32, LinaArray<LinaPair<uint32, uint32>>>* newEntity = new LinaPair<uint32, LinaArray<LinaPair<uint32, uint32>>>();
@@ -63,7 +63,7 @@ namespace LinaEngine
 			}
 
 			// Add components to the newly created entity.
-			AddComponentInternal(handle, newEntity->second, componentIDs[i], &entityComponents[i]);
+			AddComponentInternal(handle, newEntity->second, componentIDs[i], entityComponents[i]);
 		}
 
 		// Set the index & push into the array.
