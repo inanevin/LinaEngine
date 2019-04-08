@@ -261,7 +261,7 @@ namespace LinaEngine
 				componentParam[j] = GetComponentInternal(entityComponents, *componentArrays[j], componentTypes[j]);
 
 				// If the entity is not a match (null and the component is not optional ) for the system break.
-				if (componentParam[j] == nullptr && (componentFlags[j] & BaseECSSystem::FLAG_OPTIONAL == 0))
+				if (componentParam[j] == nullptr && (componentFlags[j] & BaseECSSystem::FLAG_OPTIONAL) == 0)
 				{
 					isValid = false;
 					break;
@@ -284,7 +284,7 @@ namespace LinaEngine
 		
 		for (uint32 i = 0; i < componentTypes.size(); i++)
 		{
-			if (componentFlags[i] & BaseECSSystem::FLAG_OPTIONAL != 0) continue;
+			if ((componentFlags[i] & BaseECSSystem::FLAG_OPTIONAL) != 0) continue;
 		
 			size_t typeSize = BaseECSComponent::GetTypeSize(componentTypes[i]);
 
