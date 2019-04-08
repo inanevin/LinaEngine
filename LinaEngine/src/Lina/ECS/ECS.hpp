@@ -105,7 +105,7 @@ namespace LinaEngine
 		bool RemoveComponentInternal(EntityHandle, uint32 componentID);
 		void AddComponentInternal(EntityHandle handle, LinaArray<LinaPair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent* component);
 		BaseECSComponent* GetComponentInternal(LinaArray<LinaPair<uint32, uint32>>& entityComponents, uint32 componentID);
-		
+		void UpdateSystemMultipleComponentsInternal(uint32 index, float delta, const LinaArray<uint32>& componentTypes, LinaArray<BaseECSComponent*>& componentParam);
 
 		NULL_COPY_AND_ASSIGN(ECS);
 	};

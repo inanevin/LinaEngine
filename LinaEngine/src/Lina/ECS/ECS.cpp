@@ -47,6 +47,7 @@ namespace LinaEngine
 
 	EntityHandle ECS::MakeEntity(BaseECSComponent* entityComponents, const uint32* componentIDs, size_t numComponents)
 	{
+		// Create entity & handle
 		LinaPair<uint32, LinaArray<LinaPair<uint32, uint32>>>* newEntity = new LinaPair<uint32, LinaArray<LinaPair<uint32, uint32>>>();
 		EntityHandle handle = (EntityHandle)newEntity;
 
@@ -61,9 +62,11 @@ namespace LinaEngine
 				return NULL_ENTITY_HANDLE;
 			}
 
+			// Add components to the newly created entity.
 			AddComponentInternal(handle, newEntity->second, componentIDs[i], &entityComponents[i]);
 		}
 
+		// Set the index & push into the array.
 		newEntity->first = entities.size();
 		entities.push_back(newEntity);
 		return handle;
@@ -71,8 +74,10 @@ namespace LinaEngine
 
 	void ECS::RemoveEntity(EntityHandle handle)
 	{
+		// Get entity from the handle.
 		LinaArray<LinaPair<uint32, uint32>>& entity = HandleToEntity(handle);
 
+		// Delete the components first.
 		for (uint32 i = 0; i < entity.size(); i++)
 		{
 			DeleteComponent(entity[i].first, entity[i].second);
@@ -93,33 +98,46 @@ namespace LinaEngine
 
 	void ECS::UpdateSystems(float delta)
 	{
+		// Components.
+		LinaArray<BaseECSComponent*> componentParams;
+
+		// Iterate through the systems.
 		for (uint32 i = 0; i < systems.size(); i++)
 		{
+			// Get the component types of the current system, if multiple we are going to do a different
+			// deletion logic.
 			const LinaArray<uint32>& componentTypes = systems[i]->GetComponentTypes();
 
+		
 			if (componentTypes.size() == 1)
 			{
+				// Get the type size
 				size_t typeSize = BaseECSComponent::GetTypeSize(componentTypes[0]);
+
+				// Get the components in this particular type
 				LinaArray<uint8>& arr = components[componentTypes[0]];
 
 				/* Update the components of the same type */
-				for (uint32 i = 0; i < arr.size(); i += typeSize)
+				for (uint32 j = 0; j < arr.size(); j += typeSize)
 				{
-					BaseECSComponent* component = (BaseECSComponent*)&arr[i];
-					systems[i]->updateComponents(delta, &component);
+					BaseECSComponent* component = (BaseECSComponent*)&arr[j];
+					systems[i]->UpdateComponents(delta, &component);
 				}
 			}
 			else
 			{
-
+				// If multiple types exist, switch the update logic.
+				UpdateSystemMultipleComponentsInternal(i, delta, componentTypes, componentParams);
 			}
 		}
 	}
 
 	bool ECS::RemoveSystem(BaseECSSystem& system)
 	{
+		// Iterate through systems.
 		for (uint32 i = 0; i < systems.size(); i++)
 		{
+			// If the addr of the target system matches any system, erase it from the array.
 			if (&system == systems[i])
 			{
 				systems.erase(systems.begin() + i);
@@ -132,20 +150,29 @@ namespace LinaEngine
 
 	void ECS::AddComponentInternal(EntityHandle handle, LinaArray<LinaPair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent * component)
 	{
+		// Get the create functor for the component
 		ECSComponentCreateFunction createfn = BaseECSComponent::GetTypeCreateFunction(componentID);
+
+		// Assign the id for the new component & create function addr.
 		LinaPair<uint32, uint32> newPair;
 		newPair.first = componentID;
 		newPair.second = createfn(components[componentID], handle, component);
+
+		// Push the newly created component to the target entity.
 		entity.push_back(newPair);
 	}
 
 	void ECS::DeleteComponent(uint32 componentID, uint32 index)
 	{
+		// Get the components & free function.
 		LinaArray<uint8>& arr = components[componentID];
 		ECSComponentFreeFunction freefn = BaseECSComponent::GetTypeFreeFunction(componentID);
+		
+		// Get the type size & find the source index based on the component array.
 		size_t typeSize = BaseECSComponent::GetTypeSize(componentID);
 		uint32 srcIndex = arr.size() - typeSize;
 
+		// Find the source component & call the free func.
 		BaseECSComponent* sourceComponent = (BaseECSComponent*)&arr[srcIndex];
 		BaseECSComponent* destComponent = (BaseECSComponent*)&arr[index];
 		freefn(destComponent);
@@ -157,10 +184,11 @@ namespace LinaEngine
 			return;
 		}
 
+		// Move mem.
 		Memory::memcpy(destComponent, sourceComponent, typeSize);
 
+		// Iterate through sources & shift.
 		LinaArray<LinaPair<uint32,uint32>>& sourceComponents = HandleToEntity(sourceComponent->entity);
-
 		for (uint32 i = 0; i < sourceComponents.size(); i++)
 		{
 			if (componentID == sourceComponents[i].first && srcIndex == sourceComponents[i].second)
@@ -175,12 +203,13 @@ namespace LinaEngine
 
 	bool ECS::RemoveComponentInternal(EntityHandle handle, uint32 componentID)
 	{
+		// Iterate through the components of the entity.
 		LinaArray<LinaPair<uint32, uint32>>& entityComponents = HandleToEntity(handle);
-
 		for (uint32 i = 0; i < entityComponents.size(); i++)
 		{
 			if (componentID == entityComponents[i].first)
 			{
+				// Delete comp & resize.
 				DeleteComponent(entityComponents[i].first, entityComponents[i].second);
 				uint32 srcIndex = entityComponents.size() - 1;
 				uint32 destIndex = i;
@@ -205,6 +234,48 @@ namespace LinaEngine
 		}
 
 		return nullptr;
+	}
+
+	// TODO : Optimize for cache friendliness
+	void ECS::UpdateSystemMultipleComponentsInternal(uint32 index, float delta, const LinaArray<uint32>& componentTypes, LinaArray<BaseECSComponent*>& componentParam)
+	{
+		componentParam.resize(Math::Max(componentParam.size(), componentTypes.size()));
+
+		// Start with the first component type
+		size_t typeSize = BaseECSComponent::GetTypeSize(componentTypes[0]);
+		LinaArray<uint8>& arr = components[componentTypes[0]];
+
+		// For every component type
+		for (uint32 i = 0; i < arr.size(); i += typeSize)
+		{
+			componentParam[0] = (BaseECSComponent*)&arr[i];
+
+			// Find the entity attached to the component.
+			LinaArray<LinaPair<uint32, uint32>>& entityComponents = HandleToEntity(componentParam[0]->entity);
+
+			bool isValid = true;
+
+			// If the entity has all the remaining components we are interested in, update it, otherwise skip it.
+			for (uint32 j = 0; j < componentTypes.size(); j++)
+			{
+				if (j == 0) continue;
+
+				componentParam[j] = GetComponentInternal(entityComponents, componentTypes[j]);
+
+				if (componentParam[j] == nullptr)
+				{
+					isValid = false;
+					break;
+				}
+			}
+
+			if (isValid)
+			{
+				systems[index]->UpdateComponents(delta, &componentParam[0]);
+			}
+		
+		}
+
 	}
 
 
