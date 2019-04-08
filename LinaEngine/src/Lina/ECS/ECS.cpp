@@ -92,6 +92,7 @@ namespace LinaEngine
 
 		// Move the last entity in the list to where the entity being deleted is.
 		entities[destIndex] = entities[srcIndex];
+		entities[destIndex]->first = destIndex;
 		entities.pop_back();
 	}
 
