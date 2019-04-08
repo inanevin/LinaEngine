@@ -100,7 +100,7 @@ namespace LinaEngine
 	{
 		// Components.
 		LinaArray<BaseECSComponent*> componentParam;
-		LinaArray<LinaArray<uint8>*> componetnArrays;
+		LinaArray<LinaArray<uint8>*> componentArrays;
 		// Iterate through the systems.
 		for (uint32 i = 0; i < systems.size(); i++)
 		{
