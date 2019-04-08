@@ -167,6 +167,20 @@ namespace LinaEngine
 		return nullptr;
 	}
 
+	bool ECS::RemoveSystem(BaseECSSystem& system)
+	{
+		for (uint32 i = 0; i < systems.size(); i++)
+		{
+			if (&system == systems[i])
+			{
+				systems.erase(systems.begin() + i);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 
 }
 

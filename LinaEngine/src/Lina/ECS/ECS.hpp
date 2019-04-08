@@ -69,8 +69,8 @@ namespace LinaEngine
 		/* System Tick */
 		void UpdateSystems(float delta);
 		
-		/* Remove system */
-		void RemoveSystem(BaseECSSystem& system);
+		/* Remove a system */
+		bool RemoveSystem(BaseECSSystem& system);
 
 	private:
 
