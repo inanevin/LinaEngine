@@ -241,6 +241,7 @@ namespace LinaEngine
 		// Start with the first component type
 		size_t typeSize = BaseECSComponent::GetTypeSize(componentTypes[minSizeIndex]);
 		LinaArray<uint8>& arr = *componentArrays[minSizeIndex];
+
 		// For every component type
 		for (uint32 i = 0; i < arr.size(); i += typeSize)
 		{
