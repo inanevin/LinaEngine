@@ -61,9 +61,11 @@ namespace LinaEngine
 		}
 
 		/* Adds a system */
-		FORCEINLINE void AddSystem(BaseECSSystem& system)
+		FORCEINLINE bool AddSystem(BaseECSSystem& system)
 		{
+			if (!system.IsValid()) return false;
 			systems.push_back(&system);
+			return true;
 		}
 
 		/* System Tick */

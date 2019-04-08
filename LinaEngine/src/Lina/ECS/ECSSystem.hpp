@@ -42,6 +42,7 @@ namespace LinaEngine
 		virtual void UpdateComponents(float delta, BaseECSComponent** components) {};
 		FORCEINLINE const LinaArray<uint32> GetComponentTypes() { return componentTypes; }
 		FORCEINLINE const LinaArray<uint32>& GetComponentFlags() { return componentFlags; }
+		bool IsValid();
 
 	protected:
 
