@@ -23,6 +23,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #define Lina_Core_HPP
 
 
+
 #ifdef LINA_PLATFORM_WINDOWS
 #ifdef LINA_BUILD_DLL
 #define LINA_API __declspec(dllexport)
@@ -41,6 +42,8 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 //#include"stdio.h"
 //#include"stdlib.h"
+
+#include "Lina/Utility/Log.hpp"
 
 #define LINA_CLIENT_ASSERT(x,...) { if(!(x)) { LINA_CLIENT_ERR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 #define LINA_CLIENT_ENSURE_ASSERT(x,y,...) { if(!(x)) { LINA_CLIENT_ERR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); return y; } }
