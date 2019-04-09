@@ -34,7 +34,7 @@ namespace LinaEngine
 	Application::Application()
 	{
 
-		std::cout << red << "sa";
+		//std::cout << red << "sa";
 		
 
 		LINA_CORE_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());

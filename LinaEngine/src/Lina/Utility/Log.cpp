@@ -29,7 +29,7 @@ namespace LinaEngine
 	void Log::Init()
 	{
 		// Set the pattern as time stamp, caller, message
-		spdlog::set_pattern("%^[%T] [%l] %n: %v %v %$");
+		spdlog::set_pattern("%^[%T] [%l] %n: %v %$");
 
 		// Init the loggers, get a multithreaded console for both.
 		s_CoreLogger = spdlog::stdout_color_mt("LINA CORE");
