@@ -31,6 +31,9 @@ Timestamp: 2/25/2019 9:43:54 AM
 
 namespace LinaEngine
 {
+
+	static const float axisSensitivity = 0.1f;
+
 	InputEngine_GLFW::~InputEngine_GLFW()
 	{
 		delete previousKeys;
@@ -46,7 +49,18 @@ namespace LinaEngine
 
 	void InputEngine_GLFW::OnUpdate()
 	{
+		UpdateInputAxes();
+	}
 
+	void InputEngine_GLFW::UpdateInputAxes()
+	{
+		// TODO: Better system for input control
+		if (GetKey(Input::Key::J)) m_HorizontalAxis.AddAmount(-1.0f * axisSensitivity);
+		else if (GetKey(Input::Key::L)) m_HorizontalAxis.AddAmount(1.0f * axisSensitivity);
+		else m_HorizontalAxis.SetAmount(0.0f);
+		if (GetKey(Input::Key::I)) m_VerticalAxis.AddAmount(1.0f * axisSensitivity);
+		else if (GetKey(Input::Key::K)) m_VerticalAxis.AddAmount(-1.0f * axisSensitivity);
+		else m_VerticalAxis.SetAmount(0.0f);
 	}
 
 	bool InputEngine_GLFW::GetKey(int keycode)

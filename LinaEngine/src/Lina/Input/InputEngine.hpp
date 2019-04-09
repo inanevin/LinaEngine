@@ -27,7 +27,22 @@ Timestamp: 1/6/2019 2:17:55 AM
 namespace LinaEngine
 {
 
+#define MAX_AXIS_AMOUNT 10
+
 	class Application;
+
+	class InputAxis
+	{
+	public:
+
+		InputAxis() {};
+		FORCEINLINE void AddAmount(float amount) { if(m_Amount > -MAX_AXIS_AMOUNT || m_Amount < MAX_AXIS_AMOUNT) m_Amount += amount; }
+		FORCEINLINE float GetAmount() { return Math::Clamp(m_Amount, -1.0f, 1.0f); }
+		FORCEINLINE void SetAmount(float f) { m_Amount = f; }
+	private:
+
+		float m_Amount;
+	};
 
 	class LINA_API InputEngine : public ActionSource
 	{
@@ -39,6 +54,9 @@ namespace LinaEngine
 
 		/* Called when updating the input engine. */
 		virtual void OnUpdate() = 0;
+
+		/* Updates the pre-defined input axes. */
+		virtual void UpdateInputAxes() = 0;
 
 		/* Returns true each frame key mapped with the keyCode is pressed */
 		virtual bool GetKey(int keyCode) = 0;
@@ -82,10 +100,25 @@ namespace LinaEngine
 		/* Sets the Application reference */
 		inline void SetApplication(Application& const application) { app = &application; }
 
+		/* Returns the Horizontal Axis */
+		inline InputAxis* GetHorizontalInput() { return &m_HorizontalAxis; }
+
+		/* Returns the Vertical Axis */
+		inline InputAxis* GetVerticalInput() { return &m_HorizontalAxis; }
+
 	protected:
 
+		/* Horizontal Input Axis */
+		InputAxis m_HorizontalAxis;
+
+		/* Vertical Input Axis */
+		InputAxis m_VerticalAxis;
+
+		/* App reference */
 		Application* app;
 	};
+
+
 }
 
 

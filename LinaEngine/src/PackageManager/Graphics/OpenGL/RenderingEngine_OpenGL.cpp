@@ -32,6 +32,8 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "glm/glm.hpp"
 #include "Lina/ECS/ECS.hpp"
 #include "Lina/ECS/Components/ECSTransformComponent.hpp"
+#include "Lina/ECS/Components/ECSMovementControlComponent.hpp"
+#include "Lina/ECS/Systems/ECSMovementControlSystem.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "GLFW/glfw3.h"
 #include "Lina/Camera.hpp"
@@ -50,9 +52,13 @@ namespace LinaEngine
 	Texture2D overlayTexture;
 	Shader_GLSLBasic basicShader;
 	Camera sceneCamera;
+
 	ECS ecs;
 	EntityHandle entity;
 	ECSTransformComponent transformComponent;
+	ECSMovementControlComponent movementComponent;
+	ECSSystemList mainSystems;
+	ECSMovementControlSystem movementControlSystem;
 	Transform workingTransformation;
 
 	Transform cubeTransforms[] = {
@@ -196,12 +202,15 @@ namespace LinaEngine
 		// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 	//	glBindVertexArray(0);
 
+		movementComponent.axis = Application::Get().GetInputEngine().GetHorizontalInput();
+		movementComponent.movement = Vector3F(1.0f, 0.0f, 0.0f) * 0.05f;
 
-
-	
 		transformComponent.transform.SetPosition(Vector3F(0.0f, 0.0f, 10.0f));
-		entity = ecs.MakeEntity(transformComponent);
-		workingTransformation = ecs.GetComponent<ECSTransformComponent>(entity)->transform;
+
+		entity = ecs.MakeEntity(transformComponent, movementComponent);
+		//workingTransformation = ecs.GetComponent<ECSTransformComponent>(entity)->transform;
+
+		mainSystems.AddSystem(movementControlSystem);
 	}
 
 	void RenderingEngine_OpenGL::OnUpdate()
@@ -238,13 +247,14 @@ namespace LinaEngine
 
 		glBindVertexArray(VAO);
 
-		//workingTransformation.SetPosition(Vector3F(0, 12, 0));
+		//workingTransformation.SetPosition(Vector3F(Math::Sin(glfwGetTime()) * 2,0.0f, 0));
 		//cubeTransforms[0] = workingTransformation;
 
-		
+		ecs.UpdateSystems(mainSystems, 0.01f);
+
 		for (unsigned int i = 0; i < 1; i++)
 		{
-			Matrix4F transformation = cubeTransforms[i].GetWorldTransformation();
+			Matrix4F transformation = ecs.GetComponent<ECSTransformComponent>(entity)->transform.GetWorldTransformation();
 			Matrix4F camView = sceneCamera.GetViewProjection();
 			Matrix4F WVP = camView * transformation;
 			basicShader.SetWVP(WVP);
