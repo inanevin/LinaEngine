@@ -19,7 +19,7 @@ Timestamp: 1/5/2019 7:52:35 PM
 
 #include "LinaPch.hpp"
 #include "Transform.hpp"  
-#include "Utility/Math/Matrix.hpp"
+#include "Lina/Utility/Math/Matrix.hpp"
 
 namespace LinaEngine
 {
@@ -28,9 +28,9 @@ namespace LinaEngine
 		Matrix4F translationM, rotationM, scaleM;
 
 		// Init transform matrices.
-		scaleM.InitScaleTransform(scale.GetX(), scale.GetY(), scale.GetZ());
-		rotationM.InitRotationTransform(rotation.GetX(), rotation.GetY(), rotation.GetZ());
-		translationM.InitTranslationTransform(position.GetY(), position.GetY(), position.GetZ());
+		scaleM.InitScaleTransform(m_Scale.GetX(), m_Scale.GetY(), m_Scale.GetZ());
+		rotationM.InitRotationTransform(m_Rotation.GetX(), m_Rotation.GetY(), m_Rotation.GetZ());
+		translationM.InitTranslationTransform(m_Position.GetY(), m_Position.GetY(), m_Position.GetZ());
 
 		// Multiply, order is hardcoded.
 		m_WorldTransformation = translationM * rotationM* scaleM;
@@ -45,12 +45,12 @@ namespace LinaEngine
 
 	void Transform::Rotate(const Quaternion& r)
 	{
-		rotation = Quaternion((r * rotation).Normalized());
+		m_Rotation = Quaternion((r * m_Rotation).Normalized());
 	}
 
 	void Transform::LookAt(const Vector3F& point, const Vector3F& up)
 	{
-		rotation = GetLookAtRotation(point, up);
+		m_Rotation = GetLookAtRotation(point, up);
 	}
 
 }

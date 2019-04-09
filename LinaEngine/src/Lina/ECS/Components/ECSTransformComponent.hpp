@@ -12,24 +12,24 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: ECSTransform
-Timestamp: 4/9/2019 12:22:16 AM
+Class: ECSTransformComponent
+Timestamp: 4/9/2019 1:28:05 PM
 
 */
 
 #pragma once
 
-#ifndef ECSTransform_HPP
-#define ECSTransform_HPP
+#ifndef ECSTransformComponent_HPP
+#define ECSTransformComponent_HPP
 
+#include "Lina/ECS/Data/Transform.hpp"
 #include "Lina/ECS/ECS.hpp"
-#include "Lina/Utility/Math/Transformation.hpp"
 
 namespace LinaEngine
 {
 	struct ECSTransformComponent : public ECSComponent<ECSTransformComponent>
 	{
-		Transformation transform;
+		Transform transform;
 	};
 }
 

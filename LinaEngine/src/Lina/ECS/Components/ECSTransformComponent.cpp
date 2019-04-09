@@ -12,13 +12,13 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: ECSTransform
-Timestamp: 4/9/2019 12:22:16 AM
+Class: ECSTransformComponent
+Timestamp: 4/9/2019 1:28:05 PM
 
 */
 
 #include "LinaPch.hpp"
-#include "ECSTransform.hpp"  
+#include "ECSTransformComponent.hpp"  
 
 namespace LinaEngine
 {

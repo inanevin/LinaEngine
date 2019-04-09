@@ -18,12 +18,11 @@ Timestamp: 1/5/2019 9:51:42 PM
 */
 
 #pragma once
+
 #ifndef Camera_HPP
 #define Camera_HPP
 
-#include "Transform.hpp"
-
-#pragma once
+#include "ECS/Data/Transform.hpp"
 
 namespace LinaEngine
 {

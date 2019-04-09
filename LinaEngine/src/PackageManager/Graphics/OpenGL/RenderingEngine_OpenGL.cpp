@@ -22,7 +22,7 @@ Timestamp: 1/2/2019 11:44:41 PM
 
 #include "RenderingEngine_OpenGL.hpp"  
 #include "Lina/Utility/Math/Color.hpp"
-#include "Lina/Transform.hpp"
+#include "Lina/ECS/Data/Transform.hpp"
 #include "Lina/Core/Application.hpp"
 #include "Lina/Input/InputEngine.hpp"
 #include "Lina/Events/Action.hpp"
@@ -31,11 +31,10 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "PackageManager/Graphics/OpenGL/Shaders/Shader_GLSLBasic.hpp"
 #include "glm/glm.hpp"
 #include "Lina/ECS/ECS.hpp"
-#include "Lina/ECS/Components/ECSTransform.hpp"
+#include "Lina/ECS/Components/ECSTransformComponent.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "GLFW/glfw3.h"
 #include "Lina/Camera.hpp"
-#include "Lina/Transform.hpp"
 
 namespace LinaEngine
 {
@@ -53,7 +52,7 @@ namespace LinaEngine
 	ECS ecs;
 	EntityHandle entity;
 	ECSTransformComponent transformComponent;
-	Transformation workingTransformation;
+	Transform workingTransformation;
 
 	Transform cubeTransforms[] = {
 		Transform(Vector3F(0.0f,  0.0f,  0.0f)),
@@ -212,7 +211,7 @@ namespace LinaEngine
 
 
 	
-		transformComponent.transform.SetTranslation(Vector3F(0.0f, 0.0f, 10.0f));
+		transformComponent.transform.SetPosition(Vector3F(0.0f, 0.0f, 10.0f));
 		entity = ecs.MakeEntity(transformComponent);
 		workingTransformation = ecs.GetComponent<ECSTransformComponent>(entity)->transform;
 	}
@@ -247,8 +246,9 @@ namespace LinaEngine
 		//basicShader.SetView(view);
 		//basicShader.SetProjection(projection);
 
-		
-		cubeTransforms[0].SetPosition(workingTransformation.GetTranslation());
+		Vector3F v = Vector3F(Math::Sin(glfwGetTime()) * 4, 0.0f, 0.0f);
+		workingTransformation.SetPosition(v);
+		cubeTransforms[0] = workingTransformation;
 
 		glBindVertexArray(VAO);
 

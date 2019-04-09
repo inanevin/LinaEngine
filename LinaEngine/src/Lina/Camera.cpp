@@ -33,7 +33,7 @@ namespace LinaEngine
 	Camera::Camera(PerspectiveInformation p)
 	{
 		this->m_PersInfo = p;
-		this->m_Transform.position = Vector3F::ZERO();
+		this->m_Transform.SetPosition(Vector3F::ZERO());
 		
 		this->m_PerspectiveProjection.InitPerspectiveProjection(p.FOV, p.width, p.height, p.zNear, p.zFar);
 
@@ -44,8 +44,8 @@ namespace LinaEngine
 	{
 		Matrix4F rotationM, translationM;
 		
-		translationM.InitTranslationTransform(-m_Transform.position.GetX(), -m_Transform.position.GetY(), -m_Transform.position.GetZ());
-		rotationM.InitRotationFromDirection(m_Transform.rotation.GetAxisZ(), m_Transform.rotation.GetAxisY());
+		translationM.InitTranslationTransform(-m_Transform.GetPositionX(), -m_Transform.GetPositionY(), -m_Transform.GetPositionZ());
+		rotationM.InitRotationFromDirection(m_Transform.GetRotation().GetAxisZ(), m_Transform.GetRotation().GetAxisY());
 
 		Matrix4F viewTransformation = rotationM * translationM;
 		
@@ -68,35 +68,35 @@ namespace LinaEngine
 
 		if (i.GetKey(LINA_KEY_W))
 		{
-			Vector3F forward = m_Transform.rotation.GetAxisZ();
+			Vector3F forward = m_Transform.GetRotation().GetAxisZ();
 			forward.Normalize();
 			forward *= movementSpeed;
-			this->m_Transform.position += forward;
+			this->m_Transform.SetPosition(m_Transform.GetPosition() + forward);
 
 		}
 		if (i.GetKey(LINA_KEY_S))
 		{
-			Vector3F back = -m_Transform.rotation.GetAxisZ();
+			Vector3F back = -m_Transform.GetRotation().GetAxisZ();
 			back.Normalize();
 			back *= movementSpeed;
-			this->m_Transform.position += back;
+			this->m_Transform.SetPosition(this->m_Transform.GetPosition() + back);
 
 
 		}
 		if (i.GetKey(LINA_KEY_A))
 		{
-			Vector3F left =- m_Transform.rotation.GetAxisX();
+			Vector3F left =- m_Transform.GetRotation().GetAxisX();
 			left.Normalize();
 			left *= movementSpeed;
-			this->m_Transform.position += left;
+			this->m_Transform.SetPosition(this->m_Transform.GetPosition() + left);
 
 		}
 		if (i.GetKey(LINA_KEY_D))
 		{
-			Vector3F right = m_Transform.rotation.GetAxisX();
+			Vector3F right = m_Transform.GetRotation().GetAxisX();
 			right.Normalize();
 			right *= movementSpeed;
-			this->m_Transform.position += right;
+			this->m_Transform.SetPosition(this->m_Transform.GetPosition() + right);
 
 		}
 
@@ -128,7 +128,7 @@ namespace LinaEngine
 			}
 			if (rotX)
 			{
-				m_Transform.Rotate(m_Transform.rotation.GetAxisX(),deltaPos.GetY() * m_sensitivity);
+				m_Transform.Rotate(m_Transform.GetRotation().GetAxisX(),deltaPos.GetY() * m_sensitivity);
 			}
 
 			if (rotY || rotX)
