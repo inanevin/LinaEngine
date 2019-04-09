@@ -34,17 +34,26 @@ namespace LinaEngine
 
 	static const float axisSensitivity = 0.1f;
 
+	InputEngine_GLFW::InputEngine_GLFW()
+	{
+		LINA_CORE_TRACE("[Constructor] -> Input Engine GLFW ({0})", typeid(*this).name());
+	}
+
 	InputEngine_GLFW::~InputEngine_GLFW()
 	{
-		delete previousKeys;
-		delete currentKeys;
+		LINA_CORE_TRACE("[Destructor] -> Input Engine GLFW ({0})", typeid(*this).name());
+
+		//delete previousKeys;
+		//delete currentKeys;
 	}
 
 	void InputEngine_GLFW::Initialize()
 	{
+		LINA_CORE_TRACE("[Initialization] -> Input Engine GLFW ({0})", typeid(*this).name());
+
 		glfwWindow = static_cast<GLFWwindow*>(Application::Get().GetRenderingEngine().GetMainWindow().GetNativeWindow());
 		LINA_CORE_ENSURE_ASSERT(glfwWindow != NULL, , "GLFW Window is null!");
-		LINA_CORE_INFO("Input Engine GLFW Initialized");
+		
 	}
 
 	void InputEngine_GLFW::OnUpdate()

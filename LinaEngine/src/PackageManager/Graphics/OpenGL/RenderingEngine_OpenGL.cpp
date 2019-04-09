@@ -76,11 +76,13 @@ namespace LinaEngine
 
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
 	{
-		
+		LINA_CORE_TRACE("[Constructor] -> Rendering Engine OpenGL ({0})", typeid(*this).name());
 	}
 
 	RenderingEngine_OpenGL::~RenderingEngine_OpenGL()
 	{
+		LINA_CORE_TRACE("[Destructor] -> Rendering Engine OpenGL ({0})", typeid(*this).name());
+
 		glDeleteVertexArrays(1, &VAO);
 		glDeleteBuffers(1, &VBO);
 		glDeleteBuffers(1, &EBO);
@@ -95,10 +97,14 @@ namespace LinaEngine
 	void RenderingEngine_OpenGL::Initialize()
 	{
 		RenderingEngine::Initialize();
+
+		LINA_CORE_TRACE("[Initialization] -> Rendering Engine OpenGL ({0})", typeid(*this).name());
 	}
 
 	void RenderingEngine_OpenGL::Start()
 	{
+		LINA_CORE_TRACE("[Start] -> Rendering Engine OpenGL ({0})", typeid(*this).name());
+
 		/*ActionParams<int> params;
 		params.binding = &keyData;
 		params.actionType = ActionType::KeyPressed;
@@ -202,7 +208,7 @@ namespace LinaEngine
 		// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 	//	glBindVertexArray(0);
 
-		movementComponent.axis = Application::Get().GetInputEngine().GetHorizontalInput();
+		//movementComponent.axis = Application::Get().GetInputEngine().GetHorizontalInput();
 		movementComponent.movement = Vector3F(1.0f, 0.0f, 0.0f) * 0.05f;
 
 		transformComponent.transform.SetPosition(Vector3F(0.0f, 0.0f, 10.0f));
@@ -250,7 +256,7 @@ namespace LinaEngine
 		//workingTransformation.SetPosition(Vector3F(Math::Sin(glfwGetTime()) * 2,0.0f, 0));
 		//cubeTransforms[0] = workingTransformation;
 
-		ecs.UpdateSystems(mainSystems, 0.01f);
+		//ecs.UpdateSystems(mainSystems, 0.01f);
 
 		for (unsigned int i = 0; i < 1; i++)
 		{

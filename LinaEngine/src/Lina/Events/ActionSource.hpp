@@ -59,9 +59,6 @@ namespace LinaEngine
 	{
 	public:
 
-		ActionSource() {};
-		~ActionSource() {};
-
 	private:
 
 		friend class IInputSubscriber;

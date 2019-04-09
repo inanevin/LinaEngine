@@ -24,7 +24,15 @@ Timestamp: 1/6/2019 2:17:55 AM
 namespace LinaEngine
 {
 
+	InputEngine::~InputEngine()
+	{
+		LINA_CORE_TRACE("[Destructor] -> Input Engine ({0})", typeid(*this).name());
+	}
 
+	InputEngine::InputEngine()
+	{
+		LINA_CORE_TRACE("[Constructor] -> Input Engine ({0})", typeid(*this).name());
+	}
 
 
 }

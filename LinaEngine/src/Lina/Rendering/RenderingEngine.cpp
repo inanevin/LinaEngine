@@ -27,6 +27,8 @@ namespace LinaEngine
 
 	RenderingEngine::RenderingEngine()
 	{
+		LINA_CORE_TRACE("[Constructor] -> Rendering Engine ({0})", typeid(*this).name());
+
 		// Get a graphics adapter.
 		GraphicsAdapter graphicsAdapter;
 
@@ -39,11 +41,13 @@ namespace LinaEngine
 
 	RenderingEngine::~RenderingEngine()
 	{
-
+		LINA_CORE_TRACE("[Destructor] -> Rendering Engine ({0})", typeid(*this).name());
 	}
 
 	void RenderingEngine::Initialize()
 	{
+		LINA_CORE_TRACE("[Initialization] -> Rendering Engine ({0})", typeid(*this).name());
+
 		// Ini main window.
 		m_Window->Initialize();
 	}

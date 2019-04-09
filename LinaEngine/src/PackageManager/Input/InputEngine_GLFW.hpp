@@ -33,6 +33,7 @@ namespace LinaEngine
 	{
 	public:
 
+		InputEngine_GLFW();
 		~InputEngine_GLFW();
 
 		/* Initializes input engine */

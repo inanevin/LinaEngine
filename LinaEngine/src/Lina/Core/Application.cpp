@@ -33,6 +33,12 @@ namespace LinaEngine
 
 	Application::Application()
 	{
+
+		std::cout << red << "sa";
+		
+
+		LINA_CORE_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
+
 		LINA_CORE_ASSERT(!instance, "Application already exists!");
 
 		// Set singleton instance.
@@ -69,7 +75,6 @@ namespace LinaEngine
 		// Start the rendering engine.
 		m_RenderingEngine->Start();
 
-
 		// Set running flag.
 		m_Running = true;
 
@@ -78,7 +83,7 @@ namespace LinaEngine
 
 	Application::~Application()
 	{
-
+		LINA_CORE_TRACE("[Destructor] -> Application ({0})", typeid(*this).name());
 	}
 
 	void Application::OnEvent(Event & e)

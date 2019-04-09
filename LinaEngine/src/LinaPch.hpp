@@ -51,6 +51,14 @@ namespace LinaEngine
 			}
 		};
 	}
+
+	inline std::ostream& red(std::ostream &s)
+	{
+		HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleTextAttribute(hStdout,
+			FOREGROUND_RED | FOREGROUND_INTENSITY);
+		return s;
+	}
 }
 
 #ifdef LINA_PLATFORM_WINDOWS

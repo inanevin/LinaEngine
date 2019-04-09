@@ -30,22 +30,24 @@ namespace LinaEngine
 
 	Window* Window_GLFWGL::Create(const WindowProps& props)
 	{
-		LINA_CORE_INFO("GLFWGL Window Created!");
+		
 		return new Window_GLFWGL(props);
 	}
 
 	Window_GLFWGL::Window_GLFWGL() : Window::Window()
 	{
-		
+		LINA_CORE_TRACE("[Constructor] -> Window GLFW ({0})", typeid(*this).name());
 	}
 
 	Window_GLFWGL::Window_GLFWGL(const WindowProps & props) : Window::Window(props)
 	{
-		
+		LINA_CORE_TRACE("[Constructor] -> Window GLFW ({0})", typeid(*this).name());
 	}
 
 	Window_GLFWGL::~Window_GLFWGL()
 	{
+		LINA_CORE_TRACE("[Destructor] -> Window GLFW ({0})", typeid(*this).name());
+
 		Terminate();
 	}
 
@@ -89,6 +91,7 @@ namespace LinaEngine
 
 	void Window_GLFWGL::Initialize()
 	{
+		LINA_CORE_TRACE("[Initialization] -> Window GLFW ({0})", typeid(*this).name());
 
 		// Get input engine.
 		inputEngine = &(Application::Get().GetInputEngine());

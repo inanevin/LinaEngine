@@ -49,6 +49,8 @@ namespace LinaEngine
 
 	public:
 
+		virtual ~InputEngine();
+
 		/* Called when input engine is initialized. */
 		virtual void Initialize() = 0;
 
@@ -107,6 +109,8 @@ namespace LinaEngine
 		inline InputAxis* GetVerticalInput() { return &m_HorizontalAxis; }
 
 	protected:
+
+		InputEngine();
 
 		/* Horizontal Input Axis */
 		InputAxis m_HorizontalAxis;

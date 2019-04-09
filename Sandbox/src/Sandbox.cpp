@@ -45,13 +45,16 @@ class Sandbox : public LinaEngine::Application
 {
 public:
 	Sandbox() { 
-		
+		LINA_CLIENT_TRACE("[Constructor] -> Sandbox ({0})", typeid(*this).name());
+
 		LinaEngine::Layer* l = new TestLayer();
 		
 		PushLayer(l);
 		//PushOverlay(new LinaEngine::Layer_IMGUI());
 	}
-	~ Sandbox(){}
+	~ Sandbox(){
+		LINA_CLIENT_TRACE("[Destructor] -> Sanbox ({0})", typeid(*this).name());
+	}
 
 	
 };

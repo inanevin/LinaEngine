@@ -35,7 +35,6 @@ namespace LinaEngine
 	{
 	public:
 
-		RenderingEngine();
 		virtual ~RenderingEngine();
 
 		/* Initializes the rendering engine. */
@@ -68,6 +67,8 @@ namespace LinaEngine
 		inline bool GetIsWireframeModeActive() { return isWireframeModeActive; }
 
 	protected:
+
+		RenderingEngine();
 
 		bool isWireframeModeActive;
 		WindowProps m_WindowProps;
