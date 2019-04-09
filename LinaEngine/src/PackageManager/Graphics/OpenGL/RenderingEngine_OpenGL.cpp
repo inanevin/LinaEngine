@@ -30,7 +30,8 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "Texture_OpenGL.hpp"
 #include "PackageManager/Graphics/OpenGL/Shaders/Shader_GLSLBasic.hpp"
 #include "glm/glm.hpp"
-
+#include "Lina/ECS/ECS.hpp"
+#include "Lina/ECS/Components/ECSTransform.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "GLFW/glfw3.h"
 #include "Lina/Camera.hpp"
@@ -49,6 +50,11 @@ namespace LinaEngine
 	Texture2D overlayTexture;
 	Shader_GLSLBasic basicShader;
 	Camera sceneCamera;
+	ECS ecs;
+	EntityHandle entity;
+	ECSTransformComponent transformComponent;
+	Transformation workingTransformation;
+
 	Transform cubeTransforms[] = {
 		Transform(Vector3F(0.0f,  0.0f,  0.0f)),
 		Transform(Vector3F(2.0f,  5.0f, -15.0f)),
@@ -203,8 +209,12 @@ namespace LinaEngine
 		// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 	//	glBindVertexArray(0);
 
-		
-		
+
+
+	
+		transformComponent.transform.SetTranslation(Vector3F(0.0f, 0.0f, 10.0f));
+		entity = ecs.MakeEntity(transformComponent);
+		workingTransformation = ecs.GetComponent<ECSTransformComponent>(entity)->transform;
 	}
 
 	void RenderingEngine_OpenGL::OnUpdate()
@@ -238,11 +248,11 @@ namespace LinaEngine
 		//basicShader.SetProjection(projection);
 
 		
-
+		cubeTransforms[0].SetPosition(workingTransformation.GetTranslation());
 
 		glBindVertexArray(VAO);
 
-		for (unsigned int i = 0; i < 7; i++)
+		for (unsigned int i = 0; i < 1; i++)
 		{
 			Matrix4F transformation = cubeTransforms[i].GetWorldTransformation();
 			Matrix4F camView = sceneCamera.GetViewProjection();

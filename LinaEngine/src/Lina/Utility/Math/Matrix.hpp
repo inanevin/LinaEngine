@@ -28,8 +28,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 namespace LinaEngine
 {
-
-
+	class Quaternion;
 
 	class LINA_API Matrix4F
 	{
@@ -47,7 +46,8 @@ namespace LinaEngine
 		Matrix4F InitRotationFromDirection(const Vector3F& forward, const Vector3F& up);
 		Matrix4F InitPerspectiveProjection(float FOV, float width, float height, float zNear, float zFar);
 		Matrix4F InitOrto(float left, float right, float bot, float top, float nr, float);
-
+		static FORCEINLINE Matrix4F TransformMatrix(const Vector3F& translation,
+			const Quaternion& rotation, const Vector3F& scale);
 		Matrix4F Transpose() const;
 
 		Vector4F Transform(const Vector4F& rhs) const;
@@ -102,7 +102,6 @@ namespace LinaEngine
 
 		
 	};
-
 
 
 	class Matrix3F

@@ -23,7 +23,8 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "Lina/Input/InputEngine.hpp"
 #include "PackageManager/Graphics/GraphicsAdapter.hpp"
 #include "PackageManager/Input/InputAdapter.hpp"
-#include "Lina/Events/ActionTest.hpp"
+
+
 namespace LinaEngine
 {
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
@@ -67,6 +68,7 @@ namespace LinaEngine
 		// TODO: Carry start to different block.
 		// Start the rendering engine.
 		m_RenderingEngine->Start();
+
 
 		// Set running flag.
 		m_Running = true;

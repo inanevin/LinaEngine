@@ -22,7 +22,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "LinaPch.hpp"""
 #include "Matrix.hpp"  
 #include "Math.hpp"
-
+#include "Quaternion.hpp"
 
 namespace LinaEngine
 {
@@ -314,6 +314,14 @@ namespace LinaEngine
 		}
 
 		return s;
+	}
+
+	Matrix4F Matrix4F::TransformMatrix(const Vector3F& translation,
+		const Quaternion& rotation, const Vector3F& scale)
+	{
+		Matrix4F result;
+		Vector::CreateTransformMatrix(&result, translation.ToVector(), rotation.ToVector(), scale.ToVector());
+		return result;
 	}
 
 #pragma endregion

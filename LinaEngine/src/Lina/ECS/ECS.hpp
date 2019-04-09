@@ -39,7 +39,7 @@ namespace LinaEngine
 		/* Removes an entity from the sys */
 		void RemoveEntity(EntityHandle handle);
 
-		template<class... Args> 
+		/*template<class... Args> 
 		EntityHandle MakeEntity(Args...args)
 		{
 			const size_t n = sizeof...(Args);
@@ -56,6 +56,22 @@ namespace LinaEngine
 			}
 
 			return MakeEntity(components, componentIDs, n);
+		}*/
+
+		template<class A>
+		EntityHandle MakeEntity(A& c1)
+		{
+			BaseECSComponent* components[] = { &c1 };
+			uint32 componentIDs[] = { A::ID };
+			return MakeEntity(components, componentIDs, 1);
+		}
+
+		template<class A, class B>
+		EntityHandle MakeEntity(A& c1, B& c2)
+		{
+			BaseECSComponent* components[] = { &c1, &c2 };
+			uint32 componentIDs[] = { A::ID, B::ID };
+			return MakeEntity(components, componentIDs, 2);
 		}
 
 		template<class A, class B, class C>
@@ -64,6 +80,62 @@ namespace LinaEngine
 			BaseECSComponent* components[] = { &c1, &c2, &c3 };
 			uint32 componentIDs[] = { A::ID, B::ID, C::ID };
 			return MakeEntity(components, componentIDs, 3);
+		}
+
+		template<class A, class B, class C, class D>
+		EntityHandle MakeEntity(A& c1, B& c2, C& c3, D& c4)
+		{
+			BaseECSComponent* components[] = { &c1, &c2, &c3, &c4 };
+			uint32 componentIDs[] = { A::ID, B::ID, C::ID, D::ID };
+			return MakeEntity(components, componentIDs, 4);
+		}
+
+		template<class A, class B, class C, class D, class E>
+		EntityHandle MakeEntity(A& c1, B& c2, C& c3, D& c4, E& c5)
+		{
+			BaseECSComponent* components[] = { &c1, &c2, &c3, &c4, &c5 };
+			uint32 componentIDs[] = { A::ID, B::ID, C::ID, D::ID, E::ID };
+			return MakeEntity(components, componentIDs, 5);
+		}
+
+		template<class A, class B, class C, class D, class E, class F>
+		EntityHandle MakeEntity(A& c1, B& c2, C& c3, D& c4, E& c5, F& c6)
+		{
+			BaseECSComponent* components[] = { &c1, &c2, &c3, &c4, &c5, &c6 };
+			uint32 componentIDs[] = { A::ID, B::ID, C::ID, D::ID, E::ID, F::ID };
+			return MakeEntity(components, componentIDs, 6);
+		}
+
+		template<class A, class B, class C, class D, class E, class F, class G>
+		EntityHandle MakeEntity(A& c1, B& c2, C& c3, D& c4, E& c5, F& c6, G& c7)
+		{
+			BaseECSComponent* components[] = { &c1, &c2, &c3, &c4, &c5, &c6, &c7 };
+			uint32 componentIDs[] = { A::ID, B::ID, C::ID, D::ID, E::ID, F::ID, G::ID };
+			return MakeEntity(components, componentIDs, 7);
+		}
+
+		template<class A, class B, class C, class D, class E, class F, class G, class H>
+		EntityHandle MakeEntity(A& c1, B& c2, C& c3, D& c4, E& c5, F& c6, G& c7, H& c8)
+		{
+			BaseECSComponent* components[] = { &c1, &c2, &c3, &c4, &c5, &c6, &c7, &c8 };
+			uint32 componentIDs[] = { A::ID, B::ID, C::ID, D::ID, E::ID, F::ID, G::ID, H::ID };
+			return MakeEntity(components, componentIDs, 8);
+		}
+
+		template<class A, class B, class C, class D, class E, class F, class G, class H, class I>
+		EntityHandle MakeEntity(A& c1, B& c2, C& c3, D& c4, E& c5, F& c6, G& c7, H& c8, I& c9)
+		{
+			BaseECSComponent* components[] = { &c1, &c2, &c3, &c4, &c5, &c6, &c7, &c8, &c9 };
+			uint32 componentIDs[] = { A::ID, B::ID, C::ID, D::ID, E::ID, F::ID, G::ID, H::ID, I::ID };
+			return MakeEntity(components, componentIDs, 9);
+		}
+
+		template<class A, class B, class C, class D, class E, class F, class G, class H, class I, class J>
+		EntityHandle MakeEntity(A& c1, B& c2, C& c3, D& c4, E& c5, F& c6, G& c7, H& c8, I& c9, J& c10)
+		{
+			BaseECSComponent* components[] = { &c1, &c2, &c3, &c4, &c5, &c6, &c7, &c8, &c9, &c10 };
+			uint32 componentIDs[] = { A::ID, B::ID, C::ID, D::ID, E::ID, F::ID, G::ID, H::ID, I::ID, J::ID };
+			return MakeEntity(components, componentIDs, 10);
 		}
 
 

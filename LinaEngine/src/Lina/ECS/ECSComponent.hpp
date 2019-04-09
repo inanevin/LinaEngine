@@ -105,7 +105,7 @@ namespace LinaEngine
 
 	/* Frees a particular component */
 	template<typename Component>
-	void ECSComponentFree(BaseECSComponent* component)
+	void ECSComponentFree(BaseECSComponent* comp)
 	{
 		Component* component = (Component*)comp;
 		component->~Component();

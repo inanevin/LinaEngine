@@ -40,7 +40,7 @@ namespace LinaEngine
 		FORCEINLINE Quaternion(const Vector& quat);
 		FORCEINLINE Quaternion(float x, float y, float z, float w);
 		FORCEINLINE Quaternion(const Vector3F& axis, float angle);
-		FORCEINLINE Quaternion(const Matrix4F& m);
+		FORCEINLINE Quaternion(const class Matrix4F& m);
 		FORCEINLINE Quaternion operator+(const Quaternion& other) const;
 		FORCEINLINE Quaternion operator+=(const Quaternion& other);
 		FORCEINLINE Quaternion operator-(const Quaternion& other) const;

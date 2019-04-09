@@ -22,9 +22,6 @@ Timestamp: 4/9/2019 12:22:16 AM
 
 namespace LinaEngine
 {
-	ECSTransform::ECSTransform()
-	{
-
-	}
+	
 }
 

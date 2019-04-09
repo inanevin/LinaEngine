@@ -34,12 +34,12 @@ namespace LinaEngine
 			// Iterate every single component in the memory block by size.
 			for (uint32 i = 0; i < it->second.size(); i += typeSize)
 			{
-				freefn((BaseECSComponent*)&(it->second[i]));
+				freefn((BaseECSComponent*)&it->second[i]);
 			}
 		}
 
 		// Remove entities. TODO: Maybe better optimize memory management.
-		for (uint32 i = 0; entities.size(); i++)
+		for (uint32 i = 0; i < entities.size(); i++)
 		{
 			delete entities[i];
 		}
