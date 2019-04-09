@@ -252,7 +252,14 @@ namespace LinaEngine
 
 		glBindVertexArray(VAO);
 
-		for (unsigned int i = 0; i < 1; i++)
+
+		Matrix4F transformation = cubeTransforms[0].GetWorldTransformation();
+		Matrix4F camView = sceneCamera.GetViewProjection();
+		Matrix4F WVP = camView * transformation;
+		basicShader.SetWVP(WVP);
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		/*for (unsigned int i = 0; i < 1; i++)
 		{
 			Matrix4F transformation = cubeTransforms[i].GetWorldTransformation();
 			Matrix4F camView = sceneCamera.GetViewProjection();
@@ -269,8 +276,8 @@ namespace LinaEngine
 				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 
 			basicShader.SetModel(model);	*/
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
+			//glDrawArrays(GL_TRIANGLES, 0, 36);
+		//}
 		//	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
