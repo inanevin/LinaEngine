@@ -116,7 +116,7 @@ namespace LinaEngine
 
 	void Shader_GLSL::SetUniform(const std::string& uniformName, const Vector3F & value) const
 	{
-		glUniform3f(m_UniformMap.at(uniformName), value.x, value.y, value.z);
+		glUniform3f(m_UniformMap.at(uniformName), value.GetX(), value.GetY(), value.GetZ());
 	}
 
 	void Shader_GLSL::SetUniform(const std::string & uniformName, const Color & value) const

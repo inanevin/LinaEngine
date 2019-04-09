@@ -108,15 +108,16 @@ namespace LinaEngine
 
 	Matrix4F Matrix4F::InitRotationTransform(const Quaternion& quat)
 	{
-		float yy2 = 2.0f * quat.y * quat.y;
-		float xy2 = 2.0f * quat.x * quat.y;
-		float xz2 = 2.0f * quat.x * quat.z;
-		float yz2 = 2.0f * quat.y * quat.z;
-		float zz2 = 2.0f * quat.z * quat.z;
-		float wz2 = 2.0f * quat.w * quat.z;
-		float wy2 = 2.0f * quat.w * quat.y;
-		float wx2 = 2.0f * quat.w * quat.x;
-		float xx2 = 2.0f * quat.x * quat.x;
+
+		float yy2 = 2.0f * quat.GetY() * quat.GetY();
+		float xy2 = 2.0f * quat.GetX() * quat.GetY();
+		float xz2 = 2.0f * quat.GetX() * quat.GetZ();
+		float yz2 = 2.0f * quat.GetY() * quat.GetZ();
+		float zz2 = 2.0f * quat.GetZ() * quat.GetZ();
+		float wz2 = 2.0f * quat.GetW() * quat.GetZ();
+		float wy2 = 2.0f * quat.GetW() * quat.GetY();
+		float wx2 = 2.0f * quat.GetW() * quat.GetX();
+		float xx2 = 2.0f * quat.GetX() * quat.GetX();
 		m[0][0] = -yy2 - zz2 + 1.0f;
 		m[0][1] = xy2 + wz2;
 		m[0][2] = xz2 - wy2;
@@ -139,9 +140,8 @@ namespace LinaEngine
 	Matrix4F Matrix4F::InitRotationFromDirection(const Vector3F & forward, const Vector3F & up)
 	{
 		Vector3F n = forward.Normalized();
-		Vector3F u = Vector3F::Cross(up, n).Normalized();
-		Vector3F v = Vector3F::Cross(n, u);
-	
+		Vector3F u = up.Cross(n).Normalized();
+		Vector3F v = n.Cross(u);
 		return InitRotationFromVectors(u,v,n);
 	}
 
@@ -179,9 +179,9 @@ namespace LinaEngine
 	Matrix4F Matrix4F::InitRotationFromVectors(const Vector3F & u, const Vector3F & v, const Vector3F & n)
 	{
 
-		(*this)[0][0] = u.x;   (*this)[0][1] = u.y;   (*this)[0][2] = u.z;   (*this)[0][3] = 0.0f;
-		(*this)[1][0] = v.x;   (*this)[1][1] = v.y;   (*this)[1][2] = v.z;   (*this)[1][3] = 0.0f;
-		(*this)[2][0] = n.x;   (*this)[2][1] = n.y;   (*this)[2][2] = n.z;   (*this)[2][3] = 0.0f;
+		(*this)[0][0] = u.GetX();   (*this)[0][1] = u.GetY();   (*this)[0][2] = u.GetZ();   (*this)[0][3] = 0.0f;
+		(*this)[1][0] = v.GetX();   (*this)[1][1] = v.GetY();   (*this)[1][2] = v.GetZ();   (*this)[1][3] = 0.0f;
+		(*this)[2][0] = n.GetX();   (*this)[2][1] = n.GetY();   (*this)[2][2] = n.GetZ();   (*this)[2][3] = 0.0f;
 		(*this)[3][0] = 0.0;   (*this)[3][1] = 0.0f;  (*this)[3][2] = 0.0f;  (*this)[3][3] = 1.0f;
 
 		return *this;
@@ -219,17 +219,17 @@ namespace LinaEngine
 	Vector3F Matrix4F::Transform(const Vector3F& rhs) const
 	{
 		Vector3F r2;
-
+		
 		for (int i = 0; i < 3; i++)
-			r2[i] = rhs[i];
+			r2.Set(i,rhs[i]);
 
-		r2[3] = 1.0f;
+		r2.SetZ(1.0f);
 
 		Vector3F ret2 = Transform(r2);
 		Vector3F ret;
 
 		for (int i = 0; i < 3; i++)
-			ret[i] = ret2[i];
+			ret.Set(i,ret2[i]);
 
 		return ret;
 	}
@@ -416,15 +416,15 @@ namespace LinaEngine
 		Vector3F r2;
 
 		for (int i = 0; i < 2; i++)
-			r2[i] = rhs[i];
+			r2.Set(i, rhs[i]);
 
-		r2[2] = 1.0f;
+		r2.SetZ(1.0f);
 
 		Vector3F ret2 = Transform(r2);
 		Vector3F ret;
 
 		for (int i = 0; i < 2; i++)
-			ret[i] = ret2[i];
+			ret.Set(i,ret2[i]);
 
 		return ret;
 	}

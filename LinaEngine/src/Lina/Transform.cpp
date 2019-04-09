@@ -19,6 +19,7 @@ Timestamp: 1/5/2019 7:52:35 PM
 
 #include "LinaPch.hpp"
 #include "Transform.hpp"  
+#include "Utility/Math/Matrix.hpp"
 
 namespace LinaEngine
 {
@@ -27,9 +28,9 @@ namespace LinaEngine
 		Matrix4F translationM, rotationM, scaleM;
 
 		// Init transform matrices.
-		scaleM.InitScaleTransform(scale.x, scale.y, scale.z);
-		rotationM.InitRotationTransform(rotation.x, rotation.y, rotation.z);
-		translationM.InitTranslationTransform(position.x, position.y, position.z);
+		scaleM.InitScaleTransform(scale.GetX(), scale.GetY(), scale.GetZ());
+		rotationM.InitRotationTransform(rotation.GetX(), rotation.GetY(), rotation.GetZ());
+		translationM.InitTranslationTransform(position.GetY(), position.GetY(), position.GetZ());
 
 		// Multiply, order is hardcoded.
 		m_WorldTransformation = translationM * rotationM* scaleM;

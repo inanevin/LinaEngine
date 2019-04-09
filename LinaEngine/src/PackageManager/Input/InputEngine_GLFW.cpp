@@ -100,11 +100,11 @@ namespace LinaEngine
 		static Vector2F oldMousePosition;
 		Vector2F currentMousePosition = Vector2F(posX, posY);
 		Vector2F diff = currentMousePosition - oldMousePosition;
-		Vector2F raw = Vector2F::Zero();
-		if (diff.x > 0.0f) raw.x = 1.0f;
-		else if (diff.x < 0.0f) raw.x = -1.0f;
-		if (diff.y > 0) raw.y = -1.0f;
-		else if (diff.y < 0) raw.y = 1.0f;
+		Vector2F raw = Vector2F::ZERO();
+		if (diff.GetX() > 0.0f) raw.SetX(1.0f);
+		else if (diff.GetX() < 0.0f) raw.SetX(-1.0f);
+		if (diff.GetY() > 0) raw.SetY(-1.0f);
+		else if (diff.GetY() < 0) raw.SetY(1.0f);
 		oldMousePosition = currentMousePosition;
 		return raw;
 	}
@@ -132,7 +132,7 @@ namespace LinaEngine
 
 	void InputEngine_GLFW::SetMousePosition(const Vector2F & v) const
 	{
-		glfwSetCursorPos(glfwWindow, v.x, v.y);
+		glfwSetCursorPos(glfwWindow, v.GetX(), v.GetY());
 	}
 
 

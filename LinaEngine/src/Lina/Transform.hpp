@@ -30,29 +30,28 @@ namespace LinaEngine
 	{
 	public:
 
-		Transform(Vector3F pos = Vector3F::Zero(), Vector3F rot = Vector3F::Zero(), Vector3F scl = Vector3F::One()) : position(pos), rotation(rot.x, rot.y, rot.z), scale(scl) {};
+		Transform(Vector3F pos = Vector3F::ZERO(), Vector3F rot = Vector3F::ZERO(), Vector3F scl = Vector3F::ONE()) : position(pos), rotation(Vector3F(rot.GetX(), rot.GetY(), rot.GetZ()).ToVector()), scale(scl) {};
 		Transform(const Transform& rhs) { this->position = rhs.position; this->rotation = rhs.rotation; this->scale = rhs.scale; }
 
-		inline void SetPosition(float x, float y, float z) { position.x = x; position.y = y; position.z = z; }
-		inline void SetPosition(const Vector3F& rhs) { position = rhs; }
-		inline void SetPosition(const Vector2F& rhs) { position = Vector3F(rhs.x, rhs.y, 0); }
-		inline void SetPositionX(float x) { position.x = x; }
-		inline void SetPositionY(float y) { position.y = y; }
-		inline void SetPositionZ(float z) { position.z = z; }
-
-		inline void SetRotation(float x, float y, float z) { rotation.x = x; rotation.y = y; rotation.z = z; };
+		FORCEINLINE void SetPosition(float x, float y, float z) { position.SetX(x); position.SetY(y); position.SetZ(z); }
+		FORCEINLINE void SetPosition(const Vector3F& rhs) { position = rhs; }
+		FORCEINLINE void SetPosition(const Vector2F& rhs) { position = Vector3F(rhs.GetX(), rhs.GetY(), 0); }
+		FORCEINLINE void SetPositionX(float x) { position.SetX(x); }
+		FORCEINLINE void SetPositionY(float y) { position.SetY(y); }
+		FORCEINLINE void SetPositionZ(float z) { position.SetZ(z); }
+		FORCEINLINE void SetRotation(float x, float y, float z) { rotation = Quaternion(Vector3F(x, y, z).ToVector()); };
 		//inline void SetRotation(const Vector3F& rhs) { rotation = rhs; }
 		//inline void SetRotation(const Vector2F& rhs) { rotation = Vector3F(rhs.x, rhs.y, 0.0f); }
-		inline void SetRotationX(float x) { rotation.x = x; }
-		inline void SetRotationY(float y) { rotation.y = y; }
-		inline void SetRotationZ(float z) { rotation.z = z; }
+		//inline void SetRotationX(float x) { rotation.x = x; }
+		//inline void SetRotationY(float y) { rotation.y = y; }
+		//inline void SetRotationZ(float z) { rotation.z = z; }
 
-		inline void SetScale(float x, float y, float z) { scale.x = x; scale.y = y; scale.z = z; };
-		inline void SetScale(const Vector3F& rhs) { scale = rhs; }
-		inline void SetScale(const Vector2F& rhs) { scale = Vector3F(rhs.x, rhs.y, 1.0f); }
-		inline void SetScaleX(float x) { scale.x = x; }
-		inline void SetScaleY(float y) { scale.y = y; }
-		inline void SetScaleZ(float z) { scale.z = z; }
+		FORCEINLINE void SetScale(float x, float y, float z) { scale.SetX(x);  scale.SetY(y); scale.SetZ(z); };
+		FORCEINLINE void SetScale(const Vector3F& rhs) { scale = rhs; }
+		FORCEINLINE void SetScale(const Vector2F& rhs) { scale = Vector3F(rhs.GetX(), rhs.GetY(), 1.0f); }
+		FORCEINLINE void SetScaleX(float x) { scale.SetX(x); }
+		FORCEINLINE void SetScaleY(float y) { scale.SetY(y); }
+		FORCEINLINE void SetScaleZ(float z) { scale.SetZ(z); }
 
 		void Rotate(const Vector3F& axis, float angle);
 		void Rotate(const Quaternion& rotation);

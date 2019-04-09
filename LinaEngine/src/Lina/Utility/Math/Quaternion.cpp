@@ -21,117 +21,70 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "LinaPch.hpp"
 #include "Quaternion.hpp"  
-#include "Matrix.hpp"
-#include "Math.hpp"
 
 namespace LinaEngine
 {
-
-
-
-	Quaternion::Quaternion(const Vector3F & axis, float angle)
+	Quaternion Quaternion::Normalized(float errorMargin) const
 	{
-		angle = Math::ToRadians(angle);
-		float sinHalfAngle = sinf(angle / 2);
-		float cosHalfAngle = cosf(angle / 2);
-		x = axis.x * sinHalfAngle;
-		y = axis.y * sinHalfAngle;
-		z = axis.z * sinHalfAngle;
-		w = cosHalfAngle;
+		static const Vector defaultQuat = Vector::Make(0.0f, 0.0f, 0.0f, 1.0f);
+		Vector lenSq = vec.Dot4(vec);
+		Vector mask = lenSq >= Vector::Load1F(errorMargin);
+		Vector NormalizedVec = vec * lenSq.RSqrt();
+		return Quaternion(NormalizedVec.select(mask, defaultQuat));
 	}
-
-	Quaternion::Quaternion(const Matrix4F & m)
+	bool Quaternion::IsNormalized(float errorMargin) const
 	{
+		return Math::Abs(1.0f - LengthSquared()) < errorMargin;
+	}
+	Vector3F Quaternion::GetAxis() const
+	{
+		float w = vec[3];
+		float rangleDivisor = Math::RSqrt(Math::Max(1.0f - w * w, 0.0f));
+		return Vector3F(vec * Vector::Load1F(rangleDivisor));
+	}
+	float Quaternion::GetAngle() const
+	{
+		return 2.0f * Math::Acos(vec[3]);
+	}
+	void Quaternion::AxisAndAngle(Vector3F& axis, float& angle) const
+	{
+		angle = GetAngle();
+		axis = GetAxis();
+	}
+	Vector3F Quaternion::Rotate(const Vector3F& other) const
+	{
+		return Vector3F(vec.QuatRotateVec(other.ToVector()));
+	}
+	Quaternion Quaternion::Slerp(const Quaternion& dest, float amt, float errorMargin) const
+	{
+		float cosAngleInitial = Dot(dest);
+		float cosAngle = Math::Select(cosAngleInitial, cosAngleInitial, -cosAngleInitial);
 
-		float trace = m[0][0] + m[1][1] + m[2][2];
-
-		if (trace > 0)
+		float lerpAmt1 = 1.0f - amt;
+		float lerpAmt2 = amt;
+		if (cosAngle < (1.0f - errorMargin))
 		{
-			float s = 0.5f / sqrtf(trace + 1.0f);
-			w = 0.25f / s;
-			x = (m[1][2] - m[2][1]) * s;
-			y = (m[2][0] - m[0][2]) * s;
-			z = (m[0][1] - m[1][0]) * s;
-		}
-		else if (m[0][0] > m[1][1] && m[0][0] > m[2][2])
-		{
-			float s = 2.0f * sqrtf(1.0f + m[0][0] - m[1][1] - m[2][2]);
-			w = (m[1][2] - m[2][1]) / s;
-			x = 0.25f * s;
-			y = (m[1][0] + m[0][1]) / s;
-			z = (m[2][0] + m[0][2]) / s;
-		}
-		else if (m[1][1] > m[2][2])
-		{
-			float s = 2.0f * sqrtf(1.0f + m[1][1] - m[0][0] - m[2][2]);
-			w = (m[2][0] - m[0][2]) / s;
-			x = (m[1][0] + m[0][1]) / s;
-			y = 0.25f * s;
-			z = (m[2][1] + m[1][2]) / s;
-		}
-		else
-		{
-			float s = 2.0f * sqrtf(1.0f + m[2][2] - m[1][1] - m[0][0]);
-			w = (m[0][1] - m[1][0]) / s;
-			x = (m[2][0] + m[0][2]) / s;
-			y = (m[1][2] + m[2][1]) / s;
-			z = 0.25f * s;
+			float rsinAngle = Math::RSqrt(1.0f - cosAngle * cosAngle);
+			float angle = Math::Acos(cosAngle);
+			// NOTE: You can also get rsinangle from doing
+			//     Math::reciprocal(Math::sin(angle));
+			lerpAmt1 = Math::Sin(lerpAmt1 * angle) * rsinAngle;
+			lerpAmt2 = Math::Sin(lerpAmt2 * angle) * rsinAngle;
 		}
 
-		float length = Magnitude();
-		w /= length;
-		x /= length;
-		y /= length;
-		z /= length;
-	}
+		lerpAmt2 = Math::Select(cosAngleInitial, lerpAmt2, -lerpAmt2);
 
-	Quaternion Quaternion::NLerp(const Quaternion & r, float lerpFactor, bool shortestPath) const
+		Vector lerpAmt1Vec = Vector::Load1F(lerpAmt1);
+		Vector lerpAmt2Vec = Vector::Load1F(lerpAmt2);
+		return Quaternion(vec * lerpAmt1Vec + dest.vec * lerpAmt2Vec);
+	}
+	Quaternion Quaternion::Conjugate() const
 	{
-		Quaternion correctedDest;
-
-		if (shortestPath && this->Dot(r) < 0)
-			correctedDest = r * -1;
-		else
-			correctedDest = r;
-
-		return Quaternion(Lerp(correctedDest, lerpFactor).Normalized());
+		static const Vector inverter = Vector::Make(-1.0f, -1.0f, -1.0f, 1.0f);
+		return Quaternion(vec * inverter);
 	}
-
-	Quaternion Quaternion::SLerp(const Quaternion & r, float lerpFactor, bool shortestPath) const
+	Quaternion Quaternion::Inverse() const
 	{
-		static const float EPSILON = 1e3;
-
-		float Cos = this->Dot(r);
-		Quaternion correctedDest;
-
-		if (shortestPath && Cos < 0)
-		{
-			Cos *= -1;
-			correctedDest = r * -1;
-		}
-		else
-			correctedDest = r;
-
-		if (fabs(Cos) > (1 - EPSILON))
-			return NLerp(correctedDest, lerpFactor, false);
-
-		float Sin = (float)sqrtf(1.0f - Cos * Cos);
-		float angle = atan2(Sin, Cos);
-		float invSin = 1.0f / Sin;
-
-		float srcFactor = sinf((1.0f - lerpFactor) * angle) * invSin;
-		float destFactor = sinf((lerpFactor)* angle) * invSin;
-
-		return Quaternion((*this) * srcFactor + correctedDest * destFactor);
+		return Normalized().Conjugate();
 	}
-
-	Matrix4F Quaternion::ToRotationMatrix() const
-	{
-		Vector3F forward = Vector3F(2.0f * (x * z - w * y), 2.0f * (y * z + w * x), 1.0f - 2.0f * (x * x + y * y));
-		Vector3F up = Vector3F(2.0f * (x*y + w * z), 1.0f - 2.0f * (x*x + z * z), 2.0f * (y*z - w * x));
-		Vector3F right = Vector3F(1.0f - 2.0f * (y*y + z * z), 2.0f * (x*y - w * z), 2.0f * (x*z + w * y));
-
-		return Matrix4F().InitRotationFromVectors(forward, up, right);
-	}
-
 }

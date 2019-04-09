@@ -30,15 +30,15 @@ namespace LinaEngine
 
 	float Vector4F::Max() const
 	{
-		float max = x;
+		float Max = x;
 		if (y > x)
-			max = y;
+			Max = y;
 		if (z > y)
-			max = z;
+			Max = z;
 		if (w > z)
-			max = w;
+			Max = w;
 
-		return max;
+		return Max;
 	}
 
 	float Vector4F::MagnitudeSq() const
@@ -78,9 +78,9 @@ namespace LinaEngine
 
 	Vector4F Vector4F::Normalized() const
 	{
-		Vector4F normalized = Vector4F(*this);
-		normalized.Normalize();
-		return normalized;
+		Vector4F Normalized = Vector4F(*this);
+		Normalized.Normalize();
+		return Normalized;
 	}
 
 	Vector4F Vector4F::Lerp(const Vector4F & rhs, float lerpFactor) const
@@ -100,205 +100,365 @@ namespace LinaEngine
 
 #pragma endregion
 
-#pragma region Vector3
+	bool Vector3F::operator==(const Vector3F& other) const
+	{
+		return (vec != other.vec).IsZero3f();
+	}
+
+	bool Vector3F::operator!=(const Vector3F& other) const
+	{
+		return !(*this == other);
+	}
+
+	bool Vector3F::equals(const Vector3F& other, float errorMargin) const
+	{
+		return vec.NotEquals(other.vec, errorMargin).IsZero3f();
+	}
+
+	bool Vector3F::equals(float val, float errorMargin) const
+	{
+		return equals(Vector3F(val), errorMargin);
+	}
+
+
+	float Vector3F::operator[](uint32 index) const
+	{
+		LINA_CORE_ASSERT(index < 3, "index is bigger than 3");
+		return vec[index];
+	}
+
+
+	void Vector3F::Set(float x, float y, float z)
+	{
+		vec = Vector::Make(x, y, z, 0.0f);
+	}
+
+	void Vector3F::Set(uint32 index, float val)
+	{
+		vec = vec.select(Vector::mask(index), Vector::Load1F(val));
+	}
 
 	float Vector3F::Max() const
 	{
-		float max = x;
-		if (y > x)
-			max = y;
-		if (z > y)
-			max = z;
-
-		return max;
+		float vals[3];
+		vec.Store3f(vals);
+		return Math::Max3(vals[0], vals[1], vals[2]);
 	}
 
-	float Vector3F::MagnitudeSq() const
+	float Vector3F::Min() const
 	{
-		return this->Dot(*this);
+		float vals[3];
+		vec.Store3f(vals);
+		return Math::Min3(vals[0], vals[1], vals[2]);
 	}
 
-	float Vector3F::Magnitude() const
+	float Vector3F::AbsMax() const
 	{
-		return Math::Sqrt(this->MagnitudeSq());
+		float vals[3];
+		vec.Abs().Store3f(vals);
+		return Math::Max3(vals[0], vals[1], vals[2]);
 	}
 
-	float Vector3F::AngleBetween(const Vector3F & rhs) const
+	float Vector3F::AbsMin() const
 	{
-		float angle = this->Dot(rhs);
-		angle /= (this->Magnitude() * rhs.Magnitude());
-		return angle = acosf(angle);
+		float vals[3];
+		vec.Abs().Store3f(vals);
+		return Math::Min3(vals[0], vals[1], vals[2]);
 	}
 
-	float Vector3F::Dot(const Vector3F & rhs) const
+
+	Vector3F Vector3F::Abs() const
 	{
-		return x * rhs.x + y * rhs.y + z * rhs.z;
+		return Vector3F(vec.Abs());
 	}
 
-	Vector3F Vector3F::Cross(const Vector3F & rhs) const
+	Vector3F Vector3F::Min(const Vector3F& other) const
 	{
-		return Vector3F
-		(
-			this->y * rhs.z - this->z * rhs.y,
-			this->z * rhs.x - this->x * rhs.z,
-			this->x * rhs.y - this->y * rhs.x
-		);
+		return Vector3F(vec.Min(other.vec));
 	}
 
-	Vector3F Vector3F::Cross(const Vector3F & lhs, const Vector3F & rhs)
+	Vector3F Vector3F::Max(const Vector3F& other) const
 	{
-		return Vector3F
-		(
-			lhs.y * rhs.z - lhs.z * rhs.y,
-			lhs.z * rhs.x - lhs.x * rhs.z,
-			lhs.x * rhs.y - lhs.y * rhs.x
-		);
+		return Vector3F(vec.Max(other.vec));
 	}
 
-	Vector3F Vector3F::Rotate(float angle, const Vector3F & axis)
+	Vector3F Vector3F::Normalized(float errorMargin) const
 	{
-		float sinAngle = Math::Sin(-angle);
-		float cosAngle = Math::Cos(-angle);
-
-		Vector3F x = this->Cross(axis * sinAngle);
-		Vector3F y = (*this * cosAngle);
-		Vector3F z = axis * this->Dot(axis * (1 - cosAngle));
-
-		*this = x + y + z;
-		return *this;
-
-		/*Quaternion rotation = Quaternion(axis, angle);
-		Quaternion conjugate = rotation.Conjugate();
-
-		Quaternion w = rotation * (*this) * (conjugate);
-
-		this->x = w.x;
-		this->y = w.y;
-		this->z = w.z;
-		return *this;*/
+		// Currently does not use errorMargin.
+		(void)errorMargin;
+		return Vector3F(vec.Normalize3());
 	}
 
-	Vector3F Vector3F::Rotate(const Quaternion& rotation) const
+	void Vector3F::Normalize(float errorMargin)
 	{
-		Quaternion conjugateQ = rotation.Conjugate();
-		Quaternion w = rotation * (*this) * conjugateQ;
-
-		Vector3F dir = Vector3F(w.x, w.y, w.z);
-
-		return dir;
+		this->vec = vec.Normalize3();
 	}
 
-	Vector3F Vector3F::Reflect(const Vector3F & normal) const
+	bool Vector3F::IsNormalized(float errorMargin) const
 	{
-		return *this - (normal * (this->Dot(normal) * 2));
+		return Math::Abs(1.0f - MagnitudeSqrt()) < errorMargin;
 	}
 
-	Vector3F Vector3F::Max(const Vector3F & rhs) const
+
+	void Vector3F::DirAndLength(Vector3F& dir, float& length) const
 	{
-		if (*this > rhs)
-			return *this;
-		else
-			return rhs;
+		Vector rlen = vec.Dot3(vec).RSqrt();
+		dir = Vector3F(vec * rlen);
+		length = Math::Reciprocal(rlen[0]);
 	}
 
-	Vector3F Vector3F::Normalized() const
+	Vector3F Vector3F::Project() const
 	{
-		Vector3F normalized = Vector3F(*this);
-		normalized.Normalize();
-		return normalized;
+		Vector rprojectVal = Vector::Load1F(Math::Reciprocal(vec[2]));
+		return Vector3F(vec * rprojectVal);
 	}
 
-	Vector3F Vector3F::Lerp(const Vector3F & rhs, float lerpFactor) const
+	Vector3F Vector3F::Reciprocal() const
 	{
-	
-		return (rhs - *this) * lerpFactor + *this;
+		return Vector3F(vec.Reciprocal());
 	}
 
-	Vector3F Vector3F::Project(const Vector3F & rhs) const
+
+	Vector3F Vector3F::Rotate(const Vector3F& axis, float angle) const
 	{
-		return rhs.Normalized() * this->Dot(rhs);
+		float sinAngle;
+		float cosAngle;
+
+		Math::SinCos(&sinAngle, &cosAngle, -angle);
+		Vector sinVec = Vector::Load1F(sinAngle);
+		Vector cosVec = Vector::Load1F(cosAngle);
+		Vector oneMinusCosVec = Vector::Load1F(1.0f - cosAngle);
+
+		Vector rotatedX = vec.Cross3(axis.vec * sinVec);
+		Vector rotatedY = axis.vec * vec.Dot3(axis.vec * oneMinusCosVec);
+		Vector rotatedZ = vec * cosVec;
+
+		return Vector3F(rotatedX + rotatedY + rotatedZ);
 	}
 
-	void Vector3F::Normalize()
+
+	Vector3F Vector3F::Reflect(const Vector3F& normal) const
 	{
-		*this /= this->Magnitude();
+		Vector dotAmt = VectorConstants::TWO * vec.Dot3(normal.vec);
+		return Vector3F(vec - (normal.vec * dotAmt));
 	}
 
-#pragma endregion
+	Vector3F Vector3F::Refract(const Vector3F& normal, float indexOfRefraction) const
+	{
+		float cosNormalAngle = vec.Dot3(normal.vec)[0];
+		float refractanceSquared =
+			1.0f - indexOfRefraction * indexOfRefraction *
+			(1.0f - cosNormalAngle * cosNormalAngle);
 
-#pragma region Vector2
+		if (refractanceSquared < 0.0f) {
+			return Vector3F(VectorConstants::ZERO);
+		}
+
+		float normalScale = indexOfRefraction * cosNormalAngle + Math::Sqrt(refractanceSquared);
+		Vector normalScaleVec(Vector::Load1F(normalScale));
+		Vector indexOfRefractionVec(Vector::Load1F(indexOfRefraction));
+
+		return Vector3F(vec * indexOfRefractionVec - normalScaleVec * normal.vec);
+	}
+
+	Vector3F Vector3F::ToDegrees() const
+	{
+		return Vector3F(vec * Vector::Load1F(MATH_RAD_TO_DEG_CONV));
+	}
+
+	Vector3F Vector3F::ToRadians() const
+	{
+		return Vector3F(vec * Vector::Load1F(MATH_DEG_TO_RAD_CONV));
+	}
+
+	Vector Vector3F::ToVector(float w) const
+	{
+		return vec.select(VectorConstants::MASK_W, Vector::Load1F(w));
+	}
+
+
+
+
+	bool Vector2F::operator==(const Vector2F& other) const
+	{
+		return vals[0] == other.vals[0] && vals[1] == other.vals[1];
+	}
+
+	bool Vector2F::operator!=(const Vector2F& other) const
+	{
+		return vals[0] != other.vals[0] || vals[1] != other.vals[1];
+	}
+
+	bool Vector2F::equals(const Vector2F& other, float errorMargin) const
+	{
+		return (vals[0] - other.vals[0]) < errorMargin &&
+			(vals[1] - other.vals[1]) < errorMargin;
+	}
+
+	bool Vector2F::equals(float val, float errorMargin) const
+	{
+		return (vals[0] - val) < errorMargin &&
+			(vals[1] - val) < errorMargin;
+	}
+
+	float Vector2F::operator[](uint32 index) const
+	{
+		LINA_CORE_ASSERT(index < 2, "index is bigger than 2");
+		return vals[index];
+	}
+
+	void Vector2F::Set(float x, float y)
+	{
+		vals[0] = x;
+		vals[1] = y;
+	}
+
+	void Vector2F::Set(uint32 index, float val)
+	{
+		LINA_CORE_ASSERT(index < 2, "index is bigger than 2");
+		vals[index] = val;
+	}
 
 	float Vector2F::Max() const
 	{
-		float max = x;
-
-		if (y > x)
-			max = y;
-
-		return max;
+		return Math::Max(vals[0], vals[1]);
 	}
 
-	float Vector2F::MagnitudeSq() const
+	float Vector2F::Min() const
 	{
-		return this->Dot(*this);
+		return Math::Min(vals[0], vals[1]);
 	}
 
-	float Vector2F::Magnitude() const
+	float Vector2F::AbsMax() const
 	{
-		return Math::Sqrt(this->MagnitudeSq());
+		return Math::Max(Math::Abs(vals[0]), Math::Abs(vals[1]));
 	}
 
-	float Vector2F::AngleBetween(const Vector2F & rhs) const
+	float Vector2F::AbsMin() const
 	{
-		float angle = this->Dot(rhs);
-		angle /= (this->Magnitude() * rhs.Magnitude());
-		return angle = acosf(angle);
+		return Math::Min(Math::Abs(vals[0]), Math::Abs(vals[1]));
 	}
 
-	float Vector2F::Dot(const Vector2F & rhs) const
+	Vector2F Vector2F::Abs() const
 	{
-		return x * rhs.x + y * rhs.y;
+		return Vector2F(Math::Abs(vals[0]), Math::Abs(vals[1]));
 	}
 
-	float Vector2F::Cross(const Vector2F & rhs) const
+	Vector2F Vector2F::Min(const Vector2F& other) const
 	{
-		return this->x * rhs.y - this->y * rhs.x;
+		return Vector2F(
+			Math::Min(vals[0], other.vals[0]),
+			Math::Min(vals[1], other.vals[1]));
 	}
 
-	Vector2F Vector2F::Reflect(const Vector2F & normal) const
+	Vector2F Vector2F::Max(const Vector2F& other) const
 	{
-		return *this - (normal * (this->Dot(normal) * 2));
+		return Vector2F(
+			Math::Max(vals[0], other.vals[0]),
+			Math::Max(vals[1], other.vals[1]));
 	}
 
-	Vector2F Vector2F::Max(const Vector2F & rhs) const
+	Vector2F Vector2F::Normalized(float errorMargin) const
 	{
-		if (*this > rhs)
-			return *this;
+		float lenSq = MagnitudeSqrt();
+		if (lenSq < errorMargin) {
+			return Vector2F(0.0f, 0.0f);
+		}
+		return (*this) * Math::RSqrt(lenSq);
+	}
+
+	void Vector2F::Normalize(float errorMargin)
+	{
+		Vector2F toSet;
+		float lenSq = MagnitudeSqrt();
+		if (lenSq < errorMargin) {
+			toSet = Vector2F(0.0f, 0.0f);
+		}
 		else
-			return rhs;
+			toSet = (*this) * Math::RSqrt(lenSq);
+
+		this->Set(toSet.GetX(), toSet.GetY());
 	}
 
-	Vector2F Vector2F::Normalized() const
+	bool Vector2F::IsNormalized(float errorMargin) const
 	{
-		Vector2F normalized = Vector2F(*this);
-		normalized.Normalize();
-		return normalized;
+		return Math::Abs(1.0f - MagnitudeSqrt()) < errorMargin;
 	}
 
-	Vector2F Vector2F::Lerp(const Vector2F & rhs, float lerpFactor) const
+	void Vector2F::DirAndLength(Vector2F& dir, float& length, float errorMargin) const
 	{
-		return (rhs - *this) * lerpFactor + *this;
+		float lenSq = MagnitudeSqrt();
+		if (lenSq < errorMargin) {
+			dir = Vector2F(0.0f, 0.0f);
+			length = 0;
+			return;
+		}
+		float rlen = Math::RSqrt(lenSq);
+		dir = (*this) * rlen;
+		length = Math::Reciprocal(rlen);
 	}
 
-	Vector2F Vector2F::Project(const Vector2F & rhs) const
+	Vector2F Vector2F::Reciprocal() const
 	{
-		return rhs.Normalized() * this->Dot(rhs);
+		return Vector2F(Math::Reciprocal(vals[0]), Math::Reciprocal(vals[1]));
 	}
 
-	void Vector2F::Normalize()
+	Vector2F Vector2F::Rotate(float angle) const
 	{
-		*this /= this->Magnitude();
+		float sin, cos;
+		Math::SinCos(&sin, &cos, angle);
+		return Vector2F(
+			cos * vals[0] - sin * vals[1],
+			sin * vals[0] + cos * vals[1]);
 	}
 
+	Vector2F Vector2F::Reflect(const Vector2F& normal) const
+	{
+		Vector2F dotAmt = Vector2F(2.0f * Dot(normal));
+		return (*this) - (normal * dotAmt);
+	}
+
+	Vector2F Vector2F::Refract(const Vector2F& normal, float indexOfRefraction) const
+	{
+		float cosNormalAngle = Dot(normal);
+		float refractanceSquared =
+			1.0f - indexOfRefraction * indexOfRefraction *
+			(1.0f - cosNormalAngle * cosNormalAngle);
+
+		if (refractanceSquared < 0.0f) {
+			return Vector2F(0.0f);
+		}
+
+		float normalScale = indexOfRefraction * cosNormalAngle + Math::Sqrt(refractanceSquared);
+		Vector2F normalScaleVec(normalScale);
+		Vector2F indexOfRefractionVec(indexOfRefraction);
+
+		return (*this) * indexOfRefractionVec - normalScaleVec * normal;
+	}
+
+	Vector2F Vector2F::ToDegrees() const
+	{
+		return Vector2F(MATH_RAD_TO_DEG_CONV*vals[0], MATH_RAD_TO_DEG_CONV*vals[1]);
+	}
+
+	Vector2F Vector2F::ToRadians() const
+	{
+		return Vector2F(MATH_DEG_TO_RAD_CONV*vals[0], MATH_DEG_TO_RAD_CONV*vals[1]);
+	}
+
+	Vector Vector2F::ToVector() const
+	{
+		return ToVector(0.0f, 0.0f);
+	}
+
+	Vector Vector2F::ToVector(float z, float w) const
+	{
+		return ToVector(Vector2F(z, w));
+	}
+
+	Vector Vector2F::ToVector(Vector2F other) const
+	{
+		return Vector::Make(vals[0], vals[1], other.vals[0], other.vals[1]);
+	}
 }
 
