@@ -19,7 +19,7 @@ Timestamp: 2/25/2019 9:20:33 AM
 
 #include "LinaPch.hpp"
 #include "Window_GLFWGL.hpp"  
-#include "Lina/Application.hpp"
+#include "Lina/Core/Application.hpp"
 #include "Lina/Events/ApplicationEvent.hpp"
 #include "Lina/Events/KeyEvent.hpp"
 #include "Lina/Events/MouseEvent.hpp"

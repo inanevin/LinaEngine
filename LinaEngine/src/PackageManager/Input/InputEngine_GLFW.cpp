@@ -24,7 +24,7 @@ Timestamp: 2/25/2019 9:43:54 AM
 
 #include "InputEngine_GLFW.hpp"  
 
-#include "Lina/Application.hpp"
+#include "Lina/Core/Application.hpp"
 #include "Lina/Rendering/RenderingEngine.hpp"
 #include "Lina/Rendering/Window.hpp"
 

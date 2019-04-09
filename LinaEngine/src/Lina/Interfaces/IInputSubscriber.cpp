@@ -20,7 +20,7 @@ Timestamp: 4/4/2019 2:29:37 AM
 #include "LinaPch.hpp"
 #include "IInputSubscriber.hpp"  
 #include "Lina/Input/InputEngine.hpp"
-#include "Lina/Application.hpp"
+#include "Lina/Core/Application.hpp"
 
 namespace LinaEngine
 {

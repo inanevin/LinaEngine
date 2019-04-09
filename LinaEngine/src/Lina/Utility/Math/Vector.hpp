@@ -24,7 +24,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Vector_HPP
 #define Vector_HPP
 
-#include "Lina/Core.hpp"
+#include "Lina/Core/Core.hpp"
 #include "VectorMath.hpp"
 
 

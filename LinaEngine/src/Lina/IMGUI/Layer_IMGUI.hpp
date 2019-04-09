@@ -22,10 +22,11 @@ Timestamp: 3/7/2019 1:58:49 PM
 #ifndef Layer_IMGUI_HPP
 #define Layer_IMGUI_HPP
 
-#include "Lina/Layer.hpp"
+#include "Lina/Core/Layer.hpp"
 #include "Lina/Events/KeyEvent.hpp"
 #include "Lina/Events/ApplicationEvent.hpp"
 #include "Lina/Events/MouseEvent.hpp"
+
 namespace LinaEngine
 {
 	class LINA_API Layer_IMGUI : public Layer

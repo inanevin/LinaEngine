@@ -22,7 +22,7 @@ Timestamp: 12/30/2018 5:32:32 PM
 #define Event_HPP
 
 #include "LinaPch.hpp"
-#include "Lina/Core.hpp"
+#include "Lina/Core/Core.hpp"
 
 namespace LinaEngine
 {

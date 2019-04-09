@@ -23,7 +23,7 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "RenderingEngine_OpenGL.hpp"  
 #include "Lina/Utility/Math/Color.hpp"
 #include "Lina/Transform.hpp"
-#include "Lina/Application.hpp"
+#include "Lina/Core/Application.hpp"
 #include "Lina/Input/InputEngine.hpp"
 #include "Lina/Events/Action.hpp"
 #include "Lina/Rendering/Vertex.hpp"

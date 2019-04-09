@@ -64,7 +64,7 @@ Timestamp: 12/30/2018 1:54:10 AM
 
 
 
-#include "Lina/Core.hpp"
+#include "Lina/Core/Core.hpp"
 #include "spdlog/spdlog.h"
 #include "spdlog/fmt/ostr.h"
 

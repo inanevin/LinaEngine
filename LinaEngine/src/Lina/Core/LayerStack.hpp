@@ -21,7 +21,7 @@ Timestamp: 1/2/2019 1:43:13 AM
 #ifndef LayerStack_HPP
 #define LayerStack_HPP
 
-#include "Lina/Core.hpp"
+#include "Core.hpp"
 #include "Layer.hpp"
 
 #pragma once

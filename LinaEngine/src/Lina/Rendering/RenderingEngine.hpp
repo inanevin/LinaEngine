@@ -21,7 +21,7 @@ Timestamp: 1/2/2019 10:51:47 PM
 #ifndef RenderingEngine_HPP
 #define RenderingEngine_HPP
 
-#include "../Core.hpp"
+#include "Lina/Core/Core.hpp"
 #include "Window.hpp"
 #include "Lina/Rendering/Texture.hpp"
 #include "Lina/Camera.hpp"

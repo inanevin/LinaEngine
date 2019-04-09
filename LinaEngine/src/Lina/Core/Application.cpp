@@ -19,11 +19,11 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 #include "LinaPch.hpp"
 #include "Application.hpp"  
-#include "Rendering/RenderingEngine.hpp"
-#include "Input/InputEngine.hpp"
+#include "Lina/Rendering/RenderingEngine.hpp"
+#include "Lina/Input/InputEngine.hpp"
 #include "PackageManager/Graphics/GraphicsAdapter.hpp"
 #include "PackageManager/Input/InputAdapter.hpp"
-#include "Events/ActionTest.hpp"
+#include "Lina/Events/ActionTest.hpp"
 namespace LinaEngine
 {
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)

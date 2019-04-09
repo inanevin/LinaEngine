@@ -19,8 +19,7 @@ Timestamp: 1/6/2019 2:17:55 AM
 
 #include "LinaPch.hpp"
 #include "InputEngine.hpp"  
-#include "Lina/Application.hpp"
-#include "Lina/Rendering/RenderingEngine.hpp"
+
 
 namespace LinaEngine
 {

@@ -25,7 +25,7 @@ Timestamp: 4/9/2019 12:33:52 AM
 #include "Lina/Utility/Math/Math.hpp"
 #include "Lina/Platform/PlatformSIMD.hpp"
 #include "Lina/Memory.hpp"
-#include "Lina/Core.hpp"
+#include "Lina/Core/Core.hpp"
 
 namespace LinaEngine
 {
@@ -626,6 +626,6 @@ namespace LinaEngine
 		}
 	};
 }
-
-
 #endif
+
+

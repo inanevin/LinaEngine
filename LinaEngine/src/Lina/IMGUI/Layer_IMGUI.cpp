@@ -21,7 +21,7 @@ Timestamp: 3/7/2019 1:58:49 PM
 #include "Layer_IMGUI.hpp"  
 #include "imgui.h"
 #include "Lina/Input/InputMappings.hpp"
-#include "Lina/Application.hpp"
+#include "Lina/Core/Application.hpp"
 #include "Lina/Rendering/RenderingEngine.hpp"
 #include "Lina/Rendering/Window.hpp"
 

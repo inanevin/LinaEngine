@@ -21,7 +21,7 @@ Timestamp: 1/2/2019 1:42:06 AM
 #ifndef Layer_HPP
 #define Layer_HPP
 
-#include "Lina/Core.hpp"
+#include "Core.hpp"
 #include "Lina/Events/Event.hpp"
 
 namespace LinaEngine
