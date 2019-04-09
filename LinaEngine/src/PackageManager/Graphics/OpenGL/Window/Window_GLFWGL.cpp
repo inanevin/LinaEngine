@@ -205,6 +205,8 @@ namespace LinaEngine
 		m_WindowProps.Width = width;
 		m_WindowProps.Height = height;
 
+		glViewport(0, 0, m_WindowProps.Width, m_WindowProps.Height);
+
 		// Notify listeners.
 		m_WindowProps.EventCallback(WindowResizeEvent(m_WindowProps.Width, m_WindowProps.Height));
 	}

@@ -35,6 +35,7 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "glm/gtc/matrix_transform.hpp"
 #include "GLFW/glfw3.h"
 #include "Lina/Camera.hpp"
+#include "Lina/Events/Event.hpp"
 
 namespace LinaEngine
 {
@@ -64,20 +65,7 @@ namespace LinaEngine
 		Transform(Vector3F(1.3f, -2.0f, -2.5f))
 	};
 
-	// world space positions of our cubes
-	glm::vec3 cubePositions[] = {
-		glm::vec3(0.0f,  0.0f,  0.0f),
-		glm::vec3(2.0f,  5.0f, -15.0f),
-		glm::vec3(-1.5f, -2.2f, -2.5f),
-		glm::vec3(-3.8f, -2.0f, -12.3f),
-		glm::vec3(2.4f, -0.4f, -3.5f),
-		glm::vec3(-1.7f,  3.0f, -7.5f),
-		glm::vec3(1.3f, -2.0f, -2.5f),
-		glm::vec3(1.5f,  2.0f, -2.5f),
-		glm::vec3(1.5f,  0.2f, -1.5f),
-		glm::vec3(-1.3f,  1.0f, -1.5f)
-	};
-	
+
 
 
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
@@ -221,7 +209,6 @@ namespace LinaEngine
 		RenderingEngine::OnUpdate();
 
 		sceneCamera.OnInput(app->GetInputEngine());
-		
 		glClearColor(0.2f, 0.1f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
@@ -246,20 +233,16 @@ namespace LinaEngine
 		//basicShader.SetView(view);
 		//basicShader.SetProjection(projection);
 
-		Vector3F v = Vector3F(Math::Sin(glfwGetTime()) * 4, 0.0f, 0.0f);
-		workingTransformation.SetPosition(v);
-		cubeTransforms[0] = workingTransformation;
+		//static Vector3F v = Vector3F(Math::Sin(glfwGetTime()) * 4, 0.0f, 0.0f);
+		//cubeTransforms[0].SetPosition(v);
 
 		glBindVertexArray(VAO);
 
+		//workingTransformation.SetPosition(Vector3F(0, 12, 0));
+		//cubeTransforms[0] = workingTransformation;
 
-		Matrix4F transformation = cubeTransforms[0].GetWorldTransformation();
-		Matrix4F camView = sceneCamera.GetViewProjection();
-		Matrix4F WVP = camView * transformation;
-		basicShader.SetWVP(WVP);
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		/*for (unsigned int i = 0; i < 1; i++)
+		
+		for (unsigned int i = 0; i < 1; i++)
 		{
 			Matrix4F transformation = cubeTransforms[i].GetWorldTransformation();
 			Matrix4F camView = sceneCamera.GetViewProjection();
@@ -276,8 +259,8 @@ namespace LinaEngine
 				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 
 			basicShader.SetModel(model);	*/
-			//glDrawArrays(GL_TRIANGLES, 0, 36);
-		//}
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 		//	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
@@ -286,10 +269,21 @@ namespace LinaEngine
 
 	void RenderingEngine_OpenGL::OnWindowEvent(Event & e)
 	{
-
+		if (e.GetEventType() == EventType::WindowResize)
+		{
+			WindowResizeEvent& event = (WindowResizeEvent&)e;
+			sceneCamera.SetPerspectiveInformation(PerspectiveInformation(60.0f, event.GetWidth(), event.GetHeight(), 0.01f, 100.0f));
+		}
 	}
 
-
+	void RenderingEngine_OpenGL::OnEvent(Event & e)
+	{
+		if (e.GetEventType() == EventType::WindowResize)
+		{
+			WindowResizeEvent& event = (WindowResizeEvent&)e;
+			sceneCamera.SetPerspectiveInformation(PerspectiveInformation(60.0f, event.GetWidth(), event.GetHeight(), 0.01f, 100.0f));
+		}
+	}
 
 
 	void RenderingEngine_OpenGL::SetApplication(Application& p)

@@ -47,6 +47,9 @@ namespace LinaEngine
 		/* Called in each frame. */
 		virtual void OnUpdate();
 
+		/* Called when an event occurs */
+		virtual void OnEvent(class Event& e) = 0;
+
 		/* Called when a window event occurs. */
 		virtual void OnWindowEvent(class Event& e) = 0;
 

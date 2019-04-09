@@ -20,6 +20,7 @@ Timestamp: 1/5/2019 7:52:35 PM
 #include "LinaPch.hpp"
 #include "Transform.hpp"  
 #include "Lina/Utility/Math/Matrix.hpp"
+#include "Lina/Input/InputEngine.hpp"
 
 namespace LinaEngine
 {
@@ -30,13 +31,15 @@ namespace LinaEngine
 		// Init transform matrices.
 		scaleM.InitScaleTransform(m_Scale.GetX(), m_Scale.GetY(), m_Scale.GetZ());
 		rotationM.InitRotationTransform(m_Rotation.GetX(), m_Rotation.GetY(), m_Rotation.GetZ());
-		translationM.InitTranslationTransform(m_Position.GetY(), m_Position.GetY(), m_Position.GetZ());
+		translationM.InitTranslationTransform(m_Position.GetX(), m_Position.GetY(), m_Position.GetZ());
 
 		// Multiply, order is hardcoded.
 		m_WorldTransformation = translationM * rotationM* scaleM;
 
 		return m_WorldTransformation;
 	}
+
+
 
 	void Transform::Rotate(const Vector3F& axis, float angle)
 	{

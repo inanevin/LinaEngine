@@ -66,6 +66,7 @@ namespace LinaEngine
 		FORCEINLINE float GetQuaternionY() const { return m_Rotation.GetY(); }
 		FORCEINLINE float GetQuaternionZ() const { return m_Rotation.GetZ(); }
 
+
 		void Rotate(const Vector3F& axis, float angle);
 		void Rotate(const Quaternion& rotation);
 		void LookAt(const Vector3F& point, const Vector3F& up);
