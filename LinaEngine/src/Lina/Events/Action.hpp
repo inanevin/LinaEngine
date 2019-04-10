@@ -39,24 +39,34 @@ namespace LinaEngine
 	class ActionBase
 	{
 	public:
+		/* Gets the data as user pointer. Logically this is pure, but needed to implement due to dynamic type casting. */
 		virtual void* GetData() { return 0; }
+
+		/* Get the action type. */
 		FORCEINLINE ActionType GetActionType() { return m_ActionType; }
-		FORCEINLINE void SetActionType(ActionType t) { m_ActionType = t; }
+
 	protected:
-		ActionBase() {};
+		/* Protected param constructor */
 		ActionBase(ActionType t) : m_ActionType(t) {};
+
 	private:
 		ActionType m_ActionType;
 	};
 
-	// Template class used for actions. 
+	/* Template class used for actions. */
 	template<typename T = int>
 	class Action : public ActionBase
 	{
 	public:
+		/* Param constructor */
 		Action(ActionType t) : ActionBase::ActionBase(t) { }
+
+		/* Sets the action data, uses template type. */
 		FORCEINLINE void SetData(const T& t) { m_Data = t; }
-		FORCEINLINE virtual void* GetData() { return &m_Data; }
+
+		/* Overrides the get data from the base class, this is the actual implemented version. */
+		FORCEINLINE virtual void* GetData() override { return &m_Data; }
+
 	private:
 		T m_Data;
 	};
@@ -65,15 +75,26 @@ namespace LinaEngine
 	class ActionHandlerBase
 	{
 	public:
+		/* Gets the action type. */
 		FORCEINLINE ActionType GetActionType() { return m_ActionType; }
-		FORCEINLINE void SetActionType(ActionType t) { m_ActionType = t; }
+
+		/* Gets the caller address. */
+		FORCEINLINE void* GetCaller() { return m_Caller; }
+
+		/* Control is implemented at the condition check subclass. */
+		virtual void Control(ActionBase& action) = 0;
+
 	protected:
-		friend class ActionDispatcher;
-		~ActionHandlerBase() {};
+		/* Virtual destructor & param constructor.*/
+		virtual ~ActionHandlerBase() {};
 		ActionHandlerBase(ActionType at, void* caller) : m_ActionType(at), m_Caller(caller) { };
-		virtual void Control(ActionBase& action) { };
-		virtual void Execute(ActionBase& action) {};
+
+		/* Execute is implemented at the lower handler subclass. */
+		virtual void Execute(ActionBase& action) = 0;
+
+	protected:
 		void* m_Caller;
+	
 	private:
 		ActionType m_ActionType;
 	};
@@ -83,26 +104,19 @@ namespace LinaEngine
 	class ActionHandler_ConditionCheck : public ActionHandlerBase
 	{
 	public:
+		/* Mutators for condition & callback set. */
 		FORCEINLINE void SetCondition(const T& t) { m_Condition = t;  m_UseCondition = true; }
-		FORCEINLINE void SetCallback(const std::function<void(T&)>& cb) { m_Callback = cb; m_UseCallback = true; }
-		FORCEINLINE void SetBinding(T* binding) { m_Binding = binding; m_UseBinding = true; }
-
-		FORCEINLINE T& GetCondition() { return m_Condition; }
-		FORCEINLINE bool GetUseBinding() { return m_UseBinding; }
-		FORCEINLINE bool GetConditionCheck() { return m_UseCondition; }
-		FORCEINLINE bool GetUseCallback() { return m_UseCallback; }
+		FORCEINLINE void SetCallback(const std::function<void(T&)>& cb) { m_Callback = cb;  }
 
 	protected:
-		~ActionHandler_ConditionCheck() {};
+		/* Virtual destructor & param constructor. */
+		virtual ~ActionHandler_ConditionCheck() {};
 		ActionHandler_ConditionCheck(ActionType at, void* caller) :
 			ActionHandlerBase::ActionHandlerBase(at, caller) { };
 
-		friend class ActionDispatcher;
-
-		// Control block called by the dispatchers.
+		/* Control block called by the dispatchers. */
 		virtual void Control(ActionBase& action) override
 		{
-			
 			// Cast from polymorphic action base class void* type to T*.
 			T* typePointer = static_cast<T*>(action.GetData());
 
@@ -122,18 +136,16 @@ namespace LinaEngine
 			return false;
 		}
 
+		/* Compares equality of the value of type T w/ the value of type U */
 		template<typename U>
 		bool CompareValue(U u)
 		{
 			return LinaEngine::Internal::comparison_traits<T>::equal(m_Condition, u);
 		}
 
-
-		bool m_UseCallback = false;
-		bool m_UseBinding = false;
+	protected:
 		bool m_UseCondition = false;
 		T m_Condition;
-		T* m_Binding = NULL;
 		std::function<void(T&)> m_Callback;
 	};
 
@@ -142,7 +154,7 @@ namespace LinaEngine
 	class ActionHandler : public ActionHandler_ConditionCheck<T>
 	{
 	public:
-		~ActionHandler() {}
+		virtual ~ActionHandler() {}
 		ActionHandler(ActionType at, void* caller) :
 			ActionHandler_ConditionCheck<T>::ActionHandler_ConditionCheck(at, caller) {
 		};
@@ -161,97 +173,19 @@ namespace LinaEngine
 
 		virtual void Execute(ActionBase& action) override
 		{
-			// If we use parameterized callback or binding, we will extract the value from the action.
-			// However, if we have not used condition, it means whe have not typed checked this value. So type check it first.
-			if ((m_UseCallback || m_UseBinding))
+			// Cast from polymorphic action base class void* type to T*.
+			T* typePointer = static_cast<T*>(action.GetData());
+
+			if (!m_UseCondition)
 			{
-				// Cast from polymorphic action base class void* type to T*.
-				T* typePointer = static_cast<T*>(action.GetData());
-
-				if (!m_UseCondition)
-				{
-					// If the types do not match, simply exit.
-					if (!ActionHandler_ConditionCheck<T>::CompareType(*typePointer))
-						return;
-				}
-
-				// Bind the value.
-				if (m_UseBinding)
-					*m_Binding = *typePointer;
-
-				// Call the callback with parameters, cast and pass in the data from the action.
-				if (m_UseCallback)
-					m_Callback(*typePointer);
-			}
-		}
-	};
-
-
-
-	// Dispatcher class for actions.
-	class ActionDispatcher
-	{
-		typename LinaList<ActionHandlerBase*>::iterator it;
-
-	public:
-
-		ActionDispatcher() { };
-
-		~ActionDispatcher()
-		{
-			m_ActionHandlers.clear();
-		}
-
-		void operator=(ActionDispatcher const&) = delete;
-
-		void DispatchAction(ActionBase& action)
-		{
-			if (m_ActionHandlers.size() == 0) return;
-
-			for (it = m_ActionHandlers.begin(); it != m_ActionHandlers.end(); it++)
-			{
-				// Check if the the object is alive.
-				if ((*it)->m_Caller != NULL)
-				{
-
-					// Check if the action types match.
-					if (action.GetActionType() == (*it)->GetActionType())
-					{
-						// Tell the handler to check the action.
-						(*it)->Control(action);
-					}
-				}
-				else
-				{
-					LINA_CORE_ERR("Fatal error in action source! Non-deleted action handler exists in handler list!");
-				}
+				// If the types do not match, simply exit.
+				if (!ActionHandler_ConditionCheck<T>::CompareType(*typePointer))
+					return;
 			}
 
+			// Call the callback with parameters, cast and pass in the data from the action.
+			m_Callback(*typePointer);
 		}
-
-		void SubscribeHandler(ActionHandlerBase* ptr)
-		{
-			// Add the weak pointer to the list.
-			m_ActionHandlers.push_back(ptr);
-		}
-
-		void UnsubscribeHandler(void* addr)
-		{
-			for (it = m_ActionHandlers.begin(); it != m_ActionHandlers.end();)
-			{
-				if ((*it)->m_Caller == addr)
-				{
-					it = m_ActionHandlers.erase(it);
-				}
-				else
-					++it;
-			}
-		}
-
-	private:
-
-		LinaList<ActionHandlerBase*> m_ActionHandlers;
-
 	};
 }
 

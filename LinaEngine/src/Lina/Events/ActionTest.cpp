@@ -34,7 +34,7 @@ namespace LinaEngine
 		params.actionType = ActionType::KeyPressed;
 		//params.useCondition = true;
 		params.condition = Input::Key::K;
-		params.useCallback = true;
+		//params.useCallback = true;
 		params.callback = LINA_ACTION_CALLBACK_PARAM1(ActionTest::TestParam);
 		SubscribeInputAction(params);
 		//auto bind = LINA_ACTION_CALLBACK(ActionTest::Test);

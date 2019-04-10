@@ -12,24 +12,20 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: ActionSource
-Timestamp: 3/2/2019 7:13:07 PM
+Class: ActionDispatcher
+Timestamp: 4/10/2019 1:26:00 PM
 
 */
 
 #pragma once
 
-#ifndef ActionSource_HPP
-#define ActionSource_HPP
+#ifndef ActionDispatcher_HPP
+#define ActionDispatcher_HPP
 
-#include "Lina/Events/Action.hpp"
+#include "Action.hpp"
 
 namespace LinaEngine
 {
-#define LINA_ACTION_CALLBACK(x) std::bind(&x, this)
-#define LINA_ACTION_CALLBACK_PARAM1(x) std::bind(&x, this, std::placeholders::_1)
-#define BIND_ACTION_PARAM(x,y, z) [y](z i) { y->x(i); };
-
 
 	template<typename T>
 	class ActionParams
@@ -37,67 +33,66 @@ namespace LinaEngine
 	public:
 
 		friend class IInputSubscriber;
-		friend class ActionSource;
+		friend class IInputDispatcher;
 
 		ActionParams() {};
 
-		ActionParams(ActionType type, T c = NULL, std::function<void(T)> cbp = NULL, T* b = NULL)
-			: actionType(type), condition(c), callback(cb), callbackWithParameter(cbp) {};
+		ActionParams(ActionType type, std::function<void(T)> cbp, T c = NULL)
+			: actionType(type), condition(c), callback(cb) {};
 
 		bool useCondition = false;
-		bool useCallback = false;
-		bool useBinding = false;
 		ActionType actionType;
 		T condition;
 		std::function<void(T&)> callback;
-		T* binding;
 		void* caller;
 
 	};
 
-	class ActionSource
+	// Dispatcher class for actions.
+	class ActionDispatcher
 	{
+		typename LinaList<ActionHandlerBase*>::iterator it;
+
 	public:
 
-	private:
+		ActionDispatcher();
+		virtual ~ActionDispatcher();
+		void operator=(ActionDispatcher const&) = delete;
 
-		friend class IInputSubscriber;
+	protected:
 
+		/* Dispatches the given action. */
+		void DispatchAction(ActionBase& action);
+
+		/* Checks the action params & creates the necessary handle to pass into the internal subscription method. */
 		template<typename T>
-		void SubscribeToAction(const ActionParams<T>& params)
+		FORCEINLINE void SubscribeToAction(const ActionParams<T>& params)
 		{
 			// Init handler depending on param settings.
 			ActionHandler<T>* handler = new ActionHandler<T>(params.actionType, params.caller);
 
-			if (params.useCallback)
-			{
-				handler->SetCallback(params.callback);
-			}
+			handler->SetCallback(params.callback);
 
 			if (params.useCondition)
 			{
 				handler->SetCondition(params.condition);
 			}
 
-			if (params.useBinding)
-			{
-				handler->SetBinding(params.binding);
-			}
-
 			m_ActionDispatcher.SubscribeHandler(handler);
 
 		}
 
-		void UnsubscribeFromAction(void* addr)
-		{
-			m_ActionDispatcher.UnsubscribeHandler(addr);
-		}
+		/* Unsubscribes a handler belonging to an object with the given address. */
+		void UnsubscribeHandler(void* addr);
 
-	protected:
+	private:
 
+		/* Subscribes a new handler to the list.*/
+		void SubscribeHandler(ActionHandlerBase* ptr);
 
-		/* Input dispatcher for actions. */
-		ActionDispatcher m_ActionDispatcher;
+	private:
+
+		LinaList<ActionHandlerBase*> m_ActionHandlers;
 
 	};
 }

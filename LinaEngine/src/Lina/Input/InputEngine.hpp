@@ -21,7 +21,7 @@ Timestamp: 1/6/2019 2:17:55 AM
 #ifndef InputEngine_HPP
 #define InputEngine_HPP
 
-#include "Lina/Events/ActionSource.hpp"
+#include "Lina/Interfaces/IInputDispatcher.hpp"
 
 
 namespace LinaEngine
@@ -44,7 +44,7 @@ namespace LinaEngine
 		float m_Amount;
 	};
 
-	class LINA_API InputEngine : public ActionSource
+	class LINA_API InputEngine 
 	{
 
 	public:

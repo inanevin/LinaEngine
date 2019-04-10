@@ -34,9 +34,6 @@ namespace LinaEngine
 	Application::Application()
 	{
 
-		//std::cout << red << "sa";
-		
-
 		LINA_CORE_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
 
 		LINA_CORE_ASSERT(!instance, "Application already exists!");

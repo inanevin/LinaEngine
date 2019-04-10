@@ -23,6 +23,7 @@ Timestamp: 4/4/2019 2:29:37 AM
 #define IInputSubscriber_HPP
 
 #include "Lina/Input/InputEngine.hpp"
+#include "Lina/Core/Application.hpp"
 
 namespace LinaEngine
 {
@@ -36,21 +37,6 @@ namespace LinaEngine
 
 	protected:
 
-
-		/*void SubscribeKeyPressedAction(std::function<void()> cb, Input::Key key = Input::Key::Unknown);
-		void SubscribeKeyPressedAction(std::function<void(Input::Key)> cbp, Input::Key key = Input::Key::Unknown);
-		void SubscribeKeyPressedAction(std::function<void()> cb, std::function<void(Input::Key)> cbp, Input::Key key = Input::Key::Unknown);
-		void SubscribeKeyReleasedAction(std::function<void()> cb, Input::Key key = Input::Key::Unknown);
-		void SubscribeKeyReleasedAction(std::function<void(Input::Key)> cbp, Input::Key key = Input::Key::Unknown);
-		void SubscribeKeyReleasedAction(std::function<void()> cb, std::function<void(Input::Key)> cbp, Input::Key key = Input::Key::Unknown);
-		void SubscribeMouseButtonPressedAction(std::function<void()> cb, Input::Mouse button = Input::Mouse::MouseUnknown);
-		void SubscribeMouseButtonPressedAction(std::function<void(Input::Mouse)> cbp, Input::Mouse button = Input::Mouse::MouseUnknown);
-		void SubscribeMouseButtonPressedAction(std::function<void()> cb, std::function<void(Input::Mouse)> cbp, Input::Mouse button = Input::Mouse::MouseUnknown);
-		void SubscribeMouseButtonReleasedAction(std::function<void()> cb, Input::Mouse button= Input::Mouse::MouseUnknown);
-		void SubscribeMouseButtonReleasedAction(std::function<void(Input::Mouse)> cbp, Input::Mouse button = Input::Mouse::MouseUnknown);
-		void SubscribeMouseButtonReleasedAction(std::function<void()> cb, std::function<void(Input::Mouse)> cbp, Input::Mouse button = Input::Mouse::MouseUnknown);
-		*/
-
 		template<typename T>
 		void SubscribeKeyPressedAction(std::function<void(T)>&& cb, Input::Key key = Input::Key::Unknown)
 		{
@@ -61,14 +47,11 @@ namespace LinaEngine
 			SubscribeInputAction(params);
 		}
 
-
-
-
 		template<typename T>
 		void SubscribeInputAction(ActionParams<T> params)
 		{
 			params.caller = this;
-			inputEngine->SubscribeToAction(params);
+			//Application::Get().GetInputEngine().SubscribeToAction(params);
 		};
 
 
@@ -76,7 +59,7 @@ namespace LinaEngine
 
 	
 
-		class InputEngine* inputEngine;
+
 	};
 }
 
