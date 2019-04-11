@@ -51,7 +51,6 @@ namespace LinaEngine
 	// Dispatcher class for actions.
 	class ActionDispatcher
 	{
-		typename LinaList<ActionHandlerBase*>::iterator it;
 
 	public:
 
@@ -64,7 +63,7 @@ namespace LinaEngine
 		ActionDispatcher();
 
 		/* Dispatches the given action. */
-		void DispatchAction(ActionBase& action);
+		void DispatchAction(const ActionBase& action);
 
 		/* Checks the action params & creates the necessary handle to pass into the internal subscription method. */
 		template<typename T>
@@ -94,8 +93,7 @@ namespace LinaEngine
 
 	private:
 
-		LinaMap<uint32, LinaList<ActionHandlerBase*>> m_ActionHandlerMap;
-		LinaList<ActionHandlerBase*> m_ActionHandlers;
+		LinaMap<uint32, LinaArray<ActionHandlerBase*>> m_ActionHandlerMap;
 
 	};
 }

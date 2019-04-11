@@ -36,166 +36,107 @@ namespace LinaEngine
 		ACTION_TYPES_LASTINDEX = MouseButtonReleased
 	};
 
-	// Base wrapper class for actions.
-	class ActionBase
-	{
-	public:
-		/* Gets the data as user pointer. Logically this is pure, but needed to implement due to dynamic type casting. */
-		virtual void* GetData() { return 0; }
 
-		/* Get the action type. */
-		FORCEINLINE ActionType GetActionType() { return m_ActionType; }
-
-	protected:
-		/* Protected param constructor */
-		ActionBase(ActionType t) : m_ActionType(t) {};
-
-	private:
-		ActionType m_ActionType;
-	};
-
-	/* Template class used for actions. */
-	template<typename T = int>
-	class Action : public ActionBase
-	{
-	public:
-		/* Param constructor */
-		Action(ActionType t) : ActionBase::ActionBase(t) { }
-
-		/* Sets the action data, uses template type. */
-		FORCEINLINE void SetData(const T& t) { m_Data = t; }
-
-		/* Overrides the get data from the base class, this is the actual implemented version. */
-		FORCEINLINE virtual void* GetData() override { return &m_Data; }
-
-	private:
-		T m_Data;
-	};
-
-	// Base wrapper class for action handlers.
 	class ActionHandlerBase
 	{
+
 	public:
 
-		/* Virtual destructor */
+		DISALLOW_COPY_AND_ASSIGN(ActionHandlerBase);
+
 		virtual ~ActionHandlerBase() {};
-
-		/* Gets the action type. */
-		FORCEINLINE ActionType GetActionType() { return m_ActionType; }
-
-		/* Gets the caller address. */
-		FORCEINLINE void* GetCaller() { return m_Caller; }
-
-		/* Control is implemented at the condition check subclass. */
-		virtual void Control(ActionBase& action) = 0;
+		FORCEINLINE ActionType GetActionType() const { return m_ActionType; }
 
 	protected:
-		/* Virtual param constructor.*/
-		ActionHandlerBase(ActionType at, void* caller) : m_ActionType(at), m_Caller(caller) { };
 
-		/* Execute is implemented at the lower handler subclass. */
-		virtual void Execute(ActionBase& action) = 0;
+		ActionHandlerBase(ActionType at) : m_ActionType(at) {};
 
-	protected:
-		void* m_Caller;
-	
 	private:
+
 		ActionType m_ActionType;
 	};
 
-	// Service class for actions handlers, determines the behaviour choices of actions.
 	template<typename T>
-	class ActionHandler_ConditionCheck : public ActionHandlerBase
+	class ActionHandler : ActionHandlerBase
 	{
+
 	public:
 
-		/* Virtual destructor */
-		virtual ~ActionHandler_ConditionCheck() {};
+		DISALLOW_COPY_AND_ASSIGN(ActionHandler);
 
-		/* Mutators for condition & callback set. */
-		FORCEINLINE void SetCondition(const T& t) { m_Condition = t;  m_UseCondition = true; }
-		FORCEINLINE void SetCallback(const std::function<void(T&)>& cb) { m_Callback = cb;  }
 
-	protected:
-
-		/* Param constructor. */
-		ActionHandler_ConditionCheck(ActionType at, void* caller) :
-			ActionHandlerBase::ActionHandlerBase(at, caller) { };
-
-		/* Control block called by the dispatchers. */
-		virtual void Control(ActionBase& action) override
-		{
-			// Cast from polymorphic action base class void* type to T*.
-			T* typePointer = static_cast<T*>(action.GetData());
-
-			// Compare the type of the member attribute of type of the value value received from the action.
-			// If types are the same, then check the values, if they are the same, execute
-			if (CompareType(*typePointer) && CompareValue(*typePointer))
-				Execute(action);
-		}
-
-		// Compares the data type U with member attribute of type T. First chekcs if T & U are the same time, then if they are equal.
+		FORCEINLINE void SetCondition(const T& cond) { m_Condition = cond; useCondition = true; }
+		FORCEINLINE void SetCallback(const std::function<void(T&)>& cb) { m_Callback = cb; }
+		
+		// Compares equality of the value of type T w/ the value of type U 
 		template<typename U>
-		bool CompareType(U u)
-		{
-			if (std::is_same<U, T>::value)
-				return true;
-
-			return false;
-		}
-
-		/* Compares equality of the value of type T w/ the value of type U */
-		template<typename U>
-		bool CompareValue(U u)
+		static bool CompareValue(U u)
 		{
 			return LinaEngine::Internal::comparison_traits<T>::equal(m_Condition, u);
 		}
 
-	protected:
-		bool m_UseCondition = false;
-		T m_Condition;
+	private:
+
+		template<typename T> friend class Action;
+		ActionHandler(ActionType at) : m_ActionType(at) {};
+
+	private:
+
+		bool useCondition;
 		std::function<void(T&)> m_Callback;
+		ActionType m_ActionType;
+		T m_Condition;
 	};
 
-	// Main derived class used for action handlers.
-	template<typename T = int>
-	class ActionHandler : public ActionHandler_ConditionCheck<T>
+
+	class ActionBase
 	{
+
 	public:
 
-		/* Virtual destructor */
-		virtual ~ActionHandler() {}
+		DISALLOW_COPY_AND_ASSIGN(ActionBase);
 
-		/* Param constructor */
-		ActionHandler(ActionType at, void* caller) :
-			ActionHandler_ConditionCheck<T>::ActionHandler_ConditionCheck(at, caller) {
-		};
+		virtual ~ActionBase() {};
+
+		FORCEINLINE virtual void* GetData() const { return 0; }
+		FORCEINLINE ActionType GetActionType() const { return m_ActionType; }
+
 	protected:
 
-		virtual void Control(ActionBase& action) override
+		ActionBase(ActionType at) : m_ActionType(at) {};
+
+	private:
+
+		ActionType m_ActionType;
+		void* m_Data;
+	};
+
+
+	template<typename T>
+	class Action : public ActionBase
+	{
+
+	public:
+
+		DISALLOW_COPY_AND_ASSIGN(Action);
+
+		Action(ActionType at) : ActionBase(at) {};
+		virtual ~Action() {};
+
+		FORCEINLINE T& GetData() const { return m_Data; }
+
+		FORCEINLINE static ActionHandlerBase* CreateHandler()
 		{
-			// If condition check is used, call the control of the behaviour base class so it can compare it's member attribute T with the action's value.
-			if (m_UseCondition)
-				ActionHandler_ConditionCheck<T>::Control(action);
-			else
-				Execute(action);	// Execute the action if no check is provided.
+			return new ActionHandler<T>(m_ActionType);
 		}
 
-		virtual void Execute(ActionBase& action) override
-		{
-			// Cast from polymorphic action base class void* type to T*.
-			T* typePointer = static_cast<T*>(action.GetData());
+		// Sets the data of this action
+		FORCEINLINE void SetData(const T& data) { m_Data = t; }
+		FORCEINLINE void* GetData() override { return &m_Data; }
 
-			if (!m_UseCondition)
-			{
-				// If the types do not match, simply exit.
-				if (!ActionHandler_ConditionCheck<T>::CompareType(*typePointer))
-					return;
-			}
+	private:
 
-			// Call the callback with parameters, cast and pass in the data from the action.
-			m_Callback(*typePointer);
-		}
+		T m_Data;
 	};
 }
 

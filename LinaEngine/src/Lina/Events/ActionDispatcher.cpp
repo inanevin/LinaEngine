@@ -28,50 +28,66 @@ namespace LinaEngine
 		// For each action type insert a new list to the map.
 		for (int i = 0; i < (ActionType::ACTION_TYPES_LASTINDEX + 1); i++)
 		{
-			m_ActionHandlerMap.insert(LinaMakePair(i, LinaList<ActionHandlerBase*>()));
+			m_ActionHandlerMap.insert(LinaMakePair(i, LinaArray<ActionHandlerBase*>()));
 		}
 	}
 
 	ActionDispatcher::~ActionDispatcher()
 	{
+		LinaMap<uint32, LinaArray<ActionHandlerBase*>> it;
+
 		// Clear map, no ownership action.
 		m_ActionHandlerMap.erase(m_ActionHandlerMap.begin(), m_ActionHandlerMap.end());
 
 		//m_ActionHandlers.clear();
 	}
 
-	void ActionDispatcher::DispatchAction(ActionBase & action)
+	void ActionDispatcher::DispatchAction(const ActionBase& action)
 	{
-		if (m_ActionHandlers.size() == 0) return;
+		try {
 
-		for (it = m_ActionHandlers.begin(); it != m_ActionHandlers.end(); it++)
+			// Get the handler array corresponding to the action type.
+			/*LinaArray<ActionHandlerBase*>& arr = m_ActionHandlerMap.at(action.GetActionType());
+
+			// Iterate through the array of handlers.
+			LinaArray<ActionHandlerBase*>::iterator it;
+			for (it = arr.begin(); it != arr.end(); it++)
+			{
+				
+			}*/
+		}
+		catch (const LinaOutOfRange& e)
 		{
-			// Check if the the object is alive. ( Technically, this check is usually pointless but heck it though )
-			if ((*it)->GetCaller() != NULL)
-			{
-				// Check if the action types match.
-				if (action.GetActionType() == (*it)->GetActionType())
-				{
-					// Tell the handler to check the action.
-					(*it)->Control(action);
-				}
-			}
-			else
-			{
-				LINA_CORE_ERR("Fatal error in action source! Non-deleted action handler exists in handler list!");
-			}
+			//LINA_CORE_ERR("Out of Range Exception while subscribing handler at: {0} Message: {1} ", &action, e.what());
 		}
 	}
 
-	void ActionDispatcher::SubscribeHandler(ActionHandlerBase * ptr)
+	void ActionDispatcher::SubscribeHandler(ActionHandlerBase * handler)
 	{
-		// Add the pointer to the list.
-		m_ActionHandlers.push_back(ptr);
+		try {
+			// Add the pointer to the array.
+			//LinaArray<ActionHandlerBase*>& arr = m_ActionHandlerMap.at(handler->GetActionType());
+			//arr.push_back(handler);
+		}
+		catch (const LinaOutOfRange& e)
+		{
+			//LINA_CORE_ERR("Out of Range Exception while subscribing handler at: {0} Message: {1} ", handler, e.what());
+		}
+
 	}
 
 	void ActionDispatcher::UnsubscribeHandler(ActionHandlerBase * handler)
 	{
-		m_ActionHandlers.remove(handler);
+		try {
+			// Remove the pointer from the corresponding array.
+		//	LinaArray<ActionHandlerBase*>& arr = m_ActionHandlerMap.at(handler->GetActionType());
+		//	arr.erase(std::remove(arr.begin(), arr.end(), handler));
+		}
+		catch (const LinaOutOfRange& e)
+		{
+			//LINA_CORE_ERR("Out of Range Exception while subscribing handler at: {0} Message: {1} ", handler, e.what());
+		}
+
 	}
 }
 

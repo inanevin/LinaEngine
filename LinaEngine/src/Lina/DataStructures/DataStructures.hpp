@@ -33,6 +33,7 @@ namespace LinaEngine
 #define LinaTuple std::tuple
 #define LinaPair std::pair
 #define LinaMakePair std::make_pair
+#define LinaOutOfRange std::out_of_range
 }
 
 

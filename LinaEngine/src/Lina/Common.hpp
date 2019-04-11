@@ -82,6 +82,10 @@ typedef uint64_t uint64;
 typedef intptr_t intptr;
 typedef uintptr_t uintptr;
 
+#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
+  TypeName(const TypeName&) = delete;      \
+  void operator=(const TypeName&) = delete;
+
 #if __cplusplus < 201103L
 #define nullptr NULL
 #define CONSTEXPR
