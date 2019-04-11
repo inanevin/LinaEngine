@@ -44,7 +44,7 @@ namespace LinaEngine
 		float m_Amount;
 	};
 
-	class LINA_API InputEngine 
+	class LINA_API InputEngine : public ActionDispatcher
 	{
 
 	public:

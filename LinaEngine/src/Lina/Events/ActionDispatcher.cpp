@@ -22,14 +22,22 @@ Timestamp: 4/10/2019 1:26:39 PM
 
 namespace LinaEngine
 {
+	void* addr;
 	ActionDispatcher::ActionDispatcher()
 	{
-
+		// For each action type insert a new list to the map.
+		for (int i = 0; i < (ActionType::ACTION_TYPES_LASTINDEX + 1); i++)
+		{
+			m_ActionHandlerMap.insert(LinaMakePair(i, LinaList<ActionHandlerBase*>()));
+		}
 	}
 
 	ActionDispatcher::~ActionDispatcher()
 	{
-		m_ActionHandlers.clear();
+		// Clear map, no ownership action.
+		m_ActionHandlerMap.erase(m_ActionHandlerMap.begin(), m_ActionHandlerMap.end());
+
+		//m_ActionHandlers.clear();
 	}
 
 	void ActionDispatcher::DispatchAction(ActionBase & action)
@@ -38,10 +46,9 @@ namespace LinaEngine
 
 		for (it = m_ActionHandlers.begin(); it != m_ActionHandlers.end(); it++)
 		{
-			// Check if the the object is alive.
+			// Check if the the object is alive. ( Technically, this check is usually pointless but heck it though )
 			if ((*it)->GetCaller() != NULL)
 			{
-
 				// Check if the action types match.
 				if (action.GetActionType() == (*it)->GetActionType())
 				{
@@ -58,21 +65,13 @@ namespace LinaEngine
 
 	void ActionDispatcher::SubscribeHandler(ActionHandlerBase * ptr)
 	{
-		// Add the weak pointer to the list.
+		// Add the pointer to the list.
 		m_ActionHandlers.push_back(ptr);
 	}
 
-	void ActionDispatcher::UnsubscribeHandler(void * addr)
+	void ActionDispatcher::UnsubscribeHandler(ActionHandlerBase * handler)
 	{
-		for (it = m_ActionHandlers.begin(); it != m_ActionHandlers.end();)
-		{
-			if ((*it)->GetCaller() == addr)
-			{
-				it = m_ActionHandlers.erase(it);
-			}
-			else
-				++it;
-		}
+		m_ActionHandlers.remove(handler);
 	}
 }
 

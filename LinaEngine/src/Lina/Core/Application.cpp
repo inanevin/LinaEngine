@@ -75,7 +75,6 @@ namespace LinaEngine
 		// Set running flag.
 		m_Running = true;
 
-
 	}
 
 	Application::~Application()

@@ -32,7 +32,8 @@ namespace LinaEngine
 		KeyPressed,
 		KeyReleased,
 		MouseButtonPressed,
-		MouseButtonReleased
+		MouseButtonReleased,
+		ACTION_TYPES_LASTINDEX = MouseButtonReleased
 	};
 
 	// Base wrapper class for actions.
@@ -75,6 +76,10 @@ namespace LinaEngine
 	class ActionHandlerBase
 	{
 	public:
+
+		/* Virtual destructor */
+		virtual ~ActionHandlerBase() {};
+
 		/* Gets the action type. */
 		FORCEINLINE ActionType GetActionType() { return m_ActionType; }
 
@@ -85,8 +90,7 @@ namespace LinaEngine
 		virtual void Control(ActionBase& action) = 0;
 
 	protected:
-		/* Virtual destructor & param constructor.*/
-		virtual ~ActionHandlerBase() {};
+		/* Virtual param constructor.*/
 		ActionHandlerBase(ActionType at, void* caller) : m_ActionType(at), m_Caller(caller) { };
 
 		/* Execute is implemented at the lower handler subclass. */
@@ -104,13 +108,17 @@ namespace LinaEngine
 	class ActionHandler_ConditionCheck : public ActionHandlerBase
 	{
 	public:
+
+		/* Virtual destructor */
+		virtual ~ActionHandler_ConditionCheck() {};
+
 		/* Mutators for condition & callback set. */
 		FORCEINLINE void SetCondition(const T& t) { m_Condition = t;  m_UseCondition = true; }
 		FORCEINLINE void SetCallback(const std::function<void(T&)>& cb) { m_Callback = cb;  }
 
 	protected:
-		/* Virtual destructor & param constructor. */
-		virtual ~ActionHandler_ConditionCheck() {};
+
+		/* Param constructor. */
 		ActionHandler_ConditionCheck(ActionType at, void* caller) :
 			ActionHandlerBase::ActionHandlerBase(at, caller) { };
 
@@ -154,13 +162,15 @@ namespace LinaEngine
 	class ActionHandler : public ActionHandler_ConditionCheck<T>
 	{
 	public:
+
+		/* Virtual destructor */
 		virtual ~ActionHandler() {}
+
+		/* Param constructor */
 		ActionHandler(ActionType at, void* caller) :
 			ActionHandler_ConditionCheck<T>::ActionHandler_ConditionCheck(at, caller) {
 		};
 	protected:
-
-		friend class ActionDispatcher;
 
 		virtual void Control(ActionBase& action) override
 		{

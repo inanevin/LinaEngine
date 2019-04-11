@@ -32,7 +32,7 @@ namespace LinaEngine
 #define LinaList std::list
 #define LinaTuple std::tuple
 #define LinaPair std::pair
-
+#define LinaMakePair std::make_pair
 }
 
 

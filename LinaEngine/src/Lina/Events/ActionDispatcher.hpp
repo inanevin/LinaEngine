@@ -55,11 +55,13 @@ namespace LinaEngine
 
 	public:
 
-		ActionDispatcher();
+		
 		virtual ~ActionDispatcher();
 		void operator=(ActionDispatcher const&) = delete;
 
 	protected:
+
+		ActionDispatcher();
 
 		/* Dispatches the given action. */
 		void DispatchAction(ActionBase& action);
@@ -69,7 +71,7 @@ namespace LinaEngine
 		FORCEINLINE void SubscribeToAction(const ActionParams<T>& params)
 		{
 			// Init handler depending on param settings.
-			ActionHandler<T>* handler = new ActionHandler<T>(params.actionType, params.caller);
+			ActionHandler* handler = new ActionHandler<T>(params.actionType, params.caller);
 
 			handler->SetCallback(params.callback);
 
@@ -82,16 +84,17 @@ namespace LinaEngine
 
 		}
 
-		/* Unsubscribes a handler belonging to an object with the given address. */
-		void UnsubscribeHandler(void* addr);
+		/*  Removes the handler from the handlers list. */
+		void UnsubscribeHandler(ActionHandlerBase* handler);
 
 	private:
 
-		/* Subscribes a new handler to the list.*/
+		/* Adds the handler to the list.*/
 		void SubscribeHandler(ActionHandlerBase* ptr);
 
 	private:
 
+		LinaMap<uint32, LinaList<ActionHandlerBase*>> m_ActionHandlerMap;
 		LinaList<ActionHandlerBase*> m_ActionHandlers;
 
 	};
