@@ -30,23 +30,20 @@ namespace LinaEngine
 
 	void ActionTest::SetAction()
 	{
-		ActionParams<Input::Key> params;
-		params.actionType = ActionType::KeyPressed;
-		//params.useCondition = true;
-		params.condition = Input::Key::K;
-		//params.useCallback = true;
-		params.callback = LINA_ACTION_CALLBACK_PARAM1(ActionTest::TestParam);
-		SubscribeInputAction(params);
-		//auto bind = LINA_ACTION_CALLBACK(ActionTest::Test);
-		//SubscribeKeyPressedAction(bind, Input::Key::Alpha0);
+		SubscribeKeyPressedAction("action1", LINA_ACTION_CALLBACK_PARAM1(ActionTest::TestParam), Input::Key::Unknown);
+		SubscribeKeyPressedAction("action2", LINA_ACTION_CALLBACK(ActionTest::Test), Input::Key::Unknown);
 	}
 
 	void ActionTest::Test()
 	{
 		std::cout << "Test object callback is called! " << this << std::endl;
+		UnsubscribeAction("action5");
+
 	}
 	void ActionTest::TestParam(Input::Key i)
 	{
+		SubscribeKeyPressedAction("action1", LINA_ACTION_CALLBACK_PARAM1(ActionTest::TestParam), Input::Key::Unknown);
+
 		std::cout << "Test object callback is called! " << static_cast<int>(i) << std::endl;
 	}
 }

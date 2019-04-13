@@ -24,9 +24,9 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "PackageManager/Graphics/GraphicsAdapter.hpp"
 #include "PackageManager/Input/InputAdapter.hpp"
 
-
 namespace LinaEngine
 {
+
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
 	Application* Application::instance = nullptr;
@@ -110,6 +110,7 @@ namespace LinaEngine
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
+
 		}
 
 	}

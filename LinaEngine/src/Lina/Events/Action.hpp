@@ -37,6 +37,51 @@ namespace LinaEngine
 	};
 
 
+	class ActionHandlerParamsBase
+	{
+
+	public:
+
+		virtual ~ActionHandlerParamsBase () {};
+
+	protected:
+
+		ActionHandlerParamsBase(ActionType type) : m_ActionType(type) {};
+
+		bool useCondition;
+		ActionType m_ActionType;
+
+
+	private:
+
+	};
+
+	template<typename T>
+	class ActionHandlerParams : public ActionHandlerParamsBase
+	{
+	public:
+
+		virtual ~ActionHandlerParams() {};
+
+	private:
+
+		friend class ActionHandlerFactory;
+
+		ActionHandlerParams(ActionType type)
+			: ActionHandlerParamsBase(type){};
+
+
+		ActionType actionType;
+		T condition;
+		std::function<void(T)> callback;
+
+	private:
+
+		bool useCondition = false;
+
+	};
+
+
 	class ActionHandlerBase
 	{
 
@@ -46,98 +91,46 @@ namespace LinaEngine
 
 		virtual ~ActionHandlerBase() {};
 		FORCEINLINE ActionType GetActionType() const { return m_ActionType; }
+		FORCEINLINE void* GetCondition() const { return 0; }
+		FORCEINLINE bool GetUseCondition() const { return useCondition; }
 
 	protected:
 
 		ActionHandlerBase(ActionType at) : m_ActionType(at) {};
 
-	private:
-
+		bool useCondition = false;
 		ActionType m_ActionType;
+
 	};
 
 	template<typename T>
-	class ActionHandler : ActionHandlerBase
+	class ActionHandler : public ActionHandlerBase
 	{
 
 	public:
 
 		DISALLOW_COPY_AND_ASSIGN(ActionHandler);
 
+		
+		virtual ~ActionHandler() {};
 
 		FORCEINLINE void SetCondition(const T& cond) { m_Condition = cond; useCondition = true; }
-		FORCEINLINE void SetCallback(const std::function<void(T&)>& cb) { m_Callback = cb; }
-		
-		// Compares equality of the value of type T w/ the value of type U 
-		template<typename U>
-		static bool CompareValue(U u)
-		{
-			return LinaEngine::Internal::comparison_traits<T>::equal(m_Condition, u);
-		}
+		FORCEINLINE void SetCallback(const std::function<void(T)>& cb) { m_Callback = cb; }
+		FORCEINLINE void* GetCondition() const { return &m_Condition; }
+		FORCEINLINE void ControlExecute(const T& data) { if (!useCondition || ( useCondition && m_Condition == data)) m_Callback(data); }
+
 
 	private:
 
-		template<typename T> friend class Action;
-		ActionHandler(ActionType at) : m_ActionType(at) {};
+		friend class ActionSubscriber;
+		ActionHandler(ActionType at) : ActionHandlerBase(at) {};
 
-	private:
-
-		bool useCondition;
-		std::function<void(T&)> m_Callback;
-		ActionType m_ActionType;
+		std::function<void(T)> m_Callback;
 		T m_Condition;
 	};
 
 
-	class ActionBase
-	{
-
-	public:
-
-		DISALLOW_COPY_AND_ASSIGN(ActionBase);
-
-		virtual ~ActionBase() {};
-
-		FORCEINLINE virtual void* GetData() const { return 0; }
-		FORCEINLINE ActionType GetActionType() const { return m_ActionType; }
-
-	protected:
-
-		ActionBase(ActionType at) : m_ActionType(at) {};
-
-	private:
-
-		ActionType m_ActionType;
-		void* m_Data;
-	};
-
-
-	template<typename T>
-	class Action : public ActionBase
-	{
-
-	public:
-
-		DISALLOW_COPY_AND_ASSIGN(Action);
-
-		Action(ActionType at) : ActionBase(at) {};
-		virtual ~Action() {};
-
-		FORCEINLINE T& GetData() const { return m_Data; }
-
-		FORCEINLINE static ActionHandlerBase* CreateHandler()
-		{
-			return new ActionHandler<T>(m_ActionType);
-		}
-
-		// Sets the data of this action
-		FORCEINLINE void SetData(const T& data) { m_Data = t; }
-		FORCEINLINE void* GetData() override { return &m_Data; }
-
-	private:
-
-		T m_Data;
-	};
+	
 }
 
 

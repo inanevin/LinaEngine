@@ -50,6 +50,13 @@ namespace LinaEngine
 				return a == b;
 			}
 		};
+
+		static size_t StringToHash(LinaString str)
+		{
+			LinaHash<LinaString> hasher;
+			return hasher(str);
+		}
+
 	}
 
 	inline std::ostream& red(std::ostream &s)

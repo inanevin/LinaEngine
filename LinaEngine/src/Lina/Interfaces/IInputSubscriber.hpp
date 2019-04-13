@@ -24,41 +24,55 @@ Timestamp: 4/4/2019 2:29:37 AM
 
 #include "Lina/Input/InputEngine.hpp"
 #include "Lina/Core/Application.hpp"
+#include "Lina/Events/ActionSubscriber.hpp"
 
 namespace LinaEngine
 {
-	class LINA_API IInputSubscriber
+	class LINA_API IInputSubscriber : public ActionSubscriber
 	{
 
 	public:
 
-		IInputSubscriber();
-		~IInputSubscriber();
+		IInputSubscriber() { Initialize(); };
+		~IInputSubscriber() {};
+
+		FORCEINLINE virtual void Initialize() override { SetActionDispatcher(&Application::Get().GetInputEngine()); }
 
 	protected:
-
-		template<typename T>
-		void SubscribeKeyPressedAction(std::function<void(T)>&& cb, Input::Key key = Input::Key::Unknown)
+		
+		void SubscribeKeyPressedAction(const LinaString& handlerID, std::function<void(Input::Key)>&& cb, Input::Key key = Input::Key::Unknown)
 		{
-			ActionParams<Input::Key> params;
-			params.actionType = ActionType::KeyPressed;
-			params.useCallback = true;
-			params.callback = cb;
-			SubscribeInputAction(params);
+			if (key != Input::Key::Unknown)
+				SubscribeAction<Input::Key>(handlerID, ActionType::KeyPressed, cb, key);
+			else
+				SubscribeAction<Input::Key>(handlerID, ActionType::KeyPressed, cb);
 		}
 
-		template<typename T>
-		void SubscribeInputAction(ActionParams<T> params)
+		void SubscribeKeyReleasedAction(const LinaString& handlerID, std::function<void(Input::Key)>&& cb, Input::Key key = Input::Key::Unknown)
 		{
-			params.caller = this;
-			//Application::Get().GetInputEngine().SubscribeToAction(params);
-		};
+			if (key != Input::Key::Unknown)
+				SubscribeAction<Input::Key>(handlerID, ActionType::KeyReleased, cb, key);
+			else
+				SubscribeAction<Input::Key>(handlerID, ActionType::KeyReleased, cb);
+		}
 
+		void SubscribeMouseButtonPressedAction(const LinaString& handlerID, std::function<void(Input::Mouse)>&& cb, Input::Mouse button = Input::Mouse::MouseUnknown)
+		{
+			if (button != Input::Mouse::MouseUnknown)
+				SubscribeAction<Input::Mouse>(handlerID, ActionType::MouseButtonPressed, cb, button);
+			else
+				SubscribeAction<Input::Mouse>(handlerID, ActionType::MouseButtonPressed, cb);
+		}
+
+		void SubscribeMouseButtonReleasedAction(const LinaString& handlerID, std::function<void(Input::Mouse)>&& cb, Input::Mouse button = Input::Mouse::MouseUnknown)
+		{
+			if (button != Input::Mouse::MouseUnknown)
+				SubscribeAction<Input::Mouse>(handlerID, ActionType::MouseButtonReleased, cb, button);
+			else
+				SubscribeAction<Input::Mouse>(handlerID, ActionType::MouseButtonReleased, cb);
+		}
 
 	private:
-
-	
-
 
 	};
 }

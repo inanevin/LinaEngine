@@ -34,6 +34,8 @@ namespace LinaEngine
 #define LinaPair std::pair
 #define LinaMakePair std::make_pair
 #define LinaOutOfRange std::out_of_range
+#define LinaString std::string
+#define LinaHash std::hash
 }
 
 

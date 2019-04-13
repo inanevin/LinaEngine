@@ -21,8 +21,7 @@ Timestamp: 1/6/2019 2:17:55 AM
 #ifndef InputEngine_HPP
 #define InputEngine_HPP
 
-#include "Lina/Interfaces/IInputDispatcher.hpp"
-
+#include "Lina/Events/ActionDispatcher.hpp"
 
 namespace LinaEngine
 {

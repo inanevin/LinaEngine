@@ -26,70 +26,50 @@ Timestamp: 4/10/2019 1:26:00 PM
 
 namespace LinaEngine
 {
-
-	template<typename T>
-	class ActionParams
-	{
-	public:
-
-		friend class IInputSubscriber;
-		friend class IInputDispatcher;
-
-		ActionParams() {};
-
-		ActionParams(ActionType type, std::function<void(T)> cbp, T c = NULL)
-			: actionType(type), condition(c), callback(cb) {};
-
-		bool useCondition = false;
-		ActionType actionType;
-		T condition;
-		std::function<void(T&)> callback;
-		void* caller;
-
-	};
-
 	// Dispatcher class for actions.
 	class ActionDispatcher
 	{
 
 	public:
 
-		
 		virtual ~ActionDispatcher();
-		void operator=(ActionDispatcher const&) = delete;
 
 	protected:
 
 		ActionDispatcher();
 
 		/* Dispatches the given action. */
-		void DispatchAction(const ActionBase& action);
-
-		/* Checks the action params & creates the necessary handle to pass into the internal subscription method. */
 		template<typename T>
-		FORCEINLINE void SubscribeToAction(const ActionParams<T>& params)
+		FORCEINLINE void DispatchAction(ActionType at, const T& data)
 		{
-			// Init handler depending on param settings.
-			ActionHandler* handler = new ActionHandler<T>(params.actionType, params.caller);
+			try {
 
-			handler->SetCallback(params.callback);
+				// Get the handler array corresponding to the action type.
+				LinaArray<ActionHandlerBase*>& arr = m_ActionHandlerMap.at(at);
 
-			if (params.useCondition)
-			{
-				handler->SetCondition(params.condition);
+				// Iterate through the array of handlers w/ the same action type.
+				LinaArray<ActionHandlerBase*>::iterator it;
+				for (it = arr.begin(); it != arr.end(); it++)
+				{
+					ActionHandler<T>* handler = (static_cast<ActionHandler<T>*>(*it));
+					handler->ControlExecute(data);
+				}
 			}
-
-			m_ActionDispatcher.SubscribeHandler(handler);
-
+			catch (const LinaOutOfRange& e)
+			{
+				LINA_CORE_ERR("Out of Range Exception while subscribing handler!");
+			}
 		}
-
-		/*  Removes the handler from the handlers list. */
-		void UnsubscribeHandler(ActionHandlerBase* handler);
 
 	private:
 
+		friend class ActionSubscriber;
+
 		/* Adds the handler to the list.*/
 		void SubscribeHandler(ActionHandlerBase* ptr);
+
+		/*  Removes the handler from the handlers list. */
+		void UnsubscribeHandler(ActionHandlerBase* handler);
 
 	private:
 

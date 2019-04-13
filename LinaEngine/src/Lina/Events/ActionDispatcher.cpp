@@ -38,26 +38,6 @@ namespace LinaEngine
 		m_ActionHandlerMap.clear();
 	}
 
-	void ActionDispatcher::DispatchAction(const ActionBase& action)
-	{
-		try {
-
-			// Get the handler array corresponding to the action type.
-			LinaArray<ActionHandlerBase*>& arr = m_ActionHandlerMap.at(action.GetActionType());
-
-			// Iterate through the array of handlers.
-			LinaArray<ActionHandlerBase*>::iterator it;
-			for (it = arr.begin(); it != arr.end(); it++)
-			{
-				
-			}
-		}
-		catch (const LinaOutOfRange& e)
-		{
-			LINA_CORE_ERR("Out of Range Exception while subscribing handler!");
-		}
-	}
-
 	void ActionDispatcher::SubscribeHandler(ActionHandlerBase * handler)
 	{
 		try {
