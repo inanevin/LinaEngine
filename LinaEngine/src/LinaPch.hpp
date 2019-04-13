@@ -66,6 +66,11 @@ namespace LinaEngine
 			FOREGROUND_RED | FOREGROUND_INTENSITY);
 		return s;
 	}
+
+
+
+
+
 }
 
 #ifdef LINA_PLATFORM_WINDOWS

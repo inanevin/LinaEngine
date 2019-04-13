@@ -39,7 +39,7 @@ namespace LinaEngine
 
 		m_HorizontalAxis = new InputKeyAxisBinder();
 		m_VerticalAxis = new InputKeyAxisBinder();
-		m_HorizontalAxis->Initialize(Input::Key::J, Input::Key::L);
+		m_HorizontalAxis->Initialize(Input::Key::L, Input::Key::J);
 		m_VerticalAxis->Initialize(Input::Key::I, Input::Key::K);
 	}
 

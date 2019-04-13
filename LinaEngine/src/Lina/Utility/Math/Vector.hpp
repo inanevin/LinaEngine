@@ -303,6 +303,13 @@ namespace LinaEngine
 		FORCEINLINE Vector3F operator-(float amt) const;
 		FORCEINLINE Vector3F operator*(float amt) const;
 		FORCEINLINE Vector3F operator/(float amt) const;
+
+		FORCEINLINE std::string ToString () {
+			std::stringstream ss;
+			ss << "( X: " << GetX() << " Y: " << GetY() << " Z: " << GetZ() << " )";
+			return ss.str();
+		}
+
 		FORCEINLINE float Distance(const Vector3F& other) const;
 		FORCEINLINE float DistanceSquared(const Vector3F& other) const;
 		FORCEINLINE float Dot(const Vector3F& other) const;
@@ -312,10 +319,7 @@ namespace LinaEngine
 		bool equals(const Vector3F& other, float errorMargin = 1.e-4f) const;
 		bool equals(float val, float errorMargin = 1.e-4f) const;
 
-		friend std::ostream &operator<<(std::ostream& os, Vector3F const& m)
-		{
-			return os << "(X: " << m.GetX() << " Y: " << m.GetY() << " Z: " << m.GetZ();
-		}
+		
 
 		float Max() const;
 		float Min() const;
@@ -334,6 +338,7 @@ namespace LinaEngine
 		Vector3F Refract(const Vector3F& normal, float indexOfRefraction) const;
 		Vector3F ToDegrees() const;
 		Vector3F ToRadians() const;
+	
 
 		FORCEINLINE float Magnitude() const;
 		FORCEINLINE float MagnitudeSqrt() const;
@@ -521,10 +526,12 @@ namespace LinaEngine
 		bool equals(const Vector2F& other, float errorMargin = 1.e-4f) const;
 		bool equals(float val, float errorMargin = 1.e-4f) const;
 
-		FORCEINLINE std::ostream& operator<<(std::ostream& os)
-		{
-			return os << "(X: " << GetX() << " Y: " << GetY();
+		FORCEINLINE std::string ToString() {
+			std::stringstream ss;
+			ss << "( X: " << GetX() << " Y: " << GetY() << " )";
+			return ss.str();
 		}
+
 
 		float Max() const;
 		float Min() const;

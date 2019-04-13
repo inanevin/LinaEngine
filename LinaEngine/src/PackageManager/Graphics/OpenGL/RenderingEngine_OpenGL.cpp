@@ -209,8 +209,8 @@ namespace LinaEngine
 		// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 	//	glBindVertexArray(0);
 
-		movementComponent.axis = Application::Get().GetInputEngine().GetHorizontalInput();
-		movementComponent.movement = Vector3F(1.0f, 0.0f, 0.0f) * 2.0f;
+		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(1.0f, 0.0f, 0.0f) * 10.0f, Application::Get().GetInputEngine().GetHorizontalInput()));
+		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(0.0f, 1.0f, 0.0f) * 10.0f, Application::Get().GetInputEngine().GetVerticalInput()));
 
 		transformComponent.transform.SetPosition(Vector3F(0.0f, 0.0f, 10.0f));
 

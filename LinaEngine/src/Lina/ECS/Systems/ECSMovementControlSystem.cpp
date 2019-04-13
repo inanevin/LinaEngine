@@ -28,10 +28,14 @@ namespace LinaEngine
 		ECSTransformComponent* transform = (ECSTransformComponent*)components[0];
 		ECSMovementControlComponent* movementControl = (ECSMovementControlComponent*)components[1];
 
-		float am = movementControl->axis->GetAmount();
-		Vector3F newPos = transform->transform.GetPosition() + (movementControl->movement * am * delta);
-		std::cout << "Amount: " << am << "Position: " << newPos << std::endl;
-		transform->transform.SetPosition(newPos);
+		for (uint32 i = 0; i < movementControl->movementControls.size(); i++)
+		{
+			Vector3F movement = movementControl->movementControls[i].first;
+			InputKeyAxisBinder* input = movementControl->movementControls[i].second;
+			Vector3F newPos = transform->transform.GetPosition() + (movement * input->GetAmount() * delta);
+			transform->transform.SetPosition(newPos);
+		}
+
 		
 	}
 }

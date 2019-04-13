@@ -29,8 +29,7 @@ namespace LinaEngine
 {
 	struct ECSMovementControlComponent : public ECSComponent<ECSMovementControlComponent>
 	{
-		Vector3F movement;
-		class InputKeyAxisBinder* axis;
+		LinaArray<LinaPair<Vector3F, InputKeyAxisBinder*>> movementControls;
 	};
 }
 
