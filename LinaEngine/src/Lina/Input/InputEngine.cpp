@@ -19,6 +19,7 @@ Timestamp: 1/6/2019 2:17:55 AM
 
 #include "LinaPch.hpp"
 #include "InputEngine.hpp"  
+#include "Lina/Input/InputAxisBinder.hpp"
 
 
 namespace LinaEngine
@@ -26,7 +27,30 @@ namespace LinaEngine
 
 	InputEngine::~InputEngine()
 	{
+		delete m_HorizontalAxis;
+		delete m_VerticalAxis;
+
 		LINA_CORE_TRACE("[Destructor] -> Input Engine ({0})", typeid(*this).name());
+	}
+
+	void InputEngine::Initialize()
+	{
+		LINA_CORE_TRACE("[Initialization] -> Input Engine ({0})", typeid(*this).name());
+
+		m_HorizontalAxis = new InputKeyAxisBinder();
+		m_VerticalAxis = new InputKeyAxisBinder();
+		m_HorizontalAxis->Initialize(Input::Key::J, Input::Key::L);
+		m_VerticalAxis->Initialize(Input::Key::I, Input::Key::K);
+	}
+
+	InputKeyAxisBinder* InputEngine::GetHorizontalInput()
+	{
+		return m_HorizontalAxis;
+	}
+
+	InputKeyAxisBinder* InputEngine::GetVerticalInput()
+	{
+		return m_VerticalAxis;
 	}
 
 	InputEngine::InputEngine()

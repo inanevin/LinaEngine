@@ -42,9 +42,6 @@ namespace LinaEngine
 		/* Called when updating the input engine. */
 		void OnUpdate() override;
 
-		/* Updates the pre-defined input axes. */
-		void UpdateInputAxes() override;
-
 		/* Returns true each frame key mapped with the keyCode is pressed */
 		bool GetKey(int keyCode) override;
 

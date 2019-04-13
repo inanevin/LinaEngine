@@ -30,19 +30,6 @@ namespace LinaEngine
 
 	class Application;
 
-	class InputAxis
-	{
-	public:
-
-		InputAxis() {};
-		FORCEINLINE void AddAmount(float amount) { if(m_Amount > -MAX_AXIS_AMOUNT || m_Amount < MAX_AXIS_AMOUNT) m_Amount += amount; }
-		FORCEINLINE float GetAmount() { return Math::Clamp(m_Amount, -1.0f, 1.0f); }
-		FORCEINLINE void SetAmount(float f) { m_Amount = f; }
-	private:
-
-		float m_Amount;
-	};
-
 	class LINA_API InputEngine : public ActionDispatcher
 	{
 
@@ -51,13 +38,10 @@ namespace LinaEngine
 		virtual ~InputEngine();
 
 		/* Called when input engine is initialized. */
-		virtual void Initialize() = 0;
+		virtual void Initialize();
 
 		/* Called when updating the input engine. */
 		virtual void OnUpdate() = 0;
-
-		/* Updates the pre-defined input axes. */
-		virtual void UpdateInputAxes() = 0;
 
 		/* Returns true each frame key mapped with the keyCode is pressed */
 		virtual bool GetKey(int keyCode) = 0;
@@ -99,23 +83,23 @@ namespace LinaEngine
 		virtual void DispatchMouseAction(Input::Mouse button, int action) = 0;
 
 		/* Sets the Application reference */
-		inline void SetApplication(Application& const application) { app = &application; }
+		FORCEINLINE void SetApplication(Application& const application) { app = &application; }
 
 		/* Returns the Horizontal Axis */
-		inline InputAxis* GetHorizontalInput() { return &m_HorizontalAxis; }
+		class InputKeyAxisBinder* GetHorizontalInput();
 
 		/* Returns the Vertical Axis */
-		inline InputAxis* GetVerticalInput() { return &m_HorizontalAxis; }
+		class InputKeyAxisBinder* GetVerticalInput();
 
 	protected:
 
 		InputEngine();
 
 		/* Horizontal Input Axis */
-		InputAxis m_HorizontalAxis;
+		class InputKeyAxisBinder* m_HorizontalAxis;
 
 		/* Vertical Input Axis */
-		InputAxis m_VerticalAxis;
+		class InputKeyAxisBinder* m_VerticalAxis;
 
 		/* App reference */
 		Application* app;

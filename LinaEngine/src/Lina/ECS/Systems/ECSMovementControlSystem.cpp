@@ -19,6 +19,7 @@ Timestamp: 4/9/2019 3:30:12 PM
 
 #include "LinaPch.hpp"
 #include "ECSMovementControlSystem.hpp"  
+#include "Lina/Input/InputAxisBinder.hpp"
 
 namespace LinaEngine
 {
@@ -27,7 +28,9 @@ namespace LinaEngine
 		ECSTransformComponent* transform = (ECSTransformComponent*)components[0];
 		ECSMovementControlComponent* movementControl = (ECSMovementControlComponent*)components[1];
 
-		Vector3F newPos = transform->transform.GetPosition() + (movementControl->movement * movementControl->axis->GetAmount() * delta);
+		float am = movementControl->axis->GetAmount();
+		Vector3F newPos = transform->transform.GetPosition() + (movementControl->movement * am * delta);
+		std::cout << "Amount: " << am << "Position: " << newPos << std::endl;
 		transform->transform.SetPosition(newPos);
 		
 	}

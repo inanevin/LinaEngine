@@ -49,6 +49,9 @@ namespace LinaEngine
 
 	void InputEngine_GLFW::Initialize()
 	{
+
+		InputEngine::Initialize();
+
 		LINA_CORE_TRACE("[Initialization] -> Input Engine GLFW ({0})", typeid(*this).name());
 
 		glfwWindow = static_cast<GLFWwindow*>(Application::Get().GetRenderingEngine().GetMainWindow().GetNativeWindow());
@@ -58,19 +61,10 @@ namespace LinaEngine
 
 	void InputEngine_GLFW::OnUpdate()
 	{
-		UpdateInputAxes();
+		
 	}
 
-	void InputEngine_GLFW::UpdateInputAxes()
-	{
-		// TODO: Better system for input control
-		if (GetKey(Input::Key::J)) m_HorizontalAxis.AddAmount(-1.0f * axisSensitivity);
-		else if (GetKey(Input::Key::L)) m_HorizontalAxis.AddAmount(1.0f * axisSensitivity);
-		else m_HorizontalAxis.SetAmount(0.0f);
-		if (GetKey(Input::Key::I)) m_VerticalAxis.AddAmount(1.0f * axisSensitivity);
-		else if (GetKey(Input::Key::K)) m_VerticalAxis.AddAmount(-1.0f * axisSensitivity);
-		else m_VerticalAxis.SetAmount(0.0f);
-	}
+	
 
 	bool InputEngine_GLFW::GetKey(int keycode)
 	{

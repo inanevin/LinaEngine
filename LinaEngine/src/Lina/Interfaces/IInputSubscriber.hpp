@@ -33,10 +33,10 @@ namespace LinaEngine
 
 	public:
 
-		IInputSubscriber() { Initialize(); };
-		~IInputSubscriber() {};
+		IInputSubscriber() { };
+		virtual ~IInputSubscriber() {};
 
-		FORCEINLINE virtual void Initialize() override { SetActionDispatcher(&Application::Get().GetInputEngine()); }
+		FORCEINLINE virtual void Initialize() override { SetActionDispatcher(&(Application::Get().GetInputEngine())); }
 
 	protected:
 		

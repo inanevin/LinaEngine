@@ -23,14 +23,14 @@ Timestamp: 4/9/2019 3:25:33 PM
 #define ECSMovementControlComponent_HPP
 
 #include "Lina/ECS/ECS.hpp"
-#include "Lina/Input/InputEngine.hpp"
+#include "Lina/Input/InputAxisBinder.hpp"
 
 namespace LinaEngine
 {
 	struct ECSMovementControlComponent : public ECSComponent<ECSMovementControlComponent>
 	{
 		Vector3F movement;
-		InputAxis* axis;
+		class InputKeyAxisBinder* axis;
 	};
 }
 

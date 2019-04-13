@@ -61,6 +61,7 @@ namespace LinaEngine
 	ECSMovementControlSystem movementControlSystem;
 	Transform workingTransformation;
 
+
 	Transform cubeTransforms[] = {
 		Transform(Vector3F(0.0f,  0.0f,  0.0f)),
 		Transform(Vector3F(2.0f,  5.0f, -15.0f)),
@@ -208,13 +209,13 @@ namespace LinaEngine
 		// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 	//	glBindVertexArray(0);
 
-		//movementComponent.axis = Application::Get().GetInputEngine().GetHorizontalInput();
-		movementComponent.movement = Vector3F(1.0f, 0.0f, 0.0f) * 0.05f;
+		movementComponent.axis = Application::Get().GetInputEngine().GetHorizontalInput();
+		movementComponent.movement = Vector3F(1.0f, 0.0f, 0.0f) * 2.0f;
 
 		transformComponent.transform.SetPosition(Vector3F(0.0f, 0.0f, 10.0f));
 
 		entity = ecs.MakeEntity(transformComponent, movementComponent);
-		//workingTransformation = ecs.GetComponent<ECSTransformComponent>(entity)->transform;
+		workingTransformation = ecs.GetComponent<ECSTransformComponent>(entity)->transform;
 
 		mainSystems.AddSystem(movementControlSystem);
 	}
@@ -256,11 +257,11 @@ namespace LinaEngine
 		//workingTransformation.SetPosition(Vector3F(Math::Sin(glfwGetTime()) * 2,0.0f, 0));
 		//cubeTransforms[0] = workingTransformation;
 
-		//ecs.UpdateSystems(mainSystems, 0.01f);
+		ecs.UpdateSystems(mainSystems, 0.01f);
 
 		for (unsigned int i = 0; i < 1; i++)
 		{
-			Matrix4F transformation = ecs.GetComponent<ECSTransformComponent>(entity)->transform.GetWorldTransformation();
+			Matrix4F transformation = workingTransformation.GetWorldTransformation();
 			Matrix4F camView = sceneCamera.GetViewProjection();
 			Matrix4F WVP = camView * transformation;
 			basicShader.SetWVP(WVP);
