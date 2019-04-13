@@ -261,7 +261,7 @@ namespace LinaEngine
 
 		for (unsigned int i = 0; i < 1; i++)
 		{
-			Matrix4F transformation = workingTransformation.GetWorldTransformation();
+			Matrix4F transformation = ecs.GetComponent<ECSTransformComponent>(entity)->transform.GetWorldTransformation();
 			Matrix4F camView = sceneCamera.GetViewProjection();
 			Matrix4F WVP = camView * transformation;
 			basicShader.SetWVP(WVP);

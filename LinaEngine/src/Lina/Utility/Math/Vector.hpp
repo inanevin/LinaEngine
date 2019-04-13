@@ -312,6 +312,11 @@ namespace LinaEngine
 		bool equals(const Vector3F& other, float errorMargin = 1.e-4f) const;
 		bool equals(float val, float errorMargin = 1.e-4f) const;
 
+		friend std::ostream &operator<<(std::ostream& os, Vector3F const& m)
+		{
+			return os << "(X: " << m.GetX() << " Y: " << m.GetY() << " Z: " << m.GetZ();
+		}
+
 		float Max() const;
 		float Min() const;
 		float AbsMax() const;
@@ -515,6 +520,11 @@ namespace LinaEngine
 		bool operator!=(const Vector2F& other) const;
 		bool equals(const Vector2F& other, float errorMargin = 1.e-4f) const;
 		bool equals(float val, float errorMargin = 1.e-4f) const;
+
+		FORCEINLINE std::ostream& operator<<(std::ostream& os)
+		{
+			return os << "(X: " << GetX() << " Y: " << GetY();
+		}
 
 		float Max() const;
 		float Min() const;
