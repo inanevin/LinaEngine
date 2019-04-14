@@ -30,19 +30,22 @@ Timestamp: 1/2/2019 11:44:41 PM
 
 namespace LinaEngine
 {
-	enum PixelFormat
-	{
-		FORMAT_R,
-		FORMAT_RG,
-		FORMAT_RGB,
-		FORMAT_RGBA,
-		FORMAT_DEPTH,
-		FORMAT_DEPTH_AND_STENCIL,
-	};
+	
 	
 	class GLRenderingEngine : public RenderingEngine
 	{
+
 	public:
+
+		enum PixelFormat
+		{
+			FORMAT_R,
+			FORMAT_RG,
+			FORMAT_RGB,
+			FORMAT_RGBA,
+			FORMAT_DEPTH,
+			FORMAT_DEPTH_AND_STENCIL,
+		};
 
 		GLRenderingEngine();
 		~GLRenderingEngine();

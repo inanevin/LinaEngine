@@ -261,7 +261,54 @@ namespace LinaEngine
 		return 0;
 	}
 
+	static GLint GetOpenGLFormat(enum GLRenderingEngine::PixelFormat format )
+	{
+		switch (format) {
+		case GLRenderingEngine::FORMAT_R: return GL_RED;
+		case GLRenderingEngine::FORMAT_RG: return GL_RG;
+		case GLRenderingEngine::FORMAT_RGB: return GL_RGB;
+		case GLRenderingEngine::FORMAT_RGBA: return GL_RGBA;
+		case GLRenderingEngine::FORMAT_DEPTH: return GL_DEPTH_COMPONENT;
+		case GLRenderingEngine::FORMAT_DEPTH_AND_STENCIL: return GL_DEPTH_STENCIL;
 
+		default:
+			LINA_CORE_ERR("PixelFormat {0} is not a valid PixelFormat.", format);
+			return 0;
+		};
+	}
+
+	static GLint GetOpenGLInternalFormat(enum GLRenderingEngine::PixelFormat format, bool compress)
+	{
+		switch (format) {
+		case GLRenderingEngine::FORMAT_R: return GL_RED;
+		case GLRenderingEngine::FORMAT_RG: return GL_RG;
+		case GLRenderingEngine::FORMAT_RGB:
+			if (compress) {
+				//GL_COMPRESSED_SRGB_S3TC_DXT1_EXT;
+				return GL_COMPRESSED_SRGB;
+			}
+			else {
+				return GL_RGB;
+				//return GL_SRGB;
+			}
+		case GLRenderingEngine::FORMAT_RGBA:
+			if (compress) {
+				// TODO: Decide on the default RGBA compression scheme
+	//			return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+				//GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
+				return GL_COMPRESSED_SRGB_ALPHA;
+			}
+			else {
+				return GL_RGBA;
+				//return GL_SRGB_ALPHA;
+			}
+		case GLRenderingEngine::FORMAT_DEPTH: return GL_DEPTH_COMPONENT;
+		case GLRenderingEngine::FORMAT_DEPTH_AND_STENCIL: return GL_DEPTH_STENCIL;
+		default:
+			LINA_CORE_ERR("PixelFormat {0} is not a valid PixelFormat.", format);
+			return 0;
+		};
+	}
 
 
 }
