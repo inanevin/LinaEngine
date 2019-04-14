@@ -12,7 +12,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: RenderingEngine_OpenGL
+Class: GLRenderingEngine
 Timestamp: 1/2/2019 11:44:41 PM
 
 */
@@ -30,29 +30,39 @@ Timestamp: 1/2/2019 11:44:41 PM
 
 namespace LinaEngine
 {
+	enum PixelFormat
+	{
+		FORMAT_R,
+		FORMAT_RG,
+		FORMAT_RGB,
+		FORMAT_RGBA,
+		FORMAT_DEPTH,
+		FORMAT_DEPTH_AND_STENCIL,
+	};
 	
-	class RenderingEngine_OpenGL : public RenderingEngine
+	class GLRenderingEngine : public RenderingEngine
 	{
 	public:
 
-		RenderingEngine_OpenGL();
-		~RenderingEngine_OpenGL();
+		GLRenderingEngine();
+		~GLRenderingEngine();
 		
 		void Initialize() override;
 		void Start() override;
 		void OnUpdate() override;
 		void OnEvent(class Event& e)  override;
 		void OnWindowEvent(class Event& e) override;
-		void SetApplication(class Application& app) override;
 		void SetMousePosition(const Vector2F& v) override { GetMainWindow().SetMousePosition(v); }
 		void SetWireframeMode(bool activation) override;
+
+		virtual uint32 CreateTexture2D(int32 width, int32 height, const void* data, int pixelDataFormat, int internalPixelFormat, bool generateMipMaps, bool compress) override;
 
 
 	private:
 
 		int keyData = -1;
 		void Test();
-		class Application* app = NULL;
+
 	
 	};
 }

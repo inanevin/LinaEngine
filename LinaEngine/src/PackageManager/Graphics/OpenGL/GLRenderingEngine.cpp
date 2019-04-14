@@ -12,7 +12,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: RenderingEngine_OpenGL
+Class: GLRenderingEngine
 Timestamp: 1/2/2019 11:44:41 PM
 
 */
@@ -20,7 +20,7 @@ Timestamp: 1/2/2019 11:44:41 PM
 
 #ifdef LLF_GRAPHICS_OPENGL
 
-#include "RenderingEngine_OpenGL.hpp"  
+#include "GLRenderingEngine.hpp"  
 #include "Lina/Utility/Math/Color.hpp"
 #include "Lina/ECS/Data/Transform.hpp"
 #include "Lina/Core/Application.hpp"
@@ -75,13 +75,13 @@ namespace LinaEngine
 
 
 
-	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
+	GLRenderingEngine::GLRenderingEngine() : RenderingEngine()
 	{
 		LINA_CORE_TRACE("[Constructor] -> Rendering Engine OpenGL ({0})", typeid(*this).name());
 		
 	}
 
-	RenderingEngine_OpenGL::~RenderingEngine_OpenGL()
+	GLRenderingEngine::~GLRenderingEngine()
 	{
 		LINA_CORE_TRACE("[Destructor] -> Rendering Engine OpenGL ({0})", typeid(*this).name());
 
@@ -90,20 +90,20 @@ namespace LinaEngine
 		glDeleteBuffers(1, &EBO);
 	}
 
-	void RenderingEngine_OpenGL::Test()
+	void GLRenderingEngine::Test()
 	{
 		
 		
 	}
 
-	void RenderingEngine_OpenGL::Initialize()
+	void GLRenderingEngine::Initialize()
 	{
 		RenderingEngine::Initialize();
 
 		LINA_CORE_TRACE("[Initialization] -> Rendering Engine OpenGL ({0})", typeid(*this).name());
 	}
 
-	void RenderingEngine_OpenGL::Start()
+	void GLRenderingEngine::Start()
 	{
 		LINA_CORE_TRACE("[Start] -> Rendering Engine OpenGL ({0})", typeid(*this).name());
 
@@ -198,7 +198,7 @@ namespace LinaEngine
 		mainSystems.AddSystem(movementControlSystem);
 	}
 
-	void RenderingEngine_OpenGL::OnUpdate()
+	void GLRenderingEngine::OnUpdate()
 	{
 		RenderingEngine::OnUpdate();
 
@@ -227,7 +227,7 @@ namespace LinaEngine
 
 	}
 
-	void RenderingEngine_OpenGL::OnWindowEvent(Event & e)
+	void GLRenderingEngine::OnWindowEvent(Event & e)
 	{
 		if (e.GetEventType() == EventType::WindowResize)
 		{
@@ -236,7 +236,7 @@ namespace LinaEngine
 		}
 	}
 
-	void RenderingEngine_OpenGL::OnEvent(Event & e)
+	void GLRenderingEngine::OnEvent(Event & e)
 	{
 		if (e.GetEventType() == EventType::WindowResize)
 		{
@@ -246,13 +246,7 @@ namespace LinaEngine
 	}
 
 
-	void RenderingEngine_OpenGL::SetApplication(Application& p)
-	{
-		LINA_CORE_ASSERT(&p, "Application is nullptr!");
-		this->app = &p;
-	}
-
-	void RenderingEngine_OpenGL::SetWireframeMode(bool activation)
+	void GLRenderingEngine::SetWireframeMode(bool activation)
 	{
 	/*	if (activation)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -261,6 +255,12 @@ namespace LinaEngine
 
 		isWireframeModeActive = activation;*/
 	}
+
+	uint32 GLRenderingEngine::CreateTexture2D(int32 width, int32 height, const void * data, int pixelDataFormat, int internalPixelFormat, bool generateMipMaps, bool compress)
+	{
+		return 0;
+	}
+
 
 
 

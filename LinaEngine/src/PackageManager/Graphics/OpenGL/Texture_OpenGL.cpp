@@ -20,7 +20,7 @@ Timestamp: 2/27/2019 1:44:21 PM
 #include "LinaPch.hpp"
 #include "Texture_OpenGL.hpp"  
 #include "glad/glad.h"
-#include "Lina/Utility/stb_image.h"
+
 
 namespace LinaEngine
 {
@@ -29,7 +29,7 @@ namespace LinaEngine
 
 	bool Texture_OpenGL::Load(const std::string& p)
 	{
-		std::string fullPath = ResourceConstants::TexturesPath + p;
+		/*std::string fullPath = ResourceConstants::TexturesPath + p;
 		const char* filePath = fullPath.c_str();
 
 		glGenTextures(1, &m_TextureObj);
@@ -79,7 +79,7 @@ namespace LinaEngine
 			isLoaded = false;
 			return false;
 		}
-
+		*/
 		return true;
 	}
 

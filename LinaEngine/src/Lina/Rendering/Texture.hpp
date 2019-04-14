@@ -22,27 +22,21 @@ Timestamp: 1/7/2019 1:55:47 PM
 #ifndef Texture_HPP
 #define Texture_HPP
 
-
+#include "ArrayBitmap.hpp"
+#include "Lina/Common.hpp"
 
 namespace LinaEngine
 {
 	class Texture
 	{
+
 	public:
 
-		//Texture() {};
-		//Texture(GLenum textureTarget);
+		DISALLOW_COPY_AND_ASSIGN(Texture);
 
-		/* Loads the texture with a given filename. */
-		//bool Load(const std::string& fileName);
-
-		/* Binds the loaded texture as a unit to the program. */
-		//void Bind(GLenum textureUnit);
 	
-	private:
 
-		//GLenum m_TextureTarget;
-		//GLuint m_TextureObj;
+
 	};
 }
 

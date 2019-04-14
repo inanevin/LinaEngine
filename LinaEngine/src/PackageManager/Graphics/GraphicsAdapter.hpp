@@ -24,8 +24,8 @@ Timestamp: 12/31/2018 1:46:13 AM
 
 #ifdef LLF_GRAPHICS_OPENGL
 
-	#include "OpenGL/RenderingEngine_OpenGL.hpp"
-	#define RENDERINGENGINE_CREATEFUNC(PARAM) inline RenderingEngine* CreateRenderingEngine() { return new RenderingEngine_OpenGL(); }
+	#include "OpenGL/GLRenderingEngine.hpp"
+	#define RENDERINGENGINE_CREATEFUNC(PARAM) inline RenderingEngine* CreateRenderingEngine() { return new GLRenderingEngine(); }
 
 	#ifdef LLF_INPUTANDWINDOW_SDL
 

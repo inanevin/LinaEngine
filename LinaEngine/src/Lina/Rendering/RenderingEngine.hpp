@@ -53,7 +53,11 @@ namespace LinaEngine
 		virtual void OnWindowEvent(class Event& e) = 0;
 
 		/* Sets the application reference. */
-		virtual void SetApplication(class Application&) = 0;
+		FORCEINLINE void SetApplication(class Application& p)
+		{
+			LINA_CORE_ASSERT(&p, "Application is nullptr!");
+			this->app = &p;
+		}
 
 		/* Sets the mouse position to desired screen space coordinates. */
 		virtual void SetMousePosition(const Vector2F& v) = 0;
@@ -62,9 +66,11 @@ namespace LinaEngine
 		virtual void SetWireframeMode(bool activation) = 0;
 
 		/* return the main window reference. */
-		inline Window& GetMainWindow() const { LINA_CORE_ASSERT(m_Window, "Window is nullptr!"); return *m_Window; }
+		FORCEINLINE Window& GetMainWindow() const { LINA_CORE_ASSERT(m_Window, "Window is nullptr!"); return *m_Window; }
 
 		inline bool GetIsWireframeModeActive() { return isWireframeModeActive; }
+
+		virtual uint32 CreateTexture2D(int32 width, int32 height, const void* data, int pixelDataFormat, int internalPixelFormat, bool generateMipMaps, bool compress) = 0;
 
 	protected:
 
@@ -72,12 +78,12 @@ namespace LinaEngine
 
 		bool isWireframeModeActive;
 		WindowProps m_WindowProps;
+		class Application* app = nullptr;
 
 	private:
 
 		/* Window that the rendering engine is rendering within. */
 		std::unique_ptr<Window> m_Window;
-
 
 	};
 }
