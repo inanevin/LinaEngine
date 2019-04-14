@@ -27,9 +27,8 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "Lina/Input/InputEngine.hpp"
 #include "Lina/Events/Action.hpp"
 #include "Lina/Rendering/Vertex.hpp"
-#include "Texture_OpenGL.hpp"
 #include "PackageManager/Graphics/OpenGL/Shaders/Shader_GLSLBasic.hpp"
-
+#include "Lina/Rendering/Texture.hpp"
 
 #include "Lina/ECS/ECS.hpp"
 #include "Lina/ECS/Components/TransformComponent.hpp"
@@ -40,6 +39,8 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "Lina/Camera.hpp"
 #include "Lina/Events/Event.hpp"
 #include "glad/glad.h"
+
+#include "Lina/Rendering/ArrayBitmap.hpp"
 
 namespace LinaEngine
 {
@@ -62,9 +63,8 @@ namespace LinaEngine
 	unsigned int VAO;
 	unsigned int EBO;
 
-	typedef Texture_OpenGL Texture2D;
-	Texture2D baseTexture;
-	Texture2D overlayTexture;
+	
+
 	Shader_GLSLBasic basicShader;
 	Camera sceneCamera;
 
@@ -193,10 +193,12 @@ namespace LinaEngine
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 		glEnableVertexAttribArray(1);
 
+		ArrayBitmap bitmap;
+		bitmap.Load(ResourceConstants::TexturesPath + "bricks.jpg");
+		Texture(*this, bitmap, PixelFormat::FORMAT_RGB, true, false);
 
-
-		baseTexture = Texture2D(GL_TEXTURE0, true, "base1.png");
-		overlayTexture = Texture2D(GL_TEXTURE1, true, "overlay.png");
+		//baseTexture = Texture2D(GL_TEXTURE0, true, "base1.png");
+		//overlayTexture = Texture2D(GL_TEXTURE1, true, "overlay.png");
 
 		basicShader.Use();
 		basicShader.SetTextureUnit1();
@@ -221,8 +223,8 @@ namespace LinaEngine
 		glClearColor(0.2f, 0.1f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
-		baseTexture.Use();
-		overlayTexture.Use();
+		//baseTexture.Use();
+		//overlayTexture.Use();
 		basicShader.Use();
 
 
@@ -351,6 +353,15 @@ namespace LinaEngine
 		}
 		glDeleteTextures(1, &texture2D);
 		return 0;
+	}
+
+	void GLRenderingEngine::SetShader(uint32 shader)
+	{
+		if (shader == m_BoundShader)
+			return;
+
+		glUseProgram(shader);
+		m_BoundShader = shader;
 	}
 
 

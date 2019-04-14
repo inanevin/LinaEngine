@@ -51,8 +51,11 @@ namespace LinaEngine
 		virtual uint32 CreateTexture2D(int32 width, int32 height, const void* data, RenderingEngine::PixelFormat pixelDataFormat, RenderingEngine::PixelFormat internalPixelFormat, bool generateMipMaps, bool compress) override;
 		virtual uint32 CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount) override;
 		virtual uint32 ReleaseTexture2D(uint32 texture2D) override;
-;
+		virtual void SetShader(uint32 shader) override;
+
 	private:
+
+		uint32 m_BoundShader = 0;
 
 		int keyData = -1;
 		void Test();

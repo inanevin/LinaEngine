@@ -62,8 +62,10 @@ namespace LinaEngine
 	bool ArrayBitmap::Load(const LinaString& fileName)
 	{
 		int32 texWidth, texHeight, bytesPerPixel;
+
 		uint8* data = stbi_load(fileName.c_str(), &texWidth, &texHeight,
 			&bytesPerPixel, 4);
+
 		if (data == nullptr) {
 			return false;
 		}
