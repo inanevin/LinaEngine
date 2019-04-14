@@ -28,11 +28,11 @@ Redistribution and use in source and binary forms, with or without modification,
 #ifndef Math_HPP
 #define Math_HPP
 
-#include "Lina/PackageManager/PlatformMath.hpp"
+#include "Lina/PackageManager/PAMMath.hpp"
 
 namespace LinaEngine
 {
-	typedef PlatformMath Math;
+	typedef PAMMath Math;
 }
 
 

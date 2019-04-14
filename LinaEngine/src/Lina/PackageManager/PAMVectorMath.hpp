@@ -22,7 +22,7 @@ Timestamp: 4/9/2019 12:55:47 AM
 #ifndef PlatformVectorMath_HPP
 #define PlatformVectorMath_HPP
 
-#include "Platform.hpp"
+#include "PAM.hpp"
 
 #if defined(SIMD_CPU_ARCH_x86) || defined(SIMD_CPU_ARCH_x86_64)
 

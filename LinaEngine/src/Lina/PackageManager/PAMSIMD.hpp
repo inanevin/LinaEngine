@@ -23,7 +23,7 @@ Timestamp: 4/9/2019 12:30:55 AM
 #define PlatformSIMD_HPP
 
 
-#include "Platform.hpp"
+#include "PAM.hpp"
 
 //Include appropriate header files for SIMD features and CPU architecture
 #if defined(SIMD_CPU_ARCH_x86) || defined(SIMD_CPU_ARCH_x86_64)
