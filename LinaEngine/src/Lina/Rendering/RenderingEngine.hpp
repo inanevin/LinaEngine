@@ -46,6 +46,12 @@ namespace LinaEngine
 			FORMAT_DEPTH_AND_STENCIL,
 		};
 
+		struct ShaderProgram
+		{
+			LinaArray<uint32> m_Shaders;
+			LinaMap<LinaString, uint32> m_UniformMap;
+			LinaMap<LinaString, uint32> m_SamplerMap;
+		};
 
 		virtual ~RenderingEngine();
 
