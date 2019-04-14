@@ -23,7 +23,7 @@ Timestamp: 4/9/2019 12:33:52 AM
 #define SSEVectorMath_HPP
 
 #include "Lina/Utility/Math/Math.hpp"
-#include "Lina/Platform/PlatformSIMD.hpp"
+#include "Lina/PackageManager/PlatformSIMD.hpp"
 #include "Lina/Memory.hpp"
 #include "Lina/Core/Core.hpp"
 

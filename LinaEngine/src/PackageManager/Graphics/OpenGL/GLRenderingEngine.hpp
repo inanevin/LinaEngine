@@ -52,6 +52,7 @@ namespace LinaEngine
 		virtual uint32 CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount) override;
 		virtual uint32 ReleaseTexture2D(uint32 texture2D) override;
 		virtual void SetShader(uint32 shader) override;
+		virtual void SetShaderSampler(uint32 shader, const LinaString& samplerName, uint32 texture, uint32 sampler, uint32 unit) override {};
 
 	private:
 

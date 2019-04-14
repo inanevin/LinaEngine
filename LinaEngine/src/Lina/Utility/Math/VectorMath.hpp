@@ -23,7 +23,7 @@ Timestamp: 4/9/2019 1:03:58 AM
 #define VectorMath_HPP
 
 
-#include "Lina/Platform/PlatformVectorMath.hpp"
+#include "Lina/PackageManager/PlatformVectorMath.hpp"
 #include "Math.hpp"
 #include "Lina/Memory.hpp"
 

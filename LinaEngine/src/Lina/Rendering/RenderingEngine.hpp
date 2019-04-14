@@ -92,7 +92,7 @@ namespace LinaEngine
 		virtual uint32 CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount) = 0;
 		virtual uint32 ReleaseTexture2D(uint32 texture2D) = 0;
 		virtual void SetShader(uint32 shader) = 0;
-		//virtual void SetShaderSampler(uint32 shader, const LinaString& samplerName)
+		virtual void SetShaderSampler(uint32 shader, const LinaString& samplerName, uint32 texture, uint32 sampler, uint32 unit) = 0;
 
 	protected:
 
@@ -101,6 +101,8 @@ namespace LinaEngine
 		bool isWireframeModeActive;
 		WindowProps m_WindowProps;
 		class Application* app = nullptr;
+
+		LinaMap<uint32, ShaderProgram> m_ShaderProgramMap;
 
 	private:
 
