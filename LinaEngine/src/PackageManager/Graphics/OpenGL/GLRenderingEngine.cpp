@@ -260,12 +260,31 @@ namespace LinaEngine
 
 	uint32 GLRenderingEngine::CreateTexture2D(int32 width, int32 height, const void * data, int pixelDataFormat, int internalPixelFormat, bool generateMipMaps, bool compress)
 	{
-
+		// Decrlare formats, target & handle
 		GLint format = GetOpenGLFormat((PixelFormat)pixelDataFormat);
 		GLint internalFormat = GetOpenGLInternalFormat((PixelFormat)internalPixelFormat, compress);
 		GLenum textureTarget = GL_TEXTURE_2D;
 		GLuint textureHandle;
-		return 0;
+
+		// OpenGL texture params.
+		glGenTextures(1, &textureHandle);
+		glBindTexture(textureTarget, textureHandle);
+		glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(textureTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexImage2D(textureTarget, 0, internalFormat, width, height, 0, format,
+			GL_UNSIGNED_BYTE, data);
+
+		if (generateMipMaps) {
+			glGenerateMipmap(textureTarget);
+		}
+		else {
+			glTexParameteri(textureTarget, GL_TEXTURE_BASE_LEVEL, 0);
+			glTexParameteri(textureTarget, GL_TEXTURE_MAX_LEVEL, 0);
+		}
+
+		return textureHandle;
 	}
 
 
