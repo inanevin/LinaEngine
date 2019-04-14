@@ -33,11 +33,11 @@ namespace LinaEngine
 		DDSTexture() {};
 		virtual ~DDSTexture() { CleanUp(); };
 		bool Load(const char* fileName);
-		FORCEINLINE uint32 getMipMapCount() const { return m_MipMapCount; }
-		FORCEINLINE uint32 getFourCC() const { return m_FourCC; }
-		FORCEINLINE uint32 getWidth() const { return m_Width; }
-		FORCEINLINE uint32 getHeight() const { return m_Height; }
-		FORCEINLINE const unsigned char* getBuffer()  const { return m_Buffer; }
+		FORCEINLINE uint32 GetMipMapCount() const { return m_MipMapCount; }
+		FORCEINLINE uint32 GetFourCC() const { return m_FourCC; }
+		FORCEINLINE uint32 GetWidth() const { return m_Width; }
+		FORCEINLINE uint32 GetHeight() const { return m_Height; }
+		FORCEINLINE const unsigned char* GetBuffer()  const { return m_Buffer; }
 
 	private:
 

@@ -36,6 +36,16 @@ namespace LinaEngine
 		hasMipMaps = generateMipMaps;
 	}
 
+	Texture::Texture(RenderingEngine & re, const DDSTexture & ddsTexture)
+	{
+		renderingEngine = &re;
+		m_ID = renderingEngine->CreateDDSTexture2D(ddsTexture.GetWidth(), ddsTexture.GetHeight(), ddsTexture.GetBuffer(), ddsTexture.GetFourCC(), ddsTexture.GetMipMapCount());
+		m_Width = ddsTexture.GetWidth();
+		m_Height = ddsTexture.GetHeight();
+		isCompressed = true;
+		hasMipMaps = ddsTexture.GetMipMapCount() > 1;
+	}
+
 	Texture::~Texture()
 	{
 		m_ID = renderingEngine->ReleaseTexture2D(m_ID);
