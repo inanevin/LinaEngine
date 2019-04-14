@@ -37,10 +37,10 @@ namespace LinaEngine
 
 		virtual ~InputEngine();
 
-		/* Called when input engine is initialized. */
+		/* Called when input renderingEngine is initialized. */
 		virtual void Initialize();
 
-		/* Called when updating the input engine. */
+		/* Called when updating the input renderingEngine. */
 		virtual void OnUpdate() = 0;
 
 		/* Returns true each frame key mapped with the keyCode is pressed */

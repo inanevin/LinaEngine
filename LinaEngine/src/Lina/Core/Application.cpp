@@ -46,7 +46,7 @@ namespace LinaEngine
 		// Get a graphics adapter.
 		GraphicsAdapter adpt;
 
-		// Create unique ptr for rendering engine returned by the adapter.
+		// Create unique ptr for rendering renderingEngine returned by the adapter.
 		m_RenderingEngine = std::unique_ptr<RenderingEngine>(adpt.CreateRenderingEngine());
 
 		// Set event callback for the main window.
@@ -58,20 +58,20 @@ namespace LinaEngine
 		// Get an input adapter.
 		InputAdapter inpAdpt;
 
-		// Create input engine.
+		// Create input renderingEngine.
 		m_InputEngine = std::unique_ptr<InputEngine>(inpAdpt.CreateInputEngine());
 
-		// Set window reference in input engine.
+		// Set window reference in input renderingEngine.
 		m_InputEngine->SetApplication(*this);
 
-		// Initialize rendering engine.
+		// Initialize rendering renderingEngine.
 		m_RenderingEngine->Initialize();
 
-		// Initialize input engine.
+		// Initialize input renderingEngine.
 		m_InputEngine->Initialize();
 
 		// TODO: Carry start to different block.
-		// Start the rendering engine.
+		// Start the rendering renderingEngine.
 		m_RenderingEngine->Start();
 
 		// Set running flag.
@@ -108,7 +108,7 @@ namespace LinaEngine
 			
 			m_InputEngine->OnUpdate();
 
-			// Update rendering engine.
+			// Update rendering renderingEngine.
 			m_RenderingEngine->OnUpdate();
 
 			for (Layer* layer : m_LayerStack)

@@ -54,7 +54,7 @@ namespace LinaEngine
 		Window(const WindowProps& wp = WindowProps());
 		virtual ~Window() { LINA_CORE_TRACE("[Destructor] -> Window ({0})", typeid(*this).name()); }
 
-		/* Gets called after rendering engine is initialized. */
+		/* Gets called after rendering renderingEngine is initialized. */
 		virtual void Initialize() = 0;
 
 		/* Gets called when the window updates each frame. */

@@ -271,11 +271,11 @@ namespace LinaEngine
 		isWireframeModeActive = activation;*/
 	}
 
-	uint32 GLRenderingEngine::CreateTexture2D(int32 width, int32 height, const void * data, int pixelDataFormat, int internalPixelFormat, bool generateMipMaps, bool compress)
+	uint32 GLRenderingEngine::CreateTexture2D(int32 width, int32 height, const void * data, RenderingEngine::PixelFormat pixelDataFormat, RenderingEngine::PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
 	{
 		// Decrlare formats, target & handle
-		GLint format = GetOpenGLFormat((PixelFormat)pixelDataFormat);
-		GLint internalFormat = GetOpenGLInternalFormat((PixelFormat)internalPixelFormat, compress);
+		GLint format = GetOpenGLFormat(pixelDataFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(internalPixelFormat, compress);
 		GLenum textureTarget = GL_TEXTURE_2D;
 		GLuint textureHandle;
 

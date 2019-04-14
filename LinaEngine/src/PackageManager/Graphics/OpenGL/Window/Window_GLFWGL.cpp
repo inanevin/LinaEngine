@@ -93,7 +93,7 @@ namespace LinaEngine
 	{
 		LINA_CORE_TRACE("[Initialization] -> Window GLFW ({0})", typeid(*this).name());
 
-		// Get input engine.
+		// Get input renderingEngine.
 		inputEngine = &(Application::Get().GetInputEngine());
 
 		// Initialize glfw & set window hints

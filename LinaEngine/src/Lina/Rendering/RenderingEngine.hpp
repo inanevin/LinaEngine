@@ -23,8 +23,7 @@ Timestamp: 1/2/2019 10:51:47 PM
 
 #include "Lina/Core/Core.hpp"
 #include "Window.hpp"
-#include "Lina/Rendering/Texture.hpp"
-#include "Lina/Camera.hpp"
+
 
 namespace LinaEngine
 {
@@ -33,14 +32,27 @@ namespace LinaEngine
 
 	class LINA_API RenderingEngine
 	{
+
 	public:
+
+
+		enum PixelFormat
+		{
+			FORMAT_R,
+			FORMAT_RG,
+			FORMAT_RGB,
+			FORMAT_RGBA,
+			FORMAT_DEPTH,
+			FORMAT_DEPTH_AND_STENCIL,
+		};
+
 
 		virtual ~RenderingEngine();
 
-		/* Initializes the rendering engine. */
+		/* Initializes the rendering renderingEngine. */
 		virtual void Initialize();
 
-		/* Starts the rendering engine. */
+		/* Starts the rendering renderingEngine. */
 		virtual void Start() = 0;
 
 		/* Called in each frame. */
@@ -70,7 +82,7 @@ namespace LinaEngine
 
 		inline bool GetIsWireframeModeActive() { return isWireframeModeActive; }
 
-		virtual uint32 CreateTexture2D(int32 width, int32 height, const void* data, int pixelDataFormat, int internalPixelFormat, bool generateMipMaps, bool compress) = 0;
+		virtual uint32 CreateTexture2D(int32 width, int32 height, const void* data, RenderingEngine::PixelFormat pixelDataFormat, RenderingEngine::PixelFormat internalPixelFormat, bool generateMipMaps, bool compress) = 0;
 		virtual uint32 CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount) = 0;
 		virtual uint32 ReleaseTexture2D(uint32 texture2D) = 0;
 
@@ -84,7 +96,7 @@ namespace LinaEngine
 
 	private:
 
-		/* Window that the rendering engine is rendering within. */
+		/* Window that the rendering renderingEngine is rendering within. */
 		std::unique_ptr<Window> m_Window;
 
 	};

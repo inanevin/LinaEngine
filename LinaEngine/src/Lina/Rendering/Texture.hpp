@@ -22,8 +22,7 @@ Timestamp: 1/7/2019 1:55:47 PM
 #ifndef Texture_HPP
 #define Texture_HPP
 
-#include "ArrayBitmap.hpp"
-#include "Lina/Common.hpp"
+#include "RenderingEngine.hpp"
 
 namespace LinaEngine
 {
@@ -34,9 +33,25 @@ namespace LinaEngine
 
 		DISALLOW_COPY_AND_ASSIGN(Texture);
 
-	
+		Texture(class RenderingEngine& renderingEngine, const class ArrayBitmap& data, RenderingEngine::PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress);
+		//Texture(class RenderingEngine& renderingEngine, const DDSTexture& ddsTexture);
 
+		~Texture();
 
+		FORCEINLINE uint32 GetId() { return m_ID; };
+		FORCEINLINE uint32 GetWidth() const { return m_Width; }
+		FORCEINLINE uint32 GetHeight() const { return m_Height; }
+		FORCEINLINE bool IsCompressed() const { return isCompressed; }
+		FORCEINLINE bool HasMipmaps() const { return hasMipMaps; }
+
+	private:
+
+		RenderingEngine* renderingEngine;
+		uint32 m_ID;
+		uint32 m_Width;
+		uint32 m_Height;
+		bool isCompressed;
+		bool hasMipMaps;
 	};
 }
 

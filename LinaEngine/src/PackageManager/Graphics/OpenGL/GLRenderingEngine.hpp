@@ -37,16 +37,6 @@ namespace LinaEngine
 
 	public:
 
-		enum PixelFormat
-		{
-			FORMAT_R,
-			FORMAT_RG,
-			FORMAT_RGB,
-			FORMAT_RGBA,
-			FORMAT_DEPTH,
-			FORMAT_DEPTH_AND_STENCIL,
-		};
-
 		GLRenderingEngine();
 		~GLRenderingEngine();
 		
@@ -58,7 +48,7 @@ namespace LinaEngine
 		void SetMousePosition(const Vector2F& v) override { GetMainWindow().SetMousePosition(v); }
 		void SetWireframeMode(bool activation) override;
 
-		virtual uint32 CreateTexture2D(int32 width, int32 height, const void* data, int pixelDataFormat, int internalPixelFormat, bool generateMipMaps, bool compress) override;
+		virtual uint32 CreateTexture2D(int32 width, int32 height, const void* data, RenderingEngine::PixelFormat pixelDataFormat, RenderingEngine::PixelFormat internalPixelFormat, bool generateMipMaps, bool compress) override;
 		virtual uint32 CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount) override;
 		virtual uint32 ReleaseTexture2D(uint32 texture2D) override;
 ;

@@ -36,10 +36,10 @@ namespace LinaEngine
 		InputEngine_GLFW();
 		~InputEngine_GLFW();
 
-		/* Initializes input engine */
+		/* Initializes input renderingEngine */
 		void Initialize() override;
 
-		/* Called when updating the input engine. */
+		/* Called when updating the input renderingEngine. */
 		void OnUpdate() override;
 
 		/* Returns true each frame key mapped with the keyCode is pressed */
