@@ -28,12 +28,10 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "Lina/Rendering/RenderingEngine.hpp"
 
 
-
-
 namespace LinaEngine
 {
-
-	class LINA_API RenderingEngine_OpenGL : public RenderingEngine
+	
+	class RenderingEngine_OpenGL : public RenderingEngine
 	{
 	public:
 
@@ -48,6 +46,7 @@ namespace LinaEngine
 		void SetApplication(class Application& app) override;
 		void SetMousePosition(const Vector2F& v) override { GetMainWindow().SetMousePosition(v); }
 		void SetWireframeMode(bool activation) override;
+
 
 	private:
 

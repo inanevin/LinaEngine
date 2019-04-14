@@ -12,36 +12,25 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: ECSMovementControlSystem
-Timestamp: 4/9/2019 3:30:12 PM
+Class: RenderableMeshComponent
+Timestamp: 4/14/2019 1:37:59 AM
 
 */
 
 #pragma once
 
-#ifndef ECSMovementControlSystem_HPP
-#define ECSMovementControlSystem_HPP
+#ifndef RenderableMeshComponent_HPP
+#define RenderableMeshComponent_HPP
 
-#include "Lina/ECS/ECS.hpp"
-#include "Lina/ECS/Components/TransformComponent.hpp"
-#include "Lina/ECS/Components/MovementControlComponent.hpp"
+
 
 namespace LinaEngine
 {
-	class ECSMovementControlSystem : public BaseECSSystem
+	class RenderableMeshComponent
 	{
-
 	public:
 
-		ECSMovementControlSystem() : BaseECSSystem()
-		{
-			AddComponentType(TransformComponent::ID);
-			AddComponentType(MovementControlComponent::ID);
-		}
-
-		virtual void UpdateComponents(float delta, BaseECSComponent** components);
-
-	private:
+		RenderableMeshComponent();
 
 	};
 }

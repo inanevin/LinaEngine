@@ -27,7 +27,7 @@ Timestamp: 4/9/2019 1:28:05 PM
 
 namespace LinaEngine
 {
-	struct ECSTransformComponent : public ECSComponent<ECSTransformComponent>
+	struct TransformComponent : public ECSComponent<TransformComponent>
 	{
 		Transform transform;
 	};

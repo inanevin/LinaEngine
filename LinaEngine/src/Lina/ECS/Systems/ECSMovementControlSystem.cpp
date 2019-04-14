@@ -25,8 +25,8 @@ namespace LinaEngine
 {
 	void ECSMovementControlSystem::UpdateComponents(float delta, BaseECSComponent ** components)
 	{
-		ECSTransformComponent* transform = (ECSTransformComponent*)components[0];
-		ECSMovementControlComponent* movementControl = (ECSMovementControlComponent*)components[1];
+		TransformComponent* transform = (TransformComponent*)components[0];
+		MovementControlComponent* movementControl = (MovementControlComponent*)components[1];
 
 		for (uint32 i = 0; i < movementControl->movementControls.size(); i++)
 		{

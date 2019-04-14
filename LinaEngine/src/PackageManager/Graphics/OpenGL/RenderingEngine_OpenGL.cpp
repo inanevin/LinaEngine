@@ -31,8 +31,8 @@ Timestamp: 1/2/2019 11:44:41 PM
 #include "PackageManager/Graphics/OpenGL/Shaders/Shader_GLSLBasic.hpp"
 #include "glm/glm.hpp"
 #include "Lina/ECS/ECS.hpp"
-#include "Lina/ECS/Components/ECSTransformComponent.hpp"
-#include "Lina/ECS/Components/ECSMovementControlComponent.hpp"
+#include "Lina/ECS/Components/TransformComponent.hpp"
+#include "Lina/ECS/Components/MovementControlComponent.hpp"
 #include "Lina/ECS/Systems/ECSMovementControlSystem.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "GLFW/glfw3.h"
@@ -55,8 +55,8 @@ namespace LinaEngine
 
 	ECS ecs;
 	EntityHandle entity;
-	ECSTransformComponent transformComponent;
-	ECSMovementControlComponent movementComponent;
+	TransformComponent transformComponent;
+	MovementControlComponent movementComponent;
 	ECSSystemList mainSystems;
 	ECSMovementControlSystem movementControlSystem;
 	Transform workingTransformation;
@@ -78,6 +78,7 @@ namespace LinaEngine
 	RenderingEngine_OpenGL::RenderingEngine_OpenGL() : RenderingEngine()
 	{
 		LINA_CORE_TRACE("[Constructor] -> Rendering Engine OpenGL ({0})", typeid(*this).name());
+		
 	}
 
 	RenderingEngine_OpenGL::~RenderingEngine_OpenGL()
@@ -106,16 +107,6 @@ namespace LinaEngine
 	{
 		LINA_CORE_TRACE("[Start] -> Rendering Engine OpenGL ({0})", typeid(*this).name());
 
-		/*ActionParams<int> params;
-		params.binding = &keyData;
-		params.actionType = ActionType::KeyPressed;
-		params.condition = LINA_KEY_F2;
-		params.callback = BIND_ACTION(RenderingEngine_OpenGL::Test, this);
-		app->GetInputEngine().SubscribeToAction(params);
-
-		test = new ActionTest();
-		test->SetAction(&app->GetInputEngine());
-		*/
 		sceneCamera.SetPerspectiveInformation(PerspectiveInformation(60.0f, m_WindowProps.Width, m_WindowProps.Height, 0.01f, 100.0f));
 		sceneCamera.m_Transform.SetPosition(0, 0, -6);
 
@@ -173,14 +164,12 @@ namespace LinaEngine
 
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
-		//glGenBuffers(1, &EBO);
 
 		glBindVertexArray(VAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
 
 		// position attribute
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
@@ -190,8 +179,6 @@ namespace LinaEngine
 		glEnableVertexAttribArray(1);
 
 
-		//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-		//glEnableVertexAttribArray(2);
 
 		baseTexture = Texture2D(GL_TEXTURE0, true, "base1.png");
 		overlayTexture = Texture2D(GL_TEXTURE1, true, "overlay.png");
@@ -199,15 +186,6 @@ namespace LinaEngine
 		basicShader.Use();
 		basicShader.SetTextureUnit1();
 		basicShader.SetTextureUnit2();
-		// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
-	//	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-		// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-	//	glBindVertexArray(0);
 
 		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(1.0f, 0.0f, 0.0f) * 10.0f, Application::Get().GetInputEngine().GetHorizontalInput()));
 		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(0.0f, 1.0f, 0.0f) * 10.0f, Application::Get().GetInputEngine().GetVerticalInput()));
@@ -215,7 +193,7 @@ namespace LinaEngine
 		transformComponent.transform.SetPosition(Vector3F(0.0f, 0.0f, 10.0f));
 
 		entity = ecs.MakeEntity(transformComponent, movementComponent);
-		workingTransformation = ecs.GetComponent<ECSTransformComponent>(entity)->transform;
+		workingTransformation = ecs.GetComponent<TransformComponent>(entity)->transform;
 
 		mainSystems.AddSystem(movementControlSystem);
 	}
@@ -232,55 +210,20 @@ namespace LinaEngine
 		overlayTexture.Use();
 		basicShader.Use();
 
-		// camera/view transformation
-		//glm::mat4 view = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-		//float radius = 10.0f;
-		//float camX = sin(glfwGetTime()) * radius;
-		//float camZ = cos(glfwGetTime()) * radius;
-		//float camX = 0.0f;
-		//float camZ = 0.0f;
-		//view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-		//glm::mat4 projection = glm::mat4(1.0f);
-		//projection = glm::perspective(glm::radians(45.0f), (float)m_WindowProps.Width / (float)m_WindowProps.Height, 0.1f, 100.0f);
-		//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
-		//sceneCamera.m_Transform.SetRotationX(-15);
-		//basicShader.SetView(view);
-		//basicShader.SetProjection(projection);
-
-		//static Vector3F v = Vector3F(Math::Sin(glfwGetTime()) * 4, 0.0f, 0.0f);
-		//cubeTransforms[0].SetPosition(v);
 
 		glBindVertexArray(VAO);
 
-		//workingTransformation.SetPosition(Vector3F(Math::Sin(glfwGetTime()) * 2,0.0f, 0));
-		//cubeTransforms[0] = workingTransformation;
-
 		ecs.UpdateSystems(mainSystems, 0.01f);
-
+		ecs.GetComponent<TransformComponent>(entity)->transform.Rotate(Vector3F::UP(), Math::Sin(0.2f) * 2);
 		for (unsigned int i = 0; i < 1; i++)
 		{
-			Matrix4F transformation = ecs.GetComponent<ECSTransformComponent>(entity)->transform.GetWorldTransformation();
+			Matrix4F transformation = ecs.GetComponent<TransformComponent>(entity)->transform.GetWorldTransformation();
 			Matrix4F camView = sceneCamera.GetViewProjection();
 			Matrix4F WVP = camView * transformation;
 			basicShader.SetWVP(WVP);
 
-			/*glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
-			float angle = 20.0f * i;
-
-			if (i == 2 || i == 5 || i == 8)
-				model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-			else
-				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-
-			basicShader.SetModel(model);	*/
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-		//	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-
 
 	}
 
