@@ -300,7 +300,7 @@ namespace LinaEngine
 		return textureHandle;
 	}
 
-	uint32 GLRenderingEngine::createDDSTexture2D(uint32 width, uint32 height, const unsigned char * buffer, uint32 fourCC, uint32 mipMapCount)
+	uint32 GLRenderingEngine::CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char * buffer, uint32 fourCC, uint32 mipMapCount)
 	{
 		GLint format;
 		switch (fourCC)
@@ -342,6 +342,15 @@ namespace LinaEngine
 		}
 
 		return textureID;
+	}
+
+	uint32 GLRenderingEngine::ReleaseTexture2D(uint32 texture2D)
+	{
+		if (texture2D == 0) {
+			return 0;
+		}
+		glDeleteTextures(1, &texture2D);
+		return 0;
 	}
 
 

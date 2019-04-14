@@ -59,8 +59,8 @@ namespace LinaEngine
 		void SetWireframeMode(bool activation) override;
 
 		virtual uint32 CreateTexture2D(int32 width, int32 height, const void* data, int pixelDataFormat, int internalPixelFormat, bool generateMipMaps, bool compress) override;
-		virtual uint32 createDDSTexture2D(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount) override;
-		
+		virtual uint32 CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount) override;
+		virtual uint32 ReleaseTexture2D(uint32 texture2D) override;
 ;
 	private:
 
