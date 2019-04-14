@@ -31,6 +31,8 @@ namespace LinaEngine
 
 	Application* Application::instance = nullptr;
 
+
+
 	Application::Application()
 	{
 
@@ -74,6 +76,7 @@ namespace LinaEngine
 
 		// Set running flag.
 		m_Running = true;
+
 
 	}
 

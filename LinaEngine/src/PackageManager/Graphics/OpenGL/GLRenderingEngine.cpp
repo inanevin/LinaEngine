@@ -42,6 +42,8 @@ Timestamp: 1/2/2019 11:44:41 PM
 namespace LinaEngine
 {
 
+	static GLint GetOpenGLFormat(LinaEngine::GLRenderingEngine::PixelFormat format);
+	static GLint GetOpenGLInternalFormat(LinaEngine::GLRenderingEngine::PixelFormat format, bool compress);
 
 	unsigned int VBO;
 	unsigned int VAO;
@@ -258,10 +260,16 @@ namespace LinaEngine
 
 	uint32 GLRenderingEngine::CreateTexture2D(int32 width, int32 height, const void * data, int pixelDataFormat, int internalPixelFormat, bool generateMipMaps, bool compress)
 	{
+
+		GLint format = GetOpenGLFormat((PixelFormat)pixelDataFormat);
+		GLint internalFormat = GetOpenGLInternalFormat((PixelFormat)internalPixelFormat, compress);
+		GLenum textureTarget = GL_TEXTURE_2D;
+		GLuint textureHandle;
 		return 0;
 	}
 
-	static GLint GetOpenGLFormat(enum GLRenderingEngine::PixelFormat format )
+
+	static GLint GetOpenGLFormat(LinaEngine::GLRenderingEngine::PixelFormat format)
 	{
 		switch (format) {
 		case GLRenderingEngine::FORMAT_R: return GL_RED;
@@ -277,7 +285,7 @@ namespace LinaEngine
 		};
 	}
 
-	static GLint GetOpenGLInternalFormat(enum GLRenderingEngine::PixelFormat format, bool compress)
+	static GLint GetOpenGLInternalFormat(LinaEngine::GLRenderingEngine::PixelFormat format, bool compress)
 	{
 		switch (format) {
 		case GLRenderingEngine::FORMAT_R: return GL_RED;
@@ -309,8 +317,6 @@ namespace LinaEngine
 			return 0;
 		};
 	}
-
-
 }
 
 #endif

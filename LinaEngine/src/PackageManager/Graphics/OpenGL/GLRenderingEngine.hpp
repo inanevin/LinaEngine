@@ -60,7 +60,8 @@ namespace LinaEngine
 
 		virtual uint32 CreateTexture2D(int32 width, int32 height, const void* data, int pixelDataFormat, int internalPixelFormat, bool generateMipMaps, bool compress) override;
 
-
+		
+;
 	private:
 
 		int keyData = -1;

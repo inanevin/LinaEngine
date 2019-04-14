@@ -57,6 +57,12 @@ namespace LinaEngine
 			return hasher(str);
 		}
 
+		template <typename E>
+		constexpr auto to_underlying(E e) noexcept
+		{
+			return static_cast<std::underlying_type_t<E>>(e);
+		}
+
 	}
 
 	inline std::ostream& red(std::ostream &s)
@@ -66,6 +72,7 @@ namespace LinaEngine
 			FOREGROUND_RED | FOREGROUND_INTENSITY);
 		return s;
 	}
+
 
 
 
