@@ -22,19 +22,19 @@ Timestamp: 4/9/2019 3:25:33 PM
 #ifndef ECSMovementControlComponent_HPP
 #define ECSMovementControlComponent_HPP
 
-#include "Lina/ECS/ECS.hpp"
+#include "Lina/ECS/EntityComponentSystem.hpp"
 
-namespace LinaEngine
+namespace LinaEngine::Input
 {
+	class InputKeyAxisBinder;
+};
 
-	namespace Input
-	{
-		class InputKeyAxisBinder;
-	};
+namespace LinaEngine::ECS
+{
 
 	struct MovementControlComponent : public ECSComponent<MovementControlComponent>
 	{
-		LinaArray<LinaPair<Vector3F, Input::InputKeyAxisBinder*>> movementControls;
+		LinaArray<LinaPair<Vector3F, LinaEngine::Input::InputKeyAxisBinder*>> movementControls;
 	};
 }
 

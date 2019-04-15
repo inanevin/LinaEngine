@@ -19,13 +19,15 @@ Timestamp: 4/14/2019 7:46:20 PM
 
 #pragma once
 
-#ifndef INPUTDEVICE_HPP
-#define INPUTDEVICE_HPP
+#ifndef INPUTENGINE_HPP
+#define INPUTENGINE_HPP
 
 #include "Lina/Input/InputAxisBinder.hpp"
 
 namespace LinaEngine::Input
 {
+	static InputKeyAxisBinder HorizontalKeyAxis = InputKeyAxisBinder();
+	static InputKeyAxisBinder VerticalKeyAxis = InputKeyAxisBinder();
 
 	// Templated base class for various input engines. Defines most operations as inlined methods that call subclass methods.
 	template<class Derived>
@@ -43,12 +45,12 @@ namespace LinaEngine::Input
 		{
 
 			// Set the action dispatchers as our dispatcher.
-			//Input::HorizontalAxis.SetActionDispatcher(this);
-			//Input::VerticalAxis.SetActionDispatcher(this);
+			HorizontalKeyAxis.SetActionDispatcher(this);
+			VerticalKeyAxis.SetActionDispatcher(this);
 
 			// Initialize the axes.
-			//Input::HorizontalAxis.Initialize(Input::Key::L, Input::Key::J);
-			//Input::VerticalAxis.Initialize(Input::Key::I, Input::Key::K);
+			HorizontalKeyAxis.Initialize(Input::Key::L, Input::Key::J);
+			VerticalKeyAxis.Initialize(Input::Key::I, Input::Key::K);
 
 			// Initialize subclass.
 			m_Derived->Initialize_Impl(contextWindowPointer);

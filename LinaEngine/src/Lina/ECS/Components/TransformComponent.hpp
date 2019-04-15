@@ -22,10 +22,10 @@ Timestamp: 4/9/2019 1:28:05 PM
 #ifndef ECSTransformComponent_HPP
 #define ECSTransformComponent_HPP
 
-#include "Lina/ECS/Data/Transform.hpp"
-#include "Lina/ECS/ECS.hpp"
+#include "Lina/Core/Transform.hpp"
+#include "Lina/ECS/EntityComponentSystem.hpp"
 
-namespace LinaEngine
+namespace LinaEngine::ECS
 {
 	struct TransformComponent : public ECSComponent<TransformComponent>
 	{

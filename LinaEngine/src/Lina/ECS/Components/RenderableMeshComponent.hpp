@@ -24,7 +24,7 @@ Timestamp: 4/14/2019 1:37:59 AM
 
 
 
-namespace LinaEngine
+namespace LinaEngine::ECS
 {
 	class RenderableMeshComponent
 	{

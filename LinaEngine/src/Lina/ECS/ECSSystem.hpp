@@ -26,7 +26,7 @@ Timestamp: 4/8/2019 5:28:34 PM
 #include "ECSComponent.hpp"
 
 
-namespace LinaEngine
+namespace LinaEngine::ECS
 {
 	class BaseECSSystem
 	{
@@ -87,7 +87,7 @@ namespace LinaEngine
 
 	private:
 
-		/* Array of ECS systems */
+		/* Array of EntityComponentSystem systems */
 		LinaArray<BaseECSSystem*> systems;
 	};
 }

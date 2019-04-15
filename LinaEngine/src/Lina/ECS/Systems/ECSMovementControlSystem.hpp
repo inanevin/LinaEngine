@@ -22,11 +22,11 @@ Timestamp: 4/9/2019 3:30:12 PM
 #ifndef ECSMovementControlSystem_HPP
 #define ECSMovementControlSystem_HPP
 
-#include "Lina/ECS/ECS.hpp"
+#include "Lina/ECS/EntityComponentSystem.hpp"
 #include "Lina/ECS/Components/TransformComponent.hpp"
 #include "Lina/ECS/Components/MovementControlComponent.hpp"
 
-namespace LinaEngine
+namespace LinaEngine::ECS
 {
 	class ECSMovementControlSystem : public BaseECSSystem
 	{

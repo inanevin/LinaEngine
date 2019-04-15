@@ -20,7 +20,7 @@ Timestamp: 4/15/2019 12:37:37 PM
 #include "LinaPch.hpp"
 #include "GLRenderEngine.hpp"  
 #include "glad/glad.h"
-#include "Lina/ECS/ECS.hpp"
+#include "Lina/ECS/EntityComponentSystem.hpp"
 #include "Lina/ECS/Components/MovementControlComponent.hpp"
 #include "Lina/ECS/Components/RenderableMeshComponent.hpp"
 #include "Lina/ECS/Components/TransformComponent.hpp"
@@ -31,8 +31,10 @@ namespace LinaEngine::Graphics
 {
 	GLint GetOpenGLFormat(PixelFormat dataFormat);
 	GLint GetOpenGLInternalFormat(PixelFormat internalFormat, bool compress);
+	using namespace ECS;
 
-	ECS ecs;
+
+	EntityComponentSystem ecs;
 	EntityHandle entity;
 	TransformComponent transformComponent;
 	MovementControlComponent movementComponent;

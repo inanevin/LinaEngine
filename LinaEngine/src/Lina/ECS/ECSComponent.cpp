@@ -20,7 +20,7 @@ Timestamp: 4/7/2019 3:24:08 PM
 #include "LinaPch.hpp"
 #include "ECSComponent.hpp"  
 
-namespace LinaEngine
+namespace LinaEngine::ECS
 {
 	LinaArray<std::tuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>>* BaseECSComponent::componentTypes;
 

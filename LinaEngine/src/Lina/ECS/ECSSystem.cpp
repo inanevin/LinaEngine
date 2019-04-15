@@ -20,7 +20,7 @@ Timestamp: 4/8/2019 11:27:15 PM
 #include "LinaPch.hpp"
 #include "ECSSystem.hpp"  
 
-namespace LinaEngine
+namespace LinaEngine::ECS
 {
 	bool BaseECSSystem::IsValid()
 	{

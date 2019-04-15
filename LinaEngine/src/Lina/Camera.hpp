@@ -22,7 +22,7 @@ Timestamp: 1/5/2019 9:51:42 PM
 #ifndef Camera_HPP
 #define Camera_HPP
 
-#include "ECS/Data/Transform.hpp"
+#include "Core/Transform.hpp"
 
 
 namespace LinaEngine

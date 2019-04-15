@@ -24,7 +24,7 @@ Timestamp: 4/7/2019 3:24:08 PM
 
 #include "LinaPch.hpp"
 
-namespace LinaEngine
+namespace LinaEngine::ECS
 {
 
 	/* Forward definition for base ecs component. */
@@ -40,7 +40,7 @@ namespace LinaEngine
 	/* Null pointer for entitites */
 #define NULL_ENTITY_HANDLE nullptr
 
-	/* Base strcut for ECS components. */
+	/* Base strcut for EntityComponentSystem components. */
 	struct BaseECSComponent
 	{
 

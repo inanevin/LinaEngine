@@ -12,18 +12,18 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: ECS
+Class: EntityComponentSystem
 Timestamp: 4/8/2019 6:03:20 PM
 
 */
 
 #include "LinaPch.hpp"
-#include "ECS.hpp"  
+#include "EntityComponentSystem.hpp"  
 #include "Lina/Memory.hpp"
 
-namespace LinaEngine
+namespace LinaEngine::ECS
 {
-	ECS::~ECS()
+	EntityComponentSystem::~EntityComponentSystem()
 	{
 		// Remove components.
 		for (LinaMap<uint32, LinaArray<uint8>>::iterator it = components.begin(); it != components.end(); ++it)
@@ -45,7 +45,7 @@ namespace LinaEngine
 		}
 	}
 
-	EntityHandle ECS::MakeEntity(BaseECSComponent** entityComponents, const uint32* componentIDs, size_t numComponents)
+	EntityHandle EntityComponentSystem::MakeEntity(BaseECSComponent** entityComponents, const uint32* componentIDs, size_t numComponents)
 	{
 		// Create entity & handle
 		LinaPair<uint32, LinaArray<LinaPair<uint32, uint32>>>* newEntity = new LinaPair<uint32, LinaArray<LinaPair<uint32, uint32>>>();
@@ -72,7 +72,7 @@ namespace LinaEngine
 		return handle;
 	}
 
-	void ECS::RemoveEntity(EntityHandle handle)
+	void EntityComponentSystem::RemoveEntity(EntityHandle handle)
 	{
 		// Get entity from the handle.
 		LinaArray<LinaPair<uint32, uint32>>& entity = HandleToEntity(handle);
@@ -97,7 +97,7 @@ namespace LinaEngine
 	}
 
 
-	void ECS::UpdateSystems(ECSSystemList& systems, float delta)
+	void EntityComponentSystem::UpdateSystems(ECSSystemList& systems, float delta)
 	{
 		// Components.
 		LinaArray<BaseECSComponent*> componentParam;
@@ -134,7 +134,7 @@ namespace LinaEngine
 	}
 
 
-	void ECS::AddComponentInternal(EntityHandle handle, LinaArray<LinaPair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent * component)
+	void EntityComponentSystem::AddComponentInternal(EntityHandle handle, LinaArray<LinaPair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent * component)
 	{
 		// Get the create functor for the component
 		ECSComponentCreateFunction createfn = BaseECSComponent::GetTypeCreateFunction(componentID);
@@ -148,7 +148,7 @@ namespace LinaEngine
 		entity.push_back(newPair);
 	}
 
-	void ECS::DeleteComponent(uint32 componentID, uint32 index)
+	void EntityComponentSystem::DeleteComponent(uint32 componentID, uint32 index)
 	{
 		// Get the components & free function.
 		LinaArray<uint8>& arr = components[componentID];
@@ -187,7 +187,7 @@ namespace LinaEngine
 		arr.resize(srcIndex);
 	}
 
-	bool ECS::RemoveComponentInternal(EntityHandle handle, uint32 componentID)
+	bool EntityComponentSystem::RemoveComponentInternal(EntityHandle handle, uint32 componentID)
 	{
 		// Iterate through the components of the entity.
 		LinaArray<LinaPair<uint32, uint32>>& entityComponents = HandleToEntity(handle);
@@ -209,7 +209,7 @@ namespace LinaEngine
 	}
 
 
-	BaseECSComponent* ECS::GetComponentInternal(LinaArray<LinaPair<uint32, uint32>>& entityComponents, LinaArray<uint8>& arr, uint32 componentID)
+	BaseECSComponent* EntityComponentSystem::GetComponentInternal(LinaArray<LinaPair<uint32, uint32>>& entityComponents, LinaArray<uint8>& arr, uint32 componentID)
 	{
 		for (uint32 i = 0; i < entityComponents.size(); i++)
 		{
@@ -222,7 +222,7 @@ namespace LinaEngine
 		return nullptr;
 	}
 
-	void ECS::UpdateSystemMultipleComponentsInternal(uint32 index, ECSSystemList& systems, float delta, const LinaArray<uint32>& componentTypes, LinaArray<BaseECSComponent*>& componentParam, LinaArray<LinaArray<uint8>*>& componentArrays)
+	void EntityComponentSystem::UpdateSystemMultipleComponentsInternal(uint32 index, ECSSystemList& systems, float delta, const LinaArray<uint32>& componentTypes, LinaArray<BaseECSComponent*>& componentParam, LinaArray<LinaArray<uint8>*>& componentArrays)
 	{
 
 		const LinaArray<uint32>& componentFlags = systems[index]->GetComponentFlags();
@@ -278,7 +278,7 @@ namespace LinaEngine
 
 	}
 
-	uint32 ECS::FindLeastCommonComponent(const LinaArray<uint32>& componentTypes, const LinaArray<uint32>& componentFlags)
+	uint32 EntityComponentSystem::FindLeastCommonComponent(const LinaArray<uint32>& componentTypes, const LinaArray<uint32>& componentFlags)
 	{
 		uint32 minSize = (uint32)-1;
 		uint32 minIndex = (uint32)-1;

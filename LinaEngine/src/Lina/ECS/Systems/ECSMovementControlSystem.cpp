@@ -21,10 +21,10 @@ Timestamp: 4/9/2019 3:30:12 PM
 #include "ECSMovementControlSystem.hpp"  
 #include "Lina/Input/InputAxisBinder.hpp"
 
-namespace LinaEngine
-{
-	
+using namespace LinaEngine::Input;
 
+namespace LinaEngine::ECS
+{
 	void ECSMovementControlSystem::UpdateComponents(float delta, BaseECSComponent ** components)
 	{
 		TransformComponent* transform = (TransformComponent*)components[0];
@@ -33,7 +33,7 @@ namespace LinaEngine
 		for (uint32 i = 0; i < movementControl->movementControls.size(); i++)
 		{
 			Vector3F movement = movementControl->movementControls[i].first;
-			Input::InputKeyAxisBinder* input = movementControl->movementControls[i].second;
+			InputKeyAxisBinder* input = movementControl->movementControls[i].second;
 			Vector3F newPos = transform->transform.GetPosition() + (movement * input->GetAmount() * delta);
 			transform->transform.SetPosition(newPos);
 		}

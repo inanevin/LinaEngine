@@ -31,7 +31,7 @@ namespace LinaEngine
 	Shader_GLSLBasic basicShader;
 	Camera sceneCamera;
 
-	ECS ecs;
+	EntityComponentSystem ecs;
 	EntityHandle entity;
 	TransformComponent transformComponent;
 	MovementControlComponent movementComponent;

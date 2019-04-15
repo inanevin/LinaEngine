@@ -12,7 +12,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: ECS
+Class: EntityComponentSystem
 Timestamp: 4/8/2019 5:43:51 PM
 
 */
@@ -24,14 +24,14 @@ Timestamp: 4/8/2019 5:43:51 PM
 
 #include "ECSSystem.hpp"
 
-namespace LinaEngine
+namespace LinaEngine::ECS
 {
-	class ECS
+	class EntityComponentSystem
 	{
 	public:
 
-		ECS() {}
-		~ECS();
+		EntityComponentSystem() {}
+		~EntityComponentSystem();
 		
 		/* Entity Creator */
 		EntityHandle MakeEntity(BaseECSComponent** components, const uint32* componentIDs, size_t numComponents);
@@ -197,7 +197,7 @@ namespace LinaEngine
 		void UpdateSystemMultipleComponentsInternal(uint32 index, ECSSystemList& systems, float delta, const LinaArray<uint32>& componentTypes, LinaArray<BaseECSComponent*>& componentParam, LinaArray<LinaArray<uint8>*>& componentArrays);
 		uint32 FindLeastCommonComponent(const LinaArray<uint32>& componentTypes, const LinaArray<uint32>& componentFlags);
 
-		NULL_COPY_AND_ASSIGN(ECS);
+		NULL_COPY_AND_ASSIGN(EntityComponentSystem);
 	};
 
 }
