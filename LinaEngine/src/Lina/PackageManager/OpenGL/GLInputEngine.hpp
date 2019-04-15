@@ -28,6 +28,7 @@ Timestamp: 4/14/2019 5:15:15 PM
 
 namespace LinaEngine
 {
+	// A subclass of Input Engine. Check the InputEngine.hpp for method details.
 	class GLInputEngine : public InputEngine<GLInputEngine>
 	{
 	public:
@@ -35,52 +36,24 @@ namespace LinaEngine
 		GLInputEngine();
 		virtual ~GLInputEngine();
 
-		/* Initializes input renderDevice */
 		void Initialize_Impl(void* contextWindowPointer);
-
-		/* Called each frame */
 		void Tick_Impl();
-
-		/* Returns true each frame key mapped with the keyCode is pressed */
 		bool GetKey_Impl(int keyCode);
-
-		/* Returns true in the frame key mapped with the keyCode is pressed. */
 		bool GetKeyDown_Impl(int keyCode);
-
-		/* Returns true in the frame key mapped with the keyCode is stopped being pressed. */
 		bool GetKeyUp_Impl(int keyCode);
-
-		/* Returns true each frame mouse button mapped with the index is pressed */
 		bool GetMouseButton_Impl(int index);
-
-		/* Returns true in the frame mouse button mapped with the index is pressed. */
 		bool GetMouseButtonDown_Impl(int index);
-
-		/* Returns true in the frame mouse mapped with the index is stopped being pressed. */
 		bool GetMouseButtonUp_Impl(int index);
-
-		/* Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Not smoothed.*/
 		Vector2F GetRawMouseAxis_Impl();
-
-		/* Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Delta smoothed.*/
 		Vector2F GetMouseAxis_Impl();
-
-		/* Returns a Vector2 containing screen space mouse positions */
 		Vector2F GetMousePosition_Impl();
-
-		/* Sets the cursor visible.*/
 		void SetCursor_Impl(bool visible) const;
-
-		/* Sets mouse position to desired screen space coordinates. */
 		void SetMousePosition_Impl(const Vector2F& v) const;
-	
 
 	private:
 
-		/* Key data */
 		int previousKeys[NUM_KEY_STATES];
 		int currentKeys[NUM_KEY_STATES];
-
 	};
 }
 
