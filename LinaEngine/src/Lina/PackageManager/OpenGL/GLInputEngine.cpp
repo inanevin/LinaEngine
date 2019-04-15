@@ -22,7 +22,7 @@ Timestamp: 4/14/2019 5:15:15 PM
 #include "GLFW/glfw3.h"
 
 
-namespace LinaEngine
+namespace LinaEngine::Input
 {
 
 	static const float axisSensitivity = 0.1f;

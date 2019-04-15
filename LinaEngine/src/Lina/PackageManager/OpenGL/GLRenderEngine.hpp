@@ -25,7 +25,7 @@ Timestamp: 4/15/2019 12:37:37 PM
 #include "Lina/Rendering/RenderEngine.hpp"
 #include "Lina/PackageManager/PAMWindow.hpp"
 
-namespace LinaEngine
+namespace LinaEngine::Graphics
 {
 
 #define MAKEFOURCC(a, b, c, d)                              \

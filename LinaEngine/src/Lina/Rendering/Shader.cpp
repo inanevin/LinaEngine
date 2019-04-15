@@ -20,7 +20,7 @@ Timestamp: 2/16/2019 1:47:28 AM
 #include "LinaPch.hpp"
 #include "Shader.hpp"  
 
-namespace LinaEngine
+namespace LinaEngine::Graphics
 {
 	Shader::Shader()
 	{

@@ -35,6 +35,7 @@ namespace LinaEngine
 	{
 	public:
 
+		ActionSubscriber() {};
 		virtual ~ActionSubscriber();
 		
 		// Unsubscribes all handlers.
@@ -44,8 +45,6 @@ namespace LinaEngine
 		FORCEINLINE void SetActionDispatcher(ActionDispatcher* disp) { m_ActionDispatcher = disp; }
 
 	protected:
-
-		ActionSubscriber() {};
 
 		// Initialize the subscriber.
 		virtual void Initialize() = 0;

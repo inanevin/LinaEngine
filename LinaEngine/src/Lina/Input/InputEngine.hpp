@@ -24,8 +24,9 @@ Timestamp: 4/14/2019 7:46:20 PM
 
 #include "Lina/Input/InputAxisBinder.hpp"
 
-namespace LinaEngine
+namespace LinaEngine::Input
 {
+
 	// Templated base class for various input engines. Defines most operations as inlined methods that call subclass methods.
 	template<class Derived>
 	class InputEngine : public ActionDispatcher
@@ -40,17 +41,14 @@ namespace LinaEngine
 		// Initialize the engine, sets the dispatcher references & initializes axes.
 		FORCEINLINE void Initialize(void* contextWindowPointer) 
 		{
-			// Assign unique ptrs
-			m_HorizontalAxis = std::make_unique<InputKeyAxisBinder>();
-			m_VerticalAxis = std::make_unique<InputKeyAxisBinder>();
 
 			// Set the action dispatchers as our dispatcher.
-			m_HorizontalAxis->SetActionDispatcher(this);
-			m_VerticalAxis->SetActionDispatcher(this);
+			//Input::HorizontalAxis.SetActionDispatcher(this);
+			//Input::VerticalAxis.SetActionDispatcher(this);
 
 			// Initialize the axes.
-			m_HorizontalAxis->Initialize(Input::Key::L, Input::Key::J);
-			m_VerticalAxis->Initialize(Input::Key::I, Input::Key::K);
+			//Input::HorizontalAxis.Initialize(Input::Key::L, Input::Key::J);
+			//Input::VerticalAxis.Initialize(Input::Key::I, Input::Key::K);
 
 			// Initialize subclass.
 			m_Derived->Initialize_Impl(contextWindowPointer);
@@ -92,12 +90,6 @@ namespace LinaEngine
 		// Set cursor visible/invisible.
 		FORCEINLINE void SetCursor(bool visible) { m_Derived->SetCursor(visible); }
 
-		// Get the horizontal input object.
-		FORCEINLINE InputKeyAxisBinder& GetHorizontalInput() { return m_HorizontalAxis; };
-
-		// Get the vertical input object.
-		FORCEINLINE InputKeyAxisBinder& GetVerticalInput() { return m_VerticalAxis; };
-
 		// Get the input dispatcher of this engine.
 		FORCEINLINE ActionDispatcher& GetInputDispatcher() { return m_InputDispatcher; }
 
@@ -134,10 +126,6 @@ namespace LinaEngine
 			m_Derived = static_cast<Derived*>(this);		
 			LINA_CORE_TRACE("[Constructor] -> InputDevice ({0})", typeid(*this).name());
 		};
-
-		// Axes objects. Values are mapped between -1 & 1.
-		std::unique_ptr<InputKeyAxisBinder> m_HorizontalAxis;
-		std::unique_ptr<InputKeyAxisBinder> m_VerticalAxis;
 
 	private:
 

@@ -24,7 +24,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 
 #include "Lina/Events/Event.hpp"
 
-namespace LinaEngine
+namespace LinaEngine::Graphics
 {
 
 	enum PixelFormat

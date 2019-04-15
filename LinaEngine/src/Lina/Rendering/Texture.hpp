@@ -24,7 +24,7 @@ Timestamp: 1/7/2019 1:55:47 PM
 
 #include "DDSTexture.hpp"
 
-namespace LinaEngine
+namespace LinaEngine::Graphics
 {
 	template<class Derived>
 	class RenderEngine;

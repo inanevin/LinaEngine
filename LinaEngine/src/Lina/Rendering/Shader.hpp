@@ -24,7 +24,7 @@ Timestamp: 2/16/2019 1:47:28 AM
 
 
 
-namespace LinaEngine
+namespace LinaEngine::Graphics
 {
 	class Shader
 	{

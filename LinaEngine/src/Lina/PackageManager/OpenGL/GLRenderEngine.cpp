@@ -20,11 +20,26 @@ Timestamp: 4/15/2019 12:37:37 PM
 #include "LinaPch.hpp"
 #include "GLRenderEngine.hpp"  
 #include "glad/glad.h"
+#include "Lina/ECS/ECS.hpp"
+#include "Lina/ECS/Components/MovementControlComponent.hpp"
+#include "Lina/ECS/Components/RenderableMeshComponent.hpp"
+#include "Lina/ECS/Components/TransformComponent.hpp"
+#include "Lina/ECS/Systems/ECSMovementControlSystem.hpp"
 
-namespace LinaEngine
+
+namespace LinaEngine::Graphics
 {
 	GLint GetOpenGLFormat(PixelFormat dataFormat);
 	GLint GetOpenGLInternalFormat(PixelFormat internalFormat, bool compress);
+
+	ECS ecs;
+	EntityHandle entity;
+	TransformComponent transformComponent;
+	MovementControlComponent movementComponent;
+	ECSSystemList mainSystems;
+	ECSMovementControlSystem movementControlSystem;
+	Transform workingTransformation;
+
 
 	GLRenderEngine::GLRenderEngine() : RenderEngine()
 	{
@@ -39,7 +54,11 @@ namespace LinaEngine
 
 	void GLRenderEngine::Initialize_Impl()
 	{
-		
+		TransformComponent transformComponent;
+		transformComponent.transform.SetPosition(Vector3F(0.0f, 0.0f, 10.0f));
+
+		MovementControlComponent movementControl;
+		//movementControl.movementControls.push_back(LinaMakePair());
 	}
 
 	void GLRenderEngine::Tick_Impl()

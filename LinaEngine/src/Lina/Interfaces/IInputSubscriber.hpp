@@ -26,7 +26,7 @@ Timestamp: 4/4/2019 2:29:37 AM
 #include "Lina/Events/ActionSubscriber.hpp"
 
 
-namespace LinaEngine
+namespace LinaEngine::Input
 {
 	class LINA_API IInputSubscriber : public ActionSubscriber
 	{

@@ -20,7 +20,7 @@ Timestamp: 4/14/2019 4:04:34 PM
 #include "LinaPch.hpp"
 #include "DDSTexture.hpp"  
 
-namespace LinaEngine
+namespace LinaEngine::Graphics
 {
 
 	bool DDSTexture::Load(const char * fileName)

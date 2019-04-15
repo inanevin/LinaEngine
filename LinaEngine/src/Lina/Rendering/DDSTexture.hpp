@@ -24,7 +24,7 @@ Timestamp: 4/14/2019 4:04:34 PM
 
 
 
-namespace LinaEngine
+namespace LinaEngine::Graphics
 {
 	class DDSTexture
 	{

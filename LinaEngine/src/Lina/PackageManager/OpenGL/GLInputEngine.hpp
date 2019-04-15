@@ -26,7 +26,7 @@ Timestamp: 4/14/2019 5:15:15 PM
 #include "Lina/Input/InputEngine.hpp"
 
 
-namespace LinaEngine
+namespace LinaEngine::Input
 {
 	// A subclass of Input Engine. Check the InputEngine.hpp for method details.
 	class GLInputEngine : public InputEngine<GLInputEngine>

@@ -21,7 +21,7 @@ Timestamp: 4/14/2019 11:59:32 AM
 #include "ArrayBitmap.hpp"  
 #include "../vendor/Misc/stb_image.h"
 
-namespace LinaEngine
+namespace LinaEngine::Graphics
 {
 	ArrayBitmap::ArrayBitmap(int32 widthIn, int32 heightIn) : m_Width(widthIn), m_Heigth(heightIn)
 	{

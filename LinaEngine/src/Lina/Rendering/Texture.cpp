@@ -22,7 +22,7 @@ Timestamp: 1/7/2019 1:55:47 PM
 #include "ArrayBitmap.hpp"
 #include "Lina/PackageManager/PAMRenderEngine.hpp"
 
-namespace LinaEngine
+namespace LinaEngine::Graphics
 {
 	
 
