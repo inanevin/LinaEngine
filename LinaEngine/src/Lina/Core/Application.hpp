@@ -45,7 +45,7 @@ namespace LinaEngine
 		void PushOverlay(Layer* layer);
 
 		FORCEINLINE static Application& Get() { return *instance; }
-		FORCEINLINE InputEngine<PAMInputEngine>& GetInputDevice() { return *(m_InputDevice.get()); }
+		FORCEINLINE InputEngine<PAMInputEngine>& GetInputDevice() { return *(m_InputEngine.get()); }
 		FORCEINLINE RenderEngine<PAMRenderEngine>& GetRenderEngine() { return *(m_RenderEngine.get()); }
 
 		//FORCEINLINE Window<PAMWindow>& GetMainWindow() { return *(m_ContextWindow.get()); }
@@ -58,7 +58,7 @@ namespace LinaEngine
 		bool m_Running = false;
 		LayerStack m_LayerStack;
 		
-		std::unique_ptr<InputEngine<PAMInputEngine>> m_InputDevice;
+		std::unique_ptr<InputEngine<PAMInputEngine>> m_InputEngine;
 		std::unique_ptr<RenderEngine<PAMRenderEngine>> m_RenderEngine;
 		
 		

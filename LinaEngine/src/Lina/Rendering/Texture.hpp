@@ -26,15 +26,22 @@ Timestamp: 1/7/2019 1:55:47 PM
 
 namespace LinaEngine
 {
+	template<class Derived>
+	class RenderEngine;
+
+
 	class Texture
 	{
 
 	public:
 
+
+		
+
 		DISALLOW_COPY_AND_ASSIGN(Texture);
 
-		//Texture(RenderDevice& device, const class ArrayBitmap& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress);
-		//Texture(RenderDevice& device, const DDSTexture& ddsTexture);
+		Texture(RenderEngine<class PAMRenderEngine>& engine, const class ArrayBitmap& data, int internalPixelFormat, bool generateMipMaps, bool shouldCompress);
+		Texture(RenderEngine<class PAMRenderEngine>& engine, const DDSTexture& ddsTexture);
 
 		~Texture();
 
@@ -46,7 +53,7 @@ namespace LinaEngine
 
 	private:
 
-		//RenderDevice* renderDevice;
+		RenderEngine<class PAMRenderEngine>* renderEngine;
 		uint32 m_ID;
 		uint32 m_Width;
 		uint32 m_Height;

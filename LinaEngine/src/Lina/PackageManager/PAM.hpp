@@ -98,6 +98,13 @@ Timestamp: 4/7/2019 3:51:47 PM
 #endif
 
 
+#ifdef LINA_GRAPHICS_OPENGL
+
+#define PAMRenderEngine GLRenderEngine
+#define PAMInputEngine GLInputEngine
+#define PAMWindow GLWindow
+
+#endif
 
 
 

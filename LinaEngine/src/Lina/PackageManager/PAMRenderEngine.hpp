@@ -22,11 +22,11 @@ Timestamp: 4/15/2019 1:52:36 PM
 #ifndef PAMRENDERENGINE_HPP
 #define PAMRENDERENGINE_HPP
 
-#define LINA_GRAPHICS_OPENGL
 
 #ifdef LINA_GRAPHICS_OPENGL
+
 #include "OpenGL/GLRenderEngine.hpp"
-typedef LinaEngine::GLRenderEngine PAMRenderEngine;
+
 #endif
 
 

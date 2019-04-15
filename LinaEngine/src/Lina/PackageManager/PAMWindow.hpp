@@ -22,12 +22,9 @@ Timestamp: 4/14/2019 7:13:05 PM
 #ifndef PAMWINDOW_HPP
 #define PAMWINDOW_HPP
 
-
-#define LINA_GRAPHICS_OPENGL
-
 #ifdef LINA_GRAPHICS_OPENGL
 #include "OpenGL/GLWindow.hpp"
-typedef LinaEngine::GLWindow PAMWindow;
+
 #endif
 
 

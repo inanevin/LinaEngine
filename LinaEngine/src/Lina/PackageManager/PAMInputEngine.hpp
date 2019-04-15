@@ -23,11 +23,10 @@ Timestamp: 4/14/2019 7:12:53 PM
 #ifndef PAMINPUTDEVICE_HPP
 #define PAMINPUTDEVICE_HPP
 
-#define LINA_GRAPHICS_OPENGL
+
 
 #ifdef LINA_GRAPHICS_OPENGL
 #include "OpenGL/GLInputEngine.hpp"
-typedef LinaEngine::GLInputEngine PAMInputEngine;
 #endif
 
 #endif

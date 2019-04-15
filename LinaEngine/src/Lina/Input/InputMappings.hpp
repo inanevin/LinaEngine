@@ -220,7 +220,7 @@ namespace LinaEngine
 #define LINA_KEY_RGUI 231 
 
 
-#elif LLF_INPUTANDWINDOW_GLFW
+#elif LINA_GRAPHICS_OPENGL
 
 #define LINA_MOUSE_1         0
 #define LINA_MOUSE_2         1

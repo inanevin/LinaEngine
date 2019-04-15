@@ -37,7 +37,7 @@ namespace LinaEngine
 		instance = this;
 
 		// Set unique pointers of input device & render engine.
-		m_InputDevice = std::make_unique<PAMInputEngine>();
+		m_InputEngine = std::make_unique<PAMInputEngine>();
 		m_RenderEngine = std::make_unique<PAMRenderEngine>();
 
 		// Create main window.
@@ -48,8 +48,11 @@ namespace LinaEngine
 			return;
 		}
 
+		// Set event callback for main window.
+		m_RenderEngine->SetMainWindowEventCallback(BIND_EVENT_FN(OnEvent));
+
 		// Initialize input & render engines.
-		m_InputDevice->Initialize(m_RenderEngine->GetNativeWindow());
+		m_InputEngine->Initialize(m_RenderEngine->GetNativeWindow());
 		m_RenderEngine->Initialize();
 
 		// Set running flag.
@@ -81,10 +84,9 @@ namespace LinaEngine
 	{
 		while (m_Running)
 		{
-			//m_InputDevice->OnUpdate();
-		
-			// Update rendering renderDevice.
-			//m_RenderDevice->OnUpdate();
+			// Update engines.
+			m_InputEngine->Tick();
+			m_RenderEngine->Tick();
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
@@ -119,7 +121,7 @@ namespace LinaEngine
 	InputEngine * Application::GetInputDevice()
 	{
 		LINA_CORE_ASSERT(m_RenderDevice != nullptr, "Null input device get call.");
-		return m_InputDevice;
+		return m_InputEngine;
 	}*/
 
 }

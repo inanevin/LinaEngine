@@ -43,7 +43,7 @@ namespace LinaEngine
 
 	void GLRenderEngine::Tick_Impl()
 	{
-
+		m_MainWindow->Tick();
 	}
 
 	uint32 GLRenderEngine::CreateTexture2D_Impl(int32 width, int32 height, const void * data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
@@ -116,5 +116,6 @@ namespace LinaEngine
 			return 0;
 		};
 	}
+
 }
 

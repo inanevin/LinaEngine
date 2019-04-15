@@ -72,13 +72,14 @@ namespace LinaEngine
 		// Creates a 2D texture based on parameters. Data is sent as an arraybitmap data.
 		FORCEINLINE uint32 CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
 		{
-			m_Derived->CreateTexture2D_Impl(width, height, data, pixelDataFormat, internalPixelFormat, generateMipMaps, compress);
+			return m_Derived->CreateTexture2D_Impl(width, height, data, pixelDataFormat, internalPixelFormat, generateMipMaps, compress);
 		}
 
 		// Creates a 2D DDS texture based on parameters. Buffer is sent as an arraybitmap data.
 		FORCEINLINE uint32 CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount)
 		{
-			m_Derived->CreateDDSTexture2D_Impl(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourceCC, uint32 mipMapCount);
+			return 0;
+			//m_Derived->CreateDDSTexture2D_Impl(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourceCC, uint32 mipMapCount);
 		}
 
 		// Releases the texture from memory.

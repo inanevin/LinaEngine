@@ -20,30 +20,31 @@ Timestamp: 1/7/2019 1:55:47 PM
 #include "LinaPch.hpp"
 #include "Texture.hpp"  
 #include "ArrayBitmap.hpp"
+#include "Lina/PackageManager/PAMRenderEngine.hpp"
 
 namespace LinaEngine
 {
 	
 
-	/*Texture::Texture(RenderDevice& device, const ArrayBitmap & data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress)
+	Texture::Texture(RenderEngine<PAMRenderEngine>& engine, const ArrayBitmap & data, int internalPixelFormat, bool generateMipMaps, bool shouldCompress)
 	{
-		renderDevice = &device;
-		m_ID = renderDevice->CreateTexture2D(data.GetWidth(), data.GetHeight(), data.GetPixelArray(), PixelFormat::FORMAT_RGBA, internalPixelFormat, generateMipMaps, shouldCompress);
+		renderEngine = &engine;
+		m_ID = renderEngine->CreateTexture2D(data.GetWidth(), data.GetHeight(), data.GetPixelArray(), PixelFormat::FORMAT_RGBA, static_cast<PixelFormat>(internalPixelFormat), generateMipMaps, shouldCompress);
 		m_Width = (uint32)data.GetWidth();
 		m_Height = (uint32)data.GetHeight();
 		isCompressed = shouldCompress;
 		hasMipMaps = generateMipMaps;
 	}
 
-	Texture::Texture(RenderDevice& device, const DDSTexture & ddsTexture)
+	Texture::Texture(RenderEngine<PAMRenderEngine>& engine, const DDSTexture & ddsTexture)
 	{
-		renderDevice = &device;
-		m_ID = renderDevice->CreateDDSTexture2D(ddsTexture.GetWidth(), ddsTexture.GetHeight(), ddsTexture.GetBuffer(), ddsTexture.GetFourCC(), ddsTexture.GetMipMapCount());
+		renderEngine = &engine;
+		m_ID = renderEngine->CreateDDSTexture2D(ddsTexture.GetWidth(), ddsTexture.GetHeight(), ddsTexture.GetBuffer(), ddsTexture.GetFourCC(), ddsTexture.GetMipMapCount());
 		m_Width = ddsTexture.GetWidth();
 		m_Height = ddsTexture.GetHeight();
 		isCompressed = true;
 		hasMipMaps = ddsTexture.GetMipMapCount() > 1;
-	}*/
+	}
 
 	Texture::~Texture()
 	{

@@ -58,6 +58,7 @@ namespace LinaEngine
 		{ 
 			return m_MainWindow->GetNativeWindow();
 		}
+
 		FORCEINLINE void SetMainWindowEventCallback_Impl(const std::function<void(Event&)>& callback) STATIC_OVERRIDE 
 		{ 
 			m_MainWindow->SetEventCallback(callback);
