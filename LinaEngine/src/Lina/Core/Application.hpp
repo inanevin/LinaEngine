@@ -33,6 +33,8 @@ namespace LinaEngine
 	using namespace Graphics;
 	using namespace Input;
 
+	
+
 	class LINA_API Application
 	{
 	public:

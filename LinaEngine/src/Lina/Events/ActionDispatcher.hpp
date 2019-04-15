@@ -32,10 +32,12 @@ namespace LinaEngine
 
 	public:
 
-		ActionDispatcher();
+		
 		virtual ~ActionDispatcher();
 
 	protected:
+
+		ActionDispatcher();
 
 		/* Dispatches the given action. */
 		template<typename T>

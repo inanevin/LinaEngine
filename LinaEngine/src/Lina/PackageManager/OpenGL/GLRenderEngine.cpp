@@ -25,12 +25,14 @@ Timestamp: 4/15/2019 12:37:37 PM
 #include "Lina/ECS/Components/RenderableMeshComponent.hpp"
 #include "Lina/ECS/Components/TransformComponent.hpp"
 #include "Lina/ECS/Systems/ECSMovementControlSystem.hpp"
-
+#include "Lina/PackageManager/PAMInputEngine.hpp"
+#include "Lina/Core/Application.hpp"
 
 namespace LinaEngine::Graphics
 {
 	GLint GetOpenGLFormat(PixelFormat dataFormat);
 	GLint GetOpenGLInternalFormat(PixelFormat internalFormat, bool compress);
+
 	using namespace ECS;
 
 
@@ -40,7 +42,7 @@ namespace LinaEngine::Graphics
 	MovementControlComponent movementComponent;
 	ECSSystemList mainSystems;
 	ECSMovementControlSystem movementControlSystem;
-	Transform workingTransformation;
+	Transform* workingTransformation;
 
 
 	GLRenderEngine::GLRenderEngine() : RenderEngine()
@@ -56,18 +58,26 @@ namespace LinaEngine::Graphics
 
 	void GLRenderEngine::Initialize_Impl()
 	{
-		TransformComponent transformComponent;
 		transformComponent.transform.SetPosition(Vector3F(0.0f, 0.0f, 10.0f));
 
-		MovementControlComponent movementControl;
-		//movementControl.movementControls.push_back(LinaMakePair());
+		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(1.0f, 0.0f, 0.0f) * 3, Application::Get().GetInputDevice().GetHorizontalKeyAxis()));
+		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(0.0f, 1.0f, 0.0f) * 3, Application::Get().GetInputDevice().GetVerticalKeyAxis()));
+
+		entity = ecs.MakeEntity(transformComponent, movementComponent);
+		workingTransformation = &ecs.GetComponent<TransformComponent>(entity)->transform;
+
+		mainSystems.AddSystem(movementControlSystem);
+
 	}
 
 	void GLRenderEngine::Tick_Impl()
 	{
 		m_MainWindow->Tick();
 		glClearColor(0.5f, 0.5f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		ecs.UpdateSystems(mainSystems, 0.01f);
+		LINA_CORE_TRACE("Position: {0}", ecs.GetComponent<TransformComponent>(entity)->transform.GetPosition().ToString());
 	}
 
 	uint32 GLRenderEngine::CreateTexture2D_Impl(int32 width, int32 height, const void * data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)

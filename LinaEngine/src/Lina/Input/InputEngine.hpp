@@ -26,9 +26,6 @@ Timestamp: 4/14/2019 7:46:20 PM
 
 namespace LinaEngine::Input
 {
-	static InputKeyAxisBinder HorizontalKeyAxis = InputKeyAxisBinder();
-	static InputKeyAxisBinder VerticalKeyAxis = InputKeyAxisBinder();
-
 	// Templated base class for various input engines. Defines most operations as inlined methods that call subclass methods.
 	template<class Derived>
 	class InputEngine : public ActionDispatcher
@@ -43,14 +40,17 @@ namespace LinaEngine::Input
 		// Initialize the engine, sets the dispatcher references & initializes axes.
 		FORCEINLINE void Initialize(void* contextWindowPointer) 
 		{
+			// Assign unique ptrs
+			m_HorizontalKeyAxis = std::make_unique<InputKeyAxisBinder>();
+			m_VerticalKeyAxis = std::make_unique<InputKeyAxisBinder>();
 
 			// Set the action dispatchers as our dispatcher.
-			HorizontalKeyAxis.SetActionDispatcher(this);
-			VerticalKeyAxis.SetActionDispatcher(this);
+			m_HorizontalKeyAxis->SetActionDispatcher(this);
+			m_VerticalKeyAxis->SetActionDispatcher(this);
 
 			// Initialize the axes.
-			HorizontalKeyAxis.Initialize(Input::Key::L, Input::Key::J);
-			VerticalKeyAxis.Initialize(Input::Key::I, Input::Key::K);
+			m_HorizontalKeyAxis->Initialize(Input::Key::L, Input::Key::J);
+			m_VerticalKeyAxis->Initialize(Input::Key::I, Input::Key::K);
 
 			// Initialize subclass.
 			m_Derived->Initialize_Impl(contextWindowPointer);
@@ -85,6 +85,18 @@ namespace LinaEngine::Input
 
 		// Returns a Vector2 containing screen space mouse positions
 		FORCEINLINE Vector2F GetMousePosition() { return m_Derived->GetMousePosition_Impl(); }
+
+		// Returns the current value of the horizontal key axis.
+		FORCEINLINE float GetHorizontalAxisValue() { return m_HorizontalKeyAxis->GetAmount(); }
+
+		// Returns the current value of the vertical key axis.
+		FORCEINLINE float GetVerticalAxisValue() { return m_VerticalKeyAxis->GetAmount(); }
+
+		// Returns the horizontal key axis binder.
+		FORCEINLINE InputKeyAxisBinder* GetHorizontalKeyAxis() { return m_HorizontalKeyAxis.get(); }
+
+		// Returns the vertical key axis binder.
+		FORCEINLINE InputKeyAxisBinder* GetVerticalKeyAxis() { return m_VerticalKeyAxis.get(); }
 
 		// Set mouse position.
 		FORCEINLINE void SetMousePosition(const Vector2F& v) { m_Derived->SetMousePosition_Impl(v); }
@@ -130,6 +142,10 @@ namespace LinaEngine::Input
 		};
 
 	private:
+
+		// Axis binders.
+		std::unique_ptr<InputKeyAxisBinder> m_HorizontalKeyAxis;
+		std::unique_ptr<InputKeyAxisBinder> m_VerticalKeyAxis;
 
 		// Derived class reference for static polymorphism.
 		Derived* m_Derived;
