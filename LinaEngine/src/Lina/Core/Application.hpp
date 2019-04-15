@@ -24,11 +24,13 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "Core.hpp"
 #include "Lina/Events/ApplicationEvent.hpp"
 #include "LayerStack.hpp"
-
 #include "Lina/PackageManager/PAMInputDevice.hpp"
+#include "Lina/PackageManager/PAMRenderEngine.hpp"
+
 
 namespace LinaEngine
 {
+
 
 	class LINA_API Application
 	{
@@ -43,19 +45,22 @@ namespace LinaEngine
 		void PushOverlay(Layer* layer);
 
 		FORCEINLINE static Application& Get() { return *instance; }
-		FORCEINLINE InputDevice<PAMInputDevice>& GetInputDevice() { return *(m_InputDevice.get()); }
-		FORCEINLINE Window<PAMWindow>& GetMainWindow() { return *(m_ContextWindow.get()); }
+		FORCEINLINE InputEngine<PAMInputEngine>& GetInputDevice() { return *(m_InputDevice.get()); }
+		FORCEINLINE RenderEngine<PAMRenderEngine>& GetRenderEngine() { return *(m_RenderEngine.get()); }
+
+		//FORCEINLINE Window<PAMWindow>& GetMainWindow() { return *(m_ContextWindow.get()); }
 		//RenderDevice*  GetRenderDevice();
-		//InputDevice* GetInputDevice();
+		//InputEngine* GetInputDevice();
 
 	private:
 
 		static Application* instance;
 		bool m_Running = false;
 		LayerStack m_LayerStack;
-		//RenderDevice* m_RenderDevice;
-		std::unique_ptr<InputDevice<PAMInputDevice>> m_InputDevice;
-		std::unique_ptr<Window<PAMWindow>> m_ContextWindow;
+		
+		std::unique_ptr<InputEngine<PAMInputEngine>> m_InputDevice;
+		std::unique_ptr<RenderEngine<PAMRenderEngine>> m_RenderEngine;
+		
 		
 	};
 

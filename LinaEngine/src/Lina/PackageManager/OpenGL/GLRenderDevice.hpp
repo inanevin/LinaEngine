@@ -22,7 +22,7 @@ Timestamp: 4/14/2019 5:11:22 PM
 #ifndef GLRenderDevice_HPP
 #define GLRenderDevice_HPP
 
-
+#include "Lina/Rendering/RenderEngine.hpp"
 
 namespace LinaEngine
 {
@@ -38,24 +38,6 @@ namespace LinaEngine
 #define FOURCC_DXT4 MAKEFOURCCDXT('4')
 #define FOURCC_DXT5 MAKEFOURCCDXT('5')
 
-	enum PixelFormat
-	{
-		FORMAT_R,
-		FORMAT_RG,
-		FORMAT_RGB,
-		FORMAT_RGBA,
-		FORMAT_DEPTH,
-		FORMAT_DEPTH_AND_STENCIL,
-	};
-
-
-	struct ShaderProgram
-	{
-		//LinaArray<uint32> m_Shaders;
-		//LinaMap<LinaString, uint32> m_UniformMap;
-		//LinaMap<LinaString, uint32> m_SamplerMap;
-	};
-
 	class GLRenderDevice
 	{
 	public:
@@ -66,7 +48,7 @@ namespace LinaEngine
 		//~GLRenderDevice();
 
 		/* Creates the main window. */
-		//Window* CreateMainWindow(class InputDevice* inputDevice, const class WindowProperties& properties);
+		//Window* CreateMainWindow(class InputEngine* inputDevice, const class WindowProperties& properties);
 
 		/* Starts the rendering renderDevice. */
 		//void Initialize();

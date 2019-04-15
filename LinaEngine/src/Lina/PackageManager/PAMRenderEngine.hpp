@@ -12,23 +12,21 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: PAMRenderDevice
-Timestamp: 4/14/2019 7:12:41 PM
+Class: PAMRenderEngine
+Timestamp: 4/15/2019 1:52:36 PM
 
 */
 
 #pragma once
 
-
-#ifndef PAMRENDERDEVICE_HPP
-#define PAMRENDERDEVICE_HPP
-
+#ifndef PAMRENDERENGINE_HPP
+#define PAMRENDERENGINE_HPP
 
 #define LINA_GRAPHICS_OPENGL
 
 #ifdef LINA_GRAPHICS_OPENGL
-#include "OpenGL/GLRenderDevice.hpp"
-typedef LinaEngine::GLRenderDevice PAMRenderDevice;
+#include "OpenGL/GLRenderEngine.hpp"
+typedef LinaEngine::GLRenderEngine PAMRenderEngine;
 #endif
 
 

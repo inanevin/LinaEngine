@@ -19,7 +19,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 #include "LinaPch.hpp"
 #include "Application.hpp"  
-
+//#include "Lina/PackageManager/PAMWindow.hpp"
 
 namespace LinaEngine
 {
@@ -28,33 +28,32 @@ namespace LinaEngine
 
 	Application* Application::instance = nullptr;
 
-
-
 	Application::Application()
 	{
-
 		LINA_CORE_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
-
 		LINA_CORE_ASSERT(!instance, "Application already exists!");
 
 		// Set singleton instance.
 		instance = this;
 
-		m_InputDevice = std::make_unique<PAMInputDevice>();
-		m_ContextWindow = std::make_unique<PAMWindow>();
-		m_ContextWindow->SetEventCallback(BIND_EVENT_FN(OnEvent));
-		m_ContextWindow->Initialize();
+		// Set unique pointers of input device & render engine.
+		m_InputDevice = std::make_unique<PAMInputEngine>();
+		m_RenderEngine = std::make_unique<PAMRenderEngine>();
 
-		//PAMWindow* window = m_RenderDevice->CreateMainWindow(m_InputDevice);
-		//window->SetEventCallback(BIND_EVENT_FN(OnEvent));
-	
-		//m_InputDevice->Initialize(window);
-		//m_RenderDevice->Initialize();
+		// Create main window.
+		bool windowCreationSuccess = m_RenderEngine->CreateContextWindow();
+		if (!windowCreationSuccess)
+		{
+			LINA_CORE_ERR("Window Creation Failed!");
+			return;
+		}
+
+		// Initialize input & render engines.
+		m_InputDevice->Initialize(m_RenderEngine->GetNativeWindow());
+		m_RenderEngine->Initialize();
 
 		// Set running flag.
 		m_Running = true;
-
-
 	}
 
 	Application::~Application()
@@ -117,7 +116,7 @@ namespace LinaEngine
 		return m_RenderDevice;
 	}
 
-	InputDevice * Application::GetInputDevice()
+	InputEngine * Application::GetInputDevice()
 	{
 		LINA_CORE_ASSERT(m_RenderDevice != nullptr, "Null input device get call.");
 		return m_InputDevice;

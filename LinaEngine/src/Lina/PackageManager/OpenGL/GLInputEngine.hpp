@@ -12,7 +12,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: GLInputDevice
+Class: GLInputEngine
 Timestamp: 4/14/2019 5:15:15 PM
 
 */
@@ -23,20 +23,20 @@ Timestamp: 4/14/2019 5:15:15 PM
 #define GLInputDevice_HPP
 
 
-#include "Lina/Input/InputDevice.hpp"
+#include "Lina/Input/InputEngine.hpp"
 
 
 namespace LinaEngine
 {
-	class GLInputDevice : public InputDevice<GLInputDevice>
+	class GLInputEngine : public InputEngine<GLInputEngine>
 	{
 	public:
 
-		GLInputDevice();
-		virtual ~GLInputDevice();
+		GLInputEngine();
+		virtual ~GLInputEngine();
 
 		/* Initializes input renderDevice */
-		void Initialize_Impl(const Window<PAMWindow>& window);
+		void Initialize_Impl(void* contextWindowPointer);
 
 		/* Called each frame */
 		void Tick_Impl();
@@ -73,15 +73,13 @@ namespace LinaEngine
 
 		/* Sets mouse position to desired screen space coordinates. */
 		void SetMousePosition_Impl(const Vector2F& v) const;
+	
 
 	private:
 
 		/* Key data */
 		int previousKeys[NUM_KEY_STATES];
 		int currentKeys[NUM_KEY_STATES];
-
-		/* Native window reference */
-		class GLFWwindow* glfwWindow;
 
 	};
 }

@@ -59,7 +59,7 @@ namespace LinaEngine
 			LINA_CORE_TRACE("[Destructor] -> Window ({0})", typeid(*this).name());
 		};
 
-		FORCEINLINE void Initialize() { m_Derived->Initialize_Impl(); }
+		FORCEINLINE bool Initialize() { return m_Derived->Initialize_Impl(); }
 		FORCEINLINE void SetVsync(bool enabled) { m_Properties.vSyncEnabled = enabled; m_Derived->SetVsync_Impl(enabled); }
 		FORCEINLINE void SetEventCallback(const std::function<void(Event&)>& callback) { m_EventCallback = callback; }
 		FORCEINLINE bool GetVsycnEnabled() { return m_Properties.vSyncEnabled; }

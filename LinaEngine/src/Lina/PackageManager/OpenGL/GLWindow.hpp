@@ -23,11 +23,11 @@ Timestamp: 4/14/2019 5:12:19 PM
 #define GLWindow_HPP
 
 #include "Lina/Rendering/Window.hpp"
-#include <../vendor/GLFW/include/GLFW/glfw3.h>
 
 
 namespace LinaEngine
 {
+
 	class GLWindow : public Window<GLWindow>
 	{
 	public:
@@ -36,7 +36,7 @@ namespace LinaEngine
 		~GLWindow();
 
 		/* Creates the native window. */
-		void Initialize_Impl();
+		bool Initialize_Impl();
 
 		/* Called every frame */
 		void Tick_Impl();
@@ -50,19 +50,20 @@ namespace LinaEngine
 
 	private:
 
-		/* Callbacks */
-		void WindowResized(GLFWwindow* window, int width, int height);
-		void WindowClosed(GLFWwindow* window);
-		void WindowKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-		void WindowMouseButtonCallback(GLFWwindow* window, int button, int action, int modes);
-		void WindowMouseScrollCallback(GLFWwindow* window, double xOff, double yOff);
-		void WindowCursorPosCallback(GLFWwindow* window, double xPos, double yPos);
-		void WindowFocusCallback(GLFWwindow* window, int focused);
-		void CharCallback(GLFWwindow* window, unsigned int keycode);
-		void KeyCallback(GLFWwindow* w, int key, int scancode, int action, int mods);
-		void MouseCallback(GLFWwindow* w, int button, int action, int mods);
 
-		GLFWwindow* m_Window = NULL;
+		/* Callbacks */
+		void WindowResized(void* window, int width, int height);
+		void WindowClosed(void* window);
+		void WindowKeyCallback(void* window, int key, int scancode, int action, int mods);
+		void WindowMouseButtonCallback(void* window, int button, int action, int modes);
+		void WindowMouseScrollCallback(void* window, double xOff, double yOff);
+		void WindowCursorPosCallback(void* window, double xPos, double yPos);
+		void WindowFocusCallback(void* window, int focused);
+		void CharCallback(void* window, unsigned int keycode);
+		void KeyCallback(void* w, int key, int scancode, int action, int mods);
+		void MouseCallback(void* w, int button, int action, int mods);
+
+		void* m_Window = NULL;
 
 	};
 }

@@ -97,6 +97,13 @@ typedef uintptr_t uintptr;
 	T(const T& other) {(void)other;} \
 	void operator=(const T& other) { (void)other; }
 
+// STATIC_OVERRIDE is used to express that a particular method is actually the implementation of a base class method.
+// This is used to increase readability, because some classes in Lina Engine use template typed base classes in order to
+// achieve static polymorphism. In some templated base classes, base methods are not virtual rather inlined to call derived classes' implementation methods.
+// Since derived classes do not actually override any base method, this macro is used to express that that method is the implementation of a base method and should not be
+// renamed and its signature must stay the same.
+#define STATIC_OVERRIDE
+
 #ifdef COMPILER_MSVC
 #define FORCEINLINE __forceinline
 #elif defined(COMPILER_GCC) || defined(COMPILER_CLANG)

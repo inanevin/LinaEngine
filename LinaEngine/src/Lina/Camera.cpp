@@ -66,7 +66,7 @@ namespace LinaEngine
 
 
 
-	/*void Camera::OnInput(InputDevice& i)
+	/*void Camera::OnInput(InputEngine& i)
 	{
 		
 		if (i.GetKey(Input::Key::W))

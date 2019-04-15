@@ -76,7 +76,7 @@ namespace LinaEngine
 		inline Matrix4F GetPerspectiveProjection() { return m_PerspectiveProjection; };
 		void SetPerspectiveInformation(PerspectiveInformation p);
 
-		//void OnInput(InputDevice& i);
+		//void OnInput(InputEngine& i);
 		inline PerspectiveInformation GetPerspectiveInformation() { return m_PersInfo; }
 		
 		Transform m_Transform;

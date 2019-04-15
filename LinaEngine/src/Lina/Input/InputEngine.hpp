@@ -12,7 +12,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: InputDevice
+Class: InputEngine
 Timestamp: 4/14/2019 7:46:20 PM
 
 */
@@ -23,26 +23,25 @@ Timestamp: 4/14/2019 7:46:20 PM
 #define INPUTDEVICE_HPP
 
 #include "Lina/Input/InputAxisBinder.hpp"
-#include "Lina/PackageManager/PAMWindow.hpp"
-
 
 namespace LinaEngine
 {
+
 	template<class Derived>
-	class InputDevice
+	class InputEngine
 	{
 	public:
 
-		virtual ~InputDevice()
+		virtual ~InputEngine()
 		{
 			LINA_CORE_TRACE("[Destructor] -> InputDevice ({0})", typeid(*this).name());
 		};
 
-		FORCEINLINE void Initialize(const Window<PAMWindow>& window) 
+		FORCEINLINE void Initialize(void* contextWindowPointer) 
 		{
 			m_HorizontalAxis.Initialize(Input::Key::L, Input::Key::J);
 			m_VerticalAxis.Initialize(Input::Key::I, Input::Key::K);
-			m_Derived->Initialize_Impl(window);
+			m_Derived->Initialize_Impl(contextWindowPointer);
 		};
 
 		FORCEINLINE void Tick() { m_Derived->Tick_Impl(); }
@@ -88,7 +87,7 @@ namespace LinaEngine
 
 	protected:
 
-		FORCEINLINE InputDevice()
+		FORCEINLINE InputEngine()
 		{
 			m_Derived = static_cast<Derived*>(this);		
 			LINA_CORE_TRACE("[Constructor] -> InputDevice ({0})", typeid(*this).name());

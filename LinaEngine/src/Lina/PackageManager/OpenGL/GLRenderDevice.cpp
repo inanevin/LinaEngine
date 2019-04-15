@@ -67,7 +67,7 @@ namespace LinaEngine
 		//delete m_Window;
 	//}
 
-	/*Window* GLRenderDevice::CreateMainWindow(InputDevice* inputDevice, const WindowProperties & properties)
+	/*Window* GLRenderDevice::CreateMainWindow(InputEngine* inputDevice, const WindowProperties & properties)
 	{
 		m_Window = new Window(properties, inputDevice);
 		return m_Window;

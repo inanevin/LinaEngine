@@ -12,7 +12,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: PAMInputDevice
+Class: PAMInputEngine
 Timestamp: 4/14/2019 7:12:53 PM
 
 */
@@ -26,8 +26,8 @@ Timestamp: 4/14/2019 7:12:53 PM
 #define LINA_GRAPHICS_OPENGL
 
 #ifdef LINA_GRAPHICS_OPENGL
-#include "OpenGL/GLInputDevice.hpp"
-typedef LinaEngine::GLInputDevice PAMInputDevice;
+#include "OpenGL/GLInputEngine.hpp"
+typedef LinaEngine::GLInputEngine PAMInputEngine;
 #endif
 
 #endif
