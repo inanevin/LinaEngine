@@ -28,7 +28,7 @@ namespace LinaEngine
 {
 	// Templated base class for various input engines. Defines most operations as inlined methods that call subclass methods.
 	template<class Derived>
-	class InputEngine
+	class InputEngine : public ActionDispatcher
 	{
 	public:
 
@@ -40,13 +40,17 @@ namespace LinaEngine
 		// Initialize the engine, sets the dispatcher references & initializes axes.
 		FORCEINLINE void Initialize(void* contextWindowPointer) 
 		{
+			// Assign unique ptrs
+			m_HorizontalAxis = std::make_unique<InputKeyAxisBinder>();
+			m_VerticalAxis = std::make_unique<InputKeyAxisBinder>();
+
 			// Set the action dispatchers as our dispatcher.
-			m_HorizontalAxis.SetActionDispatcher(&m_InputDispatcher);
-			m_VerticalAxis.SetActionDispatcher(&m_InputDispatcher);
+			m_HorizontalAxis->SetActionDispatcher(this);
+			m_VerticalAxis->SetActionDispatcher(this);
 
 			// Initialize the axes.
-			m_HorizontalAxis.Initialize(Input::Key::L, Input::Key::J);
-			m_VerticalAxis.Initialize(Input::Key::I, Input::Key::K);
+			m_HorizontalAxis->Initialize(Input::Key::L, Input::Key::J);
+			m_VerticalAxis->Initialize(Input::Key::I, Input::Key::K);
 
 			// Initialize subclass.
 			m_Derived->Initialize_Impl(contextWindowPointer);
@@ -102,11 +106,11 @@ namespace LinaEngine
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_InputDispatcher.DispatchAction<Input::Key>(ActionType::KeyPressed, key);
+				DispatchAction<Input::Key>(ActionType::KeyPressed, key);
 			}
 			else if (action == GLFW_RELEASE)
 			{
-				m_InputDispatcher.DispatchAction<Input::Key>(ActionType::KeyReleased, key);
+				DispatchAction<Input::Key>(ActionType::KeyReleased, key);
 			}
 		}
 
@@ -115,30 +119,27 @@ namespace LinaEngine
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_InputDispatcher.DispatchAction<Input::Mouse>(ActionType::MouseButtonPressed, button);
+				DispatchAction<Input::Mouse>(ActionType::MouseButtonPressed, button);
 			}
 			else if (action == GLFW_RELEASE)
 			{
-				m_InputDispatcher.DispatchAction<Input::Mouse>(ActionType::MouseButtonReleased, button);
+				DispatchAction<Input::Mouse>(ActionType::MouseButtonReleased, button);
 			}
 		}
 
 	protected:
 
-		FORCEINLINE InputEngine()
+		FORCEINLINE InputEngine() : ActionDispatcher()
 		{
 			m_Derived = static_cast<Derived*>(this);		
 			LINA_CORE_TRACE("[Constructor] -> InputDevice ({0})", typeid(*this).name());
 		};
 
 		// Axes objects. Values are mapped between -1 & 1.
-		InputKeyAxisBinder m_HorizontalAxis;
-		InputKeyAxisBinder m_VerticalAxis;
+		std::unique_ptr<InputKeyAxisBinder> m_HorizontalAxis;
+		std::unique_ptr<InputKeyAxisBinder> m_VerticalAxis;
 
 	private:
-
-		// Composite action dispatcher.
-		ActionDispatcher m_InputDispatcher;
 
 		// Derived class reference for static polymorphism.
 		Derived* m_Derived;

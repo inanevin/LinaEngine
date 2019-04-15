@@ -25,6 +25,8 @@ namespace LinaEngine
 {
 	ActionSubscriber::~ActionSubscriber()
 	{
+		LINA_CORE_TRACE("[Destructor] -> Action Subscriber ({0})", typeid(*this).name());
+
 		UnsubscribeAll();
 	}
 

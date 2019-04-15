@@ -34,6 +34,7 @@ namespace LinaEngine
 
 	ActionDispatcher::~ActionDispatcher()
 	{		
+		LINA_CORE_TRACE("[Destructor] -> Dispatcher ({0})", typeid(*this).name());
 		// Clear map, no ownership action.
 		m_ActionHandlerMap.clear();
 	}

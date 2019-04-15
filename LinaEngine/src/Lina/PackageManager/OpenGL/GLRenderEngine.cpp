@@ -23,7 +23,8 @@ Timestamp: 4/15/2019 12:37:37 PM
 
 namespace LinaEngine
 {
-	
+	GLint GetOpenGLFormat(PixelFormat dataFormat);
+	GLint GetOpenGLInternalFormat(PixelFormat internalFormat, bool compress);
 
 	GLRenderEngine::GLRenderEngine() : RenderEngine()
 	{
@@ -44,26 +45,99 @@ namespace LinaEngine
 	void GLRenderEngine::Tick_Impl()
 	{
 		m_MainWindow->Tick();
+		glClearColor(0.5f, 0.5f, 0.3f, 1.0f);
+
 	}
 
 	uint32 GLRenderEngine::CreateTexture2D_Impl(int32 width, int32 height, const void * data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
 	{
-		return uint32();
+		// Decrlare formats, target & handle
+		GLint format = GetOpenGLFormat(pixelDataFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(internalPixelFormat, compress);
+		GLenum textureTarget = GL_TEXTURE_2D;
+		GLuint textureHandle;
+
+		// OpenGL texture params.
+		glGenTextures(1, &textureHandle);
+		glBindTexture(textureTarget, textureHandle);
+		glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(textureTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexImage2D(textureTarget, 0, internalFormat, width, height, 0, format,
+			GL_UNSIGNED_BYTE, data);
+
+		if (generateMipMaps) {
+			glGenerateMipmap(textureTarget);
+		}
+		else {
+			glTexParameteri(textureTarget, GL_TEXTURE_BASE_LEVEL, 0);
+			glTexParameteri(textureTarget, GL_TEXTURE_MAX_LEVEL, 0);
+		}
+
+		return textureHandle;
 	}
 
 	uint32 GLRenderEngine::CreateDDSTexture2D_Impl(uint32 width, uint32 height, const unsigned char * buffer, uint32 fourCC, uint32 mipMapCount)
 	{
-		return uint32();
+		GLint format;
+		switch (fourCC)
+		{
+		case FOURCC_DXT1:
+			format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+			break;
+		case FOURCC_DXT3:
+			format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+			break;
+		case FOURCC_DXT5:
+			format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			break;
+		default:
+			LINA_CORE_ERR("Invalid compression format for DDS texture\n");
+			return 0;
+		}
+
+		GLuint textureID;
+		glGenTextures(1, &textureID);
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		unsigned int blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
+		unsigned int offset = 0;
+
+		for (unsigned int level = 0; level < mipMapCount && (width || height); ++level)
+		{
+			unsigned int size = ((width + 3) / 4)*((height + 3) / 4)*blockSize;
+			glCompressedTexImage2D(GL_TEXTURE_2D, level, format, width, height,
+				0, size, buffer + offset);
+
+			offset += size;
+			width /= 2;
+			height /= 2;
+		}
+
+		return textureID;
 	}
 
 	uint32 GLRenderEngine::ReleaseTexture2D_Impl(uint32 texture2D)
 	{
-		return uint32();
+		if (texture2D == 0) {
+			return 0;
+		}
+		glDeleteTextures(1, &texture2D);
+		return 0;
 	}
 
 	void GLRenderEngine::SetShader_Impl(uint32 shader)
 	{
+		if (shader == m_BoundShader)
+			return;
 
+		glUseProgram(shader);
+		m_BoundShader = shader;
 	}
 
 	void GLRenderEngine::SetShaderSampler_Impl(uint32 shader, const LinaString & samplerName, uint32 texture, uint32 sampler, uint32 unit)
