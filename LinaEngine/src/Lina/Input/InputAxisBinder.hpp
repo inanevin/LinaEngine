@@ -44,7 +44,7 @@ namespace LinaEngine
 			SubscribeKeyReleasedAction("negU", LINA_ACTION_CALLBACK(InputKeyAxisBinder::OnNegativeKeyUp), negative);
 		}
 
-		FORCEINLINE void OnPositiveKeyDown() { m_Amount = 1.0f; positivePressed = true; if (negativePressed) OnNegativeKeyUp();}
+		FORCEINLINE void OnPositiveKeyDown() { std::cout << "hu"; m_Amount = 1.0f; positivePressed = true; if (negativePressed) OnNegativeKeyUp(); }
 		FORCEINLINE void OnNegativeKeyDown() { m_Amount = -1.0f; negativePressed = true; if (positivePressed) OnPositiveKeyUp(); }
 
 		FORCEINLINE void OnPositiveKeyUp() { positivePressed = false; if (!negativePressed) m_Amount = 0.0f; }

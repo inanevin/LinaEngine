@@ -28,6 +28,9 @@ Timestamp: 4/14/2019 5:12:19 PM
 namespace LinaEngine
 {
 
+	template<class Derived>
+	class InputEngine;
+
 	class GLWindow : public Window<GLWindow>
 	{
 	public:
@@ -64,6 +67,7 @@ namespace LinaEngine
 		void MouseCallback(void* w, int button, int action, int mods);
 
 		void* m_Window = NULL;
+		InputEngine<class PAMInputEngine>* inputEngine;
 
 	};
 }

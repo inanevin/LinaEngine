@@ -75,6 +75,9 @@ namespace LinaEngine
 	{
 		LINA_CORE_TRACE("[Initialization] -> GLWindow ({0})", typeid(*this).name());
 
+		// Set Input Engine reference.
+		inputEngine = &(Application::Get().GetInputDevice());
+
 		// Initialize glfw & set window hints
 		glfwInit();
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -257,23 +260,12 @@ namespace LinaEngine
 
 	void GLWindow::KeyCallback(void* w, int key, int scancode, int action, int mods)
 	{
-		//inputDevice->DispatchKeyAction(static_cast<Input::Key>(key), action);
-		if (action == GLFW_PRESS)
-			m_EventCallback(KeyPressedEvent(static_cast<Input::Key>(key), 0));
-		else if (action == GLFW_REPEAT)
-			m_EventCallback(KeyPressedEvent(static_cast<Input::Key>(key), 1));
-		else if (action == GLFW_RELEASE)
-			m_EventCallback(KeyReleasedEvent(static_cast<Input::Key>(key)));
+		inputEngine->DispatchKeyAction(static_cast<Input::Key>(key), action);
 	}
 
 	void GLWindow::MouseCallback(void* w, int button, int action, int mods)
 	{
-		//inputDevice->DispatchMouseAction(static_cast<Input::Mouse>(button), action);
-		if (action == GLFW_PRESS)
-			m_EventCallback(MouseButtonPressedEvent(static_cast<Input::Mouse>(button)));
-		else if (action == GLFW_RELEASE)
-			m_EventCallback(MouseButtonReleasedEvent(static_cast<Input::Mouse>(button)));
-
+		inputEngine->DispatchMouseAction(static_cast<Input::Mouse>(button), action);
 	}
 
 }

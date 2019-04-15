@@ -26,7 +26,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "LayerStack.hpp"
 #include "Lina/PackageManager/PAMInputEngine.hpp"
 #include "Lina/PackageManager/PAMRenderEngine.hpp"
-
+#include "Lina/ECS/ECS.hpp"
 
 namespace LinaEngine
 {
@@ -60,7 +60,8 @@ namespace LinaEngine
 		
 		std::unique_ptr<InputEngine<PAMInputEngine>> m_InputEngine;
 		std::unique_ptr<RenderEngine<PAMRenderEngine>> m_RenderEngine;
-		
+
+
 		
 	};
 
