@@ -24,7 +24,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "Core.hpp"
 #include "Lina/Events/ApplicationEvent.hpp"
 #include "LayerStack.hpp"
-#include "Lina/PackageManager/PAMInputDevice.hpp"
+#include "Lina/PackageManager/PAMInputEngine.hpp"
 #include "Lina/PackageManager/PAMRenderEngine.hpp"
 
 

@@ -39,6 +39,7 @@ namespace LinaEngine
 #define FOURCC_DXT4 MAKEFOURCCDXT('4')
 #define FOURCC_DXT5 MAKEFOURCCDXT('5')
 
+	// A derived class of RenderEngine. Check RenderEngine.hpp for method details.
 	class GLRenderEngine : public RenderEngine<GLRenderEngine>
 	{
 	public:
@@ -46,15 +47,21 @@ namespace LinaEngine
 		GLRenderEngine();
 		virtual ~GLRenderEngine();
 
-		/* Initialization */
 		void Initialize_Impl() STATIC_OVERRIDE;
-
-		/* Called in each frame. */
 		void Tick_Impl() STATIC_OVERRIDE;
 
-		FORCEINLINE bool CreateContextWindow_Impl() STATIC_OVERRIDE { return m_MainWindow->Initialize(); }
-		FORCEINLINE void* GetNativeWindow_Impl() STATIC_OVERRIDE { return m_MainWindow->GetNativeWindow(); }
-		FORCEINLINE void SetMainWindowEventCallback_Impl(const std::function<void(Event&)>& callback) STATIC_OVERRIDE { m_MainWindow->SetEventCallback(callback); }
+		FORCEINLINE bool CreateContextWindow_Impl() STATIC_OVERRIDE 
+		{ 
+			return m_MainWindow->Initialize(); 
+		}
+		FORCEINLINE void* GetNativeWindow_Impl() STATIC_OVERRIDE 
+		{ 
+			return m_MainWindow->GetNativeWindow();
+		}
+		FORCEINLINE void SetMainWindowEventCallback_Impl(const std::function<void(Event&)>& callback) STATIC_OVERRIDE 
+		{ 
+			m_MainWindow->SetEventCallback(callback);
+		}
 
 		uint32 CreateTexture2D_Impl(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress) STATIC_OVERRIDE;
 		uint32 CreateDDSTexture2D_Impl(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount) STATIC_OVERRIDE;
@@ -64,7 +71,10 @@ namespace LinaEngine
 
 	private:
 
+		// Main window reference.
 		std::unique_ptr<Window<PAMWindow>> m_MainWindow;
+
+		// Currently active shader.
 		uint32 m_BoundShader = 0;
 
 	};

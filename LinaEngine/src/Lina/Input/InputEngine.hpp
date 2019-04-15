@@ -42,7 +42,7 @@ namespace LinaEngine
 		{
 			// Set the action dispatchers as our dispatcher.
 			m_HorizontalAxis.SetActionDispatcher(&m_InputDispatcher);
-			m_VerticalAxis.SetActionDispatcher(&m_VerticalAxis);
+			m_VerticalAxis.SetActionDispatcher(&m_InputDispatcher);
 
 			// Initialize the axes.
 			m_HorizontalAxis.Initialize(Input::Key::L, Input::Key::J);
@@ -131,14 +131,18 @@ namespace LinaEngine
 			LINA_CORE_TRACE("[Constructor] -> InputDevice ({0})", typeid(*this).name());
 		};
 
+		// Axes objects. Values are mapped between -1 & 1.
 		InputKeyAxisBinder m_HorizontalAxis;
 		InputKeyAxisBinder m_VerticalAxis;
 
 	private:
 
-		
+		// Composite action dispatcher.
 		ActionDispatcher m_InputDispatcher;
+
+		// Derived class reference for static polymorphism.
 		Derived* m_Derived;
+
 	};
 
 }

@@ -36,18 +36,24 @@ namespace LinaEngine
 	public:
 
 		virtual ~ActionSubscriber();
+		
+		// Unsubscribes all handlers.
 		void UnsubscribeAll();
+
+		// Mutator for the target dispatcher.
+		FORCEINLINE void SetActionDispatcher(ActionDispatcher* disp) { m_ActionDispatcher = disp; }
 
 	protected:
 
 		ActionSubscriber() {};
 
+		// Initialize the subscriber.
 		virtual void Initialize() = 0;
 
+		// Subscribes an action with particular id.
 		void UnsubscribeAction(LinaString actionID);
 
-		FORCEINLINE void SetActionDispatcher(ActionDispatcher* disp) { m_ActionDispatcher = disp; }
-
+		// Subscribe an action with a condition.
 		template<typename T>
 		FORCEINLINE void SubscribeAction(const LinaString& actionID, ActionType at, const std::function<void(T)>& callback, T condition)
 		{
@@ -78,6 +84,7 @@ namespace LinaEngine
 			m_ActionDispatcher->SubscribeHandler(handler);
 		}
 
+		// Subscribe an action without a condition.
 		template<typename T>
 		FORCEINLINE void SubscribeAction(const LinaString& actionID, ActionType at, const std::function<void(T)>& callback)
 		{
@@ -109,7 +116,10 @@ namespace LinaEngine
 
 	private:
 
+		// Target dispatcher.
 		ActionDispatcher* m_ActionDispatcher = nullptr;
+
+		// Handler map.
 		LinaMap<size_t, ActionHandlerBase*> m_Handlers;
 	};
 }
