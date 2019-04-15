@@ -30,7 +30,7 @@ Timestamp: 4/9/2019 1:03:58 AM
 namespace LinaEngine
 {
 
-	typedef PlatformVector Vector;
+	typedef PAMVector Vector;
 
 	struct VectorConstants
 	{

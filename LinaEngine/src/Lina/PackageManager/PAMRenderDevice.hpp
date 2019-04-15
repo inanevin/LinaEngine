@@ -12,26 +12,23 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: RenderDeviceDefines
-Timestamp: 4/14/2019 4:00:21 PM
+Class: PAMRenderDevice
+Timestamp: 4/14/2019 7:12:41 PM
 
 */
 
 #pragma once
 
-#ifndef RenderDeviceDefines_HPP
-#define RenderDeviceDefines_HPP
+
+#ifndef PAMRENDERDEVICE_HPP
+#define PAMRENDERDEVICE_HPP
 
 
-#ifdef LLF_GRAPHICS_OPENGL
+#define LINA_GRAPHICS_OPENGL
 
-#define FORMAT_R 
-#define FORMAT_RG
-#define FORMAT_RGB
-#define FORMAT_RGBA
-#define FORMAT_DEPTH
-#define FORMAT_DEPTH_AND_STENCIL
-
+#ifdef LINA_GRAPHICS_OPENGL
+#include "OpenGL/GLRenderDevice.hpp"
+typedef LinaEngine::GLRenderDevice PAMRenderDevice;
 #endif
 
 

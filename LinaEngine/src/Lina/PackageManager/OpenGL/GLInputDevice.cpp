@@ -12,67 +12,53 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: InputEngine_GLFW
-Timestamp: 2/25/2019 9:43:54 AM
+Class: GLInputDevice
+Timestamp: 4/14/2019 5:15:15 PM
 
 */
 
 #include "LinaPch.hpp"
+#include "GLInputDevice.hpp"  
+#include "GLFW/glfw3.h"
 
-#ifdef LLF_INPUTANDWINDOW_GLFW
-
-
-#include "InputEngine_GLFW.hpp"  
-
-#include "Lina/Core/Application.hpp"
-#include "Lina/Rendering/RenderingEngine.hpp"
-#include "Lina/Rendering/Window.hpp"
 
 
 namespace LinaEngine
 {
-
 	static const float axisSensitivity = 0.1f;
 
-	InputEngine_GLFW::InputEngine_GLFW()
+	GLInputDevice::GLInputDevice()
 	{
-		LINA_CORE_TRACE("[Constructor] -> Input Engine GLFW ({0})", typeid(*this).name());
+		LINA_CORE_TRACE("[Constructor] -> GLInputDevice ({0})", typeid(*this).name());
 	}
 
-	InputEngine_GLFW::~InputEngine_GLFW()
+	GLInputDevice::~GLInputDevice()
 	{
-		LINA_CORE_TRACE("[Destructor] -> Input Engine GLFW ({0})", typeid(*this).name());
-
-		//delete previousKeys;
-		//delete currentKeys;
+		LINA_CORE_TRACE("[Destructor] -> GLInputDevice ({0})", typeid(*this).name());
 	}
 
-	void InputEngine_GLFW::Initialize()
+	void GLInputDevice::Initialize_Impl(const Window<PAMWindow>& window)
 	{
 
-		InputEngine::Initialize();
+		LINA_CORE_TRACE("[Initialization] -> GLInputDEvice ({0})", typeid(*this).name());
 
-		LINA_CORE_TRACE("[Initialization] -> Input Engine GLFW ({0})", typeid(*this).name());
-
-		glfwWindow = static_cast<GLFWwindow*>(Application::Get().GetRenderingEngine().GetMainWindow().GetNativeWindow());
+		glfwWindow = static_cast<GLFWwindow*>(window.GetNativeWindow());
 		LINA_CORE_ENSURE_ASSERT(glfwWindow != NULL, , "GLFW Window is null!");
-		
+
 	}
 
-	void InputEngine_GLFW::OnUpdate()
+	void GLInputDevice::Tick_Impl()
 	{
-		
+		glfwPollEvents();
 	}
 
-	
-
-	bool InputEngine_GLFW::GetKey(int keycode)
+	bool GLInputDevice::GetKey_Impl(int keycode)
 	{
 		int state = glfwGetKey(glfwWindow, keycode);
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
 
-	bool InputEngine_GLFW::GetKeyDown(int keyCode)
+	bool GLInputDevice::GetKeyDown_Impl(int keyCode)
 	{
 		static int* oldState = new int[NUM_KEY_STATES];
 		int newState = glfwGetKey(glfwWindow, keyCode);
@@ -80,7 +66,7 @@ namespace LinaEngine
 		oldState[keyCode] = newState;
 		return flag;
 	}
-	bool InputEngine_GLFW::GetKeyUp(int keyCode)
+	bool GLInputDevice::GetKeyUp_Impl(int keyCode)
 	{
 		static int* oldState = new int[NUM_KEY_STATES];
 		int newState = glfwGetKey(glfwWindow, keyCode);
@@ -88,12 +74,12 @@ namespace LinaEngine
 		oldState[keyCode] = newState;
 		return flag;
 	}
-	bool InputEngine_GLFW::GetMouseButton(int button)
+	bool GLInputDevice::GetMouseButton_Impl(int button)
 	{
 		int state = glfwGetMouseButton(glfwWindow, button);
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
-	bool InputEngine_GLFW::GetMouseButtonDown(int button)
+	bool GLInputDevice::GetMouseButtonDown_Impl(int button)
 	{
 		static int* oldState = new int[NUM_MOUSE_STATES];
 		int newState = glfwGetMouseButton(glfwWindow, button);
@@ -101,7 +87,7 @@ namespace LinaEngine
 		oldState[button] = newState;
 		return flag;
 	}
-	bool InputEngine_GLFW::GetMouseButtonUp(int button)
+	bool GLInputDevice::GetMouseButtonUp_Impl(int button)
 	{
 		static int* oldState = new int[NUM_MOUSE_STATES];
 		int newState = glfwGetMouseButton(glfwWindow, button);
@@ -110,7 +96,7 @@ namespace LinaEngine
 		return flag;
 	}
 
-	Vector2F InputEngine_GLFW::GetRawMouseAxis()
+	Vector2F GLInputDevice::GetRawMouseAxis_Impl()
 	{
 		double posX, posY;
 		glfwGetCursorPos(glfwWindow, &posX, &posY);
@@ -126,20 +112,21 @@ namespace LinaEngine
 		return raw;
 	}
 
-	Vector2F InputEngine_GLFW::GetMouseAxis()
+	Vector2F GLInputDevice::GetMouseAxis_Impl()
 	{
 		// TODO: This returns the raw mouse axis for now, smooth the raw & map between -1 & 1 later.
 		return GetRawMouseAxis();
 	}
-
-	Vector2F InputEngine_GLFW::GetMousePosition()
+	
+	Vector2F GLInputDevice::GetMousePosition_Impl()
 	{
 		double xpos, ypos;
 		glfwGetCursorPos(glfwWindow, &xpos, &ypos);
 		return Vector2F(xpos, ypos);
 	}
 
-	void InputEngine_GLFW::SetCursor(bool visible) const
+
+	void GLInputDevice::SetCursor_Impl(bool visible) const
 	{
 		if (visible)
 			glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -147,35 +134,9 @@ namespace LinaEngine
 			glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	}
 
-	void InputEngine_GLFW::SetMousePosition(const Vector2F & v) const
+	void GLInputDevice::SetMousePosition_Impl(const Vector2F & v) const
 	{
 		glfwSetCursorPos(glfwWindow, v.GetX(), v.GetY());
 	}
-
-
-	void InputEngine_GLFW::DispatchKeyAction(Input::Key key, int action)
-	{
-		if (action == GLFW_PRESS)
-		{
-			DispatchAction<Input::Key>(ActionType::KeyPressed, key);
-		}
-		else if (action == GLFW_RELEASE)
-		{
-			DispatchAction<Input::Key>(ActionType::KeyReleased, key);
-		}
-	}
-
-	void InputEngine_GLFW::DispatchMouseAction(Input::Mouse button, int action)
-	{
-		if (action == GLFW_PRESS)
-		{
-			DispatchAction<Input::Mouse>(ActionType::MouseButtonPressed, button);
-		}
-		else if (action == GLFW_RELEASE)
-		{
-			DispatchAction<Input::Mouse>(ActionType::MouseButtonReleased, button);
-		}
-	}
 }
 
-#endif

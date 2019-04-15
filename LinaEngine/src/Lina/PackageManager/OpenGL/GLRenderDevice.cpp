@@ -12,58 +12,21 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: GLRenderingEngine
-Timestamp: 1/2/2019 11:44:41 PM
+Class: GLRenderDevice
+Timestamp: 4/14/2019 5:11:22 PM
 
 */
+
 #include "LinaPch.hpp"
-
-#ifdef LLF_GRAPHICS_OPENGL
-
-#include "GLRenderingEngine.hpp"  
-#include "Lina/Utility/Math/Color.hpp"
-#include "Lina/ECS/Data/Transform.hpp"
-#include "Lina/Core/Application.hpp"
-#include "Lina/Input/InputEngine.hpp"
-#include "Lina/Events/Action.hpp"
-#include "Lina/Rendering/Vertex.hpp"
-#include "PackageManager/Graphics/OpenGL/Shaders/Shader_GLSLBasic.hpp"
-#include "Lina/Rendering/Texture.hpp"
-
-#include "Lina/ECS/ECS.hpp"
-#include "Lina/ECS/Components/TransformComponent.hpp"
-#include "Lina/ECS/Components/MovementControlComponent.hpp"
-#include "Lina/ECS/Systems/ECSMovementControlSystem.hpp"
-
-
-#include "Lina/Camera.hpp"
-#include "Lina/Events/Event.hpp"
-#include "glad/glad.h"
-
-#include "Lina/Rendering/ArrayBitmap.hpp"
+#include "GLRenderDevice.hpp"  
 
 namespace LinaEngine
 {
-#define MAKEFOURCC(a, b, c, d)                              \
-                ((uint32)(uint8)(a) | ((uint32)(uint8)(b) << 8) |       \
-				((uint32)(uint8)(c) << 16) | ((uint32)(uint8)(d) << 24 ))
 
-#define MAKEFOURCCDXT(a) MAKEFOURCC('D', 'X', 'T', a)
 
-#define FOURCC_DXT1 MAKEFOURCCDXT('1')
-#define FOURCC_DXT2 MAKEFOURCCDXT('2')
-#define FOURCC_DXT3 MAKEFOURCCDXT('3')
-#define FOURCC_DXT4 MAKEFOURCCDXT('4')
-#define FOURCC_DXT5 MAKEFOURCCDXT('5')
-
-	static GLint GetOpenGLFormat(LinaEngine::GLRenderingEngine::PixelFormat format);
-	static GLint GetOpenGLInternalFormat(LinaEngine::GLRenderingEngine::PixelFormat format, bool compress);
-
-	unsigned int VBO;
+	/*unsigned int VBO;
 	unsigned int VAO;
 	unsigned int EBO;
-
-	
 
 	Shader_GLSLBasic basicShader;
 	Camera sceneCamera;
@@ -85,44 +48,37 @@ namespace LinaEngine
 		Transform(Vector3F(2.4f, -0.4f, -3.5f)),
 		Transform(Vector3F(-1.7f,  3.0f, -7.5f)),
 		Transform(Vector3F(1.3f, -2.0f, -2.5f))
-	};
+	};*/
 
 
-
-
-	GLRenderingEngine::GLRenderingEngine() : RenderingEngine()
+/*	GLRenderDevice::GLRenderDevice(Application * app) : application(app)
 	{
-		LINA_CORE_TRACE("[Constructor] -> Rendering Engine OpenGL ({0})", typeid(*this).name());
-		
+		LINA_CORE_TRACE("[Constructor] -> GLRenderDevice ({0})", typeid(*this).name());
 	}
 
-	GLRenderingEngine::~GLRenderingEngine()
+	GLRenderDevice::~GLRenderDevice()
 	{
-		LINA_CORE_TRACE("[Destructor] -> Rendering Engine OpenGL ({0})", typeid(*this).name());
+		LINA_CORE_TRACE("[Destructor] -> GLRenderDevice ({0})", typeid(*this).name());
 
-		glDeleteVertexArrays(1, &VAO);
+		/*glDeleteVertexArrays(1, &VAO);
 		glDeleteBuffers(1, &VBO);
 		glDeleteBuffers(1, &EBO);
+		*/
+		//delete m_Window;
+	//}
+
+	/*Window* GLRenderDevice::CreateMainWindow(InputDevice* inputDevice, const WindowProperties & properties)
+	{
+		m_Window = new Window(properties, inputDevice);
+		return m_Window;
 	}
 
-	void GLRenderingEngine::Test()
+	void GLRenderDevice::Initialize()
 	{
-		
-		
-	}
+	/*	LINA_CORE_TRACE("[Initialization] -> GLRenderDevice ({0})", typeid(*this).name());
+		m_Window->Initialize();
 
-	void GLRenderingEngine::Initialize()
-	{
-		RenderingEngine::Initialize();
-
-		LINA_CORE_TRACE("[Initialization] -> Rendering Engine OpenGL ({0})", typeid(*this).name());
-	}
-
-	void GLRenderingEngine::Start()
-	{
-		LINA_CORE_TRACE("[Start] -> Rendering Engine OpenGL ({0})", typeid(*this).name());
-
-		sceneCamera.SetPerspectiveInformation(PerspectiveInformation(60.0f, m_WindowProps.Width, m_WindowProps.Height, 0.01f, 100.0f));
+		sceneCamera.SetPerspectiveInformation(PerspectiveInformation(60.0f, m_Window->m_Properties.m_Width, m_Window->m_Properties.m_Height, 0.01f, 100.0f));
 		sceneCamera.m_Transform.SetPosition(0, 0, -6);
 
 
@@ -204,22 +160,23 @@ namespace LinaEngine
 		basicShader.SetTextureUnit1();
 		basicShader.SetTextureUnit2();
 
-		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(1.0f, 0.0f, 0.0f) * 10.0f, Application::Get().GetInputEngine().GetHorizontalInput()));
-		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(0.0f, 1.0f, 0.0f) * 10.0f, Application::Get().GetInputEngine().GetVerticalInput()));
+		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(1.0f, 0.0f, 0.0f) * 10.0f, Application::Get().GetInputDevice()->GetHorizontalInput()));
+		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(0.0f, 1.0f, 0.0f) * 10.0f, Application::Get().GetInputDevice()->GetVerticalInput()));
 
 		transformComponent.transform.SetPosition(Vector3F(0.0f, 0.0f, 10.0f));
 
 		entity = ecs.MakeEntity(transformComponent, movementComponent);
 		workingTransformation = ecs.GetComponent<TransformComponent>(entity)->transform;
 
-		mainSystems.AddSystem(movementControlSystem);
+		mainSystems.AddSystem(movementControlSystem);*/
+/*
 	}
 
-	void GLRenderingEngine::OnUpdate()
+	void GLRenderDevice::OnUpdate()
 	{
-		RenderingEngine::OnUpdate();
+		/*m_Window->OnUpdate();
 
-		sceneCamera.OnInput(app->GetInputEngine());
+		sceneCamera.OnInput(*Application::Get().GetInputDevice());
 		glClearColor(0.2f, 0.1f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
@@ -241,39 +198,20 @@ namespace LinaEngine
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
+		*/
+	/*}
 
-	}
-
-	void GLRenderingEngine::OnWindowEvent(Event & e)
+	void GLRenderDevice::OnEvent(Event & e)
 	{
-		if (e.GetEventType() == EventType::WindowResize)
+		/*if (e.GetEventType() == EventType::WindowResize)
 		{
 			WindowResizeEvent& event = (WindowResizeEvent&)e;
 			sceneCamera.SetPerspectiveInformation(PerspectiveInformation(60.0f, event.GetWidth(), event.GetHeight(), 0.01f, 100.0f));
-		}
-	}
-
-	void GLRenderingEngine::OnEvent(Event & e)
-	{
-		if (e.GetEventType() == EventType::WindowResize)
-		{
-			WindowResizeEvent& event = (WindowResizeEvent&)e;
-			sceneCamera.SetPerspectiveInformation(PerspectiveInformation(60.0f, event.GetWidth(), event.GetHeight(), 0.01f, 100.0f));
-		}
-	}
+		}*/
+	/*}
 
 
-	void GLRenderingEngine::SetWireframeMode(bool activation)
-	{
-	/*	if (activation)
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		else
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-		isWireframeModeActive = activation;*/
-	}
-
-	uint32 GLRenderingEngine::CreateTexture2D(int32 width, int32 height, const void * data, RenderingEngine::PixelFormat pixelDataFormat, RenderingEngine::PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
+	uint32 GLRenderDevice::CreateTexture2D(int32 width, int32 height, const void * data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
 	{
 		// Decrlare formats, target & handle
 		GLint format = GetOpenGLFormat(pixelDataFormat);
@@ -302,7 +240,7 @@ namespace LinaEngine
 		return textureHandle;
 	}
 
-	uint32 GLRenderingEngine::CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char * buffer, uint32 fourCC, uint32 mipMapCount)
+	uint32 GLRenderDevice::CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char * buffer, uint32 fourCC, uint32 mipMapCount)
 	{
 		GLint format;
 		switch (fourCC)
@@ -346,7 +284,7 @@ namespace LinaEngine
 		return textureID;
 	}
 
-	uint32 GLRenderingEngine::ReleaseTexture2D(uint32 texture2D)
+	uint32 GLRenderDevice::ReleaseTexture2D(uint32 texture2D)
 	{
 		if (texture2D == 0) {
 			return 0;
@@ -355,7 +293,7 @@ namespace LinaEngine
 		return 0;
 	}
 
-	void GLRenderingEngine::SetShader(uint32 shader)
+	void GLRenderDevice::SetShader(uint32 shader)
 	{
 		if (shader == m_BoundShader)
 			return;
@@ -365,15 +303,15 @@ namespace LinaEngine
 	}
 
 
-	static GLint GetOpenGLFormat(LinaEngine::GLRenderingEngine::PixelFormat format)
+	static GLint GetOpenGLFormat(PixelFormat format)
 	{
 		switch (format) {
-		case GLRenderingEngine::FORMAT_R: return GL_RED;
-		case GLRenderingEngine::FORMAT_RG: return GL_RG;
-		case GLRenderingEngine::FORMAT_RGB: return GL_RGB;
-		case GLRenderingEngine::FORMAT_RGBA: return GL_RGBA;
-		case GLRenderingEngine::FORMAT_DEPTH: return GL_DEPTH_COMPONENT;
-		case GLRenderingEngine::FORMAT_DEPTH_AND_STENCIL: return GL_DEPTH_STENCIL;
+		case PixelFormat::FORMAT_R: return GL_RED;
+		case PixelFormat::FORMAT_RG: return GL_RG;
+		case PixelFormat::FORMAT_RGB: return GL_RGB;
+		case PixelFormat::FORMAT_RGBA: return GL_RGBA;
+		case PixelFormat::FORMAT_DEPTH: return GL_DEPTH_COMPONENT;
+		case PixelFormat::FORMAT_DEPTH_AND_STENCIL: return GL_DEPTH_STENCIL;
 
 		default:
 			LINA_CORE_ERR("PixelFormat {0} is not a valid PixelFormat.", format);
@@ -381,12 +319,12 @@ namespace LinaEngine
 		};
 	}
 
-	static GLint GetOpenGLInternalFormat(LinaEngine::GLRenderingEngine::PixelFormat format, bool compress)
+	static GLint GetOpenGLInternalFormat(PixelFormat format, bool compress)
 	{
 		switch (format) {
-		case GLRenderingEngine::FORMAT_R: return GL_RED;
-		case GLRenderingEngine::FORMAT_RG: return GL_RG;
-		case GLRenderingEngine::FORMAT_RGB:
+		case PixelFormat::FORMAT_R: return GL_RED;
+		case PixelFormat::FORMAT_RG: return GL_RG;
+		case PixelFormat::FORMAT_RGB:
 			if (compress) {
 				return GL_COMPRESSED_SRGB_S3TC_DXT1_EXT;
 			}
@@ -394,7 +332,7 @@ namespace LinaEngine
 				return GL_RGB;
 				//return GL_SRGB;
 			}
-		case GLRenderingEngine::FORMAT_RGBA:
+		case PixelFormat::FORMAT_RGBA:
 			if (compress) {
 				// TODO: Decide on the default RGBA compression scheme
 	//			return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
@@ -403,13 +341,13 @@ namespace LinaEngine
 			else {
 				return GL_SRGB_ALPHA;
 			}
-		case GLRenderingEngine::FORMAT_DEPTH: return GL_DEPTH_COMPONENT;
-		case GLRenderingEngine::FORMAT_DEPTH_AND_STENCIL: return GL_DEPTH_STENCIL;
+		case PixelFormat::FORMAT_DEPTH: return GL_DEPTH_COMPONENT;
+		case PixelFormat::FORMAT_DEPTH_AND_STENCIL: return GL_DEPTH_STENCIL;
 		default:
 			LINA_CORE_ERR("PixelFormat {0} is not a valid PixelFormat.", format);
 			return 0;
 		};
 	}
+	*/
 }
 
-#endif

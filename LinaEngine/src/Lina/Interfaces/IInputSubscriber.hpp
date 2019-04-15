@@ -22,9 +22,9 @@ Timestamp: 4/4/2019 2:29:37 AM
 #ifndef IInputSubscriber_HPP
 #define IInputSubscriber_HPP
 
-#include "Lina/Input/InputEngine.hpp"
-#include "Lina/Core/Application.hpp"
+
 #include "Lina/Events/ActionSubscriber.hpp"
+
 
 namespace LinaEngine
 {
@@ -36,7 +36,7 @@ namespace LinaEngine
 		IInputSubscriber() { };
 		virtual ~IInputSubscriber() {};
 
-		FORCEINLINE virtual void Initialize() override { SetActionDispatcher(&(Application::Get().GetInputEngine())); }
+		void Initialize() override;
 
 	protected:
 		

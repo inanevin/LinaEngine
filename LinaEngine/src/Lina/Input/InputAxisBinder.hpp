@@ -34,7 +34,7 @@ namespace LinaEngine
 
 		~InputKeyAxisBinder() {};
 
-		FORCEINLINE virtual void Initialize(Input::Key positive, Input::Key negative)
+		FORCEINLINE void Initialize(Input::Key positive, Input::Key negative)
 		{
 			IInputSubscriber::Initialize();
 

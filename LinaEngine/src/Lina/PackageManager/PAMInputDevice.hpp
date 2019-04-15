@@ -12,27 +12,22 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: PlatformVectorMath
-Timestamp: 4/9/2019 12:55:47 AM
+Class: PAMInputDevice
+Timestamp: 4/14/2019 7:12:53 PM
 
 */
 
 #pragma once
 
-#ifndef PlatformVectorMath_HPP
-#define PlatformVectorMath_HPP
 
-#include "PAM.hpp"
+#ifndef PAMINPUTDEVICE_HPP
+#define PAMINPUTDEVICE_HPP
 
-#if defined(SIMD_CPU_ARCH_x86) || defined(SIMD_CPU_ARCH_x86_64)
+#define LINA_GRAPHICS_OPENGL
 
-#include "SSE/SSEVectorMath.hpp"
-typedef LinaEngine::SSEVector PAMVector;
-
-#else
-#include "Generic/GenericVectorMath.hpp"
-typedef LinaEngine::GenericVector PAMVector;
+#ifdef LINA_GRAPHICS_OPENGL
+#include "OpenGL/GLInputDevice.hpp"
+typedef LinaEngine::GLInputDevice PAMInputDevice;
 #endif
-
 
 #endif

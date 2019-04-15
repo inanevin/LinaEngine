@@ -19,8 +19,8 @@ Timestamp: 1/5/2019 9:51:42 PM
 
 #include "LinaPch.hpp"
 #include "Camera.hpp"  
-#include "Input/InputEngine.hpp"
 #include "Utility/Math/Matrix.hpp"
+
 
 namespace LinaEngine
 {
@@ -63,10 +63,13 @@ namespace LinaEngine
 	}
 
 
-	void Camera::OnInput(InputEngine & i)
-	{
 
-		if (i.GetKey(LINA_KEY_W))
+
+
+	/*void Camera::OnInput(InputDevice& i)
+	{
+		
+		if (i.GetKey(Input::Key::W))
 		{
 			Vector3F forward = m_Transform.GetRotation().GetAxisZ();
 			forward.Normalize();
@@ -74,7 +77,7 @@ namespace LinaEngine
 			this->m_Transform.SetPosition(m_Transform.GetPosition() + forward);
 
 		}
-		if (i.GetKey(LINA_KEY_S))
+		if (i.GetKey(Input::Key::S))
 		{
 			Vector3F back = -m_Transform.GetRotation().GetAxisZ();
 			back.Normalize();
@@ -83,7 +86,7 @@ namespace LinaEngine
 
 
 		}
-		if (i.GetKey(LINA_KEY_A))
+		if (i.GetKey(Input::Key::A))
 		{
 			Vector3F left =- m_Transform.GetRotation().GetAxisX();
 			left.Normalize();
@@ -91,7 +94,7 @@ namespace LinaEngine
 			this->m_Transform.SetPosition(this->m_Transform.GetPosition() + left);
 
 		}
-		if (i.GetKey(LINA_KEY_D))
+		if (i.GetKey(Input::Key::D))
 		{
 			Vector3F right = m_Transform.GetRotation().GetAxisX();
 			right.Normalize();
@@ -100,14 +103,14 @@ namespace LinaEngine
 
 		}
 
-		if (i.GetMouseButtonDown(LINA_MOUSE_LEFT))
+		if (i.GetMouseButtonDown(Input::Mouse::MouseLeft))
 		{
 			m_mouseLocked = true;
 			i.SetCursor(false);
 			i.SetMousePosition(m_windowCenter);
 		}
 
-		if (i.GetMouseButtonUp(LINA_MOUSE_LEFT))
+		if (i.GetMouseButtonUp(Input::Mouse::MouseLeft))
 		{
 			m_mouseLocked = false;
 			i.SetCursor(true);
@@ -139,7 +142,7 @@ namespace LinaEngine
 
 
 
-	}
+	}*/
 
 }
 

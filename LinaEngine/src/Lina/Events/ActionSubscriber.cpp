@@ -33,7 +33,7 @@ namespace LinaEngine
 		// Abort if dispatcher is not set.
 		if (!m_ActionDispatcher)
 		{
-			LINA_CORE_WARN("Dispatcher is not set yet, aborting unsubscription.");
+			LINA_CORE_WARN("Dispatcher is not set yet, aborting unsubscription. ({0})", typeid(*this).name());
 			return;
 		}
 
@@ -51,7 +51,7 @@ namespace LinaEngine
 		// Abort if dispatcher is not set.
 		if (!m_ActionDispatcher)
 		{
-			LINA_CORE_WARN("Dispatcher is not set yet, aborting unsubscription.");
+			LINA_CORE_WARN("Dispatcher is not set yet, aborting ({0}) unsubscription. ({1})", actionID, typeid(*this).name());
 			return;
 		}
 
@@ -60,7 +60,7 @@ namespace LinaEngine
 		// Abort if the handler does not exists.
 		if (m_Handlers.count(actionIDHashed) != 1)
 		{
-			LINA_CORE_WARN("No handler with the name ''{0}'' exists, aborting unsubscription.", actionID);
+			LINA_CORE_WARN("No handler with the name ''{0}'' exists, aborting unsubscription. ({1})", actionID, typeid(*this).name());
 			return;
 		}
 

@@ -12,16 +12,20 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: InputAdapter
-Timestamp: 4/2/2019 7:41:14 PM
+Class: IInputSubscriber
+Timestamp: 4/15/2019 10:58:49 AM
 
 */
 
 #include "LinaPch.hpp"
-#include "InputAdapter.hpp"  
+#include "IInputSubscriber.hpp"  
+#include "Lina/Core/Application.hpp"
 
 namespace LinaEngine
 {
+	void IInputSubscriber::Initialize()
+	{
 
+	}
 }
 

@@ -12,27 +12,43 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: PlatformVectorMath
-Timestamp: 4/9/2019 12:55:47 AM
+Class: RenderDevice
+Timestamp: 4/15/2019 12:06:15 PM
 
 */
 
 #pragma once
 
-#ifndef PlatformVectorMath_HPP
-#define PlatformVectorMath_HPP
+#ifndef RenderDevice_HPP
+#define RenderDevice_HPP
 
-#include "PAM.hpp"
 
-#if defined(SIMD_CPU_ARCH_x86) || defined(SIMD_CPU_ARCH_x86_64)
 
-#include "SSE/SSEVectorMath.hpp"
-typedef LinaEngine::SSEVector PAMVector;
+namespace LinaEngine
+{
+	template<class Derived>
+	class RenderDevice
+	{
+	public:
 
-#else
-#include "Generic/GenericVectorMath.hpp"
-typedef LinaEngine::GenericVector PAMVector;
-#endif
+		FORCEINLINE RenderDevice() 
+		{
+			LINA_CORE_TRACE("[Constructor] -> RenderDevice ({0})", typeid(*this).name());
+			m_Derived = static_cast<Derived*>(this);
+		};
+
+		virtual ~RenderDevice()
+		{
+			LINA_CORE_TRACE("[Destructor] -> RenderDevice ({0})", typeid(*this).name());
+		}
+
+		
+	private:
+
+		Derived* m_Derived;
+
+	};
+}
 
 
 #endif

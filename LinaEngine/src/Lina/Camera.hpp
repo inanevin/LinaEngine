@@ -24,6 +24,7 @@ Timestamp: 1/5/2019 9:51:42 PM
 
 #include "ECS/Data/Transform.hpp"
 
+
 namespace LinaEngine
 {
 	struct PerspectiveInformation
@@ -67,13 +68,15 @@ namespace LinaEngine
 	{
 	public:
 
+		
+
 		Camera(PerspectiveInformation p = PerspectiveInformation());
 		
 		Matrix4F GetViewProjection();
 		inline Matrix4F GetPerspectiveProjection() { return m_PerspectiveProjection; };
 		void SetPerspectiveInformation(PerspectiveInformation p);
 
-		void OnInput(class InputEngine& i);
+		//void OnInput(InputDevice& i);
 		inline PerspectiveInformation GetPerspectiveInformation() { return m_PersInfo; }
 		
 		Transform m_Transform;

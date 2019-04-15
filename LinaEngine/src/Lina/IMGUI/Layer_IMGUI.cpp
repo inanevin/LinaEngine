@@ -22,7 +22,7 @@ Timestamp: 3/7/2019 1:58:49 PM
 #include "imgui.h"
 #include "Lina/Input/InputMappings.hpp"
 #include "Lina/Core/Application.hpp"
-#include "Lina/Rendering/RenderingEngine.hpp"
+
 #include "Lina/Rendering/Window.hpp"
 
 #ifdef LLF_GRAPHICS_OPENGL
@@ -98,7 +98,7 @@ namespace LinaEngine
 
 		ImGuiIO& io = ImGui::GetIO();
 		Application& app = Application::Get();
-		io.DisplaySize = ImVec2(app.GetRenderingEngine().GetMainWindow().GetWidth(), app.GetRenderingEngine().GetMainWindow().GetHeight());
+		//io.DisplaySize = ImVec2(app.GetRenderingEngine().GetMainWindow().GetWidth(), app.GetRenderingEngine().GetMainWindow().GetHeight());
 
 		float time = (float)glfwGetTime();
 		io.DeltaTime = m_Time > 0.0f ? (time - m_Time) : (1.0f / 60.0f);

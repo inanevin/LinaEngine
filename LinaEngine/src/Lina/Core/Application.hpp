@@ -25,11 +25,10 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "Lina/Events/ApplicationEvent.hpp"
 #include "LayerStack.hpp"
 
+#include "Lina/PackageManager/PAMInputDevice.hpp"
 
 namespace LinaEngine
 {
-	class RenderingEngine;
-	class InputEngine;
 
 	class LINA_API Application
 	{
@@ -43,27 +42,21 @@ namespace LinaEngine
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
 
-		inline static Application& Get() { return *instance; }
-
-		inline InputEngine& GetInputEngine() const
-		{
-			LINA_CORE_ASSERT(m_InputEngine, "Input Engine is nullptr!");
-			return *m_InputEngine;
-		}
-
-		inline RenderingEngine& GetRenderingEngine() const
-		{
-			LINA_CORE_ASSERT(m_RenderingEngine, "Rendering Engine is nullptr!");
-			return *m_RenderingEngine;
-		}
+		FORCEINLINE static Application& Get() { return *instance; }
+		FORCEINLINE InputDevice<PAMInputDevice>& GetInputDevice() { return *(m_InputDevice.get()); }
+		FORCEINLINE Window<PAMWindow>& GetMainWindow() { return *(m_ContextWindow.get()); }
+		//RenderDevice*  GetRenderDevice();
+		//InputDevice* GetInputDevice();
 
 	private:
 
 		static Application* instance;
 		bool m_Running = false;
 		LayerStack m_LayerStack;
-		std::unique_ptr<RenderingEngine> m_RenderingEngine;
-		std::unique_ptr<InputEngine> m_InputEngine;
+		//RenderDevice* m_RenderDevice;
+		std::unique_ptr<InputDevice<PAMInputDevice>> m_InputDevice;
+		std::unique_ptr<Window<PAMWindow>> m_ContextWindow;
+		
 	};
 
 	// Defined in client.

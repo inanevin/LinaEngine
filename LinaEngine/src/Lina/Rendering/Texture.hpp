@@ -22,7 +22,6 @@ Timestamp: 1/7/2019 1:55:47 PM
 #ifndef Texture_HPP
 #define Texture_HPP
 
-#include "RenderingEngine.hpp"
 #include "DDSTexture.hpp"
 
 namespace LinaEngine
@@ -34,8 +33,8 @@ namespace LinaEngine
 
 		DISALLOW_COPY_AND_ASSIGN(Texture);
 
-		Texture(class RenderingEngine& renderingEngine, const class ArrayBitmap& data, RenderingEngine::PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress);
-		Texture(class RenderingEngine& renderingEngine, const DDSTexture& ddsTexture);
+		//Texture(RenderDevice& device, const class ArrayBitmap& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress);
+		//Texture(RenderDevice& device, const DDSTexture& ddsTexture);
 
 		~Texture();
 
@@ -47,7 +46,7 @@ namespace LinaEngine
 
 	private:
 
-		RenderingEngine* renderingEngine;
+		//RenderDevice* renderDevice;
 		uint32 m_ID;
 		uint32 m_Width;
 		uint32 m_Height;

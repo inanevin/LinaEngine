@@ -13,80 +13,76 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 and limitations under the License.
 
 Class: Window
-Timestamp: 12/31/2018 1:43:13 AM
+Timestamp: 4/14/2019 7:46:12 PM
 
 */
 
 #pragma once
 
-
-#ifndef Window_HPP
-#define Window_HPP
+#ifndef WINDOW_HPP
+#define WINDOW_HPP
 
 #include "Lina/Events/Event.hpp"
 
 namespace LinaEngine
 {
 	/* Struct containing basic data about window properties. */
-	struct WindowProps
+	struct WindowProperties
 	{
-		std::string Title;
-		unsigned int Width;
-		unsigned int Height;
-		bool VSync;
+		std::string m_Title;
+		unsigned int m_Width;
+		unsigned int m_Height;
+		bool vSyncEnabled;
 
-		WindowProps(const std::string& title = "Lina Engine",
-			unsigned int width = 1280,
-			unsigned int height = 720)
-			: Title(title), Width(width), Height(height), VSync(false)
+		WindowProperties()
 		{
+			m_Title = "Lina Engine";
+			m_Width = 1280;
+			m_Height = 720;
 		}
 
-		std::function<void(Event&)> EventCallback;
+		WindowProperties(const std::string& title, unsigned int width, unsigned int height)
+		{
+			m_Title = title;
+			m_Width = width;
+			m_Height = height;
+		}
 	};
 
-	// Interface representing a desktop system based Window
-	class LINA_API Window
+	template<class Derived>
+	class Window
 	{
 	public:
 
-		using EventCallbackFn = std::function<void(Event&)>;
-		Window(const WindowProps& wp = WindowProps());
-		virtual ~Window() { LINA_CORE_TRACE("[Destructor] -> Window ({0})", typeid(*this).name()); }
+		virtual ~Window()
+		{
+			LINA_CORE_TRACE("[Destructor] -> Window ({0})", typeid(*this).name());
+		};
 
-		/* Gets called after rendering renderingEngine is initialized. */
-		virtual void Initialize() = 0;
-
-		/* Gets called when the window updates each frame. */
-		virtual void OnUpdate() = 0;
-
-		/* Returns absolute width & height of the window. */
-		unsigned int GetWidth() const { return m_WindowProps.Width; }
-		unsigned int GetHeight() const { return m_WindowProps.Height; }
-
-		/* Sets a function pointer as a callback to the desired event.*/
-		inline void SetEventCallback(const EventCallbackFn& callback) { m_WindowProps.EventCallback = callback; }
-
-		/* Enables/Disables vertical sync. */
-		virtual void SetVSync(bool enabled) = 0;
-
-		/* Returns whether vsync is enabled or not. */
-		virtual bool IsVSync() const = 0;
-
-		/* Sets mouse to the desired coordinates in the screen space. */
-		virtual void SetMousePosition(const Vector2F&) = 0;
-
-		virtual void* GetNativeWindow() const = 0;
+		FORCEINLINE void Initialize() { m_Derived->Initialize_Impl(); }
+		FORCEINLINE void SetVsync(bool enabled) { m_Properties.vSyncEnabled = enabled; m_Derived->SetVsync_Impl(enabled); }
+		FORCEINLINE void SetEventCallback(const std::function<void(Event&)>& callback) { m_EventCallback = callback; }
+		FORCEINLINE bool GetVsycnEnabled() { return m_Properties.vSyncEnabled; }
+		FORCEINLINE float GetWidth() { return m_Properties.m_Width; }
+		FORCEINLINE float GetHeight() { return m_Properties.m_Height; }
+		FORCEINLINE void* GetNativeWindow() const { return m_Derived->GetNativeWindow_Impl(); }
+		FORCEINLINE void Tick() { m_Derived->Tick_Impl(); }
 
 	protected:
 
-		WindowProps m_WindowProps;
+		Window(const WindowProperties& props) : m_Properties(props) 
+		{ 
+			LINA_CORE_TRACE("[Constructor] -> Window ({0})", typeid(*this).name());
+			m_Derived = static_cast<Derived*>(this); 
+		};
 
-		//static Window* Create(const WindowProps& props = WindowProps());
+		WindowProperties m_Properties;
+		std::function<void(Event&)> m_EventCallback;
+
+	private:
+
+		Derived* m_Derived;
 	};
-
-
 }
-
 
 #endif

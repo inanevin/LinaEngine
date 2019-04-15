@@ -19,10 +19,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 #include "LinaPch.hpp"
 #include "Application.hpp"  
-#include "Lina/Rendering/RenderingEngine.hpp"
-#include "Lina/Input/InputEngine.hpp"
-#include "PackageManager/Graphics/GraphicsAdapter.hpp"
-#include "PackageManager/Input/InputAdapter.hpp"
+
 
 namespace LinaEngine
 {
@@ -43,36 +40,16 @@ namespace LinaEngine
 		// Set singleton instance.
 		instance = this;
 
-		// Get a graphics adapter.
-		GraphicsAdapter adpt;
+		m_InputDevice = std::make_unique<PAMInputDevice>();
+		m_ContextWindow = std::make_unique<PAMWindow>();
+		m_ContextWindow->SetEventCallback(BIND_EVENT_FN(OnEvent));
+		m_ContextWindow->Initialize();
 
-		// Create unique ptr for rendering renderingEngine returned by the adapter.
-		m_RenderingEngine = std::unique_ptr<RenderingEngine>(adpt.CreateRenderingEngine());
-
-		// Set event callback for the main window.
-		m_RenderingEngine->GetMainWindow().SetEventCallback(BIND_EVENT_FN(OnEvent));
-
-		// Set application reference.
-		m_RenderingEngine->SetApplication(*this);
-
-		// Get an input adapter.
-		InputAdapter inpAdpt;
-
-		// Create input renderingEngine.
-		m_InputEngine = std::unique_ptr<InputEngine>(inpAdpt.CreateInputEngine());
-
-		// Set window reference in input renderingEngine.
-		m_InputEngine->SetApplication(*this);
-
-		// Initialize rendering renderingEngine.
-		m_RenderingEngine->Initialize();
-
-		// Initialize input renderingEngine.
-		m_InputEngine->Initialize();
-
-		// TODO: Carry start to different block.
-		// Start the rendering renderingEngine.
-		m_RenderingEngine->Start();
+		//PAMWindow* window = m_RenderDevice->CreateMainWindow(m_InputDevice);
+		//window->SetEventCallback(BIND_EVENT_FN(OnEvent));
+	
+		//m_InputDevice->Initialize(window);
+		//m_RenderDevice->Initialize();
 
 		// Set running flag.
 		m_Running = true;
@@ -91,7 +68,7 @@ namespace LinaEngine
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
 
-		m_RenderingEngine->OnEvent(e);
+		//m_RenderDevice->OnEvent(e);
 		
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{
@@ -105,11 +82,10 @@ namespace LinaEngine
 	{
 		while (m_Running)
 		{
-			
-			m_InputEngine->OnUpdate();
-
-			// Update rendering renderingEngine.
-			m_RenderingEngine->OnUpdate();
+			//m_InputDevice->OnUpdate();
+		
+			// Update rendering renderDevice.
+			//m_RenderDevice->OnUpdate();
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
@@ -134,6 +110,18 @@ namespace LinaEngine
 		m_LayerStack.PushOverlay(layer);
 		layer->OnAttach();
 	}
+
+	/*RenderDevice * Application::GetRenderDevice()
+	{
+		LINA_CORE_ASSERT(m_RenderDevice != nullptr, "Null render device get call.");
+		return m_RenderDevice;
+	}
+
+	InputDevice * Application::GetInputDevice()
+	{
+		LINA_CORE_ASSERT(m_RenderDevice != nullptr, "Null input device get call.");
+		return m_InputDevice;
+	}*/
 
 }
 

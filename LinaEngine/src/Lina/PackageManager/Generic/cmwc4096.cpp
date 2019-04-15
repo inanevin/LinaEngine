@@ -40,7 +40,7 @@ void initCMWC(struct cmwc_state *state, unsigned int seed)
 	state->i = CMWC_CYCLE - 1;
 }
 
-// CMWC renderingEngine
+// CMWC renderDevice
 uint32_t randCMWC(struct cmwc_state *state)  //EDITED parameter *state was missing
 {
 	uint64_t const a = 18782; // as Marsaglia recommends

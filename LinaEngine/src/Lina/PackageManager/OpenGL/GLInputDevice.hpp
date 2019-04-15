@@ -12,86 +12,79 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: InputEngine_GLFW
-Timestamp: 2/25/2019 9:43:54 AM
+Class: GLInputDevice
+Timestamp: 4/14/2019 5:15:15 PM
 
 */
 
 #pragma once
 
-#ifdef LLF_INPUTANDWINDOW_GLFW
+#ifndef GLInputDevice_HPP
+#define GLInputDevice_HPP
 
-#ifndef InputEngine_GLFW_HPP
-#define InputEngine_GLFW_HPP
 
-#include "Lina/Input/InputEngine.hpp"
-#include "PackageManager/Graphics/OpenGL/Window/Window_GLFWGL.hpp"
+#include "Lina/Input/InputDevice.hpp"
+
 
 namespace LinaEngine
 {
-	class InputEngine_GLFW : public InputEngine
+	class GLInputDevice : public InputDevice<GLInputDevice>
 	{
 	public:
 
-		InputEngine_GLFW();
-		~InputEngine_GLFW();
+		GLInputDevice();
+		virtual ~GLInputDevice();
 
-		/* Initializes input renderingEngine */
-		void Initialize() override;
+		/* Initializes input renderDevice */
+		void Initialize_Impl(const Window<PAMWindow>& window);
 
-		/* Called when updating the input renderingEngine. */
-		void OnUpdate() override;
+		/* Called each frame */
+		void Tick_Impl();
 
 		/* Returns true each frame key mapped with the keyCode is pressed */
-		bool GetKey(int keyCode) override;
+		bool GetKey_Impl(int keyCode);
 
 		/* Returns true in the frame key mapped with the keyCode is pressed. */
-		bool GetKeyDown(int keyCode) override;
+		bool GetKeyDown_Impl(int keyCode);
 
 		/* Returns true in the frame key mapped with the keyCode is stopped being pressed. */
-		bool GetKeyUp(int keyCode) override;
+		bool GetKeyUp_Impl(int keyCode);
 
 		/* Returns true each frame mouse button mapped with the index is pressed */
-		bool GetMouseButton(int index) override;
+		bool GetMouseButton_Impl(int index);
 
 		/* Returns true in the frame mouse button mapped with the index is pressed. */
-		bool GetMouseButtonDown(int index) override;
+		bool GetMouseButtonDown_Impl(int index);
 
 		/* Returns true in the frame mouse mapped with the index is stopped being pressed. */
-		bool GetMouseButtonUp(int index) override;
+		bool GetMouseButtonUp_Impl(int index);
 
 		/* Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Not smoothed.*/
-		Vector2F GetRawMouseAxis() override;
+		Vector2F GetRawMouseAxis_Impl();
 
 		/* Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Delta smoothed.*/
-		Vector2F GetMouseAxis() override;
+		Vector2F GetMouseAxis_Impl();
 
 		/* Returns a Vector2 containing screen space mouse positions */
-		Vector2F GetMousePosition() override;
+		Vector2F GetMousePosition_Impl();
 
 		/* Sets the cursor visible.*/
-		void SetCursor(bool visible) const;
+		void SetCursor_Impl(bool visible) const;
 
 		/* Sets mouse position to desired screen space coordinates. */
-		void SetMousePosition(const Vector2F& v) const;
-
-		/* Dispatches a key action based on key params coming from platform-specific window. */
-		void DispatchKeyAction(Input::Key  key, int action) override;
-
-		/* Dispatches a mouse button action based on key params coming from platform-specific window. */
-		void DispatchMouseAction(Input::Mouse button, int action) override;
+		void SetMousePosition_Impl(const Vector2F& v) const;
 
 	private:
 
-
-		GLFWwindow* glfwWindow;
+		/* Key data */
 		int previousKeys[NUM_KEY_STATES];
 		int currentKeys[NUM_KEY_STATES];
-	
+
+		/* Native window reference */
+		class GLFWwindow* glfwWindow;
+
 	};
 }
 
-
-#endif
 
 #endif

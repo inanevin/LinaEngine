@@ -24,6 +24,7 @@ Timestamp: 4/12/2019 3:36:21 AM
 
 #include "ActionDispatcher.hpp"
 
+
 namespace LinaEngine
 {
 #define LINA_ACTION_CALLBACK(x) std::bind(&x, this)
