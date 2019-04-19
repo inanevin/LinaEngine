@@ -20,13 +20,14 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include <Lina.hpp>
 
 
-class TestLayer : public LinaEngine::Layer
+
+ class TestLayer : public LinaEngine::Layer
 {
 public:
 
 	TestLayer() : Layer("Test")
 	{
-
+	
 	}
 
 	void OnUpdate() override
@@ -41,19 +42,20 @@ public:
 	}
 };
 
+
 class Sandbox : public LinaEngine::Application
 {
 public:
 	Sandbox() { 
-		LINA_CLIENT_TRACE("[Constructor] -> Sandbox ({0})", typeid(*this).name());
-
+		//LINA_CLIENT_TRACE("[Constructor] -> Sandbox ({0})", typeid(*this).name());
+	
 		LinaEngine::Layer* l = new TestLayer();
 		
 		PushLayer(l);
 		//PushOverlay(new LinaEngine::Layer_IMGUI());
 	}
 	~ Sandbox(){
-		LINA_CLIENT_TRACE("[Destructor] -> Sanbox ({0})", typeid(*this).name());
+		//LINA_CLIENT_TRACE("[Destructor] -> Sanbox ({0})", typeid(*this).name());
 	}
 
 	
