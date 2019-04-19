@@ -275,8 +275,8 @@ set(LINAENGINE_DLL_DIR ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.dll)
 option(LINA_ENABLE_LOGGING "Enables console logging" ON)
 # option(LINA_GRAPHICS_OPENGL "Graphics: Use OpenGL" ON)
 ## FORCE OPENGL FOR NOW
+set(LINA_GRAPHICS_OPENGL 1)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
-
 target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_BUILD_DLL=1)
 target_compile_definitions(${PROJECT_NAME} PUBLIC STB_IMAGE_IMPLEMENTATION=1)
 
@@ -337,17 +337,30 @@ if ( CMAKE_BUILD_TYPE STREQUAL "Debug" )
     target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_DEBUG=1)
 endif ( CMAKE_BUILD_TYPE STREQUAL "Debug" )
 
+#--------------------------------------------------------------------
+# Subdirectory setup
+#--------------------------------------------------------------------
+
+set(GLAD_EXPORT OFF CACHE BOOL "" FORCE)
+set(GLAD_INSTALL OFF CACHE BOOL "" FORCE)
+set(GLAD_NO_LOADER OFF CACHE BOOL "" FORCE)
+set(GLAD_REPRODUCIBLE OFF CACHE BOOL "" FORCE)
+set(GLAD_EXTENSIONS "GL_EXT_texture_compression_s3tc" CACHE STRING "" FORCE)
+
+set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
 
 #--------------------------------------------------------------------
 # Set include directories
 #--------------------------------------------------------------------
 
-
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/GLFW/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glad/include)
-
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw_submodule/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glad_submodule/include)
 
 # Language standard
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
@@ -356,15 +369,26 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 # Subdirectories & linking
 #--------------------------------------------------------------------
 
+add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glfw_submodule)
+add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glad_submodule)
 
+# set_target_properties(glfw glad glad-generate-files PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD 1)
 
 # Link libraries (e.g. logging)
 target_link_libraries(${PROJECT_NAME} 
     # ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
     # LOGGING
-	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/GLFW/lib/glfw3.lib
-	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/glad.lib
+	PRIVATE glfw
+	PRIVATE glad
 )
+
+#--------------------------------------------------------------------
+# Packages
+#--------------------------------------------------------------------
+
+if(LINA_GRAPHICS_OPENGL)
+	find_package(OpenGL REQUIRED)
+endif()
 
 #--------------------------------------------------------------------
 # Generate export header for this dll project 
