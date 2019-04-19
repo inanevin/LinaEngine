@@ -369,18 +369,23 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 # Subdirectories & linking
 #--------------------------------------------------------------------
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glfw_submodule)
-add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glad_submodule)
+if(LINA_GRAPHICS_OPENGL)
 
-# set_target_properties(glfw glad glad-generate-files PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD 1)
+	add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glfw_submodule)
+	add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glad_submodule)
 
-# Link libraries (e.g. logging)
-target_link_libraries(${PROJECT_NAME} 
-    # ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
-    # LOGGING
-	PRIVATE glfw
-	PRIVATE glad
-)
+	# set_target_properties(glfw glad glad-generate-files PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD 1)
+
+	# Link libraries (e.g. logging)
+	target_link_libraries(${PROJECT_NAME} 
+		# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
+		# LOGGING
+		PRIVATE glfw
+		PRIVATE glad
+	)
+	
+endif()
+	
 
 #--------------------------------------------------------------------
 # Packages
