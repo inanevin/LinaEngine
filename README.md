@@ -13,6 +13,7 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 ## Announcements
 
 - As a build system, this project uses CMake 3.6. Please make sure you have a working version of CMake, prerably 3.6 or above installed on your machine.
+- This project is currently supported on x64 platforms only.
 - The external libraries, vendors used in the current version of Lina Engine is built with CMake as static libraries on Windows and included in the current version. Thus, this repository supports only Windows for now. However, it is possible to manually build the libraries (located under LinaEngine/vendor) as static library using any build system from their sources (links below) then linking them to LinaEngine by editing the CMakeLists file. The engine itself is not dependent on any platform specific code, so there shall not be any problems once libraries are dealt with. Soon vendors will be included with their build configurations.
 
 ## Vendor
@@ -29,7 +30,8 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 #### Using terminal
 
 -  Run command line or terminal in the repository directory.
--  Execute "cmake -G <options>" to generate project files for your desired IDE.
+-  Execute "cmake -G <options>" to generate project files for your desired IDE. See CMake options for defining an IDE through the console, or use CMake GUI to generate and build.
+-  Make sure you select x64 version of your IDE for the project files, as Lina Engine's vendor libraries are compiled in x64 systems.
 -  Run the project file located in the root directory, Lina.*
 -  The sandbox executable application target is automatically set as the startup project in Visual Studio IDE if CMake 3.6 or above is used.
 -  In any other case, do not forget to set sandbox target as the startup project from your IDE.
