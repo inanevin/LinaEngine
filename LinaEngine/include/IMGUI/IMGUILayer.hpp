@@ -12,7 +12,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: Layer_IMGUI
+Class: IMGUILayer
 Timestamp: 3/7/2019 1:58:49 PM
 
 */
@@ -29,13 +29,13 @@ Timestamp: 3/7/2019 1:58:49 PM
 
 namespace LinaEngine
 {
-	class LINA_API Layer_IMGUI : public Layer
+	class LINA_API IMGUILayer : public Layer
 	{
 
 	public:
 
-		Layer_IMGUI();
-		~Layer_IMGUI();
+		IMGUILayer();
+		~IMGUILayer();
 
 		void OnAttach() override;
 		void OnDetach() override;

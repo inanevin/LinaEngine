@@ -239,6 +239,16 @@ set(LINAENGINE_HEADERS
 	include/Utility/stb/stb_voxel_render.h
 	include/Utility/stb/stretchy_buffer.h
 	
+	#imgui
+	include/Utility/imgui/imconfig.h
+	include/Utility/imgui/imgui.cpp
+	include/Utility/imgui/imgui_demo.cpp
+	include/Utility/imgui/imgui_draw.cpp
+	include/Utility/imgui/imgui_internal.h
+	include/Utility/imgui/imgui_widgets.cpp
+	include/Utility/imgui/imstb_rectpack.h
+	include/Utility/imgui/imstb_textedit.h
+	include/Utility/imgui/imstb_truetype.h
 	
 	#API
 	include/Lina.hpp
@@ -339,7 +349,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/GLFW/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glad/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/imgui/include)
+
 
 # Language standard
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
@@ -356,7 +366,6 @@ target_link_libraries(${PROJECT_NAME}
     # LOGGING
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/GLFW/lib/glfw3.lib
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/glad.lib
-	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui/lib/imgui.lib
 )
 
 #--------------------------------------------------------------------

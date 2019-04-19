@@ -12,14 +12,14 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: Layer_IMGUI
+Class: IMGUILayer
 Timestamp: 3/7/2019 1:58:49 PM
 
 */
 
 #include "LinaPch.hpp"
-#include "IMGUI/Layer_IMGUI.hpp"  
-#include "imgui.h"
+#include "IMGUI/IMGUILayer.hpp"  
+#include "Utility/imgui/imgui.h"
 #include "Input/InputMappings.hpp"
 #include "Core/Application.hpp"
 
@@ -27,7 +27,7 @@ Timestamp: 3/7/2019 1:58:49 PM
 
 #ifdef LINA_GRAPHICS_OPENGL
 
-#include "PackageManager/OpenGL/IMGUI_OpenGL.hpp"
+#include "PackageManager/OpenGL/GLIMGUI.hpp"
 
 #endif
 
@@ -35,17 +35,17 @@ Timestamp: 3/7/2019 1:58:49 PM
 
 namespace LinaEngine
 {
-	Layer_IMGUI::Layer_IMGUI() : Layer("IMGUILayer")
+	IMGUILayer::IMGUILayer() : Layer("IMGUILayer")
 	{
 
 	}
 
-	Layer_IMGUI::~Layer_IMGUI()
+	IMGUILayer::~IMGUILayer()
 	{
 
 	}
 
-	void Layer_IMGUI::OnAttach()
+	void IMGUILayer::OnAttach()
 	{
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
@@ -85,11 +85,11 @@ namespace LinaEngine
 
 	}
 
-	void Layer_IMGUI::OnDetach()
+	void IMGUILayer::OnDetach()
 	{
 	}
 
-	void Layer_IMGUI::OnUpdate()
+	void IMGUILayer::OnUpdate()
 	{
 
 #ifdef LLF_GRAPHICS_OPENGL
@@ -118,21 +118,21 @@ namespace LinaEngine
 	
 	}
 
-	void Layer_IMGUI::OnEvent(Event & e)
+	void IMGUILayer::OnEvent(Event & e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<MouseButtonPressedEvent>(LINA_BIND_EVENT_FN(Layer_IMGUI::OnMouseButtonPressedEvent));
-		dispatcher.Dispatch<MouseButtonReleasedEvent>(LINA_BIND_EVENT_FN(Layer_IMGUI::OnMouseButtonReleasedEvent));
-		dispatcher.Dispatch<MouseMovedEvent>(LINA_BIND_EVENT_FN(Layer_IMGUI::OnMouseMovedEvent));
-		dispatcher.Dispatch<MouseScrolledEvent>(LINA_BIND_EVENT_FN(Layer_IMGUI::OnMouseScrolledEvent));
-		dispatcher.Dispatch<KeyPressedEvent>(LINA_BIND_EVENT_FN(Layer_IMGUI::OnKeyPressedEvent));
-		dispatcher.Dispatch<KeyReleasedEvent>(LINA_BIND_EVENT_FN(Layer_IMGUI::OnKeyReleasedEvent));
-		dispatcher.Dispatch<KeyTypedEvent>(LINA_BIND_EVENT_FN(Layer_IMGUI::OnKeyTypedEvent));
-		dispatcher.Dispatch<WindowResizeEvent>(LINA_BIND_EVENT_FN(Layer_IMGUI::OnWindowResizeEvent));
+		dispatcher.Dispatch<MouseButtonPressedEvent>(LINA_BIND_EVENT_FN(IMGUILayer::OnMouseButtonPressedEvent));
+		dispatcher.Dispatch<MouseButtonReleasedEvent>(LINA_BIND_EVENT_FN(IMGUILayer::OnMouseButtonReleasedEvent));
+		dispatcher.Dispatch<MouseMovedEvent>(LINA_BIND_EVENT_FN(IMGUILayer::OnMouseMovedEvent));
+		dispatcher.Dispatch<MouseScrolledEvent>(LINA_BIND_EVENT_FN(IMGUILayer::OnMouseScrolledEvent));
+		dispatcher.Dispatch<KeyPressedEvent>(LINA_BIND_EVENT_FN(IMGUILayer::OnKeyPressedEvent));
+		dispatcher.Dispatch<KeyReleasedEvent>(LINA_BIND_EVENT_FN(IMGUILayer::OnKeyReleasedEvent));
+		dispatcher.Dispatch<KeyTypedEvent>(LINA_BIND_EVENT_FN(IMGUILayer::OnKeyTypedEvent));
+		dispatcher.Dispatch<WindowResizeEvent>(LINA_BIND_EVENT_FN(IMGUILayer::OnWindowResizeEvent));
 
 	}
 
-	bool Layer_IMGUI::OnMouseButtonPressedEvent(MouseButtonPressedEvent & e)
+	bool IMGUILayer::OnMouseButtonPressedEvent(MouseButtonPressedEvent & e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.MouseDown[e.GetMouseButton()] = true;
@@ -140,7 +140,7 @@ namespace LinaEngine
 		return false;
 	}
 
-	bool Layer_IMGUI::OnMouseButtonReleasedEvent(MouseButtonReleasedEvent & e)
+	bool IMGUILayer::OnMouseButtonReleasedEvent(MouseButtonReleasedEvent & e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.MouseDown[e.GetMouseButton()] = false;
@@ -148,7 +148,7 @@ namespace LinaEngine
 		return false;
 	}
 
-	bool Layer_IMGUI::OnMouseMovedEvent(MouseMovedEvent & e)
+	bool IMGUILayer::OnMouseMovedEvent(MouseMovedEvent & e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.MousePos = ImVec2(e.GetX(), e.GetY());
@@ -156,7 +156,7 @@ namespace LinaEngine
 		return false;
 	}
 
-	bool Layer_IMGUI::OnMouseScrolledEvent(MouseScrolledEvent & e)
+	bool IMGUILayer::OnMouseScrolledEvent(MouseScrolledEvent & e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.MouseWheel += e.GetYOffset();
@@ -165,7 +165,7 @@ namespace LinaEngine
 		return false;
 	}
 
-	bool Layer_IMGUI::OnKeyPressedEvent(KeyPressedEvent & e)
+	bool IMGUILayer::OnKeyPressedEvent(KeyPressedEvent & e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[e.GetKeyCode()] = true;
@@ -178,7 +178,7 @@ namespace LinaEngine
 		return false;
 	}
 
-	bool Layer_IMGUI::OnKeyReleasedEvent(KeyReleasedEvent & e)
+	bool IMGUILayer::OnKeyReleasedEvent(KeyReleasedEvent & e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[e.GetKeyCode()] = false;
@@ -186,7 +186,7 @@ namespace LinaEngine
 		return false;
 	}
 
-	bool Layer_IMGUI::OnKeyTypedEvent(KeyTypedEvent& e)
+	bool IMGUILayer::OnKeyTypedEvent(KeyTypedEvent& e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		int keycode = e.GetKeyCode();
@@ -196,7 +196,7 @@ namespace LinaEngine
 		return false;
 	}
 
-	bool Layer_IMGUI::OnWindowResizeEvent(WindowResizeEvent & e)
+	bool IMGUILayer::OnWindowResizeEvent(WindowResizeEvent & e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize = ImVec2(e.GetWidth(), e.GetHeight());
