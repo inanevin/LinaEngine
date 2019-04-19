@@ -24,7 +24,7 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 
 ## Installation
 
--  [Git Clone Lina Engine](https://github.com/inanevin/LinaEngine)
+-  [Git Clone Lina Engine](https://github.com/inanevin/LinaEngine) or download as ZIP.
 
 #### Using terminal
 
