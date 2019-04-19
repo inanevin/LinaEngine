@@ -216,8 +216,33 @@ set(LINAENGINE_HEADERS
 	include/Utility/spdlog/fmt/bundled/ranges.h
 	include/Utility/spdlog/fmt/bundled/time.h
 
+	#stb
+	include/Utility/stb/stb.h
+	include/Utility/stb/stb_c_lexer.h
+	include/Utility/stb/stb_connected_components.h
+	include/Utility/stb/stb_divide.h
+	include/Utility/stb/stb_ds.h
+	include/Utility/stb/stb_dxt.h
+	include/Utility/stb/stb_easy_font.h
+	include/Utility/stb/stb_herringbone_wang_tile.h
+	include/Utility/stb/stb_image.h
+	include/Utility/stb/stb_image_resize.h
+	include/Utility/stb/stb_image_write.h
+	include/Utility/stb/stb_leakcheck.h
+	include/Utility/stb/stb_perlin.h
+	include/Utility/stb/stb_rect_pack.h
+	include/Utility/stb/stb_sprintf.h
+	include/Utility/stb/stb_textedit.h
+	include/Utility/stb/stb_tilemap_editor.h
+	include/Utility/stb/stb_truetype.h
+	include/Utility/stb/stb_vorbis.c
+	include/Utility/stb/stb_voxel_render.h
+	include/Utility/stb/stretchy_buffer.h
+	
+	
 	#API
 	include/Lina.hpp
+	
 	
 	#Others
 	include/EntryPoint.hpp
@@ -315,7 +340,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/GLFW/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glad/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/imgui/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/stb/include)
 
 # Language standard
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
@@ -330,7 +354,6 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 target_link_libraries(${PROJECT_NAME} 
     # ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
     # LOGGING
-	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/stb/lib/stb.lib
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/GLFW/lib/glfw3.lib
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/glad.lib
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui/lib/imgui.lib
