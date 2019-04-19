@@ -12,29 +12,33 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 
 ## Announcements
 
--  Lina Engine is currently being carried over to a new version (30.12.2018). The old project files, that include examples for input, rendering, event and ECS systems can be found under the folder __VERSION0_SRC__. There is no build generation support for the old version. 
--  The dependency installations for used libraries in Lina Engine are not automated yet. This repository includes the dependency packages as they are, for Windows builds. That is why, the current version of Lina Engine is for Windows only. The dependency installation will be transferred to CMake soon and the libraries will be removed from the repository. It is still possible to build the engine in Linux and MacOS, as it requires manual edit on premake file for dynamic linking as well as downloading the relative binaries and putting them into the include directories.
+- As a build system, this project uses CMake 3.6. Please make sure you have a working version of CMake, prerably 3.6 or above installed on your machine.
+- The external libraries, vendors used in the current version of Lina Engine is built with CMake as static libraries on Windows and included in the current version. Thus, this repository supports only Windows for now. However, it is possible to manually build the libraries (located under LinaEngine/vendor) as static library using any build system from their sources (links below) then linking them to LinaEngine by editing the CMakeLists file. The engine itself is not dependent on any platform specific code, so there shall not be any problems once libraries are dealt with. Soon vendors will be included with their build configurations.
 
-## Dependencies
+## Vendor
+
 -  [spdlog](https://github.com/gabime/spdlog)
--  [SDL2](https://www.libsdl.org/)
--  [OpenGL Mathematics(GLM)](https://glm.g-truc.net/0.9.9/index.html)
 -  [Glad](https://github.com/Dav1dde/glad)
 -  [imgui](https://github.com/ocornut/imgui)
+-  [stb](https://github.com/nothings/stb)
 
 ## Installation
 
 -  [Git Clone Lina Engine](https://github.com/inanevin/LinaEngine)
--  This project uses Premake5, .bat files for various environments are generated & inside the root directory.
--  Run one of the .bat files to generate projects for Visual Studio, GNU Make, XCode or CodeLite.
--  Open your project files in your IDE.
--  Set the sandbox project as the startup project.
--  Build.
--  Now you can work on the sandbox project as well as the engine source code via your IDE. 
+
+#### Using terminal
+
+-  Run command line or terminal in the repository directory.
+-  Execute "cmake -G <options>" to generate project files for your desired IDE.
+-  Run the project file located in the root directory, Lina.*
+-  The sandbox executable application target is automatically set as the startup project in Visual Studio IDE if CMake 3.6 or above is used.
+-  In any other case, do not forget to set sandbox target as the startup project from your IDE.
+-  Build the BUILD_ALL project.
+-  Now you can work on the sandbox project as well as the engine source code via your IDE.
 
 ## Run
 
--  Navigate to bin/.../Sandbox/
+-  Navigate to bin/<config>/
 -  Run Sandbox.exe
 
 ## License
@@ -42,6 +46,7 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Notes
+
 -  OpenGL version guards have not been implemented yet, so if you are recieving memory crashes due to OpenGL buffers, please do update your graphics card to the latest version. Especially if you are running Intel HD chipsets.
 
 ## Design Diagrams
