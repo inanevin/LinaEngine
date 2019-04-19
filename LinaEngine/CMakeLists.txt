@@ -38,7 +38,7 @@ set (LINAENGINE_SOURCES
 	src/Events/ActionSubscriber.cpp
 	
 	#IMGUI
-	src/IMGUI/Layer_IMGUI.cpp
+	src/IMGUI/IMGUILayer.cpp
 	
 	#Interfaces
 	src/Interfaces/IInputSubscriber.cpp
@@ -107,7 +107,7 @@ set(LINAENGINE_HEADERS
 	include/Events/MouseEvent.hpp
 	
 	#IMGUI
-	include/IMGUI/Layer_IMGUI.hpp
+	include/IMGUI/IMGUILayer.hpp
 	
 	#Input
 	include/Input/InputAxisBinder.hpp
@@ -128,9 +128,7 @@ set(LINAENGINE_HEADERS
 	include/PackageManager/OpenGL/GLInputEngine.hpp
 	include/PackageManager/OpenGL/GLRenderengine.hpp
 	include/PackageManager/OpenGL/GLWindow.hpp
-	include/PackageManager/OpenGL/IMGUI_OpenGL.hpp
-	include/PackageManager/OpenGL/Shader_GLSL.hpp
-	include/PackageManager/OpenGL/Shader_GLSLBasic.hpp
+	include/PackageManager/OpenGL/GLIMGUI.hpp
 	include/PackageManager/SSE/SSEVectorMath.hpp
 	include/PackageManager/PAMInputEngine.hpp
 	include/PackageManager/PAMMath.hpp
