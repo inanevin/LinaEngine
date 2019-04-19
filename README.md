@@ -28,33 +28,80 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 
 ## Installation
 
--  Clone Lina Engine git repository: "git clone https://github.com/inanevin/LinaEngine"
--  You can alternatively use: "git clone --recursive https://github.com/inanevin/LinaEngine" in order to clone submodules as well.
--  If you do not clone using --recursive, do not forget to clone submodules before doing any more installation steps.
--  To do this, in the root directory of the repository, run "git submodule init" which will initialize the submodules. Afterwards, run "git submodule update" to download the submodules.
+-  Clone Lina Engine git repository
 
-#### Using terminal
--  Run command line or terminal in the repository directory.
--  Execute "cmake -G <generator-name>" to generate project files for your desired IDE. See [CMake options](https://cmake.org/cmake/help/v3.7/manual/cmake.1.html) for defining an IDE through the console.
--  You can also speficy generation options from the command line, as well as build directories. Check CMake Documentation above to see how to use them in terminal. Possible build options are given below.
+```shell
+# Initialize git in your desired directory.
+git init
+
+# Clone Lina Engine
+git clone https://github.com/inanevin/LinaEngine
+
+# Alternatively you can clone recursively, this will download all the submodules along with Lina Engine source code.
+git clone --recursive https://github.com/inanevin/LinaEngine
+
+# After cloning, if you have not used recursive cloning, you have to download the submodules before continuing.
+# You can step this step if you have cloned with recursive option.
+git submodule init
+git submodule update
+
+```
+
+#### Generate project files using CMake with shell.
+
+-  Run your shell, command line or terminal in the repository directory. Afterwards, execute generation / build commands.
+
+```shell
+# You can define any options before generating project files.
+cmake -DLINA_ENABLE_LOGGING=OFF
+
+# You can define multiple options sequentially.
+cmake -DLINA_ENABLE_LOGGING=OFF -DLINA_BUILD_SANDBOX=OFF
+
+# It is recommended to declare the type of the option if multiple options are defined
+cmake -DLINA_ENABLE_LOGGING:BOOL=OFF -DLINA_BUILD_SANDBOX:BOOL=OFF -DCMAKE_CONFIGURATION_TYPES:STRING="Debug,Release"
+
+# Above commands will generate project files with default generator, you can specify a generator if you want.
+cmake -DLINA_ENABLE_LOGGING=OFF -G "Visual Studio 15 2017"
+
+```
+
+-  After generating project files you can either open your IDE and build the ALL_BUILD project which will build all the targets or you can build the binaries from shell.
+
+```shell
+# Create a directory for binaries
+mkdir bin
+
+# Navigate to directory
+cd bin
+
+# Build the root project
+cmake --build ../
+
+```
+-  Check out [CMake Documentation](https://cmake.org/cmake/help/v3.2/manual/cmake.1.html) for specifying more options and configurations like project file generation directories and more.
 
 #### Using CMake GUI
+
 -  Choose the directory where the repository is as the source directory.
--  Choose a build directory, this can be the same as the source directory.
--  Hit configure, select the IDE you want to generate the project files for. You can leave the options as default.
+-  Choose a build directory, this can be the same as the source directory or anywhere you like.
+-  Hit configure, select the IDE you want to generate the project files for.
+-  Select options, you can leave them as default.
 -  Hit generate, this will generate the project files for your desired IDE.
 
 #### After project file generation
 
--  Run the project file located in the root directory, Lina.*
--  The sandbox executable application target is automatically set as the startup project in Visual Studio IDE if CMake 3.6 or above is used, and if you left the LINA_BUILD_SANDBOX option checked.
--  In any case, do not forget to check whether the sandbox target is the startup project in your IDE, if not, set it so to run the example executable.
+-  After generating files, as mentioned above, you can either build from shell or from your IDE.
+-  If you choose to build from your IDE, run the project file generated in the root directory
+-  Run the project file located in the root directory (or in the root of your output project file directory if you have specified one), Lina.*
+-  The sandbox executable application target is automatically set as the startup project only in Visual Studio IDE if CMake 3.6 or above is used, and if you left the LINA_BUILD_SANDBOX option checked.
+-  In any case, do not forget to check whether the sandbox target is the startup project in your IDE if you have generated it.
 -  Build the BUILD_ALL project.
 -  Now you can work on the sandbox project as well as the engine source code via your IDE.
 
 ## Run
 -  You can run through any attached debugger on your IDE.
--  Alternatively, you can navigate to bin/Debug/ or bin/Release/ depending on your configurations and run the binary outputs.
+-  Alternatively, you can navigate to bin/Debug/ or bin/Release/ (default directories specified in CMakeLists, if you have have built your binaries from shell and overriden output directory navigate there) depending on your configurations and run the binary outputs.
 
 ## Build Options
 
