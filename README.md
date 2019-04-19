@@ -24,7 +24,7 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 
 ## Installation
 
--  [Git Clone Lina Engine](https://github.com/inanevin/LinaEngine)
+-  [Git Clone Lina Engine](https://github.com/inanevin/LinaEngine) or download as ZIP.
 
 #### Using terminal
 
@@ -40,6 +40,14 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 
 -  Navigate to bin/Debug/ or bin/Release/ depending on your configurations.
 -  Run Sandbox.exe
+
+## Build Options
+
+-  CMAKE_CONFIGURATION_TYPES: Project configuration types for your IDE.
+-  CMAKE_INSTALL_PREFIX: Install directory used by cmake install.
+-  LINA_BUILD_SANDBOX: Whether to build demo sandbox project, if unchecked, only engine shared library project will be generated.
+-  LINA_ENABLE_LOGGING: Enables console/terminal debug output.
+
 
 ## License
 
