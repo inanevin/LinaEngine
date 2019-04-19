@@ -240,15 +240,17 @@ add_library(Lina::Engine ALIAS ${PROJECT_NAME})
 set(LINAENGINE_DLL_DIR ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.dll)
 
 option(LINA_ENABLE_LOGGING "Enables console logging" ON)
-option(LINA_GRAPHICS_OPENGL "Graphics: Use OpenGL" ON)
+# option(LINA_GRAPHICS_OPENGL "Graphics: Use OpenGL" ON)
+## FORCE OPENGL FOR NOW
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_BUILD_DLL=1)
 target_compile_definitions(${PROJECT_NAME} PUBLIC STB_IMAGE_IMPLEMENTATION=1)
 
-
-if(LINA_GRAPHICS_OPENGL)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
-endif()
+#
+# if(LINA_GRAPHICS_OPENGL)
+#	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
+# endif()
 
 if(LINA_ENABLE_LOGGING)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_ENABLE_LOGGING=1)
