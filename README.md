@@ -38,7 +38,7 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 
 ## Run
 
--  Navigate to bin/<config>/
+-  Navigate to bin/Debug/ or bin/Release/ depending on your configurations.
 -  Run Sandbox.exe
 
 ## License
