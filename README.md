@@ -10,55 +10,62 @@ Lina Engine is an open-source game engine, that is dedicated to bring alternativ
 
 Lina Engine is a research project, and it is aimed to be the basis of development for more open-source game engine projects. It is our hope that the techniques and architecture used in this game engine can play the initiative role for more projects to develop open source game engines.
 
-## Announcements
+## Announcements / Notes
 
 - As a build system, this project uses CMake 3.6. Please make sure you have a working version of CMake, prerably 3.6 or above installed on your machine.
-- This project is currently supported on x64 platforms only.
-- The external libraries, vendors used in the current version of Lina Engine is built with CMake as static libraries on Windows and included in the current version. Thus, this repository supports only Windows for now. However, it is possible to manually build the libraries (located under LinaEngine/vendor) as static library using any build system from their sources (links below) then linking them to LinaEngine by editing the CMakeLists file. The engine itself is not dependent on any platform specific code, so there shall not be any problems once libraries are dealt with. Soon vendors will be included with their build configurations.
+- This repository currently uses git submodules for dependencies and builds them along with the engine.
 
-## Vendor
+## External Dependencies
+
+-  [Glad](https://github.com/Dav1dde/glad)
+-  [GLFW](https://github.com/glfw/glfw=
+
+## Libraries Included in Source Code
 
 -  [spdlog](https://github.com/gabime/spdlog)
--  [Glad](https://github.com/Dav1dde/glad)
 -  [imgui](https://github.com/ocornut/imgui)
 -  [stb](https://github.com/nothings/stb)
 
 ## Installation
 
--  [Git Clone Lina Engine](https://github.com/inanevin/LinaEngine) or download as ZIP.
+-  Clone Lina Engine git repository: "git clone https://github.com/inanevin/LinaEngine"
+-  You can alternatively use: "git clone --recursive https://github.com/inanevin/LinaEngine" in order to clone submodules as well.
+-  If you do not clone using --recursive, do not forget to clone submodules before doing any more installation steps.
+-  To do this, in the root directory of the repository, run "git submodule init" which will initialize the submodules. Afterwards, run "git submodule update" to download the submodules.
 
 #### Using terminal
 -  Run command line or terminal in the repository directory.
 -  Execute "cmake -G <generator-name>" to generate project files for your desired IDE. See [CMake options](https://cmake.org/cmake/help/v3.7/manual/cmake.1.html) for defining an IDE through the console.
--  Make sure you select x64 version of your IDE for the project files, as Lina Engine's vendor libraries are compiled in x64 systems.
+-  You can also speficy generation options from the command line, as well as build directories. Check CMake Documentation above to see how to use them in terminal. Possible build options are given below.
 
 #### Using CMake GUI
 -  Choose the directory where the repository is as the source directory.
 -  Choose a build directory, this can be the same as the source directory.
--  Hit configure, select the IDE you want to generate the project files for. Do not forget to specify x64 version of the IDE if available.
+-  Hit configure, select the IDE you want to generate the project files for. You can leave the options as default.
 -  Hit generate, this will generate the project files for your desired IDE.
 
 #### After project file generation
 
 -  Run the project file located in the root directory, Lina.*
--  The sandbox executable application target is automatically set as the startup project in Visual Studio IDE if CMake 3.6 or above is used.
--  In any other case, do not forget to set sandbox target as the startup project from your IDE.
+-  The sandbox executable application target is automatically set as the startup project in Visual Studio IDE if CMake 3.6 or above is used, and if you left the LINA_BUILD_SANDBOX option checked.
+-  In any case, do not forget to check whether the sandbox target is the startup project in your IDE, if not, set it so to run the example executable.
 -  Build the BUILD_ALL project.
 -  Now you can work on the sandbox project as well as the engine source code via your IDE.
 
-
 ## Run
-
--  Navigate to bin/Debug/ or bin/Release/ depending on your configurations.
--  Run Sandbox.exe
+-  You can run through any attached debugger on your IDE.
+-  Alternatively, you can navigate to bin/Debug/ or bin/Release/ depending on your configurations and run the binary outputs.
 
 ## Build Options
 
--  CMAKE_CONFIGURATION_TYPES: Project configuration types for your IDE.
--  CMAKE_INSTALL_PREFIX: Install directory used by cmake install.
--  LINA_BUILD_SANDBOX: Whether to build demo sandbox project, if unchecked, only engine shared library project will be generated.
--  LINA_ENABLE_LOGGING: Enables console/terminal debug output.
-
+| Option  | Description | Default |
+| ------------- | ------------- | ------------- |
+| BUILD_SHARED_LIBS  | Whether to build all dependency libraries as shared dynamic libraries instead of static if not explicitly stated.  | OFF  |
+| CMAKE_CONFIGURATION_TYPES  | Project configuration types for your IDE.  | Debug, Release, MinSizeRel, RelWithDebInfo  |
+| CMAKE_INSTALL_PREFIX  | Default installd directory for CMake install commands.  | depends on platform |
+| LINA_BUILD_SANDBOX  | Whether to build example executable sandbox application. | ON  |
+| LINA_ENABLE_LOGGING  | Whether to enable sink / terminal logging during runtime.  | ON |
+| OTHERS | There also exists a set of build options for GLAD and GLFW if OpenGL is used as graphics device. (currently by default it is) See the relative pages for information about those options in "Dependencies" above.  |  |
 
 ## License
 
