@@ -28,15 +28,24 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 -  [Git Clone Lina Engine](https://github.com/inanevin/LinaEngine) or download as ZIP.
 
 #### Using terminal
-
 -  Run command line or terminal in the repository directory.
--  Execute "cmake -G <options>" to generate project files for your desired IDE. See CMake options for defining an IDE through the console, or use CMake GUI to generate and build.
+-  Execute "cmake -G <generator-name>" to generate project files for your desired IDE. See [CMake options](https://cmake.org/cmake/help/v3.7/manual/cmake.1.html) for defining an IDE through the console.
 -  Make sure you select x64 version of your IDE for the project files, as Lina Engine's vendor libraries are compiled in x64 systems.
+
+#### Using CMake GUI
+-  Choose the directory where the repository is as the source directory.
+-  Choose a build directory, this can be the same as the source directory.
+-  Hit configure, select the IDE you want to generate the project files for. Do not forget to specify x64 version of the IDE if available.
+-  Hit generate, this will generate the project files for your desired IDE.
+
+#### After project file generation
+
 -  Run the project file located in the root directory, Lina.*
 -  The sandbox executable application target is automatically set as the startup project in Visual Studio IDE if CMake 3.6 or above is used.
 -  In any other case, do not forget to set sandbox target as the startup project from your IDE.
 -  Build the BUILD_ALL project.
 -  Now you can work on the sandbox project as well as the engine source code via your IDE.
+
 
 ## Run
 
