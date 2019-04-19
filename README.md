@@ -18,7 +18,7 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 ## External Dependencies
 
 -  [Glad](https://github.com/Dav1dde/glad)
--  [GLFW](https://github.com/glfw/glfw=
+-  [GLFW](https://github.com/glfw/glfw)
 
 ## Libraries Included in Source Code
 
