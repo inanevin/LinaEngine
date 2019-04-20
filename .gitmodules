@@ -5,3 +5,4 @@
 [submodule "LinaEngine/vendor/glfw_submodule"]
 	path = LinaEngine/vendor/glfw_submodule
 	url = https://github.com/glfw/glfw
+	ignore = untracked
