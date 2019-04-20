@@ -10,6 +10,9 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
+#Project Files
+[Gg]enerated_project_files
+
 # Build results
 [Bb]in/
 [Bb]in-obj/
