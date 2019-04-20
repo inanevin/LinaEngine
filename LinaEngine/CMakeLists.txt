@@ -359,8 +359,8 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw_submodule/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glad_submodule/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glad/include)
 
 # Language standard
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
@@ -371,8 +371,8 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 if(LINA_GRAPHICS_OPENGL)
 
-	add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glfw_submodule)
-	add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glad_submodule)
+	add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glfw)
+	add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glad)
 
 	# set_target_properties(glfw glad glad-generate-files PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD 1)
 
