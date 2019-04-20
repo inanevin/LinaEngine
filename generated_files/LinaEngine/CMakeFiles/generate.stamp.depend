@@ -1,0 +1,12 @@
+# CMake generation dependency list for this directory.
+C:/Github-Rep/LinaEngine/LinaEngine/CMakeLists.txt
+C:/Program Files/CMake/share/cmake-3.12/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/CheckCCompilerFlag.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/CheckCSourceCompiles.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/CheckCXXCompilerFlag.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/CheckCXXSourceCompiles.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/FindOpenGL.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/GenerateExportHeader.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/exportheader.cmake.in

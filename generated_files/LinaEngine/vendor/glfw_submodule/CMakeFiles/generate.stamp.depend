@@ -1,0 +1,15 @@
+# CMake generation dependency list for this directory.
+C:/Github-Rep/LinaEngine/LinaEngine/vendor/glfw_submodule/CMakeLists.txt
+C:/Github-Rep/LinaEngine/LinaEngine/vendor/glfw_submodule/src/glfw3.pc.in
+C:/Github-Rep/LinaEngine/LinaEngine/vendor/glfw_submodule/src/glfw3Config.cmake.in
+C:/Github-Rep/LinaEngine/LinaEngine/vendor/glfw_submodule/src/glfw_config.h.in
+C:/Program Files/CMake/share/cmake-3.12/Modules/BasicConfigVersion-SameMajorVersion.cmake.in
+C:/Program Files/CMake/share/cmake-3.12/Modules/CMakePackageConfigHelpers.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/CheckIncludeFile.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/CheckLibraryExists.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/CheckSymbolExists.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/FindThreads.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/GNUInstallDirs.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/WriteBasicConfigVersionFile.cmake

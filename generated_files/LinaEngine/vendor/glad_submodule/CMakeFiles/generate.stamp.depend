@@ -1,0 +1,5 @@
+# CMake generation dependency list for this directory.
+C:/Github-Rep/LinaEngine/LinaEngine/vendor/glad_submodule/CMakeLists.txt
+C:/Program Files/CMake/share/cmake-3.12/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-3.12/Modules/FindPythonInterp.cmake
