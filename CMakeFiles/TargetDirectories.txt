@@ -1,0 +1,17 @@
+C:/Github-Rep/LinaEngine/CMakeFiles/edit_cache.dir
+C:/Github-Rep/LinaEngine/CMakeFiles/rebuild_cache.dir
+C:/Github-Rep/LinaEngine/Sandbox/CMakeFiles/LinaSandbox.dir
+C:/Github-Rep/LinaEngine/Sandbox/CMakeFiles/edit_cache.dir
+C:/Github-Rep/LinaEngine/Sandbox/CMakeFiles/rebuild_cache.dir
+C:/Github-Rep/LinaEngine/LinaEngine/CMakeFiles/rebuild_cache.dir
+C:/Github-Rep/LinaEngine/LinaEngine/CMakeFiles/LinaEngine.dir
+C:/Github-Rep/LinaEngine/LinaEngine/CMakeFiles/edit_cache.dir
+C:/Github-Rep/LinaEngine/LinaEngine/vendor/glfw/CMakeFiles/edit_cache.dir
+C:/Github-Rep/LinaEngine/LinaEngine/vendor/glfw/CMakeFiles/rebuild_cache.dir
+C:/Github-Rep/LinaEngine/LinaEngine/vendor/glfw/src/CMakeFiles/rebuild_cache.dir
+C:/Github-Rep/LinaEngine/LinaEngine/vendor/glfw/src/CMakeFiles/glfw.dir
+C:/Github-Rep/LinaEngine/LinaEngine/vendor/glfw/src/CMakeFiles/edit_cache.dir
+C:/Github-Rep/LinaEngine/LinaEngine/vendor/glad/CMakeFiles/glad-generate-files.dir
+C:/Github-Rep/LinaEngine/LinaEngine/vendor/glad/CMakeFiles/glad.dir
+C:/Github-Rep/LinaEngine/LinaEngine/vendor/glad/CMakeFiles/edit_cache.dir
+C:/Github-Rep/LinaEngine/LinaEngine/vendor/glad/CMakeFiles/rebuild_cache.dir

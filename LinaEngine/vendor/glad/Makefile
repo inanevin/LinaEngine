@@ -79,14 +79,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all:
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Github-Rep\LinaEngine\CMakeFiles C:\Github-Rep\LinaEngine\CMakeFiles\progress.marks
-	$(MAKE) -f CMakeFiles\Makefile2 all
+	cd /d C:\Github-Rep\LinaEngine && $(CMAKE_COMMAND) -E cmake_progress_start C:\Github-Rep\LinaEngine\CMakeFiles C:\Github-Rep\LinaEngine\LinaEngine\vendor\glad\CMakeFiles\progress.marks
+	cd /d C:\Github-Rep\LinaEngine && $(MAKE) -f CMakeFiles\Makefile2 LinaEngine/vendor/glad/all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\Github-Rep\LinaEngine\CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	$(MAKE) -f CMakeFiles\Makefile2 clean
+	cd /d C:\Github-Rep\LinaEngine && $(MAKE) -f CMakeFiles\Makefile2 LinaEngine/vendor/glad/clean
 .PHONY : clean
 
 # The main clean target
@@ -96,91 +96,83 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	$(MAKE) -f CMakeFiles\Makefile2 preinstall
+	cd /d C:\Github-Rep\LinaEngine && $(MAKE) -f CMakeFiles\Makefile2 LinaEngine/vendor/glad/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	$(MAKE) -f CMakeFiles\Makefile2 preinstall
+	cd /d C:\Github-Rep\LinaEngine && $(MAKE) -f CMakeFiles\Makefile2 LinaEngine/vendor/glad/preinstall
 .PHONY : preinstall/fast
 
-#=============================================================================
-# Target rules for targets named LinaSandbox
+# Convenience name for target.
+LinaEngine/vendor/glad/CMakeFiles/glad-generate-files.dir/rule:
+	cd /d C:\Github-Rep\LinaEngine && $(MAKE) -f CMakeFiles\Makefile2 LinaEngine/vendor/glad/CMakeFiles/glad-generate-files.dir/rule
+.PHONY : LinaEngine/vendor/glad/CMakeFiles/glad-generate-files.dir/rule
 
-# Build rule for target.
-LinaSandbox:
-	$(MAKE) -f CMakeFiles\Makefile2 LinaSandbox
-.PHONY : LinaSandbox
+# Convenience name for target.
+glad-generate-files: LinaEngine/vendor/glad/CMakeFiles/glad-generate-files.dir/rule
 
-# fast build rule for target.
-LinaSandbox/fast:
-	$(MAKE) -f Sandbox\CMakeFiles\LinaSandbox.dir\build.make Sandbox/CMakeFiles/LinaSandbox.dir/build
-.PHONY : LinaSandbox/fast
-
-#=============================================================================
-# Target rules for targets named LinaEngine
-
-# Build rule for target.
-LinaEngine:
-	$(MAKE) -f CMakeFiles\Makefile2 LinaEngine
-.PHONY : LinaEngine
-
-# fast build rule for target.
-LinaEngine/fast:
-	$(MAKE) -f LinaEngine\CMakeFiles\LinaEngine.dir\build.make LinaEngine/CMakeFiles/LinaEngine.dir/build
-.PHONY : LinaEngine/fast
-
-#=============================================================================
-# Target rules for targets named glfw
-
-# Build rule for target.
-glfw:
-	$(MAKE) -f CMakeFiles\Makefile2 glfw
-.PHONY : glfw
-
-# fast build rule for target.
-glfw/fast:
-	$(MAKE) -f LinaEngine\vendor\glfw\src\CMakeFiles\glfw.dir\build.make LinaEngine/vendor/glfw/src/CMakeFiles/glfw.dir/build
-.PHONY : glfw/fast
-
-#=============================================================================
-# Target rules for targets named glad-generate-files
-
-# Build rule for target.
-glad-generate-files:
-	$(MAKE) -f CMakeFiles\Makefile2 glad-generate-files
 .PHONY : glad-generate-files
 
 # fast build rule for target.
 glad-generate-files/fast:
-	$(MAKE) -f LinaEngine\vendor\glad\CMakeFiles\glad-generate-files.dir\build.make LinaEngine/vendor/glad/CMakeFiles/glad-generate-files.dir/build
+	cd /d C:\Github-Rep\LinaEngine && $(MAKE) -f LinaEngine\vendor\glad\CMakeFiles\glad-generate-files.dir\build.make LinaEngine/vendor/glad/CMakeFiles/glad-generate-files.dir/build
 .PHONY : glad-generate-files/fast
 
-#=============================================================================
-# Target rules for targets named glad
+# Convenience name for target.
+LinaEngine/vendor/glad/CMakeFiles/glad.dir/rule:
+	cd /d C:\Github-Rep\LinaEngine && $(MAKE) -f CMakeFiles\Makefile2 LinaEngine/vendor/glad/CMakeFiles/glad.dir/rule
+.PHONY : LinaEngine/vendor/glad/CMakeFiles/glad.dir/rule
 
-# Build rule for target.
-glad:
-	$(MAKE) -f CMakeFiles\Makefile2 glad
+# Convenience name for target.
+glad: LinaEngine/vendor/glad/CMakeFiles/glad.dir/rule
+
 .PHONY : glad
 
 # fast build rule for target.
 glad/fast:
-	$(MAKE) -f LinaEngine\vendor\glad\CMakeFiles\glad.dir\build.make LinaEngine/vendor/glad/CMakeFiles/glad.dir/build
+	cd /d C:\Github-Rep\LinaEngine && $(MAKE) -f LinaEngine\vendor\glad\CMakeFiles\glad.dir\build.make LinaEngine/vendor/glad/CMakeFiles/glad.dir/build
 .PHONY : glad/fast
+
+src/glad.obj: src/glad.c.obj
+
+.PHONY : src/glad.obj
+
+# target to build an object file
+src/glad.c.obj:
+	cd /d C:\Github-Rep\LinaEngine && $(MAKE) -f LinaEngine\vendor\glad\CMakeFiles\glad.dir\build.make LinaEngine/vendor/glad/CMakeFiles/glad.dir/src/glad.c.obj
+.PHONY : src/glad.c.obj
+
+src/glad.i: src/glad.c.i
+
+.PHONY : src/glad.i
+
+# target to preprocess a source file
+src/glad.c.i:
+	cd /d C:\Github-Rep\LinaEngine && $(MAKE) -f LinaEngine\vendor\glad\CMakeFiles\glad.dir\build.make LinaEngine/vendor/glad/CMakeFiles/glad.dir/src/glad.c.i
+.PHONY : src/glad.c.i
+
+src/glad.s: src/glad.c.s
+
+.PHONY : src/glad.s
+
+# target to generate assembly for a file
+src/glad.c.s:
+	cd /d C:\Github-Rep\LinaEngine && $(MAKE) -f LinaEngine\vendor\glad\CMakeFiles\glad.dir\build.make LinaEngine/vendor/glad/CMakeFiles/glad.dir/src/glad.c.s
+.PHONY : src/glad.c.s
 
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
 	@echo ... all (the default if no target is provided)
 	@echo ... clean
-	@echo ... edit_cache
-	@echo ... rebuild_cache
-	@echo ... LinaSandbox
-	@echo ... LinaEngine
-	@echo ... glfw
 	@echo ... glad-generate-files
 	@echo ... glad
+	@echo ... edit_cache
+	@echo ... rebuild_cache
+	@echo ... src/glad.obj
+	@echo ... src/glad.i
+	@echo ... src/glad.s
 .PHONY : help
 
 
