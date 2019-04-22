@@ -13,6 +13,9 @@
 #Project Files
 [Gg]enerated_project_files
 
+#Lina Engine Tools
+.jar
+
 # Build results
 [Bb]in/
 [Bb]in-obj/
