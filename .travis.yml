@@ -1,20 +1,31 @@
-
-sudo: false
 language: cpp
-compiler:
-  - gcc
-  - clang
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    - llvm-toolchain-precise-3.8
-    packages:
-    - g++-6
-    - clang-3.8
-install:
-- "[ $CXX = g++ ] && export CXX=g++-6 || true"
-- "[ $CXX = clang++ ] && export CXX=clang++-3.8 || true"
-script:
-  - cmake .
-  - cmake --build . -- -j2
+dist: xenial
+notifications:
+  email: false
+
+# Define builds on mulitple OS/compiler combinations. 
+# Feel free to add/remove entries from this list.
+matrix:
+  include:
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - lcov
+            - g++-7
+      env:
+        - MATRIX_EVAL="CXX_COMPILER=g++-7; sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-7 90"
+
+    - os: osx
+      osx_image: xcode10.1
+      addons:
+        homebrew:
+          packages:
+          - lcov
+      env:
+        - MATRIX_EVAL="CXX_COMPILER=clang++"
+    
+
+

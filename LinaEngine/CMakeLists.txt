@@ -270,6 +270,14 @@ add_library(Lina::Engine ALIAS ${PROJECT_NAME})
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------
 
+set_target_properties(
+    ${PROJECT_NAME}
+      PROPERTIES 
+        CXX_STANDARD 17 
+        CXX_STANDARD_REQUIRED YES 
+        CXX_EXTENSIONS NO
+)
+
 set(LINAENGINE_DLL_DIR ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.dll)
 
 option(LINA_ENABLE_LOGGING "Enables console logging" ON)
