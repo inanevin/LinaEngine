@@ -12,6 +12,8 @@
 
 #Project Files
 [Gg]enerated_project_files
+[Bb]uild
+LinaEngineBuildLauncher
 
 #Lina Engine Tools
 *.jar
