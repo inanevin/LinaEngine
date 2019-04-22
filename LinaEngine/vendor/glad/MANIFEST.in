@@ -1,1 +1,0 @@
-recursive-include glad *.c *.h *.d *.volt *.xml

@@ -389,7 +389,7 @@ if(LINA_GRAPHICS_OPENGL)
 		# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
 		# LOGGING
 		PRIVATE glfw
-		PRIVATE glad
+		PRIVATE GLAD
 	)
 	
 endif()
