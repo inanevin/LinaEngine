@@ -1,16 +1,20 @@
-dist: trusty
+
 sudo: false
 language: cpp
-
+compiler:
+  - gcc
+  - clang
 addons:
-apt:
-sources:
-- ubuntu-toolchain-r-test
-packages:
-- g++-5
-
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    - llvm-toolchain-precise-3.8
+    packages:
+    - g++-6
+    - clang-3.8
+install:
+- "[ $CXX = g++ ] && export CXX=g++-6 || true"
+- "[ $CXX = clang++ ] && export CXX=clang++-3.8 || true"
 script:
-    - CXX=usr/bin/g++-5 CC=/usr/bin/gcc-5 cmake .
-    - cmake --build . -- -j2
-    
-   
+  - cmake .
+  - cmake --build . -- -j2
