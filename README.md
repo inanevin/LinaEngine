@@ -44,7 +44,7 @@ git clone https://github.com/inanevin/LinaEngine
 git clone --recursive https://github.com/inanevin/LinaEngine
 
 ```
--  You can generate the project files and build using; Lina Engine Build Launcher, CMake with Shell, CMake GUI
+-  You can generate the project files and build using; **Lina Engine Build Launcher**, **CMake with Shell** or **CMake GUI**
 
 #### Using Lina Engine Build Launcher
 
