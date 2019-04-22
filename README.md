@@ -104,7 +104,7 @@ cmake --build ../
 
 #### After project file generation
 
--  After generating files, as mentioned above, you can either build from shell or from your IDE.
+-  After generating files, as mentioned above, you can either build from Lina Engine Build Launcher, your operating system's shell or from your IDE.
 -  If you choose to build from your IDE, run the project file generated in the root directory
 -  Run the project file located in the root directory (or in the root of your output project file directory if you have specified one), Lina.*
 -  The sandbox executable application target is automatically set as the startup project only in Visual Studio IDE if CMake 3.6 or above is used, and if you left the LINA_BUILD_SANDBOX option checked.
