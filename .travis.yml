@@ -1,5 +1,12 @@
+# Enable C++ support
 language: cpp
-compiler:
-  - clang
-  - gcc
 
+# Compiler selection
+compiler:
+  - gcc
+  
+script:
+
+- mkdir generated_project_files
+- cd build
+- cmake ..
