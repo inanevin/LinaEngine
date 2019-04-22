@@ -59,7 +59,7 @@ git clone --recursive https://github.com/inanevin/LinaEngine
 -  Hit "Generate Project Files" to generate only the project files, hit "Generate and Build" to generate project files and then build the binaries using the generated files.
 
 
-#### Generate project files using CMake with shell.
+#### Using CMake with Shell
 
 -  Run your shell, command line or terminal in the repository directory. Afterwards, execute generation / build commands.
 
