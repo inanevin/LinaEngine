@@ -18,9 +18,13 @@
 cmake_minimum_required (VERSION 3.6)
 project (Lina)
 
+
 #--------------------------------------------------------------------
 # Options & Definitions
 #--------------------------------------------------------------------
+#set(CMAKE_C_COMPILER /c/MinGW/bin/gcc.exe)
+#set(CMAKE_CXX_COMPILER /c/MinGW/bin/g++.exe)
+
 option(LINA_BUILD_SANDBOX "Build Sandbox Application" ON)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)

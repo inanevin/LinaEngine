@@ -1,0 +1,30 @@
+CMake Error at C:/Program Files/CMake/share/cmake-3.12/Modules/CMakeTestCCompiler.cmake:52 (message):
+  The C compiler
+
+    "C:/MinGW/bin/gcc.exe"
+
+  is not able to compile a simple test program.
+
+  It fails with the following output:
+
+    Change Dir: C:/Users/InanEvin/Desktop/LatestCMakeTest/1222/CMakeFiles/CMakeTmp
+    
+    Run Build Command:"C:/MinGW/bin/mingw32-make.exe" "cmTC_92c2a/fast"
+    C:/MinGW/bin/mingw32-make.exe -f CMakeFiles\cmTC_92c2a.dir\build.make CMakeFiles/cmTC_92c2a.dir/build
+    mingw32-make.exe[1]: Entering directory 'C:/Users/InanEvin/Desktop/LatestCMakeTest/1222/CMakeFiles/CMakeTmp'
+    Building C object CMakeFiles/cmTC_92c2a.dir/testCCompiler.c.obj
+    C:\MinGW\bin\gcc.exe    -o CMakeFiles\cmTC_92c2a.dir\testCCompiler.c.obj   -c C:\Users\InanEvin\Desktop\LatestCMakeTest\1222\CMakeFiles\CMakeTmp\testCCompiler.c
+    CMakeFiles\cmTC_92c2a.dir\build.make:64: recipe for target 'CMakeFiles/cmTC_92c2a.dir/testCCompiler.c.obj' failed
+    mingw32-make.exe[1]: *** [CMakeFiles/cmTC_92c2a.dir/testCCompiler.c.obj] Error 1
+    mingw32-make.exe[1]: Leaving directory 'C:/Users/InanEvin/Desktop/LatestCMakeTest/1222/CMakeFiles/CMakeTmp'
+    Makefile:120: recipe for target 'cmTC_92c2a/fast' failed
+    mingw32-make.exe: *** [cmTC_92c2a/fast] Error 2
+    
+
+  
+
+  CMake will not be able to correctly generate this project.
+Call Stack (most recent call first):
+  CMakeLists.txt:19 (project)
+
+
