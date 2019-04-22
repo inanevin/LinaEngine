@@ -52,7 +52,7 @@ git clone --recursive https://github.com/inanevin/LinaEngine
 -  Download a binary release from [Lina Engine Build Launcher Repository](https://github.com/inanevin/Lina-Engine-Build-Launcher).
 -  Run the .jar file, launcher will open.
 
-[!](Docs/Images/buildlauncher.png)
+![](Docs/Images/buildlauncher.png)
 
 -  Select the directory where you downloaded Lina Engine's source. (this repository)
 -  Select your desired build directory for project files.
