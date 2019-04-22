@@ -1,5 +1,6 @@
 language: cpp
 dist: windows
+script: make
 compiler:
   - clang
   - gcc
