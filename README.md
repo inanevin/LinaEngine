@@ -1,4 +1,4 @@
-![Lina](Docs/Images/LinaLogo.png?raw=true "Title")
+![Lina](Docs/Images/linalogofull_medium.png)
 
 ## Lina Engine  
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) 
