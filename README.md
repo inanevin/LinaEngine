@@ -13,7 +13,10 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 ## Announcements / Notes
 
 - As a build system, this project uses CMake 3.6. Please make sure you have a working version of CMake, prerably 3.6 or above installed on your machine.
-- This repository currently uses git submodules for dependencies and builds them along with the engine.
+
+## Lina Engine Tools
+
+- [Lina Engine Build Launcher](https://github.com/inanevin/Lina-Engine-Build-Launcher)
 
 ## External Dependencies
 
@@ -37,17 +40,26 @@ git init
 # Clone Lina Engine
 git clone https://github.com/inanevin/LinaEngine
 
-# Alternatively you can clone recursively, this will download all the submodules along with Lina Engine source code.
+# Alternatively you can clone recursively, this will download all the submodules if there exists any along with Lina Engine source code.
 git clone --recursive https://github.com/inanevin/LinaEngine
 
-# After cloning, if you have not used recursive cloning, you have to download the submodules before continuing.
-# You can step this step if you have cloned with recursive option.
-git submodule init
-git submodule update
-
 ```
+-  You can generate the project files and build using; **Lina Engine Build Launcher**, **CMake with Shell** or **CMake GUI**
 
-#### Generate project files using CMake with shell.
+#### Using Lina Engine Build Launcher
+
+-  Download a binary release from [Lina Engine Build Launcher Repository](https://github.com/inanevin/Lina-Engine-Build-Launcher).
+-  Run the .jar file, launcher will open.
+
+![](Docs/Images/buildlauncher.png)
+
+-  Select the directory where you downloaded Lina Engine's source. (this repository)
+-  Select your desired build directory for project files.
+-  Select your target generator & desired build options.
+-  Hit "Generate Project Files" to generate only the project files, hit "Generate and Build" to generate project files and then build the binaries using the generated files.
+
+
+#### Using CMake with Shell
 
 -  Run your shell, command line or terminal in the repository directory. Afterwards, execute generation / build commands.
 
@@ -91,7 +103,7 @@ cmake --build ../
 
 #### After project file generation
 
--  After generating files, as mentioned above, you can either build from shell or from your IDE.
+-  After generating files, as mentioned above, you can either build from Lina Engine Build Launcher, your operating system's shell or from your IDE.
 -  If you choose to build from your IDE, run the project file generated in the root directory
 -  Run the project file located in the root directory (or in the root of your output project file directory if you have specified one), Lina.*
 -  The sandbox executable application target is automatically set as the startup project only in Visual Studio IDE if CMake 3.6 or above is used, and if you left the LINA_BUILD_SANDBOX option checked.
