@@ -8,5 +8,5 @@ compiler:
 script:
 
 - mkdir generated_project_files
-- cd build
+- cd generated_project_files
 - cmake ..
