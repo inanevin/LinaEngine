@@ -278,7 +278,6 @@ set_target_properties(
         CXX_EXTENSIONS NO
 )
 
-set(LINAENGINE_DLL_DIR ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.dll)
 
 option(LINA_ENABLE_LOGGING "Enables console logging" ON)
 # option(LINA_GRAPHICS_OPENGL "Graphics: Use OpenGL" ON)
@@ -321,6 +320,7 @@ else()
    target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_COMPILER_OTHER=1)
 endif()
 
+
 #--------------------------------------------------------------------
 # Build Type Config
 #--------------------------------------------------------------------
@@ -332,34 +332,32 @@ if ( CMAKE_BUILD_TYPE STREQUAL "" )
 		CMAKE_BUILD_TYPE
 			"Debug"
 		CACHE STRING
-			"Choose the type of build, options are: None (CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) \"Debug\" \"Release\" \"Distribution\"."
+			"Choose the type of build, options are: None (CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) \"Debug\" \"Release\" \"MinSizeRel\" \"RelWithDebInfo\"."
 		FORCE
 	)
+	
+	set(LINAENGINE_RUNTIME_COPY_DIR "Debug")
 endif ( CMAKE_BUILD_TYPE STREQUAL "" )
 
 if ( CMAKE_BUILD_TYPE STREQUAL "Release" )
     target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_RELEASE=1)
+	set(LINAENGINE_RUNTIME_COPY_DIR "Release")
 endif ( CMAKE_BUILD_TYPE STREQUAL "Release" )
 
 if ( CMAKE_BUILD_TYPE STREQUAL "Debug" )
     target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_DEBUG=1)
+	set(LINAENGINE_RUNTIME_COPY_DIR "Debug")
 endif ( CMAKE_BUILD_TYPE STREQUAL "Debug" )
 
-#--------------------------------------------------------------------
-# Subdirectory setup
-#--------------------------------------------------------------------
+if ( CMAKE_BUILD_TYPE STREQUAL "MinSizeRel" )
+    target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_MINSIZEREL=1)
+	set(LINAENGINE_RUNTIME_COPY_DIR "MinSizeRel")
+endif ( CMAKE_BUILD_TYPE STREQUAL "MinSizeRel" )
 
-set(GLAD_EXPORT OFF CACHE BOOL "" FORCE)
-set(GLAD_INSTALL OFF CACHE BOOL "" FORCE)
-set(GLAD_NO_LOADER OFF CACHE BOOL "" FORCE)
-set(GLAD_REPRODUCIBLE OFF CACHE BOOL "" FORCE)
-set(GLAD_EXTENSIONS "GL_EXT_texture_compression_s3tc" CACHE STRING "" FORCE)
-
-set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-
+if ( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
+    target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_RELWITHDEBINFO=1)
+	set(LINAENGINE_RUNTIME_COPY_DIR "RelWithDebInfo")
+endif ( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
 
 #--------------------------------------------------------------------
 # Set include directories
@@ -369,6 +367,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glad/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
 
 # Language standard
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
@@ -379,20 +378,19 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 if(LINA_GRAPHICS_OPENGL)
 
-	add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glfw)
-	add_subdirectory(${PROJECT_SOURCE_DIR}/vendor/glad)
-
-	# set_target_properties(glfw glad glad-generate-files PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD 1)
-
-	# Link libraries (e.g. logging)
+# Link libraries (e.g. logging)
 	target_link_libraries(${PROJECT_NAME} 
 		# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
-		# LOGGING
-		PRIVATE glfw
-		PRIVATE GLAD
+		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/glfw3.lib
+		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/GLAD.lib
 	)
 	
 endif()
+
+# Link libraries (e.g. logging)
+target_link_libraries(${PROJECT_NAME} 
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/assimp/lib/assimp.lib
+)
 	
 
 #--------------------------------------------------------------------
@@ -426,5 +424,9 @@ if(MSVC_IDE)
 	endforeach()
 endif()
 
+add_custom_command(
+TARGET ${PROJECT_NAME}
+PRE_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/vendor/assimp/bin/Assimp32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
 
 
