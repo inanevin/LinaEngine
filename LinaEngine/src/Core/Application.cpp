@@ -19,10 +19,6 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 #include "LinaPch.hpp"
 #include "Core/Application.hpp"
-#include <assimp/Importer.hpp>      // C++ importer interface
-#include <assimp/scene.h>           // Output data structure
-#include <assimp/postprocess.h>     // Post processing flags
-
 
 namespace LinaEngine
 {
@@ -33,13 +29,7 @@ namespace LinaEngine
 
 	Application::Application()
 	{
-		// Create an instance of the Importer class
-		Assimp::Importer importer;
-		// And have it read the given file with some example postprocessing
-		// Usually - if speed is not the most important aspect for you - you'll 
-		// propably to request more postprocessing than we do in this example.
-		std::cout << importer.GetErrorString() << std::endl;
-
+	
 		LINA_CORE_TRACE("[Constructor] -> Application ({0})" , typeid(*this).name());
 		LINA_CORE_ASSERT(!instance, "Application already exists!");
 
