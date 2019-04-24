@@ -17,7 +17,7 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 
 ## Announcements / Notes
 
-- As a build system, this project uses CMake 3.6. Please make sure you have a working version of CMake, prerably 3.6 or above installed on your machine.
+- As a build system, this project uses CMake 3.6. Please make sure you have a working version of [CMake](https://cmake.org/), prerably 3.6 or above installed on your machine.
 
 ## Lina Engine Tools
 
