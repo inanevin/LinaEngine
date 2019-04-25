@@ -56,6 +56,8 @@ set (LINAENGINE_SOURCES
 	src/Rendering/Shader.cpp
 	src/Rendering/Texture.cpp
 	src/Rendering/Vertex.cpp
+	src/Rendering/IndexedModel.cpp
+	src/Rendering/ModelLoader.cpp
 	
 	#Utility
 	src/Utility/Math/Matrix.cpp
@@ -63,11 +65,10 @@ set (LINAENGINE_SOURCES
 	src/Utility/Math/Transformation.cpp
 	src/Utility/Math/Vector.cpp
 	src/Utility/Math/VectorMath.cpp
+	src/Utility/Math/AABB.cpp
 	src/Utility/Log.cpp
 	src/Utility/ResourceConstants.cpp
-	src/Utility/AABB.cpp
-	src/Utility/IndexedModel.cpp
-	src/Rendering/ModelLoader.cpp
+	
 
 )
 
@@ -149,6 +150,7 @@ set(LINAENGINE_HEADERS
 	include/Rendering/Texture.hpp
 	include/Rendering/Vertex.hpp
 	include/Rendering/Window.hpp
+	include/Rendering/IndexedModel.hpp
 	include/Rendering/ModelLoader.hpp
 	include/Rendering/VertexArray.hpp
 	include/Rendering/Material.hpp
@@ -161,10 +163,9 @@ set(LINAENGINE_HEADERS
 	include/Utility/Math/Transformation.hpp
 	include/Utility/Math/Vector.hpp
 	include/Utility/Math/VectorMath.hpp
+	include/Utility/Math/AABB.hpp
 	include/Utility/Log.hpp
 	include/Utility/ResourceConstants.hpp
-	include/Utility/AABB.hpp
-	include/Utility/IndexedModel.hpp
 
 	
 	# SPDLOG
