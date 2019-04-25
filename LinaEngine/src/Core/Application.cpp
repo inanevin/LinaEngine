@@ -36,7 +36,7 @@ namespace LinaEngine
 		// Set singleton instance.
 		instance = this;
 
-		// Set unique pointers of input device & render engine.
+		// Set unique pointers of input renderEngine & render engine.
 		m_InputEngine = std::make_unique<PAMInputEngine>();
 		m_RenderEngine = std::make_unique<PAMRenderEngine>();
 
@@ -113,13 +113,13 @@ namespace LinaEngine
 
 	/*RenderDevice * Application::GetRenderDevice()
 	{
-		LINA_CORE_ASSERT(m_RenderDevice != nullptr, "Null render device get call.");
+		LINA_CORE_ASSERT(m_RenderDevice != nullptr, "Null render renderEngine get call.");
 		return m_RenderDevice;
 	}
 
 	InputEngine * Application::GetInputDevice()
 	{
-		LINA_CORE_ASSERT(m_RenderDevice != nullptr, "Null input device get call.");
+		LINA_CORE_ASSERT(m_RenderDevice != nullptr, "Null input renderEngine get call.");
 		return m_InputEngine;
 	}*/
 

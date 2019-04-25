@@ -19,7 +19,9 @@ Timestamp: 4/15/2019 12:37:37 PM
 
 #include "LinaPch.hpp"
 #include "PackageManager/OpenGL/GLRenderEngine.hpp"  
-#include "glad/glad.h"
+#include "PackageManager/OpenGL/GLGraphicsDefines.hpp"
+
+
 #include "ECS/EntityComponentSystem.hpp"
 #include "ECS/Components/MovementControlComponent.hpp"
 #include "ECS/Components/RenderableMeshComponent.hpp"
@@ -30,6 +32,8 @@ Timestamp: 4/15/2019 12:37:37 PM
 
 namespace LinaEngine::Graphics
 {
+
+
 	GLint GetOpenGLFormat(PixelFormat dataFormat);
 	GLint GetOpenGLInternalFormat(PixelFormat internalFormat, bool compress);
 
@@ -162,6 +166,128 @@ namespace LinaEngine::Graphics
 		return 0;
 	}
 
+	uint32 GLRenderEngine::CreateVertexArray_Impl(const float** vertexData, const uint32* vertexElementSizes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, int bufferUsage)
+	{
+		unsigned int numBuffers = numVertexComponents + numInstanceComponents + 1;
+
+		GLuint VAO;
+		GLuint* buffers = new GLuint[numBuffers];
+		uintptr* bufferSizes = new uintptr[numBuffers];
+
+		glGenVertexArrays(1, &VAO);
+		setVAO(VAO);
+
+		glGenBuffers(numBuffers, buffers);
+		for (uint32 i = 0, attribute = 0; i < numBuffers - 1; i++) {
+			enum BufferUsage attribUsage = static_cast<BufferUsage>(bufferUsage);
+			bool inInstancedMode = false;
+			if (i >= numVertexComponents) {
+				attribUsage = BufferUsage::USAGE_DYNAMIC_DRAW;
+				inInstancedMode = true;
+			}
+
+			uint32 elementSize = vertexElementSizes[i];
+			const void* bufferData = inInstancedMode ? nullptr : vertexData[i];
+			uintptr dataSize = inInstancedMode
+				? elementSize * sizeof(float)
+				: elementSize * sizeof(float) * numVertices;
+
+			glBindBuffer(GL_ARRAY_BUFFER, buffers[i]);
+			glBufferData(GL_ARRAY_BUFFER, dataSize, bufferData, attribUsage);
+			bufferSizes[i] = dataSize;
+
+			// Because OpenGL doesn't support attributes with more than 4
+			// elements, each set of 4 elements gets its own attribute.
+			uint32 elementSizeDiv = elementSize / 4;
+			uint32 elementSizeRem = elementSize % 4;
+			for (uint32 j = 0; j < elementSizeDiv; j++) {
+				glEnableVertexAttribArray(attribute);
+				glVertexAttribPointer(attribute, 4, GL_FLOAT, GL_FALSE,
+					elementSize * sizeof(GLfloat),
+					(const GLvoid*)(sizeof(GLfloat) * j * 4));
+				if (inInstancedMode) {
+					glVertexAttribDivisor(attribute, 1);
+				}
+				attribute++;
+			}
+			if (elementSizeRem != 0) {
+				glEnableVertexAttribArray(attribute);
+				glVertexAttribPointer(attribute, elementSize, GL_FLOAT, GL_FALSE,
+					elementSize * sizeof(GLfloat),
+					(const GLvoid*)(sizeof(GLfloat) * elementSizeDiv * 4));
+				if (inInstancedMode) {
+					glVertexAttribDivisor(attribute, 1);
+				}
+				attribute++;
+			}
+		}
+
+		uintptr indicesSize = numIndices * sizeof(uint32);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[numBuffers - 1]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize,
+			indices, bufferUsage);
+		bufferSizes[numBuffers - 1] = indicesSize;
+
+		struct VertexArray vaoData;
+		vaoData.buffers = buffers;
+		vaoData.bufferSizes = bufferSizes;
+		vaoData.numBuffers = numBuffers;
+		vaoData.numElements = numIndices;
+		vaoData.bufferUsage = bufferUsage;
+		vaoData.instanceComponentsStartIndex = numVertexComponents;
+		vaoMap[VAO] = vaoData;
+		return VAO;
+	}
+
+	uint32 GLRenderEngine::ReleaseVertexArray_Impl(uint32 vao)
+	{
+		if (vao == 0) {
+			return 0;
+		}
+		LinaMap<uint32, VertexArray>::iterator it = vaoMap.find(vao);
+		if (it == vaoMap.end()) {
+			return 0;
+		}
+		const struct VertexArray* vaoData = &it->second;
+
+		glDeleteVertexArrays(1, &vao);
+		glDeleteBuffers(vaoData->numBuffers, vaoData->buffers);
+		delete[] vaoData->buffers;
+		delete[] vaoData->bufferSizes;
+		vaoMap.erase(it);
+		return 0;
+	}
+
+	void GLRenderEngine::UpdateVertexArray_Impl(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize)
+	{
+		if (vao == 0) {
+			return;
+		}
+
+		LinaMap<uint32, VertexArray>::iterator it = vaoMap.find(vao);
+		if (it == vaoMap.end()) {
+			return;
+		}
+		const struct VertexArray* vaoData = &it->second;
+		enum BufferUsage usage;
+		if (bufferIndex >= vaoData->instanceComponentsStartIndex) {
+			usage = USAGE_DYNAMIC_DRAW;
+		}
+		else {
+			usage = static_cast<BufferUsage>(vaoData->bufferUsage);
+		}
+
+		setVAO(vao);
+		glBindBuffer(GL_ARRAY_BUFFER, vaoData->buffers[bufferIndex]);
+		if (vaoData->bufferSizes[bufferIndex] >= dataSize) {
+			glBufferSubData(GL_ARRAY_BUFFER, 0, dataSize, data);
+		}
+		else {
+			glBufferData(GL_ARRAY_BUFFER, dataSize, data, usage);
+			vaoData->bufferSizes[bufferIndex] = dataSize;
+		}
+	}
+
 	void GLRenderEngine::SetShader_Impl(uint32 shader)
 	{
 		if (shader == m_BoundShader)
@@ -180,7 +306,7 @@ namespace LinaEngine::Graphics
 	{
 		switch (format) {
 		case PixelFormat::FORMAT_R: return GL_RED;
-		case PixelFormat::FORMAT_RG: return 0; // GL_RG;
+		case PixelFormat::FORMAT_RG: return GL_RG;
 		case PixelFormat::FORMAT_RGB: return GL_RGB;
 		case PixelFormat::FORMAT_RGBA: return GL_RGBA;
 		case PixelFormat::FORMAT_DEPTH: return GL_DEPTH_COMPONENT;
@@ -196,14 +322,13 @@ namespace LinaEngine::Graphics
 	{
 		switch (format) {
 		case PixelFormat::FORMAT_R: return GL_RED;
-		case PixelFormat::FORMAT_RG: return 0;// GL_RG;
+		case PixelFormat::FORMAT_RG: return  GL_RG;
 		case PixelFormat::FORMAT_RGB:
 			if (compress) {
 				return 0; // GL_COMPRESSED_SRGB_S3TC_DXT1_EXT;
 			}
 			else {
 				return GL_RGB;
-				//return GL_SRGB;
 			}
 		case PixelFormat::FORMAT_RGBA:
 			if (compress) {
@@ -212,7 +337,7 @@ namespace LinaEngine::Graphics
 				return 0; // GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
 			}
 			else {
-				return 0; // GL_SRGB_ALPHA;
+				return GL_SRGB_ALPHA;
 			}
 		case PixelFormat::FORMAT_DEPTH: return GL_DEPTH_COMPONENT;
 		case PixelFormat::FORMAT_DEPTH_AND_STENCIL: return 0; // GL_DEPTH_STENCIL;
@@ -221,6 +346,17 @@ namespace LinaEngine::Graphics
 			return 0;
 		};
 	}
+
+
+	void GLRenderEngine::setVAO(uint32 vao)
+	{
+		if (vao == m_BoundVAO) {
+			return;
+		}
+		glBindVertexArray(vao);
+		m_BoundVAO = vao;
+	}
+
 
 }
 

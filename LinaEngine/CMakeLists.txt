@@ -67,7 +67,7 @@ set (LINAENGINE_SOURCES
 	src/Utility/ResourceConstants.cpp
 	src/Utility/AABB.cpp
 	src/Utility/IndexedModel.cpp
-	
+	src/Rendering/ModelLoader.cpp
 
 )
 
@@ -131,6 +131,7 @@ set(LINAENGINE_HEADERS
 	include/PackageManager/OpenGL/GLRenderengine.hpp
 	include/PackageManager/OpenGL/GLWindow.hpp
 	include/PackageManager/OpenGL/GLIMGUI.hpp
+	include/PackageManager/OpenGL/GLGraphicsDefines.hpp
 	include/PackageManager/SSE/SSEVectorMath.hpp
 	include/PackageManager/PAMInputEngine.hpp
 	include/PackageManager/PAMMath.hpp
@@ -148,6 +149,9 @@ set(LINAENGINE_HEADERS
 	include/Rendering/Texture.hpp
 	include/Rendering/Vertex.hpp
 	include/Rendering/Window.hpp
+	include/Rendering/ModelLoader.hpp
+	include/Rendering/VertexArray.hpp
+	include/Rendering/Material.hpp
 	
 	#Utility
 	include/Utility/Math/Color.hpp
@@ -161,6 +165,7 @@ set(LINAENGINE_HEADERS
 	include/Utility/ResourceConstants.hpp
 	include/Utility/AABB.hpp
 	include/Utility/IndexedModel.hpp
+
 	
 	# SPDLOG
 	include/Utility/spdlog/spdlog.h

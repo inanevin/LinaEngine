@@ -41,6 +41,16 @@ namespace LinaEngine::Graphics
 #define FOURCC_DXT4 MAKEFOURCCDXT('4')
 #define FOURCC_DXT5 MAKEFOURCCDXT('5')
 
+	struct VertexArray
+	{
+		uint32* buffers;
+		uintptr* bufferSizes;
+		uint32  numBuffers;
+		uint32  numElements;
+		uint32  instanceComponentsStartIndex;
+		int bufferUsage;
+	};
+
 	// A derived class of RenderEngine. Check RenderEngine.hpp for method details.
 	class GLRenderEngine : public RenderEngine<GLRenderEngine>
 	{
@@ -69,8 +79,18 @@ namespace LinaEngine::Graphics
 		uint32 CreateTexture2D_Impl(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress) STATIC_OVERRIDE;
 		uint32 CreateDDSTexture2D_Impl(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount) STATIC_OVERRIDE;
 		uint32 ReleaseTexture2D_Impl(uint32 texture2D) STATIC_OVERRIDE;
+		uint32 CreateVertexArray_Impl(const float** vertexData, const uint32* vertexElementSizes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, int bufferUsage) STATIC_OVERRIDE;
+		uint32 ReleaseVertexArray_Impl(uint32 vao);
+		void UpdateVertexArray_Impl(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);
 		void SetShader_Impl(uint32 shader) STATIC_OVERRIDE;
 		void SetShaderSampler_Impl(uint32 shader, const LinaString& samplerName, uint32 texture, uint32 sampler, uint32 unit) STATIC_OVERRIDE;
+
+
+	private:
+
+		void setVAO(uint32 vao);
+
+		
 
 	private:
 
@@ -79,6 +99,13 @@ namespace LinaEngine::Graphics
 
 		// Currently active shader.
 		uint32 m_BoundShader = 0;
+
+		// Currently active vertex array object.
+		uint32 m_BoundVAO;
+
+		// Map for bound vertex array objects.
+		LinaMap<uint32, VertexArray> vaoMap;
+
 
 	};
 }

@@ -38,6 +38,7 @@ namespace LinaEngine::Graphics
 		FORMAT_DEPTH_AND_STENCIL,
 	};
 
+
 	struct ShaderProgram
 	{
 		LinaArray<uint32> m_Shaders;
@@ -79,14 +80,25 @@ namespace LinaEngine::Graphics
 		// Creates a 2D DDS texture based on parameters. Buffer is sent as an arraybitmap data.
 		FORCEINLINE uint32 CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount)
 		{
-			return 0;
-			//m_Derived->CreateDDSTexture2D_Impl(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourceCC, uint32 mipMapCount);
+			return m_Derived->CreateDDSTexture2D_Impl(width, height,  buffer, fourCC, mipMapCount);
 		}
 
 		// Releases the texture from memory.
 		FORCEINLINE uint32 ReleaseTexture2D(uint32 texture2D)
 		{
-			m_Derived->ReleaseTexture2D_Impl(uint32 texture2D);
+			m_Derived->ReleaseTexture2D_Impl(texture2D);
+		}
+
+		// Creates a vertex array based on vertex data, usually by indexed models.
+		FORCEINLINE uint32 CreateVertexArray(const float** vertexData, const uint32* vertexElementSizes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, int bufferUsage)
+		{
+			return m_Derived->CreateVertexArray_Impl(vertexData, vertexElementSizes, numVertexComponents, numInstanceComponents, numVertices, indices, numIndices, bufferUsage);
+		}
+
+		// Releases a vertex array from mem
+		FORCEINLINE uint32 ReleaseVertexArray(uint32 vao)
+		{
+			return m_Derived->ReleaseVertexArray_Impl(vao);
 		}
 
 		// Sets the active shader.
@@ -99,6 +111,12 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void SetShaderSampler(uint32 shader, const LinaString& samplerName, uint32 texture, uint32 sampler, uint32 unit)
 		{
 			m_Derived->SetShaderSampler_Impl(shader, samplerName, texture, sampler, unit);
+		}
+
+		// Updates the target VAO and makes ready for the next draw.
+		FORCEINLINE void UpdateVertexArrayBuffer(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize)
+		{
+			m_Derived->UpdateVertexArrayBuffer_Impl(vao, bufferIndex, data, dataSize);
 		}
 
 	protected:
@@ -114,6 +132,7 @@ namespace LinaEngine::Graphics
 		// Derived class reference for static polymorphism.
 		Derived* m_Derived;
 	};
+
 }
 
 
