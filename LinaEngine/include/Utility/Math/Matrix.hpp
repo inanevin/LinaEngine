@@ -53,6 +53,7 @@ namespace LinaEngine
 
 		Vector4F Transform(const Vector4F& rhs) const;
 		Vector3F Transform(const Vector3F& rhs) const;
+		Vector Transform(const Vector& rhs) const;
 
 		Matrix4F Inverse() const;
 

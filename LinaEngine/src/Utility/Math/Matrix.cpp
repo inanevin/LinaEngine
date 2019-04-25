@@ -234,6 +234,11 @@ namespace LinaEngine
 		return ret;
 	}
 
+	Vector Matrix4F::Transform(const Vector & rhs) const
+	{
+		return rhs.Transform(this);
+	}
+
 
 	Matrix4F Matrix4F::Inverse() const
 	{

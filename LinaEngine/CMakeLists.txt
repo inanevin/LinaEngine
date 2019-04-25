@@ -65,6 +65,8 @@ set (LINAENGINE_SOURCES
 	src/Utility/Math/VectorMath.cpp
 	src/Utility/Log.cpp
 	src/Utility/ResourceConstants.cpp
+	src/Utility/AABB.cpp
+	src/Utility/IndexedModel.cpp
 	
 
 )
@@ -157,6 +159,8 @@ set(LINAENGINE_HEADERS
 	include/Utility/Math/VectorMath.hpp
 	include/Utility/Log.hpp
 	include/Utility/ResourceConstants.hpp
+	include/Utility/AABB.hpp
+	include/Utility/IndexedModel.hpp
 	
 	# SPDLOG
 	include/Utility/spdlog/spdlog.h
