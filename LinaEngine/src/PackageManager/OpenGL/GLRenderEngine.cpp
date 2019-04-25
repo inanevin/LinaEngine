@@ -326,25 +326,23 @@ namespace LinaEngine::Graphics
 	{
 		switch (format) {
 		case PixelFormat::FORMAT_R: return GL_RED;
+
 		case PixelFormat::FORMAT_RG: return  GL_RG;
+
 		case PixelFormat::FORMAT_RGB:
-			if (compress) {
-				return 0; // GL_COMPRESSED_SRGB_S3TC_DXT1_EXT;
-			}
-			else {
-				return GL_RGB;
-			}
+
+			if (compress) return GL_COMPRESSED_RGB_S3TC_DXT1_EXT; // GL_COMPRESSED_SRGB_S3TC_DXT1_EXT;
+			else return GL_RGB;
+
 		case PixelFormat::FORMAT_RGBA:
-			if (compress) {
-				// TODO: Decide on the default RGBA compression scheme
-	//			return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-				return 0; // GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
-			}
-			else {
-				return GL_SRGB_ALPHA;
-			}
+
+			if (compress)  return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT; // GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
+			else  return GL_SRGB_ALPHA; 
+
 		case PixelFormat::FORMAT_DEPTH: return GL_DEPTH_COMPONENT;
-		case PixelFormat::FORMAT_DEPTH_AND_STENCIL: return 0; // GL_DEPTH_STENCIL;
+
+		case PixelFormat::FORMAT_DEPTH_AND_STENCIL: return GL_DEPTH_STENCIL;
+
 		default:
 			LINA_CORE_ERR("PixelFormat {0} is not a valid PixelFormat.", format);
 			return 0;
