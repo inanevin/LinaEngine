@@ -51,6 +51,13 @@ namespace LinaEngine::Graphics
 		int bufferUsage;
 	};
 
+	struct ShaderProgram
+	{
+		LinaArray<uint32>      shaders;
+		LinaMap<LinaString, int32> uniformMap;
+		LinaMap<LinaString, int32> samplerMap;
+	};
+
 	// A derived class of RenderEngine. Check RenderEngine.hpp for method details.
 	class GLRenderEngine : public RenderEngine<GLRenderEngine>
 	{
@@ -105,6 +112,10 @@ namespace LinaEngine::Graphics
 
 		// Map for bound vertex array objects.
 		LinaMap<uint32, VertexArray> vaoMap;
+
+		// Shader program map w/ ids.
+		LinaMap<uint32, ShaderProgram> shaderProgramMap;
+
 
 
 	};

@@ -299,7 +299,11 @@ namespace LinaEngine::Graphics
 
 	void GLRenderEngine::SetShaderSampler_Impl(uint32 shader, const LinaString & samplerName, uint32 texture, uint32 sampler, uint32 unit)
 	{
-
+		SetShader_Impl(shader);
+		glActiveTexture(GL_TEXTURE0 + unit);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindSampler(unit, sampler);
+		glUniform1i(shaderProgramMap[shader].samplerMap[samplerName], unit);
 	}
 
 	static GLint GetOpenGLFormat(PixelFormat format)
