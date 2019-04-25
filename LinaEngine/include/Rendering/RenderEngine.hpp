@@ -39,13 +39,6 @@ namespace LinaEngine::Graphics
 	};
 
 
-	struct ShaderProgram
-	{
-		LinaArray<uint32> m_Shaders;
-		LinaMap<LinaString, uint32> m_UniformMap;
-		LinaMap<LinaString, uint32> m_SamplerMap;
-	};
-
 	template<class Derived>
 	class RenderEngine
 	{
