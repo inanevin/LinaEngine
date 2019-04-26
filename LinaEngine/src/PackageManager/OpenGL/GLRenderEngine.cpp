@@ -186,7 +186,7 @@ namespace LinaEngine::Graphics
 
 		// Generate vertex array object and activate it, then generate necessary buffers.
 		glGenVertexArrays(1, &VAO);
-		setVAO(VAO);
+		SetVAO(VAO);
 		glGenBuffers(numBuffers, buffers);
 
 		// Define attribute for each buffer.
@@ -256,7 +256,7 @@ namespace LinaEngine::Graphics
 		vaoData.instanceComponentsStartIndex = numVertexComponents;
 
 		// Store the array in our map & return the modified vertex array object.
-		vaoMap[VAO] = vaoData;
+		m_VAOMap[VAO] = vaoData;
 		return VAO;
 	}
 
@@ -264,8 +264,8 @@ namespace LinaEngine::Graphics
 	{
 		// Terminate if vao is null or does not exist in our mapped objects.
 		if (vao == 0) return 0;
-		LinaMap<uint32, VertexArray>::iterator it = vaoMap.find(vao);
-		if (it == vaoMap.end()) return 0;
+		LinaMap<uint32, VertexArray>::iterator it = m_VAOMap.find(vao);
+		if (it == m_VAOMap.end()) return 0;
 
 		// Get the vertex array object data from the map.
 		const VertexArray* vaoData = &it->second;
@@ -277,7 +277,7 @@ namespace LinaEngine::Graphics
 		delete[] vaoData->bufferSizes;
 
 		// Remove from the map.
-		vaoMap.erase(it);
+		m_VAOMap.erase(it);
 		return 0;
 	}
 
@@ -336,7 +336,7 @@ namespace LinaEngine::Graphics
 		}
 
 		// Modify the shader text to include the version data.
-		LinaString version = getShaderVersion();
+		LinaString version = GetShaderVersion();
 		LinaString vertexShaderText = "#version " + version + "\n#define VS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
 		LinaString fragmentShaderText = "#version " + version + "\n#define FS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
 
@@ -362,11 +362,11 @@ namespace LinaEngine::Graphics
 			return (uint32)-1;
 
 		// Bind attributes for GL & add shader uniforms.
-		AddAllAttributes(shaderProgram, vertexShaderText, getVersion());
+		AddAllAttributes(shaderProgram, vertexShaderText, GetVersion());
 		AddShaderUniforms(shaderProgram, shaderText, programData.uniformMap, programData.samplerMap);
 
 		// Store the program in our map & return it.
-		shaderProgramMap[shaderProgram] = programData;
+		m_ShaderProgramMap[shaderProgram] = programData;
 		return shaderProgram;
 	}
 
@@ -374,8 +374,8 @@ namespace LinaEngine::Graphics
 	{
 		// Terminate if shader is not valid or does not exist in our map.
 		if (shader == 0) return 0;
-		LinaMap<uint32, ShaderProgram>::iterator programIt = shaderProgramMap.find(shader);
-		if (programIt == shaderProgramMap.end()) return 0;
+		LinaMap<uint32, ShaderProgram>::iterator programIt = m_ShaderProgramMap.find(shader);
+		if (programIt == m_ShaderProgramMap.end()) return 0;
 	
 		// Get the program from the map.
 		const struct ShaderProgram* shaderProgram = &programIt->second;
@@ -389,7 +389,7 @@ namespace LinaEngine::Graphics
 
 		// Delete the program, erase from our map & return.
 		glDeleteProgram(shader);
-		shaderProgramMap.erase(programIt);
+		m_ShaderProgramMap.erase(programIt);
 		return 0;
 	}
 
@@ -398,7 +398,7 @@ namespace LinaEngine::Graphics
 		// Generate frame buffers & set the current object.
 		uint32 fbo;
 		glGenFramebuffers(1, &fbo);
-		setFBO(fbo);
+		SetFBO(fbo);
 
 		// Define attachment type & use the buffer.
 		GLenum attachmentTypeGL = attachment + attachmentNumber;
@@ -408,7 +408,7 @@ namespace LinaEngine::Graphics
 		FBOData data;
 		data.width = width;
 		data.height = height;
-		fboMap[fbo] = data;
+		m_FBOMap[fbo] = data;
 		return fbo;
 	}
 
@@ -416,12 +416,12 @@ namespace LinaEngine::Graphics
 	{
 		// Terminate if fbo is not valid or does not exist in our map.
 		if (fbo == 0) return 0;
-		LinaMap<uint32, FBOData>::iterator it = fboMap.find(fbo);
-		if (it == fboMap.end()) return 0;
+		LinaMap<uint32, FBOData>::iterator it = m_FBOMap.find(fbo);
+		if (it == m_FBOMap.end()) return 0;
 
 		// Delete the frame buffer object, erase from our map & return.
 		glDeleteFramebuffers(1, &fbo);
-		fboMap.erase(it);
+		m_FBOMap.erase(it);
 		return 0;
 	}
 
@@ -429,8 +429,8 @@ namespace LinaEngine::Graphics
 	{
 		// Terminate if fbo is not valid or does not exist in our map.
 		if (vao == 0)  return;
-		LinaMap<uint32, VertexArray>::iterator it = vaoMap.find(vao);
-		if (it == vaoMap.end()) return;
+		LinaMap<uint32, VertexArray>::iterator it = m_VAOMap.find(vao);
+		if (it == m_VAOMap.end()) return;
 
 		// Get the vertex array object data from the map.
 		const VertexArray* vaoData = &it->second;
@@ -443,7 +443,7 @@ namespace LinaEngine::Graphics
 			usage = vaoData->bufferUsage;
 		
 		// Use VAO & bind its corresponding buffer.
-		setVAO(vao);
+		SetVAO(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vaoData->buffers[bufferIndex]);
 
 		// If buffer size exceeds data size use it as subdata.
@@ -473,7 +473,7 @@ namespace LinaEngine::Graphics
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glBindSampler(unit, sampler);
-		glUniform1i(shaderProgramMap[shader].samplerMap[samplerName], unit);
+		glUniform1i(m_ShaderProgramMap[shader].samplerMap[samplerName], unit);
 	}
 
 	void GLRenderEngine::SetShaderUniformBuffer_Impl(uint32 shader, const LinaString& uniformBufferName, uint32 buffer)
@@ -482,15 +482,15 @@ namespace LinaEngine::Graphics
 		SetShader(shader);
 
 		// Update the uniform data.
-		glBindBufferBase(GL_UNIFORM_BUFFER, shaderProgramMap[shader].uniformMap[uniformBufferName], buffer);
+		glBindBufferBase(GL_UNIFORM_BUFFER, m_ShaderProgramMap[shader].uniformMap[uniformBufferName], buffer);
 	}
 
 	void GLRenderEngine::UpdateVertexArrayBuffer_Impl(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize)
 	{
 		// Terminate if VAO is not valid or does not exist in our map.
 		if (vao == 0) return;
-		LinaMap<uint32, VertexArray>::iterator it = vaoMap.find(vao);
-		if (it == vaoMap.end()) return;
+		LinaMap<uint32, VertexArray>::iterator it = m_VAOMap.find(vao);
+		if (it == m_VAOMap.end()) return;
 
 		// Get VAO data from the map.
 		const VertexArray* vaoData = &it->second;
@@ -505,7 +505,7 @@ namespace LinaEngine::Graphics
 		
 
 		// Use VAO & bind buffer.
-		setVAO(vao);
+		SetVAO(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vaoData->buffers[bufferIndex]);
 
 		// If buffer size exceeds data size use it as subdata.
@@ -528,7 +528,7 @@ namespace LinaEngine::Graphics
 	}
 
 
-	void GLRenderEngine::setVAO(uint32 vao)
+	void GLRenderEngine::SetVAO(uint32 vao)
 	{
 		// Use VAO if exists.
 		if (vao == m_BoundVAO) 	return;
@@ -536,12 +536,12 @@ namespace LinaEngine::Graphics
 		m_BoundVAO = vao;
 	}
 
-	void GLRenderEngine::setFBO(uint32 fbo)
+	void GLRenderEngine::SetFBO(uint32 fbo)
 	{
 		// Use FBO if exists.
-		if (fbo == boundFBO) return;
+		if (fbo == m_BoundFBO) return;
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-		boundFBO = fbo;
+		m_BoundFBO = fbo;
 	}
 
 	void GLRenderEngine::Draw_Impl(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements)
@@ -550,24 +550,24 @@ namespace LinaEngine::Graphics
 		if (numInstances == 0) return;
 
 		// Bind the render targets.
-		setFBO(fbo);
+		SetFBO(fbo);
 
 		// Ensure viewport is ok.
-		setViewport(fbo);
+		SetViewport(fbo);
 
 		// Set blend mode for each render target.
-		setBlending(drawParams.sourceBlend, drawParams.destBlend);
+		SetBlending(drawParams.sourceBlend, drawParams.destBlend);
 
 		// Set scissors tests if required, face culling modes as well as depth tests.
-		setScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
-		setFaceCulling(drawParams.faceCulling);
-		setDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
+		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
+		SetFaceCulling(drawParams.faceCulling);
+		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
 
 		// Bind & use the target shader.
 		SetShader_Impl(shader);
 
 		// use array buffer & attributes.
-		setVAO(vao);
+		SetVAO(vao);
 
 		// 1 object or instanced draw calls?
 		if (numInstances == 1) 
@@ -580,7 +580,7 @@ namespace LinaEngine::Graphics
 	void GLRenderEngine::Clear_Impl(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
 	{
 		// Make sure frame buffer objects are used.
-		setFBO(fbo);
+		SetFBO(fbo);
 		uint32 flags = 0;
 
 		// Set flags according to options.
@@ -594,62 +594,62 @@ namespace LinaEngine::Graphics
 		if (shouldClearStencil) 
 		{
 			flags |= GL_STENCIL_BUFFER_BIT;
-			setStencilWriteMask(stencil);
+			SetStencilWriteMask(stencil);
 		}
 
 		// Clear the desired flags.
 		glClear(flags);
 	}
 
-	void GLRenderEngine::setViewport(uint32 fbo)
+	void GLRenderEngine::SetViewport(uint32 fbo)
 	{
 		// Update viewport according to the render targets if exist.
-		if (fbo == viewportFBO) return;
-		glViewport(0, 0, fboMap[fbo].width, fboMap[fbo].height);
-		viewportFBO = fbo;
+		if (fbo == m_ViewportFBO) return;
+		glViewport(0, 0, m_FBOMap[fbo].width, m_FBOMap[fbo].height);
+		m_ViewportFBO = fbo;
 	}
 
-	void GLRenderEngine::setFaceCulling(FaceCulling faceCulling)
+	void GLRenderEngine::SetFaceCulling(FaceCulling faceCulling)
 	{
-		if (faceCulling == currentFaceCulling) return;
+		if (faceCulling == m_UsedFaceCulling) return;
 
 		// If target is enabled, then disable face culling.
 		// If current is disabled, then enable faceculling.
 		// Else switch cull state.
 		if (faceCulling == FACE_CULL_NONE) 
 			glDisable(GL_CULL_FACE);
-		else if (currentFaceCulling == FACE_CULL_NONE) { // Face culling is disabled but needs to be enabled
+		else if (m_UsedFaceCulling == FACE_CULL_NONE) { // Face culling is disabled but needs to be enabled
 			glEnable(GL_CULL_FACE);
 			glCullFace(faceCulling);
 		}
 		else  
 			glCullFace(faceCulling);
-		currentFaceCulling = faceCulling;
+		m_UsedFaceCulling = faceCulling;
 	}
 
-	void GLRenderEngine::setDepthTest(bool shouldWrite, DrawFunc depthFunc)
+	void GLRenderEngine::SetDepthTest(bool shouldWrite, DrawFunc depthFunc)
 	{
 
 		// Toggle dept writing.
-		if (shouldWrite != shouldWriteDepth)
+		if (shouldWrite != m_ShouldWriteDepth)
 		{
 			glDepthMask(shouldWrite ? GL_TRUE : GL_FALSE);
-			shouldWriteDepth = shouldWrite;
+			m_ShouldWriteDepth = shouldWrite;
 		}
 
 		// Update if change is needed.
-		if (depthFunc == currentDepthFunc)	return;
+		if (depthFunc == m_UsedDepthFunction)	return;
 		glDepthFunc(depthFunc);
-		currentDepthFunc = depthFunc;
+		m_UsedDepthFunction = depthFunc;
 	}
 
-	void GLRenderEngine::setBlending(BlendFunc sourceBlend, BlendFunc destBlend)
+	void GLRenderEngine::SetBlending(BlendFunc sourceBlend, BlendFunc destBlend)
 	{
 		// If no change is needed return.
-		if (sourceBlend == currentSourceBlend && destBlend == currentDestBlend) return;
+		if (sourceBlend == m_UsedSourceBlending && destBlend == m_UsedDestinationBlending) return;
 		else if (sourceBlend == BLEND_FUNC_NONE || destBlend == BLEND_FUNC_NONE) 
 			glDisable(GL_BLEND);
-		else if (currentSourceBlend == BLEND_FUNC_NONE || currentDestBlend == BLEND_FUNC_NONE)
+		else if (m_UsedSourceBlending == BLEND_FUNC_NONE || m_UsedDestinationBlending == BLEND_FUNC_NONE)
 		{
 			glEnable(GL_BLEND);
 			glBlendFunc(sourceBlend, destBlend);
@@ -658,92 +658,92 @@ namespace LinaEngine::Graphics
 			glBlendFunc(sourceBlend, destBlend);
 		
 
-		currentSourceBlend = sourceBlend;
-		currentDestBlend = destBlend;
+		m_UsedSourceBlending = sourceBlend;
+		m_UsedDestinationBlending = destBlend;
 	}
 
-	void GLRenderEngine::setStencilTest(bool enable, DrawFunc stencilFunc, uint32 stencilTestMask, uint32 stencilWriteMask, int32 stencilComparisonVal, StencilOp stencilFail, StencilOp stencilPassButDepthFail, StencilOp stencilPass)
+	void GLRenderEngine::SetStencilTest(bool enable, DrawFunc stencilFunc, uint32 stencilTestMask, uint32 stencilWriteMask, int32 stencilComparisonVal, StencilOp stencilFail, StencilOp stencilPassButDepthFail, StencilOp stencilPass)
 	{
 		// If change is needed toggle enabled state & enable/disable stencil test.
-		if (enable != stencilTestEnabled)
+		if (enable != m_IsStencilTestEnabled)
 		{
 			if (enable) 
 				glEnable(GL_STENCIL_TEST);
 			else 
 				glDisable(GL_STENCIL_TEST);
 			
-			stencilTestEnabled = enable;
+			m_IsStencilTestEnabled = enable;
 		}
 
 		// Set stencil params.
-		if (stencilFunc != currentStencilFunc || stencilTestMask != currentStencilTestMask	|| stencilComparisonVal != currentStencilComparisonVal)
+		if (stencilFunc != m_UsedStencilFunction || stencilTestMask != m_UsedStencilTestMask	|| stencilComparisonVal != m_UsedStencilComparisonValue)
 		{
 			glStencilFunc(stencilFunc, stencilTestMask, stencilComparisonVal);
-			currentStencilComparisonVal = stencilComparisonVal;
-			currentStencilTestMask = stencilTestMask;
-			currentStencilFunc = stencilFunc;
+			m_UsedStencilComparisonValue = stencilComparisonVal;
+			m_UsedStencilTestMask = stencilTestMask;
+			m_UsedStencilFunction = stencilFunc;
 		}
 
-		if (stencilFail != currentStencilFail || stencilPass != currentStencilPass || stencilPassButDepthFail != currentStencilPassButDepthFail) 
+		if (stencilFail != m_usedStencilFail || stencilPass != m_UsedStencilPass || stencilPassButDepthFail != m_UsedStencilPassButDepthFail) 
 		{
 			glStencilOp(stencilFail, stencilPassButDepthFail, stencilPass);
-			currentStencilFail = stencilFail;
-			currentStencilPass = stencilPass;
-			currentStencilPassButDepthFail = stencilPassButDepthFail;
+			m_usedStencilFail = stencilFail;
+			m_UsedStencilPass = stencilPass;
+			m_UsedStencilPassButDepthFail = stencilPassButDepthFail;
 		}
 
-		setStencilWriteMask(stencilWriteMask);
+		SetStencilWriteMask(stencilWriteMask);
 	}
 
-	void GLRenderEngine::setStencilWriteMask(uint32 mask)
+	void GLRenderEngine::SetStencilWriteMask(uint32 mask)
 	{
 		// Set write mask if a change is needed.
-		if (currentStencilWriteMask == mask) return;
+		if (m_UsedStencilWriteMask == mask) return;
 		glStencilMask(mask);
-		currentStencilWriteMask = mask;
+		m_UsedStencilWriteMask = mask;
 
 	}
 
-	void GLRenderEngine::setScissorTest(bool enable, uint32 startX = 0, uint32 startY = 0, uint32 width = 0, uint32 height = 0)
+	void GLRenderEngine::SetScissorTest(bool enable, uint32 startX, uint32 startY, uint32 width, uint32 height)
 	{
 		// Disable if enabled.
 		if (!enable)
 		{
-			if (!scissorTestEnabled) return;
+			if (!m_IsScissorsTestEnabled) return;
 			else
 			{
 				glDisable(GL_SCISSOR_TEST);
-				scissorTestEnabled = false;
+				m_IsScissorsTestEnabled = false;
 				return;
 			}
 		}
 
 		// Enable if disabled, then bind it.
-		if (!scissorTestEnabled) glEnable(GL_SCISSOR_TEST);
+		if (!m_IsScissorsTestEnabled) glEnable(GL_SCISSOR_TEST);
 		glScissor(startX, startY, width, height);
-		scissorTestEnabled = true;
+		m_IsScissorsTestEnabled = true;
 	}
 
-	LinaString GLRenderEngine::getShaderVersion()
+	LinaString GLRenderEngine::GetShaderVersion()
 	{
 		// Return if not valid.
-		if (!shaderVersion.empty()) return shaderVersion;
+		if (!m_ShaderVersion.empty()) return m_ShaderVersion;
 
 		// Check & set version according to data.
-		uint32 version = getVersion();
+		uint32 version = GetVersion();
 
 		if (version >= 330) 
-			shaderVersion = LinaEngine::Internal::ToString(version);
+			m_ShaderVersion = LinaEngine::Internal::ToString(version);
 		else if (version >= 320) 
-			shaderVersion = "150";
+			m_ShaderVersion = "150";
 		else if (version >= 310) 
-			shaderVersion = "140";
+			m_ShaderVersion = "140";
 		else if (version >= 300) 
-			shaderVersion = "130";
+			m_ShaderVersion = "130";
 		else if (version >= 210) 
-			shaderVersion = "120";
+			m_ShaderVersion = "120";
 		else if (version >= 200) 
-			shaderVersion = "110";
+			m_ShaderVersion = "110";
 		else 
 		{
 			int32 majorVersion = version / 100;
@@ -752,21 +752,21 @@ namespace LinaEngine::Graphics
 			return "";
 		}
 
-		return shaderVersion;
+		return m_ShaderVersion;
 	}
 
-	uint32 GLRenderEngine::getVersion()
+	uint32 GLRenderEngine::GetVersion()
 	{
 		// Get version data from GL.
-		if (version != 0) return version;
+		if (m_GLVersion != 0) return m_GLVersion;
 		int32 majorVersion;
 		int32 minorVersion;
 
 		glGetIntegerv(GL_MAJOR_VERSION, &majorVersion);
 		glGetIntegerv(GL_MINOR_VERSION, &minorVersion);
 
-		version = (uint32)(majorVersion * 100 + minorVersion * 10);
-		return version;
+		m_GLVersion = (uint32)(majorVersion * 100 + minorVersion * 10);
+		return m_GLVersion;
 	}
 
 
