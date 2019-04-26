@@ -97,6 +97,7 @@ namespace LinaEngine::Graphics
 		void UpdateVertexArray_Impl(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);
 		void SetShader_Impl(uint32 shader) STATIC_OVERRIDE;
 		void SetShaderSampler_Impl(uint32 shader, const LinaString& samplerName, uint32 texture, uint32 sampler, uint32 unit) STATIC_OVERRIDE;
+		void SetShaderUniformBuffer_Impl(uint32 shader, const LinaString& uniformBufferName, uint32 buffer);
 		void UpdateVertexArrayBuffer_Impl(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);
 		void UpdateUniformBuffer_Impl(uint32 buffer, const void* data, uintptr dataSize);
 

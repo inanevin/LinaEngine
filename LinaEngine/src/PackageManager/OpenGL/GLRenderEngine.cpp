@@ -426,6 +426,12 @@ namespace LinaEngine::Graphics
 		glUniform1i(shaderProgramMap[shader].samplerMap[samplerName], unit);
 	}
 
+	void GLRenderEngine::SetShaderUniformBuffer_Impl(uint32 shader, const LinaString& uniformBufferName, uint32 buffer)
+	{
+		SetShader(shader);
+		glBindBufferBase(GL_UNIFORM_BUFFER, shaderProgramMap[shader].uniformMap[uniformBufferName], buffer);
+	}
+
 	void GLRenderEngine::UpdateVertexArrayBuffer_Impl(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize)
 	{
 		if (vao == 0) {

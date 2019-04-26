@@ -30,22 +30,27 @@ namespace LinaEngine::Graphics
 	class UniformBuffer
 	{
 	public:
-		inline UniformBuffer(RenderEngine<PAMRenderEngine>& deviceIn, uintptr dataSize, BufferUsage usage, const void* data = nullptr) :
-			device(&deviceIn), deviceId(device->CreateUniformBuffer(data, dataSize, usage)), size(dataSize) {}
+
+		// Param const creates buffer through render engine.
+		FORCEINLINE UniformBuffer(RenderEngine<PAMRenderEngine>& renderEngineIn, uintptr dataSize, BufferUsage usage, const void* data = nullptr) :
+			renderEngine(&renderEngineIn), m_EngineBoundID(renderEngine->CreateUniformBuffer(data, dataSize, usage)), m_BufferSize(dataSize) {}
 		
-		inline ~UniformBuffer()
+		// Destructor releases the buffer through render engine.
+		FORCEINLINE ~UniformBuffer()
 		{
-			deviceId = device->ReleaseUniformBuffer(deviceId);
+			m_EngineBoundID = renderEngine->ReleaseUniformBuffer(m_EngineBoundID);
 		}
 
-		inline void update(const void* data, uintptr dataSize) {device->UpdateUniformBuffer(deviceId, data, dataSize); }
-		inline void update(const void* data) { update(data, size); }
+		// Updates the uniform buffer w/ new data, allows dynamic size change.
+		FORCEINLINE void Update(const void* data, uintptr dataSize) {renderEngine->UpdateUniformBuffer(m_EngineBoundID, data, dataSize); }
+		FORCEINLINE void Update(const void* data) { Update(data, m_BufferSize); }
+		FORCEINLINE uint32 GetID() { return m_EngineBoundID; }
 
-		inline uint32 getId() { return deviceId; }
 	private:
-		RenderEngine<PAMRenderEngine>* device;
-		uint32 deviceId;
-		uintptr size;
+
+		RenderEngine<PAMRenderEngine>* renderEngine;
+		uint32 m_EngineBoundID;
+		uintptr m_BufferSize;
 
 		NULL_COPY_AND_ASSIGN(UniformBuffer);
 

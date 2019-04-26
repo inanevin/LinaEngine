@@ -27,66 +27,78 @@ namespace LinaEngine::Graphics
 {
 	bool ModelLoader::LoadModels(const LinaString & fileName, LinaArray<IndexedModel>& models, LinaArray<uint32>& modelMaterialIndices, LinaArray<Material>& materials)
 	{
+		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(fileName.c_str(),
-			aiProcess_Triangulate |
-			aiProcess_GenSmoothNormals |
-			aiProcess_FlipUVs |
-			aiProcess_CalcTangentSpace);
+		const aiScene* scene = importer.ReadFile(fileName.c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
-		if (!scene) {
+		if (!scene) 
+		{
 			LINA_CORE_ERR("Mesh loading failed! {0}", fileName.c_str());
 			return false;
 		}
 
-		for (uint32 j = 0; j < scene->mNumMeshes; j++) {
+		// Iterate through the meshes on the scene.
+		for (uint32 j = 0; j < scene->mNumMeshes; j++) 
+		{
+			// Create model reference for each mesh.
 			const aiMesh* model = scene->mMeshes[j];
 			modelMaterialIndices.push_back(model->mMaterialIndex);
 
-			IndexedModel newModel;
-			newModel.allocateElement(3); // Positions
-			newModel.allocateElement(2); // TexCoords
-			newModel.allocateElement(3); // Normals
-			newModel.allocateElement(3); // Tangents
-			newModel.setInstancedElementStartIndex(4); // Begin instanced data
-			newModel.allocateElement(16); // Transform matrix
+			// Create and indexed model for each mesh & fill in the data.
+			IndexedModel currentModel;
+			currentModel.AllocateElement(3); // Positions
+			currentModel.AllocateElement(2); // TexCoords
+			currentModel.AllocateElement(3); // Normals
+			currentModel.AllocateElement(3); // Tangents
+			currentModel.SetStartIndex(4); // Begin instanced data
+			currentModel.AllocateElement(16); // Transform matrix
+
 
 			const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
-			for (uint32 i = 0; i < model->mNumVertices; i++) {
+
+			// Iterate through vertices.
+			for (uint32 i = 0; i < model->mNumVertices; i++) 
+			{
+				// Get array references from the current model on stack.
 				const aiVector3D pos = model->mVertices[i];
 				const aiVector3D normal = model->mNormals[i];
-				const aiVector3D texCoord = model->HasTextureCoords(0)
-					? model->mTextureCoords[0][i] : aiZeroVector;
+				const aiVector3D texCoord = model->HasTextureCoords(0) ? model->mTextureCoords[0][i] : aiZeroVector;
 				const aiVector3D tangent = model->mTangents[i];
 
-				newModel.addElement3f(0, pos.x, pos.y, pos.z);
-				newModel.addElement2f(1, texCoord.x, texCoord.y);
-				newModel.addElement3f(2, normal.x, normal.y, normal.z);
-				newModel.addElement3f(3, tangent.x, tangent.y, tangent.z);
+				// Set model vertex data.
+				currentModel.AddElement(0, pos.x, pos.y, pos.z);
+				currentModel.AddElement(1, texCoord.x, texCoord.y);
+				currentModel.AddElement(2, normal.x, normal.y, normal.z);
+				currentModel.AddElement(3, tangent.x, tangent.y, tangent.z);
 			}
+
+			// Iterate through faces & add indices for each face.
 			for (uint32 i = 0; i < model->mNumFaces; i++)
 			{
 				const aiFace& face = model->mFaces[i];
-				assert(face.mNumIndices == 3);
-				newModel.addIndices3i(face.mIndices[0], face.mIndices[1],
-					face.mIndices[2]);
+				LINA_CORE_ASSERT(face.mNumIndices == 3);
+				currentModel.AddIndices(face.mIndices[0], face.mIndices[1], face.mIndices[2]);
 			}
 
-			models.push_back(newModel);
+			// Add model to array.
+			models.push_back(currentModel);
 		}
 
-		for (uint32 i = 0; i < scene->mNumMaterials; i++) {
+		// Iterate through the materials in the scene.
+		for (uint32 i = 0; i < scene->mNumMaterials; i++) 
+		{
+			// Create material reference & material specifications.
 			const aiMaterial* material = scene->mMaterials[i];
 			Material spec;
 
 			// Currently only handles diffuse textures.
 			aiString texturePath;
-			if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0 &&
-				material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath)
-				!= AI_SUCCESS) {
+			if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0 && material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) != AI_SUCCESS)
+			{
 				LinaString str(texturePath.data);
 				spec.textureNames["diffuse"] = str;
 			}
+			// Push the material to list.
 			materials.push_back(spec);
 		}
 

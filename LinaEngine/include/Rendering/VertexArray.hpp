@@ -32,26 +32,26 @@ namespace LinaEngine::Graphics
 
 		FORCEINLINE VertexArray(RenderEngine<PAMRenderEngine>& engine, const IndexedModel& model, BufferUsage bufferUsage) : 
 			renderEngine(&engine),
-			engineBoundID(model.createVertexArray(engine, bufferUsage)), numIndices(model.getNumIndices()) {}
+			m_EngineBoundID(model.CreateVertexArray(engine, bufferUsage)), m_IndexCount(model.GetIndexCount()) {}
 
 		FORCEINLINE ~VertexArray()
 		{
-			engineBoundID = renderEngine->ReleaseVertexArray(engineBoundID);
+			m_EngineBoundID = renderEngine->ReleaseVertexArray(m_EngineBoundID);
 		}
 
 		FORCEINLINE void updateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize)
 		{
-			return renderEngine->UpdateVertexArrayBuffer(engineBoundID, bufferIndex, data, dataSize);
+			return renderEngine->UpdateVertexArrayBuffer(m_EngineBoundID, bufferIndex, data, dataSize);
 		}
 
-		FORCEINLINE uint32 getId() { return engineBoundID; }
-		inline uint32 getNumIndices() { return numIndices;  }
+		FORCEINLINE uint32 getId() { return m_EngineBoundID; }
+		inline uint32 getNumIndices() { return m_IndexCount;  }
 
 	private:
 
 		RenderEngine<PAMRenderEngine>* renderEngine;
-		uint32 engineBoundID;
-		uint32 numIndices;
+		uint32 m_EngineBoundID;
+		uint32 m_IndexCount;
 
 		NULL_COPY_AND_ASSIGN(VertexArray);
 	};

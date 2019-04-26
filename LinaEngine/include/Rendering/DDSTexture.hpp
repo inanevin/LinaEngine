@@ -32,7 +32,11 @@ namespace LinaEngine::Graphics
 
 		DDSTexture() {};
 		virtual ~DDSTexture() { CleanUp(); };
+
+		// Loads a .dds texture from resources.
 		bool Load(const char* fileName);
+
+		// Accessors & mutators.
 		FORCEINLINE uint32 GetMipMapCount() const { return m_MipMapCount; }
 		FORCEINLINE uint32 GetFourCC() const { return m_FourCC; }
 		FORCEINLINE uint32 GetWidth() const { return m_Width; }
@@ -41,12 +45,16 @@ namespace LinaEngine::Graphics
 
 	private:
 
+		// Texture data buffer.
 		unsigned char* m_Buffer = nullptr;
+
+		// Texture properties.
 		uint32 m_Height;
 		uint32 m_Width;
 		uint32 m_MipMapCount;
 		uint32 m_FourCC;
 
+		// Cleans up buffer & mem.
 		void CleanUp();
 	};
 }

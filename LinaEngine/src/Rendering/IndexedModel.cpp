@@ -22,98 +22,91 @@ Timestamp: 4/26/2019 12:12:01 AM
 
 namespace LinaEngine::Graphics
 {
-	void IndexedModel::addElement1f(uint32 elementIndex, float e0)
+	void IndexedModel::AddElement(uint32 elementIndex, float e0)
 	{
 	
-		LINA_CORE_ASSERT(elementIndex < elementSizes.size());
-		elements[elementIndex].push_back(e0);
+		LINA_CORE_ASSERT(elementIndex < m_ElementSizes.size());
+		m_Elements[elementIndex].push_back(e0);
 	}
 
-	void IndexedModel::addElement2f(uint32 elementIndex, float e0, float e1)
+	void IndexedModel::AddElement(uint32 elementIndex, float e0, float e1)
 	{
-		LINA_CORE_ASSERT(elementIndex < elementSizes.size());
-		elements[elementIndex].push_back(e0);
-		elements[elementIndex].push_back(e1);
+		LINA_CORE_ASSERT(elementIndex < m_ElementSizes.size());
+		m_Elements[elementIndex].push_back(e0);
+		m_Elements[elementIndex].push_back(e1);
 	}
 
-	void IndexedModel::addElement3f(uint32 elementIndex, float e0, float e1, float e2)
+	void IndexedModel::AddElement(uint32 elementIndex, float e0, float e1, float e2)
 	{
-		LINA_CORE_ASSERT(elementIndex < elementSizes.size());
-		elements[elementIndex].push_back(e0);
-		elements[elementIndex].push_back(e1);
-		elements[elementIndex].push_back(e2);
+		LINA_CORE_ASSERT(elementIndex < m_ElementSizes.size());
+		m_Elements[elementIndex].push_back(e0);
+		m_Elements[elementIndex].push_back(e1);
+		m_Elements[elementIndex].push_back(e2);
 	}
 
-	void IndexedModel::addElement4f(uint32 elementIndex, float e0, float e1, float e2, float e3)
+	void IndexedModel::AddElement(uint32 elementIndex, float e0, float e1, float e2, float e3)
 	{
-		LINA_CORE_ASSERT(elementIndex < elementSizes.size());
-		elements[elementIndex].push_back(e0);
-		elements[elementIndex].push_back(e1);
-		elements[elementIndex].push_back(e2);
-		elements[elementIndex].push_back(e3);
+		LINA_CORE_ASSERT(elementIndex < m_ElementSizes.size());
+		m_Elements[elementIndex].push_back(e0);
+		m_Elements[elementIndex].push_back(e1);
+		m_Elements[elementIndex].push_back(e2);
+		m_Elements[elementIndex].push_back(e3);
 	}
 
-	void IndexedModel::addIndices1i(uint32 i0)
+	void IndexedModel::AddIndices(uint32 i0)
 	{
-		indices.push_back(i0);
+		m_Indices.push_back(i0);
 	}
 
-	void IndexedModel::addIndices2i(uint32 i0, uint32 i1)
+	void IndexedModel::AddIndices(uint32 i0, uint32 i1)
 	{
-		indices.push_back(i0);
-		indices.push_back(i1);
+		m_Indices.push_back(i0);
+		m_Indices.push_back(i1);
 	}
 
-	void IndexedModel::addIndices3i(uint32 i0, uint32 i1, uint32 i2)
+	void IndexedModel::AddIndices(uint32 i0, uint32 i1, uint32 i2)
 	{
-		indices.push_back(i0);
-		indices.push_back(i1);
-		indices.push_back(i2);
+		m_Indices.push_back(i0);
+		m_Indices.push_back(i1);
+		m_Indices.push_back(i2);
 	}
 
-	void IndexedModel::addIndices4i(uint32 i0, uint32 i1, uint32 i2, uint32 i3)
+	void IndexedModel::AddIndices(uint32 i0, uint32 i1, uint32 i2, uint32 i3)
 	{
-		indices.push_back(i0);
-		indices.push_back(i1);
-		indices.push_back(i2);
-		indices.push_back(i3);
+		m_Indices.push_back(i0);
+		m_Indices.push_back(i1);
+		m_Indices.push_back(i2);
+		m_Indices.push_back(i3);
 	}
 
-	uint32 IndexedModel::getNumIndices() const
+	void IndexedModel::AllocateElement(uint32 elementSize)
 	{
-		return indices.size();
+		m_ElementSizes.push_back(elementSize);
+		m_Elements.push_back(LinaArray<float>());
 	}
 
-	void IndexedModel::allocateElement(uint32 elementSize)
+	uint32 IndexedModel::CreateVertexArray(RenderEngine<PAMRenderEngine>& engine, BufferUsage bufferUsage) const
 	{
-		elementSizes.push_back(elementSize);
-		elements.push_back(LinaArray<float>());
-	}
-
-	void IndexedModel::setInstancedElementStartIndex(uint32 elementIndex)
-	{
-		instancedElementsStartIndex = elementIndex;
-	}
-
-	uint32 IndexedModel::createVertexArray(RenderEngine<PAMRenderEngine>& device, BufferUsage bufferUsage) const
-	{
-		uint32 numVertexComponents = elementSizes.size();
-		uint32 numInstanceComponents = instancedElementsStartIndex == ((uint32)-1) ?
-			0 : (numVertexComponents - instancedElementsStartIndex);
+		// Find the vertex component size using start index of instanced components.
+		uint32 numVertexComponents = m_ElementSizes.size();
+		uint32 numInstanceComponents = m_StartIndex == ((uint32)-1) ? 0 : (numVertexComponents - m_StartIndex);
 		numVertexComponents -= numInstanceComponents;
 
+		// Create a new array to add the instanced data.
 		LinaArray<const float*> vertexDataArray;
-		for (uint32 i = 0; i < numVertexComponents; i++) {
-			vertexDataArray.push_back(&(elements[i][0]));
-		}
 
+		for (uint32 i = 0; i < numVertexComponents; i++) 
+			vertexDataArray.push_back(&(m_Elements[i][0]));
+
+		
 		const float** vertexData = &vertexDataArray[0];
-		const uint32* vertexElementSizes = &elementSizes[0];
+		const uint32* vertexElementSizes = &m_ElementSizes[0];
 
-		uint32 numVertices = elements[0].size() / vertexElementSizes[0];
-		uint32 numIndices = indices.size();
+		// Find vertex & index counts to send into render renderEngine.
+		uint32 numVertices = m_Elements[0].size() / vertexElementSizes[0];
+		uint32 numIndices = m_Indices.size();
 
-		return device.CreateVertexArray(vertexData, vertexElementSizes, numVertexComponents, numInstanceComponents, numVertices, &indices[0], numIndices, bufferUsage);
+		return engine.CreateVertexArray(vertexData, vertexElementSizes, numVertexComponents, numInstanceComponents, numVertices, &m_Indices[0], numIndices, bufferUsage);
 	}
 }
 

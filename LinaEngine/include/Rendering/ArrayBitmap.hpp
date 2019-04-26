@@ -33,16 +33,23 @@ namespace LinaEngine::Graphics
 
 		DISALLOW_COPY_AND_ASSIGN(ArrayBitmap);
 
+		// Param constructors including width, height, pixel array and offsets
 		ArrayBitmap(int32 width = 1, int32 m_Heigth = 1);
 		ArrayBitmap(int32 width, int32 m_Heigth, int32* pixels);
-		ArrayBitmap(int32 width, int32 m_Heigth, int32* pixels, int32 offsetX,
-			int32 offsetY, int32 rowOffset);
+		ArrayBitmap(int32 width, int32 m_Heigth, int32* pixels, int32 offsetX, int32 offsetY, int32 rowOffset);
+
 		virtual ~ArrayBitmap();
 
+		// Load the bitmap from a file in resources.
 		bool Load(const LinaString& fileName);
+
+		// Save the bitmap into a file in resources.
 		bool Save(const LinaString& fileName) const;
+
+		// Clr colors.
 		void Clear(int32 color);
 
+		// Accessors & Mutators.
 		FORCEINLINE int32 GetWidth() const { return m_Width; };
 		FORCEINLINE int32 GetHeight() const { return m_Heigth; };
 
@@ -63,6 +70,7 @@ namespace LinaEngine::Graphics
 
 	private:
 
+		// Bitmap array properties.
 		int32 m_Width;
 		int32 m_Heigth;
 		int32* m_Pixels;

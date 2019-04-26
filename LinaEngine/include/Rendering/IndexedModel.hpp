@@ -31,35 +31,47 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-		IndexedModel() : instancedElementsStartIndex((uint32)-1) {}
-		uint32 createVertexArray(RenderEngine<PAMRenderEngine>& device, BufferUsage bufferUsage) const;
+		IndexedModel() : m_StartIndex((uint32)-1) {}
 
-		void allocateElement(uint32 elementSize);
-		void setInstancedElementStartIndex(uint32 elementIndex);
+		// Creates a vertex array using render renderEngine.
+		uint32 CreateVertexArray(RenderEngine<PAMRenderEngine>& engine, BufferUsage bufferUsage) const;
 
-		void addElement1f(uint32 elementIndex, float e0);
-		void addElement2f(uint32 elementIndex, float e0, float e1);
-		void addElement3f(uint32 elementIndex, float e0, float e1, float e2);
-		void addElement4f(uint32 elementIndex, float e0, float e1, float e2, float e3);
+		// Sets the element size array according to the desired size.
+		void AllocateElement(uint32 elementSize);
 
-		void addIndices1i(uint32 i0);
-		void addIndices2i(uint32 i0, uint32 i1);
-		void addIndices3i(uint32 i0, uint32 i1, uint32 i2);
-		void addIndices4i(uint32 i0, uint32 i1, uint32 i2, uint32 i3);
+		// Adds float data to the m_Elements array, 1 to 4 elems. TODO: Maybe template? Consider inline array push performance.
+		void AddElement(uint32 elementIndex, float e0);
+		void AddElement(uint32 elementIndex, float e0, float e1);
+		void AddElement(uint32 elementIndex, float e0, float e1, float e2);
+		void AddElement(uint32 elementIndex, float e0, float e1, float e2, float e3);
 
-		FORCEINLINE AABB getAABBForElementArray(uint32 index) 
+		// Adds index data to m_Indices array, 1 to 4 m_Indices. TODO: Maybe template? Consider inline array push performance.
+		void AddIndices(uint32 i0);
+		void AddIndices(uint32 i0, uint32 i1);
+		void AddIndices(uint32 i0, uint32 i1, uint32 i2);
+		void AddIndices(uint32 i0, uint32 i1, uint32 i2, uint32 i3);
+
+		// Find the axis aligned bounding box for the current specific element array.
+		FORCEINLINE AABB GetAABBForElementArray(uint32 index) 
 		{
-			return AABB(&elements[index][0], elements[index].size() / elementSizes[index]);
+			return AABB(&m_Elements[index][0], m_Elements[index].size() / m_ElementSizes[index]);
 		}
 
-		uint32 getNumIndices() const;
+		// Sets the start index for instanced elements.
+		FORCEINLINE void SetStartIndex(uint32 elementIndex) { m_StartIndex = elementIndex; }
+
+		// Accessor for num m_Indices.
+		FORCEINLINE uint32 GetIndexCount() const { return m_Indices.size(); }
 
 	private:
 
-		LinaArray<uint32> indices;
-		LinaArray<uint32> elementSizes;
-		LinaArray<LinaArray<float>> elements;
-		uint32 instancedElementsStartIndex;
+		// Index & element data.
+		LinaArray<uint32> m_Indices;
+		LinaArray<uint32> m_ElementSizes;
+		LinaArray<LinaArray<float>> m_Elements;
+
+		// Start index for instanced elements.
+		uint32 m_StartIndex;
 
 	};
 }

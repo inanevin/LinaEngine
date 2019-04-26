@@ -150,7 +150,7 @@ namespace LinaEngine::Graphics
 		// Get a void* reference to the native window. e.g GLFWwindow
 		FORCEINLINE void* GetNativeWindow() { return m_Derived->GetNativeWindow_Impl(); }
 
-		// Initialize the render engine.
+		// Initialize the render renderEngine.
 		FORCEINLINE void Initialize() { m_Derived->Initialize_Impl(); }
 
 		// Called each frame.
@@ -165,7 +165,6 @@ namespace LinaEngine::Graphics
 		// Creates a 2D texture based on parameters. Data is sent as an arraybitmap data.
 		FORCEINLINE uint32 CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
 		{
-
 			return m_Derived->CreateTexture2D_Impl(width, height, data, pixelDataFormat, internalPixelFormat, generateMipMaps, compress);
 		}
 
@@ -239,6 +238,11 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void SetShaderSampler(uint32 shader, const LinaString& samplerName, uint32 texture, uint32 sampler, uint32 unit)
 		{
 			m_Derived->SetShaderSampler_Impl(shader, samplerName, texture, sampler, unit);
+		}
+
+		FORCEINLINE void SetShaderUniformBuffer(uint32 shader, const LinaString& uniformBufferName, uint32 buffer)
+		{
+			m_Derived_SetShaderUniformBuffer_Impl(shader, uniformBufferName, buffer);
 		}
 
 		// Updates the target VAO and makes ready for the next draw.

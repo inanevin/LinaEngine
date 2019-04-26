@@ -30,21 +30,23 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-		FORCEINLINE Sampler(RenderEngine<PAMRenderEngine>& deviceIn, SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR, SamplerFilter magFilter = SamplerFilter::FILTER_LINEAR,
-			SamplerWrapMode wrapU = SamplerWrapMode::WRAP_CLAMP, SamplerWrapMode wrapV = SamplerWrapMode::WRAP_CLAMP, float anisotropy = 0.0f) : device(&deviceIn),
-			deviceId(device->CreateSampler(minFilter, magFilter, wrapU, wrapV, anisotropy)) {}
+		// Param const creates texture sampler through render engine.
+		FORCEINLINE Sampler(RenderEngine<PAMRenderEngine>& engineIn, SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR, SamplerFilter magFilter = SamplerFilter::FILTER_LINEAR,
+			SamplerWrapMode wrapU = SamplerWrapMode::WRAP_CLAMP, SamplerWrapMode wrapV = SamplerWrapMode::WRAP_CLAMP, float anisotropy = 0.0f) : renderEngine(&engineIn),
+			m_EngineBoundID(renderEngine->CreateSampler(minFilter, magFilter, wrapU, wrapV, anisotropy)) {}
 
+		// Destructor releases sampler data through render engine
 		FORCEINLINE ~Sampler()
 		{
-			deviceId = device->ReleaseSampler(deviceId);
+			m_EngineBoundID = renderEngine->ReleaseSampler(m_EngineBoundID);
 		}
 
-		FORCEINLINE uint32 getId() { return deviceId; }
+		FORCEINLINE uint32 GetID() { return m_EngineBoundID; }
 
 	private:
 
-		RenderEngine<PAMRenderEngine>* device;
-		uint32 deviceId;
+		RenderEngine<PAMRenderEngine>* renderEngine;
+		uint32 m_EngineBoundID;
 
 		NULL_COPY_AND_ASSIGN(Sampler);
 
