@@ -53,6 +53,7 @@ git clone --recursive https://github.com/inanevin/LinaEngine
 
 #### Using Lina Engine Build Launcher
 
+-  You need to have JavaFX Runtime library installed on your computer & environment paths set for it. For more information visit [Java FX](https://openjfx.io/).
 -  Download a binary release from [Lina Engine Build Launcher Repository](https://github.com/inanevin/Lina-Engine-Build-Launcher).
 -  Run the .jar file, launcher will open.
 
