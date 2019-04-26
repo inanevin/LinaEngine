@@ -33,12 +33,17 @@ Timestamp: 4/15/2019 12:37:37 PM
 namespace LinaEngine::Graphics
 {
 
-	
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+	// GLOBALS DECLARATIONS
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+
 	GLint GetOpenGLFormat(PixelFormat dataFormat);
 	GLint GetOpenGLInternalFormat(PixelFormat internalFormat, bool compress);
-	static bool addShader(GLuint shaderProgram, const LinaString& text, GLenum type, LinaArray<GLuint>* shaders);
+	static bool AddShader(GLuint shaderProgram, const LinaString& text, GLenum type, LinaArray<GLuint>* shaders);
 	static void AddAllAttributes(GLuint program, const LinaString& vertexShaderText, uint32 version);
-	static bool checkShaderError(GLuint shader, int flag, bool isProgram, const LinaString& errorMessage);
+	static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const LinaString& errorMessage);
 	static void AddShaderUniforms(GLuint shaderProgram, const LinaString& shaderText, LinaMap<LinaString, GLint>& uniformMap, LinaMap<LinaString, GLint>& samplerMap);
 
 	using namespace ECS;
@@ -52,6 +57,11 @@ namespace LinaEngine::Graphics
 	ECSMovementControlSystem movementControlSystem;
 	Transform* workingTransformation;
 
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+	// CORE OPERATIONS
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
 
 	GLRenderEngine::GLRenderEngine() : RenderEngine()
 	{
@@ -87,6 +97,13 @@ namespace LinaEngine::Graphics
 		ecs.UpdateSystems(mainSystems, 0.01f);
 		LINA_CORE_TRACE("Position: {0} " , ecs.GetComponent<TransformComponent>(entity)->transform.GetPosition().ToString());
 	}
+
+
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+	// TEXTURE OPERATIONS
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
 
 	uint32 GLRenderEngine::CreateTexture2D_Impl(int32 width, int32 height, const void * data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
 	{
@@ -175,6 +192,12 @@ namespace LinaEngine::Graphics
 		glDeleteTextures(1, &texture2D);
 		return 0;
 	}
+
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+	// VERTEX ARRAY OPERATIONS
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
 
 	uint32 GLRenderEngine::CreateVertexArray_Impl(const float** vertexData, const uint32* vertexElementSizes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage)
 	{
@@ -281,6 +304,12 @@ namespace LinaEngine::Graphics
 		return 0;
 	}
 
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+	// TEXTURE SAMPLER OPERATIONS
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+
 	uint32 GLRenderEngine::CreateSampler_Impl(SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapU, SamplerWrapMode wrapV, float anisotropy)
 	{
 		// OpenGL Texture Sampler parameters.
@@ -306,6 +335,12 @@ namespace LinaEngine::Graphics
 		return 0;
 	}
 
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+	// UNFORM BUFFER OPERATIONS
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+
 	uint32 GLRenderEngine::CreateUniformBuffer_Impl(const void* data, uintptr dataSize, BufferUsage usage)
 	{
 		// Bind a new uniform buffer to GL.
@@ -323,6 +358,12 @@ namespace LinaEngine::Graphics
 		glDeleteBuffers(1, &buffer);
 		return 0;
 	}
+
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+	// SHADER PROGRAM OPERATIONS
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
 
 	uint32 GLRenderEngine::CreateShaderProgram_Impl(const LinaString& shaderText)
 	{
@@ -343,22 +384,22 @@ namespace LinaEngine::Graphics
 
 		// Add the shader program, terminate if fails.
 		ShaderProgram programData;
-		if (!addShader(shaderProgram, vertexShaderText, GL_VERTEX_SHADER, &programData.shaders)) 
+		if (!AddShader(shaderProgram, vertexShaderText, GL_VERTEX_SHADER, &programData.shaders)) 
 			return (uint32)-1;
 
-		if (!addShader(shaderProgram, fragmentShaderText, GL_FRAGMENT_SHADER, &programData.shaders))
+		if (!AddShader(shaderProgram, fragmentShaderText, GL_FRAGMENT_SHADER, &programData.shaders))
 			return (uint32)-1;
 
 		// Link program & check link errors.
 		glLinkProgram(shaderProgram);
 
-		if (checkShaderError(shaderProgram, GL_LINK_STATUS, true, "Error linking shader program")) 
+		if (CheckShaderError(shaderProgram, GL_LINK_STATUS, true, "Error linking shader program")) 
 			return (uint32)-1;
 
 		// Validate program & check validation errors.
 		glValidateProgram(shaderProgram);
 
-		if (checkShaderError(shaderProgram, GL_VALIDATE_STATUS,	true, "Invalid shader program")) 
+		if (CheckShaderError(shaderProgram, GL_VALIDATE_STATUS,	true, "Invalid shader program")) 
 			return (uint32)-1;
 
 		// Bind attributes for GL & add shader uniforms.
@@ -393,6 +434,12 @@ namespace LinaEngine::Graphics
 		return 0;
 	}
 
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+	// FRAME BUFFER OBJECT OPERATIONS
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+
 	uint32 GLRenderEngine::CreateRenderTarget_Impl(uint32 texture, int32 width, int32 height, FramebufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel)
 	{
 		// Generate frame buffers & set the current object.
@@ -425,6 +472,12 @@ namespace LinaEngine::Graphics
 		return 0;
 	}
 
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+	// VERTEX ARRAY OPERATIONS
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+
 	void GLRenderEngine::UpdateVertexArray_Impl(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize)
 	{
 		// Terminate if fbo is not valid or does not exist in our map.
@@ -456,6 +509,12 @@ namespace LinaEngine::Graphics
 		}
 	}
 
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+	// SHADER OPERATIONS
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+
 	void GLRenderEngine::SetShader_Impl(uint32 shader)
 	{
 		// Use the target shader if exists.
@@ -484,6 +543,12 @@ namespace LinaEngine::Graphics
 		// Update the uniform data.
 		glBindBufferBase(GL_UNIFORM_BUFFER, m_ShaderProgramMap[shader].uniformMap[uniformBufferName], buffer);
 	}
+
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+	// UNIFORM BUFFER OPERATIONS
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
 
 	void GLRenderEngine::UpdateVertexArrayBuffer_Impl(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize)
 	{
@@ -527,6 +592,11 @@ namespace LinaEngine::Graphics
 		glUnmapBuffer(GL_UNIFORM_BUFFER);
 	}
 
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+	// DRAWING OPERATIONS
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
 
 	void GLRenderEngine::SetVAO(uint32 vao)
 	{
@@ -769,7 +839,11 @@ namespace LinaEngine::Graphics
 		return m_GLVersion;
 	}
 
-
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+	// GLOBALS
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
 
 	static GLint GetOpenGLFormat(PixelFormat format)
 	{
@@ -813,7 +887,7 @@ namespace LinaEngine::Graphics
 	}
 
 
-	static bool addShader(GLuint shaderProgram, const LinaString& text, GLenum type, LinaArray<GLuint>* shaders)
+	static bool AddShader(GLuint shaderProgram, const LinaString& text, GLenum type, LinaArray<GLuint>* shaders)
 	{
 		// Create shader object.
 		GLuint shader = glCreateShader(type);
@@ -851,7 +925,7 @@ namespace LinaEngine::Graphics
 		return true;
 	}
 
-	static bool checkShaderError(GLuint shader, int flag, bool isProgram, const LinaString& errorMessage)
+	static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const LinaString& errorMessage)
 	{
 		// Check shader errors from OpenGl.
 		GLint success = 0;
