@@ -136,6 +136,30 @@ namespace LinaEngine::Graphics
 		STENCIL_INVERT = LINA_GRAPHICS_STENCIL_INVERT,
 	};
 
+	struct DrawParams
+	{
+		PrimitiveType primitiveType = PRIMITIVE_TRIANGLES;
+		FaceCulling faceCulling = FACE_CULL_NONE;
+		DrawFunc depthFunc = DRAW_FUNC_ALWAYS;
+	    DrawFunc stencilFunc = DRAW_FUNC_ALWAYS;
+		StencilOp stencilFail = STENCIL_KEEP;
+		StencilOp stencilPassButDepthFail = STENCIL_KEEP;
+		StencilOp stencilPass = STENCIL_KEEP;
+		BlendFunc sourceBlend = BLEND_FUNC_NONE;
+		BlendFunc destBlend = BLEND_FUNC_NONE;
+		bool shouldWriteDepth = true;
+		bool useStencilTest = false;
+		bool useScissorTest = false;
+		uint32 scissorStartX = 0;
+		uint32 scissorStartY = 0;
+		uint32 scissorWidth = 0;
+		uint32 scissorHeight = 0;
+		uint32 stencilTestMask = 0;
+		uint32 stencilWriteMask = 0;
+		int32 stencilComparisonVal = 0;
+	};
+
+
 
 	template<class Derived>
 	class RenderEngine
@@ -228,6 +252,16 @@ namespace LinaEngine::Graphics
 			return m_Derived->ReleaseShaderProgram_Impl();
 		}
 
+		FORCEINLINE uint32 CreateRenderTarget(uint32 texture, int32 width, int32 height, FramebufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel)
+		{
+			return m_Derived->CreateRenderTarget_Impl();
+		}
+
+		FORCEINLINE uint32 ReleaseRenderTarget(uint32 fbo)
+		{
+			return m_Derived->ReleaseRenderTarget_Impl();
+		}
+
 		// Sets the active shader.
 		FORCEINLINE void SetShader(uint32 shader)
 		{
@@ -255,6 +289,16 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void UpdateUniformBuffer(uint32 buffer, const void* data, uintptr dataSize)
 		{
 			m_Derived->UpdateUniformBuffer_Impl(buffer, data, dataSize);
+		}
+
+		FORCEINLINE void Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements)
+		{
+			m_Derived->Draw_Impl(fbo, shader, vao, drawParams, numInstances, numElements)
+		}
+
+		FORCEINLINE void Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
+		{
+			m_Derived->Clear_Impl(fbo, shouldClearColor, shouldClearDepth, shouldClearStencil, color, stencil);
 		}
 
 	protected:

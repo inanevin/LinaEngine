@@ -58,6 +58,13 @@ namespace LinaEngine::Graphics
 		LinaMap<LinaString, int32> samplerMap;
 	};
 
+	struct FBOData
+	{
+		int32 width;
+		int32 height;
+	};
+
+
 	// A derived class of RenderEngine. Check RenderEngine.hpp for method details.
 	class GLRenderEngine : public RenderEngine<GLRenderEngine>
 	{
@@ -94,18 +101,31 @@ namespace LinaEngine::Graphics
 		uint32 ReleaseUniformBuffer_Impl(uint32 buffer);
 		uint32 CreateShaderProgram_Impl(const LinaString& shaderText);
 		uint32 ReleaseShaderProgram_Impl(uint32 shader);
+		uint32 CreateRenderTarget_Impl(uint32 texture, int32 width, int32 height, FramebufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel);
+		uint32 ReleaseRenderTarget_Impl(uint32 target);
 		void UpdateVertexArray_Impl(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);
 		void SetShader_Impl(uint32 shader) STATIC_OVERRIDE;
 		void SetShaderSampler_Impl(uint32 shader, const LinaString& samplerName, uint32 texture, uint32 sampler, uint32 unit) STATIC_OVERRIDE;
 		void SetShaderUniformBuffer_Impl(uint32 shader, const LinaString& uniformBufferName, uint32 buffer);
 		void UpdateVertexArrayBuffer_Impl(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);
 		void UpdateUniformBuffer_Impl(uint32 buffer, const void* data, uintptr dataSize);
+		void Draw_Impl(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements);
+		void Clear_Impl(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil);
+
 
 	private:
 
 		void setVAO(uint32 vao);
 		LinaString getShaderVersion();
 		uint32 getVersion();
+		void setFBO(uint32 fbo);
+		void setViewport(uint32 fbo);
+		void setFaceCulling(FaceCulling faceCulling);
+		void setDepthTest(bool shouldWrite, DrawFunc depthFunc);
+		void setBlending(BlendFunc sourceBlend, BlendFunc destBlend);
+		void setStencilTest(bool enable, DrawFunc stencilFunc, uint32 stencilTestMask, uint32 stencilWriteMask, int32 stencilComparisonVal, StencilOp stencilFail, StencilOp stencilPassButDepthFail, StencilOp stencilPass);
+		void setStencilWriteMask(uint32 mask);
+		void setScissorTest(bool enable, uint32 startX = 0, uint32 startY = 0, uint32 width = 0, uint32 height = 0);
 
 	private:
 
@@ -118,17 +138,43 @@ namespace LinaEngine::Graphics
 		// Currently active vertex array object.
 		uint32 m_BoundVAO;
 
+		// Currently active frame buffer object.
+		uint32 boundFBO;
+
+		// FBO rep. on viewport.
+		uint32 viewportFBO;
+
 		// Map for bound vertex array objects.
 		LinaMap<uint32, VertexArray> vaoMap;
 
 		// Shader program map w/ ids.
 		LinaMap<uint32, ShaderProgram> shaderProgramMap;
 
+		// Frame buffer object map w/ ids.
+		LinaMap<uint32, FBOData> fboMap;
+
 		// Storage for shader version.
 		LinaString shaderVersion;
 
 		// Storage for gl version data.
 		uint32 version;
+
+		FaceCulling currentFaceCulling;
+		DrawFunc currentDepthFunc;
+		BlendFunc currentSourceBlend;
+		BlendFunc currentDestBlend;
+		DrawFunc currentStencilFunc;
+		StencilOp currentStencilFail;
+		StencilOp currentStencilPassButDepthFail;
+		StencilOp currentStencilPass;
+		bool blendingEnabled;
+		bool shouldWriteDepth;
+		bool stencilTestEnabled;
+		bool scissorTestEnabled;
+		uint32 currentStencilTestMask;
+		uint32 currentStencilWriteMask;
+		int32 currentStencilComparisonVal;
+
 
 	};
 }
