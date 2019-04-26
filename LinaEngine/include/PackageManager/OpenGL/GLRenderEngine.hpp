@@ -27,6 +27,7 @@ Timestamp: 4/15/2019 12:37:37 PM
 #include "PackageManager/PAMWindow.hpp"
 #include "Core/DataStructures.hpp"
 
+
 namespace LinaEngine::Graphics
 {
 
@@ -118,7 +119,7 @@ namespace LinaEngine::Graphics
 		void UpdateVertexArrayBuffer_Impl(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize) STATIC_OVERRIDE;
 		void UpdateUniformBuffer_Impl(uint32 buffer, const void* data, uintptr dataSize) STATIC_OVERRIDE;
 		void Draw_Impl(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements) STATIC_OVERRIDE;
-		void Clear_Impl(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil) STATIC_OVERRIDE;
+		void Clear_Impl(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const class Color& color, uint32 stencil) STATIC_OVERRIDE;
 
 
 	private:

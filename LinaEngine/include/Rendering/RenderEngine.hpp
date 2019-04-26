@@ -291,12 +291,14 @@ namespace LinaEngine::Graphics
 			m_Derived->UpdateUniformBuffer_Impl(buffer, data, dataSize);
 		}
 
+		// Draw instances.
 		FORCEINLINE void Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements)
 		{
 			m_Derived->Draw_Impl(fbo, shader, vao, drawParams, numInstances, numElements)
 		}
 
-		FORCEINLINE void Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
+		// Clear colors.
+		FORCEINLINE void Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const class Color& color, uint32 stencil)
 		{
 			m_Derived->Clear_Impl(fbo, shouldClearColor, shouldClearDepth, shouldClearStencil, color, stencil);
 		}

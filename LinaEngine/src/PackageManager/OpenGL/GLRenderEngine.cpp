@@ -20,7 +20,7 @@ Timestamp: 4/15/2019 12:37:37 PM
 #include "LinaPch.hpp"
 #include "PackageManager/OpenGL/GLRenderEngine.hpp"  
 #include "glad/glad.h"
-
+#include "Utility/Math/Color.hpp"
 
 #include "ECS/EntityComponentSystem.hpp"
 #include "ECS/Components/MovementControlComponent.hpp"
@@ -657,7 +657,7 @@ namespace LinaEngine::Graphics
 		if (shouldClearColor) 
 		{
 			flags |= GL_COLOR_BUFFER_BIT;
-			glClearColor(color[0], color[1], color[2], color[3]);
+			glClearColor((GLfloat)color.R(), (GLfloat)color.G(), (GLfloat)color.B(), (GLfloat)color.A());
 		}
 		if (shouldClearDepth) 
 			flags |= GL_DEPTH_BUFFER_BIT;

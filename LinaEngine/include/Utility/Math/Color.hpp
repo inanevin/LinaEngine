@@ -34,8 +34,14 @@ namespace LinaEngine
 	public:
 
 		Color(float r = 1.0f, float g = 1.0f, float b = 1.0f, float a = 1.0f) : Vector4F(r, g, b, a) {};
-
-		
+		FORCEINLINE float R() { return x; }
+		FORCEINLINE float G() { return y; }
+		FORCEINLINE float B() { return z; }
+		FORCEINLINE float A() { return w; }
+		FORCEINLINE float R() const { return x; }
+		FORCEINLINE float G() const { return y; }
+		FORCEINLINE float B() const { return z; }
+		FORCEINLINE float A() const { return w; }
 	};
 
 	typedef Color Color;
