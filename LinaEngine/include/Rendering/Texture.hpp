@@ -23,7 +23,7 @@ Timestamp: 1/7/2019 1:55:47 PM
 #define Texture_HPP
 
 #include "DDSTexture.hpp"
-
+#include "RenderEngine.hpp"
 namespace LinaEngine::Graphics
 {
 	template<class Derived>

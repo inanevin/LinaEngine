@@ -103,6 +103,8 @@ namespace LinaEngine::Graphics
 	private:
 
 		void setVAO(uint32 vao);
+		LinaString getShaderVersion();
+		uint32 getVersion();
 
 	private:
 
@@ -121,7 +123,11 @@ namespace LinaEngine::Graphics
 		// Shader program map w/ ids.
 		LinaMap<uint32, ShaderProgram> shaderProgramMap;
 
+		// Storage for shader version.
+		LinaString shaderVersion;
 
+		// Storage for gl version data.
+		uint32 version;
 
 	};
 }

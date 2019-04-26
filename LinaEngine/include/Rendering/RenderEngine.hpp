@@ -24,8 +24,6 @@ Timestamp: 4/15/2019 12:26:31 PM
 
 #include "Events/Event.hpp"
 #include "Core/DataStructures.hpp"
-#include "PackageManager/PAMGraphicDefines.hpp"
-
 
 namespace LinaEngine::Graphics
 {

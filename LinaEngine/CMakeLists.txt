@@ -139,7 +139,6 @@ set(LINAENGINE_HEADERS
 	include/PackageManager/PAMSIMD.hpp
 	include/PackageManager/PAMVectorMath.hpp
 	include/PackageManager/PAMWindow.hpp
-	include/PackageManager/PAMGraphicsDefines.hpp
 	
 	#Rendering
 	include/Rendering/ArrayBitmap.hpp

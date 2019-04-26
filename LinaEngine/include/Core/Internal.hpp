@@ -40,6 +40,14 @@ namespace LinaEngine
 			return hasher(str);
 		}
 
+		template<typename T>
+		static inline LinaString ToString(T val)
+		{
+			std::ostringstream convert;
+			convert << val;
+			return convert.str();
+		}
+
 		template <typename E>
 		constexpr auto to_underlying(E e) noexcept
 		{

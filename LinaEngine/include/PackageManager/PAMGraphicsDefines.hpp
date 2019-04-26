@@ -22,13 +22,5 @@ Timestamp: 4/26/2019 4:49:41 PM
 #ifndef PAMGraphicDefines_HPP
 #define PAMGraphicDefines_HPP
 
-#ifdef LINA_GRAPHICS_OPENGL
 
-namespace LinaEngine::Graphics
-{
-	
-
-}
-
-#endif
 #endif
