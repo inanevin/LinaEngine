@@ -12,32 +12,23 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: GLGraphicsDefines
-Timestamp: 4/26/2019 12:50:33 AM
+Class: PAMGraphicDefines
+Timestamp: 4/26/2019 4:49:41 PM
 
 */
 
 #pragma once
 
-#ifndef GLGraphicsDefines_HPP
-#define GLGraphicsDefines_HPP
+#ifndef PAMGraphicDefines_HPP
+#define PAMGraphicDefines_HPP
 
-#include "glad/glad.h"
+#ifdef LINA_GRAPHICS_OPENGL
 
-enum BufferUsage
+namespace LinaEngine::Graphics
 {
-	USAGE_STATIC_DRAW = GL_STATIC_DRAW,
-	USAGE_STREAM_DRAW = GL_STREAM_DRAW,
-	USAGE_DYNAMIC_DRAW = GL_DYNAMIC_DRAW,
-	USAGE_STATIC_COPY = GL_STATIC_COPY,
-	USAGE_STREAM_COPY = GL_STREAM_COPY,
-	USAGE_DYNAMIC_COPY = GL_DYNAMIC_COPY,
-	USAGE_STATIC_READ = GL_STATIC_READ,
-	USAGE_STREAM_READ = GL_STREAM_READ,
-	USAGE_DYNAMIC_READ = GL_DYNAMIC_READ,
-};
+	
 
+}
 
-
-
+#endif
 #endif

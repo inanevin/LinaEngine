@@ -53,7 +53,6 @@ set (LINAENGINE_SOURCES
 	#Rendering
 	src/Rendering/ArrayBitmap.cpp
 	src/Rendering/DDSTexture.cpp
-	src/Rendering/Shader.cpp
 	src/Rendering/Texture.cpp
 	src/Rendering/Vertex.cpp
 	src/Rendering/IndexedModel.cpp
@@ -132,7 +131,6 @@ set(LINAENGINE_HEADERS
 	include/PackageManager/OpenGL/GLRenderengine.hpp
 	include/PackageManager/OpenGL/GLWindow.hpp
 	include/PackageManager/OpenGL/GLIMGUI.hpp
-	include/PackageManager/OpenGL/GLGraphicsDefines.hpp
 	include/PackageManager/SSE/SSEVectorMath.hpp
 	include/PackageManager/PAMInputEngine.hpp
 	include/PackageManager/PAMMath.hpp
@@ -141,6 +139,7 @@ set(LINAENGINE_HEADERS
 	include/PackageManager/PAMSIMD.hpp
 	include/PackageManager/PAMVectorMath.hpp
 	include/PackageManager/PAMWindow.hpp
+	include/PackageManager/PAMGraphicsDefines.hpp
 	
 	#Rendering
 	include/Rendering/ArrayBitmap.hpp
@@ -154,7 +153,10 @@ set(LINAENGINE_HEADERS
 	include/Rendering/ModelLoader.hpp
 	include/Rendering/VertexArray.hpp
 	include/Rendering/Material.hpp
-	
+	include/Rendering/Shader.hpp
+	include/Rendering/Sampler.hpp
+	include/Rendering/UniformBuffer.hpp
+
 	#Utility
 	include/Utility/Math/Color.hpp
 	include/Utility/Math/Math.hpp
@@ -379,6 +381,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glad/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
 
+if(LINA_GRAPHICS_OPENGL)
+	include(../CMake/GLGraphicsDefinitions.cmake)
+endif()
+
 # Language standard
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
@@ -392,7 +398,7 @@ if(LINA_GRAPHICS_OPENGL)
 	target_link_libraries(${PROJECT_NAME} 
 		# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
 		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/glfw3.lib
-		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/GLAD.lib
+		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/glad.lib
 	)
 	
 endif()

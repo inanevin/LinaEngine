@@ -26,10 +26,10 @@ namespace LinaEngine::Graphics
 {
 	
 
-	Texture::Texture(RenderEngine<PAMRenderEngine>& engine, const ArrayBitmap & data, int internalPixelFormat, bool generateMipMaps, bool shouldCompress)
+	Texture::Texture(RenderEngine<PAMRenderEngine>& engine, const ArrayBitmap & data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress)
 	{
 		renderEngine = &engine;
-		m_ID = renderEngine->CreateTexture2D(data.GetWidth(), data.GetHeight(), data.GetPixelArray(), PixelFormat::FORMAT_RGBA, static_cast<PixelFormat>(internalPixelFormat), generateMipMaps, shouldCompress);
+		m_ID = renderEngine->CreateTexture2D(data.GetWidth(), data.GetHeight(), data.GetPixelArray(), PixelFormat::FORMAT_RGBA, internalPixelFormat, generateMipMaps, shouldCompress);
 		m_Width = (uint32)data.GetWidth();
 		m_Height = (uint32)data.GetHeight();
 		isCompressed = shouldCompress;

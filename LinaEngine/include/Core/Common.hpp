@@ -43,7 +43,6 @@ Timestamp: 4/7/2019 3:29:18 PM
 #endif
 
 
-
 #ifdef LINA_COMPILER_MSVC
 #define FORCEINLINE __forceinline
 #elif defined(LINA_COMPILER_GCC) || defined(LINA_COMPILER_CLANG)

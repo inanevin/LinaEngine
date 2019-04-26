@@ -37,7 +37,7 @@ namespace LinaEngine::Graphics
 
 		DISALLOW_COPY_AND_ASSIGN(Texture);
 
-		Texture(RenderEngine<class PAMRenderEngine>& engine, const class ArrayBitmap& data, int internalPixelFormat, bool generateMipMaps, bool shouldCompress);
+		Texture(RenderEngine<class PAMRenderEngine>& engine, const class ArrayBitmap& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress);
 		Texture(RenderEngine<class PAMRenderEngine>& engine, const DDSTexture& ddsTexture);
 
 		~Texture();

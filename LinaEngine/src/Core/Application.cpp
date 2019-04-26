@@ -19,6 +19,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 #include "LinaPch.hpp"
 #include "Core/Application.hpp"
+#include "PackageManager/PAMGraphicDefines.hpp"
 
 namespace LinaEngine
 {
@@ -29,7 +30,6 @@ namespace LinaEngine
 
 	Application::Application()
 	{
-	
 		LINA_CORE_TRACE("[Constructor] -> Application ({0})" , typeid(*this).name());
 		LINA_CORE_ASSERT(!instance, "Application already exists!");
 

@@ -32,7 +32,7 @@ namespace LinaEngine::Graphics
 	public:
 
 		IndexedModel() : instancedElementsStartIndex((uint32)-1) {}
-		uint32 createVertexArray(RenderEngine<PAMRenderEngine>& device, int bufferUsage) const;
+		uint32 createVertexArray(RenderEngine<PAMRenderEngine>& device, BufferUsage bufferUsage) const;
 
 		void allocateElement(uint32 elementSize);
 		void setInstancedElementStartIndex(uint32 elementIndex);

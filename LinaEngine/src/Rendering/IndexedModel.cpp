@@ -95,7 +95,7 @@ namespace LinaEngine::Graphics
 		instancedElementsStartIndex = elementIndex;
 	}
 
-	uint32 IndexedModel::createVertexArray(RenderEngine<PAMRenderEngine>& device, int bufferUsage) const
+	uint32 IndexedModel::createVertexArray(RenderEngine<PAMRenderEngine>& device, BufferUsage bufferUsage) const
 	{
 		uint32 numVertexComponents = elementSizes.size();
 		uint32 numInstanceComponents = instancedElementsStartIndex == ((uint32)-1) ?

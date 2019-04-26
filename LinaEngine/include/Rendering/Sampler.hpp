@@ -12,44 +12,42 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: Shader
-Timestamp: 2/16/2019 1:47:28 AM
+Class: Sampler
+Timestamp: 4/26/2019 6:20:27 PM
 
 */
 
 #pragma once
 
-#ifndef Shader_HPP
-#define Shader_HPP
+#ifndef Sampler_HPP
+#define Sampler_HPP
 
-#include "Texture.hpp"
-#include "Sampler.hpp"
-#include "UniformBuffer.hpp"
+#include "PackageManager/PAMRenderEngine.hpp"
 
 namespace LinaEngine::Graphics
 {
-	class Shader
+	class Sampler
 	{
 	public:
-		inline Shader(RenderEngine<PAMRenderEngine>& deviceIn, const LinaString& text) :
-			device(&deviceIn),
-			deviceId(device->CreateShaderProgram(text)) {}
-		inline ~Shader()
+
+		FORCEINLINE Sampler(RenderEngine<PAMRenderEngine>& deviceIn, SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR, SamplerFilter magFilter = SamplerFilter::FILTER_LINEAR,
+			SamplerWrapMode wrapU = SamplerWrapMode::WRAP_CLAMP, SamplerWrapMode wrapV = SamplerWrapMode::WRAP_CLAMP, float anisotropy = 0.0f) : device(&deviceIn),
+			deviceId(device->CreateSampler(minFilter, magFilter, wrapU, wrapV, anisotropy)) {}
+
+		FORCEINLINE ~Sampler()
 		{
-			deviceId = device->ReleaseShaderProgram(deviceId);
+			deviceId = device->ReleaseSampler(deviceId);
 		}
 
-		inline void setUniformBuffer(const LinaString& name, UniformBuffer& buffer);
-		inline void setSampler(const LinaString& name, Texture& texture, Sampler& sampler,
-			uint32 unit);
-		inline uint32 getId();
+		FORCEINLINE uint32 getId() { return deviceId; }
+
 	private:
+
 		RenderEngine<PAMRenderEngine>* device;
 		uint32 deviceId;
 
-		NULL_COPY_AND_ASSIGN(Shader);
+		NULL_COPY_AND_ASSIGN(Sampler);
 
-	
 	};
 }
 

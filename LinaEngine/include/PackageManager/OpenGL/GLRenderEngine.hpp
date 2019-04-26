@@ -48,7 +48,7 @@ namespace LinaEngine::Graphics
 		uint32  numBuffers;
 		uint32  numElements;
 		uint32  instanceComponentsStartIndex;
-		int bufferUsage;
+		BufferUsage bufferUsage;
 	};
 
 	struct ShaderProgram
@@ -86,18 +86,23 @@ namespace LinaEngine::Graphics
 		uint32 CreateTexture2D_Impl(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress) STATIC_OVERRIDE;
 		uint32 CreateDDSTexture2D_Impl(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount) STATIC_OVERRIDE;
 		uint32 ReleaseTexture2D_Impl(uint32 texture2D) STATIC_OVERRIDE;
-		uint32 CreateVertexArray_Impl(const float** vertexData, const uint32* vertexElementSizes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, int bufferUsage) STATIC_OVERRIDE;
+		uint32 CreateVertexArray_Impl(const float** vertexData, const uint32* vertexElementSizes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage) STATIC_OVERRIDE;
 		uint32 ReleaseVertexArray_Impl(uint32 vao);
+		uint32 CreateSampler_Impl(SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapU, SamplerWrapMode wrapV, float anisotropy);
+		uint32 ReleaseSampler_Impl(uint32 sampler);
+		uint32 CreateUniformBuffer_Impl(const void* data, uintptr dataSize, enum BufferUsage usage);
+		uint32 ReleaseUniformBuffer_Impl(uint32 buffer);
+		uint32 CreateShaderProgram_Impl(const LinaString& shaderText);
+		uint32 ReleaseShaderProgram_Impl(uint32 shader);
 		void UpdateVertexArray_Impl(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);
 		void SetShader_Impl(uint32 shader) STATIC_OVERRIDE;
 		void SetShaderSampler_Impl(uint32 shader, const LinaString& samplerName, uint32 texture, uint32 sampler, uint32 unit) STATIC_OVERRIDE;
-
+		void UpdateVertexArrayBuffer_Impl(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);
+		void UpdateUniformBuffer_Impl(uint32 buffer, const void* data, uintptr dataSize);
 
 	private:
 
 		void setVAO(uint32 vao);
-
-		
 
 	private:
 

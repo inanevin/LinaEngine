@@ -19,7 +19,7 @@ Timestamp: 4/15/2019 12:37:37 PM
 
 #include "LinaPch.hpp"
 #include "PackageManager/OpenGL/GLRenderEngine.hpp"  
-#include "PackageManager/OpenGL/GLGraphicsDefines.hpp"
+#include "PackageManager/PAMGraphicDefines.hpp"
 
 
 #include "ECS/EntityComponentSystem.hpp"
@@ -33,7 +33,7 @@ Timestamp: 4/15/2019 12:37:37 PM
 namespace LinaEngine::Graphics
 {
 
-
+	
 	GLint GetOpenGLFormat(PixelFormat dataFormat);
 	GLint GetOpenGLInternalFormat(PixelFormat internalFormat, bool compress);
 
@@ -99,8 +99,7 @@ namespace LinaEngine::Graphics
 		glTexParameterf(textureTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexImage2D(textureTarget, 0, internalFormat, width, height, 0, format,
-			GL_UNSIGNED_BYTE, data);
+		glTexImage2D(textureTarget, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 
 		if (generateMipMaps) 
 		{
@@ -168,7 +167,7 @@ namespace LinaEngine::Graphics
 		return 0;
 	}
 
-	uint32 GLRenderEngine::CreateVertexArray_Impl(const float** vertexData, const uint32* vertexElementSizes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, int bufferUsage)
+	uint32 GLRenderEngine::CreateVertexArray_Impl(const float** vertexData, const uint32* vertexElementSizes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage)
 	{
 		unsigned int numBuffers = numVertexComponents + numInstanceComponents + 1;
 
@@ -183,7 +182,7 @@ namespace LinaEngine::Graphics
 
 		for (uint32 i = 0, attribute = 0; i < numBuffers - 1; i++) 
 		{
-			enum BufferUsage attribUsage = static_cast<BufferUsage>(bufferUsage);
+			BufferUsage attribUsage = bufferUsage;
 			bool inInstancedMode = false;
 
 			if (i >= numVertexComponents) 
@@ -265,6 +264,51 @@ namespace LinaEngine::Graphics
 		return 0;
 	}
 
+	uint32 GLRenderEngine::CreateSampler_Impl(SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapU, SamplerWrapMode wrapV, float anisotropy)
+	{
+		uint32 result = 0;
+		glGenSamplers(1, &result);
+		glSamplerParameteri(result, GL_TEXTURE_WRAP_S, wrapU);
+		glSamplerParameteri(result, GL_TEXTURE_WRAP_T, wrapV);
+		glSamplerParameteri(result, GL_TEXTURE_MAG_FILTER, magFilter);
+		glSamplerParameteri(result, GL_TEXTURE_MIN_FILTER, minFilter);
+		if (anisotropy != 0.0f && minFilter != FILTER_NEAREST && minFilter != FILTER_LINEAR) {
+			glSamplerParameterf(result, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+		}
+		return result;
+	}
+
+	uint32 GLRenderEngine::ReleaseSampler_Impl(uint32 sampler)
+	{
+		if (sampler == 0) {
+			return 0;
+		}
+		glDeleteSamplers(1, &sampler);
+		return 0;
+	}
+
+	uint32 GLRenderEngine::CreateUniformBuffer_Impl(const void* data, uintptr dataSize, BufferUsage usage)
+	{
+
+	}
+
+	uint32 GLRenderEngine::ReleaseUniformBuffer_Impl(uint32 buffer)
+	{
+
+	}
+
+	uint32 GLRenderEngine::CreateShaderProgram_Impl(const LinaString& shaderText)
+	{
+
+	}
+
+	uint32 GLRenderEngine::ReleaseShaderProgram_Impl(uint32 shader)
+	{
+
+	}
+
+
+
 	void GLRenderEngine::UpdateVertexArray_Impl(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize)
 	{
 		if (vao == 0)  return;
@@ -273,12 +317,12 @@ namespace LinaEngine::Graphics
 		if (it == vaoMap.end()) return;
 
 		const struct VertexArray* vaoData = &it->second;
-		enum BufferUsage usage;
+		BufferUsage usage;
 
-		if (bufferIndex >= vaoData->instanceComponentsStartIndex) 
-			usage = USAGE_DYNAMIC_DRAW;
-		else 
-			usage = static_cast<BufferUsage>(vaoData->bufferUsage);
+		if (bufferIndex >= vaoData->instanceComponentsStartIndex)
+			usage = BufferUsage::USAGE_DYNAMIC_DRAW;
+		else
+			usage = vaoData->bufferUsage;
 		
 
 		setVAO(vao);
@@ -310,6 +354,16 @@ namespace LinaEngine::Graphics
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glBindSampler(unit, sampler);
 		glUniform1i(shaderProgramMap[shader].samplerMap[samplerName], unit);
+	}
+
+	void GLRenderEngine::UpdateVertexArrayBuffer_Impl(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize)
+	{
+
+	}
+
+	void GLRenderEngine::UpdateUniformBuffer_Impl(uint32 buffer, const void* data, uintptr dataSize)
+	{
+
 	}
 
 	static GLint GetOpenGLFormat(PixelFormat format)
