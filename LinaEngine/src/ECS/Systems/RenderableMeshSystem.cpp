@@ -12,21 +12,22 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: ResourceConstants
-Timestamp: 1/5/2019 1:39:45 PM
+Class: RenderableMeshSystem
+Timestamp: 4/27/2019 5:41:27 PM
 
 */
 
 #include "LinaPch.hpp"
-#include "Utility/ResourceConstants.hpp"
+#include "ECS/Systems/RenderableMeshSystem.hpp"
 
-namespace LinaEngine
+namespace LinaEngine::ECS
 {
-
-
-#define LINA_RESOURCESPATH "Resources\\"
-
-	std::string& ResourceConstants::ShadersPath = std::string(LINA_RESOURCESPATH) + std::string("Shaders\\GLSL\\");
-	std::string& ResourceConstants::TexturesPath = std::string(LINA_RESOURCESPATH) + std::string("Textures\\");
+	void RenderableMeshSystem::UpdateComponents(float delta, BaseECSComponent ** components)
+	{
+		TransformComponent* transform = (TransformComponent*)components[0];
+		RenderableMeshComponent* mesh = (RenderableMeshComponent*)components[1];
+		
+		
+	}
 }
 

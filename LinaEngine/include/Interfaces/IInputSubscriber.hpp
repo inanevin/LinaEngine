@@ -28,7 +28,7 @@ Timestamp: 4/4/2019 2:29:37 AM
 
 namespace LinaEngine::Input
 {
-	class LINA_API IInputSubscriber : public ActionSubscriber
+	class IInputSubscriber : public ActionSubscriber
 	{
 
 	public:

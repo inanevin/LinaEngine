@@ -20,21 +20,26 @@ Timestamp: 4/14/2019 4:04:34 PM
 #include "LinaPch.hpp"
 #include "Rendering/DDSTexture.hpp"  
 
+#ifdef LINA_PLATFORM_WINDOWS
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 namespace LinaEngine::Graphics
 {
 
 	bool DDSTexture::Load(const char * fileName)
 	{
 		unsigned char header[124];
-		FILE* fp = fopen(fileName, "rb");
-		if (fp == NULL) {
-			return false;
-		}
+		FILE* fp;
+		fopen_s(&fp, fileName, "rb");
+
+		if (fp == NULL)  return false;	
 
 		// Verify valid DDS file
 		char filecode[4];
 		fread(filecode, 1, 4, fp);
-		if (strncmp(filecode, "DDS ", 4) != 0) {
+		if (strncmp(filecode, "DDS ", 4) != 0)
+		{
 			fclose(fp);
 			return false;
 		}
@@ -59,9 +64,9 @@ namespace LinaEngine::Graphics
 
 	void DDSTexture::CleanUp()
 	{
-		if (m_Buffer != nullptr) {
+		if (m_Buffer != nullptr) 
 			Memory::free(m_Buffer);
-		}
+		
 		m_Buffer = nullptr;
 	}
 }

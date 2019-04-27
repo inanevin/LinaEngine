@@ -19,7 +19,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 */
 
-#include "LinaPch.hpp"""
+#include "LinaPch.hpp"
 #include "Utility/Math/Matrix.hpp"  
 #include "Utility/Math/Math.hpp"
 #include "Utility/Math/Quaternion.hpp"
@@ -216,24 +216,6 @@ namespace LinaEngine
 		return ret;
 	}
 
-	Vector3F Matrix4F::Transform(const Vector3F& rhs) const
-	{
-		Vector3F r2;
-		
-		for (int i = 0; i < 3; i++)
-			r2.Set(i,rhs[i]);
-
-		r2.SetZ(1.0f);
-
-		Vector3F ret2 = Transform(r2);
-		Vector3F ret;
-
-		for (int i = 0; i < 3; i++)
-			ret.Set(i,ret2[i]);
-
-		return ret;
-	}
-
 	Vector Matrix4F::Transform(const Vector & rhs) const
 	{
 		return rhs.Transform(this);
@@ -321,8 +303,7 @@ namespace LinaEngine
 		return s;
 	}
 
-	Matrix4F Matrix4F::TransformMatrix(const Vector3F& translation,
-		const Quaternion& rotation, const Vector3F& scale)
+	Matrix4F Matrix4F::TransformMatrix(const Vector3F& translation, const Quaternion& rotation, const Vector3F& scale)
 	{
 		Matrix4F result;
 		Vector::CreateTransformMatrix(&result, translation.ToVector(), rotation.ToVector(), scale.ToVector());
@@ -424,23 +405,6 @@ namespace LinaEngine
 		return ret;
 	}
 
-	Vector3F Matrix3F::Transform(const Vector3F& rhs) const
-	{
-		Vector3F r2;
-
-		for (int i = 0; i < 2; i++)
-			r2.Set(i, rhs[i]);
-
-		r2.SetZ(1.0f);
-
-		Vector3F ret2 = Transform(r2);
-		Vector3F ret;
-
-		for (int i = 0; i < 2; i++)
-			ret.Set(i,ret2[i]);
-
-		return ret;
-	}
 
 	Matrix3F Matrix3F::Inverse() const
 	{

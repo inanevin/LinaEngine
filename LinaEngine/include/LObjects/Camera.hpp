@@ -65,7 +65,7 @@ namespace LinaEngine
 	};
 
 	
-	class LINA_API Camera
+	class Camera
 	{
 	public:
 

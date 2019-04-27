@@ -304,7 +304,7 @@ namespace LinaEngine
 		FORCEINLINE Vector3F operator*(float amt) const;
 		FORCEINLINE Vector3F operator/(float amt) const;
 
-		FORCEINLINE std::string ToString () {
+		FORCEINLINE std::string ToString () const {
 			std::stringstream ss;
 			ss << "( X: " << GetX() << " Y: " << GetY() << " Z: " << GetZ() << " )";
 			return ss.str();

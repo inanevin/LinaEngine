@@ -237,29 +237,29 @@ namespace LinaEngine::Graphics
 		// Releases the target uniform buffer.
 		FORCEINLINE uint32 ReleaseUniformBuffer(uint32 buffer)
 		{
-			return m_Derived->ReleaseUniformBuffer_Impl();
+			return m_Derived->ReleaseUniformBuffer_Impl(buffer);
 		}
 
 		// Creates a shader program based on shader text.
 		FORCEINLINE uint32 CreateShaderProgram(const LinaString& shaderText)
 		{
-			return m_Derived->CreateShaderProgram_Impl();
+			return m_Derived->CreateShaderProgram_Impl(shaderText);
 		}
 
 		// Releases the target shader program.
 		FORCEINLINE uint32 ReleaseShaderProgram(uint32 shader)
 		{
-			return m_Derived->ReleaseShaderProgram_Impl();
+			return m_Derived->ReleaseShaderProgram_Impl(shader);
 		}
 
 		FORCEINLINE uint32 CreateRenderTarget(uint32 texture, int32 width, int32 height, FramebufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel)
 		{
-			return m_Derived->CreateRenderTarget_Impl();
+			return m_Derived->CreateRenderTarget_Impl(texture, width, height, attachment, attachmentNumber, mipLevel);
 		}
 
 		FORCEINLINE uint32 ReleaseRenderTarget(uint32 fbo)
 		{
-			return m_Derived->ReleaseRenderTarget_Impl();
+			return m_Derived->ReleaseRenderTarget_Impl(fbo);
 		}
 
 		// Sets the active shader.
@@ -276,7 +276,7 @@ namespace LinaEngine::Graphics
 
 		FORCEINLINE void SetShaderUniformBuffer(uint32 shader, const LinaString& uniformBufferName, uint32 buffer)
 		{
-			m_Derived_SetShaderUniformBuffer_Impl(shader, uniformBufferName, buffer);
+			m_Derived->SetShaderUniformBuffer_Impl(shader, uniformBufferName, buffer);
 		}
 
 		// Updates the target VAO and makes ready for the next draw.
@@ -294,7 +294,7 @@ namespace LinaEngine::Graphics
 		// Draw instances.
 		FORCEINLINE void Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements)
 		{
-			m_Derived->Draw_Impl(fbo, shader, vao, drawParams, numInstances, numElements)
+			m_Derived->Draw_Impl(fbo, shader, vao, drawParams, numInstances, numElements);
 		}
 
 		// Clear colors.

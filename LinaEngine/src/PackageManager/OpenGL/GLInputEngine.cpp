@@ -98,7 +98,7 @@ namespace LinaEngine::Input
 		double posX, posY;
 		glfwGetCursorPos(glfwWindow, &posX, &posY);
 		static Vector2F oldMousePosition;
-		Vector2F currentMousePosition = Vector2F(posX, posY);
+		Vector2F currentMousePosition = Vector2F((float)posX, (float)posY);
 		Vector2F diff = currentMousePosition - oldMousePosition;
 		Vector2F raw = Vector2F::ZERO();
 		if (diff.GetX() > 0.0f) raw.SetX(1.0f);
@@ -119,7 +119,7 @@ namespace LinaEngine::Input
 	{
 		double xpos, ypos;
 		glfwGetCursorPos(glfwWindow, &xpos, &ypos);
-		return Vector2F(xpos, ypos);
+		return Vector2F((float)xpos, (float)ypos);
 	}
 
 

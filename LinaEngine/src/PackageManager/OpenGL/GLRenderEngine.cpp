@@ -26,12 +26,27 @@ Timestamp: 4/15/2019 12:37:37 PM
 #include "ECS/Components/MovementControlComponent.hpp"
 #include "ECS/Components/RenderableMeshComponent.hpp"
 #include "ECS/Components/TransformComponent.hpp"
-#include "ECS/Systems/ECSMovementControlSystem.hpp"
+#include "ECS/Systems/MovementControlSystem.hpp"
+#include "ECS/Systems/RenderableMeshSystem.hpp"
 #include "PackageManager/PAMInputEngine.hpp"
 #include "Core/Application.hpp"
 
 namespace LinaEngine::Graphics
 {
+
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+	// MACRO DECLARATIONS
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+
+#define MAKEFOURCC(a, b, c, d) ((uint32)(uint8)(a) | ((uint32)(uint8)(b) << 8) | ((uint32)(uint8)(c) << 16) | ((uint32)(uint8)(d) << 24 ))
+#define MAKEFOURCCDXT(a) MAKEFOURCC('D', 'X', 'T', a)
+#define FOURCC_DXT1 MAKEFOURCCDXT('1')
+#define FOURCC_DXT2 MAKEFOURCCDXT('2')
+#define FOURCC_DXT3 MAKEFOURCCDXT('3')
+#define FOURCC_DXT4 MAKEFOURCCDXT('4')
+#define FOURCC_DXT5 MAKEFOURCCDXT('5')
 
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
@@ -54,7 +69,7 @@ namespace LinaEngine::Graphics
 	TransformComponent transformComponent;
 	MovementControlComponent movementComponent;
 	ECSSystemList mainSystems;
-	ECSMovementControlSystem movementControlSystem;
+	MovementControlSystem movementControlSystem;
 	Transform* workingTransformation;
 
 	// ---------------------------------------------------------------------
@@ -76,14 +91,16 @@ namespace LinaEngine::Graphics
 
 	void GLRenderEngine::Initialize_Impl()
 	{
+
 		transformComponent.transform.SetPosition(Vector3F(0.0f, 0.0f, 10.0f));
 
 		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(1.0f, 0.0f, 0.0f) * 3, Application::Get().GetInputDevice().GetHorizontalKeyAxis()));
 		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(0.0f, 1.0f, 0.0f) * 3, Application::Get().GetInputDevice().GetVerticalKeyAxis()));
 
 		entity = ecs.MakeEntity(transformComponent, movementComponent);
-		workingTransformation = &ecs.GetComponent<TransformComponent>(entity)->transform;
 
+
+	
 		mainSystems.AddSystem(movementControlSystem);
 
 	}
@@ -95,7 +112,8 @@ namespace LinaEngine::Graphics
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		ecs.UpdateSystems(mainSystems, 0.01f);
-		LINA_CORE_TRACE("Position: {0} " , ecs.GetComponent<TransformComponent>(entity)->transform.GetPosition().ToString());
+		
+		LINA_CORE_TRACE("Position: {0}", ecs.GetComponent<TransformComponent>(entity)->transform.GetPosition().ToString());
 	}
 
 
@@ -270,7 +288,7 @@ namespace LinaEngine::Graphics
 		bufferSizes[numBuffers - 1] = indicesSize;
 
 		// Create vertex array based on our calculated data.
-		VertexArray vaoData;
+		struct VertexArrayData vaoData;
 		vaoData.buffers = buffers;
 		vaoData.bufferSizes = bufferSizes;
 		vaoData.numBuffers = numBuffers;
@@ -287,11 +305,11 @@ namespace LinaEngine::Graphics
 	{
 		// Terminate if vao is null or does not exist in our mapped objects.
 		if (vao == 0) return 0;
-		LinaMap<uint32, VertexArray>::iterator it = m_VAOMap.find(vao);
+		LinaMap<uint32, VertexArrayData>::iterator it = m_VAOMap.find(vao);
 		if (it == m_VAOMap.end()) return 0;
 
 		// Get the vertex array object data from the map.
-		const VertexArray* vaoData = &it->second;
+		const struct VertexArrayData* vaoData = &it->second;
 
 		// Delete the VA & buffers, then data.
 		glDeleteVertexArrays(1, &vao);
@@ -419,7 +437,7 @@ namespace LinaEngine::Graphics
 		if (programIt == m_ShaderProgramMap.end()) return 0;
 	
 		// Get the program from the map.
-		const struct ShaderProgram* shaderProgram = &programIt->second;
+		const ShaderProgram* shaderProgram = &programIt->second;
 
 		// Detach & delete each shader assigned to our program.
 		for (LinaArray<uint32>::const_iterator it = shaderProgram->shaders.begin();	it != shaderProgram->shaders.end(); ++it)
@@ -482,11 +500,11 @@ namespace LinaEngine::Graphics
 	{
 		// Terminate if fbo is not valid or does not exist in our map.
 		if (vao == 0)  return;
-		LinaMap<uint32, VertexArray>::iterator it = m_VAOMap.find(vao);
+		LinaMap<uint32, VertexArrayData>::iterator it = m_VAOMap.find(vao);
 		if (it == m_VAOMap.end()) return;
 
 		// Get the vertex array object data from the map.
-		const VertexArray* vaoData = &it->second;
+		const VertexArrayData* vaoData = &it->second;
 
 		// Define a usage according to the VAO data.
 		BufferUsage usage;
@@ -554,11 +572,11 @@ namespace LinaEngine::Graphics
 	{
 		// Terminate if VAO is not valid or does not exist in our map.
 		if (vao == 0) return;
-		LinaMap<uint32, VertexArray>::iterator it = m_VAOMap.find(vao);
+		LinaMap<uint32, VertexArrayData>::iterator it = m_VAOMap.find(vao);
 		if (it == m_VAOMap.end()) return;
 
 		// Get VAO data from the map.
-		const VertexArray* vaoData = &it->second;
+		const struct VertexArrayData* vaoData = &it->second;
 
 		BufferUsage usage;
 

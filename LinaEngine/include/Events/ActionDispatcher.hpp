@@ -58,9 +58,9 @@ namespace LinaEngine
 					handler->ControlExecute(data);
 				}
 			}
-			catch (const LinaOutOfRange& e)
+			catch (const std::out_of_range& e)
 			{
-				LINA_CORE_ERR("Out of Range Exception while subscribing handler!");
+				LINA_CORE_ERR("Out of Range Exception while subscribing handler! {0}", e.what());
 			}
 		}
 

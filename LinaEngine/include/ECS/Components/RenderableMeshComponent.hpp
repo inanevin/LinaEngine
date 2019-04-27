@@ -28,8 +28,8 @@ namespace LinaEngine::ECS
 {
 	struct RenderableMeshComponent : public ECSComponent<RenderableMeshComponent>
 	{
-		class VertexArray* vertexArray;
-		class Texture* texture;
+		class VertexArray* vertexArray = nullptr;
+		class Texture* texture = nullptr;
 	};
 }
 

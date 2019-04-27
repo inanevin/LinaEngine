@@ -18,14 +18,14 @@ Timestamp: 4/9/2019 3:30:12 PM
 */
 
 #include "LinaPch.hpp"
-#include "ECS/Systems/ECSMovementControlSystem.hpp"  
+#include "ECS/Systems/MovementControlSystem.hpp"  
 #include "Input/InputAxisBinder.hpp"
 
 using namespace LinaEngine::Input;
 
 namespace LinaEngine::ECS
 {
-	void ECSMovementControlSystem::UpdateComponents(float delta, BaseECSComponent ** components)
+	void MovementControlSystem::UpdateComponents(float delta, BaseECSComponent ** components)
 	{
 		TransformComponent* transform = (TransformComponent*)components[0];
 		MovementControlComponent* movementControl = (MovementControlComponent*)components[1];

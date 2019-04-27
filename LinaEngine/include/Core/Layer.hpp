@@ -27,21 +27,22 @@ Timestamp: 1/2/2019 1:42:06 AM
 
 namespace LinaEngine
 {
-	class LINA_API Layer
+	class Layer
 	{
 	public:
 
-		Layer(const std::string& name = "Layer");
-		virtual ~Layer();
+		LINA_API Layer(const std::string& name = "Layer");
+		LINA_API virtual ~Layer();
 
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
-		virtual void OnUpdate() {}
-		virtual void OnEvent(Event& event) {}
+		LINA_API virtual void OnUpdate() {}
+		LINA_API virtual void OnEvent(Event& event) {}
 
-		inline const std::string& GetName() const { return m_DebugName; }
+		FORCEINLINE const std::string& GetName() const { return m_DebugName; }
 
 	protected:
+
 		std::string m_DebugName;
 
 	};

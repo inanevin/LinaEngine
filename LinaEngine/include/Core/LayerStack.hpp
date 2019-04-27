@@ -27,7 +27,7 @@ Timestamp: 1/2/2019 1:43:13 AM
 
 namespace LinaEngine
 {
-	class LINA_API LayerStack
+	class LayerStack
 	{
 	public:
 		LayerStack();

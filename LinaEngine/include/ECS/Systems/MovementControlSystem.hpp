@@ -28,12 +28,12 @@ Timestamp: 4/9/2019 3:30:12 PM
 
 namespace LinaEngine::ECS
 {
-	class ECSMovementControlSystem : public BaseECSSystem
+	class MovementControlSystem : public BaseECSSystem
 	{
 
 	public:
 
-		ECSMovementControlSystem() : BaseECSSystem()
+		MovementControlSystem() : BaseECSSystem()
 		{
 			AddComponentType(TransformComponent::ID);
 			AddComponentType(MovementControlComponent::ID);

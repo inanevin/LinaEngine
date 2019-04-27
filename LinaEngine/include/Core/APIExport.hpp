@@ -23,12 +23,18 @@ Timestamp: 4/17/2019 1:45:39 AM
 #define APIExport_HPP
 
 #ifdef LINA_PLATFORM_WINDOWS
-#ifdef LINA_BUILD_DLL
-#define LINA_API __declspec(dllexport)
+#ifdef LINA_BUILDAS_SHARED
+
+	#ifdef LINA_BUILD_DLL
+	#define LINA_API __declspec(dllexport)
+	#else
+	#define LINA_API __declspec(dllimport)
+	#endif
 #else
-#define LINA_API __declspec(dllimport)
+#define LINA_API
 #endif
 #else
+#define LINA_API
 #error Lina supports Windows only for now.
 #endif
 

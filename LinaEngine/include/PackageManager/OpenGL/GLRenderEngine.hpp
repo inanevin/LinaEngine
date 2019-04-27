@@ -31,19 +31,10 @@ Timestamp: 4/15/2019 12:37:37 PM
 namespace LinaEngine::Graphics
 {
 
-#define MAKEFOURCC(a, b, c, d)                              \
-                ((uint32)(uint8)(a) | ((uint32)(uint8)(b) << 8) |       \
-				((uint32)(uint8)(c) << 16) | ((uint32)(uint8)(d) << 24 ))
 
-#define MAKEFOURCCDXT(a) MAKEFOURCC('D', 'X', 'T', a)
-#define FOURCC_DXT1 MAKEFOURCCDXT('1')
-#define FOURCC_DXT2 MAKEFOURCCDXT('2')
-#define FOURCC_DXT3 MAKEFOURCCDXT('3')
-#define FOURCC_DXT4 MAKEFOURCCDXT('4')
-#define FOURCC_DXT5 MAKEFOURCCDXT('5')
 
 	// Vertex array struct for storage & vertex array data transportation.
-	struct VertexArray
+	struct VertexArrayData
 	{
 		uint32* buffers;
 		uintptr* bufferSizes;
@@ -154,7 +145,7 @@ namespace LinaEngine::Graphics
 		uint32 m_ViewportFBO;
 
 		// Map for bound vertex array objects.
-		LinaMap<uint32, VertexArray> m_VAOMap;
+		LinaMap<uint32, VertexArrayData> m_VAOMap;
 
 		// Frame buffer object map w/ ids.
 		LinaMap<uint32, FBOData> m_FBOMap;

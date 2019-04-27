@@ -31,21 +31,20 @@ namespace LinaEngine::Graphics
 	public:
 
 		FORCEINLINE VertexArray(RenderEngine<PAMRenderEngine>& engine, const IndexedModel& model, BufferUsage bufferUsage) : 
-			renderEngine(&engine),
-			m_EngineBoundID(model.CreateVertexArray(engine, bufferUsage)), m_IndexCount(model.GetIndexCount()) {}
+			renderEngine(&engine), m_EngineBoundID(model.CreateVertexArray(engine, bufferUsage)), m_IndexCount(model.GetIndexCount()) {}
 
 		FORCEINLINE ~VertexArray()
 		{
 			m_EngineBoundID = renderEngine->ReleaseVertexArray(m_EngineBoundID);
 		}
 
-		FORCEINLINE void updateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize)
+		FORCEINLINE void UpdateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize)
 		{
 			return renderEngine->UpdateVertexArrayBuffer(m_EngineBoundID, bufferIndex, data, dataSize);
 		}
 
-		FORCEINLINE uint32 getId() { return m_EngineBoundID; }
-		inline uint32 getNumIndices() { return m_IndexCount;  }
+		FORCEINLINE uint32 GetID() { return m_EngineBoundID; }
+		inline uint32 GetIndexCount() { return m_IndexCount;  }
 
 	private:
 

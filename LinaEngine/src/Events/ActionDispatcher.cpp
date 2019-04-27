@@ -45,9 +45,9 @@ namespace LinaEngine
 			LinaArray<ActionHandlerBase*>& arr = m_ActionHandlerMap.at(handler->GetActionType());
 			arr.push_back(handler);
 		}
-		catch (const LinaOutOfRange& e)
+		catch (const std::out_of_range& e)
 		{
-			LINA_CORE_ERR("Out of Range Exception while subscribing handler!");
+			LINA_CORE_ERR("Out of Range Exception while subscribing handler! {0}", e.what());
 		}
 
 	}
@@ -59,9 +59,9 @@ namespace LinaEngine
 			LinaArray<ActionHandlerBase*>& arr = m_ActionHandlerMap.at(handler->GetActionType());
 			arr.erase(std::remove(arr.begin(), arr.end(), handler));
 		}
-		catch (const LinaOutOfRange& e)
+		catch (const std::out_of_range& e)
 		{
-			LINA_CORE_ERR("Out of Range Exception while subscribing handler!");
+			LINA_CORE_ERR("Out of Range Exception while subscribing handler! {0}", e.what());
 		}
 
 	}

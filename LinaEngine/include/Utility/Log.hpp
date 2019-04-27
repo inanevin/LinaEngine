@@ -81,7 +81,6 @@ Timestamp: 12/30/2018 1:54:10 AM
 namespace LinaEngine
 {
 
-
 	class LINA_API Log
 	{
 	public:

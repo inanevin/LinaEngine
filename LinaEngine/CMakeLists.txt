@@ -28,7 +28,8 @@ set (LINAENGINE_SOURCES
     src/Core/Transform.cpp
 	
 	# ECS 
-	src/ECS/Systems/ECSMovementControlSystem.cpp
+	src/ECS/Systems/MovementControlSystem.cpp
+	src/ECS/Systems/RenderableMeshSystem.cpp
 	src/ECS/ECSComponent.cpp
 	src/ECS/ECSSystem.cpp
 	src/ECS/EntityComponentSystem.cpp
@@ -57,6 +58,7 @@ set (LINAENGINE_SOURCES
 	src/Rendering/Vertex.cpp
 	src/Rendering/IndexedModel.cpp
 	src/Rendering/ModelLoader.cpp
+	src/Rendering/GameRenderContext.cpp
 	
 	#Utility
 	src/Utility/Math/Matrix.cpp
@@ -94,7 +96,8 @@ set(LINAENGINE_HEADERS
 	include/ECS/Components/MovementControlComponent.hpp
 	include/ECS/Components/RenderableMeshComponent.hpp
 	include/ECS/Components/TransformComponent.hpp
-	include/ECS/Systems/ECSMovementControlSystem.hpp
+	include/ECS/Systems/MovementControlSystem.hpp
+	include/ECS/Systems/RenderableMeshSystem.hpp
 	include/ECS/ECSComponent.hpp
 	include/ECS/ECSSystem.hpp
 	include/ECS/EntityComponentSystem.hpp
@@ -155,7 +158,9 @@ set(LINAENGINE_HEADERS
 	include/Rendering/Shader.hpp
 	include/Rendering/Sampler.hpp
 	include/Rendering/UniformBuffer.hpp
-
+	include/Rendering/RenderContext.hpp
+	include/Rendering/GameRenderContext.hpp
+	
 	#Utility
 	include/Utility/Math/Color.hpp
 	include/Utility/Math/Math.hpp
@@ -272,7 +277,7 @@ set(LINAENGINE_HEADERS
 )
 
 #--------------------------------------------------------------------
-# Define shared library & create an alias
+# Define the library & create an alias
 #--------------------------------------------------------------------
 add_library(${PROJECT_NAME} SHARED ${LINAENGINE_SOURCES} ${LINAENGINE_HEADERS})
 add_library(Lina::Engine ALIAS ${PROJECT_NAME}) 
@@ -297,6 +302,7 @@ set(LINA_GRAPHICS_OPENGL 1)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
 target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_BUILD_DLL=1)
 target_compile_definitions(${PROJECT_NAME} PUBLIC STB_IMAGE_IMPLEMENTATION=1)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_BUILDAS_SHARED=1)
 
 #
 # if(LINA_GRAPHICS_OPENGL)
@@ -396,15 +402,15 @@ if(LINA_GRAPHICS_OPENGL)
 # Link libraries (e.g. logging)
 	target_link_libraries(${PROJECT_NAME} 
 		# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
-		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/glfw3.lib
-		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/glad.lib
+		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
+		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/$<CONFIGURATION>/glad.lib
 	)
 	
 endif()
 
 # Link libraries (e.g. logging)
 target_link_libraries(${PROJECT_NAME} 
-	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/assimp/lib/assimp.lib
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/assimp/lib/$<CONFIGURATION>/assimp.lib
 )
 	
 
@@ -439,9 +445,10 @@ if(MSVC_IDE)
 	endforeach()
 endif()
 
+
 add_custom_command(
 TARGET ${PROJECT_NAME}
-PRE_BUILD
+POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/vendor/assimp/_bin/Assimp32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
 
 

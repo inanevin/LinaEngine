@@ -71,6 +71,7 @@ namespace LinaEngine::ECS
 		{
 			BaseECSComponent* components[] = { &c1, &c2 };
 			uint32 componentIDs[] = { A::ID, B::ID };
+			std::cout << "making entity with the component in address: " << &c1 << std::endl;
 			return MakeEntity(components, componentIDs, 2);
 		}
 

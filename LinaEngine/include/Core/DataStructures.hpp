@@ -30,7 +30,6 @@ Timestamp: 4/17/2019 1:46:20 AM
 #define LinaTuple std::tuple
 #define LinaPair std::pair
 #define LinaMakePair std::make_pair
-#define LinaOutOfRange std::out_of_range
 #define LinaString std::string
 #define LinaHash std::hash
 

@@ -47,12 +47,10 @@ namespace LinaEngine
 		Matrix4F InitRotationFromDirection(const Vector3F& forward, const Vector3F& up);
 		Matrix4F InitPerspectiveProjection(float FOV, float width, float height, float zNear, float zFar);
 		Matrix4F InitOrto(float left, float right, float bot, float top, float nr, float);
-		static FORCEINLINE Matrix4F TransformMatrix(const Vector3F& translation,
-			const Quaternion& rotation, const Vector3F& scale);
+		static Matrix4F TransformMatrix(const Vector3F& translation, const Quaternion& rotation, const Vector3F& scale);
 		Matrix4F Transpose() const;
 
 		Vector4F Transform(const Vector4F& rhs) const;
-		Vector3F Transform(const Vector3F& rhs) const;
 		Vector Transform(const Vector& rhs) const;
 
 		Matrix4F Inverse() const;
@@ -119,7 +117,6 @@ namespace LinaEngine
 		Matrix3F Transpose() const;
 
 		Vector4F Transform(const Vector4F& rhs) const;
-		Vector3F Transform(const Vector3F& rhs) const;
 
 		Matrix3F Inverse() const;
 

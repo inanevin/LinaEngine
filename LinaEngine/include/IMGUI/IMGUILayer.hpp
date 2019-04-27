@@ -29,13 +29,13 @@ Timestamp: 3/7/2019 1:58:49 PM
 
 namespace LinaEngine
 {
-	class LINA_API IMGUILayer : public Layer
+	class IMGUILayer : public Layer
 	{
 
 	public:
 
-		IMGUILayer();
-		~IMGUILayer();
+		LINA_API IMGUILayer();
+		LINA_API ~IMGUILayer();
 
 		void OnAttach() override;
 		void OnDetach() override;

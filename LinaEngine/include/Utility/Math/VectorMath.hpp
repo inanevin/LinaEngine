@@ -48,11 +48,12 @@ namespace LinaEngine
 	};
 
 	template<>
-	inline Vector Math::Lerp(const Vector& val1, const Vector& val2,
-		const float& amt)
+	FORCEINLINE Vector Math::Lerp(const Vector& val1, const Vector& val2, const float& amt)
 	{
 		return (val2 - val1) * Vector::Load1F(amt) + val1;
 	}
+
+
 }
 
 

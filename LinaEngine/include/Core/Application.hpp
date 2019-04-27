@@ -35,21 +35,21 @@ namespace LinaEngine
 {
 	using namespace Graphics;
 	using namespace Input;
+	using namespace ECS;
 
 
-
-	class LINA_API Application
+	class Application
 	{
 	public:
 
-		Application();
-		virtual ~Application();
-		void Run();
-		void OnEvent(Event& e);
-		bool OnWindowClose(WindowCloseEvent& e);
-		void PushLayer(Layer* layer);
-		void PushOverlay(Layer* layer);
+		LINA_API Application();
+		LINA_API virtual ~Application();
+		LINA_API void Run();
+		LINA_API void OnEvent(Event& e);
+		LINA_API void PushLayer(Layer* layer);
+		LINA_API void PushOverlay(Layer* layer);
 
+		bool OnWindowClose(WindowCloseEvent& e);
 		FORCEINLINE static Application& Get() { return *instance; }
 		FORCEINLINE InputEngine<PAMInputEngine>& GetInputDevice() { return *(m_InputEngine.get()); }
 		FORCEINLINE RenderEngine<PAMRenderEngine>& GetRenderEngine() { return *(m_RenderEngine.get()); }
@@ -62,7 +62,6 @@ namespace LinaEngine
 		std::unique_ptr<InputEngine<PAMInputEngine>> m_InputEngine;
 		std::unique_ptr<RenderEngine<PAMRenderEngine>> m_RenderEngine;
 
-	
 	};
 
 	// Defined in client.

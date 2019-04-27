@@ -55,7 +55,7 @@ namespace LinaEngine
 		FORCEINLINE void SetScaleX(float x) { m_Scale.SetX(x); }
 		FORCEINLINE void SetScaleY(float y) { m_Scale.SetY(y); }
 		FORCEINLINE void SetScaleZ(float z) { m_Scale.SetZ(z); }
-		FORCEINLINE Vector3F GetPosition() const { return m_Position; }
+		FORCEINLINE Vector3F GetPosition() const {  return m_Position; }
 		FORCEINLINE Vector3F GetScale() const { return m_Scale; }
 		FORCEINLINE Quaternion GetRotation() const { return m_Rotation; }
 		FORCEINLINE float GetPositionX() const { return m_Position.GetX(); }
