@@ -33,7 +33,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "ECS/Systems/RenderableMeshSystem.hpp"
 #include "PackageManager/PAMInputEngine.hpp"
 #include "Core/Application.hpp"
-
+#include "Rendering/ArrayBitmap.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -65,6 +65,7 @@ namespace LinaEngine::Graphics
 	LinaArray<uint32> modelMaterialIndices;
 	LinaArray<Material> modelMaterials;
 	DDSTexture ddsTexture;
+	ArrayBitmap arrayBitmap;
 	DrawParams drawParams;
 	Matrix perspective;
 
@@ -94,20 +95,25 @@ namespace LinaEngine::Graphics
 		cubeArray = new VertexArray(*m_RenderDevice.get(), models[1], BufferUsage::USAGE_STATIC_DRAW);
 		sampler = new Sampler(*m_RenderDevice.get(), SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR);
 
-		if (!ddsTexture.Load("../res/textures/bricks.dds"))
+		/*if (!ddsTexture.Load("../res/textures/bricks.dds"))
 		{
 			LINA_CORE_ERR("Could not load texture!");
-		}
+		}*/
 
-		texture = new Texture(*m_RenderDevice.get(), ddsTexture);
+		arrayBitmap.Load("../res/textures/brick3.png");
 
-		if (!ddsTexture.Load("../res/textures/bricks2.dds")) 
+		//texture = new Texture(*m_RenderDevice.get(), ddsTexture);
+		texture = new Texture(*m_RenderDevice.get(), arrayBitmap, PixelFormat::FORMAT_RGB, true, false);
+
+		/*if (!ddsTexture.Load("../res/textures/bricks2.dds")) 
 		{
 			LINA_CORE_ERR("Could not load texture! :(");
-		}
+		}*/
 		
-		textureNew = new Texture(*m_RenderDevice.get(), ddsTexture);
+		arrayBitmap.Load("../res/textures/cobblestone.png");
 
+		//textureNew = new Texture(*m_RenderDevice.get(), ddsTexture);
+		textureNew = new Texture(*m_RenderDevice.get(), arrayBitmap, PixelFormat::FORMAT_RGB, true, false);
 		LinaString shaderText;
 		LinaEngine::Internal::loadTextFileWithIncludes(shaderText, "../res/shaders/basicShader.glsl", "#include");
 		 shader = new Shader(*m_RenderDevice.get(), shaderText);
@@ -159,7 +165,7 @@ namespace LinaEngine::Graphics
 	void RenderEngine::Tick()
 	{
 		
-		gameRenderContext->Clear(Color(0.1f, 0.85f, 0.98f, 1.0f), true);
+		gameRenderContext->Clear(Color(0.2f, 0.35f, 0.42f, 1.0f), true);
 
 		ecs.UpdateSystems(mainSystems, 0.01f);
 		ecs.UpdateSystems(renderingPipeline, 0.01f);

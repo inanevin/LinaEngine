@@ -22,7 +22,7 @@ Timestamp: 4/28/2019 3:38:12 AM
 
 namespace LinaEngine::ECS
 {
-	
+	static float deltaIncrement = 0.0f;
 		void verlet(LinaEngine::Vector3F& pos, LinaEngine::Vector3F& velocity, const LinaEngine::Vector3F& acceleration, float delta)
 		{
 			float halfDelta = delta * 0.5f;
@@ -52,9 +52,11 @@ namespace LinaEngine::ECS
 			TransformComponent* transform = (TransformComponent*)components[0];
 			MotionComponent* motion = (MotionComponent*)components[1];
 
+			deltaIncrement += delta / 100.0f;
 			Vector3F newPos = transform->transform.GetTranslation();
-			forestRuth(newPos, motion->velocity, motion->acceleration, delta);
+			modifiedEuler(newPos, motion->velocity, motion->acceleration, delta);
 			transform->transform.SetTranslation(newPos);
+			transform->transform.SetRotation(Quaternion(Vector3F(1.0f, 1.0f, 1.0f).Normalized(), Math::Sin(deltaIncrement) * 5 * delta));
 		}
 
 }
