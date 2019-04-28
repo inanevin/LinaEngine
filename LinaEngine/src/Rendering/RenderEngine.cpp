@@ -95,25 +95,25 @@ namespace LinaEngine::Graphics
 		cubeArray = new VertexArray(*m_RenderDevice.get(), models[1], BufferUsage::USAGE_STATIC_DRAW);
 		sampler = new Sampler(*m_RenderDevice.get(), SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR);
 
-		/*if (!ddsTexture.Load("../res/textures/bricks.dds"))
+		if (!ddsTexture.Load("../res/textures/bricks.dds"))
 		{
 			LINA_CORE_ERR("Could not load texture!");
-		}*/
+		}
 
-		arrayBitmap.Load("../res/textures/brick3.png");
+		//arrayBitmap.Load("../res/textures/brick3.png");
 
-		//texture = new Texture(*m_RenderDevice.get(), ddsTexture);
-		texture = new Texture(*m_RenderDevice.get(), arrayBitmap, PixelFormat::FORMAT_RGB, true, false);
+		texture = new Texture(*m_RenderDevice.get(), ddsTexture);
+		//texture = new Texture(*m_RenderDevice.get(), arrayBitmap, PixelFormat::FORMAT_RGB, true, false);
 
-		/*if (!ddsTexture.Load("../res/textures/bricks2.dds")) 
+		if (!ddsTexture.Load("../res/textures/bricks2.dds")) 
 		{
 			LINA_CORE_ERR("Could not load texture! :(");
-		}*/
+		}
 		
-		arrayBitmap.Load("../res/textures/cobblestone.png");
+		//arrayBitmap.Load("../res/textures/cobblestone.png");
 
-		//textureNew = new Texture(*m_RenderDevice.get(), ddsTexture);
-		textureNew = new Texture(*m_RenderDevice.get(), arrayBitmap, PixelFormat::FORMAT_RGB, true, false);
+		textureNew = new Texture(*m_RenderDevice.get(), ddsTexture);
+	//	textureNew = new Texture(*m_RenderDevice.get(), arrayBitmap, PixelFormat::FORMAT_RGB, true, false);
 		LinaString shaderText;
 		LinaEngine::Internal::loadTextFileWithIncludes(shaderText, "../res/shaders/basicShader.glsl", "#include");
 		 shader = new Shader(*m_RenderDevice.get(), shaderText);
@@ -143,18 +143,18 @@ namespace LinaEngine::Graphics
 
 		entity = ecs.MakeEntity(transformComponent, movementComponent, renderableMesh);
 
-		for (uint32 i = 0; i < 5000; i++)
+		for (uint32 i = 0; i < 1000000; i++)
 		{
 			transformComponent.transform.SetTranslation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f,
 				Math::RandF()*10.0f - 5.0f + 20.0f));
 
 			renderableMesh.vertexArray = &*cubeArray;
 			renderableMesh.texture = Math::RandF() > 0.5f ? &*texture : &*textureNew;
-			float vf = -4.0f;
-			float af = 5.0f;
-			motionComponent.acceleration = Vector3F(Math::RandF(-af, af), Math::RandF(-af, af), Math::RandF(-af, af));
-			motionComponent.velocity = motionComponent.acceleration * vf;
-			ecs.MakeEntity(transformComponent, motionComponent, renderableMesh);
+		//	float vf = -4.0f;
+		//	float af = 5.0f;
+		//	motionComponent.acceleration = Vector3F(Math::RandF(-af, af), Math::RandF(-af, af), Math::RandF(-af, af));
+		//	motionComponent.velocity = motionComponent.acceleration * vf;
+			ecs.MakeEntity(transformComponent,  renderableMesh);
 		}
 
 		renderingPipeline.AddSystem(*renderableMeshSystem);

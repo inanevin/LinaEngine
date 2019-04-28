@@ -35,6 +35,7 @@ namespace LinaEngine::Graphics
 
 		FORCEINLINE void RenderMesh(VertexArray& vertexArray, Texture& texture, const Matrix& transformIn)
 		{
+			// Add the new matrix to the same pairs, each pair will be drawn once.
 			meshRenderBuffer[LinaMakePair(&vertexArray, &texture)].push_back(perspective * transformIn);
 		}
 
@@ -46,6 +47,8 @@ namespace LinaEngine::Graphics
 		Shader& shader;
 		Sampler& sampler;
 		Matrix perspective;
+
+		// Map to see the list of same vertex array & textures to compress them into single draw call.
 		LinaMap<LinaPair<VertexArray*, Texture*>, LinaArray<Matrix> > meshRenderBuffer;
 
 	};

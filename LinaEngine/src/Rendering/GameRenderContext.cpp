@@ -42,8 +42,13 @@ namespace LinaEngine::Graphics
 			if (texture != currentTexture) 
 				shader.SetSampler("diffuse", *texture, sampler, 0);
 			
+			// Update the buffer w/ each transform.
 			vertexArray->UpdateBuffer(4, transforms, numTransforms * sizeof(Matrix));
+
+			// Draw call.
 			this->Draw(shader, *vertexArray, drawParams, numTransforms);
+
+			// Clear the buffer, or do not if you want a trail of shadows lol.
 			it->second.clear();
 		}
 	}

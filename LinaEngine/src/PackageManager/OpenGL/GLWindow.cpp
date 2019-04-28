@@ -38,6 +38,7 @@ namespace LinaEngine
 	GLWindow::GLWindow(const WindowProperties& props) : Window(props)
 	{
 		LINA_CORE_TRACE("[Constructor] -> GLWindow ({0})", typeid(*this).name());
+		SetVsync_Impl(false);
 	}
 
 	GLWindow::~GLWindow()
