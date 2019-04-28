@@ -85,7 +85,7 @@ namespace LinaEngine::Graphics
 		m_Elements.push_back(LinaArray<float>());
 	}
 
-	uint32 IndexedModel::CreateVertexArray(RenderEngine<PAMRenderEngine>& engine, BufferUsage bufferUsage) const
+	uint32 IndexedModel::CreateVertexArray(PAMRenderDevice& engine, BufferUsage bufferUsage) const
 	{
 		// Find the vertex component size using start index of instanced components.
 		uint32 numVertexComponents = m_ElementSizes.size();

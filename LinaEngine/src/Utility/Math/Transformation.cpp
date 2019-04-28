@@ -22,7 +22,7 @@ Timestamp: 4/9/2019 12:06:04 PM
 
 namespace LinaEngine
 {
-	Matrix4F Transformation::Inverse() const
+	/*Matrix4F Transformation::Inverse() const
 	{
 		// NOTE: If scales are entirely uniform, then this can always be represented
 		// by another transform, calculated like this. However, in the case of
@@ -36,8 +36,8 @@ namespace LinaEngine
 
 		// TODO: Use the special fast matrix inverse for transform matrices. There's an article
 		// about it in my bookmarks
-		Matrix4F Inverse(ToMatrix().Inverse());
-		return Inverse;
-	}
+		//Matrix4F Inverse(ToMatrix().Inverse());
+		return Matrix4F();
+	}*/
 }
 

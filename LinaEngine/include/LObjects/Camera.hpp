@@ -73,9 +73,9 @@ namespace LinaEngine
 
 		Camera(PerspectiveInformation p = PerspectiveInformation());
 		
-		Matrix4F GetViewProjection();
-		inline Matrix4F GetPerspectiveProjection() { return m_PerspectiveProjection; };
-		void SetPerspectiveInformation(PerspectiveInformation p);
+		//Matrix4F GetViewProjection();
+		//inline Matrix4F GetPerspectiveProjection() { return m_PerspectiveProjection; };
+		//void SetPerspectiveInformation(PerspectiveInformation p);
 
 		//void OnInput(InputEngine& i);
 		inline PerspectiveInformation GetPerspectiveInformation() { return m_PersInfo; }
@@ -85,8 +85,8 @@ namespace LinaEngine
 	private:
 
 		
-		Matrix4F m_PerspectiveProjection;
-		Matrix4F m_ViewProjection;
+		//Matrix4F m_PerspectiveProjection;
+		//Matrix4F m_ViewProjection;
 		PerspectiveInformation m_PersInfo;
 		Vector2F m_windowCenter;
 		bool     m_mouseLocked;

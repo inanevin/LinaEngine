@@ -24,7 +24,7 @@ Timestamp: 4/27/2019 5:38:44 PM
 
 #include "ECS/EntityComponentSystem.hpp"
 #include "ECS/ECSSystem.hpp"
-#include "PackageManager/PAMRenderEngine.hpp"
+#include "Rendering/GameRenderContext.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/RenderableMeshComponent.hpp"
 
@@ -37,17 +37,18 @@ namespace LinaEngine::ECS
 
 	public:
 
-		RenderableMeshSystem(RenderEngine<PAMRenderEngine>& renderEngineIn) : BaseECSSystem(), renderEngine(renderEngineIn)
+
+		RenderableMeshSystem(GameRenderContext& contextIn) : BaseECSSystem(), context(contextIn)
 		{
 			AddComponentType(TransformComponent::ID);
-			//AddComponentType(MovementControlComponent::ID);
+			AddComponentType(RenderableMeshComponent::ID);
 		}
 
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
 
 	private:
 
-		RenderEngine<PAMRenderEngine>& renderEngine;
+		GameRenderContext& context;
 	};
 }
 

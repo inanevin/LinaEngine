@@ -44,7 +44,7 @@ namespace LinaEngine
 
 		bool IntersectRay(const Vector3F& start, const Vector3F& rayDir, float& point1, float& point2) const;
 		bool IntersectLine(const Vector3F& start, const Vector3F& end) const;
-		AABB Transform(const Matrix4F& transform) const;
+		AABB Transform(const Matrix& transform) const;
 
 
 		FORCEINLINE bool intersects(const AABB& other) const

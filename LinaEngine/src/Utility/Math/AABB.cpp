@@ -57,7 +57,7 @@ namespace LinaEngine
 		}
 	}
 
-	AABB AABB::Transform(const Matrix4F& transform) const
+	AABB AABB::Transform(const Matrix& transform) const
 	{
 		Vector p000 = extents[0].ToVector(1.0f);
 		Vector p111 = extents[1].ToVector(1.0f);

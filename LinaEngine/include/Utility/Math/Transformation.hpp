@@ -23,7 +23,7 @@ Timestamp: 4/9/2019 12:06:04 PM
 #define Transformation_HPP
 
 #include "Quaternion.hpp"
-
+#include "Matrix.hpp"
 namespace LinaEngine
 {
 	class Transformation
@@ -54,8 +54,8 @@ namespace LinaEngine
 		FORCEINLINE Vector Transform(const Vector3F& vector, float w) const;
 		FORCEINLINE Vector InverseTransform(const Vector& vector) const;
 		FORCEINLINE Vector InverseTransform(const Vector3F& vector, float w) const;
-		FORCEINLINE Matrix4F ToMatrix() const;
-		Matrix4F Inverse() const;
+		FORCEINLINE Matrix ToMatrix() const;
+		//Matrix4F Inverse() const;
 		FORCEINLINE void NormalizeRotation();
 		FORCEINLINE bool IsRotationNormalized();
 
@@ -69,8 +69,7 @@ namespace LinaEngine
 		FORCEINLINE Vector3F GetTranslation() const;
 		FORCEINLINE Quaternion GetRotation() const;
 		FORCEINLINE Vector3F GetScale() const;
-		FORCEINLINE void Set(const Vector3F& translation,
-			const Quaternion& rotation, const Vector3F& scale);
+		FORCEINLINE void Set(const Vector3F& translation, const Quaternion& rotation, const Vector3F& scale);
 		FORCEINLINE void SetTranslation(const Vector3F& translation);
 		FORCEINLINE void SetRotation(const Quaternion& rotation);
 		FORCEINLINE void SetScale(const Vector3F& scale);
@@ -81,9 +80,9 @@ namespace LinaEngine
 		Vector3F m_Scale;
 	};
 
-	FORCEINLINE Matrix4F Transformation::ToMatrix() const
+	FORCEINLINE Matrix Transformation::ToMatrix() const
 	{
-		return Matrix4F::TransformMatrix(m_Translation, m_Rotation, m_Scale);
+		return Matrix::TransformMatrix(m_Translation, m_Rotation, m_Scale);
 	}
 
 	FORCEINLINE void Transformation::NormalizeRotation()

@@ -73,17 +73,17 @@ namespace LinaEngine
 		void Rotate(const Quaternion& rotation);
 		void LookAt(const Vector3F& point, const Vector3F& up);
 
-		FORCEINLINE Quaternion GetLookAtRotation(const Vector3F& point, const Vector3F& up)
+		/*FORCEINLINE Quaternion GetLookAtRotation(const Vector3F& point, const Vector3F& up)
 		{
 			return Quaternion(Matrix4F().InitRotationFromDirection((point - m_Position).Normalized(), up));
-		}
+		}*/
 
-		const Matrix4F& GetWorldTransformation();
+		//const Matrix4F& GetWorldTransformation();
 	private:
 		Vector3F m_Position;
 		Quaternion m_Rotation;
 		Vector3F m_Scale;
-		Matrix4F m_WorldTransformation;
+		//Matrix4F m_WorldTransformation;
 	};
 }
 

@@ -31,7 +31,7 @@ Timestamp: 4/15/2019 12:37:37 PM
 namespace LinaEngine::Graphics
 {
 
-
+	/*
 
 	// Vertex array struct for storage & vertex array data transportation.
 	struct VertexArrayData
@@ -177,8 +177,8 @@ namespace LinaEngine::Graphics
 		bool m_IsStencilTestEnabled;
 		bool m_IsScissorsTestEnabled;
 		bool m_ShouldWriteDepth;
-
-	};
+		
+	};*/
 }
 
 

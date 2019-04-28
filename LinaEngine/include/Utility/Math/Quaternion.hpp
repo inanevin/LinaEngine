@@ -25,7 +25,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Quaternion_HPP
 
 #include "Vector.hpp"
-#include "Matrix.hpp"
+
 
 namespace LinaEngine
 {
@@ -40,7 +40,7 @@ namespace LinaEngine
 		FORCEINLINE Quaternion(const Vector& quat);
 		FORCEINLINE Quaternion(float x, float y, float z, float w);
 		FORCEINLINE Quaternion(const Vector3F& axis, float angle);
-		FORCEINLINE Quaternion(const class Matrix4F& m);
+		//FORCEINLINE Quaternion(const Matrix& m);
 		FORCEINLINE Quaternion operator+(const Quaternion& other) const;
 		FORCEINLINE Quaternion operator+=(const Quaternion& other);
 		FORCEINLINE Quaternion operator-(const Quaternion& other) const;
@@ -95,7 +95,7 @@ namespace LinaEngine
 	FORCEINLINE Quaternion::Quaternion(const Vector& quat) :
 		vec(quat) {}
 
-	FORCEINLINE Quaternion::Quaternion(const Matrix4F& m)
+	/*FORCEINLINE Quaternion::Quaternion(const Matrix& m)
 	{
 		float trace = m[0][0] + m[1][1] + m[2][2];
 
@@ -140,7 +140,7 @@ namespace LinaEngine
 		z /= length;
 		vec = Vector::Make(x, y, z, w);
 
-	}
+	}*/
 
 	FORCEINLINE Quaternion::Quaternion(float x, float y, float z, float w) :
 		vec(Vector::Make(x, y, z, w)) {}

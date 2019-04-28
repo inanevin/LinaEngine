@@ -24,11 +24,10 @@ Timestamp: 1/7/2019 1:55:47 PM
 
 #include "DDSTexture.hpp"
 #include "RenderEngine.hpp"
+#include "PackageManager/PAMRenderDevice.hpp"
+
 namespace LinaEngine::Graphics
 {
-	template<class Derived>
-	class RenderEngine;
-
 
 	class Texture
 	{
@@ -37,8 +36,8 @@ namespace LinaEngine::Graphics
 
 		DISALLOW_COPY_AND_ASSIGN(Texture);
 
-		Texture(RenderEngine<class PAMRenderEngine>& engine, const class ArrayBitmap& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress);
-		Texture(RenderEngine<class PAMRenderEngine>& engine, const DDSTexture& ddsTexture);
+		Texture(PAMRenderDevice& engine, const class ArrayBitmap& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress);
+		Texture(PAMRenderDevice& engine, const DDSTexture& ddsTexture);
 
 		~Texture();
 
@@ -50,7 +49,7 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		RenderEngine<class PAMRenderEngine>* renderEngine;
+		PAMRenderDevice* renderDevice;
 		uint32 m_ID;
 		uint32 m_Width;
 		uint32 m_Height;

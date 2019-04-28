@@ -30,7 +30,7 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-		FORCEINLINE VertexArray(RenderEngine<PAMRenderEngine>& engine, const IndexedModel& model, BufferUsage bufferUsage) : 
+		FORCEINLINE VertexArray(PAMRenderDevice& engine, const IndexedModel& model, BufferUsage bufferUsage) :
 			renderEngine(&engine), m_EngineBoundID(model.CreateVertexArray(engine, bufferUsage)), m_IndexCount(model.GetIndexCount()) {}
 
 		FORCEINLINE ~VertexArray()
@@ -48,7 +48,7 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		RenderEngine<PAMRenderEngine>* renderEngine;
+		PAMRenderDevice* renderEngine;
 		uint32 m_EngineBoundID;
 		uint32 m_IndexCount;
 

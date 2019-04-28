@@ -12,24 +12,25 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: ECSTransformComponent
-Timestamp: 4/9/2019 1:28:05 PM
+Class: MotionComponent
+Timestamp: 4/28/2019 3:37:53 AM
 
 */
 
 #pragma once
 
-#ifndef ECSTransformComponent_HPP
-#define ECSTransformComponent_HPP
+#ifndef MotionComponent_HPP
+#define MotionComponent_HPP
 
-#include "Utility/Math/Transformation.hpp"
-#include "ECS/EntityComponentSystem.hpp"
+
 
 namespace LinaEngine::ECS
 {
-	struct TransformComponent : public ECSComponent<TransformComponent>
+	class MotionComponent : public ECSComponent<MotionComponent>
 	{
-		Transformation transform;
+	public:
+		Vector3F velocity = Vector3F(0.0f, 0.0f, 0.0f);
+		Vector3F acceleration = Vector3F(0.0f, 0.0f, 0.0f);
 	};
 }
 

@@ -29,10 +29,11 @@ namespace LinaEngine::Graphics
 	class GameRenderContext : public RenderContext
 	{
 	public:
-		GameRenderContext(RenderEngine<PAMRenderEngine>& deviceIn, RenderTarget& targetIn, DrawParams& drawParamsIn, Shader& shaderIn, Sampler& samplerIn, const Matrix4F& perspectiveIn)
+		GameRenderContext(PAMRenderDevice& deviceIn, RenderTarget& targetIn, DrawParams& drawParamsIn, Shader& shaderIn, Sampler& samplerIn, const Matrix& perspectiveIn)
 			: RenderContext(deviceIn, targetIn), drawParams(drawParamsIn), shader(shaderIn), sampler(samplerIn), perspective(perspectiveIn) {};
 
-		FORCEINLINE void RenderMesh(VertexArray& vertexArray, Texture& texture, const Matrix4F& transformIn)
+
+		FORCEINLINE void RenderMesh(VertexArray& vertexArray, Texture& texture, const Matrix& transformIn)
 		{
 			meshRenderBuffer[LinaMakePair(&vertexArray, &texture)].push_back(perspective * transformIn);
 		}
@@ -44,8 +45,8 @@ namespace LinaEngine::Graphics
 		DrawParams& drawParams;
 		Shader& shader;
 		Sampler& sampler;
-		Matrix4F perspective;
-		LinaMap<LinaPair<VertexArray*, Texture*>, LinaArray<Matrix4F> > meshRenderBuffer;
+		Matrix perspective;
+		LinaMap<LinaPair<VertexArray*, Texture*>, LinaArray<Matrix> > meshRenderBuffer;
 
 	};
 }

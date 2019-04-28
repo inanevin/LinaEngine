@@ -24,7 +24,7 @@ Timestamp: 1/5/2019 7:52:35 PM
 
 namespace LinaEngine
 {
-	const Matrix4F & Transform::GetWorldTransformation()
+/*	const Matrix4F & Transform::GetWorldTransformation()
 	{
 		Matrix4F translationM, rotationM, scaleM;
 
@@ -38,7 +38,7 @@ namespace LinaEngine
 
 		return m_WorldTransformation;
 	}
-
+	*/
 
 
 	void Transform::Rotate(const Vector3F& axis, float angle)
@@ -53,7 +53,7 @@ namespace LinaEngine
 
 	void Transform::LookAt(const Vector3F& point, const Vector3F& up)
 	{
-		m_Rotation = GetLookAtRotation(point, up);
+		//m_Rotation = GetLookAtRotation(point, up);
 	}
 
 }

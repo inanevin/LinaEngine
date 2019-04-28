@@ -29,11 +29,11 @@ namespace LinaEngine::Graphics
 	{
 		Texture* currentTexture = nullptr;
 
-		for (LinaMap<LinaPair<VertexArray*, Texture*>, LinaArray<Matrix4F> >::iterator it = meshRenderBuffer.begin(); it != meshRenderBuffer.end(); ++it)
+		for (LinaMap<LinaPair<VertexArray*, Texture*>, LinaArray<Matrix> >::iterator it = meshRenderBuffer.begin(); it != meshRenderBuffer.end(); ++it)
 		{
 			VertexArray* vertexArray = it->first.first;
 			Texture* texture = it->first.second;
-			Matrix4F* transforms = &it->second[0];
+			Matrix* transforms = &it->second[0];
 			size_t numTransforms = it->second.size();
 
 			if (numTransforms == 0) continue;
@@ -42,7 +42,7 @@ namespace LinaEngine::Graphics
 			if (texture != currentTexture) 
 				shader.SetSampler("diffuse", *texture, sampler, 0);
 			
-			vertexArray->UpdateBuffer(4, transforms, numTransforms * sizeof(Matrix4F));
+			vertexArray->UpdateBuffer(4, transforms, numTransforms * sizeof(Matrix));
 			this->Draw(shader, *vertexArray, drawParams, numTransforms);
 			it->second.clear();
 		}

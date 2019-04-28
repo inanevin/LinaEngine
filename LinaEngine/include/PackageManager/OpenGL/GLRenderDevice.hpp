@@ -1,0 +1,304 @@
+/*
+Author: Inan Evin
+www.inanevin.com
+
+Copyright 2018 Inan Evin
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
+and limitations under the License.
+
+Class: GLRenderDevice
+Timestamp: 4/27/2019 10:12:16 PM
+
+*/
+
+#pragma once
+
+#ifndef GLRenderDevice_HPP
+#define GLRenderDevice_HPP
+
+#include "PackageManager/OpenGL/GLWindow.hpp"
+#include "Core/DataStructures.hpp"
+
+namespace LinaEngine::Graphics
+{
+	enum BufferUsage
+	{
+		USAGE_STATIC_DRAW = LINA_GRAPHICS_USAGE_STATIC_DRAW,
+		USAGE_STREAM_DRAW = LINA_GRAPHICS_USAGE_STREAM_DRAW,
+		USAGE_DYNAMIC_DRAW = LINA_GRAPHICS_USAGE_DYNAMIC_DRAW,
+		USAGE_STATIC_COPY = LINA_GRAPHICS_USAGE_STATIC_COPY,
+		USAGE_STREAM_COPY = LINA_GRAPHICS_USAGE_STREAM_COPY,
+		USAGE_DYNAMIC_COPY = LINA_GRAPHICS_USAGE_DYNAMIC_COPY,
+		USAGE_STATIC_READ = LINA_GRAPHICS_USAGE_STATIC_READ,
+		USAGE_STREAM_READ = LINA_GRAPHICS_USAGE_STREAM_READ,
+		USAGE_DYNAMIC_READ = LINA_GRAPHICS_USAGE_DYNAMIC_READ,
+	};
+
+	enum SamplerFilter
+	{
+		FILTER_NEAREST = LINA_GRAPHICS_SAMPLER_FILTER_NEAREST,
+		FILTER_LINEAR = LINA_GRAPHICS_SAMPLER_FILTER_LINEAR,
+		FILTER_NEAREST_MIPMAP_NEAREST = LINA_GRAPHICS_SAMPLER_FILTER_NEAREST_MIPMAP_NEAREST,
+		FILTER_LINEAR_MIPMAP_NEAREST = LINA_GRAPHICS_SAMPLER_FILTER_LINEAR_MIPMAP_NEAREST,
+		FILTER_NEAREST_MIPMAP_LINEAR = LINA_GRAPHICS_SAMPLER_FILTER_NEAREST_MIPMAP_LINEAR,
+		FILTER_LINEAR_MIPMAP_LINEAR = LINA_GRAPHICS_SAMPLER_FILTER_LINEAR_MIPMAP_LINEAR,
+	};
+
+	enum SamplerWrapMode
+	{
+		WRAP_CLAMP = LINA_GRAPHICS_SAMPLER_WRAP_CLAMP,
+		WRAP_REPEAT = LINA_GRAPHICS_SAMPLER_WRAP_REPEAT,
+		WRAP_CLAMP_MIRROR = LINA_GRAPHICS_SAMPLER_WRAP_CLAMP_MIRROR,
+		WRAP_REPEAT_MIRROR = LINA_GRAPHICS_SAMPLER_WRAP_REPEAT_MIRROR,
+	};
+
+	enum PixelFormat
+	{
+		FORMAT_R,
+		FORMAT_RG,
+		FORMAT_RGB,
+		FORMAT_RGBA,
+		FORMAT_DEPTH,
+		FORMAT_DEPTH_AND_STENCIL,
+	};
+
+
+
+	enum PrimitiveType
+	{
+		PRIMITIVE_TRIANGLES = LINA_GRAPHICS_PRIMITIVE_TRIANGLES,
+		PRIMITIVE_POINTS = LINA_GRAPHICS_PRIMITIVE_POINTS,
+		PRIMITIVE_LINE_STRIP = LINA_GRAPHICS_PRIMITIVE_LINE_STRIP,
+		PRIMITIVE_LINE_LOOP = LINA_GRAPHICS_PRIMITIVE_LINE_LOOP,
+		PRIMITIVE_LINES = LINA_GRAPHICS_PRIMITIVE_LINES,
+		PRIMITIVE_LINE_STRIP_ADJACENCY = LINA_GRAPHICS_PRIMITIVE_LINE_STRIP_ADJACENCY,
+		PRIMITIVE_LINES_ADJACENCY = LINA_GRAPHICS_PRIMITIVE_LINES_ADJACENCY,
+		PRIMITIVE_TRIANGLE_STRIP = LINA_GRAPHICS_PRIMITIVE_TRIANGLE_STRIP,
+		PRIMITIVE_TRIANGLE_FAN = LINA_GRAPHICS_PRIMITIVE_TRIANGLE_FAN,
+		PRIMITIVE_TRAINGLE_STRIP_ADJACENCY = LINA_GRAPHICS_PRIMITIVE_TRIANGLE_STRIP_ADJACENCY,
+		PRIMITIVE_TRIANGLES_ADJACENCY = LINA_GRAPHICS_PRIMITIVE_TRIANGLES_ADJACENCY,
+		PRIMITIVE_PATCHES = LINA_GRAPHICS_PRIMITIVE_PATCHES,
+	};
+
+	enum FaceCulling
+	{
+		FACE_CULL_NONE,
+		FACE_CULL_BACK = LINA_GRAPHICS_FACE_CULL_BACK,
+		FACE_CULL_FRONT = LINA_GRAPHICS_FACE_CULL_FRONT,
+		FACE_CULL_FRONT_AND_BACK = LINA_GRAPHICS_FACE_CULL_FRONT_AND_BACK,
+	};
+
+	enum DrawFunc
+	{
+		DRAW_FUNC_NEVER = LINA_GRAPHICS_DRAW_FUNC_NEVER,
+		DRAW_FUNC_ALWAYS = LINA_GRAPHICS_DRAW_FUNC_ALWAYS,
+		DRAW_FUNC_LESS = LINA_GRAPHICS_DRAW_FUNC_LESS,
+		DRAW_FUNC_GREATER = LINA_GRAPHICS_DRAW_FUNC_GREATER,
+		DRAW_FUNC_LEQUAL = LINA_GRAPHICS_DRAW_FUNC_LEQUAL,
+		DRAW_FUNC_GEQUAL = LINA_GRAPHICS_DRAW_FUNC_GEQUAL,
+		DRAW_FUNC_EQUAL = LINA_GRAPHICS_DRAW_FUNC_EQUAL,
+		DRAW_FUNC_NOT_EQUAL = LINA_GRAPHICS_DRAW_FUNC_NOT_EQUAL,
+	};
+
+	enum FramebufferAttachment
+	{
+		ATTACHMENT_COLOR = LINA_GRAPHICS_ATTACHMENT_COLOR,
+		ATTACHMENT_DEPTH = LINA_GRAPHICS_ATTACHMENT_DEPTH,
+		ATTACHMENT_STENCIL = LINA_GRAPHICS_ATTACHMENT_STENCIL,
+	};
+
+	enum BlendFunc
+	{
+		BLEND_FUNC_NONE,
+		BLEND_FUNC_ONE = LINA_GRAPHICS_BLEND_FUNC_ONE,
+		BLEND_FUNC_SRC_ALPHA = LINA_GRAPHICS_BLEND_FUNC_SRC_ALPHA,
+		BLEND_FUNC_ONE_MINUS_SRC_ALPHA = LINA_GRAPHICS_BLEND_FUNC_ONE_MINUS_SRC_ALPHA,
+		BLEND_FUNC_ONE_MINUS_DST_ALPHA = LINA_GRAPHICS_BLEND_FUNC_ONE_MINUS_DST_ALPHA,
+		BLEND_FUNC_DST_ALPHA = LINA_GRAPHICS_BLEND_FUNC_DST_ALPHA,
+	};
+
+	enum StencilOp
+	{
+		STENCIL_KEEP = LINA_GRAPHICS_STENCIL_KEEP,
+		STENCIL_ZERO = LINA_GRAPHICS_STENCIL_ZERO,
+		STENCIL_REPLACE = LINA_GRAPHICS_STENCIL_REPLACE,
+		STENICL_INCR = LINA_GRAPHICS_STENCIL_INCR,
+		STENCIL_INCR_WRAP = LINA_GRAPHICS_STENCIL_INCR_WRAP,
+		STENCIL_DECR_WRAP = LINA_GRAPHICS_STENCIL_DECR_WRAP,
+		STENCIL_DECR = LINA_GRAPHICS_STENCIL_DECR,
+		STENCIL_INVERT = LINA_GRAPHICS_STENCIL_INVERT,
+	};
+
+	struct DrawParams
+	{
+		PrimitiveType primitiveType = PRIMITIVE_TRIANGLES;
+		FaceCulling faceCulling = FACE_CULL_NONE;
+		DrawFunc depthFunc = DRAW_FUNC_ALWAYS;
+		DrawFunc stencilFunc = DRAW_FUNC_ALWAYS;
+		StencilOp stencilFail = STENCIL_KEEP;
+		StencilOp stencilPassButDepthFail = STENCIL_KEEP;
+		StencilOp stencilPass = STENCIL_KEEP;
+		BlendFunc sourceBlend = BLEND_FUNC_NONE;
+		BlendFunc destBlend = BLEND_FUNC_NONE;
+		bool shouldWriteDepth = true;
+		bool useStencilTest = false;
+		bool useScissorTest = false;
+		uint32 scissorStartX = 0;
+		uint32 scissorStartY = 0;
+		uint32 scissorWidth = 0;
+		uint32 scissorHeight = 0;
+		uint32 stencilTestMask = 0;
+		uint32 stencilWriteMask = 0;
+		int32 stencilComparisonVal = 0;
+	};
+
+	// Vertex array struct for storage & vertex array data transportation.
+	struct VertexArrayData
+	{
+		uint32* buffers;
+		uintptr* bufferSizes;
+		uint32  numBuffers;
+		uint32  numElements;
+		uint32  instanceComponentsStartIndex;
+		BufferUsage bufferUsage;
+	};
+
+	// Shader program struct for storage.
+	struct ShaderProgram
+	{
+		LinaArray<uint32> shaders;
+		LinaMap<LinaString, int32> uniformMap;
+		LinaMap<LinaString, int32> samplerMap;
+	};
+
+	// Frame buffer object struct for storage.
+	struct FBOData
+	{
+		int32 width;
+		int32 height;
+	};
+
+
+	class GLRenderDevice
+	{
+	public:
+
+		GLRenderDevice();
+		~GLRenderDevice();
+
+		FORCEINLINE bool CreateContextWindow()
+		{
+			return m_MainWindow->Initialize();
+		}
+		FORCEINLINE void* GetNativeWindow()
+		{
+			return m_MainWindow->GetNativeWindow();
+		}
+
+		FORCEINLINE void SetMainWindowEventCallback(const std::function<void(Event&)>& callback)
+		{
+			m_MainWindow->SetEventCallback(callback);
+		}
+
+		FORCEINLINE void TickWindow() { m_MainWindow->Tick(); }
+		void Initialize();
+
+		uint32 CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress);
+		uint32 CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount);
+		uint32 ReleaseTexture2D(uint32 texture2D);
+		uint32 CreateVertexArray(const float** vertexData, const uint32* vertexElementSizes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage);
+		uint32 ReleaseVertexArray(uint32 vao);
+		uint32 CreateSampler(SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapU, SamplerWrapMode wrapV, float anisotropy);
+		uint32 ReleaseSampler(uint32 sampler);
+		uint32 CreateUniformBuffer(const void* data, uintptr dataSize, BufferUsage usage);
+		uint32 ReleaseUniformBuffer(uint32 buffer);
+		uint32 CreateShaderProgram(const LinaString& shaderText);
+		uint32 ReleaseShaderProgram(uint32 shader);
+		uint32 CreateRenderTarget(uint32 texture, int32 width, int32 height, FramebufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel);
+		uint32 ReleaseRenderTarget(uint32 target);
+		void UpdateVertexArray(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);
+		void SetShader(uint32 shader);
+		void SetShaderSampler(uint32 shader, const LinaString& samplerName, uint32 texture, uint32 sampler, uint32 unit);
+		void SetShaderUniformBuffer(uint32 shader, const LinaString& uniformBufferName, uint32 buffer);
+		void UpdateVertexArrayBuffer(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);
+		void UpdateUniformBuffer(uint32 buffer, const void* data, uintptr dataSize);
+		void Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements);
+		void Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const class Color& color, uint32 stencil);
+
+
+	private:
+
+		LinaString GetShaderVersion();
+		uint32 GetVersion();
+		void SetVAO(uint32 vao);
+		void SetFBO(uint32 fbo);
+		void SetViewport(uint32 fbo);
+		void SetFaceCulling(FaceCulling faceCulling);
+		void SetDepthTest(bool shouldWrite, DrawFunc depthFunc);
+		void SetBlending(BlendFunc sourceBlend, BlendFunc destBlend);
+		void SetStencilTest(bool enable, DrawFunc stencilFunc, uint32 stencilTestMask, uint32 stencilWriteMask, int32 stencilComparisonVal, StencilOp stencilFail, StencilOp stencilPassButDepthFail, StencilOp stencilPass);
+		void SetStencilWriteMask(uint32 mask);
+		void SetScissorTest(bool enable, uint32 startX = 0, uint32 startY = 0, uint32 width = 0, uint32 height = 0);
+
+	private:
+
+		// Main window reference.
+		std::unique_ptr<GLWindow> m_MainWindow;
+
+		// Currently active shader.
+		uint32 m_BoundShader = 0;
+
+		// Currently active vertex array object.
+		uint32 m_BoundVAO;
+
+		// Currently active frame buffer object.
+		uint32 m_BoundFBO;
+
+		// FBO rep. on viewport.
+		uint32 m_ViewportFBO;
+
+		// Map for bound vertex array objects.
+		LinaMap<uint32, VertexArrayData> m_VAOMap;
+
+		// Frame buffer object map w/ ids.
+		LinaMap<uint32, FBOData> m_FBOMap;
+
+		// Shader program map w/ ids.
+		LinaMap<uint32, ShaderProgram> m_ShaderProgramMap;
+
+		// Storage for shader version.
+		LinaString m_ShaderVersion;
+
+		// Storage for gl version data.
+		uint32 m_GLVersion;
+
+		// Current drawing parameters.
+		FaceCulling m_UsedFaceCulling;
+		DrawFunc m_UsedDepthFunction;
+		BlendFunc m_UsedSourceBlending;
+		BlendFunc m_UsedDestinationBlending;
+		DrawFunc m_UsedStencilFunction;
+		StencilOp m_usedStencilFail;
+		StencilOp m_UsedStencilPassButDepthFail;
+		StencilOp m_UsedStencilPass;
+
+		// Current operation parameters.
+		uint32 m_UsedStencilTestMask;
+		uint32 m_UsedStencilWriteMask;
+		int32 m_UsedStencilComparisonValue;
+		bool m_IsBlendingEnabled;
+		bool m_IsStencilTestEnabled;
+		bool m_IsScissorsTestEnabled;
+		bool m_ShouldWriteDepth;
+
+	};
+}
+
+
+#endif

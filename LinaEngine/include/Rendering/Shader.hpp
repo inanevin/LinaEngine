@@ -33,8 +33,7 @@ namespace LinaEngine::Graphics
 	public:
 
 		// Param constructor creates shader program using render engine.
-		FORCEINLINE Shader(RenderEngine<PAMRenderEngine>& renderEngineIn, const LinaString& text) : renderEngine(&renderEngineIn), m_EngineBoundID(renderEngine->CreateShaderProgram(text)) {}
-
+		FORCEINLINE Shader(PAMRenderDevice& renderEngineIn, const LinaString& text) : renderEngine(&renderEngineIn), m_EngineBoundID(renderEngine->CreateShaderProgram(text)) {};
 		// Destructor releases shader program.
 		FORCEINLINE ~Shader() { m_EngineBoundID = renderEngine->ReleaseShaderProgram(m_EngineBoundID); }
 
@@ -54,11 +53,11 @@ namespace LinaEngine::Graphics
 		FORCEINLINE uint32 GetID() { return m_EngineBoundID; }
 
 	private:
-		RenderEngine<PAMRenderEngine>* renderEngine;
+		PAMRenderDevice* renderEngine;
 		uint32 m_EngineBoundID;
 
 	
-		NULL_COPY_AND_ASSIGN(Shader);
+		//NULL_COPY_AND_ASSIGN(Shader);
 	
 	};
 }

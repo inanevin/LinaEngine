@@ -38,7 +38,7 @@ namespace LinaEngine
 
 		// Set unique pointers of input renderEngine & render engine.
 		m_InputEngine = std::make_unique<PAMInputEngine>();
-		m_RenderEngine = std::make_unique<PAMRenderEngine>();
+		m_RenderEngine = std::make_unique<RenderEngine>();
 
 		// Create main window.
 		bool windowCreationSuccess = m_RenderEngine->CreateContextWindow();

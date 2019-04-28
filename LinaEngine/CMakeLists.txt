@@ -30,6 +30,7 @@ set (LINAENGINE_SOURCES
 	# ECS 
 	src/ECS/Systems/MovementControlSystem.cpp
 	src/ECS/Systems/RenderableMeshSystem.cpp
+	src/ECS/Systems/MotionSystem.cpp
 	src/ECS/ECSComponent.cpp
 	src/ECS/ECSSystem.cpp
 	src/ECS/EntityComponentSystem.cpp
@@ -48,7 +49,7 @@ set (LINAENGINE_SOURCES
 	src/PackageManager/Generic/cmwc4096.cpp
 	src/PackageManager/Generic/GenericMemory.cpp
 	src/PackageManager/OpenGL/GLInputEngine.cpp
-	src/PackageManager/OpenGL/GLRenderEngine.cpp
+	src/PackageManager/OpenGL/GLRenderDevice.cpp
 	src/PackageManager/OpenGL/GLWindow.cpp
 	
 	#Rendering
@@ -59,6 +60,7 @@ set (LINAENGINE_SOURCES
 	src/Rendering/IndexedModel.cpp
 	src/Rendering/ModelLoader.cpp
 	src/Rendering/GameRenderContext.cpp
+	src/Rendering/RenderEngine.cpp
 	
 	#Utility
 	src/Utility/Math/Matrix.cpp
@@ -67,9 +69,10 @@ set (LINAENGINE_SOURCES
 	src/Utility/Math/Vector.cpp
 	src/Utility/Math/VectorMath.cpp
 	src/Utility/Math/AABB.cpp
+	src/Utility/Math/Plane.cpp
 	src/Utility/Log.cpp
 	src/Utility/ResourceConstants.cpp
-	
+
 
 )
 
@@ -96,8 +99,10 @@ set(LINAENGINE_HEADERS
 	include/ECS/Components/MovementControlComponent.hpp
 	include/ECS/Components/RenderableMeshComponent.hpp
 	include/ECS/Components/TransformComponent.hpp
+	include/ECS/Components/MotionComponent.hpp
 	include/ECS/Systems/MovementControlSystem.hpp
 	include/ECS/Systems/RenderableMeshSystem.hpp
+	include/ECS/Systems/MotionSystem.hpp
 	include/ECS/ECSComponent.hpp
 	include/ECS/ECSSystem.hpp
 	include/ECS/EntityComponentSystem.hpp
@@ -131,17 +136,17 @@ set(LINAENGINE_HEADERS
 	include/PackageManager/Generic/GenericMemory.hpp
 	include/PackageManager/Generic/GenericVectorMath.hpp
 	include/PackageManager/OpenGL/GLInputEngine.hpp
-	include/PackageManager/OpenGL/GLRenderengine.hpp
+	include/PackageManager/OpenGL/GLRenderDevice.hpp
 	include/PackageManager/OpenGL/GLWindow.hpp
 	include/PackageManager/OpenGL/GLIMGUI.hpp
 	include/PackageManager/SSE/SSEVectorMath.hpp
 	include/PackageManager/PAMInputEngine.hpp
 	include/PackageManager/PAMMath.hpp
 	include/PackageManager/PAMMemory.hpp
-	include/PackageManager/PAMRenderEngine.hpp
 	include/PackageManager/PAMSIMD.hpp
 	include/PackageManager/PAMVectorMath.hpp
 	include/PackageManager/PAMWindow.hpp
+	include/PackageManager/PAMRenderDevice.hpp
 	
 	#Rendering
 	include/Rendering/ArrayBitmap.hpp
@@ -160,6 +165,7 @@ set(LINAENGINE_HEADERS
 	include/Rendering/UniformBuffer.hpp
 	include/Rendering/RenderContext.hpp
 	include/Rendering/GameRenderContext.hpp
+	include/Rendering/RenderTarget.hpp
 	
 	#Utility
 	include/Utility/Math/Color.hpp
@@ -170,6 +176,7 @@ set(LINAENGINE_HEADERS
 	include/Utility/Math/Vector.hpp
 	include/Utility/Math/VectorMath.hpp
 	include/Utility/Math/AABB.hpp
+	include/Utility/Math/Plane.hpp
 	include/Utility/Log.hpp
 	include/Utility/ResourceConstants.hpp
 

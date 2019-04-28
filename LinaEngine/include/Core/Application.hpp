@@ -24,7 +24,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 #include "Events/ApplicationEvent.hpp"
 #include "PackageManager/PAMInputEngine.hpp"
-#include "PackageManager/PAMRenderEngine.hpp"
+#include "Rendering/RenderEngine.hpp"
 #include "LayerStack.hpp"
 #include "Common.hpp"
 #include "APIExport.hpp"
@@ -52,7 +52,7 @@ namespace LinaEngine
 		bool OnWindowClose(WindowCloseEvent& e);
 		FORCEINLINE static Application& Get() { return *instance; }
 		FORCEINLINE InputEngine<PAMInputEngine>& GetInputDevice() { return *(m_InputEngine.get()); }
-		FORCEINLINE RenderEngine<PAMRenderEngine>& GetRenderEngine() { return *(m_RenderEngine.get()); }
+		FORCEINLINE RenderEngine& GetRenderEngine() { return *(m_RenderEngine.get()); }
 
 	private:
 
@@ -60,7 +60,7 @@ namespace LinaEngine
 		bool m_Running = false;
 		LayerStack m_LayerStack;
 		std::unique_ptr<InputEngine<PAMInputEngine>> m_InputEngine;
-		std::unique_ptr<RenderEngine<PAMRenderEngine>> m_RenderEngine;
+		std::unique_ptr<RenderEngine> m_RenderEngine;
 
 	};
 

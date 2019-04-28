@@ -22,7 +22,7 @@ Timestamp: 4/26/2019 6:41:58 PM
 #ifndef UniformBuffer_HPP
 #define UniformBuffer_HPP
 
-#include "PackageManager/PAMRenderEngine.hpp"
+#include "PackageManager/PAMRenderDevice.hpp"
 
 
 namespace LinaEngine::Graphics
@@ -32,7 +32,7 @@ namespace LinaEngine::Graphics
 	public:
 
 		// Param const creates buffer through render engine.
-		FORCEINLINE UniformBuffer(RenderEngine<PAMRenderEngine>& renderEngineIn, uintptr dataSize, BufferUsage usage, const void* data = nullptr) :
+		FORCEINLINE UniformBuffer(PAMRenderDevice& renderEngineIn, uintptr dataSize, BufferUsage usage, const void* data = nullptr) :
 			renderEngine(&renderEngineIn), m_EngineBoundID(renderEngine->CreateUniformBuffer(data, dataSize, usage)), m_BufferSize(dataSize) {}
 		
 		// Destructor releases the buffer through render engine.
@@ -48,7 +48,7 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		RenderEngine<PAMRenderEngine>* renderEngine;
+		PAMRenderDevice* renderEngine;
 		uint32 m_EngineBoundID;
 		uintptr m_BufferSize;
 

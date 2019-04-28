@@ -23,7 +23,7 @@ Timestamp: 4/26/2019 12:11:36 AM
 #define IndexedModel_HPP
 
 #include "Utility/Math/AABB.hpp"
-#include "PackageManager/PAMRenderEngine.hpp"
+#include "PackageManager/PAMRenderDevice.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -34,7 +34,7 @@ namespace LinaEngine::Graphics
 		IndexedModel() : m_StartIndex((uint32)-1) {}
 
 		// Creates a vertex array using render renderEngine.
-		uint32 CreateVertexArray(RenderEngine<PAMRenderEngine>& engine, BufferUsage bufferUsage) const;
+		uint32 CreateVertexArray(PAMRenderDevice& engine, BufferUsage bufferUsage) const;
 
 		// Sets the element size array according to the desired size.
 		void AllocateElement(uint32 elementSize);

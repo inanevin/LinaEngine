@@ -23,11 +23,6 @@ Timestamp: 4/15/2019 1:52:36 PM
 #define PAMRENDERENGINE_HPP
 
 
-#ifdef LINA_GRAPHICS_OPENGL
-
-#include "OpenGL/GLRenderEngine.hpp"
-
-#endif
 
 
 #endif

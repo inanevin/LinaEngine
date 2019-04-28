@@ -32,7 +32,7 @@ namespace LinaEngine::Graphics
 		LinaMap<LinaString, LinaString> textureNames;
 		LinaMap<LinaString, float> floats;
 		LinaMap<LinaString, Vector3F> vectors;
-		LinaMap<LinaString, Matrix4F> matrices;
+		LinaMap<LinaString, Matrix> matrices;
 	};
 }
 

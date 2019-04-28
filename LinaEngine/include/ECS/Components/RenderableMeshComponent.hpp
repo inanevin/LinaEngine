@@ -23,13 +23,17 @@ Timestamp: 4/14/2019 1:37:59 AM
 #define RenderableMeshComponent_HPP
 
 #include "ECS/ECSComponent.hpp"
+#include "Rendering/VertexArray.hpp"
+#include "Rendering/Texture.hpp"
+
+using namespace LinaEngine::Graphics;
 
 namespace LinaEngine::ECS
 {
 	struct RenderableMeshComponent : public ECSComponent<RenderableMeshComponent>
 	{
-		class VertexArray* vertexArray = nullptr;
-		class Texture* texture = nullptr;
+		VertexArray* vertexArray = nullptr;
+		Texture* texture = nullptr;
 	};
 }
 

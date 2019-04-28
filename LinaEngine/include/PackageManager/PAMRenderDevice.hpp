@@ -12,26 +12,24 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: ECSTransformComponent
-Timestamp: 4/9/2019 1:28:05 PM
+Class: PAMRenderDevice
+Timestamp: 4/27/2019 10:23:46 PM
 
 */
 
 #pragma once
 
-#ifndef ECSTransformComponent_HPP
-#define ECSTransformComponent_HPP
+#ifndef PAMRenderDevice_HPP
+#define PAMRenderDevice_HPP
 
-#include "Utility/Math/Transformation.hpp"
-#include "ECS/EntityComponentSystem.hpp"
 
-namespace LinaEngine::ECS
-{
-	struct TransformComponent : public ECSComponent<TransformComponent>
-	{
-		Transformation transform;
-	};
-}
+#ifdef LINA_GRAPHICS_OPENGL
+
+#include "PackageManager/OpenGL/GLRenderDevice.hpp"
+
+typedef LinaEngine::Graphics::GLRenderDevice PAMRenderDevice;
+
+#endif
 
 
 #endif

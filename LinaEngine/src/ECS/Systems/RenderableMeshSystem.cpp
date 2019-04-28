@@ -20,6 +20,8 @@ Timestamp: 4/27/2019 5:41:27 PM
 #include "LinaPch.hpp"
 #include "ECS/Systems/RenderableMeshSystem.hpp"
 
+
+
 namespace LinaEngine::ECS
 {
 	void RenderableMeshSystem::UpdateComponents(float delta, BaseECSComponent ** components)
@@ -27,7 +29,7 @@ namespace LinaEngine::ECS
 		TransformComponent* transform = (TransformComponent*)components[0];
 		RenderableMeshComponent* mesh = (RenderableMeshComponent*)components[1];
 		
-		
+		context.RenderMesh(*mesh->vertexArray, *mesh->texture, transform->transform.ToMatrix());
 	}
 }
 

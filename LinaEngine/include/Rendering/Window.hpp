@@ -24,6 +24,7 @@ Timestamp: 4/14/2019 7:46:12 PM
 
 #include "Events/Event.hpp"
 
+
 namespace LinaEngine
 {
 	/* Struct containing basic data about window properties. */

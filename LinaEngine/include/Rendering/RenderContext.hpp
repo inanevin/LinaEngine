@@ -22,7 +22,7 @@ Timestamp: 4/27/2019 5:48:39 PM
 #ifndef RenderContext_HPP
 #define RenderContext_HPP
 
-#include "PackageManager/PAMRenderEngine.hpp"
+#include "PackageManager/PAMRenderDevice.hpp"
 #include "Shader.hpp"
 #include "RenderTarget.hpp"
 #include "VertexArray.hpp"
@@ -33,31 +33,31 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-		FORCEINLINE RenderContext(RenderEngine<PAMRenderEngine>& renderEngineIn, RenderTarget& targetIn) : renderEngine(&renderEngineIn), target(&targetIn) {}
+		FORCEINLINE RenderContext(PAMRenderDevice& renderDeviceIn, RenderTarget& targetIn) : renderDevice(&renderDeviceIn), target(&targetIn) {}
 
 		FORCEINLINE void Clear(bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
 		{
-			renderEngine->Clear(target->GetID(), shouldClearColor, shouldClearDepth, shouldClearStencil, color, stencil);
+			renderDevice->Clear(target->GetID(), shouldClearColor, shouldClearDepth, shouldClearStencil, color, stencil);
 		}
 
 		FORCEINLINE void Clear(const Color& color, bool shouldClearDepth = false)
 		{
-			renderEngine->Clear(target->GetID(), true, shouldClearDepth, false, color, 0);
+			renderDevice->Clear(target->GetID(), true, shouldClearDepth, false, color, 0);
 		}
 
 		FORCEINLINE void Draw(Shader& shader, VertexArray& vertexArray, const DrawParams& drawParams, uint32 numInstances = 1)
 		{
-			renderEngine->Draw(target->GetID(), shader.GetID(), vertexArray.GetID(), drawParams, numInstances, vertexArray.GetIndexCount());
+			renderDevice->Draw(target->GetID(), shader.GetID(), vertexArray.GetID(), drawParams, numInstances, vertexArray.GetIndexCount());
 		}
 
 		FORCEINLINE void Draw(Shader& shader, VertexArray& vertexArray, const DrawParams& drawParams, uint32 numInstances, uint32 numIndices)
 		{
-			renderEngine->Draw(target->GetID(), shader.GetID(), vertexArray.GetID(), drawParams, numInstances, numIndices);
+			renderDevice->Draw(target->GetID(), shader.GetID(), vertexArray.GetID(), drawParams, numInstances, numIndices);
 		}
 
 	private:
 
-		RenderEngine<PAMRenderEngine>* renderEngine;
+		PAMRenderDevice* renderDevice;
 		RenderTarget* target;
 
 	};
