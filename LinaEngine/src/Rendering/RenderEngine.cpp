@@ -143,18 +143,18 @@ namespace LinaEngine::Graphics
 
 		entity = ecs.MakeEntity(transformComponent, movementComponent, renderableMesh);
 
-		for (uint32 i = 0; i < 1000000; i++)
+		for (uint32 i = 0; i < 2000000; i++)
 		{
 			transformComponent.transform.SetTranslation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f,
 				Math::RandF()*10.0f - 5.0f + 20.0f));
 
 			renderableMesh.vertexArray = &*cubeArray;
 			renderableMesh.texture = Math::RandF() > 0.5f ? &*texture : &*textureNew;
-		//	float vf = -4.0f;
-		//	float af = 5.0f;
-		//	motionComponent.acceleration = Vector3F(Math::RandF(-af, af), Math::RandF(-af, af), Math::RandF(-af, af));
-		//	motionComponent.velocity = motionComponent.acceleration * vf;
-			ecs.MakeEntity(transformComponent,  renderableMesh);
+			float vf = -4.0f;
+			float af = 5.0f;
+			motionComponent.acceleration = Vector3F(Math::RandF(-af, af), Math::RandF(-af, af), Math::RandF(-af, af));
+			motionComponent.velocity = motionComponent.acceleration * vf;
+			ecs.MakeEntity(transformComponent,  motionComponent, renderableMesh);
 		}
 
 		renderingPipeline.AddSystem(*renderableMeshSystem);
