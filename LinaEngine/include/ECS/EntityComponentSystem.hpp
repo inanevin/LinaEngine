@@ -24,6 +24,7 @@ Timestamp: 4/8/2019 5:43:51 PM
 
 #include "ECSSystem.hpp"
 
+
 namespace LinaEngine::ECS
 {
 	class EntityComponentSystem
