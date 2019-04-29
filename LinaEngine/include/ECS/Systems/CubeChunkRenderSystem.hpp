@@ -31,7 +31,7 @@ using namespace LinaEngine::Graphics;
 
 namespace LinaEngine::ECS
 {
-	class CubeChunkRenderSystem : BaseECSSystem
+	class CubeChunkRenderSystem : public BaseECSSystem
 	{
 	public:
 

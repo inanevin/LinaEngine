@@ -26,7 +26,8 @@ Timestamp: 4/30/2019 12:12:31 AM
 
 namespace LinaEngine::ECS
 {
-	void Verlet(LinaEngine::Vector3F& pos, LinaEngine::Vector3F& velocity, const LinaEngine::Vector3F& acceleration, float delta)
+
+	static void Verlet(LinaEngine::Vector3F& pos, LinaEngine::Vector3F& velocity, const LinaEngine::Vector3F& acceleration, float delta)
 	{
 		float halfDelta = delta * 0.5f;
 		pos += velocity * halfDelta;
@@ -34,7 +35,7 @@ namespace LinaEngine::ECS
 		pos += velocity * halfDelta;
 	}
 
-	void ForestRuth(LinaEngine::Vector3F& pos, LinaEngine::Vector3F& velocity, const LinaEngine::Vector3F& acceleration, float delta)
+	static void ForestRuth(LinaEngine::Vector3F& pos, LinaEngine::Vector3F& velocity, const LinaEngine::Vector3F& acceleration, float delta)
 	{
 		static const float frCoefficient = 1.0f / (2.0f - LinaEngine::Math::Pow(2.0f, 1.0f / 3.0f));
 		static const float frComplement = 1.0f - 2.0f*frCoefficient;
@@ -43,7 +44,7 @@ namespace LinaEngine::ECS
 		Verlet(pos, velocity, acceleration, delta*frCoefficient);
 	}
 
-	void ModifiedEuler(LinaEngine::Vector3F& pos, LinaEngine::Vector3F& velocity, const LinaEngine::Vector3F& acceleration, float delta)
+	static void ModifiedEuler(LinaEngine::Vector3F& pos, LinaEngine::Vector3F& velocity, const LinaEngine::Vector3F& acceleration, float delta)
 	{
 		velocity += acceleration * delta;
 		pos += velocity * delta;

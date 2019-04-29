@@ -28,9 +28,12 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "ECS/Components/RenderableMeshComponent.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/MotionComponent.hpp"
+#include "ECS/Components/CubeChunkComponent.hpp"
 #include "ECS/Systems/MotionSystem.hpp"
 #include "ECS/Systems/MovementControlSystem.hpp"
 #include "ECS/Systems/RenderableMeshSystem.hpp"
+#include "ECS/Systems/CubeChunkRenderSystem.hpp"
+#include "ECS/Systems/CubeChunkSystem.hpp"
 #include "PackageManager/PAMInputEngine.hpp"
 #include "Core/Application.hpp"
 #include "Rendering/ArrayBitmap.hpp"
@@ -52,12 +55,16 @@ namespace LinaEngine::Graphics
 	RenderableMeshSystem* renderableMeshSystem;
 	MotionSystem motionSystem;
 	MotionComponent motionComponent;
+	CubeChunkComponent cubeChunkComponent;
+	CubeChunkSystem cubeChunkSystem;
+	CubeChunkRenderSystem* cubeChunkRenderSystem;
 	RenderTarget* target;
 	RenderContext* context;
 	GameRenderContext* gameRenderContext;
 	Shader* shader;
 	Texture* texture;
 	Texture* textureNew;
+	Texture* textures[2];
 	Sampler* sampler;
 	VertexArray* vertexArray;
 	VertexArray* cubeArray;
@@ -130,9 +137,10 @@ namespace LinaEngine::Graphics
 
 		gameRenderContext = new GameRenderContext(*m_RenderDevice.get(), *target, drawParams, *shader, *sampler, perspective);
 
-
+		textures[0] = texture;
+		textures[1] = textureNew;
 		renderableMeshSystem = new RenderableMeshSystem(*gameRenderContext);
-
+		cubeChunkRenderSystem = new CubeChunkRenderSystem(*gameRenderContext, *cubeArray, textures, ARRAY_SIZE_IN_ELEMENTS(textures));
 
 		transformComponent.transform.SetTranslation(Vector3F(0.0f, 0, 20.0f));
 
@@ -143,7 +151,7 @@ namespace LinaEngine::Graphics
 
 		entity = ecs.MakeEntity(transformComponent, movementComponent, renderableMesh);
 
-		for (uint32 i = 0; i < 1000000; i++)
+		for (uint32 i = 0; i < 250000; i++)
 		{
 			transformComponent.transform.SetTranslation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f,
 				Math::RandF()*10.0f - 5.0f + 20.0f));
@@ -154,12 +162,24 @@ namespace LinaEngine::Graphics
 			float af = 5.0f;
 			motionComponent.acceleration = Vector3F(Math::RandF(-af, af), Math::RandF(-af, af), Math::RandF(-af, af));
 			motionComponent.velocity = motionComponent.acceleration * vf;
-			ecs.MakeEntity(transformComponent,  motionComponent, renderableMesh);
+
+			for (uint32 i = 0; i < 3; i++)
+			{
+				cubeChunkComponent.position[i] = transformComponent.transform.GetTranslation()[i];
+				cubeChunkComponent.velocity[i] = motionComponent.velocity[i];
+				cubeChunkComponent.acceleration[i] = motionComponent.acceleration[i];
+				cubeChunkComponent.textureIndex = Math::RandF() > 0.5f ? 0 : 1;
+
+			}
+			ecs.MakeEntity(cubeChunkComponent);
+			//ecs.MakeEntity(transformComponent,  motionComponent, renderableMesh);
 		}
 
 		renderingPipeline.AddSystem(*renderableMeshSystem);
+		renderingPipeline.AddSystem(*cubeChunkRenderSystem);
 		mainSystems.AddSystem(movementControlSystem);
-		mainSystems.AddSystem(motionSystem);
+		//mainSystems.AddSystem(motionSystem);
+		mainSystems.AddSystem(cubeChunkSystem);
 	}
 
 	void RenderEngine::Tick()
