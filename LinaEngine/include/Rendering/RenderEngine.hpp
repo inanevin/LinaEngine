@@ -46,6 +46,9 @@ namespace LinaEngine::Graphics
 		// Called each frame.
 		void Tick();
 
+		// Temporary
+		void Render();
+
 		// Create a render context.
 		FORCEINLINE bool CreateContextWindow() { return m_RenderDevice->CreateContextWindow(); };
 

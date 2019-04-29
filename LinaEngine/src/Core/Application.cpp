@@ -19,7 +19,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 #include "LinaPch.hpp"
 #include "Core/Application.hpp"
-
+#include "Core/Time.hpp"
 
 namespace LinaEngine
 {
@@ -81,15 +81,14 @@ namespace LinaEngine
 
 	void Application::Run()
 	{
+
 		while (m_Running)
 		{
-			// Update engines.
 			m_InputEngine->Tick();
 			m_RenderEngine->Tick();
-
+			m_RenderEngine->Render();
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
-
 		}
 
 	}

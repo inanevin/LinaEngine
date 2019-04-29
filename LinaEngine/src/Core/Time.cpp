@@ -63,7 +63,7 @@ namespace LinaEngine
 		if (!QueryPerformanceCounter(&largeInteger))
 			LINA_CORE_ERR("QueryPerformanceFrequency get time failed!");
 
-		return double(largeInteger.QuadPart) / g_Frequency;
+		return double ((largeInteger.QuadPart) / g_Frequency);
 #endif
 
 #ifdef LINA_PLATFORM_LINUX

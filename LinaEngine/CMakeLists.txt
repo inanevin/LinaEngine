@@ -26,7 +26,7 @@ set (LINAENGINE_SOURCES
     src/Core/Layer.cpp
     src/Core/LayerStack.cpp
     src/Core/Transform.cpp
-	
+	src/Core/Time.cpp
 	# ECS 
 	src/ECS/Systems/MovementControlSystem.cpp
 	src/ECS/Systems/RenderableMeshSystem.cpp
@@ -93,13 +93,14 @@ set(LINAENGINE_HEADERS
 	include/Core/Memory.hpp
 	include/Core/STLImport.hpp
 	include/Core/Transform.hpp
-
+	include/Core/Time.hpp
 	
 	#ECS
 	include/ECS/Components/MovementControlComponent.hpp
 	include/ECS/Components/RenderableMeshComponent.hpp
 	include/ECS/Components/TransformComponent.hpp
 	include/ECS/Components/MotionComponent.hpp
+	include/ECS/Components/CubeChunkComponent.hpp
 	include/ECS/Systems/MovementControlSystem.hpp
 	include/ECS/Systems/RenderableMeshSystem.hpp
 	include/ECS/Systems/MotionSystem.hpp

@@ -143,7 +143,7 @@ namespace LinaEngine::Graphics
 
 		entity = ecs.MakeEntity(transformComponent, movementComponent, renderableMesh);
 
-		for (uint32 i = 0; i < 2000000; i++)
+		for (uint32 i = 0; i < 1000000; i++)
 		{
 			transformComponent.transform.SetTranslation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f,
 				Math::RandF()*10.0f - 5.0f + 20.0f));
@@ -165,14 +165,18 @@ namespace LinaEngine::Graphics
 	void RenderEngine::Tick()
 	{
 		
-		gameRenderContext->Clear(Color(0.2f, 0.35f, 0.42f, 1.0f), true);
 
 		ecs.UpdateSystems(mainSystems, 0.01f);
-		ecs.UpdateSystems(renderingPipeline, 0.01f);
 		
-		gameRenderContext->Flush();
-		m_RenderDevice->TickWindow();
 	}
 
+	void RenderEngine::Render()
+	{
+		gameRenderContext->Clear(Color(0.2f, 0.35f, 0.42f, 1.0f), true);
+		ecs.UpdateSystems(renderingPipeline, 0.01f);
+		gameRenderContext->Flush();
+		m_RenderDevice->TickWindow();
+
+	}
 
 }
