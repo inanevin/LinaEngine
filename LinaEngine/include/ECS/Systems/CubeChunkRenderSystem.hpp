@@ -23,6 +23,11 @@ Timestamp: 4/30/2019 12:16:36 AM
 #define CubeChunkRenderSystem_HPP
 
 #include "ECS/ECSSystem.hpp"
+#include "Rendering/GameRenderContext.hpp"
+#include "ECS/Components/CubeChunkComponent.hpp"
+
+using namespace LinaEngine::Graphics;
+
 
 namespace LinaEngine::ECS
 {
@@ -30,11 +35,19 @@ namespace LinaEngine::ECS
 	{
 	public:
 
-		CubeChunkRenderSystem() : BaseECSSystem()
+		CubeChunkRenderSystem(GameRenderContext& contextIn, VertexArray& vertexArrayIn, Texture** texturesIn, size_t textureCountIn) : BaseECSSystem(), context(contextIn), vertexArray(vertexArrayIn), textures(texturesIn), textureCount(textureCountIn)
 		{
-
+			AddComponentType(CubeChunkComponent::ID);
 		}
 
+		virtual void UpdateComponents(float delta, BaseECSComponent** components);
+
+	private:
+
+		GameRenderContext& context;
+		VertexArray& vertexArray;
+		Texture** textures;
+		size_t textureCount;
 	};
 }
 

@@ -22,7 +22,7 @@ Timestamp: 4/27/2019 5:38:44 PM
 #ifndef RenderableMeshSystem_HPP
 #define RenderableMeshSystem_HPP
 
-#include "ECS/EntityComponentSystem.hpp"
+
 #include "ECS/ECSSystem.hpp"
 #include "Rendering/GameRenderContext.hpp"
 #include "ECS/Components/TransformComponent.hpp"
