@@ -66,6 +66,8 @@ namespace LinaEngine
 
 		InteractionWorld(EntityComponentSystem& ecsIn) : ECSListener(), ecs(ecsIn), aabbComparator(ecsIn, 0)
 		{
+			// Notify all component operations, but not all entity operations.
+			SetNotificationParams(true, false);
 			AddComponentID(TransformComponent::ID);
 			AddComponentID(ColliderComponent::ID);
 		}
@@ -79,10 +81,9 @@ namespace LinaEngine
 		void Tick(float delta);
 
 		// Add a new interaction.
-		FORCEINLINE void AddInteraction(Interaction* interaction)
-		{
-			interactions.push_back(interaction);
-		}
+		void AddInteraction(Interaction* interaction);
+
+
 
 	private:
 

@@ -75,30 +75,33 @@ namespace LinaEngine::ECS
 		{
 			bool isValid = true;
 
-			// Check if we find the component to be removed, if so, call method.
-			for (uint32 j = 0; j < listeners[i]->GetComponentIDs().size(); j++)
+			if (listeners[i]->ShouldNotifyAllEntityActions())
+				listeners[i]->OnMakeEntity(handle);
+			else
 			{
-				bool hasComponent = false;
-				// Find matching components & call callback on it.
-				for (uint32 k = 0; k < numComponents; k++)
+				// Check if we find the component to be removed, if so, call method.
+				for (uint32 j = 0; j < listeners[i]->GetComponentIDs().size(); j++)
 				{
-					if (listeners[i]->GetComponentIDs()[j] == componentIDs[k])
+					bool hasComponent = false;
+					// Find matching components & call callback on it.
+					for (uint32 k = 0; k < numComponents; k++)
 					{
-						hasComponent = true;
+						if (listeners[i]->GetComponentIDs()[j] == componentIDs[k])
+						{
+							hasComponent = true;
+							break;
+						}
+					}
+
+					if (!hasComponent)
+					{
+						isValid = false;
 						break;
 					}
 				}
 
-				if (!hasComponent)
-				{
-					isValid = false;
-					break;
-				}
-			}
-
-			if (isValid)
-			{
-				listeners[i]->OnMakeEntity(handle);
+				if (isValid)
+					listeners[i]->OnMakeEntity(handle);
 			}
 		}
 
@@ -117,31 +120,35 @@ namespace LinaEngine::ECS
 			const LinaArray<uint32>& componentIDs = listeners[i]->GetComponentIDs();
 			bool isValid = true;
 
-			// Check if we find the component to be removed, if so, call method.
-			for (uint32 j = 0; j < componentIDs.size(); j++)
+			if (listeners[i]->ShouldNotifyAllEntityActions())
+				listeners[i]->OnRemoveEntity(handle);
+			else
 			{
-				bool hasComponent = false;
-				// Find matching components & call callback on it.
-				for (uint32 k = 0; k < entity.size(); k++)
+				// Check if we find the component to be removed, if so, call method.
+				for (uint32 j = 0; j < componentIDs.size(); j++)
 				{
-					if (componentIDs[j] == entity[k].first)
+					bool hasComponent = false;
+					// Find matching components & call callback on it.
+					for (uint32 k = 0; k < entity.size(); k++)
 					{
-						hasComponent = true;
+						if (componentIDs[j] == entity[k].first)
+						{
+							hasComponent = true;
+							break;
+						}
+					}
+
+					if (!hasComponent)
+					{
+						isValid = false;
 						break;
 					}
 				}
 
-				if (!hasComponent)
-				{
-					isValid = false;
-					break;
-				}
+				if (isValid)
+					listeners[i]->OnRemoveEntity(handle);
 			}
-
-			if (isValid)
-			{
-				listeners[i]->OnRemoveEntity(handle);
-			}
+		
 		}
 
 		

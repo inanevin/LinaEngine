@@ -117,6 +117,14 @@ namespace LinaEngine
 		aabbComparator.axis = maxVarianceAxis;
 	}
 
+	void InteractionWorld::AddInteraction(Interaction * interaction)
+	{
+		interactions.push_back(interaction);
+		// Compute each interaction.
+		for (size_t i = 0; i < entities.size(); i++)
+			ComputeInteractions(entities[i], interactions.size() - 1);
+	}
+
 	void InteractionWorld::ClearEntityDump()
 	{
 
@@ -153,6 +161,9 @@ namespace LinaEngine
 		EntityInternal entity;
 		entity.handle = handle;
 
+		// Compute each interaction.
+		for (size_t i = 0; i < interactions.size(); i++)
+			ComputeInteractions(entity, i);
 
 		entities.push_back(entity);
 	}

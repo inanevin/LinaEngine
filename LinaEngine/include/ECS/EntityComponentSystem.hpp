@@ -39,7 +39,17 @@ namespace LinaEngine::ECS
 
 		FORCEINLINE const LinaArray<uint32>& GetComponentIDs() { return componentIDs; }
 
+		// Accessors for notification settings.
+		FORCEINLINE bool ShouldNotifyAllComponentActions() { return notifyAllComponentActions; }
+		FORCEINLINE bool ShouldNotifyAllEntityActions() { return notifyAllEntityActions; }
+
 	protected:
+
+		FORCEINLINE void SetNotificationParams(bool shouldNotifyAllComponentActions, bool shouldNotifyAllEntityActions)
+		{
+			notifyAllComponentActions = shouldNotifyAllComponentActions;
+			notifyAllEntityActions = shouldNotifyAllEntityActions;
+		}
 
 		FORCEINLINE void AddComponentID(uint32 id)
 		{
@@ -49,6 +59,8 @@ namespace LinaEngine::ECS
 	private:
 
 		LinaArray<uint32> componentIDs;
+		bool notifyAllComponentActions = false;
+		bool notifyAllEntityActions = false;
 	};
 
 
@@ -164,13 +176,18 @@ namespace LinaEngine::ECS
 				// Get the related component IDs from the listeners.
 				const LinaArray<uint32>& componentIDs = listeners[i]->GetComponentIDs();
 
-				// Check if we find the component to be added, if so, call method.
-				for (uint32 j = 0; j < componentIDs.size(); j++)
+				if (listeners[i]->ShouldNotifyAllComponentActions())
+					listeners[i]->OnAddComponent(entity, Component::ID);
+				else
 				{
-					if (componentIDs[j] == Component::ID)
+					// Check if we find the component to be added, if so, call method.
+					for (uint32 j = 0; j < componentIDs.size(); j++)
 					{
-						listeners[i]->OnAddComponent(entity, Component::ID);
-						break;
+						if (componentIDs[j] == Component::ID)
+						{
+							listeners[i]->OnAddComponent(entity, Component::ID);
+							break;
+						}
 					}
 				}
 			}
@@ -189,10 +206,15 @@ namespace LinaEngine::ECS
 				// Check if we find the component to be removed, if so, call method.
 				for (uint32 j = 0; j < componentIDs.size(); j++)
 				{
-					if (componentIDs[j] == Component::ID)
-					{
+					if (listeners[i]->ShouldNotifyAllComponentActions())
 						listeners[i]->OnRemoveComponent(entity, Component::ID);
-						break;
+					else
+					{
+						if (componentIDs[j] == Component::ID)
+						{
+							listeners[i]->OnRemoveComponent(entity, Component::ID);
+							break;
+						}
 					}
 				}
 			}
