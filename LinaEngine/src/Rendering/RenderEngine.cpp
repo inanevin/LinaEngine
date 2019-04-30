@@ -96,7 +96,7 @@ namespace LinaEngine::Graphics
 		context = new RenderContext(*m_RenderDevice.get(), *target);
 	
 	
-		ModelLoader::LoadModels("Resources/Mesh/cube.obj", models, modelMaterialIndices, modelMaterials);
+		ModelLoader::LoadModels("Resources/Mesh/room.fbx", models, modelMaterialIndices, modelMaterials);
 		ModelLoader::LoadModels("Resources/Mesh/tinycube.obj", models, modelMaterialIndices, modelMaterials);
 		vertexArray = new VertexArray(*m_RenderDevice.get(), models[0], BufferUsage::USAGE_STATIC_DRAW);
 		cubeArray = new VertexArray(*m_RenderDevice.get(), models[1], BufferUsage::USAGE_STATIC_DRAW);
@@ -142,7 +142,7 @@ namespace LinaEngine::Graphics
 		renderableMeshSystem = new RenderableMeshSystem(*gameRenderContext);
 		cubeChunkRenderSystem = new CubeChunkRenderSystem(*gameRenderContext, *cubeArray, textures, ARRAY_SIZE_IN_ELEMENTS(textures));
 
-		transformComponent.transform.SetTranslation(Vector3F(0.0f, 0, 20.0f));
+		transformComponent.transform.SetTranslation(Vector3F(0.0f, 0, 50.0f));
 
 		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(1.0f, 0.0f, 0.0f) * 3, Application::Get().GetInputDevice().GetHorizontalKeyAxis()));
 		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(0.0f, 1.0f, 0.0f) * 3, Application::Get().GetInputDevice().GetVerticalKeyAxis()));
@@ -151,10 +151,9 @@ namespace LinaEngine::Graphics
 
 		entity = ecs.MakeEntity(transformComponent, movementComponent, renderableMesh);
 
-		for (uint32 i = 0; i < 200000; i++)
+		for (uint32 i = 0; i < 1000; i++)
 		{
-			transformComponent.transform.SetTranslation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f,
-				Math::RandF()*10.0f - 5.0f + 40.0f));
+			transformComponent.transform.SetTranslation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f + 40.0f));
 
 			renderableMesh.vertexArray = &*cubeArray;
 			renderableMesh.texture = Math::RandF() > 0.5f ? &*texture : &*textureNew;
