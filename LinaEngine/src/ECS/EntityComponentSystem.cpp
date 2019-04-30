@@ -69,6 +69,39 @@ namespace LinaEngine::ECS
 		// Set the index & push into the array.
 		newEntity->first = entities.size();
 		entities.push_back(newEntity);
+
+		// Call OnMakeEntity on the listeners if valid.
+		for (uint32 i = 0; i < listeners.size(); i++)
+		{
+			bool isValid = true;
+
+			// Check if we find the component to be removed, if so, call method.
+			for (uint32 j = 0; j < listeners[i]->GetComponentIDs().size(); j++)
+			{
+				bool hasComponent = false;
+				// Find matching components & call callback on it.
+				for (uint32 k = 0; k < numComponents; k++)
+				{
+					if (listeners[i]->GetComponentIDs()[j] == componentIDs[k])
+					{
+						hasComponent = true;
+						break;
+					}
+				}
+
+				if (!hasComponent)
+				{
+					isValid = false;
+					break;
+				}
+			}
+
+			if (isValid)
+			{
+				listeners[i]->OnMakeEntity(handle);
+			}
+		}
+
 		return handle;
 	}
 
@@ -76,6 +109,42 @@ namespace LinaEngine::ECS
 	{
 		// Get entity from the handle.
 		LinaArray<LinaPair<uint32, uint32>>& entity = HandleToEntity(handle);
+
+		// Call OnRemoveEntity callback on listeners if valid.
+		for (uint32 i = 0; i < listeners.size(); i++)
+		{
+			// Get the related component IDs from the listeners.
+			const LinaArray<uint32>& componentIDs = listeners[i]->GetComponentIDs();
+			bool isValid = true;
+
+			// Check if we find the component to be removed, if so, call method.
+			for (uint32 j = 0; j < componentIDs.size(); j++)
+			{
+				bool hasComponent = false;
+				// Find matching components & call callback on it.
+				for (uint32 k = 0; k < entity.size(); k++)
+				{
+					if (componentIDs[j] == entity[k].first)
+					{
+						hasComponent = true;
+						break;
+					}
+				}
+
+				if (!hasComponent)
+				{
+					isValid = false;
+					break;
+				}
+			}
+
+			if (isValid)
+			{
+				listeners[i]->OnRemoveEntity(handle);
+			}
+		}
+
+		
 
 		// Delete the components first.
 		for (uint32 i = 0; i < entity.size(); i++)

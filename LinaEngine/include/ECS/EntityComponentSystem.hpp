@@ -27,37 +27,49 @@ Timestamp: 4/8/2019 5:43:51 PM
 
 namespace LinaEngine::ECS
 {
+	class ECSListener
+	{
+	public:
+
+		virtual void OnMakeEntity(EntityHandle handle);
+		virtual void OnRemoveEntity(EntityHandle handle);
+		virtual void OnAddComponent(EntityHandle handle);
+		virtual void OnRemoveComponent(EntityHandle handle);
+
+		FORCEINLINE const LinaArray<uint32>& GetComponentIDs() { return componentIDs; }
+
+	protected:
+
+		FORCEINLINE void AddComponentID(uint32 id)
+		{
+			componentIDs.push_back(id);
+		}
+
+
+
+	private:
+
+		LinaArray<uint32> componentIDs;
+	};
+
+
 	class EntityComponentSystem
 	{
 	public:
 
 		EntityComponentSystem() {}
 		~EntityComponentSystem();
+
+		FORCEINLINE void AddListener(ECSListener* listener)
+		{
+			listeners.push_back(listener);
+		}
 		
 		/* Entity Creator */
 		EntityHandle MakeEntity(BaseECSComponent** components, const uint32* componentIDs, size_t numComponents);
 		
 		/* Removes an entity from the sys */
 		void RemoveEntity(EntityHandle handle);
-
-		/*template<class... Args> 
-		EntityHandle MakeEntity(Args...args)
-		{
-			const size_t n = sizeof...(Args);
-			BaseECSComponent* components[n] = { nullptr };
-			uint32 componentIDs[n] = { 0 };
-
-			int index = 0;
-
-			for (auto type : args)
-			{
-				components[index] = &type;
-				componentIDs[index] = type::ID;
-				index++;
-			}
-
-			return MakeEntity(components, componentIDs, n);
-		}*/
 
 		template<class A>
 		EntityHandle MakeEntity(A& c1)
@@ -144,13 +156,49 @@ namespace LinaEngine::ECS
 		template<class Component>
 		FORCEINLINE void AddComponent(EntityHandle entity, Component* component)
 		{
+			// Add component.
 			AddComponentInternal(entity, HandleToEntity(entity), Component::ID, component);
+
+			// Iterate through the listeners after adding the component.
+			for (uint32 i = 0; i < listeners.size(); i++)
+			{
+				// Get the related component IDs from the listeners.
+				const LinaArray<uint32>& componentIDs = listeners[i]->GetComponentIDs();
+
+				// Check if we find the component to be added, if so, call method.
+				for (uint32 j = 0; j < componentIDs.size(); j++)
+				{
+					if (componentIDs[j] == Component::ID)
+					{
+						listeners[i]->OnAddComponent(entity, Component::ID);
+						break;
+					}
+				}
+			}
 		}
 
 		/* Removes component from an entity */
 		template<class Component>
 		bool RemoveComponent(EntityHandle entity)
 		{
+			// Iterate through the listeners.
+			for (uint32 i = 0; i < listeners.size(); i++)
+			{
+				// Get the related component IDs from the listeners.
+				const LinaArray<uint32>& componentIDs = listeners[i]->GetComponentIDs();
+
+				// Check if we find the component to be removed, if so, call method.
+				for (uint32 j = 0; j < componentIDs.size(); j++)
+				{
+					if (componentIDs[j] == Component::ID)
+					{
+						listeners[i]->OnRemoveComponent(entity, Component::ID);
+						break;
+					}
+				}
+			}
+
+			// Remove & return.
 			return RemoveComponentInternal(entity, Component::ID);
 		}
 
@@ -166,6 +214,9 @@ namespace LinaEngine::ECS
 		
 
 	private:
+
+		// Array of ECSListeners
+		LinaArray<ECSListener*> listeners;
 
 		/* Map of id & for each id a seperate array for each comp type */
 		LinaMap<uint32, LinaArray<uint8>> components;

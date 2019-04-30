@@ -36,6 +36,7 @@ set (LINAENGINE_SOURCES
 	src/ECS/ECSComponent.cpp
 	src/ECS/ECSSystem.cpp
 	src/ECS/EntityComponentSystem.cpp
+
 	
 	#Events
 	src/Events/ActionDispatcher.cpp
@@ -112,6 +113,8 @@ set(LINAENGINE_HEADERS
 	include/ECS/ECSSystem.hpp
 	include/ECS/EntityComponentSystem.hpp
 	include/ECS/Utility/MotionIntegrators.hpp
+
+	
 	#EVENTS
 	include/Events/Action.hpp
 	include/Events/ActionDispatcher.hpp
