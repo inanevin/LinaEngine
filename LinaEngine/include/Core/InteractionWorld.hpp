@@ -40,8 +40,8 @@ namespace LinaEngine
 
 		bool operator()(EntityHandle a, EntityHandle b)
 		{
-			float aMin = ecs.GetComponent<ColliderComponent>(a)->aabb.getMinExtents()[axis];
-			float bMin = ecs.GetComponent<ColliderComponent>(b)->aabb.getMinExtents()[axis];
+			float aMin = ecs.GetComponent<ColliderComponent>(a)->aabb.GetMinExtents()[axis];
+			float bMin = ecs.GetComponent<ColliderComponent>(b)->aabb.GetMinExtents()[axis];
 			return (aMin < bMin);
 		}
 	};
@@ -68,9 +68,6 @@ namespace LinaEngine
 		
 		// Removes all entities in the dump.
 		void ClearEntityDump();
-
-		// Finds the highest variance entities for AABBs
-		int FindHighestVarianceAxis();
 
 
 	private:

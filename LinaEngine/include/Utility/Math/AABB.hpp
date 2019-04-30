@@ -35,8 +35,8 @@ namespace LinaEngine
 
 		FORCEINLINE AABB(const Vector3F& minExtents, const Vector3F& maxExtents)
 		{
-			extents[0] = minExtents;
-			extents[1] = maxExtents;
+			m_Extents[0] = minExtents;
+			m_Extents[1] = maxExtents;
 		}
 
 		AABB(Vector3F* points, uint32 amt);
@@ -47,124 +47,123 @@ namespace LinaEngine
 		AABB Transform(const Matrix& transform) const;
 
 
-		FORCEINLINE bool intersects(const AABB& other) const
+		FORCEINLINE bool DoesIntersect(const AABB& other) const
 		{
 			return
-				((extents[0].ToVector() >= other.extents[1].ToVector()) |
-				(extents[1].ToVector() <= other.extents[0].ToVector())).IsZero3f();
+				((m_Extents[0].ToVector() >= other.m_Extents[1].ToVector()) |
+				(m_Extents[1].ToVector() <= other.m_Extents[0].ToVector())).IsZero3f();
 		}
 
-		FORCEINLINE AABB expand(float distance) const 
+		FORCEINLINE AABB Expand(float distance) const 
 		{ 
-			return expand(Vector3F(distance));
+			return Expand(Vector3F(distance));
 		}
 
-		FORCEINLINE AABB expand(const Vector3F& amt) const
+		FORCEINLINE AABB Expand(const Vector3F& amt) const
 		{ 
-			return AABB(extents[0] - amt, extents[1] + amt);
+			return AABB(m_Extents[0] - amt, m_Extents[1] + amt);
 		}
 
-		FORCEINLINE AABB moveTo(const Vector3F& destination) const
+		FORCEINLINE AABB MoveTo(const Vector3F& destination) const
 		{ 
-			return translate(destination - getCenter());
+			return Translate(destination - GetCenter());
 		}
 
-		FORCEINLINE Vector3F getCenter() const 
+		FORCEINLINE Vector3F GetCenter() const 
 		{ 
-			return (extents[1] + extents[0]) * 0.5f;
+			return (m_Extents[1] + m_Extents[0]) * 0.5f;
 		}
 
-		FORCEINLINE Vector3F getExtents() const
+		FORCEINLINE Vector3F GetExtents() const
 		{ 
-			return (extents[1] - extents[0]) * 0.5f;	
+			return (m_Extents[1] - m_Extents[0]) * 0.5f;	
 		}
 
-		FORCEINLINE Vector3F getMinExtents() const  
+		FORCEINLINE Vector3F GetMinExtents() const  
 		{ 
-			return extents[0];
+			return m_Extents[0];
 		}
 
-		FORCEINLINE Vector3F getMaxExtents() const 
+		FORCEINLINE Vector3F GetMaxExtents() const 
 		{ 	
-			return extents[1]; 
+			return m_Extents[1]; 
 		}
 
-		FORCEINLINE void getCenterAndExtents(Vector3F& center, Vector3F& extents) const
+		FORCEINLINE void GetCenterAndExtents(Vector3F& center, Vector3F& m_Extents) const
 		{
-			extents = (this->extents[1] - this->extents[0]) * 0.5f;
-			center = this->extents[0] + extents;
+			m_Extents = (this->m_Extents[1] - this->m_Extents[0]) * 0.5f;
+			center = this->m_Extents[0] + m_Extents;
 		}
 
-		FORCEINLINE float getVolume() const
+		FORCEINLINE float GetVolume() const
 		{
-			Vector3F lengths = extents[1] - extents[0];
+			Vector3F lengths = m_Extents[1] - m_Extents[0];
 			return lengths[0] * lengths[1] * lengths[2];
-		
 		}
 
-		FORCEINLINE AABB overlap(const AABB& other) const
+		FORCEINLINE AABB Overlap(const AABB& other) const
 		{
-			return AABB(extents[0].Max(other.extents[0]),
-				extents[1].Min(other.extents[1]));
+			return AABB(m_Extents[0].Max(other.m_Extents[0]),
+				m_Extents[1].Min(other.m_Extents[1]));
 		}
 
-		FORCEINLINE bool contains(const Vector3F& point) const
+		FORCEINLINE bool Contains(const Vector3F& point) const
 		{
-			return ((point.ToVector() <= extents[0].ToVector()) |
-				(point.ToVector() >= extents[1].ToVector())).IsZero3f();		
+			return ((point.ToVector() <= m_Extents[0].ToVector()) |
+				(point.ToVector() >= m_Extents[1].ToVector())).IsZero3f();		
 		}
 
-		FORCEINLINE bool contains(const AABB& other) const
+		FORCEINLINE bool Contains(const AABB& other) const
 		{
-			return ((other.extents[0].ToVector() <= extents[0].ToVector()) | (other.extents[0].ToVector() >= extents[1].ToVector()) |
-					(other.extents[1].ToVector() <= extents[0].ToVector()) | (other.extents[1].ToVector() >= extents[1].ToVector())).IsZero3f();
+			return ((other.m_Extents[0].ToVector() <= m_Extents[0].ToVector()) | (other.m_Extents[0].ToVector() >= m_Extents[1].ToVector()) |
+					(other.m_Extents[1].ToVector() <= m_Extents[0].ToVector()) | (other.m_Extents[1].ToVector() >= m_Extents[1].ToVector())).IsZero3f();
 		}
 
-		FORCEINLINE AABB translate(const Vector3F& amt) const
+		FORCEINLINE AABB Translate(const Vector3F& amt) const
 		{
-			return AABB(extents[0] + amt, extents[1] + amt);
+			return AABB(m_Extents[0] + amt, m_Extents[1] + amt);
 		}
 
-		FORCEINLINE AABB scaleFromCenter(const Vector3F& amt) const
+		FORCEINLINE AABB ScaleFromCenter(const Vector3F& amt) const
 		{
-			Vector3F extents, center;
-			getCenterAndExtents(center, extents);
-			extents = extents * amt;
-			return AABB(center - extents, center + extents);
+			Vector3F m_Extents, center;
+			GetCenterAndExtents(center, m_Extents);
+			m_Extents = m_Extents * amt;
+			return AABB(center - m_Extents, center + m_Extents);
 		}
 
-		FORCEINLINE AABB scaleFromOrigin(const Vector3F& amt) const
+		FORCEINLINE AABB ScaleFromOrigin(const Vector3F& amt) const
 		{
-			return AABB(extents[0] * amt, extents[1] * amt);
+			return AABB(m_Extents[0] * amt, m_Extents[1] * amt);
 		}
 
-		FORCEINLINE AABB addPoint(const Vector3F& other) const
+		FORCEINLINE AABB AddPoint(const Vector3F& other) const
 		{
-			return AABB(extents[0].Min(other), extents[1].Max(other));
+			return AABB(m_Extents[0].Min(other), m_Extents[1].Max(other));
 		}
 
-		FORCEINLINE AABB addAABB(const AABB& other) const
+		FORCEINLINE AABB AddAABB(const AABB& other) const
 		{
-			return AABB(extents[0].Min(other.extents[0]), extents[1].Max(other.extents[1]));
+			return AABB(m_Extents[0].Min(other.m_Extents[0]), m_Extents[1].Max(other.m_Extents[1]));
 		}
 
 		FORCEINLINE bool operator==(const AABB& other) const
 		{
-			return (extents[0] == other.extents[0]) && (extents[1] == other.extents[1]);
+			return (m_Extents[0] == other.m_Extents[0]) && (m_Extents[1] == other.m_Extents[1]);
 		}
 
 		FORCEINLINE bool operator!=(const AABB& other) const
 		{
-			return (extents[0] != other.extents[0]) && (extents[1] != other.extents[1]);
+			return (m_Extents[0] != other.m_Extents[0]) && (m_Extents[1] != other.m_Extents[1]);
 		}
 
 		FORCEINLINE bool equals(const AABB& other, float errorMargin = 1.e-4f) const
 		{
-			return extents[0].equals(other.extents[0], errorMargin) && extents[1].equals(other.extents[1], errorMargin);
+			return m_Extents[0].equals(other.m_Extents[0], errorMargin) && m_Extents[1].equals(other.m_Extents[1], errorMargin);
 		}
 
 	private:
-		Vector3F extents[2];
+		Vector3F m_Extents[2];
 	};
 
 

@@ -152,7 +152,7 @@ namespace LinaEngine
 			const Vector& vecZ, const Vector& vecOffset);
 
 		static FORCEINLINE Matrix identity();
-		static FORCEINLINE Matrix translate(const Vector3F& amt);
+		static FORCEINLINE Matrix Translate(const Vector3F& amt);
 		static FORCEINLINE Matrix scale(const Vector3F& amt);
 		static FORCEINLINE Matrix scale(float amt);
 		static FORCEINLINE Matrix ortho(float left, float right,
@@ -205,7 +205,7 @@ namespace LinaEngine
 			Vector::Make(0.0f, 0.0f, 0.0f, 1.0f));
 	}
 
-	FORCEINLINE Matrix Matrix::translate(const Vector3F& amt)
+	FORCEINLINE Matrix Matrix::Translate(const Vector3F& amt)
 	{
 		return Matrix(
 			Vector::Make(1.0f, 0.0f, 0.0f, amt[0]),

@@ -25,42 +25,42 @@ namespace LinaEngine
 	AABB::AABB(Vector3F* points, uint32 amt)
 	{
 		if (amt == 0) {
-			extents[0] = Vector3F(0.0f, 0.0f, 0.0f);
-			extents[1] = Vector3F(0.0f, 0.0f, 0.0f);
+			m_Extents[0] = Vector3F(0.0f, 0.0f, 0.0f);
+			m_Extents[1] = Vector3F(0.0f, 0.0f, 0.0f);
 			return;
 		}
-		extents[0] = points[0];
-		extents[1] = points[0];
+		m_Extents[0] = points[0];
+		m_Extents[1] = points[0];
 		for (uint32 i = 1; i < amt; i++) {
-			extents[0] = extents[0].Min(points[i]);
-			extents[1] = extents[1].Max(points[i]);
+			m_Extents[0] = m_Extents[0].Min(points[i]);
+			m_Extents[1] = m_Extents[1].Max(points[i]);
 		}
 	}
 
 	AABB::AABB(float* points, uint32 amt, uint32 stride)
 	{
 		if (amt == 0) {
-			extents[0] = Vector3F(0.0f, 0.0f, 0.0f);
-			extents[1] = Vector3F(0.0f, 0.0f, 0.0f);
+			m_Extents[0] = Vector3F(0.0f, 0.0f, 0.0f);
+			m_Extents[1] = Vector3F(0.0f, 0.0f, 0.0f);
 			return;
 		}
 		Vector3F initialPoint(points[0], points[1], points[2]);
-		extents[0] = initialPoint;
-		extents[1] = initialPoint;
+		m_Extents[0] = initialPoint;
+		m_Extents[1] = initialPoint;
 		uintptr index = 3;
 		stride += 3;
 		for (uint32 i = 1; i < amt; i++) {
 			Vector3F point(points[index], points[index + 1], points[index + 2]);
-			extents[0] = extents[0].Min(point);
-			extents[1] = extents[1].Max(point);
+			m_Extents[0] = m_Extents[0].Min(point);
+			m_Extents[1] = m_Extents[1].Max(point);
 			index += stride;
 		}
 	}
 
 	AABB AABB::Transform(const Matrix& transform) const
 	{
-		Vector p000 = extents[0].ToVector(1.0f);
-		Vector p111 = extents[1].ToVector(1.0f);
+		Vector p000 = m_Extents[0].ToVector(1.0f);
+		Vector p111 = m_Extents[1].ToVector(1.0f);
 
 		Vector p100 = p000.select(VectorConstants::MASK_X, p111);
 		Vector p010 = p000.select(VectorConstants::MASK_Y, p111);
@@ -87,8 +87,8 @@ namespace LinaEngine
 	{
 		Vector startVec = start.ToVector();
 		Vector dirVec = rayDir.ToVector();
-		Vector minVec = extents[0].ToVector();
-		Vector maxVec = extents[1].ToVector();
+		Vector minVec = m_Extents[0].ToVector();
+		Vector maxVec = m_Extents[1].ToVector();
 		Vector rdirVec = dirVec.Reciprocal();
 		Vector intersects1 = (minVec - startVec)*rdirVec;
 		Vector intersects2 = (maxVec - startVec)*rdirVec;

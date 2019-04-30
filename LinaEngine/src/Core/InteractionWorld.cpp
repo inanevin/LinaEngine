@@ -64,11 +64,57 @@ namespace LinaEngine
 		// Clear entity dump
 		ClearEntityDump();
 
-		// Find highest variance axis for AABBs
-		int axis = FindHighestVarianceAxis();
-
+		// Sort the entities based on their min extends.
 		std::sort(entities.begin(), entities.end(), aabbComparator);
 		
+		// Test the interactions
+		Vector3F centerSum(0.0f), centerSqrtSum(0.0f);
+		for (size_t i = 0; i < entities.size(); i++)
+		{
+			AABB aabb = ecs.GetComponent<ColliderComponent>(entities[i])->aabb;
+
+			Vector3F center = aabb.GetCenter();
+			centerSum += center;
+			centerSqrtSum += (center * center);
+
+			// Find the interactions
+			for (size_t j = i + 1; j < entities.size(); j++)
+			{
+				AABB otherAABB = ecs.GetComponent<ColliderComponent>(entities[j])->aabb;
+
+				// If condition fails, no other entity can possible be interacting w/ the current one
+				if (otherAABB.GetMinExtents()[aabbComparator.axis] > aabb.GetMaxExtents()[aabbComparator.axis])
+					break;
+
+				if (aabb.DoesIntersect(otherAABB))
+				{
+
+				}
+			}
+		}
+
+		// Find the max variance. TODO: This part comes 1 update call delayed, does it worth to take it into a pre-update queue?
+		centerSum /= entities.size();
+		centerSqrtSum /= entities.size();
+		
+		// Mean(sqrt) - means^2
+		Vector3F variance = centerSqrtSum - (centerSum * centerSum);
+
+		// Find max variance component.
+		uint32 maxVarianceAxis = 0;
+		float maxVariance = variance[0];
+		if (variance[1] > maxVariance)
+		{
+			maxVariance = variance[1];
+			maxVarianceAxis = 1;
+		}
+		if (variance[2] > maxVariance)
+		{
+			maxVariance = variance[2];
+			maxVarianceAxis = 2;
+		}
+
+		aabbComparator.axis = maxVarianceAxis;
 	}
 
 	void InteractionWorld::ClearEntityDump()
@@ -102,9 +148,5 @@ namespace LinaEngine
 		entityDump.clear();
 	}
 
-	int InteractionWorld::FindHighestVarianceAxis()
-	{
-		return 0;
-	}
 }
 
