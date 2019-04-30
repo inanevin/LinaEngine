@@ -69,6 +69,10 @@ namespace LinaEngine
 		// Sort the entities based on their min extends.
 		std::sort(entities.begin(), entities.end(), aabbComparator);
 		
+		// Arrays for components if interactions match
+		LinaArray<BaseECSComponent*> interactorComponents;
+		LinaArray<BaseECSComponent*> interacteeComponents;
+
 		// Test the interactions
 		Vector3F centerSum(0.0f), centerSqrtSum(0.0f);
 		for (size_t i = 0; i < entities.size(); i++)
@@ -88,9 +92,49 @@ namespace LinaEngine
 				if (otherAABB.GetMinExtents()[aabbComparator.axis] > aabb.GetMaxExtents()[aabbComparator.axis])
 					break;
 
-				if (aabb.DoesIntersect(otherAABB))
+				if (aabb.Intersects(otherAABB))
 				{
-					// Interaction rules.
+					size_t interactorIndex = i;
+					size_t interacteeIndex = j;
+
+					// Run the check twice. One for entity being the interactor, check against the interactees.
+					// Another one for entity being the interactee, check against the interactors.
+					for (size_t entityInteractionSwitchIndex = 0; entityInteractionSwitchIndex < 2; entityInteractionSwitchIndex++)
+					{
+						for (size_t k = 0; k < entities[interactorIndex].interactors.size(); k++)
+						{
+							for (size_t l = 0; l < entities[interacteeIndex].interactees.size(); l++)
+							{
+								uint32 index = entities[interactorIndex].interactors[k];
+								// Interaction is valid!
+								if (index == entities[interacteeIndex].interactees[l])
+								{
+									// Get the interaction
+									Interaction* interaction = interactions[index];
+
+									// Make sure we have enough space in our arrays.
+									interactorComponents.resize(Math::Max(interactorComponents.size(), interaction->GetInteractorComponents().size()));
+									interacteeComponents.resize(Math::Max(interactorComponents.size(), interaction->GetInteractorComponents().size()));
+
+									// Set interactor components.
+									for (size_t m = 0; m < interaction->GetInteractorComponents().size(); m++)
+										interactorComponents[m] = ecs.GetComponentByType(entities[interactorIndex].handle, interaction->GetInteractorComponents()[m]);
+
+									// Set interactee components.
+									for (size_t m = 0; m < interaction->GetInteractorComponents().size(); m++)
+										interactorComponents[m] = ecs.GetComponentByType(entities[interacteeIndex].handle, interaction->GetInteracteeComponents()[m]);
+
+									// Finally interact
+									interaction->Interact(delta, interactorComponents, interacteeComponents);
+								}
+							}
+						}
+						
+						// Swap interactee / interactor check.
+						size_t tempIndex = interactorIndex;
+						interactorIndex = interacteeIndex;
+						interacteeIndex = tempIndex;
+					}
 				}
 			}
 		}
