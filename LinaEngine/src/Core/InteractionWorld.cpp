@@ -88,7 +88,7 @@ namespace LinaEngine
 
 				if (aabb.DoesIntersect(otherAABB))
 				{
-
+					// Interaction rules.
 				}
 			}
 		}

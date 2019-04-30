@@ -46,6 +46,30 @@ namespace LinaEngine
 		}
 	};
 
+	class Interaction
+	{
+	public:
+
+		virtual void Interact(float delta, BaseECSComponent** interactorComponents, BaseECSComponent** interacteeComponents) {};
+
+	protected:
+
+		FORCEINLINE void AddInteractorComponentType(uint32 type)
+		{
+			interactorComponentTypes.push_back(type);
+		}
+
+		FORCEINLINE void AddInteracteeComponentType(uint32 type)
+		{
+			interacteeComponentTypes.push_back(type);
+		}
+
+	private:
+
+		LinaArray<uint32> interactorComponentTypes;
+		LinaArray<uint32> interacteeComponentTypes;
+	};
+
 	class InteractionWorld : public ECSListener
 	{
 	public:
@@ -64,6 +88,12 @@ namespace LinaEngine
 		// Processes the interactions.
 		void Tick(float delta);
 
+		// Add a new interaction.
+		FORCEINLINE void AddInteraction(Interaction* interaction)
+		{
+			interactions.push_back(interaction);
+		}
+
 	private:
 		
 		// Removes all entities in the dump.
@@ -73,6 +103,7 @@ namespace LinaEngine
 	private:
 
 		EntityComponentSystem& ecs;
+		LinaArray<Interaction*> interactions;
 		LinaArray<EntityHandle> entities;
 		LinaArray<EntityHandle> entityDump;
 		InteractionWorldCompare aabbComparator;

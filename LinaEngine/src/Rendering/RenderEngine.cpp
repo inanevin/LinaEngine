@@ -151,7 +151,7 @@ namespace LinaEngine::Graphics
 
 		entity = ecs.MakeEntity(transformComponent, movementComponent, renderableMesh);
 
-		for (uint32 i = 0; i < 300000; i++)
+		for (uint32 i = 0; i < 100000; i++)
 		{
 			transformComponent.transform.SetTranslation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f + 40.0f));
 
