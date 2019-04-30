@@ -39,6 +39,12 @@ class LinaArray : public std::vector<T>
 public:
 	LinaArray<T>() : std::vector<T>() {}
 	LinaArray<T>(size_t n) : std::vector<T>(n){}
+
+	void swap_remove(size_t index)
+	{
+		std::swap((*this)[index], (*this)[size() - 1]);
+		pop_back();
+	}
 };
 
 
