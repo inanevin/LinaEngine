@@ -23,12 +23,11 @@ Timestamp: 4/28/2019 3:37:53 AM
 #define MotionComponent_HPP
 
 
-
 namespace LinaEngine::ECS
 {
-	class MotionComponent : public ECSComponent<MotionComponent>
+	struct MotionComponent : public ECSComponent<MotionComponent>
 	{
-	public:
+
 		Vector3F velocity = Vector3F(0.0f, 0.0f, 0.0f);
 		Vector3F acceleration = Vector3F(0.0f, 0.0f, 0.0f);
 	};

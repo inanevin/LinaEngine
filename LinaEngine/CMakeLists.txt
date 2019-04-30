@@ -27,6 +27,8 @@ set (LINAENGINE_SOURCES
     src/Core/LayerStack.cpp
     src/Core/Transform.cpp
 	src/Core/Time.cpp
+	src/Core/InteractionWorld.cpp
+	
 	# ECS 
 	src/ECS/Systems/MovementControlSystem.cpp
 	src/ECS/Systems/RenderableMeshSystem.cpp
@@ -97,6 +99,7 @@ set(LINAENGINE_HEADERS
 	include/Core/STLImport.hpp
 	include/Core/Transform.hpp
 	include/Core/Time.hpp
+	include/Core/InteractionWorld.hpp
 	
 	#ECS
 	include/ECS/Components/MovementControlComponent.hpp

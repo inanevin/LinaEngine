@@ -22,12 +22,13 @@ Timestamp: 4/30/2019 7:40:43 PM
 #ifndef ColliderComponent_HPP
 #define ColliderComponent_HPP
 
+#include "ECS/ECSComponent.hpp"
 #include "Utility/Math/AABB.hpp"
 
 
 namespace LinaEngine::ECS
 {
-	struct ColliderComponent
+	struct ColliderComponent : ECSComponent<ColliderComponent>
 	{
 		AABB aabb;
 	};
