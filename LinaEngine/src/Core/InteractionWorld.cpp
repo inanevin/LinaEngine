@@ -39,30 +39,32 @@ namespace LinaEngine
 		if (id == TransformComponent::ID)
 		{
 			if (ecs.GetComponent<ColliderComponent>(handle) != nullptr)
-			{
 				AddEntity(handle);
-			}
 		}
-
-		if (id == ColliderComponent::ID)
+		else if (id == ColliderComponent::ID)
 		{
 			if (ecs.GetComponent<TransformComponent>(handle) != nullptr)
-			{
 				AddEntity(handle);
-			}
 		}
+		else if (ecs.GetComponent<ColliderComponent>(handle) != nullptr && ecs.GetComponent<TransformComponent>(handle) != nullptr)
+		{
+			entityUpdateStack.push_back(handle);
+		}
+		
 	}
 
 	void InteractionWorld::OnRemoveComponent(EntityHandle handle, uint32 id)
 	{
 		if (id == TransformComponent::ID || id == ColliderComponent::ID)
 			entityDump.push_back(handle);
+		else if (ecs.GetComponent<ColliderComponent>(handle) != nullptr && ecs.GetComponent<TransformComponent>(handle) != nullptr)
+			entityUpdateStack.push_back(handle);
 	}
 
 	void InteractionWorld::Tick(float delta)
 	{
 		// Clear entity dump
-		ClearEntityDump();
+		ClearEntityDumpAndUpdate();
 
 		// Sort the entities based on their min extends.
 		std::sort(entities.begin(), entities.end(), aabbComparator);
@@ -125,14 +127,15 @@ namespace LinaEngine
 			ComputeInteractions(entities[i], interactions.size() - 1);
 	}
 
-	void InteractionWorld::ClearEntityDump()
+	void InteractionWorld::ClearEntityDumpAndUpdate()
 	{
-
 		if (entityDump.size() == 0) return;
 
-		// Check each entity if they have been placed into the dump
+		// Iterate through entities.
 		for (size_t i = 0; i < entities.size(); i++)
 		{
+
+			// Check the entity if it has been placed into the dump for removal.
 			bool isRemoved = false;
 			do
 			{
@@ -149,11 +152,29 @@ namespace LinaEngine
 					}
 				}
 
-				if (isRemoved && entityDump.size() == 0) return;
+				if (entityDump.size() == 0 && entityUpdateStack.size() == 0) return;
+
 			} while (isRemoved);
+
+			for (size_t j = 0; j < entityUpdateStack.size(); j++)
+			{
+				// We need to update this one.
+				if (entities[i].handle == entityUpdateStack[j])
+				{
+					entities[i].interactees.clear();
+					entities[i].interactors.clear();
+					
+					// re-compute interactions for this entity.
+					for (size_t k = 0; k < interactions.size(); k++)
+						ComputeInteractions(entities[i], k);
+
+					entityUpdateStack.swap_remove(j);
+				}
+			}
 		}
 
 		entityDump.clear();
+		entityUpdateStack.clear();
 	}
 
 	void InteractionWorld::AddEntity(EntityHandle handle)

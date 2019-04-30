@@ -112,7 +112,7 @@ namespace LinaEngine
 	private:
 		
 		// Removes all entities in the dump.
-		void ClearEntityDump();
+		void ClearEntityDumpAndUpdate();
 
 		// Adds an entity to the list.
 		void AddEntity(EntityHandle handle);
@@ -126,6 +126,7 @@ namespace LinaEngine
 		LinaArray<Interaction*> interactions;
 		LinaArray<EntityInternal> entities;
 		LinaArray<EntityHandle> entityDump;
+		LinaArray<EntityHandle> entityUpdateStack;
 		InteractionWorldCompare aabbComparator;
 	};
 }
