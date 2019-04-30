@@ -40,7 +40,9 @@ namespace LinaEngine
 
 		bool operator()(EntityHandle a, EntityHandle b)
 		{
-			return (a < b);
+			float aMin = ecs.GetComponent<ColliderComponent>(a)->aabb.getMinExtents()[axis];
+			float bMin = ecs.GetComponent<ColliderComponent>(b)->aabb.getMinExtents()[axis];
+			return (aMin < bMin);
 		}
 	};
 
