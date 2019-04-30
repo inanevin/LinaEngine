@@ -32,10 +32,10 @@ namespace LinaEngine::ECS
 	{
 	public:
 
-		virtual void OnMakeEntity(EntityHandle handle);
-		virtual void OnRemoveEntity(EntityHandle handle);
-		virtual void OnAddComponent(EntityHandle handle, uint32 id);
-		virtual void OnRemoveComponent(EntityHandle handle, uint32 id);
+		virtual void OnMakeEntity(EntityHandle handle) {};
+		virtual void OnRemoveEntity(EntityHandle handle) {};
+		virtual void OnAddComponent(EntityHandle handle, uint32 id) {};
+		virtual void OnRemoveComponent(EntityHandle handle, uint32 id) {};
 
 		FORCEINLINE const LinaArray<uint32>& GetComponentIDs() { return componentIDs; }
 

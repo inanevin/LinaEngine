@@ -45,12 +45,23 @@ namespace LinaEngine
 		virtual void OnAddComponent(EntityHandle handle, uint32 id) override;
 		virtual void OnRemoveComponent(EntityHandle handle, uint32 id) override;
 
+		// Processes the interactions.
+		void Tick(float delta);
+
 	private:
 		
+		// Removes all entities in the dump.
+		void ClearEntityDump();
+
+		// Finds the highest variance entities for AABBs
+		int FindHighestVarianceAxis();
+
+
+	private:
+
 		EntityComponentSystem& ecs;
 		LinaArray<EntityHandle> entities;
 		LinaArray<EntityHandle> entityDump;
-
 	};
 }
 

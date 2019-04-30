@@ -57,5 +57,26 @@ namespace LinaEngine
 		if (id == TransformComponent::ID || id == ColliderComponent::ID)
 			entityDump.push_back(handle);
 	}
+
+	void InteractionWorld::Tick(float delta)
+	{
+		// Clear entity dump
+		ClearEntityDump();
+
+		// Find highest variance axis for AABBs
+		int axis = FindHighestVarianceAxis();
+
+		
+	}
+
+	void InteractionWorld::ClearEntityDump()
+	{
+
+	}
+
+	int InteractionWorld::FindHighestVarianceAxis()
+	{
+		return 0;
+	}
 }
 

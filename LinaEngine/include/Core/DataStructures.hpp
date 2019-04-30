@@ -24,7 +24,7 @@ Timestamp: 4/17/2019 1:46:20 AM
 
 #include "STLImport.hpp"
 
-#define LinaArray std::vector
+
 #define LinaMap std::map
 #define LinaList std::list
 #define LinaTuple std::tuple
@@ -32,6 +32,14 @@ Timestamp: 4/17/2019 1:46:20 AM
 #define LinaMakePair std::make_pair
 #define LinaString std::string
 #define LinaHash std::hash
+
+template<typename T>
+class LinaArray : public std::vector<T>
+{
+public:
+	LinaArray<T>() : std::vector<T>() {}
+	LinaArray<T>(size_t n) : std::vector<T>(n){}
+};
 
 
 #endif
