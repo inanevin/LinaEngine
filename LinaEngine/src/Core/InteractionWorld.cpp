@@ -72,6 +72,32 @@ namespace LinaEngine
 	void InteractionWorld::ClearEntityDump()
 	{
 
+		if (entityDump.size() == 0) return;
+
+		// Check each entity if they have been placed into the dump
+		for (size_t i = 0; i < entities.size(); i++)
+		{
+			bool isRemoved = false;
+			do
+			{
+				isRemoved = false;
+				for (size_t j = 0; j < entityDump.size(); j++)
+				{
+					if (entities[i] == entityDump[j])
+					{
+						// put the entity at the end of the list & pop it.
+						entities.swap_remove(i);
+						entityDump.swap_remove(j);
+						isRemoved = true;
+						break;
+					}
+				}
+
+				if (isRemoved && entityDump.size() == 0) return;
+			} while (isRemoved);
+		}
+
+		entityDump.clear();
 	}
 
 	int InteractionWorld::FindHighestVarianceAxis()

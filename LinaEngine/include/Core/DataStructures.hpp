@@ -42,8 +42,8 @@ public:
 
 	void swap_remove(size_t index)
 	{
-		std::swap((*this)[index], (*this)[size() - 1]);
-		pop_back();
+		std::swap((*this)[index], (*this)[this->size() - 1]);
+		this->pop_back();
 	}
 };
 
