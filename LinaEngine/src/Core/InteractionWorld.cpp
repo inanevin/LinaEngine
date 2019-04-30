@@ -26,7 +26,7 @@ namespace LinaEngine
 
 	void InteractionWorld::OnMakeEntity(EntityHandle handle)
 	{
-		entities.push_back(handle);
+		AddEntity(handle);
 	}
 
 	void InteractionWorld::OnRemoveEntity(EntityHandle handle)
@@ -40,7 +40,7 @@ namespace LinaEngine
 		{
 			if (ecs.GetComponent<ColliderComponent>(handle) != nullptr)
 			{
-				entities.push_back(handle);
+				AddEntity(handle);
 			}
 		}
 
@@ -48,7 +48,7 @@ namespace LinaEngine
 		{
 			if (ecs.GetComponent<TransformComponent>(handle) != nullptr)
 			{
-				entities.push_back(handle);
+				AddEntity(handle);
 			}
 		}
 	}
@@ -71,7 +71,7 @@ namespace LinaEngine
 		Vector3F centerSum(0.0f), centerSqrtSum(0.0f);
 		for (size_t i = 0; i < entities.size(); i++)
 		{
-			AABB aabb = ecs.GetComponent<ColliderComponent>(entities[i])->aabb;
+			AABB aabb = ecs.GetComponent<ColliderComponent>(entities[i].handle)->aabb;
 
 			Vector3F center = aabb.GetCenter();
 			centerSum += center;
@@ -80,7 +80,7 @@ namespace LinaEngine
 			// Find the interactions
 			for (size_t j = i + 1; j < entities.size(); j++)
 			{
-				AABB otherAABB = ecs.GetComponent<ColliderComponent>(entities[j])->aabb;
+				AABB otherAABB = ecs.GetComponent<ColliderComponent>(entities[j].handle)->aabb;
 
 				// If condition fails, no other entity can possible be interacting w/ the current one
 				if (otherAABB.GetMinExtents()[aabbComparator.axis] > aabb.GetMaxExtents()[aabbComparator.axis])
@@ -131,7 +131,7 @@ namespace LinaEngine
 				isRemoved = false;
 				for (size_t j = 0; j < entityDump.size(); j++)
 				{
-					if (entities[i] == entityDump[j])
+					if (entities[i].handle == entityDump[j])
 					{
 						// put the entity at the end of the list & pop it.
 						entities.swap_remove(i);
@@ -146,6 +146,49 @@ namespace LinaEngine
 		}
 
 		entityDump.clear();
+	}
+
+	void InteractionWorld::AddEntity(EntityHandle handle)
+	{
+		EntityInternal entity;
+		entity.handle = handle;
+
+
+		entities.push_back(entity);
+	}
+
+	void InteractionWorld::ComputeInteractions(EntityInternal & entity, uint32 interactionIndex)
+	{
+		Interaction* interaction = interactions[interactionIndex];
+		
+		// Check if this entity is an interactor
+		bool isInteractor = true;
+		for (size_t i = 0; i < interaction->GetInteractorComponents().size(); i++)
+		{
+			if (ecs.GetComponentByType(entity.handle, interaction->GetInteractorComponents()[i]) == nullptr)
+			{
+				isInteractor = false;
+				break;
+			}
+		}
+
+		// Check if this entity is an interactee
+		bool isInteractee = true;
+		for (size_t i = 0; i < interaction->GetInteracteeComponents().size(); i++)
+		{
+			if (ecs.GetComponentByType(entity.handle, interaction->GetInteracteeComponents()[i]) == nullptr)
+			{
+				isInteractee = false;
+				break;
+			}
+		}
+
+		// Add to the corresponding list if valid.
+		if (isInteractor)
+			entity.interactors.push_back(interactionIndex);
+		
+		if (isInteractee)
+			entity.interactees.push_back(interactionIndex);
 	}
 
 }

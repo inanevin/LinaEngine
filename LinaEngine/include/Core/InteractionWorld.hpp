@@ -31,26 +31,16 @@ using namespace LinaEngine::ECS;
 namespace LinaEngine
 {
 
-	struct InteractionWorldCompare
-	{
-		uint32 axis = 0;
-		EntityComponentSystem& ecs;
 
-		InteractionWorldCompare(EntityComponentSystem& ecsIn, uint32 axisIn) : ecs(ecsIn), axis(axisIn) {};
-
-		bool operator()(EntityHandle a, EntityHandle b)
-		{
-			float aMin = ecs.GetComponent<ColliderComponent>(a)->aabb.GetMinExtents()[axis];
-			float bMin = ecs.GetComponent<ColliderComponent>(b)->aabb.GetMinExtents()[axis];
-			return (aMin < bMin);
-		}
-	};
 
 	class Interaction
 	{
 	public:
 
 		virtual void Interact(float delta, BaseECSComponent** interactorComponents, BaseECSComponent** interacteeComponents) {};
+
+		FORCEINLINE const LinaArray<uint32>& GetInteractorComponents() { return interactorComponentTypes; }
+		FORCEINLINE const LinaArray<uint32>& GetInteracteeComponents() { return interacteeComponentTypes; }
 
 	protected:
 
@@ -95,16 +85,45 @@ namespace LinaEngine
 		}
 
 	private:
+
+		struct EntityInternal
+		{
+			EntityHandle handle;
+			LinaArray<uint32> interactors;
+			LinaArray<uint32> interactees;
+		};
+
+		struct InteractionWorldCompare
+		{
+			uint32 axis = 0;
+			EntityComponentSystem& ecs;
+
+			InteractionWorldCompare(EntityComponentSystem& ecsIn, uint32 axisIn) : ecs(ecsIn), axis(axisIn) {};
+
+			bool operator()(EntityInternal a, EntityInternal b)
+			{
+				float aMin = ecs.GetComponent<ColliderComponent>(a.handle)->aabb.GetMinExtents()[axis];
+				float bMin = ecs.GetComponent<ColliderComponent>(b.handle)->aabb.GetMinExtents()[axis];
+				return (aMin < bMin);
+			}
+		};
+
+	private:
 		
 		// Removes all entities in the dump.
 		void ClearEntityDump();
 
+		// Adds an entity to the list.
+		void AddEntity(EntityHandle handle);
+
+		// Computes specific interactions
+		void ComputeInteractions(EntityInternal& entity, uint32 interactionIndex);
 
 	private:
 
 		EntityComponentSystem& ecs;
 		LinaArray<Interaction*> interactions;
-		LinaArray<EntityHandle> entities;
+		LinaArray<EntityInternal> entities;
 		LinaArray<EntityHandle> entityDump;
 		InteractionWorldCompare aabbComparator;
 	};

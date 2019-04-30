@@ -208,6 +208,12 @@ namespace LinaEngine::ECS
 			return (Component*)GetComponentInternal(HandleToEntity(entity), components[Component::ID], Component::ID);
 		}
 
+		// Gets component by id'ed type.
+		BaseECSComponent* GetComponentByType(EntityHandle entity, uint32 componentID)
+		{
+			return GetComponentInternal(HandleToEntity(entity), components[componentID], componentID);
+		}
+
 		/* System Tick */
 		void UpdateSystems(ECSSystemList& systems, float delta);
 		
