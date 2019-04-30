@@ -96,7 +96,7 @@ namespace LinaEngine::Graphics
 		context = new RenderContext(*m_RenderDevice.get(), *target);
 	
 	
-		ModelLoader::LoadModels("Resources/Mesh/room.fbx", models, modelMaterialIndices, modelMaterials);
+		ModelLoader::LoadModels("Resources/Mesh/cube.obj", models, modelMaterialIndices, modelMaterials);
 		ModelLoader::LoadModels("Resources/Mesh/tinycube.obj", models, modelMaterialIndices, modelMaterials);
 		vertexArray = new VertexArray(*m_RenderDevice.get(), models[0], BufferUsage::USAGE_STATIC_DRAW);
 		cubeArray = new VertexArray(*m_RenderDevice.get(), models[1], BufferUsage::USAGE_STATIC_DRAW);
@@ -151,7 +151,7 @@ namespace LinaEngine::Graphics
 
 		entity = ecs.MakeEntity(transformComponent, movementComponent, renderableMesh);
 
-		for (uint32 i = 0; i < 1000; i++)
+		for (uint32 i = 0; i < 300000; i++)
 		{
 			transformComponent.transform.SetTranslation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f + 40.0f));
 
