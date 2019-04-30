@@ -30,11 +30,25 @@ using namespace LinaEngine::ECS;
 
 namespace LinaEngine
 {
+
+	struct InteractionWorldCompare
+	{
+		uint32 axis = 0;
+		EntityComponentSystem& ecs;
+
+		InteractionWorldCompare(EntityComponentSystem& ecsIn, uint32 axisIn) : ecs(ecsIn), axis(axisIn) {};
+
+		bool operator()(EntityHandle a, EntityHandle b)
+		{
+			return (a < b);
+		}
+	};
+
 	class InteractionWorld : public ECSListener
 	{
 	public:
 
-		InteractionWorld(EntityComponentSystem& ecsIn) : ECSListener(), ecs(ecsIn)
+		InteractionWorld(EntityComponentSystem& ecsIn) : ECSListener(), ecs(ecsIn), aabbComparator(ecsIn, 0)
 		{
 			AddComponentID(TransformComponent::ID);
 			AddComponentID(ColliderComponent::ID);
@@ -62,6 +76,7 @@ namespace LinaEngine
 		EntityComponentSystem& ecs;
 		LinaArray<EntityHandle> entities;
 		LinaArray<EntityHandle> entityDump;
+		InteractionWorldCompare aabbComparator;
 	};
 }
 

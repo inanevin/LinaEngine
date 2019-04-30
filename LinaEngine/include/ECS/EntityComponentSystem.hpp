@@ -46,8 +46,6 @@ namespace LinaEngine::ECS
 			componentIDs.push_back(id);
 		}
 
-
-
 	private:
 
 		LinaArray<uint32> componentIDs;

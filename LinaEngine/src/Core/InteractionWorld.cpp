@@ -19,6 +19,7 @@ Timestamp: 4/30/2019 7:43:50 PM
 
 #include "LinaPch.hpp"
 #include "Core/InteractionWorld.hpp"  
+#include "Core/STLImport.hpp"
 
 namespace LinaEngine
 {
@@ -66,6 +67,7 @@ namespace LinaEngine
 		// Find highest variance axis for AABBs
 		int axis = FindHighestVarianceAxis();
 
+		std::sort(entities.begin(), entities.end(), aabbComparator);
 		
 	}
 
