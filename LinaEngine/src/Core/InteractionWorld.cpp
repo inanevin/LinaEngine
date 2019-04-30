@@ -125,7 +125,7 @@ namespace LinaEngine
 										interactorComponents[m] = ecs.GetComponentByType(entities[interacteeIndex].handle, interaction->GetInteracteeComponents()[m]);
 
 									// Finally interact
-									interaction->Interact(delta, interactorComponents, interacteeComponents);
+									interaction->Interact(delta, &interactorComponents[0], &interacteeComponents[0]);
 								}
 							}
 						}
