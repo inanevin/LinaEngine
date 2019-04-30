@@ -27,14 +27,15 @@ Timestamp: 4/8/2019 5:43:51 PM
 
 namespace LinaEngine::ECS
 {
+	// Listener class for entity actions.
 	class ECSListener
 	{
 	public:
 
 		virtual void OnMakeEntity(EntityHandle handle);
 		virtual void OnRemoveEntity(EntityHandle handle);
-		virtual void OnAddComponent(EntityHandle handle);
-		virtual void OnRemoveComponent(EntityHandle handle);
+		virtual void OnAddComponent(EntityHandle handle, uint32 id);
+		virtual void OnRemoveComponent(EntityHandle handle, uint32 id);
 
 		FORCEINLINE const LinaArray<uint32>& GetComponentIDs() { return componentIDs; }
 

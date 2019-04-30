@@ -34,7 +34,7 @@ namespace LinaEngine
 	{
 	public:
 
-		InteractionWorld() : ECSListener()
+		InteractionWorld(EntityComponentSystem& ecsIn) : ECSListener(), ecs(ecsIn)
 		{
 			AddComponentID(TransformComponent::ID);
 			AddComponentID(ColliderComponent::ID);
@@ -42,11 +42,14 @@ namespace LinaEngine
 
 		virtual void OnMakeEntity(EntityHandle handle) override;
 		virtual void OnRemoveEntity(EntityHandle handle) override;
-		virtual void OnAddComponent(EntityHandle handle) override;
-		virtual void OnRemoveComponent(EntityHandle handle) override;
+		virtual void OnAddComponent(EntityHandle handle, uint32 id) override;
+		virtual void OnRemoveComponent(EntityHandle handle, uint32 id) override;
 
 	private:
-
+		
+		EntityComponentSystem& ecs;
+		LinaArray<EntityHandle> entities;
+		LinaArray<EntityHandle> entityDump;
 
 	};
 }

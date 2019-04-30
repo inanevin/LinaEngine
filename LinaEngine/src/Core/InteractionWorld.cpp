@@ -18,13 +18,44 @@ Timestamp: 4/30/2019 7:43:50 PM
 */
 
 #include "LinaPch.hpp"
-#include "InteractionWorld.hpp"  
+#include "Core/InteractionWorld.hpp"  
 
 namespace LinaEngine
 {
-	InteractionWorld::InteractionWorld()
-	{
 
+	void InteractionWorld::OnMakeEntity(EntityHandle handle)
+	{
+		entities.push_back(handle);
+	}
+
+	void InteractionWorld::OnRemoveEntity(EntityHandle handle)
+	{
+		entityDump.push_back(handle);
+	}
+
+	void InteractionWorld::OnAddComponent(EntityHandle handle, uint32 id)
+	{
+		if (id == TransformComponent::ID)
+		{
+			if (ecs.GetComponent<ColliderComponent>(handle) != nullptr)
+			{
+				entities.push_back(handle);
+			}
+		}
+
+		if (id == ColliderComponent::ID)
+		{
+			if (ecs.GetComponent<TransformComponent>(handle) != nullptr)
+			{
+				entities.push_back(handle);
+			}
+		}
+	}
+
+	void InteractionWorld::OnRemoveComponent(EntityHandle handle, uint32 id)
+	{
+		if (id == TransformComponent::ID || id == ColliderComponent::ID)
+			entityDump.push_back(handle);
 	}
 }
 
