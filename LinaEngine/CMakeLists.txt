@@ -104,6 +104,7 @@ set(LINAENGINE_HEADERS
 	include/ECS/Components/TransformComponent.hpp
 	include/ECS/Components/MotionComponent.hpp
 	include/ECS/Components/CubeChunkComponent.hpp
+	include/ECS/Components/ColliderComponent.hpp
 	include/ECS/Systems/MovementControlSystem.hpp
 	include/ECS/Systems/RenderableMeshSystem.hpp
 	include/ECS/Systems/MotionSystem.hpp
