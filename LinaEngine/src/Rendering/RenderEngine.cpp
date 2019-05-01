@@ -38,7 +38,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "Core/Application.hpp"
 #include "Rendering/ArrayBitmap.hpp"
 #include "Physics/PhysicsInteractionWorld.hpp"
-
+#include "ECS/Components/ColliderComponent.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -57,6 +57,7 @@ namespace LinaEngine::Graphics
 	MotionSystem motionSystem;
 	MotionComponent motionComponent;
 	CubeChunkComponent cubeChunkComponent;
+	ColliderComponent colliderComponent;
 	CubeChunkSystem cubeChunkSystem;
 	CubeChunkRenderSystem* cubeChunkRenderSystem;
 	RenderTarget* target;
@@ -112,7 +113,7 @@ namespace LinaEngine::Graphics
 			LINA_CORE_ERR("Could not load texture!");
 		}*/
 
-		arrayBitmap.Load("Resources/Textures/seamless1.jpg");
+		arrayBitmap.Load("Resources/Textures/redgrid.png");
 
 		//texture = new Texture(*m_RenderDevice.get(), ddsTexture);
 		texture = new Texture(*m_RenderDevice.get(), arrayBitmap, PixelFormat::FORMAT_RGB, true, false);
@@ -122,7 +123,7 @@ namespace LinaEngine::Graphics
 			LINA_CORE_ERR("Could not load texture! :(");
 		}*/
 		
-		arrayBitmap.Load("Resources/Textures/seamless2.jpg");
+		arrayBitmap.Load("Resources/Textures/checker.png");
 
 		//textureNew = new Texture(*m_RenderDevice.get(), ddsTexture);
 		textureNew = new Texture(*m_RenderDevice.get(), arrayBitmap, PixelFormat::FORMAT_RGB, true, false);
@@ -147,18 +148,21 @@ namespace LinaEngine::Graphics
 		renderableMeshSystem = new RenderableMeshSystem(*gameRenderContext);
 		cubeChunkRenderSystem = new CubeChunkRenderSystem(*gameRenderContext, *cubeArray, textures, ARRAY_SIZE_IN_ELEMENTS(textures));
 
-		transformComponent.transform.SetTranslation(Vector3F(0.0f, 0, 50.0f));
+		colliderComponent.aabb = AABB(Vector3F(-0.1f), Vector3F(0.1f));
+	
+
+		transformComponent.transform.SetTranslation(Vector3F(0.0f, 0.0f, 20.0f));
 
 		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(1.0f, 0.0f, 0.0f) * 3, Application::Get().GetInputDevice().GetHorizontalKeyAxis()));
 		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(0.0f, 1.0f, 0.0f) * 3, Application::Get().GetInputDevice().GetVerticalKeyAxis()));
 		renderableMesh.vertexArray = vertexArray;
 		renderableMesh.texture = &(*texture);
 
-		entity = ECS->MakeEntity(transformComponent, movementComponent, renderableMesh);
+		entity = ECS->MakeEntity(transformComponent, movementComponent, renderableMesh, colliderComponent);
 
-		for (uint32 i = 0; i < 100000; i++)
+		for (uint32 i = 0; i < 1; i++)
 		{
-			transformComponent.transform.SetTranslation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f + 40.0f));
+			transformComponent.transform.SetTranslation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f, 20.0f));
 
 			renderableMesh.vertexArray = &*cubeArray;
 			renderableMesh.texture = Math::RandF() > 0.5f ? &*texture : &*textureNew;
@@ -167,7 +171,7 @@ namespace LinaEngine::Graphics
 			motionComponent.acceleration = Vector3F(Math::RandF(-af, af), Math::RandF(-af, af), Math::RandF(-af, af));
 			motionComponent.velocity = motionComponent.acceleration * vf;
 
-			for (uint32 i = 0; i < 3; i++)
+			/*for (uint32 i = 0; i < 3; i++)
 			{
 				cubeChunkComponent.position[i] = transformComponent.transform.GetTranslation()[i];
 				cubeChunkComponent.velocity[i] = motionComponent.velocity[i];
@@ -175,15 +179,17 @@ namespace LinaEngine::Graphics
 				cubeChunkComponent.textureIndex = Math::RandF() > 0.5f ? 0 : 1;
 
 			}
-			ECS->MakeEntity(cubeChunkComponent);
-			//ecs.MakeEntity(transformComponent,  motionComponent, renderableMesh);
+			ECS->MakeEntity(cubeChunkComponent);*/
+			//ECS->MakeEntity(transformComponent,  motionComponent, renderableMesh, colliderComponent);
+			ECS->MakeEntity(transformComponent,   renderableMesh, colliderComponent);
+
 		}
 
 		renderingPipeline.AddSystem(*renderableMeshSystem);
-		renderingPipeline.AddSystem(*cubeChunkRenderSystem);
+		//renderingPipeline.AddSystem(*cubeChunkRenderSystem);
 		mainSystems.AddSystem(movementControlSystem);
 		//mainSystems.AddSystem(motionSystem);
-		mainSystems.AddSystem(cubeChunkSystem);
+		//mainSystems.AddSystem(cubeChunkSystem);
 	}
 
 	void RenderEngine::Tick()
@@ -197,7 +203,7 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Render()
 	{
-		gameRenderContext->Clear(Color(0.2f, 0.35f, 0.42f, 1.0f), true);
+		gameRenderContext->Clear(Color(0.2f, 0.225f, 0.12f, 1.0f), true);
 		ECS->UpdateSystems(renderingPipeline, 0.01f);
 		gameRenderContext->Flush();
 		m_RenderDevice->TickWindow();

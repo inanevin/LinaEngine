@@ -12,26 +12,32 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: ColliderComponent
-Timestamp: 4/30/2019 7:40:43 PM
+Class: TestInteraction
+Timestamp: 5/1/2019 4:41:54 PM
 
 */
 
 #pragma once
 
-#ifndef ColliderComponent_HPP
-#define ColliderComponent_HPP
+#ifndef TestInteraction_HPP
+#define TestInteraction_HPP
 
-#include "ECS/ECSComponent.hpp"
-#include "Utility/Math/AABB.hpp"
-
+#include "ECS/ECSInteraction.hpp"
 
 namespace LinaEngine::ECS
 {
-	struct ColliderComponent : ECSComponent<ColliderComponent>
+	class TestInteraction : public ECSInteraction
 	{
-		AABB aabb;
-		AABB transformedAABB;
+	public:
+
+		TestInteraction() : ECSInteraction()
+		{
+			//AddInteractorComponentType();
+			//AddInteracteeComponentType();
+		}
+
+		virtual void Interact(float dleta, BaseECSComponent** components, BaseECSComponent** interacteeComponents) override;
+
 	};
 }
 

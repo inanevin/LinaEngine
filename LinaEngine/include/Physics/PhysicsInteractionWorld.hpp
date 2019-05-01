@@ -71,17 +71,17 @@ namespace LinaEngine::Physics
 			LinaArray<uint32> interactees;
 		};
 
-		struct InteractionWorldCompare
+		struct PhysicsInteractionComparator
 		{
 			uint32 axis = 0;
 			EntityComponentSystem& ecs;
 
-			InteractionWorldCompare(EntityComponentSystem& ecsIn, uint32 axisIn) : ecs(ecsIn), axis(axisIn) {};
+			PhysicsInteractionComparator(EntityComponentSystem& ecsIn, uint32 axisIn) : ecs(ecsIn), axis(axisIn) {};
 
-			bool operator()(EntityInternal a, EntityInternal b)
+			bool operator()(EntityInternal& a, EntityInternal& b)
 			{
-				float aMin = ecs.GetComponent<ColliderComponent>(a.handle)->aabb.GetMinExtents()[axis];
-				float bMin = ecs.GetComponent<ColliderComponent>(b.handle)->aabb.GetMinExtents()[axis];
+				float aMin = ecs.GetComponent<ColliderComponent>(a.handle)->transformedAABB.GetMinExtents()[axis];
+				float bMin = ecs.GetComponent<ColliderComponent>(b.handle)->transformedAABB.GetMinExtents()[axis];
 				return (aMin < bMin);
 			}
 		};
@@ -104,7 +104,7 @@ namespace LinaEngine::Physics
 		LinaArray<EntityInternal> entities;
 		LinaArray<EntityHandle> entityDump;
 		LinaArray<EntityHandle> entityUpdateStack;
-		InteractionWorldCompare aabbComparator;
+		PhysicsInteractionComparator aabbComparator;
 	};
 }
 

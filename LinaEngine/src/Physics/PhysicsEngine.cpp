@@ -20,9 +20,13 @@ Timestamp: 5/1/2019 2:35:43 AM
 #include "LinaPch.hpp"
 #include "Physics/PhysicsEngine.hpp"  
 #include "ECS/EntityComponentSystem.hpp"
+#include "ECS/Interactions/TestInteraction.hpp"
 
 namespace LinaEngine::Physics
 {
+
+	TestInteraction testInteraction;
+
 	PhysicsEngine::PhysicsEngine()
 	{
 		LINA_CORE_TRACE("[Constructor] -> Physics Engine ({0})", typeid(*this).name());
@@ -45,6 +49,8 @@ namespace LinaEngine::Physics
 
 		// Add interaction world as a listener to ECS.
 		ECS->AddListener(m_InteractionWorld.get());
+
+		m_InteractionWorld->AddInteraction(&testInteraction);
 	}
 
 	void PhysicsEngine::Tick(float fixedDelta)

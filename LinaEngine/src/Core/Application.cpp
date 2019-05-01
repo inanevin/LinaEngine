@@ -55,8 +55,8 @@ namespace LinaEngine
 
 		// Initialize engines.
 		m_InputEngine->Initialize(m_RenderEngine->GetNativeWindow());
-		m_RenderEngine->Initialize(m_ECS.get());
 		m_PhysicsEngine->Initialize(m_ECS.get());
+		m_RenderEngine->Initialize(m_ECS.get());
 
 		// Set running flag.
 		m_Running = true;
@@ -88,10 +88,10 @@ namespace LinaEngine
 		while (m_Running)
 		{
 			m_InputEngine->Tick();
+	
+			m_PhysicsEngine->Tick(0.01f);
 			m_RenderEngine->Tick();
 			m_RenderEngine->Render();
-			m_PhysicsEngine->Tick(0.01f);
-
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 		}

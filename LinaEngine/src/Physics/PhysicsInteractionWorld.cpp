@@ -65,6 +65,12 @@ namespace LinaEngine::Physics
 		// Clear entity dump
 		ClearEntityDumpAndUpdate();
 
+		for (size_t i = 0; i < entities.size(); i++)
+		{
+			ColliderComponent* colliderComponent = ecs.GetComponent<ColliderComponent>(entities[i].handle);
+			colliderComponent->transformedAABB = colliderComponent->aabb.Transform(ecs.GetComponent<TransformComponent>(entities[i].handle)->transform.ToMatrix());
+		}
+
 		// Sort the entities based on their min extends.
 		std::sort(entities.begin(), entities.end(), aabbComparator);
 
@@ -76,7 +82,7 @@ namespace LinaEngine::Physics
 		Vector3F centerSum(0.0f), centerSqrtSum(0.0f);
 		for (size_t i = 0; i < entities.size(); i++)
 		{
-			AABB aabb = ecs.GetComponent<ColliderComponent>(entities[i].handle)->aabb;
+			AABB aabb = ecs.GetComponent<ColliderComponent>(entities[i].handle)->transformedAABB;
 
 			Vector3F center = aabb.GetCenter();
 			centerSum += center;
@@ -85,7 +91,7 @@ namespace LinaEngine::Physics
 			// Find the interactions
 			for (size_t j = i + 1; j < entities.size(); j++)
 			{
-				AABB otherAABB = ecs.GetComponent<ColliderComponent>(entities[j].handle)->aabb;
+				AABB otherAABB = ecs.GetComponent<ColliderComponent>(entities[j].handle)->transformedAABB;
 
 				// If condition fails, no other entity can possible be interacting w/ the current one
 				if (otherAABB.GetMinExtents()[aabbComparator.axis] > aabb.GetMaxExtents()[aabbComparator.axis])
@@ -113,18 +119,24 @@ namespace LinaEngine::Physics
 
 									// Make sure we have enough space in our arrays.
 									interactorComponents.resize(Math::Max(interactorComponents.size(), interaction->GetInteractorComponents().size()));
-									interacteeComponents.resize(Math::Max(interactorComponents.size(), interaction->GetInteractorComponents().size()));
+									interacteeComponents.resize(Math::Max(interacteeComponents.size(), interaction->GetInteracteeComponents().size()));
 
 									// Set interactor components.
 									for (size_t m = 0; m < interaction->GetInteractorComponents().size(); m++)
 										interactorComponents[m] = ecs.GetComponentByType(entities[interactorIndex].handle, interaction->GetInteractorComponents()[m]);
 
 									// Set interactee components.
-									for (size_t m = 0; m < interaction->GetInteractorComponents().size(); m++)
-										interactorComponents[m] = ecs.GetComponentByType(entities[interacteeIndex].handle, interaction->GetInteracteeComponents()[m]);
-
+									for (size_t m = 0; m < interaction->GetInteracteeComponents().size(); m++)
+										interacteeComponents[m] = ecs.GetComponentByType(entities[interacteeIndex].handle, interaction->GetInteracteeComponents()[m]);
+#ifdef NDEBUG
 									// Finally interact
 									interaction->Interact(delta, &interactorComponents[0], &interacteeComponents[0]);
+#else
+									if (interactorComponents.size() == 0 || interacteeComponents.size() == 0)
+										LINA_CORE_WARN("Passing component arrays w/ size 0 will fail in debug testing. Abort calling interaction.");
+#endif
+
+									
 								}
 							}
 						}
