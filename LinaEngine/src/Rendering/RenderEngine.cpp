@@ -70,6 +70,8 @@ namespace LinaEngine::Graphics
 	Sampler* sampler;
 	VertexArray* vertexArray;
 	VertexArray* cubeArray;
+	AABB vertexArrayAABBCube;
+	AABB vertexArrayAABBTinyCube;
 	LinaArray<IndexedModel> models;
 	LinaArray<uint32> modelMaterialIndices;
 	LinaArray<Material> modelMaterials;
@@ -107,6 +109,8 @@ namespace LinaEngine::Graphics
 		vertexArray = new VertexArray(*m_RenderDevice.get(), models[0], BufferUsage::USAGE_STATIC_DRAW);
 		cubeArray = new VertexArray(*m_RenderDevice.get(), models[1], BufferUsage::USAGE_STATIC_DRAW);
 		sampler = new Sampler(*m_RenderDevice.get(), SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR);
+		vertexArrayAABBCube = models[0].GetAABBForElementArray(0);
+		vertexArrayAABBTinyCube = models[1].GetAABBForElementArray(0);
 
 		/*if (!ddsTexture.Load("../res/textures/bricks.dds"))
 		{
@@ -148,11 +152,11 @@ namespace LinaEngine::Graphics
 		renderableMeshSystem = new RenderableMeshSystem(*gameRenderContext);
 		cubeChunkRenderSystem = new CubeChunkRenderSystem(*gameRenderContext, *cubeArray, textures, ARRAY_SIZE_IN_ELEMENTS(textures));
 
-		colliderComponent.aabb = AABB(Vector3F(-0.1f), Vector3F(0.1f));
+		colliderComponent.aabb = vertexArrayAABBCube;
 	
 
 		transformComponent.transform.SetTranslation(Vector3F(0.0f, 0.0f, 20.0f));
-
+		transformComponent.transform.SetScale(0.3f);
 		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(1.0f, 0.0f, 0.0f) * 3, Application::Get().GetInputDevice().GetHorizontalKeyAxis()));
 		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(0.0f, 1.0f, 0.0f) * 3, Application::Get().GetInputDevice().GetVerticalKeyAxis()));
 		renderableMesh.vertexArray = vertexArray;
@@ -163,7 +167,7 @@ namespace LinaEngine::Graphics
 		for (uint32 i = 0; i < 1; i++)
 		{
 			transformComponent.transform.SetTranslation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f, 20.0f));
-
+			transformComponent.transform.SetScale(1.0f);
 			renderableMesh.vertexArray = &*cubeArray;
 			renderableMesh.texture = Math::RandF() > 0.5f ? &*texture : &*textureNew;
 			float vf = -4.0f;
@@ -181,6 +185,8 @@ namespace LinaEngine::Graphics
 			}
 			ECS->MakeEntity(cubeChunkComponent);*/
 			//ECS->MakeEntity(transformComponent,  motionComponent, renderableMesh, colliderComponent);
+			colliderComponent.aabb = vertexArrayAABBTinyCube;
+
 			ECS->MakeEntity(transformComponent,   renderableMesh, colliderComponent);
 
 		}
