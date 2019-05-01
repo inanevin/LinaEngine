@@ -68,7 +68,7 @@ set (LINAENGINE_SOURCES
 	src/Rendering/RenderEngine.cpp
 	
 	#Physics
-	src/Physics/PhysicsEngine.hpp
+	src/Physics/PhysicsEngine.cpp
 	src/Physics/PhysicsInteractionWorld.cpp
 	
 	#Utility

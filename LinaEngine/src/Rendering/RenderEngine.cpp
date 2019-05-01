@@ -122,7 +122,7 @@ namespace LinaEngine::Graphics
 			LINA_CORE_ERR("Could not load texture! :(");
 		}*/
 		
-		arrayBitmap.Load("Resources/Textures/seamless2.jpg");
+		arrayBitmap.Load("Resources/Textures/wood.jpg");
 
 		//textureNew = new Texture(*m_RenderDevice.get(), ddsTexture);
 		textureNew = new Texture(*m_RenderDevice.get(), arrayBitmap, PixelFormat::FORMAT_RGB, true, false);
@@ -197,7 +197,7 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Render()
 	{
-		gameRenderContext->Clear(Color(0.2f, 0.35f, 0.42f, 1.0f), true);
+		gameRenderContext->Clear(Color(0.2f, 0.2f, 0.22f, 1.0f), true);
 		ECS->UpdateSystems(renderingPipeline, 0.01f);
 		gameRenderContext->Flush();
 		m_RenderDevice->TickWindow();
