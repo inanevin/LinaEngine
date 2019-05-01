@@ -26,9 +26,17 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "Core/DataStructures.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
 
+namespace LinaEngine::ECS
+{
+	class EntityComponentSystem;
+}
+
+using namespace LinaEngine::ECS;
 
 namespace LinaEngine::Graphics
 {
+
+	using namespace ECS;
 
 
 	class RenderEngine
@@ -36,12 +44,14 @@ namespace LinaEngine::Graphics
 	public:
 
 		RenderEngine();
+
 		~RenderEngine();
+
 		// Get a void* reference to the native window. e.g GLFWwindow
 		FORCEINLINE void* GetNativeWindow() { return m_RenderDevice->GetNativeWindow(); }
 
 		// Initialize the render renderEngine.
-		void Initialize();
+		void Initialize(EntityComponentSystem* ecsIn);
 
 		// Called each frame.
 		void Tick();
@@ -57,8 +67,11 @@ namespace LinaEngine::Graphics
 
 	private:
 
+		// Device for rendering operations.
 		std::unique_ptr<PAMRenderDevice> m_RenderDevice;
 
+		// ECS reference.
+		EntityComponentSystem* ECS;
 
 	};
 

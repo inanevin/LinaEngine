@@ -46,7 +46,7 @@ namespace LinaEngine::ECS
 	{
 
 		/* Increments id for new components */
-		static uint32 registerComponentType(ECSComponentCreateFunction createfn, ECSComponentFreeFunction freefn, size_t size);
+		LINA_API static uint32 registerComponentType(ECSComponentCreateFunction createfn, ECSComponentFreeFunction freefn, size_t size);
 
 		/* Entity reference */
 		EntityHandle entity = NULL_ENTITY_HANDLE;

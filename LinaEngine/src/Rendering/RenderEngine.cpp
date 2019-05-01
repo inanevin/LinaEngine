@@ -37,14 +37,15 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "PackageManager/PAMInputEngine.hpp"
 #include "Core/Application.hpp"
 #include "Rendering/ArrayBitmap.hpp"
+#include "Physics/PhysicsInteractionWorld.hpp"
+
 
 namespace LinaEngine::Graphics
 {
 
 	using namespace ECS;
+	using namespace Physics;
 
-
-	EntityComponentSystem ecs;
 	EntityHandle entity;
 	TransformComponent transformComponent;
 	MovementControlComponent movementComponent;
@@ -88,8 +89,12 @@ namespace LinaEngine::Graphics
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
 
-	void RenderEngine::Initialize()
+	void RenderEngine::Initialize(EntityComponentSystem* ecsIn)
 	{
+		// Set ECS reference
+		ECS = ecsIn;
+		
+
 		m_RenderDevice->Initialize();
 
 		target = new RenderTarget(*m_RenderDevice.get());
@@ -149,7 +154,7 @@ namespace LinaEngine::Graphics
 		renderableMesh.vertexArray = vertexArray;
 		renderableMesh.texture = &(*texture);
 
-		entity = ecs.MakeEntity(transformComponent, movementComponent, renderableMesh);
+		entity = ECS->MakeEntity(transformComponent, movementComponent, renderableMesh);
 
 		for (uint32 i = 0; i < 100000; i++)
 		{
@@ -170,7 +175,7 @@ namespace LinaEngine::Graphics
 				cubeChunkComponent.textureIndex = Math::RandF() > 0.5f ? 0 : 1;
 
 			}
-			ecs.MakeEntity(cubeChunkComponent);
+			ECS->MakeEntity(cubeChunkComponent);
 			//ecs.MakeEntity(transformComponent,  motionComponent, renderableMesh);
 		}
 
@@ -185,14 +190,15 @@ namespace LinaEngine::Graphics
 	{
 		
 
-		ecs.UpdateSystems(mainSystems, 0.01f);
+		ECS->UpdateSystems(mainSystems, 0.01f);
+		
 		
 	}
 
 	void RenderEngine::Render()
 	{
 		gameRenderContext->Clear(Color(0.2f, 0.35f, 0.42f, 1.0f), true);
-		ecs.UpdateSystems(renderingPipeline, 0.01f);
+		ECS->UpdateSystems(renderingPipeline, 0.01f);
 		gameRenderContext->Flush();
 		m_RenderDevice->TickWindow();
 

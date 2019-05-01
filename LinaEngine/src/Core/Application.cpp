@@ -36,9 +36,11 @@ namespace LinaEngine
 		// Set singleton instance.
 		instance = this;
 
-		// Set unique pointers of input renderEngine & render engine.
+		// Create unique pointers for engines.
 		m_InputEngine = std::make_unique<PAMInputEngine>();
+		m_ECS = std::make_unique<EntityComponentSystem>();
 		m_RenderEngine = std::make_unique<RenderEngine>();
+		m_PhysicsEngine = std::make_unique<PhysicsEngine>();
 
 		// Create main window.
 		bool windowCreationSuccess = m_RenderEngine->CreateContextWindow();
@@ -51,9 +53,10 @@ namespace LinaEngine
 		// Set event callback for main window.
 		m_RenderEngine->SetMainWindowEventCallback(BIND_EVENT_FN(OnEvent));
 
-		// Initialize input & render engines.
+		// Initialize engines.
 		m_InputEngine->Initialize(m_RenderEngine->GetNativeWindow());
-		m_RenderEngine->Initialize();
+		m_RenderEngine->Initialize(m_ECS.get());
+		m_PhysicsEngine->Initialize(m_ECS.get());
 
 		// Set running flag.
 		m_Running = true;
@@ -87,6 +90,8 @@ namespace LinaEngine
 			m_InputEngine->Tick();
 			m_RenderEngine->Tick();
 			m_RenderEngine->Render();
+			m_PhysicsEngine->Tick(0.01f);
+
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 		}

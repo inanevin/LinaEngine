@@ -32,6 +32,9 @@ namespace LinaEngine::ECS
 	{
 	public:
 
+		ECSListener() {};
+		virtual ~ECSListener() {};
+
 		virtual void OnMakeEntity(EntityHandle handle) {};
 		virtual void OnRemoveEntity(EntityHandle handle) {};
 		virtual void OnAddComponent(EntityHandle handle, uint32 id) {};

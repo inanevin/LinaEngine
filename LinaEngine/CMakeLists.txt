@@ -27,7 +27,7 @@ set (LINAENGINE_SOURCES
     src/Core/LayerStack.cpp
     src/Core/Transform.cpp
 	src/Core/Time.cpp
-	src/Core/InteractionWorld.cpp
+	
 	
 	# ECS 
 	src/ECS/Systems/MovementControlSystem.cpp
@@ -67,6 +67,10 @@ set (LINAENGINE_SOURCES
 	src/Rendering/GameRenderContext.cpp
 	src/Rendering/RenderEngine.cpp
 	
+	#Physics
+	src/Physics/PhysicsEngine.hpp
+	src/Physics/PhysicsInteractionWorld.cpp
+	
 	#Utility
 	src/Utility/Math/Matrix.cpp
 	src/Utility/Math/Quaternion.cpp
@@ -99,7 +103,6 @@ set(LINAENGINE_HEADERS
 	include/Core/STLImport.hpp
 	include/Core/Transform.hpp
 	include/Core/Time.hpp
-	include/Core/InteractionWorld.hpp
 	
 	#ECS
 	include/ECS/Components/MovementControlComponent.hpp
@@ -117,7 +120,7 @@ set(LINAENGINE_HEADERS
 	include/ECS/ECSSystem.hpp
 	include/ECS/EntityComponentSystem.hpp
 	include/ECS/Utility/MotionIntegrators.hpp
-
+	include/ECS/ECSInteraction.hpp
 	
 	#EVENTS
 	include/Events/Action.hpp
@@ -178,6 +181,10 @@ set(LINAENGINE_HEADERS
 	include/Rendering/RenderContext.hpp
 	include/Rendering/GameRenderContext.hpp
 	include/Rendering/RenderTarget.hpp
+	
+	#Physics
+	include/Physics/PhysicsEngine.hpp
+	include/Physics/PhysicsInteractionWorld.hpp
 	
 	#Utility
 	include/Utility/Math/Color.hpp

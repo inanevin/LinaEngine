@@ -29,14 +29,14 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "Common.hpp"
 #include "APIExport.hpp"
 #include "ECS/EntityComponentSystem.hpp"
-
+#include "Physics/PhysicsEngine.hpp"
 
 namespace LinaEngine
 {
 	using namespace Graphics;
 	using namespace Input;
 	using namespace ECS;
-
+	using namespace Physics;
 
 	class Application
 	{
@@ -61,6 +61,8 @@ namespace LinaEngine
 		LayerStack m_LayerStack;
 		std::unique_ptr<InputEngine<PAMInputEngine>> m_InputEngine;
 		std::unique_ptr<RenderEngine> m_RenderEngine;
+		std::unique_ptr<PhysicsEngine> m_PhysicsEngine;
+		std::unique_ptr<EntityComponentSystem> m_ECS;
 
 	};
 

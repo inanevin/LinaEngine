@@ -47,7 +47,7 @@ namespace LinaEngine
 		AABB Transform(const Matrix& transform) const;
 
 
-		FORCEINLINE bool DoesIntersect(const AABB& other) const
+		FORCEINLINE bool Intersects(const AABB& other) const
 		{
 			return
 				((m_Extents[0].ToVector() >= other.m_Extents[1].ToVector()) |

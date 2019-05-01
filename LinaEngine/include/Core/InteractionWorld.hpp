@@ -12,7 +12,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: InteractionWorld
+Class: PhysicsInteractionWorld
 Timestamp: 4/30/2019 7:43:36 PM
 
 */
@@ -25,110 +25,14 @@ Timestamp: 4/30/2019 7:43:36 PM
 #include "ECS/EntityComponentSystem.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/ColliderComponent.hpp"
+#include "ECS/ECSInteraction.hpp"
 
 using namespace LinaEngine::ECS;
 
 namespace LinaEngine
 {
 
-
-
-	class Interaction
-	{
-	public:
-
-		virtual void Interact(float delta, BaseECSComponent** interactorComponents, BaseECSComponent** interacteeComponents) {};
-
-		FORCEINLINE const LinaArray<uint32>& GetInteractorComponents() { return interactorComponentTypes; }
-		FORCEINLINE const LinaArray<uint32>& GetInteracteeComponents() { return interacteeComponentTypes; }
-
-	protected:
-
-		FORCEINLINE void AddInteractorComponentType(uint32 type)
-		{
-			interactorComponentTypes.push_back(type);
-		}
-
-		FORCEINLINE void AddInteracteeComponentType(uint32 type)
-		{
-			interacteeComponentTypes.push_back(type);
-		}
-
-	private:
-
-		LinaArray<uint32> interactorComponentTypes;
-		LinaArray<uint32> interacteeComponentTypes;
-	};
-
-	class InteractionWorld : public ECSListener
-	{
-	public:
-
-		InteractionWorld(EntityComponentSystem& ecsIn) : ECSListener(), ecs(ecsIn), aabbComparator(ecsIn, 0)
-		{
-			// Notify all component operations, but not all entity operations.
-			SetNotificationParams(true, false);
-			AddComponentID(TransformComponent::ID);
-			AddComponentID(ColliderComponent::ID);
-		}
-
-		virtual void OnMakeEntity(EntityHandle handle) override;
-		virtual void OnRemoveEntity(EntityHandle handle) override;
-		virtual void OnAddComponent(EntityHandle handle, uint32 id) override;
-		virtual void OnRemoveComponent(EntityHandle handle, uint32 id) override;
-
-		// Processes the interactions.
-		void Tick(float delta);
-
-		// Add a new interaction.
-		void AddInteraction(Interaction* interaction);
-
-
-
-	private:
-
-		struct EntityInternal
-		{
-			EntityHandle handle;
-			LinaArray<uint32> interactors;
-			LinaArray<uint32> interactees;
-		};
-
-		struct InteractionWorldCompare
-		{
-			uint32 axis = 0;
-			EntityComponentSystem& ecs;
-
-			InteractionWorldCompare(EntityComponentSystem& ecsIn, uint32 axisIn) : ecs(ecsIn), axis(axisIn) {};
-
-			bool operator()(EntityInternal a, EntityInternal b)
-			{
-				float aMin = ecs.GetComponent<ColliderComponent>(a.handle)->aabb.GetMinExtents()[axis];
-				float bMin = ecs.GetComponent<ColliderComponent>(b.handle)->aabb.GetMinExtents()[axis];
-				return (aMin < bMin);
-			}
-		};
-
-	private:
-		
-		// Removes all entities in the dump.
-		void ClearEntityDumpAndUpdate();
-
-		// Adds an entity to the list.
-		void AddEntity(EntityHandle handle);
-
-		// Computes specific interactions
-		void ComputeInteractions(EntityInternal& entity, uint32 interactionIndex);
-
-	private:
-
-		EntityComponentSystem& ecs;
-		LinaArray<Interaction*> interactions;
-		LinaArray<EntityInternal> entities;
-		LinaArray<EntityHandle> entityDump;
-		LinaArray<EntityHandle> entityUpdateStack;
-		InteractionWorldCompare aabbComparator;
-	};
+	
 }
 
 
