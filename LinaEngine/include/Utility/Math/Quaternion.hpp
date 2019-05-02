@@ -80,36 +80,6 @@ namespace LinaEngine
 		FORCEINLINE float GetW() const { return vec[3]; }
 		static FORCEINLINE Quaternion Euler(const Vector3F& v);
 
-		FORCEINLINE Vector3F GetForward() const
-		{
-			return Vector3F(0, 0, 1).Rotate(*this);
-		}
-
-		FORCEINLINE Vector3F GetBack() const
-		{
-			return Vector3F(0, 0, -1).Rotate(*this);
-		}
-
-		FORCEINLINE Vector3F GetUp() const
-		{
-			return Vector3F(0, 1, 0).Rotate(*this);
-		}
-
-		FORCEINLINE Vector3F GetDown() const
-		{
-			return Vector3F(0, -1, 0).Rotate(*this);
-		}
-
-		FORCEINLINE Vector3F GetRight() const
-		{
-			return Vector3F(1, 0, 0).Rotate(*this);
-		}
-
-		FORCEINLINE Vector3F GetLeft() const
-		{
-			return Vector3F(-1, 0, 0).Rotate(*this);
-		}
-
 		bool IsNormalized(float errorMargin = 1.e-4f) const;
 		void AxisAndAngle(Vector3F& axis, float& angle) const;
 		float GetAngle() const;

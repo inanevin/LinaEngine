@@ -28,12 +28,13 @@ namespace LinaEngine::ECS
 		CameraComponent* camera = (CameraComponent*)components[1];
 
 		Matrix perspective = Matrix::perspective(Math::ToRadians(camera->fieldOfView), 1280.0f / 720.0f, camera->zNear, camera->zFar);
-		//Matrix translation = Matrix::Translate(-transform->transform.GetLocation());
-		//Matrix rotation = Matrix::InitRotation(transform->transform.GetRotation());
-		//Matrix rotation = Matrix::InitRotationFromDirection(transform->transform.GetRotation().GetAxisZ(), transform->transform.GetRotation().GetAxisY());
-		//Matrix viewTransformation = rotation * translation;
+		Matrix translation = Matrix::Translate(-transform->transform.GetLocation());
+		Matrix rotation = Matrix::InitRotationFromDirection(transform->transform.GetRotation().GetAxisZ(), transform->transform.GetRotation().GetAxisY());
 	
-		context.UpdatePerspective(perspective * transform->transform.ToMatrix());
+		//Matrix rotation = Matrix::InitRotationFromDirection(transform->transform.GetRotation().GetAxisZ(), transform->transform.GetRotation().GetAxisY());
+		Matrix viewTransformation = rotation * translation;
+	
+		context.UpdatePerspective(perspective * viewTransformation);
 		//context.UpdatePerspective(perspective * transform->transform.ToMatrix());
 	}
 }

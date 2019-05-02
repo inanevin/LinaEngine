@@ -26,7 +26,7 @@ Timestamp: 5/2/2019 2:21:35 AM
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "PackageManager/PAMInputEngine.hpp"
-#include "Core/Application.hpp"
+
 
 namespace LinaEngine::ECS
 {
@@ -48,6 +48,8 @@ namespace LinaEngine::ECS
 
 		InputEngine<PAMInputEngine>& inputEngine;
 		Vector2F m_WindowCenter;
+		float horizontalKeyAmount;
+		float verticalKeyAmount;
 	};
 }
 

@@ -141,6 +141,7 @@ namespace LinaEngine::Input
 			LINA_CORE_TRACE("[Constructor] -> InputEngine ({0})", typeid(*this).name());
 		};
 
+
 	private:
 
 		// Axis binders.

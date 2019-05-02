@@ -29,24 +29,20 @@ namespace LinaEngine::ECS
 		TransformComponent* transform = (TransformComponent*)components[0];
 		FreeLookComponent* freeLook = (FreeLookComponent*)components[1];
 
-		Vector3F vertical = transform->transform.GetRotation().GetForward();
-		vertical.Normalize();
-		vertical *= freeLook->movementSpeedZ * freeLook->verticalBinder->GetAmount() * delta;
+		// Mouse based rotation control.
+		if (inputEngine.GetMouseButtonDown(InputCode::Mouse::Mouse1))
+		{
+			inputEngine.SetCursor(false);
+			inputEngine.SetMousePosition(m_WindowCenter);
+		}
 
-		Vector3F horizontal = transform->transform.GetRotation().GetRight();
-		horizontal.Normalize();
-		horizontal *= freeLook->movementSpeedX * freeLook->horizontalBinder->GetAmount() * delta;
-
-		transform->transform.SetLocation(transform->transform.GetLocation() + vertical + horizontal);
-
-	
-		if (freeLook->mouseButtonBinder->GetIsPressed())
+		if (inputEngine.GetMouseButton(InputCode::Mouse::Mouse1))
 		{
 			Vector2F deltaPos = inputEngine.GetMousePosition() - m_WindowCenter;
-			inputEngine.SetCursor(false);
+
 			bool rotY = deltaPos.GetX() != 0;
 			bool rotX = deltaPos.GetY() != 0;
-		
+
 			if (rotX)
 				freeLook->verticalAngle += deltaPos.GetY() * freeLook->rotationSpeedX * delta * 1.0f;
 
@@ -57,13 +53,36 @@ namespace LinaEngine::ECS
 			if (rotY || rotX)
 			{
 				inputEngine.SetMousePosition(m_WindowCenter);
+				transform->transform.Rotate(Vector3F(freeLook->verticalAngle, freeLook->horizontalAngle, 0.0f));
 			}
 		}
-		else
+
+		if (inputEngine.GetMouseButtonUp(InputCode::Mouse::Mouse1))
+		{
 			inputEngine.SetCursor(true);
+			inputEngine.SetMousePosition(m_WindowCenter);
+		}
 
 
-		transform->transform.SetRotation(Quaternion::Euler(Vector3F(freeLook->verticalAngle, freeLook->horizontalAngle, 0.0f)));
+		// Get horizontal & vertical key values.
+		float horizontalKey = inputEngine.GetHorizontalAxisValue();
+		float verticalKey = inputEngine.GetVerticalAxisValue();
+
+		// Set movement based on vertical axis.
+		Vector3F vertical = transform->transform.GetRotation().GetAxisZ();
+		vertical.Normalize();
+		vertical *= freeLook->movementSpeedZ * verticalKey * delta;
+
+		// Set movement based on horizontal axis.
+		Vector3F horizontal = transform->transform.GetRotation().GetAxisX();
+		horizontal.Normalize();
+		horizontal *= freeLook->movementSpeedX * horizontalKey * delta;
+
+		// Move.
+		transform->transform.SetLocation(transform->transform.GetLocation() + vertical + horizontal);
+
+
+		
 
 
 	}

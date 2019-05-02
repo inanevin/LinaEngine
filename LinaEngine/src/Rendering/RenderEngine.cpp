@@ -201,22 +201,19 @@ namespace LinaEngine::Graphics
 		renderableMesh.vertexArray = vertexArray;
 		renderableMesh.texture = &(*texture);
 
-		freeLookComponent.horizontalBinder = Application::Get().GetInputDevice().GetHorizontalKeyAxis();
-		freeLookComponent.verticalBinder = Application::Get().GetInputDevice().GetVerticalKeyAxis();
-		freeLookComponent.mouseButtonBinder = mouseButtonBinder;
-		freeLookComponent.movementSpeedX = 3.0f;
-		freeLookComponent.movementSpeedZ = 3.0f;
-		freeLookComponent.rotationSpeedX = 0.2f;
-		freeLookComponent.rotationSpeedY = 0.2f;
-		freeLookComponent.q_This = transformComponent.transform.GetRotation();
 
-		cameraEntity = ECS->MakeEntity(transformComponent, cameraComponent);
+		freeLookComponent.movementSpeedX = 13.0f;
+		freeLookComponent.movementSpeedZ = 13.0f;
+		freeLookComponent.rotationSpeedX = 0.25f;
+		freeLookComponent.rotationSpeedY = 0.25f;
+
+		cameraEntity = ECS->MakeEntity(transformComponent, cameraComponent, freeLookComponent);
 
 
 		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 20.0f));
 
 		transformComponent.transform.SetScale(1);
-		entity = ECS->MakeEntity(transformComponent, renderableMesh, colliderComponent, freeLookComponent);
+		entity = ECS->MakeEntity(transformComponent, renderableMesh, colliderComponent);
 		//entity = ECS->MakeEntity(transformComponent, movementComponent, renderableMesh);
 
 		for (uint32 i = 0; i < 1; i++)

@@ -44,13 +44,8 @@ namespace LinaEngine::ECS
 		float movementSpeedZ;
 		float rotationSpeedX;
 		float rotationSpeedY;
-		bool useMouseLocking;
-		InputKeyAxisBinder* horizontalBinder;
-		InputKeyAxisBinder* verticalBinder;
-		InputMouseButtonBinder* mouseButtonBinder;
 		float horizontalAngle;
 		float verticalAngle;
-		Quaternion q_This;
 	};
 }
 
