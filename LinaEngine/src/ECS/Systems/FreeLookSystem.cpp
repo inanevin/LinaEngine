@@ -37,7 +37,7 @@ namespace LinaEngine::ECS
 		horizontal.Normalize();
 		horizontal *= freeLook->movementSpeedX * freeLook->horizontalBinder->GetAmount() * delta;
 
-		transform->transform.SetTranslation(transform->transform.GetTranslation() + vertical + horizontal);
+		transform->transform.SetLocation(transform->transform.GetLocation() + vertical + horizontal);
 
 	
 		if (freeLook->mouseButtonBinder->GetIsPressed())

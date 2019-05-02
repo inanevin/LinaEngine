@@ -32,9 +32,9 @@ namespace LinaEngine::ECS
 			MotionComponent* motion = (MotionComponent*)components[1];
 
 			deltaIncrement += delta / 100.0f;
-			Vector3F newPos = transform->transform.GetTranslation();
+			Vector3F newPos = transform->transform.GetLocation();
 			ModifiedEuler(newPos, motion->velocity, motion->acceleration, delta);
-			transform->transform.SetTranslation(newPos);
+			transform->transform.SetLocation(newPos);
 
 		}
 

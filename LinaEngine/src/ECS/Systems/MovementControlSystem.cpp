@@ -34,8 +34,8 @@ namespace LinaEngine::ECS
 		{
 			Vector3F movement = movementControl->movementControls[i].first;
 			InputKeyAxisBinder* input = movementControl->movementControls[i].second;
-			Vector3F newPos = transform->transform.GetTranslation() + (movement * input->GetAmount() * delta);
-			transform->transform.SetTranslation(newPos);
+			Vector3F newPos = transform->transform.GetLocation() + (movement * input->GetAmount() * delta);
+			transform->transform.SetLocation(newPos);
 		}
 
 		

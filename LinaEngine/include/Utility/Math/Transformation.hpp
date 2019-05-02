@@ -29,184 +29,154 @@ namespace LinaEngine
 	class Transformation
 	{
 	public:
-		FORCEINLINE Transformation() :
-			m_Translation(0.0f, 0.0f, 0.0f),
-			m_Rotation(0.0f, 0.0f, 0.0f, 1.0f),
-			m_Scale(1.0f, 1.0f, 1.0f) {}
 
-		FORCEINLINE Transformation(const Vector3F& translationIn) :
-			m_Translation(translationIn),
-			m_Rotation(0.0f, 0.0f, 0.0f, 1.0f),
-			m_Scale(1.0f, 1.0f, 1.0f) {}
+		// Param constructors w/ various options.
+		FORCEINLINE Transformation() : m_Translation(0.0f, 0.0f, 0.0f),m_Rotation(0.0f, 0.0f, 0.0f, 1.0f), m_Scale(1.0f, 1.0f, 1.0f) {}
+		FORCEINLINE Transformation(const Vector3F& translationIn) : m_Translation(translationIn), m_Rotation(0.0f, 0.0f, 0.0f, 1.0f), m_Scale(1.0f, 1.0f, 1.0f) {}
+		FORCEINLINE Transformation(const Quaternion& rotationIn) : m_Translation(0.0f, 0.0f, 0.0f), m_Rotation(rotationIn), m_Scale(1.0f, 1.0f, 1.0f) {}
+		FORCEINLINE Transformation(const Vector3F& translationIn, const Quaternion& rotationIn, const Vector3F& scaleIn) : m_Translation(translationIn), m_Rotation(rotationIn), m_Scale(scaleIn) {}
 
-		FORCEINLINE Transformation(const Quaternion& rotationIn) :
-			m_Translation(0.0f, 0.0f, 0.0f),
-			m_Rotation(rotationIn),
-			m_Scale(1.0f, 1.0f, 1.0f) {}
+		// Returns the transform vector based on vector and it's w component.
+		FORCEINLINE Vector Transform(const Vector& vector) const
+		{
+			return Transform(Vector3F(vector), vector[3]);
+		}
 
-		FORCEINLINE Transformation(const Vector3F& translationIn, const Quaternion& rotationIn,
-			const Vector3F& scaleIn) :
-			m_Translation(translationIn),
-			m_Rotation(rotationIn),
-			m_Scale(scaleIn) {}
+		// Returns the transform vector based on a vector and a specified w component.
+		FORCEINLINE Vector Transform(const Vector3F& vector, float w) const
+		{
+			return (m_Rotation.Rotate(m_Scale * vector) + m_Translation * w).ToVector(0.0f);
+		}
 
-		FORCEINLINE Vector Transform(const Vector& vector) const;
-		FORCEINLINE Vector Transform(const Vector3F& vector, float w) const;
-		FORCEINLINE Vector InverseTransform(const Vector& vector) const;
-		FORCEINLINE Vector InverseTransform(const Vector3F& vector, float w) const;
-		FORCEINLINE Matrix ToMatrix() const;
-		//Matrix4F Inverse() const;
-		FORCEINLINE void NormalizeRotation();
-		FORCEINLINE bool IsRotationNormalized();
+		// Returns inversed transform vector based on a vector and it's w component.
+		FORCEINLINE Vector InverseTransform(const Vector& vector) const
+		{
+			return InverseTransform(Vector3F(vector), vector[3]);
+		}
 
-		FORCEINLINE Transformation operator+(const Transformation& other) const;
-		FORCEINLINE Transformation operator+=(const Transformation& other);
-		FORCEINLINE Transformation operator*(const Transformation& other) const;
-		FORCEINLINE Transformation operator*=(const Transformation& other);
-		FORCEINLINE Transformation operator*(float other) const;
-		FORCEINLINE Transformation operator*=(float other);
+		// Returns the inversed transform vector based on a vector and a specified w component.
+		FORCEINLINE Vector InverseTransform(const Vector3F& vector, float w) const
+		{
+			return (m_Rotation.Inverse().Rotate(vector - m_Translation * w) * m_Scale.Reciprocal()).ToVector(0.0f);
+		}
 
-		FORCEINLINE Vector3F GetTranslation() const;
-		FORCEINLINE Quaternion GetRotation() const;
-		FORCEINLINE Vector3F GetScale() const;
-		FORCEINLINE void Set(const Vector3F& translation, const Quaternion& rotation, const Vector3F& scale);
-		FORCEINLINE void SetTranslation(const Vector3F& translation);
-		FORCEINLINE void SetRotation(const Quaternion& rotation);
-		FORCEINLINE void SetScale(const Vector3F& scale);
-		void Rotate(const Vector3F& axis, float angle);
-		void Rotate(const Quaternion& rotation);
+		// Returns the transformation matrix.
+		FORCEINLINE Matrix ToMatrix() const
+		{
+			return Matrix::TransformMatrix(m_Translation, m_Rotation, m_Scale);
+		}
+
+		// Normalizes rotation Quaternion.
+		FORCEINLINE void NormalizeRotation()
+		{
+			m_Rotation = m_Rotation.Normalized();
+		}
+
+		// Returns whether the rotation is normalized.
+		FORCEINLINE bool IsRotationNormalized()
+		{
+			return m_Rotation.IsNormalized();
+		}
+
+		/* ------------------- OPERATOR OVERLOADS ------------------- */
+
+		FORCEINLINE Transformation operator+(const Transformation& other) const
+		{
+			return Transformation(m_Translation + other.m_Translation, m_Rotation + other.m_Rotation, m_Scale + other.m_Scale);
+		}
+		FORCEINLINE Transformation operator+=(const Transformation& other)
+		{
+			m_Translation += other.m_Translation;
+			m_Rotation += other.m_Rotation;
+			m_Scale += other.m_Scale;
+			return *this;
+		}
+		FORCEINLINE Transformation operator*(const Transformation& other) const
+		{
+			return Transformation(m_Translation * other.m_Translation, m_Rotation * other.m_Rotation, m_Scale * other.m_Scale);
+		}
+		FORCEINLINE Transformation operator*=(const Transformation& other)
+		{
+			m_Translation *= other.m_Translation;
+			m_Rotation *= other.m_Rotation;
+			m_Scale *= other.m_Scale;
+			return *this;
+		}
+		FORCEINLINE Transformation operator*(float other) const
+		{
+			return Transformation(m_Translation * other, m_Rotation * other, m_Scale * other);
+		}
+		FORCEINLINE Transformation operator*=(float other)
+		{
+			m_Translation *= other;
+			m_Rotation *= other;
+			m_Scale *= other;
+			return *this;
+		}
+
+		// Returns the location of this transformation.
+		FORCEINLINE Vector3F GetLocation() const 
+		{ 
+			return m_Translation;  
+		}
+
+		// Returns the rotation of this transformation.
+		FORCEINLINE Quaternion GetRotation() const
+		{
+			return m_Rotation;
+		}
+
+		// Returns the scale of this transformation.
+		FORCEINLINE Vector3F GetScale() const
+		{
+			return m_Scale;
+		}
+
+		// Sets the location, rotation & scale.
+		FORCEINLINE void Set(const Vector3F& translationIn, const Quaternion& rotationIn, const Vector3F& scaleIn)
+		{
+			m_Translation = translationIn;
+			m_Rotation = rotationIn;
+			m_Scale = scaleIn;
+		}
+
+		// Sets the location of this transformation.
+		FORCEINLINE void SetLocation(const Vector3F& translation)
+		{
+			m_Translation = translation;
+		}
+
+		// Sets the rotation of this transformation.
+		FORCEINLINE void SetRotation(const Quaternion& rotation)
+		{
+			m_Rotation = rotation;
+		}
+
+		// Sets the scale of this transformation.
+		FORCEINLINE void SetScale(const Vector3F& scale)
+		{
+			m_Scale = scale;
+		}
+
+		// Sets the rotation of this transformation based on an angle & axis.
+		FORCEINLINE void Rotate(const Vector3F& axis, float angle)
+		{
+			SetRotation(Quaternion(axis, angle));
+		}
+
+		// Sets the rotation of this transformation based on an euler vector.
+		FORCEINLINE void Rotate(const Vector3F& euler)
+		{
+			SetRotation(Quaternion::Euler(euler));
+		}
 
 	private:
+
 		Vector3F m_Translation;
 		Quaternion m_Rotation;
 		Vector3F m_Scale;
 	};
 
-	FORCEINLINE Matrix Transformation::ToMatrix() const
-	{
-		return Matrix::TransformMatrix(m_Translation, m_Rotation, m_Scale);
-	}
-
-	FORCEINLINE void Transformation::NormalizeRotation()
-	{
-		m_Rotation = m_Rotation.Normalized();
-	}
-
-	FORCEINLINE bool Transformation::IsRotationNormalized()
-	{
-		return m_Rotation.IsNormalized();
-	}
-
-	FORCEINLINE Transformation Transformation::operator+(const Transformation& other) const
-	{
-		return Transformation(m_Translation + other.m_Translation,
-			m_Rotation + other.m_Rotation, m_Scale + other.m_Scale);
-	}
-
-	FORCEINLINE Transformation Transformation::operator+=(const Transformation& other)
-	{
-		m_Translation += other.m_Translation;
-		m_Rotation += other.m_Rotation;
-		m_Scale += other.m_Scale;
-		return *this;
-	}
-
-	FORCEINLINE Transformation Transformation::operator*(const Transformation& other) const
-	{
-		return Transformation(m_Translation * other.m_Translation,
-			m_Rotation * other.m_Rotation, m_Scale * other.m_Scale);
-	}
-
-	FORCEINLINE Transformation Transformation::operator*=(const Transformation& other)
-	{
-		m_Translation *= other.m_Translation;
-		m_Rotation *= other.m_Rotation;
-		m_Scale *= other.m_Scale;
-		return *this;
-	}
-
-	FORCEINLINE Transformation Transformation::operator*(float other) const
-	{
-		return Transformation(m_Translation * other,
-			m_Rotation * other, m_Scale * other);
-	}
-
-	FORCEINLINE Transformation Transformation::operator*=(float other)
-	{
-		m_Translation *= other;
-		m_Rotation *= other;
-		m_Scale *= other;
-		return *this;
-	}
-
-	FORCEINLINE Vector Transformation::Transform(const Vector3F& vector, float w) const
-	{
-		return (m_Rotation.Rotate(m_Scale * vector) + m_Translation * w).ToVector(0.0f);
-	}
-
-	FORCEINLINE Vector Transformation::Transform(const Vector& vector) const
-	{
-		return Transform(Vector3F(vector), vector[3]);
-	}
-
-	FORCEINLINE Vector Transformation::InverseTransform(const Vector3F& vector, float w) const
-	{
-		return (m_Rotation.Inverse().Rotate(vector - m_Translation * w) * m_Scale.Reciprocal()).ToVector(0.0f);
-	}
-
-	FORCEINLINE Vector Transformation::InverseTransform(const Vector& vector) const
-	{
-		return InverseTransform(Vector3F(vector), vector[3]);
-	}
-
-
-	FORCEINLINE Vector3F Transformation::GetTranslation() const
-	{
-		return m_Translation;
-	}
-
-	FORCEINLINE Quaternion Transformation::GetRotation() const
-	{
-		return m_Rotation;
-	}
-
-	FORCEINLINE Vector3F Transformation::GetScale() const
-	{
-		return m_Scale;
-	}
-
-	FORCEINLINE void Transformation::Set(const Vector3F& translationIn,
-		const Quaternion& rotationIn, const Vector3F& scaleIn)
-	{
-		m_Translation = translationIn;
-		m_Rotation = rotationIn;
-		m_Scale = scaleIn;
-	}
-
-	FORCEINLINE void Transformation::SetTranslation(const Vector3F& val)
-	{
-		m_Translation = val;
-	}
-
-	FORCEINLINE void Transformation::SetRotation(const Quaternion& val)
-	{
-		m_Rotation = val;
-	}
-
-	FORCEINLINE void Transformation::SetScale(const Vector3F& val)
-	{
-		m_Scale = val;
-	}
-
-	inline void Transformation::Rotate(const Vector3F & axis, float angle)
-	{
-		Rotate(Quaternion(axis, angle));
-	}
-
-	inline void Transformation::Rotate(const Quaternion & r)
-	{
-		m_Rotation = Quaternion((r * m_Rotation).Normalized());
-	}
 
 }
 

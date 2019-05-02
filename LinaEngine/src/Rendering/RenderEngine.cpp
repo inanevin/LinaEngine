@@ -185,7 +185,7 @@ namespace LinaEngine::Graphics
 		colliderComponent.aabb = vertexArrayAABBCube;
 
 
-		transformComponent.transform.SetTranslation(Vector3F(0.0f, 0.0f, 0.0f));
+		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 0.0f));
 
 		transformComponent.transform.SetScale(Vector3F(1.0f));
 		cameraComponent.fieldOfView = 35;
@@ -213,7 +213,7 @@ namespace LinaEngine::Graphics
 		cameraEntity = ECS->MakeEntity(transformComponent, cameraComponent);
 
 
-		transformComponent.transform.SetTranslation(Vector3F(0.0f, 0.0f, 20.0f));
+		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 20.0f));
 
 		transformComponent.transform.SetScale(1);
 		entity = ECS->MakeEntity(transformComponent, renderableMesh, colliderComponent, freeLookComponent);
@@ -221,7 +221,7 @@ namespace LinaEngine::Graphics
 
 		for (uint32 i = 0; i < 1; i++)
 		{
-			transformComponent.transform.SetTranslation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f, 20.0f));
+			transformComponent.transform.SetLocation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f, 20.0f));
 			transformComponent.transform.SetScale(1.0f);
 			renderableMesh.vertexArray = &*cubeArray;
 			renderableMesh.texture = Math::RandF() > 0.5f ? &*texture : &*textureNew;
@@ -232,7 +232,7 @@ namespace LinaEngine::Graphics
 
 			for (uint32 i = 0; i < 3; i++)
 			{
-				cubeChunkComponent.position[i] = transformComponent.transform.GetTranslation()[i];
+				cubeChunkComponent.position[i] = transformComponent.transform.GetLocation()[i];
 				cubeChunkComponent.velocity[i] = motionComponent.velocity[i];
 				cubeChunkComponent.acceleration[i] = motionComponent.acceleration[i];
 				cubeChunkComponent.textureIndex = Math::RandF() > 0.5f ? 0 : 1;

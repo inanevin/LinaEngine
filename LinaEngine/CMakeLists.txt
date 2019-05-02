@@ -82,6 +82,7 @@ set (LINAENGINE_SOURCES
 	src/Utility/Math/VectorMath.cpp
 	src/Utility/Math/AABB.cpp
 	src/Utility/Math/Plane.cpp
+
 	src/Utility/Log.cpp
 	src/Utility/ResourceConstants.cpp
 

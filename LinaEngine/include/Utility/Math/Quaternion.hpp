@@ -78,7 +78,7 @@ namespace LinaEngine
 		FORCEINLINE float GetY() const { return vec[1]; }
 		FORCEINLINE float GetZ() const { return vec[2]; }
 		FORCEINLINE float GetW() const { return vec[3]; }
-		static FORCEINLINE Quaternion Euler(Vector3F& v);
+		static FORCEINLINE Quaternion Euler(const Vector3F& v);
 
 		FORCEINLINE Vector3F GetForward() const
 		{
@@ -292,7 +292,7 @@ namespace LinaEngine
 		return vec;
 	}
 
-	inline Quaternion Quaternion::Euler(Vector3F & v)
+	inline Quaternion Quaternion::Euler(const Vector3F& v)
 	{
 		float x, y, z, w = 0.0f;
 		float c1 = Math::Cos(v.GetY() / 2);
