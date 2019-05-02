@@ -207,6 +207,9 @@ namespace LinaEngine::Graphics
 		}
 
 		FORCEINLINE void TickWindow() { m_MainWindow->Tick(); }
+
+		FORCEINLINE Vector2F GetWindowSize() {	return Vector2F(m_MainWindow->GetWidth(), m_MainWindow->GetHeight()); };
+
 		void Initialize();
 
 		uint32 CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress);

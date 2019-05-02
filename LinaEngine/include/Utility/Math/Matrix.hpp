@@ -155,12 +155,13 @@ namespace LinaEngine
 		static FORCEINLINE Matrix Translate(const Vector3F& amt);
 		static FORCEINLINE Matrix scale(const Vector3F& amt);
 		static FORCEINLINE Matrix scale(float amt);
-		static FORCEINLINE Matrix ortho(float left, float right,
-			float bottom, float top, float near, float far);
-		static FORCEINLINE Matrix perspective(float halfFov, float aspect,
-			float nearZ, float farZ);
-		static FORCEINLINE Matrix TransformMatrix(const Vector3F& translation,
-			const Quaternion& rotation, const Vector3F& scale);
+		static FORCEINLINE Matrix ortho(float left, float right, float bottom, float top, float near, float far);
+		static FORCEINLINE Matrix perspective(float halfFov, float aspect, float nearZ, float farZ);
+		static FORCEINLINE Matrix TransformMatrix(const Vector3F& translation, const Quaternion& rotation, const Vector3F& scale);
+
+		static FORCEINLINE Matrix InitRotationFromVectors(const Vector3F&, const Vector3F&, const Vector3F&);
+		static FORCEINLINE Matrix InitRotationFromDirection(const Vector3F& forward, const Vector3F& up);
+		static FORCEINLINE Matrix InitRotation(const Quaternion& q);
 
 		void extractFrustumPlanes(Plane* planes) const;
 		Matrix toNormalMatrix() const;
@@ -187,6 +188,7 @@ namespace LinaEngine
 		FORCEINLINE Vector getScale() const;
 		Quaternion getRotation() const;
 		FORCEINLINE Vector getTranslation() const;
+
 
 		FORCEINLINE Vector operator[](uint32 index) const {
 			LINA_CORE_ASSERT(index < 4);
@@ -422,6 +424,53 @@ namespace LinaEngine
 	{
 		return Vector::Make(m[0][3], m[1][3], m[2][3], m[3][3]);
 	}
+
+	FORCEINLINE Matrix Matrix::InitRotationFromVectors(const Vector3F & u, const Vector3F & v, const Vector3F & n)
+	{
+
+
+		return Matrix(
+
+		Vector::Make(u.GetX(), u.GetY(), u.GetZ(), 0.0f),
+		Vector::Make(v.GetX(), v.GetY(), v.GetZ(), 0.0f),
+		Vector::Make(n.GetX(), n.GetY(), n.GetZ(), 0.0f),
+		Vector::Make(0.0f, 0.0f, 0.0f, 1.0f)
+
+		);
+
+
+	}
+
+	FORCEINLINE Matrix Matrix::InitRotationFromDirection(const Vector3F & forward, const Vector3F & up)
+	{
+		 Vector3F n = forward.Normalized();
+		 Vector3F u = up.Cross(n).Normalized();
+		 Vector3F v = n.Cross(u);
+		 return InitRotationFromVectors(u, v, n);
+	}
+
+	inline Matrix Matrix::InitRotation(const Quaternion & quat)
+	{
+		float yy2 = 2.0f * quat.GetY() * quat.GetY();
+		float xy2 = 2.0f * quat.GetX() * quat.GetY();
+		float xz2 = 2.0f * quat.GetX() * quat.GetZ();
+		float yz2 = 2.0f * quat.GetY() * quat.GetZ();
+		float zz2 = 2.0f * quat.GetZ() * quat.GetZ();
+		float wz2 = 2.0f * quat.GetW() * quat.GetZ();
+		float wy2 = 2.0f * quat.GetW() * quat.GetY();
+		float wx2 = 2.0f * quat.GetW() * quat.GetX();
+		float xx2 = 2.0f * quat.GetX() * quat.GetX();
+
+		Matrix rotationMatrix;
+		rotationMatrix[0] = Vector::Make(-yy2 - zz2 + 1.0f, xy2 + wz2, xz2 - wy2, 0.0f);
+		rotationMatrix[1] = Vector::Make(xy2 - wz2, -xx2 - zz2 + 1.0f, yz2 + wx2, 0.0f);
+		rotationMatrix[2] = Vector::Make(xz2 + wy2, yz2 - wx2, -xx2 - yy2 + 1.0f, 0.0f);
+		rotationMatrix[3] = Vector::Make(0.0f, 0.0f, 0.0f, 1.0f);
+
+		return rotationMatrix;
+	}
+
+
 
 	FORCEINLINE Matrix Matrix::applyScale(const Vector& scale)
 	{

@@ -39,6 +39,10 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "Rendering/ArrayBitmap.hpp"
 #include "Physics/PhysicsInteractionWorld.hpp"
 #include "ECS/Components/ColliderComponent.hpp"
+#include "ECS/Systems/CameraSystem.hpp"
+#include "ECS/Systems/FreeLookSystem.hpp"
+#include "ECS/Components/FreeLookComponent.hpp"
+
 
 namespace LinaEngine::Graphics
 {
@@ -46,7 +50,9 @@ namespace LinaEngine::Graphics
 	using namespace ECS;
 	using namespace Physics;
 
+	InputMouseButtonBinder* mouseButtonBinder;
 	EntityHandle entity;
+	EntityHandle cameraEntity;
 	TransformComponent transformComponent;
 	MovementControlComponent movementComponent;
 	RenderableMeshComponent renderableMesh;
@@ -59,7 +65,11 @@ namespace LinaEngine::Graphics
 	CubeChunkComponent cubeChunkComponent;
 	ColliderComponent colliderComponent;
 	CubeChunkSystem cubeChunkSystem;
+	FreeLookSystem* freeLookSystem;
+	FreeLookComponent freeLookComponent;
 	CubeChunkRenderSystem* cubeChunkRenderSystem;
+	CameraComponent cameraComponent;
+	CameraSystem* cameraSystem;
 	RenderTarget* target;
 	RenderContext* context;
 	GameRenderContext* gameRenderContext;
@@ -89,6 +99,21 @@ namespace LinaEngine::Graphics
 
 	RenderEngine::~RenderEngine()
 	{
+		delete renderableMeshSystem;
+		delete freeLookSystem;
+		delete cameraSystem;
+		delete target;
+		delete context;
+		delete gameRenderContext;
+		delete shader;
+		delete texture;
+		delete textureNew;
+		delete textures[0];
+		delete textures[1];
+		delete sampler;
+		delete vertexArray;
+		delete cubeArray;
+
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
 
@@ -96,15 +121,19 @@ namespace LinaEngine::Graphics
 	{
 		// Set ECS reference
 		ECS = ecsIn;
-		
 
+		mouseButtonBinder = new InputMouseButtonBinder();
+		mouseButtonBinder->SetActionDispatcher(&Application::Get().GetInputDevice());
+		mouseButtonBinder->Initialize(InputCode::Mouse::Mouse1);
+		freeLookSystem = new FreeLookSystem(Application::Get().GetInputDevice());
+		freeLookSystem->SetWindowCenter(m_RenderDevice->GetWindowSize());
 		m_RenderDevice->Initialize();
 
 		target = new RenderTarget(*m_RenderDevice.get());
 		context = new RenderContext(*m_RenderDevice.get(), *target);
-	
-	
-		ModelLoader::LoadModels("Resources/Mesh/cube.obj", models, modelMaterialIndices, modelMaterials);
+
+
+		ModelLoader::LoadModels("Resources/Mesh/monkey3.obj", models, modelMaterialIndices, modelMaterials);
 		ModelLoader::LoadModels("Resources/Mesh/tinycube.obj", models, modelMaterialIndices, modelMaterials);
 		vertexArray = new VertexArray(*m_RenderDevice.get(), models[0], BufferUsage::USAGE_STATIC_DRAW);
 		cubeArray = new VertexArray(*m_RenderDevice.get(), models[1], BufferUsage::USAGE_STATIC_DRAW);
@@ -117,23 +146,23 @@ namespace LinaEngine::Graphics
 			LINA_CORE_ERR("Could not load texture!");
 		}*/
 
-		arrayBitmap.Load("Resources/Textures/redgrid.png");
+		arrayBitmap.Load("Resources/Textures/grid.png");
 
 		//texture = new Texture(*m_RenderDevice.get(), ddsTexture);
 		texture = new Texture(*m_RenderDevice.get(), arrayBitmap, PixelFormat::FORMAT_RGB, true, false);
 
-		/*if (!ddsTexture.Load("../res/textures/bricks2.dds")) 
+		/*if (!ddsTexture.Load("../res/textures/bricks2.dds"))
 		{
 			LINA_CORE_ERR("Could not load texture! :(");
 		}*/
-		
+
 		arrayBitmap.Load("Resources/Textures/checker.png");
 
 		//textureNew = new Texture(*m_RenderDevice.get(), ddsTexture);
 		textureNew = new Texture(*m_RenderDevice.get(), arrayBitmap, PixelFormat::FORMAT_RGB, true, false);
 		LinaString shaderText;
 		LinaEngine::Internal::loadTextFileWithIncludes(shaderText, "Resources/Shaders/basicShader.glsl", "#include");
-		 shader = new Shader(*m_RenderDevice.get(), shaderText);
+		shader = new Shader(*m_RenderDevice.get(), shaderText);
 
 		shader->SetSampler("diffuse", *texture, *sampler, 0);
 
@@ -142,8 +171,9 @@ namespace LinaEngine::Graphics
 		drawParams.shouldWriteDepth = true;
 		drawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
 
-		 perspective = Matrix::perspective(Math::ToRadians(70.0f / 2.0f), 1280.0f / 720.0f, 0.1f, 1000.0f);
-		 
+
+		perspective = Matrix::perspective(Math::ToRadians(70.0f / 2.0f), 1280.0f / 720.0f, 0.1f, 1000.0f);
+
 
 		gameRenderContext = new GameRenderContext(*m_RenderDevice.get(), *target, drawParams, *shader, *sampler, perspective);
 
@@ -151,18 +181,43 @@ namespace LinaEngine::Graphics
 		textures[1] = textureNew;
 		renderableMeshSystem = new RenderableMeshSystem(*gameRenderContext);
 		cubeChunkRenderSystem = new CubeChunkRenderSystem(*gameRenderContext, *cubeArray, textures, ARRAY_SIZE_IN_ELEMENTS(textures));
-
+		cameraSystem = new CameraSystem(*gameRenderContext);
 		colliderComponent.aabb = vertexArrayAABBCube;
-	
 
-		transformComponent.transform.SetTranslation(Vector3F(0.0f, 0.0f, 20.0f));
-		transformComponent.transform.SetScale(0.3f);
-		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(1.0f, 0.0f, 0.0f) * 3, Application::Get().GetInputDevice().GetHorizontalKeyAxis()));
-		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(0.0f, 1.0f, 0.0f) * 3, Application::Get().GetInputDevice().GetVerticalKeyAxis()));
+
+		transformComponent.transform.SetTranslation(Vector3F(0.0f, 0.0f, 0.0f));
+
+		transformComponent.transform.SetScale(Vector3F(1.0f));
+		cameraComponent.fieldOfView = 35;
+		cameraComponent.zNear = 0.1f;
+		cameraComponent.zFar = 1000.0f;
+
+
+
+
+
+		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(1.0f, 0.0f, 0.0f) * 7, Application::Get().GetInputDevice().GetHorizontalKeyAxis()));
+		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(0.0f, 1.0f, 0.0f) * 7, Application::Get().GetInputDevice().GetVerticalKeyAxis()));
 		renderableMesh.vertexArray = vertexArray;
 		renderableMesh.texture = &(*texture);
 
-		entity = ECS->MakeEntity(transformComponent, movementComponent, renderableMesh, colliderComponent);
+		freeLookComponent.horizontalBinder = Application::Get().GetInputDevice().GetHorizontalKeyAxis();
+		freeLookComponent.verticalBinder = Application::Get().GetInputDevice().GetVerticalKeyAxis();
+		freeLookComponent.mouseButtonBinder = mouseButtonBinder;
+		freeLookComponent.movementSpeedX = 3.0f;
+		freeLookComponent.movementSpeedZ = 3.0f;
+		freeLookComponent.rotationSpeedX = 0.2f;
+		freeLookComponent.rotationSpeedY = 0.2f;
+		freeLookComponent.q_This = transformComponent.transform.GetRotation();
+
+		cameraEntity = ECS->MakeEntity(transformComponent, cameraComponent);
+
+
+		transformComponent.transform.SetTranslation(Vector3F(0.0f, 0.0f, 20.0f));
+
+		transformComponent.transform.SetScale(1);
+		entity = ECS->MakeEntity(transformComponent, renderableMesh, colliderComponent, freeLookComponent);
+		//entity = ECS->MakeEntity(transformComponent, movementComponent, renderableMesh);
 
 		for (uint32 i = 0; i < 1; i++)
 		{
@@ -175,7 +230,7 @@ namespace LinaEngine::Graphics
 			motionComponent.acceleration = Vector3F(Math::RandF(-af, af), Math::RandF(-af, af), Math::RandF(-af, af));
 			motionComponent.velocity = motionComponent.acceleration * vf;
 
-			/*for (uint32 i = 0; i < 3; i++)
+			for (uint32 i = 0; i < 3; i++)
 			{
 				cubeChunkComponent.position[i] = transformComponent.transform.GetTranslation()[i];
 				cubeChunkComponent.velocity[i] = motionComponent.velocity[i];
@@ -183,28 +238,33 @@ namespace LinaEngine::Graphics
 				cubeChunkComponent.textureIndex = Math::RandF() > 0.5f ? 0 : 1;
 
 			}
-			ECS->MakeEntity(cubeChunkComponent);*/
+			//ECS->MakeEntity(cubeChunkComponent);
 			//ECS->MakeEntity(transformComponent,  motionComponent, renderableMesh, colliderComponent);
 			colliderComponent.aabb = vertexArrayAABBTinyCube;
 
-			ECS->MakeEntity(transformComponent,   renderableMesh, colliderComponent);
+			ECS->MakeEntity(transformComponent, renderableMesh, colliderComponent);
 
 		}
 
 		renderingPipeline.AddSystem(*renderableMeshSystem);
+		renderingPipeline.AddSystem(*cameraSystem);
 		//renderingPipeline.AddSystem(*cubeChunkRenderSystem);
 		mainSystems.AddSystem(movementControlSystem);
-		//mainSystems.AddSystem(motionSystem);
+		mainSystems.AddSystem(motionSystem);
+		mainSystems.AddSystem(*freeLookSystem);
 		//mainSystems.AddSystem(cubeChunkSystem);
 	}
 
+
 	void RenderEngine::Tick()
 	{
-		
+
+
+
 
 		ECS->UpdateSystems(mainSystems, 0.01f);
-		
-		
+
+
 	}
 
 	void RenderEngine::Render()

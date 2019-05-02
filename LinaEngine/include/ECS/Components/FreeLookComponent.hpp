@@ -12,26 +12,45 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: ColliderComponent
-Timestamp: 4/30/2019 7:40:43 PM
+Class: FreeLookComponent
+Timestamp: 5/2/2019 1:40:16 AM
 
 */
 
 #pragma once
 
-#ifndef ColliderComponent_HPP
-#define ColliderComponent_HPP
+#ifndef FreeLookComponent_HPP
+#define FreeLookComponent_HPP
 
 #include "ECS/ECSComponent.hpp"
-#include "Utility/Math/AABB.hpp"
 
+
+namespace LinaEngine::Input
+{
+	class InputKeyAxisBinder;
+};
+
+namespace LinaEngine::Input
+{
+	class InputMouseButtonBinder;
+}
+using namespace LinaEngine::Input;
 
 namespace LinaEngine::ECS
 {
-	struct ColliderComponent : public ECSComponent<ColliderComponent>
+	struct FreeLookComponent : public ECSComponent<FreeLookComponent>
 	{
-		AABB aabb;
-		AABB transformedAABB;
+		float movementSpeedX;
+		float movementSpeedZ;
+		float rotationSpeedX;
+		float rotationSpeedY;
+		bool useMouseLocking;
+		InputKeyAxisBinder* horizontalBinder;
+		InputKeyAxisBinder* verticalBinder;
+		InputMouseButtonBinder* mouseButtonBinder;
+		float horizontalAngle;
+		float verticalAngle;
+		Quaternion q_This;
 	};
 }
 

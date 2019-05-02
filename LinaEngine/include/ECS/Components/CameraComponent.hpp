@@ -12,23 +12,24 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: MotionComponent
-Timestamp: 4/28/2019 3:37:53 AM
+Class: CameraComponent
+Timestamp: 5/2/2019 12:20:42 AM
 
 */
 
 #pragma once
 
-#ifndef MotionComponent_HPP
-#define MotionComponent_HPP
+#ifndef CameraComponent_HPP
+#define CameraComponent_HPP
 
+#include "ECS/ECSComponent.hpp"
 
 namespace LinaEngine::ECS
 {
-	struct MotionComponent : public ECSComponent<MotionComponent>
+	struct CameraComponent : ECSComponent<CameraComponent>
 	{
-		Vector3F velocity = Vector3F(0.0f, 0.0f, 0.0f);
-		Vector3F acceleration = Vector3F(0.0f, 0.0f, 0.0f);
+		float zNear, zFar, fieldOfView;
+		int renderPriority;
 	};
 }
 

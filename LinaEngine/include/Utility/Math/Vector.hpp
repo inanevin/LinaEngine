@@ -303,6 +303,7 @@ namespace LinaEngine
 		FORCEINLINE Vector3F operator-(float amt) const;
 		FORCEINLINE Vector3F operator*(float amt) const;
 		FORCEINLINE Vector3F operator/(float amt) const;
+		
 
 		FORCEINLINE std::string ToString () const {
 			std::stringstream ss;
@@ -334,6 +335,7 @@ namespace LinaEngine
 		Vector3F Project() const;
 		Vector3F Reciprocal() const;
 		Vector3F Rotate(const Vector3F& axis, float angle) const;
+		Vector3F Rotate(const class Quaternion& rotation) const;
 		Vector3F Reflect(const Vector3F& normal) const;
 		Vector3F Refract(const Vector3F& normal, float indexOfRefraction) const;
 		Vector3F ToDegrees() const;

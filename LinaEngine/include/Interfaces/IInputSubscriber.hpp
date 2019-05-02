@@ -72,6 +72,22 @@ namespace LinaEngine::Input
 				SubscribeAction<InputCode::Mouse>(handlerID, ActionType::MouseButtonReleased, cb);
 		}
 
+		void SubscribeMousePressedAction(const LinaString& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse mouse = InputCode::Mouse::MouseUnknown)
+		{
+			if (mouse != InputCode::Mouse::MouseUnknown)
+				SubscribeAction<InputCode::Mouse>(handlerID, ActionType::MouseButtonPressed, cb, mouse);
+			else
+				SubscribeAction<InputCode::Mouse>(handlerID, ActionType::MouseButtonPressed, cb);
+		}
+
+		void SubscribeMouseReleasedAction(const LinaString& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse mouse = InputCode::Mouse::MouseUnknown)
+		{
+			if (mouse != InputCode::Mouse::MouseUnknown)
+				SubscribeAction<InputCode::Mouse>(handlerID, ActionType::MouseButtonReleased, cb, mouse);
+			else
+				SubscribeAction<InputCode::Mouse>(handlerID, ActionType::MouseButtonReleased, cb);
+		}
+
 	private:
 
 	};

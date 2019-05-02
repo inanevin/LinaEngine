@@ -39,6 +39,11 @@ namespace LinaEngine::Graphics
 			meshRenderBuffer[LinaMakePair(&vertexArray, &texture)].push_back(perspective * transformIn);
 		}
 
+		FORCEINLINE void UpdatePerspective(const Matrix& newPerspective)
+		{
+			perspective = newPerspective;
+		}
+
 		void Flush();
 
 	private:

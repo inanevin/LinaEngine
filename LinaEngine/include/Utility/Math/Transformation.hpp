@@ -73,6 +73,8 @@ namespace LinaEngine
 		FORCEINLINE void SetTranslation(const Vector3F& translation);
 		FORCEINLINE void SetRotation(const Quaternion& rotation);
 		FORCEINLINE void SetScale(const Vector3F& scale);
+		void Rotate(const Vector3F& axis, float angle);
+		void Rotate(const Quaternion& rotation);
 
 	private:
 		Vector3F m_Translation;
@@ -194,6 +196,16 @@ namespace LinaEngine
 	FORCEINLINE void Transformation::SetScale(const Vector3F& val)
 	{
 		m_Scale = val;
+	}
+
+	inline void Transformation::Rotate(const Vector3F & axis, float angle)
+	{
+		Rotate(Quaternion(axis, angle));
+	}
+
+	inline void Transformation::Rotate(const Quaternion & r)
+	{
+		m_Rotation = Quaternion((r * m_Rotation).Normalized());
 	}
 
 }

@@ -35,7 +35,7 @@ namespace LinaEngine::ECS
 			Vector3F newPos = transform->transform.GetTranslation();
 			ModifiedEuler(newPos, motion->velocity, motion->acceleration, delta);
 			transform->transform.SetTranslation(newPos);
-			transform->transform.SetRotation(Quaternion(Vector3F(1.0f, 1.0f, 1.0f).Normalized(), Math::Sin(deltaIncrement) * 5 * delta));
+
 		}
 
 }

@@ -236,6 +236,14 @@ namespace LinaEngine
 		return Vector3F(rotatedX + rotatedY + rotatedZ);
 	}
 
+	Vector3F Vector3F::Rotate(const Quaternion & rotation) const
+	{
+		Quaternion conjugateQ = rotation.Conjugate();
+		Quaternion w = rotation * conjugateQ.VectorMultiplication(*this);
+		Vector3F ret(w.GetX(), w.GetY(), w.GetZ());
+		return ret;
+	}
+
 
 	Vector3F Vector3F::Reflect(const Vector3F& normal) const
 	{

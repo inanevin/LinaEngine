@@ -49,8 +49,8 @@ namespace LinaEngine::Input
 			m_VerticalKeyAxis->SetActionDispatcher(this);
 
 			// Initialize the axes.
-			m_HorizontalKeyAxis->Initialize(InputCode::Key::L, InputCode::Key::J);
-			m_VerticalKeyAxis->Initialize(InputCode::Key::I, InputCode::Key::K);
+			m_HorizontalKeyAxis->Initialize(InputCode::Key::D, InputCode::Key::A);
+			m_VerticalKeyAxis->Initialize(InputCode::Key::W, InputCode::Key::S);
 
 			// Initialize subclass.
 			m_Derived->Initialize_Impl(contextWindowPointer);
@@ -102,7 +102,7 @@ namespace LinaEngine::Input
 		FORCEINLINE void SetMousePosition(const Vector2F& v) { m_Derived->SetMousePosition_Impl(v); }
 
 		// Set cursor visible/invisible.
-		FORCEINLINE void SetCursor(bool visible) { m_Derived->SetCursor(visible); }
+		FORCEINLINE void SetCursor(bool visible) { m_Derived->SetCursor_Impl(visible); }
 
 		// Get the input dispatcher of this engine.
 		FORCEINLINE ActionDispatcher& GetInputDispatcher() { return m_InputDispatcher; }
