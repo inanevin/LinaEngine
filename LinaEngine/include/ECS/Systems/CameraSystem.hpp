@@ -43,8 +43,16 @@ namespace LinaEngine::ECS
 
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
 		
+
+		FORCEINLINE void SetAspectRatio(float aspectRatioIn)
+		{
+			m_AspectRatio = aspectRatioIn;
+		}
+
 	private:
+
 		GameRenderContext& context;
+		float m_AspectRatio;
 	};
 }
 

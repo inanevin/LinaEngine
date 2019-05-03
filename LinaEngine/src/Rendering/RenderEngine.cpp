@@ -89,6 +89,8 @@ namespace LinaEngine::Graphics
 	ArrayBitmap arrayBitmap;
 	DrawParams drawParams;
 	Matrix perspective;
+	InputKeyAxisBinder* secondaryHorizontal;
+	InputKeyAxisBinder* secondaryVertical;
 
 	RenderEngine::RenderEngine()
 	{
@@ -122,11 +124,9 @@ namespace LinaEngine::Graphics
 		// Set ECS reference
 		ECS = ecsIn;
 
-		mouseButtonBinder = new InputMouseButtonBinder();
-		mouseButtonBinder->SetActionDispatcher(&Application::Get().GetInputDevice());
-		mouseButtonBinder->Initialize(InputCode::Mouse::Mouse1);
+	
 		freeLookSystem = new FreeLookSystem(Application::Get().GetInputDevice());
-		freeLookSystem->SetWindowCenter(m_RenderDevice->GetWindowSize());
+		freeLookSystem->SetWindowCenter(m_RenderDevice->GetWindowSize() / 2.0f);
 		m_RenderDevice->Initialize();
 
 		target = new RenderTarget(*m_RenderDevice.get());
@@ -182,6 +182,8 @@ namespace LinaEngine::Graphics
 		renderableMeshSystem = new RenderableMeshSystem(*gameRenderContext);
 		cubeChunkRenderSystem = new CubeChunkRenderSystem(*gameRenderContext, *cubeArray, textures, ARRAY_SIZE_IN_ELEMENTS(textures));
 		cameraSystem = new CameraSystem(*gameRenderContext);
+		Vector2F windowSize = m_RenderDevice->GetWindowSize();
+		cameraSystem->SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 		colliderComponent.aabb = vertexArrayAABBCube;
 
 
@@ -194,10 +196,16 @@ namespace LinaEngine::Graphics
 
 
 
+		secondaryHorizontal = new InputKeyAxisBinder();
+		secondaryVertical = new InputKeyAxisBinder();
+	
+		secondaryHorizontal->SetActionDispatcher(&Application::Get().GetInputDevice());
+		secondaryVertical->SetActionDispatcher(&Application::Get().GetInputDevice());
+		secondaryHorizontal->Initialize(InputCode::Key::L, InputCode::Key::J);
+		secondaryVertical->Initialize(InputCode::Key::I, InputCode::Key::K);
 
-
-		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(1.0f, 0.0f, 0.0f) * 7, Application::Get().GetInputDevice().GetHorizontalKeyAxis()));
-		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(0.0f, 1.0f, 0.0f) * 7, Application::Get().GetInputDevice().GetVerticalKeyAxis()));
+		movementComponent.movementControls.push_back(MovementControl(Vector3F(1.0f, 0.0f, 0.0f) * 15, secondaryHorizontal));
+		movementComponent.movementControls.push_back(MovementControl(Vector3F(0.0f, 1.0f, 0.0f) * 15, secondaryVertical));
 		renderableMesh.vertexArray = vertexArray;
 		renderableMesh.texture = &(*texture);
 
@@ -209,11 +217,12 @@ namespace LinaEngine::Graphics
 
 		cameraEntity = ECS->MakeEntity(transformComponent, cameraComponent, freeLookComponent);
 
+		
 
 		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 20.0f));
 
 		transformComponent.transform.SetScale(1);
-		entity = ECS->MakeEntity(transformComponent, renderableMesh, colliderComponent);
+		entity = ECS->MakeEntity(transformComponent, renderableMesh, colliderComponent, movementComponent, motionComponent);
 		//entity = ECS->MakeEntity(transformComponent, movementComponent, renderableMesh);
 
 		for (uint32 i = 0; i < 1; i++)
@@ -224,22 +233,22 @@ namespace LinaEngine::Graphics
 			renderableMesh.texture = Math::RandF() > 0.5f ? &*texture : &*textureNew;
 			float vf = -4.0f;
 			float af = 5.0f;
-			motionComponent.acceleration = Vector3F(Math::RandF(-af, af), Math::RandF(-af, af), Math::RandF(-af, af));
-			motionComponent.velocity = motionComponent.acceleration * vf;
+			//motionComponent.acceleration = Vector3F(Math::RandF(-af, af), Math::RandF(-af, af), Math::RandF(-af, af));
+			//motionComponent.velocity = motionComponent.acceleration * vf;
 
-			for (uint32 i = 0; i < 3; i++)
+			/*for (uint32 i = 0; i < 3; i++)
 			{
 				cubeChunkComponent.position[i] = transformComponent.transform.GetLocation()[i];
 				cubeChunkComponent.velocity[i] = motionComponent.velocity[i];
 				cubeChunkComponent.acceleration[i] = motionComponent.acceleration[i];
 				cubeChunkComponent.textureIndex = Math::RandF() > 0.5f ? 0 : 1;
 
-			}
+			}*/
 			//ECS->MakeEntity(cubeChunkComponent);
 			//ECS->MakeEntity(transformComponent,  motionComponent, renderableMesh, colliderComponent);
 			colliderComponent.aabb = vertexArrayAABBTinyCube;
 
-			ECS->MakeEntity(transformComponent, renderableMesh, colliderComponent);
+			ECS->MakeEntity(transformComponent, renderableMesh, motionComponent, colliderComponent);
 
 		}
 
@@ -247,7 +256,7 @@ namespace LinaEngine::Graphics
 		renderingPipeline.AddSystem(*cameraSystem);
 		//renderingPipeline.AddSystem(*cubeChunkRenderSystem);
 		mainSystems.AddSystem(movementControlSystem);
-		//mainSystems.AddSystem(motionSystem);
+		mainSystems.AddSystem(motionSystem);
 		mainSystems.AddSystem(*freeLookSystem);
 		//mainSystems.AddSystem(cubeChunkSystem);
 	}

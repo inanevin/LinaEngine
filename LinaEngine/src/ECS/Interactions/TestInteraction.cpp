@@ -22,9 +22,13 @@ Timestamp: 5/1/2019 4:42:14 PM
 
 namespace LinaEngine::ECS
 {
-	void TestInteraction::Interact(float dleta, BaseECSComponent ** components, BaseECSComponent ** interacteeComponents)
+	void TestInteraction::Interact(float delta, BaseECSComponent ** interactorComponents, BaseECSComponent ** interacteeComponents)
 	{
-		LINA_CORE_TRACE("Interaction test!");
+		Transformation& transform = ((TransformComponent*)interactorComponents[0])->transform;
+		MotionComponent* motionComponent = (MotionComponent*)interactorComponents[2];
+
+		//transform.SetRotation(transform.GetRotation() * Quaternion(Vector3F(0.0f, 0.0f, 1.0f), delta).Normalized());
+		motionComponent->velocity *= -1.1f;
 	}
 }
 
