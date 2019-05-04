@@ -29,32 +29,41 @@ namespace LinaEngine::Graphics
 	class GameRenderContext : public RenderContext
 	{
 	public:
-		GameRenderContext(PAMRenderDevice& deviceIn, RenderTarget& targetIn, DrawParams& drawParamsIn, Shader& shaderIn, Sampler& samplerIn, const Matrix& perspectiveIn)
-			: RenderContext(deviceIn, targetIn), drawParams(drawParamsIn), shader(shaderIn), sampler(samplerIn), perspective(perspectiveIn) {};
 
+		GameRenderContext() : RenderContext() {};
+		virtual ~GameRenderContext() {};
+
+		FORCEINLINE void Construct(PAMRenderDevice& deviceIn, RenderTarget& targetIn, DrawParams& drawParamsIn, Shader& shaderIn, Sampler& samplerIn, const Matrix& perspectiveIn)
+		{
+			RenderContext::Construct(deviceIn, targetIn);
+			m_DrawParams = &drawParamsIn;
+			m_Shader = &shaderIn;
+			m_Sampler = &samplerIn;
+			m_Perspective = perspectiveIn;
+		}
 
 		FORCEINLINE void RenderMesh(VertexArray& vertexArray, Texture& texture, const Matrix& transformIn)
 		{
 			// Add the new matrix to the same pairs, each pair will be drawn once.
-			meshRenderBuffer[LinaMakePair(&vertexArray, &texture)].push_back(perspective * transformIn);
+			m_MeshRenderBuffer[LinaMakePair(&vertexArray, &texture)].push_back(m_Perspective * transformIn);
 		}
 
 		FORCEINLINE void UpdatePerspective(const Matrix& newPerspective)
 		{
-			perspective = newPerspective;
+			m_Perspective = newPerspective;
 		}
 
 		void Flush();
 
 	private:
 
-		DrawParams& drawParams;
-		Shader& shader;
-		Sampler& sampler;
-		Matrix perspective;
+		DrawParams* m_DrawParams;
+		Shader* m_Shader;
+		Sampler *m_Sampler;
+		Matrix m_Perspective;
 
 		// Map to see the list of same vertex array & textures to compress them into single draw call.
-		LinaMap<LinaPair<VertexArray*, Texture*>, LinaArray<Matrix> > meshRenderBuffer;
+		LinaMap<LinaPair<VertexArray*, Texture*>, LinaArray<Matrix> > m_MeshRenderBuffer;
 
 	};
 }

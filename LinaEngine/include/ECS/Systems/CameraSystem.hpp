@@ -22,7 +22,7 @@ Timestamp: 5/2/2019 12:40:46 AM
 #ifndef CameraSystem_HPP
 #define CameraSystem_HPP
 
-#include "ECS/EntityComponentSystem.hpp"
+#include "ECS/ECSSystem.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "Rendering/GameRenderContext.hpp"
@@ -35,10 +35,15 @@ namespace LinaEngine::ECS
 	{
 	public:
 
-		CameraSystem(GameRenderContext& contextIn) : BaseECSSystem(), context(contextIn)
+		CameraSystem() : BaseECSSystem()
 		{
 			AddComponentType(TransformComponent::ID);
 			AddComponentType(CameraComponent::ID);
+		}
+
+		FORCEINLINE void Construct(GameRenderContext& contextIn)
+		{
+			context = &contextIn;
 		}
 
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
@@ -51,7 +56,7 @@ namespace LinaEngine::ECS
 
 	private:
 
-		GameRenderContext& context;
+		GameRenderContext* context;
 		float m_AspectRatio;
 	};
 }

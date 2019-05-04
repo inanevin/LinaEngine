@@ -21,15 +21,13 @@ Timestamp: 4/27/2019 5:54:04 PM
 #include "Rendering/GameRenderContext.hpp"  
 #include "Core/STLImport.hpp"
 
-
-
 namespace LinaEngine::Graphics
 {
 	void GameRenderContext::Flush()
 	{
 		Texture* currentTexture = nullptr;
 
-		for (LinaMap<LinaPair<VertexArray*, Texture*>, LinaArray<Matrix> >::iterator it = meshRenderBuffer.begin(); it != meshRenderBuffer.end(); ++it)
+		for (LinaMap<LinaPair<VertexArray*, Texture*>, LinaArray<Matrix> >::iterator it = m_MeshRenderBuffer.begin(); it != m_MeshRenderBuffer.end(); ++it)
 		{
 			VertexArray* vertexArray = it->first.first;
 			Texture* texture = it->first.second;
@@ -40,13 +38,13 @@ namespace LinaEngine::Graphics
 			
 
 			if (texture != currentTexture) 
-				shader.SetSampler("diffuse", *texture, sampler, 0);
+				m_Shader->SetSampler("diffuse", *texture, *m_Sampler, 0);
 			
 			// Update the buffer w/ each transform.
 			vertexArray->UpdateBuffer(4, transforms, numTransforms * sizeof(Matrix));
 
 			// Draw call.
-			this->Draw(shader, *vertexArray, drawParams, numTransforms);
+			this->Draw(*m_Shader, *vertexArray, *m_DrawParams, numTransforms);
 
 			// Clear the buffer, or do not if you want a trail of shadows lol.
 			it->second.clear();

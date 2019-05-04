@@ -55,6 +55,8 @@ namespace LinaEngine::Graphics
 
 	GLRenderDevice::GLRenderDevice() 
 	{
+		LINA_CORE_TRACE("[Constructor] -> GLRenderDevice ({0})", typeid(*this).name());
+
 		m_GLVersion = m_BoundFBO = m_BoundVAO = m_BoundShader = m_ViewportFBO = 0;
 		m_UsedFaceCulling = FaceCulling::FACE_CULL_NONE;
 		m_UsedDepthFunction = DrawFunc::DRAW_FUNC_ALWAYS;
@@ -67,8 +69,6 @@ namespace LinaEngine::Graphics
 		m_usedStencilFail = StencilOp::STENCIL_KEEP;
 		m_UsedStencilPassButDepthFail = StencilOp::STENCIL_KEEP;
 		m_IsBlendingEnabled = m_ShouldWriteDepth = m_IsStencilTestEnabled = m_IsScissorsTestEnabled = false;
-
-		LINA_CORE_TRACE("[Constructor] -> GLRenderDevice ({0})", typeid(*this).name());
 		m_MainWindow = std::make_unique<GLWindow>();
 	}
 
@@ -90,7 +90,6 @@ namespace LinaEngine::Graphics
 		fboWindowData.width = 1280;
 		fboWindowData.height = 720;
 		m_FBOMap[0] = fboWindowData;
-
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(DRAW_FUNC_ALWAYS);
@@ -664,6 +663,15 @@ namespace LinaEngine::Graphics
 
 		// Clear the desired flags.
 		glClear(flags);
+	}
+
+	void GLRenderDevice::OnWindowResized(float width, float height)
+	{
+		for (uint32 i = 0; i < m_FBOMap.size(); i++)
+		{
+			m_FBOMap[i].width = width;
+			m_FBOMap[i].height = height;
+		}
 	}
 
 	void GLRenderDevice::SetViewport(uint32 fbo)

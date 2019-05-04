@@ -12,24 +12,16 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: RenderableMeshSystem
-Timestamp: 4/27/2019 5:41:27 PM
+Class: Shader
+Timestamp: 5/4/2019 1:36:21 PM
 
 */
 
 #include "LinaPch.hpp"
-#include "ECS/Systems/RenderableMeshSystem.hpp"
+#include "Rendering/Shader.hpp"  
 
-
-
-namespace LinaEngine::ECS
+namespace LinaEngine::Graphics
 {
-	void RenderableMeshSystem::UpdateComponents(float delta, BaseECSComponent ** components)
-	{
-		TransformComponent* transform = (TransformComponent*)components[0];
-		RenderableMeshComponent* mesh = (RenderableMeshComponent*)components[1];
-		
-		context->RenderMesh(*mesh->vertexArray, *mesh->texture, transform->transform.ToMatrix());
-	}
+
 }
 

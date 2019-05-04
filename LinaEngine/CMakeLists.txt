@@ -69,7 +69,9 @@ set (LINAENGINE_SOURCES
 	src/Rendering/ModelLoader.cpp
 	src/Rendering/GameRenderContext.cpp
 	src/Rendering/RenderEngine.cpp
-	
+	src/Rendering/RenderTarget.cpp
+	src/Rendering/Shader.cpp
+
 	#Physics
 	src/Physics/PhysicsEngine.cpp
 	src/Physics/PhysicsInteractionWorld.cpp
@@ -82,7 +84,6 @@ set (LINAENGINE_SOURCES
 	src/Utility/Math/VectorMath.cpp
 	src/Utility/Math/AABB.cpp
 	src/Utility/Math/Plane.cpp
-
 	src/Utility/Log.cpp
 	src/Utility/ResourceConstants.cpp
 
