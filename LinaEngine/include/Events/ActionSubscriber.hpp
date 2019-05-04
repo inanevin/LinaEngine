@@ -47,9 +47,6 @@ namespace LinaEngine
 
 	protected:
 
-		// Initialize the subscriber.
-		virtual void Initialize() = 0;
-
 		// Subscribes an action with particular id.
 		void UnsubscribeAction(LinaString actionID);
 

@@ -25,7 +25,6 @@ set (LINAENGINE_SOURCES
     src/Core/Application.cpp
     src/Core/Layer.cpp
     src/Core/LayerStack.cpp
-    src/Core/Transform.cpp
 	src/Core/Time.cpp
 	
 	
@@ -50,8 +49,6 @@ set (LINAENGINE_SOURCES
 	#IMGUI
 	src/IMGUI/IMGUILayer.cpp
 	
-	#Interfaces
-	src/Interfaces/IInputSubscriber.cpp
 	
 	#PAM
 	src/PackageManager/Generic/cmwc4096.cpp
@@ -106,7 +103,6 @@ set(LINAENGINE_HEADERS
 	include/Core/LayerStack.hpp
 	include/Core/Memory.hpp
 	include/Core/STLImport.hpp
-	include/Core/Transform.hpp
 	include/Core/Time.hpp
 	
 	#ECS
@@ -151,6 +147,7 @@ set(LINAENGINE_HEADERS
 	
 	#Interfaces
 	include/Interfaces/IInputSubscriber.hpp
+	include/Interfaces/IWindowSubscriber.hpp
 	
 	#LObject
 	include/LObjects/Camera.hpp
@@ -209,6 +206,8 @@ set(LINAENGINE_HEADERS
 	include/Utility/Log.hpp
 	include/Utility/ResourceConstants.hpp
 
+	#World
+	include/World/Level.hpp
 	
 	# SPDLOG
 	include/Utility/spdlog/spdlog.h

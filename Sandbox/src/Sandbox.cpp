@@ -32,13 +32,12 @@ public:
 
 	void OnUpdate() override
 	{
-		//LINA_CLIENT_INFO("TestLayer Update");
+
 	}
 
 	void OnEvent(LinaEngine::Event& e) override
 	{
-		//LINA_CLIENT_TRACE("{0}", e);
-		
+
 	}
 };
 
@@ -46,16 +45,15 @@ public:
 class Sandbox : public LinaEngine::Application
 {
 public:
-	Sandbox() { 
-		//LINA_CLIENT_TRACE("[Constructor] -> Sandbox ({0})", typeid(*this).name());
-	
-		LinaEngine::Layer* l = new TestLayer();
-		
-		PushLayer(l);
-		//PushOverlay(new LinaEngine::Layer_IMGUI());
+
+	Sandbox() 
+	{ 
+		LINA_CLIENT_TRACE("[Constructor] -> Sandbox ({0})", typeid(*this).name());
+
 	}
-	~ Sandbox(){
-		//LINA_CLIENT_TRACE("[Destructor] -> Sanbox ({0})", typeid(*this).name());
+	~ Sandbox()
+	{
+		LINA_CLIENT_TRACE("[Destructor] -> Sanbox ({0})", typeid(*this).name());
 	}
 
 	

@@ -43,7 +43,7 @@ namespace LinaEngine
 		m_PhysicsEngine = std::make_unique<PhysicsEngine>();
 
 		// Create main window.
-		bool windowCreationSuccess = m_RenderEngine->CreateContextWindow();
+		bool windowCreationSuccess = m_RenderEngine->CreateContextWindow(*m_InputEngine.get());
 		if (!windowCreationSuccess)
 		{
 			LINA_CORE_ERR("Window Creation Failed!");
@@ -72,7 +72,12 @@ namespace LinaEngine
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
 
-		//m_RenderDevice->OnEvent(e);
+		if (e.GetEventType() == EventType::WindowResize)
+		{
+			WindowResizeEvent& windowEvent = (WindowResizeEvent&)(e);
+			m_RenderEngine->OnWindowResized(windowEvent.GetWidth(), windowEvent.GetHeight());
+		}
+
 		
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{
@@ -91,6 +96,9 @@ namespace LinaEngine
 	
 			m_PhysicsEngine->Tick(0.01f);
 			m_RenderEngine->Tick(0.01f);
+
+			if (m_ActiveLevelExists)
+				m_CurrentLevel->Tick(0.01f);
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
@@ -113,6 +121,18 @@ namespace LinaEngine
 	{
 		m_LayerStack.PushOverlay(layer);
 		layer->OnAttach();
+	}
+
+	LINA_API void Application::LoadLevel(Level & level)
+	{
+		// TODO: Implement unloading the current level & loading a new one later.
+
+		level.Install();
+		level.Initialize();
+
+		m_CurrentLevel = &level;
+		m_ActiveLevelExists = true;
+		
 	}
 
 	/*RenderDevice * Application::GetRenderDevice()

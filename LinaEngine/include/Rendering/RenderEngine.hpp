@@ -33,6 +33,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "ECS/Systems/CameraSystem.hpp"
 #include "ECS/Systems/RenderableMeshSystem.hpp"
 #include "Utility/Math/Color.hpp"
+#include "PackageManager/PAMInputEngine.hpp"
 
 using namespace LinaEngine::ECS;
 using namespace LinaEngine;
@@ -55,9 +56,9 @@ namespace LinaEngine::Graphics
 		}
 
 		// Create a render context.
-		FORCEINLINE bool CreateContextWindow()
+		FORCEINLINE bool CreateContextWindow(InputEngine<PAMInputEngine>& inputEngineIn)
 		{
-			return m_RenderDevice->CreateContextWindow();
+			return m_RenderDevice->CreateContextWindow(inputEngineIn);
 		};
 
 		// Set the target of the callbacks coming from the main window context.

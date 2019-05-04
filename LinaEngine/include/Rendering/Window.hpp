@@ -23,7 +23,10 @@ Timestamp: 4/14/2019 7:46:12 PM
 #define WINDOW_HPP
 
 #include "Events/Event.hpp"
+#include "PackageManager/PAMInputEngine.hpp"
+#include "Events/ActionDispatcher.hpp"
 
+using namespace LinaEngine::Input;
 
 namespace LinaEngine
 {
@@ -60,7 +63,7 @@ namespace LinaEngine
 			LINA_CORE_TRACE("[Destructor] -> Window ({0})", typeid(*this).name());
 		};
 
-		FORCEINLINE bool Initialize() { return m_Derived->Initialize_Impl(); }
+		FORCEINLINE bool Initialize(InputEngine<PAMInputEngine>& inputEngineIn) { return m_Derived->Initialize_Impl(inputEngineIn); }
 		FORCEINLINE void SetVsync(bool enabled) { m_Properties.vSyncEnabled = enabled; m_Derived->SetVsync_Impl(enabled); }
 		FORCEINLINE void SetEventCallback(const std::function<void(Event&)>& callback) { m_EventCallback = callback; }
 		FORCEINLINE bool GetVsycnEnabled() { return m_Properties.vSyncEnabled; }
@@ -79,6 +82,7 @@ namespace LinaEngine
 
 		WindowProperties m_Properties;
 		std::function<void(Event&)> m_EventCallback;
+
 
 	private:
 

@@ -25,16 +25,10 @@ Timestamp: 4/14/2019 5:12:19 PM
 #include "Rendering/Window.hpp"
 
 
+
+
 namespace LinaEngine
 {
-
-
-	namespace Input
-	{
-		template<class Derived>
-		class InputEngine;
-		class PAMInputEngine;
-	}
 
 	class GLWindow : public Window<GLWindow>
 	{
@@ -44,7 +38,7 @@ namespace LinaEngine
 		~GLWindow();
 
 		/* Creates the native window. */
-		bool Initialize_Impl();
+		bool Initialize_Impl(InputEngine<PAMInputEngine>& inputEngineIn);
 
 		/* Called every frame */
 		void Tick_Impl();
@@ -73,7 +67,7 @@ namespace LinaEngine
 
 		void* m_Window = NULL;
 
-		Input::InputEngine<Input::PAMInputEngine>* inputEngine;
+		InputEngine<PAMInputEngine>* inputEngine;
 
 	};
 }

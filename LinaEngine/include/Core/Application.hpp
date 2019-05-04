@@ -30,6 +30,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "APIExport.hpp"
 #include "ECS/EntityComponentSystem.hpp"
 #include "Physics/PhysicsEngine.hpp"
+#include "World/Level.hpp"
 
 namespace LinaEngine
 {
@@ -37,6 +38,7 @@ namespace LinaEngine
 	using namespace Input;
 	using namespace ECS;
 	using namespace Physics;
+	using namespace World;
 
 	class Application
 	{
@@ -44,21 +46,46 @@ namespace LinaEngine
 
 		LINA_API Application();
 		LINA_API virtual ~Application();
+
+		// Main application loop.
 		LINA_API void Run();
+
+		// Called when an internal event occurs.
 		LINA_API void OnEvent(Event& e);
+
+		// Pushes a new layer into the application stack.
 		LINA_API void PushLayer(Layer* layer);
+
+		// Pushes a new overlay layer into the application stack.
 		LINA_API void PushOverlay(Layer* layer);
 
+		// Loads a level into memory.
+		LINA_API void LoadLevel(Level& level);
+
+		// Called when main application window is closed.
 		bool OnWindowClose(WindowCloseEvent& e);
+
+		// Return the static application instance.
 		FORCEINLINE static Application& Get() { return *instance; }
 		FORCEINLINE InputEngine<PAMInputEngine>& GetInputDevice() { return *(m_InputEngine.get()); }
 		FORCEINLINE RenderEngine& GetRenderEngine() { return *(m_RenderEngine.get()); }
 
+		
 	private:
 
 		static Application* instance;
+
 		bool m_Running = false;
+
 		LayerStack m_LayerStack;
+
+		// Do we have a currently active level?
+		bool m_ActiveLevelExists = false;
+
+		// Current active level.
+		Level* m_CurrentLevel = nullptr;
+
+		// Active engines running in the application.
 		std::unique_ptr<InputEngine<PAMInputEngine>> m_InputEngine;
 		std::unique_ptr<RenderEngine> m_RenderEngine;
 		std::unique_ptr<PhysicsEngine> m_PhysicsEngine;

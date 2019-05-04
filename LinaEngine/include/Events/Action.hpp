@@ -33,7 +33,8 @@ namespace LinaEngine
 		KeyReleased,
 		MouseButtonPressed,
 		MouseButtonReleased,
-		ACTION_TYPES_LASTINDEX = MouseButtonReleased
+		WindowResized,
+		ACTION_TYPES_LASTINDEX = WindowResized
 	};
 
 

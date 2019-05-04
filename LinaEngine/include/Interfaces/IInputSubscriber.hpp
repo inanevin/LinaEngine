@@ -36,7 +36,6 @@ namespace LinaEngine::Input
 		IInputSubscriber() { };
 		virtual ~IInputSubscriber() {};
 
-		void Initialize() override;
 
 	protected:
 		

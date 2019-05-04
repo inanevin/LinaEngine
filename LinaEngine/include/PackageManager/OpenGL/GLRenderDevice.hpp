@@ -193,9 +193,9 @@ namespace LinaEngine::Graphics
 		~GLRenderDevice();
 
 		// Creates an GLFW window.
-		FORCEINLINE bool CreateContextWindow()
+		FORCEINLINE bool CreateContextWindow(InputEngine<PAMInputEngine>& inputEngineIn)
 		{
-			return m_MainWindow->Initialize();
+			return m_MainWindow->Initialize(inputEngineIn);
 		}
 
 		// Returns GLFW window instance.
