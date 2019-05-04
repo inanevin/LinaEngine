@@ -21,12 +21,21 @@ project(LinaSandbox)
 
 set(SANDBOX_SOURCES 
 src/Sandbox.cpp
+
+src/Examples/TestExample/Levels/TestLevel.cpp
+
+)
+
+set(SANDBOX_HEADERS
+
+include/Examples/TestExample/Levels/TestLevel.hpp
+
 )
 
 #--------------------------------------------------------------------
 # Create executable project
 #--------------------------------------------------------------------
-add_executable(${PROJECT_NAME} ${SANDBOX_SOURCES})
+add_executable(${PROJECT_NAME} ${SANDBOX_SOURCES} ${SANDBOX_HEADERS})
 
 #--------------------------------------------------------------------
 # Options & Definitions
@@ -34,23 +43,18 @@ add_executable(${PROJECT_NAME} ${SANDBOX_SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
+option(LINA_CLIENT_ENABLE_LOGGING "Enables console logging" ON)
+
+if(LINA_CLIENT_ENABLE_LOGGING)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_CLIENT_ENABLE_LOGGING=1)
+endif()
+
 
 #--------------------------------------------------------------------
 # Links
 #--------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} Lina::Engine)
 
-#--------------------------------------------------------------------
-# Folder structuring in visual studio
-#--------------------------------------------------------------------
-#if(MSVC_IDE)
-#	foreach(source IN LISTS LINAENGINE_HEADERS LINAENGINE_SOURCES)
-#		get_filename_component(source_path "${source}" PATH)
-#		string(REPLACE "${LinaEngine_SOURCE_DIR}" "" relative_source_path "${source_path}")
-#		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
-#				source_group("${source_path_msvc}" FILES "${source}")
-#	endforeach()
-#endif()
 
 #if(WIN32)
 #	string(REPLACE "/" "\\" source_path_windows "${CMAKE_CURRENT_SOURCE_DIR}/Resources")
@@ -83,7 +87,14 @@ add_custom_command(TARGET ${PROJECT_NAME}
     -P "${CMAKE_SOURCE_DIR}/CMake/UpdateDirectory.cmake"
 )
 
-#add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-#COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#"${LINAENGINE_DLL_DIR}/LinaEngine.dll"
-#<TARGET_FILE_DIR:${PROJECT_BINARY_DIR}>)
+#--------------------------------------------------------------------
+# Folder structuring in visual studio
+#--------------------------------------------------------------------
+if(MSVC_IDE)
+	foreach(source IN LISTS SANDBOX_HEADERS SANDBOX_SOURCES)
+		get_filename_component(source_path "${source}" PATH)
+		string(REPLACE "${LINASANDBOX_SOURCE_DIR}" "" relative_source_path "${source_path}")
+		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
+				source_group("${source_path_msvc}" FILES "${source}")
+	endforeach()
+endif()

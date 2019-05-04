@@ -330,7 +330,7 @@ set_target_properties(
 )
 
 
-option(LINA_ENABLE_LOGGING "Enables console logging" ON)
+option(LINA_CORE_ENABLE_LOGGING "Enables console logging" ON)
 # option(LINA_GRAPHICS_OPENGL "Graphics: Use OpenGL" ON)
 ## FORCE OPENGL FOR NOW
 set(LINA_GRAPHICS_OPENGL 1)
@@ -344,8 +344,8 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_BUILDAS_SHARED=1)
 #	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
 # endif()
 
-if(LINA_ENABLE_LOGGING)
-	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_ENABLE_LOGGING=1)
+if(LINA_CORE_ENABLE_LOGGING)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_CORE_ENABLE_LOGGING=1)
 endif()
 
 if (WIN32)

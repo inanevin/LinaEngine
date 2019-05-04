@@ -47,6 +47,9 @@ namespace LinaEngine
 		LINA_API Application();
 		LINA_API virtual ~Application();
 
+		// Initialize the application
+		LINA_API virtual void Initialize();
+
 		// Main application loop.
 		LINA_API void Run();
 
@@ -60,7 +63,7 @@ namespace LinaEngine
 		LINA_API void PushOverlay(Layer* layer);
 
 		// Loads a level into memory.
-		LINA_API void LoadLevel(Level& level);
+		LINA_API void LoadLevel(Level* level);
 
 		// Called when main application window is closed.
 		bool OnWindowClose(WindowCloseEvent& e);

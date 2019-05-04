@@ -57,14 +57,19 @@ namespace LinaEngine
 		m_InputEngine->Initialize(m_RenderEngine->GetNativeWindow());
 		m_PhysicsEngine->Initialize(m_ECS.get());
 		m_RenderEngine->Initialize(m_ECS.get());
-
-		// Set running flag.
-		m_Running = true;
 	}
 
 	Application::~Application()
 	{
 		LINA_CORE_TRACE("[Destructor] -> Application ({0})", typeid(*this).name());
+	}
+
+	LINA_API void Application::Initialize()
+	{
+		LINA_CLIENT_TRACE("[Initialization] -> Application ({0})", typeid(*this).name());
+
+		// Set running flag.
+		m_Running = true;
 	}
 
 	void Application::OnEvent(Event & e)
@@ -123,14 +128,14 @@ namespace LinaEngine
 		layer->OnAttach();
 	}
 
-	LINA_API void Application::LoadLevel(Level & level)
+	LINA_API void Application::LoadLevel(Level* level)
 	{
 		// TODO: Implement unloading the current level & loading a new one later.
 
-		level.Install();
-		level.Initialize();
+		level->Install();
+		level->Initialize();
 
-		m_CurrentLevel = &level;
+		m_CurrentLevel = level;
 		m_ActiveLevelExists = true;
 		
 	}

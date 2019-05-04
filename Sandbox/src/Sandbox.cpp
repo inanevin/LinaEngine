@@ -19,7 +19,7 @@ Timestamp: 12/29/2018 11:15:41 PM
 
 #include <Lina.hpp>
 
-
+#include "Examples/TestExample/Levels/TestLevel.hpp"
 
  class TestLayer : public LinaEngine::Layer
 {
@@ -49,13 +49,24 @@ public:
 	Sandbox() 
 	{ 
 		LINA_CLIENT_TRACE("[Constructor] -> Sandbox ({0})", typeid(*this).name());
-
+		Initialize();
 	}
 	~ Sandbox()
 	{
 		LINA_CLIENT_TRACE("[Destructor] -> Sanbox ({0})", typeid(*this).name());
 	}
 
+	virtual void Initialize() override
+	{
+		LINA_CLIENT_TRACE("[Initialization] -> Sandbox ({0})", typeid(*this).name());
+
+		LinaEngine::Application::Initialize();
+
+		LoadLevel(&m_TestLevel);
+
+	}
+
+	TestLevel m_TestLevel;
 	
 };
 

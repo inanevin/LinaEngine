@@ -12,35 +12,27 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: Level
-Timestamp: 5/4/2019 3:33:24 PM
+Class: TestLevel
+Timestamp: 5/4/2019 3:54:15 PM
 
 */
 
 #pragma once
 
-#ifndef Level_HPP
-#define Level_HPP
+#ifndef TestLevel_HPP
+#define TestLevel_HPP
 
-#include "Core/APIExport.hpp"
+#include "World/Level.hpp"
 
-namespace LinaEngine::World
+class TestLevel : public LinaEngine::World::Level
 {
-	class Level
-	{
-	public:
+public:
 
-		Level() {};
-		virtual ~Level() {};
+	TestLevel();
 
-		virtual void OnLevelLoaded() {};
-		virtual void OnLevelRemoved() {};
-		LINA_API virtual void Install() {};
-		virtual void Initialize() {};
-		virtual void Tick(float delta) {};
-
-	};
-}
-
+	virtual void Install() override;
+	virtual void Initialize() override;
+	virtual void Tick(float delta) override;
+};
 
 #endif
