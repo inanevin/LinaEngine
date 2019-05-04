@@ -19,7 +19,7 @@ Timestamp: 5/4/2019 3:54:37 PM
 
 
 #include "Examples/TestExample/Levels/TestLevel.hpp"  
-#include "Utility/Log.hpp"
+
 
 EntityHandle m_CameraEntity;
 TransformComponent m_CameraTransform;
