@@ -90,8 +90,7 @@ namespace LinaEngine::Graphics
 	Matrix perspective;
 	InputKeyAxisBinder* secondaryHorizontal;
 	InputKeyAxisBinder* secondaryVertical;*/
-	EntityHandle m_CameraEntity;
-	TransformComponent m_CameraTransform;
+
 
 	RenderEngine::RenderEngine()
 	{
@@ -155,8 +154,6 @@ namespace LinaEngine::Graphics
 
 		// Initialize the render device.
 		m_RenderDevice->Initialize();
-
-		m_CameraEntity = m_ECS->MakeEntity(m_CameraTransform);
 
 		//freeLookSystem = new FreeLookSystem(Application::Get().GetInputDevice());
 		//freeLookSystem->SetWindowCenter(m_RenderDevice->GetWindowSize() / 2.0f);

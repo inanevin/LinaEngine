@@ -314,7 +314,7 @@ set(LINAENGINE_HEADERS
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} SHARED ${LINAENGINE_SOURCES} ${LINAENGINE_HEADERS})
+add_library(${PROJECT_NAME} STATIC ${LINAENGINE_SOURCES} ${LINAENGINE_HEADERS})
 add_library(Lina::Engine ALIAS ${PROJECT_NAME}) 
 
 #--------------------------------------------------------------------
@@ -335,9 +335,9 @@ option(LINA_CORE_ENABLE_LOGGING "Enables console logging" ON)
 ## FORCE OPENGL FOR NOW
 set(LINA_GRAPHICS_OPENGL 1)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
-target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_BUILD_DLL=1)
+#target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_BUILD_DLL=1)
 target_compile_definitions(${PROJECT_NAME} PUBLIC STB_IMAGE_IMPLEMENTATION=1)
-target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_BUILDAS_SHARED=1)
+#target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_BUILDAS_SHARED=1)
 
 #
 # if(LINA_GRAPHICS_OPENGL)
@@ -461,12 +461,12 @@ endif()
 # Generate export header for this dll project 
 #--------------------------------------------------------------------
 
-include (GenerateExportHeader)
-GENERATE_EXPORT_HEADER (LinaEngine
-    BASE_NAME LinaEngine
-    EXPORT_MACRO_NAME LINA_API
-    EXPORT_FILE_NAME LinaCore.hpp
-)
+#include (GenerateExportHeader)
+#GENERATE_EXPORT_HEADER (LinaEngine
+#    BASE_NAME LinaEngine
+#    EXPORT_MACRO_NAME LINA_API
+#    EXPORT_FILE_NAME LinaCore.hpp
+#)
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

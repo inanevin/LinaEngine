@@ -21,8 +21,8 @@ Timestamp: 5/4/2019 3:54:37 PM
 #include "Examples/TestExample/Levels/TestLevel.hpp"  
 #include "Utility/Log.hpp"
 
-//EntityHandle m_CameraEntity;
-//TransformComponent m_CameraTransform;
+EntityHandle m_CameraEntity;
+TransformComponent m_CameraTransform;
 
 TestLevel::TestLevel()
 {
@@ -36,11 +36,12 @@ void TestLevel::Install()
 
 void TestLevel::Initialize()
 {
-//	m_CameraEntity = m_ECS->MakeEntity(m_CameraTransform);
+	m_CameraTransform.transform.SetLocation(Vector3F(15, 0, 15));
+	m_CameraEntity = m_ECS->MakeEntity(m_CameraTransform);
 }
 
 void TestLevel::Tick(float delta)
 {
-
+	std::cout << m_ECS->GetComponent<TransformComponent>(m_CameraEntity)->transform.GetLocation().ToString() << std::endl;
 }
 
