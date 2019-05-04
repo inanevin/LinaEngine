@@ -31,6 +31,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "Rendering/GameRenderContext.hpp"
 #include "ECS/EntityComponentSystem.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
+#include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Systems/RenderableMeshSystem.hpp"
 #include "Utility/Math/Color.hpp"
 #include "PackageManager/PAMInputEngine.hpp"
@@ -117,17 +118,8 @@ namespace LinaEngine::Graphics
 		// ECS system list for rendering operations.
 		ECSSystemList m_RenderingPipeline;
 
-		// Default clear color.
-		LinaEngine::Color m_DefaultClearColor;
-
-		// Default field of view
-		float m_DefaultFOV = 70.0f;
-
-		// Default Z near
-		float m_DefaultZNear = 0.1f;
-
-		// Default Z far
-		float m_DefaultZFar = 1000.0f;
+		// Default camera data struct
+		CameraComponent m_ActiveCameraComponent;
 	};
 
 }

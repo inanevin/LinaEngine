@@ -30,9 +30,16 @@ public:
 
 	TestLevel();
 
+	// Load resources.
 	virtual void Install() override;
+
+	// Initialize members & resources.
 	virtual void Initialize() override;
+
+	// Called on each frame.
 	virtual void Tick(float delta) override;
+
+
 };
 
 #endif

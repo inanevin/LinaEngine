@@ -63,6 +63,7 @@ public:
 		LinaEngine::Application::Initialize();
 
 		LoadLevel(&m_TestLevel);
+	
 
 	}
 

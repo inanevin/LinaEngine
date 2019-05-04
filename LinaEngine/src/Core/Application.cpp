@@ -132,10 +132,15 @@ namespace LinaEngine
 	{
 		// TODO: Implement unloading the current level & loading a new one later.
 
-		level->Install();
-		level->Initialize();
+		
+		
 
 		m_CurrentLevel = level;
+
+		m_CurrentLevel->Install();
+		m_CurrentLevel->Initialize();
+		m_CurrentLevel->SetEngineReferences(*m_ECS.get(), *m_RenderEngine.get(), *m_InputEngine.get());
+
 		m_ActiveLevelExists = true;
 		
 	}

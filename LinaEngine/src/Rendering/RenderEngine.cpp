@@ -90,6 +90,8 @@ namespace LinaEngine::Graphics
 	Matrix perspective;
 	InputKeyAxisBinder* secondaryHorizontal;
 	InputKeyAxisBinder* secondaryVertical;*/
+	EntityHandle m_CameraEntity;
+	TransformComponent m_CameraTransform;
 
 	RenderEngine::RenderEngine()
 	{
@@ -129,7 +131,7 @@ namespace LinaEngine::Graphics
 
 		// Initialize default perspective.
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();
-		m_DefaultPerspective = Matrix::perspective(m_DefaultFOV / 2.0f, windowSize.GetX() / windowSize.GetY(), m_DefaultZNear, m_DefaultZFar);
+		m_DefaultPerspective = Matrix::perspective(m_ActiveCameraComponent.fieldOfView / 2.0f, windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent.zNear, m_ActiveCameraComponent.zFar);
 
 		// Initialize the render context.
 		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_DefaultRenderTarget, m_DefaultDrawParams, m_DefaultShader, m_DefaultSampler, m_DefaultPerspective);
@@ -149,12 +151,13 @@ namespace LinaEngine::Graphics
 		m_RenderingPipeline.AddSystem(m_RenderableMeshSystem);
 
 		// Set clear color.
-		m_DefaultClearColor = Color(0.15f, 0.22f, 0.38f, 1.0f);
+		m_ActiveCameraComponent.clearColor = Color(0.15f, 0.22f, 0.38f, 1.0f);
 
 		// Initialize the render device.
 		m_RenderDevice->Initialize();
 
-		
+		m_CameraEntity = m_ECS->MakeEntity(m_CameraTransform);
+
 		//freeLookSystem = new FreeLookSystem(Application::Get().GetInputDevice());
 		//freeLookSystem->SetWindowCenter(m_RenderDevice->GetWindowSize() / 2.0f);
 		//m_RenderDevice->Initialize();
@@ -295,7 +298,7 @@ namespace LinaEngine::Graphics
 	void RenderEngine::Tick(float delta)
 	{
 		// Clear color.
-		m_DefaultRenderContext.Clear(m_DefaultClearColor, false);
+		m_DefaultRenderContext.Clear(m_ActiveCameraComponent.clearColor, false);
 
 		// Update pipeline.
 		m_ECS->UpdateSystems(m_RenderingPipeline, delta);

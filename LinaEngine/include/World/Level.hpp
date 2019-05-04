@@ -23,6 +23,14 @@ Timestamp: 5/4/2019 3:33:24 PM
 #define Level_HPP
 
 #include "Core/APIExport.hpp"
+#include "ECS/EntityComponentSystem.hpp"
+#include "Rendering/RenderEngine.hpp"
+#include "PackageManager/PAMInputEngine.hpp"
+
+namespace LinaEngine
+{
+	class Application;
+}
 
 namespace LinaEngine::World
 {
@@ -35,9 +43,27 @@ namespace LinaEngine::World
 
 		virtual void OnLevelLoaded() {};
 		virtual void OnLevelRemoved() {};
-		LINA_API virtual void Install() {};
+		virtual void Install() {};
 		virtual void Initialize() {};
 		virtual void Tick(float delta) {};
+
+	protected:
+
+		EntityComponentSystem* m_ECS;
+		RenderEngine* m_RenderEngine;
+		InputEngine<PAMInputEngine>* m_InputEngine;
+
+
+	private:
+
+		friend class LinaEngine::Application;
+
+		void SetEngineReferences(EntityComponentSystem& ecsIn, RenderEngine& renderEngineIn, InputEngine<PAMInputEngine>& inputEngineIn)
+		{
+			m_ECS = &ecsIn;
+			m_RenderEngine = &renderEngineIn;
+			m_InputEngine = &inputEngineIn;
+		}
 
 	};
 }

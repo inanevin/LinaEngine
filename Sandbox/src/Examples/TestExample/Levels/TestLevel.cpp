@@ -21,6 +21,9 @@ Timestamp: 5/4/2019 3:54:37 PM
 #include "Examples/TestExample/Levels/TestLevel.hpp"  
 #include "Utility/Log.hpp"
 
+//EntityHandle m_CameraEntity;
+//TransformComponent m_CameraTransform;
+
 TestLevel::TestLevel()
 {
 
@@ -28,12 +31,12 @@ TestLevel::TestLevel()
 
 void TestLevel::Install()
 {
-	LINA_CLIENT_WARN("Test level install");
+	
 }
 
 void TestLevel::Initialize()
 {
-
+//	m_CameraEntity = m_ECS->MakeEntity(m_CameraTransform);
 }
 
 void TestLevel::Tick(float delta)
