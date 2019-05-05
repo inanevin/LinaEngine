@@ -119,6 +119,7 @@ namespace LinaEngine::Graphics
 
 		m_RenderableObjectDataResources.clear();
 
+		// Dump the remaining memory.
 		DumpMemory();
 
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
@@ -359,9 +360,11 @@ namespace LinaEngine::Graphics
 
 	RenderableObjectData & RenderEngine::LoadModelResource(const LinaString & fileName)
 	{
+		// Create object data & feed it from model.
 		RenderableObjectData* objectData = new RenderableObjectData();
 		ModelLoader::LoadModels(ResourceConstants::meshFolderPath + fileName, objectData->GetIndexedModels(), objectData->GetMaterialIndices(), objectData->GetMaterialSpecs());
 		
+		// Create vertex array for each mesh.
 		for (uint32 i = 0; i < objectData->GetIndexedModels().size(); i++)
 		{
 			VertexArray* vertexArray = new VertexArray();
@@ -369,6 +372,7 @@ namespace LinaEngine::Graphics
 			objectData->GetVertexArrays().push_back(vertexArray);
 		}
 
+		// Push & return.
 		m_RenderableObjectDataResources.push_back(objectData);
 		return *objectData;
 	}
@@ -386,6 +390,19 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::RemoveModelResource(RenderableObjectData & modelResource)
 	{
+		// Find the resource.
+		for (size_t i = 0; i < m_RenderableObjectDataResources.size(); i++)
+		{
+			// If found.
+			if (m_RenderableObjectDataResources[i] == &modelResource)
+			{
+				// Add to dump.
+				m_RenderableObjectDataDump.push_back(&modelResource);
+
+				// Push to the end of the list & pop.
+				m_RenderableObjectDataResources.swap_remove(i);
+			}
+		}
 
 	}
 
