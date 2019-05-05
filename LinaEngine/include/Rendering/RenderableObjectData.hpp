@@ -12,28 +12,42 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: ModelLoader
-Timestamp: 4/26/2019 12:07:47 AM
+Class: RenderableObjectData
+Timestamp: 5/4/2019 11:41:37 PM
 
 */
 
 #pragma once
 
-#ifndef ModelLoader_HPP
-#define ModelLoader_HPP
+#ifndef RenderableObjectData_HPP
+#define RenderableObjectData_HPP
 
 
-#include "IndexedModel.hpp"
-#include "Material.hpp"
+#include "Rendering/Texture.hpp"
+#include "Rendering/VertexArray.hpp"
 
 namespace LinaEngine::Graphics
 {
-	class ModelLoader
+	class RenderableObjectData
 	{
 	public:
 
-		// Load models using ASSIMP
-		static bool LoadModels(const LinaString& fileName, LinaArray<IndexedModel>& models, LinaArray<uint32>& modelMaterialIndices, LinaArray<MaterialSpec>& materials);
+		RenderableObjectData() {};
+
+		FORCEINLINE VertexArray& GetVertexArray()
+		{
+			return m_VertexArray;
+		}
+
+		FORCEINLINE Texture& GetTexture()
+		{
+			return m_Texture;
+		}
+
+	private:
+
+		VertexArray m_VertexArray;
+		Texture m_Texture;
 
 	};
 }

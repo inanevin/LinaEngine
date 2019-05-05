@@ -137,8 +137,8 @@ namespace LinaEngine
 
 		m_CurrentLevel = level;
 
-		m_CurrentLevel->Install();
 		m_CurrentLevel->SetEngineReferences(*m_ECS.get(), *m_RenderEngine.get(), *m_InputEngine.get());
+		m_CurrentLevel->Install();
 		m_CurrentLevel->Initialize();
 		m_ActiveLevelExists = true;
 		

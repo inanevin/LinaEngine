@@ -20,6 +20,8 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "LinaPch.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Core/Internal.hpp"
+#include "Rendering/ModelLoader.hpp"
+#include "Utility/ResourceConstants.hpp"
 
 /*#include "Rendering/Material.hpp"
 #include "Rendering/ModelLoader.hpp"
@@ -102,6 +104,15 @@ namespace LinaEngine::Graphics
 
 	RenderEngine::~RenderEngine()
 	{
+		// Clear texture resources.
+		for (LinaMap<Texture*, ArrayBitmap*>::iterator it = m_TextureResources.begin(); it != m_TextureResources.end(); ++it)
+		{
+			delete (*it).second;
+			delete (*it).first;
+		}
+
+		m_TextureResources.clear();
+
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
 
@@ -316,6 +327,48 @@ namespace LinaEngine::Graphics
 		// Update camera system's aspect ratio.
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();
 		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
+	}
+
+	Texture & RenderEngine::LoadTextureResource(const LinaString & texturePath, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
+	{
+		// Create pixel data.
+		ArrayBitmap* textureBitmap = new ArrayBitmap();
+		textureBitmap->Load(ResourceConstants::textureFolderPath + texturePath);
+
+		// Create texture based on pixel data.
+		Texture* texture = new Texture();
+		texture->Construct(*m_RenderDevice.get(), *textureBitmap, internalPixelFormat, generateMipMaps, compress);
+
+		// Feed the array bitmap data into memory dump to be cleared later.
+		if (m_TextureResources.count(texture) == 1)
+			m_PixelDump.push_back(m_TextureResources.at(texture));
+
+		// Assign resource.
+		m_TextureResources[texture] = textureBitmap;
+		
+		return *texture;
+	}
+
+	IndexedModel & RenderEngine::LoadModelResource(const LinaString & fileName)
+	{
+		ModelLoader::LoadModels(ResourceConstants::meshFolderPath + fileName, m_IndexedModels, m_IndexedModelMaterialIndices, m_IndexedModelMaterials);
+		return m_IndexedModels[m_IndexedModels.size() - 1];
+	}
+
+	void RenderEngine::RemoveTextureResource(Texture & textureResource)
+	{
+		// Feed into memory map & erase if exists.
+		if (m_TextureResources.count(&textureResource) == 1)
+		{
+			m_PixelDump.push_back(m_TextureResources.at(&textureResource));
+			m_TextureDump.push_back(&textureResource);
+			m_TextureResources.erase(&textureResource);
+		}
+	}
+
+	void RenderEngine::RemoveModelResource(IndexedModel & modelResource)
+	{
+
 	}
 
 }

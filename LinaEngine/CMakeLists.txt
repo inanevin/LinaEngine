@@ -188,6 +188,7 @@ set(LINAENGINE_HEADERS
 	include/Rendering/RenderContext.hpp
 	include/Rendering/GameRenderContext.hpp
 	include/Rendering/RenderTarget.hpp
+	include/Rendering/RenderableObjectData.hpp
 	
 	#Physics
 	include/Physics/PhysicsEngine.hpp

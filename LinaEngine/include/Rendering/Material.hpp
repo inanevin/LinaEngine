@@ -27,7 +27,7 @@ Timestamp: 4/26/2019 1:12:18 AM
 
 namespace LinaEngine::Graphics
 {
-	struct Material
+	struct MaterialSpec
 	{
 		LinaMap<LinaString, LinaString> textureNames;
 		LinaMap<LinaString, float> floats;

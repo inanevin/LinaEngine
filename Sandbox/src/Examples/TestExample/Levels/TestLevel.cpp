@@ -19,29 +19,44 @@ Timestamp: 5/4/2019 3:54:37 PM
 
 
 #include "Examples/TestExample/Levels/TestLevel.hpp"  
+#include "Rendering/ModelLoader.hpp"
 
 
-EntityHandle m_CameraEntity;
-TransformComponent m_CameraTransform;
+RenderableMeshComponent* m_CubeMesh;
+TransformComponent* m_CubeTransform;
+
+ArrayBitmap m_CubeTextureBitmap;
+Texture m_CubeTexture;
+EntityHandle m_CubeEntity;
+LinaArray<IndexedModel> m_Models;
+LinaArray<uint32> modelMaterialIndices;
 
 TestLevel::TestLevel()
-{
-
-}
-
-void TestLevel::Install()
 {
 	
 }
 
+void TestLevel::Install()
+{
+	m_CubeEntity = m_ECS->MakeEntity(TransformComponent(), RenderableMeshComponent());
+	m_CubeTransform = (m_ECS->GetComponent<TransformComponent>(m_CubeEntity));
+	m_CubeMesh = m_ECS->GetComponent<RenderableMeshComponent>(m_CubeEntity);
+
+	m_CubeTextureBitmap.Load("Resources/Textures/checker.png");
+	m_CubeTexture.Construct();
+}
+
 void TestLevel::Initialize()
 {
-	m_CameraTransform.transform.SetLocation(Vector3F(15, 0, 15));
-	m_CameraEntity = m_ECS->MakeEntity(m_CameraTransform);
+	
+//	ModelLoader::LoadModels("Resources/Mesh/cube.obj", m_Models, modelMaterialIndices, modelMaterials);
+
+
+	m_CubeTransform->transform.SetLocation(Vector3F(2, 2, 2));
 }
 
 void TestLevel::Tick(float delta)
 {
-	std::cout << m_ECS->GetComponent<TransformComponent>(m_CameraEntity)->transform.GetLocation().ToString() << std::endl;
+	std::cout << m_ECS->GetComponent<TransformComponent>(m_CubeEntity)->transform.GetLocation().ToString() << std::endl;
 }
 

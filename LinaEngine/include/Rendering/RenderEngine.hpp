@@ -77,6 +77,18 @@ namespace LinaEngine::Graphics
 		// Called when the main window is resized.
 		void OnWindowResized(float width, float height);
 
+		// Load a texture resource to be loaded.
+		Texture& LoadTextureResource(const LinaString& fileName, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress);
+
+		// Feed a model resource to be loaded.
+		IndexedModel& LoadModelResource(const LinaString& fileName);
+		
+		// Removes a texture resource from program.
+		void RemoveTextureResource(Texture& textureResource);
+
+		// Removes a model resource from program.
+		void RemoveModelResource(IndexedModel& modelResource);
+
 	private:
 
 		// Device for rendering operations.
@@ -120,6 +132,18 @@ namespace LinaEngine::Graphics
 
 		// Default camera data struct
 		CameraComponent m_ActiveCameraComponent;
+
+		// Texture resources.
+		LinaMap<Texture*, ArrayBitmap*> m_TextureResources;
+
+		// Model resources
+		LinaArray<IndexedModel> m_IndexedModels;
+		LinaArray<uint32> m_IndexedModelMaterialIndices;
+		LinaArray<MaterialSpec> m_IndexedModelMaterials;
+
+		// Dumped data to be cleared by garbage collector.
+		LinaArray<ArrayBitmap*> m_PixelDump;
+		LinaArray<Texture*> m_TextureDump;
 	};
 
 }
