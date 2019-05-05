@@ -29,6 +29,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "Rendering/Shader.hpp"
 #include "Rendering/RenderTarget.hpp"
 #include "Rendering/GameRenderContext.hpp"
+#include "Rendering/RenderableObjectData.hpp"
 #include "ECS/EntityComponentSystem.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
 #include "ECS/Components/CameraComponent.hpp"
@@ -81,13 +82,18 @@ namespace LinaEngine::Graphics
 		Texture& LoadTextureResource(const LinaString& fileName, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress);
 
 		// Feed a model resource to be loaded.
-		IndexedModel& LoadModelResource(const LinaString& fileName);
+		RenderableObjectData& LoadModelResource(const LinaString& fileName);
 		
 		// Removes a texture resource from program.
 		void RemoveTextureResource(Texture& textureResource);
 
 		// Removes a model resource from program.
-		void RemoveModelResource(IndexedModel& modelResource);
+		void RemoveModelResource(RenderableObjectData& modelResource);
+
+	private:
+
+		// clears resource memory.
+		void DumpMemory();
 
 	private:
 
@@ -137,13 +143,12 @@ namespace LinaEngine::Graphics
 		LinaMap<Texture*, ArrayBitmap*> m_TextureResources;
 
 		// Model resources
-		LinaArray<IndexedModel> m_IndexedModels;
-		LinaArray<uint32> m_IndexedModelMaterialIndices;
-		LinaArray<MaterialSpec> m_IndexedModelMaterials;
+		LinaArray<RenderableObjectData*> m_RenderableObjectDataResources;
 
 		// Dumped data to be cleared by garbage collector.
 		LinaArray<ArrayBitmap*> m_PixelDump;
 		LinaArray<Texture*> m_TextureDump;
+		LinaArray<RenderableObjectData*> m_RenderableObjectDataDump;
 	};
 
 }

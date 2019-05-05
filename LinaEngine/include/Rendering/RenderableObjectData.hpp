@@ -25,6 +25,8 @@ Timestamp: 5/4/2019 11:41:37 PM
 
 #include "Rendering/Texture.hpp"
 #include "Rendering/VertexArray.hpp"
+#include "Rendering/IndexedModel.hpp"
+#include "Rendering/Material.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -33,21 +35,45 @@ namespace LinaEngine::Graphics
 	public:
 
 		RenderableObjectData() {};
-
-		FORCEINLINE VertexArray& GetVertexArray()
+		~RenderableObjectData() 
 		{
-			return m_VertexArray;
+			for (uint32 i = 0; i < m_VertexArrays.size(); i++)
+				delete m_VertexArrays[i];
+
+			m_VertexArrays.clear();
+			m_IndexedModelArray.clear();
+			m_MaterialSpecArray.clear();
+			m_MaterialIndexArray.clear();
+		};
+
+
+		FORCEINLINE LinaArray<VertexArray*>& GetVertexArrays()
+		{
+			return m_VertexArrays;
 		}
 
-		FORCEINLINE Texture& GetTexture()
+		FORCEINLINE LinaArray<IndexedModel>& GetIndexedModels()
 		{
-			return m_Texture;
+			return m_IndexedModelArray;
+		}
+
+		FORCEINLINE LinaArray<MaterialSpec>& GetMaterialSpecs()
+		{
+			return m_MaterialSpecArray;
+		}
+
+		FORCEINLINE LinaArray<uint32>& GetMaterialIndices()
+		{
+			return m_MaterialIndexArray;
 		}
 
 	private:
 
-		VertexArray m_VertexArray;
-		Texture m_Texture;
+		LinaArray<VertexArray*> m_VertexArrays;
+		LinaArray<IndexedModel> m_IndexedModelArray;
+		LinaArray<MaterialSpec> m_MaterialSpecArray;
+		LinaArray<uint32> m_MaterialIndexArray;
+
 
 	};
 }

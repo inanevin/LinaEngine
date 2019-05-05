@@ -113,6 +113,14 @@ namespace LinaEngine::Graphics
 
 		m_TextureResources.clear();
 
+		// Clear model resources.
+		for (uint32 i = 0; i < m_RenderableObjectDataResources.size(); i++)
+			delete m_RenderableObjectDataResources[i];
+
+		m_RenderableObjectDataResources.clear();
+
+		DumpMemory();
+
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
 
@@ -349,10 +357,20 @@ namespace LinaEngine::Graphics
 		return *texture;
 	}
 
-	IndexedModel & RenderEngine::LoadModelResource(const LinaString & fileName)
+	RenderableObjectData & RenderEngine::LoadModelResource(const LinaString & fileName)
 	{
-		ModelLoader::LoadModels(ResourceConstants::meshFolderPath + fileName, m_IndexedModels, m_IndexedModelMaterialIndices, m_IndexedModelMaterials);
-		return m_IndexedModels[m_IndexedModels.size() - 1];
+		RenderableObjectData* objectData = new RenderableObjectData();
+		ModelLoader::LoadModels(ResourceConstants::meshFolderPath + fileName, objectData->GetIndexedModels(), objectData->GetMaterialIndices(), objectData->GetMaterialSpecs());
+		
+		for (uint32 i = 0; i < objectData->GetIndexedModels().size(); i++)
+		{
+			VertexArray* vertexArray = new VertexArray();
+			vertexArray->Construct(*m_RenderDevice.get(), objectData->GetIndexedModels()[i], BufferUsage::USAGE_STATIC_DRAW);
+			objectData->GetVertexArrays().push_back(vertexArray);
+		}
+
+		m_RenderableObjectDataResources.push_back(objectData);
+		return *objectData;
 	}
 
 	void RenderEngine::RemoveTextureResource(Texture & textureResource)
@@ -366,9 +384,29 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void RenderEngine::RemoveModelResource(IndexedModel & modelResource)
+	void RenderEngine::RemoveModelResource(RenderableObjectData & modelResource)
 	{
 
+	}
+
+	void RenderEngine::DumpMemory()
+	{
+		// Free pixel dump
+		for (uint32 i = 0; i < m_PixelDump.size(); i++)
+			delete m_PixelDump[i];
+
+		// Free renderable object dump
+		for (uint32 i = 0; i < m_RenderableObjectDataDump.size(); i++)
+			delete m_RenderableObjectDataDump[i];
+
+		// Free texture dump
+		for (uint32 i = 0; i < m_TextureDump.size(); i++)
+			delete m_TextureDump[i];
+
+		// Clear dumps.
+		m_PixelDump.clear();
+		m_RenderableObjectDataDump.clear();
+		m_TextureDump.clear();
 	}
 
 }
