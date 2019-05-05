@@ -22,14 +22,15 @@ Timestamp: 5/4/2019 3:54:37 PM
 #include "Rendering/ModelLoader.hpp"
 
 
-RenderableMeshComponent* m_CubeMesh;
-TransformComponent* m_CubeTransform;
+RenderableMeshComponent* m_CubeMeshComponent;
+TransformComponent* m_CubeTransformComponent;
 
-ArrayBitmap m_CubeTextureBitmap;
-Texture m_CubeTexture;
+
+
 EntityHandle m_CubeEntity;
-LinaArray<IndexedModel> m_Models;
-LinaArray<uint32> modelMaterialIndices;
+
+Texture* m_CubeTexture;
+RenderableObjectData* m_CubeMeshData;
 
 TestLevel::TestLevel()
 {
@@ -38,12 +39,15 @@ TestLevel::TestLevel()
 
 void TestLevel::Install()
 {
-	m_CubeEntity = m_ECS->MakeEntity(TransformComponent(), RenderableMeshComponent());
-	m_CubeTransform = (m_ECS->GetComponent<TransformComponent>(m_CubeEntity));
-	m_CubeMesh = m_ECS->GetComponent<RenderableMeshComponent>(m_CubeEntity);
+	/*m_CubeEntity = m_ECS->MakeEntity(TransformComponent(), RenderableMeshComponent());
+	m_CubeTransformComponent = (m_ECS->GetComponent<TransformComponent>(m_CubeEntity));
+	m_CubeMeshComponent = m_ECS->GetComponent<RenderableMeshComponent>(m_CubeEntity);
 
-	m_CubeTextureBitmap.Load("Resources/Textures/checker.png");
-	m_CubeTexture.Construct();
+	m_CubeTexture = &m_RenderEngine->LoadTextureResource("checker.png", PixelFormat::FORMAT_RGB, true, false);
+	m_CubeMeshData = &m_RenderEngine->LoadModelResource("cube.obj");
+
+	m_CubeMeshComponent->texture = m_CubeTexture;
+	m_CubeMeshComponent->vertexArray = &m_CubeMeshData->GetVertexArray(0);*/
 }
 
 void TestLevel::Initialize()
@@ -52,11 +56,10 @@ void TestLevel::Initialize()
 //	ModelLoader::LoadModels("Resources/Mesh/cube.obj", m_Models, modelMaterialIndices, modelMaterials);
 
 
-	m_CubeTransform->transform.SetLocation(Vector3F(2, 2, 2));
 }
 
 void TestLevel::Tick(float delta)
 {
-	std::cout << m_ECS->GetComponent<TransformComponent>(m_CubeEntity)->transform.GetLocation().ToString() << std::endl;
+	//std::cout << m_ECS->GetComponent<TransformComponent>(m_CubeEntity)->transform.GetLocation().ToString() << std::endl;
 }
 

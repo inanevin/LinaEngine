@@ -21,7 +21,6 @@ project(LinaSandbox)
 
 set(SANDBOX_SOURCES 
 src/Sandbox.cpp
-
 src/Examples/TestExample/Levels/TestLevel.cpp
 
 )
@@ -40,6 +39,7 @@ add_executable(${PROJECT_NAME} ${SANDBOX_SOURCES} ${SANDBOX_HEADERS})
 #--------------------------------------------------------------------
 # Options & Definitions
 #--------------------------------------------------------------------
+
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
@@ -55,34 +55,26 @@ endif()
 #--------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} Lina::Engine)
 
+#--------------------------------------------------------------------
+# Build Commands
+#--------------------------------------------------------------------
 
-#if(WIN32)
-#	string(REPLACE "/" "\\" source_path_windows "${CMAKE_CURRENT_SOURCE_DIR}/Resources")
-#	string(REPLACE "/" "\\" build_path_windows "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/Resources")
-#	execute_process(COMMAND cmd.exe /c mklink /J "${build_path_windows}" "${source_path_windows}" RESULT_VARIABLE exitcode)
-#else()
-#	execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/Resources ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/Resources RESULT_VARIABLE exitcode)
-#endif()
-
-#if(NOT ${exitcode} EQUAL 0)
-#	MESSAGE("SYMLINKING FAILED: ${exitcode}")
-#	MESSAGE("FALLING BACK TO COPYING")
-#endif()
-
-#file(GLOB_RECURSE Resources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/Resources/ ${CMAKE_CURRENT_SOURCE_DIR}/Resources/*.*)
-#foreach(file IN LISTS Resources)
-#	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Resources/${file} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/Resources/${file} COPYONLY)
-#endforeach()
-
+# Copy resources
 add_custom_command(
 TARGET ${PROJECT_NAME}
 POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/Resources")
 
+# Copy DLLs
+add_custom_command(
+TARGET ${PROJECT_NAME}
+PRE_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/LinaEngine/vendor/assimp/_bin/Assimp32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
+
 add_custom_command(TARGET ${PROJECT_NAME}
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND}
-    -Dsrc_dir="${CMAKE_CURRENT_SOURCE_DIR}/Resources"
+POST_BUILD
+COMMAND ${CMAKE_COMMAND}
+	-Dsrc_dir="${CMAKE_CURRENT_SOURCE_DIR}/Resources"
     -Ddst_dir="${CMAKE_BINARY_DIR}/Sandbox/Resources"
     -P "${CMAKE_SOURCE_DIR}/CMake/UpdateDirectory.cmake"
 )

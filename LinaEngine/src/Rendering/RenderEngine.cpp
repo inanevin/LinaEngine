@@ -112,7 +112,7 @@ namespace LinaEngine::Graphics
 		}
 
 		m_TextureResources.clear();
-
+		
 		// Clear model resources.
 		for (uint32 i = 0; i < m_RenderableObjectDataResources.size(); i++)
 			delete m_RenderableObjectDataResources[i];
@@ -338,11 +338,11 @@ namespace LinaEngine::Graphics
 		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 	}
 
-	Texture & RenderEngine::LoadTextureResource(const LinaString & texturePath, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
+	Texture & RenderEngine::LoadTextureResource(const LinaString & fileName, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
 	{
 		// Create pixel data.
 		ArrayBitmap* textureBitmap = new ArrayBitmap();
-		textureBitmap->Load(ResourceConstants::textureFolderPath + texturePath);
+		textureBitmap->Load(ResourceConstants::textureFolderPath + fileName);
 
 		// Create texture based on pixel data.
 		Texture* texture = new Texture();
@@ -403,7 +403,7 @@ namespace LinaEngine::Graphics
 				m_RenderableObjectDataResources.swap_remove(i);
 			}
 		}
-
+		
 	}
 
 	void RenderEngine::DumpMemory()
