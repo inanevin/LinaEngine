@@ -48,16 +48,14 @@ namespace LinaEngine::ECS
 
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
 		
-
-		FORCEINLINE void SetAspectRatio(float aspectRatioIn)
-		{
-			m_AspectRatio = aspectRatioIn;
-		}
-
 	private:
+<<<<<<< HEAD
 
 		GameRenderContext* context = nullptr;
 		float m_AspectRatio = 1.7f;
+=======
+		GameRenderContext& context;
+>>>>>>> parent of 46fccaf... Physics: Sample collision tests
 	};
 }
 

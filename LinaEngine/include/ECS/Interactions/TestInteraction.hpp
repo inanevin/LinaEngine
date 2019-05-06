@@ -22,9 +22,6 @@ Timestamp: 5/1/2019 4:41:54 PM
 #ifndef TestInteraction_HPP
 #define TestInteraction_HPP
 
-#include "ECS/Components/TransformComponent.hpp"
-#include "ECS/Components/ColliderComponent.hpp"
-#include "ECS/Components/MotionComponent.hpp"
 #include "ECS/ECSInteraction.hpp"
 
 namespace LinaEngine::ECS
@@ -35,12 +32,8 @@ namespace LinaEngine::ECS
 
 		TestInteraction() : ECSInteraction()
 		{
-			AddInteractorComponentType(TransformComponent::ID);
-			AddInteractorComponentType(ColliderComponent::ID);
-			AddInteractorComponentType(MotionComponent::ID);
-			AddInteracteeComponentType(TransformComponent::ID);
-			AddInteracteeComponentType(ColliderComponent::ID);
-			AddInteracteeComponentType(MotionComponent::ID);
+			//AddInteractorComponentType();
+			//AddInteracteeComponentType();
 		}
 
 		virtual void Interact(float dleta, BaseECSComponent** components, BaseECSComponent** interacteeComponents) override;

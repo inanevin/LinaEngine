@@ -32,7 +32,7 @@ namespace LinaEngine::Graphics
 	class RenderContext
 	{
 	public:
-
+		FORCEINLINE RenderContext() {}
 		virtual ~RenderContext() {};
 
 		FORCEINLINE void Construct(PAMRenderDevice& renderDeviceIn, RenderTarget& renderTargetIn)
@@ -63,7 +63,7 @@ namespace LinaEngine::Graphics
 
 	protected:
 
-		FORCEINLINE RenderContext() {}
+		
 	
 	private:
 

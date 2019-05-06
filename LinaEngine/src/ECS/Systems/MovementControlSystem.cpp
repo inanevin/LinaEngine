@@ -21,27 +21,22 @@ Timestamp: 4/9/2019 3:30:12 PM
 #include "ECS/Systems/MovementControlSystem.hpp"  
 #include "Input/InputAxisBinder.hpp"
 
-
 using namespace LinaEngine::Input;
 
 namespace LinaEngine::ECS
 {
 	void MovementControlSystem::UpdateComponents(float delta, BaseECSComponent ** components)
 	{
-		MovementControlComponent* movementControl = (MovementControlComponent*)components[0];
-		MotionComponent* motionComponent = (MotionComponent*)components[1];
+		TransformComponent* transform = (TransformComponent*)components[0];
+		MovementControlComponent* movementControl = (MovementControlComponent*)components[1];
 
 		for (uint32 i = 0; i < movementControl->movementControls.size(); i++)
 		{
-			Vector3F movement = movementControl->movementControls[i].movement;
-			float inputAmt = movementControl->movementControls[i].inputKeyAxisBinder->GetAmount();
-			float inputDelta = inputAmt - movementControl->movementControls[i].lastInputAmount;
-			motionComponent->acceleration += movement * inputDelta;
-			movementControl->movementControls[i].lastInputAmount = inputAmt;
+			Vector3F movement = movementControl->movementControls[i].first;
+			InputKeyAxisBinder* input = movementControl->movementControls[i].second;
+			Vector3F newPos = transform->transform.GetLocation() + (movement * input->GetAmount() * delta);
+			transform->transform.SetLocation(newPos);
 		}
-
-		// Limit speed TODO: Add resistance later on.
-		motionComponent->velocity *= 0.95f;
 
 		
 	}

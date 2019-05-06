@@ -65,6 +65,9 @@ namespace LinaEngine::Graphics
 		// Map to see the list of same vertex array & textures to compress them into single draw call.
 		LinaMap<LinaPair<VertexArray*, Texture*>, LinaArray<Matrix> > m_MeshRenderBuffer;
 
+		//DISALLOW_COPY_AND_ASSIGN(GameRenderContext);
+		NULL_COPY_AND_ASSIGN(GameRenderContext);
+
 	};
 }
 

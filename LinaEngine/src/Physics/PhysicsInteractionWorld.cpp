@@ -134,8 +134,6 @@ namespace LinaEngine::Physics
 #else
 									if (interactorComponents.size() == 0 || interacteeComponents.size() == 0)
 										LINA_CORE_WARN("Passing component arrays w/ size 0 will fail in debug testing. Abort calling interaction.");
-									else
-										interaction->Interact(delta, &interactorComponents[0], &interacteeComponents[0]);
 #endif
 
 									

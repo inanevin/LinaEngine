@@ -53,6 +53,9 @@ namespace LinaEngine::Graphics
 		uint32 m_Height = 0;
 		bool isCompressed = false;
 		bool hasMipMaps = true;
+
+		NULL_COPY_AND_ASSIGN(Texture);
+		//DISALLOW_COPY_AND_ASSIGN(Texture)
 	};
 }
 

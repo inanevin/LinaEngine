@@ -86,6 +86,7 @@ namespace LinaEngine::Graphics
 		uint32 m_EngineBoundID = 0;
 
 		NULL_COPY_AND_ASSIGN(RenderTarget);
+	//	DISALLOW_COPY_AND_ASSIGN(RenderTarget);
 
 	};
 }

@@ -29,9 +29,7 @@ TransformComponent m_CubeTransformComponent;
 
 EntityHandle m_CubeEntity;*/
 
-Texture* m_CubeTexture;
-RenderableObjectData* m_CubeMeshData;
-ArrayBitmap bm;
+
 
 TestLevel::TestLevel()
 {

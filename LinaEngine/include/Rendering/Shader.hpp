@@ -63,7 +63,7 @@ namespace LinaEngine::Graphics
 		PAMRenderDevice* renderDevice = nullptr;
 		uint32 m_EngineBoundID = 0;
 
-	
+	//	DISALLOW_COPY_AND_ASSIGN(Shader);
 		NULL_COPY_AND_ASSIGN(Shader);
 	
 	};

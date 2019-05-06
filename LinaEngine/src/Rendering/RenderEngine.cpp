@@ -94,6 +94,7 @@ namespace LinaEngine::Graphics
 	ArrayBitmap arrayBitmap;
 	DrawParams drawParams;
 	Matrix perspective;
+<<<<<<< HEAD
 	InputKeyAxisBinder* secondaryHorizontal;
 	InputKeyAxisBinder* secondaryVertical;*/
 
@@ -109,6 +110,8 @@ namespace LinaEngine::Graphics
 	FreeLookSystem* freeLook;
 	FreeLookComponent freeLookComp;
 
+=======
+>>>>>>> parent of 46fccaf... Physics: Sample collision tests
 
 	RenderEngine::RenderEngine()
 	{
@@ -146,7 +149,15 @@ namespace LinaEngine::Graphics
 		// Set ECS reference
 		m_ECS = ecsIn;
 
+<<<<<<< HEAD
 		// Initialize the render device.
+=======
+		mouseButtonBinder = new InputMouseButtonBinder();
+		mouseButtonBinder->SetActionDispatcher(&Application::Get().GetInputDevice());
+		mouseButtonBinder->Initialize(InputCode::Mouse::Mouse1);
+		freeLookSystem = new FreeLookSystem(Application::Get().GetInputDevice());
+		freeLookSystem->SetWindowCenter(m_RenderDevice->GetWindowSize());
+>>>>>>> parent of 46fccaf... Physics: Sample collision tests
 		m_RenderDevice->Initialize();
 
 		// Initialize default sampler.
@@ -346,6 +357,15 @@ namespace LinaEngine::Graphics
 		//mainSystems.AddSystem(cubeChunkSystem);
 	}
 
+<<<<<<< HEAD
+=======
+		textures[0] = texture;
+		textures[1] = textureNew;
+		renderableMeshSystem = new RenderableMeshSystem(*gameRenderContext);
+		cubeChunkRenderSystem = new CubeChunkRenderSystem(*gameRenderContext, *cubeArray, textures, ARRAY_SIZE_IN_ELEMENTS(textures));
+		cameraSystem = new CameraSystem(*gameRenderContext);
+		colliderComponent.aabb = vertexArrayAABBCube;
+>>>>>>> parent of 46fccaf... Physics: Sample collision tests
 
 	void RenderEngine::Tick(float delta)
 	{
@@ -363,6 +383,7 @@ namespace LinaEngine::Graphics
 	}
 
 
+<<<<<<< HEAD
 	void RenderEngine::OnWindowResized(float width, float height)
 	{
 		// Propogate to render device.
@@ -372,6 +393,14 @@ namespace LinaEngine::Graphics
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();
 		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 	}
+=======
+
+
+		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(1.0f, 0.0f, 0.0f) * 7, Application::Get().GetInputDevice().GetHorizontalKeyAxis()));
+		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(0.0f, 1.0f, 0.0f) * 7, Application::Get().GetInputDevice().GetVerticalKeyAxis()));
+		renderableMesh.vertexArray = vertexArray;
+		renderableMesh.texture = &(*texture);
+>>>>>>> parent of 46fccaf... Physics: Sample collision tests
 
 	Texture & RenderEngine::LoadTextureResource(const LinaString & fileName, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
 	{
@@ -387,6 +416,7 @@ namespace LinaEngine::Graphics
 		if (m_TextureResources.count(texture) == 1)
 			m_PixelDump.push_back(m_TextureResources.at(texture));
 
+<<<<<<< HEAD
 		// Assign resource.
 		m_TextureResources[texture] = textureBitmap;
 		
@@ -402,10 +432,19 @@ namespace LinaEngine::Graphics
 		if (objectData->GetIndexedModels().size() == 0)
 			LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} at path {1} could not be found or model scene does not contain any mesh! This will cause undefined behaviour or crashes if it is assigned to a ECS RenderableMeshComponent."
 			, fileName, ResourceConstants::meshFolderPath);
+=======
+
+		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 20.0f));
+
+		transformComponent.transform.SetScale(1);
+		entity = ECS->MakeEntity(transformComponent, renderableMesh, colliderComponent);
+		//entity = ECS->MakeEntity(transformComponent, movementComponent, renderableMesh);
+>>>>>>> parent of 46fccaf... Physics: Sample collision tests
 
 		// Create vertex array for each mesh.
 		for (uint32 i = 0; i < objectData->GetIndexedModels().size(); i++)
 		{
+<<<<<<< HEAD
 			VertexArray* vertexArray = new VertexArray();
 			vertexArray->Construct(*m_RenderDevice.get(), objectData->GetIndexedModels()[i], BufferUsage::USAGE_STATIC_DRAW);
 			objectData->GetVertexArrays().push_back(vertexArray);
@@ -414,6 +453,40 @@ namespace LinaEngine::Graphics
 		// Push & return.
 		m_RenderableObjectDataResources.push_back(objectData);
 		return *objectData;
+=======
+			transformComponent.transform.SetLocation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f, 20.0f));
+			transformComponent.transform.SetScale(1.0f);
+			renderableMesh.vertexArray = &*cubeArray;
+			renderableMesh.texture = Math::RandF() > 0.5f ? &*texture : &*textureNew;
+			float vf = -4.0f;
+			float af = 5.0f;
+			motionComponent.acceleration = Vector3F(Math::RandF(-af, af), Math::RandF(-af, af), Math::RandF(-af, af));
+			motionComponent.velocity = motionComponent.acceleration * vf;
+
+			for (uint32 i = 0; i < 3; i++)
+			{
+				cubeChunkComponent.position[i] = transformComponent.transform.GetLocation()[i];
+				cubeChunkComponent.velocity[i] = motionComponent.velocity[i];
+				cubeChunkComponent.acceleration[i] = motionComponent.acceleration[i];
+				cubeChunkComponent.textureIndex = Math::RandF() > 0.5f ? 0 : 1;
+
+			}
+			//ECS->MakeEntity(cubeChunkComponent);
+			//ECS->MakeEntity(transformComponent,  motionComponent, renderableMesh, colliderComponent);
+			colliderComponent.aabb = vertexArrayAABBTinyCube;
+
+			ECS->MakeEntity(transformComponent, renderableMesh, colliderComponent);
+
+		}
+
+		renderingPipeline.AddSystem(*renderableMeshSystem);
+		renderingPipeline.AddSystem(*cameraSystem);
+		//renderingPipeline.AddSystem(*cubeChunkRenderSystem);
+		mainSystems.AddSystem(movementControlSystem);
+		//mainSystems.AddSystem(motionSystem);
+		mainSystems.AddSystem(*freeLookSystem);
+		//mainSystems.AddSystem(cubeChunkSystem);
+>>>>>>> parent of 46fccaf... Physics: Sample collision tests
 	}
 
 	void RenderEngine::RemoveTextureResource(Texture & textureResource)

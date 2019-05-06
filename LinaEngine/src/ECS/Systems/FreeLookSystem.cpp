@@ -35,7 +35,7 @@ namespace LinaEngine::ECS
 			inputEngine.SetCursor(false);
 			inputEngine.SetMousePosition(m_WindowCenter);
 		}
-		
+
 		if (inputEngine.GetMouseButton(InputCode::Mouse::Mouse1))
 		{
 			Vector2F deltaPos = inputEngine.GetMousePosition() - m_WindowCenter;

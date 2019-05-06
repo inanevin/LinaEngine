@@ -25,7 +25,6 @@ Timestamp: 4/9/2019 3:30:12 PM
 #include "ECS/EntityComponentSystem.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/MovementControlComponent.hpp"
-#include "ECS/Components/MotionComponent.hpp"
 
 namespace LinaEngine::ECS
 {
@@ -36,8 +35,8 @@ namespace LinaEngine::ECS
 
 		MovementControlSystem() : BaseECSSystem()
 		{
+			AddComponentType(TransformComponent::ID);
 			AddComponentType(MovementControlComponent::ID);
-			AddComponentType(MotionComponent::ID);
 		}
 
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);

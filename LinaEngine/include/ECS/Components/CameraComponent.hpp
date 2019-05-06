@@ -30,7 +30,7 @@ namespace LinaEngine::ECS
 	{
 		Color clearColor;
 		float zNear = 0.1f;
-		float zFar = 10000.0f;
+		float zFar = 1000.0f;
 		float fieldOfView = 70.0f;
 		int renderPriority = 1;
 	};
