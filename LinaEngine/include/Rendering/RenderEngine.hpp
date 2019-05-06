@@ -28,10 +28,12 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "Rendering/Shader.hpp"
 #include "Rendering/RenderTarget.hpp"
 #include "Rendering/GameRenderContext.hpp"
+#include "Rendering/RenderableObjectData.hpp"
 #include "ECS/EntityComponentSystem.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Systems/RenderableMeshSystem.hpp"
+
 
 using namespace LinaEngine::ECS;
 using namespace LinaEngine;
@@ -73,9 +75,25 @@ namespace LinaEngine::Graphics
 		// Called when the main window is resized.
 		void OnWindowResized(float width, float height);
 
+		// Load a texture resource to be loaded.
+		Texture& LoadTextureResource(const LinaString& fileName, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress);
+
+		// Feed a model resource to be loaded.
+		RenderableObjectData& LoadModelResource(const LinaString& fileName);
+
+		// Removes a texture resource from program.
+		void RemoveTextureResource(Texture& textureResource);
+
+		// Removes a model resource from program.
+		void RemoveModelResource(RenderableObjectData& modelResource);
 
 	private:
 
+		// clears resource memory.
+		void DumpMemory();
+
+	private:
+		
 		// Device for rendering operations.
 		std::unique_ptr<PAMRenderDevice> m_RenderDevice;
 
@@ -117,6 +135,17 @@ namespace LinaEngine::Graphics
 
 		// Default camera data struct
 		CameraComponent m_ActiveCameraComponent;
+
+		// Texture resources.
+		LinaMap<Texture*, ArrayBitmap*> m_TextureResources;
+
+		// Model resources
+		LinaArray<RenderableObjectData*> m_RenderableObjectDataResources;
+
+		// Dumped data to be cleared by garbage collector.
+		LinaArray<ArrayBitmap*> m_PixelDump;
+		LinaArray<Texture*> m_TextureDump;
+		LinaArray<RenderableObjectData*> m_RenderableObjectDataDump;
 	};
 
 }

@@ -22,7 +22,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "Utility/Math/Color.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/ModelLoader.hpp"
-
+#include "Utility/ResourceConstants.hpp"
 #include "ECS/Components/MovementControlComponent.hpp"
 #include "ECS/Components/RenderableMeshComponent.hpp"
 #include "ECS/Components/TransformComponent.hpp"
@@ -49,38 +49,25 @@ namespace LinaEngine::Graphics
 	using namespace ECS;
 	using namespace Physics;
 
-	InputMouseButtonBinder* mouseButtonBinder;
 	EntityHandle entity;
 	EntityHandle cameraEntity;
 	TransformComponent transformComponent;
-	MovementControlComponent movementComponent;
 	RenderableMeshComponent renderableMesh;
-	ECSSystemList mainSystems;
 
-	MovementControlSystem movementControlSystem;
 
-	MotionSystem motionSystem;
-	MotionComponent motionComponent;
-	CubeChunkComponent cubeChunkComponent;
-	ColliderComponent colliderComponent;
-	CubeChunkSystem cubeChunkSystem;
-	FreeLookSystem* freeLookSystem;
-	FreeLookComponent freeLookComponent;
-	CubeChunkRenderSystem* cubeChunkRenderSystem;
+
+
 	CameraComponent cameraComponent;
-	RenderContext* context;
 
-	Texture* textures[2];
-	VertexArray* vertexArray;
-	VertexArray* cubeArray;
-	AABB vertexArrayAABBCube;
-	AABB vertexArrayAABBTinyCube;
+	RenderableObjectData* cube1;
+	RenderableObjectData* cube2;
+	Texture* text1;
+	Texture* text2;
+
 	LinaArray<IndexedModel> models;
 	LinaArray<uint32> modelMaterialIndices;
 	LinaArray<Material> modelMaterials;
-	DDSTexture ddsTexture;
-	InputKeyAxisBinder* secondaryHorizontal;
-	InputKeyAxisBinder* secondaryVertical;
+
 
 	RenderEngine::RenderEngine()
 	{
@@ -91,13 +78,23 @@ namespace LinaEngine::Graphics
 
 	RenderEngine::~RenderEngine()
 	{
-		delete freeLookSystem;
-		delete context;
+		// Clear texture resources.
+		for (LinaMap<Texture*, ArrayBitmap*>::iterator it = m_TextureResources.begin(); it != m_TextureResources.end(); ++it)
+		{
+			delete (*it).second;
+			delete (*it).first;
+		}
 
-		delete textures[0];
-		delete textures[1];
-		delete vertexArray;
-		delete cubeArray;
+		m_TextureResources.clear();
+
+		// Clear model resources.
+		for (uint32 i = 0; i < m_RenderableObjectDataResources.size(); i++)
+			delete m_RenderableObjectDataResources[i];
+
+		m_RenderableObjectDataResources.clear();
+
+		// Dump the remaining memory.
+		DumpMemory();
 
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
@@ -110,8 +107,6 @@ namespace LinaEngine::Graphics
 		// Initialize default sampler.
 		m_DefaultSampler.Construct(*m_RenderDevice.get(), SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR);
 
-		freeLookSystem = new FreeLookSystem(Application::Get().GetInputDevice());
-		freeLookSystem->SetWindowCenter(m_RenderDevice->GetWindowSize() / 2.0f);
 		m_RenderDevice->Initialize();
 
 	
@@ -120,15 +115,17 @@ namespace LinaEngine::Graphics
 		//context = new RenderContext(*m_RenderDevice.get(), *target);
 
 
-		ModelLoader::LoadModels("Resources/Mesh/cube.obj", models, modelMaterialIndices, modelMaterials);
-		ModelLoader::LoadModels("Resources/Mesh/tinycube.obj", models, modelMaterialIndices, modelMaterials);
-		vertexArray = new VertexArray(*m_RenderDevice.get(), models[0], BufferUsage::USAGE_STATIC_DRAW);
-		cubeArray = new VertexArray(*m_RenderDevice.get(), models[1], BufferUsage::USAGE_STATIC_DRAW);
+		//ModelLoader::LoadModels("Resources/Mesh/cube.obj", models, modelMaterialIndices, modelMaterials);
+		//ModelLoader::LoadModels("Resources/Mesh/tinycube.obj", models, modelMaterialIndices, modelMaterials);
+		//vertexArray = new VertexArray();
+		//cubeArray = new VertexArray();
+		//vertexArray->Construct(*m_RenderDevice.get(), models[0], BufferUsage::USAGE_STATIC_DRAW);
+		//cubeArray->Construct(*m_RenderDevice.get(), models[1], BufferUsage::USAGE_STATIC_DRAW);
 		
-		
-		vertexArrayAABBCube = models[0].GetAABBForElementArray(0);
-		vertexArrayAABBTinyCube = models[1].GetAABBForElementArray(0);
-
+		cube1 = &LoadModelResource("cube.obj");
+		cube2 = &LoadModelResource("tinycube.obj");
+		text1 = &LoadTextureResource("chicken.png", PixelFormat::FORMAT_RGB, true, false);
+		text2 = &LoadTextureResource("default_display.png", PixelFormat::FORMAT_RGB, true, false);
 		/*if (!ddsTexture.Load("../res/textures/bricks.dds"))
 		{
 			LINA_CORE_ERR("Could not load texture!");
@@ -168,13 +165,9 @@ namespace LinaEngine::Graphics
 		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_DefaultRenderTarget, m_DefaultDrawParams, m_DefaultShader, m_DefaultSampler, m_DefaultPerspective);
 
 
-		textures[0] = &m_DefaultDiffuseTexture;
-		textures[1] = &m_DefaultDiffuseTexture;
 		m_RenderableMeshSystem.Construct(m_DefaultRenderContext);
-		cubeChunkRenderSystem = new CubeChunkRenderSystem(m_DefaultRenderContext, *cubeArray, textures, ARRAY_SIZE_IN_ELEMENTS(textures));
 		m_CameraSystem.Construct(m_DefaultRenderContext);
 		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
-		colliderComponent.aabb = vertexArrayAABBCube;
 
 
 		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 0.0f));
@@ -185,41 +178,26 @@ namespace LinaEngine::Graphics
 		cameraComponent.zFar = 1000.0f;
 
 
-
-		secondaryHorizontal = new InputKeyAxisBinder();
-		secondaryVertical = new InputKeyAxisBinder();
-	
-		secondaryHorizontal->SetActionDispatcher(&Application::Get().GetInputDevice());
-		secondaryVertical->SetActionDispatcher(&Application::Get().GetInputDevice());
-		secondaryHorizontal->Initialize(InputCode::Key::L, InputCode::Key::J);
-		secondaryVertical->Initialize(InputCode::Key::I, InputCode::Key::K);
-
-		movementComponent.movementControls.push_back(MovementControl(Vector3F(1.0f, 0.0f, 0.0f) * 15, secondaryHorizontal));
-		movementComponent.movementControls.push_back(MovementControl(Vector3F(0.0f, 1.0f, 0.0f) * 15, secondaryVertical));
-		renderableMesh.vertexArray = vertexArray;
-		renderableMesh.texture = &(m_DefaultDiffuseTexture);
+		renderableMesh.vertexArray = cube1->GetVertexArray(0);
+		renderableMesh.texture = text1;
 
 
-		freeLookComponent.movementSpeedX = 13.0f;
-		freeLookComponent.movementSpeedZ = 13.0f;
-		freeLookComponent.rotationSpeedX = 0.25f;
-		freeLookComponent.rotationSpeedY = 0.25f;
 
-		cameraEntity = m_ECS->MakeEntity(transformComponent, cameraComponent, freeLookComponent);
+		cameraEntity = m_ECS->MakeEntity(transformComponent, cameraComponent);
 
 		
 
 		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 20.0f));
 
 		transformComponent.transform.SetScale(1);
-		entity = m_ECS->MakeEntity(transformComponent, renderableMesh, colliderComponent, movementComponent, motionComponent);
+		entity = m_ECS->MakeEntity(transformComponent, renderableMesh);
 		//entity = ECS->MakeEntity(transformComponent, movementComponent, renderableMesh);
 
 		for (uint32 i = 0; i < 1; i++)
 		{
 			transformComponent.transform.SetLocation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f, 20.0f));
 			transformComponent.transform.SetScale(1.0f);
-			renderableMesh.vertexArray = &*cubeArray;
+			renderableMesh.vertexArray = cube2->GetVertexArray(0);
 			renderableMesh.texture = Math::RandF() > 0.5f ? &m_DefaultDiffuseTexture : &m_DefaultDiffuseTexture;
 			float vf = -4.0f;
 			float af = 5.0f;
@@ -236,19 +214,15 @@ namespace LinaEngine::Graphics
 			}*/
 			//ECS->MakeEntity(cubeChunkComponent);
 			//ECS->MakeEntity(transformComponent,  motionComponent, renderableMesh, colliderComponent);
-			colliderComponent.aabb = vertexArrayAABBTinyCube;
+			
 
-			m_ECS->MakeEntity(transformComponent, renderableMesh, motionComponent, colliderComponent);
+			m_ECS->MakeEntity(transformComponent, renderableMesh);
 
 		}
 
 		m_RenderingPipeline.AddSystem(m_RenderableMeshSystem);
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
-		//renderingPipeline.AddSystem(*cubeChunkRenderSystem);
-		mainSystems.AddSystem(movementControlSystem);
-		mainSystems.AddSystem(motionSystem);
-		mainSystems.AddSystem(*freeLookSystem);
-		//mainSystems.AddSystem(cubeChunkSystem);
+	
 	}
 
 
@@ -258,7 +232,6 @@ namespace LinaEngine::Graphics
 
 
 
-		m_ECS->UpdateSystems(mainSystems, 0.01f);
 
 		m_DefaultRenderContext.Clear(Color(0.2f, 0.225f, 0.12f, 1.0f), true);
 		m_ECS->UpdateSystems(m_RenderingPipeline, 0.01f);
@@ -275,6 +248,98 @@ namespace LinaEngine::Graphics
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();
 		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 
+	}
+
+	Texture & RenderEngine::LoadTextureResource(const LinaString & fileName, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
+	{
+		// Create pixel data.
+		ArrayBitmap* textureBitmap = new ArrayBitmap();
+		textureBitmap->Load(ResourceConstants::textureFolderPath + fileName);
+
+		// Create texture based on pixel data.
+		Texture* texture = new Texture();
+		texture->Construct(*m_RenderDevice.get(), *textureBitmap, internalPixelFormat, generateMipMaps, compress);
+
+		// Feed the array bitmap data into memory dump to be cleared later.
+		if (m_TextureResources.count(texture) == 1)
+			m_PixelDump.push_back(m_TextureResources.at(texture));
+
+		// Assign resource.
+		m_TextureResources[texture] = textureBitmap;
+
+		return *texture;
+	}
+
+	RenderableObjectData & RenderEngine::LoadModelResource(const LinaString & fileName)
+	{
+		// Create object data & feed it from model.
+		RenderableObjectData* objectData = new RenderableObjectData();
+		ModelLoader::LoadModels(ResourceConstants::meshFolderPath + fileName, objectData->GetIndexedModels(), objectData->GetMaterialIndices(), objectData->GetMaterialSpecs());
+
+		if (objectData->GetIndexedModels().size() == 0)
+			LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} at path {1} could not be found or model scene does not contain any mesh! This will cause undefined behaviour or crashes if it is assigned to a ECS RenderableMeshComponent."
+				, fileName, ResourceConstants::meshFolderPath);
+
+		// Create vertex array for each mesh.
+		for (uint32 i = 0; i < objectData->GetIndexedModels().size(); i++)
+		{
+			VertexArray* vertexArray = new VertexArray();
+			vertexArray->Construct(*m_RenderDevice.get(), objectData->GetIndexedModels()[i], BufferUsage::USAGE_STATIC_DRAW);
+			objectData->GetVertexArrays().push_back(vertexArray);
+		}
+
+		// Push & return.
+		m_RenderableObjectDataResources.push_back(objectData);
+		return *objectData;
+	}
+
+	void RenderEngine::RemoveTextureResource(Texture & textureResource)
+	{
+		// Feed into memory map & erase if exists.
+		if (m_TextureResources.count(&textureResource) == 1)
+		{
+			m_PixelDump.push_back(m_TextureResources.at(&textureResource));
+			m_TextureDump.push_back(&textureResource);
+			m_TextureResources.erase(&textureResource);
+		}
+	}
+
+	void RenderEngine::RemoveModelResource(RenderableObjectData & modelResource)
+	{
+		// Find the resource.
+		for (size_t i = 0; i < m_RenderableObjectDataResources.size(); i++)
+		{
+			// If found.
+			if (m_RenderableObjectDataResources[i] == &modelResource)
+			{
+				// Add to dump.
+				m_RenderableObjectDataDump.push_back(&modelResource);
+
+				// Push to the end of the list & pop.
+				m_RenderableObjectDataResources.swap_remove(i);
+			}
+		}
+
+	}
+
+	void RenderEngine::DumpMemory()
+	{
+		// Free pixel dump
+		for (uint32 i = 0; i < m_PixelDump.size(); i++)
+			delete m_PixelDump[i];
+
+		// Free renderable object dump
+		for (uint32 i = 0; i < m_RenderableObjectDataDump.size(); i++)
+			delete m_RenderableObjectDataDump[i];
+
+		// Free texture dump
+		for (uint32 i = 0; i < m_TextureDump.size(); i++)
+			delete m_TextureDump[i];
+
+		// Clear dumps.
+		m_PixelDump.clear();
+		m_RenderableObjectDataDump.clear();
+		m_TextureDump.clear();
 	}
 
 }

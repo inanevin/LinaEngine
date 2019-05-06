@@ -22,19 +22,20 @@ Timestamp: 1/5/2019 12:42:58 AM
 #ifndef ResourceConstants_HPP
 #define ResourceConstants_HPP
 
-#include <stdio.h>
-#include <string>
+
+#include "Core/DataStructures.hpp"
 
 namespace LinaEngine
 {
-	extern std::string getResourcesPath();
+
 
 	class ResourceConstants
 	{
 
 	public:
-		static  std::string& ShadersPath;
-		static	std::string& TexturesPath;
+
+		static LinaString& textureFolderPath;
+		static LinaString& meshFolderPath;
 	};
 
 }
