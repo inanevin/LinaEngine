@@ -22,26 +22,12 @@ Timestamp: 12/30/2018 1:54:10 AM
 #ifndef Log_HPP
 #define Log_HPP
 
-#ifdef LINA_ENABLE_LOGGING
-// ****************** CORE LOG MACROS ******************
+#ifdef LINA_CORE_ENABLE_LOGGING
 #define LINA_CORE_ERR(...)		::LinaEngine::Log::GetCoreLogger()->error(__VA_ARGS__)
 #define LINA_CORE_WARN(...)		::LinaEngine::Log::GetCoreLogger()->warn(__VA_ARGS__)
 #define LINA_CORE_INFO(...)		::LinaEngine::Log::GetCoreLogger()->info(__VA_ARGS__)
 #define LINA_CORE_TRACE(...)	::LinaEngine::Log::GetCoreLogger()->trace(__VA_ARGS__)
 #define LINA_CORE_DEBUG(...)	::LinaEngine::Log::GetCoreLogger()->debug(__VA_ARGS__)
-
-
-
-// ****************** CORE LOG MACROS ******************
-
-
-// ****************** CLIENT LOG MACROS ******************
-#define LINA_CLIENT_ERR(...)		::LinaEngine::Log::GetClientLogger()->error(__VA_ARGS__)
-#define LINA_CLIENT_WARN(...)		::LinaEngine::Log::GetClientLogger()->warn(__VA_ARGS__)
-#define LINA_CLIENT_INFO(...)		::LinaEngine::Log::GetClientLogger()->info(__VA_ARGS__)
-#define LINA_CLIENT_TRACE(...)	::LinaEngine::Log::GetClientLogger()->trace(__VA_ARGS__)
-#define LINA_CLIENT_DEBUG(...)	::LinaEngine::Log::GetClientLogger()->debug(__VA_ARGS__)
-// ****************** CLIENT LOG MACROS ******************
 
 #else
 
@@ -50,6 +36,20 @@ Timestamp: 12/30/2018 1:54:10 AM
 #define LINA_CORE_INFO(...)		
 #define LINA_CORE_TRACE(...)	
 #define LINA_CORE_FATAL(...)	
+
+#endif
+
+#ifdef LINA_CLIENT_ENABLE_LOGGING
+
+#define LINA_CLIENT_ERR(...)		::LinaEngine::Log::GetClientLogger()->error(__VA_ARGS__)
+#define LINA_CLIENT_WARN(...)		::LinaEngine::Log::GetClientLogger()->warn(__VA_ARGS__)
+#define LINA_CLIENT_INFO(...)		::LinaEngine::Log::GetClientLogger()->info(__VA_ARGS__)
+#define LINA_CLIENT_TRACE(...)	::LinaEngine::Log::GetClientLogger()->trace(__VA_ARGS__)
+#define LINA_CLIENT_DEBUG(...)	::LinaEngine::Log::GetClientLogger()->debug(__VA_ARGS__)
+
+#else
+
+
 #define LINA_CLIENT_ERR(...)		
 #define LINA_CLIENT_WARN(...)		
 #define LINA_CLIENT_INFO(...)		

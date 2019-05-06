@@ -21,12 +21,19 @@ project(LinaSandbox)
 
 set(SANDBOX_SOURCES 
 src/Sandbox.cpp
+src/Examples/Example1/Levels/Example1Level.cpp
+
 )
 
+set(SANDBOX_HEADERS
+
+include/Examples/Example1/Levels/Example1Level.hpp
+
+)
 #--------------------------------------------------------------------
 # Create executable project
 #--------------------------------------------------------------------
-add_executable(${PROJECT_NAME} ${SANDBOX_SOURCES})
+add_executable(${PROJECT_NAME} ${SANDBOX_SOURCES} ${SANDBOX_HEADERS})
 
 #--------------------------------------------------------------------
 # Options & Definitions
@@ -34,6 +41,11 @@ add_executable(${PROJECT_NAME} ${SANDBOX_SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
+option(LINA_CLIENT_ENABLE_LOGGING "Enables console logging" ON)
+
+if(LINA_CLIENT_ENABLE_LOGGING)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_CLIENT_ENABLE_LOGGING=1)
+endif()
 
 #--------------------------------------------------------------------
 # Links
@@ -41,49 +53,37 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 target_link_libraries(${PROJECT_NAME} Lina::Engine)
 
 #--------------------------------------------------------------------
-# Folder structuring in visual studio
+# Build Commands
 #--------------------------------------------------------------------
-#if(MSVC_IDE)
-#	foreach(source IN LISTS LINAENGINE_HEADERS LINAENGINE_SOURCES)
-#		get_filename_component(source_path "${source}" PATH)
-#		string(REPLACE "${LinaEngine_SOURCE_DIR}" "" relative_source_path "${source_path}")
-#		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
-#				source_group("${source_path_msvc}" FILES "${source}")
-#	endforeach()
-#endif()
 
-#if(WIN32)
-#	string(REPLACE "/" "\\" source_path_windows "${CMAKE_CURRENT_SOURCE_DIR}/Resources")
-#	string(REPLACE "/" "\\" build_path_windows "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/Resources")
-#	execute_process(COMMAND cmd.exe /c mklink /J "${build_path_windows}" "${source_path_windows}" RESULT_VARIABLE exitcode)
-#else()
-#	execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/Resources ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/Resources RESULT_VARIABLE exitcode)
-#endif()
-
-#if(NOT ${exitcode} EQUAL 0)
-#	MESSAGE("SYMLINKING FAILED: ${exitcode}")
-#	MESSAGE("FALLING BACK TO COPYING")
-#endif()
-
-#file(GLOB_RECURSE Resources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/Resources/ ${CMAKE_CURRENT_SOURCE_DIR}/Resources/*.*)
-#foreach(file IN LISTS Resources)
-#	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Resources/${file} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/Resources/${file} COPYONLY)
-#endforeach()
-
+# Copy resources
 add_custom_command(
 TARGET ${PROJECT_NAME}
 POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/Resources")
 
+# Copy DLLs
+add_custom_command(
+TARGET ${PROJECT_NAME}
+PRE_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/LinaEngine/vendor/assimp/_bin/Assimp32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
+
 add_custom_command(TARGET ${PROJECT_NAME}
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND}
-    -Dsrc_dir="${CMAKE_CURRENT_SOURCE_DIR}/Resources"
+POST_BUILD
+COMMAND ${CMAKE_COMMAND}
+	-Dsrc_dir="${CMAKE_CURRENT_SOURCE_DIR}/Resources"
     -Ddst_dir="${CMAKE_BINARY_DIR}/Sandbox/Resources"
     -P "${CMAKE_SOURCE_DIR}/CMake/UpdateDirectory.cmake"
 )
 
-#add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-#COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#"${LINAENGINE_DLL_DIR}/LinaEngine.dll"
-#<TARGET_FILE_DIR:${PROJECT_BINARY_DIR}>)
+#--------------------------------------------------------------------
+# Folder structuring in visual studio
+#--------------------------------------------------------------------
+if(MSVC_IDE)
+	foreach(source IN LISTS SANDBOX_HEADERS SANDBOX_SOURCES)
+		get_filename_component(source_path "${source}" PATH)
+		string(REPLACE "${LINASANDBOX_SOURCE_DIR}" "" relative_source_path "${source_path}")
+		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
+				source_group("${source_path_msvc}" FILES "${source}")
+	endforeach()
+endif()
