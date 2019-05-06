@@ -32,28 +32,34 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-		RenderTarget(PAMRenderDevice& renderEngineIn) : renderEngine(&renderEngineIn), m_EngineBoundID(0) {}
+		RenderTarget() {}
+
+		FORCEINLINE void Construct(PAMRenderDevice& renderDeviceIn)
+		{
+			renderDevice = &renderDeviceIn;
+			m_EngineBoundID = 0;
+		}
 
 		// TODO: Take care of texture compression. Should not be compressed.
 		// Constructors create the target through render engine.
-		FORCEINLINE RenderTarget(PAMRenderDevice& renderEngineIn, Texture& texture, uint32 width, uint32 height, FramebufferAttachment attachment = FramebufferAttachment::ATTACHMENT_COLOR, uint32 attachmentNumber = 0, uint32 mipLevel = 0)
+		FORCEINLINE void Construct(PAMRenderDevice& renderDeviceIn, Texture& texture, uint32 width, uint32 height, FramebufferAttachment attachment = FramebufferAttachment::ATTACHMENT_COLOR, uint32 attachmentNumber = 0, uint32 mipLevel = 0)
 		{
-			renderEngine = &renderEngineIn;
-			m_EngineBoundID = renderEngine->CreateRenderTarget(texture.GetID(), width, height, attachment, attachmentNumber, mipLevel);
+			renderDevice = &renderDeviceIn;
+			m_EngineBoundID = renderDevice->CreateRenderTarget(texture.GetID(), width, height, attachment, attachmentNumber, mipLevel);
 			CheckCompressed(texture);
 		}
 		
-		FORCEINLINE RenderTarget(PAMRenderDevice& renderEngineIn, Texture& texture, FramebufferAttachment attachment = FramebufferAttachment::ATTACHMENT_COLOR, uint32 attachmentNumber = 0, uint32 mipLevel = 0)
+		FORCEINLINE void Construct(PAMRenderDevice& renderDeviceIn, Texture& texture, FramebufferAttachment attachment = FramebufferAttachment::ATTACHMENT_COLOR, uint32 attachmentNumber = 0, uint32 mipLevel = 0)
 		{
-			renderEngine = &renderEngineIn;
-			m_EngineBoundID = renderEngine->CreateRenderTarget(texture.GetID(), texture.GetWidth(), texture.GetHeight(), attachment, attachmentNumber, mipLevel);
+			renderDevice = &renderDeviceIn;
+			m_EngineBoundID = renderDevice->CreateRenderTarget(texture.GetID(), texture.GetWidth(), texture.GetHeight(), attachment, attachmentNumber, mipLevel);
 			CheckCompressed(texture);
 		}
 			
 		// Destructor releases the render target through render engine.
 		FORCEINLINE ~RenderTarget()
 		{
-			m_EngineBoundID = renderEngine->ReleaseRenderTarget(m_EngineBoundID);
+			m_EngineBoundID = renderDevice->ReleaseRenderTarget(m_EngineBoundID);
 		}
 
 		// Check if the texture is compressed. It should not be so to properly create the target.
@@ -76,7 +82,7 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		PAMRenderDevice* renderEngine;
+		PAMRenderDevice* renderDevice;
 		uint32 m_EngineBoundID;
 
 		NULL_COPY_AND_ASSIGN(RenderTarget);

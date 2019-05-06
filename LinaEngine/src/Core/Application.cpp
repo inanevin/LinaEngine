@@ -90,8 +90,8 @@ namespace LinaEngine
 			m_InputEngine->Tick();
 	
 			m_PhysicsEngine->Tick(0.01f);
-			m_RenderEngine->Tick();
-			m_RenderEngine->Render();
+			m_RenderEngine->Tick(0.01f);
+	
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 		}

@@ -23,7 +23,6 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "Rendering/Material.hpp"
 #include "Rendering/ModelLoader.hpp"
 
-#include "ECS/EntityComponentSystem.hpp"
 #include "ECS/Components/MovementControlComponent.hpp"
 #include "ECS/Components/RenderableMeshComponent.hpp"
 #include "ECS/Components/TransformComponent.hpp"
@@ -36,7 +35,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "ECS/Systems/CubeChunkSystem.hpp"
 #include "PackageManager/PAMInputEngine.hpp"
 #include "Core/Application.hpp"
-#include "Rendering/ArrayBitmap.hpp"
+
 #include "Physics/PhysicsInteractionWorld.hpp"
 #include "ECS/Components/ColliderComponent.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
@@ -57,9 +56,9 @@ namespace LinaEngine::Graphics
 	MovementControlComponent movementComponent;
 	RenderableMeshComponent renderableMesh;
 	ECSSystemList mainSystems;
-	ECSSystemList renderingPipeline;
+
 	MovementControlSystem movementControlSystem;
-	RenderableMeshSystem* renderableMeshSystem;
+
 	MotionSystem motionSystem;
 	MotionComponent motionComponent;
 	CubeChunkComponent cubeChunkComponent;
@@ -69,15 +68,9 @@ namespace LinaEngine::Graphics
 	FreeLookComponent freeLookComponent;
 	CubeChunkRenderSystem* cubeChunkRenderSystem;
 	CameraComponent cameraComponent;
-	CameraSystem* cameraSystem;
-	RenderTarget* target;
 	RenderContext* context;
-	GameRenderContext* gameRenderContext;
-	Shader* shader;
-	Texture* texture;
-	Texture* textureNew;
+
 	Texture* textures[2];
-	Sampler* sampler;
 	VertexArray* vertexArray;
 	VertexArray* cubeArray;
 	AABB vertexArrayAABBCube;
@@ -86,9 +79,6 @@ namespace LinaEngine::Graphics
 	LinaArray<uint32> modelMaterialIndices;
 	LinaArray<Material> modelMaterials;
 	DDSTexture ddsTexture;
-	ArrayBitmap arrayBitmap;
-	DrawParams drawParams;
-	Matrix perspective;
 	InputKeyAxisBinder* secondaryHorizontal;
 	InputKeyAxisBinder* secondaryVertical;
 
@@ -101,18 +91,11 @@ namespace LinaEngine::Graphics
 
 	RenderEngine::~RenderEngine()
 	{
-		delete renderableMeshSystem;
 		delete freeLookSystem;
-		delete cameraSystem;
-		delete target;
 		delete context;
-		delete gameRenderContext;
-		delete shader;
-		delete texture;
-		delete textureNew;
+
 		delete textures[0];
 		delete textures[1];
-		delete sampler;
 		delete vertexArray;
 		delete cubeArray;
 
@@ -122,22 +105,27 @@ namespace LinaEngine::Graphics
 	void RenderEngine::Initialize(EntityComponentSystem* ecsIn)
 	{
 		// Set ECS reference
-		ECS = ecsIn;
+		m_ECS = ecsIn;
 
-	
+		// Initialize default sampler.
+		m_DefaultSampler.Construct(*m_RenderDevice.get(), SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR);
+
 		freeLookSystem = new FreeLookSystem(Application::Get().GetInputDevice());
 		freeLookSystem->SetWindowCenter(m_RenderDevice->GetWindowSize() / 2.0f);
 		m_RenderDevice->Initialize();
 
-		target = new RenderTarget(*m_RenderDevice.get());
-		context = new RenderContext(*m_RenderDevice.get(), *target);
+	
+		
+		m_DefaultRenderTarget.Construct(*m_RenderDevice.get());
+		//context = new RenderContext(*m_RenderDevice.get(), *target);
 
 
 		ModelLoader::LoadModels("Resources/Mesh/cube.obj", models, modelMaterialIndices, modelMaterials);
 		ModelLoader::LoadModels("Resources/Mesh/tinycube.obj", models, modelMaterialIndices, modelMaterials);
 		vertexArray = new VertexArray(*m_RenderDevice.get(), models[0], BufferUsage::USAGE_STATIC_DRAW);
 		cubeArray = new VertexArray(*m_RenderDevice.get(), models[1], BufferUsage::USAGE_STATIC_DRAW);
-		sampler = new Sampler(*m_RenderDevice.get(), SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR);
+		
+		
 		vertexArrayAABBCube = models[0].GetAABBForElementArray(0);
 		vertexArrayAABBTinyCube = models[1].GetAABBForElementArray(0);
 
@@ -146,44 +134,46 @@ namespace LinaEngine::Graphics
 			LINA_CORE_ERR("Could not load texture!");
 		}*/
 
-		arrayBitmap.Load("Resources/Textures/grid.png");
+		// Initialize default texture.
+		m_DefaultTextureBitmap.Load("Resources/Textures/seamless1.jpg");
 
 		//texture = new Texture(*m_RenderDevice.get(), ddsTexture);
-		texture = new Texture(*m_RenderDevice.get(), arrayBitmap, PixelFormat::FORMAT_RGB, true, false);
+		
+		m_DefaultDiffuseTexture.Construct(*m_RenderDevice.get(), m_DefaultTextureBitmap, PixelFormat::FORMAT_RGB, true, false);
 
 		/*if (!ddsTexture.Load("../res/textures/bricks2.dds"))
 		{
 			LINA_CORE_ERR("Could not load texture! :(");
 		}*/
 
-		arrayBitmap.Load("Resources/Textures/checker.png");
+		// Initialize default texture.
+		m_DefaultTextureBitmap.Load("Resources/Textures/seamless1.jpg");
 
-		//textureNew = new Texture(*m_RenderDevice.get(), ddsTexture);
-		textureNew = new Texture(*m_RenderDevice.get(), arrayBitmap, PixelFormat::FORMAT_RGB, true, false);
+		
 		LinaString shaderText;
-		LinaEngine::Internal::loadTextFileWithIncludes(shaderText, "Resources/Shaders/basicShader.glsl", "#include");
-		shader = new Shader(*m_RenderDevice.get(), shaderText);
+		LinaEngine::Internal::LoadTextFileWithIncludes(shaderText, "Resources/Shaders/basicShader.glsl", "#include");
 
-		shader->SetSampler("diffuse", *texture, *sampler, 0);
+		m_DefaultShader.Construct(*m_RenderDevice.get(), shaderText);
+		m_DefaultShader.SetSampler("diffuse", m_DefaultDiffuseTexture, m_DefaultSampler, 0);
 
-		drawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		drawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
-		drawParams.shouldWriteDepth = true;
-		drawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
+		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
+		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
+		m_DefaultDrawParams.shouldWriteDepth = true;
+		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
 
-
-		perspective = Matrix::perspective(Math::ToRadians(70.0f / 2.0f), 1280.0f / 720.0f, 0.1f, 1000.0f);
-
-
-		gameRenderContext = new GameRenderContext(*m_RenderDevice.get(), *target, drawParams, *shader, *sampler, perspective);
-
-		textures[0] = texture;
-		textures[1] = textureNew;
-		renderableMeshSystem = new RenderableMeshSystem(*gameRenderContext);
-		cubeChunkRenderSystem = new CubeChunkRenderSystem(*gameRenderContext, *cubeArray, textures, ARRAY_SIZE_IN_ELEMENTS(textures));
-		cameraSystem = new CameraSystem(*gameRenderContext);
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();
-		cameraSystem->SetAspectRatio(windowSize.GetX() / windowSize.GetY());
+		m_DefaultPerspective = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent.fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent.zNear, m_ActiveCameraComponent.zFar);
+
+
+		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_DefaultRenderTarget, m_DefaultDrawParams, m_DefaultShader, m_DefaultSampler, m_DefaultPerspective);
+
+
+		textures[0] = &m_DefaultDiffuseTexture;
+		textures[1] = &m_DefaultDiffuseTexture;
+		m_RenderableMeshSystem.Construct(m_DefaultRenderContext);
+		cubeChunkRenderSystem = new CubeChunkRenderSystem(m_DefaultRenderContext, *cubeArray, textures, ARRAY_SIZE_IN_ELEMENTS(textures));
+		m_CameraSystem.Construct(m_DefaultRenderContext);
+		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 		colliderComponent.aabb = vertexArrayAABBCube;
 
 
@@ -207,7 +197,7 @@ namespace LinaEngine::Graphics
 		movementComponent.movementControls.push_back(MovementControl(Vector3F(1.0f, 0.0f, 0.0f) * 15, secondaryHorizontal));
 		movementComponent.movementControls.push_back(MovementControl(Vector3F(0.0f, 1.0f, 0.0f) * 15, secondaryVertical));
 		renderableMesh.vertexArray = vertexArray;
-		renderableMesh.texture = &(*texture);
+		renderableMesh.texture = &(m_DefaultDiffuseTexture);
 
 
 		freeLookComponent.movementSpeedX = 13.0f;
@@ -215,14 +205,14 @@ namespace LinaEngine::Graphics
 		freeLookComponent.rotationSpeedX = 0.25f;
 		freeLookComponent.rotationSpeedY = 0.25f;
 
-		cameraEntity = ECS->MakeEntity(transformComponent, cameraComponent, freeLookComponent);
+		cameraEntity = m_ECS->MakeEntity(transformComponent, cameraComponent, freeLookComponent);
 
 		
 
 		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 20.0f));
 
 		transformComponent.transform.SetScale(1);
-		entity = ECS->MakeEntity(transformComponent, renderableMesh, colliderComponent, movementComponent, motionComponent);
+		entity = m_ECS->MakeEntity(transformComponent, renderableMesh, colliderComponent, movementComponent, motionComponent);
 		//entity = ECS->MakeEntity(transformComponent, movementComponent, renderableMesh);
 
 		for (uint32 i = 0; i < 1; i++)
@@ -230,7 +220,7 @@ namespace LinaEngine::Graphics
 			transformComponent.transform.SetLocation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f, 20.0f));
 			transformComponent.transform.SetScale(1.0f);
 			renderableMesh.vertexArray = &*cubeArray;
-			renderableMesh.texture = Math::RandF() > 0.5f ? &*texture : &*textureNew;
+			renderableMesh.texture = Math::RandF() > 0.5f ? &m_DefaultDiffuseTexture : &m_DefaultDiffuseTexture;
 			float vf = -4.0f;
 			float af = 5.0f;
 			//motionComponent.acceleration = Vector3F(Math::RandF(-af, af), Math::RandF(-af, af), Math::RandF(-af, af));
@@ -248,12 +238,12 @@ namespace LinaEngine::Graphics
 			//ECS->MakeEntity(transformComponent,  motionComponent, renderableMesh, colliderComponent);
 			colliderComponent.aabb = vertexArrayAABBTinyCube;
 
-			ECS->MakeEntity(transformComponent, renderableMesh, motionComponent, colliderComponent);
+			m_ECS->MakeEntity(transformComponent, renderableMesh, motionComponent, colliderComponent);
 
 		}
 
-		renderingPipeline.AddSystem(*renderableMeshSystem);
-		renderingPipeline.AddSystem(*cameraSystem);
+		m_RenderingPipeline.AddSystem(m_RenderableMeshSystem);
+		m_RenderingPipeline.AddSystem(m_CameraSystem);
 		//renderingPipeline.AddSystem(*cubeChunkRenderSystem);
 		mainSystems.AddSystem(movementControlSystem);
 		mainSystems.AddSystem(motionSystem);
@@ -262,23 +252,28 @@ namespace LinaEngine::Graphics
 	}
 
 
-	void RenderEngine::Tick()
+	void RenderEngine::Tick(float delta)
 	{
 
 
 
 
-		ECS->UpdateSystems(mainSystems, 0.01f);
+		m_ECS->UpdateSystems(mainSystems, 0.01f);
 
-
+		m_DefaultRenderContext.Clear(Color(0.2f, 0.225f, 0.12f, 1.0f), true);
+		m_ECS->UpdateSystems(m_RenderingPipeline, 0.01f);
+		m_DefaultRenderContext.Flush();
+		m_RenderDevice->TickWindow();
 	}
 
-	void RenderEngine::Render()
+	void RenderEngine::OnWindowResized(float width, float height)
 	{
-		gameRenderContext->Clear(Color(0.2f, 0.225f, 0.12f, 1.0f), true);
-		ECS->UpdateSystems(renderingPipeline, 0.01f);
-		gameRenderContext->Flush();
-		m_RenderDevice->TickWindow();
+		// Propogate to render device.
+		m_RenderDevice->OnWindowResized(width, height);
+
+		// Update camera system's aspect ratio.
+		Vector2F windowSize = m_RenderDevice->GetWindowSize();
+		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 
 	}
 

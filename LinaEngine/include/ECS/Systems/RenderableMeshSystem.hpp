@@ -37,18 +37,23 @@ namespace LinaEngine::ECS
 
 	public:
 
-
-		RenderableMeshSystem(GameRenderContext& contextIn) : BaseECSSystem(), context(contextIn)
+		RenderableMeshSystem() : BaseECSSystem()
 		{
 			AddComponentType(TransformComponent::ID);
 			AddComponentType(RenderableMeshComponent::ID);
 		}
 
+		FORCEINLINE void Construct(GameRenderContext& contextIn)
+		{
+			context = &contextIn;
+		}
+
+
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
 
 	private:
 
-		GameRenderContext& context;
+		GameRenderContext* context;
 	};
 }
 

@@ -28,7 +28,9 @@ namespace LinaEngine::ECS
 {
 	struct CameraComponent : ECSComponent<CameraComponent>
 	{
-		float zNear, zFar, fieldOfView;
+		float fieldOfView = 70.0f;
+		float zNear = 0.01f;
+		float zFar = 1000.0f;
 		int renderPriority;
 	};
 }

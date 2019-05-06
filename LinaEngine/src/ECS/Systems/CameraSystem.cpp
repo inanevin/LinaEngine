@@ -33,7 +33,7 @@ namespace LinaEngine::ECS
 	
 		//Matrix rotation = Matrix::InitRotationFromDirection(transform->transform.GetRotation().GetAxisZ(), transform->transform.GetRotation().GetAxisY());
 		Matrix viewTransformation = rotation * translation;
-		context.UpdatePerspective(perspective * viewTransformation);
+		context->UpdatePerspective(perspective * viewTransformation);
 		//context.UpdatePerspective(perspective * transform->transform.ToMatrix());
 	}
 }

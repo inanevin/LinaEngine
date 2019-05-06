@@ -29,7 +29,7 @@ namespace LinaEngine::ECS
 		TransformComponent* transform = (TransformComponent*)components[0];
 		RenderableMeshComponent* mesh = (RenderableMeshComponent*)components[1];
 		
-		context.RenderMesh(*mesh->vertexArray, *mesh->texture, transform->transform.ToMatrix());
+		context->RenderMesh(*mesh->vertexArray, *mesh->texture, transform->transform.ToMatrix());
 	}
 }
 
