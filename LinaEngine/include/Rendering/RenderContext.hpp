@@ -67,8 +67,8 @@ namespace LinaEngine::Graphics
 	
 	private:
 
-		PAMRenderDevice* renderDevice;
-		RenderTarget* target;
+		PAMRenderDevice* renderDevice = nullptr;
+		RenderTarget* target = nullptr;
 
 	};
 }

@@ -57,10 +57,10 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		DrawParams* m_DrawParams;
-		Shader* m_Shader;
-		Sampler *m_Sampler;
-		Matrix m_Perspective;
+		DrawParams* m_DrawParams = nullptr;
+		Shader* m_Shader = nullptr;
+		Sampler *m_Sampler = nullptr;
+		Matrix m_Perspective = Matrix::perspective(Math::ToRadians(35.0f), 1.7f, 0.1f, 1000);
 
 		// Map to see the list of same vertex array & textures to compress them into single draw call.
 		LinaMap<LinaPair<VertexArray*, Texture*>, LinaArray<Matrix> > m_MeshRenderBuffer;

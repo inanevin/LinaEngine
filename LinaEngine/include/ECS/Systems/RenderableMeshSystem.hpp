@@ -53,7 +53,7 @@ namespace LinaEngine::ECS
 
 	private:
 
-		GameRenderContext* context;
+		GameRenderContext* context = nullptr;
 	};
 }
 

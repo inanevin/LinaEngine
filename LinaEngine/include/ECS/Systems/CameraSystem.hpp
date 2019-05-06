@@ -56,8 +56,8 @@ namespace LinaEngine::ECS
 
 	private:
 
-		GameRenderContext* context;
-		float m_AspectRatio;
+		GameRenderContext* context = nullptr;
+		float m_AspectRatio = 1.7f;
 	};
 }
 

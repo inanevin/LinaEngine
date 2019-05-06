@@ -49,8 +49,8 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		PAMRenderDevice* renderDevice;
-		uint32 m_EngineBoundID;
+		PAMRenderDevice* renderDevice = nullptr;
+		uint32 m_EngineBoundID = 0;
 
 		//NULL_COPY_AND_ASSIGN(Sampler);
 

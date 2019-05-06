@@ -21,16 +21,17 @@ Timestamp: 5/4/2019 3:54:37 PM
 #include "Examples/TestExample/Levels/TestLevel.hpp"  
 #include "Rendering/ModelLoader.hpp"
 
+/*
+RenderableMeshComponent m_CubeMeshComponent;
+TransformComponent m_CubeTransformComponent;
 
-RenderableMeshComponent* m_CubeMeshComponent;
-TransformComponent* m_CubeTransformComponent;
 
 
-
-EntityHandle m_CubeEntity;
+EntityHandle m_CubeEntity;*/
 
 Texture* m_CubeTexture;
 RenderableObjectData* m_CubeMeshData;
+ArrayBitmap bm;
 
 TestLevel::TestLevel()
 {
@@ -44,10 +45,24 @@ void TestLevel::Install()
 	m_CubeMeshComponent = m_ECS->GetComponent<RenderableMeshComponent>(m_CubeEntity);
 
 	m_CubeTexture = &m_RenderEngine->LoadTextureResource("checker.png", PixelFormat::FORMAT_RGB, true, false);
-	m_CubeMeshData = &m_RenderEngine->LoadModelResource("cube.obj");
+	m_CubeMeshData = &m_RenderEngine->LoadModelResource("Default_Cube.obj");
 
 	m_CubeMeshComponent->texture = m_CubeTexture;
-	m_CubeMeshComponent->vertexArray = &m_CubeMeshData->GetVertexArray(0);*/
+	m_CubeMeshComponent->vertexArray = m_CubeMeshData->GetVertexArray(0);
+
+	m_CubeTransformComponent->transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
+	m_CubeTransformComponent->transform.SetScale(Vector3F(1.0f));*/
+
+	//m_CubeTransformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
+	//m_CubeTransformComponent.transform.SetScale(Vector3F(1.0f));
+
+	//bm.Load("checker.png");
+
+
+	//m_CubeMeshComponent.texture = m_CubeTexture;
+	//m_CubeMeshComponent.vertexArray = m_CubeMeshData->GetVertexArray(0);
+
+	//m_CubeEntity = m_ECS->MakeEntity(m_CubeTransformComponent, m_CubeMeshComponent);
 }
 
 void TestLevel::Initialize()

@@ -45,8 +45,12 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "ECS/Systems/CameraSystem.hpp"
 #include "ECS/Systems/FreeLookSystem.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"*/
-
+#include "ECS/Systems/FreeLookSystem.hpp"
+#include "ECS/Components/FreeLookComponent.hpp"
+#include "Core/Application.hpp"
+#include "PackageManager/PAMInputEngine.hpp"
 using namespace LinaEngine::Internal;
+using namespace LinaEngine;
 
 namespace LinaEngine::Graphics
 {
@@ -94,6 +98,18 @@ namespace LinaEngine::Graphics
 	InputKeyAxisBinder* secondaryVertical;*/
 
 
+	VertexArray* vertexArray;
+	LinaArray<IndexedModel> models;
+	LinaArray<uint32> modelMaterialIndices;
+	LinaArray<MaterialSpec> modelMaterials;
+	RenderableMeshComponent renderableMesh;
+	TransformComponent transformComponent;
+	EntityHandle entity;
+	EntityHandle cameraEntity;
+	FreeLookSystem* freeLook;
+	FreeLookComponent freeLookComp;
+
+
 	RenderEngine::RenderEngine()
 	{
 		LINA_CORE_TRACE("[Constructor] -> RenderEngine ({0})", typeid(*this).name());
@@ -127,11 +143,17 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Initialize(EntityComponentSystem* ecsIn)
 	{
+		// Set ECS reference
+		m_ECS = ecsIn;
+
+		// Initialize the render device.
+		m_RenderDevice->Initialize();
+
 		// Initialize default sampler.
 		m_DefaultSampler.Construct(*m_RenderDevice.get(), SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR);
 
 		// Initialize default texture.
-		m_DefaultTextureBitmap.Load("Resources/Textures/checker.png");
+		m_DefaultTextureBitmap.Load("Resources/Textures/seamless1.jpg");
 		m_DefaultDiffuseTexture.Construct(*m_RenderDevice.get(), m_DefaultTextureBitmap, PixelFormat::FORMAT_RGB, true, false);
 
 		LinaString shaderText;
@@ -150,7 +172,7 @@ namespace LinaEngine::Graphics
 
 		// Initialize default perspective.
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();
-		m_DefaultPerspective = Matrix::perspective(m_ActiveCameraComponent.fieldOfView / 2.0f, windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent.zNear, m_ActiveCameraComponent.zFar);
+		m_DefaultPerspective = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent.fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent.zNear, m_ActiveCameraComponent.zFar);
 
 		// Initialize the render context.
 		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_DefaultRenderTarget, m_DefaultDrawParams, m_DefaultShader, m_DefaultSampler, m_DefaultPerspective);
@@ -162,19 +184,32 @@ namespace LinaEngine::Graphics
 		// Initialize ECS Mesh Render System.
 		m_RenderableMeshSystem.Construct(m_DefaultRenderContext);
 
-		// Set ECS reference
-		m_ECS = ecsIn;
-
+		freeLook = new FreeLookSystem(Application::Get().GetInputDevice());
 		// Add ECS systems to pipeline.
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
 		m_RenderingPipeline.AddSystem(m_RenderableMeshSystem);
+		m_RenderingPipeline.AddSystem(*freeLook);
 
 		// Set clear color.
 		m_ActiveCameraComponent.clearColor = Color(0.15f, 0.22f, 0.38f, 1.0f);
 
-		// Initialize the render device.
-		m_RenderDevice->Initialize();
 
+		ModelLoader::LoadModels("Resources/Mesh/Default_Cube.obj", models, modelMaterialIndices, modelMaterials);
+		vertexArray = new VertexArray();
+		vertexArray->Construct(*m_RenderDevice.get(), models[0], BufferUsage::USAGE_STATIC_DRAW);
+	
+		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 20.0f));
+
+		transformComponent.transform.SetScale(Vector3F(1.0f, 1.0f, 1.0f));
+		renderableMesh.vertexArray = vertexArray;
+		renderableMesh.texture = &(m_DefaultDiffuseTexture);
+		entity = m_ECS->MakeEntity(transformComponent,  renderableMesh);
+		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 0.0f));
+
+		freeLookComp.movementSpeedX = freeLookComp.movementSpeedZ = 10;
+		freeLookComp.rotationSpeedX = freeLookComp.rotationSpeedY = 3;
+
+		cameraEntity = m_ECS->MakeEntity(transformComponent, m_ActiveCameraComponent, freeLookComp);
 		//freeLookSystem = new FreeLookSystem(Application::Get().GetInputDevice());
 		//freeLookSystem->SetWindowCenter(m_RenderDevice->GetWindowSize() / 2.0f);
 		//m_RenderDevice->Initialize();
@@ -364,6 +399,10 @@ namespace LinaEngine::Graphics
 		RenderableObjectData* objectData = new RenderableObjectData();
 		ModelLoader::LoadModels(ResourceConstants::meshFolderPath + fileName, objectData->GetIndexedModels(), objectData->GetMaterialIndices(), objectData->GetMaterialSpecs());
 		
+		if (objectData->GetIndexedModels().size() == 0)
+			LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} at path {1} could not be found or model scene does not contain any mesh! This will cause undefined behaviour or crashes if it is assigned to a ECS RenderableMeshComponent."
+			, fileName, ResourceConstants::meshFolderPath);
+
 		// Create vertex array for each mesh.
 		for (uint32 i = 0; i < objectData->GetIndexedModels().size(); i++)
 		{

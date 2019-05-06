@@ -46,12 +46,16 @@ namespace LinaEngine::Graphics
 			m_MaterialIndexArray.clear();
 		};
 
-		FORCEINLINE VertexArray& GetVertexArray(int index)
+		FORCEINLINE VertexArray* GetVertexArray(int index)
 		{
-			if (index >= m_VertexArrays.size())
-				LINA_CORE_WARN("Index is bigger than vertex array data size, aborting!");
+			
+			if (index >= m_VertexArrays.size() || index < 0 || m_VertexArrays.size() == 0)
+			{
+				LINA_CORE_ERR("Index is bigger than the vertex array size or vertex array size is 0. Returning nullptr!");
+				return nullptr;
+			}
 
-			return *m_VertexArrays.at(index);
+			return m_VertexArrays.at(index);
 		}
 
 		FORCEINLINE LinaArray<VertexArray*>& GetVertexArrays()

@@ -71,9 +71,9 @@ namespace LinaEngine::Graphics
 	private:
 
 		// Bitmap array properties.
-		int32 m_Width;
-		int32 m_Heigth;
-		int32* m_Pixels;
+		int32 m_Width = 1;
+		int32 m_Heigth = 1;
+		int32* m_Pixels = nullptr;
 
 	private:
 

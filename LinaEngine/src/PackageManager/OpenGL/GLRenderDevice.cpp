@@ -87,8 +87,8 @@ namespace LinaEngine::Graphics
 	void GLRenderDevice::Initialize()
 	{
 		struct FBOData fboWindowData;
-		fboWindowData.width = 1280;
-		fboWindowData.height = 720;
+		fboWindowData.width = m_MainWindow->GetWidth();
+		fboWindowData.height = m_MainWindow->GetHeight();
 		m_FBOMap[0] = fboWindowData;
 
 		glEnable(GL_DEPTH_TEST);

@@ -47,12 +47,12 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		PAMRenderDevice* renderDevice;
-		uint32 m_ID;
-		uint32 m_Width;
-		uint32 m_Height;
-		bool isCompressed;
-		bool hasMipMaps;
+		PAMRenderDevice* renderDevice = nullptr;
+		uint32 m_ID = 0;
+		uint32 m_Width = 0;
+		uint32 m_Height = 0;
+		bool isCompressed = false;
+		bool hasMipMaps = true;
 	};
 }
 

@@ -40,9 +40,17 @@ namespace LinaEngine::Graphics
 			if (texture != currentTexture) 
 				m_Shader->SetSampler("diffuse", *texture, *m_Sampler, 0);
 			
-			// Update the buffer w/ each transform.
-			vertexArray->UpdateBuffer(4, transforms, numTransforms * sizeof(Matrix));
-
+			if (vertexArray)
+			{
+				// Update the buffer w/ each transform.
+				vertexArray->UpdateBuffer(4, transforms, numTransforms * sizeof(Matrix));
+			}
+			else
+			{
+				LINA_CORE_ERR("Vertex array is null! Skipping buffer update & drawing process. This may cause undefined behaviour!");
+				return;
+			}
+	
 			// Draw call.
 			this->Draw(*m_Shader, *vertexArray, *m_DrawParams, numTransforms);
 

@@ -54,9 +54,9 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		PAMRenderDevice* renderDevice;
-		uint32 m_EngineBoundID;
-		uint32 m_IndexCount;
+		PAMRenderDevice* renderDevice = nullptr;
+		uint32 m_EngineBoundID = 0;
+		uint32 m_IndexCount = 0;
 
 		NULL_COPY_AND_ASSIGN(VertexArray);
 	};
