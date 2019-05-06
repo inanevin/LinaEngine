@@ -129,6 +129,11 @@ namespace LinaEngine::ECS
 	const ECSComponentFreeFunction ECSComponent<T>::FREE_FUNCTION(ECSComponentFree<T>);
 
 
+	struct TestComponent : public ECSComponent<TestComponent>
+	{
+		float x;
+		float y;
+	};
 }
 
 

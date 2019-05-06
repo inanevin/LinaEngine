@@ -29,44 +29,32 @@ namespace LinaEngine::Graphics
 	class GameRenderContext : public RenderContext
 	{
 	public:
+		GameRenderContext(PAMRenderDevice& deviceIn, RenderTarget& targetIn, DrawParams& drawParamsIn, Shader& shaderIn, Sampler& samplerIn, const Matrix& perspectiveIn)
+			: RenderContext(deviceIn, targetIn), drawParams(drawParamsIn), shader(shaderIn), sampler(samplerIn), perspective(perspectiveIn) {};
 
-		GameRenderContext() : RenderContext() {};
-		virtual ~GameRenderContext() {};
-
-		FORCEINLINE void Construct(PAMRenderDevice& deviceIn, RenderTarget& targetIn, DrawParams& drawParamsIn, Shader& shaderIn, Sampler& samplerIn, const Matrix& perspectiveIn)
-		{
-			RenderContext::Construct(deviceIn, targetIn);
-			m_DrawParams = &drawParamsIn;
-			m_Shader = &shaderIn;
-			m_Sampler = &samplerIn;
-			m_Perspective = perspectiveIn;
-		}
 
 		FORCEINLINE void RenderMesh(VertexArray& vertexArray, Texture& texture, const Matrix& transformIn)
 		{
 			// Add the new matrix to the same pairs, each pair will be drawn once.
-			m_MeshRenderBuffer[LinaMakePair(&vertexArray, &texture)].push_back(m_Perspective * transformIn);
+			meshRenderBuffer[LinaMakePair(&vertexArray, &texture)].push_back(perspective * transformIn);
 		}
 
 		FORCEINLINE void UpdatePerspective(const Matrix& newPerspective)
 		{
-			m_Perspective = newPerspective;
+			perspective = newPerspective;
 		}
 
 		void Flush();
 
 	private:
 
-		DrawParams* m_DrawParams = nullptr;
-		Shader* m_Shader = nullptr;
-		Sampler *m_Sampler = nullptr;
-		Matrix m_Perspective = Matrix::perspective(Math::ToRadians(35.0f), 1.7f, 0.1f, 1000);
+		DrawParams& drawParams;
+		Shader& shader;
+		Sampler& sampler;
+		Matrix perspective;
 
 		// Map to see the list of same vertex array & textures to compress them into single draw call.
-		LinaMap<LinaPair<VertexArray*, Texture*>, LinaArray<Matrix> > m_MeshRenderBuffer;
-
-		//DISALLOW_COPY_AND_ASSIGN(GameRenderContext);
-		NULL_COPY_AND_ASSIGN(GameRenderContext);
+		LinaMap<LinaPair<VertexArray*, Texture*>, LinaArray<Matrix> > meshRenderBuffer;
 
 	};
 }

@@ -27,21 +27,13 @@ namespace LinaEngine::ECS
 		TransformComponent* transform = (TransformComponent*)components[0];
 		CameraComponent* camera = (CameraComponent*)components[1];
 
-		Matrix perspective = Matrix::perspective(Math::ToRadians(camera->fieldOfView), 1280.0f / 720.0f, camera->zNear, camera->zFar);
+		Matrix perspective = Matrix::perspective(Math::ToRadians(camera->fieldOfView), m_AspectRatio, camera->zNear, camera->zFar);
 		Matrix translation = Matrix::Translate(-transform->transform.GetLocation());
 		Matrix rotation = Matrix::InitRotationFromDirection(transform->transform.GetRotation().GetAxisZ(), transform->transform.GetRotation().GetAxisY());
 	
 		//Matrix rotation = Matrix::InitRotationFromDirection(transform->transform.GetRotation().GetAxisZ(), transform->transform.GetRotation().GetAxisY());
 		Matrix viewTransformation = rotation * translation;
-<<<<<<< HEAD
-<<<<<<< HEAD
-		context->UpdatePerspective(perspective * viewTransformation);
-=======
-=======
->>>>>>> parent of 46fccaf... Physics: Sample collision tests
-	
 		context.UpdatePerspective(perspective * viewTransformation);
->>>>>>> parent of 46fccaf... Physics: Sample collision tests
 		//context.UpdatePerspective(perspective * transform->transform.ToMatrix());
 	}
 }

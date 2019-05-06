@@ -12,16 +12,20 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: Shader
-Timestamp: 5/4/2019 1:36:21 PM
+Class: IInputSubscriber
+Timestamp: 4/15/2019 10:58:49 AM
 
 */
 
 #include "LinaPch.hpp"
-#include "Rendering/Shader.hpp"  
+#include "Interfaces/IInputSubscriber.hpp"  
+#include "Core/Application.hpp"
 
-namespace LinaEngine::Graphics
+namespace LinaEngine
 {
+	void IInputSubscriber::Initialize()
+	{
 
+	}
 }
 

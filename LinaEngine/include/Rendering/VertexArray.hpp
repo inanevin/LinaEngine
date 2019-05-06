@@ -30,23 +30,17 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-		VertexArray() {};
-			
+		FORCEINLINE VertexArray(PAMRenderDevice& engine, const IndexedModel& model, BufferUsage bufferUsage) :
+			renderEngine(&engine), m_EngineBoundID(model.CreateVertexArray(engine, bufferUsage)), m_IndexCount(model.GetIndexCount()) {}
+
 		FORCEINLINE ~VertexArray()
 		{
-			m_EngineBoundID = renderDevice->ReleaseVertexArray(m_EngineBoundID);
-		}
-
-		FORCEINLINE void Construct(PAMRenderDevice& deviceIn, const IndexedModel& model, BufferUsage bufferUsage)
-		{
-			renderDevice = &deviceIn;
-			m_EngineBoundID = model.CreateVertexArray(deviceIn, bufferUsage);
-			m_IndexCount = model.GetIndexCount();
+			m_EngineBoundID = renderEngine->ReleaseVertexArray(m_EngineBoundID);
 		}
 
 		FORCEINLINE void UpdateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize)
 		{
-			return renderDevice->UpdateVertexArrayBuffer(m_EngineBoundID, bufferIndex, data, dataSize);
+			return renderEngine->UpdateVertexArrayBuffer(m_EngineBoundID, bufferIndex, data, dataSize);
 		}
 
 		FORCEINLINE uint32 GetID() { return m_EngineBoundID; }
@@ -54,9 +48,9 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		PAMRenderDevice* renderDevice = nullptr;
-		uint32 m_EngineBoundID = 0;
-		uint32 m_IndexCount = 0;
+		PAMRenderDevice* renderEngine;
+		uint32 m_EngineBoundID;
+		uint32 m_IndexCount;
 
 		NULL_COPY_AND_ASSIGN(VertexArray);
 	};

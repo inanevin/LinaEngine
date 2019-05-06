@@ -32,7 +32,6 @@ Timestamp: 4/17/2019 1:46:20 AM
 #define LinaMakePair std::make_pair
 #define LinaString std::string
 #define LinaHash std::hash
-// #define LinaArray std::vector
 
 template<typename T>
 class LinaArray : public std::vector<T>

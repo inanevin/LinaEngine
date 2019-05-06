@@ -22,8 +22,8 @@ Timestamp: 1/5/2019 12:42:58 AM
 #ifndef ResourceConstants_HPP
 #define ResourceConstants_HPP
 
-
-#include "Core/DataStructures.hpp"
+#include <stdio.h>
+#include <string>
 
 namespace LinaEngine
 {
@@ -33,9 +33,8 @@ namespace LinaEngine
 	{
 
 	public:
-
-		static LinaString& textureFolderPath;
-		static LinaString& meshFolderPath;
+		static  std::string& ShadersPath;
+		static	std::string& TexturesPath;
 	};
 
 }

@@ -32,14 +32,8 @@ namespace LinaEngine::Graphics
 	class RenderContext
 	{
 	public:
-		FORCEINLINE RenderContext() {}
-		virtual ~RenderContext() {};
 
-		FORCEINLINE void Construct(PAMRenderDevice& renderDeviceIn, RenderTarget& renderTargetIn)
-		{
-			renderDevice = &renderDeviceIn;
-			target = &renderTargetIn;
-		}
+		FORCEINLINE RenderContext(PAMRenderDevice& renderDeviceIn, RenderTarget& targetIn) : renderDevice(&renderDeviceIn), target(&targetIn) {}
 
 		FORCEINLINE void Clear(bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
 		{
@@ -61,14 +55,10 @@ namespace LinaEngine::Graphics
 			renderDevice->Draw(target->GetID(), shader.GetID(), vertexArray.GetID(), drawParams, numInstances, numIndices);
 		}
 
-	protected:
-
-		
-	
 	private:
 
-		PAMRenderDevice* renderDevice = nullptr;
-		RenderTarget* target = nullptr;
+		PAMRenderDevice* renderDevice;
+		RenderTarget* target;
 
 	};
 }

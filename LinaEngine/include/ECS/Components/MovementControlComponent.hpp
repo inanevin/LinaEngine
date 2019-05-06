@@ -24,18 +24,24 @@ Timestamp: 4/9/2019 3:25:33 PM
 
 #include "ECS/EntityComponentSystem.hpp"
 #include "Core/DataStructures.hpp"
+#include "Input/InputAxisBinder.hpp"
 
-namespace LinaEngine::Input
-{
-	class InputKeyAxisBinder;
-};
+using namespace LinaEngine::Input;
 
 namespace LinaEngine::ECS
 {
+	struct MovementControl
+	{
+		Vector3F movement;
+		InputKeyAxisBinder* inputKeyAxisBinder;
+		float lastInputAmount;
+
+		MovementControl(const Vector3F movementIn, InputKeyAxisBinder* inputKeyAxisBinderIn) : movement(movementIn), inputKeyAxisBinder(inputKeyAxisBinderIn), lastInputAmount(inputKeyAxisBinderIn->GetAmount()) {};
+	};
 
 	struct MovementControlComponent : public ECSComponent<MovementControlComponent>
 	{
-		LinaArray<LinaPair<Vector3F, LinaEngine::Input::InputKeyAxisBinder*>> movementControls;
+		LinaArray<MovementControl> movementControls;
 	};
 }
 

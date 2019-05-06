@@ -43,7 +43,7 @@ namespace LinaEngine
 		m_PhysicsEngine = std::make_unique<PhysicsEngine>();
 
 		// Create main window.
-		bool windowCreationSuccess = m_RenderEngine->CreateContextWindow(*m_InputEngine.get());
+		bool windowCreationSuccess = m_RenderEngine->CreateContextWindow();
 		if (!windowCreationSuccess)
 		{
 			LINA_CORE_ERR("Window Creation Failed!");
@@ -57,6 +57,9 @@ namespace LinaEngine
 		m_InputEngine->Initialize(m_RenderEngine->GetNativeWindow());
 		m_PhysicsEngine->Initialize(m_ECS.get());
 		m_RenderEngine->Initialize(m_ECS.get());
+
+		// Set running flag.
+		m_Running = true;
 	}
 
 	Application::~Application()
@@ -64,25 +67,12 @@ namespace LinaEngine
 		LINA_CORE_TRACE("[Destructor] -> Application ({0})", typeid(*this).name());
 	}
 
-	LINA_API void Application::Initialize()
-	{
-		LINA_CLIENT_TRACE("[Initialization] -> Application ({0})", typeid(*this).name());
-
-		// Set running flag.
-		m_Running = true;
-	}
-
 	void Application::OnEvent(Event & e)
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
 
-		if (e.GetEventType() == EventType::WindowResize)
-		{
-			WindowResizeEvent& windowEvent = (WindowResizeEvent&)(e);
-			m_RenderEngine->OnWindowResized(windowEvent.GetWidth(), windowEvent.GetHeight());
-		}
-
+		//m_RenderDevice->OnEvent(e);
 		
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{
@@ -100,11 +90,8 @@ namespace LinaEngine
 			m_InputEngine->Tick();
 	
 			m_PhysicsEngine->Tick(0.01f);
-			m_RenderEngine->Tick(0.01f);
-
-			if (m_ActiveLevelExists)
-				m_CurrentLevel->Tick(0.01f);
-
+			m_RenderEngine->Tick();
+			m_RenderEngine->Render();
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 		}
@@ -126,22 +113,6 @@ namespace LinaEngine
 	{
 		m_LayerStack.PushOverlay(layer);
 		layer->OnAttach();
-	}
-
-	LINA_API void Application::LoadLevel(Level* level)
-	{
-		// TODO: Implement unloading the current level & loading a new one later.
-
-		
-		
-
-		m_CurrentLevel = level;
-
-		m_CurrentLevel->SetEngineReferences(*m_ECS.get(), *m_RenderEngine.get(), *m_InputEngine.get());
-		m_CurrentLevel->Install();
-		m_CurrentLevel->Initialize();
-		m_ActiveLevelExists = true;
-		
 	}
 
 	/*RenderDevice * Application::GetRenderDevice()

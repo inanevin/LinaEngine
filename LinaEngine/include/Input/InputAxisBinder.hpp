@@ -36,6 +36,7 @@ namespace LinaEngine::Input
 
 		FORCEINLINE void Initialize(InputCode::Mouse button = InputCode::Mouse::MouseUnknown)
 		{
+			IInputSubscriber::Initialize();
 			SubscribeMousePressedAction("buttonDown", LINA_ACTION_CALLBACK(InputMouseButtonBinder::OnButtonDown), button);
 			SubscribeMouseReleasedAction("buttonUp", LINA_ACTION_CALLBACK(InputMouseButtonBinder::OnButtonUp), button);
 		}
@@ -59,10 +60,14 @@ namespace LinaEngine::Input
 
 		FORCEINLINE void Initialize(InputCode::Key positive, InputCode::Key negative)
 		{
+			IInputSubscriber::Initialize();
+
 			SubscribeKeyPressedAction("posD", LINA_ACTION_CALLBACK(InputKeyAxisBinder::OnPositiveKeyDown), positive);
 			SubscribeKeyPressedAction("negD", LINA_ACTION_CALLBACK(InputKeyAxisBinder::OnNegativeKeyDown), negative);
 			SubscribeKeyReleasedAction("posU", LINA_ACTION_CALLBACK(InputKeyAxisBinder::OnPositiveKeyUp), positive);
 			SubscribeKeyReleasedAction("negU", LINA_ACTION_CALLBACK(InputKeyAxisBinder::OnNegativeKeyUp), negative);
+
+
 		}
 
 		FORCEINLINE void OnPositiveKeyDown() { m_Amount = 1.0f; positivePressed = true; if (negativePressed) OnNegativeKeyUp(); }

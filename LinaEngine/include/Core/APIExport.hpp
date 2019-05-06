@@ -27,10 +27,8 @@ Timestamp: 4/17/2019 1:45:39 AM
 
 	#ifdef LINA_BUILD_DLL
 	#define LINA_API __declspec(dllexport)
-	#define LINA_API_EXTERN extern "C" __declspec(dllexport)
 	#else
 	#define LINA_API __declspec(dllimport)
-	#define LINA_API_EXTERN __declspec(dllimport)
 	#endif
 #else
 #define LINA_API

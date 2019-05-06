@@ -33,38 +33,31 @@ namespace LinaEngine::Graphics
 	public:
 
 		// Param constructor creates shader program using render engine.
-		Shader() {};
+		FORCEINLINE Shader(PAMRenderDevice& renderEngineIn, const LinaString& text) : renderEngine(&renderEngineIn), m_EngineBoundID(renderEngine->CreateShaderProgram(text)) {};
 		// Destructor releases shader program.
-		FORCEINLINE ~Shader() { m_EngineBoundID = renderDevice->ReleaseShaderProgram(m_EngineBoundID); }
-
-		FORCEINLINE void Construct(PAMRenderDevice& renderDeviceIn, const LinaString& text)
-		{
-			renderDevice = &renderDeviceIn;
-			m_EngineBoundID = renderDevice->CreateShaderProgram(text);
-		}
+		FORCEINLINE ~Shader() { m_EngineBoundID = renderEngine->ReleaseShaderProgram(m_EngineBoundID); }
 
 		// Set uniform buffer through render engine.
 		FORCEINLINE void SetUniformBuffer(const LinaString& name, UniformBuffer& buffer) 
 		{ 
-			renderDevice->SetShaderUniformBuffer(m_EngineBoundID, name, buffer.GetID()); 
+			renderEngine->SetShaderUniformBuffer(m_EngineBoundID, name, buffer.GetID()); 
 		}
 
 		// Set the texture sampler through render engine.
 		FORCEINLINE void SetSampler(const LinaString& name, Texture& texture, Sampler& sampler, uint32 unit)
 		{ 
-			renderDevice->SetShaderSampler(m_EngineBoundID, name, texture.GetID(), sampler.GetID(), unit); 
+			renderEngine->SetShaderSampler(m_EngineBoundID, name, texture.GetID(), sampler.GetID(), unit); 
 		}
 
 		// Get shader id, this gets matched w/ program id on render engine.
 		FORCEINLINE uint32 GetID() { return m_EngineBoundID; }
 
 	private:
+		PAMRenderDevice* renderEngine;
+		uint32 m_EngineBoundID;
 
-		PAMRenderDevice* renderDevice = nullptr;
-		uint32 m_EngineBoundID = 0;
-
-	//	DISALLOW_COPY_AND_ASSIGN(Shader);
-		NULL_COPY_AND_ASSIGN(Shader);
+	
+		//NULL_COPY_AND_ASSIGN(Shader);
 	
 	};
 }

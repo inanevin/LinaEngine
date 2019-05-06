@@ -30,16 +30,13 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_SUPPRESS_REGENERATION true)
-#set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
 #--------------------------------------------------------------------
 # Set source & header dirs
 #--------------------------------------------------------------------
 set(LINAENGINE_SOURCE_DIR LinaEngine/src)
 set(LINAENGINE_HEADER_DIR LinaEngine/include)
-set(LINASANDBOX_SOURCE_DIR Sandbox/src)
-set(LINASANDBOX_HEADER_DIR Sandbox/include)
 
 #--------------------------------------------------------------------
 # Sub directories
@@ -53,5 +50,4 @@ endif()
 
 
 add_subdirectory(LinaEngine)
-
 

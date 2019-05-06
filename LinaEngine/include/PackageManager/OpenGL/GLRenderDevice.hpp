@@ -192,107 +192,48 @@ namespace LinaEngine::Graphics
 		GLRenderDevice();
 		~GLRenderDevice();
 
-		// Creates an GLFW window.
-		FORCEINLINE bool CreateContextWindow(InputEngine<PAMInputEngine>& inputEngineIn)
+		FORCEINLINE bool CreateContextWindow()
 		{
-			return m_MainWindow->Initialize(inputEngineIn);
+			return m_MainWindow->Initialize();
 		}
-
-		// Returns GLFW window instance.
 		FORCEINLINE void* GetNativeWindow()
 		{
 			return m_MainWindow->GetNativeWindow();
 		}
 
-		// Set event callback for window.
 		FORCEINLINE void SetMainWindowEventCallback(const std::function<void(Event&)>& callback)
 		{
 			m_MainWindow->SetEventCallback(callback);
 		}
 
-		// Swaps window buffer.
-		FORCEINLINE void TickWindow() 
-		{ 
-			m_MainWindow->Tick();
-		}
+		FORCEINLINE void TickWindow() { m_MainWindow->Tick(); }
 
-		// Returns the window width & height
-		FORCEINLINE Vector2F GetWindowSize()
-		{	
-			return Vector2F(m_MainWindow->GetWidth(), m_MainWindow->GetHeight()); 
-		};
+		FORCEINLINE Vector2F GetWindowSize() {	return Vector2F(m_MainWindow->GetWidth(), m_MainWindow->GetHeight()); };
 
-		// Initializes the devices & params.
 		void Initialize();
 
-		// Creates a texture on GL.
 		uint32 CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress);
-
-		// Creates a DDS texture on GL.
 		uint32 CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount);
-
-		// Creates a Cubemap texture on GL.
-		uint32 CreateCubemapTexture(int32 width, int32 height, int32 channelCount, const void** data, uint32 dataSize = 6);
-
-		// Releases a previously created texture from GL.
 		uint32 ReleaseTexture2D(uint32 texture2D);
-
-		// Creates a vertex array on GL.
 		uint32 CreateVertexArray(const float** vertexData, const uint32* vertexElementSizes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage);
-		
-		// Releases a previously created vertex array by id from GL.
 		uint32 ReleaseVertexArray(uint32 vao);
-
-		// Creates a texture sampler on GL.
 		uint32 CreateSampler(SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapU, SamplerWrapMode wrapV, float anisotropy);
-
-		// Releases a previously created texture sampler from GL.
 		uint32 ReleaseSampler(uint32 sampler);
-
-		// Creates a uniform buffer on GL.
 		uint32 CreateUniformBuffer(const void* data, uintptr dataSize, BufferUsage usage);
-
-		// Releases a previously created buffer from GL.
 		uint32 ReleaseUniformBuffer(uint32 buffer);
-
-		// Creates a shader program based on shader text on GL.
 		uint32 CreateShaderProgram(const LinaString& shaderText);
-
-		// Releases a previously created shader program from GL.
 		uint32 ReleaseShaderProgram(uint32 shader);
-
-		// Creates a render target based on window props & attachments on GL.
 		uint32 CreateRenderTarget(uint32 texture, int32 width, int32 height, FramebufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel);
-
-		// Releases a previously created render target from GL.
 		uint32 ReleaseRenderTarget(uint32 target);
-
-		// Updates a vertex array object by id.
 		void UpdateVertexArray(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);
-
-		// Uses a shader by id.
 		void SetShader(uint32 shader);
-
-		// Uses a shader sampler by id.
 		void SetShaderSampler(uint32 shader, const LinaString& samplerName, uint32 texture, uint32 sampler, uint32 unit);
-
-		// Creates uniform buffer of a shader by id.
 		void SetShaderUniformBuffer(uint32 shader, const LinaString& uniformBufferName, uint32 buffer);
-
-		// Updates a vertex array buffer by id.
 		void UpdateVertexArrayBuffer(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);
-
-		// Updates a uniform buffer for a shader by id.
 		void UpdateUniformBuffer(uint32 buffer, const void* data, uintptr dataSize);
-
-		// Actual drawing process for meshes.
 		void Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements);
-
-		// Clears context.
 		void Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const class Color& color, uint32 stencil);
 
-		// Called when main window is resized.
-		void OnWindowResized(float width, float height);
 
 	private:
 

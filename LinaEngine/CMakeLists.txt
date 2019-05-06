@@ -25,6 +25,7 @@ set (LINAENGINE_SOURCES
     src/Core/Application.cpp
     src/Core/Layer.cpp
     src/Core/LayerStack.cpp
+    src/Core/Transform.cpp
 	src/Core/Time.cpp
 	
 	
@@ -49,6 +50,8 @@ set (LINAENGINE_SOURCES
 	#IMGUI
 	src/IMGUI/IMGUILayer.cpp
 	
+	#Interfaces
+	src/Interfaces/IInputSubscriber.cpp
 	
 	#PAM
 	src/PackageManager/Generic/cmwc4096.cpp
@@ -66,9 +69,7 @@ set (LINAENGINE_SOURCES
 	src/Rendering/ModelLoader.cpp
 	src/Rendering/GameRenderContext.cpp
 	src/Rendering/RenderEngine.cpp
-	src/Rendering/RenderTarget.cpp
-	src/Rendering/Shader.cpp
-
+	
 	#Physics
 	src/Physics/PhysicsEngine.cpp
 	src/Physics/PhysicsInteractionWorld.cpp
@@ -81,6 +82,7 @@ set (LINAENGINE_SOURCES
 	src/Utility/Math/VectorMath.cpp
 	src/Utility/Math/AABB.cpp
 	src/Utility/Math/Plane.cpp
+
 	src/Utility/Log.cpp
 	src/Utility/ResourceConstants.cpp
 
@@ -103,6 +105,7 @@ set(LINAENGINE_HEADERS
 	include/Core/LayerStack.hpp
 	include/Core/Memory.hpp
 	include/Core/STLImport.hpp
+	include/Core/Transform.hpp
 	include/Core/Time.hpp
 	
 	#ECS
@@ -147,7 +150,6 @@ set(LINAENGINE_HEADERS
 	
 	#Interfaces
 	include/Interfaces/IInputSubscriber.hpp
-	include/Interfaces/IWindowSubscriber.hpp
 	
 	#LObject
 	include/LObjects/Camera.hpp
@@ -188,7 +190,6 @@ set(LINAENGINE_HEADERS
 	include/Rendering/RenderContext.hpp
 	include/Rendering/GameRenderContext.hpp
 	include/Rendering/RenderTarget.hpp
-	include/Rendering/RenderableObjectData.hpp
 	
 	#Physics
 	include/Physics/PhysicsEngine.hpp
@@ -207,8 +208,6 @@ set(LINAENGINE_HEADERS
 	include/Utility/Log.hpp
 	include/Utility/ResourceConstants.hpp
 
-	#World
-	include/World/Level.hpp
 	
 	# SPDLOG
 	include/Utility/spdlog/spdlog.h
@@ -315,7 +314,7 @@ set(LINAENGINE_HEADERS
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} STATIC ${LINAENGINE_SOURCES} ${LINAENGINE_HEADERS})
+add_library(${PROJECT_NAME} SHARED ${LINAENGINE_SOURCES} ${LINAENGINE_HEADERS})
 add_library(Lina::Engine ALIAS ${PROJECT_NAME}) 
 
 #--------------------------------------------------------------------
@@ -331,22 +330,22 @@ set_target_properties(
 )
 
 
-option(LINA_CORE_ENABLE_LOGGING "Enables console logging" ON)
+option(LINA_ENABLE_LOGGING "Enables console logging" ON)
 # option(LINA_GRAPHICS_OPENGL "Graphics: Use OpenGL" ON)
 ## FORCE OPENGL FOR NOW
 set(LINA_GRAPHICS_OPENGL 1)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
-#target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_BUILD_DLL=1)
+target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_BUILD_DLL=1)
 target_compile_definitions(${PROJECT_NAME} PUBLIC STB_IMAGE_IMPLEMENTATION=1)
-#target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_BUILDAS_SHARED=1)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_BUILDAS_SHARED=1)
 
 #
 # if(LINA_GRAPHICS_OPENGL)
 #	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
 # endif()
 
-if(LINA_CORE_ENABLE_LOGGING)
-	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_CORE_ENABLE_LOGGING=1)
+if(LINA_ENABLE_LOGGING)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_ENABLE_LOGGING=1)
 endif()
 
 if (WIN32)
@@ -462,12 +461,12 @@ endif()
 # Generate export header for this dll project 
 #--------------------------------------------------------------------
 
-#include (GenerateExportHeader)
-#GENERATE_EXPORT_HEADER (LinaEngine
-#    BASE_NAME LinaEngine
-#    EXPORT_MACRO_NAME LINA_API
-#    EXPORT_FILE_NAME LinaCore.hpp
-#)
+include (GenerateExportHeader)
+GENERATE_EXPORT_HEADER (LinaEngine
+    BASE_NAME LinaEngine
+    EXPORT_MACRO_NAME LINA_API
+    EXPORT_FILE_NAME LinaCore.hpp
+)
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
@@ -482,7 +481,9 @@ if(MSVC_IDE)
 endif()
 
 
-
-
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/vendor/assimp/_bin/Assimp32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
 
 

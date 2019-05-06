@@ -31,8 +31,7 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-	//	DISALLOW_COPY_AND_ASSIGN(ArrayBitmap);
-		NULL_COPY_AND_ASSIGN(ArrayBitmap);
+		DISALLOW_COPY_AND_ASSIGN(ArrayBitmap);
 
 		// Param constructors including width, height, pixel array and offsets
 		ArrayBitmap(int32 width = 1, int32 m_Heigth = 1);
@@ -72,9 +71,9 @@ namespace LinaEngine::Graphics
 	private:
 
 		// Bitmap array properties.
-		int32 m_Width = 1;
-		int32 m_Heigth = 1;
-		int32* m_Pixels = nullptr;
+		int32 m_Width;
+		int32 m_Heigth;
+		int32* m_Pixels;
 
 	private:
 

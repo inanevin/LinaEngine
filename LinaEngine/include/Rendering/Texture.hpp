@@ -23,6 +23,7 @@ Timestamp: 1/7/2019 1:55:47 PM
 #define Texture_HPP
 
 #include "DDSTexture.hpp"
+#include "RenderEngine.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
 
 namespace LinaEngine::Graphics
@@ -33,11 +34,12 @@ namespace LinaEngine::Graphics
 
 	public:
 
-		Texture() {};
+		DISALLOW_COPY_AND_ASSIGN(Texture);
+
+		Texture(PAMRenderDevice& engine, const class ArrayBitmap& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress);
+		Texture(PAMRenderDevice& engine, const DDSTexture& ddsTexture);
+
 		~Texture();
-		
-		void Construct(PAMRenderDevice& deviceIn, const class ArrayBitmap& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress);
-		void Construct(PAMRenderDevice& deviceIn, const DDSTexture& ddsTexture);
 
 		FORCEINLINE uint32 GetID() { return m_ID; };
 		FORCEINLINE uint32 GetWidth() const { return m_Width; }
@@ -47,15 +49,12 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		PAMRenderDevice* renderDevice = nullptr;
-		uint32 m_ID = 0;
-		uint32 m_Width = 0;
-		uint32 m_Height = 0;
-		bool isCompressed = false;
-		bool hasMipMaps = true;
-
-		NULL_COPY_AND_ASSIGN(Texture);
-		//DISALLOW_COPY_AND_ASSIGN(Texture)
+		PAMRenderDevice* renderDevice;
+		uint32 m_ID;
+		uint32 m_Width;
+		uint32 m_Height;
+		bool isCompressed;
+		bool hasMipMaps;
 	};
 }
 

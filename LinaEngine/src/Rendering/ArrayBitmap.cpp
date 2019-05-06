@@ -66,12 +66,14 @@ namespace LinaEngine::Graphics
 		uint8* data = stbi_load(fileName.c_str(), &texWidth, &texHeight,
 			&bytesPerPixel, 4);
 
-		if (data == nullptr) return false;
+		if (data == nullptr) {
+			return false;
+		}
 
-		if (texWidth == m_Width && texHeight == m_Heigth) 
+		if (texWidth == m_Width && texHeight == m_Heigth) {
 			Memory::memcpy(m_Pixels, data, GetPixelsSize());
-		else 
-		{
+		}
+		else {
 			m_Width = texWidth;
 			m_Heigth = texHeight;
 			m_Pixels = (int32*)Memory::free(m_Pixels);

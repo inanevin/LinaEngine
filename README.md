@@ -27,7 +27,6 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 
 -  [Glad](https://github.com/Dav1dde/glad)
 -  [GLFW](https://github.com/glfw/glfw)
--  [ASSIMP](https://github.com/assimp/assimp)
 
 ## Libraries Included in Source Code
 

@@ -30,14 +30,10 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-		Sampler(){};
-
-		FORCEINLINE void Construct(PAMRenderDevice& deviceIn, SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR, SamplerFilter magFilter = SamplerFilter::FILTER_LINEAR,
-			SamplerWrapMode wrapU = SamplerWrapMode::WRAP_CLAMP, SamplerWrapMode wrapV = SamplerWrapMode::WRAP_CLAMP, float anisotropy = 0.0f)
-		{
-			renderDevice = &deviceIn;
-			m_EngineBoundID = renderDevice->CreateSampler(minFilter, magFilter, wrapU, wrapV, anisotropy);
-		}
+		// Param const creates texture sampler through render engine.
+		FORCEINLINE Sampler(PAMRenderDevice& engineIn, SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR, SamplerFilter magFilter = SamplerFilter::FILTER_LINEAR,
+			SamplerWrapMode wrapU = SamplerWrapMode::WRAP_CLAMP, SamplerWrapMode wrapV = SamplerWrapMode::WRAP_CLAMP, float anisotropy = 0.0f) : renderDevice(&engineIn),
+			m_EngineBoundID(renderDevice->CreateSampler(minFilter, magFilter, wrapU, wrapV, anisotropy)) {}
 
 		// Destructor releases sampler data through render engine
 		FORCEINLINE ~Sampler()
@@ -49,10 +45,10 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		PAMRenderDevice* renderDevice = nullptr;
-		uint32 m_EngineBoundID = 0;
+		PAMRenderDevice* renderDevice;
+		uint32 m_EngineBoundID;
 
-		NULL_COPY_AND_ASSIGN(Sampler);
+		//NULL_COPY_AND_ASSIGN(Sampler);
 
 	};
 }

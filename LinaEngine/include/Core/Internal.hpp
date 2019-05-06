@@ -96,7 +96,7 @@ namespace LinaEngine
 			}
 		}
 
-		static FORCEINLINE bool LoadTextFileWithIncludes(LinaString& output, const LinaString& fileName, const LinaString& includeKeyword)
+		static FORCEINLINE bool loadTextFileWithIncludes(LinaString& output, const LinaString& fileName, const LinaString& includeKeyword)
 		{
 			std::ifstream file;
 			file.open(fileName.c_str());
@@ -118,7 +118,7 @@ namespace LinaEngine
 							includeFileName.substr(1, includeFileName.length() - 2);
 
 						LinaString toAppend;
-						LoadTextFileWithIncludes(toAppend, filePath + includeFileName,
+						loadTextFileWithIncludes(toAppend, filePath + includeFileName,
 							includeKeyword);
 						ss << toAppend << "\n";
 					}

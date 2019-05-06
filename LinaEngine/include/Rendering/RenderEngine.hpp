@@ -22,26 +22,22 @@ Timestamp: 4/15/2019 12:26:31 PM
 #ifndef RenderEngine_HPP
 #define RenderEngine_HPP
 
+#include "Events/Event.hpp"
+#include "Core/DataStructures.hpp"
+#include "PackageManager/PAMRenderDevice.hpp"
 
-#include "Rendering/Sampler.hpp"
-#include "Rendering/ArrayBitmap.hpp"
-#include "Rendering/Texture.hpp"
-#include "Rendering/Shader.hpp"
-#include "Rendering/RenderTarget.hpp"
-#include "Rendering/GameRenderContext.hpp"
-#include "Rendering/RenderableObjectData.hpp"
-#include "ECS/EntityComponentSystem.hpp"
-#include "ECS/Systems/CameraSystem.hpp"
-#include "ECS/Components/CameraComponent.hpp"
-#include "ECS/Systems/RenderableMeshSystem.hpp"
-#include "Utility/Math/Color.hpp"
-#include "PackageManager/PAMInputEngine.hpp"
+namespace LinaEngine::ECS
+{
+	class EntityComponentSystem;
+}
 
 using namespace LinaEngine::ECS;
-using namespace LinaEngine;
 
 namespace LinaEngine::Graphics
 {
+
+	using namespace ECS;
+
 
 	class RenderEngine
 	{
@@ -52,48 +48,22 @@ namespace LinaEngine::Graphics
 		~RenderEngine();
 
 		// Get a void* reference to the native window. e.g GLFWwindow
-		FORCEINLINE void* GetNativeWindow()
-		{ 
-			return m_RenderDevice->GetNativeWindow();
-		}
-
-		// Create a render context.
-		FORCEINLINE bool CreateContextWindow(InputEngine<PAMInputEngine>& inputEngineIn)
-		{
-			return m_RenderDevice->CreateContextWindow(inputEngineIn);
-		};
-
-		// Set the target of the callbacks coming from the main window context.
-		FORCEINLINE void SetMainWindowEventCallback(const std::function<void(Event&)>& callback)
-		{
-			m_RenderDevice->SetMainWindowEventCallback(callback);
-		}
+		FORCEINLINE void* GetNativeWindow() { return m_RenderDevice->GetNativeWindow(); }
 
 		// Initialize the render renderEngine.
 		void Initialize(EntityComponentSystem* ecsIn);
 
 		// Called each frame.
-		void Tick(float delta);
+		void Tick();
 
-		// Called when the main window is resized.
-		void OnWindowResized(float width, float height);
+		// Temporary
+		void Render();
 
-		// Load a texture resource to be loaded.
-		Texture& LoadTextureResource(const LinaString& fileName, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress);
+		// Create a render context.
+		FORCEINLINE bool CreateContextWindow() { return m_RenderDevice->CreateContextWindow(); };
 
-		// Feed a model resource to be loaded.
-		RenderableObjectData& LoadModelResource(const LinaString& fileName);
-		
-		// Removes a texture resource from program.
-		void RemoveTextureResource(Texture& textureResource);
-
-		// Removes a model resource from program.
-		void RemoveModelResource(RenderableObjectData& modelResource);
-
-	private:
-
-		// clears resource memory.
-		void DumpMemory();
+		// Set the target of the callbacks coming from the main window context.
+		FORCEINLINE void SetMainWindowEventCallback(const std::function<void(Event&)>& callback) { m_RenderDevice->SetMainWindowEventCallback(callback); }
 
 	private:
 
@@ -101,54 +71,8 @@ namespace LinaEngine::Graphics
 		std::unique_ptr<PAMRenderDevice> m_RenderDevice;
 
 		// ECS reference.
-		EntityComponentSystem* m_ECS;
+		EntityComponentSystem* ECS;
 
-		// Default texture sampler
-		Sampler m_DefaultSampler;
-
-		// Default texture data.
-		ArrayBitmap m_DefaultTextureBitmap;
-
-		// Default diffuse texture
-		Texture m_DefaultDiffuseTexture;
-
-		// Default shader
-		Shader m_DefaultShader;
-
-		// Default render target
-		RenderTarget m_DefaultRenderTarget;
-
-		// Default drawing parameters.
-		DrawParams m_DefaultDrawParams;
-
-		// Default camera perspective
-		Matrix m_DefaultPerspective;
-
-		// Default Game Render Context
-		GameRenderContext m_DefaultRenderContext;
-
-		// ECS system for rendering camera perspective.
-		CameraSystem m_CameraSystem;
-
-		// ECS system for drawing meshes.
-		RenderableMeshSystem m_RenderableMeshSystem;
-
-		// ECS system list for rendering operations.
-		ECSSystemList m_RenderingPipeline;
-
-		// Default camera data struct
-		CameraComponent m_ActiveCameraComponent;
-
-		// Texture resources.
-		LinaMap<Texture*, ArrayBitmap*> m_TextureResources;
-
-		// Model resources
-		LinaArray<RenderableObjectData*> m_RenderableObjectDataResources;
-
-		// Dumped data to be cleared by garbage collector.
-		LinaArray<ArrayBitmap*> m_PixelDump;
-		LinaArray<Texture*> m_TextureDump;
-		LinaArray<RenderableObjectData*> m_RenderableObjectDataDump;
 	};
 
 }

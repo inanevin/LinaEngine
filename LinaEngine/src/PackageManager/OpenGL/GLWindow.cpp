@@ -47,7 +47,6 @@ namespace LinaEngine
 		glfwTerminate();
 	}
 
-
 	void GLWindow::Tick_Impl()
 	{
 		if (!glfwWindowShouldClose(static_cast<GLFWwindow*>(m_Window)))
@@ -73,12 +72,12 @@ namespace LinaEngine
 		LINA_CORE_ERR("GLFW Error: {0} Description: {1} ", error, desc);
 	}
 
-	bool GLWindow::Initialize_Impl(InputEngine<PAMInputEngine>& inputEngineIn)
+	bool GLWindow::Initialize_Impl()
 	{
 		LINA_CORE_TRACE("[Initialization] -> GLWindow ({0})", typeid(*this).name());
 
 		// Set Input Engine reference.
-		inputEngine = &inputEngineIn;
+		inputEngine = &(Application::Get().GetInputDevice());
 
 		// Initialize glfw & set window hints
 		glfwInit();

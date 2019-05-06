@@ -21,7 +21,6 @@ Timestamp: 4/8/2019 6:03:20 PM
 #include "ECS/EntityComponentSystem.hpp"  
 #include "Core/Memory.hpp"
 
-
 namespace LinaEngine::ECS
 {
 	EntityComponentSystem::~EntityComponentSystem()
@@ -173,6 +172,7 @@ namespace LinaEngine::ECS
 		entities.pop_back();
 	}
 
+
 	void EntityComponentSystem::UpdateSystems(ECSSystemList& systems, float delta)
 	{
 		// Components.
@@ -208,6 +208,7 @@ namespace LinaEngine::ECS
 			}
 		}
 	}
+
 
 	void EntityComponentSystem::AddComponentInternal(EntityHandle handle, LinaArray<LinaPair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent * component)
 	{
@@ -282,6 +283,7 @@ namespace LinaEngine::ECS
 
 		return false;
 	}
+
 
 	BaseECSComponent* EntityComponentSystem::GetComponentInternal(LinaArray<LinaPair<uint32, uint32>>& entityComponents, LinaArray<uint8>& arr, uint32 componentID)
 	{

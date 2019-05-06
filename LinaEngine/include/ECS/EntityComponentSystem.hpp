@@ -8,8 +8,8 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 
 http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, 
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
 Class: EntityComponentSystem
@@ -78,10 +78,10 @@ namespace LinaEngine::ECS
 		{
 			listeners.push_back(listener);
 		}
-
+		
 		/* Entity Creator */
-		LINA_API EntityHandle MakeEntity(BaseECSComponent** components, const uint32* componentIDs, size_t numComponents);
-
+		EntityHandle MakeEntity(BaseECSComponent** components, const uint32* componentIDs, size_t numComponents);
+		
 		/* Removes an entity from the sys */
 		void RemoveEntity(EntityHandle handle);
 
@@ -241,7 +241,7 @@ namespace LinaEngine::ECS
 
 		/* System Tick */
 		void UpdateSystems(ECSSystemList& systems, float delta);
-
+		
 
 	private:
 
@@ -250,11 +250,9 @@ namespace LinaEngine::ECS
 
 		/* Map of id & for each id a seperate array for each comp type */
 		LinaMap<uint32, LinaArray<uint8>> components;
-
+		
 		/* Entities with pair ids. */
 		LinaArray<LinaPair<uint32, LinaArray<LinaPair<uint32, uint32>>>*> entities;
-
-	private:
 
 		/* Converts an entity handle to raw type */
 		FORCEINLINE LinaPair<uint32, LinaArray<LinaPair<uint32, uint32> > >* HandleToRawType(EntityHandle handle)
