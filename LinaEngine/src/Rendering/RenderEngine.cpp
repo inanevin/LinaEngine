@@ -95,6 +95,7 @@ namespace LinaEngine::Graphics
 	DrawParams drawParams;
 	Matrix perspective;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	InputKeyAxisBinder* secondaryHorizontal;
 	InputKeyAxisBinder* secondaryVertical;*/
 
@@ -110,6 +111,8 @@ namespace LinaEngine::Graphics
 	FreeLookSystem* freeLook;
 	FreeLookComponent freeLookComp;
 
+=======
+>>>>>>> parent of 46fccaf... Physics: Sample collision tests
 =======
 >>>>>>> parent of 46fccaf... Physics: Sample collision tests
 
@@ -147,16 +150,24 @@ namespace LinaEngine::Graphics
 	void RenderEngine::Initialize(EntityComponentSystem* ecsIn)
 	{
 		// Set ECS reference
+<<<<<<< HEAD
 		m_ECS = ecsIn;
 
 <<<<<<< HEAD
 		// Initialize the render device.
 =======
+=======
+		ECS = ecsIn;
+
+>>>>>>> parent of 46fccaf... Physics: Sample collision tests
 		mouseButtonBinder = new InputMouseButtonBinder();
 		mouseButtonBinder->SetActionDispatcher(&Application::Get().GetInputDevice());
 		mouseButtonBinder->Initialize(InputCode::Mouse::Mouse1);
 		freeLookSystem = new FreeLookSystem(Application::Get().GetInputDevice());
 		freeLookSystem->SetWindowCenter(m_RenderDevice->GetWindowSize());
+<<<<<<< HEAD
+>>>>>>> parent of 46fccaf... Physics: Sample collision tests
+=======
 >>>>>>> parent of 46fccaf... Physics: Sample collision tests
 		m_RenderDevice->Initialize();
 
@@ -384,6 +395,7 @@ namespace LinaEngine::Graphics
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	void RenderEngine::OnWindowResized(float width, float height)
 	{
 		// Propogate to render device.
@@ -395,6 +407,9 @@ namespace LinaEngine::Graphics
 	}
 =======
 
+=======
+
+>>>>>>> parent of 46fccaf... Physics: Sample collision tests
 
 		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(1.0f, 0.0f, 0.0f) * 7, Application::Get().GetInputDevice().GetHorizontalKeyAxis()));
 		movementComponent.movementControls.push_back(LinaMakePair(Vector3F(0.0f, 1.0f, 0.0f) * 7, Application::Get().GetInputDevice().GetVerticalKeyAxis()));
@@ -423,6 +438,7 @@ namespace LinaEngine::Graphics
 		return *texture;
 	}
 
+<<<<<<< HEAD
 	RenderableObjectData & RenderEngine::LoadModelResource(const LinaString & fileName)
 	{
 		// Create object data & feed it from model.
@@ -433,6 +449,8 @@ namespace LinaEngine::Graphics
 			LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} at path {1} could not be found or model scene does not contain any mesh! This will cause undefined behaviour or crashes if it is assigned to a ECS RenderableMeshComponent."
 			, fileName, ResourceConstants::meshFolderPath);
 =======
+=======
+>>>>>>> parent of 46fccaf... Physics: Sample collision tests
 
 		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 20.0f));
 

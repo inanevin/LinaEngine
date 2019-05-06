@@ -34,8 +34,11 @@ namespace LinaEngine::ECS
 		//Matrix rotation = Matrix::InitRotationFromDirection(transform->transform.GetRotation().GetAxisZ(), transform->transform.GetRotation().GetAxisY());
 		Matrix viewTransformation = rotation * translation;
 <<<<<<< HEAD
+<<<<<<< HEAD
 		context->UpdatePerspective(perspective * viewTransformation);
 =======
+=======
+>>>>>>> parent of 46fccaf... Physics: Sample collision tests
 	
 		context.UpdatePerspective(perspective * viewTransformation);
 >>>>>>> parent of 46fccaf... Physics: Sample collision tests

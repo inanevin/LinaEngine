@@ -41,6 +41,7 @@ namespace LinaEngine::ECS
 			AddComponentType(CameraComponent::ID);
 		}
 
+<<<<<<< HEAD
 		FORCEINLINE void Construct(GameRenderContext& contextIn)
 		{
 			context = &contextIn;
@@ -54,6 +55,12 @@ namespace LinaEngine::ECS
 		GameRenderContext* context = nullptr;
 		float m_AspectRatio = 1.7f;
 =======
+		GameRenderContext& context;
+>>>>>>> parent of 46fccaf... Physics: Sample collision tests
+=======
+		virtual void UpdateComponents(float delta, BaseECSComponent** components);
+		
+	private:
 		GameRenderContext& context;
 >>>>>>> parent of 46fccaf... Physics: Sample collision tests
 	};
