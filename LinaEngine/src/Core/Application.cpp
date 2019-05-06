@@ -72,7 +72,12 @@ namespace LinaEngine
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
 
-		//m_RenderDevice->OnEvent(e);
+		// Propagate the window resize event to render engine.
+		if (e.GetEventType() == EventType::WindowResize)
+		{
+			WindowResizeEvent& windowEvent = (WindowResizeEvent&)(e);
+			m_RenderEngine->OnWindowResized(windowEvent.GetWidth(), windowEvent.GetHeight());
+		}
 		
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{
@@ -87,11 +92,20 @@ namespace LinaEngine
 
 		while (m_Running)
 		{
+			// Update input engine.
 			m_InputEngine->Tick();
 	
+			// Update physics engine.
 			m_PhysicsEngine->Tick(0.01f);
+
+			// Update render engine.
 			m_RenderEngine->Tick(0.01f);
+
+			// Update current level.
+			if (m_ActiveLevelExists)
+				m_CurrentLevel->Tick(0.01f);
 	
+			// Update layers.
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 		}
@@ -115,17 +129,14 @@ namespace LinaEngine
 		layer->OnAttach();
 	}
 
-	/*RenderDevice * Application::GetRenderDevice()
+	LINA_API void Application::LoadLevel(Level * level)
 	{
-		LINA_CORE_ASSERT(m_RenderDevice != nullptr, "Null render renderEngine get call.");
-		return m_RenderDevice;
+		// TODO: Implement unloading the current level & loading a new one later.
+		m_CurrentLevel = level;
+		m_CurrentLevel->SetEngineReferences(*m_ECS.get(), *m_RenderEngine.get(), *m_InputEngine.get());
+		m_CurrentLevel->Install();
+		m_CurrentLevel->Initialize();
+		m_ActiveLevelExists = true;
 	}
-
-	InputEngine * Application::GetInputDevice()
-	{
-		LINA_CORE_ASSERT(m_RenderDevice != nullptr, "Null input renderEngine get call.");
-		return m_InputEngine;
-	}*/
-
 }
 

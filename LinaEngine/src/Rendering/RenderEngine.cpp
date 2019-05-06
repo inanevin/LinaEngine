@@ -55,24 +55,20 @@ namespace LinaEngine::Graphics
 	RenderableMeshComponent renderableMesh;
 
 
-
-
-	CameraComponent cameraComponent;
-
 	RenderableObjectData* cube1;
 	RenderableObjectData* cube2;
 	Texture* text1;
 	Texture* text2;
 
-	LinaArray<IndexedModel> models;
-	LinaArray<uint32> modelMaterialIndices;
-	LinaArray<Material> modelMaterials;
 
+	FreeLookComponent freeLookComponent;
+	FreeLookSystem* fss;
 
 	RenderEngine::RenderEngine()
 	{
 		LINA_CORE_TRACE("[Constructor] -> RenderEngine ({0})", typeid(*this).name());
 
+		// Create the render device
 		m_RenderDevice = std::make_unique<PAMRenderDevice>();
 	}
 
@@ -104,78 +100,57 @@ namespace LinaEngine::Graphics
 		// Set ECS reference
 		m_ECS = ecsIn;
 
+		// Initialize the render device.
+		m_RenderDevice->Initialize();
+
 		// Initialize default sampler.
 		m_DefaultSampler.Construct(*m_RenderDevice.get(), SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR);
 
-		m_RenderDevice->Initialize();
-
-	
-		
-		m_DefaultRenderTarget.Construct(*m_RenderDevice.get());
-		//context = new RenderContext(*m_RenderDevice.get(), *target);
-
-
-		//ModelLoader::LoadModels("Resources/Mesh/cube.obj", models, modelMaterialIndices, modelMaterials);
-		//ModelLoader::LoadModels("Resources/Mesh/tinycube.obj", models, modelMaterialIndices, modelMaterials);
-		//vertexArray = new VertexArray();
-		//cubeArray = new VertexArray();
-		//vertexArray->Construct(*m_RenderDevice.get(), models[0], BufferUsage::USAGE_STATIC_DRAW);
-		//cubeArray->Construct(*m_RenderDevice.get(), models[1], BufferUsage::USAGE_STATIC_DRAW);
-		
-		cube1 = &LoadModelResource("cube.obj");
-		cube2 = &LoadModelResource("tinycube.obj");
-		text1 = &LoadTextureResource("chicken.png", PixelFormat::FORMAT_RGB, true, false);
-		text2 = &LoadTextureResource("default_display.png", PixelFormat::FORMAT_RGB, true, false);
-		/*if (!ddsTexture.Load("../res/textures/bricks.dds"))
-		{
-			LINA_CORE_ERR("Could not load texture!");
-		}*/
-
 		// Initialize default texture.
 		m_DefaultTextureBitmap.Load("Resources/Textures/seamless1.jpg");
-
-		//texture = new Texture(*m_RenderDevice.get(), ddsTexture);
-		
 		m_DefaultDiffuseTexture.Construct(*m_RenderDevice.get(), m_DefaultTextureBitmap, PixelFormat::FORMAT_RGB, true, false);
-
-		/*if (!ddsTexture.Load("../res/textures/bricks2.dds"))
-		{
-			LINA_CORE_ERR("Could not load texture! :(");
-		}*/
-
-		// Initialize default texture.
-		m_DefaultTextureBitmap.Load("Resources/Textures/seamless1.jpg");
-
-		
+	
 		LinaString shaderText;
 		LinaEngine::Internal::LoadTextFileWithIncludes(shaderText, "Resources/Shaders/basicShader.glsl", "#include");
-
 		m_DefaultShader.Construct(*m_RenderDevice.get(), shaderText);
 		m_DefaultShader.SetSampler("diffuse", m_DefaultDiffuseTexture, m_DefaultSampler, 0);
+		
+		// Initialize the render target.
+		m_DefaultRenderTarget.Construct(*m_RenderDevice.get());
 
+		// Set default drawing parameters.
 		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
 		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
 		m_DefaultDrawParams.shouldWriteDepth = true;
 		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
 
+		// Initialize default perspective.
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();
 		m_DefaultPerspective = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent.fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent.zNear, m_ActiveCameraComponent.zFar);
 
-
+		// Initialize the render context.
 		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_DefaultRenderTarget, m_DefaultDrawParams, m_DefaultShader, m_DefaultSampler, m_DefaultPerspective);
 
-
-		m_RenderableMeshSystem.Construct(m_DefaultRenderContext);
+		// Initialize ECS Camera System.
 		m_CameraSystem.Construct(m_DefaultRenderContext);
 		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 
+		// Initialize ECS Mesh Render System.
+		m_RenderableMeshSystem.Construct(m_DefaultRenderContext);
+
+		freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 10.0f;
+		freeLookComponent.rotationSpeedX = freeLookComponent.rotationSpeedY = 1;
+		fss = new FreeLookSystem(Application::Get().GetInputDevice());
+
+		cube1 = &LoadModelResource("cube.obj");
+		cube2 = &LoadModelResource("tinycube.obj");
+		text1 = &LoadTextureResource("chicken.png", PixelFormat::FORMAT_RGB, true, false);
+		text2 = &LoadTextureResource("default_display.png", PixelFormat::FORMAT_RGB, true, false);
 
 		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 0.0f));
 
 		transformComponent.transform.SetScale(Vector3F(1.0f));
-		cameraComponent.fieldOfView = 35;
-		cameraComponent.zNear = 0.1f;
-		cameraComponent.zFar = 1000.0f;
+
 
 
 		renderableMesh.vertexArray = cube1->GetVertexArray(0);
@@ -183,59 +158,36 @@ namespace LinaEngine::Graphics
 
 
 
-		cameraEntity = m_ECS->MakeEntity(transformComponent, cameraComponent);
+		cameraEntity = m_ECS->MakeEntity(transformComponent, m_ActiveCameraComponent, freeLookComponent);
 
 		
 
-		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 20.0f));
+		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 5.0f));
 
 		transformComponent.transform.SetScale(1);
 		entity = m_ECS->MakeEntity(transformComponent, renderableMesh);
-		//entity = ECS->MakeEntity(transformComponent, movementComponent, renderableMesh);
 
-		for (uint32 i = 0; i < 1; i++)
-		{
-			transformComponent.transform.SetLocation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f, 20.0f));
-			transformComponent.transform.SetScale(1.0f);
-			renderableMesh.vertexArray = cube2->GetVertexArray(0);
-			renderableMesh.texture = Math::RandF() > 0.5f ? &m_DefaultDiffuseTexture : &m_DefaultDiffuseTexture;
-			float vf = -4.0f;
-			float af = 5.0f;
-			//motionComponent.acceleration = Vector3F(Math::RandF(-af, af), Math::RandF(-af, af), Math::RandF(-af, af));
-			//motionComponent.velocity = motionComponent.acceleration * vf;
-
-			/*for (uint32 i = 0; i < 3; i++)
-			{
-				cubeChunkComponent.position[i] = transformComponent.transform.GetLocation()[i];
-				cubeChunkComponent.velocity[i] = motionComponent.velocity[i];
-				cubeChunkComponent.acceleration[i] = motionComponent.acceleration[i];
-				cubeChunkComponent.textureIndex = Math::RandF() > 0.5f ? 0 : 1;
-
-			}*/
-			//ECS->MakeEntity(cubeChunkComponent);
-			//ECS->MakeEntity(transformComponent,  motionComponent, renderableMesh, colliderComponent);
-			
-
-			m_ECS->MakeEntity(transformComponent, renderableMesh);
-
-		}
-
+		transformComponent.transform.SetLocation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f, 5.0f));
+		m_ECS->MakeEntity(transformComponent, renderableMesh);
 		m_RenderingPipeline.AddSystem(m_RenderableMeshSystem);
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
+		m_RenderingPipeline.AddSystem(*fss);
 	
 	}
 
 
 	void RenderEngine::Tick(float delta)
 	{
+		// Clear color.
+		m_DefaultRenderContext.Clear(m_ActiveCameraComponent.clearColor, true);
 
+		// Update pipeline.
+		m_ECS->UpdateSystems(m_RenderingPipeline, delta);
 
-
-
-
-		m_DefaultRenderContext.Clear(Color(0.2f, 0.225f, 0.12f, 1.0f), true);
-		m_ECS->UpdateSystems(m_RenderingPipeline, 0.01f);
+		// Flush data.
 		m_DefaultRenderContext.Flush();
+
+		// Update window.
 		m_RenderDevice->TickWindow();
 	}
 
