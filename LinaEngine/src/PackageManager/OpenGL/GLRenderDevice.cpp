@@ -33,7 +33,7 @@ namespace LinaEngine::Graphics
 
 //#define MAKEFOURCC(a, b, c, d) ((uint32)(uint8)(a) | ((uint32)(uint8)(b) << 8) | ((uint32)(uint8)(c) << 16) | ((uint32)(uint8)(d) << 24 ))
 //#define MAKEFOURCCDXT(a) MAKEFOURCC('D', 'X', 'T', a)
-#define MAKEFOURCC(a, b, c, d) ((uint32)(uint8)(a) | ((uint32)(uint8)(b) << 8) | ((uint32)(uint8)(c) << 16) | ((uint32)(uint8)(d) << 24 ))
+//#define MAKEFOURCC(a, b, c, d) ((uint32)(uint8)(a) | ((uint32)(uint8)(b) << 8) | ((uint32)(uint8)(c) << 16) | ((uint32)(uint8)(d) << 24 ))
 #define MAKEFOURCCDXT(d) ((uint32)(uint8)('D') | ((uint32)(uint8)('X') << 8) | ((uint32)(uint8)('T') << 16) | ((uint32)(uint8)(d) << 24 )) 
 #define FOURCC_DXT1 MAKEFOURCCDXT('1')
 #define FOURCC_DXT2 MAKEFOURCCDXT('2')

@@ -56,12 +56,7 @@ namespace LinaEngine::Graphics
 
 	FreeLookComponent freeLookComponent;
 	FreeLookSystem* fss;
-	RenderableObjectData* cube1;
-	RenderableObjectData* cube2;
-	Texture* text1;
-	Texture* text2;
-	EntityHandle entity;
-	RenderableMeshComponent renderableMesh;
+
 
 	RenderEngine::RenderEngine()
 	{
