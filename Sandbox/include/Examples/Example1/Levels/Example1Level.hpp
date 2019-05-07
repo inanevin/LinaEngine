@@ -22,14 +22,17 @@ Timestamp: 5/6/2019 9:22:35 PM
 #ifndef Example1Level_HPP
 #define Example1Level_HPP
 
+#include "World/Level.hpp"
 
-
-class Example1Level
+class Example1Level : public World::Level
 {
 public:
 
 	Example1Level() {};
 
+	virtual void Install() override;
+	virtual void Initialize() override;
+	virtual void Tick(float delta) override;
 };
 
 #endif

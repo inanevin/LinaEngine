@@ -100,6 +100,11 @@ namespace LinaEngine
 
 #pragma endregion
 
+	Vector3F::Vector3F(const Vector& vecIn) : vec(vecIn) {}
+	Vector3F::Vector3F() :	vec(VectorConstants::ZERO) {}
+	Vector3F::Vector3F(float val) : vec(Vector::Make(val, val, val, 0.0f)) {}
+	Vector3F::Vector3F(float xIn, float yIn, float zIn) : vec(Vector::Make(xIn, yIn, zIn, 0.0f)) {}
+
 	bool Vector3F::operator==(const Vector3F& other) const
 	{
 		return (vec != other.vec).IsZero3f();

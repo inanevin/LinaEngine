@@ -153,8 +153,8 @@ namespace LinaEngine::Physics
 		}
 
 		// Find the max variance. TODO: This part comes 1 update call delayed, does it worth to take it into a pre-update queue?
-		centerSum /= entities.size();
-		centerSqrtSum /= entities.size();
+		centerSum /= (float)entities.size();
+		centerSqrtSum /= (float)entities.size();
 
 		// Mean(sqrt) - means^2
 		Vector3F variance = centerSqrtSum - (centerSum * centerSum);

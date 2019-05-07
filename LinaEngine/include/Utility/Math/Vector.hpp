@@ -280,10 +280,10 @@ namespace LinaEngine
 		FORCEINLINE static Vector3F BACK() { return Vector3F(0.0f, 0.0f, -1.0f); }
 		FORCEINLINE static Vector3F ONE() { return Vector3F(1.0f, 1.0f, 1.0f); }
 
-		FORCEINLINE Vector3F();
-		FORCEINLINE Vector3F(float val);
-		FORCEINLINE Vector3F(float xIn, float yIn, float zIn);
-		FORCEINLINE Vector3F(const Vector& vecIn);
+		Vector3F();
+		Vector3F(float val);
+		Vector3F(float xIn, float yIn, float zIn);
+		Vector3F(const Vector& vecIn);
 		FORCEINLINE Vector3F DotToVector(const Vector3F& other) const;
 		FORCEINLINE Vector3F Cross(const Vector3F& other) const;
 		FORCEINLINE Vector3F operator-() const;
@@ -367,14 +367,7 @@ namespace LinaEngine
 
 
 
-	FORCEINLINE Vector3F::Vector3F(const Vector& vecIn) :
-		vec(vecIn) {}
-	FORCEINLINE Vector3F::Vector3F() :
-		vec(VectorConstants::ZERO) {}
-	FORCEINLINE Vector3F::Vector3F(float val) :
-		vec(Vector::Make(val, val, val, 0.0f)) {}
-	FORCEINLINE Vector3F::Vector3F(float xIn, float yIn, float zIn) :
-		vec(Vector::Make(xIn, yIn, zIn, 0.0f)) {}
+
 	FORCEINLINE float Vector3F::Dot(const Vector3F& other) const
 	{
 		return vec.Dot3(other.vec)[0];

@@ -76,16 +76,17 @@ namespace LinaEngine::Graphics
 		void OnWindowResized(float width, float height);
 
 		// Load a texture resource to be loaded.
-		Texture& LoadTextureResource(const LinaString& fileName, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress);
+		LINA_API Texture& LoadTextureResource(const LinaString& fileName, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress);
 
 		// Feed a model resource to be loaded.
-		RenderableObjectData& LoadModelResource(const LinaString& fileName);
+		LINA_API RenderableObjectData& LoadModelResource(const LinaString& fileName);
 
 		// Removes a texture resource from program.
-		void RemoveTextureResource(Texture& textureResource);
+		LINA_API void RemoveTextureResource(Texture& textureResource);
 
 		// Removes a model resource from program.
-		void RemoveModelResource(RenderableObjectData& modelResource);
+		LINA_API void RemoveModelResource(RenderableObjectData& modelResource);
+
 
 	private:
 

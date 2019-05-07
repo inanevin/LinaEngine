@@ -38,17 +38,17 @@ namespace LinaEngine::Input
 
 		void Initialize_Impl(void* contextWindowPointer);
 		void Tick_Impl();
-		bool GetKey_Impl(int keyCode);
-		bool GetKeyDown_Impl(int keyCode);
-		bool GetKeyUp_Impl(int keyCode);
-		bool GetMouseButton_Impl(int index);
-		bool GetMouseButtonDown_Impl(int index);
-		bool GetMouseButtonUp_Impl(int index);
-		Vector2F GetRawMouseAxis_Impl();
-		Vector2F GetMouseAxis_Impl();
-		Vector2F GetMousePosition_Impl();
-		void SetCursor_Impl(bool visible) const;
-		void SetMousePosition_Impl(const Vector2F& v) const;
+		LINA_API bool GetKey_Impl(int keyCode);
+		LINA_API bool GetKeyDown_Impl(int keyCode);
+		LINA_API bool GetKeyUp_Impl(int keyCode);
+		LINA_API bool GetMouseButton_Impl(int index);
+		LINA_API bool GetMouseButtonDown_Impl(int index);
+		LINA_API bool GetMouseButtonUp_Impl(int index);
+		LINA_API Vector2F GetRawMouseAxis_Impl();
+		LINA_API Vector2F GetMouseAxis_Impl();
+		LINA_API Vector2F GetMousePosition_Impl();
+		LINA_API void SetCursor_Impl(bool visible) const;
+		LINA_API void SetMousePosition_Impl(const Vector2F& v) const;
 
 	private:
 

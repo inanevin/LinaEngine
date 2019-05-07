@@ -76,7 +76,7 @@ namespace LinaEngine
 		if (e.GetEventType() == EventType::WindowResize)
 		{
 			WindowResizeEvent& windowEvent = (WindowResizeEvent&)(e);
-			m_RenderEngine->OnWindowResized(windowEvent.GetWidth(), windowEvent.GetHeight());
+			m_RenderEngine->OnWindowResized((float)windowEvent.GetWidth(), (float)windowEvent.GetHeight());
 		}
 		
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)

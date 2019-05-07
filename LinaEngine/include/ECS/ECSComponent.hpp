@@ -126,7 +126,7 @@ namespace LinaEngine::ECS
 
 	/* Def free func */
 	template<typename T>
-	const ECSComponentFreeFunction ECSComponent<T>::FREE_FUNCTION(ECSComponentFree<T>);
+	 const ECSComponentFreeFunction ECSComponent<T>::FREE_FUNCTION(ECSComponentFree<T>);
 
 
 	struct TestComponent : public ECSComponent<TestComponent>

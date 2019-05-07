@@ -42,6 +42,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "ECS/Systems/FreeLookSystem.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 
+#include "glad/glad.h"
 
 namespace LinaEngine::Graphics
 {
@@ -49,20 +50,18 @@ namespace LinaEngine::Graphics
 	using namespace ECS;
 	using namespace Physics;
 
-	EntityHandle entity;
+	
 	EntityHandle cameraEntity;
 	TransformComponent transformComponent;
-	RenderableMeshComponent renderableMesh;
 
-
+	FreeLookComponent freeLookComponent;
+	FreeLookSystem* fss;
 	RenderableObjectData* cube1;
 	RenderableObjectData* cube2;
 	Texture* text1;
 	Texture* text2;
-
-
-	FreeLookComponent freeLookComponent;
-	FreeLookSystem* fss;
+	EntityHandle entity;
+	RenderableMeshComponent renderableMesh;
 
 	RenderEngine::RenderEngine()
 	{
@@ -123,7 +122,7 @@ namespace LinaEngine::Graphics
 		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
 		m_DefaultDrawParams.shouldWriteDepth = true;
 		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
-
+	
 		// Initialize default perspective.
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();
 		m_DefaultPerspective = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent.fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent.zNear, m_ActiveCameraComponent.zFar);
@@ -138,57 +137,39 @@ namespace LinaEngine::Graphics
 		// Initialize ECS Mesh Render System.
 		m_RenderableMeshSystem.Construct(m_DefaultRenderContext);
 
+		// CUSTOM 
+
 		freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 10.0f;
 		freeLookComponent.rotationSpeedX = freeLookComponent.rotationSpeedY = 1;
 		fss = new FreeLookSystem(Application::Get().GetInputDevice());
 
-		cube1 = &LoadModelResource("cube.obj");
-		cube2 = &LoadModelResource("tinycube.obj");
-		text1 = &LoadTextureResource("chicken.png", PixelFormat::FORMAT_RGB, true, false);
-		text2 = &LoadTextureResource("default_display.png", PixelFormat::FORMAT_RGB, true, false);
-
 		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 0.0f));
 
-		transformComponent.transform.SetScale(Vector3F(1.0f));
-
-
-
-		renderableMesh.vertexArray = cube1->GetVertexArray(0);
-		renderableMesh.texture = text1;
-
-
-
 		cameraEntity = m_ECS->MakeEntity(transformComponent, m_ActiveCameraComponent, freeLookComponent);
-
 		
-
-		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 5.0f));
-
-		transformComponent.transform.SetScale(1);
-		entity = m_ECS->MakeEntity(transformComponent, renderableMesh);
-
-		transformComponent.transform.SetLocation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f, 5.0f));
-		m_ECS->MakeEntity(transformComponent, renderableMesh);
 		m_RenderingPipeline.AddSystem(m_RenderableMeshSystem);
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
 		m_RenderingPipeline.AddSystem(*fss);
 	
-	}
 
+	}
 
 	void RenderEngine::Tick(float delta)
 	{
+
 		// Clear color.
 		m_DefaultRenderContext.Clear(m_ActiveCameraComponent.clearColor, true);
 
 		// Update pipeline.
 		m_ECS->UpdateSystems(m_RenderingPipeline, delta);
-
+	
 		// Flush data.
 		m_DefaultRenderContext.Flush();
 
 		// Update window.
 		m_RenderDevice->TickWindow();
+
+		
 	}
 
 	void RenderEngine::OnWindowResized(float width, float height)

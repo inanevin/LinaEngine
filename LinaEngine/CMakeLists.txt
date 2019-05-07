@@ -64,7 +64,6 @@ set (LINAENGINE_SOURCES
 	src/Rendering/ArrayBitmap.cpp
 	src/Rendering/DDSTexture.cpp
 	src/Rendering/Texture.cpp
-	src/Rendering/Vertex.cpp
 	src/Rendering/IndexedModel.cpp
 	src/Rendering/ModelLoader.cpp
 	src/Rendering/GameRenderContext.cpp
@@ -178,7 +177,6 @@ set(LINAENGINE_HEADERS
 	include/Rendering/RenderEngine.hpp
 	include/Rendering/Shader.hpp
 	include/Rendering/Texture.hpp
-	include/Rendering/Vertex.hpp
 	include/Rendering/Window.hpp
 	include/Rendering/IndexedModel.hpp
 	include/Rendering/ModelLoader.hpp
@@ -317,7 +315,7 @@ set(LINAENGINE_HEADERS
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} SHARED ${LINAENGINE_SOURCES} ${LINAENGINE_HEADERS})
+add_library(${PROJECT_NAME} STATIC ${LINAENGINE_SOURCES} ${LINAENGINE_HEADERS})
 add_library(Lina::Engine ALIAS ${PROJECT_NAME}) 
 
 #--------------------------------------------------------------------
@@ -338,9 +336,9 @@ option(LINA_CORE_ENABLE_LOGGING "Enables console logging" ON)
 ## FORCE OPENGL FOR NOW
 set(LINA_GRAPHICS_OPENGL 1)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
-target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_BUILD_DLL=1)
 target_compile_definitions(${PROJECT_NAME} PUBLIC STB_IMAGE_IMPLEMENTATION=1)
-target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_BUILDAS_SHARED=1)
+#target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_BUILDAS_SHARED=1)
+#target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_BUILD_DLL=1)
 
 #
 # if(LINA_GRAPHICS_OPENGL)
@@ -442,6 +440,7 @@ if(LINA_GRAPHICS_OPENGL)
 		# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
 		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
 		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/$<CONFIGURATION>/glad.lib
+
 	)
 	
 endif()
@@ -463,13 +462,12 @@ endif()
 #--------------------------------------------------------------------
 # Generate export header for this dll project 
 #--------------------------------------------------------------------
-
-include (GenerateExportHeader)
-GENERATE_EXPORT_HEADER (LinaEngine
-    BASE_NAME LinaEngine
-    EXPORT_MACRO_NAME LINA_API
-    EXPORT_FILE_NAME LinaCore.hpp
-)
+# include (GenerateExportHeader)
+# GENERATE_EXPORT_HEADER (LinaEngine
+#    BASE_NAME LinaEngine
+#    EXPORT_MACRO_NAME LINA_API
+#    EXPORT_FILE_NAME LinaCore.hpp
+#)
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
@@ -482,11 +480,5 @@ if(MSVC_IDE)
 				source_group("${source_path_msvc}" FILES "${source}")
 	endforeach()
 endif()
-
-
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/vendor/assimp/_bin/Assimp32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
 
 

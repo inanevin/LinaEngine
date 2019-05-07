@@ -46,7 +46,7 @@ namespace LinaEngine::Graphics
 			m_MaterialIndexArray.clear();
 		};
 
-		FORCEINLINE VertexArray* GetVertexArray(int index)
+		FORCEINLINE VertexArray* GetVertexArray(uint32 index)
 		{
 
 			if (index >= m_VertexArrays.size() || index < 0 || m_VertexArrays.size() == 0)

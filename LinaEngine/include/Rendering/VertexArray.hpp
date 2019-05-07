@@ -26,6 +26,7 @@ Timestamp: 4/26/2019 12:30:15 AM
 
 namespace LinaEngine::Graphics
 {
+
 	class VertexArray
 	{
 	public:
@@ -44,19 +45,17 @@ namespace LinaEngine::Graphics
 			m_IndexCount = model.GetIndexCount();
 		}
 
-	
-
 		FORCEINLINE void UpdateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize)
 		{
 			return renderDevice->UpdateVertexArrayBuffer(m_EngineBoundID, bufferIndex, data, dataSize);
 		}
 
-		FORCEINLINE uint32 GetID() 
+		FORCEINLINE uint32 GetID()
 		{ 
 			return m_EngineBoundID;
 		}
 
-		FORCEINLINE uint32 GetIndexCount() 
+		FORCEINLINE uint32 GetIndexCount()
 		{ 
 			return m_IndexCount;  
 		}

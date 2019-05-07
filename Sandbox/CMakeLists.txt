@@ -39,6 +39,7 @@ add_executable(${PROJECT_NAME} ${SANDBOX_SOURCES} ${SANDBOX_HEADERS})
 # Options & Definitions
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 option(LINA_CLIENT_ENABLE_LOGGING "Enables console logging" ON)
@@ -51,6 +52,8 @@ endif()
 # Links
 #--------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} Lina::Engine)
+
+
 
 #--------------------------------------------------------------------
 # Build Commands

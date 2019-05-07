@@ -24,8 +24,11 @@ Timestamp: 4/9/2019 12:55:47 AM
 
 #if defined(SIMD_CPU_ARCH_x86) || defined(SIMD_CPU_ARCH_x86_64)
 
-#include "SSE/SSEVectorMath.hpp"
-typedef LinaEngine::SSEVector PAMVector;
+//#include "SSE/SSEVectorMath.hpp"
+//typedef LinaEngine::SSEVector PAMVector;
+
+#include "Generic/GenericVectorMath.hpp"
+typedef LinaEngine::GenericVector PAMVector;
 
 #else
 #include "Generic/GenericVectorMath.hpp"

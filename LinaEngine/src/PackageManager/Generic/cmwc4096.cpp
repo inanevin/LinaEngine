@@ -52,7 +52,7 @@ uint32_t randCMWC(struct cmwc_state *state)  //EDITED parameter *state was missi
 	t = a * state->Q[state->i] + state->c;
 	/* Let c = t / 0xfffffff, x = t mod 0xffffffff */
 	state->c = t >> 32;
-	x = t + state->c;
+	x = (uint32_t)t + state->c;
 	if (x < state->c) {
 		x++;
 		state->c++;

@@ -19,7 +19,7 @@ Timestamp: 12/29/2018 11:15:41 PM
 
 #include <Lina.hpp>
 
-
+#include "Examples/Example1/Levels/Example1Level.hpp"
 
  class TestLayer : public LinaEngine::Layer
 {
@@ -49,14 +49,17 @@ public:
 	Sandbox() { 
 		//LINA_CLIENT_TRACE("[Constructor] -> Sandbox ({0})", typeid(*this).name());
 	
-		LinaEngine::Layer* l = new TestLayer();
-		
-		PushLayer(l);
+		//LinaEngine::Layer* l = new TestLayer();
+		//PushLayer(l);
 		//PushOverlay(new LinaEngine::Layer_IMGUI());
+
+		LoadLevel(&level);
 	}
 	~ Sandbox(){
 		//LINA_CLIENT_TRACE("[Destructor] -> Sanbox ({0})", typeid(*this).name());
 	}
+
+	Example1Level level;
 
 	
 };

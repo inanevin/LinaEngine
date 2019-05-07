@@ -180,10 +180,10 @@ namespace LinaEngine
 		static FORCEINLINE GenericVector Make(uint32 x, uint32 y, uint32 z, uint32 w)
 		{
 			GenericVector vec;
-			vec.v[0] = *((uint32*)&x);
-			vec.v[1] = *((uint32*)&y);
-			vec.v[2] = *((uint32*)&z);
-			vec.v[3] = *((uint32*)&w);
+			vec.v[0] = (float)*((uint32*)&x);
+			vec.v[1] = (float)*((uint32*)&y);
+			vec.v[2] = (float)*((uint32*)&z);
+			vec.v[3] = (float)*((uint32*)&w);
 			return vec;
 		}
 
@@ -285,7 +285,7 @@ namespace LinaEngine
 	private:
 		float GetSign(float r) const
 		{
-			return (((uint32*)(&r))[1 - 1] & 0x80000000);
+			return (float)(((uint32*)(&r))[1 - 1] & 0x80000000);
 		}
 	public:
 

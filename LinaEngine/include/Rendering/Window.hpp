@@ -64,8 +64,8 @@ namespace LinaEngine
 		FORCEINLINE void SetVsync(bool enabled) { m_Properties.vSyncEnabled = enabled; m_Derived->SetVsync_Impl(enabled); }
 		FORCEINLINE void SetEventCallback(const std::function<void(Event&)>& callback) { m_EventCallback = callback; }
 		FORCEINLINE bool GetVsycnEnabled() { return m_Properties.vSyncEnabled; }
-		FORCEINLINE float GetWidth() { return m_Properties.m_Width; }
-		FORCEINLINE float GetHeight() { return m_Properties.m_Height; }
+		FORCEINLINE float GetWidth() { return (float)m_Properties.m_Width; }
+		FORCEINLINE float GetHeight() { return (float)m_Properties.m_Height; }
 		FORCEINLINE void* GetNativeWindow() const { return m_Derived->GetNativeWindow_Impl(); }
 		FORCEINLINE void Tick() { m_Derived->Tick_Impl(); }
 

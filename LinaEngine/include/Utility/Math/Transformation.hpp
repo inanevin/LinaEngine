@@ -31,11 +31,12 @@ namespace LinaEngine
 	public:
 
 		// Param constructors w/ various options.
-		FORCEINLINE Transformation() : m_Translation(0.0f, 0.0f, 0.0f),m_Rotation(0.0f, 0.0f, 0.0f, 1.0f), m_Scale(1.0f, 1.0f, 1.0f) {}
-		FORCEINLINE Transformation(const Vector3F& translationIn) : m_Translation(translationIn), m_Rotation(0.0f, 0.0f, 0.0f, 1.0f), m_Scale(1.0f, 1.0f, 1.0f) {}
-		FORCEINLINE Transformation(const Quaternion& rotationIn) : m_Translation(0.0f, 0.0f, 0.0f), m_Rotation(rotationIn), m_Scale(1.0f, 1.0f, 1.0f) {}
-		FORCEINLINE Transformation(const Vector3F& translationIn, const Quaternion& rotationIn, const Vector3F& scaleIn) : m_Translation(translationIn), m_Rotation(rotationIn), m_Scale(scaleIn) {}
+		Transformation() : m_Translation(0.0f, 0.0f, 0.0f),m_Rotation(0.0f, 0.0f, 0.0f, 1.0f), m_Scale(1.0f, 1.0f, 1.0f) {}
+		Transformation(const Vector3F& translationIn) : m_Translation(translationIn), m_Rotation(0.0f, 0.0f, 0.0f, 1.0f), m_Scale(1.0f, 1.0f, 1.0f) {}
+		Transformation(const Quaternion& rotationIn) : m_Translation(0.0f, 0.0f, 0.0f), m_Rotation(rotationIn), m_Scale(1.0f, 1.0f, 1.0f) {}
+		Transformation(const Vector3F& translationIn, const Quaternion& rotationIn, const Vector3F& scaleIn) : m_Translation(translationIn), m_Rotation(rotationIn), m_Scale(scaleIn) {}
 
+		Matrix Inverse() const;
 		// Returns the transform vector based on vector and it's w component.
 		FORCEINLINE Vector Transform(const Vector& vector) const
 		{
