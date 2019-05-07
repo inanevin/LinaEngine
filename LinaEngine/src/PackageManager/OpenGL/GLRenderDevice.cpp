@@ -187,6 +187,28 @@ namespace LinaEngine::Graphics
 		return textureID;
 	}
 
+	uint32 GLRenderDevice::CreateCubemapTexture(int32 width, int32 height, int32 channelCount, const void** data, uint32 dataSize)
+	{
+		GLuint textureHandle;
+
+		// Generate texture & bind to program.
+		glGenTextures(1, &textureHandle);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, textureHandle);
+
+		// Loop through each face to gen. image.
+		for (GLuint i = 0; i < dataSize; i++)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data[i]);
+		}
+
+		// Specify wrapping & filtering
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	}
+
 	uint32 GLRenderDevice::ReleaseTexture2D(uint32 texture2D)
 	{
 		// Delete the texture binding if exists.
