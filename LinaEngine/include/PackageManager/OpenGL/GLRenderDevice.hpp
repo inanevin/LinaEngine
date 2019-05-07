@@ -192,9 +192,6 @@ namespace LinaEngine::Graphics
 		GLRenderDevice();
 		~GLRenderDevice();
 
-		void inittest();
-		void looptest();
-		int loadshader(const char* vfp, const char* ffp);
 		// Creates an GLFW window.
 		FORCEINLINE bool CreateContextWindow()
 		{
