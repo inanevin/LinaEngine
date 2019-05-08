@@ -25,6 +25,9 @@ Timestamp: 4/27/2019 10:12:16 PM
 #include "PackageManager/OpenGL/GLWindow.hpp"
 #include "Core/DataStructures.hpp"
 
+#include "Utility/Math/Matrix.hpp"
+using namespace LinaEngine;
+
 namespace LinaEngine::Graphics
 {
 	enum BufferUsage
@@ -173,8 +176,9 @@ namespace LinaEngine::Graphics
 	struct ShaderProgram
 	{
 		LinaArray<uint32> shaders;
-		LinaMap<LinaString, int32> uniformMap;
+		LinaMap<LinaString, int32> uniformBlockMap;
 		LinaMap<LinaString, int32> samplerMap;
+		LinaMap<LinaString, int32> uniformMap;
 	};
 
 	// Frame buffer object struct for storage.
@@ -243,6 +247,9 @@ namespace LinaEngine::Graphics
 		// Releases a previously created vertex array by id from GL.
 		uint32 ReleaseVertexArray(uint32 vao);
 
+		// Creates a skybox vertex array.
+		uint32 CreateSkyboxVertexArray();
+
 		// Creates a texture sampler on GL.
 		uint32 CreateSampler(SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapU, SamplerWrapMode wrapV, float anisotropy);
 
@@ -288,12 +295,17 @@ namespace LinaEngine::Graphics
 		// Actual drawing process for meshes.
 		void Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements);
 
+		// Used for drawing a skybox.
+		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams);
+
 		// Clears context.
 		void Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const class Color& color, uint32 stencil);
 
 		// Called when main window is resized.
 		void OnWindowResized(float width, float height);
 
+		// Updates a mat4 type uniform on a shader with given name.
+		void UpdateShaderUniformMatrix(uint32 shader, const LinaString& uniform, const Matrix& m);
 
 	private:
 
@@ -325,6 +337,9 @@ namespace LinaEngine::Graphics
 
 		// FBO rep. on viewport.
 		uint32 m_ViewportFBO;
+
+		// Uniform location map.
+		//LinaMap<uint32, LinaMap<LinaString, uint32>> m_UniformLocationMap;
 
 		// Map for bound vertex array objects.
 		LinaMap<uint32, VertexArrayData> m_VAOMap;

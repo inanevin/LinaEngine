@@ -61,14 +61,19 @@ namespace LinaEngine::Graphics
 			renderDevice->Draw(target->GetID(), shader.GetID(), vertexArray.GetID(), drawParams, numInstances, numIndices);
 		}
 
+
+
+
 	protected:
 
 		FORCEINLINE RenderContext() {}
 
-	private:
-
 		PAMRenderDevice* renderDevice;
 		RenderTarget* target;
+
+	private:
+
+	
 
 	};
 }

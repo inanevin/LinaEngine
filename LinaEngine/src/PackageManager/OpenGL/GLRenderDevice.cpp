@@ -52,7 +52,7 @@ namespace LinaEngine::Graphics
 	static bool AddShader(GLuint shaderProgram, const LinaString& text, GLenum type, LinaArray<GLuint>* shaders);
 	static void AddAllAttributes(GLuint program, const LinaString& vertexShaderText, uint32 version);
 	static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const LinaString& errorMessage);
-	static void AddShaderUniforms(GLuint shaderProgram, const LinaString& shaderText, LinaMap<LinaString, GLint>& uniformMap, LinaMap<LinaString, GLint>& samplerMap);
+	static void AddShaderUniforms(GLuint shaderProgram, const LinaString& shaderText, LinaMap<LinaString, GLint>& uniformBlockMap, LinaMap<LinaString, GLint>& uniformMap, LinaMap<LinaString, GLint>& samplerMap);
 
 	GLRenderDevice::GLRenderDevice() 
 	{
@@ -185,8 +185,17 @@ namespace LinaEngine::Graphics
 	{
 		GLuint textureHandle;
 
+		//unsigned int width = 1, height = 1;
+		unsigned char xpos[] = { 0xFF, 0x00, 0x00, 0xFF };    // red
+		unsigned char xneg[] = { 0x00, 0xFF, 0xFF, 0xFF };    // cyan
+		unsigned char ypos[] = { 0x00, 0xFF, 0x00, 0xFF };    // green
+		unsigned char yneg[] = { 0xFF, 0x00, 0xFF, 0xFF };    // magenta
+		unsigned char zpos[] = { 0x00, 0x00, 0xFF, 0xFF };    // blue
+		unsigned char zneg[] = { 0xFF, 0xFF, 0x00, 0xFF };    // yellow
+		width = height = 1;
+
 		// Generate texture & bind to program.
-		glGenTextures(1, &textureHandle);
+	/*	glGenTextures(1, &textureHandle);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, textureHandle);
 
 		// Loop through each face to gen. image.
@@ -201,6 +210,35 @@ namespace LinaEngine::Graphics
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		*/
+		glGenTextures(1, &textureHandle);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, textureHandle);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, xpos);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, xneg);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, ypos);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, yneg);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, zpos);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, zneg);
+		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[0]);
+		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[1]);
+		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[2]);
+		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[3]);
+		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[4]);
+		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[5]);
+		//for (GLuint i = 0; i < dataSize; i++)
+		//{
+		//	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data[i]);
+		//}
+		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
 		return textureHandle;
 	}
@@ -323,6 +361,66 @@ namespace LinaEngine::Graphics
 		m_VAOMap.erase(it);
 		return 0;
 	}
+	unsigned int skyboxVAO, skyboxVBO;
+
+	float skyboxVertices[] = {
+		// positions          
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f
+	};
+
+	uint32 GLRenderDevice::CreateSkyboxVertexArray()
+	{
+		
+
+		glGenVertexArrays(1, &skyboxVAO);
+		glGenBuffers(1, &skyboxVBO);
+		glBindVertexArray(skyboxVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		return skyboxVAO;
+	}
 
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
@@ -424,7 +522,7 @@ namespace LinaEngine::Graphics
 
 		// Bind attributes for GL & add shader uniforms.
 		AddAllAttributes(shaderProgram, vertexShaderText, GetVersion());
-		AddShaderUniforms(shaderProgram, shaderText, programData.uniformMap, programData.samplerMap);
+		AddShaderUniforms(shaderProgram, shaderText, programData.uniformBlockMap, programData.uniformMap, programData.samplerMap);
 
 		// Store the program in our map & return it.
 		m_ShaderProgramMap[shaderProgram] = programData;
@@ -561,7 +659,7 @@ namespace LinaEngine::Graphics
 		SetShader(shader);
 
 		// Update the uniform data.
-		glBindBufferBase(GL_UNIFORM_BUFFER, m_ShaderProgramMap[shader].uniformMap[uniformBufferName], buffer);
+		glBindBufferBase(GL_UNIFORM_BUFFER, m_ShaderProgramMap[shader].uniformBlockMap[uniformBufferName], buffer);
 	}
 
 	// ---------------------------------------------------------------------
@@ -667,6 +765,36 @@ namespace LinaEngine::Graphics
 
 	}
 
+	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams & drawParams)
+	{
+		glDepthFunc(GL_LEQUAL);
+		// Bind the render targets.
+		SetFBO(fbo);
+
+		// Ensure viewport is ok.
+		SetViewport(fbo);
+
+		// Set blend mode for each render target.
+		SetBlending(drawParams.sourceBlend, drawParams.destBlend);
+
+		// Set scissors tests if required, face culling modes as well as depth tests.
+		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
+		SetFaceCulling(drawParams.faceCulling);
+		//SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
+
+		// Bind & use the target shader.
+		SetShader(shader);
+
+		// use array buffer & attributes.
+		SetVAO(vao);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+	
+		// 1 object or instanced draw calls?
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
+
 	void GLRenderDevice::Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
 	{
 		// Make sure frame buffer objects are used.
@@ -698,6 +826,11 @@ namespace LinaEngine::Graphics
 			m_FBOMap[i].width = (int32)width;
 			m_FBOMap[i].height = (int32)height;
 		}
+	}
+
+	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const LinaString & uniform, const Matrix & m)
+	{
+		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_FALSE, m[0].GetFirst());
 	}
 
 
@@ -1013,11 +1146,12 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	static void AddShaderUniforms(GLuint shaderProgram, const LinaString& shaderText, LinaMap<LinaString, GLint>& uniformMap, LinaMap<LinaString, GLint>& samplerMap)
+	static void AddShaderUniforms(GLuint shaderProgram, const LinaString& shaderText, LinaMap<LinaString, GLint>& uniformBlockMap, LinaMap<LinaString, GLint>& uniformMap, LinaMap<LinaString, GLint>& samplerMap)
 	{
 		// Load uniform sets.
 		GLint numBlocks;
 		glGetProgramiv(shaderProgram, GL_ACTIVE_UNIFORM_BLOCKS, &numBlocks);
+
 
 		// Iterate through sets.
 		for (int32 block = 0; block < numBlocks; ++block)
@@ -1028,12 +1162,12 @@ namespace LinaEngine::Graphics
 			LinaArray<GLchar> name(nameLen);
 			glGetActiveUniformBlockName(shaderProgram, block, nameLen, NULL, &name[0]);
 			LinaString uniformBlockName((char*)&name[0], nameLen - 1);
-			uniformMap[uniformBlockName] = glGetUniformBlockIndex(shaderProgram, &name[0]);
+			uniformBlockMap[uniformBlockName] = glGetUniformBlockIndex(shaderProgram, &name[0]);
 		}
 
 		// Load uniforms.
 		GLint numUniforms = 0;
-		glGetProgramiv(shaderProgram, GL_ACTIVE_UNIFORMS, &numBlocks);
+		glGetProgramiv(shaderProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
 
 		// Iterate through uniforms.
 		LinaArray<GLchar> uniformName(256);
@@ -1046,14 +1180,16 @@ namespace LinaEngine::Graphics
 			// Get sampler uniform data & store it on our sampler map.
 			glGetActiveUniform(shaderProgram, uniform, uniformName.size(), &actualLength, &arraySize, &type, &uniformName[0]);
 
-			if (type != GL_SAMPLER_2D)
+			/*if (type != GL_SAMPLER_2D)
 			{
 				LINA_CORE_ERR("Non-sampler2d uniforms currently unsupported!");
 				continue;
-			}
+			}*/
 
 			LinaString name((char*)&uniformName[0], actualLength - 1);
 			samplerMap[name] = glGetUniformLocation(shaderProgram, (char*)&uniformName[0]);
+			uniformMap[&uniformName[0]] = glGetUniformLocation(shaderProgram, (char*)&uniformName[0]);
+
 		}
 	}
 }

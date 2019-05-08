@@ -110,9 +110,10 @@ namespace LinaEngine::Graphics
 		m_DefaultDiffuseTexture = LoadTextureResource("seamless1.jpg", PixelFormat::FORMAT_RGB, true, false);
 
 		// Initialize default skybox texture
-		//m_DefaultSkyboxTexture = LoadCubemapTextureResource("Skybox/ely_peaks/peaks_rt.tga", "Skybox/ely_peaks/peaks_lf.tga", "Skybox/ely_peaks/peaks_up.tga", "Skybox/ely_peaks/peaks_dn.tga", "Skybox/ely_peaks/peaks_ft.tga", "Skybox/ely_peaks/peaks_bk.tga");
-		m_DefaultSkyboxTexture = LoadTextureResource("Skybox/right.jpg", PixelFormat::FORMAT_RGB, true, false);
-		
+		m_DefaultSkyboxTexture = LoadCubemapTextureResource("Skybox/Skybox1/right.jpg", "Skybox/Skybox1/left.jpg", "Skybox/Skybox1/up.jpg", "Skybox/Skybox1/down.jpg", "Skybox/Skybox1/front.jpg", "Skybox/Skybox1/back.jpg");
+		//m_DefaultSkyboxTexture = LoadTextureResource("Skybox/right.jpg", PixelFormat::FORMAT_RGB, true, false);
+		//m_DefaultSkyboxTexture = LoadCubemapTextureResource("Skybox/ely_peaks/peaks_rt.png", "Skybox/ely_peaks/peaks_lf.png", "Skybox/ely_peaks/peaks_up.png", "Skybox/ely_peaks/peaks_dn.png", "Skybox/ely_peaks/peaks_ft.png", "Skybox/ely_peaks/peaks_bk.png");
+
 		// Initialize basic shader.
 		LinaString basicShaderText;
 		LinaEngine::Internal::LoadTextFileWithIncludes(basicShaderText, "Resources/Shaders/basicShader.glsl", "#include");
@@ -135,11 +136,11 @@ namespace LinaEngine::Graphics
 		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
 	
 		// Set skybox draw params.
-		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		//m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
-		m_DefaultDrawParams.shouldWriteDepth = true;
-		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
-
+		m_SkyboxDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
+		m_SkyboxDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE,
+		//m_SkyboxDrawParams.shouldWriteDepth = false;
+		m_SkyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
+		 
 		// Initialize default perspective.
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();
 		m_DefaultPerspective = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent.fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent.zNear, m_ActiveCameraComponent.zFar);
@@ -148,39 +149,35 @@ namespace LinaEngine::Graphics
 		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_DefaultRenderTarget, m_DefaultDrawParams, m_BasicShader, m_DefaultSampler, m_DefaultPerspective);
 
 		// Initialize skybox render context.
-		m_SkyboxRenderContext.Construct(*m_RenderDevice.get(), m_DefaultRenderTarget, m_SkyboxDrawParams, m_BasicShader, m_SkyboxSampler, m_DefaultPerspective);
-
+		m_SkyboxRenderContext.Construct(*m_RenderDevice.get(), m_DefaultRenderTarget, m_SkyboxDrawParams, m_SkyboxShader, m_SkyboxSampler, m_DefaultSkyboxTexture);
+	
 		// Initialize ECS Camera System.
-		m_CameraSystem.Construct(m_SkyboxRenderContext);
+		m_CameraSystem.Construct(m_DefaultRenderContext);
 		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 
 		// Initialize ECS Mesh Render System.
 		m_RenderableMeshSystem.Construct(m_DefaultRenderContext);
 
-		// Initialize ECS Skybox system
-		m_SkyboxSystem.Construct(m_SkyboxRenderContext);
-
 		// CUSTOM 
 		freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 10.0f;		
 		freeLookComponent.rotationSpeedX = freeLookComponent.rotationSpeedY = 1;
-
 		fss = new FreeLookSystem(Application::Get().GetInputDevice());
 
 		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 0.0f));
 
 		cameraEntity = m_ECS->MakeEntity(transformComponent, m_ActiveCameraComponent, freeLookComponent);
 		
-		//m_RenderingPipeline.AddSystem(m_RenderableMeshSystem);
+		m_RenderingPipeline.AddSystem(m_RenderableMeshSystem);
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
 		m_RenderingPipeline.AddSystem(*fss);
-		m_RenderingPipeline.AddSystem(m_SkyboxSystem);
+	
 
-		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 0.0f));
-		transformComponent.transform.SetScale(Vector3F(500,500,500));
+		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
+		transformComponent.transform.SetScale(Vector3F(2,2,2));
 		
 		cube1 = &LoadModelResource("cube.obj");
 
-		renderableMesh.texture = &m_DefaultSkyboxTexture;
+		renderableMesh.texture = &m_DefaultDiffuseTexture;
 		renderableMesh.vertexArray = cube1->GetVertexArray(0);
 
 		entity = m_ECS->MakeEntity(transformComponent, renderableMesh);
@@ -191,19 +188,20 @@ namespace LinaEngine::Graphics
 	{
 
 		// Clear color.
-		//m_DefaultRenderContext.Clear(m_ActiveCameraComponent.clearColor, true);
-		m_SkyboxRenderContext.Clear(m_ActiveCameraComponent.clearColor, true);
+		m_DefaultRenderContext.Clear(m_ActiveCameraComponent.clearColor, true);
 
 		// Update pipeline.
 		m_ECS->UpdateSystems(m_RenderingPipeline, delta);
 	
-		// Flush data.
-		//m_DefaultRenderContext.Flush();
-		m_SkyboxRenderContext.Flush();
+		// Draw scene.
+		m_DefaultRenderContext.Flush();
+
+		// Draw skybox.
+		m_SkyboxRenderContext.RenderSkybox(m_DefaultPerspective, m_CameraSystem.GetViewTransformation());
 
 		// Update window.
 		m_RenderDevice->TickWindow();
-		
+
 	}
 
 	void RenderEngine::OnWindowResized(float width, float height)

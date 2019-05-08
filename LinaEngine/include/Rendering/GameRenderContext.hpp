@@ -54,6 +54,7 @@ namespace LinaEngine::Graphics
 			m_Perspective = newPerspective;
 		}
 
+
 		void Flush();
 
 	private:

@@ -14,22 +14,23 @@
  * limitations under the License.
  */
  
-#include "common.glh"
-
+#version 330 core
 
 #if defined(VS_BUILD)
-Layout(0) attribute vec3 position;
-Layout(4) attribute mat4 transformMat;
+layout (location = 0) in vec3 position;
 
 out vec3 TexCoords;
+
+uniform mat4 projection;
+uniform mat4 view;
 
 void main()
 {
     TexCoords = position;
-    vec4 pos = vec4(position, 1.0) * transformMat;
+    vec4 pos = projection * view * vec4(position, 1.0);
     gl_Position = pos.xyww;
-}  
-
+}
+  
 #elif defined(FS_BUILD)
 out vec4 FragColor;
 

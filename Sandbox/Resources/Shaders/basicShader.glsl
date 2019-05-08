@@ -30,6 +30,7 @@ void main()
 }
 
 #elif defined(FS_BUILD)
+
 uniform sampler2D diffuse;
 
 DeclareFragOutput(0, vec4);

@@ -28,6 +28,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "Rendering/Shader.hpp"
 #include "Rendering/RenderTarget.hpp"
 #include "Rendering/GameRenderContext.hpp"
+#include "Rendering/SkyboxContext.hpp"
 #include "Rendering/RenderableObjectData.hpp"
 #include "ECS/EntityComponentSystem.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
@@ -141,16 +142,13 @@ namespace LinaEngine::Graphics
 		GameRenderContext m_DefaultRenderContext;
 
 		// Render context for rendering skybox.
-		GameRenderContext m_SkyboxRenderContext;
+		SkyboxContext m_SkyboxRenderContext;
 
 		// ECS system for rendering camera perspective.
 		CameraSystem m_CameraSystem;
 
 		// ECS system for drawing meshes.
 		RenderableMeshSystem m_RenderableMeshSystem;
-
-		// ECS system for drawing skybox mesh.
-		RenderableMeshSystem m_SkyboxSystem;
 
 		// ECS system list for rendering operations.
 		ECSSystemList m_RenderingPipeline;

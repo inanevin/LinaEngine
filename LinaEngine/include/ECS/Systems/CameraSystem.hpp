@@ -54,8 +54,14 @@ namespace LinaEngine::ECS
 			m_AspectRatio = aspectRatioIn;
 		}
 
+		FORCEINLINE Matrix& GetViewTransformation()
+		{
+			return m_CurrentViewTransformation;
+		}
+
 	private:
 
+		Matrix m_CurrentViewTransformation;
 		GameRenderContext* context;
 		float m_AspectRatio;
 	};

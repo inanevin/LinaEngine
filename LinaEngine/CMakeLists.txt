@@ -69,7 +69,7 @@ set (LINAENGINE_SOURCES
 	src/Rendering/ModelLoader.cpp
 	src/Rendering/GameRenderContext.cpp
 	src/Rendering/RenderEngine.cpp
-
+	src/Rendering/SkyboxContext.cpp
 	
 	#Physics
 	src/Physics/PhysicsEngine.cpp
@@ -191,7 +191,7 @@ set(LINAENGINE_HEADERS
 	include/Rendering/RenderContext.hpp
 	include/Rendering/GameRenderContext.hpp
 	include/Rendering/RenderTarget.hpp
-
+	include/Rendering/SkyboxContext.hpp
 	
 	#World
 	include/World/Level.hpp
