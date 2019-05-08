@@ -42,17 +42,19 @@ void Example1Level::Initialize()
 
 	transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 5.0f));
 
-	cube1 = &m_RenderEngine->LoadModelResource("cube.obj");
+	/*cube1 = &m_RenderEngine->LoadModelResource("cube.obj");
 	text1 = &m_RenderEngine->LoadTextureResource("chicken.png", PixelFormat::FORMAT_RGB, true, false);
 	renderableMesh.texture = text1;
 	renderableMesh.vertexArray = cube1->GetVertexArray(0);
 
-	entity = m_ECS->MakeEntity(transformComponent, renderableMesh);
+	entity = m_ECS->MakeEntity(transformComponent, renderableMesh);*/
 }
 
 
 void Example1Level::Tick(float delta)
 {
 	if (m_InputEngine->GetKeyDown(InputCode::Key::K))
-		LINA_CLIENT_WARN("Input Engine works correctly!");
+	{
+		
+	}
 }

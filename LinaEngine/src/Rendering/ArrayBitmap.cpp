@@ -95,5 +95,6 @@ namespace LinaEngine::Graphics
 	{
 		Memory::memset(m_Pixels, color, GetPixelsSize());
 	}
+
 }
 

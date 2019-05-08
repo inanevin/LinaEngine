@@ -50,6 +50,31 @@ namespace LinaEngine::Graphics
 		hasMipMaps = ddsTexture.GetMipMapCount() > 1;
 	}
 
+	void Texture::Construct(PAMRenderDevice & deviceIn, const LinaArray<ArrayBitmap*>& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress)
+	{
+		if (data.size() != 6)
+		{
+			LINA_CORE_WARN("Could not construct cubemap texture! ArrayBitmap data size needs to be 6, aborting!");
+			return;
+		}
+
+		renderDevice = &deviceIn;
+		m_Width = (uint32)data[0]->GetWidth();
+		m_Height = (uint32)data[0]->GetHeight();
+
+		LinaArray<int32*> cubeMapData;
+
+		for (uint32 i = 0; i < 6; i++)
+			cubeMapData.push_back(data[i]->GetPixelArray());
+		
+		m_ID = renderDevice->CreateCubemapTexture(m_Width, m_Height, cubeMapData);
+		isCompressed = shouldCompress;
+		hasMipMaps = generateMipMaps;
+
+		cubeMapData.clear();
+	
+	}
+
 
 }
 

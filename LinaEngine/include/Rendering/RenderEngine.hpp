@@ -81,11 +81,14 @@ namespace LinaEngine::Graphics
 		// Feed a model resource to be loaded.
 		LINA_API RenderableObjectData& LoadModelResource(const LinaString& fileName);
 
-		// Removes a texture resource from program.
-		LINA_API void RemoveTextureResource(Texture& textureResource);
+		// Loads a skybox texture resource w/ 6 faces.
+		LINA_API Texture& LoadCubemapTextureResource(const LinaString& filePosX, const LinaString& fileNegX, const LinaString& filePosY, const LinaString& fileNegY, const LinaString& filePosZ, const LinaString& fileNegZ);
 
-		// Removes a model resource from program.
-		LINA_API void RemoveModelResource(RenderableObjectData& modelResource);
+		// Adds the targeted resource to the garbage collection dump.
+		LINA_API void UnloadTextureResource(Texture& textureResource);
+
+		//  Adds the targeted resource to the garbage collection dump.
+		LINA_API void UnloadModelResource(RenderableObjectData& modelResource);
 
 
 	private:
@@ -104,14 +107,23 @@ namespace LinaEngine::Graphics
 		// Default texture sampler
 		Sampler m_DefaultSampler;
 
+		// Skybox texture sampler
+		Sampler m_SkyboxSampler;
+
 		// Default texture data.
 		ArrayBitmap m_DefaultTextureBitmap;
 
 		// Default diffuse texture
 		Texture m_DefaultDiffuseTexture;
 
+		// Default skybox texture
+		Texture m_DefaultSkyboxTexture;
+
 		// Default shader
-		Shader m_DefaultShader;
+		Shader m_BasicShader;
+
+		// Skybox shader
+		Shader m_SkyboxShader;
 
 		// Default render target
 		RenderTarget m_DefaultRenderTarget;
@@ -119,17 +131,26 @@ namespace LinaEngine::Graphics
 		// Default drawing parameters.
 		DrawParams m_DefaultDrawParams;
 
+		// Skybox drawing parameters.
+		DrawParams m_SkyboxDrawParams;
+
 		// Default camera perspective
 		Matrix m_DefaultPerspective;
 
 		// Default Game Render Context
 		GameRenderContext m_DefaultRenderContext;
 
+		// Render context for rendering skybox.
+		GameRenderContext m_SkyboxRenderContext;
+
 		// ECS system for rendering camera perspective.
 		CameraSystem m_CameraSystem;
 
 		// ECS system for drawing meshes.
 		RenderableMeshSystem m_RenderableMeshSystem;
+
+		// ECS system for drawing skybox mesh.
+		RenderableMeshSystem m_SkyboxSystem;
 
 		// ECS system list for rendering operations.
 		ECSSystemList m_RenderingPipeline;
@@ -138,13 +159,12 @@ namespace LinaEngine::Graphics
 		CameraComponent m_ActiveCameraComponent;
 
 		// Texture resources.
-		LinaMap<Texture*, ArrayBitmap*> m_TextureResources;
+		LinaArray<Texture*> m_TextureResources;
 
 		// Model resources
 		LinaArray<RenderableObjectData*> m_RenderableObjectDataResources;
 
 		// Dumped data to be cleared by garbage collector.
-		LinaArray<ArrayBitmap*> m_PixelDump;
 		LinaArray<Texture*> m_TextureDump;
 		LinaArray<RenderableObjectData*> m_RenderableObjectDataDump;
 	};

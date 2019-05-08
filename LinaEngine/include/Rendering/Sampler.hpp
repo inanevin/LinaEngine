@@ -32,11 +32,12 @@ namespace LinaEngine::Graphics
 
 		Sampler() {};
 
-		FORCEINLINE void Construct(PAMRenderDevice& deviceIn, SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR, SamplerFilter magFilter = SamplerFilter::FILTER_LINEAR,
+		FORCEINLINE void Construct(const LinaString& samplerName, PAMRenderDevice& deviceIn, SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR, SamplerFilter magFilter = SamplerFilter::FILTER_LINEAR,
 			SamplerWrapMode wrapU = SamplerWrapMode::WRAP_CLAMP, SamplerWrapMode wrapV = SamplerWrapMode::WRAP_CLAMP, float anisotropy = 0.0f)
 		{
 			renderDevice = &deviceIn;
 			m_EngineBoundID = renderDevice->CreateSampler(minFilter, magFilter, wrapU, wrapV, anisotropy);
+			m_SamplerName = samplerName;
 		}
 
 		// Destructor releases sampler data through render engine
@@ -47,8 +48,11 @@ namespace LinaEngine::Graphics
 
 		FORCEINLINE uint32 GetID() { return m_EngineBoundID; }
 
+		FORCEINLINE const LinaString& GetSamplerName() { return m_SamplerName; }
+
 	private:
 
+		LinaString m_SamplerName;
 		PAMRenderDevice* renderDevice;
 		uint32 m_EngineBoundID;
 

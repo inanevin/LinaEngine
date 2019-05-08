@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Inan Evin - Thanks to the contributions of Benny Bobaganoosh
+ * Copyright (C) 2019 Inan Evin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,29 @@
  
 #include "common.glh"
 
-varying vec2 texCoord0;
 
 #if defined(VS_BUILD)
 Layout(0) attribute vec3 position;
-Layout(1) attribute vec2 texCoord;
 Layout(4) attribute mat4 transformMat;
 
+out vec3 TexCoords;
+
 void main()
 {
-    gl_Position = vec4(position, 1.0) * transformMat;
-    texCoord0 = texCoord;
-}
+    TexCoords = position;
+    vec4 pos = vec4(position, 1.0) * transformMat;
+    gl_Position = pos.xyww;
+}  
 
 #elif defined(FS_BUILD)
-uniform sampler2D diffuse;
+out vec4 FragColor;
 
-DeclareFragOutput(0, vec4);
+in vec3 TexCoords;
+
+uniform samplerCube skybox;
+
 void main()
-{
-	SetFragOutput(0, texture2D(diffuse, texCoord0));
+{    
+    FragColor = texture(skybox, TexCoords);
 }
 #endif

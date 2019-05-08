@@ -25,6 +25,9 @@ Timestamp: 4/26/2019 12:11:04 AM
 
 namespace LinaEngine::Graphics
 {
+
+
+	
 	bool ModelLoader::LoadModels(const LinaString & fileName, LinaArray<IndexedModel>& models, LinaArray<uint32>& modelMaterialIndices, LinaArray<Material>& materials)
 	{
 		// Get the importer & set assimp scene.

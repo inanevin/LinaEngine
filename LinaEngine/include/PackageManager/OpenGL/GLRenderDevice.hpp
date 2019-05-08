@@ -232,7 +232,7 @@ namespace LinaEngine::Graphics
 		uint32 CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount);
 
 		// Creates a Cubemap texture on GL.
-		uint32 CreateCubemapTexture(int32 width, int32 height, int32 channelCount, const void** data, uint32 dataSize = 6);
+		uint32 CreateCubemapTexture(int32 width, int32 height, const LinaArray<int32*>& data, uint32 dataSize = 6);
 
 		// Releases a previously created texture from GL.
 		uint32 ReleaseTexture2D(uint32 texture2D);

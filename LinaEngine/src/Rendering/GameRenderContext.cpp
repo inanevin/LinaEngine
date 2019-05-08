@@ -40,7 +40,7 @@ namespace LinaEngine::Graphics
 			
 
 			if (texture != currentTexture) 
-				m_Shader->SetSampler("diffuse", *texture, *m_Sampler, 0);
+				m_Shader->SetSampler(m_SamplerName, *texture, *m_Sampler, 0);
 
 			// Update the buffer w/ each transform.
 			vertexArray->UpdateBuffer(4, transforms, numTransforms * sizeof(Matrix));

@@ -78,19 +78,6 @@ namespace LinaEngine::Graphics
 	{
 
 	}
-	GLuint vertexbuffer;
-	// An array of 3 vectors which represents 3 vertices
-	static const GLfloat g_vertex_buffer_data[] = {
-	   -1.0f, -1.0f, 0.0f,
-	   1.0f, -1.0f, 0.0f,
-	   0.0f,  1.0f, 0.0f,
-	};
-	
-	// ---------------------------------------------------------------------
-	// ---------------------------------------------------------------------
-	// TEXTURE OPERATIONS
-	// ---------------------------------------------------------------------
-	// ---------------------------------------------------------------------
 
 
 	void GLRenderDevice::Initialize()
@@ -106,6 +93,13 @@ namespace LinaEngine::Graphics
 		glFrontFace(GL_CW);
 		
 	}
+
+
+	// ---------------------------------------------------------------------
+	// ---------------------------------------------------------------------
+	// TEXTURE OPERATIONS
+	// ---------------------------------------------------------------------
+
 
 	uint32 GLRenderDevice::CreateTexture2D(int32 width, int32 height, const void * data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
 	{
@@ -187,7 +181,7 @@ namespace LinaEngine::Graphics
 		return textureID;
 	}
 
-	uint32 GLRenderDevice::CreateCubemapTexture(int32 width, int32 height, int32 channelCount, const void** data, uint32 dataSize)
+	uint32 GLRenderDevice::CreateCubemapTexture(int32 width, int32 height, const LinaArray<int32*>& data, uint32 dataSize)
 	{
 		GLuint textureHandle;
 
@@ -207,6 +201,8 @@ namespace LinaEngine::Graphics
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+		return textureHandle;
 	}
 
 	uint32 GLRenderDevice::ReleaseTexture2D(uint32 texture2D)

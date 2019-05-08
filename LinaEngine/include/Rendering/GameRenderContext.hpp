@@ -39,6 +39,7 @@ namespace LinaEngine::Graphics
 			m_DrawParams = &drawParamsIn;
 			m_Shader = &shaderIn;
 			m_Sampler = &samplerIn;
+			m_SamplerName = samplerIn.GetSamplerName();
 			m_Perspective = perspectiveIn;
 		}
 
@@ -57,6 +58,7 @@ namespace LinaEngine::Graphics
 
 	private:
 
+		LinaString m_SamplerName;
 		DrawParams* m_DrawParams;
 		Shader* m_Shader;
 		Sampler *m_Sampler;

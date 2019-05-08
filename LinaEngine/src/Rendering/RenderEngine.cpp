@@ -69,11 +69,8 @@ namespace LinaEngine::Graphics
 	RenderEngine::~RenderEngine()
 	{
 		// Clear texture resources.
-		for (LinaMap<Texture*, ArrayBitmap*>::iterator it = m_TextureResources.begin(); it != m_TextureResources.end(); ++it)
-		{
-			delete (*it).second;
-			delete (*it).first;
-		}
+		for (uint32 i = 0; i < m_TextureResources.size(); i++)
+			delete m_TextureResources[i];
 
 		m_TextureResources.clear();
 
@@ -89,6 +86,12 @@ namespace LinaEngine::Graphics
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
 
+	RenderableObjectData* cube1;
+	RenderableObjectData* cube2;
+	EntityHandle entity;
+	RenderableMeshComponent renderableMesh;
+
+
 	void RenderEngine::Initialize(EntityComponentSystem* ecsIn)
 	{
 		// Set ECS reference
@@ -98,17 +101,30 @@ namespace LinaEngine::Graphics
 		m_RenderDevice->Initialize();
 
 		// Initialize default sampler.
-		m_DefaultSampler.Construct(*m_RenderDevice.get(), SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR);
+		m_DefaultSampler.Construct("diffuse", *m_RenderDevice.get(), SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR);
+
+		// Initialize skybox sampler.
+		m_SkyboxSampler.Construct("skybox", *m_RenderDevice.get(), SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR);
 
 		// Initialize default texture.
-		m_DefaultTextureBitmap.Load("Resources/Textures/seamless1.jpg");
-		m_DefaultDiffuseTexture.Construct(*m_RenderDevice.get(), m_DefaultTextureBitmap, PixelFormat::FORMAT_RGB, true, false);
-	
-		LinaString shaderText;
-		LinaEngine::Internal::LoadTextFileWithIncludes(shaderText, "Resources/Shaders/basicShader.glsl", "#include");
-		m_DefaultShader.Construct(*m_RenderDevice.get(), shaderText);
-		m_DefaultShader.SetSampler("diffuse", m_DefaultDiffuseTexture, m_DefaultSampler, 0);
+		m_DefaultDiffuseTexture = LoadTextureResource("seamless1.jpg", PixelFormat::FORMAT_RGB, true, false);
+
+		// Initialize default skybox texture
+		//m_DefaultSkyboxTexture = LoadCubemapTextureResource("Skybox/ely_peaks/peaks_rt.tga", "Skybox/ely_peaks/peaks_lf.tga", "Skybox/ely_peaks/peaks_up.tga", "Skybox/ely_peaks/peaks_dn.tga", "Skybox/ely_peaks/peaks_ft.tga", "Skybox/ely_peaks/peaks_bk.tga");
+		m_DefaultSkyboxTexture = LoadTextureResource("Skybox/right.jpg", PixelFormat::FORMAT_RGB, true, false);
 		
+		// Initialize basic shader.
+		LinaString basicShaderText;
+		LinaEngine::Internal::LoadTextFileWithIncludes(basicShaderText, "Resources/Shaders/basicShader.glsl", "#include");
+		m_BasicShader.Construct(*m_RenderDevice.get(), basicShaderText);
+		m_BasicShader.SetSampler(m_DefaultSampler.GetSamplerName(), m_DefaultDiffuseTexture, m_DefaultSampler, 0);
+
+		// Initialize skybox shader.
+		LinaString skyboxShaderText;
+		LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, "Resources/Shaders/skybox.glsl", "#include");
+		m_SkyboxShader.Construct(*m_RenderDevice.get(), skyboxShaderText);
+		m_SkyboxShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_DefaultSkyboxTexture, m_SkyboxSampler, 0);
+
 		// Initialize the render target.
 		m_DefaultRenderTarget.Construct(*m_RenderDevice.get());
 
@@ -118,34 +134,56 @@ namespace LinaEngine::Graphics
 		m_DefaultDrawParams.shouldWriteDepth = true;
 		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
 	
+		// Set skybox draw params.
+		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
+		//m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
+		m_DefaultDrawParams.shouldWriteDepth = true;
+		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
+
 		// Initialize default perspective.
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();
 		m_DefaultPerspective = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent.fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent.zNear, m_ActiveCameraComponent.zFar);
 
 		// Initialize the render context.
-		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_DefaultRenderTarget, m_DefaultDrawParams, m_DefaultShader, m_DefaultSampler, m_DefaultPerspective);
+		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_DefaultRenderTarget, m_DefaultDrawParams, m_BasicShader, m_DefaultSampler, m_DefaultPerspective);
+
+		// Initialize skybox render context.
+		m_SkyboxRenderContext.Construct(*m_RenderDevice.get(), m_DefaultRenderTarget, m_SkyboxDrawParams, m_BasicShader, m_SkyboxSampler, m_DefaultPerspective);
 
 		// Initialize ECS Camera System.
-		m_CameraSystem.Construct(m_DefaultRenderContext);
+		m_CameraSystem.Construct(m_SkyboxRenderContext);
 		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 
 		// Initialize ECS Mesh Render System.
 		m_RenderableMeshSystem.Construct(m_DefaultRenderContext);
 
-		// CUSTOM 
+		// Initialize ECS Skybox system
+		m_SkyboxSystem.Construct(m_SkyboxRenderContext);
 
-		freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 10.0f;
+		// CUSTOM 
+		freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 10.0f;		
 		freeLookComponent.rotationSpeedX = freeLookComponent.rotationSpeedY = 1;
+
 		fss = new FreeLookSystem(Application::Get().GetInputDevice());
 
 		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 0.0f));
 
 		cameraEntity = m_ECS->MakeEntity(transformComponent, m_ActiveCameraComponent, freeLookComponent);
 		
-		m_RenderingPipeline.AddSystem(m_RenderableMeshSystem);
+		//m_RenderingPipeline.AddSystem(m_RenderableMeshSystem);
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
 		m_RenderingPipeline.AddSystem(*fss);
-	
+		m_RenderingPipeline.AddSystem(m_SkyboxSystem);
+
+		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 0.0f));
+		transformComponent.transform.SetScale(Vector3F(500,500,500));
+		
+		cube1 = &LoadModelResource("cube.obj");
+
+		renderableMesh.texture = &m_DefaultSkyboxTexture;
+		renderableMesh.vertexArray = cube1->GetVertexArray(0);
+
+		entity = m_ECS->MakeEntity(transformComponent, renderableMesh);
 
 	}
 
@@ -153,17 +191,18 @@ namespace LinaEngine::Graphics
 	{
 
 		// Clear color.
-		m_DefaultRenderContext.Clear(m_ActiveCameraComponent.clearColor, true);
+		//m_DefaultRenderContext.Clear(m_ActiveCameraComponent.clearColor, true);
+		m_SkyboxRenderContext.Clear(m_ActiveCameraComponent.clearColor, true);
 
 		// Update pipeline.
 		m_ECS->UpdateSystems(m_RenderingPipeline, delta);
 	
 		// Flush data.
-		m_DefaultRenderContext.Flush();
+		//m_DefaultRenderContext.Flush();
+		m_SkyboxRenderContext.Flush();
 
 		// Update window.
 		m_RenderDevice->TickWindow();
-
 		
 	}
 
@@ -188,13 +227,13 @@ namespace LinaEngine::Graphics
 		Texture* texture = new Texture();
 		texture->Construct(*m_RenderDevice.get(), *textureBitmap, internalPixelFormat, generateMipMaps, compress);
 
-		// Feed the array bitmap data into memory dump to be cleared later.
-		if (m_TextureResources.count(texture) == 1)
-			m_PixelDump.push_back(m_TextureResources.at(texture));
+		// Add to the resources.
+		m_TextureResources.push_back(texture);
 
-		// Assign resource.
-		m_TextureResources[texture] = textureBitmap;
+		// Delete pixel data.
+		delete textureBitmap;
 
+		// Return texture.
 		return *texture;
 	}
 
@@ -221,18 +260,53 @@ namespace LinaEngine::Graphics
 		return *objectData;
 	}
 
-	void RenderEngine::RemoveTextureResource(Texture & textureResource)
+	LINA_API Texture& RenderEngine::LoadCubemapTextureResource(const LinaString & filePosX, const LinaString & fileNegX, const LinaString & filePosY, const LinaString & fileNegY, const LinaString & filePosZ, const LinaString & fileNegZ)
 	{
-		// Feed into memory map & erase if exists.
-		if (m_TextureResources.count(&textureResource) == 1)
+		LinaArray<ArrayBitmap*> bitmaps;
+		const LinaString fileNames[] = { filePosX, fileNegX, filePosY, fileNegY, filePosZ, fileNegZ };
+
+		// Load bitmap for each face.
+		for (uint32 i = 0; i < 6; i++)
+		{	
+			ArrayBitmap* faceBitmap = new ArrayBitmap();
+			faceBitmap->Load(ResourceConstants::textureFolderPath + fileNames[i]);
+			bitmaps.push_back(faceBitmap);
+		}
+
+		// Create texture.
+		Texture* cubeMapTexture = new Texture();
+		cubeMapTexture->Construct(*m_RenderDevice.get(), bitmaps, PixelFormat::FORMAT_RGB, true, false);
+
+		// Add to the resources.
+		m_TextureResources.push_back(cubeMapTexture);
+
+		// Delete pixel data.
+		for (uint32 i = 0; i < bitmaps.size(); i++)
+			delete bitmaps[i];
+
+		bitmaps.clear();
+		
+		return *cubeMapTexture;
+	}
+
+	void RenderEngine::UnloadTextureResource(Texture & textureResource)
+	{
+		// Find the resource.
+		for (size_t i = 0; i < m_TextureResources.size(); i++)
 		{
-			m_PixelDump.push_back(m_TextureResources.at(&textureResource));
-			m_TextureDump.push_back(&textureResource);
-			m_TextureResources.erase(&textureResource);
+			// If found.
+			if (m_TextureResources[i] == &textureResource)
+			{
+				// Add to dump.
+				m_TextureDump.push_back(&textureResource);
+
+				// Push to the end of the list & pop.
+				m_TextureResources.swap_remove(i);
+			}
 		}
 	}
 
-	void RenderEngine::RemoveModelResource(RenderableObjectData & modelResource)
+	void RenderEngine::UnloadModelResource(RenderableObjectData & modelResource)
 	{
 		// Find the resource.
 		for (size_t i = 0; i < m_RenderableObjectDataResources.size(); i++)
@@ -252,10 +326,6 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::DumpMemory()
 	{
-		// Free pixel dump
-		for (uint32 i = 0; i < m_PixelDump.size(); i++)
-			delete m_PixelDump[i];
-
 		// Free renderable object dump
 		for (uint32 i = 0; i < m_RenderableObjectDataDump.size(); i++)
 			delete m_RenderableObjectDataDump[i];
@@ -265,7 +335,6 @@ namespace LinaEngine::Graphics
 			delete m_TextureDump[i];
 
 		// Clear dumps.
-		m_PixelDump.clear();
 		m_RenderableObjectDataDump.clear();
 		m_TextureDump.clear();
 	}

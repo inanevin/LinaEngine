@@ -37,6 +37,7 @@ set (LINAENGINE_SOURCES
 	src/ECS/Systems/CubeChunkRenderSystem.cpp
 	src/ECS/Systems/CameraSystem.cpp
 	src/ECS/Systems/FreeLookSystem.cpp
+
 	src/ECS/Interactions/TestInteraction.cpp
 	src/ECS/ECSComponent.cpp
 	src/ECS/ECSSystem.cpp
@@ -68,6 +69,7 @@ set (LINAENGINE_SOURCES
 	src/Rendering/ModelLoader.cpp
 	src/Rendering/GameRenderContext.cpp
 	src/Rendering/RenderEngine.cpp
+
 	
 	#Physics
 	src/Physics/PhysicsEngine.cpp
@@ -123,6 +125,7 @@ set(LINAENGINE_HEADERS
 	include/ECS/Systems/CubeChunkRenderSystem.hpp
 	include/ECS/Systems/CameraSystem.hpp
 	include/ECS/Systems/FreeLookSystem.hpp
+
 	include/ECS/Interactions/TestInteraction.hpp
 	include/ECS/ECSComponent.hpp
 	include/ECS/ECSSystem.hpp
@@ -188,6 +191,7 @@ set(LINAENGINE_HEADERS
 	include/Rendering/RenderContext.hpp
 	include/Rendering/GameRenderContext.hpp
 	include/Rendering/RenderTarget.hpp
+
 	
 	#World
 	include/World/Level.hpp
