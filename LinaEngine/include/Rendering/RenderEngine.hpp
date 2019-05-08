@@ -136,7 +136,7 @@ namespace LinaEngine::Graphics
 		DrawParams m_SkyboxDrawParams;
 
 		// Default camera perspective
-		Matrix m_DefaultPerspective;
+		Matrix m_CurrentProjectionMatrix;
 
 		// Default Game Render Context
 		GameRenderContext m_DefaultRenderContext;

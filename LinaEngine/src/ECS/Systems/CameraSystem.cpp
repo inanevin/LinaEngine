@@ -26,13 +26,19 @@ namespace LinaEngine::ECS
 	{
 		TransformComponent* transform = (TransformComponent*)components[0];
 		CameraComponent* camera = (CameraComponent*)components[1];
-		Matrix perspective = Matrix::perspective(Math::ToRadians(camera->fieldOfView / 2.0f), m_AspectRatio, camera->zNear, camera->zFar);
+
+		// Init translation & rotation matrices.
 		Matrix translation = Matrix::Translate(-transform->transform.GetLocation());
 		Matrix rotation = Matrix::InitRotationFromDirection(transform->transform.GetRotation().GetAxisZ(), transform->transform.GetRotation().GetAxisY());
 		
-		m_CurrentViewTransformation = rotation;
+		// View transformation including only the rotation data for skybox.
+		m_SkyboxViewTransformation = rotation;
+
+		// Actual camera view matrix.
 		Matrix viewTransformation = rotation * translation;
-		context->UpdatePerspective(perspective * viewTransformation);
+
+		// Update view projection matrix.
+		context->UpdateViewProjectionMatrix(m_Projection * viewTransformation);
 	}
 
 

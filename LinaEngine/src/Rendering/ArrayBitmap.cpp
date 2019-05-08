@@ -66,6 +66,7 @@ namespace LinaEngine::Graphics
 		uint8* data = stbi_load(fileName.c_str(), &texWidth, &texHeight, &bytesPerPixel, 4);
 
 		if (data == nullptr) {
+			LINA_CORE_ERR("Bitmap with the name {0} could not be loaded!", fileName);
 			return false;
 		}
 
@@ -88,6 +89,12 @@ namespace LinaEngine::Graphics
 	{
 		// TODO: Serialization
 		return false;
+	}
+
+	unsigned char * ArrayBitmap::LoadImmediate(const char * filename, int & w, int & h, int & nrChannels)
+	{
+		unsigned char *data = stbi_load(filename, &w, &h, &nrChannels, 0);
+		return data;
 	}
 
 	void ArrayBitmap::Clear(int32 color)

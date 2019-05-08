@@ -22,6 +22,8 @@ Timestamp: 4/27/2019 10:16:32 PM
 #include "glad/glad.h"
 #include "Utility/Math/Color.hpp"
 #include "Core/Internal.hpp"
+#include "Rendering/ArrayBitmap.hpp"
+
 
 namespace LinaEngine::Graphics
 {
@@ -192,54 +194,25 @@ namespace LinaEngine::Graphics
 		unsigned char yneg[] = { 0xFF, 0x00, 0xFF, 0xFF };    // magenta
 		unsigned char zpos[] = { 0x00, 0x00, 0xFF, 0xFF };    // blue
 		unsigned char zneg[] = { 0xFF, 0xFF, 0x00, 0xFF };    // yellow
-	//	width = height = 1;
+		//width = height = 1;
 
 		// Generate texture & bind to program.
-	/*	glGenTextures(1, &textureHandle);
+		glGenTextures(1, &textureHandle);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, textureHandle);
-
+	
 		// Loop through each face to gen. image.
 		for (GLuint i = 0; i < dataSize; i++)
 		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[i]);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[i]);
 		}
 
 		// Specify wrapping & filtering
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);*/
-	
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-		glGenTextures(1, &textureHandle);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, textureHandle);
-		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, xpos);
-		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, xneg);
-		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, ypos);
-		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, yneg);
-		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, zpos);
-		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, zneg);
-		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[0]);
-		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[1]);
-		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[2]);
-		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[3]);
-		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[4]);
-		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[5]);
-		for (GLuint i = 0; i < dataSize; i++)
-		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[i]);
-		}
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		//glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-		
 		return textureHandle;
 	}
 
@@ -361,7 +334,6 @@ namespace LinaEngine::Graphics
 		m_VAOMap.erase(it);
 		return 0;
 	}
-	unsigned int skyboxVAO, skyboxVBO;
 
 	float skyboxVertices[] = {
 		// positions          
@@ -410,7 +382,7 @@ namespace LinaEngine::Graphics
 
 	uint32 GLRenderDevice::CreateSkyboxVertexArray()
 	{
-
+		unsigned int skyboxVAO, skyboxVBO;
 		glGenVertexArrays(1, &skyboxVAO);
 		glGenBuffers(1, &skyboxVBO);
 		glBindVertexArray(skyboxVAO);
@@ -766,7 +738,6 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams & drawParams, const Matrix& projection, const Matrix& view)
 	{
-		//glDepthFunc(GL_LEQUAL);
 		// Bind the render targets.
 		SetFBO(fbo);
 
@@ -781,17 +752,17 @@ namespace LinaEngine::Graphics
 		SetFaceCulling(drawParams.faceCulling);
 		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
 
-		// Bind & use the target shader.
+		// Set shader & update uniform matrices.
 		SetShader(shader);
-
 		UpdateShaderUniformMatrix(shader, "projection", projection);
 		UpdateShaderUniformMatrix(shader, "view", view);
 
-		// use array buffer & attributes.
+		// Bind vertex array object.
 		SetVAO(vao);
 
-		// 1 object or instanced draw calls?
+		// Finally draw the sky box.
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+
 	}
 
 	void GLRenderDevice::Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color & color, uint32 stencil)
@@ -876,6 +847,7 @@ namespace LinaEngine::Graphics
 	{
 
 		// Toggle dept writing.
+		if (shouldWrite != m_ShouldWriteDepth)
 		if (shouldWrite != m_ShouldWriteDepth)
 		{
 			glDepthMask(shouldWrite ? GL_TRUE : GL_FALSE);

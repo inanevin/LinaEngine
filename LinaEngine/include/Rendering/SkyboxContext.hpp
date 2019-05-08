@@ -31,7 +31,7 @@ namespace LinaEngine::Graphics
 	public:
 
 		SkyboxContext() {};
-		virtual ~SkyboxContext() {};
+		virtual ~SkyboxContext() { renderDevice->ReleaseVertexArray(m_VAO); };
 
 		FORCEINLINE void Construct(PAMRenderDevice& deviceIn, RenderTarget& targetIn, DrawParams& drawParamsIn, Shader& shaderIn, Sampler& samplerIn, Texture& texture)
 		{
@@ -50,6 +50,7 @@ namespace LinaEngine::Graphics
 	private:
 
 		LinaString m_SamplerName;
+
 		DrawParams* m_DrawParams;
 		Shader* m_Shader;
 		uint32 m_VAO;

@@ -27,7 +27,6 @@ namespace LinaEngine::Graphics
 	{
 
 		m_Shader->SetSampler(m_SamplerName, *m_Texture, *m_Sampler, 0, BindTextureMode::BINDTEXTURE_CUBEMAP);
-		///renderDevice->Draw(target->GetID(), m_Shader->GetID(), m_VAO, *m_DrawParams, 1, 36);
 		renderDevice->DrawSkybox(target->GetID(), m_Shader->GetID(), m_VAO, m_Texture->GetID(), *m_DrawParams, projection, view);
 	
 

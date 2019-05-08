@@ -444,7 +444,6 @@ if(LINA_GRAPHICS_OPENGL)
 		# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
 		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
 		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/$<CONFIGURATION>/glad.lib
-
 	)
 	
 endif()

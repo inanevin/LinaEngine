@@ -46,6 +46,8 @@ namespace LinaEngine::Graphics
 		// Save the bitmap into a file in resources.
 		bool Save(const LinaString& fileName) const;
 
+		static unsigned char* LoadImmediate(const char* filename, int& w, int& h,  int& nrchannels);
+
 		// Clr colors.
 		void Clear(int32 color);
 

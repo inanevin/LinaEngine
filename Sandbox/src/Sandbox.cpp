@@ -38,6 +38,7 @@ public:
 	void OnEvent(LinaEngine::Event& e) override
 	{
 		//LINA_CLIENT_TRACE("{0}", e);
+
 		
 	}
 };

@@ -49,21 +49,22 @@ namespace LinaEngine::ECS
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
 		
 
-		FORCEINLINE void SetAspectRatio(float aspectRatioIn)
+
+		FORCEINLINE Matrix& GetSkyboxViewTransformation()
 		{
-			m_AspectRatio = aspectRatioIn;
+			return m_SkyboxViewTransformation;
 		}
 
-		FORCEINLINE Matrix& GetViewTransformation()
+		FORCEINLINE void SetProjectionMatrix(const Matrix& projection)
 		{
-			return m_CurrentViewTransformation;
+			m_Projection = projection;
 		}
 
 	private:
 
-		Matrix m_CurrentViewTransformation;
+		Matrix m_Projection;
+		Matrix m_SkyboxViewTransformation;
 		GameRenderContext* context;
-		float m_AspectRatio;
 	};
 }
 

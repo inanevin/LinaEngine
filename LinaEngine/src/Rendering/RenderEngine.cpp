@@ -104,14 +104,13 @@ namespace LinaEngine::Graphics
 		m_DefaultSampler.Construct("diffuse", *m_RenderDevice.get(), SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR);
 
 		// Initialize skybox sampler.
-		m_SkyboxSampler.Construct("skybox", *m_RenderDevice.get(), SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR);
+		m_SkyboxSampler.Construct("skybox", *m_RenderDevice.get(), SamplerFilter::FILTER_NEAREST);
 
 		// Initialize default texture.
 		m_DefaultDiffuseTexture = LoadTextureResource("seamless1.jpg", PixelFormat::FORMAT_RGB, true, false);
 
 		// Initialize default skybox texture
 		m_DefaultSkyboxTexture = LoadCubemapTextureResource("Skybox/Skybox1/right.jpg", "Skybox/Skybox1/left.jpg", "Skybox/Skybox1/up.jpg", "Skybox/Skybox1/down.jpg", "Skybox/Skybox1/front.jpg", "Skybox/Skybox1/back.jpg");
-		//m_DefaultSkyboxTexture = LoadCubemapTextureResource("Skybox/ely_peaks/peaks_rt.png", "Skybox/ely_peaks/peaks_lf.png", "Skybox/ely_peaks/peaks_up.png", "Skybox/ely_peaks/peaks_dn.png", "Skybox/ely_peaks/peaks_ft.png", "Skybox/ely_peaks/peaks_bk.png");
 
 		// Initialize basic shader.
 		LinaString basicShaderText;
@@ -136,23 +135,23 @@ namespace LinaEngine::Graphics
 	
 		// Set skybox draw params.
 		m_SkyboxDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_SkyboxDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE,
+		m_SkyboxDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
 		m_SkyboxDrawParams.shouldWriteDepth = true;
 		m_SkyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
 		 
 		// Initialize default perspective.
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();
-		m_DefaultPerspective = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent.fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent.zNear, m_ActiveCameraComponent.zFar);
+		m_CurrentProjectionMatrix = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent.fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent.zNear, m_ActiveCameraComponent.zFar);
 
 		// Initialize the render context.
-		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_DefaultRenderTarget, m_DefaultDrawParams, m_BasicShader, m_DefaultSampler, m_DefaultPerspective);
+		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_DefaultRenderTarget, m_DefaultDrawParams, m_BasicShader, m_DefaultSampler, m_CurrentProjectionMatrix);
 
 		// Initialize skybox render context.
 		m_SkyboxRenderContext.Construct(*m_RenderDevice.get(), m_DefaultRenderTarget, m_SkyboxDrawParams, m_SkyboxShader, m_SkyboxSampler, m_DefaultSkyboxTexture);
 	
 		// Initialize ECS Camera System.
 		m_CameraSystem.Construct(m_DefaultRenderContext);
-		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
+		m_CameraSystem.SetProjectionMatrix(m_CurrentProjectionMatrix);
 
 		// Initialize ECS Mesh Render System.
 		m_RenderableMeshSystem.Construct(m_DefaultRenderContext);
@@ -196,7 +195,7 @@ namespace LinaEngine::Graphics
 		m_DefaultRenderContext.Flush();
 
 		// Draw skybox.
-		m_SkyboxRenderContext.RenderSkybox(m_DefaultPerspective, m_CameraSystem.GetViewTransformation());
+		m_SkyboxRenderContext.RenderSkybox(m_CurrentProjectionMatrix, m_CameraSystem.GetSkyboxViewTransformation());
 
 		// Update window.
 		m_RenderDevice->TickWindow();
@@ -208,10 +207,10 @@ namespace LinaEngine::Graphics
 		// Propogate to render device.
 		m_RenderDevice->OnWindowResized(width, height);
 
-		// Update camera system's aspect ratio.
+		// Update camera system's projection matrix.
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();
-		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
-
+		m_CurrentProjectionMatrix = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent.fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent.zNear, m_ActiveCameraComponent.zFar);
+		m_CameraSystem.SetProjectionMatrix(m_CurrentProjectionMatrix);
 	}
 
 	Texture & RenderEngine::LoadTextureResource(const LinaString & fileName, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
@@ -268,6 +267,7 @@ namespace LinaEngine::Graphics
 			ArrayBitmap* faceBitmap = new ArrayBitmap();
 			faceBitmap->Load(ResourceConstants::textureFolderPath + fileNames[i]);
 			bitmaps.push_back(faceBitmap);
+			
 		}
 
 		// Create texture.
