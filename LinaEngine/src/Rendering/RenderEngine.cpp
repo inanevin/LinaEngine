@@ -111,7 +111,6 @@ namespace LinaEngine::Graphics
 
 		// Initialize default skybox texture
 		m_DefaultSkyboxTexture = LoadCubemapTextureResource("Skybox/Skybox1/right.jpg", "Skybox/Skybox1/left.jpg", "Skybox/Skybox1/up.jpg", "Skybox/Skybox1/down.jpg", "Skybox/Skybox1/front.jpg", "Skybox/Skybox1/back.jpg");
-		//m_DefaultSkyboxTexture = LoadTextureResource("Skybox/right.jpg", PixelFormat::FORMAT_RGB, true, false);
 		//m_DefaultSkyboxTexture = LoadCubemapTextureResource("Skybox/ely_peaks/peaks_rt.png", "Skybox/ely_peaks/peaks_lf.png", "Skybox/ely_peaks/peaks_up.png", "Skybox/ely_peaks/peaks_dn.png", "Skybox/ely_peaks/peaks_ft.png", "Skybox/ely_peaks/peaks_bk.png");
 
 		// Initialize basic shader.
@@ -138,7 +137,7 @@ namespace LinaEngine::Graphics
 		// Set skybox draw params.
 		m_SkyboxDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
 		m_SkyboxDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE,
-		//m_SkyboxDrawParams.shouldWriteDepth = false;
+		m_SkyboxDrawParams.shouldWriteDepth = true;
 		m_SkyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
 		 
 		// Initialize default perspective.

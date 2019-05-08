@@ -63,8 +63,7 @@ namespace LinaEngine::Graphics
 	{
 		int32 texWidth, texHeight, bytesPerPixel;
 
-		uint8* data = stbi_load(fileName.c_str(), &texWidth, &texHeight,
-			&bytesPerPixel, 4);
+		uint8* data = stbi_load(fileName.c_str(), &texWidth, &texHeight, &bytesPerPixel, 4);
 
 		if (data == nullptr) {
 			return false;

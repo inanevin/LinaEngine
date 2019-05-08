@@ -14,7 +14,7 @@
  * limitations under the License.
  */
  
-#version 330 core
+#include <common.glh>
 
 #if defined(VS_BUILD)
 layout (location = 0) in vec3 position;

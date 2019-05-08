@@ -29,9 +29,10 @@ namespace LinaEngine::ECS
 		Matrix perspective = Matrix::perspective(Math::ToRadians(camera->fieldOfView / 2.0f), m_AspectRatio, camera->zNear, camera->zFar);
 		Matrix translation = Matrix::Translate(-transform->transform.GetLocation());
 		Matrix rotation = Matrix::InitRotationFromDirection(transform->transform.GetRotation().GetAxisZ(), transform->transform.GetRotation().GetAxisY());
-
-		m_CurrentViewTransformation = rotation * translation;
-		context->UpdatePerspective(perspective * m_CurrentViewTransformation);
+		
+		m_CurrentViewTransformation = rotation;
+		Matrix viewTransformation = rotation * translation;
+		context->UpdatePerspective(perspective * viewTransformation);
 	}
 
 

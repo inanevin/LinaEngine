@@ -49,9 +49,9 @@ namespace LinaEngine::Graphics
 		}
 
 		// Set the texture sampler through render engine.
-		FORCEINLINE void SetSampler(const LinaString& name, Texture& texture, Sampler& sampler, uint32 unit)
+		FORCEINLINE void SetSampler(const LinaString& name, Texture& texture, Sampler& sampler, uint32 unit, BindTextureMode bindTextureMode = BindTextureMode::BINDTEXTURE_TEXTURE2D)
 		{ 
-			renderDevice->SetShaderSampler(m_EngineBoundID, name, texture.GetID(), sampler.GetID(), unit); 
+			renderDevice->SetShaderSampler(m_EngineBoundID, name, texture.GetID(), sampler.GetID(), unit, bindTextureMode); 
 		}
 
 		// Get shader id, this gets matched w/ program id on render engine.

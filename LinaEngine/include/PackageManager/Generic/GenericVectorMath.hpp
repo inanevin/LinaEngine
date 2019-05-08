@@ -38,6 +38,9 @@ namespace LinaEngine
 		{
 			return &v[0];
 		}
+
+
+
 		static FORCEINLINE void MatrixMultiplication(void* result, const void* mat1, const void* mat2)
 		{
 			const GenericVector* m1 = (const GenericVector*)mat1;

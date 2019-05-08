@@ -61,6 +61,12 @@ namespace LinaEngine::Graphics
 		WRAP_REPEAT_MIRROR = LINA_GRAPHICS_SAMPLER_WRAP_REPEAT_MIRROR,
 	};
 
+	enum BindTextureMode
+	{
+		BINDTEXTURE_TEXTURE2D = LINA_GRAPHICS_BINDTEXTURE_TEXTURE2D,
+		BINDTEXTURE_CUBEMAP = LINA_GRAPHICS_BINDTEXTURE_CUBEMAP
+	};
+
 	enum PixelFormat
 	{
 		FORMAT_R,
@@ -281,7 +287,7 @@ namespace LinaEngine::Graphics
 		void SetShader(uint32 shader);
 
 		// Uses a shader sampler by id.
-		void SetShaderSampler(uint32 shader, const LinaString& samplerName, uint32 texture, uint32 sampler, uint32 unit);
+		void SetShaderSampler(uint32 shader, const LinaString& samplerName, uint32 texture, uint32 sampler, uint32 unit, BindTextureMode bindTextureMode = BindTextureMode::BINDTEXTURE_TEXTURE2D);
 
 		// Creates uniform buffer of a shader by id.
 		void SetShaderUniformBuffer(uint32 shader, const LinaString& uniformBufferName, uint32 buffer);
@@ -296,7 +302,7 @@ namespace LinaEngine::Graphics
 		void Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements);
 
 		// Used for drawing a skybox.
-		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams);
+		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Matrix& projection, const Matrix& view);
 
 		// Clears context.
 		void Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const class Color& color, uint32 stencil);

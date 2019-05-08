@@ -15,6 +15,10 @@
 
 
 #----------------------------------- BUFFER USAGE DEFINITIONS ----------------------------------- #
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_BINDTEXTURE_TEXTURE2D=0x0DE1)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_BINDTEXTURE_CUBEMAP=0x8513)
+
+#----------------------------------- BUFFER USAGE DEFINITIONS ----------------------------------- #
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_USAGE_STATIC_DRAW=0x88E4)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_USAGE_STREAM_DRAW=0x88E0)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_USAGE_DYNAMIC_DRAW=0x88E8)

@@ -25,12 +25,12 @@ namespace LinaEngine::Graphics
 {
 	void SkyboxContext::RenderSkybox(const Matrix& projection, const Matrix& view)
 	{
-		renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "projection", projection);
-		renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "view", view);
 
-		m_Shader->SetSampler(m_SamplerName, *m_Texture, *m_Sampler, 0);
-		renderDevice->Draw(target->GetID(), m_Shader->GetID(), m_VAO, *m_DrawParams, 1, 36);
-		//renderDevice->DrawSkybox(target->GetID(), m_Shader->GetID(), m_VAO, m_Texture, *m_DrawParams);
+		m_Shader->SetSampler(m_SamplerName, *m_Texture, *m_Sampler, 0, BindTextureMode::BINDTEXTURE_CUBEMAP);
+		///renderDevice->Draw(target->GetID(), m_Shader->GetID(), m_VAO, *m_DrawParams, 1, 36);
+		renderDevice->DrawSkybox(target->GetID(), m_Shader->GetID(), m_VAO, m_Texture->GetID(), *m_DrawParams, projection, view);
+	
+
 	}
 }
 

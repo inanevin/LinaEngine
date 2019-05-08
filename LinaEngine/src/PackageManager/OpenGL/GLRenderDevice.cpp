@@ -40,7 +40,7 @@ namespace LinaEngine::Graphics
 #define FOURCC_DXT3 MAKEFOURCCDXT('3')
 #define FOURCC_DXT4 MAKEFOURCCDXT('4')
 #define FOURCC_DXT5 MAKEFOURCCDXT('5')
-	
+
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 	// GLOBALS DECLARATIONS
@@ -49,12 +49,12 @@ namespace LinaEngine::Graphics
 
 	GLint GetOpenGLFormat(PixelFormat dataFormat);
 	GLint GetOpenGLInternalFormat(PixelFormat internalFormat, bool compress);
-	static bool AddShader(GLuint shaderProgram, const LinaString& text, GLenum type, LinaArray<GLuint>* shaders);
-	static void AddAllAttributes(GLuint program, const LinaString& vertexShaderText, uint32 version);
-	static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const LinaString& errorMessage);
-	static void AddShaderUniforms(GLuint shaderProgram, const LinaString& shaderText, LinaMap<LinaString, GLint>& uniformBlockMap, LinaMap<LinaString, GLint>& uniformMap, LinaMap<LinaString, GLint>& samplerMap);
+	static bool AddShader(GLuint shaderProgram, const LinaString & text, GLenum type, LinaArray<GLuint> * shaders);
+	static void AddAllAttributes(GLuint program, const LinaString & vertexShaderText, uint32 version);
+	static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const LinaString & errorMessage);
+	static void AddShaderUniforms(GLuint shaderProgram, const LinaString & shaderText, LinaMap<LinaString, GLint> & uniformBlockMap, LinaMap<LinaString, GLint> & uniformMap, LinaMap<LinaString, GLint> & samplerMap);
 
-	GLRenderDevice::GLRenderDevice() 
+	GLRenderDevice::GLRenderDevice()
 	{
 		LINA_CORE_TRACE("[Constructor] -> GLRenderDevice ({0})", typeid(*this).name());
 
@@ -91,7 +91,7 @@ namespace LinaEngine::Graphics
 		glDepthFunc(DRAW_FUNC_ALWAYS);
 		glDepthMask(GL_FALSE);
 		glFrontFace(GL_CW);
-		
+
 	}
 
 
@@ -101,7 +101,7 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 
 
-	uint32 GLRenderDevice::CreateTexture2D(int32 width, int32 height, const void * data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
+	uint32 GLRenderDevice::CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
 	{
 		// Declare formats, target & handle for the texture.
 		GLint format = GetOpenGLFormat(pixelDataFormat);
@@ -132,7 +132,7 @@ namespace LinaEngine::Graphics
 		return textureHandle;
 	}
 
-	uint32 GLRenderDevice::CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char * buffer, uint32 fourCC, uint32 mipMapCount)
+	uint32 GLRenderDevice::CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount)
 	{
 		// Define the necessary format.
 		GLint format;
@@ -170,7 +170,7 @@ namespace LinaEngine::Graphics
 		// Set mipmap levels.
 		for (unsigned int level = 0; level < mipMapCount && (width || height); ++level)
 		{
-			unsigned int size = ((width + 3) / 4)*((height + 3) / 4)*blockSize;
+			unsigned int size = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
 			glCompressedTexImage2D(GL_TEXTURE_2D, level, format, width, height, 0, size, buffer + offset);
 
 			offset += size;
@@ -181,7 +181,7 @@ namespace LinaEngine::Graphics
 		return textureID;
 	}
 
-	uint32 GLRenderDevice::CreateCubemapTexture(int32 width, int32 height, const LinaArray<int32*>& data, uint32 dataSize)
+	uint32 GLRenderDevice::CreateCubemapTexture(int32 width, int32 height, const LinaArray<int32*> & data, uint32 dataSize)
 	{
 		GLuint textureHandle;
 
@@ -192,7 +192,7 @@ namespace LinaEngine::Graphics
 		unsigned char yneg[] = { 0xFF, 0x00, 0xFF, 0xFF };    // magenta
 		unsigned char zpos[] = { 0x00, 0x00, 0xFF, 0xFF };    // blue
 		unsigned char zneg[] = { 0xFF, 0xFF, 0x00, 0xFF };    // yellow
-		width = height = 1;
+	//	width = height = 1;
 
 		// Generate texture & bind to program.
 	/*	glGenTextures(1, &textureHandle);
@@ -201,45 +201,45 @@ namespace LinaEngine::Graphics
 		// Loop through each face to gen. image.
 		for (GLuint i = 0; i < dataSize; i++)
 		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data[i]);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[i]);
 		}
 
 		// Specify wrapping & filtering
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-		*/
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);*/
+	
+
 		glGenTextures(1, &textureHandle);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, textureHandle);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, xpos);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, xneg);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, ypos);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, yneg);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, zpos);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, zneg);
+		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, xpos);
+		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, xneg);
+		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, ypos);
+		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, yneg);
+		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, zpos);
+		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, zneg);
 		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[0]);
 		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[1]);
 		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[2]);
 		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[3]);
 		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[4]);
 		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[5]);
-		//for (GLuint i = 0; i < dataSize; i++)
-		//{
-		//	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data[i]);
-		//}
-		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		for (GLuint i = 0; i < dataSize; i++)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[i]);
+		}
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 		//glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-
+		
 		return textureHandle;
 	}
 
@@ -257,7 +257,7 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	uint32 GLRenderDevice::CreateVertexArray(const float** vertexData, const uint32* vertexElementSizes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage)
+	uint32 GLRenderDevice::CreateVertexArray(const float** vertexData, const uint32 * vertexElementSizes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32 * indices, uint32 numIndices, BufferUsage bufferUsage)
 	{
 		// Define vertex array object, buffers, buffer count & their sizes.
 		unsigned int numBuffers = numVertexComponents + numInstanceComponents + 1;
@@ -410,7 +410,6 @@ namespace LinaEngine::Graphics
 
 	uint32 GLRenderDevice::CreateSkyboxVertexArray()
 	{
-		
 
 		glGenVertexArrays(1, &skyboxVAO);
 		glGenBuffers(1, &skyboxVBO);
@@ -483,7 +482,7 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	uint32 GLRenderDevice::CreateShaderProgram(const LinaString& shaderText)
+	uint32 GLRenderDevice::CreateShaderProgram(const LinaString & shaderText)
 	{
 		// Shader program instance.
 		GLuint shaderProgram = glCreateProgram();
@@ -537,7 +536,7 @@ namespace LinaEngine::Graphics
 		if (programIt == m_ShaderProgramMap.end()) return 0;
 
 		// Get the program from the map.
-		const ShaderProgram* shaderProgram = &programIt->second;
+		const ShaderProgram * shaderProgram = &programIt->second;
 
 		// Detach & delete each shader assigned to our program.
 		for (LinaArray<uint32>::const_iterator it = shaderProgram->shaders.begin(); it != shaderProgram->shaders.end(); ++it)
@@ -604,7 +603,7 @@ namespace LinaEngine::Graphics
 		if (it == m_VAOMap.end()) return;
 
 		// Get the vertex array object data from the map.
-		const VertexArrayData* vaoData = &it->second;
+		const VertexArrayData * vaoData = &it->second;
 
 		// Define a usage according to the VAO data.
 		BufferUsage usage;
@@ -641,19 +640,19 @@ namespace LinaEngine::Graphics
 		m_BoundShader = shader;
 	}
 
-	void GLRenderDevice::SetShaderSampler(uint32 shader, const LinaString & samplerName, uint32 texture, uint32 sampler, uint32 unit)
+	void GLRenderDevice::SetShaderSampler(uint32 shader, const LinaString & samplerName, uint32 texture, uint32 sampler, uint32 unit, BindTextureMode bindTextureMode)
 	{
 		// Use shader first.
 		SetShader(shader);
 
 		// Activate the sampler data.
 		glActiveTexture(GL_TEXTURE0 + unit);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindTexture(bindTextureMode, texture);
 		glBindSampler(unit, sampler);
 		glUniform1i(m_ShaderProgramMap[shader].samplerMap[samplerName], unit);
 	}
 
-	void GLRenderDevice::SetShaderUniformBuffer(uint32 shader, const LinaString& uniformBufferName, uint32 buffer)
+	void GLRenderDevice::SetShaderUniformBuffer(uint32 shader, const LinaString & uniformBufferName, uint32 buffer)
 	{
 		// Use shader first.
 		SetShader(shader);
@@ -732,7 +731,7 @@ namespace LinaEngine::Graphics
 		m_BoundFBO = fbo;
 	}
 
-	void GLRenderDevice::Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements)
+	void GLRenderDevice::Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams & drawParams, uint32 numInstances, uint32 numElements)
 	{
 		// No need to draw nothin dude.
 		if (numInstances == 0) return;
@@ -765,9 +764,9 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams & drawParams)
+	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams & drawParams, const Matrix& projection, const Matrix& view)
 	{
-		glDepthFunc(GL_LEQUAL);
+		//glDepthFunc(GL_LEQUAL);
 		// Bind the render targets.
 		SetFBO(fbo);
 
@@ -780,22 +779,22 @@ namespace LinaEngine::Graphics
 		// Set scissors tests if required, face culling modes as well as depth tests.
 		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
 		SetFaceCulling(drawParams.faceCulling);
-		//SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
+		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
 
 		// Bind & use the target shader.
 		SetShader(shader);
 
+		UpdateShaderUniformMatrix(shader, "projection", projection);
+		UpdateShaderUniformMatrix(shader, "view", view);
+
 		// use array buffer & attributes.
 		SetVAO(vao);
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
-	
 		// 1 object or instanced draw calls?
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
 
-	void GLRenderDevice::Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
+	void GLRenderDevice::Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color & color, uint32 stencil)
 	{
 		// Make sure frame buffer objects are used.
 		SetFBO(fbo);
@@ -830,7 +829,20 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const LinaString & uniform, const Matrix & m)
 	{
-		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_FALSE, m[0].GetFirst());
+		float* firstVector = m[0].GetFirst();
+		float* secondVector = m[1].GetFirst();
+		float* thirdVector = m[2].GetFirst();
+		float* lastVector = m[3].GetFirst();
+
+		float matrixData[] = {
+
+			*(firstVector), *(firstVector + 1), *(firstVector + 2), *(firstVector + 3),
+			*(secondVector), *(secondVector + 1), *(secondVector + 2), *(secondVector + 3),
+			*(thirdVector), *(thirdVector + 1), *(thirdVector + 2), *(thirdVector + 3),
+			*(lastVector),*(lastVector + 1), *(lastVector + 2), *(lastVector + 3)
+		};
+
+		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_TRUE, matrixData);
 	}
 
 
@@ -1051,7 +1063,7 @@ namespace LinaEngine::Graphics
 	}
 
 
-	static bool AddShader(GLuint shaderProgram, const LinaString& text, GLenum type, LinaArray<GLuint>* shaders)
+	static bool AddShader(GLuint shaderProgram, const LinaString & text, GLenum type, LinaArray<GLuint> * shaders)
 	{
 		// Create shader object.
 		GLuint shader = glCreateShader(type);
@@ -1089,7 +1101,7 @@ namespace LinaEngine::Graphics
 		return true;
 	}
 
-	static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const LinaString& errorMessage)
+	static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const LinaString & errorMessage)
 	{
 		// Check shader errors from OpenGl.
 		GLint success = 0;
@@ -1115,7 +1127,7 @@ namespace LinaEngine::Graphics
 		return false;
 	}
 
-	static void AddAllAttributes(GLuint program, const LinaString& vertexShaderText, uint32 version)
+	static void AddAllAttributes(GLuint program, const LinaString & vertexShaderText, uint32 version)
 	{
 		// Terminate if attribute layout feature is enabled.
 		if (version >= 320) return;
@@ -1141,12 +1153,12 @@ namespace LinaEngine::Graphics
 
 			// Use appropriate attribute location.
 			glGetActiveAttrib(program, attrib, nameData.size(), &actualLength, &arraySize, &type, &nameData[0]);
-			glBindAttribLocation(program, attrib, (char*)&nameData[0]);
+			glBindAttribLocation(program, attrib, (char*)& nameData[0]);
 
 		}
 	}
 
-	static void AddShaderUniforms(GLuint shaderProgram, const LinaString& shaderText, LinaMap<LinaString, GLint>& uniformBlockMap, LinaMap<LinaString, GLint>& uniformMap, LinaMap<LinaString, GLint>& samplerMap)
+	static void AddShaderUniforms(GLuint shaderProgram, const LinaString & shaderText, LinaMap<LinaString, GLint> & uniformBlockMap, LinaMap<LinaString, GLint> & uniformMap, LinaMap<LinaString, GLint> & samplerMap)
 	{
 		// Load uniform sets.
 		GLint numBlocks;
@@ -1161,7 +1173,7 @@ namespace LinaEngine::Graphics
 			glGetActiveUniformBlockiv(shaderProgram, block, GL_UNIFORM_BLOCK_NAME_LENGTH, &nameLen);
 			LinaArray<GLchar> name(nameLen);
 			glGetActiveUniformBlockName(shaderProgram, block, nameLen, NULL, &name[0]);
-			LinaString uniformBlockName((char*)&name[0], nameLen - 1);
+			LinaString uniformBlockName((char*)& name[0], nameLen - 1);
 			uniformBlockMap[uniformBlockName] = glGetUniformBlockIndex(shaderProgram, &name[0]);
 		}
 
@@ -1186,9 +1198,9 @@ namespace LinaEngine::Graphics
 				continue;
 			}*/
 
-			LinaString name((char*)&uniformName[0], actualLength - 1);
-			samplerMap[name] = glGetUniformLocation(shaderProgram, (char*)&uniformName[0]);
-			uniformMap[&uniformName[0]] = glGetUniformLocation(shaderProgram, (char*)&uniformName[0]);
+			LinaString name((char*)& uniformName[0], actualLength - 1);
+			samplerMap[name] = glGetUniformLocation(shaderProgram, (char*)& uniformName[0]);
+			uniformMap[&uniformName[0]] = glGetUniformLocation(shaderProgram, (char*)& uniformName[0]);
 
 		}
 	}

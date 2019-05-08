@@ -190,6 +190,8 @@ namespace LinaEngine
 		FORCEINLINE Vector getTranslation() const;
 
 
+
+
 		FORCEINLINE Vector operator[](uint32 index) const {
 			LINA_CORE_ASSERT(index < 4);
 			return m[index];
