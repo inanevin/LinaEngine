@@ -28,6 +28,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/MotionComponent.hpp"
 #include "ECS/Components/CubeChunkComponent.hpp"
+#include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Systems/MotionSystem.hpp"
 #include "ECS/Systems/MovementControlSystem.hpp"
 #include "ECS/Systems/MeshRendererSystem.hpp"
@@ -93,7 +94,10 @@ namespace LinaEngine::Graphics
 	RenderableObjectData* cube2;
 	EntityHandle entity;
 	MeshRendererComponent renderableMesh;
-
+	Texture* testSprite;
+	EntityHandle spriteEntity;
+	TransformComponent spriteTransform;
+	SpriteRendererComponent spriteRenderer;
 
 	void RenderEngine::Initialize(EntityComponentSystem* ecsIn)
 	{
@@ -173,7 +177,7 @@ namespace LinaEngine::Graphics
 		m_MeshRendererSystem.Construct(m_DefaultRenderContext);
 
 		// Initialize ECS Sprite Render System
-		m_SpriteRendererSystem.Construct(*m_RenderDevice.get(), m_SpriteSampler, m_RenderTarget.GetID(), m_SpriteVAO, m_SpriteDrawParams);
+		m_SpriteRendererSystem.Construct(*m_RenderDevice.get(), m_SpriteSampler, m_RenderTarget.GetID(), m_SpriteVAO, m_SpriteDrawParams, m_CurrentProjectionMatrix);
 
 		// CUSTOM 
 		freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 10.0f;		
@@ -199,6 +203,12 @@ namespace LinaEngine::Graphics
 
 		entity = m_ECS->MakeEntity(transformComponent, renderableMesh);
 
+		spriteTransform.transform.SetLocation(Vector3F(10, 0, 5));
+		testSprite = &LoadTextureResource("sprite.png", PixelFormat::FORMAT_RGBA, false, false);
+		spriteRenderer.color = Color(1.0f);
+		spriteRenderer.shader = &m_BasicSpriteShader;
+		spriteRenderer.texture = testSprite;
+		spriteEntity = m_ECS->MakeEntity(spriteTransform, spriteRenderer);
 	}
 
 	void RenderEngine::Tick(float delta)
@@ -230,6 +240,9 @@ namespace LinaEngine::Graphics
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();
 		m_CurrentProjectionMatrix = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent.fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent.zNear, m_ActiveCameraComponent.zFar);
 		m_CameraSystem.SetProjectionMatrix(m_CurrentProjectionMatrix);
+
+		// Update sprite renderer system's projection matrix.
+		m_SpriteRendererSystem.SetProjectionMatrix(m_CurrentProjectionMatrix);
 	}
 
 	Texture & RenderEngine::LoadTextureResource(const LinaString & fileName, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)

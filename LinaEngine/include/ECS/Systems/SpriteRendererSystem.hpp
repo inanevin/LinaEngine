@@ -43,15 +43,20 @@ namespace LinaEngine::ECS
 			AddComponentType(SpriteRendererComponent::ID);
 		}
 
-		FORCEINLINE void Construct(PAMRenderDevice& renderDeviceIn, Sampler& samplerIn, uint32 fbo, uint32 vao, DrawParams& drawParams)
+		FORCEINLINE void Construct(PAMRenderDevice& renderDeviceIn, Sampler& samplerIn, uint32 fbo, uint32 vao, DrawParams& drawParams, const Matrix& projection)
 		{
 			m_FBO = fbo;
 			m_VAO = vao;
 			m_DrawParams = &drawParams;
 			m_RenderDevice = &renderDeviceIn;
 			m_SpriteSampler = &samplerIn;
+			m_Projection = projection;
 		}
 
+		FORCEINLINE void SetProjectionMatrix(const Matrix& projection)
+		{
+			m_Projection = projection;
+		}
 
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
 
@@ -62,6 +67,7 @@ namespace LinaEngine::ECS
 		DrawParams* m_DrawParams;
 		PAMRenderDevice* m_RenderDevice;
 		Sampler* m_SpriteSampler;
+		Matrix m_Projection;
 	};
 }
 

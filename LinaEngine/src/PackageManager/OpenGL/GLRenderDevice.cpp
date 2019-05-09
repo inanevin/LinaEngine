@@ -803,7 +803,7 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void GLRenderDevice::DrawSprite(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, const Matrix & model, const Vector3F & color)
+	void GLRenderDevice::DrawSprite(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, const Matrix & model, const Matrix& projection, const Vector3F & color)
 	{
 		// Bind the render targets.
 		SetFBO(fbo);
@@ -819,6 +819,7 @@ namespace LinaEngine::Graphics
 		SetFaceCulling(drawParams.faceCulling);
 		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
 
+		UpdateShaderUniformMatrix(shader, "projection", projection);
 		UpdateShaderUniformMatrix(shader, "model", model);
 		UpdateShaderUniformVector3F(shader, "color", color);
 		// Update uniforms

@@ -308,7 +308,7 @@ namespace LinaEngine::Graphics
 		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Matrix& projection, const Matrix& view);
 
 		// Used for drawing sprites.
-		void DrawSprite(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, const Matrix& model, const Vector3F& color);
+		void DrawSprite(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, const Matrix& model, const Matrix& projection, const Vector3F& color);
 
 		// Clears context.
 		void Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const class Color& color, uint32 stencil);
