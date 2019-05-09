@@ -120,15 +120,22 @@ namespace LinaEngine::Graphics
 
 		// Initialize basic shader.
 		LinaString basicShaderText;
-		LinaEngine::Internal::LoadTextFileWithIncludes(basicShaderText, "Resources/Shaders/basicShader.glsl", "#include");
-		m_BasicShader.Construct(*m_RenderDevice.get(), basicShaderText);
-		m_BasicShader.SetSampler(m_DefaultSampler.GetSamplerName(), m_DefaultDiffuseTexture, m_DefaultSampler, 0);
+		LinaEngine::Internal::LoadTextFileWithIncludes(basicShaderText, "Resources/Shaders/basicStandard.glsl", "#include");
+		m_BasicStandardShader.Construct(*m_RenderDevice.get(), basicShaderText);
+		//m_BasicStandardShader.SetSampler(m_DefaultSampler.GetSamplerName(), m_DefaultDiffuseTexture, m_DefaultSampler, 0);
 
-		// Initialize skybox shader.
+		// Initialize default skybox shader.
 		LinaString skyboxShaderText;
-		LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, "Resources/Shaders/skybox.glsl", "#include");
-		m_DefaultSkyboxShader.Construct(*m_RenderDevice.get(), skyboxShaderText);
-		m_DefaultSkyboxShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_SkyboxTexture, m_SkyboxSampler, 0);
+		LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, "Resources/Shaders/basicSkybox.glsl", "#include");
+		m_BasicSkyboxShader.Construct(*m_RenderDevice.get(), skyboxShaderText);
+		//m_BasicSkyboxShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_SkyboxTexture, m_SkyboxSampler, 0);
+
+		// Initialize default sprite shader.
+		LinaString spriteShaderText;
+		LinaEngine::Internal::LoadTextFileWithIncludes(spriteShaderText, "Resources/Shaders/basicSprite.glsl", "#include");
+		m_BasicSpriteShader.Construct(*m_RenderDevice.get(), skyboxShaderText);
+		//m_BasicSpriteShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_SkyboxTexture, m_SkyboxSampler, 0);
+
 
 		// Initialize the render target.
 		m_RenderTarget.Construct(*m_RenderDevice.get());
@@ -150,7 +157,7 @@ namespace LinaEngine::Graphics
 		m_CurrentProjectionMatrix = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent.fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent.zNear, m_ActiveCameraComponent.zFar);
 
 		// Initialize the render context.
-		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_RenderTarget, m_DefaultDrawParams, m_BasicShader, m_DefaultSampler, m_CurrentProjectionMatrix);
+		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_RenderTarget, m_DefaultDrawParams, m_BasicStandardShader, m_DefaultSampler, m_CurrentProjectionMatrix);
 
 		// Initialize skybox vertex array object.
 		m_SkyboxVAO = m_RenderDevice->CreateSkyboxVertexArray();
@@ -350,8 +357,8 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::RenderSkybox()
 	{
-		m_DefaultSkyboxShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_SkyboxTexture, m_SkyboxSampler, 0, BindTextureMode::BINDTEXTURE_CUBEMAP);
-		m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_DefaultSkyboxShader.GetID(),  m_SkyboxVAO, m_SkyboxTexture.GetID(), m_SkyboxDrawParams, m_CurrentProjectionMatrix, m_CameraSystem.GetSkyboxViewTransformation());
+		m_BasicSkyboxShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_SkyboxTexture, m_SkyboxSampler, 0, BindTextureMode::BINDTEXTURE_CUBEMAP);
+		m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_BasicSkyboxShader.GetID(),  m_SkyboxVAO, m_SkyboxTexture.GetID(), m_SkyboxDrawParams, m_CurrentProjectionMatrix, m_CameraSystem.GetSkyboxViewTransformation());
 	}
 
 }

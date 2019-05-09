@@ -127,13 +127,13 @@ namespace LinaEngine::Graphics
 		Texture m_SkyboxTexture;
 
 		// Default shader
-		Shader m_BasicShader;
+		Shader m_BasicStandardShader;
 
 		// Skybox shader
-		Shader m_DefaultSkyboxShader;
+		Shader m_BasicSkyboxShader;
 
 		// Default sprite shader.
-		Shader m_DefaultSpriteShader;
+		Shader m_BasicSpriteShader;
 
 		// Default render target
 		RenderTarget m_RenderTarget;
