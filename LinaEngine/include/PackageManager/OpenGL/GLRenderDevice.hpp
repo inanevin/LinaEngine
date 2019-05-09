@@ -253,9 +253,6 @@ namespace LinaEngine::Graphics
 		// Creates a skybox vertex array.
 		uint32 CreateSkyboxVertexArray();
 
-		// Create a vertex array for drawing sprites.
-		uint32 CreateSpriteVertexArray();
-
 		// Releases a previously created vertex array by id from GL.
 		uint32 ReleaseVertexArray(uint32 vao);
 
@@ -306,9 +303,6 @@ namespace LinaEngine::Graphics
 
 		// Used for drawing a skybox.
 		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Matrix& projection, const Matrix& view);
-
-		// Used for drawing sprites.
-		void DrawSprite(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, const Matrix& model, const Matrix& projection, const Vector3F& color);
 
 		// Clears context.
 		void Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const class Color& color, uint32 stencil);

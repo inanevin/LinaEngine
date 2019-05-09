@@ -29,8 +29,8 @@ namespace LinaEngine::ECS
 		TransformComponent* transform = (TransformComponent*)components[0];
 		SpriteRendererComponent* sprite = (SpriteRendererComponent*)components[1];
 
-		sprite->shader->SetSampler(m_SpriteSampler->GetSamplerName(), *sprite->texture, *m_SpriteSampler, 0, BindTextureMode::BINDTEXTURE_TEXTURE2D);
-		m_RenderDevice->DrawSprite(m_FBO, sprite->shader->GetID(), m_VAO, *m_DrawParams, transform->transform.ToMatrix(), m_Projection, Vector3F(sprite->color.x, sprite->color.y, sprite->color.z));
+		//sprite->shader->SetSampler(m_SpriteSampler->GetSamplerName(), *sprite->texture, *m_SpriteSampler, 0, BindTextureMode::BINDTEXTURE_TEXTURE2D);
+		//m_RenderDevice->DrawSprite(m_FBO, sprite->shader->GetID(), m_VAO, sprite->texture->GetID() ,*m_DrawParams, transform->transform.ToMatrix(), orto, Vector3F(sprite->color.x, sprite->color.y, sprite->color.z));
 	}
 }
 

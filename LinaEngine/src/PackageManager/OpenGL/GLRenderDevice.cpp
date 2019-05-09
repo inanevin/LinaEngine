@@ -140,8 +140,8 @@ namespace LinaEngine::Graphics
 	void GLRenderDevice::Initialize()
 	{
 		struct FBOData fboWindowData;
-		fboWindowData.width = 1280;
-		fboWindowData.height = 720;
+		fboWindowData.width = m_MainWindow->GetWidth();
+		fboWindowData.height = m_MainWindow->GetHeight();
 		m_FBOMap[0] = fboWindowData;
 
 		glEnable(GL_DEPTH_TEST);
@@ -401,35 +401,6 @@ namespace LinaEngine::Graphics
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		return skyboxVAO;
-	}
-
-	uint32 GLRenderDevice::CreateSpriteVertexArray()
-	{
-		GLuint VBO, VAO;
-		GLfloat vertices[] = {
-			// Pos      // Tex
-			0.0f, 1.0f, 0.0f, 1.0f,
-			1.0f, 0.0f, 1.0f, 0.0f,
-			0.0f, 0.0f, 0.0f, 0.0f,
-
-			0.0f, 1.0f, 0.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 0.0f, 1.0f, 0.0f
-		};
-
-		glGenVertexArrays(1, &VAO);
-		glGenBuffers(1, &VBO);
-
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-		glBindVertexArray(VAO);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-
-		return VAO;
 	}
 
 	// ---------------------------------------------------------------------
@@ -801,31 +772,6 @@ namespace LinaEngine::Graphics
 		// Finally draw the sky box.
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-	}
-
-	void GLRenderDevice::DrawSprite(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, const Matrix & model, const Matrix& projection, const Vector3F & color)
-	{
-		// Bind the render targets.
-		SetFBO(fbo);
-
-		// Ensure viewport is ok.
-		SetViewport(fbo);
-
-		// Set blend mode for each render target.
-		SetBlending(drawParams.sourceBlend, drawParams.destBlend);
-
-		// Set scissors tests if required, face culling modes as well as depth tests.
-		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
-		SetFaceCulling(drawParams.faceCulling);
-		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
-
-		UpdateShaderUniformMatrix(shader, "projection", projection);
-		UpdateShaderUniformMatrix(shader, "model", model);
-		UpdateShaderUniformVector3F(shader, "color", color);
-		// Update uniforms
-		SetVAO(vao);
-
-		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 
 	void GLRenderDevice::Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color & color, uint32 stencil)

@@ -94,10 +94,6 @@ namespace LinaEngine::Graphics
 	RenderableObjectData* cube2;
 	EntityHandle entity;
 	MeshRendererComponent renderableMesh;
-	Texture* testSprite;
-	EntityHandle spriteEntity;
-	TransformComponent spriteTransform;
-	SpriteRendererComponent spriteRenderer;
 
 	void RenderEngine::Initialize(EntityComponentSystem* ecsIn)
 	{
@@ -113,14 +109,12 @@ namespace LinaEngine::Graphics
 		// Initialize skybox sampler.
 		m_SkyboxSampler.Construct("skybox", *m_RenderDevice.get(), SamplerFilter::FILTER_NEAREST);
 
-		// Initialize sprite sampler
-		m_SpriteSampler.Construct("image", *m_RenderDevice.get(), SamplerFilter::FILTER_NEAREST);
-
 		// Initialize default texture.
 		m_DefaultDiffuseTexture = LoadTextureResource("seamless1.jpg", PixelFormat::FORMAT_RGB, true, false);
 
 		// Initialize default skybox texture
 		m_SkyboxTexture = LoadCubemapTextureResource("Skybox/Skybox1/right.jpg", "Skybox/Skybox1/left.jpg", "Skybox/Skybox1/up.jpg", "Skybox/Skybox1/down.jpg", "Skybox/Skybox1/front.jpg", "Skybox/Skybox1/back.jpg");
+	
 
 		// Initialize basic shader.
 		LinaString basicShaderText;
@@ -133,13 +127,6 @@ namespace LinaEngine::Graphics
 		LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, "Resources/Shaders/basicSkybox.glsl", "#include");
 		m_BasicSkyboxShader.Construct(*m_RenderDevice.get(), skyboxShaderText);
 		//m_BasicSkyboxShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_SkyboxTexture, m_SkyboxSampler, 0);
-
-		// Initialize default sprite shader.
-		LinaString spriteShaderText;
-		LinaEngine::Internal::LoadTextFileWithIncludes(spriteShaderText, "Resources/Shaders/basicSprite.glsl", "#include");
-		m_BasicSpriteShader.Construct(*m_RenderDevice.get(), skyboxShaderText);
-		//m_BasicSpriteShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_SkyboxTexture, m_SkyboxSampler, 0);
-
 
 		// Initialize the render target.
 		m_RenderTarget.Construct(*m_RenderDevice.get());
@@ -155,7 +142,8 @@ namespace LinaEngine::Graphics
 		m_SkyboxDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
 		m_SkyboxDrawParams.shouldWriteDepth = true;
 		m_SkyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
-		 
+
+
 		// Initialize default perspective.
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();
 		m_CurrentProjectionMatrix = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent.fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent.zNear, m_ActiveCameraComponent.zFar);
@@ -165,9 +153,6 @@ namespace LinaEngine::Graphics
 
 		// Initialize skybox vertex array object.
 		m_SkyboxVAO = m_RenderDevice->CreateSkyboxVertexArray();
-
-		// Initialize sprite vertex array object
-		m_SpriteVAO = m_RenderDevice->CreateSpriteVertexArray();
 	
 		// Initialize ECS Camera System.
 		m_CameraSystem.Construct(m_DefaultRenderContext);
@@ -191,7 +176,6 @@ namespace LinaEngine::Graphics
 		m_RenderingPipeline.AddSystem(m_MeshRendererSystem);
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
 		m_RenderingPipeline.AddSystem(*fss);
-		m_RenderingPipeline.AddSystem(m_SpriteRendererSystem);
 
 		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
 		transformComponent.transform.SetScale(Vector3F(2,2,2));
@@ -203,12 +187,6 @@ namespace LinaEngine::Graphics
 
 		entity = m_ECS->MakeEntity(transformComponent, renderableMesh);
 
-		spriteTransform.transform.SetLocation(Vector3F(10, 0, 5));
-		testSprite = &LoadTextureResource("sprite.png", PixelFormat::FORMAT_RGBA, false, false);
-		spriteRenderer.color = Color(1.0f);
-		spriteRenderer.shader = &m_BasicSpriteShader;
-		spriteRenderer.texture = testSprite;
-		spriteEntity = m_ECS->MakeEntity(spriteTransform, spriteRenderer);
 	}
 
 	void RenderEngine::Tick(float delta)
