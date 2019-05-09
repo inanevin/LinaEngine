@@ -16,26 +16,27 @@
  
 #include "common.glh"
 
-varying vec2 texCoord0;
+layout (location = 0) in vec4 vertex; // <vec2 position, vec2 texCoords>
 
-#if defined(VS_BUILD)
-Layout(0) attribute vec3 position;
-Layout(1) attribute vec2 texCoord;
-Layout(4) attribute mat4 transformMat;
+out vec2 TexCoords;
+
+uniform mat4 model;
+uniform mat4 projection;
 
 void main()
 {
-    gl_Position = vec4(position, 1.0) * transformMat;
-    texCoord0 = texCoord;
+    TexCoords = vertex.zw;
+    gl_Position = projection * model * vec4(vertex.xy, 0.0, 1.0);
 }
-
 #elif defined(FS_BUILD)
+in vec2 TexCoords;
+out vec4 color;
 
-uniform sampler2D diffuse;
-out vec4 FragColor;
+uniform sampler2D image;
+uniform vec3 spriteColor;
 
 void main()
-{
-	FragColor = texture2D(diffuse, texCoord0);
-}
+{    
+    color = vec4(spriteColor, 1.0) * texture(image, TexCoords);
+}  
 #endif

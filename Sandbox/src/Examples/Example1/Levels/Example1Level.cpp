@@ -24,7 +24,7 @@ RenderableObjectData* cube2;
 Texture* text1;
 Texture* text2;
 EntityHandle entity;
-RenderableMeshComponent renderableMesh;
+MeshRendererComponent renderableMesh;
 TransformComponent transformComponent;
 
 

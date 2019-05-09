@@ -28,12 +28,12 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "Rendering/Shader.hpp"
 #include "Rendering/RenderTarget.hpp"
 #include "Rendering/GameRenderContext.hpp"
-#include "Rendering/SkyboxContext.hpp"
 #include "Rendering/RenderableObjectData.hpp"
 #include "ECS/EntityComponentSystem.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
 #include "ECS/Components/CameraComponent.hpp"
-#include "ECS/Systems/RenderableMeshSystem.hpp"
+#include "ECS/Systems/MeshRendererSystem.hpp"
+#include "ECS/Systems/SpriteRendererSystem.hpp"
 
 
 using namespace LinaEngine::ECS;
@@ -97,8 +97,11 @@ namespace LinaEngine::Graphics
 		// clears resource memory.
 		void DumpMemory();
 
+		// Renders skybox
+		void RenderSkybox();
+
 	private:
-		
+
 		// Device for rendering operations.
 		std::unique_ptr<PAMRenderDevice> m_RenderDevice;
 
@@ -111,6 +114,9 @@ namespace LinaEngine::Graphics
 		// Skybox texture sampler
 		Sampler m_SkyboxSampler;
 
+		// Sprite sampler.
+		Sampler m_SpriteSampler;
+
 		// Default texture data.
 		ArrayBitmap m_DefaultTextureBitmap;
 
@@ -118,16 +124,19 @@ namespace LinaEngine::Graphics
 		Texture m_DefaultDiffuseTexture;
 
 		// Default skybox texture
-		Texture m_DefaultSkyboxTexture;
+		Texture m_SkyboxTexture;
 
 		// Default shader
 		Shader m_BasicShader;
 
 		// Skybox shader
-		Shader m_SkyboxShader;
+		Shader m_DefaultSkyboxShader;
+
+		// Default sprite shader.
+		Shader m_DefaultSpriteShader;
 
 		// Default render target
-		RenderTarget m_DefaultRenderTarget;
+		RenderTarget m_RenderTarget;
 
 		// Default drawing parameters.
 		DrawParams m_DefaultDrawParams;
@@ -135,20 +144,23 @@ namespace LinaEngine::Graphics
 		// Skybox drawing parameters.
 		DrawParams m_SkyboxDrawParams;
 
+		// Sprite drawing parameters.
+		DrawParams m_SpriteDrawParams;
+
 		// Default camera perspective
 		Matrix m_CurrentProjectionMatrix;
 
 		// Default Game Render Context
 		GameRenderContext m_DefaultRenderContext;
 
-		// Render context for rendering skybox.
-		SkyboxContext m_SkyboxRenderContext;
-
 		// ECS system for rendering camera perspective.
 		CameraSystem m_CameraSystem;
 
 		// ECS system for drawing meshes.
-		RenderableMeshSystem m_RenderableMeshSystem;
+		MeshRendererSystem m_MeshRendererSystem;
+
+		// ECS system for rendering sprites.
+		SpriteRendererSystem m_SpriteRendererSystem;
 
 		// ECS system list for rendering operations.
 		ECSSystemList m_RenderingPipeline;
@@ -165,6 +177,14 @@ namespace LinaEngine::Graphics
 		// Dumped data to be cleared by garbage collector.
 		LinaArray<Texture*> m_TextureDump;
 		LinaArray<RenderableObjectData*> m_RenderableObjectDataDump;
+
+	private:
+
+		// Standart Skybox vertex array object.
+		uint32 m_SkyboxVAO;
+
+		// Standart sprite vertex array object.
+		uint32 m_SpriteVAO;
 	};
 
 }

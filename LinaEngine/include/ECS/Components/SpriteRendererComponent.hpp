@@ -12,24 +12,32 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: RenderableMeshSystem
-Timestamp: 4/27/2019 5:41:27 PM
+Class: SpriteRendererComponent
+Timestamp: 5/9/2019 2:58:13 AM
 
 */
 
-#include "LinaPch.hpp"
-#include "ECS/Systems/RenderableMeshSystem.hpp"
+#pragma once
 
+#ifndef SpriteRendererComponent_HPP
+#define SpriteRendererComponent_HPP
+
+#include "ECS/ECSComponent.hpp"
+#include "Rendering/Texture.hpp"
+#include "Rendering/Shader.hpp"
+
+using namespace LinaEngine::Graphics;
 
 
 namespace LinaEngine::ECS
 {
-	void RenderableMeshSystem::UpdateComponents(float delta, BaseECSComponent ** components)
+	struct SpriteRendererComponent : public ECSComponent<SpriteRendererComponent>
 	{
-		TransformComponent* transform = (TransformComponent*)components[0];
-		RenderableMeshComponent* mesh = (RenderableMeshComponent*)components[1];
-
-		context->RenderMesh(*mesh->vertexArray, *mesh->texture, transform->transform.ToMatrix());
-	}
+		Texture* texture = nullptr;
+		Shader* shader = nullptr;
+		Color color;
+	};
 }
 
+
+#endif

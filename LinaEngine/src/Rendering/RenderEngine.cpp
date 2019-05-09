@@ -24,13 +24,13 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "Rendering/ModelLoader.hpp"
 #include "Utility/ResourceConstants.hpp"
 #include "ECS/Components/MovementControlComponent.hpp"
-#include "ECS/Components/RenderableMeshComponent.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/MotionComponent.hpp"
 #include "ECS/Components/CubeChunkComponent.hpp"
 #include "ECS/Systems/MotionSystem.hpp"
 #include "ECS/Systems/MovementControlSystem.hpp"
-#include "ECS/Systems/RenderableMeshSystem.hpp"
+#include "ECS/Systems/MeshRendererSystem.hpp"
 #include "ECS/Systems/CubeChunkRenderSystem.hpp"
 #include "ECS/Systems/CubeChunkSystem.hpp"
 #include "PackageManager/PAMInputEngine.hpp"
@@ -83,13 +83,16 @@ namespace LinaEngine::Graphics
 		// Dump the remaining memory.
 		DumpMemory();
 
+		// Release Vertex Array Objects
+		m_SkyboxVAO = m_RenderDevice->ReleaseVertexArray(m_SkyboxVAO);
+
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
 
 	RenderableObjectData* cube1;
 	RenderableObjectData* cube2;
 	EntityHandle entity;
-	RenderableMeshComponent renderableMesh;
+	MeshRendererComponent renderableMesh;
 
 
 	void RenderEngine::Initialize(EntityComponentSystem* ecsIn)
@@ -106,11 +109,14 @@ namespace LinaEngine::Graphics
 		// Initialize skybox sampler.
 		m_SkyboxSampler.Construct("skybox", *m_RenderDevice.get(), SamplerFilter::FILTER_NEAREST);
 
+		// Initialize sprite sampler
+		m_SpriteSampler.Construct("image", *m_RenderDevice.get(), SamplerFilter::FILTER_NEAREST);
+
 		// Initialize default texture.
 		m_DefaultDiffuseTexture = LoadTextureResource("seamless1.jpg", PixelFormat::FORMAT_RGB, true, false);
 
 		// Initialize default skybox texture
-		m_DefaultSkyboxTexture = LoadCubemapTextureResource("Skybox/Skybox1/right.jpg", "Skybox/Skybox1/left.jpg", "Skybox/Skybox1/up.jpg", "Skybox/Skybox1/down.jpg", "Skybox/Skybox1/front.jpg", "Skybox/Skybox1/back.jpg");
+		m_SkyboxTexture = LoadCubemapTextureResource("Skybox/Skybox1/right.jpg", "Skybox/Skybox1/left.jpg", "Skybox/Skybox1/up.jpg", "Skybox/Skybox1/down.jpg", "Skybox/Skybox1/front.jpg", "Skybox/Skybox1/back.jpg");
 
 		// Initialize basic shader.
 		LinaString basicShaderText;
@@ -121,11 +127,11 @@ namespace LinaEngine::Graphics
 		// Initialize skybox shader.
 		LinaString skyboxShaderText;
 		LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, "Resources/Shaders/skybox.glsl", "#include");
-		m_SkyboxShader.Construct(*m_RenderDevice.get(), skyboxShaderText);
-		m_SkyboxShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_DefaultSkyboxTexture, m_SkyboxSampler, 0);
+		m_DefaultSkyboxShader.Construct(*m_RenderDevice.get(), skyboxShaderText);
+		m_DefaultSkyboxShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_SkyboxTexture, m_SkyboxSampler, 0);
 
 		// Initialize the render target.
-		m_DefaultRenderTarget.Construct(*m_RenderDevice.get());
+		m_RenderTarget.Construct(*m_RenderDevice.get());
 
 		// Set default drawing parameters.
 		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
@@ -144,17 +150,23 @@ namespace LinaEngine::Graphics
 		m_CurrentProjectionMatrix = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent.fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent.zNear, m_ActiveCameraComponent.zFar);
 
 		// Initialize the render context.
-		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_DefaultRenderTarget, m_DefaultDrawParams, m_BasicShader, m_DefaultSampler, m_CurrentProjectionMatrix);
+		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_RenderTarget, m_DefaultDrawParams, m_BasicShader, m_DefaultSampler, m_CurrentProjectionMatrix);
 
-		// Initialize skybox render context.
-		m_SkyboxRenderContext.Construct(*m_RenderDevice.get(), m_DefaultRenderTarget, m_SkyboxDrawParams, m_SkyboxShader, m_SkyboxSampler, m_DefaultSkyboxTexture);
+		// Initialize skybox vertex array object.
+		m_SkyboxVAO = m_RenderDevice->CreateSkyboxVertexArray();
+
+		// Initialize sprite vertex array object
+		m_SpriteVAO = m_RenderDevice->CreateSpriteVertexArray();
 	
 		// Initialize ECS Camera System.
 		m_CameraSystem.Construct(m_DefaultRenderContext);
 		m_CameraSystem.SetProjectionMatrix(m_CurrentProjectionMatrix);
 
 		// Initialize ECS Mesh Render System.
-		m_RenderableMeshSystem.Construct(m_DefaultRenderContext);
+		m_MeshRendererSystem.Construct(m_DefaultRenderContext);
+
+		// Initialize ECS Sprite Render System
+		m_SpriteRendererSystem.Construct(*m_RenderDevice.get(), m_SpriteSampler, m_RenderTarget.GetID(), m_SpriteVAO, m_SpriteDrawParams);
 
 		// CUSTOM 
 		freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 10.0f;		
@@ -165,10 +177,10 @@ namespace LinaEngine::Graphics
 
 		cameraEntity = m_ECS->MakeEntity(transformComponent, m_ActiveCameraComponent, freeLookComponent);
 		
-		m_RenderingPipeline.AddSystem(m_RenderableMeshSystem);
+		m_RenderingPipeline.AddSystem(m_MeshRendererSystem);
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
 		m_RenderingPipeline.AddSystem(*fss);
-	
+		m_RenderingPipeline.AddSystem(m_SpriteRendererSystem);
 
 		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
 		transformComponent.transform.SetScale(Vector3F(2,2,2));
@@ -195,7 +207,7 @@ namespace LinaEngine::Graphics
 		m_DefaultRenderContext.Flush();
 
 		// Draw skybox.
-		m_SkyboxRenderContext.RenderSkybox(m_CurrentProjectionMatrix, m_CameraSystem.GetSkyboxViewTransformation());
+		RenderSkybox();
 
 		// Update window.
 		m_RenderDevice->TickWindow();
@@ -240,7 +252,7 @@ namespace LinaEngine::Graphics
 		ModelLoader::LoadModels(ResourceConstants::meshFolderPath + fileName, objectData->GetIndexedModels(), objectData->GetMaterialIndices(), objectData->GetMaterialSpecs());
 
 		if (objectData->GetIndexedModels().size() == 0)
-			LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} at path {1} could not be found or model scene does not contain any mesh! This will cause undefined behaviour or crashes if it is assigned to a ECS RenderableMeshComponent."
+			LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} at path {1} could not be found or model scene does not contain any mesh! This will cause undefined behaviour or crashes if it is assigned to a ECS MeshRendererComponent."
 				, fileName, ResourceConstants::meshFolderPath);
 
 		// Create vertex array for each mesh.
@@ -334,6 +346,12 @@ namespace LinaEngine::Graphics
 		// Clear dumps.
 		m_RenderableObjectDataDump.clear();
 		m_TextureDump.clear();
+	}
+
+	void RenderEngine::RenderSkybox()
+	{
+		m_DefaultSkyboxShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_SkyboxTexture, m_SkyboxSampler, 0, BindTextureMode::BINDTEXTURE_CUBEMAP);
+		m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_DefaultSkyboxShader.GetID(),  m_SkyboxVAO, m_SkyboxTexture.GetID(), m_SkyboxDrawParams, m_CurrentProjectionMatrix, m_CameraSystem.GetSkyboxViewTransformation());
 	}
 
 }

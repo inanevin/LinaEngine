@@ -12,24 +12,24 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: SkyboxContext
-Timestamp: 5/8/2019 6:51:32 AM
+Class: MeshRendererSystem
+Timestamp: 4/27/2019 5:41:27 PM
 
 */
 
 #include "LinaPch.hpp"
-#include "Rendering/SkyboxContext.hpp"  
-#include "..\..\include\Rendering\SkyboxContext.hpp"
+#include "ECS/Systems/MeshRendererSystem.hpp"
 
-namespace LinaEngine::Graphics
+
+
+namespace LinaEngine::ECS
 {
-	void SkyboxContext::RenderSkybox(const Matrix& projection, const Matrix& view)
+	void MeshRendererSystem::UpdateComponents(float delta, BaseECSComponent ** components)
 	{
+		TransformComponent* transform = (TransformComponent*)components[0];
+		MeshRendererComponent* mesh = (MeshRendererComponent*)components[1];
 
-		m_Shader->SetSampler(m_SamplerName, *m_Texture, *m_Sampler, 0, BindTextureMode::BINDTEXTURE_CUBEMAP);
-		renderDevice->DrawSkybox(target->GetID(), m_Shader->GetID(), m_VAO, m_Texture->GetID(), *m_DrawParams, projection, view);
-	
-
+		context->RenderMesh(*mesh->vertexArray, *mesh->texture, transform->transform.ToMatrix());
 	}
 }
 

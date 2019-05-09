@@ -250,11 +250,14 @@ namespace LinaEngine::Graphics
 		// Creates a vertex array on GL.
 		uint32 CreateVertexArray(const float** vertexData, const uint32* vertexElementSizes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage);
 
-		// Releases a previously created vertex array by id from GL.
-		uint32 ReleaseVertexArray(uint32 vao);
-
 		// Creates a skybox vertex array.
 		uint32 CreateSkyboxVertexArray();
+
+		// Create a vertex array for drawing sprites.
+		uint32 CreateSpriteVertexArray();
+
+		// Releases a previously created vertex array by id from GL.
+		uint32 ReleaseVertexArray(uint32 vao);
 
 		// Creates a texture sampler on GL.
 		uint32 CreateSampler(SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapU, SamplerWrapMode wrapV, float anisotropy);
@@ -304,6 +307,9 @@ namespace LinaEngine::Graphics
 		// Used for drawing a skybox.
 		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Matrix& projection, const Matrix& view);
 
+		// Used for drawing sprites.
+		void DrawSprite(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, const Matrix& model, const Vector3F& color);
+
 		// Clears context.
 		void Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const class Color& color, uint32 stencil);
 
@@ -312,6 +318,9 @@ namespace LinaEngine::Graphics
 
 		// Updates a mat4 type uniform on a shader with given name.
 		void UpdateShaderUniformMatrix(uint32 shader, const LinaString& uniform, const Matrix& m);
+
+		// Updates a vec3 type uniform on a shader with given name.
+		void UpdateShaderUniformVector3F(uint32 shader, const LinaString& uniform, const Vector3F& m);
 
 	private:
 

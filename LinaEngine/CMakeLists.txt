@@ -31,7 +31,8 @@ set (LINAENGINE_SOURCES
 	
 	# ECS 
 	src/ECS/Systems/MovementControlSystem.cpp
-	src/ECS/Systems/RenderableMeshSystem.cpp
+	src/ECS/Systems/MeshRendererSystem.cpp
+	src/ECS/Systems/SpriteRendererSystem.cpp
 	src/ECS/Systems/MotionSystem.cpp
 	src/ECS/Systems/CubeChunkSystem.cpp
 	src/ECS/Systems/CubeChunkRenderSystem.cpp
@@ -69,7 +70,7 @@ set (LINAENGINE_SOURCES
 	src/Rendering/ModelLoader.cpp
 	src/Rendering/GameRenderContext.cpp
 	src/Rendering/RenderEngine.cpp
-	src/Rendering/SkyboxContext.cpp
+	
 	
 	#Physics
 	src/Physics/PhysicsEngine.cpp
@@ -111,15 +112,17 @@ set(LINAENGINE_HEADERS
 	
 	#ECS
 	include/ECS/Components/MovementControlComponent.hpp
-	include/ECS/Components/RenderableMeshComponent.hpp
+	include/ECS/Components/MeshRendererComponent.hpp
 	include/ECS/Components/TransformComponent.hpp
 	include/ECS/Components/MotionComponent.hpp
 	include/ECS/Components/CubeChunkComponent.hpp
 	include/ECS/Components/ColliderComponent.hpp
 	include/ECS/Components/CameraComponent.hpp
 	include/ECS/Components/FreeLookComponent.hpp
+	include/ECS/Components/SpriteRendererComponent.hpp
 	include/ECS/Systems/MovementControlSystem.hpp
-	include/ECS/Systems/RenderableMeshSystem.hpp
+	include/ECS/Systems/MeshRendererSystem.hpp
+	include/ECS/Systems/SpriteRendererSystem.hpp
 	include/ECS/Systems/MotionSystem.hpp
 	include/ECS/Systems/CubeChunkSystem.hpp
 	include/ECS/Systems/CubeChunkRenderSystem.hpp
@@ -191,7 +194,8 @@ set(LINAENGINE_HEADERS
 	include/Rendering/RenderContext.hpp
 	include/Rendering/GameRenderContext.hpp
 	include/Rendering/RenderTarget.hpp
-	include/Rendering/SkyboxContext.hpp
+	include/Rendering/RenderableObjectData.hpp
+
 	
 	#World
 	include/World/Level.hpp

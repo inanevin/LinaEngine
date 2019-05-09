@@ -12,7 +12,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: RenderableMeshComponent
+Class: MeshRendererComponent
 Timestamp: 4/14/2019 1:37:59 AM
 
 */
@@ -30,7 +30,7 @@ using namespace LinaEngine::Graphics;
 
 namespace LinaEngine::ECS
 {
-	struct RenderableMeshComponent : public ECSComponent<RenderableMeshComponent>
+	struct MeshRendererComponent : public ECSComponent<MeshRendererComponent>
 	{
 		VertexArray* vertexArray = nullptr;
 		Texture* texture = nullptr;

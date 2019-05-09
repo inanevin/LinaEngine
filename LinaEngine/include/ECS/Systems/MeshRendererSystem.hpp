@@ -12,7 +12,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: RenderableMeshSystem
+Class: MeshRendererSystem
 Timestamp: 4/27/2019 5:38:44 PM
 
 */
@@ -26,21 +26,21 @@ Timestamp: 4/27/2019 5:38:44 PM
 #include "ECS/ECSSystem.hpp"
 #include "Rendering/GameRenderContext.hpp"
 #include "ECS/Components/TransformComponent.hpp"
-#include "ECS/Components/RenderableMeshComponent.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
 
 using namespace LinaEngine::Graphics;
 
 namespace LinaEngine::ECS
 {
-	class RenderableMeshSystem : public BaseECSSystem
+	class MeshRendererSystem : public BaseECSSystem
 	{
 
 	public:
 
-		RenderableMeshSystem() : BaseECSSystem()
+		MeshRendererSystem() : BaseECSSystem()
 		{
 			AddComponentType(TransformComponent::ID);
-			AddComponentType(RenderableMeshComponent::ID);
+			AddComponentType(MeshRendererComponent::ID);
 		}
 
 		FORCEINLINE void Construct(GameRenderContext& contextIn)

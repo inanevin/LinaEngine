@@ -32,6 +32,8 @@ void main()
 #elif defined(FS_BUILD)
 
 uniform sampler2D diffuse;
+
+uniform sampler2D diffuse;
 out vec4 FragColor;
 
 void main()
