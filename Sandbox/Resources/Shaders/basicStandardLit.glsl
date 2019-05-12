@@ -33,11 +33,15 @@ void main()
 
 uniform sampler2D diffuse;
 
-uniform sampler2D diffuse;
+uniform vec3 lightColor;
+
 out vec4 FragColor;
 
 void main()
 {
-	FragColor = texture2D(diffuse, texCoord0);
+	float ambientStrength = 0.5;
+    vec3 ambient = ambientStrength * lightColor;
+	
+	FragColor = texture2D(diffuse, texCoord0) * vec4(ambient, 1.0);
 }
 #endif

@@ -118,7 +118,7 @@ namespace LinaEngine::Graphics
 
 		// Initialize basic shader.
 		LinaString basicShaderText;
-		LinaEngine::Internal::LoadTextFileWithIncludes(basicShaderText, "Resources/Shaders/basicStandard.glsl", "#include");
+		LinaEngine::Internal::LoadTextFileWithIncludes(basicShaderText, "Resources/Shaders/basicStandardLit.glsl", "#include");
 		m_BasicStandardShader.Construct(*m_RenderDevice.get(), basicShaderText);
 		//m_BasicStandardShader.SetSampler(m_DefaultSampler.GetSamplerName(), m_DefaultDiffuseTexture, m_DefaultSampler, 0);
 

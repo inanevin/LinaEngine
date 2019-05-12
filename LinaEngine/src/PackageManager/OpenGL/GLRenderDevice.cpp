@@ -744,6 +744,9 @@ namespace LinaEngine::Graphics
 		else
 			glDrawElementsInstanced(drawParams.primitiveType, (GLsizei)numElements, GL_UNSIGNED_INT, 0, numInstances);
 
+		
+		UpdateShaderUniformVector3F(shader, "lightColor", Vector3F(1.0f, 1.0f, 1.0f));
+
 	}
 
 	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams & drawParams, const Matrix& projection, const Matrix& view)
