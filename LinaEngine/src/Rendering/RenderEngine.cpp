@@ -101,7 +101,7 @@ namespace LinaEngine::Graphics
 		m_ECS = ecsIn;
 
 		// Initialize the render device.
-		m_RenderDevice->Initialize();
+		m_RenderDevice->Initialize(*this);
 
 		// Initialize default sampler.
 		m_DefaultSampler.Construct("diffuse", *m_RenderDevice.get(), SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR);
@@ -115,18 +115,17 @@ namespace LinaEngine::Graphics
 		// Initialize default skybox texture
 		m_SkyboxTexture = LoadCubemapTextureResource("Skybox/Skybox1/right.jpg", "Skybox/Skybox1/left.jpg", "Skybox/Skybox1/up.jpg", "Skybox/Skybox1/down.jpg", "Skybox/Skybox1/front.jpg", "Skybox/Skybox1/back.jpg");
 	
-
 		// Initialize basic shader.
 		LinaString basicShaderText;
 		LinaEngine::Internal::LoadTextFileWithIncludes(basicShaderText, "Resources/Shaders/basicStandardLit.glsl", "#include");
 		m_BasicStandardShader.Construct(*m_RenderDevice.get(), basicShaderText);
-		//m_BasicStandardShader.SetSampler(m_DefaultSampler.GetSamplerName(), m_DefaultDiffuseTexture, m_DefaultSampler, 0);
+		m_BasicStandardShader.SetSampler(m_DefaultSampler.GetSamplerName(), m_DefaultDiffuseTexture, m_DefaultSampler, 0);
 
 		// Initialize default skybox shader.
 		LinaString skyboxShaderText;
 		LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, "Resources/Shaders/basicSkybox.glsl", "#include");
 		m_BasicSkyboxShader.Construct(*m_RenderDevice.get(), skyboxShaderText);
-		//m_BasicSkyboxShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_SkyboxTexture, m_SkyboxSampler, 0);
+		m_BasicSkyboxShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_SkyboxTexture, m_SkyboxSampler, 0);
 
 		// Initialize the render target.
 		m_RenderTarget.Construct(*m_RenderDevice.get());
@@ -161,8 +160,10 @@ namespace LinaEngine::Graphics
 		// Initialize ECS Mesh Render System.
 		m_MeshRendererSystem.Construct(m_DefaultRenderContext);
 
-		// Initialize ECS Sprite Render System
-		m_SpriteRendererSystem.Construct(*m_RenderDevice.get(), m_SpriteSampler, m_RenderTarget.GetID(), m_SpriteVAO, m_SpriteDrawParams, m_CurrentProjectionMatrix);
+		// Initialize ECS lighting system.
+		m_LightingSystem.Construct(*m_RenderDevice.get(), m_BasicStandardShader);
+
+		SetLevelAmbientLight(AmbientLight(LinaEngine::Color(5,0,0)));
 
 		// CUSTOM 
 		freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 10.0f;		
@@ -173,8 +174,10 @@ namespace LinaEngine::Graphics
 
 		cameraEntity = m_ECS->MakeEntity(transformComponent, m_ActiveCameraComponent, freeLookComponent);
 		
+		// Add the ECS systems into the pipeline.
 		m_RenderingPipeline.AddSystem(m_MeshRendererSystem);
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
+		m_RenderingPipeline.AddSystem(m_LightingSystem);
 		m_RenderingPipeline.AddSystem(*fss);
 
 		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
@@ -197,6 +200,9 @@ namespace LinaEngine::Graphics
 
 		// Update pipeline.
 		m_ECS->UpdateSystems(m_RenderingPipeline, delta);
+
+		// Update lighting system for environment lighting.
+		m_LightingSystem.UpdateEnvironmentLighting();
 	
 		// Draw scene.
 		m_DefaultRenderContext.Flush();
@@ -219,8 +225,6 @@ namespace LinaEngine::Graphics
 		m_CurrentProjectionMatrix = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent.fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent.zNear, m_ActiveCameraComponent.zFar);
 		m_CameraSystem.SetProjectionMatrix(m_CurrentProjectionMatrix);
 
-		// Update sprite renderer system's projection matrix.
-		m_SpriteRendererSystem.SetProjectionMatrix(m_CurrentProjectionMatrix);
 	}
 
 	Texture & RenderEngine::LoadTextureResource(const LinaString & fileName, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)

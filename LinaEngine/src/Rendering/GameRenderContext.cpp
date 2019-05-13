@@ -35,6 +35,9 @@ namespace LinaEngine::Graphics
 			Texture* texture = it->first.second;
 			Matrix* transforms = &it->second[0];
 			size_t numTransforms = it->second.size();
+			Matrix* models = &m_ModelMatrices[0];
+			Matrix* modelNormals = &m_NormalMatrices[0];
+			size_t numModels = m_ModelMatrices.size();
 
 			if (numTransforms == 0) continue;
 			
@@ -42,14 +45,24 @@ namespace LinaEngine::Graphics
 			if (texture != currentTexture) 
 				m_Shader->SetSampler(m_SamplerName, *texture, *m_Sampler, 0);
 
-			// Update the buffer w/ each transform.
+			// Update transformMat attribute, the buffer w/ each transform.
 			vertexArray->UpdateBuffer(4, transforms, numTransforms * sizeof(Matrix));
+
+			// Update model attribute.
+			vertexArray->UpdateBuffer(5, models, numModels * sizeof(Matrix));
+
+			// Update inversed model attribute.
+			vertexArray->UpdateBuffer(6, modelNormals, numModels * sizeof(Matrix));
+
 
 			// Draw call.
 			this->Draw(*m_Shader, *vertexArray, *m_DrawParams, numTransforms);
 
 			// Clear the buffer, or do not if you want a trail of shadows lol.
 			it->second.clear();
+			m_ModelMatrices.clear();
+			m_NormalMatrices.clear();
+			
 		}
 	}
 }

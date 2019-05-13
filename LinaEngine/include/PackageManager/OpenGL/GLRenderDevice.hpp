@@ -233,7 +233,7 @@ namespace LinaEngine::Graphics
 		};
 
 		// Initializes the devices & params.
-		void Initialize();
+		void Initialize(RenderEngine& renderEngineIn);
 
 		// Creates a texture on GL.
 		uint32 CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress);
@@ -330,10 +330,14 @@ namespace LinaEngine::Graphics
 		void SetStencilWriteMask(uint32 mask);
 		void SetScissorTest(bool enable, uint32 startX = 0, uint32 startY = 0, uint32 width = 0, uint32 height = 0);
 
+
 	private:
 
 		// Main window reference.
 		std::unique_ptr<GLWindow> m_MainWindow;
+
+		// Reference to the render engine
+		class RenderEngine* m_RenderEngine;
 
 		// Currently active shader.
 		uint32 m_BoundShader = 0;

@@ -23,7 +23,7 @@ Timestamp: 4/27/2019 10:16:32 PM
 #include "Utility/Math/Color.hpp"
 #include "Core/Internal.hpp"
 #include "Rendering/ArrayBitmap.hpp"
-
+#include "Rendering/RenderEngine.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -137,17 +137,22 @@ namespace LinaEngine::Graphics
 	}
 
 
-	void GLRenderDevice::Initialize()
+	void GLRenderDevice::Initialize(RenderEngine& renderEngineIn)
 	{
+		// Struct fbo data.
 		struct FBOData fboWindowData;
 		fboWindowData.width = m_MainWindow->GetWidth();
 		fboWindowData.height = m_MainWindow->GetHeight();
 		m_FBOMap[0] = fboWindowData;
 
+		// Default GL settings.
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(DRAW_FUNC_ALWAYS);
 		glDepthMask(GL_FALSE);
 		glFrontFace(GL_CW);
+
+		// Set render engine reference.
+		m_RenderEngine = &renderEngineIn;
 
 	}
 
@@ -667,7 +672,6 @@ namespace LinaEngine::Graphics
 		else
 			usage = vaoData->bufferUsage;
 
-
 		// Use VAO & bind buffer.
 		SetVAO(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vaoData->buffers[bufferIndex]);
@@ -735,6 +739,11 @@ namespace LinaEngine::Graphics
 		// Bind & use the target shader.
 		SetShader(shader);
 
+		UpdateShaderUniformVector3F(shader, "_ambientLightColor", Vector3F(0.2f, 0.5f, 1.0f));
+		UpdateShaderUniformVector3F(shader, "_lightPos", Vector3F(5.0f, 4.0f, -4.0f));
+		UpdateShaderUniformVector3F(shader, "_lightColor", Vector3F(1.0f, 0.0f, 0.0f));
+
+
 		// use array buffer & attributes.
 		SetVAO(vao);
 
@@ -743,9 +752,6 @@ namespace LinaEngine::Graphics
 			glDrawElements(drawParams.primitiveType, (GLsizei)numElements, GL_UNSIGNED_INT, 0);
 		else
 			glDrawElementsInstanced(drawParams.primitiveType, (GLsizei)numElements, GL_UNSIGNED_INT, 0, numInstances);
-
-		
-		UpdateShaderUniformVector3F(shader, "lightColor", Vector3F(1.0f, 1.0f, 1.0f));
 
 	}
 
@@ -830,7 +836,12 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::UpdateShaderUniformVector3F(uint32 shader, const LinaString & uniform, const Vector3F & m)
 	{
-		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], m.GetX(), m.GetY(), m.GetZ());
+		float x = m.GetX();
+		float y = m.GetY();
+		float z = m.GetZ();
+		float data[3] = { x,y,z };
+		//glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)x, (GLfloat)y, (GLfloat)z);
+		glUniform3fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, data);
 	}
 
 
@@ -1190,7 +1201,6 @@ namespace LinaEngine::Graphics
 			LinaString name((char*)& uniformName[0], actualLength - 1);
 			samplerMap[name] = glGetUniformLocation(shaderProgram, (char*)& uniformName[0]);
 			uniformMap[&uniformName[0]] = glGetUniformLocation(shaderProgram, (char*)& uniformName[0]);
-
 		}
 	}
 }

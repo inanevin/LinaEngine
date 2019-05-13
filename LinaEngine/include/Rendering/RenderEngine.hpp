@@ -34,6 +34,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Systems/MeshRendererSystem.hpp"
 #include "ECS/Systems/SpriteRendererSystem.hpp"
+#include "ECS/Systems/LightingSystem.hpp"
 
 
 using namespace LinaEngine::ECS;
@@ -66,6 +67,13 @@ namespace LinaEngine::Graphics
 		{
 			m_RenderDevice->SetMainWindowEventCallback(callback);
 		}
+
+		// Sets the current active ambient light in the level.
+		FORCEINLINE void SetAmbientLight(AmbientLight light)
+		{
+			m_LightingSystem.SetAmbientLight(light);
+		}
+
 
 		// Initialize the render renderEngine.
 		void Initialize(EntityComponentSystem* ecsIn);
@@ -114,9 +122,6 @@ namespace LinaEngine::Graphics
 		// Skybox texture sampler
 		Sampler m_SkyboxSampler;
 
-		// Sprite sampler.
-		Sampler m_SpriteSampler;
-
 		// Default texture data.
 		ArrayBitmap m_DefaultTextureBitmap;
 
@@ -131,9 +136,6 @@ namespace LinaEngine::Graphics
 
 		// Skybox shader
 		Shader m_BasicSkyboxShader;
-
-		// Default sprite shader.
-		Shader m_BasicSpriteShader;
 
 		// Default render target
 		RenderTarget m_RenderTarget;
@@ -159,8 +161,8 @@ namespace LinaEngine::Graphics
 		// ECS system for drawing meshes.
 		MeshRendererSystem m_MeshRendererSystem;
 
-		// ECS system for rendering sprites.
-		SpriteRendererSystem m_SpriteRendererSystem;
+		// ECS system for handling scene lighting.
+		LightingSystem m_LightingSystem;
 
 		// ECS system list for rendering operations.
 		ECSSystemList m_RenderingPipeline;

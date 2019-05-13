@@ -24,6 +24,13 @@ namespace LinaEngine::ECS
 {
 	void LightingSystem::UpdateComponents(float delta, BaseECSComponent ** components)
 	{
+
+	}
+
+	void LightingSystem::UpdateEnvironmentLighting()
+	{
+		//m_RenderDevice->UpdateShaderUniformVector3F(m_Shader->GetID(), "_ambientLightColor", m_AmbientLight.GetColorVector());
+
 	}
 }
 

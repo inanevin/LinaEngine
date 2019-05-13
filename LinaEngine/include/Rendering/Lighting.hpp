@@ -22,10 +22,55 @@ Timestamp: 5/13/2019 12:52:02 AM
 #ifndef Lighting_HPP
 #define Lighting_HPP
 
+#include "Utility/Math/Color.hpp"
+
+using namespace LinaEngine;
 
 namespace LinaEngine::Graphics
 {
-	
+
+	class BaseLight
+	{
+	public: 
+
+		BaseLight(LinaEngine::Color color = LinaEngine::Color::White(), float intensity = 1.0f) : m_Color(color), m_Intensity(intensity) {};
+
+		FORCEINLINE LinaEngine::Color GetColor()
+		{
+			return m_Color;
+		}
+
+		FORCEINLINE Vector3F GetColorVector()
+		{
+			return Vector3F(m_Color.R(), m_Color.G(), m_Color.B());
+		}
+
+		FORCEINLINE void SetColor(LinaEngine::Color newColor)
+		{
+			m_Color = newColor;
+		}
+
+		FORCEINLINE void SetIntensity(float newIntensity)
+		{
+			m_Intensity = newIntensity;
+		}
+	private:
+
+		LinaEngine::Color m_Color = LinaEngine::Color::White();
+		float m_Intensity = 0.0f;
+
+	};
+
+	class AmbientLight : public BaseLight
+	{
+	public:
+		AmbientLight(LinaEngine::Color color = LinaEngine::Color::White(), float intensity = 1.0f) : BaseLight(color, intensity) {};
+	};
+
+	class DirectionalLight : public BaseLight
+	{
+
+	};
 }
 
 

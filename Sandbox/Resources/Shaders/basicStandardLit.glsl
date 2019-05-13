@@ -18,30 +18,56 @@
 
 varying vec2 texCoord0;
 
+
 #if defined(VS_BUILD)
 Layout(0) attribute vec3 position;
 Layout(1) attribute vec2 texCoord;
+Layout(2) attribute vec3 normal;
 Layout(4) attribute mat4 transformMat;
+Layout(8) attribute mat4 model;
+Layout(12) attribute mat4 modelInverse;
+
+
+
+out vec3 Normal;
+out vec3 FragPos;
 
 void main()
 {
+	FragPos = vec3(model * vec4(position,1.0));
     gl_Position = vec4(position, 1.0) * transformMat;
     texCoord0 = texCoord;
+	Normal = mat3(modelInverse) * normal;
+	
 }
 
 #elif defined(FS_BUILD)
 
 uniform sampler2D diffuse;
 
-uniform vec3 lightColor;
+in vec3 Normal;
+in vec3 FragPos;
+
+uniform vec3 _ambientLightColor;
+uniform float _ambientLightIntensity;
+uniform vec3 _lightPos;
+uniform vec3 _lightColor;
+uniform vec3 _viewPos;
 
 out vec4 FragColor;
 
 void main()
 {
-	float ambientStrength = 0.5;
-    vec3 ambient = ambientStrength * lightColor;
 	
-	FragColor = texture2D(diffuse, texCoord0) * vec4(ambient, 1.0);
+    vec3 ambient = _ambientLightIntensity * _ambientLightColor;
+	
+	vec3 norm = normalize(Normal);
+	vec3 lightDir = normalize(_lightPos - FragPos);
+
+	float diff = max(dot(norm, lightDir), 0.0);
+	vec3 diffuseFactor = diff * _lightColor;
+	vec3 result = (ambient + diffuseFactor);
+
+	FragColor = texture2D(diffuse, texCoord0) * vec4(result, 1.0);
 }
 #endif

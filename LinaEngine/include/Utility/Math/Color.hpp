@@ -24,40 +24,43 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_Color_HPP
 #define Lina_Color_HPP
 
-#include "Vector.hpp"
 
 namespace LinaEngine
 {
-	class LINA_API Color : public Vector4F
+	class LINA_API Color 
 	{
 
 	public:
 
-		Color(float r = 1.0f, float g = 1.0f, float b = 1.0f, float a = 1.0f) : Vector4F(r, g, b, a) {};
-		FORCEINLINE float R() { return x; }
-		FORCEINLINE float G() { return y; }
-		FORCEINLINE float B() { return z; }
-		FORCEINLINE float A() { return w; }
-		FORCEINLINE float R() const { return x; }
-		FORCEINLINE float G() const { return y; }
-		FORCEINLINE float B() const { return z; }
-		FORCEINLINE float A() const { return w; }
+		constexpr Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f) : r(rv), g(gv), b(bv), a(av) {};
+		FORCEINLINE float R() { return r; }
+		FORCEINLINE float G() { return g; }
+		FORCEINLINE float B() { return b; }
+		FORCEINLINE float A() { return a; }
+		FORCEINLINE float R() const { return r; }
+		FORCEINLINE float G() const { return g; }
+		FORCEINLINE float B() const { return b; }
+		FORCEINLINE float A() const { return a; }
+
+
+		static constexpr Color Red() { return Color(1, 0, 0); }
+		static constexpr Color Green() { return Color(0, 1, 0); }
+		static constexpr Color Blue() { return Color(0, 0, 1); }
+		static constexpr Color Cyan() { return Color(0, 1, 1); }
+		static constexpr Color Yellow() { return Color(1, 1, 0); }
+		static constexpr Color Black() { return Color(0, 0, 0); }
+		static constexpr Color White() { return Color(1, 1, 1); }
+		static constexpr Color Purple() { return Color(1, 0, 1); }
+		static constexpr Color Maroon() { return Color(0.5f, 0, 0); }
+		static constexpr Color Beige() { return Color(0.96f, 0.96f, 0.862f); }
+		static constexpr Color Brown() { return Color(0.647f, 0.164f, 0.164f); }
+		static constexpr Color Gray() { return Color(0.5f, 0.5f, 0.5f); }
+
+		float r, g, b, a = 1.0f;
 	};
 
-	typedef Color Color;
 
-	static const Color COLOR_Red = Color(1, 0, 0);
-	static const Color COLOR_Green = Color(0, 1, 0);
-	static const Color COLOR_Blue = Color(0, 0, 1);
-	static const Color COLOR_Cyan = Color(0, 1, 1);
-	static const Color COLOR_Yellow = Color(1, 1, 0);
-	static const Color COLOR_Black = Color(0, 0, 0);
-	static const Color COLOR_White = Color(1, 1, 1);
-	static const Color COLOR_Purple = Color(1, 0, 1);
-	static const Color COLOR_Maroon = Color(0.5f, 0, 0);
-	static const Color COLOR_Beige = Color(0.96f, 0.96f, 0.862f);
-	static const Color COLOR_Brown = Color(0.647f, 0.164f, 0.164f);
-	static const Color COLOR_Gray = Color(0.5f, 0.5f, 0.5f);
+
 }
 
 
