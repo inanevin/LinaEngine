@@ -24,8 +24,8 @@ Timestamp: 5/13/2019 12:49:19 AM
 
 #include "ECS/EntityComponentSystem.hpp"
 #include "ECS/Components/TransformComponent.hpp"
-#include "Rendering/Lighting.hpp"
 #include "Rendering/Shader.hpp"
+#include "Rendering/Lighting.hpp"
 
 using namespace LinaEngine::Graphics;
 
@@ -52,9 +52,14 @@ namespace LinaEngine::ECS
 			m_AmbientLight = ambientLight;
 		}
 
+		FORCEINLINE AmbientLight GetAmbientLight()
+		{
+			return m_AmbientLight;
+		}
+
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
 
-		void UpdateEnvironmentLighting();
+	
 
 	private:
 

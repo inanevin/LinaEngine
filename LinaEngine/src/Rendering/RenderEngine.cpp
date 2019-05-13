@@ -101,7 +101,7 @@ namespace LinaEngine::Graphics
 		m_ECS = ecsIn;
 
 		// Initialize the render device.
-		m_RenderDevice->Initialize(*this);
+		m_RenderDevice->Initialize(m_LightingSystem);
 
 		// Initialize default sampler.
 		m_DefaultSampler.Construct("diffuse", *m_RenderDevice.get(), SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR);
@@ -143,8 +143,7 @@ namespace LinaEngine::Graphics
 		m_SkyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
 
 		// Initialize default camera.
-		m_DefaultCameraComponent.isActive = true;
-		m_ActiveCameraComponent = &m_DefaultCameraComponent;
+		SetActiveCameraComponent(m_DefaultCameraComponent);
 		m_DefaultCamera = m_ECS->MakeEntity(m_DefaultCameraTransform, m_DefaultCameraComponent);
 
 		// Initialize default perspective.
@@ -167,7 +166,7 @@ namespace LinaEngine::Graphics
 		// Initialize ECS lighting system.
 		m_LightingSystem.Construct(*m_RenderDevice.get(), m_BasicStandardShader);
 
-		SetAmbientLight(AmbientLight(LinaEngine::Color(5,0,0)));
+		//SetAmbientLight(AmbientLight(LinaEngine::Color(5,0,0)));
 
 		// CUSTOM 
 		freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 10.0f;		
@@ -175,9 +174,9 @@ namespace LinaEngine::Graphics
 		fss = new FreeLookSystem(Application::Get().GetInputDevice());
 
 		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 0.0f));
+	
+		cameraEntity = m_ECS->MakeEntity(transformComponent, m_DefaultCameraComponent, freeLookComponent);
 
-		cameraEntity = m_ECS->MakeEntity(transformComponent, m_ActiveCameraComponent, freeLookComponent);
-		
 		// Add the ECS systems into the pipeline.
 		m_RenderingPipeline.AddSystem(m_MeshRendererSystem);
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
@@ -205,9 +204,6 @@ namespace LinaEngine::Graphics
 		// Update pipeline.
 		m_ECS->UpdateSystems(m_RenderingPipeline, delta);
 
-		// Update lighting system for environment lighting.
-		m_LightingSystem.UpdateEnvironmentLighting();
-	
 		// Draw scene.
 		m_DefaultRenderContext.Flush();
 

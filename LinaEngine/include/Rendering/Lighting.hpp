@@ -24,8 +24,6 @@ Timestamp: 5/13/2019 12:52:02 AM
 
 #include "Utility/Math/Color.hpp"
 
-using namespace LinaEngine;
-
 namespace LinaEngine::Graphics
 {
 
@@ -43,6 +41,11 @@ namespace LinaEngine::Graphics
 		FORCEINLINE Vector3F GetColorVector()
 		{
 			return Vector3F(m_Color.R(), m_Color.G(), m_Color.B());
+		}
+
+		FORCEINLINE float GetIntensity() const
+		{
+			return m_Intensity;
 		}
 
 		FORCEINLINE void SetColor(LinaEngine::Color newColor)

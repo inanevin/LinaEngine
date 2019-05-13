@@ -23,7 +23,9 @@ Timestamp: 4/27/2019 10:16:32 PM
 #include "Utility/Math/Color.hpp"
 #include "Core/Internal.hpp"
 #include "Rendering/ArrayBitmap.hpp"
-#include "Rendering/RenderEngine.hpp"
+#include "ECS/Systems/LightingSystem.hpp"
+
+using namespace LinaEngine::ECS;
 
 namespace LinaEngine::Graphics
 {
@@ -137,7 +139,7 @@ namespace LinaEngine::Graphics
 	}
 
 
-	void GLRenderDevice::Initialize(RenderEngine& renderEngineIn)
+	void GLRenderDevice::Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn)
 	{
 		// Struct fbo data.
 		struct FBOData fboWindowData;
@@ -151,8 +153,8 @@ namespace LinaEngine::Graphics
 		glDepthMask(GL_FALSE);
 		glFrontFace(GL_CW);
 
-		// Set render engine reference.
-		m_RenderEngine = &renderEngineIn;
+		// Set lighting system reference.
+		m_LightingSystem = &lightingSystemIn;
 
 	}
 
@@ -739,7 +741,9 @@ namespace LinaEngine::Graphics
 		// Bind & use the target shader.
 		SetShader(shader);
 
-		UpdateShaderUniformVector3F(shader, "_ambientLightColor", Vector3F(0.2f, 0.5f, 1.0f));
+		
+		UpdateShaderUniformVector3F(shader, "_ambientLightColor", m_LightingSystem->GetAmbientLight().GetColorVector());
+		UpdateShaderUniformFloat(shader, "_ambientLightIntensity", m_LightingSystem->GetAmbientLight().GetIntensity());
 		UpdateShaderUniformVector3F(shader, "_lightPos", Vector3F(5.0f, 4.0f, -4.0f));
 		UpdateShaderUniformVector3F(shader, "_lightColor", Vector3F(1.0f, 0.0f, 0.0f));
 
@@ -836,14 +840,13 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::UpdateShaderUniformVector3F(uint32 shader, const LinaString & uniform, const Vector3F & m)
 	{
-		float x = m.GetX();
-		float y = m.GetY();
-		float z = m.GetZ();
-		float data[3] = { x,y,z };
-		//glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)x, (GLfloat)y, (GLfloat)z);
-		glUniform3fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, data);
+		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.GetX(), (GLfloat)m.GetY(), (GLfloat)m.GetZ());
 	}
 
+	void GLRenderDevice::UpdateShaderUniformFloat(uint32 shader, const LinaString& uniform, const float f)
+	{
+		glUniform1f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)f);
+	}
 
 	void GLRenderDevice::SetViewport(uint32 fbo)
 	{

@@ -29,11 +29,9 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "Rendering/RenderTarget.hpp"
 #include "Rendering/GameRenderContext.hpp"
 #include "Rendering/RenderableObjectData.hpp"
-#include "ECS/EntityComponentSystem.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Systems/MeshRendererSystem.hpp"
-#include "ECS/Systems/SpriteRendererSystem.hpp"
 #include "ECS/Systems/LightingSystem.hpp"
 
 using namespace LinaEngine::ECS;
@@ -68,10 +66,10 @@ namespace LinaEngine::Graphics
 		}
 
 		// Sets the current active ambient light in the level.
-		FORCEINLINE void SetAmbientLight(AmbientLight light)
-		{
-			m_LightingSystem.SetAmbientLight(light);
-		}
+		//FORCEINLINE void SetAmbientLight(AmbientLight light)
+		//{
+			//m_LightingSystem.SetAmbientLight(light);
+		//}
 
 		// Switch the active camera component.
 		FORCEINLINE void SetActiveCameraComponent(CameraComponent& cameraComponent)
@@ -108,8 +106,10 @@ namespace LinaEngine::Graphics
 		//  Adds the targeted resource to the garbage collection dump.
 		LINA_API void UnloadModelResource(RenderableObjectData& modelResource);
 
-		// ECS Listener Overriden Methods.
+		// Called when an entity is removed, handled internally by ECS.
 		virtual void OnRemoveEntity(EntityHandle handle) override;
+
+		// Called when a component is removed, handled internally by ECS.
 		virtual void OnRemoveComponent(EntityHandle handle, uint32 id) override;
 
 	private:
@@ -185,7 +185,7 @@ namespace LinaEngine::Graphics
 		// ECS system for drawing meshes.
 		MeshRendererSystem m_MeshRendererSystem;
 
-		// ECS system for handling scene lighting.
+		// ECS system for handling lighting
 		LightingSystem m_LightingSystem;
 
 		// ECS system list for rendering operations.
