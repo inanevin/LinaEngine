@@ -36,14 +36,13 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "ECS/Systems/SpriteRendererSystem.hpp"
 #include "ECS/Systems/LightingSystem.hpp"
 
-
 using namespace LinaEngine::ECS;
 using namespace LinaEngine;
 
 namespace LinaEngine::Graphics
 {
 
-	class RenderEngine
+	class RenderEngine : public ECSListener
 	{
 	public:
 
@@ -74,6 +73,16 @@ namespace LinaEngine::Graphics
 			m_LightingSystem.SetAmbientLight(light);
 		}
 
+		// Switch the active camera component.
+		FORCEINLINE void SetActiveCameraComponent(CameraComponent& cameraComponent)
+		{
+			if (m_ActiveCameraComponent)
+				m_ActiveCameraComponent->isActive = false;
+
+			cameraComponent.isActive = true;
+
+			m_ActiveCameraComponent = &cameraComponent;
+		}
 
 		// Initialize the render renderEngine.
 		void Initialize(EntityComponentSystem* ecsIn);
@@ -99,6 +108,9 @@ namespace LinaEngine::Graphics
 		//  Adds the targeted resource to the garbage collection dump.
 		LINA_API void UnloadModelResource(RenderableObjectData& modelResource);
 
+		// ECS Listener Overriden Methods.
+		virtual void OnRemoveEntity(EntityHandle handle) override;
+		virtual void OnRemoveComponent(EntityHandle handle, uint32 id) override;
 
 	private:
 
@@ -158,6 +170,18 @@ namespace LinaEngine::Graphics
 		// ECS system for rendering camera perspective.
 		CameraSystem m_CameraSystem;
 
+		// Active camera component.
+		CameraComponent* m_ActiveCameraComponent = nullptr;
+
+		// Default camera entity.
+		EntityHandle m_DefaultCamera;
+
+		// Default camera transform component.
+		TransformComponent m_DefaultCameraTransform;
+
+		// Default camera camera component.
+		CameraComponent m_DefaultCameraComponent;
+
 		// ECS system for drawing meshes.
 		MeshRendererSystem m_MeshRendererSystem;
 
@@ -166,9 +190,6 @@ namespace LinaEngine::Graphics
 
 		// ECS system list for rendering operations.
 		ECSSystemList m_RenderingPipeline;
-
-		// Default camera data struct
-		CameraComponent m_ActiveCameraComponent;
 
 		// Texture resources.
 		LinaArray<Texture*> m_TextureResources;

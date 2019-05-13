@@ -233,7 +233,7 @@ namespace LinaEngine::Graphics
 		};
 
 		// Initializes the devices & params.
-		void Initialize(RenderEngine& renderEngineIn);
+		void Initialize(class RenderEngine& renderEngineIn);
 
 		// Creates a texture on GL.
 		uint32 CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress);

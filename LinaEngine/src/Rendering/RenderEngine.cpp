@@ -142,10 +142,14 @@ namespace LinaEngine::Graphics
 		m_SkyboxDrawParams.shouldWriteDepth = true;
 		m_SkyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
 
+		// Initialize default camera.
+		m_DefaultCameraComponent.isActive = true;
+		m_ActiveCameraComponent = &m_DefaultCameraComponent;
+		m_DefaultCamera = m_ECS->MakeEntity(m_DefaultCameraTransform, m_DefaultCameraComponent);
 
 		// Initialize default perspective.
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();
-		m_CurrentProjectionMatrix = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent.fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent.zNear, m_ActiveCameraComponent.zFar);
+		m_CurrentProjectionMatrix = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent->fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent->zNear, m_ActiveCameraComponent->zFar);
 
 		// Initialize the render context.
 		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_RenderTarget, m_DefaultDrawParams, m_BasicStandardShader, m_DefaultSampler, m_CurrentProjectionMatrix);
@@ -163,7 +167,7 @@ namespace LinaEngine::Graphics
 		// Initialize ECS lighting system.
 		m_LightingSystem.Construct(*m_RenderDevice.get(), m_BasicStandardShader);
 
-		SetLevelAmbientLight(AmbientLight(LinaEngine::Color(5,0,0)));
+		SetAmbientLight(AmbientLight(LinaEngine::Color(5,0,0)));
 
 		// CUSTOM 
 		freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 10.0f;		
@@ -196,7 +200,7 @@ namespace LinaEngine::Graphics
 	{
 
 		// Clear color.
-		m_DefaultRenderContext.Clear(m_ActiveCameraComponent.clearColor, true);
+		m_DefaultRenderContext.Clear(m_ActiveCameraComponent->clearColor, true);
 
 		// Update pipeline.
 		m_ECS->UpdateSystems(m_RenderingPipeline, delta);
@@ -222,7 +226,7 @@ namespace LinaEngine::Graphics
 
 		// Update camera system's projection matrix.
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();
-		m_CurrentProjectionMatrix = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent.fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent.zNear, m_ActiveCameraComponent.zFar);
+		m_CurrentProjectionMatrix = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent->fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent->zNear, m_ActiveCameraComponent->zFar);
 		m_CameraSystem.SetProjectionMatrix(m_CurrentProjectionMatrix);
 
 	}
@@ -333,6 +337,46 @@ namespace LinaEngine::Graphics
 			}
 		}
 
+	}
+
+	void RenderEngine::OnRemoveEntity(EntityHandle handle)
+	{
+		// Get the camera component from the entity to be removed.
+		CameraComponent* cameraComponent = m_ECS->GetComponent<CameraComponent>(handle);
+
+		// If the camera component exists...
+		if (cameraComponent)
+		{
+			// Check if the camera component is the active one in use, if so, switch back to default camera component.
+			if (cameraComponent == m_ActiveCameraComponent)
+			{
+				cameraComponent->isActive = false;
+				m_ActiveCameraComponent = &m_DefaultCameraComponent;
+				m_ActiveCameraComponent->isActive = true;
+			}
+		}
+	}
+
+	void RenderEngine::OnRemoveComponent(EntityHandle handle, uint32 id)
+	{
+		// If we are removing a camera component.
+		if (id == CameraComponent::ID)
+		{
+			// Get the camera component from the entity to be removed.
+			CameraComponent* cameraComponent = m_ECS->GetComponent<CameraComponent>(handle);
+
+			// If the camera component exists...
+			if (cameraComponent)
+			{
+				// Check if the camera component is the active one in use, if so, switch back to default camera component.
+				if (cameraComponent == m_ActiveCameraComponent)
+				{
+					cameraComponent->isActive = false;
+					m_ActiveCameraComponent = &m_DefaultCameraComponent;
+					m_ActiveCameraComponent->isActive = true;
+				}
+			}
+		}
 	}
 
 	void RenderEngine::DumpMemory()
