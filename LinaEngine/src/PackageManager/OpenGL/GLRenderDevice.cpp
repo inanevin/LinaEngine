@@ -746,7 +746,8 @@ namespace LinaEngine::Graphics
 		UpdateShaderUniformFloat(shader, "ambientLightIntensity", m_LightingSystem->GetAmbientLight().intensity);
 		UpdateShaderUniformVector3F(shader, "lightPos", Vector3F(0.0f, 5.0f, 0.0f));
 		UpdateShaderUniformVector3F(shader, "lightColor", Vector3F(1.0f, 0.0f, 0.0f));
-
+		UpdateShaderUniformFloat(shader, "specularIntensity", 1.0f);
+		UpdateShaderUniformInt(shader, "specularExponent", 32);
 
 		// use array buffer & attributes.
 		SetVAO(vao);
@@ -851,6 +852,11 @@ namespace LinaEngine::Graphics
 	void GLRenderDevice::UpdateShaderUniformFloat(uint32 shader, const LinaString& uniform, const float f)
 	{
 		glUniform1f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)f);
+	}
+
+	void GLRenderDevice::UpdateShaderUniformInt(uint32 shader, const LinaString& uniform, const int f)
+	{
+		glUniform1i(m_ShaderProgramMap[shader].uniformMap[uniform], (GLint)f);
 	}
 
 	void GLRenderDevice::SetViewport(uint32 fbo)

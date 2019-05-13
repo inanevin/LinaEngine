@@ -329,6 +329,9 @@ namespace LinaEngine::Graphics
 
 		// Updates a float type uniform on a shader w/ given name.
 		void UpdateShaderUniformFloat(uint32 shader, const LinaString& uniform, const float f);
+
+		// Updates an integer type uniform on a shader w/ given name.
+		void UpdateShaderUniformInt(uint32 shader, const LinaString& uniform, const int f);
 	private:
 
 		LinaString GetShaderVersion();

@@ -70,6 +70,7 @@ namespace LinaEngine::Graphics
 
 				// Draw call.
 				this->Draw(*m_Shader, *vertexArray, *m_DrawParams, 1);
+
 				renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "model", it->second[i]);
 				renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "view", m_ViewMatrix);
 				renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "projection", m_Projection);

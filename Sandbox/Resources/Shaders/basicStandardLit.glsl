@@ -57,6 +57,8 @@ in vec3 LightPos;
 
 uniform vec3 ambientLightColor;
 uniform float ambientLightIntensity;
+uniform float specularIntensity;
+uniform int specularExponent;
 uniform vec3 lightColor;
 
 out vec4 FragColor;
@@ -74,11 +76,11 @@ void main()
     vec3 diffuseFactor = diff * lightColor;
     
     // specular
-    float specularStrength = 0.5;
+
     vec3 viewDir = normalize(-FragPos); // the viewer is always at (0,0,0) in view-space, so viewDir is (0,0,0) - Position => -Position
     vec3 reflectDir = reflect(-lightDir, norm);  
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = specularStrength * spec * lightColor; 
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
+    vec3 specular = specularIntensity * spec * lightColor; 
     
     vec3 result = (ambient + diffuseFactor + specular);
 	
