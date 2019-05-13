@@ -35,9 +35,8 @@ namespace LinaEngine::Graphics
 			Texture* texture = it->first.second;
 			Matrix* transforms = &it->second[0];
 			size_t numTransforms = it->second.size();
-			Matrix* models = &m_ModelMatrices[0];
 			Matrix* modelNormals = &m_NormalMatrices[0];
-			size_t numModels = m_ModelMatrices.size();
+			size_t numModels = m_NormalMatrices.size();
 
 			if (numTransforms == 0) continue;
 			
@@ -72,15 +71,12 @@ namespace LinaEngine::Graphics
 				renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "model", it->second[i]);
 				renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "view", m_ViewMatrix);
 				renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "projection", m_Projection);
-
-			
 			}
 
 
 	
 			// Clear the buffer, or do not if you want a trail of shadows lol.
 			it->second.clear();
-			m_ModelMatrices.clear();
 			m_NormalMatrices.clear();
 			
 		}

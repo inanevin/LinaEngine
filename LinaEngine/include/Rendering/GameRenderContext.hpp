@@ -49,7 +49,7 @@ namespace LinaEngine::Graphics
 			m_MeshRenderBuffer[LinaMakePair(&vertexArray, &texture)].push_back(transformIn);
 
 			// Update normal matrices.
-			m_NormalMatrices.push_back((m_ViewMatrix * transformIn).toNormalMatrix());
+			m_NormalMatrices.push_back((transformIn).toNormalMatrix());
 		}
 
 		FORCEINLINE void UpdateViewProjectionMatrix(const Matrix& VPMatrix)
