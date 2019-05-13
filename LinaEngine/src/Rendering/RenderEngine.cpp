@@ -187,7 +187,7 @@ namespace LinaEngine::Graphics
 		m_RenderingPipeline.AddSystem(m_LightingSystem);
 		m_RenderingPipeline.AddSystem(*fss);
 
-		transformComponent.transform.SetLocation(Vector3F(-20.0f, 0, 0.0f));
+		transformComponent.transform.SetLocation(Vector3F(-12.0f, 0, 0.0f));
 		transformComponent.transform.SetScale(Vector3F(10, 0.2f, 10));
 		
 		cube1 = &LoadModelResource("cube.obj");
@@ -197,8 +197,9 @@ namespace LinaEngine::Graphics
 
 		entity = m_ECS->MakeEntity(transformComponent, renderableMesh);
 
-		transformComponent.transform.SetLocation(Vector3F(20.0f, 0.0f, 0.0f));
+		transformComponent.transform.SetLocation(Vector3F(12.0f, 0.0f, 0.0f));
 		entity2 = m_ECS->MakeEntity(transformComponent, renderableMesh);
+
 
 	}
 

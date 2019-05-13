@@ -63,14 +63,12 @@ namespace LinaEngine::Graphics
 				//renderDevice->UpdateShaderUniformVector3F(m_Shader->GetID(), "_lightPos", Vector3F(10.0f, 8.0f, 10.0f));
 				//renderDevice->UpdateShaderUniformVector3F(m_Shader->GetID(), "_lightColor", Vector3F(1.0f, 0.0f, 0.0f));
 
-				vertexArray->UpdateBuffer(4, &it->second[i], 1 * sizeof(Matrix));
-				vertexArray->UpdateBuffer(5, &m_NormalMatrices[i], 1 * sizeof(Matrix));
-
 				// Draw call.
 				this->Draw(*m_Shader, *vertexArray, *m_DrawParams, 1);
 				renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "model", it->second[i]);
 				renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "view", m_ViewMatrix);
 				renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "projection", m_Projection);
+				renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "viewModelInverseTranspose", (m_ViewMatrix * it->second[i]).toNormalMatrix());
 			}
 
 
