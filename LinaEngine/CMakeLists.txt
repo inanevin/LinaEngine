@@ -121,6 +121,7 @@ set(LINAENGINE_HEADERS
 	include/ECS/Components/CameraComponent.hpp
 	include/ECS/Components/FreeLookComponent.hpp
 	include/ECS/Components/SpriteRendererComponent.hpp
+	include/ECS/Components/LightComponent.hpp
 	include/ECS/Systems/MovementControlSystem.hpp
 	include/ECS/Systems/MeshRendererSystem.hpp
 	include/ECS/Systems/SpriteRendererSystem.hpp

@@ -66,10 +66,10 @@ namespace LinaEngine::Graphics
 		}
 
 		// Sets the current active ambient light in the level.
-		//FORCEINLINE void SetAmbientLight(AmbientLight light)
-		//{
-			//m_LightingSystem.SetAmbientLight(light);
-		//}
+		FORCEINLINE void SetAmbientLight(AmbientLightComponent light)
+		{
+			m_LightingSystem.SetAmbientLight(light);
+		}
 
 		// Switch the active camera component.
 		FORCEINLINE void SetActiveCameraComponent(CameraComponent& cameraComponent)

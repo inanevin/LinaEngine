@@ -24,6 +24,7 @@ Timestamp: 5/13/2019 12:49:19 AM
 
 #include "ECS/EntityComponentSystem.hpp"
 #include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/LightComponent.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/Lighting.hpp"
 
@@ -47,12 +48,12 @@ namespace LinaEngine::ECS
 			m_RenderDevice = &renderDeviceIn;
 		}
 
-		FORCEINLINE void SetAmbientLight(AmbientLight ambientLight)
+		FORCEINLINE void SetAmbientLight(AmbientLightComponent ambientLight)
 		{
 			m_AmbientLight = ambientLight;
 		}
 
-		FORCEINLINE AmbientLight GetAmbientLight()
+		FORCEINLINE AmbientLightComponent GetAmbientLight()
 		{
 			return m_AmbientLight;
 		}
@@ -64,7 +65,7 @@ namespace LinaEngine::ECS
 	private:
 
 		PAMRenderDevice* m_RenderDevice;
-		AmbientLight m_AmbientLight;
+		AmbientLightComponent m_AmbientLight;
 		Shader* m_Shader;
 
 	};
