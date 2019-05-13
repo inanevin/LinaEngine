@@ -48,7 +48,10 @@ namespace LinaEngine::ECS
 
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
 		
-
+		FORCEINLINE Matrix& GetViewMatrix()
+		{
+			return m_View;
+		}
 
 		FORCEINLINE Matrix& GetSkyboxViewTransformation()
 		{
@@ -62,6 +65,7 @@ namespace LinaEngine::ECS
 
 	private:
 
+		Matrix m_View;
 		Matrix m_Projection;
 		Matrix m_SkyboxViewTransformation;
 		GameRenderContext* context;

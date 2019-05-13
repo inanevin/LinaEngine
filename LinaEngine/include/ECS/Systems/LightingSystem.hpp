@@ -58,6 +58,16 @@ namespace LinaEngine::ECS
 			return m_AmbientLight;
 		}
 
+		FORCEINLINE Vector3F GetCameraPosition()
+		{
+			return m_CameraPosition;
+		}
+
+		FORCEINLINE void SetCameraPosition(Vector3F& pos)
+		{
+			m_CameraPosition = pos;
+		}
+
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
 
 	
@@ -67,6 +77,7 @@ namespace LinaEngine::ECS
 		PAMRenderDevice* m_RenderDevice;
 		AmbientLightComponent m_AmbientLight;
 		Shader* m_Shader;
+		Vector3F m_CameraPosition;
 
 	};
 }

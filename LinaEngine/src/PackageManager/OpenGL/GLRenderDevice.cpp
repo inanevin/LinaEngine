@@ -740,11 +740,10 @@ namespace LinaEngine::Graphics
 
 		// Bind & use the target shader.
 		SetShader(shader);
-
 		Color ambientLightColor = m_LightingSystem->GetAmbientLight().color;
 		UpdateShaderUniformVector3F(shader, "_ambientLightColor", Vector3F(ambientLightColor.R(), ambientLightColor.G(), ambientLightColor.B()));
 		UpdateShaderUniformFloat(shader, "_ambientLightIntensity", m_LightingSystem->GetAmbientLight().intensity);
-		UpdateShaderUniformVector3F(shader, "_lightPos", Vector3F(5.0f, 4.0f, -4.0f));
+		UpdateShaderUniformVector3F(shader, "_lightPos", Vector3F(0.0f, 5.0f, 0.0f));
 		UpdateShaderUniformVector3F(shader, "_lightColor", Vector3F(1.0f, 0.0f, 0.0f));
 
 
@@ -756,6 +755,11 @@ namespace LinaEngine::Graphics
 			glDrawElements(drawParams.primitiveType, (GLsizei)numElements, GL_UNSIGNED_INT, 0);
 		else
 			glDrawElementsInstanced(drawParams.primitiveType, (GLsizei)numElements, GL_UNSIGNED_INT, 0, numInstances);
+
+	
+		//UpdateShaderUniformVector3F(shader, "_viewPos", m_LightingSystem->GetCameraPosition());
+
+
 
 	}
 

@@ -23,22 +23,23 @@ varying vec2 texCoord0;
 Layout(0) attribute vec3 position;
 Layout(1) attribute vec2 texCoord;
 Layout(2) attribute vec3 normal;
-Layout(4) attribute mat4 transformMat;
-Layout(8) attribute mat4 model;
-Layout(12) attribute mat4 modelInverse;
+Layout(4) attribute mat4 transformMatrix;
+Layout(8) attribute mat4 inversedModelMatrix;
 
 
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
 out vec3 Normal;
 out vec3 FragPos;
 
 void main()
 {
-	FragPos = vec3(model * vec4(position,1.0));
-    gl_Position = vec4(position, 1.0) * transformMat;
+    FragPos = vec3(model * vec4(position, 1.0));
+    gl_Position = projection * view * vec4(FragPos, 1.0);
     texCoord0 = texCoord;
-	Normal = mat3(modelInverse) * normal;
-	
+    Normal = mat3(inversedModelMatrix) * normal;  	
 }
 
 #elif defined(FS_BUILD)

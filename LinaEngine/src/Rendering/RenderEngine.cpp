@@ -93,6 +93,8 @@ namespace LinaEngine::Graphics
 	RenderableObjectData* cube1;
 	RenderableObjectData* cube2;
 	EntityHandle entity;
+	EntityHandle entity2;
+
 	MeshRendererComponent renderableMesh;
 
 	void RenderEngine::Initialize(EntityComponentSystem* ecsIn)
@@ -165,15 +167,17 @@ namespace LinaEngine::Graphics
 
 		// Initialize ECS lighting system.
 		m_LightingSystem.Construct(*m_RenderDevice.get(), m_BasicStandardShader);
-
-		//SetAmbientLight(AmbientLight(LinaEngine::Color(5,0,0)));
+		AmbientLightComponent ambientLight;
+		ambientLight.color = Color(0, 0, 0.4f);
+		ambientLight.intensity = 1.0f;
+		SetAmbientLight(ambientLight);
 
 		// CUSTOM 
-		freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 10.0f;		
+		freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 18.0f;		
 		freeLookComponent.rotationSpeedX = freeLookComponent.rotationSpeedY = 1;
 		fss = new FreeLookSystem(Application::Get().GetInputDevice());
 
-		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 0.0f));
+		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, -5.0f));
 	
 		cameraEntity = m_ECS->MakeEntity(transformComponent, m_DefaultCameraComponent, freeLookComponent);
 
@@ -183,8 +187,8 @@ namespace LinaEngine::Graphics
 		m_RenderingPipeline.AddSystem(m_LightingSystem);
 		m_RenderingPipeline.AddSystem(*fss);
 
-		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
-		transformComponent.transform.SetScale(Vector3F(2,2,2));
+		transformComponent.transform.SetLocation(Vector3F(-20.0f, 0, 0.0f));
+		transformComponent.transform.SetScale(Vector3F(10, 0.2f, 10));
 		
 		cube1 = &LoadModelResource("cube.obj");
 
@@ -192,6 +196,9 @@ namespace LinaEngine::Graphics
 		renderableMesh.vertexArray = cube1->GetVertexArray(0);
 
 		entity = m_ECS->MakeEntity(transformComponent, renderableMesh);
+
+		transformComponent.transform.SetLocation(Vector3F(20.0f, 0.0f, 0.0f));
+		entity2 = m_ECS->MakeEntity(transformComponent, renderableMesh);
 
 	}
 
@@ -201,8 +208,13 @@ namespace LinaEngine::Graphics
 		// Clear color.
 		m_DefaultRenderContext.Clear(m_ActiveCameraComponent->clearColor, true);
 
+		m_LightingSystem.SetCameraPosition(m_ECS->GetComponent<TransformComponent>(cameraEntity)->transform.GetLocation());
+
 		// Update pipeline.
 		m_ECS->UpdateSystems(m_RenderingPipeline, delta);
+
+		m_DefaultRenderContext.UpdateViewMatrix(m_CameraSystem.GetViewMatrix());
+		m_DefaultRenderContext.UpdateProjectionMatrix(m_CurrentProjectionMatrix);
 
 		// Draw scene.
 		m_DefaultRenderContext.Flush();

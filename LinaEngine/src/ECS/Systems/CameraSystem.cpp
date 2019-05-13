@@ -39,6 +39,10 @@ namespace LinaEngine::ECS
 		// Actual camera view matrix.
 		Matrix viewTransformation = rotation * translation;
 
+		// Update member variable of the view transformation.
+		Matrix translationPositive = Matrix::Translate(transform->transform.GetLocation());
+		m_View = rotation * translation;
+
 		// Update view projection matrix.
 		context->UpdateViewProjectionMatrix(m_Projection * viewTransformation);
 	}

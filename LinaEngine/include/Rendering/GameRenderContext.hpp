@@ -45,15 +45,11 @@ namespace LinaEngine::Graphics
 
 		FORCEINLINE void RenderMesh(VertexArray& vertexArray, Texture& texture, const Matrix& transformIn)
 		{
-			// Update model matrices.
-			m_ModelMatrices.push_back(transformIn);
-
 			// Add the new matrix to the same pairs, each pair will be drawn once.
-			m_MeshRenderBuffer[LinaMakePair(&vertexArray, &texture)].push_back(m_ViewProjection * transformIn);
+			m_MeshRenderBuffer[LinaMakePair(&vertexArray, &texture)].push_back(transformIn);
 
 			// Update normal matrices.
-			m_NormalMatrices.push_back(transformIn.toNormalMatrix());
-
+			m_NormalMatrices.push_back((m_ViewMatrix * transformIn).toNormalMatrix());
 		}
 
 		FORCEINLINE void UpdateViewProjectionMatrix(const Matrix& VPMatrix)
@@ -61,6 +57,15 @@ namespace LinaEngine::Graphics
 			m_ViewProjection = VPMatrix;
 		}
 
+		FORCEINLINE void UpdateViewMatrix(const Matrix& viewMatrix)
+		{
+			m_ViewMatrix = viewMatrix;
+		}
+
+		FORCEINLINE void UpdateProjectionMatrix(const Matrix& projection)
+		{
+			m_Projection = projection;
+		}
 
 		void Flush();
 
@@ -71,10 +76,11 @@ namespace LinaEngine::Graphics
 		Shader* m_Shader;
 		Sampler *m_Sampler;
 		Matrix m_ViewProjection;
+		Matrix m_ViewMatrix;
+		Matrix m_Projection;
 
 		// Map to see the list of same vertex array & textures to compress them into single draw call.
 		LinaMap<LinaPair<VertexArray*, Texture*>, LinaArray<Matrix> > m_MeshRenderBuffer;
-		LinaArray<Matrix> m_ModelMatrices;
 		LinaArray<Matrix> m_NormalMatrices;
 
 	};
