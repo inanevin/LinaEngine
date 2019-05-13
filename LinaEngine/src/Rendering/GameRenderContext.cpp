@@ -73,6 +73,8 @@ namespace LinaEngine::Graphics
 				renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "model", it->second[i]);
 				renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "view", m_ViewMatrix);
 				renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "projection", m_Projection);
+				renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "inverseTransposeNormal", (m_ViewMatrix * it->second[i]).toNormalMatrix());
+
 			}
 
 

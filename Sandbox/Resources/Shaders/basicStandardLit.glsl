@@ -30,6 +30,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 normalMatrix;
+uniform mat4 inverseTransposeNormal;
 uniform vec3 lightPos;
 
 out vec3 Normal;
@@ -41,7 +42,7 @@ void main()
     gl_Position = projection * view * model * vec4(position, 1.0);
     FragPos = vec3(view * model * vec4(position, 1.0));
     texCoord0 = texCoord;
-    Normal = mat3(transpose(inverse(view * model))) * normal;  	
+    Normal = mat3(inverseTransposeNormal) * normal;  	
 	LightPos = vec3(view * vec4(lightPos, 1.0)); // Transform world-space light position to view-space light position
 
 }
