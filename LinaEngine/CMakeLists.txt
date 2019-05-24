@@ -38,7 +38,6 @@ set (LINAENGINE_SOURCES
 	src/ECS/Systems/CubeChunkRenderSystem.cpp
 	src/ECS/Systems/CameraSystem.cpp
 	src/ECS/Systems/FreeLookSystem.cpp
-	src/ECS/Systems/LightingSystem.cpp
 
 	src/ECS/Interactions/TestInteraction.cpp
 	src/ECS/ECSComponent.cpp
@@ -121,7 +120,6 @@ set(LINAENGINE_HEADERS
 	include/ECS/Components/CameraComponent.hpp
 	include/ECS/Components/FreeLookComponent.hpp
 	include/ECS/Components/SpriteRendererComponent.hpp
-	include/ECS/Components/LightComponent.hpp
 	include/ECS/Systems/MovementControlSystem.hpp
 	include/ECS/Systems/MeshRendererSystem.hpp
 	include/ECS/Systems/SpriteRendererSystem.hpp
@@ -130,7 +128,7 @@ set(LINAENGINE_HEADERS
 	include/ECS/Systems/CubeChunkRenderSystem.hpp
 	include/ECS/Systems/CameraSystem.hpp
 	include/ECS/Systems/FreeLookSystem.hpp
-	include/ECS/Systems/LightingSystem.hpp
+
 	include/ECS/Interactions/TestInteraction.hpp
 	include/ECS/ECSComponent.hpp
 	include/ECS/ECSSystem.hpp

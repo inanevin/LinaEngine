@@ -29,11 +29,12 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "Rendering/RenderTarget.hpp"
 #include "Rendering/GameRenderContext.hpp"
 #include "Rendering/RenderableObjectData.hpp"
+#include "ECS/EntityComponentSystem.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Systems/MeshRendererSystem.hpp"
-#include "ECS/Systems/LightingSystem.hpp"
-#include "PackageManager/PAMInputEngine.hpp"
+#include "ECS/Systems/SpriteRendererSystem.hpp"
+
 
 using namespace LinaEngine::ECS;
 using namespace LinaEngine;
@@ -41,7 +42,7 @@ using namespace LinaEngine;
 namespace LinaEngine::Graphics
 {
 
-	class RenderEngine : public ECSListener
+	class RenderEngine
 	{
 	public:
 
@@ -66,31 +67,8 @@ namespace LinaEngine::Graphics
 			m_RenderDevice->SetMainWindowEventCallback(callback);
 		}
 
-		// Sets the current active ambient light in the level.
-		FORCEINLINE void SetAmbientLight(AmbientLightComponent light)
-		{
-			m_LightingSystem.SetAmbientLight(light);
-		}
-
-		// Switch the active camera component.
-		FORCEINLINE void SetActiveCameraComponent(CameraComponent& cameraComponent)
-		{
-			if (m_ActiveCameraComponent)
-				m_ActiveCameraComponent->isActive = false;
-
-			cameraComponent.isActive = true;
-
-			m_ActiveCameraComponent = &cameraComponent;
-		}
-
 		// Initialize the render renderEngine.
 		void Initialize(EntityComponentSystem* ecsIn);
-
-		void DemoSwitchTexture(int index);
-
-		void DemoSwitchMovement(int index);
-
-		void DemoSwitchSkybox(int index);
 
 		// Called each frame.
 		void Tick(float delta);
@@ -113,11 +91,6 @@ namespace LinaEngine::Graphics
 		//  Adds the targeted resource to the garbage collection dump.
 		LINA_API void UnloadModelResource(RenderableObjectData& modelResource);
 
-		// Called when an entity is removed, handled internally by ECS.
-		virtual void OnRemoveEntity(EntityHandle handle) override;
-
-		// Called when a component is removed, handled internally by ECS.
-		virtual void OnRemoveComponent(EntityHandle handle, uint32 id) override;
 
 	private:
 
@@ -125,7 +98,7 @@ namespace LinaEngine::Graphics
 		void DumpMemory();
 
 		// Renders skybox
-		void RenderSkybox(Texture* skyboxTexture);
+		void RenderSkybox();
 
 	private:
 
@@ -141,6 +114,9 @@ namespace LinaEngine::Graphics
 		// Skybox texture sampler
 		Sampler m_SkyboxSampler;
 
+		// Sprite sampler.
+		Sampler m_SpriteSampler;
+
 		// Default texture data.
 		ArrayBitmap m_DefaultTextureBitmap;
 
@@ -155,6 +131,9 @@ namespace LinaEngine::Graphics
 
 		// Skybox shader
 		Shader m_BasicSkyboxShader;
+
+		// Default sprite shader.
+		Shader m_BasicSpriteShader;
 
 		// Default render target
 		RenderTarget m_RenderTarget;
@@ -177,26 +156,17 @@ namespace LinaEngine::Graphics
 		// ECS system for rendering camera perspective.
 		CameraSystem m_CameraSystem;
 
-		// Active camera component.
-		CameraComponent* m_ActiveCameraComponent = nullptr;
-
-		// Default camera entity.
-		EntityHandle m_DefaultCamera;
-
-		// Default camera transform component.
-		TransformComponent m_DefaultCameraTransform;
-
-		// Default camera camera component.
-		CameraComponent m_DefaultCameraComponent;
-
 		// ECS system for drawing meshes.
 		MeshRendererSystem m_MeshRendererSystem;
 
-		// ECS system for handling lighting
-		LightingSystem m_LightingSystem;
+		// ECS system for rendering sprites.
+		SpriteRendererSystem m_SpriteRendererSystem;
 
 		// ECS system list for rendering operations.
 		ECSSystemList m_RenderingPipeline;
+
+		// Default camera data struct
+		CameraComponent m_ActiveCameraComponent;
 
 		// Texture resources.
 		LinaArray<Texture*> m_TextureResources;

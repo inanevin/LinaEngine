@@ -50,12 +50,12 @@ namespace LinaEngine::ECS
 			m_DrawParams = &drawParams;
 			m_RenderDevice = &renderDeviceIn;
 			m_SpriteSampler = &samplerIn;
-			m_ViewProjection = projection;
+			m_Projection = projection;
 		}
 
 		FORCEINLINE void SetProjectionMatrix(const Matrix& projection)
 		{
-			m_ViewProjection = projection;
+			m_Projection = projection;
 		}
 
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
@@ -67,7 +67,7 @@ namespace LinaEngine::ECS
 		DrawParams* m_DrawParams;
 		PAMRenderDevice* m_RenderDevice;
 		Sampler* m_SpriteSampler;
-		Matrix m_ViewProjection;
+		Matrix m_Projection;
 	};
 }
 

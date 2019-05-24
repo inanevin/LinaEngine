@@ -28,6 +28,7 @@ namespace LinaEngine::ECS
 	{
 		TransformComponent* transform = (TransformComponent*)components[0];
 		MeshRendererComponent* mesh = (MeshRendererComponent*)components[1];
+
 		context->RenderMesh(*mesh->vertexArray, *mesh->texture, transform->transform.ToMatrix());
 	}
 }

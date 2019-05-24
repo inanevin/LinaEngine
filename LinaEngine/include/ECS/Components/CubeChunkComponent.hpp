@@ -32,7 +32,6 @@ namespace LinaEngine::ECS
 		float velocity[3];
 		float acceleration[3];
 		uint8 textureIndex = 0;
-		bool indexChanged;
 	};
 }
 
