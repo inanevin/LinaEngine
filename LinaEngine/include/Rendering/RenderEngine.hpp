@@ -33,6 +33,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Systems/MeshRendererSystem.hpp"
 #include "ECS/Systems/LightingSystem.hpp"
+#include "PackageManager/PAMInputEngine.hpp"
 
 using namespace LinaEngine::ECS;
 using namespace LinaEngine;
@@ -85,6 +86,12 @@ namespace LinaEngine::Graphics
 		// Initialize the render renderEngine.
 		void Initialize(EntityComponentSystem* ecsIn);
 
+		void DemoSwitchTexture(int index);
+
+		void DemoSwitchMovement(int index);
+
+		void DemoSwitchSkybox(int index);
+
 		// Called each frame.
 		void Tick(float delta);
 
@@ -118,7 +125,7 @@ namespace LinaEngine::Graphics
 		void DumpMemory();
 
 		// Renders skybox
-		void RenderSkybox();
+		void RenderSkybox(Texture* skyboxTexture);
 
 	private:
 

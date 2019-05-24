@@ -44,13 +44,15 @@ namespace LinaEngine::Graphics
 			if (texture != currentTexture) 
 				m_Shader->SetSampler(m_SamplerName, *texture, *m_Sampler, 0);
 
-			
+			// Update the buffer w/ each transform.
+			vertexArray->UpdateBuffer(4, transforms, numTransforms * sizeof(Matrix));
 
-
-			for (uint32 i = 0; i < numTransforms; i++)
+			// Draw call.
+			this->Draw(*m_Shader, *vertexArray, *m_DrawParams, numTransforms);
+			/*for (uint32 i = 0; i < numTransforms; i++)
 			{
 				// Update transformMat attribute, the buffer w/ each transform.
-				//vertexArray->UpdateBuffer(4, &it->second[i], 1 * sizeof(Matrix));
+				vertexArray->UpdateBuffer(4, &it->second[i], 1 * sizeof(Matrix));
 
 				// Update model attribute.
 				//vertexArray->UpdateBuffer(5, &m_ModelMatrices[i], 1 * sizeof(Matrix));
@@ -71,12 +73,12 @@ namespace LinaEngine::Graphics
 				// Draw call.
 				this->Draw(*m_Shader, *vertexArray, *m_DrawParams, 1);
 
-				renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "model", it->second[i]);
-				renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "view", m_ViewMatrix);
-				renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "projection", m_Projection);
-				renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "inverseTransposeNormal", (m_ViewMatrix * it->second[i]).toNormalMatrix());
+				//renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "model", it->second[i]);
+				//renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "view", m_ViewMatrix);
+				//renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "projection", m_Projection);
+				//renderDevice->UpdateShaderUniformMatrix(m_Shader->GetID(), "inverseTransposeNormal", (m_ViewMatrix * it->second[i]).toNormalMatrix());
 
-			}
+			}*/
 
 
 	
