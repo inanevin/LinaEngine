@@ -45,7 +45,7 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void RenderMesh(VertexArray& vertexArray, Texture& texture, const Matrix& transformIn)
 		{
 			// Add the new matrix to the same pairs, each pair will be drawn once.
-			m_MeshRenderBuffer[LinaMakePair(&vertexArray, &texture)].push_back(transformIn);
+			m_MeshRenderBuffer[LinaMakePair(&vertexArray, &texture)].push_back(m_Projection * m_ViewMatrix * transformIn);
 		}
 
 		FORCEINLINE void UpdateViewMatrix(const Matrix& viewMatrix)

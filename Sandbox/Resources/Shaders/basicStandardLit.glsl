@@ -44,7 +44,6 @@ void main()
     texCoord0 = texCoord;
     Normal = mat3(inverseTransposeNormal) * normal;  	
 	LightPos = vec3(view * vec4(lightPos, 1.0)); // Transform world-space light position to view-space light position
-
 }
 
 #elif defined(FS_BUILD)
@@ -55,32 +54,43 @@ in vec3 FragPos;
 in vec3 Normal;
 in vec3 LightPos;
 
-uniform vec3 ambientLightColor;
-uniform float ambientLightIntensity;
+
 uniform float specularIntensity;
 uniform int specularExponent;
-uniform vec3 lightColor;
 
 out vec4 FragColor;
+
+struct Material
+{
+	float shininess;
+};
+
+struct Light
+{
+	vec3 color;
+	float intensity;
+};
+
+uniform Light ambientLight;
+uniform Light pointLight;
 
 void main()
 {
 	
     // ambient
-    vec3 ambient = ambientLightIntensity * ambientLightColor;    
+    vec3 ambient = ambientLight.intensity * ambientLight.color;    
     
      // diffuse 
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(LightPos - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuseFactor = diff * lightColor;
+    vec3 diffuseFactor = diff * pointLight.color * pointLight.intensity;
     
     // specular
-
     vec3 viewDir = normalize(-FragPos); // the viewer is always at (0,0,0) in view-space, so viewDir is (0,0,0) - Position => -Position
     vec3 reflectDir = reflect(-lightDir, norm);  
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
-    vec3 specular = specularIntensity * spec * lightColor; 
+    vec3 specular = specularIntensity * spec * pointLight.color; 
     
     vec3 result = (ambient + diffuseFactor + specular);
 	

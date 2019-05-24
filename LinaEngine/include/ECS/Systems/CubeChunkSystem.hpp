@@ -37,6 +37,14 @@ namespace LinaEngine::ECS
 		}
 
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
+
+		FORCEINLINE void SetMovementIndex(int index)
+		{
+			m_MovementIndex = index;
+		}
+	private:
+
+		int m_MovementIndex = 0;
 	};
 }
 

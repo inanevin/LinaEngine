@@ -39,7 +39,7 @@ namespace LinaEngine::ECS
 		if (inputEngine.GetMouseButton(InputCode::Mouse::Mouse1))
 		{
 			Vector2F deltaPos = inputEngine.GetMousePosition() - m_WindowCenter;
-
+		
 			bool rotY = deltaPos.GetX() != 0;
 			bool rotX = deltaPos.GetY() != 0;
 
