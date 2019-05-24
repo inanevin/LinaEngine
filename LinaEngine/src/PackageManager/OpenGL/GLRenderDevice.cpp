@@ -741,15 +741,13 @@ namespace LinaEngine::Graphics
 		// Bind & use the target shader.
 		SetShader(shader);
 
-		//Color ambientLightColor = m_LightingSystem->GetAmbientLight().color;
-		//UpdateShaderUniformVector3F(shader, "ambientLight.color", Vector3F(ambientLightColor.R(), ambientLightColor.G(), ambientLightColor.B()));
-		//UpdateShaderUniformFloat(shader, "ambientLight.intensity", m_LightingSystem->GetAmbientLight().intensity);
-		//UpdateShaderUniformVector3F(shader, "lightPos", Vector3F(0.0f, 5.0f, 0.0f));
-		//UpdateShaderUniformVector3F(shader, "pointLight.color", Vector3F(1.0f, 0.0f, 0.0f));
-		//UpdateShaderUniformFloat(shader, "pointLight.intensity", 1.0f);
-		//UpdateShaderUniformFloat(shader, "specularIntensity", 1.0f);
-		//UpdateShaderUniformInt(shader, "specularExponent", 32);
-
+		Color ambientLightColor = m_LightingSystem->GetAmbientLight().color;
+		UpdateShaderUniformVector3F(shader, "ambientLightColor", Vector3F(ambientLightColor.R(), ambientLightColor.G(), ambientLightColor.B()));
+		UpdateShaderUniformFloat(shader, "ambientLightIntensity", m_LightingSystem->GetAmbientLight().intensity);
+		UpdateShaderUniformVector3F(shader, "lightPos", Vector3F(0.0f, 5.0f, 0.0f));
+		UpdateShaderUniformVector3F(shader, "lightColor", Vector3F(1.0f, 0.0f, 0.0f));
+		UpdateShaderUniformFloat(shader, "specularIntensity", 1.0f);
+		UpdateShaderUniformInt(shader, "specularExponent", 32);
 
 		// use array buffer & attributes.
 		SetVAO(vao);
@@ -762,6 +760,9 @@ namespace LinaEngine::Graphics
 
 	
 		//UpdateShaderUniformVector3F(shader, "_viewPos", m_LightingSystem->GetCameraPosition());
+
+
+
 	}
 
 	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams & drawParams, const Matrix& projection, const Matrix& view)
