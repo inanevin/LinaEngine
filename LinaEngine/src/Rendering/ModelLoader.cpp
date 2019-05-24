@@ -56,7 +56,6 @@ namespace LinaEngine::Graphics
 			currentModel.SetStartIndex(4); // Begin instanced data
 			currentModel.AllocateElement(16); // Transform matrix
 
-
 			const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
 
 			// Iterate through vertices.

@@ -86,7 +86,7 @@ namespace LinaEngine
 
 		
 		//Matrix4F m_PerspectiveProjection;
-		//Matrix4F m_ViewProjection;
+		//Matrix4F m_Projection;
 		PerspectiveInformation m_PersInfo;
 		Vector2F m_windowCenter;
 		bool     m_mouseLocked;

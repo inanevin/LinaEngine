@@ -25,6 +25,16 @@ Timestamp: 5/2/2019 12:20:42 AM
 #include "ECS/ECSComponent.hpp"
 #include "Utility/Math/Color.hpp"
 
+namespace LinaEngine
+{
+	namespace Graphics
+	{
+		class RenderEngine;
+	}
+}
+
+using namespace LinaEngine::Graphics;
+
 namespace LinaEngine::ECS
 {
 	struct CameraComponent : ECSComponent<CameraComponent>
@@ -33,7 +43,12 @@ namespace LinaEngine::ECS
 		float fieldOfView = 70.0f;
 		float zNear = 0.01f;
 		float zFar = 1000.0f;
-		int renderPriority = 1;
+		
+	private:
+
+		friend class CameraSystem;
+		friend class RenderEngine;
+		bool isActive = false;
 	};
 }
 

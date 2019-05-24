@@ -24,9 +24,20 @@ Timestamp: 4/27/2019 10:12:16 PM
 
 #include "PackageManager/OpenGL/GLWindow.hpp"
 #include "Core/DataStructures.hpp"
-
 #include "Utility/Math/Matrix.hpp"
+
+
+
+namespace LinaEngine
+{
+	namespace ECS
+	{
+		class LightingSystem;
+	}
+}
+
 using namespace LinaEngine;
+
 
 namespace LinaEngine::Graphics
 {
@@ -233,7 +244,7 @@ namespace LinaEngine::Graphics
 		};
 
 		// Initializes the devices & params.
-		void Initialize();
+		void Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn);
 
 		// Creates a texture on GL.
 		uint32 CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress);
@@ -316,6 +327,11 @@ namespace LinaEngine::Graphics
 		// Updates a vec3 type uniform on a shader with given name.
 		void UpdateShaderUniformVector3F(uint32 shader, const LinaString& uniform, const Vector3F& m);
 
+		// Updates a float type uniform on a shader w/ given name.
+		void UpdateShaderUniformFloat(uint32 shader, const LinaString& uniform, const float f);
+
+		// Updates an integer type uniform on a shader w/ given name.
+		void UpdateShaderUniformInt(uint32 shader, const LinaString& uniform, const int f);
 	private:
 
 		LinaString GetShaderVersion();
@@ -330,10 +346,14 @@ namespace LinaEngine::Graphics
 		void SetStencilWriteMask(uint32 mask);
 		void SetScissorTest(bool enable, uint32 startX = 0, uint32 startY = 0, uint32 width = 0, uint32 height = 0);
 
+
 	private:
 
 		// Main window reference.
 		std::unique_ptr<GLWindow> m_MainWindow;
+
+		// Reference to the ECS Lighting system in Render Engine
+		LinaEngine::ECS::LightingSystem* m_LightingSystem;
 
 		// Currently active shader.
 		uint32 m_BoundShader = 0;
@@ -346,9 +366,6 @@ namespace LinaEngine::Graphics
 
 		// FBO rep. on viewport.
 		uint32 m_ViewportFBO;
-
-		// Uniform location map.
-		//LinaMap<uint32, LinaMap<LinaString, uint32>> m_UniformLocationMap;
 
 		// Map for bound vertex array objects.
 		LinaMap<uint32, VertexArrayData> m_VAOMap;

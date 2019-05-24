@@ -38,8 +38,8 @@ namespace LinaEngine
 		WindowProperties()
 		{
 			m_Title = "Lina Engine";
-			m_Width = 1280;
-			m_Height = 720;
+			m_Width = 1440;
+			m_Height = 900;
 		}
 
 		WindowProperties(const std::string& title, unsigned int width, unsigned int height)
