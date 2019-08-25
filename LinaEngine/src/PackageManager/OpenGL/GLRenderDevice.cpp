@@ -256,7 +256,6 @@ namespace LinaEngine::Graphics
 		unsigned char yneg[] = { 0xFF, 0x00, 0xFF, 0xFF };    // magenta
 		unsigned char zpos[] = { 0x00, 0x00, 0xFF, 0xFF };    // blue
 		unsigned char zneg[] = { 0xFF, 0xFF, 0x00, 0xFF };    // yellow
-		//width = height = 1;
 
 		// Generate texture & bind to program.
 		glGenTextures(1, &textureHandle);

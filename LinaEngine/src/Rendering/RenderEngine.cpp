@@ -51,7 +51,7 @@ namespace LinaEngine::Graphics
 	using namespace ECS;
 	using namespace Physics;
 
-	
+
 	EntityHandle cameraEntity;
 	TransformComponent transformComponent;
 
@@ -95,31 +95,30 @@ namespace LinaEngine::Graphics
 	}
 
 	static const int DEMO_TEXTURE_SIZES = 5;
-	RenderableObjectData* cube1;
-	RenderableObjectData* cube2;
+	RenderableObjectData * cube1;
+	RenderableObjectData * cube2;
 	EntityHandle entity;
 	EntityHandle entity2;
-	Texture* texture;
-	Texture* textureNew;
-	Texture* textures[DEMO_TEXTURE_SIZES];
+	Texture * texture;
+	Texture * textureNew;
+	Texture * textures[DEMO_TEXTURE_SIZES];
 	Texture texture0;
 	Texture texture1;
 	Texture texture2;
 	Texture texture3;
 	Texture texture4;
-	Texture skybox2;
-	Texture skybox3;
-	Texture skybox4;
-	Texture skybox5;
-	Texture* skyboxToDraw;
+
 
 	MeshRendererComponent renderableMesh;
 
 
-	void RenderEngine::Initialize(EntityComponentSystem* ecsIn)
+	void RenderEngine::Initialize(EntityComponentSystem * ecsIn)
 	{
 		// Set ECS reference
 		m_ECS = ecsIn;
+
+		// Enable skybox drawing.
+		m_DrawSkybox = false;
 
 		// Initialize the render device.
 		m_RenderDevice->Initialize(m_LightingSystem);
@@ -132,15 +131,7 @@ namespace LinaEngine::Graphics
 
 		// Initialize default texture.
 		m_DefaultDiffuseTexture = LoadTextureResource("seamless1.jpg", PixelFormat::FORMAT_RGB, true, false);
-
-		// Initialize default skybox texture
-		m_SkyboxTexture = LoadCubemapTextureResource("Skybox/Skybox1/right.jpg", "Skybox/Skybox1/left.jpg", "Skybox/Skybox1/up.jpg", "Skybox/Skybox1/down.jpg", "Skybox/Skybox1/front.jpg", "Skybox/Skybox1/back.jpg");
-
-		skybox2 = LoadCubemapTextureResource("Skybox/Skybox2/right.png", "Skybox/Skybox2/left.png", "Skybox/Skybox2/up.png", "Skybox/Skybox2/down.png", "Skybox/Skybox2/front.png", "Skybox/Skybox2/back.png");
-		skybox3 = LoadCubemapTextureResource("Skybox/Skybox3/right.png", "Skybox/Skybox3/left.png", "Skybox/Skybox3/up.png", "Skybox/Skybox3/down.png", "Skybox/Skybox3/front.png", "Skybox/Skybox3/back.png");
-		skybox4 = LoadCubemapTextureResource("Skybox/Skybox4/right.png", "Skybox/Skybox4/left.png", "Skybox/Skybox4/up.png", "Skybox/Skybox4/down.png", "Skybox/Skybox4/front.png", "Skybox/Skybox4/back.png");
-		skybox5 = LoadCubemapTextureResource("Skybox/Skybox5/right.png", "Skybox/Skybox5/left.png", "Skybox/Skybox5/up.png", "Skybox/Skybox5/down.png", "Skybox/Skybox5/front.png", "Skybox/Skybox5/back.png");
-
+		
 		texture0 = LoadTextureResource("checker.png", PixelFormat::FORMAT_RGB, true, false);
 		texture1 = LoadTextureResource("chicken.png", PixelFormat::FORMAT_RGB, true, false);
 		texture2 = LoadTextureResource("seamless1.jpg", PixelFormat::FORMAT_RGB, true, false);
@@ -157,7 +148,6 @@ namespace LinaEngine::Graphics
 		LinaString skyboxShaderText;
 		LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, "Resources/Shaders/basicSkybox.glsl", "#include");
 		m_BasicSkyboxShader.Construct(*m_RenderDevice.get(), skyboxShaderText);
-		m_BasicSkyboxShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_SkyboxTexture, m_SkyboxSampler, 0);
 
 		// Initialize the render target.
 		m_RenderTarget.Construct(*m_RenderDevice.get());
@@ -167,7 +157,7 @@ namespace LinaEngine::Graphics
 		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
 		m_DefaultDrawParams.shouldWriteDepth = true;
 		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
-	
+
 		// Set skybox draw params.
 		m_SkyboxDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
 		m_SkyboxDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
@@ -185,9 +175,6 @@ namespace LinaEngine::Graphics
 		// Initialize the render context.
 		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_RenderTarget, m_DefaultDrawParams, m_BasicStandardShader, m_DefaultSampler, m_CurrentProjectionMatrix);
 
-		// Initialize skybox vertex array object.
-		m_SkyboxVAO = m_RenderDevice->CreateSkyboxVertexArray();
-	
 		// Initialize ECS Camera System.
 		m_CameraSystem.Construct(m_DefaultRenderContext);
 		m_CameraSystem.SetProjectionMatrix(m_CurrentProjectionMatrix);
@@ -203,12 +190,12 @@ namespace LinaEngine::Graphics
 		SetAmbientLight(ambientLight);
 
 		// CUSTOM 
-		freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 18.0f;		
+		freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 18.0f;
 		freeLookComponent.rotationSpeedX = freeLookComponent.rotationSpeedY = 1;
 		fss = new FreeLookSystem(Application::Get().GetInputDevice());
 
 		transformComponent.transform.SetLocation(Vector3F(0.0f, 0.0f, -5.0f));
-	
+
 		cameraEntity = m_ECS->MakeEntity(transformComponent, m_DefaultCameraComponent, freeLookComponent);
 
 		textures[0] = &texture0;
@@ -235,13 +222,13 @@ namespace LinaEngine::Graphics
 
 		transformComponent.transform.SetLocation(Vector3F(-12.0f, 0, 0.0f));
 		//transformComponent.transform.SetScale(Vector3F(10, 0.2f, 10));
-		
 
-	
-		for (uint32 i = 0; i < 100000; i++)
+
+
+		for (uint32 i = 0; i < 100; i++)
 		{
-			transformComponent.transform.SetLocation(Vector3F(Math::RandF()*10.0f - 5.0f, Math::RandF()*10.0f - 5.0f,
-				Math::RandF()*10.0f - 5.0f + 20.0f));
+			transformComponent.transform.SetLocation(Vector3F(Math::RandF() * 10.0f - 5.0f, Math::RandF() * 10.0f - 5.0f,
+				Math::RandF() * 10.0f - 5.0f + 20.0f));
 
 			float vf = -4.0f;
 			float af = 5.0f;
@@ -264,8 +251,6 @@ namespace LinaEngine::Graphics
 		//transformComponent.transform.SetLocation(Vector3F(12.0f, 0.0f, 0.0f));
 		//entity2 = m_ECS->MakeEntity(transformComponent, renderableMesh);
 
-		skyboxToDraw = &m_SkyboxTexture;
-
 	}
 
 	void RenderEngine::DemoSwitchTexture(int index)
@@ -283,7 +268,7 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::DemoSwitchSkybox(int index)
 	{
-		if (index == 0)
+		/*if (index == 0)
 			skyboxToDraw = &m_SkyboxTexture;
 		else if (index == 1)
 			skyboxToDraw = &skybox2;
@@ -292,7 +277,7 @@ namespace LinaEngine::Graphics
 		else if (index == 3)
 			skyboxToDraw = &skybox4;
 		else if (index == 4)
-			skyboxToDraw = &skybox5;
+			skyboxToDraw = &skybox5;*/
 	}
 
 
@@ -310,13 +295,12 @@ namespace LinaEngine::Graphics
 		// Update pipeline.
 		m_ECS->UpdateSystems(m_RenderingPipeline, delta);
 
-
-		
 		// Draw scene.
 		m_DefaultRenderContext.Flush();
 
 		// Draw skybox.
-		RenderSkybox(skyboxToDraw);
+		if (m_DrawSkybox)
+			RenderSkybox(m_SkyboxTexture);
 
 		// Update window.
 		m_RenderDevice->TickWindow();
@@ -343,7 +327,7 @@ namespace LinaEngine::Graphics
 		textureBitmap->Load(ResourceConstants::textureFolderPath + fileName);
 
 		// Create texture based on pixel data.
-		Texture* texture = new Texture();
+		Texture * texture = new Texture();
 		texture->Construct(*m_RenderDevice.get(), *textureBitmap, internalPixelFormat, generateMipMaps, compress);
 
 		// Add to the resources.
@@ -356,7 +340,7 @@ namespace LinaEngine::Graphics
 		return *texture;
 	}
 
-	RenderableObjectData & RenderEngine::LoadModelResource(const LinaString & fileName)
+	RenderableObjectData& RenderEngine::LoadModelResource(const LinaString & fileName)
 	{
 		// Create object data & feed it from model.
 		RenderableObjectData* objectData = new RenderableObjectData();
@@ -386,11 +370,11 @@ namespace LinaEngine::Graphics
 
 		// Load bitmap for each face.
 		for (uint32 i = 0; i < 6; i++)
-		{	
+		{
 			ArrayBitmap* faceBitmap = new ArrayBitmap();
 			faceBitmap->Load(ResourceConstants::textureFolderPath + fileNames[i]);
 			bitmaps.push_back(faceBitmap);
-			
+
 		}
 
 		// Create texture.
@@ -405,7 +389,7 @@ namespace LinaEngine::Graphics
 			delete bitmaps[i];
 
 		bitmaps.clear();
-		
+
 		return *cubeMapTexture;
 	}
 
@@ -442,6 +426,35 @@ namespace LinaEngine::Graphics
 			}
 		}
 
+	}
+
+	LINA_API void RenderEngine::SetSkyboxTexture(Texture & newSkybox)
+	{
+		m_SkyboxTexture = &newSkybox;
+
+		if (!m_SkyboxInitialized)
+			InitializeSkyboxSettings();
+	}
+
+	LINA_API void RenderEngine::SetSkyboxDraw(bool enable)
+	{
+		if (enable)
+		{
+			if (!m_SkyboxInitialized)
+			{
+				if (m_SkyboxTexture == nullptr)
+				{
+					LINA_CORE_WARN("Trying to enable skybox draw before setting a skybox texture! Aborting...");
+					return;
+				}
+				else
+					InitializeSkyboxSettings();
+			}
+
+			m_DrawSkybox = true;
+		}
+		else
+			m_DrawSkybox = false;
 	}
 
 	void RenderEngine::OnRemoveEntity(EntityHandle handle)
@@ -499,10 +512,29 @@ namespace LinaEngine::Graphics
 		m_TextureDump.clear();
 	}
 
-	void RenderEngine::RenderSkybox(Texture* skyboxTexture)
+	void RenderEngine::InitializeSkyboxSettings()
+	{
+		if (m_SkyboxTexture == nullptr)
+		{
+			LINA_CORE_ERR("Trying to initialize skybox but no texture is set! Aborting...");
+			return;
+		}
+
+		// Initialize skybox sampler.
+		m_BasicSkyboxShader.SetSampler(m_SkyboxSampler.GetSamplerName(), *m_SkyboxTexture, m_SkyboxSampler, 0);
+
+		// Initialize skybox vertex array object.
+		m_SkyboxVAO = m_RenderDevice->CreateSkyboxVertexArray();
+
+		// Set flag.
+		m_SkyboxInitialized = true;
+
+	}
+
+	void RenderEngine::RenderSkybox(Texture * skyboxTexture)
 	{
 		m_BasicSkyboxShader.SetSampler(m_SkyboxSampler.GetSamplerName(), *skyboxTexture, m_SkyboxSampler, 0, BindTextureMode::BINDTEXTURE_CUBEMAP);
-		m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_BasicSkyboxShader.GetID(),  m_SkyboxVAO, skyboxTexture->GetID(), m_SkyboxDrawParams, m_CurrentProjectionMatrix, m_CameraSystem.GetSkyboxViewTransformation());
+		m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_BasicSkyboxShader.GetID(), m_SkyboxVAO, skyboxTexture->GetID(), m_SkyboxDrawParams, m_CurrentProjectionMatrix, m_CameraSystem.GetSkyboxViewTransformation());
 	}
 
 }
