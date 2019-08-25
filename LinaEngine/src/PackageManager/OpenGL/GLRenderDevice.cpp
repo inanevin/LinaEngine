@@ -23,7 +23,9 @@ Timestamp: 4/27/2019 10:16:32 PM
 #include "Utility/Math/Color.hpp"
 #include "Core/Internal.hpp"
 #include "Rendering/ArrayBitmap.hpp"
+#include "ECS/Systems/LightingSystem.hpp"
 
+using namespace LinaEngine::ECS;
 
 namespace LinaEngine::Graphics
 {
@@ -137,17 +139,22 @@ namespace LinaEngine::Graphics
 	}
 
 
-	void GLRenderDevice::Initialize()
+	void GLRenderDevice::Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn)
 	{
+		// Struct fbo data.
 		struct FBOData fboWindowData;
 		fboWindowData.width = m_MainWindow->GetWidth();
 		fboWindowData.height = m_MainWindow->GetHeight();
 		m_FBOMap[0] = fboWindowData;
 
+		// Default GL settings.
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(DRAW_FUNC_ALWAYS);
 		glDepthMask(GL_FALSE);
 		glFrontFace(GL_CW);
+
+		// Set lighting system reference.
+		m_LightingSystem = &lightingSystemIn;
 
 	}
 
@@ -667,7 +674,6 @@ namespace LinaEngine::Graphics
 		else
 			usage = vaoData->bufferUsage;
 
-
 		// Use VAO & bind buffer.
 		SetVAO(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vaoData->buffers[bufferIndex]);
@@ -735,6 +741,16 @@ namespace LinaEngine::Graphics
 		// Bind & use the target shader.
 		SetShader(shader);
 
+		//Color ambientLightColor = m_LightingSystem->GetAmbientLight().color;
+		//UpdateShaderUniformVector3F(shader, "ambientLight.color", Vector3F(ambientLightColor.R(), ambientLightColor.G(), ambientLightColor.B()));
+		//UpdateShaderUniformFloat(shader, "ambientLight.intensity", m_LightingSystem->GetAmbientLight().intensity);
+		//UpdateShaderUniformVector3F(shader, "lightPos", Vector3F(0.0f, 5.0f, 0.0f));
+		//UpdateShaderUniformVector3F(shader, "pointLight.color", Vector3F(1.0f, 0.0f, 0.0f));
+		//UpdateShaderUniformFloat(shader, "pointLight.intensity", 1.0f);
+		//UpdateShaderUniformFloat(shader, "specularIntensity", 1.0f);
+		//UpdateShaderUniformInt(shader, "specularExponent", 32);
+
+
 		// use array buffer & attributes.
 		SetVAO(vao);
 
@@ -744,6 +760,8 @@ namespace LinaEngine::Graphics
 		else
 			glDrawElementsInstanced(drawParams.primitiveType, (GLsizei)numElements, GL_UNSIGNED_INT, 0, numInstances);
 
+	
+		//UpdateShaderUniformVector3F(shader, "_viewPos", m_LightingSystem->GetCameraPosition());
 	}
 
 	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams & drawParams, const Matrix& projection, const Matrix& view)
@@ -827,9 +845,18 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::UpdateShaderUniformVector3F(uint32 shader, const LinaString & uniform, const Vector3F & m)
 	{
-		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], m.GetX(), m.GetY(), m.GetZ());
+		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.GetX(), (GLfloat)m.GetY(), (GLfloat)m.GetZ());
 	}
 
+	void GLRenderDevice::UpdateShaderUniformFloat(uint32 shader, const LinaString& uniform, const float f)
+	{
+		glUniform1f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)f);
+	}
+
+	void GLRenderDevice::UpdateShaderUniformInt(uint32 shader, const LinaString& uniform, const int f)
+	{
+		glUniform1i(m_ShaderProgramMap[shader].uniformMap[uniform], (GLint)f);
+	}
 
 	void GLRenderDevice::SetViewport(uint32 fbo)
 	{
@@ -1187,7 +1214,6 @@ namespace LinaEngine::Graphics
 			LinaString name((char*)& uniformName[0], actualLength - 1);
 			samplerMap[name] = glGetUniformLocation(shaderProgram, (char*)& uniformName[0]);
 			uniformMap[&uniformName[0]] = glGetUniformLocation(shaderProgram, (char*)& uniformName[0]);
-
 		}
 	}
 }

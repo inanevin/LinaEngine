@@ -104,6 +104,52 @@ namespace LinaEngine
 			// Update current level.
 			if (m_ActiveLevelExists)
 				m_CurrentLevel->Tick(0.01f);
+
+			if (m_InputEngine->GetKeyDown(InputCode::Key::Alpha1))
+				m_RenderEngine->DemoSwitchTexture(0);
+
+			if (m_InputEngine->GetKeyDown(InputCode::Key::Alpha2))
+				m_RenderEngine->DemoSwitchTexture(1);
+
+			if (m_InputEngine->GetKeyDown(InputCode::Key::Alpha3))
+				m_RenderEngine->DemoSwitchTexture(2);
+
+			if (m_InputEngine->GetKeyDown(InputCode::Key::Alpha4))
+				m_RenderEngine->DemoSwitchTexture(3);
+
+			if (m_InputEngine->GetKeyDown(InputCode::Key::Alpha5))
+				m_RenderEngine->DemoSwitchTexture(4);
+
+			if (m_InputEngine->GetKeyDown(InputCode::Key::Alpha6))
+				m_RenderEngine->DemoSwitchMovement(0);
+
+			if (m_InputEngine->GetKeyDown(InputCode::Key::Alpha7))
+				m_RenderEngine->DemoSwitchMovement(1);
+
+			if (m_InputEngine->GetKeyDown(InputCode::Key::Alpha8))
+				m_RenderEngine->DemoSwitchMovement(2);
+
+			if (m_InputEngine->GetKeyDown(InputCode::Key::Alpha9))
+				m_RenderEngine->DemoSwitchMovement(3);
+
+			if (m_InputEngine->GetKeyDown(InputCode::Key::Alpha0))
+				m_RenderEngine->DemoSwitchMovement(4);
+
+
+			if (m_InputEngine->GetKeyDown(InputCode::Key::G))
+				m_RenderEngine->DemoSwitchSkybox(0);
+
+			if (m_InputEngine->GetKeyDown(InputCode::Key::H))
+				m_RenderEngine->DemoSwitchSkybox(1);
+
+			if (m_InputEngine->GetKeyDown(InputCode::Key::J))
+				m_RenderEngine->DemoSwitchSkybox(2);
+
+			if (m_InputEngine->GetKeyDown(InputCode::Key::K))
+				m_RenderEngine->DemoSwitchSkybox(3);
+
+			if (m_InputEngine->GetKeyDown(InputCode::Key::L))
+				m_RenderEngine->DemoSwitchSkybox(4);
 	
 			// Update layers.
 			for (Layer* layer : m_LayerStack)
