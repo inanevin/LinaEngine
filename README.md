@@ -19,6 +19,8 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 
 - As a build system, this project uses CMake 3.6. Please make sure you have a working version of [CMake](https://cmake.org/), prerably 3.6 or above installed on your machine.
 
+- Lina Engine is currently compatible to be compiled only with Win32 architecture. If you would like to use it on different architectures, you need to compile the vendors for your target architecture and include them manually.
+
 ## Lina Engine Tools
 
 - [Lina Engine Build Launcher](https://github.com/inanevin/Lina-Engine-Build-Launcher)
