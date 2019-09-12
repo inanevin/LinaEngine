@@ -113,12 +113,6 @@ namespace LinaEngine::Graphics
 		//  Adds the targeted resource to the garbage collection dump.
 		LINA_API void UnloadModelResource(RenderableObjectData& modelResource);
 
-		// Switches the skybox source
-		LINA_API void SetSkyboxTexture(Texture& newSkybox);
-
-		// Enables/Disables skybox draw.
-		LINA_API void SetSkyboxDraw(bool enable);
-
 		// Called when an entity is removed, handled internally by ECS.
 		virtual void OnRemoveEntity(EntityHandle handle) override;
 
@@ -129,9 +123,6 @@ namespace LinaEngine::Graphics
 
 		// clears resource memory.
 		void DumpMemory();
-
-		// Initates skybox draw commands.
-		void InitializeSkyboxSettings();
 
 		// Renders skybox
 		void RenderSkybox(Texture* skyboxTexture);
@@ -156,8 +147,8 @@ namespace LinaEngine::Graphics
 		// Default diffuse texture
 		Texture m_DefaultDiffuseTexture;
 
-		// Skybox texture to draw.
-		Texture* m_SkyboxTexture = nullptr;
+		// Default skybox texture
+		Texture m_SkyboxTexture;
 
 		// Default shader
 		Shader m_BasicStandardShader;
@@ -224,12 +215,6 @@ namespace LinaEngine::Graphics
 
 		// Standart sprite vertex array object.
 		uint32 m_SpriteVAO;
-
-		// Whether to draw a skybox or not.
-		bool m_DrawSkybox = false;
-
-		// Is the skybox draw settings initialized?
-		bool m_SkyboxInitialized = false;
 	};
 
 }

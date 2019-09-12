@@ -27,21 +27,12 @@ EntityHandle entity;
 MeshRendererComponent renderableMesh;
 TransformComponent transformComponent;
 
-Texture skybox1;
-Texture skybox2;
-Texture skybox3;
-Texture skybox4;
 
 void Example1Level::Install()
 {
 	LINA_CLIENT_WARN("Example level 1 install.");
 
-	skybox1 = m_RenderEngine->LoadCubemapTextureResource("Skybox/Skybox2/right.png", "Skybox/Skybox2/left.png", "Skybox/Skybox2/up.png", "Skybox/Skybox2/down.png", "Skybox/Skybox2/front.png", "Skybox/Skybox2/back.png");
-	skybox2 = m_RenderEngine->LoadCubemapTextureResource("Skybox/Skybox3/right.png", "Skybox/Skybox3/left.png", "Skybox/Skybox3/up.png", "Skybox/Skybox3/down.png", "Skybox/Skybox3/front.png", "Skybox/Skybox3/back.png");
-	skybox3 = m_RenderEngine->LoadCubemapTextureResource("Skybox/Skybox4/right.png", "Skybox/Skybox4/left.png", "Skybox/Skybox4/up.png", "Skybox/Skybox4/down.png", "Skybox/Skybox4/front.png", "Skybox/Skybox4/back.png");
-	skybox4 = m_RenderEngine->LoadCubemapTextureResource("Skybox/Skybox5/right.png", "Skybox/Skybox5/left.png", "Skybox/Skybox5/up.png", "Skybox/Skybox5/down.png", "Skybox/Skybox5/front.png", "Skybox/Skybox5/back.png");
-
-	m_RenderEngine->SetSkyboxDraw(true);
+	
 
 }
 

@@ -74,10 +74,10 @@ COMMAND ${CMAKE_COMMAND}
 )
 
 #Copy DLLs
-add_custom_command(
-TARGET ${PROJECT_NAME}
-PRE_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/LinaEngine/vendor/assimp/_bin/Assimp32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
+#add_custom_command(
+#TARGET ${PROJECT_NAME}
+#PRE_BUILD
+#COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/LinaEngine/vendor/assimp/_bin/Assimp32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
 
 #Copy PDBs
 #add_custom_command(
