@@ -153,4 +153,3 @@ cmake --build ../
 
 [Lina Engine Project Report (GDOCS)](https://docs.google.com/document/d/1GQ7S9-OWGzjeEKheRBIHGqHQ0nA5iUZMtzSJuUAbKFE/edit?usp=sharing)
 
-[Literature Review done for the design of Lina Engine (GDOCS)](https://docs.google.com/document/d/1Pu_fJU6x_tfXkGBrjXe9A6gk-s-qliDu00Ic1RWWDmk/edit?usp=sharing)
