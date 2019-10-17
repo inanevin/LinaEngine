@@ -34,7 +34,7 @@ namespace LinaEngine::Graphics
 
 		Shader() {};
 
-		FORCEINLINE ~Shader() { m_EngineBoundID = renderDevice->ReleaseShaderProgram(m_EngineBoundID); }
+		FORCEINLINE ~Shader() { if(m_IsConstructed) m_EngineBoundID = renderDevice->ReleaseShaderProgram(m_EngineBoundID); }
 
 		FORCEINLINE void Construct(PAMRenderDevice& renderDeviceIn, const LinaString& text)
 		{

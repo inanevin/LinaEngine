@@ -22,6 +22,7 @@ layout (location = 0) in vec3 position;
 uniform mat4 projection;
 uniform mat4 view;
 
+out vec3 rawPosition;
 out vec4 vertexPos;
 
 void main()
@@ -29,10 +30,12 @@ void main()
     vec4 pos = projection * view * vec4(position, 1.0);
     gl_Position = pos.xyww;
 	vertexPos = projection * vec4(position, 1.0);
+	rawPosition = position;
 }
   
 #elif defined(FS_BUILD)
 
+in vec3 rawPosition;
 in vec4 vertexPos;
 out vec4 fragColor;
 
@@ -42,8 +45,15 @@ uniform samplerCube skybox;
 void main()
 {    
 
-	
+	float colorX = position.x;
+	float colorY = position.y;
+	float colorZ = position.z;
 
-   fragColor = vec4(vertexPos.x, vertexPos.y, vertexPos.z, 1);
+	if(position.y < equatorRange && position.y > -equatorRange)
+	{
+	
+	}
+
+   fragColor = vec4(colorX, colorY, colorZ, 1);
 }
 #endif

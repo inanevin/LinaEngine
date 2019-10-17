@@ -50,6 +50,10 @@ namespace LinaEngine::Graphics
 
 		~RenderEngine();
 
+
+		// Enumeration for the skybox type.
+		enum SkyboxType { SingleColor, Gradient, Cubemap };
+
 		FORCEINLINE void* GetNativeWindow()
 		{
 			return m_RenderDevice->GetNativeWindow();
@@ -108,14 +112,20 @@ namespace LinaEngine::Graphics
 		// Adds the targeted resource to the garbage collection dump.
 		LINA_API void UnloadModelResource(RenderableObjectData& modelResource);
 
+		// Changes the skybox type.
+		LINA_API FORCEINLINE void ChangeSkyboxRenderType(SkyboxType type) { m_SkyboxType = type; }
+
+		// Sets the single color skybox rendering color.
+		LINA_API FORCEINLINE void SetSingleColorSkyboxColor(Color color) { m_SingleColorSkyboxColor = color; }
+
+		// Sets gradient colors for skybox gradient rendering.
+		LINA_API FORCEINLINE void SetGradientSkyboxColors(Color startColor, Color endColor) {}
+
 		// Called when an entity is removed, handled internally by ECS.
 		virtual void OnRemoveEntity(EntityHandle handle) override;
 
 		// Called when a component is removed, handled internally by ECS.
 		virtual void OnRemoveComponent(EntityHandle handle, uint32 id) override;
-
-		// Enumeration for the skybox type.
-		enum SkyboxType {SingleColor, Gradient, Cubemap};
 
 	private:
 

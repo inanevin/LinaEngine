@@ -29,6 +29,8 @@ void Example1Level::Install()
 void Example1Level::Initialize()
 {
 	LINA_CLIENT_WARN("Example level 1 initialize.");
+
+	m_RenderEngine->SetSingleColorSkyboxColor(Colors::Blue);
 }
 
 
