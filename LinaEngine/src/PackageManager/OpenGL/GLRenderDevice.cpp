@@ -764,7 +764,7 @@ namespace LinaEngine::Graphics
 		//UpdateShaderUniformVector3F(shader, "_viewPos", m_LightingSystem->GetCameraPosition());
 	}
 
-	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams & drawParams, const Matrix& projection, const Matrix& view)
+	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams & drawParams, const Matrix& projectionMatrix, const Matrix& viewMatrix)
 	{
 		// Bind the render targets.
 		SetFBO(fbo);
@@ -781,8 +781,65 @@ namespace LinaEngine::Graphics
 		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
 
 		// Update uniform matrices.
-		UpdateShaderUniformMatrix(shader, "projection", projection);
-		UpdateShaderUniformMatrix(shader, "view", view);
+		UpdateShaderUniformMatrix(shader, "projection", projectionMatrix);
+		UpdateShaderUniformMatrix(shader, "view", viewMatrix);
+
+		// Bind vertex array object.
+		SetVAO(vao);
+
+		// Finally draw the sky box.
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+	}
+
+	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Color& colorStart, const Color& colorEnd, const Matrix& projectionMatrix, const Matrix& viewMatrix)
+	{
+		// Bind the render targets.
+		SetFBO(fbo);
+
+		// Ensure viewport is ok.
+		SetViewport(fbo);
+
+		// Set blend mode for each render target.
+		SetBlending(drawParams.sourceBlend, drawParams.destBlend);
+
+		// Set scissors tests if required, face culling modes as well as depth tests.
+		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
+		SetFaceCulling(drawParams.faceCulling);
+		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
+
+		// Update uniform matrices.
+		UpdateShaderUniformMatrix(shader, "projection", projectionMatrix);
+		UpdateShaderUniformMatrix(shader, "view", viewMatrix);
+		UpdateShaderUniformColor(shader, "startColor", colorStart);
+		UpdateShaderUniformColor(shader, "endColor", colorEnd);
+
+		// Bind vertex array object.
+		SetVAO(vao);
+
+		// Finally draw the sky box.
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+	}
+
+	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Color& color)
+	{
+		// Bind the render targets.
+		SetFBO(fbo);
+
+		// Ensure viewport is ok.
+		SetViewport(fbo);
+
+		// Set blend mode for each render target.
+		SetBlending(drawParams.sourceBlend, drawParams.destBlend);
+
+		// Set scissors tests if required, face culling modes as well as depth tests.
+		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
+		SetFaceCulling(drawParams.faceCulling);
+		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
+
+		// Update uniform matrices.
+		UpdateShaderUniformColor(shader, "color", color);
 
 		// Bind vertex array object.
 		SetVAO(vao);
@@ -843,10 +900,31 @@ namespace LinaEngine::Graphics
 		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_TRUE, matrixData);
 	}
 
+	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const LinaString& uniform, void* data)
+	{
+		float* matrixData = ((float*)data);	
+		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_TRUE, matrixData);
+	}
+
+
+
 	void GLRenderDevice::UpdateShaderUniformVector3F(uint32 shader, const LinaString & uniform, const Vector3F & m)
 	{
 		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.GetX(), (GLfloat)m.GetY(), (GLfloat)m.GetZ());
 	}
+
+	void GLRenderDevice::UpdateShaderUniformVector3F(uint32 shader, const LinaString& uniform, void* data)
+	{
+		float* vectorData = ((float*)data);
+		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)vectorData[0], (GLfloat)vectorData[1], (GLfloat)vectorData[2]);
+	}
+
+	void GLRenderDevice::UpdateShaderUniformColor(uint32 shader, const LinaString& uniform, const Color& color)
+	{
+		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)color.R(), (GLfloat)color.G(), (GLfloat)color.B());
+	}
+
+
 
 	void GLRenderDevice::UpdateShaderUniformFloat(uint32 shader, const LinaString& uniform, const float f)
 	{

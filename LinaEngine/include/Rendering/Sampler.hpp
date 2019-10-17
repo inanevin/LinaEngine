@@ -46,9 +46,9 @@ namespace LinaEngine::Graphics
 			m_EngineBoundID = renderDevice->ReleaseSampler(m_EngineBoundID);
 		}
 
-		FORCEINLINE uint32 GetID() { return m_EngineBoundID; }
+		FORCEINLINE uint32 GetID() const { return m_EngineBoundID; }
 
-		FORCEINLINE const LinaString& GetSamplerName() { return m_SamplerName; }
+		FORCEINLINE const LinaString& GetSamplerName() const { return m_SamplerName; }
 
 	private:
 

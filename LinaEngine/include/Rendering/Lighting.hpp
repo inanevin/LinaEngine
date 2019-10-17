@@ -31,7 +31,7 @@ namespace LinaEngine::Graphics
 	{
 	public: 
 
-		BaseLight(LinaEngine::Color color = LinaEngine::Color::White(), float intensity = 1.0f) : m_Color(color), m_Intensity(intensity) {};
+		BaseLight(LinaEngine::Color color = LinaEngine::Color(1,1,1,1), float intensity = 1.0f) : m_Color(color), m_Intensity(intensity) {};
 
 		FORCEINLINE LinaEngine::Color GetColor()
 		{
@@ -59,7 +59,7 @@ namespace LinaEngine::Graphics
 		}
 	private:
 
-		LinaEngine::Color m_Color = LinaEngine::Color::White();
+		LinaEngine::Color m_Color = LinaEngine::Color(1, 1, 1, 1);
 		float m_Intensity = 0.0f;
 
 	};
@@ -67,7 +67,7 @@ namespace LinaEngine::Graphics
 	class AmbientLight : public BaseLight
 	{
 	public:
-		AmbientLight(LinaEngine::Color color = LinaEngine::Color::White(), float intensity = 1.0f) : BaseLight(color, intensity) {};
+		AmbientLight(LinaEngine::Color color = LinaEngine::Color(1, 1, 1, 1), float intensity = 1.0f) : BaseLight(color, intensity) {};
 	};
 
 	class DirectionalLight : public BaseLight

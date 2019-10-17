@@ -25,7 +25,7 @@ Timestamp: 4/27/2019 10:12:16 PM
 #include "PackageManager/OpenGL/GLWindow.hpp"
 #include "Core/DataStructures.hpp"
 #include "Utility/Math/Matrix.hpp"
-
+#include "Utility/Math/Color.hpp"
 
 
 namespace LinaEngine
@@ -153,6 +153,16 @@ namespace LinaEngine::Graphics
 		STENCIL_DECR_WRAP = LINA_GRAPHICS_STENCIL_DECR_WRAP,
 		STENCIL_DECR = LINA_GRAPHICS_STENCIL_DECR,
 		STENCIL_INVERT = LINA_GRAPHICS_STENCIL_INVERT,
+	};
+
+	enum UniformType
+	{
+		Matrix4,
+		Vector3,
+		Vector4,
+		Vector2,
+		Float,
+		Int
 	};
 
 	struct DrawParams
@@ -313,7 +323,9 @@ namespace LinaEngine::Graphics
 		void Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements);
 
 		// Used for drawing a skybox.
-		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Matrix& projection, const Matrix& view);
+		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Matrix& projectionMatrix, const Matrix& viewMatrix);
+		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Color& color);
+		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Color& colorStart, const Color& colorEnd, const Matrix& projectionMatrix, const Matrix& viewMatrix);
 
 		// Clears context.
 		void Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const class Color& color, uint32 stencil);
@@ -324,8 +336,17 @@ namespace LinaEngine::Graphics
 		// Updates a mat4 type uniform on a shader with given name.
 		void UpdateShaderUniformMatrix(uint32 shader, const LinaString& uniform, const Matrix& m);
 
+		// Updates a mat4 type uniform on a shader with given name.
+		void UpdateShaderUniformMatrix(uint32 shader, const LinaString& uniform, void* data);
+
 		// Updates a vec3 type uniform on a shader with given name.
 		void UpdateShaderUniformVector3F(uint32 shader, const LinaString& uniform, const Vector3F& m);
+
+		// Updates a vec3 type uniform on a shader with given name.
+		void UpdateShaderUniformVector3F(uint32 shader, const LinaString& uniform, void* data);
+
+		// Updates a vec3 type uniform on a shader with given name.
+		void UpdateShaderUniformColor(uint32 shader, const LinaString& uniform, const Color& color);
 
 		// Updates a float type uniform on a shader w/ given name.
 		void UpdateShaderUniformFloat(uint32 shader, const LinaString& uniform, const float f);

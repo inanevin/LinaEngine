@@ -27,12 +27,12 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 namespace LinaEngine
 {
-	class LINA_API Color 
+	class LINA_API Color
 	{
 
 	public:
 
-		constexpr Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f) : r(rv), g(gv), b(bv), a(av) {};
+		Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f) : r(rv), g(gv), b(bv), a(av) {};
 		FORCEINLINE float R() { return r; }
 		FORCEINLINE float G() { return g; }
 		FORCEINLINE float B() { return b; }
@@ -43,23 +43,26 @@ namespace LinaEngine
 		FORCEINLINE float A() const { return a; }
 
 
-		static constexpr Color Red() { return Color(1, 0, 0); }
-		static constexpr Color Green() { return Color(0, 1, 0); }
-		static constexpr Color Blue() { return Color(0, 0, 1); }
-		static constexpr Color Cyan() { return Color(0, 1, 1); }
-		static constexpr Color Yellow() { return Color(1, 1, 0); }
-		static constexpr Color Black() { return Color(0, 0, 0); }
-		static constexpr Color White() { return Color(1, 1, 1); }
-		static constexpr Color Purple() { return Color(1, 0, 1); }
-		static constexpr Color Maroon() { return Color(0.5f, 0, 0); }
-		static constexpr Color Beige() { return Color(0.96f, 0.96f, 0.862f); }
-		static constexpr Color Brown() { return Color(0.647f, 0.164f, 0.164f); }
-		static constexpr Color Gray() { return Color(0.5f, 0.5f, 0.5f); }
+	private:
 
 		float r, g, b, a = 1.0f;
 	};
 
-
+	namespace Colors
+	{
+		static Color Red = Color(1, 0, 0, 1);
+		static Color Green = Color(0, 1, 0);
+		static Color Blue = Color(0, 0, 1);
+		static Color Cyan = Color(0, 1, 1);
+		static Color Yellow = Color(1, 1, 0);
+		static Color Black = Color(0, 0, 0);
+		static Color White = Color(1, 1, 1);
+		static Color Purple = Color(1, 0, 1);
+		static Color Maroon = Color(0.5f, 0, 0);
+		static Color Beige = Color(0.96f, 0.96f, 0.862f);
+		static Color Brown = Color(0.647f, 0.164f, 0.164f);
+		static Color Gray = Color(0.5f, 0.5f, 0.5f);
+	}
 
 }
 

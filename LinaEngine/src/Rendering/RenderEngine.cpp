@@ -27,7 +27,6 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "ECS/Systems/MeshRendererSystem.hpp"
 #include "PackageManager/PAMInputEngine.hpp"
 #include "Core/Application.hpp"
-
 #include "ECS/Systems/CameraSystem.hpp"
 
 #include "glad/glad.h"
@@ -86,17 +85,42 @@ namespace LinaEngine::Graphics
 		// Initialize default texture.
 		m_DefaultDiffuseTexture = LoadTextureResource(ResourceConstants::textureFolderPath + "defaultDiffuse.png", PixelFormat::FORMAT_RGB, true, false);
 
-		// Initialize basic shader.
+		// Initialize basic unlit shader.
 		LinaString basicShaderText;
 		LinaEngine::Internal::LoadTextFileWithIncludes(basicShaderText, ResourceConstants::shaderFolderPath + "basicStandardUnlit.glsl", "#include");
-		m_BasicStandardShader.Construct(*m_RenderDevice.get(), basicShaderText);
-		m_BasicStandardShader.SetSampler(m_DefaultSampler.GetSamplerName(), m_DefaultDiffuseTexture, m_DefaultSampler, 0);
+		m_StandardUnlitShader.Construct(*m_RenderDevice.get(), basicShaderText);
+		m_StandardUnlitShader.SetSampler(m_DefaultSampler.GetSamplerName(), m_DefaultDiffuseTexture, m_DefaultSampler, 0);
 
-		// Initialize default skybox shader.
+		// Initialize the correct skybox shader depending on the type of sykbox to draw.
 		LinaString skyboxShaderText;
-		LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, ResourceConstants::shaderFolderPath + "gradientSkybox.glsl", "#include");
-		m_BasicSkyboxShader.Construct(*m_RenderDevice.get(), skyboxShaderText);
-		m_BasicSkyboxShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_SkyboxTexture, m_SkyboxSampler, 0);
+
+		switch (m_SkyboxType)
+		{
+		case SkyboxType::SingleColor:
+			LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, ResourceConstants::shaderFolderPath + "skyboxSingleColor.glsl", "#include");
+			ConstructShader(m_SkyboxSingleColorShader, m_DefaultDiffuseTexture, m_SkyboxSampler, skyboxShaderText, 0);
+			break;
+
+		case SkyboxType::Gradient:
+			LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, ResourceConstants::shaderFolderPath + "skyboxVertexGradient.glsl", "#include");
+			ConstructShader(m_SkyboxGradientShader, m_DefaultDiffuseTexture, m_SkyboxSampler, skyboxShaderText, 0);
+			break;
+
+		case SkyboxType::Cubemap:
+			LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, ResourceConstants::shaderFolderPath + "skyboxCubemap.glsl", "#include");
+
+			m_SkyboxTexture = LoadCubemapTextureResource(
+				ResourceConstants::textureFolderPath + "defaultSkybox/right.png",
+				ResourceConstants::textureFolderPath + "defaultSkybox/left.png",
+				ResourceConstants::textureFolderPath + "defaultSkybox/up.png",
+				ResourceConstants::textureFolderPath + "defaultSkybox/down.png",
+				ResourceConstants::textureFolderPath + "defaultSkybox/front.png",
+				ResourceConstants::textureFolderPath + "defaultSkybox/back.png");
+
+			ConstructShader(m_SkyboxCubemapShader, m_SkyboxTexture, m_SkyboxSampler, skyboxShaderText, 0);
+			break;
+		}
+
 
 		// Initialize the render target.
 		m_RenderTarget.Construct(*m_RenderDevice.get());
@@ -122,7 +146,7 @@ namespace LinaEngine::Graphics
 		m_CurrentProjectionMatrix = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent->fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent->zNear, m_ActiveCameraComponent->zFar);
 
 		// Initialize the render context.
-		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_RenderTarget, m_DefaultDrawParams, m_BasicStandardShader, m_DefaultSampler, m_CurrentProjectionMatrix);
+		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_RenderTarget, m_DefaultDrawParams, m_StandardUnlitShader, m_DefaultSampler, m_CurrentProjectionMatrix);
 
 		// Initialize skybox vertex array object.
 		m_SkyboxVAO = m_RenderDevice->CreateSkyboxVertexArray();
@@ -153,7 +177,7 @@ namespace LinaEngine::Graphics
 		m_DefaultRenderContext.Flush();
 
 		// Draw skybox.
-		RenderSkybox(&m_SkyboxTexture);
+		RenderSkybox();
 
 		// Update window.
 		m_RenderDevice->TickWindow();
@@ -224,7 +248,7 @@ namespace LinaEngine::Graphics
 		for (uint32 i = 0; i < 6; i++)
 		{	
 			ArrayBitmap* faceBitmap = new ArrayBitmap();
-			faceBitmap->Load(ResourceConstants::textureFolderPath + fileNames[i]);
+			faceBitmap->Load(fileNames[i]);
 			bitmaps.push_back(faceBitmap);
 			
 		}
@@ -335,10 +359,29 @@ namespace LinaEngine::Graphics
 		m_TextureDump.clear();
 	}
 
-	void RenderEngine::RenderSkybox(Texture* skyboxTexture)
+	void RenderEngine::RenderSkybox()
 	{
-		m_BasicSkyboxShader.SetSampler(m_SkyboxSampler.GetSamplerName(), *skyboxTexture, m_SkyboxSampler, 0, BindTextureMode::BINDTEXTURE_CUBEMAP);
-		m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_BasicSkyboxShader.GetID(),  m_SkyboxVAO, skyboxTexture->GetID(), m_SkyboxDrawParams, m_CurrentProjectionMatrix, m_CameraSystem.GetSkyboxViewTransformation());
+		// Draw skybox based on its type.
+		switch (m_SkyboxType)
+		{
+		case SkyboxType::SingleColor:
+			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxSingleColorShader.GetID(), m_SkyboxVAO, m_DefaultDiffuseTexture.GetID(), m_SkyboxDrawParams, m_SingleColorSkyboxColor);
+			break;
+
+		case SkyboxType::Gradient:
+			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxGradientShader.GetID(), m_SkyboxVAO, m_DefaultDiffuseTexture.GetID(), m_SkyboxDrawParams, LinaEngine::Colors::Gray, LinaEngine::Colors::Gray, m_CurrentProjectionMatrix, m_CameraSystem.GetSkyboxViewTransformation());
+			break;
+			
+		case SkyboxType::Cubemap:
+			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxCubemapShader.GetID(), m_SkyboxVAO, m_SkyboxTexture.GetID(), m_SkyboxDrawParams, m_CurrentProjectionMatrix, m_CameraSystem.GetSkyboxViewTransformation());
+			break;
+		}
+	}
+
+	void RenderEngine::ConstructShader(Shader& shader, const Texture& texture, const Sampler& sampler, const LinaString& text, uint32 samplerUnit)
+	{
+		shader.Construct(*m_RenderDevice.get(), text);
+		shader.SetSampler(sampler.GetSamplerName(), texture, sampler, samplerUnit);
 	}
 
 }

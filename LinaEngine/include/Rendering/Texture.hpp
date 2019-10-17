@@ -41,7 +41,7 @@ namespace LinaEngine::Graphics
 		void Construct(PAMRenderDevice& deviceIn, const DDSTexture& ddsTexture);
 		void Construct(PAMRenderDevice& deviceIn, const LinaArray<class ArrayBitmap*>& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress);
 
-		FORCEINLINE uint32 GetID() { return m_ID; };
+		FORCEINLINE uint32 GetID() const { return m_ID; };
 		FORCEINLINE uint32 GetWidth() const { return m_Width; }
 		FORCEINLINE uint32 GetHeight() const { return m_Height; }
 		FORCEINLINE bool IsCompressed() const { return isCompressed; }

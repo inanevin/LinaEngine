@@ -34,6 +34,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "ECS/Systems/MeshRendererSystem.hpp"
 #include "ECS/Systems/LightingSystem.hpp"
 #include "PackageManager/PAMInputEngine.hpp"
+#include "Utility/Math/Color.hpp"
 
 using namespace LinaEngine::ECS;
 using namespace LinaEngine;
@@ -104,7 +105,7 @@ namespace LinaEngine::Graphics
 		// Adds the targeted resource to the garbage collection dump.
 		LINA_API void UnloadTextureResource(Texture& textureResource);
 
-		//  Adds the targeted resource to the garbage collection dump.
+		// Adds the targeted resource to the garbage collection dump.
 		LINA_API void UnloadModelResource(RenderableObjectData& modelResource);
 
 		// Called when an entity is removed, handled internally by ECS.
@@ -113,15 +114,30 @@ namespace LinaEngine::Graphics
 		// Called when a component is removed, handled internally by ECS.
 		virtual void OnRemoveComponent(EntityHandle handle, uint32 id) override;
 
+		// Enumeration for the skybox type.
+		enum SkyboxType {SingleColor, Gradient, Cubemap};
+
 	private:
 
 		// clears resource memory.
 		void DumpMemory();
 
 		// Renders skybox
-		void RenderSkybox(Texture* skyboxTexture);
+		void RenderSkybox();
+
+		// Construct a shader w/ sampler & default texture
+		void ConstructShader(Shader& shader, const Texture& texture, const Sampler& sampler, const LinaString& text, uint32 samplerUnit);
 
 	private:
+
+		// Default diffuse color.
+		LinaEngine::Color m_DefaultDiffuseColor = LinaEngine::Colors::Gray;
+
+		// Single color skybox draw color.
+		LinaEngine::Color m_SingleColorSkyboxColor = LinaEngine::Colors::Gray;
+
+		// What type of skybox to draw.
+		SkyboxType m_SkyboxType = SkyboxType::SingleColor;
 
 		// Device for rendering operations.
 		std::unique_ptr<PAMRenderDevice> m_RenderDevice;
@@ -145,10 +161,16 @@ namespace LinaEngine::Graphics
 		Texture m_SkyboxTexture;
 
 		// Default shader
-		Shader m_BasicStandardShader;
+		Shader m_StandardUnlitShader;
 
-		// Skybox shader
-		Shader m_BasicSkyboxShader;
+		// Skybox cubemap shader
+		Shader m_SkyboxCubemapShader;
+
+		// Skybox single color shader
+		Shader m_SkyboxSingleColorShader;
+
+		// Skybox gradient color shader
+		Shader m_SkyboxGradientShader;
 
 		// Default render target
 		RenderTarget m_RenderTarget;

@@ -40,6 +40,7 @@ namespace LinaEngine::Graphics
 		{
 			renderDevice = &renderDeviceIn;
 			m_EngineBoundID = renderDevice->CreateShaderProgram(text);
+			m_IsConstructed = true;
 		}
 
 		// Set uniform buffer through render engine.
@@ -49,7 +50,7 @@ namespace LinaEngine::Graphics
 		}
 
 		// Set the texture sampler through render engine.
-		FORCEINLINE void SetSampler(const LinaString& name, Texture& texture, Sampler& sampler, uint32 unit, BindTextureMode bindTextureMode = BindTextureMode::BINDTEXTURE_TEXTURE2D)
+		FORCEINLINE void SetSampler(const LinaString& name, const Texture& texture, const Sampler& sampler, uint32 unit, BindTextureMode bindTextureMode = BindTextureMode::BINDTEXTURE_TEXTURE2D)
 		{ 
 			renderDevice->SetShaderSampler(m_EngineBoundID, name, texture.GetID(), sampler.GetID(), unit, bindTextureMode); 
 		}
@@ -57,11 +58,14 @@ namespace LinaEngine::Graphics
 		// Get shader id, this gets matched w/ program id on render engine.
 		FORCEINLINE uint32 GetID() { return m_EngineBoundID; }
 
+		FORCEINLINE bool GetIsConstructed() { return m_IsConstructed; }
+
 	private:
-		PAMRenderDevice* renderDevice;
+
+		bool m_IsConstructed = false;
+		PAMRenderDevice* renderDevice = nullptr;
 		uint32 m_EngineBoundID;
 
-	
 		//NULL_COPY_AND_ASSIGN(Shader);
 	
 	};
