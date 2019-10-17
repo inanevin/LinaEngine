@@ -478,6 +478,19 @@ endif()
 #    EXPORT_FILE_NAME LinaCore.hpp
 #)
 
+# Copy engine resources to build directory
+add_custom_command(
+TARGET ${PROJECT_NAME}
+PRE_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/LinaEngine/resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/resources")
+
+# Copy Assimp DLL
+add_custom_command(
+TARGET ${PROJECT_NAME}
+PRE_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/LinaEngine/vendor/assimp/_bin/Assimp32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
+
+
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
 #--------------------------------------------------------------------

@@ -45,7 +45,7 @@ set(LINASANDBOX_HEADER_DIR Sandbox/include)
 #--------------------------------------------------------------------
 if(LINA_BUILD_SANDBOX)
 	add_subdirectory(Sandbox)
-	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT LinaSandbox)
+	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
 else()
 	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT LinaEngine)
 endif()

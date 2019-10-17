@@ -34,6 +34,7 @@ namespace LinaEngine
 
 	public:
 
+		static LinaString& shaderFolderPath;
 		static LinaString& textureFolderPath;
 		static LinaString& meshFolderPath;
 	};

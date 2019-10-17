@@ -26,8 +26,8 @@ namespace LinaEngine
 
 #define LINA_RESOURCESPATH "Resources\\"
 
-
-	LinaString& ResourceConstants::textureFolderPath = LinaString("Resources/Textures/");
-	LinaString& ResourceConstants::meshFolderPath = LinaString("Resources/Mesh/");
+	LinaString& ResourceConstants::shaderFolderPath = LinaString("resources/shaders/");
+	LinaString& ResourceConstants::textureFolderPath = LinaString("resources/textures/");
+	LinaString& ResourceConstants::meshFolderPath = LinaString("resources/meshes/");
 }
 

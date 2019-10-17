@@ -86,12 +86,6 @@ namespace LinaEngine::Graphics
 		// Initialize the render renderEngine.
 		void Initialize(EntityComponentSystem* ecsIn);
 
-		void DemoSwitchTexture(int index);
-
-		void DemoSwitchMovement(int index);
-
-		void DemoSwitchSkybox(int index);
-
 		// Called each frame.
 		void Tick(float delta);
 

@@ -13,7 +13,7 @@
 # and limitations under the License.
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 cmake_minimum_required (VERSION 3.6)
-project(LinaSandbox)
+project(Sandbox)
 
 #--------------------------------------------------------------------
 # Set sources
@@ -59,25 +59,14 @@ target_link_libraries(${PROJECT_NAME} Lina::Engine)
 # Build Commands
 #--------------------------------------------------------------------
 
-# Copy resources
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/Resources")
+#add_custom_command(TARGET ${PROJECT_NAME}
+#POST_BUILD
+#COMMAND ${CMAKE_COMMAND}
+#	-Dsrc_dir="${CMAKE_CURRENT_SOURCE_DIR}/Resources"
+#    -Ddst_dir="${CMAKE_BINARY_DIR}/Sandbox/Resources"
+#    -P "${CMAKE_SOURCE_DIR}/CMake/UpdateDirectory.cmake"
+#)
 
-add_custom_command(TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND}
-	-Dsrc_dir="${CMAKE_CURRENT_SOURCE_DIR}/Resources"
-    -Ddst_dir="${CMAKE_BINARY_DIR}/Sandbox/Resources"
-    -P "${CMAKE_SOURCE_DIR}/CMake/UpdateDirectory.cmake"
-)
-
-#Copy DLLs
-#add_custom_command(
-#TARGET ${PROJECT_NAME}
-#PRE_BUILD
-#COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/LinaEngine/vendor/assimp/_bin/Assimp32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
 
 #Copy PDBs
 #add_custom_command(
@@ -90,6 +79,24 @@ COMMAND ${CMAKE_COMMAND}
 #TARGET ${PROJECT_NAME}
 #PRE_BUILD
 #COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/LinaEngine/vendor/glad/lib/$<CONFIGURATION>/glad.pdb" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
+
+# Copy engine resources to project solution directory to run within IDE.
+add_custom_command(
+TARGET ${PROJECT_NAME}
+PRE_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/LinaEngine/resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/resources/")
+
+# Copy project resources to binary directory
+add_custom_command(
+TARGET ${PROJECT_NAME}
+PRE_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/resources")
+
+# Copy project resources to project solution directory to run within IDE.
+add_custom_command(
+TARGET ${PROJECT_NAME}
+PRE_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/resources/")
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
