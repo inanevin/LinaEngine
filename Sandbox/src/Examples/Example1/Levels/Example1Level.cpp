@@ -1,4 +1,4 @@
-#include "..\..\..\..\include\Examples\Example1\Levels\Example1Level.hpp"
+
 /*
 Author: Inan Evin
 www.inanevin.com
@@ -18,8 +18,16 @@ Timestamp: 5/6/2019 9:22:56 PM
 
 */
 
+#include "..\..\..\..\include\Examples\Example1\Levels\Example1Level.hpp"
+#include "ECS/Systems/FreeLookSystem.hpp"
 
 
+ECSSystemList level1Systems;
+FreeLookSystem* ecsFreeLookSystem;
+EntityHandle m_SceneCamera;
+CameraComponent m_SceneCameraComponent;
+TransformComponent m_CameraTransformComponent;
+FreeLookComponent freeLookComponent;
 
 void Example1Level::Install()
 {
@@ -30,11 +38,28 @@ void Example1Level::Initialize()
 {
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
-	m_RenderEngine->SetSingleColorSkyboxColor(Colors::Blue);
+	// Set the default cubemap skybox.
+	m_RenderEngine->ChangeSkyboxRenderType(RenderEngine::SkyboxType::Cubemap);
+
+	// Disable default scene camera.
+	m_RenderEngine->DefaultSceneCameraActivation(false);
+
+	freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 18.0f;
+	freeLookComponent.rotationSpeedX = freeLookComponent.rotationSpeedY = 1;
+
+	// Activate a camera component and make a camera entity out of it.
+	m_SceneCameraComponent.isActive = true;
+	m_SceneCamera = m_ECS->MakeEntity(m_SceneCameraComponent, m_CameraTransformComponent, freeLookComponent);
+
+	ecsFreeLookSystem = new FreeLookSystem(*m_InputEngine);
+	level1Systems.AddSystem(*ecsFreeLookSystem);
 }
 
 
 void Example1Level::Tick(float delta)
 {
-	
+	// Update the systems in this levle.
+	m_ECS->UpdateSystems(level1Systems, delta);
+
+
 }

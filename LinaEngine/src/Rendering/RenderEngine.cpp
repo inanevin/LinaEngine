@@ -68,6 +68,9 @@ namespace LinaEngine::Graphics
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
 
+
+
+
 	void RenderEngine::Initialize(EntityComponentSystem* ecsIn)
 	{
 		// Set ECS reference
@@ -138,22 +141,19 @@ namespace LinaEngine::Graphics
 		m_SkyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
 
 		// Initialize default camera.
-		SetActiveCameraComponent(m_DefaultCameraComponent);
 		m_DefaultCamera = m_ECS->MakeEntity(m_DefaultCameraTransform, m_DefaultCameraComponent);
-
-		// Initialize default perspective.
-		Vector2F windowSize = m_RenderDevice->GetWindowSize();
-		m_CurrentProjectionMatrix = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent->fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent->zNear, m_ActiveCameraComponent->zFar);
+		DefaultSceneCameraActivation(true);		
 
 		// Initialize the render context.
-		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_RenderTarget, m_DefaultDrawParams, m_StandardUnlitShader, m_DefaultSampler, m_CurrentProjectionMatrix);
+		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_RenderTarget, m_DefaultDrawParams, m_StandardUnlitShader, m_DefaultSampler, Matrix::identity());
 
 		// Initialize skybox vertex array object.
 		m_SkyboxVAO = m_RenderDevice->CreateSkyboxVertexArray();
 	
 		// Initialize ECS Camera System.
+		Vector2F windowSize = m_RenderDevice->GetWindowSize();
 		m_CameraSystem.Construct(m_DefaultRenderContext);
-		m_CameraSystem.SetProjectionMatrix(m_CurrentProjectionMatrix);
+		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 
 		// Add the ECS systems into the pipeline.
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
@@ -162,13 +162,12 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Tick(float delta)
 	{
-
 		// Clear color.
-		m_DefaultRenderContext.Clear(m_ActiveCameraComponent->clearColor, true);
+		m_DefaultRenderContext.Clear(m_CameraSystem.GetActiveClearColor(), true);
 
 		// Update view & proj matrices.
 		m_DefaultRenderContext.UpdateViewMatrix(m_CameraSystem.GetViewMatrix());
-		m_DefaultRenderContext.UpdateProjectionMatrix(m_CurrentProjectionMatrix);
+		m_DefaultRenderContext.UpdateProjectionMatrix(m_CameraSystem.GetProjectionMatrix());
 
 		// Update pipeline.
 		m_ECS->UpdateSystems(m_RenderingPipeline, delta);
@@ -191,8 +190,8 @@ namespace LinaEngine::Graphics
 
 		// Update camera system's projection matrix.
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();
-		m_CurrentProjectionMatrix = Matrix::perspective(Math::ToRadians(m_ActiveCameraComponent->fieldOfView / 2.0f), windowSize.GetX() / windowSize.GetY(), m_ActiveCameraComponent->zNear, m_ActiveCameraComponent->zFar);
-		m_CameraSystem.SetProjectionMatrix(m_CurrentProjectionMatrix);
+		CameraComponent* activeCameraComponent = m_CameraSystem.GetActiveCameraComponent();
+		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 
 	}
 
@@ -304,44 +303,10 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void RenderEngine::OnRemoveEntity(EntityHandle handle)
+
+	LINA_API void RenderEngine::DefaultSceneCameraActivation(bool activation)
 	{
-		// Get the camera component from the entity to be removed.
-		CameraComponent* cameraComponent = m_ECS->GetComponent<CameraComponent>(handle);
-
-		// If the camera component exists...
-		if (cameraComponent)
-		{
-			// Check if the camera component is the active one in use, if so, switch back to default camera component.
-			if (cameraComponent == m_ActiveCameraComponent)
-			{
-				cameraComponent->isActive = false;
-				m_ActiveCameraComponent = &m_DefaultCameraComponent;
-				m_ActiveCameraComponent->isActive = true;
-			}
-		}
-	}
-
-	void RenderEngine::OnRemoveComponent(EntityHandle handle, uint32 id)
-	{
-		// If we are removing a camera component.
-		if (id == CameraComponent::ID)
-		{
-			// Get the camera component from the entity to be removed.
-			CameraComponent* cameraComponent = m_ECS->GetComponent<CameraComponent>(handle);
-
-			// If the camera component exists...
-			if (cameraComponent)
-			{
-				// Check if the camera component is the active one in use, if so, switch back to default camera component.
-				if (cameraComponent == m_ActiveCameraComponent)
-				{
-					cameraComponent->isActive = false;
-					m_ActiveCameraComponent = &m_DefaultCameraComponent;
-					m_ActiveCameraComponent->isActive = true;
-				}
-			}
-		}
+		m_ECS->GetComponent<CameraComponent>(m_DefaultCamera)->isActive = activation;
 	}
 
 	void RenderEngine::DumpMemory()
@@ -369,11 +334,11 @@ namespace LinaEngine::Graphics
 			break;
 
 		case SkyboxType::Gradient:
-			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxGradientShader.GetID(), m_SkyboxVAO, m_DefaultDiffuseTexture.GetID(), m_SkyboxDrawParams, LinaEngine::Colors::Gray, LinaEngine::Colors::Gray, m_CurrentProjectionMatrix, m_CameraSystem.GetSkyboxViewTransformation());
+			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxGradientShader.GetID(), m_SkyboxVAO, m_DefaultDiffuseTexture.GetID(), m_SkyboxDrawParams, LinaEngine::Colors::Gray, LinaEngine::Colors::Gray, m_CameraSystem.GetProjectionMatrix(), m_CameraSystem.GetSkyboxViewTransformation());
 			break;
 			
 		case SkyboxType::Cubemap:
-			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxCubemapShader.GetID(), m_SkyboxVAO, m_SkyboxTexture.GetID(), m_SkyboxDrawParams, m_CurrentProjectionMatrix, m_CameraSystem.GetSkyboxViewTransformation());
+			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxCubemapShader.GetID(), m_SkyboxVAO, m_SkyboxTexture.GetID(), m_SkyboxDrawParams, m_CameraSystem.GetProjectionMatrix(), m_CameraSystem.GetSkyboxViewTransformation());
 			break;
 		}
 	}
@@ -384,4 +349,58 @@ namespace LinaEngine::Graphics
 		shader.SetSampler(sampler.GetSamplerName(), texture, sampler, samplerUnit);
 	}
 
+	void RenderEngine::ChangeSkyboxRenderType(SkyboxType type)
+	{
+
+		// Construct the shader of the target type if not done before.
+		switch (type)
+		{
+		case SkyboxType::SingleColor:
+			
+			if (!m_SkyboxSingleColorShader.GetIsConstructed())
+			{
+				LinaString skyboxShaderText;
+				LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, ResourceConstants::shaderFolderPath + "skyboxSingleColor.glsl", "#include");
+				ConstructShader(m_SkyboxSingleColorShader, m_DefaultDiffuseTexture, m_SkyboxSampler, skyboxShaderText, 0);
+			}
+			break;
+
+		case SkyboxType::Gradient:
+			
+			if (!m_SkyboxGradientShader.GetIsConstructed())
+			{
+				LinaString skyboxShaderText;
+				LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, ResourceConstants::shaderFolderPath + "skyboxVertexGradient.glsl", "#include");
+				ConstructShader(m_SkyboxGradientShader, m_DefaultDiffuseTexture, m_SkyboxSampler, skyboxShaderText, 0);
+			}
+
+			break;
+
+		case SkyboxType::Cubemap:
+			
+			if (!m_SkyboxCubemapShader.GetIsConstructed())
+			{
+				LinaString skyboxShaderText;
+				LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, ResourceConstants::shaderFolderPath + "skyboxCubemap.glsl", "#include");
+
+				m_SkyboxTexture = LoadCubemapTextureResource(
+					ResourceConstants::textureFolderPath + "defaultSkybox/right.png",
+					ResourceConstants::textureFolderPath + "defaultSkybox/left.png",
+					ResourceConstants::textureFolderPath + "defaultSkybox/up.png",
+					ResourceConstants::textureFolderPath + "defaultSkybox/down.png",
+					ResourceConstants::textureFolderPath + "defaultSkybox/front.png",
+					ResourceConstants::textureFolderPath + "defaultSkybox/back.png");
+
+				ConstructShader(m_SkyboxCubemapShader, m_SkyboxTexture, m_SkyboxSampler, skyboxShaderText, 0);
+
+			}
+
+			break;
+		}
+		
+		// Set the type.
+		m_SkyboxType = type;
+
+
+	}
 }

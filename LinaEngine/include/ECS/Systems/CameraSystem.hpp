@@ -58,17 +58,25 @@ namespace LinaEngine::ECS
 			return m_SkyboxViewTransformation;
 		}
 
-		FORCEINLINE void SetProjectionMatrix(const Matrix& projection)
+		FORCEINLINE Matrix& GetProjectionMatrix()
 		{
-			m_Projection = projection;
+			return m_Projection;
 		}
+
+		FORCEINLINE void SetAspectRatio(float aspect) { m_AspectRatio = aspect; }
+
+		FORCEINLINE Color& GetActiveClearColor() { return m_CurrentCameraComponent == nullptr ? Colors::Gray : m_CurrentCameraComponent->clearColor; }
+
+		FORCEINLINE CameraComponent* GetActiveCameraComponent() { return m_CurrentCameraComponent;  }
 
 	private:
 
-		Matrix m_View;
-		Matrix m_Projection;
-		Matrix m_SkyboxViewTransformation;
+		Matrix m_View = Matrix::identity();
+		Matrix m_Projection = Matrix::perspective(35, 1.33f, 0.01f, 1000.0f);
+		Matrix m_SkyboxViewTransformation = Matrix::identity();
 		GameRenderContext* context;
+		CameraComponent* m_CurrentCameraComponent = nullptr;
+		float m_AspectRatio = 1.33f;
 	};
 }
 

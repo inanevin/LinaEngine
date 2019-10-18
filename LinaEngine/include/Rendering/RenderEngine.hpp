@@ -77,17 +77,6 @@ namespace LinaEngine::Graphics
 			m_LightingSystem.SetAmbientLight(light);
 		}
 
-		// Switch the active camera component.
-		FORCEINLINE void SetActiveCameraComponent(CameraComponent& cameraComponent)
-		{
-			if (m_ActiveCameraComponent)
-				m_ActiveCameraComponent->isActive = false;
-
-			cameraComponent.isActive = true;
-
-			m_ActiveCameraComponent = &cameraComponent;
-		}
-
 		// Initialize the render renderEngine.
 		void Initialize(EntityComponentSystem* ecsIn);
 
@@ -113,7 +102,7 @@ namespace LinaEngine::Graphics
 		LINA_API void UnloadModelResource(RenderableObjectData& modelResource);
 
 		// Changes the skybox type.
-		LINA_API FORCEINLINE void ChangeSkyboxRenderType(SkyboxType type) { m_SkyboxType = type; }
+		LINA_API void ChangeSkyboxRenderType(SkyboxType type);
 
 		// Sets the single color skybox rendering color.
 		LINA_API FORCEINLINE void SetSingleColorSkyboxColor(Color color) { m_SingleColorSkyboxColor = color; }
@@ -121,11 +110,8 @@ namespace LinaEngine::Graphics
 		// Sets gradient colors for skybox gradient rendering.
 		LINA_API FORCEINLINE void SetGradientSkyboxColors(Color startColor, Color endColor) {}
 
-		// Called when an entity is removed, handled internally by ECS.
-		virtual void OnRemoveEntity(EntityHandle handle) override;
-
-		// Called when a component is removed, handled internally by ECS.
-		virtual void OnRemoveComponent(EntityHandle handle, uint32 id) override;
+		// Default Camera Component Activation
+		LINA_API void DefaultSceneCameraActivation(bool activation);
 
 	private:
 
@@ -194,17 +180,11 @@ namespace LinaEngine::Graphics
 		// Sprite drawing parameters.
 		DrawParams m_SpriteDrawParams;
 
-		// Default camera perspective
-		Matrix m_CurrentProjectionMatrix;
-
 		// Default Game Render Context
 		GameRenderContext m_DefaultRenderContext;
 
 		// ECS system for rendering camera perspective.
 		CameraSystem m_CameraSystem;
-
-		// Active camera component.
-		CameraComponent* m_ActiveCameraComponent = nullptr;
 
 		// Default camera entity.
 		EntityHandle m_DefaultCamera;

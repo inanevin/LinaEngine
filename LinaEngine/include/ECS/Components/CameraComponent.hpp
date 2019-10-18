@@ -43,12 +43,8 @@ namespace LinaEngine::ECS
 		float fieldOfView = 70.0f;
 		float zNear = 0.01f;
 		float zFar = 1000.0f;
-		
-	private:
-
-		friend class CameraSystem;
-		friend class RenderEngine;
 		bool isActive = false;
+
 	};
 }
 

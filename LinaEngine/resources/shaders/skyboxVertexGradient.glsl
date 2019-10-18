@@ -42,18 +42,24 @@ out vec4 fragColor;
 uniform float equatorRange;
 uniform samplerCube skybox;
 
+float remap( float minval, float maxval, float curval )
+{
+    return ( curval - minval ) / ( maxval - minval );
+} 
+
+const vec4 GREEN = vec4( 0.0, 1.0, 0.0, 1.0 );
+const vec4 WHITE = vec4( 1.0, 1.0, 1.0, 1.0 );
+const vec4 RED   = vec4( 1.0, 0.0, 0.0, 1.0 );
+
 void main()
 {    
-
-	float colorX = position.x;
-	float colorY = position.y;
-	float colorZ = position.z;
-
-	if(position.y < equatorRange && position.y > -equatorRange)
-	{
+	float u = rawPosition.y;
+	u = clamp( u, 0.0, 1.0 );
 	
-	}
-
-   fragColor = vec4(colorX, colorY, colorZ, 1);
+	if( u < 0.5 )
+    gl_FragColor = mix( GREEN, WHITE, remap( 0.0, 0.5, u ) );
+else
+    gl_FragColor = mix( WHITE, RED, remap( 0.5, 1.0, u ) );
+	
 }
 #endif

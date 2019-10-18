@@ -29,6 +29,9 @@ namespace LinaEngine::ECS
 
 		if (!camera->isActive) return;
 
+		// Set current camera component.
+		m_CurrentCameraComponent = camera;
+
 		// Init translation & rotation matrices.
 		Matrix translation = Matrix::Translate(-transform->transform.GetLocation());
 		Matrix rotation = Matrix::InitRotationFromDirection(transform->transform.GetRotation().GetAxisZ(), transform->transform.GetRotation().GetAxisY());
@@ -38,6 +41,9 @@ namespace LinaEngine::ECS
 
 		// Actual camera view matrix.
 		m_View = rotation * translation;
+
+		// Update projection matrix.
+		m_Projection = Matrix::perspective(Math::ToRadians(camera->fieldOfView / 2.0f), m_AspectRatio, camera->zNear, camera->zFar);
 
 	}
 
