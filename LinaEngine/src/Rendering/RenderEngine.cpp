@@ -37,12 +37,17 @@ namespace LinaEngine::Graphics
 	using namespace ECS;
 	using namespace Physics;
 
+	Vector2F RenderEngine::WindowCenter = Vector2F(0.0f, 0.0f);
+
 	RenderEngine::RenderEngine()
 	{
 		LINA_CORE_TRACE("[Constructor] -> RenderEngine ({0})", typeid(*this).name());
 
 		// Create the render device
 		m_RenderDevice = std::make_unique<PAMRenderDevice>();
+
+		// Initialize
+		RenderEngine::WindowCenter = m_RenderDevice->GetWindowCenter();
 	}
 
 	RenderEngine::~RenderEngine()
@@ -187,6 +192,9 @@ namespace LinaEngine::Graphics
 	{
 		// Propogate to render device.
 		m_RenderDevice->OnWindowResized(width, height);
+
+		// Set the window center.
+		RenderEngine::WindowCenter = m_RenderDevice->GetWindowCenter();
 
 		// Update camera system's projection matrix.
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();

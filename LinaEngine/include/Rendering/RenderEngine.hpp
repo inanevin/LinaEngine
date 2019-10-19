@@ -113,6 +113,10 @@ namespace LinaEngine::Graphics
 		// Default Camera Component Activation
 		LINA_API void DefaultSceneCameraActivation(bool activation);
 
+	public:
+
+		static Vector2F WindowCenter;
+
 	private:
 
 		// clears resource memory.

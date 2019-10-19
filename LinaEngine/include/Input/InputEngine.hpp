@@ -26,10 +26,15 @@ Timestamp: 4/14/2019 7:46:20 PM
 #include "Utility/Math/Vector.hpp"
 namespace LinaEngine::Input
 {
+
+	// Cursor Modes
+	enum CursorMode { Visible, Hidden, Disabled };
+
 	// Templated base class for various input engines. Defines most operations as inlined methods that call subclass methods.
 	template<class Derived>
 	class InputEngine : public ActionDispatcher
 	{
+
 	public:
 
 		virtual ~InputEngine()
@@ -102,7 +107,7 @@ namespace LinaEngine::Input
 		FORCEINLINE void SetMousePosition(const Vector2F& v) { m_Derived->SetMousePosition_Impl(v); }
 
 		// Set cursor visible/invisible.
-		FORCEINLINE void SetCursor(bool visible) { m_Derived->SetCursor_Impl(visible); }
+		FORCEINLINE void SetCursorMode(CursorMode cursorMode) { m_Derived->SetCursorMode_Impl(cursorMode); }
 
 		// Get the input dispatcher of this engine.
 		FORCEINLINE ActionDispatcher& GetInputDispatcher() { return m_InputDispatcher; }

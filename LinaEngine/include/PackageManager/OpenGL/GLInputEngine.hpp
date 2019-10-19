@@ -47,7 +47,7 @@ namespace LinaEngine::Input
 		LINA_API Vector2F GetRawMouseAxis_Impl();
 		LINA_API Vector2F GetMouseAxis_Impl();
 		LINA_API Vector2F GetMousePosition_Impl();
-		LINA_API void SetCursor_Impl(bool visible) const;
+		LINA_API void SetCursorMode_Impl(CursorMode mode) const;
 		LINA_API void SetMousePosition_Impl(const Vector2F& v) const;
 
 	private:

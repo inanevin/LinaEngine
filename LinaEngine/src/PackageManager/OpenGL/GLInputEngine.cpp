@@ -26,6 +26,7 @@ namespace LinaEngine::Input
 {
 
 	static const float axisSensitivity = 0.1f;
+	static const float mouseAxisSensitivity = 5.0f;
 	GLFWwindow* glfwWindow;
 
 	GLInputEngine::GLInputEngine()
@@ -95,26 +96,54 @@ namespace LinaEngine::Input
 
 	Vector2F GLInputEngine::GetRawMouseAxis_Impl()
 	{
+		// Storage for previous mouse position.
+		static Vector2F oldMousePosition;
+
+		// Get the cursor position.
 		double posX, posY;
 		glfwGetCursorPos(glfwWindow, &posX, &posY);
-		static Vector2F oldMousePosition;
+
+		// Get the delta mouse position.
 		Vector2F currentMousePosition = Vector2F((float)posX, (float)posY);
 		Vector2F diff = currentMousePosition - oldMousePosition;
 		Vector2F raw = Vector2F::ZERO();
+
+		// Set raw axis values depending on the direction of the axis.
 		if (diff.GetX() > 0.0f) raw.SetX(1.0f);
 		else if (diff.GetX() < 0.0f) raw.SetX(-1.0f);
-		if (diff.GetY() > 0) raw.SetY(-1.0f);
-		else if (diff.GetY() < 0) raw.SetY(1.0f);
+		if (diff.GetY() > 0) raw.SetY(1.0f);
+		else if (diff.GetY() < 0) raw.SetY(-1.0f);
+
+		// Set previous position.
 		oldMousePosition = currentMousePosition;
+
+		// Return raw.
 		return raw;
 	}
 
 	Vector2F GLInputEngine::GetMouseAxis_Impl()
 	{
-		// TODO: This returns the raw mouse axis for now, smooth the raw & map between -1 & 1 later.
-		return GetRawMouseAxis();
+		// Storage for previous mouse position.
+		static Vector2F oldMousePos;
+
+		// Get the cursor position.
+		double posX, posY;
+		glfwGetCursorPos(glfwWindow, &posX, &posY);
+
+		// Get the delta mouse position.
+		Vector2F diff = Vector2F((float)(posX - oldMousePos.GetX()), (float)(posY - oldMousePos.GetY()));
+
+		// Clamp and remap delta mouse position.
+		diff.Set(Math::Clamp(diff.GetX(), -mouseAxisSensitivity, mouseAxisSensitivity), Math::Clamp(diff.GetY(), -mouseAxisSensitivity, mouseAxisSensitivity));
+		diff.Set(Math::Remap(diff.GetX(), -mouseAxisSensitivity, mouseAxisSensitivity, -1.0f, 1.0f), Math::Remap(diff.GetY(), -mouseAxisSensitivity, mouseAxisSensitivity, -1.0f, 1.0f));
+
+		// Set the previous position.
+		oldMousePos = Vector2F((float)posX, (float)posY);
+
+		// Return delta.
+		return diff;
 	}
-	
+
 	Vector2F GLInputEngine::GetMousePosition_Impl()
 	{
 		double xpos, ypos;
@@ -123,12 +152,22 @@ namespace LinaEngine::Input
 	}
 
 
-	void GLInputEngine::SetCursor_Impl(bool visible) const
+	void GLInputEngine::SetCursorMode_Impl(CursorMode mode) const
 	{
-		if (visible)
+		switch (mode)
+		{
+		case CursorMode::Visible:
 			glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-		else
+			break;
+
+		case CursorMode::Hidden:
 			glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+			break;
+
+		case CursorMode::Disabled:
+			glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			break;
+		}
 	}
 
 	void GLInputEngine::SetMousePosition_Impl(const Vector2F & v) const

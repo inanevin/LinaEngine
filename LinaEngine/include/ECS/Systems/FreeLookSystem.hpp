@@ -42,12 +42,10 @@ namespace LinaEngine::ECS
 
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
 
-		FORCEINLINE void SetWindowCenter(const Vector2F& windowCenter) { m_WindowCenter = windowCenter;  }
 
 	private:
 
 		InputEngine<PAMInputEngine>& inputEngine;
-		Vector2F m_WindowCenter;
 		float horizontalKeyAmount;
 		float verticalKeyAmount;
 	};

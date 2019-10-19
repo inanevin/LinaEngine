@@ -362,6 +362,12 @@ namespace LinaEngine
 		}
 
 		template<typename T>
+		static FORCEINLINE T Remap(const T& val, const T& fromLow, const T& fromHigh, const T& toLow, const T& toHigh)
+		{
+			return toLow + (val - fromLow) * (toHigh - toLow) / (fromHigh - fromLow);
+		}
+
+		template<typename T>
 		static FORCEINLINE T Saturate(const T& val)
 		{
 			return Clamp(val, (T)(0), (T)(1));

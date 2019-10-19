@@ -315,6 +315,12 @@ namespace LinaEngine
 		FORCEINLINE float DistanceSquared(const Vector3F& other) const;
 		FORCEINLINE float Dot(const Vector3F& other) const;
 
+		FORCEINLINE void Print()
+		{
+			std::cout << " (X: " << vec[0] << " Y: " << vec[1] << " Z: " << vec[2] <<  ")" << std::endl;
+		}
+
+
 		bool operator==(const Vector3F& other) const;
 		bool operator!=(const Vector3F& other) const;
 		bool equals(const Vector3F& other, float errorMargin = 1.e-4f) const;
@@ -515,6 +521,11 @@ namespace LinaEngine
 		FORCEINLINE float Cross(const Vector2F& other) const;
 		FORCEINLINE float Distance(const Vector2F& other) const;
 		FORCEINLINE float DistanceSquared(const Vector2F& other) const;
+
+		FORCEINLINE void Print() 
+		{
+			std::cout << " (X: " << vals[0] << " Y: " << vals[1] << ")" << std::endl;
+		}
 
 		bool operator==(const Vector2F& other) const;
 		bool operator!=(const Vector2F& other) const;

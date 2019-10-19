@@ -20,48 +20,39 @@ Timestamp: 5/2/2019 2:19:36 AM
 #include "LinaPch.hpp"
 #include "ECS/Systems/FreeLookSystem.hpp"  
 #include "Input/InputAxisBinder.hpp"
+#include "Rendering/RenderEngine.hpp"
+
+using namespace LinaEngine::Input;
 
 namespace LinaEngine::ECS
 {
 
-	void FreeLookSystem::UpdateComponents(float delta, BaseECSComponent ** components)
+	void FreeLookSystem::UpdateComponents(float delta, BaseECSComponent** components)
 	{
 		TransformComponent* transform = (TransformComponent*)components[0];
 		FreeLookComponent* freeLook = (FreeLookComponent*)components[1];
 
-		// Mouse based rotation control.
+		// Disable cursor upon starting mouse look.
 		if (inputEngine.GetMouseButtonDown(InputCode::Mouse::Mouse1))
-		{
-			inputEngine.SetCursor(false);
-			inputEngine.SetMousePosition(m_WindowCenter);
-		}
-		
+			inputEngine.SetCursorMode(LinaEngine::Input::CursorMode::Disabled);
+
 		if (inputEngine.GetMouseButton(InputCode::Mouse::Mouse1))
 		{
-			Vector2F deltaPos = inputEngine.GetMousePosition() - m_WindowCenter;
-		
-			bool rotY = deltaPos.GetX() != 0;
-			bool rotX = deltaPos.GetY() != 0;
+			// Get mouse axis.
+			Vector2F mouseAxis = inputEngine.GetMouseAxis();
 
-			if (rotX)
-				freeLook->verticalAngle += deltaPos.GetY() * freeLook->rotationSpeedX * delta * 1.0f;
+			// Apply angles based on mouse axis.
+			freeLook->verticalAngle += mouseAxis.GetY() * freeLook->rotationSpeedX * delta;
+			freeLook->horizontalAngle += mouseAxis.GetX() * freeLook->rotationSpeedY * delta;
 
-			if (rotY)
-				freeLook->horizontalAngle += deltaPos.GetX() * freeLook->rotationSpeedY * delta * 1.0f;
+			// Rotate
+			transform->transform.Rotate(Vector3F(freeLook->verticalAngle, freeLook->horizontalAngle, 0.0f));
 
-
-			if (rotY || rotX)
-			{
-				inputEngine.SetMousePosition(m_WindowCenter);
-				transform->transform.Rotate(Vector3F(freeLook->verticalAngle, freeLook->horizontalAngle, 0.0f));
-			}
 		}
 
+		// Enable cursor after finishing mouse look.
 		if (inputEngine.GetMouseButtonUp(InputCode::Mouse::Mouse1))
-		{
-			inputEngine.SetCursor(true);
-			inputEngine.SetMousePosition(m_WindowCenter);
-		}
+			inputEngine.SetCursorMode(LinaEngine::Input::CursorMode::Visible);
 
 
 		// Get horizontal & vertical key values.
@@ -80,10 +71,6 @@ namespace LinaEngine::ECS
 
 		// Move.
 		transform->transform.SetLocation(transform->transform.GetLocation() + vertical + horizontal);
-
-
-		
-
 
 	}
 }

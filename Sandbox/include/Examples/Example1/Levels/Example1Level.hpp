@@ -29,6 +29,7 @@ class Example1Level : public World::Level
 public:
 
 	Example1Level() {};
+	~Example1Level();
 
 	virtual void Install() override;
 	virtual void Initialize() override;

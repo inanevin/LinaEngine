@@ -253,6 +253,12 @@ namespace LinaEngine::Graphics
 			return Vector2F(m_MainWindow->GetWidth(), m_MainWindow->GetHeight());
 		};
 
+		// Returns the window center coordinates.
+		FORCEINLINE Vector2F GetWindowCenter()
+		{
+			return Vector2F(m_MainWindow->GetWidth() / 2.0f, m_MainWindow->GetHeight() / 2.0f);
+		}
+
 		// Initializes the devices & params.
 		void Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn);
 

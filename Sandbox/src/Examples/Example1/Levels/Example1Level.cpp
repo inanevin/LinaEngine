@@ -29,6 +29,11 @@ CameraComponent m_SceneCameraComponent;
 TransformComponent m_CameraTransformComponent;
 FreeLookComponent freeLookComponent;
 
+Example1Level::~Example1Level()
+{
+	delete ecsFreeLookSystem;
+}
+
 void Example1Level::Install()
 {
 	LINA_CLIENT_WARN("Example level 1 install.");
@@ -44,13 +49,15 @@ void Example1Level::Initialize()
 	// Disable default scene camera.
 	m_RenderEngine->DefaultSceneCameraActivation(false);
 
+	// Set the properties of our the free look component for the camera.
 	freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 18.0f;
-	freeLookComponent.rotationSpeedX = freeLookComponent.rotationSpeedY = 1;
+	freeLookComponent.rotationSpeedX = freeLookComponent.rotationSpeedY = 3;
 
 	// Activate a camera component and make a camera entity out of it.
 	m_SceneCameraComponent.isActive = true;
 	m_SceneCamera = m_ECS->MakeEntity(m_SceneCameraComponent, m_CameraTransformComponent, freeLookComponent);
 
+	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem(*m_InputEngine);
 	level1Systems.AddSystem(*ecsFreeLookSystem);
 }
