@@ -792,7 +792,7 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Color& colorStart, const Color& colorEnd, const Matrix& projectionMatrix, const Matrix& viewMatrix)
+	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Matrix& projectionMatrix, const Matrix& viewMatrix, const Color& colorStart, const Color& colorEnd)
 	{
 		// Bind the render targets.
 		SetFBO(fbo);
@@ -822,6 +822,36 @@ namespace LinaEngine::Graphics
 
 	}
 
+	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Matrix& projectionMatrix, const Matrix& viewMatrix, const Color& colorStart, const Color& colorEnd, const Vector3F& upVector)
+	{
+		// Bind the render targets.
+		SetFBO(fbo);
+
+		// Ensure viewport is ok.
+		SetViewport(fbo);
+
+		// Set blend mode for each render target.
+		SetBlending(drawParams.sourceBlend, drawParams.destBlend);
+
+		// Set scissors tests if required, face culling modes as well as depth tests.
+		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
+		SetFaceCulling(drawParams.faceCulling);
+		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
+
+		// Update uniform matrices.
+		UpdateShaderUniformMatrix(shader, "projection", projectionMatrix);
+		UpdateShaderUniformMatrix(shader, "view", viewMatrix);
+		UpdateShaderUniformColor(shader, "startColor", colorStart);
+		UpdateShaderUniformColor(shader, "endColor", colorEnd);
+		UpdateShaderUniformVector3F(shader, "upVector", upVector);
+
+		// Bind vertex array object.
+		SetVAO(vao);
+
+		// Finally draw the sky box.
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+	}
 	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Color& color)
 	{
 		// Bind the render targets.

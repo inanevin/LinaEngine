@@ -23,29 +23,29 @@ layout (location = 0) in vec3 position;
 uniform mat4 projection;
 uniform mat4 view;
 
-out vec3 rawPosition;
+out vec3 TexCoords;
 
 void main()
 {
     vec4 pos = projection * view * vec4(position, 1.0);
     gl_Position = pos.xyww;
-	rawPosition = position;
+	TexCoords = position;
 }
   
   
 #elif defined(FS_BUILD)
 
-in vec3 rawPosition;
 out vec4 fragColor;
+in vec3 TexCoords;
 
 uniform vec3 startColor;
 uniform vec3 endColor;
+uniform vec3 upVector;
 
 void main()
-{    
-	float u = rawPosition.y;
-	u = remap(u, -1.0f, 1.0f, 0.0f, 1.0f);
-    gl_FragColor = mix( vec4(startColor, 1.0), vec4(endColor, 1.0), u );
+{   
+	float f = dot(normalize(TexCoords), normalize(upVector)) * 0.5f + 0.5f;
+    fragColor = mix(vec4(startColor, 1.0), vec4(endColor, 1.0), pow(f,2)) * 1;
 }
 #endif
 

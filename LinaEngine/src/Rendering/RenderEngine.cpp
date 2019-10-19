@@ -342,11 +342,14 @@ namespace LinaEngine::Graphics
 			break;
 
 		case SkyboxType::Gradient:
-			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxGradientShader.GetID(), m_SkyboxVAO, m_DefaultDiffuseTexture.GetID(), m_SkyboxDrawParams, m_GradientSkyboxStartColor, m_GradientSkyboxEndColor, m_CameraSystem.GetProjectionMatrix(), m_CameraSystem.GetSkyboxViewTransformation());
+			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxGradientShader.GetID(), m_SkyboxVAO, m_DefaultDiffuseTexture.GetID(), m_SkyboxDrawParams, m_CameraSystem.GetProjectionMatrix(), m_CameraSystem.GetSkyboxViewTransformation(), m_GradientSkyboxStartColor, m_GradientSkyboxEndColor);
 			break;
 			
 		case SkyboxType::Cubemap:
 			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxCubemapShader.GetID(), m_SkyboxVAO, m_SkyboxTexture.GetID(), m_SkyboxDrawParams, m_CameraSystem.GetProjectionMatrix(), m_CameraSystem.GetSkyboxViewTransformation());
+			break;
+		case SkyboxType::Procedural:
+			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxProceduralShader.GetID(), m_SkyboxVAO, m_SkyboxTexture.GetID(), m_SkyboxDrawParams, m_CameraSystem.GetProjectionMatrix(), m_CameraSystem.GetSkyboxViewTransformation(), m_GradientSkyboxStartColor, m_GradientSkyboxEndColor, m_SunVector);
 			break;
 		}
 	}
@@ -401,6 +404,17 @@ namespace LinaEngine::Graphics
 
 				ConstructShader(m_SkyboxCubemapShader, m_SkyboxTexture, m_SkyboxSampler, skyboxShaderText, 0);
 
+			}
+
+			break;
+
+		case SkyboxType::Procedural:
+
+			if (!m_SkyboxProceduralShader.GetIsConstructed())
+			{
+				LinaString skyboxShaderText;
+				LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, ResourceConstants::shaderFolderPath + "skyboxProcedural.glsl", "#include");
+				ConstructShader(m_SkyboxProceduralShader, m_DefaultDiffuseTexture, m_SkyboxSampler, skyboxShaderText, 0);
 			}
 
 			break;

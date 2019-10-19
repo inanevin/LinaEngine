@@ -52,7 +52,7 @@ namespace LinaEngine::Graphics
 
 
 		// Enumeration for the skybox type.
-		enum SkyboxType { SingleColor, Gradient, Cubemap };
+		enum SkyboxType { SingleColor, Gradient, Cubemap, Procedural };
 
 		FORCEINLINE void* GetNativeWindow()
 		{
@@ -142,6 +142,9 @@ namespace LinaEngine::Graphics
 		// End color of the greadient skybox.
 		LinaEngine::Color m_GradientSkyboxEndColor = LinaEngine::Colors::White;
 
+		// Procedural skybox sun vector
+		Vector3F m_SunVector = Vector3F(0, 1, 0);
+
 		// What type of skybox to draw.
 		SkyboxType m_SkyboxType = SkyboxType::SingleColor;
 
@@ -177,6 +180,9 @@ namespace LinaEngine::Graphics
 
 		// Skybox gradient color shader
 		Shader m_SkyboxGradientShader;
+
+		// Skybox procedural shader
+		Shader m_SkyboxProceduralShader;
 
 		// Default render target
 		RenderTarget m_RenderTarget;
