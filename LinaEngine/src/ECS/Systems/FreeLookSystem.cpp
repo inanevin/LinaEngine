@@ -71,7 +71,6 @@ namespace LinaEngine::ECS
 
 		// Move.
 		transform->transform.SetLocation(transform->transform.GetLocation() + vertical + horizontal);
-
 	}
 }
 

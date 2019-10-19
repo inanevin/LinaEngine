@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2019 Inan Evin
  *
@@ -33,33 +34,27 @@ void main()
 	rawPosition = position;
 }
   
+  
 #elif defined(FS_BUILD)
 
 in vec3 rawPosition;
 in vec4 vertexPos;
 out vec4 fragColor;
 
-uniform float equatorRange;
-uniform samplerCube skybox;
 
-float remap( float minval, float maxval, float curval )
+uniform vec3 startColor;
+uniform vec3 endColor;
+
+float remap( float value, float low1, float high1, float low2, float high2)
 {
-    return ( curval - minval ) / ( maxval - minval );
+    return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
 } 
-
-const vec4 GREEN = vec4( 0.0, 1.0, 0.0, 1.0 );
-const vec4 WHITE = vec4( 1.0, 1.0, 1.0, 1.0 );
-const vec4 RED   = vec4( 1.0, 0.0, 0.0, 1.0 );
 
 void main()
 {    
 	float u = rawPosition.y;
-	u = clamp( u, 0.0, 1.0 );
-	
-	if( u < 0.5 )
-    gl_FragColor = mix( GREEN, WHITE, remap( 0.0, 0.5, u ) );
-else
-    gl_FragColor = mix( WHITE, RED, remap( 0.5, 1.0, u ) );
-	
+	u = remap(u, -1.0f, 1.0f, 0.0f, 1.0f);
+    gl_FragColor = mix( vec4(startColor, 1.0), vec4(endColor, 1.0), u );
 }
 #endif
+

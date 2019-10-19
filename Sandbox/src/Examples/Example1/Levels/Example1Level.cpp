@@ -44,7 +44,8 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Set the default cubemap skybox.
-	m_RenderEngine->ChangeSkyboxRenderType(RenderEngine::SkyboxType::Cubemap);
+	m_RenderEngine->ChangeSkyboxRenderType(RenderEngine::SkyboxType::Gradient);
+	m_RenderEngine->SetGradientSkyboxColors(Colors::Blue, Colors::Brown);
 
 	// Disable default scene camera.
 	m_RenderEngine->DefaultSceneCameraActivation(false);

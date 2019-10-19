@@ -108,7 +108,7 @@ namespace LinaEngine::Graphics
 		LINA_API FORCEINLINE void SetSingleColorSkyboxColor(Color color) { m_SingleColorSkyboxColor = color; }
 
 		// Sets gradient colors for skybox gradient rendering.
-		LINA_API FORCEINLINE void SetGradientSkyboxColors(Color startColor, Color endColor) {}
+		LINA_API FORCEINLINE void SetGradientSkyboxColors(Color startColor, Color endColor) { m_GradientSkyboxStartColor = startColor; m_GradientSkyboxEndColor = endColor; }
 
 		// Default Camera Component Activation
 		LINA_API void DefaultSceneCameraActivation(bool activation);
@@ -135,6 +135,12 @@ namespace LinaEngine::Graphics
 
 		// Single color skybox draw color.
 		LinaEngine::Color m_SingleColorSkyboxColor = LinaEngine::Colors::Gray;
+
+		// Start color of the gradient skybox.
+		LinaEngine::Color m_GradientSkyboxStartColor = LinaEngine::Colors::Gray;
+
+		// End color of the greadient skybox.
+		LinaEngine::Color m_GradientSkyboxEndColor = LinaEngine::Colors::White;
 
 		// What type of skybox to draw.
 		SkyboxType m_SkyboxType = SkyboxType::SingleColor;

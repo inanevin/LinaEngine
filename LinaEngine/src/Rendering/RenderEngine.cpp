@@ -342,7 +342,7 @@ namespace LinaEngine::Graphics
 			break;
 
 		case SkyboxType::Gradient:
-			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxGradientShader.GetID(), m_SkyboxVAO, m_DefaultDiffuseTexture.GetID(), m_SkyboxDrawParams, LinaEngine::Colors::Gray, LinaEngine::Colors::Gray, m_CameraSystem.GetProjectionMatrix(), m_CameraSystem.GetSkyboxViewTransformation());
+			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxGradientShader.GetID(), m_SkyboxVAO, m_DefaultDiffuseTexture.GetID(), m_SkyboxDrawParams, m_GradientSkyboxStartColor, m_GradientSkyboxEndColor, m_CameraSystem.GetProjectionMatrix(), m_CameraSystem.GetSkyboxViewTransformation());
 			break;
 			
 		case SkyboxType::Cubemap:
