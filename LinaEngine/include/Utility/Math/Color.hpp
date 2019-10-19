@@ -52,7 +52,9 @@ namespace LinaEngine
 	{
 		static Color Red = Color(1, 0, 0, 1);
 		static Color Green = Color(0, 1, 0);
+		static Color LightBlue = Color(0.1f, 0.7f, 0.1f);
 		static Color Blue = Color(0, 0, 1);
+		static Color DarkBlue = Color(0.1f, 0.2f, 0.3f);
 		static Color Cyan = Color(0, 1, 1);
 		static Color Yellow = Color(1, 1, 0);
 		static Color Black = Color(0, 0, 0);

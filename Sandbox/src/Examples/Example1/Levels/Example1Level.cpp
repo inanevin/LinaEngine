@@ -28,6 +28,9 @@ EntityHandle m_SceneCamera;
 CameraComponent m_SceneCameraComponent;
 TransformComponent m_CameraTransformComponent;
 FreeLookComponent freeLookComponent;
+EntityHandle m_ExampleMesh;
+TransformComponent m_ExampleMeshTransform;
+MeshRendererComponent m_ExampleMeshRenderer;
 
 Example1Level::~Example1Level()
 {
@@ -44,19 +47,26 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Set the default cubemap skybox.
-	m_RenderEngine->ChangeSkyboxRenderType(RenderEngine::SkyboxType::Procedural);
+	m_RenderEngine->ChangeSkyboxRenderType(RenderEngine::SkyboxType::Gradient);
+	m_RenderEngine->SetSingleColorSkyboxColor(Colors::Red);
 	m_RenderEngine->SetGradientSkyboxColors(Colors::Black, Colors::White);
 
 	// Disable default scene camera.
 	m_RenderEngine->DefaultSceneCameraActivation(false);
 
 	// Set the properties of our the free look component for the camera.
-	freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 18.0f;
+	freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 12.0f;
 	freeLookComponent.rotationSpeedX = freeLookComponent.rotationSpeedY = 3;
 
 	// Activate a camera component and make a camera entity out of it.
 	m_SceneCameraComponent.isActive = true;
 	m_SceneCamera = m_ECS->MakeEntity(m_SceneCameraComponent, m_CameraTransformComponent, freeLookComponent);
+
+	// Create an example mesh.
+	m_ExampleMeshRenderer.texture = &m_RenderEngine->LoadTextureResource("resources/textures/linaLogo.png", PixelFormat::FORMAT_RGB, true, false);
+	m_ExampleMeshRenderer.vertexArray = m_RenderEngine->LoadModelResource("resources/meshes/linalogo.fbx").GetVertexArray(0);
+	m_ExampleMeshTransform.transform.SetLocation(Vector3F(0,0,5));
+	m_ExampleMesh = m_ECS->MakeEntity(m_ExampleMeshTransform, m_ExampleMeshRenderer);
 
 	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem(*m_InputEngine);

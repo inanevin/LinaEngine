@@ -754,6 +754,7 @@ namespace LinaEngine::Graphics
 		// use array buffer & attributes.
 		SetVAO(vao);
 
+
 		// 1 object or instanced draw calls?
 		if (numInstances == 1)
 			glDrawElements(drawParams.primitiveType, (GLsizei)numElements, GL_UNSIGNED_INT, 0);
@@ -791,7 +792,6 @@ namespace LinaEngine::Graphics
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	}
-
 	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Matrix& projectionMatrix, const Matrix& viewMatrix, const Color& colorStart, const Color& colorEnd)
 	{
 		// Bind the render targets.
@@ -820,8 +820,8 @@ namespace LinaEngine::Graphics
 		// Finally draw the sky box.
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-	}
 
+	}
 	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Matrix& projectionMatrix, const Matrix& viewMatrix, const Color& colorStart, const Color& colorEnd, const Vector3F& upVector)
 	{
 		// Bind the render targets.
@@ -852,6 +852,7 @@ namespace LinaEngine::Graphics
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	}
+	
 	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Color& color)
 	{
 		// Bind the render targets.
@@ -994,9 +995,7 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::SetDepthTest(bool shouldWrite, DrawFunc depthFunc)
 	{
-
 		// Toggle dept writing.
-		if (shouldWrite != m_ShouldWriteDepth)
 		if (shouldWrite != m_ShouldWriteDepth)
 		{
 			glDepthMask(shouldWrite ? GL_TRUE : GL_FALSE);
@@ -1005,6 +1004,7 @@ namespace LinaEngine::Graphics
 
 		// Update if change is needed.
 		if (depthFunc == m_UsedDepthFunction)	return;
+
 		glDepthFunc(depthFunc);
 		m_UsedDepthFunction = depthFunc;
 	}

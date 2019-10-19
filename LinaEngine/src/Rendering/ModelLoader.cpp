@@ -27,21 +27,21 @@ namespace LinaEngine::Graphics
 {
 
 
-	
-	bool ModelLoader::LoadModels(const LinaString & fileName, LinaArray<IndexedModel>& models, LinaArray<uint32>& modelMaterialIndices, LinaArray<Material>& materials)
+
+	bool ModelLoader::LoadModels(const LinaString& fileName, LinaArray<IndexedModel>& models, LinaArray<uint32>& modelMaterialIndices, LinaArray<Material>& materials)
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(fileName.c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
-		if (!scene) 
+		if (!scene)
 		{
 			LINA_CORE_ERR("Mesh loading failed! {0}", fileName.c_str());
 			return false;
 		}
 
 		// Iterate through the meshes on the scene.
-		for (uint32 j = 0; j < scene->mNumMeshes; j++) 
+		for (uint32 j = 0; j < scene->mNumMeshes; j++)
 		{
 			// Create model reference for each mesh.
 			const aiMesh* model = scene->mMeshes[j];
@@ -59,13 +59,13 @@ namespace LinaEngine::Graphics
 			const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
 
 			// Iterate through vertices.
-			for (uint32 i = 0; i < model->mNumVertices; i++) 
+			for (uint32 i = 0; i < model->mNumVertices; i++)
 			{
 				// Get array references from the current model on stack.
 				const aiVector3D pos = model->mVertices[i];
-				const aiVector3D normal = model->mNormals[i];
+				const aiVector3D normal = model->HasNormals() ? model->mNormals[i] : aiZeroVector;
 				const aiVector3D texCoord = model->HasTextureCoords(0) ? model->mTextureCoords[0][i] : aiZeroVector;
-				const aiVector3D tangent = model->mTangents[i];
+				const aiVector3D tangent = model->HasTangentsAndBitangents() ? model->mTangents[i] : aiZeroVector;
 
 				// Set model vertex data.
 				currentModel.AddElement(0, pos.x, pos.y, pos.z);
@@ -87,7 +87,7 @@ namespace LinaEngine::Graphics
 		}
 
 		// Iterate through the materials in the scene.
-		for (uint32 i = 0; i < scene->mNumMaterials; i++) 
+		for (uint32 i = 0; i < scene->mNumMaterials; i++)
 		{
 			// Create material reference & material specifications.
 			const aiMaterial* material = scene->mMaterials[i];

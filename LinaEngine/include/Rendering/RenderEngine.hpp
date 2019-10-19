@@ -52,7 +52,7 @@ namespace LinaEngine::Graphics
 
 
 		// Enumeration for the skybox type.
-		enum SkyboxType { SingleColor, Gradient, Cubemap, Procedural };
+		enum SkyboxType { None, SingleColor, Gradient, Cubemap, Procedural };
 
 		FORCEINLINE void* GetNativeWindow()
 		{
@@ -110,6 +110,9 @@ namespace LinaEngine::Graphics
 		// Sets gradient colors for skybox gradient rendering.
 		LINA_API FORCEINLINE void SetGradientSkyboxColors(Color startColor, Color endColor) { m_GradientSkyboxStartColor = startColor; m_GradientSkyboxEndColor = endColor; }
 
+		// Returns the default diffuse texture
+		LINA_API Texture& GetDefaultDiffuseTexture() { return m_DefaultDiffuseTexture; }
+
 		// Default Camera Component Activation
 		LINA_API void DefaultSceneCameraActivation(bool activation);
 
@@ -126,7 +129,7 @@ namespace LinaEngine::Graphics
 		void RenderSkybox();
 
 		// Construct a shader w/ sampler & default texture
-		void ConstructShader(Shader& shader, const Texture& texture, const Sampler& sampler, const LinaString& text, uint32 samplerUnit);
+		void ConstructShader(Shader& shader, const Texture& texture, const Sampler& sampler, const LinaString& text, uint32 samplerUnit, BindTextureMode bindMode = BINDTEXTURE_TEXTURE2D);
 
 	private:
 
@@ -146,7 +149,7 @@ namespace LinaEngine::Graphics
 		Vector3F m_SunVector = Vector3F(0, 1, 0);
 
 		// What type of skybox to draw.
-		SkyboxType m_SkyboxType = SkyboxType::SingleColor;
+		SkyboxType m_SkyboxType = SkyboxType::None;
 
 		// Device for rendering operations.
 		std::unique_ptr<PAMRenderDevice> m_RenderDevice;
@@ -202,6 +205,9 @@ namespace LinaEngine::Graphics
 		// ECS system for rendering camera perspective.
 		CameraSystem m_CameraSystem;
 
+		// ECS Mesh Renderer system
+		MeshRendererSystem m_MeshRendererSystem;
+
 		// Default camera entity.
 		EntityHandle m_DefaultCamera;
 
@@ -210,9 +216,6 @@ namespace LinaEngine::Graphics
 
 		// Default camera camera component.
 		CameraComponent m_DefaultCameraComponent;
-
-		// ECS system for drawing meshes.
-		MeshRendererSystem m_MeshRendererSystem;
 
 		// ECS system for handling lighting
 		LightingSystem m_LightingSystem;

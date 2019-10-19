@@ -36,11 +36,8 @@ namespace LinaEngine::Graphics
 			Matrix* transforms = &it->second[0];
 			size_t numTransforms = it->second.size();
 		
-		
-
 			if (numTransforms == 0) continue;
 			
-
 			if (texture != currentTexture) 
 				m_Shader->SetSampler(m_SamplerName, *texture, *m_Sampler, 0);
 
