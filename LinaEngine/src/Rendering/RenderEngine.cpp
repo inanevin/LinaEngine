@@ -147,7 +147,6 @@ namespace LinaEngine::Graphics
 		m_DefaultCamera = m_ECS->MakeEntity(m_DefaultCameraTransform, m_DefaultCameraComponent);
 		DefaultSceneCameraActivation(true);
 
-		m_GlobalMatrixBuffer.Update(&m_CameraSystem.GetProjectionMatrix(), 0, sizeof(Matrix));
 
 	}
 
@@ -163,7 +162,8 @@ namespace LinaEngine::Graphics
 		// Update pipeline.
 		m_ECS->UpdateSystems(m_RenderingPipeline, delta);
 
-		m_GlobalMatrixBuffer.Update(&m_CameraSystem.GetViewMatrix(), sizeof(Matrix), sizeof(Matrix));
+		// Update uniform buffers on GPU
+		UpdateUniformBuffers();
 
 		// Draw scene.
 		m_DefaultRenderContext.Flush();
@@ -346,6 +346,12 @@ namespace LinaEngine::Graphics
 	{
 		shader.Construct(*m_RenderDevice.get(), text);
 		shader.SetSampler(sampler.GetSamplerName(), texture, sampler, samplerUnit, bindMode);
+	}
+
+	void RenderEngine::UpdateUniformBuffers()
+	{
+		m_GlobalMatrixBuffer.Update(&m_CameraSystem.GetProjectionMatrix(), 0, sizeof(Matrix));
+		m_GlobalMatrixBuffer.Update(&m_CameraSystem.GetViewMatrix(), sizeof(Matrix), sizeof(Matrix));
 	}
 
 	void RenderEngine::ChangeSkyboxRenderType(SkyboxType type)

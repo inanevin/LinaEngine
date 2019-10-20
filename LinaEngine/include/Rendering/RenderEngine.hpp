@@ -131,6 +131,9 @@ namespace LinaEngine::Graphics
 		// Construct a shader w/ sampler & default texture
 		void ConstructShader(Shader& shader, const Texture& texture, const Sampler& sampler, const LinaString& text, uint32 samplerUnit, BindTextureMode bindMode = BINDTEXTURE_TEXTURE2D);
 
+		// Updates related uniform buffers on GPU
+		void UpdateUniformBuffers();
+
 	private:
 
 		// Default diffuse color.
