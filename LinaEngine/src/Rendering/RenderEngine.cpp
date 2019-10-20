@@ -38,6 +38,7 @@ namespace LinaEngine::Graphics
 	using namespace Physics;
 
 	Vector2F RenderEngine::WindowCenter = Vector2F(0.0f, 0.0f);
+	UniformBuffer testBuffer;
 
 	RenderEngine::RenderEngine()
 	{
@@ -95,7 +96,7 @@ namespace LinaEngine::Graphics
 
 		// Initialize basic unlit shader.
 		LinaString basicShaderText;
-		LinaEngine::Internal::LoadTextFileWithIncludes(basicShaderText, ResourceConstants::shaderFolderPath + "basicStandardUnlit.glsl", "#include");
+		LinaEngine::Internal::LoadTextFileWithIncludes(basicShaderText, ResourceConstants::shaderFolderPath + "basicStandardLitTest.glsl", "#include");
 		m_StandardUnlitShader.Construct(*m_RenderDevice.get(), basicShaderText);
 		m_StandardUnlitShader.SetSampler(m_DefaultSampler.GetSamplerName(), m_DefaultDiffuseTexture, m_DefaultSampler, 0);
 
@@ -139,6 +140,13 @@ namespace LinaEngine::Graphics
 		m_DefaultCamera = m_ECS->MakeEntity(m_DefaultCameraTransform, m_DefaultCameraComponent);
 		DefaultSceneCameraActivation(true);
 
+
+
+		testBuffer.Construct(*m_RenderDevice, sizeof(Matrix), BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
+		testBuffer.Bind(0);
+
+		LinaString str = "Matrices";
+		m_StandardUnlitShader.BindBlockToBuffer(0, str);
 	}
 
 	void RenderEngine::Tick(float delta)
@@ -152,7 +160,8 @@ namespace LinaEngine::Graphics
 
 		// Update pipeline.
 		m_ECS->UpdateSystems(m_RenderingPipeline, delta);
-		
+
+		testBuffer.Update(&m_CameraSystem.GetProjectionMatrix().transpose(), sizeof(Matrix));
 		// Draw scene.
 		m_DefaultRenderContext.Flush();
 

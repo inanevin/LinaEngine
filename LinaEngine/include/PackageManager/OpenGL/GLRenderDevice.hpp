@@ -319,6 +319,12 @@ namespace LinaEngine::Graphics
 		// Creates uniform buffer of a shader by id.
 		void SetShaderUniformBuffer(uint32 shader, const LinaString& uniformBufferName, uint32 buffer);
 
+		// Binds a buffer object to a binding point on GL buffer, then binds the program uniform block to that points.
+		void BindUniformBuffer(uint32 buffer, uint32 bindingPoint);
+
+		// Binds a shader to unifor block binding point.
+		void BindShaderBlockToBufferPoint(uint32 shader, uint32 blockPoint, LinaString& blockName);
+
 		// Updates a vertex array buffer by id.
 		void UpdateVertexArrayBuffer(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);
 

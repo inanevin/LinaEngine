@@ -15,7 +15,6 @@
  */
  
 #include "common.glh"
-#include "lights.glh"
 
 varying vec2 texCoord0;
 
@@ -23,10 +22,17 @@ varying vec2 texCoord0;
 Layout(0) attribute vec3 position;
 Layout(1) attribute vec2 texCoord;
 Layout(4) attribute mat4 mvp;
+Layout(8) attribute mat4 model;
 
+layout (std140) uniform Matrices
+{
+    mat4 projection;
+};
+
+uniform mat4 view;
 void main()
 {
-    gl_Position = vec4(position, 1.0) * mvp;
+    gl_Position = projection * view * model * vec4(position, 1.0);
     texCoord0 = texCoord;
 }
 
@@ -34,16 +40,10 @@ void main()
 
 uniform sampler2D diffuse;
 out vec4 fragColor;
-uniform Light ambientLight;
 
 void main()
 {
-	// ambient
-    vec3 ambient = ambientLight.intensity * ambientLight.color;    
 	
-	// Final light color
-	vec3 lightResult = ambient;
-	
-	fragColor = texture2D(diffuse, texCoord0) * vec4(lightResult, 1.0);
+	fragColor = texture2D(diffuse, texCoord0);
 }
 #endif

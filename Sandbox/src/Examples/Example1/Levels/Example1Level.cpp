@@ -32,6 +32,7 @@ EntityHandle m_ExampleMesh;
 EntityHandle m_ExampleMesh2;
 TransformComponent m_ExampleMeshTransform;
 MeshRendererComponent m_ExampleMeshRenderer;
+MeshRendererComponent m_ExampleMeshRenderer2;
 
 Example1Level::~Example1Level()
 {
@@ -70,6 +71,8 @@ void Example1Level::Initialize()
 
 	m_ExampleMesh = m_ECS->MakeEntity(m_ExampleMeshTransform, m_ExampleMeshRenderer);
 	m_ExampleMeshTransform.transform.SetLocation(Vector3F(3, 0, 10));
+
+	m_ExampleMeshRenderer.texture = &m_RenderEngine->LoadTextureResource("resources/textures/testResource.png", PixelFormat::FORMAT_RGB, true, false);
 	m_ExampleMesh2 = m_ECS->MakeEntity(m_ExampleMeshTransform, m_ExampleMeshRenderer);
 
 	m_ECS->GetComponent<TransformComponent>(m_ExampleMesh)->transform.GetLocation().Print();

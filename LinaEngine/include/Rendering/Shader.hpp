@@ -49,6 +49,11 @@ namespace LinaEngine::Graphics
 			renderDevice->SetShaderUniformBuffer(m_EngineBoundID, name, buffer.GetID()); 
 		}
 
+		FORCEINLINE void BindBlockToBuffer(uint32 bindingPoint, LinaString& blockName)
+		{
+			renderDevice->BindShaderBlockToBufferPoint(m_EngineBoundID, bindingPoint, blockName);
+		}
+
 		// Set the texture sampler through render engine.
 		FORCEINLINE void SetSampler(const LinaString& name, const Texture& texture, const Sampler& sampler, uint32 unit, BindTextureMode bindTextureMode = BindTextureMode::BINDTEXTURE_TEXTURE2D)
 		{ 

@@ -27,10 +27,8 @@ Layout(8) attribute mat4 model;
 uniform mat4 projection;
 uniform mat4 view;
 
-
 void main()
 {
-
     gl_Position = projection * view * model * vec4(position, 1.0);
     texCoord0 = texCoord;
 }
@@ -38,10 +36,10 @@ void main()
 #elif defined(FS_BUILD)
 
 uniform sampler2D diffuse;
-out vec4 FragColor;
+out vec4 fragColor;
 
 void main()
 {
-	FragColor = texture2D(diffuse, texCoord0);
+	fragColor = texture2D(diffuse, texCoord0);
 }
 #endif

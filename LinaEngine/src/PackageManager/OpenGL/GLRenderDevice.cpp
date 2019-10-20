@@ -649,6 +649,17 @@ namespace LinaEngine::Graphics
 		glBindBufferBase(GL_UNIFORM_BUFFER, m_ShaderProgramMap[shader].uniformBlockMap[uniformBufferName], buffer);
 	}
 
+	void GLRenderDevice::BindUniformBuffer(uint32 bufferObject, uint32 point)
+	{
+		// Bind the buffer object to the point.
+		glBindBufferBase(GL_UNIFORM_BUFFER, point, bufferObject);
+	}
+
+	void GLRenderDevice::BindShaderBlockToBufferPoint(uint32 shader, uint32 blockPoint, LinaString& blockName)
+	{
+		glUniformBlockBinding(shader, m_ShaderProgramMap[shader].uniformBlockMap[blockName], blockPoint);
+	}
+
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 	// UNIFORM BUFFER OPERATIONS
@@ -741,7 +752,7 @@ namespace LinaEngine::Graphics
 		SetShader(shader);
 
 		UpdateShaderUniformMatrix(shader, "view", view);
-		UpdateShaderUniformMatrix(shader, "projection", proj);
+		//UpdateShaderUniformMatrix(shader, "projection", proj);
 
 		//Color ambientLightColor = m_LightingSystem->GetAmbientLight().color;
 		//UpdateShaderUniformVector3F(shader, "ambientLight.color", Vector3F(ambientLightColor.R(), ambientLightColor.G(), ambientLightColor.B()));
@@ -752,10 +763,8 @@ namespace LinaEngine::Graphics
 		//UpdateShaderUniformFloat(shader, "specularIntensity", 1.0f);
 		//UpdateShaderUniformInt(shader, "specularExponent", 32);
 
-
 		// use array buffer & attributes.
 		SetVAO(vao);
-
 
 		// 1 object or instanced draw calls?
 		if (numInstances == 1)
