@@ -39,7 +39,6 @@ namespace LinaEngine::Graphics
 
 	Vector2F RenderEngine::WindowCenter = Vector2F(0.0f, 0.0f);
 
-
 	RenderEngine::RenderEngine()
 	{
 		LINA_CORE_TRACE("[Constructor] -> RenderEngine ({0})", typeid(*this).name());
@@ -96,7 +95,7 @@ namespace LinaEngine::Graphics
 
 		// Initialize basic unlit shader.
 		LinaString basicShaderText;
-		LinaEngine::Internal::LoadTextFileWithIncludes(basicShaderText, ResourceConstants::shaderFolderPath + "basicStandardLitTest.glsl", "#include");
+		LinaEngine::Internal::LoadTextFileWithIncludes(basicShaderText, ResourceConstants::shaderFolderPath + "basicStandardUnlit.glsl", "#include");
 		m_StandardUnlitShader.Construct(*m_RenderDevice.get(), basicShaderText);
 		m_StandardUnlitShader.SetSampler(m_DefaultSampler.GetSamplerName(), m_DefaultDiffuseTexture, m_DefaultSampler, 0);
 
@@ -139,6 +138,7 @@ namespace LinaEngine::Graphics
 		// Initialize default camera.
 		m_DefaultCamera = m_ECS->MakeEntity(m_DefaultCameraTransform, m_DefaultCameraComponent);
 		DefaultSceneCameraActivation(true);
+
 	}
 
 	void RenderEngine::Tick(float delta)
@@ -314,21 +314,17 @@ namespace LinaEngine::Graphics
 		switch (m_SkyboxType)
 		{
 		case SkyboxType::SingleColor:
-			m_SkyboxSingleColorShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_SkyboxTexture, m_SkyboxSampler, 0, BINDTEXTURE_TEXTURE2D);
 			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxSingleColorShader.GetID(), m_SkyboxVAO, m_DefaultDiffuseTexture.GetID(), m_SkyboxDrawParams, m_SingleColorSkyboxColor);
 			break;
 
 		case SkyboxType::Gradient:
-			m_SkyboxGradientShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_SkyboxTexture, m_SkyboxSampler, 0, BINDTEXTURE_TEXTURE2D);
 			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxGradientShader.GetID(), m_SkyboxVAO, m_DefaultDiffuseTexture.GetID(), m_SkyboxDrawParams, m_CameraSystem.GetProjectionMatrix(), m_CameraSystem.GetSkyboxViewTransformation(), m_GradientSkyboxStartColor, m_GradientSkyboxEndColor);
 			break;
 			
 		case SkyboxType::Cubemap:
-			m_SkyboxCubemapShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_SkyboxTexture, m_SkyboxSampler, 0, BINDTEXTURE_CUBEMAP);
 			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxCubemapShader.GetID(), m_SkyboxVAO, m_SkyboxTexture.GetID(), m_SkyboxDrawParams, m_CameraSystem.GetProjectionMatrix(), m_CameraSystem.GetSkyboxViewTransformation());
 			break;
 		case SkyboxType::Procedural:
-			m_SkyboxProceduralShader.SetSampler(m_SkyboxSampler.GetSamplerName(), m_SkyboxTexture, m_SkyboxSampler, 0, BINDTEXTURE_TEXTURE2D);
 			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxProceduralShader.GetID(), m_SkyboxVAO, m_SkyboxTexture.GetID(), m_SkyboxDrawParams, m_CameraSystem.GetProjectionMatrix(), m_CameraSystem.GetSkyboxViewTransformation(), m_GradientSkyboxStartColor, m_GradientSkyboxEndColor, m_SunVector);
 			break;
 		}

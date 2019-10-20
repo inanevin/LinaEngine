@@ -487,7 +487,6 @@ namespace LinaEngine::Graphics
 		LinaString vertexShaderText = "#version " + version + "\n#define VS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
 		LinaString fragmentShaderText = "#version " + version + "\n#define FS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
 
-
 		// Add the shader program, terminate if fails.
 		ShaderProgram programData;
 		if (!AddShader(shaderProgram, vertexShaderText, GL_VERTEX_SHADER, &programData.shaders))
@@ -674,8 +673,9 @@ namespace LinaEngine::Graphics
 		else
 			usage = vaoData->bufferUsage;
 
-		// Use VAO & bind buffer.
 		SetVAO(vao);
+
+		// Use VAO & bind buffer.
 		glBindBuffer(GL_ARRAY_BUFFER, vaoData->buffers[bufferIndex]);
 
 		// If buffer size exceeds data size use it as subdata.
@@ -719,7 +719,7 @@ namespace LinaEngine::Graphics
 		m_BoundFBO = fbo;
 	}
 
-	void GLRenderDevice::Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams & drawParams, uint32 numInstances, uint32 numElements)
+	void GLRenderDevice::Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams & drawParams, uint32 numInstances, uint32 numElements,const Matrix& view, const Matrix& proj)
 	{
 		// No need to draw nothin dude.
 		if (numInstances == 0) return;
@@ -737,9 +737,11 @@ namespace LinaEngine::Graphics
 		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
 		SetFaceCulling(drawParams.faceCulling);
 		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
-
-		// Bind & use the target shader.
+		
 		SetShader(shader);
+
+		UpdateShaderUniformMatrix(shader, "view", view);
+		UpdateShaderUniformMatrix(shader, "projection", proj);
 
 		//Color ambientLightColor = m_LightingSystem->GetAmbientLight().color;
 		//UpdateShaderUniformVector3F(shader, "ambientLight.color", Vector3F(ambientLightColor.R(), ambientLightColor.G(), ambientLightColor.B()));
@@ -781,6 +783,9 @@ namespace LinaEngine::Graphics
 		SetFaceCulling(drawParams.faceCulling);
 		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
 
+		// Set shader.
+		SetShader(shader);
+
 		// Update uniform matrices.
 		UpdateShaderUniformMatrix(shader, "projection", projectionMatrix);
 		UpdateShaderUniformMatrix(shader, "view", viewMatrix);
@@ -807,6 +812,9 @@ namespace LinaEngine::Graphics
 		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
 		SetFaceCulling(drawParams.faceCulling);
 		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
+
+		// Set shader.
+		SetShader(shader);
 
 		// Update uniform matrices.
 		UpdateShaderUniformMatrix(shader, "projection", projectionMatrix);
@@ -838,6 +846,9 @@ namespace LinaEngine::Graphics
 		SetFaceCulling(drawParams.faceCulling);
 		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
 
+		// Set shader.
+		SetShader(shader);
+
 		// Update uniform matrices.
 		UpdateShaderUniformMatrix(shader, "projection", projectionMatrix);
 		UpdateShaderUniformMatrix(shader, "view", viewMatrix);
@@ -868,6 +879,10 @@ namespace LinaEngine::Graphics
 		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
 		SetFaceCulling(drawParams.faceCulling);
 		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
+
+		// Set shader.
+		SetShader(shader);
+
 
 		// Update uniform matrices.
 		UpdateShaderUniformColor(shader, "color", color);

@@ -54,7 +54,9 @@ namespace LinaEngine::Graphics
 			currentModel.AllocateElement(3); // Normals
 			currentModel.AllocateElement(3); // Tangents
 			currentModel.SetStartIndex(4); // Begin instanced data
-			currentModel.AllocateElement(16); // Transform matrix
+			currentModel.AllocateElement(16); // MVP Matrix
+			currentModel.AllocateElement(16); // Model Matrix
+
 
 			const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
 

@@ -51,14 +51,14 @@ namespace LinaEngine::Graphics
 			renderDevice->Clear(target->GetID(), true, shouldClearDepth, false, color, 0);
 		}
 
-		FORCEINLINE void Draw(Shader& shader, VertexArray& vertexArray, const DrawParams& drawParams, uint32 numInstances = 1)
+		FORCEINLINE void Draw(Shader& shader, VertexArray& vertexArray, const DrawParams& drawParams, const Matrix& view, const Matrix& proj, uint32 numInstances = 1)
 		{
-			renderDevice->Draw(target->GetID(), shader.GetID(), vertexArray.GetID(), drawParams, numInstances, vertexArray.GetIndexCount());
+			renderDevice->Draw(target->GetID(), shader.GetID(), vertexArray.GetID(), drawParams, numInstances, vertexArray.GetIndexCount(), view, proj);
 		}
 
-		FORCEINLINE void Draw(Shader& shader, VertexArray& vertexArray, const DrawParams& drawParams, uint32 numInstances, uint32 numIndices)
+		FORCEINLINE void Draw(Shader& shader, VertexArray& vertexArray, const DrawParams& drawParams, uint32 numInstances, uint32 numIndices, const Matrix& view, const Matrix& proj)
 		{
-			renderDevice->Draw(target->GetID(), shader.GetID(), vertexArray.GetID(), drawParams, numInstances, numIndices);
+			renderDevice->Draw(target->GetID(), shader.GetID(), vertexArray.GetID(), drawParams, numInstances, numIndices, view, proj);
 		}
 
 

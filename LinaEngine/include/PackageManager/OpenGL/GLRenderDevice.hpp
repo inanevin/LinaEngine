@@ -326,7 +326,7 @@ namespace LinaEngine::Graphics
 		void UpdateUniformBuffer(uint32 buffer, const void* data, uintptr dataSize);
 
 		// Actual drawing process for meshes.
-		void Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements);
+		void Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements, const Matrix& view, const Matrix& proj);
 
 		// Used for drawing a skybox.
 		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Matrix& projectionMatrix, const Matrix& viewMatrix);

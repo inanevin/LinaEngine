@@ -45,7 +45,9 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void RenderMesh(VertexArray& vertexArray, Texture& texture, const Matrix& transformIn)
 		{
 			// Add the new matrix to the same pairs, each pair will be drawn once.
-			m_MeshRenderBuffer[LinaMakePair(&vertexArray, &texture)].push_back(m_Projection * m_ViewMatrix * transformIn);
+			auto pair = LinaMakePair(&vertexArray, &texture);
+			m_MeshRenderBuffer[pair].first.push_back((m_Projection*m_ViewMatrix*transformIn));
+			m_MeshRenderBuffer[pair].second.push_back(transformIn.transpose());
 		}
 
 		FORCEINLINE void UpdateViewMatrix(const Matrix& viewMatrix)
@@ -69,8 +71,9 @@ namespace LinaEngine::Graphics
 		Matrix m_ViewMatrix;
 		Matrix m_Projection;
 
+		
 		// Map to see the list of same vertex array & textures to compress them into single draw call.
-		LinaMap<LinaPair<VertexArray*, Texture*>, LinaArray<Matrix> > m_MeshRenderBuffer;
+		LinaMap<LinaPair<VertexArray*, Texture*>, LinaPair<LinaArray<Matrix>, LinaArray<Matrix>> > m_MeshRenderBuffer;
 	
 
 	};

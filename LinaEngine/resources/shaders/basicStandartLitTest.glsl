@@ -15,7 +15,6 @@
  */
  
 #include "common.glh"
-#include "lights.glh"
 
 varying vec2 texCoord0;
 
@@ -34,16 +33,23 @@ void main()
 
 uniform sampler2D diffuse;
 out vec4 fragColor;
+
+struct Light
+{
+	vec3 color;
+	float intensity;
+};
+
 uniform Light ambientLight;
 
 void main()
 {
 	// ambient
-    vec3 ambient = ambientLight.intensity * ambientLight.color;    
+    vec3 ambient = ambientLight.intensity * ambientLight.color;   
 	
-	// Final light color
-	vec3 lightResult = ambient;
+	// Resulting vertex color.
+	vec3 result = ambient;
 	
-	fragColor = texture2D(diffuse, texCoord0) * vec4(lightResult, 1.0);
+	fragColor = texture2D(diffuse, texCoord0) * vec4(result, 1.0);;
 }
 #endif

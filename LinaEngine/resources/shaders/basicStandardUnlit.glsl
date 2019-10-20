@@ -22,10 +22,16 @@ varying vec2 texCoord0;
 Layout(0) attribute vec3 position;
 Layout(1) attribute vec2 texCoord;
 Layout(4) attribute mat4 mvp;
+Layout(8) attribute mat4 model;
+
+uniform mat4 projection;
+uniform mat4 view;
+
 
 void main()
 {
-    gl_Position = vec4(position, 1.0) * mvp;
+
+    gl_Position = projection * view * model * vec4(position, 1.0);
     texCoord0 = texCoord;
 }
 

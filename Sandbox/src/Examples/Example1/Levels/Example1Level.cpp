@@ -29,6 +29,7 @@ CameraComponent m_SceneCameraComponent;
 TransformComponent m_CameraTransformComponent;
 FreeLookComponent freeLookComponent;
 EntityHandle m_ExampleMesh;
+EntityHandle m_ExampleMesh2;
 TransformComponent m_ExampleMeshTransform;
 MeshRendererComponent m_ExampleMeshRenderer;
 
@@ -49,7 +50,7 @@ void Example1Level::Initialize()
 	// Set the default cubemap skybox.
 	m_RenderEngine->ChangeSkyboxRenderType(RenderEngine::SkyboxType::Gradient);
 	m_RenderEngine->SetSingleColorSkyboxColor(Colors::Red);
-	m_RenderEngine->SetGradientSkyboxColors(Colors::Black, Colors::White);
+	m_RenderEngine->SetGradientSkyboxColors(Colors::Black, Colors::LightBlue);
 
 	// Disable default scene camera.
 	m_RenderEngine->DefaultSceneCameraActivation(false);
@@ -63,10 +64,15 @@ void Example1Level::Initialize()
 	m_SceneCamera = m_ECS->MakeEntity(m_SceneCameraComponent, m_CameraTransformComponent, freeLookComponent);
 
 	// Create an example mesh.
-	m_ExampleMeshRenderer.texture = &m_RenderEngine->LoadTextureResource("resources/textures/linaLogo.png", PixelFormat::FORMAT_RGB, true, false);
+	m_ExampleMeshRenderer.texture = &m_RenderEngine->GetDefaultDiffuseTexture();
 	m_ExampleMeshRenderer.vertexArray = m_RenderEngine->LoadModelResource("resources/meshes/linalogo.fbx").GetVertexArray(0);
-	m_ExampleMeshTransform.transform.SetLocation(Vector3F(0,0,5));
+	m_ExampleMeshTransform.transform.SetLocation(Vector3F(-3,0,10));
+
 	m_ExampleMesh = m_ECS->MakeEntity(m_ExampleMeshTransform, m_ExampleMeshRenderer);
+	m_ExampleMeshTransform.transform.SetLocation(Vector3F(3, 0, 10));
+	m_ExampleMesh2 = m_ECS->MakeEntity(m_ExampleMeshTransform, m_ExampleMeshRenderer);
+
+	m_ECS->GetComponent<TransformComponent>(m_ExampleMesh)->transform.GetLocation().Print();
 
 	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem(*m_InputEngine);
@@ -76,7 +82,7 @@ void Example1Level::Initialize()
 
 void Example1Level::Tick(float delta)
 {
-	// Update the systems in this levle.
+	// Update the systems in this level.
 	m_ECS->UpdateSystems(level1Systems, delta);
 
 
