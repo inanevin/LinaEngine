@@ -329,16 +329,16 @@ namespace LinaEngine::Graphics
 		void UpdateVertexArrayBuffer(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);
 
 		// Updates a uniform buffer for a shader by id.
-		void UpdateUniformBuffer(uint32 buffer, const void* data, uintptr dataSize);
+		void UpdateUniformBuffer(uint32 buffer, const void* data, uintptr offset, uintptr dataSize);
 
 		// Actual drawing process for meshes.
 		void Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements, const Matrix& view, const Matrix& proj);
 
 		// Used for drawing a skybox.
-		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Matrix& projectionMatrix, const Matrix& viewMatrix);
+		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams);
 		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Color& color);
-		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Matrix& projectionMatrix, const Matrix& viewMatrix, const Color& colorStart, const Color& colorEnd);
-		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Matrix& projectionMatrix, const Matrix& viewMatrix, const Color& colorStart, const Color& colorEnd, const Vector3F& sunvector);
+		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Color& colorStart, const Color& colorEnd);
+		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Color& colorStart, const Color& colorEnd, const Vector3F& sunvector);
 
 		// Clears context.
 		void Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const class Color& color, uint32 stencil);

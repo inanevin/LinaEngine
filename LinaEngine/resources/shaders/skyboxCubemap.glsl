@@ -21,8 +21,11 @@ layout (location = 0) in vec3 position;
 
 out vec3 TexCoords;
 
-uniform mat4 projection;
-uniform mat4 view;
+layout (std140, row_major) uniform GlobalMatrices
+{
+	mat4 projection;
+	mat4 view;
+};
 
 void main()
 {

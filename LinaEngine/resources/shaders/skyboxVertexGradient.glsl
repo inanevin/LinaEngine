@@ -20,14 +20,20 @@
 #if defined(VS_BUILD)
 layout (location = 0) in vec3 position;
 
-uniform mat4 projection;
-uniform mat4 view;
+layout (std140, row_major) uniform GlobalMatrices
+{
+	mat4 projection;
+	mat4 view;
+};
 
 out vec3 rawPosition;
+mat4 viewWOTranslation;
 
 void main()
 {
-    vec4 pos = projection * view * vec4(position, 1.0);
+	viewWOTranslation = view;
+	viewWOTranslation[3] = vec4(0,0,0,1.0);
+    vec4 pos = projection * viewWOTranslation * vec4(position, 1.0);
     gl_Position = pos.xyww;
 	rawPosition = position;
 }

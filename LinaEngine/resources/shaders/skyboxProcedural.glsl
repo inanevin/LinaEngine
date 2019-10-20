@@ -20,8 +20,11 @@
 #if defined(VS_BUILD)
 layout (location = 0) in vec3 position;
 
-uniform mat4 projection;
-uniform mat4 view;
+layout (std140, row_major) uniform GlobalMatrices
+{
+	mat4 projection;
+	mat4 view;
+};
 
 out vec3 TexCoords;
 

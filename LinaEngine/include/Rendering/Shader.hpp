@@ -49,7 +49,7 @@ namespace LinaEngine::Graphics
 			renderDevice->SetShaderUniformBuffer(m_EngineBoundID, name, buffer.GetID()); 
 		}
 
-		FORCEINLINE void BindBlockToBuffer(uint32 bindingPoint, LinaString& blockName)
+		FORCEINLINE void BindBlockToBuffer(uint32 bindingPoint, LinaString blockName)
 		{
 			renderDevice->BindShaderBlockToBufferPoint(m_EngineBoundID, bindingPoint, blockName);
 		}

@@ -24,9 +24,11 @@ Layout(1) attribute vec2 texCoord;
 Layout(4) attribute mat4 mvp;
 Layout(8) attribute mat4 model;
 
-uniform mat4 projection;
-uniform mat4 view;
-
+layout (std140, row_major) uniform GlobalMatrices
+{
+	mat4 projection;
+	mat4 view;
+};
 void main()
 {
     gl_Position = projection * view * model * vec4(position, 1.0);

@@ -233,6 +233,9 @@ namespace LinaEngine::Graphics
 		LinaArray<Texture*> m_TextureDump;
 		LinaArray<RenderableObjectData*> m_RenderableObjectDataDump;
 
+		// Buffer for global matrices
+		UniformBuffer m_GlobalMatrixBuffer;
+
 	private:
 
 		// Standart Skybox vertex array object.

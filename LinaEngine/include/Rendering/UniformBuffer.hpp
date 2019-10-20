@@ -33,7 +33,7 @@ namespace LinaEngine::Graphics
 
 		// Param const creates buffer through render engine.
 		FORCEINLINE UniformBuffer() {}
-			
+
 		// Destructor releases the buffer through render engine.
 		FORCEINLINE ~UniformBuffer()
 		{
@@ -55,8 +55,8 @@ namespace LinaEngine::Graphics
 			m_RenderDevice->BindUniformBuffer(m_EngineBoundID, point);
 		}
 
-		FORCEINLINE void Update(const void* data, uintptr dataSize) { m_RenderDevice->UpdateUniformBuffer(m_EngineBoundID, data, dataSize); }
-		FORCEINLINE void Update(const void* data) { Update(data, m_BufferSize); }
+		FORCEINLINE void Update(const void* data, uintptr offset, uintptr dataSize) { m_RenderDevice->UpdateUniformBuffer(m_EngineBoundID, data, offset, dataSize); }
+		
 		FORCEINLINE uint32 GetID() { return m_EngineBoundID; }
 
 	private:

@@ -699,13 +699,15 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void GLRenderDevice::UpdateUniformBuffer(uint32 buffer, const void* data, uintptr dataSize)
+	void GLRenderDevice::UpdateUniformBuffer(uint32 buffer, const void* data, uintptr offset, uintptr dataSize)
 	{
 		// Get buffer & set data.
 		glBindBuffer(GL_UNIFORM_BUFFER, buffer);
-		void* dest = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-		Memory::memcpy(dest, data, dataSize);
-		glUnmapBuffer(GL_UNIFORM_BUFFER);
+		glBufferSubData(GL_UNIFORM_BUFFER, offset, dataSize, data);
+
+		//void* dest = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+		//Memory::memcpy(dest, data, dataSize);
+		//glUnmapBuffer(GL_UNIFORM_BUFFER);
 	}
 
 	// ---------------------------------------------------------------------
@@ -751,7 +753,7 @@ namespace LinaEngine::Graphics
 		
 		SetShader(shader);
 
-		UpdateShaderUniformMatrix(shader, "view", view);
+		//UpdateShaderUniformMatrix(shader, "view", view);
 		//UpdateShaderUniformMatrix(shader, "projection", proj);
 
 		//Color ambientLightColor = m_LightingSystem->GetAmbientLight().color;
@@ -776,7 +778,7 @@ namespace LinaEngine::Graphics
 		//UpdateShaderUniformVector3F(shader, "_viewPos", m_LightingSystem->GetCameraPosition());
 	}
 
-	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams & drawParams, const Matrix& projectionMatrix, const Matrix& viewMatrix)
+	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams & drawParams)
 	{
 		// Bind the render targets.
 		SetFBO(fbo);
@@ -795,10 +797,6 @@ namespace LinaEngine::Graphics
 		// Set shader.
 		SetShader(shader);
 
-		// Update uniform matrices.
-		UpdateShaderUniformMatrix(shader, "projection", projectionMatrix);
-		UpdateShaderUniformMatrix(shader, "view", viewMatrix);
-
 		// Bind vertex array object.
 		SetVAO(vao);
 
@@ -806,73 +804,7 @@ namespace LinaEngine::Graphics
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	}
-	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Matrix& projectionMatrix, const Matrix& viewMatrix, const Color& colorStart, const Color& colorEnd)
-	{
-		// Bind the render targets.
-		SetFBO(fbo);
 
-		// Ensure viewport is ok.
-		SetViewport(fbo);
-
-		// Set blend mode for each render target.
-		SetBlending(drawParams.sourceBlend, drawParams.destBlend);
-
-		// Set scissors tests if required, face culling modes as well as depth tests.
-		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
-		SetFaceCulling(drawParams.faceCulling);
-		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
-
-		// Set shader.
-		SetShader(shader);
-
-		// Update uniform matrices.
-		UpdateShaderUniformMatrix(shader, "projection", projectionMatrix);
-		UpdateShaderUniformMatrix(shader, "view", viewMatrix);
-		UpdateShaderUniformColor(shader, "startColor", colorStart);
-		UpdateShaderUniformColor(shader, "endColor", colorEnd);
-
-		// Bind vertex array object.
-		SetVAO(vao);
-
-		// Finally draw the sky box.
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-
-	}
-	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Matrix& projectionMatrix, const Matrix& viewMatrix, const Color& colorStart, const Color& colorEnd, const Vector3F& upVector)
-	{
-		// Bind the render targets.
-		SetFBO(fbo);
-
-		// Ensure viewport is ok.
-		SetViewport(fbo);
-
-		// Set blend mode for each render target.
-		SetBlending(drawParams.sourceBlend, drawParams.destBlend);
-
-		// Set scissors tests if required, face culling modes as well as depth tests.
-		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
-		SetFaceCulling(drawParams.faceCulling);
-		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
-
-		// Set shader.
-		SetShader(shader);
-
-		// Update uniform matrices.
-		UpdateShaderUniformMatrix(shader, "projection", projectionMatrix);
-		UpdateShaderUniformMatrix(shader, "view", viewMatrix);
-		UpdateShaderUniformColor(shader, "startColor", colorStart);
-		UpdateShaderUniformColor(shader, "endColor", colorEnd);
-		UpdateShaderUniformVector3F(shader, "upVector", upVector);
-
-		// Bind vertex array object.
-		SetVAO(vao);
-
-		// Finally draw the sky box.
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-	}
-	
 	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Color& color)
 	{
 		// Bind the render targets.
@@ -892,9 +824,71 @@ namespace LinaEngine::Graphics
 		// Set shader.
 		SetShader(shader);
 
-
 		// Update uniform matrices.
 		UpdateShaderUniformColor(shader, "color", color);
+
+		// Bind vertex array object.
+		SetVAO(vao);
+
+		// Finally draw the sky box.
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+	}
+
+	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Color& colorStart, const Color& colorEnd)
+	{
+		// Bind the render targets.
+		SetFBO(fbo);
+
+		// Ensure viewport is ok.
+		SetViewport(fbo);
+
+		// Set blend mode for each render target.
+		SetBlending(drawParams.sourceBlend, drawParams.destBlend);
+
+		// Set scissors tests if required, face culling modes as well as depth tests.
+		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
+		SetFaceCulling(drawParams.faceCulling);
+		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
+
+		// Set shader.
+		SetShader(shader);
+
+		// Update uniform matrices.
+		UpdateShaderUniformColor(shader, "startColor", colorStart);
+		UpdateShaderUniformColor(shader, "endColor", colorEnd);
+
+		// Bind vertex array object.
+		SetVAO(vao);
+
+		// Finally draw the sky box.
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
+	}
+	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Color& colorStart, const Color& colorEnd, const Vector3F& upVector)
+	{
+		// Bind the render targets.
+		SetFBO(fbo);
+
+		// Ensure viewport is ok.
+		SetViewport(fbo);
+
+		// Set blend mode for each render target.
+		SetBlending(drawParams.sourceBlend, drawParams.destBlend);
+
+		// Set scissors tests if required, face culling modes as well as depth tests.
+		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
+		SetFaceCulling(drawParams.faceCulling);
+		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
+
+		// Set shader.
+		SetShader(shader);
+
+		// Update uniform matrices.
+		UpdateShaderUniformColor(shader, "startColor", colorStart);
+		UpdateShaderUniformColor(shader, "endColor", colorEnd);
+		UpdateShaderUniformVector3F(shader, "upVector", upVector);
 
 		// Bind vertex array object.
 		SetVAO(vao);

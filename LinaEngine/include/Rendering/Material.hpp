@@ -34,6 +34,12 @@ namespace LinaEngine::Graphics
 		LinaMap<LinaString, Vector3F> vectors;
 		LinaMap<LinaString, Matrix> matrices;
 	};
+
+	struct RenderMaterial
+	{
+		float specularIntensity;
+		Color objectColor;
+	};
 }
 
 

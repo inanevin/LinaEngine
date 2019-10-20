@@ -25,9 +25,12 @@ Layout(1) attribute vec2 texCoord;
 Layout(2) attribute vec3 normal;
 Layout(4) attribute mat4 transformMatrix;
 
+layout (std140, row_major) uniform GlobalMatrices
+{
+	mat4 projection;
+	mat4 view;
+};
 
-uniform mat4 model;
-uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 normalMatrix;
 uniform mat4 inverseTransposeNormal;
