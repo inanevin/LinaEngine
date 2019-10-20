@@ -147,6 +147,8 @@ namespace LinaEngine::Graphics
 		m_DefaultCamera = m_ECS->MakeEntity(m_DefaultCameraTransform, m_DefaultCameraComponent);
 		DefaultSceneCameraActivation(true);
 
+		m_GlobalMatrixBuffer.Update(&m_CameraSystem.GetProjectionMatrix(), 0, sizeof(Matrix));
+
 	}
 
 	void RenderEngine::Tick(float delta)
@@ -161,7 +163,6 @@ namespace LinaEngine::Graphics
 		// Update pipeline.
 		m_ECS->UpdateSystems(m_RenderingPipeline, delta);
 
-		m_GlobalMatrixBuffer.Update(&m_CameraSystem.GetProjectionMatrix(), 0, sizeof(Matrix));
 		m_GlobalMatrixBuffer.Update(&m_CameraSystem.GetViewMatrix(), sizeof(Matrix), sizeof(Matrix));
 
 		// Draw scene.
@@ -329,14 +330,14 @@ namespace LinaEngine::Graphics
 			break;
 
 		case SkyboxType::Gradient:
-			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxGradientShader.GetID(), m_SkyboxVAO, m_DefaultDiffuseTexture.GetID(), m_SkyboxDrawParams, m_CameraSystem.GetProjectionMatrix(), m_CameraSystem.GetSkyboxViewTransformation(), m_GradientSkyboxStartColor, m_GradientSkyboxEndColor);
+			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxGradientShader.GetID(), m_SkyboxVAO, m_DefaultDiffuseTexture.GetID(), m_SkyboxDrawParams, m_GradientSkyboxStartColor, m_GradientSkyboxEndColor);
 			break;
 
 		case SkyboxType::Cubemap:
-			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxCubemapShader.GetID(), m_SkyboxVAO, m_SkyboxTexture.GetID(), m_SkyboxDrawParams, m_CameraSystem.GetProjectionMatrix(), m_CameraSystem.GetSkyboxViewTransformation());
+			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxCubemapShader.GetID(), m_SkyboxVAO, m_SkyboxTexture.GetID(), m_SkyboxDrawParams);
 			break;
 		case SkyboxType::Procedural:
-			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxProceduralShader.GetID(), m_SkyboxVAO, m_SkyboxTexture.GetID(), m_SkyboxDrawParams, m_CameraSystem.GetProjectionMatrix(), m_CameraSystem.GetSkyboxViewTransformation(), m_GradientSkyboxStartColor, m_GradientSkyboxEndColor, m_SunVector);
+			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxProceduralShader.GetID(), m_SkyboxVAO, m_SkyboxTexture.GetID(), m_SkyboxDrawParams, m_GradientSkyboxStartColor, m_GradientSkyboxEndColor, m_SunVector);
 			break;
 		}
 	}
