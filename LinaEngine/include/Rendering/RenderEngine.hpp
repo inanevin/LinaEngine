@@ -104,6 +104,9 @@ namespace LinaEngine::Graphics
 		// Changes the skybox type.
 		LINA_API void ChangeSkyboxRenderType(SkyboxType type);
 
+		// Returns the id of a shader by name
+		LINA_API FORCEINLINE uint32 GetShaderID(LinaString name) { return m_ShaderIDMap[name]; }
+
 		// Sets the single color skybox rendering color.
 		LINA_API FORCEINLINE void SetSingleColorSkyboxColor(Color color) { m_SingleColorSkyboxColor = color; }
 
@@ -111,10 +114,13 @@ namespace LinaEngine::Graphics
 		LINA_API FORCEINLINE void SetGradientSkyboxColors(Color startColor, Color endColor) { m_GradientSkyboxStartColor = startColor; m_GradientSkyboxEndColor = endColor; }
 
 		// Returns the default diffuse texture
-		LINA_API Texture& GetDefaultDiffuseTexture() { return m_DefaultDiffuseTexture; }
+		LINA_API Texture* GetDefaultDiffuseTexture() { return &m_DefaultDiffuseTexture; }
 
 		// Default Camera Component Activation
 		LINA_API void DefaultSceneCameraActivation(bool activation);
+
+		// Creates a material & returns a reference to it.
+		LINA_API FORCEINLINE MeshMaterial* GetMaterial(LinaString materialName) { return &(m_Materials[materialName]); };
 
 	public:
 
@@ -129,7 +135,7 @@ namespace LinaEngine::Graphics
 		void RenderSkybox();
 
 		// Construct a shader w/ sampler & default texture
-		void ConstructShader(Shader& shader, const Texture& texture, const Sampler& sampler, const LinaString& text, uint32 samplerUnit, BindTextureMode bindMode = BINDTEXTURE_TEXTURE2D);
+		void ConstructShader(LinaString name, Shader& shader, const Texture& texture, const Sampler& sampler, const LinaString& text, uint32 samplerUnit, BindTextureMode bindMode = BINDTEXTURE_TEXTURE2D);
 
 		// Updates related uniform buffers on GPU
 		void UpdateUniformBuffers();
@@ -177,6 +183,9 @@ namespace LinaEngine::Graphics
 
 		// Default shader
 		Shader m_StandardUnlitShader;
+
+		// Default Lit Shader
+		Shader m_StandardLitShader;
 
 		// Skybox cubemap shader
 		Shader m_SkyboxCubemapShader;
@@ -238,6 +247,12 @@ namespace LinaEngine::Graphics
 
 		// Buffer for global matrices
 		UniformBuffer m_GlobalMatrixBuffer;
+
+		// Material storage
+		LinaMap<LinaString, MeshMaterial> m_Materials;
+
+		// Map that stores shader ID's by name
+		LinaMap<LinaString, uint32> m_ShaderIDMap;
 
 	private:
 

@@ -55,17 +55,6 @@ namespace LinaEngine::Graphics
 
 	RenderEngine::~RenderEngine()
 	{
-		// Clear texture resources.
-		for (uint32 i = 0; i < m_TextureResources.size(); i++)
-			delete m_TextureResources[i];
-
-		m_TextureResources.clear();
-
-		// Clear model resources.
-		for (uint32 i = 0; i < m_RenderableObjectDataResources.size(); i++)
-			delete m_RenderableObjectDataResources[i];
-
-		m_RenderableObjectDataResources.clear();
 
 		// Dump the remaining memory.
 		DumpMemory();
@@ -101,11 +90,17 @@ namespace LinaEngine::Graphics
 		m_GlobalMatrixBuffer.Bind(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT);
 
 		// Initialize basic unlit shader.
-		LinaString basicShaderText;
-		LinaEngine::Internal::LoadTextFileWithIncludes(basicShaderText, ResourceConstants::shaderFolderPath + "basicStandardLitTest.glsl", "#include");
-		m_StandardUnlitShader.Construct(*m_RenderDevice.get(), basicShaderText);
-		m_StandardUnlitShader.SetSampler(m_DefaultSampler.GetSamplerName(), m_DefaultDiffuseTexture, m_DefaultSampler, 0);
+		LinaString shaderText;
+
+		// Construct unlit shader.
+		LinaEngine::Internal::LoadTextFileWithIncludes(shaderText, ResourceConstants::shaderFolderPath + "basicStandardUnlit.glsl", "#include");
+		ConstructShader("_standardUnlit", m_StandardUnlitShader, m_DefaultDiffuseTexture, m_DefaultSampler, shaderText, 0);
 		m_StandardUnlitShader.BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+
+		// Construct lit shader
+		LinaEngine::Internal::LoadTextFileWithIncludes(shaderText, ResourceConstants::shaderFolderPath + "basicStandardLitTest.glsl", "#include");
+		ConstructShader("_standardLit", m_StandardLitShader, m_DefaultDiffuseTexture, m_DefaultSampler, shaderText, 0);
+		m_StandardLitShader.BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
 
 		// Initialize the correct skybox shader depending on the type of sykbox to draw.
 		ChangeSkyboxRenderType(m_SkyboxType);
@@ -318,6 +313,7 @@ namespace LinaEngine::Graphics
 		// Clear dumps.
 		m_RenderableObjectDataDump.clear();
 		m_TextureDump.clear();
+		m_Materials.clear();
 	}
 
 	void RenderEngine::RenderSkybox()
@@ -342,10 +338,11 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void RenderEngine::ConstructShader(Shader & shader, const Texture & texture, const Sampler & sampler, const LinaString & text, uint32 samplerUnit, BindTextureMode bindMode)
+	void RenderEngine::ConstructShader(LinaString name, Shader & shader, const Texture & texture, const Sampler & sampler, const LinaString & text, uint32 samplerUnit, BindTextureMode bindMode)
 	{
 		shader.Construct(*m_RenderDevice.get(), text);
 		shader.SetSampler(sampler.GetSamplerName(), texture, sampler, samplerUnit, bindMode);
+		m_ShaderIDMap[name] = shader.GetID();
 	}
 
 	void RenderEngine::UpdateUniformBuffers()
@@ -367,7 +364,7 @@ namespace LinaEngine::Graphics
 			{
 				LinaString skyboxShaderText;
 				LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, ResourceConstants::shaderFolderPath + "skyboxSingleColor.glsl", "#include");
-				ConstructShader(m_SkyboxSingleColorShader, m_DefaultDiffuseTexture, m_SkyboxSampler, skyboxShaderText, 0);
+				ConstructShader("_skyboxSingleColor", m_SkyboxSingleColorShader, m_DefaultDiffuseTexture, m_SkyboxSampler, skyboxShaderText, 0);
 			}
 			break;
 
@@ -377,7 +374,7 @@ namespace LinaEngine::Graphics
 			{
 				LinaString skyboxShaderText;
 				LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, ResourceConstants::shaderFolderPath + "skyboxVertexGradient.glsl", "#include");
-				ConstructShader(m_SkyboxGradientShader, m_DefaultDiffuseTexture, m_SkyboxSampler, skyboxShaderText, 0);
+				ConstructShader("_skyboxGradient", m_SkyboxGradientShader, m_DefaultDiffuseTexture, m_SkyboxSampler, skyboxShaderText, 0);
 				m_SkyboxGradientShader.BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
 			}
 
@@ -398,7 +395,7 @@ namespace LinaEngine::Graphics
 					ResourceConstants::textureFolderPath + "defaultSkybox/front.png",
 					ResourceConstants::textureFolderPath + "defaultSkybox/back.png");
 
-				ConstructShader(m_SkyboxCubemapShader, m_SkyboxTexture, m_SkyboxSampler, skyboxShaderText, 0, BINDTEXTURE_CUBEMAP);
+				ConstructShader("_skyboxCubemap", m_SkyboxCubemapShader, m_SkyboxTexture, m_SkyboxSampler, skyboxShaderText, 0, BINDTEXTURE_CUBEMAP);
 				m_SkyboxCubemapShader.BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
 
 			}
@@ -411,7 +408,7 @@ namespace LinaEngine::Graphics
 			{
 				LinaString skyboxShaderText;
 				LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, ResourceConstants::shaderFolderPath + "skyboxProcedural.glsl", "#include");
-				ConstructShader(m_SkyboxProceduralShader, m_DefaultDiffuseTexture, m_SkyboxSampler, skyboxShaderText, 0);
+				ConstructShader("_skyboxProcedural", m_SkyboxProceduralShader, m_DefaultDiffuseTexture, m_SkyboxSampler, skyboxShaderText, 0);
 				m_SkyboxProceduralShader.BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
 			}
 
@@ -423,4 +420,5 @@ namespace LinaEngine::Graphics
 
 
 	}
+
 }

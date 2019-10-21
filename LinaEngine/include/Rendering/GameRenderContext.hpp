@@ -8,8 +8,8 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 
 http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
 Class: GameRenderContext
@@ -26,10 +26,13 @@ Timestamp: 4/27/2019 5:53:43 PM
 
 namespace LinaEngine::Graphics
 {
+
+
+
 	class GameRenderContext : public RenderContext
 	{
 	public:
-		
+
 		GameRenderContext() : RenderContext() {};
 		virtual ~GameRenderContext() {};
 
@@ -42,13 +45,7 @@ namespace LinaEngine::Graphics
 			m_SamplerName = samplerIn.GetSamplerName();
 		}
 
-		FORCEINLINE void RenderMesh(VertexArray& vertexArray, Texture& texture, const Matrix& transformIn)
-		{
-			// Add the new matrix to the same pairs, each pair will be drawn once.
-			auto pair = LinaMakePair(&vertexArray, &texture);
-			m_MeshRenderBuffer[pair].first.push_back((m_Projection*m_ViewMatrix*transformIn));
-			m_MeshRenderBuffer[pair].second.push_back(transformIn.transpose());
-		}
+		void RenderMesh(VertexArray& vertexArray, MeshMaterial& material, const Matrix& transformIn);
 
 		FORCEINLINE void UpdateViewMatrix(const Matrix& viewMatrix)
 		{
@@ -67,14 +64,14 @@ namespace LinaEngine::Graphics
 		LinaString m_SamplerName;
 		DrawParams* m_DrawParams;
 		Shader* m_Shader;
-		Sampler *m_Sampler;
+		Sampler* m_Sampler;
 		Matrix m_ViewMatrix;
 		Matrix m_Projection;
 
-		
+
 		// Map to see the list of same vertex array & textures to compress them into single draw call.
-		LinaMap<LinaPair<VertexArray*, Texture*>, LinaPair<LinaArray<Matrix>, LinaArray<Matrix>> > m_MeshRenderBuffer;
-	
+		LinaMap<LinaPair<VertexArray*, MeshMaterial*>, LinaPair<LinaArray<Matrix>, LinaArray<Matrix>>> m_MeshRenderBuffer;
+
 
 	};
 }

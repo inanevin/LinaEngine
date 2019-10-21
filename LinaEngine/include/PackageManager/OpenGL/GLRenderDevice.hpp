@@ -332,7 +332,7 @@ namespace LinaEngine::Graphics
 		void UpdateUniformBuffer(uint32 buffer, const void* data, uintptr offset, uintptr dataSize);
 
 		// Actual drawing process for meshes.
-		void Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements, const Matrix& view, const Matrix& proj);
+		void Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements);
 
 		// Used for drawing a skybox.
 		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams);
@@ -345,6 +345,8 @@ namespace LinaEngine::Graphics
 
 		// Called when main window is resized.
 		void OnWindowResized(float width, float height);
+
+
 
 		// Updates a mat4 type uniform on a shader with given name.
 		void UpdateShaderUniformMatrix(uint32 shader, const LinaString& uniform, const Matrix& m);

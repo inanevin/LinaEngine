@@ -24,9 +24,18 @@ Timestamp: 4/26/2019 1:12:18 AM
 
 #include "Core/DataStructures.hpp"
 #include "Utility/Math/Matrix.hpp"
+#include "Rendering/Texture.hpp"
 
 namespace LinaEngine::Graphics
 {
+	struct MeshMaterial
+	{
+		uint32 shaderID;
+		Texture* texture;
+		LinaMap<LinaString, float> floats;
+		LinaMap<LinaString, Color> colors;
+	};
+
 	struct Material
 	{
 		LinaMap<LinaString, LinaString> textureNames;
@@ -35,11 +44,6 @@ namespace LinaEngine::Graphics
 		LinaMap<LinaString, Matrix> matrices;
 	};
 
-	struct RenderMaterial
-	{
-		float specularIntensity;
-		Color objectColor;
-	};
 }
 
 

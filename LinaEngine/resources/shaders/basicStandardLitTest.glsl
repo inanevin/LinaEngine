@@ -41,10 +41,12 @@ void main()
 
 uniform sampler2D diffuse;
 out vec4 fragColor;
+uniform float diffIntensity;
 
 void main()
 {
-	
-	fragColor = texture2D(diffuse, texCoord0);
+	vec4 addColor = vec4(0.0, 0.1, 0.0, 1.0) * diffIntensity;
+	fragColor = addColor;
+	// = texture2D(diffuse, texCoord0) + addColor;
 }
 #endif

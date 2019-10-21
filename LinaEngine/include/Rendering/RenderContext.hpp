@@ -26,6 +26,7 @@ Timestamp: 4/27/2019 5:48:39 PM
 #include "Shader.hpp"
 #include "RenderTarget.hpp"
 #include "VertexArray.hpp"
+#include "Material.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -51,18 +52,24 @@ namespace LinaEngine::Graphics
 			renderDevice->Clear(target->GetID(), true, shouldClearDepth, false, color, 0);
 		}
 
-		FORCEINLINE void Draw(Shader& shader, VertexArray& vertexArray, const DrawParams& drawParams, const Matrix& view, const Matrix& proj, uint32 numInstances = 1)
+		FORCEINLINE void Draw(Shader& shader, VertexArray& vertexArray, const DrawParams& drawParams, uint32 numInstances = 1)
 		{
-			renderDevice->Draw(target->GetID(), shader.GetID(), vertexArray.GetID(), drawParams, numInstances, vertexArray.GetIndexCount(), view, proj);
+			renderDevice->Draw(target->GetID(), shader.GetID(), vertexArray.GetID(), drawParams, numInstances, vertexArray.GetIndexCount());
 		}
 
-		FORCEINLINE void Draw(Shader& shader, VertexArray& vertexArray, const DrawParams& drawParams, uint32 numInstances, uint32 numIndices, const Matrix& view, const Matrix& proj)
+		FORCEINLINE void Draw(uint32 shaderID, VertexArray& vertexArray, const DrawParams& drawParams, uint32 numInstances = 1)
 		{
-			renderDevice->Draw(target->GetID(), shader.GetID(), vertexArray.GetID(), drawParams, numInstances, numIndices, view, proj);
+			renderDevice->Draw(target->GetID(), shaderID, vertexArray.GetID(), drawParams, numInstances, vertexArray.GetIndexCount());
 		}
 
-
-
+		FORCEINLINE void UpdateShaderData(MeshMaterial* data)
+		{
+			for (auto const& d : (*data).floats)
+			{
+				renderDevice->UpdateShaderUniformFloat(data->shaderID, d.first, d.second);
+			}
+		}
+	
 
 	protected:
 

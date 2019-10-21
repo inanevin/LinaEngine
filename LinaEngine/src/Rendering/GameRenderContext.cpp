@@ -25,14 +25,23 @@ Timestamp: 4/27/2019 5:54:04 PM
 
 namespace LinaEngine::Graphics
 {
+	void GameRenderContext::RenderMesh(VertexArray& vertexArray,  MeshMaterial& material, const Matrix& transformIn)
+	{
+		// Add the new matrix to the same pairs, each pair will be drawn once.
+		auto pair = LinaMakePair(&vertexArray, &material);
+		m_MeshRenderBuffer[pair].first.push_back(m_Projection * m_ViewMatrix * transformIn);
+		m_MeshRenderBuffer[pair].second.push_back(transformIn.transpose());
+	}
+
 	void GameRenderContext::Flush()
 	{
 		Texture* currentTexture = nullptr;
 
-		for (LinaMap<LinaPair<VertexArray*, Texture*>, LinaPair<LinaArray<Matrix>, LinaArray<Matrix>> >::iterator it = m_MeshRenderBuffer.begin(); it != m_MeshRenderBuffer.end(); ++it)
+		for (LinaMap<LinaPair<VertexArray*, MeshMaterial*>, LinaPair<LinaArray<Matrix>, LinaArray<Matrix>>>::iterator it = m_MeshRenderBuffer.begin(); it != m_MeshRenderBuffer.end(); ++it)
 		{
+			
 			VertexArray* vertexArray = it->first.first;
-			Texture* texture = it->first.second;
+			Texture* texture = it->first.second->texture;
 			Matrix* mvps = &it->second.first[0];
 			Matrix* models = &it->second.second[0];
 			size_t numTransforms = it->second.first.size();
@@ -46,13 +55,15 @@ namespace LinaEngine::Graphics
 			vertexArray->UpdateBuffer(4, mvps, numTransforms * sizeof(Matrix));
 			vertexArray->UpdateBuffer(5, models, numTransforms * sizeof(Matrix));
 
+			UpdateShaderData(it->first.second);
+
 			// Draw call.
-			this->Draw(*m_Shader, *vertexArray, *m_DrawParams, m_ViewMatrix, m_Projection, numTransforms);
+			//this->Draw(*m_Shader, *vertexArray, *m_DrawParams, numTransforms);
+			this->Draw(it->first.second->shaderID, *vertexArray, *m_DrawParams, numTransforms);
 
 			// Clear the buffer, or do not if you want a trail of shadows lol.
 			it->second.first.clear();
 			it->second.second.clear();
-
 
 		}
 	}

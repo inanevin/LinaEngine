@@ -732,7 +732,7 @@ namespace LinaEngine::Graphics
 		m_BoundFBO = fbo;
 	}
 
-	void GLRenderDevice::Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams & drawParams, uint32 numInstances, uint32 numElements,const Matrix& view, const Matrix& proj)
+	void GLRenderDevice::Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams & drawParams, uint32 numInstances, uint32 numElements)
 	{
 		// No need to draw nothin dude.
 		if (numInstances == 0) return;
@@ -751,7 +751,7 @@ namespace LinaEngine::Graphics
 		SetFaceCulling(drawParams.faceCulling);
 		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
 		
-		SetShader(shader);
+		//SetShader(shader);
 
 		//UpdateShaderUniformMatrix(shader, "view", view);
 		//UpdateShaderUniformMatrix(shader, "projection", proj);
@@ -973,10 +973,9 @@ namespace LinaEngine::Graphics
 		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)color.R(), (GLfloat)color.G(), (GLfloat)color.B());
 	}
 
-
-
 	void GLRenderDevice::UpdateShaderUniformFloat(uint32 shader, const LinaString& uniform, const float f)
 	{
+		SetShader(shader);
 		glUniform1f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)f);
 	}
 

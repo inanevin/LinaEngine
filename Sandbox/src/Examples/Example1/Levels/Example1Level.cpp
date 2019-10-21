@@ -32,7 +32,7 @@ EntityHandle m_ExampleMesh;
 EntityHandle m_ExampleMesh2;
 TransformComponent m_ExampleMeshTransform;
 MeshRendererComponent m_ExampleMeshRenderer;
-MeshRendererComponent m_ExampleMeshRenderer2;
+
 
 Example1Level::~Example1Level()
 {
@@ -65,14 +65,24 @@ void Example1Level::Initialize()
 	m_SceneCamera = m_ECS->MakeEntity(m_SceneCameraComponent, m_CameraTransformComponent, freeLookComponent);
 
 	// Create an example mesh.
-	m_ExampleMeshRenderer.texture = &m_RenderEngine->GetDefaultDiffuseTexture();
 	m_ExampleMeshRenderer.vertexArray = m_RenderEngine->LoadModelResource("resources/meshes/linalogo.fbx").GetVertexArray(0);
-	m_ExampleMeshTransform.transform.SetLocation(Vector3F(-3,0,10));
+	
+	MeshMaterial* material1 = m_RenderEngine->GetMaterial("material1");
+	material1->shaderID = m_RenderEngine->GetShaderID("_standardUnlit");
+	material1->texture = m_RenderEngine->GetDefaultDiffuseTexture();
+	material1->floats["diffIntensity"] = 15.0f;
 
+	MeshMaterial* material2 = m_RenderEngine->GetMaterial("material2");
+	material2->shaderID = m_RenderEngine->GetShaderID("_standardUnlit");
+	material2->texture = m_RenderEngine->GetDefaultDiffuseTexture();
+	material2->floats["diffIntensity"] = 3.0f;
+
+	m_ExampleMeshRenderer.material = material1;
+	m_ExampleMeshTransform.transform.SetLocation(Vector3F(-3, 0, 10));
 	m_ExampleMesh = m_ECS->MakeEntity(m_ExampleMeshTransform, m_ExampleMeshRenderer);
+	
+	m_ExampleMeshRenderer.material = material2;
 	m_ExampleMeshTransform.transform.SetLocation(Vector3F(3, 0, 10));
-
-	m_ExampleMeshRenderer.texture = &m_RenderEngine->LoadTextureResource("resources/textures/testResource.png", PixelFormat::FORMAT_RGB, true, false);
 	m_ExampleMesh2 = m_ECS->MakeEntity(m_ExampleMeshTransform, m_ExampleMeshRenderer);
 
 	m_ECS->GetComponent<TransformComponent>(m_ExampleMesh)->transform.GetLocation().Print();

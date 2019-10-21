@@ -27,7 +27,7 @@ namespace LinaEngine::ECS
 		CubeChunkComponent* component = (CubeChunkComponent*)components[0];
 
 		Transformation transform(Vector3F(component->position[0], component->position[1], component->position[2]));
-		context.RenderMesh(vertexArray, *(textures[component->textureIndex]), transform.ToMatrix());
+		//context.RenderMesh(vertexArray, *(textures[component->textureIndex]), transform.ToMatrix());
 	}
 }
 
