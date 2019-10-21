@@ -98,7 +98,7 @@ namespace LinaEngine::Graphics
 		m_StandardUnlitShader.BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
 
 		// Construct lit shader
-		LinaEngine::Internal::LoadTextFileWithIncludes(shaderText, ResourceConstants::shaderFolderPath + "basicStandardLitTest.glsl", "#include");
+		LinaEngine::Internal::LoadTextFileWithIncludes(shaderText, ResourceConstants::shaderFolderPath + "basicStandardLit.glsl", "#include");
 		ConstructShader("_standardLit", m_StandardLitShader, m_DefaultDiffuseTexture, m_DefaultSampler, shaderText, 0);
 		m_StandardLitShader.BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
 
@@ -142,6 +142,15 @@ namespace LinaEngine::Graphics
 		m_DefaultCamera = m_ECS->MakeEntity(m_DefaultCameraTransform, m_DefaultCameraComponent);
 		DefaultSceneCameraActivation(true);
 
+		// Create default materials.
+		MeshMaterial* matUnlit = GetMaterial("_defaultUnlit");
+		matUnlit->shaderID = GetShaderID("_standardUnlit");
+		matUnlit->texture = &m_DefaultDiffuseTexture;
+		
+		MeshMaterial* matLit = GetMaterial("_defaultLit");
+		matLit->shaderID = GetShaderID("_standardLit");
+		matLit->texture = &m_DefaultDiffuseTexture;
+		matLit->floats["diffIntensity"] = 15.0f;
 
 	}
 

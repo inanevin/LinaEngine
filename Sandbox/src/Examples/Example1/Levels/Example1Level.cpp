@@ -67,15 +67,9 @@ void Example1Level::Initialize()
 	// Create an example mesh.
 	m_ExampleMeshRenderer.vertexArray = m_RenderEngine->LoadModelResource("resources/meshes/linalogo.fbx").GetVertexArray(0);
 	
-	MeshMaterial* material1 = m_RenderEngine->GetMaterial("material1");
-	material1->shaderID = m_RenderEngine->GetShaderID("_standardUnlit");
-	material1->texture = m_RenderEngine->GetDefaultDiffuseTexture();
-	material1->floats["diffIntensity"] = 15.0f;
 
-	MeshMaterial* material2 = m_RenderEngine->GetMaterial("material2");
-	material2->shaderID = m_RenderEngine->GetShaderID("_standardUnlit");
-	material2->texture = m_RenderEngine->GetDefaultDiffuseTexture();
-	material2->floats["diffIntensity"] = 3.0f;
+	MeshMaterial* material1 = m_RenderEngine->GetMaterial("_defaultUnlit");
+	MeshMaterial* material2 = m_RenderEngine->GetMaterial("_defaultLit");
 
 	m_ExampleMeshRenderer.material = material1;
 	m_ExampleMeshTransform.transform.SetLocation(Vector3F(-3, 0, 10));
