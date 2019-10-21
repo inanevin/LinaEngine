@@ -67,8 +67,11 @@ void Example1Level::Initialize()
 	m_ExampleMeshRenderer.vertexArray = m_RenderEngine->LoadModelResource("resources/meshes/cube.obj").GetVertexArray(0);
 	
 	// Get materials.
-	MeshMaterial* material1 = m_RenderEngine->GetMaterial("_defaultUnlit");
-	MeshMaterial* material2 = m_RenderEngine->GetMaterial("_defaultLit");
+	MeshMaterial* material1 = m_RenderEngine->GetMaterial("_defaultLit");
+	MeshMaterial* material2 = m_RenderEngine->GetMaterial("exampleLit");
+	material2->shaderID = m_RenderEngine->GetShaderID("_standardLit");
+	material2->texture = m_RenderEngine->GetDefaultDiffuseTexture();
+	material2->colors["objectColor"] = Color(1.0f, 0.5f, 0.31f);
 
 	// Set entity component settings & create an entity out of them.
 	m_ExampleMeshRenderer.material = material1;

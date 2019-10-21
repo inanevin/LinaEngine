@@ -160,7 +160,7 @@ namespace LinaEngine::Graphics
 		MeshMaterial* matLit = GetMaterial("_defaultLit");
 		matLit->shaderID = GetShaderID("_standardLit");
 		matLit->texture = &m_DefaultDiffuseTexture;
-		matLit->colors["objectColor"] = Colors::Gray;
+		matLit->colors["objectColor"] = Colors::White;
 
 	}
 

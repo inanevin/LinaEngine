@@ -128,6 +128,9 @@ namespace LinaEngine::Graphics
 		// Creates a material & returns a reference to it.
 		LINA_API FORCEINLINE MeshMaterial* GetMaterial(LinaString materialName) { return &(m_Materials[materialName]); };
 
+		// Changes sun direction for procedural skybox.
+		LINA_API FORCEINLINE void ChangeSunDirection(Vector3F direction) { m_SunVector = -direction; }
+
 	public:
 
 		static Vector2F WindowCenter;

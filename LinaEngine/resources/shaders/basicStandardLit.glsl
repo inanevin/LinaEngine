@@ -22,8 +22,8 @@ varying vec2 texCoord0;
 Layout(0) attribute vec3 position;
 Layout(1) attribute vec2 texCoord;
 Layout(2) attribute vec3 normal;
-Layout(4) attribute mat4 mvp;
-Layout(8) attribute mat4 model;
+Layout(4) attribute mat4 model;
+Layout(8) attribute mat4 inverseTransposeModel;
 
 layout (std140, row_major) uniform GlobalMatrices
 {
@@ -38,7 +38,7 @@ void main()
 {
     gl_Position = projection * view * model * vec4(position, 1.0);
 	FragPos = vec3(model * vec4(position,1.0));
-	Normal = mat3(transpose(inverse(model))) * normal;
+	Normal = mat3(inverseTransposeModel) * normal;
     texCoord0 = texCoord;
 }
 

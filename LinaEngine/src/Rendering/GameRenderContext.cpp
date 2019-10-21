@@ -29,22 +29,24 @@ namespace LinaEngine::Graphics
 	{
 		// Add the new matrix to the same pairs, each pair will be drawn once.
 		auto pair = LinaMakePair(&vertexArray, &material);
-		m_MeshRenderBuffer[pair].first.push_back(m_Projection * m_ViewMatrix * transformIn);
-		m_MeshRenderBuffer[pair].second.push_back(transformIn.transpose());
+		LinaGet<0>(m_MeshRenderBuffer[pair]).push_back(transformIn.transpose());
+		LinaGet<1>(m_MeshRenderBuffer[pair]).push_back(transformIn.inverse());
 	}
 
 	void GameRenderContext::Flush()
 	{
 		Texture* currentTexture = nullptr;
 
-		for (LinaMap<LinaPair<VertexArray*, MeshMaterial*>, LinaPair<LinaArray<Matrix>, LinaArray<Matrix>>>::iterator it = m_MeshRenderBuffer.begin(); it != m_MeshRenderBuffer.end(); ++it)
+		for (LinaMap<LinaPair<VertexArray*, MeshMaterial*>, LinaTuple<LinaArray<Matrix>, LinaArray<Matrix>, LinaArray<Matrix>>>::iterator it = m_MeshRenderBuffer.begin(); it != m_MeshRenderBuffer.end(); ++it)
 		{
-			
+			auto modelArray = LinaGet<0>(it->second);
+			auto inverseModelArray = LinaGet<1>(it->second);
+
 			VertexArray* vertexArray = it->first.first;
 			Texture* texture = it->first.second->texture;
-			Matrix* mvps = &it->second.first[0];
-			Matrix* models = &it->second.second[0];
-			size_t numTransforms = it->second.first.size();
+			Matrix* models = &modelArray[0];
+			Matrix* inverseTransposeModels = &inverseModelArray[0];
+			size_t numTransforms = modelArray.size();
 
 			if (numTransforms == 0) continue;
 
@@ -52,8 +54,8 @@ namespace LinaEngine::Graphics
 				m_Shader->SetSampler(m_SamplerName, *texture, *m_Sampler, 0);
 
 			// Update the buffer w/ each transform.
-			vertexArray->UpdateBuffer(4, mvps, numTransforms * sizeof(Matrix));
-			vertexArray->UpdateBuffer(5, models, numTransforms * sizeof(Matrix));
+			vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
+			vertexArray->UpdateBuffer(5, inverseTransposeModels, numTransforms * sizeof(Matrix));
 
 			UpdateShaderData(it->first.second);
 
@@ -61,9 +63,10 @@ namespace LinaEngine::Graphics
 			//this->Draw(*m_Shader, *vertexArray, *m_DrawParams, numTransforms);
 			this->Draw(it->first.second->shaderID, *vertexArray, *m_DrawParams, numTransforms);
 
+
 			// Clear the buffer, or do not if you want a trail of shadows lol.
-			it->second.first.clear();
-			it->second.second.clear();
+			modelArray.clear();
+			inverseModelArray.clear();
 
 		}
 	}

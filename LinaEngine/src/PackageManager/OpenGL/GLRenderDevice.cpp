@@ -753,8 +753,8 @@ namespace LinaEngine::Graphics
 		
 		//SetShader(shader);
 
-		UpdateShaderUniformVector3F(shader, "lightPos", Vector3F(0.0f, 5.0f, 7.0f));
-		UpdateShaderUniformColor(shader, "lightColor", Color(0.3f, 0.0f, 0.0f));
+		UpdateShaderUniformVector3F(shader, "lightPos", Vector3F(0.0f, 2.0f, 7.0f));
+		UpdateShaderUniformColor(shader, "lightColor", Color(1.0f, 1.0f, 1.0f));
 
 		//UpdateShaderUniformVector3F(shader, "lightPos", Vector3F(0.0f, 5.0f, 0.0f));
 		//UpdateShaderUniformVector3F(shader, "pointLight.color", Vector3F(1.0f, 0.0f, 0.0f));
