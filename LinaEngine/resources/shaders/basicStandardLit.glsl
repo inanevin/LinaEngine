@@ -47,11 +47,15 @@ void main()
 layout (std140, row_major) uniform Lights
 {
 	vec4 ambientColor;
+	vec4 cameraPosition;
 	float ambientIntensity;
 };
 
 uniform sampler2D diffuse;
 uniform vec3 objectColor;
+uniform float specularIntensity;
+uniform int specularExponent;
+
 uniform vec3 lightPos;
 uniform vec3 lightColor;
 
@@ -62,14 +66,21 @@ out vec4 fragColor;
 void main()
 {
 	vec3 ambient = vec3(ambientColor.x, ambientColor.y, ambientColor.z) * ambientIntensity;
+	vec3 viewPos = vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
 	
+	//diffuse
 	vec3 norm = normalize(Normal);
 	vec3 lightDir = normalize(lightPos - FragPos);  
-
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec3 diffuse = diff * lightColor;
+	
+	// specular
+	vec3 viewDir = normalize(viewPos - FragPos);
+	vec3 reflectDir = reflect(-lightDir, norm);  
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
+	vec3 specular = specularIntensity * spec * lightColor;  
 
-	vec3 result = (ambient + diffuse ) * objectColor;	
+	vec3 result = (ambient + diffuse + specular) * objectColor;	
 	fragColor = vec4(result, 1.0);
 }
 #endif

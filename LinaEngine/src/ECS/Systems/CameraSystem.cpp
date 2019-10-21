@@ -31,6 +31,7 @@ namespace LinaEngine::ECS
 
 		// Set current camera component.
 		m_CurrentCameraComponent = camera;
+		m_CurrentCameraTransform = transform;
 
 		// Init translation & rotation matrices.
 		Matrix translation = Matrix::Translate(-transform->transform.GetLocation());

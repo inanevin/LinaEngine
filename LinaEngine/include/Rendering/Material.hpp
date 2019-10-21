@@ -33,6 +33,7 @@ namespace LinaEngine::Graphics
 		uint32 shaderID;
 		Texture* texture;
 		LinaMap<LinaString, float> floats;
+		LinaMap<LinaString, int> ints;
 		LinaMap<LinaString, Color> colors;
 	};
 

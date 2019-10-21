@@ -71,6 +71,9 @@ namespace LinaEngine::Graphics
 
 			for (auto const& d : (*data).colors)
 				renderDevice->UpdateShaderUniformColor(data->shaderID, d.first, d.second);
+
+			for (auto const& d : (*data).ints)
+				renderDevice->UpdateShaderUniformInt(data->shaderID, d.first, d.second);
 		}
 	
 

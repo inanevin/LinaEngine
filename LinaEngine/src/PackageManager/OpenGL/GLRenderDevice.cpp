@@ -704,10 +704,14 @@ namespace LinaEngine::Graphics
 		// Get buffer & set data.
 		glBindBuffer(GL_UNIFORM_BUFFER, buffer);
 		glBufferSubData(GL_UNIFORM_BUFFER, offset, dataSize, data);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	}
 
-		//void* dest = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-		//Memory::memcpy(dest, data, dataSize);
-		//glUnmapBuffer(GL_UNIFORM_BUFFER);
+	void GLRenderDevice::UpdateUniformBuffer(uint32 buffer, const void* data, uintptr dataSize)
+	{
+		void* dest = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+		Memory::memcpy(dest, data, dataSize);
+		glUnmapBuffer(GL_UNIFORM_BUFFER);
 	}
 
 	// ---------------------------------------------------------------------

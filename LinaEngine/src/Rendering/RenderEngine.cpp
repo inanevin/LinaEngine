@@ -42,7 +42,7 @@ namespace LinaEngine::Graphics
 #define UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT 0
 #define UNIFORMBUFFER_GLOBALMATRIX_NAME "GlobalMatrices"
 
-#define UNIFORMBUFFER_LIGHTS_SIZE sizeof(float) * 4 + sizeof(float)
+#define UNIFORMBUFFER_LIGHTS_SIZE (sizeof(float) * 9) 
 #define UNIFORMBUFFER_LIGHTS_BINDPOINT 1
 #define UNIFORMBUFFER_LIGHTS_NAME "Lights"
 
@@ -161,13 +161,17 @@ namespace LinaEngine::Graphics
 		matLit->shaderID = GetShaderID("_standardLit");
 		matLit->texture = &m_DefaultDiffuseTexture;
 		matLit->colors["objectColor"] = Colors::White;
+		matLit->floats["specularIntensity"] = 0.8f;
+		matLit->ints["specularExponent"] = 32;
+
+
 
 	}
 
 	void RenderEngine::Tick(float delta)
 	{
 		// Clear color.
-		m_DefaultRenderContext.Clear(m_CameraSystem.GetActiveClearColor(), true);
+		m_DefaultRenderContext.Clear(m_CameraSystem.GetCurrentClearColor(), true);
 
 		// Update view & proj matrices.
 		m_DefaultRenderContext.UpdateViewMatrix(m_CameraSystem.GetViewMatrix());
@@ -200,7 +204,7 @@ namespace LinaEngine::Graphics
 
 		// Update camera system's projection matrix.
 		Vector2F windowSize = m_RenderDevice->GetWindowSize();
-		CameraComponent* activeCameraComponent = m_CameraSystem.GetActiveCameraComponent();
+		CameraComponent* activeCameraComponent = m_CameraSystem.GetCurrentCameraComponent();
 		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 
 	}
@@ -374,10 +378,12 @@ namespace LinaEngine::Graphics
 		Color ambientColor = m_LightingSystem.GetAmbientColor();
 		Vector4F alColor = Vector4F(ambientColor.R(), ambientColor.G(), ambientColor.B(), 1.0f);
 		float alIntensity = m_LightingSystem.GetAmbientIntensity();
+		Vector3F cameraLocation = m_CameraSystem.GetCurrentCameraTransform()->transform.GetLocation();
+		Vector4F viewPos = Vector4F(cameraLocation.GetX(), cameraLocation.GetY(), cameraLocation.GetZ(), 1.0f);
 
 		m_LightsBuffer.Update(&alColor, 0, sizeof(float) * 4);
-		m_LightsBuffer.Update(&alIntensity, sizeof(float) * 4, sizeof(float));
-		
+		m_LightsBuffer.Update(&viewPos, sizeof(float) * 4, sizeof(float) * 4);
+		m_LightsBuffer.Update(&alIntensity, sizeof(float) * 8, sizeof(float));
 	}
 
 	void RenderEngine::ChangeSkyboxRenderType(SkyboxType type)

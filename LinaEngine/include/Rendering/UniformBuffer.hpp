@@ -56,7 +56,8 @@ namespace LinaEngine::Graphics
 		}
 
 		FORCEINLINE void Update(const void* data, uintptr offset, uintptr dataSize) { m_RenderDevice->UpdateUniformBuffer(m_EngineBoundID, data, offset, dataSize); }
-		
+		FORCEINLINE void Update(const void* data,  uintptr dataSize) { m_RenderDevice->UpdateUniformBuffer(m_EngineBoundID, data, dataSize); }
+
 		FORCEINLINE uint32 GetID() { return m_EngineBoundID; }
 
 	private:

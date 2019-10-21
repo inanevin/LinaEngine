@@ -328,8 +328,11 @@ namespace LinaEngine::Graphics
 		// Updates a vertex array buffer by id.
 		void UpdateVertexArrayBuffer(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);
 
-		// Updates a uniform buffer for a shader by id.
+		// Updates a uniform buffer for a shader by id with offset.
 		void UpdateUniformBuffer(uint32 buffer, const void* data, uintptr offset, uintptr dataSize);
+
+		// Updates a uniform buffer for a shader by id without offset.
+		void UpdateUniformBuffer(uint32 buffer, const void* data, uintptr dataSize);
 
 		// Actual drawing process for meshes.
 		void Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements);
