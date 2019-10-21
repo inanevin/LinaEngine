@@ -38,9 +38,13 @@ namespace LinaEngine::Graphics
 	using namespace Physics;
 
 	Vector2F RenderEngine::WindowCenter = Vector2F(0.0f, 0.0f);
-#define UNIFORMBUFFER_GLOBALMATRIX_COUNT 2
+#define UNIFORMBUFFER_GLOBALMATRIX_SIZE sizeof(Matrix) * 2
 #define UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT 0
 #define UNIFORMBUFFER_GLOBALMATRIX_NAME "GlobalMatrices"
+
+#define UNIFORMBUFFER_LIGHTS_SIZE sizeof(float) * 4 + sizeof(float)
+#define UNIFORMBUFFER_LIGHTS_BINDPOINT 1
+#define UNIFORMBUFFER_LIGHTS_NAME "Lights"
 
 	RenderEngine::RenderEngine()
 	{
@@ -86,8 +90,12 @@ namespace LinaEngine::Graphics
 		m_DefaultDiffuseTexture = LoadTextureResource(ResourceConstants::textureFolderPath + "defaultDiffuse.png", PixelFormat::FORMAT_RGB, true, false);
 
 		// Construct the uniform buffer for global matrices.
-		m_GlobalMatrixBuffer.Construct(*m_RenderDevice, sizeof(Matrix) * UNIFORMBUFFER_GLOBALMATRIX_COUNT, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
+		m_GlobalMatrixBuffer.Construct(*m_RenderDevice, UNIFORMBUFFER_GLOBALMATRIX_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
 		m_GlobalMatrixBuffer.Bind(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT);
+
+		// Construct the uniform buffer for lights.
+		m_LightsBuffer.Construct(*m_RenderDevice, UNIFORMBUFFER_LIGHTS_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
+		m_LightsBuffer.Bind(UNIFORMBUFFER_LIGHTS_BINDPOINT);
 
 		// Initialize basic unlit shader.
 		LinaString shaderText;
@@ -101,6 +109,7 @@ namespace LinaEngine::Graphics
 		LinaEngine::Internal::LoadTextFileWithIncludes(shaderText, ResourceConstants::shaderFolderPath + "basicStandardLit.glsl", "#include");
 		ConstructShader("_standardLit", m_StandardLitShader, m_DefaultDiffuseTexture, m_DefaultSampler, shaderText, 0);
 		m_StandardLitShader.BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+		m_StandardLitShader.BindBlockToBuffer(UNIFORMBUFFER_LIGHTS_BINDPOINT, UNIFORMBUFFER_LIGHTS_NAME);
 
 		// Initialize the correct skybox shader depending on the type of sykbox to draw.
 		ChangeSkyboxRenderType(m_SkyboxType);
@@ -146,11 +155,12 @@ namespace LinaEngine::Graphics
 		MeshMaterial* matUnlit = GetMaterial("_defaultUnlit");
 		matUnlit->shaderID = GetShaderID("_standardUnlit");
 		matUnlit->texture = &m_DefaultDiffuseTexture;
-		
+		matUnlit->colors["objectColor"] = Colors::White;
+
 		MeshMaterial* matLit = GetMaterial("_defaultLit");
 		matLit->shaderID = GetShaderID("_standardLit");
 		matLit->texture = &m_DefaultDiffuseTexture;
-		matLit->floats["diffIntensity"] = 15.0f;
+		matLit->colors["objectColor"] = Colors::Gray;
 
 	}
 
@@ -356,8 +366,18 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::UpdateUniformBuffers()
 	{
+		// Update global matrix buffer
 		m_GlobalMatrixBuffer.Update(&m_CameraSystem.GetProjectionMatrix(), 0, sizeof(Matrix));
 		m_GlobalMatrixBuffer.Update(&m_CameraSystem.GetViewMatrix(), sizeof(Matrix), sizeof(Matrix));
+
+		// Update lights buffer.
+		Color ambientColor = m_LightingSystem.GetAmbientColor();
+		Vector4F alColor = Vector4F(ambientColor.R(), ambientColor.G(), ambientColor.B(), 1.0f);
+		float alIntensity = m_LightingSystem.GetAmbientIntensity();
+
+		m_LightsBuffer.Update(&alColor, 0, sizeof(float) * 4);
+		m_LightsBuffer.Update(&alIntensity, sizeof(float) * 4, sizeof(float));
+		
 	}
 
 	void RenderEngine::ChangeSkyboxRenderType(SkyboxType type)

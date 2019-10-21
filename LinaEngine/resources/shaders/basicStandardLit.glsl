@@ -21,6 +21,7 @@ varying vec2 texCoord0;
 #if defined(VS_BUILD)
 Layout(0) attribute vec3 position;
 Layout(1) attribute vec2 texCoord;
+Layout(2) attribute vec3 normal;
 Layout(4) attribute mat4 mvp;
 Layout(8) attribute mat4 model;
 
@@ -29,20 +30,46 @@ layout (std140, row_major) uniform GlobalMatrices
 	mat4 projection;
 	mat4 view;
 };
+
+out vec3 Normal;
+out vec3 FragPos;
+
 void main()
 {
     gl_Position = projection * view * model * vec4(position, 1.0);
+	FragPos = vec3(model * vec4(position,1.0));
+	Normal = mat3(transpose(inverse(model))) * normal;
     texCoord0 = texCoord;
 }
 
 #elif defined(FS_BUILD)
 
+layout (std140, row_major) uniform Lights
+{
+	vec4 ambientColor;
+	float ambientIntensity;
+};
+
 uniform sampler2D diffuse;
+uniform vec3 objectColor;
+uniform vec3 lightPos;
+uniform vec3 lightColor;
+
+in vec3 Normal;
+in vec3 FragPos;
 out vec4 fragColor;
-uniform float diffIntensity;
 
 void main()
 {
-	fragColor = texture2D(diffuse, texCoord0) * diffIntensity;
+	vec3 ambient = vec3(ambientColor.x, ambientColor.y, ambientColor.z) * ambientIntensity;
+	
+	vec3 norm = normalize(Normal);
+	vec3 lightDir = normalize(lightPos - FragPos);  
+
+	float diff = max(dot(norm, lightDir), 0.0);
+	vec3 diffuse = diff * lightColor;
+
+	vec3 result = (ambient + diffuse ) * objectColor;	
+	fragColor = vec4(result, 1.0);
 }
 #endif

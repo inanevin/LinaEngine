@@ -753,12 +753,9 @@ namespace LinaEngine::Graphics
 		
 		//SetShader(shader);
 
-		//UpdateShaderUniformMatrix(shader, "view", view);
-		//UpdateShaderUniformMatrix(shader, "projection", proj);
+		UpdateShaderUniformVector3F(shader, "lightPos", Vector3F(0.0f, 5.0f, 7.0f));
+		UpdateShaderUniformColor(shader, "lightColor", Color(0.3f, 0.0f, 0.0f));
 
-		//Color ambientLightColor = m_LightingSystem->GetAmbientLight().color;
-		//UpdateShaderUniformVector3F(shader, "ambientLight.color", Vector3F(ambientLightColor.R(), ambientLightColor.G(), ambientLightColor.B()));
-		//UpdateShaderUniformFloat(shader, "ambientLight.intensity", m_LightingSystem->GetAmbientLight().intensity);
 		//UpdateShaderUniformVector3F(shader, "lightPos", Vector3F(0.0f, 5.0f, 0.0f));
 		//UpdateShaderUniformVector3F(shader, "pointLight.color", Vector3F(1.0f, 0.0f, 0.0f));
 		//UpdateShaderUniformFloat(shader, "pointLight.intensity", 1.0f);
@@ -975,7 +972,6 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::UpdateShaderUniformFloat(uint32 shader, const LinaString& uniform, const float f)
 	{
-		SetShader(shader);
 		glUniform1f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)f);
 	}
 

@@ -49,9 +49,8 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Set the default cubemap skybox.
-	m_RenderEngine->ChangeSkyboxRenderType(RenderEngine::SkyboxType::Gradient);
-	m_RenderEngine->SetSingleColorSkyboxColor(Colors::Red);
-	m_RenderEngine->SetGradientSkyboxColors(Colors::Black, Colors::LightBlue);
+	m_RenderEngine->ChangeSkyboxRenderType(RenderEngine::SkyboxType::Procedural);
+	m_RenderEngine->SetGradientSkyboxColors(Colors::Black, Colors::DarkBlue);
 
 	// Disable default scene camera.
 	m_RenderEngine->DefaultSceneCameraActivation(false);
@@ -65,25 +64,29 @@ void Example1Level::Initialize()
 	m_SceneCamera = m_ECS->MakeEntity(m_SceneCameraComponent, m_CameraTransformComponent, freeLookComponent);
 
 	// Create an example mesh.
-	m_ExampleMeshRenderer.vertexArray = m_RenderEngine->LoadModelResource("resources/meshes/linalogo.fbx").GetVertexArray(0);
+	m_ExampleMeshRenderer.vertexArray = m_RenderEngine->LoadModelResource("resources/meshes/cube.obj").GetVertexArray(0);
 	
-
+	// Get materials.
 	MeshMaterial* material1 = m_RenderEngine->GetMaterial("_defaultUnlit");
 	MeshMaterial* material2 = m_RenderEngine->GetMaterial("_defaultLit");
 
+	// Set entity component settings & create an entity out of them.
 	m_ExampleMeshRenderer.material = material1;
 	m_ExampleMeshTransform.transform.SetLocation(Vector3F(-3, 0, 10));
 	m_ExampleMesh = m_ECS->MakeEntity(m_ExampleMeshTransform, m_ExampleMeshRenderer);
 	
+	// Set entity component settings & create an entity out of them.
 	m_ExampleMeshRenderer.material = material2;
 	m_ExampleMeshTransform.transform.SetLocation(Vector3F(3, 0, 10));
 	m_ExampleMesh2 = m_ECS->MakeEntity(m_ExampleMeshTransform, m_ExampleMeshRenderer);
 
-	m_ECS->GetComponent<TransformComponent>(m_ExampleMesh)->transform.GetLocation().Print();
+	// Set ambient intensity.
+	m_RenderEngine->SetAmbientLightIntensity(0.1f);
 
 	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem(*m_InputEngine);
 	level1Systems.AddSystem(*ecsFreeLookSystem);
+
 }
 
 

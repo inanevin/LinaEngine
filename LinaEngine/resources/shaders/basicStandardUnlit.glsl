@@ -38,10 +38,11 @@ void main()
 #elif defined(FS_BUILD)
 
 uniform sampler2D diffuse;
+uniform vec3 objectColor;
 out vec4 fragColor;
 
 void main()
 {
-	fragColor = texture2D(diffuse, texCoord0);
+	fragColor = texture2D(diffuse, texCoord0) * vec4(objectColor, 1.0f);
 }
 #endif

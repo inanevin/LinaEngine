@@ -71,11 +71,17 @@ namespace LinaEngine::Graphics
 			m_RenderDevice->SetMainWindowEventCallback(callback);
 		}
 
-		// Sets the current active ambient light in the level.
-		FORCEINLINE void SetAmbientLight(AmbientLightComponent light)
-		{
-			m_LightingSystem.SetAmbientLight(light);
-		}
+		// Sets the ambient light color.
+		FORCEINLINE void SetAmbientLightColor(LinaEngine::Color color) { m_LightingSystem.SetAmbientColor(color); }
+
+		// Sets the ambient light intensity.
+		FORCEINLINE void SetAmbientLightIntensity(float intensity) { m_LightingSystem.SetAmbientIntensity(intensity); }
+
+		// Gets ambient light color.
+		FORCEINLINE LinaEngine::Color GetAmbientLightColor() { return m_LightingSystem.GetAmbientColor(); }
+
+		// Gets ambient light intensity.
+		FORCEINLINE float GetAmbientLightIntensity() { return m_LightingSystem.GetAmbientIntensity(); }
 
 		// Initialize the render renderEngine.
 		void Initialize(EntityComponentSystem* ecsIn);
@@ -247,6 +253,9 @@ namespace LinaEngine::Graphics
 
 		// Buffer for global matrices
 		UniformBuffer m_GlobalMatrixBuffer;
+
+		// Buffer for lights.
+		UniformBuffer m_LightsBuffer;
 
 		// Material storage
 		LinaMap<LinaString, MeshMaterial> m_Materials;

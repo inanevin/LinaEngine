@@ -64,10 +64,13 @@ namespace LinaEngine::Graphics
 
 		FORCEINLINE void UpdateShaderData(MeshMaterial* data)
 		{
+			renderDevice->SetShader(data->shaderID);
+
 			for (auto const& d : (*data).floats)
-			{
 				renderDevice->UpdateShaderUniformFloat(data->shaderID, d.first, d.second);
-			}
+
+			for (auto const& d : (*data).colors)
+				renderDevice->UpdateShaderUniformColor(data->shaderID, d.first, d.second);
 		}
 	
 

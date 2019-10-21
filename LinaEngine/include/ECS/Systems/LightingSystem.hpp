@@ -28,6 +28,7 @@ Timestamp: 5/13/2019 12:49:19 AM
 #include "Rendering/Shader.hpp"
 #include "Rendering/Lighting.hpp"
 
+
 using namespace LinaEngine::Graphics;
 
 namespace LinaEngine::ECS
@@ -48,16 +49,6 @@ namespace LinaEngine::ECS
 			m_RenderDevice = &renderDeviceIn;
 		}
 
-		FORCEINLINE void SetAmbientLight(AmbientLightComponent ambientLight)
-		{
-			m_AmbientLight = ambientLight;
-		}
-
-		FORCEINLINE AmbientLightComponent GetAmbientLight()
-		{
-			return m_AmbientLight;
-		}
-
 		FORCEINLINE Vector3F GetCameraPosition()
 		{
 			return m_CameraPosition;
@@ -67,6 +58,11 @@ namespace LinaEngine::ECS
 		{
 			m_CameraPosition = pos;
 		}
+
+		FORCEINLINE void SetAmbientIntensity(float intensity) { m_AmbientLight.intensity = intensity; }
+		FORCEINLINE void SetAmbientColor(Color color) { m_AmbientLight.color = color; }
+		FORCEINLINE float GetAmbientIntensity() { return m_AmbientLight.intensity; }
+		FORCEINLINE Color GetAmbientColor() { return m_AmbientLight.color; }
 
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
 
