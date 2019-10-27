@@ -159,11 +159,16 @@ namespace LinaEngine::Graphics
 			// Emplace into map.
 			m_LoadedMaterials.emplace(materialName, std::move(newMaterial));
 
+			// Set pointer that was sent in.
 			if (refPointer != nullptr)
 				*refPointer = &m_LoadedMaterials[materialName];
 		}
 		else
 		{
+			// Set pointer that was sent in.
+			if (refPointer != nullptr)
+				* refPointer = &m_LoadedMaterials[materialName];
+
 			// Abort if material exists.
 			LINA_CORE_ERR("Material with the name {0} already exists, aborting...", materialName);
 			return;
