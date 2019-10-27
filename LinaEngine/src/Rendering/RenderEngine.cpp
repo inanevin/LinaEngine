@@ -277,9 +277,17 @@ namespace LinaEngine::Graphics
 			// Move into the map.
 			m_LoadedMeshes.emplace(meshName, std::move(mesh));
 
+			// Set pointer that was sent in.
+			if (refPointer != nullptr)
+				* refPointer = &m_LoadedMeshes[meshName];
+
 		}
 		else
 		{
+			// Set pointer that was sent in.
+			if (refPointer != nullptr)
+				* refPointer = &m_LoadedMeshes[meshName];
+
 			// Mesh with this name already exists!
 			LINA_CORE_ERR("Mesh with the name {0} already exists, aborting...", meshName);
 			return;
@@ -290,9 +298,26 @@ namespace LinaEngine::Graphics
 	void RenderEngine::CreateShader(const std::string& shaderName, const std::string& shaderText, Shader** refPointer = nullptr)
 	{
 		if (!ShaderExists(shaderName))
-			m_LoadedShaders[shaderName].Construct(m_RenderDevice, shaderText);
+		{
+			// Create shader
+			Shader shader;
+			shader.Construct(m_RenderDevice, shaderText);
+
+			// Move into map.
+			m_LoadedShaders.emplace(shaderName, std::move(shader));
+
+			// Set pointer that was sent in.
+			if (refPointer != nullptr)
+				* refPointer = &m_LoadedShaders[shaderName];
+
+		}
 		else
 		{
+
+			// Set pointer that was sent in.
+			if (refPointer != nullptr)
+				* refPointer = &m_LoadedShaders[shaderName];
+
 			// Shader with this name already exists!
 			LINA_CORE_ERR("Shader with the name {0} already exists, aborting...", shaderName);
 			return;
