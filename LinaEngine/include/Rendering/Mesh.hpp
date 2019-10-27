@@ -38,16 +38,7 @@ namespace LinaEngine::Graphics
 
 		Mesh() {};
 
-		FORCEINLINE ~Mesh()
-		{
-			for (uint32 i = 0; i < m_VertexArrays.size(); i++)
-				delete m_VertexArrays[i];
-
-			m_VertexArrays.clear();
-			m_IndexedModelArray.clear();
-			m_MaterialSpecArray.clear();
-			m_MaterialIndexArray.clear();
-		};
+		~Mesh();
 
 		FORCEINLINE VertexArray* GetVertexArray(uint32 index)
 		{

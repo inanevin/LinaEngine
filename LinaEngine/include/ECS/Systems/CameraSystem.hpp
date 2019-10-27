@@ -36,7 +36,7 @@ namespace LinaEngine
 
 namespace LinaEngine::ECS
 {
-	class TransformComponent;
+	struct TransformComponent;
 	struct CameraComponent;
 
 	class CameraSystem : public BaseECSSystem

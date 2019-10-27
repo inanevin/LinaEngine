@@ -69,7 +69,8 @@ set (LINAENGINE_SOURCES
 	src/Rendering/RenderEngine.cpp
 	src/Rendering/RenderContext.cpp
 	src/Rendering/ShaderConstants.cpp
-
+	src/Rendering/Mesh.cpp
+	
 	#Physics
 	src/Physics/PhysicsEngine.cpp
 	src/Physics/PhysicsInteractionWorld.cpp
