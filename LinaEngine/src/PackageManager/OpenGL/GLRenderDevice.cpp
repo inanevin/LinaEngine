@@ -136,7 +136,7 @@ namespace LinaEngine::Graphics
 	}
 
 
-	void GLRenderDevice::Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn, float width, float height)
+	void GLRenderDevice::Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn, int width, int height)
 	{
 		// Struct fbo data.
 		struct FBOData fboWindowData;

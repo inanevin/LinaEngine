@@ -19,6 +19,7 @@ Timestamp: 1/2/2019 1:43:13 AM
 
 #include "LinaPch.hpp"
 #include "Core/LayerStack.hpp"  
+#include "Core/Layer.hpp"
 
 namespace LinaEngine
 {

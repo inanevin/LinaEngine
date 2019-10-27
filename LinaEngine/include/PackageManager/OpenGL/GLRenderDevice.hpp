@@ -79,7 +79,7 @@ namespace LinaEngine::Graphics
 		~GLRenderDevice();
 
 		// Initializes the devices & params.
-		void Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn, float width, float height);
+		void Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn, int width, int height);
 
 		// Creates a texture on GL.
 		uint32 CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress);
