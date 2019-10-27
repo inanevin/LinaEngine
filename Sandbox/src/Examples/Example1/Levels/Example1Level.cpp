@@ -18,10 +18,12 @@ Timestamp: 5/6/2019 9:22:56 PM
 
 */
 
-#include "..\..\..\..\include\Examples\Example1\Levels\Example1Level.hpp"
+#include "Examples/Example1/Levels/Example1Level.hpp"
+#include "Rendering/ShaderConstants.hpp"
 #include "ECS/Systems/FreeLookSystem.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Core/Application.hpp"
+#include "Rendering/Material.hpp"
 
 /*ECSSystemList level1Systems;
 FreeLookSystem* ecsFreeLookSystem;
@@ -34,6 +36,10 @@ EntityHandle m_ExampleMesh2;
 TransformComponent m_ExampleMeshTransform;
 MeshRendererComponent m_ExampleMeshRenderer;
 */
+
+using namespace LinaEngine::Graphics;
+
+Material* skyboxMaterial = nullptr;
 
 Example1Level::~Example1Level()
 {
@@ -50,6 +56,10 @@ void Example1Level::Install()
 void Example1Level::Initialize()
 {
 	LINA_CLIENT_WARN("Example level 1 initialize.");
+
+	m_RenderEngine->CreateMaterial("skyboxMaterial", LinaEngine::Graphics::ShaderConstants::skyboxSingleColorShader, &skyboxMaterial);
+	skyboxMaterial->SetColor("material.color", Colors::LightBlue);
+	m_RenderEngine->SetSkyboxMaterial("skyboxMaterial");
 /*
 	// Set the default cubemap skybox.
 	m_RenderEngine->CreateMaterial("skyboxMaterial", ResourceConstants::skyboxSingleColorShader);

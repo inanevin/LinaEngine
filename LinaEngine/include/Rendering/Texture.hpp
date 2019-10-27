@@ -37,8 +37,6 @@ namespace LinaEngine::Graphics
 
 	public:
 
-		friend class RenderEngine;
-	
 		Texture() {};
 		~Texture();
 

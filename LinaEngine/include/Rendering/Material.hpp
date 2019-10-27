@@ -141,8 +141,7 @@ namespace LinaEngine::Graphics
 		std::map<std::string, Vector4F> vector4s;
 		std::map<std::string, Matrix> matrices;;
 
-		
-
+	
 	};
 
 	struct ModelMaterial

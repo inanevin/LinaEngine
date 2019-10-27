@@ -148,7 +148,7 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void RenderEngine::CreateMaterial(const std::string& materialName, const std::string& shaderName)
+	void RenderEngine::CreateMaterial(const std::string& materialName, const std::string& shaderName, Material** refPointer)
 	{
 		if (!MaterialExists(materialName))
 		{
@@ -156,9 +156,11 @@ namespace LinaEngine::Graphics
 			Material newMaterial;
 			SetMaterialShader(newMaterial, shaderName);
 
-			//m_LoadedMaterials.insert(std::pair<std::string, Material>(materialName, newMaterial));
+			// Emplace into map.
+			m_LoadedMaterials.emplace(materialName, std::move(newMaterial));
 
-			std::cout << m_LoadedMaterials.at(materialName).shaderID << std::endl;
+			if (refPointer != nullptr)
+				*refPointer = &m_LoadedMaterials[materialName];
 		}
 		else
 		{
@@ -176,8 +178,12 @@ namespace LinaEngine::Graphics
 			ArrayBitmap* textureBitmap = new ArrayBitmap();
 			textureBitmap->Load(filePath);
 
-			// Load texture w/ bitmap data.
-			m_LoadedTextures[textureName].Construct(m_RenderDevice, *textureBitmap, pixelFormat, generateMipmaps, compress);
+			// Create texture out of the pixel data.
+			Texture texture;
+			texture.Construct(m_RenderDevice, *textureBitmap, pixelFormat, generateMipmaps, compress);
+
+			// Move into the map.
+			m_LoadedTextures.emplace(textureName, std::move(texture));
 
 			// Delete pixel data.
 			delete textureBitmap;
@@ -492,6 +498,14 @@ namespace LinaEngine::Graphics
 		{
 			material.ints["material.diffuse"] = 0;
 		}
+	}
+
+	void RenderEngine::SetSkyboxMaterial(const std::string& materialName)
+	{
+		if (MaterialExists(materialName))
+			SetSkyboxMaterial(m_LoadedMaterials[materialName]);
+		else
+			LINA_CORE_ERR("Material with the name {0} does not exists! Aborting...", materialName);
 	}
 
 

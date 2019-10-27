@@ -117,7 +117,7 @@ namespace LinaEngine::Graphics
 		void OnWindowResized(float width, float height);
 
 		// Creates a material resource with a specific shader.
-		 void CreateMaterial(const std::string& materialName, const std::string& shaderName);
+		 void CreateMaterial(const std::string& materialName, const std::string& shaderName, Material** refPointer = nullptr);
 
 		// Creates a texture resource.
 		 void CreateTexture(const std::string& textureName, const std::string& filePath, PixelFormat pixelFormat = PixelFormat::FORMAT_RGB, bool generateMipmaps = true, bool compress = false);
@@ -162,7 +162,8 @@ namespace LinaEngine::Graphics
 		 void SetMaterialShader(Material& material, const std::string& shaderName);
 
 		// Sets the skybox material.
-		 FORCEINLINE void SetSkyboxMaterial(Material& skyboxMaterial) { m_SkyboxMaterial = &skyboxMaterial; }
+		FORCEINLINE void SetSkyboxMaterial(Material& skyboxMaterial) { m_SkyboxMaterial = &skyboxMaterial; }
+		void SetSkyboxMaterial(const std::string& materialName);
 
 
 	private:
