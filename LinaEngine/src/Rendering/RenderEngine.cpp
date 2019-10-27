@@ -175,7 +175,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void RenderEngine::CreateTexture(const std::string& textureName, const std::string& filePath, PixelFormat pixelFormat , bool generateMipmaps, bool compress, Texture** refPointer = nullptr)
+	void RenderEngine::CreateTexture(const std::string& textureName, const std::string& filePath, PixelFormat pixelFormat , bool generateMipmaps, bool compress, Texture** refPointer)
 	{
 		if (!TextureExists(textureName))
 		{
@@ -209,7 +209,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void RenderEngine::CreateTexture(const std::string& textureName, const std::string filePaths[6], PixelFormat pixelFormat , bool generateMipmaps, bool compress, Texture** refPointer = nullptr)
+	void RenderEngine::CreateTexture(const std::string& textureName, const std::string filePaths[6], PixelFormat pixelFormat , bool generateMipmaps, bool compress, Texture** refPointer)
 	{
 		if (!TextureExists(textureName))
 		{
@@ -252,7 +252,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void RenderEngine::CreateMesh(const std::string& meshName, const std::string& filePath, Mesh** refPointer = nullptr)
+	void RenderEngine::CreateMesh(const std::string& meshName, const std::string& filePath, Mesh** refPointer)
 	{
 		if (!MeshExists(meshName))
 		{
@@ -295,7 +295,7 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void RenderEngine::CreateShader(const std::string& shaderName, const std::string& shaderText, Shader** refPointer = nullptr)
+	void RenderEngine::CreateShader(const std::string& shaderName, const std::string& shaderText, Shader** refPointer)
 	{
 		if (!ShaderExists(shaderName))
 		{
