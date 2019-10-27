@@ -223,8 +223,12 @@ namespace LinaEngine::Graphics
 				bitmaps.push_back(faceBitmap);
 			}
 
-			// Create texture.
-			m_LoadedTextures[textureName].Construct(m_RenderDevice, bitmaps, PixelFormat::FORMAT_RGB, true, false);
+			// Create texture out of the pixel data.
+			Texture texture;
+			texture.Construct(m_RenderDevice, bitmaps, PixelFormat::FORMAT_RGB, true, false);
+
+			// Move into the map.
+			m_LoadedTextures.emplace(textureName, std::move(texture));
 
 			// Set pointer that was sent in.
 			if (refPointer != nullptr)
@@ -266,6 +270,8 @@ namespace LinaEngine::Graphics
 				vertexArray->Construct(m_RenderDevice, m_LoadedMeshes[meshName].GetIndexedModels()[i], BufferUsage::USAGE_STATIC_DRAW);
 				m_LoadedMeshes[meshName].GetVertexArrays().push_back(vertexArray);
 			}
+
+
 
 		}
 		else
