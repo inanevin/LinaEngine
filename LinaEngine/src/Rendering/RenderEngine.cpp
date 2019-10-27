@@ -256,22 +256,26 @@ namespace LinaEngine::Graphics
 	{
 		if (!MeshExists(meshName))
 		{
+			// Create mesh.
+			Mesh mesh;
+			
 			// Create object data & feed it from model.
-			ModelLoader::LoadModels(filePath , m_LoadedMeshes[meshName].GetIndexedModels(), m_LoadedMeshes[meshName].GetMaterialIndices(), m_LoadedMeshes[meshName].GetMaterialSpecs());
+			ModelLoader::LoadModels(filePath , mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs());
 
-			if (m_LoadedMeshes[meshName].GetIndexedModels().size() == 0)
+			if (mesh.GetIndexedModels().size() == 0)
 				LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! This will cause undefined behaviour or crashes if it is assigned to a ECS MeshRendererComponent."
 					, filePath);
 
 			// Create vertex array for each mesh.
-			for (uint32 i = 0; i < m_LoadedMeshes[meshName].GetIndexedModels().size(); i++)
+			for (uint32 i = 0; i < mesh.GetIndexedModels().size(); i++)
 			{
 				VertexArray* vertexArray = new VertexArray();
 				vertexArray->Construct(m_RenderDevice, m_LoadedMeshes[meshName].GetIndexedModels()[i], BufferUsage::USAGE_STATIC_DRAW);
-				m_LoadedMeshes[meshName].GetVertexArrays().push_back(vertexArray);
+				mesh.GetVertexArrays().push_back(vertexArray);
 			}
 
-
+			// Move into the map.
+			m_LoadedMeshes.emplace(meshName, std::move(mesh));
 
 		}
 		else
