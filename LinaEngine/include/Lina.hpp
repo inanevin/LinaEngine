@@ -23,14 +23,7 @@ Timestamp: 12/29/2018 11:21:31 PM
 
 
 // To be used by Lina applications.
-
-
-#include "Core/Application.hpp"
-#include "Utility/Log.hpp"
-
-
-
-
+#include "Core/Layer.hpp"
 
 // *********** ENTRY POINT *********** 
 #include "EntryPoint.hpp"

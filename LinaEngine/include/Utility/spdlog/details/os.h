@@ -117,13 +117,13 @@ inline std::tm gmtime() SPDLOG_NOEXCEPT
 #endif
 #endif
 
-SPDLOG_CONSTEXPR static const char *default_eol = SPDLOG_EOL;
+SPDLOG_constexpr static const char *default_eol = SPDLOG_EOL;
 
 // folder separator
 #ifdef _WIN32
-SPDLOG_CONSTEXPR static const char folder_sep = '\\';
+SPDLOG_constexpr static const char folder_sep = '\\';
 #else
-SPDLOG_CONSTEXPR static const char folder_sep = '/';
+SPDLOG_constexpr static const char folder_sep = '/';
 #endif
 
 inline void prevent_child_fd(FILE *f)

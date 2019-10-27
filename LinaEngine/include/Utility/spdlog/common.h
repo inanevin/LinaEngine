@@ -30,10 +30,10 @@
 // visual studio upto 2013 does not support noexcept nor constexpr
 #if defined(_MSC_VER) && (_MSC_VER < 1900)
 #define SPDLOG_NOEXCEPT throw()
-#define SPDLOG_CONSTEXPR
+#define SPDLOG_constexpr
 #else
 #define SPDLOG_NOEXCEPT noexcept
-#define SPDLOG_CONSTEXPR constexpr
+#define SPDLOG_constexpr constexpr
 #endif
 
 #if defined(__GNUC__) || defined(__clang__)
@@ -207,20 +207,20 @@ using filename_t = std::string;
 
 struct source_loc
 {
-    SPDLOG_CONSTEXPR source_loc()
+    SPDLOG_constexpr source_loc()
         : filename{""}
         , line{0}
         , funcname{""}
     {
     }
-    SPDLOG_CONSTEXPR source_loc(const char *filename_in, int line_in, const char *funcname_in)
+    SPDLOG_constexpr source_loc(const char *filename_in, int line_in, const char *funcname_in)
         : filename{filename_in}
         , line{static_cast<uint32_t>(line_in)}
         , funcname{funcname_in}
     {
     }
 
-    SPDLOG_CONSTEXPR bool empty() const SPDLOG_NOEXCEPT
+    SPDLOG_constexpr bool empty() const SPDLOG_NOEXCEPT
     {
         return line == 0;
     }

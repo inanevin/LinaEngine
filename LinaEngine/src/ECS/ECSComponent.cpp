@@ -28,11 +28,11 @@ namespace LinaEngine::ECS
 	{
 		if (componentTypes == nullptr)
 		{
-			componentTypes = new LinaArray<LinaTuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>>();
+			componentTypes = new LinaArray<std::tuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>>();
 		}
 
 		uint32 componentID = componentTypes->size();
-		componentTypes->push_back(LinaTuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>(createfn, freefn, size));
+		componentTypes->push_back(std::tuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>(createfn, freefn, size));
 		return componentID;
 	}
 }

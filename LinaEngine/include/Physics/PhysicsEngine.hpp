@@ -42,7 +42,7 @@ namespace LinaEngine::Physics
 		~PhysicsEngine();
 
 		// Initializes the physics engine.
-		void Initialize(EntityComponentSystem* ecsIn);
+		void Initialize(EntityComponentSystem& ecsIn);
 
 		// Update physics systems.
 		void Tick(float fixedDelta);
@@ -57,6 +57,8 @@ namespace LinaEngine::Physics
 
 		// ECS reference.
 		EntityComponentSystem* ECS;
+
+		DISALLOW_COPY_AND_ASSIGN(PhysicsEngine);
 
 	};
 }

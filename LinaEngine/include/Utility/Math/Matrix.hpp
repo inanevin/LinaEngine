@@ -30,120 +30,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 namespace LinaEngine
 {
-
-
-	/*
-	class LINA_API Matrix4F
-	{
-	public:
-
-		Matrix4F() {};
-		Matrix4F(const Matrix4F& r);
-
-		Matrix4F InitIdentityMatrix();
-		Matrix4F InitScaleTransform(float x, float y, float z);
-		Matrix4F InitTranslationTransform(float x, float y, float z);
-		Matrix4F InitRotationTransform(float xR, float yR, float zR);
-		Matrix4F InitRotationTransform(const Quaternion& quat);
-		Matrix4F InitRotationFromVectors(const Vector3F&, const Vector3F&, const Vector3F&);
-		Matrix4F InitRotationFromDirection(const Vector3F& forward, const Vector3F& up);
-		Matrix4F InitPerspectiveProjection(float FOV, float width, float height, float zNear, float zFar);
-		Matrix4F InitOrto(float left, float right, float bot, float top, float nr, float);
-		static Matrix4F TransformMatrix(const Vector3F& translation, const Quaternion& rotation, const Vector3F& scale);
-		Matrix4F Transpose() const;
-
-		Vector4F Transform(const Vector4F& rhs) const;
-		Vector Transform(const Vector& rhs) const;
-
-		Matrix4F Inverse() const;
-
-		inline const float* operator[](int index) const { return m[index]; }
-		inline float* operator[](int index) { return m[index]; }
-
-
-		inline Matrix4F operator*(const Matrix4F& rhs) const
-		{
-			Matrix4F Ret;
-			for (unsigned int i = 0; i < 4; i++) {
-				for (unsigned int j = 0; j < 4; j++) {
-
-					Ret.m[i][j] = m[i][0] * rhs.m[0][j] +
-						m[i][1] * rhs.m[1][j] +
-						m[i][2] * rhs.m[2][j] +
-						m[i][3] * rhs.m[3][j];
-				}
-			}
-
-			return Ret;
-		}
-
-		inline float GetElement(int x, int y) const
-		{
-			return this->m[x][y];
-		}
-
-		inline void SetElement(int x, int y, float val)
-		{
-			this->m[x][y] = val;
-		}
-
-		inline std::string ToString()
-		{
-			std::stringstream ss;
-			ss << std::endl << " " << m[0][0] << " " << m[0][1] << " " << m[0][2] << " " << m[0][3] << std::endl;
-			ss << " " << m[1][0] << " " << m[1][1] << " " << m[1][2] << " " << m[1][3] << std::endl;
-			ss << " " << m[2][0] << " " << m[2][1] << " " << m[2][2] << " " << m[2][3] << std::endl;
-			ss << " " << m[3][0] << " " << m[3][1] << " " << m[3][2] << " " << m[3][3] << std::endl;
-
-			return ss.str();
-		}
-
-		float m[4][4];
-
-	private:
-
-		
-	};
-
-
-	class Matrix3F
-	{
-	public:
-
-		Matrix3F() {};
-		Matrix3F(const Matrix3F& r);
-
-		Matrix3F InitIdentityMatrix();
-		Matrix3F InitScale(const Vector3F& rhs);
-		Matrix3F InitTranslation(const Vector3F& rhs);
-		Matrix3F Transpose() const;
-
-		Vector4F Transform(const Vector4F& rhs) const;
-
-		Matrix3F Inverse() const;
-
-		inline const float* operator[](int index) const { return m[index]; }
-		inline float* operator[](int index) { return m[index]; }
-
-		inline Matrix3F operator*(const Matrix3F& rhs) const
-		{
-			Matrix3F ret;
-			for (unsigned int i = 0; i < 3; i++)
-			{
-				for (unsigned int j = 0; j < 3; j++)
-				{
-					ret.m[i][j] = 0.0f;
-					for (unsigned int k = 0; k < 3; k++)
-						ret.m[i][j] += m[k][j] * rhs.m[i][k];
-				}
-			}
-			return ret;
-		}
-
-		float m[3][3];
-	};
-	*/
-
 	class Matrix
 	{
 	public:
@@ -189,15 +75,12 @@ namespace LinaEngine
 		Quaternion getRotation() const;
 		FORCEINLINE Vector getTranslation() const;
 
-
-
-
 		FORCEINLINE Vector operator[](uint32 index) const {
 			LINA_CORE_ASSERT(index < 4);
 			return m[index];
 		}
 	private:
-		Vector m[4];
+		Vector m[4] = { VectorConstants::ZERO };
 	};
 
 	FORCEINLINE Matrix Matrix::identity()

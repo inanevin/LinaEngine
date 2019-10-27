@@ -20,7 +20,7 @@ Timestamp: 1/7/2019 1:55:47 PM
 #include "LinaPch.hpp"
 #include "Rendering/Texture.hpp"  
 #include "Rendering/ArrayBitmap.hpp"
-
+#include "Rendering/DDSTexture.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -29,8 +29,7 @@ namespace LinaEngine::Graphics
 		m_ID = renderDevice->ReleaseTexture2D(m_ID);
 	}
 
-
-	void Texture::Construct(PAMRenderDevice & deviceIn, const ArrayBitmap & data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress)
+	void Texture::Construct(RenderDevice & deviceIn, const ArrayBitmap & data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress)
 	{
 		renderDevice = &deviceIn;
 		m_ID = renderDevice->CreateTexture2D(data.GetWidth(), data.GetHeight(), data.GetPixelArray(), PixelFormat::FORMAT_RGBA, internalPixelFormat, generateMipMaps, shouldCompress);
@@ -40,7 +39,7 @@ namespace LinaEngine::Graphics
 		hasMipMaps = generateMipMaps;
 	}
 
-	void Texture::Construct(PAMRenderDevice & deviceIn, const DDSTexture & ddsTexture)
+	void Texture::Construct(RenderDevice & deviceIn, const DDSTexture & ddsTexture)
 	{
 		renderDevice = &deviceIn;
 		m_ID = renderDevice->CreateDDSTexture2D(ddsTexture.GetWidth(), ddsTexture.GetHeight(), ddsTexture.GetBuffer(), ddsTexture.GetFourCC(), ddsTexture.GetMipMapCount());
@@ -50,7 +49,7 @@ namespace LinaEngine::Graphics
 		hasMipMaps = ddsTexture.GetMipMapCount() > 1;
 	}
 
-	void Texture::Construct(PAMRenderDevice & deviceIn, const LinaArray<ArrayBitmap*>& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress)
+	void Texture::Construct(RenderDevice & deviceIn, const LinaArray<ArrayBitmap*>& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress)
 	{
 		if (data.size() != 6)
 		{
@@ -72,7 +71,7 @@ namespace LinaEngine::Graphics
 		hasMipMaps = generateMipMaps;
 
 		cubeMapData.clear();
-	
+
 	}
 
 

@@ -12,22 +12,19 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: ResourceConstants
-Timestamp: 1/5/2019 1:39:45 PM
+Class: InputCommon.hpp
+Timestamp: 4/14/2019 5:15:15 PM
 
 */
 
-#include "LinaPch.hpp"
-#include "Utility/ResourceConstants.hpp"
+#ifndef InputCommon_HPP
+#define InputCommon_HPP
 
-namespace LinaEngine
+namespace LinaEngine::Input
 {
+	// Cursor Modes
+	enum CursorMode { Visible, Hidden, Disabled };
 
-
-#define LINA_RESOURCESPATH "Resources\\"
-
-	LinaString& ResourceConstants::shaderFolderPath = LinaString("resources/shaders/");
-	LinaString& ResourceConstants::textureFolderPath = LinaString("resources/textures/");
-	LinaString& ResourceConstants::meshFolderPath = LinaString("resources/meshes/");
 }
 
+#endif

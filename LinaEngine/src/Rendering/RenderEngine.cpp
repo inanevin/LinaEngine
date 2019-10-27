@@ -19,42 +19,34 @@ Timestamp: 4/27/2019 11:18:07 PM
 
 #include "LinaPch.hpp"
 #include "Rendering/RenderEngine.hpp"
-#include "Utility/Math/Color.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/ModelLoader.hpp"
-#include "Utility/ResourceConstants.hpp"
-#include "ECS/Components/MeshRendererComponent.hpp"
-#include "ECS/Systems/MeshRendererSystem.hpp"
-#include "PackageManager/PAMInputEngine.hpp"
-#include "Core/Application.hpp"
+#include "Rendering/ShaderConstants.hpp"
+#include "Rendering/Shader.hpp"
+#include "Rendering/ArrayBitmap.hpp"
+#include "ECS/EntityComponentSystem.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
+#include "Utility/Math/Color.hpp"
+#include "Utility/UtilityFunctions.hpp"
+#include "PackageManager/PAMInputDevice.hpp"
 
-#include "glad/glad.h"
 
 namespace LinaEngine::Graphics
 {
 
-	using namespace ECS;
-	using namespace Physics;
 
-	Vector2F RenderEngine::WindowCenter = Vector2F(0.0f, 0.0f);
-#define UNIFORMBUFFER_GLOBALMATRIX_SIZE sizeof(Matrix) * 2
-#define UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT 0
-#define UNIFORMBUFFER_GLOBALMATRIX_NAME "GlobalMatrices"
+	constexpr size_t UNIFORMBUFFER_GLOBALMATRIX_SIZE = sizeof(Matrix) * 2;
+	constexpr int UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT = 0;
+	constexpr auto UNIFORMBUFFER_GLOBALMATRIX_NAME = "GlobalMatrices";
 
-#define UNIFORMBUFFER_LIGHTS_SIZE (sizeof(float) * 9) 
-#define UNIFORMBUFFER_LIGHTS_BINDPOINT 1
-#define UNIFORMBUFFER_LIGHTS_NAME "Lights"
+	constexpr size_t UNIFORMBUFFER_LIGHTS_SIZE = (sizeof(float) * 9);
+	constexpr int UNIFORMBUFFER_LIGHTS_BINDPOINT = 1;
+	constexpr auto UNIFORMBUFFER_LIGHTS_NAME = "Lights";
 
 	RenderEngine::RenderEngine()
 	{
 		LINA_CORE_TRACE("[Constructor] -> RenderEngine ({0})", typeid(*this).name());
 
-		// Create the render device
-		m_RenderDevice = std::make_unique<PAMRenderDevice>();
-
-		// Initialize
-		RenderEngine::WindowCenter = m_RenderDevice->GetWindowCenter();
 	}
 
 	RenderEngine::~RenderEngine()
@@ -64,58 +56,32 @@ namespace LinaEngine::Graphics
 		DumpMemory();
 
 		// Release Vertex Array Objects
-		m_SkyboxVAO = m_RenderDevice->ReleaseVertexArray(m_SkyboxVAO);
+		m_SkyboxVAO = m_RenderDevice.ReleaseVertexArray(m_SkyboxVAO);
 
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
 
-
-
-
-	void RenderEngine::Initialize(EntityComponentSystem * ecsIn)
+	void RenderEngine::Initialize(LinaEngine::ECS::EntityComponentSystem& ecsIn)
 	{
 		// Set ECS reference
-		m_ECS = ecsIn;
+		m_ECS = &ecsIn;
 
 		// Initialize the render device.
-		m_RenderDevice->Initialize(m_LightingSystem);
-
-		// Initialize default sampler.
-		m_DefaultSampler.Construct("diffuse", *m_RenderDevice.get(), SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR);
-
-		// Initialize skybox sampler.
-		m_SkyboxSampler.Construct("skybox", *m_RenderDevice.get(), SamplerFilter::FILTER_NEAREST);
-
-		// Initialize default texture.
-		m_DefaultDiffuseTexture = LoadTextureResource(ResourceConstants::textureFolderPath + "defaultDiffuse.png", PixelFormat::FORMAT_RGB, true, false);
+		m_RenderDevice.Initialize(m_LightingSystem, m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
 
 		// Construct the uniform buffer for global matrices.
-		m_GlobalMatrixBuffer.Construct(*m_RenderDevice, UNIFORMBUFFER_GLOBALMATRIX_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
+		m_GlobalMatrixBuffer.Construct(m_RenderDevice, UNIFORMBUFFER_GLOBALMATRIX_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
 		m_GlobalMatrixBuffer.Bind(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT);
 
 		// Construct the uniform buffer for lights.
-		m_LightsBuffer.Construct(*m_RenderDevice, UNIFORMBUFFER_LIGHTS_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
+		m_LightsBuffer.Construct(m_RenderDevice, UNIFORMBUFFER_LIGHTS_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
 		m_LightsBuffer.Bind(UNIFORMBUFFER_LIGHTS_BINDPOINT);
 
-		// Initialize basic unlit shader.
-		LinaString shaderText;
-
-		// Construct unlit shader.
-		LinaEngine::Internal::LoadTextFileWithIncludes(shaderText, ResourceConstants::shaderFolderPath + "basicStandardUnlit.glsl", "#include");
-		ConstructShader("_standardUnlit", m_StandardUnlitShader, m_DefaultDiffuseTexture, m_DefaultSampler, shaderText, 0);
-		m_StandardUnlitShader.BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
-
-		// Construct lit shader
-		LinaEngine::Internal::LoadTextFileWithIncludes(shaderText, ResourceConstants::shaderFolderPath + "basicStandardLit.glsl", "#include");
-		ConstructShader("_standardLit", m_StandardLitShader, m_DefaultDiffuseTexture, m_DefaultSampler, shaderText, 0);
-		m_StandardLitShader.BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
-		m_StandardLitShader.BindBlockToBuffer(UNIFORMBUFFER_LIGHTS_BINDPOINT, UNIFORMBUFFER_LIGHTS_NAME);
-
-		// Initialize the correct skybox shader depending on the type of sykbox to draw.
-		ChangeSkyboxRenderType(m_SkyboxType);
+		// Initialize the engine shaders.
+		ConstructEngineShaders();
 
 		// Initialize the render target.
-		m_RenderTarget.Construct(*m_RenderDevice.get());
+		m_RenderTarget.Construct(m_RenderDevice);
 
 		// Set default drawing parameters.
 		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
@@ -130,13 +96,13 @@ namespace LinaEngine::Graphics
 		m_SkyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
 
 		// Initialize the render context.
-		m_DefaultRenderContext.Construct(*m_RenderDevice.get(), m_RenderTarget, m_DefaultDrawParams, m_StandardUnlitShader, m_DefaultSampler, Matrix::identity());
+		m_DefaultRenderContext.Construct(m_RenderDevice, m_RenderTarget, m_DefaultDrawParams);
 
 		// Initialize skybox vertex array object.
-		m_SkyboxVAO = m_RenderDevice->CreateSkyboxVertexArray();
+		m_SkyboxVAO = m_RenderDevice.CreateSkyboxVertexArray();
 
 		// Initialize ECS Camera System.
-		Vector2F windowSize = m_RenderDevice->GetWindowSize();
+		Vector2F windowSize = Vector2F(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
 		m_CameraSystem.Construct(m_DefaultRenderContext);
 		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 
@@ -147,35 +113,12 @@ namespace LinaEngine::Graphics
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
 		m_RenderingPipeline.AddSystem(m_MeshRendererSystem);
 
-		// Initialize default camera.
-		m_DefaultCamera = m_ECS->MakeEntity(m_DefaultCameraTransform, m_DefaultCameraComponent);
-		DefaultSceneCameraActivation(true);
-
-		// Create default materials.
-		MeshMaterial* matUnlit = GetMaterial("_defaultUnlit");
-		matUnlit->shaderID = GetShaderID("_standardUnlit");
-		matUnlit->texture = &m_DefaultDiffuseTexture;
-		matUnlit->colors["objectColor"] = Colors::White;
-
-		MeshMaterial* matLit = GetMaterial("_defaultLit");
-		matLit->shaderID = GetShaderID("_standardLit");
-		matLit->texture = &m_DefaultDiffuseTexture;
-		matLit->colors["objectColor"] = Colors::White;
-		matLit->floats["specularIntensity"] = 0.8f;
-		matLit->ints["specularExponent"] = 32;
-
-
-
 	}
 
 	void RenderEngine::Tick(float delta)
 	{
 		// Clear color.
 		m_DefaultRenderContext.Clear(m_CameraSystem.GetCurrentClearColor(), true);
-
-		// Update view & proj matrices.
-		m_DefaultRenderContext.UpdateViewMatrix(m_CameraSystem.GetViewMatrix());
-		m_DefaultRenderContext.UpdateProjectionMatrix(m_CameraSystem.GetProjectionMatrix());
 
 		// Update pipeline.
 		m_ECS->UpdateSystems(m_RenderingPipeline, delta);
@@ -190,183 +133,290 @@ namespace LinaEngine::Graphics
 		RenderSkybox();
 
 		// Update window.
-		m_RenderDevice->TickWindow();
+		m_MainWindow.Tick();
 
 	}
 
 	void RenderEngine::OnWindowResized(float width, float height)
 	{
 		// Propogate to render device.
-		m_RenderDevice->OnWindowResized(width, height);
-
-		// Set the window center.
-		RenderEngine::WindowCenter = m_RenderDevice->GetWindowCenter();
+		m_RenderDevice.OnWindowResized(width, height);
 
 		// Update camera system's projection matrix.
-		Vector2F windowSize = m_RenderDevice->GetWindowSize();
-		CameraComponent* activeCameraComponent = m_CameraSystem.GetCurrentCameraComponent();
+		Vector2F windowSize = Vector2F(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
 		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 
 	}
 
-	Texture& RenderEngine::LoadTextureResource(const LinaString & fileName, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
+	void RenderEngine::CreateMaterial(const std::string& materialName, const std::string& shaderName)
 	{
-		// Create pixel data.
-		ArrayBitmap* textureBitmap = new ArrayBitmap();
-		textureBitmap->Load(fileName);
-
-		// Create texture based on pixel data.
-		Texture* texture = new Texture();
-		texture->Construct(*m_RenderDevice.get(), *textureBitmap, internalPixelFormat, generateMipMaps, compress);
-
-		// Add to the resources.
-		m_TextureResources.push_back(texture);
-
-		// Delete pixel data.
-		delete textureBitmap;
-
-		// Return texture.
-		return *texture;
-	}
-
-	RenderableObjectData& RenderEngine::LoadModelResource(const LinaString & fileName)
-	{
-		// Create object data & feed it from model.
-		RenderableObjectData* objectData = new RenderableObjectData();
-		ModelLoader::LoadModels(fileName, objectData->GetIndexedModels(), objectData->GetMaterialIndices(), objectData->GetMaterialSpecs());
-
-		if (objectData->GetIndexedModels().size() == 0)
-			LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} at path {1} could not be found or model scene does not contain any mesh! This will cause undefined behaviour or crashes if it is assigned to a ECS MeshRendererComponent."
-				, fileName, ResourceConstants::meshFolderPath);
-
-		// Create vertex array for each mesh.
-		for (uint32 i = 0; i < objectData->GetIndexedModels().size(); i++)
+		if (!MaterialExists(materialName))
 		{
-			VertexArray* vertexArray = new VertexArray();
-			vertexArray->Construct(*m_RenderDevice.get(), objectData->GetIndexedModels()[i], BufferUsage::USAGE_STATIC_DRAW);
-			objectData->GetVertexArrays().push_back(vertexArray);
+			// Create material & set it's shader.
+			Material newMaterial;
+			SetMaterialShader(newMaterial, shaderName);
+
+			//m_LoadedMaterials.insert(std::pair<std::string, Material>(materialName, newMaterial));
+
+			std::cout << m_LoadedMaterials.at(materialName).shaderID << std::endl;
 		}
-
-		// Push & return.
-		m_RenderableObjectDataResources.push_back(objectData);
-		return *objectData;
-	}
-
-	LINA_API Texture& RenderEngine::LoadCubemapTextureResource(const LinaString & filePosX, const LinaString & fileNegX, const LinaString & filePosY, const LinaString & fileNegY, const LinaString & filePosZ, const LinaString & fileNegZ)
-	{
-		LinaArray<ArrayBitmap*> bitmaps;
-		const LinaString fileNames[] = { filePosX, fileNegX, filePosY, fileNegY, filePosZ, fileNegZ };
-
-		// Load bitmap for each face.
-		for (uint32 i = 0; i < 6; i++)
+		else
 		{
-			ArrayBitmap* faceBitmap = new ArrayBitmap();
-			faceBitmap->Load(fileNames[i]);
-			bitmaps.push_back(faceBitmap);
-
+			// Abort if material exists.
+			LINA_CORE_ERR("Material with the name {0} already exists, aborting...", materialName);
+			return;
 		}
-
-		// Create texture.
-		Texture* cubeMapTexture = new Texture();
-		cubeMapTexture->Construct(*m_RenderDevice.get(), bitmaps, PixelFormat::FORMAT_RGB, true, false);
-
-		// Add to the resources.
-		m_TextureResources.push_back(cubeMapTexture);
-
-		// Delete pixel data.
-		for (uint32 i = 0; i < bitmaps.size(); i++)
-			delete bitmaps[i];
-
-		bitmaps.clear();
-
-		return *cubeMapTexture;
 	}
 
-	void RenderEngine::UnloadTextureResource(Texture & textureResource)
+	void RenderEngine::CreateTexture(const std::string& textureName, const std::string& filePath, PixelFormat pixelFormat , bool generateMipmaps, bool compress)
 	{
-		// Find the resource.
-		for (size_t i = 0; i < m_TextureResources.size(); i++)
+		if (!TextureExists(textureName))
 		{
-			// If found.
-			if (m_TextureResources[i] == &textureResource)
+			// Create pixel data.
+			ArrayBitmap* textureBitmap = new ArrayBitmap();
+			textureBitmap->Load(filePath);
+
+			// Load texture w/ bitmap data.
+			m_LoadedTextures[textureName].Construct(m_RenderDevice, *textureBitmap, pixelFormat, generateMipmaps, compress);
+
+			// Delete pixel data.
+			delete textureBitmap;
+		}
+		else
+		{
+			// Texture with this name already exists!
+			LINA_CORE_ERR("Texture with the name {0} already exists, aborting...", textureName);
+			return;
+		}
+	}
+
+	void RenderEngine::CreateTexture(const std::string& textureName, const std::string filePaths[6], PixelFormat pixelFormat , bool generateMipmaps, bool compress)
+	{
+		if (!TextureExists(textureName))
+		{
+			LinaArray<ArrayBitmap*> bitmaps;
+
+			// Load bitmap for each face.
+			for (uint32 i = 0; i < 6; i++)
 			{
-				// Add to dump.
-				m_TextureDump.push_back(&textureResource);
-
-				// Push to the end of the list & pop.
-				m_TextureResources.swap_remove(i);
+				ArrayBitmap* faceBitmap = new ArrayBitmap();
+				faceBitmap->Load(filePaths[i]);
+				bitmaps.push_back(faceBitmap);
 			}
-		}
-	}
 
-	void RenderEngine::UnloadModelResource(RenderableObjectData & modelResource)
-	{
-		// Find the resource.
-		for (size_t i = 0; i < m_RenderableObjectDataResources.size(); i++)
+			// Create texture.
+			m_LoadedTextures[textureName].Construct(m_RenderDevice, bitmaps, PixelFormat::FORMAT_RGB, true, false);
+
+			// Delete pixel data.
+			for (uint32 i = 0; i < bitmaps.size(); i++)
+				delete bitmaps[i];
+
+			bitmaps.clear();
+		}
+		else
 		{
-			// If found.
-			if (m_RenderableObjectDataResources[i] == &modelResource)
-			{
-				// Add to dump.
-				m_RenderableObjectDataDump.push_back(&modelResource);
+			// Texture with this name already exists!
+			LINA_CORE_ERR("Texture with the name {0} already exists, aborting...", textureName);
+			return;
+		}
+	}
 
-				// Push to the end of the list & pop.
-				m_RenderableObjectDataResources.swap_remove(i);
+	void RenderEngine::CreateMesh(const std::string& meshName, const std::string& filePath)
+	{
+		if (!MeshExists(meshName))
+		{
+			// Create object data & feed it from model.
+			ModelLoader::LoadModels(filePath , m_LoadedMeshes[meshName].GetIndexedModels(), m_LoadedMeshes[meshName].GetMaterialIndices(), m_LoadedMeshes[meshName].GetMaterialSpecs());
+
+			if (m_LoadedMeshes[meshName].GetIndexedModels().size() == 0)
+				LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! This will cause undefined behaviour or crashes if it is assigned to a ECS MeshRendererComponent."
+					, filePath);
+
+			// Create vertex array for each mesh.
+			for (uint32 i = 0; i < m_LoadedMeshes[meshName].GetIndexedModels().size(); i++)
+			{
+				VertexArray* vertexArray = new VertexArray();
+				vertexArray->Construct(m_RenderDevice, m_LoadedMeshes[meshName].GetIndexedModels()[i], BufferUsage::USAGE_STATIC_DRAW);
+				m_LoadedMeshes[meshName].GetVertexArrays().push_back(vertexArray);
 			}
+
+		}
+		else
+		{
+			// Mesh with this name already exists!
+			LINA_CORE_ERR("Mesh with the name {0} already exists, aborting...", meshName);
+			return;
 		}
 
 	}
 
-
-	LINA_API void RenderEngine::DefaultSceneCameraActivation(bool activation)
+	void RenderEngine::CreateShader(const std::string& shaderName, const std::string& shaderText)
 	{
-		m_ECS->GetComponent<CameraComponent>(m_DefaultCamera)->isActive = activation;
+		if (!ShaderExists(shaderName))
+			m_LoadedShaders[shaderName].Construct(m_RenderDevice, shaderText);
+		else
+		{
+			// Shader with this name already exists!
+			LINA_CORE_ERR("Shader with the name {0} already exists, aborting...", shaderName);
+			return;
+		}
+	}
+
+
+	Material& RenderEngine::GetMaterial(const std::string& materialName)
+	{
+		if (!MaterialExists(materialName))
+		{
+			// Mesh not found.
+			LINA_CORE_ERR("Material with the name {0} was not found, returning dummy object", materialName);
+			return m_DummyMaterial;
+		}
+
+		return m_LoadedMaterials.at(materialName);
+	}
+
+	Texture& RenderEngine::GetTexture(const std::string& textureName)
+	{
+		if (!TextureExists(textureName))
+		{
+			// Mesh not found.
+			LINA_CORE_ERR("Texture with the name {0} was not found, returning dummy object", textureName);
+			return m_DummyTexture;
+		}
+
+		return m_LoadedTextures[textureName];
+	}
+
+	Mesh& RenderEngine::GetMesh(const std::string& meshName)
+	{
+		if (!MeshExists(meshName))
+		{
+			// Mesh not found.
+			LINA_CORE_ERR("Mesh with the name {0} was not found, returning dummy object", meshName);
+			return m_DummyMesh;
+		}
+
+		return m_LoadedMeshes[meshName];
+	}
+
+	Shader& RenderEngine::GetShader(const std::string& shaderName)
+	{
+		if (!ShaderExists(shaderName))
+		{
+			// Shader not found.
+			LINA_CORE_ERR("Shader with the name {0} was not found, returning standardLitShader", shaderName);
+			return GetShader(ShaderConstants::standardLitShader);
+		}
+
+		return m_LoadedShaders[shaderName];
+	}
+
+	void RenderEngine::UnloadTextureResource(const std::string& textureName)
+	{
+		if (!TextureExists(textureName))
+		{
+			LINA_CORE_ERR("Texture not found! Aborting... ");
+			return;
+		}
+
+		m_LoadedTextures.erase(textureName);
+	}
+
+	void RenderEngine::UnloadMeshResource(const std::string& meshName)
+	{
+		if (!MeshExists(meshName))
+		{
+			LINA_CORE_ERR("Mesh not found! Aborting... ");
+			return;
+		}
+
+		m_LoadedMeshes.erase(meshName);
+	}
+	
+	void RenderEngine::UnloadMaterialResource(const std::string& materialName)
+	{
+		if (!MaterialExists(materialName))
+		{
+			LINA_CORE_ERR("Material not found! Aborting... ");
+			return;
+		}
+
+		m_LoadedMaterials.erase(materialName);
+	}
+
+	bool RenderEngine::MaterialExists(const std::string& materialName)
+	{
+		return !(m_LoadedMaterials.find(materialName) == m_LoadedMaterials.end());
+	}
+
+	bool RenderEngine::TextureExists(const std::string& textureName)
+	{
+		return !(m_LoadedTextures.find(textureName) == m_LoadedTextures.end());
+	}
+
+	bool RenderEngine::MeshExists(const std::string& meshName)
+	{
+		return !(m_LoadedMeshes.find(meshName) == m_LoadedMeshes.end());
+	}
+
+	bool RenderEngine::ShaderExists(const std::string& shaderName)
+	{
+		return !(m_LoadedShaders.find(shaderName) == m_LoadedShaders.end());
+	}
+
+
+	void RenderEngine::ConstructEngineShaders()
+	{
+		std::string shaderText;
+
+		// Unlit.
+		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/basicStandardUnlit.glsl", "#include");
+		CreateShader(ShaderConstants::standardUnlitShader, shaderText);
+		GetShader(ShaderConstants::standardUnlitShader).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+
+		// Lit.
+		Utility::LoadTextFileWithIncludes(shaderText,"resources/shaders/basicStandardLit.glsl", "#include");
+		CreateShader(ShaderConstants::standardLitShader, shaderText);
+		GetShader(ShaderConstants::standardLitShader).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+		GetShader(ShaderConstants::standardLitShader).BindBlockToBuffer(UNIFORMBUFFER_LIGHTS_BINDPOINT, UNIFORMBUFFER_LIGHTS_NAME);
+
+		// Skybox single color.
+		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/skyboxSingleColor.glsl", "#include");
+		CreateShader(ShaderConstants::skyboxSingleColorShader, shaderText);
+
+		// Skybox vertex gradient color.
+		Utility::LoadTextFileWithIncludes(shaderText,"resources/shaders/skyboxVertexGradient.glsl", "#include");
+		CreateShader(ShaderConstants::skyboxGradientShader, shaderText);
+		GetShader(ShaderConstants::skyboxGradientShader).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+
+		// Skybox cubemap.
+		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/skyboxCubemap.glsl", "#include");
+		CreateShader(ShaderConstants::skyboxCubemapShader, shaderText);
+		GetShader(ShaderConstants::skyboxCubemapShader).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+
+		// Skybox procedural.
+		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/skyboxProcedural.glsl", "#include");
+		CreateShader(ShaderConstants::skyboxProceduralShader, shaderText);
+		GetShader(ShaderConstants::skyboxProceduralShader).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
 	}
 
 	void RenderEngine::DumpMemory()
 	{
-		// Free renderable object dump
-		for (uint32 i = 0; i < m_RenderableObjectDataDump.size(); i++)
-			delete m_RenderableObjectDataDump[i];
-
-		// Free texture dump
-		for (uint32 i = 0; i < m_TextureDump.size(); i++)
-			delete m_TextureDump[i];
-
 		// Clear dumps.
-		m_RenderableObjectDataDump.clear();
-		m_TextureDump.clear();
-		m_Materials.clear();
+		m_LoadedMeshes.clear();
+		m_LoadedTextures.clear();
+		m_LoadedMaterials.clear();
 	}
 
 	void RenderEngine::RenderSkybox()
 	{
-		// Draw skybox based on its type.
-		switch (m_SkyboxType)
+		if (m_SkyboxMaterial != nullptr)
 		{
-		case SkyboxType::SingleColor:
-			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxSingleColorShader.GetID(), m_SkyboxVAO, m_DefaultDiffuseTexture.GetID(), m_SkyboxDrawParams, m_SingleColorSkyboxColor);
-			break;
-
-		case SkyboxType::Gradient:
-			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxGradientShader.GetID(), m_SkyboxVAO, m_DefaultDiffuseTexture.GetID(), m_SkyboxDrawParams, m_GradientSkyboxStartColor, m_GradientSkyboxEndColor);
-			break;
-
-		case SkyboxType::Cubemap:
-			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxCubemapShader.GetID(), m_SkyboxVAO, m_SkyboxTexture.GetID(), m_SkyboxDrawParams);
-			break;
-		case SkyboxType::Procedural:
-			m_RenderDevice->DrawSkybox(m_RenderTarget.GetID(), m_SkyboxProceduralShader.GetID(), m_SkyboxVAO, m_SkyboxTexture.GetID(), m_SkyboxDrawParams, m_GradientSkyboxStartColor, m_GradientSkyboxEndColor, m_SunVector);
-			break;
+			m_DefaultRenderContext.UpdateShaderData(m_SkyboxMaterial);
+			m_DefaultRenderContext.Draw(m_SkyboxVAO, m_SkyboxDrawParams, 1, 36, true);
 		}
 	}
 
-	void RenderEngine::ConstructShader(LinaString name, Shader & shader, const Texture & texture, const Sampler & sampler, const LinaString & text, uint32 samplerUnit, BindTextureMode bindMode)
-	{
-		shader.Construct(*m_RenderDevice.get(), text);
-		shader.SetSampler(sampler.GetSamplerName(), texture, sampler, samplerUnit, bindMode);
-		m_ShaderIDMap[name] = shader.GetID();
-	}
 
 	void RenderEngine::UpdateUniformBuffers()
 	{
@@ -378,7 +428,7 @@ namespace LinaEngine::Graphics
 		Color ambientColor = m_LightingSystem.GetAmbientColor();
 		Vector4F alColor = Vector4F(ambientColor.R(), ambientColor.G(), ambientColor.B(), 1.0f);
 		float alIntensity = m_LightingSystem.GetAmbientIntensity();
-		Vector3F cameraLocation = m_CameraSystem.GetCurrentCameraTransform()->transform.GetLocation();
+		Vector3F cameraLocation = m_CameraSystem.GetCameraLocation();
 		Vector4F viewPos = Vector4F(cameraLocation.GetX(), cameraLocation.GetY(), cameraLocation.GetZ(), 1.0f);
 
 		m_LightsBuffer.Update(&alColor, 0, sizeof(float) * 4);
@@ -386,74 +436,63 @@ namespace LinaEngine::Graphics
 		m_LightsBuffer.Update(&alIntensity, sizeof(float) * 8, sizeof(float));
 	}
 
-	void RenderEngine::ChangeSkyboxRenderType(SkyboxType type)
+	void RenderEngine::SetMaterialShader(Material& material, const std::string& shaderName)
 	{
-		if (type == m_SkyboxType) return;
+		std::string usedName = shaderName;
 
-		// Construct the shader of the target type if not done before.
-		switch (type)
-		{
-		case SkyboxType::SingleColor:
-
-			if (!m_SkyboxSingleColorShader.GetIsConstructed())
-			{
-				LinaString skyboxShaderText;
-				LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, ResourceConstants::shaderFolderPath + "skyboxSingleColor.glsl", "#include");
-				ConstructShader("_skyboxSingleColor", m_SkyboxSingleColorShader, m_DefaultDiffuseTexture, m_SkyboxSampler, skyboxShaderText, 0);
-			}
-			break;
-
-		case SkyboxType::Gradient:
-
-			if (!m_SkyboxGradientShader.GetIsConstructed())
-			{
-				LinaString skyboxShaderText;
-				LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, ResourceConstants::shaderFolderPath + "skyboxVertexGradient.glsl", "#include");
-				ConstructShader("_skyboxGradient", m_SkyboxGradientShader, m_DefaultDiffuseTexture, m_SkyboxSampler, skyboxShaderText, 0);
-				m_SkyboxGradientShader.BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
-			}
-
-			break;
-
-		case SkyboxType::Cubemap:
-
-			if (!m_SkyboxCubemapShader.GetIsConstructed())
-			{
-				LinaString skyboxShaderText;
-				LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, ResourceConstants::shaderFolderPath + "skyboxCubemap.glsl", "#include");
-
-				m_SkyboxTexture = LoadCubemapTextureResource(
-					ResourceConstants::textureFolderPath + "defaultSkybox/right.png",
-					ResourceConstants::textureFolderPath + "defaultSkybox/left.png",
-					ResourceConstants::textureFolderPath + "defaultSkybox/up.png",
-					ResourceConstants::textureFolderPath + "defaultSkybox/down.png",
-					ResourceConstants::textureFolderPath + "defaultSkybox/front.png",
-					ResourceConstants::textureFolderPath + "defaultSkybox/back.png");
-
-				ConstructShader("_skyboxCubemap", m_SkyboxCubemapShader, m_SkyboxTexture, m_SkyboxSampler, skyboxShaderText, 0, BINDTEXTURE_CUBEMAP);
-				m_SkyboxCubemapShader.BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
-
-			}
-
-			break;
-
-		case SkyboxType::Procedural:
-
-			if (!m_SkyboxProceduralShader.GetIsConstructed())
-			{
-				LinaString skyboxShaderText;
-				LinaEngine::Internal::LoadTextFileWithIncludes(skyboxShaderText, ResourceConstants::shaderFolderPath + "skyboxProcedural.glsl", "#include");
-				ConstructShader("_skyboxProcedural", m_SkyboxProceduralShader, m_DefaultDiffuseTexture, m_SkyboxSampler, skyboxShaderText, 0);
-				m_SkyboxProceduralShader.BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
-			}
-
-			break;
+		// If no shader found, fall back to standardLit
+		if (m_LoadedShaders.find(shaderName) == m_LoadedShaders.end()) {
+			LINA_CORE_ERR("Shader with the name {0} was not found. Setting material's shader to standardLit.", shaderName);
+			material.shaderID = m_LoadedShaders[ShaderConstants::standardLitShader].GetID();
+			usedName = ShaderConstants::standardLitShader;
 		}
+		else
+			material.shaderID = m_LoadedShaders[shaderName].GetID();
 
-		// Set the type.
-		m_SkyboxType = type;
+		// Clear all shader related material data.
+		material.textures.clear();
+		material.colors.clear();
+		material.floats.clear();
+		material.ints.clear();
+		material.vector3s.clear();
+		material.vector2s.clear();
+		material.matrices.clear();
+		material.vector4s.clear();
 
-
+		// Set shader data for material based on it's shader.
+		if (usedName == ShaderConstants::standardLitShader)
+		{
+			material.colors["material.objectColor"] = Colors::White;
+			material.floats["material.specularIntensity"] = 2.0f;
+			material.ints["material.specularExponent"] = 32;
+			material.ints["material.diffuse"] = 0;
+			material.ints["material.specular"] = 1;
+		}
+		else if (usedName == ShaderConstants::standardUnlitShader)
+		{
+			material.colors["material.objectColor"] = Colors::White;
+			material.ints["material.diffuse"] = 0;
+		}
+		else if (usedName == ShaderConstants::skyboxSingleColorShader)
+		{
+			material.colors["material.color"] = Colors::White;
+		}
+		else if (usedName == ShaderConstants::skyboxGradientShader)
+		{
+			material.colors["material.startColor"] = Colors::Black;
+			material.colors["material.endColor"] = Colors::White;
+		}
+		else if (usedName == ShaderConstants::skyboxProceduralShader)
+		{
+			material.colors["material.startColor"] = Colors::Black;
+			material.colors["material.endColor"] = Colors::White;
+			material.vector3s["material.sunDirection"] = Vector3F(0, -1, 0);
+		}
+		else if (usedName == "skyboxCubemap")
+		{
+			material.ints["material.diffuse"] = 0;
+		}
 	}
+
 
 }

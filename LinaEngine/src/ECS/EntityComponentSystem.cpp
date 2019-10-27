@@ -19,14 +19,15 @@ Timestamp: 4/8/2019 6:03:20 PM
 
 #include "LinaPch.hpp"
 #include "ECS/EntityComponentSystem.hpp"  
-#include "Core/Memory.hpp"
+#include "PackageManager/PAMMemory.hpp"
+#include "PackageManager/PAMMath.hpp"
 
 namespace LinaEngine::ECS
 {
 	EntityComponentSystem::~EntityComponentSystem()
 	{
 		// Remove components.
-		for (LinaMap<uint32, LinaArray<uint8>>::iterator it = components.begin(); it != components.end(); ++it)
+		for (std::map<uint32, LinaArray<uint8>>::iterator it = components.begin(); it != components.end(); ++it)
 		{
 			size_t typeSize = BaseECSComponent::GetTypeSize(it->first);
 			ECSComponentFreeFunction freefn = BaseECSComponent::GetTypeFreeFunction(it->first);
@@ -48,7 +49,7 @@ namespace LinaEngine::ECS
 	EntityHandle EntityComponentSystem::MakeEntity(BaseECSComponent** entityComponents, const uint32* componentIDs, size_t numComponents)
 	{
 		// Create entity & handle
-		LinaPair<uint32, LinaArray<LinaPair<uint32, uint32>>>* newEntity = new LinaPair<uint32, LinaArray<LinaPair<uint32, uint32>>>();
+		std::pair<uint32, LinaArray<std::pair<uint32, uint32>>>* newEntity = new std::pair<uint32, LinaArray<std::pair<uint32, uint32>>>();
 		EntityHandle handle = (EntityHandle)newEntity;
 
 		// Iterate through components
@@ -111,7 +112,7 @@ namespace LinaEngine::ECS
 	void EntityComponentSystem::RemoveEntity(EntityHandle handle)
 	{
 		// Get entity from the handle.
-		LinaArray<LinaPair<uint32, uint32>>& entity = HandleToEntity(handle);
+		LinaArray<std::pair<uint32, uint32>>& entity = HandleToEntity(handle);
 
 		// Call OnRemoveEntity callback on listeners if valid.
 		for (uint32 i = 0; i < listeners.size(); i++)
@@ -210,13 +211,13 @@ namespace LinaEngine::ECS
 	}
 
 
-	void EntityComponentSystem::AddComponentInternal(EntityHandle handle, LinaArray<LinaPair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent * component)
+	void EntityComponentSystem::AddComponentInternal(EntityHandle handle, LinaArray<std::pair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent * component)
 	{
 		// Get the create functor for the component
 		ECSComponentCreateFunction createfn = BaseECSComponent::GetTypeCreateFunction(componentID);
 
 		// Assign the id for the new component & create function addr.
-		LinaPair<uint32, uint32> newPair;
+		std::pair<uint32, uint32> newPair;
 		newPair.first = componentID;
 		newPair.second = createfn(components[componentID], handle, component);
 
@@ -250,7 +251,7 @@ namespace LinaEngine::ECS
 		Memory::memcpy(destComponent, sourceComponent, typeSize);
 
 		// Iterate through sources & shift.
-		LinaArray<LinaPair<uint32,uint32>>& sourceComponents = HandleToEntity(sourceComponent->entity);
+		LinaArray<std::pair<uint32,uint32>>& sourceComponents = HandleToEntity(sourceComponent->entity);
 		for (uint32 i = 0; i < sourceComponents.size(); i++)
 		{
 			if (componentID == sourceComponents[i].first && srcIndex == sourceComponents[i].second)
@@ -266,7 +267,7 @@ namespace LinaEngine::ECS
 	bool EntityComponentSystem::RemoveComponentInternal(EntityHandle handle, uint32 componentID)
 	{
 		// Iterate through the components of the entity.
-		LinaArray<LinaPair<uint32, uint32>>& entityComponents = HandleToEntity(handle);
+		LinaArray<std::pair<uint32, uint32>>& entityComponents = HandleToEntity(handle);
 		for (uint32 i = 0; i < entityComponents.size(); i++)
 		{
 			if (componentID == entityComponents[i].first)
@@ -285,7 +286,7 @@ namespace LinaEngine::ECS
 	}
 
 
-	BaseECSComponent* EntityComponentSystem::GetComponentInternal(LinaArray<LinaPair<uint32, uint32>>& entityComponents, LinaArray<uint8>& arr, uint32 componentID)
+	BaseECSComponent* EntityComponentSystem::GetComponentInternal(LinaArray<std::pair<uint32, uint32>>& entityComponents, LinaArray<uint8>& arr, uint32 componentID)
 	{
 		for (uint32 i = 0; i < entityComponents.size(); i++)
 		{
@@ -325,7 +326,7 @@ namespace LinaEngine::ECS
 
 			/******************** TODO: CACHE OPTIMIZATION ***********************/
 			// Find the entity attached to the component.
-			LinaArray<LinaPair<uint32, uint32>>& entityComponents = HandleToEntity(componentParam[minSizeIndex]->entity);
+			LinaArray<std::pair<uint32, uint32>>& entityComponents = HandleToEntity(componentParam[minSizeIndex]->entity);
 			/******************** TODO: CACHE OPTIMIZATION ***********************/
 
 			bool isValid = true;

@@ -21,7 +21,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "LinaPch.hpp"
 #include "Utility/Math/Matrix.hpp"  
-#include "Utility/Math/Math.hpp"
 #include "Utility/Math/Quaternion.hpp"
 
 namespace LinaEngine

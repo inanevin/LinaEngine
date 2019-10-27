@@ -19,7 +19,7 @@ Timestamp: 5/1/2019 2:43:16 AM
 
 #include "LinaPch.hpp"
 #include "Physics/PhysicsInteractionWorld.hpp"  
-#include "Core/STLImport.hpp"
+
 
 namespace LinaEngine::Physics
 {

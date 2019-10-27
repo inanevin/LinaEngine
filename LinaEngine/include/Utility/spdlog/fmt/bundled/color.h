@@ -221,12 +221,12 @@ enum class emphasis : uint8_t {
 // We use rgb as name because some editors will show it as color direct in the
 // editor.
 struct rgb {
-  FMT_CONSTEXPR_DECL rgb() : r(0), g(0), b(0) {}
-  FMT_CONSTEXPR_DECL rgb(uint8_t r_, uint8_t g_, uint8_t b_)
+  FMT_constexpr_DECL rgb() : r(0), g(0), b(0) {}
+  FMT_constexpr_DECL rgb(uint8_t r_, uint8_t g_, uint8_t b_)
     : r(r_), g(g_), b(b_) {}
-  FMT_CONSTEXPR_DECL rgb(uint32_t hex)
+  FMT_constexpr_DECL rgb(uint32_t hex)
     : r((hex >> 16) & 0xFF), g((hex >> 8) & 0xFF), b((hex) & 0xFF) {}
-  FMT_CONSTEXPR_DECL rgb(color hex)
+  FMT_constexpr_DECL rgb(color hex)
     : r((uint32_t(hex) >> 16) & 0xFF), g((uint32_t(hex) >> 8) & 0xFF),
       b(uint32_t(hex) & 0xFF) {}
   uint8_t r;
@@ -238,18 +238,18 @@ namespace internal {
 
 // color is a struct of either a rgb color or a terminal color.
 struct color_type {
-  FMT_CONSTEXPR color_type() FMT_NOEXCEPT
+  FMT_constexpr color_type() FMT_NOEXCEPT
     : is_rgb(), value{} {}
-  FMT_CONSTEXPR color_type(color rgb_color) FMT_NOEXCEPT
+  FMT_constexpr color_type(color rgb_color) FMT_NOEXCEPT
     : is_rgb(true), value{} {
     value.rgb_color = static_cast<uint32_t>(rgb_color);
   }
-  FMT_CONSTEXPR color_type(rgb rgb_color) FMT_NOEXCEPT
+  FMT_constexpr color_type(rgb rgb_color) FMT_NOEXCEPT
     : is_rgb(true), value{} {
     value.rgb_color = (static_cast<uint32_t>(rgb_color.r) << 16)
        | (static_cast<uint32_t>(rgb_color.g) << 8) | rgb_color.b;
   }
-  FMT_CONSTEXPR color_type(terminal_color term_color) FMT_NOEXCEPT
+  FMT_constexpr color_type(terminal_color term_color) FMT_NOEXCEPT
     : is_rgb(), value{} {
     value.term_color = static_cast<uint8_t>(term_color);
   }
@@ -264,10 +264,10 @@ struct color_type {
 // Experimental text formatting support.
 class text_style {
  public:
-  FMT_CONSTEXPR text_style(emphasis em = emphasis()) FMT_NOEXCEPT
+  FMT_constexpr text_style(emphasis em = emphasis()) FMT_NOEXCEPT
       : set_foreground_color(), set_background_color(), ems(em) {}
 
-  FMT_CONSTEXPR text_style &operator|=(const text_style &rhs) {
+  FMT_constexpr text_style &operator|=(const text_style &rhs) {
     if (!set_foreground_color) {
       set_foreground_color = rhs.set_foreground_color;
       foreground_color = rhs.foreground_color;
@@ -291,12 +291,12 @@ class text_style {
     return *this;
   }
 
-  friend FMT_CONSTEXPR
+  friend FMT_constexpr
   text_style operator|(text_style lhs, const text_style &rhs) {
     return lhs |= rhs;
   }
 
-  FMT_CONSTEXPR text_style &operator&=(const text_style &rhs) {
+  FMT_constexpr text_style &operator&=(const text_style &rhs) {
     if (!set_foreground_color) {
       set_foreground_color = rhs.set_foreground_color;
       foreground_color = rhs.foreground_color;
@@ -320,35 +320,35 @@ class text_style {
     return *this;
   }
 
-  friend FMT_CONSTEXPR
+  friend FMT_constexpr
   text_style operator&(text_style lhs, const text_style &rhs) {
     return lhs &= rhs;
   }
 
-  FMT_CONSTEXPR bool has_foreground() const FMT_NOEXCEPT {
+  FMT_constexpr bool has_foreground() const FMT_NOEXCEPT {
     return set_foreground_color;
   }
-  FMT_CONSTEXPR bool has_background() const FMT_NOEXCEPT {
+  FMT_constexpr bool has_background() const FMT_NOEXCEPT {
     return set_background_color;
   }
-  FMT_CONSTEXPR bool has_emphasis() const FMT_NOEXCEPT {
+  FMT_constexpr bool has_emphasis() const FMT_NOEXCEPT {
     return static_cast<uint8_t>(ems) != 0;
   }
-  FMT_CONSTEXPR internal::color_type get_foreground() const FMT_NOEXCEPT {
+  FMT_constexpr internal::color_type get_foreground() const FMT_NOEXCEPT {
     assert(has_foreground() && "no foreground specified for this style");
     return foreground_color;
   }
-  FMT_CONSTEXPR internal::color_type get_background() const FMT_NOEXCEPT {
+  FMT_constexpr internal::color_type get_background() const FMT_NOEXCEPT {
     assert(has_background() && "no background specified for this style");
     return background_color;
   }
-  FMT_CONSTEXPR emphasis get_emphasis() const FMT_NOEXCEPT {
+  FMT_constexpr emphasis get_emphasis() const FMT_NOEXCEPT {
     assert(has_emphasis() && "no emphasis specified for this style");
     return ems;
   }
 
 private:
- FMT_CONSTEXPR text_style(bool is_foreground,
+ FMT_constexpr text_style(bool is_foreground,
                           internal::color_type text_color) FMT_NOEXCEPT
      : set_foreground_color(),
        set_background_color(),
@@ -362,9 +362,9 @@ private:
    }
  }
 
-  friend FMT_CONSTEXPR_DECL text_style fg(internal::color_type foreground)
+  friend FMT_constexpr_DECL text_style fg(internal::color_type foreground)
       FMT_NOEXCEPT;
-  friend FMT_CONSTEXPR_DECL text_style bg(internal::color_type background)
+  friend FMT_constexpr_DECL text_style bg(internal::color_type background)
       FMT_NOEXCEPT;
 
   internal::color_type foreground_color;
@@ -374,15 +374,15 @@ private:
   emphasis ems;
 };
 
-FMT_CONSTEXPR text_style fg(internal::color_type foreground) FMT_NOEXCEPT {
+FMT_constexpr text_style fg(internal::color_type foreground) FMT_NOEXCEPT {
   return text_style(/*is_foreground=*/true, foreground);
 }
 
-FMT_CONSTEXPR text_style bg(internal::color_type background) FMT_NOEXCEPT {
+FMT_constexpr text_style bg(internal::color_type background) FMT_NOEXCEPT {
   return text_style(/*is_foreground=*/false, background);
 }
 
-FMT_CONSTEXPR text_style operator|(emphasis lhs, emphasis rhs) FMT_NOEXCEPT {
+FMT_constexpr text_style operator|(emphasis lhs, emphasis rhs) FMT_NOEXCEPT {
   return text_style(lhs) | rhs;
 }
 
@@ -390,7 +390,7 @@ namespace internal {
 
 template <typename Char>
 struct ansi_color_escape {
-  FMT_CONSTEXPR ansi_color_escape(internal::color_type text_color,
+  FMT_constexpr ansi_color_escape(internal::color_type text_color,
                                   const char * esc) FMT_NOEXCEPT {
     // If we have a terminal color, we need to output another escape code
     // sequence.
@@ -427,7 +427,7 @@ struct ansi_color_escape {
     to_esc(color.b, buffer + 15, 'm');
     buffer[19] = static_cast<Char>(0);
   }
-  FMT_CONSTEXPR ansi_color_escape(emphasis em) FMT_NOEXCEPT {
+  FMT_constexpr ansi_color_escape(emphasis em) FMT_NOEXCEPT {
     uint8_t em_codes[4] = {};
     uint8_t em_bits = static_cast<uint8_t>(em);
     if (em_bits & static_cast<uint8_t>(emphasis::bold))
@@ -450,12 +450,12 @@ struct ansi_color_escape {
     }
     buffer[index++] = static_cast<Char>(0);
   }
-  FMT_CONSTEXPR operator const Char *() const FMT_NOEXCEPT { return buffer; }
+  FMT_constexpr operator const Char *() const FMT_NOEXCEPT { return buffer; }
 
 private:
   Char buffer[7u + 3u * 4u + 1u];
 
-  static FMT_CONSTEXPR void to_esc(uint8_t c, Char *out,
+  static FMT_constexpr void to_esc(uint8_t c, Char *out,
                                    char delimiter) FMT_NOEXCEPT {
     out[0] = static_cast<Char>('0' + c / 100);
     out[1] = static_cast<Char>('0' + c / 10 % 10);
@@ -465,19 +465,19 @@ private:
 };
 
 template <typename Char>
-FMT_CONSTEXPR ansi_color_escape<Char>
+FMT_constexpr ansi_color_escape<Char>
 make_foreground_color(internal::color_type foreground) FMT_NOEXCEPT {
   return ansi_color_escape<Char>(foreground, internal::data::FOREGROUND_COLOR);
 }
 
 template <typename Char>
-FMT_CONSTEXPR ansi_color_escape<Char>
+FMT_constexpr ansi_color_escape<Char>
 make_background_color(internal::color_type background) FMT_NOEXCEPT {
   return ansi_color_escape<Char>(background, internal::data::BACKGROUND_COLOR);
 }
 
 template <typename Char>
-FMT_CONSTEXPR ansi_color_escape<Char>
+FMT_constexpr ansi_color_escape<Char>
 make_emphasis(emphasis em) FMT_NOEXCEPT {
   return ansi_color_escape<Char>(em);
 }

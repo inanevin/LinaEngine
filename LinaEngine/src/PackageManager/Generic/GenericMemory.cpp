@@ -19,11 +19,13 @@ Timestamp: 4/8/2019 9:04:58 PM
 
 #include "LinaPch.hpp"
 #include "PackageManager/Generic/GenericMemory.hpp"  
+#include "PackageManager/PAMMath.hpp"
 #include <cstdlib>
 #include <stdio.h>
 
 namespace LinaEngine
 {
+
 	void* GenericMemory::malloc(uintptr amt, uint32 alignment)
 	{
 		alignment = Math::Max(amt >= 16 ? 16u : 8u, alignment);

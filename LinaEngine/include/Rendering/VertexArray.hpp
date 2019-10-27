@@ -22,7 +22,12 @@ Timestamp: 4/26/2019 12:30:15 AM
 #ifndef VertexArray_HPP
 #define VertexArray_HPP
 
-#include "Rendering/IndexedModel.hpp"
+
+#include "Core/Common.hpp"
+#include "Core/SizeDefinitions.hpp"
+#include "RenderingCommon.hpp"
+#include "PackageManager/PAMRenderDevice.hpp"
+#include "IndexedModel.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -31,23 +36,22 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-		FORCEINLINE VertexArray() {};
-
+		FORCEINLINE VertexArray() : m_EngineBoundID(0), m_IndexCount(0), m_RenderDevice(nullptr) {};
 		FORCEINLINE ~VertexArray()
 		{
-			m_EngineBoundID = renderDevice->ReleaseVertexArray(m_EngineBoundID);
+			m_EngineBoundID = m_RenderDevice->ReleaseVertexArray(m_EngineBoundID);
 		}
-
-		FORCEINLINE void Construct(PAMRenderDevice& deviceIn, const IndexedModel& model, BufferUsage bufferUsage)
+	
+		FORCEINLINE void Construct(RenderDevice& deviceIn, const IndexedModel& model, BufferUsage bufferUsage)
 		{
-			renderDevice = &deviceIn;
+			m_RenderDevice = &deviceIn;
 			m_EngineBoundID = model.CreateVertexArray(deviceIn, bufferUsage);
 			m_IndexCount = model.GetIndexCount();
 		}
 
 		FORCEINLINE void UpdateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize)
 		{
-			return renderDevice->UpdateVertexArrayBuffer(m_EngineBoundID, bufferIndex, data, dataSize);
+			return m_RenderDevice->UpdateVertexArrayBuffer(m_EngineBoundID, bufferIndex, data, dataSize);
 		}
 
 		FORCEINLINE uint32 GetID()
@@ -62,11 +66,11 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		PAMRenderDevice* renderDevice;
-		uint32 m_EngineBoundID;
-		uint32 m_IndexCount;
+		RenderDevice* m_RenderDevice = nullptr;
+		uint32 m_EngineBoundID = 0;
+		uint32 m_IndexCount = 0;
 
-		NULL_COPY_AND_ASSIGN(VertexArray);
+		
 	};
 
 }

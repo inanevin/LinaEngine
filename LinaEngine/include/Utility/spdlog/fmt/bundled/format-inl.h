@@ -355,20 +355,20 @@ class fp {
   typedef uint64_t significand_type;
 
   // All sizes are in bits.
-  static FMT_CONSTEXPR_DECL const int char_size =
+  static FMT_constexpr_DECL const int char_size =
     std::numeric_limits<unsigned char>::digits;
   // Subtract 1 to account for an implicit most significant bit in the
   // normalized form.
-  static FMT_CONSTEXPR_DECL const int double_significand_size =
+  static FMT_constexpr_DECL const int double_significand_size =
     std::numeric_limits<double>::digits - 1;
-  static FMT_CONSTEXPR_DECL const uint64_t implicit_bit =
+  static FMT_constexpr_DECL const uint64_t implicit_bit =
     1ull << double_significand_size;
 
  public:
   significand_type f;
   int e;
 
-  static FMT_CONSTEXPR_DECL const int significand_size =
+  static FMT_constexpr_DECL const int significand_size =
     sizeof(significand_type) * char_size;
 
   fp(): f(0), e(0) {}
@@ -420,7 +420,7 @@ class fp {
           fp((f << 2) - 1, e - 2) : fp((f << 1) - 1, e - 1);
     upper = fp((f << 1) + 1, e - 1);
     upper.normalize<1>();  // 1 is to account for the exponent shift above.
-    lower.f <<= lower.e - upper.e;
+    lower.f <<= (uint64_t)lower.e - (uint64_t)upper.e;
     lower.e = upper.e;
   }
 };

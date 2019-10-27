@@ -45,14 +45,20 @@ void main()
 out vec4 fragColor;
 in vec3 TexCoords;
 
-uniform vec3 startColor;
-uniform vec3 endColor;
-uniform vec3 upVector;
+struct Material
+{
+vec3 startColor;
+vec3 endColor;
+vec3 sunDirection;
+};
+
+uniform Material material;
+
 
 void main()
 {   
-	float f = dot(normalize(TexCoords), normalize(upVector)) * 0.5f + 0.5f;
-    fragColor = mix(vec4(startColor, 1.0), vec4(endColor, 1.0), pow(f,2)) * 1;
+	float f = dot(normalize(TexCoords), normalize(-material.sunDirection)) * 0.5f + 0.5f;
+    fragColor = mix(vec4(material.startColor, 1.0), vec4(material.endColor, 1.0), pow(f,2)) * 1;
 }
 #endif
 

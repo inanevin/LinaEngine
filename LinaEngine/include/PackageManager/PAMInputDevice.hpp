@@ -12,35 +12,21 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 and limitations under the License.
 
-Class: ResourceConstants
-Timestamp: 1/5/2019 12:42:58 AM
+Class: PAMInputEngine
+Timestamp: 4/14/2019 7:12:53 PM
 
 */
 
 #pragma once
 
-#ifndef ResourceConstants_HPP
-#define ResourceConstants_HPP
 
+#ifndef PAMINPUTDEVICE_HPP
+#define PAMINPUTDEVICE_HPP
 
-#include "Core/DataStructures.hpp"
+#ifdef LINA_GRAPHICS_OPENGL
+#include "OpenGL/GLInputDevice.hpp"
 
-namespace LinaEngine
-{
-
-
-	class ResourceConstants
-	{
-
-	public:
-
-		static LinaString& shaderFolderPath;
-		static LinaString& textureFolderPath;
-		static LinaString& meshFolderPath;
-	};
-
-}
-
-
+typedef LinaEngine::Input::GLInputDevice InputDevice;
+#endif
 
 #endif

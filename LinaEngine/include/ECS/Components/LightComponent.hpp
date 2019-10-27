@@ -23,10 +23,9 @@ Timestamp: 5/13/2019 9:00:55 PM
 #define LightComponent_HPP
 
 #include "ECS/ECSComponent.hpp"
-#include "Rendering/Lighting.hpp"
 #include "Utility/Math/Color.hpp"
 
-using namespace LinaEngine::Graphics;
+
 
 namespace LinaEngine::ECS
 {

@@ -22,14 +22,19 @@ Timestamp: 5/13/2019 12:49:19 AM
 #ifndef LightingSystem_HPP
 #define LightingSystem_HPP
 
-#include "ECS/EntityComponentSystem.hpp"
-#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/ECSSystem.hpp"
+#include "Utility/Math/Color.hpp"
+#include "Utility/Math/Vector.hpp"
 #include "ECS/Components/LightComponent.hpp"
-#include "Rendering/Shader.hpp"
-#include "Rendering/Lighting.hpp"
+#include "PackageManager/PAMRenderDevice.hpp"
 
-
-using namespace LinaEngine::Graphics;
+namespace LinaEngine
+{
+	namespace Graphics
+	{
+		class Shader;
+	}	
+}
 
 namespace LinaEngine::ECS
 {
@@ -37,13 +42,9 @@ namespace LinaEngine::ECS
 	{
 	public:
 
-		LightingSystem() : BaseECSSystem()
-		{
-			AddComponentType(TransformComponent::ID);
-			
-		}
+		LightingSystem();
 
-		FORCEINLINE void Construct(PAMRenderDevice& renderDeviceIn, Shader& shaderIn)
+		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, LinaEngine::Graphics::Shader& shaderIn)
 		{
 			m_Shader = &shaderIn;
 			m_RenderDevice = &renderDeviceIn;
@@ -59,22 +60,28 @@ namespace LinaEngine::ECS
 			m_CameraPosition = pos;
 		}
 
+		// Sets ambient light intensity.
 		FORCEINLINE void SetAmbientIntensity(float intensity) { m_AmbientLight.intensity = intensity; }
+
+		// Sets ambient light color.
 		FORCEINLINE void SetAmbientColor(Color color) { m_AmbientLight.color = color; }
+
+		// Gets ambient light intensity.
 		FORCEINLINE float GetAmbientIntensity() { return m_AmbientLight.intensity; }
+
+		// Gets ambient light color.
 		FORCEINLINE Color GetAmbientColor() { return m_AmbientLight.color; }
 
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
 
-	
 
 	private:
 
-		PAMRenderDevice* m_RenderDevice;
-		AmbientLightComponent m_AmbientLight;
-		Shader* m_Shader;
-		Vector3F m_CameraPosition;
+		RenderDevice* m_RenderDevice;
 
+		LinaEngine::Graphics::Shader* m_Shader;
+		Vector3F m_CameraPosition;
+		AmbientLightComponent m_AmbientLight;
 	};
 }
 

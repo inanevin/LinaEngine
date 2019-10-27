@@ -22,10 +22,7 @@ Timestamp: 4/28/2019 3:37:39 AM
 #ifndef MotionSystem_HPP
 #define MotionSystem_HPP
 
-#include "ECS/EntityComponentSystem.hpp"
-
-#include "ECS/Components/TransformComponent.hpp"
-#include "ECS/Components/MotionComponent.hpp"
+#include "ECS/ECSSystem.hpp"
 
 
 namespace LinaEngine::ECS
@@ -33,11 +30,8 @@ namespace LinaEngine::ECS
 	class MotionSystem : public BaseECSSystem
 	{
 	public:
-		MotionSystem() : BaseECSSystem()
-		{
-			AddComponentType(TransformComponent::ID);
-			AddComponentType(MotionComponent::ID);
-		}
+
+		MotionSystem();
 
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
 	};

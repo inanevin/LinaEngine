@@ -42,7 +42,7 @@ namespace LinaEngine::Graphics
 		}
 
 		// Updates the uniform buffer w/ new data, allows dynamic size change.
-		FORCEINLINE void Construct(PAMRenderDevice& renderDeviceIn, uintptr dataSize, BufferUsage usage, const void* data = nullptr)
+		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, uintptr dataSize, BufferUsage usage, const void* data = nullptr)
 		{
 			m_RenderDevice = &renderDeviceIn;
 			m_BufferSize = dataSize;
@@ -62,7 +62,7 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		PAMRenderDevice* m_RenderDevice;
+		RenderDevice* m_RenderDevice;
 		uint32 m_EngineBoundID;
 		uintptr m_BufferSize;
 		bool m_IsConstructed = false;

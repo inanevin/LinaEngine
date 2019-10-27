@@ -36,11 +36,11 @@ namespace LinaEngine::Input
 		IInputSubscriber() { };
 		virtual ~IInputSubscriber() {};
 
-		void Initialize() override;
+		void Initialize() override {};
 
 	protected:
 		
-		void SubscribeKeyPressedAction(const LinaString& handlerID, std::function<void(InputCode::Key)>&& cb, InputCode::Key key = InputCode::Key::Unknown)
+		void SubscribeKeyPressedAction(const std::string& handlerID, std::function<void(InputCode::Key)>&& cb, InputCode::Key key = InputCode::Key::Unknown)
 		{
 			if (key != InputCode::Key::Unknown)
 				SubscribeAction<InputCode::Key>(handlerID, ActionType::KeyPressed, cb, key);
@@ -48,7 +48,7 @@ namespace LinaEngine::Input
 				SubscribeAction<InputCode::Key>(handlerID, ActionType::KeyPressed, cb);
 		}
 
-		void SubscribeKeyReleasedAction(const LinaString& handlerID, std::function<void(InputCode::Key)>&& cb, InputCode::Key key = InputCode::Key::Unknown)
+		void SubscribeKeyReleasedAction(const std::string& handlerID, std::function<void(InputCode::Key)>&& cb, InputCode::Key key = InputCode::Key::Unknown)
 		{
 			if (key != InputCode::Key::Unknown)
 				SubscribeAction<InputCode::Key>(handlerID, ActionType::KeyReleased, cb, key);
@@ -56,7 +56,7 @@ namespace LinaEngine::Input
 				SubscribeAction<InputCode::Key>(handlerID, ActionType::KeyReleased, cb);
 		}
 
-		void SubscribeMouseButtonPressedAction(const LinaString& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse button = InputCode::Mouse::MouseUnknown)
+		void SubscribeMouseButtonPressedAction(const std::string& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse button = InputCode::Mouse::MouseUnknown)
 		{
 			if (button != InputCode::Mouse::MouseUnknown)
 				SubscribeAction<InputCode::Mouse>(handlerID, ActionType::MouseButtonPressed, cb, button);
@@ -64,7 +64,7 @@ namespace LinaEngine::Input
 				SubscribeAction<InputCode::Mouse>(handlerID, ActionType::MouseButtonPressed, cb);
 		}
 
-		void SubscribeMouseButtonReleasedAction(const LinaString& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse button = InputCode::Mouse::MouseUnknown)
+		void SubscribeMouseButtonReleasedAction(const std::string& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse button = InputCode::Mouse::MouseUnknown)
 		{
 			if (button != InputCode::Mouse::MouseUnknown)
 				SubscribeAction<InputCode::Mouse>(handlerID, ActionType::MouseButtonReleased, cb, button);
@@ -72,7 +72,7 @@ namespace LinaEngine::Input
 				SubscribeAction<InputCode::Mouse>(handlerID, ActionType::MouseButtonReleased, cb);
 		}
 
-		void SubscribeMousePressedAction(const LinaString& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse mouse = InputCode::Mouse::MouseUnknown)
+		void SubscribeMousePressedAction(const std::string& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse mouse = InputCode::Mouse::MouseUnknown)
 		{
 			if (mouse != InputCode::Mouse::MouseUnknown)
 				SubscribeAction<InputCode::Mouse>(handlerID, ActionType::MouseButtonPressed, cb, mouse);
@@ -80,7 +80,7 @@ namespace LinaEngine::Input
 				SubscribeAction<InputCode::Mouse>(handlerID, ActionType::MouseButtonPressed, cb);
 		}
 
-		void SubscribeMouseReleasedAction(const LinaString& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse mouse = InputCode::Mouse::MouseUnknown)
+		void SubscribeMouseReleasedAction(const std::string& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse mouse = InputCode::Mouse::MouseUnknown)
 		{
 			if (mouse != InputCode::Mouse::MouseUnknown)
 				SubscribeAction<InputCode::Mouse>(handlerID, ActionType::MouseButtonReleased, cb, mouse);

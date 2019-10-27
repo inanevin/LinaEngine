@@ -19,26 +19,20 @@ Timestamp: 4/14/2019 5:12:19 PM
 
 #include "LinaPch.hpp"
 
-/************ GLAD NEEDS TO BE INCLUDED BEFORE OTHERS ************/
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-/************ GLAD NEEDS TO BE INCLUDED BEFORE OTHERS ************/
-
 #include "PackageManager/OpenGL/GLWindow.hpp"  
-#include "Core/Application.hpp"
 #include "Events/ApplicationEvent.hpp"
 #include "Events/KeyEvent.hpp"
 #include "Events/MouseEvent.hpp"
+#include "Input/InputEngine.hpp"
 
-
-namespace LinaEngine
+namespace LinaEngine::Graphics
 {
-
-
-	GLWindow::GLWindow(const WindowProperties& props) : Window(props)
+	GLWindow::GLWindow()
 	{
 		LINA_CORE_TRACE("[Constructor] -> GLWindow ({0})", typeid(*this).name());
-		SetVsync_Impl(false);
+		SetVsync(false);
 	}
 
 	GLWindow::~GLWindow()
@@ -47,7 +41,7 @@ namespace LinaEngine
 		glfwTerminate();
 	}
 
-	void GLWindow::Tick_Impl()
+	void GLWindow::Tick()
 	{
 		if (!glfwWindowShouldClose(static_cast<GLFWwindow*>(m_Window)))
 		{
@@ -62,7 +56,7 @@ namespace LinaEngine
 
 	}
 
-	void GLWindow::SetVsync_Impl(bool enabled)
+	void GLWindow::SetVsync(bool enabled)
 	{
 		glfwSwapInterval(enabled);
 	}
@@ -72,12 +66,13 @@ namespace LinaEngine
 		LINA_CORE_ERR("GLFW Error: {0} Description: {1} ", error, desc);
 	}
 
-	bool GLWindow::Initialize_Impl()
+	bool GLWindow::Initialize(LinaEngine::Input::InputEngine& inputEngineIn, WindowProperties& propsIn)
 	{
 		LINA_CORE_TRACE("[Initialization] -> GLWindow ({0})", typeid(*this).name());
-
+		
 		// Set Input Engine reference.
-		inputEngine = &(Application::Get().GetInputDevice());
+		inputEngine = &inputEngineIn;
+		m_WindowProperties = &propsIn;
 
 		// Initialize glfw & set window hints
 		int init = glfwInit();
@@ -90,22 +85,19 @@ namespace LinaEngine
 #endif
 
 		// Create window
-		GLFWwindow* window = (glfwCreateWindow(m_Properties.m_Width, m_Properties.m_Height, m_Properties.m_Title.c_str(), NULL, NULL));
-
+		GLFWwindow* window = (glfwCreateWindow(m_WindowProperties->m_Width, m_WindowProperties->m_Height, m_WindowProperties->m_Title.c_str(), NULL, NULL));
+	
 		if (!window)
 		{
 			// Assert window creation.
 			LINA_CORE_ERR("GLFW could not initialize!");
 			return false;
 		}
-	
-
 		// Set error callback
 		glfwSetErrorCallback(GLFWErrorCallback);
 
 		// Set context.
 		glfwMakeContextCurrent(window);
-
 		// Load glad
 		bool loaded = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		if (!loaded)
@@ -115,7 +107,7 @@ namespace LinaEngine
 		}
 	
 		// Update OpenGL about the window data.
-		glViewport(0, 0, m_Properties.m_Width, m_Properties.m_Height);
+		glViewport(0, 0, m_WindowProperties->m_Width, m_WindowProperties->m_Height);
 
 		// set user pointer for callbacks.
 		glfwSetWindowUserPointer(window, this);
@@ -191,13 +183,13 @@ namespace LinaEngine
 
 	void GLWindow::WindowResized(void* window, int width, int height)
 	{
-		m_Properties.m_Width = width;
-		m_Properties.m_Height = height;
+		m_WindowProperties->m_Width = width;
+		m_WindowProperties->m_Height = height;
 
-		glViewport(0, 0, m_Properties.m_Width, m_Properties.m_Height);
+		glViewport(0, 0, m_WindowProperties->m_Width, m_WindowProperties->m_Height);
 
 		// Notify listeners.
-		m_EventCallback(WindowResizeEvent(m_Properties.m_Width, m_Properties.m_Height));
+		m_EventCallback(WindowResizeEvent(m_WindowProperties->m_Width, m_WindowProperties->m_Height));
 	}
 
 	void GLWindow::WindowClosed(void* window)
@@ -261,12 +253,12 @@ namespace LinaEngine
 
 	void GLWindow::KeyCallback(void* w, int key, int scancode, int action, int mods)
 	{
-		inputEngine->DispatchKeyAction(static_cast<InputCode::Key>(key), action);
+		inputEngine->DispatchKeyAction(static_cast<LinaEngine::Input::InputCode::Key>(key), action);
 	}
 
 	void GLWindow::MouseCallback(void* w, int button, int action, int mods)
 	{
-		inputEngine->DispatchMouseAction(static_cast<InputCode::Mouse>(button), action);
+		inputEngine->DispatchMouseAction(static_cast<LinaEngine::Input::InputCode::Mouse>(button), action);
 	}
 
 }

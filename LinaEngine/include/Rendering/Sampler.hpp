@@ -32,7 +32,7 @@ namespace LinaEngine::Graphics
 
 		Sampler() {};
 
-		FORCEINLINE void Construct(const LinaString& samplerName, PAMRenderDevice& deviceIn, SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR, SamplerFilter magFilter = SamplerFilter::FILTER_LINEAR,
+		FORCEINLINE void Construct(const std::string& samplerName, RenderDevice& deviceIn, SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR, SamplerFilter magFilter = SamplerFilter::FILTER_LINEAR,
 			SamplerWrapMode wrapU = SamplerWrapMode::WRAP_CLAMP, SamplerWrapMode wrapV = SamplerWrapMode::WRAP_CLAMP, float anisotropy = 0.0f)
 		{
 			renderDevice = &deviceIn;
@@ -48,12 +48,12 @@ namespace LinaEngine::Graphics
 
 		FORCEINLINE uint32 GetID() const { return m_EngineBoundID; }
 
-		FORCEINLINE const LinaString& GetSamplerName() const { return m_SamplerName; }
+		FORCEINLINE const std::string& GetSamplerName() const { return m_SamplerName; }
 
 	private:
 
-		LinaString m_SamplerName;
-		PAMRenderDevice* renderDevice;
+		std::string m_SamplerName;
+		RenderDevice* renderDevice;
 		uint32 m_EngineBoundID;
 
 		//NULL_COPY_AND_ASSIGN(Sampler);

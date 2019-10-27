@@ -75,13 +75,13 @@ Timestamp: 12/30/2018 1:54:10 AM
 // DISABLE LOGGERS IN DISTRIBUTION BUILDS
 
 
-#include "Core/APIExport.hpp"
+
 #include "spdlog/spdlog.h"
 
 namespace LinaEngine
 {
 
-	class LINA_API Log
+	class  Log
 	{
 	public:
 

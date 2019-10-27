@@ -28,7 +28,7 @@ namespace LinaEngine
 		// For each action type insert a new list to the map.
 		for (int i = 0; i < (ActionType::ACTION_TYPES_LASTINDEX + 1); i++)
 		{
-			m_ActionHandlerMap.insert(LinaMakePair(i, LinaArray<ActionHandlerBase*>()));
+			m_ActionHandlerMap.insert(std::make_pair(i, LinaArray<ActionHandlerBase*>()));
 		}
 	}
 

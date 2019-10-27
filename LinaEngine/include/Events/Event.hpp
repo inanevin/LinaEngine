@@ -21,9 +21,11 @@ Timestamp: 12/30/2018 5:32:32 PM
 #ifndef Event_HPP
 #define Event_HPP
 
-#include "Core/APIExport.hpp"
+
+
+#include <functional>
+#include <ostream>
 #include "Core/Common.hpp"
-#include "Core/STLImport.hpp"
 
 namespace LinaEngine
 {
@@ -54,7 +56,7 @@ namespace LinaEngine
 
 #define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
 
-	class LINA_API Event
+	class  Event
 	{
 	public:
 		bool isHandled = false;
@@ -92,6 +94,8 @@ namespace LinaEngine
 		}
 	private:
 		Event& m_Event;
+
+
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const Event& e)

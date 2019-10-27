@@ -27,6 +27,8 @@ Timestamp: 4/8/2019 9:14:44 PM
 #include <cstdlib>
 #include "Core/Environment.hpp"
 #include "Core/Common.hpp"
+#include "Core/SizeDefinitions.hpp"
+
 #define MATH_PI 3.1415926535897932f
 #define MATH_TWO_PI 6.28318530717959f
 #define MATH_HALF_PI 1.57079632679f
@@ -43,12 +45,12 @@ namespace LinaEngine
 {
 	struct GenericMath
 	{
-		static CONSTEXPR FORCEINLINE int32 TruncToInt(float val)
+		static constexpr FORCEINLINE int32 TruncToInt(float val)
 		{
 			return (int32)val;
 		}
 
-		static CONSTEXPR FORCEINLINE float TruncToFloat(float val)
+		static constexpr FORCEINLINE float TruncToFloat(float val)
 		{
 			return (float)TruncToInt(val);
 		}
@@ -115,7 +117,7 @@ namespace LinaEngine
 		static FORCEINLINE float Sqrt(float val) { return sqrtf(val); }
 
 		template<typename T>
-		static CONSTEXPR FORCEINLINE T Select(const T& cmp,
+		static constexpr FORCEINLINE T Select(const T& cmp,
 			const T& valIfGreaterOrEqualToZero,
 			const T& valIfLessZero)
 		{
@@ -245,38 +247,38 @@ namespace LinaEngine
 		}
 
 		template<typename T>
-		static CONSTEXPR FORCEINLINE T Abs(const T& val)
+		static constexpr FORCEINLINE T Abs(const T& val)
 		{
 			return val >= (T)(0) ? val : -val;
 		}
 
 		// WARNING: This behavior is not consistent with Vector sign function!
 		//	template<typename T>
-		//	static CONSTEXPR FORCEINLINE T sign(const T& val)
+		//	static constexpr FORCEINLINE T sign(const T& val)
 		//	{
 		//		return (T(0) < val) - (val < T(0));
 		//	}
 
 		template<typename T>
-		static CONSTEXPR FORCEINLINE T Min(const T& val1, const T& val2)
+		static constexpr FORCEINLINE T Min(const T& val1, const T& val2)
 		{
 			return val1 <= val2 ? val1 : val2;
 		}
 
 		template<typename T>
-		static CONSTEXPR FORCEINLINE T Min3(const T& val1, const T& val2, const T& val3)
+		static constexpr FORCEINLINE T Min3(const T& val1, const T& val2, const T& val3)
 		{
 			return Min(Min(val1, val2), val3);
 		}
 
 		template<typename T>
-		static CONSTEXPR FORCEINLINE T Max(const T& val1, const T& val2)
+		static constexpr FORCEINLINE T Max(const T& val1, const T& val2)
 		{
 			return val1 >= val2 ? val1 : val2;
 		}
 
 		template<typename T>
-		static CONSTEXPR FORCEINLINE T Max3(const T& val1, const T& val2, const T& val3)
+		static constexpr FORCEINLINE T Max3(const T& val1, const T& val2, const T& val3)
 		{
 			return Max(Max(val1, val2), val3);
 		}

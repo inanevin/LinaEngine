@@ -8,8 +8,8 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 
 http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
 Class: GenericVectorMath
@@ -22,24 +22,16 @@ Timestamp: 4/9/2019 12:43:29 AM
 #ifndef GenericVectorMath_HPP
 #define GenericVectorMath_HPP
 
-#include "Utility/Math/Math.hpp"
-#include "Core/Memory.hpp"
+
+#include "PackageManager/PAMMemory.hpp"
+#include "PackageManager/PAMMath.hpp"
 #include "Utility/Log.hpp"
-
-
 
 namespace LinaEngine
 {
 	struct GenericVector
 	{
 	public:
-
-		FORCEINLINE float* GetFirst()
-		{
-			return &v[0];
-		}
-
-
 
 		static FORCEINLINE void MatrixMultiplication(void* result, const void* mat1, const void* mat2)
 		{
@@ -86,8 +78,7 @@ namespace LinaEngine
 				M[2][0] * (M[0][1] * M[1][2] - M[0][2] * M[1][1]);
 		}
 
-		static FORCEINLINE float MatrixDeterminant4x4(float* outS,
-			float* outC, const void* mat)
+		static FORCEINLINE float MatrixDeterminant4x4(float* outS, float* outC, const void* mat)
 		{
 			float sVals[6];
 			float cVals[6];
@@ -154,7 +145,7 @@ namespace LinaEngine
 			Memory::memcpy(dest, result, sizeof(result));
 		}
 
-		static FORCEINLINE void CreateTransformMatrix(void* dest, const GenericVector& translation, const GenericVector& quatRotation, const GenericVector& scaleVec)
+		static FORCEINLINE void CreateTransformMatrix(void* dest, const GenericVector & translation, const GenericVector & quatRotation, const GenericVector & scaleVec)
 		{
 			float rotVals[4];
 			quatRotation.Store4F(rotVals);
@@ -178,32 +169,34 @@ namespace LinaEngine
 			float s2 = scaleVec[2];
 
 			GenericVector mat[4];
-			mat[0] = Make((1.0f - (yy2 + zz2))*s0, (xy2 - zw2)*s1, (xz2 + yw2)*s2, translation[0]);
-			mat[1] = Make((xy2 + zw2)*s0, (1.0f - (xx2 + zz2))*s1, (yz2 - xw2)*s2, translation[1]);
-			mat[2] = Make((xz2 - yw2)*s0, (yz2 + xw2)*s1, (1.0f - (xx2 + yy2))*s2, translation[2]);
+			mat[0] = Make((1.0f - (yy2 + zz2)) * s0, (xy2 - zw2) * s1, (xz2 + yw2) * s2, translation[0]);
+			mat[1] = Make((xy2 + zw2) * s0, (1.0f - (xx2 + zz2)) * s1, (yz2 - xw2) * s2, translation[1]);
+			mat[2] = Make((xz2 - yw2) * s0, (yz2 + xw2) * s1, (1.0f - (xx2 + yy2)) * s2, translation[2]);
 			mat[3] = Make(0.0f, 0.0f, 0.0f, 1.0f);
 			Memory::memcpy(dest, mat, sizeof(mat));
 		}
 
-		static FORCEINLINE GenericVector Make(uint32 x, uint32 y, uint32 z, uint32 w)
-		{
-			GenericVector vec;
-			vec.v[0] = (float)*((uint32*)&x);
-			vec.v[1] = (float)*((uint32*)&y);
-			vec.v[2] = (float)*((uint32*)&z);
-			vec.v[3] = (float)*((uint32*)&w);
-			return vec;
-		}
-
-		static FORCEINLINE const GenericVector mask(uint32 index)
+		static FORCEINLINE const GenericVector Mask(uint32 index)
 		{
 			static const GenericVector masks[4] = {
 				GenericVector::Make((uint32)0, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF),
 				GenericVector::Make((uint32)0xFFFFFFFF, 0, 0xFFFFFFFF, 0xFFFFFFFF),
 				GenericVector::Make((uint32)0xFFFFFFFF, 0xFFFFFFFF, 0, 0xFFFFFFFF),
 				GenericVector::Make((uint32)0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0) };
-			LINA_CORE_ASSERT(index < 4, "Index is bigger than 4");
+
+			LINA_CORE_ASSERT(index < 4, "Index is bigger than 4!");
+
 			return masks[index];
+		}
+
+		static FORCEINLINE GenericVector Make(uint32 x, uint32 y, uint32 z, uint32 w)
+		{
+			GenericVector vec;
+			vec.v[0] = (float) * ((uint32*)& x);
+			vec.v[1] = (float) * ((uint32*)& y);
+			vec.v[2] = (float) * ((uint32*)& z);
+			vec.v[3] = (float) * ((uint32*)& w);
+			return vec;
 		}
 
 		static FORCEINLINE GenericVector Make(float x, float y, float z, float w)
@@ -246,6 +239,27 @@ namespace LinaEngine
 			return Make(x, y, z, w);
 		}
 
+		FORCEINLINE float* GetFirst()
+		{
+			return &v[0];
+		}
+
+		FORCEINLINE GenericVector Replicate(uint32 index) const
+		{
+			LINA_CORE_ASSERT(index <= 3, "Index is bigger than 3!");
+			return Make(v[index], v[index], v[index], v[index]);
+		}
+
+		FORCEINLINE GenericVector swizzle(uint32 x, uint32 y, uint32 z, uint32 w) const
+		{
+			return Make(v[x], v[y], v[z], v[w]);
+		}
+
+		FORCEINLINE GenericVector Abs() const
+		{
+			return Make(Math::Abs(v[0]), Math::Abs(v[1]), Math::Abs(v[2]), Math::Abs(v[3]));
+		}
+
 		FORCEINLINE void Store4F(float* result) const
 		{
 			Memory::memcpy(result, v, sizeof(v));
@@ -271,30 +285,13 @@ namespace LinaEngine
 			return StoreAligned(result);
 		}
 
-		FORCEINLINE GenericVector Replicate(uint32 index) const
-		{
-			LINA_CORE_ASSERT(index <= 3, "Index is bigger than 3");
-			return Make(v[index], v[index], v[index], v[index]);
-		}
-
-		//	FORCEINLINE GenericVector swizzle(uint32 x, uint32 y, uint32 z, uint32 w) const
-		//	{
-		//		assertCheck(x <= 3);
-		//		assertCheck(y <= 3);
-		//		assertCheck(z <= 3);
-		//		assertCheck(w <= 3);
-		//		return make(v[x], v[y], v[z], v[w]);
-		//	}
-
-		FORCEINLINE GenericVector Abs() const
-		{
-			return Make(Math::Abs(v[0]), Math::Abs(v[1]), Math::Abs(v[2]), Math::Abs(v[3]));
-		}
 	private:
+
 		float GetSign(float r) const
 		{
 			return (float)(((uint32*)(&r))[1 - 1] & 0x80000000);
 		}
+
 	public:
 
 		FORCEINLINE GenericVector Sign() const
@@ -302,7 +299,7 @@ namespace LinaEngine
 			return Make(GetSign(v[0]), GetSign(v[1]), GetSign(v[2]), GetSign(v[3]));
 		}
 
-		FORCEINLINE GenericVector Min(const GenericVector& other) const
+		FORCEINLINE GenericVector Min(const GenericVector & other) const
 		{
 			return Make(
 				Math::Min(v[0], other.v[0]),
@@ -311,7 +308,7 @@ namespace LinaEngine
 				Math::Min(v[3], other.v[3]));
 		}
 
-		FORCEINLINE GenericVector Max(const GenericVector& other) const
+		FORCEINLINE GenericVector Max(const GenericVector & other) const
 		{
 			return Make(
 				Math::Max(v[0], other.v[0]),
@@ -325,25 +322,20 @@ namespace LinaEngine
 			return Make(-v[0], -v[1], -v[2], -v[3]);
 		}
 
-		FORCEINLINE GenericVector operator-() const
-		{
-			return Neg();
-		}
-
-		FORCEINLINE GenericVector Dot3(const GenericVector& other) const
+		FORCEINLINE GenericVector Dot3(const GenericVector & other) const
 		{
 			float dot = v[0] * other.v[0] + v[1] * other.v[1] + v[2] * other.v[2];
 			return Make(dot, dot, dot, dot);
 		}
 
-		FORCEINLINE GenericVector Dot4(const GenericVector& other) const
+		FORCEINLINE GenericVector Dot4(const GenericVector & other) const
 		{
 			float dot = v[0] * other.v[0] + v[1] * other.v[1]
 				+ v[2] * other.v[2] + v[3] * other.v[3];
 			return Make(dot, dot, dot, dot);
 		}
 
-		FORCEINLINE GenericVector Cross3(const GenericVector& other) const
+		FORCEINLINE GenericVector Cross3(const GenericVector & other) const
 		{
 			return Make(
 				v[1] * other.v[2] - v[2] * other.v[1],
@@ -352,7 +344,7 @@ namespace LinaEngine
 				0.0f);
 		}
 
-		FORCEINLINE GenericVector Pow(const GenericVector& exp) const
+		FORCEINLINE GenericVector Pow(const GenericVector & exp) const
 		{
 			return Make(
 				Math::Pow(v[0], exp.v[0]),
@@ -391,23 +383,15 @@ namespace LinaEngine
 
 		FORCEINLINE GenericVector Normalize4() const
 		{
-			return *this * RLen4();
+			return *this* RLen4();
 		}
 
 		FORCEINLINE GenericVector Normalize3() const
 		{
-			return *this * Rlen3();
+			return *this* Rlen3();
 		}
 
-		FORCEINLINE void SinCos(GenericVector* outSin, GenericVector* outCos) const
-		{
-			Math::SinCos(&outSin->v[0], &outCos->v[0], (*this)[0]);
-			Math::SinCos(&outSin->v[1], &outCos->v[1], (*this)[1]);
-			Math::SinCos(&outSin->v[2], &outCos->v[2], (*this)[2]);
-			Math::SinCos(&outSin->v[3], &outCos->v[3], (*this)[3]);
-		}
-
-		FORCEINLINE GenericVector QuatMul(const GenericVector& other) const
+		FORCEINLINE GenericVector QuatMul(const GenericVector & other) const
 		{
 			// NOTE: This is the naive technique. It may actually be faster, but testing is inconclusive.
 	//		const float w = (v[3] * other.v[3]) - (v[0] * other.v[0]) - (v[1] * other.v[1]) - (v[2] * other.v[2]);
@@ -436,13 +420,13 @@ namespace LinaEngine
 				t0 + t9 - t5);
 		}
 
-		FORCEINLINE GenericVector QuatRotateVec(const GenericVector& vec) const
+		FORCEINLINE GenericVector QuatRotateVec(const GenericVector & vec) const
 		{
 			GenericVector tmp = GenericVector::Load1F(2.0f) * Cross3(vec);
 			return vec + (tmp * Replicate(3)) + Cross3(tmp);
 		}
 
-		FORCEINLINE GenericVector Mad(const GenericVector& mul, const GenericVector& add) const
+		FORCEINLINE GenericVector Mad(const GenericVector & mul, const GenericVector & add) const
 		{
 			return Make(
 				Math::Mad(v[0], mul.v[0], add.v[0]),
@@ -457,28 +441,24 @@ namespace LinaEngine
 			return Make(Dot4(m[0])[0], Dot4(m[1])[0], Dot4(m[2])[0], Dot4(m[3])[0]);
 		}
 
-		FORCEINLINE GenericVector operator+(const GenericVector& other) const
+		FORCEINLINE GenericVector select(const GenericVector & mask, const GenericVector & other) const
 		{
-			return Make(v[0] + other.v[0], v[1] + other.v[1],
-				v[2] + other.v[2], v[3] + other.v[3]);
+			uint32* m = (uint32*)(&mask.v[0]);
+			return Make(
+				m[0] ? v[0] : other.v[0],
+				m[1] ? v[1] : other.v[1],
+				m[2] ? v[2] : other.v[2],
+				m[3] ? v[3] : other.v[3]);
 		}
 
-		FORCEINLINE GenericVector operator-(const GenericVector& other) const
+		FORCEINLINE GenericVector Equals(const GenericVector & other, float errorMargin) const
 		{
-			return Make(v[0] - other.v[0], v[1] - other.v[1],
-				v[2] - other.v[2], v[3] - other.v[3]);
+			return (*this - other).Abs() < GenericVector::Load1F(errorMargin);
 		}
 
-		FORCEINLINE GenericVector operator*(const GenericVector& other) const
+		FORCEINLINE GenericVector NotEquals(const GenericVector & other, float errorMargin) const
 		{
-			return Make(v[0] * other.v[0], v[1] * other.v[1],
-				v[2] * other.v[2], v[3] * other.v[3]);
-		}
-
-		FORCEINLINE GenericVector operator/(const GenericVector& other) const
-		{
-			return Make(v[0] / other.v[0], v[1] / other.v[1],
-				v[2] / other.v[2], v[3] / other.v[3]);
+			return (*this - other).Abs() >= GenericVector::Load1F(errorMargin);
 		}
 
 		FORCEINLINE bool IsZero3f() const
@@ -496,8 +476,46 @@ namespace LinaEngine
 				(vals[2] == 0.0f) && (vals[3] == 0.0f);
 		}
 
+		FORCEINLINE void SinCos(GenericVector * outSin, GenericVector * outCos) const
+		{
+			Math::SinCos(&outSin->v[0], &outCos->v[0], (*this)[0]);
+			Math::SinCos(&outSin->v[1], &outCos->v[1], (*this)[1]);
+			Math::SinCos(&outSin->v[2], &outCos->v[2], (*this)[2]);
+			Math::SinCos(&outSin->v[3], &outCos->v[3], (*this)[3]);
+		}
 
-		FORCEINLINE GenericVector operator==(const GenericVector& other) const
+		// Operator Overloads
+
+		FORCEINLINE GenericVector operator-() const
+		{
+			return Neg();
+		}
+
+		FORCEINLINE GenericVector operator+(const GenericVector & other) const
+		{
+			return Make(v[0] + other.v[0], v[1] + other.v[1],
+				v[2] + other.v[2], v[3] + other.v[3]);
+		}
+
+		FORCEINLINE GenericVector operator-(const GenericVector & other) const
+		{
+			return Make(v[0] - other.v[0], v[1] - other.v[1],
+				v[2] - other.v[2], v[3] - other.v[3]);
+		}
+
+		FORCEINLINE GenericVector operator*(const GenericVector & other) const
+		{
+			return Make(v[0] * other.v[0], v[1] * other.v[1],
+				v[2] * other.v[2], v[3] * other.v[3]);
+		}
+
+		FORCEINLINE GenericVector operator/(const GenericVector & other) const
+		{
+			return Make(v[0] / other.v[0], v[1] / other.v[1],
+				v[2] / other.v[2], v[3] / other.v[3]);
+		}
+
+		FORCEINLINE GenericVector operator==(const GenericVector & other) const
 		{
 			return Make(
 				(uint32)(v[0] == other.v[0] ? 0xFFFFFFFF : 0),
@@ -506,18 +524,7 @@ namespace LinaEngine
 				v[3] == other.v[3] ? 0xFFFFFFFF : 0);
 		}
 
-		FORCEINLINE GenericVector Equals(const GenericVector& other, float errorMargin) const
-		{
-			return (*this - other).Abs() < GenericVector::Load1F(errorMargin);
-		}
-
-		FORCEINLINE GenericVector NotEquals(const GenericVector& other, float errorMargin) const
-		{
-			return (*this - other).Abs() >= GenericVector::Load1F(errorMargin);
-		}
-
-
-		FORCEINLINE GenericVector operator!=(const GenericVector& other) const
+		FORCEINLINE GenericVector operator!=(const GenericVector & other) const
 		{
 			return Make(
 				(uint32)(v[0] != other.v[0] ? 0xFFFFFFFF : 0),
@@ -526,7 +533,7 @@ namespace LinaEngine
 				v[3] != other.v[3] ? 0xFFFFFFFF : 0);
 		}
 
-		FORCEINLINE GenericVector operator>(const GenericVector& other) const
+		FORCEINLINE GenericVector operator>(const GenericVector & other) const
 		{
 			return Make(
 				(uint32)(v[0] > other.v[0] ? 0xFFFFFFFF : 0),
@@ -535,7 +542,7 @@ namespace LinaEngine
 				v[3] > other.v[3] ? 0xFFFFFFFF : 0);
 		}
 
-		FORCEINLINE GenericVector operator>=(const GenericVector& other) const
+		FORCEINLINE GenericVector operator>=(const GenericVector & other) const
 		{
 			return Make(
 				(uint32)(v[0] >= other.v[0] ? 0xFFFFFFFF : 0),
@@ -544,7 +551,7 @@ namespace LinaEngine
 				v[3] >= other.v[3] ? 0xFFFFFFFF : 0);
 		}
 
-		FORCEINLINE GenericVector operator<(const GenericVector& other) const
+		FORCEINLINE GenericVector operator<(const GenericVector & other) const
 		{
 			return Make(
 				(uint32)(v[0] < other.v[0] ? 0xFFFFFFFF : 0),
@@ -553,7 +560,7 @@ namespace LinaEngine
 				v[3] < other.v[3] ? 0xFFFFFFFF : 0);
 		}
 
-		FORCEINLINE GenericVector operator<=(const GenericVector& other) const
+		FORCEINLINE GenericVector operator<=(const GenericVector & other) const
 		{
 			return Make(
 				(uint32)(v[0] <= other.v[0] ? 0xFFFFFFFF : 0),
@@ -562,7 +569,7 @@ namespace LinaEngine
 				v[3] <= other.v[3] ? 0xFFFFFFFF : 0);
 		}
 
-		FORCEINLINE GenericVector operator|(const GenericVector& other) const
+		FORCEINLINE GenericVector operator|(const GenericVector & other) const
 		{
 			return Make(
 				(uint32)(((uint32*)v)[1 - 1] | ((uint32*)other.v)[1 - 1]),
@@ -571,7 +578,7 @@ namespace LinaEngine
 				(uint32)(((uint32*)v)[3] | ((uint32*)other.v)[3]));
 		}
 
-		FORCEINLINE GenericVector operator&(const GenericVector& other) const
+		FORCEINLINE GenericVector operator&(const GenericVector & other) const
 		{
 			return Make(
 				(uint32)(((uint32*)v)[1 - 1] & ((uint32*)other.v)[1 - 1]),
@@ -580,7 +587,7 @@ namespace LinaEngine
 				(uint32)(((uint32*)v)[3] & ((uint32*)other.v)[3]));
 		}
 
-		FORCEINLINE GenericVector operator^(const GenericVector& other) const
+		FORCEINLINE GenericVector operator^(const GenericVector & other) const
 		{
 			return Make(
 				(uint32)(((uint32*)v)[1 - 1] ^ ((uint32*)other.v)[1 - 1]),
@@ -593,16 +600,6 @@ namespace LinaEngine
 		{
 			LINA_CORE_ASSERT(index <= 3, "Index is bigger than 3!");
 			return v[index];
-		}
-
-		FORCEINLINE GenericVector select(const GenericVector& mask, const GenericVector& other) const
-		{
-			uint32* m = (uint32*)(&mask.v[0]);
-			return Make(
-				m[0] ? v[0] : other.v[0],
-				m[1] ? v[1] : other.v[1],
-				m[2] ? v[2] : other.v[2],
-				m[3] ? v[3] : other.v[3]);
 		}
 
 	private:

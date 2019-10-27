@@ -23,70 +23,59 @@ Timestamp: 4/27/2019 5:48:39 PM
 #define RenderContext_HPP
 
 #include "PackageManager/PAMRenderDevice.hpp"
-#include "Shader.hpp"
 #include "RenderTarget.hpp"
 #include "VertexArray.hpp"
-#include "Material.hpp"
+
 
 namespace LinaEngine::Graphics
 {
+	class Material;
+
 	class RenderContext
 	{
 	public:
 
-		virtual ~RenderContext() {};
-
-		FORCEINLINE void Construct(PAMRenderDevice& renderDeviceIn, RenderTarget& renderTargetIn)
+		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, RenderTarget& renderTargetIn, DrawParams& drawParamsIn)
 		{
-			renderDevice = &renderDeviceIn;
-			target = &renderTargetIn;
+			m_RenderDevice = &renderDeviceIn;
+			m_Target = &renderTargetIn;
+			m_DrawParams = &drawParamsIn;
 		}
 
 		FORCEINLINE void Clear(bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
 		{
-			renderDevice->Clear(target->GetID(), shouldClearColor, shouldClearDepth, shouldClearStencil, color, stencil);
+			m_RenderDevice->Clear(m_Target->GetID(), shouldClearColor, shouldClearDepth, shouldClearStencil, color, stencil);
 		}
 
 		FORCEINLINE void Clear(const Color& color, bool shouldClearDepth = false)
 		{
-			renderDevice->Clear(target->GetID(), true, shouldClearDepth, false, color, 0);
+			m_RenderDevice->Clear(m_Target->GetID(), true, shouldClearDepth, false, color, 0);
 		}
 
-		FORCEINLINE void Draw(Shader& shader, VertexArray& vertexArray, const DrawParams& drawParams, uint32 numInstances = 1)
+		FORCEINLINE void Draw(uint32 vao, const DrawParams& drawParams, uint32 numInstances = 1, uint32 numElements = 1, bool drawArrays = false)
 		{
-			renderDevice->Draw(target->GetID(), shader.GetID(), vertexArray.GetID(), drawParams, numInstances, vertexArray.GetIndexCount());
+			m_RenderDevice->Draw(m_Target->GetID(), vao, drawParams, numInstances, numElements, drawArrays);
 		}
 
-		FORCEINLINE void Draw(uint32 shaderID, VertexArray& vertexArray, const DrawParams& drawParams, uint32 numInstances = 1)
+		FORCEINLINE void Draw(VertexArray& vertexArray, const DrawParams& drawParams, uint32 numInstances = 1, bool drawArrays = false)
 		{
-			renderDevice->Draw(target->GetID(), shaderID, vertexArray.GetID(), drawParams, numInstances, vertexArray.GetIndexCount());
+			m_RenderDevice->Draw(m_Target->GetID(), vertexArray.GetID(), drawParams, numInstances, vertexArray.GetIndexCount(), drawArrays);
 		}
 
-		FORCEINLINE void UpdateShaderData(MeshMaterial* data)
-		{
-			renderDevice->SetShader(data->shaderID);
-
-			for (auto const& d : (*data).floats)
-				renderDevice->UpdateShaderUniformFloat(data->shaderID, d.first, d.second);
-
-			for (auto const& d : (*data).colors)
-				renderDevice->UpdateShaderUniformColor(data->shaderID, d.first, d.second);
-
-			for (auto const& d : (*data).ints)
-				renderDevice->UpdateShaderUniformInt(data->shaderID, d.first, d.second);
-		}
-	
-
-	protected:
-
-		FORCEINLINE RenderContext() {}
-
-		PAMRenderDevice* renderDevice;
-		RenderTarget* target;
+		void UpdateShaderData(Material* data);
+		void RenderMesh(VertexArray& vertexArray, Material& material, const Matrix& transformIn);
+		void Flush();
 
 	private:
 
+		RenderDevice* m_RenderDevice;
+		RenderTarget* m_Target;
+		DrawParams* m_DrawParams;
+
+		// Map to see the list of same vertex array & textures to compress them into single draw call.
+		std::map<std::pair<VertexArray*, Material*>, std::tuple<LinaArray<Matrix>, LinaArray<Matrix>, LinaArray<Matrix>>> m_MeshRenderBuffer;
 	
+	private:
 
 	};
 }

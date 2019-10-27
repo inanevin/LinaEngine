@@ -24,6 +24,7 @@ Timestamp: 4/8/2019 9:14:13 PM
 
 #include "Generic/GenericMath.hpp"
 
-typedef LinaEngine::GenericMath PAMMath;
+typedef LinaEngine::GenericMath Math;
+
 
 #endif

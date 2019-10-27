@@ -22,21 +22,33 @@ Timestamp: 5/6/2019 5:10:23 PM
 #ifndef Level_HPP
 #define Level_HPP
 
-
-#include "Core/APIExport.hpp"
-#include "ECS/EntityComponentSystem.hpp"
-#include "Rendering/RenderEngine.hpp"
-#include "PackageManager/PAMInputEngine.hpp"
+#include "Core/Common.hpp"
 
 namespace LinaEngine
 {
 	class Application;
+
+	namespace ECS
+	{
+		class EntityComponentSystem;
+	}
+
+	namespace Graphics
+	{
+		class RenderEngine;
+	}
+
+	namespace Input
+	{
+		class InputEngine;
+	}
 }
 
-using namespace LinaEngine::Input;
 
 namespace LinaEngine::World
 {
+	
+
 	class Level
 	{
 	public:
@@ -52,22 +64,22 @@ namespace LinaEngine::World
 
 	protected:
 
-		EntityComponentSystem* m_ECS;
-		RenderEngine* m_RenderEngine;
-		InputEngine<PAMInputEngine>* m_InputEngine;
+		LinaEngine::ECS::EntityComponentSystem* m_ECS = nullptr;
+		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
+		LinaEngine::Input::InputEngine* m_InputEngine = nullptr;
 
 
 	private:
 
 		friend class LinaEngine::Application;
 
-		void SetEngineReferences(EntityComponentSystem& ecsIn, RenderEngine& renderEngineIn, InputEngine<PAMInputEngine>& inputEngineIn)
+		void SetEngineReferences(LinaEngine::ECS::EntityComponentSystem& ecsIn, LinaEngine::Graphics::RenderEngine& renderEngineIn, LinaEngine::Input::InputEngine& inputEngineIn)
 		{
 			m_ECS = &ecsIn;
 			m_RenderEngine = &renderEngineIn;
 			m_InputEngine = &inputEngineIn;
 		}
-
+		
 	};
 }
 

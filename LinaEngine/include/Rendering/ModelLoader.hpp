@@ -25,6 +25,7 @@ Timestamp: 4/26/2019 12:07:47 AM
 
 #include "IndexedModel.hpp"
 #include "Material.hpp"
+#include <string>
 
 namespace LinaEngine::Graphics
 {
@@ -33,7 +34,7 @@ namespace LinaEngine::Graphics
 	public:
 
 		// Load models using ASSIMP
-		static bool LoadModels(const LinaString& fileName, LinaArray<IndexedModel>& models, LinaArray<uint32>& modelMaterialIndices, LinaArray<Material>& materials);
+		static bool LoadModels(const std::string& fileName, LinaArray<IndexedModel>& models, LinaArray<uint32>& modelMaterialIndices, LinaArray<ModelMaterial>& materials);
 
 	};
 }

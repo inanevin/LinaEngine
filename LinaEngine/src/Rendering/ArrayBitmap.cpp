@@ -20,7 +20,7 @@ Timestamp: 4/14/2019 11:59:32 AM
 #include "LinaPch.hpp"
 #include "Rendering/ArrayBitmap.hpp"  
 #include "Utility/stb/stb_image.h"
-
+#include "PackageManager/PAMMemory.hpp"
 namespace LinaEngine::Graphics
 {
 	ArrayBitmap::ArrayBitmap(int32 widthIn, int32 heightIn) : m_Width(widthIn), m_Heigth(heightIn)
@@ -59,7 +59,7 @@ namespace LinaEngine::Graphics
 		m_Pixels = (int32*)Memory::free(m_Pixels);
 	}
 
-	bool ArrayBitmap::Load(const LinaString& fileName)
+	bool ArrayBitmap::Load(const std::string& fileName)
 	{
 		int32 texWidth, texHeight, bytesPerPixel;
 
@@ -85,7 +85,7 @@ namespace LinaEngine::Graphics
 		return true;
 	}
 
-	bool ArrayBitmap::Save(const LinaString& fileName) const
+	bool ArrayBitmap::Save(const std::string& fileName) const
 	{
 		// TODO: Serialization
 		return false;

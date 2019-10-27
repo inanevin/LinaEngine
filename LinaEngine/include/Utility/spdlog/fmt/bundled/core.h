@@ -57,27 +57,27 @@
 
 // Check if relaxed C++14 constexpr is supported.
 // GCC doesn't allow throw in constexpr until version 6 (bug 67371).
-#ifndef FMT_USE_CONSTEXPR
-# define FMT_USE_CONSTEXPR \
+#ifndef FMT_USE_constexpr
+# define FMT_USE_constexpr \
   (FMT_HAS_FEATURE(cxx_relaxed_constexpr) || FMT_MSC_VER >= 1910 || \
    (FMT_GCC_VERSION >= 600 && __cplusplus >= 201402L))
 #endif
-#if FMT_USE_CONSTEXPR
-# define FMT_CONSTEXPR constexpr
-# define FMT_CONSTEXPR_DECL constexpr
+#if FMT_USE_constexpr
+# define FMT_constexpr constexpr
+# define FMT_constexpr_DECL constexpr
 #else
-# define FMT_CONSTEXPR inline
-# define FMT_CONSTEXPR_DECL
+# define FMT_constexpr inline
+# define FMT_constexpr_DECL
 #endif
 
-#ifndef FMT_USE_CONSTEXPR11
-# define FMT_USE_CONSTEXPR11 \
-    (FMT_USE_CONSTEXPR || FMT_GCC_VERSION >= 406 || FMT_MSC_VER >= 1900)
+#ifndef FMT_USE_constexpr11
+# define FMT_USE_constexpr11 \
+    (FMT_USE_constexpr || FMT_GCC_VERSION >= 406 || FMT_MSC_VER >= 1900)
 #endif
-#if FMT_USE_CONSTEXPR11
-# define FMT_CONSTEXPR11 constexpr
+#if FMT_USE_constexpr11
+# define FMT_constexpr11 constexpr
 #else
-# define FMT_CONSTEXPR11
+# define FMT_constexpr11
 #endif
 
 #ifndef FMT_OVERRIDE
@@ -205,7 +205,7 @@ struct result_of<F(Args...)> {
 
 // Casts nonnegative integer to unsigned.
 template <typename Int>
-FMT_CONSTEXPR typename std::make_unsigned<Int>::type to_unsigned(Int value) {
+FMT_constexpr typename std::make_unsigned<Int>::type to_unsigned(Int value) {
   FMT_ASSERT(value >= 0, "negative value");
   return static_cast<typename std::make_unsigned<Int>::type>(value);
 }
@@ -320,8 +320,8 @@ inline Container &get_container(std::back_insert_iterator<Container> it) {
 }
 
 struct error_handler {
-  FMT_CONSTEXPR error_handler() {}
-  FMT_CONSTEXPR error_handler(const error_handler &) {}
+  FMT_constexpr error_handler() {}
+  FMT_constexpr error_handler(const error_handler &) {}
 
   // This function is intentionally not constexpr to give a compile-time error.
   FMT_API void on_error(const char *message);
@@ -356,10 +356,10 @@ class basic_string_view {
   typedef Char char_type;
   typedef const Char *iterator;
 
-  FMT_CONSTEXPR basic_string_view() FMT_NOEXCEPT : data_(FMT_NULL), size_(0) {}
+  FMT_constexpr basic_string_view() FMT_NOEXCEPT : data_(FMT_NULL), size_(0) {}
 
   /** Constructs a string reference object from a C string and a size. */
-  FMT_CONSTEXPR basic_string_view(const Char *s, size_t count) FMT_NOEXCEPT
+  FMT_constexpr basic_string_view(const Char *s, size_t count) FMT_NOEXCEPT
     : data_(s), size_(count) {}
 
   /**
@@ -373,25 +373,25 @@ class basic_string_view {
 
   /** Constructs a string reference from a ``std::basic_string`` object. */
   template <typename Alloc>
-  FMT_CONSTEXPR basic_string_view(
+  FMT_constexpr basic_string_view(
       const std::basic_string<Char, Alloc> &s) FMT_NOEXCEPT
   : data_(s.data()), size_(s.size()) {}
 
 #ifdef FMT_STRING_VIEW
-  FMT_CONSTEXPR basic_string_view(FMT_STRING_VIEW<Char> s) FMT_NOEXCEPT
+  FMT_constexpr basic_string_view(FMT_STRING_VIEW<Char> s) FMT_NOEXCEPT
   : data_(s.data()), size_(s.size()) {}
 #endif
 
   /** Returns a pointer to the string data. */
-  FMT_CONSTEXPR const Char *data() const { return data_; }
+  FMT_constexpr const Char *data() const { return data_; }
 
   /** Returns the string size. */
-  FMT_CONSTEXPR size_t size() const { return size_; }
+  FMT_constexpr size_t size() const { return size_; }
 
-  FMT_CONSTEXPR iterator begin() const { return data_; }
-  FMT_CONSTEXPR iterator end() const { return data_ + size_; }
+  FMT_constexpr iterator begin() const { return data_; }
+  FMT_constexpr iterator end() const { return data_ + size_; }
 
-  FMT_CONSTEXPR void remove_prefix(size_t n) {
+  FMT_constexpr void remove_prefix(size_t n) {
     data_ += n;
     size_ -= n;
   }
@@ -477,7 +477,7 @@ struct is_compile_string : std::is_base_of<compile_string, S> {};
 template <
   typename S,
   typename Enable = typename std::enable_if<is_compile_string<S>::value>::type>
-FMT_CONSTEXPR basic_string_view<typename S::char_type>
+FMT_constexpr basic_string_view<typename S::char_type>
   to_string_view(const S &s) { return s; }
 
 template <typename Context>
@@ -537,12 +537,12 @@ enum type {
   cstring_type, string_type, pointer_type, custom_type
 };
 
-FMT_CONSTEXPR bool is_integral(type t) {
+FMT_constexpr bool is_integral(type t) {
   FMT_ASSERT(t != internal::named_arg_type, "invalid argument type");
   return t > internal::none_type && t <= internal::last_integer_type;
 }
 
-FMT_CONSTEXPR bool is_arithmetic(type t) {
+FMT_constexpr bool is_arithmetic(type t) {
   FMT_ASSERT(t != internal::named_arg_type, "invalid argument type");
   return t > internal::none_type && t <= internal::last_numeric_type;
 }
@@ -579,7 +579,7 @@ class value {
     custom_value<Context> custom;
   };
 
-  FMT_CONSTEXPR value(int val = 0) : int_value(val) {}
+  FMT_constexpr value(int val = 0) : int_value(val) {}
   value(unsigned val) { uint_value = val; }
   value(long long val) { long_long_value = val; }
   value(unsigned long long val) { ulong_long_value = val; }
@@ -632,22 +632,22 @@ struct init {
   T val;
   static const type type_tag = TYPE;
 
-  FMT_CONSTEXPR init(const T &v) : val(v) {}
-  FMT_CONSTEXPR operator value<Context>() const { return value<Context>(val); }
+  FMT_constexpr init(const T &v) : val(v) {}
+  FMT_constexpr operator value<Context>() const { return value<Context>(val); }
 };
 
 template <typename Context, typename T>
-FMT_CONSTEXPR basic_format_arg<Context> make_arg(const T &value);
+FMT_constexpr basic_format_arg<Context> make_arg(const T &value);
 
 #define FMT_MAKE_VALUE(TAG, ArgType, ValueType) \
   template <typename C> \
-  FMT_CONSTEXPR init<C, ValueType, TAG> make_value(ArgType val) { \
+  FMT_constexpr init<C, ValueType, TAG> make_value(ArgType val) { \
     return static_cast<ValueType>(val); \
   }
 
 #define FMT_MAKE_VALUE_SAME(TAG, Type) \
   template <typename C> \
-  FMT_CONSTEXPR init<C, Type, TAG> make_value(Type val) { return val; }
+  FMT_constexpr init<C, Type, TAG> make_value(Type val) { return val; }
 
 FMT_MAKE_VALUE(bool_type, bool, int)
 FMT_MAKE_VALUE(int_type, short, int)
@@ -674,12 +674,12 @@ FMT_MAKE_VALUE(uint_type, unsigned char, unsigned)
 
 // This doesn't use FMT_MAKE_VALUE because of ambiguity in gcc 4.4.
 template <typename C, typename Char>
-FMT_CONSTEXPR typename std::enable_if<
+FMT_constexpr typename std::enable_if<
   std::is_same<typename C::char_type, Char>::value,
   init<C, int, char_type>>::type make_value(Char val) { return val; }
 
 template <typename C>
-FMT_CONSTEXPR typename std::enable_if<
+FMT_constexpr typename std::enable_if<
   !std::is_same<typename C::char_type, char>::value,
   init<C, int, char_type>>::type make_value(char val) { return val; }
 
@@ -754,7 +754,7 @@ init<C, const void*, named_arg_type>
 }
 
 template <typename C, typename S>
-FMT_CONSTEXPR11 typename std::enable_if<
+FMT_constexpr11 typename std::enable_if<
   internal::is_string<S>::value,
   init<C, basic_string_view<typename C::char_type>, string_type>>::type
     make_value(const S &val) {
@@ -782,11 +782,11 @@ class basic_format_arg {
   internal::type type_;
 
   template <typename ContextType, typename T>
-  friend FMT_CONSTEXPR basic_format_arg<ContextType>
+  friend FMT_constexpr basic_format_arg<ContextType>
     internal::make_arg(const T &value);
 
   template <typename Visitor, typename Ctx>
-  friend FMT_CONSTEXPR typename internal::result_of<Visitor(int)>::type
+  friend FMT_constexpr typename internal::result_of<Visitor(int)>::type
     visit_format_arg(Visitor &&vis, const basic_format_arg<Ctx> &arg);
 
   friend class basic_format_args<Context>;
@@ -805,7 +805,7 @@ class basic_format_arg {
     internal::custom_value<Context> custom_;
   };
 
-  FMT_CONSTEXPR basic_format_arg() : type_(internal::none_type) {}
+  FMT_constexpr basic_format_arg() : type_(internal::none_type) {}
 
   FMT_EXPLICIT operator bool() const FMT_NOEXCEPT {
     return type_ != internal::none_type;
@@ -827,7 +827,7 @@ struct monostate {};
   \endrst
  */
 template <typename Visitor, typename Context>
-FMT_CONSTEXPR typename internal::result_of<Visitor(int)>::type
+FMT_constexpr typename internal::result_of<Visitor(int)>::type
     visit_format_arg(Visitor &&vis, const basic_format_arg<Context> &arg) {
   typedef typename Context::char_type char_type;
   switch (arg.type_) {
@@ -867,7 +867,7 @@ FMT_CONSTEXPR typename internal::result_of<Visitor(int)>::type
 
 // DEPRECATED!
 template <typename Visitor, typename Context>
-FMT_CONSTEXPR typename internal::result_of<Visitor(int)>::type
+FMT_constexpr typename internal::result_of<Visitor(int)>::type
     visit(Visitor &&vis, const basic_format_arg<Context> &arg) {
   return visit_format_arg(std::forward<Visitor>(vis), arg);
 }
@@ -884,28 +884,28 @@ class basic_parse_context : private ErrorHandler {
   typedef Char char_type;
   typedef typename basic_string_view<Char>::iterator iterator;
 
-  explicit FMT_CONSTEXPR basic_parse_context(
+  explicit FMT_constexpr basic_parse_context(
       basic_string_view<Char> format_str, ErrorHandler eh = ErrorHandler())
     : ErrorHandler(eh), format_str_(format_str), next_arg_id_(0) {}
 
   // Returns an iterator to the beginning of the format string range being
   // parsed.
-  FMT_CONSTEXPR iterator begin() const FMT_NOEXCEPT {
+  FMT_constexpr iterator begin() const FMT_NOEXCEPT {
     return format_str_.begin();
   }
 
   // Returns an iterator past the end of the format string range being parsed.
-  FMT_CONSTEXPR iterator end() const FMT_NOEXCEPT { return format_str_.end(); }
+  FMT_constexpr iterator end() const FMT_NOEXCEPT { return format_str_.end(); }
 
   // Advances the begin iterator to ``it``.
-  FMT_CONSTEXPR void advance_to(iterator it) {
+  FMT_constexpr void advance_to(iterator it) {
     format_str_.remove_prefix(internal::to_unsigned(it - begin()));
   }
 
   // Returns the next argument index.
-  FMT_CONSTEXPR unsigned next_arg_id();
+  FMT_constexpr unsigned next_arg_id();
 
-  FMT_CONSTEXPR bool check_arg_id(unsigned) {
+  FMT_constexpr bool check_arg_id(unsigned) {
     if (next_arg_id_ > 0) {
       on_error("cannot switch from automatic to manual argument indexing");
       return false;
@@ -915,11 +915,11 @@ class basic_parse_context : private ErrorHandler {
   }
   void check_arg_id(basic_string_view<Char>) {}
 
-  FMT_CONSTEXPR void on_error(const char *message) {
+  FMT_constexpr void on_error(const char *message) {
     ErrorHandler::on_error(message);
   }
 
-  FMT_CONSTEXPR ErrorHandler error_handler() const { return *this; }
+  FMT_constexpr ErrorHandler error_handler() const { return *this; }
 };
 
 typedef basic_parse_context<char> format_parse_context;
@@ -1048,15 +1048,15 @@ struct get_type {
 };
 
 template <typename Context>
-FMT_CONSTEXPR11 unsigned long long get_types() { return 0; }
+FMT_constexpr11 unsigned long long get_types() { return 0; }
 
 template <typename Context, typename Arg, typename... Args>
-FMT_CONSTEXPR11 unsigned long long get_types() {
+FMT_constexpr11 unsigned long long get_types() {
   return get_type<Context, Arg>::value | (get_types<Context, Args...>() << 4);
 }
 
 template <typename Context, typename T>
-FMT_CONSTEXPR basic_format_arg<Context> make_arg(const T &value) {
+FMT_constexpr basic_format_arg<Context> make_arg(const T &value) {
   basic_format_arg<Context> arg;
   arg.type_ = get_type<Context, T>::value;
   arg.value_ = make_value<Context>(value);
@@ -1154,15 +1154,15 @@ class format_arg_store {
 
   friend class basic_format_args<Context>;
 
-  static FMT_CONSTEXPR11 unsigned long long get_types() {
+  static FMT_constexpr11 unsigned long long get_types() {
     return IS_PACKED ?
       internal::get_types<Context, Args...>() :
       internal::is_unpacked_bit | NUM_ARGS;
   }
 
  public:
-#if FMT_USE_CONSTEXPR11
-  static FMT_CONSTEXPR11 unsigned long long TYPES = get_types();
+#if FMT_USE_constexpr11
+  static FMT_constexpr11 unsigned long long TYPES = get_types();
 #else
   static const unsigned long long TYPES;
 #endif
@@ -1181,7 +1181,7 @@ class format_arg_store {
 #endif
 };
 
-#if !FMT_USE_CONSTEXPR11
+#if !FMT_USE_constexpr11
 template <typename Context, typename ...Args>
 const unsigned long long format_arg_store<Context, Args...>::TYPES =
     get_types();

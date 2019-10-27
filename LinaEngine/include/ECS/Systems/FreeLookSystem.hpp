@@ -23,10 +23,11 @@ Timestamp: 5/2/2019 2:21:35 AM
 #define FreeLookSystem_HPP
 
 #include "ECS/EntityComponentSystem.hpp"
-#include "ECS/Components/TransformComponent.hpp"
-#include "ECS/Components/FreeLookComponent.hpp"
-#include "PackageManager/PAMInputEngine.hpp"
 
+namespace LinaEngine::Input
+{
+	class InputEngine;
+}
 
 namespace LinaEngine::ECS
 {
@@ -34,20 +35,14 @@ namespace LinaEngine::ECS
 	{
 	public:
 
-		FreeLookSystem(InputEngine<PAMInputEngine>& inputEngineIn) : BaseECSSystem(), inputEngine(inputEngineIn)
-		{
-			AddComponentType(TransformComponent::ID);
-			AddComponentType(FreeLookComponent::ID);
-		}
-
+		FreeLookSystem(LinaEngine::Input::InputEngine& inputEngineIn);
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
-
 
 	private:
 
-		InputEngine<PAMInputEngine>& inputEngine;
-		float horizontalKeyAmount;
-		float verticalKeyAmount;
+		LinaEngine::Input::InputEngine& inputEngine;
+		float horizontalKeyAmount = 0.0f;
+		float verticalKeyAmount = 0.0f;
 	};
 }
 

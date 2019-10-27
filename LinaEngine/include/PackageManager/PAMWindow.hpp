@@ -25,6 +25,8 @@ Timestamp: 4/14/2019 7:13:05 PM
 #ifdef LINA_GRAPHICS_OPENGL
 #include "OpenGL/GLWindow.hpp"
 
+typedef LinaEngine::Graphics::GLWindow ContextWindow;
+
 #endif
 
 

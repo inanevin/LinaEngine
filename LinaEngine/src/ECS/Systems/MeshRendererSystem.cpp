@@ -19,16 +19,23 @@ Timestamp: 4/27/2019 5:41:27 PM
 
 #include "LinaPch.hpp"
 #include "ECS/Systems/MeshRendererSystem.hpp"
-
-
+#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
+#include "Rendering/RenderContext.hpp"
+#include "Rendering/Mesh.hpp"
 
 namespace LinaEngine::ECS
 {
+	MeshRendererSystem::MeshRendererSystem() : BaseECSSystem()
+	{
+		AddComponentType(TransformComponent::ID);
+		AddComponentType(MeshRendererComponent::ID);
+	}
 	void MeshRendererSystem::UpdateComponents(float delta, BaseECSComponent ** components)
 	{
 		TransformComponent* transform = (TransformComponent*)components[0];
-		MeshRendererComponent* mesh = (MeshRendererComponent*)components[1];
-		context->RenderMesh(*mesh->vertexArray,  *mesh->material, transform->transform.ToMatrix());
+		MeshRendererComponent* renderer = (MeshRendererComponent*)components[1];
+		context->RenderMesh(*renderer->mesh->GetVertexArray(0),  *renderer->material, transform->transform.ToMatrix());
 	}
 }
 

@@ -21,24 +21,36 @@ Timestamp: 1/2/2019 1:43:13 AM
 #ifndef LayerStack_HPP
 #define LayerStack_HPP
 
-#include "Layer.hpp"
-#include "APIExport.hpp"
-#include "DataStructures.hpp"
+
+#include "LinaArray.hpp"
 
 namespace LinaEngine
 {
+	class Layer;
+
 	class LayerStack
 	{
 	public:
+
 		LayerStack();
 		~LayerStack();
 
+		// Push layer to the stack.
 		void PushLayer(Layer* layer);
-		void PushOverlay(Layer* overlay);
-		void PopLayer(Layer* layer);
-		void PopOverlay(Layer* overlay);
 
+		// Push an overlay layer to the stack.
+		void PushOverlay(Layer* overlay);
+
+		// Pop the layer out of the stack.
+		void PopLayer(Layer* layer);
+
+		// Pop an overlay layer out of the stack.
+		void PopOverlay(Layer* overlay);
+		
+		// Get first layer in the stack.
 		LinaArray<Layer*>::iterator begin() { return m_Layers.begin(); }
+
+		// Get last layer in the stack.
 		LinaArray<Layer*>::iterator end() { return m_Layers.end(); }
 
 	private:

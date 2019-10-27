@@ -19,9 +19,15 @@ Timestamp: 4/30/2019 12:18:00 AM
 
 #include "LinaPch.hpp"
 #include "ECS/Systems/CubeChunkRenderSystem.hpp"
+#include "ECS/Components/CubeChunkComponent.hpp"
+#include "Utility/Math/Transformation.hpp"
 
 namespace LinaEngine::ECS
 {
+	CubeChunkRenderSystem::CubeChunkRenderSystem(LinaEngine::Graphics::GameRenderContext& contextIn, LinaEngine::Graphics::VertexArray& vertexArrayIn, LinaEngine::Graphics::Texture** texturesIn, size_t textureCountIn) : BaseECSSystem(), context(contextIn), vertexArray(vertexArrayIn), textures(texturesIn), textureCount(textureCountIn)
+	{
+
+	}
 	void CubeChunkRenderSystem::UpdateComponents(float delta, BaseECSComponent** components)
 	{
 		CubeChunkComponent* component = (CubeChunkComponent*)components[0];

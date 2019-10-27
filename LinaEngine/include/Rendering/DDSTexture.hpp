@@ -23,6 +23,7 @@ Timestamp: 4/14/2019 4:04:34 PM
 #define DDSTexture_HPP
 
 #include "Core/Common.hpp"
+#include "Core/SizeDefinitions.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -31,7 +32,7 @@ namespace LinaEngine::Graphics
 	public:
 
 		DDSTexture() {};
-		virtual ~DDSTexture() { CleanUp(); };
+		~DDSTexture() { CleanUp(); };
 
 		// Loads a .dds texture from resources.
 		bool Load(const char* fileName);
@@ -45,17 +46,20 @@ namespace LinaEngine::Graphics
 
 	private:
 
+		// Cleans up buffer & mem.
+		void CleanUp();
+
+	private:
+
 		// Texture data buffer.
 		unsigned char* m_Buffer = nullptr;
 
 		// Texture properties.
-		uint32 m_Height;
-		uint32 m_Width;
-		uint32 m_MipMapCount;
-		uint32 m_FourCC;
+		uint32 m_Height = 0;
+		uint32 m_Width = 0;
+		uint32 m_MipMapCount = 0;
+		uint32 m_FourCC = 0;
 
-		// Cleans up buffer & mem.
-		void CleanUp();
 	};
 }
 

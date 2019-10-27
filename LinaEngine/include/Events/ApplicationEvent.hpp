@@ -25,7 +25,7 @@ Timestamp: 12/30/2018 7:38:34 PM
 
 namespace LinaEngine
 {
-	class LINA_API WindowResizeEvent : public Event
+	class  WindowResizeEvent : public Event
 	{
 	public:
 		WindowResizeEvent(unsigned int width, unsigned int height)
@@ -42,7 +42,7 @@ namespace LinaEngine
 		unsigned int m_Width, m_Height;
 	};
 
-	class LINA_API WindowCloseEvent : public Event
+	class  WindowCloseEvent : public Event
 	{
 	public:
 		WindowCloseEvent() {}
@@ -53,7 +53,7 @@ namespace LinaEngine
 			EVENT_CLASS_CATEGORY(EventCategoryWindow)
 	};
 
-	class LINA_API WindowFocusEvent : public Event
+	class  WindowFocusEvent : public Event
 	{
 	public:
 		WindowFocusEvent() {}
@@ -63,7 +63,7 @@ namespace LinaEngine
 			EVENT_CLASS_CATEGORY(EventCategoryWindow)
 	};
 
-	class LINA_API WindowFocusLostEvent : public Event
+	class  WindowFocusLostEvent : public Event
 	{
 	public:
 		WindowFocusLostEvent() {}
@@ -72,7 +72,7 @@ namespace LinaEngine
 			EVENT_CLASS_CATEGORY(EventCategoryWindow)
 	};
 
-	class LINA_API WindowMovedEvent : public Event
+	class  WindowMovedEvent : public Event
 	{
 	public:
 		WindowMovedEvent(unsigned int posX, unsigned int posY) {}
@@ -82,7 +82,7 @@ namespace LinaEngine
 			EVENT_CLASS_CATEGORY(EventCategoryWindow)
 	};
 
-	class LINA_API AppTickEvent : public Event
+	class  AppTickEvent : public Event
 	{
 	public:
 		AppTickEvent() {}
@@ -91,7 +91,7 @@ namespace LinaEngine
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
-	class LINA_API AppUpdateEvent : public Event
+	class  AppUpdateEvent : public Event
 	{
 	public:
 		AppUpdateEvent() {}
@@ -100,7 +100,7 @@ namespace LinaEngine
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
-	class LINA_API AppRenderEvent : public Event
+	class  AppRenderEvent : public Event
 	{
 	public:
 		AppRenderEvent() {}

@@ -22,10 +22,11 @@ Timestamp: 12/30/2018 7:41:22 PM
 #define MouseEvent_HPP
 
 #include "Event.hpp"
+#include <sstream>
 
 namespace LinaEngine
 {
-	class LINA_API MouseMovedEvent : public Event
+	class  MouseMovedEvent : public Event
 	{
 	public:
 		MouseMovedEvent(float x, float y)
@@ -47,7 +48,7 @@ namespace LinaEngine
 		float m_MouseX, m_MouseY;
 	};
 
-	class LINA_API MouseScrolledEvent : public Event
+	class  MouseScrolledEvent : public Event
 	{
 	public:
 		MouseScrolledEvent(float xOffset, float yOffset)
@@ -69,7 +70,7 @@ namespace LinaEngine
 		float m_XOffset, m_YOffset;
 	};
 
-	class LINA_API MouseButtonEvent : public Event
+	class  MouseButtonEvent : public Event
 	{
 	public:
 		inline int GetMouseButton() const { return m_Button; }
@@ -82,7 +83,7 @@ namespace LinaEngine
 		int m_Button;
 	};
 
-	class LINA_API MouseButtonPressedEvent : public MouseButtonEvent
+	class  MouseButtonPressedEvent : public MouseButtonEvent
 	{
 	public:
 		MouseButtonPressedEvent(int button)
@@ -98,7 +99,7 @@ namespace LinaEngine
 		EVENT_CLASS_TYPE(MouseButtonPressed)
 	};
 
-	class LINA_API MouseButtonReleasedEvent : public MouseButtonEvent
+	class  MouseButtonReleasedEvent : public MouseButtonEvent
 	{
 	public:
 		MouseButtonReleasedEvent(int button)

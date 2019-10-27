@@ -23,8 +23,11 @@ Timestamp: 4/10/2019 1:26:00 PM
 #define ActionDispatcher_HPP
 
 #include "Action.hpp"
-#include "Core/DataStructures.hpp"
 #include "Utility/Log.hpp"
+#include "Core/LinaArray.hpp"
+#include "Core/SizeDefinitions.hpp"
+#include <map>
+
 
 namespace LinaEngine
 {
@@ -60,7 +63,8 @@ namespace LinaEngine
 			}
 			catch (const std::out_of_range& e)
 			{
-				LINA_CORE_ERR("Out of Range Exception while subscribing handler! {0}", e.what());
+				const char* exp = e.what();
+				LINA_CORE_ERR("Out of Range Exception while subscribing handler! {0}", exp);
 			}
 		}
 
@@ -76,7 +80,7 @@ namespace LinaEngine
 
 	private:
 
-		LinaMap<uint32, LinaArray<ActionHandlerBase*>> m_ActionHandlerMap;
+		std::map<uint32, LinaArray<ActionHandlerBase*>> m_ActionHandlerMap;
 
 	};
 }

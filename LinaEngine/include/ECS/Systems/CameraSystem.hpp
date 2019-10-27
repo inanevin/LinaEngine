@@ -22,60 +22,58 @@ Timestamp: 5/2/2019 12:40:46 AM
 #ifndef CameraSystem_HPP
 #define CameraSystem_HPP
 
-#include "ECS/EntityComponentSystem.hpp"
-#include "ECS/Components/TransformComponent.hpp"
-#include "ECS/Components/CameraComponent.hpp"
-#include "Rendering/GameRenderContext.hpp"
+#include "ECS/ECSSystem.hpp"
+#include "Utility/Math/Matrix.hpp"
+#include "Utility/Math/Color.hpp"
 
-using namespace LinaEngine::Graphics;
+namespace LinaEngine
+{
+	namespace Graphics
+	{
+		class RenderContext;
+	}
+}
 
 namespace LinaEngine::ECS
 {
+	class TransformComponent;
+	struct CameraComponent;
+
 	class CameraSystem : public BaseECSSystem
 	{
 	public:
 
-		CameraSystem() : BaseECSSystem()
-		{
-			AddComponentType(TransformComponent::ID);
-			AddComponentType(CameraComponent::ID);
-		}
-
-		FORCEINLINE void Construct(GameRenderContext& contextIn)
-		{
-			context = &contextIn;
-		}
+		CameraSystem();
 
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
 
-		FORCEINLINE Matrix& GetViewMatrix()
-		{
-			return m_View;
-		}
+		// Construct the system.
+		FORCEINLINE void Construct(LinaEngine::Graphics::RenderContext& contextIn) { context = &contextIn; }
 
-		FORCEINLINE Matrix& GetSkyboxViewTransformation()
-		{
-			return m_SkyboxViewTransformation;
-		}
+		// Get view matrix.
+		FORCEINLINE Matrix& GetViewMatrix() { return m_View; }
 
-		FORCEINLINE Matrix& GetProjectionMatrix()
-		{
-			return m_Projection;
-		}
+		// Get view matrix for skybox.
+		FORCEINLINE Matrix& GetSkyboxViewTransformation() { return m_SkyboxViewTransformation; }
 
+		// Get projection matrix
+		FORCEINLINE Matrix& GetProjectionMatrix() { return m_Projection; }
+
+		// Get camera location, if camera is not defined, get zero.
+		Vector3F GetCameraLocation();
+
+		// Set aspect ratio for the camera.
 		FORCEINLINE void SetAspectRatio(float aspect) { m_AspectRatio = aspect; }
 
-		FORCEINLINE Color& GetCurrentClearColor() { return m_CurrentCameraComponent == nullptr ? Colors::Gray : m_CurrentCameraComponent->clearColor; }
-		FORCEINLINE CameraComponent* GetCurrentCameraComponent() { return m_CurrentCameraComponent; }
-		FORCEINLINE TransformComponent* GetCurrentCameraTransform() { return m_CurrentCameraTransform; }
-
+		// Get clear color of the current camera.
+		Color& GetCurrentClearColor();
 
 	private:
 
+		LinaEngine::Graphics::RenderContext* context = nullptr;
 		Matrix m_View = Matrix::identity();
-		Matrix m_Projection = Matrix::perspective(35, 1.33f, 0.01f, 1000.0f);
+		Matrix m_Projection =Matrix::perspective(35, 1.33f, 0.01f, 1000.0f);
 		Matrix m_SkyboxViewTransformation = Matrix::identity();
-		GameRenderContext* context;
 		CameraComponent* m_CurrentCameraComponent = nullptr;
 		TransformComponent* m_CurrentCameraTransform = nullptr;
 		float m_AspectRatio = 1.33f;

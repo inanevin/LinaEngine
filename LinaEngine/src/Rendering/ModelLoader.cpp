@@ -28,7 +28,7 @@ namespace LinaEngine::Graphics
 
 
 
-	bool ModelLoader::LoadModels(const LinaString& fileName, LinaArray<IndexedModel>& models, LinaArray<uint32>& modelMaterialIndices, LinaArray<Material>& materials)
+	bool ModelLoader::LoadModels(const std::string& fileName, LinaArray<IndexedModel>& models, LinaArray<uint32>& modelMaterialIndices, LinaArray<ModelMaterial>& materials)
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
@@ -93,13 +93,13 @@ namespace LinaEngine::Graphics
 		{
 			// Create material reference & material specifications.
 			const aiMaterial* material = scene->mMaterials[i];
-			Material spec;
+			ModelMaterial spec;
 
 			// Currently only handles diffuse textures.
 			aiString texturePath;
 			if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0 && material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) != AI_SUCCESS)
 			{
-				LinaString str(texturePath.data);
+				std::string str(texturePath.data);
 				spec.textureNames["diffuse"] = str;
 			}
 			// Push the material to list.

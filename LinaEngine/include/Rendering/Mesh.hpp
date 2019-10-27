@@ -8,8 +8,8 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 
 http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
 Class: RenderableObjectData
@@ -19,23 +19,26 @@ Timestamp: 5/6/2019 4:23:45 PM
 
 #pragma once
 
-#ifndef RenderableObjectData_HPP
-#define RenderableObjectData_HPP
+#ifndef MESH_HPP
+#define MESH_HPP
 
 
 #include "Rendering/Texture.hpp"
-#include "Rendering/VertexArray.hpp"
 #include "Rendering/IndexedModel.hpp"
 #include "Rendering/Material.hpp"
 
 namespace LinaEngine::Graphics
 {
-	class RenderableObjectData
+	class VertexArray;
+
+	class Mesh
 	{
+
 	public:
 
-		RenderableObjectData() {};
-		~RenderableObjectData()
+		Mesh() {};
+
+		FORCEINLINE ~Mesh()
 		{
 			for (uint32 i = 0; i < m_VertexArrays.size(); i++)
 				delete m_VertexArrays[i];
@@ -68,7 +71,7 @@ namespace LinaEngine::Graphics
 			return m_IndexedModelArray;
 		}
 
-		FORCEINLINE LinaArray<Material>& GetMaterialSpecs()
+		FORCEINLINE LinaArray<ModelMaterial>& GetMaterialSpecs()
 		{
 			return m_MaterialSpecArray;
 		}
@@ -78,14 +81,15 @@ namespace LinaEngine::Graphics
 			return m_MaterialIndexArray;
 		}
 
+	
 	private:
 
 		LinaArray<VertexArray*> m_VertexArrays;
 		LinaArray<IndexedModel> m_IndexedModelArray;
-		LinaArray<Material> m_MaterialSpecArray;
+		LinaArray<ModelMaterial> m_MaterialSpecArray;
 		LinaArray<uint32> m_MaterialIndexArray;
-
 
 	};
 }
+
 #endif

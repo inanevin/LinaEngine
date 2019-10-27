@@ -12,13 +12,13 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: GLInputEngine
+Class: GLInputDevice
 Timestamp: 4/14/2019 5:15:15 PM
 
 */
 
 #include "LinaPch.hpp"
-#include "PackageManager/OpenGL/GLInputEngine.hpp"  
+#include "PackageManager/OpenGL/GLInputDevice.hpp"  
 #include "GLFW/glfw3.h"
 
 
@@ -29,34 +29,34 @@ namespace LinaEngine::Input
 	static const float mouseAxisSensitivity = 5.0f;
 	GLFWwindow* glfwWindow;
 
-	GLInputEngine::GLInputEngine()
+	GLInputDevice::GLInputDevice()
 	{
-		LINA_CORE_TRACE("[Constructor] -> GLInputEngine ({0})", typeid(*this).name());
+		LINA_CORE_TRACE("[Constructor] -> GLInputDevice ({0})", typeid(*this).name());
 	}
 
-	GLInputEngine::~GLInputEngine()
+	GLInputDevice::~GLInputDevice()
 	{
-		LINA_CORE_TRACE("[Destructor] -> GLInputEngine ({0})", typeid(*this).name());
+		LINA_CORE_TRACE("[Destructor] -> GLInputDevice ({0})", typeid(*this).name());
 	}
 
-	void GLInputEngine::Initialize_Impl(void* contextWindowPointer)
+	void GLInputDevice::Initialize(void* contextWindowPointer)
 	{
-		LINA_CORE_TRACE("[Initialization] -> GLInputEngine ({0})", typeid(*this).name());
+		LINA_CORE_TRACE("[Initialization] -> GLInputDevice ({0})", typeid(*this).name());
 		glfwWindow = static_cast<GLFWwindow*>(contextWindowPointer);
 	}
 
-	void GLInputEngine::Tick_Impl()
+	void GLInputDevice::Tick()
 	{
 		glfwPollEvents();
 	}
 
-	bool GLInputEngine::GetKey_Impl(int keycode)
+	bool GLInputDevice::GetKey(int keycode)
 	{
 		int state = glfwGetKey(glfwWindow, keycode);
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
 
-	bool GLInputEngine::GetKeyDown_Impl(int keyCode)
+	bool GLInputDevice::GetKeyDown(int keyCode)
 	{
 		static int* oldState = new int[NUM_KEY_STATES];
 		int newState = glfwGetKey(glfwWindow, keyCode);
@@ -64,7 +64,7 @@ namespace LinaEngine::Input
 		oldState[keyCode] = newState;
 		return flag;
 	}
-	bool GLInputEngine::GetKeyUp_Impl(int keyCode)
+	bool GLInputDevice::GetKeyUp(int keyCode)
 	{
 		static int* oldState = new int[NUM_KEY_STATES];
 		int newState = glfwGetKey(glfwWindow, keyCode);
@@ -72,12 +72,12 @@ namespace LinaEngine::Input
 		oldState[keyCode] = newState;
 		return flag;
 	}
-	bool GLInputEngine::GetMouseButton_Impl(int button)
+	bool GLInputDevice::GetMouseButton(int button)
 	{
 		int state = glfwGetMouseButton(glfwWindow, button);
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
-	bool GLInputEngine::GetMouseButtonDown_Impl(int button)
+	bool GLInputDevice::GetMouseButtonDown(int button)
 	{
 		static int* oldState = new int[NUM_MOUSE_STATES];
 		int newState = glfwGetMouseButton(glfwWindow, button);
@@ -85,7 +85,7 @@ namespace LinaEngine::Input
 		oldState[button] = newState;
 		return flag;
 	}
-	bool GLInputEngine::GetMouseButtonUp_Impl(int button)
+	bool GLInputDevice::GetMouseButtonUp(int button)
 	{
 		static int* oldState = new int[NUM_MOUSE_STATES];
 		int newState = glfwGetMouseButton(glfwWindow, button);
@@ -94,7 +94,7 @@ namespace LinaEngine::Input
 		return flag;
 	}
 
-	Vector2F GLInputEngine::GetRawMouseAxis_Impl()
+	Vector2F GLInputDevice::GetRawMouseAxis()
 	{
 		// Storage for previous mouse position.
 		static Vector2F oldMousePosition;
@@ -106,7 +106,7 @@ namespace LinaEngine::Input
 		// Get the delta mouse position.
 		Vector2F currentMousePosition = Vector2F((float)posX, (float)posY);
 		Vector2F diff = currentMousePosition - oldMousePosition;
-		Vector2F raw = Vector2F::ZERO();
+		Vector2F raw = Vector2F::Zero;
 
 		// Set raw axis values depending on the direction of the axis.
 		if (diff.GetX() > 0.0f) raw.SetX(1.0f);
@@ -121,7 +121,7 @@ namespace LinaEngine::Input
 		return raw;
 	}
 
-	Vector2F GLInputEngine::GetMouseAxis_Impl()
+	Vector2F GLInputDevice::GetMouseAxis()
 	{
 		// Storage for previous mouse position.
 		static Vector2F oldMousePos;
@@ -144,7 +144,7 @@ namespace LinaEngine::Input
 		return diff;
 	}
 
-	Vector2F GLInputEngine::GetMousePosition_Impl()
+	Vector2F GLInputDevice::GetMousePosition()
 	{
 		double xpos, ypos;
 		glfwGetCursorPos(glfwWindow, &xpos, &ypos);
@@ -152,7 +152,7 @@ namespace LinaEngine::Input
 	}
 
 
-	void GLInputEngine::SetCursorMode_Impl(CursorMode mode) const
+	void GLInputDevice::SetCursorMode(CursorMode mode) const
 	{
 		switch (mode)
 		{
@@ -170,7 +170,7 @@ namespace LinaEngine::Input
 		}
 	}
 
-	void GLInputEngine::SetMousePosition_Impl(const Vector2F & v) const
+	void GLInputDevice::SetMousePosition(const Vector2F & v) const
 	{
 		glfwSetCursorPos(glfwWindow, v.GetX(), v.GetY());
 	}

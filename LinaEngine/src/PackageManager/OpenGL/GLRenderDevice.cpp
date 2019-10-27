@@ -23,9 +23,8 @@ Timestamp: 4/27/2019 10:16:32 PM
 #include "Utility/Math/Color.hpp"
 #include "Core/Internal.hpp"
 #include "Rendering/ArrayBitmap.hpp"
-#include "ECS/Systems/LightingSystem.hpp"
 
-using namespace LinaEngine::ECS;
+
 
 namespace LinaEngine::Graphics
 {
@@ -108,10 +107,10 @@ namespace LinaEngine::Graphics
 
 	GLint GetOpenGLFormat(PixelFormat dataFormat);
 	GLint GetOpenGLInternalFormat(PixelFormat internalFormat, bool compress);
-	static bool AddShader(GLuint shaderProgram, const LinaString & text, GLenum type, LinaArray<GLuint> * shaders);
-	static void AddAllAttributes(GLuint program, const LinaString & vertexShaderText, uint32 version);
-	static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const LinaString & errorMessage);
-	static void AddShaderUniforms(GLuint shaderProgram, const LinaString & shaderText, LinaMap<LinaString, GLint> & uniformBlockMap, LinaMap<LinaString, GLint> & uniformMap, LinaMap<LinaString, GLint> & samplerMap);
+	static bool AddShader(GLuint shaderProgram, const std::string & text, GLenum type, LinaArray<GLuint> * shaders);
+	static void AddAllAttributes(GLuint program, const std::string & vertexShaderText, uint32 version);
+	static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const std::string & errorMessage);
+	static void AddShaderUniforms(GLuint shaderProgram, const std::string & shaderText, std::map<std::string, GLint> & uniformBlockMap, std::map<std::string, GLint> & uniformMap, std::map<std::string, GLint> & samplerMap);
 
 	GLRenderDevice::GLRenderDevice()
 	{
@@ -129,8 +128,6 @@ namespace LinaEngine::Graphics
 		m_usedStencilFail = StencilOp::STENCIL_KEEP;
 		m_UsedStencilPassButDepthFail = StencilOp::STENCIL_KEEP;
 		m_IsBlendingEnabled = m_ShouldWriteDepth = m_IsStencilTestEnabled = m_IsScissorsTestEnabled = false;
-
-		m_MainWindow = std::make_unique<GLWindow>();
 	}
 
 	GLRenderDevice::~GLRenderDevice()
@@ -139,12 +136,12 @@ namespace LinaEngine::Graphics
 	}
 
 
-	void GLRenderDevice::Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn)
+	void GLRenderDevice::Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn, float width, float height)
 	{
 		// Struct fbo data.
 		struct FBOData fboWindowData;
-		fboWindowData.width = m_MainWindow->GetWidth();
-		fboWindowData.height = m_MainWindow->GetHeight();
+		fboWindowData.width = width;
+		fboWindowData.height = height;
 		m_FBOMap[0] = fboWindowData;
 
 		// Default GL settings.
@@ -380,7 +377,7 @@ namespace LinaEngine::Graphics
 	{
 		// Terminate if vao is null or does not exist in our mapped objects.
 		if (vao == 0) return 0;
-		LinaMap<uint32, VertexArrayData>::iterator it = m_VAOMap.find(vao);
+		std::map<uint32, VertexArrayData>::iterator it = m_VAOMap.find(vao);
 		if (it == m_VAOMap.end()) return 0;
 
 		// Get the vertex array object data from the map.
@@ -471,7 +468,7 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	uint32 GLRenderDevice::CreateShaderProgram(const LinaString & shaderText)
+	uint32 GLRenderDevice::CreateShaderProgram(const std::string & shaderText)
 	{
 		// Shader program instance.
 		GLuint shaderProgram = glCreateProgram();
@@ -483,9 +480,9 @@ namespace LinaEngine::Graphics
 		}
 
 		// Modify the shader text to include the version data.
-		LinaString version = GetShaderVersion();
-		LinaString vertexShaderText = "#version " + version + "\n#define VS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
-		LinaString fragmentShaderText = "#version " + version + "\n#define FS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
+		std::string version = GetShaderVersion();
+		std::string vertexShaderText = "#version " + version + "\n#define VS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
+		std::string fragmentShaderText = "#version " + version + "\n#define FS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
 
 		// Add the shader program, terminate if fails.
 		ShaderProgram programData;
@@ -520,7 +517,7 @@ namespace LinaEngine::Graphics
 	{
 		// Terminate if shader is not valid or does not exist in our map.
 		if (shader == 0) return 0;
-		LinaMap<uint32, ShaderProgram>::iterator programIt = m_ShaderProgramMap.find(shader);
+		std::map<uint32, ShaderProgram>::iterator programIt = m_ShaderProgramMap.find(shader);
 		if (programIt == m_ShaderProgramMap.end()) return 0;
 
 		// Get the program from the map.
@@ -568,7 +565,7 @@ namespace LinaEngine::Graphics
 	{
 		// Terminate if fbo is not valid or does not exist in our map.
 		if (fbo == 0) return 0;
-		LinaMap<uint32, FBOData>::iterator it = m_FBOMap.find(fbo);
+		std::map<uint32, FBOData>::iterator it = m_FBOMap.find(fbo);
 		if (it == m_FBOMap.end()) return 0;
 
 		// Delete the frame buffer object, erase from our map & return.
@@ -587,7 +584,7 @@ namespace LinaEngine::Graphics
 	{
 		// Terminate if fbo is not valid or does not exist in our map.
 		if (vao == 0)  return;
-		LinaMap<uint32, VertexArrayData>::iterator it = m_VAOMap.find(vao);
+		std::map<uint32, VertexArrayData>::iterator it = m_VAOMap.find(vao);
 		if (it == m_VAOMap.end()) return;
 
 		// Get the vertex array object data from the map.
@@ -628,19 +625,15 @@ namespace LinaEngine::Graphics
 		m_BoundShader = shader;
 	}
 
-	void GLRenderDevice::SetShaderSampler(uint32 shader, const LinaString & samplerName, uint32 texture, uint32 sampler, uint32 unit, BindTextureMode bindTextureMode)
+	void GLRenderDevice::SetSampler(uint32 texture, uint32 sampler, uint32 unit, BindTextureMode bindTextureMode)
 	{
-		// Use shader first.
-		SetShader(shader);
-
 		// Activate the sampler data.
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glBindTexture(bindTextureMode, texture);
 		glBindSampler(unit, sampler);
-		glUniform1i(m_ShaderProgramMap[shader].samplerMap[samplerName], unit);
 	}
 
-	void GLRenderDevice::SetShaderUniformBuffer(uint32 shader, const LinaString & uniformBufferName, uint32 buffer)
+	void GLRenderDevice::SetShaderUniformBuffer(uint32 shader, const std::string & uniformBufferName, uint32 buffer)
 	{
 		// Use shader first.
 		SetShader(shader);
@@ -655,7 +648,7 @@ namespace LinaEngine::Graphics
 		glBindBufferBase(GL_UNIFORM_BUFFER, point, bufferObject);
 	}
 
-	void GLRenderDevice::BindShaderBlockToBufferPoint(uint32 shader, uint32 blockPoint, LinaString& blockName)
+	void GLRenderDevice::BindShaderBlockToBufferPoint(uint32 shader, uint32 blockPoint, std::string& blockName)
 	{
 		glUniformBlockBinding(shader, m_ShaderProgramMap[shader].uniformBlockMap[blockName], blockPoint);
 	}
@@ -670,7 +663,7 @@ namespace LinaEngine::Graphics
 	{
 		// Terminate if VAO is not valid or does not exist in our map.
 		if (vao == 0) return;
-		LinaMap<uint32, VertexArrayData>::iterator it = m_VAOMap.find(vao);
+		std::map<uint32, VertexArrayData>::iterator it = m_VAOMap.find(vao);
 		if (it == m_VAOMap.end()) return;
 
 		// Get VAO data from the map.
@@ -736,7 +729,7 @@ namespace LinaEngine::Graphics
 		m_BoundFBO = fbo;
 	}
 
-	void GLRenderDevice::Draw(uint32 fbo, uint32 shader, uint32 vao, const DrawParams & drawParams, uint32 numInstances, uint32 numElements)
+	void GLRenderDevice::Draw(uint32 fbo,  uint32 vao, const DrawParams & drawParams, uint32 numInstances, uint32 numElements, bool drawArrays)
 	{
 		// No need to draw nothin dude.
 		if (numInstances == 0) return;
@@ -755,10 +748,9 @@ namespace LinaEngine::Graphics
 		SetFaceCulling(drawParams.faceCulling);
 		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
 		
-		//SetShader(shader);
 
-		UpdateShaderUniformVector3F(shader, "lightPos", Vector3F(0.0f, 2.0f, 7.0f));
-		UpdateShaderUniformColor(shader, "lightColor", Color(1.0f, 1.0f, 1.0f));
+		//UpdateShaderUniformVector3F(2, "light.pos", Vector3F(0.0f, 1.0f, 8.0f));
+		//UpdateShaderUniformColor(2, "light.color", Color(1.0f, 1.0f, 1.0f));
 
 		//UpdateShaderUniformVector3F(shader, "lightPos", Vector3F(0.0f, 5.0f, 0.0f));
 		//UpdateShaderUniformVector3F(shader, "pointLight.color", Vector3F(1.0f, 0.0f, 0.0f));
@@ -769,17 +761,25 @@ namespace LinaEngine::Graphics
 		// use array buffer & attributes.
 		SetVAO(vao);
 
-		// 1 object or instanced draw calls?
-		if (numInstances == 1)
-			glDrawElements(drawParams.primitiveType, (GLsizei)numElements, GL_UNSIGNED_INT, 0);
+		if (drawArrays)
+		{
+			glDrawArrays(GL_TRIANGLES, 0, numElements);
+		}
 		else
-			glDrawElementsInstanced(drawParams.primitiveType, (GLsizei)numElements, GL_UNSIGNED_INT, 0, numInstances);
+		{
+			// 1 object or instanced draw calls?
+			if (numInstances == 1)
+				glDrawElements(drawParams.primitiveType, (GLsizei)numElements, GL_UNSIGNED_INT, 0);
+			else
+				glDrawElementsInstanced(drawParams.primitiveType, (GLsizei)numElements, GL_UNSIGNED_INT, 0, numInstances);
+		}
+
 
 	
 		//UpdateShaderUniformVector3F(shader, "_viewPos", m_LightingSystem->GetCameraPosition());
 	}
 
-	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams & drawParams)
+	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao,  const DrawParams & drawParams)
 	{
 		// Bind the render targets.
 		SetFBO(fbo);
@@ -806,7 +806,7 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Color& color)
+	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, const Color& color)
 	{
 		// Bind the render targets.
 		SetFBO(fbo);
@@ -836,7 +836,7 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Color& colorStart, const Color& colorEnd)
+	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao,  const DrawParams& drawParams, const Color& colorStart, const Color& colorEnd)
 	{
 		// Bind the render targets.
 		SetFBO(fbo);
@@ -867,7 +867,7 @@ namespace LinaEngine::Graphics
 
 
 	}
-	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, uint32 texture, const DrawParams& drawParams, const Color& colorStart, const Color& colorEnd, const Vector3F& upVector)
+	void GLRenderDevice::DrawSkybox(uint32 fbo, uint32 shader, uint32 vao,  const DrawParams& drawParams, const Color& colorStart, const Color& colorEnd, const Vector3F& upVector)
 	{
 		// Bind the render targets.
 		SetFBO(fbo);
@@ -932,7 +932,45 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const LinaString & uniform, const Matrix & m)
+
+	void GLRenderDevice::UpdateShaderUniformFloat(uint32 shader, const std::string& uniform, const float f)
+	{
+		glUniform1f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)f);
+	}
+
+	void GLRenderDevice::UpdateShaderUniformInt(uint32 shader, const std::string& uniform, const int f)
+	{
+		glUniform1i(m_ShaderProgramMap[shader].uniformMap[uniform], (GLint)f);
+	}
+
+	void GLRenderDevice::UpdateShaderUniformColor(uint32 shader, const std::string& uniform, const Color& color)
+	{
+		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)color.R(), (GLfloat)color.G(), (GLfloat)color.B());
+	}
+
+	void GLRenderDevice::UpdateShaderUniformVector2F(uint32 shader, const std::string& uniform, const Vector2F& m)
+	{
+		glUniform2f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.GetX(), (GLfloat)m.GetY());
+	}
+
+	void GLRenderDevice::UpdateShaderUniformVector3F(uint32 shader, const std::string& uniform, const Vector3F& m)
+	{
+		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.GetX(), (GLfloat)m.GetY(), (GLfloat)m.GetZ());
+	}
+
+	void GLRenderDevice::UpdateShaderUniformVector4F(uint32 shader, const std::string& uniform, const Vector4F& m)
+	{
+		glUniform4f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y, (GLfloat)m.z, (GLfloat)m.w);
+
+	}
+
+	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, void* data)
+	{
+		float* matrixData = ((float*)data);
+		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_TRUE, matrixData);
+	}
+
+	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, const Matrix& m)
 	{
 		float* firstVector = m[0].GetFirst();
 		float* secondVector = m[1].GetFirst();
@@ -950,39 +988,7 @@ namespace LinaEngine::Graphics
 		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_TRUE, matrixData);
 	}
 
-	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const LinaString& uniform, void* data)
-	{
-		float* matrixData = ((float*)data);	
-		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_TRUE, matrixData);
-	}
 
-
-
-	void GLRenderDevice::UpdateShaderUniformVector3F(uint32 shader, const LinaString & uniform, const Vector3F & m)
-	{
-		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.GetX(), (GLfloat)m.GetY(), (GLfloat)m.GetZ());
-	}
-
-	void GLRenderDevice::UpdateShaderUniformVector3F(uint32 shader, const LinaString& uniform, void* data)
-	{
-		float* vectorData = ((float*)data);
-		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)vectorData[0], (GLfloat)vectorData[1], (GLfloat)vectorData[2]);
-	}
-
-	void GLRenderDevice::UpdateShaderUniformColor(uint32 shader, const LinaString& uniform, const Color& color)
-	{
-		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)color.R(), (GLfloat)color.G(), (GLfloat)color.B());
-	}
-
-	void GLRenderDevice::UpdateShaderUniformFloat(uint32 shader, const LinaString& uniform, const float f)
-	{
-		glUniform1f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)f);
-	}
-
-	void GLRenderDevice::UpdateShaderUniformInt(uint32 shader, const LinaString& uniform, const int f)
-	{
-		glUniform1i(m_ShaderProgramMap[shader].uniformMap[uniform], (GLint)f);
-	}
 
 	void GLRenderDevice::SetViewport(uint32 fbo)
 	{
@@ -1107,7 +1113,7 @@ namespace LinaEngine::Graphics
 		m_IsScissorsTestEnabled = true;
 	}
 
-	LinaString GLRenderDevice::GetShaderVersion()
+	std::string GLRenderDevice::GetShaderVersion()
 	{
 		// Return if not valid.
 		if (!m_ShaderVersion.empty()) return m_ShaderVersion;
@@ -1201,7 +1207,7 @@ namespace LinaEngine::Graphics
 	}
 
 
-	static bool AddShader(GLuint shaderProgram, const LinaString & text, GLenum type, LinaArray<GLuint> * shaders)
+	static bool AddShader(GLuint shaderProgram, const std::string & text, GLenum type, LinaArray<GLuint> * shaders)
 	{
 		// Create shader object.
 		GLuint shader = glCreateShader(type);
@@ -1239,7 +1245,7 @@ namespace LinaEngine::Graphics
 		return true;
 	}
 
-	static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const LinaString & errorMessage)
+	static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const std::string & errorMessage)
 	{
 		// Check shader errors from OpenGl.
 		GLint success = 0;
@@ -1265,7 +1271,7 @@ namespace LinaEngine::Graphics
 		return false;
 	}
 
-	static void AddAllAttributes(GLuint program, const LinaString & vertexShaderText, uint32 version)
+	static void AddAllAttributes(GLuint program, const std::string & vertexShaderText, uint32 version)
 	{
 		// Terminate if attribute layout feature is enabled.
 		if (version >= 320) return;
@@ -1296,7 +1302,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	static void AddShaderUniforms(GLuint shaderProgram, const LinaString & shaderText, LinaMap<LinaString, GLint> & uniformBlockMap, LinaMap<LinaString, GLint> & uniformMap, LinaMap<LinaString, GLint> & samplerMap)
+	static void AddShaderUniforms(GLuint shaderProgram, const std::string & shaderText, std::map<std::string, GLint> & uniformBlockMap, std::map<std::string, GLint> & uniformMap, std::map<std::string, GLint> & samplerMap)
 	{
 		// Load uniform sets.
 		GLint numBlocks;
@@ -1311,7 +1317,7 @@ namespace LinaEngine::Graphics
 			glGetActiveUniformBlockiv(shaderProgram, block, GL_UNIFORM_BLOCK_NAME_LENGTH, &nameLen);
 			LinaArray<GLchar> name(nameLen);
 			glGetActiveUniformBlockName(shaderProgram, block, nameLen, NULL, &name[0]);
-			LinaString uniformBlockName((char*)& name[0], nameLen - 1);
+			std::string uniformBlockName((char*)& name[0], nameLen - 1);
 			uniformBlockMap[uniformBlockName] = glGetUniformBlockIndex(shaderProgram, &name[0]);
 		}
 
@@ -1336,7 +1342,7 @@ namespace LinaEngine::Graphics
 				continue;
 			}*/
 
-			LinaString name((char*)& uniformName[0], actualLength - 1);
+			std::string name((char*)& uniformName[0], actualLength - 1);
 			samplerMap[name] = glGetUniformLocation(shaderProgram, (char*)& uniformName[0]);
 			uniformMap[&uniformName[0]] = glGetUniformLocation(shaderProgram, (char*)& uniformName[0]);
 		}

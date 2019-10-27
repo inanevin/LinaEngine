@@ -20,9 +20,10 @@ Timestamp: 5/6/2019 9:22:56 PM
 
 #include "..\..\..\..\include\Examples\Example1\Levels\Example1Level.hpp"
 #include "ECS/Systems/FreeLookSystem.hpp"
+#include "Rendering/RenderEngine.hpp"
+#include "Core/Application.hpp"
 
-
-ECSSystemList level1Systems;
+/*ECSSystemList level1Systems;
 FreeLookSystem* ecsFreeLookSystem;
 EntityHandle m_SceneCamera;
 CameraComponent m_SceneCameraComponent;
@@ -32,11 +33,13 @@ EntityHandle m_ExampleMesh;
 EntityHandle m_ExampleMesh2;
 TransformComponent m_ExampleMeshTransform;
 MeshRendererComponent m_ExampleMeshRenderer;
-
+*/
 
 Example1Level::~Example1Level()
 {
-	delete ecsFreeLookSystem;
+	//delete ecsFreeLookSystem;
+	
+	
 }
 
 void Example1Level::Install()
@@ -47,10 +50,13 @@ void Example1Level::Install()
 void Example1Level::Initialize()
 {
 	LINA_CLIENT_WARN("Example level 1 initialize.");
-
+/*
 	// Set the default cubemap skybox.
-	m_RenderEngine->ChangeSkyboxRenderType(RenderEngine::SkyboxType::Procedural);
-	m_RenderEngine->SetGradientSkyboxColors(Colors::Black, Colors::DarkBlue);
+	m_RenderEngine->CreateMaterial("skyboxMaterial", ResourceConstants::skyboxSingleColorShader);
+	//m_RenderEngine->SetMaterialShader(m_SkyboxMaterial, ResourceConstants::skyboxProceduralShader);
+	//m_SkyboxMaterial.SetColor("material.startColor", Colors::Black);
+	//m_SkyboxMaterial.SetColor("material.endColor", Colors::DarkBlue);
+	//m_RenderEngine->SetSkyboxMaterial(m_SkyboxMaterial);
 
 	// Disable default scene camera.
 	m_RenderEngine->DefaultSceneCameraActivation(false);
@@ -64,31 +70,29 @@ void Example1Level::Initialize()
 	m_SceneCamera = m_ECS->MakeEntity(m_SceneCameraComponent, m_CameraTransformComponent, freeLookComponent);
 
 	// Create an example mesh.
-	m_ExampleMeshRenderer.vertexArray = m_RenderEngine->LoadModelResource("resources/meshes/cube.obj").GetVertexArray(0);
+	//.mesh = &m_RenderEngine->LoadMeshResource("resources/meshes/cube.obj");
 	
-	// Get materials.
-	MeshMaterial* material1 = m_RenderEngine->GetMaterial("_defaultLit");
-	MeshMaterial* material2 = m_RenderEngine->GetMaterial("exampleLit");
-	material2->shaderID = m_RenderEngine->GetShaderID("_standardLit");
-	material2->texture = m_RenderEngine->GetDefaultDiffuseTexture();
-	material2->colors["objectColor"] = Color(1.0f, 0.5f, 0.31f);
+
+
+	//material2->diffuseTexture = &m_RenderEngine->LoadTextureResource("box.png", "resources/textures/", PixelFormat::FORMAT_RGB, true, false);
+	//material2->specularTexture = &m_RenderEngine->LoadTextureResource("boxSpecular.png", "resources/textures/", PixelFormat::FORMAT_RGB, true, false);
 
 	// Set entity component settings & create an entity out of them.
-	m_ExampleMeshRenderer.material = material1;
-	m_ExampleMeshTransform.transform.SetLocation(Vector3F(-3, 0, 10));
-	m_ExampleMesh = m_ECS->MakeEntity(m_ExampleMeshTransform, m_ExampleMeshRenderer);
+	//m_ExampleMeshRenderer.material = material1;
+	//m_ExampleMeshTransform.transform.SetLocation(Vector3F(-3, 0, 10));
+	//m_ExampleMesh = m_ECS->MakeEntity(m_ExampleMeshTransform, m_ExampleMeshRenderer);
 	
 	// Set entity component settings & create an entity out of them.
-	m_ExampleMeshRenderer.material = material2;
-	m_ExampleMeshTransform.transform.SetLocation(Vector3F(3, 0, 10));
-	m_ExampleMesh2 = m_ECS->MakeEntity(m_ExampleMeshTransform, m_ExampleMeshRenderer);
+	//m_ExampleMeshRenderer.material = material2;
+	//m_ExampleMeshTransform.transform.SetLocation(Vector3F(3, 0, 10));
+	//m_ExampleMesh2 = m_ECS->MakeEntity(m_ExampleMeshTransform, m_ExampleMeshRenderer);
 
 	// Set ambient intensity.
-	m_RenderEngine->SetAmbientLightIntensity(0.1f);
+	//m_RenderEngine->SetAmbientLightIntensity(0.5f);
 
 	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem(*m_InputEngine);
-	level1Systems.AddSystem(*ecsFreeLookSystem);
+	level1Systems.AddSystem(*ecsFreeLookSystem);*/
 
 }
 
@@ -96,7 +100,7 @@ void Example1Level::Initialize()
 void Example1Level::Tick(float delta)
 {
 	// Update the systems in this level.
-	m_ECS->UpdateSystems(level1Systems, delta);
+	//m_ECS->UpdateSystems(level1Systems, delta);
 
 
 }

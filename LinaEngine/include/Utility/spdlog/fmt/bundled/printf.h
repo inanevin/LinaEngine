@@ -30,58 +30,58 @@ class null_terminating_iterator {
 
   null_terminating_iterator() : ptr_(0), end_(0) {}
 
-  FMT_CONSTEXPR null_terminating_iterator(const Char *ptr, const Char *end)
+  FMT_constexpr null_terminating_iterator(const Char *ptr, const Char *end)
     : ptr_(ptr), end_(end) {}
 
   template <typename Range>
-  FMT_CONSTEXPR explicit null_terminating_iterator(const Range &r)
+  FMT_constexpr explicit null_terminating_iterator(const Range &r)
     : ptr_(r.begin()), end_(r.end()) {}
 
-  FMT_CONSTEXPR null_terminating_iterator &operator=(const Char *ptr) {
+  FMT_constexpr null_terminating_iterator &operator=(const Char *ptr) {
     assert(ptr <= end_);
     ptr_ = ptr;
     return *this;
   }
 
-  FMT_CONSTEXPR Char operator*() const {
+  FMT_constexpr Char operator*() const {
     return ptr_ != end_ ? *ptr_ : Char();
   }
 
-  FMT_CONSTEXPR null_terminating_iterator operator++() {
+  FMT_constexpr null_terminating_iterator operator++() {
     ++ptr_;
     return *this;
   }
 
-  FMT_CONSTEXPR null_terminating_iterator operator++(int) {
+  FMT_constexpr null_terminating_iterator operator++(int) {
     null_terminating_iterator result(*this);
     ++ptr_;
     return result;
   }
 
-  FMT_CONSTEXPR null_terminating_iterator operator--() {
+  FMT_constexpr null_terminating_iterator operator--() {
     --ptr_;
     return *this;
   }
 
-  FMT_CONSTEXPR null_terminating_iterator operator+(difference_type n) {
+  FMT_constexpr null_terminating_iterator operator+(difference_type n) {
     return null_terminating_iterator(ptr_ + n, end_);
   }
 
-  FMT_CONSTEXPR null_terminating_iterator operator-(difference_type n) {
+  FMT_constexpr null_terminating_iterator operator-(difference_type n) {
     return null_terminating_iterator(ptr_ - n, end_);
   }
 
-  FMT_CONSTEXPR null_terminating_iterator operator+=(difference_type n) {
+  FMT_constexpr null_terminating_iterator operator+=(difference_type n) {
     ptr_ += n;
     return *this;
   }
 
-  FMT_CONSTEXPR difference_type operator-(
+  FMT_constexpr difference_type operator-(
       null_terminating_iterator other) const {
     return ptr_ - other.ptr_;
   }
 
-  FMT_CONSTEXPR bool operator!=(null_terminating_iterator other) const {
+  FMT_constexpr bool operator!=(null_terminating_iterator other) const {
     return ptr_ != other.ptr_;
   }
 
@@ -92,7 +92,7 @@ class null_terminating_iterator {
   // This should be a friend specialization pointer_from<Char> but the latter
   // doesn't compile by gcc 5.1 due to a compiler bug.
   template <typename CharT>
-  friend FMT_CONSTEXPR_DECL const CharT *pointer_from(
+  friend FMT_constexpr_DECL const CharT *pointer_from(
       null_terminating_iterator<CharT> it);
 
  private:
@@ -101,10 +101,10 @@ class null_terminating_iterator {
 };
 
 template <typename T>
-FMT_CONSTEXPR const T *pointer_from(const T *p) { return p; }
+FMT_constexpr const T *pointer_from(const T *p) { return p; }
 
 template <typename Char>
-FMT_CONSTEXPR const Char *pointer_from(null_terminating_iterator<Char> it) {
+FMT_constexpr const Char *pointer_from(null_terminating_iterator<Char> it) {
   return it.ptr_;
 }
 
@@ -113,7 +113,7 @@ FMT_CONSTEXPR const Char *pointer_from(null_terminating_iterator<Char> it) {
 // the end.
 // it: an iterator pointing to the beginning of the input range.
 template <typename Iterator, typename ErrorHandler>
-FMT_CONSTEXPR unsigned parse_nonnegative_int(Iterator &it, ErrorHandler &&eh) {
+FMT_constexpr unsigned parse_nonnegative_int(Iterator &it, ErrorHandler &&eh) {
   assert('0' <= *it && *it <= '9');
   if (*it == '0') {
     ++it;

@@ -23,7 +23,7 @@ Timestamp: 4/8/2019 5:43:51 PM
 #define ECS_HPP
 
 #include "ECSSystem.hpp"
-
+#include <map>
 
 namespace LinaEngine::ECS
 {
@@ -80,7 +80,7 @@ namespace LinaEngine::ECS
 		}
 		
 		/* Entity Creator */
-		LINA_API EntityHandle MakeEntity(BaseECSComponent** components, const uint32* componentIDs, size_t numComponents);
+		 EntityHandle MakeEntity(BaseECSComponent** components, const uint32* componentIDs, size_t numComponents);
 		
 		/* Removes an entity from the sys */
 		void RemoveEntity(EntityHandle handle);
@@ -249,15 +249,15 @@ namespace LinaEngine::ECS
 		LinaArray<ECSListener*> listeners;
 
 		/* Map of id & for each id a seperate array for each comp type */
-		LinaMap<uint32, LinaArray<uint8>> components;
+		std::map<uint32, LinaArray<uint8>> components;
 		
 		/* Entities with pair ids. */
-		LinaArray<LinaPair<uint32, LinaArray<LinaPair<uint32, uint32>>>*> entities;
+		LinaArray<std::pair<uint32, LinaArray<std::pair<uint32, uint32>>>*> entities;
 
 		/* Converts an entity handle to raw type */
-		FORCEINLINE LinaPair<uint32, LinaArray<LinaPair<uint32, uint32> > >* HandleToRawType(EntityHandle handle)
+		FORCEINLINE std::pair<uint32, LinaArray<std::pair<uint32, uint32> > >* HandleToRawType(EntityHandle handle)
 		{
-			return (LinaPair<uint32, LinaArray<LinaPair<uint32, uint32> > >*)handle;
+			return (std::pair<uint32, LinaArray<std::pair<uint32, uint32> > >*)handle;
 		}
 
 		/* Pulls the index out of an entity handle. */
@@ -267,15 +267,15 @@ namespace LinaEngine::ECS
 		}
 
 		/* Converts an entity handle to entity type */
-		FORCEINLINE LinaArray<LinaPair<uint32, uint32> >& HandleToEntity(EntityHandle handle)
+		FORCEINLINE LinaArray<std::pair<uint32, uint32> >& HandleToEntity(EntityHandle handle)
 		{
 			return HandleToRawType(handle)->second;
 		}
 
 		void DeleteComponent(uint32 componentID, uint32 index);
 		bool RemoveComponentInternal(EntityHandle, uint32 componentID);
-		LINA_API void AddComponentInternal(EntityHandle handle, LinaArray<LinaPair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent* component);
-		BaseECSComponent* GetComponentInternal(LinaArray<LinaPair<uint32, uint32>>& entityComponents, LinaArray<uint8>& arr, uint32 componentID);
+		 void AddComponentInternal(EntityHandle handle, LinaArray<std::pair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent* component);
+		BaseECSComponent* GetComponentInternal(LinaArray<std::pair<uint32, uint32>>& entityComponents, LinaArray<uint8>& arr, uint32 componentID);
 		void UpdateSystemMultipleComponentsInternal(uint32 index, ECSSystemList& systems, float delta, const LinaArray<uint32>& componentTypes, LinaArray<BaseECSComponent*>& componentParam, LinaArray<LinaArray<uint8>*>& componentArrays);
 		uint32 FindLeastCommonComponent(const LinaArray<uint32>& componentTypes, const LinaArray<uint32>& componentFlags);
 

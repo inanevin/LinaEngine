@@ -24,6 +24,7 @@ Timestamp: 4/9/2019 12:06:04 PM
 
 #include "Quaternion.hpp"
 #include "Matrix.hpp"
+
 namespace LinaEngine
 {
 	class Transformation
@@ -173,9 +174,9 @@ namespace LinaEngine
 
 	private:
 
-		Vector3F m_Translation;
+		Vector3F m_Translation = Vector3F::Zero;
 		Quaternion m_Rotation;
-		Vector3F m_Scale;
+		Vector3F m_Scale = Vector3F::One;
 	};
 
 

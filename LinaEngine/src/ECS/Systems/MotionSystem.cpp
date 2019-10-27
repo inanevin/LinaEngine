@@ -19,6 +19,8 @@ Timestamp: 4/28/2019 3:38:12 AM
 
 #include "LinaPch.hpp"
 #include "ECS/Systems/MotionSystem.hpp"  
+#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/MotionComponent.hpp"
 #include "ECS/Utility/MotionIntegrators.hpp"
 
 namespace LinaEngine::ECS
@@ -26,7 +28,13 @@ namespace LinaEngine::ECS
 	static float deltaIncrement = 0.0f;
 
 
-		void MotionSystem::UpdateComponents(float delta, BaseECSComponent ** components)
+	MotionSystem::MotionSystem() : BaseECSSystem()
+	{
+		AddComponentType(TransformComponent::ID);
+		AddComponentType(MotionComponent::ID);
+	}
+
+	void MotionSystem::UpdateComponents(float delta, BaseECSComponent ** components)
 		{
 			TransformComponent* transform = (TransformComponent*)components[0];
 			MotionComponent* motion = (MotionComponent*)components[1];

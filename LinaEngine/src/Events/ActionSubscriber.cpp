@@ -19,7 +19,7 @@ Timestamp: 4/12/2019 3:36:21 AM
 
 #include "LinaPch.hpp"
 #include "Events/ActionSubscriber.hpp"  
-
+#include "Utility/UtilityFunctions.hpp"
 
 namespace LinaEngine
 {
@@ -37,7 +37,7 @@ namespace LinaEngine
 			return;
 		}
 
-		for (LinaMap<size_t, ActionHandlerBase*>::iterator it = m_Handlers.begin(); it != m_Handlers.end(); it++)
+		for (std::map<size_t, ActionHandlerBase*>::iterator it = m_Handlers.begin(); it != m_Handlers.end(); it++)
 		{
 			m_ActionDispatcher->UnsubscribeHandler(it->second);
 			delete it->second;
@@ -46,7 +46,7 @@ namespace LinaEngine
 		m_Handlers.clear();
 	}
 
-	void ActionSubscriber::UnsubscribeAction(LinaString actionID)
+	void ActionSubscriber::UnsubscribeAction(std::string actionID)
 	{
 		// Abort if dispatcher is not set.
 		if (!m_ActionDispatcher)
@@ -55,7 +55,7 @@ namespace LinaEngine
 			return;
 		}
 
-		size_t actionIDHashed = LinaEngine::Internal::StringToHash(actionID);
+		size_t actionIDHashed = Utility::StringToHash(actionID);
 
 		// Abort if the handler does not exists.
 		if (m_Handlers.count(actionIDHashed) != 1)

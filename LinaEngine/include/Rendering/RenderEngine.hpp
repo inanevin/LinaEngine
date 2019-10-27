@@ -22,27 +22,35 @@ Timestamp: 4/15/2019 12:26:31 PM
 #ifndef RenderEngine_HPP
 #define RenderEngine_HPP
 
-#include "Rendering/Sampler.hpp"
-#include "Rendering/ArrayBitmap.hpp"
-#include "Rendering/Texture.hpp"
-#include "Rendering/Shader.hpp"
-#include "Rendering/RenderTarget.hpp"
-#include "Rendering/GameRenderContext.hpp"
-#include "Rendering/RenderableObjectData.hpp"
+#include "Core/Common.hpp"
+#include "RenderingCommon.hpp"
+#include "ECS/EntityComponentSystem.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
-#include "ECS/Components/CameraComponent.hpp"
-#include "ECS/Systems/MeshRendererSystem.hpp"
 #include "ECS/Systems/LightingSystem.hpp"
-#include "PackageManager/PAMInputEngine.hpp"
+#include "ECS/Systems/MeshRendererSystem.hpp"
+#include "ECS/Components/CameraComponent.hpp"
+#include "ECS/Components/TransformComponent.hpp"
+#include "Mesh.hpp"
+#include "UniformBuffer.hpp"
+#include "Window.hpp"
+#include "RenderContext.hpp"
 #include "Utility/Math/Color.hpp"
+#include <functional>
 
-using namespace LinaEngine::ECS;
-using namespace LinaEngine;
+namespace LinaEngine
+{
+	namespace Input
+	{
+		class InputEngine;
+	}
+
+	class Event;
+}
 
 namespace LinaEngine::Graphics
 {
 
-	class RenderEngine : public ECSListener
+	class RenderEngine : public LinaEngine::ECS::ECSListener
 	{
 	public:
 
@@ -51,24 +59,40 @@ namespace LinaEngine::Graphics
 		~RenderEngine();
 
 
-		// Enumeration for the skybox type.
-		enum SkyboxType { None, SingleColor, Gradient, Cubemap, Procedural };
-
-		FORCEINLINE void* GetNativeWindow()
+		// Creates an GLFW window.
+		FORCEINLINE bool CreateContextWindow(LinaEngine::Input::InputEngine& inputEngineIn)
 		{
-			return m_RenderDevice->GetNativeWindow();
+			return m_MainWindow.Initialize(inputEngineIn);
 		}
 
-		// Create a render context.
-		FORCEINLINE bool CreateContextWindow()
+		// Returns GLFW window instance.
+		FORCEINLINE void* GetNativeWindow()
 		{
-			return m_RenderDevice->CreateContextWindow();
-		};
+			return m_MainWindow.GetNativeWindow();
+		}
 
-		// Set the target of the callbacks coming from the main window context.
+		// Set event callback for window.
 		FORCEINLINE void SetMainWindowEventCallback(const std::function<void(Event&)>& callback)
 		{
-			m_RenderDevice->SetMainWindowEventCallback(callback);
+			m_MainWindow.SetEventCallback(callback);
+		}
+
+		// Swaps window buffer.
+		FORCEINLINE void TickWindow()
+		{
+			m_MainWindow.Tick();
+		}
+
+		// Returns the window width & height
+		FORCEINLINE Vector2F GetWindowSize()
+		{
+			return Vector2F(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
+		};
+
+		// Returns the window center coordinates.
+		FORCEINLINE Vector2F GetWindowCenter()
+		{
+			return Vector2F(m_MainWindow.GetWidth() / 2.0f, m_MainWindow.GetHeight() / 2.0f);
 		}
 
 		// Sets the ambient light color.
@@ -84,7 +108,7 @@ namespace LinaEngine::Graphics
 		FORCEINLINE float GetAmbientLightIntensity() { return m_LightingSystem.GetAmbientIntensity(); }
 
 		// Initialize the render renderEngine.
-		void Initialize(EntityComponentSystem* ecsIn);
+		void Initialize(LinaEngine::ECS::EntityComponentSystem& ecsIn);
 
 		// Called each frame.
 		void Tick(float delta);
@@ -92,50 +116,59 @@ namespace LinaEngine::Graphics
 		// Called when the main window is resized.
 		void OnWindowResized(float width, float height);
 
-		// Load a texture resource to be loaded.
-		LINA_API Texture& LoadTextureResource(const LinaString& fileName, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress);
+		// Creates a material resource with a specific shader.
+		 void CreateMaterial(const std::string& materialName, const std::string& shaderName);
 
-		// Feed a model resource to be loaded.
-		LINA_API RenderableObjectData& LoadModelResource(const LinaString& fileName);
+		// Creates a texture resource.
+		 void CreateTexture(const std::string& textureName, const std::string& filePath, PixelFormat pixelFormat = PixelFormat::FORMAT_RGB, bool generateMipmaps = true, bool compress = false);
 
-		// Loads a skybox texture resource w/ 6 faces.
-		LINA_API Texture& LoadCubemapTextureResource(const LinaString& filePosX, const LinaString& fileNegX, const LinaString& filePosY, const LinaString& fileNegY, const LinaString& filePosZ, const LinaString& fileNegZ);
+		// Creates a cubemap texture resource.
+		 void CreateTexture(const std::string& textureName, const std::string filePath[6], PixelFormat pixelFormat = PixelFormat::FORMAT_RGB, bool generateMipmaps = true, bool compress = false);
 
-		// Adds the targeted resource to the garbage collection dump.
-		LINA_API void UnloadTextureResource(Texture& textureResource);
+		// Creates a mesh resource
+		 void CreateMesh(const std::string& meshName, const std::string& filePath);
 
-		// Adds the targeted resource to the garbage collection dump.
-		LINA_API void UnloadModelResource(RenderableObjectData& modelResource);
+		// Creates a shader resource
+		 void CreateShader(const std::string& shaderName, const std::string& shaderText);
 
-		// Changes the skybox type.
-		LINA_API void ChangeSkyboxRenderType(SkyboxType type);
+		// Returns a material resource.
+		 Material& GetMaterial(const std::string& materialName);
 
-		// Returns the id of a shader by name
-		LINA_API FORCEINLINE uint32 GetShaderID(LinaString name) { return m_ShaderIDMap[name]; }
+		// Returns a texture resource
+		 Texture& GetTexture(const std::string& textureName);
 
-		// Sets the single color skybox rendering color.
-		LINA_API FORCEINLINE void SetSingleColorSkyboxColor(Color color) { m_SingleColorSkyboxColor = color; }
+		// Returns a mesh resource.
+		 Mesh& GetMesh(const std::string& meshName);
 
-		// Sets gradient colors for skybox gradient rendering.
-		LINA_API FORCEINLINE void SetGradientSkyboxColors(Color startColor, Color endColor) { m_GradientSkyboxStartColor = startColor; m_GradientSkyboxEndColor = endColor; }
+		// Returns a shader resource.
+		 Shader& GetShader(const std::string& shaderName);
 
-		// Returns the default diffuse texture
-		LINA_API Texture* GetDefaultDiffuseTexture() { return &m_DefaultDiffuseTexture; }
+		// Removes the targeted resource from resource map.
+		 void UnloadTextureResource(const std::string& textureName);
 
-		// Default Camera Component Activation
-		LINA_API void DefaultSceneCameraActivation(bool activation);
+		// Removes the targeted resource from resource map.
+		 void UnloadMeshResource(const std::string& meshName);
 
-		// Creates a material & returns a reference to it.
-		LINA_API FORCEINLINE MeshMaterial* GetMaterial(LinaString materialName) { return &(m_Materials[materialName]); };
+		// Removes the targeted resource from resource map.
+		 void UnloadMaterialResource(const std::string& materialName);
 
-		// Changes sun direction for procedural skybox.
-		LINA_API FORCEINLINE void ChangeSunDirection(Vector3F direction) { m_SunVector = -direction; }
+		// Returns whether a material/texture/mesh/shader exists or not.
+		 bool MaterialExists(const std::string& materialName);
+		 bool TextureExists(const std::string& textureName);
+		 bool MeshExists(const std::string& meshName);
+		 bool ShaderExists(const std::string& shaderName);
 
-	public:
+		// Sets the shader of a material to the shader specified by name. Also resets material properties based on the shader, caution!
+		 void SetMaterialShader(Material& material, const std::string& shaderName);
 
-		static Vector2F WindowCenter;
+		// Sets the skybox material.
+		 FORCEINLINE void SetSkyboxMaterial(Material& skyboxMaterial) { m_SkyboxMaterial = &skyboxMaterial; }
+
 
 	private:
+
+		// Constructs commonly used shaders within Lina Engine.
+		void ConstructEngineShaders();
 
 		// clears resource memory.
 		void DumpMemory();
@@ -143,70 +176,16 @@ namespace LinaEngine::Graphics
 		// Renders skybox
 		void RenderSkybox();
 
-		// Construct a shader w/ sampler & default texture
-		void ConstructShader(LinaString name, Shader& shader, const Texture& texture, const Sampler& sampler, const LinaString& text, uint32 samplerUnit, BindTextureMode bindMode = BINDTEXTURE_TEXTURE2D);
-
 		// Updates related uniform buffers on GPU
 		void UpdateUniformBuffers();
 
 	private:
 
-		// Default diffuse color.
-		LinaEngine::Color m_DefaultDiffuseColor = LinaEngine::Colors::Gray;
-
-		// Single color skybox draw color.
-		LinaEngine::Color m_SingleColorSkyboxColor = LinaEngine::Colors::Gray;
-
-		// Start color of the gradient skybox.
-		LinaEngine::Color m_GradientSkyboxStartColor = LinaEngine::Colors::Gray;
-
-		// End color of the greadient skybox.
-		LinaEngine::Color m_GradientSkyboxEndColor = LinaEngine::Colors::White;
-
-		// Procedural skybox sun vector
-		Vector3F m_SunVector = Vector3F(0, 1, 0);
-
-		// What type of skybox to draw.
-		SkyboxType m_SkyboxType = SkyboxType::None;
-
 		// Device for rendering operations.
-		std::unique_ptr<PAMRenderDevice> m_RenderDevice;
+		RenderDevice m_RenderDevice;
 
-		// ECS reference.
-		EntityComponentSystem* m_ECS;
-
-		// Default texture sampler
-		Sampler m_DefaultSampler;
-
-		// Skybox texture sampler
-		Sampler m_SkyboxSampler;
-
-		// Default texture data.
-		ArrayBitmap m_DefaultTextureBitmap;
-
-		// Default diffuse texture
-		Texture m_DefaultDiffuseTexture;
-
-		// Default skybox texture
-		Texture m_SkyboxTexture;
-
-		// Default shader
-		Shader m_StandardUnlitShader;
-
-		// Default Lit Shader
-		Shader m_StandardLitShader;
-
-		// Skybox cubemap shader
-		Shader m_SkyboxCubemapShader;
-
-		// Skybox single color shader
-		Shader m_SkyboxSingleColorShader;
-
-		// Skybox gradient color shader
-		Shader m_SkyboxGradientShader;
-
-		// Skybox procedural shader
-		Shader m_SkyboxProceduralShader;
+		// Context window
+		Window m_MainWindow;
 
 		// Default render target
 		RenderTarget m_RenderTarget;
@@ -221,38 +200,40 @@ namespace LinaEngine::Graphics
 		DrawParams m_SpriteDrawParams;
 
 		// Default Game Render Context
-		GameRenderContext m_DefaultRenderContext;
+		RenderContext m_DefaultRenderContext;
+
+		// ECS reference.
+		LinaEngine::ECS::EntityComponentSystem* m_ECS;
 
 		// ECS system for rendering camera perspective.
-		CameraSystem m_CameraSystem;
+		LinaEngine::ECS::CameraSystem m_CameraSystem;
 
 		// ECS Mesh Renderer system
-		MeshRendererSystem m_MeshRendererSystem;
-
-		// Default camera entity.
-		EntityHandle m_DefaultCamera;
+		LinaEngine::ECS::MeshRendererSystem m_MeshRendererSystem;
 
 		// Default camera transform component.
-		TransformComponent m_DefaultCameraTransform;
+		LinaEngine::ECS::TransformComponent m_DefaultCameraTransform;
 
 		// Default camera camera component.
-		CameraComponent m_DefaultCameraComponent;
+		LinaEngine::ECS::CameraComponent m_DefaultCameraComponent;
 
 		// ECS system for handling lighting
-		LightingSystem m_LightingSystem;
+		LinaEngine::ECS::LightingSystem m_LightingSystem;
 
 		// ECS system list for rendering operations.
-		ECSSystemList m_RenderingPipeline;
+		LinaEngine::ECS::ECSSystemList m_RenderingPipeline;
 
 		// Texture resources.
-		LinaArray<Texture*> m_TextureResources;
+		std::map<std::string, Texture> m_LoadedTextures;
 
 		// Model resources
-		LinaArray<RenderableObjectData*> m_RenderableObjectDataResources;
+		std::map<std::string, Mesh> m_LoadedMeshes;
 
-		// Dumped data to be cleared by garbage collector.
-		LinaArray<Texture*> m_TextureDump;
-		LinaArray<RenderableObjectData*> m_RenderableObjectDataDump;
+		// Material storage
+		std::map<std::string, Material> m_LoadedMaterials;
+
+		// Map that stores shader ID's by name
+		std::map<std::string, Shader> m_LoadedShaders;
 
 		// Buffer for global matrices
 		UniformBuffer m_GlobalMatrixBuffer;
@@ -260,11 +241,13 @@ namespace LinaEngine::Graphics
 		// Buffer for lights.
 		UniformBuffer m_LightsBuffer;
 
-		// Material storage
-		LinaMap<LinaString, MeshMaterial> m_Materials;
+		// Material used to draw skybox.
+		Material* m_SkyboxMaterial = nullptr;
 
-		// Map that stores shader ID's by name
-		LinaMap<LinaString, uint32> m_ShaderIDMap;
+		// Dummy material, mesh and texture to return if none is found while trying to get one of them.
+		Material m_DummyMaterial;
+		Mesh m_DummyMesh;
+		Texture m_DummyTexture;
 
 	private:
 
@@ -273,6 +256,9 @@ namespace LinaEngine::Graphics
 
 		// Standart sprite vertex array object.
 		uint32 m_SpriteVAO;
+
+
+		DISALLOW_COPY_ASSIGN_NEW(RenderEngine);
 	};
 
 }

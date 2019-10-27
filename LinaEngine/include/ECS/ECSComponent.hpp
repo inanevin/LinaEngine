@@ -22,8 +22,11 @@ Timestamp: 4/7/2019 3:24:08 PM
 #ifndef ECSComponent_HPP
 #define ECSComponent_HPP
 
-#include "LinaPch.hpp"
-#include "Core/DataStructures.hpp"
+#include "Core/LinaArray.hpp"
+#include "Core/Common.hpp"
+#include "Core/SizeDefinitions.hpp"
+#include <tuple>
+
 
 namespace LinaEngine::ECS
 {
@@ -35,7 +38,7 @@ namespace LinaEngine::ECS
 	typedef void* EntityHandle;
 
 	/* Defines for create & free functions */
-	typedef uint32 (*ECSComponentCreateFunction)(LinaArray<uint8>& memory, EntityHandle entity, BaseECSComponent* comp);
+	typedef uint32 (*ECSComponentCreateFunction)(LinaEngine::LinaArray<uint8>& memory, EntityHandle entity, BaseECSComponent* comp);
 	typedef void (*ECSComponentFreeFunction)(BaseECSComponent* component);
 
 	/* Null pointer for entitites */
@@ -46,7 +49,7 @@ namespace LinaEngine::ECS
 	{
 
 		/* Increments id for new components */
-		LINA_API static uint32 registerComponentType(ECSComponentCreateFunction createfn, ECSComponentFreeFunction freefn, size_t size);
+		 static uint32 registerComponentType(ECSComponentCreateFunction createfn, ECSComponentFreeFunction freefn, size_t size);
 
 		/* Entity reference */
 		EntityHandle entity = NULL_ENTITY_HANDLE;
@@ -73,7 +76,7 @@ namespace LinaEngine::ECS
 
 	private:
 		/* Component types, warning = global dynamic mem alloc. */
-		static LinaArray<LinaTuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>>* componentTypes;
+		static LinaEngine::LinaArray<std::tuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>>* componentTypes;
 	};
 
 	template<typename T>
@@ -95,7 +98,7 @@ namespace LinaEngine::ECS
 
 	/* Creates a component from a base reference */
 	template<typename Component>
-	uint32 ECSComponentCreate(LinaArray<uint8>& memory, EntityHandle entity, BaseECSComponent* comp)
+	uint32 ECSComponentCreate(LinaEngine::LinaArray<uint8>& memory, EntityHandle entity, BaseECSComponent* comp)
 	{
 		uint32 index = memory.size();
 		memory.resize(index + Component::SIZE);

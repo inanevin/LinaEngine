@@ -27,7 +27,7 @@ Timestamp: 4/27/2019 10:23:46 PM
 
 #include "PackageManager/OpenGL/GLRenderDevice.hpp"
 
-typedef LinaEngine::Graphics::GLRenderDevice PAMRenderDevice;
+typedef LinaEngine::Graphics::GLRenderDevice RenderDevice;
 
 #endif
 

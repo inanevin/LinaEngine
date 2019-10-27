@@ -22,8 +22,8 @@ Timestamp: 4/26/2019 9:13:05 PM
 #ifndef RenderTarget_HPP
 #define RenderTarget_HPP
 
-#include "PackageManager/PAMRenderDevice.hpp"
 #include "Texture.hpp"
+#include "PackageManager/PAMRenderDevice.hpp"
 #include "Utility/Log.hpp"
 
 namespace LinaEngine::Graphics
@@ -34,7 +34,7 @@ namespace LinaEngine::Graphics
 
 		RenderTarget() {}
 
-		FORCEINLINE void Construct(PAMRenderDevice& renderDeviceIn)
+		FORCEINLINE void Construct(RenderDevice& renderDeviceIn)
 		{
 			renderDevice = &renderDeviceIn;
 			m_EngineBoundID = 0;
@@ -42,14 +42,14 @@ namespace LinaEngine::Graphics
 
 		// TODO: Take care of texture compression. Should not be compressed.
 		// Constructors create the target through render engine.
-		FORCEINLINE void Construct(PAMRenderDevice& renderDeviceIn, Texture& texture, uint32 width, uint32 height, FramebufferAttachment attachment = FramebufferAttachment::ATTACHMENT_COLOR, uint32 attachmentNumber = 0, uint32 mipLevel = 0)
+		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, Texture& texture, uint32 width, uint32 height, FramebufferAttachment attachment = FramebufferAttachment::ATTACHMENT_COLOR, uint32 attachmentNumber = 0, uint32 mipLevel = 0)
 		{
 			renderDevice = &renderDeviceIn;
 			m_EngineBoundID = renderDevice->CreateRenderTarget(texture.GetID(), width, height, attachment, attachmentNumber, mipLevel);
 			CheckCompressed(texture);
 		}
 		
-		FORCEINLINE void Construct(PAMRenderDevice& renderDeviceIn, Texture& texture, FramebufferAttachment attachment = FramebufferAttachment::ATTACHMENT_COLOR, uint32 attachmentNumber = 0, uint32 mipLevel = 0)
+		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, Texture& texture, FramebufferAttachment attachment = FramebufferAttachment::ATTACHMENT_COLOR, uint32 attachmentNumber = 0, uint32 mipLevel = 0)
 		{
 			renderDevice = &renderDeviceIn;
 			m_EngineBoundID = renderDevice->CreateRenderTarget(texture.GetID(), texture.GetWidth(), texture.GetHeight(), attachment, attachmentNumber, mipLevel);
@@ -82,10 +82,9 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		PAMRenderDevice* renderDevice;
+		RenderDevice* renderDevice;
 		uint32 m_EngineBoundID;
 
-		NULL_COPY_AND_ASSIGN(RenderTarget);
 
 	};
 }

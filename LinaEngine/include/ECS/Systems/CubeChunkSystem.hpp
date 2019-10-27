@@ -23,7 +23,7 @@ Timestamp: 4/30/2019 12:05:16 AM
 #define CubeChunkSystem_HPP
 
 #include "ECS/ECSSystem.hpp"
-#include "ECS/Components/CubeChunkComponent.hpp"
+
 
 namespace LinaEngine::ECS
 {
@@ -31,10 +31,7 @@ namespace LinaEngine::ECS
 	{
 	public:
 
-		CubeChunkSystem() : BaseECSSystem()
-		{
-			AddComponentType(CubeChunkComponent::ID);
-		}
+		CubeChunkSystem();
 
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
 

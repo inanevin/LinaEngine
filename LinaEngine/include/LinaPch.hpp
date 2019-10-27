@@ -25,15 +25,4 @@ Timestamp: 12/30/2018 5:29:20 PM
 #include <Windows.h>
 #endif
 
-#include "Core/Common.hpp"
-#include "Core/APIExport.hpp"
-#include "Core/STLImport.hpp"
-#include "Utility/Log.hpp"
-
-
-#include "Utility/Math/Math.hpp"
-#include "Utility/Math/Transformation.hpp"
-#include "Utility/Math/Color.hpp"
-
-
 

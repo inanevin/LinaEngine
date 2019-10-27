@@ -19,12 +19,18 @@ Timestamp: 4/30/2019 12:05:30 AM
 
 #include "LinaPch.hpp"
 #include "ECS/Systems/CubeChunkSystem.hpp"  
+#include "ECS/Components/CubeChunkComponent.hpp"
 #include "ECS/Utility/MotionIntegrators.hpp"
 
 namespace LinaEngine::ECS
 {
 
 	float constVelocity;
+
+	CubeChunkSystem::CubeChunkSystem() : BaseECSSystem()
+	{
+		AddComponentType(CubeChunkComponent::ID);
+	}
 
 	void CubeChunkSystem::UpdateComponents(float delta, BaseECSComponent ** components)
 	{

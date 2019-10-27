@@ -19,9 +19,16 @@ Timestamp: 5/13/2019 12:49:58 AM
 
 #include "LinaPch.hpp"
 #include "ECS/Systems/LightingSystem.hpp"  
+#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/LightComponent.hpp"
 
 namespace LinaEngine::ECS
 {
+	LightingSystem::LightingSystem() : BaseECSSystem()
+	{
+		AddComponentType(TransformComponent::ID);
+	}
+
 	void LightingSystem::UpdateComponents(float delta, BaseECSComponent ** components)
 	{
 

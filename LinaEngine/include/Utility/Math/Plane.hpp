@@ -193,23 +193,23 @@ namespace LinaEngine
 
 	FORCEINLINE Plane Plane::operator*(float amt) const
 	{
-		return Plane(data * LinaEngine::Vector::Load1F(amt));
+		return Plane(data * Vector::Load1F(amt));
 	}
 
 	FORCEINLINE Plane Plane::operator/(float amt) const
 	{
-		return Plane(data * LinaEngine::Vector::Load1F(LinaEngine::Math::Reciprocal(amt)));
+		return Plane(data * Vector::Load1F(Math::Reciprocal(amt)));
 	}
 
 	FORCEINLINE Plane Plane::operator*=(float val)
 	{
-		data = data * LinaEngine::Vector::Load1F(val);
+		data = data * Vector::Load1F(val);
 		return *this;
 	}
 
 	FORCEINLINE Plane Plane::operator/=(float val)
 	{
-		data = data * LinaEngine::Vector::Load1F(LinaEngine::Math::Reciprocal(val));
+		data = data * Vector::Load1F(Math::Reciprocal(val));
 		return *this;
 	}
 
@@ -229,7 +229,7 @@ namespace LinaEngine
 		return data.NotEquals(other.data, errorMargin).IsZero4f();
 	}
 
-	FORCEINLINE LinaEngine::Vector Plane::toVector() const
+	FORCEINLINE Vector Plane::toVector() const
 	{
 		return data;
 	}

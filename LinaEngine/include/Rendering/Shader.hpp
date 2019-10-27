@@ -22,53 +22,46 @@ Timestamp: 2/16/2019 1:47:28 AM
 #ifndef Shader_HPP
 #define Shader_HPP
 
-#include "Texture.hpp"
-#include "Sampler.hpp"
+#include "Core/Common.hpp"
+#include "PackageManager/PAMRenderDevice.hpp"
 #include "UniformBuffer.hpp"
+#include <string>
 
 namespace LinaEngine::Graphics
 {
+
 	class Shader
 	{
 	public:
 
 		Shader() {};
 
-		FORCEINLINE ~Shader() { if(m_IsConstructed) m_EngineBoundID = renderDevice->ReleaseShaderProgram(m_EngineBoundID); }
+		FORCEINLINE ~Shader() { m_EngineBoundID = renderDevice->ReleaseShaderProgram(m_EngineBoundID); }
 
-		FORCEINLINE void Construct(PAMRenderDevice& renderDeviceIn, const LinaString& text)
+		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, const std::string& text)
 		{
 			renderDevice = &renderDeviceIn;
 			m_EngineBoundID = renderDevice->CreateShaderProgram(text);
-			m_IsConstructed = true;
 		}
 
 		// Set uniform buffer through render engine.
-		FORCEINLINE void SetUniformBuffer(const LinaString& name, UniformBuffer& buffer) 
+		FORCEINLINE void SetUniformBuffer(const std::string& name, UniformBuffer& buffer) 
 		{ 
 			renderDevice->SetShaderUniformBuffer(m_EngineBoundID, name, buffer.GetID()); 
 		}
 
-		FORCEINLINE void BindBlockToBuffer(uint32 bindingPoint, LinaString blockName)
+		FORCEINLINE void BindBlockToBuffer(uint32 bindingPoint, std::string blockName)
 		{
 			renderDevice->BindShaderBlockToBufferPoint(m_EngineBoundID, bindingPoint, blockName);
-		}
-
-		// Set the texture sampler through render engine.
-		FORCEINLINE void SetSampler(const LinaString& name, const Texture& texture, const Sampler& sampler, uint32 unit, BindTextureMode bindTextureMode = BindTextureMode::BINDTEXTURE_TEXTURE2D)
-		{ 
-			renderDevice->SetShaderSampler(m_EngineBoundID, name, texture.GetID(), sampler.GetID(), unit, bindTextureMode); 
 		}
 
 		// Get shader id, this gets matched w/ program id on render engine.
 		FORCEINLINE uint32 GetID() { return m_EngineBoundID; }
 
-		FORCEINLINE bool GetIsConstructed() { return m_IsConstructed; }
 
 	private:
 
-		bool m_IsConstructed = false;
-		PAMRenderDevice* renderDevice = nullptr;
+		RenderDevice* renderDevice = nullptr;
 		uint32 m_EngineBoundID;
 
 		//NULL_COPY_AND_ASSIGN(Shader);

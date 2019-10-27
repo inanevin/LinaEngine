@@ -26,11 +26,17 @@ void main()
   
 #elif defined(FS_BUILD)
 
-uniform vec3 color;
+struct Material
+{
+vec3 color;
+};
+
+uniform Material material;
+
 out vec4 fragColor;
 
 void main()
 {    
-   fragColor = vec4(color.x, color.y, color.z, 1);
+   fragColor = vec4(material.color.x, material.color.y, material.color.z, 1);
 }
 #endif

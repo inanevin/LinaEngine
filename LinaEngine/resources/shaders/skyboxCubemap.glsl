@@ -38,14 +38,19 @@ void main()
 }
   
 #elif defined(FS_BUILD)
-out vec4 FragColor;
 
+out vec4 FragColor;
 in vec3 TexCoords;
 
-uniform samplerCube skybox;
+struct Material
+{
+samplerCube diffuse;
+};
+
+uniform Material material;
 
 void main()
 {    
-   FragColor = texture(skybox, TexCoords);
+   FragColor = texture(material.diffuse, TexCoords);
 }
 #endif

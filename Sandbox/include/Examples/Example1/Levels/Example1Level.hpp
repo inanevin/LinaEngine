@@ -24,7 +24,7 @@ Timestamp: 5/6/2019 9:22:35 PM
 
 #include "World/Level.hpp"
 
-class Example1Level : public World::Level
+class Example1Level : public LinaEngine::World::Level
 {
 public:
 

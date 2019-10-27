@@ -22,6 +22,8 @@ Timestamp: 4/28/2019 3:37:53 AM
 #ifndef MotionComponent_HPP
 #define MotionComponent_HPP
 
+#include "ECS/ECSComponent.hpp"
+#include "Utility/Math/Vector.hpp"
 
 namespace LinaEngine::ECS
 {

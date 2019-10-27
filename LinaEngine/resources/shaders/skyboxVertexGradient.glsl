@@ -44,14 +44,20 @@ void main()
 in vec3 rawPosition;
 out vec4 fragColor;
 
-uniform vec3 startColor;
-uniform vec3 endColor;
+struct Material
+{
+vec3 startColor;
+vec3 endColor;
+};
+
+uniform Material material;
+
 
 void main()
 {    
 	float u = rawPosition.y;
 	u = remap(u, -1.0f, 1.0f, 0.0f, 1.0f);
-    gl_FragColor = mix( vec4(startColor, 1.0), vec4(endColor, 1.0), u );
+    gl_FragColor = mix( vec4(material.startColor, 1.0), vec4(material.endColor, 1.0), u );
 }
 #endif
 

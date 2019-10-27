@@ -23,7 +23,10 @@ Timestamp: 4/14/2019 11:59:32 AM
 #define ArrayBitmap_HPP
 
 #include "Core/Common.hpp"
-#include "Core/DataStructures.hpp"
+#include "Core/SizeDefinitions.hpp"
+#include "Utility/Log.hpp"
+#include <string>
+
 
 namespace LinaEngine::Graphics
 {
@@ -31,20 +34,17 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-		DISALLOW_COPY_AND_ASSIGN(ArrayBitmap);
-
 		// Param constructors including width, height, pixel array and offsets
 		ArrayBitmap(int32 width = 1, int32 m_Heigth = 1);
 		ArrayBitmap(int32 width, int32 m_Heigth, int32* pixels);
 		ArrayBitmap(int32 width, int32 m_Heigth, int32* pixels, int32 offsetX, int32 offsetY, int32 rowOffset);
-
-		virtual ~ArrayBitmap();
+		~ArrayBitmap();
 
 		// Load the bitmap from a file in resources.
-		bool Load(const LinaString& fileName);
+		bool Load(const std::string& fileName);
 
 		// Save the bitmap into a file in resources.
-		bool Save(const LinaString& fileName) const;
+		bool Save(const std::string& fileName) const;
 
 		static unsigned char* LoadImmediate(const char* filename, int& w, int& h,  int& nrchannels);
 
@@ -73,13 +73,13 @@ namespace LinaEngine::Graphics
 	private:
 
 		// Bitmap array properties.
-		int32 m_Width;
-		int32 m_Heigth;
-		int32* m_Pixels;
+		int32 m_Width = 0;
+		int32 m_Heigth = 0;
+		int32* m_Pixels = nullptr;
 
 	private:
 
-		FORCEINLINE uintptr GetPixelsSize() const { return (uintptr)(m_Width*m_Heigth) * sizeof(m_Pixels[0]); }
+		FORCEINLINE uintptr GetPixelsSize() const { return (uintptr)(m_Width * m_Heigth) * sizeof(m_Pixels[0]); }
 
 	};
 }

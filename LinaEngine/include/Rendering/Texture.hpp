@@ -22,24 +22,29 @@ Timestamp: 1/7/2019 1:55:47 PM
 #ifndef Texture_HPP
 #define Texture_HPP
 
-#include "DDSTexture.hpp"
+#include "Core/LinaArray.hpp"
+#include "Rendering/RenderingCommon.hpp"
+#include "Core/Common.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
 
 namespace LinaEngine::Graphics
 {
+	class ArrayBitmap;
+	class DDSTexture;
 
 	class Texture
 	{
 
 	public:
 
+		friend class RenderEngine;
+	
 		Texture() {};
-
 		~Texture();
 
-		void Construct(PAMRenderDevice& deviceIn, const class ArrayBitmap& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress);
-		void Construct(PAMRenderDevice& deviceIn, const DDSTexture& ddsTexture);
-		void Construct(PAMRenderDevice& deviceIn, const LinaArray<class ArrayBitmap*>& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress);
+		void Construct(RenderDevice& deviceIn, const class ArrayBitmap& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress);
+		void Construct(RenderDevice& deviceIn, const DDSTexture& ddsTexture);
+		void Construct(RenderDevice& deviceIn, const LinaArray<class ArrayBitmap*>& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress);
 
 		FORCEINLINE uint32 GetID() const { return m_ID; };
 		FORCEINLINE uint32 GetWidth() const { return m_Width; }
@@ -48,13 +53,14 @@ namespace LinaEngine::Graphics
 		FORCEINLINE bool HasMipmaps() const { return hasMipMaps; }
 
 	private:
-
-		PAMRenderDevice* renderDevice;
+		
+	
+		RenderDevice* renderDevice = nullptr;
 		uint32 m_ID;
 		uint32 m_Width;
 		uint32 m_Height;
-		bool isCompressed;
-		bool hasMipMaps;
+		bool isCompressed = false;
+		bool hasMipMaps = true;
 	};
 }
 

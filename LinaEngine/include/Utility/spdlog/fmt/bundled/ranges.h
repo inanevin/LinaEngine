@@ -25,21 +25,21 @@ FMT_BEGIN_NAMESPACE
 template <typename Char>
 struct formatting_base {
   template <typename ParseContext>
-  FMT_CONSTEXPR auto parse(ParseContext &ctx) -> decltype(ctx.begin()) {
+  FMT_constexpr auto parse(ParseContext &ctx) -> decltype(ctx.begin()) {
     return ctx.begin();
   }
 };
 
 template <typename Char, typename Enable = void>
 struct formatting_range : formatting_base<Char> {
-  static FMT_CONSTEXPR_DECL const std::size_t range_length_limit =
+  static FMT_constexpr_DECL const std::size_t range_length_limit =
       FMT_RANGE_OUTPUT_LENGTH_LIMIT; // output only up to N items from the range.
   Char prefix;
   Char delimiter;
   Char postfix;
   formatting_range() : prefix('{'), delimiter(','), postfix('}') {}
-  static FMT_CONSTEXPR_DECL const bool add_delimiter_spaces = true;
-  static FMT_CONSTEXPR_DECL const bool add_prepostfix_space = false;
+  static FMT_constexpr_DECL const bool add_delimiter_spaces = true;
+  static FMT_constexpr_DECL const bool add_prepostfix_space = false;
 };
 
 template <typename Char, typename Enable = void>
@@ -48,8 +48,8 @@ struct formatting_tuple : formatting_base<Char> {
   Char delimiter;
   Char postfix;
   formatting_tuple() : prefix('('), delimiter(','), postfix(')') {}
-  static FMT_CONSTEXPR_DECL const bool add_delimiter_spaces = true;
-  static FMT_CONSTEXPR_DECL const bool add_prepostfix_space = false;
+  static FMT_constexpr_DECL const bool add_delimiter_spaces = true;
+  static FMT_constexpr_DECL const bool add_prepostfix_space = false;
 };
 
 namespace internal {
@@ -83,7 +83,7 @@ class is_like_std_string {
   static void check(...);
 
  public:
-  static FMT_CONSTEXPR_DECL const bool value =
+  static FMT_constexpr_DECL const bool value =
     !std::is_void<decltype(check<T>(FMT_NULL))>::value;
 };
 
@@ -116,7 +116,7 @@ class is_tuple_like_ {
   static void check(...);
 
  public:
-  static FMT_CONSTEXPR_DECL const bool value =
+  static FMT_constexpr_DECL const bool value =
     !std::is_void<decltype(check<T>(FMT_NULL))>::value;
 };
 
@@ -133,7 +133,7 @@ template <typename T, T... N>
 struct integer_sequence {
   typedef T value_type;
 
-  static FMT_CONSTEXPR std::size_t size() {
+  static FMT_constexpr std::size_t size() {
     return sizeof...(N);
   }
 };
@@ -159,7 +159,7 @@ void for_each(index_sequence<Is...>, Tuple &&tup, F &&f) FMT_NOEXCEPT {
 }
 
 template <class T>
-FMT_CONSTEXPR make_index_sequence<std::tuple_size<T>::value> 
+FMT_constexpr make_index_sequence<std::tuple_size<T>::value> 
 get_indexes(T const &) { return {}; }
 
 template <class Tuple, class F>
@@ -169,30 +169,30 @@ void for_each(Tuple &&tup, F &&f) {
 }
 
 template<typename Arg>
-FMT_CONSTEXPR const char* format_str_quoted(bool add_space, const Arg&, 
+FMT_constexpr const char* format_str_quoted(bool add_space, const Arg&, 
   typename std::enable_if<
     !is_like_std_string<typename std::decay<Arg>::type>::value>::type* = nullptr) {
   return add_space ? " {}" : "{}";
 }
 
 template<typename Arg>
-FMT_CONSTEXPR const char* format_str_quoted(bool add_space, const Arg&, 
+FMT_constexpr const char* format_str_quoted(bool add_space, const Arg&, 
   typename std::enable_if<
     is_like_std_string<typename std::decay<Arg>::type>::value>::type* = nullptr) {
   return add_space ? " \"{}\"" : "\"{}\"";
 }
 
-FMT_CONSTEXPR const char* format_str_quoted(bool add_space, const char*) {
+FMT_constexpr const char* format_str_quoted(bool add_space, const char*) {
   return add_space ? " \"{}\"" : "\"{}\"";
 }
-FMT_CONSTEXPR const wchar_t* format_str_quoted(bool add_space, const wchar_t*) {
+FMT_constexpr const wchar_t* format_str_quoted(bool add_space, const wchar_t*) {
     return add_space ? L" \"{}\"" : L"\"{}\"";
 }
 
-FMT_CONSTEXPR const char* format_str_quoted(bool add_space, const char) {
+FMT_constexpr const char* format_str_quoted(bool add_space, const char) {
     return add_space ? " '{}'" : "'{}'";
 }
-FMT_CONSTEXPR const wchar_t* format_str_quoted(bool add_space, const wchar_t) {
+FMT_constexpr const wchar_t* format_str_quoted(bool add_space, const wchar_t) {
     return add_space ? L" '{}'" : L"'{}'";
 }
 
@@ -200,7 +200,7 @@ FMT_CONSTEXPR const wchar_t* format_str_quoted(bool add_space, const wchar_t) {
 
 template <typename T>
 struct is_tuple_like {
-  static FMT_CONSTEXPR_DECL const bool value =
+  static FMT_constexpr_DECL const bool value =
     internal::is_tuple_like_<T>::value && !internal::is_range_<T>::value;
 };
 
@@ -235,7 +235,7 @@ public:
   formatting_tuple<Char> formatting;
 
   template <typename ParseContext>
-  FMT_CONSTEXPR auto parse(ParseContext &ctx) -> decltype(ctx.begin()) {
+  FMT_constexpr auto parse(ParseContext &ctx) -> decltype(ctx.begin()) {
     return formatting.parse(ctx);
   }
 
@@ -257,7 +257,7 @@ public:
 
 template <typename T>
 struct is_range {
-  static FMT_CONSTEXPR_DECL const bool value =
+  static FMT_constexpr_DECL const bool value =
     internal::is_range_<T>::value && !internal::is_like_std_string<T>::value;
 };
 
@@ -268,7 +268,7 @@ struct formatter<RangeT, Char,
   formatting_range<Char> formatting;
 
   template <typename ParseContext>
-  FMT_CONSTEXPR auto parse(ParseContext &ctx) -> decltype(ctx.begin()) {
+  FMT_constexpr auto parse(ParseContext &ctx) -> decltype(ctx.begin()) {
     return formatting.parse(ctx);
   }
 

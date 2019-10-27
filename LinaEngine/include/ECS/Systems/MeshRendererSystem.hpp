@@ -24,11 +24,15 @@ Timestamp: 4/27/2019 5:38:44 PM
 
 
 #include "ECS/ECSSystem.hpp"
-#include "Rendering/GameRenderContext.hpp"
-#include "ECS/Components/TransformComponent.hpp"
-#include "ECS/Components/MeshRendererComponent.hpp"
 
-using namespace LinaEngine::Graphics;
+
+namespace LinaEngine
+{
+	namespace Graphics
+	{
+		class RenderContext;
+	}
+}
 
 namespace LinaEngine::ECS
 {
@@ -37,23 +41,18 @@ namespace LinaEngine::ECS
 
 	public:
 
-		MeshRendererSystem() : BaseECSSystem()
-		{
-			AddComponentType(TransformComponent::ID);
-			AddComponentType(MeshRendererComponent::ID);
-		}
+		MeshRendererSystem();
 
-		FORCEINLINE void Construct(GameRenderContext& contextIn)
+		FORCEINLINE void Construct(LinaEngine::Graphics::RenderContext& contextIn)
 		{
 			context = &contextIn;
 		}
-
 
 		virtual void UpdateComponents(float delta, BaseECSComponent** components);
 
 	private:
 
-		GameRenderContext* context;
+		LinaEngine::Graphics::RenderContext* context;
 	};
 }
 

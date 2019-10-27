@@ -21,18 +21,18 @@ set(CMAKE_CXX_STANDARD 17)
 #--------------------------------------------------------------------
 set (LINAENGINE_SOURCES
 
+	src/CompileTest.cpp
+	
 	# CORE
     src/Core/Application.cpp
     src/Core/Layer.cpp
     src/Core/LayerStack.cpp
-    src/Core/Transform.cpp
 	src/Core/Time.cpp
 	
 	
 	# ECS 
 	src/ECS/Systems/MovementControlSystem.cpp
 	src/ECS/Systems/MeshRendererSystem.cpp
-	src/ECS/Systems/SpriteRendererSystem.cpp
 	src/ECS/Systems/MotionSystem.cpp
 	src/ECS/Systems/CubeChunkSystem.cpp
 	src/ECS/Systems/CubeChunkRenderSystem.cpp
@@ -49,17 +49,14 @@ set (LINAENGINE_SOURCES
 	#Events
 	src/Events/ActionDispatcher.cpp
 	src/Events/ActionSubscriber.cpp
-	
-	#IMGUI
-	src/IMGUI/IMGUILayer.cpp
-	
+
 	#Interfaces
-	src/Interfaces/IInputSubscriber.cpp
+	
 	
 	#PAM
 	src/PackageManager/Generic/cmwc4096.cpp
 	src/PackageManager/Generic/GenericMemory.cpp
-	src/PackageManager/OpenGL/GLInputEngine.cpp
+	src/PackageManager/OpenGL/GLInputDevice.cpp
 	src/PackageManager/OpenGL/GLRenderDevice.cpp
 	src/PackageManager/OpenGL/GLWindow.cpp
 	
@@ -69,10 +66,10 @@ set (LINAENGINE_SOURCES
 	src/Rendering/Texture.cpp
 	src/Rendering/IndexedModel.cpp
 	src/Rendering/ModelLoader.cpp
-	src/Rendering/GameRenderContext.cpp
 	src/Rendering/RenderEngine.cpp
-	
-	
+	src/Rendering/RenderContext.cpp
+	src/Rendering/ShaderConstants.cpp
+
 	#Physics
 	src/Physics/PhysicsEngine.cpp
 	src/Physics/PhysicsInteractionWorld.cpp
@@ -82,12 +79,11 @@ set (LINAENGINE_SOURCES
 	src/Utility/Math/Quaternion.cpp
 	src/Utility/Math/Transformation.cpp
 	src/Utility/Math/Vector.cpp
-	src/Utility/Math/VectorMath.cpp
 	src/Utility/Math/AABB.cpp
 	src/Utility/Math/Plane.cpp
-
+	src/Utility/UtilityFunctions.cpp
 	src/Utility/Log.cpp
-	src/Utility/ResourceConstants.cpp
+
 
 
 )
@@ -98,18 +94,15 @@ set (LINAENGINE_SOURCES
 set(LINAENGINE_HEADERS
 
 	#CORE
-	include/Core/APIExport.hpp
 	include/Core/Application.hpp
 	include/Core/Common.hpp
-	include/Core/DataStructures.hpp
 	include/Core/Environment.hpp
 	include/Core/Internal.hpp
 	include/Core/Layer.hpp
 	include/Core/LayerStack.hpp
-	include/Core/Memory.hpp
-	include/Core/STLImport.hpp
-	include/Core/Transform.hpp
 	include/Core/Time.hpp
+	include/Core/LinaArray.hpp
+	include/Core/SizeDefinitions.hpp
 	
 	#ECS
 	include/ECS/Components/MovementControlComponent.hpp
@@ -120,11 +113,9 @@ set(LINAENGINE_HEADERS
 	include/ECS/Components/ColliderComponent.hpp
 	include/ECS/Components/CameraComponent.hpp
 	include/ECS/Components/FreeLookComponent.hpp
-	include/ECS/Components/SpriteRendererComponent.hpp
 	include/ECS/Components/LightComponent.hpp
 	include/ECS/Systems/MovementControlSystem.hpp
 	include/ECS/Systems/MeshRendererSystem.hpp
-	include/ECS/Systems/SpriteRendererSystem.hpp
 	include/ECS/Systems/MotionSystem.hpp
 	include/ECS/Systems/CubeChunkSystem.hpp
 	include/ECS/Systems/CubeChunkRenderSystem.hpp
@@ -147,31 +138,24 @@ set(LINAENGINE_HEADERS
 	include/Events/KeyEvent.hpp
 	include/Events/MouseEvent.hpp
 	
-	#IMGUI
-	include/IMGUI/IMGUILayer.hpp
-	
 	#Input
 	include/Input/InputAxisBinder.hpp
 	include/Input/InputEngine.hpp
 	include/Input/InputMappings.hpp
-	
+	include/Input/InputCommon.hpp
 	#Interfaces
 	include/Interfaces/IInputSubscriber.hpp
-	
-	#LObject
-	include/LObjects/Camera.hpp
 	
 	#Package Manager
 	include/PackageManager/Generic/cmwc4096.hpp
 	include/PackageManager/Generic/GenericMath.hpp
 	include/PackageManager/Generic/GenericMemory.hpp
 	include/PackageManager/Generic/GenericVectorMath.hpp
-	include/PackageManager/OpenGL/GLInputEngine.hpp
+	include/PackageManager/OpenGL/GLInputDevice.hpp
 	include/PackageManager/OpenGL/GLRenderDevice.hpp
 	include/PackageManager/OpenGL/GLWindow.hpp
-	include/PackageManager/OpenGL/GLIMGUI.hpp
 	include/PackageManager/SSE/SSEVectorMath.hpp
-	include/PackageManager/PAMInputEngine.hpp
+	include/PackageManager/PAMInputDevice.hpp
 	include/PackageManager/PAMMath.hpp
 	include/PackageManager/PAMMemory.hpp
 	include/PackageManager/PAMSIMD.hpp
@@ -194,11 +178,11 @@ set(LINAENGINE_HEADERS
 	include/Rendering/Sampler.hpp
 	include/Rendering/UniformBuffer.hpp
 	include/Rendering/RenderContext.hpp
-	include/Rendering/GameRenderContext.hpp
 	include/Rendering/RenderTarget.hpp
-	include/Rendering/RenderableObjectData.hpp
+	include/Rendering/Mesh.hpp
+	include/Rendering/RenderingCommon.hpp
+	include/Rendering/ShaderConstants.hpp
 
-	
 	#World
 	include/World/Level.hpp
 	
@@ -208,17 +192,14 @@ set(LINAENGINE_HEADERS
 	
 	#Utility
 	include/Utility/Math/Color.hpp
-	include/Utility/Math/Math.hpp
 	include/Utility/Math/Matrix.hpp
 	include/Utility/Math/Quaternion.hpp
 	include/Utility/Math/Transformation.hpp
 	include/Utility/Math/Vector.hpp
-	include/Utility/Math/VectorMath.hpp
 	include/Utility/Math/AABB.hpp
 	include/Utility/Math/Plane.hpp
 	include/Utility/Log.hpp
-	include/Utility/ResourceConstants.hpp
-
+	include/Utility/UtilityFunctions.hpp
 	
 	# SPDLOG
 	include/Utility/spdlog/spdlog.h
@@ -298,18 +279,7 @@ set(LINAENGINE_HEADERS
 	include/Utility/stb/stb_vorbis.c
 	include/Utility/stb/stb_voxel_render.h
 	include/Utility/stb/stretchy_buffer.h
-	
-	#imgui
-	include/Utility/imgui/imconfig.h
-	include/Utility/imgui/imgui.cpp
-	include/Utility/imgui/imgui_demo.cpp
-	include/Utility/imgui/imgui_draw.cpp
-	include/Utility/imgui/imgui_internal.h
-	include/Utility/imgui/imgui_widgets.cpp
-	include/Utility/imgui/imstb_rectpack.h
-	include/Utility/imgui/imstb_textedit.h
-	include/Utility/imgui/imstb_truetype.h
-	
+
 	#API
 	include/Lina.hpp
 	

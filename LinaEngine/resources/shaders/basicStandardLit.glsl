@@ -31,6 +31,7 @@ layout (std140, row_major) uniform GlobalMatrices
 	mat4 view;
 };
 
+out vec2 TexCoords;
 out vec3 Normal;
 out vec3 FragPos;
 
@@ -39,7 +40,7 @@ void main()
     gl_Position = projection * view * model * vec4(position, 1.0);
 	FragPos = vec3(model * vec4(position,1.0));
 	Normal = mat3(inverseTransposeModel) * normal;
-    texCoord0 = texCoord;
+    TexCoords = texCoord;
 }
 
 #elif defined(FS_BUILD)
@@ -51,36 +52,48 @@ layout (std140, row_major) uniform Lights
 	float ambientIntensity;
 };
 
-uniform sampler2D diffuse;
-uniform vec3 objectColor;
-uniform float specularIntensity;
-uniform int specularExponent;
+struct Material
+{
+sampler2D diffuse;
+sampler2D specular;
+vec3 objectColor;
+float specularIntensity;
+int specularExponent;
+};
 
-uniform vec3 lightPos;
-uniform vec3 lightColor;
+uniform Material material;
+
+struct Light
+{
+vec3 pos;
+vec3 color;
+};
+
+uniform Light light;
 
 in vec3 Normal;
 in vec3 FragPos;
+in vec2 TexCoords;
 out vec4 fragColor;
 
 void main()
 {
-	vec3 ambient = vec3(ambientColor.x, ambientColor.y, ambientColor.z) * ambientIntensity;
+	vec3 ambient = (vec3(ambientColor.x, ambientColor.y, ambientColor.z) * ambientIntensity) * vec3(texture(material.diffuse, TexCoords));
 	vec3 viewPos = vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
 	
 	//diffuse
 	vec3 norm = normalize(Normal);
-	vec3 lightDir = normalize(lightPos - FragPos);  
+	vec3 lightDir = normalize(light.pos - FragPos);  
 	float diff = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = diff * lightColor;
+	vec3 diffuse = diff * light.color * vec3(texture(material.diffuse, TexCoords));
 	
 	// specular
 	vec3 viewDir = normalize(viewPos - FragPos);
 	vec3 reflectDir = reflect(-lightDir, norm);  
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
-	vec3 specular = specularIntensity * spec * lightColor;  
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.specularExponent);
+	vec3 specular = material.specularIntensity * spec * light.color * vec3(texture(material.specular, TexCoords));  
 
-	vec3 result = (ambient + diffuse + specular) * objectColor;	
+	vec3 result = (ambient + diffuse + specular);	
 	fragColor = vec4(result, 1.0);
 }
 #endif

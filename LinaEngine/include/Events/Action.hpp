@@ -23,7 +23,8 @@ Timestamp: 1/6/2019 5:41:20 AM
 #define Action_HPP
 
 
-
+#include "Core/Common.hpp"
+#include <functional>
 
 namespace LinaEngine
 {
@@ -46,9 +47,9 @@ namespace LinaEngine
 
 	protected:
 
-		ActionHandlerParamsBase(ActionType type) : m_ActionType(type) {};
+		ActionHandlerParamsBase(ActionType type) : m_ActionType(type), m_UseCondition(false) {};
 
-		bool useCondition;
+		bool m_UseCondition = false;
 		ActionType m_ActionType;
 
 

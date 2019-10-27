@@ -12,32 +12,28 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: SpriteRendererComponent
-Timestamp: 5/9/2019 2:58:13 AM
+Class: ShaderConstants
+Timestamp: 2/16/2019 1:47:28 AM
 
 */
 
 #pragma once
 
-#ifndef SpriteRendererComponent_HPP
-#define SpriteRendererComponent_HPP
+#ifndef ShaderConstants_HPP
+#define ShaderConstants_HPP
 
-#include "ECS/ECSComponent.hpp"
-#include "Rendering/Texture.hpp"
-#include "Rendering/Shader.hpp"
+#include <string>
 
-using namespace LinaEngine::Graphics;
-
-
-namespace LinaEngine::ECS
+namespace LinaEngine::Graphics
 {
-	struct SpriteRendererComponent : public ECSComponent<SpriteRendererComponent>
+	struct ShaderConstants
 	{
-		Texture* texture = nullptr;
-		Shader* shader = nullptr;
-		Color color;
+		static std::string& standardLitShader;
+		static std::string& standardUnlitShader;
+		static std::string& skyboxCubemapShader;
+		static std::string& skyboxGradientShader;
+		static std::string& skyboxProceduralShader;
+		static std::string& skyboxSingleColorShader;
 	};
 }
-
-
 #endif

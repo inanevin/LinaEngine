@@ -25,17 +25,6 @@ Timestamp: 5/2/2019 1:40:16 AM
 #include "ECS/ECSComponent.hpp"
 
 
-namespace LinaEngine::Input
-{
-	class InputKeyAxisBinder;
-};
-
-namespace LinaEngine::Input
-{
-	class InputMouseButtonBinder;
-}
-using namespace LinaEngine::Input;
-
 namespace LinaEngine::ECS
 {
 	struct FreeLookComponent : public ECSComponent<FreeLookComponent>

@@ -22,39 +22,38 @@ Timestamp: 4/14/2019 5:12:19 PM
 #ifndef GLWindow_HPP
 #define GLWindow_HPP
 
-#include "Rendering/Window.hpp"
-
+#include "Rendering/RenderingCommon.hpp"
+#include "Events/Event.hpp"
 
 namespace LinaEngine
 {
-
-
 	namespace Input
 	{
-		template<class Derived>
 		class InputEngine;
-		class PAMInputEngine;
 	}
+}
 
-	class GLWindow : public Window<GLWindow>
+namespace LinaEngine::Graphics
+{
+
+	class GLWindow
 	{
 	public:
 
-		GLWindow(const WindowProperties& props = WindowProperties());
-		~GLWindow();
+		// Creates the native window.
+		bool Initialize(LinaEngine::Input::InputEngine& inputEngineIn, WindowProperties& propsIn);
 
-		/* Creates the native window. */
-		bool Initialize_Impl();
+		// Called every frame.
+		void Tick();
 
-		/* Called every frame */
-		void Tick_Impl();
+		// Enables/Disables Vsync.
+		void SetVsync(bool enable);
 
-		/* Enables/Disables Vsync */
-		void SetVsync_Impl(bool enable);
+		// Gets the native glfw window.
+		FORCEINLINE void* GetNativeWindow() const { return m_Window; }
 
-		/* Gets the native glfw window. */
-		FORCEINLINE void* GetNativeWindow_Impl() const { return m_Window; }
-
+		// Sets event callback.
+		FORCEINLINE void SetEventCallback(const std::function<void(Event&)>& callback) { m_EventCallback = callback; }
 
 	private:
 
@@ -71,9 +70,19 @@ namespace LinaEngine
 		void KeyCallback(void* w, int key, int scancode, int action, int mods);
 		void MouseCallback(void* w, int button, int action, int mods);
 
-		void* m_Window = NULL;
+	private:
 
-		Input::InputEngine<Input::PAMInputEngine>* inputEngine;
+		friend class Window;
+
+		GLWindow();
+		~GLWindow();
+	
+		void* m_Window = nullptr;
+		std::function<void(Event&)> m_EventCallback;
+		WindowProperties* m_WindowProperties = nullptr;
+		LinaEngine::Input::InputEngine* inputEngine = nullptr;
+
+		DISALLOW_COPY_ASSIGN_NEW_MOVE(GLWindow);
 
 	};
 }

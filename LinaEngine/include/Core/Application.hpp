@@ -23,75 +23,70 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 
 #include "Events/ApplicationEvent.hpp"
-#include "PackageManager/PAMInputEngine.hpp"
-#include "Rendering/RenderEngine.hpp"
 #include "LayerStack.hpp"
-#include "Common.hpp"
-#include "APIExport.hpp"
+#include "Input/InputEngine.hpp"
+#include "Rendering/RenderEngine.hpp"
 #include "ECS/EntityComponentSystem.hpp"
 #include "Physics/PhysicsEngine.hpp"
-#include "World/Level.hpp"
+
+namespace LinaEngine::World
+{
+	class Level;
+}
 
 namespace LinaEngine
 {
-	using namespace Graphics;
-	using namespace Input;
-	using namespace ECS;
-	using namespace Physics;
-	using namespace World;
+
 
 	class Application
 	{
 	public:
 
-		LINA_API Application();
-		LINA_API virtual ~Application();
+		 virtual ~Application();
 
 		// Main application loop.
-		LINA_API void Run();
-
-		// Called when an internal event occurs.
-		LINA_API void OnEvent(Event& e);
+		 void Run();
 
 		// Pushes a new layer into the application stack.
-		LINA_API void PushLayer(Layer* layer);
+		 void PushLayer(Layer* layer);
 
 		// Pushes a new overlay layer into the application stack.
-		LINA_API void PushOverlay(Layer* layer);
+		 void PushOverlay(Layer* layer);
 
 		// Loads a level into memory.
-		LINA_API void LoadLevel(Level* level);
+		 void LoadLevel(LinaEngine::World::Level* level);
+
+	protected:
+
+		 Application();
+
+	private:
+
+		// Called when an internal event occurs.
+		void OnEvent(Event& e);
 
 		// Called when main application window is closed.
 		bool OnWindowClose(WindowCloseEvent& e);
 
-		// Accessors for app & engines.
-		FORCEINLINE static Application& Get() { return *instance; }
-		FORCEINLINE InputEngine<PAMInputEngine>& GetInputDevice() { return *(m_InputEngine.get()); }
-		FORCEINLINE RenderEngine& GetRenderEngine() { return *(m_RenderEngine.get()); }
-
 	private:
-
-		// Static singleton instance for application.
-		static Application* instance;
-
-		// Is application running?
-		bool m_Running = false;
 
 		// Layer queue.
 		LayerStack m_LayerStack;
 
 		// Active engines running in the application.
-		std::unique_ptr<InputEngine<PAMInputEngine>> m_InputEngine;
-		std::unique_ptr<RenderEngine> m_RenderEngine;
-		std::unique_ptr<PhysicsEngine> m_PhysicsEngine;
-		std::unique_ptr<EntityComponentSystem> m_ECS;
+		LinaEngine::Input::InputEngine m_InputEngine;
+		LinaEngine::Graphics::RenderEngine m_RenderEngine;
+		LinaEngine::Physics::PhysicsEngine m_PhysicsEngine;
+		LinaEngine::ECS::EntityComponentSystem m_ECS;
 
 		// Current active level.
-		Level* m_CurrentLevel = nullptr;
+		LinaEngine::World::Level* m_CurrentLevel = nullptr;
 
 		// Do we have a currently active level?
 		bool m_ActiveLevelExists = false;
+
+		// Is application running?
+		bool m_Running = false;
 
 	};
 

@@ -22,18 +22,23 @@ Timestamp: 4/28/2019 3:10:03 PM
 #ifndef Time_HPP
 #define Time_HPP
 
-
+#include "SizeDefinitions.hpp"
 
 namespace LinaEngine
 {
 	class Time
 	{
-	public:
+		// Get elapsed time since the start of the application.
 		static double GetTime();
-		static void Sleep(uint32 milliSeconds);
-		static double GetCurrentTimeNanoseconds();
-		static double GetCurrentTimeMilliseconds();
 
+		// Make the application thread sleep for designated amount of milliseconds.
+		static void Sleep(uint32 milliSeconds);
+
+		// Get elapesed time in nanoseconds.
+		static double GetCurrentTimeNanoseconds();
+
+		// Get elapsed time in milliseconds.
+		static double GetCurrentTimeMilliseconds();
 	};
 }
 

@@ -24,6 +24,7 @@ Timestamp: 4/8/2019 9:04:49 PM
 
 #include "Generic/GenericMemory.hpp"
 
-typedef LinaEngine::GenericMemory PlatformMemory;
+typedef LinaEngine::GenericMemory Memory;
+
 
 #endif

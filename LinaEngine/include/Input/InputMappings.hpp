@@ -414,7 +414,7 @@ namespace LinaEngine::Input
 
 #endif
 
-struct LINA_API InputCode
+struct  InputCode
 {
 	enum Key
 	{

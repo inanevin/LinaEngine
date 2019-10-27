@@ -22,26 +22,32 @@ Timestamp: 4/9/2019 3:25:33 PM
 #ifndef ECSMovementControlComponent_HPP
 #define ECSMovementControlComponent_HPP
 
-#include "ECS/EntityComponentSystem.hpp"
-#include "Core/DataStructures.hpp"
-#include "Input/InputAxisBinder.hpp"
+#include "ECS/ECSComponent.hpp"
+#include "Core/LinaArray.hpp"
+#include "Utility/Math/Vector.hpp"
 
-using namespace LinaEngine::Input;
+namespace LinaEngine
+{
+	namespace Input
+	{
+		class InputKeyAxisBinder;
+	}
+}
 
 namespace LinaEngine::ECS
 {
 	struct MovementControl
 	{
-		Vector3F movement;
-		InputKeyAxisBinder* inputKeyAxisBinder;
-		float lastInputAmount;
+		MovementControl(const Vector3F movementIn, LinaEngine::Input::InputKeyAxisBinder* inputKeyAxisBinderIn) : movement(movementIn), inputKeyAxisBinder(inputKeyAxisBinderIn), lastInputAmount(0.0f) {};
 
-		MovementControl(const Vector3F movementIn, InputKeyAxisBinder* inputKeyAxisBinderIn) : movement(movementIn), inputKeyAxisBinder(inputKeyAxisBinderIn), lastInputAmount(inputKeyAxisBinderIn->GetAmount()) {};
+		Vector3F movement = Vector3F::Zero;
+		LinaEngine::Input::InputKeyAxisBinder* inputKeyAxisBinder;
+		float lastInputAmount = 0.0f;
 	};
 
 	struct MovementControlComponent : public ECSComponent<MovementControlComponent>
 	{
-		LinaArray<MovementControl> movementControls;
+		LinaEngine::LinaArray<MovementControl> movementControls;
 	};
 }
 

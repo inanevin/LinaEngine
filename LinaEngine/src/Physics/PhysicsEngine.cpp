@@ -37,12 +37,12 @@ namespace LinaEngine::Physics
 		LINA_CORE_TRACE("[Destructor] -> Physics Engine ({0})", typeid(*this).name());
 	}
 
-	void PhysicsEngine::Initialize(EntityComponentSystem* ecsIn)
+	void PhysicsEngine::Initialize(EntityComponentSystem& ecsIn)
 	{
 		LINA_CORE_TRACE("[Initialization] -> Physics Engine ({0})", typeid(*this).name());
 
 		// Set ECS reference.
-		ECS = ecsIn;
+		ECS = &ecsIn;
 
 		// Create the interaction world.
 		m_InteractionWorld = std::make_unique<PhysicsInteractionWorld>(*ECS);

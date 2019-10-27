@@ -23,7 +23,7 @@ Timestamp: 1/2/2019 1:42:06 AM
 
 
 #include "Events/Event.hpp"
-#include "APIExport.hpp"
+#include <string>
 
 namespace LinaEngine
 {
@@ -31,14 +31,22 @@ namespace LinaEngine
 	{
 	public:
 
-		LINA_API Layer(const std::string& name = "Layer");
-		LINA_API virtual ~Layer();
+		 Layer(const std::string& name = "Layer");
+		 virtual ~Layer();
 
+		// Called when this layer is attached to application.
 		virtual void OnAttach() {}
-		virtual void OnDetach() {}
-		LINA_API virtual void OnUpdate() {}
-		LINA_API virtual void OnEvent(Event& event) {}
 
+		// Called when this layer is detached from application.
+		virtual void OnDetach() {}
+
+		// Called each frame.
+		 virtual void OnUpdate() {}
+
+		// Called when an engine event occurs on this layer.
+		 virtual void OnEvent(Event& event) {}
+
+		// Get the layer name.
 		FORCEINLINE const std::string& GetName() const { return m_DebugName; }
 
 	protected:

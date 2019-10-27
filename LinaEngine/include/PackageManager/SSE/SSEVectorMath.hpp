@@ -22,10 +22,11 @@ Timestamp: 4/9/2019 12:33:52 AM
 #ifndef SSEVectorMath_HPP
 #define SSEVectorMath_HPP
 
-#include "Utility/Math/Math.hpp"
+#include "PackageManager/PAMMath.hpp"
 #include "PackageManager/PAMSIMD.hpp"
-#include "Core/Memory.hpp"
+#include "PackageManager/PAMMemory.hpp"
 #include "Core/Common.hpp"
+#include "Utility/Log.hpp"
 
 namespace LinaEngine
 {
@@ -211,7 +212,7 @@ namespace LinaEngine
 				SSEVector::Make((uint32)0xFFFFFFFF, 0, 0xFFFFFFFF, 0xFFFFFFFF),
 				SSEVector::Make((uint32)0xFFFFFFFF, 0xFFFFFFFF, 0, 0xFFFFFFFF),
 				SSEVector::Make((uint32)0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0) };
-			LINA_CORE_ASSERT(index < 4, "Index is bigger than 4!");
+			LINA_CORE_ASSERT(index < 4, "Index is bigger than 3!");
 			return masks[index];
 		}
 

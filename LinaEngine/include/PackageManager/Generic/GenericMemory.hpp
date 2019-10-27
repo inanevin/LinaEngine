@@ -24,16 +24,25 @@ Timestamp: 4/8/2019 9:04:58 PM
 
 
 #include <cstring>
-#include "Core/Environment.hpp"
-
+#include "Core/Common.hpp"
+#include "Core/SizeDefinitions.hpp"
+#include "Utility/Log.hpp"
 
 #define GENERIC_MEMORY_SMALL_MEMSWAP_MAX 16
 
 
 namespace LinaEngine
 {
+
 	struct GenericMemory
 	{
+		enum
+		{
+			DEFAULT_ALIGNMENT = 16,
+			MIN_ALIGNMENT = 8
+		};
+
+
 		static FORCEINLINE void* memmove(void* dest, const void* src, uintptr amt)
 		{
 			return ::memmove(dest, src, amt);
@@ -78,12 +87,12 @@ namespace LinaEngine
 		}
 
 		template<typename T>
-		static FORCEINLINE CONSTEXPR T align(const T ptr, uintptr alignment)
+		static FORCEINLINE constexpr T align(const T ptr, uintptr alignment)
 		{
 			return (T)(((intptr)ptr + alignment - 1) & ~(alignment - 1));
 		}
 
-		static void* malloc(uintptr amt, uint32 alignment);
+		static void* malloc(uintptr amt, uint32 alignment = DEFAULT_ALIGNMENT);
 		static void* realloc(void* ptr, uintptr amt, uint32 alignment);
 		static void* free(void* ptr);
 		static uintptr getAllocSize(void* ptr);
@@ -91,7 +100,7 @@ namespace LinaEngine
 		static void bigmemswap(void* a, void* b, uintptr size);
 		static void smallmemswap(void* a, void* b, uintptr size)
 		{
-			LINA_CORE_ASSERT(size <= GENERIC_MEMORY_SMALL_MEMSWAP_MAX);
+			LINA_CORE_ASSERT(size <= GENERIC_MEMORY_SMALL_MEMSWAP_MAX, "Size is bigger than allowed!");
 			char temp_data[GENERIC_MEMORY_SMALL_MEMSWAP_MAX];
 			void* temp = (void*)&temp_data;
 			GenericMemory::memcpy(temp, a, size);

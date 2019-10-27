@@ -22,14 +22,15 @@ Timestamp: 4/9/2019 1:28:05 PM
 #ifndef ECSTransformComponent_HPP
 #define ECSTransformComponent_HPP
 
+
+#include "ECS/ECSComponent.hpp"
 #include "Utility/Math/Transformation.hpp"
-#include "ECS/EntityComponentSystem.hpp"
 
 namespace LinaEngine::ECS
 {
 	struct TransformComponent : public ECSComponent<TransformComponent>
 	{
-		Transformation transform;
+		LinaEngine::Transformation transform;
 	};
 }
 

@@ -22,7 +22,7 @@ Timestamp: 12/29/2018 11:28:02 PM
 
 #ifdef LINA_PLATFORM_WINDOWS
 
-
+#include "Core/Application.hpp"
 
 extern LinaEngine::Application* LinaEngine::CreateApplication();
 

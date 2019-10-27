@@ -21,11 +21,32 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "LinaPch.hpp"
 #include "Utility/Math/Vector.hpp"  
-#include "Utility/Math/Math.hpp"
 #include "Utility/Math/Quaternion.hpp"
 
 namespace LinaEngine
 {
+	const Vector VectorConstants::ZERO(Vector::Make(0.0f, 0.0f, 0.0f, 0.0f));
+	const Vector VectorConstants::ONE(Vector::Make(1.0f, 1.0f, 1.0f, 1.0f));
+	const Vector VectorConstants::TWO(Vector::Make(2.0f, 2.0f, 2.0f, 2.0f));
+	const Vector VectorConstants::HALF(Vector::Make(0.5f, 0.5f, 0.5f, 0.5f));
+	const Vector VectorConstants::INF(Vector::Make(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity()));
+	const Vector VectorConstants::MASK_X(Vector::Make((uint32)0, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF));
+	const Vector VectorConstants::MASK_Y(Vector::Make((uint32)0xFFFFFFFF, 0, 0xFFFFFFFF, 0xFFFFFFFF));
+	const Vector VectorConstants::MASK_Z(Vector::Make((uint32)0xFFFFFFFF, 0xFFFFFFFF, 0, 0xFFFFFFFF));
+	const Vector VectorConstants::MASK_W(Vector::Make((uint32)0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0));
+	const Vector VectorConstants::SIGN_MASK(Vector::Make((uint32)0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF));
+
+	const Vector3F Vector3F::Zero = Vector3F(0.0f, 0.0f, 0.0f);
+	const Vector3F Vector3F::One = Vector3F(1.0f, 1.0f, 1.0f);
+	const Vector3F Vector3F::Forward = Vector3F(0.0f, 0.0f, 1.0f);
+	const Vector3F Vector3F::Up = Vector3F(0.0f, 1.0f, 0.0f);
+	const Vector3F Vector3F::Right = Vector3F(1.0f, 0.0f, 0.0f);
+	const Vector3F Vector3F::Back = Vector3F(0.0f, 0.0f, -1.0f);
+	const Vector3F Vector3F::Down = Vector3F(0.0f, -1.0f, 0.0f);
+	const Vector3F Vector3F::Left = Vector3F(-1.0f, 0.0f, 0.0f);
+
+	const Vector2F Vector2F::Zero = Vector2F(0.0f, 0.0f);
+	const Vector2F Vector2F::One = Vector2F(1.0f, 1.0f);
 
 
 	float Vector4F::Max() const
@@ -140,7 +161,7 @@ namespace LinaEngine
 
 	void Vector3F::Set(uint32 index, float val)
 	{
-		vec = vec.select(Vector::mask(index), Vector::Load1F(val));
+		vec = vec.select(Vector::Mask(index), Vector::Load1F(val));
 	}
 
 	float Vector3F::Max() const

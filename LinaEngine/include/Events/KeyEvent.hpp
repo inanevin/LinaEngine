@@ -22,10 +22,11 @@ Timestamp: 12/30/2018 7:40:21 PM
 #define KeyEvent_HPP
 
 #include "Event.hpp"
+#include <sstream>
 
 namespace LinaEngine
 {
-	class LINA_API KeyEvent : public Event
+	class  KeyEvent : public Event
 	{
 	public:
 		inline int GetKeyCode() const { return m_KeyCode; }
@@ -38,7 +39,7 @@ namespace LinaEngine
 		int m_KeyCode;
 	};
 
-	class LINA_API KeyPressedEvent : public KeyEvent
+	class  KeyPressedEvent : public KeyEvent
 	{
 	public:
 		KeyPressedEvent(int keycode, int repeatCount)
@@ -58,7 +59,7 @@ namespace LinaEngine
 		int m_RepeatCount;
 	};
 
-	class LINA_API KeyReleasedEvent : public KeyEvent
+	class  KeyReleasedEvent : public KeyEvent
 	{
 	public:
 		KeyReleasedEvent(int keycode)
@@ -74,7 +75,7 @@ namespace LinaEngine
 		EVENT_CLASS_TYPE(KeyReleased)
 	};
 
-	class LINA_API KeyTypedEvent : public KeyEvent
+	class  KeyTypedEvent : public KeyEvent
 	{
 	public:
 		KeyTypedEvent(int keycode)

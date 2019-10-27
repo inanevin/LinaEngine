@@ -25,26 +25,15 @@ Timestamp: 5/2/2019 12:20:42 AM
 #include "ECS/ECSComponent.hpp"
 #include "Utility/Math/Color.hpp"
 
-namespace LinaEngine
-{
-	namespace Graphics
-	{
-		class RenderEngine;
-	}
-}
-
-using namespace LinaEngine::Graphics;
-
 namespace LinaEngine::ECS
 {
 	struct CameraComponent : ECSComponent<CameraComponent>
 	{
-		Color clearColor = Color(0.1f, 0.1f, 0.1f, 1.0f);
+		LinaEngine::Color clearColor = LinaEngine::Color(0.1f, 0.1f, 0.1f, 1.0f);
 		float fieldOfView = 70.0f;
 		float zNear = 0.01f;
 		float zFar = 1000.0f;
 		bool isActive = false;
-
 	};
 }
 

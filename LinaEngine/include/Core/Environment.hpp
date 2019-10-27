@@ -23,10 +23,9 @@ Timestamp: 4/17/2019 1:50:21 AM
 #define Environment_HPP
 
 #if __cplusplus < 201103L
-#define nullptr NULL
-#define CONSTEXPR
+
 #else
-#define CONSTEXPR constexpr
+
 #endif
 
 #define SIMD_CPU_ARCH_OTHER  0

@@ -19,9 +19,17 @@ Timestamp: 5/2/2019 12:41:01 AM
 
 #include "LinaPch.hpp"
 #include "ECS/Systems/CameraSystem.hpp"  
+#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/CameraComponent.hpp"
 
 namespace LinaEngine::ECS
 {
+	CameraSystem::CameraSystem() : BaseECSSystem()
+	{
+		AddComponentType(TransformComponent::ID);
+		AddComponentType(CameraComponent::ID);
+	}
+
 	void CameraSystem::UpdateComponents(float delta, BaseECSComponent ** components)
 	{
 		TransformComponent* transform = (TransformComponent*)components[0];
@@ -46,6 +54,16 @@ namespace LinaEngine::ECS
 		// Update projection matrix.
 		m_Projection = Matrix::perspective(Math::ToRadians(camera->fieldOfView / 2.0f), m_AspectRatio, camera->zNear, camera->zFar);
 
+	}
+
+	Vector3F CameraSystem::GetCameraLocation()
+	{
+		return m_CurrentCameraComponent == nullptr ? Vector3F(VectorConstants::ZERO): m_CurrentCameraTransform->transform.GetLocation();
+	}
+
+	LinaEngine::Color& CameraSystem::GetCurrentClearColor()
+	{
+		return m_CurrentCameraComponent == nullptr ? LinaEngine::Colors::Gray : m_CurrentCameraComponent->clearColor;
 	}
 
 

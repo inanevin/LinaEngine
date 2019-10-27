@@ -25,6 +25,7 @@ Timestamp: 4/12/2019 3:36:21 AM
 #include "ActionDispatcher.hpp"
 #include "Core/Internal.hpp"
 #include "Utility/Log.hpp"
+#include "Utility/UtilityFunctions.hpp"
 
 namespace LinaEngine
 {
@@ -51,11 +52,11 @@ namespace LinaEngine
 		virtual void Initialize() = 0;
 
 		// Subscribes an action with particular id.
-		void UnsubscribeAction(LinaString actionID);
+		void UnsubscribeAction(std::string actionID);
 
 		// Subscribe an action with a condition.
 		template<typename T>
-		FORCEINLINE void SubscribeAction(const LinaString& actionID, ActionType at, const std::function<void(T)>& callback, T condition)
+		FORCEINLINE void SubscribeAction(const std::string& actionID, ActionType at, const std::function<void(T)>& callback, T condition)
 		{
 			// Abort if dispatcher is not set.
 			if (!m_ActionDispatcher)
@@ -64,7 +65,7 @@ namespace LinaEngine
 				return;
 			}
 
-			size_t actionIDHashed = LinaEngine::Internal::StringToHash(actionID);
+			size_t actionIDHashed = LinaEngine::Utility::StringToHash(actionID);
 
 			// If an handler with the same id already exists, abort.
 			if (m_Handlers.count(actionIDHashed) == 1)
@@ -80,13 +81,13 @@ namespace LinaEngine
 			handler->SetCallback(callback);
 
 			// Insert the handler to our map & subscribe to dispatcher.
-			m_Handlers.insert(LinaPair<size_t, ActionHandlerBase*>(actionIDHashed, handler));
+			m_Handlers.insert(std::pair<size_t, ActionHandlerBase*>(actionIDHashed, handler));
 			m_ActionDispatcher->SubscribeHandler(handler);
 		}
 
 		// Subscribe an action without a condition.
 		template<typename T>
-		FORCEINLINE void SubscribeAction(const LinaString& actionID, ActionType at, const std::function<void(T)>& callback)
+		FORCEINLINE void SubscribeAction(const std::string& actionID, ActionType at, const std::function<void(T)>& callback)
 		{
 			// Abort if dispatcher is not set.
 			if (!m_ActionDispatcher)
@@ -95,7 +96,7 @@ namespace LinaEngine
 				return;
 			}
 
-			size_t actionIDHashed = LinaEngine::Internal::StringToHash(actionID);
+			size_t actionIDHashed = LinaEngine::Utility::StringToHash(actionID);
 
 			// If an handler with the same id already exists, abort.
 			if (m_Handlers.count(actionIDHashed) == 1)
@@ -110,7 +111,7 @@ namespace LinaEngine
 			handler->SetCallback(callback);
 
 			// Insert the handler to our map & subscribe to dispatcher.
-			m_Handlers.insert(LinaPair<size_t, ActionHandlerBase*>(actionIDHashed, handler));
+			m_Handlers.insert(std::pair<size_t, ActionHandlerBase*>(actionIDHashed, handler));
 			m_ActionDispatcher->SubscribeHandler(handler);
 		}
 
@@ -120,7 +121,7 @@ namespace LinaEngine
 		ActionDispatcher* m_ActionDispatcher = nullptr;
 
 		// Handler map.
-		LinaMap<size_t, ActionHandlerBase*> m_Handlers;
+		std::map<size_t, ActionHandlerBase*> m_Handlers;
 	};
 }
 

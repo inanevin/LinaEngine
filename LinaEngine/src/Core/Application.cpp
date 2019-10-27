@@ -19,31 +19,22 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 #include "LinaPch.hpp"
 #include "Core/Application.hpp"
-#include "Core/Time.hpp"
+#include "Core/Layer.hpp"
+#include "World/Level.hpp"
 
 namespace LinaEngine
 {
 
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
-	Application* Application::instance = nullptr;
 
 	Application::Application()
 	{
 		LINA_CORE_TRACE("[Constructor] -> Application ({0})" , typeid(*this).name());
 		LINA_CORE_ASSERT(!instance, "Application already exists!");
 
-		// Set singleton instance.
-		instance = this;
-
-		// Create unique pointers for engines.
-		m_InputEngine = std::make_unique<PAMInputEngine>();
-		m_ECS = std::make_unique<EntityComponentSystem>();
-		m_RenderEngine = std::make_unique<RenderEngine>();
-		m_PhysicsEngine = std::make_unique<PhysicsEngine>();
-
 		// Create main window.
-		bool windowCreationSuccess = m_RenderEngine->CreateContextWindow();
+		bool windowCreationSuccess = m_RenderEngine.CreateContextWindow(m_InputEngine);
 		if (!windowCreationSuccess)
 		{
 			LINA_CORE_ERR("Window Creation Failed!");
@@ -51,12 +42,12 @@ namespace LinaEngine
 		}
 
 		// Set event callback for main window.
-		m_RenderEngine->SetMainWindowEventCallback(BIND_EVENT_FN(OnEvent));
+		m_RenderEngine.SetMainWindowEventCallback(BIND_EVENT_FN(OnEvent));
 
 		// Initialize engines.
-		m_InputEngine->Initialize(m_RenderEngine->GetNativeWindow());
-		m_PhysicsEngine->Initialize(m_ECS.get());
-		m_RenderEngine->Initialize(m_ECS.get());
+		m_InputEngine.Initialize(m_RenderEngine.GetNativeWindow());
+		m_PhysicsEngine.Initialize(m_ECS);
+		m_RenderEngine.Initialize(m_ECS);
 
 		// Set running flag.
 		m_Running = true;
@@ -76,7 +67,7 @@ namespace LinaEngine
 		if (e.GetEventType() == EventType::WindowResize)
 		{
 			WindowResizeEvent& windowEvent = (WindowResizeEvent&)(e);
-			m_RenderEngine->OnWindowResized((float)windowEvent.GetWidth(), (float)windowEvent.GetHeight());
+			m_RenderEngine.OnWindowResized((float)windowEvent.GetWidth(), (float)windowEvent.GetHeight());
 		}
 		
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
@@ -93,13 +84,13 @@ namespace LinaEngine
 		while (m_Running)
 		{
 			// Update input engine.
-			m_InputEngine->Tick();
+			m_InputEngine.Tick();
 	
 			// Update physics engine.
-			m_PhysicsEngine->Tick(0.01f);
+			m_PhysicsEngine.Tick(0.01f);
 
 			// Update render engine.
-			m_RenderEngine->Tick(0.01f);
+			m_RenderEngine.Tick(0.01f);
 
 			// Update current level.
 			if (m_ActiveLevelExists)
@@ -129,11 +120,11 @@ namespace LinaEngine
 		layer->OnAttach();
 	}
 
-	LINA_API void Application::LoadLevel(Level * level)
+	 void Application::LoadLevel(LinaEngine::World::Level * level)
 	{
 		// TODO: Implement unloading the current level & loading a new one later.
 		m_CurrentLevel = level;
-		m_CurrentLevel->SetEngineReferences(*m_ECS.get(), *m_RenderEngine.get(), *m_InputEngine.get());
+		m_CurrentLevel->SetEngineReferences(m_ECS, m_RenderEngine, m_InputEngine);
 		m_CurrentLevel->Install();
 		m_CurrentLevel->Initialize();
 		m_ActiveLevelExists = true;
