@@ -175,7 +175,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void RenderEngine::CreateTexture(const std::string& textureName, const std::string& filePath, PixelFormat pixelFormat , bool generateMipmaps, bool compress)
+	void RenderEngine::CreateTexture(const std::string& textureName, const std::string& filePath, PixelFormat pixelFormat , bool generateMipmaps, bool compress, Texture** refPointer = nullptr)
 	{
 		if (!TextureExists(textureName))
 		{
@@ -190,18 +190,26 @@ namespace LinaEngine::Graphics
 			// Move into the map.
 			m_LoadedTextures.emplace(textureName, std::move(texture));
 
+			// Set pointer that was sent in.
+			if (refPointer != nullptr)
+				* refPointer = &m_LoadedTextures[textureName];
+
 			// Delete pixel data.
 			delete textureBitmap;
 		}
 		else
 		{
+			// Set pointer that was sent in.
+			if (refPointer != nullptr)
+				* refPointer = &m_LoadedTextures[textureName];
+
 			// Texture with this name already exists!
 			LINA_CORE_ERR("Texture with the name {0} already exists, aborting...", textureName);
 			return;
 		}
 	}
 
-	void RenderEngine::CreateTexture(const std::string& textureName, const std::string filePaths[6], PixelFormat pixelFormat , bool generateMipmaps, bool compress)
+	void RenderEngine::CreateTexture(const std::string& textureName, const std::string filePaths[6], PixelFormat pixelFormat , bool generateMipmaps, bool compress, Texture** refPointer = nullptr)
 	{
 		if (!TextureExists(textureName))
 		{
@@ -218,6 +226,10 @@ namespace LinaEngine::Graphics
 			// Create texture.
 			m_LoadedTextures[textureName].Construct(m_RenderDevice, bitmaps, PixelFormat::FORMAT_RGB, true, false);
 
+			// Set pointer that was sent in.
+			if (refPointer != nullptr)
+				* refPointer = &m_LoadedTextures[textureName];
+
 			// Delete pixel data.
 			for (uint32 i = 0; i < bitmaps.size(); i++)
 				delete bitmaps[i];
@@ -226,13 +238,17 @@ namespace LinaEngine::Graphics
 		}
 		else
 		{
+			// Set pointer that was sent in.
+			if (refPointer != nullptr)
+				* refPointer = &m_LoadedTextures[textureName];
+
 			// Texture with this name already exists!
 			LINA_CORE_ERR("Texture with the name {0} already exists, aborting...", textureName);
 			return;
 		}
 	}
 
-	void RenderEngine::CreateMesh(const std::string& meshName, const std::string& filePath)
+	void RenderEngine::CreateMesh(const std::string& meshName, const std::string& filePath, Mesh** refPointer = nullptr)
 	{
 		if (!MeshExists(meshName))
 		{
@@ -261,7 +277,7 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void RenderEngine::CreateShader(const std::string& shaderName, const std::string& shaderText)
+	void RenderEngine::CreateShader(const std::string& shaderName, const std::string& shaderText, Shader** refPointer = nullptr)
 	{
 		if (!ShaderExists(shaderName))
 			m_LoadedShaders[shaderName].Construct(m_RenderDevice, shaderText);

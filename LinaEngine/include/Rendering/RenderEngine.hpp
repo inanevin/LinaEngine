@@ -108,7 +108,7 @@ namespace LinaEngine::Graphics
 		FORCEINLINE float GetAmbientLightIntensity() { return m_LightingSystem.GetAmbientIntensity(); }
 
 		// Initialize the render renderEngine.
-		void Initialize(LinaEngine::ECS::EntityComponentSystem& ecsIn);
+		void Initialize(LinaEngine::ECS::EntityComponentSystem & ecsIn);
 
 		// Called each frame.
 		void Tick(float delta);
@@ -116,54 +116,59 @@ namespace LinaEngine::Graphics
 		// Called when the main window is resized.
 		void OnWindowResized(float width, float height);
 
-		// Creates a material resource with a specific shader.
-		 void CreateMaterial(const std::string& materialName, const std::string& shaderName, Material** refPointer = nullptr);
+		/// <summary> Creates a material resource with a specific shader. </summary>
+		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing material. </param>
+		void CreateMaterial(const std::string & materialName, const std::string & shaderName, Material** refPointer = nullptr);
 
-		// Creates a texture resource.
-		 void CreateTexture(const std::string& textureName, const std::string& filePath, PixelFormat pixelFormat = PixelFormat::FORMAT_RGB, bool generateMipmaps = true, bool compress = false);
+		/// <summary> Creates a texture resource. </summary>
+		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing texture. </param>
+		void CreateTexture(const std::string & textureName, const std::string & filePath, PixelFormat pixelFormat = PixelFormat::FORMAT_RGB, bool generateMipmaps = true, bool compress = false, Texture** refPointer = nullptr);
 
-		// Creates a cubemap texture resource.
-		 void CreateTexture(const std::string& textureName, const std::string filePath[6], PixelFormat pixelFormat = PixelFormat::FORMAT_RGB, bool generateMipmaps = true, bool compress = false);
+		/// <summary> Creates a cubemap texture resource. </summary>
+		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing cube map texture. </param>
+		void CreateTexture(const std::string & textureName, const std::string filePath[6], PixelFormat pixelFormat = PixelFormat::FORMAT_RGB, bool generateMipmaps = true, bool compress = false, Texture** refPointer = nullptr);
 
-		// Creates a mesh resource
-		 void CreateMesh(const std::string& meshName, const std::string& filePath);
+		/// <summary> Creates a mesh resource. </summary>
+		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing mesh. </param>
+		void CreateMesh(const std::string & meshName, const std::string & filePath, Mesh** refPointer = nullptr);
 
-		// Creates a shader resource
-		 void CreateShader(const std::string& shaderName, const std::string& shaderText);
+		/// <summary> Creates a shader resource. </summary>
+		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing shader. </param>
+		void CreateShader(const std::string & shaderName, const std::string & shaderText, Shader** refPointer = nullptr);
 
 		// Returns a material resource.
-		 Material& GetMaterial(const std::string& materialName);
+		Material & GetMaterial(const std::string & materialName);
 
 		// Returns a texture resource
-		 Texture& GetTexture(const std::string& textureName);
+		Texture & GetTexture(const std::string & textureName);
 
 		// Returns a mesh resource.
-		 Mesh& GetMesh(const std::string& meshName);
+		Mesh & GetMesh(const std::string & meshName);
 
 		// Returns a shader resource.
-		 Shader& GetShader(const std::string& shaderName);
+		Shader & GetShader(const std::string & shaderName);
 
 		// Removes the targeted resource from resource map.
-		 void UnloadTextureResource(const std::string& textureName);
+		void UnloadTextureResource(const std::string & textureName);
 
 		// Removes the targeted resource from resource map.
-		 void UnloadMeshResource(const std::string& meshName);
+		void UnloadMeshResource(const std::string & meshName);
 
 		// Removes the targeted resource from resource map.
-		 void UnloadMaterialResource(const std::string& materialName);
+		void UnloadMaterialResource(const std::string & materialName);
 
 		// Returns whether a material/texture/mesh/shader exists or not.
-		 bool MaterialExists(const std::string& materialName);
-		 bool TextureExists(const std::string& textureName);
-		 bool MeshExists(const std::string& meshName);
-		 bool ShaderExists(const std::string& shaderName);
+		bool MaterialExists(const std::string & materialName);
+		bool TextureExists(const std::string & textureName);
+		bool MeshExists(const std::string & meshName);
+		bool ShaderExists(const std::string & shaderName);
 
 		// Sets the shader of a material to the shader specified by name. Also resets material properties based on the shader, caution!
-		 void SetMaterialShader(Material& material, const std::string& shaderName);
+		void SetMaterialShader(Material & material, const std::string & shaderName);
 
 		// Sets the skybox material.
-		FORCEINLINE void SetSkyboxMaterial(Material& skyboxMaterial) { m_SkyboxMaterial = &skyboxMaterial; }
-		void SetSkyboxMaterial(const std::string& materialName);
+		FORCEINLINE void SetSkyboxMaterial(Material & skyboxMaterial) { m_SkyboxMaterial = &skyboxMaterial; }
+		void SetSkyboxMaterial(const std::string & materialName);
 
 
 	private:
