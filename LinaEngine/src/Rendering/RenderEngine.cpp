@@ -95,8 +95,12 @@ namespace LinaEngine::Graphics
 		m_SkyboxDrawParams.shouldWriteDepth = true;
 		m_SkyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
 
+		// Create a default texture for render context.
+		Texture* text;
+		CreateTexture("defaultDiffuse", "resources/textures/defaultDiffuse.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &text);
+
 		// Initialize the render context.
-		m_DefaultRenderContext.Construct(m_RenderDevice, m_RenderTarget, m_DefaultDrawParams);
+		m_DefaultRenderContext.Construct(m_RenderDevice, m_RenderTarget, m_DefaultDrawParams, text);
 
 		// Initialize skybox vertex array object.
 		m_SkyboxVAO = m_RenderDevice.CreateSkyboxVertexArray();
@@ -506,15 +510,15 @@ namespace LinaEngine::Graphics
 		{
 			material.colors["material.objectColor"] = Colors::White;
 			material.floats["material.specularIntensity"] = 2.0f;
-			material.ints["material.diffuse"] = 0;
-			material.ints["material.specular"] = 1;
+			material.samplers["material.diffuse"] = 0;
+			material.samplers["material.specular"] = 1;
 			material.ints["material.specularExponent"] = 32;
 
 		}
 		else if (usedName == ShaderConstants::standardUnlitShader)
 		{
 			material.colors["material.objectColor"] = Colors::White;
-			material.ints["material.diffuse"] = 0;
+			material.samplers["material.diffuse"] = 0;
 		}
 		else if (usedName == ShaderConstants::skyboxSingleColorShader)
 		{
@@ -533,7 +537,7 @@ namespace LinaEngine::Graphics
 		}
 		else if (usedName == ShaderConstants::skyboxCubemapShader)
 		{
-			material.ints["material.diffuse"] = 0;
+			material.samplers["material.diffuse"] = 0;
 		}
 	}
 

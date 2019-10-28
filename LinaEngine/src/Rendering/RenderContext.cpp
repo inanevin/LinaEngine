@@ -50,8 +50,14 @@ namespace LinaEngine::Graphics
 		for (auto const& d : (*data).matrices)
 			m_RenderDevice->UpdateShaderUniformMatrix(data->shaderID, d.first, d.second);
 
+		for (auto const& d : (*data).samplers)
+		{
+			m_RenderDevice->UpdateShaderUniformInt(data->shaderID, d.first, d.second);
+			m_RenderDevice->SetTexture(m_DefaultTexture->GetID(), 0, d.second);
+		}
+
 		for (auto const& d : (*data).textures)
-			m_RenderDevice->SetSampler(d.second.texture->GetID(), d.second.texture->GetSamplerID(), d.second.unit, d.second.bindMode);
+			m_RenderDevice->SetTexture(d.second.texture->GetID(), d.second.texture->GetSamplerID(), d.second.unit, d.second.bindMode, true);
 
 	}
 

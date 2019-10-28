@@ -31,6 +31,7 @@ using namespace LinaEngine::Graphics;
 
 
 Material* object1Material = nullptr;
+Material* object2Material = nullptr;
 Texture* crateTexture = nullptr;
 Texture* crateSpecTexture = nullptr;
 
@@ -44,6 +45,7 @@ FreeLookComponent cameraFreeLookComponent;
 
 EntityHandle camera;
 EntityHandle object1;
+EntityHandle object2;
 TransformComponent object1Transform;
 MeshRendererComponent object1Renderer;
 
@@ -129,6 +131,7 @@ void Example1Level::Initialize()
 
 	// Create material for example mesh.
 	m_RenderEngine->CreateMaterial("object1Material", ShaderConstants::standardLitShader, &object1Material);
+	m_RenderEngine->CreateMaterial("object2Material", ShaderConstants::standardLitShader, &object2Material);
 
 	// Create texture for example mesh.
 	m_RenderEngine->CreateTexture("crate", "resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateTexture);
@@ -139,9 +142,12 @@ void Example1Level::Initialize()
 	// Create a cube object.
 	object1Renderer.mesh = cubeMesh;
 	object1Renderer.material = object1Material;
-	object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
+	object1Transform.transform.SetLocation(Vector3F(-5.0f, 0.0f, 10.0f));
 	object1 = m_ECS->MakeEntity(object1Transform, object1Renderer);
 
+	object1Renderer.material = object2Material;
+	object1Transform.transform.SetLocation(Vector3F(5.0f, 0.0f, 10.0f));
+	object2 = m_ECS->MakeEntity(object1Transform, object1Renderer);
 	m_RenderEngine->SetAmbientLightIntensity(1.0f);
 
 	// Create the free look system & push it.

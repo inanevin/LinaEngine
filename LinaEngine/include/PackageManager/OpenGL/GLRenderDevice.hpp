@@ -133,7 +133,7 @@ namespace LinaEngine::Graphics
 		void SetShader(uint32 shader);
 
 		// Uses a shader sampler by id.
-		void SetSampler(uint32 texture, uint32 sampler, uint32 unit, BindTextureMode bindTextureMode = BindTextureMode::BINDTEXTURE_TEXTURE2D);
+		void SetTexture(uint32 texture, uint32 sampler, uint32 unit, BindTextureMode bindTextureMode = BindTextureMode::BINDTEXTURE_TEXTURE2D, bool setSampler = false);
 
 		// Creates uniform buffer of a shader by id.
 		void SetShaderUniformBuffer(uint32 shader, const std::string& uniformBufferName, uint32 buffer);

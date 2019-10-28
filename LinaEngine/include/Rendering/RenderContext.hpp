@@ -35,11 +35,12 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, RenderTarget& renderTargetIn, DrawParams& drawParamsIn)
+		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, RenderTarget& renderTargetIn, DrawParams& drawParamsIn, Texture* text)
 		{
 			m_RenderDevice = &renderDeviceIn;
 			m_Target = &renderTargetIn;
 			m_DrawParams = &drawParamsIn;
+			m_DefaultTexture = text;
 		}
 
 		FORCEINLINE void Clear(bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
@@ -71,6 +72,7 @@ namespace LinaEngine::Graphics
 		RenderDevice* m_RenderDevice;
 		RenderTarget* m_Target;
 		DrawParams* m_DrawParams;
+		Texture* m_DefaultTexture;
 
 		// Map to see the list of same vertex array & textures to compress them into single draw call.
 		std::map<std::pair<VertexArray*, Material*>, std::tuple<LinaArray<Matrix>, LinaArray<Matrix>, LinaArray<Matrix>>> m_MeshRenderBuffer;

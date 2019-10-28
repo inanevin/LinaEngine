@@ -258,7 +258,7 @@ namespace LinaEngine::Graphics
 		// Generate texture & bind to program.
 		glGenTextures(1, &textureHandle);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, textureHandle);
-	
+
 		// Loop through each face to gen. image.
 		for (GLuint i = 0; i < dataSize; i++)
 		{
@@ -272,14 +272,14 @@ namespace LinaEngine::Graphics
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-	if (generateMipMaps)
+		if (generateMipMaps)
 			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 		else
 		{
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
 		}
-		
+
 
 		return textureHandle;
 	}
@@ -634,12 +634,13 @@ namespace LinaEngine::Graphics
 		m_BoundShader = shader;
 	}
 
-	void GLRenderDevice::SetSampler(uint32 texture, uint32 sampler, uint32 unit, BindTextureMode bindTextureMode)
+	void GLRenderDevice::SetTexture(uint32 texture, uint32 sampler, uint32 unit, BindTextureMode bindTextureMode, bool setSampler)
 	{
 		// Activate the sampler data.
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glBindTexture(bindTextureMode, texture);
-		glBindSampler(unit, sampler);
+		if (setSampler)
+			glBindSampler(unit, sampler);
 	}
 
 	void GLRenderDevice::SetShaderUniformBuffer(uint32 shader, const std::string & uniformBufferName, uint32 buffer)
@@ -657,7 +658,7 @@ namespace LinaEngine::Graphics
 		glBindBufferBase(GL_UNIFORM_BUFFER, point, bufferObject);
 	}
 
-	void GLRenderDevice::BindShaderBlockToBufferPoint(uint32 shader, uint32 blockPoint, std::string& blockName)
+	void GLRenderDevice::BindShaderBlockToBufferPoint(uint32 shader, uint32 blockPoint, std::string & blockName)
 	{
 		glUniformBlockBinding(shader, m_ShaderProgramMap[shader].uniformBlockMap[blockName], blockPoint);
 	}
@@ -738,7 +739,7 @@ namespace LinaEngine::Graphics
 		m_BoundFBO = fbo;
 	}
 
-	void GLRenderDevice::Draw(uint32 fbo,  uint32 vao, const DrawParams & drawParams, uint32 numInstances, uint32 numElements, bool drawArrays)
+	void GLRenderDevice::Draw(uint32 fbo, uint32 vao, const DrawParams & drawParams, uint32 numInstances, uint32 numElements, bool drawArrays)
 	{
 		// No need to draw nothin dude.
 		if (numInstances == 0) return;
@@ -756,7 +757,7 @@ namespace LinaEngine::Graphics
 		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
 		SetFaceCulling(drawParams.faceCulling);
 		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
-		
+
 
 		//UpdateShaderUniformVector3F(2, "light.pos", Vector3F(0.0f, 1.0f, 8.0f));
 		//UpdateShaderUniformColor(2, "light.color", Color(1.0f, 1.0f, 1.0f));
@@ -784,7 +785,7 @@ namespace LinaEngine::Graphics
 		}
 
 
-	
+
 		//UpdateShaderUniformVector3F(shader, "_viewPos", m_LightingSystem->GetCameraPosition());
 	}
 
@@ -822,44 +823,44 @@ namespace LinaEngine::Graphics
 	}
 
 
-	void GLRenderDevice::UpdateShaderUniformFloat(uint32 shader, const std::string& uniform, const float f)
+	void GLRenderDevice::UpdateShaderUniformFloat(uint32 shader, const std::string & uniform, const float f)
 	{
 		glUniform1f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)f);
 	}
 
-	void GLRenderDevice::UpdateShaderUniformInt(uint32 shader, const std::string& uniform, const int f)
+	void GLRenderDevice::UpdateShaderUniformInt(uint32 shader, const std::string & uniform, const int f)
 	{
 		glUniform1i(m_ShaderProgramMap[shader].uniformMap[uniform], (GLint)f);
 	}
 
-	void GLRenderDevice::UpdateShaderUniformColor(uint32 shader, const std::string& uniform, const Color& color)
+	void GLRenderDevice::UpdateShaderUniformColor(uint32 shader, const std::string & uniform, const Color & color)
 	{
 		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)color.R(), (GLfloat)color.G(), (GLfloat)color.B());
 	}
 
-	void GLRenderDevice::UpdateShaderUniformVector2F(uint32 shader, const std::string& uniform, const Vector2F& m)
+	void GLRenderDevice::UpdateShaderUniformVector2F(uint32 shader, const std::string & uniform, const Vector2F & m)
 	{
 		glUniform2f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.GetX(), (GLfloat)m.GetY());
 	}
 
-	void GLRenderDevice::UpdateShaderUniformVector3F(uint32 shader, const std::string& uniform, const Vector3F& m)
+	void GLRenderDevice::UpdateShaderUniformVector3F(uint32 shader, const std::string & uniform, const Vector3F & m)
 	{
 		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.GetX(), (GLfloat)m.GetY(), (GLfloat)m.GetZ());
 	}
 
-	void GLRenderDevice::UpdateShaderUniformVector4F(uint32 shader, const std::string& uniform, const Vector4F& m)
+	void GLRenderDevice::UpdateShaderUniformVector4F(uint32 shader, const std::string & uniform, const Vector4F & m)
 	{
 		glUniform4f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y, (GLfloat)m.z, (GLfloat)m.w);
 
 	}
 
-	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, void* data)
+	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string & uniform, void* data)
 	{
 		float* matrixData = ((float*)data);
 		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_TRUE, matrixData);
 	}
 
-	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, const Matrix& m)
+	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string & uniform, const Matrix & m)
 	{
 		float* firstVector = m[0].GetFirst();
 		float* secondVector = m[1].GetFirst();

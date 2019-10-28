@@ -137,6 +137,7 @@ namespace LinaEngine::Graphics
 		std::map<std::string, MaterialTextureData> textures;
 		std::map<std::string, float> floats;
 		std::map<std::string, int> ints;
+		std::map<std::string, int> samplers;
 		std::map<std::string, Color> colors;
 		std::map<std::string, Vector2F> vector2s;
 		std::map<std::string, Vector3F> vector3s;
