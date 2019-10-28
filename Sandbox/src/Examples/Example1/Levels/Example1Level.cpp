@@ -21,21 +21,24 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "Examples/Example1/Levels/Example1Level.hpp"
 #include "Rendering/ShaderConstants.hpp"
 #include "ECS/Systems/FreeLookSystem.hpp"
+#include "ECS/Components/FreeLookComponent.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Core/Application.hpp"
 #include "Rendering/Material.hpp"
 
-/*ECSSystemList level1Systems;
-FreeLookSystem* ecsFreeLookSystem;
-EntityHandle m_SceneCamera;
-CameraComponent m_SceneCameraComponent;
-TransformComponent m_CameraTransformComponent;
-FreeLookComponent freeLookComponent;
+/*
 EntityHandle m_ExampleMesh;
 EntityHandle m_ExampleMesh2;
 TransformComponent m_ExampleMeshTransform;
 MeshRendererComponent m_ExampleMeshRenderer;
 */
+
+ECSSystemList level1Systems;
+FreeLookSystem* ecsFreeLookSystem;
+EntityHandle m_SceneCamera;
+CameraComponent m_SceneCameraComponent;
+TransformComponent m_CameraTransformComponent;
+FreeLookComponent freeLookComponent;
 
 using namespace LinaEngine::Graphics;
 
@@ -57,10 +60,24 @@ void Example1Level::Initialize()
 {
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
-	m_RenderEngine->CreateMaterial("skyboxMaterial", LinaEngine::Graphics::ShaderConstants::skyboxGradientShader, &skyboxMaterial);
+	m_RenderEngine->CreateMaterial("skyboxMaterial", LinaEngine::Graphics::ShaderConstants::skyboxProceduralShader, &skyboxMaterial);
 	skyboxMaterial->SetColor("material.startColor", Colors::LightBlue);
 	skyboxMaterial->SetColor("material.endColor", Colors::DarkBlue);
+	skyboxMaterial->SetVector3("material.sunDirection", Vector3F(0.0f, -1.0f, 0.0f));
 	m_RenderEngine->SetSkyboxMaterial("skyboxMaterial");
+
+	// Set the properties of our the free look component for the camera.
+	freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 12.0f;
+	freeLookComponent.rotationSpeedX = freeLookComponent.rotationSpeedY = 3;
+
+	// Activate a camera component and make a camera entity out of it.
+	m_SceneCameraComponent.isActive = true;
+	m_SceneCamera = m_ECS->MakeEntity(m_SceneCameraComponent, m_CameraTransformComponent, freeLookComponent);
+
+	// Create the free look system & push it.
+	ecsFreeLookSystem = new FreeLookSystem(*m_InputEngine);
+	level1Systems.AddSystem(*ecsFreeLookSystem);
+
 /*
 	// Set the default cubemap skybox.
 	m_RenderEngine->CreateMaterial("skyboxMaterial", ResourceConstants::skyboxSingleColorShader);
@@ -111,7 +128,7 @@ void Example1Level::Initialize()
 void Example1Level::Tick(float delta)
 {
 	// Update the systems in this level.
-	//m_ECS->UpdateSystems(level1Systems, delta);
+	m_ECS->UpdateSystems(level1Systems, delta);
 
 
 }
