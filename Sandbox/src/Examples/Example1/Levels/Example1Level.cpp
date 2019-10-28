@@ -22,33 +22,34 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "Rendering/ShaderConstants.hpp"
 #include "ECS/Systems/FreeLookSystem.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Core/Application.hpp"
 #include "Rendering/Material.hpp"
 
-/*
-EntityHandle m_ExampleMesh;
-EntityHandle m_ExampleMesh2;
-TransformComponent m_ExampleMeshTransform;
-MeshRendererComponent m_ExampleMeshRenderer;
-*/
+using namespace LinaEngine::Graphics;
+
+
+Material* skyboxMaterial = nullptr;
+Material* object1Material = nullptr;
+Mesh* cubeMesh = nullptr;
 
 ECSSystemList level1Systems;
 FreeLookSystem* ecsFreeLookSystem;
-EntityHandle m_SceneCamera;
-CameraComponent m_SceneCameraComponent;
-TransformComponent m_CameraTransformComponent;
-FreeLookComponent freeLookComponent;
+CameraComponent cameraComponent;
+TransformComponent cameraTransformComponent;
+FreeLookComponent ameraFreeLookComponent;
 
-using namespace LinaEngine::Graphics;
+EntityHandle camera;
+EntityHandle object1;
+TransformComponent object1Transform;
+MeshRendererComponent object1Renderer;
 
-Material* skyboxMaterial = nullptr;
+
 
 Example1Level::~Example1Level()
 {
-	//delete ecsFreeLookSystem;
-	
-	
+	delete ecsFreeLookSystem;
 }
 
 void Example1Level::Install()
@@ -60,67 +61,59 @@ void Example1Level::Initialize()
 {
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
-	m_RenderEngine->CreateMaterial("skyboxMaterial", LinaEngine::Graphics::ShaderConstants::skyboxProceduralShader, &skyboxMaterial);
+	// Create, setup & assign skybox material.
+	m_RenderEngine->CreateMaterial("skyboxMaterial", ShaderConstants::skyboxProceduralShader, &skyboxMaterial);
 	skyboxMaterial->SetColor("material.startColor", Colors::LightBlue);
 	skyboxMaterial->SetColor("material.endColor", Colors::DarkBlue);
 	skyboxMaterial->SetVector3("material.sunDirection", Vector3F(0.0f, -1.0f, 0.0f));
 	m_RenderEngine->SetSkyboxMaterial("skyboxMaterial");
 
 	// Set the properties of our the free look component for the camera.
-	freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 12.0f;
-	freeLookComponent.rotationSpeedX = freeLookComponent.rotationSpeedY = 3;
+	ameraFreeLookComponent.movementSpeedX = ameraFreeLookComponent.movementSpeedZ = 12.0f;
+	ameraFreeLookComponent.rotationSpeedX = ameraFreeLookComponent.rotationSpeedY = 3;
 
 	// Activate a camera component and make a camera entity out of it.
-	m_SceneCameraComponent.isActive = true;
-	m_SceneCamera = m_ECS->MakeEntity(m_SceneCameraComponent, m_CameraTransformComponent, freeLookComponent);
+	cameraComponent.isActive = true;
+	camera = m_ECS->MakeEntity(cameraComponent, cameraTransformComponent, ameraFreeLookComponent);
+
+	// Load example mesh.
+	m_RenderEngine->CreateMesh("cube", "resources/meshes/cube.obj", &cubeMesh);
+
+	// Create material for example mesh.
+	m_RenderEngine->CreateMaterial("object1Material", ShaderConstants::standardLitShader, &object1Material);
+
+	object1Renderer.mesh = cubeMesh;
+	object1Renderer.material = object1Material;
+	object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
+	object1 = m_ECS->MakeEntity(object1Transform, object1Renderer);
 
 	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem(*m_InputEngine);
 	level1Systems.AddSystem(*ecsFreeLookSystem);
 
-/*
-	// Set the default cubemap skybox.
-	m_RenderEngine->CreateMaterial("skyboxMaterial", ResourceConstants::skyboxSingleColorShader);
-	//m_RenderEngine->SetMaterialShader(m_SkyboxMaterial, ResourceConstants::skyboxProceduralShader);
-	//m_SkyboxMaterial.SetColor("material.startColor", Colors::Black);
-	//m_SkyboxMaterial.SetColor("material.endColor", Colors::DarkBlue);
-	//m_RenderEngine->SetSkyboxMaterial(m_SkyboxMaterial);
+	/*
+		// Create an example mesh.
+		//.mesh = &m_RenderEngine->LoadMeshResource("resources/meshes/cube.obj");
 
-	// Disable default scene camera.
-	m_RenderEngine->DefaultSceneCameraActivation(false);
+		//material2->diffuseTexture = &m_RenderEngine->LoadTextureResource("box.png", "resources/textures/", PixelFormat::FORMAT_RGB, true, false);
+		//material2->specularTexture = &m_RenderEngine->LoadTextureResource("boxSpecular.png", "resources/textures/", PixelFormat::FORMAT_RGB, true, false);
 
-	// Set the properties of our the free look component for the camera.
-	freeLookComponent.movementSpeedX = freeLookComponent.movementSpeedZ = 12.0f;
-	freeLookComponent.rotationSpeedX = freeLookComponent.rotationSpeedY = 3;
+		// Set entity component settings & create an entity out of them.
+		//m_ExampleMeshRenderer.material = material1;
+		//m_ExampleMeshTransform.transform.SetLocation(Vector3F(-3, 0, 10));
+		//m_ExampleMesh = m_ECS->MakeEntity(m_ExampleMeshTransform, m_ExampleMeshRenderer);
 
-	// Activate a camera component and make a camera entity out of it.
-	m_SceneCameraComponent.isActive = true;
-	m_SceneCamera = m_ECS->MakeEntity(m_SceneCameraComponent, m_CameraTransformComponent, freeLookComponent);
+		// Set entity component settings & create an entity out of them.
+		//m_ExampleMeshRenderer.material = material2;
+		//m_ExampleMeshTransform.transform.SetLocation(Vector3F(3, 0, 10));
+		//m_ExampleMesh2 = m_ECS->MakeEntity(m_ExampleMeshTransform, m_ExampleMeshRenderer);
 
-	// Create an example mesh.
-	//.mesh = &m_RenderEngine->LoadMeshResource("resources/meshes/cube.obj");
-	
+		// Set ambient intensity.
+		//m_RenderEngine->SetAmbientLightIntensity(0.5f);
 
-
-	//material2->diffuseTexture = &m_RenderEngine->LoadTextureResource("box.png", "resources/textures/", PixelFormat::FORMAT_RGB, true, false);
-	//material2->specularTexture = &m_RenderEngine->LoadTextureResource("boxSpecular.png", "resources/textures/", PixelFormat::FORMAT_RGB, true, false);
-
-	// Set entity component settings & create an entity out of them.
-	//m_ExampleMeshRenderer.material = material1;
-	//m_ExampleMeshTransform.transform.SetLocation(Vector3F(-3, 0, 10));
-	//m_ExampleMesh = m_ECS->MakeEntity(m_ExampleMeshTransform, m_ExampleMeshRenderer);
-	
-	// Set entity component settings & create an entity out of them.
-	//m_ExampleMeshRenderer.material = material2;
-	//m_ExampleMeshTransform.transform.SetLocation(Vector3F(3, 0, 10));
-	//m_ExampleMesh2 = m_ECS->MakeEntity(m_ExampleMeshTransform, m_ExampleMeshRenderer);
-
-	// Set ambient intensity.
-	//m_RenderEngine->SetAmbientLightIntensity(0.5f);
-
-	// Create the free look system & push it.
-	ecsFreeLookSystem = new FreeLookSystem(*m_InputEngine);
-	level1Systems.AddSystem(*ecsFreeLookSystem);*/
+		// Create the free look system & push it.
+		ecsFreeLookSystem = new FreeLookSystem(*m_InputEngine);
+		level1Systems.AddSystem(*ecsFreeLookSystem);*/
 
 }
 

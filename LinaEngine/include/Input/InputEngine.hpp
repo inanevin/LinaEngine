@@ -106,11 +106,11 @@ namespace LinaEngine::Input
 		// Dispatches a key action to listeners.
 		FORCEINLINE void DispatchKeyAction(InputCode::Key key, int action)
 		{
-			if (action == 0)
+			if (action == 1)
 			{
 				DispatchAction<InputCode::Key>(ActionType::KeyPressed, key);
 			}
-			else if (action == 1)
+			else if (action == 0)
 			{
 				DispatchAction<InputCode::Key>(ActionType::KeyReleased, key);
 			}
@@ -119,11 +119,11 @@ namespace LinaEngine::Input
 		// Dispatches a mouse action to listeners.
 		FORCEINLINE void DispatchMouseAction(InputCode::Mouse button, int action)
 		{
-			if (action == 0)
+			if (action == 1)
 			{
 				DispatchAction<InputCode::Mouse>(ActionType::MouseButtonPressed, button);
 			}
-			else if (action == 1)
+			else if (action == 0)
 			{
 				DispatchAction<InputCode::Mouse>(ActionType::MouseButtonReleased, button);
 			}
