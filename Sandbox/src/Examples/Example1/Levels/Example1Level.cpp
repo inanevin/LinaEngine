@@ -32,6 +32,8 @@ using namespace LinaEngine::Graphics;
 
 Material* object1Material = nullptr;
 Texture* crateTexture = nullptr;
+Texture* crateSpecTexture = nullptr;
+
 Mesh* cubeMesh = nullptr;
 
 ECSSystemList level1Systems;
@@ -126,11 +128,13 @@ void Example1Level::Initialize()
 	m_RenderEngine->CreateMesh("cube", "resources/meshes/cube.obj", &cubeMesh);
 
 	// Create material for example mesh.
-	m_RenderEngine->CreateMaterial("object1Material", ShaderConstants::standardUnlitShader, &object1Material);
+	m_RenderEngine->CreateMaterial("object1Material", ShaderConstants::standardLitShader, &object1Material);
 
 	// Create texture for example mesh.
 	m_RenderEngine->CreateTexture("crate", "resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateTexture);
+	m_RenderEngine->CreateTexture("crateSpec", "resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateSpecTexture);
 	object1Material->SetTexture("material.diffuse", crateTexture, 0);
+	object1Material->SetTexture("material.specular", crateSpecTexture, 1);
 
 	// Create a cube object.
 	object1Renderer.mesh = cubeMesh;
