@@ -35,6 +35,7 @@ namespace LinaEngine::Graphics
 	{
 		Texture* texture = nullptr;
 		uint32 unit = 0;
+		BindTextureMode bindMode = BindTextureMode::BINDTEXTURE_TEXTURE2D;
 	};
 
 	class Material

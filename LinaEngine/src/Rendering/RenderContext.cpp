@@ -51,7 +51,7 @@ namespace LinaEngine::Graphics
 
 		for (auto const& d : (*data).textures)
 		{
-			//m_RenderDevice->SetSampler(d.second.texture, d.second.)
+			m_RenderDevice->SetSampler(d.second.texture->GetID(), d.second.texture->GetSamplerID(), d.second.unit, d.second.bindMode);
 		}
 	}
 

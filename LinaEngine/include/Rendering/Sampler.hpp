@@ -32,31 +32,26 @@ namespace LinaEngine::Graphics
 
 		Sampler() {};
 
-		FORCEINLINE void Construct(const std::string& samplerName, RenderDevice& deviceIn, SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR, SamplerFilter magFilter = SamplerFilter::FILTER_LINEAR,
-			SamplerWrapMode wrapU = SamplerWrapMode::WRAP_CLAMP, SamplerWrapMode wrapV = SamplerWrapMode::WRAP_CLAMP, float anisotropy = 0.0f)
-		{
-			renderDevice = &deviceIn;
-			m_EngineBoundID = renderDevice->CreateSampler(minFilter, magFilter, wrapU, wrapV, anisotropy);
-			m_SamplerName = samplerName;
-		}
-
 		// Destructor releases sampler data through render engine
 		FORCEINLINE ~Sampler()
 		{
 			m_EngineBoundID = renderDevice->ReleaseSampler(m_EngineBoundID);
 		}
 
-		FORCEINLINE uint32 GetID() const { return m_EngineBoundID; }
+		FORCEINLINE void Construct(RenderDevice& deviceIn, SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR, SamplerFilter maxFilter = SamplerFilter::FILTER_LINEAR,
+			SamplerWrapMode wrapU = SamplerWrapMode::WRAP_CLAMP, SamplerWrapMode wrapV = SamplerWrapMode::WRAP_CLAMP, float anisotropy = 0.0f)
+		{
+			renderDevice = &deviceIn;
+			m_EngineBoundID = renderDevice->CreateSampler(minFilter, maxFilter, wrapU, wrapV, anisotropy);
+		}
 
-		FORCEINLINE const std::string& GetSamplerName() const { return m_SamplerName; }
+		FORCEINLINE uint32 GetID() const { return m_EngineBoundID; }
 
 	private:
 
-		std::string m_SamplerName;
 		RenderDevice* renderDevice;
 		uint32 m_EngineBoundID;
 
-		//NULL_COPY_AND_ASSIGN(Sampler);
 
 	};
 }

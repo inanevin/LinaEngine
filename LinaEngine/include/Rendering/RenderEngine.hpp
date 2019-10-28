@@ -122,11 +122,11 @@ namespace LinaEngine::Graphics
 
 		/// <summary> Creates a texture resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing texture. </param>
-		void CreateTexture(const std::string & textureName, const std::string & filePath, PixelFormat pixelFormat = PixelFormat::FORMAT_RGB, bool generateMipmaps = true, bool compress = false, Texture** refPointer = nullptr);
+		void CreateTexture(const std::string & textureName, const std::string & filePath, PixelFormat pixelFormat = PixelFormat::FORMAT_RGB, bool generateMipmaps = true, bool compress = false, Texture** refPointer = nullptr, SamplerData samplerData = SamplerData());
 
 		/// <summary> Creates a cubemap texture resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing cube map texture. </param>
-		void CreateTexture(const std::string & textureName, const std::string filePath[6], PixelFormat pixelFormat = PixelFormat::FORMAT_RGB, bool generateMipmaps = true, bool compress = false, Texture** refPointer = nullptr);
+		void CreateTexture(const std::string & textureName, const std::string filePath[6], PixelFormat pixelFormat = PixelFormat::FORMAT_RGB, bool generateMipmaps = true, bool compress = false, Texture** refPointer = nullptr, SamplerData samplerData = SamplerData());
 
 		/// <summary> Creates a mesh resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing mesh. </param>

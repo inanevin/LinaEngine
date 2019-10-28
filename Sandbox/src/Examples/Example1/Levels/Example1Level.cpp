@@ -58,7 +58,6 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	m_RenderEngine->CreateMaterial("skyboxMaterial", LinaEngine::Graphics::ShaderConstants::skyboxSingleColorShader, &skyboxMaterial);
-
 	skyboxMaterial->SetColor("material.color", Colors::LightBlue);
 	//m_RenderEngine->SetSkyboxMaterial("skyboxMaterial");
 /*

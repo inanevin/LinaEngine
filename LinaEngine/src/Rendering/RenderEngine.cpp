@@ -148,7 +148,7 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void RenderEngine::CreateMaterial(const std::string& materialName, const std::string& shaderName, Material** refPointer)
+	void RenderEngine::CreateMaterial(const std::string & materialName, const std::string & shaderName, Material * *refPointer)
 	{
 		if (!MaterialExists(materialName))
 		{
@@ -161,7 +161,7 @@ namespace LinaEngine::Graphics
 
 			// Set pointer that was sent in.
 			if (refPointer != nullptr)
-				*refPointer = &m_LoadedMaterials[materialName];
+				* refPointer = &m_LoadedMaterials[materialName];
 		}
 		else
 		{
@@ -175,7 +175,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void RenderEngine::CreateTexture(const std::string& textureName, const std::string& filePath, PixelFormat pixelFormat , bool generateMipmaps, bool compress, Texture** refPointer)
+	void RenderEngine::CreateTexture(const std::string & textureName, const std::string & filePath, PixelFormat pixelFormat, bool generateMipmaps, bool compress, Texture * *refPointer, SamplerData samplerData)
 	{
 		if (!TextureExists(textureName))
 		{
@@ -185,7 +185,7 @@ namespace LinaEngine::Graphics
 
 			// Create texture out of the pixel data.
 			Texture texture;
-			texture.Construct(m_RenderDevice, *textureBitmap, pixelFormat, generateMipmaps, compress);
+			texture.Construct(m_RenderDevice, *textureBitmap, pixelFormat, generateMipmaps, compress, samplerData);
 
 			// Move into the map.
 			m_LoadedTextures.emplace(textureName, std::move(texture));
@@ -209,7 +209,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void RenderEngine::CreateTexture(const std::string& textureName, const std::string filePaths[6], PixelFormat pixelFormat , bool generateMipmaps, bool compress, Texture** refPointer)
+	void RenderEngine::CreateTexture(const std::string & textureName, const std::string filePaths[6], PixelFormat pixelFormat, bool generateMipmaps, bool compress, Texture * *refPointer, SamplerData samplerData)
 	{
 		if (!TextureExists(textureName))
 		{
@@ -225,7 +225,7 @@ namespace LinaEngine::Graphics
 
 			// Create texture out of the pixel data.
 			Texture texture;
-			texture.Construct(m_RenderDevice, bitmaps, PixelFormat::FORMAT_RGB, true, false);
+			texture.Construct(m_RenderDevice, bitmaps, PixelFormat::FORMAT_RGB, true, false, samplerData);
 
 			// Move into the map.
 			m_LoadedTextures.emplace(textureName, std::move(texture));
@@ -252,15 +252,15 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void RenderEngine::CreateMesh(const std::string& meshName, const std::string& filePath, Mesh** refPointer)
+	void RenderEngine::CreateMesh(const std::string & meshName, const std::string & filePath, Mesh * *refPointer)
 	{
 		if (!MeshExists(meshName))
 		{
 			// Create mesh.
 			Mesh mesh;
-			
+
 			// Create object data & feed it from model.
-			ModelLoader::LoadModels(filePath , mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs());
+			ModelLoader::LoadModels(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs());
 
 			if (mesh.GetIndexedModels().size() == 0)
 				LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! This will cause undefined behaviour or crashes if it is assigned to a ECS MeshRendererComponent."
@@ -295,7 +295,7 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void RenderEngine::CreateShader(const std::string& shaderName, const std::string& shaderText, Shader** refPointer)
+	void RenderEngine::CreateShader(const std::string & shaderName, const std::string & shaderText, Shader * *refPointer)
 	{
 		if (!ShaderExists(shaderName))
 		{
@@ -325,7 +325,7 @@ namespace LinaEngine::Graphics
 	}
 
 
-	Material& RenderEngine::GetMaterial(const std::string& materialName)
+	Material& RenderEngine::GetMaterial(const std::string & materialName)
 	{
 		if (!MaterialExists(materialName))
 		{
@@ -337,7 +337,7 @@ namespace LinaEngine::Graphics
 		return m_LoadedMaterials.at(materialName);
 	}
 
-	Texture& RenderEngine::GetTexture(const std::string& textureName)
+	Texture& RenderEngine::GetTexture(const std::string & textureName)
 	{
 		if (!TextureExists(textureName))
 		{
@@ -349,7 +349,7 @@ namespace LinaEngine::Graphics
 		return m_LoadedTextures[textureName];
 	}
 
-	Mesh& RenderEngine::GetMesh(const std::string& meshName)
+	Mesh& RenderEngine::GetMesh(const std::string & meshName)
 	{
 		if (!MeshExists(meshName))
 		{
@@ -361,7 +361,7 @@ namespace LinaEngine::Graphics
 		return m_LoadedMeshes[meshName];
 	}
 
-	Shader& RenderEngine::GetShader(const std::string& shaderName)
+	Shader& RenderEngine::GetShader(const std::string & shaderName)
 	{
 		if (!ShaderExists(shaderName))
 		{
@@ -373,7 +373,7 @@ namespace LinaEngine::Graphics
 		return m_LoadedShaders[shaderName];
 	}
 
-	void RenderEngine::UnloadTextureResource(const std::string& textureName)
+	void RenderEngine::UnloadTextureResource(const std::string & textureName)
 	{
 		if (!TextureExists(textureName))
 		{
@@ -384,7 +384,7 @@ namespace LinaEngine::Graphics
 		m_LoadedTextures.erase(textureName);
 	}
 
-	void RenderEngine::UnloadMeshResource(const std::string& meshName)
+	void RenderEngine::UnloadMeshResource(const std::string & meshName)
 	{
 		if (!MeshExists(meshName))
 		{
@@ -394,8 +394,8 @@ namespace LinaEngine::Graphics
 
 		m_LoadedMeshes.erase(meshName);
 	}
-	
-	void RenderEngine::UnloadMaterialResource(const std::string& materialName)
+
+	void RenderEngine::UnloadMaterialResource(const std::string & materialName)
 	{
 		if (!MaterialExists(materialName))
 		{
@@ -406,22 +406,22 @@ namespace LinaEngine::Graphics
 		m_LoadedMaterials.erase(materialName);
 	}
 
-	bool RenderEngine::MaterialExists(const std::string& materialName)
+	bool RenderEngine::MaterialExists(const std::string & materialName)
 	{
 		return !(m_LoadedMaterials.find(materialName) == m_LoadedMaterials.end());
 	}
 
-	bool RenderEngine::TextureExists(const std::string& textureName)
+	bool RenderEngine::TextureExists(const std::string & textureName)
 	{
 		return !(m_LoadedTextures.find(textureName) == m_LoadedTextures.end());
 	}
 
-	bool RenderEngine::MeshExists(const std::string& meshName)
+	bool RenderEngine::MeshExists(const std::string & meshName)
 	{
 		return !(m_LoadedMeshes.find(meshName) == m_LoadedMeshes.end());
 	}
 
-	bool RenderEngine::ShaderExists(const std::string& shaderName)
+	bool RenderEngine::ShaderExists(const std::string & shaderName)
 	{
 		return !(m_LoadedShaders.find(shaderName) == m_LoadedShaders.end());
 	}
@@ -437,7 +437,7 @@ namespace LinaEngine::Graphics
 		GetShader(ShaderConstants::standardUnlitShader).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
 
 		// Lit.
-		Utility::LoadTextFileWithIncludes(shaderText,"resources/shaders/basicStandardLit.glsl", "#include");
+		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/basicStandardLit.glsl", "#include");
 		CreateShader(ShaderConstants::standardLitShader, shaderText);
 		GetShader(ShaderConstants::standardLitShader).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
 		GetShader(ShaderConstants::standardLitShader).BindBlockToBuffer(UNIFORMBUFFER_LIGHTS_BINDPOINT, UNIFORMBUFFER_LIGHTS_NAME);
@@ -447,7 +447,7 @@ namespace LinaEngine::Graphics
 		CreateShader(ShaderConstants::skyboxSingleColorShader, shaderText);
 
 		// Skybox vertex gradient color.
-		Utility::LoadTextFileWithIncludes(shaderText,"resources/shaders/skyboxVertexGradient.glsl", "#include");
+		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/skyboxVertexGradient.glsl", "#include");
 		CreateShader(ShaderConstants::skyboxGradientShader, shaderText);
 		GetShader(ShaderConstants::skyboxGradientShader).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
 
@@ -498,7 +498,7 @@ namespace LinaEngine::Graphics
 		m_LightsBuffer.Update(&alIntensity, sizeof(float) * 8, sizeof(float));
 	}
 
-	void RenderEngine::SetMaterialShader(Material& material, const std::string& shaderName)
+	void RenderEngine::SetMaterialShader(Material & material, const std::string & shaderName)
 	{
 		std::string usedName = shaderName;
 
@@ -556,7 +556,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void RenderEngine::SetSkyboxMaterial(const std::string& materialName)
+	void RenderEngine::SetSkyboxMaterial(const std::string & materialName)
 	{
 		if (MaterialExists(materialName))
 			SetSkyboxMaterial(m_LoadedMaterials[materialName]);
