@@ -820,7 +820,8 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::UpdateShaderUniformInt(uint32 shader, const std::string& uniform, const int f)
 	{
-		glUniform1i(m_ShaderProgramMap[shader].uniformMap[uniform], (GLint)f);
+		GLint loc = m_ShaderProgramMap[shader].uniformMap[uniform];
+		glUniform1i(loc, (GLint)f);
 	}
 
 	void GLRenderDevice::UpdateShaderUniformColor(uint32 shader, const std::string& uniform, const Color& color)
@@ -1224,7 +1225,8 @@ namespace LinaEngine::Graphics
 
 			std::string name((char*)& uniformName[0], actualLength - 1);
 			samplerMap[name] = glGetUniformLocation(shaderProgram, (char*)& uniformName[0]);
-			uniformMap[&uniformName[0]] = glGetUniformLocation(shaderProgram, (char*)& uniformName[0]);
+			GLint loc = glGetUniformLocation(shaderProgram, (char*)& uniformName[0]);
+			uniformMap[&uniformName[0]] = loc;
 		}
 	}
 }

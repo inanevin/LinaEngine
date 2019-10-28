@@ -283,16 +283,11 @@ namespace LinaEngine::Graphics
 		if (!ShaderExists(shaderName))
 		{
 			// Create shader
-		
 			m_LoadedShaders[shaderName].Construct(m_RenderDevice, shaderText);
 			
-			// Move into map.
-		//	m_LoadedShaders.emplace(shaderName, std::move(shader));
-
 			// Set pointer that was sent in.
 			if (refPointer != nullptr)
 				* refPointer = &m_LoadedShaders[shaderName];
-
 		}
 		else
 		{
@@ -509,9 +504,10 @@ namespace LinaEngine::Graphics
 		{
 			material.colors["material.objectColor"] = Colors::White;
 			material.floats["material.specularIntensity"] = 2.0f;
-			material.ints["material.specularExponent"] = 32;
 			material.ints["material.diffuse"] = 0;
 			material.ints["material.specular"] = 1;
+			material.ints["material.specularExponent"] = 32;
+
 		}
 		else if (usedName == ShaderConstants::standardUnlitShader)
 		{

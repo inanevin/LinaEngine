@@ -51,9 +51,7 @@ namespace LinaEngine::Graphics
 			m_RenderDevice->UpdateShaderUniformMatrix(data->shaderID, d.first, d.second);
 
 		for (auto const& d : (*data).textures)
-		{
 			m_RenderDevice->SetSampler(d.second.texture->GetID(), d.second.texture->GetSamplerID(), d.second.unit, d.second.bindMode);
-		}
 	}
 
 	void RenderContext::RenderMesh(VertexArray& vertexArray, Material& material, const Matrix& transformIn)
@@ -79,7 +77,6 @@ namespace LinaEngine::Graphics
 			size_t numTransforms = modelArray.size();
 
 			if (numTransforms == 0) continue;
-
 
 			// Update the buffer w/ each transform.
 			vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
