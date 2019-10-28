@@ -30,7 +30,6 @@ Timestamp: 5/6/2019 9:22:56 PM
 using namespace LinaEngine::Graphics;
 
 
-Material* skyboxMaterial = nullptr;
 Material* object1Material = nullptr;
 Texture* crateTexture = nullptr;
 Mesh* cubeMesh = nullptr;
@@ -58,16 +57,62 @@ void Example1Level::Install()
 	LINA_CLIENT_WARN("Example level 1 install.");
 }
 
+void CreateSingleColorSkybox(RenderEngine* renderEngine)
+{
+	renderEngine->CreateMaterial("skyboxMaterial", ShaderConstants::skyboxSingleColorShader);
+	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.color", Colors::Red);
+	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial("skyboxMaterial"));
+
+}
+
+void CreateGradientSkybox(RenderEngine* renderEngine)
+{
+	renderEngine->CreateMaterial("skyboxMaterial", ShaderConstants::skyboxGradientShader);
+
+	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.startColor", Colors::Green);
+	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.endColor", Colors::White);
+	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial("skyboxMaterial"));
+
+}
+
+void CreateProceduralSkybox(RenderEngine* renderEngine)
+{
+	renderEngine->CreateMaterial("skyboxMaterial", ShaderConstants::skyboxProceduralShader);
+
+	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.startColor", Colors::LightBlue);
+	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.endColor", Colors::DarkBlue);
+	renderEngine->GetMaterial("skyboxMaterial").SetVector3("material.sunDirection", Vector3F(0.0f, -1.0f, 0.0f));
+	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial("skyboxMaterial"));
+
+}
+
+void CreateCubemapSkybox(RenderEngine* renderEngine)
+{
+	renderEngine->CreateMaterial("skyboxMaterial", ShaderConstants::skyboxCubemapShader);
+
+	const std::string fp[6] = {
+
+		"resources/textures/defaultSkybox/right.png",
+		"resources/textures/defaultSkybox/left.png",
+		"resources/textures/defaultSkybox/up.png",
+		"resources/textures/defaultSkybox/down.png",
+		"resources/textures/defaultSkybox/front.png",
+		"resources/textures/defaultSkybox/back.png",
+	};
+	SamplerData data = SamplerData();
+	data.minFilter = FILTER_NEAREST;
+	renderEngine->CreateTexture("skyboxTexture", fp, PixelFormat::FORMAT_RGB, true, false, data);
+	renderEngine->GetMaterial("skyboxMaterial").SetTexture("material.diffuse", &renderEngine->GetTexture("skyboxTexture"), 0, BindTextureMode::BINDTEXTURE_CUBEMAP);
+	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial("skyboxMaterial"));
+}
+
+
 void Example1Level::Initialize()
 {
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-	m_RenderEngine->CreateMaterial("skyboxMaterial", ShaderConstants::skyboxProceduralShader, &skyboxMaterial);
-	skyboxMaterial->SetColor("material.startColor", Colors::LightBlue);
-	skyboxMaterial->SetColor("material.endColor", Colors::DarkBlue);
-	skyboxMaterial->SetVector3("material.sunDirection", Vector3F(0.0f, -1.0f, 0.0f));
-	m_RenderEngine->SetSkyboxMaterial("skyboxMaterial");
+	CreateCubemapSkybox(m_RenderEngine);
 
 	// Set the properties of our the free look component for the camera.
 	cameraFreeLookComponent.movementSpeedX = cameraFreeLookComponent.movementSpeedZ = 12.0f;
@@ -78,23 +123,23 @@ void Example1Level::Initialize()
 	camera = m_ECS->MakeEntity(cameraComponent, cameraTransformComponent, cameraFreeLookComponent);
 
 	// Load example mesh.
-	m_RenderEngine->CreateMesh("cube", "resources/meshes/cube.obj", &cubeMesh);
+//	m_RenderEngine->CreateMesh("cube", "resources/meshes/cube.obj", &cubeMesh);
 
 	// Create material for example mesh.
-	m_RenderEngine->CreateMaterial("object1Material", ShaderConstants::standardLitShader, &object1Material);
+	//m_RenderEngine->CreateMaterial("object1Material", ShaderConstants::standardUnlitShader, &object1Material);
 
 	// Create texture for example mesh.
-	m_RenderEngine->CreateTexture("crate", "resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, &crateTexture);
-	object1Material->SetTexture("material.diffuse", crateTexture, 0);
+//	m_RenderEngine->CreateTexture("crate", "resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, &crateTexture);
+//	object1Material->SetTexture("material.diffuse", crateTexture, 0);
 
 
 	// Create a cube object.
-	object1Renderer.mesh = cubeMesh;
-	object1Renderer.material = object1Material;
-	object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
-	object1 = m_ECS->MakeEntity(object1Transform, object1Renderer);
-
-	m_RenderEngine->SetAmbientLightIntensity(1.0f);
+//object1Renderer.mesh = cubeMesh;
+//object1Renderer.material = object1Material;
+//object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
+//object1 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+//
+//m_RenderEngine->SetAmbientLightIntensity(1.0f);
 
 	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem(*m_InputEngine);
@@ -125,6 +170,7 @@ void Example1Level::Initialize()
 		level1Systems.AddSystem(*ecsFreeLookSystem);*/
 
 }
+
 
 
 void Example1Level::Tick(float delta)

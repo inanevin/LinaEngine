@@ -69,7 +69,7 @@ namespace LinaEngine::Graphics
 		for (uint32 i = 0; i < 6; i++)
 			cubeMapData.push_back(data[i]->GetPixelArray());
 		
-		m_ID = renderDevice->CreateCubemapTexture(m_Width, m_Height, cubeMapData);
+		m_ID = renderDevice->CreateCubemapTexture(m_Width, m_Height, cubeMapData, 6U, internalPixelFormat, internalPixelFormat, generateMipMaps);
 		isCompressed = shouldCompress;
 		hasMipMaps = generateMipMaps;
 

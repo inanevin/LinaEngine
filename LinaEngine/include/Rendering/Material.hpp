@@ -43,11 +43,12 @@ namespace LinaEngine::Graphics
 
 	public:
 		
-		FORCEINLINE void SetTexture(const std::string& textureName, Texture* texture, uint32 textureUnit)
+		FORCEINLINE void SetTexture(const std::string& textureName, Texture* texture, uint32 textureUnit, BindTextureMode bindMode = BindTextureMode::BINDTEXTURE_TEXTURE2D)
 		{
 			MaterialTextureData data;
 			data.texture = texture;
 			data.unit = textureUnit;
+			data.bindMode = bindMode;
 			textures[textureName] = data;
 		}
 

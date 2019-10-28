@@ -171,7 +171,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void RenderEngine::CreateTexture(const std::string & textureName, const std::string & filePath, PixelFormat pixelFormat, bool generateMipmaps, bool compress, Texture * *refPointer, SamplerData samplerData)
+	void RenderEngine::CreateTexture(const std::string & textureName, const std::string & filePath, PixelFormat pixelFormat, bool generateMipmaps, bool compress, SamplerData samplerData, Texture** refPointer)
 	{
 		if (!TextureExists(textureName))
 		{
@@ -201,7 +201,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void RenderEngine::CreateTexture(const std::string & textureName, const std::string filePaths[6], PixelFormat pixelFormat, bool generateMipmaps, bool compress, Texture * *refPointer, SamplerData samplerData)
+	void RenderEngine::CreateTexture(const std::string & textureName, const std::string filePaths[6], PixelFormat pixelFormat, bool generateMipmaps, bool compress,SamplerData samplerData, Texture** refPointer)
 	{
 		if (!TextureExists(textureName))
 		{
@@ -216,7 +216,7 @@ namespace LinaEngine::Graphics
 			}
 
 			// Create texture & construct.
-			m_LoadedTextures[textureName].Construct(m_RenderDevice, bitmaps, PixelFormat::FORMAT_RGB, true, false, samplerData);
+			m_LoadedTextures[textureName].Construct(m_RenderDevice, bitmaps, pixelFormat, generateMipmaps, compress, samplerData);
 
 			// Set pointer that was sent in.
 			if (refPointer != nullptr)
@@ -438,6 +438,8 @@ namespace LinaEngine::Graphics
 		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/skyboxProcedural.glsl", "#include");
 		CreateShader(ShaderConstants::skyboxProceduralShader, shaderText);
 		GetShader(ShaderConstants::skyboxProceduralShader).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+
+
 	}
 
 	void RenderEngine::DumpMemory()
@@ -529,7 +531,7 @@ namespace LinaEngine::Graphics
 			material.colors["material.endColor"] = Colors::White;
 			material.vector3s["material.sunDirection"] = Vector3F(0, -1, 0);
 		}
-		else if (usedName == "skyboxCubemap")
+		else if (usedName == ShaderConstants::skyboxCubemapShader)
 		{
 			material.ints["material.diffuse"] = 0;
 		}

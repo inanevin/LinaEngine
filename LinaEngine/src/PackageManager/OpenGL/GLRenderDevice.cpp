@@ -242,7 +242,7 @@ namespace LinaEngine::Graphics
 		return textureID;
 	}
 
-	uint32 GLRenderDevice::CreateCubemapTexture(int32 width, int32 height, const LinaArray<int32*> & data, uint32 dataSize)
+	uint32 GLRenderDevice::CreateCubemapTexture(int32 width, int32 height, const LinaArray<int32*> & data, uint32 dataSize, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps)
 	{
 		GLuint textureHandle;
 
@@ -271,6 +271,15 @@ namespace LinaEngine::Graphics
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	if (generateMipMaps)
+			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+		else
+		{
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
+		}
+		
 
 		return textureHandle;
 	}
@@ -820,8 +829,7 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::UpdateShaderUniformInt(uint32 shader, const std::string& uniform, const int f)
 	{
-		GLint loc = m_ShaderProgramMap[shader].uniformMap[uniform];
-		glUniform1i(loc, (GLint)f);
+		glUniform1i(m_ShaderProgramMap[shader].uniformMap[uniform], (GLint)f);
 	}
 
 	void GLRenderDevice::UpdateShaderUniformColor(uint32 shader, const std::string& uniform, const Color& color)
