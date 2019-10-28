@@ -21,34 +21,41 @@ varying vec2 texCoord0;
 #if defined(VS_BUILD)
 Layout(0) attribute vec3 position;
 Layout(1) attribute vec2 texCoord;
-Layout(4) attribute mat4 mvp;
-Layout(8) attribute mat4 model;
+Layout(4) attribute mat4 model;
+
 
 layout (std140, row_major) uniform GlobalMatrices
 {
 	mat4 projection;
 	mat4 view;
 };
+
+out vec2 TexCoords;
+out vec3 FragPos;
+
 void main()
 {
     gl_Position = projection * view * model * vec4(position, 1.0);
-    texCoord0 = texCoord;
+	FragPos = vec3(model * vec4(position,1.0));
+    TexCoords = texCoord;
 }
 
 #elif defined(FS_BUILD)
 
+
 struct Material
 {
 sampler2D diffuse;
-vec3 objectColor;
 };
 
 uniform Material material;
 
+in vec3 FragPos;
+in vec2 TexCoords;
 out vec4 fragColor;
 
 void main()
 {
-	fragColor = texture2D(material.diffuse, texCoord0) * vec4(material.objectColor, 1.0f);
+	fragColor = texture(material.diffuse, TexCoords);
 }
 #endif

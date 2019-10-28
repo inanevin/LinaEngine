@@ -112,7 +112,7 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-	CreateCubemapSkybox(m_RenderEngine);
+	CreateProceduralSkybox(m_RenderEngine);
 
 	// Set the properties of our the free look component for the camera.
 	cameraFreeLookComponent.movementSpeedX = cameraFreeLookComponent.movementSpeedZ = 12.0f;
@@ -123,23 +123,22 @@ void Example1Level::Initialize()
 	camera = m_ECS->MakeEntity(cameraComponent, cameraTransformComponent, cameraFreeLookComponent);
 
 	// Load example mesh.
-//	m_RenderEngine->CreateMesh("cube", "resources/meshes/cube.obj", &cubeMesh);
+	m_RenderEngine->CreateMesh("cube", "resources/meshes/cube.obj", &cubeMesh);
 
 	// Create material for example mesh.
-	//m_RenderEngine->CreateMaterial("object1Material", ShaderConstants::standardUnlitShader, &object1Material);
+	m_RenderEngine->CreateMaterial("object1Material", ShaderConstants::standardUnlitShader, &object1Material);
 
 	// Create texture for example mesh.
-//	m_RenderEngine->CreateTexture("crate", "resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, &crateTexture);
-//	object1Material->SetTexture("material.diffuse", crateTexture, 0);
-
+	m_RenderEngine->CreateTexture("crate", "resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateTexture);
+	object1Material->SetTexture("material.diffuse", crateTexture, 0);
 
 	// Create a cube object.
-//object1Renderer.mesh = cubeMesh;
-//object1Renderer.material = object1Material;
-//object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
-//object1 = m_ECS->MakeEntity(object1Transform, object1Renderer);
-//
-//m_RenderEngine->SetAmbientLightIntensity(1.0f);
+	object1Renderer.mesh = cubeMesh;
+	object1Renderer.material = object1Material;
+	object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
+	object1 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+
+	m_RenderEngine->SetAmbientLightIntensity(1.0f);
 
 	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem(*m_InputEngine);
