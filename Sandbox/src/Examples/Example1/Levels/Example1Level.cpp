@@ -57,9 +57,10 @@ void Example1Level::Initialize()
 {
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
-	m_RenderEngine->CreateMaterial("skyboxMaterial", LinaEngine::Graphics::ShaderConstants::skyboxSingleColorShader, &skyboxMaterial);
-	skyboxMaterial->SetColor("material.color", Colors::LightBlue);
-	//m_RenderEngine->SetSkyboxMaterial("skyboxMaterial");
+	m_RenderEngine->CreateMaterial("skyboxMaterial", LinaEngine::Graphics::ShaderConstants::skyboxGradientShader, &skyboxMaterial);
+	skyboxMaterial->SetColor("material.startColor", Colors::LightBlue);
+	skyboxMaterial->SetColor("material.endColor", Colors::DarkBlue);
+	m_RenderEngine->SetSkyboxMaterial("skyboxMaterial");
 /*
 	// Set the default cubemap skybox.
 	m_RenderEngine->CreateMaterial("skyboxMaterial", ResourceConstants::skyboxSingleColorShader);

@@ -130,7 +130,7 @@ namespace LinaEngine::Graphics
 		m_DefaultRenderContext.Flush();
 
 		// Draw skybox.
-		RenderSkybox();
+		DrawSkybox();
 
 		// Update window.
 		m_MainWindow.Tick();
@@ -153,11 +153,7 @@ namespace LinaEngine::Graphics
 		if (!MaterialExists(materialName))
 		{
 			// Create material & set it's shader.
-			Material newMaterial;
-			SetMaterialShader(newMaterial, shaderName);
-
-			// Emplace into map.
-			m_LoadedMaterials.emplace(materialName, std::move(newMaterial));
+			SetMaterialShader(m_LoadedMaterials[materialName], shaderName);
 
 			// Set pointer that was sent in.
 			if (refPointer != nullptr)
@@ -183,12 +179,8 @@ namespace LinaEngine::Graphics
 			ArrayBitmap* textureBitmap = new ArrayBitmap();
 			textureBitmap->Load(filePath);
 
-			// Create texture out of the pixel data.
-			Texture texture;
-			texture.Construct(m_RenderDevice, *textureBitmap, pixelFormat, generateMipmaps, compress, samplerData);
-
-			// Move into the map.
-			m_LoadedTextures.emplace(textureName, std::move(texture));
+			// Create texture & construct.
+			m_LoadedTextures[textureName].Construct(m_RenderDevice, *textureBitmap, pixelFormat, generateMipmaps, compress, samplerData);
 
 			// Set pointer that was sent in.
 			if (refPointer != nullptr)
@@ -223,12 +215,8 @@ namespace LinaEngine::Graphics
 				bitmaps.push_back(faceBitmap);
 			}
 
-			// Create texture out of the pixel data.
-			Texture texture;
-			texture.Construct(m_RenderDevice, bitmaps, PixelFormat::FORMAT_RGB, true, false, samplerData);
-
-			// Move into the map.
-			m_LoadedTextures.emplace(textureName, std::move(texture));
+			// Create texture & construct.
+			m_LoadedTextures[textureName].Construct(m_RenderDevice, bitmaps, PixelFormat::FORMAT_RGB, true, false, samplerData);
 
 			// Set pointer that was sent in.
 			if (refPointer != nullptr)
@@ -256,26 +244,21 @@ namespace LinaEngine::Graphics
 	{
 		if (!MeshExists(meshName))
 		{
-			// Create mesh.
-			Mesh mesh;
 
 			// Create object data & feed it from model.
-			ModelLoader::LoadModels(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs());
+			ModelLoader::LoadModels(filePath, m_LoadedMeshes[meshName].GetIndexedModels(), m_LoadedMeshes[meshName].GetMaterialIndices(), m_LoadedMeshes[meshName].GetMaterialSpecs());
 
-			if (mesh.GetIndexedModels().size() == 0)
+			if (m_LoadedMeshes[meshName].GetIndexedModels().size() == 0)
 				LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! This will cause undefined behaviour or crashes if it is assigned to a ECS MeshRendererComponent."
 					, filePath);
 
 			// Create vertex array for each mesh.
-			for (uint32 i = 0; i < mesh.GetIndexedModels().size(); i++)
+			for (uint32 i = 0; i < m_LoadedMeshes[meshName].GetIndexedModels().size(); i++)
 			{
 				VertexArray* vertexArray = new VertexArray();
 				vertexArray->Construct(m_RenderDevice, m_LoadedMeshes[meshName].GetIndexedModels()[i], BufferUsage::USAGE_STATIC_DRAW);
-				mesh.GetVertexArrays().push_back(vertexArray);
+				m_LoadedMeshes[meshName].GetVertexArrays().push_back(vertexArray);
 			}
-
-			// Move into the map.
-			m_LoadedMeshes.emplace(meshName, std::move(mesh));
 
 			// Set pointer that was sent in.
 			if (refPointer != nullptr)
@@ -300,11 +283,11 @@ namespace LinaEngine::Graphics
 		if (!ShaderExists(shaderName))
 		{
 			// Create shader
-			Shader shader;
-			shader.Construct(m_RenderDevice, shaderText);
-
+		
+			m_LoadedShaders[shaderName].Construct(m_RenderDevice, shaderText);
+			
 			// Move into map.
-			m_LoadedShaders.emplace(shaderName, std::move(shader));
+		//	m_LoadedShaders.emplace(shaderName, std::move(shader));
 
 			// Set pointer that was sent in.
 			if (refPointer != nullptr)
@@ -470,7 +453,7 @@ namespace LinaEngine::Graphics
 		m_LoadedMaterials.clear();
 	}
 
-	void RenderEngine::RenderSkybox()
+	void RenderEngine::DrawSkybox()
 	{
 		if (m_SkyboxMaterial != nullptr)
 		{

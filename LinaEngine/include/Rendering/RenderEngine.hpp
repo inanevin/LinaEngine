@@ -180,7 +180,7 @@ namespace LinaEngine::Graphics
 		void DumpMemory();
 
 		// Renders skybox
-		void RenderSkybox();
+		void DrawSkybox();
 
 		// Updates related uniform buffers on GPU
 		void UpdateUniformBuffers();
