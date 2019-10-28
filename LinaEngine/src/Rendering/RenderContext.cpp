@@ -26,6 +26,7 @@ namespace LinaEngine::Graphics
 {
 	void RenderContext::UpdateShaderData(Material* data)
 	{
+	
 		m_RenderDevice->SetShader(data->GetShaderID());
 
 		for (auto const& d : (*data).floats)
@@ -51,7 +52,7 @@ namespace LinaEngine::Graphics
 
 		for (auto const& d : (*data).textures)
 		{
-			//m_RenderDevice->SetSampler(d.second.texture->GetID(), d.second.texture->GetSamplerID(), d.second.unit, d.second.bindMode);
+			m_RenderDevice->SetSampler(d.second.texture->GetID(), d.second.texture->GetSamplerID(), d.second.unit, d.second.bindMode);
 		}
 	}
 

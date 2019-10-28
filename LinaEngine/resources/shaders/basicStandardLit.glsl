@@ -94,6 +94,6 @@ void main()
 	vec3 specular = material.specularIntensity * spec * light.color * vec3(texture(material.specular, TexCoords));  
 
 	vec3 result = (ambient + diffuse + specular);	
-	fragColor = vec4(result, 1.0);
+	fragColor = vec4(ambient, 1.0);
 }
 #endif

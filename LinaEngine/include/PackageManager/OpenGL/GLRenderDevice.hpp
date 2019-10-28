@@ -156,12 +156,6 @@ namespace LinaEngine::Graphics
 		// Actual drawing process for meshes.
 		void Draw(uint32 fbo, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements, bool drawArrays = false);
 
-		// Used for drawing a skybox.
-		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams);
-		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, const Color& color);
-		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, const Color& colorStart, const Color& colorEnd);
-		void DrawSkybox(uint32 fbo, uint32 shader, uint32 vao, const DrawParams& drawParams, const Color& colorStart, const Color& colorEnd, const Vector3F& sunvector);
-
 		// Clears context.
 		void Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const class Color& color, uint32 stencil);
 

@@ -32,13 +32,14 @@ using namespace LinaEngine::Graphics;
 
 Material* skyboxMaterial = nullptr;
 Material* object1Material = nullptr;
+Texture* crateTexture = nullptr;
 Mesh* cubeMesh = nullptr;
 
 ECSSystemList level1Systems;
 FreeLookSystem* ecsFreeLookSystem;
 CameraComponent cameraComponent;
 TransformComponent cameraTransformComponent;
-FreeLookComponent ameraFreeLookComponent;
+FreeLookComponent cameraFreeLookComponent;
 
 EntityHandle camera;
 EntityHandle object1;
@@ -69,12 +70,12 @@ void Example1Level::Initialize()
 	m_RenderEngine->SetSkyboxMaterial("skyboxMaterial");
 
 	// Set the properties of our the free look component for the camera.
-	ameraFreeLookComponent.movementSpeedX = ameraFreeLookComponent.movementSpeedZ = 12.0f;
-	ameraFreeLookComponent.rotationSpeedX = ameraFreeLookComponent.rotationSpeedY = 3;
+	cameraFreeLookComponent.movementSpeedX = cameraFreeLookComponent.movementSpeedZ = 12.0f;
+	cameraFreeLookComponent.rotationSpeedX = cameraFreeLookComponent.rotationSpeedY = 3;
 
 	// Activate a camera component and make a camera entity out of it.
 	cameraComponent.isActive = true;
-	camera = m_ECS->MakeEntity(cameraComponent, cameraTransformComponent, ameraFreeLookComponent);
+	camera = m_ECS->MakeEntity(cameraComponent, cameraTransformComponent, cameraFreeLookComponent);
 
 	// Load example mesh.
 	m_RenderEngine->CreateMesh("cube", "resources/meshes/cube.obj", &cubeMesh);
@@ -82,10 +83,18 @@ void Example1Level::Initialize()
 	// Create material for example mesh.
 	m_RenderEngine->CreateMaterial("object1Material", ShaderConstants::standardLitShader, &object1Material);
 
+	// Create texture for example mesh.
+	m_RenderEngine->CreateTexture("crate", "resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, &crateTexture);
+	object1Material->SetTexture("material.diffuse", crateTexture, 0);
+
+
+	// Create a cube object.
 	object1Renderer.mesh = cubeMesh;
 	object1Renderer.material = object1Material;
 	object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
 	object1 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+
+	m_RenderEngine->SetAmbientLightIntensity(1.0f);
 
 	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem(*m_InputEngine);
