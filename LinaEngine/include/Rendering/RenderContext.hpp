@@ -26,6 +26,13 @@ Timestamp: 4/27/2019 5:48:39 PM
 #include "RenderTarget.hpp"
 #include "VertexArray.hpp"
 
+namespace LinaEngine
+{
+	namespace ECS
+	{
+		class LighingSystem;
+	}
+}
 
 namespace LinaEngine::Graphics
 {
@@ -35,12 +42,13 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, RenderTarget& renderTargetIn, DrawParams& drawParamsIn, Texture* text)
+		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, RenderTarget& renderTargetIn, DrawParams& drawParamsIn, Texture& text, LinaEngine::ECS::LightingSystem& lightingSystem)
 		{
 			m_RenderDevice = &renderDeviceIn;
 			m_Target = &renderTargetIn;
 			m_DrawParams = &drawParamsIn;
-			m_DefaultTexture = text;
+			m_DefaultTexture = &text;
+			m_LightingSystem = &lightingSystem;
 		}
 
 		FORCEINLINE void Clear(bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
@@ -69,10 +77,11 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		RenderDevice* m_RenderDevice;
-		RenderTarget* m_Target;
-		DrawParams* m_DrawParams;
-		Texture* m_DefaultTexture;
+		RenderDevice* m_RenderDevice = nullptr;
+		RenderTarget* m_Target = nullptr;
+		DrawParams* m_DrawParams = nullptr;
+		Texture* m_DefaultTexture = nullptr;
+		LinaEngine::ECS::LightingSystem* m_LightingSystem = nullptr;
 
 		// Map to see the list of same vertex array & textures to compress them into single draw call.
 		std::map<std::pair<VertexArray*, Material*>, std::tuple<LinaArray<Matrix>, LinaArray<Matrix>, LinaArray<Matrix>>> m_MeshRenderBuffer;

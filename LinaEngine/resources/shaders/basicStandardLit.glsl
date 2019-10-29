@@ -65,7 +65,7 @@ uniform Material material;
 
 struct Light
 {
-vec3 pos;
+vec3 direction;
 vec3 color;
 };
 
@@ -83,7 +83,7 @@ void main()
 	
 	//diffuse
 	vec3 norm = normalize(Normal);
-	vec3 lightDir = normalize(light.pos - FragPos);  
+	vec3 lightDir = normalize(-light.direction);  
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec3 diffuse = diff * light.color * vec3(texture(material.diffuse, TexCoords));
 	

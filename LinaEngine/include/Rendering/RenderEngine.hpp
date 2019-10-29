@@ -28,8 +28,6 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "ECS/Systems/CameraSystem.hpp"
 #include "ECS/Systems/LightingSystem.hpp"
 #include "ECS/Systems/MeshRendererSystem.hpp"
-#include "ECS/Components/CameraComponent.hpp"
-#include "ECS/Components/TransformComponent.hpp"
 #include "Mesh.hpp"
 #include "UniformBuffer.hpp"
 #include "Window.hpp"
@@ -216,12 +214,6 @@ namespace LinaEngine::Graphics
 
 		// ECS Mesh Renderer system
 		LinaEngine::ECS::MeshRendererSystem m_MeshRendererSystem;
-
-		// Default camera transform component.
-		LinaEngine::ECS::TransformComponent m_DefaultCameraTransform;
-
-		// Default camera camera component.
-		LinaEngine::ECS::CameraComponent m_DefaultCameraComponent;
 
 		// ECS system for handling lighting
 		LinaEngine::ECS::LightingSystem m_LightingSystem;

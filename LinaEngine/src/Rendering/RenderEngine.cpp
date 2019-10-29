@@ -34,7 +34,6 @@ Timestamp: 4/27/2019 11:18:07 PM
 namespace LinaEngine::Graphics
 {
 
-
 	constexpr size_t UNIFORMBUFFER_GLOBALMATRIX_SIZE = sizeof(Matrix) * 2;
 	constexpr int UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT = 0;
 	constexpr auto UNIFORMBUFFER_GLOBALMATRIX_NAME = "GlobalMatrices";
@@ -100,7 +99,7 @@ namespace LinaEngine::Graphics
 		CreateTexture("defaultDiffuse", "resources/textures/defaultDiffuse.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &text);
 
 		// Initialize the render context.
-		m_DefaultRenderContext.Construct(m_RenderDevice, m_RenderTarget, m_DefaultDrawParams, text);
+		m_DefaultRenderContext.Construct(m_RenderDevice, m_RenderTarget, m_DefaultDrawParams, *text, m_LightingSystem);
 
 		// Initialize skybox vertex array object.
 		m_SkyboxVAO = m_RenderDevice.CreateSkyboxVertexArray();
@@ -513,6 +512,7 @@ namespace LinaEngine::Graphics
 			material.samplers["material.diffuse"] = 0;
 			material.samplers["material.specular"] = 1;
 			material.ints["material.specularExponent"] = 32;
+			material.receivesLighting = true;
 
 		}
 		else if (usedName == ShaderConstants::standardUnlitShader)

@@ -29,6 +29,11 @@ namespace LinaEngine::Graphics
 	
 		m_RenderDevice->SetShader(data->GetShaderID());
 
+		if (data->receivesLighting) 
+		{
+			
+		}
+
 		for (auto const& d : (*data).floats)
 			m_RenderDevice->UpdateShaderUniformFloat(data->shaderID, d.first, d.second);
 

@@ -759,8 +759,8 @@ namespace LinaEngine::Graphics
 		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
 
 
-		//UpdateShaderUniformVector3F(2, "light.pos", Vector3F(0.0f, 1.0f, 8.0f));
-		//UpdateShaderUniformColor(2, "light.color", Color(1.0f, 1.0f, 1.0f));
+		UpdateShaderUniformVector3F((uint32)4, "light.direction", Vector3F(0.0f, -1.0f, -0.5f));
+		UpdateShaderUniformColor(4, "light.color", Color(1.0f, 1.0f, 1.0f));
 
 		//UpdateShaderUniformVector3F(shader, "lightPos", Vector3F(0.0f, 5.0f, 0.0f));
 		//UpdateShaderUniformVector3F(shader, "pointLight.color", Vector3F(1.0f, 0.0f, 0.0f));
@@ -835,7 +835,8 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::UpdateShaderUniformColor(uint32 shader, const std::string & uniform, const Color & color)
 	{
-		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)color.R(), (GLfloat)color.G(), (GLfloat)color.B());
+		GLint loc = m_ShaderProgramMap[shader].uniformMap[uniform];
+		glUniform3f(loc, (GLfloat)color.R(), (GLfloat)color.G(), (GLfloat)color.B());
 	}
 
 	void GLRenderDevice::UpdateShaderUniformVector2F(uint32 shader, const std::string & uniform, const Vector2F & m)

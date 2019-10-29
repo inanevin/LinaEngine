@@ -23,6 +23,7 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "ECS/Systems/FreeLookSystem.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
+#include "ECS/Components/CameraComponent.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Core/Application.hpp"
 #include "Rendering/Material.hpp"
@@ -30,8 +31,8 @@ Timestamp: 5/6/2019 9:22:56 PM
 using namespace LinaEngine::Graphics;
 
 
-Material* object1Material = nullptr;
-Material* object2Material = nullptr;
+Material* objectLitMaterial = nullptr;
+Material* objectUnlitMaterial = nullptr;
 Texture* crateTexture = nullptr;
 Texture* crateSpecTexture = nullptr;
 
@@ -46,6 +47,10 @@ FreeLookComponent cameraFreeLookComponent;
 EntityHandle camera;
 EntityHandle object1;
 EntityHandle object2;
+EntityHandle object3;
+EntityHandle object4;
+EntityHandle object5;
+
 TransformComponent object1Transform;
 MeshRendererComponent object1Renderer;
 
@@ -116,7 +121,7 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-	CreateProceduralSkybox(m_RenderEngine);
+//	CreateProceduralSkybox(m_RenderEngine);
 
 	// Set the properties of our the free look component for the camera.
 	cameraFreeLookComponent.movementSpeedX = cameraFreeLookComponent.movementSpeedZ = 12.0f;
@@ -130,25 +135,48 @@ void Example1Level::Initialize()
 	m_RenderEngine->CreateMesh("cube", "resources/meshes/cube.obj", &cubeMesh);
 
 	// Create material for example mesh.
-	m_RenderEngine->CreateMaterial("object1Material", ShaderConstants::standardLitShader, &object1Material);
-	m_RenderEngine->CreateMaterial("object2Material", ShaderConstants::standardLitShader, &object2Material);
+	m_RenderEngine->CreateMaterial("object1Material", ShaderConstants::standardLitShader, &objectLitMaterial);
+	m_RenderEngine->CreateMaterial("object2Material", ShaderConstants::standardLitShader, &objectUnlitMaterial);
 
 	// Create texture for example mesh.
 	m_RenderEngine->CreateTexture("crate", "resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateTexture);
 	m_RenderEngine->CreateTexture("crateSpec", "resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateSpecTexture);
-	object1Material->SetTexture("material.diffuse", crateTexture, 0);
-	object1Material->SetTexture("material.specular", crateSpecTexture, 1);
+	objectLitMaterial->SetTexture("material.diffuse", crateTexture, 0);
+	objectLitMaterial->SetTexture("material.specular", crateSpecTexture, 1);
 
 	// Create a cube object.
 	object1Renderer.mesh = cubeMesh;
-	object1Renderer.material = object1Material;
+	object1Renderer.material = objectLitMaterial;
 	object1Transform.transform.SetLocation(Vector3F(-5.0f, 0.0f, 10.0f));
 	object1 = m_ECS->MakeEntity(object1Transform, object1Renderer);
 
-	object1Renderer.material = object2Material;
 	object1Transform.transform.SetLocation(Vector3F(5.0f, 0.0f, 10.0f));
+	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
+
 	object2 = m_ECS->MakeEntity(object1Transform, object1Renderer);
-	m_RenderEngine->SetAmbientLightIntensity(1.0f);
+
+	object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 15.0f));
+	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
+
+	object3 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+
+	object1Transform.transform.SetLocation(Vector3F(-3.0f, 3.0f, 15.0f));
+	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
+
+	object4 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+
+	object1Transform.transform.SetLocation(Vector3F(4.0f, 3.0f, 15.0f));
+	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
+
+	object5 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+
+	object1Transform.transform.SetLocation(Vector3F(0.0f, 5.0f, 15.0f));
+	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
+	object1Renderer.material = objectUnlitMaterial;
+	object5 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+
+
+	m_RenderEngine->SetAmbientLightIntensity(0.0f);
 
 	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem(*m_InputEngine);

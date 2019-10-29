@@ -134,6 +134,7 @@ namespace LinaEngine::Graphics
 		friend class RenderContext;
 
 		uint32 shaderID;
+		bool receivesLighting = false;
 		std::map<std::string, MaterialTextureData> textures;
 		std::map<std::string, float> floats;
 		std::map<std::string, int> ints;

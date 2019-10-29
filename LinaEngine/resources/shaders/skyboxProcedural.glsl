@@ -57,6 +57,7 @@ uniform Material material;
 
 void main()
 {   
+
 	float f = dot(normalize(TexCoords), normalize(-material.sunDirection)) * 0.5f + 0.5f;
     fragColor = mix(vec4(material.startColor, 1.0), vec4(material.endColor, 1.0), pow(f,2)) * 1;
 }
