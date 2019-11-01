@@ -176,6 +176,7 @@ void Example1Level::Initialize()
 	object5 = m_ECS->MakeEntity(object1Transform, object1Renderer);
 
 
+
 	m_RenderEngine->SetAmbientLightIntensity(0.0f);
 
 	// Create the free look system & push it.

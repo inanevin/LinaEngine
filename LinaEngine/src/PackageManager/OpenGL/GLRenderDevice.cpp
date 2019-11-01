@@ -758,9 +758,15 @@ namespace LinaEngine::Graphics
 		SetFaceCulling(drawParams.faceCulling);
 		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
 
-
-		UpdateShaderUniformVector3F((uint32)4, "light.direction", Vector3F(0.0f, -1.0f, -0.5f));
+		UpdateShaderUniformVector3F(4, "light.position", Vector3F(0.0f, 0.0f, 10.0f));
 		UpdateShaderUniformColor(4, "light.color", Color(1.0f, 1.0f, 1.0f));
+		UpdateShaderUniformFloat(4, "light.constant", 1.0f);
+		UpdateShaderUniformFloat(4, "light.linear", 0.09f);
+		UpdateShaderUniformFloat(4, "light.quadratic", 0.032f);
+
+		UpdateShaderUniformVector3F(4, "light.direction", Vector3F(0.0f, 0.0f, 1.0f));
+		UpdateShaderUniformFloat(4, "light.cutOff", Math::Cos(Math::ToRadians(12.5f)));
+		UpdateShaderUniformFloat(4, "light.outerCutOff", Math::Cos(Math::ToRadians(17.5f)));
 
 		//UpdateShaderUniformVector3F(shader, "lightPos", Vector3F(0.0f, 5.0f, 0.0f));
 		//UpdateShaderUniformVector3F(shader, "pointLight.color", Vector3F(1.0f, 0.0f, 0.0f));
