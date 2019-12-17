@@ -84,7 +84,7 @@ namespace LinaEngine::Graphics
 		LinaEngine::ECS::LightingSystem* m_LightingSystem = nullptr;
 
 		// Map to see the list of same vertex array & textures to compress them into single draw call.
-		std::map<std::pair<VertexArray*, Material*>, std::tuple<LinaArray<Matrix>, LinaArray<Matrix>, LinaArray<Matrix>>> m_MeshRenderBuffer;
+		std::map<std::pair<VertexArray*, Material*>, std::tuple<LinaArray<Matrix>, LinaArray<Matrix>>> m_MeshRenderBuffer;
 	
 	private:
 

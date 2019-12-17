@@ -29,21 +29,33 @@ Timestamp: 5/13/2019 9:00:55 PM
 
 namespace LinaEngine::ECS
 {
-	struct AmbientLightComponent : public ECSComponent<AmbientLightComponent>
+
+	struct LightComponent : public ECSComponent<LightComponent>
 	{
-		LinaEngine::Color color = LinaEngine::Color(1.0f, 1.0f, 1.0f);
+		Color color = Colors::White;
 		float intensity = 1.0f;
 	};
 
-	struct DiffuseLightComponent : public ECSComponent<DiffuseLightComponent>
+	struct PointLightComponent : public LightComponent
 	{
-		LinaEngine::Color color;
-		float intensity;
+		float constant = 1.0f;
+		float linear = 0.09f;
+		float quadratic = 0.032f;
 	};
 
-	struct PointLightComponent : public ECSComponent<PointLightComponent>
+	struct SpotLightComponent : public LightComponent
 	{
-		
+		Vector3F direction = Vector3F::Zero;
+		float constant = 1.0f;
+		float linear = 0.09f;
+		float quadratic = 0.032f;
+		float cutOff = Math::Cos(Math::ToRadians(12.5f));
+		float outerCutOff = Math::Cos(Math::ToRadians(17.5f));
+	};
+
+	struct DirectionalLightComponent : public LightComponent
+	{
+		Vector3F direction = Vector3F::Zero;
 	};
 }
 

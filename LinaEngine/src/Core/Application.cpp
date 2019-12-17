@@ -87,7 +87,7 @@ namespace LinaEngine
 			m_InputEngine.Tick();
 	
 			// Update physics engine.
-			m_PhysicsEngine.Tick(0.01f);
+			//m_PhysicsEngine.Tick(0.01f);
 
 			// Update render engine.
 			m_RenderEngine.Tick(0.01f);
@@ -97,8 +97,8 @@ namespace LinaEngine
 				m_CurrentLevel->Tick(0.01f);
 	
 			// Update layers.
-			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate();
+			//for (Layer* layer : m_LayerStack)
+				//layer->OnUpdate();
 		}
 
 	}

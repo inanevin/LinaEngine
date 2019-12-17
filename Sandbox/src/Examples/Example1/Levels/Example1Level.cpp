@@ -142,7 +142,8 @@ void Example1Level::Initialize()
 	m_RenderEngine->CreateTexture("crate", "resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateTexture);
 	m_RenderEngine->CreateTexture("crateSpec", "resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateSpecTexture);
 	objectLitMaterial->SetTexture("material.diffuse", crateTexture, 0);
-	objectLitMaterial->SetTexture("material.specular", crateSpecTexture, 1);
+	//objectLitMaterial->SetTexture("material.specular", crateSpecTexture, 1);
+
 
 	// Create a cube object.
 	object1Renderer.mesh = cubeMesh;
@@ -175,9 +176,8 @@ void Example1Level::Initialize()
 	object1Renderer.material = objectUnlitMaterial;
 	object5 = m_ECS->MakeEntity(object1Transform, object1Renderer);
 
+	m_RenderEngine->SetAmbientLightIntensity(0.1f);
 
-
-	m_RenderEngine->SetAmbientLightIntensity(0.0f);
 
 	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem(*m_InputEngine);

@@ -58,11 +58,15 @@ namespace LinaEngine::Graphics
 		for (auto const& d : (*data).samplers)
 		{
 			m_RenderDevice->UpdateShaderUniformInt(data->shaderID, d.first, d.second);
-			m_RenderDevice->SetTexture(m_DefaultTexture->GetID(), 0, d.second);
-		}
 
-		for (auto const& d : (*data).textures)
-			m_RenderDevice->SetTexture(d.second.texture->GetID(), d.second.texture->GetSamplerID(), d.second.unit, d.second.bindMode, true);
+			if ((*data).textures.find(d.first) != (*data).textures.end())
+			{
+				MaterialTextureData* textureData = &(*data).textures[d.first];
+				m_RenderDevice->SetTexture(textureData->texture->GetID(), textureData->texture->GetSamplerID(), textureData->unit, textureData->bindMode, true);
+			}
+			else
+				m_RenderDevice->SetTexture(m_DefaultTexture->GetID(), 0, d.second);
+		}
 
 	}
 
@@ -77,10 +81,10 @@ namespace LinaEngine::Graphics
 	void RenderContext::Flush()
 	{
 
-		for (std::map<std::pair<VertexArray*, Material*>, std::tuple<LinaArray<Matrix>, LinaArray<Matrix>, LinaArray<Matrix>>>::iterator it = m_MeshRenderBuffer.begin(); it != m_MeshRenderBuffer.end(); ++it)
+		for (std::map<std::pair<VertexArray*, Material*>, std::tuple<LinaArray<Matrix>, LinaArray<Matrix>>>::iterator it = m_MeshRenderBuffer.begin(); it != m_MeshRenderBuffer.end(); ++it)
 		{
-			auto modelArray = std::get<0>(it->second);
-			auto inverseModelArray = std::get<1>(it->second);
+			auto& modelArray = std::get<0>(it->second);
+			auto& inverseModelArray = std::get<1>(it->second);
 
 			VertexArray* vertexArray = it->first.first;
 

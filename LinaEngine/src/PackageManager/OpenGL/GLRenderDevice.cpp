@@ -758,21 +758,26 @@ namespace LinaEngine::Graphics
 		SetFaceCulling(drawParams.faceCulling);
 		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
 
-		UpdateShaderUniformVector3F(4, "light.position", Vector3F(0.0f, 0.0f, 10.0f));
-		UpdateShaderUniformColor(4, "light.color", Color(1.0f, 1.0f, 1.0f));
-		UpdateShaderUniformFloat(4, "light.constant", 1.0f);
-		UpdateShaderUniformFloat(4, "light.linear", 0.09f);
-		UpdateShaderUniformFloat(4, "light.quadratic", 0.032f);
 
-		UpdateShaderUniformVector3F(4, "light.direction", Vector3F(0.0f, 0.0f, 1.0f));
-		UpdateShaderUniformFloat(4, "light.cutOff", Math::Cos(Math::ToRadians(12.5f)));
-		UpdateShaderUniformFloat(4, "light.outerCutOff", Math::Cos(Math::ToRadians(17.5f)));
 
-		//UpdateShaderUniformVector3F(shader, "lightPos", Vector3F(0.0f, 5.0f, 0.0f));
-		//UpdateShaderUniformVector3F(shader, "pointLight.color", Vector3F(1.0f, 0.0f, 0.0f));
-		//UpdateShaderUniformFloat(shader, "pointLight.intensity", 1.0f);
-		//UpdateShaderUniformFloat(shader, "specularIntensity", 1.0f);
-		//UpdateShaderUniformInt(shader, "specularExponent", 32);
+		UpdateShaderUniformColor(4, "directionalLight.color", Color(0.0f, 0.0f, 0.0f));
+		UpdateShaderUniformVector3F(4, "directionalLight.direction", Vector3F(0.0f, 0.0f, 1.0f));
+	
+		UpdateShaderUniformVector3F(4, "pointLights[0].position", Vector3F(0.0f, 0.0f, 5.0f));
+		UpdateShaderUniformVector3F(4, "pointLights[0].color", Vector3F(1.0f, 0.0f, 1.0f));
+		UpdateShaderUniformFloat(4, "pointLights[0].constant", 1.0f);
+		UpdateShaderUniformFloat(4, "pointLights[0].linear", 0.09f);
+		UpdateShaderUniformFloat(4, "pointLights[0].quadratic", 0.032f);
+	
+		UpdateShaderUniformVector3F(4, "spotLight.position", Vector3F(0.0f, 0.0f, 10.0f));
+		UpdateShaderUniformVector3F(4, "spotLight.direction", Vector3F(1.0f, 1.0f, 1.0f));
+		UpdateShaderUniformVector3F(4, "spotLight.color", Vector3F(0.0f, 1.0f, 0.0f));
+		UpdateShaderUniformFloat(4, "spotLight.constant", 1.0f);
+		UpdateShaderUniformFloat(4, "spotLight.linear", 0.09f);
+		UpdateShaderUniformFloat(4, "spotLight.quadratic", 0.032f);
+		UpdateShaderUniformFloat(4, "spotLight.cutOff", Math::Cos(Math::ToRadians(12.5f)));
+		UpdateShaderUniformFloat(4, "spotLight.outerCutOff", Math::Cos(Math::ToRadians(17.5f)));
+
 
 		// use array buffer & attributes.
 		SetVAO(vao);
@@ -841,8 +846,7 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::UpdateShaderUniformColor(uint32 shader, const std::string & uniform, const Color & color)
 	{
-		GLint loc = m_ShaderProgramMap[shader].uniformMap[uniform];
-		glUniform3f(loc, (GLfloat)color.R(), (GLfloat)color.G(), (GLfloat)color.B());
+		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)color.R(), (GLfloat)color.G(), (GLfloat)color.B());
 	}
 
 	void GLRenderDevice::UpdateShaderUniformVector2F(uint32 shader, const std::string & uniform, const Vector2F & m)

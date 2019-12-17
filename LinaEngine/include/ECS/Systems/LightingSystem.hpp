@@ -50,16 +50,6 @@ namespace LinaEngine::ECS
 			m_RenderDevice = &renderDeviceIn;
 		}
 
-		FORCEINLINE Vector3F GetCameraPosition()
-		{
-			return m_CameraPosition;
-		}
-
-		FORCEINLINE void SetCameraPosition(Vector3F& pos)
-		{
-			m_CameraPosition = pos;
-		}
-
 		// Sets ambient light intensity.
 		FORCEINLINE void SetAmbientIntensity(float intensity) { m_AmbientLight.intensity = intensity; }
 
@@ -81,7 +71,7 @@ namespace LinaEngine::ECS
 
 		LinaEngine::Graphics::Shader* m_Shader;
 		Vector3F m_CameraPosition;
-		AmbientLightComponent m_AmbientLight;
+		LightComponent m_AmbientLight;
 	};
 }
 

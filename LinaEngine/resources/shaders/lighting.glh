@@ -14,9 +14,40 @@
  * limitations under the License.
  */
 
-struct Light
+
+struct DirectionalLight
+{
+	vec3 direction;
+	vec3 color;
+};
+
+struct PointLight
+{
+	vec3 position;
+	vec3 color;
+	
+	float constant;
+    float linear;
+    float quadratic;
+};
+
+struct SpotLight 
 {
 	vec3 color;
-	float intensity;
+    vec3 position;
+    vec3 direction;
+    float cutOff;
+    float outerCutOff;
+  
+    float constant;
+    float linear;
+    float quadratic;
 };
+
+
+#define NR_POINT_LIGHTS 1
+uniform DirectionalLight directionalLight;
+uniform PointLight pointLights[NR_POINT_LIGHTS];
+uniform SpotLight spotLight;
+
 
