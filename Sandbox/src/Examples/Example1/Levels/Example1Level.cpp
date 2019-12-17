@@ -121,7 +121,7 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-//	CreateProceduralSkybox(m_RenderEngine);
+	CreateProceduralSkybox(m_RenderEngine);
 
 	// Set the properties of our the free look component for the camera.
 	cameraFreeLookComponent.movementSpeedX = cameraFreeLookComponent.movementSpeedZ = 12.0f;
@@ -135,8 +135,8 @@ void Example1Level::Initialize()
 	m_RenderEngine->CreateMesh("cube", "resources/meshes/cube.obj", &cubeMesh);
 
 	// Create material for example mesh.
-	m_RenderEngine->CreateMaterial("object1Material", ShaderConstants::standardLitShader, &objectLitMaterial);
-	m_RenderEngine->CreateMaterial("object2Material", ShaderConstants::standardLitShader, &objectUnlitMaterial);
+	m_RenderEngine->CreateMaterial("object1Material", ShaderConstants::standardUnlitShader, &objectLitMaterial);
+	m_RenderEngine->CreateMaterial("object2Material", ShaderConstants::standardUnlitShader, &objectUnlitMaterial);
 
 	// Create texture for example mesh.
 	m_RenderEngine->CreateTexture("crate", "resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateTexture);
