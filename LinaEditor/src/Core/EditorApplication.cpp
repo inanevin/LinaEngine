@@ -18,51 +18,36 @@ Timestamp: 12/29/2018 11:15:41 PM
 */
 
 #include <Lina.hpp>
+#include "Core/UILayer.hpp"
 
-class UILayer : public LinaEngine::Layer
+
+namespace LinaEditor
 {
-public:
-
-	UILayer() : Layer("Test")
+	class EditorApplication : public LinaEngine::Application
 	{
-	
-	}
+	public:
+		EditorApplication() {
+			//LINA_CLIENT_TRACE("[Constructor] -> Sandbox ({0})", typeid(*this).name());
 
-	void OnUpdate() override
-	{
-		LINA_CLIENT_INFO("TestLayer Update");
-	}
+			LinaEngine::Layer* l = new LinaEditor::UILayer();
+			PushLayer(l);
+			//PushOverlay(new LinaEngine::Layer_IMGUI());
 
-	void OnEvent(LinaEngine::Event& e) override
-	{
-
-	}
-};
-
-
-class EditorApplication : public LinaEngine::Application
-{
-public:
-	EditorApplication() { 
-		//LINA_CLIENT_TRACE("[Constructor] -> Sandbox ({0})", typeid(*this).name());
-	
-		LinaEngine::Layer* l = new UILayer();
-		PushLayer(l);
-		//PushOverlay(new LinaEngine::Layer_IMGUI());
-		
-		//LoadLevel(&level);
-	}
-	~ EditorApplication(){
-		//LINA_CLIENT_TRACE("[Destructor] -> Sanbox ({0})", typeid(*this).name());
-	}
+			//LoadLevel(&level);
+		}
+		~EditorApplication() {
+			//LINA_CLIENT_TRACE("[Destructor] -> Sanbox ({0})", typeid(*this).name());
+		}
 
 
-	
-};
+
+	};
+
+}
 
 
 LinaEngine::Application* LinaEngine::CreateApplication()
 {
-	return new EditorApplication();
+	return new LinaEditor::EditorApplication();
 }
 

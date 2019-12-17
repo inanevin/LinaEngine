@@ -20,14 +20,16 @@ project(LinaEditor)
 #--------------------------------------------------------------------
 
 set(LINAEDITOR_SOURCES 
-src/EditorApplication.cpp
+src/Core/EditorApplication.cpp
+src/Core/UILayer.cpp
 )
 
 set(LINAEDITOR_HEADERS
 
-
+include/Core/UILayer.hpp
 
 )
+
 #--------------------------------------------------------------------
 # Create executable project
 #--------------------------------------------------------------------
