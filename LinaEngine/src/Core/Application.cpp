@@ -84,17 +84,17 @@ namespace LinaEngine
 		while (m_Running)
 		{
 			// Update input engine.
-			m_InputEngine.Tick();
+			//m_InputEngine.Tick();
 	
 			// Update physics engine.
 			//m_PhysicsEngine.Tick(0.01f);
 
 			// Update render engine.
-			m_RenderEngine.Tick(0.01f);
+			//m_RenderEngine.Tick(0.01f);
 
 			// Update current level.
-			if (m_ActiveLevelExists)
-				m_CurrentLevel->Tick(0.01f);
+			//if (m_ActiveLevelExists)
+				//m_CurrentLevel->Tick(0.01f);
 	
 			// Update layers.
 			//for (Layer* layer : m_LayerStack)

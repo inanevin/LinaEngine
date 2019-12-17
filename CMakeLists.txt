@@ -25,7 +25,7 @@ project (Lina)
 #set(CMAKE_C_COMPILER /c/MinGW/bin/gcc.exe)
 #set(CMAKE_CXX_COMPILER /c/MinGW/bin/g++.exe)
 
-option(LINA_BUILD_SANDBOX "Build Sandbox Application" ON)
+# option(LINA_BUILD_SANDBOX "Build Sandbox Application" ON)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -43,13 +43,18 @@ set(LINASANDBOX_HEADER_DIR Sandbox/include)
 #--------------------------------------------------------------------
 # Sub directories
 #--------------------------------------------------------------------
-if(LINA_BUILD_SANDBOX)
-	add_subdirectory(Sandbox)
-	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
-else()
-	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT LinaEngine)
-endif()
 
 
+#if(LINA_BUILD_SANDBOX)
+#	add_subdirectory(Sandbox)
+#	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
+#else()
+#	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT LinaEngine)
+#endif()
+
+add_subdirectory(Sandbox)
+add_subdirectory(LinaEditor)
 add_subdirectory(LinaEngine)
+
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT LinaEditor)
 
