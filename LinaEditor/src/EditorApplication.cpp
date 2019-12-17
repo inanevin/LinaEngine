@@ -19,25 +19,23 @@ Timestamp: 12/29/2018 11:15:41 PM
 
 #include <Lina.hpp>
 
- class TestLayer : public LinaEngine::Layer
+class UILayer : public LinaEngine::Layer
 {
 public:
 
-	TestLayer() : Layer("Test")
+	UILayer() : Layer("Test")
 	{
 	
 	}
 
 	void OnUpdate() override
 	{
-		//LINA_CLIENT_INFO("TestLayer Update");
+		LINA_CLIENT_INFO("TestLayer Update");
 	}
 
 	void OnEvent(LinaEngine::Event& e) override
 	{
-		//LINA_CLIENT_TRACE("{0}", e);
 
-		
 	}
 };
 
@@ -48,8 +46,8 @@ public:
 	EditorApplication() { 
 		//LINA_CLIENT_TRACE("[Constructor] -> Sandbox ({0})", typeid(*this).name());
 	
-		//LinaEngine::Layer* l = new TestLayer();
-		//PushLayer(l);
+		LinaEngine::Layer* l = new UILayer();
+		PushLayer(l);
 		//PushOverlay(new LinaEngine::Layer_IMGUI());
 		
 		//LoadLevel(&level);
