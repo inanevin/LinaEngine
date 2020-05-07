@@ -51,11 +51,11 @@ namespace LinaEngine::World
 		}
 		else if (type == SkyboxType::Procedural)
 		{
-			m_m_RenderEngine->CreateMaterial("skyboxMaterial", LinaEngine::Graphics::LinaEngine::Graphics::ShaderConstants::skyboxProceduralShader);
-			m_m_RenderEngine->GetMaterial("skyboxMaterial").SetColor("material.startColor", Colors::LightBlue);
-			m_m_RenderEngine->GetMaterial("skyboxMaterial").SetColor("material.endColor", Colors::DarkBlue);
-			m_m_RenderEngine->GetMaterial("skyboxMaterial").SetVector3("material.sunDirection", Vector3F(0.0f, -1.0f, 0.0f));
-			m_m_RenderEngine->SetSkyboxMaterial(m_m_RenderEngine->GetMaterial("skyboxMaterial"));
+			m_RenderEngine->CreateMaterial("skyboxMaterial", LinaEngine::Graphics::ShaderConstants::skyboxProceduralShader);
+			m_RenderEngine->GetMaterial("skyboxMaterial").SetColor("material.startColor", Colors::LightBlue);
+			m_RenderEngine->GetMaterial("skyboxMaterial").SetColor("material.endColor", Colors::DarkBlue);
+			m_RenderEngine->GetMaterial("skyboxMaterial").SetVector3("material.sunDirection", Vector3F(0.0f, -1.0f, 0.0f));
+			m_RenderEngine->SetSkyboxMaterial(m_RenderEngine->GetMaterial("skyboxMaterial"));
 		}
 		else if (type == SkyboxType::Cubemap)
 		{
@@ -70,9 +70,9 @@ namespace LinaEngine::World
 				"resources/textures/defaultSkybox/front.png",
 				"resources/textures/defaultSkybox/back.png",
 			};
-			SamplerData data = SamplerData();
-			data.minFilter = FILTER_NEAREST;
-			m_RenderEngine->CreateTexture("skyboxTexture", fp, PixelFormat::FORMAT_RGB, true, false, data);
+			LinaEngine::Graphics::SamplerData data = LinaEngine::Graphics::SamplerData();
+			data.minFilter = LinaEngine::Graphics::FILTER_NEAREST;
+			m_RenderEngine->CreateTexture("skyboxTexture", fp, LinaEngine::Graphics::PixelFormat::FORMAT_RGB, true, false, data);
 			m_RenderEngine->GetMaterial("skyboxMaterial").SetTexture("material.diffuse", &m_RenderEngine->GetTexture("skyboxTexture"), 0, BindTextureMode::BINDTEXTURE_CUBEMAP);
 			m_RenderEngine->SetSkyboxMaterial(m_RenderEngine->GetMaterial("skyboxMaterial"));
 		}
