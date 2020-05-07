@@ -760,23 +760,23 @@ namespace LinaEngine::Graphics
 
 
 
-		UpdateShaderUniformColor(4, "directionalLight.color", Color(0.0f, 0.0f, 0.0f));
-		UpdateShaderUniformVector3F(4, "directionalLight.direction", Vector3F(0.0f, 0.0f, 1.0f));
-	
-		UpdateShaderUniformVector3F(4, "pointLights[0].position", Vector3F(0.0f, 0.0f, 5.0f));
-		UpdateShaderUniformVector3F(4, "pointLights[0].color", Vector3F(1.0f, 0.0f, 1.0f));
-		UpdateShaderUniformFloat(4, "pointLights[0].constant", 1.0f);
-		UpdateShaderUniformFloat(4, "pointLights[0].linear", 0.09f);
-		UpdateShaderUniformFloat(4, "pointLights[0].quadratic", 0.032f);
-	
-		UpdateShaderUniformVector3F(4, "spotLight.position", Vector3F(0.0f, 0.0f, 10.0f));
-		UpdateShaderUniformVector3F(4, "spotLight.direction", Vector3F(1.0f, 1.0f, 1.0f));
-		UpdateShaderUniformVector3F(4, "spotLight.color", Vector3F(0.0f, 1.0f, 0.0f));
-		UpdateShaderUniformFloat(4, "spotLight.constant", 1.0f);
-		UpdateShaderUniformFloat(4, "spotLight.linear", 0.09f);
-		UpdateShaderUniformFloat(4, "spotLight.quadratic", 0.032f);
-		UpdateShaderUniformFloat(4, "spotLight.cutOff", Math::Cos(Math::ToRadians(12.5f)));
-		UpdateShaderUniformFloat(4, "spotLight.outerCutOff", Math::Cos(Math::ToRadians(17.5f)));
+		//UpdateShaderUniformColor(4, "directionalLight.color", Color(0.0f, 0.0f, 0.0f));
+		//UpdateShaderUniformVector3F(4, "directionalLight.direction", Vector3F(0.0f, 0.0f, 1.0f));
+		//
+		//UpdateShaderUniformVector3F(4, "pointLights[0].position", Vector3F(0.0f, 0.0f, 5.0f));
+		//UpdateShaderUniformVector3F(4, "pointLights[0].color", Vector3F(1.0f, 0.0f, 1.0f));
+		//UpdateShaderUniformFloat(4, "pointLights[0].constant", 1.0f);
+		//UpdateShaderUniformFloat(4, "pointLights[0].linear", 0.09f);
+		//UpdateShaderUniformFloat(4, "pointLights[0].quadratic", 0.032f);
+		//
+		//UpdateShaderUniformVector3F(4, "spotLight.position", Vector3F(0.0f, 0.0f, 10.0f));
+		//UpdateShaderUniformVector3F(4, "spotLight.direction", Vector3F(1.0f, 1.0f, 1.0f));
+		//UpdateShaderUniformVector3F(4, "spotLight.color", Vector3F(0.0f, 1.0f, 0.0f));
+		//UpdateShaderUniformFloat(4, "spotLight.constant", 1.0f);
+		//UpdateShaderUniformFloat(4, "spotLight.linear", 0.09f);
+		//UpdateShaderUniformFloat(4, "spotLight.quadratic", 0.032f);
+		//UpdateShaderUniformFloat(4, "spotLight.cutOff", Math::Cos(Math::ToRadians(12.5f)));
+		//UpdateShaderUniformFloat(4, "spotLight.outerCutOff", Math::Cos(Math::ToRadians(17.5f)));
 
 
 		// use array buffer & attributes.
