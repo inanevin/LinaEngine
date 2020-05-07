@@ -51,7 +51,7 @@ namespace LinaEngine::Graphics
 		};
 
 		// Initializes the window.
-		FORCEINLINE bool Initialize(LinaEngine::Input::InputEngine& inputEngineIn) { return m_Derived.Initialize(inputEngineIn, m_Properties); }
+		FORCEINLINE bool Initialize(LinaEngine::Input::InputEngine& inputEngineIn, void* shared) { return m_Derived.Initialize(inputEngineIn, m_Properties, shared); }
 
 		// Enables/disables vsync.
 		FORCEINLINE void SetVsync(bool enabled) { m_Properties.vSyncEnabled = enabled; m_Derived.SetVsync(enabled); }

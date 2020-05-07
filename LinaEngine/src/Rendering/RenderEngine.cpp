@@ -29,7 +29,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "Utility/Math/Color.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "PackageManager/PAMInputDevice.hpp"
-
+#include "Core/Layer.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -134,6 +134,11 @@ namespace LinaEngine::Graphics
 
 		// Draw skybox.
 		DrawSkybox();
+
+
+		// Draw GUI Layers
+		for (Layer* layer : m_GUILayerStack)
+			layer->OnUpdate();
 
 		// Update window.
 		m_MainWindow.Tick();
@@ -549,5 +554,15 @@ namespace LinaEngine::Graphics
 			LINA_CORE_ERR("Material with the name {0} does not exists! Aborting...", materialName);
 	}
 
+	void RenderEngine::PushLayer(Layer* layer)
+	{
+		m_GUILayerStack.PushLayer(layer);
+		layer->OnAttach();
+	}
+	void RenderEngine::PushOverlay(Layer* layer)
+	{
+		m_GUILayerStack.PushOverlay(layer);
+		layer->OnAttach();
+	}
 
 }

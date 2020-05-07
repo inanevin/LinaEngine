@@ -72,7 +72,7 @@ namespace LinaEngine
 
 	private:
 
-		// Layer queue.
+		// Default layer queue.
 		LayerStack m_LayerStack;
 
 		// Active engines running in the application.

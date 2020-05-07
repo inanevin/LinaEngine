@@ -31,17 +31,16 @@ namespace LinaEditor
 			LINA_CLIENT_TRACE("[Constructor] -> Editor Application ({0})", typeid(*this).name());
 
 			// Create layer
-			//GUILayer* layer = new LinaEditor::GUILayer();
+			GUILayer* layer = new LinaEditor::GUILayer();
 
 			// Setup layer
-			//layer->SetRenderEngine(GetRenderEngine());
+			layer->SetRenderEngine(GetRenderEngine());
 
 			// Load startup level.
 			LoadLevel(&m_StartupLevel);
 			
 			// Push layer into the engine. ** WHILE LOOP INSIDE ** 
-			//PushLayer(layer);
-
+			GetRenderEngine().PushLayer(layer);
 
 			//PushOverlay(new LinaEngine::Layer_IMGUI());
 

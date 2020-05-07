@@ -33,6 +33,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "Window.hpp"
 #include "RenderContext.hpp"
 #include "Utility/Math/Color.hpp"
+#include "Core/LayerStack.hpp"
 #include <functional>
 
 namespace LinaEngine
@@ -58,9 +59,9 @@ namespace LinaEngine::Graphics
 
 
 		// Creates an GLFW window.
-		FORCEINLINE bool CreateContextWindow(LinaEngine::Input::InputEngine& inputEngineIn)
+		FORCEINLINE bool CreateContextWindow(LinaEngine::Input::InputEngine& inputEngineIn, void* sharedWindow)
 		{
-			return m_MainWindow.Initialize(inputEngineIn);
+			return m_MainWindow.Initialize(inputEngineIn, sharedWindow);
 		}
 
 		// Returns GLFW window instance.
@@ -168,6 +169,11 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void SetSkyboxMaterial(Material & skyboxMaterial) { m_SkyboxMaterial = &skyboxMaterial; }
 		void SetSkyboxMaterial(const std::string & materialName);
 
+		// Pushes a new layer into the gui stack.
+		void PushLayer(Layer* layer);
+
+		// Pushes a new overlay layer into the gui stack.
+		void PushOverlay(Layer* layer);
 
 	private:
 
@@ -246,6 +252,9 @@ namespace LinaEngine::Graphics
 		Material m_DummyMaterial;
 		Mesh m_DummyMesh;
 		Texture m_DummyTexture;
+
+		// GUI layer queue.
+		LayerStack m_GUILayerStack;
 
 	private:
 
