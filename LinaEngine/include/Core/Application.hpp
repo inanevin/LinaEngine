@@ -42,23 +42,25 @@ namespace LinaEngine
 	{
 	public:
 
-		 virtual ~Application();
+		virtual ~Application();
 
 		// Main application loop.
-		 void Run();
+		void Run();
 
 		// Pushes a new layer into the application stack.
-		 void PushLayer(Layer* layer);
+		void PushLayer(Layer* layer);
 
 		// Pushes a new overlay layer into the application stack.
-		 void PushOverlay(Layer* layer);
+		void PushOverlay(Layer* layer);
 
 		// Loads a level into memory.
-		 void LoadLevel(LinaEngine::World::Level* level);
+		void LoadLevel(LinaEngine::World::Level* level);
 
 	protected:
 
-		 Application();
+		Application();
+
+		FORCEINLINE LinaEngine::Graphics::RenderEngine& GetRenderEngine() { return m_RenderEngine; }
 
 	private:
 
@@ -93,7 +95,7 @@ namespace LinaEngine
 	// Defined in client.
 	Application* CreateApplication();
 
-	
+
 }
 
 

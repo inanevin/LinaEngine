@@ -17,6 +17,7 @@ Class: UILayer
 */
 
 #include "Core/Layer.hpp"
+#include "Rendering/RenderEngine.hpp"
 
 namespace LinaEditor
 {
@@ -30,8 +31,17 @@ namespace LinaEditor
 
 		}
 
+		// OVERRIDES
+		void OnAttach() override;
+		void OnDetach() override;
 		void OnUpdate() override;
 		void OnEvent(LinaEngine::Event& e) override;
 	
+		// CLASS METHODS
+		FORCEINLINE void SetRenderEngine(LinaEngine::Graphics::RenderEngine& engine) { m_RenderEngine = &engine; }
+
+	private:
+
+		LinaEngine::Graphics::RenderEngine* m_RenderEngine;
 	};
 }

@@ -28,7 +28,7 @@ namespace LinaEngine
 
 	Layer::~Layer()
 	{
-		
+		LINA_CORE_TRACE("[Destructor] -> Layer ({0})", typeid(*this).name());
 	}
 }
 

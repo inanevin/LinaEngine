@@ -22,6 +22,8 @@ project(LinaEditor)
 set(LINAEDITOR_SOURCES 
 src/Core/EditorApplication.cpp
 src/Core/GUILayer.cpp
+src/Core/imgui/imgui_impl_opengl3.cpp
+src/Core/imgui/imgui_impl_glfw.cpp
 )
 
 set(LINAEDITOR_HEADERS
@@ -38,7 +40,7 @@ add_executable(${PROJECT_NAME} ${LINAEDITOR_SOURCES} ${LINAEDITOR_HEADERS})
 # Options & Definitions
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/imgui/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/vendor/imgui/include)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
@@ -51,8 +53,11 @@ endif()
 #--------------------------------------------------------------------
 # Links
 #--------------------------------------------------------------------
-target_link_libraries(${PROJECT_NAME} Lina::Engine)
 
+target_link_libraries(${PROJECT_NAME} 
+PUBLIC Lina::Engine
+PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui/lib/$<CONFIGURATION>/IMGUI.lib
+)
 
 
 #--------------------------------------------------------------------

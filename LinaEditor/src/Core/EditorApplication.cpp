@@ -27,16 +27,22 @@ namespace LinaEditor
 	{
 	public:
 		EditorApplication() {
-			//LINA_CLIENT_TRACE("[Constructor] -> Sandbox ({0})", typeid(*this).name());
+			LINA_CLIENT_TRACE("[Constructor] -> Editor Application ({0})", typeid(*this).name());
 
-			LinaEngine::Layer* l = new LinaEditor::GUILayer();
-			PushLayer(l);
+			// Create layer
+			GUILayer* layer = new LinaEditor::GUILayer();
+
+			// Setup layer
+			layer->SetRenderEngine(GetRenderEngine());
+
+			// Push layer into the engine.
+			PushLayer(layer);
+
 			//PushOverlay(new LinaEngine::Layer_IMGUI());
 
-			//LoadLevel(&level);
 		}
 		~EditorApplication() {
-			//LINA_CLIENT_TRACE("[Destructor] -> Sanbox ({0})", typeid(*this).name());
+			LINA_CLIENT_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
 		}
 
 
