@@ -16,22 +16,19 @@ Class: UILayer
 
 */
 
-#include "Core/Layer.hpp"
+#include "Core/GUILayer.hpp"
+#include "Utility/Log.hpp"
 
 namespace LinaEditor
 {
-	class UILayer : public LinaEngine::Layer
+	void GUILayer::OnUpdate()
+	{
+		LINA_CLIENT_INFO("TestLayer Update");
+	}
+
+	void GUILayer::OnEvent(LinaEngine::Event& e)
 	{
 
-	public:
+	}
 
-		UILayer() : LinaEngine::Layer("UILayer")
-		{
-
-		}
-
-		void OnUpdate() override;
-		void OnEvent(LinaEngine::Event& e) override;
-	
-	};
 }

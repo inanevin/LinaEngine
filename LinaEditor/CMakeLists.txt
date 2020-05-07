@@ -21,13 +21,12 @@ project(LinaEditor)
 
 set(LINAEDITOR_SOURCES 
 src/Core/EditorApplication.cpp
-src/Core/UILayer.cpp
+src/Core/GUILayer.cpp
 )
 
 set(LINAEDITOR_HEADERS
 
-include/Core/UILayer.hpp
-
+include/Core/GUILayer.hpp
 )
 
 #--------------------------------------------------------------------
@@ -39,6 +38,7 @@ add_executable(${PROJECT_NAME} ${LINAEDITOR_SOURCES} ${LINAEDITOR_HEADERS})
 # Options & Definitions
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/imgui/include)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 

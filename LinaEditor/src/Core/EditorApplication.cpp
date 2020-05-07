@@ -18,7 +18,7 @@ Timestamp: 12/29/2018 11:15:41 PM
 */
 
 #include <Lina.hpp>
-#include "Core/UILayer.hpp"
+#include "Core/GUILayer.hpp"
 
 
 namespace LinaEditor
@@ -29,7 +29,7 @@ namespace LinaEditor
 		EditorApplication() {
 			//LINA_CLIENT_TRACE("[Constructor] -> Sandbox ({0})", typeid(*this).name());
 
-			LinaEngine::Layer* l = new LinaEditor::UILayer();
+			LinaEngine::Layer* l = new LinaEditor::GUILayer();
 			PushLayer(l);
 			//PushOverlay(new LinaEngine::Layer_IMGUI());
 
