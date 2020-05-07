@@ -58,7 +58,7 @@ namespace LinaEngine::World
 
 		virtual void OnLevelLoaded() {};
 		virtual void OnLevelRemoved() {};
-		virtual void Install() {};
+		virtual void Install();
 		virtual void Initialize() {};
 		virtual void Tick(float delta) {};
 
@@ -68,10 +68,13 @@ namespace LinaEngine::World
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
 		LinaEngine::Input::InputEngine* m_InputEngine = nullptr;
 
+		enum SkyboxType {SingleColor, Gradient, Procedural, Cubemap };
 
 	private:
 
 		friend class LinaEngine::Application;
+
+		void LoadSkybox(SkyboxType type);
 
 		void SetEngineReferences(LinaEngine::ECS::EntityComponentSystem& ecsIn, LinaEngine::Graphics::RenderEngine& renderEngineIn, LinaEngine::Input::InputEngine& inputEngineIn)
 		{

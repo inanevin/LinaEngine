@@ -19,24 +19,29 @@ Timestamp: 12/29/2018 11:15:41 PM
 
 #include <Lina.hpp>
 #include "Core/GUILayer.hpp"
-
+#include "World/Level.hpp"
 
 namespace LinaEditor
 {
 	class EditorApplication : public LinaEngine::Application
 	{
 	public:
+
 		EditorApplication() {
 			LINA_CLIENT_TRACE("[Constructor] -> Editor Application ({0})", typeid(*this).name());
 
 			// Create layer
-			GUILayer* layer = new LinaEditor::GUILayer();
+			//GUILayer* layer = new LinaEditor::GUILayer();
 
 			// Setup layer
-			layer->SetRenderEngine(GetRenderEngine());
+			//layer->SetRenderEngine(GetRenderEngine());
 
-			// Push layer into the engine.
-			PushLayer(layer);
+			// Load startup level.
+			LoadLevel(&m_StartupLevel);
+			
+			// Push layer into the engine. ** WHILE LOOP INSIDE ** 
+			//PushLayer(layer);
+
 
 			//PushOverlay(new LinaEngine::Layer_IMGUI());
 
@@ -45,7 +50,10 @@ namespace LinaEditor
 			LINA_CLIENT_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
 		}
 
+	private:
 
+		// Startup level.
+		LinaEngine::World::Level m_StartupLevel;
 
 	};
 

@@ -42,6 +42,10 @@ namespace LinaEditor
 
 	private:
 
+		void DrawEntitiesWindow();
+
+	private:
+
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine;
 	};
 }
