@@ -97,6 +97,10 @@ namespace LinaEngine
 			ar& restoredData;
 
 			// Set information.
+			m[0] = restoredData.m[0];
+			m[1] = restoredData.m[1];
+			m[2] = restoredData.m[2];
+			m[3] = restoredData.m[3];
 		}
 
 	private:
