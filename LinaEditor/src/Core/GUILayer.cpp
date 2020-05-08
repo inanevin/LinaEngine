@@ -153,17 +153,22 @@ namespace LinaEditor
 			// Single color skybox
 			Graphics::Material& skyboxMaterial = m_RenderEngine->GetMaterial(Graphics::MaterialConstants::skyboxMaterialName);
 
+			Color& skyboxColor = skyboxMaterial.GetColor(Graphics::MaterialConstants::colorProperty);
+			static ImVec4 color = ImVec4(skyboxColor.R(), skyboxColor.G(), skyboxColor.B(), skyboxColor.A());
+
 			// Update skybox shader if changed.
 			if (previousCurrentItemID != 0)
 			{
 				previousCurrentItemID = 0;;
 				m_RenderEngine->SetMaterialShader(skyboxMaterial, Graphics::ShaderConstants::skyboxSingleColorShader);
+				skyboxMaterial.SetColor(Graphics::MaterialConstants::colorProperty, Color(color.x, color.y, color.z, color.w));
 			}
 
 			// Show color picker.
 			ImGui::Text("Color"); 
 			ImGui::SameLine();
-			static ImVec4 color = ImVec4(255,255,255,255);
+			
+
 			bool isEditing = ImGui::ColorEdit4("Color##3", (float*)& color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 		
 			if (isEditing)
