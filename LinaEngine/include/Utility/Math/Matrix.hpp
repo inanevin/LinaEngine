@@ -83,6 +83,7 @@ namespace LinaEngine
 
 		virtual void WriteObject(std::string& path) override
 		{
+			// Write object.
 			std::ofstream ofs(path);
 			boost::archive::text_oarchive ar(ofs);
 			ar& this;
@@ -90,9 +91,9 @@ namespace LinaEngine
 
 		virtual void ReadObject(std::string& path) override
 		{
+			// Get object.
 			std::ifstream ifs(path);
 			boost::archive::text_iarchive ar(ifs);
-
 			Matrix restoredData;
 			ar& restoredData;
 

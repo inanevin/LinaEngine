@@ -44,6 +44,14 @@ namespace LinaEngine
 		FORCEINLINE float B() const { return b; }
 		FORCEINLINE float A() const { return a; }
 
+		// Serialize the members.
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar& r& g& b& a;
+		}
+
+
 		virtual void WriteObject(std::string& path) override
 		{
 			std::ofstream ofs(path);
@@ -69,15 +77,7 @@ namespace LinaEngine
 	private:
 
 		// Allow serialization to access non-public data members.
-		friend class boost::serialization::access;
-
-		// Serialize the members.
-		template<class Archive>
-		void serialize(Archive& ar, const unsigned int version)
-		{
-			ar& r& g& b& a;
-		}
-
+		friend class boost::serialization::access;	
 
 		float r, g, b, a = 1.0f;
 	};

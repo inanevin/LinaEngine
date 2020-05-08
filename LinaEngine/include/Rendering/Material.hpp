@@ -134,6 +134,7 @@ namespace LinaEngine::Graphics
 
 		virtual void WriteObject(std::string& path) override
 		{
+			// Write object.
 			std::ofstream ofs(path);
 			boost::archive::text_oarchive ar(ofs);
 			ar& this;
@@ -141,9 +142,9 @@ namespace LinaEngine::Graphics
 
 		virtual void ReadObject(std::string& path) override
 		{
+			// Get Object.
 			std::ifstream ifs(path);
 			boost::archive::text_iarchive ar(ifs);
-
 			Material restoredMaterial;
 			ar& restoredMaterial;
 
@@ -151,9 +152,9 @@ namespace LinaEngine::Graphics
 		}
 
 	private:
+
 		// Allow serialization to access non-public data members.
 		friend class boost::serialization::access;
-
 		friend class RenderEngine;
 		friend class RenderContext;
 
@@ -173,7 +174,8 @@ namespace LinaEngine::Graphics
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
-			ar& textures& floats& ints& samplers& colors& vector2s& vector3s& vector4s& matrices;
+			ar& floats& ints& samplers& colors& vector2s& vector3s& vector4s& matrices;
+			// DOESNT SERIALIZE TEXTURES YET
 		}
 
 	
