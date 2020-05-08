@@ -13,42 +13,26 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: ISerializable
-Timestamp: 5/8/2020 5:50:14 PM
+Class: EditorCommon
+Timestamp: 5/8/2020 11:04:45 PM
 
 */
 #pragma once
 
-#ifndef ISerializable_HPP
-#define ISerializable_HPP
+#ifndef EditorCommon_HPP
+#define EditorCommon_HPP
+
+#include <string>
 
 // Headers here.
-#include <string>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <iostream>
-#include <fstream>;
 
 
-#endif
-
-namespace LinaEngine
+namespace LinaEditor
 {
-	class ISerializable
+	struct ProjectPathConstants
 	{
-		
-	public:
-		
-		ISerializable() {};
-		~ISerializable() {};
-	
-		virtual void WriteObject(char* path) = 0;
-		virtual void ReadObject(char* path) = 0;
-
-
-	private:
-	
+		static std::string& contentsPath;
 	};
 }
+
+#endif

@@ -22,6 +22,7 @@ project(LinaEditor)
 set(LINAEDITOR_SOURCES 
 src/Core/EditorApplication.cpp
 src/Core/GUILayer.cpp
+src/Core/EditorCommon.cpp
 src/Core/imgui/imgui_impl_opengl3.cpp
 src/Core/imgui/imgui_impl_glfw.cpp
 )
@@ -29,6 +30,8 @@ src/Core/imgui/imgui_impl_glfw.cpp
 set(LINAEDITOR_HEADERS
 
 include/Core/GUILayer.hpp
+include/Core/EditorCommon.hpp
+CMakeLists.txt
 )
 
 #--------------------------------------------------------------------

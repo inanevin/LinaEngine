@@ -49,6 +49,7 @@ namespace LinaEditor
 
 		void DrawEntitiesWindow();
 		void DrawSkyboxSettingsWindow();
+		void DrawProjectContentsWindow();
 
 	private:
 

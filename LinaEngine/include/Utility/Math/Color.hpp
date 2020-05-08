@@ -52,14 +52,14 @@ namespace LinaEngine
 		}
 
 
-		virtual void WriteObject(std::string& path) override
+		virtual void WriteObject(char* path) override
 		{
 			std::ofstream ofs(path);
 			boost::archive::text_oarchive ar(ofs);
 			ar& this;
 		}
 
-		virtual void ReadObject(std::string& path) override
+		virtual void ReadObject(char* path) override
 		{
 			std::ifstream ifs(path);
 			boost::archive::text_iarchive ar(ifs);

@@ -81,7 +81,7 @@ namespace LinaEngine
 			return m[index];
 		}
 
-		virtual void WriteObject(std::string& path) override
+		virtual void WriteObject(char* path) override
 		{
 			// Write object.
 			std::ofstream ofs(path);
@@ -89,7 +89,7 @@ namespace LinaEngine
 			ar& this;
 		}
 
-		virtual void ReadObject(std::string& path) override
+		virtual void ReadObject(char* path) override
 		{
 			// Get object.
 			std::ifstream ifs(path);

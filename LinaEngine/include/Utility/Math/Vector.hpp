@@ -286,7 +286,7 @@ namespace LinaEngine
 			ar& x& y& z& w;
 		}
 
-		virtual void WriteObject(std::string& path) override
+		virtual void WriteObject(char* path) override
 		{
 			// Write object.
 			std::ofstream ofs(path);
@@ -294,7 +294,7 @@ namespace LinaEngine
 			ar& this;
 		}
 
-		virtual void ReadObject(std::string& path) override
+		virtual void ReadObject(char* path) override
 		{
 			// Get Object
 			std::ifstream ifs(path);
@@ -520,7 +520,7 @@ namespace LinaEngine
 			ar& vec;
 		}
 
-		virtual void WriteObject(std::string& path) override
+		virtual void WriteObject(char* path) override
 		{
 			// Write object.
 			std::ofstream ofs(path);
@@ -528,7 +528,7 @@ namespace LinaEngine
 			ar& this;
 		}
 
-		virtual void ReadObject(std::string& path) override
+		virtual void ReadObject(char* path) override
 		{
 			// Get Object
 			std::ifstream ifs(path);
@@ -761,7 +761,7 @@ namespace LinaEngine
 				ar& vals;
 			}
 
-			virtual void WriteObject(std::string& path) override
+			virtual void WriteObject(char* path) override
 			{
 				// Write object.
 				std::ofstream ofs(path);
@@ -769,7 +769,7 @@ namespace LinaEngine
 				ar& this;
 			}
 
-			virtual void ReadObject(std::string& path) override
+			virtual void ReadObject(char* path) override
 			{
 				// Get Object
 				std::ifstream ifs(path);
