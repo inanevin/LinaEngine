@@ -24,9 +24,13 @@ Timestamp: 5/8/2020 5:50:14 PM
 
 // Headers here.
 #include <string>
+#include <boost/serialization/map.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+#include <iostream>
+#include <fstream>;
+
 
 #endif
 
@@ -40,7 +44,8 @@ namespace LinaEngine
 		ISerializable() {};
 		~ISerializable() {};
 	
-	protected:
+		virtual void WriteObject(std::string& path) = 0;
+		virtual void ReadObject(std::string& path) = 0;
 
 
 	private:

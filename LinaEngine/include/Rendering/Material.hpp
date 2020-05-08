@@ -39,7 +39,7 @@ namespace LinaEngine::Graphics
 		BindTextureMode bindMode = BindTextureMode::BINDTEXTURE_TEXTURE2D;
 	};
 
-	class Material
+	class Material : public ISerializable
 	{
 
 	public:
@@ -130,8 +130,29 @@ namespace LinaEngine::Graphics
 
 		FORCEINLINE uint32 GetShaderID() { return shaderID; }
 
-	private:
+	protected:
 
+		virtual void WriteObject(std::string& path) override
+		{
+			std::ofstream ofs(path);
+			boost::archive::text_oarchive ar(ofs);
+			ar& this;
+		}
+
+		virtual void ReadObject(std::string& path) override
+		{
+			std::ifstream ifs(path);
+			boost::archive::text_iarchive ar(ifs);
+
+			Material restoredMaterial;
+			ar& restoredMaterial;
+
+			// Set information.
+		}
+
+	private:
+		// Allow serialization to access non-public data members.
+		friend class boost::serialization::access;
 
 		friend class RenderEngine;
 		friend class RenderContext;
@@ -155,7 +176,7 @@ namespace LinaEngine::Graphics
 			ar& textures& floats& ints& samplers& colors& vector2s& vector3s& vector4s& matrices;
 		}
 
-
+	
 	};
 
 	struct ModelMaterial

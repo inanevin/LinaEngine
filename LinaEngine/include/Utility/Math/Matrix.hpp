@@ -27,10 +27,11 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Vector.hpp"
 #include "Plane.hpp"
 #include "Quaternion.hpp"
+#include "Interfaces/ISerializable.hpp"
 
 namespace LinaEngine
 {
-	class Matrix
+	class Matrix : public ISerializable
 	{
 	public:
 		FORCEINLINE Matrix();
@@ -79,8 +80,39 @@ namespace LinaEngine
 			LINA_CORE_ASSERT(index < 4);
 			return m[index];
 		}
+
+		virtual void WriteObject(std::string& path) override
+		{
+			std::ofstream ofs(path);
+			boost::archive::text_oarchive ar(ofs);
+			ar& this;
+		}
+
+		virtual void ReadObject(std::string& path) override
+		{
+			std::ifstream ifs(path);
+			boost::archive::text_iarchive ar(ifs);
+
+			Matrix restoredData;
+			ar& restoredData;
+
+			// Set information.
+		}
+
 	private:
+
+		// Allow serialization to access non-public data members.
+		friend class boost::serialization::access;
+
+		// Serialize the members.
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar& m;
+		}
+
 		Vector m[4] = { VectorConstants::ZERO };
+
 	};
 
 	FORCEINLINE Matrix Matrix::identity()
