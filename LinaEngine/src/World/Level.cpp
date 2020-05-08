@@ -21,7 +21,7 @@ Timestamp: 1/2/2019 1:43:13 AM
 #include "World/Level.hpp"  
 #include "Utility/Log.hpp"
 #include "Rendering/RenderEngine.hpp"
-#include  "Rendering/RenderConstants.hpp"
+
 
 using namespace LinaEngine::Graphics;
 
@@ -32,61 +32,94 @@ namespace LinaEngine::World
 		LINA_CORE_TRACE("[Constructor] -> Level Installed ({0})", typeid(*this).name());
 		
 		// Create & setup level skybox.
-		LoadSkybox(SkyboxType::Gradient);
+		CreateAndUpdateSkybox(m_SkyboxProperties, true);
 	}
 
 	void Level::UpdateSkybox(SkyboxProperties newProperties)
 	{
+		Material& skyboxMaterial = m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName);
+		m_RenderEngine->SetMaterialShader(skyboxMaterial, newProperties.shaderID);
 
 	}
 
-	void Level::LoadSkybox(SkyboxType type)
+	void Level::CreateAndUpdateSkybox(SkyboxProperties properties, bool createMaterialFirst)
 	{
-		if (type == SkyboxType::SingleColor)
+		if (properties.type == SkyboxType::SingleColor)
 		{
-			// Create & set material.
-			m_RenderEngine->CreateMaterial(MaterialConstants::skyboxMaterialName, ShaderConstants::skyboxSingleColorShader);
-			m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName).SetColor(MaterialConstants::colorProperty, Colors::Black);
-			m_RenderEngine->SetSkyboxMaterial(m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName));
+			if (createMaterialFirst)
+			{
+				// Create material.
+				m_RenderEngine->CreateMaterial(MaterialConstants::skyboxMaterialName, ShaderConstants::skyboxSingleColorShader);
+			}
+
+			// Store material reference.
+			Material& skyboxMaterial = m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName);
+
+			// Set properties.
+			skyboxMaterial.SetColor(MaterialConstants::colorProperty, properties.color1);
+			m_RenderEngine->SetSkyboxMaterial(skyboxMaterial);
 
 			// Set level properties.
 			m_SkyboxProperties.type == SkyboxType::SingleColor;
 			m_SkyboxProperties.shaderID = ShaderConstants::skyboxSingleColorShader;
 			m_SkyboxProperties.color1 = Colors::Black;
 		}
-		else if (type == SkyboxType::Gradient)
+		else if (properties.type == SkyboxType::Gradient)
 		{
-			// Create & set material.
-			m_RenderEngine->CreateMaterial(MaterialConstants::skyboxMaterialName, ShaderConstants::skyboxGradientShader);
-			m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName).SetColor(MaterialConstants::startColorProperty, Colors::White);
-			m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName).SetColor(MaterialConstants::endColorProperty, Colors::Black);
-			m_RenderEngine->SetSkyboxMaterial(m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName));
+			if (createMaterialFirst)
+			{
+				// Create material.
+				m_RenderEngine->CreateMaterial(MaterialConstants::skyboxMaterialName, ShaderConstants::skyboxGradientShader);
+			}		
+
+			// Store material reference.
+			Material& skyboxMaterial = m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName);
+
+			// Set properties.
+			skyboxMaterial.SetColor(MaterialConstants::startColorProperty, properties.color1);
+			skyboxMaterial.SetColor(MaterialConstants::endColorProperty, properties.color2);
+			m_RenderEngine->SetSkyboxMaterial(skyboxMaterial);
 
 			// Set level properties.
 			m_SkyboxProperties.type == SkyboxType::SingleColor;
 			m_SkyboxProperties.shaderID = ShaderConstants::skyboxGradientShader;
-			m_SkyboxProperties.color1 = Colors::White;
-			m_SkyboxProperties.color2 = Colors::Black;
+			m_SkyboxProperties.color1 = Colors::Black;
+			m_SkyboxProperties.color2 = Colors::White;
 		}
-		else if (type == SkyboxType::Procedural)
+		else if (properties.type == SkyboxType::Procedural)
 		{
-			// Create & set material.
-			m_RenderEngine->CreateMaterial(MaterialConstants::skyboxMaterialName, ShaderConstants::skyboxProceduralShader);
-			m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName).SetColor(MaterialConstants::startColorProperty, Colors::White);
-			m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName).SetColor(MaterialConstants::endColorProperty, Colors::Black);
-			m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName).SetVector3(MaterialConstants::sunDirectionProperty, Vector3F(0.0f, -1.0f, 0.0f));
-			m_RenderEngine->SetSkyboxMaterial(m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName));
+			if (createMaterialFirst)
+			{
+				// Create material.
+				m_RenderEngine->CreateMaterial(MaterialConstants::skyboxMaterialName, ShaderConstants::skyboxProceduralShader);
+			}
+
+			// Store material reference.
+			Material& skyboxMaterial = m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName);
+
+			// Set properties.
+			skyboxMaterial.SetColor(MaterialConstants::startColorProperty, properties.color1);
+			skyboxMaterial.SetColor(MaterialConstants::endColorProperty, properties.color2);
+			skyboxMaterial.SetVector3(MaterialConstants::sunDirectionProperty, Vector3F(0.0f, -1.0f, 0.0f));
+			m_RenderEngine->SetSkyboxMaterial(skyboxMaterial);
 
 			// Set level properties.
 			m_SkyboxProperties.type == SkyboxType::SingleColor;
 			m_SkyboxProperties.shaderID = ShaderConstants::skyboxProceduralShader;
-			m_SkyboxProperties.color1 = Colors::White;
-			m_SkyboxProperties.color2 = Colors::Black;
+			m_SkyboxProperties.color1 = Colors::Black;
+			m_SkyboxProperties.color2 = Colors::White;
 
 		}
-		else if (type == SkyboxType::Cubemap)
+		else if (properties.type == SkyboxType::Cubemap)
 		{
-			m_RenderEngine->CreateMaterial(MaterialConstants::skyboxMaterialName, ShaderConstants::skyboxCubemapShader);
+			if (createMaterialFirst)
+			{
+				// Create material.
+				m_RenderEngine->CreateMaterial(MaterialConstants::skyboxMaterialName, ShaderConstants::skyboxCubemapShader);
+			}
+
+			// Store material reference.
+			Material& skyboxMaterial = m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName);
 
 			const std::string fp[6] = {
 
@@ -98,11 +131,13 @@ namespace LinaEngine::World
 				"resources/textures/defaultSkybox/back.png",
 			};
 
+
+			// Set properties.
 			LinaEngine::Graphics::SamplerData data = LinaEngine::Graphics::SamplerData();
 			data.minFilter = LinaEngine::Graphics::FILTER_NEAREST;
 			m_RenderEngine->CreateTexture("skyboxTexture", fp, LinaEngine::Graphics::PixelFormat::FORMAT_RGB, true, false, data);
-			m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName).SetTexture(MaterialConstants::diffuseTextureProperty, &m_RenderEngine->GetTexture("skyboxTexture"), 0, LinaEngine::Graphics::BindTextureMode::BINDTEXTURE_CUBEMAP);
-			m_RenderEngine->SetSkyboxMaterial(m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName));
+			skyboxMaterial.SetTexture(MaterialConstants::diffuseTextureProperty, &m_RenderEngine->GetTexture("skyboxTexture"), 0, LinaEngine::Graphics::BindTextureMode::BINDTEXTURE_CUBEMAP);
+			m_RenderEngine->SetSkyboxMaterial(skyboxMaterial);
 
 			// Set level properties.
 			m_SkyboxProperties.type == SkyboxType::SingleColor;

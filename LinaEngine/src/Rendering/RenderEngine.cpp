@@ -21,7 +21,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/ModelLoader.hpp"
-#include "Rendering/ShaderConstants.hpp"
+#include "Rendering/RenderConstants.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/ArrayBitmap.hpp"
 #include "ECS/EntityComponentSystem.hpp"

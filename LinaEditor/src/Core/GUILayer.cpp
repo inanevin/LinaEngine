@@ -148,19 +148,19 @@ namespace LinaEditor
 			// Single color skybox
 			ImGui::Text("Color"); 
 			ImGui::SameLine();
-			static ImVec4 color = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+			static ImVec4 color = ImVec4(255,255,255,255);
 			ImGui::ColorEdit4("Color##3", (float*)& color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 		}
 		else if (currentItemID == 1)
 		{
 			ImGui::Text("Start Color");
 			ImGui::SameLine();
-			static ImVec4 colorStart = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+			static ImVec4 colorStart = ImVec4(255, 255, 255, 255);
 			ImGui::ColorEdit4("Color##3", (float*)& colorStart, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 
 			ImGui::Text("End Color");
 			ImGui::SameLine();
-			static ImVec4 colorEnd = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+			static ImVec4 colorEnd = ImVec4(255, 255, 255, 255);
 			ImGui::ColorEdit4("Color##3", (float*)& colorEnd, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 		}
 		else if (currentItemID == 2)
@@ -168,12 +168,12 @@ namespace LinaEditor
 			// Procedural Skybox
 			ImGui::Text("Start Color");
 			ImGui::SameLine();
-			static ImVec4 colorStartP = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+			static ImVec4 colorStartP = ImVec4(255, 255, 255, 255);
 			ImGui::ColorEdit4("Color##3", (float*)& colorStartP, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 
 			ImGui::Text("End Color");
 			ImGui::SameLine();
-			static ImVec4 colorEndP = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+			static ImVec4 colorEndP = ImVec4(255, 255, 255, 255);
 			ImGui::ColorEdit4("Color##3", (float*)& colorEndP, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 		}
 		else if (currentItemID == 3)

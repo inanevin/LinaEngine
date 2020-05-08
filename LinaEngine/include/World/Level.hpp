@@ -23,6 +23,9 @@ Timestamp: 5/6/2019 5:10:23 PM
 #define Level_HPP
 
 #include "Core/Common.hpp"
+#include "Utility/Math/Color.hpp"
+#include  "Rendering/RenderConstants.hpp"
+#include <string>
 
 namespace LinaEngine
 {
@@ -51,10 +54,18 @@ namespace LinaEngine::World
 
 	struct SkyboxProperties
 	{
-		std::string shaderID;
-		SkyboxType type;
+		std::string shaderID = Graphics::ShaderConstants::skyboxSingleColorShader;
+		SkyboxType type = SkyboxType::SingleColor;
 		Color color1;
 		Color color2;
+
+		SkyboxProperties()
+		{		
+			shaderID = "";
+			type = SkyboxType::SingleColor;
+			color1 = Colors::Black;
+			color2 = Colors::White;
+		};
 
 		// Add textures for cubemap later on.
 	};
@@ -87,7 +98,7 @@ namespace LinaEngine::World
 
 		friend class LinaEngine::Application;
 
-		void LoadSkybox(SkyboxType type);
+		void CreateAndUpdateSkybox(SkyboxProperties properties, bool loadMaterialFirst);
 
 		void SetEngineReferences(LinaEngine::ECS::EntityComponentSystem& ecsIn, LinaEngine::Graphics::RenderEngine& renderEngineIn, LinaEngine::Input::InputEngine& inputEngineIn)
 		{
