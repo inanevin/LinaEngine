@@ -153,6 +153,7 @@ namespace LinaEditor
 			// Single color skybox
 			Graphics::Material& skyboxMaterial = m_RenderEngine->GetMaterial(Graphics::MaterialConstants::skyboxMaterialName);
 
+			// Init colors.
 			Color& skyboxColor = skyboxMaterial.GetColor(Graphics::MaterialConstants::colorProperty);
 			static ImVec4 color = ImVec4(skyboxColor.R(), skyboxColor.G(), skyboxColor.B(), skyboxColor.A());
 
@@ -169,58 +170,105 @@ namespace LinaEditor
 			ImGui::SameLine();
 			
 
-			bool isEditing = ImGui::ColorEdit4("Color##3", (float*)& color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+			bool isEditing = ImGui::ColorEdit4("Color##1", (float*)& color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 		
+			// Update if changing the colors.
 			if (isEditing)
-			{
 				skyboxMaterial.SetColor(Graphics::MaterialConstants::colorProperty, Color(color.x, color.y, color.z, color.w));
-			}
 		}
 		else if (currentItemID == 1)
 		{
 			// Gradient color skybox
 			Graphics::Material& skyboxMaterial = m_RenderEngine->GetMaterial(Graphics::MaterialConstants::skyboxMaterialName);
 
+			// Init colors.
+			Color& skyboxStartColor = skyboxMaterial.GetColor(Graphics::MaterialConstants::startColorProperty);
+			Color& skyboxEndColor = skyboxMaterial.GetColor(Graphics::MaterialConstants::endColorProperty);
+			static ImVec4 colorStart = ImVec4(skyboxStartColor.R(), skyboxStartColor.G(), skyboxStartColor.B(), skyboxStartColor.A());
+			static ImVec4 colorEnd = ImVec4(skyboxEndColor.R(), skyboxEndColor.G(), skyboxEndColor.B(), skyboxEndColor.A());
+
 			// Update skybox shader if changed.
 			if (previousCurrentItemID != 1)
 			{
 				previousCurrentItemID = 1;
 				m_RenderEngine->SetMaterialShader(skyboxMaterial, Graphics::ShaderConstants::skyboxGradientShader);
+
+				// Update colors.
+				skyboxStartColor = skyboxMaterial.GetColor(Graphics::MaterialConstants::startColorProperty);
+				skyboxEndColor = skyboxMaterial.GetColor(Graphics::MaterialConstants::endColorProperty);
+				colorStart = ImVec4(skyboxStartColor.R(), skyboxStartColor.G(), skyboxStartColor.B(), skyboxStartColor.A());
+				colorEnd = ImVec4(skyboxEndColor.R(), skyboxEndColor.G(), skyboxEndColor.B(), skyboxEndColor.A());
+
+				// Set Colors.
+				skyboxMaterial.SetColor(Graphics::MaterialConstants::startColorProperty, Color(colorStart.x, colorStart.y, colorStart.z, colorStart.w));
+				skyboxMaterial.SetColor(Graphics::MaterialConstants::endColorProperty, Color(colorEnd.x, colorEnd.y, colorEnd.z, colorEnd.w));
 			}
+
+			ImGui::Text("End Color");
+			ImGui::SameLine();
+			bool isEditingEndColor = ImGui::ColorEdit4("Color##3", (float*)& colorEnd, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+
+			// Update if changing the color.
+			if (isEditingEndColor)
+				skyboxMaterial.SetColor(Graphics::MaterialConstants::endColorProperty, Color(colorEnd.x, colorEnd.y, colorEnd.z, colorEnd.w));
+
 
 			// Show color pickers.
 			ImGui::Text("Start Color");
 			ImGui::SameLine();
-			static ImVec4 colorStart = ImVec4(255, 255, 255, 255);
-			bool isEditingStartColor = ImGui::ColorEdit4("Color##3", (float*)& colorStart, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+			bool isEditingStartColor = ImGui::ColorEdit4("Color##2", (float*)& colorStart, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 
-			ImGui::Text("End Color");
-			ImGui::SameLine();
-			static ImVec4 colorEnd = ImVec4(255, 255, 255, 255);
-			bool isEditingEndColor = ImGui::ColorEdit4("Color##3", (float*)& colorEnd, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+			// Update if changing the color.
+			if (isEditingStartColor)
+				skyboxMaterial.SetColor(Graphics::MaterialConstants::startColorProperty, Color(colorStart.x, colorStart.y, colorStart.z, colorStart.w));
+
 		}
 		else if (currentItemID == 2)
 		{
 			// Procedural Skybox
 			Graphics::Material& skyboxMaterial = m_RenderEngine->GetMaterial(Graphics::MaterialConstants::skyboxMaterialName);
 
+			// Init colors.
+			Color& skyboxStartColor = skyboxMaterial.GetColor(Graphics::MaterialConstants::startColorProperty);
+			Color& skyboxEndColor = skyboxMaterial.GetColor(Graphics::MaterialConstants::endColorProperty);
+			static ImVec4 colorStart = ImVec4(skyboxStartColor.R(), skyboxStartColor.G(), skyboxStartColor.B(), skyboxStartColor.A());
+			static ImVec4 colorEnd = ImVec4(skyboxEndColor.R(), skyboxEndColor.G(), skyboxEndColor.B(), skyboxEndColor.A());
+
+
 			// Update skybox shader if changed.
 			if (previousCurrentItemID != 2)
 			{
 				previousCurrentItemID = 2;
 				m_RenderEngine->SetMaterialShader(skyboxMaterial, Graphics::ShaderConstants::skyboxProceduralShader);
+
+				// Update colors.
+				skyboxStartColor = skyboxMaterial.GetColor(Graphics::MaterialConstants::startColorProperty);
+				skyboxEndColor = skyboxMaterial.GetColor(Graphics::MaterialConstants::endColorProperty);
+				colorStart = ImVec4(skyboxStartColor.R(), skyboxStartColor.G(), skyboxStartColor.B(), skyboxStartColor.A());
+				colorEnd = ImVec4(skyboxEndColor.R(), skyboxEndColor.G(), skyboxEndColor.B(), skyboxEndColor.A());
+
+				// Set colors.
+				skyboxMaterial.SetColor(Graphics::MaterialConstants::startColorProperty, Color(colorStart.x, colorStart.y, colorStart.z, colorStart.w));
+				skyboxMaterial.SetColor(Graphics::MaterialConstants::endColorProperty, Color(colorEnd.x, colorEnd.y, colorEnd.z, colorEnd.w));			
 			}
+
+			
+			ImGui::Text("End Color");
+			ImGui::SameLine();
+			bool isEditingEndColor = ImGui::ColorEdit4("Color##5", (float*)& colorEnd, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+
+			// Update if changing the color.
+			if (isEditingEndColor)
+				skyboxMaterial.SetColor(Graphics::MaterialConstants::endColorProperty, Color(colorEnd.x, colorEnd.y, colorEnd.z, colorEnd.w));
 
 			// Show color pickers.
 			ImGui::Text("Start Color");
 			ImGui::SameLine();
-			static ImVec4 colorStartP = ImVec4(255, 255, 255, 255);
-			bool isEditingStartColor = ImGui::ColorEdit4("Color##3", (float*)& colorStartP, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+			bool isEditingStartColor = ImGui::ColorEdit4("Color##4", (float*)& colorStart, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 
-			ImGui::Text("End Color");
-			ImGui::SameLine();
-			static ImVec4 colorEndP = ImVec4(255, 255, 255, 255);
-			bool isEditingEndColor = ImGui::ColorEdit4("Color##3", (float*)& colorEndP, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+			// Update if changing the color.
+			if (isEditingStartColor)
+				skyboxMaterial.SetColor(Graphics::MaterialConstants::startColorProperty, Color(colorStart.x, colorStart.y, colorStart.z, colorStart.w));
 
 		}
 		else if (currentItemID == 3)

@@ -527,17 +527,17 @@ namespace LinaEngine::Graphics
 		}
 		else if (usedName == ShaderConstants::skyboxSingleColorShader)
 		{
-			material.colors["material.color"] = Colors::White;
+			material.colors["material.color"] = Colors::Black;
 		}
 		else if (usedName == ShaderConstants::skyboxGradientShader)
 		{
 			material.colors["material.startColor"] = Colors::Black;
-			material.colors["material.endColor"] = Colors::White;
+			material.colors["material.endColor"] = Colors::Black;
 		}
 		else if (usedName == ShaderConstants::skyboxProceduralShader)
 		{
 			material.colors["material.startColor"] = Colors::Black;
-			material.colors["material.endColor"] = Colors::White;
+			material.colors["material.endColor"] = Colors::Black;
 			material.vector3s["material.sunDirection"] = Vector3F(0, -1, 0);
 		}
 		else if (usedName == ShaderConstants::skyboxCubemapShader)

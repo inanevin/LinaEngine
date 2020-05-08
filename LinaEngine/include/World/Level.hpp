@@ -56,15 +56,15 @@ namespace LinaEngine::World
 	{
 		std::string shaderID = Graphics::ShaderConstants::skyboxSingleColorShader;
 		SkyboxType type = SkyboxType::SingleColor;
-		Color color1;
-		Color color2;
+		Color color1 = Colors::Black;
+		Color color2 = Colors::Black;
 
 		SkyboxProperties()
 		{		
 			shaderID = "";
 			type = SkyboxType::SingleColor;
 			color1 = Colors::Black;
-			color2 = Colors::White;
+			color2 = Colors::Black;
 		};
 
 		// Add textures for cubemap later on.
