@@ -39,8 +39,8 @@ add_executable(${PROJECT_NAME} ${LINAEDITOR_SOURCES} ${LINAEDITOR_HEADERS})
 #--------------------------------------------------------------------
 # Options & Definitions
 #--------------------------------------------------------------------
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/vendor/imgui/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/imgui/include)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
@@ -55,8 +55,9 @@ endif()
 #--------------------------------------------------------------------
 
 target_link_libraries(${PROJECT_NAME} 
-PUBLIC Lina::Engine
+PRIVATE Lina::Engine
 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui/lib/$<CONFIGURATION>/IMGUI.lib
+
 )
 
 

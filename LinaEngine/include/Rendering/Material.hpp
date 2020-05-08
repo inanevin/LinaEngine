@@ -25,6 +25,7 @@ Timestamp: 4/26/2019 1:12:18 AM
 
 #include "Utility/Math/Matrix.hpp"
 #include "Utility/Math/Color.hpp"
+#include "Interfaces/ISerializable.hpp"
 #include <map>
 
 namespace LinaEngine::Graphics
@@ -42,7 +43,7 @@ namespace LinaEngine::Graphics
 	{
 
 	public:
-		
+
 		FORCEINLINE void SetTexture(const std::string& textureName, Texture* texture, uint32 textureUnit, BindTextureMode bindMode = BindTextureMode::BINDTEXTURE_TEXTURE2D)
 		{
 			MaterialTextureData data;
@@ -128,7 +129,9 @@ namespace LinaEngine::Graphics
 		}
 
 		FORCEINLINE uint32 GetShaderID() { return shaderID; }
+
 	private:
+
 
 		friend class RenderEngine;
 		friend class RenderContext;
@@ -143,9 +146,16 @@ namespace LinaEngine::Graphics
 		std::map<std::string, Vector2F> vector2s;
 		std::map<std::string, Vector3F> vector3s;
 		std::map<std::string, Vector4F> vector4s;
-		std::map<std::string, Matrix> matrices;;
+		std::map<std::string, Matrix> matrices;
 
-	
+		// Serialize the std::vector member of Info
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar& textures& floats& ints& samplers& colors& vector2s& vector3s& vector4s& matrices;
+		}
+
+
 	};
 
 	struct ModelMaterial
