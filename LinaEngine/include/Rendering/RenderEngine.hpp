@@ -58,6 +58,7 @@ namespace LinaEngine::Graphics
 		~RenderEngine();
 
 
+
 		// Creates an GLFW window.
 		FORCEINLINE bool CreateContextWindow(LinaEngine::Input::InputEngine& inputEngineIn, void* sharedWindow)
 		{
@@ -264,7 +265,7 @@ namespace LinaEngine::Graphics
 		// Standart sprite vertex array object.
 		uint32 m_SpriteVAO;
 
-
+		
 		DISALLOW_COPY_ASSIGN_NEW(RenderEngine);
 	};
 

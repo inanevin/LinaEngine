@@ -68,7 +68,7 @@ set (LINAENGINE_SOURCES
 	src/Rendering/ModelLoader.cpp
 	src/Rendering/RenderEngine.cpp
 	src/Rendering/RenderContext.cpp
-	src/Rendering/ShaderConstants.cpp
+	src/Rendering/RenderConstants.cpp
 	src/Rendering/Mesh.cpp
 	
 	#World
@@ -185,7 +185,7 @@ set(LINAENGINE_HEADERS
 	include/Rendering/RenderTarget.hpp
 	include/Rendering/Mesh.hpp
 	include/Rendering/RenderingCommon.hpp
-	include/Rendering/ShaderConstants.hpp
+	include/Rendering/RenderConstants.hpp
 
 	#World
 	include/World/Level.hpp

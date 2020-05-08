@@ -35,5 +35,15 @@ namespace LinaEngine::Graphics
 		static std::string& skyboxProceduralShader;
 		static std::string& skyboxSingleColorShader;
 	};
+
+	struct MaterialConstants
+	{
+		static std::string& skyboxMaterialName;
+		static std::string& colorProperty;
+		static std::string& startColorProperty;
+		static std::string& endColorProperty;
+		static std::string& sunDirectionProperty;
+		static std::string& diffuseTextureProperty;
+	};
 }
 #endif

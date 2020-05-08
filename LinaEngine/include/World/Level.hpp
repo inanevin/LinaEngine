@@ -47,7 +47,18 @@ namespace LinaEngine
 
 namespace LinaEngine::World
 {
-	
+	enum SkyboxType { SingleColor, Gradient, Procedural, Cubemap };
+
+	struct SkyboxProperties
+	{
+		std::string shaderID;
+		SkyboxType type;
+		Color color1;
+		Color color2;
+
+		// Add textures for cubemap later on.
+	};
+
 
 	class Level
 	{
@@ -62,13 +73,15 @@ namespace LinaEngine::World
 		virtual void Initialize() {};
 		virtual void Tick(float delta) {};
 
+		void UpdateSkybox(SkyboxProperties newProperties);
+
 	protected:
 
 		LinaEngine::ECS::EntityComponentSystem* m_ECS = nullptr;
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
 		LinaEngine::Input::InputEngine* m_InputEngine = nullptr;
 
-		enum SkyboxType {SingleColor, Gradient, Procedural, Cubemap };
+		SkyboxProperties m_SkyboxProperties;
 
 	private:
 

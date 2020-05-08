@@ -18,7 +18,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 */
 
 #include "LinaPch.hpp"
-#include "Rendering/ShaderConstants.hpp"
+#include "Rendering/RenderConstants.hpp"
 namespace LinaEngine::Graphics
 {
 	std::string& ShaderConstants::standardLitShader = std::string("shader_StandardLit");
@@ -27,4 +27,11 @@ namespace LinaEngine::Graphics
 	std::string& ShaderConstants::skyboxGradientShader = std::string("shader_SkyboxGradient");
 	std::string& ShaderConstants::skyboxProceduralShader = std::string("shader_SkyboxProcedural");
 	std::string& ShaderConstants::skyboxSingleColorShader = std::string("shader_SkyboxSingleColor");
+
+	std::string& MaterialConstants::skyboxMaterialName = std::string("skybox_defaultMat");
+	std::string& MaterialConstants::colorProperty = std::string("material.color");
+	std::string& MaterialConstants::startColorProperty = std::string("material.startColor");
+	std::string& MaterialConstants::endColorProperty = std::string("material.endColor");
+	std::string& MaterialConstants::sunDirectionProperty = std::string("material.sunDirection");
+	std::string& MaterialConstants::diffuseTextureProperty = std::string("material.diffuse");
 }
