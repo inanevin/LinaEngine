@@ -23,6 +23,7 @@ Class: UILayer
 #include "Utility/Log.hpp"
 #include "Rendering/Material.hpp"
 #include "imgui.h"
+#include "ImGuiFileBrowser.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
@@ -38,11 +39,13 @@ Class: UILayer
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
 
+imgui_addons::ImGuiFileBrowser file_dialog; // As a class member or globally
+
 namespace LinaEditor
 {
 	void GUILayer::OnUpdate()
 	{
-
+		
 		// Start the Dear ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -52,7 +55,44 @@ namespace LinaEditor
 		DrawEntitiesWindow();
 
 		// Draw skybox settings.
-		DrawSkyboxSettingsWindow();
+		//DrawSkyboxSettingsWindow();
+
+		bool open = false, save = false;
+		if (ImGui::BeginMainMenuBar())
+		{
+			if (ImGui::BeginMenu("Menu"))
+			{
+				if (ImGui::MenuItem("Open", NULL))
+					open = true;
+				if (ImGui::MenuItem("Save", NULL))
+					save = true;
+
+				ImGui::EndMenu();
+			}
+			ImGui::EndMainMenuBar();
+		}
+
+		//Remember the name to ImGui::OpenPopup() and showFileDialog() must be same...
+		if (open)
+			ImGui::OpenPopup("Open File");
+		if (save)
+			ImGui::OpenPopup("Save File");
+
+		/* Optional third parameter. Support opening only compressed rar/zip files.
+		 * Opening any other file will show error, return false and won't close the dialog.
+		 */
+		if (file_dialog.showFileDialog("Open File", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ImVec2(700, 310), ".rar,.zip,.7z"))
+		{
+			std::cout << file_dialog.selected_fn << std::endl;      // The name of the selected file or directory in case of Select Directory dialog mode
+			std::cout << file_dialog.selected_path << std::endl;    // The absolute path to the selected file
+		}
+		if (file_dialog.showFileDialog("Save File", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ImVec2(700, 310), ".png,.jpg,.bmp"))
+		{
+			std::cout << file_dialog.selected_fn << std::endl;      // The name of the selected file or directory in case of Select Directory dialog mode
+			std::cout << file_dialog.selected_path << std::endl;    // The absolute path to the selected file
+			std::cout << file_dialog.ext << std::endl;              // Access ext separately (For SAVE mode)
+			//Do writing of files based on extension here
+		}
 
 		// Rendering
 		ImGui::Render();
