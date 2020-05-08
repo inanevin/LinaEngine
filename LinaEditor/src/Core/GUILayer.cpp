@@ -106,7 +106,11 @@ namespace LinaEditor
 
 	void GUILayer::DrawSkyboxSettingsWindow()
 	{
+		ImGui::ShowDemoWindow();
+
 		ImGui::Begin("Skybox Settings");
+
+		ImGui::Separator();
 
 		// Setup info.
 		const char* items[] = { "Single Color", "Gradient", "Procedural", "Cubemap" };
@@ -114,7 +118,11 @@ namespace LinaEditor
 		const char* label = items[currentItemID];
 		static ImGuiComboFlags flags = 0;
 
-		if (ImGui::BeginCombo("Skybox Type", label, flags))
+		// Align label to left widget to right.
+		int total_w = ImGui::GetContentRegionAvail().x; ImGui::Text("Skybox Type"); ImGui::SameLine(); ImGui::SetNextItemWidth(total_w - 100);
+
+		// Draw combo box.
+		if (ImGui::BeginCombo("", label, flags))
 		{
 			for (int i = 0; i < IM_ARRAYSIZE(items); i++)
 			{
@@ -132,21 +140,45 @@ namespace LinaEditor
 			ImGui::EndCombo();
 		}
 
+
+		ImGui::Separator();
+
 		if (currentItemID == 0)
 		{
-
+			// Single color skybox
+			ImGui::Text("Color"); 
+			ImGui::SameLine();
+			static ImVec4 color = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+			ImGui::ColorEdit4("Color##3", (float*)& color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 		}
 		else if (currentItemID == 1)
 		{
+			ImGui::Text("Start Color");
+			ImGui::SameLine();
+			static ImVec4 colorStart = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+			ImGui::ColorEdit4("Color##3", (float*)& colorStart, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 
+			ImGui::Text("End Color");
+			ImGui::SameLine();
+			static ImVec4 colorEnd = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+			ImGui::ColorEdit4("Color##3", (float*)& colorEnd, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 		}
 		else if (currentItemID == 2)
 		{
+			// Procedural Skybox
+			ImGui::Text("Start Color");
+			ImGui::SameLine();
+			static ImVec4 colorStartP = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+			ImGui::ColorEdit4("Color##3", (float*)& colorStartP, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 
+			ImGui::Text("End Color");
+			ImGui::SameLine();
+			static ImVec4 colorEndP = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+			ImGui::ColorEdit4("Color##3", (float*)& colorEndP, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 		}
 		else if (currentItemID == 3)
 		{
-
+			// Cubemap Skybox
 		}
 
 		ImGui::End();
