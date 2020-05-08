@@ -29,7 +29,7 @@ Timestamp: 5/8/2020 11:04:45 PM
 
 namespace LinaEditor
 {
-	struct ProjectPathConstants
+	struct EditorPathConstants
 	{
 		static std::string& contentsPath;
 	};

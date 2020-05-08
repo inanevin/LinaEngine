@@ -23,5 +23,5 @@ Timestamp: 5/8/2020 11:05:40 PM
 
 namespace LinaEditor
 {
-	std::string& ProjectPathConstants::contentsPath = std::string("sea");
+	std::string& EditorPathConstants::contentsPath = std::string("ProjectContents/");
 }

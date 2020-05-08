@@ -25,12 +25,18 @@ src/Core/GUILayer.cpp
 src/Core/EditorCommon.cpp
 src/Core/imgui/imgui_impl_opengl3.cpp
 src/Core/imgui/imgui_impl_glfw.cpp
+
+
+src/Utility/EditorUtility.cpp
 )
 
 set(LINAEDITOR_HEADERS
 
 include/Core/GUILayer.hpp
 include/Core/EditorCommon.hpp
+
+
+include/Utility/EditorUtility.hpp
 CMakeLists.txt
 )
 
@@ -106,6 +112,19 @@ add_custom_command(
 TARGET ${PROJECT_NAME}
 PRE_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/resources/")
+
+# Copy project contents to project solution directory to run within IDE.
+add_custom_command(
+TARGET ${PROJECT_NAME}
+PRE_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/ProjectContents" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/ProjectContents/")
+
+# Copy project contents to binary directory
+add_custom_command(
+TARGET ${PROJECT_NAME}
+PRE_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/ProjectContents" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/ProjectContents")
+
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

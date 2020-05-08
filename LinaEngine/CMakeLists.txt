@@ -428,6 +428,7 @@ if(LINA_GRAPHICS_OPENGL)
 		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
 		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/$<CONFIGURATION>/glad.lib
 		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/boost/libs/$<CONFIGURATION>/libboost_serialization-vc142-mt-gd-x32-1_73.lib
+		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/boost/libs/$<CONFIGURATION>/libboost_filesystem-vc142-mt-gd-x32-1_73.lib
 
 	)
 	

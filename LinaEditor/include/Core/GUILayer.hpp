@@ -18,6 +18,7 @@ Class: UILayer
 
 #include "Core/Layer.hpp"
 #include "Rendering/RenderEngine.hpp"
+#include <vector>
 
 namespace LinaEngine
 {
@@ -26,6 +27,14 @@ namespace LinaEngine
 
 namespace LinaEditor
 {
+
+	struct ContentFolder
+	{
+		std::vector<ContentFolder> children;
+		std::string name;
+		std::string path;
+	};
+
 	class GUILayer : public LinaEngine::Layer
 	{
 
@@ -47,14 +56,26 @@ namespace LinaEditor
 
 	private:
 
+		// Draw entity hierarchy.
 		void DrawEntitiesWindow();
+
+		// Draw content browser.
+		void DrawContentBrowserWindow();
+
+		// Draw skybox settings.
 		void DrawSkyboxSettingsWindow();
-		void DrawProjectContentsWindow();
+
+		// Show the file menu for content browser.
+		void ShowContentBrowserFileMenu();
+
+		// Checks the project content folder for new files.
+		void ReadProjectContentsFolder();
 
 	private:
 
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine;
 		LinaEngine::Application* m_Application;
+		std::vector<ContentFolder> m_ContentFolders;
 
 	};
 }

@@ -21,12 +21,15 @@ Class: UILayer
 #include "Core/GUILayer.hpp"
 #include "Core/Application.hpp"
 #include "Utility/Log.hpp"
+#include "Utility/EditorUtility.hpp"
+#include "Core/EditorCommon.hpp"
 #include "Rendering/Material.hpp"
 #include "imgui.h"
 #include "ImGuiFileBrowser.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
+#include "imgui_internal.h"
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glad/glad.h>
@@ -40,9 +43,12 @@ Class: UILayer
 #endif
 
 imgui_addons::ImGuiFileBrowser file_dialog; // As a class member or globally
+static bool rightClickedContentBrowser = false;
+
 
 namespace LinaEditor
 {
+
 	void GUILayer::OnUpdate()
 	{
 		
@@ -50,57 +56,18 @@ namespace LinaEditor
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+		
+		ImGui::ShowDemoWindow();
 
 		// Draw hierarchy window.
-		DrawEntitiesWindow();
+		//DrawEntitiesWindow();
 
 		// Draw skybox settings.
-		DrawSkyboxSettingsWindow();
+	//	DrawSkyboxSettingsWindow();
 
-		if (ImGui::Button("Click"))
-		{
-			Graphics::Material& skyboxMaterial = m_RenderEngine->GetMaterial(Graphics::MaterialConstants::skyboxMaterialName);
+		// Draw content browser.
+		DrawContentBrowserWindow();
 
-			skyboxMaterial.WriteObject("MaterialWriteTest.dat");
-		}
-
-	//	bool open = false, save = false;
-	//	if (ImGui::BeginMainMenuBar())
-	//	{
-	//		if (ImGui::BeginMenu("Menu"))
-	//		{
-	//			if (ImGui::MenuItem("Open", NULL))
-	//				open = true;
-	//			if (ImGui::MenuItem("Save", NULL))
-	//				save = true;
-	//
-	//			ImGui::EndMenu();
-	//		}
-	//		ImGui::EndMainMenuBar();
-	//	}
-	//
-	//	//Remember the name to ImGui::OpenPopup() and showFileDialog() must be same...
-	//	if (open)
-	//		ImGui::OpenPopup("Open File");
-	//	if (save)
-	//		ImGui::OpenPopup("Save File");
-	//
-	//	/* Optional third parameter. Support opening only compressed rar/zip files.
-	//	 * Opening any other file will show error, return false and won't close the dialog.
-	//	 */
-	//	if (file_dialog.showFileDialog("Open File", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ImVec2(700, 310), ".rar,.zip,.7z"))
-	//	{
-	//		std::cout << file_dialog.selected_fn << std::endl;      // The name of the selected file or directory in case of Select Directory dialog mode
-	//		std::cout << file_dialog.selected_path << std::endl;    // The absolute path to the selected file
-	//	}
-	//	if (file_dialog.showFileDialog("Save File", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ImVec2(700, 310), ".png,.jpg,.bmp"))
-	//	{
-	//		std::cout << file_dialog.selected_fn << std::endl;      // The name of the selected file or directory in case of Select Directory dialog mode
-	//		std::cout << file_dialog.selected_path << std::endl;    // The absolute path to the selected file
-	//		std::cout << file_dialog.ext << std::endl;              // Access ext separately (For SAVE mode)
-	//		//Do writing of files based on extension here
-	//	}
-	//
 		// Rendering
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -157,8 +124,6 @@ namespace LinaEditor
 
 	void GUILayer::DrawSkyboxSettingsWindow()
 	{
-		ImGui::ShowDemoWindow();
-
 		ImGui::Begin("Skybox Settings");
 
 		ImGui::Separator();
@@ -334,10 +299,127 @@ namespace LinaEditor
 		ImGui::End();
 	}
 
-	void GUILayer::DrawProjectContentsWindow()
+	void GUILayer::DrawContentBrowserWindow()
 	{
+		ImGui::Begin("Content Browser");
+
+		// Handle Right click popup.
+		if (ImGui::BeginPopupContextWindow())
+		{
+			if (ImGui::BeginMenu("Create"))
+			{
+				if (ImGui::MenuItem("Folder"))
+				{
+					Utility::EditorUtility::CreateFolderInPath(EditorPathConstants::contentsPath + "NewFolder");
+					ReadProjectContentsFolder();
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("Material"))
+				{
+
+				}
+				ImGui::EndMenu();
+			}
+			
+			ImGui::EndPopup();
+		}
+
+		ImGui::End();
 
 	}
 
+	void GUILayer::ShowContentBrowserFileMenu()
+	{
+		ImGui::MenuItem("(dummy menu)", NULL, false, false);
+		if (ImGui::MenuItem("New")) {}
+		if (ImGui::MenuItem("Open", "Ctrl+O")) {}
+		if (ImGui::BeginMenu("Open Recent"))
+		{
+			ImGui::MenuItem("fish_hat.c");
+			ImGui::MenuItem("fish_hat.inl");
+			ImGui::MenuItem("fish_hat.h");
+			if (ImGui::BeginMenu("More.."))
+			{
+				ImGui::MenuItem("Hello");
+				ImGui::MenuItem("Sailor");
+				if (ImGui::BeginMenu("Recurse.."))
+				{
+					//ShowContentBrowserFileMenu();
+					ImGui::EndMenu();
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::MenuItem("Save", "Ctrl+S")) {}
+		if (ImGui::MenuItem("Save As..")) {}
+
+		ImGui::Separator();
+		if (ImGui::BeginMenu("Options"))
+		{
+			static bool enabled = true;
+			ImGui::MenuItem("Enabled", "", &enabled);
+			ImGui::BeginChild("child", ImVec2(0, 60), true);
+			for (int i = 0; i < 10; i++)
+				ImGui::Text("Scrolling Text %d", i);
+			ImGui::EndChild();
+			static float f = 0.5f;
+			static int n = 0;
+			ImGui::SliderFloat("Value", &f, 0.0f, 1.0f);
+			ImGui::InputFloat("Input", &f, 0.1f);
+			ImGui::Combo("Combo", &n, "Yes\0No\0Maybe\0\0");
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Colors"))
+		{
+			float sz = ImGui::GetTextLineHeight();
+			for (int i = 0; i < ImGuiCol_COUNT; i++)
+			{
+				const char* name = ImGui::GetStyleColorName((ImGuiCol)i);
+				ImVec2 p = ImGui::GetCursorScreenPos();
+				ImGui::GetWindowDrawList()->AddRectFilled(p, ImVec2(p.x + sz, p.y + sz), ImGui::GetColorU32((ImGuiCol)i));
+				ImGui::Dummy(ImVec2(sz, sz));
+				ImGui::SameLine();
+				ImGui::MenuItem(name);
+			}
+			ImGui::EndMenu();
+		}
+
+		// Here we demonstrate appending again to the "Options" menu (which we already created above)
+		// Of course in this demo it is a little bit silly that this function calls BeginMenu("Options") twice.
+		// In a real code-base using it would make senses to use this feature from very different code locations.
+		if (ImGui::BeginMenu("Options")) // <-- Append!
+		{
+			static bool b = true;
+			ImGui::Checkbox("SomeOption", &b);
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Disabled", false)) // Disabled
+		{
+			IM_ASSERT(0);
+		}
+		if (ImGui::MenuItem("Checked", NULL, true)) {}
+		if (ImGui::MenuItem("Quit", "Alt+F4")) {}
+	}
+
+	void GUILayer::ReadProjectContentsFolder()
+	{
+		// Get folders in directory.
+		std::vector<std::string> folders;
+		Utility::EditorUtility::GetDirectories(folders, EditorPathConstants::contentsPath);
+
+		// Clear current folders.
+		m_ContentFolders.clear();
+
+		// Iterate folders & fill data.
+		for (auto& f : folders)
+		{
+			LINA_CLIENT_INFO("{0}", f);
+		}
+	}
 
 }
