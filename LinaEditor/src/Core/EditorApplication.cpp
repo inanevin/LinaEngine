@@ -34,7 +34,7 @@ namespace LinaEditor
 			GUILayer* layer = new LinaEditor::GUILayer();
 
 			// Setup layer
-			layer->SetRenderEngine(GetRenderEngine());
+			layer->Setup(GetRenderEngine(), this);
 
 			// Load startup level.
 			LoadLevel(&m_StartupLevel);

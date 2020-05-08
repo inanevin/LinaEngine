@@ -84,8 +84,8 @@ namespace LinaEngine::World
 		virtual void Initialize() {};
 		virtual void Tick(float delta) {};
 
-		void UpdateSkybox(SkyboxProperties newProperties);
-
+		void CreateSkyboxMaterial(SkyboxProperties properties);
+	
 	protected:
 
 		LinaEngine::ECS::EntityComponentSystem* m_ECS = nullptr;
@@ -98,7 +98,6 @@ namespace LinaEngine::World
 
 		friend class LinaEngine::Application;
 
-		void CreateAndUpdateSkybox(SkyboxProperties properties, bool loadMaterialFirst);
 
 		void SetEngineReferences(LinaEngine::ECS::EntityComponentSystem& ecsIn, LinaEngine::Graphics::RenderEngine& renderEngineIn, LinaEngine::Input::InputEngine& inputEngineIn)
 		{

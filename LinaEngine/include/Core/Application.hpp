@@ -56,6 +56,9 @@ namespace LinaEngine
 		// Loads a level into memory.
 		void LoadLevel(LinaEngine::World::Level* level);
 
+		// Get the current level.
+		FORCEINLINE LinaEngine::World::Level& GetCurrentLevel() { return *m_CurrentLevel; }
+
 	protected:
 
 		Application();

@@ -546,6 +546,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
+
 	void RenderEngine::SetSkyboxMaterial(const std::string & materialName)
 	{
 		if (MaterialExists(materialName))

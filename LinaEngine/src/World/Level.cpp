@@ -32,25 +32,15 @@ namespace LinaEngine::World
 		LINA_CORE_TRACE("[Constructor] -> Level Installed ({0})", typeid(*this).name());
 		
 		// Create & setup level skybox.
-		CreateAndUpdateSkybox(m_SkyboxProperties, true);
+		CreateSkyboxMaterial(m_SkyboxProperties);
 	}
 
-	void Level::UpdateSkybox(SkyboxProperties newProperties)
-	{
-		Material& skyboxMaterial = m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName);
-		m_RenderEngine->SetMaterialShader(skyboxMaterial, newProperties.shaderID);
-
-	}
-
-	void Level::CreateAndUpdateSkybox(SkyboxProperties properties, bool createMaterialFirst)
+	void Level::CreateSkyboxMaterial(SkyboxProperties properties)
 	{
 		if (properties.type == SkyboxType::SingleColor)
 		{
-			if (createMaterialFirst)
-			{
-				// Create material.
-				m_RenderEngine->CreateMaterial(MaterialConstants::skyboxMaterialName, ShaderConstants::skyboxSingleColorShader);
-			}
+			// Create material.
+			m_RenderEngine->CreateMaterial(MaterialConstants::skyboxMaterialName, ShaderConstants::skyboxSingleColorShader);
 
 			// Store material reference.
 			Material& skyboxMaterial = m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName);
@@ -66,11 +56,8 @@ namespace LinaEngine::World
 		}
 		else if (properties.type == SkyboxType::Gradient)
 		{
-			if (createMaterialFirst)
-			{
-				// Create material.
-				m_RenderEngine->CreateMaterial(MaterialConstants::skyboxMaterialName, ShaderConstants::skyboxGradientShader);
-			}		
+			// Create material.
+			m_RenderEngine->CreateMaterial(MaterialConstants::skyboxMaterialName, ShaderConstants::skyboxGradientShader);
 
 			// Store material reference.
 			Material& skyboxMaterial = m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName);
@@ -88,11 +75,8 @@ namespace LinaEngine::World
 		}
 		else if (properties.type == SkyboxType::Procedural)
 		{
-			if (createMaterialFirst)
-			{
-				// Create material.
-				m_RenderEngine->CreateMaterial(MaterialConstants::skyboxMaterialName, ShaderConstants::skyboxProceduralShader);
-			}
+			// Create material.
+			m_RenderEngine->CreateMaterial(MaterialConstants::skyboxMaterialName, ShaderConstants::skyboxProceduralShader);
 
 			// Store material reference.
 			Material& skyboxMaterial = m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName);
@@ -112,11 +96,8 @@ namespace LinaEngine::World
 		}
 		else if (properties.type == SkyboxType::Cubemap)
 		{
-			if (createMaterialFirst)
-			{
-				// Create material.
-				m_RenderEngine->CreateMaterial(MaterialConstants::skyboxMaterialName, ShaderConstants::skyboxCubemapShader);
-			}
+			// Create material.
+			m_RenderEngine->CreateMaterial(MaterialConstants::skyboxMaterialName, ShaderConstants::skyboxCubemapShader);
 
 			// Store material reference.
 			Material& skyboxMaterial = m_RenderEngine->GetMaterial(MaterialConstants::skyboxMaterialName);

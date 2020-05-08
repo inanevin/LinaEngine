@@ -16,8 +16,12 @@ Class: UILayer
 
 */
 
+
+#include "World/Level.hpp"
 #include "Core/GUILayer.hpp"
+#include "Core/Application.hpp"
 #include "Utility/Log.hpp"
+#include "Rendering/Material.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -115,6 +119,7 @@ namespace LinaEditor
 		// Setup info.
 		const char* items[] = { "Single Color", "Gradient", "Procedural", "Cubemap" };
 		static int currentItemID = 0;
+		static int previousCurrentItemID = 0;
 		const char* label = items[currentItemID];
 		static ImGuiComboFlags flags = 0;
 
@@ -146,39 +151,84 @@ namespace LinaEditor
 		if (currentItemID == 0)
 		{
 			// Single color skybox
+			Graphics::Material& skyboxMaterial = m_RenderEngine->GetMaterial(Graphics::MaterialConstants::skyboxMaterialName);
+
+			// Update skybox shader if changed.
+			if (previousCurrentItemID != 0)
+			{
+				previousCurrentItemID = 0;;
+				m_RenderEngine->SetMaterialShader(skyboxMaterial, Graphics::ShaderConstants::skyboxSingleColorShader);
+			}
+
+			// Show color picker.
 			ImGui::Text("Color"); 
 			ImGui::SameLine();
 			static ImVec4 color = ImVec4(255,255,255,255);
-			ImGui::ColorEdit4("Color##3", (float*)& color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+			bool isEditing = ImGui::ColorEdit4("Color##3", (float*)& color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+		
+			if (isEditing)
+			{
+				skyboxMaterial.SetColor(Graphics::MaterialConstants::colorProperty, Color(color.x, color.y, color.z, color.w));
+			}
 		}
 		else if (currentItemID == 1)
 		{
+			// Gradient color skybox
+			Graphics::Material& skyboxMaterial = m_RenderEngine->GetMaterial(Graphics::MaterialConstants::skyboxMaterialName);
+
+			// Update skybox shader if changed.
+			if (previousCurrentItemID != 1)
+			{
+				previousCurrentItemID = 1;
+				m_RenderEngine->SetMaterialShader(skyboxMaterial, Graphics::ShaderConstants::skyboxGradientShader);
+			}
+
+			// Show color pickers.
 			ImGui::Text("Start Color");
 			ImGui::SameLine();
 			static ImVec4 colorStart = ImVec4(255, 255, 255, 255);
-			ImGui::ColorEdit4("Color##3", (float*)& colorStart, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+			bool isEditingStartColor = ImGui::ColorEdit4("Color##3", (float*)& colorStart, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 
 			ImGui::Text("End Color");
 			ImGui::SameLine();
 			static ImVec4 colorEnd = ImVec4(255, 255, 255, 255);
-			ImGui::ColorEdit4("Color##3", (float*)& colorEnd, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+			bool isEditingEndColor = ImGui::ColorEdit4("Color##3", (float*)& colorEnd, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 		}
 		else if (currentItemID == 2)
 		{
 			// Procedural Skybox
+			Graphics::Material& skyboxMaterial = m_RenderEngine->GetMaterial(Graphics::MaterialConstants::skyboxMaterialName);
+
+			// Update skybox shader if changed.
+			if (previousCurrentItemID != 2)
+			{
+				previousCurrentItemID = 2;
+				m_RenderEngine->SetMaterialShader(skyboxMaterial, Graphics::ShaderConstants::skyboxProceduralShader);
+			}
+
+			// Show color pickers.
 			ImGui::Text("Start Color");
 			ImGui::SameLine();
 			static ImVec4 colorStartP = ImVec4(255, 255, 255, 255);
-			ImGui::ColorEdit4("Color##3", (float*)& colorStartP, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+			bool isEditingStartColor = ImGui::ColorEdit4("Color##3", (float*)& colorStartP, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 
 			ImGui::Text("End Color");
 			ImGui::SameLine();
 			static ImVec4 colorEndP = ImVec4(255, 255, 255, 255);
-			ImGui::ColorEdit4("Color##3", (float*)& colorEndP, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+			bool isEditingEndColor = ImGui::ColorEdit4("Color##3", (float*)& colorEndP, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+
 		}
 		else if (currentItemID == 3)
 		{
 			// Cubemap Skybox
+			Graphics::Material& skyboxMaterial = m_RenderEngine->GetMaterial(Graphics::MaterialConstants::skyboxMaterialName);
+
+			// Update skybox shader if changed.
+			if (previousCurrentItemID != 3)
+			{
+				previousCurrentItemID = 3;
+				m_RenderEngine->SetMaterialShader(skyboxMaterial, Graphics::ShaderConstants::skyboxCubemapShader);
+			}
 		}
 
 		ImGui::End();
