@@ -22,7 +22,7 @@ Timestamp: 1/2/2019 1:43:13 AM
 #define LayerStack_HPP
 
 
-#include "LinaArray.hpp"
+#include "Core/LinaArray.hpp"
 
 namespace LinaEngine
 {

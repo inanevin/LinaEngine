@@ -34,16 +34,21 @@ namespace LinaEngine
 		LINA_CORE_ASSERT(!instance, "Application already exists!");
 
 		// Create main window.
-		bool windowCreationSuccess = m_RenderEngine.CreateContextWindow(m_InputEngine);
+		bool windowCreationSuccess = m_RenderEngine.CreateContextWindow();
 		if (!windowCreationSuccess)
 		{
 			LINA_CORE_ERR("Window Creation Failed!");
 			return;
 		}
 
-		// Set event callback for main window.
-		m_RenderEngine.SetMainWindowEventCallback(BIND_EVENT_FN(OnEvent));
+		// Set callbacks.
+		m_KeyCallback = std::bind(&Application::KeyCallback, this, std::placeholders::_1, std::placeholders::_1);
+		m_MouseCallback = std::bind(&Application::MouseCallback, this, std::placeholders::_1, std::placeholders::_1);
 
+		// Set event callback for main window.
+		m_RenderEngine.GetMainWindow().SetKeyCallback(m_KeyCallback);
+		m_RenderEngine.GetMainWindow().SetMouseCallback(m_MouseCallback);
+	
 		// Initialize engines.
 		m_InputEngine.Initialize(m_RenderEngine.GetNativeWindow());
 		m_PhysicsEngine.Initialize(m_ECS);

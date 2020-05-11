@@ -28,7 +28,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "Rendering/RenderEngine.hpp"
 #include "ECS/EntityComponentSystem.hpp"
 #include "Physics/PhysicsEngine.hpp"
-
+#include <functional>
 namespace LinaEngine::World
 {
 	class Level;
@@ -68,6 +68,11 @@ namespace LinaEngine
 		// Called when main application window is closed.
 		bool OnWindowClose(WindowCloseEvent& e);
 
+		// Callbacks & events.
+		FORCEINLINE void KeyCallback(int key, int action) { m_InputEngine.DispatchKeyAction(static_cast<LinaEngine::Input::InputCode::Key>(key), action); }
+		FORCEINLINE void MouseCallback(int button, int action) { m_InputEngine.DispatchMouseAction(static_cast<LinaEngine::Input::InputCode::Mouse>(button), action); }
+		FORCEINLINE void WindowCloseCallback() {};
+
 	private:
 
 		// Layer queue.
@@ -87,6 +92,10 @@ namespace LinaEngine
 
 		// Is application running?
 		bool m_Running = false;
+
+		// Callbacks
+		std::function<void(int, int)> m_KeyCallback;
+		std::function<void(int, int)> m_MouseCallback;
 
 	};
 

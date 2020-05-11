@@ -64,12 +64,11 @@ namespace LinaEngine::Graphics
 		LINA_CORE_ERR("GLFW Error: {0} Description: {1} ", error, desc);
 	}
 
-	bool GLWindow::Initialize(LinaEngine::Input::InputEngine& inputEngineIn, WindowProperties& propsIn)
+	bool GLWindow::Initialize(WindowProperties& propsIn)
 	{
 		LINA_CORE_TRACE("[Initialization] -> GLWindow ({0})", typeid(*this).name());
 		
-		// Set Input Engine reference.
-		inputEngine = &inputEngineIn;
+		// Set props.
 		m_WindowProperties = &propsIn;
 
 		// Initialize glfw & set window hints
@@ -247,11 +246,13 @@ namespace LinaEngine::Graphics
 
 	void GLWindow::KeyCallback(void* w, int key, int scancode, int action, int mods)
 	{
+		m_KeyCallback(key, action);
 		//inputEngine->DispatchKeyAction(static_cast<LinaEngine::Input::InputCode::Key>(key), action);
 	}
 
 	void GLWindow::MouseCallback(void* w, int button, int action, int mods)
 	{
+		m_MouseCallback(button, action);
 		//inputEngine->DispatchMouseAction(static_cast<LinaEngine::Input::InputCode::Mouse>(button), action);
 	}
 

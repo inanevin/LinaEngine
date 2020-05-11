@@ -23,6 +23,7 @@ Timestamp: 4/14/2019 5:12:19 PM
 #define GLWindow_HPP
 
 #include "Rendering/RenderingCommon.hpp"
+#include <functional>
 
 namespace LinaEngine
 {
@@ -40,7 +41,7 @@ namespace LinaEngine::Graphics
 	public:
 
 		// Creates the native window.
-		bool Initialize(LinaEngine::Input::InputEngine& inputEngineIn, WindowProperties& propsIn);
+		bool Initialize(WindowProperties& propsIn);
 
 		// Called every frame.
 		void Tick();
@@ -51,8 +52,10 @@ namespace LinaEngine::Graphics
 		// Gets the native glfw window.
 		FORCEINLINE void* GetNativeWindow() const { return m_Window; }
 
-		// Sets event callback.
+		// Sets event callbacks.
 		//FORCEINLINE void SetEventCallback(const std::function<void(Event&)>& callback) { m_EventCallback = callback; }
+		FORCEINLINE void SetKeyCallback(std::function<void(int,int)>& callback) { m_KeyCallback = callback; }
+		FORCEINLINE void SetMouseCallback(std::function<void(int,int)>& callback) { m_MouseCallback = callback; }
 
 	private:
 
@@ -80,6 +83,8 @@ namespace LinaEngine::Graphics
 		WindowProperties* m_WindowProperties = nullptr;
 		LinaEngine::Input::InputEngine* inputEngine = nullptr;
 
+		std::function<void(int, int)> m_KeyCallback;
+		std::function<void(int, int)> m_MouseCallback;
 
 	};
 }

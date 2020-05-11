@@ -22,7 +22,7 @@ Timestamp: 4/28/2019 3:10:03 PM
 #ifndef Time_HPP
 #define Time_HPP
 
-#include "SizeDefinitions.hpp"
+#include "Core/SizeDefinitions.hpp"
 
 namespace LinaEngine
 {

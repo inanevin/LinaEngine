@@ -170,7 +170,9 @@ else()
    target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_COMPILER_OTHER=1)
 endif()
 
-
+if(LINA_CORE_ENABLE_LOGGING)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_CORE_ENABLE_LOGGING=1)
+endif()
 #--------------------------------------------------------------------
 # Build Type Config
 #--------------------------------------------------------------------
@@ -254,10 +256,7 @@ if(EXISTS "${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>/LinaCommon.pdb")
 	COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>/LinaCommon.pdb" "${CMAKE_SOURCE_DIR}/LinaEngine/internal/Common/lib/$<CONFIGURATION>")
 endif()
 
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_SOURCE_DIR}/LinaEngine/internal/Common/include")
+
 
 
 #--------------------------------------------------------------------

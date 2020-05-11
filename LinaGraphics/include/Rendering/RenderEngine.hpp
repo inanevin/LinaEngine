@@ -59,9 +59,9 @@ namespace LinaEngine::Graphics
 
 
 		// Creates an GLFW window.
-		FORCEINLINE bool CreateContextWindow(LinaEngine::Input::InputEngine& inputEngineIn)
+		FORCEINLINE bool CreateContextWindow()
 		{
-			return m_MainWindow.Initialize(inputEngineIn);
+			return m_MainWindow.Initialize();
 		}
 
 		// Returns GLFW window instance.
@@ -70,17 +70,14 @@ namespace LinaEngine::Graphics
 			return m_MainWindow.GetNativeWindow();
 		}
 
-		// Set event callback for window.
-		FORCEINLINE void SetMainWindowEventCallback(const std::function<void(Event&)>& callback)
-		{
-			//m_MainWindow.SetEventCallback(callback);
-		}
-
 		// Swaps window buffer.
 		FORCEINLINE void TickWindow()
 		{
 			m_MainWindow.Tick();
 		}
+
+		// Get main window.
+		FORCEINLINE Window& GetMainWindow() { return m_MainWindow; }
 
 		// Returns the window width & height
 		FORCEINLINE Vector2F GetWindowSize()

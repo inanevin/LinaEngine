@@ -26,13 +26,6 @@ Timestamp: 4/14/2019 7:46:12 PM
 #include "PackageManager/PAMWindow.hpp"
 #include "Utility/Log.hpp"
 
-namespace LinaEngine
-{
-	namespace Input
-	{
-		class InputEngine;
-	}
-}
 
 namespace LinaEngine::Graphics
 {
@@ -51,13 +44,10 @@ namespace LinaEngine::Graphics
 		};
 
 		// Initializes the window.
-		FORCEINLINE bool Initialize(LinaEngine::Input::InputEngine& inputEngineIn) { return m_Derived.Initialize(inputEngineIn, m_Properties); }
+		FORCEINLINE bool Initialize() { return m_Derived.Initialize(m_Properties); }
 
 		// Enables/disables vsync.
 		FORCEINLINE void SetVsync(bool enabled) { m_Properties.vSyncEnabled = enabled; m_Derived.SetVsync(enabled); }
-
-		// Sets event callback reference.
-		//FORCEINLINE void SetEventCallback(const std::function<void(Event&)>& callback) { m_Derived.SetEventCallback(callback); }
 
 		// Get vsync state.
 		FORCEINLINE bool GetVsycnEnabled() { return m_Properties.vSyncEnabled; }
@@ -73,6 +63,10 @@ namespace LinaEngine::Graphics
 
 		// Called every frame.
 		FORCEINLINE void Tick() { m_Derived.Tick(); }
+
+		// Set event callbacks.
+		FORCEINLINE void SetKeyCallback(std::function<void(int, int)>& cb) { m_Derived.SetKeyCallback(cb); }
+		FORCEINLINE void SetMouseCallback(std::function<void(int, int)>& cb) { LINA_CORE_INFO("sas"); m_Derived.SetMouseCallback(cb); }
 
 	private:
 
