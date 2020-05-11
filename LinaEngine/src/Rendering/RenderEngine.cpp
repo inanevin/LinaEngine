@@ -115,6 +115,7 @@ namespace LinaEngine::Graphics
 		// Add the ECS systems into the pipeline.
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
 		m_RenderingPipeline.AddSystem(m_MeshRendererSystem);
+		//m_RenderingPipeline.AddSystem(m_LightingSystem);
 
 	}
 
@@ -133,7 +134,7 @@ namespace LinaEngine::Graphics
 		m_DefaultRenderContext.Flush();
 
 		// Draw skybox.
-		DrawSkybox();
+	//	DrawSkybox();
 
 		// Update window.
 		m_MainWindow.Tick();
