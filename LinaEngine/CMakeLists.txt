@@ -42,18 +42,7 @@ set (LINAENGINE_SOURCES
 	src/PackageManager/OpenGL/GLInputDevice.cpp
 	src/PackageManager/OpenGL/GLRenderDevice.cpp
 	src/PackageManager/OpenGL/GLWindow.cpp
-	
-	#Rendering
-	src/Rendering/ArrayBitmap.cpp
-	src/Rendering/DDSTexture.cpp
-	src/Rendering/Texture.cpp
-	src/Rendering/IndexedModel.cpp
-	src/Rendering/ModelLoader.cpp
-	src/Rendering/RenderEngine.cpp
-	src/Rendering/RenderContext.cpp
-	src/Rendering/ShaderConstants.cpp
-	src/Rendering/Mesh.cpp
-	
+
 	#Physics
 	src/Physics/PhysicsEngine.cpp
 	src/Physics/PhysicsInteractionWorld.cpp
@@ -121,26 +110,6 @@ set(LINAENGINE_HEADERS
 	include/PackageManager/PAMVectorMath.hpp
 	include/PackageManager/PAMWindow.hpp
 	include/PackageManager/PAMRenderDevice.hpp
-	
-	#Rendering
-	include/Rendering/ArrayBitmap.hpp
-	include/Rendering/DDSTexture.hpp
-	include/Rendering/RenderEngine.hpp
-	include/Rendering/Shader.hpp
-	include/Rendering/Texture.hpp
-	include/Rendering/Window.hpp
-	include/Rendering/IndexedModel.hpp
-	include/Rendering/ModelLoader.hpp
-	include/Rendering/VertexArray.hpp
-	include/Rendering/Material.hpp
-	include/Rendering/Shader.hpp
-	include/Rendering/Sampler.hpp
-	include/Rendering/UniformBuffer.hpp
-	include/Rendering/RenderContext.hpp
-	include/Rendering/RenderTarget.hpp
-	include/Rendering/Mesh.hpp
-	include/Rendering/RenderingCommon.hpp
-	include/Rendering/ShaderConstants.hpp
 
 	#World
 	include/World/Level.hpp
@@ -361,6 +330,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glad/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/internal/ECS/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/internal/Render/include)
 
 if(LINA_GRAPHICS_OPENGL)
 	include(../CMake/GLGraphicsDefinitions.cmake)
@@ -381,7 +351,7 @@ if(LINA_GRAPHICS_OPENGL)
 		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
 		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/$<CONFIGURATION>/glad.lib
 		PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/internal/ECS/lib/$<CONFIGURATION>/LinaECS.lib
-
+		PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/internal/Render/lib/$<CONFIGURATION>/LinaRender.lib
 	)
 	
 endif()
