@@ -68,8 +68,11 @@ set (LINAENGINE_SOURCES
 	src/Rendering/ModelLoader.cpp
 	src/Rendering/RenderEngine.cpp
 	src/Rendering/RenderContext.cpp
-	src/Rendering/ShaderConstants.cpp
+	src/Rendering/RenderConstants.cpp
 	src/Rendering/Mesh.cpp
+	
+	#World
+	src/World/Level.cpp
 	
 	#Physics
 	src/Physics/PhysicsEngine.cpp
@@ -146,6 +149,8 @@ set(LINAENGINE_HEADERS
 	include/Input/InputCommon.hpp
 	#Interfaces
 	include/Interfaces/IInputSubscriber.hpp
+	include/Interfaces/ISerializable.hpp
+	
 	
 	#Package Manager
 	include/PackageManager/Generic/cmwc4096.hpp
@@ -182,7 +187,7 @@ set(LINAENGINE_HEADERS
 	include/Rendering/RenderTarget.hpp
 	include/Rendering/Mesh.hpp
 	include/Rendering/RenderingCommon.hpp
-	include/Rendering/ShaderConstants.hpp
+	include/Rendering/RenderConstants.hpp
 
 	#World
 	include/World/Level.hpp
@@ -288,7 +293,7 @@ set(LINAENGINE_HEADERS
 	#Others
 	include/EntryPoint.hpp
 	include/LinaPch.hpp
-	
+	CMakeLists.txt
 
 	
 )
@@ -399,9 +404,10 @@ endif ( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glad/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/vendor/glfw/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/vendor/glad/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/vendor/boost/include)
 
 if(LINA_GRAPHICS_OPENGL)
 	include(../CMake/GLGraphicsDefinitions.cmake)
@@ -421,6 +427,9 @@ if(LINA_GRAPHICS_OPENGL)
 		# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
 		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
 		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/$<CONFIGURATION>/glad.lib
+		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/boost/libs/$<CONFIGURATION>/libboost_serialization-vc142-mt-gd-x32-1_73.lib
+		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/boost/libs/$<CONFIGURATION>/libboost_filesystem-vc142-mt-gd-x32-1_73.lib
+
 	)
 	
 endif()

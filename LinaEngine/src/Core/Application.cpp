@@ -34,7 +34,8 @@ namespace LinaEngine
 		LINA_CORE_ASSERT(!instance, "Application already exists!");
 
 		// Create main window.
-		bool windowCreationSuccess = m_RenderEngine.CreateContextWindow(m_InputEngine);
+		bool windowCreationSuccess = m_RenderEngine.CreateContextWindow(m_InputEngine, NULL);
+
 		if (!windowCreationSuccess)
 		{
 			LINA_CORE_ERR("Window Creation Failed!");
@@ -89,16 +90,17 @@ namespace LinaEngine
 			// Update physics engine.
 			//m_PhysicsEngine.Tick(0.01f);
 
-			// Update render engine.
-			m_RenderEngine.Tick(0.01f);
-
 			// Update current level.
 			if (m_ActiveLevelExists)
 				m_CurrentLevel->Tick(0.01f);
 	
+			// Update render engine.
+			m_RenderEngine.Tick(0.01f);
+
 			// Update layers.
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
+
 		}
 
 	}

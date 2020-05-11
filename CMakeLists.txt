@@ -37,6 +37,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
 #--------------------------------------------------------------------
 set(LINAENGINE_SOURCE_DIR LinaEngine/src)
 set(LINAENGINE_HEADER_DIR LinaEngine/include)
+set(LINAENGINE_VENDOR_DIR LinaEngine/vendor)
 set(LINASANDBOX_SOURCE_DIR Sandbox/src)
 set(LINASANDBOX_HEADER_DIR Sandbox/include)
 

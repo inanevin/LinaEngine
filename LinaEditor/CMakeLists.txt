@@ -21,13 +21,23 @@ project(LinaEditor)
 
 set(LINAEDITOR_SOURCES 
 src/Core/EditorApplication.cpp
-src/Core/UILayer.cpp
+src/Core/GUILayer.cpp
+src/Core/EditorCommon.cpp
+src/Core/imgui/imgui_impl_opengl3.cpp
+src/Core/imgui/imgui_impl_glfw.cpp
+
+
+src/Utility/EditorUtility.cpp
 )
 
 set(LINAEDITOR_HEADERS
 
-include/Core/UILayer.hpp
+include/Core/GUILayer.hpp
+include/Core/EditorCommon.hpp
 
+
+include/Utility/EditorUtility.hpp
+CMakeLists.txt
 )
 
 #--------------------------------------------------------------------
@@ -38,7 +48,8 @@ add_executable(${PROJECT_NAME} ${LINAEDITOR_SOURCES} ${LINAEDITOR_HEADERS})
 #--------------------------------------------------------------------
 # Options & Definitions
 #--------------------------------------------------------------------
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/imgui/include)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
@@ -51,8 +62,12 @@ endif()
 #--------------------------------------------------------------------
 # Links
 #--------------------------------------------------------------------
-target_link_libraries(${PROJECT_NAME} Lina::Engine)
 
+target_link_libraries(${PROJECT_NAME} 
+PRIVATE Lina::Engine
+PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui/lib/$<CONFIGURATION>/IMGUI.lib
+
+)
 
 
 #--------------------------------------------------------------------
@@ -97,6 +112,19 @@ add_custom_command(
 TARGET ${PROJECT_NAME}
 PRE_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/resources/")
+
+# Copy project contents to project solution directory to run within IDE.
+add_custom_command(
+TARGET ${PROJECT_NAME}
+PRE_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/ProjectContents" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/ProjectContents/")
+
+# Copy project contents to binary directory
+add_custom_command(
+TARGET ${PROJECT_NAME}
+PRE_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/ProjectContents" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/ProjectContents")
+
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
