@@ -30,6 +30,9 @@ set (LINAENGINE_SOURCES
 	src/Rendering/RenderContext.cpp
 	src/Rendering/ShaderConstants.cpp
 	src/Rendering/Mesh.cpp
+	
+	src/PackageManager/OpenGL/GLRenderDevice.cpp
+	src/PackageManager/OpenGL/GLWindow.cpp
 )
 
 #--------------------------------------------------------------------
@@ -57,6 +60,8 @@ set(LINAENGINE_HEADERS
 	include/Rendering/RenderingCommon.hpp
 	include/Rendering/ShaderConstants.hpp
 
+	include/PackageManager/OpenGL/GLRenderDevice.hpp
+	include/PackageManager/OpenGL/GLWindow.hpp
 )
 
 #--------------------------------------------------------------------
@@ -135,7 +140,9 @@ endif ( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glad/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
 
 if(LINA_GRAPHICS_OPENGL)
 	include(../CMake/GLGraphicsDefinitions.cmake)
@@ -149,7 +156,8 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 #--------------------------------------------------------------------
 
 target_link_libraries(${PROJECT_NAME} 
-	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/vendor/assimp/lib/$<CONFIGURATION>/assimp.lib
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/$<CONFIGURATION>/glad.lib
 	PUBLIC Lina::Engine
 )
 	
@@ -175,12 +183,6 @@ add_custom_command(
 TARGET ${PROJECT_NAME}
 PRE_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/LinaRender/resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/resources")
-
-# Copy Assimp DLL
-add_custom_command(
-TARGET ${PROJECT_NAME}
-PRE_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/LinaRender/vendor/assimp/_bin/Assimp32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
 
 add_custom_command(
 TARGET ${PROJECT_NAME}

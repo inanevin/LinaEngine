@@ -28,6 +28,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "ECS/Systems/CameraSystem.hpp"
 #include "ECS/Systems/LightingSystem.hpp"
 #include "ECS/Systems/MeshRendererSystem.hpp"
+#include "Rendering/ModelLoader.hpp"
 #include "Mesh.hpp"
 #include "UniformBuffer.hpp"
 #include "Window.hpp"
@@ -255,6 +256,8 @@ namespace LinaEngine::Graphics
 		// Standart sprite vertex array object.
 		uint32 m_SpriteVAO;
 
+		// Model loader.
+		ModelLoader m_ModelLoader;
 
 		DISALLOW_COPY_ASSIGN_NEW(RenderEngine);
 	};

@@ -20,7 +20,6 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "LinaPch.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Material.hpp"
-#include "Rendering/ModelLoader.hpp"
 #include "Rendering/ShaderConstants.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/ArrayBitmap.hpp"
@@ -249,7 +248,7 @@ namespace LinaEngine::Graphics
 		{
 
 			// Create object data & feed it from model.
-			ModelLoader::LoadModels(filePath, m_LoadedMeshes[meshName].GetIndexedModels(), m_LoadedMeshes[meshName].GetMaterialIndices(), m_LoadedMeshes[meshName].GetMaterialSpecs());
+			m_ModelLoader.LoadModels(filePath, m_LoadedMeshes[meshName].GetIndexedModels(), m_LoadedMeshes[meshName].GetMaterialIndices(), m_LoadedMeshes[meshName].GetMaterialSpecs());
 
 			if (m_LoadedMeshes[meshName].GetIndexedModels().size() == 0)
 				LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! This will cause undefined behaviour or crashes if it is assigned to a ECS MeshRendererComponent."

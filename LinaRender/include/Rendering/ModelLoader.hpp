@@ -34,7 +34,7 @@ namespace LinaEngine::Graphics
 	public:
 
 		// Load models using ASSIMP
-		static bool LoadModels(const std::string& fileName, LinaArray<IndexedModel>& models, LinaArray<uint32>& modelMaterialIndices, LinaArray<ModelMaterial>& materials);
+		bool LoadModels(const std::string& fileName, LinaArray<IndexedModel>& models, LinaArray<uint32>& modelMaterialIndices, LinaArray<ModelMaterial>& materials);
 
 	};
 }

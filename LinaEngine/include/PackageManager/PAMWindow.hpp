@@ -23,7 +23,7 @@ Timestamp: 4/14/2019 7:13:05 PM
 #define PAMWINDOW_HPP
 
 #ifdef LINA_GRAPHICS_OPENGL
-#include "OpenGL/GLWindow.hpp"
+#include "PackageManager/OpenGL/GLWindow.hpp"
 
 typedef LinaEngine::Graphics::GLWindow ContextWindow;
 

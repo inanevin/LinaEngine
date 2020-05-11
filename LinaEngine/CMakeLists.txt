@@ -40,8 +40,6 @@ set (LINAENGINE_SOURCES
 	src/PackageManager/Generic/cmwc4096.cpp
 	src/PackageManager/Generic/GenericMemory.cpp
 	src/PackageManager/OpenGL/GLInputDevice.cpp
-	src/PackageManager/OpenGL/GLRenderDevice.cpp
-	src/PackageManager/OpenGL/GLWindow.cpp
 
 	#Physics
 	src/Physics/PhysicsEngine.cpp
@@ -100,8 +98,6 @@ set(LINAENGINE_HEADERS
 	include/PackageManager/Generic/GenericMemory.hpp
 	include/PackageManager/Generic/GenericVectorMath.hpp
 	include/PackageManager/OpenGL/GLInputDevice.hpp
-	include/PackageManager/OpenGL/GLRenderDevice.hpp
-	include/PackageManager/OpenGL/GLWindow.hpp
 	include/PackageManager/SSE/SSEVectorMath.hpp
 	include/PackageManager/PAMInputDevice.hpp
 	include/PackageManager/PAMMath.hpp
@@ -343,24 +339,16 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 # Subdirectories & linking
 #--------------------------------------------------------------------
 
-if(LINA_GRAPHICS_OPENGL)
-
-# Link libraries (e.g. logging)
-	target_link_libraries(${PROJECT_NAME} 
-		# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
-		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
-		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/$<CONFIGURATION>/glad.lib
-		PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/internal/ECS/lib/$<CONFIGURATION>/LinaECS.lib
-		PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/internal/Render/lib/$<CONFIGURATION>/LinaRender.lib
-	)
-	
-endif()
 
 # Link libraries (e.g. logging)
 target_link_libraries(${PROJECT_NAME} 
+	# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/$<CONFIGURATION>/glad.lib
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/internal/ECS/lib/$<CONFIGURATION>/LinaECS.lib
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/internal/Render/lib/$<CONFIGURATION>/LinaRender.lib
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/assimp/lib/$<CONFIGURATION>/assimp.lib
 )
-	
 
 #--------------------------------------------------------------------
 # Packages
