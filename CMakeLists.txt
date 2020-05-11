@@ -57,7 +57,7 @@ add_subdirectory(Sandbox)
 add_subdirectory(LinaEditor)
 add_subdirectory(LinaEngine)
 add_subdirectory(LinaECS)
-add_subdirectory(LinaRender)
+add_subdirectory(LinaGraphics)
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT LinaEditor)
 

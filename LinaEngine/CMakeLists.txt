@@ -326,7 +326,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glad/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/internal/ECS/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/internal/Render/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/internal/Graphics/include)
 
 if(LINA_GRAPHICS_OPENGL)
 	include(../CMake/GLGraphicsDefinitions.cmake)
@@ -345,9 +345,9 @@ target_link_libraries(${PROJECT_NAME}
 	# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/$<CONFIGURATION>/glad.lib
-	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/internal/ECS/lib/$<CONFIGURATION>/LinaECS.lib
-	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/internal/Render/lib/$<CONFIGURATION>/LinaRender.lib
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/assimp/lib/$<CONFIGURATION>/assimp.lib
+	PUBLIC Lina::ECS
+	PUBLIC Lina::Graphics
 )
 
 #--------------------------------------------------------------------
