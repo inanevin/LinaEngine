@@ -12,23 +12,28 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: Layer
-Timestamp: 1/2/2019 1:42:06 AM
+Class: ShaderConstants
+Timestamp: 2/16/2019 1:47:28 AM
 
 */
-#include "LinaPch.hpp"
-#include "Core/Layer.hpp"  
-#include "Core/Application.hpp"
-namespace LinaEngine
+
+#pragma once
+
+#ifndef ShaderConstants_HPP
+#define ShaderConstants_HPP
+
+#include <string>
+
+namespace LinaEngine::Graphics
 {
-	Layer::Layer(const std::string& debugName)
-		: m_DebugName(debugName)
+	struct ShaderConstants
 	{
-	}
-
-	Layer::~Layer()
-	{
-		
-	}
+		static std::string& standardLitShader;
+		static std::string& standardUnlitShader;
+		static std::string& skyboxCubemapShader;
+		static std::string& skyboxGradientShader;
+		static std::string& skyboxProceduralShader;
+		static std::string& skyboxSingleColorShader;
+	};
 }
-
+#endif

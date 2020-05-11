@@ -25,7 +25,6 @@ Timestamp: 4/26/2019 1:12:18 AM
 
 #include "Utility/Math/Matrix.hpp"
 #include "Utility/Math/Color.hpp"
-#include "Interfaces/ISerializable.hpp"
 #include <map>
 
 namespace LinaEngine::Graphics
@@ -39,11 +38,11 @@ namespace LinaEngine::Graphics
 		BindTextureMode bindMode = BindTextureMode::BINDTEXTURE_TEXTURE2D;
 	};
 
-	class Material : public ISerializable
+	class Material
 	{
 
 	public:
-
+		
 		FORCEINLINE void SetTexture(const std::string& textureName, Texture* texture, uint32 textureUnit, BindTextureMode bindMode = BindTextureMode::BINDTEXTURE_TEXTURE2D)
 		{
 			MaterialTextureData data;
@@ -129,30 +128,8 @@ namespace LinaEngine::Graphics
 		}
 
 		FORCEINLINE uint32 GetShaderID() { return shaderID; }
-
-		virtual void WriteObject(char* path) override
-		{
-			// Write object.
-			std::ofstream ofs(path);
-			boost::archive::text_oarchive ar(ofs);
-			ar& this;
-		}
-
-		virtual void ReadObject(char* path) override
-		{
-			// Get Object.
-			std::ifstream ifs(path);
-			boost::archive::text_iarchive ar(ifs);
-			Material restoredMaterial;
-			ar& restoredMaterial;
-
-			// Set information.
-		}
-
 	private:
 
-		// Allow serialization to access non-public data members.
-		friend class boost::serialization::access;
 		friend class RenderEngine;
 		friend class RenderContext;
 
@@ -166,15 +143,7 @@ namespace LinaEngine::Graphics
 		std::map<std::string, Vector2F> vector2s;
 		std::map<std::string, Vector3F> vector3s;
 		std::map<std::string, Vector4F> vector4s;
-		std::map<std::string, Matrix> matrices;
-
-		// Serialize the std::vector member of Info
-		template<class Archive>
-		void serialize(Archive& ar, const unsigned int version)
-		{
-			ar& floats& ints& samplers& colors& vector2s& vector3s& vector4s& matrices;
-			// DOESNT SERIALIZE TEXTURES YET
-		}
+		std::map<std::string, Matrix> matrices;;
 
 	
 	};

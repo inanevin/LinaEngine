@@ -33,7 +33,6 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "Window.hpp"
 #include "RenderContext.hpp"
 #include "Utility/Math/Color.hpp"
-#include "Core/LayerStack.hpp"
 #include <functional>
 
 namespace LinaEngine
@@ -58,11 +57,10 @@ namespace LinaEngine::Graphics
 		~RenderEngine();
 
 
-
 		// Creates an GLFW window.
-		FORCEINLINE bool CreateContextWindow(LinaEngine::Input::InputEngine& inputEngineIn, void* sharedWindow)
+		FORCEINLINE bool CreateContextWindow(LinaEngine::Input::InputEngine& inputEngineIn)
 		{
-			return m_MainWindow.Initialize(inputEngineIn, sharedWindow);
+			return m_MainWindow.Initialize(inputEngineIn);
 		}
 
 		// Returns GLFW window instance.
@@ -170,11 +168,6 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void SetSkyboxMaterial(Material & skyboxMaterial) { m_SkyboxMaterial = &skyboxMaterial; }
 		void SetSkyboxMaterial(const std::string & materialName);
 
-		// Pushes a new layer into the gui stack.
-		void PushLayer(Layer* layer);
-
-		// Pushes a new overlay layer into the gui stack.
-		void PushOverlay(Layer* layer);
 
 	private:
 
@@ -254,9 +247,6 @@ namespace LinaEngine::Graphics
 		Mesh m_DummyMesh;
 		Texture m_DummyTexture;
 
-		// GUI layer queue.
-		LayerStack m_GUILayerStack;
-
 	private:
 
 		// Standart Skybox vertex array object.
@@ -265,7 +255,7 @@ namespace LinaEngine::Graphics
 		// Standart sprite vertex array object.
 		uint32 m_SpriteVAO;
 
-		
+
 		DISALLOW_COPY_ASSIGN_NEW(RenderEngine);
 	};
 

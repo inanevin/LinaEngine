@@ -41,7 +41,7 @@ namespace LinaEngine::Graphics
 	public:
 
 		// Creates the native window.
-		bool Initialize(LinaEngine::Input::InputEngine& inputEngineIn, WindowProperties& propsIn, void* sharedWindow);
+		bool Initialize(LinaEngine::Input::InputEngine& inputEngineIn, WindowProperties& propsIn);
 
 		// Called every frame.
 		void Tick();

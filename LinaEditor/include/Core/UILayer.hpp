@@ -12,23 +12,26 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: Layer
-Timestamp: 1/2/2019 1:42:06 AM
+Class: UILayer
 
 */
-#include "LinaPch.hpp"
-#include "Core/Layer.hpp"  
-#include "Core/Application.hpp"
-namespace LinaEngine
+
+#include "Core/Layer.hpp"
+
+namespace LinaEditor
 {
-	Layer::Layer(const std::string& debugName)
-		: m_DebugName(debugName)
+	class UILayer : public LinaEngine::Layer
 	{
-	}
 
-	Layer::~Layer()
-	{
-		
-	}
+	public:
+
+		UILayer() : LinaEngine::Layer("UILayer")
+		{
+
+		}
+
+		void OnUpdate() override;
+		void OnEvent(LinaEngine::Event& e) override;
+	
+	};
 }
-

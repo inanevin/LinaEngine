@@ -26,11 +26,10 @@ Timestamp: 4/9/2019 12:43:29 AM
 #include "PackageManager/PAMMemory.hpp"
 #include "PackageManager/PAMMath.hpp"
 #include "Utility/Log.hpp"
-#include "Interfaces/ISerializable.hpp"
 
 namespace LinaEngine
 {
-	struct GenericVector : public ISerializable
+	struct GenericVector
 	{
 	public:
 
@@ -604,42 +603,6 @@ namespace LinaEngine
 		}
 
 	private:
-
-		// Allow serialization to access non-public data members.
-		friend class boost::serialization::access;
-
-		// Serialize the members.
-		template<class Archive>
-		void serialize(Archive& ar, const unsigned int version)
-		{
-			ar& v;
-		}
-
-		virtual void WriteObject(char* path) override
-		{
-			// Write object.
-			std::ofstream ofs(path);
-			boost::archive::text_oarchive ar(ofs);
-			ar& this;
-		}
-
-		virtual void ReadObject(char* path) override
-		{
-			// Get Object
-			std::ifstream ifs(path);
-			boost::archive::text_iarchive ar(ifs);
-			GenericVector restoredData;
-			ar& restoredData;
-
-			// Set information.
-			v[0] = restoredData.v[0];
-			v[1] = restoredData.v[1];
-			v[2] = restoredData.v[2];
-			v[3] = restoredData.v[3];
-		}
-
-		private:
-
 		float v[4];
 	};
 }

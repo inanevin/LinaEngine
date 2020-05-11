@@ -25,11 +25,10 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_Color_HPP
 
 #include "Core/Common.hpp"
-#include "Interfaces/ISerializable.hpp"
 
 namespace LinaEngine
 {
-	class  Color : public ISerializable
+	class  Color
 	{
 
 	public:
@@ -44,40 +43,8 @@ namespace LinaEngine
 		FORCEINLINE float B() const { return b; }
 		FORCEINLINE float A() const { return a; }
 
-		// Serialize the members.
-		template<class Archive>
-		void serialize(Archive& ar, const unsigned int version)
-		{
-			ar& r& g& b& a;
-		}
-
-
-		virtual void WriteObject(char* path) override
-		{
-			std::ofstream ofs(path);
-			boost::archive::text_oarchive ar(ofs);
-			ar& this;
-		}
-
-		virtual void ReadObject(char* path) override
-		{
-			std::ifstream ifs(path);
-			boost::archive::text_iarchive ar(ifs);
-
-			Color restoredData;
-			ar& restoredData;
-
-			// Set information.
-			r = restoredData.r;
-			g = restoredData.g;
-			b = restoredData.b;
-			a = restoredData.a;
-		}
 
 	private:
-
-		// Allow serialization to access non-public data members.
-		friend class boost::serialization::access;	
 
 		float r, g, b, a = 1.0f;
 	};

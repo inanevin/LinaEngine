@@ -21,7 +21,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/ModelLoader.hpp"
-#include "Rendering/RenderConstants.hpp"
+#include "Rendering/ShaderConstants.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/ArrayBitmap.hpp"
 #include "ECS/EntityComponentSystem.hpp"
@@ -29,7 +29,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "Utility/Math/Color.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "PackageManager/PAMInputDevice.hpp"
-#include "Core/Layer.hpp"
+
 
 namespace LinaEngine::Graphics
 {
@@ -115,7 +115,6 @@ namespace LinaEngine::Graphics
 		// Add the ECS systems into the pipeline.
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
 		m_RenderingPipeline.AddSystem(m_MeshRendererSystem);
-		//m_RenderingPipeline.AddSystem(m_LightingSystem);
 
 	}
 
@@ -134,12 +133,7 @@ namespace LinaEngine::Graphics
 		m_DefaultRenderContext.Flush();
 
 		// Draw skybox.
-	//	DrawSkybox();
-
-
-		// Draw GUI Layers
-		for (Layer* layer : m_GUILayerStack)
-			layer->OnUpdate();
+		DrawSkybox();
 
 		// Update window.
 		m_MainWindow.Tick();
@@ -528,17 +522,17 @@ namespace LinaEngine::Graphics
 		}
 		else if (usedName == ShaderConstants::skyboxSingleColorShader)
 		{
-			material.colors["material.color"] = Colors::Black;
+			material.colors["material.color"] = Colors::White;
 		}
 		else if (usedName == ShaderConstants::skyboxGradientShader)
 		{
 			material.colors["material.startColor"] = Colors::Black;
-			material.colors["material.endColor"] = Colors::Black;
+			material.colors["material.endColor"] = Colors::White;
 		}
 		else if (usedName == ShaderConstants::skyboxProceduralShader)
 		{
 			material.colors["material.startColor"] = Colors::Black;
-			material.colors["material.endColor"] = Colors::Black;
+			material.colors["material.endColor"] = Colors::White;
 			material.vector3s["material.sunDirection"] = Vector3F(0, -1, 0);
 		}
 		else if (usedName == ShaderConstants::skyboxCubemapShader)
@@ -546,7 +540,6 @@ namespace LinaEngine::Graphics
 			material.samplers["material.diffuse"] = 0;
 		}
 	}
-
 
 	void RenderEngine::SetSkyboxMaterial(const std::string & materialName)
 	{
@@ -556,15 +549,5 @@ namespace LinaEngine::Graphics
 			LINA_CORE_ERR("Material with the name {0} does not exists! Aborting...", materialName);
 	}
 
-	void RenderEngine::PushLayer(Layer* layer)
-	{
-		m_GUILayerStack.PushLayer(layer);
-		layer->OnAttach();
-	}
-	void RenderEngine::PushOverlay(Layer* layer)
-	{
-		m_GUILayerStack.PushOverlay(layer);
-		layer->OnAttach();
-	}
 
 }

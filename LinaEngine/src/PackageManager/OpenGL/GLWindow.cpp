@@ -66,7 +66,7 @@ namespace LinaEngine::Graphics
 		LINA_CORE_ERR("GLFW Error: {0} Description: {1} ", error, desc);
 	}
 
-	bool GLWindow::Initialize(LinaEngine::Input::InputEngine& inputEngineIn, WindowProperties& propsIn, void* shared)
+	bool GLWindow::Initialize(LinaEngine::Input::InputEngine& inputEngineIn, WindowProperties& propsIn)
 	{
 		LINA_CORE_TRACE("[Initialization] -> GLWindow ({0})", typeid(*this).name());
 		
@@ -85,7 +85,7 @@ namespace LinaEngine::Graphics
 #endif
 
 		// Create window
-		GLFWwindow* window = (glfwCreateWindow(m_WindowProperties->m_Width, m_WindowProperties->m_Height, m_WindowProperties->m_Title.c_str(), NULL, shared == NULL ? NULL : static_cast<GLFWwindow*>(shared)));
+		GLFWwindow* window = (glfwCreateWindow(m_WindowProperties->m_Width, m_WindowProperties->m_Height, m_WindowProperties->m_Title.c_str(), NULL, NULL));
 	
 		if (!window)
 		{

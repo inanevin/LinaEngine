@@ -23,9 +23,6 @@ Timestamp: 5/6/2019 5:10:23 PM
 #define Level_HPP
 
 #include "Core/Common.hpp"
-#include "Utility/Math/Color.hpp"
-#include  "Rendering/RenderConstants.hpp"
-#include <string>
 
 namespace LinaEngine
 {
@@ -50,26 +47,7 @@ namespace LinaEngine
 
 namespace LinaEngine::World
 {
-	enum SkyboxType { SingleColor, Gradient, Procedural, Cubemap };
-
-	struct SkyboxProperties
-	{
-		std::string shaderID = Graphics::ShaderConstants::skyboxSingleColorShader;
-		SkyboxType type = SkyboxType::SingleColor;
-		Color color1 = Colors::Black;
-		Color color2 = Colors::Black;
-
-		SkyboxProperties()
-		{		
-			shaderID = "";
-			type = SkyboxType::SingleColor;
-			color1 = Colors::Black;
-			color2 = Colors::Black;
-		};
-
-		// Add textures for cubemap later on.
-	};
-
+	
 
 	class Level
 	{
@@ -80,24 +58,20 @@ namespace LinaEngine::World
 
 		virtual void OnLevelLoaded() {};
 		virtual void OnLevelRemoved() {};
-		virtual void Install();
+		virtual void Install() {};
 		virtual void Initialize() {};
 		virtual void Tick(float delta) {};
 
-		void CreateSkyboxMaterial(SkyboxProperties properties);
-	
 	protected:
 
 		LinaEngine::ECS::EntityComponentSystem* m_ECS = nullptr;
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
 		LinaEngine::Input::InputEngine* m_InputEngine = nullptr;
 
-		SkyboxProperties m_SkyboxProperties;
 
 	private:
 
 		friend class LinaEngine::Application;
-
 
 		void SetEngineReferences(LinaEngine::ECS::EntityComponentSystem& ecsIn, LinaEngine::Graphics::RenderEngine& renderEngineIn, LinaEngine::Input::InputEngine& inputEngineIn)
 		{

@@ -18,41 +18,28 @@ Timestamp: 12/29/2018 11:15:41 PM
 */
 
 #include <Lina.hpp>
-#include "Core/GUILayer.hpp"
-#include "World/Level.hpp"
+#include "Core/UILayer.hpp"
+
 
 namespace LinaEditor
 {
 	class EditorApplication : public LinaEngine::Application
 	{
 	public:
-
 		EditorApplication() {
-			LINA_CLIENT_TRACE("[Constructor] -> Editor Application ({0})", typeid(*this).name());
+			//LINA_CLIENT_TRACE("[Constructor] -> Sandbox ({0})", typeid(*this).name());
 
-			// Create layer
-			GUILayer* layer = new LinaEditor::GUILayer();
-
-			// Setup layer
-			layer->Setup(GetRenderEngine(), this);
-
-			// Load startup level.
-			LoadLevel(&m_StartupLevel);
-			
-			// Push layer into the engine. ** WHILE LOOP INSIDE ** 
-			GetRenderEngine().PushLayer(layer);
-
+			LinaEngine::Layer* l = new LinaEditor::UILayer();
+			PushLayer(l);
 			//PushOverlay(new LinaEngine::Layer_IMGUI());
 
+			//LoadLevel(&level);
 		}
 		~EditorApplication() {
-			LINA_CLIENT_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
+			//LINA_CLIENT_TRACE("[Destructor] -> Sanbox ({0})", typeid(*this).name());
 		}
 
-	private:
 
-		// Startup level.
-		LinaEngine::World::Level m_StartupLevel;
 
 	};
 
