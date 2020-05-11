@@ -93,8 +93,8 @@ namespace LinaEngine
 			m_RenderEngine.Tick(0.01f);
 
 			// Update current level.
-			//if (m_ActiveLevelExists)
-				//m_CurrentLevel->Tick(0.01f);
+			if (m_ActiveLevelExists)
+				m_CurrentLevel->Tick(0.01f);
 	
 			// Update layers.
 			for (Layer* layer : m_LayerStack)

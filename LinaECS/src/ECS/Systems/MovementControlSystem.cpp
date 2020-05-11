@@ -19,9 +19,9 @@ Timestamp: 4/9/2019 3:30:12 PM
 
 #include "LinaPch.hpp"
 #include "ECS/Systems/MovementControlSystem.hpp"  
-#include "Input/InputAxisBinder.hpp"
 #include "ECS/Components/MotionComponent.hpp"
 #include "ECS/Components/MovementControlComponent.hpp"
+#include "Input/InputAxisBinder.hpp"
 
 
 namespace LinaEngine::ECS

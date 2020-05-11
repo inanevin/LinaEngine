@@ -19,11 +19,12 @@ Timestamp: 5/2/2019 2:19:36 AM
 
 #include "LinaPch.hpp"
 #include "ECS/Systems/FreeLookSystem.hpp"  
+#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/FreeLookComponent.hpp"
 #include "Input/InputAxisBinder.hpp"
 #include "Input/InputCommon.hpp"
 #include "Input/InputEngine.hpp"
-#include "ECS/Components/TransformComponent.hpp"
-#include "ECS/Components/FreeLookComponent.hpp"
+
 
 namespace LinaEngine::ECS
 {

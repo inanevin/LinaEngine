@@ -24,7 +24,7 @@ Timestamp: 5/13/2019 9:00:55 PM
 
 #include "ECS/ECSComponent.hpp"
 #include "Utility/Math/Color.hpp"
-
+#include "Utility/Math/Vector.hpp"
 
 
 namespace LinaEngine::ECS

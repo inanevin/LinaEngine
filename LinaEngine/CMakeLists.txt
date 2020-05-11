@@ -28,24 +28,7 @@ set (LINAENGINE_SOURCES
     src/Core/Layer.cpp
     src/Core/LayerStack.cpp
 	src/Core/Time.cpp
-	
-	
-	# ECS 
-	src/ECS/Systems/MovementControlSystem.cpp
-	src/ECS/Systems/MeshRendererSystem.cpp
-	src/ECS/Systems/MotionSystem.cpp
-	src/ECS/Systems/CubeChunkSystem.cpp
-	src/ECS/Systems/CubeChunkRenderSystem.cpp
-	src/ECS/Systems/CameraSystem.cpp
-	src/ECS/Systems/FreeLookSystem.cpp
-	src/ECS/Systems/LightingSystem.cpp
 
-	src/ECS/Interactions/TestInteraction.cpp
-	src/ECS/ECSComponent.cpp
-	src/ECS/ECSSystem.cpp
-	src/ECS/EntityComponentSystem.cpp
-	
-	
 	#Events
 	src/Events/ActionDispatcher.cpp
 	src/Events/ActionSubscriber.cpp
@@ -104,32 +87,7 @@ set(LINAENGINE_HEADERS
 	include/Core/Time.hpp
 	include/Core/LinaArray.hpp
 	include/Core/SizeDefinitions.hpp
-	
-	#ECS
-	include/ECS/Components/MovementControlComponent.hpp
-	include/ECS/Components/MeshRendererComponent.hpp
-	include/ECS/Components/TransformComponent.hpp
-	include/ECS/Components/MotionComponent.hpp
-	include/ECS/Components/CubeChunkComponent.hpp
-	include/ECS/Components/ColliderComponent.hpp
-	include/ECS/Components/CameraComponent.hpp
-	include/ECS/Components/FreeLookComponent.hpp
-	include/ECS/Components/LightComponent.hpp
-	include/ECS/Systems/MovementControlSystem.hpp
-	include/ECS/Systems/MeshRendererSystem.hpp
-	include/ECS/Systems/MotionSystem.hpp
-	include/ECS/Systems/CubeChunkSystem.hpp
-	include/ECS/Systems/CubeChunkRenderSystem.hpp
-	include/ECS/Systems/CameraSystem.hpp
-	include/ECS/Systems/FreeLookSystem.hpp
-	include/ECS/Systems/LightingSystem.hpp
-	include/ECS/Interactions/TestInteraction.hpp
-	include/ECS/ECSComponent.hpp
-	include/ECS/ECSSystem.hpp
-	include/ECS/EntityComponentSystem.hpp
-	include/ECS/Utility/MotionIntegrators.hpp
-	include/ECS/ECSInteraction.hpp
-	
+
 	#EVENTS
 	include/Events/Action.hpp
 	include/Events/ActionDispatcher.hpp
@@ -402,6 +360,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glad/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/internal/ECS/include)
 
 if(LINA_GRAPHICS_OPENGL)
 	include(../CMake/GLGraphicsDefinitions.cmake)
@@ -421,6 +380,8 @@ if(LINA_GRAPHICS_OPENGL)
 		# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
 		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
 		PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/$<CONFIGURATION>/glad.lib
+		PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/internal/ECS/lib/$<CONFIGURATION>/LinaECS.lib
+
 	)
 	
 endif()
