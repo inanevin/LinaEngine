@@ -29,6 +29,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "PackageManager/PAMVectorMath.hpp"
 #include <sstream>
 #include <iostream>
+#include "Interfaces/ISerializable.hpp"
 
 namespace LinaEngine
 {
@@ -47,7 +48,7 @@ namespace LinaEngine
 
 	};
 
-	class  Vector4F
+	class  Vector4F : public ISerializable
 	{
 	public:
 
@@ -80,18 +81,18 @@ namespace LinaEngine
 			return Vector4F(this->x + rhs.x, this->y + rhs.y, this->z + rhs.z, this->w + rhs.w);
 		};
 
-		inline Vector4F operator-(const Vector4F & rhs) const
+		inline Vector4F operator-(const Vector4F& rhs) const
 		{
 			return Vector4F(this->x - rhs.x, this->y - rhs.y, this->z - rhs.z, this->w - rhs.w);
 		};
 
-		inline Vector4F operator*(const Vector4F & rhs) const
+		inline Vector4F operator*(const Vector4F& rhs) const
 		{
 
 			return Vector4F(this->x * rhs.x, this->y * rhs.y, this->z * rhs.z, this->w * rhs.w);
 
 		}
-		inline Vector4F operator/(const Vector4F & rhs) const
+		inline Vector4F operator/(const Vector4F& rhs) const
 		{
 			float xR = rhs.x == 0.0f ? 0.0f : this->x / rhs.x;
 			float yR = rhs.y == 0.0f ? 0.0f : this->y / rhs.y;
@@ -125,7 +126,7 @@ namespace LinaEngine
 			return Vector4F(this->x + rhs, this->y + rhs, this->z + rhs, this->w + rhs);
 		}
 
-		inline Vector4F & operator+=(const Vector4F & rhs)
+		inline Vector4F& operator+=(const Vector4F& rhs)
 		{
 			this->x += rhs.x;
 			this->y += rhs.y;
@@ -135,7 +136,7 @@ namespace LinaEngine
 			return *this;
 		};
 
-		inline Vector4F& operator-=(const Vector4F & rhs)
+		inline Vector4F& operator-=(const Vector4F& rhs)
 		{
 			this->x -= rhs.x;
 			this->y -= rhs.y;
@@ -145,7 +146,7 @@ namespace LinaEngine
 			return *this;
 		};
 
-		inline Vector4F& operator*=(const Vector4F & rhs)
+		inline Vector4F& operator*=(const Vector4F& rhs)
 		{
 			this->x *= rhs.x;
 			this->y *= rhs.y;
@@ -155,7 +156,7 @@ namespace LinaEngine
 			return *this;
 		};
 
-		inline Vector4F& operator/=(const Vector4F & rhs)
+		inline Vector4F& operator/=(const Vector4F& rhs)
 		{
 			this->x = rhs.x == 0.0f ? 0.0f : this->x / rhs.x;
 			this->y = rhs.y == 0.0f ? 0.0f : this->y / rhs.y;
@@ -214,23 +215,23 @@ namespace LinaEngine
 		};
 
 
-		inline bool operator==(const Vector4F & rhs) const
+		inline bool operator==(const Vector4F& rhs) const
 		{
 			return (this->x == rhs.x && this->y == rhs.y && this->z == rhs.z && this->w == rhs.w);
 		}
 
-		inline bool operator!=(const Vector4F & rhs) const
+		inline bool operator!=(const Vector4F& rhs) const
 		{
 			return !(this->x == rhs.x && this->y == rhs.y && this->z == rhs.z && this->w == rhs.w);
 		}
 
 
-		inline bool operator>(const Vector4F & rhs) const
+		inline bool operator>(const Vector4F& rhs) const
 		{
 			return this->Magnitude() > rhs.Magnitude();
 		}
 
-		inline bool operator<(const Vector4F & rhs) const
+		inline bool operator<(const Vector4F& rhs) const
 		{
 			return this->Magnitude() < rhs.Magnitude();
 		}
@@ -263,7 +264,7 @@ namespace LinaEngine
 			return Vector4F(-x, -y, -z, -w);
 		}
 
-		inline std::ostream& operator<<(std::ostream & os)
+		inline std::ostream& operator<<(std::ostream& os)
 		{
 			return os << "(X: " << x << " Y: " << y << " Z: " << z << " W: " << w << ")";
 		}
@@ -278,11 +279,41 @@ namespace LinaEngine
 
 #pragma endregion
 
+		// Serialize the members.
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar& x& y& z& w;
+		}
+
+		virtual void WriteObject(char* path) override
+		{
+			// Write object.
+			std::ofstream ofs(path);
+			boost::archive::text_oarchive ar(ofs);
+			ar& this;
+		}
+
+		virtual void ReadObject(char* path) override
+		{
+			// Get Object
+			std::ifstream ifs(path);
+			boost::archive::text_iarchive ar(ifs);
+			Vector4F restoredData;
+			ar& restoredData;
+
+			// Set information.
+			x = restoredData.x;
+			y = restoredData.y;
+			z = restoredData.z;
+			w = restoredData.w;
+		}
+
 
 	};
 
 
-	class Vector3F
+	class Vector3F : public ISerializable
 	{
 	public:
 
@@ -316,17 +347,17 @@ namespace LinaEngine
 			return Vector3F(vec + other.vec);
 		}
 
-		FORCEINLINE Vector3F Vector3F::operator-(const Vector3F & other) const
+		FORCEINLINE Vector3F Vector3F::operator-(const Vector3F& other) const
 		{
 			return Vector3F(vec - other.vec);
 		}
 
-		FORCEINLINE Vector3F Vector3F::operator*(const Vector3F & other) const
+		FORCEINLINE Vector3F Vector3F::operator*(const Vector3F& other) const
 		{
 			return Vector3F(vec * other.vec);
 		}
 
-		FORCEINLINE Vector3F Vector3F::operator/(const Vector3F & other) const
+		FORCEINLINE Vector3F Vector3F::operator/(const Vector3F& other) const
 		{
 			return Vector3F(vec / other.vec);
 		}
@@ -356,25 +387,25 @@ namespace LinaEngine
 			return Vector3F(-vec);
 		}
 
-		FORCEINLINE Vector3F Vector3F::operator+=(const Vector3F & other)
+		FORCEINLINE Vector3F Vector3F::operator+=(const Vector3F& other)
 		{
 			vec = vec + other.vec;
 			return *this;
 		}
 
-		FORCEINLINE Vector3F Vector3F::operator-=(const Vector3F & other)
+		FORCEINLINE Vector3F Vector3F::operator-=(const Vector3F& other)
 		{
 			vec = vec - other.vec;
 			return *this;
 		}
 
-		FORCEINLINE Vector3F Vector3F::operator*=(const Vector3F & other)
+		FORCEINLINE Vector3F Vector3F::operator*=(const Vector3F& other)
 		{
 			vec = vec * other.vec;
 			return *this;
 		}
 
-		FORCEINLINE Vector3F Vector3F::operator/=(const Vector3F & other)
+		FORCEINLINE Vector3F Vector3F::operator/=(const Vector3F& other)
 		{
 			vec = vec / other.vec;
 			return *this;
@@ -405,11 +436,11 @@ namespace LinaEngine
 		}
 
 
-		FORCEINLINE float Vector3F::Distance(const Vector3F & other) const
+		FORCEINLINE float Vector3F::Distance(const Vector3F& other) const
 		{
 			return Math::Sqrt(DistanceSquared(other));
 		}
-		FORCEINLINE float Vector3F::DistanceSquared(const Vector3F & other) const
+		FORCEINLINE float Vector3F::DistanceSquared(const Vector3F& other) const
 		{
 			Vector3F temp = other - *this;
 			return temp.vec.Dot3(temp.vec)[0];
@@ -422,7 +453,7 @@ namespace LinaEngine
 		{
 			return vec.Dot3(vec)[0];
 		}
-		FORCEINLINE float Vector3F::Dot(const Vector3F & other) const
+		FORCEINLINE float Vector3F::Dot(const Vector3F& other) const
 		{
 			return vec.Dot3(other.vec)[0];
 		}
@@ -446,9 +477,9 @@ namespace LinaEngine
 		FORCEINLINE void SetY(float f) { Set((uint32)1, f); }
 		FORCEINLINE void SetZ(float f) { Set((uint32)2, f); }
 
-		bool operator==(const Vector3F & other) const;
-		bool operator!=(const Vector3F & other) const;
-		bool equals(const Vector3F & other, float errorMargin = 1.e-4f) const;
+		bool operator==(const Vector3F& other) const;
+		bool operator!=(const Vector3F& other) const;
+		bool equals(const Vector3F& other, float errorMargin = 1.e-4f) const;
 		bool equals(float val, float errorMargin = 1.e-4f) const;
 		bool IsNormalized(float errorMargin = 1.e-4f) const;
 
@@ -459,23 +490,55 @@ namespace LinaEngine
 		float operator[](uint32 index) const;
 
 		Vector3F Abs() const;
-		Vector3F Min(const Vector3F & other) const;
-		Vector3F Max(const Vector3F & other) const;
+		Vector3F Min(const Vector3F& other) const;
+		Vector3F Max(const Vector3F& other) const;
 		Vector3F Normalized(float errorMargin = 1.e-8f) const;
 		Vector3F Project() const;
 		Vector3F Reciprocal() const;
-		Vector3F Rotate(const Vector3F & axis, float angle) const;
+		Vector3F Rotate(const Vector3F& axis, float angle) const;
 		Vector3F Rotate(const class Quaternion& rotation) const;
-		Vector3F Reflect(const Vector3F & normal) const;
-		Vector3F Refract(const Vector3F & normal, float indexOfRefraction) const;
+		Vector3F Reflect(const Vector3F& normal) const;
+		Vector3F Refract(const Vector3F& normal, float indexOfRefraction) const;
 		Vector3F ToDegrees() const;
 		Vector3F ToRadians() const;
 
 		Vector ToVector(float w) const;
-		void DirAndLength(Vector3F & dir, float& length) const;
+		void DirAndLength(Vector3F& dir, float& length) const;
 		void Set(float x, float y, float z);
 		void Set(uint32 index, float val);
 		void Normalize(float errorMargin = 1.e-8f);
+
+	private:
+
+		// Allow serialization to access non-public data members.
+		friend class boost::serialization::access;
+
+		// Serialize the members.
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar& vec;
+		}
+
+		virtual void WriteObject(char* path) override
+		{
+			// Write object.
+			std::ofstream ofs(path);
+			boost::archive::text_oarchive ar(ofs);
+			ar& this;
+		}
+
+		virtual void ReadObject(char* path) override
+		{
+			// Get Object
+			std::ifstream ifs(path);
+			boost::archive::text_iarchive ar(ifs);
+			Vector3F restoredData;
+			ar& restoredData;
+
+			// Set information.
+			vec = restoredData.vec;
+		}
 
 	private:
 		Vector vec;
@@ -484,7 +547,7 @@ namespace LinaEngine
 
 
 
-	class  Vector2F
+	class  Vector2F : public ISerializable
 	{
 	public:
 
@@ -507,27 +570,27 @@ namespace LinaEngine
 			vals[0] = xIn;
 			vals[1] = yIn;
 		}
-		FORCEINLINE Vector2F Vector2F::DotToVector(const Vector2F & other) const
+		FORCEINLINE Vector2F Vector2F::DotToVector(const Vector2F& other) const
 		{
 			return Vector2F(Dot(other));
 		}
 
-		FORCEINLINE Vector2F Vector2F::operator+(const Vector2F & other) const
+		FORCEINLINE Vector2F Vector2F::operator+(const Vector2F& other) const
 		{
 			return Vector2F(vals[0] + other.vals[0], vals[1] + other.vals[1]);
 		}
 
-		FORCEINLINE Vector2F Vector2F::operator-(const Vector2F & other) const
+		FORCEINLINE Vector2F Vector2F::operator-(const Vector2F& other) const
 		{
 			return Vector2F(vals[0] - other.vals[0], vals[1] - other.vals[1]);
 		}
 
-		FORCEINLINE Vector2F Vector2F::operator*(const Vector2F & other) const
+		FORCEINLINE Vector2F Vector2F::operator*(const Vector2F& other) const
 		{
 			return Vector2F(vals[0] * other.vals[0], vals[1] * other.vals[1]);
 		}
 
-		FORCEINLINE Vector2F Vector2F::operator/(const Vector2F & other) const
+		FORCEINLINE Vector2F Vector2F::operator/(const Vector2F& other) const
 		{
 			return Vector2F(vals[0] / other.vals[0], vals[1] / other.vals[1]);
 		}
@@ -557,28 +620,28 @@ namespace LinaEngine
 			return Vector2F(-vals[0], -vals[1]);
 		}
 
-		FORCEINLINE Vector2F Vector2F::operator+=(const Vector2F & other)
+		FORCEINLINE Vector2F Vector2F::operator+=(const Vector2F& other)
 		{
 			vals[0] += other.vals[0];
 			vals[1] += other.vals[1];
 			return *this;
 		}
 
-		FORCEINLINE Vector2F Vector2F::operator-=(const Vector2F & other)
+		FORCEINLINE Vector2F Vector2F::operator-=(const Vector2F& other)
 		{
 			vals[0] -= other.vals[0];
 			vals[1] -= other.vals[1];
 			return *this;
 		}
 
-		FORCEINLINE Vector2F Vector2F::operator*=(const Vector2F & other)
+		FORCEINLINE Vector2F Vector2F::operator*=(const Vector2F& other)
 		{
 			vals[0] *= other.vals[0];
 			vals[1] *= other.vals[1];
 			return *this;
 		}
 
-		FORCEINLINE Vector2F Vector2F::operator/=(const Vector2F & other)
+		FORCEINLINE Vector2F Vector2F::operator/=(const Vector2F& other)
 		{
 			vals[0] /= other.vals[0];
 			vals[1] /= other.vals[1];
@@ -613,22 +676,22 @@ namespace LinaEngine
 			return *this;
 		}
 
-		FORCEINLINE float Vector2F::Dot(const Vector2F & other) const
+		FORCEINLINE float Vector2F::Dot(const Vector2F& other) const
 		{
 			return vals[0] * other.vals[0] + vals[1] * other.vals[1];
 		}
 
-		FORCEINLINE float Vector2F::Cross(const Vector2F & other) const
+		FORCEINLINE float Vector2F::Cross(const Vector2F& other) const
 		{
 			return vals[0] * other.vals[1] - vals[1] * other.vals[0];
 		}
 
-		FORCEINLINE float Vector2F::Distance(const Vector2F & other) const
+		FORCEINLINE float Vector2F::Distance(const Vector2F& other) const
 		{
 			return Math::Sqrt(DistanceSquared(other));
 		}
 
-		FORCEINLINE float Vector2F::DistanceSquared(const Vector2F & other) const
+		FORCEINLINE float Vector2F::DistanceSquared(const Vector2F& other) const
 		{
 			return (other - *this).MagnitudeSqrt();
 		}
@@ -656,22 +719,22 @@ namespace LinaEngine
 		FORCEINLINE void SetY(float f) { Set((uint32)1, f); }
 
 		Vector2F Abs() const;
-		Vector2F Min(const Vector2F & other) const;
-		Vector2F Max(const Vector2F & other) const;
+		Vector2F Min(const Vector2F& other) const;
+		Vector2F Max(const Vector2F& other) const;
 		Vector2F Normalized(float errorMargin = 1.e-8f) const;
 		Vector2F Reciprocal() const;
 		Vector2F Rotate(float angle) const;
-		Vector2F Reflect(const Vector2F & normal) const;
-		Vector2F Refract(const Vector2F & normal, float indexOfRefraction) const;
+		Vector2F Reflect(const Vector2F& normal) const;
+		Vector2F Refract(const Vector2F& normal, float indexOfRefraction) const;
 		Vector2F ToDegrees() const;
 		Vector2F ToRadians() const;
 		Vector ToVector() const;
 		Vector ToVector(float z, float w) const;
 		Vector ToVector(Vector2F other) const;
 
-		bool operator==(const Vector2F & other) const;
-		bool operator!=(const Vector2F & other) const;
-		bool equals(const Vector2F & other, float errorMargin = 1.e-4f) const;
+		bool operator==(const Vector2F& other) const;
+		bool operator!=(const Vector2F& other) const;
+		bool equals(const Vector2F& other, float errorMargin = 1.e-4f) const;
 		bool equals(float val, float errorMargin = 1.e-4f) const;
 		bool IsNormalized(float errorMargin = 1.e-4f) const;
 
@@ -681,12 +744,47 @@ namespace LinaEngine
 		float AbsMin() const;
 		float operator[](uint32 index) const;
 
-		void DirAndLength(Vector2F & dir, float& length, float errorMargin = 1.e-8f) const;
+		void DirAndLength(Vector2F& dir, float& length, float errorMargin = 1.e-8f) const;
 		void Set(float x, float y);
 		void Set(uint32 index, float val);
 		void Normalize(float erroMargin = 1.e-8f);
 
+		private:
+
+			// Allow serialization to access non-public data members.
+			friend class boost::serialization::access;
+
+			// Serialize the members.
+			template<class Archive>
+			void serialize(Archive& ar, const unsigned int version)
+			{
+				ar& vals;
+			}
+
+			virtual void WriteObject(char* path) override
+			{
+				// Write object.
+				std::ofstream ofs(path);
+				boost::archive::text_oarchive ar(ofs);
+				ar& this;
+			}
+
+			virtual void ReadObject(char* path) override
+			{
+				// Get Object
+				std::ifstream ifs(path);
+				boost::archive::text_iarchive ar(ifs);
+				Vector2F restoredData;
+				ar& restoredData;
+
+				// Set information.
+				vals[0] = restoredData.vals[0];
+				vals[1] = restoredData.vals[1];
+			}
+
+
 	private:
+
 		float vals[2];
 	};
 
