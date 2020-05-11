@@ -19,7 +19,7 @@ set(CMAKE_CXX_STANDARD 17)
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
-set (LINAENGINE_SOURCES
+set (LINAGRAPHICS_SOURCES
 	#Rendering
 	src/Rendering/ArrayBitmap.cpp
 	src/Rendering/DDSTexture.cpp
@@ -33,12 +33,16 @@ set (LINAENGINE_SOURCES
 	
 	src/PackageManager/OpenGL/GLRenderDevice.cpp
 	src/PackageManager/OpenGL/GLWindow.cpp
+	
+	src/ECS/Systems/MeshRendererSystem.cpp
+	src/ECS/Systems/CameraSystem.cpp
+	src/ECS/Systems/LightingSystem.cpp
 )
 
 #--------------------------------------------------------------------
 # Set headers
 #--------------------------------------------------------------------
-set(LINAENGINE_HEADERS
+set(LINAGRAPHICS_HEADERS
 
 	#Rendering
 	include/Rendering/ArrayBitmap.hpp
@@ -62,12 +66,42 @@ set(LINAENGINE_HEADERS
 
 	include/PackageManager/OpenGL/GLRenderDevice.hpp
 	include/PackageManager/OpenGL/GLWindow.hpp
+	include/PackageManager/PAMRenderDevice.hpp
+	
+	include/ECS/Systems/CameraSystem.hpp
+	include/ECS/Systems/MeshRendererSystem.hpp
+	include/ECS/Systems/LightingSystem.hpp
+	include/ECS/Components/MeshRendererComponent.hpp
+	include/ECS/Components/CameraComponent.hpp
+	include/ECS/Components/LightComponent.hpp
+	
+	include/Utility/stb/stb.h
+	include/Utility/stb/stb_c_lexer.h
+	include/Utility/stb/stb_connected_components.h
+	include/Utility/stb/stb_divide.h
+	include/Utility/stb/stb_ds.h
+	include/Utility/stb/stb_dxt.h
+	include/Utility/stb/stb_easy_font.h
+	include/Utility/stb/stb_herringbone_wang_tile.h
+	include/Utility/stb/stb_image.h
+	include/Utility/stb/stb_image_resize.h
+	include/Utility/stb/stb_image_write.h
+	include/Utility/stb/stb_leakcheck.h
+	include/Utility/stb/stb_perlin.h
+	include/Utility/stb/stb_rect_pack.h
+	include/Utility/stb/stb_sprintf.h
+	include/Utility/stb/stb_textedit.h
+	include/Utility/stb/stb_tilemap_editor.h
+	include/Utility/stb/stb_truetype.h
+	include/Utility/stb/stb_vorbis.c
+	include/Utility/stb/stb_voxel_render.h
+	include/Utility/stb/stretchy_buffer.h
 )
 
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} STATIC ${LINAENGINE_SOURCES} ${LINAENGINE_HEADERS})
+add_library(${PROJECT_NAME} STATIC ${LINAGRAPHICS_SOURCES} ${LINAGRAPHICS_HEADERS})
 add_library(Lina::Graphics ALIAS ${PROJECT_NAME}) 
 
 #--------------------------------------------------------------------
@@ -143,6 +177,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glad/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/internal/Common/include)
 
 if(LINA_GRAPHICS_OPENGL)
 	include(../CMake/GLGraphicsDefinitions.cmake)
@@ -158,13 +193,15 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 target_link_libraries(${PROJECT_NAME} 
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/$<CONFIGURATION>/glad.lib
-	PUBLIC Lina::Engine
+	PRIVATE Lina::Common
+	PRIVATE Lina::ECS
 )
 	
 
 #--------------------------------------------------------------------
 # Packages
 #--------------------------------------------------------------------
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
 
 find_package(OpenGL REQUIRED)
 
@@ -206,7 +243,7 @@ COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/include"
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
 if(MSVC_IDE)
-	foreach(source IN LISTS LINAENGINE_HEADERS LINAENGINE_SOURCES)
+	foreach(source IN LISTS LINAGRAPHICS_HEADERS LINAGRAPHICS_SOURCES)
 		get_filename_component(source_path "${source}" PATH)
 		string(REPLACE "${LinaGraphics_SOURCE_DIR}" "" relative_source_path "${source_path}")
 		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")

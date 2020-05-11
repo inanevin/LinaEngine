@@ -17,7 +17,6 @@ Timestamp: 4/26/2019 12:11:04 AM
 
 */
 
-#include "LinaPch.hpp"
 #include "Rendering/RenderContext.hpp"  
 #include "Rendering/Material.hpp"
 

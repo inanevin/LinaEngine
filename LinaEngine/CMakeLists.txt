@@ -37,25 +37,11 @@ set (LINAENGINE_SOURCES
 	
 	
 	#PAM
-	src/PackageManager/Generic/cmwc4096.cpp
-	src/PackageManager/Generic/GenericMemory.cpp
 	src/PackageManager/OpenGL/GLInputDevice.cpp
 
 	#Physics
 	src/Physics/PhysicsEngine.cpp
 	src/Physics/PhysicsInteractionWorld.cpp
-	
-	#Utility
-	src/Utility/Math/Matrix.cpp
-	src/Utility/Math/Quaternion.cpp
-	src/Utility/Math/Transformation.cpp
-	src/Utility/Math/Vector.cpp
-	src/Utility/Math/AABB.cpp
-	src/Utility/Math/Plane.cpp
-	src/Utility/UtilityFunctions.cpp
-	src/Utility/Log.cpp
-
-
 
 )
 
@@ -93,20 +79,9 @@ set(LINAENGINE_HEADERS
 	include/Interfaces/IInputSubscriber.hpp
 	
 	#Package Manager
-	include/PackageManager/Generic/cmwc4096.hpp
-	include/PackageManager/Generic/GenericMath.hpp
-	include/PackageManager/Generic/GenericMemory.hpp
-	include/PackageManager/Generic/GenericVectorMath.hpp
 	include/PackageManager/OpenGL/GLInputDevice.hpp
-	include/PackageManager/SSE/SSEVectorMath.hpp
 	include/PackageManager/PAMInputDevice.hpp
-	include/PackageManager/PAMMath.hpp
-	include/PackageManager/PAMMemory.hpp
-	include/PackageManager/PAMSIMD.hpp
-	include/PackageManager/PAMVectorMath.hpp
-	include/PackageManager/PAMWindow.hpp
-	include/PackageManager/PAMRenderDevice.hpp
-
+	
 	#World
 	include/World/Level.hpp
 	
@@ -114,95 +89,6 @@ set(LINAENGINE_HEADERS
 	include/Physics/PhysicsEngine.hpp
 	include/Physics/PhysicsInteractionWorld.hpp
 	
-	#Utility
-	include/Utility/Math/Color.hpp
-	include/Utility/Math/Matrix.hpp
-	include/Utility/Math/Quaternion.hpp
-	include/Utility/Math/Transformation.hpp
-	include/Utility/Math/Vector.hpp
-	include/Utility/Math/AABB.hpp
-	include/Utility/Math/Plane.hpp
-	include/Utility/Log.hpp
-	include/Utility/UtilityFunctions.hpp
-	
-	# SPDLOG
-	include/Utility/spdlog/spdlog.h
-	include/Utility/spdlog/async.h
-	include/Utility/spdlog/async_logger.h
-	include/Utility/spdlog/common.h
-	include/Utility/spdlog/formatter.h
-	include/Utility/spdlog/logger.h
-	include/Utility/spdlog/spdlog.h
-	include/Utility/spdlog/tolib.c
-	include/Utility/spdlog/tweakme.h
-	include/Utility/spdlog/version.h
-	include/Utility/spdlog/sinks/stdout_color_sinks.h
-	include/Utility/spdlog/sinks/android_sink.h
-	include/Utility/spdlog/sinks/ansicolor_sink.h
-	include/Utility/spdlog/sinks/base_sink.h
-	include/Utility/spdlog/sinks/basic_file_sink.h
-	include/Utility/spdlog/sinks/daily_file_sink.h
-	include/Utility/spdlog/sinks/dist_sink.h
-	include/Utility/spdlog/sinks/msvc_sink.h
-	include/Utility/spdlog/sinks/null_sink.h
-	include/Utility/spdlog/sinks/ostream_sink.h
-	include/Utility/spdlog/sinks/rotating_file_sink.h
-	include/Utility/spdlog/sinks/sink.h
-	include/Utility/spdlog/sinks/stdout_sinks.h
-	include/Utility/spdlog/sinks/syslog_sink.h
-	include/Utility/spdlog/sinks/systemd_sink.h
-	include/Utility/spdlog/sinks/wincolor_sink.h
-	include/Utility/spdlog/details/async_logger_impl.h
-	include/Utility/spdlog/details/circular_q.h
-	include/Utility/spdlog/details/console_globals.h
-	include/Utility/spdlog/details/file_helper.h
-	include/Utility/spdlog/details/fmt_helper.h
-	include/Utility/spdlog/details/log_msg.h
-	include/Utility/spdlog/details/logger_impl.h
-	include/Utility/spdlog/details/mpmc_blocking_q.h
-	include/Utility/spdlog/details/null_mutex.h
-	include/Utility/spdlog/details/os.h
-	include/Utility/spdlog/details/pattern_formatter.h
-	include/Utility/spdlog/details/periodic_worker.h
-	include/Utility/spdlog/details/registry.h
-	include/Utility/spdlog/details/thread_pool.h
-	include/Utility/spdlog/fmt/bin_to_hex.h
-	include/Utility/spdlog/fmt/fmt.h
-	include/Utility/spdlog/fmt/ostr.h
-	include/Utility/spdlog/fmt/bundled/chrono.h
-	include/Utility/spdlog/fmt/bundled/color.h
-	include/Utility/spdlog/fmt/bundled/core.h
-	include/Utility/spdlog/fmt/bundled/format.h
-	include/Utility/spdlog/fmt/bundled/format-inl.h
-	include/Utility/spdlog/fmt/bundled/locale.h
-	include/Utility/spdlog/fmt/bundled/ostream.h
-	include/Utility/spdlog/fmt/bundled/posix.h
-	include/Utility/spdlog/fmt/bundled/printf.h
-	include/Utility/spdlog/fmt/bundled/ranges.h
-	include/Utility/spdlog/fmt/bundled/time.h
-
-	#stb
-	include/Utility/stb/stb.h
-	include/Utility/stb/stb_c_lexer.h
-	include/Utility/stb/stb_connected_components.h
-	include/Utility/stb/stb_divide.h
-	include/Utility/stb/stb_ds.h
-	include/Utility/stb/stb_dxt.h
-	include/Utility/stb/stb_easy_font.h
-	include/Utility/stb/stb_herringbone_wang_tile.h
-	include/Utility/stb/stb_image.h
-	include/Utility/stb/stb_image_resize.h
-	include/Utility/stb/stb_image_write.h
-	include/Utility/stb/stb_leakcheck.h
-	include/Utility/stb/stb_perlin.h
-	include/Utility/stb/stb_rect_pack.h
-	include/Utility/stb/stb_sprintf.h
-	include/Utility/stb/stb_textedit.h
-	include/Utility/stb/stb_tilemap_editor.h
-	include/Utility/stb/stb_truetype.h
-	include/Utility/stb/stb_vorbis.c
-	include/Utility/stb/stb_voxel_render.h
-	include/Utility/stb/stretchy_buffer.h
 
 	#API
 	include/Lina.hpp
@@ -238,7 +124,7 @@ set_target_properties(
 option(LINA_CORE_ENABLE_LOGGING "Enables console logging" ON)
 # option(LINA_GRAPHICS_OPENGL "Graphics: Use OpenGL" ON)
 ## FORCE OPENGL FOR NOW
-set(LINA_GRAPHICS_OPENGL 1)
+
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
 target_compile_definitions(${PROJECT_NAME} PUBLIC STB_IMAGE_IMPLEMENTATION=1)
 #target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_BUILDAS_SHARED=1)
@@ -327,6 +213,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/internal/ECS/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/internal/Graphics/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/internal/Common/include)
 
 if(LINA_GRAPHICS_OPENGL)
 	include(../CMake/GLGraphicsDefinitions.cmake)
@@ -346,8 +233,9 @@ target_link_libraries(${PROJECT_NAME}
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/$<CONFIGURATION>/glad.lib
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/assimp/lib/$<CONFIGURATION>/assimp.lib
-	PUBLIC Lina::ECS
-	PUBLIC Lina::Graphics
+	PRIVATE Lina::Common
+	PRIVATE Lina::ECS
+	PRIVATE Lina::Graphics
 )
 
 #--------------------------------------------------------------------

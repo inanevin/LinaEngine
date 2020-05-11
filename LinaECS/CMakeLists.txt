@@ -23,13 +23,10 @@ set (LINAECS_SOURCES
 
 	# ECS 
 	src/ECS/Systems/MovementControlSystem.cpp
-	src/ECS/Systems/MeshRendererSystem.cpp
 	src/ECS/Systems/MotionSystem.cpp
 	src/ECS/Systems/CubeChunkSystem.cpp
 	src/ECS/Systems/CubeChunkRenderSystem.cpp
-	src/ECS/Systems/CameraSystem.cpp
 	src/ECS/Systems/FreeLookSystem.cpp
-	src/ECS/Systems/LightingSystem.cpp
 	src/ECS/Interactions/TestInteraction.cpp
 	src/ECS/ECSComponent.cpp
 	src/ECS/ECSSystem.cpp
@@ -41,24 +38,19 @@ set (LINAECS_SOURCES
 #--------------------------------------------------------------------
 set(LINAECS_HEADERS
 
+
 	#ECS
 	include/ECS/Components/MovementControlComponent.hpp
-	include/ECS/Components/MeshRendererComponent.hpp
 	include/ECS/Components/TransformComponent.hpp
 	include/ECS/Components/MotionComponent.hpp
 	include/ECS/Components/CubeChunkComponent.hpp
 	include/ECS/Components/ColliderComponent.hpp
-	include/ECS/Components/CameraComponent.hpp
 	include/ECS/Components/FreeLookComponent.hpp
-	include/ECS/Components/LightComponent.hpp
 	include/ECS/Systems/MovementControlSystem.hpp
-	include/ECS/Systems/MeshRendererSystem.hpp
 	include/ECS/Systems/MotionSystem.hpp
 	include/ECS/Systems/CubeChunkSystem.hpp
 	include/ECS/Systems/CubeChunkRenderSystem.hpp
-	include/ECS/Systems/CameraSystem.hpp
 	include/ECS/Systems/FreeLookSystem.hpp
-	include/ECS/Systems/LightingSystem.hpp
 	include/ECS/Interactions/TestInteraction.hpp
 	include/ECS/ECSComponent.hpp
 	include/ECS/ECSSystem.hpp
@@ -154,6 +146,7 @@ endif ( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/internal/Common/include)
 
 include(../CMake/GLGraphicsDefinitions.cmake)
 
@@ -163,7 +156,9 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 #--------------------------------------------------------------------
 # Subdirectories & linking
 #--------------------------------------------------------------------
-target_link_libraries(${PROJECT_NAME} Lina::Engine)
+target_link_libraries(${PROJECT_NAME} 
+	PRIVATE Lina::Common
+)
 
 #--------------------------------------------------------------------
 # Packages

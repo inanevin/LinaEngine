@@ -17,7 +17,6 @@ Timestamp: 1/7/2019 1:55:47 PM
 
 */
 
-#include "LinaPch.hpp"
 #include "Rendering/Texture.hpp"  
 #include "Rendering/ArrayBitmap.hpp"
 #include "Rendering/DDSTexture.hpp"

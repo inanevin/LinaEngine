@@ -17,7 +17,6 @@ Timestamp: 4/26/2019 12:12:01 AM
 
 */
 
-#include "LinaPch.hpp"
 #include "Rendering/Mesh.hpp"
 #include "Rendering/VertexArray.hpp"
 

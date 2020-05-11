@@ -23,7 +23,6 @@ Timestamp: 4/14/2019 5:12:19 PM
 #define GLWindow_HPP
 
 #include "Rendering/RenderingCommon.hpp"
-#include "Events/Event.hpp"
 
 namespace LinaEngine
 {
@@ -53,7 +52,7 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void* GetNativeWindow() const { return m_Window; }
 
 		// Sets event callback.
-		FORCEINLINE void SetEventCallback(const std::function<void(Event&)>& callback) { m_EventCallback = callback; }
+		//FORCEINLINE void SetEventCallback(const std::function<void(Event&)>& callback) { m_EventCallback = callback; }
 
 	private:
 
@@ -78,11 +77,9 @@ namespace LinaEngine::Graphics
 		~GLWindow();
 	
 		void* m_Window = nullptr;
-		std::function<void(Event&)> m_EventCallback;
 		WindowProperties* m_WindowProperties = nullptr;
 		LinaEngine::Input::InputEngine* inputEngine = nullptr;
 
-		DISALLOW_COPY_ASSIGN_NEW_MOVE(GLWindow);
 
 	};
 }

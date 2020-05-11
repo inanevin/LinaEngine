@@ -17,7 +17,6 @@ Timestamp: 4/28/2019 3:38:12 AM
 
 */
 
-#include "LinaPch.hpp"
 #include "ECS/Systems/MotionSystem.hpp"  
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/MotionComponent.hpp"

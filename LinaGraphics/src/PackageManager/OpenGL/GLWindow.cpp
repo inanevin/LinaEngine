@@ -17,15 +17,13 @@ Timestamp: 4/14/2019 5:12:19 PM
 
 */
 
-#include "LinaPch.hpp"
+
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#include "PackageManager/OpenGL/GLWindow.hpp"  
-#include "Events/ApplicationEvent.hpp"
-#include "Events/KeyEvent.hpp"
-#include "Events/MouseEvent.hpp"
-#include "Input/InputEngine.hpp"
+#include "PackageManager/OpenGL/GLWindow.hpp"
+#include "Utility/Log.hpp"
+
 
 namespace LinaEngine::Graphics
 {
@@ -51,7 +49,7 @@ namespace LinaEngine::Graphics
 		else
 		{
 			// Notify listeners.
-			m_EventCallback(WindowCloseEvent());
+			//m_EventCallback(WindowCloseEvent());
 		}
 
 	}
@@ -189,12 +187,12 @@ namespace LinaEngine::Graphics
 		glViewport(0, 0, m_WindowProperties->m_Width, m_WindowProperties->m_Height);
 
 		// Notify listeners.
-		m_EventCallback(WindowResizeEvent(m_WindowProperties->m_Width, m_WindowProperties->m_Height));
+		
 	}
 
 	void GLWindow::WindowClosed(void* window)
 	{
-		m_EventCallback(WindowCloseEvent());
+		
 	}
 
 	void GLWindow::WindowKeyCallback(void* window, int key, int scancode, int action, int mods)
@@ -202,14 +200,14 @@ namespace LinaEngine::Graphics
 		switch (action)
 		{
 		case GLFW_PRESS:
-			m_EventCallback(KeyPressedEvent(key, 0));
+			
 			break;
 		case GLFW_RELEASE:
-			m_EventCallback(KeyReleasedEvent(key));
+			
 			break;
 
 		case GLFW_REPEAT:
-			m_EventCallback(KeyPressedEvent(key, 1));
+			
 			break;
 		}
 	}
@@ -219,46 +217,42 @@ namespace LinaEngine::Graphics
 		switch (action)
 		{
 		case GLFW_PRESS:
-			m_EventCallback(MouseButtonPressedEvent(button));
+			
 			break;
 
 		case GLFW_RELEASE:
-			m_EventCallback(MouseButtonReleasedEvent(button));
+			
 			break;
 		}
 	}
 
 	void GLWindow::WindowMouseScrollCallback(void* window, double xOff, double yOff)
 	{
-		m_EventCallback(MouseScrolledEvent((float)xOff, (float)yOff));
+		
 	}
 
 	void GLWindow::WindowCursorPosCallback(void* window, double xPos, double yPos)
 	{
-		m_EventCallback(MouseMovedEvent((float)xPos, (float)yPos));
+		
 	}
 
 	void GLWindow::WindowFocusCallback(void* window, int focused)
 	{
-		if (focused)
-			m_EventCallback(WindowFocusEvent());
-		else
-			m_EventCallback(WindowFocusLostEvent());
+		
 	}
 
 	void GLWindow::CharCallback(void* window, unsigned int keycode)
 	{
-		m_EventCallback(KeyTypedEvent(keycode));
 	}
 
 	void GLWindow::KeyCallback(void* w, int key, int scancode, int action, int mods)
 	{
-		inputEngine->DispatchKeyAction(static_cast<LinaEngine::Input::InputCode::Key>(key), action);
+		//inputEngine->DispatchKeyAction(static_cast<LinaEngine::Input::InputCode::Key>(key), action);
 	}
 
 	void GLWindow::MouseCallback(void* w, int button, int action, int mods)
 	{
-		inputEngine->DispatchMouseAction(static_cast<LinaEngine::Input::InputCode::Mouse>(button), action);
+		//inputEngine->DispatchMouseAction(static_cast<LinaEngine::Input::InputCode::Mouse>(button), action);
 	}
 
 }

@@ -17,7 +17,7 @@ Timestamp: 4/26/2019 12:12:01 AM
 
 */
 
-#include "LinaPch.hpp"
+#include <windows.h>
 #include "Rendering/IndexedModel.hpp"  
 #include "PackageManager/PAMRenderDevice.hpp"
 

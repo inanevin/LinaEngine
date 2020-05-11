@@ -17,7 +17,6 @@ Timestamp: 4/7/2019 3:24:08 PM
 
 */
 
-#include "LinaPch.hpp"
 #include "ECS/ECSComponent.hpp"  
 
 namespace LinaEngine::ECS

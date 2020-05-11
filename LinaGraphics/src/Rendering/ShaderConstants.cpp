@@ -17,7 +17,6 @@ Timestamp: 4/27/2019 11:18:07 PM
 
 */
 
-#include "LinaPch.hpp"
 #include "Rendering/ShaderConstants.hpp"
 namespace LinaEngine::Graphics
 {

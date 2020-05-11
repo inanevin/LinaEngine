@@ -17,11 +17,10 @@ Timestamp: 4/8/2019 6:03:20 PM
 
 */
 
-#include "LinaPch.hpp"
 #include "ECS/EntityComponentSystem.hpp"  
 #include "PackageManager/PAMMemory.hpp"
 #include "PackageManager/PAMMath.hpp"
-
+#include "Utility/Log.hpp"
 namespace LinaEngine::ECS
 {
 	EntityComponentSystem::~EntityComponentSystem()

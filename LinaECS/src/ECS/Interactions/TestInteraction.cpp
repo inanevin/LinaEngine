@@ -17,7 +17,6 @@ Timestamp: 5/1/2019 4:42:14 PM
 
 */
 
-#include "LinaPch.hpp"
 #include "ECS/Interactions//TestInteraction.hpp"  
 
 namespace LinaEngine::ECS

@@ -17,7 +17,6 @@ Timestamp: 4/30/2019 12:18:00 AM
 
 */
 
-#include "LinaPch.hpp"
 #include "ECS/Systems/CubeChunkRenderSystem.hpp"
 #include "ECS/Components/CubeChunkComponent.hpp"
 #include "Utility/Math/Transformation.hpp"

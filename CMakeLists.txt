@@ -32,6 +32,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_SUPPRESS_REGENERATION true)
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
+set(LINA_GRAPHICS_OPENGL 1)
+
 #--------------------------------------------------------------------
 # Set source & header dirs
 #--------------------------------------------------------------------
@@ -58,6 +60,7 @@ add_subdirectory(LinaEditor)
 add_subdirectory(LinaEngine)
 add_subdirectory(LinaECS)
 add_subdirectory(LinaGraphics)
+add_subdirectory(LinaCommon)
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT LinaEditor)
 

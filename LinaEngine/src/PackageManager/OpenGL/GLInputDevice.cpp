@@ -20,7 +20,7 @@ Timestamp: 4/14/2019 5:15:15 PM
 #include "LinaPch.hpp"
 #include "PackageManager/OpenGL/GLInputDevice.hpp"  
 #include "GLFW/glfw3.h"
-
+#include "Utility/Log.hpp"
 
 namespace LinaEngine::Input
 {

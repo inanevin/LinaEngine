@@ -17,7 +17,6 @@ Timestamp: 4/27/2019 11:18:07 PM
 
 */
 
-#include "LinaPch.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/ShaderConstants.hpp"
@@ -27,7 +26,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "ECS/Systems/CameraSystem.hpp"
 #include "Utility/Math/Color.hpp"
 #include "Utility/UtilityFunctions.hpp"
-#include "PackageManager/PAMInputDevice.hpp"
+
 
 
 namespace LinaEngine::Graphics
@@ -261,6 +260,7 @@ namespace LinaEngine::Graphics
 				vertexArray->Construct(m_RenderDevice, m_LoadedMeshes[meshName].GetIndexedModels()[i], BufferUsage::USAGE_STATIC_DRAW);
 				m_LoadedMeshes[meshName].GetVertexArrays().push_back(vertexArray);
 			}
+
 
 			// Set pointer that was sent in.
 			if (refPointer != nullptr)

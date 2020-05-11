@@ -73,7 +73,7 @@ namespace LinaEngine::Graphics
 		// Set event callback for window.
 		FORCEINLINE void SetMainWindowEventCallback(const std::function<void(Event&)>& callback)
 		{
-			m_MainWindow.SetEventCallback(callback);
+			//m_MainWindow.SetEventCallback(callback);
 		}
 
 		// Swaps window buffer.

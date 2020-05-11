@@ -57,7 +57,7 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void SetVsync(bool enabled) { m_Properties.vSyncEnabled = enabled; m_Derived.SetVsync(enabled); }
 
 		// Sets event callback reference.
-		FORCEINLINE void SetEventCallback(const std::function<void(Event&)>& callback) { m_Derived.SetEventCallback(callback); }
+		//FORCEINLINE void SetEventCallback(const std::function<void(Event&)>& callback) { m_Derived.SetEventCallback(callback); }
 
 		// Get vsync state.
 		FORCEINLINE bool GetVsycnEnabled() { return m_Properties.vSyncEnabled; }

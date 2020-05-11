@@ -25,14 +25,14 @@ Timestamp: 1/7/2019 1:55:47 PM
 #include "Core/LinaArray.hpp"
 #include "Rendering/RenderingCommon.hpp"
 #include "Core/Common.hpp"
-#include "PackageManager/PAMRenderDevice.hpp"
+#include "PackageManager/OpenGL/GLRenderDevice.hpp"
 #include "Sampler.hpp"
 
 namespace LinaEngine::Graphics
 {
 	class ArrayBitmap;
 	class DDSTexture;
-
+	
 	class Texture
 	{
 

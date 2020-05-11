@@ -17,10 +17,11 @@ Timestamp: 4/14/2019 4:04:34 PM
 
 */
 
-#include "LinaPch.hpp"
 #include "Rendering/DDSTexture.hpp"  
 #include "PackageManager/PAMMemory.hpp"
-#include <fileapi.h>
+#include <cstdio>
+
+
 
 #ifdef LINA_PLATFORM_WINDOWS
 #define _CRT_SECURE_NO_WARNINGS
