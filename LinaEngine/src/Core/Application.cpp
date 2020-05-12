@@ -42,8 +42,8 @@ namespace LinaEngine
 		}
 
 		// Set callbacks.
-		m_KeyCallback = std::bind(&Application::KeyCallback, this, std::placeholders::_1, std::placeholders::_1);
-		m_MouseCallback = std::bind(&Application::MouseCallback, this, std::placeholders::_1, std::placeholders::_1);
+		m_KeyCallback = std::bind(&Application::KeyCallback, this, std::placeholders::_1, std::placeholders::_2);
+		m_MouseCallback = std::bind(&Application::MouseCallback, this, std::placeholders::_1, std::placeholders::_2);
 
 		// Set event callback for main window.
 		m_RenderEngine.GetMainWindow().SetKeyCallback(m_KeyCallback);

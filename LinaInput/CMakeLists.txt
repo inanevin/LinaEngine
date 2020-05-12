@@ -23,7 +23,9 @@ set (LINAINPUT_SOURCES
 
 	#PAM
 	src/PackageManager/OpenGL/GLInputDevice.cpp
-
+	
+	#ECS
+	src/ECS/Systems/FreeLookSystem.cpp
 )
 
 #--------------------------------------------------------------------
@@ -36,6 +38,12 @@ set(LINAINPUT_HEADERS
 	include/Input/InputEngine.hpp
 	include/Input/InputMappings.hpp
 	include/Input/InputCommon.hpp
+	
+	#ECS
+	include/ECS/Components/FreeLookComponent.hpp
+	include/ECS/Systems/FreeLookSystem.hpp
+
+
 	#Interfaces
 	include/Interfaces/IInputSubscriber.hpp
 	
@@ -134,8 +142,10 @@ endif ( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAction/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaECS/include)
 
 # Language standard
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
@@ -147,6 +157,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
 target_link_libraries(${PROJECT_NAME} 
 	PRIVATE Lina::Action
 	PRIVATE Lina::Common
+	PRIVATE Lina::ECS
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
 )
 
@@ -165,23 +176,6 @@ target_link_libraries(${PROJECT_NAME}
 	EXPORT_MACRO_NAME LINA_API
 	EXPORT_FILE_NAME InputEngine.hpp
 )
-
-
-# Copy Into Core Engine
- add_custom_command(
-	TARGET ${PROJECT_NAME}
-	POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/lib/$<CONFIGURATION>/LinaCommon.lib" "${CMAKE_SOURCE_DIR}/LinaEngine/internal/Common/lib/$<CONFIGURATION>")
-
-if(EXISTS "${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>/LinaCommon.pdb")
-    add_custom_command(
-	TARGET ${PROJECT_NAME}
-	POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>/LinaCommon.pdb" "${CMAKE_SOURCE_DIR}/LinaEngine/internal/Common/lib/$<CONFIGURATION>")
-endif()
-
-
-
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

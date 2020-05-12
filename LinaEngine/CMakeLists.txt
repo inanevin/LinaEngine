@@ -32,9 +32,6 @@ set (LINAENGINE_SOURCES
 	#Interfaces
 		
 
-	#Physics
-	src/Physics/PhysicsEngine.cpp
-	src/Physics/PhysicsInteractionWorld.cpp
 
 )
 
@@ -53,10 +50,7 @@ set(LINAENGINE_HEADERS
 	
 	#World
 	include/World/Level.hpp
-	
-	#Physics
-	include/Physics/PhysicsEngine.hpp
-	include/Physics/PhysicsInteractionWorld.hpp
+
 	
 
 	#API
@@ -177,12 +171,12 @@ endif ( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaECS/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaGraphics/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAction/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaInput/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaPhysics/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAction/include)
 
 if(LINA_GRAPHICS_OPENGL)
 	include(../CMake/GLGraphicsDefinitions.cmake)
@@ -199,12 +193,12 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 # Link libraries (e.g. logging)
 target_link_libraries(${PROJECT_NAME} 
 	# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
-	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/assimp/lib/$<CONFIGURATION>/assimp.lib
 	PRIVATE Lina::Common
 	PRIVATE Lina::ECS
 	PRIVATE Lina::Graphics
 	PRIVATE Lina::Action
 	PRIVATE Lina::Input
+	PRIVATE Lina::Physics
 )
 
 #--------------------------------------------------------------------
@@ -231,11 +225,6 @@ TARGET ${PROJECT_NAME}
 PRE_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/LinaEngine/resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/resources")
 
-# Copy Assimp DLL
-add_custom_command(
-TARGET ${PROJECT_NAME}
-PRE_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/LinaEngine/vendor/assimp/_bin/Assimp32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
 
 
 #--------------------------------------------------------------------

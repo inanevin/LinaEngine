@@ -130,7 +130,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 
-
 # Language standard
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
@@ -156,21 +155,6 @@ target_link_libraries(${PROJECT_NAME}
 	EXPORT_MACRO_NAME LINA_API
 	EXPORT_FILE_NAME Action.hpp
 )
-
-
-# Copy Into Core Engine
- add_custom_command(
-	TARGET ${PROJECT_NAME}
-	POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/lib/$<CONFIGURATION>/LinaCommon.lib" "${CMAKE_SOURCE_DIR}/LinaEngine/internal/Common/lib/$<CONFIGURATION>")
-
-if(EXISTS "${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>/LinaCommon.pdb")
-    add_custom_command(
-	TARGET ${PROJECT_NAME}
-	POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>/LinaCommon.pdb" "${CMAKE_SOURCE_DIR}/LinaEngine/internal/Common/lib/$<CONFIGURATION>")
-endif()
-
 
 
 

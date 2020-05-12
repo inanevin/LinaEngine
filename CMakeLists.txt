@@ -63,6 +63,7 @@ add_subdirectory(LinaGraphics)
 add_subdirectory(LinaCommon)
 add_subdirectory(LinaAction)
 add_subdirectory(LinaInput)
+add_subdirectory(LinaPhysics)
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT LinaEditor)
 

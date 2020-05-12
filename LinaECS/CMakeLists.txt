@@ -26,7 +26,6 @@ set (LINAECS_SOURCES
 	src/ECS/Systems/MotionSystem.cpp
 	src/ECS/Systems/CubeChunkSystem.cpp
 	src/ECS/Systems/CubeChunkRenderSystem.cpp
-	src/ECS/Systems/FreeLookSystem.cpp
 	src/ECS/Interactions/TestInteraction.cpp
 	src/ECS/ECSComponent.cpp
 	src/ECS/ECSSystem.cpp
@@ -45,12 +44,10 @@ set(LINAECS_HEADERS
 	include/ECS/Components/MotionComponent.hpp
 	include/ECS/Components/CubeChunkComponent.hpp
 	include/ECS/Components/ColliderComponent.hpp
-	include/ECS/Components/FreeLookComponent.hpp
 	include/ECS/Systems/MovementControlSystem.hpp
 	include/ECS/Systems/MotionSystem.hpp
 	include/ECS/Systems/CubeChunkSystem.hpp
 	include/ECS/Systems/CubeChunkRenderSystem.hpp
-	include/ECS/Systems/FreeLookSystem.hpp
 	include/ECS/Interactions/TestInteraction.hpp
 	include/ECS/ECSComponent.hpp
 	include/ECS/ECSSystem.hpp
@@ -176,21 +173,6 @@ target_link_libraries(${PROJECT_NAME}
 #    EXPORT_MACRO_NAME LINA_API
 #    EXPORT_FILE_NAME LinaCore.hpp
 #)
-
-
-# Copy Into Core Engine
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/lib/$<CONFIGURATION>/LinaECS.lib" "${CMAKE_SOURCE_DIR}/LinaEngine/internal/ECS/lib/$<CONFIGURATION>")
-
-if(EXISTS "${CMAKE_BINARY_DIR}/lib/$<CONFIGURATION>/LinaECS.pdb")
-    add_custom_command(
-	TARGET ${PROJECT_NAME}
-	POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/lib/$<CONFIGURATION>/LinaECS.pdb" "${CMAKE_SOURCE_DIR}/LinaEngine/internal/ECS/lib/$<CONFIGURATION>")
-endif()
-
 
 
 #--------------------------------------------------------------------

@@ -26,7 +26,7 @@ namespace LinaEditor
 		LINA_CLIENT_INFO("TestLayer Update");
 	}
 
-	void UILayer::OnEvent(LinaEngine::Event& e)
+	void UILayer::OnEvent()
 	{
 
 	}

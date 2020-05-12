@@ -83,19 +83,19 @@ target_link_libraries(${PROJECT_NAME} Lina::Engine)
 # Copy engine resources to project solution directory to run within IDE.
 add_custom_command(
 TARGET ${PROJECT_NAME}
-PRE_BUILD
+POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/LinaEngine/resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/resources/")
 
 # Copy project resources to binary directory
 add_custom_command(
 TARGET ${PROJECT_NAME}
-PRE_BUILD
+POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/resources")
 
 # Copy project resources to project solution directory to run within IDE.
 add_custom_command(
 TARGET ${PROJECT_NAME}
-PRE_BUILD
+POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/resources/")
 
 #--------------------------------------------------------------------

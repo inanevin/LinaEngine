@@ -31,7 +31,7 @@ namespace LinaEditor
 		}
 
 		void OnUpdate() override;
-		void OnEvent(LinaEngine::Event& e) override;
+		void OnEvent() override;
 	
 	};
 }

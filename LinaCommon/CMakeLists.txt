@@ -244,22 +244,6 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 )
 
 
-# Copy Into Core Engine
- add_custom_command(
-	TARGET ${PROJECT_NAME}
-	POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/lib/$<CONFIGURATION>/LinaCommon.lib" "${CMAKE_SOURCE_DIR}/LinaEngine/internal/Common/lib/$<CONFIGURATION>")
-
-if(EXISTS "${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>/LinaCommon.pdb")
-    add_custom_command(
-	TARGET ${PROJECT_NAME}
-	POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>/LinaCommon.pdb" "${CMAKE_SOURCE_DIR}/LinaEngine/internal/Common/lib/$<CONFIGURATION>")
-endif()
-
-
-
-
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
 #--------------------------------------------------------------------

@@ -182,6 +182,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glad/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaECS/include)
 
 if(LINA_GRAPHICS_OPENGL)
 	include(../CMake/GLGraphicsDefinitions.cmake)
@@ -197,6 +198,7 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 target_link_libraries(${PROJECT_NAME} 
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/$<CONFIGURATION>/glad.lib
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/assimp/lib/$<CONFIGURATION>/assimp.lib
 	PRIVATE Lina::Common
 	PRIVATE Lina::ECS
 )
@@ -219,24 +221,11 @@ find_package(OpenGL REQUIRED)
 #    EXPORT_FILE_NAME LinaCore.hpp
 #)
 
-# Copy engine resources to build directory
+# Copy Assimp DLL
 add_custom_command(
 TARGET ${PROJECT_NAME}
 PRE_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/LinaGraphics/resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/resources")
-
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/lib/$<CONFIGURATION>/LinaGraphics.lib" "${CMAKE_SOURCE_DIR}/LinaEngine/internal/Graphics/lib/$<CONFIGURATION>")
-
-if(EXISTS "${CMAKE_BINARY_DIR}/lib/$<CONFIGURATION>/LinaGraphics.pdb")
-    add_custom_command(
-	TARGET ${PROJECT_NAME}
-	POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/lib/$<CONFIGURATION>/LinaGraphics.pdb" "${CMAKE_SOURCE_DIR}/LinaEngine/internal/Graphics/lib/$<CONFIGURATION>")
-endif()
-
+COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/LinaGraphics/vendor/assimp/_bin/Assimp32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
 
 
 #--------------------------------------------------------------------
