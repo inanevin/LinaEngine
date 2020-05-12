@@ -222,9 +222,16 @@ find_package(OpenGL REQUIRED)
 #)
 
 # Copy Assimp DLL
+
 add_custom_command(
 TARGET ${PROJECT_NAME}
 PRE_BUILD
+COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
+
+
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/LinaGraphics/vendor/assimp/_bin/Assimp32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
 
 

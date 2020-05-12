@@ -222,9 +222,8 @@ endif()
 # Copy engine resources to build directory
 add_custom_command(
 TARGET ${PROJECT_NAME}
-PRE_BUILD
+POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/LinaEngine/resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/resources")
-
 
 
 #--------------------------------------------------------------------
