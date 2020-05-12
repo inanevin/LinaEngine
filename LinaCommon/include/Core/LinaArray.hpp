@@ -21,6 +21,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #ifndef LinaArray_HPP
 #define LinaArray_HPP
 
+#include "Core/LinaAPI.hpp"
 #include <vector>
 
 namespace LinaEngine

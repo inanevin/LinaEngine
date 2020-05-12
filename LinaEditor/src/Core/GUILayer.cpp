@@ -76,15 +76,15 @@ namespace LinaEditor
 		ImGui::End();
 		//DrawCentralDockingSpace();
 
-		//ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow();
 
 		// Draw hierarchy window.
-		//DrawEntitiesWindow();
+		DrawEntitiesWindow();
 
 	
 
 		// Draw content browser.
-		//DrawContentBrowserWindow();
+		DrawContentBrowserWindow();
 
 		// Rendering
 		ImGui::Render();

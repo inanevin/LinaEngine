@@ -25,6 +25,7 @@ Timestamp: 4/8/2019 9:04:58 PM
 
 #include <cstring>
 #include "Core/Common.hpp"
+#include "Core/LinaAPI.hpp"
 #include "Core/SizeDefinitions.hpp"
 
 
@@ -34,7 +35,7 @@ Timestamp: 4/8/2019 9:04:58 PM
 namespace LinaEngine
 {
 
-	struct GenericMemory
+	struct LINA_API GenericMemory
 	{
 		enum
 		{

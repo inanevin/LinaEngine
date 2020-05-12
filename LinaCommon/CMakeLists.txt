@@ -15,7 +15,7 @@
 cmake_minimum_required (VERSION 3.6)
 project(LinaCommon CXX)
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+#set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 set(BUILD_SHARED_LIBS ON)
 
 #--------------------------------------------------------------------

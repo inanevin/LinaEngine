@@ -22,6 +22,7 @@ Timestamp: 4/17/2019 1:49:50 AM
 #ifndef Internal_HPP
 #define Internal_HPP
 
+#include "Core/LinaAPI.hpp"
 #include <string>
 
 namespace LinaEngine
@@ -31,7 +32,7 @@ namespace LinaEngine
 
 		// Type comparator traits.
 		template <typename T> struct comparison_traits {
-			static bool equal(const T& a, const T& b) {
+			static LINA_API bool equal(const T& a, const T& b) {
 				return a == b;
 			}
 		};
@@ -47,7 +48,7 @@ namespace LinaEngine
 
 		// Converts to underlying type.
 		template <typename E>
-		constexpr auto to_underlying(E e) noexcept
+		constexpr LINA_API auto to_underlying(E e) noexcept
 		{
 			return static_cast<std::underlying_type_t<E>>(e);
 		}

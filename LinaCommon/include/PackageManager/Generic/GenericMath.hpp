@@ -28,6 +28,7 @@ Timestamp: 4/8/2019 9:14:44 PM
 
 #include "Core/SizeDefinitions.hpp"
 #include "Core/Common.hpp"
+#include "Core/LinaAPI.hpp"
 #define MATH_PI 3.1415926535897932f
 #define MATH_TWO_PI 6.28318530717959f
 #define MATH_HALF_PI 1.57079632679f
@@ -42,7 +43,7 @@ Timestamp: 4/8/2019 9:14:44 PM
 
 namespace LinaEngine
 {
-	struct GenericMath
+	struct LINA_API GenericMath
 	{
 		static constexpr FORCEINLINE int32 TruncToInt(float val)
 		{

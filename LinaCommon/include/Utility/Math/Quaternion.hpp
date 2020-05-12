@@ -25,12 +25,13 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Quaternion_HPP
 
 #include "Vector.hpp"
+#include "Core/LinaAPI.hpp"
 
 
 namespace LinaEngine
 {
 
-	class  Quaternion
+	class LINA_API Quaternion
 	{
 
 	public:
@@ -262,7 +263,7 @@ namespace LinaEngine
 		return vec;
 	}
 
-	inline Quaternion Quaternion::Euler(const Vector3F& v)
+	FORCEINLINE Quaternion Quaternion::Euler(const Vector3F& v)
 	{
 		float x, y, z, w = 0.0f;
 		float c1 = Math::Cos(v.GetY() / 2);

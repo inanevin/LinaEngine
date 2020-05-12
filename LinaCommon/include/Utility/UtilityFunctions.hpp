@@ -22,22 +22,23 @@ Timestamp: 1/5/2019 12:42:58 AM
 
 #include <string>
 #include <vector>
+#include "Core/LinaAPI.hpp"
 
 namespace LinaEngine
 {
 	namespace Utility
 	{
 		// Create a unique hash from string.
-		size_t StringToHash(std::string str);
+		LINA_API size_t StringToHash(std::string str);
 
 		// Split a string vector.
-		std::vector<std::string> split(const std::string& s, char delim);
+		LINA_API std::vector<std::string> split(const std::string& s, char delim);
 
 		// Return path via filename.
-		std::string getFilePath(const std::string& fileName);
+		LINA_API std::string getFilePath(const std::string& fileName);
 
 		// Loads a text file, parsing through include keywords.
-		bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword);
+		LINA_API bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword);
 	}
 }
 

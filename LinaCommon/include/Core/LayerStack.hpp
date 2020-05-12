@@ -23,12 +23,13 @@ Timestamp: 1/2/2019 1:43:13 AM
 
 
 #include "Core/LinaArray.hpp"
+#include "Core/LinaAPI.hpp"
 
 namespace LinaEngine
 {
 	class Layer;
 
-	class LayerStack
+	class LINA_API LayerStack
 	{
 	public:
 

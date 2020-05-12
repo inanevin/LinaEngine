@@ -24,9 +24,11 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #ifndef Lina_Color_HPP
 #define Lina_Color_HPP
 
+#include "Core/LinaAPI.hpp"
+
 namespace LinaEngine
 {
-	class  Color
+	class Color
 	{
 
 	public:

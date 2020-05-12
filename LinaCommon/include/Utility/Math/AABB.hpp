@@ -24,6 +24,7 @@ Timestamp: 4/25/2019 11:47:35 PM
 
 #include "Vector.hpp"
 #include "Matrix.hpp"
+#include "Core/LinaAPI.hpp"
 
 namespace LinaEngine
 {
@@ -44,7 +45,7 @@ namespace LinaEngine
 
 		bool IntersectRay(const Vector3F& start, const Vector3F& rayDir, float& point1, float& point2) const;
 		bool IntersectLine(const Vector3F& start, const Vector3F& end) const;
-		AABB Transform(const Matrix& transform) const;
+		LINA_API AABB Transform(const Matrix& transform) const;
 
 
 		FORCEINLINE bool Intersects(const AABB& other) const

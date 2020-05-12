@@ -86,7 +86,7 @@ namespace LinaEngine
 	{
 	public:
 
-		static void Init();
+		static LINA_API void Init();
 
 		inline static LINA_API std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
 		inline static LINA_API std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }

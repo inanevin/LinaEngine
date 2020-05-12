@@ -151,7 +151,7 @@ void Example1Level::Initialize()
 	object1Transform.transform.SetLocation(Vector3F(-5.0f, 0.0f, 10.0f));
 	object1 = m_ECS->MakeEntity(object1Transform, object1Renderer);
 
-	object1Transform.transform.SetLocation(Vector3F(5.0f, 0.0f, 10.0f));
+	object1Transform.transform.SetLocation(Vector3F(7.0f, 0.0f, 10.0f));
 	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
 
 	object2 = m_ECS->MakeEntity(object1Transform, object1Renderer);

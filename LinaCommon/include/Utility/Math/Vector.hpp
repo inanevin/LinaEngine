@@ -29,7 +29,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "PackageManager/PAMVectorMath.hpp"
 #include <sstream>
 #include <iostream>
-#include "Core/LinaAPI.hpp"
 
 namespace LinaEngine
 {
@@ -48,7 +47,7 @@ namespace LinaEngine
 
 	};
 
-	class  Vector4F
+	class LINA_API Vector4F
 	{
 	public:
 
@@ -282,8 +281,7 @@ namespace LinaEngine
 
 	};
 
-
-	class Vector3F
+	class LINA_API Vector3F
 	{
 	public:
 
@@ -482,8 +480,6 @@ namespace LinaEngine
 		Vector vec;
 
 	};
-
-
 
 	class LINA_API Vector2F
 	{

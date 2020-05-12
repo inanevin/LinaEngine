@@ -23,11 +23,12 @@ Timestamp: 1/2/2019 1:42:06 AM
 
 
 #include "Core/Common.hpp"
+#include "Core/LinaAPI.hpp"
 #include <string>
 
 namespace LinaEngine
 {
-	class Layer
+	class LINA_API Layer
 	{
 	public:
 
