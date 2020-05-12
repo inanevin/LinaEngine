@@ -15,6 +15,7 @@
 cmake_minimum_required (VERSION 3.6)
 project(LinaCommon CXX)
 set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 #--------------------------------------------------------------------
 # Set sources
@@ -51,7 +52,7 @@ set(LINACOMMON_HEADERS
 	include/Core/SizeDefinitions.hpp
 	include/Core/Layer.hpp
 	include/Core/LayerStack.hpp
-	
+	include/Core/LinaAPI.hpp
 	# PAM
 	include/PackageManager/Generic/cmwc4096.hpp
 	include/PackageManager/Generic/GenericMath.hpp
@@ -74,8 +75,8 @@ set(LINACOMMON_HEADERS
 	include/Utility/Math/Plane.hpp
 	include/Utility/Log.hpp
 	include/Utility/UtilityFunctions.hpp
-	
-	# SPDLOG
+
+# SPDLOG
 	include/Utility/spdlog/spdlog.h
 	include/Utility/spdlog/async.h
 	include/Utility/spdlog/async_logger.h
@@ -136,7 +137,7 @@ set(LINACOMMON_HEADERS
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} STATIC ${LINACOMMON_SOURCES} ${LINACOMMON_HEADERS})
+add_library(${PROJECT_NAME} ${LINACOMMON_SOURCES} ${LINACOMMON_HEADERS})
 add_library(Lina::Common ALIAS ${PROJECT_NAME}) 
 
 #--------------------------------------------------------------------
@@ -231,7 +232,6 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 #--------------------------------------------------------------------
 # Subdirectories & linking
 #--------------------------------------------------------------------
-
 
 #--------------------------------------------------------------------
 # Packages

@@ -15,7 +15,7 @@
 cmake_minimum_required (VERSION 3.6)
 project(LinaInput CXX)
 set(CMAKE_CXX_STANDARD 17)
-
+#set(BUILD_SHARED_LIBS ON)
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
@@ -55,7 +55,7 @@ set(LINAINPUT_HEADERS
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} STATIC ${LINAINPUT_SOURCES} ${LINAINPUT_HEADERS})
+add_library(${PROJECT_NAME} ${LINAINPUT_SOURCES} ${LINAINPUT_HEADERS})
 add_library(Lina::Input ALIAS ${PROJECT_NAME}) 
 
 #--------------------------------------------------------------------
@@ -142,7 +142,7 @@ endif ( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/vendor/glfw/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAction/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaECS/include)
@@ -158,7 +158,7 @@ target_link_libraries(${PROJECT_NAME}
 	PRIVATE Lina::Action
 	PRIVATE Lina::Common
 	PRIVATE Lina::ECS
-	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
 )
 
 

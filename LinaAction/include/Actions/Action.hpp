@@ -28,7 +28,7 @@ Timestamp: 1/6/2019 5:41:20 AM
 
 namespace LinaEngine::Action
 {
-	enum ActionType
+	enum  ActionType
 	{
 		KeyPressed,
 		KeyReleased,

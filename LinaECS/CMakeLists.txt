@@ -59,7 +59,7 @@ set(LINAECS_HEADERS
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} STATIC ${LINAECS_SOURCES} ${LINAECS_HEADERS})
+add_library(${PROJECT_NAME} ${LINAECS_SOURCES} ${LINAECS_HEADERS})
 add_library(Lina::ECS ALIAS ${PROJECT_NAME}) 
 
 #--------------------------------------------------------------------

@@ -39,7 +39,7 @@ set(LINAPHYSICS_HEADERS
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} STATIC ${LINAPHYSICS_SOURCES} ${LINAPHYSICS_HEADERS})
+add_library(${PROJECT_NAME} ${LINAPHYSICS_SOURCES} ${LINAPHYSICS_HEADERS})
 add_library(Lina::Physics ALIAS ${PROJECT_NAME}) 
 
 #--------------------------------------------------------------------

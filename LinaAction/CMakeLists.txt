@@ -41,7 +41,7 @@ set(LINAACTION_HEADERS
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} STATIC ${LINAACTION_SOURCES} ${LINAACTION_HEADERS})
+add_library(${PROJECT_NAME} ${LINAACTION_SOURCES} ${LINAACTION_HEADERS})
 add_library(Lina::Action ALIAS ${PROJECT_NAME}) 
 
 #--------------------------------------------------------------------

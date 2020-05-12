@@ -51,7 +51,9 @@ endif()
 #--------------------------------------------------------------------
 # Links
 #--------------------------------------------------------------------
-target_link_libraries(${PROJECT_NAME} Lina::Engine)
+target_link_libraries(${PROJECT_NAME} 
+	PRIVATE Lina::Engine
+	)
 
 
 

@@ -64,7 +64,7 @@ set(LINAENGINE_HEADERS
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} STATIC ${LINAENGINE_SOURCES} ${LINAENGINE_HEADERS})
+add_library(${PROJECT_NAME} ${LINAENGINE_SOURCES} ${LINAENGINE_HEADERS})
 add_library(Lina::Engine ALIAS ${PROJECT_NAME}) 
 
 #--------------------------------------------------------------------
@@ -189,12 +189,12 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 # Link libraries (e.g. logging)
 target_link_libraries(${PROJECT_NAME} 
 	# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
-	PRIVATE Lina::Common
-	PRIVATE Lina::ECS
-	PRIVATE Lina::Graphics
-	PRIVATE Lina::Action
-	PRIVATE Lina::Input
-	PRIVATE Lina::Physics
+	PUBLIC Lina::Common
+	PUBLIC Lina::ECS
+	PUBLIC Lina::Graphics
+	PUBLIC Lina::Action
+	PUBLIC Lina::Input
+	PUBLIC Lina::Physics
 )
 
 #--------------------------------------------------------------------

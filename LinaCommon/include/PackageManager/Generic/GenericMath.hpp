@@ -27,7 +27,7 @@ Timestamp: 4/8/2019 9:14:44 PM
 #include <cstdlib>
 
 #include "Core/SizeDefinitions.hpp"
-
+#include "Core/Common.hpp"
 #define MATH_PI 3.1415926535897932f
 #define MATH_TWO_PI 6.28318530717959f
 #define MATH_HALF_PI 1.57079632679f
