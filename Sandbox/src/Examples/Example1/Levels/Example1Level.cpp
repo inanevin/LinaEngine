@@ -19,7 +19,7 @@ Timestamp: 5/6/2019 9:22:56 PM
 */
 
 #include "Examples/Example1/Levels/Example1Level.hpp"
-#include "Rendering/ShaderConstants.hpp"
+#include "Rendering/RenderConstants.hpp"
 #include "ECS/Systems/FreeLookSystem.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"

@@ -28,7 +28,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Rendering/ModelLoader.cpp
 	src/Rendering/RenderEngine.cpp
 	src/Rendering/RenderContext.cpp
-	src/Rendering/ShaderConstants.cpp
+	src/Rendering/RenderConstants.cpp
 	src/Rendering/Mesh.cpp
 	
 	src/PackageManager/OpenGL/GLRenderDevice.cpp
@@ -62,7 +62,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/RenderTarget.hpp
 	include/Rendering/Mesh.hpp
 	include/Rendering/RenderingCommon.hpp
-	include/Rendering/ShaderConstants.hpp
+	include/Rendering/RenderConstants.hpp
 	
 	include/PackageManager/PAMRenderDevice.hpp	
 	include/PackageManager/PAMWindow.hpp

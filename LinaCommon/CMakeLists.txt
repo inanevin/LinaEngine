@@ -21,6 +21,9 @@ set(CMAKE_CXX_STANDARD 17)
 #--------------------------------------------------------------------
 set (LINACOMMON_SOURCES
 
+    src/Core/Layer.cpp
+    src/Core/LayerStack.cpp
+	
 	src/PackageManager/Generic/cmwc4096.cpp
 	src/PackageManager/Generic/GenericMemory.cpp
 	
@@ -46,6 +49,8 @@ set(LINACOMMON_HEADERS
 	include/Core/Internal.hpp
 	include/Core/LinaArray.hpp
 	include/Core/SizeDefinitions.hpp
+	include/Core/Layer.hpp
+	include/Core/LayerStack.hpp
 	
 	# PAM
 	include/PackageManager/Generic/cmwc4096.hpp

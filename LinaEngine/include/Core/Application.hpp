@@ -22,7 +22,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #define Lina_Application_HPP
 
 
-#include "LayerStack.hpp"
+#include "Core/LayerStack.hpp"
 #include "Input/InputEngine.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "ECS/EntityComponentSystem.hpp"
@@ -59,6 +59,10 @@ namespace LinaEngine
 
 		 Application();
 
+
+		 // Get render engine
+		 FORCEINLINE LinaEngine::Graphics::RenderEngine& GetRenderEngine() { return m_RenderEngine; }
+
 	private:
 
 		// Called when an internal event occurs.
@@ -66,6 +70,7 @@ namespace LinaEngine
 
 		// Called when main application window is closed.
 		bool OnWindowClose();
+
 
 		// Callbacks & events.
 		FORCEINLINE void KeyCallback(int key, int action) { m_InputEngine.DispatchKeyAction(static_cast<LinaEngine::Input::InputCode::Key>(key), action); }

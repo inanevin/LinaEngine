@@ -25,8 +25,6 @@ set (LINAENGINE_SOURCES
 	
 	# CORE
     src/Core/Application.cpp
-    src/Core/Layer.cpp
-    src/Core/LayerStack.cpp
 	src/Core/Time.cpp
 
 	#Interfaces
@@ -42,8 +40,6 @@ set(LINAENGINE_HEADERS
 
 	#CORE
 	include/Core/Application.hpp
-	include/Core/Layer.hpp
-	include/Core/LayerStack.hpp
 	include/Core/Time.hpp
 
 

@@ -35,6 +35,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "RenderContext.hpp"
 #include "Utility/Math/Color.hpp"
 #include <functional>
+#include "Core/LayerStack.hpp"
 
 namespace LinaEngine
 {
@@ -166,6 +167,12 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void SetSkyboxMaterial(Material & skyboxMaterial) { m_SkyboxMaterial = &skyboxMaterial; }
 		void SetSkyboxMaterial(const std::string & materialName);
 
+		// Pushes a new layer into the gui stack.
+		void PushLayer(Layer* layer);
+
+		// Pushes a new overlay layer into the gui stack.
+		void PushOverlay(Layer* layer);
+
 
 	private:
 
@@ -255,6 +262,9 @@ namespace LinaEngine::Graphics
 
 		// Model loader.
 		ModelLoader m_ModelLoader;
+
+		// GUI layer queue.
+		LayerStack m_GUILayerStack;
 
 		DISALLOW_COPY_ASSIGN_NEW(RenderEngine);
 	};
