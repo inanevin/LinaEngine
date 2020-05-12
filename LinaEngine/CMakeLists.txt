@@ -29,15 +29,8 @@ set (LINAENGINE_SOURCES
     src/Core/LayerStack.cpp
 	src/Core/Time.cpp
 
-	#Events
-	src/Events/ActionDispatcher.cpp
-	src/Events/ActionSubscriber.cpp
-
 	#Interfaces
-	
-	
-	#PAM
-	src/PackageManager/OpenGL/GLInputDevice.cpp
+		
 
 	#Physics
 	src/Physics/PhysicsEngine.cpp
@@ -56,22 +49,7 @@ set(LINAENGINE_HEADERS
 	include/Core/LayerStack.hpp
 	include/Core/Time.hpp
 
-	#EVENTS
-	include/Events/Action.hpp
-	include/Events/ActionDispatcher.hpp
-	include/Events/ActionSubscriber.hpp
 
-	#Input
-	include/Input/InputAxisBinder.hpp
-	include/Input/InputEngine.hpp
-	include/Input/InputMappings.hpp
-	include/Input/InputCommon.hpp
-	#Interfaces
-	include/Interfaces/IInputSubscriber.hpp
-	
-	#Package Manager
-	include/PackageManager/OpenGL/GLInputDevice.hpp
-	include/PackageManager/PAMInputDevice.hpp
 	
 	#World
 	include/World/Level.hpp
@@ -199,12 +177,12 @@ endif ( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glad/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaECS/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaGraphics/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAction/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaInput/include)
 
 if(LINA_GRAPHICS_OPENGL)
 	include(../CMake/GLGraphicsDefinitions.cmake)
@@ -221,12 +199,12 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 # Link libraries (e.g. logging)
 target_link_libraries(${PROJECT_NAME} 
 	# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
-	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
-	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/$<CONFIGURATION>/glad.lib
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/assimp/lib/$<CONFIGURATION>/assimp.lib
 	PRIVATE Lina::Common
 	PRIVATE Lina::ECS
 	PRIVATE Lina::Graphics
+	PRIVATE Lina::Action
+	PRIVATE Lina::Input
 )
 
 #--------------------------------------------------------------------

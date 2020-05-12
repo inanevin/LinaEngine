@@ -47,6 +47,7 @@ set(LINACOMMON_HEADERS
 	include/Core/LinaArray.hpp
 	include/Core/SizeDefinitions.hpp
 	
+	# PAM
 	include/PackageManager/Generic/cmwc4096.hpp
 	include/PackageManager/Generic/GenericMath.hpp
 	include/PackageManager/Generic/GenericMemory.hpp
@@ -56,9 +57,9 @@ set(LINACOMMON_HEADERS
 	include/PackageManager/PAMMemory.hpp
 	include/PackageManager/PAMSIMD.hpp
 	include/PackageManager/PAMVectorMath.hpp
-	include/PackageManager/PAMWindow.hpp
-	include/PackageManager/PAMRenderDevice.hpp
-	
+
+
+	# Utility
 	include/Utility/Math/Color.hpp
 	include/Utility/Math/Matrix.hpp
 	include/Utility/Math/Quaternion.hpp

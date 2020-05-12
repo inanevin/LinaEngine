@@ -63,10 +63,12 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/Mesh.hpp
 	include/Rendering/RenderingCommon.hpp
 	include/Rendering/ShaderConstants.hpp
-
+	
+	include/PackageManager/PAMRenderDevice.hpp	
+	include/PackageManager/PAMWindow.hpp
 	include/PackageManager/OpenGL/GLRenderDevice.hpp
 	include/PackageManager/OpenGL/GLWindow.hpp
-	include/PackageManager/PAMRenderDevice.hpp
+	
 	
 	include/ECS/Systems/CameraSystem.hpp
 	include/ECS/Systems/MeshRendererSystem.hpp

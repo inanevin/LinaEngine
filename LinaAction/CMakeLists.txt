@@ -22,8 +22,8 @@ set(CMAKE_CXX_STANDARD 17)
 set (LINAACTION_SOURCES
 
 	#Events
-	src/Events/ActionDispatcher.cpp
-	src/Events/ActionSubscriber.cpp
+	src/Actions/ActionDispatcher.cpp
+	src/Actions/ActionSubscriber.cpp
 )
 
 #--------------------------------------------------------------------
@@ -33,9 +33,9 @@ set(LINAACTION_HEADERS
 
 
 	#EVENTS
-	include/Events/Action.hpp
-	include/Events/ActionDispatcher.hpp
-	include/Events/ActionSubscriber.hpp
+	include/Actions/Action.hpp
+	include/Actions/ActionDispatcher.hpp
+	include/Actions/ActionSubscriber.hpp
 )
 
 #--------------------------------------------------------------------
@@ -178,9 +178,9 @@ endif()
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
 if(MSVC_IDE)
-	foreach(source IN LISTS LINACOMMON_HEADERS LINACOMMON_SOURCES)
+	foreach(source IN LISTS LINAACTION_HEADERS LINAACTION_SOURCES)
 		get_filename_component(source_path "${source}" PATH)
-		string(REPLACE "${LinaCommon_SOURCE_DIR}" "" relative_source_path "${source_path}")
+		string(REPLACE "${LinaAction_SOURCE_DIR}" "" relative_source_path "${source_path}")
 		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
 				source_group("${source_path_msvc}" FILES "${source}")
 	endforeach()

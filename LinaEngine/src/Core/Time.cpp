@@ -80,13 +80,11 @@ namespace LinaEngine
 #endif
 	}
 
-#ifdef LINA_GRAPHICS_OPENGL
-#include "GLFW/glfw3.h"
-#endif
+
 	void Time::Sleep(uint32 milliSeconds)
 	{
 #ifdef LINA_GRAPHICS_OPENGL
-		glfwWaitEventsTimeout(milliSeconds);
+		//glfwWaitEventsTimeout(milliSeconds);
 #endif
 	}
 

@@ -39,13 +39,13 @@
 //
 //// Events
 //
-//#include "Events/Action.hpp"
-//#include "Events/ActionDispatcher.hpp"
-//#include "Events/ActionSubscriber.hpp"
-//#include "Events/ApplicationEvent.hpp"
-//#include "Events/Event.hpp"
-//#include "Events/KeyEvent.hpp"
-//#include "Events/MouseEvent.hpp"
+//#include "Actions/Action.hpp"
+//#include "Actions/ActionDispatcher.hpp"
+//#include "Actions/ActionSubscriber.hpp"
+//#include "Actions/ApplicationEvent.hpp"
+//#include "Actions/Event.hpp"
+//#include "Actions/KeyEvent.hpp"
+//#include "Actions/MouseEvent.hpp"
 //
 //// Input
 //
