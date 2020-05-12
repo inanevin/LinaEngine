@@ -25,10 +25,11 @@ Timestamp: 4/9/2019 12:43:29 AM
 
 #include "PackageManager/PAMMemory.hpp"
 #include "PackageManager/PAMMath.hpp"
+#include "Core/LinaAPI.hpp"
 
 namespace LinaEngine
 {
-	struct GenericVector
+	struct LINA_API GenericVector
 	{
 	public:
 

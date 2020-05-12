@@ -18,10 +18,10 @@ Timestamp: 12/29/2018 11:15:41 PM
 */
 
 #include <Lina.hpp>
-
+#include <Utility/Log.hpp>
 #include "Examples/Example1/Levels/Example1Level.hpp"
 
- class TestLayer : public LinaEngine::Layer
+class TestLayer : public LinaEngine::Layer
 {
 public:
 

@@ -29,10 +29,11 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "PackageManager/PAMVectorMath.hpp"
 #include <sstream>
 #include <iostream>
+#include "Core/LinaAPI.hpp"
 
 namespace LinaEngine
 {
-	struct VectorConstants
+	struct LINA_API VectorConstants
 	{
 		static const Vector ZERO;
 		static const Vector ONE;
@@ -484,7 +485,7 @@ namespace LinaEngine
 
 
 
-	class  Vector2F
+	class LINA_API Vector2F
 	{
 	public:
 

@@ -77,6 +77,7 @@ Timestamp: 12/30/2018 1:54:10 AM
 
 
 #include "spdlog/spdlog.h"
+#include "Core/LinaAPI.hpp"
 
 namespace LinaEngine
 {
@@ -87,16 +88,16 @@ namespace LinaEngine
 
 		static void Init();
 
-		inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
-		inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
+		inline static LINA_API std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
+		inline static LINA_API std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
 
 		/* FIND A WAY TO USE VARIADIC TEMPLATES BY CREATING POSSIBLE DEFINITIONS OF CALLS ON COMPILE TIME */
 
 
 	private:
 		
-		static std::shared_ptr<spdlog::logger> s_CoreLogger;
-		static std::shared_ptr<spdlog::logger> s_ClientLogger;
+		static LINA_API std::shared_ptr<spdlog::logger> s_CoreLogger;
+		static LINA_API std::shared_ptr<spdlog::logger> s_ClientLogger;
 
 	};
 }
