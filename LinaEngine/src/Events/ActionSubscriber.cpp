@@ -19,9 +19,8 @@ Timestamp: 4/12/2019 3:36:21 AM
 
 #include "LinaPch.hpp"
 #include "Events/ActionSubscriber.hpp"  
-#include "Utility/UtilityFunctions.hpp"
 
-namespace LinaEngine
+namespace LinaEngine::Action
 {
 	ActionSubscriber::~ActionSubscriber()
 	{

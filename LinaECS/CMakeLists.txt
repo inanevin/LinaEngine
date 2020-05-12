@@ -148,7 +148,7 @@ endif ( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/internal/Common/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 
 include(../CMake/GLGraphicsDefinitions.cmake)
 

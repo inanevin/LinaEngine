@@ -27,7 +27,7 @@ Timestamp: 4/12/2019 3:36:21 AM
 #include "Utility/Log.hpp"
 #include "Utility/UtilityFunctions.hpp"
 
-namespace LinaEngine
+namespace LinaEngine::Action
 {
 #define LINA_ACTION_CALLBACK(x) std::bind(&x, this)
 #define LINA_ACTION_CALLBACK_PARAM1(x) std::bind(&x, this, std::placeholders::_1)

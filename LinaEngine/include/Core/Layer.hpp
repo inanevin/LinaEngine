@@ -22,7 +22,7 @@ Timestamp: 1/2/2019 1:42:06 AM
 #define Layer_HPP
 
 
-#include "Events/Event.hpp"
+#include "Core/Common.hpp"
 #include <string>
 
 namespace LinaEngine
@@ -44,7 +44,7 @@ namespace LinaEngine
 		 virtual void OnUpdate() {}
 
 		// Called when an engine event occurs on this layer.
-		 virtual void OnEvent(Event& event) {}
+		 virtual void OnEvent() {}
 
 		// Get the layer name.
 		FORCEINLINE const std::string& GetName() const { return m_DebugName; }

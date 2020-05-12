@@ -20,7 +20,7 @@ Timestamp: 4/10/2019 1:26:39 PM
 #include "LinaPch.hpp"
 #include "Events/ActionDispatcher.hpp"  
 
-namespace LinaEngine
+namespace LinaEngine::Action
 {
 
 	ActionDispatcher::ActionDispatcher()

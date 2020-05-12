@@ -29,7 +29,7 @@ Timestamp: 4/10/2019 1:26:00 PM
 #include <map>
 
 
-namespace LinaEngine
+namespace LinaEngine::Action 
 {
 	// Dispatcher class for actions.
 	class ActionDispatcher

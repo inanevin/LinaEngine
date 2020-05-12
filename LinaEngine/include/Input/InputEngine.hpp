@@ -30,13 +30,13 @@ Timestamp: 4/14/2019 7:46:20 PM
 
 namespace LinaEngine::Input
 {
-	class InputEngine : public ActionDispatcher
+	class InputEngine : public LinaEngine::Action::ActionDispatcher
 	{
 
 	public:
 
 
-		FORCEINLINE InputEngine() : ActionDispatcher()
+		FORCEINLINE InputEngine() : LinaEngine::Action::ActionDispatcher()
 		{
 			LINA_CORE_TRACE("[Constructor] -> InputEngine ({0})", typeid(*this).name());
 		};
@@ -108,11 +108,11 @@ namespace LinaEngine::Input
 		{
 			if (action == 1)
 			{
-				DispatchAction<InputCode::Key>(ActionType::KeyPressed, key);
+				DispatchAction<InputCode::Key>(LinaEngine::Action::ActionType::KeyPressed, key);
 			}
 			else if (action == 0)
 			{
-				DispatchAction<InputCode::Key>(ActionType::KeyReleased, key);
+				DispatchAction<InputCode::Key>(LinaEngine::Action::ActionType::KeyReleased, key);
 			}
 		}
 
@@ -121,11 +121,11 @@ namespace LinaEngine::Input
 		{
 			if (action == 1)
 			{
-				DispatchAction<InputCode::Mouse>(ActionType::MouseButtonPressed, button);
+				DispatchAction<InputCode::Mouse>(LinaEngine::Action::ActionType::MouseButtonPressed, button);
 			}
 			else if (action == 0)
 			{
-				DispatchAction<InputCode::Mouse>(ActionType::MouseButtonReleased, button);
+				DispatchAction<InputCode::Mouse>(LinaEngine::Action::ActionType::MouseButtonReleased, button);
 			}
 		}
 

@@ -35,7 +35,7 @@ public:
 		//LINA_CLIENT_INFO("TestLayer Update");
 	}
 
-	void OnEvent(LinaEngine::Event& e) override
+	void OnEvent() override
 	{
 		//LINA_CLIENT_TRACE("{0}", e);
 

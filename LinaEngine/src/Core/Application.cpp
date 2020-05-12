@@ -63,9 +63,9 @@ namespace LinaEngine
 		LINA_CORE_TRACE("[Destructor] -> Application ({0})", typeid(*this).name());
 	}
 
-	void Application::OnEvent(Event & e)
+	void Application::OnEvent()
 	{
-		EventDispatcher dispatcher(e);
+		/*EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
 
 		// Propagate the window resize event to render engine.
@@ -80,7 +80,7 @@ namespace LinaEngine
 			(*--it)->OnEvent(e);
 			if (e.isHandled)
 				break;
-		}
+		}*/
 	}
 
 	void Application::Run()
@@ -108,7 +108,7 @@ namespace LinaEngine
 
 	}
 
-	bool Application::OnWindowClose(WindowCloseEvent&e)
+	bool Application::OnWindowClose()
 	{
 		m_Running = false;
 		return true;

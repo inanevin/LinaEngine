@@ -60,11 +60,7 @@ set(LINAENGINE_HEADERS
 	include/Events/Action.hpp
 	include/Events/ActionDispatcher.hpp
 	include/Events/ActionSubscriber.hpp
-	include/Events/ApplicationEvent.hpp
-	include/Events/Event.hpp
-	include/Events/KeyEvent.hpp
-	include/Events/MouseEvent.hpp
-	
+
 	#Input
 	include/Input/InputAxisBinder.hpp
 	include/Input/InputEngine.hpp
@@ -208,7 +204,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaECS/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaGraphics/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon//include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 
 if(LINA_GRAPHICS_OPENGL)
 	include(../CMake/GLGraphicsDefinitions.cmake)

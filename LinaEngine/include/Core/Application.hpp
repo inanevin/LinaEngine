@@ -22,7 +22,6 @@ Timestamp: 12/29/2018 10:43:46 PM
 #define Lina_Application_HPP
 
 
-#include "Events/ApplicationEvent.hpp"
 #include "LayerStack.hpp"
 #include "Input/InputEngine.hpp"
 #include "Rendering/RenderEngine.hpp"
@@ -63,10 +62,10 @@ namespace LinaEngine
 	private:
 
 		// Called when an internal event occurs.
-		void OnEvent(Event& e);
+		void OnEvent();
 
 		// Called when main application window is closed.
-		bool OnWindowClose(WindowCloseEvent& e);
+		bool OnWindowClose();
 
 		// Callbacks & events.
 		FORCEINLINE void KeyCallback(int key, int action) { m_InputEngine.DispatchKeyAction(static_cast<LinaEngine::Input::InputCode::Key>(key), action); }
