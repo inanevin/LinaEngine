@@ -29,7 +29,7 @@ Timestamp: 4/9/2019 12:43:29 AM
 
 namespace LinaEngine
 {
-	struct LINA_API GenericVector
+	struct GenericVector
 	{
 	public:
 

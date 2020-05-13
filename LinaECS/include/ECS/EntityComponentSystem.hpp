@@ -274,7 +274,7 @@ namespace LinaEngine::ECS
 
 		void DeleteComponent(uint32 componentID, uint32 index);
 		bool RemoveComponentInternal(EntityHandle, uint32 componentID);
-		 void AddComponentInternal(EntityHandle handle, LinaArray<std::pair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent* component);
+		void AddComponentInternal(EntityHandle handle, LinaArray<std::pair<uint32, uint32>>& entity, uint32 componentID, BaseECSComponent* component);
 		BaseECSComponent* GetComponentInternal(LinaArray<std::pair<uint32, uint32>>& entityComponents, LinaArray<uint8>& arr, uint32 componentID);
 		void UpdateSystemMultipleComponentsInternal(uint32 index, ECSSystemList& systems, float delta, const LinaArray<uint32>& componentTypes, LinaArray<BaseECSComponent*>& componentParam, LinaArray<LinaArray<uint8>*>& componentArrays);
 		uint32 FindLeastCommonComponent(const LinaArray<uint32>& componentTypes, const LinaArray<uint32>& componentFlags);

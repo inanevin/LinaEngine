@@ -76,7 +76,7 @@ namespace LinaEngine::ECS
 
 	private:
 		/* Component types, warning = global dynamic mem alloc. */
-		static LinaEngine::LinaArray<std::tuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>>* componentTypes;
+		static  LinaEngine::LinaArray<std::tuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>>* componentTypes;
 	};
 
 	template<typename T>

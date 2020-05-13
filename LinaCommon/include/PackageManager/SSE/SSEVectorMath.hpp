@@ -43,7 +43,7 @@ namespace LinaEngine
 #define SSEVector_Shuffle_2323(vec1, vec2)        _mm_movehl_ps(vec2, vec1)
 
 
-	struct LINA_API SSEVector
+	struct SSEVector
 	{
 	public:
 		static FORCEINLINE void MatrixMultiplication(void* result, const void* mat1, const void* mat2)

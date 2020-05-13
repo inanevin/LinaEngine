@@ -16,6 +16,8 @@ cmake_minimum_required (VERSION 3.6)
 project(LinaAction CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(BUILD_SHARED_LIBS ON)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
@@ -149,12 +151,12 @@ target_link_libraries(${PROJECT_NAME}
 #--------------------------------------------------------------------
 # Generate export header for this dll project 
 #--------------------------------------------------------------------
- include (GenerateExportHeader)
-	GENERATE_EXPORT_HEADER (LinaAction
-	BASE_NAME LinaAction
-	EXPORT_MACRO_NAME LINA_API
-	EXPORT_FILE_NAME Action.hpp
-)
+ #include (GenerateExportHeader)
+#	GENERATE_EXPORT_HEADER (LinaAction
+#	BASE_NAME LinaAction
+#	EXPORT_MACRO_NAME LINA_API
+#	EXPORT_FILE_NAME Action.hpp
+#)
 
 
 

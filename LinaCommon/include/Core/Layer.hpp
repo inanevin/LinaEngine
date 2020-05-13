@@ -28,7 +28,7 @@ Timestamp: 1/2/2019 1:42:06 AM
 
 namespace LinaEngine
 {
-	class LINA_API Layer
+	class Layer
 	{
 	public:
 

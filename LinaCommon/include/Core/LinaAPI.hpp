@@ -25,15 +25,71 @@ Timestamp: 12/29/2018 10:43:46 PM
 #  define LINA_API
 #  define LINAENGINE_NO_EXPORT
 #else
-#  ifndef LINA_API
-#    ifdef LinaEngine_EXPORTS
+#  ifndef LINACOMMON_API
+#    ifdef LinaCommon_EXPORTS
         /* We are building this library */
-#      define LINA_API __declspec(dllexport)
+#      define LINACOMMON_API __declspec(dllexport)
 #    else
         /* We are using this library */
-#      define LINA_API __declspec(dllimport)
+#      define LINACOMMON_API __declspec(dllimport)
 #    endif
 #  endif
+#  ifndef LINAACTION_API
+#    ifdef LinaAction_EXPORTS
+        /* We are building this library */
+#      define LINAACTION_API __declspec(dllexport)
+#    else
+        /* We are using this library */
+#      define LINAACTION_API __declspec(dllimport)
+#    endif
+#  endif
+#  ifndef LINAECS_API
+#    ifdef LinaECS_EXPORTS
+        /* We are building this library */
+#      define LINAECS_API __declspec(dllexport)
+#    else
+        /* We are using this library */
+#      define LINAECS_API __declspec(dllimport)
+#    endif
+#  endif
+#  ifndef LINAINPUT_API
+#    ifdef LinaInput_EXPORTS
+        /* We are building this library */
+#      define LINAINPUT_API __declspec(dllexport)
+#    else
+        /* We are using this library */
+#      define LINAINPUT_API __declspec(dllimport)
+#    endif
+#  endif
+#  ifndef LINAPHYSICS_API
+#    ifdef LinaPhysics_EXPORTS
+        /* We are building this library */
+#      define LINAPHYSICS_API __declspec(dllexport)
+#    else
+        /* We are using this library */
+#      define LINAPHYSICS_API __declspec(dllimport)
+#    endif
+#  endif
+#  ifndef LINAGRAPHICS_API
+#    ifdef LinaGraphics_EXPORTS
+        /* We are building this library */
+#      define LINAGRAPHICS_API __declspec(dllexport)
+#    else
+        /* We are using this library */
+#      define LINAGRAPHICS_API __declspec(dllimport)
+#    endif
+#  endif
+#  ifndef LINAENGINE_API
+#    ifdef LinaEngine_EXPORTS
+        /* We are building this library */
+#      define LINAENGINE_API __declspec(dllexport)
+#    else
+        /* We are using this library */
+#      define LINAENGINE_API __declspec(dllimport)
+#    endif
+#  endif
+
+
 
 #  ifndef LINAENGINE_NO_EXPORT
 #    define LINAENGINE_NO_EXPORT 

@@ -15,7 +15,8 @@
 cmake_minimum_required (VERSION 3.6)
 project(LinaGraphics)
 set(CMAKE_CXX_STANDARD 17)
-
+set(BUILD_SHARED_LIBS ON)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------

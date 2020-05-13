@@ -29,16 +29,16 @@ namespace LinaEngine
 	namespace Utility
 	{
 		// Create a unique hash from string.
-		LINA_API size_t StringToHash(std::string str);
+		size_t StringToHash(std::string str);
 
 		// Split a string vector.
-		LINA_API std::vector<std::string> split(const std::string& s, char delim);
+		std::vector<std::string> split(const std::string& s, char delim);
 
 		// Return path via filename.
-		LINA_API std::string getFilePath(const std::string& fileName);
+		std::string getFilePath(const std::string& fileName);
 
 		// Loads a text file, parsing through include keywords.
-		LINA_API bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword);
+		bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword);
 	}
 }
 

@@ -86,18 +86,18 @@ namespace LinaEngine
 	{
 	public:
 
-		static LINA_API void Init();
+		static void Init();
 
-		inline static LINA_API std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
-		inline static LINA_API std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
+		inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
+		inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
 
 		/* FIND A WAY TO USE VARIADIC TEMPLATES BY CREATING POSSIBLE DEFINITIONS OF CALLS ON COMPILE TIME */
 
 
 	private:
 		
-		static LINA_API std::shared_ptr<spdlog::logger> s_CoreLogger;
-		static LINA_API std::shared_ptr<spdlog::logger> s_ClientLogger;
+		static LINACOMMON_API std::shared_ptr<spdlog::logger> s_CoreLogger;
+		static LINACOMMON_API std::shared_ptr<spdlog::logger> s_ClientLogger;
 
 	};
 }

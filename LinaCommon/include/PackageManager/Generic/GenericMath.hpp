@@ -43,7 +43,7 @@ Timestamp: 4/8/2019 9:14:44 PM
 
 namespace LinaEngine
 {
-	struct LINA_API GenericMath
+	struct GenericMath
 	{
 		static constexpr FORCEINLINE int32 TruncToInt(float val)
 		{

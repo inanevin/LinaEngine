@@ -32,7 +32,7 @@ namespace LinaEngine
 
 		// Type comparator traits.
 		template <typename T> struct comparison_traits {
-			static LINA_API bool equal(const T& a, const T& b) {
+			static bool equal(const T& a, const T& b) {
 				return a == b;
 			}
 		};
@@ -48,7 +48,7 @@ namespace LinaEngine
 
 		// Converts to underlying type.
 		template <typename E>
-		constexpr LINA_API auto to_underlying(E e) noexcept
+		constexpr auto to_underlying(E e) noexcept
 		{
 			return static_cast<std::underlying_type_t<E>>(e);
 		}

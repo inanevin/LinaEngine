@@ -26,28 +26,29 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 
 #include "Core/Common.hpp"
+#include "Core/LinaAPI.hpp"
 #include "PackageManager/PAMVectorMath.hpp"
 #include <sstream>
 #include <iostream>
 
 namespace LinaEngine
 {
-	struct LINA_API VectorConstants
+	struct VectorConstants
 	{
-		static const Vector ZERO;
-		static const Vector ONE;
-		static const Vector TWO;
-		static const Vector HALF;
-		static const Vector INF;
-		static const Vector MASK_X;
-		static const Vector MASK_Y;
-		static const Vector MASK_Z;
-		static const Vector MASK_W;
-		static const Vector SIGN_MASK;
+		static LINACOMMON_API const Vector ZERO;
+		static LINACOMMON_API const Vector ONE;
+		static LINACOMMON_API const Vector TWO;
+		static LINACOMMON_API const Vector HALF;
+		static LINACOMMON_API const Vector INF;
+		static LINACOMMON_API const Vector MASK_X;
+		static LINACOMMON_API const Vector MASK_Y;
+		static LINACOMMON_API const Vector MASK_Z;
+		static LINACOMMON_API const Vector MASK_W;
+		static LINACOMMON_API const Vector SIGN_MASK;
 
 	};
 
-	class LINA_API Vector4F
+	class Vector4F
 	{
 	public:
 
@@ -281,18 +282,18 @@ namespace LinaEngine
 
 	};
 
-	class LINA_API Vector3F
+	class Vector3F
 	{
 	public:
 
-		static const Vector3F Zero;
-		static const Vector3F Up;
-		static const Vector3F Down;
-		static const Vector3F Right;
-		static const Vector3F Left;
-		static const Vector3F Forward;
-		static const Vector3F Back;
-		static const Vector3F One;
+		static LINACOMMON_API const Vector3F Zero;
+		static LINACOMMON_API const Vector3F Up;
+		static LINACOMMON_API const Vector3F Down;
+		static LINACOMMON_API const Vector3F Right;
+		static LINACOMMON_API const Vector3F Left;
+		static LINACOMMON_API const Vector3F Forward;
+		static LINACOMMON_API const Vector3F Back;
+		static LINACOMMON_API const Vector3F One;
 
 		Vector3F();
 		Vector3F(float val);
@@ -481,12 +482,12 @@ namespace LinaEngine
 
 	};
 
-	class LINA_API Vector2F
+	class Vector2F
 	{
 	public:
 
-		static const Vector2F Zero;
-		static const Vector2F One;
+		static LINACOMMON_API const Vector2F Zero;
+		static LINACOMMON_API const Vector2F One;
 
 
 		FORCEINLINE Vector2F::Vector2F()

@@ -16,6 +16,8 @@ cmake_minimum_required (VERSION 3.6)
 project(LinaInput CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(BUILD_SHARED_LIBS ON)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
@@ -170,12 +172,12 @@ target_link_libraries(${PROJECT_NAME}
 #--------------------------------------------------------------------
 # Generate export header for this dll project 
 #--------------------------------------------------------------------
- include (GenerateExportHeader)
-	GENERATE_EXPORT_HEADER (LinaInput
-	BASE_NAME LinaInput
-	EXPORT_MACRO_NAME LINA_API
-	EXPORT_FILE_NAME InputEngine.hpp
-)
+ #include (GenerateExportHeader)
+#	GENERATE_EXPORT_HEADER (LinaInput
+#	BASE_NAME LinaInput
+#	EXPORT_MACRO_NAME LINA_API
+#	EXPORT_FILE_NAME InputEngine.hpp
+#)
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

@@ -31,7 +31,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 namespace LinaEngine
 {
 
-	class LINA_API Quaternion
+	class Quaternion
 	{
 
 	public:

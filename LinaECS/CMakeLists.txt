@@ -16,6 +16,8 @@ cmake_minimum_required (VERSION 3.6)
 project(LinaECS)
 set(CMAKE_CXX_STANDARD 17)
 set(BUILD_SHARED_LIBS ON)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
@@ -146,8 +148,6 @@ endif ( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
-
-include(../CMake/GLGraphicsDefinitions.cmake)
 
 # Language standard
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)

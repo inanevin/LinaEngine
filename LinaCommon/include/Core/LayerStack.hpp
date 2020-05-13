@@ -29,7 +29,7 @@ namespace LinaEngine
 {
 	class Layer;
 
-	class LINA_API LayerStack
+	class LayerStack
 	{
 	public:
 

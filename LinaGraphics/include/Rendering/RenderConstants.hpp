@@ -1,4 +1,4 @@
-/*
+﻿/*
 Author: Inan Evin
 www.inanevin.com
 
@@ -22,28 +22,30 @@ Timestamp: 2/16/2019 1:47:28 AM
 #ifndef ShaderConstants_HPP
 #define ShaderConstants_HPP
 
+#include "Core/LinaAPI.hpp"
 #include <string>
+
 
 namespace LinaEngine::Graphics
 {
 	struct ShaderConstants
 	{
-		static std::string& standardLitShader;
-		static std::string& standardUnlitShader;
-		static std::string& skyboxCubemapShader;
-		static std::string& skyboxGradientShader;
-		static std::string& skyboxProceduralShader;
-		static std::string& skyboxSingleColorShader;
+		static LINAGRAPHICS_API std::string& standardLitShader;
+		static LINAGRAPHICS_API std::string& standardUnlitShader;
+		static LINAGRAPHICS_API std::string& skyboxCubemapShader;
+		static LINAGRAPHICS_API std::string& skyboxGradientShader;
+		static LINAGRAPHICS_API std::string& skyboxProceduralShader;
+		static LINAGRAPHICS_API std::string& skyboxSingleColorShader;
 	};
 
 	struct MaterialConstants
 	{
-		static std::string& skyboxMaterialName;
-		static std::string& colorProperty;
-		static std::string& startColorProperty;
-		static std::string& endColorProperty;
-		static std::string& sunDirectionProperty;
-		static std::string& diffuseTextureProperty;
+		static LINAGRAPHICS_API std::string& skyboxMaterialName;
+		static LINAGRAPHICS_API std::string& colorProperty;
+		static LINAGRAPHICS_API std::string& startColorProperty;
+		static LINAGRAPHICS_API std::string& endColorProperty;
+		static LINAGRAPHICS_API std::string& sunDirectionProperty;
+		static LINAGRAPHICS_API std::string& diffuseTextureProperty;
 	};
 }
 #endif

@@ -35,7 +35,7 @@ Timestamp: 4/8/2019 9:04:58 PM
 namespace LinaEngine
 {
 
-	struct LINA_API GenericMemory
+	struct GenericMemory
 	{
 		enum
 		{

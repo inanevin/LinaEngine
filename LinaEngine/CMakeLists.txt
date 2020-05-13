@@ -15,7 +15,8 @@
 cmake_minimum_required (VERSION 3.6)
 project(LinaEngine)
 set(CMAKE_CXX_STANDARD 17)
-
+set(BUILD_SHARED_LIBS ON)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
@@ -173,10 +174,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaGraphi
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaInput/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaPhysics/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAction/include)
-
-if(LINA_GRAPHICS_OPENGL)
-	include(../CMake/GLGraphicsDefinitions.cmake)
-endif()
 
 # Language standard
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
