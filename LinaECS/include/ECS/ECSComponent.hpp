@@ -23,6 +23,7 @@ Timestamp: 4/7/2019 3:24:08 PM
 #define ECSComponent_HPP
 
 #include "Core/LinaArray.hpp"
+#include "Core/LinaAPI.hpp"
 #include "Core/Common.hpp"
 #include "Core/SizeDefinitions.hpp"
 #include <tuple>
@@ -49,45 +50,44 @@ namespace LinaEngine::ECS
 	{
 
 		/* Increments id for new components */
-		 static uint32 registerComponentType(ECSComponentCreateFunction createfn, ECSComponentFreeFunction freefn, size_t size);
+		static LINAECS_API uint32 registerComponentType(ECSComponentCreateFunction createfn, ECSComponentFreeFunction freefn, size_t size);
 
 		/* Entity reference */
 		EntityHandle entity = NULL_ENTITY_HANDLE;
 
-		FORCEINLINE static ECSComponentCreateFunction GetTypeCreateFunction(uint32 id)
+		FORCEINLINE LINAECS_API static ECSComponentCreateFunction GetTypeCreateFunction(uint32 id)
 		{
 			return std::get<0>((*componentTypes)[id]);
 		}
 
-		FORCEINLINE static ECSComponentFreeFunction GetTypeFreeFunction(uint32 id)
+		FORCEINLINE LINAECS_API static ECSComponentFreeFunction GetTypeFreeFunction(uint32 id)
 		{
 			return std::get<1>((*componentTypes)[id]);
 		}
 
-		FORCEINLINE static size_t GetTypeSize(uint32 id)
+		FORCEINLINE LINAECS_API static size_t GetTypeSize(uint32 id)
 		{
 			return std::get<2>((*componentTypes)[id]);
 		}
 
-		FORCEINLINE static bool isTypeValid(uint32 id)
+		FORCEINLINE LINAECS_API static bool isTypeValid(uint32 id)
 		{
 			return id < componentTypes->size();
 		}
 
 	private:
 		/* Component types, warning = global dynamic mem alloc. */
-		static  LinaEngine::LinaArray<std::tuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>>* componentTypes;
+		static  LINAECS_API LinaEngine::LinaArray<std::tuple<ECSComponentCreateFunction, ECSComponentFreeFunction, size_t>>* componentTypes;
 	};
 
 	template<typename T>
 	struct ECSComponent : public BaseECSComponent
 	{
-
 		/* Create function for creating ecs components. */
-		static const ECSComponentCreateFunction CREATE_FUNCTION;
+		static LINAECS_API const ECSComponentCreateFunction CREATE_FUNCTION;
 
 		/* Free function for freeing an ecs component. */
-		static const ECSComponentFreeFunction FREE_FUNCTION;
+		static LINAECS_API const ECSComponentFreeFunction FREE_FUNCTION;
 
 		/* Component ID */
 		static const uint32 ID;
@@ -95,6 +95,7 @@ namespace LinaEngine::ECS
 		/* How big every component is */
 		static const size_t SIZE;
 	};
+
 
 	/* Creates a component from a base reference */
 	template<typename Component>
@@ -131,12 +132,6 @@ namespace LinaEngine::ECS
 	template<typename T>
 	 const ECSComponentFreeFunction ECSComponent<T>::FREE_FUNCTION(ECSComponentFree<T>);
 
-
-	struct TestComponent : public ECSComponent<TestComponent>
-	{
-		float x;
-		float y;
-	};
 }
 
 

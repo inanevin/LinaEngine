@@ -24,6 +24,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "Rendering/ArrayBitmap.hpp"
 #include "ECS/EntityComponentSystem.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
+#include "ECS/ECS.hpp"
 #include "Utility/Math/Color.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Core/Layer.hpp"
@@ -58,7 +59,7 @@ namespace LinaEngine::Graphics
 
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
-
+	entt::registry registry;
 	void RenderEngine::Initialize(LinaEngine::ECS::EntityComponentSystem& ecsIn)
 	{
 		// Set ECS reference
@@ -115,7 +116,10 @@ namespace LinaEngine::Graphics
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
 		m_RenderingPipeline.AddSystem(m_MeshRendererSystem);
 
+		auto entity = registry.create();
+		
 	}
+
 
 	void RenderEngine::Tick(float delta)
 	{
@@ -123,7 +127,7 @@ namespace LinaEngine::Graphics
 		m_DefaultRenderContext.Clear(m_CameraSystem.GetCurrentClearColor(), true);
 
 		// Update pipeline.
-		m_ECS->UpdateSystems(m_RenderingPipeline, delta);
+		//m_ECS->UpdateSystems(m_RenderingPipeline, delta);
 
 		// Update uniform buffers on GPU
 		UpdateUniformBuffers();

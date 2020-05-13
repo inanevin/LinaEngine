@@ -21,6 +21,16 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "Core/Application.hpp"
 #include "Core/Layer.hpp"
 #include "World/Level.hpp"
+#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/CubeChunkComponent.hpp"
+#include "ECS/Components/MotionComponent.hpp"
+#include "ECS/Components/MovementControlComponent.hpp"
+#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/CameraComponent.hpp"
+#include "ECS/Components/LightComponent.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
+#include "ECS/Components/FreeLookComponent.hpp"
+
 
 namespace LinaEngine
 {
@@ -56,6 +66,7 @@ namespace LinaEngine
 
 		// Set running flag.
 		m_Running = true;
+
 	}
 
 	Application::~Application()

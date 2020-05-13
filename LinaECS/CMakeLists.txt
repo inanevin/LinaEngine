@@ -15,8 +15,8 @@
 cmake_minimum_required (VERSION 3.6)
 project(LinaECS)
 set(CMAKE_CXX_STANDARD 17)
-set(BUILD_SHARED_LIBS ON)
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
+
 
 #--------------------------------------------------------------------
 # Set sources
@@ -53,10 +53,19 @@ set(LINAECS_HEADERS
 	include/ECS/Interactions/TestInteraction.hpp
 	include/ECS/ECSComponent.hpp
 	include/ECS/ECSSystem.hpp
+	include/ECS/ECS.hpp
 	include/ECS/EntityComponentSystem.hpp
 	include/ECS/Utility/MotionIntegrators.hpp
 	include/ECS/ECSInteraction.hpp
 )
+
+if(NOT LINA_SHARED_ECS)
+	add_compile_definitions(LINAECS_STATIC_DEFINE)
+	set(BUILD_SHARED_LIBS OFF)
+else (LINA_SHARED_ECS)
+	set(BUILD_SHARED_LIBS ON)
+	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
 
 #--------------------------------------------------------------------
 # Define the library & create an alias
@@ -67,6 +76,8 @@ add_library(Lina::ECS ALIAS ${PROJECT_NAME})
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------
+
+
 
 set_target_properties(
     ${PROJECT_NAME}
@@ -148,6 +159,7 @@ endif ( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/entt/src)
 
 # Language standard
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)

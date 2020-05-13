@@ -21,9 +21,10 @@ Timestamp: 12/29/2018 10:43:46 PM
 #ifndef LINA_API_H
 #define LINA_API_H
 
-#ifdef LINAENGINE_STATIC_DEFINE
-#  define LINA_API
-#  define LINAENGINE_NO_EXPORT
+
+
+#ifdef LINACOMMON_STATIC_DEFINE
+#define LINACOMMON_API
 #else
 #  ifndef LINACOMMON_API
 #    ifdef LinaCommon_EXPORTS
@@ -34,6 +35,11 @@ Timestamp: 12/29/2018 10:43:46 PM
 #      define LINACOMMON_API __declspec(dllimport)
 #    endif
 #  endif
+#  endif
+
+#ifdef LINAACTION_STATIC_DEFINE
+#define LINAACTION_API
+#else
 #  ifndef LINAACTION_API
 #    ifdef LinaAction_EXPORTS
         /* We are building this library */
@@ -43,6 +49,11 @@ Timestamp: 12/29/2018 10:43:46 PM
 #      define LINAACTION_API __declspec(dllimport)
 #    endif
 #  endif
+#  endif
+
+#ifdef LINAECS_STATIC_DEFINE
+#define LINAECS_API
+#else
 #  ifndef LINAECS_API
 #    ifdef LinaECS_EXPORTS
         /* We are building this library */
@@ -52,6 +63,11 @@ Timestamp: 12/29/2018 10:43:46 PM
 #      define LINAECS_API __declspec(dllimport)
 #    endif
 #  endif
+#  endif
+
+#ifdef LINAINPUT_STATIC_DEFINE
+#define LINAINPUT_API
+#else
 #  ifndef LINAINPUT_API
 #    ifdef LinaInput_EXPORTS
         /* We are building this library */
@@ -61,6 +77,11 @@ Timestamp: 12/29/2018 10:43:46 PM
 #      define LINAINPUT_API __declspec(dllimport)
 #    endif
 #  endif
+#  endif
+
+#ifdef LINAPHYSICS_STATIC_DEFINE
+#define LINAPHYSICS_API
+#else
 #  ifndef LINAPHYSICS_API
 #    ifdef LinaPhysics_EXPORTS
         /* We are building this library */
@@ -70,6 +91,11 @@ Timestamp: 12/29/2018 10:43:46 PM
 #      define LINAPHYSICS_API __declspec(dllimport)
 #    endif
 #  endif
+#  endif
+
+#ifdef LINAGRAPHICS_STATIC_DEFINE
+#define LINAGRAPHICS_API
+#else
 #  ifndef LINAGRAPHICS_API
 #    ifdef LinaGraphics_EXPORTS
         /* We are building this library */
@@ -79,6 +105,11 @@ Timestamp: 12/29/2018 10:43:46 PM
 #      define LINAGRAPHICS_API __declspec(dllimport)
 #    endif
 #  endif
+#  endif
+
+#ifdef LINAENGINE_STATIC_DEFINE
+#define LINAENGINE_API
+#else
 #  ifndef LINAENGINE_API
 #    ifdef LinaEngine_EXPORTS
         /* We are building this library */
@@ -87,6 +118,7 @@ Timestamp: 12/29/2018 10:43:46 PM
         /* We are using this library */
 #      define LINAENGINE_API __declspec(dllimport)
 #    endif
+#  endif
 #  endif
 
 
@@ -114,4 +146,3 @@ Timestamp: 12/29/2018 10:43:46 PM
 #  endif
 #endif
 
-#endif /* LINA_API_H */

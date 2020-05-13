@@ -15,8 +15,8 @@
 cmake_minimum_required (VERSION 3.6)
 project(LinaEngine)
 set(CMAKE_CXX_STANDARD 17)
-set(BUILD_SHARED_LIBS ON)
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
+
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
@@ -62,6 +62,15 @@ set(LINAENGINE_HEADERS
 	
 )
 
+if(NOT LINA_SHARED_ENGINE)
+	add_compile_definitions(LINAENGINE_STATIC_DEFINE)
+	set(BUILD_SHARED_LIBS OFF)
+else (LINA_SHARED_ENGINE)
+	set(BUILD_SHARED_LIBS ON)
+	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
+
+
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
@@ -71,6 +80,7 @@ add_library(Lina::Engine ALIAS ${PROJECT_NAME})
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------
+
 
 set_target_properties(
     ${PROJECT_NAME}

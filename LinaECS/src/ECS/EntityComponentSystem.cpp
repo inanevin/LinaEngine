@@ -185,7 +185,7 @@ namespace LinaEngine::ECS
 			// deletion logic.
 			const LinaArray<uint32>& componentTypes = systems[i]->GetComponentTypes();
 
-		
+			
 			if (componentTypes.size() == 1)
 			{
 				// Get the type size

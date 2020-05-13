@@ -30,7 +30,19 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_SUPPRESS_REGENERATION true)
-option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
+#option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
+
+
+option(LINA_SHARED_COMMON "Build Lina COMMON DLL" OFF)
+option(LINA_SHARED_ECS "Build Lina ECS DLL" OFF)
+option(LINA_SHARED_ACTION "Build Lina ACTION DLL" OFF)
+option(LINA_SHARED_INPUT "Build Lina INPUT DLL" OFF)
+option(LINA_SHARED_GRAPHICS "Build Lina GRAPHICS DLL" OFF)
+option(LINA_SHARED_PHYSICS "Build Lina PHYSICS DLL" OFF)
+option(LINA_SHARED_ENGINE "Build Lina ENGINE DLL" OFF)
+
+
+
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
 set(LINA_GRAPHICS_OPENGL 1)
@@ -49,12 +61,6 @@ set(LINASANDBOX_HEADER_DIR Sandbox/include)
 #--------------------------------------------------------------------
 
 
-#if(LINA_BUILD_SANDBOX)
-#	add_subdirectory(Sandbox)
-#	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
-#else()
-#	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT LinaEngine)
-#endif()
 
 add_subdirectory(Sandbox)
 add_subdirectory(LinaEditor)
@@ -65,6 +71,8 @@ add_subdirectory(LinaCommon)
 add_subdirectory(LinaAction)
 add_subdirectory(LinaInput)
 add_subdirectory(LinaPhysics)
+add_subdirectory(vendor/glfw)
+
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT LinaEditor)
 

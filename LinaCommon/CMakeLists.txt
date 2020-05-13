@@ -15,9 +15,8 @@
 cmake_minimum_required (VERSION 3.6)
 project(LinaCommon CXX)
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-set(BUILD_SHARED_LIBS ON)
 
+	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
@@ -134,6 +133,14 @@ set(LINACOMMON_HEADERS
 	include/Utility/spdlog/fmt/bundled/time.h
 
 )
+
+if(NOT LINA_SHARED_COMMON)
+	add_compile_definitions(LINACOMMON_STATIC_DEFINE)
+	set(BUILD_SHARED_LIBS OFF)
+else (LINA_SHARED_COMMON)
+	set(BUILD_SHARED_LIBS ON)
+	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
 
 #--------------------------------------------------------------------
 # Define the library & create an alias

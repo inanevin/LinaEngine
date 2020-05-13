@@ -15,8 +15,7 @@
 cmake_minimum_required (VERSION 3.6)
 project(LinaPhysics)
 set(CMAKE_CXX_STANDARD 17)
-set(BUILD_SHARED_LIBS ON)
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
 
 #--------------------------------------------------------------------
 # Set sources
@@ -38,6 +37,15 @@ set(LINAPHYSICS_HEADERS
 	include/Physics/PhysicsInteractionWorld.hpp
 )
 
+
+if(NOT LINA_SHARED_PHYSICS)
+	add_compile_definitions(LINAPHYSICS_STATIC_DEFINE)
+	set(BUILD_SHARED_LIBS OFF)
+else (LINA_SHARED_PHYSICS)
+	set(BUILD_SHARED_LIBS ON)
+	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
+
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
@@ -47,6 +55,8 @@ add_library(Lina::Physics ALIAS ${PROJECT_NAME})
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------
+
+
 
 set_target_properties(
     ${PROJECT_NAME}

@@ -28,10 +28,13 @@ Timestamp: 4/9/2019 1:28:05 PM
 
 namespace LinaEngine::ECS
 {
+
 	struct TransformComponent : public ECSComponent<TransformComponent>
 	{
 		LinaEngine::Transformation transform;
 	};
+
+
 }
 
 

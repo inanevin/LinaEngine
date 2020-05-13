@@ -105,7 +105,7 @@ namespace LinaEngine::Graphics
 		FORCEINLINE float GetAmbientLightIntensity() { return m_LightingSystem.GetAmbientIntensity(); }
 
 		// Initialize the render renderEngine.
-		void Initialize(LinaEngine::ECS::EntityComponentSystem & ecsIn);
+		void Initialize(LinaEngine::ECS::EntityComponentSystem& ecsIn);
 
 		// Called each frame.
 		void Tick(float delta);

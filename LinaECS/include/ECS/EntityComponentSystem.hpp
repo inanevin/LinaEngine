@@ -23,6 +23,9 @@ Timestamp: 4/8/2019 5:43:51 PM
 #define ECS_HPP
 
 #include "ECSSystem.hpp"
+#include "Core/LinaAPI.hpp"
+#include "Utility/Log.hpp"
+#include "Components/TransformComponent.hpp"
 #include <map>
 
 namespace LinaEngine::ECS

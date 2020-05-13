@@ -36,7 +36,7 @@ namespace LinaEngine::ECS
 	public:
 
 		FreeLookSystem(LinaEngine::Input::InputEngine& inputEngineIn);
-		virtual void UpdateComponents(float delta, BaseECSComponent** components);
+		virtual void UpdateComponents(float delta, BaseECSComponent** components) override;
 
 	private:
 

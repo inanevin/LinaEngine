@@ -135,8 +135,8 @@ void Example1Level::Initialize()
 	m_RenderEngine->CreateMesh("cube", "resources/meshes/cube.obj", &cubeMesh);
 
 	// Create material for example mesh.
-	m_RenderEngine->CreateMaterial("object1Material", ShaderConstants::standardLitShader, &objectLitMaterial);
-	m_RenderEngine->CreateMaterial("object2Material", ShaderConstants::standardLitShader, &objectUnlitMaterial);
+	m_RenderEngine->CreateMaterial("object1Material", ShaderConstants::standardUnlitShader, &objectLitMaterial);
+	m_RenderEngine->CreateMaterial("object2Material", ShaderConstants::standardUnlitShader, &objectUnlitMaterial);
 
 	// Create texture for example mesh.
 	m_RenderEngine->CreateTexture("crate", "resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateTexture);
@@ -183,6 +183,8 @@ void Example1Level::Initialize()
 	ecsFreeLookSystem = new FreeLookSystem(*m_InputEngine);
 	level1Systems.AddSystem(*ecsFreeLookSystem);
 
+
+
 	/*
 		// Create an example mesh.
 		//.mesh = &m_RenderEngine->LoadMeshResource("resources/meshes/cube.obj");
@@ -214,7 +216,8 @@ void Example1Level::Initialize()
 void Example1Level::Tick(float delta)
 {
 	// Update the systems in this level.
-	m_ECS->UpdateSystems(level1Systems, delta);
+	//m_ECS->UpdateSystems(level1Systems, delta);
 
-
+	if (m_InputEngine->GetKey(Input::InputCode::Key::A))
+		LINA_CLIENT_INFO("xd");
 }

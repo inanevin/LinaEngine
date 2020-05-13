@@ -15,8 +15,7 @@
 cmake_minimum_required (VERSION 3.6)
 project(LinaGraphics)
 set(CMAKE_CXX_STANDARD 17)
-set(BUILD_SHARED_LIBS ON)
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
@@ -101,6 +100,16 @@ set(LINAGRAPHICS_HEADERS
 	include/Utility/stb/stretchy_buffer.h
 )
 
+
+if(NOT LINA_SHARED_GRAPHICS)
+	add_compile_definitions(LINAGRAPHICS_STATIC_DEFINE)
+	set(BUILD_SHARED_LIBS OFF)
+else (LINA_SHARED_GRAPHICS)
+	set(BUILD_SHARED_LIBS ON)
+	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
+
+
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
@@ -179,7 +188,8 @@ endif ( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/vendor/glfw/include)
+#target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/vendor/glfw/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/vendor/glad/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
@@ -197,7 +207,8 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 #--------------------------------------------------------------------
 
 target_link_libraries(${PROJECT_NAME} 
-	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
+	#PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
+	PRIVATE glfw
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/$<CONFIGURATION>/glad.lib
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/vendor/assimp/lib/$<CONFIGURATION>/assimp.lib
 	PRIVATE Lina::Common

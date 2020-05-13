@@ -101,6 +101,7 @@ namespace LinaEngine
 		std::function<void(int, int)> m_KeyCallback;
 		std::function<void(int, int)> m_MouseCallback;
 
+
 	};
 
 	// Defined in client.

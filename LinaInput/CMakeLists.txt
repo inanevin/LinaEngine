@@ -15,8 +15,7 @@
 cmake_minimum_required (VERSION 3.6)
 project(LinaInput CXX)
 set(CMAKE_CXX_STANDARD 17)
-set(BUILD_SHARED_LIBS ON)
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
 
 #--------------------------------------------------------------------
 # Set sources
@@ -54,6 +53,14 @@ set(LINAINPUT_HEADERS
 	include/PackageManager/PAMInputDevice.hpp
 )
 
+if(NOT LINA_SHARED_INPUT)
+	add_compile_definitions(LINAINPUT_STATIC_DEFINE)
+	set(BUILD_SHARED_LIBS OFF)
+else (LINA_SHARED_INPUT)
+	set(BUILD_SHARED_LIBS ON)
+	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
+
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
@@ -63,6 +70,8 @@ add_library(Lina::Input ALIAS ${PROJECT_NAME})
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------
+
+
 
 set_target_properties(
     ${PROJECT_NAME}
@@ -142,9 +151,10 @@ endif ( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
 # Set include directories
 #--------------------------------------------------------------------
 
+
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/vendor/glfw/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAction/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaECS/include)
@@ -156,11 +166,13 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
 #--------------------------------------------------------------------
 # Subdirectories & linking
 #--------------------------------------------------------------------
+
+
 target_link_libraries(${PROJECT_NAME} 
+	PRIVATE glfw
 	PRIVATE Lina::Action
 	PRIVATE Lina::Common
 	PRIVATE Lina::ECS
-	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
 )
 
 
