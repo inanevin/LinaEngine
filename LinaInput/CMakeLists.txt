@@ -169,7 +169,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
 
 
 target_link_libraries(${PROJECT_NAME} 
-	PRIVATE glfw
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
 	PRIVATE Lina::Action
 	PRIVATE Lina::Common
 	PRIVATE Lina::ECS
