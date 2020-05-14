@@ -22,12 +22,9 @@ Timestamp: 5/2/2019 1:40:16 AM
 #ifndef FreeLookComponent_HPP
 #define FreeLookComponent_HPP
 
-#include "ECS/ECSComponent.hpp"
-
-
 namespace LinaEngine::ECS
 {
-	struct FreeLookComponent : public ECSComponent<FreeLookComponent>
+	struct FreeLookComponent
 	{
 		float movementSpeedX;
 		float movementSpeedZ;

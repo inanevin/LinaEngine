@@ -19,40 +19,44 @@ Timestamp: 5/2/2019 12:41:01 AM
 
 #include "ECS/Systems/CameraSystem.hpp"  
 #include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 
 namespace LinaEngine::ECS
 {
-	CameraSystem::CameraSystem() : BaseECSSystem()
+
+	void CameraSystem::UpdateComponents(float delta)
 	{
-		AddComponentType(TransformComponent::ID);
-		AddComponentType(CameraComponent::ID);
-	}
+		auto view = m_Registry->reg.view<MeshRendererComponent, CameraComponent>();
 
-	void CameraSystem::UpdateComponents(float delta, BaseECSComponent ** components)
-	{
-		TransformComponent* transform = (TransformComponent*)components[0];
-		CameraComponent* camera = (CameraComponent*)components[1];
+		for (auto entity : view)
+		{
 
-		if (!camera->isActive) return;
+			auto& transform = view.get<MeshRendererComponent>(entity);
+			auto& camera = view.get<CameraComponent>(entity);
 
-		// Set current camera component.
-		m_CurrentCameraComponent = camera;
-		m_CurrentCameraTransform = transform;
+			if (!camera.isActive) return;
 
-		// Init translation & rotation matrices.
-		Matrix translation = Matrix::Translate(-transform->transform.GetLocation());
-		Matrix rotation = Matrix::InitRotationFromDirection(transform->transform.GetRotation().GetAxisZ(), transform->transform.GetRotation().GetAxisY());
+			// Set current camera component.
+		//m_CurrentCameraComponent = &camera;
+		//m_CurrentCameraTransform = &transform;
+		//
+		//// Init translation & rotation matrices.
+		//Matrix translation = Matrix::Translate(-transform.transform.GetLocation());
+		//Matrix rotation = Matrix::InitRotationFromDirection(transform.transform.GetRotation().GetAxisZ(), transform.transform.GetRotation().GetAxisY());
+		//
+		//// View transformation including only the rotation data for skybox.
+		//m_SkyboxViewTransformation = rotation;
+		//
+		//// Actual camera view matrix.
+		//m_View = rotation * translation;
+		//
+		//// Update projection matrix.
+		//m_Projection = Matrix::perspective(Math::ToRadians(camera.fieldOfView / 2.0f), m_AspectRatio, camera.zNear, camera.zFar);
+
+		}
+	
 		
-		// View transformation including only the rotation data for skybox.
-		m_SkyboxViewTransformation = rotation;
-
-		// Actual camera view matrix.
-		m_View = rotation * translation;
-
-		// Update projection matrix.
-		m_Projection = Matrix::perspective(Math::ToRadians(camera->fieldOfView / 2.0f), m_AspectRatio, camera->zNear, camera->zFar);
-
 	}
 
 	Vector3F CameraSystem::GetCameraLocation()

@@ -23,41 +23,38 @@ Timestamp: 4/8/2019 5:28:34 PM
 #define ECSSystem_HPP
 
 
-#include "ECSComponent.hpp"
+#include "Core/Common.hpp"
+#include "entt/entity/registry.hpp"
 
 
 namespace LinaEngine::ECS
 {
+
+	class ECSRegistry
+	{
+	public:
+		entt::registry reg;
+	};
+
+	class ECSEntity
+	{
+	public:
+		entt::entity entity;
+	};
+
 	class BaseECSSystem
 	{
-
 	public:
-
-		enum
-		{
-			FLAG_OPTIONAL = 1,
-		};
 
 		BaseECSSystem() {};
 
-		virtual void UpdateComponents(float delta, BaseECSComponent** components) { };
-		FORCEINLINE const LinaArray<uint32> GetComponentTypes() { return componentTypes; }
-		FORCEINLINE const LinaArray<uint32>& GetComponentFlags() { return componentFlags; }
-		bool IsValid();
+		virtual void UpdateComponents(float delta) = 0;
 
 	protected:
 
-		FORCEINLINE void AddComponentType(uint32 componentType, uint32 componentFlag = 0)
-		{
-			componentTypes.push_back(componentType);
-			componentFlags.push_back(componentFlag);
-		}
+		virtual void Construct(ECSRegistry& reg) { m_Registry = &reg; };
+		ECSRegistry* m_Registry;
 
-	private:
-
-		LinaArray<uint32> componentTypes;
-		LinaArray<uint32> componentFlags;
-		
 	};
 
 	class ECSSystemList
@@ -67,29 +64,23 @@ namespace LinaEngine::ECS
 		/* Adds a system */
 		FORCEINLINE bool AddSystem(BaseECSSystem& system)
 		{
-			if (!system.IsValid()) return false;
 			systems.push_back(&system);
 			return true;
 		}
 
-		FORCEINLINE size_t Size()
+		FORCEINLINE void UpdateSystems(float delta)
 		{
-			return systems.size();
-		}
-
-		FORCEINLINE BaseECSSystem* operator[](uint32 index)
-		{
-			return systems[index];
+			for (auto s : systems)
+				s->UpdateComponents(delta);
 		}
 
 		/* Remove a system */
 		bool RemoveSystem(BaseECSSystem& system);
 
-
 	private:
 
 		/* Array of EntityComponentSystem systems */
-		LinaArray<BaseECSSystem*> systems;
+		std::vector<BaseECSSystem*> systems;
 	};
 }
 

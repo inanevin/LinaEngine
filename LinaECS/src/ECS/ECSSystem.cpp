@@ -21,21 +21,12 @@ Timestamp: 4/8/2019 11:27:15 PM
 
 namespace LinaEngine::ECS
 {
-	bool BaseECSSystem::IsValid()
-	{
-		for (uint32 i = 0; i < componentFlags.size(); i++)
-		{
-			if ((componentFlags[i] & BaseECSSystem::FLAG_OPTIONAL) == 0)
-				return true;
-		}
-
-		return false;
-	}
-
+	
 	bool ECSSystemList::RemoveSystem(BaseECSSystem& system)
 	{
+
 		// Iterate through systems.
-		for (uint32 i = 0; i < systems.size(); i++)
+		for (unsigned int i = 0; i < systems.size(); i++)
 		{
 			// If the addr of the target system matches any system, erase it from the array.
 			if (&system == systems[i])

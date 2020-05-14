@@ -22,7 +22,8 @@ Timestamp: 5/2/2019 2:21:35 AM
 #ifndef FreeLookSystem_HPP
 #define FreeLookSystem_HPP
 
-#include "ECS/EntityComponentSystem.hpp"
+#include "ECS/ECSSystem.hpp"
+
 
 namespace LinaEngine::Input
 {
@@ -35,12 +36,17 @@ namespace LinaEngine::ECS
 	{
 	public:
 
-		FreeLookSystem(LinaEngine::Input::InputEngine& inputEngineIn);
-		virtual void UpdateComponents(float delta, BaseECSComponent** components) override;
+		FORCEINLINE void Construct(ECSRegistry& registry, LinaEngine::Input::InputEngine& inputEngineIn)
+		{
+			BaseECSSystem::Construct(registry);
+			inputEngine = &inputEngineIn;
+		}
+
+		virtual void UpdateComponents(float delta) override;
 
 	private:
 
-		LinaEngine::Input::InputEngine& inputEngine;
+		LinaEngine::Input::InputEngine* inputEngine;
 		float horizontalKeyAmount = 0.0f;
 		float verticalKeyAmount = 0.0f;
 	};

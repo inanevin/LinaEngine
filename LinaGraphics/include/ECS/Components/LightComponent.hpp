@@ -22,7 +22,6 @@ Timestamp: 5/13/2019 9:00:55 PM
 #ifndef LightComponent_HPP
 #define LightComponent_HPP
 
-#include "ECS/ECSComponent.hpp"
 #include "Utility/Math/Color.hpp"
 #include "Utility/Math/Vector.hpp"
 
@@ -30,7 +29,7 @@ Timestamp: 5/13/2019 9:00:55 PM
 namespace LinaEngine::ECS
 {
 
-	struct LightComponent : public ECSComponent<LightComponent>
+	struct LightComponent
 	{
 		Color color = Colors::White;
 		float intensity = 1.0f;

@@ -22,9 +22,6 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "Core/Layer.hpp"
 #include "World/Level.hpp"
 #include "ECS/Components/TransformComponent.hpp"
-#include "ECS/Components/CubeChunkComponent.hpp"
-#include "ECS/Components/MotionComponent.hpp"
-#include "ECS/Components/MovementControlComponent.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
@@ -59,9 +56,12 @@ namespace LinaEngine
 		m_RenderEngine.GetMainWindow().SetKeyCallback(m_KeyCallback);
 		m_RenderEngine.GetMainWindow().SetMouseCallback(m_MouseCallback);
 	
+		// Get ECS Registry
+		m_ECS.reg = entt::registry();
+
 		// Initialize engines.
 		m_InputEngine.Initialize(m_RenderEngine.GetNativeWindow());
-		m_PhysicsEngine.Initialize(m_ECS);
+		m_PhysicsEngine.Initialize();
 		m_RenderEngine.Initialize(m_ECS);
 
 		// Set running flag.

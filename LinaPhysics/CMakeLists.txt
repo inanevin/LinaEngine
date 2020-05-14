@@ -24,7 +24,6 @@ set (LINAPHYSICS_SOURCES
 
 	#Physics
 	src/Physics/PhysicsEngine.cpp
-	src/Physics/PhysicsInteractionWorld.cpp
 )
 
 #--------------------------------------------------------------------
@@ -34,7 +33,6 @@ set(LINAPHYSICS_HEADERS
 	
 	#Physics
 	include/Physics/PhysicsEngine.hpp
-	include/Physics/PhysicsInteractionWorld.hpp
 )
 
 

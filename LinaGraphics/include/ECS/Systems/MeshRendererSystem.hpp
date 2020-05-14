@@ -39,14 +39,15 @@ namespace LinaEngine::ECS
 
 	public:
 
-		MeshRendererSystem();
+		MeshRendererSystem() {};
 
-		FORCEINLINE void Construct(LinaEngine::Graphics::RenderContext& contextIn)
+		FORCEINLINE void Construct(ECSRegistry& registry, LinaEngine::Graphics::RenderContext& contextIn)
 		{
+			BaseECSSystem::Construct(registry);
 			context = &contextIn;
 		}
 
-		virtual void UpdateComponents(float delta, BaseECSComponent** components);
+		virtual void UpdateComponents(float delta) override;
 
 	private:
 

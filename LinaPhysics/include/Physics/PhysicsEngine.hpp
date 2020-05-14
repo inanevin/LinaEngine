@@ -22,7 +22,6 @@ Timestamp: 5/1/2019 2:35:28 AM
 #ifndef PhysicsEngine_HPP
 #define PhysicsEngine_HPP
 
-#include "Physics/PhysicsInteractionWorld.hpp"
 
 namespace LinaEngine::ECS
 {
@@ -42,7 +41,7 @@ namespace LinaEngine::Physics
 		~PhysicsEngine();
 
 		// Initializes the physics engine.
-		void Initialize(EntityComponentSystem& ecsIn);
+		void Initialize();
 
 		// Update physics systems.
 		void Tick(float fixedDelta);
@@ -52,13 +51,6 @@ namespace LinaEngine::Physics
 
 	private:
 
-		// Interaction world that handles physics interactions.
-		std::unique_ptr<PhysicsInteractionWorld> m_InteractionWorld;
-
-		// ECS reference.
-		EntityComponentSystem* ECS;
-
-		DISALLOW_COPY_AND_ASSIGN(PhysicsEngine);
 
 	};
 }

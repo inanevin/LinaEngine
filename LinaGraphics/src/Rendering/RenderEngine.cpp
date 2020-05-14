@@ -22,7 +22,6 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "Rendering/RenderConstants.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/ArrayBitmap.hpp"
-#include "ECS/EntityComponentSystem.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
 #include "ECS/ECS.hpp"
 #include "Utility/Math/Color.hpp"
@@ -60,10 +59,15 @@ namespace LinaEngine::Graphics
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
 	entt::registry registry;
-	void RenderEngine::Initialize(LinaEngine::ECS::EntityComponentSystem& ecsIn)
+
+	struct testcomp
 	{
-		// Set ECS reference
-		m_ECS = &ecsIn;
+		float x;
+	};
+	entt::entity e;
+
+	void RenderEngine::Initialize(LinaEngine::ECS::ECSRegistry& ecsReg)
+	{
 
 		// Initialize the render device.
 		m_RenderDevice.Initialize(m_LightingSystem, m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
@@ -106,18 +110,17 @@ namespace LinaEngine::Graphics
 
 		// Initialize ECS Camera System.
 		Vector2F windowSize = Vector2F(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
-		m_CameraSystem.Construct(m_DefaultRenderContext);
+		m_CameraSystem.Construct(ecsReg, m_DefaultRenderContext);
 		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 
 		// Initialize ECS Mesh Renderer System
-		m_MeshRendererSystem.Construct(m_DefaultRenderContext);
+		m_MeshRendererSystem.Construct(ecsReg, m_DefaultRenderContext);
 
 		// Add the ECS systems into the pipeline.
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
 		m_RenderingPipeline.AddSystem(m_MeshRendererSystem);
 
-		auto entity = registry.create();
-		
+	
 	}
 
 
@@ -127,7 +130,9 @@ namespace LinaEngine::Graphics
 		m_DefaultRenderContext.Clear(m_CameraSystem.GetCurrentClearColor(), true);
 
 		// Update pipeline.
-		//m_ECS->UpdateSystems(m_RenderingPipeline, delta);
+		//m_RenderingPipeline.UpdateSystems(delta);
+		m_CameraSystem.UpdateComponents(delta);
+		m_MeshRendererSystem.UpdateComponents(delta);
 
 		// Update uniform buffers on GPU
 		UpdateUniformBuffers();
