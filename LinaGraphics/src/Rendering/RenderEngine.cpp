@@ -127,7 +127,7 @@ namespace LinaEngine::Graphics
 		m_DefaultRenderContext.Clear(m_CameraSystem.GetCurrentClearColor(), true);
 
 		// Update pipeline.
-		//m_ECS->UpdateSystems(m_RenderingPipeline, delta);
+		m_ECS->UpdateSystems(m_RenderingPipeline, delta);
 
 		// Update uniform buffers on GPU
 		UpdateUniformBuffers();

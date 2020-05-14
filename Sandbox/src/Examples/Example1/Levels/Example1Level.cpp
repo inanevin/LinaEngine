@@ -216,7 +216,7 @@ void Example1Level::Initialize()
 void Example1Level::Tick(float delta)
 {
 	// Update the systems in this level.
-	//m_ECS->UpdateSystems(level1Systems, delta);
+	m_ECS->UpdateSystems(level1Systems, delta);
 
 	if (m_InputEngine->GetKey(Input::InputCode::Key::A))
 		LINA_CLIENT_INFO("xd");
