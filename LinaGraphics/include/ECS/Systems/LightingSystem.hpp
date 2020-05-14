@@ -50,17 +50,6 @@ namespace LinaEngine::ECS
 			m_Shader = &shaderIn;
 		}
 
-		// Sets ambient light intensity.
-		FORCEINLINE void SetAmbientIntensity(float intensity) { m_AmbientLight.intensity = intensity; }
-
-		// Sets ambient light color.
-		FORCEINLINE void SetAmbientColor(Color color) { m_AmbientLight.color = color; }
-
-		// Gets ambient light intensity.
-		FORCEINLINE float GetAmbientIntensity() { return m_AmbientLight.intensity; }
-
-		// Gets ambient light color.
-		FORCEINLINE Color GetAmbientColor() { return m_AmbientLight.color; }
 
 		virtual void UpdateComponents(float delta) override;
 
@@ -70,7 +59,6 @@ namespace LinaEngine::ECS
 
 		LinaEngine::Graphics::Shader* m_Shader;
 		Vector3F m_CameraPosition;
-		LightComponent m_AmbientLight;
 	};
 }
 

@@ -17,9 +17,8 @@ Timestamp: 4/27/2019 10:16:32 PM
 
 */
 
-
-#include "PackageManager/OpenGL/GLRenderDevice.hpp"  
 #include "glad/glad.h"
+#include "PackageManager/OpenGL/GLRenderDevice.hpp"  
 #include "Utility/Math/Color.hpp"
 #include "Core/Internal.hpp"
 #include "Rendering/ArrayBitmap.hpp"
@@ -434,7 +433,7 @@ namespace LinaEngine::Graphics
 
 		// Set anisotropy if applicable.
 		if (anisotropy != 0.0f && minFilter != FILTER_NEAREST && minFilter != FILTER_LINEAR)
-			glSamplerParameterf(result, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+			glSamplerParameterf(result, GL_TEXTURE_MAX_ANISOTROPY, anisotropy);
 
 		return result;
 	}
@@ -744,26 +743,34 @@ namespace LinaEngine::Graphics
 		// No need to draw nothin dude.
 		if (numInstances == 0) return;
 
+		UpdateShaderUniformColor(4, "directionalLight.ambient", Color(0.02f, 0.02f, 0.02f));
+		UpdateShaderUniformColor(4, "directionalLight.diffuse", Color(0.4f, 0.4f, 0.4f));
+		UpdateShaderUniformColor(4, "directionalLight.specular", Color(0.5f, 0.5f, 0.5f));
+		UpdateShaderUniformVector3F(4, "directionalLight.direction", Vector3F(-0.2f, -1.0f, -0.3f));
 
 
 
-		UpdateShaderUniformColor(4, "directionalLight.color", Color(0.0f, 0.0f, 0.0f));
-		UpdateShaderUniformVector3F(4, "directionalLight.direction", Vector3F(0.0f, 0.0f, 1.0f));
+	UpdateShaderUniformVector3F(4, "pointLights[0].position", Vector3F(0.0f, 0.0f, 5.0f));
+	UpdateShaderUniformVector3F(4, "pointLights[0].ambient", Vector3F(1.05f, 0.05f, 0.05f));
+	UpdateShaderUniformVector3F(4, "pointLights[0].diffuse", Vector3F(0.8f, 0.8f, 0.8f));
+	UpdateShaderUniformVector3F(4, "pointLights[0].specular", Vector3F(1,1,1));
+	UpdateShaderUniformFloat(4, "pointLights[0].constant", 1.0f);
+	UpdateShaderUniformFloat(4, "pointLights[0].linear", 0.09f);
+	UpdateShaderUniformFloat(4, "pointLights[0].quadratic", 0.032f);
+	//
 
-		UpdateShaderUniformVector3F(4, "pointLights[0].position", Vector3F(0.0f, 0.0f, 5.0f));
-		UpdateShaderUniformVector3F(4, "pointLights[0].color", Vector3F(1.0f, 0.0f, 1.0f));
-		UpdateShaderUniformFloat(4, "pointLights[0].constant", 1.0f);
-		UpdateShaderUniformFloat(4, "pointLights[0].linear", 0.09f);
-		UpdateShaderUniformFloat(4, "pointLights[0].quadratic", 0.032f);
 
-		UpdateShaderUniformVector3F(4, "spotLight.position", Vector3F(0.0f, 0.0f, 10.0f));
-		UpdateShaderUniformVector3F(4, "spotLight.direction", Vector3F(1.0f, 1.0f, 1.0f));
-		UpdateShaderUniformVector3F(4, "spotLight.color", Vector3F(0.0f, 1.0f, 0.0f));
-		UpdateShaderUniformFloat(4, "spotLight.constant", 1.0f);
-		UpdateShaderUniformFloat(4, "spotLight.linear", 0.09f);
-		UpdateShaderUniformFloat(4, "spotLight.quadratic", 0.032f);
-		UpdateShaderUniformFloat(4, "spotLight.cutOff", Math::Cos(Math::ToRadians(12.5f)));
-		UpdateShaderUniformFloat(4, "spotLight.outerCutOff", Math::Cos(Math::ToRadians(17.5f)));
+	UpdateShaderUniformVector3F(4, "spotLights[0].position", Vector3F(0.0f, 0.0f, 7.0f));
+	UpdateShaderUniformVector3F(4, "spotLights[0].direction", Vector3F(0.0f, 0.0f, 1.0f));
+	UpdateShaderUniformVector3F(4, "spotLights[0].ambient", Vector3F(0.05f, 0.05f, 0.55f));
+	UpdateShaderUniformVector3F(4, "spotLights[0].diffuse", Vector3F(1, 1,1));
+	UpdateShaderUniformVector3F(4, "spotLights[0].specular", Vector3F(1, 1, 1));
+	UpdateShaderUniformFloat(4, "spotLights[0].constant", 1.0f);
+	UpdateShaderUniformFloat(4, "spotLights[0].linear", 0.09f);
+	UpdateShaderUniformFloat(4, "spotLights[0].quadratic", 0.032f);
+	UpdateShaderUniformFloat(4, "spotLights[0].cutOff", Math::Cos(Math::ToRadians(12.5f)));
+	UpdateShaderUniformFloat(4, "spotLights[0].outerCutOff", Math::Cos(Math::ToRadians(17.5f)));
+
 
 
 		// Bind the render targets.

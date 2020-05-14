@@ -23,6 +23,7 @@ Timestamp: 4/14/2019 5:12:19 PM
 #define GLWindow_HPP
 
 #include "Rendering/RenderingCommon.hpp"
+#include "Core/Common.hpp"
 #include <functional>
 
 namespace LinaEngine

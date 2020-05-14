@@ -17,8 +17,6 @@ Timestamp: 4/14/2019 5:12:19 PM
 
 */
 
-
-
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "PackageManager/OpenGL/GLWindow.hpp"

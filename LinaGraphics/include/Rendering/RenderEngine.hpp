@@ -92,18 +92,6 @@ namespace LinaEngine::Graphics
 			return Vector2F(m_MainWindow.GetWidth() / 2.0f, m_MainWindow.GetHeight() / 2.0f);
 		}
 
-		// Sets the ambient light color.
-		FORCEINLINE void SetAmbientLightColor(LinaEngine::Color color) { m_LightingSystem.SetAmbientColor(color); }
-
-		// Sets the ambient light intensity.
-		FORCEINLINE void SetAmbientLightIntensity(float intensity) { m_LightingSystem.SetAmbientIntensity(intensity); }
-
-		// Gets ambient light color.
-		FORCEINLINE LinaEngine::Color GetAmbientLightColor() { return m_LightingSystem.GetAmbientColor(); }
-
-		// Gets ambient light intensity.
-		FORCEINLINE float GetAmbientLightIntensity() { return m_LightingSystem.GetAmbientIntensity(); }
-
 		// Initialize the render renderEngine.
 		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn);
 
@@ -236,10 +224,10 @@ namespace LinaEngine::Graphics
 		std::map<std::string, Shader> m_LoadedShaders;
 
 		// Buffer for global matrices
-		UniformBuffer m_GlobalMatrixBuffer;
+		UniformBuffer m_GlobalDataBuffer;
 
 		// Buffer for lights.
-		UniformBuffer m_LightsBuffer;
+		UniformBuffer m_GlobalLightBuffer;
 
 		// Material used to draw skybox.
 		Material* m_SkyboxMaterial = nullptr;

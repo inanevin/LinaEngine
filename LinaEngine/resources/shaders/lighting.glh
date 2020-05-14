@@ -18,13 +18,18 @@
 struct DirectionalLight
 {
 	vec3 direction;
-	vec3 color;
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
 };
 
 struct PointLight
 {
 	vec3 position;
-	vec3 color;
+	
+  	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
 	
 	float constant;
     float linear;
@@ -33,21 +38,26 @@ struct PointLight
 
 struct SpotLight 
 {
-	vec3 color;
     vec3 position;
     vec3 direction;
     float cutOff;
     float outerCutOff;
   
+  	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
+	
     float constant;
     float linear;
     float quadratic;
 };
 
 
-#define NR_POINT_LIGHTS 1
+#define MAX_POINT_LIGHT 12
+#define MAX_SPOT_LIGHT 12
+
+uniform PointLight pointLights[MAX_POINT_LIGHT];
+uniform SpotLight spotLights[MAX_SPOT_LIGHT];
 uniform DirectionalLight directionalLight;
-uniform PointLight pointLights[NR_POINT_LIGHTS];
-uniform SpotLight spotLight;
 
 

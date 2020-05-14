@@ -33,18 +33,17 @@ Timestamp: 4/27/2019 11:18:07 PM
 namespace LinaEngine::Graphics
 {
 
-	constexpr size_t UNIFORMBUFFER_GLOBALMATRIX_SIZE = sizeof(Matrix) * 2;
+	constexpr size_t UNIFORMBUFFER_GLOBALMATRIX_SIZE = sizeof(Matrix) * 2 + (sizeof(Vector4F) * 4);
 	constexpr int UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT = 0;
-	constexpr auto UNIFORMBUFFER_GLOBALMATRIX_NAME = "GlobalMatrices";
+	constexpr auto UNIFORMBUFFER_GLOBALMATRIX_NAME = "GlobalData";
 
-	constexpr size_t UNIFORMBUFFER_LIGHTS_SIZE = (sizeof(float) * 9);
+	constexpr size_t UNIFORMBUFFER_LIGHTS_SIZE = (sizeof(int) * 8);
 	constexpr int UNIFORMBUFFER_LIGHTS_BINDPOINT = 1;
-	constexpr auto UNIFORMBUFFER_LIGHTS_NAME = "Lights";
+	constexpr auto UNIFORMBUFFER_LIGHTS_NAME = "GlobalLightData";
 
 	RenderEngine::RenderEngine()
 	{
 		LINA_CORE_TRACE("[Constructor] -> RenderEngine ({0})", typeid(*this).name());
-
 	}
 
 	RenderEngine::~RenderEngine()
@@ -66,12 +65,12 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.Initialize(m_LightingSystem, m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
 
 		// Construct the uniform buffer for global matrices.
-		m_GlobalMatrixBuffer.Construct(m_RenderDevice, UNIFORMBUFFER_GLOBALMATRIX_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
-		m_GlobalMatrixBuffer.Bind(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT);
+		m_GlobalDataBuffer.Construct(m_RenderDevice, UNIFORMBUFFER_GLOBALMATRIX_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
+		m_GlobalDataBuffer.Bind(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT);
 
 		// Construct the uniform buffer for lights.
-		m_LightsBuffer.Construct(m_RenderDevice, UNIFORMBUFFER_LIGHTS_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
-		m_LightsBuffer.Bind(UNIFORMBUFFER_LIGHTS_BINDPOINT);
+		m_GlobalLightBuffer.Construct(m_RenderDevice, UNIFORMBUFFER_LIGHTS_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
+		m_GlobalLightBuffer.Bind(UNIFORMBUFFER_LIGHTS_BINDPOINT);
 
 		// Initialize the engine shaders.
 		ConstructEngineShaders();
@@ -150,7 +149,6 @@ namespace LinaEngine::Graphics
 		// Update camera system's projection matrix.
 		Vector2F windowSize = Vector2F(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
 		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
-
 	}
 
 	void RenderEngine::CreateMaterial(const std::string & materialName, const std::string & shaderName, Material * *refPointer)
@@ -468,20 +466,24 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::UpdateUniformBuffers()
 	{
-		// Update global matrix buffer
-		m_GlobalMatrixBuffer.Update(&m_CameraSystem.GetProjectionMatrix(), 0, sizeof(Matrix));
-		m_GlobalMatrixBuffer.Update(&m_CameraSystem.GetViewMatrix(), sizeof(Matrix), sizeof(Matrix));
-
-		// Update lights buffer.
-		Color ambientColor = m_LightingSystem.GetAmbientColor();
-		Vector4F alColor = Vector4F(ambientColor.R(), ambientColor.G(), ambientColor.B(), 1.0f);
-		float alIntensity = m_LightingSystem.GetAmbientIntensity();
 		Vector3F cameraLocation = m_CameraSystem.GetCameraLocation();
 		Vector4F viewPos = Vector4F(cameraLocation.GetX(), cameraLocation.GetY(), cameraLocation.GetZ(), 1.0f);
 
-		m_LightsBuffer.Update(&alColor, 0, sizeof(float) * 4);
-		m_LightsBuffer.Update(&viewPos, sizeof(float) * 4, sizeof(float) * 4);
-		m_LightsBuffer.Update(&alIntensity, sizeof(float) * 8, sizeof(float));
+		// Update global matrix buffer
+		m_GlobalDataBuffer.Update(&m_CameraSystem.GetProjectionMatrix(), 0, sizeof(Matrix));
+		m_GlobalDataBuffer.Update(&m_CameraSystem.GetViewMatrix(), sizeof(Matrix), sizeof(Matrix));
+		m_GlobalDataBuffer.Update(&viewPos, sizeof(Matrix) * 2, sizeof(Vector4F));
+
+		// Update lights buffer.
+	
+		int lightCount = 1;
+		int spotLightCount = 1;
+		m_GlobalLightBuffer.Update(&lightCount, 0, sizeof(int));
+		m_GlobalLightBuffer.Update(&spotLightCount, sizeof(int), sizeof(int));
+
+
+		//m_LightsBuffer.Update(&color, sizeof(float) * 12, sizeof(float) * 4);
+		//m_LightsBuffer.Update(&direction, sizeof(float) * 16, sizeof(float) * 4);
 	}
 
 	void RenderEngine::SetMaterialShader(Material & material, const std::string & shaderName)

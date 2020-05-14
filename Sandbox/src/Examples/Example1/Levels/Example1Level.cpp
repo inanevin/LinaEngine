@@ -79,17 +79,14 @@ void CreateSingleColorSkybox(RenderEngine* renderEngine)
 void CreateGradientSkybox(RenderEngine* renderEngine)
 {
 	renderEngine->CreateMaterial("skyboxMaterial", ShaderConstants::skyboxGradientShader);
-
 	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.startColor", Colors::Green);
 	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.endColor", Colors::White);
 	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial("skyboxMaterial"));
-
 }
 
 void CreateProceduralSkybox(RenderEngine* renderEngine)
 {
 	renderEngine->CreateMaterial("skyboxMaterial", ShaderConstants::skyboxProceduralShader);
-
 	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.startColor", Colors::LightBlue);
 	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.endColor", Colors::DarkBlue);
 	renderEngine->GetMaterial("skyboxMaterial").SetVector3("material.sunDirection", Vector3F(0.0f, -1.0f, 0.0f));
@@ -209,9 +206,7 @@ void Example1Level::Initialize()
 	
 	
 	//object5 = m_ECS->MakeEntity(object1Transform, object1Renderer);
-	
-	m_RenderEngine->SetAmbientLightIntensity(0.1f);
-	
+
 	
 	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem();
