@@ -25,6 +25,7 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/LightComponent.hpp"
 #include <entt/entity/registry.hpp>
 #include "Rendering/RenderEngine.hpp"
 #include "Core/Application.hpp"
@@ -52,6 +53,7 @@ ECSEntity object2;
 ECSEntity object3;
 ECSEntity object4;
 ECSEntity object5;
+ECSEntity directionalLight;
 
 TransformComponent object1Transform;
 MeshRendererComponent object1Renderer;
@@ -160,6 +162,13 @@ void Example1Level::Initialize()
 	m_ECS->reg.emplace<TransformComponent>(object1.entity, object1Transform);
 	m_ECS->reg.emplace<MeshRendererComponent>(object1.entity, object1Renderer);
 
+	directionalLight.entity = m_ECS->reg.create();
+	auto& dirLight = m_ECS->reg.emplace<DirectionalLightComponent>(directionalLight.entity);
+	dirLight.color = Color(0.02f, 0.02f, 0.02f);
+	dirLight.ambient = Color(0.02f, 0.02f, 0.02f);
+	dirLight.specular = Color(0.5f, 0.5f, 0.5f);
+	dirLight.diffuse = Color(0.9f, 0.4f, 0.4f);
+	dirLight.direction = Vector3F(0,0, 1);
 
 
 	//object1 = m_ECS->MakeEntity(object1Transform, object1Renderer);

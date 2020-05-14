@@ -108,9 +108,13 @@ namespace LinaEngine::Graphics
 		// Initialize ECS Mesh Renderer System
 		m_MeshRendererSystem.Construct(ecsReg, m_DefaultRenderContext);
 
+		// Initialize ECS Lighting system.
+		m_LightingSystem.Construct(ecsReg, m_RenderDevice);
+
 		// Add the ECS systems into the pipeline.
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
 		m_RenderingPipeline.AddSystem(m_MeshRendererSystem);
+		m_RenderingPipeline.AddSystem(m_LightingSystem);
 	
 	}
 

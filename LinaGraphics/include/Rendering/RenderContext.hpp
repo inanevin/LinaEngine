@@ -25,6 +25,8 @@ Timestamp: 4/27/2019 5:48:39 PM
 #include "PackageManager/PAMRenderDevice.hpp"
 #include "RenderTarget.hpp"
 #include "VertexArray.hpp"
+#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/LightComponent.hpp"
 
 namespace LinaEngine
 {

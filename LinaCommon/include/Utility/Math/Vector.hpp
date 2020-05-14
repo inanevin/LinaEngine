@@ -299,7 +299,7 @@ namespace LinaEngine
 		Vector3F(float val);
 		Vector3F(float xIn, float yIn, float zIn);
 		Vector3F(const Vector& vecIn);
-
+		
 
 		FORCEINLINE Vector3F Vector3F::DotToVector(const Vector3F& other) const
 		{

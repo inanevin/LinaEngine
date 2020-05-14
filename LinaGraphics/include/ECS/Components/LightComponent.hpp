@@ -33,6 +33,9 @@ namespace LinaEngine::ECS
 	{
 		Color color = Colors::White;
 		float intensity = 1.0f;
+		Color ambient;
+		Color diffuse;
+		Color specular;
 	};
 
 	struct PointLightComponent : public LightComponent

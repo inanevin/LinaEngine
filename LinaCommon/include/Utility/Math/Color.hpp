@@ -25,6 +25,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Lina_Color_HPP
 
 #include "Core/LinaAPI.hpp"
+#include "Vector.hpp"
 
 namespace LinaEngine
 {
@@ -34,6 +35,7 @@ namespace LinaEngine
 	public:
 
 		Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f) : r(rv), g(gv), b(bv), a(av) {};
+		Color(Vector3F& v) : r(v.GetX()), g(v.GetY()), b(v.GetZ()), a(1.0f) {};
 		FORCEINLINE float R() { return r; }
 		FORCEINLINE float G() { return g; }
 		FORCEINLINE float B() { return b; }
@@ -43,10 +45,10 @@ namespace LinaEngine
 		FORCEINLINE float B() const { return b; }
 		FORCEINLINE float A() const { return a; }
 
+		float r, g, b, a = 1.0f;
 
 	private:
 
-		float r, g, b, a = 1.0f;
 	};
 
 	namespace Colors

@@ -743,10 +743,10 @@ namespace LinaEngine::Graphics
 		// No need to draw nothin dude.
 		if (numInstances == 0) return;
 
-		UpdateShaderUniformColor(4, "directionalLight.ambient", Color(0.02f, 0.02f, 0.02f));
-		UpdateShaderUniformColor(4, "directionalLight.diffuse", Color(0.4f, 0.4f, 0.4f));
-		UpdateShaderUniformColor(4, "directionalLight.specular", Color(0.5f, 0.5f, 0.5f));
-		UpdateShaderUniformVector3F(4, "directionalLight.direction", Vector3F(-0.2f, -1.0f, -0.3f));
+		//UpdateShaderUniformColor(4, "directionalLight.ambient", Color(1.02f, 0.02f, 0.02f));
+		//UpdateShaderUniformColor(4, "directionalLight.diffuse", Color(0.4f, 0.4f, 0.4f));
+		//UpdateShaderUniformColor(4, "directionalLight.specular", Color(0.5f, 0.5f, 0.5f));
+		//UpdateShaderUniformVector3F(4, "directionalLight.direction", Vector3F(-0.2f, -1.0f, -0.3f));
 
 
 

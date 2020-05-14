@@ -44,20 +44,19 @@ namespace LinaEngine::ECS
 
 		LightingSystem() {};
 
-		FORCEINLINE void Construct(ECSRegistry& registry, LinaEngine::Graphics::Shader& shaderIn)
+		FORCEINLINE void Construct(ECSRegistry& registry, RenderDevice& rdIn)
 		{
 			BaseECSSystem::Construct(registry);
-			m_Shader = &shaderIn;
+			m_RenderDevice = &rdIn;
 		}
 
 
 		virtual void UpdateComponents(float delta) override;
-
+		void SetLightingShaderData(uint32 shaderID);
 
 	private:
 
-
-		LinaEngine::Graphics::Shader* m_Shader;
+		RenderDevice* m_RenderDevice;
 		Vector3F m_CameraPosition;
 	};
 }

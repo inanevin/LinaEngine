@@ -26,7 +26,28 @@ namespace LinaEngine::ECS
 	
 	void LightingSystem::UpdateComponents(float delta)
 	{
+		
+	}
 
+	void LightingSystem::SetLightingShaderData(uint32 shaderID)
+	{
+		
+	//for (auto it = view.begin(); it != view.end(); ++it)
+	//{
+	//
+	//}
+
+		auto view = m_Registry->reg.view<DirectionalLightComponent>();
+
+
+		for (auto& entity : view)
+		{
+			DirectionalLightComponent& dirLight = view.get<DirectionalLightComponent>(entity);
+			m_RenderDevice->UpdateShaderUniformColor(shaderID, "directionalLight.ambient", dirLight.ambient);
+			m_RenderDevice->UpdateShaderUniformColor(shaderID, "directionalLight.diffuse", dirLight.diffuse);
+			m_RenderDevice->UpdateShaderUniformColor(shaderID, "directionalLight.specular",  dirLight.specular);
+			m_RenderDevice->UpdateShaderUniformVector3F(shaderID, "directionalLight.direction", dirLight.direction);
+		}
 	}
 
 	

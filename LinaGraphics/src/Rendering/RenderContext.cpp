@@ -19,7 +19,7 @@ Timestamp: 4/26/2019 12:11:04 AM
 
 #include "Rendering/RenderContext.hpp"  
 #include "Rendering/Material.hpp"
-
+#include "ECS/Systems/LightingSystem.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -27,11 +27,6 @@ namespace LinaEngine::Graphics
 	{
 	
 		m_RenderDevice->SetShader(data->GetShaderID());
-
-		if (data->receivesLighting) 
-		{
-			
-		}
 
 		for (auto const& d : (*data).floats)
 			m_RenderDevice->UpdateShaderUniformFloat(data->shaderID, d.first, d.second);
@@ -65,6 +60,12 @@ namespace LinaEngine::Graphics
 			}
 			else
 				m_RenderDevice->SetTexture(m_DefaultTexture->GetID(), 0, d.second);
+		}
+
+
+		if (data->receivesLighting)
+		{
+			m_LightingSystem->SetLightingShaderData(data->GetShaderID());
 		}
 
 	}
