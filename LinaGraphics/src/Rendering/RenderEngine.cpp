@@ -510,37 +510,37 @@ namespace LinaEngine::Graphics
 		// Set shader data for material based on it's shader.
 		if (usedName == ShaderConstants::standardLitShader)
 		{
-			material.colors["material.objectColor"] = Colors::White;
-			material.floats["material.specularIntensity"] = 2.0f;
-			material.samplers["material.diffuse"] = 0;
-			material.samplers["material.specular"] = 1;
-			material.ints["material.specularExponent"] = 32;
+			material.colors[MaterialConstants::objectColorProperty] = Colors::White;
+			material.floats[MaterialConstants::specularIntensityProperty] = 2.0f;
+			material.samplers[MaterialConstants::diffuseTextureProperty] = 0;
+			material.samplers[MaterialConstants::specularTextureProperty] = 1;
+			material.ints[MaterialConstants::specularExponentProperty] = 32;
 			material.receivesLighting = true;
 
 		}
 		else if (usedName == ShaderConstants::standardUnlitShader)
 		{
-			material.colors["material.objectColor"] = Colors::White;
-			material.samplers["material.diffuse"] = 0;
+			material.colors[MaterialConstants::objectColorProperty] = Colors::White;
+			material.samplers[MaterialConstants::diffuseTextureProperty] = 0;
 		}
 		else if (usedName == ShaderConstants::skyboxSingleColorShader)
 		{
-			material.colors["material.color"] = Colors::White;
+			material.colors[MaterialConstants::colorProperty] = Colors::White;
 		}
 		else if (usedName == ShaderConstants::skyboxGradientShader)
 		{
-			material.colors["material.startColor"] = Colors::Black;
-			material.colors["material.endColor"] = Colors::White;
+			material.colors[MaterialConstants::startColorProperty] = Colors::Black;
+			material.colors[MaterialConstants::endColorProperty] = Colors::White;
 		}
 		else if (usedName == ShaderConstants::skyboxProceduralShader)
 		{
-			material.colors["material.startColor"] = Colors::Black;
-			material.colors["material.endColor"] = Colors::White;
-			material.vector3s["material.sunDirection"] = Vector3F(0, -1, 0);
+			material.colors[MaterialConstants::startColorProperty] = Colors::Black;
+			material.colors[MaterialConstants::endColorProperty] = Colors::White;
+			material.vector3s[MaterialConstants::sunDirectionProperty] = Vector3F(0, -1, 0);
 		}
 		else if (usedName == ShaderConstants::skyboxCubemapShader)
 		{
-			material.samplers["material.diffuse"] = 0;
+			material.samplers[MaterialConstants::diffuseTextureProperty] = 0;
 		}
 	}
 

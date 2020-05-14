@@ -31,7 +31,11 @@ namespace LinaEngine::Graphics
 	std::string& MaterialConstants::colorProperty = std::string("material.color");
 	std::string& MaterialConstants::startColorProperty = std::string("material.startColor");
 	std::string& MaterialConstants::endColorProperty = std::string("material.endColor");
+	std::string& MaterialConstants::objectColorProperty = std::string("material.objectColor");
 	std::string& MaterialConstants::sunDirectionProperty = std::string("material.sunDirection");
 	std::string& MaterialConstants::diffuseTextureProperty = std::string("material.diffuse");
+	std::string& MaterialConstants::specularTextureProperty = std::string("material.specular");
+	std::string& MaterialConstants::specularIntensityProperty = std::string("material.specularIntensity");
+	std::string& MaterialConstants::specularExponentProperty = std::string("material.specularExponent");
 
 }

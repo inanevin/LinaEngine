@@ -145,20 +145,20 @@ void Example1Level::Initialize()
 	m_RenderEngine->CreateMesh("cube", "resources/meshes/cube.obj", &cubeMesh);
 
 	// Create material for example mesh.
-	m_RenderEngine->CreateMaterial("object1Material", ShaderConstants::standardUnlitShader, &objectLitMaterial);
-	m_RenderEngine->CreateMaterial("object2Material", ShaderConstants::standardUnlitShader, &objectUnlitMaterial);
+	m_RenderEngine->CreateMaterial("object1Material", ShaderConstants::standardLitShader, &objectLitMaterial);
+	m_RenderEngine->CreateMaterial("object2Material", ShaderConstants::standardLitShader, &objectUnlitMaterial);
 
 	// Create texture for example mesh.
 	m_RenderEngine->CreateTexture("crate", "resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateTexture);
 	m_RenderEngine->CreateTexture("crateSpec", "resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateSpecTexture);
-	objectLitMaterial->SetTexture("material.diffuse", crateTexture, 0);
-	//objectLitMaterial->SetTexture("material.specular", crateSpecTexture, 1);
+	objectLitMaterial->SetTexture(MaterialConstants::diffuseTextureProperty, crateTexture, 0);
+	objectLitMaterial->SetTexture(MaterialConstants::specularTextureProperty, crateSpecTexture, 1);
 
 
 	// Create a cube object.
 	object1Renderer.mesh = cubeMesh;
 	object1Renderer.material = objectLitMaterial;
-	object1Transform.transform.SetLocation(Vector3F(-5.0f, 0.0f, 10.0f));
+	object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
 	object1.entity = m_ECS->reg.create();
 	m_ECS->reg.emplace<TransformComponent>(object1.entity, object1Transform);
 	m_ECS->reg.emplace<MeshRendererComponent>(object1.entity, object1Renderer);
@@ -167,7 +167,7 @@ void Example1Level::Initialize()
 
 	//object1 = m_ECS->MakeEntity(object1Transform, object1Renderer);
 	
-	object1Transform.transform.SetLocation(Vector3F(7.0f, 0.0f, 10.0f));
+	object1Transform.transform.SetLocation(Vector3F(5.0f, 0.0f, 10.0f));
 	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
 	
 	//object2 = m_ECS->MakeEntity(object1Transform, object1Renderer);
@@ -175,7 +175,7 @@ void Example1Level::Initialize()
 	m_ECS->reg.emplace<TransformComponent>(object2.entity, object1Transform);
 	m_ECS->reg.emplace<MeshRendererComponent>(object2.entity, object1Renderer);
 
-	object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 15.0f));
+	object1Transform.transform.SetLocation(Vector3F(-5.0f, 0.0f, 10.0f));
 	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
 	
 	//object3 = m_ECS->MakeEntity(object1Transform, object1Renderer);
@@ -184,7 +184,7 @@ void Example1Level::Initialize()
 	m_ECS->reg.emplace<TransformComponent>(object3.entity, object1Transform);
 	m_ECS->reg.emplace<MeshRendererComponent>(object3.entity, object1Renderer);
 	
-	object1Transform.transform.SetLocation(Vector3F(-3.0f, 3.0f, 15.0f));
+	object1Transform.transform.SetLocation(Vector3F(-5.0f, 5.0f, 10.0f));
 	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
 	
 	//object4 = m_ECS->MakeEntity(object1Transform, object1Renderer);
@@ -193,13 +193,13 @@ void Example1Level::Initialize()
 	m_ECS->reg.emplace<TransformComponent>(object4.entity, object1Transform);
 	m_ECS->reg.emplace<MeshRendererComponent>(object4.entity, object1Renderer);
 	
-	object1Transform.transform.SetLocation(Vector3F(4.0f, 3.0f, 15.0f));
+	object1Transform.transform.SetLocation(Vector3F(5.0f, 5.0f, 10.0f));
 	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
 	
 	//object5 = m_ECS->MakeEntity(object1Transform, object1Renderer);
 	
 	
-	object1Transform.transform.SetLocation(Vector3F(0.0f, 5.0f, 15.0f));
+	object1Transform.transform.SetLocation(Vector3F(5.0f, -5.0f, 10.0f));
 	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
 	object1Renderer.material = objectUnlitMaterial;
 	
@@ -253,6 +253,4 @@ void Example1Level::Tick(float delta)
 	// Update the systems in this level.
 	level1Systems.UpdateSystems(delta);
 
-	if (m_InputEngine->GetKey(Input::InputCode::Key::A))
-		LINA_CLIENT_INFO("xd");
 }

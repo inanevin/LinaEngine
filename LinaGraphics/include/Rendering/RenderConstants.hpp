@@ -44,8 +44,12 @@ namespace LinaEngine::Graphics
 		static LINAGRAPHICS_API std::string& colorProperty;
 		static LINAGRAPHICS_API std::string& startColorProperty;
 		static LINAGRAPHICS_API std::string& endColorProperty;
+		static LINAGRAPHICS_API std::string& objectColorProperty;
 		static LINAGRAPHICS_API std::string& sunDirectionProperty;
 		static LINAGRAPHICS_API std::string& diffuseTextureProperty;
+		static LINAGRAPHICS_API std::string& specularTextureProperty;
+		static LINAGRAPHICS_API std::string& specularIntensityProperty;
+		static LINAGRAPHICS_API std::string& specularExponentProperty;
 	};
 }
 #endif
