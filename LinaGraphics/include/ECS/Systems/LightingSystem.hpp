@@ -42,10 +42,11 @@ namespace LinaEngine::ECS
 	{
 	public:
 
-		LightingSystem();
+		LightingSystem() {};
 
-		FORCEINLINE void Construct(LinaEngine::Graphics::Shader& shaderIn)
+		FORCEINLINE void Construct(ECSRegistry& registry, LinaEngine::Graphics::Shader& shaderIn)
 		{
+			BaseECSSystem::Construct(registry);
 			m_Shader = &shaderIn;
 		}
 
@@ -61,7 +62,7 @@ namespace LinaEngine::ECS
 		// Gets ambient light color.
 		FORCEINLINE Color GetAmbientColor() { return m_AmbientLight.color; }
 
-		virtual void UpdateComponents(float delta, BaseECSComponent** components);
+		virtual void UpdateComponents(float delta) override;
 
 
 	private:

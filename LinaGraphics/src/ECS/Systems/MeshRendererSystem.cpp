@@ -25,16 +25,18 @@ Timestamp: 4/27/2019 5:41:27 PM
 
 namespace LinaEngine::ECS
 {
-	MeshRendererSystem::MeshRendererSystem() : BaseECSSystem()
+
+	void MeshRendererSystem::UpdateComponents(float delta)
 	{
-		AddComponentType(TransformComponent::ID);
-		AddComponentType(MeshRendererComponent::ID);
-	}
-	void MeshRendererSystem::UpdateComponents(float delta, BaseECSComponent** components)
-	{
-		TransformComponent* transform = (TransformComponent*)components[0];
-		MeshRendererComponent* renderer = (MeshRendererComponent*)components[1];
-		context->RenderMesh(*renderer->mesh->GetVertexArray(0), *renderer->material, transform->transform.ToMatrix());
+		auto view = m_Registry->reg.view<TransformComponent, MeshRendererComponent>();
+
+		for (auto entity : view)
+		{
+			TransformComponent& transform = view.get<TransformComponent>(entity);
+			MeshRendererComponent& renderer = view.get<MeshRendererComponent>(entity);
+			context->RenderMesh(*renderer.mesh->GetVertexArray(0), *renderer.material, transform.transform.ToMatrix());
+		}
+	
 	}
 }
 

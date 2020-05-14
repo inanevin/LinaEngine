@@ -24,7 +24,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 
 #include "Core/Common.hpp"
 #include "RenderingCommon.hpp"
-#include "ECS/EntityComponentSystem.hpp"
+#include "ECS/ECSSystem.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
 #include "ECS/Systems/LightingSystem.hpp"
 #include "ECS/Systems/MeshRendererSystem.hpp"
@@ -50,7 +50,7 @@ namespace LinaEngine
 namespace LinaEngine::Graphics
 {
 
-	class RenderEngine : public LinaEngine::ECS::ECSListener
+	class RenderEngine
 	{
 	public:
 
@@ -105,7 +105,7 @@ namespace LinaEngine::Graphics
 		FORCEINLINE float GetAmbientLightIntensity() { return m_LightingSystem.GetAmbientIntensity(); }
 
 		// Initialize the render renderEngine.
-		void Initialize(LinaEngine::ECS::EntityComponentSystem& ecsIn);
+		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn);
 
 		// Called each frame.
 		void Tick(float delta);
@@ -210,9 +210,6 @@ namespace LinaEngine::Graphics
 
 		// Default Game Render Context
 		RenderContext m_DefaultRenderContext;
-
-		// ECS reference.
-		LinaEngine::ECS::EntityComponentSystem* m_ECS;
 
 		// ECS system for rendering camera perspective.
 		LinaEngine::ECS::CameraSystem m_CameraSystem;

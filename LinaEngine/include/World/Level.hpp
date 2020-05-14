@@ -30,7 +30,7 @@ namespace LinaEngine
 
 	namespace ECS
 	{
-		class EntityComponentSystem;
+		class ECSRegistry;
 	}
 
 	namespace Graphics
@@ -64,7 +64,7 @@ namespace LinaEngine::World
 
 	protected:
 
-		LinaEngine::ECS::EntityComponentSystem* m_ECS = nullptr;
+		LinaEngine::ECS::ECSRegistry* m_ECS = nullptr;
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
 		LinaEngine::Input::InputEngine* m_InputEngine = nullptr;
 
@@ -73,7 +73,7 @@ namespace LinaEngine::World
 
 		friend class LinaEngine::Application;
 
-		void SetEngineReferences(LinaEngine::ECS::EntityComponentSystem& ecsIn, LinaEngine::Graphics::RenderEngine& renderEngineIn, LinaEngine::Input::InputEngine& inputEngineIn)
+		void SetEngineReferences(LinaEngine::ECS::ECSRegistry& ecsIn, LinaEngine::Graphics::RenderEngine& renderEngineIn, LinaEngine::Input::InputEngine& inputEngineIn)
 		{
 			m_ECS = &ecsIn;
 			m_RenderEngine = &renderEngineIn;

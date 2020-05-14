@@ -25,7 +25,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "Core/LayerStack.hpp"
 #include "Input/InputEngine.hpp"
 #include "Rendering/RenderEngine.hpp"
-#include "ECS/EntityComponentSystem.hpp"
+#include "ECS/ECSSystem.hpp"
 #include "Physics/PhysicsEngine.hpp"
 #include <functional>
 namespace LinaEngine::World
@@ -86,7 +86,7 @@ namespace LinaEngine
 		LinaEngine::Input::InputEngine m_InputEngine;
 		LinaEngine::Graphics::RenderEngine m_RenderEngine;
 		LinaEngine::Physics::PhysicsEngine m_PhysicsEngine;
-		LinaEngine::ECS::EntityComponentSystem m_ECS;
+		LinaEngine::ECS::ECSRegistry m_ECS;
 
 		// Current active level.
 		LinaEngine::World::Level* m_CurrentLevel = nullptr;

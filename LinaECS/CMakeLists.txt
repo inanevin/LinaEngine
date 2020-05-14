@@ -22,41 +22,18 @@ set(CMAKE_CXX_STANDARD 17)
 # Set sources
 #--------------------------------------------------------------------
 set (LINAECS_SOURCES
-
 	# ECS 
-	src/ECS/Systems/MovementControlSystem.cpp
-	src/ECS/Systems/MotionSystem.cpp
-	src/ECS/Systems/CubeChunkSystem.cpp
-	src/ECS/Systems/CubeChunkRenderSystem.cpp
-	src/ECS/Interactions/TestInteraction.cpp
-	src/ECS/ECSComponent.cpp
 	src/ECS/ECSSystem.cpp
-	src/ECS/EntityComponentSystem.cpp	
 )
 
 #--------------------------------------------------------------------
 # Set headers
 #--------------------------------------------------------------------
 set(LINAECS_HEADERS
-
-
 	#ECS
-	include/ECS/Components/MovementControlComponent.hpp
 	include/ECS/Components/TransformComponent.hpp
-	include/ECS/Components/MotionComponent.hpp
-	include/ECS/Components/CubeChunkComponent.hpp
-	include/ECS/Components/ColliderComponent.hpp
-	include/ECS/Systems/MovementControlSystem.hpp
-	include/ECS/Systems/MotionSystem.hpp
-	include/ECS/Systems/CubeChunkSystem.hpp
-	include/ECS/Systems/CubeChunkRenderSystem.hpp
-	include/ECS/Interactions/TestInteraction.hpp
-	include/ECS/ECSComponent.hpp
 	include/ECS/ECSSystem.hpp
 	include/ECS/ECS.hpp
-	include/ECS/EntityComponentSystem.hpp
-	include/ECS/Utility/MotionIntegrators.hpp
-	include/ECS/ECSInteraction.hpp
 )
 
 if(NOT LINA_SHARED_ECS)

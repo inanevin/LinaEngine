@@ -24,6 +24,8 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
+#include "ECS/Components/TransformComponent.hpp"
+#include <entt/entity/registry.hpp>
 #include "Rendering/RenderEngine.hpp"
 #include "Core/Application.hpp"
 #include "Rendering/Material.hpp"
@@ -44,12 +46,12 @@ CameraComponent cameraComponent;
 TransformComponent cameraTransformComponent;
 FreeLookComponent cameraFreeLookComponent;
 
-EntityHandle camera;
-EntityHandle object1;
-EntityHandle object2;
-EntityHandle object3;
-EntityHandle object4;
-EntityHandle object5;
+ECSEntity camera;
+ECSEntity object1;
+ECSEntity object2;
+ECSEntity object3;
+ECSEntity object4;
+ECSEntity object5;
 
 TransformComponent object1Transform;
 MeshRendererComponent object1Renderer;
@@ -123,13 +125,21 @@ void Example1Level::Initialize()
 	// Create, setup & assign skybox material.
 	CreateProceduralSkybox(m_RenderEngine);
 
-	// Set the properties of our the free look component for the camera.
-	cameraFreeLookComponent.movementSpeedX = cameraFreeLookComponent.movementSpeedZ = 12.0f;
-	cameraFreeLookComponent.rotationSpeedX = cameraFreeLookComponent.rotationSpeedY = 3;
+	
+	
+	auto c = m_ECS->reg.create();
 
-	// Activate a camera component and make a camera entity out of it.
-	cameraComponent.isActive = true;
-	camera = m_ECS->MakeEntity(cameraComponent, cameraTransformComponent, cameraFreeLookComponent);
+	auto& camFreeLook = m_ECS->reg.emplace<FreeLookComponent>(c);
+	auto& camTransform = m_ECS->reg.emplace<MeshRendererComponent>(c);
+	auto& camCamera = m_ECS->reg.emplace<CameraComponent>(c);
+
+	// Activate a camera component.
+	camCamera.isActive = true;
+
+	// Set the properties of our the free look component for the camera.
+	camFreeLook.movementSpeedX = camFreeLook.movementSpeedZ = 12.0f;
+	camFreeLook.rotationSpeedX = camFreeLook.rotationSpeedY = 3;
+
 
 	// Load example mesh.
 	m_RenderEngine->CreateMesh("cube", "resources/meshes/cube.obj", &cubeMesh);
@@ -149,38 +159,60 @@ void Example1Level::Initialize()
 	object1Renderer.mesh = cubeMesh;
 	object1Renderer.material = objectLitMaterial;
 	object1Transform.transform.SetLocation(Vector3F(-5.0f, 0.0f, 10.0f));
-	object1 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+	object1.entity = m_ECS->reg.create();
+	m_ECS->reg.emplace<TransformComponent>(object1.entity, object1Transform);
+	m_ECS->reg.emplace<MeshRendererComponent>(object1.entity, object1Renderer);
+	//object1 = m_ECS->MakeEntity(object1Transform, object1Renderer);
 
 	object1Transform.transform.SetLocation(Vector3F(7.0f, 0.0f, 10.0f));
 	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
 
-	object2 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+	//object2 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+	object2.entity = m_ECS->reg.create();
+	m_ECS->reg.emplace<TransformComponent>(object2.entity, object1Transform);
+	m_ECS->reg.emplace<MeshRendererComponent>(object2.entity, object1Renderer);
 
 	object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 15.0f));
 	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
 
-	object3 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+	//object3 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+
+	object3.entity = m_ECS->reg.create();
+	m_ECS->reg.emplace<TransformComponent>(object3.entity, object1Transform);
+	m_ECS->reg.emplace<MeshRendererComponent>(object3.entity, object1Renderer);
 
 	object1Transform.transform.SetLocation(Vector3F(-3.0f, 3.0f, 15.0f));
 	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
 
-	object4 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+//	object4 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+
+	object4.entity = m_ECS->reg.create();
+	m_ECS->reg.emplace<TransformComponent>(object4.entity, object1Transform);
+	m_ECS->reg.emplace<MeshRendererComponent>(object4.entity, object1Renderer);
 
 	object1Transform.transform.SetLocation(Vector3F(4.0f, 3.0f, 15.0f));
 	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
 
-	object5 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+	//object5 = m_ECS->MakeEntity(object1Transform, object1Renderer);
 
+	
 	object1Transform.transform.SetLocation(Vector3F(0.0f, 5.0f, 15.0f));
 	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
 	object1Renderer.material = objectUnlitMaterial;
-	object5 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+
+	object5.entity = m_ECS->reg.create();
+	m_ECS->reg.emplace<TransformComponent>(object5.entity, object1Transform);
+	m_ECS->reg.emplace<MeshRendererComponent>(object5.entity, object1Renderer);
+
+
+	//object5 = m_ECS->MakeEntity(object1Transform, object1Renderer);
 
 	m_RenderEngine->SetAmbientLightIntensity(0.1f);
 
 
 	// Create the free look system & push it.
-	ecsFreeLookSystem = new FreeLookSystem(*m_InputEngine);
+	ecsFreeLookSystem = new FreeLookSystem();
+	ecsFreeLookSystem->Construct(*m_ECS, *m_InputEngine);
 	level1Systems.AddSystem(*ecsFreeLookSystem);
 
 

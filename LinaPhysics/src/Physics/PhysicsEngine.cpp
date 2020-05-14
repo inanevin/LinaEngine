@@ -18,14 +18,10 @@ Timestamp: 5/1/2019 2:35:43 AM
 */
 
 #include "Physics/PhysicsEngine.hpp"  
-#include "ECS/EntityComponentSystem.hpp"
-#include "ECS/Interactions/TestInteraction.hpp"
+#include "Utility/Log.hpp"
 
 namespace LinaEngine::Physics
 {
-
-	TestInteraction testInteraction;
-
 	PhysicsEngine::PhysicsEngine()
 	{
 		LINA_CORE_TRACE("[Constructor] -> Physics Engine ({0})", typeid(*this).name());
@@ -36,25 +32,17 @@ namespace LinaEngine::Physics
 		LINA_CORE_TRACE("[Destructor] -> Physics Engine ({0})", typeid(*this).name());
 	}
 
-	void PhysicsEngine::Initialize(EntityComponentSystem& ecsIn)
+	void PhysicsEngine::Initialize()
 	{
 		LINA_CORE_TRACE("[Initialization] -> Physics Engine ({0})", typeid(*this).name());
 
-		// Set ECS reference.
-		ECS = &ecsIn;
-
-		// Create the interaction world.
-		m_InteractionWorld = std::make_unique<PhysicsInteractionWorld>(*ECS);
-
-		// Add interaction world as a listener to ECS.
-		ECS->AddListener(m_InteractionWorld.get());
-
-		m_InteractionWorld->AddInteraction(&testInteraction);
+	
+		
 	}
 
 	void PhysicsEngine::Tick(float fixedDelta)
 	{
-		m_InteractionWorld->Tick(fixedDelta);
+		
 	}
 
 	void PhysicsEngine::CleanUp()

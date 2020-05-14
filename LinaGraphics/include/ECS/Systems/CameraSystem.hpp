@@ -43,12 +43,11 @@ namespace LinaEngine::ECS
 	{
 	public:
 
-		CameraSystem();
-
-		virtual void UpdateComponents(float delta, BaseECSComponent** components);
+		CameraSystem() {};
+		virtual void UpdateComponents(float delta) override;
 
 		// Construct the system.
-		FORCEINLINE void Construct(LinaEngine::Graphics::RenderContext& contextIn) { context = &contextIn; }
+		FORCEINLINE void Construct(ECSRegistry& registry, LinaEngine::Graphics::RenderContext& contextIn) { BaseECSSystem::Construct(registry); context = &contextIn; }
 
 		// Get view matrix.
 		FORCEINLINE Matrix& GetViewMatrix() { return m_View; }
@@ -77,6 +76,7 @@ namespace LinaEngine::ECS
 		CameraComponent* m_CurrentCameraComponent = nullptr;
 		TransformComponent* m_CurrentCameraTransform = nullptr;
 		float m_AspectRatio = 1.33f;
+		
 	};
 }
 
