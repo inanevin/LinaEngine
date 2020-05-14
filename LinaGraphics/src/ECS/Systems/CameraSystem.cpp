@@ -27,32 +27,32 @@ namespace LinaEngine::ECS
 
 	void CameraSystem::UpdateComponents(float delta)
 	{
-		auto view = m_Registry->reg.view<MeshRendererComponent, CameraComponent>();
+		auto view = m_Registry->reg.view<TransformComponent, CameraComponent>();
 
 		for (auto entity : view)
 		{
 
-			auto& transform = view.get<MeshRendererComponent>(entity);
-			auto& camera = view.get<CameraComponent>(entity);
+			TransformComponent& transform = view.get<TransformComponent>(entity);
+			CameraComponent& camera = view.get<CameraComponent>(entity);
 
 			if (!camera.isActive) return;
 
 			// Set current camera component.
-		//m_CurrentCameraComponent = &camera;
-		//m_CurrentCameraTransform = &transform;
-		//
-		//// Init translation & rotation matrices.
-		//Matrix translation = Matrix::Translate(-transform.transform.GetLocation());
-		//Matrix rotation = Matrix::InitRotationFromDirection(transform.transform.GetRotation().GetAxisZ(), transform.transform.GetRotation().GetAxisY());
-		//
-		//// View transformation including only the rotation data for skybox.
-		//m_SkyboxViewTransformation = rotation;
-		//
-		//// Actual camera view matrix.
-		//m_View = rotation * translation;
-		//
-		//// Update projection matrix.
-		//m_Projection = Matrix::perspective(Math::ToRadians(camera.fieldOfView / 2.0f), m_AspectRatio, camera.zNear, camera.zFar);
+			m_CurrentCameraComponent = &camera;
+			m_CurrentCameraTransform = &transform;
+			
+			// Init translation & rotation matrices.
+			Matrix translation = Matrix::Translate(-transform.transform.GetLocation());
+			Matrix rotation = Matrix::InitRotationFromDirection(transform.transform.GetRotation().GetAxisZ(), transform.transform.GetRotation().GetAxisY());
+			
+			// View transformation including only the rotation data for skybox.
+			m_SkyboxViewTransformation = rotation;
+			
+			// Actual camera view matrix.
+			m_View = rotation * translation;
+			
+			// Update projection matrix.
+			m_Projection = Matrix::perspective(Math::ToRadians(camera.fieldOfView / 2.0f), m_AspectRatio, camera.zNear, camera.zFar);
 
 		}
 	

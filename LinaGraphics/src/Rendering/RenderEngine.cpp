@@ -58,13 +58,6 @@ namespace LinaEngine::Graphics
 
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
-	entt::registry registry;
-
-	struct testcomp
-	{
-		float x;
-	};
-	entt::entity e;
 
 	void RenderEngine::Initialize(LinaEngine::ECS::ECSRegistry& ecsReg)
 	{
@@ -119,7 +112,6 @@ namespace LinaEngine::Graphics
 		// Add the ECS systems into the pipeline.
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
 		m_RenderingPipeline.AddSystem(m_MeshRendererSystem);
-
 	
 	}
 
@@ -130,7 +122,7 @@ namespace LinaEngine::Graphics
 		m_DefaultRenderContext.Clear(m_CameraSystem.GetCurrentClearColor(), true);
 
 		// Update pipeline.
-		//m_ECS->UpdateSystems(m_RenderingPipeline, delta);
+		m_RenderingPipeline.UpdateSystems(delta);
 
 		// Update uniform buffers on GPU
 		UpdateUniformBuffers();

@@ -34,8 +34,8 @@ namespace LinaEngine::ECS
 
 		for (auto entity : view)
 		{
-			TransformComponent transform = m_Registry->reg.get<TransformComponent>(entity);
-			FreeLookComponent freeLook = m_Registry->reg.get<FreeLookComponent>(entity);
+			TransformComponent& transform = m_Registry->reg.get<TransformComponent>(entity);
+			FreeLookComponent& freeLook = m_Registry->reg.get<FreeLookComponent>(entity);
 
 			// Disable cursor upon starting mouse look.
 			if (inputEngine->GetMouseButtonDown(LinaEngine::Input::InputCode::Mouse::Mouse1))
@@ -76,6 +76,11 @@ namespace LinaEngine::ECS
 
 			// Move.
 			transform.transform.SetLocation(transform.transform.GetLocation() + vertical + horizontal);
+
+			m_Registry->reg.replace<TransformComponent>(entity, transform);
+			m_Registry->reg.replace<FreeLookComponent>(entity, freeLook);
+
+			TransformComponent comp = view.get<TransformComponent>(entity);
 		}
 
 	}
