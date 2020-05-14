@@ -28,7 +28,6 @@ set (LINAGRAPHICS_SOURCES
 	src/Rendering/ModelLoader.cpp
 	src/Rendering/RenderEngine.cpp
 	src/Rendering/RenderContext.cpp
-	src/Rendering/RenderConstants.cpp
 	src/Rendering/Mesh.cpp
 	
 	src/PackageManager/OpenGL/GLRenderDevice.cpp

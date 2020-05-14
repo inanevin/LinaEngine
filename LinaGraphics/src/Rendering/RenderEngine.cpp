@@ -353,7 +353,7 @@ namespace LinaEngine::Graphics
 		{
 			// Shader not found.
 			LINA_CORE_ERR("Shader with the name {0} was not found, returning standardLitShader", shaderName);
-			return GetShader(ShaderConstants::standardLitShader);
+			return GetShader(SC_STANDARDLITSHADER);
 		}
 
 		return m_LoadedShaders[shaderName];
@@ -419,33 +419,33 @@ namespace LinaEngine::Graphics
 
 		// Unlit.
 		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/basicStandardUnlit.glsl", "#include");
-		CreateShader(ShaderConstants::standardUnlitShader, shaderText);
-		GetShader(ShaderConstants::standardUnlitShader).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+		CreateShader(SC_STANDARDUNLITSHADER, shaderText);
+		GetShader(SC_STANDARDUNLITSHADER).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
 
 		// Lit.
 		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/basicStandardLit.glsl", "#include");
-		CreateShader(ShaderConstants::standardLitShader, shaderText);
-		GetShader(ShaderConstants::standardLitShader).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
-		GetShader(ShaderConstants::standardLitShader).BindBlockToBuffer(UNIFORMBUFFER_LIGHTS_BINDPOINT, UNIFORMBUFFER_LIGHTS_NAME);
+		CreateShader(SC_STANDARDLITSHADER, shaderText);
+		GetShader(SC_STANDARDLITSHADER).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+		GetShader(SC_STANDARDLITSHADER).BindBlockToBuffer(UNIFORMBUFFER_LIGHTS_BINDPOINT, UNIFORMBUFFER_LIGHTS_NAME);
 
 		// Skybox single color.
 		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/skyboxSingleColor.glsl", "#include");
-		CreateShader(ShaderConstants::skyboxSingleColorShader, shaderText);
+		CreateShader(SC_SKYBOXSINGLECOLORSHADER, shaderText);
 
 		// Skybox vertex gradient color.
 		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/skyboxVertexGradient.glsl", "#include");
-		CreateShader(ShaderConstants::skyboxGradientShader, shaderText);
-		GetShader(ShaderConstants::skyboxGradientShader).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+		CreateShader(SC_SKYBOXGRADIENTSHADER, shaderText);
+		GetShader(SC_SKYBOXGRADIENTSHADER).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
 
 		// Skybox cubemap.
 		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/skyboxCubemap.glsl", "#include");
-		CreateShader(ShaderConstants::skyboxCubemapShader, shaderText);
-		GetShader(ShaderConstants::skyboxCubemapShader).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+		CreateShader(SC_SKYBOXCUBEMAPSHADER, shaderText);
+		GetShader(SC_SKYBOXCUBEMAPSHADER).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
 
 		// Skybox procedural.
 		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/skyboxProcedural.glsl", "#include");
-		CreateShader(ShaderConstants::skyboxProceduralShader, shaderText);
-		GetShader(ShaderConstants::skyboxProceduralShader).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+		CreateShader(SC_SKYBOXPROCEDURALSHADER, shaderText);
+		GetShader(SC_SKYBOXPROCEDURALSHADER).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
 
 
 	}
@@ -497,8 +497,8 @@ namespace LinaEngine::Graphics
 		// If no shader found, fall back to standardLit
 		if (m_LoadedShaders.find(shaderName) == m_LoadedShaders.end()) {
 			LINA_CORE_ERR("Shader with the name {0} was not found. Setting material's shader to standardLit.", shaderName);
-			material.shaderID = m_LoadedShaders[ShaderConstants::standardLitShader].GetID();
-			usedName = ShaderConstants::standardLitShader;
+			material.shaderID = m_LoadedShaders[SC_STANDARDLITSHADER].GetID();
+			usedName = SC_STANDARDLITSHADER;
 		}
 		else
 			material.shaderID = m_LoadedShaders[shaderName].GetID();
@@ -514,39 +514,39 @@ namespace LinaEngine::Graphics
 		material.vector4s.clear();
 
 		// Set shader data for material based on it's shader.
-		if (usedName == ShaderConstants::standardLitShader)
+		if (usedName == SC_STANDARDLITSHADER)
 		{
-			material.colors[MaterialConstants::objectColorProperty] = Colors::White;
-			material.floats[MaterialConstants::specularIntensityProperty] = 2.0f;
-			material.samplers[MaterialConstants::diffuseTextureProperty] = 0;
-			material.samplers[MaterialConstants::specularTextureProperty] = 1;
-			material.ints[MaterialConstants::specularExponentProperty] = 32;
+			material.colors[MC_OBJECTCOLORPROPERTY] = Colors::White;
+			material.floats[MC_SPECULARINTENSITYPROPERTY] = 2.0f;
+			material.samplers[MC_DIFFUSETEXTUREPROPERTY] = 0;
+			material.samplers[MC_SPECULARTEXTUREPROPERTY] = 1;
+			material.ints[MC_SPECULAREXPONENTPROPERTY] = 32;
 			material.receivesLighting = true;
 
 		}
-		else if (usedName == ShaderConstants::standardUnlitShader)
+		else if (usedName ==  SC_STANDARDUNLITSHADER)
 		{
-			material.colors[MaterialConstants::objectColorProperty] = Colors::White;
-			material.samplers[MaterialConstants::diffuseTextureProperty] = 0;
+			material.colors[MC_OBJECTCOLORPROPERTY] = Colors::White;
+			material.samplers[MC_DIFFUSETEXTUREPROPERTY] = 0;
 		}
-		else if (usedName == ShaderConstants::skyboxSingleColorShader)
+		else if (usedName == SC_SKYBOXSINGLECOLORSHADER)
 		{
-			material.colors[MaterialConstants::colorProperty] = Colors::White;
+			material.colors[MC_COLORPROPERTY] = Colors::White;
 		}
-		else if (usedName == ShaderConstants::skyboxGradientShader)
+		else if (usedName == SC_SKYBOXGRADIENTSHADER)
 		{
-			material.colors[MaterialConstants::startColorProperty] = Colors::Black;
-			material.colors[MaterialConstants::endColorProperty] = Colors::White;
+			material.colors[MC_STARTCOLORPROPERTY] = Colors::Black;
+			material.colors[MC_ENDCOLORPROPERTY] = Colors::White;
 		}
-		else if (usedName == ShaderConstants::skyboxProceduralShader)
+		else if (usedName == SC_SKYBOXPROCEDURALSHADER)
 		{
-			material.colors[MaterialConstants::startColorProperty] = Colors::Black;
-			material.colors[MaterialConstants::endColorProperty] = Colors::White;
-			material.vector3s[MaterialConstants::sunDirectionProperty] = Vector3F(0, -1, 0);
+			material.colors[MC_STARTCOLORPROPERTY] = Colors::Black;
+			material.colors[MC_ENDCOLORPROPERTY] = Colors::White;
+			material.vector3s[MC_SUNDIRECTIONPROPERTY] = Vector3F(0, -1, 0);
 		}
-		else if (usedName == ShaderConstants::skyboxCubemapShader)
+		else if (usedName == SC_SKYBOXCUBEMAPSHADER)
 		{
-			material.samplers[MaterialConstants::diffuseTextureProperty] = 0;
+			material.samplers[MC_DIFFUSETEXTUREPROPERTY] = 0;
 		}
 	}
 

@@ -750,13 +750,13 @@ namespace LinaEngine::Graphics
 
 
 
-	UpdateShaderUniformVector3F(4, "pointLights[0].position", Vector3F(0.0f, 0.0f, 5.0f));
-	UpdateShaderUniformVector3F(4, "pointLights[0].ambient", Vector3F(1.05f, 0.05f, 0.05f));
-	UpdateShaderUniformVector3F(4, "pointLights[0].diffuse", Vector3F(0.8f, 0.8f, 0.8f));
-	UpdateShaderUniformVector3F(4, "pointLights[0].specular", Vector3F(1,1,1));
-	UpdateShaderUniformFloat(4, "pointLights[0].constant", 1.0f);
-	UpdateShaderUniformFloat(4, "pointLights[0].linear", 0.09f);
-	UpdateShaderUniformFloat(4, "pointLights[0].quadratic", 0.032f);
+//UpdateShaderUniformVector3F(4, "pointLights[0].position", Vector3F(0.0f, 0.0f, 5.0f));
+//UpdateShaderUniformVector3F(4, "pointLights[0].ambient", Vector3F(1.05f, 0.05f, 0.05f));
+//UpdateShaderUniformVector3F(4, "pointLights[0].diffuse", Vector3F(0.8f, 0.8f, 0.8f));
+//UpdateShaderUniformVector3F(4, "pointLights[0].specular", Vector3F(1,1,1));
+//UpdateShaderUniformFloat(4, "pointLights[0].constant", 1.0f);
+//UpdateShaderUniformFloat(4, "pointLights[0].linear", 0.09f);
+//UpdateShaderUniformFloat(4, "pointLights[0].quadratic", 0.032f);
 	//
 
 

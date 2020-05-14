@@ -72,7 +72,7 @@ void Example1Level::Install()
 
 void CreateSingleColorSkybox(RenderEngine* renderEngine)
 {
-	renderEngine->CreateMaterial("skyboxMaterial", ShaderConstants::skyboxSingleColorShader);
+	renderEngine->CreateMaterial("skyboxMaterial", SC_SKYBOXSINGLECOLORSHADER);
 	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.color", Colors::Red);
 	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial("skyboxMaterial"));
 
@@ -80,7 +80,7 @@ void CreateSingleColorSkybox(RenderEngine* renderEngine)
 
 void CreateGradientSkybox(RenderEngine* renderEngine)
 {
-	renderEngine->CreateMaterial("skyboxMaterial", ShaderConstants::skyboxGradientShader);
+	renderEngine->CreateMaterial("skyboxMaterial", SC_SKYBOXGRADIENTSHADER);
 	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.startColor", Colors::Green);
 	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.endColor", Colors::White);
 	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial("skyboxMaterial"));
@@ -88,7 +88,7 @@ void CreateGradientSkybox(RenderEngine* renderEngine)
 
 void CreateProceduralSkybox(RenderEngine* renderEngine)
 {
-	renderEngine->CreateMaterial("skyboxMaterial", ShaderConstants::skyboxProceduralShader);
+	renderEngine->CreateMaterial("skyboxMaterial", SC_SKYBOXPROCEDURALSHADER);
 	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.startColor", Colors::LightBlue);
 	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.endColor", Colors::DarkBlue);
 	renderEngine->GetMaterial("skyboxMaterial").SetVector3("material.sunDirection", Vector3F(0.0f, -1.0f, 0.0f));
@@ -98,7 +98,7 @@ void CreateProceduralSkybox(RenderEngine* renderEngine)
 
 void CreateCubemapSkybox(RenderEngine* renderEngine)
 {
-	renderEngine->CreateMaterial("skyboxMaterial", ShaderConstants::skyboxCubemapShader);
+	renderEngine->CreateMaterial("skyboxMaterial", SC_SKYBOXCUBEMAPSHADER);
 
 	const std::string fp[6] = {
 
@@ -144,14 +144,14 @@ void Example1Level::Initialize()
 	m_RenderEngine->CreateMesh("cube", "resources/meshes/cube.obj", &cubeMesh);
 
 	// Create material for example mesh.
-	m_RenderEngine->CreateMaterial("object1Material", ShaderConstants::standardLitShader, &objectLitMaterial);
-	m_RenderEngine->CreateMaterial("object2Material", ShaderConstants::standardLitShader, &objectUnlitMaterial);
+	m_RenderEngine->CreateMaterial("object1Material", SC_STANDARDLITSHADER, &objectLitMaterial);
+	m_RenderEngine->CreateMaterial("object2Material", SC_STANDARDLITSHADER, &objectUnlitMaterial);
 
 	// Create texture for example mesh.
 	m_RenderEngine->CreateTexture("crate", "resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateTexture);
 	m_RenderEngine->CreateTexture("crateSpec", "resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateSpecTexture);
-	objectLitMaterial->SetTexture(MaterialConstants::diffuseTextureProperty, crateTexture, 0);
-	objectLitMaterial->SetTexture(MaterialConstants::specularTextureProperty, crateSpecTexture, 1);
+	objectLitMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, crateTexture, 0);
+	objectLitMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, crateSpecTexture, 1);
 
 
 	// Create a cube object.
