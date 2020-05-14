@@ -40,7 +40,18 @@ option(LINA_SHARED_INPUT "Build Lina INPUT DLL" OFF)
 option(LINA_SHARED_GRAPHICS "Build Lina GRAPHICS DLL" OFF)
 option(LINA_SHARED_PHYSICS "Build Lina PHYSICS DLL" OFF)
 option(LINA_SHARED_ENGINE "Build Lina ENGINE DLL" OFF)
+option(x64_COMPILATION "Target Architecture x64" ON)
 
+if(${x64_COMPILATION} MATCHES ON)
+	set(TARGET_ARCHITECTURE "x64")
+	
+elseif(${x64_COMPILATION} MATCHES OFF)
+	set(TARGET_ARCHITECTURE "Win32")
+endif()
+
+
+set(ASSIMP_LIB "assimp-vc142-mtd.lib")
+set(ASSIMP_DLL "assimp-vc142-mtd.dll")
 
 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
@@ -71,7 +82,6 @@ add_subdirectory(LinaCommon)
 add_subdirectory(LinaAction)
 add_subdirectory(LinaInput)
 add_subdirectory(LinaPhysics)
-add_subdirectory(vendor/glfw)
 
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT LinaEditor)
