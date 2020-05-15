@@ -750,26 +750,26 @@ namespace LinaEngine::Graphics
 
 
 
-//UpdateShaderUniformVector3F(4, "pointLights[0].position", Vector3F(0.0f, 0.0f, 5.0f));
-//UpdateShaderUniformVector3F(4, "pointLights[0].ambient", Vector3F(1.05f, 0.05f, 0.05f));
-//UpdateShaderUniformVector3F(4, "pointLights[0].diffuse", Vector3F(0.8f, 0.8f, 0.8f));
-//UpdateShaderUniformVector3F(4, "pointLights[0].specular", Vector3F(1,1,1));
-//UpdateShaderUniformFloat(4, "pointLights[0].constant", 1.0f);
-//UpdateShaderUniformFloat(4, "pointLights[0].linear", 0.09f);
-//UpdateShaderUniformFloat(4, "pointLights[0].quadratic", 0.032f);
-	//
+	//UpdateShaderUniformVector3F(4, "pointLights[0].position", Vector3F(0.0f, 0.0f, 5.0f));
+	//UpdateShaderUniformVector3F(4, "pointLights[0].ambient",  Vector3F(1.05f, 0.05f, 0.05f));
+	//UpdateShaderUniformVector3F(4, "pointLights[0].diffuse",  Vector3F(0.8f, 0.8f, 0.8f));
+	//UpdateShaderUniformVector3F(4, "pointLights[0].specular", Vector3F(1,1,1));
+	//UpdateShaderUniformFloat(4, "pointLights[0].constant", 1.0f);
+	//UpdateShaderUniformFloat(4, "pointLights[0].linear", 0.09f);
+	//UpdateShaderUniformFloat(4, "pointLights[0].quadratic", 0.032f);
+	
 
 
-	UpdateShaderUniformVector3F(4, "spotLights[0].position", Vector3F(0.0f, 0.0f, 7.0f));
-	UpdateShaderUniformVector3F(4, "spotLights[0].direction", Vector3F(0.0f, 0.0f, 1.0f));
-	UpdateShaderUniformVector3F(4, "spotLights[0].ambient", Vector3F(0.05f, 0.05f, 0.55f));
-	UpdateShaderUniformVector3F(4, "spotLights[0].diffuse", Vector3F(1, 1,1));
-	UpdateShaderUniformVector3F(4, "spotLights[0].specular", Vector3F(1, 1, 1));
-	UpdateShaderUniformFloat(4, "spotLights[0].constant", 1.0f);
-	UpdateShaderUniformFloat(4, "spotLights[0].linear", 0.09f);
-	UpdateShaderUniformFloat(4, "spotLights[0].quadratic", 0.032f);
-	UpdateShaderUniformFloat(4, "spotLights[0].cutOff", Math::Cos(Math::ToRadians(12.5f)));
-	UpdateShaderUniformFloat(4, "spotLights[0].outerCutOff", Math::Cos(Math::ToRadians(17.5f)));
+//UpdateShaderUniformVector3F(4, "spotLights[0].position", Vector3F(0.0f, 0.0f, 7.0f));
+//UpdateShaderUniformVector3F(4, "spotLights[0].direction", Vector3F(0.0f, 0.0f, 1.0f));
+//UpdateShaderUniformVector3F(4, "spotLights[0].ambient", Vector3F(0.05f, 0.05f, 0.55f));
+//UpdateShaderUniformVector3F(4, "spotLights[0].diffuse", Vector3F(1, 1,1));
+//UpdateShaderUniformVector3F(4, "spotLights[0].specular", Vector3F(1, 1, 1));
+//UpdateShaderUniformFloat(4, "spotLights[0].constant", 1.0f);
+//UpdateShaderUniformFloat(4, "spotLights[0].linear", 0.09f);
+//UpdateShaderUniformFloat(4, "spotLights[0].quadratic", 0.032f);
+//UpdateShaderUniformFloat(4, "spotLights[0].cutOff", Math::Cos(Math::ToRadians(12.5f)));
+//UpdateShaderUniformFloat(4, "spotLights[0].outerCutOff", Math::Cos(Math::ToRadians(17.5f)));
 
 
 

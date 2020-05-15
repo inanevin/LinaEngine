@@ -49,6 +49,7 @@ namespace LinaEngine
 
 namespace LinaEngine::Graphics
 {
+	class Shader;
 
 	class RenderEngine
 	{
@@ -91,6 +92,10 @@ namespace LinaEngine::Graphics
 		{
 			return Vector2F(m_MainWindow.GetWidth() / 2.0f, m_MainWindow.GetHeight() / 2.0f);
 		}
+
+		// Setters for light counts. /* TAKE INSIDE LINA API LATER ON */
+		FORCEINLINE void SetCurrentPLightCount(int count) { m_CurrentPointLightCount = count; }
+		FORCEINLINE void SetCurrentSLightCount(int count) { m_CurrentSpotLightCount = count; }
 
 		// Initialize the render renderEngine.
 		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn);
@@ -250,6 +255,10 @@ namespace LinaEngine::Graphics
 
 		// GUI layer queue.
 		LayerStack m_GUILayerStack;
+
+		// Light counts.
+		int m_CurrentSpotLightCount;
+		int m_CurrentPointLightCount;
 
 		DISALLOW_COPY_ASSIGN_NEW(RenderEngine);
 	};

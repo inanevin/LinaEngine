@@ -22,7 +22,6 @@ Timestamp: 2/16/2019 1:47:28 AM
 #ifndef ShaderConstants_HPP
 #define ShaderConstants_HPP
 
-#include "Core/LinaAPI.hpp"
 #include <string>
 
 namespace LinaEngine::Graphics
@@ -45,9 +44,10 @@ namespace LinaEngine::Graphics
 #define SC_LIGHTOUTERCUTOFF std::string(".outerCutOff")
 #define SC_LIGHTINTENSITY std::string(".intensity")
 #define SC_LIGHTDIRECTION std::string(".direction")
+#define SC_LIGHTPOSITION std::string(".position")
 #define SC_DIRECTIONALLIGHT std::string("directionalLight")
-#define SC_POINTLIGHT std::string("pointLight")
-#define SC_SPOTLIGHT std::string("spotLight")
+#define SC_POINTLIGHTS std::string("pointLights")
+#define SC_SPOTLIGHTS std::string("spotLights")
 
 #define MC_SKYBOXMATERIALNAME "skybox_defaultMat"
 #define MC_COLORPROPERTY "material.color"

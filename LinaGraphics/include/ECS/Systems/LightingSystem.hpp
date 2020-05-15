@@ -28,11 +28,12 @@ Timestamp: 5/13/2019 12:49:19 AM
 #include "Utility/Math/Vector.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
 
+
 namespace LinaEngine
 {
 	namespace Graphics
 	{
-		class Shader;
+		class RenderEngine;
 	}	
 }
 
@@ -44,19 +45,22 @@ namespace LinaEngine::ECS
 
 		LightingSystem() {};
 
-		FORCEINLINE void Construct(ECSRegistry& registry, RenderDevice& rdIn)
+		FORCEINLINE void Construct(ECSRegistry& registry, RenderDevice& rdIn, Graphics::RenderEngine& renderEngineIn)
 		{
 			BaseECSSystem::Construct(registry);
 			m_RenderDevice = &rdIn;
+			m_RenderEngine = &renderEngineIn;
 		}
 
 
 		virtual void UpdateComponents(float delta) override;
 		void SetLightingShaderData(uint32 shaderID);
+		void ResetLightData();
 
 	private:
 
 		RenderDevice* m_RenderDevice;
+		Graphics::RenderEngine* m_RenderEngine;
 		Vector3F m_CameraPosition;
 	};
 }

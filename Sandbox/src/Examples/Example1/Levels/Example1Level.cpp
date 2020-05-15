@@ -54,6 +54,8 @@ ECSEntity object3;
 ECSEntity object4;
 ECSEntity object5;
 ECSEntity directionalLight;
+ECSEntity pointLight;
+ECSEntity spotLight;
 
 TransformComponent object1Transform;
 MeshRendererComponent object1Renderer;
@@ -164,11 +166,38 @@ void Example1Level::Initialize()
 
 	directionalLight.entity = m_ECS->reg.create();
 	auto& dirLight = m_ECS->reg.emplace<DirectionalLightComponent>(directionalLight.entity);
-	dirLight.color = Color(0.02f, 0.02f, 0.02f);
 	dirLight.ambient = Color(0.02f, 0.02f, 0.02f);
-	dirLight.specular = Color(0.5f, 0.5f, 0.5f);
-	dirLight.diffuse = Color(0.9f, 0.4f, 0.4f);
+	dirLight.specular = Color(0.1f, 0.1f, 0.1f);
+	dirLight.diffuse = Color(0.2f, 0.2f, 0.2f);
 	dirLight.direction = Vector3F(0,0, 1);
+
+
+	object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 5.0f));
+	pointLight.entity = m_ECS->reg.create();
+	auto& pLight1 = m_ECS->reg.emplace<PointLightComponent>(pointLight.entity);
+	m_ECS->reg.emplace<TransformComponent>(pointLight.entity, object1Transform);
+
+	pLight1.ambient = Vector3F(0.05f, 0.05f, 0.05f);
+	pLight1.diffuse = Vector3F(0.2f, 0.9f, 0.2f);
+	pLight1.specular = Vector3F(1, 1, 1);
+	pLight1.constant = 1.0f;
+	pLight1.linear = 0.09f;
+	pLight1.quadratic = 0.032f;
+
+	object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 7.0f));
+	spotLight.entity = m_ECS->reg.create();
+	auto& sLight1 = m_ECS->reg.emplace<SpotLightComponent>(spotLight.entity);
+	m_ECS->reg.emplace<TransformComponent>(spotLight.entity, object1Transform);
+
+	sLight1.ambient = Vector3F(0.05f, 0.05f, 0.55f);
+	sLight1.diffuse = Vector3F(1, 1, 1);
+	sLight1.specular = Vector3F(1, 1, 1);
+	sLight1.direction = Vector3F(0.0f, 0.0f, 1.0f);
+	sLight1.constant = 1.0f;
+	sLight1.linear = 0.09f;
+	sLight1.quadratic = 0.032f;
+	sLight1.cutOff = Math::Cos(Math::ToRadians(12.5f));
+	sLight1.outerCutOff = Math::Cos(Math::ToRadians(17.5f));
 
 
 	//object1 = m_ECS->MakeEntity(object1Transform, object1Renderer);

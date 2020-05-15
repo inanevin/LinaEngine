@@ -109,7 +109,7 @@ namespace LinaEngine::Graphics
 		m_MeshRendererSystem.Construct(ecsReg, m_DefaultRenderContext);
 
 		// Initialize ECS Lighting system.
-		m_LightingSystem.Construct(ecsReg, m_RenderDevice);
+		m_LightingSystem.Construct(ecsReg, m_RenderDevice, *this);
 
 		// Add the ECS systems into the pipeline.
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
@@ -479,15 +479,10 @@ namespace LinaEngine::Graphics
 		m_GlobalDataBuffer.Update(&viewPos, sizeof(Matrix) * 2, sizeof(Vector4F));
 
 		// Update lights buffer.
-	
-		int lightCount = 1;
-		int spotLightCount = 1;
-		m_GlobalLightBuffer.Update(&lightCount, 0, sizeof(int));
-		m_GlobalLightBuffer.Update(&spotLightCount, sizeof(int), sizeof(int));
 
+		m_GlobalLightBuffer.Update(&m_CurrentPointLightCount, 0, sizeof(int));
+		m_GlobalLightBuffer.Update(&m_CurrentSpotLightCount, sizeof(int), sizeof(int));
 
-		//m_LightsBuffer.Update(&color, sizeof(float) * 12, sizeof(float) * 4);
-		//m_LightsBuffer.Update(&direction, sizeof(float) * 16, sizeof(float) * 4);
 	}
 
 	void RenderEngine::SetMaterialShader(Material & material, const std::string & shaderName)
