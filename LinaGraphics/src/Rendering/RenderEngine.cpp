@@ -127,11 +127,11 @@ namespace LinaEngine::Graphics
 		// Update pipeline.
 		m_RenderingPipeline.UpdateSystems(delta);
 
-		// Update uniform buffers on GPU
-		UpdateUniformBuffers();
-
 		// Draw scene.
 		m_DefaultRenderContext.Flush();
+
+		// Update uniform buffers on GPU
+		UpdateUniformBuffers();
 
 		// Draw skybox.
 		DrawSkybox();
