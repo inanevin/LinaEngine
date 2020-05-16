@@ -217,6 +217,7 @@ void Example1Level::Initialize()
 		pLight1.linear = 0.09f;
 		pLight1.quadratic = 0.032f;
 
+	
 		ECSEntity visuals;
 		visuals.entity = m_ECS->reg.create();
 		object1Transform.transform.SetScale(0.2f);

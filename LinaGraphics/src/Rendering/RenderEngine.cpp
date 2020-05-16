@@ -41,6 +41,10 @@ namespace LinaEngine::Graphics
 	constexpr int UNIFORMBUFFER_LIGHTS_BINDPOINT = 1;
 	constexpr auto UNIFORMBUFFER_LIGHTS_NAME = "GlobalLightData";
 
+	constexpr size_t UNIFORMBUFFER_GLOBALDEBUG_SIZE = (sizeof(bool) * 1);
+	constexpr int UNIFORMBUFFER_GLOBALDEBUG_BINDPOINT = 2;
+	constexpr auto UNIFORMBUFFER_GLOBALDEBUG_NAME = "GlobalDebugData";
+
 	RenderEngine::RenderEngine()
 	{
 		LINA_CORE_TRACE("[Constructor] -> RenderEngine ({0})", typeid(*this).name());
@@ -60,7 +64,6 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Initialize(LinaEngine::ECS::ECSRegistry& ecsReg)
 	{
-
 		// Initialize the render device.
 		m_RenderDevice.Initialize(m_LightingSystem, m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
 
@@ -71,6 +74,10 @@ namespace LinaEngine::Graphics
 		// Construct the uniform buffer for lights.
 		m_GlobalLightBuffer.Construct(m_RenderDevice, UNIFORMBUFFER_LIGHTS_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
 		m_GlobalLightBuffer.Bind(UNIFORMBUFFER_LIGHTS_BINDPOINT);
+
+		// Construct the uniform buffer for debugging.
+		m_GlobalDebugBuffer.Construct(m_RenderDevice, UNIFORMBUFFER_GLOBALDEBUG_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
+		m_GlobalDebugBuffer.Bind(UNIFORMBUFFER_GLOBALDEBUG_BINDPOINT);
 
 		// Initialize the engine shaders.
 		ConstructEngineShaders();
@@ -114,6 +121,9 @@ namespace LinaEngine::Graphics
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
 		m_RenderingPipeline.AddSystem(m_MeshRendererSystem);
 		m_RenderingPipeline.AddSystem(m_LightingSystem);
+
+		// Set debug values.
+		m_DebugData.visualizeDepth = true;
 
 	}
 
@@ -386,11 +396,14 @@ namespace LinaEngine::Graphics
 	void RenderEngine::ConstructEngineShaders()
 	{
 		// Unlit.
-		CreateShader(Shaders::STANDARD_UNLIT, "resources/shaders/basicStandardUnlit.glsl").BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+		Shader& unlit = CreateShader(Shaders::STANDARD_UNLIT, "resources/shaders/basicStandardUnlit.glsl");
+		unlit.BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+		unlit.BindBlockToBuffer(UNIFORMBUFFER_GLOBALDEBUG_BINDPOINT, UNIFORMBUFFER_GLOBALDEBUG_NAME);
 
 		Shader& lit = CreateShader(Shaders::STANDARD_LIT, "resources/shaders/basicStandardLit.glsl");
 		lit.BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
 		lit.BindBlockToBuffer(UNIFORMBUFFER_LIGHTS_BINDPOINT, UNIFORMBUFFER_LIGHTS_NAME);
+		lit.BindBlockToBuffer(UNIFORMBUFFER_GLOBALDEBUG_BINDPOINT, UNIFORMBUFFER_GLOBALDEBUG_NAME);
 
 		// Skies
 		CreateShader(Shaders::SKYBOX_SINGLECOLOR, "resources/shaders/skyboxSingleColor.glsl");
@@ -428,10 +441,11 @@ namespace LinaEngine::Graphics
 		m_GlobalDataBuffer.Update(&viewPos, sizeof(Matrix) * 2, sizeof(Vector4F));
 
 		// Update lights buffer.
-
 		m_GlobalLightBuffer.Update(&m_CurrentPointLightCount, 0, sizeof(int));
 		m_GlobalLightBuffer.Update(&m_CurrentSpotLightCount, sizeof(int), sizeof(int));
 
+		// Update debug fufer.
+		m_GlobalDebugBuffer.Update(&m_DebugData.visualizeDepth, 0, sizeof(bool));
 	}
 
 	Material& RenderEngine::SetMaterialShader(Material& material, Shaders shader)

@@ -60,3 +60,4 @@ float remap( float value, float low1, float high1, float low2, float high2)
 
 #define UB_GLOBAL layout (std140, row_major) uniform GlobalData {mat4 projection; mat4 view; vec4 cameraPosition;};
 #define UB_GLOBAL_LIGHT layout (std140, row_major) uniform GlobalLightData {int pointLightCount; int spotLightCount; };
+#define UB_GLOBAL_DEBUG layout (std140, row_major) uniform GlobalDebugData { bool visualizeDepth; };

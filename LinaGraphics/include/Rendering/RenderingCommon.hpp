@@ -191,6 +191,11 @@ namespace LinaEngine::Graphics
 		SKYBOX_PROCEDURAL = 5
 	};
 
+	struct RenderingDebugData
+	{
+		bool visualizeDepth;
+	};
+
 	/* Struct containing basic data about window properties. */
 	struct WindowProperties
 	{

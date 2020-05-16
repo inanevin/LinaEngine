@@ -45,6 +45,7 @@ void main()
 
 UB_GLOBAL
 UB_GLOBAL_LIGHT
+UB_GLOBAL_DEBUG
 
 struct Material
 {
@@ -155,6 +156,9 @@ void main()
 	for(int i = 0; i < spotLightCount; i++)
 		result += CalculateSpotLight(spotLights[0], norm, FragPos, viewDir);    
     
-    fragColor = vec4(result, 1.0);
+	if(visualizeDepth)
+		fragColor = vec4(vec3(gl_FragCoord.z), 1);
+	else
+		fragColor = vec4(result, 1.0);
 }
 #endif

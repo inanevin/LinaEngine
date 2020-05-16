@@ -233,6 +233,9 @@ namespace LinaEngine::Graphics
 		// Buffer for lights.
 		UniformBuffer m_GlobalLightBuffer;
 
+		// Buffer for debugging.
+		UniformBuffer m_GlobalDebugBuffer;
+
 		// Material used to draw skybox.
 		Material* m_SkyboxMaterial = nullptr;
 
@@ -254,6 +257,9 @@ namespace LinaEngine::Graphics
 		// Light counts.
 		int m_CurrentSpotLightCount;
 		int m_CurrentPointLightCount;
+
+		// Debug data
+		RenderingDebugData m_DebugData;
 
 		DISALLOW_COPY_ASSIGN_NEW(RenderEngine);
 	};

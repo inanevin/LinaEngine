@@ -38,6 +38,7 @@ void main()
 
 #elif defined(FS_BUILD)
 
+UB_GLOBAL_DEBUG
 
 struct Material
 {
@@ -47,12 +48,16 @@ sampler2D diffuse;
 
 uniform Material material;
 
+
 in vec3 FragPos;
 in vec2 TexCoords;
 out vec4 fragColor;
 
 void main()
 {
-	fragColor = vec4(material.objectColor, 1);
+	if(visualizeDepth)
+		fragColor = vec4(vec3(gl_FragCoord.z), 1);
+	else
+		fragColor = vec4(material.objectColor, 1);
 }
 #endif
