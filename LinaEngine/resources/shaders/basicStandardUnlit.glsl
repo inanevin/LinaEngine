@@ -41,6 +41,7 @@ void main()
 
 struct Material
 {
+vec3 objectColor;
 sampler2D diffuse;
 };
 
@@ -52,6 +53,6 @@ out vec4 fragColor;
 
 void main()
 {
-	fragColor = texture(material.diffuse, TexCoords);
+	fragColor = vec4(material.objectColor, 1);
 }
 #endif

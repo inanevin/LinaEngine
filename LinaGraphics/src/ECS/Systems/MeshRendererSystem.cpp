@@ -34,6 +34,18 @@ namespace LinaEngine::ECS
 		{
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 			MeshRendererComponent& renderer = view.get<MeshRendererComponent>(entity);
+
+			if (renderer.mesh == nullptr)
+			{
+				LINA_CORE_ERR("Please assign a mesh to the MeshRendererComponent to draw!");
+				continue;
+			}
+
+			if (renderer.material == nullptr)
+			{
+				LINA_CORE_ERR("Please assign a material to the MeshRendererComponent to draw!");
+				continue;
+			}
 			//context->RenderMesh(*renderer.mesh->GetVertexArray(2), *renderer.material, transform.transform.ToMatrix());
 
 			for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)

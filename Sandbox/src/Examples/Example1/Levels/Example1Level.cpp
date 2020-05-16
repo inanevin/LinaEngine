@@ -40,17 +40,12 @@ TransformComponent cameraTransformComponent;
 FreeLookComponent cameraFreeLookComponent;
 
 ECSEntity camera;
-ECSEntity object1;
-ECSEntity object2;
-ECSEntity object3;
-ECSEntity object4;
-ECSEntity object5;
 ECSEntity directionalLight;
-ECSEntity pointLight;
-ECSEntity spotLight;
+
 
 TransformComponent object1Transform;
 MeshRendererComponent object1Renderer;
+MeshRendererComponent smallCubeRenderer;
 
 
 
@@ -104,20 +99,53 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 
 	SamplerData data = SamplerData();
 	data.minFilter = FILTER_NEAREST;
-	renderEngine->CreateTexture(fp, PixelFormat::FORMAT_RGB, true, false, data);
-	mat.SetTexture(MC_DIFFUSETEXTUREPROPERTY, &renderEngine->GetTexture("skyboxTexture"), 0, BindTextureMode::BINDTEXTURE_CUBEMAP);
-	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial("skyboxMaterial"));
+	Texture& t = renderEngine->CreateTexture(fp, PixelFormat::FORMAT_RGB, true, false, data);
+	mat.SetTexture(MC_DIFFUSETEXTUREPROPERTY, &t, 0, BindTextureMode::BINDTEXTURE_CUBEMAP);
+	renderEngine->SetSkyboxMaterial(mat);
 }
 Material* objectLitMaterial;
 Material* objectUnlitMaterial;
+Material* objectUnlitMaterial2;
+
+Vector3F cubePositions[] = {
+	Vector3F(0.0f, 0.0f, 10.0f),
+	Vector3F(5.0f,  0.0f, 10.0f),
+	Vector3F(-5.0f, 0.0f, 10.0f),
+	Vector3F(0.0f, 0.0f, 15.0f),
+	Vector3F(5.0f,  0.0f, 15.0f),
+	Vector3F(-5.0f, 0.0f, 15.0f),
+	Vector3F(0.0f, -5.0f, 10.0f),
+	Vector3F(5.0f,  -5.0f, 10.0f),
+	Vector3F(-5.0f, -5.0f, 10.0f),
+	Vector3F(0.0f, -5.0f, 15.0f),
+	Vector3F(5.0f,  -5.0f, 15.0f),
+	Vector3F(-5.0f, -5.0f, 15.0f),
+};
+
+Vector3F pointLightPositions[]
+{
+	Vector3F(0.0f,  -0.5f,  13.5f),
+	Vector3F(-5.0f,  -0.5f,  13.5f),
+	Vector3F(5.0f,  -0.5f,  13.5f),
+	Vector3F(0.0f,  -7.5f,  13.5f),
+};
+
+Vector3F spotLightPositions[]
+{
+	Vector3F(0.0f, 0.0f, 20.0f)
+};
+
+int pLightSize = 4;
+int cubeSize = 10;
+int sLightSize = 1;
+
 
 void Example1Level::Initialize()
 {
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-	CreateCubemapSkybox(m_RenderEngine);
-
+	CreateProceduralSkybox(m_RenderEngine);
 
 	camera.entity = m_ECS->reg.create();
 
@@ -139,99 +167,180 @@ void Example1Level::Initialize()
 	// Create material for example mesh.
 	objectLitMaterial = &m_RenderEngine->CreateMaterial("object1Material", Shaders::STANDARD_LIT);
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
+	objectUnlitMaterial2 = &m_RenderEngine->CreateMaterial("object4Material", Shaders::STANDARD_UNLIT);
 
 	// Create texture for example mesh.
 	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
 	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
 	objectLitMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &crateTexture, 0);
 	objectLitMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, &crateSpecTexture, 1);
-
-	// Create a cube object.
+	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(0, 0, 1));
+	objectUnlitMaterial2->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 0, 0));
 	object1Renderer.mesh = &cubeMesh;
 	object1Renderer.material = objectLitMaterial;
-	object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
-	object1.entity = m_ECS->reg.create();
-	m_ECS->reg.emplace<TransformComponent>(object1.entity, object1Transform);
-	m_ECS->reg.emplace<MeshRendererComponent>(object1.entity, object1Renderer);
+	smallCubeRenderer.mesh = &cubeMesh;
+	smallCubeRenderer.material = objectUnlitMaterial;
 
 	directionalLight.entity = m_ECS->reg.create();
 	auto& dirLight = m_ECS->reg.emplace<DirectionalLightComponent>(directionalLight.entity);
-	dirLight.ambient = Color(0.02f, 0.02f, 0.02f);
+	dirLight.ambient = Color(0.00f, 0.00f, 0.00f);
 	dirLight.specular = Color(0.1f, 0.1f, 0.1f);
-	dirLight.diffuse = Color(0.2f, 0.2f, 0.2f);
+	dirLight.diffuse = Color(0.01f, 0.01f, 0.01f);
 	dirLight.direction = Vector3F(0, 0, 1);
 
+	for (int i = 0; i < cubeSize; i++)
+	{
+		ECSEntity entity;
+		object1Transform.transform.SetLocation(cubePositions[i]);
+		entity.entity = m_ECS->reg.create();
+		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
+		m_ECS->reg.emplace<MeshRendererComponent>(entity.entity, object1Renderer);
+	}
 
-	object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 5.0f));
-	pointLight.entity = m_ECS->reg.create();
-	auto& pLight1 = m_ECS->reg.emplace<PointLightComponent>(pointLight.entity);
-	m_ECS->reg.emplace<TransformComponent>(pointLight.entity, object1Transform);
+	for (int i = 0; i < pLightSize; i++)
+	{
+		smallCubeRenderer.material = objectUnlitMaterial;
 
-	pLight1.ambient = Vector3F(0.05f, 0.05f, 0.05f);
-	pLight1.diffuse = Vector3F(0.2f, 0.9f, 0.2f);
-	pLight1.specular = Vector3F(1, 1, 1);
-	pLight1.constant = 1.0f;
-	pLight1.linear = 0.09f;
-	pLight1.quadratic = 0.032f;
+		ECSEntity entity;
+		object1Transform.transform.SetLocation(pointLightPositions[i]);
+		object1Transform.transform.SetScale(1);
 
-	object1Transform.transform.SetLocation(Vector3F(-5.0f, 0.0f, 7.0f));
-	spotLight.entity = m_ECS->reg.create();
-	auto& sLight1 = m_ECS->reg.emplace<SpotLightComponent>(spotLight.entity);
-	m_ECS->reg.emplace<TransformComponent>(spotLight.entity, object1Transform);
+		entity.entity = m_ECS->reg.create();
+		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
+		
+		auto& pLight1 = m_ECS->reg.emplace<PointLightComponent>(entity.entity);
 
-	sLight1.ambient = Vector3F(1.05f, 1.05f, 1.55f);
-	sLight1.diffuse = Vector3F(1, 1, 1);
-	sLight1.specular = Vector3F(1, 1, 1);
-	sLight1.direction = Vector3F(0.0f, 0.0f, 1.0f);
-	sLight1.constant = 1.0f;
-	sLight1.linear = 0.09f;
-	sLight1.quadratic = 0.032f;
-	sLight1.cutOff = Math::Cos(Math::ToRadians(15.5f));
-	sLight1.outerCutOff = Math::Cos(Math::ToRadians(45.5f));
+		pLight1.ambient = Vector3F(0.05f, 0.05f, 0.05f);
+		pLight1.diffuse = Vector3F(0.8f, 0.8f, 0.8f);
+		pLight1.specular = Vector3F(.4f, .4f, .4f);
+		pLight1.constant = 1.0f;
+		pLight1.linear = 0.09f;
+		pLight1.quadratic = 0.032f;
 
-
-
-	//object1 = m_ECS->MakeEntity(object1Transform, object1Renderer);
-
-	object1Transform.transform.SetLocation(Vector3F(5.0f, 0.0f, 10.0f));
-	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
-
-	//object2 = m_ECS->MakeEntity(object1Transform, object1Renderer);
-	object2.entity = m_ECS->reg.create();
-	m_ECS->reg.emplace<TransformComponent>(object2.entity, object1Transform);
-	m_ECS->reg.emplace<MeshRendererComponent>(object2.entity, object1Renderer);
-
-	object1Transform.transform.SetLocation(Vector3F(-5.0f, 0.0f, 10.0f));
-	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
-
-	//object3 = m_ECS->MakeEntity(object1Transform, object1Renderer);
-
-	object3.entity = m_ECS->reg.create();
-	m_ECS->reg.emplace<TransformComponent>(object3.entity, object1Transform);
-	m_ECS->reg.emplace<MeshRendererComponent>(object3.entity, object1Renderer);
-
-	object1Transform.transform.SetLocation(Vector3F(-5.0f, 5.0f, 10.0f));
-	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
-
-	//object4 = m_ECS->MakeEntity(object1Transform, object1Renderer);
-
-	object4.entity = m_ECS->reg.create();
-	m_ECS->reg.emplace<TransformComponent>(object4.entity, object1Transform);
-	m_ECS->reg.emplace<MeshRendererComponent>(object4.entity, object1Renderer);
-
-	object1Transform.transform.SetLocation(Vector3F(5.0f, 5.0f, 10.0f));
-	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
-
-	//object5 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+		ECSEntity visuals;
+		visuals.entity = m_ECS->reg.create();
+		object1Transform.transform.SetScale(0.2f);
+		m_ECS->reg.emplace<TransformComponent>(visuals.entity, object1Transform);
+		m_ECS->reg.emplace<MeshRendererComponent>(visuals.entity, smallCubeRenderer);
 
 
-	object1Transform.transform.SetLocation(Vector3F(5.0f, -5.0f, 10.0f));
-	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
-	object1Renderer.material = objectUnlitMaterial;
+	}
 
-	object5.entity = m_ECS->reg.create();
-	m_ECS->reg.emplace<TransformComponent>(object5.entity, object1Transform);
-	m_ECS->reg.emplace<MeshRendererComponent>(object5.entity, object1Renderer);
+	for (int i = 0; i < sLightSize; i++)
+	{
+		smallCubeRenderer.material = objectUnlitMaterial2;
+
+		ECSEntity entity;
+		object1Transform.transform.SetLocation(spotLightPositions[i]);
+		entity.entity = m_ECS->reg.create();
+		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
+
+		auto& sLight1 = m_ECS->reg.emplace<SpotLightComponent>(entity.entity);
+
+		sLight1.ambient = Vector3F(0.45f, 0.05f, 0.55f);
+		sLight1.diffuse = Vector3F(1, 1, 1);
+		sLight1.specular = Vector3F(1, 1, 1);
+		sLight1.direction = Vector3F(0.0f, 0.0f, 1.0f);
+		sLight1.constant = 1.0f;
+		sLight1.linear = 0.09f;
+		sLight1.quadratic = 0.032f;
+		sLight1.cutOff = Math::Cos(Math::ToRadians(12.5f));
+		sLight1.outerCutOff = Math::Cos(Math::ToRadians(15.5f));
+
+
+		ECSEntity visuals;
+		visuals.entity = m_ECS->reg.create();
+		object1Transform.transform.SetScale(0.2f);
+		m_ECS->reg.emplace<TransformComponent>(visuals.entity, object1Transform);
+		m_ECS->reg.emplace<MeshRendererComponent>(visuals.entity, smallCubeRenderer);
+	}
+
+
+	// Create a cube object.
+//object1Renderer.mesh = &cubeMesh;
+//object1Renderer.material = objectLitMaterial;
+//object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
+//object1.entity = m_ECS->reg.create();
+//m_ECS->reg.emplace<TransformComponent>(object1.entity, object1Transform);
+//m_ECS->reg.emplace<MeshRendererComponent>(object1.entity, object1Renderer);
+//
+//directionalLight.entity = m_ECS->reg.create();
+//auto& dirLight = m_ECS->reg.emplace<DirectionalLightComponent>(directionalLight.entity);
+//dirLight.ambient = Color(0.00f, 0.00f, 0.00f);
+//dirLight.specular = Color(0.1f, 0.1f, 0.1f);
+//dirLight.diffuse = Color(0.01f, 0.01f, 0.01f);
+//dirLight.direction = Vector3F(0, 0, 1);
+//
+//
+//object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 5.0f));
+//pointLight.entity = m_ECS->reg.create();
+//auto& pLight1 = m_ECS->reg.emplace<PointLightComponent>(pointLight.entity);
+//m_ECS->reg.emplace<TransformComponent>(pointLight.entity, object1Transform);
+//
+//pLight1.ambient = Vector3F(0.05f, 0.05f, 0.05f);
+//pLight1.diffuse = Vector3F(0.1f, 0.1f, 0.1f);
+//pLight1.specular = Vector3F(1, 1, 1);
+//pLight1.constant = 1.0f;
+//pLight1.linear = 0.09f;
+//pLight1.quadratic = 0.032f;
+//
+//object1Transform.transform.SetLocation(Vector3F(-5.0f, 0.0f, 7.0f));
+//spotLight.entity = m_ECS->reg.create();
+//auto& sLight1 = m_ECS->reg.emplace<SpotLightComponent>(spotLight.entity);
+//m_ECS->reg.emplace<TransformComponent>(spotLight.entity, object1Transform);
+//
+//sLight1.ambient = Vector3F(0.45f, 0.05f, 0.55f);
+//sLight1.diffuse = Vector3F(1, 1, 1);
+//sLight1.specular = Vector3F(1, 1, 1);
+//sLight1.direction = Vector3F(0.0f, 0.0f, 1.0f);
+//sLight1.constant = 1.0f;
+//sLight1.linear = 0.09f;
+//sLight1.quadratic = 0.032f;
+//sLight1.cutOff = Math::Cos(Math::ToRadians(12.5f));
+//sLight1.outerCutOff = Math::Cos(Math::ToRadians(15.5f));
+//
+//
+////object1 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+//
+//object1Transform.transform.SetLocation(Vector3F(5.0f, 0.0f, 10.0f));
+//object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
+//
+////object2 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+//object2.entity = m_ECS->reg.create();
+//m_ECS->reg.emplace<TransformComponent>(object2.entity, object1Transform);
+//m_ECS->reg.emplace<MeshRendererComponent>(object2.entity, object1Renderer);
+//
+//object1Transform.transform.SetLocation(Vector3F(-5.0f, 0.0f, 10.0f));
+//object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
+//
+////object3 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+//
+//object3.entity = m_ECS->reg.create();
+//m_ECS->reg.emplace<TransformComponent>(object3.entity, object1Transform);
+//m_ECS->reg.emplace<MeshRendererComponent>(object3.entity, object1Renderer);
+//
+//object1Transform.transform.SetLocation(Vector3F(-5.0f, 5.0f, 10.0f));
+//object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
+//
+////object4 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+//
+//object4.entity = m_ECS->reg.create();
+//m_ECS->reg.emplace<TransformComponent>(object4.entity, object1Transform);
+//m_ECS->reg.emplace<MeshRendererComponent>(object4.entity, object1Renderer);
+//
+//object1Transform.transform.SetLocation(Vector3F(5.0f, 5.0f, 10.0f));
+//object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
+//
+////object5 = m_ECS->MakeEntity(object1Transform, object1Renderer);
+//
+//
+//object1Transform.transform.SetLocation(Vector3F(5.0f, -5.0f, 10.0f));
+//object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(Math::RandF(-90, 90), Math::RandF(-90, 90), Math::RandF(-90, 90))));
+//object1Renderer.material = objectUnlitMaterial;
+//
+//object5.entity = m_ECS->reg.create();
+//m_ECS->reg.emplace<TransformComponent>(object5.entity, object1Transform);
+//m_ECS->reg.emplace<MeshRendererComponent>(object5.entity, object1Renderer);
 
 
 	//object5 = m_ECS->MakeEntity(object1Transform, object1Renderer);
@@ -274,6 +383,12 @@ void Example1Level::Tick(float delta)
 {
 	// Update the systems in this level.
 	level1Systems.UpdateSystems(delta);
+
+	//TransformComponent& tSpotLight = m_ECS->reg.get<TransformComponent>(spotLight.entity);
+//	TransformComponent& tCamera = m_ECS->reg.get<TransformComponent>(camera.entity);
+	
+//tSpotLight.transform.SetLocation(tCamera.transform.GetLocation());
+//tSpotLight.transform.SetRotation(tCamera.transform.GetRotation());
 //
 //TransformComponent tc = m_ECS->reg.get<TransformComponent>(object1.entity);
 //t += delta;

@@ -51,6 +51,7 @@ namespace LinaEngine::ECS
 
 		for (auto it = pointLightView.begin(); it != pointLightView.end(); ++it)
 		{
+
 			TransformComponent& transform = pointLightView.get<TransformComponent>(*it);
 			PointLightComponent& pointLight = pointLightView.get<PointLightComponent>(*it);
 
@@ -78,7 +79,7 @@ namespace LinaEngine::ECS
 			m_RenderDevice->UpdateShaderUniformColor(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTAMBIENT, spotLight.ambient);
 			m_RenderDevice->UpdateShaderUniformColor(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTDIFFUSE, spotLight.diffuse);
 			m_RenderDevice->UpdateShaderUniformColor(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTSPECULAR, spotLight.specular);
-			m_RenderDevice->UpdateShaderUniformColor(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTDIRECTION, spotLight.direction);
+			m_RenderDevice->UpdateShaderUniformColor(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTDIRECTION, transform.transform.GetRotation().GetAxisZ());
 
 			m_RenderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTCONSTANT, spotLight.constant);
 			m_RenderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTLINEAR, spotLight.linear);
