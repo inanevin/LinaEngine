@@ -20,9 +20,14 @@
 #if defined(VS_BUILD)
 layout (location = 0) in vec3 position;
 
-UB_GLOBAL
+layout (std140, row_major) uniform GlobalMatrices
+{
+	mat4 projection;
+	mat4 view;
+};
 
 mat4 viewWOTranslation;
+
 out vec3 TexCoords;
 
 void main()
@@ -48,6 +53,7 @@ vec3 sunDirection;
 };
 
 uniform Material material;
+
 
 void main()
 {   

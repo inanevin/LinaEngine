@@ -25,7 +25,12 @@ Layout(2) attribute vec3 normal;
 Layout(4) attribute mat4 model;
 Layout(8) attribute mat4 inverseTransposeModel;
 
-UB_GLOBAL
+layout (std140, row_major) uniform GlobalData
+{
+	mat4 projection;
+	mat4 view;
+	vec4 cameraPosition;
+};
 
 out vec2 TexCoords;
 out vec3 Normal;
@@ -43,8 +48,18 @@ void main()
 
 #include "lighting.glh"
 
-UB_GLOBAL
-UB_GLOBAL_LIGHT
+layout (std140, row_major) uniform GlobalData
+{
+	mat4 projection;
+	mat4 view;
+	vec4 cameraPosition;
+};
+
+layout (std140, row_major) uniform GlobalLightData
+{
+	int pointLightCount;
+	int spotLightCount;
+};
 
 struct Material
 {
