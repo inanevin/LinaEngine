@@ -60,6 +60,8 @@ namespace LinaEngine::Graphics
 
 		// Release Vertex Array Objects
 		m_SkyboxVAO = m_RenderDevice.ReleaseVertexArray(m_SkyboxVAO);
+		m_QuadVAO = m_RenderDevice.ReleaseVertexArray(m_QuadVAO);
+		m_PlaneVAO = m_RenderDevice.ReleaseVertexArray(m_PlaneVAO);
 
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
@@ -108,8 +110,10 @@ namespace LinaEngine::Graphics
 		// Initialize the render context.
 		m_DefaultRenderContext.Construct(m_RenderDevice, m_RenderTarget, m_DefaultDrawParams, text, m_LightingSystem);
 
-		// Initialize skybox vertex array object.
+		// Initialize built-in vertex array objects.
 		m_SkyboxVAO = m_RenderDevice.CreateSkyboxVertexArray();
+		m_QuadVAO = m_RenderDevice.CreateQuadVertexArray();
+		m_PlaneVAO = m_RenderDevice.CreatePlaneVertexArray();
 
 		// Initialize ECS Camera System.
 		Vector2F windowSize = Vector2F(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());

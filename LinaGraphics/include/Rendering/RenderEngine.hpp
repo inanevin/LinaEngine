@@ -245,8 +245,11 @@ namespace LinaEngine::Graphics
 		// Standart Skybox vertex array object.
 		uint32 m_SkyboxVAO;
 
-		// Standart sprite vertex array object.
-		uint32 m_SpriteVAO;
+		// Standart plane VAO
+		uint32 m_PlaneVAO;
+
+		// Quad VAO
+		uint32 m_QuadVAO;
 
 		// Model loader.
 		ModelLoader m_ModelLoader;

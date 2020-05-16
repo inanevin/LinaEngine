@@ -120,12 +120,12 @@ namespace LinaEngine::Graphics
 				m_RenderDevice->SetShader(mat->stencilOutlineShaderID);
 
 				// Copy model matries & scale em up.
-				auto cpy = std::get<0>(it->second);
-				for (int i = 0; i < cpy.size(); i++)
-					cpy[i].scaleBy(mat->stencilThickness);
+				//auto cpy = std::get<0>(it->second);
+				//for (int i = 0; i < cpy.size(); i++)
+					//cpy[i].scaleBy(1);
 
 				// Update the buffer w/ each transform.
-				vertexArray->UpdateBuffer(4, &cpy[0], numTransforms * sizeof(Matrix));
+				//vertexArray->UpdateBuffer(4, &cpy[0], numTransforms * sizeof(Matrix));
 
 				// Set stencil draw params.
 				m_DrawParams->stencilFunc = DrawFunc::DRAW_FUNC_NOT_EQUAL;
@@ -136,6 +136,7 @@ namespace LinaEngine::Graphics
 
 				// Set outline color
 				m_RenderDevice->UpdateShaderUniformColor(it->first.second->stencilOutlineShaderID, MC_OBJECTCOLORPROPERTY, it->first.second->stencilOutlineColor);
+				m_RenderDevice->UpdateShaderUniformFloat(it->first.second->stencilOutlineShaderID, UF_STENCILTHICKNESS, it->first.second->stencilThickness);
 
 				// Draw call.
 				this->Draw(*vertexArray, *m_DrawParams, numTransforms);
@@ -150,7 +151,6 @@ namespace LinaEngine::Graphics
 				m_DrawParams->useStencilTest = true;
 				m_DrawParams->stencilTestMask = 0xFF;
 				m_DrawParams->stencilWriteMask = 0xFF;
-				//m_RenderDevice->SetStencilWriteMask(0x00);
 
 				// Update the buffer w/ each transform.
 				vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));

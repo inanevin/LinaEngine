@@ -98,6 +98,28 @@ namespace LinaEngine::Graphics
 	};
 
 
+	float planeVertices[] = {
+		// positions          // texture Coords 
+		 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+		-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
+		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+
+		 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+		 5.0f, -0.5f, -5.0f,  2.0f, 2.0f
+	};
+
+	float quadVertices[] = {
+		// positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
+		0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+		0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
+		1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+
+		0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+		1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+		1.0f,  0.5f,  0.0f,  1.0f,  0.0f
+	};
+
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 	// GLOBALS DECLARATIONS
@@ -393,6 +415,7 @@ namespace LinaEngine::Graphics
 		return VAO;
 	}
 
+
 	uint32 GLRenderDevice::ReleaseVertexArray(uint32 vao)
 	{
 		// Terminate if vao is null or does not exist in our mapped objects.
@@ -425,6 +448,36 @@ namespace LinaEngine::Graphics
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		return skyboxVAO;
+	}
+
+	uint32 GLRenderDevice::CreateQuadVertexArray()
+	{
+		unsigned int transparentVAO, transparentVBO;
+		glGenVertexArrays(1, &transparentVAO);
+		glGenBuffers(1, &transparentVBO);
+		glBindVertexArray(transparentVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+		glBindVertexArray(0);
+	}
+
+	uint32 GLRenderDevice::CreatePlaneVertexArray()
+	{
+		unsigned int planeVAO, planeVBO;
+		glGenVertexArrays(1, &planeVAO);
+		glGenBuffers(1, &planeVBO);
+		glBindVertexArray(planeVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+		return planeVAO;
 	}
 
 	// ---------------------------------------------------------------------
