@@ -1,0 +1,18 @@
+
+layout (std140, row_major) uniform ViewData
+{
+mat4 projection; 
+mat4 view; 
+vec4 cameraPosition;
+};
+
+layout (std140, row_major) uniform LightData
+{
+int pointLightCount; 
+int spotLightCount;
+};
+ 
+layout (std140, row_major) uniform DebugData 
+{ 
+bool visualizeDepth; 
+};

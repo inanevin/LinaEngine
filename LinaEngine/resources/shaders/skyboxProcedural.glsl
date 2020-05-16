@@ -16,11 +16,10 @@
  */
  
 #include <common.glh>
+#include <uniformBuffers.glh>
 
 #if defined(VS_BUILD)
 layout (location = 0) in vec3 position;
-
-UB_GLOBAL
 
 mat4 viewWOTranslation;
 out vec3 TexCoords;

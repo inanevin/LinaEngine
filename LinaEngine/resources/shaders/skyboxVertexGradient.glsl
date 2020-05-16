@@ -16,11 +16,10 @@
  */
  
 #include <common.glh>
+#include <uniformBuffers.glh>
 
 #if defined(VS_BUILD)
 layout (location = 0) in vec3 position;
-
-UB_GLOBAL
 
 out vec3 rawPosition;
 mat4 viewWOTranslation;
@@ -47,7 +46,6 @@ vec3 endColor;
 };
 
 uniform Material material;
-
 
 void main()
 {    

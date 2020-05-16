@@ -33,17 +33,17 @@ Timestamp: 4/27/2019 11:18:07 PM
 namespace LinaEngine::Graphics
 {
 
-	constexpr size_t UNIFORMBUFFER_GLOBALMATRIX_SIZE = sizeof(Matrix) * 2 + (sizeof(Vector4F) * 4);
-	constexpr int UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT = 0;
-	constexpr auto UNIFORMBUFFER_GLOBALMATRIX_NAME = "GlobalData";
+	constexpr size_t UNIFORMBUFFER_VIEWDATA_SIZE = sizeof(Matrix) * 2 + (sizeof(Vector4F) * 4);
+	constexpr int UNIFORMBUFFER_VIEWDATA_BINDPOINT = 0;
+	constexpr auto UNIFORMBUFFER_VIEWDATA_NAME = "ViewData";
 
-	constexpr size_t UNIFORMBUFFER_LIGHTS_SIZE = (sizeof(int) * 8);
-	constexpr int UNIFORMBUFFER_LIGHTS_BINDPOINT = 1;
-	constexpr auto UNIFORMBUFFER_LIGHTS_NAME = "GlobalLightData";
+	constexpr size_t UNIFORMBUFFER_LIGHTDATA_SIZE = (sizeof(int) * 8);
+	constexpr int UNIFORMBUFFER_LIGHTDATA_BINDPOINT = 1;
+	constexpr auto UNIFORMBUFFER_LIGHTDATA_NAME = "LightData";
 
-	constexpr size_t UNIFORMBUFFER_GLOBALDEBUG_SIZE = (sizeof(bool) * 1);
-	constexpr int UNIFORMBUFFER_GLOBALDEBUG_BINDPOINT = 2;
-	constexpr auto UNIFORMBUFFER_GLOBALDEBUG_NAME = "GlobalDebugData";
+	constexpr size_t UNIFORMBUFFER_DEBUGDATA_SIZE = (sizeof(bool) * 1);
+	constexpr int UNIFORMBUFFER_DEBUGDATA_BINDPOINT = 2;
+	constexpr auto UNIFORMBUFFER_DEBUGDATA_NAME = "DebugData";
 
 	RenderEngine::RenderEngine()
 	{
@@ -68,16 +68,16 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.Initialize(m_LightingSystem, m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
 
 		// Construct the uniform buffer for global matrices.
-		m_GlobalDataBuffer.Construct(m_RenderDevice, UNIFORMBUFFER_GLOBALMATRIX_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
-		m_GlobalDataBuffer.Bind(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT);
+		m_GlobalDataBuffer.Construct(m_RenderDevice, UNIFORMBUFFER_VIEWDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
+		m_GlobalDataBuffer.Bind(UNIFORMBUFFER_VIEWDATA_BINDPOINT);
 
 		// Construct the uniform buffer for lights.
-		m_GlobalLightBuffer.Construct(m_RenderDevice, UNIFORMBUFFER_LIGHTS_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
-		m_GlobalLightBuffer.Bind(UNIFORMBUFFER_LIGHTS_BINDPOINT);
+		m_GlobalLightBuffer.Construct(m_RenderDevice, UNIFORMBUFFER_LIGHTDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
+		m_GlobalLightBuffer.Bind(UNIFORMBUFFER_LIGHTDATA_BINDPOINT);
 
 		// Construct the uniform buffer for debugging.
-		m_GlobalDebugBuffer.Construct(m_RenderDevice, UNIFORMBUFFER_GLOBALDEBUG_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
-		m_GlobalDebugBuffer.Bind(UNIFORMBUFFER_GLOBALDEBUG_BINDPOINT);
+		m_GlobalDebugBuffer.Construct(m_RenderDevice, UNIFORMBUFFER_DEBUGDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
+		m_GlobalDebugBuffer.Bind(UNIFORMBUFFER_DEBUGDATA_BINDPOINT);
 
 		// Initialize the engine shaders.
 		ConstructEngineShaders();
@@ -397,19 +397,19 @@ namespace LinaEngine::Graphics
 	{
 		// Unlit.
 		Shader& unlit = CreateShader(Shaders::STANDARD_UNLIT, "resources/shaders/basicStandardUnlit.glsl");
-		unlit.BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
-		unlit.BindBlockToBuffer(UNIFORMBUFFER_GLOBALDEBUG_BINDPOINT, UNIFORMBUFFER_GLOBALDEBUG_NAME);
+		unlit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		unlit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
 		Shader& lit = CreateShader(Shaders::STANDARD_LIT, "resources/shaders/basicStandardLit.glsl");
-		lit.BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
-		lit.BindBlockToBuffer(UNIFORMBUFFER_LIGHTS_BINDPOINT, UNIFORMBUFFER_LIGHTS_NAME);
-		lit.BindBlockToBuffer(UNIFORMBUFFER_GLOBALDEBUG_BINDPOINT, UNIFORMBUFFER_GLOBALDEBUG_NAME);
+		lit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		lit.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
+		lit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
 		// Skies
 		CreateShader(Shaders::SKYBOX_SINGLECOLOR, "resources/shaders/skyboxSingleColor.glsl");
-		CreateShader(Shaders::SKYBOX_GRADIENT, "resources/shaders/skyboxVertexGradient.glsl").BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
-		CreateShader(Shaders::SKYBOX_CUBEMAP, "resources/shaders/skyboxCubemap.glsl").BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
-		CreateShader(Shaders::SKYBOX_PROCEDURAL, "resources/shaders/skyboxProcedural.glsl").BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+		CreateShader(Shaders::SKYBOX_GRADIENT, "resources/shaders/skyboxVertexGradient.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SKYBOX_CUBEMAP, "resources/shaders/skyboxCubemap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SKYBOX_PROCEDURAL, "resources/shaders/skyboxProcedural.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 	}
 
 	void RenderEngine::DumpMemory()

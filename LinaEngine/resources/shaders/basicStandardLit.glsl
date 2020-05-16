@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Inan Evin - Thanks to the contributions of Benny Bobaganoosh
+ * Copyright (C) 2019 Inan Evin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
  
 #include "common.glh"
+#include <uniformBuffers.glh>
 
 varying vec2 texCoord0;
 
@@ -24,8 +25,6 @@ Layout(1) attribute vec2 texCoord;
 Layout(2) attribute vec3 normal;
 Layout(4) attribute mat4 model;
 Layout(8) attribute mat4 inverseTransposeModel;
-
-UB_GLOBAL
 
 out vec2 TexCoords;
 out vec3 Normal;
@@ -42,10 +41,6 @@ void main()
 #elif defined(FS_BUILD)
 
 #include "lighting.glh"
-
-UB_GLOBAL
-UB_GLOBAL_LIGHT
-UB_GLOBAL_DEBUG
 
 struct Material
 {

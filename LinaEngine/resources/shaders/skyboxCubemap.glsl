@@ -15,18 +15,13 @@
  */
  
 #include <common.glh>
+#include <uniformBuffers.glh>
 
 #if defined(VS_BUILD)
 layout (location = 0) in vec3 position;
 Layout(1) attribute vec2 texCoord;
 
 out vec3 TexCoords;
-
-layout (std140, row_major) uniform GlobalMatrices
-{
-	mat4 projection;
-	mat4 view;
-};
 
 mat4 viewWOTranslation;
 
