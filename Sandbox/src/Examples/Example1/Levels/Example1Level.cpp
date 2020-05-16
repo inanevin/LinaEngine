@@ -178,8 +178,10 @@ void Example1Level::Initialize()
 	objectLitMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, &crateSpecTexture, 1);
 	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(0, 0, 1));
 	objectUnlitMaterial2->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 0, 0));
-	objectLitMaterial->useStencilOutline = true;
+	objectLitMaterial->useStencilOutline = false;
 	objectLitMaterial->stencilOutlineShaderID = m_RenderEngine->GetShader(Shaders::STENCIL_OUTLINE).GetID();
+	objectLitMaterial->stencilOutlineColor = Colors::Green;
+	objectLitMaterial->stencilThickness = 1.12f;
 
 	object1Renderer.mesh = &cubeMesh;
 	object1Renderer.material = objectLitMaterial;

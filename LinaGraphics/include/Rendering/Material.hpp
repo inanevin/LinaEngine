@@ -132,6 +132,8 @@ namespace LinaEngine::Graphics
 
 		bool useStencilOutline = false;
 		uint32 stencilOutlineShaderID;
+		Color stencilOutlineColor;
+		float stencilThickness;
 
 	private:
 

@@ -57,6 +57,6 @@ void main()
 		fragColor = vec4(vec3(depth), 1);
 	}
 	else
-		fragColor = vec4(vec3(0.6,0.0,0.0), 1);
+		fragColor = vec4(vec3(material.objectColor), 1);
 }
 #endif

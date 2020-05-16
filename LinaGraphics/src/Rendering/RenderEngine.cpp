@@ -98,6 +98,9 @@ namespace LinaEngine::Graphics
 		m_SkyboxDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
 		m_SkyboxDrawParams.shouldWriteDepth = true;
 		m_SkyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
+		m_SkyboxDrawParams.useStencilTest = true;
+		m_SkyboxDrawParams.stencilWriteMask = 0xFF;
+		m_SkyboxDrawParams.stencilTestMask = 0XFF;
 
 		// Create a default texture for render context.
 		Texture& text = CreateTexture("resources/textures/defaultDiffuse.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
@@ -132,22 +135,20 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Tick(float delta)
 	{
-
 		// Clear color.
 		m_DefaultRenderContext.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 
+		// Draw skybox.
+		DrawSkybox();
+
 		// Update pipeline.
 		m_RenderingPipeline.UpdateSystems(delta);
-
 
 		// Draw scene.
 		m_DefaultRenderContext.Flush();
 
 		// Update uniform buffers on GPU
 		UpdateUniformBuffers();
-
-		// Draw skybox.
-	//	DrawSkybox();
 
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
