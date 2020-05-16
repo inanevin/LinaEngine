@@ -124,7 +124,7 @@ namespace LinaEngine::Graphics
 		m_RenderingPipeline.AddSystem(m_LightingSystem);
 
 		// Set debug values.
-		m_DebugData.visualizeDepth = true;
+		m_DebugData.visualizeDepth = false;
 
 	}
 
@@ -411,6 +411,9 @@ namespace LinaEngine::Graphics
 		CreateShader(Shaders::SKYBOX_GRADIENT, "resources/shaders/skyboxVertexGradient.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		CreateShader(Shaders::SKYBOX_CUBEMAP, "resources/shaders/skyboxCubemap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		CreateShader(Shaders::SKYBOX_PROCEDURAL, "resources/shaders/skyboxProcedural.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+
+		// Others
+		CreateShader(Shaders::SINGLE_COLOR, "resources/shaders/singleColor.glsl");
 	}
 
 	void RenderEngine::DumpMemory()
@@ -516,6 +519,10 @@ namespace LinaEngine::Graphics
 		else if (shader == Shaders::SKYBOX_CUBEMAP)
 		{
 			material.samplers[MC_DIFFUSETEXTUREPROPERTY] = 0;
+		}
+		else if (shader == Shaders::SINGLE_COLOR)
+		{
+			material.colors[MC_OBJECTCOLORPROPERTY] = Colors::White;
 		}
 
 		return material;

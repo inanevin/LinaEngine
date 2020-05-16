@@ -169,6 +169,7 @@ void Example1Level::Initialize()
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
 	objectUnlitMaterial2 = &m_RenderEngine->CreateMaterial("object4Material", Shaders::STANDARD_UNLIT);
 
+
 	// Create texture for example mesh.
 	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
 	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());

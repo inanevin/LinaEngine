@@ -188,7 +188,8 @@ namespace LinaEngine::Graphics
 		SKYBOX_SINGLECOLOR = 2,
 		SKYBOX_GRADIENT = 3,
 		SKYBOX_CUBEMAP = 4,
-		SKYBOX_PROCEDURAL = 5
+		SKYBOX_PROCEDURAL = 5,
+		SINGLE_COLOR = 6
 	};
 
 	struct RenderingDebugData

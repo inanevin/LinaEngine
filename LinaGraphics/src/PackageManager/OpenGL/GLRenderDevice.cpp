@@ -743,7 +743,6 @@ namespace LinaEngine::Graphics
 		// No need to draw nothin dude.
 		if (numInstances == 0) return;
 
-
 		// Bind the render targets.
 		SetFBO(fbo);
 
