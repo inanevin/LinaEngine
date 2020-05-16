@@ -8,8 +8,8 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 
 http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
 Class: Texture
@@ -32,7 +32,7 @@ namespace LinaEngine::Graphics
 {
 	class ArrayBitmap;
 	class DDSTexture;
-	
+
 	class Texture
 	{
 
@@ -41,9 +41,9 @@ namespace LinaEngine::Graphics
 		Texture() {};
 		~Texture();
 
-		void Construct(RenderDevice& deviceIn, const class ArrayBitmap& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress, SamplerData samplerData = SamplerData());
-		void Construct(RenderDevice& deviceIn, const DDSTexture& ddsTexture, SamplerData samplerData = SamplerData());
-		void Construct(RenderDevice& deviceIn, const LinaArray<class ArrayBitmap*>& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress, SamplerData samplerData = SamplerData());
+		Texture& Construct(RenderDevice& deviceIn, const class ArrayBitmap& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress, SamplerData samplerData = SamplerData());
+		Texture& Construct(RenderDevice& deviceIn, const DDSTexture& ddsTexture, SamplerData samplerData = SamplerData());
+		Texture& Construct(RenderDevice& deviceIn, const LinaArray<class ArrayBitmap*>& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress, SamplerData samplerData = SamplerData());
 
 		FORCEINLINE uint32 GetID() const { return m_ID; };
 		FORCEINLINE uint32 GetSamplerID() const { return m_Sampler.GetID(); }
@@ -51,9 +51,9 @@ namespace LinaEngine::Graphics
 		FORCEINLINE uint32 GetHeight() const { return m_Height; }
 		FORCEINLINE bool IsCompressed() const { return isCompressed; }
 		FORCEINLINE bool HasMipmaps() const { return hasMipMaps; }
-		
+
 	private:
-		
+
 		Sampler m_Sampler;
 		RenderDevice* renderDevice = nullptr;
 		uint32 m_ID = 0;

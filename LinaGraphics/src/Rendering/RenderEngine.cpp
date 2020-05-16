@@ -91,11 +91,10 @@ namespace LinaEngine::Graphics
 		m_SkyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
 
 		// Create a default texture for render context.
-		Texture* text;
-		CreateTexture("defaultDiffuse", "resources/textures/defaultDiffuse.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &text);
+		Texture& text = CreateTexture("resources/textures/defaultDiffuse.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
 
 		// Initialize the render context.
-		m_DefaultRenderContext.Construct(m_RenderDevice, m_RenderTarget, m_DefaultDrawParams, *text, m_LightingSystem);
+		m_DefaultRenderContext.Construct(m_RenderDevice, m_RenderTarget, m_DefaultDrawParams, text, m_LightingSystem);
 
 		// Initialize skybox vertex array object.
 		m_SkyboxVAO = m_RenderDevice.CreateSkyboxVertexArray();
@@ -115,7 +114,7 @@ namespace LinaEngine::Graphics
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
 		m_RenderingPipeline.AddSystem(m_MeshRendererSystem);
 		m_RenderingPipeline.AddSystem(m_LightingSystem);
-	
+
 	}
 
 
@@ -155,7 +154,7 @@ namespace LinaEngine::Graphics
 		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 	}
 
-	Material& RenderEngine::CreateMaterial(const std::string & materialName, Shaders shader)
+	Material& RenderEngine::CreateMaterial(const std::string& materialName, Shaders shader)
 	{
 		if (!MaterialExists(materialName))
 		{
@@ -165,44 +164,39 @@ namespace LinaEngine::Graphics
 		else
 		{
 			// Abort if material exists.
-			LINA_CORE_ERR("Material with the name {0} already exists, returning un-constructed material.", materialName);
-			return Material();
+			LINA_CORE_ERR("Material with the name {0} already exists, returning that...", materialName);
+			return m_LoadedMaterials[materialName];
 		}
 	}
 
-	void RenderEngine::CreateTexture(const std::string & textureName, const std::string & filePath, PixelFormat pixelFormat, bool generateMipmaps, bool compress, SamplerData samplerData, Texture** refPointer)
+	Texture& RenderEngine::CreateTexture(const std::string& filePath, PixelFormat pixelFormat, bool generateMipmaps, bool compress, SamplerData samplerData)
 	{
-		if (!TextureExists(textureName))
+		if (!TextureExists(filePath))
 		{
 			// Create pixel data.
 			ArrayBitmap* textureBitmap = new ArrayBitmap();
 			textureBitmap->Load(filePath);
 
 			// Create texture & construct.
-			m_LoadedTextures[textureName].Construct(m_RenderDevice, *textureBitmap, pixelFormat, generateMipmaps, compress, samplerData);
-
-			// Set pointer that was sent in.
-			if (refPointer != nullptr)
-				* refPointer = &m_LoadedTextures[textureName];
+			m_LoadedTextures[filePath].Construct(m_RenderDevice, *textureBitmap, pixelFormat, generateMipmaps, compress, samplerData);
 
 			// Delete pixel data.
 			delete textureBitmap;
+
+			// Return
+			return m_LoadedTextures[filePath];
 		}
 		else
 		{
-			// Set pointer that was sent in.
-			if (refPointer != nullptr)
-				* refPointer = &m_LoadedTextures[textureName];
-
 			// Texture with this name already exists!
-			LINA_CORE_ERR("Texture with the name {0} already exists, aborting...", textureName);
-			return;
+			LINA_CORE_ERR("Texture with the path {0} already exists, returning that...", filePath);
+			return m_LoadedTextures[filePath];
 		}
 	}
 
-	void RenderEngine::CreateTexture(const std::string & textureName, const std::string filePaths[6], PixelFormat pixelFormat, bool generateMipmaps, bool compress,SamplerData samplerData, Texture** refPointer)
+	Texture& RenderEngine::CreateTexture(const std::string filePaths[6], PixelFormat pixelFormat, bool generateMipmaps, bool compress, SamplerData samplerData)
 	{
-		if (!TextureExists(textureName))
+		if (!TextureExists(filePaths[0]))
 		{
 			LinaArray<ArrayBitmap*> bitmaps;
 
@@ -215,71 +209,61 @@ namespace LinaEngine::Graphics
 			}
 
 			// Create texture & construct.
-			m_LoadedTextures[textureName].Construct(m_RenderDevice, bitmaps, pixelFormat, generateMipmaps, compress, samplerData);
-
-			// Set pointer that was sent in.
-			if (refPointer != nullptr)
-				* refPointer = &m_LoadedTextures[textureName];
+			Texture& texture = m_LoadedTextures[filePaths[0]].Construct(m_RenderDevice, bitmaps, pixelFormat, generateMipmaps, compress, samplerData);
 
 			// Delete pixel data.
 			for (uint32 i = 0; i < bitmaps.size(); i++)
 				delete bitmaps[i];
 
+			// Clear list.
 			bitmaps.clear();
+
+			// Return
+			return texture;
 		}
 		else
 		{
-			// Set pointer that was sent in.
-			if (refPointer != nullptr)
-				* refPointer = &m_LoadedTextures[textureName];
-
 			// Texture with this name already exists!
-			LINA_CORE_ERR("Texture with the name {0} already exists, aborting...", textureName);
-			return;
+			LINA_CORE_ERR("Texture with the path {0} already exists, returning that...", filePaths[0]);
+			return m_LoadedTextures[filePaths[0]];
 		}
 	}
 
-	void RenderEngine::CreateMesh(const std::string & meshName, const std::string & filePath, Mesh * *refPointer)
+	Mesh& RenderEngine::CreateMesh(const std::string& filePath)
 	{
-		if (!MeshExists(meshName))
+		if (!MeshExists(filePath))
 		{
 
 			// Create object data & feed it from model.
-			m_ModelLoader.LoadModels(filePath, m_LoadedMeshes[meshName].GetIndexedModels(), m_LoadedMeshes[meshName].GetMaterialIndices(), m_LoadedMeshes[meshName].GetMaterialSpecs());
+			Mesh& mesh = m_LoadedMeshes[filePath];
+			m_ModelLoader.LoadModels(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs());
 
-			m_LoadedMeshes[meshName].GetIndexedModels();
-			if (m_LoadedMeshes[meshName].GetIndexedModels().size() == 0)
+			mesh.GetIndexedModels();
+			if (mesh.GetIndexedModels().size() == 0)
 				LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! This will cause undefined behaviour or crashes if it is assigned to a ECS MeshRendererComponent."
 					, filePath);
 
 			// Create vertex array for each mesh.
-			for (uint32 i = 0; i < m_LoadedMeshes[meshName].GetIndexedModels().size(); i++)
+			for (uint32 i = 0; i < mesh.GetIndexedModels().size(); i++)
 			{
 				VertexArray* vertexArray = new VertexArray();
-				vertexArray->Construct(m_RenderDevice, m_LoadedMeshes[meshName].GetIndexedModels()[i], BufferUsage::USAGE_STATIC_COPY);
-				m_LoadedMeshes[meshName].GetVertexArrays().push_back(vertexArray);
+				vertexArray->Construct(m_RenderDevice, mesh.GetIndexedModels()[i], BufferUsage::USAGE_STATIC_COPY);
+				mesh.GetVertexArrays().push_back(vertexArray);
 			}
 
-
-			// Set pointer that was sent in.
-			if (refPointer != nullptr)
-				* refPointer = &m_LoadedMeshes[meshName];
-
+			// Return
+			return m_LoadedMeshes[filePath];
 		}
 		else
 		{
-			// Set pointer that was sent in.
-			if (refPointer != nullptr)
-				* refPointer = &m_LoadedMeshes[meshName];
-
 			// Mesh with this name already exists!
-			LINA_CORE_ERR("Mesh with the name {0} already exists, aborting...", meshName);
-			return;
+			LINA_CORE_ERR("Mesh with the name {0} already exists, returning that...", filePath);
+			return m_LoadedMeshes[filePath];
 		}
 
 	}
 
-	Shader& RenderEngine::CreateShader(Shaders shader, const std::string & path)
+	Shader& RenderEngine::CreateShader(Shaders shader, const std::string& path)
 	{
 		// Create shader
 		if (!ShaderExists(shader))
@@ -291,43 +275,43 @@ namespace LinaEngine::Graphics
 		else
 		{
 			// Shader with this name already exists!
-			LINA_CORE_ERR("Shader with the id {0} already exists, returning un-constructed shader", shader);
-			return Shader();
+			LINA_CORE_WARN("Shader with the id {0} already exists, returning that...", shader);
+			return m_LoadedShaders[shader];
 		}
 	}
 
 
-	Material& RenderEngine::GetMaterial(const std::string & materialName)
+	Material& RenderEngine::GetMaterial(const std::string& materialName)
 	{
 		if (!MaterialExists(materialName))
 		{
 			// Mesh not found.
-			LINA_CORE_ERR("Material with the name {0} was not found, returning dummy object", materialName);
-			return m_DummyMaterial;
+			LINA_CORE_ERR("Material with the name {0} was not found, returning un-constructed material...", materialName);
+			return Material();
 		}
 
-		return m_LoadedMaterials.at(materialName);
+		return m_LoadedMaterials[materialName];
 	}
 
-	Texture& RenderEngine::GetTexture(const std::string & textureName)
+	Texture& RenderEngine::GetTexture(const std::string& textureName)
 	{
 		if (!TextureExists(textureName))
 		{
 			// Mesh not found.
-			LINA_CORE_ERR("Texture with the name {0} was not found, returning dummy object", textureName);
-			return m_DummyTexture;
+			LINA_CORE_ERR("Texture with the name {0} was not found, returning un-constructed texture...", textureName);
+			return Texture();
 		}
 
 		return m_LoadedTextures[textureName];
 	}
 
-	Mesh& RenderEngine::GetMesh(const std::string & meshName)
+	Mesh& RenderEngine::GetMesh(const std::string& meshName)
 	{
 		if (!MeshExists(meshName))
 		{
 			// Mesh not found.
-			LINA_CORE_ERR("Mesh with the name {0} was not found, returning dummy object", meshName);
-			return m_DummyMesh;
+			LINA_CORE_ERR("Mesh with the name {0} was not found, returning un-constructed mesh...", meshName);
+			return Mesh();
 		}
 
 		return m_LoadedMeshes[meshName];
@@ -345,7 +329,7 @@ namespace LinaEngine::Graphics
 		return m_LoadedShaders[shader];
 	}
 
-	void RenderEngine::UnloadTextureResource(const std::string & textureName)
+	void RenderEngine::UnloadTextureResource(const std::string& textureName)
 	{
 		if (!TextureExists(textureName))
 		{
@@ -356,7 +340,7 @@ namespace LinaEngine::Graphics
 		m_LoadedTextures.erase(textureName);
 	}
 
-	void RenderEngine::UnloadMeshResource(const std::string & meshName)
+	void RenderEngine::UnloadMeshResource(const std::string& meshName)
 	{
 		if (!MeshExists(meshName))
 		{
@@ -367,7 +351,7 @@ namespace LinaEngine::Graphics
 		m_LoadedMeshes.erase(meshName);
 	}
 
-	void RenderEngine::UnloadMaterialResource(const std::string & materialName)
+	void RenderEngine::UnloadMaterialResource(const std::string& materialName)
 	{
 		if (!MaterialExists(materialName))
 		{
@@ -378,17 +362,17 @@ namespace LinaEngine::Graphics
 		m_LoadedMaterials.erase(materialName);
 	}
 
-	bool RenderEngine::MaterialExists(const std::string & materialName)
+	bool RenderEngine::MaterialExists(const std::string& materialName)
 	{
 		return !(m_LoadedMaterials.find(materialName) == m_LoadedMaterials.end());
 	}
 
-	bool RenderEngine::TextureExists(const std::string & textureName)
+	bool RenderEngine::TextureExists(const std::string& textureName)
 	{
 		return !(m_LoadedTextures.find(textureName) == m_LoadedTextures.end());
 	}
 
-	bool RenderEngine::MeshExists(const std::string & meshName)
+	bool RenderEngine::MeshExists(const std::string& meshName)
 	{
 		return !(m_LoadedMeshes.find(meshName) == m_LoadedMeshes.end());
 	}
@@ -450,7 +434,7 @@ namespace LinaEngine::Graphics
 
 	}
 
-	Material& RenderEngine::SetMaterialShader(Material & material, Shaders shader)
+	Material& RenderEngine::SetMaterialShader(Material& material, Shaders shader)
 	{
 
 		// If no shader found, fall back to standardLit

@@ -108,56 +108,56 @@ namespace LinaEngine::Graphics
 
 		/// <summary> Creates a material resource with a specific shader. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing material. </param>
-		Material& CreateMaterial(const std::string & materialName, Shaders shader);
+		Material& CreateMaterial(const std::string& materialName, Shaders shader);
 
 		/// <summary> Creates a texture resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing texture. </param>
-		void CreateTexture(const std::string & textureName, const std::string & filePath, PixelFormat pixelFormat = PixelFormat::FORMAT_RGB, bool generateMipmaps = true, bool compress = false,SamplerData samplerData = SamplerData(), Texture * *refPointer = nullptr);
+		Texture& CreateTexture(const std::string& filePath, PixelFormat pixelFormat = PixelFormat::FORMAT_RGB, bool generateMipmaps = true, bool compress = false, SamplerData samplerData = SamplerData());
 
 		/// <summary> Creates a cubemap texture resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing cube map texture. </param>
-		void CreateTexture(const std::string & textureName, const std::string filePath[6], PixelFormat pixelFormat = PixelFormat::FORMAT_RGB, bool generateMipmaps = true, bool compress = false, SamplerData samplerData = SamplerData(), Texture** refPointer = nullptr);
+		Texture& CreateTexture(const std::string filePath[6], PixelFormat pixelFormat = PixelFormat::FORMAT_RGB, bool generateMipmaps = true, bool compress = false, SamplerData samplerData = SamplerData());
 
 		/// <summary> Creates a mesh resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing mesh. </param>
-		void CreateMesh(const std::string & meshName, const std::string & filePath, Mesh** refPointer = nullptr);
+		Mesh& CreateMesh(const std::string& filePath);
 
 		/// <summary> Creates a shader resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing shader. </param>
 		Shader& CreateShader(Shaders shader, const std::string& path);
 
 		// Returns a material resource.
-		Material & GetMaterial(const std::string & materialName);
+		Material& GetMaterial(const std::string& materialName);
 
 		// Returns a texture resource
-		Texture & GetTexture(const std::string & textureName);
+		Texture& GetTexture(const std::string& textureName);
 
 		// Returns a mesh resource.
-		Mesh & GetMesh(const std::string & meshName);
+		Mesh& GetMesh(const std::string& meshName);
 
 		// Returns a shader resource.
-		Shader & GetShader(Shaders shader);
+		Shader& GetShader(Shaders shader);
 
 		// Removes the targeted resource from resource map.
-		void UnloadTextureResource(const std::string & textureName);
+		void UnloadTextureResource(const std::string& textureName);
 
 		// Removes the targeted resource from resource map.
-		void UnloadMeshResource(const std::string & meshName);
+		void UnloadMeshResource(const std::string& meshName);
 
 		// Removes the targeted resource from resource map.
-		void UnloadMaterialResource(const std::string & materialName);
+		void UnloadMaterialResource(const std::string& materialName);
 
 		// Returns whether a material/texture/mesh/shader exists or not.
-		bool MaterialExists(const std::string & materialName);
-		bool TextureExists(const std::string & textureName);
-		bool MeshExists(const std::string & meshName);
+		bool MaterialExists(const std::string& materialName);
+		bool TextureExists(const std::string& textureName);
+		bool MeshExists(const std::string& meshName);
 		bool ShaderExists(Shaders shader);
 
 		// Sets the shader of a material to the shader specified by name. Also resets material properties based on the shader, caution!
-		Material& SetMaterialShader(Material & material, Shaders shader);
+		Material& SetMaterialShader(Material& material, Shaders shader);
 
 		// Sets the skybox material.
-		FORCEINLINE void SetSkyboxMaterial(Material & skyboxMaterial) { m_SkyboxMaterial = &skyboxMaterial; }
+		FORCEINLINE void SetSkyboxMaterial(Material& skyboxMaterial) { m_SkyboxMaterial = &skyboxMaterial; }
 
 		// Pushes a new layer into the gui stack.
 		void PushLayer(Layer* layer);
@@ -236,10 +236,6 @@ namespace LinaEngine::Graphics
 		// Material used to draw skybox.
 		Material* m_SkyboxMaterial = nullptr;
 
-		// Dummy material, mesh and texture to return if none is found while trying to get one of them.
-		Material m_DummyMaterial;
-		Mesh m_DummyMesh;
-		Texture m_DummyTexture;
 
 	private:
 

@@ -65,8 +65,7 @@ namespace LinaEngine::Graphics
 
 		if (data->receivesLighting)
 			m_LightingSystem->SetLightingShaderData(data->GetShaderID());
-		else
-			m_LightingSystem->ResetLightData();
+
 
 	}
 

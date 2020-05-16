@@ -28,7 +28,7 @@ namespace LinaEngine::Graphics
 		m_ID = renderDevice->ReleaseTexture2D(m_ID);
 	}
 
-	void Texture::Construct(RenderDevice & deviceIn, const ArrayBitmap & data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress, SamplerData samplerData)
+	Texture& Texture::Construct(RenderDevice& deviceIn, const ArrayBitmap& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress, SamplerData samplerData)
 	{
 		renderDevice = &deviceIn;
 		m_Sampler.Construct(deviceIn, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapU, samplerData.wrapV, samplerData.anisotropy);
@@ -37,9 +37,10 @@ namespace LinaEngine::Graphics
 		m_Height = (uint32)data.GetHeight();
 		isCompressed = shouldCompress;
 		hasMipMaps = generateMipMaps;
+		return *this;
 	}
 
-	void Texture::Construct(RenderDevice & deviceIn, const DDSTexture & ddsTexture, SamplerData samplerData)
+	Texture& Texture::Construct(RenderDevice& deviceIn, const DDSTexture& ddsTexture, SamplerData samplerData)
 	{
 		renderDevice = &deviceIn;
 		m_Sampler.Construct(deviceIn, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapU, samplerData.wrapV, samplerData.anisotropy);
@@ -48,14 +49,15 @@ namespace LinaEngine::Graphics
 		m_Height = ddsTexture.GetHeight();
 		isCompressed = true;
 		hasMipMaps = ddsTexture.GetMipMapCount() > 1;
+		return *this;
 	}
 
-	void Texture::Construct(RenderDevice & deviceIn, const LinaArray<ArrayBitmap*>& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress, SamplerData samplerData)
+	Texture& Texture::Construct(RenderDevice& deviceIn, const LinaArray<ArrayBitmap*>& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress, SamplerData samplerData)
 	{
 		if (data.size() != 6)
 		{
-			LINA_CORE_WARN("Could not construct cubemap texture! ArrayBitmap data size needs to be 6, aborting!");
-			return;
+			LINA_CORE_WARN("Could not construct cubemap texture! ArrayBitmap data size needs to be 6, returning un-constructed texture...");
+			return Texture();
 		}
 
 		m_Sampler.Construct(deviceIn, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapU, samplerData.wrapV, samplerData.anisotropy);
@@ -67,13 +69,13 @@ namespace LinaEngine::Graphics
 
 		for (uint32 i = 0; i < 6; i++)
 			cubeMapData.push_back(data[i]->GetPixelArray());
-		
+
 		m_ID = renderDevice->CreateCubemapTexture(m_Width, m_Height, cubeMapData, 6U, internalPixelFormat, internalPixelFormat, generateMipMaps);
 		isCompressed = shouldCompress;
 		hasMipMaps = generateMipMaps;
 
 		cubeMapData.clear();
-
+		return *this;
 	}
 
 
