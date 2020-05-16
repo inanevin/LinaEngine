@@ -165,6 +165,8 @@ namespace LinaEngine::Graphics
 		// Pushes a new overlay layer into the gui stack.
 		void PushOverlay(Layer* layer);
 
+		// Updates shader uniforms with material data.
+		void UpdateShaderData(Material* mat);
 
 	private:
 
@@ -245,9 +247,6 @@ namespace LinaEngine::Graphics
 		// Standart Skybox vertex array object.
 		uint32 m_SkyboxVAO;
 
-		// Standart plane VAO
-		uint32 m_PlaneVAO;
-
 		// Quad VAO
 		uint32 m_QuadVAO;
 
@@ -263,6 +262,9 @@ namespace LinaEngine::Graphics
 
 		// Debug data
 		RenderingDebugData m_DebugData;
+
+		// Default texture
+		Texture* m_DefaultTexture;
 
 		DISALLOW_COPY_ASSIGN_NEW(RenderEngine);
 	};

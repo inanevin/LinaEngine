@@ -18,14 +18,14 @@
 #include <uniformBuffers.glh>
 #include <utility.glh>
 
-varying vec2 texCoord0;
 
 #if defined(VS_BUILD)
 Layout(0) attribute vec3 position;
 Layout(1) attribute vec2 texCoord;
-Layout(4) attribute mat4 model;
 
 out vec2 TexCoords;
+
+uniform mat4 model;
 
 void main()
 {

@@ -466,20 +466,6 @@ namespace LinaEngine::Graphics
 		return quad;
 	}
 
-	uint32 GLRenderDevice::CreatePlaneVertexArray()
-	{
-		unsigned int planeVAO, planeVBO;
-		glGenVertexArrays(1, &planeVAO);
-		glGenBuffers(1, &planeVBO);
-		glBindVertexArray(planeVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-		return planeVAO;
-	}
 
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------

@@ -190,7 +190,8 @@ namespace LinaEngine::Graphics
 		SKYBOX_GRADIENT = 3,
 		SKYBOX_CUBEMAP = 4,
 		SKYBOX_PROCEDURAL = 5,
-		STENCIL_OUTLINE = 6
+		STENCIL_OUTLINE = 6,
+		TRANSPARENT_QUAD = 7
 	};
 
 	struct RenderingDebugData

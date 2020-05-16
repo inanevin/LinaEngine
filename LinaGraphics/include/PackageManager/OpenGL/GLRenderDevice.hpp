@@ -102,9 +102,6 @@ namespace LinaEngine::Graphics
 		// Creates a quad vertex array.
 		uint32 CreateQuadVertexArray();
 
-		// Creates a plane vertex array.
-		uint32 CreatePlaneVertexArray();
-
 		// Releases a previously created vertex array by id from GL.
 		uint32 ReleaseVertexArray(uint32 vao);
 

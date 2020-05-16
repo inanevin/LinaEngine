@@ -61,7 +61,6 @@ namespace LinaEngine::Graphics
 		// Release Vertex Array Objects
 		m_SkyboxVAO = m_RenderDevice.ReleaseVertexArray(m_SkyboxVAO);
 		m_QuadVAO = m_RenderDevice.ReleaseVertexArray(m_QuadVAO);
-		m_PlaneVAO = m_RenderDevice.ReleaseVertexArray(m_PlaneVAO);
 
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
@@ -105,15 +104,14 @@ namespace LinaEngine::Graphics
 		m_SkyboxDrawParams.stencilTestMask = 0XFF;
 
 		// Create a default texture for render context.
-		Texture& text = CreateTexture("resources/textures/defaultDiffuse.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
+		m_DefaultTexture = &CreateTexture("resources/textures/defaultDiffuse.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
 
 		// Initialize the render context.
-		m_DefaultRenderContext.Construct(m_RenderDevice, m_RenderTarget, m_DefaultDrawParams, text, m_LightingSystem);
+		m_DefaultRenderContext.Construct(*this, m_RenderDevice, m_RenderTarget, m_DefaultDrawParams);
 
 		// Initialize built-in vertex array objects.
 		m_SkyboxVAO = m_RenderDevice.CreateSkyboxVertexArray();
 		m_QuadVAO = m_RenderDevice.CreateQuadVertexArray();
-		m_PlaneVAO = m_RenderDevice.CreatePlaneVertexArray();
 
 		// Initialize ECS Camera System.
 		Vector2F windowSize = Vector2F(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
@@ -424,6 +422,10 @@ namespace LinaEngine::Graphics
 		Shader& singleColor = CreateShader(Shaders::STENCIL_OUTLINE, "resources/shaders/stencilOutline.glsl");
 		singleColor.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		singleColor.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
+
+		Shader& transparentQuad = CreateShader(Shaders::TRANSPARENT_QUAD, "resourceS/shaders/quad.glsl");
+		transparentQuad.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		transparentQuad.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 	}
 
 	void RenderEngine::DumpMemory()
@@ -438,7 +440,7 @@ namespace LinaEngine::Graphics
 	{
 		if (m_SkyboxMaterial != nullptr)
 		{
-			m_DefaultRenderContext.UpdateShaderData(m_SkyboxMaterial);
+			UpdateShaderData(m_SkyboxMaterial);
 			m_DefaultRenderContext.Draw(m_SkyboxVAO, m_SkyboxDrawParams, 1, 36, true);
 		}
 	}
@@ -534,6 +536,10 @@ namespace LinaEngine::Graphics
 		{
 			material.colors[MC_OBJECTCOLORPROPERTY] = Colors::White;
 		}
+		else if (shader == Shaders::TRANSPARENT_QUAD)
+		{
+			material.samplers[MC_DIFFUSETEXTUREPROPERTY] = 0;
+		}
 
 		return material;
 	}
@@ -548,6 +554,50 @@ namespace LinaEngine::Graphics
 	{
 		m_GUILayerStack.PushOverlay(layer);
 		layer->OnAttach();
+	}
+
+	void RenderEngine::UpdateShaderData(Material* data)
+	{
+
+		m_RenderDevice.SetShader(data->GetShaderID());
+
+		for (auto const& d : (*data).floats)
+			m_RenderDevice.UpdateShaderUniformFloat(data->shaderID, d.first, d.second);
+
+		for (auto const& d : (*data).colors)
+			m_RenderDevice.UpdateShaderUniformColor(data->shaderID, d.first, d.second);
+
+		for (auto const& d : (*data).ints)
+			m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first, d.second);
+
+		for (auto const& d : (*data).vector2s)
+			m_RenderDevice.UpdateShaderUniformVector2F(data->shaderID, d.first, d.second);
+
+		for (auto const& d : (*data).vector3s)
+			m_RenderDevice.UpdateShaderUniformVector3F(data->shaderID, d.first, d.second);
+
+		for (auto const& d : (*data).vector4s)
+			m_RenderDevice.UpdateShaderUniformVector4F(data->shaderID, d.first, d.second);
+
+		for (auto const& d : (*data).matrices)
+			m_RenderDevice.UpdateShaderUniformMatrix(data->shaderID, d.first, d.second);
+
+		for (auto const& d : (*data).samplers)
+		{
+			m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first, d.second);
+
+			if ((*data).textures.find(d.first) != (*data).textures.end())
+			{
+				MaterialTextureData* textureData = &(*data).textures[d.first];
+				m_RenderDevice.SetTexture(textureData->texture->GetID(), textureData->texture->GetSamplerID(), textureData->unit, textureData->bindMode, true);
+			}
+			else
+				m_RenderDevice.SetTexture(m_DefaultTexture->GetID(), 0, d.second);
+		}
+
+		if (data->receivesLighting)
+			m_LightingSystem.SetLightingShaderData(data->GetShaderID());
+
 	}
 
 }
