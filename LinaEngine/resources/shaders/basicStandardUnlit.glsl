@@ -24,11 +24,7 @@ Layout(1) attribute vec2 texCoord;
 Layout(4) attribute mat4 model;
 
 
-layout (std140, row_major) uniform GlobalMatrices
-{
-	mat4 projection;
-	mat4 view;
-};
+UB_GLOBAL
 
 out vec2 TexCoords;
 out vec3 FragPos;

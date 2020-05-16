@@ -123,10 +123,9 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-	CreateSingleColorSkybox(m_RenderEngine);
+	CreateProceduralSkybox(m_RenderEngine);
 
-	
-	
+
 	camera.entity = m_ECS->reg.create();
 	
 	auto& camFreeLook = m_ECS->reg.emplace<FreeLookComponent>(camera.entity);
@@ -142,30 +141,29 @@ void Example1Level::Initialize()
 
 
 	// Load example mesh.
-	m_RenderEngine->CreateMesh("cube", "resources/meshes/nanosuit/nanosuit.obj", &cubeMesh);
+	m_RenderEngine->CreateMesh("cube", "resources/meshes/cube.obj", &cubeMesh);
 
 	// Create material for example mesh.
 	objectLitMaterial = &m_RenderEngine->CreateMaterial("object1Material",Shaders::STANDARD_LIT);
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material",Shaders::STANDARD_UNLIT);
 
 	// Create texture for example mesh.
-	m_RenderEngine->CreateTexture("crate", "resources/textures/body_dif.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateTexture);
-	m_RenderEngine->CreateTexture("crateSpec", "resources/textures/body_showroom_spec.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateSpecTexture);
+	m_RenderEngine->CreateTexture("crate", "resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateTexture);
+	m_RenderEngine->CreateTexture("crateSpec", "resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateSpecTexture);
 	objectLitMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, crateTexture, 0);
 	objectLitMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, crateSpecTexture, 1);
-
 
 	// Create a cube object.
 	object1Renderer.mesh = cubeMesh;
 	object1Renderer.material = objectLitMaterial;
-	object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 1.0f));
+	object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
 	object1.entity = m_ECS->reg.create();
 	m_ECS->reg.emplace<TransformComponent>(object1.entity, object1Transform);
 	m_ECS->reg.emplace<MeshRendererComponent>(object1.entity, object1Renderer);
 
 	directionalLight.entity = m_ECS->reg.create();
 	auto& dirLight = m_ECS->reg.emplace<DirectionalLightComponent>(directionalLight.entity);
-	dirLight.ambient = Color(0.52f, 0.52f, 0.52f);
+	dirLight.ambient = Color(0.02f, 0.02f, 0.02f);
 	dirLight.specular = Color(0.1f, 0.1f, 0.1f);
 	dirLight.diffuse = Color(0.2f, 0.2f, 0.2f);
 	dirLight.direction = Vector3F(0,0, 1);

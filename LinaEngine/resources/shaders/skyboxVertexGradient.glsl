@@ -20,11 +20,7 @@
 #if defined(VS_BUILD)
 layout (location = 0) in vec3 position;
 
-layout (std140, row_major) uniform GlobalMatrices
-{
-	mat4 projection;
-	mat4 view;
-};
+UB_GLOBAL
 
 out vec3 rawPosition;
 mat4 viewWOTranslation;
