@@ -16,6 +16,7 @@
  
 #include "common.glh"
 #include <uniformBuffers.glh>
+#include <utility.glh>
 
 varying vec2 texCoord0;
 
@@ -52,7 +53,10 @@ out vec4 fragColor;
 void main()
 {
 	if(visualizeDepth)
-		fragColor = vec4(vec3(gl_FragCoord.z), 1);
+	{
+		float depth = LinearizeDepth(gl_FragCoord.z, cameraFar, cameraNear) / cameraFar;		
+		fragColor = vec4(vec3(depth), 1);
+	}
 	else
 		fragColor = vec4(material.objectColor, 1);
 }

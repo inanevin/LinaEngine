@@ -23,6 +23,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "Rendering/Shader.hpp"
 #include "Rendering/ArrayBitmap.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
+#include "ECS/Components/CameraComponent.hpp"
 #include "ECS/ECS.hpp"
 #include "Utility/Math/Color.hpp"
 #include "Utility/UtilityFunctions.hpp"
@@ -33,7 +34,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 namespace LinaEngine::Graphics
 {
 
-	constexpr size_t UNIFORMBUFFER_VIEWDATA_SIZE = sizeof(Matrix) * 2 + (sizeof(Vector4F) * 4);
+	constexpr size_t UNIFORMBUFFER_VIEWDATA_SIZE = sizeof(Matrix) * 2 + (sizeof(Vector4F) * 4) + (sizeof(float) * 2);
 	constexpr int UNIFORMBUFFER_VIEWDATA_BINDPOINT = 0;
 	constexpr auto UNIFORMBUFFER_VIEWDATA_NAME = "ViewData";
 
@@ -436,9 +437,21 @@ namespace LinaEngine::Graphics
 		Vector4F viewPos = Vector4F(cameraLocation.GetX(), cameraLocation.GetY(), cameraLocation.GetZ(), 1.0f);
 
 		// Update global matrix buffer
-		m_GlobalDataBuffer.Update(&m_CameraSystem.GetProjectionMatrix(), 0, sizeof(Matrix));
-		m_GlobalDataBuffer.Update(&m_CameraSystem.GetViewMatrix(), sizeof(Matrix), sizeof(Matrix));
-		m_GlobalDataBuffer.Update(&viewPos, sizeof(Matrix) * 2, sizeof(Vector4F));
+		uintptr currentGlobalDataOffset = 0;
+		m_GlobalDataBuffer.Update(&m_CameraSystem.GetProjectionMatrix(), currentGlobalDataOffset, sizeof(Matrix));
+		currentGlobalDataOffset += sizeof(Matrix);
+
+		m_GlobalDataBuffer.Update(&m_CameraSystem.GetViewMatrix(), currentGlobalDataOffset, sizeof(Matrix));
+		currentGlobalDataOffset += sizeof(Matrix);
+
+		m_GlobalDataBuffer.Update(&viewPos, currentGlobalDataOffset, sizeof(Vector4F));
+		currentGlobalDataOffset += sizeof(Vector4F);
+
+		m_GlobalDataBuffer.Update(&m_CameraSystem.GetCurrentCameraComponent().zNear,  currentGlobalDataOffset, sizeof(float));
+		currentGlobalDataOffset += sizeof(float);
+
+		m_GlobalDataBuffer.Update(&m_CameraSystem.GetCurrentCameraComponent().zFar, currentGlobalDataOffset, sizeof(float));
+		currentGlobalDataOffset += sizeof(float);
 
 		// Update lights buffer.
 		m_GlobalLightBuffer.Update(&m_CurrentPointLightCount, 0, sizeof(int));

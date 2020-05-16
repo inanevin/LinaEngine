@@ -4,6 +4,8 @@ layout (std140, row_major) uniform ViewData
 mat4 projection; 
 mat4 view; 
 vec4 cameraPosition;
+float cameraNear;
+float cameraFar;
 };
 
 layout (std140, row_major) uniform LightData

@@ -67,6 +67,7 @@ namespace LinaEngine::ECS
 		// Get clear color of the current camera.
 		Color& GetCurrentClearColor();
 
+		FORCEINLINE CameraComponent& GetCurrentCameraComponent() { return *m_CurrentCameraComponent; }
 	private:
 
 		LinaEngine::Graphics::RenderContext* context = nullptr;
