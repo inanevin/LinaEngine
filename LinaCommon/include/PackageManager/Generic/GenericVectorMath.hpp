@@ -239,9 +239,50 @@ namespace LinaEngine
 			return Make(x, y, z, w);
 		}
 
+
 		FORCEINLINE float* GetFirst()
 		{
 			return &v[0];
+		}
+
+		FORCEINLINE void SetX(float val)
+		{
+			v[0] = val;
+		}
+
+		FORCEINLINE void SetY(float val)
+		{
+			v[1] = val;
+		}
+
+		FORCEINLINE void SetZ(float val)
+		{
+			v[2] = val;
+		}
+
+		FORCEINLINE void SetW(float val)
+		{
+			v[3] = val;
+		}
+
+		FORCEINLINE float GetX()
+		{
+			return v[0];
+		}
+
+		FORCEINLINE float GetY()
+		{
+			return v[1];
+		}
+
+		FORCEINLINE float GetZ()
+		{
+			return v[2];
+		}
+
+		FORCEINLINE float GetW()
+		{
+			return v[3];
 		}
 
 		FORCEINLINE GenericVector Replicate(uint32 index) const

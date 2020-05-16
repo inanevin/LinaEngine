@@ -93,15 +93,77 @@ namespace LinaEngine::Graphics
 
 			if (numTransforms == 0) continue;
 
-			// Update the buffer w/ each transform.
-			vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
-			vertexArray->UpdateBuffer(5, inverseTransposeModels, numTransforms * sizeof(Matrix));
 
-			UpdateShaderData(it->first.second);
+			// Draw for stencil outlining.
+			if (it->first.second->useStencilOutline)
+			{
 
-			// Draw call.
-			this->Draw(*vertexArray, *m_DrawParams, numTransforms);
+				m_DrawParams->useStencilTest = true;
+				m_DrawParams->stencilFail = StencilOp::STENCIL_KEEP;
+				m_DrawParams->stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+				m_DrawParams->stencilPass = StencilOp::STENCIL_REPLACE;
+				m_DrawParams->stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
+				m_DrawParams->stencilComparisonVal = 1;
+				m_DrawParams->stencilTestMask = 0xFF;
+				m_DrawParams->stencilWriteMask = 0xFF;
+				m_DrawParams->shouldWriteDepth = true;
 
+				// Update the buffer w/ each transform.
+				vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
+				vertexArray->UpdateBuffer(5, inverseTransposeModels, numTransforms * sizeof(Matrix));
+
+				UpdateShaderData(it->first.second);
+
+				// Draw call.
+				this->Draw(*vertexArray, *m_DrawParams, numTransforms);
+
+				m_RenderDevice->SetShader(it->first.second->stencilOutlineShaderID);
+
+				auto cpy = std::get<0>(it->second);
+
+				for (int i = 0; i < cpy.size(); i++)
+					cpy[i].scaleBy(1.2f);
+
+				// Update the buffer w/ each transform.
+				vertexArray->UpdateBuffer(4, &cpy[0], numTransforms * sizeof(Matrix));
+
+
+				m_DrawParams->useStencilTest = true;
+				m_DrawParams->stencilFail = StencilOp::STENCIL_KEEP;
+				m_DrawParams->stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+				m_DrawParams->stencilPass = StencilOp::STENCIL_REPLACE;
+				m_DrawParams->stencilFunc = DrawFunc::DRAW_FUNC_NOT_EQUAL;
+				m_DrawParams->stencilComparisonVal = 1;
+				m_DrawParams->stencilTestMask = 0xFF;
+				m_DrawParams->stencilWriteMask = 0x00;
+				m_DrawParams->shouldWriteDepth = true;
+				m_RenderDevice->SetDepthTestEnable(false);
+
+				// Draw call.
+				this->Draw(*vertexArray, *m_DrawParams, numTransforms);
+
+				m_RenderDevice->SetStencilWriteMask(0xFF);
+
+				m_RenderDevice->SetDepthTestEnable(true);
+
+
+			}
+			else
+			{
+			//m_DrawParams->useStencilTest = false;
+			//
+			//
+			//// Update the buffer w/ each transform.
+			//vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
+			//vertexArray->UpdateBuffer(5, inverseTransposeModels, numTransforms * sizeof(Matrix));
+			//
+			//UpdateShaderData(it->first.second);
+			//
+			//// Draw call.
+			//this->Draw(*vertexArray, *m_DrawParams, numTransforms);
+			//
+			//m_RenderDevice->SetStencilWriteMask(0xFF);
+			}
 			// Clear the buffer, or do not if you want a trail of shadows lol.
 			modelArray.clear();
 			inverseModelArray.clear();

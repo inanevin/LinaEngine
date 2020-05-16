@@ -23,6 +23,7 @@ varying vec2 texCoord0;
 #if defined(VS_BUILD)
 Layout(0) attribute vec3 position;
 Layout(1) attribute vec2 texCoord;
+Layout(2) attribute vec3 normal;
 Layout(4) attribute mat4 model;
 
 out vec2 TexCoords;
@@ -31,7 +32,6 @@ out vec3 FragPos;
 void main()
 {
     gl_Position = projection * view * model * vec4(position, 1.0);
-	FragPos = vec3(model * vec4(position,1.0));
     TexCoords = texCoord;
 }
 
@@ -57,6 +57,6 @@ void main()
 		fragColor = vec4(vec3(depth), 1);
 	}
 	else
-		fragColor = vec4(material.objectColor, 1);
+		fragColor = vec4(vec3(0.6,0.0,0.0), 1);
 }
 #endif

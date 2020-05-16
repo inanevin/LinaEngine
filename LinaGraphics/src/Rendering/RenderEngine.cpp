@@ -27,6 +27,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "ECS/ECS.hpp"
 #include "Utility/Math/Color.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "PackageManager/OpenGL/GLRenderDevice.hpp"
 #include "Core/Layer.hpp"
 
 
@@ -131,11 +132,13 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Tick(float delta)
 	{
+
 		// Clear color.
-		m_DefaultRenderContext.Clear(m_CameraSystem.GetCurrentClearColor(), true);
+		m_DefaultRenderContext.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Update pipeline.
 		m_RenderingPipeline.UpdateSystems(delta);
+
 
 		// Draw scene.
 		m_DefaultRenderContext.Flush();
@@ -144,7 +147,7 @@ namespace LinaEngine::Graphics
 		UpdateUniformBuffers();
 
 		// Draw skybox.
-		DrawSkybox();
+	//	DrawSkybox();
 
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
@@ -413,7 +416,9 @@ namespace LinaEngine::Graphics
 		CreateShader(Shaders::SKYBOX_PROCEDURAL, "resources/shaders/skyboxProcedural.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
 		// Others
-		CreateShader(Shaders::SINGLE_COLOR, "resources/shaders/singleColor.glsl");
+		Shader& singleColor = CreateShader(Shaders::STENCIL_OUTLINE, "resources/shaders/stencilOutline.glsl");
+		singleColor.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		singleColor.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 	}
 
 	void RenderEngine::DumpMemory()
@@ -520,7 +525,7 @@ namespace LinaEngine::Graphics
 		{
 			material.samplers[MC_DIFFUSETEXTUREPROPERTY] = 0;
 		}
-		else if (shader == Shaders::SINGLE_COLOR)
+		else if (shader == Shaders::STENCIL_OUTLINE)
 		{
 			material.colors[MC_OBJECTCOLORPROPERTY] = Colors::White;
 		}

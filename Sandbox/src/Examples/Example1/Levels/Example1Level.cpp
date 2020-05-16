@@ -30,6 +30,7 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "Rendering/RenderEngine.hpp"
 #include "Core/Application.hpp"
 #include "Rendering/Material.hpp"
+#include "Rendering/Shader.hpp"
 
 using namespace LinaEngine::Graphics;
 
@@ -177,6 +178,9 @@ void Example1Level::Initialize()
 	objectLitMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, &crateSpecTexture, 1);
 	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(0, 0, 1));
 	objectUnlitMaterial2->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 0, 0));
+	objectLitMaterial->useStencilOutline = true;
+	objectLitMaterial->stencilOutlineShaderID = m_RenderEngine->GetShader(Shaders::STENCIL_OUTLINE).GetID();
+
 	object1Renderer.mesh = &cubeMesh;
 	object1Renderer.material = objectLitMaterial;
 	smallCubeRenderer.mesh = &cubeMesh;

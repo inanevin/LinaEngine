@@ -126,7 +126,10 @@ namespace LinaEngine::Graphics
 		m_UsedStencilComparisonValue = 0;
 		m_usedStencilFail = StencilOp::STENCIL_KEEP;
 		m_UsedStencilPassButDepthFail = StencilOp::STENCIL_KEEP;
-		m_IsBlendingEnabled = m_ShouldWriteDepth = m_IsStencilTestEnabled = m_IsScissorsTestEnabled = false;
+		m_IsBlendingEnabled = m_ShouldWriteDepth = m_IsScissorsTestEnabled = false;
+		m_IsStencilTestEnabled = true;
+		m_ShouldWriteDepth = true;
+		m_IsDepthTestEnabled = true;
 	}
 
 	GLRenderDevice::~GLRenderDevice()
@@ -145,9 +148,18 @@ namespace LinaEngine::Graphics
 
 		// Default GL settings.
 		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(DRAW_FUNC_ALWAYS);
-		glDepthMask(GL_FALSE);
+		glEnable(GL_STENCIL_TEST);
+		glDepthFunc(GL_LESS);
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 		glFrontFace(GL_CW);
+
+		m_UsedDepthFunction = DrawFunc::DRAW_FUNC_LESS;
+		m_usedStencilFail = StencilOp::STENCIL_KEEP;
+		m_UsedStencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+		m_UsedStencilPass = StencilOp::STENCIL_REPLACE;
+		m_UsedStencilFunction = DrawFunc::DRAW_FUNC_NOT_EQUAL;
+		m_UsedStencilTestMask = 0xFF;
 
 		// Set lighting system reference.
 		m_LightingSystem = &lightingSystemIn;
@@ -756,7 +768,8 @@ namespace LinaEngine::Graphics
 		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
 		SetFaceCulling(drawParams.faceCulling);
 		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
-
+		SetStencilTest(drawParams.useStencilTest, drawParams.stencilFunc, drawParams.stencilTestMask, drawParams.stencilWriteMask, drawParams.stencilComparisonVal, drawParams.stencilFail, drawParams.stencilPassButDepthFail, drawParams.stencilPass);
+		
 		// use array buffer & attributes.
 		SetVAO(vao);
 
@@ -911,6 +924,18 @@ namespace LinaEngine::Graphics
 		m_UsedDepthFunction = depthFunc;
 	}
 
+	void GLRenderDevice::SetDepthTestEnable(bool enable)
+	{
+		if (m_IsDepthTestEnabled != enable)
+		{
+			if (enable)
+				glEnable(GL_DEPTH_TEST);
+			else
+				glDisable(GL_DEPTH_TEST);
+
+			m_IsDepthTestEnabled = enable;
+		}
+	}
 	void GLRenderDevice::SetBlending(BlendFunc sourceBlend, BlendFunc destBlend)
 	{
 		// If no change is needed return.
@@ -946,7 +971,7 @@ namespace LinaEngine::Graphics
 		// Set stencil params.
 		if (stencilFunc != m_UsedStencilFunction || stencilTestMask != m_UsedStencilTestMask || stencilComparisonVal != m_UsedStencilComparisonValue)
 		{
-			glStencilFunc(stencilFunc, stencilTestMask, stencilComparisonVal);
+			glStencilFunc(stencilFunc, stencilComparisonVal, stencilTestMask);
 			m_UsedStencilComparisonValue = stencilComparisonVal;
 			m_UsedStencilTestMask = stencilTestMask;
 			m_UsedStencilFunction = stencilFunc;

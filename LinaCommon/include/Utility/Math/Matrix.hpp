@@ -71,6 +71,7 @@ namespace LinaEngine
 		FORCEINLINE Matrix inverse() const;
 
 		FORCEINLINE Matrix applyScale(const Vector& scale);
+		FORCEINLINE Matrix scaleBy(float scale);
 		FORCEINLINE Vector removeScale(float errorMargin = 1.e-8f);
 		FORCEINLINE Vector getScale() const;
 		Quaternion getRotation() const;
@@ -115,6 +116,7 @@ namespace LinaEngine
 	{
 		return scale(Vector3F(amt));
 	}
+
 
 	FORCEINLINE Matrix Matrix::ortho(float left, float right,
 		float bottom, float top, float n, float f)
@@ -363,6 +365,25 @@ namespace LinaEngine
 		for (uint32 i = 0; i < 4; i++) {
 			m[i] = m[i] * scale;//Vector::make(scale[i], scale[i], scale[i], 0.0f);
 		}
+		return *this;
+	}
+
+	FORCEINLINE Matrix Matrix::scaleBy(float scale)
+	{
+
+		m[0].SetX(m[0].GetX() * scale);
+		m[0].SetY(m[0].GetY() * scale);
+		m[0].SetZ(m[0].GetZ() * scale);
+
+		m[1].SetX(m[1].GetX() * scale);
+		m[1].SetY(m[1].GetY() * scale);
+		m[1].SetZ(m[1].GetZ() * scale);
+
+		m[2].SetX(m[2].GetX() * scale);
+		m[2].SetY(m[2].GetY() * scale);
+		m[2].SetZ(m[2].GetZ() * scale);
+
+		
 		return *this;
 	}
 }

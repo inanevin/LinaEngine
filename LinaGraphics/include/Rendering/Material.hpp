@@ -128,6 +128,11 @@ namespace LinaEngine::Graphics
 		}
 
 		FORCEINLINE uint32 GetShaderID() { return shaderID; }
+
+
+		bool useStencilOutline = false;
+		uint32 stencilOutlineShaderID;
+
 	private:
 
 		friend class RenderEngine;

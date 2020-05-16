@@ -187,6 +187,9 @@ namespace LinaEngine::Graphics
 		// Updates a mat4 type uniform on a shader with given name.
 		void UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, void* data);
 
+		void SetStencilWriteMask(uint32 mask);
+		void SetDepthTestEnable(bool enable);
+
 	private:
 
 		std::string GetShaderVersion();
@@ -198,7 +201,6 @@ namespace LinaEngine::Graphics
 		void SetDepthTest(bool shouldWrite, DrawFunc depthFunc);
 		void SetBlending(BlendFunc sourceBlend, BlendFunc destBlend);
 		void SetStencilTest(bool enable, DrawFunc stencilFunc, uint32 stencilTestMask, uint32 stencilWriteMask, int32 stencilComparisonVal, StencilOp stencilFail, StencilOp stencilPassButDepthFail, StencilOp stencilPass);
-		void SetStencilWriteMask(uint32 mask);
 		void SetScissorTest(bool enable, uint32 startX = 0, uint32 startY = 0, uint32 width = 0, uint32 height = 0);
 
 
@@ -252,6 +254,7 @@ namespace LinaEngine::Graphics
 		bool m_IsStencilTestEnabled;
 		bool m_IsScissorsTestEnabled;
 		bool m_ShouldWriteDepth;
+		bool m_IsDepthTestEnabled;
 
 	};
 }

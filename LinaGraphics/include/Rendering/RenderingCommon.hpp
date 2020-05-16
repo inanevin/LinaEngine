@@ -166,10 +166,11 @@ namespace LinaEngine::Graphics
 		DrawFunc stencilFunc = DRAW_FUNC_ALWAYS;
 		StencilOp stencilFail = STENCIL_KEEP;
 		StencilOp stencilPassButDepthFail = STENCIL_KEEP;
-		StencilOp stencilPass = STENCIL_KEEP;
+		StencilOp stencilPass = STENCIL_REPLACE;
 		BlendFunc sourceBlend = BLEND_FUNC_NONE;
 		BlendFunc destBlend = BLEND_FUNC_NONE;
 		bool shouldWriteDepth = true;
+		bool useDepthTest = true;
 		bool useStencilTest = false;
 		bool useScissorTest = false;
 		uint32 scissorStartX = 0;
@@ -189,7 +190,7 @@ namespace LinaEngine::Graphics
 		SKYBOX_GRADIENT = 3,
 		SKYBOX_CUBEMAP = 4,
 		SKYBOX_PROCEDURAL = 5,
-		SINGLE_COLOR = 6
+		STENCIL_OUTLINE = 6
 	};
 
 	struct RenderingDebugData
