@@ -34,9 +34,12 @@ namespace LinaEngine::ECS
 		{
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 			MeshRendererComponent& renderer = view.get<MeshRendererComponent>(entity);
-			context->RenderMesh(*renderer.mesh->GetVertexArray(0), *renderer.material, transform.transform.ToMatrix());
+			//context->RenderMesh(*renderer.mesh->GetVertexArray(2), *renderer.material, transform.transform.ToMatrix());
+
+			for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
+				context->RenderMesh(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix());
 		}
-	
+
 	}
 }
 

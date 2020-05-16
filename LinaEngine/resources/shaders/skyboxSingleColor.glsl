@@ -18,10 +18,15 @@
 
 #if defined(VS_BUILD)
 layout (location = 0) in vec3 position;
+mat4 viewWOTranslation;
 
 void main()
 {
-    gl_Position = vec4(position, 1.0);
+    viewWOTranslation = view;
+	viewWOTranslation[3] = vec4(0,0,0,1.0);
+    vec4 pos = projection * viewWOTranslation * vec4(position, 1.0);
+    gl_Position = pos.xyww;
+	TexCoords = position;
 }
   
 #elif defined(FS_BUILD)

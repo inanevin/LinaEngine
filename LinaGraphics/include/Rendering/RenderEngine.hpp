@@ -108,7 +108,7 @@ namespace LinaEngine::Graphics
 
 		/// <summary> Creates a material resource with a specific shader. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing material. </param>
-		void CreateMaterial(const std::string & materialName, const std::string & shaderName, Material** refPointer = nullptr);
+		Material& CreateMaterial(const std::string & materialName, Shaders shader);
 
 		/// <summary> Creates a texture resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing texture. </param>
@@ -124,7 +124,7 @@ namespace LinaEngine::Graphics
 
 		/// <summary> Creates a shader resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing shader. </param>
-		void CreateShader(const std::string & shaderName, const std::string & shaderText, Shader** refPointer = nullptr);
+		Shader& CreateShader(Shaders shader, const std::string& path);
 
 		// Returns a material resource.
 		Material & GetMaterial(const std::string & materialName);
@@ -136,7 +136,7 @@ namespace LinaEngine::Graphics
 		Mesh & GetMesh(const std::string & meshName);
 
 		// Returns a shader resource.
-		Shader & GetShader(const std::string & shaderName);
+		Shader & GetShader(Shaders shader);
 
 		// Removes the targeted resource from resource map.
 		void UnloadTextureResource(const std::string & textureName);
@@ -151,14 +151,13 @@ namespace LinaEngine::Graphics
 		bool MaterialExists(const std::string & materialName);
 		bool TextureExists(const std::string & textureName);
 		bool MeshExists(const std::string & meshName);
-		bool ShaderExists(const std::string & shaderName);
+		bool ShaderExists(Shaders shader);
 
 		// Sets the shader of a material to the shader specified by name. Also resets material properties based on the shader, caution!
-		void SetMaterialShader(Material & material, const std::string & shaderName);
+		Material& SetMaterialShader(Material & material, Shaders shader);
 
 		// Sets the skybox material.
 		FORCEINLINE void SetSkyboxMaterial(Material & skyboxMaterial) { m_SkyboxMaterial = &skyboxMaterial; }
-		void SetSkyboxMaterial(const std::string & materialName);
 
 		// Pushes a new layer into the gui stack.
 		void PushLayer(Layer* layer);
@@ -226,7 +225,7 @@ namespace LinaEngine::Graphics
 		std::map<std::string, Material> m_LoadedMaterials;
 
 		// Map that stores shader ID's by name
-		std::map<std::string, Shader> m_LoadedShaders;
+		std::map<int, Shader> m_LoadedShaders;
 
 		// Buffer for global matrices
 		UniformBuffer m_GlobalDataBuffer;

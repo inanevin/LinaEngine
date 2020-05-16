@@ -38,10 +38,11 @@ namespace LinaEngine::Graphics
 
 		FORCEINLINE ~Shader() { m_EngineBoundID = renderDevice->ReleaseShaderProgram(m_EngineBoundID); }
 
-		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, const std::string& text)
+		FORCEINLINE Shader& Construct(RenderDevice& renderDeviceIn, const std::string& text)
 		{
 			renderDevice = &renderDeviceIn;
 			m_EngineBoundID = renderDevice->CreateShaderProgram(text);
+			return *this;
 		}
 
 		// Set uniform buffer through render engine.

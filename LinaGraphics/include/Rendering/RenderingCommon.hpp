@@ -181,6 +181,15 @@ namespace LinaEngine::Graphics
 		int32 stencilComparisonVal = 0;
 	};
 
+	enum Shaders
+	{
+		STANDARD_LIT = 0,
+		STANDARD_UNLIT = 1,
+		SKYBOX_SINGLECOLOR = 2,
+		SKYBOX_GRADIENT = 3,
+		SKYBOX_CUBEMAP = 4,
+		SKYBOX_PROCEDURAL = 5
+	};
 
 	/* Struct containing basic data about window properties. */
 	struct WindowProperties

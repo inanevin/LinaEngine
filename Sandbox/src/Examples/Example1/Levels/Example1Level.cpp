@@ -74,15 +74,14 @@ void Example1Level::Install()
 
 void CreateSingleColorSkybox(RenderEngine* renderEngine)
 {
-	renderEngine->CreateMaterial("skyboxMaterial", SC_SKYBOXSINGLECOLORSHADER);
-	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.color", Colors::Red);
-	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial("skyboxMaterial"));
-
+	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_SINGLECOLOR);
+	mat.SetColor("material.color", Colors::Red);
+	renderEngine->SetSkyboxMaterial(mat);
 }
 
 void CreateGradientSkybox(RenderEngine* renderEngine)
 {
-	renderEngine->CreateMaterial("skyboxMaterial", SC_SKYBOXGRADIENTSHADER);
+	renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_GRADIENT);
 	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.startColor", Colors::Green);
 	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.endColor", Colors::White);
 	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial("skyboxMaterial"));
@@ -90,20 +89,19 @@ void CreateGradientSkybox(RenderEngine* renderEngine)
 
 void CreateProceduralSkybox(RenderEngine* renderEngine)
 {
-	renderEngine->CreateMaterial("skyboxMaterial", SC_SKYBOXPROCEDURALSHADER);
-	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.startColor", Colors::LightBlue);
-	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.endColor", Colors::DarkBlue);
-	renderEngine->GetMaterial("skyboxMaterial").SetVector3("material.sunDirection", Vector3F(0.0f, -1.0f, 0.0f));
-	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial("skyboxMaterial"));
+	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_PROCEDURAL);
+	mat.SetColor("material.startColor", Colors::LightBlue);
+	mat.SetColor("material.endColor", Colors::DarkBlue);
+	mat.SetVector3("material.sunDirection", Vector3F(0.0f, -1.0f, 0.0f));
+	renderEngine->SetSkyboxMaterial(mat);
 
 }
 
 void CreateCubemapSkybox(RenderEngine* renderEngine)
 {
-	renderEngine->CreateMaterial("skyboxMaterial", SC_SKYBOXCUBEMAPSHADER);
+	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_CUBEMAP);
 
 	const std::string fp[6] = {
-
 		"resources/textures/defaultSkybox/right.png",
 		"resources/textures/defaultSkybox/left.png",
 		"resources/textures/defaultSkybox/up.png",
@@ -111,10 +109,11 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 		"resources/textures/defaultSkybox/front.png",
 		"resources/textures/defaultSkybox/back.png",
 	};
+
 	SamplerData data = SamplerData();
 	data.minFilter = FILTER_NEAREST;
 	renderEngine->CreateTexture("skyboxTexture", fp, PixelFormat::FORMAT_RGB, true, false, data);
-	renderEngine->GetMaterial("skyboxMaterial").SetTexture("material.diffuse", &renderEngine->GetTexture("skyboxTexture"), 0, BindTextureMode::BINDTEXTURE_CUBEMAP);
+	mat.SetTexture("material.diffuse", &renderEngine->GetTexture("skyboxTexture"), 0, BindTextureMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial("skyboxMaterial"));
 }
 
@@ -124,7 +123,7 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-	CreateProceduralSkybox(m_RenderEngine);
+	CreateSingleColorSkybox(m_RenderEngine);
 
 	
 	
@@ -143,15 +142,15 @@ void Example1Level::Initialize()
 
 
 	// Load example mesh.
-	m_RenderEngine->CreateMesh("cube", "resources/meshes/cube.obj", &cubeMesh);
+	m_RenderEngine->CreateMesh("cube", "resources/meshes/nanosuit/nanosuit.obj", &cubeMesh);
 
 	// Create material for example mesh.
-	m_RenderEngine->CreateMaterial("object1Material", SC_STANDARDLITSHADER, &objectLitMaterial);
-	m_RenderEngine->CreateMaterial("object2Material", SC_STANDARDLITSHADER, &objectUnlitMaterial);
+	objectLitMaterial = &m_RenderEngine->CreateMaterial("object1Material",Shaders::STANDARD_LIT);
+	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material",Shaders::STANDARD_UNLIT);
 
 	// Create texture for example mesh.
-	m_RenderEngine->CreateTexture("crate", "resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateTexture);
-	m_RenderEngine->CreateTexture("crateSpec", "resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateSpecTexture);
+	m_RenderEngine->CreateTexture("crate", "resources/textures/body_dif.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateTexture);
+	m_RenderEngine->CreateTexture("crateSpec", "resources/textures/body_showroom_spec.png", PixelFormat::FORMAT_RGB, true, false, SamplerData(), &crateSpecTexture);
 	objectLitMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, crateTexture, 0);
 	objectLitMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, crateSpecTexture, 1);
 
@@ -159,14 +158,14 @@ void Example1Level::Initialize()
 	// Create a cube object.
 	object1Renderer.mesh = cubeMesh;
 	object1Renderer.material = objectLitMaterial;
-	object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 10.0f));
+	object1Transform.transform.SetLocation(Vector3F(0.0f, 0.0f, 1.0f));
 	object1.entity = m_ECS->reg.create();
 	m_ECS->reg.emplace<TransformComponent>(object1.entity, object1Transform);
 	m_ECS->reg.emplace<MeshRendererComponent>(object1.entity, object1Renderer);
 
 	directionalLight.entity = m_ECS->reg.create();
 	auto& dirLight = m_ECS->reg.emplace<DirectionalLightComponent>(directionalLight.entity);
-	dirLight.ambient = Color(0.02f, 0.02f, 0.02f);
+	dirLight.ambient = Color(0.52f, 0.52f, 0.52f);
 	dirLight.specular = Color(0.1f, 0.1f, 0.1f);
 	dirLight.diffuse = Color(0.2f, 0.2f, 0.2f);
 	dirLight.direction = Vector3F(0,0, 1);

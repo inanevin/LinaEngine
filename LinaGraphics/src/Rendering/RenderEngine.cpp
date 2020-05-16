@@ -155,26 +155,18 @@ namespace LinaEngine::Graphics
 		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 	}
 
-	void RenderEngine::CreateMaterial(const std::string & materialName, const std::string & shaderName, Material * *refPointer)
+	Material& RenderEngine::CreateMaterial(const std::string & materialName, Shaders shader)
 	{
 		if (!MaterialExists(materialName))
 		{
 			// Create material & set it's shader.
-			SetMaterialShader(m_LoadedMaterials[materialName], shaderName);
-
-			// Set pointer that was sent in.
-			if (refPointer != nullptr)
-				* refPointer = &m_LoadedMaterials[materialName];
+			return SetMaterialShader(m_LoadedMaterials[materialName], shader);
 		}
 		else
 		{
-			// Set pointer that was sent in.
-			if (refPointer != nullptr)
-				* refPointer = &m_LoadedMaterials[materialName];
-
 			// Abort if material exists.
-			LINA_CORE_ERR("Material with the name {0} already exists, aborting...", materialName);
-			return;
+			LINA_CORE_ERR("Material with the name {0} already exists, returning un-constructed material.", materialName);
+			return Material();
 		}
 	}
 
@@ -255,6 +247,7 @@ namespace LinaEngine::Graphics
 			// Create object data & feed it from model.
 			m_ModelLoader.LoadModels(filePath, m_LoadedMeshes[meshName].GetIndexedModels(), m_LoadedMeshes[meshName].GetMaterialIndices(), m_LoadedMeshes[meshName].GetMaterialSpecs());
 
+			m_LoadedMeshes[meshName].GetIndexedModels();
 			if (m_LoadedMeshes[meshName].GetIndexedModels().size() == 0)
 				LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! This will cause undefined behaviour or crashes if it is assigned to a ECS MeshRendererComponent."
 					, filePath);
@@ -263,7 +256,7 @@ namespace LinaEngine::Graphics
 			for (uint32 i = 0; i < m_LoadedMeshes[meshName].GetIndexedModels().size(); i++)
 			{
 				VertexArray* vertexArray = new VertexArray();
-				vertexArray->Construct(m_RenderDevice, m_LoadedMeshes[meshName].GetIndexedModels()[i], BufferUsage::USAGE_STATIC_DRAW);
+				vertexArray->Construct(m_RenderDevice, m_LoadedMeshes[meshName].GetIndexedModels()[i], BufferUsage::USAGE_STATIC_COPY);
 				m_LoadedMeshes[meshName].GetVertexArrays().push_back(vertexArray);
 			}
 
@@ -286,27 +279,20 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void RenderEngine::CreateShader(const std::string & shaderName, const std::string & shaderText, Shader * *refPointer)
+	Shader& RenderEngine::CreateShader(Shaders shader, const std::string & path)
 	{
-		if (!ShaderExists(shaderName))
+		// Create shader
+		if (!ShaderExists(shader))
 		{
-			// Create shader
-			m_LoadedShaders[shaderName].Construct(m_RenderDevice, shaderText);
-			
-			// Set pointer that was sent in.
-			if (refPointer != nullptr)
-				* refPointer = &m_LoadedShaders[shaderName];
+			std::string shaderText;
+			Utility::LoadTextFileWithIncludes(shaderText, path, "#include");
+			return m_LoadedShaders[shader].Construct(m_RenderDevice, shaderText);
 		}
 		else
 		{
-
-			// Set pointer that was sent in.
-			if (refPointer != nullptr)
-				* refPointer = &m_LoadedShaders[shaderName];
-
 			// Shader with this name already exists!
-			LINA_CORE_ERR("Shader with the name {0} already exists, aborting...", shaderName);
-			return;
+			LINA_CORE_ERR("Shader with the id {0} already exists, returning un-constructed shader", shader);
+			return Shader();
 		}
 	}
 
@@ -347,16 +333,16 @@ namespace LinaEngine::Graphics
 		return m_LoadedMeshes[meshName];
 	}
 
-	Shader& RenderEngine::GetShader(const std::string & shaderName)
+	Shader& RenderEngine::GetShader(Shaders shader)
 	{
-		if (!ShaderExists(shaderName))
+		if (!ShaderExists(shader))
 		{
 			// Shader not found.
-			LINA_CORE_ERR("Shader with the name {0} was not found, returning standardLitShader", shaderName);
-			return GetShader(SC_STANDARDLITSHADER);
+			LINA_CORE_ERR("Shader with the name ID {0} was not found, returning standardLitShader", shader);
+			return GetShader(Shaders::STANDARD_LIT);
 		}
 
-		return m_LoadedShaders[shaderName];
+		return m_LoadedShaders[shader];
 	}
 
 	void RenderEngine::UnloadTextureResource(const std::string & textureName)
@@ -407,47 +393,26 @@ namespace LinaEngine::Graphics
 		return !(m_LoadedMeshes.find(meshName) == m_LoadedMeshes.end());
 	}
 
-	bool RenderEngine::ShaderExists(const std::string & shaderName)
+	bool RenderEngine::ShaderExists(Shaders shader)
 	{
-		return !(m_LoadedShaders.find(shaderName) == m_LoadedShaders.end());
+		return !(m_LoadedShaders.find(shader) == m_LoadedShaders.end());
 	}
 
 
 	void RenderEngine::ConstructEngineShaders()
 	{
-		std::string shaderText;
-
 		// Unlit.
-		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/basicStandardUnlit.glsl", "#include");
-		CreateShader(SC_STANDARDUNLITSHADER, shaderText);
-		GetShader(SC_STANDARDUNLITSHADER).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+		CreateShader(Shaders::STANDARD_UNLIT, "resources/shaders/basicStandardUnlit.glsl").BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
 
-		// Lit.
-		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/basicStandardLit.glsl", "#include");
-		CreateShader(SC_STANDARDLITSHADER, shaderText);
-		GetShader(SC_STANDARDLITSHADER).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
-		GetShader(SC_STANDARDLITSHADER).BindBlockToBuffer(UNIFORMBUFFER_LIGHTS_BINDPOINT, UNIFORMBUFFER_LIGHTS_NAME);
+		Shader& lit = CreateShader(Shaders::STANDARD_LIT, "resources/shaders/basicStandardLit.glsl");
+		lit.BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+		lit.BindBlockToBuffer(UNIFORMBUFFER_LIGHTS_BINDPOINT, UNIFORMBUFFER_LIGHTS_NAME);
 
-		// Skybox single color.
-		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/skyboxSingleColor.glsl", "#include");
-		CreateShader(SC_SKYBOXSINGLECOLORSHADER, shaderText);
-
-		// Skybox vertex gradient color.
-		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/skyboxVertexGradient.glsl", "#include");
-		CreateShader(SC_SKYBOXGRADIENTSHADER, shaderText);
-		GetShader(SC_SKYBOXGRADIENTSHADER).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
-
-		// Skybox cubemap.
-		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/skyboxCubemap.glsl", "#include");
-		CreateShader(SC_SKYBOXCUBEMAPSHADER, shaderText);
-		GetShader(SC_SKYBOXCUBEMAPSHADER).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
-
-		// Skybox procedural.
-		Utility::LoadTextFileWithIncludes(shaderText, "resources/shaders/skyboxProcedural.glsl", "#include");
-		CreateShader(SC_SKYBOXPROCEDURALSHADER, shaderText);
-		GetShader(SC_SKYBOXPROCEDURALSHADER).BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
-
-
+		// Skies
+		CreateShader(Shaders::SKYBOX_SINGLECOLOR, "resources/shaders/skyboxSingleColor.glsl");
+		CreateShader(Shaders::SKYBOX_GRADIENT, "resources/shaders/skyboxVertexGradient.glsl").BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+		CreateShader(Shaders::SKYBOX_CUBEMAP, "resources/shaders/skyboxCubemap.glsl").BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
+		CreateShader(Shaders::SKYBOX_PROCEDURAL, "resources/shaders/skyboxProcedural.glsl").BindBlockToBuffer(UNIFORMBUFFER_GLOBALMATRIX_BINDPOINT, UNIFORMBUFFER_GLOBALMATRIX_NAME);
 	}
 
 	void RenderEngine::DumpMemory()
@@ -485,18 +450,16 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void RenderEngine::SetMaterialShader(Material & material, const std::string & shaderName)
+	Material& RenderEngine::SetMaterialShader(Material & material, Shaders shader)
 	{
-		std::string usedName = shaderName;
 
 		// If no shader found, fall back to standardLit
-		if (m_LoadedShaders.find(shaderName) == m_LoadedShaders.end()) {
-			LINA_CORE_ERR("Shader with the name {0} was not found. Setting material's shader to standardLit.", shaderName);
-			material.shaderID = m_LoadedShaders[SC_STANDARDLITSHADER].GetID();
-			usedName = SC_STANDARDLITSHADER;
+		if (m_LoadedShaders.find(shader) == m_LoadedShaders.end()) {
+			LINA_CORE_ERR("Shader with engine ID {0} was not found. Setting material's shader to standardLit.", shader);
+			material.shaderID = m_LoadedShaders[Shaders::STANDARD_LIT].GetID();
 		}
 		else
-			material.shaderID = m_LoadedShaders[shaderName].GetID();
+			material.shaderID = m_LoadedShaders[shader].GetID();
 
 		// Clear all shader related material data.
 		material.textures.clear();
@@ -509,7 +472,7 @@ namespace LinaEngine::Graphics
 		material.vector4s.clear();
 
 		// Set shader data for material based on it's shader.
-		if (usedName == SC_STANDARDLITSHADER)
+		if (shader == Shaders::STANDARD_LIT)
 		{
 			material.colors[MC_OBJECTCOLORPROPERTY] = Colors::White;
 			material.floats[MC_SPECULARINTENSITYPROPERTY] = 2.0f;
@@ -519,39 +482,34 @@ namespace LinaEngine::Graphics
 			material.receivesLighting = true;
 
 		}
-		else if (usedName ==  SC_STANDARDUNLITSHADER)
+		else if (shader == Shaders::STANDARD_UNLIT)
 		{
 			material.colors[MC_OBJECTCOLORPROPERTY] = Colors::White;
 			material.samplers[MC_DIFFUSETEXTUREPROPERTY] = 0;
 		}
-		else if (usedName == SC_SKYBOXSINGLECOLORSHADER)
+		else if (shader == Shaders::SKYBOX_SINGLECOLOR)
 		{
 			material.colors[MC_COLORPROPERTY] = Colors::White;
 		}
-		else if (usedName == SC_SKYBOXGRADIENTSHADER)
+		else if (shader == Shaders::SKYBOX_GRADIENT)
 		{
 			material.colors[MC_STARTCOLORPROPERTY] = Colors::Black;
 			material.colors[MC_ENDCOLORPROPERTY] = Colors::White;
 		}
-		else if (usedName == SC_SKYBOXPROCEDURALSHADER)
+		else if (shader == Shaders::SKYBOX_PROCEDURAL)
 		{
 			material.colors[MC_STARTCOLORPROPERTY] = Colors::Black;
 			material.colors[MC_ENDCOLORPROPERTY] = Colors::White;
 			material.vector3s[MC_SUNDIRECTIONPROPERTY] = Vector3F(0, -1, 0);
 		}
-		else if (usedName == SC_SKYBOXCUBEMAPSHADER)
+		else if (shader == Shaders::SKYBOX_CUBEMAP)
 		{
 			material.samplers[MC_DIFFUSETEXTUREPROPERTY] = 0;
 		}
+
+		return material;
 	}
 
-	void RenderEngine::SetSkyboxMaterial(const std::string & materialName)
-	{
-		if (MaterialExists(materialName))
-			SetSkyboxMaterial(m_LoadedMaterials[materialName]);
-		else
-			LINA_CORE_ERR("Material with the name {0} does not exists! Aborting...", materialName);
-	}
 
 	void RenderEngine::PushLayer(Layer* layer)
 	{

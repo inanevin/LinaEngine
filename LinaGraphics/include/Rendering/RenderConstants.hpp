@@ -27,12 +27,6 @@ Timestamp: 2/16/2019 1:47:28 AM
 namespace LinaEngine::Graphics
 {
 
-#define SC_STANDARDLITSHADER "shader_StandardLit"
-#define SC_STANDARDUNLITSHADER "shader_StandardUnlit"
-#define SC_SKYBOXCUBEMAPSHADER "shader_SkyboxCubemap"
-#define SC_SKYBOXGRADIENTSHADER "shader_SkyboxGradient"
-#define SC_SKYBOXPROCEDURALSHADER "shader_SkyboxProcedural"
-#define SC_SKYBOXSINGLECOLORSHADER "shader_SkyboxSingleColor"
 
 #define SC_LIGHTAMBIENT std::string(".ambient")
 #define SC_LIGHTDIFFUSE std::string(".diffuse")
