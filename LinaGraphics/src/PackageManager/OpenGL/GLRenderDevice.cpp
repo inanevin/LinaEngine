@@ -452,10 +452,10 @@ namespace LinaEngine::Graphics
 
 	uint32 GLRenderDevice::CreateQuadVertexArray()
 	{
-		unsigned int transparentVAO, transparentVBO;
-		glGenVertexArrays(1, &transparentVAO);
+		unsigned int quad, transparentVBO;
+		glGenVertexArrays(1, &quad);
 		glGenBuffers(1, &transparentVBO);
-		glBindVertexArray(transparentVAO);
+		glBindVertexArray(quad);
 		glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(0);
@@ -463,6 +463,7 @@ namespace LinaEngine::Graphics
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 		glBindVertexArray(0);
+		return quad;
 	}
 
 	uint32 GLRenderDevice::CreatePlaneVertexArray()
