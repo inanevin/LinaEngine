@@ -28,7 +28,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #include "Plane.hpp"
 #include "Quaternion.hpp"
 #include "Utility/Log.hpp"
-#include "glm/glm.hpp"
+#include "glm/matrix.hpp"
 
 namespace LinaEngine
 {
@@ -83,6 +83,7 @@ namespace LinaEngine
 			return m[index];
 		}
 	private:
+		
 		Vector m[4] = { VectorConstants::ZERO };
 	};
 
