@@ -92,6 +92,7 @@ namespace LinaEngine
 		FORCEINLINE Vector4& operator-=(const float& rhs) { vec -= rhs;	return *this; };
 		FORCEINLINE Vector4& operator*=(const float& rhs) { vec *= rhs;	return *this; };
 		FORCEINLINE Vector4& operator/=(const float& rhs) { vec /= rhs;	return *this; };
+		FORCEINLINE Vector4& operator=(const Vector4& rhs) { vec = rhs.vec; return *this; };
 		FORCEINLINE bool operator==(const Vector4& rhs) const { return vec == rhs.vec; }
 		FORCEINLINE bool operator!=(const Vector4& rhs) const { return vec != rhs.vec; }
 		FORCEINLINE bool operator>(const Vector4& rhs) const { return vec.length() > rhs.vec.length(); }
@@ -112,8 +113,9 @@ namespace LinaEngine
 			return ss.str();
 		}
 
-	private:
 		Vector4(glm::vec4 v) : vec(v), x(vec.x), y(vec.y), z(vec.z), w(vec.w) {}
+
+	private:
 
 	};
 
@@ -160,13 +162,14 @@ namespace LinaEngine
 		void Normalize();
 
 		FORCEINLINE Vector3 operator+(const Vector3& rhs) const { return Vector3(vec + rhs.vec); };
-		FORCEINLINE Vector3 operator-(const Vector3& rhs) const { return Vector3(vec - rhs.vec); };
+		FORCEINLINE Vector3 operator+(const Vector3& rhs) const { return Vector3(vec + rhs.vec); };
 		FORCEINLINE Vector3 operator*(const Vector3& rhs) const { return Vector3(vec * rhs.vec); }
 		FORCEINLINE Vector3 operator/(const Vector3& rhs) const { return Vector3(vec / rhs.vec); };
 		FORCEINLINE Vector3 operator+(const float& rhs) const { return Vector3(vec + glm::vec3(rhs)); }
 		FORCEINLINE Vector3 operator-(const float& rhs) const { return Vector3(vec - glm::vec3(rhs)); }
 		FORCEINLINE Vector3 operator*(const float& rhs) const { return Vector3(vec * glm::vec3(rhs)); }
 		FORCEINLINE Vector3 operator/(const float& rhs) const { return Vector3(vec / rhs); }
+
 		FORCEINLINE Vector3& operator+=(const Vector3& rhs) { vec += rhs.vec; return *this; };
 		FORCEINLINE Vector3& operator-=(const Vector3& rhs) { vec -= rhs;	return *this; };
 		FORCEINLINE Vector3& operator*=(const Vector3& rhs) { vec *= rhs.vec;	return *this; };
@@ -175,6 +178,7 @@ namespace LinaEngine
 		FORCEINLINE Vector3& operator-=(const float& rhs) { vec -= rhs;	return *this; };
 		FORCEINLINE Vector3& operator*=(const float& rhs) { vec *= rhs;	return *this; };
 		FORCEINLINE Vector3& operator/=(const float& rhs) { vec /= rhs;	return *this; };
+		FORCEINLINE Vector3& operator=(const Vector3& rhs) { vec = rhs.vec; return *this; };
 		FORCEINLINE bool operator==(const Vector3& rhs) const { return vec == rhs.vec; }
 		FORCEINLINE bool operator!=(const Vector3& rhs) const { return vec != rhs.vec; }
 		FORCEINLINE bool operator>(const Vector3& rhs) const { return vec.length() > rhs.vec.length(); }
@@ -195,9 +199,9 @@ namespace LinaEngine
 			return ss.str();
 		}
 
-	private:
-
 		Vector3(glm::vec3 v) : vec(v), x(vec.x), y(vec.y), z(vec.z) {}
+
+	private:
 
 	};
 
@@ -256,6 +260,7 @@ namespace LinaEngine
 		FORCEINLINE Vector2& operator-=(const float& rhs) { vec -= rhs;	return *this; };
 		FORCEINLINE Vector2& operator*=(const float& rhs) { vec *= rhs;	return *this; };
 		FORCEINLINE Vector2& operator/=(const float& rhs) { vec /= rhs;	return *this; };
+		FORCEINLINE Vector2 operator=(const Vector2& rhs) { vec = rhs.vec; return vec; };
 		FORCEINLINE bool operator==(const Vector2& rhs) const { return vec == rhs.vec; }
 		FORCEINLINE bool operator!=(const Vector2& rhs) const { return vec != rhs.vec; }
 		FORCEINLINE bool operator>(const Vector2& rhs) const { return vec.length() > rhs.vec.length(); }

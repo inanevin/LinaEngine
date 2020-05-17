@@ -64,23 +64,23 @@ void Example1Level::Install()
 void CreateSingleColorSkybox(RenderEngine* renderEngine)
 {
 	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_SINGLECOLOR);
-	mat.SetColor("material.color", Colors::Red);
+	mat.SetColor("material.color", Color::Red);
 	renderEngine->SetSkyboxMaterial(mat);
 }
 
 void CreateGradientSkybox(RenderEngine* renderEngine)
 {
 	renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_GRADIENT);
-	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.startColor", Colors::Green);
-	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.endColor", Colors::White);
+	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.startColor", Color::Green);
+	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.endColor", Color::White);
 	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial("skyboxMaterial"));
 }
 
 void CreateProceduralSkybox(RenderEngine* renderEngine)
 {
 	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_PROCEDURAL);
-	mat.SetColor("material.startColor", Colors::LightBlue);
-	mat.SetColor("material.endColor", Colors::DarkBlue);
+	mat.SetColor("material.startColor", Color::LightBlue);
+	mat.SetColor("material.endColor", Color::DarkBlue);
 	mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
 	renderEngine->SetSkyboxMaterial(mat);
 

@@ -437,7 +437,7 @@ namespace LinaEngine::Graphics
 		// Stencil outline material.
 		CreateMaterial(MAT_LINASTENCILOUTLINE, Shaders::STENCIL_OUTLINE);
 		m_LoadedMaterials[MAT_LINASTENCILOUTLINE].floats[MC_OUTLINETHICKNESS] = 0.1f;
-		m_LoadedMaterials[MAT_LINASTENCILOUTLINE].colors[MC_OBJECTCOLORPROPERTY] = Colors::Red;
+		m_LoadedMaterials[MAT_LINASTENCILOUTLINE].colors[MC_OBJECTCOLORPROPERTY] = Color::Red;
 	}
 
 	void RenderEngine::DumpMemory()
@@ -546,7 +546,7 @@ namespace LinaEngine::Graphics
 		// Set shader data for material based on it's shader.
 		if (shader == Shaders::STANDARD_LIT)
 		{
-			material.colors[MC_OBJECTCOLORPROPERTY] = Colors::White;
+			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
 			material.floats[MC_SPECULARINTENSITYPROPERTY] = 2.0f;
 			material.samplers[MC_DIFFUSETEXTUREPROPERTY] = 0;
 			material.samplers[MC_SPECULARTEXTUREPROPERTY] = 1;
@@ -556,22 +556,22 @@ namespace LinaEngine::Graphics
 		}
 		else if (shader == Shaders::STANDARD_UNLIT)
 		{
-			material.colors[MC_OBJECTCOLORPROPERTY] = Colors::White;
+			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
 			material.samplers[MC_DIFFUSETEXTUREPROPERTY] = 0;
 		}
 		else if (shader == Shaders::SKYBOX_SINGLECOLOR)
 		{
-			material.colors[MC_COLORPROPERTY] = Colors::White;
+			material.colors[MC_COLORPROPERTY] = Color::White;
 		}
 		else if (shader == Shaders::SKYBOX_GRADIENT)
 		{
-			material.colors[MC_STARTCOLORPROPERTY] = Colors::Black;
-			material.colors[MC_ENDCOLORPROPERTY] = Colors::White;
+			material.colors[MC_STARTCOLORPROPERTY] = Color::Black;
+			material.colors[MC_ENDCOLORPROPERTY] = Color::White;
 		}
 		else if (shader == Shaders::SKYBOX_PROCEDURAL)
 		{
-			material.colors[MC_STARTCOLORPROPERTY] = Colors::Black;
-			material.colors[MC_ENDCOLORPROPERTY] = Colors::White;
+			material.colors[MC_STARTCOLORPROPERTY] = Color::Black;
+			material.colors[MC_ENDCOLORPROPERTY] = Color::White;
 			material.vector3s[MC_SUNDIRECTIONPROPERTY] = Vector3(0, -1, 0);
 		}
 		else if (shader == Shaders::SKYBOX_CUBEMAP)
@@ -580,7 +580,7 @@ namespace LinaEngine::Graphics
 		}
 		else if (shader == Shaders::STENCIL_OUTLINE)
 		{
-			material.colors[MC_OBJECTCOLORPROPERTY] = Colors::White;
+			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
 			material.floats[MC_OUTLINETHICKNESS] = 0.1f;
 		}
 		else if (shader == Shaders::TRANSPARENT_QUAD)

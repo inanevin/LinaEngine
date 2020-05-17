@@ -33,8 +33,6 @@ set (LINACOMMON_SOURCES
 	src/Utility/Math/Quaternion.cpp
 	src/Utility/Math/Transformation.cpp
 	src/Utility/Math/Vector.cpp
-	src/Utility/Math/AABB.cpp
-	src/Utility/Math/Plane.cpp
 	src/Utility/UtilityFunctions.cpp
 	src/Utility/Log.cpp
 )
@@ -68,8 +66,6 @@ set(LINACOMMON_HEADERS
 	include/Utility/Math/Quaternion.hpp
 	include/Utility/Math/Transformation.hpp
 	include/Utility/Math/Vector.hpp
-	include/Utility/Math/AABB.hpp
-	include/Utility/Math/Plane.hpp
 	include/Utility/Log.hpp
 	include/Utility/UtilityFunctions.hpp
 

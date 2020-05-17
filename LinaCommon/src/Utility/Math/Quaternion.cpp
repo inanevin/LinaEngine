@@ -23,67 +23,58 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 namespace LinaEngine
 {
-	Quaternion Quaternion::Normalized(float errorMargin) const
+	Quaternion Quaternion::Normalized() const
 	{
-		static const Vector defaultQuat = Vector::Make(0.0f, 0.0f, 0.0f, 1.0f);
-		Vector lenSq = vec.Dot4(vec);
-		Vector mask = lenSq >= Vector::Load1F(errorMargin);
-		Vector NormalizedVec = vec * lenSq.RSqrt();
-		return Quaternion(NormalizedVec.select(mask, defaultQuat));
+		glm::quat quat = glm::normalize(q);
+		return quat;
 	}
-	bool Quaternion::IsNormalized(float errorMargin) const
+
+	bool Quaternion::IsNormalized() const
 	{
-		return Math::Abs(1.0f - LengthSquared()) < errorMargin;
+		return glm::abs(1.0f - LengthSquared()) < 1.e-4f;
 	}
 	Vector3 Quaternion::GetAxis() const
 	{
-		float w = vec[3];
-		float rangleDivisor = Math::RSqrt(Math::Max(1.0f - w * w, 0.0f));
-		return Vector3(vec * Vector::Load1F(rangleDivisor));
+		return glm::axis(q);
 	}
 	float Quaternion::GetAngle() const
 	{
-		return 2.0f * Math::Acos(vec[3]);
+		return glm::angle(q);
 	}
-	void Quaternion::AxisAndAngle(Vector3& axis, float& angle) const
-	{
-		angle = GetAngle();
-		axis = GetAxis();
-	}
+
 	Vector3 Quaternion::Rotate(const Vector3& other) const
 	{
-		return Vector3(vec.QuatRotateVec(other.ToVector()));
+		return glm::rotate(q, other.vec);
 	}
-	Quaternion Quaternion::Slerp(const Quaternion& dest, float amt, float errorMargin) const
+	Quaternion Quaternion::Slerp(const Quaternion& dest, float t) const
 	{
-		float cosAngleInitial = Dot(dest);
-		float cosAngle = Math::Select(cosAngleInitial, cosAngleInitial, -cosAngleInitial);
-
-		float lerpAmt1 = 1.0f - amt;
-		float lerpAmt2 = amt;
-		if (cosAngle < (1.0f - errorMargin))
-		{
-			float rsinAngle = Math::RSqrt(1.0f - cosAngle * cosAngle);
-			float angle = Math::Acos(cosAngle);
-			// NOTE: You can also get rsinangle from doing
-			//     Math::reciprocal(Math::sin(angle));
-			lerpAmt1 = Math::Sin(lerpAmt1 * angle) * rsinAngle;
-			lerpAmt2 = Math::Sin(lerpAmt2 * angle) * rsinAngle;
-		}
-
-		lerpAmt2 = Math::Select(cosAngleInitial, lerpAmt2, -lerpAmt2);
-
-		Vector lerpAmt1Vec = Vector::Load1F(lerpAmt1);
-		Vector lerpAmt2Vec = Vector::Load1F(lerpAmt2);
-		return Quaternion(vec * lerpAmt1Vec + dest.vec * lerpAmt2Vec);
+		return glm::slerp(q, dest.q, t);
 	}
 	Quaternion Quaternion::Conjugate() const
 	{
-		static const Vector inverter = Vector::Make(-1.0f, -1.0f, -1.0f, 1.0f);
-		return Quaternion(vec * inverter);
+		return glm::conjugate(q);
 	}
 	Quaternion Quaternion::Inverse() const
 	{
-		return Normalized().Conjugate();
+		return glm::inverse(q);
+	}
+
+	float Quaternion::Dot(const Quaternion& other) const
+	{
+		return glm::dot(q, other.q);
+	}
+	float Quaternion::Length() const
+	{
+		return glm::length(q);
+	}
+	float Quaternion::LengthSquared() const
+	{
+		return glm::length2(q);
+	}
+
+
+	Quaternion Quaternion::Euler(const Vector3& v)
+	{
+		return glm::quat(v.vec);
 	}
 }

@@ -66,7 +66,7 @@ namespace LinaEngine::ECS
 
 	LinaEngine::Color& CameraSystem::GetCurrentClearColor()
 	{
-		return m_CurrentCameraComponent == nullptr ? LinaEngine::Colors::Gray : m_CurrentCameraComponent->clearColor;
+		return m_CurrentCameraComponent == nullptr ? LinaEngine::Color::Gray : m_CurrentCameraComponent->clearColor;
 	}
 
 

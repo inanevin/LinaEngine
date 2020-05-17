@@ -35,39 +35,26 @@ namespace LinaEngine
 	public:
 
 		Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f) : r(rv), g(gv), b(bv), a(av) {};
-		Color(Vector3& v) : r(v.GetX()), g(v.GetY()), b(v.GetZ()), a(1.0f) {};
-		FORCEINLINE float R() { return r; }
-		FORCEINLINE float G() { return g; }
-		FORCEINLINE float B() { return b; }
-		FORCEINLINE float A() { return a; }
-		FORCEINLINE float R() const { return r; }
-		FORCEINLINE float G() const { return g; }
-		FORCEINLINE float B() const { return b; }
-		FORCEINLINE float A() const { return a; }
-
+		Color(Vector3& v) : r(v.x), g(v.y), b(v.z), a(1.0f) {};
 		float r, g, b, a = 1.0f;
 
-	private:
-
+		static Color Red;
+		static Color Green;
+		static Color LightBlue;
+		static Color Blue;
+		static Color DarkBlue;
+		static Color Cyan;
+		static Color Yellow;
+		static Color Black;
+		static Color White;
+		static Color Purple;
+		static Color Maroon;
+		static Color Beige;
+		static Color Brown;
+		static Color Gray;
 	};
 
-	namespace Colors
-	{
-		static Color Red = Color(1, 0, 0, 1);
-		static Color Green = Color(0, 1, 0);
-		static Color LightBlue = Color(0.4f, 0.4f, 0.8f);
-		static Color Blue = Color(0, 0, 1);
-		static Color DarkBlue = Color(0.1f, 0.1f, 0.6f);
-		static Color Cyan = Color(0, 1, 1);
-		static Color Yellow = Color(1, 1, 0);
-		static Color Black = Color(0, 0, 0);
-		static Color White = Color(1, 1, 1);
-		static Color Purple = Color(1, 0, 1);
-		static Color Maroon = Color(0.5f, 0, 0);
-		static Color Beige = Color(0.96f, 0.96f, 0.862f);
-		static Color Brown = Color(0.647f, 0.164f, 0.164f);
-		static Color Gray = Color(0.5f, 0.5f, 0.5f);
-	}
+
 
 }
 
