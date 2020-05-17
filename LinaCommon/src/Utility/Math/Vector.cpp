@@ -20,8 +20,11 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "Utility/Math/Vector.hpp"  
+#include "glm/gtx/transform.hpp"
+#include "glm/gtx/projection.hpp"
+#include "glm/gtx/rotate_vector.hpp"
 #include "Utility/Math/Quaternion.hpp"
-#include "Utility/Log.hpp"
+
 
 namespace LinaEngine
 {
@@ -41,452 +44,251 @@ namespace LinaEngine
 	Vector2 Vector2::Zero = Vector2(0.0f);
 	Vector2 Vector2::One = Vector2(1.0f);
 
-
-
-	float Vector4::Max() const
+	Vector4 Vector4::Abs() const
 	{
-		float Max = x;
-		if (y > x)
-			Max = y;
-		if (z > y)
-			Max = z;
-		if (w > z)
-			Max = w;
-
-		return Max;
+		return glm::abs(vec);
 	}
 
-	float Vector4::MagnitudeSq() const
+	Vector4 Vector4::Min(const Vector4& other) const
 	{
-		return this->Dot(*this);
+		return  *this < other ? *this : other;
 	}
 
-	float Vector4::Magnitude() const
+	Vector4 Vector4::Max(const Vector4& other) const
 	{
-		return Math::Sqrt(MagnitudeSq());
-	}
-
-	float Vector4::AngleBetween(const Vector4 & rhs) const
-	{
-		float angle = this->Dot(rhs);
-		angle /= (this->Magnitude() * rhs.Magnitude());
-		return angle = acosf(angle);
-	}
-
-	float Vector4::Dot(const Vector4 & rhs) const
-	{
-		return x * rhs.x + y * rhs.y + z * rhs.z + w * rhs.w;
-	}
-
-	Vector4 Vector4::Reflect(const Vector4 & normal) const
-	{
-		return *this - (normal * (this->Dot(normal) * 2));
-	}
-
-	Vector4 Vector4::Max(const Vector4 & rhs) const
-	{
-		if (*this > rhs)
-			return *this;
-		else
-			return rhs;
+		return *this > other ? *this : other;
 	}
 
 	Vector4 Vector4::Normalized() const
 	{
-		Vector4 Normalized = Vector4(*this);
-		Normalized.Normalize();
-		return Normalized;
+		glm::vec4 norm = glm::normalize(vec); return norm;
 	}
 
-	Vector4 Vector4::Lerp(const Vector4 & rhs, float lerpFactor) const
+	Vector4 Vector4::Project(const Vector4& normal) const
 	{
-		return (rhs - *this) * lerpFactor + *this;
+		return glm::proj(vec, normal.vec);
 	}
 
-	Vector4 Vector4::Project(const Vector4 & rhs) const
+	Vector4 Vector4::Rotate(const Quaternion& rotation) const
 	{
-		return Vector4();
+		return glm::rotate(rotation.q, vec);
+	}
+
+	Vector4 Vector4::Rotate(const Vector3& axis, float angle) const
+	{
+		return glm::rotate(vec, angle, axis.vec);
+	}
+
+	Vector4 Vector4::Reflect(const Vector4& normal) const
+	{
+		return glm::reflect(vec, normal.vec);
+	}
+
+	Vector4 Vector4::Refract(const Vector4& normal, float indexOfRefraction) const
+	{
+		return glm::refract(vec, normal.vec, indexOfRefraction);
+	}
+
+	float Vector4::Dot(const Vector4& other) const
+	{
+		return glm::dot(vec, other.vec);
+	}
+
+	float Vector4::Distance(const Vector4& other) const
+	{
+		return glm::distance(vec, other.vec);
+	}
+
+	float Vector4::Magnitude() const
+	{
+		return vec.length();
+	}
+
+	float Vector4::MagnitudeSqrt() const
+	{
+		return glm::length2(vec);
+	}
+
+	float Vector4::Max() const
+	{
+		return glm::max(vec.x, glm::max(vec.y, glm::max(vec.z, vec.w)));
+	}
+
+	float Vector4::Min() const
+	{
+		return glm::min(vec.x, glm::min(vec.y, glm::min(vec.z, vec.w)));
 	}
 
 	void Vector4::Normalize()
 	{
-		*this /= this->Magnitude();
+		vec = glm::normalize(vec);
 	}
 
-#pragma endregion
+	//////////////////////////////////////////////////////////////////////////
 
-	Vector3::Vector3F(const Vector& vecIn) : vec(vecIn) {}
-	Vector3::Vector3() :	vec(VectorConstants::ZERO) {}
-	Vector3::Vector3(float val) : vec(Vector::Make(val, val, val, 0.0f)) {}
-	Vector3::Vector3(float xIn, float yIn, float zIn) : vec(Vector::Make(xIn, yIn, zIn, 0.0f)) {}
 
-	bool Vector3::operator==(const Vector3& other) const
+	Vector3 Vector3::Cross(const Vector3& other) const
 	{
-		return (vec != other.vec).IsZero3f();
+		return glm::cross(vec, other.vec);
 	}
-
-	bool Vector3::operator!=(const Vector3& other) const
-	{
-		return !(*this == other);
-	}
-
-	bool Vector3::equals(const Vector3& other, float errorMargin) const
-	{
-		return vec.NotEquals(other.vec, errorMargin).IsZero3f();
-	}
-
-	bool Vector3::equals(float val, float errorMargin) const
-	{
-		return equals(Vector3(val), errorMargin);
-	}
-
-
-	float Vector3::operator[](uint32 index) const
-	{
-		LINA_CORE_ASSERT(index < 3, "index is bigger than 3");
-		return vec[index];
-	}
-
-
-	void Vector3::Set(float x, float y, float z)
-	{
-		vec = Vector::Make(x, y, z, 0.0f);
-	}
-
-	void Vector3::Set(uint32 index, float val)
-	{
-		vec = vec.select(Vector::Mask(index), Vector::Load1F(val));
-	}
-
-	float Vector3::Max() const
-	{
-		float vals[3];
-		vec.Store3f(vals);
-		return Math::Max3(vals[0], vals[1], vals[2]);
-	}
-
-	float Vector3::Min() const
-	{
-		float vals[3];
-		vec.Store3f(vals);
-		return Math::Min3(vals[0], vals[1], vals[2]);
-	}
-
-	float Vector3::AbsMax() const
-	{
-		float vals[3];
-		vec.Abs().Store3f(vals);
-		return Math::Max3(vals[0], vals[1], vals[2]);
-	}
-
-	float Vector3::AbsMin() const
-	{
-		float vals[3];
-		vec.Abs().Store3f(vals);
-		return Math::Min3(vals[0], vals[1], vals[2]);
-	}
-
 
 	Vector3 Vector3::Abs() const
 	{
-		return Vector3(vec.Abs());
+		return glm::abs(vec);
 	}
 
 	Vector3 Vector3::Min(const Vector3& other) const
 	{
-		return Vector3(vec.Min(other.vec));
+		return  *this < other ? *this : other;
 	}
 
 	Vector3 Vector3::Max(const Vector3& other) const
 	{
-		return Vector3(vec.Max(other.vec));
+		return *this > other ? *this : other;
 	}
 
-	Vector3 Vector3::Normalized(float errorMargin) const
+	Vector3 Vector3::Normalized() const
 	{
-		// Currently does not use errorMargin.
-		(void)errorMargin;
-		return Vector3F(vec.Normalize3());
+		glm::vec3 norm = glm::normalize(vec); return norm;
 	}
 
-	void Vector3F::Normalize(float errorMargin)
+	Vector3 Vector3::Project(const Vector3& normal) const
 	{
-		this->vec = vec.Normalize3();
+		return glm::proj(vec, normal.vec);
 	}
 
-	bool Vector3F::IsNormalized(float errorMargin) const
+	Vector3 Vector3::Rotate(const Vector3& axis, float angle) const
 	{
-		return Math::Abs(1.0f - MagnitudeSqrt()) < errorMargin;
+		return glm::rotate(vec, angle, axis.vec);
 	}
 
-
-	void Vector3F::DirAndLength(Vector3F& dir, float& length) const
+	Vector3 Vector3::Rotate(const Quaternion& rotation) const
 	{
-		Vector rlen = vec.Dot3(vec).RSqrt();
-		dir = Vector3F(vec * rlen);
-		length = Math::Reciprocal(rlen[0]);
+		return glm::rotate(rotation.q, vec);
 	}
 
-	Vector3F Vector3F::Project() const
+	Vector3 Vector3::Reflect(const Vector3& normal) const
 	{
-		Vector rprojectVal = Vector::Load1F(Math::Reciprocal(vec[2]));
-		return Vector3F(vec * rprojectVal);
+		return glm::reflect(vec, normal.vec);
 	}
 
-	Vector3F Vector3F::Reciprocal() const
+	Vector3 Vector3::Refract(const Vector3& normal, float indexOfRefraction) const
 	{
-		return Vector3F(vec.Reciprocal());
+		return glm::refract(vec, normal.vec, indexOfRefraction);
 	}
 
-
-	Vector3F Vector3F::Rotate(const Vector3F& axis, float angle) const
+	float Vector3::Dot(const Vector3& other) const
 	{
-		float sinAngle;
-		float cosAngle;
-
-		Math::SinCos(&sinAngle, &cosAngle, -angle);
-		Vector sinVec = Vector::Load1F(sinAngle);
-		Vector cosVec = Vector::Load1F(cosAngle);
-		Vector oneMinusCosVec = Vector::Load1F(1.0f - cosAngle);
-
-		Vector rotatedX = vec.Cross3(axis.vec * sinVec);
-		Vector rotatedY = axis.vec * vec.Dot3(axis.vec * oneMinusCosVec);
-		Vector rotatedZ = vec * cosVec;
-
-		return Vector3F(rotatedX + rotatedY + rotatedZ);
+		return glm::dot(vec, other.vec);
 	}
 
-	Vector3F Vector3F::Rotate(const Quaternion & rotation) const
+	float Vector3::Distance(const Vector3& other) const
 	{
-		Quaternion conjugateQ = rotation.Conjugate();
-		Quaternion w = rotation * conjugateQ.VectorMultiplication(*this);
-		Vector3F ret(w.GetX(), w.GetY(), w.GetZ());
-		return ret;
+		return glm::distance(vec, other.vec);
 	}
 
-
-	Vector3F Vector3F::Reflect(const Vector3F& normal) const
+	float Vector3::Magnitude() const
 	{
-		Vector dotAmt = VectorConstants::TWO * vec.Dot3(normal.vec);
-		return Vector3F(vec - (normal.vec * dotAmt));
+		return vec.length();
 	}
 
-	Vector3F Vector3F::Refract(const Vector3F& normal, float indexOfRefraction) const
+	float Vector3::MagnitudeSqrt() const
 	{
-		float cosNormalAngle = vec.Dot3(normal.vec)[0];
-		float refractanceSquared =
-			1.0f - indexOfRefraction * indexOfRefraction *
-			(1.0f - cosNormalAngle * cosNormalAngle);
-
-		if (refractanceSquared < 0.0f) {
-			return Vector3F(VectorConstants::ZERO);
-		}
-
-		float normalScale = indexOfRefraction * cosNormalAngle + Math::Sqrt(refractanceSquared);
-		Vector normalScaleVec(Vector::Load1F(normalScale));
-		Vector indexOfRefractionVec(Vector::Load1F(indexOfRefraction));
-
-		return Vector3F(vec * indexOfRefractionVec - normalScaleVec * normal.vec);
+		return glm::length2(vec);
 	}
 
-	Vector3F Vector3F::ToDegrees() const
+	float Vector3::Max() const
 	{
-		return Vector3F(vec * Vector::Load1F(MATH_RAD_TO_DEG_CONV));
+		return glm::max(vec.x, glm::max(vec.y, vec.z));
 	}
 
-	Vector3F Vector3F::ToRadians() const
+	float Vector3::Min() const
 	{
-		return Vector3F(vec * Vector::Load1F(MATH_DEG_TO_RAD_CONV));
+		return glm::min(vec.x, glm::min(vec.y, vec.z));
 	}
 
-	Vector Vector3F::ToVector(float w) const
+	void Vector3::Normalize()
 	{
-		return vec.select(VectorConstants::MASK_W, Vector::Load1F(w));
+		vec = glm::normalize(vec);
 	}
 
+	//////////////////////////////////////////////
 
 
-
-	bool Vector2F::operator==(const Vector2F& other) const
+	Vector2 Vector2::Abs() const
 	{
-		return vals[0] == other.vals[0] && vals[1] == other.vals[1];
+		return glm::abs(vec);
 	}
 
-	bool Vector2F::operator!=(const Vector2F& other) const
+	Vector2 Vector2::Min(const Vector2& other) const
 	{
-		return vals[0] != other.vals[0] || vals[1] != other.vals[1];
+		return  *this < other ? *this : other;
 	}
 
-	bool Vector2F::equals(const Vector2F& other, float errorMargin) const
+	Vector2 Vector2::Max(const Vector2& other) const
 	{
-		return (vals[0] - other.vals[0]) < errorMargin &&
-			(vals[1] - other.vals[1]) < errorMargin;
+		return *this > other ? *this : other;
 	}
 
-	bool Vector2F::equals(float val, float errorMargin) const
+	Vector2 Vector2::Normalized() const
 	{
-		return (vals[0] - val) < errorMargin &&
-			(vals[1] - val) < errorMargin;
+		glm::vec2 norm = glm::normalize(vec); return norm;
 	}
 
-	float Vector2F::operator[](uint32 index) const
+	Vector2 Vector2::Project(const Vector2& normal) const
 	{
-		LINA_CORE_ASSERT(index < 2, "index is bigger than 2");
-		return vals[index];
+		return glm::proj(vec, normal.vec);
 	}
 
-	void Vector2F::Set(float x, float y)
+	Vector2 Vector2::Rotate(const Vector2& axis, float angle) const
 	{
-		vals[0] = x;
-		vals[1] = y;
+		return glm::rotate(axis.vec, angle);
 	}
 
-	void Vector2F::Set(uint32 index, float val)
+	Vector2 Vector2::Reflect(const Vector2& normal) const
 	{
-		LINA_CORE_ASSERT(index < 2, "index is bigger than 2");
-		vals[index] = val;
+		return glm::reflect(vec, normal.vec);
 	}
 
-	float Vector2F::Max() const
+	Vector2 Vector2::Refract(const Vector2& normal, float indexOfRefraction) const
 	{
-		return Math::Max(vals[0], vals[1]);
+		return glm::refract(vec, normal.vec, indexOfRefraction);
 	}
 
-	float Vector2F::Min() const
+	float Vector2::Dot(const Vector2& other) const
 	{
-		return Math::Min(vals[0], vals[1]);
+		return glm::dot(vec, other.vec);
 	}
 
-	float Vector2F::AbsMax() const
+	float Vector2::Distance(const Vector2& other) const
 	{
-		return Math::Max(Math::Abs(vals[0]), Math::Abs(vals[1]));
+		return glm::distance(vec, other.vec);
 	}
 
-	float Vector2F::AbsMin() const
+	float Vector2::Magnitude() const
 	{
-		return Math::Min(Math::Abs(vals[0]), Math::Abs(vals[1]));
+		return vec.length();
 	}
 
-	Vector2F Vector2F::Abs() const
+	float Vector2::MagnitudeSqrt() const
 	{
-		return Vector2F(Math::Abs(vals[0]), Math::Abs(vals[1]));
+		return glm::length2(vec);
 	}
 
-	Vector2F Vector2F::Min(const Vector2F& other) const
+	float Vector2::Max() const
 	{
-		return Vector2F(
-			Math::Min(vals[0], other.vals[0]),
-			Math::Min(vals[1], other.vals[1]));
+		return glm::max(vec.x, vec.y);
 	}
 
-	Vector2F Vector2F::Max(const Vector2F& other) const
+	float Vector2::Min() const
 	{
-		return Vector2F(
-			Math::Max(vals[0], other.vals[0]),
-			Math::Max(vals[1], other.vals[1]));
+		return glm::min(vec.x, vec.y);
 	}
 
-	Vector2F Vector2F::Normalized(float errorMargin) const
+	void Vector2::Normalize()
 	{
-		float lenSq = MagnitudeSqrt();
-		if (lenSq < errorMargin) {
-			return Vector2F(0.0f, 0.0f);
-		}
-		return (*this) * Math::RSqrt(lenSq);
+		vec = glm::normalize(vec);
 	}
 
-	void Vector2F::Normalize(float errorMargin)
-	{
-		Vector2F toSet;
-		float lenSq = MagnitudeSqrt();
-		if (lenSq < errorMargin) {
-			toSet = Vector2F(0.0f, 0.0f);
-		}
-		else
-			toSet = (*this) * Math::RSqrt(lenSq);
-
-		this->Set(toSet.GetX(), toSet.GetY());
-	}
-
-	bool Vector2F::IsNormalized(float errorMargin) const
-	{
-		return Math::Abs(1.0f - MagnitudeSqrt()) < errorMargin;
-	}
-
-	void Vector2F::DirAndLength(Vector2F& dir, float& length, float errorMargin) const
-	{
-		float lenSq = MagnitudeSqrt();
-		if (lenSq < errorMargin) {
-			dir = Vector2F(0.0f, 0.0f);
-			length = 0;
-			return;
-		}
-		float rlen = Math::RSqrt(lenSq);
-		dir = (*this) * rlen;
-		length = Math::Reciprocal(rlen);
-	}
-
-	Vector2F Vector2F::Reciprocal() const
-	{
-		return Vector2F(Math::Reciprocal(vals[0]), Math::Reciprocal(vals[1]));
-	}
-
-	Vector2F Vector2F::Rotate(float angle) const
-	{
-		float sin, cos;
-		Math::SinCos(&sin, &cos, angle);
-		return Vector2F(
-			cos * vals[0] - sin * vals[1],
-			sin * vals[0] + cos * vals[1]);
-	}
-
-	Vector2F Vector2F::Reflect(const Vector2F& normal) const
-	{
-		Vector2F dotAmt = Vector2F(2.0f * Dot(normal));
-		return (*this) - (normal * dotAmt);
-	}
-
-	Vector2F Vector2F::Refract(const Vector2F& normal, float indexOfRefraction) const
-	{
-		float cosNormalAngle = Dot(normal);
-		float refractanceSquared =
-			1.0f - indexOfRefraction * indexOfRefraction *
-			(1.0f - cosNormalAngle * cosNormalAngle);
-
-		if (refractanceSquared < 0.0f) {
-			return Vector2F(0.0f);
-		}
-
-		float normalScale = indexOfRefraction * cosNormalAngle + Math::Sqrt(refractanceSquared);
-		Vector2F normalScaleVec(normalScale);
-		Vector2F indexOfRefractionVec(indexOfRefraction);
-
-		return (*this) * indexOfRefractionVec - normalScaleVec * normal;
-	}
-
-	Vector2F Vector2F::ToDegrees() const
-	{
-		return Vector2F(MATH_RAD_TO_DEG_CONV*vals[0], MATH_RAD_TO_DEG_CONV*vals[1]);
-	}
-
-	Vector2F Vector2F::ToRadians() const
-	{
-		return Vector2F(MATH_DEG_TO_RAD_CONV*vals[0], MATH_DEG_TO_RAD_CONV*vals[1]);
-	}
-
-	Vector Vector2F::ToVector() const
-	{
-		return ToVector(0.0f, 0.0f);
-	}
-
-	Vector Vector2F::ToVector(float z, float w) const
-	{
-		return ToVector(Vector2F(z, w));
-	}
-
-	Vector Vector2F::ToVector(Vector2F other) const
-	{
-		return Vector::Make(vals[0], vals[1], other.vals[0], other.vals[1]);
-	}
 }
 

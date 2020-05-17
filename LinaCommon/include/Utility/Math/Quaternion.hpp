@@ -36,6 +36,8 @@ namespace LinaEngine
 
 	public:
 
+		glm::quat q;
+
 	public:
 		FORCEINLINE Quaternion() {}
 		FORCEINLINE Quaternion(const Vector& quat);

@@ -27,6 +27,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "Core/Common.hpp"
 #include "Core/LinaAPI.hpp"
+#include "Core/Internal.hpp"
 
 #include "glm/vec2.hpp"
 #include "glm/glm.hpp"
@@ -38,15 +39,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 namespace LinaEngine
 {
-	class PROP_FLOAT {
-	public:
-		float& value;
-		PROP_FLOAT(float& v) : value(v) {}
-		float& operator = (const float& f) { value = f;	return value; }
-		operator float() const { return value; }
-	};
-
-
 	class Vector4
 	{
 	public:
@@ -63,28 +55,26 @@ namespace LinaEngine
 		Vector4(const Vector3& rhs) : vec(rhs.vec, 0), x(vec.x), y(vec.y), z(vec.z), w(vec.w) {};
 		Vector4(const Vector2& rhs) : vec(rhs.vec, 0, 0), x(vec.x), y(vec.y), z(vec.z), w(vec.w) {};
 		Vector4(float f) : vec(f), x(vec.x), y(vec.y), z(vec.z), w(vec.w) {};
-		Vector4(glm::vec4 v) : vec(v), x(vec.x), y(vec.y), z(vec.z), w(vec.w) {}
 
 		static LINACOMMON_API Vector4 Zero;
 		static LINACOMMON_API Vector4 One;
 
-		Vector3 Cross(const Vector3& other) const;
-		Vector3 Abs() const;
-		Vector3 Min(const Vector3& other) const;
-		Vector3 Max(const Vector3& other) const;
-		Vector3 Normalized() const;
-		Vector3 Project() const;
-		Vector3 Rotate(const Vector3& axis, float angle) const;
-		Vector3 Rotate(const class Quaternion& rotation) const;
-		Vector3 Reflect(const Vector3& normal) const;
-		Vector3 Refract(const Vector3& normal, float indexOfRefraction) const;
-		float Dot(const Vector3& other) const;
-		float Distance(const Vector3& other) const;
+		Vector4 Abs() const;
+		Vector4 Min(const Vector4& other) const;
+		Vector4 Max(const Vector4& other) const;
+		Vector4 Normalized() const;
+		Vector4 Project(const Vector4& normal) const;
+		Vector4 Rotate(const class Quaternion& rotation) const;
+		Vector4 Rotate(const Vector3& axis, float angle) const;
+		Vector4 Reflect(const Vector4& normal) const;
+		Vector4 Refract(const Vector4& normal, float indexOfRefraction) const;
+		float Dot(const Vector4& other) const;
+		float Distance(const Vector4& other) const;
 		float Magnitude() const;
 		float MagnitudeSqrt() const;
 		float Max() const;
 		float Min() const;
-		void Normalize(float errorMargin = 1.e-8f);
+		void Normalize();
 
 		FORCEINLINE Vector4 operator+(const Vector4& rhs) const { return Vector4(vec + rhs.vec); };
 		FORCEINLINE Vector4 operator-(const Vector4& rhs) const { return Vector4(vec - rhs.vec); };
@@ -121,6 +111,10 @@ namespace LinaEngine
 			ss << "(X: " << vec.x << " Y: " << vec.y << " Z: " << vec.z << " W: " << vec.w << ")";
 			return ss.str();
 		}
+
+	private:
+		Vector4(glm::vec4 v) : vec(v), x(vec.x), y(vec.y), z(vec.z), w(vec.w) {}
+
 	};
 
 	class Vector3
@@ -147,25 +141,12 @@ namespace LinaEngine
 		static LINACOMMON_API Vector3 Back;
 		static LINACOMMON_API Vector3 One;
 
-		FORCEINLINE float GetX() const { return vec.x; }
-		FORCEINLINE float GetY() const { return vec.y; }
-		FORCEINLINE float GetZ() const { return vec.z; }
-		FORCEINLINE Vector2 GetXY() const { return Vector2(vec.x, vec.y); }
-		FORCEINLINE Vector2 GetXZ() const { return Vector2(vec.x, vec.z); }
-		FORCEINLINE Vector2 GetYZ() const { return Vector2(vec.y, vec.z); }
-		FORCEINLINE void SetX(float f) { vec.x = f; }
-		FORCEINLINE void SetY(float f) { vec.y = f; }
-		FORCEINLINE void SetZ(float f) { vec.z = f; }
-		FORCEINLINE void SetXY(float x, float y) { vec.x = x; vec.y = y; }
-		FORCEINLINE void SetXZ(float x, float z) { vec.x = x; vec.z = z; }
-		FORCEINLINE void SetYZ(float y, float z) { vec.z = z; vec.y = y; }
-
 		Vector3 Cross(const Vector3& other) const;
 		Vector3 Abs() const;
 		Vector3 Min(const Vector3& other) const;
 		Vector3 Max(const Vector3& other) const;
 		Vector3 Normalized() const;
-		Vector3 Project() const;
+		Vector3 Project(const Vector3& normal) const;
 		Vector3 Rotate(const Vector3& axis, float angle) const;
 		Vector3 Rotate(const class Quaternion& rotation) const;
 		Vector3 Reflect(const Vector3& normal) const;
@@ -176,7 +157,7 @@ namespace LinaEngine
 		float MagnitudeSqrt() const;
 		float Max() const;
 		float Min() const;
-		void Normalize(float errorMargin = 1.e-8f);
+		void Normalize();
 
 		FORCEINLINE Vector3 operator+(const Vector3& rhs) const { return Vector3(vec + rhs.vec); };
 		FORCEINLINE Vector3 operator-(const Vector3& rhs) const { return Vector3(vec - rhs.vec); };
@@ -243,14 +224,12 @@ namespace LinaEngine
 		FORCEINLINE void SetX(float f) { vec.x = f; }
 		FORCEINLINE void SetY(float f) { vec.y = f; }
 
-		Vector2 Cross(const Vector2& other) const;
 		Vector2 Abs() const;
 		Vector2 Min(const Vector2& other) const;
 		Vector2 Max(const Vector2& other) const;
 		Vector2 Normalized() const;
-		Vector2 Project() const;
+		Vector2 Project(const Vector2& normal) const;
 		Vector2 Rotate(const Vector2& axis, float angle) const;
-		Vector2 Rotate(const class Quaternion& rotation) const;
 		Vector2 Reflect(const Vector2& normal) const;
 		Vector2 Refract(const Vector2& normal, float indexOfRefraction) const;
 		float Dot(const Vector2& other) const;
@@ -259,7 +238,7 @@ namespace LinaEngine
 		float MagnitudeSqrt() const;
 		float Max() const;
 		float Min() const;
-		void Normalize(float errorMargin = 1.e-8f);
+		void Normalize();
 
 		FORCEINLINE Vector2 operator+(const Vector2& rhs) const { return Vector2(vec + rhs.vec); };
 		FORCEINLINE Vector2 operator-(const Vector2& rhs) const { return Vector2(vec - rhs.vec); };
