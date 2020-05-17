@@ -183,6 +183,9 @@ namespace LinaEngine::Graphics
 		// Renders skybox
 		void DrawSkybox();
 
+		// Renders scene objects.
+		void DrawSceneObjects(bool useStencilOutlining);
+
 		// Updates related uniform buffers on GPU
 		void UpdateUniformBuffers();
 

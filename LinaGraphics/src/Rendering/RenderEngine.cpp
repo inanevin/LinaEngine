@@ -149,9 +149,9 @@ namespace LinaEngine::Graphics
 
 		// Update pipeline.
 		m_RenderingPipeline.UpdateSystems(delta);
-
-		// Draw scene.
-		m_MeshRendererSystem.Flush(m_DefaultDrawParams);
+		
+		// Draw scene
+		DrawSceneObjects(false);
 
 		// Update uniform buffers on GPU
 		UpdateUniformBuffers();
@@ -434,7 +434,10 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::ConstructEngineMaterials()
 	{
+		// Stencil outline material.
 		CreateMaterial(MAT_LINASTENCILOUTLINE, Shaders::STENCIL_OUTLINE);
+		m_LoadedMaterials[MAT_LINASTENCILOUTLINE].floats[MC_OUTLINETHICKNESS] = 0.1f;
+		m_LoadedMaterials[MAT_LINASTENCILOUTLINE].colors[MC_OBJECTCOLORPROPERTY] = Colors::Red;
 	}
 
 	void RenderEngine::DumpMemory()
@@ -452,6 +455,37 @@ namespace LinaEngine::Graphics
 			UpdateShaderData(m_SkyboxMaterial);
 			m_RenderDevice.Draw(m_RenderTarget.GetID(), m_SkyboxVAO, m_SkyboxDrawParams, 1, 36, true);
 		}
+	}
+
+	void RenderEngine::DrawSceneObjects(bool useStencilOutlining)
+	{
+		if (useStencilOutlining)
+		{
+			m_DefaultDrawParams.useStencilTest = true;
+			m_DefaultDrawParams.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_ALWAYS;
+			m_DefaultDrawParams.stencilComparisonVal = 1;
+			m_DefaultDrawParams.stencilTestMask = 0xFF;
+			m_DefaultDrawParams.stencilWriteMask = 0xFF;
+
+			// Draw scene.
+			m_MeshRendererSystem.Flush(m_DefaultDrawParams, false);
+
+			// Set stencil draw params.
+			m_DefaultDrawParams.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_NOT_EQUAL;
+			m_DefaultDrawParams.stencilComparisonVal = 1;
+			m_DefaultDrawParams.stencilTestMask = 0xFF;
+			m_DefaultDrawParams.stencilWriteMask = 0x00;
+			m_RenderDevice.SetDepthTestEnable(false);
+
+			// Draw scene.
+			m_MeshRendererSystem.Flush(m_DefaultDrawParams, true, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE]);
+
+			// Reset stencil.
+			m_RenderDevice.SetStencilWriteMask(0xFF);
+			m_RenderDevice.SetDepthTestEnable(true);
+		}
+		else
+			m_MeshRendererSystem.Flush(m_DefaultDrawParams, true);	
 	}
 
 

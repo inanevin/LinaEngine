@@ -67,7 +67,7 @@ namespace LinaEngine::ECS
 		std::get<1>(m_MeshRenderBuffer[pair]).push_back(transformIn.inverse());
 	}
 
-	void MeshRendererSystem::Flush(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial)
+	void MeshRendererSystem::Flush(Graphics::DrawParams& drawParams, bool completeFlush, Graphics::Material* overrideMaterial)
 	{
 		for (std::map<std::pair<Graphics::VertexArray*, Graphics::Material*>, std::tuple<LinaArray<Matrix>, LinaArray<Matrix>>>::iterator it = m_MeshRenderBuffer.begin(); it != m_MeshRenderBuffer.end(); ++it)
 		{
@@ -147,9 +147,11 @@ namespace LinaEngine::ECS
 			}*/
 
 			// Clear the buffer, or do not if you want a trail of shadows lol.
-			modelArray.clear();
-			inverseModelArray.clear();
-
+			if (completeFlush)
+			{
+				modelArray.clear();
+				inverseModelArray.clear();
+			}
 		}
 	}
 
