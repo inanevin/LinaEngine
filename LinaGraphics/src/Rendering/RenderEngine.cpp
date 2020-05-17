@@ -145,7 +145,7 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.Clear(m_RenderTarget.GetID(), true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Draw skybox.
-		DrawSkybox();
+		//DrawSkybox();
 
 		// Update pipeline.
 		m_RenderingPipeline.UpdateSystems(delta);
@@ -459,6 +459,9 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::DrawSceneObjects(bool useStencilOutlining)
 	{
+		// Draw quads.
+		m_QuadRendererSystem.Flush(m_DefaultDrawParams);
+
 		if (useStencilOutlining)
 		{
 			m_DefaultDrawParams.useStencilTest = true;

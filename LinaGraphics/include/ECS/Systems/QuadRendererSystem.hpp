@@ -54,6 +54,7 @@ namespace LinaEngine::ECS
 		}
 
 		virtual void UpdateComponents(float delta) override;
+		void Flush(Graphics::DrawParams& drawParams);
 
 	private:
 

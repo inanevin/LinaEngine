@@ -30,6 +30,7 @@ namespace LinaEngine::ECS
 {
 	void QuadRendererSystem::UpdateComponents(float delta)
 	{
+		return;
 		auto view = m_Registry->reg.view<TransformComponent, QuadRendererComponent>();
 		
 		for (auto entity : view)
@@ -40,11 +41,13 @@ namespace LinaEngine::ECS
 			// Update shader data
 			(*renderer.material).SetMatrix4(UF_MODELMATRIX, transform.transform.ToMatrix());
 			m_RenderEngine->UpdateShaderData(renderer.material);
-
-			// Draw
-			Graphics::DrawParams drawParams;
-			m_RenderDevice->Draw(m_FBO, m_QuadVAO, drawParams, 0, 6, true);
-
 		}
+	}
+
+	void QuadRendererSystem::Flush(Graphics::DrawParams& drawParams)
+	{
+		return;
+
+		m_RenderDevice->Draw(m_FBO, m_QuadVAO, drawParams, 0, 6, true);
 	}
 }

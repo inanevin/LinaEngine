@@ -265,6 +265,7 @@ namespace LinaEngine
 
 	FORCEINLINE Quaternion Quaternion::Euler(const Vector3F& v)
 	{
+
 		float x, y, z, w = 0.0f;
 		float c1 = Math::Cos(v.GetY() / 2);
 		float s1 = Math::Sin(v.GetY() / 2);

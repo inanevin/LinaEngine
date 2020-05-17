@@ -55,10 +55,10 @@ void main()
 	}
 	else
 	{
-		vec4 texColor = texture(material.diffuse ,TexCoords);
-		if(texColor.a < 0.1)
-			discard;
-		fragColor = texture(material.diffuse ,TexCoords);
+		//vec4 texColor = texture(material.diffuse ,TexCoords);
+		//if(texColor.a < 0.1)
+			//discard;
+		fragColor = vec4(vec3(texture(material.diffuse, TexCoords)), 1.0);
 	}
 }
 #endif

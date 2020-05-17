@@ -457,7 +457,7 @@ namespace LinaEngine::Graphics
 		glGenBuffers(1, &transparentVBO);
 		glBindVertexArray(quad);
 		glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
@@ -793,7 +793,7 @@ namespace LinaEngine::Graphics
 	void GLRenderDevice::Draw(uint32 fbo, uint32 vao, const DrawParams & drawParams, uint32 numInstances, uint32 numElements, bool drawArrays)
 	{
 		// No need to draw nothin dude.
-		if (numInstances == 0) return;
+		if (!drawArrays && numInstances == 0) return;
 
 		// Bind the render targets.
 		SetFBO(fbo);

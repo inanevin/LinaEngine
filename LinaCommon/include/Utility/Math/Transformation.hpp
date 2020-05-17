@@ -172,11 +172,13 @@ namespace LinaEngine
 			SetRotation(Quaternion::Euler(euler));
 		}
 
-	private:
-
 		Vector3F m_Translation = Vector3F::Zero;
 		Quaternion m_Rotation;
 		Vector3F m_Scale = Vector3F::One;
+
+	private:
+
+		
 	};
 
 
