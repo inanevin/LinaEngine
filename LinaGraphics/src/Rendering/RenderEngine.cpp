@@ -118,12 +118,16 @@ namespace LinaEngine::Graphics
 		// Initialize ECS Mesh Renderer System
 		m_MeshRendererSystem.Construct(ecsReg, *this, m_RenderDevice, m_RenderTarget, m_DefaultDrawParams);
 
+		// Initialize ECS quad renderer system
+		m_QuadRendererSystem.Construct(ecsReg, m_RenderDevice, *this, m_QuadVAO, m_RenderTarget.GetID());
+
 		// Initialize ECS Lighting system.
 		m_LightingSystem.Construct(ecsReg, m_RenderDevice, *this);
 
 		// Add the ECS systems into the pipeline.
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
 		m_RenderingPipeline.AddSystem(m_MeshRendererSystem);
+		m_RenderingPipeline.AddSystem(m_QuadRendererSystem);
 		m_RenderingPipeline.AddSystem(m_LightingSystem);
 
 		// Set debug values.
@@ -536,6 +540,7 @@ namespace LinaEngine::Graphics
 		else if (shader == Shaders::TRANSPARENT_QUAD)
 		{
 			material.samplers[MC_DIFFUSETEXTUREPROPERTY] = 0;
+			material.matrices[UF_MODELMATRIX] = Matrix();
 		}
 
 		return material;

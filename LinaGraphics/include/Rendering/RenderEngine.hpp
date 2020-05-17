@@ -28,6 +28,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "ECS/Systems/CameraSystem.hpp"
 #include "ECS/Systems/LightingSystem.hpp"
 #include "ECS/Systems/MeshRendererSystem.hpp"
+#include "ECS/Systems/QuadRendererSystem.hpp"
 #include "Rendering/ModelLoader.hpp"
 #include "Mesh.hpp"
 #include "UniformBuffer.hpp"
@@ -210,6 +211,9 @@ namespace LinaEngine::Graphics
 
 		// ECS system for handling lighting
 		LinaEngine::ECS::LightingSystem m_LightingSystem;
+
+		// ECS system for drawing quads
+		LinaEngine::ECS::QuadRendererSystem m_QuadRendererSystem;
 
 		// ECS system list for rendering operations.
 		LinaEngine::ECS::ECSSystemList m_RenderingPipeline;

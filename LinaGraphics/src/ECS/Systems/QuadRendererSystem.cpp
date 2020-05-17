@@ -22,6 +22,9 @@ Timestamp: 5/17/2020 2:35:29 AM
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/QuadRendererComponent.hpp"
 #include "Rendering/RenderingCommon.hpp"
+#include "Rendering/RenderEngine.hpp"
+#include "Rendering/RenderConstants.hpp"
+
 
 namespace LinaEngine::ECS
 {
@@ -34,8 +37,10 @@ namespace LinaEngine::ECS
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 			QuadRendererComponent& renderer = view.get<QuadRendererComponent>(entity);
 
-			// Set model matrix.
-			//m_RenderDevice->UpdateShaderUniformMatrix()
+			// Update shader data
+			(*renderer.material).SetMatrix4(UF_MODELMATRIX, transform.transform.ToMatrix());
+			m_RenderEngine->UpdateShaderData(renderer.material);
+
 			// Draw
 			Graphics::DrawParams drawParams;
 			m_RenderDevice->Draw(m_FBO, m_QuadVAO, drawParams, 0, 6, true);

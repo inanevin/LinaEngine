@@ -30,7 +30,7 @@ namespace LinaEngine
 {
 	namespace Graphics
 	{
-		class RenderDevice;
+		class RenderEngine;
 	}
 }
 
@@ -44,10 +44,11 @@ namespace LinaEngine::ECS
 		QuadRendererSystem() {};
 		
 
-		FORCEINLINE void Construct(ECSRegistry& registry, RenderDevice& renderDeviceIn, uint32 quadVAO, uint32 fbo)
+		FORCEINLINE void Construct(ECSRegistry& registry, RenderDevice& renderDeviceIn, Graphics::RenderEngine& renderEngineIn, uint32 quadVAO, uint32 fbo)
 		{
 			BaseECSSystem::Construct(registry);
 			m_RenderDevice = &renderDeviceIn;
+			m_RenderEngine = &renderEngineIn;
 			m_QuadVAO = quadVAO;
 			m_FBO = fbo;
 		}
@@ -56,6 +57,7 @@ namespace LinaEngine::ECS
 
 	private:
 
+		Graphics::RenderEngine* m_RenderEngine;
 		RenderDevice* m_RenderDevice;
 		uint32 m_QuadVAO;
 		uint32 m_FBO;
