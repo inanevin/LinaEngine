@@ -67,7 +67,7 @@ namespace LinaEngine::Graphics
 			colors[name] = color;
 		}
 
-		FORCEINLINE void SetVector2(const std::string& name, const Vector2F& vector)
+		FORCEINLINE void SetVector2(const std::string& name, const Vector2& vector)
 		{
 			vector2s[name] = vector;
 		}
@@ -107,7 +107,7 @@ namespace LinaEngine::Graphics
 			return colors[name];
 		}
 
-		FORCEINLINE Vector2F GetVector2(const std::string& name)
+		FORCEINLINE Vector2 GetVector2(const std::string& name)
 		{
 			return vector2s[name];
 		}
@@ -142,7 +142,7 @@ namespace LinaEngine::Graphics
 		std::map<std::string, int> ints;
 		std::map<std::string, int> samplers;
 		std::map<std::string, Color> colors;
-		std::map<std::string, Vector2F> vector2s;
+		std::map<std::string, Vector2> vector2s;
 		std::map<std::string, Vector3> vector3s;
 		std::map<std::string, Vector4> vector4s;
 		std::map<std::string, Matrix> matrices;;

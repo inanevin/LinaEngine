@@ -33,12 +33,12 @@ namespace LinaEngine
 
 	Matrix Matrix::Translate(const Vector3& amt)
 	{
-		return glm::translate(amt.vec);
+		return glm::translate(amt);
 	}
 
 	Matrix Matrix::Scale(const Vector3& amt)
 	{
-		return glm::scale(amt.vec);
+		return glm::scale(amt);
 	}
 
 	Matrix Matrix::Scale(float amt)
@@ -58,25 +58,25 @@ namespace LinaEngine
 
 	Matrix Matrix::TransformMatrix(const Vector3& translation, const Quaternion& rotation, const Vector3& scale)
 	{
-		glm::mat4 trans = glm::translate(translation.vec);
-		glm::mat4 rot = InitRotation(rotation).m;
-		glm::mat4 sc = glm::scale(scale.vec);
+		Matrix trans = glm::translate(translation);
+		Matrix rot = InitRotation(rotation);
+		Matrix sc = glm::scale(scale);
 		return trans * rot * sc;
 	}
 
 	Matrix Matrix::Transpose() const
 	{
-		return glm::transpose(m);
+		return glm::transpose(*this);
 	}
 
 	float Matrix::Determinant4x4() const
 	{
-		return glm::determinant(m);
+		return glm::determinant(*this);
 	}
 
 	Matrix Matrix::Inverse() const
 	{
-		return glm::inverse(m);
+		return glm::inverse(*this);
 	}
 
 	Matrix Matrix::InitRotationFromVectors(const Vector3& u, const Vector3& v, const Vector3& n)
@@ -99,29 +99,29 @@ namespace LinaEngine
 
 	Matrix Matrix::InitRotation(const Quaternion& quat)
 	{
-		float yy2 = 2.0f * quat.GetY() * quat.GetY();
-		float xy2 = 2.0f * quat.GetX() * quat.GetY();
-		float xz2 = 2.0f * quat.GetX() * quat.GetZ();
-		float yz2 = 2.0f * quat.GetY() * quat.GetZ();
-		float zz2 = 2.0f * quat.GetZ() * quat.GetZ();
-		float wz2 = 2.0f * quat.GetW() * quat.GetZ();
-		float wy2 = 2.0f * quat.GetW() * quat.GetY();
-		float wx2 = 2.0f * quat.GetW() * quat.GetX();
-		float xx2 = 2.0f * quat.GetX() * quat.GetX();
+		float yy2 = 2.0f * quat.y * quat.y;
+		float xy2 = 2.0f * quat.x * quat.y;
+		float xz2 = 2.0f * quat.x * quat.z;
+		float yz2 = 2.0f * quat.y * quat.z;
+		float zz2 = 2.0f * quat.z * quat.z;
+		float wz2 = 2.0f * quat.w * quat.z;
+		float wy2 = 2.0f * quat.w * quat.y;
+		float wx2 = 2.0f * quat.w * quat.x;
+		float xx2 = 2.0f * quat.x * quat.x;
 
-		Matrix rotationMatrix;
-		rotationMatrix.m[0] = glm::vec4(-yy2 - zz2 + 1.0f, xy2 + wz2, xz2 - wy2, 0.0f);
-		rotationMatrix.m[1] = glm::vec4(xy2 - wz2, -xx2 - zz2 + 1.0f, yz2 + wx2, 0.0f);
-		rotationMatrix.m[2] = glm::vec4(xz2 + wy2, yz2 - wx2, -xx2 - yy2 + 1.0f, 0.0f);
-		rotationMatrix.m[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-		return rotationMatrix;
+		glm::vec4 a = glm::vec4(-yy2 - zz2 + 1.0f, xy2 + wz2, xz2 - wy2, 0.0f);
+		glm::vec4 b = glm::vec4(xy2 - wz2, -xx2 - zz2 + 1.0f, yz2 + wx2, 0.0f);
+		glm::vec4 c = glm::vec4(xz2 + wy2, yz2 - wx2, -xx2 - yy2 + 1.0f, 0.0f);
+		glm::vec4 d = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+		return Matrix(a, b, c, d);
 	}
 
 
 
 	Matrix Matrix::ApplyScale(const Vector3& scale)
 	{
-		m = glm::scale(m, scale.vec);
+		*this = glm::scale(*this, scale);
+		return *this;
 	}
 
 

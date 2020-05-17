@@ -44,11 +44,11 @@ namespace LinaEngine::ECS
 			if (inputEngine->GetMouseButton(LinaEngine::Input::InputCode::Mouse::Mouse1))
 			{
 				// Get mouse axis.
-				Vector2F mouseAxis = inputEngine->GetMouseAxis();
+				Vector2 mouseAxis = inputEngine->GetMouseAxis();
 
 				// Apply angles based on mouse axis.
-				freeLook.verticalAngle += mouseAxis.GetY() * freeLook.rotationSpeedX * delta;
-				freeLook.horizontalAngle += mouseAxis.GetX() * freeLook.rotationSpeedY * delta;
+				freeLook.verticalAngle += mouseAxis.y * freeLook.rotationSpeedX * delta;
+				freeLook.horizontalAngle += mouseAxis.x* freeLook.rotationSpeedY * delta;
 
 				// Rotate
 				transform.transform.Rotate(Vector3(freeLook.verticalAngle, freeLook.horizontalAngle, 0.0f));
@@ -65,17 +65,17 @@ namespace LinaEngine::ECS
 			float verticalKey = inputEngine->GetVerticalAxisValue();
 
 			// Set movement based on vertical axis.
-			Vector3 vertical = transform.transform.GetRotation().GetAxisZ();
+			Vector3 vertical = transform.transform.rotation.GetForward();
 			vertical.Normalize();
 			vertical *= freeLook.movementSpeedZ * verticalKey * delta;
 
 			// Set movement based on horizontal axis.
-			Vector3 horizontal = transform.transform.GetRotation().GetAxisX();
+			Vector3 horizontal = transform.transform.rotation.GetRight();
 			horizontal.Normalize();
 			horizontal *= freeLook.movementSpeedX * horizontalKey * delta;
 
 			// Move.
-			transform.transform.SetLocation(transform.transform.GetLocation() + vertical + horizontal);
+			transform.transform.location = transform.transform.location + vertical + horizontal;
 
 			m_Registry->reg.replace<TransformComponent>(entity, transform);
 			m_Registry->reg.replace<FreeLookComponent>(entity, freeLook);

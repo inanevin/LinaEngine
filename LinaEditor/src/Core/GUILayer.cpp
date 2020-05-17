@@ -65,8 +65,8 @@ namespace LinaEditor
 		ImGui::Begin("sc");
 
 		ImVec2 pos = ImGui::GetCursorScreenPos();
-		float width = m_RenderEngine->GetWindowSize().GetX();
-		float height = m_RenderEngine->GetWindowSize().GetY();
+		float width = m_RenderEngine->GetWindowSize().x;
+		float height = m_RenderEngine->GetWindowSize().y;
 		
 		//ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetRenderTexture(), ImVec2(ImGui::GetCursorScreenPos()),
 		//	ImVec2(ImGui::GetCursorScreenPos().x +width / 2,

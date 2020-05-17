@@ -25,21 +25,20 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Matrix_HPP
 
 #include "Vector.hpp"
-#include "Plane.hpp"
 #include "Quaternion.hpp"
 #include "Utility/Log.hpp"
 #include "glm/matrix.hpp"
 
 namespace LinaEngine
 {
-	class Matrix
+	class Matrix : public glm::mat4
 	{
 	public:
 
-		glm::mat4 m;
 
 		FORCEINLINE Matrix() {};
-		FORCEINLINE Matrix(const Vector4& vecX, const Vector4& vecY, const Vector4& vecZ, const Vector4& vecOffset) : m(vecX.vec, vecY.vec, vecZ.vec, vecOffset.vec) {};
+		FORCEINLINE Matrix(const Vector4& vecX, const Vector4& vecY, const Vector4& vecZ, const Vector4& vecOffset) : glm::mat4(vecX, vecY, vecZ, vecOffset) {};
+		FORCEINLINE Matrix(glm::mat4 mat) : glm::mat4(mat) {};
 
 		static Matrix Identity();
 		static Matrix Translate(const Vector3& amt);
@@ -59,45 +58,46 @@ namespace LinaEngine
 		Matrix ApplyScale(const Vector3& scale);
 
 
-		FORCEINLINE Vector4 operator[](int index) const { LINA_CORE_ASSERT(index < 4);	return Vector4(m[index]); }
-		FORCEINLINE Matrix Matrix::operator* (const Matrix& other) const { return m * other.m; }
-		FORCEINLINE Matrix& Matrix::operator*= (const Matrix& other) { m = m * other.m;	return *this; }
-		FORCEINLINE bool Matrix::operator==(const Matrix& other) const { return m == other.m; }
-		FORCEINLINE bool Matrix::operator!=(const Matrix& other) const { return m != other.m; }
+	//FORCEINLINE Vector4& operator[](int index) const { LINA_CORE_ASSERT(index < 4);	return Vector4(*this[index]); }
+	//FORCEINLINE Matrix Matrix::operator* (const Matrix& other) const { return m * other.m; }
+	//FORCEINLINE Matrix& Matrix::operator*= (const Matrix& other) { m = m * other.m;	return *this; }
+	//FORCEINLINE bool Matrix::operator==(const Matrix& other) const { return m == other.m; }
+	//FORCEINLINE bool Matrix::operator!=(const Matrix& other) const { return m != other.m; }
 
-		FORCEINLINE Matrix Matrix::operator+ (const Matrix& other) const
-		{
-			Matrix result;
-			for (int i = 0; i < 4; i++) {
-				result.m[i] = m[i] + other.m[i];
-			}
-			return result;
-		}
-
-		FORCEINLINE Matrix& Matrix::operator+= (const Matrix& other)
-		{
-			for (int i = 0; i < 4; i++)
-				m[i] = m[i] + other.m[i];
-			return *this;
-		}
-
-		FORCEINLINE Matrix Matrix::operator* (float amt) const
-		{
-			Matrix result;
-			for (int i = 0; i < 4; i++)
-				result.m[i] = m[i] * amt;
-			return result;
-		}
-
-		FORCEINLINE Matrix& Matrix::operator*= (float amt)
-		{
-			for (int i = 0; i < 4; i++)
-				m[i] = m[i] * amt;
-			return *this;
-		}
+	//FORCEINLINE Matrix Matrix::operator+ (const Matrix& other) const
+	//{
+	//	
+	//	Matrix result;
+	//	for (int i = 0; i < 4; i++) {
+	//		result.m[i] = m[i] + other.m[i];
+	//	}
+	//	return result;
+	//}
+	//
+	//FORCEINLINE Matrix& Matrix::operator+= (const Matrix& other)
+	//{
+	//	for (int i = 0; i < 4; i++)
+	//		m[i] = m[i] + other.m[i];
+	//	return *this;
+	//}
+	//
+	//FORCEINLINE Matrix Matrix::operator* (float amt) const
+	//{
+	//	Matrix result;
+	//	for (int i = 0; i < 4; i++)
+	//		result.m[i] = m[i] * amt;
+	//	return result;
+	//}
+	//
+	//FORCEINLINE Matrix& Matrix::operator*= (float amt)
+	//{
+	//	for (int i = 0; i < 4; i++)
+	//		m[i] = m[i] * amt;
+	//	return *this;
+	//}
 
 	private:
-		FORCEINLINE Matrix(glm::mat4 mat) : m(mat) {};
+		
 
 	};
 

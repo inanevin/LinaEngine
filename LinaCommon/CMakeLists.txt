@@ -33,6 +33,7 @@ set (LINACOMMON_SOURCES
 	src/Utility/Math/Quaternion.cpp
 	src/Utility/Math/Transformation.cpp
 	src/Utility/Math/Vector.cpp
+	src/Utility/Math/Color.cpp
 	src/Utility/UtilityFunctions.cpp
 	src/Utility/Log.cpp
 )
@@ -53,7 +54,6 @@ set(LINACOMMON_HEADERS
 	include/Core/LinaAPI.hpp
 	# PAM
 	include/PackageManager/Generic/cmwc4096.hpp
-	include/PackageManager/Generic/GenericMath.hpp
 	include/PackageManager/Generic/GenericMemory.hpp
 	include/PackageManager/PAMMemory.hpp
 	include/PackageManager/PAMSIMD.hpp

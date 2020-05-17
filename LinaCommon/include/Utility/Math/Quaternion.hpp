@@ -32,46 +32,38 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 namespace LinaEngine
 {
 
-	class Quaternion
+	class Quaternion : public glm::quat
 	{
 
 	public:
 
-		glm::quat q;
-		PROP_FLOAT x;
-		PROP_FLOAT y;
-		PROP_FLOAT z;
-		PROP_FLOAT w;
 
 	public:
-		FORCEINLINE Quaternion() : x(q.x), y(q.y), z(q.z), w(q.w) {};
-		FORCEINLINE Quaternion(const Vector4& v) : q(v.vec) , x(q.x), y(q.y), z(q.z), w(q.w) {};
-		FORCEINLINE Quaternion(float x, float y, float z, float w) : q(x, y, z, w), x(q.x), y(q.y), z(q.z), w(q.w) {};
-		FORCEINLINE Quaternion(const Vector3& axis, float angle) : x(q.x), y(q.y), z(q.z), w(q.w) { q = glm::angleAxis(angle, axis.vec); }
-		FORCEINLINE Quaternion(glm::quat quat) : x(q.x), y(q.y), z(q.z), w(q.w), q(quat) {};
+		FORCEINLINE Quaternion()  {};
+		FORCEINLINE Quaternion(const Vector4& v) : glm::quat(v) {};
+		FORCEINLINE Quaternion(float x, float y, float z, float w) : glm::quat(x,y,z,w) {};
+		FORCEINLINE Quaternion(const Vector3& axis, float angle) { *this = glm::angleAxis(angle, axis); }
+		FORCEINLINE Quaternion(glm::quat q) : glm::quat(q) {};
 	
-		FORCEINLINE Quaternion operator+(const Quaternion& other) const { return q + other.q; }
-		FORCEINLINE Quaternion operator-(const Quaternion& other) const { return q - other.q; }
-		FORCEINLINE Quaternion operator*(const Quaternion& other) const { return q * other.q; }
-		FORCEINLINE Quaternion operator*(float amt) const { return q * amt; }
-		FORCEINLINE Quaternion operator/(float amt) const { return q / amt; }
-		FORCEINLINE Quaternion operator+=(const Quaternion& other) { q = q + other.q; return q; }
-		FORCEINLINE Quaternion operator-=(const Quaternion& other) { q = q - other.q; return q; }
-		FORCEINLINE Quaternion operator*=(const Quaternion& other) { q = q * other.q; return q; }
-		FORCEINLINE Quaternion operator*=(float amt) { q = q * amt; return q; }
-		FORCEINLINE Quaternion operator/=(float amt) { q = q / amt; return q; }
-		FORCEINLINE float operator[](int index) const { return q[index]; }
-		FORCEINLINE bool operator==(const Quaternion& other) const { return q == other.q; }
-		FORCEINLINE bool operator!=(const Quaternion& other) const { return q != other.q; }
-		FORCEINLINE float GetX() const { return q[0]; }
-		FORCEINLINE float GetY() const { return q[1]; }
-		FORCEINLINE float GetZ() const { return q[2]; }
-		FORCEINLINE float GetW() const { return q[3]; }
+		FORCEINLINE Quaternion operator+(const Quaternion& other) const { return *this + other; }
+		FORCEINLINE Quaternion operator-(const Quaternion& other) const { return *this - other; }
+		FORCEINLINE Quaternion operator*(const Quaternion& other) const { return *this * other; }
+		FORCEINLINE Quaternion operator*(float amt) const { return *this * amt; }
+		FORCEINLINE Quaternion operator/(float amt) const { return *this / amt; }
+		FORCEINLINE Quaternion operator+=(const Quaternion& other) { *this += other; return *this; }
+		FORCEINLINE Quaternion operator-=(const Quaternion& other) { *this -= other; return *this; }
+		FORCEINLINE Quaternion operator*=(const Quaternion& other) { *this *= other; return *this; }
+		FORCEINLINE Quaternion operator*=(float amt) { *this *= amt; return *this; }
+		FORCEINLINE Quaternion operator/=(float amt) { *this /= amt; return *this; }
+		FORCEINLINE Quaternion operator=(const Quaternion& other) { x = other.x; y = other.y; z = other.z; w = other.w; return *this; }
+		FORCEINLINE bool operator==(const Quaternion& other) const { return *this == other; }
+		FORCEINLINE bool operator!=(const Quaternion& other) const { return *this != other; }
 
-		FORCEINLINE Vector3 GetAxisX() const { return Rotate(Vector3(1.0f, 0.0f, 0.0f)); }
-		FORCEINLINE Vector3 GetAxisY() const { return Rotate(Vector3(0.0f, 1.0f, 0.0f)); }
-		FORCEINLINE Vector3 GetAxisZ() const { return Rotate(Vector3(0.0f, 0.0f, 1.0f)); }
-		FORCEINLINE Vector4 ToVector() const { return Vector4(q.x, q.y, q.z, q.w); }
+
+		FORCEINLINE Vector3 GetRight() const { return Rotate(Vector3(1.0f, 0.0f, 0.0f)); }
+		FORCEINLINE Vector3 GetUp() const { return Rotate(Vector3(0.0f, 1.0f, 0.0f)); }
+		FORCEINLINE Vector3 GetForward() const { return Rotate(Vector3(0.0f, 0.0f, 1.0f)); }
+		FORCEINLINE Vector4 ToVector() const { return Vector4(x, y, z, w); }
 		
 		Vector3 GetAxis() const;
 		Vector3 Rotate(const Vector3& other) const;
@@ -85,6 +77,7 @@ namespace LinaEngine
 		float Dot(const Quaternion& other) const;
 		float Length() const;
 		float LengthSquared() const;
+
 	};
 
 

@@ -200,15 +200,15 @@ void Example1Level::Initialize()
 	{
 		ECSEntity entity;
 		
-		object1Transform.transform.SetRotation(Quaternion::Euler(Vector3::Zero));
-		object1Transform.transform.SetLocation(cubePositions[i]);
+		object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
+		object1Transform.transform.location = cubePositions[i];
 		entity.entity = m_ECS->reg.create();
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
 		m_ECS->reg.emplace<MeshRendererComponent>(entity.entity, object1Renderer);
 	}
 
 	cubeEntity.entity = m_ECS->reg.create();
-	object1Transform.transform.SetLocation(Vector3(0, 4, 10));
+	object1Transform.transform.location = Vector3(0, 4, 10);
 	m_ECS->reg.emplace<TransformComponent>(cubeEntity.entity, object1Transform);
 	m_ECS->reg.emplace<MeshRendererComponent>(cubeEntity.entity, object1Renderer);
 
@@ -217,17 +217,17 @@ void Example1Level::Initialize()
 		smallCubeRenderer.material = objectUnlitMaterial;
 
 		ECSEntity entity;
-		object1Transform.transform.SetLocation(pointLightPositions[i]);
-		object1Transform.transform.SetScale(1);
-		object1Transform.transform.SetRotation(Quaternion::Euler(Vector3::Zero));
+		object1Transform.transform.location = pointLightPositions[i];
+		object1Transform.transform.scale = 1;
+		object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
 		entity.entity = m_ECS->reg.create();
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
 		
 		auto& pLight1 = m_ECS->reg.emplace<PointLightComponent>(entity.entity);
 
-		pLight1.ambient = Vector3(0.05f, 0.05f, 0.05f);
-		pLight1.diffuse = Vector3(0.8f, 0.8f, 0.8f);
-		pLight1.specular = Vector3(.4f, .4f, .4f);
+		pLight1.ambient = Color(0.05f, 0.05f, 0.05f);
+		pLight1.diffuse = Color(0.8f, 0.8f, 0.8f);
+		pLight1.specular = Color(.4f, .4f, .4f);
 		pLight1.constant = 1.0f;
 		pLight1.linear = 0.09f;
 		pLight1.quadratic = 0.032f;
@@ -235,7 +235,7 @@ void Example1Level::Initialize()
 	
 		ECSEntity visuals;
 		visuals.entity = m_ECS->reg.create();
-		object1Transform.transform.SetScale(0.2f);
+		object1Transform.transform.scale = 0.2f;
 		m_ECS->reg.emplace<TransformComponent>(visuals.entity, object1Transform);
 		m_ECS->reg.emplace<MeshRendererComponent>(visuals.entity, smallCubeRenderer);
 
@@ -245,18 +245,18 @@ void Example1Level::Initialize()
 	for (int i = 0; i < sLightSize; i++)
 	{
 		smallCubeRenderer.material = objectUnlitMaterial2;
-		object1Transform.transform.SetRotation(Quaternion::Euler(Vector3::Zero));
+		object1Transform.transform.rotation = (Quaternion::Euler(Vector3::Zero));
 
 		ECSEntity entity;
-		object1Transform.transform.SetLocation(spotLightPositions[i]);
+		object1Transform.transform.location = (spotLightPositions[i]);
 		entity.entity = m_ECS->reg.create();
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
 
 		auto& sLight1 = m_ECS->reg.emplace<SpotLightComponent>(entity.entity);
 
-		sLight1.ambient = Vector3(0.45f, 0.05f, 0.55f);
-		sLight1.diffuse = Vector3(1, 1, 1);
-		sLight1.specular = Vector3(1, 1, 1);
+		sLight1.ambient = Color(0.45f, 0.05f, 0.55f);
+		sLight1.diffuse = Color(1, 1, 1);
+		sLight1.specular = Color(1, 1, 1);
 		sLight1.direction = Vector3(0.0f, 0.0f, 1.0f);
 		sLight1.constant = 1.0f;
 		sLight1.linear = 0.09f;
@@ -267,14 +267,14 @@ void Example1Level::Initialize()
 
 		ECSEntity visuals;
 		visuals.entity = m_ECS->reg.create();
-		object1Transform.transform.SetScale(0.2f);
+		object1Transform.transform.scale = (0.2f);
 		m_ECS->reg.emplace<TransformComponent>(visuals.entity, object1Transform);
 		m_ECS->reg.emplace<MeshRendererComponent>(visuals.entity, smallCubeRenderer);
 	}
-	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3::Zero));
+	object1Transform.transform.rotation = (Quaternion::Euler(Vector3::Zero));
 
-	object1Transform.transform.SetScale(Vector3::One);
-	object1Transform.transform.SetLocation(Vector3(0,2,10));
+	object1Transform.transform.scale = (Vector3::One);
+	object1Transform.transform.location = (Vector3(0,2,10));
 	//object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(0, -180, 0)));
 	ECSEntity quad;
 	quad.entity = m_ECS->reg.create();
@@ -413,13 +413,13 @@ void Example1Level::Tick(float delta)
 	TransformComponent& cube = m_ECS->reg.get<TransformComponent>(cubeEntity.entity);
 	Quaternion q;
 	q = Quaternion::Euler(Vector3(t,t,0));
-	cube.transform.SetRotation(q);
+	cube.transform.rotation = q;
 	LINA_CLIENT_INFO("{0}", t);
 	//TransformComponent& tSpotLight = m_ECS->reg.get<TransformComponent>(spotLight.entity);
 //	TransformComponent& tCamera = m_ECS->reg.get<TransformComponent>(camera.entity);
 	
-//tSpotLight.transform.SetLocation(tCamera.transform.GetLocation());
-//tSpotLight.transform.SetRotation(tCamera.transform.GetRotation());
+//tSpotLight.transform.SetLocation(tCamera.transform.location);
+//tSpotLight.transform.SetRotation(tCamera.transform.rotation);
 //
 //TransformComponent tc = m_ECS->reg.get<TransformComponent>(object1.entity);
 //t += delta;

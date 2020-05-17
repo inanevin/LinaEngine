@@ -83,15 +83,15 @@ namespace LinaEngine::Graphics
 		FORCEINLINE Window& GetMainWindow() { return m_MainWindow; }
 
 		// Returns the window width & height
-		FORCEINLINE Vector2F GetWindowSize()
+		FORCEINLINE Vector2 GetWindowSize()
 		{
-			return Vector2F(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
+			return Vector2(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
 		};
 
 		// Returns the window center coordinates.
-		FORCEINLINE Vector2F GetWindowCenter()
+		FORCEINLINE Vector2 GetWindowCenter()
 		{
-			return Vector2F(m_MainWindow.GetWidth() / 2.0f, m_MainWindow.GetHeight() / 2.0f);
+			return Vector2(m_MainWindow.GetWidth() / 2.0f, m_MainWindow.GetHeight() / 2.0f);
 		}
 
 		// Setters for light counts. /* TAKE INSIDE LINA API LATER ON */

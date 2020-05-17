@@ -18,6 +18,7 @@ Timestamp: 4/14/2019 5:15:15 PM
 */
 
 #include "PackageManager/OpenGL/GLInputDevice.hpp"  
+#include "Utility/Math/Math.hpp"
 #include "GLFW/glfw3.h"
 #include "Utility/Log.hpp"
 
@@ -93,25 +94,25 @@ namespace LinaEngine::Input
 		return flag;
 	}
 
-	Vector2F GLInputDevice::GetRawMouseAxis()
+	Vector2 GLInputDevice::GetRawMouseAxis()
 	{
 		// Storage for previous mouse position.
-		static Vector2F oldMousePosition;
+		static Vector2 oldMousePosition;
 
 		// Get the cursor position.
 		double posX, posY;
 		glfwGetCursorPos(glfwWindow, &posX, &posY);
 
 		// Get the delta mouse position.
-		Vector2F currentMousePosition = Vector2F((float)posX, (float)posY);
-		Vector2F diff = currentMousePosition - oldMousePosition;
-		Vector2F raw = Vector2F::Zero;
+		Vector2 currentMousePosition = Vector2((float)posX, (float)posY);
+		Vector2 diff = currentMousePosition - oldMousePosition;
+		Vector2 raw = Vector2::Zero;
 
 		// Set raw axis values depending on the direction of the axis.
-		if (diff.GetX() > 0.0f) raw.SetX(1.0f);
-		else if (diff.GetX() < 0.0f) raw.SetX(-1.0f);
-		if (diff.GetY() > 0) raw.SetY(1.0f);
-		else if (diff.GetY() < 0) raw.SetY(-1.0f);
+		if (diff.x > 0.0f) raw.x = 1.0f;
+		else if (diff.x < 0.0f) raw.x = -1.0f;
+		if (diff.y > 0) raw.y = 1.0f;
+		else if (diff.y < 0) raw.y = -1.0f;
 
 		// Set previous position.
 		oldMousePosition = currentMousePosition;
@@ -120,34 +121,38 @@ namespace LinaEngine::Input
 		return raw;
 	}
 
-	Vector2F GLInputDevice::GetMouseAxis()
+	Vector2 GLInputDevice::GetMouseAxis()
 	{
 		// Storage for previous mouse position.
-		static Vector2F oldMousePos;
+		static Vector2 oldMousePos;
 
 		// Get the cursor position.
 		double posX, posY;
 		glfwGetCursorPos(glfwWindow, &posX, &posY);
 
 		// Get the delta mouse position.
-		Vector2F diff = Vector2F((float)(posX - oldMousePos.GetX()), (float)(posY - oldMousePos.GetY()));
+		Vector2 diff = Vector2((float)(posX - oldMousePos.x), (float)(posY - oldMousePos.y));
+
+	
 
 		// Clamp and remap delta mouse position.
-		diff.Set(Math::Clamp(diff.GetX(), -mouseAxisSensitivity, mouseAxisSensitivity), Math::Clamp(diff.GetY(), -mouseAxisSensitivity, mouseAxisSensitivity));
-		diff.Set(Math::Remap(diff.GetX(), -mouseAxisSensitivity, mouseAxisSensitivity, -1.0f, 1.0f), Math::Remap(diff.GetY(), -mouseAxisSensitivity, mouseAxisSensitivity, -1.0f, 1.0f));
-
+		diff.x = Math::Clamp(diff.x, -mouseAxisSensitivity, mouseAxisSensitivity);
+		diff.y = Math::Clamp(diff.y, -mouseAxisSensitivity, mouseAxisSensitivity);
+		diff.x = Math::Remap(diff.x, -mouseAxisSensitivity, mouseAxisSensitivity, -1.0f, 1.0f);
+		diff.y = Math::Remap(diff.y, -mouseAxisSensitivity, mouseAxisSensitivity, -1.0f, 1.0f);
+	
 		// Set the previous position.
-		oldMousePos = Vector2F((float)posX, (float)posY);
+		oldMousePos = Vector2((float)posX, (float)posY);
 
 		// Return delta.
 		return diff;
 	}
 
-	Vector2F GLInputDevice::GetMousePosition()
+	Vector2 GLInputDevice::GetMousePosition()
 	{
 		double xpos, ypos;
 		glfwGetCursorPos(glfwWindow, &xpos, &ypos);
-		return Vector2F((float)xpos, (float)ypos);
+		return Vector2((float)xpos, (float)ypos);
 	}
 
 
@@ -169,9 +174,9 @@ namespace LinaEngine::Input
 		}
 	}
 
-	void GLInputDevice::SetMousePosition(const Vector2F & v) const
+	void GLInputDevice::SetMousePosition(const Vector2 & v) const
 	{
-		glfwSetCursorPos(glfwWindow, v.GetX(), v.GetY());
+		glfwSetCursorPos(glfwWindow, v.x, v.y);
 	}
 }
 

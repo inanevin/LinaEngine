@@ -20,10 +20,10 @@ Timestamp: 4/27/2019 10:16:32 PM
 #include "glad/glad.h"
 #include "PackageManager/OpenGL/GLRenderDevice.hpp"  
 #include "Utility/Math/Color.hpp"
+#include "PackageManager/Generic/GenericMemory.hpp"
 #include "Core/Internal.hpp"
 #include "Rendering/ArrayBitmap.hpp"
-
-
+#include <glm/gtc/type_ptr.hpp>
 
 namespace LinaEngine::Graphics
 {
@@ -764,7 +764,7 @@ namespace LinaEngine::Graphics
 	void GLRenderDevice::UpdateUniformBuffer(uint32 buffer, const void* data, uintptr dataSize)
 	{
 		void* dest = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-		Memory::memcpy(dest, data, dataSize);
+		memcpy(dest, data, dataSize);
 		glUnmapBuffer(GL_UNIFORM_BUFFER);
 	}
 
@@ -841,7 +841,7 @@ namespace LinaEngine::Graphics
 		if (shouldClearColor)
 		{
 			flags |= GL_COLOR_BUFFER_BIT;
-			glClearColor((GLfloat)color.R(), (GLfloat)color.G(), (GLfloat)color.B(), (GLfloat)color.A());
+			glClearColor((GLfloat)color.r, (GLfloat)color.g, (GLfloat)color.b, (GLfloat)color.a);
 		}
 		if (shouldClearDepth)
 			flags |= GL_DEPTH_BUFFER_BIT;
@@ -877,17 +877,17 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::UpdateShaderUniformColor(uint32 shader, const std::string & uniform, const Color & color)
 	{
-		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)color.R(), (GLfloat)color.G(), (GLfloat)color.B());
+		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)color.r, (GLfloat)color.g, (GLfloat)color.b);
 	}
 
-	void GLRenderDevice::UpdateShaderUniformVector2F(uint32 shader, const std::string & uniform, const Vector2F & m)
+	void GLRenderDevice::UpdateShaderUniformVector2(uint32 shader, const std::string & uniform, const Vector2 & m)
 	{
-		glUniform2f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.GetX(), (GLfloat)m.GetY());
+		glUniform2f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y);
 	}
 
-	void GLRenderDevice::UpdateShaderUniformVector3F(uint32 shader, const std::string & uniform, const Vector3 & m)
+	void GLRenderDevice::UpdateShaderUniformVector3(uint32 shader, const std::string & uniform, const Vector3 & m)
 	{
-		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.GetX(), (GLfloat)m.GetY(), (GLfloat)m.GetZ());
+		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y, (GLfloat)m.z);
 	}
 
 	void GLRenderDevice::UpdateShaderUniformVector4F(uint32 shader, const std::string & uniform, const Vector4 & m)
@@ -903,11 +903,11 @@ namespace LinaEngine::Graphics
 	}
 
 	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string & uniform, const Matrix & m)
-	{
-		float* firstVector = m[0].GetFirst();
-		float* secondVector = m[1].GetFirst();
-		float* thirdVector = m[2].GetFirst();
-		float* lastVector = m[3].GetFirst();
+	{		
+		const float* firstVector = &m[0].x;
+		const float* secondVector = &m[1].x;
+		const float* thirdVector = &m[2].x;
+		const float* lastVector = &m[3].x;
 
 		float matrixData[] = {
 

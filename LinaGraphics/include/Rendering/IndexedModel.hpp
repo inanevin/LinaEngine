@@ -22,7 +22,6 @@ Timestamp: 4/26/2019 12:11:36 AM
 #ifndef IndexedModel_HPP
 #define IndexedModel_HPP
 
-#include "Utility/Math/AABB.hpp"
 #include "RenderingCommon.hpp"
 #include "Core/LinaArray.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
@@ -53,11 +52,6 @@ namespace LinaEngine::Graphics
 		void AddIndices(uint32 i0, uint32 i1, uint32 i2);
 		void AddIndices(uint32 i0, uint32 i1, uint32 i2, uint32 i3);
 
-		// Find the axis aligned bounding box for the current specific element array.
-		FORCEINLINE AABB GetAABBForElementArray(uint32 index) 
-		{
-			return AABB(&m_Elements[index][0], m_Elements[index].size() / m_ElementSizes[index]);
-		}
 
 		// Sets the start index for instanced elements.
 		FORCEINLINE void SetStartIndex(uint32 elementIndex) { m_StartIndex = elementIndex; }

@@ -114,9 +114,9 @@ namespace LinaEngine::Graphics
 		m_QuadVAO = m_RenderDevice.CreateQuadVertexArray();
 
 		// Initialize ECS Camera System.
-		Vector2F windowSize = Vector2F(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
+		Vector2 windowSize = Vector2(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
 		m_CameraSystem.Construct(ecsReg);
-		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
+		m_CameraSystem.SetAspectRatio(windowSize.x / windowSize.y);
 
 		// Initialize ECS Mesh Renderer System
 		m_MeshRendererSystem.Construct(ecsReg, *this, m_RenderDevice, m_RenderTarget);
@@ -171,8 +171,8 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.OnWindowResized(width, height);
 
 		// Update camera system's projection matrix.
-		Vector2F windowSize = Vector2F(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
-		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
+		Vector2 windowSize = Vector2(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
+		m_CameraSystem.SetAspectRatio(windowSize.x / windowSize.y);
 	}
 
 	Material& RenderEngine::CreateMaterial(const std::string& materialName, Shaders shader)
@@ -495,7 +495,7 @@ namespace LinaEngine::Graphics
 	void RenderEngine::UpdateUniformBuffers()
 	{
 		Vector3 cameraLocation = m_CameraSystem.GetCameraLocation();
-		Vector4 viewPos = Vector4(cameraLocation.GetX(), cameraLocation.GetY(), cameraLocation.GetZ(), 1.0f);
+		Vector4 viewPos = Vector4(cameraLocation.x, cameraLocation.y, cameraLocation.z, 1.0f);
 
 		// Update global matrix buffer
 		uintptr currentGlobalDataOffset = 0;
@@ -619,10 +619,10 @@ namespace LinaEngine::Graphics
 			m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first, d.second);
 
 		for (auto const& d : (*data).vector2s)
-			m_RenderDevice.UpdateShaderUniformVector2F(data->shaderID, d.first, d.second);
+			m_RenderDevice.UpdateShaderUniformVector2(data->shaderID, d.first, d.second);
 
 		for (auto const& d : (*data).vector3s)
-			m_RenderDevice.UpdateShaderUniformVector3F(data->shaderID, d.first, d.second);
+			m_RenderDevice.UpdateShaderUniformVector3(data->shaderID, d.first, d.second);
 
 		for (auto const& d : (*data).vector4s)
 			m_RenderDevice.UpdateShaderUniformVector4F(data->shaderID, d.first, d.second);

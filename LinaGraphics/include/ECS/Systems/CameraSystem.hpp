@@ -63,9 +63,9 @@ namespace LinaEngine::ECS
 		FORCEINLINE CameraComponent& GetCurrentCameraComponent() { return *m_CurrentCameraComponent; }
 	private:
 
-		Matrix m_View = Matrix::identity();
-		Matrix m_Projection =Matrix::perspective(35, 1.33f, 0.01f, 1000.0f);
-		Matrix m_SkyboxViewTransformation = Matrix::identity();
+		Matrix m_View = Matrix::Identity();
+		Matrix m_Projection =Matrix::Perspective(35, 1.33f, 0.01f, 1000.0f);
+		Matrix m_SkyboxViewTransformation = Matrix::Identity();
 		CameraComponent* m_CurrentCameraComponent = nullptr;
 		TransformComponent* m_CurrentCameraTransform = nullptr;
 		float m_AspectRatio = 1.33f;

@@ -106,34 +106,16 @@ namespace LinaEngine
 			scale = scaleIn;
 		}
 
-		// Sets the location of this transformation.
-		FORCEINLINE void SetLocation(const Vector3& translation)
-		{
-			location = translation;
-		}
-
-		// Sets the rotation of this transformation.
-		FORCEINLINE void SetRotation(const Quaternion& rot)
-		{
-			rotation = rot;
-		}
-
-		// Sets the scale of this transformation.
-		FORCEINLINE void SetScale(const Vector3& sc)
-		{			
-			scale = sc;
-		}
-
 		// Sets the rotation of this transformation based on an angle & axis.
 		FORCEINLINE void Rotate(const Vector3& axis, float angle)
 		{
-			SetRotation(Quaternion(axis, angle));
+			rotation = Quaternion(axis, angle);
 		}
 
 		// Sets the rotation of this transformation based on an euler vector.
 		FORCEINLINE void Rotate(const Vector3& euler)
 		{
-			SetRotation(Quaternion::Euler(euler));
+			rotation = Quaternion::Euler(euler);
 		}
 
 		Vector3 location = Vector3::Zero;

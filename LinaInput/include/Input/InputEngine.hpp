@@ -83,16 +83,16 @@ namespace LinaEngine::Input
 		FORCEINLINE bool GetMouseButtonUp(int button) { return m_InputDevice.GetMouseButtonUp(button); }
 
 		// Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Not smoothed.
-		FORCEINLINE Vector2F GetRawMouseAxis() { return m_InputDevice.GetRawMouseAxis(); }
+		FORCEINLINE Vector2 GetRawMouseAxis() { return m_InputDevice.GetRawMouseAxis(); }
 
 		// Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Delta smoothed.
-		FORCEINLINE Vector2F GetMouseAxis() { return m_InputDevice.GetMouseAxis(); }
+		FORCEINLINE Vector2 GetMouseAxis() { return m_InputDevice.GetMouseAxis(); }
 
 		// Returns a Vector2 containing screen space mouse positions
-		FORCEINLINE Vector2F GetMousePosition() { return m_InputDevice.GetMousePosition(); }
+		FORCEINLINE Vector2 GetMousePosition() { return m_InputDevice.GetMousePosition(); }
 
 		// Set mouse position.
-		FORCEINLINE void SetMousePosition(const Vector2F& v) { m_InputDevice.SetMousePosition(v); }
+		FORCEINLINE void SetMousePosition(const Vector2& v) { m_InputDevice.SetMousePosition(v); }
 
 		// Set cursor visible/invisible.
 		FORCEINLINE void SetCursorMode(CursorMode cursorMode) { m_InputDevice.SetCursorMode(cursorMode); }

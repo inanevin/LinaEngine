@@ -46,82 +46,83 @@ namespace LinaEngine
 
 	Vector4 Vector4::Abs() const
 	{
-		return glm::abs(vec);
+		return Vector4(glm::abs(x), glm::abs(y), glm::abs(z), glm::abs(w));
 	}
 
 	Vector4 Vector4::Min(const Vector4& other) const
 	{
-		return  *this < other ? *this : other;
+		return length() < other.length() ? glm::vec4(*this) : other;
 	}
 
 	Vector4 Vector4::Max(const Vector4& other) const
 	{
-		return *this > other ? *this : other;
+		return length() > other.length() ? glm::vec4(*this) : other;
 	}
 
 	Vector4 Vector4::Normalized() const
 	{
-		glm::vec4 norm = glm::normalize(vec); return norm;
+		glm::vec4 norm = glm::normalize(glm::vec4(*this));
+		return norm;
 	}
 
 	Vector4 Vector4::Project(const Vector4& normal) const
 	{
-		return glm::proj(vec, normal.vec);
+		return glm::proj(glm::vec4(*this), glm::vec4(normal));
 	}
 
 	Vector4 Vector4::Rotate(const Quaternion& rotation) const
 	{
-		return glm::rotate(rotation.q, vec);
+		return glm::rotate(glm::quat(rotation), glm::vec4(*this));
 	}
 
 	Vector4 Vector4::Rotate(const Vector3& axis, float angle) const
 	{
-		return glm::rotate(vec, angle, axis.vec);
+		return glm::rotate(glm::vec4(*this), angle, glm::vec3(axis));
 	}
 
 	Vector4 Vector4::Reflect(const Vector4& normal) const
 	{
-		return glm::reflect(vec, normal.vec);
+		return glm::reflect(glm::vec4(*this), glm::vec4(normal));
 	}
 
 	Vector4 Vector4::Refract(const Vector4& normal, float indexOfRefraction) const
 	{
-		return glm::refract(vec, normal.vec, indexOfRefraction);
+		return glm::refract(glm::vec4(*this), glm::vec4(normal), indexOfRefraction);
 	}
 
 	float Vector4::Dot(const Vector4& other) const
 	{
-		return glm::dot(vec, other.vec);
+		return glm::dot<4, float, glm::qualifier::highp>(glm::vec4(*this), glm::vec4(other));
 	}
 
 	float Vector4::Distance(const Vector4& other) const
 	{
-		return glm::distance(vec, other.vec);
+		return glm::distance(glm::vec4(*this), glm::vec4(other));
 	}
 
 	float Vector4::Magnitude() const
 	{
-		return vec.length();
+		return length();
 	}
 
 	float Vector4::MagnitudeSqrt() const
 	{
-		return glm::length2(vec);
+		return glm::length2(glm::vec4(*this));
 	}
 
 	float Vector4::Max() const
 	{
-		return glm::max(vec.x, glm::max(vec.y, glm::max(vec.z, vec.w)));
+		return glm::max(x, glm::max(y, glm::max(z, w)));
 	}
 
 	float Vector4::Min() const
 	{
-		return glm::min(vec.x, glm::min(vec.y, glm::min(vec.z, vec.w)));
+		return glm::min(x, glm::min(y, glm::min(z, w)));
 	}
 
 	void Vector4::Normalize()
 	{
-		vec = glm::normalize(vec);
+		*this = glm::normalize(*this);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -129,87 +130,87 @@ namespace LinaEngine
 
 	Vector3 Vector3::Cross(const Vector3& other) const
 	{
-		return glm::cross(vec, other.vec);
+		return glm::cross(glm::vec3(*this), glm::vec3(other));
 	}
 
 	Vector3 Vector3::Abs() const
 	{
-		return glm::abs(vec);
+		return glm::vec3(glm::abs(x), glm::abs(y), glm::abs(z));
 	}
 
 	Vector3 Vector3::Min(const Vector3& other) const
 	{
-		return  *this < other ? *this : other;
+		return length() < other.length() ? glm::vec3(*this) : glm::vec3(other);
 	}
 
 	Vector3 Vector3::Max(const Vector3& other) const
 	{
-		return *this > other ? *this : other;
+		return length() > other.length() ? glm::vec3(*this) : glm::vec3(other);
 	}
 
 	Vector3 Vector3::Normalized() const
 	{
-		glm::vec3 norm = glm::normalize(vec); return norm;
+		glm::vec3 norm = glm::normalize(*this); return norm;
 	}
 
 	Vector3 Vector3::Project(const Vector3& normal) const
 	{
-		return glm::proj(vec, normal.vec);
+		return glm::proj(glm::vec3(*this), glm::vec3(normal));
 	}
 
 	Vector3 Vector3::Rotate(const Vector3& axis, float angle) const
 	{
-		return glm::rotate(vec, angle, axis.vec);
+		return glm::rotate(glm::vec3(*this), angle, glm::vec3(axis));
 	}
 
 	Vector3 Vector3::Rotate(const Quaternion& rotation) const
 	{
-		return glm::rotate(rotation.q, vec);
+		return glm::rotate(glm::quat(rotation), glm::vec3(*this));
 	}
 
 	Vector3 Vector3::Reflect(const Vector3& normal) const
 	{
-		return glm::reflect(vec, normal.vec);
+		return glm::reflect(glm::vec3(*this), glm::vec3(normal));
 	}
 
 	Vector3 Vector3::Refract(const Vector3& normal, float indexOfRefraction) const
 	{
-		return glm::refract(vec, normal.vec, indexOfRefraction);
+		return glm::refract(glm::vec3(*this), glm::vec3(normal), indexOfRefraction);
 	}
 
 	float Vector3::Dot(const Vector3& other) const
 	{
-		return glm::dot(vec, other.vec);
+		return glm::dot<3, float, glm::qualifier::highp>(glm::vec3(*this), glm::vec3(other));
 	}
 
 	float Vector3::Distance(const Vector3& other) const
 	{
-		return glm::distance(vec, other.vec);
+		return glm::distance(glm::vec3(*this), glm::vec3(other));
 	}
 
 	float Vector3::Magnitude() const
 	{
-		return vec.length();
+		return length();
 	}
 
 	float Vector3::MagnitudeSqrt() const
 	{
-		return glm::length2(vec);
+		return glm::length(glm::vec3(*this));
 	}
 
 	float Vector3::Max() const
 	{
-		return glm::max(vec.x, glm::max(vec.y, vec.z));
+		return glm::max(x, glm::max(y, z));
 	}
 
 	float Vector3::Min() const
 	{
-		return glm::min(vec.x, glm::min(vec.y, vec.z));
+		return glm::min(x, glm::min(y, z));
 	}
 
 	void Vector3::Normalize()
 	{
-		vec = glm::normalize(vec);
+		*this = glm::normalize(*this);
 	}
 
 	//////////////////////////////////////////////
@@ -217,77 +218,77 @@ namespace LinaEngine
 
 	Vector2 Vector2::Abs() const
 	{
-		return glm::abs(vec);
+		return Vector2(glm::abs(x), glm::abs(y));
 	}
 
 	Vector2 Vector2::Min(const Vector2& other) const
 	{
-		return  *this < other ? *this : other;
+		return length() < other.length() ? glm::vec2(*this) : glm::vec2(other);
 	}
 
 	Vector2 Vector2::Max(const Vector2& other) const
 	{
-		return *this > other ? *this : other;
+		return length() > other.length() ? glm::vec2(*this) : glm::vec2(other);
 	}
 
 	Vector2 Vector2::Normalized() const
 	{
-		glm::vec2 norm = glm::normalize(vec); return norm;
+		glm::vec2 norm = glm::normalize(glm::vec2(*this)); return norm;
 	}
 
 	Vector2 Vector2::Project(const Vector2& normal) const
 	{
-		return glm::proj(vec, normal.vec);
+		return glm::proj(glm::vec2(*this), glm::vec2(normal));
 	}
 
 	Vector2 Vector2::Rotate(const Vector2& axis, float angle) const
 	{
-		return glm::rotate(axis.vec, angle);
+		return glm::rotate(glm::vec2(axis), angle);
 	}
 
 	Vector2 Vector2::Reflect(const Vector2& normal) const
 	{
-		return glm::reflect(vec, normal.vec);
+		return glm::reflect(glm::vec2(*this), glm::vec2(normal));
 	}
 
 	Vector2 Vector2::Refract(const Vector2& normal, float indexOfRefraction) const
 	{
-		return glm::refract(vec, normal.vec, indexOfRefraction);
+		return glm::refract(glm::vec2(*this), glm::vec2(normal), indexOfRefraction);
 	}
 
 	float Vector2::Dot(const Vector2& other) const
 	{
-		return glm::dot(vec, other.vec);
+		return glm::dot<2, float, glm::qualifier::highp>(glm::vec2(*this), glm::vec2(other));
 	}
 
 	float Vector2::Distance(const Vector2& other) const
 	{
-		return glm::distance(vec, other.vec);
+		return glm::distance(glm::vec2(*this), glm::vec2(other));
 	}
 
 	float Vector2::Magnitude() const
 	{
-		return vec.length();
+		return length();
 	}
 
 	float Vector2::MagnitudeSqrt() const
 	{
-		return glm::length2(vec);
+		return glm::length2(glm::vec2(*this));
 	}
 
 	float Vector2::Max() const
 	{
-		return glm::max(vec.x, vec.y);
+		return glm::max(x, y);
 	}
 
 	float Vector2::Min() const
 	{
-		return glm::min(vec.x, vec.y);
+		return glm::min(x, y);
 	}
 
 	void Vector2::Normalize()
 	{
-		vec = glm::normalize(vec);
+		*this = glm::normalize(glm::vec2(*this));
 	}
 
 }

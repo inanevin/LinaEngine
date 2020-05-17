@@ -21,6 +21,7 @@ Timestamp: 5/2/2019 12:41:01 AM
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
+#include "Utility/Math/Math.hpp"
 
 namespace LinaEngine::ECS
 {
@@ -42,8 +43,8 @@ namespace LinaEngine::ECS
 			m_CurrentCameraTransform = &transform;
 			
 			// Init translation & rotation matrices.
-			Matrix translation = Matrix::Translate(-transform.transform.GetLocation());
-			Matrix rotation = Matrix::InitRotationFromDirection(transform.transform.GetRotation().GetAxisZ(), transform.transform.GetRotation().GetAxisY());
+			Matrix translation = Matrix::Translate(-transform.transform.location);
+			Matrix rotation = Matrix::InitRotationFromDirection(transform.transform.rotation.GetForward(), transform.transform.rotation.GetUp());
 			
 			// View transformation including only the rotation data for skybox.
 			m_SkyboxViewTransformation = rotation;
@@ -52,7 +53,7 @@ namespace LinaEngine::ECS
 			m_View = rotation * translation;
 			
 			// Update projection matrix.
-			m_Projection = Matrix::perspective(Math::ToRadians(camera.fieldOfView / 2.0f), m_AspectRatio, camera.zNear, camera.zFar);
+			m_Projection = Matrix::Perspective(Math::ToRadians(camera.fieldOfView / 2.0f), m_AspectRatio, camera.zNear, camera.zFar);
 
 		}
 	
@@ -61,7 +62,7 @@ namespace LinaEngine::ECS
 
 	Vector3 CameraSystem::GetCameraLocation()
 	{
-		return m_CurrentCameraComponent == nullptr ? Vector3(VectorConstants::ZERO): m_CurrentCameraTransform->transform.GetLocation();
+		return m_CurrentCameraComponent == nullptr ? Vector3(Vector3::Zero): m_CurrentCameraTransform->transform.location;
 	}
 
 	LinaEngine::Color& CameraSystem::GetCurrentClearColor()

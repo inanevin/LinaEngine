@@ -25,7 +25,7 @@ namespace LinaEngine
 {
 	Quaternion Quaternion::Normalized() const
 	{
-		glm::quat quat = glm::normalize(q);
+		glm::quat quat = glm::normalize(*this);
 		return quat;
 	}
 
@@ -35,46 +35,45 @@ namespace LinaEngine
 	}
 	Vector3 Quaternion::GetAxis() const
 	{
-		return glm::axis(q);
+		return glm::axis(*this);
 	}
 	float Quaternion::GetAngle() const
 	{
-		return glm::angle(q);
+		return glm::angle(*this);
 	}
 
 	Vector3 Quaternion::Rotate(const Vector3& other) const
 	{
-		return glm::rotate(q, other.vec);
+		return glm::rotate(*this, other);
 	}
 	Quaternion Quaternion::Slerp(const Quaternion& dest, float t) const
 	{
-		return glm::slerp(q, dest.q, t);
+		return glm::slerp(*this, dest, t);
 	}
 	Quaternion Quaternion::Conjugate() const
 	{
-		return glm::conjugate(q);
+		return glm::conjugate(*this);
 	}
 	Quaternion Quaternion::Inverse() const
 	{
-		return glm::inverse(q);
+		return glm::inverse(*this);
 	}
 
 	float Quaternion::Dot(const Quaternion& other) const
 	{
-		return glm::dot(q, other.q);
+		return glm::dot(glm::quat(*this), glm::quat(other));
 	}
 	float Quaternion::Length() const
 	{
-		return glm::length(q);
+		return glm::length(glm::quat(*this));
 	}
 	float Quaternion::LengthSquared() const
 	{
-		return glm::length2(q);
+		return glm::length2(glm::quat(*this));
 	}
-
 
 	Quaternion Quaternion::Euler(const Vector3& v)
 	{
-		return glm::quat(v.vec);
+		return glm::quat(v);
 	}
 }

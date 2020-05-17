@@ -61,19 +61,19 @@ namespace LinaEngine::Input
 		bool GetMouseButtonUp(int index);
 
 		// Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Not smoothed.
-		Vector2F GetRawMouseAxis();
+		Vector2 GetRawMouseAxis();
 
 		// Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Delta smoothed.
-		Vector2F GetMouseAxis();
+		Vector2 GetMouseAxis();
 
 		// Returns a Vector2 containing screen space mouse positions
-		Vector2F GetMousePosition();
+		Vector2 GetMousePosition();
 
 		// Set cursor visible/invisible.
 		void SetCursorMode(CursorMode mode) const;
 
 		// Set mouse position.
-		void SetMousePosition(const Vector2F& v) const;
+		void SetMousePosition(const Vector2& v) const;
 
 	private:
 

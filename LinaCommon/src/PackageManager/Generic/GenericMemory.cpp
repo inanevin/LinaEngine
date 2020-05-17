@@ -19,7 +19,7 @@ Timestamp: 4/8/2019 9:04:58 PM
 
 
 #include "PackageManager/Generic/GenericMemory.hpp"  
-#include "PackageManager/PAMMath.hpp"
+#include "Utility/Math/Math.hpp"
 #include <cstdlib>
 #include <stdio.h>
 

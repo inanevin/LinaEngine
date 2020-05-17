@@ -176,10 +176,10 @@ namespace LinaEngine::Graphics
 		void UpdateShaderUniformColor(uint32 shader, const std::string& uniform, const Color& color);
 
 		// Updates a vec2 type uniform on a shader with given name.
-		void UpdateShaderUniformVector2F(uint32 shader, const std::string& uniform, const Vector2F& m);
+		void UpdateShaderUniformVector2(uint32 shader, const std::string& uniform, const Vector2& m);
 
 		// Updates a vec3 type uniform on a shader with given name.
-		void UpdateShaderUniformVector3F(uint32 shader, const std::string& uniform, const Vector3& m);
+		void UpdateShaderUniformVector3(uint32 shader, const std::string& uniform, const Vector3& m);
 
 		// Updates a vec4 type uniform on a shader with given name.
 		void UpdateShaderUniformVector4F(uint32 shader, const std::string& uniform, const Vector4& m);

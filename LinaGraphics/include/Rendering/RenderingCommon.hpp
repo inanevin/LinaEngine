@@ -141,12 +141,12 @@ namespace LinaEngine::Graphics
 
 	enum UniformType
 	{
-		Matrix4,
-		Vector3,
-		Vector4,
-		Vector2,
-		Float,
-		Int
+		UT_Matrix4,
+		UT_Vector3,
+		UT_Vector4,
+		UT_Vector2,
+		UT_Float,
+		UT_Int
 	};
 
 	struct SamplerData
