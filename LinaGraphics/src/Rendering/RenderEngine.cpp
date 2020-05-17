@@ -135,7 +135,7 @@ namespace LinaEngine::Graphics
 	void RenderEngine::Tick(float delta)
 	{
 		// Clear color.
-		m_MeshRendererSystem.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+		m_RenderDevice.Clear(m_RenderTarget.GetID(), true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Draw skybox.
 		DrawSkybox();

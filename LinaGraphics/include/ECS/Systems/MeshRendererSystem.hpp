@@ -55,27 +55,6 @@ namespace LinaEngine::ECS
 			m_DrawParams = drawParamsIn;
 		}
 
-		FORCEINLINE void Clear(bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
-		{
-			m_RenderDevice->Clear(m_RenderTarget->GetID(), shouldClearColor, shouldClearDepth, shouldClearStencil, color, stencil);
-		}
-
-		FORCEINLINE void Clear(const Color& color, bool shouldClearDepth = false)
-		{
-			m_RenderDevice->Clear(m_RenderTarget->GetID(), true, shouldClearDepth, false, color, 0);
-		}
-
-		FORCEINLINE void Draw(uint32 vao,  uint32 numInstances = 1, uint32 numElements = 1, bool drawArrays = false)
-		{
-			m_RenderDevice->Draw(m_RenderTarget->GetID(), vao, m_DrawParams, numInstances, numElements, drawArrays);
-		}
-
-		FORCEINLINE void Draw(Graphics::VertexArray& vertexArray, uint32 numInstances = 1, bool drawArrays = false)
-		{
-			m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray.GetID(), m_DrawParams, numInstances, vertexArray.GetIndexCount(), drawArrays);
-		}
-
-
 		void RenderMesh(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn);
 		void Flush();
 

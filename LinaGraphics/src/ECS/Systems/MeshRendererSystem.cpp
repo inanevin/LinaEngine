@@ -103,7 +103,7 @@ namespace LinaEngine::ECS
 				m_RenderEngine->UpdateShaderData(mat);
 
 				// Draw call.
-				Draw(*vertexArray, numTransforms);
+				m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), m_DrawParams, numTransforms, vertexArray->GetIndexCount(), false);
 
 				// Set stencil outline shader.
 				m_RenderDevice->SetShader(mat->stencilOutlineShaderID);
@@ -128,7 +128,7 @@ namespace LinaEngine::ECS
 				m_RenderDevice->UpdateShaderUniformFloat(it->first.second->stencilOutlineShaderID, UF_STENCILTHICKNESS, it->first.second->stencilThickness);
 
 				// Draw call.
-				this->Draw(*vertexArray, numTransforms);
+				m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), m_DrawParams, numTransforms, vertexArray->GetIndexCount(), false);
 
 				// Reset stencil.
 				m_RenderDevice->SetStencilWriteMask(0xFF);
@@ -149,7 +149,7 @@ namespace LinaEngine::ECS
 				m_RenderEngine->UpdateShaderData(mat);
 
 				// Draw call.
-				this->Draw(*vertexArray, numTransforms);
+				m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), m_DrawParams, numTransforms, vertexArray->GetIndexCount(), false);
 			}
 
 			// Clear the buffer, or do not if you want a trail of shadows lol.
