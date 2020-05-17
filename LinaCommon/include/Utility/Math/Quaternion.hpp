@@ -40,7 +40,7 @@ namespace LinaEngine
 		FORCEINLINE Quaternion() {}
 		FORCEINLINE Quaternion(const Vector& quat);
 		FORCEINLINE Quaternion(float x, float y, float z, float w);
-		FORCEINLINE Quaternion(const Vector3F& axis, float angle);
+		FORCEINLINE Quaternion(const Vector3& axis, float angle);
 	
 
 		FORCEINLINE Quaternion operator+(const Quaternion& other) const;
@@ -53,8 +53,8 @@ namespace LinaEngine
 		FORCEINLINE Quaternion operator*=(float amt);
 		FORCEINLINE Quaternion operator/(float amt) const;
 		FORCEINLINE Quaternion operator/=(float amt);
-		FORCEINLINE Vector3F operator*(const Vector3F& other) const;
-		FORCEINLINE Quaternion VectorMultiplication(const Vector3F v)
+		FORCEINLINE Vector3 operator*(const Vector3& other) const;
+		FORCEINLINE Quaternion VectorMultiplication(const Vector3 v)
 		{
 			float _w = -(GetX() * v.GetX()) - (GetY() * v.GetY()) - (GetZ() * v.GetZ());
 			float _x = (GetW() * v.GetX()) + (GetY() * v.GetZ()) - (GetZ() * v.GetY());
@@ -70,23 +70,23 @@ namespace LinaEngine
 		FORCEINLINE float Dot(const Quaternion& other) const;
 		FORCEINLINE float Length() const;
 		FORCEINLINE float LengthSquared() const;
-		FORCEINLINE Vector3F GetAxisX() const;
-		FORCEINLINE Vector3F GetAxisY() const;
-		FORCEINLINE Vector3F GetAxisZ() const;
+		FORCEINLINE Vector3 GetAxisX() const;
+		FORCEINLINE Vector3 GetAxisY() const;
+		FORCEINLINE Vector3 GetAxisZ() const;
 		FORCEINLINE Vector ToVector() const;
 	
 		FORCEINLINE float GetX() const { return vec[0]; }
 		FORCEINLINE float GetY() const { return vec[1]; }
 		FORCEINLINE float GetZ() const { return vec[2]; }
 		FORCEINLINE float GetW() const { return vec[3]; }
-		static FORCEINLINE Quaternion Euler(const Vector3F& v);
+		static FORCEINLINE Quaternion Euler(const Vector3& v);
 
 		bool IsNormalized(float errorMargin = 1.e-4f) const;
-		void AxisAndAngle(Vector3F& axis, float& angle) const;
+		void AxisAndAngle(Vector3& axis, float& angle) const;
 		float GetAngle() const;
 
-		Vector3F GetAxis() const;
-		Vector3F Rotate(const Vector3F& other) const;
+		Vector3 GetAxis() const;
+		Vector3 Rotate(const Vector3& other) const;
 
 		Quaternion Slerp(const Quaternion& dest, float amt, float errorMargin = 1.e-4f) const;
 		Quaternion Conjugate() const;
@@ -156,7 +156,7 @@ namespace LinaEngine
 
 	FORCEINLINE Quaternion::Quaternion(float x, float y, float z, float w) :
 		vec(Vector::Make(x, y, z, w)) {}
-	FORCEINLINE Quaternion::Quaternion(const Vector3F& axis, float angle)
+	FORCEINLINE Quaternion::Quaternion(const Vector3& axis, float angle)
 	{
 		float vals[3];
 		float sinAngle, cosAngle;
@@ -196,7 +196,7 @@ namespace LinaEngine
 		vec = vec.QuatMul(other.vec);
 		return *this;
 	}
-	FORCEINLINE Vector3F Quaternion::operator*(const Vector3F& other) const
+	FORCEINLINE Vector3 Quaternion::operator*(const Vector3& other) const
 	{
 		return Rotate(other);
 	}
@@ -246,24 +246,24 @@ namespace LinaEngine
 	{
 		return vec.Dot4(vec)[0];
 	}
-	FORCEINLINE Vector3F Quaternion::GetAxisX() const
+	FORCEINLINE Vector3 Quaternion::GetAxisX() const
 	{
-		return Rotate(Vector3F(1.0f, 0.0f, 0.0f));
+		return Rotate(Vector3(1.0f, 0.0f, 0.0f));
 	}
-	FORCEINLINE Vector3F Quaternion::GetAxisY() const
+	FORCEINLINE Vector3 Quaternion::GetAxisY() const
 	{
-		return Rotate(Vector3F(0.0f, 1.0f, 0.0f));
+		return Rotate(Vector3(0.0f, 1.0f, 0.0f));
 	}
-	FORCEINLINE Vector3F Quaternion::GetAxisZ() const
+	FORCEINLINE Vector3 Quaternion::GetAxisZ() const
 	{
-		return Rotate(Vector3F(0.0f, 0.0f, 1.0f));
+		return Rotate(Vector3(0.0f, 0.0f, 1.0f));
 	}
 	FORCEINLINE Vector Quaternion::ToVector() const
 	{
 		return vec;
 	}
 
-	FORCEINLINE Quaternion Quaternion::Euler(const Vector3F& v)
+	FORCEINLINE Quaternion Quaternion::Euler(const Vector3& v)
 	{
 
 		float x, y, z, w = 0.0f;

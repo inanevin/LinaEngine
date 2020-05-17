@@ -34,21 +34,21 @@ namespace LinaEngine
 		FORCEINLINE Plane();
 		FORCEINLINE Plane(const Vector& plane);
 		FORCEINLINE Plane(float x, float y, float z, float w);
-		FORCEINLINE Plane(const Vector3F& normal, float w);
+		FORCEINLINE Plane(const Vector3& normal, float w);
 		Plane transform(const Matrix& transform) const;
 
-		FORCEINLINE float dot(const Vector3F& other) const;
+		FORCEINLINE float dot(const Vector3& other) const;
 		FORCEINLINE float dotVector(const Vector& other) const;
 		FORCEINLINE float dotPlane(const Plane& other) const;
 		FORCEINLINE Plane normalized(float errorMargin = 1.e-8f) const;
 		FORCEINLINE bool isNormalized(float errorMargin = 1.e-4f) const;
 
-		FORCEINLINE Vector3F getNormal() const;
-		FORCEINLINE Vector3F reflect(const Vector3F& point) const;
+		FORCEINLINE Vector3 getNormal() const;
+		FORCEINLINE Vector3 reflect(const Vector3& point) const;
 
-		bool intersectPlanes(Vector3F& intersectionPoint, const Plane& other1, const Plane& other2, float errormargin = 1.e-8f) const;
-		FORCEINLINE float intersectLine(const Vector3F& lineStart, const Vector3F& lineEnd) const;
-		FORCEINLINE float intersectRay(const Vector3F& start, const Vector3F& rayDir) const;
+		bool intersectPlanes(Vector3& intersectionPoint, const Plane& other1, const Plane& other2, float errormargin = 1.e-8f) const;
+		FORCEINLINE float intersectLine(const Vector3& lineStart, const Vector3& lineEnd) const;
+		FORCEINLINE float intersectRay(const Vector3& start, const Vector3& rayDir) const;
 
 		FORCEINLINE Plane abs() const;
 
@@ -84,10 +84,10 @@ namespace LinaEngine
 	FORCEINLINE Plane::Plane(float x, float y, float z, float w) :
 		data(Vector::Make(x, y, z, w)) {}
 
-	FORCEINLINE Plane::Plane(const Vector3F& normal, float w) :
+	FORCEINLINE Plane::Plane(const Vector3& normal, float w) :
 		data(normal.ToVector(w)) {}
 
-	FORCEINLINE float Plane::dot(const Vector3F& other) const
+	FORCEINLINE float Plane::dot(const Vector3& other) const
 	{
 		return other.ToVector(1.0f).Dot4(data)[0];
 	}
@@ -113,26 +113,26 @@ namespace LinaEngine
 		return Math::Abs(1.0f - (data.Dot3(data)[0])) < errorMargin;
 	}
 
-	FORCEINLINE Vector3F Plane::getNormal() const
+	FORCEINLINE Vector3 Plane::getNormal() const
 	{
-		return Vector3F(data.Normalize3());
+		return Vector3(data.Normalize3());
 	}
 
-	FORCEINLINE float Plane::intersectLine(const Vector3F& lineStart, const Vector3F& lineEnd) const
+	FORCEINLINE float Plane::intersectLine(const Vector3& lineStart, const Vector3& lineEnd) const
 	{
 		return intersectRay(lineStart, lineEnd - lineStart);
 	}
 
-	FORCEINLINE float Plane::intersectRay(const Vector3F& start, const Vector3F& rayDir) const
+	FORCEINLINE float Plane::intersectRay(const Vector3& start, const Vector3& rayDir) const
 	{
 		return -dot(start) / rayDir.Dot(getNormal());
 	}
 
-	FORCEINLINE Vector3F Plane::reflect(const Vector3F& point) const
+	FORCEINLINE Vector3 Plane::reflect(const Vector3& point) const
 	{
 		Vector pointAsVector(point.ToVector(1.0f));
 		Vector dotAmt = VectorConstants::TWO * data.Dot4(pointAsVector);
-		return Vector3F(pointAsVector - (data * dotAmt));
+		return Vector3(pointAsVector - (data * dotAmt));
 	}
 
 	FORCEINLINE Plane Plane::abs() const

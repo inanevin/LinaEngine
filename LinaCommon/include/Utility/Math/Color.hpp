@@ -35,7 +35,7 @@ namespace LinaEngine
 	public:
 
 		Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f) : r(rv), g(gv), b(bv), a(av) {};
-		Color(Vector3F& v) : r(v.GetX()), g(v.GetY()), b(v.GetZ()), a(1.0f) {};
+		Color(Vector3& v) : r(v.GetX()), g(v.GetY()), b(v.GetZ()), a(1.0f) {};
 		FORCEINLINE float R() { return r; }
 		FORCEINLINE float G() { return g; }
 		FORCEINLINE float B() { return b; }

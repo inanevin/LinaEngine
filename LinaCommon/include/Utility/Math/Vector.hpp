@@ -27,665 +27,279 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 #include "Core/Common.hpp"
 #include "Core/LinaAPI.hpp"
-#include "PackageManager/PAMVectorMath.hpp"
+
+#include "glm/vec2.hpp"
+#include "glm/glm.hpp"
+#include "glm/vec3.hpp"
+#include "glm/vec4.hpp"
+#include "glm/gtx/norm.hpp"
 #include <sstream>
 #include <iostream>
 
 namespace LinaEngine
 {
-	struct VectorConstants
-	{
-		static LINACOMMON_API const Vector ZERO;
-		static LINACOMMON_API const Vector ONE;
-		static LINACOMMON_API const Vector TWO;
-		static LINACOMMON_API const Vector HALF;
-		static LINACOMMON_API const Vector INF;
-		static LINACOMMON_API const Vector MASK_X;
-		static LINACOMMON_API const Vector MASK_Y;
-		static LINACOMMON_API const Vector MASK_Z;
-		static LINACOMMON_API const Vector MASK_W;
-		static LINACOMMON_API const Vector SIGN_MASK;
-
+	class PROP_FLOAT {
+	public:
+		float& value;
+		PROP_FLOAT(float& v) : value(v) {}
+		float& operator = (const float& f) { value = f;	return value; }
+		operator float() const { return value; }
 	};
 
-	class Vector4F
+
+	class Vector4
 	{
 	public:
 
-		float x, y, z, w;
+		glm::vec4 vec;
+		PROP_FLOAT x;
+		PROP_FLOAT y;
+		PROP_FLOAT z;
+		PROP_FLOAT w;
 
-		Vector4F() {};
-		Vector4F(float X, float Y, float Z, float W) : x(X), y(Y), z(Z), w(W) { };
-		Vector4F(const Vector4F& rhs) :x(rhs.x), y(rhs.y), z(rhs.z), w(rhs.w) {};
+		Vector4() : x(vec.x), y(vec.y), z(vec.z), w(vec.w) {};
+		Vector4(float x, float y, float z, float w) : vec(x, y, z, w), x(vec.x), y(vec.y), z(vec.z), w(vec.w) {};
+		Vector4(const Vector4& rhs) : vec(rhs.vec), x(vec.x), y(vec.y), z(vec.z), w(vec.w) {};
+		Vector4(const Vector3& rhs) : vec(rhs.vec, 0), x(vec.x), y(vec.y), z(vec.z), w(vec.w) {};
+		Vector4(const Vector2& rhs) : vec(rhs.vec, 0, 0), x(vec.x), y(vec.y), z(vec.z), w(vec.w) {};
+		Vector4(float f) : vec(f), x(vec.x), y(vec.y), z(vec.z), w(vec.w) {};
+		Vector4(glm::vec4 v) : vec(v), x(vec.x), y(vec.y), z(vec.z), w(vec.w) {}
 
-		float Max() const;
-		float MagnitudeSq() const;
+		static LINACOMMON_API Vector4 Zero;
+		static LINACOMMON_API Vector4 One;
+
+		Vector3 Cross(const Vector3& other) const;
+		Vector3 Abs() const;
+		Vector3 Min(const Vector3& other) const;
+		Vector3 Max(const Vector3& other) const;
+		Vector3 Normalized() const;
+		Vector3 Project() const;
+		Vector3 Rotate(const Vector3& axis, float angle) const;
+		Vector3 Rotate(const class Quaternion& rotation) const;
+		Vector3 Reflect(const Vector3& normal) const;
+		Vector3 Refract(const Vector3& normal, float indexOfRefraction) const;
+		float Dot(const Vector3& other) const;
+		float Distance(const Vector3& other) const;
 		float Magnitude() const;
-		float AngleBetween(const Vector4F& rhs) const;
-		float Dot(const Vector4F& rhs) const;
-
-		Vector4F Reflect(const Vector4F& normal) const;
-		Vector4F Max(const Vector4F& rhs) const;
-		Vector4F Normalized() const;
-		Vector4F Lerp(const Vector4F& rhs, float lerpFactor) const;
-		Vector4F Project(const Vector4F& rhs) const;
-		void Normalize();
-
-		inline static Vector4F One() { return Vector4F(1, 1, 1, 1); }
-		inline static Vector4F Zero() { return Vector4F(0, 0, 0, 0); }
-
-#pragma region Operator Overloads
-
-		inline Vector4F operator+(const Vector4F& rhs) const
-		{
-			return Vector4F(this->x + rhs.x, this->y + rhs.y, this->z + rhs.z, this->w + rhs.w);
-		};
-
-		inline Vector4F operator-(const Vector4F & rhs) const
-		{
-			return Vector4F(this->x - rhs.x, this->y - rhs.y, this->z - rhs.z, this->w - rhs.w);
-		};
-
-		inline Vector4F operator*(const Vector4F & rhs) const
-		{
-
-			return Vector4F(this->x * rhs.x, this->y * rhs.y, this->z * rhs.z, this->w * rhs.w);
-
-		}
-		inline Vector4F operator/(const Vector4F & rhs) const
-		{
-			float xR = rhs.x == 0.0f ? 0.0f : this->x / rhs.x;
-			float yR = rhs.y == 0.0f ? 0.0f : this->y / rhs.y;
-			float zR = rhs.z == 0.0f ? 0.0f : this->z / rhs.z;
-			float wR = rhs.w == 0.0f ? 0.0f : this->w / rhs.w;
-
-			return Vector4F(xR, yR, zR, wR);
-		};
-
-
-		inline Vector4F operator+(const float& rhs) const
-		{
-			return Vector4F(this->x + rhs, this->y + rhs, this->z + rhs, this->w + rhs);
-		}
-
-		inline Vector4F operator-(const float& rhs) const
-		{
-			return Vector4F(this->x - rhs, this->y - rhs, this->z - rhs, this->w - rhs);
-		}
-
-		inline Vector4F operator*(const float& rhs) const
-		{
-			return Vector4F(this->x * rhs, this->y * rhs, this->z * rhs, this->w * rhs);
-		}
-
-		inline Vector4F operator/(const float& rhs) const
-		{
-			if (rhs == 0.0f)
-				return Vector4F(0, 0, 0, 0);
-
-			return Vector4F(this->x + rhs, this->y + rhs, this->z + rhs, this->w + rhs);
-		}
-
-		inline Vector4F & operator+=(const Vector4F & rhs)
-		{
-			this->x += rhs.x;
-			this->y += rhs.y;
-			this->z += rhs.z;
-			this->w += rhs.w;
-
-			return *this;
-		};
-
-		inline Vector4F& operator-=(const Vector4F & rhs)
-		{
-			this->x -= rhs.x;
-			this->y -= rhs.y;
-			this->z -= rhs.z;
-			this->w -= rhs.w;
-
-			return *this;
-		};
-
-		inline Vector4F& operator*=(const Vector4F & rhs)
-		{
-			this->x *= rhs.x;
-			this->y *= rhs.y;
-			this->z *= rhs.z;
-			this->w *= rhs.w;
-
-			return *this;
-		};
-
-		inline Vector4F& operator/=(const Vector4F & rhs)
-		{
-			this->x = rhs.x == 0.0f ? 0.0f : this->x / rhs.x;
-			this->y = rhs.y == 0.0f ? 0.0f : this->y / rhs.y;
-			this->z = rhs.z == 0.0f ? 0.0f : this->z / rhs.z;
-			this->w = rhs.w == 0.0f ? 0.0f : this->w / rhs.w;
-
-			return *this;
-		};
-
-
-		inline Vector4F& operator+=(const float& rhs)
-		{
-			this->x += rhs;
-			this->y += rhs;
-			this->z += rhs;
-			this->w += rhs;
-
-			return *this;
-		};
-
-
-		inline Vector4F& operator-=(const float& rhs)
-		{
-			this->x -= rhs;
-			this->y -= rhs;
-			this->z -= rhs;
-			this->w -= rhs;
-
-			return *this;
-		};
-
-		inline Vector4F& operator*=(const float& rhs)
-		{
-			this->x *= rhs;
-			this->y *= rhs;
-			this->z *= rhs;
-			this->w *= rhs;
-
-			return *this;
-		};
-
-		inline Vector4F& operator/=(const float& rhs)
-		{
-			if (rhs == 0.0f)
-			{
-				this->x = this->y = this->z = this->w = 0.0f;
-				return *this;
-			}
-
-			this->x /= rhs;
-			this->y /= rhs;
-			this->z /= rhs;
-			this->w /= rhs;
-
-			return *this;
-		};
-
-
-		inline bool operator==(const Vector4F & rhs) const
-		{
-			return (this->x == rhs.x && this->y == rhs.y && this->z == rhs.z && this->w == rhs.w);
-		}
-
-		inline bool operator!=(const Vector4F & rhs) const
-		{
-			return !(this->x == rhs.x && this->y == rhs.y && this->z == rhs.z && this->w == rhs.w);
-		}
-
-
-		inline bool operator>(const Vector4F & rhs) const
-		{
-			return this->Magnitude() > rhs.Magnitude();
-		}
-
-		inline bool operator<(const Vector4F & rhs) const
-		{
-			return this->Magnitude() < rhs.Magnitude();
-		}
-
-		inline float& operator[] (unsigned int i) {
-			if (i == 0)
-				return x;
-			else if (i == 1)
-				return y;
-			else if (i == 2)
-				return z;
-			else
-				return w;
-		}
-
-		inline float operator[] (unsigned int i) const
-		{
-			if (i == 0)
-				return x;
-			else if (i == 1)
-				return y;
-			else if (i == 2)
-				return z;
-			else
-				return w;
-		}
-
-		inline Vector4F operator-() const
-		{
-			return Vector4F(-x, -y, -z, -w);
-		}
-
-		inline std::ostream& operator<<(std::ostream & os)
-		{
-			return os << "(X: " << x << " Y: " << y << " Z: " << z << " W: " << w << ")";
-		}
-
-		inline std::string ToString()
-		{
-			std::stringstream ss;
-			ss << "(X: " << x << " Y: " << y << " Z: " << z << " W: " << w << ")";
-			return ss.str();
-		}
-
-
-#pragma endregion
-
-
-	};
-
-	class Vector3F
-	{
-	public:
-
-		static LINACOMMON_API const Vector3F Zero;
-		static LINACOMMON_API const Vector3F Up;
-		static LINACOMMON_API const Vector3F Down;
-		static LINACOMMON_API const Vector3F Right;
-		static LINACOMMON_API const Vector3F Left;
-		static LINACOMMON_API const Vector3F Forward;
-		static LINACOMMON_API const Vector3F Back;
-		static LINACOMMON_API const Vector3F One;
-
-		Vector3F();
-		Vector3F(float val);
-		Vector3F(float xIn, float yIn, float zIn);
-		Vector3F(const Vector& vecIn);
-		
-
-		FORCEINLINE Vector3F Vector3F::DotToVector(const Vector3F& other) const
-		{
-			return Vector3F(vec.Dot3(other.vec));
-		}
-
-		FORCEINLINE Vector3F Vector3F::Cross(const Vector3F& other) const
-		{
-			return Vector3F(vec.Cross3(other.vec));
-		}
-
-		FORCEINLINE Vector3F Vector3F::operator+(const Vector3F& other) const
-		{
-			return Vector3F(vec + other.vec);
-		}
-
-		FORCEINLINE Vector3F Vector3F::operator-(const Vector3F & other) const
-		{
-			return Vector3F(vec - other.vec);
-		}
-
-		FORCEINLINE Vector3F Vector3F::operator*(const Vector3F & other) const
-		{
-			return Vector3F(vec * other.vec);
-		}
-
-		FORCEINLINE Vector3F Vector3F::operator/(const Vector3F & other) const
-		{
-			return Vector3F(vec / other.vec);
-		}
-
-		FORCEINLINE Vector3F Vector3F::operator+(float amt) const
-		{
-			return Vector3F(vec + Vector::Load1F(amt));
-		}
-
-		FORCEINLINE Vector3F Vector3F::operator-(float amt) const
-		{
-			return Vector3F(vec - Vector::Load1F(amt));
-		}
-
-		FORCEINLINE Vector3F Vector3F::operator*(float amt) const
-		{
-			return Vector3F(vec * Vector::Load1F(amt));
-		}
-
-		FORCEINLINE Vector3F Vector3F::operator/(float amt) const
-		{
-			return Vector3F(vec * Vector::Load1F(Math::Reciprocal(amt)));
-		}
-
-		FORCEINLINE Vector3F Vector3F::operator-() const
-		{
-			return Vector3F(-vec);
-		}
-
-		FORCEINLINE Vector3F Vector3F::operator+=(const Vector3F & other)
-		{
-			vec = vec + other.vec;
-			return *this;
-		}
-
-		FORCEINLINE Vector3F Vector3F::operator-=(const Vector3F & other)
-		{
-			vec = vec - other.vec;
-			return *this;
-		}
-
-		FORCEINLINE Vector3F Vector3F::operator*=(const Vector3F & other)
-		{
-			vec = vec * other.vec;
-			return *this;
-		}
-
-		FORCEINLINE Vector3F Vector3F::operator/=(const Vector3F & other)
-		{
-			vec = vec / other.vec;
-			return *this;
-		}
-
-		FORCEINLINE Vector3F Vector3F::operator+=(float val)
-		{
-			vec = vec + Vector::Load1F(val);
-			return *this;
-		}
-
-		FORCEINLINE Vector3F Vector3F::operator-=(float val)
-		{
-			vec = vec - Vector::Load1F(val);
-			return *this;
-		}
-
-		FORCEINLINE Vector3F Vector3F::operator*=(float val)
-		{
-			vec = vec * Vector::Load1F(val);
-			return *this;
-		}
-
-		FORCEINLINE Vector3F Vector3F::operator/=(float val)
-		{
-			vec = vec * Vector::Load1F(Math::Reciprocal(val));
-			return *this;
-		}
-
-
-		FORCEINLINE float Vector3F::Distance(const Vector3F & other) const
-		{
-			return Math::Sqrt(DistanceSquared(other));
-		}
-		FORCEINLINE float Vector3F::DistanceSquared(const Vector3F & other) const
-		{
-			Vector3F temp = other - *this;
-			return temp.vec.Dot3(temp.vec)[0];
-		}
-		FORCEINLINE float Vector3F::Magnitude() const
-		{
-			return Math::Sqrt(MagnitudeSqrt());
-		}
-		FORCEINLINE float Vector3F::MagnitudeSqrt() const
-		{
-			return vec.Dot3(vec)[0];
-		}
-		FORCEINLINE float Vector3F::Dot(const Vector3F & other) const
-		{
-			return vec.Dot3(other.vec)[0];
-		}
-
-		FORCEINLINE Vector Vector3F::ToVector() const
-		{
-			return vec;
-		}
-
-		FORCEINLINE std::string Vector3F::ToString() const
-		{
-			std::stringstream ss;
-			ss << "( X: " << GetX() << " Y: " << GetY() << " Z: " << GetZ() << " )";
-			return ss.str();
-		}
-
-		FORCEINLINE float GetX() const { return vec[0]; }
-		FORCEINLINE float GetY() const { return vec[1]; }
-		FORCEINLINE float GetZ() const { return vec[2]; }
-		FORCEINLINE void SetX(float f) { Set((uint32)0, f); }
-		FORCEINLINE void SetY(float f) { Set((uint32)1, f); }
-		FORCEINLINE void SetZ(float f) { Set((uint32)2, f); }
-
-		bool operator==(const Vector3F & other) const;
-		bool operator!=(const Vector3F & other) const;
-		bool equals(const Vector3F & other, float errorMargin = 1.e-4f) const;
-		bool equals(float val, float errorMargin = 1.e-4f) const;
-		bool IsNormalized(float errorMargin = 1.e-4f) const;
-
+		float MagnitudeSqrt() const;
 		float Max() const;
 		float Min() const;
-		float AbsMax() const;
-		float AbsMin() const;
-		float operator[](uint32 index) const;
-
-		Vector3F Abs() const;
-		Vector3F Min(const Vector3F & other) const;
-		Vector3F Max(const Vector3F & other) const;
-		Vector3F Normalized(float errorMargin = 1.e-8f) const;
-		Vector3F Project() const;
-		Vector3F Reciprocal() const;
-		Vector3F Rotate(const Vector3F & axis, float angle) const;
-		Vector3F Rotate(const class Quaternion& rotation) const;
-		Vector3F Reflect(const Vector3F & normal) const;
-		Vector3F Refract(const Vector3F & normal, float indexOfRefraction) const;
-		Vector3F ToDegrees() const;
-		Vector3F ToRadians() const;
-
-		Vector ToVector(float w) const;
-		void DirAndLength(Vector3F & dir, float& length) const;
-		void Set(float x, float y, float z);
-		void Set(uint32 index, float val);
 		void Normalize(float errorMargin = 1.e-8f);
 
-	private:
-		Vector vec;
+		FORCEINLINE Vector4 operator+(const Vector4& rhs) const { return Vector4(vec + rhs.vec); };
+		FORCEINLINE Vector4 operator-(const Vector4& rhs) const { return Vector4(vec - rhs.vec); };
+		FORCEINLINE Vector4 operator*(const Vector4& rhs) const { return Vector4(vec * rhs.vec); }
+		FORCEINLINE Vector4 operator/(const Vector4& rhs) const { return Vector4(vec / rhs.vec); };
+		FORCEINLINE Vector4 operator+(const float& rhs) const { return Vector4(vec + glm::vec4(rhs)); }
+		FORCEINLINE Vector4 operator-(const float& rhs) const { return Vector4(vec - glm::vec4(rhs)); }
+		FORCEINLINE Vector4 operator*(const float& rhs) const { return Vector4(vec * glm::vec4(rhs)); }
+		FORCEINLINE Vector4 operator/(const float& rhs) const { return Vector4(vec / rhs); }
+		FORCEINLINE Vector4& operator+=(const Vector4& rhs) { vec += rhs.vec; return *this; };
+		FORCEINLINE Vector4& operator-=(const Vector4& rhs) { vec -= rhs;	return *this; };
+		FORCEINLINE Vector4& operator*=(const Vector4& rhs) { vec *= rhs.vec;	return *this; };
+		FORCEINLINE Vector4& operator/=(const Vector4& rhs) { vec /= rhs.vec;	return *this; };
+		FORCEINLINE Vector4& operator+=(const float& rhs) { vec += rhs;	return *this; };
+		FORCEINLINE Vector4& operator-=(const float& rhs) { vec -= rhs;	return *this; };
+		FORCEINLINE Vector4& operator*=(const float& rhs) { vec *= rhs;	return *this; };
+		FORCEINLINE Vector4& operator/=(const float& rhs) { vec /= rhs;	return *this; };
+		FORCEINLINE bool operator==(const Vector4& rhs) const { return vec == rhs.vec; }
+		FORCEINLINE bool operator!=(const Vector4& rhs) const { return vec != rhs.vec; }
+		FORCEINLINE bool operator>(const Vector4& rhs) const { return vec.length() > rhs.vec.length(); }
+		FORCEINLINE bool operator<(const Vector4& rhs) const { return vec.length() < rhs.vec.length(); }
+		FORCEINLINE float& operator[] (unsigned int i) { vec[i]; }
+		FORCEINLINE float operator[] (unsigned int i) const { return vec[i]; }
+		FORCEINLINE Vector4 operator-() const { return Vector4(-vec); }
 
+		FORCEINLINE std::ostream& operator<<(std::ostream& os)
+		{
+			return os << "(X: " << vec.x << " Y: " << vec.y << " Z: " << vec.z << " W: " << vec.w << ")";
+		}
+
+		FORCEINLINE std::string ToString()
+		{
+			std::stringstream ss;
+			ss << "(X: " << vec.x << " Y: " << vec.y << " Z: " << vec.z << " W: " << vec.w << ")";
+			return ss.str();
+		}
 	};
 
-	class Vector2F
+	class Vector3
 	{
 	public:
 
-		static LINACOMMON_API const Vector2F Zero;
-		static LINACOMMON_API const Vector2F One;
+		glm::vec3 vec;
+		PROP_FLOAT x;
+		PROP_FLOAT y;
+		PROP_FLOAT z;
 
+		Vector3() : x(vec.x), y(vec.y), z(vec.z) {};
+		Vector3(float x, float y, float z) : vec(x, y, z), x(vec.x), y(vec.y), z(vec.z) {};
+		Vector3(const Vector3& rhs) : vec(rhs.vec), x(vec.x), y(vec.y), z(vec.z) {};
+		Vector3(const Vector2& rhs) : vec(rhs.vec, 0), x(vec.x), y(vec.y), z(vec.z) {};
+		Vector3(float val) : vec(val, val, val), x(vec.x), y(vec.y), z(vec.z) {};
 
-		FORCEINLINE Vector2F::Vector2F()
-		{
-			vals[0] = 0.0f;
-			vals[1] = 0.0f;
-		}
-		FORCEINLINE Vector2F::Vector2F(float val)
-		{
-			vals[0] = val;
-			vals[1] = val;
-		}
-		FORCEINLINE Vector2F::Vector2F(float xIn, float yIn)
-		{
-			vals[0] = xIn;
-			vals[1] = yIn;
-		}
-		FORCEINLINE Vector2F Vector2F::DotToVector(const Vector2F & other) const
-		{
-			return Vector2F(Dot(other));
-		}
+		static LINACOMMON_API Vector3 Zero;
+		static LINACOMMON_API Vector3 Up;
+		static LINACOMMON_API Vector3 Down;
+		static LINACOMMON_API Vector3 Right;
+		static LINACOMMON_API Vector3 Left;
+		static LINACOMMON_API Vector3 Forward;
+		static LINACOMMON_API Vector3 Back;
+		static LINACOMMON_API Vector3 One;
 
-		FORCEINLINE Vector2F Vector2F::operator+(const Vector2F & other) const
-		{
-			return Vector2F(vals[0] + other.vals[0], vals[1] + other.vals[1]);
-		}
+		FORCEINLINE float GetX() const { return vec.x; }
+		FORCEINLINE float GetY() const { return vec.y; }
+		FORCEINLINE float GetZ() const { return vec.z; }
+		FORCEINLINE Vector2 GetXY() const { return Vector2(vec.x, vec.y); }
+		FORCEINLINE Vector2 GetXZ() const { return Vector2(vec.x, vec.z); }
+		FORCEINLINE Vector2 GetYZ() const { return Vector2(vec.y, vec.z); }
+		FORCEINLINE void SetX(float f) { vec.x = f; }
+		FORCEINLINE void SetY(float f) { vec.y = f; }
+		FORCEINLINE void SetZ(float f) { vec.z = f; }
+		FORCEINLINE void SetXY(float x, float y) { vec.x = x; vec.y = y; }
+		FORCEINLINE void SetXZ(float x, float z) { vec.x = x; vec.z = z; }
+		FORCEINLINE void SetYZ(float y, float z) { vec.z = z; vec.y = y; }
 
-		FORCEINLINE Vector2F Vector2F::operator-(const Vector2F & other) const
-		{
-			return Vector2F(vals[0] - other.vals[0], vals[1] - other.vals[1]);
-		}
+		Vector3 Cross(const Vector3& other) const;
+		Vector3 Abs() const;
+		Vector3 Min(const Vector3& other) const;
+		Vector3 Max(const Vector3& other) const;
+		Vector3 Normalized() const;
+		Vector3 Project() const;
+		Vector3 Rotate(const Vector3& axis, float angle) const;
+		Vector3 Rotate(const class Quaternion& rotation) const;
+		Vector3 Reflect(const Vector3& normal) const;
+		Vector3 Refract(const Vector3& normal, float indexOfRefraction) const;
+		float Dot(const Vector3& other) const;
+		float Distance(const Vector3& other) const;
+		float Magnitude() const;
+		float MagnitudeSqrt() const;
+		float Max() const;
+		float Min() const;
+		void Normalize(float errorMargin = 1.e-8f);
 
-		FORCEINLINE Vector2F Vector2F::operator*(const Vector2F & other) const
-		{
-			return Vector2F(vals[0] * other.vals[0], vals[1] * other.vals[1]);
-		}
+		FORCEINLINE Vector3 operator+(const Vector3& rhs) const { return Vector3(vec + rhs.vec); };
+		FORCEINLINE Vector3 operator-(const Vector3& rhs) const { return Vector3(vec - rhs.vec); };
+		FORCEINLINE Vector3 operator*(const Vector3& rhs) const { return Vector3(vec * rhs.vec); }
+		FORCEINLINE Vector3 operator/(const Vector3& rhs) const { return Vector3(vec / rhs.vec); };
+		FORCEINLINE Vector3 operator+(const float& rhs) const { return Vector3(vec + glm::vec3(rhs)); }
+		FORCEINLINE Vector3 operator-(const float& rhs) const { return Vector3(vec - glm::vec3(rhs)); }
+		FORCEINLINE Vector3 operator*(const float& rhs) const { return Vector3(vec * glm::vec3(rhs)); }
+		FORCEINLINE Vector3 operator/(const float& rhs) const { return Vector3(vec / rhs); }
+		FORCEINLINE Vector3& operator+=(const Vector3& rhs) { vec += rhs.vec; return *this; };
+		FORCEINLINE Vector3& operator-=(const Vector3& rhs) { vec -= rhs;	return *this; };
+		FORCEINLINE Vector3& operator*=(const Vector3& rhs) { vec *= rhs.vec;	return *this; };
+		FORCEINLINE Vector3& operator/=(const Vector3& rhs) { vec /= rhs.vec;	return *this; };
+		FORCEINLINE Vector3& operator+=(const float& rhs) { vec += rhs;	return *this; };
+		FORCEINLINE Vector3& operator-=(const float& rhs) { vec -= rhs;	return *this; };
+		FORCEINLINE Vector3& operator*=(const float& rhs) { vec *= rhs;	return *this; };
+		FORCEINLINE Vector3& operator/=(const float& rhs) { vec /= rhs;	return *this; };
+		FORCEINLINE bool operator==(const Vector3& rhs) const { return vec == rhs.vec; }
+		FORCEINLINE bool operator!=(const Vector3& rhs) const { return vec != rhs.vec; }
+		FORCEINLINE bool operator>(const Vector3& rhs) const { return vec.length() > rhs.vec.length(); }
+		FORCEINLINE bool operator<(const Vector3& rhs) const { return vec.length() < rhs.vec.length(); }
+		FORCEINLINE float& operator[] (unsigned int i) { vec[i]; }
+		FORCEINLINE float operator[] (unsigned int i) const { return vec[i]; }
+		FORCEINLINE Vector3 operator-() const { return Vector3(-vec); }
 
-		FORCEINLINE Vector2F Vector2F::operator/(const Vector2F & other) const
+		FORCEINLINE std::ostream& operator<<(std::ostream& os)
 		{
-			return Vector2F(vals[0] / other.vals[0], vals[1] / other.vals[1]);
-		}
-
-		FORCEINLINE Vector2F Vector2F::operator+(float amt) const
-		{
-			return Vector2F(vals[0] + amt, vals[1] + amt);
-		}
-
-		FORCEINLINE Vector2F Vector2F::operator-(float amt) const
-		{
-			return Vector2F(vals[0] - amt, vals[1] - amt);
-		}
-
-		FORCEINLINE Vector2F Vector2F::operator*(float amt) const
-		{
-			return Vector2F(vals[0] * amt, vals[1] * amt);
-		}
-
-		FORCEINLINE Vector2F Vector2F::operator/(float amt) const
-		{
-			return Vector2F(vals[0] / amt, vals[1] / amt);
-		}
-
-		FORCEINLINE Vector2F Vector2F::operator-() const
-		{
-			return Vector2F(-vals[0], -vals[1]);
-		}
-
-		FORCEINLINE Vector2F Vector2F::operator+=(const Vector2F & other)
-		{
-			vals[0] += other.vals[0];
-			vals[1] += other.vals[1];
-			return *this;
-		}
-
-		FORCEINLINE Vector2F Vector2F::operator-=(const Vector2F & other)
-		{
-			vals[0] -= other.vals[0];
-			vals[1] -= other.vals[1];
-			return *this;
+			return os << "(X: " << vec.x << " Y: " << vec.y << " Z: " << vec.z << ")";
 		}
 
-		FORCEINLINE Vector2F Vector2F::operator*=(const Vector2F & other)
-		{
-			vals[0] *= other.vals[0];
-			vals[1] *= other.vals[1];
-			return *this;
-		}
-
-		FORCEINLINE Vector2F Vector2F::operator/=(const Vector2F & other)
-		{
-			vals[0] /= other.vals[0];
-			vals[1] /= other.vals[1];
-			return *this;
-		}
-
-		FORCEINLINE Vector2F Vector2F::operator+=(float val)
-		{
-			vals[0] += val;
-			vals[1] += val;
-			return *this;
-		}
-
-		FORCEINLINE Vector2F Vector2F::operator-=(float val)
-		{
-			vals[0] -= val;
-			vals[1] -= val;
-			return *this;
-		}
-
-		FORCEINLINE Vector2F Vector2F::operator*=(float val)
-		{
-			vals[0] *= val;
-			vals[1] *= val;
-			return *this;
-		}
-
-		FORCEINLINE Vector2F Vector2F::operator/=(float val)
-		{
-			vals[0] /= val;
-			vals[1] /= val;
-			return *this;
-		}
-
-		FORCEINLINE float Vector2F::Dot(const Vector2F & other) const
-		{
-			return vals[0] * other.vals[0] + vals[1] * other.vals[1];
-		}
-
-		FORCEINLINE float Vector2F::Cross(const Vector2F & other) const
-		{
-			return vals[0] * other.vals[1] - vals[1] * other.vals[0];
-		}
-
-		FORCEINLINE float Vector2F::Distance(const Vector2F & other) const
-		{
-			return Math::Sqrt(DistanceSquared(other));
-		}
-
-		FORCEINLINE float Vector2F::DistanceSquared(const Vector2F & other) const
-		{
-			return (other - *this).MagnitudeSqrt();
-		}
-
-		FORCEINLINE float Vector2F::Magnitude() const
-		{
-			return Math::Sqrt(MagnitudeSqrt());
-		}
-
-		FORCEINLINE float Vector2F::MagnitudeSqrt() const
-		{
-			return Dot(*this);
-		}
-
-		FORCEINLINE std::string Vector2F::ToString()
+		FORCEINLINE std::string ToString()
 		{
 			std::stringstream ss;
-			ss << "( X: " << GetX() << " Y: " << GetY() << " )";
+			ss << "(X: " << vec.x << " Y: " << vec.y << " Z: " << vec.z << ")";
 			return ss.str();
 		}
 
-		FORCEINLINE float GetX() const { return vals[0]; }
-		FORCEINLINE float GetY() const { return vals[1]; }
-		FORCEINLINE void SetX(float f) { Set((uint32)0, f); }
-		FORCEINLINE void SetY(float f) { Set((uint32)1, f); }
+	private:
 
-		Vector2F Abs() const;
-		Vector2F Min(const Vector2F & other) const;
-		Vector2F Max(const Vector2F & other) const;
-		Vector2F Normalized(float errorMargin = 1.e-8f) const;
-		Vector2F Reciprocal() const;
-		Vector2F Rotate(float angle) const;
-		Vector2F Reflect(const Vector2F & normal) const;
-		Vector2F Refract(const Vector2F & normal, float indexOfRefraction) const;
-		Vector2F ToDegrees() const;
-		Vector2F ToRadians() const;
-		Vector ToVector() const;
-		Vector ToVector(float z, float w) const;
-		Vector ToVector(Vector2F other) const;
+		Vector3(glm::vec3 v) : vec(v), x(vec.x), y(vec.y), z(vec.z) {}
 
-		bool operator==(const Vector2F & other) const;
-		bool operator!=(const Vector2F & other) const;
-		bool equals(const Vector2F & other, float errorMargin = 1.e-4f) const;
-		bool equals(float val, float errorMargin = 1.e-4f) const;
-		bool IsNormalized(float errorMargin = 1.e-4f) const;
+	};
 
+
+
+	class Vector2
+	{
+	public:
+		glm::vec2 vec;
+
+		PROP_FLOAT x;
+		PROP_FLOAT y;
+
+		Vector2() : x(vec.x), y(vec.y) {}
+		Vector2(float x, float y) : vec(x, y), x(vec.x), y(vec.y) {};
+		Vector2(const Vector2& rhs) : vec(rhs.vec), x(vec.x), y(vec.y) {};
+		Vector2(float val) : vec(val, val), x(vec.x), y(vec.y) {};
+
+		static LINACOMMON_API Vector2 Zero;
+		static LINACOMMON_API Vector2 One;
+
+		FORCEINLINE float GetX() const { return vec.x; }
+		FORCEINLINE float GetY() const { return vec.y; }
+		FORCEINLINE void SetX(float f) { vec.x = f; }
+		FORCEINLINE void SetY(float f) { vec.y = f; }
+
+		Vector2 Cross(const Vector2& other) const;
+		Vector2 Abs() const;
+		Vector2 Min(const Vector2& other) const;
+		Vector2 Max(const Vector2& other) const;
+		Vector2 Normalized() const;
+		Vector2 Project() const;
+		Vector2 Rotate(const Vector2& axis, float angle) const;
+		Vector2 Rotate(const class Quaternion& rotation) const;
+		Vector2 Reflect(const Vector2& normal) const;
+		Vector2 Refract(const Vector2& normal, float indexOfRefraction) const;
+		float Dot(const Vector2& other) const;
+		float Distance(const Vector2& other) const;
+		float Magnitude() const;
+		float MagnitudeSqrt() const;
 		float Max() const;
 		float Min() const;
-		float AbsMax() const;
-		float AbsMin() const;
-		float operator[](uint32 index) const;
+		void Normalize(float errorMargin = 1.e-8f);
 
-		void DirAndLength(Vector2F & dir, float& length, float errorMargin = 1.e-8f) const;
-		void Set(float x, float y);
-		void Set(uint32 index, float val);
-		void Normalize(float erroMargin = 1.e-8f);
+		FORCEINLINE Vector2 operator+(const Vector2& rhs) const { return Vector2(vec + rhs.vec); };
+		FORCEINLINE Vector2 operator-(const Vector2& rhs) const { return Vector2(vec - rhs.vec); };
+		FORCEINLINE Vector2 operator*(const Vector2& rhs) const { return Vector2(vec * rhs.vec); }
+		FORCEINLINE Vector2 operator/(const Vector2& rhs) const { return Vector2(vec / rhs.vec); };
+		FORCEINLINE Vector2 operator+(const float& rhs) const { return Vector2(vec + glm::vec2(rhs)); }
+		FORCEINLINE Vector2 operator-(const float& rhs) const { return Vector2(vec - glm::vec2(rhs)); }
+		FORCEINLINE Vector2 operator*(const float& rhs) const { return Vector2(vec * glm::vec2(rhs)); }
+		FORCEINLINE Vector2 operator/(const float& rhs) const { return Vector2(vec / rhs); }
+		FORCEINLINE Vector2& operator+=(const Vector2& rhs) { vec += rhs.vec; return *this; };
+		FORCEINLINE Vector2& operator-=(const Vector2& rhs) { vec -= rhs;	return *this; };
+		FORCEINLINE Vector2& operator*=(const Vector2& rhs) { vec *= rhs.vec;	return *this; };
+		FORCEINLINE Vector2& operator/=(const Vector2& rhs) { vec /= rhs.vec;	return *this; };
+		FORCEINLINE Vector2& operator+=(const float& rhs) { vec += rhs;	return *this; };
+		FORCEINLINE Vector2& operator-=(const float& rhs) { vec -= rhs;	return *this; };
+		FORCEINLINE Vector2& operator*=(const float& rhs) { vec *= rhs;	return *this; };
+		FORCEINLINE Vector2& operator/=(const float& rhs) { vec /= rhs;	return *this; };
+		FORCEINLINE bool operator==(const Vector2& rhs) const { return vec == rhs.vec; }
+		FORCEINLINE bool operator!=(const Vector2& rhs) const { return vec != rhs.vec; }
+		FORCEINLINE bool operator>(const Vector2& rhs) const { return vec.length() > rhs.vec.length(); }
+		FORCEINLINE bool operator<(const Vector2& rhs) const { return vec.length() < rhs.vec.length(); }
+		FORCEINLINE float& operator[] (unsigned int i) { vec[i]; }
+		FORCEINLINE float operator[] (unsigned int i) const { return vec[i]; }
+		FORCEINLINE Vector2 operator-() const { return Vector2(-vec); }
+
+		FORCEINLINE std::ostream& operator<<(std::ostream& os)
+		{
+			return os << "(X: " << vec.x << " Y: " << vec.y << ")";
+		}
+
+		FORCEINLINE std::string ToString()
+		{
+			std::stringstream ss;
+			ss << "(X: " << vec.x << " Y: " << vec.y << ")";
+			return ss.str();
+		}
 
 	private:
-		float vals[2];
+
+		Vector2(glm::vec2 v) : vec(v) , x(vec.x), y(vec.y) {}
 	};
 
 

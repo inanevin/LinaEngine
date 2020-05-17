@@ -81,7 +81,7 @@ void CreateProceduralSkybox(RenderEngine* renderEngine)
 	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_PROCEDURAL);
 	mat.SetColor("material.startColor", Colors::LightBlue);
 	mat.SetColor("material.endColor", Colors::DarkBlue);
-	mat.SetVector3("material.sunDirection", Vector3F(0.0f, -1.0f, 0.0f));
+	mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
 	renderEngine->SetSkyboxMaterial(mat);
 
 }
@@ -110,32 +110,32 @@ Material* objectUnlitMaterial;
 Material* objectUnlitMaterial2;
 Material* quadMaterial;
 
-Vector3F cubePositions[] = {
-	Vector3F(0.0f, 0.0f, 10.0f),
-	Vector3F(5.0f,  0.0f, 10.0f),
-	Vector3F(-5.0f, 0.0f, 10.0f),
-	Vector3F(0.0f, 0.0f, 15.0f),
-	Vector3F(5.0f,  0.0f, 15.0f),
-	Vector3F(-5.0f, 0.0f, 15.0f),
-	Vector3F(0.0f, -5.0f, 10.0f),
-	Vector3F(5.0f,  -5.0f, 10.0f),
-	Vector3F(-5.0f, -5.0f, 10.0f),
-	Vector3F(0.0f, -5.0f, 15.0f),
-	Vector3F(5.0f,  -5.0f, 15.0f),
-	Vector3F(-5.0f, -5.0f, 15.0f),
+Vector3 cubePositions[] = {
+	Vector3(0.0f, 0.0f, 10.0f),
+	Vector3(5.0f,  0.0f, 10.0f),
+	Vector3(-5.0f, 0.0f, 10.0f),
+	Vector3(0.0f, 0.0f, 15.0f),
+	Vector3(5.0f,  0.0f, 15.0f),
+	Vector3(-5.0f, 0.0f, 15.0f),
+	Vector3(0.0f, -5.0f, 10.0f),
+	Vector3(5.0f,  -5.0f, 10.0f),
+	Vector3(-5.0f, -5.0f, 10.0f),
+	Vector3(0.0f, -5.0f, 15.0f),
+	Vector3(5.0f,  -5.0f, 15.0f),
+	Vector3(-5.0f, -5.0f, 15.0f),
 };
 
-Vector3F pointLightPositions[]
+Vector3 pointLightPositions[]
 {
-	Vector3F(0.0f,  -0.5f,  13.5f),
-	Vector3F(-5.0f,  -0.5f,  13.5f),
-	Vector3F(5.0f,  -0.5f,  13.5f),
-	Vector3F(0.0f,  -7.5f,  13.5f),
+	Vector3(0.0f,  -0.5f,  13.5f),
+	Vector3(-5.0f,  -0.5f,  13.5f),
+	Vector3(5.0f,  -0.5f,  13.5f),
+	Vector3(0.0f,  -7.5f,  13.5f),
 };
 
-Vector3F spotLightPositions[]
+Vector3 spotLightPositions[]
 {
-	Vector3F(0.0f, 0.0f, 20.0f)
+	Vector3(0.0f, 0.0f, 20.0f)
 };
 
 int pLightSize = 4;
@@ -194,13 +194,13 @@ void Example1Level::Initialize()
 	dirLight.ambient = Color(0.00f, 0.00f, 0.00f);
 	dirLight.specular = Color(0.1f, 0.1f, 0.1f);
 	dirLight.diffuse = Color(0.01f, 0.01f, 0.01f);
-	dirLight.direction = Vector3F(0, 0, 1);
+	dirLight.direction = Vector3(0, 0, 1);
 
 	for (int i = 0; i < cubeSize; i++)
 	{
 		ECSEntity entity;
 		
-		object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F::Zero));
+		object1Transform.transform.SetRotation(Quaternion::Euler(Vector3::Zero));
 		object1Transform.transform.SetLocation(cubePositions[i]);
 		entity.entity = m_ECS->reg.create();
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
@@ -208,7 +208,7 @@ void Example1Level::Initialize()
 	}
 
 	cubeEntity.entity = m_ECS->reg.create();
-	object1Transform.transform.SetLocation(Vector3F(0, 4, 10));
+	object1Transform.transform.SetLocation(Vector3(0, 4, 10));
 	m_ECS->reg.emplace<TransformComponent>(cubeEntity.entity, object1Transform);
 	m_ECS->reg.emplace<MeshRendererComponent>(cubeEntity.entity, object1Renderer);
 
@@ -219,15 +219,15 @@ void Example1Level::Initialize()
 		ECSEntity entity;
 		object1Transform.transform.SetLocation(pointLightPositions[i]);
 		object1Transform.transform.SetScale(1);
-		object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F::Zero));
+		object1Transform.transform.SetRotation(Quaternion::Euler(Vector3::Zero));
 		entity.entity = m_ECS->reg.create();
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
 		
 		auto& pLight1 = m_ECS->reg.emplace<PointLightComponent>(entity.entity);
 
-		pLight1.ambient = Vector3F(0.05f, 0.05f, 0.05f);
-		pLight1.diffuse = Vector3F(0.8f, 0.8f, 0.8f);
-		pLight1.specular = Vector3F(.4f, .4f, .4f);
+		pLight1.ambient = Vector3(0.05f, 0.05f, 0.05f);
+		pLight1.diffuse = Vector3(0.8f, 0.8f, 0.8f);
+		pLight1.specular = Vector3(.4f, .4f, .4f);
 		pLight1.constant = 1.0f;
 		pLight1.linear = 0.09f;
 		pLight1.quadratic = 0.032f;
@@ -245,7 +245,7 @@ void Example1Level::Initialize()
 	for (int i = 0; i < sLightSize; i++)
 	{
 		smallCubeRenderer.material = objectUnlitMaterial2;
-		object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F::Zero));
+		object1Transform.transform.SetRotation(Quaternion::Euler(Vector3::Zero));
 
 		ECSEntity entity;
 		object1Transform.transform.SetLocation(spotLightPositions[i]);
@@ -254,10 +254,10 @@ void Example1Level::Initialize()
 
 		auto& sLight1 = m_ECS->reg.emplace<SpotLightComponent>(entity.entity);
 
-		sLight1.ambient = Vector3F(0.45f, 0.05f, 0.55f);
-		sLight1.diffuse = Vector3F(1, 1, 1);
-		sLight1.specular = Vector3F(1, 1, 1);
-		sLight1.direction = Vector3F(0.0f, 0.0f, 1.0f);
+		sLight1.ambient = Vector3(0.45f, 0.05f, 0.55f);
+		sLight1.diffuse = Vector3(1, 1, 1);
+		sLight1.specular = Vector3(1, 1, 1);
+		sLight1.direction = Vector3(0.0f, 0.0f, 1.0f);
 		sLight1.constant = 1.0f;
 		sLight1.linear = 0.09f;
 		sLight1.quadratic = 0.032f;
@@ -271,10 +271,10 @@ void Example1Level::Initialize()
 		m_ECS->reg.emplace<TransformComponent>(visuals.entity, object1Transform);
 		m_ECS->reg.emplace<MeshRendererComponent>(visuals.entity, smallCubeRenderer);
 	}
-	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F::Zero));
+	object1Transform.transform.SetRotation(Quaternion::Euler(Vector3::Zero));
 
-	object1Transform.transform.SetScale(Vector3F::One);
-	object1Transform.transform.SetLocation(Vector3F(0,2,10));
+	object1Transform.transform.SetScale(Vector3::One);
+	object1Transform.transform.SetLocation(Vector3(0,2,10));
 	//object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(0, -180, 0)));
 	ECSEntity quad;
 	quad.entity = m_ECS->reg.create();
@@ -412,7 +412,7 @@ void Example1Level::Tick(float delta)
 	t += delta;
 	TransformComponent& cube = m_ECS->reg.get<TransformComponent>(cubeEntity.entity);
 	Quaternion q;
-	q = Quaternion::Euler(Vector3F(t,t,0));
+	q = Quaternion::Euler(Vector3(t,t,0));
 	cube.transform.SetRotation(q);
 	LINA_CLIENT_INFO("{0}", t);
 	//TransformComponent& tSpotLight = m_ECS->reg.get<TransformComponent>(spotLight.entity);

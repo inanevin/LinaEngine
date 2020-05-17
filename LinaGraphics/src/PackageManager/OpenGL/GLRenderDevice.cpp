@@ -885,12 +885,12 @@ namespace LinaEngine::Graphics
 		glUniform2f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.GetX(), (GLfloat)m.GetY());
 	}
 
-	void GLRenderDevice::UpdateShaderUniformVector3F(uint32 shader, const std::string & uniform, const Vector3F & m)
+	void GLRenderDevice::UpdateShaderUniformVector3F(uint32 shader, const std::string & uniform, const Vector3 & m)
 	{
 		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.GetX(), (GLfloat)m.GetY(), (GLfloat)m.GetZ());
 	}
 
-	void GLRenderDevice::UpdateShaderUniformVector4F(uint32 shader, const std::string & uniform, const Vector4F & m)
+	void GLRenderDevice::UpdateShaderUniformVector4F(uint32 shader, const std::string & uniform, const Vector4 & m)
 	{
 		glUniform4f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y, (GLfloat)m.z, (GLfloat)m.w);
 

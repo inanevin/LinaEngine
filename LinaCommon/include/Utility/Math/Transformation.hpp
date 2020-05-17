@@ -33,19 +33,19 @@ namespace LinaEngine
 
 		// Param constructors w/ various options.
 		Transformation() : m_Translation(0.0f, 0.0f, 0.0f),m_Rotation(0.0f, 0.0f, 0.0f, 1.0f), m_Scale(1.0f, 1.0f, 1.0f) {}
-		Transformation(const Vector3F& translationIn) : m_Translation(translationIn), m_Rotation(0.0f, 0.0f, 0.0f, 1.0f), m_Scale(1.0f, 1.0f, 1.0f) {}
+		Transformation(const Vector3& translationIn) : m_Translation(translationIn), m_Rotation(0.0f, 0.0f, 0.0f, 1.0f), m_Scale(1.0f, 1.0f, 1.0f) {}
 		Transformation(const Quaternion& rotationIn) : m_Translation(0.0f, 0.0f, 0.0f), m_Rotation(rotationIn), m_Scale(1.0f, 1.0f, 1.0f) {}
-		Transformation(const Vector3F& translationIn, const Quaternion& rotationIn, const Vector3F& scaleIn) : m_Translation(translationIn), m_Rotation(rotationIn), m_Scale(scaleIn) {}
+		Transformation(const Vector3& translationIn, const Quaternion& rotationIn, const Vector3& scaleIn) : m_Translation(translationIn), m_Rotation(rotationIn), m_Scale(scaleIn) {}
 
 		Matrix Inverse() const;
 		// Returns the transform vector based on vector and it's w component.
 		FORCEINLINE Vector Transform(const Vector& vector) const
 		{
-			return Transform(Vector3F(vector), vector[3]);
+			return Transform(Vector3(vector), vector[3]);
 		}
 
 		// Returns the transform vector based on a vector and a specified w component.
-		FORCEINLINE Vector Transform(const Vector3F& vector, float w) const
+		FORCEINLINE Vector Transform(const Vector3& vector, float w) const
 		{
 			return (m_Rotation.Rotate(m_Scale * vector) + m_Translation * w).ToVector(0.0f);
 		}
@@ -53,11 +53,11 @@ namespace LinaEngine
 		// Returns inversed transform vector based on a vector and it's w component.
 		FORCEINLINE Vector InverseTransform(const Vector& vector) const
 		{
-			return InverseTransform(Vector3F(vector), vector[3]);
+			return InverseTransform(Vector3(vector), vector[3]);
 		}
 
 		// Returns the inversed transform vector based on a vector and a specified w component.
-		FORCEINLINE Vector InverseTransform(const Vector3F& vector, float w) const
+		FORCEINLINE Vector InverseTransform(const Vector3& vector, float w) const
 		{
 			return (m_Rotation.Inverse().Rotate(vector - m_Translation * w) * m_Scale.Reciprocal()).ToVector(0.0f);
 		}
@@ -117,7 +117,7 @@ namespace LinaEngine
 		}
 
 		// Returns the location of this transformation.
-		FORCEINLINE Vector3F GetLocation() const 
+		FORCEINLINE Vector3 GetLocation() const 
 		{ 
 			return m_Translation;  
 		}
@@ -129,13 +129,13 @@ namespace LinaEngine
 		}
 
 		// Returns the scale of this transformation.
-		FORCEINLINE Vector3F GetScale() const
+		FORCEINLINE Vector3 GetScale() const
 		{
 			return m_Scale;
 		}
 
 		// Sets the location, rotation & scale.
-		FORCEINLINE void Set(const Vector3F& translationIn, const Quaternion& rotationIn, const Vector3F& scaleIn)
+		FORCEINLINE void Set(const Vector3& translationIn, const Quaternion& rotationIn, const Vector3& scaleIn)
 		{
 			m_Translation = translationIn;
 			m_Rotation = rotationIn;
@@ -143,7 +143,7 @@ namespace LinaEngine
 		}
 
 		// Sets the location of this transformation.
-		FORCEINLINE void SetLocation(const Vector3F& translation)
+		FORCEINLINE void SetLocation(const Vector3& translation)
 		{
 			m_Translation = translation;
 		}
@@ -155,26 +155,26 @@ namespace LinaEngine
 		}
 
 		// Sets the scale of this transformation.
-		FORCEINLINE void SetScale(const Vector3F& scale)
+		FORCEINLINE void SetScale(const Vector3& scale)
 		{
 			m_Scale = scale;
 		}
 
 		// Sets the rotation of this transformation based on an angle & axis.
-		FORCEINLINE void Rotate(const Vector3F& axis, float angle)
+		FORCEINLINE void Rotate(const Vector3& axis, float angle)
 		{
 			SetRotation(Quaternion(axis, angle));
 		}
 
 		// Sets the rotation of this transformation based on an euler vector.
-		FORCEINLINE void Rotate(const Vector3F& euler)
+		FORCEINLINE void Rotate(const Vector3& euler)
 		{
 			SetRotation(Quaternion::Euler(euler));
 		}
 
-		Vector3F m_Translation = Vector3F::Zero;
+		Vector3 m_Translation = Vector3::Zero;
 		Quaternion m_Rotation;
-		Vector3F m_Scale = Vector3F::One;
+		Vector3 m_Scale = Vector3::One;
 
 	private:
 

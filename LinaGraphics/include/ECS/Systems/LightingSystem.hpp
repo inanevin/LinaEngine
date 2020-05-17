@@ -61,7 +61,7 @@ namespace LinaEngine::ECS
 
 		RenderDevice* m_RenderDevice;
 		Graphics::RenderEngine* m_RenderEngine;
-		Vector3F m_CameraPosition;
+		Vector3 m_CameraPosition;
 	};
 }
 

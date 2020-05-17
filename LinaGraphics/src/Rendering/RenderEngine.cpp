@@ -35,7 +35,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 namespace LinaEngine::Graphics
 {
 
-	constexpr size_t UNIFORMBUFFER_VIEWDATA_SIZE = sizeof(Matrix) * 2 + (sizeof(Vector4F) * 4) + (sizeof(float) * 2);
+	constexpr size_t UNIFORMBUFFER_VIEWDATA_SIZE = sizeof(Matrix) * 2 + (sizeof(Vector4) * 4) + (sizeof(float) * 2);
 	constexpr int UNIFORMBUFFER_VIEWDATA_BINDPOINT = 0;
 	constexpr auto UNIFORMBUFFER_VIEWDATA_NAME = "ViewData";
 
@@ -494,8 +494,8 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::UpdateUniformBuffers()
 	{
-		Vector3F cameraLocation = m_CameraSystem.GetCameraLocation();
-		Vector4F viewPos = Vector4F(cameraLocation.GetX(), cameraLocation.GetY(), cameraLocation.GetZ(), 1.0f);
+		Vector3 cameraLocation = m_CameraSystem.GetCameraLocation();
+		Vector4 viewPos = Vector4(cameraLocation.GetX(), cameraLocation.GetY(), cameraLocation.GetZ(), 1.0f);
 
 		// Update global matrix buffer
 		uintptr currentGlobalDataOffset = 0;
@@ -505,8 +505,8 @@ namespace LinaEngine::Graphics
 		m_GlobalDataBuffer.Update(&m_CameraSystem.GetViewMatrix(), currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 
-		m_GlobalDataBuffer.Update(&viewPos, currentGlobalDataOffset, sizeof(Vector4F));
-		currentGlobalDataOffset += sizeof(Vector4F);
+		m_GlobalDataBuffer.Update(&viewPos, currentGlobalDataOffset, sizeof(Vector4));
+		currentGlobalDataOffset += sizeof(Vector4);
 
 		m_GlobalDataBuffer.Update(&m_CameraSystem.GetCurrentCameraComponent().zNear,  currentGlobalDataOffset, sizeof(float));
 		currentGlobalDataOffset += sizeof(float);
@@ -572,7 +572,7 @@ namespace LinaEngine::Graphics
 		{
 			material.colors[MC_STARTCOLORPROPERTY] = Colors::Black;
 			material.colors[MC_ENDCOLORPROPERTY] = Colors::White;
-			material.vector3s[MC_SUNDIRECTIONPROPERTY] = Vector3F(0, -1, 0);
+			material.vector3s[MC_SUNDIRECTIONPROPERTY] = Vector3(0, -1, 0);
 		}
 		else if (shader == Shaders::SKYBOX_CUBEMAP)
 		{

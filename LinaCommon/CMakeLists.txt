@@ -57,16 +57,13 @@ set(LINACOMMON_HEADERS
 	include/PackageManager/Generic/cmwc4096.hpp
 	include/PackageManager/Generic/GenericMath.hpp
 	include/PackageManager/Generic/GenericMemory.hpp
-	include/PackageManager/Generic/GenericVectorMath.hpp
-	include/PackageManager/SSE/SSEVectorMath.hpp
-	include/PackageManager/PAMMath.hpp
 	include/PackageManager/PAMMemory.hpp
 	include/PackageManager/PAMSIMD.hpp
-	include/PackageManager/PAMVectorMath.hpp
 
 
 	# Utility
 	include/Utility/Math/Color.hpp
+	include/Utility/Math/Math.hpp
 	include/Utility/Math/Matrix.hpp
 	include/Utility/Math/Quaternion.hpp
 	include/Utility/Math/Transformation.hpp

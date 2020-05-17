@@ -29,6 +29,13 @@ namespace LinaEngine
 {
 	namespace Internal
 	{
+		class PROP_FLOAT {
+		public:
+			float& value;
+			PROP_FLOAT(float& v) : value(v) {}
+			float& operator = (const float& f) { value = f;	return value; }
+			operator float() const { return value; }
+		};
 
 		// Type comparator traits.
 		template <typename T> struct comparison_traits {

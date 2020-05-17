@@ -72,12 +72,12 @@ namespace LinaEngine::Graphics
 			vector2s[name] = vector;
 		}
 
-		FORCEINLINE void SetVector3(const std::string& name, const Vector3F& vector)
+		FORCEINLINE void SetVector3(const std::string& name, const Vector3& vector)
 		{
 			vector3s[name] = vector;
 		}
 
-		FORCEINLINE void SetVector4(const std::string& name, const Vector4F& vector)
+		FORCEINLINE void SetVector4(const std::string& name, const Vector4& vector)
 		{
 			vector4s[name] = vector;
 		}
@@ -112,12 +112,12 @@ namespace LinaEngine::Graphics
 			return vector2s[name];
 		}
 
-		FORCEINLINE Vector3F GetVector3(const std::string& name)
+		FORCEINLINE Vector3 GetVector3(const std::string& name)
 		{
 			return vector3s[name];
 		}
 
-		FORCEINLINE Vector4F GetVector4(const std::string& name)
+		FORCEINLINE Vector4 GetVector4(const std::string& name)
 		{
 			return vector4s[name];
 		}
@@ -143,8 +143,8 @@ namespace LinaEngine::Graphics
 		std::map<std::string, int> samplers;
 		std::map<std::string, Color> colors;
 		std::map<std::string, Vector2F> vector2s;
-		std::map<std::string, Vector3F> vector3s;
-		std::map<std::string, Vector4F> vector4s;
+		std::map<std::string, Vector3> vector3s;
+		std::map<std::string, Vector4> vector4s;
 		std::map<std::string, Matrix> matrices;;
 
 	
@@ -154,7 +154,7 @@ namespace LinaEngine::Graphics
 	{
 		std::map<std::string, std::string> textureNames;
 		std::map<std::string, float> floats;
-		std::map<std::string, Vector3F> vectors;
+		std::map<std::string, Vector3> vectors;
 		std::map<std::string, Matrix> matrices;
 	};
 

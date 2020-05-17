@@ -51,7 +51,7 @@ namespace LinaEngine::ECS
 				freeLook.horizontalAngle += mouseAxis.GetX() * freeLook.rotationSpeedY * delta;
 
 				// Rotate
-				transform.transform.Rotate(Vector3F(freeLook.verticalAngle, freeLook.horizontalAngle, 0.0f));
+				transform.transform.Rotate(Vector3(freeLook.verticalAngle, freeLook.horizontalAngle, 0.0f));
 
 			}
 
@@ -65,12 +65,12 @@ namespace LinaEngine::ECS
 			float verticalKey = inputEngine->GetVerticalAxisValue();
 
 			// Set movement based on vertical axis.
-			Vector3F vertical = transform.transform.GetRotation().GetAxisZ();
+			Vector3 vertical = transform.transform.GetRotation().GetAxisZ();
 			vertical.Normalize();
 			vertical *= freeLook.movementSpeedZ * verticalKey * delta;
 
 			// Set movement based on horizontal axis.
-			Vector3F horizontal = transform.transform.GetRotation().GetAxisX();
+			Vector3 horizontal = transform.transform.GetRotation().GetAxisX();
 			horizontal.Normalize();
 			horizontal *= freeLook.movementSpeedX * horizontalKey * delta;
 

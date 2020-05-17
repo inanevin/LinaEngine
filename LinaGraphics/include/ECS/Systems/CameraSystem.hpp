@@ -52,7 +52,7 @@ namespace LinaEngine::ECS
 		FORCEINLINE Matrix& GetProjectionMatrix() { return m_Projection; }
 
 		// Get camera location, if camera is not defined, get zero.
-		Vector3F GetCameraLocation();
+		Vector3 GetCameraLocation();
 
 		// Set aspect ratio for the camera.
 		FORCEINLINE void SetAspectRatio(float aspect) { m_AspectRatio = aspect; }

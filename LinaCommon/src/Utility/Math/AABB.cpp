@@ -21,11 +21,11 @@ Timestamp: 4/25/2019 11:47:53 PM
 
 namespace LinaEngine
 {
-	AABB::AABB(Vector3F* points, uint32 amt)
+	AABB::AABB(Vector3* points, uint32 amt)
 	{
 		if (amt == 0) {
-			m_Extents[0] = Vector3F(0.0f, 0.0f, 0.0f);
-			m_Extents[1] = Vector3F(0.0f, 0.0f, 0.0f);
+			m_Extents[0] = Vector3(0.0f, 0.0f, 0.0f);
+			m_Extents[1] = Vector3(0.0f, 0.0f, 0.0f);
 			return;
 		}
 		m_Extents[0] = points[0];
@@ -39,17 +39,17 @@ namespace LinaEngine
 	AABB::AABB(float* points, uint32 amt, uint32 stride)
 	{
 		if (amt == 0) {
-			m_Extents[0] = Vector3F(0.0f, 0.0f, 0.0f);
-			m_Extents[1] = Vector3F(0.0f, 0.0f, 0.0f);
+			m_Extents[0] = Vector3(0.0f, 0.0f, 0.0f);
+			m_Extents[1] = Vector3(0.0f, 0.0f, 0.0f);
 			return;
 		}
-		Vector3F initialPoint(points[0], points[1], points[2]);
+		Vector3 initialPoint(points[0], points[1], points[2]);
 		m_Extents[0] = initialPoint;
 		m_Extents[1] = initialPoint;
 		uintptr index = 3;
 		stride += 3;
 		for (uint32 i = 1; i < amt; i++) {
-			Vector3F point(points[index], points[index + 1], points[index + 2]);
+			Vector3 point(points[index], points[index + 1], points[index + 2]);
 			m_Extents[0] = m_Extents[0].Min(point);
 			m_Extents[1] = m_Extents[1].Max(point);
 			index += stride;
@@ -82,7 +82,7 @@ namespace LinaEngine
 		return AABB(newMin, newMax);
 	}
 
-	bool AABB::IntersectRay(const Vector3F& start, const Vector3F& rayDir, float& point1, float& point2) const
+	bool AABB::IntersectRay(const Vector3& start, const Vector3& rayDir, float& point1, float& point2) const
 	{
 		Vector startVec = start.ToVector();
 		Vector dirVec = rayDir.ToVector();
@@ -120,10 +120,10 @@ namespace LinaEngine
 		return true;
 	}
 
-	bool AABB::IntersectLine(const Vector3F& start, const Vector3F& end) const
+	bool AABB::IntersectLine(const Vector3& start, const Vector3& end) const
 	{
 		float p1, p2;
-		Vector3F dir = (end - start);
+		Vector3 dir = (end - start);
 		bool intersect = IntersectRay(start, dir.Normalized(), p1, p2);
 		return intersect && p1*p1 < dir.MagnitudeSqrt();
 	}

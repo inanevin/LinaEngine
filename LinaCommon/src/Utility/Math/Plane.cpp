@@ -27,7 +27,7 @@ namespace LinaEngine
 		return Plane(transform.toNormalMatrix().Transform(data)).normalized();
 	}
 
-	bool Plane::intersectPlanes(Vector3F& intersectionPoint, const Plane& other1, const Plane& other2, float errorMargin) const
+	bool Plane::intersectPlanes(Vector3& intersectionPoint, const Plane& other1, const Plane& other2, float errorMargin) const
 	{
 		Vector cross01 = data.Cross3(other1.data);
 		float det = cross01.Dot3(other2.data)[0];
@@ -42,7 +42,7 @@ namespace LinaEngine
 		Vector w2 = other2.data.Replicate(3);
 		Vector invDet = Vector::Load1F(-Math::Reciprocal(det));
 
-		intersectionPoint = Vector3F(invDet*(w0*cross12 + w1 * cross20 + w2 * cross01));
+		intersectionPoint = Vector3(invDet*(w0*cross12 + w1 * cross20 + w2 * cross01));
 		return true;
 	}
 }

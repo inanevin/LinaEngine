@@ -25,31 +25,25 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 namespace LinaEngine
 {
-	const Vector VectorConstants::ZERO(Vector::Make(0.0f, 0.0f, 0.0f, 0.0f));
-	const Vector VectorConstants::ONE(Vector::Make(1.0f, 1.0f, 1.0f, 1.0f));
-	const Vector VectorConstants::TWO(Vector::Make(2.0f, 2.0f, 2.0f, 2.0f));
-	const Vector VectorConstants::HALF(Vector::Make(0.5f, 0.5f, 0.5f, 0.5f));
-	const Vector VectorConstants::INF(Vector::Make(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity()));
-	const Vector VectorConstants::MASK_X(Vector::Make((uint32)0, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF));
-	const Vector VectorConstants::MASK_Y(Vector::Make((uint32)0xFFFFFFFF, 0, 0xFFFFFFFF, 0xFFFFFFFF));
-	const Vector VectorConstants::MASK_Z(Vector::Make((uint32)0xFFFFFFFF, 0xFFFFFFFF, 0, 0xFFFFFFFF));
-	const Vector VectorConstants::MASK_W(Vector::Make((uint32)0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0));
-	const Vector VectorConstants::SIGN_MASK(Vector::Make((uint32)0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF));
 
-	const Vector3F Vector3F::Zero = Vector3F(0.0f, 0.0f, 0.0f);
-	const Vector3F Vector3F::One = Vector3F(1.0f, 1.0f, 1.0f);
-	const Vector3F Vector3F::Forward = Vector3F(0.0f, 0.0f, 1.0f);
-	const Vector3F Vector3F::Up = Vector3F(0.0f, 1.0f, 0.0f);
-	const Vector3F Vector3F::Right = Vector3F(1.0f, 0.0f, 0.0f);
-	const Vector3F Vector3F::Back = Vector3F(0.0f, 0.0f, -1.0f);
-	const Vector3F Vector3F::Down = Vector3F(0.0f, -1.0f, 0.0f);
-	const Vector3F Vector3F::Left = Vector3F(-1.0f, 0.0f, 0.0f);
+	Vector4 Vector4::Zero = Vector4(0.0f);
+	Vector4 Vector4::One = Vector4(1.0f);
 
-	const Vector2F Vector2F::Zero = Vector2F(0.0f, 0.0f);
-	const Vector2F Vector2F::One = Vector2F(1.0f, 1.0f);
+	Vector3 Vector3::Zero = Vector3(0.0f);
+	Vector3 Vector3::One = Vector3(1.0f);
+	Vector3 Vector3::Forward = Vector3(0.0f, 0.0f, 1.0f);
+	Vector3 Vector3::Up = Vector3(0.0f, 1.0f, 0.0f);
+	Vector3 Vector3::Right = Vector3(1.0f, 0.0f, 0.0f);
+	Vector3 Vector3::Back = Vector3(0.0f, 0.0f, -1.0f);
+	Vector3 Vector3::Down = Vector3(0.0f, -1.0f, 0.0f);
+	Vector3 Vector3::Left = Vector3(-1.0f, 0.0f, 0.0f);
+
+	Vector2 Vector2::Zero = Vector2(0.0f);
+	Vector2 Vector2::One = Vector2(1.0f);
 
 
-	float Vector4F::Max() const
+
+	float Vector4::Max() const
 	{
 		float Max = x;
 		if (y > x)
@@ -62,34 +56,34 @@ namespace LinaEngine
 		return Max;
 	}
 
-	float Vector4F::MagnitudeSq() const
+	float Vector4::MagnitudeSq() const
 	{
 		return this->Dot(*this);
 	}
 
-	float Vector4F::Magnitude() const
+	float Vector4::Magnitude() const
 	{
 		return Math::Sqrt(MagnitudeSq());
 	}
 
-	float Vector4F::AngleBetween(const Vector4F & rhs) const
+	float Vector4::AngleBetween(const Vector4 & rhs) const
 	{
 		float angle = this->Dot(rhs);
 		angle /= (this->Magnitude() * rhs.Magnitude());
 		return angle = acosf(angle);
 	}
 
-	float Vector4F::Dot(const Vector4F & rhs) const
+	float Vector4::Dot(const Vector4 & rhs) const
 	{
 		return x * rhs.x + y * rhs.y + z * rhs.z + w * rhs.w;
 	}
 
-	Vector4F Vector4F::Reflect(const Vector4F & normal) const
+	Vector4 Vector4::Reflect(const Vector4 & normal) const
 	{
 		return *this - (normal * (this->Dot(normal) * 2));
 	}
 
-	Vector4F Vector4F::Max(const Vector4F & rhs) const
+	Vector4 Vector4::Max(const Vector4 & rhs) const
 	{
 		if (*this > rhs)
 			return *this;
@@ -97,95 +91,95 @@ namespace LinaEngine
 			return rhs;
 	}
 
-	Vector4F Vector4F::Normalized() const
+	Vector4 Vector4::Normalized() const
 	{
-		Vector4F Normalized = Vector4F(*this);
+		Vector4 Normalized = Vector4(*this);
 		Normalized.Normalize();
 		return Normalized;
 	}
 
-	Vector4F Vector4F::Lerp(const Vector4F & rhs, float lerpFactor) const
+	Vector4 Vector4::Lerp(const Vector4 & rhs, float lerpFactor) const
 	{
 		return (rhs - *this) * lerpFactor + *this;
 	}
 
-	Vector4F Vector4F::Project(const Vector4F & rhs) const
+	Vector4 Vector4::Project(const Vector4 & rhs) const
 	{
-		return Vector4F();
+		return Vector4();
 	}
 
-	void Vector4F::Normalize()
+	void Vector4::Normalize()
 	{
 		*this /= this->Magnitude();
 	}
 
 #pragma endregion
 
-	Vector3F::Vector3F(const Vector& vecIn) : vec(vecIn) {}
-	Vector3F::Vector3F() :	vec(VectorConstants::ZERO) {}
-	Vector3F::Vector3F(float val) : vec(Vector::Make(val, val, val, 0.0f)) {}
-	Vector3F::Vector3F(float xIn, float yIn, float zIn) : vec(Vector::Make(xIn, yIn, zIn, 0.0f)) {}
+	Vector3::Vector3F(const Vector& vecIn) : vec(vecIn) {}
+	Vector3::Vector3() :	vec(VectorConstants::ZERO) {}
+	Vector3::Vector3(float val) : vec(Vector::Make(val, val, val, 0.0f)) {}
+	Vector3::Vector3(float xIn, float yIn, float zIn) : vec(Vector::Make(xIn, yIn, zIn, 0.0f)) {}
 
-	bool Vector3F::operator==(const Vector3F& other) const
+	bool Vector3::operator==(const Vector3& other) const
 	{
 		return (vec != other.vec).IsZero3f();
 	}
 
-	bool Vector3F::operator!=(const Vector3F& other) const
+	bool Vector3::operator!=(const Vector3& other) const
 	{
 		return !(*this == other);
 	}
 
-	bool Vector3F::equals(const Vector3F& other, float errorMargin) const
+	bool Vector3::equals(const Vector3& other, float errorMargin) const
 	{
 		return vec.NotEquals(other.vec, errorMargin).IsZero3f();
 	}
 
-	bool Vector3F::equals(float val, float errorMargin) const
+	bool Vector3::equals(float val, float errorMargin) const
 	{
-		return equals(Vector3F(val), errorMargin);
+		return equals(Vector3(val), errorMargin);
 	}
 
 
-	float Vector3F::operator[](uint32 index) const
+	float Vector3::operator[](uint32 index) const
 	{
 		LINA_CORE_ASSERT(index < 3, "index is bigger than 3");
 		return vec[index];
 	}
 
 
-	void Vector3F::Set(float x, float y, float z)
+	void Vector3::Set(float x, float y, float z)
 	{
 		vec = Vector::Make(x, y, z, 0.0f);
 	}
 
-	void Vector3F::Set(uint32 index, float val)
+	void Vector3::Set(uint32 index, float val)
 	{
 		vec = vec.select(Vector::Mask(index), Vector::Load1F(val));
 	}
 
-	float Vector3F::Max() const
+	float Vector3::Max() const
 	{
 		float vals[3];
 		vec.Store3f(vals);
 		return Math::Max3(vals[0], vals[1], vals[2]);
 	}
 
-	float Vector3F::Min() const
+	float Vector3::Min() const
 	{
 		float vals[3];
 		vec.Store3f(vals);
 		return Math::Min3(vals[0], vals[1], vals[2]);
 	}
 
-	float Vector3F::AbsMax() const
+	float Vector3::AbsMax() const
 	{
 		float vals[3];
 		vec.Abs().Store3f(vals);
 		return Math::Max3(vals[0], vals[1], vals[2]);
 	}
 
-	float Vector3F::AbsMin() const
+	float Vector3::AbsMin() const
 	{
 		float vals[3];
 		vec.Abs().Store3f(vals);
@@ -193,22 +187,22 @@ namespace LinaEngine
 	}
 
 
-	Vector3F Vector3F::Abs() const
+	Vector3 Vector3::Abs() const
 	{
-		return Vector3F(vec.Abs());
+		return Vector3(vec.Abs());
 	}
 
-	Vector3F Vector3F::Min(const Vector3F& other) const
+	Vector3 Vector3::Min(const Vector3& other) const
 	{
-		return Vector3F(vec.Min(other.vec));
+		return Vector3(vec.Min(other.vec));
 	}
 
-	Vector3F Vector3F::Max(const Vector3F& other) const
+	Vector3 Vector3::Max(const Vector3& other) const
 	{
-		return Vector3F(vec.Max(other.vec));
+		return Vector3(vec.Max(other.vec));
 	}
 
-	Vector3F Vector3F::Normalized(float errorMargin) const
+	Vector3 Vector3::Normalized(float errorMargin) const
 	{
 		// Currently does not use errorMargin.
 		(void)errorMargin;

@@ -34,17 +34,17 @@ namespace LinaEngine
 
 		FORCEINLINE AABB() {}
 
-		FORCEINLINE AABB(const Vector3F& minExtents, const Vector3F& maxExtents)
+		FORCEINLINE AABB(const Vector3& minExtents, const Vector3& maxExtents)
 		{
 			m_Extents[0] = minExtents;
 			m_Extents[1] = maxExtents;
 		}
 
-		AABB(Vector3F* points, uint32 amt);
+		AABB(Vector3* points, uint32 amt);
 		AABB(float* points, uint32 amt, uint32 stride = 0);
 
-		bool IntersectRay(const Vector3F& start, const Vector3F& rayDir, float& point1, float& point2) const;
-		bool IntersectLine(const Vector3F& start, const Vector3F& end) const;
+		bool IntersectRay(const Vector3& start, const Vector3& rayDir, float& point1, float& point2) const;
+		bool IntersectLine(const Vector3& start, const Vector3& end) const;
 		AABB Transform(const Matrix& transform) const;
 
 
@@ -57,40 +57,40 @@ namespace LinaEngine
 
 		FORCEINLINE AABB Expand(float distance) const 
 		{ 
-			return Expand(Vector3F(distance));
+			return Expand(Vector3(distance));
 		}
 
-		FORCEINLINE AABB Expand(const Vector3F& amt) const
+		FORCEINLINE AABB Expand(const Vector3& amt) const
 		{ 
 			return AABB(m_Extents[0] - amt, m_Extents[1] + amt);
 		}
 
-		FORCEINLINE AABB MoveTo(const Vector3F& destination) const
+		FORCEINLINE AABB MoveTo(const Vector3& destination) const
 		{ 
 			return Translate(destination - GetCenter());
 		}
 
-		FORCEINLINE Vector3F GetCenter() const 
+		FORCEINLINE Vector3 GetCenter() const 
 		{ 
 			return (m_Extents[1] + m_Extents[0]) * 0.5f;
 		}
 
-		FORCEINLINE Vector3F GetExtents() const
+		FORCEINLINE Vector3 GetExtents() const
 		{ 
 			return (m_Extents[1] - m_Extents[0]) * 0.5f;	
 		}
 
-		FORCEINLINE Vector3F GetMinExtents() const  
+		FORCEINLINE Vector3 GetMinExtents() const  
 		{ 
 			return m_Extents[0];
 		}
 
-		FORCEINLINE Vector3F GetMaxExtents() const 
+		FORCEINLINE Vector3 GetMaxExtents() const 
 		{ 	
 			return m_Extents[1]; 
 		}
 
-		FORCEINLINE void GetCenterAndExtents(Vector3F& center, Vector3F& m_Extents) const
+		FORCEINLINE void GetCenterAndExtents(Vector3& center, Vector3& m_Extents) const
 		{
 			m_Extents = (this->m_Extents[1] - this->m_Extents[0]) * 0.5f;
 			center = this->m_Extents[0] + m_Extents;
@@ -98,7 +98,7 @@ namespace LinaEngine
 
 		FORCEINLINE float GetVolume() const
 		{
-			Vector3F lengths = m_Extents[1] - m_Extents[0];
+			Vector3 lengths = m_Extents[1] - m_Extents[0];
 			return lengths[0] * lengths[1] * lengths[2];
 		}
 
@@ -108,7 +108,7 @@ namespace LinaEngine
 				m_Extents[1].Min(other.m_Extents[1]));
 		}
 
-		FORCEINLINE bool Contains(const Vector3F& point) const
+		FORCEINLINE bool Contains(const Vector3& point) const
 		{
 			return ((point.ToVector() <= m_Extents[0].ToVector()) |
 				(point.ToVector() >= m_Extents[1].ToVector())).IsZero3f();		
@@ -120,25 +120,25 @@ namespace LinaEngine
 					(other.m_Extents[1].ToVector() <= m_Extents[0].ToVector()) | (other.m_Extents[1].ToVector() >= m_Extents[1].ToVector())).IsZero3f();
 		}
 
-		FORCEINLINE AABB Translate(const Vector3F& amt) const
+		FORCEINLINE AABB Translate(const Vector3& amt) const
 		{
 			return AABB(m_Extents[0] + amt, m_Extents[1] + amt);
 		}
 
-		FORCEINLINE AABB ScaleFromCenter(const Vector3F& amt) const
+		FORCEINLINE AABB ScaleFromCenter(const Vector3& amt) const
 		{
-			Vector3F m_Extents, center;
+			Vector3 m_Extents, center;
 			GetCenterAndExtents(center, m_Extents);
 			m_Extents = m_Extents * amt;
 			return AABB(center - m_Extents, center + m_Extents);
 		}
 
-		FORCEINLINE AABB ScaleFromOrigin(const Vector3F& amt) const
+		FORCEINLINE AABB ScaleFromOrigin(const Vector3& amt) const
 		{
 			return AABB(m_Extents[0] * amt, m_Extents[1] * amt);
 		}
 
-		FORCEINLINE AABB AddPoint(const Vector3F& other) const
+		FORCEINLINE AABB AddPoint(const Vector3& other) const
 		{
 			return AABB(m_Extents[0].Min(other), m_Extents[1].Max(other));
 		}
@@ -164,7 +164,7 @@ namespace LinaEngine
 		}
 
 	private:
-		Vector3F m_Extents[2];
+		Vector3 m_Extents[2];
 	};
 
 

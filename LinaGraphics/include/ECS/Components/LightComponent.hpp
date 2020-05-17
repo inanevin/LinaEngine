@@ -45,7 +45,7 @@ namespace LinaEngine::ECS
 
 	struct SpotLightComponent : public LightComponent
 	{
-		Vector3F direction = Vector3F::Zero;
+		Vector3 direction = Vector3::Zero;
 		float constant = 1.0f;
 		float linear = 0.09f;
 		float quadratic = 0.032f;
@@ -55,7 +55,7 @@ namespace LinaEngine::ECS
 
 	struct DirectionalLightComponent : public LightComponent
 	{
-		Vector3F direction = Vector3F::Zero;
+		Vector3 direction = Vector3::Zero;
 	};
 }
 

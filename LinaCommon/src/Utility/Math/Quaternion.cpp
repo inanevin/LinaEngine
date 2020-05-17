@@ -35,24 +35,24 @@ namespace LinaEngine
 	{
 		return Math::Abs(1.0f - LengthSquared()) < errorMargin;
 	}
-	Vector3F Quaternion::GetAxis() const
+	Vector3 Quaternion::GetAxis() const
 	{
 		float w = vec[3];
 		float rangleDivisor = Math::RSqrt(Math::Max(1.0f - w * w, 0.0f));
-		return Vector3F(vec * Vector::Load1F(rangleDivisor));
+		return Vector3(vec * Vector::Load1F(rangleDivisor));
 	}
 	float Quaternion::GetAngle() const
 	{
 		return 2.0f * Math::Acos(vec[3]);
 	}
-	void Quaternion::AxisAndAngle(Vector3F& axis, float& angle) const
+	void Quaternion::AxisAndAngle(Vector3& axis, float& angle) const
 	{
 		angle = GetAngle();
 		axis = GetAxis();
 	}
-	Vector3F Quaternion::Rotate(const Vector3F& other) const
+	Vector3 Quaternion::Rotate(const Vector3& other) const
 	{
-		return Vector3F(vec.QuatRotateVec(other.ToVector()));
+		return Vector3(vec.QuatRotateVec(other.ToVector()));
 	}
 	Quaternion Quaternion::Slerp(const Quaternion& dest, float amt, float errorMargin) const
 	{
