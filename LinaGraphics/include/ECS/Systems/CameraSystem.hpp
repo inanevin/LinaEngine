@@ -26,13 +26,6 @@ Timestamp: 5/2/2019 12:40:46 AM
 #include "Utility/Math/Matrix.hpp"
 #include "Utility/Math/Color.hpp"
 
-namespace LinaEngine
-{
-	namespace Graphics
-	{
-		class RenderContext;
-	}
-}
 
 namespace LinaEngine::ECS
 {
@@ -47,7 +40,7 @@ namespace LinaEngine::ECS
 		virtual void UpdateComponents(float delta) override;
 
 		// Construct the system.
-		FORCEINLINE void Construct(ECSRegistry& registry, LinaEngine::Graphics::RenderContext& contextIn) { BaseECSSystem::Construct(registry); context = &contextIn; }
+		FORCEINLINE void Construct(ECSRegistry& registry) { BaseECSSystem::Construct(registry);  }
 
 		// Get view matrix.
 		FORCEINLINE Matrix& GetViewMatrix() { return m_View; }
@@ -70,7 +63,6 @@ namespace LinaEngine::ECS
 		FORCEINLINE CameraComponent& GetCurrentCameraComponent() { return *m_CurrentCameraComponent; }
 	private:
 
-		LinaEngine::Graphics::RenderContext* context = nullptr;
 		Matrix m_View = Matrix::identity();
 		Matrix m_Projection =Matrix::perspective(35, 1.33f, 0.01f, 1000.0f);
 		Matrix m_SkyboxViewTransformation = Matrix::identity();

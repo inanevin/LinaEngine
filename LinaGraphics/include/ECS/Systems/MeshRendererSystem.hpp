@@ -23,12 +23,17 @@ Timestamp: 4/27/2019 5:38:44 PM
 #define RenderableMeshSystem_HPP
 
 #include "ECS/ECSSystem.hpp"
+#include "PackageManager/PAMRenderDevice.hpp"
+#include "Rendering/RenderingCommon.hpp"
+#include "Rendering/RenderTarget.hpp"
+#include "Rendering/VertexArray.hpp"
 
 namespace LinaEngine
 {
 	namespace Graphics
 	{
-		class RenderContext;
+		class RenderEngine;
+		class Material;
 	}
 }
 
@@ -41,18 +46,50 @@ namespace LinaEngine::ECS
 
 		MeshRendererSystem() {};
 
-		FORCEINLINE void Construct(ECSRegistry& registry, LinaEngine::Graphics::RenderContext& contextIn)
+		FORCEINLINE void Construct(ECSRegistry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn, Graphics::RenderTarget& renderTargetIn, Graphics::DrawParams drawParamsIn)
 		{
 			BaseECSSystem::Construct(registry);
-			context = &contextIn;
+			m_RenderEngine = &renderEngineIn;
+			m_RenderDevice = &renderDeviceIn;
+			m_RenderTarget = &renderTargetIn;
+			m_DrawParams = drawParamsIn;
 		}
+
+		FORCEINLINE void Clear(bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
+		{
+			m_RenderDevice->Clear(m_RenderTarget->GetID(), shouldClearColor, shouldClearDepth, shouldClearStencil, color, stencil);
+		}
+
+		FORCEINLINE void Clear(const Color& color, bool shouldClearDepth = false)
+		{
+			m_RenderDevice->Clear(m_RenderTarget->GetID(), true, shouldClearDepth, false, color, 0);
+		}
+
+		FORCEINLINE void Draw(uint32 vao,  uint32 numInstances = 1, uint32 numElements = 1, bool drawArrays = false)
+		{
+			m_RenderDevice->Draw(m_RenderTarget->GetID(), vao, m_DrawParams, numInstances, numElements, drawArrays);
+		}
+
+		FORCEINLINE void Draw(Graphics::VertexArray& vertexArray, uint32 numInstances = 1, bool drawArrays = false)
+		{
+			m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray.GetID(), m_DrawParams, numInstances, vertexArray.GetIndexCount(), drawArrays);
+		}
+
+
+		void RenderMesh(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn);
+		void Flush();
 
 		virtual void UpdateComponents(float delta) override;
 
 	private:
 
-		LinaEngine::Graphics::RenderContext* context;
+		RenderDevice* m_RenderDevice = nullptr;
+		Graphics::RenderTarget* m_RenderTarget = nullptr;
+		Graphics::DrawParams m_DrawParams;
+		Graphics::RenderEngine* m_RenderEngine = nullptr;
 
+		// Map to see the list of same vertex array & textures to compress them into single draw call.
+		std::map<std::pair<Graphics::VertexArray*, Graphics::Material*>, std::tuple<LinaArray<Matrix>, LinaArray<Matrix>>> m_MeshRenderBuffer;
 	};
 }
 

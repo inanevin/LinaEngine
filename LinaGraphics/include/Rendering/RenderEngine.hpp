@@ -202,9 +202,6 @@ namespace LinaEngine::Graphics
 		// Sprite drawing parameters.
 		DrawParams m_SpriteDrawParams;
 
-		// Default Game Render Context
-		RenderContext m_DefaultRenderContext;
-
 		// ECS system for rendering camera perspective.
 		LinaEngine::ECS::CameraSystem m_CameraSystem;
 

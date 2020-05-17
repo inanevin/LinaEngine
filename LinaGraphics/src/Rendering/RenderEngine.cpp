@@ -106,20 +106,17 @@ namespace LinaEngine::Graphics
 		// Create a default texture for render context.
 		m_DefaultTexture = &CreateTexture("resources/textures/defaultDiffuse.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
 
-		// Initialize the render context.
-		m_DefaultRenderContext.Construct(*this, m_RenderDevice, m_RenderTarget, m_DefaultDrawParams);
-
 		// Initialize built-in vertex array objects.
 		m_SkyboxVAO = m_RenderDevice.CreateSkyboxVertexArray();
 		m_QuadVAO = m_RenderDevice.CreateQuadVertexArray();
 
 		// Initialize ECS Camera System.
 		Vector2F windowSize = Vector2F(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
-		m_CameraSystem.Construct(ecsReg, m_DefaultRenderContext);
+		m_CameraSystem.Construct(ecsReg);
 		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 
 		// Initialize ECS Mesh Renderer System
-		m_MeshRendererSystem.Construct(ecsReg, m_DefaultRenderContext);
+		m_MeshRendererSystem.Construct(ecsReg, *this, m_RenderDevice, m_RenderTarget, m_DefaultDrawParams);
 
 		// Initialize ECS Lighting system.
 		m_LightingSystem.Construct(ecsReg, m_RenderDevice, *this);
@@ -138,7 +135,7 @@ namespace LinaEngine::Graphics
 	void RenderEngine::Tick(float delta)
 	{
 		// Clear color.
-		m_DefaultRenderContext.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+		m_MeshRendererSystem.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Draw skybox.
 		DrawSkybox();
@@ -147,7 +144,7 @@ namespace LinaEngine::Graphics
 		m_RenderingPipeline.UpdateSystems(delta);
 
 		// Draw scene.
-		m_DefaultRenderContext.Flush();
+		m_MeshRendererSystem.Flush();
 
 		// Update uniform buffers on GPU
 		UpdateUniformBuffers();
@@ -441,7 +438,7 @@ namespace LinaEngine::Graphics
 		if (m_SkyboxMaterial != nullptr)
 		{
 			UpdateShaderData(m_SkyboxMaterial);
-			m_DefaultRenderContext.Draw(m_SkyboxVAO, m_SkyboxDrawParams, 1, 36, true);
+			m_RenderDevice.Draw(m_RenderTarget.GetID(), m_SkyboxVAO, m_SkyboxDrawParams, 1, 36, true);
 		}
 	}
 

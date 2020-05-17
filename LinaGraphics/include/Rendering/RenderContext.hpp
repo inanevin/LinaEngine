@@ -22,72 +22,10 @@ Timestamp: 4/27/2019 5:48:39 PM
 #ifndef RenderContext_HPP
 #define RenderContext_HPP
 
-#include "PackageManager/PAMRenderDevice.hpp"
-#include "RenderTarget.hpp"
-#include "VertexArray.hpp"
-#include "ECS/Components/TransformComponent.hpp"
-#include "ECS/Components/LightComponent.hpp"
-
-namespace LinaEngine
-{
-	namespace ECS
-	{
-		class LighingSystem;
-	}
-}
 
 namespace LinaEngine::Graphics
 {
-	class RenderEngine;
-
-	class RenderContext
-	{
-	public:
-
-		FORCEINLINE void Construct(RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn, RenderTarget& renderTargetIn, DrawParams& drawParamsIn)
-		{
-			m_RenderEngine = &renderEngineIn;
-			m_RenderDevice = &renderDeviceIn;
-			m_Target = &renderTargetIn;
-			m_DrawParams = &drawParamsIn;
-		}
-
-		FORCEINLINE void Clear(bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
-		{
-			m_RenderDevice->Clear(m_Target->GetID(), shouldClearColor, shouldClearDepth, shouldClearStencil, color, stencil);
-		}
-
-		FORCEINLINE void Clear(const Color& color, bool shouldClearDepth = false)
-		{
-			m_RenderDevice->Clear(m_Target->GetID(), true, shouldClearDepth, false, color, 0);
-		}
-
-		FORCEINLINE void Draw(uint32 vao, const DrawParams& drawParams, uint32 numInstances = 1, uint32 numElements = 1, bool drawArrays = false)
-		{
-			m_RenderDevice->Draw(m_Target->GetID(), vao, drawParams, numInstances, numElements, drawArrays);
-		}
-
-		FORCEINLINE void Draw(VertexArray& vertexArray, const DrawParams& drawParams, uint32 numInstances = 1, bool drawArrays = false)
-		{
-			m_RenderDevice->Draw(m_Target->GetID(), vertexArray.GetID(), drawParams, numInstances, vertexArray.GetIndexCount(), drawArrays);
-		}
-
-		void RenderMesh(VertexArray& vertexArray, Material& material, const Matrix& transformIn);
-		void Flush();
-
-	private:
-
-		RenderDevice* m_RenderDevice = nullptr;
-		RenderTarget* m_Target = nullptr;
-		DrawParams* m_DrawParams = nullptr;
-		RenderEngine* m_RenderEngine = nullptr;
-
-		// Map to see the list of same vertex array & textures to compress them into single draw call.
-		std::map<std::pair<VertexArray*, Material*>, std::tuple<LinaArray<Matrix>, LinaArray<Matrix>>> m_MeshRenderBuffer;
 	
-	private:
-
-	};
 }
 
 
