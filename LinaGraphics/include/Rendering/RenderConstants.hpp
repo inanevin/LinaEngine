@@ -53,10 +53,12 @@ namespace LinaEngine::Graphics
 #define MC_SPECULARTEXTUREPROPERTY "material.specular"
 #define MC_SPECULARINTENSITYPROPERTY "material.specularIntensity"
 #define MC_SPECULAREXPONENTPROPERTY "material.specularExponent"
+#define MC_OUTLINETHICKNESS "material.outlineThickness"
 
 #define UF_STENCILTHICKNESS "stencilThickness"
 #define UF_MODELMATRIX "model"
 
+#define MAT_LINASTENCILOUTLINE "lina_StencilOutline"
 
 }
 #endif

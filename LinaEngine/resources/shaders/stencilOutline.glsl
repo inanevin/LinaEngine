@@ -29,11 +29,17 @@ Layout(4) attribute mat4 model;
 out vec2 TexCoords;
 out vec3 FragPos;
 
-uniform float stencilThickness;
+struct Material
+{
+vec3 objectColor;
+float outlineThickness;
+};
+
+uniform Material material;
 
 void main()
 {
-    gl_Position = projection * view * model * vec4(position + normal * stencilThickness, 1.0);
+    gl_Position = projection * view * model * vec4(position + normal * material.outlineThickness, 1.0);
     TexCoords = texCoord;
 }
 
@@ -43,6 +49,7 @@ void main()
 struct Material
 {
 vec3 objectColor;
+float outlineThickness;
 };
 
 uniform Material material;

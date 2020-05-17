@@ -85,6 +85,9 @@ namespace LinaEngine::Graphics
 		// Initialize the engine shaders.
 		ConstructEngineShaders();
 
+		// Initialize engine materials
+		ConstructEngineMaterials();
+
 		// Initialize the render target.
 		m_RenderTarget.Construct(m_RenderDevice);
 
@@ -116,7 +119,7 @@ namespace LinaEngine::Graphics
 		m_CameraSystem.SetAspectRatio(windowSize.GetX() / windowSize.GetY());
 
 		// Initialize ECS Mesh Renderer System
-		m_MeshRendererSystem.Construct(ecsReg, *this, m_RenderDevice, m_RenderTarget, m_DefaultDrawParams);
+		m_MeshRendererSystem.Construct(ecsReg, *this, m_RenderDevice, m_RenderTarget);
 
 		// Initialize ECS quad renderer system
 		m_QuadRendererSystem.Construct(ecsReg, m_RenderDevice, *this, m_QuadVAO, m_RenderTarget.GetID());
@@ -148,7 +151,7 @@ namespace LinaEngine::Graphics
 		m_RenderingPipeline.UpdateSystems(delta);
 
 		// Draw scene.
-		m_MeshRendererSystem.Flush();
+		m_MeshRendererSystem.Flush(m_DefaultDrawParams);
 
 		// Update uniform buffers on GPU
 		UpdateUniformBuffers();
@@ -429,6 +432,11 @@ namespace LinaEngine::Graphics
 		transparentQuad.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 	}
 
+	void RenderEngine::ConstructEngineMaterials()
+	{
+		CreateMaterial(MAT_LINASTENCILOUTLINE, Shaders::STENCIL_OUTLINE);
+	}
+
 	void RenderEngine::DumpMemory()
 	{
 		// Clear dumps.
@@ -536,6 +544,7 @@ namespace LinaEngine::Graphics
 		else if (shader == Shaders::STENCIL_OUTLINE)
 		{
 			material.colors[MC_OBJECTCOLORPROPERTY] = Colors::White;
+			material.floats[MC_OUTLINETHICKNESS] = 0.1f;
 		}
 		else if (shader == Shaders::TRANSPARENT_QUAD)
 		{

@@ -67,9 +67,8 @@ namespace LinaEngine::ECS
 		std::get<1>(m_MeshRenderBuffer[pair]).push_back(transformIn.inverse());
 	}
 
-	void MeshRendererSystem::Flush()
+	void MeshRendererSystem::Flush(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial)
 	{
-
 		for (std::map<std::pair<Graphics::VertexArray*, Graphics::Material*>, std::tuple<LinaArray<Matrix>, LinaArray<Matrix>>>::iterator it = m_MeshRenderBuffer.begin(); it != m_MeshRenderBuffer.end(); ++it)
 		{
 			auto& modelArray = std::get<0>(it->second);
@@ -83,10 +82,21 @@ namespace LinaEngine::ECS
 
 			if (numTransforms == 0) continue;
 
-			Graphics::Material* mat = it->first.second;
+			// Get the material for drawing, object's own material or overriden material.
+			Graphics::Material* mat = overrideMaterial == nullptr ? it->first.second : overrideMaterial;
+
+			// Update the buffer w/ each transform.
+			vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
+			vertexArray->UpdateBuffer(5, inverseTransposeModels, numTransforms * sizeof(Matrix));
+
+			// Update default shader.
+			m_RenderEngine->UpdateShaderData(mat);
+
+			// Draw call.
+			m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
 
 			// Draw for stencil outlining.
-			if (mat->useStencilOutline)
+			/*if (mat->useStencilOutline)
 			{
 				// Set stencil draw params.
 				m_DrawParams.useStencilTest = true;
@@ -95,26 +105,10 @@ namespace LinaEngine::ECS
 				m_DrawParams.stencilTestMask = 0xFF;
 				m_DrawParams.stencilWriteMask = 0xFF;
 
-				// Update the buffer w/ each transform.
-				vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
-				vertexArray->UpdateBuffer(5, inverseTransposeModels, numTransforms * sizeof(Matrix));
-
-				// Update default shader.
-				m_RenderEngine->UpdateShaderData(mat);
-
-				// Draw call.
-				m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), m_DrawParams, numTransforms, vertexArray->GetIndexCount(), false);
+				
 
 				// Set stencil outline shader.
 				m_RenderDevice->SetShader(mat->stencilOutlineShaderID);
-
-				// Copy model matries & scale em up.
-				//auto cpy = std::get<0>(it->second);
-				//for (int i = 0; i < cpy.size(); i++)
-					//cpy[i].scaleBy(1);
-
-				// Update the buffer w/ each transform.
-				//vertexArray->UpdateBuffer(4, &cpy[0], numTransforms * sizeof(Matrix));
 
 				// Set stencil draw params.
 				m_DrawParams.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_NOT_EQUAL;
@@ -150,7 +144,7 @@ namespace LinaEngine::ECS
 
 				// Draw call.
 				m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), m_DrawParams, numTransforms, vertexArray->GetIndexCount(), false);
-			}
+			}*/
 
 			// Clear the buffer, or do not if you want a trail of shadows lol.
 			modelArray.clear();

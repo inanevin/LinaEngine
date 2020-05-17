@@ -46,17 +46,16 @@ namespace LinaEngine::ECS
 
 		MeshRendererSystem() {};
 
-		FORCEINLINE void Construct(ECSRegistry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn, Graphics::RenderTarget& renderTargetIn, Graphics::DrawParams drawParamsIn)
+		FORCEINLINE void Construct(ECSRegistry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn, Graphics::RenderTarget& renderTargetIn)
 		{
 			BaseECSSystem::Construct(registry);
 			m_RenderEngine = &renderEngineIn;
 			m_RenderDevice = &renderDeviceIn;
 			m_RenderTarget = &renderTargetIn;
-			m_DrawParams = drawParamsIn;
 		}
 
 		void RenderMesh(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn);
-		void Flush();
+		void Flush(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr);
 
 		virtual void UpdateComponents(float delta) override;
 
@@ -64,7 +63,6 @@ namespace LinaEngine::ECS
 
 		RenderDevice* m_RenderDevice = nullptr;
 		Graphics::RenderTarget* m_RenderTarget = nullptr;
-		Graphics::DrawParams m_DrawParams;
 		Graphics::RenderEngine* m_RenderEngine = nullptr;
 
 		// Map to see the list of same vertex array & textures to compress them into single draw call.

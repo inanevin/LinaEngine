@@ -26,6 +26,7 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
+#include "ECS/Components/QuadRendererComponent.hpp"
 #include <entt/entity/registry.hpp>
 #include "Rendering/RenderEngine.hpp"
 #include "Core/Application.hpp"
@@ -107,6 +108,7 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 Material* objectLitMaterial;
 Material* objectUnlitMaterial;
 Material* objectUnlitMaterial2;
+Material* quadMaterial;
 
 Vector3F cubePositions[] = {
 	Vector3F(0.0f, 0.0f, 10.0f),
@@ -169,7 +171,7 @@ void Example1Level::Initialize()
 	objectLitMaterial = &m_RenderEngine->CreateMaterial("object1Material", Shaders::STANDARD_LIT);
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
 	objectUnlitMaterial2 = &m_RenderEngine->CreateMaterial("object4Material", Shaders::STANDARD_UNLIT);
-
+	quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::TRANSPARENT_QUAD);
 
 	// Create texture for example mesh.
 	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
@@ -178,10 +180,9 @@ void Example1Level::Initialize()
 	objectLitMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, &crateSpecTexture, 1);
 	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(0, 0, 1));
 	objectUnlitMaterial2->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 0, 0));
-	objectLitMaterial->useStencilOutline = true;
-	objectLitMaterial->stencilOutlineShaderID = m_RenderEngine->GetShader(Shaders::STENCIL_OUTLINE).GetID();
-	objectLitMaterial->stencilOutlineColor = Colors::Green;
-	objectLitMaterial->stencilThickness = 0.05f;
+	
+	quadMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &crateTexture, 0);
+	
 
 	object1Renderer.mesh = &cubeMesh;
 	object1Renderer.material = objectLitMaterial;
@@ -262,8 +263,14 @@ void Example1Level::Initialize()
 		m_ECS->reg.emplace<TransformComponent>(visuals.entity, object1Transform);
 		m_ECS->reg.emplace<MeshRendererComponent>(visuals.entity, smallCubeRenderer);
 	}
-
-
+	object1Transform.transform.SetScale(Vector3F::One);
+	object1Transform.transform.SetLocation(Vector3F(0,0,4));
+	ECSEntity quad;
+	quad.entity = m_ECS->reg.create();
+	m_ECS->reg.emplace<TransformComponent>(quad.entity, object1Transform);
+	QuadRendererComponent quadR;
+	quadR.material = quadMaterial;
+	m_ECS->reg.emplace<QuadRendererComponent>(quad.entity, quadR);
 	// Create a cube object.
 //object1Renderer.mesh = &cubeMesh;
 //object1Renderer.material = objectLitMaterial;

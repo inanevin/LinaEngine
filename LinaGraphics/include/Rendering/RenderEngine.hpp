@@ -174,6 +174,9 @@ namespace LinaEngine::Graphics
 		// Constructs commonly used shaders within Lina Engine.
 		void ConstructEngineShaders();
 
+		// Constructs engine materials
+		void ConstructEngineMaterials();
+
 		// clears resource memory.
 		void DumpMemory();
 

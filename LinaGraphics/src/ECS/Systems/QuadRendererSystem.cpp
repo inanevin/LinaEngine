@@ -31,7 +31,7 @@ namespace LinaEngine::ECS
 	void QuadRendererSystem::UpdateComponents(float delta)
 	{
 		auto view = m_Registry->reg.view<TransformComponent, QuadRendererComponent>();
-
+		return;
 		for (auto entity : view)
 		{
 			TransformComponent& transform = view.get<TransformComponent>(entity);
