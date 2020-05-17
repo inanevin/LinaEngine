@@ -36,15 +36,14 @@ namespace LinaEngine
 	{
 	public:
 		FORCEINLINE Matrix();
-		FORCEINLINE Matrix(const Vector& vecX, const Vector& vecY,
-			const Vector& vecZ, const Vector& vecOffset);
+		FORCEINLINE Matrix(const Vector& vecX, const Vector& vecY,const Vector& vecZ, const Vector& vecOffset);
 
-		static FORCEINLINE Matrix identity();
+		static FORCEINLINE Matrix Identity();
 		static FORCEINLINE Matrix Translate(const Vector3F& amt);
-		static FORCEINLINE Matrix scale(const Vector3F& amt);
-		static FORCEINLINE Matrix scale(float amt);
-		static FORCEINLINE Matrix ortho(float left, float right, float bottom, float top, float near, float far);
-		static FORCEINLINE Matrix perspective(float halfFov, float aspect, float nearZ, float farZ);
+		static FORCEINLINE Matrix Scale(const Vector3F& amt);
+		static FORCEINLINE Matrix Scale(float amt);
+		static FORCEINLINE Matrix Orthographic(float left, float right, float bottom, float top, float near, float far);
+		static FORCEINLINE Matrix Perspective(float halfFov, float aspect, float nearZ, float farZ);
 		static FORCEINLINE Matrix TransformMatrix(const Vector3F& translation, const Quaternion& rotation, const Vector3F& scale);
 
 		static FORCEINLINE Matrix InitRotationFromVectors(const Vector3F&, const Vector3F&, const Vector3F&);
@@ -87,7 +86,7 @@ namespace LinaEngine
 		Vector m[4] = { VectorConstants::ZERO };
 	};
 
-	FORCEINLINE Matrix Matrix::identity()
+	FORCEINLINE Matrix Matrix::Identity()
 	{
 		return Matrix(
 			Vector::Make(1.0f, 0.0f, 0.0f, 0.0f),
@@ -105,7 +104,7 @@ namespace LinaEngine
 			Vector::Make(0.0f, 0.0f, 0.0f, 1.0f));
 	}
 
-	FORCEINLINE Matrix Matrix::scale(const Vector3F& amt)
+	FORCEINLINE Matrix Matrix::Scale(const Vector3F& amt)
 	{
 		return Matrix(
 			Vector::Make(amt[0], 0.0f, 0.0f, 0.0f),
@@ -114,13 +113,13 @@ namespace LinaEngine
 			Vector::Make(0.0f, 0.0f, 0.0f, 1.0f));
 	}
 
-	FORCEINLINE Matrix Matrix::scale(float amt)
+	FORCEINLINE Matrix Matrix::Scale(float amt)
 	{
-		return scale(Vector3F(amt));
+		return Scale(Vector3F(amt));
 	}
 
 
-	FORCEINLINE Matrix Matrix::ortho(float left, float right,
+	FORCEINLINE Matrix Matrix::Orthographic(float left, float right,
 		float bottom, float top, float n, float f)
 	{
 		float rwidth = Math::Reciprocal(right - left);
@@ -134,7 +133,7 @@ namespace LinaEngine
 			Vector::Make(0.0f, 0.0f, 0.0f, 1.0f));
 	}
 
-	FORCEINLINE Matrix Matrix::perspective(float halfFov, float aspect,
+	FORCEINLINE Matrix Matrix::Perspective(float halfFov, float aspect,
 		float nearZ, float farZ)
 	{
 		float rtanHalfFov = Math::Reciprocal(Math::Tan(halfFov));
@@ -162,6 +161,7 @@ namespace LinaEngine
 	FORCEINLINE Matrix::Matrix(const Vector& vecX, const Vector& vecY,
 		const Vector& vecZ, const Vector& vecOffset)
 	{
+		
 		m[0] = vecX;
 		m[1] = vecY;
 		m[2] = vecZ;
