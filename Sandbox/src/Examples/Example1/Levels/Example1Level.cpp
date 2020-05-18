@@ -45,6 +45,7 @@ ECSEntity camera;
 ECSEntity directionalLight;
 ECSEntity quad;
 ECSEntity quad2;
+ECSEntity quad3;
 
 
 TransformComponent object1Transform;
@@ -288,8 +289,12 @@ void Example1Level::Initialize()
 	object1Transform.transform.location = (Vector3(-2.5f, 0, 11.0f));
 	quad2.entity = m_ECS->reg.create();
 	m_ECS->reg.emplace<TransformComponent>(quad2.entity, object1Transform);
-
 	m_ECS->reg.emplace<QuadRendererComponent>(quad2.entity, quadR);
+
+	object1Transform.transform.location = (Vector3(-2.5f, 0, 7.5f));
+	quad3.entity = m_ECS->reg.create();
+	m_ECS->reg.emplace<TransformComponent>(quad3.entity, object1Transform);
+	m_ECS->reg.emplace<QuadRendererComponent>(quad3.entity, quadR);
 
 	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem();

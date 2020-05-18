@@ -63,7 +63,7 @@ namespace LinaEngine::ECS
 		RenderDevice* m_RenderDevice;
 		uint32 m_QuadVAO;
 		uint32 m_FBO;
-		std::vector<Graphics::Material*> m_QuadsToRender;
+		std::map<float, std::tuple<Matrix, Graphics::Material*>> m_QuadsToRender;
 	};
 }
 

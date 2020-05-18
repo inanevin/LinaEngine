@@ -38,21 +38,25 @@ namespace LinaEngine::ECS
 		{
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 			QuadRendererComponent& renderer = view.get<QuadRendererComponent>(entity);
-	
-			// Update material information
-			(*renderer.material).SetMatrix4(UF_MODELMATRIX, transform.transform.ToMatrix());
-
-			// Add to the draw list.
-			m_QuadsToRender.push_back(renderer.material);
+		
+			// Get the distance to the camera of the transform & add it to the map to be automatically sorted by the STL container.
+			float distanceToCamera = transform.transform.location.Distance(m_RenderEngine->GetCameraSystem().GetCameraLocation());
+			m_QuadsToRender[distanceToCamera] = std::make_tuple(transform.transform.ToMatrix(), renderer.material);
+		
 		}
 	}
 
 	void QuadRendererSystem::Flush(Graphics::DrawParams& drawParams)
 	{
-		for (std::vector<Graphics::Material*>::iterator it = m_QuadsToRender.begin(); it != m_QuadsToRender.end(); ++it)
+		// Iterate in reverse.
+		for (std::map<float, std::tuple<Matrix, Graphics::Material*>>::reverse_iterator it = m_QuadsToRender.rbegin(); it != m_QuadsToRender.rend(); ++it)
 		{
+			Matrix matrix = std::get<0>(it->second);
+			Graphics::Material* material = std::get<1>(it->second);
+
 			// Update shader data & draw
-			m_RenderEngine->UpdateShaderData(*it);
+			material->SetMatrix4(UF_MODELMATRIX, matrix);
+			m_RenderEngine->UpdateShaderData(material);
 			m_RenderDevice->Draw(m_FBO, m_QuadVAO, drawParams, 0, 36, true);
 		}
 
