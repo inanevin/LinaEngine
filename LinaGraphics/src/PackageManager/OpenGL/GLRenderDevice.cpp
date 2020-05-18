@@ -172,10 +172,10 @@ namespace LinaEngine::Graphics
 
 	GLint GetOpenGLFormat(PixelFormat dataFormat);
 	GLint GetOpenGLInternalFormat(PixelFormat internalFormat, bool compress);
-	static bool AddShader(GLuint shaderProgram, const std::string & text, GLenum type, LinaArray<GLuint> * shaders);
-	static void AddAllAttributes(GLuint program, const std::string & vertexShaderText, uint32 version);
-	static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const std::string & errorMessage);
-	static void AddShaderUniforms(GLuint shaderProgram, const std::string & shaderText, std::map<std::string, GLint> & uniformBlockMap, std::map<std::string, GLint> & uniformMap, std::map<std::string, GLint> & samplerMap);
+	static bool AddShader(GLuint shaderProgram, const std::string& text, GLenum type, LinaArray<GLuint>* shaders);
+	static void AddAllAttributes(GLuint program, const std::string& vertexShaderText, uint32 version);
+	static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const std::string& errorMessage);
+	static void AddShaderUniforms(GLuint shaderProgram, const std::string& shaderText, std::map<std::string, GLint>& uniformBlockMap, std::map<std::string, GLint>& uniformMap, std::map<std::string, GLint>& samplerMap);
 
 	GLRenderDevice::GLRenderDevice()
 	{
@@ -319,7 +319,7 @@ namespace LinaEngine::Graphics
 		return textureID;
 	}
 
-	uint32 GLRenderDevice::CreateCubemapTexture(int32 width, int32 height, const LinaArray<int32*> & data, uint32 dataSize, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps)
+	uint32 GLRenderDevice::CreateCubemapTexture(int32 width, int32 height, const LinaArray<int32*>& data, uint32 dataSize, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps)
 	{
 		GLuint textureHandle;
 
@@ -375,7 +375,7 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	uint32 GLRenderDevice::CreateVertexArray(const float** vertexData, const uint32 * vertexElementSizes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32 * indices, uint32 numIndices, BufferUsage bufferUsage)
+	uint32 GLRenderDevice::CreateVertexArray(const float** vertexData, const uint32* vertexElementSizes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage)
 	{
 		// Define vertex array object, buffers, buffer count & their sizes.
 		unsigned int numBuffers = numVertexComponents + numInstanceComponents + 1;
@@ -496,19 +496,22 @@ namespace LinaEngine::Graphics
 
 	uint32 GLRenderDevice::CreateQuadVertexArray()
 	{
-	//unsigned int quad, transparentVBO;
-	//glGenVertexArrays(1, &quad);
-	//glGenBuffers(1, &transparentVBO);
-	//glBindVertexArray(quad);
-	//glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
-	//glEnableVertexAttribArray(0);
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	//glEnableVertexAttribArray(1);
-	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	//glBindVertexArray(0);
-	//return quad;
-	
+		unsigned int quad, transparentVBO;
+		glGenVertexArrays(1, &quad);
+		glGenBuffers(1, &transparentVBO);
+		glBindVertexArray(quad);
+		glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+		glBindVertexArray(0);
+		return quad;
+	}
+
+	uint32 GLRenderDevice::CreateCubeVertexArray()
+	{
 		unsigned int VBO, VAO;
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
@@ -590,7 +593,7 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	uint32 GLRenderDevice::CreateShaderProgram(const std::string & shaderText)
+	uint32 GLRenderDevice::CreateShaderProgram(const std::string& shaderText)
 	{
 		// Shader program instance.
 		GLuint shaderProgram = glCreateProgram();
@@ -643,7 +646,7 @@ namespace LinaEngine::Graphics
 		if (programIt == m_ShaderProgramMap.end()) return 0;
 
 		// Get the program from the map.
-		const ShaderProgram * shaderProgram = &programIt->second;
+		const ShaderProgram* shaderProgram = &programIt->second;
 
 		// Detach & delete each shader assigned to our program.
 		for (LinaArray<uint32>::const_iterator it = shaderProgram->shaders.begin(); it != shaderProgram->shaders.end(); ++it)
@@ -710,7 +713,7 @@ namespace LinaEngine::Graphics
 		if (it == m_VAOMap.end()) return;
 
 		// Get the vertex array object data from the map.
-		const VertexArrayData * vaoData = &it->second;
+		const VertexArrayData* vaoData = &it->second;
 
 		// Define a usage according to the VAO data.
 		BufferUsage usage;
@@ -756,7 +759,7 @@ namespace LinaEngine::Graphics
 			glBindSampler(unit, sampler);
 	}
 
-	void GLRenderDevice::SetShaderUniformBuffer(uint32 shader, const std::string & uniformBufferName, uint32 buffer)
+	void GLRenderDevice::SetShaderUniformBuffer(uint32 shader, const std::string& uniformBufferName, uint32 buffer)
 	{
 		// Use shader first.
 		SetShader(shader);
@@ -771,7 +774,7 @@ namespace LinaEngine::Graphics
 		glBindBufferBase(GL_UNIFORM_BUFFER, point, bufferObject);
 	}
 
-	void GLRenderDevice::BindShaderBlockToBufferPoint(uint32 shader, uint32 blockPoint, std::string & blockName)
+	void GLRenderDevice::BindShaderBlockToBufferPoint(uint32 shader, uint32 blockPoint, std::string& blockName)
 	{
 		glUniformBlockBinding(shader, m_ShaderProgramMap[shader].uniformBlockMap[blockName], blockPoint);
 	}
@@ -852,7 +855,7 @@ namespace LinaEngine::Graphics
 		m_BoundFBO = fbo;
 	}
 
-	void GLRenderDevice::Draw(uint32 fbo, uint32 vao, const DrawParams & drawParams, uint32 numInstances, uint32 numElements, bool drawArrays)
+	void GLRenderDevice::Draw(uint32 fbo, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements, bool drawArrays)
 	{
 		// No need to draw nothin dude.
 		if (!drawArrays && numInstances == 0) return;
@@ -871,7 +874,7 @@ namespace LinaEngine::Graphics
 		SetFaceCulling(drawParams.faceCulling);
 		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
 		SetStencilTest(drawParams.useStencilTest, drawParams.stencilFunc, drawParams.stencilTestMask, drawParams.stencilWriteMask, drawParams.stencilComparisonVal, drawParams.stencilFail, drawParams.stencilPassButDepthFail, drawParams.stencilPass);
-		
+
 		// use array buffer & attributes.
 		SetVAO(vao);
 
@@ -890,7 +893,7 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void GLRenderDevice::Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color & color, uint32 stencil)
+	void GLRenderDevice::Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
 	{
 		// Make sure frame buffer objects are used.
 		SetFBO(fbo);
@@ -924,45 +927,45 @@ namespace LinaEngine::Graphics
 	}
 
 
-	void GLRenderDevice::UpdateShaderUniformFloat(uint32 shader, const std::string & uniform, const float f)
+	void GLRenderDevice::UpdateShaderUniformFloat(uint32 shader, const std::string& uniform, const float f)
 	{
 		glUniform1f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)f);
 	}
 
-	void GLRenderDevice::UpdateShaderUniformInt(uint32 shader, const std::string & uniform, const int f)
+	void GLRenderDevice::UpdateShaderUniformInt(uint32 shader, const std::string& uniform, const int f)
 	{
 		glUniform1i(m_ShaderProgramMap[shader].uniformMap[uniform], (GLint)f);
 	}
 
-	void GLRenderDevice::UpdateShaderUniformColor(uint32 shader, const std::string & uniform, const Color & color)
+	void GLRenderDevice::UpdateShaderUniformColor(uint32 shader, const std::string& uniform, const Color& color)
 	{
 		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)color.r, (GLfloat)color.g, (GLfloat)color.b);
 	}
 
-	void GLRenderDevice::UpdateShaderUniformVector2(uint32 shader, const std::string & uniform, const Vector2 & m)
+	void GLRenderDevice::UpdateShaderUniformVector2(uint32 shader, const std::string& uniform, const Vector2& m)
 	{
 		glUniform2f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y);
 	}
 
-	void GLRenderDevice::UpdateShaderUniformVector3(uint32 shader, const std::string & uniform, const Vector3 & m)
+	void GLRenderDevice::UpdateShaderUniformVector3(uint32 shader, const std::string& uniform, const Vector3& m)
 	{
 		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y, (GLfloat)m.z);
 	}
 
-	void GLRenderDevice::UpdateShaderUniformVector4F(uint32 shader, const std::string & uniform, const Vector4 & m)
+	void GLRenderDevice::UpdateShaderUniformVector4F(uint32 shader, const std::string& uniform, const Vector4& m)
 	{
 		glUniform4f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y, (GLfloat)m.z, (GLfloat)m.w);
 
 	}
 
-	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string & uniform, void* data)
+	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, void* data)
 	{
 		float* matrixData = ((float*)data);
 		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_FALSE, matrixData);
 	}
 
-	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string & uniform, const Matrix & m)
-	{		
+	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, const Matrix& m)
+	{
 
 		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_FALSE, &m[0][0]);
 	}
@@ -1198,7 +1201,7 @@ namespace LinaEngine::Graphics
 	}
 
 
-	static bool AddShader(GLuint shaderProgram, const std::string & text, GLenum type, LinaArray<GLuint> * shaders)
+	static bool AddShader(GLuint shaderProgram, const std::string& text, GLenum type, LinaArray<GLuint>* shaders)
 	{
 		// Create shader object.
 		GLuint shader = glCreateShader(type);
@@ -1236,7 +1239,7 @@ namespace LinaEngine::Graphics
 		return true;
 	}
 
-	static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const std::string & errorMessage)
+	static bool CheckShaderError(GLuint shader, int flag, bool isProgram, const std::string& errorMessage)
 	{
 		// Check shader errors from OpenGl.
 		GLint success = 0;
@@ -1262,7 +1265,7 @@ namespace LinaEngine::Graphics
 		return false;
 	}
 
-	static void AddAllAttributes(GLuint program, const std::string & vertexShaderText, uint32 version)
+	static void AddAllAttributes(GLuint program, const std::string& vertexShaderText, uint32 version)
 	{
 		// Terminate if attribute layout feature is enabled.
 		if (version >= 320) return;
@@ -1288,12 +1291,12 @@ namespace LinaEngine::Graphics
 
 			// Use appropriate attribute location.
 			glGetActiveAttrib(program, attrib, nameData.size(), &actualLength, &arraySize, &type, &nameData[0]);
-			glBindAttribLocation(program, attrib, (char*)& nameData[0]);
+			glBindAttribLocation(program, attrib, (char*)&nameData[0]);
 
 		}
 	}
 
-	static void AddShaderUniforms(GLuint shaderProgram, const std::string & shaderText, std::map<std::string, GLint> & uniformBlockMap, std::map<std::string, GLint> & uniformMap, std::map<std::string, GLint> & samplerMap)
+	static void AddShaderUniforms(GLuint shaderProgram, const std::string& shaderText, std::map<std::string, GLint>& uniformBlockMap, std::map<std::string, GLint>& uniformMap, std::map<std::string, GLint>& samplerMap)
 	{
 		// Load uniform sets.
 		GLint numBlocks;
@@ -1308,7 +1311,7 @@ namespace LinaEngine::Graphics
 			glGetActiveUniformBlockiv(shaderProgram, block, GL_UNIFORM_BLOCK_NAME_LENGTH, &nameLen);
 			LinaArray<GLchar> name(nameLen);
 			glGetActiveUniformBlockName(shaderProgram, block, nameLen, NULL, &name[0]);
-			std::string uniformBlockName((char*)& name[0], nameLen - 1);
+			std::string uniformBlockName((char*)&name[0], nameLen - 1);
 			uniformBlockMap[uniformBlockName] = glGetUniformBlockIndex(shaderProgram, &name[0]);
 		}
 
@@ -1333,9 +1336,9 @@ namespace LinaEngine::Graphics
 				continue;
 			}*/
 
-			std::string name((char*)& uniformName[0], actualLength - 1);
-			samplerMap[name] = glGetUniformLocation(shaderProgram, (char*)& uniformName[0]);
-			GLint loc = glGetUniformLocation(shaderProgram, (char*)& uniformName[0]);
+			std::string name((char*)&uniformName[0], actualLength - 1);
+			samplerMap[name] = glGetUniformLocation(shaderProgram, (char*)&uniformName[0]);
+			GLint loc = glGetUniformLocation(shaderProgram, (char*)&uniformName[0]);
 			uniformMap[&uniformName[0]] = loc;
 		}
 	}

@@ -28,7 +28,6 @@ Timestamp: 5/2/2019 2:19:36 AM
 namespace LinaEngine::ECS
 {
 
-	static float t;
 	void FreeLookSystem::UpdateComponents(float delta)
 	{
 		auto view = m_Registry->reg.view<TransformComponent, FreeLookComponent>();
@@ -44,7 +43,6 @@ namespace LinaEngine::ECS
 
 			// Get mouse axis.
 			Vector2 mouseAxis = inputEngine->GetMouseAxis();
-			t += delta;
 
 			if (inputEngine->GetMouseButton(LinaEngine::Input::InputCode::Mouse::Mouse1))
 			{
@@ -82,7 +80,6 @@ namespace LinaEngine::ECS
 
 			// Move.
 			transform.transform.location = transform.transform.location + vertical + horizontal;
-			LINA_CORE_INFO("{0}", transform.transform.location.ToString());
 		}
 
 	}

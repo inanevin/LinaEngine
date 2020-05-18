@@ -111,7 +111,7 @@ namespace LinaEngine::Graphics
 
 		// Initialize built-in vertex array objects.
 		m_SkyboxVAO = m_RenderDevice.CreateSkyboxVertexArray();
-		m_QuadVAO = m_RenderDevice.CreateQuadVertexArray();
+		m_QuadVAO = m_RenderDevice.CreateCubeVertexArray();
 
 		// Initialize ECS Camera System.
 		Vector2 windowSize = Vector2(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
@@ -145,7 +145,7 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.Clear(m_RenderTarget.GetID(), true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Draw skybox.
-		//DrawSkybox();
+		DrawSkybox();
 
 		// Update pipeline.
 		m_RenderingPipeline.UpdateSystems(delta);

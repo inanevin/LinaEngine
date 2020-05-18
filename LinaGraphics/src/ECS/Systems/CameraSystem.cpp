@@ -33,7 +33,6 @@ namespace LinaEngine::ECS
 
 		for (auto entity : view)
 		{
-
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 			CameraComponent& camera = view.get<CameraComponent>(entity);
 
@@ -46,18 +45,13 @@ namespace LinaEngine::ECS
 			// Init translation & rotation matrices.
 			Matrix translation = Matrix::Translate(transform.transform.location);
 			Matrix rotation = Matrix::InitRotationFromDirection(transform.transform.rotation.GetForward(), transform.transform.rotation.GetUp());
-			
-			// View transformation including only the rotation data for skybox.
-			//m_SkyboxViewTransformation = rotation;
-			
+
 			// Actual camera view matrix.
 			m_View = Matrix::InitLookAt(transform.transform.location, transform.transform.rotation.GetForward(), -transform.transform.rotation.GetUp());
 
 			// Update projection matrix.
 			m_Projection =  Matrix::Perspective(camera.fieldOfView/2, m_AspectRatio, camera.zNear, camera.zFar);
-		}
-	
-		
+		}	
 	}
 
 	Vector3 CameraSystem::GetCameraLocation()

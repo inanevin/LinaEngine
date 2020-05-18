@@ -45,9 +45,6 @@ namespace LinaEngine::ECS
 		// Get view matrix.
 		FORCEINLINE Matrix& GetViewMatrix() { return m_View; }
 
-		// Get view matrix for skybox.
-		FORCEINLINE Matrix& GetSkyboxViewTransformation() { return m_SkyboxViewTransformation; }
-
 		// Get projection matrix
 		FORCEINLINE Matrix& GetProjectionMatrix() { return m_Projection; }
 
@@ -65,7 +62,6 @@ namespace LinaEngine::ECS
 
 		Matrix m_View = Matrix::Identity();
 		Matrix m_Projection =Matrix::Perspective(35, 1.33f, 0.01f, 1000.0f);
-		Matrix m_SkyboxViewTransformation = Matrix::Identity();
 		CameraComponent* m_CurrentCameraComponent = nullptr;
 		TransformComponent* m_CurrentCameraTransform = nullptr;
 		float m_AspectRatio = 1.33f;
