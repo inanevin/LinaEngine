@@ -217,6 +217,12 @@ namespace LinaEngine::Graphics
 		CYLINDER = 6
 	};
 
+	enum class RendererFlushType
+	{
+		OpaqueBatch,
+		TransparentBatch
+	};
+
 	/* Struct containing basic data about window properties. */
 	struct WindowProperties
 	{

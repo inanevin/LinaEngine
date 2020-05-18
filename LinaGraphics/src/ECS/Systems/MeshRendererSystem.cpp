@@ -39,37 +39,65 @@ namespace LinaEngine::ECS
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 			MeshRendererComponent& renderer = view.get<MeshRendererComponent>(entity);
 
-			if (renderer.mesh == nullptr)
-			{
-				LINA_CORE_ERR("Please assign a mesh to the MeshRendererComponent to draw!");
-				continue;
-			}
-
+			// Null check.
 			if (renderer.material == nullptr)
 			{
 				LINA_CORE_ERR("Please assign a material to the MeshRendererComponent to draw!");
 				continue;
 			}
 
-			//context->RenderMesh(*renderer.mesh->GetVertexArray(2), *renderer.material, transform.transform.ToMatrix());
+			if (renderer.componentType == Graphics::RendererComponentDrawType::Mesh && renderer.mesh == nullptr)
+			{
+				LINA_CORE_ERR("Renderer component's draw type is Mesh but no mesh is assigned, no drawing will occur for this.");
+				continue;
+			}
 
-			for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
-				RenderMesh(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix());
+			if (renderer.componentType == Graphics::RendererComponentDrawType::VertexArray && renderer.vertexArray == nullptr)
+			{
+				LINA_CORE_ERR("Renderer component's draw type is VertexArray but no vertex array is assigned, no drawing will occur for this.");
+				continue;
+			}
+
+			// Designate which batch to fill.
+			RenderBatch* batchToFill;
+			if (renderer.material->GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
+				batchToFill = &m_OpaqueRenderBatch;
+			else
+				batchToFill = &m_TransparentRenderBatch;
+
+			// Fill the batch accordingly.
+			if (renderer.componentType == Graphics::RendererComponentDrawType::Mesh)
+			{
+				for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
+					RenderMesh(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix(), *batchToFill);
+			}
+			else if (renderer.componentType == Graphics::RendererComponentDrawType::VertexArray)
+			{
+				RenderMesh(*renderer.vertexArray, *renderer.material, transform.transform.ToMatrix(), *batchToFill);
+			}
+
 		}
 
 	}
 
-	void MeshRendererSystem::RenderMesh(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn)
+	void MeshRendererSystem::RenderMesh(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, RenderBatch& batch)
 	{
 		// Add the new matrix to the same pairs, each pair will be drawn once.
 		auto pair = std::make_pair(&vertexArray, &material);
-		std::get<0>(m_OpaqueRenderBuffer[pair]).push_back(transformIn);
-		std::get<1>(m_OpaqueRenderBuffer[pair]).push_back(transformIn.Transpose().Inverse());
+		std::get<0>(batch[pair]).push_back(transformIn);
+		std::get<1>(batch[pair]).push_back(transformIn.Transpose().Inverse());
 	}
 
-	void MeshRendererSystem::Flush(Graphics::DrawParams& drawParams, bool completeFlush, Graphics::Material* overrideMaterial)
+	void MeshRendererSystem::Flush(Graphics::DrawParams& drawParams, bool completeFlush, Graphics::RendererFlushType flushType, Graphics::Material* overrideMaterial)
 	{
-		for (std::map<std::pair<Graphics::VertexArray*, Graphics::Material*>, std::tuple<LinaArray<Matrix>, LinaArray<Matrix>>>::iterator it = m_OpaqueRenderBuffer.begin(); it != m_OpaqueRenderBuffer.end(); ++it)
+		// Pick batch to flush.
+		RenderBatch* batch;
+		if (flushType == Graphics::RendererFlushType::OpaqueBatch)
+			batch = &m_OpaqueRenderBatch;
+		else if(flushType == Graphics::RendererFlushType::TransparentBatch)
+			batch = &m_TransparentRenderBatch;
+
+		for (std::map<std::pair<Graphics::VertexArray*, Graphics::Material*>, std::tuple<LinaArray<Matrix>, LinaArray<Matrix>>>::iterator it = (*batch).begin(); it != (*batch).end(); ++it)
 		{
 			auto& modelArray = std::get<0>(it->second);
 			auto& inverseModelArray = std::get<1>(it->second);
@@ -95,7 +123,7 @@ namespace LinaEngine::ECS
 			// Draw call.
 			m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
 
-			// Clear the buffer, or do not if you want a trail of shadows lol.
+			// Clear the buffer.
 			if (completeFlush)
 			{
 				modelArray.clear();

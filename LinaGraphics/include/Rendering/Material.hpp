@@ -131,7 +131,7 @@ namespace LinaEngine::Graphics
 		FORCEINLINE uint32 GetShaderID() { return shaderID; }
 
 		FORCEINLINE void SetSurfaceType(MaterialSurfaceType type) { m_SurfaceType = type; }
-		FORCEINLINE MaterialSurfaceType GetSurfaceType(MaterialSurfaceType type) { return m_SurfaceType; }
+		FORCEINLINE MaterialSurfaceType GetSurfaceType() { return m_SurfaceType; }
 
 	private:
 

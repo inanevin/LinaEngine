@@ -44,6 +44,9 @@ namespace LinaEngine::ECS
 
 	public:
 
+		typedef std::map<std::pair<Graphics::VertexArray*, Graphics::Material*>, std::tuple<LinaArray<Matrix>, LinaArray<Matrix>>> RenderBatch;
+
+
 		MeshRendererSystem() {};
 
 		FORCEINLINE void Construct(ECSRegistry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn, Graphics::RenderTarget& renderTargetIn)
@@ -54,11 +57,12 @@ namespace LinaEngine::ECS
 			m_RenderTarget = &renderTargetIn;
 		}
 
-		void RenderMesh(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn);
-		void Flush(Graphics::DrawParams& drawParams, bool completeFlush = true, Graphics::Material* overrideMaterial = nullptr);
+		void RenderMesh(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, RenderBatch& batch);
+		void Flush(Graphics::DrawParams& drawParams, bool completeFlush = true, Graphics::RendererFlushType flushType, Graphics::Material* overrideMaterial = nullptr);
 
 		virtual void UpdateComponents(float delta) override;
 
+		
 	private:
 
 		RenderDevice* m_RenderDevice = nullptr;
@@ -66,8 +70,8 @@ namespace LinaEngine::ECS
 		Graphics::RenderEngine* m_RenderEngine = nullptr;
 
 		// Map to see the list of same vertex array & textures to compress them into single draw call.
-		std::map<std::pair<Graphics::VertexArray*, Graphics::Material*>, std::tuple<LinaArray<Matrix>, LinaArray<Matrix>>> m_OpaqueRenderBuffer;
-		std::map<std::pair<Graphics::VertexArray*, Graphics::Material*>, std::tuple<LinaArray<Matrix>, LinaArray<Matrix>>> m_TransparentRenderBuffer;
+		RenderBatch m_OpaqueRenderBatch;
+		RenderBatch m_TransparentRenderBatch;
 	};
 }
 
