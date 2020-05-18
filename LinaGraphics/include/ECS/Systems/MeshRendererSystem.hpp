@@ -34,6 +34,18 @@ namespace LinaEngine
 	{
 		class RenderEngine;
 		class Material;
+
+		struct BatchDrawData
+		{
+			Graphics::VertexArray* vertexArray;
+			Graphics::Material* material;
+		};
+
+		struct BatchModelData
+		{
+			LinaArray<Matrix> models;
+			LinaArray<Matrix> inverseTransposeModels;
+		};
 	}
 }
 
@@ -44,8 +56,8 @@ namespace LinaEngine::ECS
 
 	public:
 
-		typedef std::map<std::pair<Graphics::VertexArray*, Graphics::Material*>, std::tuple<LinaArray<Matrix>, LinaArray<Matrix>>> RenderBatch;
-
+		typedef std::map<Graphics::BatchDrawData, Graphics::BatchModelData> OpaqueRenderBatch;
+		typedef std::map<float, std::tuple<Graphics::BatchDrawData, Graphics::BatchModelData>> TransparentRenderBatch;
 
 		MeshRendererSystem() {};
 
@@ -57,12 +69,13 @@ namespace LinaEngine::ECS
 			m_RenderTarget = &renderTargetIn;
 		}
 
-		void RenderMesh(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, RenderBatch& batch);
-		void Flush(Graphics::DrawParams& drawParams, bool completeFlush = true, Graphics::RendererFlushType flushType, Graphics::Material* overrideMaterial = nullptr);
+		void RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn);
+		void RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, float priority);
+		void FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
 
 		virtual void UpdateComponents(float delta) override;
 
-		
+
 	private:
 
 		RenderDevice* m_RenderDevice = nullptr;
@@ -70,8 +83,8 @@ namespace LinaEngine::ECS
 		Graphics::RenderEngine* m_RenderEngine = nullptr;
 
 		// Map to see the list of same vertex array & textures to compress them into single draw call.
-		RenderBatch m_OpaqueRenderBatch;
-		RenderBatch m_TransparentRenderBatch;
+		OpaqueRenderBatch m_OpaqueRenderBatch;
+		TransparentRenderBatch m_TransparentRenderBatch;
 	};
 }
 

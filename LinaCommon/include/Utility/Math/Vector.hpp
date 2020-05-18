@@ -82,6 +82,9 @@ namespace LinaEngine
 		FORCEINLINE Vector2& operator*=(const float& rhs) { x *= rhs; y *= rhs;	return *this; };
 		FORCEINLINE Vector2& operator/=(const float& rhs) { x /= rhs == 0 ? 0.0001f : rhs; y /= rhs == 0 ? 0.0001f : rhs;	return *this; };
 		FORCEINLINE Vector2& operator=(const Vector2& rhs) { x = rhs.x; y = rhs.y; return *this; };
+		FORCEINLINE Vector2 operator-(const Vector2& rhs) { return *this - rhs; };
+		FORCEINLINE Vector2 operator+(const Vector2& rhs) { return *this + rhs; };
+		FORCEINLINE Vector2 operator*(const Vector2& rhs) { return *this * rhs; };
 		FORCEINLINE bool operator==(const Vector2& rhs) const { *this == rhs; }
 		FORCEINLINE bool operator!=(const Vector2& rhs) const { *this == rhs; }
 		FORCEINLINE bool operator>(const Vector2& rhs) const { return length() > rhs.length(); }
@@ -152,6 +155,9 @@ namespace LinaEngine
 		FORCEINLINE Vector3& operator*=(const float& rhs) { x *= rhs; y *= rhs; z *= rhs; return *this; };
 		FORCEINLINE Vector3& operator/=(const float& rhs) { x /= rhs == 0 ? 0.0001f : rhs; y /= rhs == 0 ? 0.0001f : rhs; z/= rhs == 0 ? 0.001f : rhs; return *this; };
 		FORCEINLINE Vector3& operator=(const Vector3& rhs) { x = rhs.x; y = rhs.y; z = rhs.z; return *this; };
+		FORCEINLINE Vector3 operator-(const Vector3& rhs) { return *this - rhs; };
+		FORCEINLINE Vector3 operator+(const Vector3& rhs) { return *this + rhs; };
+		FORCEINLINE Vector3 operator*(const Vector3& rhs) { return *this * rhs; };
 		FORCEINLINE bool operator==(const Vector3& rhs) const { *this == rhs; }
 		FORCEINLINE bool operator!=(const Vector3& rhs) const { *this == rhs; }
 		FORCEINLINE bool operator>(const Vector3& rhs) const { return length() > rhs.length(); }
@@ -220,6 +226,9 @@ namespace LinaEngine
 		FORCEINLINE Vector4& operator*=(const float& rhs) { x *= rhs; y *= rhs; z *= rhs; w *= rhs; return *this; };
 		FORCEINLINE Vector4& operator/=(const float& rhs) { x /= rhs == 0 ? 0.0001f : rhs; y /= rhs == 0 ? 0.0001f : rhs; z/= rhs == 0 ? 0.001f : rhs; w /= rhs == 0 ? 0.001f : rhs; return *this; };
 		FORCEINLINE Vector4& operator=(const Vector4& rhs) { x = rhs.x; y = rhs.y; z = rhs.z; w = rhs.w; return *this; };
+		FORCEINLINE Vector4 operator-(const Vector4& rhs) { return *this - rhs; };
+		FORCEINLINE Vector4 operator+(const Vector4& rhs) { return *this + rhs; };
+		FORCEINLINE Vector4 operator*(const Vector4& rhs) { return *this * rhs; };
 		FORCEINLINE bool operator==(const Vector4& rhs) const { *this == rhs; }
 		FORCEINLINE bool operator!=(const Vector4& rhs) const { *this == rhs; }
 		FORCEINLINE bool operator>(const Vector4& rhs) const { return length() > rhs.length(); }

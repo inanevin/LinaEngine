@@ -58,60 +58,82 @@ namespace LinaEngine::ECS
 				continue;
 			}
 
-			// Designate which batch to fill.
-			RenderBatch* batchToFill;
+			// Render different batches.
 			if (renderer.material->GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
-				batchToFill = &m_OpaqueRenderBatch;
+			{
+				// Either get the mesh to render or the bound vertex array.
+				if (renderer.componentType == Graphics::RendererComponentDrawType::Mesh)
+				{
+					for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
+						RenderOpaque(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix());
+				}
+				else if (renderer.componentType == Graphics::RendererComponentDrawType::VertexArray)
+				{
+					for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
+						RenderOpaque(*renderer.vertexArray, *renderer.material, transform.transform.ToMatrix());
+				}				
+			}
 			else
-				batchToFill = &m_TransparentRenderBatch;
+			{
+				// Set the priority as distance to the camera.
+				float priority = (m_RenderEngine->GetCameraSystem().GetCameraLocation() - transform.transform.location).MagnitudeSqrt();
 
-			// Fill the batch accordingly.
-			if (renderer.componentType == Graphics::RendererComponentDrawType::Mesh)
-			{
-				for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
-					RenderMesh(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix(), *batchToFill);
+				// Either get the mesh to render or the bound vertex array.
+				if (renderer.componentType == Graphics::RendererComponentDrawType::Mesh)
+				{
+					for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
+						RenderTransparent(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix(), priority);
+				}
+				else if (renderer.componentType == Graphics::RendererComponentDrawType::VertexArray)
+				{
+					for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
+						RenderTransparent(*renderer.vertexArray, *renderer.material, transform.transform.ToMatrix(), priority);
+				}
 			}
-			else if (renderer.componentType == Graphics::RendererComponentDrawType::VertexArray)
-			{
-				RenderMesh(*renderer.vertexArray, *renderer.material, transform.transform.ToMatrix(), *batchToFill);
-			}
+
+		
 
 		}
 
 	}
 
-	void MeshRendererSystem::RenderMesh(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, RenderBatch& batch)
+	void MeshRendererSystem::RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn)
 	{
-		// Add the new matrix to the same pairs, each pair will be drawn once.
-		auto pair = std::make_pair(&vertexArray, &material);
-		std::get<0>(batch[pair]).push_back(transformIn);
-		std::get<1>(batch[pair]).push_back(transformIn.Transpose().Inverse());
+		// Setup draw data.
+		Graphics::BatchDrawData drawData;
+		drawData.vertexArray = &vertexArray;
+		drawData.material = &material;
+
+		// Add the new data to the map.
+		m_OpaqueRenderBatch[drawData].models.push_back(transformIn);
+		m_OpaqueRenderBatch[drawData].inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
 	}
 
-	void MeshRendererSystem::Flush(Graphics::DrawParams& drawParams, bool completeFlush, Graphics::RendererFlushType flushType, Graphics::Material* overrideMaterial)
+	void MeshRendererSystem::RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, float priority)
 	{
-		// Pick batch to flush.
-		RenderBatch* batch;
-		if (flushType == Graphics::RendererFlushType::OpaqueBatch)
-			batch = &m_OpaqueRenderBatch;
-		else if(flushType == Graphics::RendererFlushType::TransparentBatch)
-			batch = &m_TransparentRenderBatch;
+		// Add the new data to the map.
+		std::get<0>(m_TransparentRenderBatch[priority]).material = &material;
+		std::get<0>(m_TransparentRenderBatch[priority]).vertexArray = &vertexArray;
+		std::get<1>(m_TransparentRenderBatch[priority]).models.push_back(transformIn);
+		std::get<1>(m_TransparentRenderBatch[priority]).inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
+	}
 
-		for (std::map<std::pair<Graphics::VertexArray*, Graphics::Material*>, std::tuple<LinaArray<Matrix>, LinaArray<Matrix>>>::iterator it = (*batch).begin(); it != (*batch).end(); ++it)
+	void MeshRendererSystem::FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
+	{
+		
+		for (OpaqueRenderBatch::iterator it = m_OpaqueRenderBatch.begin(); it != m_OpaqueRenderBatch.end(); ++it)
 		{
-			auto& modelArray = std::get<0>(it->second);
-			auto& inverseModelArray = std::get<1>(it->second);
+			auto& modelData = it->second;
+			Graphics::VertexArray* vertexArray = it->first.vertexArray;
 
-			Graphics::VertexArray* vertexArray = it->first.first;
-
-			Matrix* models = &modelArray[0];
-			Matrix* inverseTransposeModels = &inverseModelArray[0];
-			size_t numTransforms = modelArray.size();
+			Matrix* models = &modelData.models[0];
+			Matrix* inverseTransposeModels = &modelData.inverseTransposeModels[0];
+			size_t numTransforms = modelData.models.size();
 
 			if (numTransforms == 0) continue;
 
 			// Get the material for drawing, object's own material or overriden material.
-			Graphics::Material* mat = overrideMaterial == nullptr ? it->first.second : overrideMaterial;
+			Graphics::Material* mat = overrideMaterial == nullptr ? it->first.material: overrideMaterial;
 
 			// Update the buffer w/ each transform.
 			vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
@@ -126,8 +148,8 @@ namespace LinaEngine::ECS
 			// Clear the buffer.
 			if (completeFlush)
 			{
-				modelArray.clear();
-				inverseModelArray.clear();
+				modelData.models.clear();
+				modelData.inverseTransposeModels.clear();
 			}
 		}
 	}
