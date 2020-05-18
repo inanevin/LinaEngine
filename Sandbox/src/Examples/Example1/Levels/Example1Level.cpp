@@ -204,7 +204,7 @@ void Example1Level::Initialize()
 	dirLight.specular = Color(0.1f, 0.1f, 0.1f);
 	dirLight.diffuse = Color(0.01f, 0.01f, 0.01f);
 	dirLight.direction = Vector3(0, 0, 1);
-
+	
 	for (int i = 0; i < cubeSize; i++)
 	{
 		ECSEntity entity;

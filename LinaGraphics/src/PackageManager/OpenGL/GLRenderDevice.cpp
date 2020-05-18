@@ -219,6 +219,7 @@ namespace LinaEngine::Graphics
 		glDepthFunc(GL_LESS);
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+		glFrontFace(GL_CW);
 
 		m_UsedDepthFunction = DrawFunc::DRAW_FUNC_LESS;
 		m_usedStencilFail = StencilOp::STENCIL_KEEP;

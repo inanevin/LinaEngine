@@ -433,7 +433,7 @@ namespace LinaEngine::Graphics
 	{
 		// Stencil outline material.
 		CreateMaterial(MAT_LINASTENCILOUTLINE, Shaders::STENCIL_OUTLINE);
-		m_LoadedMaterials[MAT_LINASTENCILOUTLINE].floats[MC_OUTLINETHICKNESS] = 0.1f;
+		m_LoadedMaterials[MAT_LINASTENCILOUTLINE].floats[MC_OUTLINETHICKNESS] = 0.015f;
 		m_LoadedMaterials[MAT_LINASTENCILOUTLINE].colors[MC_OBJECTCOLORPROPERTY] = Color::Red;
 	}
 

@@ -53,7 +53,7 @@ namespace LinaEngine
 
 	Matrix Matrix::Perspective(float halfFov, float aspect, float nearZ, float farZ)
 	{
-		return glm::perspective(glm::radians(halfFov), aspect, nearZ, farZ);
+		return glm::perspectiveLH(glm::radians(halfFov), aspect, nearZ, farZ);
 	}
 
 	Matrix Matrix::TransformMatrix(const Vector3& translation, const Quaternion& rotation, const Vector3& scale)
@@ -82,10 +82,10 @@ namespace LinaEngine
 	Matrix Matrix::InitRotationFromVectors(const Vector3& u, const Vector3& v, const Vector3& n)
 	{
 		return glm::mat4(
-			glm::vec4(u.x, v.y, n.z, 0.0f),
-			glm::vec4(u.x, v.y, n.z, 0.0f),
-			glm::vec4(u.x, v.y, n.z, 0.0f),
-			glm::vec4(0.0f)
+			glm::vec4(u.x, u.y, u.z, 0.0f),
+			glm::vec4(v.x, v.y, v.z, 0.0f),
+			glm::vec4(n.x, n.y, n.z, 0.0f),
+			glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
 		);
 	}
 
@@ -118,7 +118,7 @@ namespace LinaEngine
 
 	Matrix Matrix::InitLookAt(const Vector3& location, const Vector3& forward, const Vector3& up)
 	{
-		return glm::lookAt(location, location + forward, up);
+		return glm::lookAtLH(location, location + forward, up);
 	}
 
 

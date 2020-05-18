@@ -21,6 +21,7 @@ Timestamp: 4/14/2019 1:37:59 AM
 
 #ifndef RenderableMeshComponent_HPP
 #define RenderableMeshComponent_HPP
+#include "Core/SizeDefinitions.hpp"
 
 
 
@@ -30,14 +31,24 @@ namespace LinaEngine
 	{
 		class Mesh;
 		class Material;
+
+		enum class RendererComponentType
+		{
+			Mesh,
+			VertexArray
+		};
 	}
+
+	
 }
 
 namespace LinaEngine::ECS
 {
 	struct MeshRendererComponent
 	{
+		LinaEngine::Graphics::RendererComponentType componentType = LinaEngine::Graphics::RendererComponentType::Mesh;
 		LinaEngine::Graphics::Mesh* mesh = nullptr;
+		uint32 vertexArray = 0;
 		LinaEngine::Graphics::Material* material = nullptr;
 	};
 }

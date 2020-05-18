@@ -47,7 +47,7 @@ namespace LinaEngine::ECS
 			if (inputEngine->GetMouseButton(LinaEngine::Input::InputCode::Mouse::Mouse1))
 			{
 				// Apply angles based on mouse axis.
-				freeLook.verticalAngle -= mouseAxis.y * freeLook.rotationSpeedX * delta * 50;
+				freeLook.verticalAngle += mouseAxis.y * freeLook.rotationSpeedX * delta * 50;
 				freeLook.horizontalAngle += mouseAxis.x * freeLook.rotationSpeedY * delta * 50;
 
 				// Rotate
