@@ -61,7 +61,7 @@ namespace LinaEngine
 		Matrix trans = glm::translate(translation);
 		Matrix rot = InitRotation(rotation);
 		Matrix sc = glm::scale(scale);
-		return sc * rot * trans;
+		return trans * rot * sc;
 	}
 
 	Matrix Matrix::Transpose() const

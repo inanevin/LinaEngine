@@ -37,15 +37,9 @@ namespace LinaEngine::ECS
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 			QuadRendererComponent& renderer = view.get<QuadRendererComponent>(entity);
 
-			glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-			model = glm::translate(model, glm::vec3(0,0, -5));
-			model = glm::scale(model, glm::vec3(1, 1, 1));
-
 			// Update shader data
-			(*renderer.material).SetMatrix4(UF_MODELMATRIX, model);
-
+			(*renderer.material).SetMatrix4(UF_MODELMATRIX, transform.transform.ToMatrix());
 			m_RenderEngine->UpdateShaderData(renderer.material);
-
 		}
 	}
 

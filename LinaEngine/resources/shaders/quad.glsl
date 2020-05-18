@@ -15,7 +15,7 @@
  */
  
 #include "common.glh"
-
+#include <uniformBuffers.glh>
 
 
 #if defined(VS_BUILD)
@@ -25,8 +25,6 @@ Layout(1) attribute vec2 texCoord;
 out vec2 TexCoords;
 
 uniform mat4 model;
-uniform mat4 projection;
-uniform mat4 view;
 
 void main()
 {
@@ -42,6 +40,6 @@ out vec4 fragColor;
 
 void main()
 {
-	fragColor = vec4(1,0,1,1);
+	fragColor = vec4(1,1,1,1);
 }
 #endif

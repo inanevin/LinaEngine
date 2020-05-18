@@ -23,7 +23,7 @@ Timestamp: 4/27/2019 10:16:32 PM
 #include "PackageManager/Generic/GenericMemory.hpp"
 #include "Core/Internal.hpp"
 #include "Rendering/ArrayBitmap.hpp"
-#include <glm/gtc/type_ptr.hpp>
+#include "PackageManager/Generic/GenericMemory.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -496,20 +496,36 @@ namespace LinaEngine::Graphics
 
 	uint32 GLRenderDevice::CreateQuadVertexArray()
 	{
-		unsigned int quad, transparentVBO;
-		glGenVertexArrays(1, &quad);
-		glGenBuffers(1, &transparentVBO);
-		glBindVertexArray(quad);
-		glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-		glBindVertexArray(0);
-		return quad;
+	//unsigned int quad, transparentVBO;
+	//glGenVertexArrays(1, &quad);
+	//glGenBuffers(1, &transparentVBO);
+	//glBindVertexArray(quad);
+	//glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
+	//glEnableVertexAttribArray(0);
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	//glEnableVertexAttribArray(1);
+	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	//glBindVertexArray(0);
+	//return quad;
 	
+		unsigned int VBO, VAO;
+		glGenVertexArrays(1, &VAO);
+		glGenBuffers(1, &VBO);
 
+		glBindVertexArray(VAO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+
+		// position attribute
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+		// texture coord attribute
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(1);
+
+		return VAO;
 	}
 
 
@@ -810,7 +826,7 @@ namespace LinaEngine::Graphics
 	void GLRenderDevice::UpdateUniformBuffer(uint32 buffer, const void* data, uintptr dataSize)
 	{
 		void* dest = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-		memcpy(dest, data, dataSize);
+		GenericMemory::memcpy(dest, data, dataSize);
 		glUnmapBuffer(GL_UNIFORM_BUFFER);
 	}
 

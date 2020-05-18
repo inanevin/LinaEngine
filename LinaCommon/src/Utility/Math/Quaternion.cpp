@@ -74,6 +74,10 @@ namespace LinaEngine
 
 	Quaternion Quaternion::Euler(const Vector3& v)
 	{
-		return glm::quat(v);
+		glm::vec3 vec;
+		vec.x = glm::radians(v.x);
+		vec.y = glm::radians(v.y);
+		vec.z = glm::radians(v.z);
+		return glm::quat(vec);
 	}
 }

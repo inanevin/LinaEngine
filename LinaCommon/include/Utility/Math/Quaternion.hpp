@@ -42,7 +42,7 @@ namespace LinaEngine
 		FORCEINLINE Quaternion()  {};
 		FORCEINLINE Quaternion(const Vector4& v) : glm::quat(v) {};
 		FORCEINLINE Quaternion(float x, float y, float z, float w) : glm::quat(x,y,z,w) {};
-		FORCEINLINE Quaternion(const Vector3& axis, float angle) { *this = glm::angleAxis(angle, axis); }
+		FORCEINLINE Quaternion(const Vector3& axis, float angle) { *this = glm::angleAxis(glm::radians(angle), axis); }
 		FORCEINLINE Quaternion(glm::quat q) : glm::quat(q) {};
 	
 		FORCEINLINE Quaternion operator+(const Quaternion& other) const { return *this + other; }

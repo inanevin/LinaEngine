@@ -93,7 +93,7 @@ namespace LinaEngine::Graphics
 
 		// Set default drawing parameters.
 		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
+		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
 		m_DefaultDrawParams.shouldWriteDepth = true;
 		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
 
@@ -148,34 +148,29 @@ namespace LinaEngine::Graphics
 		//DrawSkybox();
 
 		// Update pipeline.
-		//m_RenderingPipeline.UpdateSystems(delta);
-		m_CameraSystem.UpdateComponents(delta);
+		m_RenderingPipeline.UpdateSystems(delta);
+		//m_CameraSystem.UpdateComponents(delta);
 		uint32 shader = GetShader(Shaders::TRANSPARENT_QUAD).GetID();
 		m_RenderDevice.SetShader(shader);
 
+
 		glm::mat4 model = glm::mat4(1);
-		glm::mat4 projection = glm::mat4(1);
-		glm::mat4 view = glm::mat4(1);
+
 		t += delta;
-		model = glm::translate(model, glm::vec3(0, 0, -50));
+		model = glm::translate(model, glm::vec3(0, 0, -5));
 		model = glm::rotate(model, t, glm::vec3(1, 0, 0));
 
-		// Actual camera view matrix.
-		view = glm::lookAt(glm::vec3(0,0,0), glm::vec3(0, 0, 0) + glm::vec3(0, 0, -1.0f), glm::vec3(0, 1.0f, 0));
-
-		// Update projection matrix.
-		projection = glm::perspective(glm::radians(45.0f), 1440.0f/900.0f, 0.01f, 100.0f);
-
-		m_RenderDevice.UpdateShaderUniformMatrix(shader, "model", model);
-		m_RenderDevice.UpdateShaderUniformMatrix(shader, "projection", projection);
-		m_RenderDevice.UpdateShaderUniformMatrix(shader, "view", view);
-
-		m_RenderDevice.Draw(0, m_QuadVAO, m_DefaultDrawParams, 0, 36, true);
-		// Draw scene
-		//DrawSceneObjects(false);
-
 		// Update uniform buffers on GPU
-	//	UpdateUniformBuffers();
+		UpdateUniformBuffers();
+
+		//m_RenderDevice.UpdateShaderUniformMatrix(shader, "model", model);
+
+		//m_RenderDevice.Draw(0, m_QuadVAO, m_DefaultDrawParams, 0, 36, true);
+		// Draw scene
+		DrawSceneObjects(false);
+
+	
+
 
 
 		// Draw GUI Layers
@@ -450,8 +445,8 @@ namespace LinaEngine::Graphics
 		singleColor.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
 		Shader& transparentQuad = CreateShader(Shaders::TRANSPARENT_QUAD, "resourceS/shaders/quad.glsl");
-	//transparentQuad.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-	//transparentQuad.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
+		transparentQuad.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		transparentQuad.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 	}
 
 	void RenderEngine::ConstructEngineMaterials()

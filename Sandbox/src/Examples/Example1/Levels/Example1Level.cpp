@@ -43,6 +43,7 @@ FreeLookComponent cameraFreeLookComponent;
 
 ECSEntity camera;
 ECSEntity directionalLight;
+ECSEntity quad;
 
 
 TransformComponent object1Transform;
@@ -277,9 +278,8 @@ void Example1Level::Initialize()
 	object1Transform.transform.rotation = (Quaternion::Euler(Vector3::Zero));
 	*/
 	object1Transform.transform.scale = (Vector3(1,1,1));
-	object1Transform.transform.location = (Vector3(0,0,-5));
+	object1Transform.transform.location = (Vector3(0,0, -5));
 	//object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(0, -180, 0)));
-	ECSEntity quad;
 	quad.entity = m_ECS->reg.create();
 	m_ECS->reg.emplace<TransformComponent>(quad.entity, object1Transform);
 	QuadRendererComponent quadR;
@@ -412,12 +412,13 @@ static float t = 0.0f;
 void Example1Level::Tick(float delta)
 {
 	// Update the systems in this level.
-	//level1Systems.UpdateSystems(delta);
-	//t += delta;
-	//TransformComponent& cube = m_ECS->reg.get<TransformComponent>(cubeEntity.entity);
-	//Quaternion q;
-	//q = Quaternion::Euler(Vector3(t,t,0));
-	//cube.transform.rotation = q;
+	level1Systems.UpdateSystems(delta);
+	t += delta;
+	LINA_CLIENT_INFO("{0}", t);
+	TransformComponent& cube = m_ECS->reg.get<TransformComponent>(quad.entity);
+	cube.transform.location = Vector3(Math::Sin(t) * 1, 0, -5);
+	cube.transform.Rotate(Vector3::Forward, t);
+//	cube.transform.rotation = q;
 	//TransformComponent& tSpotLight = m_ECS->reg.get<TransformComponent>(spotLight.entity);
 //	TransformComponent& tCamera = m_ECS->reg.get<TransformComponent>(camera.entity);
 	
