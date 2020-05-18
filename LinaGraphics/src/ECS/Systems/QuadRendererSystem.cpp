@@ -24,6 +24,8 @@ Timestamp: 5/17/2020 2:35:29 AM
 #include "Rendering/RenderingCommon.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/RenderConstants.hpp"
+#include "Rendering/Material.hpp"
+
 
 
 namespace LinaEngine::ECS
@@ -36,15 +38,25 @@ namespace LinaEngine::ECS
 		{
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 			QuadRendererComponent& renderer = view.get<QuadRendererComponent>(entity);
-
-			// Update shader data
+	
+			// Update material information
 			(*renderer.material).SetMatrix4(UF_MODELMATRIX, transform.transform.ToMatrix());
-			m_RenderEngine->UpdateShaderData(renderer.material);
+
+			// Add to the draw list.
+			m_QuadsToRender.push_back(renderer.material);
 		}
 	}
 
 	void QuadRendererSystem::Flush(Graphics::DrawParams& drawParams)
 	{
-		m_RenderDevice->Draw(m_FBO, m_QuadVAO, drawParams, 0, 36, true);
+		for (std::vector<Graphics::Material*>::iterator it = m_QuadsToRender.begin(); it != m_QuadsToRender.end(); ++it)
+		{
+			// Update shader data & draw
+			m_RenderEngine->UpdateShaderData(*it);
+			m_RenderDevice->Draw(m_FBO, m_QuadVAO, drawParams, 0, 36, true);
+		}
+
+		// Flush
+		m_QuadsToRender.clear();
 	}
 }

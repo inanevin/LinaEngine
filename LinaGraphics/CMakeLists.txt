@@ -27,7 +27,6 @@ set (LINAGRAPHICS_SOURCES
 	src/Rendering/IndexedModel.cpp
 	src/Rendering/ModelLoader.cpp
 	src/Rendering/RenderEngine.cpp
-	src/Rendering/RenderContext.cpp
 	src/Rendering/Mesh.cpp
 	
 	src/PackageManager/OpenGL/GLRenderDevice.cpp
@@ -58,7 +57,6 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/Shader.hpp
 	include/Rendering/Sampler.hpp
 	include/Rendering/UniformBuffer.hpp
-	include/Rendering/RenderContext.hpp
 	include/Rendering/RenderTarget.hpp
 	include/Rendering/Mesh.hpp
 	include/Rendering/RenderingCommon.hpp

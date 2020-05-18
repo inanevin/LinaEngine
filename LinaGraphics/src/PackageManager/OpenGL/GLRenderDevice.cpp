@@ -215,10 +215,10 @@ namespace LinaEngine::Graphics
 		// Default GL settings.
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_STENCIL_TEST);
+		glEnable(GL_BLEND);
 		glDepthFunc(GL_LESS);
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-		glFrontFace(GL_CW);
 
 		m_UsedDepthFunction = DrawFunc::DRAW_FUNC_LESS;
 		m_usedStencilFail = StencilOp::STENCIL_KEEP;
@@ -496,12 +496,12 @@ namespace LinaEngine::Graphics
 
 	uint32 GLRenderDevice::CreateQuadVertexArray()
 	{
-		unsigned int quad, transparentVBO;
+		unsigned int quad, quadVBO;
 		glGenVertexArrays(1, &quad);
-		glGenBuffers(1, &transparentVBO);
+		glGenBuffers(1, &quadVBO);
 		glBindVertexArray(quad);
-		glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);

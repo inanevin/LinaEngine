@@ -177,7 +177,14 @@ void Example1Level::Initialize()
 	// Create texture for example mesh.
 	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
 	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
-	Texture& grassTexture = m_RenderEngine->CreateTexture("resources/textures/grass.png", PixelFormat::FORMAT_RGBA, true, false, SamplerData());
+
+	SamplerData s;
+	s.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+	s.maxFilter = SamplerFilter::FILTER_LINEAR;
+	s.wrapU = SamplerWrapMode::WRAP_CLAMP;
+	s.wrapV = SamplerWrapMode::WRAP_CLAMP;
+
+	Texture& grassTexture = m_RenderEngine->CreateTexture("resources/textures/grass.png", PixelFormat::FORMAT_RGBA, true, false, s);
 	objectLitMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &crateTexture, 0);
 	objectLitMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, &crateSpecTexture, 1);
 	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(0, 0, 1));
@@ -260,7 +267,6 @@ void Example1Level::Initialize()
 		sLight1.cutOff = Math::Cos(Math::ToRadians(12.5f));
 		sLight1.outerCutOff = Math::Cos(Math::ToRadians(15.5f));
 
-
 		ECSEntity visuals;
 		visuals.entity = m_ECS->reg.create();
 		object1Transform.transform.scale = (0.2f);
@@ -269,9 +275,9 @@ void Example1Level::Initialize()
 	}
 	object1Transform.transform.rotation = (Quaternion::Euler(Vector3::Zero));
 	
-	object1Transform.transform.scale = (Vector3(1, 1, 1));
-	object1Transform.transform.location = (Vector3(0, 0, -5));
-	//object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(0, -180, 0)));
+	object1Transform.transform.scale = (Vector3(2));
+	object1Transform.transform.location = (Vector3(-1, 0, 8.8f));
+	object1Transform.transform.Rotate(180, 0,0);
 	quad.entity = m_ECS->reg.create();
 	m_ECS->reg.emplace<TransformComponent>(quad.entity, object1Transform);
 	QuadRendererComponent quadR;
@@ -294,11 +300,11 @@ void Example1Level::Tick(float delta)
 	// Update the systems in this level.
 	level1Systems.UpdateSystems(delta);
 	t += delta;
-
-	TransformComponent& cube = m_ECS->reg.get<TransformComponent>(quad.entity);
-	cube.transform.location = Vector3(0, 0, 5);
-	cube.transform.Rotate(t*12, 0,0);
-	cube.transform.scale = Vector3(1);
+//
+//TransformComponent& cube = m_ECS->reg.get<TransformComponent>(quad.entity);
+//cube.transform.location = Vector3(0, 0, 5);
+//cube.transform.Rotate(t*12, 0,0);
+//cube.transform.scale = Vector3(1);
 	//	cube.transform.rotation = q;
 		//TransformComponent& tSpotLight = m_ECS->reg.get<TransformComponent>(spotLight.entity);
 	//	TransformComponent& tCamera = m_ECS->reg.get<TransformComponent>(camera.entity);

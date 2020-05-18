@@ -64,7 +64,7 @@ namespace LinaEngine::ECS
 		// Add the new matrix to the same pairs, each pair will be drawn once.
 		auto pair = std::make_pair(&vertexArray, &material);
 		std::get<0>(m_MeshRenderBuffer[pair]).push_back(transformIn);
-		std::get<1>(m_MeshRenderBuffer[pair]).push_back(transformIn.Inverse());
+		std::get<1>(m_MeshRenderBuffer[pair]).push_back(transformIn.Transpose().Inverse());
 	}
 
 	void MeshRendererSystem::Flush(Graphics::DrawParams& drawParams, bool completeFlush, Graphics::Material* overrideMaterial)

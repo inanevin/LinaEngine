@@ -16,6 +16,7 @@
  
 #include "common.glh"
 #include <uniformBuffers.glh>
+#include <utility.glh>
 
 
 #if defined(VS_BUILD)
@@ -34,12 +35,29 @@ void main()
 
 #elif defined(FS_BUILD)
 
+struct Material
+{
+	sampler2D diffuse;
+};
+
+uniform Material material;
 
 in vec2 TexCoords;
 out vec4 fragColor;
 
 void main()
 {
-	fragColor = vec4(1,1,1,1);
+	if(visualizeDepth)
+	{
+		float depth = LinearizeDepth(gl_FragCoord.z, cameraFar, cameraNear) / cameraFar;		
+		fragColor = vec4(vec3(depth), 1);
+	}
+	else
+	{
+		vec4 texColor = texture(material.diffuse, TexCoords);
+		if(texColor.a < 0.1)
+			discard;
+		fragColor = texColor;
+	}
 }
 #endif

@@ -93,7 +93,7 @@ namespace LinaEngine::Graphics
 
 		// Set default drawing parameters.
 		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
+		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
 		m_DefaultDrawParams.shouldWriteDepth = true;
 		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
 
@@ -111,7 +111,7 @@ namespace LinaEngine::Graphics
 
 		// Initialize built-in vertex array objects.
 		m_SkyboxVAO = m_RenderDevice.CreateSkyboxVertexArray();
-		m_QuadVAO = m_RenderDevice.CreateCubeVertexArray();
+		m_QuadVAO = m_RenderDevice.CreateQuadVertexArray();
 
 		// Initialize ECS Camera System.
 		Vector2 windowSize = Vector2(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
@@ -135,14 +135,12 @@ namespace LinaEngine::Graphics
 
 		// Set debug values.
 		m_DebugData.visualizeDepth = false;
-
 	}
 
-	static float t = 0.0f;
 	void RenderEngine::Tick(float delta)
 	{
 		// Clear color.
-		m_RenderDevice.Clear(m_RenderTarget.GetID(), true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+		m_RenderDevice.Clear(m_RenderTarget.GetID(), true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Draw skybox.
 		DrawSkybox();
@@ -162,7 +160,6 @@ namespace LinaEngine::Graphics
 
 		// Update window.
 		m_MainWindow.Tick();
-
 	}
 
 	void RenderEngine::OnWindowResized(float width, float height)
@@ -461,7 +458,7 @@ namespace LinaEngine::Graphics
 	{
 
 		// Draw quads.
-		//m_QuadRendererSystem.Flush(m_DefaultDrawParams);
+		m_QuadRendererSystem.Flush(m_DefaultDrawParams);
 	
 		if (useStencilOutlining)
 		{
