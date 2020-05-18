@@ -456,10 +456,7 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::DrawSceneObjects(bool useStencilOutlining)
 	{
-
-		// Draw quads.
-		m_QuadRendererSystem.Flush(m_DefaultDrawParams);
-	
+		// Draw opaques.
 		if (useStencilOutlining)
 		{
 			m_DefaultDrawParams.useStencilTest = true;
@@ -487,6 +484,13 @@ namespace LinaEngine::Graphics
 		}
 		else
 			m_MeshRendererSystem.Flush(m_DefaultDrawParams, true);
+
+		// Draw semi-transparent
+
+		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
+		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+		m_QuadRendererSystem.Flush(m_DefaultDrawParams);
+
 	}
 
 

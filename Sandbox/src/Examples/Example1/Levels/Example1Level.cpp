@@ -44,6 +44,7 @@ FreeLookComponent cameraFreeLookComponent;
 ECSEntity camera;
 ECSEntity directionalLight;
 ECSEntity quad;
+ECSEntity quad2;
 
 
 TransformComponent object1Transform;
@@ -184,12 +185,12 @@ void Example1Level::Initialize()
 	s.wrapU = SamplerWrapMode::WRAP_CLAMP;
 	s.wrapV = SamplerWrapMode::WRAP_CLAMP;
 
-	Texture& grassTexture = m_RenderEngine->CreateTexture("resources/textures/grass.png", PixelFormat::FORMAT_RGBA, true, false, s);
+	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png", PixelFormat::FORMAT_RGBA, true, false, s);
 	objectLitMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &crateTexture, 0);
 	objectLitMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, &crateSpecTexture, 1);
 	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(0, 0, 1));
 	objectUnlitMaterial2->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 0, 0));
-	quadMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &grassTexture, 0);
+	quadMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &window, 0);
 
 	object1Renderer.mesh = &cubeMesh;
 	object1Renderer.material = objectLitMaterial;
@@ -276,7 +277,7 @@ void Example1Level::Initialize()
 	object1Transform.transform.rotation = (Quaternion::Euler(Vector3::Zero));
 	
 	object1Transform.transform.scale = (Vector3(2));
-	object1Transform.transform.location = (Vector3(-1, 0, 8.8f));
+	object1Transform.transform.location = (Vector3(-1.5f, 0, 8.5f));
 	object1Transform.transform.Rotate(180, 0,0);
 	quad.entity = m_ECS->reg.create();
 	m_ECS->reg.emplace<TransformComponent>(quad.entity, object1Transform);
@@ -284,6 +285,11 @@ void Example1Level::Initialize()
 	quadR.material = quadMaterial;
 	m_ECS->reg.emplace<QuadRendererComponent>(quad.entity, quadR);
 
+	object1Transform.transform.location = (Vector3(-2.5f, 0, 11.0f));
+	quad2.entity = m_ECS->reg.create();
+	m_ECS->reg.emplace<TransformComponent>(quad2.entity, object1Transform);
+
+	m_ECS->reg.emplace<QuadRendererComponent>(quad2.entity, quadR);
 
 	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem();
