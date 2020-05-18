@@ -15,8 +15,7 @@
  */
  
 #include "common.glh"
-#include <uniformBuffers.glh>
-#include <utility.glh>
+
 
 
 #if defined(VS_BUILD)
@@ -26,6 +25,8 @@ Layout(1) attribute vec2 texCoord;
 out vec2 TexCoords;
 
 uniform mat4 model;
+uniform mat4 projection;
+uniform mat4 view;
 
 void main()
 {
@@ -36,29 +37,11 @@ void main()
 #elif defined(FS_BUILD)
 
 
-struct Material
-{
-sampler2D diffuse;
-};
-
-uniform Material material;
-
 in vec2 TexCoords;
 out vec4 fragColor;
 
 void main()
 {
-	if(visualizeDepth)
-	{
-		float depth = LinearizeDepth(gl_FragCoord.z, cameraFar, cameraNear) / cameraFar;		
-		fragColor = vec4(vec3(depth), 1);
-	}
-	else
-	{
-		//vec4 texColor = texture(material.diffuse ,TexCoords);
-		//if(texColor.a < 0.1)
-			//discard;
-		fragColor = vec4(vec3(texture(material.diffuse, TexCoords)), 1.0);
-	}
+	fragColor = vec4(1,0,1,1);
 }
 #endif

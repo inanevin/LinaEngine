@@ -30,7 +30,6 @@ namespace LinaEngine::ECS
 {
 	void QuadRendererSystem::UpdateComponents(float delta)
 	{
-		return;
 		auto view = m_Registry->reg.view<TransformComponent, QuadRendererComponent>();
 		
 		for (auto entity : view)
@@ -38,16 +37,20 @@ namespace LinaEngine::ECS
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 			QuadRendererComponent& renderer = view.get<QuadRendererComponent>(entity);
 
+			glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+			model = glm::translate(model, glm::vec3(0,0, -5));
+			model = glm::scale(model, glm::vec3(1, 1, 1));
+
 			// Update shader data
-			(*renderer.material).SetMatrix4(UF_MODELMATRIX, transform.transform.ToMatrix());
+			(*renderer.material).SetMatrix4(UF_MODELMATRIX, model);
+
 			m_RenderEngine->UpdateShaderData(renderer.material);
+
 		}
 	}
 
 	void QuadRendererSystem::Flush(Graphics::DrawParams& drawParams)
 	{
-		return;
-
-		m_RenderDevice->Draw(m_FBO, m_QuadVAO, drawParams, 0, 6, true);
+		m_RenderDevice->Draw(m_FBO, m_QuadVAO, drawParams, 0, 36, true);
 	}
 }

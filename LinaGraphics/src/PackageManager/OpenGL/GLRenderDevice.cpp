@@ -97,6 +97,50 @@ namespace LinaEngine::Graphics
 		 1.0f, -1.0f,  1.0f
 	};
 
+	float cubeVertices[] = {
+		// positions          // texture Coords
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	};
 
 	float planeVertices[] = {
 		// positions          // texture Coords 
@@ -464,6 +508,8 @@ namespace LinaEngine::Graphics
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 		glBindVertexArray(0);
 		return quad;
+	
+
 	}
 
 
@@ -804,7 +850,7 @@ namespace LinaEngine::Graphics
 		// Set blend mode for each render target.
 		SetBlending(drawParams.sourceBlend, drawParams.destBlend);
 
-		// Set scissors tests if required, face culling modes as well as depth tests.
+		//// Set scissors tests if required, face culling modes as well as depth tests.
 		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
 		SetFaceCulling(drawParams.faceCulling);
 		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
@@ -826,9 +872,6 @@ namespace LinaEngine::Graphics
 				glDrawElementsInstanced(drawParams.primitiveType, (GLsizei)numElements, GL_UNSIGNED_INT, 0, numInstances);
 		}
 
-
-
-		//UpdateShaderUniformVector3F(shader, "_viewPos", m_LightingSystem->GetCameraPosition());
 	}
 
 	void GLRenderDevice::Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color & color, uint32 stencil)
@@ -899,25 +942,13 @@ namespace LinaEngine::Graphics
 	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string & uniform, void* data)
 	{
 		float* matrixData = ((float*)data);
-		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_TRUE, matrixData);
+		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_FALSE, matrixData);
 	}
 
 	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string & uniform, const Matrix & m)
 	{		
-		const float* firstVector = &m[0].x;
-		const float* secondVector = &m[1].x;
-		const float* thirdVector = &m[2].x;
-		const float* lastVector = &m[3].x;
 
-		float matrixData[] = {
-
-			*(firstVector), *(firstVector + 1), *(firstVector + 2), *(firstVector + 3),
-			*(secondVector), *(secondVector + 1), *(secondVector + 2), *(secondVector + 3),
-			*(thirdVector), *(thirdVector + 1), *(thirdVector + 2), *(thirdVector + 3),
-			*(lastVector),*(lastVector + 1), *(lastVector + 2), *(lastVector + 3)
-		};
-
-		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_TRUE, matrixData);
+		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_FALSE, &m[0][0]);
 	}
 
 

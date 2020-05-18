@@ -113,12 +113,12 @@ Material* quadMaterial;
 Vector3 cubePositions[] = {
 	Vector3(0.0f, 0.0f, 10.0f),
 	Vector3(5.0f,  0.0f, 10.0f),
-	Vector3(-5.0f, 0.0f, 10.0f),
-	Vector3(0.0f, 0.0f, 15.0f),
+	Vector3(-5.0f, 0.0f, -10.0f),
+	Vector3(0.0f, 0.0f, -15.0f),
 	Vector3(5.0f,  0.0f, 15.0f),
 	Vector3(-5.0f, 0.0f, 15.0f),
 	Vector3(0.0f, -5.0f, 10.0f),
-	Vector3(5.0f,  -5.0f, 10.0f),
+	Vector3(5.0f,  -5.0f, -10.0f),
 	Vector3(-5.0f, -5.0f, 10.0f),
 	Vector3(0.0f, -5.0f, 15.0f),
 	Vector3(5.0f,  -5.0f, 15.0f),
@@ -156,12 +156,15 @@ void Example1Level::Initialize()
 	auto& camFreeLook = m_ECS->reg.emplace<FreeLookComponent>(camera.entity);
 	auto& camTransform = m_ECS->reg.emplace<TransformComponent>(camera.entity);
 	auto& camCamera = m_ECS->reg.emplace<CameraComponent>(camera.entity);
-
+	camTransform.transform.location = Vector3::Zero;
 	// Activate a camera component.
 	camCamera.isActive = true;
+	quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::TRANSPARENT_QUAD);
+	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
+	quadMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &crateTexture, 0);
 
 	// Set the properties of our the free look component for the camera.
-	camFreeLook.movementSpeedX = camFreeLook.movementSpeedZ = 12.0f;
+/*	camFreeLook.movementSpeedX = camFreeLook.movementSpeedZ = 12.0f;
 	camFreeLook.rotationSpeedX = camFreeLook.rotationSpeedY = 3;
 
 
@@ -200,7 +203,7 @@ void Example1Level::Initialize()
 	{
 		ECSEntity entity;
 		
-		object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
+		//object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
 		object1Transform.transform.location = cubePositions[i];
 		entity.entity = m_ECS->reg.create();
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
@@ -219,7 +222,7 @@ void Example1Level::Initialize()
 		ECSEntity entity;
 		object1Transform.transform.location = pointLightPositions[i];
 		object1Transform.transform.scale = 1;
-		object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
+		//object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
 		entity.entity = m_ECS->reg.create();
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
 		
@@ -245,7 +248,7 @@ void Example1Level::Initialize()
 	for (int i = 0; i < sLightSize; i++)
 	{
 		smallCubeRenderer.material = objectUnlitMaterial2;
-		object1Transform.transform.rotation = (Quaternion::Euler(Vector3::Zero));
+	//	object1Transform.transform.rotation = (Quaternion::Euler(Vector3::Zero));
 
 		ECSEntity entity;
 		object1Transform.transform.location = (spotLightPositions[i]);
@@ -272,9 +275,9 @@ void Example1Level::Initialize()
 		m_ECS->reg.emplace<MeshRendererComponent>(visuals.entity, smallCubeRenderer);
 	}
 	object1Transform.transform.rotation = (Quaternion::Euler(Vector3::Zero));
-
-	object1Transform.transform.scale = (Vector3::One);
-	object1Transform.transform.location = (Vector3(0,2,10));
+	*/
+	object1Transform.transform.scale = (Vector3(1,1,1));
+	object1Transform.transform.location = (Vector3(0,0,-5));
 	//object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(0, -180, 0)));
 	ECSEntity quad;
 	quad.entity = m_ECS->reg.create();
@@ -282,6 +285,7 @@ void Example1Level::Initialize()
 	QuadRendererComponent quadR;
 	quadR.material = quadMaterial;
 	m_ECS->reg.emplace<QuadRendererComponent>(quad.entity, quadR);
+
 	// Create a cube object.
 //object1Renderer.mesh = &cubeMesh;
 //object1Renderer.material = objectLitMaterial;
@@ -408,13 +412,12 @@ static float t = 0.0f;
 void Example1Level::Tick(float delta)
 {
 	// Update the systems in this level.
-	level1Systems.UpdateSystems(delta);
-	t += delta;
-	TransformComponent& cube = m_ECS->reg.get<TransformComponent>(cubeEntity.entity);
-	Quaternion q;
-	q = Quaternion::Euler(Vector3(t,t,0));
-	cube.transform.rotation = q;
-	LINA_CLIENT_INFO("{0}", t);
+	//level1Systems.UpdateSystems(delta);
+	//t += delta;
+	//TransformComponent& cube = m_ECS->reg.get<TransformComponent>(cubeEntity.entity);
+	//Quaternion q;
+	//q = Quaternion::Euler(Vector3(t,t,0));
+	//cube.transform.rotation = q;
 	//TransformComponent& tSpotLight = m_ECS->reg.get<TransformComponent>(spotLight.entity);
 //	TransformComponent& tCamera = m_ECS->reg.get<TransformComponent>(camera.entity);
 	
