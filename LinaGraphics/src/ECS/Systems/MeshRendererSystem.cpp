@@ -63,8 +63,8 @@ namespace LinaEngine::ECS
 	{
 		// Add the new matrix to the same pairs, each pair will be drawn once.
 		auto pair = std::make_pair(&vertexArray, &material);
-		std::get<0>(m_MeshRenderBuffer[pair]).push_back(transformIn.Transpose());
-		std::get<1>(m_MeshRenderBuffer[pair]).push_back(transformIn.Inverse());
+		std::get<0>(m_MeshRenderBuffer[pair]).push_back(transformIn);
+		std::get<1>(m_MeshRenderBuffer[pair]).push_back(transformIn.Inverse().Transpose());
 	}
 
 	void MeshRendererSystem::Flush(Graphics::DrawParams& drawParams, bool completeFlush, Graphics::Material* overrideMaterial)
@@ -94,57 +94,6 @@ namespace LinaEngine::ECS
 
 			// Draw call.
 			m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
-
-			// Draw for stencil outlining.
-			/*if (mat->useStencilOutline)
-			{
-				// Set stencil draw params.
-				m_DrawParams.useStencilTest = true;
-				m_DrawParams.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_ALWAYS;
-				m_DrawParams.stencilComparisonVal = 1;
-				m_DrawParams.stencilTestMask = 0xFF;
-				m_DrawParams.stencilWriteMask = 0xFF;
-
-				
-
-				// Set stencil outline shader.
-				m_RenderDevice->SetShader(mat->stencilOutlineShaderID);
-
-				// Set stencil draw params.
-				m_DrawParams.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_NOT_EQUAL;
-				m_DrawParams.stencilComparisonVal = 1;
-				m_DrawParams.stencilTestMask = 0xFF;
-				m_DrawParams.stencilWriteMask = 0x00;
-				m_RenderDevice->SetDepthTestEnable(false);
-
-				// Set outline color
-				m_RenderDevice->UpdateShaderUniformColor(it->first.second->stencilOutlineShaderID, MC_OBJECTCOLORPROPERTY, it->first.second->stencilOutlineColor);
-				m_RenderDevice->UpdateShaderUniformFloat(it->first.second->stencilOutlineShaderID, UF_STENCILTHICKNESS, it->first.second->stencilThickness);
-
-				// Draw call.
-				m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), m_DrawParams, numTransforms, vertexArray->GetIndexCount(), false);
-
-				// Reset stencil.
-				m_RenderDevice->SetStencilWriteMask(0xFF);
-				m_RenderDevice->SetDepthTestEnable(true);
-			}
-			else
-			{
-				// Set params.
-				m_DrawParams.useStencilTest = true;
-				m_DrawParams.stencilTestMask = 0xFF;
-				m_DrawParams.stencilWriteMask = 0xFF;
-
-				// Update the buffer w/ each transform.
-				vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
-				vertexArray->UpdateBuffer(5, inverseTransposeModels, numTransforms * sizeof(Matrix));
-
-				// Set shader data.
-				m_RenderEngine->UpdateShaderData(mat);
-
-				// Draw call.
-				m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), m_DrawParams, numTransforms, vertexArray->GetIndexCount(), false);
-			}*/
 
 			// Clear the buffer, or do not if you want a trail of shadows lol.
 			if (completeFlush)

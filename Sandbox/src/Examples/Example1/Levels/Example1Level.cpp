@@ -160,15 +160,12 @@ void Example1Level::Initialize()
 	camTransform.transform.location = Vector3::Zero;
 	// Activate a camera component.
 	camCamera.isActive = true;
-	quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::TRANSPARENT_QUAD);
-	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
-	quadMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &crateTexture, 0);
 
 	// Set the properties of our the free look component for the camera.
 	camFreeLook.movementSpeedX = camFreeLook.movementSpeedZ = 12.0f;
 	camFreeLook.rotationSpeedX = camFreeLook.rotationSpeedY = 3;
 
-	/*
+	
 	// Load example mesh.
 	Mesh& cubeMesh = m_RenderEngine->CreateMesh("resources/meshes/cube.obj");
 
@@ -276,7 +273,7 @@ void Example1Level::Initialize()
 		m_ECS->reg.emplace<MeshRendererComponent>(visuals.entity, smallCubeRenderer);
 	}
 	object1Transform.transform.rotation = (Quaternion::Euler(Vector3::Zero));
-	*/
+	
 	object1Transform.transform.scale = (Vector3(1, 1, 1));
 	object1Transform.transform.location = (Vector3(0, 0, -5));
 	//object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(0, -180, 0)));

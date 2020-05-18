@@ -462,7 +462,7 @@ namespace LinaEngine::Graphics
 
 		// Draw quads.
 		m_QuadRendererSystem.Flush(m_DefaultDrawParams);
-		return;
+	
 		if (useStencilOutlining)
 		{
 			m_DefaultDrawParams.useStencilTest = true;
