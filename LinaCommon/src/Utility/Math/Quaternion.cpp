@@ -26,11 +26,7 @@ namespace LinaEngine
 
 	Quaternion::Quaternion(const Vector3& axis, float angle)
 	{
-		glm::vec3 vec;
-		vec.x = -axis.x;
-		vec.y = axis.y;
-		vec.z = -axis.z;
-		*this = glm::angleAxis(glm::radians(angle), vec);
+		*this = glm::angleAxis(glm::radians(angle), axis);
 	}
 
 	Quaternion Quaternion::Normalized() const
@@ -46,12 +42,12 @@ namespace LinaEngine
 
 	Vector3 Quaternion::GetRight() const
 	{
-		return Rotate(Vector3::Left);
+		return Rotate(Vector3::Right);
 	}
 
 	Vector3 Quaternion::GetUp() const
 	{
-		return Rotate(Vector3::Down);
+		return Rotate(Vector3::Up);
 	}
 
 	Vector3 Quaternion::GetForward() const
@@ -76,9 +72,9 @@ namespace LinaEngine
 	Vector3 Quaternion::Rotate(const Vector3& other) const
 	{
 		glm::vec3 v;
-		v.x = glm::radians(-other.x);
+		v.x = glm::radians(other.x);
 		v.y = glm::radians(other.y);
-		v.z = glm::radians(-other.z);
+		v.z = glm::radians(other.z);
 		return glm::rotate(*this, other);
 	}
 	Quaternion Quaternion::Slerp(const Quaternion& dest, float t) const
@@ -110,9 +106,9 @@ namespace LinaEngine
 	Quaternion Quaternion::Euler(const Vector3& v)
 	{
 		glm::vec3 vec;
-		vec.x = glm::radians(-v.x);
+		vec.x = glm::radians(v.x);
 		vec.y = glm::radians(v.y);
-		vec.z = glm::radians(-v.z);
+		vec.z = glm::radians(v.z);
 		return glm::quat(vec);
 	}
 	Quaternion Quaternion::Euler(float x, float y, float z)
@@ -122,10 +118,6 @@ namespace LinaEngine
 
 	Quaternion Quaternion::AxisAngle(const Vector3& axis, float angle)
 	{
-		glm::vec3 vec;
-		vec.x = -axis.x;
-		vec.y = axis.y;
-		vec.z = -axis.z;
-		return glm::angleAxis(glm::radians(angle), vec);
+		return glm::angleAxis(glm::radians(angle), axis);
 	}
 }

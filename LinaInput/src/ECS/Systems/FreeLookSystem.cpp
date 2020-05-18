@@ -46,18 +46,16 @@ namespace LinaEngine::ECS
 			Vector2 mouseAxis = inputEngine->GetMouseAxis();
 			t += delta;
 
-			//transform.transform.rotation = Quaternion::Euler(0, 15, 0);
 			if (inputEngine->GetMouseButton(LinaEngine::Input::InputCode::Mouse::Mouse1))
 			{
 				// Apply angles based on mouse axis.
-				freeLook.verticalAngle += mouseAxis.y * freeLook.rotationSpeedX * delta * 50;
+				freeLook.verticalAngle -= mouseAxis.y * freeLook.rotationSpeedX * delta * 50;
 				freeLook.horizontalAngle += mouseAxis.x * freeLook.rotationSpeedY * delta * 50;
 
 				// Rotate
 				transform.transform.Rotate(Vector3(freeLook.verticalAngle, freeLook.horizontalAngle, 0.0f));
 
 			}
-
 
 			// Enable cursor after finishing mouse look.
 			if (inputEngine->GetMouseButtonUp(LinaEngine::Input::InputCode::Mouse::Mouse1))

@@ -39,9 +39,9 @@ namespace LinaEngine
 
 
 	public:
-		FORCEINLINE Quaternion()  {};
-		FORCEINLINE Quaternion(const Vector4& v) : glm::quat(v) {};
-		FORCEINLINE Quaternion(float x, float y, float z, float w) : glm::quat(x,y,z,w) {};
+		FORCEINLINE Quaternion()  : glm::quat(1,0,0,0) {};
+		FORCEINLINE Quaternion(const Vector4& v) : glm::quat(v.w, v.x, v.y, v.z) {};
+		FORCEINLINE Quaternion(float x, float y, float z, float w) : glm::quat(w,x,y,z) {};
 		FORCEINLINE Quaternion(glm::quat q) : glm::quat(q) {};
 		Quaternion(const Vector3& axis, float angle);
 

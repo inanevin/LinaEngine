@@ -417,7 +417,7 @@ void Example1Level::Tick(float delta)
 
 	TransformComponent& cube = m_ECS->reg.get<TransformComponent>(quad.entity);
 	cube.transform.location = Vector3(2, 0, 5);
-	cube.transform.Rotate(0, 45, 0);
+	cube.transform.Rotate(0, 0,0);
 	cube.transform.scale = Vector3(1);
 	//	cube.transform.rotation = q;
 		//TransformComponent& tSpotLight = m_ECS->reg.get<TransformComponent>(spotLight.entity);
