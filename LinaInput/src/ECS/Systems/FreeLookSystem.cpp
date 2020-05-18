@@ -23,11 +23,12 @@ Timestamp: 5/2/2019 2:19:36 AM
 #include "Input/InputAxisBinder.hpp"
 #include "Input/InputCommon.hpp"
 #include "Input/InputEngine.hpp"
+#include "Utility/Math/Math.hpp"
 
 namespace LinaEngine::ECS
 {
 
-
+	static float t;
 	void FreeLookSystem::UpdateComponents(float delta)
 	{
 		auto view = m_Registry->reg.view<TransformComponent, FreeLookComponent>();
@@ -36,24 +37,27 @@ namespace LinaEngine::ECS
 		{
 			TransformComponent& transform = m_Registry->reg.get<TransformComponent>(entity);
 			FreeLookComponent& freeLook = m_Registry->reg.get<FreeLookComponent>(entity);
-
+		
 			// Disable cursor upon starting mouse look.
 			if (inputEngine->GetMouseButtonDown(LinaEngine::Input::InputCode::Mouse::Mouse1))
 				inputEngine->SetCursorMode(LinaEngine::Input::CursorMode::Disabled);
 
+			// Get mouse axis.
+			Vector2 mouseAxis = inputEngine->GetMouseAxis();
+			t += delta;
+
+			//transform.transform.rotation = Quaternion::Euler(0, 15, 0);
 			if (inputEngine->GetMouseButton(LinaEngine::Input::InputCode::Mouse::Mouse1))
 			{
-				// Get mouse axis.
-				Vector2 mouseAxis = inputEngine->GetMouseAxis();
-
 				// Apply angles based on mouse axis.
-				freeLook.verticalAngle += mouseAxis.y * freeLook.rotationSpeedX * delta;
-				freeLook.horizontalAngle += mouseAxis.x* freeLook.rotationSpeedY * delta;
+				freeLook.verticalAngle += mouseAxis.y * freeLook.rotationSpeedX * delta * 50;
+				freeLook.horizontalAngle += mouseAxis.x * freeLook.rotationSpeedY * delta * 50;
 
 				// Rotate
 				transform.transform.Rotate(Vector3(freeLook.verticalAngle, freeLook.horizontalAngle, 0.0f));
 
 			}
+
 
 			// Enable cursor after finishing mouse look.
 			if (inputEngine->GetMouseButtonUp(LinaEngine::Input::InputCode::Mouse::Mouse1))
@@ -63,6 +67,10 @@ namespace LinaEngine::ECS
 			// Get horizontal & vertical key values.
 			float horizontalKey = inputEngine->GetHorizontalAxisValue();
 			float verticalKey = inputEngine->GetVerticalAxisValue();
+
+			Vector3 fw = transform.transform.rotation.GetForward();
+			Vector3 up = transform.transform.rotation.GetUp();
+			Vector3 rg = transform.transform.rotation.GetRight();
 
 			// Set movement based on vertical axis.
 			Vector3 vertical = transform.transform.rotation.GetForward();
@@ -76,11 +84,7 @@ namespace LinaEngine::ECS
 
 			// Move.
 			transform.transform.location = transform.transform.location + vertical + horizontal;
-
-			m_Registry->reg.replace<TransformComponent>(entity, transform);
-			m_Registry->reg.replace<FreeLookComponent>(entity, freeLook);
-
-			TransformComponent comp = view.get<TransformComponent>(entity);
+			LINA_CORE_INFO("{0}", transform.transform.location.ToString());
 		}
 
 	}

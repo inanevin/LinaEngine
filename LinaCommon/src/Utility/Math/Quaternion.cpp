@@ -23,6 +23,16 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 
 namespace LinaEngine
 {
+
+	Quaternion::Quaternion(const Vector3& axis, float angle)
+	{
+		glm::vec3 vec;
+		vec.x = -axis.x;
+		vec.y = axis.y;
+		vec.z = -axis.z;
+		*this = glm::angleAxis(glm::radians(angle), vec);
+	}
+
 	Quaternion Quaternion::Normalized() const
 	{
 		glm::quat quat = glm::normalize(*this);
@@ -33,6 +43,27 @@ namespace LinaEngine
 	{
 		return glm::abs(1.0f - LengthSquared()) < 1.e-4f;
 	}
+
+	Vector3 Quaternion::GetRight() const
+	{
+		return Rotate(Vector3::Left);
+	}
+
+	Vector3 Quaternion::GetUp() const
+	{
+		return Rotate(Vector3::Down);
+	}
+
+	Vector3 Quaternion::GetForward() const
+	{
+		return Rotate(Vector3::Forward);
+	}
+
+	Vector3 Quaternion::GetEuler() const
+	{
+		return glm::eulerAngles(*this);
+	}
+
 	Vector3 Quaternion::GetAxis() const
 	{
 		return glm::axis(*this);
@@ -44,6 +75,10 @@ namespace LinaEngine
 
 	Vector3 Quaternion::Rotate(const Vector3& other) const
 	{
+		glm::vec3 v;
+		v.x = glm::radians(-other.x);
+		v.y = glm::radians(other.y);
+		v.z = glm::radians(-other.z);
 		return glm::rotate(*this, other);
 	}
 	Quaternion Quaternion::Slerp(const Quaternion& dest, float t) const
@@ -75,9 +110,22 @@ namespace LinaEngine
 	Quaternion Quaternion::Euler(const Vector3& v)
 	{
 		glm::vec3 vec;
-		vec.x = glm::radians(v.x);
+		vec.x = glm::radians(-v.x);
 		vec.y = glm::radians(v.y);
-		vec.z = glm::radians(v.z);
+		vec.z = glm::radians(-v.z);
 		return glm::quat(vec);
+	}
+	Quaternion Quaternion::Euler(float x, float y, float z)
+	{
+		return Quaternion::Euler(Vector3(x, y, z));
+	}
+
+	Quaternion Quaternion::AxisAngle(const Vector3& axis, float angle)
+	{
+		glm::vec3 vec;
+		vec.x = -axis.x;
+		vec.y = axis.y;
+		vec.z = -axis.z;
+		return glm::angleAxis(glm::radians(angle), vec);
 	}
 }

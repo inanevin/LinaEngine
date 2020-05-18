@@ -149,29 +149,12 @@ namespace LinaEngine::Graphics
 
 		// Update pipeline.
 		m_RenderingPipeline.UpdateSystems(delta);
-		//m_CameraSystem.UpdateComponents(delta);
-		uint32 shader = GetShader(Shaders::TRANSPARENT_QUAD).GetID();
-		m_RenderDevice.SetShader(shader);
-
-
-		glm::mat4 model = glm::mat4(1);
-
-		t += delta;
-		model = glm::translate(model, glm::vec3(0, 0, -5));
-		model = glm::rotate(model, t, glm::vec3(1, 0, 0));
 
 		// Update uniform buffers on GPU
 		UpdateUniformBuffers();
 
-		//m_RenderDevice.UpdateShaderUniformMatrix(shader, "model", model);
-
-		//m_RenderDevice.Draw(0, m_QuadVAO, m_DefaultDrawParams, 0, 36, true);
 		// Draw scene
 		DrawSceneObjects(false);
-
-	
-
-
 
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)

@@ -42,9 +42,9 @@ namespace LinaEngine
 		FORCEINLINE Quaternion()  {};
 		FORCEINLINE Quaternion(const Vector4& v) : glm::quat(v) {};
 		FORCEINLINE Quaternion(float x, float y, float z, float w) : glm::quat(x,y,z,w) {};
-		FORCEINLINE Quaternion(const Vector3& axis, float angle) { *this = glm::angleAxis(glm::radians(angle), axis); }
 		FORCEINLINE Quaternion(glm::quat q) : glm::quat(q) {};
-	
+		Quaternion(const Vector3& axis, float angle);
+
 		FORCEINLINE Quaternion operator+(const Quaternion& other) const { return *this + other; }
 		FORCEINLINE Quaternion operator-(const Quaternion& other) const { return *this - other; }
 		FORCEINLINE Quaternion operator*(const Quaternion& other) const { return *this * other; }
@@ -60,11 +60,12 @@ namespace LinaEngine
 		FORCEINLINE bool operator!=(const Quaternion& other) const { return *this != other; }
 
 
-		FORCEINLINE Vector3 GetRight() const { return Rotate(Vector3(1.0f, 0.0f, 0.0f)); }
-		FORCEINLINE Vector3 GetUp() const { return Rotate(Vector3(0.0f, 1.0f, 0.0f)); }
-		FORCEINLINE Vector3 GetForward() const { return Rotate(Vector3(0.0f, 0.0f, 1.0f)); }
+		Vector3 GetRight() const;
+		Vector3 GetUp() const;
+		Vector3 GetForward() const;
 		FORCEINLINE Vector4 ToVector() const { return Vector4(x, y, z, w); }
-		
+
+		Vector3 GetEuler() const;
 		Vector3 GetAxis() const;
 		Vector3 Rotate(const Vector3& other) const;
 		Quaternion Slerp(const Quaternion& dest, float t) const;
@@ -73,6 +74,8 @@ namespace LinaEngine
 		Quaternion Normalized() const;
 		bool IsNormalized() const;
 		static Quaternion Euler(const Vector3& v);
+		static Quaternion Euler(float x, float y, float z);
+		static Quaternion AxisAngle(const Vector3& axis, float angle);
 		float GetAngle() const;
 		float Dot(const Quaternion& other) const;
 		float Length() const;

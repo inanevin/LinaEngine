@@ -44,17 +44,17 @@ namespace LinaEngine::ECS
 			m_CurrentCameraTransform = &transform;
 			
 			// Init translation & rotation matrices.
-			//Matrix translation = Matrix::Translate(-transform.transform.location);
-			//Matrix rotation = Matrix::InitRotationFromDirection(transform.transform.rotation.GetForward(), transform.transform.rotation.GetUp());
+			Matrix translation = Matrix::Translate(transform.transform.location);
+			Matrix rotation = Matrix::InitRotationFromDirection(transform.transform.rotation.GetForward(), transform.transform.rotation.GetUp());
 			
 			// View transformation including only the rotation data for skybox.
 			//m_SkyboxViewTransformation = rotation;
 			
 			// Actual camera view matrix.
-			m_View = glm::lookAt(transform.transform.location, transform.transform.location + Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, 1.0f, 0.0f));
-			
+			m_View = Matrix::InitLookAt(transform.transform.location, transform.transform.rotation.GetForward(), transform.transform.rotation.GetUp());
+
 			// Update projection matrix.
-			m_Projection =  Matrix::Perspective(45.0f, m_AspectRatio, camera.zNear, camera.zFar);
+			m_Projection =  Matrix::Perspective(camera.fieldOfView/2, m_AspectRatio, camera.zNear, camera.zFar);
 		}
 	
 		

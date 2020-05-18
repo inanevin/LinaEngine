@@ -82,9 +82,9 @@ namespace LinaEngine
 	Matrix Matrix::InitRotationFromVectors(const Vector3& u, const Vector3& v, const Vector3& n)
 	{
 		return glm::mat4(
-			glm::vec4(u.x, u.y, u.z, 0.0f),
-			glm::vec4(v.x, v.y, v.z, 0.0f),
-			glm::vec4(n.x, n.y, n.z, 0.0f),
+			glm::vec4(u.x, v.y, n.z, 0.0f),
+			glm::vec4(u.x, v.y, n.z, 0.0f),
+			glm::vec4(u.x, v.y, n.z, 0.0f),
 			glm::vec4(0.0f)
 		);
 	}
@@ -114,6 +114,11 @@ namespace LinaEngine
 		glm::vec4 c = glm::vec4(xz2 + wy2, yz2 - wx2, -xx2 - yy2 + 1.0f, 0.0f);
 		glm::vec4 d = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 		return Matrix(a, b, c, d);
+	}
+
+	Matrix Matrix::InitLookAt(const Vector3& location, const Vector3& forward, const Vector3& up)
+	{
+		return glm::lookAt(location, location + forward, up);
 	}
 
 

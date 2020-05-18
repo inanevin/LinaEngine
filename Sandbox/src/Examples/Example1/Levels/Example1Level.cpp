@@ -165,10 +165,10 @@ void Example1Level::Initialize()
 	quadMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &crateTexture, 0);
 
 	// Set the properties of our the free look component for the camera.
-/*	camFreeLook.movementSpeedX = camFreeLook.movementSpeedZ = 12.0f;
+	camFreeLook.movementSpeedX = camFreeLook.movementSpeedZ = 12.0f;
 	camFreeLook.rotationSpeedX = camFreeLook.rotationSpeedY = 3;
 
-
+	/*
 	// Load example mesh.
 	Mesh& cubeMesh = m_RenderEngine->CreateMesh("resources/meshes/cube.obj");
 
@@ -185,9 +185,9 @@ void Example1Level::Initialize()
 	objectLitMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &crateTexture, 0);
 	objectLitMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, &crateSpecTexture, 1);
 	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(0, 0, 1));
-	objectUnlitMaterial2->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 0, 0));	
+	objectUnlitMaterial2->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 0, 0));
 	quadMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &grassTexture, 0);
-	
+
 	object1Renderer.mesh = &cubeMesh;
 	object1Renderer.material = objectLitMaterial;
 	smallCubeRenderer.mesh = &cubeMesh;
@@ -203,7 +203,7 @@ void Example1Level::Initialize()
 	for (int i = 0; i < cubeSize; i++)
 	{
 		ECSEntity entity;
-		
+
 		//object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
 		object1Transform.transform.location = cubePositions[i];
 		entity.entity = m_ECS->reg.create();
@@ -226,7 +226,7 @@ void Example1Level::Initialize()
 		//object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
 		entity.entity = m_ECS->reg.create();
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
-		
+
 		auto& pLight1 = m_ECS->reg.emplace<PointLightComponent>(entity.entity);
 
 		pLight1.ambient = Color(0.05f, 0.05f, 0.05f);
@@ -236,7 +236,7 @@ void Example1Level::Initialize()
 		pLight1.linear = 0.09f;
 		pLight1.quadratic = 0.032f;
 
-	
+
 		ECSEntity visuals;
 		visuals.entity = m_ECS->reg.create();
 		object1Transform.transform.scale = 0.2f;
@@ -277,8 +277,8 @@ void Example1Level::Initialize()
 	}
 	object1Transform.transform.rotation = (Quaternion::Euler(Vector3::Zero));
 	*/
-	object1Transform.transform.scale = (Vector3(1,1,1));
-	object1Transform.transform.location = (Vector3(0,0, -5));
+	object1Transform.transform.scale = (Vector3(1, 1, 1));
+	object1Transform.transform.location = (Vector3(0, 0, -5));
 	//object1Transform.transform.SetRotation(Quaternion::Euler(Vector3F(0, -180, 0)));
 	quad.entity = m_ECS->reg.create();
 	m_ECS->reg.emplace<TransformComponent>(quad.entity, object1Transform);
@@ -414,20 +414,21 @@ void Example1Level::Tick(float delta)
 	// Update the systems in this level.
 	level1Systems.UpdateSystems(delta);
 	t += delta;
-	LINA_CLIENT_INFO("{0}", t);
+
 	TransformComponent& cube = m_ECS->reg.get<TransformComponent>(quad.entity);
-	cube.transform.location = Vector3(Math::Sin(t) * 1, 0, -5);
-	cube.transform.Rotate(Vector3::Forward, t);
-//	cube.transform.rotation = q;
-	//TransformComponent& tSpotLight = m_ECS->reg.get<TransformComponent>(spotLight.entity);
-//	TransformComponent& tCamera = m_ECS->reg.get<TransformComponent>(camera.entity);
-	
-//tSpotLight.transform.SetLocation(tCamera.transform.location);
-//tSpotLight.transform.SetRotation(tCamera.transform.rotation);
-//
-//TransformComponent tc = m_ECS->reg.get<TransformComponent>(object1.entity);
-//t += delta;
-//tc.transform.SetLocation(Vector3F(Math::Sin(t) * 5, 0, 10));
-//	
-//m_ECS->reg.replace<TransformComponent>(object1.entity, tc);
+	cube.transform.location = Vector3(2, 0, 5);
+	cube.transform.Rotate(0, 45, 0);
+	cube.transform.scale = Vector3(1);
+	//	cube.transform.rotation = q;
+		//TransformComponent& tSpotLight = m_ECS->reg.get<TransformComponent>(spotLight.entity);
+	//	TransformComponent& tCamera = m_ECS->reg.get<TransformComponent>(camera.entity);
+
+	//tSpotLight.transform.SetLocation(tCamera.transform.location);
+	//tSpotLight.transform.SetRotation(tCamera.transform.rotation);
+	//
+	//TransformComponent tc = m_ECS->reg.get<TransformComponent>(object1.entity);
+	//t += delta;
+	//tc.transform.SetLocation(Vector3F(Math::Sin(t) * 5, 0, 10));
+	//	
+	//m_ECS->reg.replace<TransformComponent>(object1.entity, tc);
 }
