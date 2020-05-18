@@ -29,6 +29,7 @@ Timestamp: 4/26/2019 1:12:18 AM
 
 namespace LinaEngine::Graphics
 {
+
 	class Texture;
 
 	struct MaterialTextureData
@@ -129,6 +130,8 @@ namespace LinaEngine::Graphics
 
 		FORCEINLINE uint32 GetShaderID() { return shaderID; }
 
+		FORCEINLINE void SetSurfaceType(MaterialSurfaceType type) { m_SurfaceType = type; }
+		FORCEINLINE MaterialSurfaceType GetSurfaceType(MaterialSurfaceType type) { return m_SurfaceType; }
 
 	private:
 
@@ -137,6 +140,7 @@ namespace LinaEngine::Graphics
 
 		uint32 shaderID;
 		bool receivesLighting = false;
+		MaterialSurfaceType m_SurfaceType = MaterialSurfaceType::Opaque;
 		std::map<std::string, MaterialTextureData> textures;
 		std::map<std::string, float> floats;
 		std::map<std::string, int> ints;

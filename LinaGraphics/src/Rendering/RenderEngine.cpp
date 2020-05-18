@@ -60,7 +60,7 @@ namespace LinaEngine::Graphics
 
 		// Release Vertex Array Objects
 		m_SkyboxVAO = m_RenderDevice.ReleaseVertexArray(m_SkyboxVAO);
-		m_QuadVAO = m_RenderDevice.ReleaseVertexArray(m_QuadVAO);
+		m_RenderDevice.ReleaseVertexArray(m_QuadVertexArray.GetID());
 
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
@@ -88,12 +88,15 @@ namespace LinaEngine::Graphics
 		// Initialize engine materials
 		ConstructEngineMaterials();
 
+		// Initialize engine vertex arrays.
+		ConstructEngineVertexArrays();
+
 		// Initialize the render target.
 		m_RenderTarget.Construct(m_RenderDevice);
 
 		// Set default drawing parameters.
 		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
+		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
 		m_DefaultDrawParams.shouldWriteDepth = true;
 		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
 
@@ -111,8 +114,8 @@ namespace LinaEngine::Graphics
 
 		// Initialize built-in vertex array objects.
 		m_SkyboxVAO = m_RenderDevice.CreateSkyboxVertexArray();
-		m_QuadVAO = m_RenderDevice.CreateQuadVertexArray();
-
+		m_QuadVertexArray.Construct(m_RenderDevice, std::bind(&RenderDevice::CreateQuadVertexArray, m_RenderDevice));
+		
 		// Initialize ECS Camera System.
 		Vector2 windowSize = Vector2(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
 		m_CameraSystem.Construct(ecsReg);
@@ -122,7 +125,7 @@ namespace LinaEngine::Graphics
 		m_MeshRendererSystem.Construct(ecsReg, *this, m_RenderDevice, m_RenderTarget);
 
 		// Initialize ECS quad renderer system
-		m_QuadRendererSystem.Construct(ecsReg, m_RenderDevice, *this, m_QuadVAO, m_RenderTarget.GetID());
+		m_QuadRendererSystem.Construct(ecsReg, m_RenderDevice, *this, m_QuadVertexArray.GetID(), m_RenderTarget.GetID());
 
 		// Initialize ECS Lighting system.
 		m_LightingSystem.Construct(ecsReg, m_RenderDevice, *this);
@@ -298,6 +301,21 @@ namespace LinaEngine::Graphics
 		}
 	}
 
+	VertexArray& RenderEngine::CreateVertexArray(VertexArrays va)
+	{
+		if (!VertexArrayExists(va))
+		{
+			if (va == VertexArrays::QUAD)
+				return m_LoadedVertexArrays[va].Construct(m_RenderDevice, std::bind(&RenderDevice::CreateQuadVertexArray, m_RenderDevice));
+		}
+		else
+		{
+			// VA with this name already exists!
+			LINA_CORE_WARN("VA with the id {0} already exists, returning that...", va);
+			return m_LoadedVertexArrays[va];
+		}
+	}
+
 
 	Material& RenderEngine::GetMaterial(const std::string& materialName)
 	{
@@ -345,6 +363,16 @@ namespace LinaEngine::Graphics
 		}
 
 		return m_LoadedShaders[shader];
+	}
+
+	VertexArray& RenderEngine::GetVertexArray(VertexArrays va)
+	{
+		if (!VertexArrayExists(va))
+		{
+			// VA not found.
+			LINA_CORE_ERR("VA with the name ID {0} was not found, returning quad va.", va);
+			return GetVertexArray(VertexArrays::QUAD);
+		}
 	}
 
 	void RenderEngine::UnloadTextureResource(const std::string& textureName)
@@ -400,6 +428,11 @@ namespace LinaEngine::Graphics
 		return !(m_LoadedShaders.find(shader) == m_LoadedShaders.end());
 	}
 
+	bool RenderEngine::VertexArrayExists(VertexArrays va)
+	{
+		return !(m_LoadedVertexArrays.find(va) == m_LoadedVertexArrays.end());
+	}
+
 
 	void RenderEngine::ConstructEngineShaders()
 	{
@@ -435,6 +468,12 @@ namespace LinaEngine::Graphics
 		CreateMaterial(MAT_LINASTENCILOUTLINE, Shaders::STENCIL_OUTLINE);
 		m_LoadedMaterials[MAT_LINASTENCILOUTLINE].floats[MC_OUTLINETHICKNESS] = 0.015f;
 		m_LoadedMaterials[MAT_LINASTENCILOUTLINE].colors[MC_OBJECTCOLORPROPERTY] = Color::Red;
+	}
+
+	void RenderEngine::ConstructEngineVertexArrays()
+	{
+		// Quad
+		CreateVertexArray(VertexArrays::QUAD);
 	}
 
 	void RenderEngine::DumpMemory()
@@ -587,6 +626,7 @@ namespace LinaEngine::Graphics
 		}
 		else if (shader == Shaders::TRANSPARENT_QUAD)
 		{
+			material.m_SurfaceType = MaterialSurfaceType::Transparent;
 			material.samplers[MC_DIFFUSETEXTUREPROPERTY] = 0;
 			material.matrices[UF_MODELMATRIX] = Matrix();
 		}

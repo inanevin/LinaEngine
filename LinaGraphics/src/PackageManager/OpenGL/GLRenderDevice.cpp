@@ -255,8 +255,8 @@ namespace LinaEngine::Graphics
 		// OpenGL texture params.
 		glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameterf(textureTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexImage2D(textureTarget, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 
 		// Enable mipmaps if needed.

@@ -49,6 +49,13 @@ namespace LinaEngine::Graphics
 			m_IndexCount = model.GetIndexCount();
 		}
 
+		FORCEINLINE VertexArray& Construct(RenderDevice& deviceIn, const std::function<int()>& constructor)
+		{
+			m_RenderDevice = &deviceIn;
+			m_EngineBoundID = constructor();
+			return *this;
+		}
+
 		FORCEINLINE void UpdateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize)
 		{
 			return m_RenderDevice->UpdateVertexArrayBuffer(m_EngineBoundID, bufferIndex, data, dataSize);

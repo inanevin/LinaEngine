@@ -199,6 +199,24 @@ namespace LinaEngine::Graphics
 		bool visualizeDepth;
 	};
 
+
+	enum class MaterialSurfaceType
+	{
+		Opaque,
+		Transparent
+	};
+
+	enum VertexArrays
+	{
+		QUAD = 0,
+		PLANE = 1,
+		CUBE = 2,
+		SPHERE = 3,
+		PYRAMID = 4,
+		CAPSULE = 5,
+		CYLINDER = 6
+	};
+
 	/* Struct containing basic data about window properties. */
 	struct WindowProperties
 	{

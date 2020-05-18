@@ -40,8 +40,8 @@ namespace LinaEngine::ECS
 			QuadRendererComponent& renderer = view.get<QuadRendererComponent>(entity);
 		
 			// Get the distance to the camera of the transform & add it to the map to be automatically sorted by the STL container.
-			float distanceToCamera = transform.transform.location.Distance(m_RenderEngine->GetCameraSystem().GetCameraLocation());
-			m_QuadsToRender[distanceToCamera] = std::make_tuple(transform.transform.ToMatrix(), renderer.material);
+			Vector3 distanceToCamera = (m_RenderEngine->GetCameraSystem().GetCameraLocation() - transform.transform.location);
+			m_QuadsToRender[distanceToCamera.MagnitudeSqrt()] = std::make_tuple(transform.transform.ToMatrix(), renderer.material);
 		
 		}
 	}

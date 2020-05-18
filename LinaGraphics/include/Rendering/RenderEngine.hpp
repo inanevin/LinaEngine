@@ -30,6 +30,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "ECS/Systems/MeshRendererSystem.hpp"
 #include "ECS/Systems/QuadRendererSystem.hpp"
 #include "Rendering/ModelLoader.hpp"
+#include "Rendering/VertexArray.hpp"
 #include "Mesh.hpp"
 #include "UniformBuffer.hpp"
 #include "Window.hpp"
@@ -129,6 +130,9 @@ namespace LinaEngine::Graphics
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing shader. </param>
 		Shader& CreateShader(Shaders shader, const std::string& path);
 
+		/// <summary> Creates a vertex array resource. </summary>
+		VertexArray& CreateVertexArray(VertexArrays va);
+
 		// Returns a material resource.
 		Material& GetMaterial(const std::string& materialName);
 
@@ -140,6 +144,9 @@ namespace LinaEngine::Graphics
 
 		// Returns a shader resource.
 		Shader& GetShader(Shaders shader);
+
+		// Returns a vertex array resource
+		VertexArray& GetVertexArray(VertexArrays va);
 
 		// Removes the targeted resource from resource map.
 		void UnloadTextureResource(const std::string& textureName);
@@ -155,6 +162,7 @@ namespace LinaEngine::Graphics
 		bool TextureExists(const std::string& textureName);
 		bool MeshExists(const std::string& meshName);
 		bool ShaderExists(Shaders shader);
+		bool VertexArrayExists(VertexArrays va);
 
 		// Sets the shader of a material to the shader specified by name. Also resets material properties based on the shader, caution!
 		Material& SetMaterialShader(Material& material, Shaders shader);
@@ -178,6 +186,9 @@ namespace LinaEngine::Graphics
 
 		// Constructs engine materials
 		void ConstructEngineMaterials();
+
+		// Constructs engine vertex arrays
+		void ConstructEngineVertexArrays();
 
 		// clears resource memory.
 		void DumpMemory();
@@ -238,6 +249,9 @@ namespace LinaEngine::Graphics
 		// Map that stores shader ID's by name
 		std::map<int, Shader> m_LoadedShaders;
 
+		// Map to store engine vertex arrays.
+		std::map<int, VertexArray> m_LoadedVertexArrays;
+
 		// Buffer for global matrices
 		UniformBuffer m_GlobalDataBuffer;
 
@@ -257,7 +271,7 @@ namespace LinaEngine::Graphics
 		uint32 m_SkyboxVAO;
 
 		// Quad VAO
-		uint32 m_QuadVAO;
+		VertexArray m_QuadVertexArray;
 
 		// Model loader.
 		ModelLoader m_ModelLoader;
