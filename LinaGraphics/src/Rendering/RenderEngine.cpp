@@ -159,17 +159,7 @@ namespace LinaEngine::Graphics
 		// Draw scene
 		DrawSceneObjects(true, m_RenderTarget.GetID());
 
-		// Draw screen quad.
-		m_RenderDevice.SetFBO(0);
-		
-		m_DefaultDrawParams.useDepthTest = false;
-		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
-		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_NONE;
-		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
-		m_RenderDevice.Clear(true, false, false, Color::White, 0xFF);
-		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &m_FrameBufferTexture, 0);
-		UpdateShaderData(&m_ScreenQuadMaterial);
-		m_RenderDevice.Draw(m_ScreenQuad, m_DefaultDrawParams, 0, 6, true);
+		DrawFullscreenQuad();
 
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
@@ -522,44 +512,114 @@ namespace LinaEngine::Graphics
 	void RenderEngine::SetupDrawParameters()
 	{
 		// Set default drawing parameters.
+		m_DefaultDrawParams.useScissorTest = false;
+		m_DefaultDrawParams.useDepthTest = true;
+		m_DefaultDrawParams.useStencilTest = true;
 		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
 		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
 		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
 		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;		
-		m_DefaultDrawParams.useDepthTest = true;
 		m_DefaultDrawParams.shouldWriteDepth = true;
 		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
+		m_DefaultDrawParams.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
+		m_DefaultDrawParams.stencilComparisonVal = 1;
+		m_DefaultDrawParams.stencilTestMask = 0xFF;
+		m_DefaultDrawParams.stencilWriteMask = 0xFF;
+		m_DefaultDrawParams.stencilFail = StencilOp::STENCIL_KEEP;
+		m_DefaultDrawParams.stencilPass = StencilOp::STENCIL_REPLACE;
+		m_DefaultDrawParams.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+		m_DefaultDrawParams.scissorStartX = 0;
+		m_DefaultDrawParams.scissorStartY = 0;
+		m_DefaultDrawParams.scissorWidth = 0;
+		m_DefaultDrawParams.scissorHeight = 0;
 
 		// Set render to fbo target draw parameters.	
+		m_FBOTextureDrawParameters.useScissorTest = false;
 		m_FBOTextureDrawParameters.useDepthTest = false;
-		m_FBOTextureDrawParameters.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
-		m_FBOTextureDrawParameters.destBlend = BlendFunc::BLEND_FUNC_NONE;
+		m_FBOTextureDrawParameters.useStencilTest = true;
+		m_FBOTextureDrawParameters.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
 		m_FBOTextureDrawParameters.faceCulling = FaceCulling::FACE_CULL_NONE;
+		m_FBOTextureDrawParameters.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
+		m_FBOTextureDrawParameters.destBlend = BLEND_FUNC_NONE;
+		m_FBOTextureDrawParameters.shouldWriteDepth = true;
+		m_FBOTextureDrawParameters.depthFunc = DrawFunc::DRAW_FUNC_LESS;
+		m_FBOTextureDrawParameters.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
+		m_FBOTextureDrawParameters.stencilComparisonVal = 1;
+		m_FBOTextureDrawParameters.stencilTestMask = 0xFF;
+		m_FBOTextureDrawParameters.stencilWriteMask = 0xFF;
+		m_FBOTextureDrawParameters.stencilFail = StencilOp::STENCIL_KEEP;
+		m_FBOTextureDrawParameters.stencilPass = StencilOp::STENCIL_REPLACE;
+		m_FBOTextureDrawParameters.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+		m_FBOTextureDrawParameters.scissorStartX = 0;
+		m_FBOTextureDrawParameters.scissorStartY = 0;
+		m_FBOTextureDrawParameters.scissorWidth = 0;
+		m_FBOTextureDrawParameters.scissorHeight = 0;
 
-		// Set skybox draw params.
+		// Set skybox draw params.	
+		m_SkyboxDrawParams.useScissorTest = false;
+		m_SkyboxDrawParams.useDepthTest = true;
+		m_SkyboxDrawParams.useStencilTest = true;
 		m_SkyboxDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
 		m_SkyboxDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
-		m_SkyboxDrawParams.useDepthTest = true;
+		m_SkyboxDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
+		m_SkyboxDrawParams.destBlend = BlendFunc::BLEND_FUNC_NONE;
 		m_SkyboxDrawParams.shouldWriteDepth = true;
 		m_SkyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
-		m_SkyboxDrawParams.useStencilTest = true;
+		m_SkyboxDrawParams.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
+		m_SkyboxDrawParams.stencilComparisonVal = 0;
+		m_SkyboxDrawParams.stencilTestMask = 0xFF;
 		m_SkyboxDrawParams.stencilWriteMask = 0xFF;
-		m_SkyboxDrawParams.stencilTestMask = 0XFF;
+		m_SkyboxDrawParams.stencilFail = StencilOp::STENCIL_KEEP;
+		m_SkyboxDrawParams.stencilPass = StencilOp::STENCIL_REPLACE;
+		m_SkyboxDrawParams.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+		m_SkyboxDrawParams.scissorStartX = 0;
+		m_SkyboxDrawParams.scissorStartY = 0;
+		m_SkyboxDrawParams.scissorWidth = 0;
+		m_SkyboxDrawParams.scissorHeight = 0;
 
 		// Set stencil draw params first pass.		
 		m_StencilOutlineDrawParams.useStencilTest = true;
-		m_StencilOutlineDrawParams.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_ALWAYS;
+		m_StencilOutlineDrawParams.useDepthTest = true;
+		m_StencilOutlineDrawParams.useScissorTest = false;
+		m_StencilOutlineDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
+		m_StencilOutlineDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
+		m_StencilOutlineDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
+		m_StencilOutlineDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+		m_StencilOutlineDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
+		m_StencilOutlineDrawParams.shouldWriteDepth = true;
 		m_StencilOutlineDrawParams.stencilComparisonVal = 1;
 		m_StencilOutlineDrawParams.stencilTestMask = 0xFF;
 		m_StencilOutlineDrawParams.stencilWriteMask = 0xFF;
-		
+		m_StencilOutlineDrawParams.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
+		m_StencilOutlineDrawParams.stencilFail = StencilOp::STENCIL_KEEP;
+		m_StencilOutlineDrawParams.stencilPass = StencilOp::STENCIL_REPLACE;
+		m_StencilOutlineDrawParams.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+		m_StencilOutlineDrawParams.scissorStartX = 0;
+		m_StencilOutlineDrawParams.scissorStartY = 0;
+		m_StencilOutlineDrawParams.scissorWidth = 0;
+		m_StencilOutlineDrawParams.scissorHeight = 0;
+
 		// Set stencil draw params second first pass.		
 		m_StencilOutlineDrawParams2.useStencilTest = true;
-		m_StencilOutlineDrawParams2.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_NOT_EQUAL;
+		m_StencilOutlineDrawParams2.useDepthTest = true;
+		m_StencilOutlineDrawParams2.useScissorTest = false;
+		m_StencilOutlineDrawParams2.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
+		m_StencilOutlineDrawParams2.faceCulling = FaceCulling::FACE_CULL_BACK;
+		m_StencilOutlineDrawParams2.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
+		m_StencilOutlineDrawParams2.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+		m_StencilOutlineDrawParams2.depthFunc = DrawFunc::DRAW_FUNC_LESS;
+		m_StencilOutlineDrawParams2.shouldWriteDepth = true;
 		m_StencilOutlineDrawParams2.stencilComparisonVal = 1;
 		m_StencilOutlineDrawParams2.stencilTestMask = 0xFF;
 		m_StencilOutlineDrawParams2.stencilWriteMask = 0x00;
-
+		m_StencilOutlineDrawParams2.stencilFunc = DrawFunc::DRAW_FUNC_NOT_EQUAL;
+		m_StencilOutlineDrawParams2.stencilFail = StencilOp::STENCIL_KEEP;
+		m_StencilOutlineDrawParams2.stencilPass = StencilOp::STENCIL_REPLACE;
+		m_StencilOutlineDrawParams2.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+		m_StencilOutlineDrawParams2.scissorStartX = 0;
+		m_StencilOutlineDrawParams2.scissorStartY = 0;
+		m_StencilOutlineDrawParams2.scissorWidth = 0;
+		m_StencilOutlineDrawParams2.scissorHeight = 0;
 	}
 
 	void RenderEngine::DumpMemory()
@@ -592,8 +652,8 @@ namespace LinaEngine::Graphics
 
 
 			// Draw scene.
-			m_MeshRendererSystem.FlushOpaque(m_DefaultDrawParams, nullptr, false);
-			m_MeshRendererSystem.FlushTransparent( m_DefaultDrawParams, nullptr, false);
+			m_MeshRendererSystem.FlushOpaque(m_StencilOutlineDrawParams, nullptr, false);
+			m_MeshRendererSystem.FlushTransparent(m_StencilOutlineDrawParams, nullptr, false);
 
 			// Set stencil draw params.
 			m_DefaultDrawParams.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_NOT_EQUAL;
@@ -603,8 +663,8 @@ namespace LinaEngine::Graphics
 			m_RenderDevice.SetDepthTestEnable(false);
 
 			// Draw scene.
-			m_MeshRendererSystem.FlushOpaque(m_DefaultDrawParams, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE], true);
-			m_MeshRendererSystem.FlushTransparent(m_DefaultDrawParams, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE], true);
+			m_MeshRendererSystem.FlushOpaque(m_StencilOutlineDrawParams2, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE], true);
+			m_MeshRendererSystem.FlushTransparent(m_StencilOutlineDrawParams2, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE], true);
 
 			// Reset stencil.
 			m_RenderDevice.SetStencilWriteMask(0xFF);
@@ -618,6 +678,29 @@ namespace LinaEngine::Graphics
 
 
 
+	}
+
+	void RenderEngine::DrawFullscreenQuad()
+	{
+		// Draw screen quad.
+		m_RenderDevice.SetFBO(0);
+
+		m_DefaultDrawParams.useDepthTest = false;
+		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
+		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_NONE;
+		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
+
+		// Clear color bit.
+		m_RenderDevice.Clear(true, false, false, Color::White, 0xFF);
+
+		// Set frame buffer texture on the material.
+		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &m_FrameBufferTexture, 0);
+
+		// update shader w/ material data.
+		UpdateShaderData(&m_ScreenQuadMaterial);
+
+		// Draw
+		m_RenderDevice.Draw(m_ScreenQuad, m_DefaultDrawParams, 0, 6, true);
 	}
 
 

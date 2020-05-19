@@ -202,6 +202,9 @@ namespace LinaEngine::Graphics
 		// Renders scene objects.
 		void DrawSceneObjects(bool useStencilOutlining, uint32 fbo);
 
+		// Draws a full screen quad from frame buffer texture.
+		void DrawFullscreenQuad();
+
 		// Updates related uniform buffers on GPU
 		void UpdateUniformBuffers();
 
