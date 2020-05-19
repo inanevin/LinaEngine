@@ -578,11 +578,16 @@ namespace LinaEngine::Graphics
 		GLenum attachmentTypeGL = attachment + attachmentNumber;
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, GL_TEXTURE_2D, texture, mipLevel);
 
+		// Err check
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			LINA_CORE_ERR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
+
 		// Define frame buffer object data and store it in our map.
 		FBOData data;
 		data.width = width;
 		data.height = height;
 		m_FBOMap[fbo] = data;
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		return fbo;
 	}
 
@@ -600,11 +605,16 @@ namespace LinaEngine::Graphics
 		// Set the render buffer object.
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, rboAttachment, GL_RENDERBUFFER, rbo);
 
+		// Err check
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			LINA_CORE_ERR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!"); 
+
 		// Define frame buffer object data and store it in our map.
 		FBOData data;
 		data.width = width;
 		data.height = height;
 		m_FBOMap[fbo] = data;
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		return fbo;
 	}
 
@@ -634,6 +644,7 @@ namespace LinaEngine::Graphics
 	uint32 GLRenderDevice::ReleaseRenderBufferObject(uint32 target)
 	{
 		glDeleteRenderbuffers(1, &target);
+		return 0;
 	}
 
 

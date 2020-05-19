@@ -93,7 +93,7 @@ namespace LinaEngine::Graphics
 		m_FrameBufferTexture.Construct(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, false, false, {FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT});
 
 		// Initialize the render target.
-		m_RenderTarget.Construct(m_RenderDevice, m_FrameBufferTexture, ATTACHMENT_COLOR);
+		m_RenderTarget.Construct(m_RenderDevice);
 
 		// Set default drawing parameters.
 		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
