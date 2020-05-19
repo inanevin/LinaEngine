@@ -34,6 +34,12 @@ namespace LinaEngine::Graphics
 
 		RenderTarget() {}
 
+		// Destructor releases the render target through render engine.
+		FORCEINLINE ~RenderTarget()
+		{
+			m_EngineBoundID = renderDevice->ReleaseRenderTarget(m_EngineBoundID);
+		}
+
 		FORCEINLINE void Construct(RenderDevice& renderDeviceIn)
 		{
 			renderDevice = &renderDeviceIn;
@@ -56,13 +62,6 @@ namespace LinaEngine::Graphics
 			m_RBO = rbo;
 			m_EngineBoundID = renderDevice->CreateRenderTarget(texture.GetID(), width, height, attachment, attachmentNumber, mipLevel, rboAttachment, rbo);
 			CheckCompressed(texture);
-		}
-
-
-		// Destructor releases the render target through render engine.
-		FORCEINLINE ~RenderTarget()
-		{
-			m_EngineBoundID = renderDevice->ReleaseRenderTarget(m_EngineBoundID);
 		}
 
 		// Check if the texture is compressed. It should not be so to properly create the target.

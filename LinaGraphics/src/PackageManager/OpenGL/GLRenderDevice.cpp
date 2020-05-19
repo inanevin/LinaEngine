@@ -97,6 +97,16 @@ namespace LinaEngine::Graphics
 		 1.0f, -1.0f,  1.0f
 	};
 
+	float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+		// positions   // texCoords
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		-1.0f, -1.0f,  0.0f, 0.0f,
+		 1.0f, -1.0f,  1.0f, 0.0f,
+
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		 1.0f, -1.0f,  1.0f, 0.0f,
+		 1.0f,  1.0f,  1.0f, 1.0f
+	};
 
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
@@ -254,6 +264,7 @@ namespace LinaEngine::Graphics
 			height /= 2;
 		}
 
+		glBindTexture(GL_TEXTURE_2D, 0);
 		return textureID;
 	}
 
@@ -296,6 +307,7 @@ namespace LinaEngine::Graphics
 		}
 
 
+		glBindTexture(GL_TEXTURE_2D, 0);
 		return textureHandle;
 	}
 
@@ -398,8 +410,14 @@ namespace LinaEngine::Graphics
 	}
 
 
-	uint32 GLRenderDevice::ReleaseVertexArray(uint32 vao)
+	uint32 GLRenderDevice::ReleaseVertexArray(uint32 vao, bool checkMap)
 	{
+		if (!checkMap)
+		{
+			glDeleteVertexArrays(1, &vao);
+			return 0;
+		}
+
 		// Terminate if vao is null or does not exist in our mapped objects.
 		if (vao == 0) return 0;
 		std::map<uint32, VertexArrayData>::iterator it = m_VAOMap.find(vao);
@@ -430,6 +448,22 @@ namespace LinaEngine::Graphics
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		return skyboxVAO;
+	}
+
+	uint32 GLRenderDevice::CreateScreenQuadVertexArray()
+	{
+		// screen quad VAO
+		unsigned int quadVAO, quadVBO;
+		glGenVertexArrays(1, &quadVAO);
+		glGenBuffers(1, &quadVBO);
+		glBindVertexArray(quadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+		return quadVAO;
 	}
 
 	// ---------------------------------------------------------------------
@@ -476,6 +510,7 @@ namespace LinaEngine::Graphics
 		glGenBuffers(1, &ubo);
 		glBindBuffer(GL_UNIFORM_BUFFER, ubo);
 		glBufferData(GL_UNIFORM_BUFFER, dataSize, data, usage);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 		return ubo;
 	}
 
@@ -813,10 +848,10 @@ namespace LinaEngine::Graphics
 		if (!drawArrays && numInstances == 0) return;
 
 		// Bind the render targets.
-		SetFBO(fbo);
+		//SetFBO(fbo);
 
 		// Ensure viewport is ok.
-		SetViewport(fbo);
+		//SetViewport(fbo);
 
 		// Set blend mode for each render target.
 		SetBlending(drawParams.sourceBlend, drawParams.destBlend);
@@ -878,21 +913,6 @@ namespace LinaEngine::Graphics
 			m_FBOMap[i].height = (int32)height;
 		}
 	}
-
-	void GLRenderDevice::DeactivateTextureUnit(uint32 unit)
-	{
-		glActiveTexture(GL_TEXTURE0+unit);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		//glDeleteTextures(1, &m_BoundTextures[unit]);
-		m_BoundTextures[unit] = 0;
-	}
-
-	void GLRenderDevice::DeactivateAllTextureUnits()
-	{
-		for (std::map<uint32, uint32>::iterator it = m_BoundTextures.begin(); it != m_BoundTextures.end(); ++it)
-			DeactivateTextureUnit(it->first);
-	}
-
 
 
 	void GLRenderDevice::UpdateShaderUniformFloat(uint32 shader, const std::string& uniform, const float f)

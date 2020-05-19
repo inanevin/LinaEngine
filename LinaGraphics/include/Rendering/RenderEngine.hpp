@@ -30,6 +30,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "ECS/Systems/MeshRendererSystem.hpp"
 #include "Rendering/ModelLoader.hpp"
 #include "Rendering/VertexArray.hpp"
+#include "Rendering/RenderBuffer.hpp"
 #include "Mesh.hpp"
 #include "UniformBuffer.hpp"
 #include "Window.hpp"
@@ -211,6 +212,12 @@ namespace LinaEngine::Graphics
 
 		// Default render target
 		RenderTarget m_RenderTarget;
+
+		// Default Render buffer
+		RenderBuffer m_RenderBuffer;
+
+		// Quad to draw the buffers into.
+		uint32 m_ScreenQuad;
 
 		// Default Framebuffer Texture
 		Texture m_FrameBufferTexture;

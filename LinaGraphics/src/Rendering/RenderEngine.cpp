@@ -59,6 +59,7 @@ namespace LinaEngine::Graphics
 
 		// Release Vertex Array Objects
 		m_SkyboxVAO = m_RenderDevice.ReleaseVertexArray(m_SkyboxVAO);
+		m_ScreenQuad = m_RenderDevice.ReleaseVertexArray(m_ScreenQuad);
 
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
@@ -92,7 +93,14 @@ namespace LinaEngine::Graphics
 		// Initialize frame buffer texture.
 		m_FrameBufferTexture.Construct(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, false, false, {FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT});
 
+		// Initialize render buffer.
+		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
+
+		// Construct screen quad.
+		m_ScreenQuad = m_RenderDevice.CreateScreenQuadVertexArray();
+
 		// Initialize the render target.
+		//m_RenderTarget.Construct(m_RenderDevice, m_FrameBufferTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_RenderBuffer.GetID());;
 		m_RenderTarget.Construct(m_RenderDevice);
 
 		// Set default drawing parameters.

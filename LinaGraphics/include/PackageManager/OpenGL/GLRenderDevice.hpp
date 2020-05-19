@@ -100,8 +100,11 @@ namespace LinaEngine::Graphics
 		// Creates a skybox vertex array.
 		uint32 CreateSkyboxVertexArray();
 
+		// Creates a vertex array for a screen quad
+		uint32 CreateScreenQuadVertexArray();
+
 		// Releases a previously created vertex array by id from GL.
-		uint32 ReleaseVertexArray(uint32 vao);
+		uint32 ReleaseVertexArray(uint32 vao, bool checkMap = true);
 
 		// Creates a texture sampler on GL.
 		uint32 CreateSampler(SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapU, SamplerWrapMode wrapV, float anisotropy);
@@ -170,10 +173,6 @@ namespace LinaEngine::Graphics
 		// Called when main window is resized.
 		void OnWindowResized(float width, float height);
 
-		void DeactivateTextureUnit(uint32 unit);
-
-		void DeactivateAllTextureUnits();
-
 		// Updates a float type uniform on a shader w/ given name.
 		void UpdateShaderUniformFloat(uint32 shader, const std::string& uniform, const float f);
 
@@ -198,15 +197,20 @@ namespace LinaEngine::Graphics
 		// Updates a mat4 type uniform on a shader with given name.
 		void UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, void* data);
 
+		// Sets stencil mask to specific value
 		void SetStencilWriteMask(uint32 mask);
+
+		// Enable/disable depth testing.
 		void SetDepthTestEnable(bool enable);
+
+		// Set target frame buffer object
+		void SetFBO(uint32 fbo);
 
 	private:
 
 		std::string GetShaderVersion();
 		uint32 GetVersion();
 		void SetVAO(uint32 vao);
-		void SetFBO(uint32 fbo);
 		void SetViewport(uint32 fbo);
 		void SetFaceCulling(FaceCulling faceCulling);
 		void SetDepthTest(bool shouldWrite, DrawFunc depthFunc);

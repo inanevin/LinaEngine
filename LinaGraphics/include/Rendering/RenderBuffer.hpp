@@ -32,17 +32,19 @@ namespace LinaEngine::Graphics
 	public:
 
 		RenderBuffer() {};
-		~RenderBuffer() { m_RBO = m_RenderDevice->ReleaseRenderBufferObject(m_RBO); };
+		~RenderBuffer() { m_ID = m_RenderDevice->ReleaseRenderBufferObject(m_ID); };
 		
 		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, RenderBufferStorage storage, uint32 width, uint32 height)
 		{
 			m_RenderDevice->CreateRenderBufferObject(storage, width, height);
 		}
 
+		FORCEINLINE uint32 GetID() { return m_ID; }
+
 	private:
 
 		RenderDevice* m_RenderDevice;
-		uint32 m_RBO;
+		uint32 m_ID;
 	};
 }
 
