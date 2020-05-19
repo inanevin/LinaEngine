@@ -158,7 +158,7 @@ namespace LinaEngine::Graphics
 
 		// Default GL settings.
 		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_STENCIL_TEST);
+		glEnable(GL_STENCIL_TEST);
 		glDisable(GL_BLEND);
 		glDisable(GL_CULL_FACE);
 		//glDepthFunc(GL_LESS);
@@ -820,11 +820,7 @@ namespace LinaEngine::Graphics
 		// Ensure viewport is ok.
 		//SetViewport(fbo);
 
-		SetDepthTest(drawParams.useDepthTest, drawParams.shouldWriteDepth, drawParams.depthFunc);
-
-
 		// Set blend mode for each render target.
-		SetBlending(drawParams.sourceBlend, drawParams.destBlend);
 		/*SetBlending(drawParams.sourceBlend, drawParams.destBlend);
 
 		//// Set scissors tests if required, face culling modes as well as depth tests.
@@ -833,9 +829,20 @@ namespace LinaEngine::Graphics
 
 		
 
-		SetStencilTest(drawParams.useStencilTest, drawParams.stencilFunc, drawParams.stencilTestMask, drawParams.stencilWriteMask, drawParams.stencilComparisonVal, drawParams.stencilFail, drawParams.stencilPassButDepthFail, drawParams.stencilPass);
 		*/
 		// use array buffer & attributes.
+
+		if (drawParams.useDepthTest)
+		{
+			SetDepthTestEnable(true);
+			SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
+		}
+		else
+			SetDepthTestEnable(false);
+
+		SetStencilTest(drawParams.useStencilTest, drawParams.stencilFunc, drawParams.stencilTestMask, drawParams.stencilWriteMask, drawParams.stencilComparisonVal, drawParams.stencilFail, drawParams.stencilPassButDepthFail, drawParams.stencilPass);
+
+
 		SetVAO(vao);
 
 		if (drawArrays)
@@ -854,10 +861,9 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void GLRenderDevice::Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
+	void GLRenderDevice::Clear( bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
 	{
 		// Make sure frame buffer objects are used.
-		//SetFBO(fbo);
 		uint32 flags = 0;
 
 		// Set flags according to options.
@@ -981,17 +987,8 @@ namespace LinaEngine::Graphics
 		m_UsedFaceCulling = faceCulling;
 	}
 
-	void GLRenderDevice::SetDepthTest(bool enabled, bool shouldWrite, DrawFunc depthFunc)
+	void GLRenderDevice::SetDepthTest(bool shouldWrite, DrawFunc depthFunc)
 	{
-		if (m_IsDepthTestEnabled != enabled)
-		{
-			if (enabled)
-				glEnable(GL_DEPTH_TEST);
-			else
-				glDisable(GL_DEPTH_TEST);
-
-			m_IsDepthTestEnabled = enabled;
-		}
 
 		// Toggle dept writing.
 		if (shouldWrite != m_ShouldWriteDepth)
@@ -1007,6 +1004,18 @@ namespace LinaEngine::Graphics
 		m_UsedDepthFunction = depthFunc;
 	}
 
+	void GLRenderDevice::SetDepthTestEnable(bool enable)
+	{
+		if (m_IsDepthTestEnabled != enable)
+		{
+			if (enable)
+				glEnable(GL_DEPTH_TEST);
+			else
+				glDisable(GL_DEPTH_TEST);
+
+			m_IsDepthTestEnabled = enable;
+		}
+	}
 	void GLRenderDevice::SetBlending(BlendFunc sourceBlend, BlendFunc destBlend)
 	{
 		// If no change is needed return.

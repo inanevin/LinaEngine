@@ -155,16 +155,17 @@ namespace LinaEngine::Graphics
 	void RenderEngine::Tick(float delta)
 	{
 
-		m_RenderDevice.SetFBO(m_RenderTarget.GetID());
-		//m_RenderDevice.SetDepthTestEnable(true);
+		//m_RenderDevice.SetFBO(0);
 		m_DefaultDrawParams.useDepthTest = true;
 		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
 		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+		m_RenderDevice.SetFBO(m_RenderTarget.GetID());
+
 		// Clear color.
-		m_RenderDevice.Clear(m_RenderTarget.GetID(), true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Draw skybox.
-		//DrawSkybox();
+		DrawSkybox();
 
 		// Update pipeline.
 		m_RenderingPipeline.UpdateSystems(delta);
@@ -173,15 +174,15 @@ namespace LinaEngine::Graphics
 		UpdateUniformBuffers();
 
 		// Draw scene
-		DrawSceneObjects(false, m_RenderTarget.GetID());
+		DrawSceneObjects(true, m_RenderTarget.GetID());
 
 		// Draw screen quad.
 		m_RenderDevice.SetFBO(0);
-		//
+		
 		m_DefaultDrawParams.useDepthTest = false;
 		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
 		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_NONE;
-		m_RenderDevice.Clear(0, true, false, false, Color::White, 0xFF);
+		m_RenderDevice.Clear(true, false, false, Color::White, 0xFF);
 		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &m_FrameBufferTexture, 0);
 		UpdateShaderData(&m_ScreenQuadMaterial);
 		m_RenderDevice.Draw(0, m_ScreenQuad, m_DefaultDrawParams, 0, 6, true);
@@ -572,7 +573,7 @@ namespace LinaEngine::Graphics
 			m_DefaultDrawParams.stencilComparisonVal = 1;
 			m_DefaultDrawParams.stencilTestMask = 0xFF;
 			m_DefaultDrawParams.stencilWriteMask = 0x00;
-			m_DefaultDrawParams.useDepthTest = false;
+			m_RenderDevice.SetDepthTestEnable(false);
 
 			// Draw scene.
 			m_MeshRendererSystem.FlushOpaque(fbo, m_DefaultDrawParams, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE], true);
@@ -580,7 +581,7 @@ namespace LinaEngine::Graphics
 
 			// Reset stencil.
 			m_RenderDevice.SetStencilWriteMask(0xFF);
-			m_DefaultDrawParams.useDepthTest = true;
+			m_RenderDevice.SetDepthTestEnable(true);
 		}
 		else
 		{
