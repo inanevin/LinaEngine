@@ -94,7 +94,7 @@ namespace LinaEngine::Graphics
 
 		// Set default drawing parameters.
 		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
+		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
 		m_DefaultDrawParams.shouldWriteDepth = true;
 		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
 
@@ -148,7 +148,7 @@ namespace LinaEngine::Graphics
 		UpdateUniformBuffers();
 
 		// Draw scene
-		DrawSceneObjects(false);
+		DrawSceneObjects(true);
 
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
@@ -523,9 +523,12 @@ namespace LinaEngine::Graphics
 			m_DefaultDrawParams.stencilComparisonVal = 1;
 			m_DefaultDrawParams.stencilTestMask = 0xFF;
 			m_DefaultDrawParams.stencilWriteMask = 0xFF;
+			m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
+			m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
 
 			// Draw scene.
-			m_MeshRendererSystem.FlushOpaque(m_DefaultDrawParams, false);
+			m_MeshRendererSystem.FlushOpaque(m_DefaultDrawParams, nullptr, false);
+			m_MeshRendererSystem.FlushTransparent(m_DefaultDrawParams, nullptr, false);
 
 			// Set stencil draw params.
 			m_DefaultDrawParams.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_NOT_EQUAL;
@@ -536,18 +539,19 @@ namespace LinaEngine::Graphics
 
 			// Draw scene.
 			m_MeshRendererSystem.FlushOpaque(m_DefaultDrawParams, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE], true);
+			m_MeshRendererSystem.FlushTransparent(m_DefaultDrawParams, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE], true);
 
 			// Reset stencil.
 			m_RenderDevice.SetStencilWriteMask(0xFF);
 			m_RenderDevice.SetDepthTestEnable(true);
 		}
 		else
+		{
 			m_MeshRendererSystem.FlushOpaque(m_DefaultDrawParams, nullptr, true);
-
-		// Draw semi-transparent
-		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
-		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
-		m_MeshRendererSystem.FlushTransparent(m_DefaultDrawParams, nullptr, true);
+			m_MeshRendererSystem.FlushTransparent(m_DefaultDrawParams, nullptr, true);
+		}
+			
+		
 
 	}
 
@@ -644,6 +648,7 @@ namespace LinaEngine::Graphics
 		{
 			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
 			material.floats[MC_OUTLINETHICKNESS] = 0.1f;
+			material.ints[MC_SURFACETYPE] = 0;
 		}
 
 

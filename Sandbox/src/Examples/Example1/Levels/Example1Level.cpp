@@ -282,7 +282,7 @@ void Example1Level::Initialize()
 
 	object1Transform.transform.scale = (Vector3(1));
 	object1Transform.transform.location = (Vector3(0.7f, 0, 5.5f));
-	object1Transform.transform.Rotate(90, 0, 0);
+	object1Transform.transform.Rotate(-90, 0, 0);
 
 
 
