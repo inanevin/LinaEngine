@@ -219,7 +219,10 @@ void Example1Level::Initialize()
 	for (int i = 0; i < cubeSize; i++)
 	{
 		ECSEntity entity;
-		object1Renderer.material = objectLitMaterial;
+		if(i < 3)
+		object1Renderer.material = objectTransparentMaterial;
+		else
+			object1Renderer.material = objectLitMaterial;
 		//object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
 		object1Transform.transform.location = cubePositions[i];
 		entity.entity = m_ECS->reg.create();
