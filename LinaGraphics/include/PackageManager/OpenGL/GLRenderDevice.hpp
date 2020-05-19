@@ -202,9 +202,6 @@ namespace LinaEngine::Graphics
 		// Sets stencil mask to specific value
 		void SetStencilWriteMask(uint32 mask);
 
-		// Enable/disable depth testing.
-		void SetDepthTestEnable(bool enable);
-
 		// Set frame buffer object.
 		void SetFBO(uint32 fbo);
 
@@ -219,7 +216,7 @@ namespace LinaEngine::Graphics
 		void SetRBO(uint32 rbo);
 		void SetViewport(uint32 fbo);
 		void SetFaceCulling(FaceCulling faceCulling);
-		void SetDepthTest(bool shouldWrite, DrawFunc depthFunc);
+		void SetDepthTest(bool enabled, bool shouldWrite, DrawFunc depthFunc);
 		void SetBlending(BlendFunc sourceBlend, BlendFunc destBlend);
 		void SetStencilTest(bool enable, DrawFunc stencilFunc, uint32 stencilTestMask, uint32 stencilWriteMask, int32 stencilComparisonVal, StencilOp stencilFail, StencilOp stencilPassButDepthFail, StencilOp stencilPass);
 		void SetScissorTest(bool enable, uint32 startX = 0, uint32 startY = 0, uint32 width = 0, uint32 height = 0);
