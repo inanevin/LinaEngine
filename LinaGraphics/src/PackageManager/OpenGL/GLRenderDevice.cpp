@@ -157,16 +157,16 @@ namespace LinaEngine::Graphics
 		m_FBOMap[0] = fboWindowData;
 
 		// Default GL settings.
-		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_STENCIL_TEST);
 		glEnable(GL_BLEND);
-		glDisable(GL_CULL_FACE);
+		glEnable(GL_CULL_FACE);
 		glDepthFunc(GL_LESS);
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-		//glFrontFace(GL_CW);
+		glFrontFace(GL_CW);
 
-		m_IsDepthTestEnabled = false;
+		m_IsDepthTestEnabled = true;
 		m_UsedDepthFunction = DrawFunc::DRAW_FUNC_LESS;
 		m_usedStencilFail = StencilOp::STENCIL_KEEP;
 		m_UsedStencilPassButDepthFail = StencilOp::STENCIL_KEEP;
@@ -809,30 +809,15 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 
 
-	void GLRenderDevice::Draw(uint32 fbo, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements, bool drawArrays)
+	void GLRenderDevice::Draw(uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements, bool drawArrays)
 	{
 		// No need to draw nothin dude.
 		if (!drawArrays && numInstances == 0) return;
 
-		// Bind the render targets.
-		//SetFBO(fbo);
-
-		// Ensure viewport is ok.
-		//SetViewport(fbo);
-
-		SetBlending(drawParams.sourceBlend, drawParams.destBlend);
-
-		// Set blend mode for each render target.
-		/*
-
-		//// Set scissors tests if required, face culling modes as well as depth tests.
-		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
+		// Setup draw parameters.
 		SetFaceCulling(drawParams.faceCulling);
-
-		
-
-		*/
-		// use array buffer & attributes.
+		SetBlending(drawParams.sourceBlend, drawParams.destBlend);
+		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
 
 		if (drawParams.useDepthTest)
 		{
@@ -844,13 +829,11 @@ namespace LinaEngine::Graphics
 
 		SetStencilTest(drawParams.useStencilTest, drawParams.stencilFunc, drawParams.stencilTestMask, drawParams.stencilWriteMask, drawParams.stencilComparisonVal, drawParams.stencilFail, drawParams.stencilPassButDepthFail, drawParams.stencilPass);
 
-
+		// Set vao & draw
 		SetVAO(vao);
 
 		if (drawArrays)
-		{
 			glDrawArrays(GL_TRIANGLES, 0, numElements);
-		}
 		else
 		{
 			// 1 object or instanced draw calls?

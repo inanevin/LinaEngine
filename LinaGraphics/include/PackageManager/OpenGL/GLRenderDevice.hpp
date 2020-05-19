@@ -167,7 +167,7 @@ namespace LinaEngine::Graphics
 		void UpdateUniformBuffer(uint32 buffer, const void* data, uintptr dataSize);
 
 		// Actual drawing process for meshes.
-		void Draw(uint32 fbo, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements, bool drawArrays = false);
+		void Draw(uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements, bool drawArrays = false);
 
 		// Clears context.
 		void Clear(bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const class Color& color, uint32 stencil);

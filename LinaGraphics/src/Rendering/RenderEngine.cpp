@@ -160,6 +160,7 @@ namespace LinaEngine::Graphics
 		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
 		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
 		m_RenderDevice.SetFBO(m_RenderTarget.GetID());
+		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
 
 		// Clear color.
 		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
@@ -182,10 +183,11 @@ namespace LinaEngine::Graphics
 		m_DefaultDrawParams.useDepthTest = false;
 		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
 		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_NONE;
+		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
 		m_RenderDevice.Clear(true, false, false, Color::White, 0xFF);
 		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &m_FrameBufferTexture, 0);
 		UpdateShaderData(&m_ScreenQuadMaterial);
-		m_RenderDevice.Draw(0, m_ScreenQuad, m_DefaultDrawParams, 0, 6, true);
+		m_RenderDevice.Draw(m_ScreenQuad, m_DefaultDrawParams, 0, 6, true);
 
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
@@ -548,7 +550,7 @@ namespace LinaEngine::Graphics
 		if (m_SkyboxMaterial != nullptr)
 		{
 			UpdateShaderData(m_SkyboxMaterial);
-			m_RenderDevice.Draw(m_RenderTarget.GetID(), m_SkyboxVAO, m_SkyboxDrawParams, 1, 36, true);
+			m_RenderDevice.Draw(m_SkyboxVAO, m_SkyboxDrawParams, 1, 36, true);
 		}
 	}
 
@@ -565,8 +567,8 @@ namespace LinaEngine::Graphics
 
 
 			// Draw scene.
-			m_MeshRendererSystem.FlushOpaque(fbo, m_DefaultDrawParams, nullptr, false);
-			m_MeshRendererSystem.FlushTransparent(fbo, m_DefaultDrawParams, nullptr, false);
+			m_MeshRendererSystem.FlushOpaque(m_DefaultDrawParams, nullptr, false);
+			m_MeshRendererSystem.FlushTransparent( m_DefaultDrawParams, nullptr, false);
 
 			// Set stencil draw params.
 			m_DefaultDrawParams.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_NOT_EQUAL;
@@ -576,8 +578,8 @@ namespace LinaEngine::Graphics
 			m_RenderDevice.SetDepthTestEnable(false);
 
 			// Draw scene.
-			m_MeshRendererSystem.FlushOpaque(fbo, m_DefaultDrawParams, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE], true);
-			m_MeshRendererSystem.FlushTransparent(fbo, m_DefaultDrawParams, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE], true);
+			m_MeshRendererSystem.FlushOpaque(m_DefaultDrawParams, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE], true);
+			m_MeshRendererSystem.FlushTransparent(m_DefaultDrawParams, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE], true);
 
 			// Reset stencil.
 			m_RenderDevice.SetStencilWriteMask(0xFF);
@@ -585,8 +587,8 @@ namespace LinaEngine::Graphics
 		}
 		else
 		{
-			m_MeshRendererSystem.FlushOpaque(fbo, m_DefaultDrawParams, nullptr, true);
-			m_MeshRendererSystem.FlushTransparent(fbo, m_DefaultDrawParams, nullptr, true);
+			m_MeshRendererSystem.FlushOpaque(m_DefaultDrawParams, nullptr, true);
+			m_MeshRendererSystem.FlushTransparent(m_DefaultDrawParams, nullptr, true);
 		}
 
 

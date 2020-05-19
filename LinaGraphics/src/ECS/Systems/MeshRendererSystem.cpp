@@ -95,7 +95,7 @@ namespace LinaEngine::ECS
 		m_TransparentRenderBatch.emplace(std::make_pair(drawData, modelData));	
 	}
 
-	void MeshRendererSystem::FlushOpaque(uint32 fbo, Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
+	void MeshRendererSystem::FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
 	{
 		for (std::map<Graphics::BatchDrawData, Graphics::BatchModelData>::iterator it = m_OpaqueRenderBatch.begin(); it != m_OpaqueRenderBatch.end(); ++it)
 		{
@@ -122,7 +122,7 @@ namespace LinaEngine::ECS
 			m_RenderEngine->UpdateShaderData(mat);
 
 			// Draw
-			m_RenderDevice->Draw(fbo, vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
+			m_RenderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
 
 			// Clear the buffer.
 			if (completeFlush)
@@ -133,7 +133,7 @@ namespace LinaEngine::ECS
 		}
 	}
 
-	void MeshRendererSystem::FlushTransparent(uint32 fbo, Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
+	void MeshRendererSystem::FlushTransparent(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
 	{
 
 		// Empty out the queue
@@ -162,7 +162,7 @@ namespace LinaEngine::ECS
 			m_RenderEngine->UpdateShaderData(mat);
 
 			// Draw
-			m_RenderDevice->Draw(fbo, vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
+			m_RenderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
 
 			// Clear the buffer.
 			if (completeFlush)
