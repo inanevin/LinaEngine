@@ -29,6 +29,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "Utility/UtilityFunctions.hpp"
 #include "PackageManager/OpenGL/GLRenderDevice.hpp"
 #include "Core/Layer.hpp"
+#include "rendering/Primitives.hpp"
 
 
 
@@ -88,7 +89,7 @@ namespace LinaEngine::Graphics
 		ConstructEngineMaterials();
 
 		// Initialize engine vertex arrays.
-		ConstructEngineVertexArrays();
+		ConstructEnginePrimitives();
 
 		// Initialize the render target.
 		m_RenderTarget.Construct(m_RenderDevice);
@@ -122,16 +123,12 @@ namespace LinaEngine::Graphics
 		// Initialize ECS Mesh Renderer System
 		m_MeshRendererSystem.Construct(ecsReg, *this, m_RenderDevice, m_RenderTarget);
 
-		// Initialize ECS quad renderer system
-		m_QuadRendererSystem.Construct(ecsReg, m_RenderDevice, *this, m_LoadedVertexArrays[VertexArrays::QUAD].GetID(), m_RenderTarget.GetID());
-
 		// Initialize ECS Lighting system.
 		m_LightingSystem.Construct(ecsReg, m_RenderDevice, *this);
 
 		// Add the ECS systems into the pipeline.
 		m_RenderingPipeline.AddSystem(m_CameraSystem);
 		m_RenderingPipeline.AddSystem(m_MeshRendererSystem);
-		m_RenderingPipeline.AddSystem(m_QuadRendererSystem);
 		m_RenderingPipeline.AddSystem(m_LightingSystem);
 
 		// Set debug values.
@@ -259,8 +256,11 @@ namespace LinaEngine::Graphics
 
 			mesh.GetIndexedModels();
 			if (mesh.GetIndexedModels().size() == 0)
-				LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! This will cause undefined behaviour or crashes if it is assigned to a ECS MeshRendererComponent."
-					, filePath);
+			{
+				LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning primitive quad...", filePath);
+				UnloadMeshResource(filePath);
+				return GetPrimitive(Primitives::QUAD);
+			}
 
 			// Create vertex array for each mesh.
 			for (uint32 i = 0; i < mesh.GetIndexedModels().size(); i++)
@@ -282,6 +282,41 @@ namespace LinaEngine::Graphics
 
 	}
 
+	Mesh& RenderEngine::CreatePrimitive(Primitives primitive, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords)
+	{
+		if (!PrimitiveExists(primitive))
+		{
+
+			// Create object data & feed it from model.
+			Mesh& mesh = m_LoadedPrimitives[primitive];
+			m_ModelLoader.LoadPrimitive(mesh.GetIndexedModels(), vertexSize, indicesSize, vertices, indices, texCoords);
+
+			mesh.GetIndexedModels();
+			if (mesh.GetIndexedModels().size() == 0)
+			{
+				LINA_CORE_ERR("Indexed model array is empty! Primitive {0} could not be loaded, returning empty mesh", primitive);
+				return Mesh();
+			}
+
+			// Create vertex array for each mesh.
+			for (uint32 i = 0; i < mesh.GetIndexedModels().size(); i++)
+			{
+				VertexArray* vertexArray = new VertexArray();
+				vertexArray->Construct(m_RenderDevice, mesh.GetIndexedModels()[i], BufferUsage::USAGE_STATIC_COPY);
+				mesh.GetVertexArrays().push_back(vertexArray);
+			}
+
+			// Return
+			return m_LoadedPrimitives[primitive];
+		}
+		else
+		{
+			// Mesh with this name already exists!
+			LINA_CORE_ERR("Primitive with the ID{0} already exists, returning that...", primitive);
+			return m_LoadedPrimitives[primitive];
+		}
+	}
+
 	Shader& RenderEngine::CreateShader(Shaders shader, const std::string& path)
 	{
 		// Create shader
@@ -296,24 +331,6 @@ namespace LinaEngine::Graphics
 			// Shader with this name already exists!
 			LINA_CORE_WARN("Shader with the id {0} already exists, returning that...", shader);
 			return m_LoadedShaders[shader];
-		}
-	}
-
-	VertexArray& RenderEngine::CreateVertexArray(VertexArrays va)
-	{
-		if (!VertexArrayExists(va))
-		{
-			
-			if (va == VertexArrays::QUAD)
-				return m_LoadedVertexArrays[va].Construct(m_RenderDevice, std::bind(&RenderDevice::CreateQuadVertexArray, m_RenderDevice), 36);
-			else
-				return m_LoadedVertexArrays[va];
-		}
-		else
-		{
-			// VA with this name already exists!
-			LINA_CORE_WARN("VA with the id {0} already exists, returning that...", va);
-			return m_LoadedVertexArrays[va];
 		}
 	}
 
@@ -359,23 +376,23 @@ namespace LinaEngine::Graphics
 		if (!ShaderExists(shader))
 		{
 			// Shader not found.
-			LINA_CORE_ERR("Shader with the name ID {0} was not found, returning standardLitShader", shader);
+			LINA_CORE_ERR("Shader with the ID {0} was not found, returning standardLitShader", shader);
 			return GetShader(Shaders::STANDARD_LIT);
 		}
 
 		return m_LoadedShaders[shader];
 	}
 
-	VertexArray& RenderEngine::GetVertexArray(VertexArrays va)
+	Mesh& RenderEngine::GetPrimitive(Primitives primitive)
 	{
-		if (!VertexArrayExists(va))
+		if (!PrimitiveExists(primitive))
 		{
 			// VA not found.
-			LINA_CORE_ERR("VA with the name ID {0} was not found, returning quad va.", va);
-			return GetVertexArray(VertexArrays::QUAD);
+			LINA_CORE_ERR("Primitive with the ID {0} was not found, returning quad va.", primitive);
+			return GetPrimitive(Primitives::QUAD);
 		}
 		else
-			return m_LoadedVertexArrays[va];
+			return m_LoadedPrimitives[primitive];
 	}
 
 	void RenderEngine::UnloadTextureResource(const std::string& textureName)
@@ -431,9 +448,9 @@ namespace LinaEngine::Graphics
 		return !(m_LoadedShaders.find(shader) == m_LoadedShaders.end());
 	}
 
-	bool RenderEngine::VertexArrayExists(VertexArrays va)
+	bool RenderEngine::PrimitiveExists(Primitives primitive)
 	{
-		return !(m_LoadedVertexArrays.find(va) == m_LoadedVertexArrays.end());
+		return !(m_LoadedPrimitives.find(primitive) == m_LoadedPrimitives.end());
 	}
 
 
@@ -471,10 +488,10 @@ namespace LinaEngine::Graphics
 		m_LoadedMaterials[MAT_LINASTENCILOUTLINE].colors[MC_OBJECTCOLORPROPERTY] = Color::Red;
 	}
 
-	void RenderEngine::ConstructEngineVertexArrays()
+	void RenderEngine::ConstructEnginePrimitives()
 	{
-		// Quad
-		CreateVertexArray(VertexArrays::QUAD);
+		// Primitives
+		CreatePrimitive(Primitives::QUAD, VS_QUAD, IS_QUAD, VB_QUAD, IB_QUAD, TC_QUAD);
 	}
 
 	void RenderEngine::DumpMemory()

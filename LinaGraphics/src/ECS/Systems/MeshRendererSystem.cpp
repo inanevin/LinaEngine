@@ -46,47 +46,25 @@ namespace LinaEngine::ECS
 				continue;
 			}
 
-			if (renderer.componentType == Graphics::RendererComponentDrawType::Mesh && renderer.mesh == nullptr)
+			if (renderer.mesh == nullptr)
 			{
-				LINA_CORE_ERR("Renderer component's draw type is Mesh but no mesh is assigned, no drawing will occur for this.");
-				continue;
-			}
-
-			if (renderer.componentType == Graphics::RendererComponentDrawType::VertexArray && renderer.vertexArray == nullptr)
-			{
-				LINA_CORE_ERR("Renderer component's draw type is VertexArray but no vertex array is assigned, no drawing will occur for this.");
+				LINA_CORE_ERR("Renderer component's has no mesh is assigned, no drawing will occur for this.");
 				continue;
 			}
 
 			// Render different batches.
 			if (renderer.material->GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
 			{
-				// Either get the mesh to render or the bound vertex array.
-				if (renderer.componentType == Graphics::RendererComponentDrawType::Mesh)
-				{
-					for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
-						RenderOpaque(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix(), renderer.mesh->GetVertexArray(i)->GetDrawArrays());
-				}
-				else if (renderer.componentType == Graphics::RendererComponentDrawType::VertexArray)
-				{
-					RenderOpaque(*renderer.vertexArray, *renderer.material, transform.transform.ToMatrix(), renderer.vertexArray->GetDrawArrays());
-				}
+				for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
+					RenderOpaque(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix(), renderer.mesh->GetVertexArray(i)->GetDrawArrays());
 			}
 			else
 			{
 				// Set the priority as distance to the camera.
 				float priority = (m_RenderEngine->GetCameraSystem().GetCameraLocation() - transform.transform.location).MagnitudeSqrt();
 
-				// Either get the mesh to render or the bound vertex array.
-				if (renderer.componentType == Graphics::RendererComponentDrawType::Mesh)
-				{
-					for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
-						RenderTransparent(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix(), renderer.mesh->GetVertexArray(i)->GetDrawArrays(), priority);
-				}
-				else if (renderer.componentType == Graphics::RendererComponentDrawType::VertexArray)
-				{
-					RenderTransparent(*renderer.vertexArray, *renderer.material, transform.transform.ToMatrix(), renderer.vertexArray->GetDrawArrays(), priority);
-				}
+				for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
+					RenderTransparent(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix(), renderer.mesh->GetVertexArray(i)->GetDrawArrays(), priority);
 			}
 		}
 

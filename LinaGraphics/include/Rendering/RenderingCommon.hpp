@@ -205,7 +205,7 @@ namespace LinaEngine::Graphics
 		Transparent = 1
 	};
 
-	enum VertexArrays
+	enum Primitives
 	{
 		QUAD = 0,
 		PLANE = 1,
@@ -238,6 +238,8 @@ namespace LinaEngine::Graphics
 			m_Height = height;
 		}
 	};
+
+
 }
 
 

@@ -33,11 +33,7 @@ namespace LinaEngine
 		class Material;
 		class VertexArray;
 
-		enum class RendererComponentDrawType
-		{
-			Mesh,
-			VertexArray
-		};
+
 	}
 
 	
@@ -47,10 +43,8 @@ namespace LinaEngine::ECS
 {
 	struct MeshRendererComponent
 	{
-		LinaEngine::Graphics::RendererComponentDrawType componentType = LinaEngine::Graphics::RendererComponentDrawType::Mesh;
 		LinaEngine::Graphics::Mesh* mesh = nullptr;
 		LinaEngine::Graphics::Material* material = nullptr;
-		LinaEngine::Graphics::VertexArray* vertexArray = nullptr;
 	};
 }
 

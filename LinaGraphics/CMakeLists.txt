@@ -58,6 +58,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/Sampler.hpp
 	include/Rendering/UniformBuffer.hpp
 	include/Rendering/RenderTarget.hpp
+	include/Rendering/Primitives.hpp
 	include/Rendering/Mesh.hpp
 	include/Rendering/RenderingCommon.hpp
 	include/Rendering/RenderConstants.hpp

@@ -126,12 +126,12 @@ namespace LinaEngine::Graphics
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing mesh. </param>
 		Mesh& CreateMesh(const std::string& filePath);
 
+		/// <summary> Creates a primitive resource. </summary>
+		Mesh& CreatePrimitive(Primitives primitive, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords);
+
 		/// <summary> Creates a shader resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing shader. </param>
 		Shader& CreateShader(Shaders shader, const std::string& path);
-
-		/// <summary> Creates a vertex array resource. </summary>
-		VertexArray& CreateVertexArray(VertexArrays va);
 
 		// Returns a material resource.
 		Material& GetMaterial(const std::string& materialName);
@@ -146,7 +146,7 @@ namespace LinaEngine::Graphics
 		Shader& GetShader(Shaders shader);
 
 		// Returns a vertex array resource
-		VertexArray& GetVertexArray(VertexArrays va);
+		Mesh& GetPrimitive(Primitives primitive);
 
 		// Removes the targeted resource from resource map.
 		void UnloadTextureResource(const std::string& textureName);
@@ -162,7 +162,7 @@ namespace LinaEngine::Graphics
 		bool TextureExists(const std::string& textureName);
 		bool MeshExists(const std::string& meshName);
 		bool ShaderExists(Shaders shader);
-		bool VertexArrayExists(VertexArrays va);
+		bool PrimitiveExists(Primitives primitive);
 
 		// Sets the shader of a material to the shader specified by name. Also resets material properties based on the shader, caution!
 		Material& SetMaterialShader(Material& material, Shaders shader);
@@ -188,7 +188,7 @@ namespace LinaEngine::Graphics
 		void ConstructEngineMaterials();
 
 		// Constructs engine vertex arrays
-		void ConstructEngineVertexArrays();
+		void ConstructEnginePrimitives();
 
 		// clears resource memory.
 		void DumpMemory();
@@ -231,9 +231,6 @@ namespace LinaEngine::Graphics
 		// ECS system for handling lighting
 		LinaEngine::ECS::LightingSystem m_LightingSystem;
 
-		// ECS system for drawing quads
-		LinaEngine::ECS::QuadRendererSystem m_QuadRendererSystem;
-
 		// ECS system list for rendering operations.
 		LinaEngine::ECS::ECSSystemList m_RenderingPipeline;
 
@@ -243,14 +240,14 @@ namespace LinaEngine::Graphics
 		// Model resources
 		std::map<std::string, Mesh> m_LoadedMeshes;
 
+		// Primitive resources
+		std::map<int, Mesh> m_LoadedPrimitives;
+
 		// Material storage
 		std::map<std::string, Material> m_LoadedMaterials;
 
 		// Map that stores shader ID's by name
 		std::map<int, Shader> m_LoadedShaders;
-
-		// Map to store engine vertex arrays.
-		std::map<int, VertexArray> m_LoadedVertexArrays;
 
 		// Buffer for global matrices
 		UniformBuffer m_GlobalDataBuffer;
