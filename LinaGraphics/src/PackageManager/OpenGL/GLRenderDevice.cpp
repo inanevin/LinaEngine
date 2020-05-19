@@ -175,7 +175,8 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 
 
-	uint32 GLRenderDevice::CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress)
+	uint32 GLRenderDevice::CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress
+	, SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapS, SamplerWrapMode wrapT)
 	{
 		// Declare formats, target & handle for the texture.
 		GLint format = GetOpenGLFormat(pixelDataFormat);
@@ -188,10 +189,10 @@ namespace LinaEngine::Graphics
 		glBindTexture(textureTarget, textureHandle);
 
 		// OpenGL texture params.
-		glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameterf(textureTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, minFilter);
+		glTexParameterf(textureTarget, GL_TEXTURE_MAG_FILTER, magFilter);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, wrapS);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, wrapT);
 		glTexImage2D(textureTarget, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 
 		// Enable mipmaps if needed.
