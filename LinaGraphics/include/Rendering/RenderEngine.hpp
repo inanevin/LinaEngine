@@ -28,7 +28,6 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "ECS/Systems/CameraSystem.hpp"
 #include "ECS/Systems/LightingSystem.hpp"
 #include "ECS/Systems/MeshRendererSystem.hpp"
-#include "ECS/Systems/QuadRendererSystem.hpp"
 #include "Rendering/ModelLoader.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Mesh.hpp"

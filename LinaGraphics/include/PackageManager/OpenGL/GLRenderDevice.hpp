@@ -99,12 +99,6 @@ namespace LinaEngine::Graphics
 		// Creates a skybox vertex array.
 		uint32 CreateSkyboxVertexArray();
 
-		// Creates a quad vertex array.
-		uint32 CreateQuadVertexArray();
-
-		// Creates a cube vertex array
-		uint32 CreateCubeVertexArray();
-
 		// Releases a previously created vertex array by id from GL.
 		uint32 ReleaseVertexArray(uint32 vao);
 

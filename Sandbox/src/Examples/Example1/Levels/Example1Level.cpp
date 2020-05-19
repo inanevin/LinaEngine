@@ -26,7 +26,6 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
-#include "ECS/Components/QuadRendererComponent.hpp"
 #include <entt/entity/registry.hpp>
 #include "Rendering/RenderEngine.hpp"
 #include "Core/Application.hpp"
@@ -197,7 +196,7 @@ void Example1Level::Initialize()
 
 	objectTransparentMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &window, 0);
 	//objectTransparentMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, &window, 0);
-	objectTransparentMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
+	objectTransparentMaterial->SetSurfaceType(MaterialSurfaceType::Transparent);
 
 	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(0, 0, 1));
 	objectUnlitMaterial2->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 0, 0));
@@ -220,7 +219,7 @@ void Example1Level::Initialize()
 	for (int i = 0; i < cubeSize; i++)
 	{
 		ECSEntity entity;
-		object1Renderer.material = objectTransparentMaterial;
+		object1Renderer.material = objectLitMaterial;
 		//object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
 		object1Transform.transform.location = cubePositions[i];
 		entity.entity = m_ECS->reg.create();
@@ -292,15 +291,15 @@ void Example1Level::Initialize()
 	
 	object1Transform.transform.scale = (Vector3(1));
 	object1Transform.transform.location = (Vector3(0.7f, 0, 5.5f));
-	object1Transform.transform.Rotate(180, 0,0);
+	object1Transform.transform.Rotate(90, 0,0);
 
 
 	
 	quad.entity = m_ECS->reg.create();
 	m_ECS->reg.emplace<TransformComponent>(quad.entity, object1Transform);
 	MeshRendererComponent quadR;
-	quadR.material = objectLitMaterial;
-	quadR.mesh = &m_RenderEngine->GetPrimitive(Primitives::QUAD);
+	quadR.material = quadMaterial;
+	quadR.mesh = &m_RenderEngine->GetPrimitive(Primitives::PLANE);
 	m_ECS->reg.emplace<MeshRendererComponent>(quad.entity, quadR);
 	
 	object1Transform.transform.location = (Vector3(-2.5f, 0, 11.0f));

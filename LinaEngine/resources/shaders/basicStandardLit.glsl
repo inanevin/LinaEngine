@@ -160,9 +160,9 @@ void main()
 		fragColor = vec4(vec3(depth), 1);
 	}
 	else
-		{
-			float alpha = material.surfaceType == 0 ? 1.0 : texture(material.diffuse, TexCoords).a;
-			fragColor = vec4(result, alpha);
-		}
+	{
+		float alpha = material.surfaceType == 0 ? 1.0 : texture(material.diffuse, TexCoords).a;
+		fragColor = vec4(result, alpha);
+	}
 }
 #endif

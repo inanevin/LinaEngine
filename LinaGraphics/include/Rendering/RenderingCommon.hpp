@@ -207,13 +207,12 @@ namespace LinaEngine::Graphics
 
 	enum Primitives
 	{
-		QUAD = 0,
-		PLANE = 1,
-		CUBE = 2,
-		SPHERE = 3,
-		ICOSPHERE = 4,
-		CONE = 5,
-		CYLINDER = 6
+		PLANE = 0,
+		CUBE = 1,
+		SPHERE = 2,
+		ICOSPHERE = 3,
+		CONE = 4,
+		CYLINDER = 5
 	};
 
 	/* Struct containing basic data about window properties. */

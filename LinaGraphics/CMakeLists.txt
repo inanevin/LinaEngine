@@ -33,7 +33,6 @@ set (LINAGRAPHICS_SOURCES
 	src/PackageManager/OpenGL/GLWindow.cpp
 	
 	src/ECS/Systems/MeshRendererSystem.cpp
-	src/ECS/Systems/QuadRendererSystem.cpp
 	src/ECS/Systems/CameraSystem.cpp
 	src/ECS/Systems/LightingSystem.cpp
 )
@@ -58,7 +57,6 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/Sampler.hpp
 	include/Rendering/UniformBuffer.hpp
 	include/Rendering/RenderTarget.hpp
-	include/Rendering/Primitives.hpp
 	include/Rendering/Mesh.hpp
 	include/Rendering/RenderingCommon.hpp
 	include/Rendering/RenderConstants.hpp
@@ -72,11 +70,9 @@ set(LINAGRAPHICS_HEADERS
 	include/ECS/Systems/CameraSystem.hpp
 	include/ECS/Systems/MeshRendererSystem.hpp
 	include/ECS/Systems/LightingSystem.hpp
-	include/ECS/Systems/QuadRendererSystem.hpp
 	include/ECS/Components/MeshRendererComponent.hpp
 	include/ECS/Components/CameraComponent.hpp
 	include/ECS/Components/LightComponent.hpp
-	include/ECS/Components/QuadRendererComponent.hpp
 	
 	include/Utility/stb/stb.h
 	include/Utility/stb/stb_c_lexer.h

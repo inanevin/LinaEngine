@@ -29,7 +29,6 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "Utility/UtilityFunctions.hpp"
 #include "PackageManager/OpenGL/GLRenderDevice.hpp"
 #include "Core/Layer.hpp"
-#include "rendering/Primitives.hpp"
 
 
 namespace LinaEngine::Graphics
@@ -255,9 +254,9 @@ namespace LinaEngine::Graphics
 
 			if (mesh.GetIndexedModels().size() == 0)
 			{
-				LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning primitive quad...", filePath);
+				LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad...", filePath);
 				UnloadMeshResource(filePath);
-				return GetPrimitive(Primitives::QUAD);
+				return GetPrimitive(Primitives::PLANE);
 			}
 
 			// Create vertex array for each mesh.
@@ -386,8 +385,8 @@ namespace LinaEngine::Graphics
 		if (!PrimitiveExists(primitive))
 		{
 			// VA not found.
-			LINA_CORE_ERR("Primitive with the ID {0} was not found, returning quad va.", primitive);
-			return GetPrimitive(Primitives::QUAD);
+			LINA_CORE_ERR("Primitive with the ID {0} was not found, returning plane...", primitive);
+			return GetPrimitive(Primitives::PLANE);
 		}
 		else
 			return m_LoadedPrimitives[primitive];
