@@ -109,9 +109,7 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 	renderEngine->SetSkyboxMaterial(mat);
 }
 Material* objectLitMaterial;
-Material* objectTransparentMaterial;
 Material* objectUnlitMaterial;
-Material* objectUnlitMaterial2;
 Material* quadMaterial;
 
 Vector3 cubePositions[] = {
@@ -168,20 +166,6 @@ void Example1Level::Initialize()
 	camFreeLook.movementSpeedX = camFreeLook.movementSpeedZ = 12.0f;
 	camFreeLook.rotationSpeedX = camFreeLook.rotationSpeedY = 3;
 
-	
-	// Load example mesh.
-	Mesh& cubeMesh = m_RenderEngine->CreateMesh("resources/meshes/cube.obj");
-
-	// Create material for example mesh.
-	objectLitMaterial = &m_RenderEngine->CreateMaterial("object1Material", Shaders::STANDARD_LIT);
-	objectTransparentMaterial = &m_RenderEngine->CreateMaterial("objectTransparentMaterial", Shaders::STANDARD_LIT);
-	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
-	objectUnlitMaterial2 = &m_RenderEngine->CreateMaterial("object4Material", Shaders::STANDARD_UNLIT);
-	quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::STANDARD_LIT);
-
-	// Create texture for example mesh.
-	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
-	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
 
 	SamplerData s;
 	s.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
@@ -189,18 +173,24 @@ void Example1Level::Initialize()
 	s.wrapU = SamplerWrapMode::WRAP_CLAMP;
 	s.wrapV = SamplerWrapMode::WRAP_CLAMP;
 
+	// Create texture for example mesh.
+	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
+	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
 	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png", PixelFormat::FORMAT_RGBA, true, false, s);
+
+	// Load example mesh.
+	Mesh& cubeMesh = m_RenderEngine->CreateMesh("resources/meshes/cube.obj");
+
+	// Create material for example mesh.
+	objectLitMaterial = &m_RenderEngine->CreateMaterial("object1Material", Shaders::STANDARD_LIT);
 	objectLitMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &crateTexture, 0);
 	objectLitMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, &crateSpecTexture, 1);
 	objectLitMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
 
-	objectTransparentMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &window, 0);
-	//objectTransparentMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, &window, 0);
-	objectTransparentMaterial->SetSurfaceType(MaterialSurfaceType::Transparent);
+	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
+	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
 
-	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(0, 0, 1));
-	objectUnlitMaterial2->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 0, 0));
-
+	quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::STANDARD_LIT);
 	quadMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &window, 0);
 	quadMaterial->SetSurfaceType(MaterialSurfaceType::Transparent);
 
@@ -219,10 +209,8 @@ void Example1Level::Initialize()
 	for (int i = 0; i < cubeSize; i++)
 	{
 		ECSEntity entity;
-		if(i < 3)
-		object1Renderer.material = objectTransparentMaterial;
-		else
 			object1Renderer.material = objectLitMaterial;
+
 		//object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
 		object1Transform.transform.location = cubePositions[i];
 		entity.entity = m_ECS->reg.create();
@@ -263,7 +251,7 @@ void Example1Level::Initialize()
 
 	for (int i = 0; i < sLightSize; i++)
 	{
-		smallCubeRenderer.material = objectUnlitMaterial2;
+		smallCubeRenderer.material = objectUnlitMaterial;
 
 		ECSEntity entity;
 		object1Transform.transform.location = (spotLightPositions[i]);
@@ -291,30 +279,30 @@ void Example1Level::Initialize()
 		m_ECS->reg.emplace<MeshRendererComponent>(visuals.entity, smallCubeRenderer);
 	}
 	object1Transform.transform.rotation = (Quaternion::Euler(Vector3::Zero));
-	
+
 	object1Transform.transform.scale = (Vector3(1));
 	object1Transform.transform.location = (Vector3(0.7f, 0, 5.5f));
-	object1Transform.transform.Rotate(90, 0,0);
+	object1Transform.transform.Rotate(90, 0, 0);
 
 
-	
+
 	quad.entity = m_ECS->reg.create();
 	m_ECS->reg.emplace<TransformComponent>(quad.entity, object1Transform);
 	MeshRendererComponent quadR;
 	quadR.material = quadMaterial;
 	quadR.mesh = &m_RenderEngine->GetPrimitive(Primitives::PLANE);
 	m_ECS->reg.emplace<MeshRendererComponent>(quad.entity, quadR);
-	
+
 	object1Transform.transform.location = (Vector3(-2.5f, 0, 11.0f));
 	quad2.entity = m_ECS->reg.create();
 	m_ECS->reg.emplace<TransformComponent>(quad2.entity, object1Transform);
 	m_ECS->reg.emplace<MeshRendererComponent>(quad2.entity, quadR);
-	
+
 	object1Transform.transform.location = (Vector3(-2.5f, 0, 7.5f));
 	quad3.entity = m_ECS->reg.create();
 	m_ECS->reg.emplace<TransformComponent>(quad3.entity, object1Transform);
 	m_ECS->reg.emplace<MeshRendererComponent>(quad3.entity, quadR);
-	
+
 	object1Transform.transform.location = (Vector3(-2.1f, 0, 7.0f));
 	quad4.entity = m_ECS->reg.create();
 	m_ECS->reg.emplace<TransformComponent>(quad4.entity, object1Transform);
@@ -335,21 +323,21 @@ void Example1Level::Tick(float delta)
 	// Update the systems in this level.
 	level1Systems.UpdateSystems(delta);
 	t += delta;
-//
-//TransformComponent& cube = m_ECS->reg.get<TransformComponent>(quad.entity);
-//cube.transform.location = Vector3(0, 0, 5);
-//cube.transform.Rotate(t*12, 0,0);
-//cube.transform.scale = Vector3(1);
-	//	cube.transform.rotation = q;
-		//TransformComponent& tSpotLight = m_ECS->reg.get<TransformComponent>(spotLight.entity);
-	//	TransformComponent& tCamera = m_ECS->reg.get<TransformComponent>(camera.entity);
-
-	//tSpotLight.transform.SetLocation(tCamera.transform.location);
-	//tSpotLight.transform.SetRotation(tCamera.transform.rotation);
 	//
-	//TransformComponent tc = m_ECS->reg.get<TransformComponent>(object1.entity);
-	//t += delta;
-	//tc.transform.SetLocation(Vector3F(Math::Sin(t) * 5, 0, 10));
-	//	
-	//m_ECS->reg.replace<TransformComponent>(object1.entity, tc);
+	//TransformComponent& cube = m_ECS->reg.get<TransformComponent>(quad.entity);
+	//cube.transform.location = Vector3(0, 0, 5);
+	//cube.transform.Rotate(t*12, 0,0);
+	//cube.transform.scale = Vector3(1);
+		//	cube.transform.rotation = q;
+			//TransformComponent& tSpotLight = m_ECS->reg.get<TransformComponent>(spotLight.entity);
+		//	TransformComponent& tCamera = m_ECS->reg.get<TransformComponent>(camera.entity);
+
+		//tSpotLight.transform.SetLocation(tCamera.transform.location);
+		//tSpotLight.transform.SetRotation(tCamera.transform.rotation);
+		//
+		//TransformComponent tc = m_ECS->reg.get<TransformComponent>(object1.entity);
+		//t += delta;
+		//tc.transform.SetLocation(Vector3F(Math::Sin(t) * 5, 0, 10));
+		//	
+		//m_ECS->reg.replace<TransformComponent>(object1.entity, tc);
 }
