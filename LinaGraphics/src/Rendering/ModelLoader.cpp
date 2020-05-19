@@ -35,7 +35,7 @@ namespace LinaEngine::Graphics
 			LINA_CORE_ERR("Mesh loading failed! {0}", fileName.c_str());
 			return false;
 		}
-
+	
 		// Iterate through the meshes on the scene.
 		for (uint32 j = 0; j < scene->mNumMeshes; j++)
 		{

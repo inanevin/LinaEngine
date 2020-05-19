@@ -36,7 +36,7 @@ namespace LinaEngine::Graphics
 		
 		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, RenderBufferStorage storage, uint32 width, uint32 height)
 		{
-			m_RenderDevice->CreateRenderBufferObject(storage, width, height);
+			m_ID = m_RenderDevice->CreateRenderBufferObject(storage, width, height);
 		}
 
 		FORCEINLINE uint32 GetID() { return m_ID; }

@@ -33,10 +33,10 @@ void main()
 
 #elif defined(FS_BUILD)
 
-uniform sampler2D screenTexture;
-
 in vec2 TexCoords;
 out vec4 fragColor;
+
+uniform sampler2D screenTexture;
 
 void main()
 {

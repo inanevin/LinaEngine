@@ -157,21 +157,23 @@ namespace LinaEngine::Graphics
 		m_FBOMap[0] = fboWindowData;
 
 		// Default GL settings.
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_STENCIL_TEST);
-		glEnable(GL_BLEND);
-		glEnable(GL_CULL_FACE);
-		glDepthFunc(GL_LESS);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_STENCIL_TEST);
+		glDisable(GL_BLEND);
+		glDisable(GL_CULL_FACE);
+		//glDepthFunc(GL_LESS);
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-		glFrontFace(GL_CW);
+		//glFrontFace(GL_CW);
 
+		m_IsDepthTestEnabled = false;
 		m_UsedDepthFunction = DrawFunc::DRAW_FUNC_LESS;
 		m_usedStencilFail = StencilOp::STENCIL_KEEP;
 		m_UsedStencilPassButDepthFail = StencilOp::STENCIL_KEEP;
 		m_UsedStencilPass = StencilOp::STENCIL_REPLACE;
 		m_UsedStencilFunction = DrawFunc::DRAW_FUNC_NOT_EQUAL;
 		m_UsedStencilTestMask = 0xFF;
+		m_UsedFaceCulling = FaceCulling::FACE_CULL_BACK;
 
 		// Set lighting system reference.
 		m_LightingSystem = &lightingSystemIn;
@@ -186,7 +188,7 @@ namespace LinaEngine::Graphics
 
 
 	uint32 GLRenderDevice::CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress
-	, SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapS, SamplerWrapMode wrapT)
+		, SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapS, SamplerWrapMode wrapT)
 	{
 		// Declare formats, target & handle for the texture.
 		GLint format = GetOpenGLFormat(pixelDataFormat);
@@ -443,7 +445,8 @@ namespace LinaEngine::Graphics
 		unsigned int skyboxVAO, skyboxVBO;
 		glGenVertexArrays(1, &skyboxVAO);
 		glGenBuffers(1, &skyboxVBO);
-		glBindVertexArray(skyboxVAO);
+		//glBindVertexArray(skyboxVAO);
+		SetVAO(skyboxVAO);
 		glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(0);
@@ -457,7 +460,7 @@ namespace LinaEngine::Graphics
 		unsigned int quadVAO, quadVBO;
 		glGenVertexArrays(1, &quadVAO);
 		glGenBuffers(1, &quadVBO);
-		glBindVertexArray(quadVAO);
+		SetVAO(quadVAO);
 		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(0);
@@ -603,7 +606,7 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	uint32 GLRenderDevice::CreateRenderTarget(uint32 texture, int32 width, int32 height, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel)
+	uint32 GLRenderDevice::CreateRenderTarget(uint32 texture, int32 width, int32 height, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, bool bindRBO, FrameBufferAttachment rboAttachment, uint32 rbo)
 	{
 		// Generate frame buffers & set the current object.
 		uint32 fbo;
@@ -613,37 +616,14 @@ namespace LinaEngine::Graphics
 		// Define attachment type & use the buffer.
 		GLenum attachmentTypeGL = attachment + attachmentNumber;
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, GL_TEXTURE_2D, texture, mipLevel);
+
+		// Set the render buffer object if desired.
+		if (bindRBO)
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, rboAttachment, GL_RENDERBUFFER, rbo);
 
 		// Err check
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			LINA_CORE_ERR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
-
-		// Define frame buffer object data and store it in our map.
-		FBOData data;
-		data.width = width;
-		data.height = height;
-		m_FBOMap[fbo] = data;
-		SetFBO(0);
-		return fbo;
-	}
-
-	uint32 GLRenderDevice::CreateRenderTarget(uint32 texture, int32 width, int32 height, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, FrameBufferAttachment rboAttachment, uint32 rbo)
-	{
-		// Generate frame buffers & set the current object.
-		uint32 fbo;
-		glGenFramebuffers(1, &fbo);
-		SetFBO(fbo);
-
-		// Define attachment type & use the buffer.
-		GLenum attachmentTypeGL = attachment + attachmentNumber;
-		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, GL_TEXTURE_2D, texture, mipLevel);
-		
-		// Set the render buffer object.
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, rboAttachment, GL_RENDERBUFFER, rbo);
-
-		// Err check
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			LINA_CORE_ERR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!"); 
 
 		// Define frame buffer object data and store it in our map.
 		FBOData data;
@@ -673,7 +653,6 @@ namespace LinaEngine::Graphics
 		glGenRenderbuffers(1, &rbo);
 		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
 		glRenderbufferStorage(GL_RENDERBUFFER, storage, width, height);
-		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 		return rbo;
 	}
 
@@ -829,21 +808,6 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	void GLRenderDevice::SetVAO(uint32 vao)
-	{
-		// Use VAO if exists.
-		if (vao == m_BoundVAO) 	return;
-		glBindVertexArray(vao);
-		m_BoundVAO = vao;
-	}
-
-	void GLRenderDevice::SetFBO(uint32 fbo)
-	{
-		// Use FBO if exists.
-		if (fbo == m_BoundFBO) return;
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-		m_BoundFBO = fbo;
-	}
 
 	void GLRenderDevice::Draw(uint32 fbo, uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements, bool drawArrays)
 	{
@@ -851,20 +815,28 @@ namespace LinaEngine::Graphics
 		if (!drawArrays && numInstances == 0) return;
 
 		// Bind the render targets.
-		SetFBO(fbo);
+		//SetFBO(fbo);
 
 		// Ensure viewport is ok.
-		SetViewport(fbo);
+		//SetViewport(fbo);
 
 		// Set blend mode for each render target.
-		SetBlending(drawParams.sourceBlend, drawParams.destBlend);
+		/*SetBlending(drawParams.sourceBlend, drawParams.destBlend);
 
 		//// Set scissors tests if required, face culling modes as well as depth tests.
 		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
 		SetFaceCulling(drawParams.faceCulling);
-		SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
-		SetStencilTest(drawParams.useStencilTest, drawParams.stencilFunc, drawParams.stencilTestMask, drawParams.stencilWriteMask, drawParams.stencilComparisonVal, drawParams.stencilFail, drawParams.stencilPassButDepthFail, drawParams.stencilPass);
 
+		if (drawParams.useDepthTest)
+		{
+			SetDepthTestEnable(true);
+			SetDepthTest(drawParams.shouldWriteDepth, drawParams.depthFunc);
+		}
+		else
+			SetDepthTestEnable(false);
+
+		SetStencilTest(drawParams.useStencilTest, drawParams.stencilFunc, drawParams.stencilTestMask, drawParams.stencilWriteMask, drawParams.stencilComparisonVal, drawParams.stencilFail, drawParams.stencilPassButDepthFail, drawParams.stencilPass);
+		*/
 		// use array buffer & attributes.
 		SetVAO(vao);
 
@@ -886,7 +858,8 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
 	{
-
+		// Make sure frame buffer objects are used.
+		//SetFBO(fbo);
 		uint32 flags = 0;
 
 		// Set flags according to options.
@@ -960,7 +933,29 @@ namespace LinaEngine::Graphics
 		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_FALSE, &m[0][0]);
 	}
 
+	void GLRenderDevice::SetVAO(uint32 vao)
+	{
+		// Use VAO if exists.
+		if (vao == m_BoundVAO) 	return;
+		glBindVertexArray(vao);
+		m_BoundVAO = vao;
+	}
 
+	void GLRenderDevice::SetFBO(uint32 fbo)
+	{
+		// Use FBO if exists.
+		if (fbo == m_BoundFBO) return;
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		m_BoundFBO = fbo;
+	}
+
+
+	void GLRenderDevice::SetRBO(uint32 rbo)
+	{
+		if (rbo == m_BoundRBO) return;
+		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+		m_BoundRBO = rbo;
+	}
 
 	void GLRenderDevice::SetViewport(uint32 fbo)
 	{

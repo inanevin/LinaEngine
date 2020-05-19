@@ -91,10 +91,7 @@ namespace LinaEngine::Graphics
 		ConstructEnginePrimitives();
 
 		// Initialize frame buffer texture.
-		m_FrameBufferTexture.Construct(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, false, false, {FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT});
-
-		// Initialize render buffer.
-		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
+		m_FrameBufferTexture.Construct(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, false, false, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT });
 
 		// Construct screen quad.
 		m_ScreenQuad = m_RenderDevice.CreateScreenQuadVertexArray();
@@ -102,8 +99,12 @@ namespace LinaEngine::Graphics
 		// Construct screen quad material.
 		SetMaterialShader(m_ScreenQuadMaterial, Shaders::SCREEN_QUAD);
 
+		// Initialize render buffer.
+		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
+
 		// Initialize the render target.
 		m_RenderTarget.Construct(m_RenderDevice, m_FrameBufferTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_RenderBuffer.GetID());;
+
 
 		// Set default drawing parameters.
 		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
@@ -112,13 +113,16 @@ namespace LinaEngine::Graphics
 		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
 		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
 		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+		m_DefaultDrawParams.useDepthTest = true;
 
 		// Set skybox draw params.
 		m_SkyboxDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_SkyboxDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
+		m_SkyboxDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
 		m_SkyboxDrawParams.shouldWriteDepth = true;
 		m_SkyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
 		m_SkyboxDrawParams.useStencilTest = true;
+		m_SkyboxDrawParams.useDepthTest = true;
+
 		m_SkyboxDrawParams.stencilWriteMask = 0xFF;
 		m_SkyboxDrawParams.stencilTestMask = 0XFF;
 
@@ -150,13 +154,14 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Tick(float delta)
 	{
-		//m_DefaultDrawParams.useDepthTest = true;
-		
+	
+		m_RenderDevice.SetFBO(m_RenderTarget.GetID());
+		m_RenderDevice.SetDepthTestEnable(true);
 		// Clear color.
-		m_RenderDevice.Clear(0, true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+		m_RenderDevice.Clear(m_RenderTarget.GetID(), true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Draw skybox.
-		DrawSkybox();
+		//DrawSkybox();
 
 		// Update pipeline.
 		m_RenderingPipeline.UpdateSystems(delta);
@@ -165,7 +170,16 @@ namespace LinaEngine::Graphics
 		UpdateUniformBuffers();
 
 		// Draw scene
-		DrawSceneObjects(false, 0);
+		DrawSceneObjects(false, m_RenderTarget.GetID());
+
+		// Draw screen quad.
+	m_RenderDevice.SetFBO(0);
+	//
+	m_RenderDevice.SetDepthTestEnable(false);
+	m_RenderDevice.Clear(0, true, false, false, Color::White, 0xFF);	
+	m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &m_FrameBufferTexture, 0);
+	UpdateShaderData(&m_ScreenQuadMaterial);
+	m_RenderDevice.Draw(0, m_ScreenQuad, m_DefaultDrawParams, 0, 6, true);
 
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
@@ -542,7 +556,7 @@ namespace LinaEngine::Graphics
 			m_DefaultDrawParams.stencilComparisonVal = 1;
 			m_DefaultDrawParams.stencilTestMask = 0xFF;
 			m_DefaultDrawParams.stencilWriteMask = 0xFF;
-			
+
 
 			// Draw scene.
 			m_MeshRendererSystem.FlushOpaque(fbo, m_DefaultDrawParams, nullptr, false);
@@ -566,10 +580,10 @@ namespace LinaEngine::Graphics
 		else
 		{
 			m_MeshRendererSystem.FlushOpaque(fbo, m_DefaultDrawParams, nullptr, true);
-			m_MeshRendererSystem.FlushTransparent(fbo, m_DefaultDrawParams, nullptr, true);
+			//m_MeshRendererSystem.FlushTransparent(fbo, m_DefaultDrawParams, nullptr, true);
 		}
-			
-		
+
+
 
 	}
 
@@ -718,14 +732,12 @@ namespace LinaEngine::Graphics
 		for (auto const& d : (*data).samplers)
 		{
 
-			uint32 previouslyBound;
 			if ((*data).textures.find(d.first) != (*data).textures.end())
 			{
 				m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first, d.second);
 
 				MaterialTextureData* textureData = &(*data).textures[d.first];
 				m_RenderDevice.SetTexture(textureData->texture->GetID(), textureData->texture->GetSamplerID(), textureData->unit, textureData->bindMode, true);
-				previouslyBound = textureData->texture->GetID();
 			}
 			else
 				m_RenderDevice.SetTexture(m_DefaultTexture->GetID(), 0, d.second);

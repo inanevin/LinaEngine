@@ -60,7 +60,7 @@ namespace LinaEngine::Graphics
 		{
 			renderDevice = &renderDeviceIn;
 			m_RBO = rbo;
-			m_EngineBoundID = renderDevice->CreateRenderTarget(texture.GetID(), width, height, attachment, attachmentNumber, mipLevel, rboAttachment, rbo);
+			m_EngineBoundID = renderDevice->CreateRenderTarget(texture.GetID(), width, height, attachment, attachmentNumber, mipLevel, true, rboAttachment, rbo);
 			CheckCompressed(texture);
 		}
 

@@ -125,8 +125,7 @@ namespace LinaEngine::Graphics
 		uint32 ReleaseShaderProgram(uint32 shader);
 
 		// Creates a render target based on window props & attachments on GL.
-		uint32 CreateRenderTarget(uint32 texture, int32 width, int32 height, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel);
-		uint32 CreateRenderTarget(uint32 texture, int32 width, int32 height, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, FrameBufferAttachment rboAttachment, uint32 rbo);
+		uint32 CreateRenderTarget(uint32 texture, int32 width, int32 height, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, bool bindRBO = false, FrameBufferAttachment rboAtt = FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, uint32 rbo = 0);
 
 		// Releases a previously created render target from GL.
 		uint32 ReleaseRenderTarget(uint32 target);
@@ -136,6 +135,9 @@ namespace LinaEngine::Graphics
 
 		// Deletes a render buffer object.
 		uint32 ReleaseRenderBufferObject(uint32 target);
+
+		// Binds a rbo to an existing fbo
+		void BindRenderBufferToTarget(uint32 fbo, FrameBufferAttachment rboAttachment, uint32 rbo);
 
 		// Updates a vertex array object by id.
 		void UpdateVertexArray(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);
@@ -214,6 +216,7 @@ namespace LinaEngine::Graphics
 		std::string GetShaderVersion();
 		uint32 GetVersion();
 	
+		void SetRBO(uint32 rbo);
 		void SetViewport(uint32 fbo);
 		void SetFaceCulling(FaceCulling faceCulling);
 		void SetDepthTest(bool shouldWrite, DrawFunc depthFunc);
@@ -231,13 +234,16 @@ namespace LinaEngine::Graphics
 		uint32 m_BoundShader = 0;
 
 		// Currently active vertex array object.
-		uint32 m_BoundVAO;
+		uint32 m_BoundVAO = 0;
 
 		// Currently active frame buffer object.
-		uint32 m_BoundFBO;
+		uint32 m_BoundFBO = 0;
 
 		// FBO rep. on viewport.
-		uint32 m_ViewportFBO;
+		uint32 m_ViewportFBO = 0;
+
+		// Currently bound render buffer object
+		uint32 m_BoundRBO = 0;
 
 		// Map for bound vertex array objects.
 		std::map<uint32, VertexArrayData> m_VAOMap;
