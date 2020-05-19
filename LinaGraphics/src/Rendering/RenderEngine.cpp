@@ -99,8 +99,12 @@ namespace LinaEngine::Graphics
 		// Construct screen quad.
 		m_ScreenQuad = m_RenderDevice.CreateScreenQuadVertexArray();
 
+		// Construct screen quad material.
+		SetMaterialShader(m_ScreenQuadMaterial, Shaders::SCREEN_QUAD);
+
 		// Initialize the render target.
-		m_RenderTarget.Construct(m_RenderDevice, m_FrameBufferTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_RenderBuffer.GetID());;
+		//m_RenderTarget.Construct(m_RenderDevice, m_FrameBufferTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_RenderBuffer.GetID());;
+		m_RenderTarget.Construct(m_RenderDevice);
 
 		// Set default drawing parameters.
 		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
@@ -129,7 +133,7 @@ namespace LinaEngine::Graphics
 		m_CameraSystem.SetAspectRatio(windowSize.x / windowSize.y);
 
 		// Initialize ECS Mesh Renderer System
-		m_MeshRendererSystem.Construct(ecsReg, *this, m_RenderDevice, m_RenderTarget);
+		m_MeshRendererSystem.Construct(ecsReg, *this, m_RenderDevice);
 
 		// Initialize ECS Lighting system.
 		m_LightingSystem.Construct(ecsReg, m_RenderDevice, *this);
@@ -145,6 +149,8 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Tick(float delta)
 	{
+		//m_DefaultDrawParams.useDepthTest = true;
+
 		// Clear color.
 		m_RenderDevice.Clear(m_RenderTarget.GetID(), true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 
@@ -158,7 +164,7 @@ namespace LinaEngine::Graphics
 		UpdateUniformBuffers();
 
 		// Draw scene
-		DrawSceneObjects(true);
+		DrawSceneObjects(false, 0);
 
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
@@ -525,7 +531,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void RenderEngine::DrawSceneObjects(bool useStencilOutlining)
+	void RenderEngine::DrawSceneObjects(bool useStencilOutlining, uint32 fbo)
 	{
 		// Draw opaques.
 		if (useStencilOutlining)
@@ -539,8 +545,8 @@ namespace LinaEngine::Graphics
 			m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
 
 			// Draw scene.
-			m_MeshRendererSystem.FlushOpaque(m_DefaultDrawParams, nullptr, false);
-			m_MeshRendererSystem.FlushTransparent(m_DefaultDrawParams, nullptr, false);
+			m_MeshRendererSystem.FlushOpaque(fbo, m_DefaultDrawParams, nullptr, false);
+			m_MeshRendererSystem.FlushTransparent(fbo, m_DefaultDrawParams, nullptr, false);
 
 			// Set stencil draw params.
 			m_DefaultDrawParams.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_NOT_EQUAL;
@@ -550,8 +556,8 @@ namespace LinaEngine::Graphics
 			m_RenderDevice.SetDepthTestEnable(false);
 
 			// Draw scene.
-			m_MeshRendererSystem.FlushOpaque(m_DefaultDrawParams, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE], true);
-			m_MeshRendererSystem.FlushTransparent(m_DefaultDrawParams, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE], true);
+			m_MeshRendererSystem.FlushOpaque(fbo, m_DefaultDrawParams, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE], true);
+			m_MeshRendererSystem.FlushTransparent(fbo, m_DefaultDrawParams, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE], true);
 
 			// Reset stencil.
 			m_RenderDevice.SetStencilWriteMask(0xFF);
@@ -559,8 +565,8 @@ namespace LinaEngine::Graphics
 		}
 		else
 		{
-			m_MeshRendererSystem.FlushOpaque(m_DefaultDrawParams, nullptr, true);
-			m_MeshRendererSystem.FlushTransparent(m_DefaultDrawParams, nullptr, true);
+			m_MeshRendererSystem.FlushOpaque(fbo, m_DefaultDrawParams, nullptr, true);
+			m_MeshRendererSystem.FlushTransparent(fbo, m_DefaultDrawParams, nullptr, true);
 		}
 			
 		

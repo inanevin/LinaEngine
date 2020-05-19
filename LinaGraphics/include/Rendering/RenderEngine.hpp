@@ -197,7 +197,7 @@ namespace LinaEngine::Graphics
 		void DrawSkybox();
 
 		// Renders scene objects.
-		void DrawSceneObjects(bool useStencilOutlining);
+		void DrawSceneObjects(bool useStencilOutlining, uint32 fbo);
 
 		// Updates related uniform buffers on GPU
 		void UpdateUniformBuffers();
@@ -218,6 +218,9 @@ namespace LinaEngine::Graphics
 
 		// Quad to draw the buffers into.
 		uint32 m_ScreenQuad;
+
+		// Screen Quad material
+		Material m_ScreenQuadMaterial;
 
 		// Default Framebuffer Texture
 		Texture m_FrameBufferTexture;

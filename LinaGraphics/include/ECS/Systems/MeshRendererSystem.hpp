@@ -79,18 +79,17 @@ namespace LinaEngine::ECS
 
 		MeshRendererSystem() {};
 
-		FORCEINLINE void Construct(ECSRegistry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn, Graphics::RenderTarget& renderTargetIn)
+		FORCEINLINE void Construct(ECSRegistry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn)
 		{
 			BaseECSSystem::Construct(registry);
 			m_RenderEngine = &renderEngineIn;
 			m_RenderDevice = &renderDeviceIn;
-			m_RenderTarget = &renderTargetIn;
 		}
 
 		void RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn);
 		void RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, float priority);
-		void FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
-		void FlushTransparent(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
+		void FlushOpaque(uint32 fbo, Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
+		void FlushTransparent(uint32 fbo, Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
 
 		virtual void UpdateComponents(float delta) override;
 
@@ -98,7 +97,6 @@ namespace LinaEngine::ECS
 	private:
 
 		RenderDevice* m_RenderDevice = nullptr;
-		Graphics::RenderTarget* m_RenderTarget = nullptr;
 		Graphics::RenderEngine* m_RenderEngine = nullptr;
 
 		// Map & queue to see the list of same vertex array & textures to compress them into single draw call.

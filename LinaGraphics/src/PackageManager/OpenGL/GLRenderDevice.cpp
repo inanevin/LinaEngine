@@ -848,10 +848,10 @@ namespace LinaEngine::Graphics
 		if (!drawArrays && numInstances == 0) return;
 
 		// Bind the render targets.
-		//SetFBO(fbo);
+		SetFBO(fbo);
 
 		// Ensure viewport is ok.
-		//SetViewport(fbo);
+		SetViewport(fbo);
 
 		// Set blend mode for each render target.
 		SetBlending(drawParams.sourceBlend, drawParams.destBlend);

@@ -203,14 +203,17 @@ namespace LinaEngine::Graphics
 		// Enable/disable depth testing.
 		void SetDepthTestEnable(bool enable);
 
-		// Set target frame buffer object
+		// Set frame buffer object.
 		void SetFBO(uint32 fbo);
+
+		// Set vertex array object.
+		void SetVAO(uint32 vao);
 
 	private:
 
 		std::string GetShaderVersion();
 		uint32 GetVersion();
-		void SetVAO(uint32 vao);
+	
 		void SetViewport(uint32 fbo);
 		void SetFaceCulling(FaceCulling faceCulling);
 		void SetDepthTest(bool shouldWrite, DrawFunc depthFunc);
