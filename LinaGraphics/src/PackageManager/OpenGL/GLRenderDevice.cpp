@@ -159,9 +159,9 @@ namespace LinaEngine::Graphics
 		// Default GL settings.
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_STENCIL_TEST);
-		glDisable(GL_BLEND);
+		glEnable(GL_BLEND);
 		glDisable(GL_CULL_FACE);
-		//glDepthFunc(GL_LESS);
+		glDepthFunc(GL_LESS);
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 		//glFrontFace(GL_CW);
@@ -820,8 +820,10 @@ namespace LinaEngine::Graphics
 		// Ensure viewport is ok.
 		//SetViewport(fbo);
 
+		SetBlending(drawParams.sourceBlend, drawParams.destBlend);
+
 		// Set blend mode for each render target.
-		/*SetBlending(drawParams.sourceBlend, drawParams.destBlend);
+		/*
 
 		//// Set scissors tests if required, face culling modes as well as depth tests.
 		SetScissorTest(drawParams.useScissorTest, drawParams.scissorStartX, drawParams.scissorStartY, drawParams.scissorWidth, drawParams.scissorHeight);
