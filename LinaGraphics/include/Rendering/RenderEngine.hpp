@@ -200,7 +200,7 @@ namespace LinaEngine::Graphics
 		void DrawSkybox();
 
 		// Renders scene objects.
-		void DrawSceneObjects(bool useStencilOutlining, uint32 fbo);
+		void DrawSceneObjects(bool useStencilOutlining, uint32 fbo, DrawParams& drawpParams);
 
 		// Draws a full screen quad from frame buffer texture.
 		void DrawFullscreenQuad();

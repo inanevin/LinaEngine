@@ -136,13 +136,7 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Tick(float delta)
 	{
-
-		//m_RenderDevice.SetFBO(0);
-		m_DefaultDrawParams.useDepthTest = true;
-		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
-		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
 		m_RenderDevice.SetFBO(m_RenderTarget.GetID());
-		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
 
 		// Clear color.
 		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
@@ -157,8 +151,9 @@ namespace LinaEngine::Graphics
 		UpdateUniformBuffers();
 
 		// Draw scene
-		DrawSceneObjects(true, m_RenderTarget.GetID());
+		DrawSceneObjects(false, m_RenderTarget.GetID(), m_DefaultDrawParams);
 
+		// Draw frame buffer texture on the screen
 		DrawFullscreenQuad();
 
 		// Draw GUI Layers
@@ -639,27 +634,16 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void RenderEngine::DrawSceneObjects(bool useStencilOutlining, uint32 fbo)
+	void RenderEngine::DrawSceneObjects(bool useStencilOutlining, uint32 fbo, DrawParams& drawParams)
 	{
 		// Draw opaques.
 		if (useStencilOutlining)
 		{
-			m_DefaultDrawParams.useStencilTest = true;
-			m_DefaultDrawParams.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_ALWAYS;
-			m_DefaultDrawParams.stencilComparisonVal = 1;
-			m_DefaultDrawParams.stencilTestMask = 0xFF;
-			m_DefaultDrawParams.stencilWriteMask = 0xFF;
-
-
 			// Draw scene.
 			m_MeshRendererSystem.FlushOpaque(m_StencilOutlineDrawParams, nullptr, false);
 			m_MeshRendererSystem.FlushTransparent(m_StencilOutlineDrawParams, nullptr, false);
-
-			// Set stencil draw params.
-			m_DefaultDrawParams.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_NOT_EQUAL;
-			m_DefaultDrawParams.stencilComparisonVal = 1;
-			m_DefaultDrawParams.stencilTestMask = 0xFF;
-			m_DefaultDrawParams.stencilWriteMask = 0x00;
+			
+			// Enable depth test for drawing w/ new params.
 			m_RenderDevice.SetDepthTestEnable(false);
 
 			// Draw scene.
@@ -672,23 +656,15 @@ namespace LinaEngine::Graphics
 		}
 		else
 		{
-			m_MeshRendererSystem.FlushOpaque(m_DefaultDrawParams, nullptr, true);
-			m_MeshRendererSystem.FlushTransparent(m_DefaultDrawParams, nullptr, true);
+			m_MeshRendererSystem.FlushOpaque(drawParams, nullptr, true);
+			m_MeshRendererSystem.FlushTransparent(drawParams, nullptr, true);
 		}
-
-
-
 	}
 
 	void RenderEngine::DrawFullscreenQuad()
 	{
 		// Draw screen quad.
 		m_RenderDevice.SetFBO(0);
-
-		m_DefaultDrawParams.useDepthTest = false;
-		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
-		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_NONE;
-		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
 
 		// Clear color bit.
 		m_RenderDevice.Clear(true, false, false, Color::White, 0xFF);
@@ -700,7 +676,7 @@ namespace LinaEngine::Graphics
 		UpdateShaderData(&m_ScreenQuadMaterial);
 
 		// Draw
-		m_RenderDevice.Draw(m_ScreenQuad, m_DefaultDrawParams, 0, 6, true);
+		m_RenderDevice.Draw(m_ScreenQuad, m_FBOTextureDrawParameters, 0, 6, true);
 	}
 
 
@@ -857,10 +833,7 @@ namespace LinaEngine::Graphics
 			}
 			else
 				m_RenderDevice.SetTexture(m_DefaultTexture->GetID(), 0, d.second);
-
-
 		}
-
 
 		if (data->receivesLighting)
 			m_LightingSystem.SetLightingShaderData(data->GetShaderID());
