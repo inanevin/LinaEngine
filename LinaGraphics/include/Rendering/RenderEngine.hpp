@@ -190,6 +190,9 @@ namespace LinaEngine::Graphics
 		// Constructs engine vertex arrays
 		void ConstructEnginePrimitives();
 
+		// Sets up draw parameters.
+		void SetupDrawParameters();
+
 		// clears resource memory.
 		void DumpMemory();
 
@@ -230,6 +233,15 @@ namespace LinaEngine::Graphics
 
 		// Skybox drawing parameters.
 		DrawParams m_SkyboxDrawParams;
+
+		// Draw parameters for stencil outline rendering.
+		DrawParams m_StencilOutlineDrawParams;
+
+		// Draw params for stencil outline second pass.
+		DrawParams m_StencilOutlineDrawParams2;
+
+		// Draw parameters for fbo texture rendering
+		DrawParams m_FBOTextureDrawParameters;
 
 		// Sprite drawing parameters.
 		DrawParams m_SpriteDrawParams;

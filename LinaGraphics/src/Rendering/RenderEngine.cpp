@@ -105,26 +105,8 @@ namespace LinaEngine::Graphics
 		// Initialize the render target.
 		m_RenderTarget.Construct(m_RenderDevice, m_FrameBufferTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_RenderBuffer.GetID());;
 
-
-		// Set default drawing parameters.
-		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
-		m_DefaultDrawParams.shouldWriteDepth = true;
-		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
-		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
-		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
-		m_DefaultDrawParams.useDepthTest = true;
-
-		// Set skybox draw params.
-		m_SkyboxDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_SkyboxDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
-		m_SkyboxDrawParams.shouldWriteDepth = true;
-		m_SkyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
-		m_SkyboxDrawParams.useStencilTest = true;
-		m_SkyboxDrawParams.useDepthTest = true;
-
-		m_SkyboxDrawParams.stencilWriteMask = 0xFF;
-		m_SkyboxDrawParams.stencilTestMask = 0XFF;
+		// Setup draw parameters.
+		SetupDrawParameters();
 
 		// Create a default texture for render context.
 		m_DefaultTexture = &CreateTexture("resources/textures/defaultDiffuse.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
@@ -535,6 +517,49 @@ namespace LinaEngine::Graphics
 		CreatePrimitive(Primitives::SPHERE, "resources/meshes/primitives/sphere.obj");
 		CreatePrimitive(Primitives::ICOSPHERE, "resources/meshes/primitives/icosphere.obj");
 		CreatePrimitive(Primitives::CONE, "resources/meshes/primitives/cone.obj");
+	}
+
+	void RenderEngine::SetupDrawParameters()
+	{
+		// Set default drawing parameters.
+		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
+		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
+		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
+		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;		
+		m_DefaultDrawParams.useDepthTest = true;
+		m_DefaultDrawParams.shouldWriteDepth = true;
+		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
+
+		// Set render to fbo target draw parameters.	
+		m_FBOTextureDrawParameters.useDepthTest = false;
+		m_FBOTextureDrawParameters.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
+		m_FBOTextureDrawParameters.destBlend = BlendFunc::BLEND_FUNC_NONE;
+		m_FBOTextureDrawParameters.faceCulling = FaceCulling::FACE_CULL_NONE;
+
+		// Set skybox draw params.
+		m_SkyboxDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
+		m_SkyboxDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
+		m_SkyboxDrawParams.useDepthTest = true;
+		m_SkyboxDrawParams.shouldWriteDepth = true;
+		m_SkyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
+		m_SkyboxDrawParams.useStencilTest = true;
+		m_SkyboxDrawParams.stencilWriteMask = 0xFF;
+		m_SkyboxDrawParams.stencilTestMask = 0XFF;
+
+		// Set stencil draw params first pass.		
+		m_StencilOutlineDrawParams.useStencilTest = true;
+		m_StencilOutlineDrawParams.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_ALWAYS;
+		m_StencilOutlineDrawParams.stencilComparisonVal = 1;
+		m_StencilOutlineDrawParams.stencilTestMask = 0xFF;
+		m_StencilOutlineDrawParams.stencilWriteMask = 0xFF;
+		
+		// Set stencil draw params second first pass.		
+		m_StencilOutlineDrawParams2.useStencilTest = true;
+		m_StencilOutlineDrawParams2.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_NOT_EQUAL;
+		m_StencilOutlineDrawParams2.stencilComparisonVal = 1;
+		m_StencilOutlineDrawParams2.stencilTestMask = 0xFF;
+		m_StencilOutlineDrawParams2.stencilWriteMask = 0x00;
+
 	}
 
 	void RenderEngine::DumpMemory()
