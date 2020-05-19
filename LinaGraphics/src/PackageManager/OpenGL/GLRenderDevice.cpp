@@ -204,6 +204,7 @@ namespace LinaEngine::Graphics
 			glTexParameteri(textureTarget, GL_TEXTURE_MAX_LEVEL, 0);
 		}
 
+		glBindTexture(GL_TEXTURE_2D, 0);
 		return textureHandle;
 	}
 
@@ -566,7 +567,7 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	uint32 GLRenderDevice::CreateRenderTarget(uint32 texture, int32 width, int32 height, FramebufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel)
+	uint32 GLRenderDevice::CreateRenderTarget(uint32 texture, int32 width, int32 height, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel)
 	{
 		// Generate frame buffers & set the current object.
 		uint32 fbo;
@@ -576,6 +577,28 @@ namespace LinaEngine::Graphics
 		// Define attachment type & use the buffer.
 		GLenum attachmentTypeGL = attachment + attachmentNumber;
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, GL_TEXTURE_2D, texture, mipLevel);
+
+		// Define frame buffer object data and store it in our map.
+		FBOData data;
+		data.width = width;
+		data.height = height;
+		m_FBOMap[fbo] = data;
+		return fbo;
+	}
+
+	uint32 GLRenderDevice::CreateRenderTarget(uint32 texture, int32 width, int32 height, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, FrameBufferAttachment rboAttachment, uint32 rbo)
+	{
+		// Generate frame buffers & set the current object.
+		uint32 fbo;
+		glGenFramebuffers(1, &fbo);
+		SetFBO(fbo);
+
+		// Define attachment type & use the buffer.
+		GLenum attachmentTypeGL = attachment + attachmentNumber;
+		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, GL_TEXTURE_2D, texture, mipLevel);
+		
+		// Set the render buffer object.
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, rboAttachment, GL_RENDERBUFFER, rbo);
 
 		// Define frame buffer object data and store it in our map.
 		FBOData data;
@@ -598,11 +621,28 @@ namespace LinaEngine::Graphics
 		return 0;
 	}
 
+	uint32 GLRenderDevice::CreateRenderBufferObject(RenderBufferStorage storage, uint32 width, uint32 height)
+	{
+		unsigned int rbo;
+		glGenRenderbuffers(1, &rbo);
+		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+		glRenderbufferStorage(GL_RENDERBUFFER, storage, width, height);
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+		return rbo;
+	}
+
+	uint32 GLRenderDevice::ReleaseRenderBufferObject(uint32 target)
+	{
+		glDeleteRenderbuffers(1, &target);
+	}
+
+
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 	// VERTEX ARRAY OPERATIONS
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
+
 
 	void GLRenderDevice::UpdateVertexArray(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize)
 	{

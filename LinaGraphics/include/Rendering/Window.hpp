@@ -53,10 +53,10 @@ namespace LinaEngine::Graphics
 		FORCEINLINE bool GetVsycnEnabled() { return m_Properties.vSyncEnabled; }
 
 		// Get window width.
-		FORCEINLINE float GetWidth() { return (float)m_Properties.m_Width; }
+		FORCEINLINE uint32 GetWidth() { return m_Properties.m_Width; }
 
 		// Get window height.
-		FORCEINLINE float GetHeight() { return (float)m_Properties.m_Height; }
+		FORCEINLINE uint32 GetHeight() { return m_Properties.m_Height; }
 
 		// Get pointer to native window.
 		FORCEINLINE void* GetNativeWindow() const { return m_Derived.GetNativeWindow(); }

@@ -122,10 +122,17 @@ namespace LinaEngine::Graphics
 		uint32 ReleaseShaderProgram(uint32 shader);
 
 		// Creates a render target based on window props & attachments on GL.
-		uint32 CreateRenderTarget(uint32 texture, int32 width, int32 height, FramebufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel);
+		uint32 CreateRenderTarget(uint32 texture, int32 width, int32 height, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel);
+		uint32 CreateRenderTarget(uint32 texture, int32 width, int32 height, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, FrameBufferAttachment rboAttachment, uint32 rbo);
 
 		// Releases a previously created render target from GL.
 		uint32 ReleaseRenderTarget(uint32 target);
+
+		// Creates a render buffer object
+		uint32 CreateRenderBufferObject(RenderBufferStorage storage, uint32 width, uint32 height);
+
+		// Deletes a render buffer object.
+		uint32 ReleaseRenderBufferObject(uint32 target);
 
 		// Updates a vertex array object by id.
 		void UpdateVertexArray(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);

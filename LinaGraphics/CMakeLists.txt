@@ -60,6 +60,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/Mesh.hpp
 	include/Rendering/RenderingCommon.hpp
 	include/Rendering/RenderConstants.hpp
+	include/Rendering/RenderBuffer.hpp
 	
 	include/PackageManager/PAMRenderDevice.hpp	
 	include/PackageManager/PAMWindow.hpp

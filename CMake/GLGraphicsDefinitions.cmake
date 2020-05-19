@@ -77,7 +77,15 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_DRAW_FUNC_NOT_EQ
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_ATTACHMENT_COLOR=0x8CE0)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_ATTACHMENT_DEPTH=0x8D00)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_ATTACHMENT_STENCIL=0x8D20)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_ATTACHMENT_DEPTHANDSTENCIL=0x821A)
 
+#----------------------------------- RENDER BUFFER STORAGE DEFINITIONS ----------------------------------- #								   
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_STORAGE_DC16=0x81A5)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_sTORAGE_DC24=0x81A6)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_STORAGE_DC32F=0x8CAC)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_STORAGE_D24S8=0x88F0)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_STORAGE_D32FS8=0x8CAD)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_STORAGE_SI8=0x8D48)
 #----------------------------------- BLEND FUNCTION DEFINITIONS ----------------------------------- #
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_BLEND_FUNC_NONE=)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_BLEND_FUNC_ONE=1)

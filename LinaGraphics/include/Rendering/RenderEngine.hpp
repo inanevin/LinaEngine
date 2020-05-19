@@ -212,6 +212,9 @@ namespace LinaEngine::Graphics
 		// Default render target
 		RenderTarget m_RenderTarget;
 
+		// Default Framebuffer Texture
+		Texture m_FrameBufferTexture;
+
 		// Default drawing parameters.
 		DrawParams m_DefaultDrawParams;
 
