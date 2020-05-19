@@ -270,9 +270,6 @@ namespace LinaEngine::Graphics
 		// Standart Skybox vertex array object.
 		uint32 m_SkyboxVAO;
 
-		// Quad VAO
-		VertexArray m_QuadVertexArray;
-
 		// Model loader.
 		ModelLoader m_ModelLoader;
 

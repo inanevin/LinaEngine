@@ -104,5 +104,49 @@ namespace LinaEngine::Graphics
 
 		return true;
 	}
+
+
+	bool ModelLoader::LoadPrimitive(LinaArray<IndexedModel>& models, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords)
+	{
+		// Create and indexed model for each mesh & fill in the data.
+		IndexedModel currentModel;
+		currentModel.AllocateElement(3); // Positions
+		currentModel.AllocateElement(2); // TexCoords
+		currentModel.AllocateElement(3); // Normals
+		currentModel.AllocateElement(3); // Tangents
+		currentModel.SetStartIndex(4); // Begin instanced data
+		currentModel.AllocateElement(16); // Model Matrix
+		currentModel.AllocateElement(16); // Inverse transpose matrix
+
+
+		const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
+
+		// Iterate through vertices.
+		for (uint32 i = 0; i < vertexSize; i++)
+		{
+			// Get array references from the current model on stack.
+			const Vector3 pos = vertices[i];
+			const Vector2 texCoord = texCoords[i];
+			const Vector3 normal = Vector3::Zero;
+			const Vector3 tangent = Vector3::Zero;
+
+			// Set model vertex data.
+			currentModel.AddElement(0, pos.x, pos.y, pos.z);
+			currentModel.AddElement(1, texCoord.x, texCoord.y);
+			currentModel.AddElement(2, normal.x, normal.y, normal.z);
+			currentModel.AddElement(3, tangent.x, tangent.y, tangent.z);
+		}
+
+		// Iterate through faces & add indices for each face.
+		for (uint32 i = 0; i < indicesSize; i++)
+		{
+			if (i % 3 == 0)
+				currentModel.AddIndices(indices[i], indices[i + 1], indices[i+2]);
+		}
+
+		// Add model to array.
+		models.push_back(currentModel);
+		return true;
+	}
 }
 

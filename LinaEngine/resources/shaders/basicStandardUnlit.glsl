@@ -42,6 +42,7 @@ struct Material
 {
 vec3 objectColor;
 sampler2D diffuse;
+int surfaceType;
 };
 
 uniform Material material;
@@ -58,6 +59,10 @@ void main()
 		fragColor = vec4(vec3(depth), 1);
 	}
 	else
-		fragColor = vec4(material.objectColor * vec3(texture(material.diffuse ,TexCoords)), 1);
+	{
+		float alpha = material.surfaceType == 0 ? 1.0 : texture(material.diffuse, TexCoords).a;
+
+		fragColor = texture(material.diffuse ,TexCoords) * vec4(material.objectColor, 1.0);
+	}
 }
 #endif

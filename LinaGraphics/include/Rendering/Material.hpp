@@ -25,6 +25,7 @@ Timestamp: 4/26/2019 1:12:18 AM
 
 #include "Utility/Math/Matrix.hpp"
 #include "Utility/Math/Color.hpp"
+#include "Rendering/RenderConstants.hpp"
 #include <map>
 
 namespace LinaEngine::Graphics
@@ -61,6 +62,9 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void SetInt(const std::string& name, int value)
 		{
 			ints[name] = value;
+
+			if (name == MC_SURFACETYPE)
+				m_SurfaceType = static_cast<MaterialSurfaceType>(value);
 		}
 
 		FORCEINLINE void SetColor(const std::string& name, const Color& color)
@@ -130,7 +134,7 @@ namespace LinaEngine::Graphics
 
 		FORCEINLINE uint32 GetShaderID() { return shaderID; }
 
-		FORCEINLINE void SetSurfaceType(MaterialSurfaceType type) { m_SurfaceType = type; }
+		FORCEINLINE void SetSurfaceType(MaterialSurfaceType type) { m_SurfaceType = type; SetInt(MC_SURFACETYPE, type); }
 		FORCEINLINE MaterialSurfaceType GetSurfaceType() { return m_SurfaceType; }
 
 	private:

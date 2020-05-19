@@ -27,6 +27,7 @@ Timestamp: 4/27/2019 5:38:44 PM
 #include "Rendering/RenderingCommon.hpp"
 #include "Rendering/RenderTarget.hpp"
 #include "Rendering/VertexArray.hpp"
+#include <queue>
 
 namespace LinaEngine
 {
@@ -39,6 +40,8 @@ namespace LinaEngine
 		{
 			Graphics::VertexArray* vertexArray;
 			Graphics::Material* material;
+			bool drawArrays;
+			float distance;
 		};
 
 		struct BatchModelData
@@ -56,8 +59,24 @@ namespace LinaEngine::ECS
 
 	public:
 
-		typedef std::map<Graphics::BatchDrawData, Graphics::BatchModelData> OpaqueRenderBatch;
-		typedef std::map<float, std::tuple<Graphics::BatchDrawData, Graphics::BatchModelData>> TransparentRenderBatch;
+		typedef std::tuple<Graphics::BatchDrawData, Graphics::BatchModelData>  BatchPair;
+
+		struct BatchComparison
+		{
+			bool const operator()(const BatchPair& lhs, const BatchPair& rhs) const
+			{
+				
+				return std::get<0>(lhs).distance < std::get<0>(rhs).distance;
+			}
+		};
+
+		struct BatchDrawDataComp
+		{
+			bool const operator()(const Graphics::BatchDrawData& lhs, const Graphics::BatchDrawData& rhs) const
+			{
+				return std::tie(lhs.vertexArray, lhs.material) < std::tie(rhs.vertexArray, rhs.material);
+			}
+		};
 
 		MeshRendererSystem() {};
 
@@ -69,9 +88,10 @@ namespace LinaEngine::ECS
 			m_RenderTarget = &renderTargetIn;
 		}
 
-		void RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn);
-		void RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, float priority);
+		void RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, bool drawArrays);
+		void RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, bool drawArrays, float priority);
 		void FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
+		void FlushTransparent(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
 
 		virtual void UpdateComponents(float delta) override;
 
@@ -82,9 +102,10 @@ namespace LinaEngine::ECS
 		Graphics::RenderTarget* m_RenderTarget = nullptr;
 		Graphics::RenderEngine* m_RenderEngine = nullptr;
 
-		// Map to see the list of same vertex array & textures to compress them into single draw call.
-		OpaqueRenderBatch m_OpaqueRenderBatch;
-		TransparentRenderBatch m_TransparentRenderBatch;
+		// Map & queue to see the list of same vertex array & textures to compress them into single draw call.
+
+		std::map<Graphics::BatchDrawData, Graphics::BatchModelData, BatchDrawDataComp> m_OpaqueRenderBatch;
+		std::priority_queue<BatchPair, std::vector<BatchPair>, BatchComparison> m_TransparentRenderBatch;
 	};
 }
 

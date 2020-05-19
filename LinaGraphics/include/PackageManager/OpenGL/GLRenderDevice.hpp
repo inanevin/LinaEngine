@@ -168,6 +168,9 @@ namespace LinaEngine::Graphics
 		// Called when main window is resized.
 		void OnWindowResized(float width, float height);
 
+		void DeactivateTextureUnit(uint32 unit);
+
+		void DeactivateAllTextureUnits();
 
 		// Updates a float type uniform on a shader w/ given name.
 		void UpdateShaderUniformFloat(uint32 shader, const std::string& uniform, const float f);
@@ -235,6 +238,9 @@ namespace LinaEngine::Graphics
 
 		// Shader program map w/ ids.
 		std::map<uint32, ShaderProgram> m_ShaderProgramMap;
+
+		// Bound texture map
+		std::map<uint32, uint32> m_BoundTextures;
 
 		// Storage for shader version.
 		std::string m_ShaderVersion;

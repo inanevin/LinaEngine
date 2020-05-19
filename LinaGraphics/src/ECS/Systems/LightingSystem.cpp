@@ -45,6 +45,7 @@ namespace LinaEngine::ECS
 			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTDIRECTION, dirLight.direction);
 		}
 
+
 		// Iterate point lights.
 		auto& pointLightView = m_Registry->reg.view<TransformComponent, PointLightComponent>();
 		int currentPointLightCount = 0;

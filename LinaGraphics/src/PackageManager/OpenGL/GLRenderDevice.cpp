@@ -164,6 +164,17 @@ namespace LinaEngine::Graphics
 		1.0f,  0.5f,  0.0f,  1.0f,  0.0f
 	};
 
+	float quadVertexBuffer[] =
+	{
+		-1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+		-1.0f, -1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, -1.0f, 0.0f, 1.0f, 1.0f
+	};
+
+	int quadIndexBuffer[] = { 1,0,2,1,2,3 };
+
+
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 	// GLOBALS DECLARATIONS
@@ -756,6 +767,8 @@ namespace LinaEngine::Graphics
 		// Activate the sampler data.
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glBindTexture(bindTextureMode, texture);
+
+		m_BoundTextures[unit] = texture;
 		if (setSampler)
 			glBindSampler(unit, sampler);
 	}
@@ -892,6 +905,7 @@ namespace LinaEngine::Graphics
 				glDrawElementsInstanced(drawParams.primitiveType, (GLsizei)numElements, GL_UNSIGNED_INT, 0, numInstances);
 		}
 
+
 	}
 
 	void GLRenderDevice::Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
@@ -926,6 +940,21 @@ namespace LinaEngine::Graphics
 			m_FBOMap[i].height = (int32)height;
 		}
 	}
+
+	void GLRenderDevice::DeactivateTextureUnit(uint32 unit)
+	{
+		glActiveTexture(GL_TEXTURE0+unit);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		//glDeleteTextures(1, &m_BoundTextures[unit]);
+		m_BoundTextures[unit] = 0;
+	}
+
+	void GLRenderDevice::DeactivateAllTextureUnits()
+	{
+		for (std::map<uint32, uint32>::iterator it = m_BoundTextures.begin(); it != m_BoundTextures.end(); ++it)
+			DeactivateTextureUnit(it->first);
+	}
+
 
 
 	void GLRenderDevice::UpdateShaderUniformFloat(uint32 shader, const std::string& uniform, const float f)

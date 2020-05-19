@@ -50,6 +50,7 @@ sampler2D specular;
 vec3 objectColor;
 float specularIntensity;
 int specularExponent;
+int surfaceType;
 };
 
 uniform Material material;
@@ -138,6 +139,7 @@ vec3 CalculateSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir
 
 void main()
 {
+	fragColor = texture(material.diffuse, TexCoords);
 	vec3 viewPos = vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
 	vec3 norm = normalize(Normal);
 	vec3 viewDir = normalize(viewPos - FragPos);
@@ -158,6 +160,9 @@ void main()
 		fragColor = vec4(vec3(depth), 1);
 	}
 	else
-		fragColor = vec4(result, 1.0);
+		{
+			float alpha = material.surfaceType == 0 ? 1.0 : texture(material.diffuse, TexCoords).a;
+			fragColor = vec4(result, alpha);
+		}
 }
 #endif

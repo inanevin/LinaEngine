@@ -60,7 +60,6 @@ namespace LinaEngine::Graphics
 
 		// Release Vertex Array Objects
 		m_SkyboxVAO = m_RenderDevice.ReleaseVertexArray(m_SkyboxVAO);
-		m_RenderDevice.ReleaseVertexArray(m_QuadVertexArray.GetID());
 
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
@@ -114,8 +113,7 @@ namespace LinaEngine::Graphics
 
 		// Initialize built-in vertex array objects.
 		m_SkyboxVAO = m_RenderDevice.CreateSkyboxVertexArray();
-		m_QuadVertexArray.Construct(m_RenderDevice, std::bind(&RenderDevice::CreateQuadVertexArray, m_RenderDevice));
-		
+
 		// Initialize ECS Camera System.
 		Vector2 windowSize = Vector2(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
 		m_CameraSystem.Construct(ecsReg);
@@ -125,7 +123,7 @@ namespace LinaEngine::Graphics
 		m_MeshRendererSystem.Construct(ecsReg, *this, m_RenderDevice, m_RenderTarget);
 
 		// Initialize ECS quad renderer system
-		m_QuadRendererSystem.Construct(ecsReg, m_RenderDevice, *this, m_QuadVertexArray.GetID(), m_RenderTarget.GetID());
+		m_QuadRendererSystem.Construct(ecsReg, m_RenderDevice, *this, m_LoadedVertexArrays[VertexArrays::QUAD].GetID(), m_RenderTarget.GetID());
 
 		// Initialize ECS Lighting system.
 		m_LightingSystem.Construct(ecsReg, m_RenderDevice, *this);
@@ -305,8 +303,11 @@ namespace LinaEngine::Graphics
 	{
 		if (!VertexArrayExists(va))
 		{
+			
 			if (va == VertexArrays::QUAD)
-				return m_LoadedVertexArrays[va].Construct(m_RenderDevice, std::bind(&RenderDevice::CreateQuadVertexArray, m_RenderDevice));
+				return m_LoadedVertexArrays[va].Construct(m_RenderDevice, std::bind(&RenderDevice::CreateQuadVertexArray, m_RenderDevice), 36);
+			else
+				return m_LoadedVertexArrays[va];
 		}
 		else
 		{
@@ -373,6 +374,8 @@ namespace LinaEngine::Graphics
 			LINA_CORE_ERR("VA with the name ID {0} was not found, returning quad va.", va);
 			return GetVertexArray(VertexArrays::QUAD);
 		}
+		else
+			return m_LoadedVertexArrays[va];
 	}
 
 	void RenderEngine::UnloadTextureResource(const std::string& textureName)
@@ -457,9 +460,7 @@ namespace LinaEngine::Graphics
 		singleColor.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		singleColor.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
-		Shader& transparentQuad = CreateShader(Shaders::TRANSPARENT_QUAD, "resourceS/shaders/quad.glsl");
-		transparentQuad.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		transparentQuad.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
+
 	}
 
 	void RenderEngine::ConstructEngineMaterials()
@@ -505,7 +506,7 @@ namespace LinaEngine::Graphics
 			m_DefaultDrawParams.stencilWriteMask = 0xFF;
 
 			// Draw scene.
-			m_MeshRendererSystem.Flush(m_DefaultDrawParams, false);
+			m_MeshRendererSystem.FlushOpaque(m_DefaultDrawParams, false);
 
 			// Set stencil draw params.
 			m_DefaultDrawParams.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_NOT_EQUAL;
@@ -515,20 +516,19 @@ namespace LinaEngine::Graphics
 			m_RenderDevice.SetDepthTestEnable(false);
 
 			// Draw scene.
-			m_MeshRendererSystem.Flush(m_DefaultDrawParams, true, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE]);
+			m_MeshRendererSystem.FlushOpaque(m_DefaultDrawParams, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE], true);
 
 			// Reset stencil.
 			m_RenderDevice.SetStencilWriteMask(0xFF);
 			m_RenderDevice.SetDepthTestEnable(true);
 		}
 		else
-			m_MeshRendererSystem.Flush(m_DefaultDrawParams, true);
+			m_MeshRendererSystem.FlushOpaque(m_DefaultDrawParams, nullptr, true);
 
 		// Draw semi-transparent
-
 		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
 		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
-		m_QuadRendererSystem.Flush(m_DefaultDrawParams);
+		m_MeshRendererSystem.FlushTransparent(m_DefaultDrawParams, nullptr, true);
 
 	}
 
@@ -588,10 +588,11 @@ namespace LinaEngine::Graphics
 		if (shader == Shaders::STANDARD_LIT)
 		{
 			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
-			material.floats[MC_SPECULARINTENSITYPROPERTY] = 2.0f;
+			material.floats[MC_SPECULARINTENSITYPROPERTY] = 1.0f;
 			material.samplers[MC_DIFFUSETEXTUREPROPERTY] = 0;
 			material.samplers[MC_SPECULARTEXTUREPROPERTY] = 1;
 			material.ints[MC_SPECULAREXPONENTPROPERTY] = 32;
+			material.ints[MC_SURFACETYPE] = 0;
 			material.receivesLighting = true;
 
 		}
@@ -599,6 +600,7 @@ namespace LinaEngine::Graphics
 		{
 			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
 			material.samplers[MC_DIFFUSETEXTUREPROPERTY] = 0;
+			material.ints[MC_SURFACETYPE] = 0;
 		}
 		else if (shader == Shaders::SKYBOX_SINGLECOLOR)
 		{
@@ -624,12 +626,7 @@ namespace LinaEngine::Graphics
 			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
 			material.floats[MC_OUTLINETHICKNESS] = 0.1f;
 		}
-		else if (shader == Shaders::TRANSPARENT_QUAD)
-		{
-			material.m_SurfaceType = MaterialSurfaceType::Transparent;
-			material.samplers[MC_DIFFUSETEXTUREPROPERTY] = 0;
-			material.matrices[UF_MODELMATRIX] = Matrix();
-		}
+
 
 		return material;
 	}
@@ -674,16 +671,22 @@ namespace LinaEngine::Graphics
 
 		for (auto const& d : (*data).samplers)
 		{
-			m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first, d.second);
 
+			uint32 previouslyBound;
 			if ((*data).textures.find(d.first) != (*data).textures.end())
 			{
+				m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first, d.second);
+
 				MaterialTextureData* textureData = &(*data).textures[d.first];
 				m_RenderDevice.SetTexture(textureData->texture->GetID(), textureData->texture->GetSamplerID(), textureData->unit, textureData->bindMode, true);
+				previouslyBound = textureData->texture->GetID();
 			}
 			else
 				m_RenderDevice.SetTexture(m_DefaultTexture->GetID(), 0, d.second);
+
+
 		}
+
 
 		if (data->receivesLighting)
 			m_LightingSystem.SetLightingShaderData(data->GetShaderID());

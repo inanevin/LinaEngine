@@ -110,6 +110,7 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 	renderEngine->SetSkyboxMaterial(mat);
 }
 Material* objectLitMaterial;
+Material* objectTransparentMaterial;
 Material* objectUnlitMaterial;
 Material* objectUnlitMaterial2;
 Material* quadMaterial;
@@ -149,6 +150,7 @@ ECSEntity cubeEntity;
 
 void Example1Level::Initialize()
 {
+
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
@@ -173,9 +175,10 @@ void Example1Level::Initialize()
 
 	// Create material for example mesh.
 	objectLitMaterial = &m_RenderEngine->CreateMaterial("object1Material", Shaders::STANDARD_LIT);
+	objectTransparentMaterial = &m_RenderEngine->CreateMaterial("objectTransparentMaterial", Shaders::STANDARD_LIT);
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
 	objectUnlitMaterial2 = &m_RenderEngine->CreateMaterial("object4Material", Shaders::STANDARD_UNLIT);
-	quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::TRANSPARENT_QUAD);
+	quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::STANDARD_LIT);
 
 	// Create texture for example mesh.
 	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
@@ -190,9 +193,17 @@ void Example1Level::Initialize()
 	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png", PixelFormat::FORMAT_RGBA, true, false, s);
 	objectLitMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &crateTexture, 0);
 	objectLitMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, &crateSpecTexture, 1);
+	objectLitMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
+
+	objectTransparentMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &window, 0);
+	//objectTransparentMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, &window, 0);
+	objectTransparentMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
+
 	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(0, 0, 1));
 	objectUnlitMaterial2->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 0, 0));
+
 	quadMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &window, 0);
+	quadMaterial->SetSurfaceType(MaterialSurfaceType::Transparent);
 
 	object1Renderer.mesh = &cubeMesh;
 	object1Renderer.material = objectLitMaterial;
@@ -201,15 +212,16 @@ void Example1Level::Initialize()
 
 	directionalLight.entity = m_ECS->reg.create();
 	auto& dirLight = m_ECS->reg.emplace<DirectionalLightComponent>(directionalLight.entity);
-	dirLight.ambient = Color(0.00f, 0.00f, 0.00f);
-	dirLight.specular = Color(0.1f, 0.1f, 0.1f);
-	dirLight.diffuse = Color(0.01f, 0.01f, 0.01f);
+	dirLight.ambient = Color(0.05f, 0.05f, 0.05f);
+	dirLight.specular = Color(0.0f, 0.0f, 0.0f);
+	dirLight.diffuse = Color(0.4f, 0.4f, 0.4f);
 	dirLight.direction = Vector3(0, 0, 1);
-	
+	object1Renderer.componentType = RendererComponentDrawType::Mesh;
+
 	for (int i = 0; i < cubeSize; i++)
 	{
 		ECSEntity entity;
-
+		object1Renderer.material = objectTransparentMaterial;
 		//object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
 		object1Transform.transform.location = cubePositions[i];
 		entity.entity = m_ECS->reg.create();
@@ -225,7 +237,6 @@ void Example1Level::Initialize()
 		ECSEntity entity;
 		object1Transform.transform.location = pointLightPositions[i];
 		object1Transform.transform.scale = 1;
-		//object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
 		entity.entity = m_ECS->reg.create();
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
 
@@ -237,6 +248,7 @@ void Example1Level::Initialize()
 		pLight1.constant = 1.0f;
 		pLight1.linear = 0.09f;
 		pLight1.quadratic = 0.032f;
+
 
 
 		ECSEntity visuals;
@@ -251,16 +263,17 @@ void Example1Level::Initialize()
 	for (int i = 0; i < sLightSize; i++)
 	{
 		smallCubeRenderer.material = objectUnlitMaterial2;
-	//	object1Transform.transform.rotation = (Quaternion::Euler(Vector3::Zero));
 
 		ECSEntity entity;
 		object1Transform.transform.location = (spotLightPositions[i]);
 		entity.entity = m_ECS->reg.create();
+		//object1Transform.transform.rotation = (Quaternion::Euler(0, 180, 0));
+
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
 
 		auto& sLight1 = m_ECS->reg.emplace<SpotLightComponent>(entity.entity);
 
-		sLight1.ambient = Color(0.45f, 0.05f, 0.55f);
+		sLight1.ambient = Color(0.05f, 0.05f, 0.05f);
 		sLight1.diffuse = Color(1, 1, 1);
 		sLight1.specular = Color(1, 1, 1);
 		sLight1.direction = Vector3(0.0f, 0.0f, 1.0f);
@@ -279,28 +292,33 @@ void Example1Level::Initialize()
 	object1Transform.transform.rotation = (Quaternion::Euler(Vector3::Zero));
 	
 	object1Transform.transform.scale = (Vector3(2));
-	object1Transform.transform.location = (Vector3(-1.5f, 0, 8.5f));
+	object1Transform.transform.location = (Vector3(0.7f, 0, 5.5f));
 	object1Transform.transform.Rotate(180, 0,0);
+
+
+	
 	quad.entity = m_ECS->reg.create();
 	m_ECS->reg.emplace<TransformComponent>(quad.entity, object1Transform);
-	QuadRendererComponent quadR;
-	quadR.material = quadMaterial;
-	m_ECS->reg.emplace<QuadRendererComponent>(quad.entity, quadR);
-
+	MeshRendererComponent quadR;
+	quadR.material = objectTransparentMaterial;
+	quadR.componentType = RendererComponentDrawType::VertexArray;
+	quadR.vertexArray = &m_RenderEngine->GetVertexArray(VertexArrays::QUAD);
+	m_ECS->reg.emplace<MeshRendererComponent>(quad.entity, quadR);
+	
 	object1Transform.transform.location = (Vector3(-2.5f, 0, 11.0f));
 	quad2.entity = m_ECS->reg.create();
 	m_ECS->reg.emplace<TransformComponent>(quad2.entity, object1Transform);
-	m_ECS->reg.emplace<QuadRendererComponent>(quad2.entity, quadR);
-
+	m_ECS->reg.emplace<MeshRendererComponent>(quad2.entity, quadR);
+	
 	object1Transform.transform.location = (Vector3(-2.5f, 0, 7.5f));
 	quad3.entity = m_ECS->reg.create();
 	m_ECS->reg.emplace<TransformComponent>(quad3.entity, object1Transform);
-	m_ECS->reg.emplace<QuadRendererComponent>(quad3.entity, quadR);
-
+	m_ECS->reg.emplace<MeshRendererComponent>(quad3.entity, quadR);
+	
 	object1Transform.transform.location = (Vector3(-2.1f, 0, 7.0f));
 	quad4.entity = m_ECS->reg.create();
 	m_ECS->reg.emplace<TransformComponent>(quad4.entity, object1Transform);
-	m_ECS->reg.emplace<QuadRendererComponent>(quad4.entity, quadR);
+	m_ECS->reg.emplace<MeshRendererComponent>(quad4.entity, quadR);
 
 	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem();

@@ -65,13 +65,12 @@ namespace LinaEngine::ECS
 				if (renderer.componentType == Graphics::RendererComponentDrawType::Mesh)
 				{
 					for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
-						RenderOpaque(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix());
+						RenderOpaque(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix(), renderer.mesh->GetVertexArray(i)->GetDrawArrays());
 				}
 				else if (renderer.componentType == Graphics::RendererComponentDrawType::VertexArray)
 				{
-					for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
-						RenderOpaque(*renderer.vertexArray, *renderer.material, transform.transform.ToMatrix());
-				}				
+					RenderOpaque(*renderer.vertexArray, *renderer.material, transform.transform.ToMatrix(), renderer.vertexArray->GetDrawArrays());
+				}
 			}
 			else
 			{
@@ -82,68 +81,88 @@ namespace LinaEngine::ECS
 				if (renderer.componentType == Graphics::RendererComponentDrawType::Mesh)
 				{
 					for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
-						RenderTransparent(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix(), priority);
+						RenderTransparent(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix(), renderer.mesh->GetVertexArray(i)->GetDrawArrays(), priority);
 				}
 				else if (renderer.componentType == Graphics::RendererComponentDrawType::VertexArray)
 				{
-					for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
-						RenderTransparent(*renderer.vertexArray, *renderer.material, transform.transform.ToMatrix(), priority);
+					RenderTransparent(*renderer.vertexArray, *renderer.material, transform.transform.ToMatrix(), renderer.vertexArray->GetDrawArrays(), priority);
 				}
 			}
-
-		
-
 		}
 
 	}
 
-	void MeshRendererSystem::RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn)
+	void MeshRendererSystem::RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, bool drawArrays)
 	{
-		// Setup draw data.
 		Graphics::BatchDrawData drawData;
 		drawData.vertexArray = &vertexArray;
 		drawData.material = &material;
-
+		drawData.drawArrays = drawArrays;
 		// Add the new data to the map.
 		m_OpaqueRenderBatch[drawData].models.push_back(transformIn);
 		m_OpaqueRenderBatch[drawData].inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
 	}
 
-	void MeshRendererSystem::RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, float priority)
+	void MeshRendererSystem::RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, bool drawArrays, float priority)
 	{
-		// Add the new data to the map.
-		std::get<0>(m_TransparentRenderBatch[priority]).material = &material;
-		std::get<0>(m_TransparentRenderBatch[priority]).vertexArray = &vertexArray;
-		std::get<1>(m_TransparentRenderBatch[priority]).models.push_back(transformIn);
-		std::get<1>(m_TransparentRenderBatch[priority]).inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
+		//m_TransparentRenderBatch.emplace(std::make);
+		Graphics::BatchDrawData drawData;
+		drawData.vertexArray = &vertexArray;
+		drawData.material = &material;
+		drawData.drawArrays = drawArrays;
+		drawData.distance = priority;
+
+		Graphics::BatchModelData modelData;
+		modelData.models.push_back(transformIn);
+		modelData.inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
+		//// Add the new data to the map.
+		m_TransparentRenderBatch.emplace(std::make_pair(drawData, modelData));	
 	}
 
 	void MeshRendererSystem::FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
 	{
-		
-		for (OpaqueRenderBatch::iterator it = m_OpaqueRenderBatch.begin(); it != m_OpaqueRenderBatch.end(); ++it)
+		for (std::map<Graphics::BatchDrawData, Graphics::BatchModelData>::iterator it = m_OpaqueRenderBatch.begin(); it != m_OpaqueRenderBatch.end(); ++it)
 		{
-			auto& modelData = it->second;
-			Graphics::VertexArray* vertexArray = it->first.vertexArray;
 
-			Matrix* models = &modelData.models[0];
-			Matrix* inverseTransposeModels = &modelData.inverseTransposeModels[0];
+			// Get references.
+			Graphics::BatchDrawData drawData = it->first;
+			Graphics::BatchModelData& modelData = it->second;
 			size_t numTransforms = modelData.models.size();
-
 			if (numTransforms == 0) continue;
 
+			Graphics::VertexArray* vertexArray = drawData.vertexArray;
+			Matrix* models = &modelData.models[0];
+			Matrix* inverseTransposeModels = &modelData.inverseTransposeModels[0];
+
 			// Get the material for drawing, object's own material or overriden material.
-			Graphics::Material* mat = overrideMaterial == nullptr ? it->first.material: overrideMaterial;
-
-			// Update the buffer w/ each transform.
-			vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
-			vertexArray->UpdateBuffer(5, inverseTransposeModels, numTransforms * sizeof(Matrix));
-
-			// Update default shader.
-			m_RenderEngine->UpdateShaderData(mat);
+			Graphics::Material* mat = overrideMaterial == nullptr ? drawData.material : overrideMaterial;
 
 			// Draw call.
-			m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
+			if (drawData.drawArrays)
+			{
+				// Set model data.
+				//mat->SetMatrix4(UF_MODELMATRIX, modelData.models[0]);
+
+				vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
+
+				// Update shader
+				m_RenderEngine->UpdateShaderData(mat);
+
+				// Draw
+				m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), drawParams, 0, 36, true);
+			}
+			else
+			{
+				// Update the buffer w/ each transform.
+				vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
+				vertexArray->UpdateBuffer(5, inverseTransposeModels, numTransforms * sizeof(Matrix));
+
+				// Update shader
+				m_RenderEngine->UpdateShaderData(mat);
+				
+				// Draw
+				m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
+			}
 
 			// Clear the buffer.
 			if (completeFlush)
@@ -152,6 +171,63 @@ namespace LinaEngine::ECS
 				modelData.inverseTransposeModels.clear();
 			}
 		}
+	}
+
+	void MeshRendererSystem::FlushTransparent(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
+	{
+
+		// Empty out the queue
+		while (!m_TransparentRenderBatch.empty())
+		{
+			BatchPair pair = m_TransparentRenderBatch.top();
+
+			Graphics::BatchDrawData& drawData = std::get<0>(pair);
+			Graphics::BatchModelData& modelData = std::get<1>(pair);
+			size_t numTransforms = modelData.models.size();
+			if (numTransforms == 0) continue;
+
+			Graphics::VertexArray* vertexArray = drawData.vertexArray;
+			Matrix* models = &modelData.models[0];
+			Matrix* inverseTransposeModels = &modelData.inverseTransposeModels[0];
+
+			// Get the material for drawing, object's own material or overriden material.
+			Graphics::Material* mat = overrideMaterial == nullptr ? drawData.material : overrideMaterial;
+
+			// Draw call.
+			if (drawData.drawArrays)
+			{
+				// Set model data.
+				mat->SetMatrix4(UF_MODELMATRIX, modelData.models[0]);
+
+				// Update shader
+				m_RenderEngine->UpdateShaderData(mat);
+
+				// Draw
+				m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), drawParams, 0, 6, true);
+			}
+			else
+			{
+				// Update the buffer w/ each transform.
+				vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
+				vertexArray->UpdateBuffer(5, inverseTransposeModels, numTransforms * sizeof(Matrix));
+
+				// Update shader
+				m_RenderEngine->UpdateShaderData(mat);
+
+				// Draw
+				m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
+			}
+
+			// Clear the buffer.
+			if (completeFlush)
+			{
+				modelData.models.clear();
+				modelData.inverseTransposeModels.clear();
+			}
+
+			m_TransparentRenderBatch.pop();
+		}
+		
 	}
 
 }

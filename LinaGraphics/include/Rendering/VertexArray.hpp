@@ -47,14 +47,9 @@ namespace LinaEngine::Graphics
 			m_RenderDevice = &deviceIn;
 			m_EngineBoundID = model.CreateVertexArray(deviceIn, bufferUsage);
 			m_IndexCount = model.GetIndexCount();
+			m_DrawArrays = false;
 		}
 
-		FORCEINLINE VertexArray& Construct(RenderDevice& deviceIn, const std::function<int()>& constructor)
-		{
-			m_RenderDevice = &deviceIn;
-			m_EngineBoundID = constructor();
-			return *this;
-		}
 
 		FORCEINLINE void UpdateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize)
 		{
@@ -71,9 +66,11 @@ namespace LinaEngine::Graphics
 			return m_IndexCount;  
 		}
 
+		FORCEINLINE uint32 GetDrawArrays() { return m_DrawArrays; }
 
 	private:
 
+		bool m_DrawArrays = false;
 		RenderDevice* m_RenderDevice = nullptr;
 		uint32 m_EngineBoundID = 0;
 		uint32 m_IndexCount = 0;
