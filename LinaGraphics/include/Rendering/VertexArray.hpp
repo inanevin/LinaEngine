@@ -47,7 +47,6 @@ namespace LinaEngine::Graphics
 			m_RenderDevice = &deviceIn;
 			m_EngineBoundID = model.CreateVertexArray(deviceIn, bufferUsage);
 			m_IndexCount = model.GetIndexCount();
-			m_DrawArrays = false;
 		}
 
 
@@ -66,11 +65,9 @@ namespace LinaEngine::Graphics
 			return m_IndexCount;  
 		}
 
-		FORCEINLINE uint32 GetDrawArrays() { return m_DrawArrays; }
 
 	private:
 
-		bool m_DrawArrays = false;
 		RenderDevice* m_RenderDevice = nullptr;
 		uint32 m_EngineBoundID = 0;
 		uint32 m_IndexCount = 0;

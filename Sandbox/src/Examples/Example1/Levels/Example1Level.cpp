@@ -290,34 +290,33 @@ void Example1Level::Initialize()
 	}
 	object1Transform.transform.rotation = (Quaternion::Euler(Vector3::Zero));
 	
-	object1Transform.transform.scale = (Vector3(2));
+	object1Transform.transform.scale = (Vector3(1));
 	object1Transform.transform.location = (Vector3(0.7f, 0, 5.5f));
 	object1Transform.transform.Rotate(180, 0,0);
 
 
 	
-//quad.entity = m_ECS->reg.create();
-//m_ECS->reg.emplace<TransformComponent>(quad.entity, object1Transform);
-//MeshRendererComponent quadR;
-//quadR.material = objectTransparentMaterial;
-//quadR.componentType = RendererComponentDrawType::VertexArray;
-//quadR.vertexArray = &m_RenderEngine->GetVertexArray(VertexArrays::QUAD);
-//m_ECS->reg.emplace<MeshRendererComponent>(quad.entity, quadR);
-//
-//object1Transform.transform.location = (Vector3(-2.5f, 0, 11.0f));
-//quad2.entity = m_ECS->reg.create();
-//m_ECS->reg.emplace<TransformComponent>(quad2.entity, object1Transform);
-//m_ECS->reg.emplace<MeshRendererComponent>(quad2.entity, quadR);
-//
-//object1Transform.transform.location = (Vector3(-2.5f, 0, 7.5f));
-//quad3.entity = m_ECS->reg.create();
-//m_ECS->reg.emplace<TransformComponent>(quad3.entity, object1Transform);
-//m_ECS->reg.emplace<MeshRendererComponent>(quad3.entity, quadR);
-//
-//object1Transform.transform.location = (Vector3(-2.1f, 0, 7.0f));
-//quad4.entity = m_ECS->reg.create();
-//m_ECS->reg.emplace<TransformComponent>(quad4.entity, object1Transform);
-//m_ECS->reg.emplace<MeshRendererComponent>(quad4.entity, quadR);
+	quad.entity = m_ECS->reg.create();
+	m_ECS->reg.emplace<TransformComponent>(quad.entity, object1Transform);
+	MeshRendererComponent quadR;
+	quadR.material = objectLitMaterial;
+	quadR.mesh = &m_RenderEngine->GetPrimitive(Primitives::QUAD);
+	m_ECS->reg.emplace<MeshRendererComponent>(quad.entity, quadR);
+	
+	object1Transform.transform.location = (Vector3(-2.5f, 0, 11.0f));
+	quad2.entity = m_ECS->reg.create();
+	m_ECS->reg.emplace<TransformComponent>(quad2.entity, object1Transform);
+	m_ECS->reg.emplace<MeshRendererComponent>(quad2.entity, quadR);
+	
+	object1Transform.transform.location = (Vector3(-2.5f, 0, 7.5f));
+	quad3.entity = m_ECS->reg.create();
+	m_ECS->reg.emplace<TransformComponent>(quad3.entity, object1Transform);
+	m_ECS->reg.emplace<MeshRendererComponent>(quad3.entity, quadR);
+	
+	object1Transform.transform.location = (Vector3(-2.1f, 0, 7.0f));
+	quad4.entity = m_ECS->reg.create();
+	m_ECS->reg.emplace<TransformComponent>(quad4.entity, object1Transform);
+	m_ECS->reg.emplace<MeshRendererComponent>(quad4.entity, quadR);
 
 	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem();

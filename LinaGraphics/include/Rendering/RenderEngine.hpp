@@ -127,7 +127,7 @@ namespace LinaEngine::Graphics
 		Mesh& CreateMesh(const std::string& filePath);
 
 		/// <summary> Creates a primitive resource. </summary>
-		Mesh& CreatePrimitive(Primitives primitive, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords);
+		Mesh& CreatePrimitive(Primitives primitive, const std::string& path);
 
 		/// <summary> Creates a shader resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing shader. </param>

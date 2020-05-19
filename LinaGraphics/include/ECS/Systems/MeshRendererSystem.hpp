@@ -40,7 +40,6 @@ namespace LinaEngine
 		{
 			Graphics::VertexArray* vertexArray;
 			Graphics::Material* material;
-			bool drawArrays;
 			float distance;
 		};
 
@@ -88,8 +87,8 @@ namespace LinaEngine::ECS
 			m_RenderTarget = &renderTargetIn;
 		}
 
-		void RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, bool drawArrays);
-		void RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, bool drawArrays, float priority);
+		void RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn);
+		void RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, float priority);
 		void FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
 		void FlushTransparent(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
 

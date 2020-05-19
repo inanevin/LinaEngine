@@ -56,7 +56,7 @@ namespace LinaEngine::ECS
 			if (renderer.material->GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
 			{
 				for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
-					RenderOpaque(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix(), renderer.mesh->GetVertexArray(i)->GetDrawArrays());
+					RenderOpaque(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix());
 			}
 			else
 			{
@@ -64,30 +64,28 @@ namespace LinaEngine::ECS
 				float priority = (m_RenderEngine->GetCameraSystem().GetCameraLocation() - transform.transform.location).MagnitudeSqrt();
 
 				for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
-					RenderTransparent(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix(), renderer.mesh->GetVertexArray(i)->GetDrawArrays(), priority);
+					RenderTransparent(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix(), priority);
 			}
 		}
 
 	}
 
-	void MeshRendererSystem::RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, bool drawArrays)
+	void MeshRendererSystem::RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn)
 	{
 		Graphics::BatchDrawData drawData;
 		drawData.vertexArray = &vertexArray;
 		drawData.material = &material;
-		drawData.drawArrays = drawArrays;
 		// Add the new data to the map.
 		m_OpaqueRenderBatch[drawData].models.push_back(transformIn);
 		m_OpaqueRenderBatch[drawData].inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
 	}
 
-	void MeshRendererSystem::RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, bool drawArrays, float priority)
+	void MeshRendererSystem::RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn,float priority)
 	{
 		//m_TransparentRenderBatch.emplace(std::make);
 		Graphics::BatchDrawData drawData;
 		drawData.vertexArray = &vertexArray;
 		drawData.material = &material;
-		drawData.drawArrays = drawArrays;
 		drawData.distance = priority;
 
 		Graphics::BatchModelData modelData;
@@ -116,31 +114,15 @@ namespace LinaEngine::ECS
 			Graphics::Material* mat = overrideMaterial == nullptr ? drawData.material : overrideMaterial;
 
 			// Draw call.
-			if (drawData.drawArrays)
-			{
-				// Set model data.
-				//mat->SetMatrix4(UF_MODELMATRIX, modelData.models[0]);
+			// Update the buffer w/ each transform.
+			vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
+			vertexArray->UpdateBuffer(5, inverseTransposeModels, numTransforms * sizeof(Matrix));
 
-				vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
+			// Update shader
+			m_RenderEngine->UpdateShaderData(mat);
 
-				// Update shader
-				m_RenderEngine->UpdateShaderData(mat);
-
-				// Draw
-				m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), drawParams, 0, 36, true);
-			}
-			else
-			{
-				// Update the buffer w/ each transform.
-				vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
-				vertexArray->UpdateBuffer(5, inverseTransposeModels, numTransforms * sizeof(Matrix));
-
-				// Update shader
-				m_RenderEngine->UpdateShaderData(mat);
-				
-				// Draw
-				m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
-			}
+			// Draw
+			m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
 
 			// Clear the buffer.
 			if (completeFlush)
@@ -172,29 +154,15 @@ namespace LinaEngine::ECS
 			Graphics::Material* mat = overrideMaterial == nullptr ? drawData.material : overrideMaterial;
 
 			// Draw call.
-			if (drawData.drawArrays)
-			{
-				// Set model data.
-				mat->SetMatrix4(UF_MODELMATRIX, modelData.models[0]);
+			// Update the buffer w/ each transform.
+			vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
+			vertexArray->UpdateBuffer(5, inverseTransposeModels, numTransforms * sizeof(Matrix));
 
-				// Update shader
-				m_RenderEngine->UpdateShaderData(mat);
+			// Update shader
+			m_RenderEngine->UpdateShaderData(mat);
 
-				// Draw
-				m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), drawParams, 0, 6, true);
-			}
-			else
-			{
-				// Update the buffer w/ each transform.
-				vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
-				vertexArray->UpdateBuffer(5, inverseTransposeModels, numTransforms * sizeof(Matrix));
-
-				// Update shader
-				m_RenderEngine->UpdateShaderData(mat);
-
-				// Draw
-				m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
-			}
+			// Draw
+			m_RenderDevice->Draw(m_RenderTarget->GetID(), vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
 
 			// Clear the buffer.
 			if (completeFlush)

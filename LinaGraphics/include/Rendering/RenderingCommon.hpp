@@ -211,8 +211,8 @@ namespace LinaEngine::Graphics
 		PLANE = 1,
 		CUBE = 2,
 		SPHERE = 3,
-		PYRAMID = 4,
-		CAPSULE = 5,
+		ICOSPHERE = 4,
+		CONE = 5,
 		CYLINDER = 6
 	};
 

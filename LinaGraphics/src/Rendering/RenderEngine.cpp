@@ -32,7 +32,6 @@ Timestamp: 4/27/2019 11:18:07 PM
 #include "rendering/Primitives.hpp"
 
 
-
 namespace LinaEngine::Graphics
 {
 
@@ -254,7 +253,6 @@ namespace LinaEngine::Graphics
 			Mesh& mesh = m_LoadedMeshes[filePath];
 			m_ModelLoader.LoadModels(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs());
 
-			mesh.GetIndexedModels();
 			if (mesh.GetIndexedModels().size() == 0)
 			{
 				LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning primitive quad...", filePath);
@@ -282,16 +280,16 @@ namespace LinaEngine::Graphics
 
 	}
 
-	Mesh& RenderEngine::CreatePrimitive(Primitives primitive, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords)
+	Mesh& RenderEngine::CreatePrimitive(Primitives primitive, const std::string& path)
 	{
 		if (!PrimitiveExists(primitive))
 		{
 
 			// Create object data & feed it from model.
 			Mesh& mesh = m_LoadedPrimitives[primitive];
-			m_ModelLoader.LoadPrimitive(mesh.GetIndexedModels(), vertexSize, indicesSize, vertices, indices, texCoords);
 
-			mesh.GetIndexedModels();
+			m_ModelLoader.LoadModels(path, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs());
+
 			if (mesh.GetIndexedModels().size() == 0)
 			{
 				LINA_CORE_ERR("Indexed model array is empty! Primitive {0} could not be loaded, returning empty mesh", primitive);
@@ -491,7 +489,12 @@ namespace LinaEngine::Graphics
 	void RenderEngine::ConstructEnginePrimitives()
 	{
 		// Primitives
-		CreatePrimitive(Primitives::QUAD, VS_QUAD, IS_QUAD, VB_QUAD, IB_QUAD, TC_QUAD);
+		CreatePrimitive(Primitives::CUBE, "resources/meshes/primitives/cube.obj");
+		CreatePrimitive(Primitives::CYLINDER, "resources/meshes/primitives/cylinder.obj");
+		CreatePrimitive(Primitives::PLANE, "resources/meshes/primitives/plane.obj");
+		CreatePrimitive(Primitives::SPHERE, "resources/meshes/primitives/sphere.obj");
+		CreatePrimitive(Primitives::ICOSPHERE, "resources/meshes/primitives/icosphere.obj");
+		CreatePrimitive(Primitives::CONE, "resources/meshes/primitives/cone.obj");
 	}
 
 	void RenderEngine::DumpMemory()
