@@ -57,6 +57,7 @@ namespace LinaEngine::Graphics
 #define MC_SURFACETYPE "material.surfaceType"
 
 #define UF_MODELMATRIX "model"
+#define UF_SCREENTEXTURE "screenTexture"
 
 #define MAT_LINASTENCILOUTLINE "lina_StencilOutline"
 

@@ -100,8 +100,7 @@ namespace LinaEngine::Graphics
 		m_ScreenQuad = m_RenderDevice.CreateScreenQuadVertexArray();
 
 		// Initialize the render target.
-		//m_RenderTarget.Construct(m_RenderDevice, m_FrameBufferTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_RenderBuffer.GetID());;
-		m_RenderTarget.Construct(m_RenderDevice);
+		m_RenderTarget.Construct(m_RenderDevice, m_FrameBufferTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_RenderBuffer.GetID());;
 
 		// Set default drawing parameters.
 		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
@@ -485,6 +484,8 @@ namespace LinaEngine::Graphics
 		singleColor.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		singleColor.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
+		// Screen Quad
+		CreateShader(Shaders::SCREEN_QUAD, "resources/shaders/screenQuad.glsl");
 
 	}
 
@@ -660,6 +661,10 @@ namespace LinaEngine::Graphics
 			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
 			material.floats[MC_OUTLINETHICKNESS] = 0.1f;
 			material.ints[MC_SURFACETYPE] = 0;
+		}
+		else if (shader == Shaders::SCREEN_QUAD)
+		{
+			material.samplers[UF_SCREENTEXTURE] = 0;
 		}
 
 

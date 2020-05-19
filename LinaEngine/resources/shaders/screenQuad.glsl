@@ -25,36 +25,21 @@ Layout(1) attribute vec2 texCoord;
 
 out vec2 TexCoords;
 
-uniform mat4 model;
-
 void main()
 {
-    gl_Position = projection * view * model * vec4(position, 1.0);
+    gl_Position = vec4(position.x, position.y, 0.0, 1.0);
     TexCoords = texCoord;
 }
 
 #elif defined(FS_BUILD)
 
-struct Material
-{
-	sampler2D diffuse;
-};
-
-uniform Material material;
+uniform sampler2D screenTexture;
 
 in vec2 TexCoords;
 out vec4 fragColor;
 
 void main()
 {
-	if(visualizeDepth)
-	{
-		float depth = LinearizeDepth(gl_FragCoord.z, cameraFar, cameraNear) / cameraFar;		
-		fragColor = vec4(vec3(depth), 1);
-	}
-	else
-	{
-		fragColor = texture(material.diffuse, TexCoords);
-	}
+	fragColor = texture(screenTexture, TexCoords);
 }
 #endif
