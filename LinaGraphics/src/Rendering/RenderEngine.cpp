@@ -103,14 +103,15 @@ namespace LinaEngine::Graphics
 		SetMaterialShader(m_ScreenQuadMaterial, Shaders::SCREEN_QUAD);
 
 		// Initialize the render target.
-		//m_RenderTarget.Construct(m_RenderDevice, m_FrameBufferTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_RenderBuffer.GetID());;
-		m_RenderTarget.Construct(m_RenderDevice);
+		m_RenderTarget.Construct(m_RenderDevice, m_FrameBufferTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_RenderBuffer.GetID());;
 
 		// Set default drawing parameters.
 		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
 		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
 		m_DefaultDrawParams.shouldWriteDepth = true;
 		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
+		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
+		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
 
 		// Set skybox draw params.
 		m_SkyboxDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
@@ -150,9 +151,9 @@ namespace LinaEngine::Graphics
 	void RenderEngine::Tick(float delta)
 	{
 		//m_DefaultDrawParams.useDepthTest = true;
-
+		
 		// Clear color.
-		m_RenderDevice.Clear(m_RenderTarget.GetID(), true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+		m_RenderDevice.Clear(0, true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Draw skybox.
 		DrawSkybox();
@@ -541,8 +542,7 @@ namespace LinaEngine::Graphics
 			m_DefaultDrawParams.stencilComparisonVal = 1;
 			m_DefaultDrawParams.stencilTestMask = 0xFF;
 			m_DefaultDrawParams.stencilWriteMask = 0xFF;
-			m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
-			m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+			
 
 			// Draw scene.
 			m_MeshRendererSystem.FlushOpaque(fbo, m_DefaultDrawParams, nullptr, false);

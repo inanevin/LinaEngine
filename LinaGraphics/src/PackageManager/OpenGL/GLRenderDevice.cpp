@@ -215,6 +215,7 @@ namespace LinaEngine::Graphics
 		}
 
 		glBindTexture(GL_TEXTURE_2D, 0);
+
 		return textureHandle;
 	}
 
@@ -622,7 +623,7 @@ namespace LinaEngine::Graphics
 		data.width = width;
 		data.height = height;
 		m_FBOMap[fbo] = data;
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		SetFBO(0);
 		return fbo;
 	}
 
@@ -649,7 +650,7 @@ namespace LinaEngine::Graphics
 		data.width = width;
 		data.height = height;
 		m_FBOMap[fbo] = data;
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		SetFBO(0);
 		return fbo;
 	}
 
@@ -741,7 +742,9 @@ namespace LinaEngine::Graphics
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glBindTexture(bindTextureMode, texture);
 
+		// Set the map
 		m_BoundTextures[unit] = texture;
+
 		if (setSampler)
 			glBindSampler(unit, sampler);
 	}
@@ -883,8 +886,7 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::Clear(uint32 fbo, bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
 	{
-		// Make sure frame buffer objects are used.
-		SetFBO(fbo);
+
 		uint32 flags = 0;
 
 		// Set flags according to options.
