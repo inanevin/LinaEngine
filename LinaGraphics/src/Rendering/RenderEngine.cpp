@@ -95,21 +95,9 @@ namespace LinaEngine::Graphics
 
 		// Construct screen quad material.
 		SetMaterialShader(m_ScreenQuadMaterial, Shaders::SCREEN_QUAD);
-
-		// Initialize frame buffer texture.
-		m_FrameBufferTexture.ConstructFBTexture(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, PixelFormat::FORMAT_RGB, false, false, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT }, 4);
-
-		// Initialize render buffer.
-		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);
-
-		// Initialize the render target w/ render buffer.
-		m_RenderTarget.Construct(m_RenderDevice, m_FrameBufferTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_RenderBuffer.GetID());;
-
-		// Initialize intermediate frame buffer texture
-		m_IntermediateFrameBufferTexture.ConstructFBTexture(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, PixelFormat::FORMAT_RGB, false, false, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT }, 0);
-
-		// Initialize intermediate render target.
-		m_IntermediateRenderTarget.Construct(m_RenderDevice, m_IntermediateFrameBufferTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+		
+		// Construct render targets
+		ConstructRenderTargets();
 
 		// Setup draw parameters.
 		SetupDrawParameters();
@@ -144,7 +132,7 @@ namespace LinaEngine::Graphics
 	{
 
 		// Render to external buffer
-		m_RenderDevice.SetFBO(m_RenderTarget.GetID());
+		m_RenderDevice.SetFBO(m_MainRenderTarget.GetID());
 
 		// Clear color.
 		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
@@ -516,6 +504,24 @@ namespace LinaEngine::Graphics
 		CreatePrimitive(Primitives::CONE, "resources/meshes/primitives/cone.obj");
 	}
 
+	void RenderEngine::ConstructRenderTargets()
+	{
+		// Initialize frame buffer texture.
+		m_MainRTTexture.ConstructFBTexture(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, PixelFormat::FORMAT_RGB, false, false, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT }, 4);
+
+		// Initialize render buffer.
+		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);
+
+		// Initialize the render target w/ render buffer.
+		m_MainRenderTarget.Construct(m_RenderDevice, m_MainRTTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_RenderBuffer.GetID());;
+
+		// Initialize intermediate frame buffer texture
+		m_IntermediateRTTexture.ConstructFBTexture(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, PixelFormat::FORMAT_RGB, false, false, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT }, 0);
+
+		// Initialize intermediate render target.
+		m_IntermediateRenderTarget.Construct(m_RenderDevice, m_IntermediateRTTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+	}
+
 	void RenderEngine::SetupDrawParameters()
 	{
 		// Set default drawing parameters.
@@ -679,7 +685,7 @@ namespace LinaEngine::Graphics
 		int h = m_MainWindow.GetHeight();
 
 		// Blit read & write buffers.
-		m_RenderDevice.BlitFrameBuffers(m_RenderTarget.GetID(), w, h, m_IntermediateRenderTarget.GetID(), w, h, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST);
+		m_RenderDevice.BlitFrameBuffers(m_MainRenderTarget.GetID(), w, h, m_IntermediateRenderTarget.GetID(), w, h, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST);
 
 		// Back to default buffer
 		m_RenderDevice.SetFBO(0);
@@ -688,7 +694,7 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.Clear(true, false, false, Color::White, 0xFF);
 
 		// Set frame buffer texture on the material.
-		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &m_IntermediateFrameBufferTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &m_IntermediateRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 
 		// update shader w/ material data.
 		UpdateShaderData(&m_ScreenQuadMaterial);

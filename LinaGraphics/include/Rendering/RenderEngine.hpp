@@ -190,6 +190,9 @@ namespace LinaEngine::Graphics
 		// Constructs engine vertex arrays
 		void ConstructEnginePrimitives();
 
+		// Construct frame buffers
+		void ConstructRenderTargets();
+
 		// Sets up draw parameters.
 		void SetupDrawParameters();
 
@@ -217,10 +220,13 @@ namespace LinaEngine::Graphics
 		Window m_MainWindow;
 
 		// Default render target
-		RenderTarget m_RenderTarget;
+		RenderTarget m_MainRenderTarget;
 
 		// Intermediate render target for blitting
 		RenderTarget m_IntermediateRenderTarget;
+
+		// Depth map render target for shadow mapping
+		RenderTarget m_DepthMapRenderTarget;
 
 		// Default Render buffer
 		RenderBuffer m_RenderBuffer;
@@ -231,11 +237,15 @@ namespace LinaEngine::Graphics
 		// Screen Quad material
 		Material m_ScreenQuadMaterial;
 
-		// Default Framebuffer Texture
-		Texture m_FrameBufferTexture;
+		// Main render target Texture
+		Texture m_MainRTTexture;
 
-		// Intermediate frame buffer texture
-		Texture m_IntermediateFrameBufferTexture;
+		// Intermediate render target texture
+		Texture m_IntermediateRTTexture;
+
+		// Depth map render target texture
+		//Texture m_DepthMapRTTexture;
+		//Texture sa;
 
 		// Default drawing parameters.
 		DrawParams m_DefaultDrawParams;

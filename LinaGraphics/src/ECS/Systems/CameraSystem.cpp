@@ -57,7 +57,7 @@ namespace LinaEngine::ECS
 
 	Vector3 CameraSystem::GetCameraLocation()
 	{
-		return m_CurrentCameraComponent == nullptr ? Vector3(Vector3::Zero): m_CurrentCameraTransform->transform.location;
+		return (m_CurrentCameraComponent == nullptr | m_CurrentCameraTransform == nullptr)? Vector3(Vector3::Zero): m_CurrentCameraTransform->transform.location;
 	}
 
 	LinaEngine::Color& CameraSystem::GetCurrentClearColor()
