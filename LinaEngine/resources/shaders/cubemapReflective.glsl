@@ -47,11 +47,23 @@ uniform samplerCube skybox;
 
 uniform sampler2D screenTexture;
 
-void main()
+vec3 getReflectionR()
 {
 	vec3 camPos = vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
 	vec3 I = normalize(Position - camPos);
-    vec3 R = reflect(I, normalize(Normal));
-    fragColor = vec4(texture(skybox, R).rgb, 1.0);
+    return reflect(I, normalize(Normal));
+}
+
+vec3 getRefractionR()
+{
+	float ratio = 1.00 / 1.52;
+	vec3 camPos = vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
+    vec3 I = normalize(Position - camPos);
+    return refract(I, normalize(Normal), ratio);
+}
+
+void main()
+{
+    fragColor = vec4(texture(skybox, getRefractionR()).rgb, 1.0);
 }
 #endif
