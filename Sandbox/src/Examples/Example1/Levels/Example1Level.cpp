@@ -170,8 +170,8 @@ void Example1Level::Initialize()
 	SamplerData s;
 	s.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
 	s.maxFilter = SamplerFilter::FILTER_LINEAR;
-	s.wrapU = SamplerWrapMode::WRAP_CLAMP;
-	s.wrapV = SamplerWrapMode::WRAP_CLAMP;
+	s.wrapS = SamplerWrapMode::WRAP_CLAMP;
+	s.wrapT = SamplerWrapMode::WRAP_CLAMP;
 
 
 	// Create texture for example mesh.
@@ -188,6 +188,7 @@ void Example1Level::Initialize()
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
 	quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::STANDARD_LIT);
 	//cubemapReflectiveMaterial = &m_RenderEngine->CreateMaterial("cubemapReflective", Shaders::CUBEMAP_REFLECTIVE);
+
 
 	objectLitMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &crateTexture, 0);
 	objectLitMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, &crateSpecTexture, 1);
@@ -220,6 +221,7 @@ void Example1Level::Initialize()
 
 		//object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
 		object1Transform.transform.location = cubePositions[i];
+		//object1Transform.transform.location = Vector3(Math::RandF(-100, 100), Math::RandF(-100, 100), Math::RandF(-100, 100));
 		entity.entity = m_ECS->reg.create();
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
 		m_ECS->reg.emplace<MeshRendererComponent>(entity.entity, object1Renderer);

@@ -165,8 +165,8 @@ namespace LinaEngine::Graphics
 	{
 		SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR;
 		SamplerFilter maxFilter = SamplerFilter::FILTER_LINEAR;
-		SamplerWrapMode wrapU = SamplerWrapMode::WRAP_CLAMP;
-		SamplerWrapMode wrapV = SamplerWrapMode::WRAP_CLAMP;
+		SamplerWrapMode wrapS = SamplerWrapMode::WRAP_CLAMP;
+		SamplerWrapMode wrapT = SamplerWrapMode::WRAP_CLAMP;
 		float anisotropy = 0.0f;
 	};
 

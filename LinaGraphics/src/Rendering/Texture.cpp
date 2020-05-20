@@ -31,8 +31,8 @@ namespace LinaEngine::Graphics
 	Texture& Texture::Construct(RenderDevice& deviceIn, const ArrayBitmap& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress, SamplerData samplerData)
 	{
 		renderDevice = &deviceIn;
-		m_Sampler.Construct(deviceIn, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapU, samplerData.wrapV, samplerData.anisotropy);
-		m_ID = renderDevice->CreateTexture2D(data.GetWidth(), data.GetHeight(), data.GetPixelArray(), PixelFormat::FORMAT_RGBA, internalPixelFormat, generateMipMaps, shouldCompress, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapU, samplerData.wrapV);
+		m_Sampler.Construct(deviceIn, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT, samplerData.anisotropy);
+		m_ID = renderDevice->CreateTexture2D(data.GetWidth(), data.GetHeight(), data.GetPixelArray(), PixelFormat::FORMAT_RGBA, internalPixelFormat, generateMipMaps, shouldCompress, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT);
 		m_Width = (uint32)data.GetWidth();
 		m_Height = (uint32)data.GetHeight();
 		isCompressed = shouldCompress;
@@ -43,7 +43,7 @@ namespace LinaEngine::Graphics
 	Texture& Texture::Construct(RenderDevice& deviceIn, const DDSTexture& ddsTexture, SamplerData samplerData)
 	{
 		renderDevice = &deviceIn;
-		m_Sampler.Construct(deviceIn, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapU, samplerData.wrapV, samplerData.anisotropy);
+		m_Sampler.Construct(deviceIn, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT, samplerData.anisotropy);
 		m_ID = renderDevice->CreateDDSTexture2D(ddsTexture.GetWidth(), ddsTexture.GetHeight(), ddsTexture.GetBuffer(), ddsTexture.GetFourCC(), ddsTexture.GetMipMapCount());
 		m_Width = ddsTexture.GetWidth();
 		m_Height = ddsTexture.GetHeight();
@@ -60,7 +60,7 @@ namespace LinaEngine::Graphics
 			return Texture();
 		}
 
-		m_Sampler.Construct(deviceIn, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapU, samplerData.wrapV, samplerData.anisotropy);
+		m_Sampler.Construct(deviceIn, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT, samplerData.anisotropy);
 		renderDevice = &deviceIn;
 		m_Width = (uint32)data[0]->GetWidth();
 		m_Height = (uint32)data[0]->GetHeight();
@@ -81,8 +81,8 @@ namespace LinaEngine::Graphics
 	Texture& Texture::Construct(RenderDevice& deviceIn, uint32 width, uint32 height, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress, SamplerData samplerData)
 	{
 		renderDevice = &deviceIn;
-		m_Sampler.Construct(deviceIn, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapU, samplerData.wrapV, samplerData.anisotropy);
-		m_ID = renderDevice->CreateTexture2D(width, height, NULL, PixelFormat::FORMAT_RGBA, internalPixelFormat, generateMipMaps, shouldCompress, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapU, samplerData.wrapV);
+		m_Sampler.Construct(deviceIn, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT, samplerData.anisotropy);
+		m_ID = renderDevice->CreateTexture2D(width, height, NULL, PixelFormat::FORMAT_RGBA, internalPixelFormat, generateMipMaps, shouldCompress, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT);
 		m_Width = (uint32)width;
 		m_Height = (uint32)height;
 		isCompressed = shouldCompress;

@@ -137,7 +137,7 @@ namespace LinaEngine::Graphics
 	void RenderEngine::Tick(float delta)
 	{
 		// Render to external buffer
-		m_RenderDevice.SetFBO(m_RenderTarget.GetID());
+		m_RenderDevice.SetFBO(0);
 
 		// Clear color.
 		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
@@ -155,7 +155,7 @@ namespace LinaEngine::Graphics
 		DrawSkybox();
 
 		// Draw frame buffer texture on the screen
-		DrawFullscreenQuad();
+		//DrawFullscreenQuad();
 
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)

@@ -39,6 +39,7 @@ namespace LinaEngine::ECS
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 			MeshRendererComponent& renderer = view.get<MeshRendererComponent>(entity);
 
+
 			// Null check.
 			if (renderer.material == nullptr)
 			{
