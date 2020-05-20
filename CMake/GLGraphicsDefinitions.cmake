@@ -16,7 +16,14 @@
 
 #----------------------------------- BUFFER USAGE DEFINITIONS ----------------------------------- #
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_BINDTEXTURE_TEXTURE2D=0x0DE1)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_BINDTEXTURE_TEXTURE2D_MULTISAMPLE=0x9100)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_BINDTEXTURE_CUBEMAP=0x8513)
+
+#----------------------------------- BUFFER BIT DEFINITIONS ----------------------------------- #
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_BUFFERBIT_COLOR=0x00004000)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_BUFFERBIT_DEPTH=0x00000100)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_BUFFERBIT_STENCIL=0x00000400)
+
 
 #----------------------------------- BUFFER USAGE DEFINITIONS ----------------------------------- #
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_USAGE_STATIC_DRAW=0x88E4)

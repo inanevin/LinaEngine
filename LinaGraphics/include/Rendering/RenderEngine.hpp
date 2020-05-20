@@ -200,7 +200,7 @@ namespace LinaEngine::Graphics
 		void DrawSkybox();
 
 		// Renders scene objects.
-		void DrawSceneObjects(bool useStencilOutlining, uint32 fbo, DrawParams& drawpParams);
+		void DrawSceneObjects(bool useStencilOutlining, DrawParams& drawpParams);
 
 		// Draws a full screen quad from frame buffer texture.
 		void DrawFullscreenQuad();
@@ -219,6 +219,9 @@ namespace LinaEngine::Graphics
 		// Default render target
 		RenderTarget m_RenderTarget;
 
+		// Intermediate render target for blitting
+		RenderTarget m_IntermediateRenderTarget;
+
 		// Default Render buffer
 		RenderBuffer m_RenderBuffer;
 
@@ -230,6 +233,9 @@ namespace LinaEngine::Graphics
 
 		// Default Framebuffer Texture
 		Texture m_FrameBufferTexture;
+
+		// Intermediate frame buffer texture
+		Texture m_IntermediateFrameBufferTexture;
 
 		// Default drawing parameters.
 		DrawParams m_DefaultDrawParams;

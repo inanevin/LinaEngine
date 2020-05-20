@@ -83,7 +83,8 @@ namespace LinaEngine::Graphics
 
 		// Creates a texture on GL.
 		uint32 CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress
-		, SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST, SamplerFilter magFilter = SamplerFilter::FILTER_NEAREST, SamplerWrapMode wrapS = SamplerWrapMode::WRAP_REPEAT, SamplerWrapMode wrapT = SamplerWrapMode::WRAP_REPEAT);
+		, SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST, SamplerFilter magFilter = SamplerFilter::FILTER_NEAREST, SamplerWrapMode wrapS = SamplerWrapMode::WRAP_REPEAT,
+			SamplerWrapMode wrapT = SamplerWrapMode::WRAP_REPEAT, int sampleCount = 0);
 
 		// Creates a DDS texture on GL.
 		uint32 CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount);
@@ -125,19 +126,19 @@ namespace LinaEngine::Graphics
 		uint32 ReleaseShaderProgram(uint32 shader);
 
 		// Creates a render target based on window props & attachments on GL.
-		uint32 CreateRenderTarget(uint32 texture, int32 width, int32 height, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, bool bindRBO = false, FrameBufferAttachment rboAtt = FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, uint32 rbo = 0);
+		uint32 CreateRenderTarget(uint32 texture, int32 width, int32 height, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, bool bindRBO = false, FrameBufferAttachment rboAtt = FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, uint32 rbo = 0);
 
 		// Releases a previously created render target from GL.
 		uint32 ReleaseRenderTarget(uint32 target);
 
 		// Creates a render buffer object
-		uint32 CreateRenderBufferObject(RenderBufferStorage storage, uint32 width, uint32 height);
+		uint32 CreateRenderBufferObject(RenderBufferStorage storage, uint32 width, uint32 height, int sampleCount);
 
 		// Deletes a render buffer object.
 		uint32 ReleaseRenderBufferObject(uint32 target);
 
 		// Binds a rbo to an existing fbo
-		void BindRenderBufferToTarget(uint32 fbo, FrameBufferAttachment rboAttachment, uint32 rbo);
+		void BlitFrameBuffers(uint32 readFBO, uint32 readWidth, uint32 readHeight, uint32 writeFBO, uint32 writeWidth, uint32 writeHeight, BufferBit mask, SamplerFilter filter);
 
 		// Updates a vertex array object by id.
 		void UpdateVertexArray(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);
@@ -146,7 +147,7 @@ namespace LinaEngine::Graphics
 		void SetShader(uint32 shader);
 
 		// Uses a shader sampler by id.
-		void SetTexture(uint32 texture, uint32 sampler, uint32 unit, BindTextureMode bindTextureMode = BindTextureMode::BINDTEXTURE_TEXTURE2D, bool setSampler = false);
+		void SetTexture(uint32 texture, uint32 sampler, uint32 unit, TextureBindMode bindTextureMode = TextureBindMode::BINDTEXTURE_TEXTURE2D, bool setSampler = false);
 
 		// Creates uniform buffer of a shader by id.
 		void SetShaderUniformBuffer(uint32 shader, const std::string& uniformBufferName, uint32 buffer);

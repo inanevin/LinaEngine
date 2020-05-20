@@ -34,9 +34,9 @@ namespace LinaEngine::Graphics
 		RenderBuffer() {};
 		~RenderBuffer() { m_ID = m_RenderDevice->ReleaseRenderBufferObject(m_ID); };
 		
-		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, RenderBufferStorage storage, uint32 width, uint32 height)
+		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, RenderBufferStorage storage, uint32 width, uint32 height, int sampleCount = 0)
 		{
-			m_ID = m_RenderDevice->CreateRenderBufferObject(storage, width, height);
+			m_ID = m_RenderDevice->CreateRenderBufferObject(storage, width, height, sampleCount);
 		}
 
 		FORCEINLINE uint32 GetID() { return m_ID; }

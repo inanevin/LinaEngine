@@ -90,20 +90,26 @@ namespace LinaEngine::Graphics
 		// Initialize engine vertex arrays.
 		ConstructEnginePrimitives();
 
-		// Initialize frame buffer texture.
-		m_FrameBufferTexture.Construct(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, false, false, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT });
-
 		// Construct screen quad.
 		m_ScreenQuad = m_RenderDevice.CreateScreenQuadVertexArray();
 
 		// Construct screen quad material.
 		SetMaterialShader(m_ScreenQuadMaterial, Shaders::SCREEN_QUAD);
 
-		// Initialize render buffer.
-		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
+		// Initialize frame buffer texture.
+		m_FrameBufferTexture.ConstructFBTexture(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, false, false, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT }, 4);
 
-		// Initialize the render target.
-		m_RenderTarget.Construct(m_RenderDevice, m_FrameBufferTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_RenderBuffer.GetID());;
+		// Initialize render buffer.
+		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);
+
+		// Initialize the render target w/ render buffer.
+		m_RenderTarget.Construct(m_RenderDevice, m_FrameBufferTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_RenderBuffer.GetID());;
+
+		// Initialize intermediate frame buffer texture
+		m_IntermediateFrameBufferTexture.ConstructFBTexture(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, false, false, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT }, 0);
+
+		// Initialize intermediate render target.
+		m_IntermediateRenderTarget.Construct(m_RenderDevice, m_IntermediateFrameBufferTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 
 		// Setup draw parameters.
 		SetupDrawParameters();
@@ -136,8 +142,9 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Tick(float delta)
 	{
+
 		// Render to external buffer
-		m_RenderDevice.SetFBO(0);
+		m_RenderDevice.SetFBO(m_RenderTarget.GetID());
 
 		// Clear color.
 		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
@@ -149,7 +156,7 @@ namespace LinaEngine::Graphics
 		UpdateUniformBuffers();
 
 		// Draw scene
-		DrawSceneObjects(false, m_RenderTarget.GetID(), m_DefaultDrawParams);
+		DrawSceneObjects(false,m_DefaultDrawParams);
 
 		// Draw skybox.
 		DrawSkybox();
@@ -639,7 +646,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void RenderEngine::DrawSceneObjects(bool useStencilOutlining, uint32 fbo, DrawParams& drawParams)
+	void RenderEngine::DrawSceneObjects(bool useStencilOutlining, DrawParams& drawParams)
 	{
 		// Draw opaques.
 		if (useStencilOutlining)
@@ -668,6 +675,12 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::DrawFullscreenQuad()
 	{
+		int w = m_MainWindow.GetWidth();
+		int h = m_MainWindow.GetHeight();
+
+		// Blit read & write buffers.
+		m_RenderDevice.BlitFrameBuffers(m_RenderTarget.GetID(), w, h, m_IntermediateRenderTarget.GetID(), w, h, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST);
+
 		// Back to default buffer
 		m_RenderDevice.SetFBO(0);
 
@@ -675,7 +688,7 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.Clear(true, false, false, Color::White, 0xFF);
 
 		// Set frame buffer texture on the material.
-		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &m_FrameBufferTexture, 0);
+		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &m_IntermediateFrameBufferTexture, 0, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 
 		// update shader w/ material data.
 		UpdateShaderData(&m_ScreenQuadMaterial);

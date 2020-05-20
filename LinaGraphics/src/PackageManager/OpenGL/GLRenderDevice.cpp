@@ -161,6 +161,7 @@ namespace LinaEngine::Graphics
 		glEnable(GL_STENCIL_TEST);
 		glEnable(GL_BLEND);
 		glEnable(GL_CULL_FACE);
+		glEnable(GL_MULTISAMPLE);
 		glDepthFunc(GL_LESS);
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -188,12 +189,12 @@ namespace LinaEngine::Graphics
 
 
 	uint32 GLRenderDevice::CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress
-		, SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapS, SamplerWrapMode wrapT)
+		, SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapS, SamplerWrapMode wrapT, int sampleCount)
 	{
 		// Declare formats, target & handle for the texture.
 		GLint format = GetOpenGLFormat(pixelDataFormat);
 		GLint internalFormat = GetOpenGLInternalFormat(internalPixelFormat, compress);
-		GLenum textureTarget = GL_TEXTURE_2D;
+		GLenum textureTarget = sampleCount == 0 ? GL_TEXTURE_2D : GL_TEXTURE_2D_MULTISAMPLE;
 		GLuint textureHandle;
 
 		// Generate texture & bind to program.
@@ -205,7 +206,11 @@ namespace LinaEngine::Graphics
 		glTexParameterf(textureTarget, GL_TEXTURE_MAG_FILTER, magFilter);
 		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, wrapS);
 		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, wrapT);
-		glTexImage2D(textureTarget, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+
+		if (sampleCount == 0)
+			glTexImage2D(textureTarget, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		else
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, sampleCount, internalFormat, width, height, GL_TRUE);
 
 		// Enable mipmaps if needed.
 		if (generateMipMaps)
@@ -216,7 +221,7 @@ namespace LinaEngine::Graphics
 			glTexParameteri(textureTarget, GL_TEXTURE_MAX_LEVEL, 0);
 		}
 
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindTexture(textureTarget, 0);
 
 		return textureHandle;
 	}
@@ -559,7 +564,7 @@ namespace LinaEngine::Graphics
 			if (!AddShader(shaderProgram, geometryShaderText, GL_GEOMETRY_SHADER, &programData.shaders))
 				return (uint32)-1;
 		}
-	
+
 		if (!AddShader(shaderProgram, fragmentShaderText, GL_FRAGMENT_SHADER, &programData.shaders))
 			return (uint32)-1;
 
@@ -613,7 +618,7 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	uint32 GLRenderDevice::CreateRenderTarget(uint32 texture, int32 width, int32 height, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, bool bindRBO, FrameBufferAttachment rboAttachment, uint32 rbo)
+	uint32 GLRenderDevice::CreateRenderTarget(uint32 texture, int32 width, int32 height, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, bool bindRBO, FrameBufferAttachment rboAttachment, uint32 rbo)
 	{
 		// Generate frame buffers & set the current object.
 		uint32 fbo;
@@ -622,7 +627,7 @@ namespace LinaEngine::Graphics
 
 		// Define attachment type & use the buffer.
 		GLenum attachmentTypeGL = attachment + attachmentNumber;
-		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, GL_TEXTURE_2D, texture, mipLevel);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, bindTextureMode, texture, mipLevel);
 
 		// Set the render buffer object if desired.
 		if (bindRBO)
@@ -654,12 +659,17 @@ namespace LinaEngine::Graphics
 		return 0;
 	}
 
-	uint32 GLRenderDevice::CreateRenderBufferObject(RenderBufferStorage storage, uint32 width, uint32 height)
+	uint32 GLRenderDevice::CreateRenderBufferObject(RenderBufferStorage storage, uint32 width, uint32 height, int sampleCount)
 	{
 		unsigned int rbo;
 		glGenRenderbuffers(1, &rbo);
 		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, storage, width, height);
+
+		if (sampleCount == 0)
+			glRenderbufferStorage(GL_RENDERBUFFER, storage, width, height);
+		else
+			glRenderbufferStorageMultisample(GL_RENDERBUFFER, sampleCount, storage, width, height);
+
 		return rbo;
 	}
 
@@ -667,6 +677,13 @@ namespace LinaEngine::Graphics
 	{
 		glDeleteRenderbuffers(1, &target);
 		return 0;
+	}
+
+	void GLRenderDevice::BlitFrameBuffers(uint32 readFBO, uint32 readWidth, uint32 readHeight, uint32 writeFBO, uint32 writeWidth, uint32 writeHeight, BufferBit mask, SamplerFilter filter)
+	{
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, readFBO);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, writeFBO);
+		glBlitFramebuffer(0, 0, readWidth, readHeight, 0, 0, writeWidth, writeHeight, mask, filter);
 	}
 
 
@@ -722,7 +739,7 @@ namespace LinaEngine::Graphics
 		m_BoundShader = shader;
 	}
 
-	void GLRenderDevice::SetTexture(uint32 texture, uint32 sampler, uint32 unit, BindTextureMode bindTextureMode, bool setSampler)
+	void GLRenderDevice::SetTexture(uint32 texture, uint32 sampler, uint32 unit, TextureBindMode bindTextureMode, bool setSampler)
 	{
 		// Activate the sampler data.
 		glActiveTexture(GL_TEXTURE0 + unit);
@@ -853,7 +870,7 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void GLRenderDevice::Clear( bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
+	void GLRenderDevice::Clear(bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
 	{
 		// Make sure frame buffer objects are used.
 		uint32 flags = 0;

@@ -37,7 +37,7 @@ namespace LinaEngine::Graphics
 	{
 		Texture* texture = nullptr;
 		uint32 unit = 0;
-		BindTextureMode bindMode = BindTextureMode::BINDTEXTURE_TEXTURE2D;
+		TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
 	};
 
 	class Material
@@ -45,7 +45,7 @@ namespace LinaEngine::Graphics
 
 	public:
 		
-		FORCEINLINE void SetTexture(const std::string& textureName, Texture* texture, uint32 textureUnit, BindTextureMode bindMode = BindTextureMode::BINDTEXTURE_TEXTURE2D)
+		FORCEINLINE void SetTexture(const std::string& textureName, Texture* texture, uint32 textureUnit, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D)
 		{
 			MaterialTextureData data;
 			data.texture = texture;
