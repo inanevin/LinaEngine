@@ -165,17 +165,18 @@ void Example1Level::Initialize()
 	camFreeLook.movementSpeedX = camFreeLook.movementSpeedZ = 12.0f;
 	camFreeLook.rotationSpeedX = camFreeLook.rotationSpeedY = 3;
 
-
 	SamplerData s;
 	s.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
 	s.maxFilter = SamplerFilter::FILTER_LINEAR;
 	s.wrapU = SamplerWrapMode::WRAP_CLAMP;
 	s.wrapV = SamplerWrapMode::WRAP_CLAMP;
 
+
 	// Create texture for example mesh.
 	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
 	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
 	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png", PixelFormat::FORMAT_RGBA, true, false, s);
+
 
 	// Load example mesh.
 	Mesh& cubeMesh = m_RenderEngine->CreateMesh("resources/meshes/cube.obj");
@@ -188,6 +189,7 @@ void Example1Level::Initialize()
 
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
 	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
+
 
 	quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::STANDARD_LIT);
 	quadMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &window, 0);
