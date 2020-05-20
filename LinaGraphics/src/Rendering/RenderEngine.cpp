@@ -321,14 +321,14 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	Shader& RenderEngine::CreateShader(Shaders shader, const std::string& path)
+	Shader& RenderEngine::CreateShader(Shaders shader, const std::string& path, bool usesGeometryShader)
 	{
 		// Create shader
 		if (!ShaderExists(shader))
 		{
 			std::string shaderText;
 			Utility::LoadTextFileWithIncludes(shaderText, path, "#include");
-			return m_LoadedShaders[shader].Construct(m_RenderDevice, shaderText);
+			return m_LoadedShaders[shader].Construct(m_RenderDevice, shaderText, usesGeometryShader);
 		}
 		else
 		{
@@ -465,7 +465,7 @@ namespace LinaEngine::Graphics
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
-		Shader& lit = CreateShader(Shaders::STANDARD_LIT, "resources/shaders/basicStandardLit.glsl");
+		Shader& lit = CreateShader(Shaders::STANDARD_LIT, "resources/shaders/basicStandardLit.glsl", false);
 		lit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		lit.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
 		lit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);

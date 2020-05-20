@@ -38,10 +38,10 @@ namespace LinaEngine::Graphics
 
 		FORCEINLINE ~Shader() { m_EngineBoundID = renderDevice->ReleaseShaderProgram(m_EngineBoundID); }
 
-		FORCEINLINE Shader& Construct(RenderDevice& renderDeviceIn, const std::string& text)
+		FORCEINLINE Shader& Construct(RenderDevice& renderDeviceIn, const std::string& text, bool usesGeometryShader)
 		{
 			renderDevice = &renderDeviceIn;
-			m_EngineBoundID = renderDevice->CreateShaderProgram(text);
+			m_EngineBoundID = renderDevice->CreateShaderProgram(text, usesGeometryShader);
 			return *this;
 		}
 

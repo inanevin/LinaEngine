@@ -86,7 +86,7 @@ void CreateGradientSkybox(RenderEngine* renderEngine)
 void CreateProceduralSkybox(RenderEngine* renderEngine)
 {
 	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_PROCEDURAL);
-	mat.SetColor("material.startColor", Color::LightBlue);
+	mat.SetColor("material.startColor", Color::Beige);
 	mat.SetColor("material.endColor", Color::DarkBlue);
 	mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
 	renderEngine->SetSkyboxMaterial(mat);
@@ -152,7 +152,7 @@ void Example1Level::Initialize()
 
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 	// Create, setup & assign skybox material.
-	CreateCubemapSkybox(m_RenderEngine);
+	CreateProceduralSkybox(m_RenderEngine);
 
 	camera.entity = m_ECS->reg.create();
 
@@ -178,7 +178,7 @@ void Example1Level::Initialize()
 	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
 	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
 	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png", PixelFormat::FORMAT_RGBA, true, false, s);
-	Texture& cubemap = m_RenderEngine->GetTexture("resources/textures/defaultSkybox/right.png");
+	//Texture& cubemap = m_RenderEngine->GetTexture("resources/textures/defaultSkybox/right.png");
 
 	// Load example mesh.
 	Mesh& cubeMesh = m_RenderEngine->CreateMesh("resources/meshes/cube.obj");
@@ -187,7 +187,7 @@ void Example1Level::Initialize()
 	objectLitMaterial = &m_RenderEngine->CreateMaterial("object1Material", Shaders::STANDARD_LIT);
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
 	quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::STANDARD_LIT);
-	cubemapReflectiveMaterial = &m_RenderEngine->CreateMaterial("cubemapReflective", Shaders::CUBEMAP_REFLECTIVE);
+	//cubemapReflectiveMaterial = &m_RenderEngine->CreateMaterial("cubemapReflective", Shaders::CUBEMAP_REFLECTIVE);
 
 	objectLitMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &crateTexture, 0);
 	objectLitMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, &crateSpecTexture, 1);
@@ -195,7 +195,7 @@ void Example1Level::Initialize()
 
 	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
 
-	cubemapReflectiveMaterial->SetTexture(UF_SKYBOXTEXTURE, &cubemap, 0);
+	//cubemapReflectiveMaterial->SetTexture(UF_SKYBOXTEXTURE, &cubemap, 0);
 
 	quadMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &window, 0);
 	quadMaterial->SetSurfaceType(MaterialSurfaceType::Transparent);
@@ -216,7 +216,7 @@ void Example1Level::Initialize()
 	for (int i = 0; i < cubeSize; i++)
 	{
 		ECSEntity entity;
-		object1Renderer.material = cubemapReflectiveMaterial;
+		object1Renderer.material = objectLitMaterial;
 
 		//object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
 		object1Transform.transform.location = cubePositions[i];

@@ -31,6 +31,7 @@ void main()
     gl_Position = pos.xyww;
 }
   
+ 
 #elif defined(FS_BUILD)
 
 struct Material

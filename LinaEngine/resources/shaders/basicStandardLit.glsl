@@ -18,25 +18,69 @@
 #include <uniformBuffers.glh>
 #include <utility.glh>
 
-varying vec2 texCoord0;
-
 #if defined(VS_BUILD)
+
 Layout(0) attribute vec3 position;
 Layout(1) attribute vec2 texCoord;
 Layout(2) attribute vec3 normal;
 Layout(4) attribute mat4 model;
 Layout(8) attribute mat4 inverseTransposeModel;
 
-out vec2 TexCoords;
-out vec3 Normal;
-out vec3 FragPos;
+out VS_OUT
+{
+	vec3 Normal;
+	vec3 FragPos;
+	vec2 TexCoords;
+} vs_out;
 
 void main()
 {
     gl_Position = projection * view * model * vec4(position, 1.0);
-	FragPos = vec3(model * vec4(position,1.0));
-	Normal = mat3(inverseTransposeModel) * normal;
-    TexCoords = texCoord;
+	vs_out.FragPos = vec3(model * vec4(position,1.0));
+	vs_out.Normal = mat3(inverseTransposeModel) * normal;
+    vs_out.TexCoords = texCoord;
+}
+
+#elif defined(GEO_BUILD)
+
+layout (triangles) in;
+layout (triangle_strip, max_vertices = 3) out;
+
+in VS_OUT {
+    vec2 TexCoords;
+} gs_in[];
+
+out vec2 TexCoords; 
+
+uniform float time;
+
+vec4 explode(vec4 position, vec3 normal)
+{
+    float magnitude = 2.0;
+    vec3 direction = normal * ((sin(time) + 1.0) / 2.0) * magnitude; 
+    return position + vec4(direction, 0.0);
+}
+
+vec3 GetNormal()
+{
+    vec3 a = vec3(gl_in[0].gl_Position) - vec3(gl_in[1].gl_Position);
+    vec3 b = vec3(gl_in[2].gl_Position) - vec3(gl_in[1].gl_Position);
+    return normalize(cross(a, b));
+}
+
+void main() {    
+    vec3 normal = GetNormal();
+
+    gl_Position = explode(gl_in[0].gl_Position, normal);
+    TexCoords = gs_in[0].TexCoords;
+    EmitVertex();
+    gl_Position = explode(gl_in[1].gl_Position, normal);
+    TexCoords = gs_in[1].TexCoords;
+    EmitVertex();
+    gl_Position = explode(gl_in[2].gl_Position, normal);
+    TexCoords = gs_in[2].TexCoords;
+    EmitVertex();
+    EndPrimitive();
 }
 
 #elif defined(FS_BUILD)
@@ -55,9 +99,13 @@ int surfaceType;
 
 uniform Material material;
 
-in vec3 Normal;
-in vec3 FragPos;
-in vec2 TexCoords;
+in VS_OUT
+{
+	vec3 Normal;
+	vec3 FragPos;
+	vec2 TexCoords;
+} fs_in;
+
 out vec4 fragColor;
 
 
@@ -73,9 +121,9 @@ vec3 CalculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.specularExponent);
 	
     // combine results
-	vec3 ambient  = light.ambient * vec3(texture(material.diffuse, TexCoords));
-    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
-    vec3 specular = light.specular * spec * material.specularIntensity * vec3(texture(material.specular, TexCoords));
+	vec3 ambient  = light.ambient * vec3(texture(material.diffuse, fs_in.TexCoords));
+    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, fs_in.TexCoords));
+    vec3 specular = light.specular * spec * material.specularIntensity * vec3(texture(material.specular, fs_in.TexCoords));
     return (ambient + diffuse + specular);
 }
 
@@ -97,9 +145,9 @@ vec3 CalculatePointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewD
   			     light.quadratic * (distance * distance));    
 				 
     // combine results
-    vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, TexCoords));
-    vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoords));
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+    vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, fs_in.TexCoords));
+    vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuse, fs_in.TexCoords));
+    vec3 specular = light.specular * spec * vec3(texture(material.specular, fs_in.TexCoords));
     ambient  *= attenuation;
     diffuse  *= attenuation;
     specular *= attenuation;
@@ -127,9 +175,9 @@ vec3 CalculateSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir
     float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
 	
     // combine results
-    vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
-    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+    vec3 ambient = light.ambient * vec3(texture(material.diffuse, fs_in.TexCoords));
+    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, fs_in.TexCoords));
+    vec3 specular = light.specular * spec * vec3(texture(material.specular, fs_in.TexCoords));
 	
     ambient *= attenuation * intensity;
     diffuse *= attenuation * intensity;
@@ -139,20 +187,20 @@ vec3 CalculateSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir
 
 void main()
 {
-	fragColor = texture(material.diffuse, TexCoords);
+	fragColor = texture(material.diffuse, fs_in.TexCoords);
 	vec3 viewPos = vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
-	vec3 norm = normalize(Normal);
-	vec3 viewDir = normalize(viewPos - FragPos);
+	vec3 norm = normalize(fs_in.Normal);
+	vec3 viewDir = normalize(viewPos - fs_in.FragPos);
 	
     vec3 result = CalculateDirectionalLight(directionalLight, norm, viewDir);
 	
     // phase 2: point lights
      for(int i = 0; i < pointLightCount; i++)
-        result += CalculatePointLight(pointLights[i], norm, FragPos, viewDir);    
+        result += CalculatePointLight(pointLights[i], norm, fs_in.FragPos, viewDir);    
 		
     // phase 3: spot light
 	for(int i = 0; i < spotLightCount; i++)
-		result += CalculateSpotLight(spotLights[0], norm, FragPos, viewDir);    
+		result += CalculateSpotLight(spotLights[0], norm, fs_in.FragPos, viewDir);    
     
 	if(visualizeDepth)
 	{
@@ -161,7 +209,7 @@ void main()
 	}
 	else
 	{
-		float alpha = material.surfaceType == 0 ? 1.0 : texture(material.diffuse, TexCoords).a;
+		float alpha = material.surfaceType == 0 ? 1.0 : texture(material.diffuse, fs_in.TexCoords).a;
 		fragColor = vec4(result, alpha);
 	}
 }

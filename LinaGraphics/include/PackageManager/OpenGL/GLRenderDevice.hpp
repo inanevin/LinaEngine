@@ -119,7 +119,7 @@ namespace LinaEngine::Graphics
 		uint32 ReleaseUniformBuffer(uint32 buffer);
 
 		// Creates a shader program based on shader text on GL.
-		uint32 CreateShaderProgram(const std::string& shaderText);
+		uint32 CreateShaderProgram(const std::string& shaderText, bool usesGeometryShader);
 
 		// Releases a previously created shader program from GL.
 		uint32 ReleaseShaderProgram(uint32 shader);

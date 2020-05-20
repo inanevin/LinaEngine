@@ -131,7 +131,7 @@ namespace LinaEngine::Graphics
 
 		/// <summary> Creates a shader resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing shader. </param>
-		Shader& CreateShader(Shaders shader, const std::string& path);
+		Shader& CreateShader(Shaders shader, const std::string& path, bool usesGeometryShader = false);
 
 		// Returns a material resource.
 		Material& GetMaterial(const std::string& materialName);

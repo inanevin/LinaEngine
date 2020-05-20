@@ -532,7 +532,7 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	uint32 GLRenderDevice::CreateShaderProgram(const std::string& shaderText)
+	uint32 GLRenderDevice::CreateShaderProgram(const std::string& shaderText, bool usesGeometryShader)
 	{
 		// Shader program instance.
 		GLuint shaderProgram = glCreateProgram();
@@ -553,6 +553,13 @@ namespace LinaEngine::Graphics
 		if (!AddShader(shaderProgram, vertexShaderText, GL_VERTEX_SHADER, &programData.shaders))
 			return (uint32)-1;
 
+		if (usesGeometryShader)
+		{
+			std::string geometryShaderText = "#version " + version + "\n#define GEO_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
+			if (!AddShader(shaderProgram, geometryShaderText, GL_GEOMETRY_SHADER, &programData.shaders))
+				return (uint32)-1;
+		}
+	
 		if (!AddShader(shaderProgram, fragmentShaderText, GL_FRAGMENT_SHADER, &programData.shaders))
 			return (uint32)-1;
 
