@@ -141,9 +141,6 @@ namespace LinaEngine::Graphics
 		// Clear color.
 		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 
-		// Draw skybox.
-		DrawSkybox();
-
 		// Update pipeline.
 		m_RenderingPipeline.UpdateSystems(delta);
 
@@ -152,6 +149,9 @@ namespace LinaEngine::Graphics
 
 		// Draw scene
 		DrawSceneObjects(false, m_RenderTarget.GetID(), m_DefaultDrawParams);
+
+		// Draw skybox.
+		DrawSkybox();
 
 		// Draw frame buffer texture on the screen
 		DrawFullscreenQuad();
