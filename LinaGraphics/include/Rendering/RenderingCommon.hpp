@@ -78,8 +78,6 @@ namespace LinaEngine::Graphics
 		FORMAT_RGBA,
 		FORMAT_DEPTH,
 		FORMAT_DEPTH_AND_STENCIL,
-		FORMAT_SRGB,
-		FORMAT_SRGBA
 	};
 
 

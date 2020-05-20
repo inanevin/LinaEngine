@@ -31,11 +31,11 @@ namespace LinaEngine::Graphics
 			delete data;
 	}
 
-	Texture& Texture::Construct(RenderDevice& deviceIn, const ArrayBitmap& data, PixelFormat internalPixelFormat, PixelFormat pixelFormat, bool generateMipMaps, bool shouldCompress, SamplerData samplerData)
+	Texture& Texture::Construct(RenderDevice& deviceIn, const ArrayBitmap& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress, SamplerData samplerData)
 	{
 		renderDevice = &deviceIn;
 		m_Sampler.Construct(deviceIn, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT, samplerData.anisotropy);
-		m_ID = renderDevice->CreateTexture2D(data.GetWidth(), data.GetHeight(), data.GetPixelArray(), internalPixelFormat, pixelFormat, generateMipMaps, shouldCompress, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT);
+		m_ID = renderDevice->CreateTexture2D(data.GetWidth(), data.GetHeight(), data.GetPixelArray(), PixelFormat::FORMAT_RGBA, internalPixelFormat, generateMipMaps, shouldCompress, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT);
 		m_Width = (uint32)data.GetWidth();
 		m_Height = (uint32)data.GetHeight();
 		isCompressed = shouldCompress;
@@ -55,7 +55,7 @@ namespace LinaEngine::Graphics
 		return *this;
 	}
 
-	Texture& Texture::Construct(RenderDevice& deviceIn, const LinaArray<ArrayBitmap*>& data, PixelFormat internalPixelFormat, PixelFormat pixelFormat, bool generateMipMaps, bool shouldCompress, SamplerData samplerData)
+	Texture& Texture::Construct(RenderDevice& deviceIn, const LinaArray<ArrayBitmap*>& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress, SamplerData samplerData)
 	{
 		if (data.size() != 6)
 		{
@@ -73,7 +73,7 @@ namespace LinaEngine::Graphics
 		for (uint32 i = 0; i < 6; i++)
 			cubeMapData.push_back(data[i]->GetPixelArray());
 
-		m_ID = renderDevice->CreateCubemapTexture(m_Width, m_Height, cubeMapData, 6U, internalPixelFormat, pixelFormat, generateMipMaps);
+		m_ID = renderDevice->CreateCubemapTexture(m_Width, m_Height, cubeMapData, 6U, internalPixelFormat, internalPixelFormat, generateMipMaps);
 		isCompressed = shouldCompress;
 		hasMipMaps = generateMipMaps;
 
@@ -81,12 +81,12 @@ namespace LinaEngine::Graphics
 		return *this;
 	}
 
-	Texture& Texture::ConstructFBTexture(RenderDevice& deviceIn, uint32 width, uint32 height, PixelFormat internalPixelFormat, PixelFormat pixelFormat, bool generateMipMaps, bool shouldCompress, SamplerData samplerData, int sampleCount)
+	Texture& Texture::ConstructFBTexture(RenderDevice& deviceIn, uint32 width, uint32 height, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress, SamplerData samplerData, int sampleCount)
 	{
 		// Frame buffer texture.
 		renderDevice = &deviceIn;
 		m_Sampler.Construct(deviceIn, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT, samplerData.anisotropy);
-		m_ID = renderDevice->CreateTexture2D(width, height, NULL, internalPixelFormat, pixelFormat, generateMipMaps, shouldCompress, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT, sampleCount);
+		m_ID = renderDevice->CreateTexture2D(width, height, NULL, PixelFormat::FORMAT_RGBA, internalPixelFormat, generateMipMaps, shouldCompress, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT, sampleCount);
 		m_Width = (uint32)width;
 		m_Height = (uint32)height;
 		isCompressed = shouldCompress;
@@ -99,8 +99,9 @@ namespace LinaEngine::Graphics
 		renderDevice = &deviceIn;
 	
 		data = new unsigned char[4]{ 1 & 0x000000ff, (1 & 0x0000ff00) >> 8,(1 & 0x00ff0000) >> 16,(1 & 0xff000000) >> 24 };
+
 		m_Sampler.Construct(deviceIn, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT, samplerData.anisotropy);
-		m_ID = renderDevice->CreateTexture2D(1, 1, data, PixelFormat::FORMAT_SRGBA, PixelFormat::FORMAT_RGBA, false, false, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT, 0, true);
+		m_ID = renderDevice->CreateTexture2D(1, 1, data, PixelFormat::FORMAT_RGBA, PixelFormat::FORMAT_RGBA, false, false, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT, 0, true);
 		m_Width = (uint32)1;
 		m_Height = (uint32)1;
 		isCompressed = false;

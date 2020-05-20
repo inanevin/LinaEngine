@@ -108,7 +108,7 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 
 	SamplerData data = SamplerData();
 	data.minFilter = FILTER_NEAREST;
-	Texture& t = renderEngine->CreateTexture(fp, true, false, data);
+	Texture& t = renderEngine->CreateTexture(fp, PixelFormat::FORMAT_RGB, true, false, data);
 	mat.SetTexture(MC_TEXTURE2D_DIFFUSE, &t, TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
@@ -181,10 +181,10 @@ void Example1Level::Initialize()
 
 
 	// Create texture for example mesh.
-	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png");
-	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png");
-	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png",true, false, s);
-	Texture& wood = m_RenderEngine->CreateTexture("resources/textures/wood.png",  true, false, s2);
+	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
+	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
+	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png", PixelFormat::FORMAT_RGBA, true, false, s);
+	Texture& wood = m_RenderEngine->CreateTexture("resources/textures/wood.png", PixelFormat::FORMAT_RGBA, true, false, s2);
 	//Texture& cubemap = m_RenderEngine->GetTexture("resources/textures/defaultSkybox/right.png");
 
 
@@ -312,10 +312,6 @@ void Example1Level::Initialize()
 		m_ECS->reg.emplace<TransformComponent>(visuals.entity, object1Transform);
 		m_ECS->reg.emplace<MeshRendererComponent>(visuals.entity, smallCubeRenderer);
 	}
-
-
-
-
 	object1Transform.transform.rotation = (Quaternion::Euler(Vector3::Zero));
 
 	object1Transform.transform.scale = (Vector3(1));

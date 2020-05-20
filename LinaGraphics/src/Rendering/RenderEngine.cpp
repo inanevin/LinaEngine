@@ -81,10 +81,6 @@ namespace LinaEngine::Graphics
 		m_GlobalDebugBuffer.Construct(m_RenderDevice, UNIFORMBUFFER_DEBUGDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
 		m_GlobalDebugBuffer.Bind(UNIFORMBUFFER_DEBUGDATA_BINDPOINT);
 
-		// Setup pixel formats.
-		m_DefaultInternalFormat = PixelFormat::FORMAT_SRGBA;
-		m_DefaultFormat = PixelFormat::FORMAT_RGBA;
-
 		// Initialize the engine shaders.
 		ConstructEngineShaders();
 
@@ -101,7 +97,7 @@ namespace LinaEngine::Graphics
 		SetMaterialShader(m_ScreenQuadMaterial, Shaders::SCREEN_QUAD);
 
 		// Initialize frame buffer texture.
-		m_FrameBufferTexture.ConstructFBTexture(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), m_DefaultInternalFormat, m_DefaultFormat, false, false, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT }, 4);
+		m_FrameBufferTexture.ConstructFBTexture(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, false, false, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT }, 4);
 
 		// Initialize render buffer.
 		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);
@@ -110,7 +106,7 @@ namespace LinaEngine::Graphics
 		m_RenderTarget.Construct(m_RenderDevice, m_FrameBufferTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_RenderBuffer.GetID());;
 
 		// Initialize intermediate frame buffer texture
-		m_IntermediateFrameBufferTexture.ConstructFBTexture(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), m_DefaultInternalFormat, m_DefaultFormat, false, false, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT }, 0);
+		m_IntermediateFrameBufferTexture.ConstructFBTexture(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, false, false, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT }, 0);
 
 		// Initialize intermediate render target.
 		m_IntermediateRenderTarget.Construct(m_RenderDevice, m_IntermediateFrameBufferTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
@@ -123,7 +119,6 @@ namespace LinaEngine::Graphics
 
 		// Create a default texture for render context.
 		m_DefaultTexture.ConstructEmpty(m_RenderDevice);
-
 
 		// Initialize ECS Camera System.
 		Vector2 windowSize = Vector2(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
@@ -202,7 +197,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	Texture& RenderEngine::CreateTexture(const std::string& filePath, bool generateMipmaps, bool compress, SamplerData samplerData, PixelFormat internalPixelFormat, PixelFormat pixelFormat)
+	Texture& RenderEngine::CreateTexture(const std::string& filePath, PixelFormat pixelFormat, bool generateMipmaps, bool compress, SamplerData samplerData)
 	{
 		if (!TextureExists(filePath))
 		{
@@ -211,7 +206,7 @@ namespace LinaEngine::Graphics
 			textureBitmap->Load(filePath);
 
 			// Create texture & construct.
-			m_LoadedTextures[filePath].Construct(m_RenderDevice, *textureBitmap, internalPixelFormat, pixelFormat, generateMipmaps, compress, samplerData);
+			m_LoadedTextures[filePath].Construct(m_RenderDevice, *textureBitmap, pixelFormat, generateMipmaps, compress, samplerData);
 
 			// Delete pixel data.
 			delete textureBitmap;
@@ -227,7 +222,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	Texture& RenderEngine::CreateTexture(const std::string filePaths[6],  bool generateMipmaps, bool compress, SamplerData samplerData, PixelFormat internalPixelFormat, PixelFormat pixelFormat)
+	Texture& RenderEngine::CreateTexture(const std::string filePaths[6], PixelFormat pixelFormat, bool generateMipmaps, bool compress, SamplerData samplerData)
 	{
 		if (!TextureExists(filePaths[0]))
 		{
@@ -242,7 +237,7 @@ namespace LinaEngine::Graphics
 			}
 
 			// Create texture & construct.
-			Texture& texture = m_LoadedTextures[filePaths[0]].Construct(m_RenderDevice, bitmaps, internalPixelFormat, pixelFormat, generateMipmaps, compress, samplerData);
+			Texture& texture = m_LoadedTextures[filePaths[0]].Construct(m_RenderDevice, bitmaps, pixelFormat, generateMipmaps, compress, samplerData);
 
 			// Delete pixel data.
 			for (uint32 i = 0; i < bitmaps.size(); i++)
