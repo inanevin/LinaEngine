@@ -137,12 +137,12 @@ Vector3 pointLightPositions[]
 
 Vector3 spotLightPositions[]
 {
-	Vector3(-4.0f, -6.0f, 10.0f)
+	Vector3(-2.0f, -6.0f, 13.0f)
 };
 
-int pLightSize = 0;
+int pLightSize = 1;
 int cubeSize = 10;
-int sLightSize = 0;
+int sLightSize = 1;
 
 ECSEntity cubeEntity;
 
@@ -200,7 +200,7 @@ void Example1Level::Initialize()
 
 
 	objectLitMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &crateTexture);
-//	objectLitMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &crateSpecTexture);
+	objectLitMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &crateSpecTexture);
 	objectLitMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
 
 
@@ -221,9 +221,10 @@ void Example1Level::Initialize()
 
 
 
+
 	directionalLight.entity = m_ECS->reg.create();
 	auto& dirLight = m_ECS->reg.emplace<DirectionalLightComponent>(directionalLight.entity);
-	dirLight.color = Color(0.1f, 0.1f, 0.1f);
+	dirLight.color = Color(0.01f,0.01f,0.01f);
 	dirLight.direction = Vector3(0, -0.5f, 1);
 
 	ECSEntity floor;
@@ -267,8 +268,8 @@ void Example1Level::Initialize()
 		auto& pLight1 = m_ECS->reg.emplace<PointLightComponent>(entity.entity);
 
 
-		pLight1.color = Color(0.05f, 0.05f, 0.05f);
-		pLight1.distance = 10;
+		pLight1.color = Color(0.45f, 0.45f, 0.45f);
+		pLight1.distance = 100;
 
 
 		ECSEntity visuals;
@@ -279,6 +280,7 @@ void Example1Level::Initialize()
 	}
 
 
+
 	for (int i = 0; i < sLightSize; i++)
 	{
 		smallCubeRenderer.material = objectUnlitMaterial;
@@ -286,7 +288,7 @@ void Example1Level::Initialize()
 		ECSEntity entity;
 		object1Transform.transform.location = (spotLightPositions[i]);
 		entity.entity = m_ECS->reg.create();
-		object1Transform.transform.rotation = (Quaternion::Euler(-20, 40, 0));
+		object1Transform.transform.rotation = (Quaternion::Euler(-25, 40, 0));
 
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
 
@@ -294,7 +296,7 @@ void Example1Level::Initialize()
 
 
 		sLight1.color = Color(0.05f, 0.05f, 0.05f);
-		sLight1.distance = 15;
+		sLight1.distance = 150;
 		sLight1.cutOff = Math::Cos(Math::ToRadians(12.5f));
 		sLight1.outerCutOff = Math::Cos(Math::ToRadians(15.5f));
 
