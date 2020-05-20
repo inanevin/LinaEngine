@@ -137,12 +137,12 @@ Vector3 pointLightPositions[]
 
 Vector3 spotLightPositions[]
 {
-	Vector3(0.0f, 0.0f, 20.0f)
+	Vector3(-4.0f, -6.0f, 10.0f)
 };
 
 int pLightSize = 1;
-int cubeSize = 0;
-int sLightSize = 0;
+int cubeSize = 10;
+int sLightSize = 1;
 
 ECSEntity cubeEntity;
 
@@ -280,9 +280,8 @@ void Example1Level::Initialize()
 		object1Transform.transform.scale = 0.1f;
 		m_ECS->reg.emplace<TransformComponent>(visuals.entity, object1Transform);
 		m_ECS->reg.emplace<MeshRendererComponent>(visuals.entity, smallCubeRenderer);
-
-
 	}
+
 
 	for (int i = 0; i < sLightSize; i++)
 	{
@@ -291,7 +290,7 @@ void Example1Level::Initialize()
 		ECSEntity entity;
 		object1Transform.transform.location = (spotLightPositions[i]);
 		entity.entity = m_ECS->reg.create();
-		//object1Transform.transform.rotation = (Quaternion::Euler(0, 180, 0));
+		object1Transform.transform.rotation = (Quaternion::Euler(40, 0, 0));
 
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
 
@@ -299,9 +298,9 @@ void Example1Level::Initialize()
 
 		sLight1.ambient = Color(0.05f, 0.05f, 0.05f);
 		sLight1.diffuse = Color(1, 1, 1);
-		sLight1.specular = Color(1, 1, 1);
+		sLight1.specular = Color(5, 5, 5);
 		sLight1.direction = Vector3(0.0f, 0.0f, 1.0f);
-		sLight1.constant = 1.0f;
+		sLight1.constant = 0.1f;
 		sLight1.linear = 0.09f;
 		sLight1.quadratic = 0.032f;
 		sLight1.cutOff = Math::Cos(Math::ToRadians(12.5f));
@@ -309,7 +308,7 @@ void Example1Level::Initialize()
 
 		ECSEntity visuals;
 		visuals.entity = m_ECS->reg.create();
-		object1Transform.transform.scale = (0.2f);
+		object1Transform.transform.scale = (0.1f);
 		m_ECS->reg.emplace<TransformComponent>(visuals.entity, object1Transform);
 		m_ECS->reg.emplace<MeshRendererComponent>(visuals.entity, smallCubeRenderer);
 	}
