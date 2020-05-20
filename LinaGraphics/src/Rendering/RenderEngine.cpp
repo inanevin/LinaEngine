@@ -162,7 +162,7 @@ namespace LinaEngine::Graphics
 		DrawSkybox();
 
 		// Draw frame buffer texture on the screen
-		//DrawFullscreenQuad();
+		DrawFullscreenQuad();
 
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
