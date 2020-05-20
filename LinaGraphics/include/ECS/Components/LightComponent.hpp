@@ -32,24 +32,18 @@ namespace LinaEngine::ECS
 
 	struct LightComponent
 	{
-		Color ambient;
-		Color diffuse;
-		Color specular;
+		Color color;
 	};
 
 	struct PointLightComponent : public LightComponent
 	{
-		float constant = 1.0f;
-		float linear = 0.09f;
-		float quadratic = 0.032f;
+		float distance;
 	};
 
 	struct SpotLightComponent : public LightComponent
 	{
 		Vector3 direction = Vector3::Zero;
-		float constant = 1.0f;
-		float linear = 0.09f;
-		float quadratic = 0.032f;
+		float distance;
 		float cutOff = Math::Cos(Math::ToRadians(12.5f));
 		float outerCutOff = Math::Cos(Math::ToRadians(17.5f));
 	};

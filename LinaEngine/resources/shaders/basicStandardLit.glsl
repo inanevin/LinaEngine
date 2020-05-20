@@ -119,22 +119,12 @@ out vec4 fragColor;
 void main()
 {
 	vec4 diffuseTextureColor = material.diffuse.isActive != 0 ? texture(material.diffuse.texture, vec2(fs_in.TexCoords.x * material.tiling.x, fs_in.TexCoords.y * material.tiling.y)) : vec4(1,1,1,1);
-	vec4 specularTextureColor = material.specular.isActive !=0 ? texture(material.specular.texture, vec2(fs_in.TexCoords.x * material.tiling.x, fs_in.TexCoords.y * material.tiling.y)) : vec4(1,1,1,1);
-	
+	vec4 specularTextureColor = material.specular.isActive !=0 ? texture(material.specular.texture, vec2(fs_in.TexCoords.x * material.tiling.x, fs_in.TexCoords.y * material.tiling.y)) : vec4(1,1,1,1);	
 	vec3 viewPos = vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
 	vec3 norm = normalize(fs_in.Normal);
 	vec3 viewDir = normalize(viewPos - fs_in.FragPos);
-	
-    vec3 result = CalculateDirectionalLight(directionalLight, norm, viewDir, diffuseTextureColor, specularTextureColor);
-	
-    // phase 2: point lights
-     for(int i = 0; i < pointLightCount; i++)
-        result += CalculatePointLight(pointLights[i], norm, fs_in.FragPos, viewDir, diffuseTextureColor, specularTextureColor);    
-		
-    // phase 3: spot light
-	for(int i = 0; i < spotLightCount; i++)
-		result += CalculateSpotLight(spotLights[0], norm, fs_in.FragPos, viewDir, diffuseTextureColor, specularTextureColor);    
-    
+
+ 
 	if(visualizeDepth)
 	{
 		float depth = LinearizeDepth(gl_FragCoord.z, cameraFar, cameraNear) / cameraFar;		
@@ -142,8 +132,24 @@ void main()
 	}
 	else
 	{
+		vec3 color = texture(material.diffuse.texture, vec2(fs_in.TexCoords.x * material.tiling.x , fs_in.TexCoords.y * material.tiling.y)).rgb;
+		vec3 lighting = vec3(0.0);
+		
+		lighting += CalculateDirectionalLight(directionalLight, norm, viewDir, diffuseTextureColor, specularTextureColor);
+		
+		 // phase 2: point lights
+		for(int i = 0; i < pointLightCount; i++)
+			lighting += CalculatePointLight(pointLights[i], norm, fs_in.FragPos, viewDir, diffuseTextureColor, specularTextureColor);    
+		
+		// phase 3: spot light
+		for(int i = 0; i < spotLightCount; i++)
+			lighting += CalculateSpotLight(spotLights[i], norm, fs_in.FragPos, viewDir, diffuseTextureColor, specularTextureColor);    
+		
+		color *= lighting;
+		color = pow(color, vec3(1.0/2.2));
+		
 		float alpha = material.surfaceType == 0 ? 1.0 : diffuseTextureColor.a;
-		fragColor = vec4(result, alpha);
+		fragColor = vec4(color, alpha);
 	}
 }
 #endif

@@ -87,8 +87,8 @@ void CreateGradientSkybox(RenderEngine* renderEngine)
 void CreateProceduralSkybox(RenderEngine* renderEngine)
 {
 	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_PROCEDURAL);
-	mat.SetColor("material.startColor", Color::Brown);
-	mat.SetColor("material.endColor", Color::DarkBlue);
+	mat.SetColor("material.startColor", Color::Black);
+	mat.SetColor("material.endColor", Color::Gray);
 	mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
 	renderEngine->SetSkyboxMaterial(mat);
 }
@@ -108,7 +108,7 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 
 	SamplerData data = SamplerData();
 	data.minFilter = FILTER_NEAREST;
-	Texture& t = renderEngine->CreateTexture(fp, PixelFormat::FORMAT_RGB, true, false, data);
+	Texture& t = renderEngine->CreateTexture(fp, PixelFormat::FORMAT_RGB, PixelFormat::FORMAT_RGB, true, false, data);
 	mat.SetTexture(MC_TEXTURE2D_DIFFUSE, &t, TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
@@ -140,9 +140,9 @@ Vector3 spotLightPositions[]
 	Vector3(-4.0f, -6.0f, 10.0f)
 };
 
-int pLightSize = 1;
+int pLightSize = 0;
 int cubeSize = 10;
-int sLightSize = 1;
+int sLightSize = 0;
 
 ECSEntity cubeEntity;
 
@@ -152,6 +152,7 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 	// Create, setup & assign skybox material.
 	CreateProceduralSkybox(m_RenderEngine);
+
 
 	camera.entity = m_ECS->reg.create();
 
@@ -172,7 +173,6 @@ void Example1Level::Initialize()
 	s.wrapS = SamplerWrapMode::WRAP_CLAMP;
 	s.wrapT = SamplerWrapMode::WRAP_CLAMP;
 
-
 	SamplerData s2;
 	s2.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
 	s2.maxFilter = SamplerFilter::FILTER_LINEAR;
@@ -181,10 +181,10 @@ void Example1Level::Initialize()
 
 
 	// Create texture for example mesh.
-	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
-	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
-	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png", PixelFormat::FORMAT_RGBA, true, false, s);
-	Texture& wood = m_RenderEngine->CreateTexture("resources/textures/wood.png", PixelFormat::FORMAT_RGBA, true, false, s2);
+	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGBA, PixelFormat::FORMAT_RGB, true, false, SamplerData());
+	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGBA, PixelFormat::FORMAT_SRGB, true, false, SamplerData());
+	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png", PixelFormat::FORMAT_RGBA, PixelFormat::FORMAT_RGBA, true, false, s);
+	Texture& wood = m_RenderEngine->CreateTexture("resources/textures/wood.png", PixelFormat::FORMAT_RGBA, PixelFormat::FORMAT_SRGBA, true, false, s2);
 	//Texture& cubemap = m_RenderEngine->GetTexture("resources/textures/defaultSkybox/right.png");
 
 
@@ -198,9 +198,11 @@ void Example1Level::Initialize()
 	floorMaterial = &m_RenderEngine->CreateMaterial("floor", Shaders::STANDARD_LIT);
 	//cubemapReflectiveMaterial = &m_RenderEngine->CreateMaterial("cubemapReflective", Shaders::CUBEMAP_REFLECTIVE);
 
+
 	objectLitMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &crateTexture);
-	objectLitMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &crateSpecTexture);
+//	objectLitMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &crateSpecTexture);
 	objectLitMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
+
 
 	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
 
@@ -212,19 +214,17 @@ void Example1Level::Initialize()
 	floorMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &wood);
 	floorMaterial->SetVector2(MC_TILING, Vector2(10, 10));
 
-	//floorMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, &wood, 0);
 	object1Renderer.mesh = &cubeMesh;
 	object1Renderer.material = objectLitMaterial;
 	smallCubeRenderer.mesh = &cubeMesh;
 	smallCubeRenderer.material = objectUnlitMaterial;
 
 
+
 	directionalLight.entity = m_ECS->reg.create();
 	auto& dirLight = m_ECS->reg.emplace<DirectionalLightComponent>(directionalLight.entity);
-	dirLight.ambient = Color(0.05f, 0.05f, 0.05f);
-	dirLight.specular = Color(0.0f, 0.0f, 0.0f);
-	dirLight.diffuse = Color(0.4f, 0.4f, 0.4f);
-	dirLight.direction = Vector3(0, 0, 1);
+	dirLight.color = Color(0.1f, 0.1f, 0.1f);
+	dirLight.direction = Vector3(0, -0.5f, 1);
 
 	ECSEntity floor;
 	floor.entity = m_ECS->reg.create();
@@ -267,12 +267,8 @@ void Example1Level::Initialize()
 		auto& pLight1 = m_ECS->reg.emplace<PointLightComponent>(entity.entity);
 
 
-		pLight1.ambient = Color(0.05f, 0.05f, 0.05f);
-		pLight1.diffuse = Color(0.9f, 0.9f, 0.9f);
-		pLight1.specular = Color(0.45f, 0.45f, 0.45f);
-		pLight1.constant = 1.0f;
-		pLight1.linear = 0.09f;
-		pLight1.quadratic = 0.032f;
+		pLight1.color = Color(0.05f, 0.05f, 0.05f);
+		pLight1.distance = 10;
 
 
 		ECSEntity visuals;
@@ -290,21 +286,18 @@ void Example1Level::Initialize()
 		ECSEntity entity;
 		object1Transform.transform.location = (spotLightPositions[i]);
 		entity.entity = m_ECS->reg.create();
-		object1Transform.transform.rotation = (Quaternion::Euler(40, 0, 0));
+		object1Transform.transform.rotation = (Quaternion::Euler(-20, 40, 0));
 
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
 
 		auto& sLight1 = m_ECS->reg.emplace<SpotLightComponent>(entity.entity);
 
-		sLight1.ambient = Color(0.05f, 0.05f, 0.05f);
-		sLight1.diffuse = Color(1, 1, 1);
-		sLight1.specular = Color(5, 5, 5);
-		sLight1.direction = Vector3(0.0f, 0.0f, 1.0f);
-		sLight1.constant = 0.1f;
-		sLight1.linear = 0.09f;
-		sLight1.quadratic = 0.032f;
+
+		sLight1.color = Color(0.05f, 0.05f, 0.05f);
+		sLight1.distance = 15;
 		sLight1.cutOff = Math::Cos(Math::ToRadians(12.5f));
 		sLight1.outerCutOff = Math::Cos(Math::ToRadians(15.5f));
+
 
 		ECSEntity visuals;
 		visuals.entity = m_ECS->reg.create();

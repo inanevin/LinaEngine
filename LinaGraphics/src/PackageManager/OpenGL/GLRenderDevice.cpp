@@ -1180,7 +1180,8 @@ namespace LinaEngine::Graphics
 		case PixelFormat::FORMAT_RGBA: return GL_RGBA;
 		case PixelFormat::FORMAT_DEPTH: return GL_DEPTH_COMPONENT;
 		case PixelFormat::FORMAT_DEPTH_AND_STENCIL: return 0; // GL_DEPTH_STENCIL;
-
+		case PixelFormat::FORMAT_SRGB: return GL_RGB;
+		case PixelFormat::FORMAT_SRGBA: return GL_RGBA;
 		default:
 			LINA_CORE_ERR("PixelFormat {0} is not a valid PixelFormat.", format);
 			return 0;
@@ -1200,9 +1201,11 @@ namespace LinaEngine::Graphics
 			else return GL_RGB;
 		case PixelFormat::FORMAT_RGBA:
 			if (compress)  return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT; // GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
-			else  return GL_SRGB_ALPHA;
+			else  return GL_RGBA;
 		case PixelFormat::FORMAT_DEPTH: return GL_DEPTH_COMPONENT;
 		case PixelFormat::FORMAT_DEPTH_AND_STENCIL: return GL_DEPTH_STENCIL;
+		case PixelFormat::FORMAT_SRGB: return GL_SRGB;
+		case PixelFormat::FORMAT_SRGBA: return GL_SRGB_ALPHA;
 		default:
 			LINA_CORE_ERR("PixelFormat {0} is not a valid PixelFormat.", format);
 			return 0;

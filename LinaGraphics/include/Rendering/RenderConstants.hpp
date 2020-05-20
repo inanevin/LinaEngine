@@ -28,12 +28,8 @@ namespace LinaEngine::Graphics
 {
 
 
-#define SC_LIGHTAMBIENT std::string(".ambient")
-#define SC_LIGHTDIFFUSE std::string(".diffuse")
-#define SC_LIGHTSPECULAR std::string(".specular")
-#define SC_LIGHTCONSTANT std::string(".constant")
-#define SC_LIGHTLINEAR std::string(".linear")
-#define SC_LIGHTQUADRATIC std::string(".quadratic")
+#define SC_LIGHTCOLOR std::string(".color")
+#define SC_LIGHTDISTANCE std::string(".distance")
 #define SC_LIGHTCUTOFF std::string(".cutOff")
 #define SC_LIGHTOUTERCUTOFF std::string(".outerCutOff")
 #define SC_LIGHTINTENSITY std::string(".intensity")
