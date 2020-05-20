@@ -115,23 +115,22 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 
 
 Vector3 cubePositions[] = {
-	Vector3(0.0f, 0.0f, 10.0f),
-	Vector3(-5.0f, 0.0f, 10.0f),
-	Vector3(5.0f, 0.0f, 10.0f),
-	Vector3(0.0f, 5.0f, 10.0f),
-	Vector3(0.0f, -5.0f, 10.0f),
-	Vector3(0.0f, 0.0f, 15.0f),
-	Vector3(-5.0f, 0.0f, 15.0f),
-	Vector3(5.0f, 0.0f, 15.0f),
-	Vector3(0.0f, 5.0f, 15.0f),
-	Vector3(0.0f, -5.0f, 15.0f)
+	Vector3(-5.0f, -9.0f, 10.0f),
+	Vector3(0.0f, -9.0f, 5.0f),
+	Vector3(5.0f, -9.0f, 15.0f),
+	Vector3(0.0f, -9.0f, 10.0f),
+	Vector3(0.0f, -9.0f, 5.0f),
+	Vector3(0.0f, -9.0f, 15.0f),
+	Vector3(-5.0f, -4.0f, 10.0f),
+	Vector3(0.0f, -4.0f, 5.0f),
+	Vector3(5.0f, -4.0f, 15.0f),
 };
 
 Vector3 pointLightPositions[]
 {
-	Vector3(0.0f,  -9.0f,  10.5f),
-	Vector3(-5.0f,  -0.5f,  13.5f),
-	Vector3(5.0f,  -0.5f,  13.5f),
+	Vector3(0.0f,  -7.0f,  8.0f),
+	Vector3(-5.0f,  -6.5f,  13.5f),
+	Vector3(5.0f,  -6.5f,  13.5f),
 	Vector3(0.0f,  -7.5f,  13.5f),
 };
 
@@ -143,6 +142,7 @@ Vector3 spotLightPositions[]
 int pLightSize = 1;
 int cubeSize = 10;
 int sLightSize = 1;
+
 
 ECSEntity cubeEntity;
 
@@ -238,6 +238,8 @@ void Example1Level::Initialize()
 	m_ECS->reg.emplace<TransformComponent>(floor.entity, object1Transform);
 	m_ECS->reg.emplace<MeshRendererComponent>(floor.entity, mr);
 
+
+
 	for (int i = 0; i < cubeSize; i++)
 	{
 		ECSEntity entity;
@@ -251,6 +253,8 @@ void Example1Level::Initialize()
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
 		m_ECS->reg.emplace<MeshRendererComponent>(entity.entity, object1Renderer);
 	}
+
+
 
 
 
