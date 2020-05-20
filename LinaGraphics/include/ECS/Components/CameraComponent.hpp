@@ -31,7 +31,7 @@ namespace LinaEngine::ECS
 		LinaEngine::Color clearColor = LinaEngine::Color(0.1f, 0.1f, 0.1f, 1.0f);
 		float fieldOfView = 90.0f;
 		float zNear = 0.01f;
-		float zFar = 100.0f;
+		float zFar = 1000.0f;
 		bool isActive = false;
 	};
 }

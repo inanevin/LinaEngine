@@ -47,6 +47,10 @@ ECSEntity quad2;
 ECSEntity quad3;
 ECSEntity quad4;
 
+Material* objectLitMaterial;
+Material* objectUnlitMaterial;
+Material* quadMaterial;
+Material* cubemapReflectiveMaterial;
 
 TransformComponent object1Transform;
 MeshRendererComponent object1Renderer;
@@ -108,9 +112,7 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 	mat.SetTexture(MC_DIFFUSETEXTUREPROPERTY, &t, 0, BindTextureMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
-Material* objectLitMaterial;
-Material* objectUnlitMaterial;
-Material* quadMaterial;
+
 
 Vector3 cubePositions[] = {
 	Vector3(0.0f, 0.0f, 10.0f),
@@ -176,22 +178,25 @@ void Example1Level::Initialize()
 	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
 	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
 	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png", PixelFormat::FORMAT_RGBA, true, false, s);
-
+	Texture& cubemap = m_RenderEngine->GetTexture("resources/textures/defaultSkybox/right.png");
 
 	// Load example mesh.
 	Mesh& cubeMesh = m_RenderEngine->CreateMesh("resources/meshes/cube.obj");
 
 	// Create material for example mesh.
 	objectLitMaterial = &m_RenderEngine->CreateMaterial("object1Material", Shaders::STANDARD_LIT);
+	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
+	quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::STANDARD_LIT);
+	cubemapReflectiveMaterial = &m_RenderEngine->CreateMaterial("cubemapReflective", Shaders::CUBEMAP_REFLECTIVE);
+
 	objectLitMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &crateTexture, 0);
 	objectLitMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, &crateSpecTexture, 1);
 	objectLitMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
 
-	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
 	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
 
+	cubemapReflectiveMaterial->SetTexture(UF_SKYBOXTEXTURE, &cubemap, 0);
 
-	quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::STANDARD_LIT);
 	quadMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &window, 0);
 	quadMaterial->SetSurfaceType(MaterialSurfaceType::Transparent);
 
@@ -199,6 +204,7 @@ void Example1Level::Initialize()
 	object1Renderer.material = objectLitMaterial;
 	smallCubeRenderer.mesh = &cubeMesh;
 	smallCubeRenderer.material = objectUnlitMaterial;
+
 
 	directionalLight.entity = m_ECS->reg.create();
 	auto& dirLight = m_ECS->reg.emplace<DirectionalLightComponent>(directionalLight.entity);
@@ -210,7 +216,7 @@ void Example1Level::Initialize()
 	for (int i = 0; i < cubeSize; i++)
 	{
 		ECSEntity entity;
-			object1Renderer.material = objectLitMaterial;
+		object1Renderer.material = cubemapReflectiveMaterial;
 
 		//object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
 		object1Transform.transform.location = cubePositions[i];

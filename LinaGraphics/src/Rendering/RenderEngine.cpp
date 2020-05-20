@@ -136,6 +136,7 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Tick(float delta)
 	{
+		// Render to external buffer
 		m_RenderDevice.SetFBO(m_RenderTarget.GetID());
 
 		// Clear color.
@@ -482,7 +483,11 @@ namespace LinaEngine::Graphics
 
 		// Screen Quad
 		CreateShader(Shaders::SCREEN_QUAD, "resources/shaders/screenQuad.glsl");
+		
+		// Cubemap reflective
+		CreateShader(Shaders::CUBEMAP_REFLECTIVE, "resources/shaders/cubemapReflective.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
+		// Cubemap refractive.
 	}
 
 	void RenderEngine::ConstructEngineMaterials()
@@ -511,7 +516,7 @@ namespace LinaEngine::Graphics
 		m_DefaultDrawParams.useDepthTest = true;
 		m_DefaultDrawParams.useStencilTest = true;
 		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
+		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
 		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
 		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;		
 		m_DefaultDrawParams.shouldWriteDepth = true;
@@ -534,8 +539,8 @@ namespace LinaEngine::Graphics
 		m_FBOTextureDrawParameters.useStencilTest = true;
 		m_FBOTextureDrawParameters.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
 		m_FBOTextureDrawParameters.faceCulling = FaceCulling::FACE_CULL_NONE;
-		m_FBOTextureDrawParameters.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
-		m_FBOTextureDrawParameters.destBlend = BLEND_FUNC_NONE;
+		m_FBOTextureDrawParameters.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
+		m_FBOTextureDrawParameters.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
 		m_FBOTextureDrawParameters.shouldWriteDepth = true;
 		m_FBOTextureDrawParameters.depthFunc = DrawFunc::DRAW_FUNC_LESS;
 		m_FBOTextureDrawParameters.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
@@ -663,7 +668,7 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::DrawFullscreenQuad()
 	{
-		// Draw screen quad.
+		// Back to default buffer
 		m_RenderDevice.SetFBO(0);
 
 		// Clear color bit.
@@ -777,6 +782,10 @@ namespace LinaEngine::Graphics
 		else if (shader == Shaders::SCREEN_QUAD)
 		{
 			material.samplers[UF_SCREENTEXTURE] = 0;
+		}
+		else if (shader == Shaders::CUBEMAP_REFLECTIVE)
+		{
+			material.samplers[UF_SKYBOXTEXTURE] = 0;
 		}
 
 
