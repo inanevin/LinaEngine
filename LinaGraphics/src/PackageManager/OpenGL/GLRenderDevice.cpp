@@ -162,6 +162,7 @@ namespace LinaEngine::Graphics
 		glEnable(GL_BLEND);
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_MULTISAMPLE);
+		//glEnable(GL_FRAMEBUFFER_SRGB);
 		glDepthFunc(GL_LESS);
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -188,11 +189,11 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 
 
-	uint32 GLRenderDevice::CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress
+	uint32 GLRenderDevice::CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat internalPixelFormat, PixelFormat pixelFormat, bool generateMipMaps, bool compress
 		, SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapS, SamplerWrapMode wrapT, int sampleCount, bool emptyTexture)
 	{
 		// Declare formats, target & handle for the texture.
-		GLint format = GetOpenGLFormat(pixelDataFormat);
+		GLint format = GetOpenGLFormat(pixelFormat);
 		GLint internalFormat = GetOpenGLInternalFormat(internalPixelFormat, compress);
 		GLenum textureTarget = sampleCount == 0 ? GL_TEXTURE_2D : GL_TEXTURE_2D_MULTISAMPLE;
 		GLuint textureHandle;
@@ -289,6 +290,8 @@ namespace LinaEngine::Graphics
 	uint32 GLRenderDevice::CreateCubemapTexture(int32 width, int32 height, const LinaArray<int32*>& data, uint32 dataSize, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps)
 	{
 		GLuint textureHandle;
+		GLint format = GetOpenGLFormat(pixelDataFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(internalPixelFormat, false);
 
 		//unsigned int width = 1, height = 1;
 		unsigned char xpos[] = { 0xFF, 0x00, 0x00, 0xFF };    // red
@@ -306,7 +309,7 @@ namespace LinaEngine::Graphics
 		// Loop through each face to gen. image.
 		for (GLuint i = 0; i < dataSize; i++)
 		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[i]);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data[i]);
 		}
 
 		// Specify wrapping & filtering
@@ -1179,8 +1182,9 @@ namespace LinaEngine::Graphics
 		case PixelFormat::FORMAT_RGB: return GL_RGB;
 		case PixelFormat::FORMAT_RGBA: return GL_RGBA;
 		case PixelFormat::FORMAT_DEPTH: return GL_DEPTH_COMPONENT;
-		case PixelFormat::FORMAT_DEPTH_AND_STENCIL: return 0; // GL_DEPTH_STENCIL;
-
+		case PixelFormat::FORMAT_DEPTH_AND_STENCIL: GL_DEPTH_STENCIL;
+		case PixelFormat::FORMAT_SRGB: return GL_SRGB;
+		case PixelFormat::FORMAT_SRGBA:return GL_SRGB_ALPHA;
 		default:
 			LINA_CORE_ERR("PixelFormat {0} is not a valid PixelFormat.", format);
 			return 0;
@@ -1203,6 +1207,8 @@ namespace LinaEngine::Graphics
 			else  return GL_SRGB_ALPHA;
 		case PixelFormat::FORMAT_DEPTH: return GL_DEPTH_COMPONENT;
 		case PixelFormat::FORMAT_DEPTH_AND_STENCIL: return GL_DEPTH_STENCIL;
+		case PixelFormat::FORMAT_SRGB: return GL_SRGB;
+		case PixelFormat::FORMAT_SRGBA:return GL_SRGB_ALPHA;
 		default:
 			LINA_CORE_ERR("PixelFormat {0} is not a valid PixelFormat.", format);
 			return 0;

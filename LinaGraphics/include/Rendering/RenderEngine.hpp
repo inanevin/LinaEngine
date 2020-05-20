@@ -116,11 +116,11 @@ namespace LinaEngine::Graphics
 
 		/// <summary> Creates a texture resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing texture. </param>
-		Texture& CreateTexture(const std::string& filePath, PixelFormat pixelFormat = PixelFormat::FORMAT_RGB, bool generateMipmaps = true, bool compress = false, SamplerData samplerData = SamplerData());
+		Texture& CreateTexture(const std::string& filePath, bool generateMipmaps = true, bool compress = false, SamplerData samplerData = SamplerData(), PixelFormat internalPixelFormat = PixelFormat::FORMAT_SRGBA, PixelFormat pixelFormat = PixelFormat::FORMAT_RGBA);
 
 		/// <summary> Creates a cubemap texture resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing cube map texture. </param>
-		Texture& CreateTexture(const std::string filePath[6], PixelFormat pixelFormat = PixelFormat::FORMAT_RGB, bool generateMipmaps = true, bool compress = false, SamplerData samplerData = SamplerData());
+		Texture& CreateTexture(const std::string filePath[6], bool generateMipmaps = true, bool compress = false, SamplerData samplerData = SamplerData(), PixelFormat internalPixelFormat = PixelFormat::FORMAT_SRGBA, PixelFormat pixelFormat = PixelFormat::FORMAT_RGB);
 
 		/// <summary> Creates a mesh resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing mesh. </param>
@@ -254,6 +254,12 @@ namespace LinaEngine::Graphics
 
 		// Sprite drawing parameters.
 		DrawParams m_SpriteDrawParams;
+
+		// Default internal data format for textures.
+		PixelFormat m_DefaultInternalFormat;
+
+		// Default data format for textures.
+		PixelFormat m_DefaultFormat;
 
 		// ECS system for rendering camera perspective.
 		LinaEngine::ECS::CameraSystem m_CameraSystem;

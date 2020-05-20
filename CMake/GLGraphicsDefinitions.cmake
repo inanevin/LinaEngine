@@ -88,7 +88,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_ATTACHMENT_DEPTH
 
 #----------------------------------- RENDER BUFFER STORAGE DEFINITIONS ----------------------------------- #								   
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_STORAGE_DC16=0x81A5)
-target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_sTORAGE_DC24=0x81A6)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_STORAGE_DC24=0x81A6)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_STORAGE_DC32F=0x8CAC)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_STORAGE_D24S8=0x88F0)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_STORAGE_D32FS8=0x8CAD)

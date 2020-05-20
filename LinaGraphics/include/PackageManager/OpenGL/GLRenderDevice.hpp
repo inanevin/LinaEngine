@@ -82,7 +82,7 @@ namespace LinaEngine::Graphics
 		void Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn, int width, int height);
 
 		// Creates a texture on GL.
-		uint32 CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress
+		uint32 CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat internalPixelFormat, PixelFormat pixelFormat, bool generateMipMaps, bool compress
 		, SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST, SamplerFilter magFilter = SamplerFilter::FILTER_NEAREST, SamplerWrapMode wrapS = SamplerWrapMode::WRAP_REPEAT,
 			SamplerWrapMode wrapT = SamplerWrapMode::WRAP_REPEAT, int sampleCount = 0, bool emptyTexture = false);
 
@@ -90,7 +90,7 @@ namespace LinaEngine::Graphics
 		uint32 CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount);
 
 		// Creates a Cubemap texture on GL.
-		uint32 CreateCubemapTexture(int32 width, int32 height, const LinaArray<int32*>& data, uint32 dataSize = 6, PixelFormat pixelDataFormat = PixelFormat::FORMAT_RGB, PixelFormat internalPixelFormat = PixelFormat::FORMAT_RGB, bool generateMipMaps = true);
+		uint32 CreateCubemapTexture(int32 width, int32 height, const LinaArray<int32*>& data, uint32 dataSize = 6, PixelFormat internalPixelFormat = PixelFormat::FORMAT_SRGBA, PixelFormat pixelFormat = PixelFormat::FORMAT_RGBA, bool generateMipMaps = true);
 
 		// Releases a previously created texture from GL.
 		uint32 ReleaseTexture2D(uint32 texture2D);
