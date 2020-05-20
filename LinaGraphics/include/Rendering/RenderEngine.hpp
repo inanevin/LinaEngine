@@ -314,7 +314,7 @@ namespace LinaEngine::Graphics
 		RenderingDebugData m_DebugData;
 
 		// Default texture
-		Texture* m_DefaultTexture;
+		Texture m_DefaultTexture;
 
 		DISALLOW_COPY_ASSIGN_NEW(RenderEngine);
 	};

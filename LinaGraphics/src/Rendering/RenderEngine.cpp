@@ -114,11 +114,11 @@ namespace LinaEngine::Graphics
 		// Setup draw parameters.
 		SetupDrawParameters();
 
-		// Create a default texture for render context.
-		m_DefaultTexture = &CreateTexture("resources/textures/defaultDiffuse.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
-
 		// Initialize built-in vertex array objects.
 		m_SkyboxVAO = m_RenderDevice.CreateSkyboxVertexArray();
+
+		// Create a default texture for render context.
+		m_DefaultTexture.ConstructEmpty(m_RenderDevice);
 
 		// Initialize ECS Camera System.
 		Vector2 windowSize = Vector2(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
@@ -688,7 +688,7 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.Clear(true, false, false, Color::White, 0xFF);
 
 		// Set frame buffer texture on the material.
-		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &m_IntermediateFrameBufferTexture, 0, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &m_IntermediateFrameBufferTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 
 		// update shader w/ material data.
 		UpdateShaderData(&m_ScreenQuadMaterial);
@@ -740,7 +740,7 @@ namespace LinaEngine::Graphics
 			material.shaderID = m_LoadedShaders[shader].GetID();
 
 		// Clear all shader related material data.
-		material.textures.clear();
+		material.sampler2Ds.clear();
 		material.colors.clear();
 		material.floats.clear();
 		material.ints.clear();
@@ -754,17 +754,18 @@ namespace LinaEngine::Graphics
 		{
 			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
 			material.floats[MC_SPECULARINTENSITYPROPERTY] = 1.0f;
-			material.samplers[MC_DIFFUSETEXTUREPROPERTY] = 0;
-			material.samplers[MC_SPECULARTEXTUREPROPERTY] = 1;
+			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = {0};
+			material.sampler2Ds[MC_TEXTURE2D_SPECULAR] = {1};
 			material.ints[MC_SPECULAREXPONENTPROPERTY] = 32;
 			material.ints[MC_SURFACETYPE] = 0;
+			material.vector2s[MC_TILING] = Vector2::One;
 			material.receivesLighting = true;
 
 		}
 		else if (shader == Shaders::STANDARD_UNLIT)
 		{
 			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
-			material.samplers[MC_DIFFUSETEXTUREPROPERTY] = 0;
+			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
 			material.ints[MC_SURFACETYPE] = 0;
 		}
 		else if (shader == Shaders::SKYBOX_SINGLECOLOR)
@@ -784,7 +785,7 @@ namespace LinaEngine::Graphics
 		}
 		else if (shader == Shaders::SKYBOX_CUBEMAP)
 		{
-			material.samplers[MC_DIFFUSETEXTUREPROPERTY] = 0;
+			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
 		}
 		else if (shader == Shaders::STENCIL_OUTLINE)
 		{
@@ -794,11 +795,11 @@ namespace LinaEngine::Graphics
 		}
 		else if (shader == Shaders::SCREEN_QUAD)
 		{
-			material.samplers[UF_SCREENTEXTURE] = 0;
+			material.sampler2Ds[UF_SCREENTEXTURE] = { 0 };
 		}
 		else if (shader == Shaders::CUBEMAP_REFLECTIVE)
 		{
-			material.samplers[UF_SKYBOXTEXTURE] = 0;
+			material.sampler2Ds[UF_SKYBOXTEXTURE] = { 0 };
 		}
 
 
@@ -843,18 +844,23 @@ namespace LinaEngine::Graphics
 		for (auto const& d : (*data).matrices)
 			m_RenderDevice.UpdateShaderUniformMatrix(data->shaderID, d.first, d.second);
 
-		for (auto const& d : (*data).samplers)
+		for (auto const& d : (*data).sampler2Ds)
 		{
+			// Set whether the texture is active or not.
+			m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first + MC_EXTENSION_ISACTIVE, d.second.isActive);
 
-			if ((*data).textures.find(d.first) != (*data).textures.end())
+			if (d.second.isActive)
 			{
-				m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first, d.second);
+				// Set the texture to corresponding active unit.
+				m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first + MC_EXTENSION_TEXTURE2D, d.second.unit);
 
-				MaterialTextureData* textureData = &(*data).textures[d.first];
-				m_RenderDevice.SetTexture(textureData->texture->GetID(), textureData->texture->GetSamplerID(), textureData->unit, textureData->bindMode, true);
+				// Set texture
+				m_RenderDevice.SetTexture(d.second.boundTexture->GetID(), d.second.boundTexture->GetSamplerID(), d.second.unit, d.second.bindMode, true);
 			}
 			else
-				m_RenderDevice.SetTexture(m_DefaultTexture->GetID(), 0, d.second);
+			{
+				m_RenderDevice.SetTexture(m_DefaultTexture.GetID(), 0, d.second.unit);
+			}
 		}
 
 		if (data->receivesLighting)

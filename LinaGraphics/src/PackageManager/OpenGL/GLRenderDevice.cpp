@@ -189,7 +189,7 @@ namespace LinaEngine::Graphics
 
 
 	uint32 GLRenderDevice::CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress
-		, SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapS, SamplerWrapMode wrapT, int sampleCount)
+		, SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapS, SamplerWrapMode wrapT, int sampleCount, bool emptyTexture)
 	{
 		// Declare formats, target & handle for the texture.
 		GLint format = GetOpenGLFormat(pixelDataFormat);
@@ -207,10 +207,20 @@ namespace LinaEngine::Graphics
 		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, wrapS);
 		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, wrapT);
 
-		if (sampleCount == 0)
-			glTexImage2D(textureTarget, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		// Create empty texture, or a texture with data either texture2D or multisampled texture2D depending on the sample count.
+		if (emptyTexture)
+		{
+			GLubyte texData[] = { 255, 255, 255, 255 };
+			glTexImage2D(textureTarget, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, texData);
+		}
 		else
-			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, sampleCount, internalFormat, width, height, GL_TRUE);
+		{
+			if (sampleCount == 0)
+				glTexImage2D(textureTarget, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+			else
+				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, sampleCount, internalFormat, width, height, GL_TRUE);
+		}
+
 
 		// Enable mipmaps if needed.
 		if (generateMipMaps)

@@ -51,6 +51,7 @@ Material* objectLitMaterial;
 Material* objectUnlitMaterial;
 Material* quadMaterial;
 Material* cubemapReflectiveMaterial;
+Material* floorMaterial;
 
 TransformComponent object1Transform;
 MeshRendererComponent object1Renderer;
@@ -86,11 +87,10 @@ void CreateGradientSkybox(RenderEngine* renderEngine)
 void CreateProceduralSkybox(RenderEngine* renderEngine)
 {
 	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_PROCEDURAL);
-	mat.SetColor("material.startColor", Color::Beige);
+	mat.SetColor("material.startColor", Color::Brown);
 	mat.SetColor("material.endColor", Color::DarkBlue);
 	mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
 	renderEngine->SetSkyboxMaterial(mat);
-
 }
 
 void CreateCubemapSkybox(RenderEngine* renderEngine)
@@ -109,7 +109,7 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 	SamplerData data = SamplerData();
 	data.minFilter = FILTER_NEAREST;
 	Texture& t = renderEngine->CreateTexture(fp, PixelFormat::FORMAT_RGB, true, false, data);
-	mat.SetTexture(MC_DIFFUSETEXTUREPROPERTY, &t, 0, TextureBindMode::BINDTEXTURE_CUBEMAP);
+	mat.SetTexture(MC_TEXTURE2D_DIFFUSE, &t, TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
 
@@ -125,12 +125,11 @@ Vector3 cubePositions[] = {
 	Vector3(5.0f, 0.0f, 15.0f),
 	Vector3(0.0f, 5.0f, 15.0f),
 	Vector3(0.0f, -5.0f, 15.0f)
-
 };
 
 Vector3 pointLightPositions[]
 {
-	Vector3(0.0f,  -0.5f,  13.5f),
+	Vector3(0.0f,  -9.0f,  10.5f),
 	Vector3(-5.0f,  -0.5f,  13.5f),
 	Vector3(5.0f,  -0.5f,  13.5f),
 	Vector3(0.0f,  -7.5f,  13.5f),
@@ -141,9 +140,9 @@ Vector3 spotLightPositions[]
 	Vector3(0.0f, 0.0f, 20.0f)
 };
 
-int pLightSize = 4;
-int cubeSize = 10;
-int sLightSize = 1;
+int pLightSize = 1;
+int cubeSize = 0;
+int sLightSize = 0;
 
 ECSEntity cubeEntity;
 
@@ -174,11 +173,20 @@ void Example1Level::Initialize()
 	s.wrapT = SamplerWrapMode::WRAP_CLAMP;
 
 
+	SamplerData s2;
+	s2.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+	s2.maxFilter = SamplerFilter::FILTER_LINEAR;
+	s2.wrapS = SamplerWrapMode::WRAP_REPEAT;
+	s2.wrapT = SamplerWrapMode::WRAP_REPEAT;
+
+
 	// Create texture for example mesh.
 	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
 	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGB, true, false, SamplerData());
 	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png", PixelFormat::FORMAT_RGBA, true, false, s);
+	Texture& wood = m_RenderEngine->CreateTexture("resources/textures/wood.png", PixelFormat::FORMAT_RGBA, true, false, s2);
 	//Texture& cubemap = m_RenderEngine->GetTexture("resources/textures/defaultSkybox/right.png");
+
 
 	// Load example mesh.
 	Mesh& cubeMesh = m_RenderEngine->CreateMesh("resources/meshes/cube.obj");
@@ -187,20 +195,24 @@ void Example1Level::Initialize()
 	objectLitMaterial = &m_RenderEngine->CreateMaterial("object1Material", Shaders::STANDARD_LIT);
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
 	quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::STANDARD_LIT);
+	floorMaterial = &m_RenderEngine->CreateMaterial("floor", Shaders::STANDARD_LIT);
 	//cubemapReflectiveMaterial = &m_RenderEngine->CreateMaterial("cubemapReflective", Shaders::CUBEMAP_REFLECTIVE);
 
-
-	objectLitMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &crateTexture, 0);
-	objectLitMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, &crateSpecTexture, 1);
+	objectLitMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &crateTexture);
+	objectLitMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &crateSpecTexture);
 	objectLitMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
 
 	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
 
 	//cubemapReflectiveMaterial->SetTexture(UF_SKYBOXTEXTURE, &cubemap, 0);
 
-	quadMaterial->SetTexture(MC_DIFFUSETEXTUREPROPERTY, &window, 0);
+	quadMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &window);
 	quadMaterial->SetSurfaceType(MaterialSurfaceType::Transparent);
 
+	floorMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &wood);
+	floorMaterial->SetVector2(MC_TILING, Vector2(10, 10));
+
+	//floorMaterial->SetTexture(MC_SPECULARTEXTUREPROPERTY, &wood, 0);
 	object1Renderer.mesh = &cubeMesh;
 	object1Renderer.material = objectLitMaterial;
 	smallCubeRenderer.mesh = &cubeMesh;
@@ -214,18 +226,32 @@ void Example1Level::Initialize()
 	dirLight.diffuse = Color(0.4f, 0.4f, 0.4f);
 	dirLight.direction = Vector3(0, 0, 1);
 
+	ECSEntity floor;
+	floor.entity = m_ECS->reg.create();
+	MeshRendererComponent mr;
+	mr.mesh = &m_RenderEngine->GetPrimitive(Primitives::PLANE);
+	mr.material = floorMaterial;
+
+	object1Transform.transform.location = Vector3(0, -10, 10);
+	object1Transform.transform.scale = Vector3(40.0f);
+	m_ECS->reg.emplace<TransformComponent>(floor.entity, object1Transform);
+	m_ECS->reg.emplace<MeshRendererComponent>(floor.entity, mr);
+
 	for (int i = 0; i < cubeSize; i++)
 	{
 		ECSEntity entity;
 		object1Renderer.material = objectLitMaterial;
 
-		//object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
+		object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
 		object1Transform.transform.location = cubePositions[i];
+		object1Transform.transform.scale = Vector3::One;
 		//object1Transform.transform.location = Vector3(Math::RandF(-100, 100), Math::RandF(-100, 100), Math::RandF(-100, 100));
 		entity.entity = m_ECS->reg.create();
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
 		m_ECS->reg.emplace<MeshRendererComponent>(entity.entity, object1Renderer);
 	}
+
+
 
 
 	for (int i = 0; i < pLightSize; i++)
@@ -240,18 +266,18 @@ void Example1Level::Initialize()
 
 		auto& pLight1 = m_ECS->reg.emplace<PointLightComponent>(entity.entity);
 
+
 		pLight1.ambient = Color(0.05f, 0.05f, 0.05f);
-		pLight1.diffuse = Color(0.8f, 0.8f, 0.8f);
-		pLight1.specular = Color(.4f, .4f, .4f);
+		pLight1.diffuse = Color(0.9f, 0.9f, 0.9f);
+		pLight1.specular = Color(0.45f, 0.45f, 0.45f);
 		pLight1.constant = 1.0f;
 		pLight1.linear = 0.09f;
 		pLight1.quadratic = 0.032f;
 
 
-
 		ECSEntity visuals;
 		visuals.entity = m_ECS->reg.create();
-		object1Transform.transform.scale = 0.2f;
+		object1Transform.transform.scale = 0.1f;
 		m_ECS->reg.emplace<TransformComponent>(visuals.entity, object1Transform);
 		m_ECS->reg.emplace<MeshRendererComponent>(visuals.entity, smallCubeRenderer);
 

@@ -27,6 +27,7 @@ Timestamp: 4/26/2019 1:12:18 AM
 #include "Utility/Math/Color.hpp"
 #include "Rendering/RenderConstants.hpp"
 #include <map>
+#include <Rendering\RenderingCommon.hpp>
 
 namespace LinaEngine::Graphics
 {
@@ -40,19 +41,22 @@ namespace LinaEngine::Graphics
 		TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
 	};
 
+	struct MaterialSampler2D
+	{
+		uint32 unit = 0;
+		Texture* boundTexture = nullptr;
+		TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
+		bool isActive = false;
+	};
+
 	class Material
 	{
 
 	public:
 		
-		FORCEINLINE void SetTexture(const std::string& textureName, Texture* texture, uint32 textureUnit, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D)
-		{
-			MaterialTextureData data;
-			data.texture = texture;
-			data.unit = textureUnit;
-			data.bindMode = bindMode;
-			textures[textureName] = data;
-		}
+		void SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D);
+		void RemoveTexture(const std::string& textureName);
+		Texture* GetTexture(const std::string& name);
 
 		FORCEINLINE void SetFloat(const std::string& name, float value)
 		{
@@ -90,12 +94,7 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void SetMatrix4(const std::string& name, const Matrix& matrix)
 		{
 			matrices[name] = matrix;
-		}
-
-		FORCEINLINE Texture* GetTexture(const std::string& name)
-		{
-			return textures[name].texture;
-		}
+		}	
 
 		FORCEINLINE float GetFloat(const std::string& name)
 		{
@@ -133,7 +132,6 @@ namespace LinaEngine::Graphics
 		}
 
 		FORCEINLINE uint32 GetShaderID() { return shaderID; }
-
 		FORCEINLINE void SetSurfaceType(MaterialSurfaceType type) { m_SurfaceType = type; SetInt(MC_SURFACETYPE, type); }
 		FORCEINLINE MaterialSurfaceType GetSurfaceType() { return m_SurfaceType; }
 
@@ -145,10 +143,9 @@ namespace LinaEngine::Graphics
 		uint32 shaderID;
 		bool receivesLighting = false;
 		MaterialSurfaceType m_SurfaceType = MaterialSurfaceType::Opaque;
-		std::map<std::string, MaterialTextureData> textures;
 		std::map<std::string, float> floats;
 		std::map<std::string, int> ints;
-		std::map<std::string, int> samplers;
+		std::map<std::string, MaterialSampler2D> sampler2Ds;
 		std::map<std::string, Color> colors;
 		std::map<std::string, Vector2> vector2s;
 		std::map<std::string, Vector3> vector3s;

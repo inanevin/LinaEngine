@@ -26,6 +26,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Rendering/Texture.cpp
 	src/Rendering/IndexedModel.cpp
 	src/Rendering/ModelLoader.cpp
+	src/Rendering/Material.cpp
 	src/Rendering/RenderEngine.cpp
 	src/Rendering/Mesh.cpp
 	

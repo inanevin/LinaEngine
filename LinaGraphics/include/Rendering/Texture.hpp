@@ -27,6 +27,7 @@ Timestamp: 1/7/2019 1:55:47 PM
 #include "Core/Common.hpp"
 #include "PackageManager/OpenGL/GLRenderDevice.hpp"
 #include "Sampler.hpp"
+#include "Core/SizeDefinitions.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -45,7 +46,7 @@ namespace LinaEngine::Graphics
 		Texture& Construct(RenderDevice& deviceIn, const DDSTexture& ddsTexture, SamplerData samplerData = SamplerData());
 		Texture& Construct(RenderDevice& deviceIn, const LinaArray<class ArrayBitmap*>& data, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress, SamplerData samplerData = SamplerData());
 		Texture& ConstructFBTexture(RenderDevice& deviceIn, uint32 width, uint32 height, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress, SamplerData samplerData = SamplerData(), int sampleCount = 2);
-
+		Texture& ConstructEmpty(RenderDevice& deviceIn, SamplerData data = SamplerData());
 		FORCEINLINE uint32 GetID() const { return m_ID; };
 		FORCEINLINE uint32 GetSamplerID() const { return m_Sampler.GetID(); }
 		FORCEINLINE uint32 GetWidth() const { return m_Width; }
@@ -60,6 +61,8 @@ namespace LinaEngine::Graphics
 		uint32 m_ID = 0;
 		uint32 m_Width = 0;
 		uint32 m_Height = 0;
+		unsigned char* data;
+		bool dataAssigned = false;
 		bool isCompressed = false;
 		bool hasMipMaps = true;
 	};
