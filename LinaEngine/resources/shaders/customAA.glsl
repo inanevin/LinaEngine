@@ -36,10 +36,24 @@ void main()
 in vec2 TexCoords;
 out vec4 fragColor;
 
-uniform sampler2D screenTexture;
+uniform sampler2DMS screenTexture;
+
+// Attach the original frame buffer texture to the material & bind it with TEXTURE2D_MULTISAMPLE to get this work.
 
 void main()
 {
-	fragColor = texture(screenTexture, TexCoords);
+	//texelFetch requires a vec of ints for indexing (since we're indexing pixel locations)
+	//texture coords is range [0, 1], we need range [0, viewport_dim].
+	//texture coords are essentially a percentage, so we can multiply text coords by total size 
+	ivec2 vpCoords = ivec2(1440, 900);
+	vpCoords.x = int(vpCoords.x * TexCoords.x); 
+	vpCoords.y = int(vpCoords.y * TexCoords.y);
+
+	//do a simple average since this is just a demo
+	vec4 sample1 = texelFetch(screenTexture, vpCoords, 0);
+	vec4 sample2 = texelFetch(screenTexture, vpCoords, 1);
+	vec4 sample3 = texelFetch(screenTexture, vpCoords, 2);
+	vec4 sample4 = texelFetch(screenTexture, vpCoords, 3);
+	fragColor = (sample1 + sample2 + sample3 + sample4) / 4.0f;
 }
 #endif

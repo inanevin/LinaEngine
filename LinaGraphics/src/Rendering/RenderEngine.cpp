@@ -164,7 +164,6 @@ namespace LinaEngine::Graphics
 		// Draw frame buffer texture on the screen
 		DrawFullscreenQuad();
 
-
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
 			layer->OnUpdate();
@@ -680,7 +679,7 @@ namespace LinaEngine::Graphics
 		int h = m_MainWindow.GetHeight();
 
 		// Blit read & write buffers.
-		//m_RenderDevice.BlitFrameBuffers(m_RenderTarget.GetID(), w, h, m_IntermediateRenderTarget.GetID(), w, h, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST);
+		m_RenderDevice.BlitFrameBuffers(m_RenderTarget.GetID(), w, h, m_IntermediateRenderTarget.GetID(), w, h, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST);
 
 		// Back to default buffer
 		m_RenderDevice.SetFBO(0);
@@ -689,7 +688,7 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.Clear(true, false, false, Color::White, 0xFF);
 
 		// Set frame buffer texture on the material.
-		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &m_FrameBufferTexture, 0, TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE);
+		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &m_IntermediateFrameBufferTexture, 0, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 
 		// update shader w/ material data.
 		UpdateShaderData(&m_ScreenQuadMaterial);
