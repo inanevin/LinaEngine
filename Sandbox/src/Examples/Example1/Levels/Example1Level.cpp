@@ -115,7 +115,7 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 
 
 Vector3 cubePositions[] = {
-	Vector3(0.0f, 1.0f, -1.0),
+	Vector3(0.0f, 4.0f, -1.0),
 	Vector3(3.0f, 1.0f, 1.0),
 	Vector3(-2.0f, 1.0f, 2.0),
 	Vector3(0.0f, -9.0f, 10.0f),
@@ -125,6 +125,7 @@ Vector3 cubePositions[] = {
 	Vector3(0.0f, -4.0f, 5.0f),
 	Vector3(5.0f, -4.0f, 15.0f),
 };
+
 
 Vector3 pointLightPositions[]
 {

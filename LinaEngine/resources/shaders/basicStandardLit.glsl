@@ -160,7 +160,7 @@ void main()
 	//	fragColor = vec4(color, alpha);
 	
 	vec3 lightPos = vec3(-2.0,4.0, -1.0);
-	vec3 color = texture(material.diffuse.texture, fs_in.TexCoords).rgb;
+	vec3 color = texture(material.diffuse.texture,  vec2(fs_in.TexCoords.x * material.tiling.x , fs_in.TexCoords.y *material.tiling.y)).rgb;
     vec3 normal = normalize(fs_in.Normal);
     vec3 lightColor = vec3(0.3);
     // ambient
