@@ -22,29 +22,20 @@
 #if defined(VS_BUILD)
 Layout(0) attribute vec3 position;
 Layout(1) attribute vec2 texCoord;
+Layout(4) attribute mat4 model;
 
-out vec2 TexCoords;
+uniform mat4 lightSpaceMatrix;
 
 void main()
 {
-    gl_Position = vec4(position.x, position.y, 0.0, 1.0);
-    TexCoords = texCoord;
+    gl_Position =lightSpaceMatrix * model * vec4(position, 1.0);
 }
 
 #elif defined(FS_BUILD)
 
-in vec2 TexCoords;
-out vec4 fragColor;
-
-uniform sampler2D screenTexture;
 
 void main()
 {
-	//vec3 color = texture(screenTexture, TexCoords).xyz;
-	//color = pow(color, vec3(1.0/2.2));
-	//fragColor = vec4(color, texture(screenTexture, TexCoords).a);
-	//fragColor = texture(screenTexture, TexCoords);
-	float depthVal = texture(screenTexture, TexCoords).r;
-	fragColor = vec4(vec3(depthVal), 1.0);
+	
 }
 #endif

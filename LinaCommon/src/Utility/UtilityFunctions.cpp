@@ -22,6 +22,7 @@ Timestamp: 1/5/2019 1:39:45 PM
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include "Utility/Log.hpp"
 
 namespace LinaEngine
 {
@@ -108,7 +109,7 @@ namespace LinaEngine
 				}
 			}
 			else {
-				std::cout << "Unable to read file!" << std::endl;
+				LINA_CORE_ERR("File could not be loaded! {0}", fileName);
 				return false;
 			}
 

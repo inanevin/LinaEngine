@@ -214,7 +214,8 @@ namespace LinaEngine::Graphics
 		SKYBOX_PROCEDURAL = 5,
 		STENCIL_OUTLINE = 6,
 		SCREEN_QUAD = 7,
-		CUBEMAP_REFLECTIVE = 8
+		CUBEMAP_REFLECTIVE = 8,
+		DEPTH_SIMPLE = 9
 	};
 
 	struct RenderingDebugData

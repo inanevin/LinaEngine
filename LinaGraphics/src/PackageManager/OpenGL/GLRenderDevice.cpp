@@ -758,6 +758,8 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::SetTexture(uint32 texture, uint32 sampler, uint32 unit, TextureBindMode bindTextureMode, bool setSampler)
 	{
+		if (m_BoundTextures[unit] == texture) return;
+
 		// Activate the sampler data.
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glBindTexture(bindTextureMode, texture);
@@ -896,7 +898,12 @@ namespace LinaEngine::Graphics
 		if (shouldClearColor)
 		{
 			flags |= GL_COLOR_BUFFER_BIT;
-			glClearColor((GLfloat)color.r, (GLfloat)color.g, (GLfloat)color.b, (GLfloat)color.a);
+
+			if (color != m_CurrentClearColor)
+			{
+				glClearColor((GLfloat)color.r, (GLfloat)color.g, (GLfloat)color.b, (GLfloat)color.a);
+				m_CurrentClearColor = color;
+			}
 		}
 		if (shouldClearDepth)
 			flags |= GL_DEPTH_BUFFER_BIT;
@@ -977,6 +984,7 @@ namespace LinaEngine::Graphics
 		if (fbo == m_BoundFBO) return;
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		m_BoundFBO = fbo;
+		SetViewport(fbo);
 	}
 
 

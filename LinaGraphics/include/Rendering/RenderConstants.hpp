@@ -61,6 +61,7 @@ namespace LinaEngine::Graphics
 #define UF_SCREENTEXTURE "screenTexture"
 #define UF_SKYBOXTEXTURE "skybox"
 #define UF_TIME "time"
+#define UF_LIGHTSPACEMATRIX "lightSpaceMatrix"
 
 #define MAT_LINASTENCILOUTLINE "lina_StencilOutline"
 

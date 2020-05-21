@@ -283,7 +283,8 @@ namespace LinaEngine::Graphics
 		bool m_IsScissorsTestEnabled;
 		bool m_ShouldWriteDepth;
 		bool m_IsDepthTestEnabled;
-
+		Color m_CurrentClearColor;
+		
 	};
 }
 

@@ -32,6 +32,7 @@ namespace LinaEngine::ECS
 	struct TransformComponent;
 	struct CameraComponent;
 
+
 	class CameraSystem : public BaseECSSystem
 	{
 	public:
@@ -58,8 +59,15 @@ namespace LinaEngine::ECS
 		Color& GetCurrentClearColor();
 
 		FORCEINLINE CameraComponent& GetCurrentCameraComponent() { return *m_CurrentCameraComponent; }
+
+		FORCEINLINE void SetUseDirLightView(bool use) { m_UseDirLightView = use; }
+
+		FORCEINLINE Matrix& GetLightSpaceMatrix() { return lightSpaceMatrix; }
+
 	private:
 
+		Matrix lightSpaceMatrix;
+		bool m_UseDirLightView = false;
 		Matrix m_View = Matrix::Identity();
 		Matrix m_Projection =Matrix::Perspective(35, 1.33f, 0.01f, 1000.0f);
 		CameraComponent* m_CurrentCameraComponent = nullptr;

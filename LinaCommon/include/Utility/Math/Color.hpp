@@ -35,6 +35,16 @@ namespace LinaEngine
 		Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f) : r(rv), g(gv), b(bv), a(av) {};
 		float r, g, b, a = 1.0f;
 
+		bool operator!=(const Color& rhs) const
+		{
+			return !(r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a);
+		}
+
+		bool operator==(const Color& rhs) const
+		{
+			return (r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a);
+		}
+
 		static Color Red;
 		static Color Green;
 		static Color LightBlue;

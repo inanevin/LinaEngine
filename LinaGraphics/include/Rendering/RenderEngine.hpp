@@ -203,10 +203,10 @@ namespace LinaEngine::Graphics
 		void DrawSkybox();
 
 		// Renders scene objects.
-		void DrawSceneObjects(bool useStencilOutlining, DrawParams& drawpParams);
+		void DrawSceneObjects(bool useStencilOutlining, DrawParams& drawpParams, Material* overrideMaterial = nullptr);
 
 		// Draws a full screen quad from frame buffer texture.
-		void DrawFullscreenQuad();
+		void DrawFullscreenQuad(Texture& texture);
 
 		// Updates related uniform buffers on GPU
 		void UpdateUniformBuffers();
@@ -303,6 +303,8 @@ namespace LinaEngine::Graphics
 		// Material used to draw skybox.
 		Material* m_SkyboxMaterial = nullptr;
 
+		// Depth buffer material
+		Material* m_DepthBufferMaterial = nullptr;
 
 	private:
 
