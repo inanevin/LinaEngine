@@ -206,6 +206,15 @@ namespace LinaEngine::Graphics
 		// clears resource memory.
 		void DumpMemory();
 
+		// Default drawing
+		void DrawOperationsDefault(float delta);
+
+		// Drawing onto fullscreen quad via MSAA buffers
+		void DrawOperationsMSAA(float delta);
+
+		// Draw operations for shadow mapping
+		void DrawOperationsShadows(float delta);
+
 		// Renders skybox
 		void DrawSkybox();
 
@@ -213,7 +222,7 @@ namespace LinaEngine::Graphics
 		void DrawSceneObjects(bool useStencilOutlining, DrawParams& drawpParams, Material* overrideMaterial = nullptr);
 
 		// Draws a full screen quad from frame buffer texture.
-		void DrawFullscreenQuad(Texture& texture);
+		void DrawFullscreenQuad(Texture& texture, bool blit);
 
 		// Updates related uniform buffers on GPU
 		void UpdateUniformBuffers();

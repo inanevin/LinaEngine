@@ -48,7 +48,7 @@ uniform SpotLight spotLights[MAX_SPOT_LIGHT];
 uniform DirectionalLight directionalLight;
 
 
-vec3 CalculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir, vec4 diffuseTextureColor, vec4 specularTextureColor)
+vec3 CalculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir, vec4 diffuseTextureColor, vec4 specularTextureColor, float shadow)
 {
     vec3 lightDir = normalize(-light.direction);
 	
@@ -64,7 +64,7 @@ vec3 CalculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir
 	float attenuation = 1.0 / (DIRLIGHT_DISTANCE * DIRLIGHT_DISTANCE);
 	diffuse *= attenuation;
 	specular *= attenuation;
-	return diffuse + specular;
+	return (1.0-shadow) * (diffuse + specular);
 }
 
 
@@ -116,4 +116,23 @@ vec3 CalculateSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir
 	return diffuse + specular;
 }
 
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+     // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+	
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+	
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(material.shadowMap.texture, projCoords.xy).r; 
+	
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+	
+    // check whether current frag pos is in shadow
+    float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
+
+    return shadow;
+}
 

@@ -31,6 +31,7 @@ out VS_OUT
 	vec3 Normal;
 	vec3 FragPos;
 	vec2 TexCoords;
+	//vec4 FragPosLightSpace;
 } vs_out;
 
 void main()
@@ -39,6 +40,12 @@ void main()
 	vs_out.FragPos = vec3(model * vec4(position,1.0));
 	vs_out.Normal = mat3(inverseTransposeModel) * normal;
     vs_out.TexCoords = texCoord;
+	
+	//vs_out.FragPos = vec3(model * vec4(position, 1.0));
+    //vs_out.Normal = mat3(inverseTransposeModel) * normal;
+    //vs_out.TexCoords = texCoord;
+    //vs_out.FragPosLightSpace = lightSpace * vec4(vs_out.FragPos, 1.0);
+    //gl_Position = projection * view * vec4(vs_out.FragPos, 1.0);
 }
 
 #elif defined(GEO_BUILD)
@@ -47,7 +54,10 @@ layout (triangles) in;
 layout (triangle_strip, max_vertices = 3) out;
 
 in VS_OUT {
-    vec2 TexCoords;
+    vec3 Normal;
+	vec3 FragPos;
+	vec2 TexCoords;
+	//vec4 FragPosLightSpace;
 } gs_in[];
 
 out vec2 TexCoords; 
@@ -95,6 +105,7 @@ struct Material
 {
 MaterialSampler2D diffuse;
 MaterialSampler2D specular;
+MaterialSampler2D shadowMap;
 vec3 objectColor;
 float specularIntensity;
 int specularExponent;
@@ -112,6 +123,7 @@ in VS_OUT
 	vec3 Normal;
 	vec3 FragPos;
 	vec2 TexCoords;
+	//vec4 FragPosLightSpace;
 } fs_in;
 
 out vec4 fragColor;
@@ -135,15 +147,19 @@ void main()
 		vec3 color = texture(material.diffuse.texture, vec2(fs_in.TexCoords.x * material.tiling.x , fs_in.TexCoords.y * material.tiling.y)).rgb;
 		vec3 lighting = vec3(0.0);
 		
-		lighting += CalculateDirectionalLight(directionalLight, norm, viewDir, diffuseTextureColor, specularTextureColor);
+		
+		//float shadow = ShadowCalculation(fs_in.FragPosLightSpace);
+		
+		lighting += CalculateDirectionalLight(directionalLight, norm, viewDir, diffuseTextureColor, specularTextureColor, 0);
 		
 		 // phase 2: point lights
-		for(int i = 0; i < pointLightCount; i++)
-			lighting += CalculatePointLight(pointLights[i], norm, fs_in.FragPos, viewDir, diffuseTextureColor, specularTextureColor);    
+		//for(int i = 0; i < pointLightCount; i++)
+			//lighting += CalculatePointLight(pointLights[i], norm, fs_in.FragPos, viewDir, diffuseTextureColor, specularTextureColor);    
 		
 		// phase 3: spot light
-		for(int i = 0; i < spotLightCount; i++)
-			lighting += CalculateSpotLight(spotLights[i], norm, fs_in.FragPos, viewDir, diffuseTextureColor, specularTextureColor);    
+		//for(int i = 0; i < spotLightCount; i++)
+			//lighting += CalculateSpotLight(spotLights[i], norm, fs_in.FragPos, viewDir, diffuseTextureColor, specularTextureColor);    
+		
 		
 		color *= lighting;
 		color = pow(color, vec3(1.0/2.2));
