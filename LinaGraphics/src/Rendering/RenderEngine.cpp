@@ -561,7 +561,7 @@ namespace LinaEngine::Graphics
 		m_IntermediateRTTexture.ConstructFBTexture(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, PixelFormat::FORMAT_RGB, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT }, 0);
 
 		// Initialize depth map teture
-		m_DepthMapRTTexture.ConstructFBTexture(m_RenderDevice, m_ShadowMapResolution.x, m_ShadowMapResolution.y, PixelFormat::FORMAT_DEPTH, PixelFormat::FORMAT_DEPTH, { FILTER_NEAREST, FILTER_NEAREST, WRAP_CLAMP_BORDER, WRAP_CLAMP_BORDER }, 0, true, Color::White);
+		m_DepthMapRTTexture.ConstructFBTexture(m_RenderDevice, m_ShadowMapResolution.x, m_ShadowMapResolution.y, PixelFormat::FORMAT_DEPTH, PixelFormat::FORMAT_DEPTH, { FILTER_LINEAR, FILTER_LINEAR, WRAP_CLAMP_EDGE, WRAP_CLAMP_EDGE }, 0, true, Color::White);
 
 		// Initialize render buffer.
 		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);
@@ -602,14 +602,15 @@ namespace LinaEngine::Graphics
 		m_DefaultDrawParams.scissorWidth = 0;
 		m_DefaultDrawParams.scissorHeight = 0;
 
+
 		// Set depth map drawing parameters.
 		m_DepthMapDrawParams.useScissorTest = false;
 		m_DepthMapDrawParams.useDepthTest = true;
-		m_DepthMapDrawParams.useStencilTest = true;
+		m_DepthMapDrawParams.useStencilTest = false;
 		m_DepthMapDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
 		m_DepthMapDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
-		m_DepthMapDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
-		m_DepthMapDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+		m_DepthMapDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
+		m_DepthMapDrawParams.destBlend = BlendFunc::BLEND_FUNC_NONE;
 		m_DepthMapDrawParams.shouldWriteDepth = true;
 		m_DepthMapDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
 		m_DepthMapDrawParams.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
@@ -629,7 +630,7 @@ namespace LinaEngine::Graphics
 		m_FBOTextureDrawParameters.useDepthTest = false;
 		m_FBOTextureDrawParameters.useStencilTest = true;
 		m_FBOTextureDrawParameters.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_FBOTextureDrawParameters.faceCulling = FaceCulling::FACE_CULL_NONE;
+		m_FBOTextureDrawParameters.faceCulling = FaceCulling::FACE_CULL_BACK;
 		m_FBOTextureDrawParameters.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
 		m_FBOTextureDrawParameters.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
 		m_FBOTextureDrawParameters.shouldWriteDepth = true;
@@ -735,7 +736,7 @@ namespace LinaEngine::Graphics
 		UpdateUniformBuffers();
 
 		// Draw scene
-		DrawSceneObjects(false, m_DefaultDrawParams);
+		DrawSceneObjects(false, m_DefaultDrawParams, nullptr, true);
 	}
 
 	void RenderEngine::DrawOperationsMSAA(float delta)

@@ -115,8 +115,6 @@ vec2 tiling;
 
 uniform Material material;
 
-#include "lighting.glh"
-
 
 in VS_OUT
 {
@@ -125,6 +123,10 @@ in VS_OUT
 	vec2 TexCoords;
 	vec4 FragPosLightSpace;
 } fs_in;
+
+#include "lighting.glh"
+
+
 
 out vec4 fragColor;
 
@@ -177,8 +179,7 @@ void main()
     spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
     vec3 specular = spec * lightColor;    
     // calculate shadow
-	float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);  
-    float shadow = ShadowCalculation(fs_in.FragPosLightSpace, bias);                      
+    float shadow = ShadowCalculation(fs_in.FragPosLightSpace, vec3(-2.0, 4.0, -1.0));                      
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
     
 	lighting = pow(lighting, vec3(1.0/2.2));	
