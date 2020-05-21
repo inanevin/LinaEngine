@@ -34,7 +34,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 namespace LinaEngine::Graphics
 {
 
-	constexpr size_t UNIFORMBUFFER_VIEWDATA_SIZE = sizeof(Matrix) * 2 + (sizeof(Vector4) * 4) + (sizeof(float) * 2);
+	constexpr size_t UNIFORMBUFFER_VIEWDATA_SIZE = (sizeof(Matrix) * 2) + (sizeof(Vector4) * 4) + (sizeof(float) * 2) + sizeof(Matrix);
 	constexpr int UNIFORMBUFFER_VIEWDATA_BINDPOINT = 0;
 	constexpr auto UNIFORMBUFFER_VIEWDATA_NAME = "ViewData";
 
@@ -133,49 +133,52 @@ namespace LinaEngine::Graphics
 		
 		// Clear color.
 		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-	
+		
 		// Change perspective to render the scene from light perspective into the depth frame buffer
 		m_CameraSystem.SetUseDirLightView(true);
 		
 		// Update pipeline.
 		m_RenderingPipeline.UpdateSystems(delta);
-
-		//// Update uniform buffers on GPU
+		
+		// Update uniform buffers on GPU
 		UpdateUniformBuffers();
-
+		
 		// Setup light matrix for depth frame buffer
 		m_DepthBufferMaterial->SetMatrix4(UF_LIGHTSPACEMATRIX, m_CameraSystem.GetLightSpaceMatrix());
-
+		
 		// Set depth frame buffer
 		m_RenderDevice.SetFBO(m_DepthMapRenderTarget.GetID());
-
+		
 		// Clear color.
 		m_RenderDevice.Clear(false, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-
+		
 		// Draw scene into depth buffer.
-		DrawSceneObjects(false, m_DefaultDrawParams, m_DepthBufferMaterial);
+		DrawSceneObjects(false, m_DepthMapDrawParams, m_DepthBufferMaterial);
 
 		
 		//// Set the camera view & proj to normal.
 		//m_CameraSystem.SetUseDirLightView(false);
 		//
-		//// Render to external buffer
-		//m_RenderDevice.SetFBO(m_MainRenderTarget.GetID());
 		//
-		//// Clear color.
-		//m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-		//
-		//// Update pipeline.
-		//m_RenderingPipeline.UpdateSystems(delta);
-		//
-		//// Update uniform buffers on GPU
-		//UpdateUniformBuffers();
-		//
-		//// Draw scene
-		//DrawSceneObjects(false, m_DefaultDrawParams);
-		//
-		//// Draw skybox.
-		//DrawSkybox();
+		
+		
+		// Render to external buffer
+//	m_RenderDevice.SetFBO(m_MainRenderTarget.GetID());
+//
+//	// Clear color.
+//	m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+//
+//	// Update pipeline.
+//	m_RenderingPipeline.UpdateSystems(delta);
+//	
+//	// Update uniform buffers on GPU
+//	UpdateUniformBuffers();
+//	
+//	// Draw scene
+//	DrawSceneObjects(false, m_DefaultDrawParams);
+//	
+//	// Draw skybox.
+//	DrawSkybox();
 
 		// Draw frame buffer texture on the screen
 		DrawFullscreenQuad(m_DepthMapRTTexture);
@@ -512,7 +515,7 @@ namespace LinaEngine::Graphics
 		CreateShader(Shaders::CUBEMAP_REFLECTIVE, "resources/shaders/cubemapReflective.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
 		// Depth Shader
-		CreateShader(Shaders::DEPTH_SIMPLE, "resources/shaders/simpleDepth.glsl");
+		CreateShader(Shaders::DEPTH_SIMPLE, "resources/shaders/simpleDepth.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 	}
 
 	void RenderEngine::ConstructEngineMaterials()
@@ -584,6 +587,28 @@ namespace LinaEngine::Graphics
 		m_DefaultDrawParams.scissorStartY = 0;
 		m_DefaultDrawParams.scissorWidth = 0;
 		m_DefaultDrawParams.scissorHeight = 0;
+
+		// Set depth map drawing parameters.
+		m_DepthMapDrawParams.useScissorTest = false;
+		m_DepthMapDrawParams.useDepthTest = true;
+		m_DepthMapDrawParams.useStencilTest = true;
+		m_DepthMapDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
+		m_DepthMapDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
+		m_DepthMapDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
+		m_DepthMapDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+		m_DepthMapDrawParams.shouldWriteDepth = true;
+		m_DepthMapDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
+		m_DepthMapDrawParams.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
+		m_DepthMapDrawParams.stencilComparisonVal = 1;
+		m_DepthMapDrawParams.stencilTestMask = 0xFF;
+		m_DepthMapDrawParams.stencilWriteMask = 0xFF;
+		m_DepthMapDrawParams.stencilFail = StencilOp::STENCIL_KEEP;
+		m_DepthMapDrawParams.stencilPass = StencilOp::STENCIL_REPLACE;
+		m_DepthMapDrawParams.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+		m_DepthMapDrawParams.scissorStartX = 0;
+		m_DepthMapDrawParams.scissorStartY = 0;
+		m_DepthMapDrawParams.scissorWidth = 0;
+		m_DepthMapDrawParams.scissorHeight = 0;
 
 		// Set render to fbo target draw parameters.	
 		m_FBOTextureDrawParameters.useScissorTest = false;
@@ -724,11 +749,12 @@ namespace LinaEngine::Graphics
 		int h = m_MainWindow.GetHeight();
 
 		// Blit read & write buffers.
-	//	m_RenderDevice.BlitFrameBuffers(m_MainRenderTarget.GetID(), w, h, m_IntermediateRenderTarget.GetID(), w, h, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST);
+		//m_RenderDevice.BlitFrameBuffers(m_MainRenderTarget.GetID(), w, h, m_IntermediateRenderTarget.GetID(), w, h, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST);
 
 		// Back to default buffer
 		m_RenderDevice.SetFBO(0);
 
+		// FALSE FOR NORMAL DRAWING
 		// Clear color bit.
 		m_RenderDevice.Clear(true, true, false, Color::White, 0xFF);
 
@@ -776,6 +802,9 @@ namespace LinaEngine::Graphics
 			m_GlobalDataBuffer.Update(&cameraComponent.zNear, currentGlobalDataOffset, sizeof(float));
 		}
 		currentGlobalDataOffset += sizeof(float);
+
+		m_GlobalDataBuffer.Update(&m_CameraSystem.GetLightSpaceMatrix(), currentGlobalDataOffset, sizeof(Matrix));
+		currentGlobalDataOffset += sizeof(Matrix);
 
 		// Update lights buffer.
 		m_GlobalLightBuffer.Update(&m_CurrentPointLightCount, 0, sizeof(int));
@@ -860,7 +889,7 @@ namespace LinaEngine::Graphics
 		}
 		else if (shader == Shaders::DEPTH_SIMPLE)
 		{
-			material.matrices[UF_LIGHTSPACEMATRIX] = Matrix();
+			//material.matrices[UF_LIGHTSPACEMATRIX] = Matrix();
 		}
 
 		return material;

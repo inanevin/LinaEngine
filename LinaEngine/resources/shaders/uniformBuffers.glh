@@ -6,6 +6,7 @@ mat4 view;
 vec4 cameraPosition;
 float cameraNear;
 float cameraFar;
+mat4 lightSpace;
 };
 
 layout (std140, row_major) uniform LightData

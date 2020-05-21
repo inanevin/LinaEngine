@@ -261,6 +261,9 @@ namespace LinaEngine::Graphics
 		// Default drawing parameters.
 		DrawParams m_DefaultDrawParams;
 
+		// Depth map draw params
+		DrawParams m_DepthMapDrawParams;
+
 		// Skybox drawing parameters.
 		DrawParams m_SkyboxDrawParams;
 

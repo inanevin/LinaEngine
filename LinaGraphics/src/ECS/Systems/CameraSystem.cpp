@@ -66,6 +66,7 @@ namespace LinaEngine::ECS
 				lightSpaceMatrix = lightProjection * lightView;
 
 			}
+
 			
 			
 		}	
