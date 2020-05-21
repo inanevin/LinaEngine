@@ -628,7 +628,7 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	uint32 GLRenderDevice::CreateRenderTarget(uint32 texture, int32 width, int32 height, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, bool bindRBO, FrameBufferAttachment rboAttachment, uint32 rbo)
+	uint32 GLRenderDevice::CreateRenderTarget(uint32 texture, int32 width, int32 height, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, bool noReadWrite, bool bindRBO, FrameBufferAttachment rboAttachment, uint32 rbo)
 	{
 		// Generate frame buffers & set the current object.
 		uint32 fbo;
@@ -638,6 +638,13 @@ namespace LinaEngine::Graphics
 		// Define attachment type & use the buffer.
 		GLenum attachmentTypeGL = attachment + attachmentNumber;
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, bindTextureMode, texture, mipLevel);
+
+		// Disable read&write.
+		if (noReadWrite)
+		{
+			glDrawBuffer(GL_NONE);
+			glReadBuffer(GL_NONE);
+		}
 
 		// Set the render buffer object if desired.
 		if (bindRBO)

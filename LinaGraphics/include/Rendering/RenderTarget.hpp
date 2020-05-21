@@ -48,10 +48,10 @@ namespace LinaEngine::Graphics
 
 		// TODO: Take care of texture compression. Should not be compressed.
 		// Constructors create the target through render engine.
-		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, Texture& texture, uint32 width, uint32 height, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber = 0, uint32 mipLevel = 0)
+		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, Texture& texture, uint32 width, uint32 height, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, bool noReadWrite = false, uint32 attachmentNumber = 0, uint32 mipLevel = 0)
 		{
 			renderDevice = &renderDeviceIn;
-			m_EngineBoundID = renderDevice->CreateRenderTarget(texture.GetID(), width, height, bindTextureMode, attachment, attachmentNumber, mipLevel);
+			m_EngineBoundID = renderDevice->CreateRenderTarget(texture.GetID(), width, height, bindTextureMode, attachment, attachmentNumber, mipLevel, noReadWrite);
 			CheckCompressed(texture);
 		}
 
@@ -60,7 +60,7 @@ namespace LinaEngine::Graphics
 		{
 			renderDevice = &renderDeviceIn;
 			m_RBO = rbo;
-			m_EngineBoundID = renderDevice->CreateRenderTarget(texture.GetID(), width, height, bindTextureMode, attachment, attachmentNumber, mipLevel, true, rboAttachment, rbo);
+			m_EngineBoundID = renderDevice->CreateRenderTarget(texture.GetID(), width, height, bindTextureMode, attachment, attachmentNumber, mipLevel, false, rbo != 0, rboAttachment, rbo);
 			CheckCompressed(texture);
 		}
 

@@ -319,6 +319,9 @@ namespace LinaEngine::Graphics
 		int m_CurrentSpotLightCount;
 		int m_CurrentPointLightCount;
 
+		// Shadow map resolution
+		Vector2 m_ShadowMapResolution = Vector2(1024, 1024);
+
 		// Debug data
 		RenderingDebugData m_DebugData;
 
