@@ -207,7 +207,6 @@ namespace LinaEngine::Graphics
 		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, wrapS);
 		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, wrapT);
 
-
 		if (useBorder)
 		{
 			float color[] = { borderColor.r, borderColor.g, borderColor.b, borderColor.a };

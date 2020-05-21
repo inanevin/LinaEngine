@@ -57,10 +57,11 @@ namespace LinaEngine::Graphics
 
 	enum SamplerWrapMode
 	{
-		WRAP_CLAMP = LINA_GRAPHICS_SAMPLER_WRAP_CLAMP,
-		WRAP_REPEAT = LINA_GRAPHICS_SAMPLER_WRAP_REPEAT,
+		WRAP_CLAMP_EDGE = LINA_GRAPHICS_SAMPLER_WRAP_CLAMP,
 		WRAP_CLAMP_MIRROR = LINA_GRAPHICS_SAMPLER_WRAP_CLAMP_MIRROR,
-		WRAP_REPEAT_MIRROR = LINA_GRAPHICS_SAMPLER_WRAP_REPEAT_MIRROR,
+		WRAP_CLAMP_BORDER = LINA_GRAPHICS_SAMPLER_WRAP_CLAMP_BORDER,
+		WRAP_REPEAT = LINA_GRAPHICS_SAMPLER_WRAP_REPEAT,
+		WRAP_REPEAT_MIRROR = LINA_GRAPHICS_SAMPLER_WRAP_REPEAT_MIRROR
 	};
 
 	enum TextureBindMode
@@ -175,8 +176,8 @@ namespace LinaEngine::Graphics
 	{
 		SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR;
 		SamplerFilter maxFilter = SamplerFilter::FILTER_LINEAR;
-		SamplerWrapMode wrapS = SamplerWrapMode::WRAP_CLAMP;
-		SamplerWrapMode wrapT = SamplerWrapMode::WRAP_CLAMP;
+		SamplerWrapMode wrapS = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		SamplerWrapMode wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 		float anisotropy = 0.0f;
 	};
 

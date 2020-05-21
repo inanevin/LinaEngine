@@ -171,8 +171,8 @@ void Example1Level::Initialize()
 	SamplerData s;
 	s.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
 	s.maxFilter = SamplerFilter::FILTER_LINEAR;
-	s.wrapS = SamplerWrapMode::WRAP_CLAMP;
-	s.wrapT = SamplerWrapMode::WRAP_CLAMP;
+	s.wrapS = SamplerWrapMode::WRAP_CLAMP_EDGE;
+	s.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 
 	SamplerData s2;
 	s2.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;

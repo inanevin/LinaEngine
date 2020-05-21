@@ -48,6 +48,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_SAMPLER_FILTER_L
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_SAMPLER_WRAP_CLAMP=0x812F)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_SAMPLER_WRAP_REPEAT=0x2901)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_SAMPLER_WRAP_CLAMP_MIRROR=0x8743)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_SAMPLER_WRAP_CLAMP_BORDER=0x812D)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_SAMPLER_WRAP_REPEAT_MIRROR=0x8370)
                                                 
 #----------------------------------- PRIMITIVE DEFINITIONS ----------------------------------- #												
