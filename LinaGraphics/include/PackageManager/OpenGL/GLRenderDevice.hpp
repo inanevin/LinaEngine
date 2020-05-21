@@ -246,6 +246,9 @@ namespace LinaEngine::Graphics
 		// Currently bound render buffer object
 		uint32 m_BoundRBO = 0;
 
+		// Currently bound uniform buffer
+		uint32 m_BoundUBO;
+
 		// Map for bound vertex array objects.
 		std::map<uint32, VertexArrayData> m_VAOMap;
 

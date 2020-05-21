@@ -833,9 +833,14 @@ namespace LinaEngine::Graphics
 	void GLRenderDevice::UpdateUniformBuffer(uint32 buffer, const void* data, uintptr offset, uintptr dataSize)
 	{
 		// Get buffer & set data.
-		glBindBuffer(GL_UNIFORM_BUFFER, buffer);
+		if (m_BoundUBO != buffer)
+		{
+			glBindBuffer(GL_UNIFORM_BUFFER, buffer);
+			m_BoundUBO = buffer;
+		}
+
 		glBufferSubData(GL_UNIFORM_BUFFER, offset, dataSize, data);
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+		//glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	}
 
 	void GLRenderDevice::UpdateUniformBuffer(uint32 buffer, const void* data, uintptr dataSize)
