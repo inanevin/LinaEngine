@@ -79,7 +79,7 @@ namespace LinaEngine::Graphics
 		~GLRenderDevice();
 
 		// Initializes the devices & params.
-		void Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn, int width, int height);
+		void Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn, int width, int height, DrawParams& defaultParams);
 
 		// Creates a texture on GL.
 		uint32 CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress
@@ -240,6 +240,12 @@ namespace LinaEngine::Graphics
 		// Currently active frame buffer object.
 		uint32 m_BoundFBO = 0;
 
+		// Currently active read buffer.
+		uint32 m_BoundReadFBO = 0;
+
+		// Currently active write buffer.
+		uint32 m_BoundWriteFBO = 0;
+
 		// FBO rep. on viewport.
 		uint32 m_ViewportFBO = 0;
 
@@ -251,6 +257,9 @@ namespace LinaEngine::Graphics
 
 		// Currently bound texture unit
 		uint32 m_BoundTextureUnit;
+
+		// Bound Viewport size
+		Vector2 m_BoundViewportSize;
 
 		// Map for bound vertex array objects.
 		std::map<uint32, VertexArrayData> m_VAOMap;

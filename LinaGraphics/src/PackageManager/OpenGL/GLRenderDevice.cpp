@@ -124,22 +124,7 @@ namespace LinaEngine::Graphics
 	GLRenderDevice::GLRenderDevice()
 	{
 		LINA_CORE_TRACE("[Constructor] -> GLRenderDevice ({0})", typeid(*this).name());
-
 		m_GLVersion = m_BoundFBO = m_BoundVAO = m_BoundShader = m_ViewportFBO = 0;
-		m_UsedFaceCulling = FaceCulling::FACE_CULL_NONE;
-		m_UsedDepthFunction = DrawFunc::DRAW_FUNC_ALWAYS;
-		m_UsedSourceBlending = BlendFunc::BLEND_FUNC_NONE;
-		m_UsedDestinationBlending = BlendFunc::BLEND_FUNC_NONE;
-		m_UsedStencilFunction = DrawFunc::DRAW_FUNC_ALWAYS;
-		m_UsedStencilTestMask = ((uint32)0xFFFFFFFF);
-		m_UsedStencilWriteMask = ((uint32)0xFFFFFFFF);
-		m_UsedStencilComparisonValue = 0;
-		m_usedStencilFail = StencilOp::STENCIL_KEEP;
-		m_UsedStencilPassButDepthFail = StencilOp::STENCIL_KEEP;
-		m_IsBlendingEnabled = m_ShouldWriteDepth = m_IsScissorsTestEnabled = false;
-		m_IsStencilTestEnabled = true;
-		m_ShouldWriteDepth = true;
-		m_IsDepthTestEnabled = true;
 	}
 
 	GLRenderDevice::~GLRenderDevice()
@@ -148,7 +133,7 @@ namespace LinaEngine::Graphics
 	}
 
 
-	void GLRenderDevice::Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn, int width, int height)
+	void GLRenderDevice::Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn, int width, int height, DrawParams& defaultParams)
 	{
 		// Struct fbo data.
 		struct FBOData fboWindowData;
@@ -156,25 +141,40 @@ namespace LinaEngine::Graphics
 		fboWindowData.height = height;
 		m_FBOMap[0] = fboWindowData;
 
+		m_IsStencilTestEnabled = defaultParams.useStencilTest;
+		m_IsDepthTestEnabled = defaultParams.useDepthTest;
+		m_IsBlendingEnabled = (defaultParams.sourceBlend != BlendFunc::BLEND_FUNC_NONE || defaultParams.destBlend != BlendFunc::BLEND_FUNC_NONE);
+		m_IsScissorsTestEnabled = defaultParams.useScissorTest;
+		m_UsedDepthFunction = defaultParams.depthFunc;
+		m_ShouldWriteDepth = defaultParams.shouldWriteDepth;
+		m_usedStencilFail = defaultParams.stencilFail;
+		m_UsedStencilPassButDepthFail = defaultParams.stencilPassButDepthFail;
+		m_UsedStencilPass = defaultParams.stencilPass;
+		m_UsedStencilFunction = defaultParams.stencilFunc;
+		m_UsedStencilTestMask = defaultParams.stencilTestMask;
+		m_UsedStencilWriteMask = defaultParams.stencilWriteMask;
+		m_UsedStencilComparisonValue = defaultParams.stencilComparisonVal;
+		m_UsedFaceCulling = defaultParams.faceCulling;
+		m_UsedSourceBlending = defaultParams.sourceBlend;
+		m_UsedDestinationBlending = defaultParams.destBlend;
+
 		// Default GL settings.
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_STENCIL_TEST);
 		glEnable(GL_BLEND);
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_MULTISAMPLE);
+
 		glDepthFunc(GL_LESS);
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 		glFrontFace(GL_CW);
+		if (m_UsedFaceCulling != FaceCulling::FACE_CULL_NONE)
+			glCullFace(m_UsedFaceCulling);
 
-		m_IsDepthTestEnabled = true;
-		m_UsedDepthFunction = DrawFunc::DRAW_FUNC_LESS;
-		m_usedStencilFail = StencilOp::STENCIL_KEEP;
-		m_UsedStencilPassButDepthFail = StencilOp::STENCIL_KEEP;
-		m_UsedStencilPass = StencilOp::STENCIL_REPLACE;
-		m_UsedStencilFunction = DrawFunc::DRAW_FUNC_NOT_EQUAL;
-		m_UsedStencilTestMask = 0xFF;
-		m_UsedFaceCulling = FaceCulling::FACE_CULL_BACK;
+		if (m_IsBlendingEnabled)
+			glBlendFunc(m_UsedSourceBlending, m_UsedDestinationBlending);
+		
 
 		// Set lighting system reference.
 		m_LightingSystem = &lightingSystemIn;
@@ -698,8 +698,17 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::BlitFrameBuffers(uint32 readFBO, uint32 readWidth, uint32 readHeight, uint32 writeFBO, uint32 writeWidth, uint32 writeHeight, BufferBit mask, SamplerFilter filter)
 	{
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, readFBO);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, writeFBO);
+		if (m_BoundReadFBO != readFBO)
+		{
+			m_BoundReadFBO = readFBO;
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, readFBO);
+		}
+
+		if (m_BoundWriteFBO != writeFBO)
+		{
+			m_BoundWriteFBO = writeFBO;
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, writeFBO);
+		}
 		glBlitFramebuffer(0, 0, readWidth, readHeight, 0, 0, writeWidth, writeHeight, mask, filter);
 	}
 
@@ -998,7 +1007,7 @@ namespace LinaEngine::Graphics
 		// Use FBO if exists.
 		if (fbo == m_BoundFBO) return;
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-		m_BoundFBO = fbo;
+		m_BoundFBO = m_BoundReadFBO = m_BoundWriteFBO =fbo;
 		SetViewport(fbo);
 	}
 
@@ -1014,26 +1023,39 @@ namespace LinaEngine::Graphics
 	{
 		// Update viewport according to the render targets if exist.
 		if (fbo == m_ViewportFBO) return;
-		glViewport(0, 0, m_FBOMap[fbo].width, m_FBOMap[fbo].height);
 		m_ViewportFBO = fbo;
+
+		uint32 w = m_FBOMap[fbo].width;
+		uint32 h = m_FBOMap[fbo].height;
+
+		if (w != m_BoundViewportSize.x || h != m_BoundViewportSize.y)
+		{
+			m_BoundViewportSize.x = w;
+			m_BoundViewportSize.y = h;
+			glViewport(0, 0, m_FBOMap[fbo].width, m_FBOMap[fbo].height);
+		}
+
 	}
 
 	void GLRenderDevice::SetFaceCulling(FaceCulling faceCulling)
 	{
-		if (faceCulling == m_UsedFaceCulling) return;
-
 		// If target is enabled, then disable face culling.
 		// If current is disabled, then enable faceculling.
 		// Else switch cull state.
 		if (faceCulling == FACE_CULL_NONE)
+		{
 			glDisable(GL_CULL_FACE);
-		else if (m_UsedFaceCulling == FACE_CULL_NONE) { // Face culling is disabled but needs to be enabled
+			m_UsedFaceCulling = FACE_CULL_NONE;
+			return;
+		}
+		else if (m_UsedFaceCulling == FACE_CULL_NONE)// Face culling is disabled but needs to be enabled
 			glEnable(GL_CULL_FACE);
+
+		if (m_UsedFaceCulling != faceCulling)
+		{
+			m_UsedFaceCulling = faceCulling;
 			glCullFace(faceCulling);
 		}
-		else
-			glCullFace(faceCulling);
-		m_UsedFaceCulling = faceCulling;
 	}
 
 	void GLRenderDevice::SetDepthTest(bool shouldWrite, DrawFunc depthFunc)

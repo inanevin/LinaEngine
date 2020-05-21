@@ -66,8 +66,11 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Initialize(LinaEngine::ECS::ECSRegistry& ecsReg)
 	{
+		// Setup draw parameters.
+		SetupDrawParameters();
+
 		// Initialize the render device.
-		m_RenderDevice.Initialize(m_LightingSystem, m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
+		m_RenderDevice.Initialize(m_LightingSystem, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), m_DefaultDrawParams);
 
 		// Construct the uniform buffer for global matrices.
 		m_GlobalDataBuffer.Construct(m_RenderDevice, UNIFORMBUFFER_VIEWDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
@@ -95,12 +98,9 @@ namespace LinaEngine::Graphics
 
 		// Construct screen quad material.
 		SetMaterialShader(m_ScreenQuadMaterial, Shaders::SCREEN_QUAD);
-		
+
 		// Construct render targets
 		ConstructRenderTargets();
-
-		// Setup draw parameters.
-		SetupDrawParameters();
 
 		// Initialize built-in vertex array objects.
 		m_SkyboxVAO = m_RenderDevice.CreateSkyboxVertexArray();
@@ -130,49 +130,60 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Tick(float delta)
 	{
-
-		// Set depth frame buffer
-	//	m_RenderDevice.SetFBO(m_DepthMapRenderTarget.GetID());
-
-		// Change perspective to render the scene from light perspective into the depth frame buffer
-		//m_CameraSystem.SetUseDirLightView(true);
-
-		// Clear color.
-	//	m_RenderDevice.Clear(false, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-
-		// Update light matrix.
-		//m_RenderDevice.UpdateShaderUniformMatrix(GetShader(Shaders::DEPTH_SIMPLE).GetID(), UF_LIGHTSPACEMATRIX, m_CameraSystem.GetLightSpaceMatrix());
-
-		// Draw scene
-	//	DrawSceneObjects(false, m_DefaultDrawParams, m_DepthBufferMaterial);
-
-		// Set the camera view & proj to normal.
-		//m_CameraSystem.SetUseDirLightView(false);
-
-		// Render to external buffer
-		//m_RenderDevice.SetFBO(m_MainRenderTarget.GetID());
-
+		
 		// Clear color.
 		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-
+	
+		// Change perspective to render the scene from light perspective into the depth frame buffer
+		m_CameraSystem.SetUseDirLightView(true);
+		
 		// Update pipeline.
 		m_RenderingPipeline.UpdateSystems(delta);
 
-		// Update uniform buffers on GPU
+		//// Update uniform buffers on GPU
 		UpdateUniformBuffers();
 
-		// Draw scene
-		DrawSceneObjects(false, m_DefaultDrawParams);
+		// Setup light matrix for depth frame buffer
+		m_DepthBufferMaterial->SetMatrix4(UF_LIGHTSPACEMATRIX, m_CameraSystem.GetLightSpaceMatrix());
+
+		// Set depth frame buffer
+		m_RenderDevice.SetFBO(m_DepthMapRenderTarget.GetID());
+
+		// Clear color.
+		m_RenderDevice.Clear(false, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+
+		// Draw scene into depth buffer.
+		DrawSceneObjects(false, m_DefaultDrawParams, m_DepthBufferMaterial);
+
 		
-		// Draw skybox.
-		DrawSkybox();
+		//// Set the camera view & proj to normal.
+		//m_CameraSystem.SetUseDirLightView(false);
+		//
+		//// Render to external buffer
+		//m_RenderDevice.SetFBO(m_MainRenderTarget.GetID());
+		//
+		//// Clear color.
+		//m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+		//
+		//// Update pipeline.
+		//m_RenderingPipeline.UpdateSystems(delta);
+		//
+		//// Update uniform buffers on GPU
+		//UpdateUniformBuffers();
+		//
+		//// Draw scene
+		//DrawSceneObjects(false, m_DefaultDrawParams);
+		//
+		//// Draw skybox.
+		//DrawSkybox();
 
 		// Draw frame buffer texture on the screen
-		//DrawFullscreenQuad(m_IntermediateRTTexture);
+		DrawFullscreenQuad(m_DepthMapRTTexture);
 
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
 			layer->OnUpdate();
+
 
 		// Update window.
 		m_MainWindow.Tick();
@@ -203,7 +214,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	Texture& RenderEngine::CreateTexture(const std::string& filePath, PixelFormat pixelFormat, PixelFormat internalPixelFormat , bool generateMipmaps, bool compress, SamplerData samplerData)
+	Texture& RenderEngine::CreateTexture(const std::string& filePath, PixelFormat pixelFormat, PixelFormat internalPixelFormat, bool generateMipmaps, bool compress, SamplerData samplerData)
 	{
 		if (!TextureExists(filePath))
 		{
@@ -228,7 +239,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	Texture& RenderEngine::CreateTexture(const std::string filePaths[6], PixelFormat pixelFormat, PixelFormat internalPixelFormat , bool generateMipmaps, bool compress, SamplerData samplerData)
+	Texture& RenderEngine::CreateTexture(const std::string filePaths[6], PixelFormat pixelFormat, PixelFormat internalPixelFormat, bool generateMipmaps, bool compress, SamplerData samplerData)
 	{
 		if (!TextureExists(filePaths[0]))
 		{
@@ -496,7 +507,7 @@ namespace LinaEngine::Graphics
 
 		// Screen Quad
 		CreateShader(Shaders::SCREEN_QUAD, "resources/shaders/screenQuad.glsl");
-		
+
 		// Cubemap reflective
 		CreateShader(Shaders::CUBEMAP_REFLECTIVE, "resources/shaders/cubemapReflective.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
@@ -542,7 +553,7 @@ namespace LinaEngine::Graphics
 
 		// Initialize intermediate render target.
 		m_IntermediateRenderTarget.Construct(m_RenderDevice, m_IntermediateRTTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
-	
+
 		// Initialize shadow map target
 		m_DepthMapRenderTarget.Construct(m_RenderDevice, m_DepthMapRTTexture, m_ShadowMapResolution.x, m_ShadowMapResolution.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
 
@@ -559,7 +570,7 @@ namespace LinaEngine::Graphics
 		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
 		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
 		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
-		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;		
+		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
 		m_DefaultDrawParams.shouldWriteDepth = true;
 		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
 		m_DefaultDrawParams.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
@@ -688,7 +699,7 @@ namespace LinaEngine::Graphics
 			// Draw scene.
 			m_MeshRendererSystem.FlushOpaque(m_StencilOutlineDrawParams, nullptr, false);
 			m_MeshRendererSystem.FlushTransparent(m_StencilOutlineDrawParams, nullptr, false);
-			
+
 			// Enable depth test for drawing w/ new params.
 			m_RenderDevice.SetDepthTestEnable(false);
 
@@ -713,13 +724,13 @@ namespace LinaEngine::Graphics
 		int h = m_MainWindow.GetHeight();
 
 		// Blit read & write buffers.
-		m_RenderDevice.BlitFrameBuffers(m_MainRenderTarget.GetID(), w, h, m_IntermediateRenderTarget.GetID(), w, h, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST);
+	//	m_RenderDevice.BlitFrameBuffers(m_MainRenderTarget.GetID(), w, h, m_IntermediateRenderTarget.GetID(), w, h, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST);
 
 		// Back to default buffer
 		m_RenderDevice.SetFBO(0);
 
 		// Clear color bit.
-		m_RenderDevice.Clear(true, false, false, Color::White, 0xFF);
+		m_RenderDevice.Clear(true, true, false, Color::White, 0xFF);
 
 		// Set frame buffer texture on the material.
 		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &texture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
@@ -800,8 +811,8 @@ namespace LinaEngine::Graphics
 		{
 			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
 			material.floats[MC_SPECULARINTENSITYPROPERTY] = 1.0f;
-			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = {0};
-			material.sampler2Ds[MC_TEXTURE2D_SPECULAR] = {1};
+			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
+			material.sampler2Ds[MC_TEXTURE2D_SPECULAR] = { 1 };
 			material.ints[MC_SPECULAREXPONENTPROPERTY] = 32;
 			material.ints[MC_SURFACETYPE] = 0;
 			material.vector2s[MC_TILING] = Vector2::One;
