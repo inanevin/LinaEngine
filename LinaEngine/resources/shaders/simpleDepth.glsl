@@ -24,11 +24,9 @@ Layout(0) attribute vec3 position;
 Layout(1) attribute vec2 texCoord;
 Layout(4) attribute mat4 model;
 
-uniform mat4 lightSpaceMatrix;
-
 void main()
 {
-    gl_Position =lightSpaceMatrix * model * vec4(position, 1.0);
+    gl_Position = lightSpace * model * vec4(position, 1.0);
 }
 
 #elif defined(FS_BUILD)

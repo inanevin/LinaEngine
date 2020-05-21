@@ -3,10 +3,10 @@ layout (std140, column_major) uniform ViewData
 {
 mat4 projection; 
 mat4 view; 
+mat4 lightSpace;
 vec4 cameraPosition;
 float cameraNear;
 float cameraFar;
-mat4 lightSpace;
 };
 
 layout (std140, row_major) uniform LightData

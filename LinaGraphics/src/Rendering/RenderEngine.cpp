@@ -34,7 +34,7 @@ Timestamp: 4/27/2019 11:18:07 PM
 namespace LinaEngine::Graphics
 {
 
-	constexpr size_t UNIFORMBUFFER_VIEWDATA_SIZE = (sizeof(Matrix) * 2) + (sizeof(Vector4) * 4) + (sizeof(float) * 2) + sizeof(Matrix);
+	constexpr size_t UNIFORMBUFFER_VIEWDATA_SIZE = (sizeof(Matrix) * 3) + (sizeof(Vector4)) + (sizeof(float) * 3);
 	constexpr int UNIFORMBUFFER_VIEWDATA_BINDPOINT = 0;
 	constexpr auto UNIFORMBUFFER_VIEWDATA_NAME = "ViewData";
 
@@ -143,9 +143,6 @@ namespace LinaEngine::Graphics
 		// Update uniform buffers on GPU
 		UpdateUniformBuffers();
 		
-		// Setup light matrix for depth frame buffer
-		m_DepthBufferMaterial->SetMatrix4(UF_LIGHTSPACEMATRIX, m_CameraSystem.GetLightSpaceMatrix());
-		
 		// Set depth frame buffer
 		m_RenderDevice.SetFBO(m_DepthMapRenderTarget.GetID());
 		
@@ -154,6 +151,8 @@ namespace LinaEngine::Graphics
 		
 		// Draw scene into depth buffer.
 		DrawSceneObjects(false, m_DepthMapDrawParams, m_DepthBufferMaterial);
+
+
 
 		
 		//// Set the camera view & proj to normal.
@@ -509,7 +508,7 @@ namespace LinaEngine::Graphics
 		singleColor.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
 		// Screen Quad
-		CreateShader(Shaders::SCREEN_QUAD, "resources/shaders/screenQuad.glsl");
+		CreateShader(Shaders::SCREEN_QUAD, "resources/shaders/screenQuad.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
 		// Cubemap reflective
 		CreateShader(Shaders::CUBEMAP_REFLECTIVE, "resources/shaders/cubemapReflective.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
@@ -782,6 +781,9 @@ namespace LinaEngine::Graphics
 		m_GlobalDataBuffer.Update(&m_CameraSystem.GetViewMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 
+		m_GlobalDataBuffer.Update(&m_CameraSystem.GetLightSpaceMatrix(), currentGlobalDataOffset, sizeof(Matrix));
+		currentGlobalDataOffset += sizeof(Matrix);
+
 		m_GlobalDataBuffer.Update(&viewPos, currentGlobalDataOffset, sizeof(Vector4));
 		currentGlobalDataOffset += sizeof(Vector4);
 
@@ -802,9 +804,6 @@ namespace LinaEngine::Graphics
 			m_GlobalDataBuffer.Update(&cameraComponent.zNear, currentGlobalDataOffset, sizeof(float));
 		}
 		currentGlobalDataOffset += sizeof(float);
-
-		m_GlobalDataBuffer.Update(&m_CameraSystem.GetLightSpaceMatrix(), currentGlobalDataOffset, sizeof(Matrix));
-		currentGlobalDataOffset += sizeof(Matrix);
 
 		// Update lights buffer.
 		m_GlobalLightBuffer.Update(&m_CurrentPointLightCount, 0, sizeof(int));
