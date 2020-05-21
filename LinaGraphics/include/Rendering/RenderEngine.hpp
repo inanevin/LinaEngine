@@ -244,8 +244,7 @@ namespace LinaEngine::Graphics
 		Texture m_IntermediateRTTexture;
 
 		// Depth map render target texture
-		//Texture m_DepthMapRTTexture;
-		//Texture sa;
+		Texture m_DepthMapRTTexture;
 
 		// Default drawing parameters.
 		DrawParams m_DefaultDrawParams;
