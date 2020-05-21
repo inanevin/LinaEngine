@@ -81,16 +81,17 @@ namespace LinaEngine::Graphics
 		return *this;
 	}
 
-	Texture& Texture::ConstructFBTexture(RenderDevice& deviceIn, uint32 width, uint32 height, PixelFormat pixelFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress, SamplerData samplerData, int sampleCount)
+	Texture& Texture::ConstructFBTexture(RenderDevice& deviceIn, uint32 width, uint32 height, PixelFormat pixelFormat, PixelFormat internalPixelFormat, SamplerData samplerData, int sampleCount, bool useBorder, Color borderColor)
 	{
 		// Frame buffer texture.
+
 		renderDevice = &deviceIn;
 		m_Sampler.Construct(deviceIn, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT, samplerData.anisotropy);
-		m_ID = renderDevice->CreateTexture2D(width, height, NULL, pixelFormat, internalPixelFormat, generateMipMaps, shouldCompress, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT, sampleCount);
+		m_ID = renderDevice->CreateTexture2D(width, height, NULL, pixelFormat, internalPixelFormat, false, false, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT, sampleCount, false, useBorder, borderColor);
 		m_Width = (uint32)width;
 		m_Height = (uint32)height;
-		isCompressed = shouldCompress;
-		hasMipMaps = generateMipMaps;
+		isCompressed = false;
+		hasMipMaps = false;
 		return *this;
 	}
 

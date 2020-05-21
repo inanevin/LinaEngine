@@ -555,13 +555,13 @@ namespace LinaEngine::Graphics
 	void RenderEngine::ConstructRenderTargets()
 	{
 		// Initialize frame buffer texture.
-		m_MainRTTexture.ConstructFBTexture(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, PixelFormat::FORMAT_RGB, false, false, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT }, 4);
+		m_MainRTTexture.ConstructFBTexture(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, PixelFormat::FORMAT_RGB, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT }, 4);
 
 		// Initialize intermediate frame buffer texture
-		m_IntermediateRTTexture.ConstructFBTexture(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, PixelFormat::FORMAT_RGB, false, false, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT }, 0);
+		m_IntermediateRTTexture.ConstructFBTexture(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, PixelFormat::FORMAT_RGB, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT }, 0);
 
 		// Initialize depth map teture
-		m_DepthMapRTTexture.ConstructFBTexture(m_RenderDevice, m_ShadowMapResolution.x, m_ShadowMapResolution.y, PixelFormat::FORMAT_DEPTH, PixelFormat::FORMAT_DEPTH, false, false, { FILTER_NEAREST, FILTER_NEAREST, WRAP_REPEAT, WRAP_REPEAT }, 0);
+		m_DepthMapRTTexture.ConstructFBTexture(m_RenderDevice, m_ShadowMapResolution.x, m_ShadowMapResolution.y, PixelFormat::FORMAT_DEPTH, PixelFormat::FORMAT_DEPTH, { FILTER_NEAREST, FILTER_NEAREST, WRAP_CLAMP, WRAP_CLAMP }, 0, true, Color::White);
 
 		// Initialize render buffer.
 		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);

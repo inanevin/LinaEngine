@@ -189,7 +189,7 @@ namespace LinaEngine::Graphics
 
 
 	uint32 GLRenderDevice::CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress
-		, SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapS, SamplerWrapMode wrapT, int sampleCount, bool emptyTexture)
+		, SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapS, SamplerWrapMode wrapT, int sampleCount, bool emptyTexture, bool useBorder, Color borderColor)
 	{
 		// Declare formats, target & handle for the texture.
 		GLint format = GetOpenGLFormat(pixelDataFormat);
@@ -206,6 +206,13 @@ namespace LinaEngine::Graphics
 		glTexParameterf(textureTarget, GL_TEXTURE_MAG_FILTER, magFilter);
 		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, wrapS);
 		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, wrapT);
+
+
+		if (useBorder)
+		{
+			float color[] = { borderColor.r, borderColor.g, borderColor.b, borderColor.a };
+			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
+		}
 
 		// Create empty texture, or a texture with data either texture2D or multisampled texture2D depending on the sample count.
 		if (emptyTexture)
