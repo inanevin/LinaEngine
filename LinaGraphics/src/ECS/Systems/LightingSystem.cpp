@@ -33,6 +33,7 @@ namespace LinaEngine::ECS
 
 	void LightingSystem::SetLightingShaderData(uint32 shaderID)
 	{
+
 		// Iterate directional lights.
 		auto& dirLightView = m_Registry->reg.view<DirectionalLightComponent>();
 
