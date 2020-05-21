@@ -45,6 +45,7 @@ namespace LinaEngine::Graphics
 		BIT_STENCIL = LINA_GRAPHICS_BUFFERBIT_STENCIL
 	};
 
+
 	enum SamplerFilter
 	{
 		FILTER_NEAREST = LINA_GRAPHICS_SAMPLER_FILTER_NEAREST,
@@ -53,6 +54,17 @@ namespace LinaEngine::Graphics
 		FILTER_LINEAR_MIPMAP_NEAREST = LINA_GRAPHICS_SAMPLER_FILTER_LINEAR_MIPMAP_NEAREST,
 		FILTER_NEAREST_MIPMAP_LINEAR = LINA_GRAPHICS_SAMPLER_FILTER_NEAREST_MIPMAP_LINEAR,
 		FILTER_LINEAR_MIPMAP_LINEAR = LINA_GRAPHICS_SAMPLER_FILTER_LINEAR_MIPMAP_LINEAR,
+	};
+
+	struct TextureGenerationData
+	{
+		PixelFormat pixelDataFormat = PixelFormat::FORMAT_RGB;
+		PixelFormat internalPixelFormat = PixelFormat::FORMAT_RGB;
+		SamplerFilter minFilter = SamplerFilter::FILTER_LINEAR;
+		SamplerFilter magFilter = SamplerFilter::FILTER_LINEAR;
+		SamplerWrapMode wrapS = SamplerWrapMode::WRAP_REPEAT;
+		SamplerWrapMode wrapT = SamplerWrapMode::WRAP_REPEAT;
+		SamplerWrapMode wrapR = SamplerWrapMode::WRAP_REPEAT;
 	};
 
 	enum SamplerWrapMode

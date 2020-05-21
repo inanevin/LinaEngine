@@ -188,13 +188,12 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 
 
-	uint32 GLRenderDevice::CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress
-		, SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapS, SamplerWrapMode wrapT, int sampleCount, bool emptyTexture, bool useBorder, Color borderColor)
+	uint32 GLRenderDevice::CreateTexture2D(Vector2 size, const void* data, TextureGenerationData filterData, bool generateMipMaps, bool compress, bool useBorder)
 	{
 		// Declare formats, target & handle for the texture.
-		GLint format = GetOpenGLFormat(pixelDataFormat);
-		GLint internalFormat = GetOpenGLInternalFormat(internalPixelFormat, compress);
-		GLenum textureTarget = sampleCount == 0 ? GL_TEXTURE_2D : GL_TEXTURE_2D_MULTISAMPLE;
+		GLint format = GetOpenGLFormat(filterData.pixelDataFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(filterData.internalPixelFormat, compress);
+		GLenum textureTarget = GL_TEXTURE_2D;
 		GLuint textureHandle;
 
 		// Generate texture & bind to program.
@@ -202,31 +201,74 @@ namespace LinaEngine::Graphics
 		glBindTexture(textureTarget, textureHandle);
 
 		// OpenGL texture params.
-		glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, minFilter);
-		glTexParameterf(textureTarget, GL_TEXTURE_MAG_FILTER, magFilter);
-		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, wrapS);
-		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, wrapT);
+		SetupTextureParameters(textureTarget, filterData, generateMipMaps);
 
 		if (useBorder)
 		{
-			float color[] = { borderColor.r, borderColor.g, borderColor.b, borderColor.a };
+			float color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
 		}
 
-		// Create empty texture, or a texture with data either texture2D or multisampled texture2D depending on the sample count.
-		if (emptyTexture)
-		{
-			GLubyte texData[] = { 255, 255, 255, 255 };
-			glTexImage2D(textureTarget, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, texData);
-		}
-		else
-		{
-			if (sampleCount == 0)
-				glTexImage2D(textureTarget, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-			else
-				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, sampleCount, internalFormat, width, height, GL_TRUE);
-		}
+		// Create texture;
+		glTexImage2D(textureTarget, 0, internalFormat, size.x, size.y, 0, format, GL_UNSIGNED_BYTE, data);
 
+		glBindTexture(textureTarget, 0);
+		return textureHandle;
+	}
+
+	uint32 GLRenderDevice::CreateEmptyTexture2D(Vector2 size, TextureGenerationData filterData, bool generateMipMaps)
+	{
+		// Declare formats, target & handle for the texture.
+		GLint format = GetOpenGLFormat(filterData.pixelDataFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(filterData.internalPixelFormat, false);
+		GLenum textureTarget = GL_TEXTURE_2D;
+		GLuint textureHandle;
+
+		// Generate texture & bind to program.
+		glGenTextures(1, &textureHandle);
+		glBindTexture(textureTarget, textureHandle);
+
+		// OpenGL texture params.
+		SetupTextureParameters(textureTarget, filterData, generateMipMaps);
+
+		// Create texture
+		GLubyte texData[] = { 255, 255, 255, 255 };
+		glTexImage2D(textureTarget, 0, internalFormat, size.x, size.y, 0, format, GL_UNSIGNED_BYTE, texData);
+
+		glBindTexture(textureTarget, 0);
+		return textureHandle;
+	}
+
+	uint32 GLRenderDevice::CreateMultisampleTexture2D(Vector2 size, TextureGenerationData filterData, bool generateMipMaps, int sampleCount)
+	{
+		// Declare formats, target & handle for the texture.
+		GLint format = GetOpenGLFormat(filterData.pixelDataFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(filterData.internalPixelFormat, false);
+		GLenum textureTarget = GL_TEXTURE_2D;
+		GLuint textureHandle;
+
+		// Generate texture & bind to program.
+		glGenTextures(1, &textureHandle);
+		glBindTexture(textureTarget, textureHandle);
+
+		// OpenGL texture params.
+		SetupTextureParameters(textureTarget, filterData, generateMipMaps);
+
+		// Create texture
+		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, sampleCount, internalFormat, size.x, size.y, GL_TRUE);
+
+		glBindTexture(textureTarget, 0);
+		return textureHandle;
+	}
+
+	void GLRenderDevice::SetupTextureParameters(GLenum textureTarget, TextureGenerationData filterData, bool generateMipMaps)
+	{
+		// OpenGL texture params.
+		glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, filterData.minFilter);
+		glTexParameterf(textureTarget, GL_TEXTURE_MAG_FILTER, filterData.magFilter);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, filterData.wrapS);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, filterData.wrapT);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_R, filterData.wrapR);
 
 		// Enable mipmaps if needed.
 		if (generateMipMaps)
@@ -236,10 +278,6 @@ namespace LinaEngine::Graphics
 			glTexParameteri(textureTarget, GL_TEXTURE_BASE_LEVEL, 0);
 			glTexParameteri(textureTarget, GL_TEXTURE_MAX_LEVEL, 0);
 		}
-
-		glBindTexture(textureTarget, 0);
-
-		return textureHandle;
 	}
 
 	uint32 GLRenderDevice::CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount)
@@ -292,7 +330,7 @@ namespace LinaEngine::Graphics
 		return textureID;
 	}
 
-	uint32 GLRenderDevice::CreateCubemapTexture(int32 width, int32 height, const LinaArray<int32*>& data, uint32 dataSize, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps)
+	uint32 GLRenderDevice::CreateCubemapTexture(Vector2 size, TextureGenerationData filterData, const LinaArray<int32*>& data, uint32 dataSize,  bool generateMipMaps)
 	{
 		GLuint textureHandle;
 
@@ -311,25 +349,10 @@ namespace LinaEngine::Graphics
 
 		// Loop through each face to gen. image.
 		for (GLuint i = 0; i < dataSize; i++)
-		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[i]);
-		}
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[i]);
 
 		// Specify wrapping & filtering
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-		if (generateMipMaps)
-			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-		else
-		{
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
-		}
-
+		SetupTextureParameters(GL_TEXTURE_CUBE_MAP, filterData, generateMipMaps);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 		return textureHandle;

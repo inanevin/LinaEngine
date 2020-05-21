@@ -82,15 +82,19 @@ namespace LinaEngine::Graphics
 		void Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn, int width, int height, DrawParams& defaultParams);
 
 		// Creates a texture on GL.
-		uint32 CreateTexture2D(int32 width, int32 height, const void* data, PixelFormat pixelDataFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress
-		, SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST, SamplerFilter magFilter = SamplerFilter::FILTER_NEAREST, SamplerWrapMode wrapS = SamplerWrapMode::WRAP_REPEAT,
-			SamplerWrapMode wrapT = SamplerWrapMode::WRAP_REPEAT, int sampleCount = 0, bool emptyTexture = false, bool useBorder = false, Color borderColor = Color::White);
+		uint32 CreateTexture2D(Vector2 size, const void* data, TextureGenerationData filterData, bool generateMipMaps, bool compress, bool useBorder = false);
+
+		// Creates an empty texture.
+		uint32 CreateEmptyTexture2D(Vector2 size, TextureGenerationData filterData, bool generateMipMaps);
+
+		// Creates a multisampled texture
+		uint32 CreateMultisampleTexture2D(Vector2 size, TextureGenerationData filterData, bool generateMipMaps, int sampleCount);
 
 		// Creates a DDS texture on GL.
 		uint32 CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount);
 
 		// Creates a Cubemap texture on GL.
-		uint32 CreateCubemapTexture(int32 width, int32 height, const LinaArray<int32*>& data, uint32 dataSize = 6, PixelFormat pixelDataFormat = PixelFormat::FORMAT_RGB, PixelFormat internalPixelFormat = PixelFormat::FORMAT_RGB, bool generateMipMaps = true);
+		uint32 CreateCubemapTexture(Vector2 size, TextureGenerationData filterData, const LinaArray<int32*>& data,  uint32 dataSize = 6, bool generateMipMaps = true);
 
 		// Releases a previously created texture from GL.
 		uint32 ReleaseTexture2D(uint32 texture2D);
@@ -137,6 +141,7 @@ namespace LinaEngine::Graphics
 		// Deletes a render buffer object.
 		uint32 ReleaseRenderBufferObject(uint32 target);
 
+		
 		// Binds a rbo to an existing fbo
 		void BlitFrameBuffers(uint32 readFBO, uint32 readWidth, uint32 readHeight, uint32 writeFBO, uint32 writeWidth, uint32 writeHeight, BufferBit mask, SamplerFilter filter);
 
@@ -213,6 +218,10 @@ namespace LinaEngine::Graphics
 		void SetVAO(uint32 vao);
 
 	private:
+
+
+		// Setups GL texture parameters.
+		void SetupTextureParameters(GLenum textureTarget, TextureGenerationData filterData, bool generateMipmaps);
 
 		std::string GetShaderVersion();
 		uint32 GetVersion();
