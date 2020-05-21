@@ -200,7 +200,7 @@ void Example1Level::Initialize()
 
 
 	objectLitMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &crateTexture);
-	objectLitMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &crateSpecTexture);
+	//objectLitMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &crateSpecTexture);
 	objectLitMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
 
 

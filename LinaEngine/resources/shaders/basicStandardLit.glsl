@@ -31,21 +31,21 @@ out VS_OUT
 	vec3 Normal;
 	vec3 FragPos;
 	vec2 TexCoords;
-	//vec4 FragPosLightSpace;
+	vec4 FragPosLightSpace;
 } vs_out;
 
 void main()
 {
-    gl_Position = projection * view * model * vec4(position, 1.0);
-	vs_out.FragPos = vec3(model * vec4(position,1.0));
-	vs_out.Normal = mat3(inverseTransposeModel) * normal;
-    vs_out.TexCoords = texCoord;
-	
-	//vs_out.FragPos = vec3(model * vec4(position, 1.0));
-    //vs_out.Normal = mat3(inverseTransposeModel) * normal;
+    //gl_Position = projection * view * model * vec4(position, 1.0);
+	//vs_out.FragPos = vec3(model * vec4(position,1.0));
+	//vs_out.Normal = mat3(inverseTransposeModel) * normal;
     //vs_out.TexCoords = texCoord;
-    //vs_out.FragPosLightSpace = lightSpace * vec4(vs_out.FragPos, 1.0);
-    //gl_Position = projection * view * vec4(vs_out.FragPos, 1.0);
+	
+	vs_out.FragPos = vec3(model * vec4(position, 1.0));
+    vs_out.Normal = mat3(inverseTransposeModel) * normal;
+    vs_out.TexCoords = texCoord;
+    vs_out.FragPosLightSpace = lightSpace * vec4(vs_out.FragPos, 1.0);
+    gl_Position = projection * view * vec4(vs_out.FragPos, 1.0);
 }
 
 #elif defined(GEO_BUILD)
@@ -57,7 +57,7 @@ in VS_OUT {
     vec3 Normal;
 	vec3 FragPos;
 	vec2 TexCoords;
-	//vec4 FragPosLightSpace;
+	vec4 FragPosLightSpace;
 } gs_in[];
 
 out vec2 TexCoords; 
@@ -123,7 +123,7 @@ in VS_OUT
 	vec3 Normal;
 	vec3 FragPos;
 	vec2 TexCoords;
-	//vec4 FragPosLightSpace;
+	vec4 FragPosLightSpace;
 } fs_in;
 
 out vec4 fragColor;
@@ -133,8 +133,8 @@ void main()
 	vec4 diffuseTextureColor = material.diffuse.isActive != 0 ? texture(material.diffuse.texture, vec2(fs_in.TexCoords.x * material.tiling.x, fs_in.TexCoords.y * material.tiling.y)) : vec4(1,1,1,1);
 	vec4 specularTextureColor = material.specular.isActive !=0 ? texture(material.specular.texture, vec2(fs_in.TexCoords.x * material.tiling.x, fs_in.TexCoords.y * material.tiling.y)) : vec4(1,1,1,1);	
 	vec3 viewPos = vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
-	vec3 norm = normalize(fs_in.Normal);
-	vec3 viewDir = normalize(viewPos - fs_in.FragPos);
+	//vec3 norm = normalize(fs_in.Normal);
+	//vec3 viewDir = normalize(viewPos - fs_in.FragPos);
 
  
 	if(visualizeDepth)
@@ -144,28 +144,48 @@ void main()
 	}
 	else
 	{
-		vec3 color = texture(material.diffuse.texture, vec2(fs_in.TexCoords.x * material.tiling.x , fs_in.TexCoords.y * material.tiling.y)).rgb;
-		vec3 lighting = vec3(0.0);
-		
-		
-		//float shadow = ShadowCalculation(fs_in.FragPosLightSpace);
-		
-		lighting += CalculateDirectionalLight(directionalLight, norm, viewDir, diffuseTextureColor, specularTextureColor, 0);
-		
-		 // phase 2: point lights
-		//for(int i = 0; i < pointLightCount; i++)
-			//lighting += CalculatePointLight(pointLights[i], norm, fs_in.FragPos, viewDir, diffuseTextureColor, specularTextureColor);    
-		
-		// phase 3: spot light
-		//for(int i = 0; i < spotLightCount; i++)
-			//lighting += CalculateSpotLight(spotLights[i], norm, fs_in.FragPos, viewDir, diffuseTextureColor, specularTextureColor);    
-		
-		
-		color *= lighting;
-		color = pow(color, vec3(1.0/2.2));
-		
-		float alpha = material.surfaceType == 0 ? 1.0 : diffuseTextureColor.a;
-		fragColor = vec4(color, alpha);
+	//	vec3 color = texture(material.diffuse.texture, vec2(fs_in.TexCoords.x * material.tiling.x , fs_in.TexCoords.y *material.tiling.y)).rgb;
+	//	vec3 lighting = vec3(0.0);	
+	//	float shadow = ShadowCalculation(fs_in.FragPosLightSpace);	
+	//	lighting += CalculateDirectionalLight(directionalLight, norm, viewDir, diffuseTextureColor, specularTextureColor, shadow);	
+	//	 // phase 2: point lights
+	//	//for(int i = 0; i < pointLightCount; i++)
+	//		//lighting += CalculatePointLight(pointLights[i], norm, fs_in.FragPos, viewDir, diffuseTextureColor, specularTextureColor);    	
+	//	// phase 3: spot light
+	//	//for(int i = 0; i < spotLightCount; i++)
+	//		//lighting += CalculateSpotLight(spotLights[i], norm, fs_in.FragPos, viewDir, diffuseTextureColor, specularTextureColor);    			
+	//	color *= lighting;
+	//	color = pow(color, vec3(1.0/2.2));	
+	//	float alpha = material.surfaceType == 0 ? 1.0 : diffuseTextureColor.a;
+	//	fragColor = vec4(color, alpha);
+	
+	vec3 lightPos = vec3(-2.0,4.0, -1.0);
+	vec3 color = texture(material.diffuse.texture, fs_in.TexCoords).rgb;
+    vec3 normal = normalize(fs_in.Normal);
+    vec3 lightColor = vec3(0.3);
+    // ambient
+    vec3 ambient = 0.3 * color;
+    // diffuse
+    vec3 lightDir = normalize(lightPos - fs_in.FragPos);
+    float diff = max(dot(lightDir, normal), 0.0);
+    vec3 diffuse = diff * lightColor;
+    // specular
+    vec3 viewDir = normalize(viewPos - fs_in.FragPos);
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = 0.0;
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
+    vec3 specular = spec * lightColor;    
+    // calculate shadow
+    float shadow = ShadowCalculation(fs_in.FragPosLightSpace);                      
+    vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
+    
+	lighting = pow(lighting, vec3(1.0/2.2));	
+	float alpha = material.surfaceType == 0 ? 1.0 : diffuseTextureColor.a;
+	
+    fragColor = vec4(lighting, 1.0);
+	
+	
 	}
 }
 #endif

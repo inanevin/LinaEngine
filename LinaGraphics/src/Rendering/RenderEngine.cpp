@@ -181,10 +181,17 @@ namespace LinaEngine::Graphics
 		//
 		//
 
+
 		//DrawOperationsDefault(delta);
 		//DrawOperationsMSAA(delta);
-		//DrawOperationsShadows(delta, true);
+		DrawOperationsShadows(delta, false);
 
+		for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
+		{
+			(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_DepthMapRTTexture);
+		}
+		m_CameraSystem.SetUseDirLightView(false);
+		DrawOperationsDefault(delta);
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
 			layer->OnUpdate();
