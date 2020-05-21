@@ -53,6 +53,12 @@ namespace LinaEngine::Graphics
 {
 	class Shader;
 
+	struct BufferValueRecord
+	{
+		float zNear;
+		float zFar;
+	};
+
 	class RenderEngine
 	{
 	public:
@@ -231,11 +237,14 @@ namespace LinaEngine::Graphics
 		// Default Render buffer
 		RenderBuffer m_RenderBuffer;
 
-		// Quad to draw the buffers into.
-		uint32 m_ScreenQuad;
-
 		// Screen Quad material
 		Material m_ScreenQuadMaterial;
+
+		// Material used to draw skybox.
+		Material* m_SkyboxMaterial = nullptr;
+
+		// Depth buffer material
+		Material* m_DepthBufferMaterial = nullptr;
 
 		// Main render target Texture
 		Texture m_MainRTTexture;
@@ -245,6 +254,9 @@ namespace LinaEngine::Graphics
 
 		// Depth map render target texture
 		Texture m_DepthMapRTTexture;
+
+		// Default texture
+		Texture m_DefaultTexture;
 
 		// Default drawing parameters.
 		DrawParams m_DefaultDrawParams;
@@ -263,6 +275,27 @@ namespace LinaEngine::Graphics
 
 		// Sprite drawing parameters.
 		DrawParams m_SpriteDrawParams;
+
+		// Buffer for global matrices
+		UniformBuffer m_GlobalDataBuffer;
+
+		// Buffer for lights.
+		UniformBuffer m_GlobalLightBuffer;
+
+		// Buffer for debugging.
+		UniformBuffer m_GlobalDebugBuffer;
+
+		// Model loader.
+		ModelLoader m_ModelLoader;
+
+		// GUI layer queue.
+		LayerStack m_GUILayerStack;
+
+		// Debug data
+		RenderingDebugData m_DebugData;
+
+		// Structure that keeps track of current buffer values
+		BufferValueRecord m_BufferValueRecord;
 
 		// ECS system for rendering camera perspective.
 		LinaEngine::ECS::CameraSystem m_CameraSystem;
@@ -291,31 +324,14 @@ namespace LinaEngine::Graphics
 		// Map that stores shader ID's by name
 		std::map<int, Shader> m_LoadedShaders;
 
-		// Buffer for global matrices
-		UniformBuffer m_GlobalDataBuffer;
-
-		// Buffer for lights.
-		UniformBuffer m_GlobalLightBuffer;
-
-		// Buffer for debugging.
-		UniformBuffer m_GlobalDebugBuffer;
-
-		// Material used to draw skybox.
-		Material* m_SkyboxMaterial = nullptr;
-
-		// Depth buffer material
-		Material* m_DepthBufferMaterial = nullptr;
 
 	private:
 
 		// Standart Skybox vertex array object.
 		uint32 m_SkyboxVAO;
 
-		// Model loader.
-		ModelLoader m_ModelLoader;
-
-		// GUI layer queue.
-		LayerStack m_GUILayerStack;
+		// Quad to draw the buffers into.
+		uint32 m_ScreenQuad;
 
 		// Light counts.
 		int m_CurrentSpotLightCount;
@@ -323,12 +339,6 @@ namespace LinaEngine::Graphics
 
 		// Shadow map resolution
 		Vector2 m_ShadowMapResolution = Vector2(1024, 1024);
-
-		// Debug data
-		RenderingDebugData m_DebugData;
-
-		// Default texture
-		Texture m_DefaultTexture;
 
 		DISALLOW_COPY_ASSIGN_NEW(RenderEngine);
 	};
