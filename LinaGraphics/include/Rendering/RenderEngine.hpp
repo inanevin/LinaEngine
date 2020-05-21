@@ -213,7 +213,7 @@ namespace LinaEngine::Graphics
 		void DrawOperationsMSAA(float delta);
 
 		// Draw operations for shadow mapping
-		void DrawOperationsShadows(float delta);
+		void DrawOperationsShadows(float delta, bool visualizeDepthMap);
 
 		// Renders skybox
 		void DrawSkybox();

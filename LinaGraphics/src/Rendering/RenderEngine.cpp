@@ -183,7 +183,7 @@ namespace LinaEngine::Graphics
 
 		//DrawOperationsDefault(delta);
 		//DrawOperationsMSAA(delta);
-		DrawOperationsShadows(delta);
+		//DrawOperationsShadows(delta, true);
 
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
@@ -751,7 +751,7 @@ namespace LinaEngine::Graphics
 		DrawFullscreenQuad(m_IntermediateRTTexture, true);
 	}
 
-	void RenderEngine::DrawOperationsShadows(float delta)
+	void RenderEngine::DrawOperationsShadows(float delta, bool visualizeDepthMap)
 	{
 		// Clear color.
 		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
@@ -775,7 +775,8 @@ namespace LinaEngine::Graphics
 		DrawSceneObjects(false, m_DepthMapDrawParams, m_DepthBufferMaterial);
 
 		// Visaulize depth buffer
-		DrawFullscreenQuad(m_DepthMapRTTexture, false);
+		if (visualizeDepthMap)
+			DrawFullscreenQuad(m_DepthMapRTTexture, false);
 	}
 
 	void RenderEngine::DrawSkybox()
@@ -814,7 +815,7 @@ namespace LinaEngine::Graphics
 		}
 
 		// Draw skybox.
-		//DrawSkybox();
+		DrawSkybox();
 	}
 
 	void RenderEngine::DrawFullscreenQuad(Texture& texture, bool blit)
