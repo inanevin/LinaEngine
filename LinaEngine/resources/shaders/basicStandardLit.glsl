@@ -177,7 +177,8 @@ void main()
     spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
     vec3 specular = spec * lightColor;    
     // calculate shadow
-    float shadow = ShadowCalculation(fs_in.FragPosLightSpace);                      
+	float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);  
+    float shadow = ShadowCalculation(fs_in.FragPosLightSpace, bias);                      
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
     
 	lighting = pow(lighting, vec3(1.0/2.2));	

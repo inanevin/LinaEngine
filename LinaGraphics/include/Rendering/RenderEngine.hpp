@@ -219,7 +219,7 @@ namespace LinaEngine::Graphics
 		void DrawSkybox();
 
 		// Renders scene objects.
-		void DrawSceneObjects(bool useStencilOutlining, DrawParams& drawpParams, Material* overrideMaterial = nullptr);
+		void DrawSceneObjects(bool useStencilOutlining, DrawParams& drawpParams, Material* overrideMaterial = nullptr, bool drawSkybox = true);
 
 		// Draws a full screen quad from frame buffer texture.
 		void DrawFullscreenQuad(Texture& texture, bool blit);

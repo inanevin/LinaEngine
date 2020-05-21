@@ -779,7 +779,7 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.Clear(false, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Draw scene into depth buffer.
-		DrawSceneObjects(false, m_DepthMapDrawParams, m_DepthBufferMaterial);
+		DrawSceneObjects(false, m_DepthMapDrawParams, m_DepthBufferMaterial, false);
 
 		// Visaulize depth buffer
 		if (visualizeDepthMap)
@@ -795,7 +795,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void RenderEngine::DrawSceneObjects(bool useStencilOutlining, DrawParams& drawParams, Material* overrideMaterial)
+	void RenderEngine::DrawSceneObjects(bool useStencilOutlining, DrawParams& drawParams, Material* overrideMaterial, bool drawSkybox)
 	{
 		// Draw opaques.
 		if (useStencilOutlining)
@@ -822,7 +822,8 @@ namespace LinaEngine::Graphics
 		}
 
 		// Draw skybox.
-		DrawSkybox();
+		if (drawSkybox)
+			DrawSkybox();
 	}
 
 	void RenderEngine::DrawFullscreenQuad(Texture& texture, bool blit)
