@@ -142,6 +142,7 @@ namespace LinaEngine::Graphics
 
 		uint32 shaderID;
 		bool receivesLighting = false;
+		bool isShadowMapped = false;
 		MaterialSurfaceType m_SurfaceType = MaterialSurfaceType::Opaque;
 		std::map<std::string, float> floats;
 		std::map<std::string, int> ints;

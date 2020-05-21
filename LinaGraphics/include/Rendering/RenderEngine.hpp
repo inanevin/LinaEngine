@@ -37,6 +37,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "RenderContext.hpp"
 #include "Utility/Math/Color.hpp"
 #include <functional>
+#include <set>
 #include "Core/LayerStack.hpp"
 
 namespace LinaEngine
@@ -327,6 +328,8 @@ namespace LinaEngine::Graphics
 		// Map that stores shader ID's by name
 		std::map<int, Shader> m_LoadedShaders;
 
+		// List that stores the materials to receive shadows.
+		std::set<Material*> m_ShadowMappedMaterials;
 
 	private:
 

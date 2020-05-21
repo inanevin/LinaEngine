@@ -455,6 +455,10 @@ namespace LinaEngine::Graphics
 			return;
 		}
 
+		// If its in the internal list, remove first.
+		if (m_ShadowMappedMaterials.find(&m_LoadedMaterials[materialName]) != m_ShadowMappedMaterials.end())
+			m_ShadowMappedMaterials.erase(&m_LoadedMaterials[materialName]);
+
 		m_LoadedMaterials.erase(materialName);
 	}
 
@@ -523,6 +527,9 @@ namespace LinaEngine::Graphics
 		CreateMaterial(MAT_LINASTENCILOUTLINE, Shaders::STENCIL_OUTLINE);
 		m_LoadedMaterials[MAT_LINASTENCILOUTLINE].floats[MC_OUTLINETHICKNESS] = 0.015f;
 		m_LoadedMaterials[MAT_LINASTENCILOUTLINE].colors[MC_OBJECTCOLORPROPERTY] = Color::Red;
+
+		// Create material for rendering w/ depth buffer
+		m_DepthBufferMaterial = &CreateMaterial("depthBufferMaterial", Shaders::DEPTH_SIMPLE);
 	}
 
 	void RenderEngine::ConstructEnginePrimitives()
@@ -559,8 +566,7 @@ namespace LinaEngine::Graphics
 		// Initialize shadow map target
 		m_DepthMapRenderTarget.Construct(m_RenderDevice, m_DepthMapRTTexture, m_ShadowMapResolution.x, m_ShadowMapResolution.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
 
-		// Create material for rendering w/ depth buffer
-		m_DepthBufferMaterial = &CreateMaterial("depthBufferMaterial", Shaders::DEPTH_SIMPLE);
+		
 	}
 
 	void RenderEngine::SetupDrawParameters()
@@ -841,11 +847,15 @@ namespace LinaEngine::Graphics
 			material.floats[MC_SPECULARINTENSITYPROPERTY] = 1.0f;
 			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
 			material.sampler2Ds[MC_TEXTURE2D_SPECULAR] = { 1 };
+			material.sampler2Ds[MC_TEXTURE2D_SHADOWMAP] = { 2 };
 			material.ints[MC_SPECULAREXPONENTPROPERTY] = 32;
 			material.ints[MC_SURFACETYPE] = 0;
 			material.vector2s[MC_TILING] = Vector2::One;
 			material.receivesLighting = true;
+			material.isShadowMapped = true;
 
+			// Add to the shadow mapped materials.
+			m_ShadowMappedMaterials.emplace(&material);
 		}
 		else if (shader == Shaders::STANDARD_UNLIT)
 		{
