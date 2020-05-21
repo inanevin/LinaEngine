@@ -165,7 +165,7 @@ namespace LinaEngine::Graphics
 		DrawSceneObjects(false, m_DefaultDrawParams);
 		
 		// Draw skybox.
-		//DrawSkybox();
+		DrawSkybox();
 
 		// Draw frame buffer texture on the screen
 		//DrawFullscreenQuad(m_IntermediateRTTexture);
@@ -602,8 +602,8 @@ namespace LinaEngine::Graphics
 		m_SkyboxDrawParams.useStencilTest = true;
 		m_SkyboxDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
 		m_SkyboxDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
-		m_SkyboxDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
-		m_SkyboxDrawParams.destBlend = BlendFunc::BLEND_FUNC_NONE;
+		m_SkyboxDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
+		m_SkyboxDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
 		m_SkyboxDrawParams.shouldWriteDepth = true;
 		m_SkyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
 		m_SkyboxDrawParams.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;

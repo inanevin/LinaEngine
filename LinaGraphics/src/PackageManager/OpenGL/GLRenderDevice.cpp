@@ -758,17 +758,27 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::SetTexture(uint32 texture, uint32 sampler, uint32 unit, TextureBindMode bindTextureMode, bool setSampler)
 	{
-		if (m_BoundTextures[unit] == texture) return;
 
-		// Activate the sampler data.
-		glActiveTexture(GL_TEXTURE0 + unit);
-		glBindTexture(bindTextureMode, texture);
+		if (m_BoundTextureUnit != unit)
+		{
+			glActiveTexture(GL_TEXTURE0 + unit);
+			m_BoundTextureUnit = unit;
+		}
 
-		// Set the map
-		m_BoundTextures[unit] = texture;
+		if (m_BoundTextures[unit] != texture)
+		{
+			glBindTexture(bindTextureMode, texture);
+			m_BoundTextures[unit] = texture;
+		}
 
 		if (setSampler)
-			glBindSampler(unit, sampler);
+		{
+			if (m_BoundSamplers[unit] != sampler)
+			{
+				glBindSampler(unit, sampler);
+				m_BoundSamplers[unit] = sampler;
+			}
+		}
 	}
 
 	void GLRenderDevice::SetShaderUniformBuffer(uint32 shader, const std::string& uniformBufferName, uint32 buffer)

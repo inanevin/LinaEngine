@@ -249,6 +249,9 @@ namespace LinaEngine::Graphics
 		// Currently bound uniform buffer
 		uint32 m_BoundUBO;
 
+		// Currently bound texture unit
+		uint32 m_BoundTextureUnit;
+
 		// Map for bound vertex array objects.
 		std::map<uint32, VertexArrayData> m_VAOMap;
 
@@ -260,6 +263,9 @@ namespace LinaEngine::Graphics
 
 		// Bound texture map
 		std::map<uint32, uint32> m_BoundTextures;
+
+		// Bound sampler map.
+		std::map<uint32, uint32> m_BoundSamplers;
 
 		// Storage for shader version.
 		std::string m_ShaderVersion;
