@@ -217,7 +217,8 @@ namespace LinaEngine::Graphics
 		STENCIL_OUTLINE = 6,
 		SCREEN_QUAD = 7,
 		CUBEMAP_REFLECTIVE = 8,
-		DEPTH_SIMPLE = 9
+		DEPTH_DIRECTIONAL_SHADOWS = 9,
+		DEPTH_POINT_SHADOWS = 10
 	};
 
 	struct RenderingDebugData

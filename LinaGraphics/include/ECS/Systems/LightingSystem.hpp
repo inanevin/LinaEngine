@@ -58,6 +58,7 @@ namespace LinaEngine::ECS
 		void SetLightingShaderData(uint32 shaderID);
 		void ResetLightData();
 		Matrix GetDirectionalLightMatrix();
+		std::vector<Matrix> GetPointLightMatrices();
 
 	private:
 

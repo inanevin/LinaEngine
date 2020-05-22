@@ -262,6 +262,9 @@ namespace LinaEngine::Graphics
 		// Depth buffer material
 		Material* m_DepthBufferMaterial = nullptr;
 
+		// Depth material for point lights
+		Material* m_PointLightsDepthMaterial = nullptr;
+
 		// Main render target Texture
 		Texture m_MainRTTexture;
 

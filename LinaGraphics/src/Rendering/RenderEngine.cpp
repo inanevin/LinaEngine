@@ -530,7 +530,10 @@ namespace LinaEngine::Graphics
 		CreateShader(Shaders::CUBEMAP_REFLECTIVE, "resources/shaders/cubemapReflective.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
 		// Depth Shader
-		CreateShader(Shaders::DEPTH_SIMPLE, "resources/shaders/simpleDepth.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::DEPTH_DIRECTIONAL_SHADOWS, "resources/shaders/directionalDepthMap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+
+		// Depth Shader for point lights
+		CreateShader(Shaders::DEPTH_POINT_SHADOWS, "resources/shaders/pointLightDepthMap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 	}
 
 	void RenderEngine::ConstructEngineMaterials()
@@ -540,8 +543,12 @@ namespace LinaEngine::Graphics
 		m_LoadedMaterials[MAT_LINASTENCILOUTLINE].floats[MC_OUTLINETHICKNESS] = 0.015f;
 		m_LoadedMaterials[MAT_LINASTENCILOUTLINE].colors[MC_OBJECTCOLORPROPERTY] = Color::Red;
 
-		// Create material for rendering w/ depth buffer
-		m_DepthBufferMaterial = &CreateMaterial("depthBufferMaterial", Shaders::DEPTH_SIMPLE);
+		// Create material for rendering directional shadows onto the depth buffer
+		m_DepthBufferMaterial = &CreateMaterial("dirShadowsDepth", Shaders::DEPTH_DIRECTIONAL_SHADOWS);
+
+
+		// Create material for rendering point shadows onto the depth buffer
+		m_DepthBufferMaterial = &CreateMaterial("pointShadowsDepth", Shaders::DEPTH_POINT_SHADOWS);
 	}
 
 	void RenderEngine::ConstructEnginePrimitives()
@@ -778,17 +785,17 @@ namespace LinaEngine::Graphics
 		UpdateUniformBuffers();
 
 		// Set depth frame buffer
-		m_RenderDevice.SetFBO(m_DepthMapRenderTarget.GetID());
+		m_RenderDevice.SetFBO(m_PointLightsRenderTarget.GetID());
 
 		// Clear color.
 		m_RenderDevice.Clear(false, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Draw scene into depth buffer.
-		DrawSceneObjects(false, m_DepthMapDrawParams, m_DepthBufferMaterial, false);
+		DrawSceneObjects(false, m_DepthMapDrawParams, m_PointLightsDepthMaterial, false);
 
 		// Visaulize depth buffer
 		if (visualizeDepthMap)
-			DrawFullscreenQuad(m_DepthMapRTTexture, false);
+			DrawFullscreenQuad(m_PointLightsRTTexture, false);
 	}
 
 	void RenderEngine::DrawOperationsMSAA(float delta)
@@ -1026,9 +1033,13 @@ namespace LinaEngine::Graphics
 		{
 			material.sampler2Ds[UF_SKYBOXTEXTURE] = { 0 };
 		}
-		else if (shader == Shaders::DEPTH_SIMPLE)
+		else if (shader == Shaders::DEPTH_DIRECTIONAL_SHADOWS)
 		{
-			//material.matrices[UF_LIGHTSPACEMATRIX] = Matrix();
+			
+		}
+		else if (shader == Shaders::DEPTH_POINT_SHADOWS)
+		{
+
 		}
 
 		return material;

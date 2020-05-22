@@ -154,7 +154,7 @@ void Example1Level::Initialize()
 
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 	// Create, setup & assign skybox material.
-	CreateCubemapSkybox(m_RenderEngine);
+	CreateProceduralSkybox(m_RenderEngine);
 
 
 	camera.entity = m_ECS->reg.create();
