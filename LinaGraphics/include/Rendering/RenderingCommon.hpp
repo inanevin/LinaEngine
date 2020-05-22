@@ -250,7 +250,7 @@ namespace LinaEngine::Graphics
 		SamplerWrapMode wrapS = SamplerWrapMode::WRAP_CLAMP_EDGE;
 		SamplerWrapMode wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 		SamplerWrapMode wrapR = SamplerWrapMode::WRAP_CLAMP_EDGE;
-		bool generateMipMaps;
+		bool generateMipMaps = false;
 	};
 
 	struct SamplerParameters

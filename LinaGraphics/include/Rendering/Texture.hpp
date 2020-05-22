@@ -43,7 +43,7 @@ namespace LinaEngine::Graphics
 		~Texture();
 
 		Texture& Construct(RenderDevice& deviceIn, const class ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress);
-		Texture& Construct(RenderDevice& deviceIn, const LinaArray<class ArrayBitmap*>& data, SamplerParameters samplerParams, bool compress);
+		Texture& ConstructCubemap(RenderDevice& deviceIn, SamplerParameters samplerParams, const LinaArray<class ArrayBitmap*>& data, bool compress);
 		Texture& ConstructFBTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, bool useBorder = false);
 		Texture& ConstructRTTextureMSAA(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, int sampleCount);
 		Texture& ConstructEmpty(RenderDevice& deviceIn, SamplerParameters samplerParams = SamplerParameters());

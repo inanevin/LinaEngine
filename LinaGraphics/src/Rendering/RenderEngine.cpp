@@ -265,7 +265,7 @@ namespace LinaEngine::Graphics
 			}
 
 			// Create texture & construct.
-			Texture& texture = m_LoadedTextures[filePaths[0]].Construct(m_RenderDevice, bitmaps, samplerParams, compress);
+			Texture& texture = m_LoadedTextures[filePaths[0]].ConstructCubemap(m_RenderDevice, samplerParams, bitmaps, compress);
 
 			// Delete pixel data.
 			for (uint32 i = 0; i < bitmaps.size(); i++)
@@ -585,7 +585,6 @@ namespace LinaEngine::Graphics
 
 		// Initialize shadow map target
 		m_DepthMapRenderTarget.Construct(m_RenderDevice, m_DepthMapRTTexture, m_ShadowMapResolution.x, m_ShadowMapResolution.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
-
 
 	}
 
