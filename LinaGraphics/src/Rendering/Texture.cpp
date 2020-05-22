@@ -71,17 +71,27 @@ namespace LinaEngine::Graphics
 		return *this;
 	}
 
-	Texture& Texture::ConstructFBTexture(RenderDevice& deviceIn, uint32 width, uint32 height, PixelFormat pixelFormat, PixelFormat internalPixelFormat, SamplerData samplerData, int sampleCount, bool useBorder, Color borderColor)
+	Texture& Texture::ConstructFBTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, bool useBorder)
 	{
 		// Frame buffer texture.
 
 		renderDevice = &deviceIn;
 		SamplerParameters params;
-
 		m_Sampler.Construct(deviceIn, params);
-		m_ID = renderDevice->CreateTexture2D(width, height, NULL, pixelFormat, internalPixelFormat, false, false, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT, sampleCount, false, useBorder, borderColor);
-		m_Width = (uint32)width;
-		m_Height = (uint32)height;
+		m_ID = renderDevice->CreateTexture2D(size.x, size.y, NULL, samplerParams.textureParams.pixelFormat, samplerParams.textureParams.internalPixelFormat, false, false, samplerParams.textureParams.minFilter, samplerParams.textureParams.magFilter, samplerParams.textureParams.wrapS, samplerParams.textureParams.wrapT, 0, false, useBorder, Color::White);
+		m_Size = size;
+		isCompressed = false;
+		hasMipMaps = false;
+		return *this;
+	}
+
+	Texture& Texture::ConstructRTTextureMSAA(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, int sampleCount)
+	{
+		renderDevice = &deviceIn;
+		SamplerParameters params;
+		m_Sampler.Construct(deviceIn, params);
+		m_ID = renderDevice->CreateTexture2DMSAA(size, samplerParams, sampleCount);
+		m_Size = size;
 		isCompressed = false;
 		hasMipMaps = false;
 		return *this;

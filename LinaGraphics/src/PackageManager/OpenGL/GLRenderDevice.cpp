@@ -285,6 +285,28 @@ namespace LinaEngine::Graphics
 		return textureHandle;
 	}
 
+	uint32 GLRenderDevice::CreateTexture2DMSAA(Vector2 size, SamplerParameters samplerParams, int sampleCount)
+	{
+		// Declare formats, target & handle for the texture.
+		GLint format = GetOpenGLFormat(samplerParams.textureParams.pixelFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(samplerParams.textureParams.internalPixelFormat, false);
+		GLenum textureTarget = GL_TEXTURE_2D_MULTISAMPLE;
+		GLuint textureHandle;
+
+		// Generate texture & bind to program.
+		glGenTextures(1, &textureHandle);
+		glBindTexture(textureTarget, textureHandle);
+
+		// Setup texture params
+		SetupTextureParameters(textureTarget, samplerParams);
+
+		// Create texture
+		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, sampleCount, internalFormat, size.x, size.y, GL_TRUE);
+
+		glBindTexture(textureTarget, 0);
+		return textureHandle;
+	}
+
 	uint32 GLRenderDevice::CreateTexture2DEmpty(Vector2 size, SamplerParameters samplerParams)
 	{
 		// Declare formats, target & handle for the texture.

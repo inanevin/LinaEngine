@@ -554,14 +554,25 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::ConstructRenderTargets()
 	{
+		Vector2 screenSize = Vector2(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
+		SamplerParameters mainRTParams;
+		mainRTParams.textureParams.pixelFormat = mainRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB;
+		mainRTParams.textureParams.minFilter = mainRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
+		mainRTParams.textureParams.wrapS = mainRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
+
+		SamplerParameters depthRTParams;
+		depthRTParams.textureParams.pixelFormat = depthRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_DEPTH;
+		depthRTParams.textureParams.minFilter = depthRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
+		depthRTParams.textureParams.wrapS = depthRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+
 		// Initialize frame buffer texture.
-		m_MainRTTexture.ConstructFBTexture(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, PixelFormat::FORMAT_RGB, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT }, 4);
+		m_MainRTTexture.ConstructRTTextureMSAA(m_RenderDevice, screenSize, mainRTParams, 4);
 
 		// Initialize intermediate frame buffer texture
-		m_IntermediateRTTexture.ConstructFBTexture(m_RenderDevice, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), PixelFormat::FORMAT_RGB, PixelFormat::FORMAT_RGB, { FILTER_LINEAR, FILTER_LINEAR, WRAP_REPEAT, WRAP_REPEAT }, 0);
+		m_IntermediateRTTexture.ConstructFBTexture(m_RenderDevice, screenSize, mainRTParams, 0);
 
 		// Initialize depth map teture
-		m_DepthMapRTTexture.ConstructFBTexture(m_RenderDevice, m_ShadowMapResolution.x, m_ShadowMapResolution.y, PixelFormat::FORMAT_DEPTH, PixelFormat::FORMAT_DEPTH, { FILTER_LINEAR, FILTER_LINEAR, WRAP_CLAMP_EDGE, WRAP_CLAMP_EDGE }, 0, true, Color::White);
+		m_DepthMapRTTexture.ConstructFBTexture(m_RenderDevice,m_ShadowMapResolution,depthRTParams, true);
 
 		// Initialize render buffer.
 		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);
