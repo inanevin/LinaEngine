@@ -149,7 +149,7 @@ void main()
 	vec3 lightPos = directionalLight.position;
 	vec3 color = diffuseTextureColor.rgb * material.objectColor;
     vec3 normal = normalize(fs_in.Normal);
-    vec3 lightColor = vec3(0.3);
+    vec3 lightColor = directionalLight.color;
     // ambient
     vec3 ambient = 0.3 * color;
     // diffuse

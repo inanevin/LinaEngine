@@ -567,7 +567,9 @@ namespace LinaEngine::Graphics
 		SamplerParameters depthRTParams;
 		depthRTParams.textureParams.pixelFormat = depthRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_DEPTH;
 		depthRTParams.textureParams.minFilter = depthRTParams.textureParams.magFilter = SamplerFilter::FILTER_NEAREST;
-		depthRTParams.textureParams.wrapS = depthRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_BORDER;
+		depthRTParams.textureParams.wrapS = depthRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+
+		m_ShadowMapResolution = Vector2(2048, 2048);
 
 		// Initialize frame buffer texture.
 		m_MainRTTexture.ConstructRTTextureMSAA(m_RenderDevice, screenSize, mainRTParams, 4);

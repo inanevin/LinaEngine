@@ -117,9 +117,9 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 
 
 Vector3 cubePositions[] = {
-	Vector3(0.0f, 1.5f, 0.0),
-	Vector3(2.0f, 0.0f, 1.0),
-	Vector3(-1.0f, 0.0f, 2.0),
+	Vector3(0.0f, 2.5f, -1.0),
+	Vector3(3.0f, 1.0f, 1.0),
+	Vector3(-1.0f, 1.0f, 2.0),
 	Vector3(0.0f, -9.0f, 10.0f),
 	Vector3(0.0f, -9.0f, 5.0f),
 	Vector3(0.0f, -9.0f, 15.0f),
@@ -186,7 +186,7 @@ void Example1Level::Initialize()
 
 	SamplerParameters woodTextureSampler;
 	woodTextureSampler.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
-	woodTextureSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+	woodTextureSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
 	woodTextureSampler.textureParams.wrapS = SamplerWrapMode::WRAP_REPEAT;
 	woodTextureSampler.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
 	woodTextureSampler.textureParams.pixelFormat = PixelFormat::FORMAT_RGBA;
@@ -201,7 +201,6 @@ void Example1Level::Initialize()
 	crateSampler.textureParams.pixelFormat = PixelFormat::FORMAT_RGBA;
 	crateSampler.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB;
 	crateSampler.textureParams.generateMipMaps = true;
-
 
 	// Create texture for example mesh.
 	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", crateSampler);
@@ -222,7 +221,7 @@ void Example1Level::Initialize()
 	//cubemapReflectiveMaterial = &m_RenderEngine->CreateMaterial("cubemapReflective", Shaders::CUBEMAP_REFLECTIVE);
 
 
-	objectLitMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &crateTexture);
+	objectLitMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &wood);
 	//objectLitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(0.0f, 0.0f, 0.2f));
 	//objectLitMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &crateSpecTexture);
 	objectLitMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
@@ -236,7 +235,7 @@ void Example1Level::Initialize()
 	quadMaterial->SetSurfaceType(MaterialSurfaceType::Transparent);
 
 	floorMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &wood);
-	floorMaterial->SetVector2(MC_TILING, Vector2(10, 10));
+	floorMaterial->SetVector2(MC_TILING, Vector2(20, 20));
 	//floorMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(0.1f,0.1f,0.1f));
 
 	object1Renderer.mesh = &cubeMesh;
@@ -262,10 +261,11 @@ void Example1Level::Initialize()
 	mr.mesh = &m_RenderEngine->GetPrimitive(Primitives::PLANE);
 	mr.material = floorMaterial;
 
-	object1Transform.transform.location = Vector3(0, -0.5f, 0);
+	object1Transform.transform.location = Vector3(0, 0, 0);
 	object1Transform.transform.scale = Vector3(40.0f);
 	m_ECS->reg.emplace<TransformComponent>(floor.entity, object1Transform);
 	m_ECS->reg.emplace<MeshRendererComponent>(floor.entity, mr);
+
 
 
 
@@ -276,10 +276,15 @@ void Example1Level::Initialize()
 
 		object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
 		object1Transform.transform.location = cubePositions[i];
-		object1Transform.transform.scale = Vector3::One / 2.0f;
+		object1Transform.transform.scale = Vector3::One;
 
 		if (i == 2)
+		{
+			object1Transform.transform.scale = Vector3::One/2.0f;
+
 			object1Transform.transform.rotation = Quaternion::Euler(60, 0, 60);
+
+		}
 		//object1Transform.transform.location = Vector3(Math::RandF(-100, 100), Math::RandF(-100, 100), Math::RandF(-100, 100));
 		entity.entity = m_ECS->reg.create();
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);
@@ -287,6 +292,7 @@ void Example1Level::Initialize()
 	}
 
 
+	object1Transform.transform.scale = Vector3::One;
 
 
 
