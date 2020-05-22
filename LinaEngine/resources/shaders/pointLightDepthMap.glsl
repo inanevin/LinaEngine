@@ -63,7 +63,7 @@ uniform float farPlane;
 
 void main()
 {
-float fp = 12.5f;
+float fp = 17.5f;
 vec3 lp = vec3(0,4,0);
     // get distance between fragment and light source
     float lightDistance = length(FragPos.xyz - lp);

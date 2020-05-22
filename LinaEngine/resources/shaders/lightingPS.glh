@@ -65,3 +65,40 @@ float ShadowCalculation(vec3 fragPos, vec3 lightPos, float farPlane)
     return shadow;
 }
 
+
+//vec3 sampleOffsetDirections[20] = vec3[]
+//(
+//   vec3( 1,  1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1,  1,  1), 
+//   vec3( 1,  1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1,  1, -1),
+//   vec3( 1,  1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1,  1,  0),
+//   vec3( 1,  0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1,  0, -1),
+//   vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
+//);   
+//
+//float ShadowCalculation(vec3 fragPos, vec3 lightPos, float farPlane, vec3 viewPos)
+//{
+//    // get vector between fragment position and light position
+//    vec3 fragToLight = fragPos - lightPos;
+//    
+//	  // now get current linear depth as the length between the fragment and light position
+//    float currentDepth = length(fragToLight);
+//	
+//	float shadow = 0.0;
+//    float bias = 0.15;
+//    int samples = 8;
+//    float viewDistance = length(viewPos - fragPos);
+//    float diskRadius = (1.0 + (viewDistance / farPlane)) / 25.0;
+//    for(int i = 0; i < samples; ++i)
+//    {
+//        float closestDepth = texture(material.shadowMap.texture, fragToLight + gridSamplingDisk[i] * diskRadius).r;
+//        closestDepth *= farPlane;   // undo mapping [0;1]
+//        if(currentDepth - bias > closestDepth)
+//            shadow += 1.0;
+//    }
+//    shadow /= float(samples);
+//        
+//    // display closestDepth as debug (to visualize depth cubemap)
+//    // FragColor = vec4(vec3(closestDepth / far_plane), 1.0);    
+//        
+//    return shadow;
+//}

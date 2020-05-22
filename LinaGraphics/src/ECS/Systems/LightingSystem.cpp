@@ -122,7 +122,7 @@ namespace LinaEngine::ECS
 	{
 		float aspect = (float)2048 / (float)2048;
 		float znear = 1;
-		float zfar = 12.5f;
+		float zfar = 17.5f;
 		glm::mat4 shadowProj = glm::perspectiveLH(glm::radians(90.0f), aspect, znear, zfar);
 
 		std::vector<Matrix> shadowTransforms;
@@ -134,6 +134,8 @@ namespace LinaEngine::ECS
 	//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
 	//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 	//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+
+
 
 		
 		shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));

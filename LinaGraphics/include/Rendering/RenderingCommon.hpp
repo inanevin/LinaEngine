@@ -272,8 +272,8 @@ namespace LinaEngine::Graphics
 		WindowProperties()
 		{
 			m_Title = "Lina Engine";
-			m_Width = 800;
-			m_Height = 600;
+			m_Width = 1440;
+			m_Height = 900;
 		}
 
 		WindowProperties(const std::string& title, unsigned int width, unsigned int height)

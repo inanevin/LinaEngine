@@ -146,6 +146,7 @@ namespace LinaEngine::Graphics
 
 		//DrawOperationsMSAA(delta);
 
+
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
 			layer->OnUpdate();

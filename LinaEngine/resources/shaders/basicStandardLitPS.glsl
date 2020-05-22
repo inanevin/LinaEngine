@@ -147,7 +147,7 @@ void main()
 	else
 	{
 
-	float farPlane = 12.5f;
+	float farPlane = 17.5f;
 	vec3 lightPos = vec3(0, 4, 0);
 	vec4 diffuseTextureColor =  material.diffuse.isActive != 0 ? texture(material.diffuse.texture, vec2(fs_in.TexCoords.x * material.tiling.x, fs_in.TexCoords.y * material.tiling.y)) : vec4(1,1,1,1);
 	vec3 color = diffuseTextureColor.rgb * material.objectColor;
@@ -167,6 +167,7 @@ void main()
     spec = pow(max(dot(normal, halfwayDir), 0.0), material.specularExponent);
     vec3 specular = spec * lightColor * material.specularIntensity;    
     // calculate shadow
+    //float shadow = ShadowCalculation(fs_in.FragPos, lightPos, farPlane, viewPos);                      
     float shadow = ShadowCalculation(fs_in.FragPos, lightPos, farPlane);                      
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
     
