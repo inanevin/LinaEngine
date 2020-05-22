@@ -225,7 +225,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	Texture& RenderEngine::CreateTexture(const std::string& filePath, PixelFormat pixelFormat, PixelFormat internalPixelFormat, bool generateMipmaps, bool compress, SamplerData samplerData)
+	Texture& RenderEngine::CreateTexture(const std::string& filePath, PixelFormat pixelFormat, PixelFormat internalPixelFormat, bool generateMipmaps, bool compress, SamplerParameters samplerParams)
 	{
 		if (!TextureExists(filePath))
 		{
@@ -234,7 +234,7 @@ namespace LinaEngine::Graphics
 			textureBitmap->Load(filePath);
 
 			// Create texture & construct.
-			m_LoadedTextures[filePath].Construct(m_RenderDevice, *textureBitmap, pixelFormat, internalPixelFormat, generateMipmaps, compress, samplerData);
+			m_LoadedTextures[filePath].Construct(m_RenderDevice, *textureBitmap, pixelFormat, internalPixelFormat, generateMipmaps, compress, samplerParams);
 
 			// Delete pixel data.
 			delete textureBitmap;

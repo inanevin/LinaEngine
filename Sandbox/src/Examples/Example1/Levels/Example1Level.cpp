@@ -174,18 +174,25 @@ void Example1Level::Initialize()
 	s.wrapS = SamplerWrapMode::WRAP_CLAMP_EDGE;
 	s.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 
+
 	SamplerData s2;
 	s2.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
 	s2.maxFilter = SamplerFilter::FILTER_LINEAR;
 	s2.wrapS = SamplerWrapMode::WRAP_REPEAT;
 	s2.wrapT = SamplerWrapMode::WRAP_REPEAT;
 
+	SamplerParameters woodTextureSampler;
+	woodTextureSampler.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+	woodTextureSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
+	woodTextureSampler.textureParams.wrapS = SamplerWrapMode::WRAP_REPEAT;
+	woodTextureSampler.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
+
 
 	// Create texture for example mesh.
-	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGBA, PixelFormat::FORMAT_RGB, true, false, SamplerData());
-	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGBA, PixelFormat::FORMAT_SRGB, true, false, SamplerData());
-	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png", PixelFormat::FORMAT_RGBA, PixelFormat::FORMAT_RGBA, true, false, s);
-	Texture& wood = m_RenderEngine->CreateTexture("resources/textures/wood.png", PixelFormat::FORMAT_RGBA, PixelFormat::FORMAT_SRGBA, true, false, s2);
+	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGBA, PixelFormat::FORMAT_RGB, true, false);
+	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGBA, PixelFormat::FORMAT_SRGB, true, false);
+	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png", PixelFormat::FORMAT_RGBA, PixelFormat::FORMAT_RGBA, true, false);
+	Texture& wood = m_RenderEngine->CreateTexture("resources/textures/wood.png", PixelFormat::FORMAT_RGBA, PixelFormat::FORMAT_SRGBA, true, false, woodTextureSampler);
 	//Texture& cubemap = m_RenderEngine->GetTexture("resources/textures/defaultSkybox/right.png");
 
 

@@ -241,6 +241,23 @@ namespace LinaEngine::Graphics
 		CYLINDER = 5
 	};
 
+	struct TextureParameters
+	{
+		PixelFormat pixelFormat = PixelFormat::FORMAT_RGBA;
+		PixelFormat internalPixelFormat = PixelFormat::FORMAT_RGBA;
+		SamplerFilter minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+		SamplerFilter magFilter = SamplerFilter::FILTER_LINEAR;
+		SamplerWrapMode wrapS = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		SamplerWrapMode wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		SamplerWrapMode wrapR = SamplerWrapMode::WRAP_CLAMP_EDGE;
+	};
+
+	struct SamplerParameters
+	{
+		TextureParameters textureParams;
+		float anisotropy = 0.0f;
+	};
+
 	/* Struct containing basic data about window properties. */
 	struct WindowProperties
 	{

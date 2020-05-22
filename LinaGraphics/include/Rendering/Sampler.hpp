@@ -38,11 +38,10 @@ namespace LinaEngine::Graphics
 			m_EngineBoundID = renderDevice->ReleaseSampler(m_EngineBoundID);
 		}
 
-		FORCEINLINE void Construct(RenderDevice& deviceIn, SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR, SamplerFilter maxFilter = SamplerFilter::FILTER_LINEAR,
-			SamplerWrapMode wrapU = SamplerWrapMode::WRAP_CLAMP_EDGE, SamplerWrapMode wrapV = SamplerWrapMode::WRAP_CLAMP_EDGE, float anisotropy = 0.0f)
+		FORCEINLINE void Construct(RenderDevice& deviceIn, SamplerParameters samplerParams)
 		{
 			renderDevice = &deviceIn;
-			m_EngineBoundID = renderDevice->CreateSampler(minFilter, maxFilter, wrapU, wrapV, anisotropy);
+			m_EngineBoundID = renderDevice->CreateSampler(samplerParams);
 		}
 
 		FORCEINLINE uint32 GetID() const { return m_EngineBoundID; }

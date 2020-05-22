@@ -497,19 +497,19 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	uint32 GLRenderDevice::CreateSampler(SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapU, SamplerWrapMode wrapV, float anisotropy)
+	uint32 GLRenderDevice::CreateSampler(SamplerParameters samplerParams)
 	{
 		// OpenGL Texture Sampler parameters.
 		uint32 result = 0;
 		glGenSamplers(1, &result);
-		glSamplerParameteri(result, GL_TEXTURE_WRAP_S, wrapU);
-		glSamplerParameteri(result, GL_TEXTURE_WRAP_T, wrapV);
-		glSamplerParameteri(result, GL_TEXTURE_MAG_FILTER, magFilter);
-		glSamplerParameteri(result, GL_TEXTURE_MIN_FILTER, minFilter);
+		glSamplerParameteri(result, GL_TEXTURE_WRAP_S, samplerParams.textureParams.wrapS);
+		glSamplerParameteri(result, GL_TEXTURE_WRAP_T, samplerParams.textureParams.wrapT);
+		glSamplerParameteri(result, GL_TEXTURE_MAG_FILTER, samplerParams.textureParams.magFilter);
+		glSamplerParameteri(result, GL_TEXTURE_MIN_FILTER, samplerParams.textureParams.minFilter);
 
 		// Set anisotropy if applicable.
-		if (anisotropy != 0.0f && minFilter != FILTER_NEAREST && minFilter != FILTER_LINEAR)
-			glSamplerParameterf(result, GL_TEXTURE_MAX_ANISOTROPY, anisotropy);
+		if (samplerParams.anisotropy != 0.0f && samplerParams.textureParams.minFilter != FILTER_NEAREST && samplerParams.textureParams.minFilter != FILTER_LINEAR)
+			glSamplerParameterf(result, GL_TEXTURE_MAX_ANISOTROPY, samplerParams.anisotropy);
 
 		return result;
 	}

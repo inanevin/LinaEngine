@@ -108,7 +108,7 @@ namespace LinaEngine::Graphics
 		uint32 ReleaseVertexArray(uint32 vao, bool checkMap = true);
 
 		// Creates a texture sampler on GL.
-		uint32 CreateSampler(SamplerFilter minFilter, SamplerFilter magFilter, SamplerWrapMode wrapU, SamplerWrapMode wrapV, float anisotropy);
+		uint32 CreateSampler(SamplerParameters samplerParams);
 
 		// Releases a previously created texture sampler from GL.
 		uint32 ReleaseSampler(uint32 sampler);
