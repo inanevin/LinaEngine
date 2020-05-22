@@ -51,50 +51,12 @@ namespace LinaEngine
 		static Matrix InitRotationFromDirection(const Vector3& forward, const Vector3& up);
 		static Matrix InitRotation(const Quaternion& q);
 		static Matrix InitLookAt(const Vector3& location, const Vector3& forward, const Vector3& up);
+		static Matrix InitOrtho(float left, float right, float bottom, float top, float zNear, float zFar);
 		float Determinant4x4() const;
 		Matrix ToNormalMatrix() const;
 		Matrix Transpose() const;
 		Matrix Inverse() const;
 		Matrix ApplyScale(const Vector3& scale);
-
-
-	//FORCEINLINE Vector4& operator[](int index) const { LINA_CORE_ASSERT(index < 4);	return Vector4(*this[index]); }
-	//FORCEINLINE Matrix Matrix::operator* (const Matrix& other) const { return m * other.m; }
-	//FORCEINLINE Matrix& Matrix::operator*= (const Matrix& other) { m = m * other.m;	return *this; }
-	//FORCEINLINE bool Matrix::operator==(const Matrix& other) const { return m == other.m; }
-	//FORCEINLINE bool Matrix::operator!=(const Matrix& other) const { return m != other.m; }
-
-	//FORCEINLINE Matrix Matrix::operator+ (const Matrix& other) const
-	//{
-	//	
-	//	Matrix result;
-	//	for (int i = 0; i < 4; i++) {
-	//		result.m[i] = m[i] + other.m[i];
-	//	}
-	//	return result;
-	//}
-	//
-	//FORCEINLINE Matrix& Matrix::operator+= (const Matrix& other)
-	//{
-	//	for (int i = 0; i < 4; i++)
-	//		m[i] = m[i] + other.m[i];
-	//	return *this;
-	//}
-	//
-	//FORCEINLINE Matrix Matrix::operator* (float amt) const
-	//{
-	//	Matrix result;
-	//	for (int i = 0; i < 4; i++)
-	//		result.m[i] = m[i] * amt;
-	//	return result;
-	//}
-	//
-	//FORCEINLINE Matrix& Matrix::operator*= (float amt)
-	//{
-	//	for (int i = 0; i < 4; i++)
-	//		m[i] = m[i] * amt;
-	//	return *this;
-	//}
 
 	private:
 		

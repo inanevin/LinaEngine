@@ -154,7 +154,7 @@ void Example1Level::Initialize()
 
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 	// Create, setup & assign skybox material.
-	CreateCubemapSkybox(m_RenderEngine);
+	CreateProceduralSkybox(m_RenderEngine);
 
 
 	camera.entity = m_ECS->reg.create();
@@ -249,6 +249,7 @@ void Example1Level::Initialize()
 	auto& dirLight = m_ECS->reg.emplace<DirectionalLightComponent>(directionalLight.entity);
 	dirLight.color = Color(0.4f,0.4,0.4f);
 	dirLight.direction = Vector3(0, -0.5f, 1);
+
 
 	ECSEntity floor;
 	floor.entity = m_ECS->reg.create();

@@ -104,7 +104,6 @@ struct MaterialSampler2D
 struct Material
 {
 MaterialSampler2D diffuse;
-MaterialSampler2D specular;
 MaterialSampler2D shadowMap;
 vec3 objectColor;
 float specularIntensity;
@@ -132,8 +131,7 @@ out vec4 fragColor;
 
 void main()
 {
-	vec4 diffuseTextureColor = material.diffuse.isActive != 0 ? texture(material.diffuse.texture, vec2(fs_in.TexCoords.x * material.tiling.x, fs_in.TexCoords.y * material.tiling.y)) : vec4(1,1,1,1);
-	vec4 specularTextureColor = material.specular.isActive !=0 ? texture(material.specular.texture, vec2(fs_in.TexCoords.x * material.tiling.x, fs_in.TexCoords.y * material.tiling.y)) : vec4(1,1,1,1);	
+	
 	vec3 viewPos = vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
 	//vec3 norm = normalize(fs_in.Normal);
 	//vec3 viewDir = normalize(viewPos - fs_in.FragPos);
@@ -146,23 +144,10 @@ void main()
 	}
 	else
 	{
-	//	vec3 color = texture(material.diffuse.texture, vec2(fs_in.TexCoords.x * material.tiling.x , fs_in.TexCoords.y *material.tiling.y)).rgb;
-	//	vec3 lighting = vec3(0.0);	
-	//	float shadow = ShadowCalculation(fs_in.FragPosLightSpace);	
-	//	lighting += CalculateDirectionalLight(directionalLight, norm, viewDir, diffuseTextureColor, specularTextureColor, shadow);	
-	//	 // phase 2: point lights
-	//	//for(int i = 0; i < pointLightCount; i++)
-	//		//lighting += CalculatePointLight(pointLights[i], norm, fs_in.FragPos, viewDir, diffuseTextureColor, specularTextureColor);    	
-	//	// phase 3: spot light
-	//	//for(int i = 0; i < spotLightCount; i++)
-	//		//lighting += CalculateSpotLight(spotLights[i], norm, fs_in.FragPos, viewDir, diffuseTextureColor, specularTextureColor);    			
-	//	color *= lighting;
-	//	color = pow(color, vec3(1.0/2.2));	
-	//	float alpha = material.surfaceType == 0 ? 1.0 : diffuseTextureColor.a;
-	//	fragColor = vec4(color, alpha);
-	
-	vec3 lightPos = vec3(-2.0,4.0, -1.0);
-	vec3 color = texture(material.diffuse.texture,  vec2(fs_in.TexCoords.x * material.tiling.x , fs_in.TexCoords.y *material.tiling.y)).rgb;
+
+	vec4 diffuseTextureColor =  material.diffuse.isActive != 0 ? texture(material.diffuse.texture, vec2(fs_in.TexCoords.x * material.tiling.x, fs_in.TexCoords.y * material.tiling.y)) : vec4(1,1,1,1);
+	vec3 lightPos = vec3(0.0, 14.0, 0.0);
+	vec3 color = diffuseTextureColor.rgb * material.objectColor;
     vec3 normal = normalize(fs_in.Normal);
     vec3 lightColor = vec3(0.3);
     // ambient
@@ -176,8 +161,8 @@ void main()
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = 0.0;
     vec3 halfwayDir = normalize(lightDir + viewDir);  
-    spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
-    vec3 specular = spec * lightColor;    
+    spec = pow(max(dot(normal, halfwayDir), 0.0), material.specularExponent);
+    vec3 specular = spec * lightColor * material.specularIntensity;    
     // calculate shadow
     float shadow = ShadowCalculation(fs_in.FragPosLightSpace, vec3(-2.0, 4.0, -1.0));                      
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    

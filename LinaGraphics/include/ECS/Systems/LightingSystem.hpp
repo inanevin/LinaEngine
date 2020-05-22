@@ -23,9 +23,10 @@ Timestamp: 5/13/2019 12:49:19 AM
 #define LightingSystem_HPP
 
 #include "ECS/ECSSystem.hpp"
-#include "ECS/Components/LightComponent.hpp"
 #include "Utility/Math/Color.hpp"
 #include "Utility/Math/Vector.hpp"
+#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/LightComponent.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
 
 
@@ -56,11 +57,15 @@ namespace LinaEngine::ECS
 		virtual void UpdateComponents(float delta) override;
 		void SetLightingShaderData(uint32 shaderID);
 		void ResetLightData();
+		Matrix GetLightSpaceMatrix();
 
 	private:
 
 		RenderDevice* m_RenderDevice;
 		Graphics::RenderEngine* m_RenderEngine;
+		DirectionalLightComponent* directionalLight;
+		std::vector<std::tuple<TransformComponent*, PointLightComponent*>> pointLights;
+		std::vector<std::tuple<TransformComponent*, SpotLightComponent*>> spotLights;
 		Vector3 m_CameraPosition;
 	};
 }

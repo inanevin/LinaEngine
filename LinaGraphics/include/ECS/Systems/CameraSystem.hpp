@@ -62,11 +62,9 @@ namespace LinaEngine::ECS
 
 		FORCEINLINE void SetUseDirLightView(bool use) { m_UseDirLightView = use; }
 
-		FORCEINLINE Matrix& GetLightSpaceMatrix() { return lightSpaceMatrix; }
 
 	private:
 
-		Matrix lightSpaceMatrix;
 		bool m_UseDirLightView = false;
 		Matrix m_View = Matrix::Identity();
 		Matrix m_Projection =Matrix::Perspective(35, 1.33f, 0.01f, 1000.0f);

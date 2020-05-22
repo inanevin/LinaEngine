@@ -18,8 +18,7 @@ Timestamp: 5/13/2019 12:49:58 AM
 */
 
 #include "ECS/Systems/LightingSystem.hpp"  
-#include "ECS/Components/TransformComponent.hpp"
-#include "ECS/Components/LightComponent.hpp"
+
 #include "Rendering/RenderConstants.hpp"
 #include "Rendering/RenderEngine.hpp"
 
@@ -28,37 +27,48 @@ namespace LinaEngine::ECS
 
 	void LightingSystem::UpdateComponents(float delta)
 	{
+		// Flush lights.
+		directionalLight = nullptr;
+		pointLights.clear();
+		spotLights.clear();
 
+		// Set directional light.
+		auto& dirLightView = m_Registry->reg.view<DirectionalLightComponent>();
+		for (auto& entity : dirLightView)
+			directionalLight = &dirLightView.get<DirectionalLightComponent>(entity);
+
+		// Set point lights.
+		auto& pointLightView = m_Registry->reg.view<TransformComponent, PointLightComponent>();
+		for (auto it = pointLightView.begin(); it != pointLightView.end(); ++it)
+			pointLights.push_back(std::make_pair(&pointLightView.get<TransformComponent>(*it), &pointLightView.get<PointLightComponent>(*it)));
+
+		// Set Spot lights.
+		auto& spotLightView = m_Registry->reg.view<TransformComponent, SpotLightComponent>();
+		for (auto it = spotLightView.begin(); it != spotLightView.end(); ++it)
+			spotLights.push_back(std::make_pair(&spotLightView.get<TransformComponent>(*it), &spotLightView.get<SpotLightComponent>(*it)));
 	}
 
 	void LightingSystem::SetLightingShaderData(uint32 shaderID)
 	{
 
-		// Iterate directional lights.
-		auto& dirLightView = m_Registry->reg.view<DirectionalLightComponent>();
-
-		for (auto& entity : dirLightView)
+		// Update directional light data.
+		if (directionalLight != nullptr)
 		{
-			DirectionalLightComponent& dirLight = dirLightView.get<DirectionalLightComponent>(entity);
-			m_RenderDevice->UpdateShaderUniformColor(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTCOLOR, dirLight.color);
-			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTDIRECTION, dirLight.direction);
+			m_RenderDevice->UpdateShaderUniformColor(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTCOLOR, directionalLight->color);
+			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTDIRECTION, directionalLight->direction);
 		}
-
 
 		// Iterate point lights.
 		auto& pointLightView = m_Registry->reg.view<TransformComponent, PointLightComponent>();
 		int currentPointLightCount = 0;
 
-		for (auto it = pointLightView.begin(); it != pointLightView.end(); ++it)
+		for (std::vector<std::tuple<TransformComponent*, PointLightComponent*>>::iterator it = pointLights.begin(); it!=pointLights.end();++it)
 		{
-
-			TransformComponent& transform = pointLightView.get<TransformComponent>(*it);
-			PointLightComponent& pointLight = pointLightView.get<PointLightComponent>(*it);
-
-			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_POINTLIGHTS + "[" + std::to_string(currentPointLightCount) + "]" + SC_LIGHTPOSITION, transform.transform.location);
-			m_RenderDevice->UpdateShaderUniformColor(shaderID, SC_POINTLIGHTS + "[" + std::to_string(currentPointLightCount) + "]" + SC_LIGHTCOLOR, pointLight.color);
-			m_RenderDevice->UpdateShaderUniformFloat(shaderID, SC_POINTLIGHTS + "[" + std::to_string(currentPointLightCount) + "]" + SC_LIGHTDISTANCE, pointLight.distance);
-
+			TransformComponent* transform = std::get<0>(*it);
+			PointLightComponent* pointLight = std::get<1>(*it);
+			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_POINTLIGHTS + "[" + std::to_string(currentPointLightCount) + "]" + SC_LIGHTPOSITION, transform->transform.location);
+			m_RenderDevice->UpdateShaderUniformColor(shaderID, SC_POINTLIGHTS + "[" + std::to_string(currentPointLightCount) + "]" + SC_LIGHTCOLOR, pointLight->color);
+			m_RenderDevice->UpdateShaderUniformFloat(shaderID, SC_POINTLIGHTS + "[" + std::to_string(currentPointLightCount) + "]" + SC_LIGHTDISTANCE, pointLight->distance);
 			currentPointLightCount++;
 		}
 
@@ -66,18 +76,17 @@ namespace LinaEngine::ECS
 		auto& spotLightView = m_Registry->reg.view<TransformComponent, SpotLightComponent>();
 		int currentSpotLightCount = 0;
 
-		for (auto it = spotLightView.begin(); it != spotLightView.end(); ++it)
+		for (std::vector<std::tuple<TransformComponent*, SpotLightComponent*>>::iterator it = spotLights.begin(); it != spotLights.end(); ++it)
 		{
-			TransformComponent& transform = spotLightView.get<TransformComponent>(*it);
-			SpotLightComponent& spotLight = spotLightView.get<SpotLightComponent>(*it);
+			TransformComponent* transform = std::get<0>(*it);
+			SpotLightComponent* spotLight = std::get<1>(*it);
 
-			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTPOSITION, transform.transform.location);
-			m_RenderDevice->UpdateShaderUniformColor(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTCOLOR, spotLight.color);
-			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTDIRECTION, transform.transform.rotation.GetForward());
-			m_RenderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTCUTOFF, spotLight.cutOff);
-			m_RenderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTOUTERCUTOFF, spotLight.outerCutOff);
-			m_RenderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTDISTANCE, spotLight.distance);
-
+			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTPOSITION, transform->transform.location);
+			m_RenderDevice->UpdateShaderUniformColor(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTCOLOR, spotLight->color);
+			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTDIRECTION, transform->transform.rotation.GetForward());
+			m_RenderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTCUTOFF, spotLight->cutOff);
+			m_RenderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTOUTERCUTOFF, spotLight->outerCutOff);
+			m_RenderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTDISTANCE, spotLight->distance);
 			currentSpotLightCount++;
 		}
 
@@ -90,6 +99,17 @@ namespace LinaEngine::ECS
 	{
 		m_RenderEngine->SetCurrentPLightCount(0);
 		m_RenderEngine->SetCurrentSLightCount(0);
+	}
+
+	Matrix LightingSystem::GetLightSpaceMatrix()
+	{
+		Matrix lightProjection = Matrix::InitOrtho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 7.5f);
+
+		Matrix lightView = Matrix::InitLookAt(Vector3(0.0, 14.0f, 0.0),
+			Vector3(0.0f, 0.0f, 0.0f),
+			Vector3(0.0f, 1.0f, 0.0f));
+
+		return lightProjection * lightView;
 	}
 
 

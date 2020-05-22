@@ -168,6 +168,7 @@ namespace LinaEngine::Graphics
 
 
 
+
 	//for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
 	//{
 	//	(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_DepthMapRTTexture);
@@ -182,6 +183,7 @@ namespace LinaEngine::Graphics
 		//
 
 
+
 		//DrawOperationsDefault(delta);
 		//DrawOperationsMSAA(delta);
 		DrawOperationsShadows(delta, false);
@@ -191,7 +193,9 @@ namespace LinaEngine::Graphics
 			(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_DepthMapRTTexture);
 		}
 		m_CameraSystem.SetUseDirLightView(false);
+		//DrawOperationsMSAA(delta);
 		DrawOperationsDefault(delta);
+
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
 			layer->OnUpdate();
@@ -876,7 +880,7 @@ namespace LinaEngine::Graphics
 		m_GlobalDataBuffer.Update(&m_CameraSystem.GetViewMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 
-		m_GlobalDataBuffer.Update(&m_CameraSystem.GetLightSpaceMatrix(), currentGlobalDataOffset, sizeof(Matrix));
+		m_GlobalDataBuffer.Update(&m_LightingSystem.GetLightSpaceMatrix(), currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 
 		m_GlobalDataBuffer.Update(&viewPos, currentGlobalDataOffset, sizeof(Vector4));
@@ -937,8 +941,8 @@ namespace LinaEngine::Graphics
 			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
 			material.floats[MC_SPECULARINTENSITYPROPERTY] = 1.0f;
 			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
-			material.sampler2Ds[MC_TEXTURE2D_SPECULAR] = { 1 };
-			material.sampler2Ds[MC_TEXTURE2D_SHADOWMAP] = { 2 };
+			//material.sampler2Ds[MC_TEXTURE2D_SPECULAR] = { 1 };
+			material.sampler2Ds[MC_TEXTURE2D_SHADOWMAP] = { 1 };
 			material.ints[MC_SPECULAREXPONENTPROPERTY] = 32;
 			material.ints[MC_SURFACETYPE] = 0;
 			material.vector2s[MC_TILING] = Vector2::One;
@@ -1010,6 +1014,7 @@ namespace LinaEngine::Graphics
 	void RenderEngine::UpdateShaderData(Material* data)
 	{
 
+
 		m_RenderDevice.SetShader(data->GetShaderID());
 
 		for (auto const& d : (*data).floats)
@@ -1033,6 +1038,8 @@ namespace LinaEngine::Graphics
 		for (auto const& d : (*data).matrices)
 			m_RenderDevice.UpdateShaderUniformMatrix(data->shaderID, d.first, d.second);
 
+
+
 		for (auto const& d : (*data).sampler2Ds)
 		{
 			// Set whether the texture is active or not.
@@ -1045,6 +1052,7 @@ namespace LinaEngine::Graphics
 
 				// Set texture
 				m_RenderDevice.SetTexture(d.second.boundTexture->GetID(), d.second.boundTexture->GetSamplerID(), d.second.unit, d.second.bindMode, true);
+
 			}
 			else
 			{

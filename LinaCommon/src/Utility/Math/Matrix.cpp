@@ -118,10 +118,13 @@ namespace LinaEngine
 
 	Matrix Matrix::InitLookAt(const Vector3& location, const Vector3& forward, const Vector3& up)
 	{
-		return glm::lookAtLH(location, location + forward, up);
+		return glm::lookAtLH(location, forward, up);
+	}	
+
+	Matrix Matrix::InitOrtho(float left, float right, float bottom, float top, float zNear, float zFar)
+	{
+		return glm::ortho(left, right, bottom, top, zNear, zFar);
 	}
-
-
 
 	Matrix Matrix::ApplyScale(const Vector3& scale)
 	{
