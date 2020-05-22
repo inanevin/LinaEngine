@@ -69,7 +69,7 @@ namespace LinaEngine::Graphics
 		return *this;
 	}
 
-	Texture& Texture::ConstructFBTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, bool useBorder)
+	Texture& Texture::ConstructRTTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, bool useBorder)
 	{
 		// Frame buffer texture.
 

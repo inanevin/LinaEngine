@@ -569,10 +569,10 @@ namespace LinaEngine::Graphics
 		m_MainRTTexture.ConstructRTTextureMSAA(m_RenderDevice, screenSize, mainRTParams, 4);
 
 		// Initialize intermediate frame buffer texture
-		m_IntermediateRTTexture.ConstructFBTexture(m_RenderDevice, screenSize, mainRTParams, 0);
+		m_IntermediateRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, mainRTParams, 0);
 
 		// Initialize depth map teture
-		m_DepthMapRTTexture.ConstructFBTexture(m_RenderDevice,m_ShadowMapResolution,depthRTParams, true);
+		m_DepthMapRTTexture.ConstructRTTexture(m_RenderDevice,m_ShadowMapResolution,depthRTParams, true);
 
 		// Initialize render buffer.
 		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);

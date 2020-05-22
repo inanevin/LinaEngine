@@ -44,13 +44,11 @@ namespace LinaEngine::Graphics
 
 		Texture& Construct(RenderDevice& deviceIn, const class ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress);
 		Texture& ConstructCubemap(RenderDevice& deviceIn, SamplerParameters samplerParams, const LinaArray<class ArrayBitmap*>& data, bool compress);
-		Texture& ConstructFBTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, bool useBorder = false);
+		Texture& ConstructRTTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, bool useBorder = false);
 		Texture& ConstructRTTextureMSAA(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, int sampleCount);
 		Texture& ConstructEmpty(RenderDevice& deviceIn, SamplerParameters samplerParams = SamplerParameters());
 		FORCEINLINE uint32 GetID() const { return m_ID; };
 		FORCEINLINE uint32 GetSamplerID() const { return m_Sampler.GetID(); }
-		FORCEINLINE uint32 GetWidth() const { return m_Width; }
-		FORCEINLINE uint32 GetHeight() const { return m_Height; }
 		FORCEINLINE bool IsCompressed() const { return isCompressed; }
 		FORCEINLINE bool HasMipmaps() const { return hasMipMaps; }
 		FORCEINLINE Vector2 GetSize() { return m_Size; }
@@ -59,8 +57,6 @@ namespace LinaEngine::Graphics
 		Sampler m_Sampler;
 		RenderDevice* renderDevice = nullptr;
 		uint32 m_ID = 0;
-		uint32 m_Width = 0;
-		uint32 m_Height = 0;
 		Vector2 m_Size;
 		unsigned char* data;
 		bool dataAssigned = false;
