@@ -42,9 +42,8 @@ namespace LinaEngine::Graphics
 		Texture() {};
 		~Texture();
 
-		Texture& Construct(RenderDevice& deviceIn, const class ArrayBitmap& data, PixelFormat pixelFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress, SamplerParameters samplerParams);
-		Texture& Construct(RenderDevice& deviceIn, const DDSTexture& ddsTexture, SamplerData samplerData = SamplerData());
-		Texture& Construct(RenderDevice& deviceIn, const LinaArray<class ArrayBitmap*>& data, PixelFormat pixelFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool compress, SamplerData samplerData = SamplerData());
+		Texture& Construct(RenderDevice& deviceIn, const class ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress);
+		Texture& Construct(RenderDevice& deviceIn, const LinaArray<class ArrayBitmap*>& data, SamplerParameters samplerParams, bool compress);
 		Texture& ConstructFBTexture(RenderDevice& deviceIn, uint32 width, uint32 height, PixelFormat pixelFormat, PixelFormat internalPixelFormat,  SamplerData samplerData = SamplerData(), int sampleCount = 0, bool useBorder = false, Color borderColor = Color(0, 0, 0, 0));
 		Texture& ConstructEmpty(RenderDevice& deviceIn, SamplerData data = SamplerData());
 		FORCEINLINE uint32 GetID() const { return m_ID; };

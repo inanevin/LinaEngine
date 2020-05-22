@@ -86,11 +86,14 @@ namespace LinaEngine::Graphics
 		, SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST, SamplerFilter magFilter = SamplerFilter::FILTER_NEAREST, SamplerWrapMode wrapS = SamplerWrapMode::WRAP_REPEAT,
 			SamplerWrapMode wrapT = SamplerWrapMode::WRAP_REPEAT, int sampleCount = 0, bool emptyTexture = false, bool useBorder = false, Color borderColor = Color::White);
 
-		// Creates a DDS texture on GL.
-		uint32 CreateDDSTexture2D(uint32 width, uint32 height, const unsigned char* buffer, uint32 fourCC, uint32 mipMapCount);
-
 		// Creates a Cubemap texture on GL.
 		uint32 CreateCubemapTexture(int32 width, int32 height, const LinaArray<int32*>& data, uint32 dataSize = 6, PixelFormat pixelDataFormat = PixelFormat::FORMAT_RGB, PixelFormat internalPixelFormat = PixelFormat::FORMAT_RGB, bool generateMipMaps = true);
+
+		// Creates an empty texture 2d
+		uint32 CreateTexture2DEmpty(Vector2 size, SamplerParameters samplerParams);
+
+		// Sets up texture parameters
+		void SetupTextureParameters(uint32 textureTarget, SamplerParameters samplerParams);
 
 		// Releases a previously created texture from GL.
 		uint32 ReleaseTexture2D(uint32 texture2D);

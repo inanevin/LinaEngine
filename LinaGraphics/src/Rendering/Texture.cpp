@@ -19,7 +19,6 @@ Timestamp: 1/7/2019 1:55:47 PM
 
 #include "Rendering/Texture.hpp"  
 #include "Rendering/ArrayBitmap.hpp"
-#include "Rendering/DDSTexture.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -31,34 +30,21 @@ namespace LinaEngine::Graphics
 			delete data;
 	}
 
-	Texture& Texture::Construct(RenderDevice& deviceIn, const ArrayBitmap& data, PixelFormat pixelFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress, SamplerParameters samplerParams)
+	Texture& Texture::Construct(RenderDevice& deviceIn, const ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress)
 	{
 		renderDevice = &deviceIn;
 		
 		m_Sampler.Construct(deviceIn, samplerParams);
-		m_ID = renderDevice->CreateTexture2D(data.GetWidth(), data.GetHeight(), data.GetPixelArray(), pixelFormat, internalPixelFormat, generateMipMaps, shouldCompress, samplerParams.textureParams.minFilter, samplerParams.textureParams.magFilter, samplerParams.textureParams.wrapS, samplerParams.textureParams.wrapT);
+		m_ID = renderDevice->CreateTexture2D(data.GetWidth(), data.GetHeight(), data.GetPixelArray(), samplerParams.textureParams.pixelFormat, samplerParams.textureParams.internalPixelFormat, samplerParams.textureParams.generateMipMaps, shouldCompress, samplerParams.textureParams.minFilter, samplerParams.textureParams.magFilter, samplerParams.textureParams.wrapS, samplerParams.textureParams.wrapT);
 		m_Width = (uint32)data.GetWidth();
 		m_Height = (uint32)data.GetHeight();
 		isCompressed = shouldCompress;
-		hasMipMaps = generateMipMaps;
+		hasMipMaps = samplerParams.textureParams.generateMipMaps;
 		return *this;
 	}
 
-	Texture& Texture::Construct(RenderDevice& deviceIn, const DDSTexture& ddsTexture, SamplerData samplerData)
-	{
-		renderDevice = &deviceIn;
-		SamplerParameters params;
 
-		m_Sampler.Construct(deviceIn, params);
-		m_ID = renderDevice->CreateDDSTexture2D(ddsTexture.GetWidth(), ddsTexture.GetHeight(), ddsTexture.GetBuffer(), ddsTexture.GetFourCC(), ddsTexture.GetMipMapCount());
-		m_Width = ddsTexture.GetWidth();
-		m_Height = ddsTexture.GetHeight();
-		isCompressed = true;
-		hasMipMaps = ddsTexture.GetMipMapCount() > 1;
-		return *this;
-	}
-
-	Texture& Texture::Construct(RenderDevice& deviceIn, const LinaArray<ArrayBitmap*>& data, PixelFormat pixelFormat, PixelFormat internalPixelFormat, bool generateMipMaps, bool shouldCompress, SamplerData samplerData)
+	Texture& Texture::Construct(RenderDevice& deviceIn, const LinaArray<ArrayBitmap*>& data, SamplerParameters samplerParams, bool shouldCompress)
 	{
 		if (data.size() != 6)
 		{
@@ -77,9 +63,9 @@ namespace LinaEngine::Graphics
 		for (uint32 i = 0; i < 6; i++)
 			cubeMapData.push_back(data[i]->GetPixelArray());
 
-		m_ID = renderDevice->CreateCubemapTexture(m_Width, m_Height, cubeMapData, 6U, internalPixelFormat, internalPixelFormat, generateMipMaps);
+		m_ID = renderDevice->CreateCubemapTexture(m_Width, m_Height, cubeMapData, 6U, samplerParams.textureParams.pixelFormat, samplerParams.textureParams.internalPixelFormat, samplerParams.textureParams.generateMipMaps);
 		isCompressed = shouldCompress;
-		hasMipMaps = generateMipMaps;
+		hasMipMaps = samplerParams.textureParams.generateMipMaps;
 
 		cubeMapData.clear();
 		return *this;

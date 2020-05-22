@@ -107,8 +107,10 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 	};
 
 	SamplerData data = SamplerData();
-	data.minFilter = FILTER_NEAREST;
-	Texture& t = renderEngine->CreateTexture(fp, PixelFormat::FORMAT_RGB, PixelFormat::FORMAT_RGB, true, false, data);
+	SamplerParameters samplerParams;
+	samplerParams.textureParams.generateMipMaps = true;
+	samplerParams.textureParams.minFilter = FILTER_NEAREST;
+	Texture& t = renderEngine->CreateTexture(fp, samplerParams, false);
 	mat.SetTexture(MC_TEXTURE2D_DIFFUSE, &t, TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
@@ -152,7 +154,7 @@ void Example1Level::Initialize()
 
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 	// Create, setup & assign skybox material.
-	CreateProceduralSkybox(m_RenderEngine);
+	CreateCubemapSkybox(m_RenderEngine);
 
 
 	camera.entity = m_ECS->reg.create();
@@ -181,18 +183,31 @@ void Example1Level::Initialize()
 	s2.wrapS = SamplerWrapMode::WRAP_REPEAT;
 	s2.wrapT = SamplerWrapMode::WRAP_REPEAT;
 
+
 	SamplerParameters woodTextureSampler;
 	woodTextureSampler.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
 	woodTextureSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
 	woodTextureSampler.textureParams.wrapS = SamplerWrapMode::WRAP_REPEAT;
 	woodTextureSampler.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
+	woodTextureSampler.textureParams.pixelFormat = PixelFormat::FORMAT_RGBA;
+	woodTextureSampler.textureParams.internalPixelFormat = PixelFormat::FORMAT_SRGBA;
+	woodTextureSampler.textureParams.generateMipMaps = true;
+
+	SamplerParameters crateSampler;
+	crateSampler.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+	crateSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
+	crateSampler.textureParams.wrapS = SamplerWrapMode::WRAP_REPEAT;
+	crateSampler.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
+	crateSampler.textureParams.pixelFormat = PixelFormat::FORMAT_RGBA;
+	crateSampler.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB;
+	crateSampler.textureParams.generateMipMaps = true;
 
 
 	// Create texture for example mesh.
-	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", PixelFormat::FORMAT_RGBA, PixelFormat::FORMAT_RGB, true, false);
-	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png", PixelFormat::FORMAT_RGBA, PixelFormat::FORMAT_SRGB, true, false);
-	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png", PixelFormat::FORMAT_RGBA, PixelFormat::FORMAT_RGBA, true, false);
-	Texture& wood = m_RenderEngine->CreateTexture("resources/textures/wood.png", PixelFormat::FORMAT_RGBA, PixelFormat::FORMAT_SRGBA, true, false, woodTextureSampler);
+	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", crateSampler);
+	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png");
+	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png");
+	Texture& wood = m_RenderEngine->CreateTexture("resources/textures/wood.png", woodTextureSampler, false);
 	//Texture& cubemap = m_RenderEngine->GetTexture("resources/textures/defaultSkybox/right.png");
 
 

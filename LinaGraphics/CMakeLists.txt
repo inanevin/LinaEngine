@@ -22,7 +22,6 @@ set(CMAKE_CXX_STANDARD 17)
 set (LINAGRAPHICS_SOURCES
 	#Rendering
 	src/Rendering/ArrayBitmap.cpp
-	src/Rendering/DDSTexture.cpp
 	src/Rendering/Texture.cpp
 	src/Rendering/IndexedModel.cpp
 	src/Rendering/ModelLoader.cpp
@@ -45,7 +44,6 @@ set(LINAGRAPHICS_HEADERS
 
 	#Rendering
 	include/Rendering/ArrayBitmap.hpp
-	include/Rendering/DDSTexture.hpp
 	include/Rendering/RenderEngine.hpp
 	include/Rendering/Shader.hpp
 	include/Rendering/Texture.hpp

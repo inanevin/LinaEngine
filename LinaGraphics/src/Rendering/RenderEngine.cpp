@@ -225,7 +225,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	Texture& RenderEngine::CreateTexture(const std::string& filePath, PixelFormat pixelFormat, PixelFormat internalPixelFormat, bool generateMipmaps, bool compress, SamplerParameters samplerParams)
+	Texture& RenderEngine::CreateTexture(const std::string& filePath, SamplerParameters samplerParams,bool compress)
 	{
 		if (!TextureExists(filePath))
 		{
@@ -234,7 +234,7 @@ namespace LinaEngine::Graphics
 			textureBitmap->Load(filePath);
 
 			// Create texture & construct.
-			m_LoadedTextures[filePath].Construct(m_RenderDevice, *textureBitmap, pixelFormat, internalPixelFormat, generateMipmaps, compress, samplerParams);
+			m_LoadedTextures[filePath].Construct(m_RenderDevice, *textureBitmap, samplerParams, compress);
 
 			// Delete pixel data.
 			delete textureBitmap;
@@ -250,7 +250,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	Texture& RenderEngine::CreateTexture(const std::string filePaths[6], PixelFormat pixelFormat, PixelFormat internalPixelFormat, bool generateMipmaps, bool compress, SamplerData samplerData)
+	Texture& RenderEngine::CreateTexture(const std::string filePaths[6], SamplerParameters samplerParams, bool compress)
 	{
 		if (!TextureExists(filePaths[0]))
 		{
@@ -265,7 +265,7 @@ namespace LinaEngine::Graphics
 			}
 
 			// Create texture & construct.
-			Texture& texture = m_LoadedTextures[filePaths[0]].Construct(m_RenderDevice, bitmaps, pixelFormat, internalPixelFormat, generateMipmaps, compress, samplerData);
+			Texture& texture = m_LoadedTextures[filePaths[0]].Construct(m_RenderDevice, bitmaps, samplerParams, compress);
 
 			// Delete pixel data.
 			for (uint32 i = 0; i < bitmaps.size(); i++)
