@@ -131,69 +131,19 @@ namespace LinaEngine::Graphics
 	void RenderEngine::Tick(float delta)
 	{
 
-		// Clear color.
-	//m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-	//
-	//// Change perspective to render the scene from light perspective into the depth frame buffer
-	//m_CameraSystem.SetUseDirLightView(true);
-	//
-	//// Update pipeline.
-	//m_RenderingPipeline.UpdateSystems(delta);
-	//
-	//// Update uniform buffers on GPU
-	//UpdateUniformBuffers();
-	//
-	//// Set depth frame buffer
-	//m_RenderDevice.SetFBO(m_DepthMapRenderTarget.GetID());
-	//
-	//// Clear color.
-	//m_RenderDevice.Clear(false, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-	//
-	//// Draw scene into depth buffer.
-	//DrawSceneObjects(false, m_DepthMapDrawParams, m_DepthBufferMaterial);
-	//
-	//// Back to normal.
-	//m_CameraSystem.SetUseDirLightView(false);
-
-		//m_CameraSystem.SetUseDirLightView(false);
-		//m_RenderDevice.SetFBO(0);
-
-		//m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-
-		// Update pipeline.
-		//m_RenderingPipeline.UpdateSystems(delta);
-
-		// Update uniform buffers on GPU
-		//UpdateUniformBuffers();
-
-
-
-
-	//for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
-	//{
-	//	(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_DepthMapRTTexture);
-	//}
-
-		//m_DefaultDrawParams.useDepthTest = true;
-		//DrawSceneObjects(false, m_DefaultDrawParams);
-
-		//// Set the camera view & proj to normal.
-		//m_CameraSystem.SetUseDirLightView(false);
-		//
-		//
-
-
-
 		//DrawOperationsDefault(delta);
 		//DrawOperationsMSAA(delta);
-		DrawOperationsPointLight(delta, false);
-		
+		//DrawOperationsPointLight(delta, false);
+
+
+		DrawOperationsShadows(delta,true);
 		for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
 		{
 			(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_DepthMapRTTexture);
 		}
-		DrawOperationsMSAA(delta);
 		DrawOperationsDefault(delta);
+
+		//DrawOperationsMSAA(delta);
 
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
@@ -376,7 +326,6 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-
 	Material& RenderEngine::GetMaterial(const std::string& materialName)
 	{
 		if (!MaterialExists(materialName))
@@ -499,7 +448,6 @@ namespace LinaEngine::Graphics
 		return !(m_LoadedPrimitives.find(primitive) == m_LoadedPrimitives.end());
 	}
 
-
 	void RenderEngine::ConstructEngineShaders()
 	{
 		// Unlit.
@@ -607,7 +555,7 @@ namespace LinaEngine::Graphics
 		m_DepthMapRenderTarget.Construct(m_RenderDevice, m_DepthMapRTTexture, m_ShadowMapResolution.x, m_ShadowMapResolution.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
 
 		// Initialize point light shadow map target
-		m_PointLightsRenderTarget.Construct(m_RenderDevice, m_PointLightsRTTexture, m_ShadowMapResolution.x, m_ShadowMapResolution.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
+		m_PointLightsRenderTarget.Construct(m_RenderDevice, m_PointLightsRTTexture, m_ShadowMapResolution.x, m_ShadowMapResolution.y, TextureBindMode::BINDTEXTURE_NONE, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
 
 	}
 
@@ -660,26 +608,26 @@ namespace LinaEngine::Graphics
 		m_DepthMapDrawParams.scissorHeight = 0;
 
 		// Set render to fbo target draw parameters.	
-		m_FBOTextureDrawParameters.useScissorTest = false;
-		m_FBOTextureDrawParameters.useDepthTest = false;
-		m_FBOTextureDrawParameters.useStencilTest = true;
-		m_FBOTextureDrawParameters.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_FBOTextureDrawParameters.faceCulling = FaceCulling::FACE_CULL_BACK;
-		m_FBOTextureDrawParameters.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
-		m_FBOTextureDrawParameters.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
-		m_FBOTextureDrawParameters.shouldWriteDepth = true;
-		m_FBOTextureDrawParameters.depthFunc = DrawFunc::DRAW_FUNC_LESS;
-		m_FBOTextureDrawParameters.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
-		m_FBOTextureDrawParameters.stencilComparisonVal = 1;
-		m_FBOTextureDrawParameters.stencilTestMask = 0xFF;
-		m_FBOTextureDrawParameters.stencilWriteMask = 0xFF;
-		m_FBOTextureDrawParameters.stencilFail = StencilOp::STENCIL_KEEP;
-		m_FBOTextureDrawParameters.stencilPass = StencilOp::STENCIL_REPLACE;
-		m_FBOTextureDrawParameters.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
-		m_FBOTextureDrawParameters.scissorStartX = 0;
-		m_FBOTextureDrawParameters.scissorStartY = 0;
-		m_FBOTextureDrawParameters.scissorWidth = 0;
-		m_FBOTextureDrawParameters.scissorHeight = 0;
+		m_FullscreenQuadDP.useScissorTest = false;
+		m_FullscreenQuadDP.useDepthTest = false;
+		m_FullscreenQuadDP.useStencilTest = true;
+		m_FullscreenQuadDP.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
+		m_FullscreenQuadDP.faceCulling = FaceCulling::FACE_CULL_NONE;
+		m_FullscreenQuadDP.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
+		m_FullscreenQuadDP.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+		m_FullscreenQuadDP.shouldWriteDepth = true;
+		m_FullscreenQuadDP.depthFunc = DrawFunc::DRAW_FUNC_LESS;
+		m_FullscreenQuadDP.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
+		m_FullscreenQuadDP.stencilComparisonVal = 1;
+		m_FullscreenQuadDP.stencilTestMask = 0xFF;
+		m_FullscreenQuadDP.stencilWriteMask = 0xFF;
+		m_FullscreenQuadDP.stencilFail = StencilOp::STENCIL_KEEP;
+		m_FullscreenQuadDP.stencilPass = StencilOp::STENCIL_REPLACE;
+		m_FullscreenQuadDP.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+		m_FullscreenQuadDP.scissorStartX = 0;
+		m_FullscreenQuadDP.scissorStartY = 0;
+		m_FullscreenQuadDP.scissorWidth = 0;
+		m_FullscreenQuadDP.scissorHeight = 0;
 
 		// Set skybox draw params.	
 		m_SkyboxDrawParams.useScissorTest = false;
@@ -905,9 +853,8 @@ namespace LinaEngine::Graphics
 		UpdateShaderData(&m_ScreenQuadMaterial);
 
 		// Draw
-		m_RenderDevice.Draw(m_ScreenQuad, m_FBOTextureDrawParameters, 0, 6, true);
+		m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
 	}
-
 
 	void RenderEngine::UpdateUniformBuffers()
 	{
@@ -1045,12 +992,12 @@ namespace LinaEngine::Graphics
 		return material;
 	}
 
-
 	void RenderEngine::PushLayer(Layer* layer)
 	{
 		m_GUILayerStack.PushLayer(layer);
 		layer->OnAttach();
 	}
+
 	void RenderEngine::PushOverlay(Layer* layer)
 	{
 		m_GUILayerStack.PushOverlay(layer);

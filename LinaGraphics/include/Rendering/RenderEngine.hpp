@@ -296,7 +296,7 @@ namespace LinaEngine::Graphics
 		DrawParams m_StencilOutlineDrawParams2;
 
 		// Draw parameters for fbo texture rendering
-		DrawParams m_FBOTextureDrawParameters;
+		DrawParams m_FullscreenQuadDP;
 
 		// Sprite drawing parameters.
 		DrawParams m_SpriteDrawParams;
