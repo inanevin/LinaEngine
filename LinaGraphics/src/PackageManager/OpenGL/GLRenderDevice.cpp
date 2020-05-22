@@ -174,7 +174,7 @@ namespace LinaEngine::Graphics
 
 		if (m_IsBlendingEnabled)
 			glBlendFunc(m_UsedSourceBlending, m_UsedDestinationBlending);
-		
+
 
 		// Set lighting system reference.
 		m_LightingSystem = &lightingSystemIn;
@@ -287,12 +287,44 @@ namespace LinaEngine::Graphics
 
 	uint32 GLRenderDevice::CreateTexture2DEmpty(Vector2 size, SamplerParameters samplerParams)
 	{
-		return uint32();
+		// Declare formats, target & handle for the texture.
+		GLint format = GetOpenGLFormat(samplerParams.textureParams.pixelFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(samplerParams.textureParams.internalPixelFormat, false);
+		GLenum textureTarget = GL_TEXTURE_2D;
+		GLuint textureHandle;
+
+		// Generate texture & bind to program.
+		glGenTextures(1, &textureHandle);
+		glBindTexture(textureTarget, textureHandle);
+		
+		// Setup parameters.
+		SetupTextureParameters(textureTarget, samplerParams);
+
+		GLubyte texData[] = { 255, 255, 255, 255 };
+		glTexImage2D(textureTarget, 0, internalFormat, size.x, size.y, 0, format, GL_UNSIGNED_BYTE, texData);
+
+		glBindTexture(textureTarget, 0);
+		return textureHandle;
 	}
 
 	void GLRenderDevice::SetupTextureParameters(uint32 textureTarget, SamplerParameters samplerParams)
 	{
 
+		// OpenGL texture params.
+		glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, samplerParams.textureParams.minFilter);
+		glTexParameterf(textureTarget, GL_TEXTURE_MAG_FILTER, samplerParams.textureParams.magFilter);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, samplerParams.textureParams.wrapS);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, samplerParams.textureParams.wrapT);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_R, samplerParams.textureParams.wrapR);
+
+		// Enable mipmaps if needed.
+		if (samplerParams.textureParams.generateMipMaps)
+			glGenerateMipmap(textureTarget);
+		else
+		{
+			glTexParameteri(textureTarget, GL_TEXTURE_BASE_LEVEL, 0);
+			glTexParameteri(textureTarget, GL_TEXTURE_MAX_LEVEL, 0);
+		}
 	}
 
 	uint32 GLRenderDevice::ReleaseTexture2D(uint32 texture2D)
@@ -973,7 +1005,7 @@ namespace LinaEngine::Graphics
 		// Use FBO if exists.
 		if (fbo == m_BoundFBO) return;
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-		m_BoundFBO = m_BoundReadFBO = m_BoundWriteFBO =fbo;
+		m_BoundFBO = m_BoundReadFBO = m_BoundWriteFBO = fbo;
 		SetViewport(fbo);
 	}
 

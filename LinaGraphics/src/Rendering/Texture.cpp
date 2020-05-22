@@ -87,16 +87,15 @@ namespace LinaEngine::Graphics
 		return *this;
 	}
 
-	Texture& Texture::ConstructEmpty(RenderDevice& deviceIn, SamplerData samplerData)
+	Texture& Texture::ConstructEmpty(RenderDevice& deviceIn, SamplerParameters samplerParams)
 	{
 		renderDevice = &deviceIn;
 	
 		SamplerParameters params;
 
 		m_Sampler.Construct(deviceIn, params);
-		m_ID = renderDevice->CreateTexture2D(1, 1, data, PixelFormat::FORMAT_RGBA, PixelFormat::FORMAT_RGBA, false, false, samplerData.minFilter, samplerData.maxFilter, samplerData.wrapS, samplerData.wrapT, 0, true);
-		m_Width = (uint32)1;
-		m_Height = (uint32)1;
+		m_ID = renderDevice->CreateTexture2DEmpty(Vector2::One, samplerParams);
+		m_Size = Vector2::One;
 		isCompressed = false;
 		hasMipMaps = false;
 		dataAssigned = true;
