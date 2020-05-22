@@ -1021,9 +1021,9 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, const Matrix& m)
 	{
-
 		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_FALSE, &m[0][0]);
 	}
+
 
 	void GLRenderDevice::SetVAO(uint32 vao)
 	{
@@ -1431,10 +1431,24 @@ namespace LinaEngine::Graphics
 				continue;
 			}*/
 
+
 			std::string name((char*)&uniformName[0], actualLength - 1);
 			samplerMap[name] = glGetUniformLocation(shaderProgram, (char*)&uniformName[0]);
 			GLint loc = glGetUniformLocation(shaderProgram, (char*)&uniformName[0]);
 			uniformMap[&uniformName[0]] = loc;
+
+			for (int i = 1; i < arraySize; i++)
+			{
+				std::string name((char*)&uniformName[0], actualLength - 2);
+				name = name + std::to_string(i) + "]";
+
+				std::string newName(name.c_str(), actualLength - 1);
+				samplerMap[newName] = glGetUniformLocation(shaderProgram, name.c_str());
+				GLint loc = glGetUniformLocation(shaderProgram, name.c_str());
+				uniformMap[name] = loc;
+			}
+		
+		
 		}
 	}
 }

@@ -116,10 +116,10 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 
 
 Vector3 cubePositions[] = {
-	Vector3(0.0f, 2.5f, -1.0),
-	Vector3(3.0f, 1.0f, 1.0),
-	Vector3(-1.0f, 1.0f, 2.0),
-	Vector3(0.0f, -9.0f, 10.0f),
+	Vector3(0.0f, 1, -4.0),
+	Vector3(0.0f, 1.0f, 4.0),
+	Vector3(-4.0f, 1.0f, 0.0),
+	Vector3(4.0f, 1.5f, 0.0f),
 	Vector3(0.0f, -9.0f, 5.0f),
 	Vector3(0.0f, -9.0f, 15.0f),
 	Vector3(-5.0f, -4.0f, 10.0f),
@@ -142,7 +142,7 @@ Vector3 spotLightPositions[]
 };
 
 int pLightSize = 0;
-int cubeSize =3;
+int cubeSize =4;
 int sLightSize = 0;
 
 
@@ -246,7 +246,7 @@ void Example1Level::Initialize()
 	auto& dirLight = m_ECS->reg.emplace<DirectionalLightComponent>(directionalLight.entity);
 	auto& dirLightTransform = m_ECS->reg.emplace<TransformComponent>(directionalLight.entity);
 	dirLight.color = Color(0.4f,0.4,0.4f);
-	dirLightTransform.transform.location = Vector3(-2.0f, 4.0f, -1.0f);
+	dirLightTransform.transform.location = Vector3(0.5f, 0.5f, 0.0f);
 	dirLightTransform.transform.scale = Vector3(0.2f);
 
 	ECSEntity dirLightCube;
@@ -276,13 +276,16 @@ void Example1Level::Initialize()
 		object1Transform.transform.location = cubePositions[i];
 		object1Transform.transform.scale = Vector3::One;
 
+		if (i == 0)
+			object1Transform.transform.scale = Vector3(0.1f);
+
+		if (i == 1)
+			object1Transform.transform.scale = Vector3(0.3f);
+
 		if (i == 2)
-		{
-			object1Transform.transform.scale = Vector3::One/2.0f;
-
-			object1Transform.transform.rotation = Quaternion::Euler(60, 0, 60);
-
-		}
+			object1Transform.transform.scale = Vector3(0.7f);
+		if (i == 3)
+			object1Transform.transform.scale = Vector3(1.1f);
 		//object1Transform.transform.location = Vector3(Math::RandF(-100, 100), Math::RandF(-100, 100), Math::RandF(-100, 100));
 		entity.entity = m_ECS->reg.create();
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);

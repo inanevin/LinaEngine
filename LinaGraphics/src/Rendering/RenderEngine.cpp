@@ -137,10 +137,11 @@ namespace LinaEngine::Graphics
 
 
 		//DrawOperationsShadows(delta,true);
+		//for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
+		//	(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_DepthMapRTTexture);
+
 		for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
-		{
-			(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_DepthMapRTTexture);
-		}
+			(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_PointLightsRTTexture, TextureBindMode::BINDTEXTURE_CUBEMAP);
 		DrawOperationsDefault(delta);
 
 		//DrawOperationsMSAA(delta);
@@ -386,6 +387,103 @@ namespace LinaEngine::Graphics
 			return m_LoadedPrimitives[primitive];
 	}
 
+	Material& RenderEngine::SetMaterialShader(Material& material, Shaders shader)
+	{
+
+		// If no shader found, fall back to standardLit
+		if (m_LoadedShaders.find(shader) == m_LoadedShaders.end()) {
+			LINA_CORE_ERR("Shader with engine ID {0} was not found. Setting material's shader to standardLit.", shader);
+			material.shaderID = m_LoadedShaders[Shaders::STANDARD_LIT].GetID();
+		}
+		else
+			material.shaderID = m_LoadedShaders[shader].GetID();
+
+		// Clear all shader related material data.
+		material.sampler2Ds.clear();
+		material.colors.clear();
+		material.floats.clear();
+		material.ints.clear();
+		material.vector3s.clear();
+		material.vector2s.clear();
+		material.matrices.clear();
+		material.vector4s.clear();
+
+		// Set shader data for material based on it's shader.
+		if (shader == Shaders::STANDARD_LIT)
+		{
+			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
+			material.floats[MC_SPECULARINTENSITYPROPERTY] = 1.0f;
+			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
+			//material.sampler2Ds[MC_TEXTURE2D_SPECULAR] = { 1 };
+			material.sampler2Ds[MC_TEXTURE2D_SHADOWMAP] = { 1 };
+			material.ints[MC_SPECULAREXPONENTPROPERTY] = 32;
+			material.ints[MC_SURFACETYPE] = 0;
+			material.vector2s[MC_TILING] = Vector2::One;
+			material.receivesLighting = true;
+			material.isShadowMapped = true;
+
+			// Add to the shadow mapped materials.
+			m_ShadowMappedMaterials.emplace(&material);
+		}
+		else if (shader == Shaders::STANDARD_UNLIT)
+		{
+			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
+			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
+			material.ints[MC_SURFACETYPE] = 0;
+		}
+		else if (shader == Shaders::SKYBOX_SINGLECOLOR)
+		{
+			material.colors[MC_COLORPROPERTY] = Color::White;
+		}
+		else if (shader == Shaders::SKYBOX_GRADIENT)
+		{
+			material.colors[MC_STARTCOLORPROPERTY] = Color::Black;
+			material.colors[MC_ENDCOLORPROPERTY] = Color::White;
+		}
+		else if (shader == Shaders::SKYBOX_PROCEDURAL)
+		{
+			material.colors[MC_STARTCOLORPROPERTY] = Color::Black;
+			material.colors[MC_ENDCOLORPROPERTY] = Color::White;
+			material.vector3s[MC_SUNDIRECTIONPROPERTY] = Vector3(0, -1, 0);
+		}
+		else if (shader == Shaders::SKYBOX_CUBEMAP)
+		{
+			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
+		}
+		else if (shader == Shaders::STENCIL_OUTLINE)
+		{
+			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
+			material.floats[MC_OUTLINETHICKNESS] = 0.1f;
+			material.ints[MC_SURFACETYPE] = 0;
+		}
+		else if (shader == Shaders::SCREEN_QUAD)
+		{
+			material.sampler2Ds[UF_SCREENTEXTURE] = { 0 };
+		}
+		else if (shader == Shaders::CUBEMAP_REFLECTIVE)
+		{
+			material.sampler2Ds[UF_SKYBOXTEXTURE] = { 0 };
+		}
+		else if (shader == Shaders::DEPTH_DIRECTIONAL_SHADOWS)
+		{
+
+		}
+		else if (shader == Shaders::DEPTH_POINT_SHADOWS)
+		{
+			//material.matrices[UF_POINTSHADOWS_SHADOWMATRICES + std::string("[0]")] = Matrix();
+			//material.matrices[UF_POINTSHADOWS_SHADOWMATRICES + std::string("[1]")] = Matrix();
+			//material.matrices[UF_POINTSHADOWS_SHADOWMATRICES + std::string("[2]")] = Matrix();
+			//material.matrices[UF_POINTSHADOWS_SHADOWMATRICES + std::string("[3]")] = Matrix();
+			//material.matrices[UF_POINTSHADOWS_SHADOWMATRICES + std::string("[4]")] = Matrix();
+			//material.matrices[UF_POINTSHADOWS_SHADOWMATRICES + std::string("[5]")] = Matrix();
+			//material.vector3s[UF_POINTSHADOWS_LIGHTPOS] = Vector3(0, 4, 0);
+			//material.floats[UF_POINTSHADOWS_FARPLANE] = 100;
+		}
+
+
+		return material;
+	}
+
 	void RenderEngine::UnloadTextureResource(const std::string& textureName)
 	{
 		if (!TextureExists(textureName))
@@ -455,7 +553,7 @@ namespace LinaEngine::Graphics
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
-		Shader& lit = CreateShader(Shaders::STANDARD_LIT, "resources/shaders/basicStandardLit.glsl", false);
+		Shader& lit = CreateShader(Shaders::STANDARD_LIT, "resources/shaders/basicStandardLitPS.glsl", false);
 		lit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		lit.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
 		lit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
@@ -496,7 +594,7 @@ namespace LinaEngine::Graphics
 
 
 		// Create material for rendering point shadows onto the depth buffer
-		m_DepthBufferMaterial = &CreateMaterial("pointShadowsDepth", Shaders::DEPTH_POINT_SHADOWS);
+		m_PointLightsDepthMaterial = &CreateMaterial("pointShadowsDepth", Shaders::DEPTH_POINT_SHADOWS);
 	}
 
 	void RenderEngine::ConstructEnginePrimitives()
@@ -738,12 +836,25 @@ namespace LinaEngine::Graphics
 		// Clear color.
 		m_RenderDevice.Clear(false, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 
+		m_RenderDevice.SetShader(m_PointLightsDepthMaterial->GetShaderID());
+
+		std::vector<Matrix> matrices = m_LightingSystem.GetPointLightMatrices();
+
+
+		for (unsigned int i = 0; i < 6; ++i)
+		{
+			std::string name = UF_POINTSHADOWS_SHADOWMATRICES + std::string("[") + std::to_string(i) + std::string("]");
+			m_RenderDevice.UpdateShaderUniformMatrix(m_PointLightsDepthMaterial->GetShaderID(), name, matrices[i]);
+			//m_PointLightsDepthMaterial->SetMatrix4( name, m_LightingSystem.GetPointLightMatrices()[i]);
+		}
+
 		// Draw scene into depth buffer.
 		DrawSceneObjects(false, m_DepthMapDrawParams, m_PointLightsDepthMaterial, false);
 
 		// Visaulize depth buffer
 		if (visualizeDepthMap)
 			DrawFullscreenQuad(m_PointLightsRTTexture, false);
+
 	}
 
 	void RenderEngine::DrawOperationsMSAA(float delta)
@@ -901,97 +1012,6 @@ namespace LinaEngine::Graphics
 
 		// Update debug fufer.
 		m_GlobalDebugBuffer.Update(&m_DebugData.visualizeDepth, 0, sizeof(bool));
-	}
-
-	Material& RenderEngine::SetMaterialShader(Material& material, Shaders shader)
-	{
-
-		// If no shader found, fall back to standardLit
-		if (m_LoadedShaders.find(shader) == m_LoadedShaders.end()) {
-			LINA_CORE_ERR("Shader with engine ID {0} was not found. Setting material's shader to standardLit.", shader);
-			material.shaderID = m_LoadedShaders[Shaders::STANDARD_LIT].GetID();
-		}
-		else
-			material.shaderID = m_LoadedShaders[shader].GetID();
-
-		// Clear all shader related material data.
-		material.sampler2Ds.clear();
-		material.colors.clear();
-		material.floats.clear();
-		material.ints.clear();
-		material.vector3s.clear();
-		material.vector2s.clear();
-		material.matrices.clear();
-		material.vector4s.clear();
-
-		// Set shader data for material based on it's shader.
-		if (shader == Shaders::STANDARD_LIT)
-		{
-			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
-			material.floats[MC_SPECULARINTENSITYPROPERTY] = 1.0f;
-			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
-			//material.sampler2Ds[MC_TEXTURE2D_SPECULAR] = { 1 };
-			material.sampler2Ds[MC_TEXTURE2D_SHADOWMAP] = { 1 };
-			material.ints[MC_SPECULAREXPONENTPROPERTY] = 32;
-			material.ints[MC_SURFACETYPE] = 0;
-			material.vector2s[MC_TILING] = Vector2::One;
-			material.receivesLighting = true;
-			material.isShadowMapped = true;
-
-			// Add to the shadow mapped materials.
-			m_ShadowMappedMaterials.emplace(&material);
-		}
-		else if (shader == Shaders::STANDARD_UNLIT)
-		{
-			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
-			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
-			material.ints[MC_SURFACETYPE] = 0;
-		}
-		else if (shader == Shaders::SKYBOX_SINGLECOLOR)
-		{
-			material.colors[MC_COLORPROPERTY] = Color::White;
-		}
-		else if (shader == Shaders::SKYBOX_GRADIENT)
-		{
-			material.colors[MC_STARTCOLORPROPERTY] = Color::Black;
-			material.colors[MC_ENDCOLORPROPERTY] = Color::White;
-		}
-		else if (shader == Shaders::SKYBOX_PROCEDURAL)
-		{
-			material.colors[MC_STARTCOLORPROPERTY] = Color::Black;
-			material.colors[MC_ENDCOLORPROPERTY] = Color::White;
-			material.vector3s[MC_SUNDIRECTIONPROPERTY] = Vector3(0, -1, 0);
-		}
-		else if (shader == Shaders::SKYBOX_CUBEMAP)
-		{
-			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
-		}
-		else if (shader == Shaders::STENCIL_OUTLINE)
-		{
-			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
-			material.floats[MC_OUTLINETHICKNESS] = 0.1f;
-			material.ints[MC_SURFACETYPE] = 0;
-		}
-		else if (shader == Shaders::SCREEN_QUAD)
-		{
-			material.sampler2Ds[UF_SCREENTEXTURE] = { 0 };
-		}
-		else if (shader == Shaders::CUBEMAP_REFLECTIVE)
-		{
-			material.sampler2Ds[UF_SKYBOXTEXTURE] = { 0 };
-		}
-		else if (shader == Shaders::DEPTH_DIRECTIONAL_SHADOWS)
-		{
-			
-		}
-		else if (shader == Shaders::DEPTH_POINT_SHADOWS)
-		{
-			material.matrices[UF_POINTSHADOWS_SHADOWMATRICES] = Matrix();
-			material.vector3s[UF_POINTSHADOWS_LIGHTPOS] = Vector3(0,0,0);
-			material.floats[UF_POINTSHADOWS_FARPLANE] = 100;
-		}
-
-		return material;
 	}
 
 	void RenderEngine::PushLayer(Layer* layer)
