@@ -597,7 +597,7 @@ namespace LinaEngine::Graphics
 
 		if (usesGeometryShader)
 		{
-			std::string geometryShaderText = "#version " + version + "\n#define GEO_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
+			std::string geometryShaderText = "#version " + version + "\n#define GS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
 			if (!AddShader(shaderProgram, geometryShaderText, GL_GEOMETRY_SHADER, &programData.shaders))
 				return (uint32)-1;
 		}

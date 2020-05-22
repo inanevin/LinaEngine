@@ -63,6 +63,9 @@ namespace LinaEngine::Graphics
 #define UF_SKYBOXTEXTURE "skybox"
 #define UF_TIME "time"
 #define UF_LIGHTSPACEMATRIX "lightSpaceMatrix"
+#define UF_POINTSHADOWS_SHADOWMATRICES "shadowMatrices"
+#define UF_POINTSHADOWS_LIGHTPOS "lightPosition"
+#define UF_POINTSHADOWS_FARPLANE "farPlane"
 
 #define MAT_LINASTENCILOUTLINE "lina_StencilOutline"
 

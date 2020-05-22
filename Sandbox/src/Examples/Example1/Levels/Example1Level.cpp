@@ -58,7 +58,6 @@ MeshRendererComponent object1Renderer;
 MeshRendererComponent smallCubeRenderer;
 
 
-
 Example1Level::~Example1Level()
 {
 	delete ecsFreeLookSystem;

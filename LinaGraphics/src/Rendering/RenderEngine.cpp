@@ -133,10 +133,10 @@ namespace LinaEngine::Graphics
 
 		//DrawOperationsDefault(delta);
 		//DrawOperationsMSAA(delta);
-		//DrawOperationsPointLight(delta, false);
+		DrawOperationsPointLight(delta, false);
 
 
-		DrawOperationsShadows(delta,true);
+		//DrawOperationsShadows(delta,true);
 		for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
 		{
 			(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_DepthMapRTTexture);
@@ -481,7 +481,7 @@ namespace LinaEngine::Graphics
 		CreateShader(Shaders::DEPTH_DIRECTIONAL_SHADOWS, "resources/shaders/directionalDepthMap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
 		// Depth Shader for point lights
-		CreateShader(Shaders::DEPTH_POINT_SHADOWS, "resources/shaders/pointLightDepthMap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::DEPTH_POINT_SHADOWS, "resources/shaders/pointLightDepthMap.glsl", true).BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 	}
 
 	void RenderEngine::ConstructEngineMaterials()
@@ -986,7 +986,9 @@ namespace LinaEngine::Graphics
 		}
 		else if (shader == Shaders::DEPTH_POINT_SHADOWS)
 		{
-
+			material.matrices[UF_POINTSHADOWS_SHADOWMATRICES] = Matrix();
+			material.vector3s[UF_POINTSHADOWS_LIGHTPOS] = Vector3(0,0,0);
+			material.floats[UF_POINTSHADOWS_FARPLANE] = 100;
 		}
 
 		return material;
