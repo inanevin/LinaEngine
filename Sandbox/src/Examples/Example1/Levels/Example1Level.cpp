@@ -154,7 +154,7 @@ void Example1Level::Initialize()
 
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 	// Create, setup & assign skybox material.
-	CreateProceduralSkybox(m_RenderEngine);
+	CreateCubemapSkybox(m_RenderEngine);
 
 
 	camera.entity = m_ECS->reg.create();
@@ -265,7 +265,6 @@ void Example1Level::Initialize()
 	object1Transform.transform.scale = Vector3(40.0f);
 	m_ECS->reg.emplace<TransformComponent>(floor.entity, object1Transform);
 	m_ECS->reg.emplace<MeshRendererComponent>(floor.entity, mr);
-
 
 
 

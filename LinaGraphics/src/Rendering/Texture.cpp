@@ -50,9 +50,8 @@ namespace LinaEngine::Graphics
 			LINA_CORE_WARN("Could not construct cubemap texture! ArrayBitmap data size needs to be 6, returning un-constructed texture...");
 			return Texture();
 		}
-		SamplerParameters params;
 
-		m_Sampler.Construct(deviceIn, params);
+		m_Sampler.Construct(deviceIn, samplerParams);
 		renderDevice = &deviceIn;
 		m_Size = Vector2(data[0]->GetWidth(), data[0]->GetHeight());
 
@@ -66,6 +65,17 @@ namespace LinaEngine::Graphics
 		hasMipMaps = samplerParams.textureParams.generateMipMaps;
 
 		cubeMapData.clear();
+		return *this;
+	}
+
+	Texture& Texture::ConstructRTCubemapTexture(RenderDevice& deviceIn,  Vector2 size, SamplerParameters samplerParams)
+	{
+		m_Sampler.Construct(deviceIn, samplerParams);
+		renderDevice = &deviceIn;
+		m_Size = size;
+		m_ID = renderDevice->CreateCubemapTextureEmpty(m_Size, samplerParams);
+		isCompressed = false;
+		hasMipMaps = samplerParams.textureParams.generateMipMaps;
 		return *this;
 	}
 

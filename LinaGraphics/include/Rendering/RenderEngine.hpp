@@ -209,6 +209,9 @@ namespace LinaEngine::Graphics
 		// Default drawing
 		void DrawOperationsDefault(float delta);
 
+		// Draw operations plight.
+		void DrawOperationsPointLight(float delta, bool visualizeDepthMap);
+
 		// Drawing onto fullscreen quad via MSAA buffers
 		void DrawOperationsMSAA(float delta);
 
@@ -244,6 +247,9 @@ namespace LinaEngine::Graphics
 		// Depth map render target for shadow mapping
 		RenderTarget m_DepthMapRenderTarget;
 
+		// Depth map render target for point light shadows
+		RenderTarget m_PointLightsRenderTarget;
+
 		// Default Render buffer
 		RenderBuffer m_RenderBuffer;
 
@@ -264,6 +270,9 @@ namespace LinaEngine::Graphics
 
 		// Depth map render target texture
 		Texture m_DepthMapRTTexture;
+
+		// Point lights render target texture
+		Texture m_PointLightsRTTexture;
 
 		// Default texture
 		Texture m_DefaultTexture;

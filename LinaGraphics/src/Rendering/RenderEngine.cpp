@@ -186,13 +186,12 @@ namespace LinaEngine::Graphics
 
 		//DrawOperationsDefault(delta);
 		//DrawOperationsMSAA(delta);
-		DrawOperationsShadows(delta, false);
+		DrawOperationsPointLight(delta, false);
 		
 		for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
 		{
 			(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_DepthMapRTTexture);
 		}
-		m_CameraSystem.SetUseDirLightView(false);
 		DrawOperationsMSAA(delta);
 		DrawOperationsDefault(delta);
 
@@ -569,16 +568,24 @@ namespace LinaEngine::Graphics
 		depthRTParams.textureParams.minFilter = depthRTParams.textureParams.magFilter = SamplerFilter::FILTER_NEAREST;
 		depthRTParams.textureParams.wrapS = depthRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 
+		SamplerParameters pointLightRTParams;
+		pointLightRTParams.textureParams.pixelFormat = pointLightRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_DEPTH;
+		pointLightRTParams.textureParams.minFilter = pointLightRTParams.textureParams.magFilter = SamplerFilter::FILTER_NEAREST;
+		pointLightRTParams.textureParams.wrapS = pointLightRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+
 		m_ShadowMapResolution = Vector2(2048, 2048);
 
 		// Initialize frame buffer texture.
 		m_MainRTTexture.ConstructRTTextureMSAA(m_RenderDevice, screenSize, mainRTParams, 4);
 
 		// Initialize intermediate frame buffer texture
-		m_IntermediateRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, mainRTParams, 0);
+		m_IntermediateRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, mainRTParams, false);
 
 		// Initialize depth map teture
 		m_DepthMapRTTexture.ConstructRTTexture(m_RenderDevice,m_ShadowMapResolution,depthRTParams, true);
+
+		// Initialize point light rt texture
+		m_PointLightsRTTexture.ConstructRTCubemapTexture(m_RenderDevice, m_ShadowMapResolution, pointLightRTParams);
 
 		// Initialize render buffer.
 		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);
@@ -591,6 +598,9 @@ namespace LinaEngine::Graphics
 
 		// Initialize shadow map target
 		m_DepthMapRenderTarget.Construct(m_RenderDevice, m_DepthMapRTTexture, m_ShadowMapResolution.x, m_ShadowMapResolution.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
+
+		// Initialize point light shadow map target
+		m_PointLightsRenderTarget.Construct(m_RenderDevice, m_PointLightsRTTexture, m_ShadowMapResolution.x, m_ShadowMapResolution.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
 
 	}
 
@@ -756,6 +766,31 @@ namespace LinaEngine::Graphics
 		DrawSceneObjects(false, m_DefaultDrawParams, nullptr, true);
 	}
 
+	void RenderEngine::DrawOperationsPointLight(float delta, bool visualizeDepthMap)
+	{
+		// Clear color.
+		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+
+		// Update pipeline.
+		m_RenderingPipeline.UpdateSystems(delta);
+
+		// Update uniform buffers on GPU
+		UpdateUniformBuffers();
+
+		// Set depth frame buffer
+		m_RenderDevice.SetFBO(m_DepthMapRenderTarget.GetID());
+
+		// Clear color.
+		m_RenderDevice.Clear(false, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+
+		// Draw scene into depth buffer.
+		DrawSceneObjects(false, m_DepthMapDrawParams, m_DepthBufferMaterial, false);
+
+		// Visaulize depth buffer
+		if (visualizeDepthMap)
+			DrawFullscreenQuad(m_DepthMapRTTexture, false);
+	}
+
 	void RenderEngine::DrawOperationsMSAA(float delta)
 	{
 		m_RenderDevice.SetFBO(m_MainRenderTarget.GetID());
@@ -780,9 +815,6 @@ namespace LinaEngine::Graphics
 	{
 		// Clear color.
 		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-
-		// Change perspective to render the scene from light perspective into the depth frame buffer
-		m_CameraSystem.SetUseDirLightView(true);
 
 		// Update pipeline.
 		m_RenderingPipeline.UpdateSystems(delta);

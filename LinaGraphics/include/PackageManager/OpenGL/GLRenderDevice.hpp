@@ -87,6 +87,9 @@ namespace LinaEngine::Graphics
 		// Creates a Cubemap texture on GL.
 		uint32 CreateCubemapTexture(Vector2 size, SamplerParameters samplerParams, const LinaArray<int32*>& data, uint32 dataSize = 6);
 		
+		// Creates an empty cubemap texture.
+		uint32 CreateCubemapTextureEmpty(Vector2 size, SamplerParameters samplerParams);
+
 		// Creates a multisampled texture
 		uint32 CreateTexture2DMSAA(Vector2 size, SamplerParameters samplerParams, int sampleCount);
 

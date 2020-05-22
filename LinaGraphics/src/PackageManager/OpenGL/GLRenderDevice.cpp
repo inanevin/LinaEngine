@@ -201,11 +201,11 @@ namespace LinaEngine::Graphics
 		glGenTextures(1, &textureHandle);
 		glBindTexture(textureTarget, textureHandle);
 
+
+		glTexImage2D(textureTarget, 0, internalFormat, size.x, size.y, 0, format, GL_UNSIGNED_BYTE, data);
+
 		// OpenGL texture params.
 		SetupTextureParameters(textureTarget, samplerParams);
-
-		glTexImage2D(textureTarget, 0, internalFormat,size.x, size.y, 0, format, GL_UNSIGNED_BYTE, data);
-
 
 		// Enable mipmaps if needed.
 		if (samplerParams.textureParams.generateMipMaps)
@@ -224,6 +224,9 @@ namespace LinaEngine::Graphics
 	uint32 GLRenderDevice::CreateCubemapTexture(Vector2 size, SamplerParameters samplerParams, const LinaArray<int32*>& data, uint32 dataSize)
 	{
 		GLuint textureHandle;
+		// Declare formats, target & handle for the texture.
+		GLint format = GetOpenGLFormat(samplerParams.textureParams.pixelFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(samplerParams.textureParams.internalPixelFormat, false);
 
 		// Generate texture & bind to program.
 		glGenTextures(1, &textureHandle);
@@ -232,7 +235,7 @@ namespace LinaEngine::Graphics
 		// Loop through each face to gen. image.
 		for (GLuint i = 0; i < dataSize; i++)
 		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[i]);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, size.x, size.y, 0, format, GL_UNSIGNED_BYTE, data[i]);
 		}
 
 		// Specify wrapping & filtering
@@ -251,6 +254,36 @@ namespace LinaEngine::Graphics
 		return textureHandle;
 	}
 
+	uint32 GLRenderDevice::CreateCubemapTextureEmpty(Vector2 size, SamplerParameters samplerParams)
+	{
+		GLuint textureHandle;
+		// Declare formats, target & handle for the texture.
+		GLint format = GetOpenGLFormat(samplerParams.textureParams.pixelFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(samplerParams.textureParams.internalPixelFormat, false);
+
+		// Generate texture & bind to program.
+		glGenTextures(1, &textureHandle);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, textureHandle);
+
+		// Loop through each face to gen. image.
+		for (GLuint i = 0; i < 6; i++)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, size.x, size.y, 0, format, GL_FLOAT, NULL);
+		}
+
+
+		if (samplerParams.textureParams.generateMipMaps)
+			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+		else
+		{
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
+		}
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		return textureHandle;
+	}
+
 	uint32 GLRenderDevice::CreateTexture2DMSAA(Vector2 size, SamplerParameters samplerParams, int sampleCount)
 	{
 		// Declare formats, target & handle for the texture.
@@ -263,11 +296,11 @@ namespace LinaEngine::Graphics
 		glGenTextures(1, &textureHandle);
 		glBindTexture(textureTarget, textureHandle);
 
-		// Setup texture params
-		SetupTextureParameters(textureTarget, samplerParams);
-
 		// Create texture
 		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, sampleCount, internalFormat, size.x, size.y, GL_TRUE);
+
+		// Setup texture params
+		SetupTextureParameters(textureTarget, samplerParams);
 
 		// Enable mipmaps if needed.
 		if (samplerParams.textureParams.generateMipMaps)
@@ -293,12 +326,12 @@ namespace LinaEngine::Graphics
 		// Generate texture & bind to program.
 		glGenTextures(1, &textureHandle);
 		glBindTexture(textureTarget, textureHandle);
-		
-		// Setup parameters.
-		SetupTextureParameters(textureTarget, samplerParams);
 
 		GLubyte texData[] = { 255, 255, 255, 255 };
 		glTexImage2D(textureTarget, 0, internalFormat, size.x, size.y, 0, format, GL_UNSIGNED_BYTE, texData);
+
+		// Setup parameters.
+		SetupTextureParameters(textureTarget, samplerParams);
 
 		// Enable mipmaps if needed.
 		if (samplerParams.textureParams.generateMipMaps)
@@ -631,7 +664,11 @@ namespace LinaEngine::Graphics
 
 		// Define attachment type & use the buffer.
 		GLenum attachmentTypeGL = attachment + attachmentNumber;
-		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, bindTextureMode, texture, mipLevel);
+
+		if (bindTextureMode != TextureBindMode::BINDTEXTURE_NONE)
+			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, bindTextureMode, texture, mipLevel);
+		else
+			glFramebufferTexture(GL_FRAMEBUFFER, attachmentTypeGL, texture, mipLevel);
 
 		// Disable read&write.
 		if (noReadWrite)
