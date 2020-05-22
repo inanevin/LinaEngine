@@ -190,7 +190,9 @@ namespace LinaEngine
 
 	float Vector3::Magnitude() const
 	{
-		return length();
+		glm::vec3 vec = *this;
+		float len = glm::length(vec);
+		return len;
 	}
 
 	float Vector3::MagnitudeSqrt() const

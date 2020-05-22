@@ -187,13 +187,13 @@ namespace LinaEngine::Graphics
 		//DrawOperationsDefault(delta);
 		//DrawOperationsMSAA(delta);
 		DrawOperationsShadows(delta, false);
-
+		
 		for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
 		{
 			(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_DepthMapRTTexture);
 		}
 		m_CameraSystem.SetUseDirLightView(false);
-		//DrawOperationsMSAA(delta);
+		DrawOperationsMSAA(delta);
 		DrawOperationsDefault(delta);
 
 		// Draw GUI Layers
@@ -566,8 +566,8 @@ namespace LinaEngine::Graphics
 
 		SamplerParameters depthRTParams;
 		depthRTParams.textureParams.pixelFormat = depthRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_DEPTH;
-		depthRTParams.textureParams.minFilter = depthRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-		depthRTParams.textureParams.wrapS = depthRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		depthRTParams.textureParams.minFilter = depthRTParams.textureParams.magFilter = SamplerFilter::FILTER_NEAREST;
+		depthRTParams.textureParams.wrapS = depthRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_BORDER;
 
 		// Initialize frame buffer texture.
 		m_MainRTTexture.ConstructRTTextureMSAA(m_RenderDevice, screenSize, mainRTParams, 4);
@@ -615,6 +615,7 @@ namespace LinaEngine::Graphics
 		m_DefaultDrawParams.scissorStartY = 0;
 		m_DefaultDrawParams.scissorWidth = 0;
 		m_DefaultDrawParams.scissorHeight = 0;
+
 
 
 		// Set depth map drawing parameters.
@@ -1014,7 +1015,6 @@ namespace LinaEngine::Graphics
 	void RenderEngine::UpdateShaderData(Material* data)
 	{
 
-
 		m_RenderDevice.SetShader(data->GetShaderID());
 
 		for (auto const& d : (*data).floats)
@@ -1037,7 +1037,6 @@ namespace LinaEngine::Graphics
 
 		for (auto const& d : (*data).matrices)
 			m_RenderDevice.UpdateShaderUniformMatrix(data->shaderID, d.first, d.second);
-
 
 
 		for (auto const& d : (*data).sampler2Ds)

@@ -117,9 +117,9 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 
 
 Vector3 cubePositions[] = {
-	Vector3(0.0f, 4.0f, -1.0),
-	Vector3(3.0f, 1.0f, 1.0),
-	Vector3(-2.0f, 1.0f, 2.0),
+	Vector3(0.0f, 1.5f, 0.0),
+	Vector3(2.0f, 0.0f, 1.0),
+	Vector3(-1.0f, 0.0f, 2.0),
 	Vector3(0.0f, -9.0f, 10.0f),
 	Vector3(0.0f, -9.0f, 5.0f),
 	Vector3(0.0f, -9.0f, 15.0f),
@@ -186,7 +186,7 @@ void Example1Level::Initialize()
 
 	SamplerParameters woodTextureSampler;
 	woodTextureSampler.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
-	woodTextureSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
+	woodTextureSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
 	woodTextureSampler.textureParams.wrapS = SamplerWrapMode::WRAP_REPEAT;
 	woodTextureSampler.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
 	woodTextureSampler.textureParams.pixelFormat = PixelFormat::FORMAT_RGBA;
@@ -223,6 +223,7 @@ void Example1Level::Initialize()
 
 
 	objectLitMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &crateTexture);
+	//objectLitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(0.0f, 0.0f, 0.2f));
 	//objectLitMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &crateSpecTexture);
 	objectLitMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
 
@@ -236,21 +237,24 @@ void Example1Level::Initialize()
 
 	floorMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &wood);
 	floorMaterial->SetVector2(MC_TILING, Vector2(10, 10));
+	//floorMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(0.1f,0.1f,0.1f));
 
 	object1Renderer.mesh = &cubeMesh;
 	object1Renderer.material = objectLitMaterial;
 	smallCubeRenderer.mesh = &cubeMesh;
 	smallCubeRenderer.material = objectUnlitMaterial;
 
-
-
-
 	directionalLight.entity = m_ECS->reg.create();
 	auto& dirLight = m_ECS->reg.emplace<DirectionalLightComponent>(directionalLight.entity);
 	auto& dirLightTransform = m_ECS->reg.emplace<TransformComponent>(directionalLight.entity);
 	dirLight.color = Color(0.4f,0.4,0.4f);
 	dirLightTransform.transform.location = Vector3(-2.0f, 4.0f, -1.0f);
+	dirLightTransform.transform.scale = Vector3(0.2f);
 
+	ECSEntity dirLightCube;
+	dirLightCube.entity = m_ECS->reg.create();
+	m_ECS->reg.emplace<TransformComponent>(dirLightCube.entity, dirLightTransform);
+	m_ECS->reg.emplace<MeshRendererComponent>(dirLightCube.entity, smallCubeRenderer);
 
 	ECSEntity floor;
 	floor.entity = m_ECS->reg.create();
@@ -258,7 +262,7 @@ void Example1Level::Initialize()
 	mr.mesh = &m_RenderEngine->GetPrimitive(Primitives::PLANE);
 	mr.material = floorMaterial;
 
-	object1Transform.transform.location = Vector3(0, 0, 0);
+	object1Transform.transform.location = Vector3(0, -0.5f, 0);
 	object1Transform.transform.scale = Vector3(40.0f);
 	m_ECS->reg.emplace<TransformComponent>(floor.entity, object1Transform);
 	m_ECS->reg.emplace<MeshRendererComponent>(floor.entity, mr);
@@ -272,7 +276,10 @@ void Example1Level::Initialize()
 
 		object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
 		object1Transform.transform.location = cubePositions[i];
-		object1Transform.transform.scale = Vector3::One;
+		object1Transform.transform.scale = Vector3::One / 2.0f;
+
+		if (i == 2)
+			object1Transform.transform.rotation = Quaternion::Euler(60, 0, 60);
 		//object1Transform.transform.location = Vector3(Math::RandF(-100, 100), Math::RandF(-100, 100), Math::RandF(-100, 100));
 		entity.entity = m_ECS->reg.create();
 		m_ECS->reg.emplace<TransformComponent>(entity.entity, object1Transform);

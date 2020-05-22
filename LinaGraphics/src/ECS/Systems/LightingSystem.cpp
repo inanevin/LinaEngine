@@ -112,8 +112,9 @@ namespace LinaEngine::ECS
 	Matrix LightingSystem::GetDirectionalLightMatrix()
 	{
 		TransformComponent* directionalLightTransform = std::get<0>(directionalLight);
-		Matrix lightProjection = Matrix::Orthographic(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 7.5f);
-		Matrix lightView = Matrix::InitLookAt(Vector3(-2.0f, 4.0f, -1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
+		float zFar = directionalLightTransform == nullptr ? 0.0f : directionalLightTransform->transform.location.Magnitude();
+		Matrix lightProjection = Matrix::Orthographic(-20.0f,20.0f, -20.0f, 20.0f, 1.0f, 7.5f);
+		Matrix lightView = Matrix::InitLookAt(directionalLightTransform == nullptr ? Vector3::Zero: directionalLightTransform->transform.location, Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
 		return lightProjection * lightView;
 	}
 
