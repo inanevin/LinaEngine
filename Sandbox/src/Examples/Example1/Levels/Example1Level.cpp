@@ -247,8 +247,9 @@ void Example1Level::Initialize()
 
 	directionalLight.entity = m_ECS->reg.create();
 	auto& dirLight = m_ECS->reg.emplace<DirectionalLightComponent>(directionalLight.entity);
+	auto& dirLightTransform = m_ECS->reg.emplace<TransformComponent>(directionalLight.entity);
 	dirLight.color = Color(0.4f,0.4,0.4f);
-	dirLight.direction = Vector3(0, -0.5f, 1);
+	dirLightTransform.transform.location = Vector3(-2.0f, 4.0f, -1.0f);
 
 
 	ECSEntity floor;

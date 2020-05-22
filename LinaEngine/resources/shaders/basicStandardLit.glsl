@@ -146,7 +146,7 @@ void main()
 	{
 
 	vec4 diffuseTextureColor =  material.diffuse.isActive != 0 ? texture(material.diffuse.texture, vec2(fs_in.TexCoords.x * material.tiling.x, fs_in.TexCoords.y * material.tiling.y)) : vec4(1,1,1,1);
-	vec3 lightPos = vec3(0.0, 14.0, 0.0);
+	vec3 lightPos = vec3(-2.0f, 4.0f, 1.0f);
 	vec3 color = diffuseTextureColor.rgb * material.objectColor;
     vec3 normal = normalize(fs_in.Normal);
     vec3 lightColor = vec3(0.3);

@@ -48,7 +48,7 @@ namespace LinaEngine
 
 	Matrix Matrix::Orthographic(float left, float right, float bottom, float top, float n, float f)
 	{
-		return glm::ortho(left, right, bottom, top, n, f);
+		return glm::orthoLH(left, right, bottom, top, n, f);
 	}
 
 	Matrix Matrix::Perspective(float halfFov, float aspect, float nearZ, float farZ)
@@ -121,10 +121,6 @@ namespace LinaEngine
 		return glm::lookAtLH(location, forward, up);
 	}	
 
-	Matrix Matrix::InitOrtho(float left, float right, float bottom, float top, float zNear, float zFar)
-	{
-		return glm::ortho(left, right, bottom, top, zNear, zFar);
-	}
 
 	Matrix Matrix::ApplyScale(const Vector3& scale)
 	{

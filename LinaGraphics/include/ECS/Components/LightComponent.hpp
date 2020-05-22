@@ -50,7 +50,7 @@ namespace LinaEngine::ECS
 
 	struct DirectionalLightComponent : public LightComponent
 	{
-		Vector3 direction = Vector3::Zero;
+		
 	};
 }
 

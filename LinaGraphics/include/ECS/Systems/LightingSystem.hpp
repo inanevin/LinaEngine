@@ -57,16 +57,15 @@ namespace LinaEngine::ECS
 		virtual void UpdateComponents(float delta) override;
 		void SetLightingShaderData(uint32 shaderID);
 		void ResetLightData();
-		Matrix GetLightSpaceMatrix();
+		Matrix GetDirectionalLightMatrix();
 
 	private:
 
 		RenderDevice* m_RenderDevice;
 		Graphics::RenderEngine* m_RenderEngine;
-		DirectionalLightComponent* directionalLight;
+		std::tuple < TransformComponent*, DirectionalLightComponent*> directionalLight;
 		std::vector<std::tuple<TransformComponent*, PointLightComponent*>> pointLights;
 		std::vector<std::tuple<TransformComponent*, SpotLightComponent*>> spotLights;
-		Vector3 m_CameraPosition;
 	};
 }
 

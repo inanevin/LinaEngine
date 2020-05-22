@@ -51,7 +51,6 @@ namespace LinaEngine
 		static Matrix InitRotationFromDirection(const Vector3& forward, const Vector3& up);
 		static Matrix InitRotation(const Quaternion& q);
 		static Matrix InitLookAt(const Vector3& location, const Vector3& forward, const Vector3& up);
-		static Matrix InitOrtho(float left, float right, float bottom, float top, float zNear, float zFar);
 		float Determinant4x4() const;
 		Matrix ToNormalMatrix() const;
 		Matrix Transpose() const;

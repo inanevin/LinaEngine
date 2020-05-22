@@ -880,7 +880,7 @@ namespace LinaEngine::Graphics
 		m_GlobalDataBuffer.Update(&m_CameraSystem.GetViewMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 
-		m_GlobalDataBuffer.Update(&m_LightingSystem.GetLightSpaceMatrix(), currentGlobalDataOffset, sizeof(Matrix));
+		m_GlobalDataBuffer.Update(&m_LightingSystem.GetDirectionalLightMatrix(), currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 
 		m_GlobalDataBuffer.Update(&viewPos, currentGlobalDataOffset, sizeof(Vector4));
