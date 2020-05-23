@@ -39,7 +39,7 @@ namespace LinaEditor
 
 	struct EditorEntity
 	{
-		std::string name;
+		std::string name = "Entity";
 		entt::entity entity;
 	};
 
@@ -60,18 +60,15 @@ namespace LinaEditor
 		void OnEvent() override;
 
 		// CLASS METHODS
-		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& engine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& m_ECS) { m_RenderEngine = &engine; m_Application = application; }
+		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& engine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs) { m_RenderEngine = &engine; m_Application = application; m_ECS = &ecs; }
 
 	private:
 
 		// Draws panel for entities.
-		void DrawEntitiesPanel();
+		void DrawECSPanel(bool* isOpen);
 
 		// Draws a central docking space.
 		void DrawCentralDockingSpace();
-
-		// Draw entity hierarchy.
-		void DrawEntitiesWindow();
 
 		// Draw content browser.
 		void DrawContentBrowserWindow();
@@ -93,8 +90,11 @@ namespace LinaEditor
 	private:
 
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine;
+		LinaEngine::ECS::ECSRegistry* m_ECS;
 		LinaEngine::Application* m_Application;
 		std::vector<ContentFolder> m_ContentFolders;
+
+		std::vector<EditorEntity> m_EditorEntities;
 
 	};
 }
