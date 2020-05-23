@@ -988,25 +988,28 @@ namespace LinaEngine::Graphics
 		m_GlobalDataBuffer.Update(&viewPos, currentGlobalDataOffset, sizeof(Vector4));
 		currentGlobalDataOffset += sizeof(Vector4);
 
-		ECS::CameraComponent& cameraComponent = m_CameraSystem.GetCurrentCameraComponent();
+		ECS::CameraComponent* cameraComponent = &m_CameraSystem.GetCurrentCameraComponent();
 
-
-		// Update only if changed.
-		if (m_BufferValueRecord.zNear != cameraComponent.zNear)
+		if (cameraComponent != nullptr)
 		{
-			m_BufferValueRecord.zNear = cameraComponent.zNear;
-			m_GlobalDataBuffer.Update(&cameraComponent.zNear, currentGlobalDataOffset, sizeof(float));
-		}
-		currentGlobalDataOffset += sizeof(float);
+			// Update only if changed.
+			if (m_BufferValueRecord.zNear != cameraComponent->zNear)
+			{
+				m_BufferValueRecord.zNear = cameraComponent->zNear;
+				m_GlobalDataBuffer.Update(&cameraComponent->zNear, currentGlobalDataOffset, sizeof(float));
+			}
+			currentGlobalDataOffset += sizeof(float);
 
 
-		// Update only if changed.
-		if (m_BufferValueRecord.zFar != cameraComponent.zFar)
-		{
-			m_BufferValueRecord.zFar = cameraComponent.zFar;
-			m_GlobalDataBuffer.Update(&cameraComponent.zNear, currentGlobalDataOffset, sizeof(float));
+			// Update only if changed.
+			if (m_BufferValueRecord.zFar != cameraComponent->zFar)
+			{
+				m_BufferValueRecord.zFar = cameraComponent->zFar;
+				m_GlobalDataBuffer.Update(&cameraComponent->zNear, currentGlobalDataOffset, sizeof(float));
+			}
+			currentGlobalDataOffset += sizeof(float);
 		}
-		currentGlobalDataOffset += sizeof(float);
+	
 
 		// Update lights buffer.
 		m_GlobalLightBuffer.Update(&m_CurrentPointLightCount, 0, sizeof(int));

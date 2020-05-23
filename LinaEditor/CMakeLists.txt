@@ -48,10 +48,9 @@ add_executable(${PROJECT_NAME} ${LINAEDITOR_SOURCES} ${LINAEDITOR_HEADERS})
 # Options & Definitions
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/imgui/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glad/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/vendor/boost/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/imgui/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glad/include)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
@@ -66,11 +65,9 @@ endif()
 #--------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} 
 PRIVATE Lina::Engine
-PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui/lib/$<CONFIGURATION>/IMGUI.lib
-PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glfw/lib/$<CONFIGURATION>/glfw3.lib
-PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/glad/lib/$<CONFIGURATION>/glad.lib
-PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/boost/libs/$<CONFIGURATION>/libboost_serialization-vc142-mt-gd-x32-1_73.lib
-PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/vendor/boost/libs/$<CONFIGURATION>/libboost_filesystem-vc142-mt-gd-x32-1_73.lib
+PRIVATE ${CMAKE_SOURCE_DIR}/vendor/imgui/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/IMGUI.lib
+PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
+PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glad/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glad.lib
 )
 
 

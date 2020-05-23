@@ -20,15 +20,16 @@ Timestamp: 5/9/2020 1:23:05 AM
 
 
 #include "Utility/EditorUtility.hpp"
-#include "boost/filesystem.hpp"
-#include <filesystem>
+//#include "boost/filesystem.hpp"
+//#include <filesystem>
 
 
 namespace LinaEditor::Utility
 {
 	bool EditorUtility::CreateFolderInPath(const std::string& path)
 	{
-		std::string newPath = path;
+		return false;
+		/*std::string newPath = path;
 		int i = 0;
 		const int counterLimit = 50;
 
@@ -45,17 +46,18 @@ namespace LinaEditor::Utility
 		}
 		
 		// Create file.
-		return boost::filesystem::create_directories(newPath);
+		return boost::filesystem::create_directories(newPath);*/
 	}
 
 	bool EditorUtility::GetDirectories(std::vector<std::string>& vec, const std::string& path)
 	{
+		return false;
 		// Get all folders in path.
-		std::vector<std::string> r;
+		/*std::vector<std::string> r;
 		for (auto& p : std::filesystem::recursive_directory_iterator(path))
 			if (p.is_directory())
 				r.push_back(p.path().filename().string());
 		vec = r;
-		return true;
+		return true;*/
 	}
 }

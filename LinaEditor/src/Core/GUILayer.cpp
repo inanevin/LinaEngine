@@ -58,33 +58,8 @@ namespace LinaEditor
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		
-		// Draw skybox settings.
-		DrawSkyboxSettingsWindow();
-
-		ImGui::Begin("sc");
-
-		ImVec2 pos = ImGui::GetCursorScreenPos();
-		float width = m_RenderEngine->GetWindowSize().x;
-		float height = m_RenderEngine->GetWindowSize().y;
-		
-		//ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetRenderTexture(), ImVec2(ImGui::GetCursorScreenPos()),
-		//	ImVec2(ImGui::GetCursorScreenPos().x +width / 2,
-		//		ImGui::GetCursorScreenPos().y + height / 2), ImVec2(0, 1), ImVec2(1, 0));
-
-		//ImGui::GetWindowDrawList()->AddImage()
-		ImGui::End();
-		//DrawCentralDockingSpace();
 
 		ImGui::ShowDemoWindow();
-
-		// Draw hierarchy window.
-		DrawEntitiesWindow();
-
-	
-
-		// Draw content browser.
-		DrawContentBrowserWindow();
 
 		// Rendering
 		ImGui::Render();
@@ -259,7 +234,7 @@ namespace LinaEditor
 		if (currentItemID == 0)
 		{
 			// Single color skybox
-			Graphics::Material& skyboxMaterial = m_RenderEngine->GetMaterial(Graphics::MaterialConstants::skyboxMaterialName);
+			/*Graphics::Material& skyboxMaterial = m_RenderEngine->GetMaterial(Graphics::MaterialConstants::skyboxMaterialName);
 
 			// Init colors.
 			Color& skyboxColor = skyboxMaterial.GetColor(Graphics::MaterialConstants::colorProperty);
@@ -282,12 +257,12 @@ namespace LinaEditor
 		
 			// Update if changing the colors.
 			if (isEditing)
-				skyboxMaterial.SetColor(Graphics::MaterialConstants::colorProperty, Color(color.x, color.y, color.z, color.w));
+				skyboxMaterial.SetColor(Graphics::MaterialConstants::colorProperty, Color(color.x, color.y, color.z, color.w));*/
 		}
 		else if (currentItemID == 1)
 		{
 			// Gradient color skybox
-			Graphics::Material& skyboxMaterial = m_RenderEngine->GetMaterial(Graphics::MaterialConstants::skyboxMaterialName);
+			/*Graphics::Material& skyboxMaterial = m_RenderEngine->GetMaterial(Graphics::MaterialConstants::skyboxMaterialName);
 
 			// Init colors.
 			Color& skyboxStartColor = skyboxMaterial.GetColor(Graphics::MaterialConstants::startColorProperty);
@@ -328,13 +303,13 @@ namespace LinaEditor
 
 			// Update if changing the color.
 			if (isEditingStartColor)
-				skyboxMaterial.SetColor(Graphics::MaterialConstants::startColorProperty, Color(colorStart.x, colorStart.y, colorStart.z, colorStart.w));
+				skyboxMaterial.SetColor(Graphics::MaterialConstants::startColorProperty, Color(colorStart.x, colorStart.y, colorStart.z, colorStart.w));*/
 
 		}
 		else if (currentItemID == 2)
 		{
 			// Procedural Skybox
-			Graphics::Material& skyboxMaterial = m_RenderEngine->GetMaterial(Graphics::MaterialConstants::skyboxMaterialName);
+		/*	Graphics::Material& skyboxMaterial = m_RenderEngine->GetMaterial(Graphics::MaterialConstants::skyboxMaterialName);
 
 			// Init colors.
 			Color& skyboxStartColor = skyboxMaterial.GetColor(Graphics::MaterialConstants::startColorProperty);
@@ -376,20 +351,20 @@ namespace LinaEditor
 
 			// Update if changing the color.
 			if (isEditingStartColor)
-				skyboxMaterial.SetColor(Graphics::MaterialConstants::startColorProperty, Color(colorStart.x, colorStart.y, colorStart.z, colorStart.w));
+				skyboxMaterial.SetColor(Graphics::MaterialConstants::startColorProperty, Color(colorStart.x, colorStart.y, colorStart.z, colorStart.w));*/
 
 		}
 		else if (currentItemID == 3)
 		{
 			// Cubemap Skybox
-			Graphics::Material& skyboxMaterial = m_RenderEngine->GetMaterial(Graphics::MaterialConstants::skyboxMaterialName);
+		/*	Graphics::Material& skyboxMaterial = m_RenderEngine->GetMaterial(Graphics::MaterialConstants::skyboxMaterialName);
 
 			// Update skybox shader if changed.
 			if (previousCurrentItemID != 3)
 			{
 				previousCurrentItemID = 3;
 				m_RenderEngine->SetMaterialShader(skyboxMaterial, Graphics::ShaderConstants::skyboxCubemapShader);
-			}
+			}*/
 		}
 
 		ImGui::End();
