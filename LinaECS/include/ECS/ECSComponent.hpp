@@ -29,8 +29,11 @@ namespace LinaEngine::ECS
 {
 	class ECSComponent
 	{
-
+	public:
+		ECSComponent() {};
+		virtual ~ECSComponent() {};
 	
+		virtual void func() {};
 	};
 }
 

@@ -166,9 +166,6 @@ void Example1Level::Initialize()
 	camFreeLook.movementSpeedX = camFreeLook.movementSpeedZ = 12.0f;
 	camFreeLook.rotationSpeedX = camFreeLook.rotationSpeedY = 3;
 
-
-
-
 	SamplerParameters woodTextureSampler;
 	woodTextureSampler.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
 	woodTextureSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;

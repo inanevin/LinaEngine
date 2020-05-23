@@ -36,13 +36,13 @@ namespace LinaEditor
 		~ECSPanel() {};
 	
 		virtual void Draw() override;
-		FORCEINLINE void Setup(LinaEngine::ECS::ECSRegistry& registry) { m_ECS = &registry; }
+		void Setup(LinaEngine::ECS::ECSRegistry& registry);
 
 	private:
 
 		void CreateNewEntity();
 		void AddComponentToEntity(int componentID);
-
+		void DrawComponents(LinaEngine::ECS::ECSEntity& entity);
 
 	private:
 

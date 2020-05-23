@@ -36,7 +36,6 @@ namespace LinaEditor
 	{
 		std::string name = "Entity";
 		entt::entity entity;
-		std::vector<LinaEngine::ECS::ECSComponent*> components;
 	};
 
 	namespace Utility

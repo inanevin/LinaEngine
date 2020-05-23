@@ -71,17 +71,31 @@ namespace ImGui
 	}
 }
 
+
 namespace LinaEditor
 {
-
+	using namespace LinaEngine::ECS;
+	using namespace LinaEngine;
 	static bool openModal;
 	const char* entityComponents[] = { "Transform", "Mesh Renderer", "Camera", "Directional Light", "Point Light", "Spot Light", "Free Look" };
+
+	void ECSPanel::Setup(LinaEngine::ECS::ECSRegistry& registry)
+	{
+		m_ECS = &registry;
+
+		registry.each([this](auto entity) {
+			EditorEntity editorEntity;
+			editorEntity.entity = entity;
+			m_EditorEntities.push_back(editorEntity);
+
+		});
+	}
 
 	void ECSPanel::Draw()
 	{
 		if (m_Show)
 		{
-			if(openModal)
+			if (openModal)
 				ImGui::OpenPopup("Component Exists!");
 
 			if (ImGui::BeginPopupModal("Component Exists!", NULL, ImGuiWindowFlags_AlwaysAutoResize))
@@ -145,15 +159,7 @@ namespace LinaEditor
 							ImGui::TextWrapped("No entity is selected.");
 						else
 						{
-							if (m_EditorEntities[m_SelectedEntity].components.size() == 0)
-								ImGui::TextWrapped("This entity doesn't contain any components");
-							else
-							{
-								for (std::vector<LinaEngine::ECS::ECSComponent*>::iterator it = m_EditorEntities[m_SelectedEntity].components.begin(); it != m_EditorEntities[m_SelectedEntity].components.end(); ++it)
-								{
-									// Check component types.
-								}
-							}
+							DrawComponents(m_EditorEntities[m_SelectedEntity].entity);
 						}
 						ImGui::EndTabItem();
 					}
@@ -215,7 +221,6 @@ namespace LinaEditor
 			else
 			{
 				auto& e = m_ECS->emplace<LinaEngine::ECS::TransformComponent>(m_EditorEntities[m_SelectedEntity].entity);
-				m_EditorEntities[m_SelectedEntity].components.push_back(&e);
 			}
 		}
 		else if (componentID == 1)
@@ -225,7 +230,6 @@ namespace LinaEditor
 			else
 			{
 				auto& e = m_ECS->emplace<LinaEngine::ECS::MeshRendererComponent>(m_EditorEntities[m_SelectedEntity].entity);
-				m_EditorEntities[m_SelectedEntity].components.push_back(&e);
 			}
 		}
 		else if (componentID == 2)
@@ -235,7 +239,6 @@ namespace LinaEditor
 			else
 			{
 				auto& e = m_ECS->emplace<LinaEngine::ECS::CameraComponent>(m_EditorEntities[m_SelectedEntity].entity);
-				m_EditorEntities[m_SelectedEntity].components.push_back(&e);
 			}
 
 		}
@@ -246,7 +249,6 @@ namespace LinaEditor
 			else
 			{
 				auto& e = m_ECS->emplace<LinaEngine::ECS::DirectionalLightComponent>(m_EditorEntities[m_SelectedEntity].entity);
-				m_EditorEntities[m_SelectedEntity].components.push_back(&e);
 			}
 
 		}
@@ -257,7 +259,6 @@ namespace LinaEditor
 			else
 			{
 				auto& e = m_ECS->emplace<LinaEngine::ECS::PointLightComponent>(m_EditorEntities[m_SelectedEntity].entity);
-				m_EditorEntities[m_SelectedEntity].components.push_back(&e);
 			}
 
 		}
@@ -268,7 +269,6 @@ namespace LinaEditor
 			else
 			{
 				auto& e = m_ECS->emplace<LinaEngine::ECS::SpotLightComponent>(m_EditorEntities[m_SelectedEntity].entity);
-				m_EditorEntities[m_SelectedEntity].components.push_back(&e);
 			}
 
 		}
@@ -279,10 +279,41 @@ namespace LinaEditor
 			else
 			{
 				auto& e = m_ECS->emplace<LinaEngine::ECS::FreeLookComponent>(m_EditorEntities[m_SelectedEntity].entity);
-				m_EditorEntities[m_SelectedEntity].components.push_back(&e);
 			}
 		}
-	
+
+	}
+
+	void ECSPanel::DrawComponents(LinaEngine::ECS::ECSEntity& entity)
+	{
+		if (!m_ECS->any<TransformComponent, MeshRendererComponent, CameraComponent, DirectionalLightComponent, SpotLightComponent, PointLightComponent, FreeLookComponent>(entity))
+			ImGui::TextWrapped("This entity doesn't contain any components");
+
+		if (m_ECS->has<TransformComponent>(entity))
+		{
+			TransformComponent* transform = &m_ECS->get<TransformComponent>(entity);
+
+			if (ImGui::CollapsingHeader("Transform Component", ImGuiTreeNodeFlags_None))
+			{
+				ImGui::Indent();
+
+				static float location[3] = { 0,0,0 };
+				static float rotation[3] = { 0,0,0 };
+				static float scale[3] = { 0,0,0 };
+				ImGui::InputFloat3("Location", location);
+				ImGui::Separator();
+				ImGui::InputFloat3("Rotation", rotation);
+				ImGui::Separator();
+				ImGui::InputFloat3("Scale", scale);
+				transform->transform.location = Vector3(location[0], location[1], location[2]);
+				transform->transform.scale = Vector3(scale[0], scale[1], scale[2]);
+				transform->transform.rotation = Quaternion::Euler(Vector3(rotation[0], rotation[1], rotation[2]));
+				ImGui::Unindent();
+			}
+		}
+
+
+
 	}
 
 }
