@@ -32,6 +32,9 @@ Timestamp: 5/23/2020 4:15:24 PM
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
 #include "imgui_internal.h"
+#include "entt/meta/meta.hpp"
+#include "entt/meta/factory.hpp"
+#include "entt/meta/resolve.hpp"
 
 
 namespace ImGui
@@ -106,6 +109,8 @@ namespace LinaEditor
 			}
 
 			ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
+			ImGui::SetNextWindowBgAlpha(0.2f);
+		//	ImGui::SetNextWindowPos(ImVec2(0, 0));
 			if (ImGui::Begin("ECS Panel", &m_Show))
 			{
 				static int componentsComboCurrentItem = 0;
@@ -128,6 +133,7 @@ namespace LinaEditor
 					ImGui::EndPopup();
 				}
 
+				static bool anyItemHovered = false;
 
 				for (int i = 0; i < m_EditorEntities.size(); i++)
 				{
@@ -138,10 +144,11 @@ namespace LinaEditor
 						m_EditorEntities[i].name = selectedEntityName;
 					}
 
-					if (!ImGui::IsItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 					{
 						m_SelectedEntity = -1;
 					}
+
 				}
 
 				ImGui::EndChild();
@@ -153,14 +160,16 @@ namespace LinaEditor
 
 				if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
 				{
-					if (ImGui::BeginTabItem("Component View"))
+					std::string selectedName = m_SelectedEntity == -1 ? "Component View" : "Component View: " + m_EditorEntities[m_SelectedEntity].name;
+					char titleName[256];
+					strcpy(titleName, selectedName.c_str());
+
+					if (ImGui::BeginTabItem(titleName))
 					{
 						if (m_SelectedEntity == -1)
 							ImGui::TextWrapped("No entity is selected.");
 						else
-						{
 							DrawComponents(m_EditorEntities[m_SelectedEntity].entity);
-						}
 						ImGui::EndTabItem();
 					}
 
@@ -212,6 +221,8 @@ namespace LinaEditor
 	void ECSPanel::AddComponentToEntity(int componentID)
 	{
 		if (m_SelectedEntity == -1 || m_SelectedEntity >= m_EditorEntities.size()) return;
+
+
 		bool open = true;
 		// Add the indexed component to target entity.
 		if (componentID == 0)
@@ -297,17 +308,18 @@ namespace LinaEditor
 			{
 				ImGui::Indent();
 
-				static float location[3] = { 0,0,0 };
-				static float rotation[3] = { 0,0,0 };
-				static float scale[3] = { 0,0,0 };
-				ImGui::InputFloat3("Location", location);
+				float location[3] = { transform->transform.location.x, transform->transform.location.y, transform->transform.location.z };
+				float rotation[3] = { transform->transform.rotation.GetEuler().x,transform->transform.rotation.GetEuler().y,transform->transform.rotation.GetEuler().z };
+				float scale[3] = { transform->transform.scale.x, transform->transform.scale.y, transform->transform.scale.z};
+				ImGui::DragFloat3("Location", location);
 				ImGui::Separator();
-				ImGui::InputFloat3("Rotation", rotation);
+				ImGui::DragFloat3("Rotation", rotation);
 				ImGui::Separator();
-				ImGui::InputFloat3("Scale", scale);
+				ImGui::DragFloat3("Scale", scale);
 				transform->transform.location = Vector3(location[0], location[1], location[2]);
 				transform->transform.scale = Vector3(scale[0], scale[1], scale[2]);
 				transform->transform.rotation = Quaternion::Euler(Vector3(rotation[0], rotation[1], rotation[2]));
+				LINA_CLIENT_INFO("{0}", transform->transform.location.ToString());
 				ImGui::Unindent();
 			}
 		}

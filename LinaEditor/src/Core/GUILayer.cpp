@@ -82,6 +82,8 @@ namespace LinaEditor
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 
+		io.Fonts->AddFontFromFileTTF("resources/fonts/editorFont.ttf", 20.0f, NULL, io.Fonts->GetGlyphRangesDefault())->Scale = 0.75f;
+		
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls

@@ -27,6 +27,8 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "ECS/Components/LightComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
+#include <entt/meta/meta.hpp>
+#include <entt/meta/factory.hpp>
 
 
 namespace LinaEngine
@@ -56,8 +58,6 @@ namespace LinaEngine
 		m_RenderEngine.GetMainWindow().SetKeyCallback(m_KeyCallback);
 		m_RenderEngine.GetMainWindow().SetMouseCallback(m_MouseCallback);
 	
-		// Get ECS Registry
-		m_ECS = entt::registry();
 
 		// Initialize engines.
 		m_InputEngine.Initialize(m_RenderEngine.GetNativeWindow());
