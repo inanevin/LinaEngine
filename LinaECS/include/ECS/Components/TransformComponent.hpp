@@ -24,10 +24,11 @@ Timestamp: 4/9/2019 1:28:05 PM
 
 
 #include "Utility/Math/Transformation.hpp"
+#include "ECS/ECSComponent.hpp"
 
 namespace LinaEngine::ECS
 {
-	struct TransformComponent
+	struct TransformComponent : public ECSComponent
 	{
 		LinaEngine::Transformation transform;
 	};

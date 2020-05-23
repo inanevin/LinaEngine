@@ -13,42 +13,24 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: ECSPanel
-Timestamp: 5/23/2020 4:15:06 PM
+Class: ECSComponent
+Timestamp: 5/23/2020 5:17:02 PM
 
 */
 #pragma once
 
-#ifndef ECSPanel_HPP
-#define ECSPanel_HPP
+#ifndef ECSComponent_HPP
+#define ECSComponent_HPP
 
-#include "Panels/EditorPanel.hpp"
-#include "Utility/EditorUtility.hpp"
+// Headers here.
 
-namespace LinaEditor
+
+namespace LinaEngine::ECS
 {
-	class ECSPanel : public EditorPanel
+	class ECSComponent
 	{
-		
-	public:
-		
-		ECSPanel() {};
-		~ECSPanel() {};
+
 	
-		virtual void Draw() override;
-		FORCEINLINE void Setup(LinaEngine::ECS::ECSRegistry& registry) { m_ECS = &registry; }
-
-	private:
-
-		void CreateNewEntity();
-		void AddComponentToEntity(int componentID);
-
-
-	private:
-
-		LinaEngine::ECS::ECSRegistry* m_ECS;
-		std::vector<EditorEntity> m_EditorEntities;
-		int m_SelectedEntity = -1;
 	};
 }
 

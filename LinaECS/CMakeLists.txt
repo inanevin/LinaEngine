@@ -34,6 +34,7 @@ set(LINAECS_HEADERS
 	include/ECS/Components/TransformComponent.hpp
 	include/ECS/ECSSystem.hpp
 	include/ECS/ECS.hpp
+	include/ECS/ECSComponent.hpp
 )
 
 if(NOT LINA_SHARED_ECS)

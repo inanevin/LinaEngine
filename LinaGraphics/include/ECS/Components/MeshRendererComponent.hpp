@@ -22,6 +22,7 @@ Timestamp: 4/14/2019 1:37:59 AM
 #ifndef RenderableMeshComponent_HPP
 #define RenderableMeshComponent_HPP
 #include "Core/SizeDefinitions.hpp"
+#include "ECS/ECSComponent.hpp"
 
 
 
@@ -41,7 +42,7 @@ namespace LinaEngine
 
 namespace LinaEngine::ECS
 {
-	struct MeshRendererComponent
+	struct MeshRendererComponent : public ECSComponent
 	{
 		LinaEngine::Graphics::Mesh* mesh = nullptr;
 		LinaEngine::Graphics::Material* material = nullptr;

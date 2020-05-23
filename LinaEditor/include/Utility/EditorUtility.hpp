@@ -23,19 +23,20 @@ Timestamp: 5/9/2020 1:22:23 AM
 #define EditorUtility_HPP
 
 // Headers here.
-
+#include "ECS/ECS.hpp"
+#include "ECS/ECSComponent.hpp"
 #include <string>
 #include <vector>
-#include "ECS/ECS.hpp"
+#include <map>
 
 
 namespace LinaEditor
 {
-
 	struct EditorEntity
 	{
 		std::string name = "Entity";
 		entt::entity entity;
+		std::vector<LinaEngine::ECS::ECSComponent*> components;
 	};
 
 	namespace Utility

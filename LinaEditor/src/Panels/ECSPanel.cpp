@@ -20,6 +20,12 @@ Timestamp: 5/23/2020 4:15:24 PM
 
 
 #include "Panels/ECSPanel.hpp"
+#include "Utility/Log.hpp"
+#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/CameraComponent.hpp"
+#include "ECS/Components/LightComponent.hpp"
+#include "ECS/Components/FreeLookComponent.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
 #include "imgui.h"
 #include "ImGuiFileBrowser.h"
 #include "imgui_impl_glfw.h"
@@ -67,19 +73,34 @@ namespace ImGui
 
 namespace LinaEditor
 {
+
+	static bool openModal;
+	const char* entityComponents[] = { "Transform", "Mesh Renderer", "Camera", "Directional Light", "Point Light", "Spot Light", "Free Look" };
+
 	void ECSPanel::Draw()
 	{
 		if (m_Show)
 		{
-			ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
-			if (ImGui::Begin("ECS Panel", &m_Show, ImGuiWindowFlags_MenuBar))
-			{
+			if(openModal)
+				ImGui::OpenPopup("Component Exists!");
 
-				static int selected = 0;
-				// Left
+			if (ImGui::BeginPopupModal("Component Exists!", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				ImGui::Text("This component already exists!\n\n");
+				if (ImGui::Button("OK", ImVec2(120, 0))) { openModal = false; ImGui::CloseCurrentPopup(); }
+				ImGui::EndPopup();
+			}
+
+			ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
+			if (ImGui::Begin("ECS Panel", &m_Show))
+			{
+				static int componentsComboCurrentItem = 0;
+				static char selectedEntityName[256] = "Entity";
+
 
 				ImGui::BeginChild("left pane", ImVec2(150, 0), true);
 
+				// Handle Right Click.
 				if (ImGui::BeginPopupContextWindow())
 				{
 					if (ImGui::BeginMenu("Create"))
@@ -88,54 +109,87 @@ namespace LinaEditor
 						{
 							CreateNewEntity();
 						}
-
 						ImGui::EndMenu();
 					}
 					ImGui::EndPopup();
 				}
 
-				static char selectedEntityName[256] = "Entity";
 
 				for (int i = 0; i < m_EditorEntities.size(); i++)
 				{
 					strcpy(selectedEntityName, m_EditorEntities[i].name.c_str());
-
-
-					if (ImGui::SelectableInput("entSelectable" + i, m_SelectedEntity == i, ImGuiSelectableFlags_SelectOnRelease, selectedEntityName, IM_ARRAYSIZE(selectedEntityName)))
+					if (ImGui::SelectableInput("entSelectable" + i, m_SelectedEntity == i, ImGuiSelectableFlags_SelectOnClick, selectedEntityName, IM_ARRAYSIZE(selectedEntityName)))
 					{
 						m_SelectedEntity = i;
 						m_EditorEntities[i].name = selectedEntityName;
 					}
 
+					if (!ImGui::IsItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					{
+						m_SelectedEntity = -1;
+					}
 				}
 
 				ImGui::EndChild();
-
 				ImGui::SameLine();
 
 				// Right
 				ImGui::BeginGroup();
-				ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
-				ImGui::Text("MyObject: %d", selected);
-				ImGui::Separator();
+				ImGui::BeginChild("Component View", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
+
 				if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
 				{
-					if (ImGui::BeginTabItem("Description"))
+					if (ImGui::BeginTabItem("Component View"))
 					{
-						ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ");
+						if (m_SelectedEntity == -1)
+							ImGui::TextWrapped("No entity is selected.");
+						else
+						{
+							if (m_EditorEntities[m_SelectedEntity].components.size() == 0)
+								ImGui::TextWrapped("This entity doesn't contain any components");
+							else
+							{
+								for (std::vector<LinaEngine::ECS::ECSComponent*>::iterator it = m_EditorEntities[m_SelectedEntity].components.begin(); it != m_EditorEntities[m_SelectedEntity].components.end(); ++it)
+								{
+									// Check component types.
+								}
+							}
+						}
 						ImGui::EndTabItem();
 					}
-					if (ImGui::BeginTabItem("Details"))
-					{
-						ImGui::Text("ID: 0123456789");
-						ImGui::EndTabItem();
-					}
+
 					ImGui::EndTabBar();
 				}
 				ImGui::EndChild();
-				if (ImGui::Button("Revert")) {}
-				ImGui::SameLine();
-				if (ImGui::Button("Save")) {}
+
+				if (m_SelectedEntity != -1)
+				{
+					if (ImGui::Button("Add Component"))
+					{
+						AddComponentToEntity(componentsComboCurrentItem);
+					}
+
+					ImGui::SameLine();
+
+					static ImGuiComboFlags flags = 0;
+					const char* combo_label = entityComponents[componentsComboCurrentItem];  // Label to preview before opening the combo (technically could be anything)(
+					if (ImGui::BeginCombo("ComponentsCombo", combo_label, flags))
+					{
+						for (int n = 0; n < IM_ARRAYSIZE(entityComponents); n++)
+						{
+							const bool is_selected = (componentsComboCurrentItem == n);
+							if (ImGui::Selectable(entityComponents[n], is_selected))
+								componentsComboCurrentItem = n;
+
+							// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+							if (is_selected)
+								ImGui::SetItemDefaultFocus();
+						}
+						ImGui::EndCombo();
+					}
+				}
+
+
 				ImGui::EndGroup();
 			}
 			ImGui::End();
@@ -148,4 +202,87 @@ namespace LinaEditor
 		editorEntity.entity = m_ECS->create();
 		m_EditorEntities.push_back(editorEntity);
 	}
+
+	void ECSPanel::AddComponentToEntity(int componentID)
+	{
+		if (m_SelectedEntity == -1 || m_SelectedEntity >= m_EditorEntities.size()) return;
+		bool open = true;
+		// Add the indexed component to target entity.
+		if (componentID == 0)
+		{
+			if (m_ECS->has<LinaEngine::ECS::TransformComponent>(m_EditorEntities[m_SelectedEntity].entity))
+				openModal = true;
+			else
+			{
+				auto& e = m_ECS->emplace<LinaEngine::ECS::TransformComponent>(m_EditorEntities[m_SelectedEntity].entity);
+				m_EditorEntities[m_SelectedEntity].components.push_back(&e);
+			}
+		}
+		else if (componentID == 1)
+		{
+			if (m_ECS->has<LinaEngine::ECS::MeshRendererComponent>(m_EditorEntities[m_SelectedEntity].entity))
+				openModal = true;
+			else
+			{
+				auto& e = m_ECS->emplace<LinaEngine::ECS::MeshRendererComponent>(m_EditorEntities[m_SelectedEntity].entity);
+				m_EditorEntities[m_SelectedEntity].components.push_back(&e);
+			}
+		}
+		else if (componentID == 2)
+		{
+			if (m_ECS->has<LinaEngine::ECS::CameraComponent>(m_EditorEntities[m_SelectedEntity].entity))
+				openModal = true;
+			else
+			{
+				auto& e = m_ECS->emplace<LinaEngine::ECS::CameraComponent>(m_EditorEntities[m_SelectedEntity].entity);
+				m_EditorEntities[m_SelectedEntity].components.push_back(&e);
+			}
+
+		}
+		else if (componentID == 3)
+		{
+			if (m_ECS->has<LinaEngine::ECS::DirectionalLightComponent>(m_EditorEntities[m_SelectedEntity].entity))
+				openModal = true;
+			else
+			{
+				auto& e = m_ECS->emplace<LinaEngine::ECS::DirectionalLightComponent>(m_EditorEntities[m_SelectedEntity].entity);
+				m_EditorEntities[m_SelectedEntity].components.push_back(&e);
+			}
+
+		}
+		else if (componentID == 4)
+		{
+			if (m_ECS->has<LinaEngine::ECS::PointLightComponent>(m_EditorEntities[m_SelectedEntity].entity))
+				openModal = true;
+			else
+			{
+				auto& e = m_ECS->emplace<LinaEngine::ECS::PointLightComponent>(m_EditorEntities[m_SelectedEntity].entity);
+				m_EditorEntities[m_SelectedEntity].components.push_back(&e);
+			}
+
+		}
+		else if (componentID == 5)
+		{
+			if (m_ECS->has<LinaEngine::ECS::SpotLightComponent>(m_EditorEntities[m_SelectedEntity].entity))
+				openModal = true;
+			else
+			{
+				auto& e = m_ECS->emplace<LinaEngine::ECS::SpotLightComponent>(m_EditorEntities[m_SelectedEntity].entity);
+				m_EditorEntities[m_SelectedEntity].components.push_back(&e);
+			}
+
+		}
+		else if (componentID == 6)
+		{
+			if (m_ECS->has<LinaEngine::ECS::FreeLookComponent>(m_EditorEntities[m_SelectedEntity].entity))
+				openModal = true;
+			else
+			{
+				auto& e = m_ECS->emplace<LinaEngine::ECS::FreeLookComponent>(m_EditorEntities[m_SelectedEntity].entity);
+				m_EditorEntities[m_SelectedEntity].components.push_back(&e);
+			}
+		}
+	
+	}
+
 }
