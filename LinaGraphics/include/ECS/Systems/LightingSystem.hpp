@@ -22,7 +22,7 @@ Timestamp: 5/13/2019 12:49:19 AM
 #ifndef LightingSystem_HPP
 #define LightingSystem_HPP
 
-#include "ECS/ECSSystem.hpp"
+#include "ECS/ECS.hpp"
 #include "Utility/Math/Color.hpp"
 #include "Utility/Math/Vector.hpp"
 #include "ECS/Components/TransformComponent.hpp"

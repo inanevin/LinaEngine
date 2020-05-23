@@ -27,6 +27,7 @@ set (LINAENGINE_SOURCES
 	# CORE
     src/Core/Application.cpp
 	src/Core/Time.cpp
+	src/World/Level.cpp
 
 	#Interfaces
 		

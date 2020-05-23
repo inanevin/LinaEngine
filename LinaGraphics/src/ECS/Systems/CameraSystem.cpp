@@ -28,7 +28,7 @@ namespace LinaEngine::ECS
 
 	void CameraSystem::UpdateComponents(float delta)
 	{
-		auto view = m_Registry->reg.view<TransformComponent, CameraComponent>();
+		auto view = m_Registry->view<TransformComponent, CameraComponent>();
 
 
 		for (auto entity : view)

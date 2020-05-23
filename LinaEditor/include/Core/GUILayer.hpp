@@ -18,6 +18,7 @@ Class: UILayer
 
 #include "Core/Layer.hpp"
 #include "Rendering/RenderEngine.hpp"
+#include "ECS/ECSSystem.hpp"
 #include <vector>
 
 namespace LinaEngine
@@ -34,6 +35,12 @@ namespace LinaEditor
 		std::string name;
 		std::string path;
 		ContentFolder* parent;
+	};
+
+	struct EditorEntity
+	{
+		std::string name;
+		entt::entity entity;
 	};
 
 	class GUILayer : public LinaEngine::Layer
@@ -53,9 +60,12 @@ namespace LinaEditor
 		void OnEvent() override;
 
 		// CLASS METHODS
-		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& engine, LinaEngine::Application* application) { m_RenderEngine = &engine; m_Application = application; }
+		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& engine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& m_ECS) { m_RenderEngine = &engine; m_Application = application; }
 
 	private:
+
+		// Draws panel for entities.
+		void DrawEntitiesPanel();
 
 		// Draws a central docking space.
 		void DrawCentralDockingSpace();
@@ -74,6 +84,11 @@ namespace LinaEditor
 
 		// Checks the project content folder for new files.
 		void ReadProjectContentsFolder();
+
+	private:
+
+
+		void CreateNewEntity();
 
 	private:
 

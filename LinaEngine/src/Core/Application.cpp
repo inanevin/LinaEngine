@@ -57,7 +57,7 @@ namespace LinaEngine
 		m_RenderEngine.GetMainWindow().SetMouseCallback(m_MouseCallback);
 	
 		// Get ECS Registry
-		m_ECS.reg = entt::registry();
+		m_ECS = entt::registry();
 
 		// Initialize engines.
 		m_InputEngine.Initialize(m_RenderEngine.GetNativeWindow());

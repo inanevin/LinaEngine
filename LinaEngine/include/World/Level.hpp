@@ -23,15 +23,11 @@ Timestamp: 5/6/2019 5:10:23 PM
 #define Level_HPP
 
 #include "Core/Common.hpp"
+#include "ECS/ECS.hpp"
 
 namespace LinaEngine
 {
 	class Application;
-
-	namespace ECS
-	{
-		class ECSRegistry;
-	}
 
 	namespace Graphics
 	{
@@ -61,6 +57,7 @@ namespace LinaEngine::World
 		virtual void Install() {};
 		virtual void Initialize() {};
 		virtual void Tick(float delta) {};
+
 
 	protected:
 

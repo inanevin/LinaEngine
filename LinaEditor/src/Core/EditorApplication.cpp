@@ -31,10 +31,10 @@ namespace LinaEditor
 			LINA_CLIENT_TRACE("[Constructor] -> Editor Application ({0})", typeid(*this).name());
 
 			// Create layer
-			GUILayer* layer = new LinaEditor::GUILayer();
+			layer = new LinaEditor::GUILayer();
 
 			// Setup layer
-			layer->Setup(GetRenderEngine(), this);
+			layer->Setup(GetRenderEngine(), this, GetECSREgistry());
 
 			// Load startup level.
 			LoadLevel(&m_StartupLevel);
@@ -47,11 +47,12 @@ namespace LinaEditor
 		}
 		~EditorApplication() {
 			LINA_CLIENT_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
+			delete layer;
 		}
 
 	private:
 
-		// Startup level.
+		GUILayer* layer;
 		Example1Level m_StartupLevel;
 
 	};

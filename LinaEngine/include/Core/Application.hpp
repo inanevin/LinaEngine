@@ -62,6 +62,9 @@ namespace LinaEngine
 
 		 // Get render engine
 		 FORCEINLINE LinaEngine::Graphics::RenderEngine& GetRenderEngine() { return m_RenderEngine; }
+		 FORCEINLINE LinaEngine::Input::InputEngine& GetInputEngine() { return m_InputEngine; }
+		 FORCEINLINE LinaEngine::Physics::PhysicsEngine& GetPhysicsngine() { return m_PhysicsEngine; }
+		 FORCEINLINE LinaEngine::ECS::ECSRegistry& GetECSREgistry() { return m_ECS; }
 
 	private:
 

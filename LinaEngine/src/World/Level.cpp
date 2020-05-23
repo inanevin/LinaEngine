@@ -13,16 +13,14 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: ECS
-Timestamp: 5/13/2020 11:49:35 PM
+Class: Level
+Timestamp: 5/23/2020 2:23:02 PM
 
 */
-#pragma once
 
-#ifndef LINAECS_HPP
-#define LINAECS_HPP
+#include "World/Level.hpp"
 
-// Headers here.
-#include "ECS/ECSSystem.hpp"
-
-#endif
+namespace LinaEngine::World
+{
+	
+}

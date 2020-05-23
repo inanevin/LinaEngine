@@ -53,6 +53,8 @@ namespace LinaEditor
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
+		DrawEntitiesPanel();
+
 		ImGui::ShowDemoWindow();
 
 		// Rendering
@@ -101,6 +103,15 @@ namespace LinaEditor
 		ImGui::DestroyContext();
 	}
 
+
+	void GUILayer::DrawEntitiesPanel()
+	{
+		ImGui::Begin("Scene Entities");
+
+		// Draw a list of entities.
+
+		ImGui::End();
+	}
 
 	void GUILayer::DrawCentralDockingSpace()
 	{
@@ -520,6 +531,11 @@ namespace LinaEditor
 			m_ContentFolders.push_back(folder);
 		}
 
+	}
+
+	void GUILayer::CreateNewEntity()
+	{
+		
 	}
 
 }

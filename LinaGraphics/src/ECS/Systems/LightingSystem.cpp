@@ -36,7 +36,7 @@ namespace LinaEngine::ECS
 		spotLights.clear();
 
 		// Set directional light.
-		auto& dirLightView = m_Registry->reg.view<TransformComponent, DirectionalLightComponent>();
+		auto& dirLightView = m_Registry->view<TransformComponent, DirectionalLightComponent>();
 		for (auto& entity : dirLightView)
 		{
 			std::get<0>(directionalLight) = &dirLightView.get<TransformComponent>(entity);
@@ -44,12 +44,12 @@ namespace LinaEngine::ECS
 		}
 
 		// Set point lights.
-		auto& pointLightView = m_Registry->reg.view<TransformComponent, PointLightComponent>();
+		auto& pointLightView = m_Registry->view<TransformComponent, PointLightComponent>();
 		for (auto it = pointLightView.begin(); it != pointLightView.end(); ++it)
 			pointLights.push_back(std::make_pair(&pointLightView.get<TransformComponent>(*it), &pointLightView.get<PointLightComponent>(*it)));
 
 		// Set Spot lights.
-		auto& spotLightView = m_Registry->reg.view<TransformComponent, SpotLightComponent>();
+		auto& spotLightView = m_Registry->view<TransformComponent, SpotLightComponent>();
 		for (auto it = spotLightView.begin(); it != spotLightView.end(); ++it)
 			spotLights.push_back(std::make_pair(&spotLightView.get<TransformComponent>(*it), &spotLightView.get<SpotLightComponent>(*it)));
 	}
@@ -69,7 +69,7 @@ namespace LinaEngine::ECS
 
 
 		// Iterate point lights.
-		auto& pointLightView = m_Registry->reg.view<TransformComponent, PointLightComponent>();
+		auto& pointLightView = m_Registry->view<TransformComponent, PointLightComponent>();
 		int currentPointLightCount = 0;
 
 		for (std::vector<std::tuple<TransformComponent*, PointLightComponent*>>::iterator it = pointLights.begin(); it != pointLights.end(); ++it)
@@ -83,7 +83,7 @@ namespace LinaEngine::ECS
 		}
 
 		// Iterate Spot lights.
-		auto& spotLightView = m_Registry->reg.view<TransformComponent, SpotLightComponent>();
+		auto& spotLightView = m_Registry->view<TransformComponent, SpotLightComponent>();
 		int currentSpotLightCount = 0;
 
 		for (std::vector<std::tuple<TransformComponent*, SpotLightComponent*>>::iterator it = spotLights.begin(); it != spotLights.end(); ++it)
