@@ -13,49 +13,42 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: EditorUtility
-Timestamp: 5/9/2020 1:22:23 AM
+Class: ECSPanel
+Timestamp: 5/23/2020 4:15:06 PM
 
 */
 #pragma once
 
-#ifndef EditorUtility_HPP
-#define EditorUtility_HPP
+#ifndef ECSPanel_HPP
+#define ECSPanel_HPP
 
-// Headers here.
-
-#include <string>
-#include <vector>
-#include "ECS/ECS.hpp"
-
+#include "Panels/EditorPanel.hpp"
+#include "Utility/EditorUtility.hpp"
 
 namespace LinaEditor
 {
-
-	struct EditorEntity
+	class ECSPanel : public EditorPanel
 	{
-		std::string name = "Entity";
-		entt::entity entity;
+		
+	public:
+		
+		ECSPanel() {};
+		~ECSPanel() {};
+	
+		virtual void Draw() override;
+		FORCEINLINE void Setup(LinaEngine::ECS::ECSRegistry& registry) { m_ECS = &registry; }
+
+	private:
+
+		void CreateNewEntity();
+
+
+	private:
+
+		LinaEngine::ECS::ECSRegistry* m_ECS;
+		std::vector<EditorEntity> m_EditorEntities;
+		int m_SelectedEntity;
 	};
-
-	namespace Utility
-	{
-		class EditorUtility
-		{
-
-		public:
-
-			EditorUtility();
-			~EditorUtility();
-
-			static bool CreateFolderInPath(const std::string& path);
-			static bool GetDirectories(std::vector<std::string>& vec, const std::string& path);
-		private:
-
-		};
-	}
-
 }
-
 
 #endif

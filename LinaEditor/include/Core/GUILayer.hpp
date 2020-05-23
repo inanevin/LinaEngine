@@ -19,6 +19,7 @@ Class: UILayer
 #include "Core/Layer.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "ECS/ECSSystem.hpp"
+#include "Panels/ECSPanel.hpp"
 #include <vector>
 
 namespace LinaEngine
@@ -37,11 +38,6 @@ namespace LinaEditor
 		ContentFolder* parent;
 	};
 
-	struct EditorEntity
-	{
-		std::string name = "Entity";
-		entt::entity entity;
-	};
 
 	class GUILayer : public LinaEngine::Layer
 	{
@@ -64,9 +60,6 @@ namespace LinaEditor
 
 	private:
 
-		// Draws panel for entities.
-		void DrawECSPanel(bool* isOpen);
-
 		// Draws a central docking space.
 		void DrawCentralDockingSpace();
 
@@ -85,8 +78,6 @@ namespace LinaEditor
 	private:
 
 
-		void CreateNewEntity();
-
 	private:
 
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine;
@@ -94,7 +85,8 @@ namespace LinaEditor
 		LinaEngine::Application* m_Application;
 		std::vector<ContentFolder> m_ContentFolders;
 
-		std::vector<EditorEntity> m_EditorEntities;
+
+		ECSPanel m_ECSPanel;
 
 	};
 }

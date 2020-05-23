@@ -13,49 +13,37 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: EditorUtility
-Timestamp: 5/9/2020 1:22:23 AM
+Class: EditorPanel
+Timestamp: 5/23/2020 4:16:05 PM
 
 */
 #pragma once
 
-#ifndef EditorUtility_HPP
-#define EditorUtility_HPP
+#ifndef EditorPanel_HPP
+#define EditorPanel_HPP
 
 // Headers here.
-
-#include <string>
-#include <vector>
-#include "ECS/ECS.hpp"
-
+#include "Core/Common.hpp"
 
 namespace LinaEditor
 {
-
-	struct EditorEntity
+	class EditorPanel
 	{
-		std::string name = "Entity";
-		entt::entity entity;
+		
+	public:
+		
+		EditorPanel() {};
+		~EditorPanel() {};
+	
+		virtual FORCEINLINE void Open() { m_Show = true; }
+		virtual FORCEINLINE void Close() { m_Show = false; }
+		virtual void Draw() = 0;
+		FORCEINLINE bool* GetShow() { return &m_Show; }
+
+	protected:
+	
+		bool m_Show = false;
 	};
-
-	namespace Utility
-	{
-		class EditorUtility
-		{
-
-		public:
-
-			EditorUtility();
-			~EditorUtility();
-
-			static bool CreateFolderInPath(const std::string& path);
-			static bool GetDirectories(std::vector<std::string>& vec, const std::string& path);
-		private:
-
-		};
-	}
-
 }
-
 
 #endif

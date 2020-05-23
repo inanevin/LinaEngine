@@ -25,6 +25,8 @@ src/Core/GUILayer.cpp
 src/Core/EditorCommon.cpp
 src/Core/imgui/imgui_impl_opengl3.cpp
 src/Core/imgui/imgui_impl_glfw.cpp
+src/Panels/EditorPanel.cpp
+src/Panels/ECSPanel.cpp
 src/Levels/Example1Level.cpp
 src/Utility/EditorUtility.cpp
 
@@ -34,7 +36,8 @@ set(LINAEDITOR_HEADERS
 include/Core/GUILayer.hpp
 include/Core/EditorCommon.hpp
 include/Levels/Example1Level.hpp
-
+include/Panels/EditorPanel.hpp
+include/Panels/ECSPanel.hpp
 include/Utility/EditorUtility.hpp
 CMakeLists.txt
 

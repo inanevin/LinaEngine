@@ -42,50 +42,6 @@ static bool rightClickedContentBrowser = false;
 static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 static bool isECSPanelOpen;
 
-namespace ImGui
-{
-	bool SelectableInput(const char* str_id, bool selected, ImGuiSelectableFlags flags, char* buf, size_t buf_size)
-	{
-		ImGuiContext& g = *GImGui;
-		ImGuiWindow* window = g.CurrentWindow;
-		ImVec2 pos_before = window->DC.CursorPos;
-
-		PushID(str_id);
-		PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(g.Style.ItemSpacing.x, g.Style.FramePadding.y * 2.0f));
-		bool ret = Selectable("##Selectable", selected, flags | ImGuiSelectableFlags_AllowDoubleClick | ImGuiSelectableFlags_AllowItemOverlap);
-		PopStyleVar();
-
-		ImGuiID id = window->GetID("##Input");
-		bool temp_input_is_active = TempInputIsActive(id);
-		bool temp_input_start = ret ? IsMouseDoubleClicked(0) : false;
-
-		if (temp_input_start)
-			SetActiveID(id, window);
-
-		if (temp_input_is_active || temp_input_start)
-		{
-			ImVec2 pos_after = window->DC.CursorPos;
-			window->DC.CursorPos = pos_before;
-			ret = TempInputText(window->DC.LastItemRect, id, "##Input", buf, (int)buf_size, ImGuiInputTextFlags_None);
-			window->DC.CursorPos = pos_after;
-		}
-		else
-		{
-			window->DrawList->AddText(pos_before, GetColorU32(ImGuiCol_Text), buf);
-		}
-
-		PopID();
-		return ret;
-	}
-}
-
-
-
-
-
-
-
-
 
 namespace LinaEditor
 {
@@ -97,7 +53,7 @@ namespace LinaEditor
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		DrawECSPanel(&isECSPanelOpen);
+		m_ECSPanel.Draw();
 
 		ImGui::ShowDemoWindow();
 
@@ -135,6 +91,10 @@ namespace LinaEditor
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init();
 
+		// setup panels, windows etc.
+		m_ECSPanel.Setup(*m_ECS);
+		m_ECSPanel.Open();
+
 	}
 
 	void GUILayer::OnDetach()
@@ -147,113 +107,6 @@ namespace LinaEditor
 		ImGui::DestroyContext();
 	}
 
-
-	void GUILayer::DrawECSPanel(bool* isOpen)
-	{
-		ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
-		if (ImGui::Begin("ECS Panel", isOpen, ImGuiWindowFlags_MenuBar))
-		{
-			
-			static int selected = 0;
-			// Left
-
-			ImGui::BeginChild("left pane", ImVec2(150, 0), true);
-
-			if (ImGui::BeginPopupContextWindow())
-			{
-				if (ImGui::BeginMenu("Create"))
-				{
-					if (ImGui::MenuItem("Entity"))
-					{
-						CreateNewEntity();
-					}
-
-					ImGui::EndMenu();
-				}
-				ImGui::EndPopup();
-			}
-
-			static int selectedEntity = -1;
-			static char selectedEntityName[256] = "Entity";
-
-			for (int i = 0; i < m_EditorEntities.size(); i++)
-			{
-				strcpy(selectedEntityName, m_EditorEntities[i].name.c_str());
-
-				
-				if (ImGui::SelectableInput("entSelectable"+i, selectedEntity == i, ImGuiSelectableFlags_SelectOnRelease, selectedEntityName, IM_ARRAYSIZE(selectedEntityName)))
-				{
-					selectedEntity = i;
-					m_EditorEntities[i].name = selectedEntityName;
-				}
-
-
-				/*if (i != selectedEntity)
-				{
-					if (ImGui::Selectable(m_EditorEntities[i].name.c_str(), selectedEntity == i))
-					{
-						selectedEntity = i;
-						editingEntityName = true;
-					}
-				}
-				else
-				{
-
-					char label[128];
-					sprintf(label, "sa", i);
-					if (ImGui::InputText("Name: ", label, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll))
-					{
-
-					}
-				}*/
-
-			
-			
-			}
-
-			/*for (int i = 0; i < 100; i++)
-			{
-				char label[128];
-				sprintf(label, "MyObject %d", i);
-				if (ImGui::Selectable(label, selected == i))
-					selected = i;
-
-
-			}*/
-
-
-
-			ImGui::EndChild();
-
-			ImGui::SameLine();
-
-			// Right
-			ImGui::BeginGroup();
-			ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
-			ImGui::Text("MyObject: %d", selected);
-			ImGui::Separator();
-			if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
-			{
-				if (ImGui::BeginTabItem("Description"))
-				{
-					ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ");
-					ImGui::EndTabItem();
-				}
-				if (ImGui::BeginTabItem("Details"))
-				{
-					ImGui::Text("ID: 0123456789");
-					ImGui::EndTabItem();
-				}
-				ImGui::EndTabBar();
-			}
-			ImGui::EndChild();
-			if (ImGui::Button("Revert")) {}
-			ImGui::SameLine();
-			if (ImGui::Button("Save")) {}
-			ImGui::EndGroup();
-		}
-		ImGui::End();
-	}
 
 	void GUILayer::DrawCentralDockingSpace()
 	{
@@ -666,11 +519,5 @@ namespace LinaEditor
 
 	}
 
-	void GUILayer::CreateNewEntity()
-	{
-		EditorEntity editorEntity;
-		editorEntity.entity = m_ECS->create();
-		m_EditorEntities.push_back(editorEntity);
-	}
 
 }
