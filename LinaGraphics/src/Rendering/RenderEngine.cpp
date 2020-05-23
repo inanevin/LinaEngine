@@ -138,7 +138,7 @@ namespace LinaEngine::Graphics
 
 		//DrawOperationsShadows(delta,true);
 		//for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
-		//	(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_DepthMapRTTexture);
+			//(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_DepthMapRTTexture);
 
 		for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
 			(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_PointLightsRTTexture, TextureBindMode::BINDTEXTURE_CUBEMAP);
