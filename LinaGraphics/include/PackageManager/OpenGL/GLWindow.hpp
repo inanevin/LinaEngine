@@ -25,6 +25,7 @@ Timestamp: 4/14/2019 5:12:19 PM
 #include "Rendering/RenderingCommon.hpp"
 #include "Core/Common.hpp"
 #include <functional>
+#include "Utility/Math/Vector.hpp"
 
 namespace LinaEngine
 {
@@ -57,7 +58,7 @@ namespace LinaEngine::Graphics
 		//FORCEINLINE void SetEventCallback(const std::function<void(Event&)>& callback) { m_EventCallback = callback; }
 		FORCEINLINE void SetKeyCallback(std::function<void(int,int)>& callback) { m_KeyCallback = callback; }
 		FORCEINLINE void SetMouseCallback(std::function<void(int,int)>& callback) { m_MouseCallback = callback; }
-
+		FORCEINLINE void SetWindowResizeCallback(std::function<void(Vector2)>& callback) { m_WindowResizeCallback = callback; }
 	private:
 
 
@@ -86,7 +87,7 @@ namespace LinaEngine::Graphics
 
 		std::function<void(int, int)> m_KeyCallback;
 		std::function<void(int, int)> m_MouseCallback;
-
+		std::function<void(Vector2)> m_WindowResizeCallback;
 	};
 }
 

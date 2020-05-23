@@ -53,11 +53,12 @@ namespace LinaEngine
 		// Set callbacks.
 		m_KeyCallback = std::bind(&Application::KeyCallback, this, std::placeholders::_1, std::placeholders::_2);
 		m_MouseCallback = std::bind(&Application::MouseCallback, this, std::placeholders::_1, std::placeholders::_2);
+		m_WindowResizeCallback = std::bind(&Application::OnWindowResize, this, std::placeholders::_1);
 
 		// Set event callback for main window.
 		m_RenderEngine.GetMainWindow().SetKeyCallback(m_KeyCallback);
 		m_RenderEngine.GetMainWindow().SetMouseCallback(m_MouseCallback);
-	
+		m_RenderEngine.GetMainWindow().SetWindowResizeCallback(m_WindowResizeCallback);
 
 		// Initialize engines.
 		m_InputEngine.Initialize(m_RenderEngine.GetNativeWindow());
@@ -122,6 +123,11 @@ namespace LinaEngine
 	{
 		m_Running = false;
 		return true;
+	}
+
+	void Application::OnWindowResize(Vector2 size)
+	{
+		m_RenderEngine.OnWindowResized(size.x, size.y);
 	}
 
 	void Application::PushLayer(Layer * layer)

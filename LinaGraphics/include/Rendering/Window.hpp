@@ -67,7 +67,7 @@ namespace LinaEngine::Graphics
 		// Set event callbacks.
 		FORCEINLINE void SetKeyCallback(std::function<void(int, int)>& cb) { m_Derived.SetKeyCallback(cb); }
 		FORCEINLINE void SetMouseCallback(std::function<void(int, int)>& cb) { m_Derived.SetMouseCallback(cb); }
-
+		FORCEINLINE void SetWindowResizeCallback(std::function<void(Vector2)>& cb) { m_Derived.SetWindowResizeCallback(cb); };
 	private:
 
 		WindowProperties m_Properties;

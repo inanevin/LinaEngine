@@ -23,6 +23,7 @@ Timestamp: 4/14/2019 5:12:19 PM
 #include "Utility/Log.hpp"
 
 
+
 namespace LinaEngine::Graphics
 {
 	GLWindow::GLWindow()
@@ -182,10 +183,9 @@ namespace LinaEngine::Graphics
 		m_WindowProperties->m_Width = width;
 		m_WindowProperties->m_Height = height;
 
-		glViewport(0, 0, m_WindowProperties->m_Width, m_WindowProperties->m_Height);
-
-		// Notify listeners.
+		//glViewport(0, 0, m_WindowProperties->m_Width, m_WindowProperties->m_Height);
 		
+		m_WindowResizeCallback(Vector2((float)width, (float)height));
 	}
 
 	void GLWindow::WindowClosed(void* window)

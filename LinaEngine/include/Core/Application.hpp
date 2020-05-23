@@ -74,6 +74,7 @@ namespace LinaEngine
 		// Called when main application window is closed.
 		bool OnWindowClose();
 
+		void OnWindowResize(Vector2 size);
 
 		// Callbacks & events.
 		FORCEINLINE void KeyCallback(int key, int action) { m_InputEngine.DispatchKeyAction(static_cast<LinaEngine::Input::InputCode::Key>(key), action); }
@@ -103,7 +104,7 @@ namespace LinaEngine
 		// Callbacks
 		std::function<void(int, int)> m_KeyCallback;
 		std::function<void(int, int)> m_MouseCallback;
-
+		std::function<void(Vector2)> m_WindowResizeCallback;
 
 	};
 
