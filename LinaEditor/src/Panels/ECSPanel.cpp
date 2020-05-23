@@ -94,7 +94,6 @@ namespace LinaEditor
 					ImGui::EndPopup();
 				}
 
-				static int selectedEntity = -1;
 				static char selectedEntityName[256] = "Entity";
 
 				for (int i = 0; i < m_EditorEntities.size(); i++)
@@ -102,17 +101,13 @@ namespace LinaEditor
 					strcpy(selectedEntityName, m_EditorEntities[i].name.c_str());
 
 
-					if (ImGui::SelectableInput("entSelectable" + i, selectedEntity == i, ImGuiSelectableFlags_SelectOnRelease, selectedEntityName, IM_ARRAYSIZE(selectedEntityName)))
+					if (ImGui::SelectableInput("entSelectable" + i, m_SelectedEntity == i, ImGuiSelectableFlags_SelectOnRelease, selectedEntityName, IM_ARRAYSIZE(selectedEntityName)))
 					{
-						selectedEntity = i;
+						m_SelectedEntity = i;
 						m_EditorEntities[i].name = selectedEntityName;
 					}
 
 				}
-
-
-
-
 
 				ImGui::EndChild();
 

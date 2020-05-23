@@ -53,14 +53,19 @@ namespace LinaEditor
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+
+		// Draw top toolbar.
+		DrawMainMenuBar();
+
+		// Draw ECS Panel.
 		m_ECSPanel.Draw();
 
+		// Draw demo.
 		ImGui::ShowDemoWindow();
 
 		// Rendering
 		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());	
 	}
 
 	void GUILayer::OnEvent()
@@ -107,6 +112,22 @@ namespace LinaEditor
 		ImGui::DestroyContext();
 	}
 
+
+	void GUILayer::DrawMainMenuBar()
+	{
+		if (ImGui::BeginMainMenuBar())
+		{
+
+			if (ImGui::BeginMenu("Panels"))
+			{
+				if (ImGui::MenuItem("ECS Panel"))
+					m_ECSPanel.Open();
+
+				ImGui::EndMenu();
+			}
+			ImGui::EndMainMenuBar();
+		}
+	}
 
 	void GUILayer::DrawCentralDockingSpace()
 	{

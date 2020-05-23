@@ -60,6 +60,9 @@ namespace LinaEditor
 
 	private:
 
+		// Draws main menu bar.
+		void DrawMainMenuBar();
+
 		// Draws a central docking space.
 		void DrawCentralDockingSpace();
 
