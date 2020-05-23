@@ -130,7 +130,7 @@ Vector3 cubePositions[] = {
 
 Vector3 pointLightPositions[]
 {
-	Vector3(0.0f,  2.0f,  0.0f),
+	Vector3(1.0f,  2.0f,  0.0f),
 	Vector3(-5.0f,  -6.5f,  13.5f),
 	Vector3(5.0f,  -6.5f,  13.5f),
 	Vector3(0.0f,  -7.5f,  13.5f),
@@ -179,6 +179,7 @@ void Example1Level::Initialize()
 	woodTextureSampler.textureParams.pixelFormat = PixelFormat::FORMAT_RGBA;
 	woodTextureSampler.textureParams.internalPixelFormat = PixelFormat::FORMAT_SRGBA;
 	woodTextureSampler.textureParams.generateMipMaps = true;
+
 	SamplerParameters crateSampler;
 	crateSampler.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
 	crateSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
@@ -193,6 +194,7 @@ void Example1Level::Initialize()
 	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png");
 	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png");
 	Texture& wood = m_RenderEngine->CreateTexture("resources/textures/wood.png", woodTextureSampler, false);
+	Texture& brickWall = m_RenderEngine->CreateTexture("resources/textures/brickWall.jpg", woodTextureSampler, false);
 	//Texture& cubemap = m_RenderEngine->GetTexture("resources/textures/defaultSkybox/right.png");
 
 
@@ -208,18 +210,19 @@ void Example1Level::Initialize()
 
 
 
-	objectLitMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &wood);
+	objectLitMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &brickWall);
 	objectLitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
-	//objectLitMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &crateSpecTexture);
 	objectLitMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
 	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
-	//quadMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &window);
-	//quadMaterial->SetSurfaceType(MaterialSurfaceType::Transparent);
+	
 	floorMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &wood);
-	//floorMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &wood);
 	floorMaterial->SetVector2(MC_TILING, Vector2(20, 20));
 	floorMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1,1,1));
+
+	//floorMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &wood);
 	//cubemapReflectiveMaterial->SetTexture(UF_SKYBOXTEXTURE, &cubemap, 0);
+	//quadMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &window);
+	//quadMaterial->SetSurfaceType(MaterialSurfaceType::Transparent);
 
 	object1Renderer.mesh = &cubeMesh;
 	object1Renderer.material = objectLitMaterial;

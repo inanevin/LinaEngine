@@ -72,6 +72,7 @@ struct MaterialSampler2D
 struct Material
 {
 MaterialSampler2D diffuse;
+MaterialSampler2D normalMap;
 vec3 objectColor;
 int surfaceType;
 vec2 tiling;
@@ -104,22 +105,31 @@ void main()
 	}
 	else
 	{
-
-		vec4 diffuseTextureColor =  material.diffuse.isActive != 0 ? texture(material.diffuse.texture, vec2(fs_in.TexCoords.x * material.tiling.x, fs_in.TexCoords.y * material.tiling.y)) : vec4(1,1,1,1);
+		// General
 		vec3 viewPos = vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
-		vec3 normal = normalize(fs_in.Normal);
 		vec3 viewDir = normalize(viewPos - fs_in.FragPos);
-
-		vec3 finalColor = diffuseTextureColor.rgb * material.objectColor;
+		vec2 tiledTexCoord = vec2(fs_in.TexCoords.x * material.tiling.x, fs_in.TexCoords.y * material.tiling.y);
 		
+		// Textures
+		vec4 diffuseTextureColor =  material.diffuse.isActive != 0 ? texture(material.diffuse.texture, tiledTexCoord) : vec4(1,1,1,1);
+		vec3 normal = material.normalMap.isActive != 0 ? texture(material.normalMap.texture, tiledTexCoord).rgb : normalize(fs_in.Normal);
+		
+		if(material.normalMap.isActive != 0)
+			normal = normalize(normal * 2.0 - 1.0);
+	
+		// Colors
+		vec3 finalColor = diffuseTextureColor.rgb * material.objectColor;
 		vec3 lighting = vec3(0.0);
 		
+		// Lighting
 		for(int i = 0; i < pointLightCount; i++)
 			lighting += CalculatePointLight(pointLights[i], normal, fs_in.FragPos, viewDir);    
 		
+		// Post pp
 		finalColor *= lighting;
 		finalColor =  pow(finalColor, vec3(1.0/2.2));
 		
+		// Set fragment
 		float alpha = material.surfaceType == 0 ? 1.0 : diffuseTextureColor.a;
 		fragColor = vec4(finalColor, alpha);
 	
