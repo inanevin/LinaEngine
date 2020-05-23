@@ -147,13 +147,13 @@ int sLightSize = 0;
 
 
 ECSEntity cubeEntity;
-
+TransformComponent* dirLightT;
 void Example1Level::Initialize()
 {
 
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 	// Create, setup & assign skybox material.
-	CreateCubemapSkybox(m_RenderEngine);
+	CreateProceduralSkybox(m_RenderEngine);
 
 
 	camera.entity = m_ECS->reg.create();
@@ -222,7 +222,7 @@ void Example1Level::Initialize()
 
 	objectLitMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &wood);
 	//objectLitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(0.0f, 0.0f, 0.2f));
-	//objectLitMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &crateSpecTexture);
+	objectLitMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &crateSpecTexture);
 	objectLitMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
 
 
@@ -246,13 +246,18 @@ void Example1Level::Initialize()
 	auto& dirLight = m_ECS->reg.emplace<DirectionalLightComponent>(directionalLight.entity);
 	auto& dirLightTransform = m_ECS->reg.emplace<TransformComponent>(directionalLight.entity);
 	dirLight.color = Color(0.4f,0.4,0.4f);
-	dirLightTransform.transform.location = Vector3(0.5f, 0.5f, 0.0f);
+	dirLightTransform.transform.location = Vector3(2.5f, 5.5f, 0.0f);
 	dirLightTransform.transform.scale = Vector3(0.2f);
+	dirLightT = &m_ECS->reg.get<TransformComponent>(directionalLight.entity);
+	m_ECS->reg.emplace<MeshRendererComponent>(directionalLight.entity, smallCubeRenderer);
+	
 
-	ECSEntity dirLightCube;
-	dirLightCube.entity = m_ECS->reg.create();
-	m_ECS->reg.emplace<TransformComponent>(dirLightCube.entity, dirLightTransform);
-	m_ECS->reg.emplace<MeshRendererComponent>(dirLightCube.entity, smallCubeRenderer);
+
+
+	//ECSEntity dirLightCube;
+	//dirLightCube.entity = m_ECS->reg.create();
+	//m_ECS->reg.emplace<TransformComponent>(dirLightCube.entity, dirLightTransform);
+	//m_ECS->reg.emplace<MeshRendererComponent>(dirLightCube.entity, smallCubeRenderer);
 
 	ECSEntity floor;
 	floor.entity = m_ECS->reg.create();
@@ -388,13 +393,16 @@ void Example1Level::Initialize()
 
 }
 
-static float t = 0.0f;
+static float t2 = 0.0f;
 
 void Example1Level::Tick(float delta)
 {
 	// Update the systems in this level.
 	level1Systems.UpdateSystems(delta);
-	t += delta;
+	t2 += delta;
+	auto& t = m_ECS->reg.get<TransformComponent>(directionalLight.entity);
+	t.transform.location = Vector3(Math::Sin(t2) * 5, 6, 0);
+
 	//
 	//TransformComponent& cube = m_ECS->reg.get<TransformComponent>(quad.entity);
 	//cube.transform.location = Vector3(0, 0, 5);

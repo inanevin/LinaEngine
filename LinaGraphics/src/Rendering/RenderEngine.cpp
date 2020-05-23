@@ -133,16 +133,17 @@ namespace LinaEngine::Graphics
 
 		//DrawOperationsDefault(delta);
 		//DrawOperationsMSAA(delta);
-		DrawOperationsPointLight(delta, false);
+		//DrawOperationsPointLight(delta, false);
 
 
-		//DrawOperationsShadows(delta,true);
+		//DrawOperationsShadows(delta,false);
 		//for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
 			//(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_DepthMapRTTexture);
 
-		for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
-			(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_PointLightsRTTexture, TextureBindMode::BINDTEXTURE_CUBEMAP);
+	//	for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
+		//	(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_PointLightsRTTexture, TextureBindMode::BINDTEXTURE_CUBEMAP);
 		DrawOperationsDefault(delta);
+
 
 		//DrawOperationsMSAA(delta);
 
@@ -415,8 +416,8 @@ namespace LinaEngine::Graphics
 			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
 			material.floats[MC_SPECULARINTENSITYPROPERTY] = 1.0f;
 			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
-			//material.sampler2Ds[MC_TEXTURE2D_SPECULAR] = { 1 };
-			material.sampler2Ds[MC_TEXTURE2D_SHADOWMAP] = { 1 };
+			material.sampler2Ds[MC_TEXTURE2D_SPECULAR] = { 1 };
+			//material.sampler2Ds[MC_TEXTURE2D_SHADOWMAP] = { 1 };
 			material.ints[MC_SPECULAREXPONENTPROPERTY] = 32;
 			material.ints[MC_SURFACETYPE] = 0;
 			material.vector2s[MC_TILING] = Vector2::One;
@@ -554,7 +555,7 @@ namespace LinaEngine::Graphics
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
-		Shader& lit = CreateShader(Shaders::STANDARD_LIT, "resources/shaders/basicStandardLitPS.glsl", false);
+		Shader& lit = CreateShader(Shaders::STANDARD_LIT, "resources/shaders/basicStandardLit.glsl", false);
 		lit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		lit.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
 		lit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);

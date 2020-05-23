@@ -36,16 +36,16 @@ out VS_OUT
 
 void main()
 {
-    //gl_Position = projection * view * model * vec4(position, 1.0);
-	//vs_out.FragPos = vec3(model * vec4(position,1.0));
-	//vs_out.Normal = mat3(inverseTransposeModel) * normal;
-    //vs_out.TexCoords = texCoord;
-	
-	vs_out.FragPos = vec3(model * vec4(position, 1.0));
-    vs_out.Normal = mat3(inverseTransposeModel) * normal;
+    gl_Position = projection * view * model * vec4(position, 1.0);
+	vs_out.FragPos = vec3(model * vec4(position,1.0));
+	vs_out.Normal = mat3(inverseTransposeModel) * normal;
     vs_out.TexCoords = texCoord;
-    vs_out.FragPosLightSpace = lightSpace * vec4(vs_out.FragPos, 1.0);
-    gl_Position = projection * view * vec4(vs_out.FragPos, 1.0);
+	
+	//vs_out.FragPos = vec3(model * vec4(position, 1.0));
+    //vs_out.Normal = mat3(inverseTransposeModel) * normal;
+    //vs_out.TexCoords = texCoord;
+    //vs_out.FragPosLightSpace = lightSpace * vec4(vs_out.FragPos, 1.0);
+    //gl_Position = projection * view * vec4(vs_out.FragPos, 1.0);
 }
 
 #elif defined(GEO_BUILD)
@@ -64,33 +64,9 @@ out vec2 TexCoords;
 
 uniform float time;
 
-vec4 explode(vec4 position, vec3 normal)
-{
-    float magnitude = 2.0;
-    vec3 direction = normal * ((sin(time) + 1.0) / 2.0) * magnitude; 
-    return position + vec4(direction, 0.0);
-}
-
-vec3 GetNormal()
-{
-    vec3 a = vec3(gl_in[0].gl_Position) - vec3(gl_in[1].gl_Position);
-    vec3 b = vec3(gl_in[2].gl_Position) - vec3(gl_in[1].gl_Position);
-    return normalize(cross(a, b));
-}
 
 void main() {    
-    vec3 normal = GetNormal();
-
-    gl_Position = explode(gl_in[0].gl_Position, normal);
-    TexCoords = gs_in[0].TexCoords;
-    EmitVertex();
-    gl_Position = explode(gl_in[1].gl_Position, normal);
-    TexCoords = gs_in[1].TexCoords;
-    EmitVertex();
-    gl_Position = explode(gl_in[2].gl_Position, normal);
-    TexCoords = gs_in[2].TexCoords;
-    EmitVertex();
-    EndPrimitive();
+    
 }
 
 #elif defined(FS_BUILD)
@@ -104,6 +80,7 @@ struct MaterialSampler2D
 struct Material
 {
 MaterialSampler2D diffuse;
+MaterialSampler2D specular;
 MaterialSampler2D shadowMap;
 vec3 objectColor;
 float specularIntensity;
@@ -132,10 +109,6 @@ out vec4 fragColor;
 void main()
 {
 	
-	vec3 viewPos = vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
-	//vec3 norm = normalize(fs_in.Normal);
-	//vec3 viewDir = normalize(viewPos - fs_in.FragPos);
-
  
 	if(visualizeDepth)
 	{
@@ -146,31 +119,46 @@ void main()
 	{
 
 	vec4 diffuseTextureColor =  material.diffuse.isActive != 0 ? texture(material.diffuse.texture, vec2(fs_in.TexCoords.x * material.tiling.x, fs_in.TexCoords.y * material.tiling.y)) : vec4(1,1,1,1);
-	vec3 lightPos = directionalLight.position;
-	vec3 color = diffuseTextureColor.rgb * material.objectColor;
-    vec3 normal = normalize(fs_in.Normal);
-    vec3 lightColor = directionalLight.color;
-    // ambient
-    vec3 ambient = 0.3 * color;
-    // diffuse
-    vec3 lightDir = normalize(lightPos - fs_in.FragPos);
-    float diff = max(dot(lightDir, normal), 0.0);
-    vec3 diffuse = diff * lightColor;
-    // specular
-    vec3 viewDir = normalize(viewPos - fs_in.FragPos);
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = 0.0;
-    vec3 halfwayDir = normalize(lightDir + viewDir);  
-    spec = pow(max(dot(normal, halfwayDir), 0.0), material.specularExponent);
-    vec3 specular = spec * lightColor * material.specularIntensity;    
-    // calculate shadow
-    float shadow = ShadowCalculation(fs_in.FragPosLightSpace, vec3(-2.0, 4.0, -1.0));                      
-    vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
-    
-	lighting = pow(lighting, vec3(1.0/2.2));	
-	float alpha = material.surfaceType == 0 ? 1.0 : diffuseTextureColor.a;
 	
-    fragColor = vec4(lighting, 1.0);
+	vec4 specularTextureColor =  material.specular.isActive != 0 ? texture(material.specular.texture, vec2(fs_in.TexCoords.x * material.tiling.x, fs_in.TexCoords.y * material.tiling.y)) : vec4(1,1,1,1);
+	
+	vec3 viewPos = vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
+    vec3 normal = normalize(fs_in.Normal);
+	vec3 viewDir = normalize(viewPos - fs_in.FragPos);
+	
+	
+	//vec3 color = diffuseTextureColor.rgb * material.objectColor;
+	//vec3 lightColor = directionalLight.color;
+	//vec3 lightPos = directionalLight.position;
+
+    // ambient
+   // vec3 ambient = 0.3 * color;
+	
+    // diffuse
+    //vec3 lightDir = normalize(lightPos - fs_in.FragPos);
+    //float diff = max(dot(lightDir, normal), 0.0);
+   // vec3 diffuse = diff * lightColor;
+	
+    // specular
+   // vec3 viewDir = normalize(viewPos - fs_in.FragPos);
+    //vec3 reflectDir = reflect(-lightDir, normal);
+   // float spec = 0.0;
+   // vec3 halfwayDir = normalize(lightDir + viewDir);  
+   // spec = pow(max(dot(normal, halfwayDir), 0.0), material.specularExponent);
+   // vec3 specular = spec * lightColor * material.specularIntensity;    
+	
+    // calculate shadow
+   // float shadow = ShadowCalculation(fs_in.FragPosLightSpace, vec3(-2.0, 4.0, -1.0));                      
+   // vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
+    
+	//lighting = pow(lighting, vec3(1.0/2.2));	
+	//float alpha = material.surfaceType == 0 ? 1.0 : diffuseTextureColor.a;
+	
+	vec3 finalColor = vec3(diffuseTextureColor);
+	finalColor += CalculateDirectionalLight(directionalLight, normal, viewDir, diffuseTextureColor, specularTextureColor); 
+	
+	finalColor =  pow(finalColor, vec3(1.0/2.2));
+    fragColor = vec4(finalColor, 1.0);
 	
 	
 	}

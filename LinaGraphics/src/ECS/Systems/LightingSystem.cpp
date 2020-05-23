@@ -64,6 +64,7 @@ namespace LinaEngine::ECS
 		{
 			m_RenderDevice->UpdateShaderUniformColor(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTCOLOR, dirLight->color);
 			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTPOSITION, dirLightTransform->transform.location);
+			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTDIRECTION, dirLight->direction);
 		}
 
 		// Iterate point lights.
@@ -113,7 +114,7 @@ namespace LinaEngine::ECS
 	{
 		TransformComponent* directionalLightTransform = std::get<0>(directionalLight);
 		float zFar = directionalLightTransform == nullptr ? 0.0f : directionalLightTransform->transform.location.Magnitude();
-		Matrix lightProjection = Matrix::Orthographic(-20.0f,20.0f, -20.0f, 20.0f, 1.0f, 7.5f);
+		Matrix lightProjection = Matrix::Orthographic(-10.0f,10.0f, -10.0f, 10.0f, 1.0f, 15.5f);
 		Matrix lightView = Matrix::InitLookAt(directionalLightTransform == nullptr ? Vector3::Zero: directionalLightTransform->transform.location, Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
 		return lightProjection * lightView;
 	}
