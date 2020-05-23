@@ -142,7 +142,10 @@ namespace LinaEngine::Graphics
 
 	//	for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
 		//	(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_PointLightsRTTexture, TextureBindMode::BINDTEXTURE_CUBEMAP);
+		
 		DrawOperationsDefault(delta);
+
+
 
 
 		//DrawOperationsMSAA(delta);
@@ -414,11 +417,7 @@ namespace LinaEngine::Graphics
 		if (shader == Shaders::STANDARD_LIT)
 		{
 			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
-			material.floats[MC_SPECULARINTENSITYPROPERTY] = 1.0f;
 			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
-			material.sampler2Ds[MC_TEXTURE2D_SPECULAR] = { 1 };
-			//material.sampler2Ds[MC_TEXTURE2D_SHADOWMAP] = { 1 };
-			material.ints[MC_SPECULAREXPONENTPROPERTY] = 32;
 			material.ints[MC_SURFACETYPE] = 0;
 			material.vector2s[MC_TILING] = Vector2::One;
 			material.receivesLighting = true;
@@ -674,7 +673,7 @@ namespace LinaEngine::Graphics
 		m_DefaultDrawParams.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
 		m_DefaultDrawParams.stencilComparisonVal = 1;
 		m_DefaultDrawParams.stencilTestMask = 0xFF;
-		m_DefaultDrawParams.stencilWriteMask = 0xFF;
+		m_DefaultDrawParams.stencilWriteMask = 0x00;
 		m_DefaultDrawParams.stencilFail = StencilOp::STENCIL_KEEP;
 		m_DefaultDrawParams.stencilPass = StencilOp::STENCIL_REPLACE;
 		m_DefaultDrawParams.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
@@ -1055,10 +1054,12 @@ namespace LinaEngine::Graphics
 			m_RenderDevice.UpdateShaderUniformMatrix(data->shaderID, d.first, d.second);
 
 
+
+
 		for (auto const& d : (*data).sampler2Ds)
 		{
 			// Set whether the texture is active or not.
-			m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first + MC_EXTENSION_ISACTIVE, d.second.isActive);
+			m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first + MC_EXTENSION_ISACTIVE, d.second.isActive ? 1 : 0 );
 
 			if (d.second.isActive)
 			{

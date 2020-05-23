@@ -130,7 +130,7 @@ Vector3 cubePositions[] = {
 
 Vector3 pointLightPositions[]
 {
-	Vector3(0.0f,  -7.0f,  8.0f),
+	Vector3(0.0f,  2.0f,  0.0f),
 	Vector3(-5.0f,  -6.5f,  13.5f),
 	Vector3(5.0f,  -6.5f,  13.5f),
 	Vector3(0.0f,  -7.5f,  13.5f),
@@ -141,9 +141,10 @@ Vector3 spotLightPositions[]
 	Vector3(-2.0f, -6.0f, 13.0f)
 };
 
-int pLightSize = 0;
-int cubeSize =4;
+int pLightSize = 1;
+int cubeSize = 4;
 int sLightSize = 0;
+
 
 
 ECSEntity cubeEntity;
@@ -152,35 +153,22 @@ void Example1Level::Initialize()
 {
 
 	LINA_CLIENT_WARN("Example level 1 initialize.");
+
 	// Create, setup & assign skybox material.
 	CreateProceduralSkybox(m_RenderEngine);
 
 
-	camera.entity = m_ECS->reg.create();
 
+	camera.entity = m_ECS->reg.create();
 	auto& camFreeLook = m_ECS->reg.emplace<FreeLookComponent>(camera.entity);
 	auto& camTransform = m_ECS->reg.emplace<TransformComponent>(camera.entity);
 	auto& camCamera = m_ECS->reg.emplace<CameraComponent>(camera.entity);
-	camTransform.transform.location = Vector3::Zero;
-	// Activate a camera component.
+	camTransform.transform.location = Vector3(0, 5, 0);
 	camCamera.isActive = true;
-
-	// Set the properties of our the free look component for the camera.
 	camFreeLook.movementSpeedX = camFreeLook.movementSpeedZ = 12.0f;
 	camFreeLook.rotationSpeedX = camFreeLook.rotationSpeedY = 3;
 
-	SamplerData s;
-	s.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
-	s.maxFilter = SamplerFilter::FILTER_LINEAR;
-	s.wrapS = SamplerWrapMode::WRAP_CLAMP_EDGE;
-	s.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 
-
-	SamplerData s2;
-	s2.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
-	s2.maxFilter = SamplerFilter::FILTER_LINEAR;
-	s2.wrapS = SamplerWrapMode::WRAP_REPEAT;
-	s2.wrapT = SamplerWrapMode::WRAP_REPEAT;
 
 
 	SamplerParameters woodTextureSampler;
@@ -191,7 +179,6 @@ void Example1Level::Initialize()
 	woodTextureSampler.textureParams.pixelFormat = PixelFormat::FORMAT_RGBA;
 	woodTextureSampler.textureParams.internalPixelFormat = PixelFormat::FORMAT_SRGBA;
 	woodTextureSampler.textureParams.generateMipMaps = true;
-
 	SamplerParameters crateSampler;
 	crateSampler.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
 	crateSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
@@ -215,49 +202,42 @@ void Example1Level::Initialize()
 	// Create material for example mesh.
 	objectLitMaterial = &m_RenderEngine->CreateMaterial("object1Material", Shaders::STANDARD_LIT);
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
-	quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::STANDARD_LIT);
+	//quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::STANDARD_LIT);
 	floorMaterial = &m_RenderEngine->CreateMaterial("floor", Shaders::STANDARD_LIT);
 	//cubemapReflectiveMaterial = &m_RenderEngine->CreateMaterial("cubemapReflective", Shaders::CUBEMAP_REFLECTIVE);
 
 
+
 	objectLitMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &wood);
-	//objectLitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(0.0f, 0.0f, 0.2f));
-	objectLitMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &crateSpecTexture);
+	objectLitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
+	//objectLitMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &crateSpecTexture);
 	objectLitMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
-
-
 	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
-
-	//cubemapReflectiveMaterial->SetTexture(UF_SKYBOXTEXTURE, &cubemap, 0);
-
-	quadMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &window);
-	quadMaterial->SetSurfaceType(MaterialSurfaceType::Transparent);
-
+	//quadMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &window);
+	//quadMaterial->SetSurfaceType(MaterialSurfaceType::Transparent);
 	floorMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &wood);
+	//floorMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &wood);
 	floorMaterial->SetVector2(MC_TILING, Vector2(20, 20));
-	//floorMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(0.1f,0.1f,0.1f));
+	floorMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1,1,1));
+	//cubemapReflectiveMaterial->SetTexture(UF_SKYBOXTEXTURE, &cubemap, 0);
 
 	object1Renderer.mesh = &cubeMesh;
 	object1Renderer.material = objectLitMaterial;
 	smallCubeRenderer.mesh = &cubeMesh;
 	smallCubeRenderer.material = objectUnlitMaterial;
 
+
+
 	directionalLight.entity = m_ECS->reg.create();
 	auto& dirLight = m_ECS->reg.emplace<DirectionalLightComponent>(directionalLight.entity);
 	auto& dirLightTransform = m_ECS->reg.emplace<TransformComponent>(directionalLight.entity);
 	dirLight.color = Color(0.4f,0.4,0.4f);
+	dirLight.direction = Vector3(0, -0.5, 1);
 	dirLightTransform.transform.location = Vector3(2.5f, 5.5f, 0.0f);
 	dirLightTransform.transform.scale = Vector3(0.2f);
 	dirLightT = &m_ECS->reg.get<TransformComponent>(directionalLight.entity);
-	m_ECS->reg.emplace<MeshRendererComponent>(directionalLight.entity, smallCubeRenderer);
-	
+	//m_ECS->reg.emplace<MeshRendererComponent>(directionalLight.entity, smallCubeRenderer);
 
-
-
-	//ECSEntity dirLightCube;
-	//dirLightCube.entity = m_ECS->reg.create();
-	//m_ECS->reg.emplace<TransformComponent>(dirLightCube.entity, dirLightTransform);
-	//m_ECS->reg.emplace<MeshRendererComponent>(dirLightCube.entity, smallCubeRenderer);
 
 	ECSEntity floor;
 	floor.entity = m_ECS->reg.create();
@@ -316,7 +296,7 @@ void Example1Level::Initialize()
 		auto& pLight1 = m_ECS->reg.emplace<PointLightComponent>(entity.entity);
 
 
-		pLight1.color = Color(0.45f, 0.45f, 0.45f);
+		pLight1.color = Color(0.85f, 0.85f, 0.85f);
 		pLight1.distance = 100;
 
 
@@ -363,29 +343,29 @@ void Example1Level::Initialize()
 
 
 
-//quad.entity = m_ECS->reg.create();
-//m_ECS->reg.emplace<TransformComponent>(quad.entity, object1Transform);
-//MeshRendererComponent quadR;
-//quadR.material = quadMaterial;
-//quadR.mesh = &m_RenderEngine->GetPrimitive(Primitives::PLANE);
-//m_ECS->reg.emplace<MeshRendererComponent>(quad.entity, quadR);
-//
-//object1Transform.transform.location = (Vector3(-2.5f, 0, 11.0f));
-//quad2.entity = m_ECS->reg.create();
-//m_ECS->reg.emplace<TransformComponent>(quad2.entity, object1Transform);
-//m_ECS->reg.emplace<MeshRendererComponent>(quad2.entity, quadR);
-//
-//object1Transform.transform.location = (Vector3(-2.5f, 0, 7.5f));
-//quad3.entity = m_ECS->reg.create();
-//m_ECS->reg.emplace<TransformComponent>(quad3.entity, object1Transform);
-//m_ECS->reg.emplace<MeshRendererComponent>(quad3.entity, quadR);
-//
-//object1Transform.transform.location = (Vector3(-2.1f, 0, 7.0f));
-//quad4.entity = m_ECS->reg.create();
-//m_ECS->reg.emplace<TransformComponent>(quad4.entity, object1Transform);
-//m_ECS->reg.emplace<MeshRendererComponent>(quad4.entity, quadR);
-//
-	// Create the free look system & push it.
+	//quad.entity = m_ECS->reg.create();
+	//m_ECS->reg.emplace<TransformComponent>(quad.entity, object1Transform);
+	//MeshRendererComponent quadR;
+	//quadR.material = quadMaterial;
+	//quadR.mesh = &m_RenderEngine->GetPrimitive(Primitives::PLANE);
+	//m_ECS->reg.emplace<MeshRendererComponent>(quad.entity, quadR);
+	//
+	//object1Transform.transform.location = (Vector3(-2.5f, 0, 11.0f));
+	//quad2.entity = m_ECS->reg.create();
+	//m_ECS->reg.emplace<TransformComponent>(quad2.entity, object1Transform);
+	//m_ECS->reg.emplace<MeshRendererComponent>(quad2.entity, quadR);
+	//
+	//object1Transform.transform.location = (Vector3(-2.5f, 0, 7.5f));
+	//quad3.entity = m_ECS->reg.create();
+	//m_ECS->reg.emplace<TransformComponent>(quad3.entity, object1Transform);
+	//m_ECS->reg.emplace<MeshRendererComponent>(quad3.entity, quadR);
+	//
+	//object1Transform.transform.location = (Vector3(-2.1f, 0, 7.0f));
+	//quad4.entity = m_ECS->reg.create();
+	//m_ECS->reg.emplace<TransformComponent>(quad4.entity, object1Transform);
+	//m_ECS->reg.emplace<MeshRendererComponent>(quad4.entity, quadR);
+	//
+		// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem();
 	ecsFreeLookSystem->Construct(*m_ECS, *m_InputEngine);
 	level1Systems.AddSystem(*ecsFreeLookSystem);
@@ -400,24 +380,5 @@ void Example1Level::Tick(float delta)
 	// Update the systems in this level.
 	level1Systems.UpdateSystems(delta);
 	t2 += delta;
-	auto& t = m_ECS->reg.get<TransformComponent>(directionalLight.entity);
-	t.transform.location = Vector3(Math::Sin(t2) * 5, 6, 0);
 
-	//
-	//TransformComponent& cube = m_ECS->reg.get<TransformComponent>(quad.entity);
-	//cube.transform.location = Vector3(0, 0, 5);
-	//cube.transform.Rotate(t*12, 0,0);
-	//cube.transform.scale = Vector3(1);
-		//	cube.transform.rotation = q;
-			//TransformComponent& tSpotLight = m_ECS->reg.get<TransformComponent>(spotLight.entity);
-		//	TransformComponent& tCamera = m_ECS->reg.get<TransformComponent>(camera.entity);
-
-		//tSpotLight.transform.SetLocation(tCamera.transform.location);
-		//tSpotLight.transform.SetRotation(tCamera.transform.rotation);
-		//
-		//TransformComponent tc = m_ECS->reg.get<TransformComponent>(object1.entity);
-		//t += delta;
-		//tc.transform.SetLocation(Vector3F(Math::Sin(t) * 5, 0, 10));
-		//	
-		//m_ECS->reg.replace<TransformComponent>(object1.entity, tc);
 }

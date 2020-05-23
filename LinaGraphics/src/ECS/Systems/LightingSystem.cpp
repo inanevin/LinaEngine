@@ -63,9 +63,10 @@ namespace LinaEngine::ECS
 		if (dirLightTransform != nullptr && dirLight != nullptr)
 		{
 			m_RenderDevice->UpdateShaderUniformColor(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTCOLOR, dirLight->color);
-			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTPOSITION, dirLightTransform->transform.location);
 			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTDIRECTION, dirLight->direction);
+			//m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTPOSITION, dirLightTransform->transform.location);
 		}
+
 
 		// Iterate point lights.
 		auto& pointLightView = m_Registry->reg.view<TransformComponent, PointLightComponent>();
