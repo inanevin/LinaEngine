@@ -26,6 +26,7 @@ Timestamp: 5/23/2020 4:15:24 PM
 #include "ECS/Components/LightComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
+#include "Rendering/Window.hpp"
 #include "imgui.h"
 #include "ImGuiFileBrowser.h"
 #include "imgui_impl_glfw.h"
@@ -82,9 +83,10 @@ namespace LinaEditor
 	static bool openModal;
 	const char* entityComponents[] = { "Transform", "Mesh Renderer", "Camera", "Directional Light", "Point Light", "Spot Light", "Free Look" };
 
-	void ECSPanel::Setup(LinaEngine::ECS::ECSRegistry& registry)
+	void ECSPanel::Setup(LinaEngine::ECS::ECSRegistry& registry, LinaEngine::Graphics::Window& appWindow)
 	{
 		m_ECS = &registry;
+		m_AppWindow = &appWindow;
 
 		registry.each([this](auto entity) {
 			EditorEntity editorEntity;
@@ -108,9 +110,11 @@ namespace LinaEditor
 				ImGui::EndPopup();
 			}
 
-			ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
+			ImVec2 panelSize = ImVec2(700, 400);
+			
+			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(0.2f);
-		//	ImGui::SetNextWindowPos(ImVec2(0, 0));
+			ImGui::SetNextWindowPos(ImVec2(0,  m_AppWindow->GetHeight() - panelSize.y / 2.0f));
 			if (ImGui::Begin("ECS Panel", &m_Show))
 			{
 				static int componentsComboCurrentItem = 0;

@@ -139,7 +139,7 @@ namespace LinaEditor
 
 
 		// setup panels, windows etc.
-		m_ECSPanel.Setup(*m_ECS);
+		m_ECSPanel.Setup(*m_ECS, m_RenderEngine->GetMainWindow());
 		m_ECSPanel.Open();
 
 	}

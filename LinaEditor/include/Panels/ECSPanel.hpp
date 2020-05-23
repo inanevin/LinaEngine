@@ -25,6 +25,13 @@ Timestamp: 5/23/2020 4:15:06 PM
 #include "Panels/EditorPanel.hpp"
 #include "Utility/EditorUtility.hpp"
 
+namespace LinaEngine
+{
+	namespace Graphics
+	{
+		class Window;
+	}
+}
 namespace LinaEditor
 {
 	class ECSPanel : public EditorPanel
@@ -36,7 +43,7 @@ namespace LinaEditor
 		~ECSPanel() {};
 	
 		virtual void Draw() override;
-		void Setup(LinaEngine::ECS::ECSRegistry& registry);
+		void Setup(LinaEngine::ECS::ECSRegistry& registry, LinaEngine::Graphics::Window& appWindow);
 
 	private:
 
@@ -46,6 +53,7 @@ namespace LinaEditor
 
 	private:
 
+		LinaEngine::Graphics::Window* m_AppWindow;
 		LinaEngine::ECS::ECSRegistry* m_ECS;
 		std::vector<EditorEntity> m_EditorEntities;
 		int m_SelectedEntity = -1;
