@@ -19,7 +19,7 @@ Timestamp: 12/29/2018 11:15:41 PM
 
 #include <Lina.hpp>
 #include "Core/GUILayer.hpp"
-#include "World/Level.hpp"
+#include "Levels/Example1Level.hpp"
 
 namespace LinaEditor
 {
@@ -52,7 +52,7 @@ namespace LinaEditor
 	private:
 
 		// Startup level.
-		LinaEngine::World::Level m_StartupLevel;
+		Example1Level m_StartupLevel;
 
 	};
 
