@@ -32,11 +32,6 @@ Timestamp: 5/9/2020 1:22:23 AM
 
 namespace LinaEditor
 {
-	struct EditorEntity
-	{
-		std::string name = "Entity";
-		entt::entity entity;
-	};
 
 	namespace Utility
 	{

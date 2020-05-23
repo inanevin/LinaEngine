@@ -47,7 +47,7 @@ namespace LinaEngine
 
 		FORCEINLINE Quaternion operator+(const Quaternion& other) const { return *this + other; }
 		FORCEINLINE Quaternion operator-(const Quaternion& other) const { return *this - other; }
-		FORCEINLINE Quaternion operator*(const Quaternion& other) const { return *this * other; }
+		FORCEINLINE Quaternion operator*(const Quaternion& other) const { return glm::quat(*this) * glm::quat(other); }
 		FORCEINLINE Quaternion operator*(float amt) const { return *this * amt; }
 		FORCEINLINE Quaternion operator/(float amt) const { return *this / amt; }
 		FORCEINLINE Quaternion operator+=(const Quaternion& other) { *this += other; return *this; }
@@ -65,9 +65,9 @@ namespace LinaEngine
 		Vector3 GetForward() const;
 		FORCEINLINE Vector4 ToVector() const { return Vector4(x, y, z, w); }
 
-		Vector3 GetEuler() const;
+		Vector3 GetEuler();
 		Vector3 GetAxis() const;
-		Vector3 Rotate(const Vector3& other) const;
+		Vector3 GetRotated(const Vector3& other) const;
 		Quaternion Slerp(const Quaternion& dest, float t) const;
 		Quaternion Conjugate() const;
 		Quaternion Inverse() const;
@@ -80,6 +80,7 @@ namespace LinaEngine
 		float Dot(const Quaternion& other) const;
 		float Length() const;
 		float LengthSquared() const;
+
 
 	};
 

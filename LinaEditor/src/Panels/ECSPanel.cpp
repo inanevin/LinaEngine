@@ -88,21 +88,15 @@ namespace LinaEditor
 		m_ECS = &registry;
 		m_AppWindow = &appWindow;
 
-		registry.each([this](auto entity) {
-			EditorEntity editorEntity;
-			editorEntity.entity = entity;
-			m_EditorEntities.push_back(editorEntity);
-
-		});
 	}
 
 	void ECSPanel::Draw()
 	{
 		if (m_Show)
 		{
+			// Component already exists popup modal.
 			if (openModal)
 				ImGui::OpenPopup("Component Exists!");
-
 			if (ImGui::BeginPopupModal("Component Exists!", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 			{
 				ImGui::Text("This component already exists!\n\n");
@@ -110,17 +104,19 @@ namespace LinaEditor
 				ImGui::EndPopup();
 			}
 
-			ImVec2 panelSize = ImVec2(700, 400);
-			
+			// Set window properties.
+			ImVec2 panelSize = ImVec2(700, 600);			
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(0.2f);
 			ImGui::SetNextWindowPos(ImVec2(0,  m_AppWindow->GetHeight() - panelSize.y / 2.0f));
+
 			if (ImGui::Begin("ECS Panel", &m_Show))
 			{
+				// Statics.
 				static int componentsComboCurrentItem = 0;
 				static char selectedEntityName[256] = "Entity";
 
-
+				// Left pane group.
 				ImGui::BeginChild("left pane", ImVec2(150, 0), true);
 
 				// Handle Right Click.
@@ -129,67 +125,66 @@ namespace LinaEditor
 					if (ImGui::BeginMenu("Create"))
 					{
 						if (ImGui::MenuItem("Entity"))
-						{
-							CreateNewEntity();
-						}
+							m_ECS->CreateEntity("Entity");
+
 						ImGui::EndMenu();
 					}
 					ImGui::EndPopup();
 				}
 
-				static bool anyItemHovered = false;
-
-				for (int i = 0; i < m_EditorEntities.size(); i++)
-				{
-					strcpy(selectedEntityName, m_EditorEntities[i].name.c_str());
-					if (ImGui::SelectableInput("entSelectable" + i, m_SelectedEntity == i, ImGuiSelectableFlags_SelectOnClick, selectedEntityName, IM_ARRAYSIZE(selectedEntityName)))
+				int entityCounter = 0;
+				// List all the entities in the scene.
+				m_ECS->each([this, &entityCounter](auto entity) {
+					
+					// Selection
+					entityCounter++;
+					strcpy(selectedEntityName, m_ECS->GetEntityName(entity).c_str());
+					if (ImGui::SelectableInput("entSelectable" + entityCounter, m_SelectedEntity == entity, ImGuiSelectableFlags_SelectOnClick, selectedEntityName, IM_ARRAYSIZE(selectedEntityName)))
 					{
-						m_SelectedEntity = i;
-						m_EditorEntities[i].name = selectedEntityName;
+						m_SelectedEntity = entity;
+						m_ECS->SetEntityName(entity, selectedEntityName);
 					}
 
+					// Deselect.
 					if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-					{
-						m_SelectedEntity = -1;
-					}
+						m_SelectedEntity = entt::null;
+				});
 
-				}
 
+				// End this pane.
 				ImGui::EndChild();
 				ImGui::SameLine();
 
-				// Right
+				// Right pane.
 				ImGui::BeginGroup();
 				ImGui::BeginChild("Component View", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
-
 				if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
 				{
-					std::string selectedName = m_SelectedEntity == -1 ? "Component View" : "Component View: " + m_EditorEntities[m_SelectedEntity].name;
+					// Component view tab
+					std::string selectedName = m_ECS->valid(m_SelectedEntity) ? "Component View" : "Component View: " + m_ECS->GetEntityName(m_SelectedEntity);
 					char titleName[256];
 					strcpy(titleName, selectedName.c_str());
-
 					if (ImGui::BeginTabItem(titleName))
 					{
-						if (m_SelectedEntity == -1)
+						if (!m_ECS->valid(m_SelectedEntity))
 							ImGui::TextWrapped("No entity is selected.");
 						else
-							DrawComponents(m_EditorEntities[m_SelectedEntity].entity);
+							DrawComponents(m_SelectedEntity);
 						ImGui::EndTabItem();
 					}
-
 					ImGui::EndTabBar();
 				}
 				ImGui::EndChild();
 
-				if (m_SelectedEntity != -1)
+				// Buttons down below.
+				if (m_ECS->valid(m_SelectedEntity))
 				{
 					if (ImGui::Button("Add Component"))
-					{
 						AddComponentToEntity(componentsComboCurrentItem);
-					}
 
 					ImGui::SameLine();
 
+					// Combo box for components.
 					static ImGuiComboFlags flags = 0;
 					const char* combo_label = entityComponents[componentsComboCurrentItem];  // Label to preview before opening the combo (technically could be anything)(
 					if (ImGui::BeginCombo("ComponentsCombo", combo_label, flags))
@@ -215,85 +210,77 @@ namespace LinaEditor
 		}
 	}
 
-	void ECSPanel::CreateNewEntity()
-	{
-		EditorEntity editorEntity;
-		editorEntity.entity = m_ECS->create();
-		m_EditorEntities.push_back(editorEntity);
-	}
 
 	void ECSPanel::AddComponentToEntity(int componentID)
 	{
-		if (m_SelectedEntity == -1 || m_SelectedEntity >= m_EditorEntities.size()) return;
+		if (m_ECS->valid(m_SelectedEntity)) return;
 
-
-		bool open = true;
 		// Add the indexed component to target entity.
 		if (componentID == 0)
 		{
-			if (m_ECS->has<LinaEngine::ECS::TransformComponent>(m_EditorEntities[m_SelectedEntity].entity))
+			if (m_ECS->has<LinaEngine::ECS::TransformComponent>(m_SelectedEntity))
 				openModal = true;
 			else
 			{
-				auto& e = m_ECS->emplace<LinaEngine::ECS::TransformComponent>(m_EditorEntities[m_SelectedEntity].entity);
+				auto& e = m_ECS->emplace<LinaEngine::ECS::TransformComponent>(m_SelectedEntity);
 			}
 		}
 		else if (componentID == 1)
 		{
-			if (m_ECS->has<LinaEngine::ECS::MeshRendererComponent>(m_EditorEntities[m_SelectedEntity].entity))
+			if (m_ECS->has<LinaEngine::ECS::MeshRendererComponent>(m_SelectedEntity))
 				openModal = true;
 			else
 			{
-				auto& e = m_ECS->emplace<LinaEngine::ECS::MeshRendererComponent>(m_EditorEntities[m_SelectedEntity].entity);
+				auto& e = m_ECS->emplace<LinaEngine::ECS::MeshRendererComponent>(m_SelectedEntity);
 			}
 		}
 		else if (componentID == 2)
 		{
-			if (m_ECS->has<LinaEngine::ECS::CameraComponent>(m_EditorEntities[m_SelectedEntity].entity))
+			if (m_ECS->has<LinaEngine::ECS::CameraComponent>(m_SelectedEntity))
 				openModal = true;
 			else
 			{
-				auto& e = m_ECS->emplace<LinaEngine::ECS::CameraComponent>(m_EditorEntities[m_SelectedEntity].entity);
+				auto& e = m_ECS->emplace<LinaEngine::ECS::CameraComponent>(m_SelectedEntity);
 			}
 
 		}
 		else if (componentID == 3)
 		{
-			if (m_ECS->has<LinaEngine::ECS::DirectionalLightComponent>(m_EditorEntities[m_SelectedEntity].entity))
+			if (m_ECS->has<LinaEngine::ECS::DirectionalLightComponent>(m_SelectedEntity))
 				openModal = true;
 			else
 			{
-				auto& e = m_ECS->emplace<LinaEngine::ECS::DirectionalLightComponent>(m_EditorEntities[m_SelectedEntity].entity);
+				auto& e = m_ECS->emplace<LinaEngine::ECS::DirectionalLightComponent>(m_SelectedEntity);
 			}
 
 		}
 		else if (componentID == 4)
 		{
-			if (m_ECS->has<LinaEngine::ECS::PointLightComponent>(m_EditorEntities[m_SelectedEntity].entity))
+			if (m_ECS->has<LinaEngine::ECS::PointLightComponent>(m_SelectedEntity))
 				openModal = true;
 			else
 			{
-				auto& e = m_ECS->emplace<LinaEngine::ECS::PointLightComponent>(m_EditorEntities[m_SelectedEntity].entity);
+				auto& e = m_ECS->emplace<LinaEngine::ECS::PointLightComponent>(m_SelectedEntity);
 			}
 
 		}
 		else if (componentID == 5)
 		{
-			if (m_ECS->has<LinaEngine::ECS::SpotLightComponent>(m_EditorEntities[m_SelectedEntity].entity))
+			if (m_ECS->has<LinaEngine::ECS::SpotLightComponent>(m_SelectedEntity))
 				openModal = true;
 			else
 			{
-				auto& e = m_ECS->emplace<LinaEngine::ECS::SpotLightComponent>(m_EditorEntities[m_SelectedEntity].entity);
+				auto& e = m_ECS->emplace<LinaEngine::ECS::SpotLightComponent>(m_SelectedEntity);
 			}
 
 		}
 		else if (componentID == 6)
 		{
-			if (m_ECS->has<LinaEngine::ECS::FreeLookComponent>(m_EditorEntities[m_SelectedEntity].entity))
+			if (m_ECS->has<LinaEngine::ECS::FreeLookComponent>(m_SelectedEntity))
 				openModal = true;
 			else
 			{
-				auto& e = m_ECS->emplace<LinaEngine::ECS::FreeLookComponent>(m_EditorEntities[m_SelectedEntity].entity);
+				auto& e = m_ECS->emplace<LinaEngine::ECS::FreeLookComponent>(m_SelectedEntity);
 			}
 		}
 
@@ -301,11 +288,15 @@ namespace LinaEditor
 
 	void ECSPanel::DrawComponents(LinaEngine::ECS::ECSEntity& entity)
 	{
+		// Check if entity has any component.
 		if (!m_ECS->any<TransformComponent, MeshRendererComponent, CameraComponent, DirectionalLightComponent, SpotLightComponent, PointLightComponent, FreeLookComponent>(entity))
 			ImGui::TextWrapped("This entity doesn't contain any components");
 
+		// Draw transform component.
 		if (m_ECS->has<TransformComponent>(entity))
 		{
+			float dragSensitivity = 0.05f;
+			float dragSensitivityRotation = 0.25f;
 			TransformComponent* transform = &m_ECS->get<TransformComponent>(entity);
 
 			if (ImGui::CollapsingHeader("Transform Component", ImGuiTreeNodeFlags_None))
@@ -313,19 +304,20 @@ namespace LinaEditor
 				ImGui::Indent();
 
 				float location[3] = { transform->transform.location.x, transform->transform.location.y, transform->transform.location.z };
-				float rotation[3] = { transform->transform.rotation.GetEuler().x,transform->transform.rotation.GetEuler().y,transform->transform.rotation.GetEuler().z };
+				float rot[3] = { transform->transform.rotation.GetEuler().x, transform->transform.rotation.GetEuler().y, transform->transform.rotation.GetEuler().z };
 				float scale[3] = { transform->transform.scale.x, transform->transform.scale.y, transform->transform.scale.z};
-				ImGui::DragFloat3("Location", location);
+				ImGui::DragFloat3("Location", location, dragSensitivity);
 				ImGui::Separator();
-				ImGui::DragFloat3("Rotation", rotation);
+				ImGui::DragFloat3("Rotation", rot, dragSensitivityRotation);
 				ImGui::Separator();
-				ImGui::DragFloat3("Scale", scale);
+				ImGui::DragFloat3("Scale", scale, dragSensitivity);
 				transform->transform.location = Vector3(location[0], location[1], location[2]);
-				transform->transform.scale = Vector3(scale[0], scale[1], scale[2]);
-				transform->transform.rotation = Quaternion::Euler(Vector3(rotation[0], rotation[1], rotation[2]));
-				LINA_CLIENT_INFO("{0}", transform->transform.location.ToString());
+				transform->transform.scale = Vector3(scale[0], scale[1], scale[2]);			
+				transform->transform.rotation = Quaternion::Euler(rot[0], rot[1], rot[2]);
+
 				ImGui::Unindent();
 			}
+
 		}
 
 

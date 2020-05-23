@@ -20,6 +20,8 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 */
 
 #include "Utility/Math/Quaternion.hpp"  
+#include "Utility/Log.hpp"
+#include <glm/gtx/quaternion.hpp>
 
 namespace LinaEngine
 {
@@ -42,23 +44,27 @@ namespace LinaEngine
 
 	Vector3 Quaternion::GetRight() const
 	{
-		return Rotate(Vector3::Right);
+		return GetRotated(Vector3::Right);
 	}
 
 	Vector3 Quaternion::GetUp() const
 	{
-		return Rotate(Vector3::Up);
+		return GetRotated(Vector3::Up);
 	}
 
 	Vector3 Quaternion::GetForward() const
 	{
-		return Rotate(Vector3::Forward);
+		return GetRotated(Vector3::Forward);
 	}
 
-	Vector3 Quaternion::GetEuler() const
+	Vector3 Quaternion::GetEuler()
 	{
-		return glm::eulerAngles(*this);
+		Vector3 euler  = glm::eulerAngles(*this);
+		euler = Vector3(glm::degrees(euler.x), glm::degrees(euler.y), glm::degrees(euler.z));
+		return euler;
 	}
+
+
 
 	Vector3 Quaternion::GetAxis() const
 	{
@@ -69,7 +75,7 @@ namespace LinaEngine
 		return glm::angle(*this);
 	}
 
-	Vector3 Quaternion::Rotate(const Vector3& other) const
+	Vector3 Quaternion::GetRotated(const Vector3& other) const
 	{
 		glm::vec3 v;
 		v.x = glm::radians(other.x);

@@ -157,7 +157,7 @@ void Example1Level::Initialize()
 	CreateProceduralSkybox(m_RenderEngine);
 
 
-	camera = m_ECS->create();
+	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);
 	auto& camTransform = m_ECS->emplace<TransformComponent>(camera);
 	auto& camCamera = m_ECS->emplace<CameraComponent>(camera);
@@ -225,8 +225,7 @@ void Example1Level::Initialize()
 	smallCubeRenderer.material = objectUnlitMaterial;
 
 
-
-	directionalLight = m_ECS->create();
+	directionalLight = m_ECS->CreateEntity("Directional Light");
 	auto& dirLight = m_ECS->emplace<DirectionalLightComponent>(directionalLight);
 	auto& dirLightTransform = m_ECS->emplace<TransformComponent>(directionalLight);
 	dirLight.color = Color(0.4f,0.4,0.4f);
@@ -238,7 +237,7 @@ void Example1Level::Initialize()
 
 
 	ECSEntity floor;
-	floor = m_ECS->create();
+	floor = m_ECS->CreateEntity("Floor");
 	MeshRendererComponent mr;
 	mr.mesh = &m_RenderEngine->GetPrimitive(Primitives::PLANE);
 	mr.material = floorMaterial;
@@ -270,7 +269,7 @@ void Example1Level::Initialize()
 		if (i == 3)
 			object1Transform.transform.scale = Vector3(1.1f);
 		//object1Transform.transform.location = Vector3(Math::RandF(-100, 100), Math::RandF(-100, 100), Math::RandF(-100, 100));
-		entity = m_ECS->create();
+		entity = m_ECS->CreateEntity("Cube " + std::to_string(i));
 		m_ECS->emplace<TransformComponent>(entity, object1Transform);
 		m_ECS->emplace<MeshRendererComponent>(entity, object1Renderer);
 	}
@@ -299,7 +298,7 @@ void Example1Level::Initialize()
 
 
 		ECSEntity visuals;
-		visuals = m_ECS->create();
+		visuals = m_ECS->CreateEntity("Point Light " + i);
 		object1Transform.transform.scale = 0.1f;
 		m_ECS->emplace<TransformComponent>(visuals, object1Transform);
 		m_ECS->emplace<MeshRendererComponent>(visuals, smallCubeRenderer);

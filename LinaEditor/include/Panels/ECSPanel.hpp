@@ -24,6 +24,7 @@ Timestamp: 5/23/2020 4:15:06 PM
 
 #include "Panels/EditorPanel.hpp"
 #include "Utility/EditorUtility.hpp"
+#include "ECS/ECS.hpp"
 
 namespace LinaEngine
 {
@@ -47,7 +48,6 @@ namespace LinaEditor
 
 	private:
 
-		void CreateNewEntity();
 		void AddComponentToEntity(int componentID);
 		void DrawComponents(LinaEngine::ECS::ECSEntity& entity);
 
@@ -55,8 +55,7 @@ namespace LinaEditor
 
 		LinaEngine::Graphics::Window* m_AppWindow;
 		LinaEngine::ECS::ECSRegistry* m_ECS;
-		std::vector<EditorEntity> m_EditorEntities;
-		int m_SelectedEntity = -1;
+		LinaEngine::ECS::ECSEntity m_SelectedEntity;
 	};
 }
 

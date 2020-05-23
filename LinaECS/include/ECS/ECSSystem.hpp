@@ -25,13 +25,29 @@ Timestamp: 4/8/2019 5:28:34 PM
 
 #include "Core/Common.hpp"
 #include "entt/entity/registry.hpp"
+#include "entt/entity/entity.hpp"
+#include <map>
 
 
 namespace LinaEngine::ECS
 {
-
-	typedef entt::registry ECSRegistry;
 	typedef entt::entity ECSEntity;
+
+	class ECSRegistry : public entt::registry
+	{
+	public:
+
+		ECSRegistry() {};
+		virtual ~ECSRegistry() {};
+
+		ECSEntity CreateEntity(const std::string& name);
+		void SetEntityName(ECSEntity entity, const std::string& name);
+		std::string& GetEntityName(ECSEntity e);
+
+	private:
+		std::map<entt::entity, std::string> m_EntityNameMap;
+	};
+	
 
 	class BaseECSSystem
 	{
