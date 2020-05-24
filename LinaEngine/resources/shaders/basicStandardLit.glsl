@@ -34,6 +34,8 @@ out VS_OUT
 	vec3 FragPos;
 	vec2 TexCoords;
 	mat3 tbnMatrix;
+	vec3 TangentViewPos;
+    vec3 TangentFragPos;
 } vs_out;
 
 #include "lightingData.glh"
@@ -53,6 +55,10 @@ void main()
 	vec3 bt = cross(t,n);
 	vs_out.tbnMatrix = mat3(t, bt, n);
 	
+	// For parallax mapping
+    vs_out.TangentViewPos  = transpose(vs_out.tbnMatrix) * vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
+    vs_out.TangentFragPos  = transpose(vs_out.tbnMatrix) * vs_out.FragPos;
+	
 }
 
 #elif defined(GEO_BUILD)
@@ -65,6 +71,8 @@ in VS_OUT {
 	vec3 FragPos;
 	vec2 TexCoords;
 	mat3 tbnMatrix;
+	vec3 TangentViewPos;
+    vec3 TangentFragPos;
 } gs_in[];
 
 out vec2 TexCoords; 
@@ -104,6 +112,8 @@ in VS_OUT
 	vec3 FragPos;
 	vec2 TexCoords;
 	mat3 tbnMatrix;
+	vec3 TangentViewPos;
+    vec3 TangentFragPos;
 } fs_in;
 
 #include "lightingData.glh"
@@ -132,9 +142,9 @@ void main()
 		
 		
 		// Textures
-		vec4 parallaxColor = material.parallaxMap.isActive != 0 ? texture(material.normalMap.texture, tiledTexCoord) : vec4(1,1,1,1);
+		vec4 parallaxColor = material.parallaxMap.isActive != 0 ? texture(material.parallaxMap.texture, tiledTexCoord) : vec4(1,1,1,1);
 		if(material.parallaxMap.isActive != 0)
-			tiledTexCoord = ParallaxMapping(tiledTexCoord, viewDir, parallaxColor);
+			tiledTexCoord = ParallaxMapping(tiledTexCoord, normalize(fs_in.TangentViewPos - fs_in.TangentFragPos), parallaxColor);
 		
 		vec4 diffuseTextureColor =  material.diffuse.isActive != 0 ? texture(material.diffuse.texture, tiledTexCoord) : vec4(1,1,1,1);
 		vec3 normal = material.normalMap.isActive != 0 ? texture(material.normalMap.texture, tiledTexCoord).rgb : normalize(fs_in.Normal);	

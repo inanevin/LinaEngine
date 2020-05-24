@@ -214,9 +214,6 @@ void Example1Level::Initialize()
 	//cubemapReflectiveMaterial = &m_RenderEngine->CreateMaterial("cubemapReflective", Shaders::CUBEMAP_REFLECTIVE);
 
 
-
-
-
 	objectLitMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &brickWall);
 	objectLitMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &brickWallNormal);
 	objectLitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
@@ -227,7 +224,7 @@ void Example1Level::Initialize()
 	floorMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &brickWall);
 	floorMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &brickWallNormal);
 	floorMaterial->SetTexture(MC_TEXTURE2D_PARALLAXMAP, &bricksParallax);
-	floorMaterial->SetVector2(MC_TILING, Vector2(1,1));
+	floorMaterial->SetVector2(MC_TILING, Vector2(20, 20));
 	floorMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1,1,1));
 
 	//floorMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &wood);
