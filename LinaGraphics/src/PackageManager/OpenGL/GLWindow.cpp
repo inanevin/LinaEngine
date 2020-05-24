@@ -181,10 +181,7 @@ namespace LinaEngine::Graphics
 	void GLWindow::WindowResized(void* window, int width, int height)
 	{
 		m_WindowProperties->m_Width = width;
-		m_WindowProperties->m_Height = height;
-
-		glViewport(0, 0, m_WindowProperties->m_Width, m_WindowProperties->m_Height);
-		
+		m_WindowProperties->m_Height = height;		
 		m_WindowResizeCallback(Vector2((float)width, (float)height));
 	}
 

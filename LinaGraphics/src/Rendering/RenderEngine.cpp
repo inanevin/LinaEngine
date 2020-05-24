@@ -144,11 +144,11 @@ namespace LinaEngine::Graphics
 		//	(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_PointLightsRTTexture, TextureBindMode::BINDTEXTURE_CUBEMAP);
 
 		//DrawOperationsPrimaryRT(delta);
-		DrawOperationsDefault(delta);
+		//DrawOperationsDefault(delta);
 
 
 
-		//DrawOperationsMSAA(delta);
+		DrawOperationsMSAA(delta);
 
 
 		// Draw GUI Layers
@@ -627,12 +627,6 @@ namespace LinaEngine::Graphics
 		mainRTParams.textureParams.minFilter = mainRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
 		mainRTParams.textureParams.wrapS = mainRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
 
-		SamplerParameters primaryRTParams;
-		primaryRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
-		primaryRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
-		primaryRTParams.textureParams.minFilter = primaryRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-		primaryRTParams.textureParams.wrapS = primaryRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_BORDER;
-
 		SamplerParameters depthRTParams;
 		depthRTParams.textureParams.pixelFormat = depthRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_DEPTH;
 		depthRTParams.textureParams.minFilter = depthRTParams.textureParams.magFilter = SamplerFilter::FILTER_NEAREST;
@@ -652,10 +646,7 @@ namespace LinaEngine::Graphics
 		m_ShadowMapResolution = Vector2(2048, 2048);
 
 		// Initialize frame buffer texture.
-		m_MainRTTexture.ConstructRTTextureMSAA(m_RenderDevice, screenSize, mainRTParams, 8);
-
-		// Initialize primary render target texture
-		m_PrimaryRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, primaryRTParams, false);
+		m_MainRTTexture.ConstructRTTextureMSAA(m_RenderDevice, screenSize, mainRTParams, 4);
 
 		// Initialize intermediate frame buffer texture
 		m_IntermediateRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, mainRTParams, false);
@@ -673,24 +664,18 @@ namespace LinaEngine::Graphics
 		m_HDRRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, hdrRTParams);
 
 		// Initialize render buffer.
-		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 8);
-
-		// Initialize primary render buffer
-		m_PrimaryRenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, screenSize.x, screenSize.y);
+		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);
 
 		// Initialize the render target w/ render buffer.
 		m_MainRenderTarget.Construct(m_RenderDevice, m_MainRTTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_RenderBuffer.GetID());
-
-		// Initialize primary render target.
-		m_PrimaryRenderTarget.Construct(m_RenderDevice, m_PrimaryRTTexture, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_PrimaryRenderBuffer.GetID());
 
 		// Initialize intermediate render target.
 		m_IntermediateRenderTarget.Construct(m_RenderDevice, m_IntermediateRTTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 
 		// Bind the secondary texture to intermediate render target & tell open gl to draw 2 buffers.
-		//m_RenderDevice.BindTextureToRenderTarget(m_IntermediateRenderTarget.GetID(), screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1, 0);
-		//uint32 attachments[2] = { FrameBufferAttachment::ATTACHMENT_COLOR , (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)1) };
-		//m_RenderDevice.MultipleDrawBuffersCommand(m_IntermediateRenderTarget.GetID(), 2, attachments);
+		m_RenderDevice.BindTextureToRenderTarget(m_IntermediateRenderTarget.GetID(), screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1, 0);
+		uint32 attachments[2] = { FrameBufferAttachment::ATTACHMENT_COLOR , (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)1) };
+		m_RenderDevice.MultipleDrawBuffersCommand(m_IntermediateRenderTarget.GetID(), 2, attachments);
 
 		// Initialize shadow map target
 		m_DepthMapRenderTarget.Construct(m_RenderDevice, m_DepthMapRTTexture, m_ShadowMapResolution.x, m_ShadowMapResolution.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
@@ -939,39 +924,6 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
 	}
 
-	void RenderEngine::DrawOperationsPrimaryRT(float delta)
-	{
-
-		// Draw on primary buffer.
-		m_RenderDevice.SetFBO(m_PrimaryRenderTarget.GetID());
-
-		// Clear color.
-		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-
-		// Update pipeline.
-		m_RenderingPipeline.UpdateSystems(delta);
-
-		// Update uniform buffers on GPU
-		UpdateUniformBuffers();
-
-		// Draw scene
-		DrawSceneObjects(false, m_DefaultDrawParams);
-
-		// DRAWING QUAD
-		m_RenderDevice.SetFBO(0);
-
-		// Clear color bit.
-		m_RenderDevice.Clear(true, false, false, Color::White, 0xFF);
-
-		// Set frame buffer texture on the material.
-		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &m_PrimaryRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
-
-		// update shader w/ material data.
-		UpdateShaderData(&m_ScreenQuadMaterial);
-
-		// Draw full screen quad.
-		m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
-	}
 
 	void RenderEngine::DrawOperationsShadows(float delta, bool visualizeDepthMap)
 	{

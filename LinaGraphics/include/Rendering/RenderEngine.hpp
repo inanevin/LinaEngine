@@ -214,9 +214,6 @@ namespace LinaEngine::Graphics
 
 		// Drawing onto fullscreen quad via MSAA buffers
 		void DrawOperationsMSAA(float delta);
-		
-		// Drawing onto fullscreen quad with primary render target
-		void DrawOperationsPrimaryRT(float delta);
 
 		// Draw operations for shadow mapping
 		void DrawOperationsShadows(float delta, bool visualizeDepthMap);
@@ -247,9 +244,6 @@ namespace LinaEngine::Graphics
 		// Default render target
 		RenderTarget m_MainRenderTarget;
 
-		// Primary render target
-		RenderTarget m_PrimaryRenderTarget;
-
 		// Intermediate render target for blitting
 		RenderTarget m_IntermediateRenderTarget;
 
@@ -265,9 +259,6 @@ namespace LinaEngine::Graphics
 		// Default Render buffer
 		RenderBuffer m_RenderBuffer;
 
-		// Primary render buffer
-		RenderBuffer m_PrimaryRenderBuffer;
-
 		// Screen Quad material
 		Material m_ScreenQuadMaterial;
 
@@ -282,9 +273,6 @@ namespace LinaEngine::Graphics
 
 		// Main render target Texture
 		Texture m_MainRTTexture;
-
-		// Primary render target texture
-		Texture m_PrimaryRTTexture;
 
 		// Intermediate render target texture
 		Texture m_IntermediateRTTexture;

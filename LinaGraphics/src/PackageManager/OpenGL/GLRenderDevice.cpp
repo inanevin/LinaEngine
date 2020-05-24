@@ -1011,6 +1011,7 @@ namespace LinaEngine::Graphics
 			m_FBOMap[i].width = (int32)width;
 			m_FBOMap[i].height = (int32)height;
 		}
+		glViewport(0, 0, width, height);
 	}
 
 
