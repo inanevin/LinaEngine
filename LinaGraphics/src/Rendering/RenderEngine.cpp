@@ -144,11 +144,11 @@ namespace LinaEngine::Graphics
 		//	(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_PointLightsRTTexture, TextureBindMode::BINDTEXTURE_CUBEMAP);
 
 		//DrawOperationsPrimaryRT(delta);
-		//DrawOperationsDefault(delta);
+		DrawOperationsDefault(delta);
 
 
 
-		DrawOperationsMSAA(delta);
+		//DrawOperationsMSAA(delta);
 
 
 		// Draw GUI Layers
@@ -627,6 +627,13 @@ namespace LinaEngine::Graphics
 		mainRTParams.textureParams.minFilter = mainRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
 		mainRTParams.textureParams.wrapS = mainRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
 
+		SamplerParameters intRTParams;
+		intRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
+		intRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
+		intRTParams.textureParams.minFilter = intRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
+		intRTParams.textureParams.wrapS = intRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+
+
 		SamplerParameters depthRTParams;
 		depthRTParams.textureParams.pixelFormat = depthRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_DEPTH;
 		depthRTParams.textureParams.minFilter = depthRTParams.textureParams.magFilter = SamplerFilter::FILTER_NEAREST;
@@ -637,45 +644,37 @@ namespace LinaEngine::Graphics
 		pointLightRTParams.textureParams.minFilter = pointLightRTParams.textureParams.magFilter = SamplerFilter::FILTER_NEAREST;
 		pointLightRTParams.textureParams.wrapS = pointLightRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 
-		SamplerParameters hdrRTParams;
-		hdrRTParams.textureParams.pixelFormat =  PixelFormat::FORMAT_RGBA;
-		hdrRTParams.textureParams.internalPixelFormat =  PixelFormat::FORMAT_RGBA16F;
-		hdrRTParams.textureParams.minFilter = hdrRTParams.textureParams.magFilter = SamplerFilter::FILTER_NEAREST;
-		hdrRTParams.textureParams.wrapS = hdrRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-
 		m_ShadowMapResolution = Vector2(2048, 2048);
 
 		// Initialize frame buffer texture.
 		m_MainRTTexture.ConstructRTTextureMSAA(m_RenderDevice, screenSize, mainRTParams, 4);
 
 		// Initialize intermediate frame buffer texture
-		m_IntermediateRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, mainRTParams, false);
-
-		// Initialize intermediate frame buffer texture 2 for bloom operations.
-		m_IntermediateRTTexture2.ConstructRTTexture(m_RenderDevice, screenSize, mainRTParams, false);
+		m_IntermediateRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, intRTParams, false);
 
 		// Initialize depth map teture
 		m_DepthMapRTTexture.ConstructRTTexture(m_RenderDevice, m_ShadowMapResolution, depthRTParams, true);
 
 		// Initialize point light rt texture
 		m_PointLightsRTTexture.ConstructRTCubemapTexture(m_RenderDevice, m_ShadowMapResolution, pointLightRTParams);
-
-		// Initialize hdr render target texture
-		m_HDRRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, hdrRTParams);
-
+	
 		// Initialize render buffer.
 		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);
+
+		// Initialize intermediate render buffer
+		m_IntermediateRenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH, screenSize.x, screenSize.y);
 
 		// Initialize the render target w/ render buffer.
 		m_MainRenderTarget.Construct(m_RenderDevice, m_MainRTTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_RenderBuffer.GetID());
 
 		// Initialize intermediate render target.
+		//m_IntermediateRenderTarget.Construct(m_RenderDevice, m_IntermediateRTTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_IntermediateRenderBuffer.GetID());
 		m_IntermediateRenderTarget.Construct(m_RenderDevice, m_IntermediateRTTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 
 		// Bind the secondary texture to intermediate render target & tell open gl to draw 2 buffers.
-		m_RenderDevice.BindTextureToRenderTarget(m_IntermediateRenderTarget.GetID(), screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1, 0);
-		uint32 attachments[2] = { FrameBufferAttachment::ATTACHMENT_COLOR , (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)1) };
-		m_RenderDevice.MultipleDrawBuffersCommand(m_IntermediateRenderTarget.GetID(), 2, attachments);
+		//m_RenderDevice.BindTextureToRenderTarget(m_IntermediateRenderTarget.GetID(), screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1, 0);
+		//uint32 attachments[2] = { FrameBufferAttachment::ATTACHMENT_COLOR , (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)1) };
+		//m_RenderDevice.MultipleDrawBuffersCommand(m_IntermediateRenderTarget.GetID(), 2, attachments);
 
 		// Initialize shadow map target
 		m_DepthMapRenderTarget.Construct(m_RenderDevice, m_DepthMapRTTexture, m_ShadowMapResolution.x, m_ShadowMapResolution.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
@@ -683,8 +682,6 @@ namespace LinaEngine::Graphics
 		// Initialize point light shadow map target
 		m_PointLightsRenderTarget.Construct(m_RenderDevice, m_PointLightsRTTexture, m_ShadowMapResolution.x, m_ShadowMapResolution.y, TextureBindMode::BINDTEXTURE_NONE, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
 
-		// Initialize hdr render target.
-		m_HDRRRenderTarget.Construct(m_RenderDevice, m_HDRRTTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 	}
 
 	void RenderEngine::SetupDrawParameters()
@@ -948,26 +945,6 @@ namespace LinaEngine::Graphics
 		// Visaulize depth buffer
 		if (visualizeDepthMap)
 			DrawFullscreenQuad(m_DepthMapRTTexture, false);
-	}
-
-	void RenderEngine::DrawOperationsHDR(float delta)
-	{
-		m_RenderDevice.SetFBO(m_HDRRRenderTarget.GetID());
-
-		// Clear color.
-		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-
-		// Update pipeline.
-		m_RenderingPipeline.UpdateSystems(delta);
-
-		// Update uniform buffers on GPU
-		UpdateUniformBuffers();
-
-		// Draw scene
-		DrawSceneObjects(false, m_DefaultDrawParams, nullptr, false);
-
-		// Draw the scene data into a quad
-		DrawFullscreenQuad(m_HDRRTTexture, false);
 	}
 
 	void RenderEngine::DrawSkybox()

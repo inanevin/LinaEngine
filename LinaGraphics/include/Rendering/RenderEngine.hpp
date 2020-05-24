@@ -218,9 +218,6 @@ namespace LinaEngine::Graphics
 		// Draw operations for shadow mapping
 		void DrawOperationsShadows(float delta, bool visualizeDepthMap);
 
-		// Draw operations for HDR frame buffer
-		void DrawOperationsHDR(float delta);
-
 		// Renders skybox
 		void DrawSkybox();
 
@@ -253,11 +250,11 @@ namespace LinaEngine::Graphics
 		// Depth map render target for point light shadows
 		RenderTarget m_PointLightsRenderTarget;
 
-		// Floating point rt for hdr rendering
-		RenderTarget m_HDRRRenderTarget;
-
 		// Default Render buffer
 		RenderBuffer m_RenderBuffer;
+
+		// Intermediate render buffer
+		RenderBuffer m_IntermediateRenderBuffer;
 
 		// Screen Quad material
 		Material m_ScreenQuadMaterial;
@@ -277,17 +274,11 @@ namespace LinaEngine::Graphics
 		// Intermediate render target texture
 		Texture m_IntermediateRTTexture;
 
-		// Secondary RT texture for blooming.
-		Texture m_IntermediateRTTexture2;
-
 		// Depth map render target texture
 		Texture m_DepthMapRTTexture;
 
 		// Point lights render target texture
 		Texture m_PointLightsRTTexture;
-
-		// HDR Render target texture
-		Texture m_HDRRTTexture;
 
 		// Default texture
 		Texture m_DefaultTexture;
