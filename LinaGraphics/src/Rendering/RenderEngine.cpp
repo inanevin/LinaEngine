@@ -143,8 +143,8 @@ namespace LinaEngine::Graphics
 	//	for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
 		//	(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_PointLightsRTTexture, TextureBindMode::BINDTEXTURE_CUBEMAP);
 
-		DrawOperationsMSAA(delta);
-
+		//DrawOperationsPrimaryRT(delta);
+		DrawOperationsDefault(delta);
 
 
 
@@ -627,6 +627,12 @@ namespace LinaEngine::Graphics
 		mainRTParams.textureParams.minFilter = mainRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
 		mainRTParams.textureParams.wrapS = mainRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
 
+		SamplerParameters primaryRTParams;
+		primaryRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
+		primaryRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
+		primaryRTParams.textureParams.minFilter = primaryRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
+		primaryRTParams.textureParams.wrapS = primaryRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_BORDER;
+
 		SamplerParameters depthRTParams;
 		depthRTParams.textureParams.pixelFormat = depthRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_DEPTH;
 		depthRTParams.textureParams.minFilter = depthRTParams.textureParams.magFilter = SamplerFilter::FILTER_NEAREST;
@@ -646,7 +652,10 @@ namespace LinaEngine::Graphics
 		m_ShadowMapResolution = Vector2(2048, 2048);
 
 		// Initialize frame buffer texture.
-		m_MainRTTexture.ConstructRTTextureMSAA(m_RenderDevice, screenSize, mainRTParams, 4);
+		m_MainRTTexture.ConstructRTTextureMSAA(m_RenderDevice, screenSize, mainRTParams, 8);
+
+		// Initialize primary render target texture
+		m_PrimaryRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, primaryRTParams, false);
 
 		// Initialize intermediate frame buffer texture
 		m_IntermediateRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, mainRTParams, false);
@@ -664,10 +673,16 @@ namespace LinaEngine::Graphics
 		m_HDRRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, hdrRTParams);
 
 		// Initialize render buffer.
-		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);
+		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 8);
+
+		// Initialize primary render buffer
+		m_PrimaryRenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, screenSize.x, screenSize.y);
 
 		// Initialize the render target w/ render buffer.
 		m_MainRenderTarget.Construct(m_RenderDevice, m_MainRTTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_RenderBuffer.GetID());
+
+		// Initialize primary render target.
+		m_PrimaryRenderTarget.Construct(m_RenderDevice, m_PrimaryRTTexture, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_PrimaryRenderBuffer.GetID());
 
 		// Initialize intermediate render target.
 		m_IntermediateRenderTarget.Construct(m_RenderDevice, m_IntermediateRTTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
@@ -741,8 +756,8 @@ namespace LinaEngine::Graphics
 		m_FullscreenQuadDP.useStencilTest = true;
 		m_FullscreenQuadDP.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
 		m_FullscreenQuadDP.faceCulling = FaceCulling::FACE_CULL_NONE;
-		m_FullscreenQuadDP.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
-		m_FullscreenQuadDP.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+		m_FullscreenQuadDP.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
+		m_FullscreenQuadDP.destBlend = BlendFunc::BLEND_FUNC_NONE;
 		m_FullscreenQuadDP.shouldWriteDepth = true;
 		m_FullscreenQuadDP.depthFunc = DrawFunc::DRAW_FUNC_LESS;
 		m_FullscreenQuadDP.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
@@ -903,8 +918,59 @@ namespace LinaEngine::Graphics
 		// Draw scene
 		DrawSceneObjects(false, m_DefaultDrawParams);
 
-		// Draw the quad
-		DrawFullscreenQuad(m_IntermediateRTTexture, true);
+		// Blit frame buffers
+		int w = m_MainWindow.GetWidth();
+		int h = m_MainWindow.GetHeight();
+		m_RenderDevice.BlitFrameBuffers(m_MainRenderTarget.GetID(), w, h, m_IntermediateRenderTarget.GetID(), w, h, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST);
+
+		// Back to default buffer
+		m_RenderDevice.SetFBO(0);
+
+		// Clear color bit.
+		m_RenderDevice.Clear(true, false, false, Color::White, 0xFF);
+
+		// Set frame buffer texture on the material.
+		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &m_IntermediateRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+
+		// update shader w/ material data.
+		UpdateShaderData(&m_ScreenQuadMaterial);
+
+		// Draw full screen quad.
+		m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
+	}
+
+	void RenderEngine::DrawOperationsPrimaryRT(float delta)
+	{
+
+		// Draw on primary buffer.
+		m_RenderDevice.SetFBO(m_PrimaryRenderTarget.GetID());
+
+		// Clear color.
+		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+
+		// Update pipeline.
+		m_RenderingPipeline.UpdateSystems(delta);
+
+		// Update uniform buffers on GPU
+		UpdateUniformBuffers();
+
+		// Draw scene
+		DrawSceneObjects(false, m_DefaultDrawParams);
+
+		// DRAWING QUAD
+		m_RenderDevice.SetFBO(0);
+
+		// Clear color bit.
+		m_RenderDevice.Clear(true, false, false, Color::White, 0xFF);
+
+		// Set frame buffer texture on the material.
+		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &m_PrimaryRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+
+		// update shader w/ material data.
+		UpdateShaderData(&m_ScreenQuadMaterial);
+
+		// Draw full screen quad.
+		m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
 	}
 
 	void RenderEngine::DrawOperationsShadows(float delta, bool visualizeDepthMap)
@@ -1005,7 +1071,7 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.SetFBO(0);
 
 		// Clear color bit.
-		m_RenderDevice.Clear(true, !blit, false, Color::White, 0xFF);
+		m_RenderDevice.Clear(true, blit, false, Color::White, 0xFF);
 
 		// Set frame buffer texture on the material.
 		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &texture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
