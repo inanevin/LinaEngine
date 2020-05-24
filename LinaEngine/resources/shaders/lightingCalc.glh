@@ -14,40 +14,6 @@
  * limitations under the License.
  */
 
-
-struct DirectionalLight
-{
-	vec3 direction;
-	vec3 color;
-};
-
-struct PointLight
-{
-	vec3 position;
-  	vec3 color;
-	float distance;
-};
-
-struct SpotLight 
-{
-    vec3 position;
-    vec3 direction;
-    float cutOff;
-    float outerCutOff;
-	vec3 color;
-	float distance;
-};
-
-
-#define MAX_POINT_LIGHT 12
-#define MAX_SPOT_LIGHT 12
-#define DIRLIGHT_DISTANCE 1 // change to ZFar later on
-
-uniform PointLight pointLights[MAX_POINT_LIGHT];
-uniform SpotLight spotLights[MAX_SPOT_LIGHT];
-uniform DirectionalLight directionalLight;
-
-
 vec3 CalculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir)
 {
     vec3 lightDir = normalize(-light.direction);
@@ -70,24 +36,23 @@ vec3 CalculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir
 }
 
 
-vec3 CalculatePointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+vec3 CalculatePointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 lightDir)
 {
-    vec3 lightDir = normalize(light.position - fragPos);
-	 
+	vec3 lightDirN = normalize(lightDir);
 	// diffuse shading
-    float diff = max(dot(normal, lightDir), 0.0);
+    float diff = max(dot(normal, lightDirN), 0.0);
 	vec3 diffuse = diff * light.color;
 	
     // specular shading
-	vec3 halfwayDir = normalize(lightDir + viewDir);
+	vec3 halfwayDir = normalize(lightDirN + viewDir);
     float spec = pow(max(dot(normal, halfwayDir), 0.0), material.specularExponent);
 	vec3 specular = spec * light.color;
 	
-	float maxDistance = light.distance;
-	float distance = length(light.position - fragPos);
-	float attenuation = 1.0 / (distance * distance);
-	diffuse *= attenuation;
-	specular *= attenuation;
+	//float maxDistance = light.distance;
+	//float distance = length(lightDir);
+	//float attenuation = 1.0 / (distance * distance);
+	//diffuse *= attenuation;
+	//specular *= attenuation;
 	return diffuse + specular;
 }
 

@@ -209,6 +209,7 @@ void Example1Level::Initialize()
 
 
 
+
 	objectLitMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &brickWall);
 	objectLitMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &brickWallNormal);
 	objectLitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
@@ -217,6 +218,7 @@ void Example1Level::Initialize()
 	objectUnlitMaterial2->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
 	
 	floorMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &wood);
+	floorMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &brickWallNormal);
 	floorMaterial->SetVector2(MC_TILING, Vector2(20, 20));
 	floorMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1,1,1));
 
