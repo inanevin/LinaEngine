@@ -59,6 +59,7 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void SetKeyCallback(std::function<void(int,int)>& callback) { m_KeyCallback = callback; }
 		FORCEINLINE void SetMouseCallback(std::function<void(int,int)>& callback) { m_MouseCallback = callback; }
 		FORCEINLINE void SetWindowResizeCallback(std::function<void(Vector2)>& callback) { m_WindowResizeCallback = callback; }
+		FORCEINLINE void SetWindowClosedCallback(std::function<void()>& callback) { m_WindowClosedCallback = callback; }
 	private:
 
 
@@ -88,6 +89,7 @@ namespace LinaEngine::Graphics
 		std::function<void(int, int)> m_KeyCallback;
 		std::function<void(int, int)> m_MouseCallback;
 		std::function<void(Vector2)> m_WindowResizeCallback;
+		std::function<void()> m_WindowClosedCallback;
 	};
 }
 

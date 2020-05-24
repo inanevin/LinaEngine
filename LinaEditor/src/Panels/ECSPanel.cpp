@@ -26,6 +26,7 @@ Timestamp: 5/23/2020 4:15:24 PM
 #include "ECS/Components/LightComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
+#include "REndering/Material.hpp"
 #include "Rendering/Window.hpp"
 #include "imgui.h"
 #include "ImGuiFileBrowser.h"
@@ -80,8 +81,84 @@ namespace LinaEditor
 {
 	using namespace LinaEngine::ECS;
 	using namespace LinaEngine;
-	static bool openModal;
+	static bool openCompExistsModal;
 	const char* entityComponents[] = { "Transform", "Mesh Renderer", "Camera", "Directional Light", "Point Light", "Spot Light", "Free Look" };
+
+	static void ColorButton(ImVec4& color)
+	{
+		static bool alpha_preview = true;
+		static bool alpha_half_preview = false;
+		static bool drag_and_drop = true;
+		static bool options_menu = true;
+		static bool hdr = false;
+		ImGuiColorEditFlags misc_flags = (hdr ? ImGuiColorEditFlags_HDR : 0) | (drag_and_drop ? 0 : ImGuiColorEditFlags_NoDragDrop) | (alpha_half_preview ? ImGuiColorEditFlags_AlphaPreviewHalf : (alpha_preview ? ImGuiColorEditFlags_AlphaPreview : 0)) | (options_menu ? 0 : ImGuiColorEditFlags_NoOptions);
+		// Generate a dummy default palette. The palette will persist and can be edited.
+		static bool saved_palette_init = true;
+		static ImVec4 saved_palette[32] = {};
+		if (saved_palette_init)
+		{
+			for (int n = 0; n < IM_ARRAYSIZE(saved_palette); n++)
+			{
+				ImGui::ColorConvertHSVtoRGB(n / 31.0f, 0.8f, 0.8f,
+					saved_palette[n].x, saved_palette[n].y, saved_palette[n].z);
+				saved_palette[n].w = 1.0f; // Alpha
+			}
+			saved_palette_init = false;
+		}
+
+		static ImVec4 backup_color;
+		bool open_popup = ImGui::ColorButton("MyColor##3b", color, misc_flags);
+		ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+		open_popup |= ImGui::Button("Light Color");
+		if (open_popup)
+		{
+			ImGui::OpenPopup("mypicker");
+			backup_color = color;
+		}
+		if (ImGui::BeginPopup("mypicker"))
+		{
+			ImGui::PushItemWidth(160);
+
+			ImGui::Text("Color Picker!");
+			ImGui::Separator();
+			ImGui::ColorPicker4("##picker", (float*)&color, misc_flags | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoSmallPreview);
+			ImGui::SameLine();
+
+			ImGui::BeginGroup(); // Lock X position
+			ImGui::Text("Current");
+			ImGui::ColorButton("##current", color, ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_AlphaPreviewHalf, ImVec2(60, 40));
+			ImGui::Text("Previous");
+			if (ImGui::ColorButton("##previous", backup_color, ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_AlphaPreviewHalf, ImVec2(60, 40)))
+				color = backup_color;
+		/*	ImGui::Separator();
+			ImGui::Text("Palette");
+			for (int n = 0; n < IM_ARRAYSIZE(saved_palette); n++)
+			{
+				ImGui::PushID(n);
+				if ((n % 8) != 0)
+					ImGui::SameLine(0.0f, ImGui::GetStyle().ItemSpacing.y);
+
+				ImGuiColorEditFlags palette_button_flags = ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_NoTooltip;
+				if (ImGui::ColorButton("##palette", saved_palette[n], palette_button_flags, ImVec2(20, 20)))
+					color = ImVec4(saved_palette[n].x, saved_palette[n].y, saved_palette[n].z, color.w); // Preserve alpha!
+
+				// Allow user to drop colors into each palette entry. Note that ColorButton() is already a
+				// drag source by default, unless specifying the ImGuiColorEditFlags_NoDragDrop flag.
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_3F))
+						memcpy((float*)&saved_palette[n], payload->Data, sizeof(float) * 3);
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_4F))
+						memcpy((float*)&saved_palette[n], payload->Data, sizeof(float) * 4);
+					ImGui::EndDragDropTarget();
+				}
+
+				ImGui::PopID();
+			}*/
+			ImGui::EndGroup();
+			ImGui::EndPopup();
+		}
+	}
 
 	void ECSPanel::Setup(LinaEngine::ECS::ECSRegistry& registry, LinaEngine::Graphics::Window& appWindow)
 	{
@@ -95,20 +172,22 @@ namespace LinaEditor
 		if (m_Show)
 		{
 			// Component already exists popup modal.
-			if (openModal)
+			if (openCompExistsModal)
 				ImGui::OpenPopup("Component Exists!");
 			if (ImGui::BeginPopupModal("Component Exists!", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 			{
 				ImGui::Text("This component already exists!\n\n");
-				if (ImGui::Button("OK", ImVec2(120, 0))) { openModal = false; ImGui::CloseCurrentPopup(); }
+				if (ImGui::Button("OK", ImVec2(120, 0))) { openCompExistsModal = false; ImGui::CloseCurrentPopup(); }
 				ImGui::EndPopup();
 			}
 
 			// Set window properties.
+			ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImVec2 work_area_pos = viewport->GetWorkPos();
 			ImVec2 panelSize = ImVec2(700, 600);			
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(0.2f);
-			ImGui::SetNextWindowPos(ImVec2(0,  m_AppWindow->GetHeight() - panelSize.y / 2.0f));
+			ImGui::SetNextWindowPos(ImVec2(0,  work_area_pos.y));
 
 			if (ImGui::Begin("ECS Panel", &m_Show))
 			{
@@ -210,7 +289,6 @@ namespace LinaEditor
 		}
 	}
 
-
 	void ECSPanel::AddComponentToEntity(int componentID)
 	{
 		if (m_ECS->valid(m_SelectedEntity)) return;
@@ -219,7 +297,7 @@ namespace LinaEditor
 		if (componentID == 0)
 		{
 			if (m_ECS->has<LinaEngine::ECS::TransformComponent>(m_SelectedEntity))
-				openModal = true;
+				openCompExistsModal = true;
 			else
 			{
 				auto& e = m_ECS->emplace<LinaEngine::ECS::TransformComponent>(m_SelectedEntity);
@@ -228,7 +306,7 @@ namespace LinaEditor
 		else if (componentID == 1)
 		{
 			if (m_ECS->has<LinaEngine::ECS::MeshRendererComponent>(m_SelectedEntity))
-				openModal = true;
+				openCompExistsModal = true;
 			else
 			{
 				auto& e = m_ECS->emplace<LinaEngine::ECS::MeshRendererComponent>(m_SelectedEntity);
@@ -237,7 +315,7 @@ namespace LinaEditor
 		else if (componentID == 2)
 		{
 			if (m_ECS->has<LinaEngine::ECS::CameraComponent>(m_SelectedEntity))
-				openModal = true;
+				openCompExistsModal = true;
 			else
 			{
 				auto& e = m_ECS->emplace<LinaEngine::ECS::CameraComponent>(m_SelectedEntity);
@@ -247,7 +325,7 @@ namespace LinaEditor
 		else if (componentID == 3)
 		{
 			if (m_ECS->has<LinaEngine::ECS::DirectionalLightComponent>(m_SelectedEntity))
-				openModal = true;
+				openCompExistsModal = true;
 			else
 			{
 				auto& e = m_ECS->emplace<LinaEngine::ECS::DirectionalLightComponent>(m_SelectedEntity);
@@ -257,7 +335,7 @@ namespace LinaEditor
 		else if (componentID == 4)
 		{
 			if (m_ECS->has<LinaEngine::ECS::PointLightComponent>(m_SelectedEntity))
-				openModal = true;
+				openCompExistsModal = true;
 			else
 			{
 				auto& e = m_ECS->emplace<LinaEngine::ECS::PointLightComponent>(m_SelectedEntity);
@@ -267,7 +345,7 @@ namespace LinaEditor
 		else if (componentID == 5)
 		{
 			if (m_ECS->has<LinaEngine::ECS::SpotLightComponent>(m_SelectedEntity))
-				openModal = true;
+				openCompExistsModal = true;
 			else
 			{
 				auto& e = m_ECS->emplace<LinaEngine::ECS::SpotLightComponent>(m_SelectedEntity);
@@ -277,7 +355,7 @@ namespace LinaEditor
 		else if (componentID == 6)
 		{
 			if (m_ECS->has<LinaEngine::ECS::FreeLookComponent>(m_SelectedEntity))
-				openModal = true;
+				openCompExistsModal = true;
 			else
 			{
 				auto& e = m_ECS->emplace<LinaEngine::ECS::FreeLookComponent>(m_SelectedEntity);
@@ -299,7 +377,7 @@ namespace LinaEditor
 			float dragSensitivityRotation = 0.25f;
 			TransformComponent* transform = &m_ECS->get<TransformComponent>(entity);
 
-			if (ImGui::CollapsingHeader("Transform Component", ImGuiTreeNodeFlags_None))
+			if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_None))
 			{
 				ImGui::Indent();
 
@@ -307,9 +385,7 @@ namespace LinaEditor
 				float rot[3] = { transform->transform.rotation.GetEuler().x, transform->transform.rotation.GetEuler().y, transform->transform.rotation.GetEuler().z };
 				float scale[3] = { transform->transform.scale.x, transform->transform.scale.y, transform->transform.scale.z};
 				ImGui::DragFloat3("Location", location, dragSensitivity);
-				ImGui::Separator();
 				ImGui::DragFloat3("Rotation", rot, dragSensitivityRotation);
-				ImGui::Separator();
 				ImGui::DragFloat3("Scale", scale, dragSensitivity);
 				transform->transform.location = Vector3(location[0], location[1], location[2]);
 				transform->transform.scale = Vector3(scale[0], scale[1], scale[2]);			
@@ -321,6 +397,63 @@ namespace LinaEditor
 		}
 
 
+		// Draw Point Light component.
+		if (m_ECS->has<PointLightComponent>(entity))
+		{
+			PointLightComponent* light = &m_ECS->get<PointLightComponent>(entity);
+			MeshRendererComponent* lightRenderer = m_ECS->has<MeshRendererComponent>(entity) ? &m_ECS->get<MeshRendererComponent>(entity) : nullptr;
+
+			float dragSensitivity = 0.05f;
+			if (ImGui::CollapsingHeader("Point Light", ImGuiTreeNodeFlags_None))
+			{
+				ImGui::Indent();
+
+				ImVec4 col = ImVec4(light->color.r, light->color.g, light->color.b, light->color.a);
+				float d = light->distance;
+				ColorButton(col);
+				ImGui::DragFloat("Distance ", &d, dragSensitivity);
+				light->distance = d;
+				light->color = Color(col.x, col.y, col.z, col.w);
+				
+				if (lightRenderer != nullptr)
+					lightRenderer->material->SetColor(MC_OBJECTCOLORPROPERTY, light->color);
+
+				ImGui::Unindent();
+			}
+
+		}
+
+		// Draw spot light component.
+		if (m_ECS->has<SpotLightComponent>(entity))
+		{
+			SpotLightComponent* light = &m_ECS->get<SpotLightComponent>(entity);
+			MeshRendererComponent* lightRenderer = m_ECS->has<MeshRendererComponent>(entity) ? &m_ECS->get<MeshRendererComponent>(entity) : nullptr;
+
+			float dragSensitivity = 0.005f;
+			if (ImGui::CollapsingHeader("Spot Light", ImGuiTreeNodeFlags_None))
+			{
+				ImGui::Indent();
+
+				ImVec4 col = ImVec4(light->color.r, light->color.g, light->color.b, light->color.a);
+				float d = light->distance;
+				float cutOff = light->cutOff;
+				float outerCutOff = light->outerCutOff;
+				ColorButton(col);
+				ImGui::DragFloat("Distance ", &d, dragSensitivity);
+				ImGui::DragFloat("CutOff ", &cutOff, dragSensitivity);
+				ImGui::DragFloat("Outer Cutoff ", &outerCutOff, dragSensitivity);
+				light->distance = d;
+				light->cutOff = cutOff;
+				light->outerCutOff = outerCutOff;
+				light->color = Color(col.x, col.y, col.z, col.w);
+
+
+				if (lightRenderer != nullptr)
+					lightRenderer->material->SetColor(MC_OBJECTCOLORPROPERTY, light->color);
+
+				ImGui::Unindent();
+			}
+		}
 
 	}
 

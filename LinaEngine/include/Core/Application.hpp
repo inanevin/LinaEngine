@@ -41,30 +41,33 @@ namespace LinaEngine
 	{
 	public:
 
-		 virtual ~Application();
+		virtual ~Application();
 
 		// Main application loop.
-		 void Run();
+		void Run();
 
 		// Pushes a new layer into the application stack.
-		 void PushLayer(Layer* layer);
+		void PushLayer(Layer* layer);
 
 		// Pushes a new overlay layer into the application stack.
-		 void PushOverlay(Layer* layer);
+		void PushOverlay(Layer* layer);
 
 		// Loads a level into memory.
-		 void LoadLevel(LinaEngine::World::Level* level);
+		void LoadLevel(LinaEngine::World::Level* level);
+
+		// Get current frames per second.
+		FORCEINLINE int GetCurrentFPS() { return m_CurrentFPS; }
 
 	protected:
 
-		 Application();
+		Application();
 
 
-		 // Get render engine
-		 FORCEINLINE LinaEngine::Graphics::RenderEngine& GetRenderEngine() { return m_RenderEngine; }
-		 FORCEINLINE LinaEngine::Input::InputEngine& GetInputEngine() { return m_InputEngine; }
-		 FORCEINLINE LinaEngine::Physics::PhysicsEngine& GetPhysicsngine() { return m_PhysicsEngine; }
-		 FORCEINLINE LinaEngine::ECS::ECSRegistry& GetECSREgistry() { return m_ECS; }
+		// Get render engine
+		FORCEINLINE LinaEngine::Graphics::RenderEngine& GetRenderEngine() { return m_RenderEngine; }
+		FORCEINLINE LinaEngine::Input::InputEngine& GetInputEngine() { return m_InputEngine; }
+		FORCEINLINE LinaEngine::Physics::PhysicsEngine& GetPhysicsngine() { return m_PhysicsEngine; }
+		FORCEINLINE LinaEngine::ECS::ECSRegistry& GetECSREgistry() { return m_ECS; }
 
 	private:
 
@@ -105,13 +108,18 @@ namespace LinaEngine
 		std::function<void(int, int)> m_KeyCallback;
 		std::function<void(int, int)> m_MouseCallback;
 		std::function<void(Vector2)> m_WindowResizeCallback;
+		std::function<void()> m_WindowClosedCallback;
 
+		// FPS counting
+		int m_CurrentFPS;
+		double m_PreviousTime;
+		int m_FPSCounter;
 	};
 
 	// Defined in client.
 	Application* CreateApplication();
 
-	
+
 }
 
 

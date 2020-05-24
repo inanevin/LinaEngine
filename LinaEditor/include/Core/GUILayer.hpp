@@ -63,6 +63,9 @@ namespace LinaEditor
 		// Draws main menu bar.
 		void DrawMainMenuBar();
 
+		// Draws an fps counter overlay.
+		void DrawFPSCounter(bool* p_open, int corner = 0);
+
 		// Draws a central docking space.
 		void DrawCentralDockingSpace();
 
@@ -88,7 +91,7 @@ namespace LinaEditor
 		LinaEngine::Application* m_Application;
 		std::vector<ContentFolder> m_ContentFolders;
 
-
+		bool m_FPSCounterOpen = true;
 		ECSPanel m_ECSPanel;
 
 	};

@@ -183,14 +183,14 @@ namespace LinaEngine::Graphics
 		m_WindowProperties->m_Width = width;
 		m_WindowProperties->m_Height = height;
 
-		//glViewport(0, 0, m_WindowProperties->m_Width, m_WindowProperties->m_Height);
+		glViewport(0, 0, m_WindowProperties->m_Width, m_WindowProperties->m_Height);
 		
 		m_WindowResizeCallback(Vector2((float)width, (float)height));
 	}
 
 	void GLWindow::WindowClosed(void* window)
 	{
-		
+		m_WindowClosedCallback();
 	}
 
 	void GLWindow::WindowKeyCallback(void* window, int key, int scancode, int action, int mods)

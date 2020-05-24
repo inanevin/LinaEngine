@@ -29,6 +29,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "ECS/Components/FreeLookComponent.hpp"
 #include <entt/meta/meta.hpp>
 #include <entt/meta/factory.hpp>
+#include <GLFW/glfw3.h>
 
 
 namespace LinaEngine
@@ -54,11 +55,14 @@ namespace LinaEngine
 		m_KeyCallback = std::bind(&Application::KeyCallback, this, std::placeholders::_1, std::placeholders::_2);
 		m_MouseCallback = std::bind(&Application::MouseCallback, this, std::placeholders::_1, std::placeholders::_2);
 		m_WindowResizeCallback = std::bind(&Application::OnWindowResize, this, std::placeholders::_1);
+		m_WindowClosedCallback = std::bind(&Application::OnWindowClose, this);
+
 
 		// Set event callback for main window.
 		m_RenderEngine.GetMainWindow().SetKeyCallback(m_KeyCallback);
 		m_RenderEngine.GetMainWindow().SetMouseCallback(m_MouseCallback);
 		m_RenderEngine.GetMainWindow().SetWindowResizeCallback(m_WindowResizeCallback);
+		m_RenderEngine.GetMainWindow().SetWindowClosedCallback(m_WindowClosedCallback);
 
 		// Initialize engines.
 		m_InputEngine.Initialize(m_RenderEngine.GetNativeWindow());
@@ -101,6 +105,16 @@ namespace LinaEngine
 
 		while (m_Running)
 		{
+			// Simple FPS count
+			m_FPSCounter++;
+			double currentTime = glfwGetTime();
+			if (currentTime - m_PreviousTime >= 1.0)
+			{
+				m_PreviousTime = currentTime;
+				m_CurrentFPS = m_FPSCounter;
+				m_FPSCounter = 0;
+			}
+
 			// Update input engine.
 			m_InputEngine.Tick();
 	

@@ -73,6 +73,7 @@ struct Material
 {
 MaterialSampler2D diffuse;
 MaterialSampler2D normalMap;
+int specularExponent;
 vec3 objectColor;
 int surfaceType;
 vec2 tiling;
@@ -124,7 +125,9 @@ void main()
 		// Lighting
 		for(int i = 0; i < pointLightCount; i++)
 			lighting += CalculatePointLight(pointLights[i], normal, fs_in.FragPos, viewDir);    
-		
+		for(int i = 0; i < spotLightCount; i++)
+			lighting += CalculateSpotLight(spotLights[i], normal, fs_in.FragPos, viewDir);   
+			
 		// Post pp
 		finalColor *= lighting;
 		finalColor =  pow(finalColor, vec3(1.0/2.2));

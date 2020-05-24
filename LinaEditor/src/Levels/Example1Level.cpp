@@ -48,6 +48,7 @@ ECSEntity quad4;
 
 Material* objectLitMaterial;
 Material* objectUnlitMaterial;
+Material* objectUnlitMaterial2;
 Material* quadMaterial;
 Material* cubemapReflectiveMaterial;
 Material* floorMaterial;
@@ -137,12 +138,12 @@ Vector3 pointLightPositions[]
 
 Vector3 spotLightPositions[]
 {
-	Vector3(-2.0f, -6.0f, 13.0f)
+	Vector3(0,0, -4)
 };
 
 int pLightSize = 1;
 int cubeSize = 4;
-int sLightSize = 0;
+int sLightSize = 1;
 
 
 
@@ -199,6 +200,7 @@ void Example1Level::Initialize()
 	// Create material for example mesh.
 	objectLitMaterial = &m_RenderEngine->CreateMaterial("object1Material", Shaders::STANDARD_LIT);
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
+	objectUnlitMaterial2 = &m_RenderEngine->CreateMaterial("object3Material", Shaders::STANDARD_UNLIT);
 	//quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::STANDARD_LIT);
 	floorMaterial = &m_RenderEngine->CreateMaterial("floor", Shaders::STANDARD_LIT);
 	//cubemapReflectiveMaterial = &m_RenderEngine->CreateMaterial("cubemapReflective", Shaders::CUBEMAP_REFLECTIVE);
@@ -209,6 +211,7 @@ void Example1Level::Initialize()
 	objectLitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
 	objectLitMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
 	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
+	objectUnlitMaterial2->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
 	
 	floorMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &wood);
 	floorMaterial->SetVector2(MC_TILING, Vector2(20, 20));
@@ -225,14 +228,14 @@ void Example1Level::Initialize()
 	smallCubeRenderer.material = objectUnlitMaterial;
 
 
-	directionalLight = m_ECS->CreateEntity("Directional Light");
-	auto& dirLight = m_ECS->emplace<DirectionalLightComponent>(directionalLight);
-	auto& dirLightTransform = m_ECS->emplace<TransformComponent>(directionalLight);
-	dirLight.color = Color(0.4f,0.4,0.4f);
-	dirLight.direction = Vector3(0, -0.5, 1);
-	dirLightTransform.transform.location = Vector3(2.5f, 5.5f, 0.0f);
-	dirLightTransform.transform.scale = Vector3(0.2f);
-	dirLightT = &m_ECS->get<TransformComponent>(directionalLight);
+	//directionalLight = m_ECS->CreateEntity("Directional Light");
+	//auto& dirLight = m_ECS->emplace<DirectionalLightComponent>(directionalLight);
+	//auto& dirLightTransform = m_ECS->emplace<TransformComponent>(directionalLight);
+	//dirLight.color = Color(0.4f,0.4,0.4f);
+	//dirLight.direction = Vector3(0, -0.5, 1);
+	//dirLightTransform.transform.location = Vector3(2.5f, 5.5f, 0.0f);
+	//dirLightTransform.transform.scale = Vector3(0.2f);
+	//dirLightT = &m_ECS->get<TransformComponent>(directionalLight);
 	//m_ECS->emplace<MeshRendererComponent>(directionalLight, smallCubeRenderer);
 
 
@@ -286,22 +289,17 @@ void Example1Level::Initialize()
 
 		ECSEntity entity;
 		object1Transform.transform.location = pointLightPositions[i];
-		object1Transform.transform.scale = 1;
-		entity = m_ECS->create();
-		m_ECS->emplace<TransformComponent>(entity, object1Transform);
-
+		object1Transform.transform.scale = 0.1f;
+		entity = m_ECS->CreateEntity("Point Light " + i);
+		auto lightT = m_ECS->emplace<TransformComponent>(entity, object1Transform);
 		auto& pLight1 = m_ECS->emplace<PointLightComponent>(entity);
+		m_ECS->emplace<MeshRendererComponent>(entity, smallCubeRenderer);
+
 
 
 		pLight1.color = Color(0.85f, 0.85f, 0.85f);
 		pLight1.distance = 100;
 
-
-		ECSEntity visuals;
-		visuals = m_ECS->CreateEntity("Point Light " + i);
-		object1Transform.transform.scale = 0.1f;
-		m_ECS->emplace<TransformComponent>(visuals, object1Transform);
-		m_ECS->emplace<MeshRendererComponent>(visuals, smallCubeRenderer);
 	}
 
 
@@ -312,10 +310,12 @@ void Example1Level::Initialize()
 
 		ECSEntity entity;
 		object1Transform.transform.location = (spotLightPositions[i]);
-		entity = m_ECS->create();
+		entity = m_ECS->CreateEntity("Spot Light " + i);
 		object1Transform.transform.rotation = (Quaternion::Euler(-25, 40, 0));
-
+		object1Transform.transform.scale = Vector3(0.1f);
+		smallCubeRenderer.material = objectUnlitMaterial2;
 		m_ECS->emplace<TransformComponent>(entity, object1Transform);
+		m_ECS->emplace<MeshRendererComponent>(entity, smallCubeRenderer);
 
 		auto& sLight1 = m_ECS->emplace<SpotLightComponent>(entity);
 
@@ -326,11 +326,6 @@ void Example1Level::Initialize()
 		sLight1.outerCutOff = Math::Cos(Math::ToRadians(15.5f));
 
 
-		ECSEntity visuals;
-		visuals = m_ECS->create();
-		object1Transform.transform.scale = (0.1f);
-		m_ECS->emplace<TransformComponent>(visuals, object1Transform);
-		m_ECS->emplace<MeshRendererComponent>(visuals, smallCubeRenderer);
 	}
 	object1Transform.transform.rotation = (Quaternion::Euler(Vector3::Zero));
 

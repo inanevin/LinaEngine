@@ -41,7 +41,7 @@ imgui_addons::ImGuiFileBrowser file_dialog; // As a class member or globally
 static bool rightClickedContentBrowser = false;
 static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 static bool isECSPanelOpen;
-
+static bool showIMGUIDemo;
 
 namespace LinaEditor
 {
@@ -57,11 +57,14 @@ namespace LinaEditor
 		// Draw top toolbar.
 		DrawMainMenuBar();
 
+		// Draw overlay fps counter
+		DrawFPSCounter(&m_FPSCounterOpen, 1);
+
 		// Draw ECS Panel.
 		m_ECSPanel.Draw();
 
-		// Draw demo.
-		ImGui::ShowDemoWindow();
+		if (showIMGUIDemo)
+			ImGui::ShowDemoWindow(&showIMGUIDemo);
 
 		// Rendering
 		ImGui::Render();
@@ -154,7 +157,6 @@ namespace LinaEditor
 		ImGui::DestroyContext();
 	}
 
-
 	void GUILayer::DrawMainMenuBar()
 	{
 		if (ImGui::BeginMainMenuBar())
@@ -164,11 +166,41 @@ namespace LinaEditor
 			{
 				if (ImGui::MenuItem("ECS Panel"))
 					m_ECSPanel.Open();
+				if (ImGui::MenuItem("IMGUI Demo"))
+					showIMGUIDemo = true;
 
 				ImGui::EndMenu();
 			}
 			ImGui::EndMainMenuBar();
 		}
+	}
+
+	void GUILayer::DrawFPSCounter(bool* p_open, int corner)
+	{
+		// FIXME-VIEWPORT: Select a default viewport
+		const float DISTANCE = 10.0f;
+		ImGuiIO& io = ImGui::GetIO();
+		if (corner != -1)
+		{
+			ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImVec2 work_area_pos = viewport->GetWorkPos();   // Instead of using viewport->Pos we use GetWorkPos() to avoid menu bars, if any!
+			ImVec2 work_area_size = viewport->GetWorkSize();
+			ImVec2 window_pos = ImVec2((corner & 1) ? (work_area_pos.x + work_area_size.x - DISTANCE) : (work_area_pos.x + DISTANCE), (corner & 2) ? (work_area_pos.y + work_area_size.y - DISTANCE) : (work_area_pos.y + DISTANCE));
+			ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
+			ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+			ImGui::SetNextWindowViewport(viewport->ID);
+		}
+
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+
+		if (ImGui::Begin("FPSOverlay", p_open, window_flags))
+		{
+			ImGui::Text("FPS Overlay");
+			ImGui::Separator();
+			std::string fpsText = std::to_string(m_Application->GetCurrentFPS()) + " Frames per second";
+			ImGui::Text(fpsText.c_str());
+		}
+		ImGui::End();
 	}
 
 	void GUILayer::DrawCentralDockingSpace()
