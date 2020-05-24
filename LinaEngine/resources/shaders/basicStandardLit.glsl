@@ -33,9 +33,7 @@ out VS_OUT
 	vec3 Normal;
 	vec3 FragPos;
 	vec2 TexCoords;
-	vec3 TangentLightPos;
-    vec3 TangentViewPos;
-    vec3 TangentFragPos;
+	mat3 tbnMatrix;
 } vs_out;
 
 #include "lightingData.glh"
@@ -43,24 +41,17 @@ out VS_OUT
 
 void main()
 {
-	vec3 viewPos = vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
-
 	vs_out.FragPos = vec3(model * vec4(position,1.0));
     vs_out.TexCoords = texCoord;
 	vs_out.Normal = mat3(inverseTransposeModel) * normal;
-	
-	mat3 normalMatrix = transpose(inverse(mat3(model)));
-    vec3 T = normalize(normalMatrix * tangent);
-    vec3 N = normalize(normalMatrix * normal);
-    T = normalize(T - dot(T, N) * N);
-    vec3 B = cross(N, T);
-    
-    mat3 TBN = transpose(mat3(T, B, N));    
-    vs_out.TangentLightPos = TBN * pointLights[0].position;
-    vs_out.TangentViewPos  = TBN * viewPos;
-    vs_out.TangentFragPos  = TBN * vs_out.FragPos;
-	
     gl_Position = projection * view * model * vec4(position, 1.0);
+	
+	// Tangent matrix for normals
+	vec3 n = normalize((model * vec4(normal, 0.0)).xyz);
+	vec3 t = normalize((model * vec4(tangent, 0.0)).xyz);
+	t = normalize(t - dot(t,n)*n);
+	vec3 bt = cross(t,n);
+	vs_out.tbnMatrix = mat3(t, bt, n);
 	
 }
 
@@ -73,9 +64,7 @@ in VS_OUT {
     vec3 Normal;
 	vec3 FragPos;
 	vec2 TexCoords;
-	vec3 TangentLightPos;
-    vec3 TangentViewPos;
-    vec3 TangentFragPos;
+	mat3 tbnMatrix;
 } gs_in[];
 
 out vec2 TexCoords; 
@@ -113,9 +102,7 @@ in VS_OUT
 	vec3 Normal;
 	vec3 FragPos;
 	vec2 TexCoords;
-	vec3 TangentLightPos;
-    vec3 TangentViewPos;
-    vec3 TangentFragPos;
+	mat3 tbnMatrix;
 } fs_in;
 
 #include "lightingData.glh"
@@ -138,15 +125,15 @@ void main()
 	{
 		// General
 		vec3 viewPos = vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
-		vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentFragPos);
+		vec3 viewDir = normalize(viewPos - fs_in.FragPos);
 		vec2 tiledTexCoord = vec2(fs_in.TexCoords.x * material.tiling.x, fs_in.TexCoords.y * material.tiling.y);
 		
 		// Textures
 		vec4 diffuseTextureColor =  material.diffuse.isActive != 0 ? texture(material.diffuse.texture, tiledTexCoord) : vec4(1,1,1,1);
-		vec3 normal = texture(material.normalMap.texture, tiledTexCoord).rgb;
+		vec3 normal = material.normalMap.isActive != 0 ? texture(material.normalMap.texture, tiledTexCoord).rgb : normalize(fs_in.Normal);
 		
 		if(material.normalMap.isActive != 0)
-			normal = normalize(normal * 2.0 - 1.0);
+			normal = normalize(fs_in.tbnMatrix *(normal * 2.0 - 1.0));
 	
 		// Colors
 		vec3 finalColor = diffuseTextureColor.rgb * material.objectColor;
@@ -154,9 +141,9 @@ void main()
 		
 		// Lighting
 		for(int i = 0; i < pointLightCount; i++)
-			lighting += CalculatePointLight(pointLights[i], normal, fs_in.FragPos, viewDir, (fs_in.TangentLightPos - fs_in.TangentFragPos));    
-		//for(int i = 0; i < spotLightCount; i++)
-			//lighting += CalculateSpotLight(spotLights[i], normal, fs_in.FragPos, viewDir);   
+			lighting += CalculatePointLight(pointLights[i], normal, fs_in.FragPos, viewDir);    
+		for(int i = 0; i < spotLightCount; i++)
+			lighting += CalculateSpotLight(spotLights[i], normal, fs_in.FragPos, viewDir);   
 			
 		// Post pp
 		finalColor *= lighting;

@@ -147,6 +147,7 @@ int sLightSize = 1;
 
 
 
+
 ECSEntity cubeEntity;
 TransformComponent* dirLightT;
 void Example1Level::Initialize()
@@ -156,6 +157,8 @@ void Example1Level::Initialize()
 
 	// Create, setup & assign skybox material.
 	CreateProceduralSkybox(m_RenderEngine);
+
+
 
 
 	camera = m_ECS->CreateEntity("Camera");
@@ -191,7 +194,7 @@ void Example1Level::Initialize()
 	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png");
 	Texture& wood = m_RenderEngine->CreateTexture("resources/textures/wood.png", woodTextureSampler, false);
 	Texture& brickWall = m_RenderEngine->CreateTexture("resources/textures/brickWall.jpg", woodTextureSampler, false);
-	Texture& brickWallNormal = m_RenderEngine->CreateTexture("resources/textures/brickWallNormal.jpg", woodTextureSampler, false);
+	Texture& brickWallNormal = m_RenderEngine->CreateTexture("resources/textures/brickWallNormal.jpg", crateSampler, false);
 	//Texture& cubemap = m_RenderEngine->GetTexture("resources/textures/defaultSkybox/right.png");
 
 
@@ -206,6 +209,7 @@ void Example1Level::Initialize()
 	//quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::STANDARD_LIT);
 	floorMaterial = &m_RenderEngine->CreateMaterial("floor", Shaders::STANDARD_LIT);
 	//cubemapReflectiveMaterial = &m_RenderEngine->CreateMaterial("cubemapReflective", Shaders::CUBEMAP_REFLECTIVE);
+
 
 
 
