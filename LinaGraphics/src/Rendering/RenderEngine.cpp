@@ -144,11 +144,10 @@ namespace LinaEngine::Graphics
 		//	(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_PointLightsRTTexture, TextureBindMode::BINDTEXTURE_CUBEMAP);
 
 		//DrawOperationsPrimaryRT(delta);
-		DrawOperationsDefault(delta);
+		//DrawOperationsDefault(delta);
 
 
-
-		//DrawOperationsMSAA(delta);
+		DrawOperationsMSAA(delta);
 
 
 		// Draw GUI Layers

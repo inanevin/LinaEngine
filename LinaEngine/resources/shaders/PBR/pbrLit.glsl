@@ -33,9 +33,6 @@ out VS_OUT
 	vec3 Normal;
 	vec3 FragPos;
 	vec2 TexCoords;
-	mat3 tbnMatrix;
-	vec3 TangentViewPos;
-    vec3 TangentFragPos;
 } vs_out;
 
 #include "lightingData.glh"
