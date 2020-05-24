@@ -142,7 +142,7 @@ namespace LinaEngine::Graphics
 
 	//	for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
 		//	(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_PointLightsRTTexture, TextureBindMode::BINDTEXTURE_CUBEMAP);
-		
+
 		DrawOperationsDefault(delta);
 
 
@@ -184,13 +184,13 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	Texture& RenderEngine::CreateTexture(const std::string& filePath, SamplerParameters samplerParams,bool compress)
+	Texture& RenderEngine::CreateTexture(const std::string& filePath, SamplerParameters samplerParams, bool compress)
 	{
 		if (!TextureExists(filePath))
 		{
 			// Create pixel data.
 			ArrayBitmap* textureBitmap = new ArrayBitmap();
-			
+
 			if (!textureBitmap->Load(filePath))
 			{
 				LINA_CORE_ERR("Texture with the path {0} doesn't exist, returning empty texture", filePath);
@@ -426,7 +426,7 @@ namespace LinaEngine::Graphics
 			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
 			material.sampler2Ds[MC_TEXTURE2D_NORMALMAP] = { 1 };
 			material.ints[MC_SURFACETYPE] = 0;
-			material.ints[MC_SPECULAREXPONENT] = 32;			
+			material.ints[MC_SPECULAREXPONENT] = 32;
 			material.vector2s[MC_TILING] = Vector2::One;
 			material.receivesLighting = true;
 			material.isShadowMapped = true;
@@ -644,7 +644,7 @@ namespace LinaEngine::Graphics
 		m_IntermediateRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, mainRTParams, false);
 
 		// Initialize depth map teture
-		m_DepthMapRTTexture.ConstructRTTexture(m_RenderDevice,m_ShadowMapResolution,depthRTParams, true);
+		m_DepthMapRTTexture.ConstructRTTexture(m_RenderDevice, m_ShadowMapResolution, depthRTParams, true);
 
 		// Initialize point light rt texture
 		m_PointLightsRTTexture.ConstructRTCubemapTexture(m_RenderDevice, m_ShadowMapResolution, pointLightRTParams);
@@ -1016,7 +1016,7 @@ namespace LinaEngine::Graphics
 			}
 			currentGlobalDataOffset += sizeof(float);
 		}
-	
+
 
 		// Update lights buffer.
 		m_GlobalLightBuffer.Update(&m_CurrentPointLightCount, 0, sizeof(int));
@@ -1070,7 +1070,7 @@ namespace LinaEngine::Graphics
 		for (auto const& d : (*data).sampler2Ds)
 		{
 			// Set whether the texture is active or not.
-			bool isActive = (!d.second.boundTexture->GetIsEmpty() && d.second.isActive) ? true : false;
+			bool isActive = (d.second.isActive && !d.second.boundTexture->GetIsEmpty()) ? true : false;
 			m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first + MC_EXTENSION_ISACTIVE, isActive);
 
 			if (d.second.isActive)

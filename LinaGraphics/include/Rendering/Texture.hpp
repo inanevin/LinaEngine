@@ -54,6 +54,7 @@ namespace LinaEngine::Graphics
 		FORCEINLINE bool HasMipmaps() const { return hasMipMaps; }
 		FORCEINLINE Vector2 GetSize() { return m_Size; }
 		FORCEINLINE bool GetIsEmpty() { return m_IsEmpty; }
+
 	private:
 
 		Sampler m_Sampler;
