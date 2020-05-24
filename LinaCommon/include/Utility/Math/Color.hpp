@@ -32,7 +32,9 @@ namespace LinaEngine
 
 	public:
 
-		Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f) : r(rv), g(gv), b(bv), a(av) {};
+		Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f, bool is255 = false) : r(is255 ? rv/255.0f : rv), g(is255 ? gv / 255.0f : gv),
+			b(is255 ? bv / 255.0f : bv), a(is255 ? av / 255.0f : av) {};
+
 		float r, g, b, a = 1.0f;
 
 		bool operator!=(const Color& rhs) const
@@ -59,6 +61,7 @@ namespace LinaEngine
 		static Color Beige;
 		static Color Brown;
 		static Color Gray;
+
 	};
 
 

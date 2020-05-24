@@ -293,8 +293,6 @@ void Example1Level::Initialize()
 
 
 
-
-
 	for (int i = 0; i < pLightSize; i++)
 	{
 		smallCubeRenderer.material = objectUnlitMaterial;
@@ -309,7 +307,7 @@ void Example1Level::Initialize()
 
 
 
-		pLight1.color = Color(200, 200, 200);
+		pLight1.color = Color(0.85f, 0.85f, 0.85f);
 		pLight1.distance = 100;
 
 	}

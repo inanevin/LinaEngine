@@ -470,13 +470,8 @@ namespace LinaEditor
 				float direction[3] = { light->direction.x, light->direction.y, light->direction.z };
 				ColorButton(col);
 				ImGui::DragFloat3("Direction ", direction, dragSensitivity);
-	
 				light->direction = Vector3(direction[0], direction[1], direction[2]);
-	
 				light->color = Color(col.x, col.y, col.z, col.w);
-
-
-
 				if (lightRenderer != nullptr)
 					lightRenderer->material->SetColor(MC_OBJECTCOLORPROPERTY, light->color);
 
