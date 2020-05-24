@@ -49,7 +49,8 @@ namespace LinaEngine::Graphics
 			currentModel.AllocateElement(2); // TexCoords
 			currentModel.AllocateElement(3); // Normals
 			currentModel.AllocateElement(3); // Tangents
-			currentModel.SetStartIndex(4); // Begin instanced data
+			currentModel.AllocateElement(3); // Bitangents
+			currentModel.SetStartIndex(5); // Begin instanced data
 			currentModel.AllocateElement(16); // Model Matrix
 			currentModel.AllocateElement(16); // Inverse transpose matrix
 
@@ -64,12 +65,14 @@ namespace LinaEngine::Graphics
 				const aiVector3D normal = model->HasNormals() ? model->mNormals[i] : aiZeroVector;
 				const aiVector3D texCoord = model->HasTextureCoords(0) ? model->mTextureCoords[0][i] : aiZeroVector;
 				const aiVector3D tangent = model->HasTangentsAndBitangents() ? model->mTangents[i] : aiZeroVector;
+				const aiVector3D biTangent = model->HasTangentsAndBitangents() ? model->mBitangents[i] : aiZeroVector;
 
 				// Set model vertex data.
 				currentModel.AddElement(0, pos.x, pos.y, pos.z);
 				currentModel.AddElement(1, texCoord.x, texCoord.y);
 				currentModel.AddElement(2, normal.x, normal.y, normal.z);
 				currentModel.AddElement(3, tangent.x, tangent.y, tangent.z);
+				currentModel.AddElement(4, biTangent.x, biTangent.y, biTangent.z);
 			}
 
 			// Iterate through faces & add indices for each face.

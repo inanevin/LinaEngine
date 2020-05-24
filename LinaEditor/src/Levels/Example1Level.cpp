@@ -191,7 +191,9 @@ void Example1Level::Initialize()
 	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png");
 	Texture& wood = m_RenderEngine->CreateTexture("resources/textures/wood.png", woodTextureSampler, false);
 	Texture& brickWall = m_RenderEngine->CreateTexture("resources/textures/brickWall.jpg", woodTextureSampler, false);
+	Texture& brickWallNormal = m_RenderEngine->CreateTexture("resources/textures/brickWallNormal.jpg", woodTextureSampler, false);
 	//Texture& cubemap = m_RenderEngine->GetTexture("resources/textures/defaultSkybox/right.png");
+
 
 
 	// Load example mesh.
@@ -208,6 +210,7 @@ void Example1Level::Initialize()
 
 
 	objectLitMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &brickWall);
+	objectLitMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &brickWallNormal);
 	objectLitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
 	objectLitMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
 	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));

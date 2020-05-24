@@ -23,7 +23,11 @@ varying vec2 texCoord0;
 #if defined(VS_BUILD)
 Layout(0) attribute vec3 position;
 Layout(1) attribute vec2 texCoord;
-Layout(4) attribute mat4 model;
+Layout(2) attribute vec3 normal;
+Layout(3) attribute vec3 tangent;
+Layout(4) attribute vec3 biTangent;
+Layout(5) attribute mat4 model;
+Layout(9) attribute mat4 inverseTransposeModel;
 
 out vec2 TexCoords;
 out vec3 FragPos;

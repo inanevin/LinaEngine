@@ -23,8 +23,10 @@
 Layout(0) attribute vec3 position;
 Layout(1) attribute vec2 texCoord;
 Layout(2) attribute vec3 normal;
-Layout(4) attribute mat4 model;
-Layout(8) attribute mat4 inverseTransposeModel;
+Layout(3) attribute vec3 tangent;
+Layout(4) attribute vec3 biTangent;
+Layout(5) attribute mat4 model;
+Layout(9) attribute mat4 inverseTransposeModel;
 
 out VS_OUT
 {
