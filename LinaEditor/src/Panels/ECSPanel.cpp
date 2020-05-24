@@ -455,6 +455,35 @@ namespace LinaEditor
 			}
 		}
 
+		// Draw directional light component.
+		if (m_ECS->has<DirectionalLightComponent>(entity))
+		{
+			DirectionalLightComponent* light = &m_ECS->get<DirectionalLightComponent>(entity);
+			MeshRendererComponent* lightRenderer = m_ECS->has<MeshRendererComponent>(entity) ? &m_ECS->get<MeshRendererComponent>(entity) : nullptr;
+
+			float dragSensitivity = 0.005f;
+			if (ImGui::CollapsingHeader("Directional Light", ImGuiTreeNodeFlags_None))
+			{
+				ImGui::Indent();
+
+				ImVec4 col = ImVec4(light->color.r, light->color.g, light->color.b, light->color.a);
+				float direction[3] = { light->direction.x, light->direction.y, light->direction.z };
+				ColorButton(col);
+				ImGui::DragFloat3("Direction ", direction, dragSensitivity);
+	
+				light->direction = Vector3(direction[0], direction[1], direction[2]);
+	
+				light->color = Color(col.x, col.y, col.z, col.w);
+
+
+
+				if (lightRenderer != nullptr)
+					lightRenderer->material->SetColor(MC_OBJECTCOLORPROPERTY, light->color);
+
+				ImGui::Unindent();
+			}
+		}
+
 	}
 
 }

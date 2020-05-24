@@ -18,7 +18,6 @@ vec3 CalculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir
 {
     vec3 lightDir = normalize(-light.direction);
 	
-	vec3 ambient = vec3(0.2,0.2,0.2);
 	
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
@@ -32,7 +31,7 @@ vec3 CalculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir
 	float attenuation = 1.0 / (DIRLIGHT_DISTANCE * DIRLIGHT_DISTANCE);
 	diffuse *= attenuation;
 	specular *= attenuation;
-	return ambient + diffuse + specular;
+	return diffuse + specular;
 }
 
 

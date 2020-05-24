@@ -157,6 +157,8 @@ void main()
 		vec3 finalColor = diffuseTextureColor.rgb * material.objectColor;
 		vec3 lighting = vec3(0.0);
 		
+		lighting += CalculateDirectionalLight(directionalLight, normal, fs_in.FragPos);
+		
 		// Lighting
 		for(int i = 0; i < pointLightCount; i++)
 			lighting += CalculatePointLight(pointLights[i], normal, fs_in.FragPos, viewDir);    
