@@ -242,12 +242,11 @@ void Example1Level::Initialize()
 	directionalLight = m_ECS->CreateEntity("Directional Light");
 	auto& dirLight = m_ECS->emplace<DirectionalLightComponent>(directionalLight);
 	auto& dirLightTransform = m_ECS->emplace<TransformComponent>(directionalLight);
-	dirLight.color = Color(0.4f,0.4,0.4f);
+	dirLight.color = Color(0.0f, 0.0f, 0.0f);
 	dirLight.direction = Vector3(0, -0.5, 1);
 	dirLightTransform.transform.location = Vector3(2.5f, 5.5f, 0.0f);
 	dirLightTransform.transform.scale = Vector3(0.2f);
 	dirLightT = &m_ECS->get<TransformComponent>(directionalLight);
-	m_ECS->emplace<MeshRendererComponent>(directionalLight, smallCubeRenderer);
 
 
 	ECSEntity floor;
@@ -308,7 +307,7 @@ void Example1Level::Initialize()
 
 
 
-		pLight1.color = Color(0.85f, 0.85f, 0.85f);
+		pLight1.color = Color(200, 200, 200);
 		pLight1.distance = 100;
 
 	}

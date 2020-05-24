@@ -143,7 +143,7 @@ namespace LinaEngine::Graphics
 	//	for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
 		//	(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_PointLightsRTTexture, TextureBindMode::BINDTEXTURE_CUBEMAP);
 
-		DrawOperationsDefault(delta);
+		DrawOperationsMSAA(delta);
 
 
 
@@ -622,7 +622,8 @@ namespace LinaEngine::Graphics
 	{
 		Vector2 screenSize = Vector2(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
 		SamplerParameters mainRTParams;
-		mainRTParams.textureParams.pixelFormat = mainRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB;
+		mainRTParams.textureParams.pixelFormat =  PixelFormat::FORMAT_RGB;
+		mainRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
 		mainRTParams.textureParams.minFilter = mainRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
 		mainRTParams.textureParams.wrapS = mainRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
 
@@ -635,6 +636,12 @@ namespace LinaEngine::Graphics
 		pointLightRTParams.textureParams.pixelFormat = pointLightRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_DEPTH;
 		pointLightRTParams.textureParams.minFilter = pointLightRTParams.textureParams.magFilter = SamplerFilter::FILTER_NEAREST;
 		pointLightRTParams.textureParams.wrapS = pointLightRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+
+		SamplerParameters hdrRTParams;
+		hdrRTParams.textureParams.pixelFormat =  PixelFormat::FORMAT_RGBA;
+		hdrRTParams.textureParams.internalPixelFormat =  PixelFormat::FORMAT_RGBA16F;
+		hdrRTParams.textureParams.minFilter = hdrRTParams.textureParams.magFilter = SamplerFilter::FILTER_NEAREST;
+		hdrRTParams.textureParams.wrapS = hdrRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 
 		m_ShadowMapResolution = Vector2(2048, 2048);
 
@@ -649,6 +656,9 @@ namespace LinaEngine::Graphics
 
 		// Initialize point light rt texture
 		m_PointLightsRTTexture.ConstructRTCubemapTexture(m_RenderDevice, m_ShadowMapResolution, pointLightRTParams);
+
+		// Initialize hdr render target texture
+		m_HDRRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, hdrRTParams);
 
 		// Initialize render buffer.
 		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);
@@ -665,6 +675,8 @@ namespace LinaEngine::Graphics
 		// Initialize point light shadow map target
 		m_PointLightsRenderTarget.Construct(m_RenderDevice, m_PointLightsRTTexture, m_ShadowMapResolution.x, m_ShadowMapResolution.y, TextureBindMode::BINDTEXTURE_NONE, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
 
+		// Initialize hdr render target.
+		m_HDRRRenderTarget.Construct(m_RenderDevice, m_HDRRTTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 	}
 
 	void RenderEngine::SetupDrawParameters()
@@ -910,6 +922,26 @@ namespace LinaEngine::Graphics
 		// Visaulize depth buffer
 		if (visualizeDepthMap)
 			DrawFullscreenQuad(m_DepthMapRTTexture, false);
+	}
+
+	void RenderEngine::DrawOperationsHDR(float delta)
+	{
+		m_RenderDevice.SetFBO(m_HDRRRenderTarget.GetID());
+
+		// Clear color.
+		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+
+		// Update pipeline.
+		m_RenderingPipeline.UpdateSystems(delta);
+
+		// Update uniform buffers on GPU
+		UpdateUniformBuffers();
+
+		// Draw scene
+		DrawSceneObjects(false, m_DefaultDrawParams, nullptr, false);
+
+		// Draw the scene data into a quad
+		DrawFullscreenQuad(m_HDRRTTexture, false);
 	}
 
 	void RenderEngine::DrawSkybox()
