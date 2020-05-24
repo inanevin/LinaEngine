@@ -19,6 +19,7 @@ Timestamp: 1/2/2019 1:43:13 AM
 
 #include "Core/LayerStack.hpp"  
 #include "Core/Layer.hpp"
+#include <iostream>
 
 namespace LinaEngine
 {
@@ -30,7 +31,11 @@ namespace LinaEngine
 	LayerStack::~LayerStack()
 	{
 		for (Layer* layer : m_Layers)
+		{
+			std::cout << "deleting layer" << layer << std::endl;
 			delete layer;
+
+		}
 	}
 
 	void LayerStack::PushLayer(Layer* layer)

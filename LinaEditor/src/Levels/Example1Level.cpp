@@ -193,9 +193,12 @@ void Example1Level::Initialize()
 	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png");
 	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png");
 	Texture& wood = m_RenderEngine->CreateTexture("resources/textures/wood.png", woodTextureSampler, false);
-	Texture& brickWall = m_RenderEngine->CreateTexture("resources/textures/brickWall.jpg", woodTextureSampler, false);
-	Texture& brickWallNormal = m_RenderEngine->CreateTexture("resources/textures/brickWallNorsmal.jpg", crateSampler, false);
+	Texture& brickWall = m_RenderEngine->CreateTexture("resources/textures/bricks2.jpg", woodTextureSampler, false);
+	Texture& brickWallNormal = m_RenderEngine->CreateTexture("resources/textures/bricks2_normal.jpg", crateSampler, false);
+	Texture& bricksParallax = m_RenderEngine->CreateTexture("resources/textures/bricks2_disp.jpg", crateSampler, false);
 	//Texture& cubemap = m_RenderEngine->GetTexture("resources/textures/defaultSkybox/right.png");
+
+
 
 
 
@@ -221,9 +224,10 @@ void Example1Level::Initialize()
 	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
 	objectUnlitMaterial2->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
 	
-	floorMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &wood);
+	floorMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &brickWall);
 	floorMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &brickWallNormal);
-	floorMaterial->SetVector2(MC_TILING, Vector2(20, 20));
+	floorMaterial->SetTexture(MC_TEXTURE2D_PARALLAXMAP, &bricksParallax);
+	floorMaterial->SetVector2(MC_TILING, Vector2(1,1));
 	floorMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1,1,1));
 
 	//floorMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &wood);

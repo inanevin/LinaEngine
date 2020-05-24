@@ -39,6 +39,7 @@ namespace LinaEditor
 			// Load startup level.
 			LoadLevel(&m_StartupLevel);
 			
+			std::cout << "pushin layer" << layer << std::endl;
 			// Push layer into the engine. ** WHILE LOOP INSIDE ** 
 			GetRenderEngine().PushLayer(layer);
 
@@ -47,7 +48,7 @@ namespace LinaEditor
 		}
 		~EditorApplication() {
 			LINA_CLIENT_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
-			delete layer;
+		
 		}
 
 	private:

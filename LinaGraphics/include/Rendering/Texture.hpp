@@ -61,8 +61,6 @@ namespace LinaEngine::Graphics
 		RenderDevice* renderDevice = nullptr;
 		uint32 m_ID = 0;
 		Vector2 m_Size;
-		unsigned char* data;
-		bool dataAssigned = false;
 		bool isCompressed = false;
 		bool hasMipMaps = true;
 		bool m_IsEmpty = true;

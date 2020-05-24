@@ -88,6 +88,7 @@ struct Material
 {
 MaterialSampler2D diffuse;
 MaterialSampler2D normalMap;
+MaterialSampler2D parallaxMap;
 int specularExponent;
 vec3 objectColor;
 int surfaceType;
@@ -107,6 +108,7 @@ in VS_OUT
 
 #include "lightingData.glh"
 #include "lightingCalc.glh"
+#include "parallaxCalc.glh"
 
 
 
@@ -128,13 +130,19 @@ void main()
 		vec3 viewDir = normalize(viewPos - fs_in.FragPos);
 		vec2 tiledTexCoord = vec2(fs_in.TexCoords.x * material.tiling.x, fs_in.TexCoords.y * material.tiling.y);
 		
-		// Textures
-		vec4 diffuseTextureColor =  material.diffuse.isActive != 0 ? texture(material.diffuse.texture, tiledTexCoord) : vec4(1,1,1,1);
-		vec3 normal = material.normalMap.isActive != 0 ? texture(material.normalMap.texture, tiledTexCoord).rgb : normalize(fs_in.Normal);
 		
+		// Textures
+		vec4 parallaxColor = material.parallaxMap.isActive != 0 ? texture(material.normalMap.texture, tiledTexCoord) : vec4(1,1,1,1);
+		if(material.parallaxMap.isActive != 0)
+			tiledTexCoord = ParallaxMapping(tiledTexCoord, viewDir, parallaxColor);
+		
+		vec4 diffuseTextureColor =  material.diffuse.isActive != 0 ? texture(material.diffuse.texture, tiledTexCoord) : vec4(1,1,1,1);
+		vec3 normal = material.normalMap.isActive != 0 ? texture(material.normalMap.texture, tiledTexCoord).rgb : normalize(fs_in.Normal);	
 		if(material.normalMap.isActive != 0)
 			normal = normalize(fs_in.tbnMatrix *(normal * 2.0 - 1.0));
 	
+		
+		
 		// Colors
 		vec3 finalColor = diffuseTextureColor.rgb * material.objectColor;
 		vec3 lighting = vec3(0.0);

@@ -425,6 +425,7 @@ namespace LinaEngine::Graphics
 			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
 			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
 			material.sampler2Ds[MC_TEXTURE2D_NORMALMAP] = { 1 };
+			material.sampler2Ds[MC_TEXTURE2D_PARALLAXMAP] = { 2 };
 			material.ints[MC_SURFACETYPE] = 0;
 			material.ints[MC_SPECULAREXPONENT] = 32;
 			material.vector2s[MC_TILING] = Vector2::One;

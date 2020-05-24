@@ -47,6 +47,7 @@ namespace LinaEngine::Graphics
 #define MC_SUNDIRECTIONPROPERTY "material.sunDirection"
 #define MC_TEXTURE2D_DIFFUSE "material.diffuse"
 #define MC_TEXTURE2D_NORMALMAP "material.normalMap"
+#define MC_TEXTURE2D_PARALLAXMAP "material.parallaxMap"
 #define MC_TEXTURE2D_SPECULAR "material.specular"
 #define MC_TEXTURE2D_SHADOWMAP "material.shadowMap"
 #define MC_SPECULARINTENSIT "material.specularIntensity"

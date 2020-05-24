@@ -26,8 +26,6 @@ namespace LinaEngine::Graphics
 	{
 		m_ID = renderDevice->ReleaseTexture2D(m_ID);
 
-		if (dataAssigned)
-			delete data;
 	}
 
 	Texture& Texture::Construct(RenderDevice& deviceIn, const ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress)
@@ -119,7 +117,6 @@ namespace LinaEngine::Graphics
 		m_Size = Vector2::One;
 		isCompressed = false;
 		hasMipMaps = false;
-		dataAssigned = true;
 		m_IsEmpty = true;
 		return *this;
 	}
