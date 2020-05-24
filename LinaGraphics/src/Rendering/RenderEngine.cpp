@@ -190,7 +190,13 @@ namespace LinaEngine::Graphics
 		{
 			// Create pixel data.
 			ArrayBitmap* textureBitmap = new ArrayBitmap();
-			textureBitmap->Load(filePath);
+			
+			if (!textureBitmap->Load(filePath))
+			{
+				LINA_CORE_ERR("Texture with the path {0} doesn't exist, returning empty texture", filePath);
+				delete textureBitmap;
+				return m_DefaultTexture;
+			}
 
 			// Create texture & construct.
 			m_LoadedTextures[filePath].Construct(m_RenderDevice, *textureBitmap, samplerParams, compress);
@@ -1064,7 +1070,8 @@ namespace LinaEngine::Graphics
 		for (auto const& d : (*data).sampler2Ds)
 		{
 			// Set whether the texture is active or not.
-			m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first + MC_EXTENSION_ISACTIVE, d.second.isActive ? 1 : 0 );
+			bool isActive = (!d.second.boundTexture->GetIsEmpty() && d.second.isActive) ? true : false;
+			m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first + MC_EXTENSION_ISACTIVE, isActive);
 
 			if (d.second.isActive)
 			{

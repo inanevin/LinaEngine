@@ -131,7 +131,7 @@ Vector3 cubePositions[] = {
 Vector3 pointLightPositions[]
 {
 	Vector3(1.0f,  2.0f,  0.0f),
-	Vector3(-5.0f,  -6.5f,  13.5f),
+	Vector3(-1.0f,  2.5f,  2.5f),
 	Vector3(5.0f,  -6.5f,  13.5f),
 	Vector3(0.0f,  -7.5f,  13.5f),
 };
@@ -141,7 +141,7 @@ Vector3 spotLightPositions[]
 	Vector3(0,0, -4)
 };
 
-int pLightSize = 1;
+int pLightSize = 2;
 int cubeSize = 4;
 int sLightSize = 1;
 

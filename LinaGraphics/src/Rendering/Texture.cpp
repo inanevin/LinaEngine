@@ -33,12 +33,12 @@ namespace LinaEngine::Graphics
 	Texture& Texture::Construct(RenderDevice& deviceIn, const ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress)
 	{
 		renderDevice = &deviceIn;
-
 		m_Sampler.Construct(deviceIn, samplerParams);
 		m_Size = Vector2(data.GetWidth(), data.GetHeight());
 		m_ID = renderDevice->CreateTexture2D(m_Size, data.GetPixelArray(), samplerParams, shouldCompress, false, Color::White);
 		isCompressed = shouldCompress;
 		hasMipMaps = samplerParams.textureParams.generateMipMaps;
+		m_IsEmpty = false;
 		return *this;
 	}
 
@@ -63,7 +63,7 @@ namespace LinaEngine::Graphics
 		m_ID = renderDevice->CreateCubemapTexture(m_Size, samplerParams, cubeMapData, 6U);
 		isCompressed = shouldCompress;
 		hasMipMaps = samplerParams.textureParams.generateMipMaps;
-
+		m_IsEmpty = false;
 		cubeMapData.clear();
 		return *this;
 	}
@@ -75,6 +75,7 @@ namespace LinaEngine::Graphics
 		m_Size = size;
 		m_ID = renderDevice->CreateCubemapTextureEmpty(m_Size, samplerParams);
 		isCompressed = false;
+		m_IsEmpty = false;
 		hasMipMaps = samplerParams.textureParams.generateMipMaps;
 		return *this;
 	}
@@ -89,6 +90,7 @@ namespace LinaEngine::Graphics
 		m_ID = renderDevice->CreateTexture2D(size, NULL, samplerParams, false, useBorder, Color::White);
 		m_Size = size;
 		isCompressed = false;
+		m_IsEmpty = false;
 		hasMipMaps = false;
 		return *this;
 	}
@@ -101,6 +103,7 @@ namespace LinaEngine::Graphics
 		m_ID = renderDevice->CreateTexture2DMSAA(size, samplerParams, sampleCount);
 		m_Size = size;
 		isCompressed = false;
+		m_IsEmpty = false;
 		hasMipMaps = false;
 		return *this;
 	}
@@ -117,6 +120,7 @@ namespace LinaEngine::Graphics
 		isCompressed = false;
 		hasMipMaps = false;
 		dataAssigned = true;
+		m_IsEmpty = true;
 		return *this;
 	}
 

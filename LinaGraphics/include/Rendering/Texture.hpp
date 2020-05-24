@@ -53,6 +53,7 @@ namespace LinaEngine::Graphics
 		FORCEINLINE bool IsCompressed() const { return isCompressed; }
 		FORCEINLINE bool HasMipmaps() const { return hasMipMaps; }
 		FORCEINLINE Vector2 GetSize() { return m_Size; }
+		FORCEINLINE bool GetIsEmpty() { return m_IsEmpty; }
 	private:
 
 		Sampler m_Sampler;
@@ -63,6 +64,7 @@ namespace LinaEngine::Graphics
 		bool dataAssigned = false;
 		bool isCompressed = false;
 		bool hasMipMaps = true;
+		bool m_IsEmpty = true;
 	};
 }
 
