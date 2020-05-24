@@ -167,7 +167,9 @@ void main()
 			
 		// Post pp
 		finalColor *= lighting;
-		finalColor =  pow(finalColor, vec3(1.0/2.2));
+		
+		// Gamma correction * NOT NEEDED IF DRAWING INTO A FULL SCREEN QUAD W/ TONEMAPPING ENABLED *
+		// finalColor =  pow(finalColor, vec3(1.0/2.2));
 		
 		// Set fragment
 		float alpha = material.surfaceType == 0 ? 1.0 : diffuseTextureColor.a;

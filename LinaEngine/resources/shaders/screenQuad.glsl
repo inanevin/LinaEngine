@@ -40,11 +40,16 @@ uniform sampler2D screenTexture;
 
 void main()
 {
-	//vec3 color = texture(screenTexture, TexCoords).xyz;
-	//color = pow(color, vec3(1.0/2.2));
-	//fragColor = vec4(color, texture(screenTexture, TexCoords).a);
-	fragColor = texture(screenTexture, TexCoords);
-	//fragColor = vec4(vec3(LinearizeDepth(depthVal, 1000, 0.1) / 1000), 1.0); 
+	
+	const float gamma = 2.2;
+    vec3 hdrColor = texture(screenTexture, TexCoords).rgb;
+  
+    // reinhard tone mapping
+    vec3 mapped = hdrColor / (hdrColor + vec3(1.0));
+    // gamma correction 
+    mapped = pow(mapped, vec3(1.0 / gamma));
+  
+    fragColor = vec4(mapped, 1.0);
 	
 }
 #endif

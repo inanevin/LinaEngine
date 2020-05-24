@@ -293,6 +293,8 @@ void Example1Level::Initialize()
 
 
 
+
+
 	for (int i = 0; i < pLightSize; i++)
 	{
 		smallCubeRenderer.material = objectUnlitMaterial;
