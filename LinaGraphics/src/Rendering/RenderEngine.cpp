@@ -651,6 +651,9 @@ namespace LinaEngine::Graphics
 		// Initialize intermediate frame buffer texture
 		m_IntermediateRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, mainRTParams, false);
 
+		// Initialize intermediate frame buffer texture 2 for bloom operations.
+		m_IntermediateRTTexture2.ConstructRTTexture(m_RenderDevice, screenSize, mainRTParams, false);
+
 		// Initialize depth map teture
 		m_DepthMapRTTexture.ConstructRTTexture(m_RenderDevice, m_ShadowMapResolution, depthRTParams, true);
 
@@ -668,6 +671,11 @@ namespace LinaEngine::Graphics
 
 		// Initialize intermediate render target.
 		m_IntermediateRenderTarget.Construct(m_RenderDevice, m_IntermediateRTTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+
+		// Bind the secondary texture to intermediate render target & tell open gl to draw 2 buffers.
+		//m_RenderDevice.BindTextureToRenderTarget(m_IntermediateRenderTarget.GetID(), screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1, 0);
+		//uint32 attachments[2] = { FrameBufferAttachment::ATTACHMENT_COLOR , (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)1) };
+		//m_RenderDevice.MultipleDrawBuffersCommand(m_IntermediateRenderTarget.GetID(), 2, attachments);
 
 		// Initialize shadow map target
 		m_DepthMapRenderTarget.Construct(m_RenderDevice, m_DepthMapRTTexture, m_ShadowMapResolution.x, m_ShadowMapResolution.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);

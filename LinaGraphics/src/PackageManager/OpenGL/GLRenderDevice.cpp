@@ -694,6 +694,38 @@ namespace LinaEngine::Graphics
 		return fbo;
 	}
 
+	void GLRenderDevice::BindTextureToRenderTarget(uint32 fbo, uint32 texture, Vector2 size, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, int mipLevel)
+	{
+		if ((m_FBOMap.find(fbo) == m_FBOMap.end()))
+		{
+			LINA_CORE_ERR("Frame buffer {0} is not generated, you can't attach a texture to non existing frame buffer!", fbo);
+			return;
+		}
+
+		SetFBO(fbo);
+		GLenum attachmentTypeGL = attachment + attachmentNumber;
+
+		if (bindTextureMode != TextureBindMode::BINDTEXTURE_NONE)
+			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, bindTextureMode, texture, mipLevel);
+		else
+			glFramebufferTexture(GL_FRAMEBUFFER, attachmentTypeGL, texture, mipLevel);
+
+		SetFBO(0);
+	}
+
+	void GLRenderDevice::MultipleDrawBuffersCommand(uint32 fbo, uint32 bufferCount, uint32* attachments)
+	{
+		if ((m_FBOMap.find(fbo) == m_FBOMap.end()))
+		{
+			LINA_CORE_ERR("Frame buffer {0} is not generated, you can't attach a texture to non existing frame buffer!", fbo);
+			return;
+		}
+		
+		SetFBO(fbo);
+		glDrawBuffers(bufferCount, attachments);
+		SetFBO(0);
+	}
+
 	uint32 GLRenderDevice::ReleaseRenderTarget(uint32 fbo)
 	{
 		// Terminate if fbo is not valid or does not exist in our map.

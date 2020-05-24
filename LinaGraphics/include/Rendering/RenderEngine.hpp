@@ -277,6 +277,9 @@ namespace LinaEngine::Graphics
 		// Intermediate render target texture
 		Texture m_IntermediateRTTexture;
 
+		// Secondary RT texture for blooming.
+		Texture m_IntermediateRTTexture2;
+
 		// Depth map render target texture
 		Texture m_DepthMapRTTexture;
 
