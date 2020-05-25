@@ -275,6 +275,9 @@ namespace LinaEngine::Graphics
 		// Screen quad blur material
 		Material m_ScreenQuadBlurMaterial;
 
+		// Screen quad outline material
+		Material m_ScreenQuadOutlineMaterial;
+
 		// Material used to draw skybox.
 		Material* m_SkyboxMaterial = nullptr;
 
@@ -298,13 +301,12 @@ namespace LinaEngine::Graphics
 
 		// Primary RT Texture
 		Texture m_PrimaryRTTexture0;
+		Texture m_PrimaryRTTexture1;
+		Texture m_PrimaryRTTexture2;
 
 		// Ping pong RT textures
 		Texture m_PingPongRTTexture1;
 		Texture m_PingPongRTTexture2;
-
-		// Primary RT Texture 1
-		Texture m_PrimaryRTTexture1;
 
 		// Default texture
 		Texture m_DefaultTexture;

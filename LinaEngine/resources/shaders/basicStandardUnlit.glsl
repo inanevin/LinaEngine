@@ -67,7 +67,7 @@ void main()
 	{
 		float alpha = material.surfaceType == 0 ? 1.0 : texture(material.diffuse, TexCoords).a;
 
-		fragColor =  vec4(material.objectColor, 1.0);
+		fragColor = texture(material.diffuse ,TexCoords) * vec4(material.objectColor, 1.0);	
 		
 		float brightness = dot(fragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
 		if(brightness > 1.0)

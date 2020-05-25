@@ -88,6 +88,7 @@ void main() {
 
 layout (location = 0) out vec4 fragColor;
 layout (location = 1) out vec4 brightColor;
+layout (location = 2) out vec4 outlineColor;
 
 struct MaterialSampler2D
 {
@@ -179,6 +180,8 @@ void main()
 			brightColor = vec4(fragColor.rgb, 1.0);
 		else
 			brightColor = vec4(0.0, 0.0, 0.0, 1.0);
+			
+		outlineColor = fragColor * vec4(1,0,1, 1.0);
 			
 		// Set fragment
 		float alpha = material.surfaceType == 0 ? 1.0 : diffuseTextureColor.a;
