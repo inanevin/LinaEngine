@@ -53,10 +53,13 @@ Material* quadMaterial;
 Material* cubemapReflectiveMaterial;
 Material* floorMaterial;
 Material* floorPBRMaterial;
+Material* glockMaterial;
+Material* sofaMaterial;
 
 TransformComponent object1Transform;
 MeshRendererComponent object1Renderer;
 MeshRendererComponent smallCubeRenderer;
+
 
 
 Example1Level::~Example1Level()
@@ -213,6 +216,17 @@ void Example1Level::Initialize()
 	Texture& roughness = m_RenderEngine->CreateTexture("resources/textures/wall/roughness.png", pbrSampler, false, false);
 	Texture& ao = m_RenderEngine->CreateTexture("resources/textures/wall/ao.png", pbrSampler, false, false);
 
+	Texture& albedoGlock = m_RenderEngine->CreateTexture("resources/textures/glock/albedo.png", pbrSampler, false, false);
+	Texture& normalGlock = m_RenderEngine->CreateTexture("resources/textures/glock/normal.png", pbrSampler, false, false);
+	Texture& metallicGlock = m_RenderEngine->CreateTexture("resources/textures/glock/metallic.png", pbrSampler, false, false);
+	Texture& roughnessGlock = m_RenderEngine->CreateTexture("resources/textures/glock/roughness.png", pbrSampler, false, false);
+	Texture& aoGlock = m_RenderEngine->CreateTexture("resources/textures/glock/ao.png", pbrSampler, false, false);
+
+	Texture& albedoSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/albedo.png", pbrSampler, false, false);
+	Texture& normalSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/normal.png", pbrSampler, false, false);
+	Texture& metallicSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/metallic.png", pbrSampler, false, false);
+	Texture& roughnessSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/roughness.png", pbrSampler, false, false);
+
 	// Load example mesh.
 	Mesh& cubeMesh = m_RenderEngine->CreateMesh("resources/meshes/cube.obj");
 
@@ -221,7 +235,8 @@ void Example1Level::Initialize()
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
 	objectUnlitMaterial2 = &m_RenderEngine->CreateMaterial("object3Material", Shaders::STANDARD_UNLIT);
 	floorPBRMaterial = &m_RenderEngine->CreateMaterial("floorPBR", Shaders::PBR_LIT);
-
+	glockMaterial = &m_RenderEngine->CreateMaterial("glock", Shaders::PBR_LIT);
+	sofaMaterial = &m_RenderEngine->CreateMaterial("sofa", Shaders::PBR_LIT);
 
 
 	floorPBRMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedo);
@@ -230,6 +245,18 @@ void Example1Level::Initialize()
 	floorPBRMaterial->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallic);
 	floorPBRMaterial->SetTexture(MC_TEXTURE2D_AOMAP, &ao);
 	floorPBRMaterial->SetVector2(MC_TILING, Vector2(20, 20));
+
+	sofaMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoSofa);
+	sofaMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normalSofa);
+	sofaMaterial->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughnessSofa);
+	sofaMaterial->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallicSofa);
+	sofaMaterial->SetVector2(MC_TILING, Vector2(1,1));
+
+	glockMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoGlock);
+	glockMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normalGlock);
+	glockMaterial->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughnessGlock);
+	glockMaterial->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallicGlock);
+	glockMaterial->SetTexture(MC_TEXTURE2D_AOMAP, &aoGlock);
 
 
 	//quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::STANDARD_LIT);
@@ -270,6 +297,29 @@ void Example1Level::Initialize()
 	//dirLightTransform.transform.location = Vector3(2.5f, 5.5f, 0.0f);
 	//dirLightTransform.transform.scale = Vector3(0.2f);
 	//dirLightT = &m_ECS->get<TransformComponent>(directionalLight);
+
+	
+	ECSEntity glock;
+	glock = m_ECS->CreateEntity("Glock");
+	MeshRendererComponent glockMR;
+	glockMR.mesh = &m_RenderEngine->CreateMesh("resources/meshes/glock.fbx");
+	glockMR.material = glockMaterial;
+	object1Transform.transform.location = Vector3(0, 4, 0);
+	object1Transform.transform.scale = Vector3(0.1f);
+	m_ECS->emplace<TransformComponent>(glock, object1Transform);
+	m_ECS->emplace<MeshRendererComponent>(glock, glockMR);
+
+
+	ECSEntity sofa;
+	sofa = m_ECS->CreateEntity("sofa");
+	MeshRendererComponent sofaMR;
+	sofaMR.mesh = &m_RenderEngine->CreateMesh("resources/meshes/sofa.fbx");
+	sofaMR.material = sofaMaterial;
+	object1Transform.transform.location = Vector3(0, 4, 0);
+	object1Transform.transform.scale = Vector3(1);
+	m_ECS->emplace<TransformComponent>(sofa, object1Transform);
+	m_ECS->emplace<MeshRendererComponent>(sofa, sofaMR);
+
 
 
 	ECSEntity floor;
