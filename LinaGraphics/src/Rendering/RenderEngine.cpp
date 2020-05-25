@@ -691,7 +691,7 @@ namespace LinaEngine::Graphics
 		m_PingPongRTTexture2.ConstructRTTexture(m_RenderDevice, screenSize, pingPongRTParams, false);
 
 		// Initialize outilne RT texture
-		//m_OutlineRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, primaryRTParams, false);
+		m_OutlineRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, primaryRTParams, false);
 
 		// Initialize render buffer.
 		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);
@@ -713,7 +713,7 @@ namespace LinaEngine::Graphics
 		m_PingPongRenderTarget2.Construct(m_RenderDevice, m_PingPongRTTexture2, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 
 		// Initialize outline render target
-		//m_OutlineRenderTarget.Construct(m_RenderDevice, m_OutlineRTTexture, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+		m_OutlineRenderTarget.Construct(m_RenderDevice, m_OutlineRTTexture, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 
 	}
 
@@ -842,20 +842,19 @@ namespace LinaEngine::Graphics
 			horizontal = !horizontal;
 			if (firstIteration) firstIteration = false;
 		}
+		m_RenderDevice.SetFBO(0);
 
 
 
 
-		// Back to default buffer
-		//m_RenderDevice.SetFBO(m_OutlineRenderTarget.GetID());
-		//
-		//m_ScreenQuadOutlineMaterial.SetTexture(UF_SCREENTEXTURE, &m_PrimaryRTTexture2);
-		//UpdateShaderData(&m_ScreenQuadOutlineMaterial);
-		//m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
+		// Back to outline buffer
+		m_RenderDevice.SetFBO(m_OutlineRenderTarget.GetID());	
+		m_ScreenQuadOutlineMaterial.SetTexture(UF_SCREENTEXTURE, &m_PrimaryRTTexture2);
+		UpdateShaderData(&m_ScreenQuadOutlineMaterial);
+		m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
 
 		// Back to default buffer
 		m_RenderDevice.SetFBO(0);
-
 
 		// Clear color bit.
 		m_RenderDevice.Clear(true, true, false, Color::White, 0xFF);
@@ -863,7 +862,7 @@ namespace LinaEngine::Graphics
 		// Set frame buffer texture on the material.
 		m_ScreenQuadFinalMaterial.SetTexture(UF_SCREENTEXTURE, &m_PrimaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		m_ScreenQuadFinalMaterial.SetTexture(UF_BLOOMTEXTURE, horizontal ? &m_PingPongRTTexture1 : &m_PingPongRTTexture2, TextureBindMode::BINDTEXTURE_TEXTURE2D);
-		m_ScreenQuadFinalMaterial.SetTexture(UF_OUTLINETEXTURE, &m_PrimaryRTTexture2, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+		m_ScreenQuadFinalMaterial.SetTexture(UF_OUTLINETEXTURE, &m_OutlineRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		m_ScreenQuadFinalMaterial.SetBool(UF_BLOOM, true);
 		m_ScreenQuadFinalMaterial.SetFloat(UF_EXPOSURE, 1.0f);
 

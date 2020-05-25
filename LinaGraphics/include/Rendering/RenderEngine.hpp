@@ -267,7 +267,7 @@ namespace LinaEngine::Graphics
 		Texture m_PingPongRTTexture2;
 
 		// Outline RT Texture
-		//Texture m_OutlineRTTexture;
+		Texture m_OutlineRTTexture;
 
 		// Default texture
 		Texture m_DefaultTexture;
@@ -343,9 +343,6 @@ namespace LinaEngine::Graphics
 		// Light counts.
 		int m_CurrentSpotLightCount;
 		int m_CurrentPointLightCount;
-
-		// Shadow map resolution
-		Vector2 m_ShadowMapResolution = Vector2(1024, 1024);
 
 		DISALLOW_COPY_ASSIGN_NEW(RenderEngine);
 	};
