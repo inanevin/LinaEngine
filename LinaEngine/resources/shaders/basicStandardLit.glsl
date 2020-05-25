@@ -86,7 +86,8 @@ void main() {
 
 #elif defined(FS_BUILD)
 
-Layout(0) out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
+layout (location = 1) out vec4 brightColor;
 
 struct MaterialSampler2D
 {
@@ -171,11 +172,18 @@ void main()
 		// Gamma correction * NOT NEEDED IF DRAWING INTO A FULL SCREEN QUAD W/ TONEMAPPING ENABLED *
 		// finalColor =  pow(finalColor, vec3(1.0/2.2));
 		
+
+		// check whether fragment output is higher than threshold, if so output as brightness color
+		float brightness = dot(fragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+		if(brightness > 1.0)
+			brightColor = vec4(fragColor.rgb, 1.0);
+		else
+			brightColor = vec4(0.0, 0.0, 0.0, 1.0);
+			
 		// Set fragment
 		float alpha = material.surfaceType == 0 ? 1.0 : diffuseTextureColor.a;
 		fragColor = vec4(finalColor, alpha);
-	
-	
+
 	
 	}
 }

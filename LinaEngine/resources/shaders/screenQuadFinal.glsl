@@ -36,21 +36,37 @@ void main()
 in vec2 TexCoords;
 out vec4 fragColor;
 
-uniform sampler2D screenTexture;
+struct MaterialSampler2D
+{
+	sampler2D texture;
+	int isActive;
+};
+
+uniform MaterialSampler2D screenTexture;
+uniform MaterialSampler2D bloomBlur;
+uniform bool bloom;
+uniform float exposure;
 
 void main()
 {
-	
+
 	const float gamma = 2.2;
-    vec3 hdrColor = texture(screenTexture, TexCoords).rgb;
-  
+    vec3 hdrColor = screenTexture.isActive != 0 ? texture(screenTexture.texture, TexCoords).rgb : vec3(0.0);
+    vec3 bloomColor = bloomBlur.isActive != 0 ? texture(bloomBlur.texture, TexCoords).rgb : vec3(0.0);
+	if(bloom)
+        hdrColor += bloomColor; 
+		
+	// tone mapping
+    vec3 result = vec3(1.0) - exp(-hdrColor * exposure);
+    // also gamma correct while we're at it       
+    result = pow(result, vec3(1.0 / gamma));
+    fragColor = vec4(result, 1.0);
+	
     // reinhard tone mapping
-    vec3 mapped = hdrColor / (hdrColor + vec3(1.0));
+    //vec3 mapped = hdrColor / (hdrColor + vec3(1.0));
     // gamma correction 
-    mapped = pow(mapped, vec3(1.0 / gamma));
-	
-	
-    fragColor = vec4(mapped, 1.0);
+   // mapped = pow(mapped, vec3(1.0 / gamma));
+   // fragColor = vec4(mapped, 1.0);
 	
 }
 #endif

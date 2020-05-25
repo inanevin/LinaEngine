@@ -264,7 +264,7 @@ void Example1Level::Initialize()
 	objectLitMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &brickWallNormal);
 	objectLitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
 	objectLitMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
-	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
+	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(200,200,200));
 	objectUnlitMaterial2->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
 	
 	floorMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &brickWall);
@@ -277,6 +277,7 @@ void Example1Level::Initialize()
 	//cubemapReflectiveMaterial->SetTexture(UF_SKYBOXTEXTURE, &cubemap, 0);
 	//quadMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &window);
 	//quadMaterial->SetSurfaceType(MaterialSurfaceType::Transparent);
+
 
 	object1Renderer.mesh = &cubeMesh;
 	object1Renderer.material = objectLitMaterial;
@@ -373,11 +374,10 @@ void Example1Level::Initialize()
 		entity = m_ECS->CreateEntity("Point Light " + i);
 		auto lightT = m_ECS->emplace<TransformComponent>(entity, object1Transform);
 		auto& pLight1 = m_ECS->emplace<PointLightComponent>(entity);
+		pLight1.color = Color(1, 1, 1);
+		smallCubeRenderer.material->SetColor(MC_OBJECTCOLORPROPERTY, pLight1.color);
 		m_ECS->emplace<MeshRendererComponent>(entity, smallCubeRenderer);
 
-
-
-		pLight1.color = Color(0.85f, 0.85f, 0.85f);
 		pLight1.distance = 100;
 
 	}

@@ -40,7 +40,8 @@ void main()
 }
 
 #elif defined(FS_BUILD)
-
+layout (location = 0) out vec4 fragColor;
+layout (location = 1) out vec4 brightColor;
 
 struct Material
 {
@@ -53,7 +54,7 @@ uniform Material material;
 
 in vec3 FragPos;
 in vec2 TexCoords;
-out vec4 fragColor;
+
 
 void main()
 {
@@ -66,7 +67,14 @@ void main()
 	{
 		float alpha = material.surfaceType == 0 ? 1.0 : texture(material.diffuse, TexCoords).a;
 
-		fragColor = texture(material.diffuse ,TexCoords) * vec4(material.objectColor, 1.0);
+		fragColor =  vec4(material.objectColor, 1.0);
+		
+		float brightness = dot(fragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+		if(brightness > 1.0)
+			brightColor = vec4(fragColor.rgb, 1.0);
+		else
+			brightColor = vec4(0.0, 0.0, 0.0, 1.0);
+		
 	}
 }
 #endif

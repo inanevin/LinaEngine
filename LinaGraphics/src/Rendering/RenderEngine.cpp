@@ -98,7 +98,7 @@ namespace LinaEngine::Graphics
 
 		// Construct screen quad materials
 		SetMaterialShader(m_ScreenQuadFinalMaterial, Shaders::SCREEN_QUAD_FINAL);
-		SetMaterialShader(m_ScreenQuadBlurMaterial, Shaders::SCREEN_QUAD_FINAL);
+		SetMaterialShader(m_ScreenQuadBlurMaterial, Shaders::SCREEN_QUAD_BLUR);
 
 		// Construct render targets
 		ConstructRenderTargets();
@@ -481,7 +481,14 @@ namespace LinaEngine::Graphics
 		}
 		else if (shader == Shaders::SCREEN_QUAD_FINAL)
 		{
-			material.sampler2Ds[UF_SCREENTEXTURE] = { 0 };
+			MaterialSampler2D s;
+			MaterialSampler2D s2;
+			s.unit = 0;
+			s2.unit = 1;
+			material.sampler2Ds[UF_SCREENTEXTURE] = s;
+			material.sampler2Ds[UF_BLOOMTEXTURE] = s2;
+			material.booleans[UF_BLOOM] = 1;
+			material.floats[UF_EXPOSURE] = 1.0f;
 		}
 		else if (shader == Shaders::SCREEN_QUAD_BLUR)
 		{
@@ -518,6 +525,7 @@ namespace LinaEngine::Graphics
 			material.receivesLighting = true;
 			material.isShadowMapped = true;
 		}
+
 
 
 		return material;
@@ -696,6 +704,8 @@ namespace LinaEngine::Graphics
 
 		m_ShadowMapResolution = Vector2(2048, 2048);
 
+
+
 		// Initialize frame buffer texture.
 		m_MainRTTexture.ConstructRTTextureMSAA(m_RenderDevice, screenSize, mainRTParams, 4);
 
@@ -720,7 +730,7 @@ namespace LinaEngine::Graphics
 		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);
 
 		// Initialize primary render buffer
-		m_PrimaryRenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, screenSize.x, screenSize.y);
+		m_PrimaryRenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH, screenSize.x, screenSize.y);
 
 		// Initialize intermediate render buffer
 		m_IntermediateRenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH, screenSize.x, screenSize.y);
@@ -733,7 +743,7 @@ namespace LinaEngine::Graphics
 		m_IntermediateRenderTarget.Construct(m_RenderDevice, m_IntermediateRTTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 
 		// Initialize primary render target.
-		m_PrimaryRenderTarget.Construct(m_RenderDevice, m_PrimaryRTTexture0, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_PrimaryRenderBuffer.GetID());
+		m_PrimaryRenderTarget.Construct(m_RenderDevice, m_PrimaryRTTexture0, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_PrimaryRenderBuffer.GetID());
 
 		// Bind the extre texture to primary render target, also tell open gl that we are running mrts.
 		m_RenderDevice.BindTextureToRenderTarget(m_PrimaryRenderTarget.GetID(), m_PrimaryRTTexture1.GetID(), screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
@@ -744,6 +754,7 @@ namespace LinaEngine::Graphics
 		m_PingPongRenderTarget1.Construct(m_RenderDevice, m_PingPongRTTexture1, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 		m_PingPongRenderTarget2.Construct(m_RenderDevice, m_PingPongRTTexture2, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 		
+
 		// Bind the secondary texture to intermediate render target & tell open gl to draw 2 buffers.
 		//m_RenderDevice.BindTextureToRenderTarget(m_IntermediateRenderTarget.GetID(), screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1, 0);
 		//uint32 attachments[2] = { FrameBufferAttachment::ATTACHMENT_COLOR , (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)1) };
@@ -919,15 +930,49 @@ namespace LinaEngine::Graphics
 		// Draw scene
 		DrawSceneObjects(false, m_DefaultDrawParams);
 
+
 		// Back to default buffer
 		m_RenderDevice.SetFBO(0);
 
+		// Write to the pingpong buffers to apply 2 pass gaussian blur.
+		bool horizontal = true;
+		bool firstIteration = true;
+		unsigned int amount = 10;
+		for (unsigned int i = 0; i < amount; i++)
+		{
+			// Select FBO
+			m_RenderDevice.SetFBO(horizontal ? m_PingPongRenderTarget1.GetID() : m_PingPongRenderTarget2.GetID());
+
+			// Setup material & use.
+			m_ScreenQuadBlurMaterial.SetBool(UF_ISHORIZONTAL, horizontal);
+			if(firstIteration)
+			m_ScreenQuadBlurMaterial.SetTexture(UF_SCREENTEXTURE, &m_PrimaryRTTexture1);
+			else
+			{
+				if(horizontal)
+					m_ScreenQuadBlurMaterial.SetTexture(UF_SCREENTEXTURE, &m_PingPongRTTexture2);
+				else
+					m_ScreenQuadBlurMaterial.SetTexture(UF_SCREENTEXTURE, &m_PingPongRTTexture1);
+			}
+			UpdateShaderData(&m_ScreenQuadBlurMaterial);
+			m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
+			horizontal = !horizontal;
+			if (firstIteration) firstIteration = false;
+		}
+
+
+
+		// Back to default buffer
+		m_RenderDevice.SetFBO(0);
 
 		// Clear color bit.
-		m_RenderDevice.Clear(true, false, false, Color::White, 0xFF);
+		m_RenderDevice.Clear(true, true, false, Color::White, 0xFF);
 
 		// Set frame buffer texture on the material.
 		m_ScreenQuadFinalMaterial.SetTexture(UF_SCREENTEXTURE, &m_PrimaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+		m_ScreenQuadFinalMaterial.SetTexture(UF_BLOOMTEXTURE, horizontal ? &m_PingPongRTTexture1 : &m_PingPongRTTexture2, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+		m_ScreenQuadFinalMaterial.SetBool(UF_BLOOM, true);
+		m_ScreenQuadFinalMaterial.SetFloat(UF_EXPOSURE, 1.0f);
 
 		// update shader w/ material data.
 		UpdateShaderData(&m_ScreenQuadFinalMaterial);

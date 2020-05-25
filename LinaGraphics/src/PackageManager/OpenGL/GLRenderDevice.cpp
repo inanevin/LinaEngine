@@ -711,7 +711,7 @@ namespace LinaEngine::Graphics
 		else
 			glFramebufferTexture(GL_FRAMEBUFFER, attachmentTypeGL, texture, mipLevel);
 
-		glBindTexture(GL_TEXTURE_2D, 0);
+		
 		SetFBO(0);
 	}
 
@@ -722,9 +722,11 @@ namespace LinaEngine::Graphics
 			LINA_CORE_ERR("Frame buffer {0} is not generated, you can't attach a texture to non existing frame buffer!", fbo);
 			return;
 		}
-		
 		SetFBO(fbo);
-		glDrawBuffers(bufferCount, attachments);
+
+		unsigned int attachmentss[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+		glDrawBuffers(2, attachments);
+		//glDrawBuffers(bufferCount, attachmentss);
 		SetFBO(0);
 	}
 
