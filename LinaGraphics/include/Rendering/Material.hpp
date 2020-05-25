@@ -63,6 +63,12 @@ namespace LinaEngine::Graphics
 			floats[name] = value;
 		}
 
+
+		FORCEINLINE void SetBool(const std::string& name, bool value)
+		{
+			booleans[name] = value;
+		}
+
 		FORCEINLINE void SetInt(const std::string& name, int value)
 		{
 			ints[name] = value;
@@ -99,6 +105,11 @@ namespace LinaEngine::Graphics
 		FORCEINLINE float GetFloat(const std::string& name)
 		{
 			return floats[name];
+		}
+
+		FORCEINLINE float GetBool(const std::string& name)
+		{
+			return booleans[name];
 		}
 
 		FORCEINLINE int GetInt(const std::string& name)
@@ -152,6 +163,7 @@ namespace LinaEngine::Graphics
 		std::map<std::string, Vector3> vector3s;
 		std::map<std::string, Vector4> vector4s;
 		std::map<std::string, Matrix> matrices;;
+		std::map<std::string, bool> booleans;
 
 	
 	};

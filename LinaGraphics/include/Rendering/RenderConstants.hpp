@@ -68,6 +68,7 @@ namespace LinaEngine::Graphics
 #define UF_SCREENTEXTURE "screenTexture"
 #define UF_SKYBOXTEXTURE "skybox"
 #define UF_TIME "time"
+#define UF_ISHORIZONTAL "horizontal"
 #define UF_LIGHTSPACEMATRIX "lightSpaceMatrix"
 #define UF_POINTSHADOWS_SHADOWMATRICES "shadowMatrices"
 #define UF_POINTSHADOWS_LIGHTPOS "lightPosition"

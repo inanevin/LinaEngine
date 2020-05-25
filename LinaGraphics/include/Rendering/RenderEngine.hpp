@@ -256,6 +256,10 @@ namespace LinaEngine::Graphics
 		// Primary render target
 		RenderTarget m_PrimaryRenderTarget;
 
+		// Ping-pong render targets
+		RenderTarget m_PingPongRenderTarget1;
+		RenderTarget m_PingPongRenderTarget2;
+
 		// Default Render buffer
 		RenderBuffer m_RenderBuffer;
 
@@ -266,7 +270,10 @@ namespace LinaEngine::Graphics
 		RenderBuffer m_IntermediateRenderBuffer;
 
 		// Screen Quad material
-		Material m_ScreenQuadMaterial;
+		Material m_ScreenQuadFinalMaterial;
+
+		// Screen quad blur material
+		Material m_ScreenQuadBlurMaterial;
 
 		// Material used to draw skybox.
 		Material* m_SkyboxMaterial = nullptr;
@@ -291,6 +298,10 @@ namespace LinaEngine::Graphics
 
 		// Primary RT Texture
 		Texture m_PrimaryRTTexture0;
+
+		// Ping pong RT textures
+		Texture m_PingPongRTTexture1;
+		Texture m_PingPongRTTexture2;
 
 		// Primary RT Texture 1
 		Texture m_PrimaryRTTexture1;
