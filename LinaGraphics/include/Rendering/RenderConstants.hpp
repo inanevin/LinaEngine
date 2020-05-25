@@ -66,7 +66,8 @@ namespace LinaEngine::Graphics
 
 #define UF_MODELMATRIX "model"
 #define UF_SCREENTEXTURE "screenTexture"
-#define UF_BLOOMTEXTURE "bloomBlur"
+#define UF_BLOOMTEXTURE "bloomTexture"
+#define UF_OUTLINETEXTURE "outlineTexture"
 #define UF_SKYBOXTEXTURE "skybox"
 #define UF_TIME "time"
 #define UF_ISHORIZONTAL "horizontal"

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include "common.glh"
 #include <uniformBuffers.glh>
 #include <utility.glh>
@@ -47,18 +47,18 @@ void main()
     vs_out.TexCoords = texCoord;
 	vs_out.Normal = mat3(inverseTransposeModel) * normal;
     gl_Position = projection * view * model * vec4(position, 1.0);
-	
+
 	// Tangent matrix for normals
 	vec3 n = normalize((model * vec4(normal, 0.0)).xyz);
 	vec3 t = normalize((model * vec4(tangent, 0.0)).xyz);
 	t = normalize(t - dot(t,n)*n);
 	vec3 bt = cross(t,n);
 	vs_out.tbnMatrix = mat3(t, bt, n);
-	
+
 	// For parallax mapping
     vs_out.TangentViewPos  = transpose(vs_out.tbnMatrix) * vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
     vs_out.TangentFragPos  = transpose(vs_out.tbnMatrix) * vs_out.FragPos;
-	
+
 }
 
 #elif defined(GEO_BUILD)
@@ -75,13 +75,13 @@ in VS_OUT {
     vec3 TangentFragPos;
 } gs_in[];
 
-out vec2 TexCoords; 
+out vec2 TexCoords;
 
 uniform float time;
 
 
-void main() {    
-    
+void main() {
+
 }
 
 #elif defined(FS_BUILD)
@@ -128,11 +128,11 @@ in VS_OUT
 
 void main()
 {
-	
- 
+
+
 	if(visualizeDepth)
 	{
-		float depth = LinearizeDepth(gl_FragCoord.z, cameraFar, cameraNear) / cameraFar;		
+		float depth = LinearizeDepth(gl_FragCoord.z, cameraFar, cameraNear) / cameraFar;
 		fragColor = vec4(vec3(depth), 1);
 	}
 	else
@@ -141,38 +141,38 @@ void main()
 		vec3 viewPos = vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
 		vec3 viewDir = normalize(viewPos - fs_in.FragPos);
 		vec2 tiledTexCoord = vec2(fs_in.TexCoords.x * material.tiling.x, fs_in.TexCoords.y * material.tiling.y);
-		
-		
+
+
 		// Textures
 		vec4 parallaxColor = material.parallaxMap.isActive != 0 ? texture(material.parallaxMap.texture, tiledTexCoord) : vec4(1,1,1,1);
 		if(material.parallaxMap.isActive != 0)
 			tiledTexCoord = ParallaxMapping(tiledTexCoord, normalize(fs_in.TangentViewPos - fs_in.TangentFragPos), parallaxColor);
-		
+
 		vec4 diffuseTextureColor =  material.diffuse.isActive != 0 ? texture(material.diffuse.texture, tiledTexCoord) : vec4(1,1,1,1);
-		vec3 normal = material.normalMap.isActive != 0 ? texture(material.normalMap.texture, tiledTexCoord).rgb : normalize(fs_in.Normal);	
+		vec3 normal = material.normalMap.isActive != 0 ? texture(material.normalMap.texture, tiledTexCoord).rgb : normalize(fs_in.Normal);
 		if(material.normalMap.isActive != 0)
 			normal = normalize(fs_in.tbnMatrix *(normal * 2.0 - 1.0));
-	
-		
-		
+
+
+
 		// Colors
 		vec3 finalColor = diffuseTextureColor.rgb * material.objectColor;
 		vec3 lighting = vec3(0.0);
-		
+
 		lighting += CalculateDirectionalLight(directionalLight, normal, fs_in.FragPos);
-		
+
 		// Lighting
 		for(int i = 0; i < pointLightCount; i++)
-			lighting += CalculatePointLight(pointLights[i], normal, fs_in.FragPos, viewDir);    
+			lighting += CalculatePointLight(pointLights[i], normal, fs_in.FragPos, viewDir);
 		for(int i = 0; i < spotLightCount; i++)
-			lighting += CalculateSpotLight(spotLights[i], normal, fs_in.FragPos, viewDir);   
-			
+			lighting += CalculateSpotLight(spotLights[i], normal, fs_in.FragPos, viewDir);
+
 		// Post pp
 		finalColor *= lighting;
-		
+
 		// Gamma correction * NOT NEEDED IF DRAWING INTO A FULL SCREEN QUAD W/ TONEMAPPING ENABLED *
 		// finalColor =  pow(finalColor, vec3(1.0/2.2));
-		
+
 
 		// check whether fragment output is higher than threshold, if so output as brightness color
 		float brightness = dot(fragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
@@ -180,14 +180,14 @@ void main()
 			brightColor = vec4(fragColor.rgb, 1.0);
 		else
 			brightColor = vec4(0.0, 0.0, 0.0, 1.0);
-			
-		outlineColor = fragColor * vec4(1,0,1, 1.0);
-			
+
+		outlineColor =  vec4(finalColor,1);
+
 		// Set fragment
 		float alpha = material.surfaceType == 0 ? 1.0 : diffuseTextureColor.a;
 		fragColor = vec4(finalColor, alpha);
 
-	
+
 	}
 }
 #endif

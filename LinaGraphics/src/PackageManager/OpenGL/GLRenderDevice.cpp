@@ -724,7 +724,7 @@ namespace LinaEngine::Graphics
 		}
 		SetFBO(fbo);
 
-		glDrawBuffers(2, attachments);
+		glDrawBuffers(bufferCount, attachments);
 		SetFBO(0);
 	}
 

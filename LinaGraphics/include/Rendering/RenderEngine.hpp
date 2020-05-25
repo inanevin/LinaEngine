@@ -260,6 +260,9 @@ namespace LinaEngine::Graphics
 		RenderTarget m_PingPongRenderTarget1;
 		RenderTarget m_PingPongRenderTarget2;
 
+		// Outline render target
+		RenderTarget m_OutlineRenderTarget;
+
 		// Default Render buffer
 		RenderBuffer m_RenderBuffer;
 
@@ -307,6 +310,9 @@ namespace LinaEngine::Graphics
 		// Ping pong RT textures
 		Texture m_PingPongRTTexture1;
 		Texture m_PingPongRTTexture2;
+
+		// Outline RT Texture
+		//Texture m_OutlineRTTexture;
 
 		// Default texture
 		Texture m_DefaultTexture;

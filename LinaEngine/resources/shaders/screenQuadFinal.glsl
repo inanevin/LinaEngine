@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include "common.glh"
 #include <uniformBuffers.glh>
 #include <utility.glh>
@@ -43,30 +43,31 @@ struct MaterialSampler2D
 };
 
 uniform MaterialSampler2D screenTexture;
-uniform MaterialSampler2D bloomBlur;
+uniform MaterialSampler2D bloomTexture;
+uniform MaterialSampler2D outlineTexture;
 uniform bool bloom;
 uniform float exposure;
+const float offset = 1.0 / 300.0;
 
 void main()
 {
 
 	const float gamma = 2.2;
-    vec3 hdrColor = screenTexture.isActive != 0 ? texture(screenTexture.texture, TexCoords).rgb : vec3(0.0);
-    vec3 bloomColor = bloomBlur.isActive != 0 ? texture(bloomBlur.texture, TexCoords).rgb : vec3(0.0);
+  vec3 hdrColor = screenTexture.isActive != 0 ? texture(screenTexture.texture, TexCoords).rgb : vec3(0.0);
+  vec3 bloomColor = bloomTexture.isActive != 0 ? texture(bloomTexture.texture, TexCoords).rgb : vec3(0.0);
+	vec3 outlineColor = outlineTexture.isActive != 0 ? texture(outlineTexture.texture, TexCoords).rgb : vec3(0.0);
+
+	// Add bloom.
 	if(bloom)
-        hdrColor += bloomColor; 
-		
-	// tone mapping
+        hdrColor += bloomColor;
+
+	  // Add outline
+	  hdrColor += outlineColor;
+
+	   // tone mapping
     vec3 result = vec3(1.0) - exp(-hdrColor * exposure);
-    // also gamma correct while we're at it       
+    // also gamma correct while we're at it
     result = pow(result, vec3(1.0 / gamma));
     fragColor = vec4(result, 1.0);
-	
-    // reinhard tone mapping
-    //vec3 mapped = hdrColor / (hdrColor + vec3(1.0));
-    // gamma correction 
-   // mapped = pow(mapped, vec3(1.0 / gamma));
-   // fragColor = vec4(mapped, 1.0);
-	
 }
 #endif

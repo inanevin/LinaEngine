@@ -19,9 +19,9 @@
 	#define DeclareFragOutput(locationNumber, type) out type outputLocation##locationNumber
 	#define SetFragOutput(locationNumber, val) outputLocation##locationNumber = val
 	#define Layout(locationNumber) layout(location=locationNumber)
-	
+
 	#define texture2D(tex, coord) texture(tex, coord)
-	
+
 	#if defined(VS_BUILD)
 		#define varying out
 		#define attribute in
@@ -56,9 +56,8 @@
 float remap( float value, float low1, float high1, float low2, float high2)
 {
     return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
-} 
+}
 
 #define UB_GLOBAL layout (std140, row_major) uniform GlobalData {mat4 projection; mat4 view; vec4 cameraPosition;};
 #define UB_GLOBAL_LIGHT layout (std140, row_major) uniform GlobalLightData {int pointLightCount; int spotLightCount; };
 #define UB_GLOBAL_DEBUG layout (std140, row_major) uniform GlobalDebugData { bool visualizeDepth; };
-
