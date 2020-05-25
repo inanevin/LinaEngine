@@ -25,7 +25,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
 #include "imgui_internal.h"
-#include "ImGuizmo.h"
+#include "imgui/imguizmo/ImGuizmo.h"
 #if !defined(_MSC_VER)
 #define _malloca(x) alloca(x)
 #endif

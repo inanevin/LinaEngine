@@ -2,7 +2,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include "ImSequencer.h"
+#include "imgui/imguizmo/ImSequencer.h"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <cstdlib>
