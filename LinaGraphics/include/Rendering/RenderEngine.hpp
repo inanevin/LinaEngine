@@ -206,6 +206,9 @@ namespace LinaEngine::Graphics
 		// clears resource memory.
 		void DumpMemory();
 
+		// Renders the scene.
+		void Render(float delta);
+
 		// Default drawing
 		void DrawOperationsDefault(float delta);
 
@@ -250,8 +253,14 @@ namespace LinaEngine::Graphics
 		// Depth map render target for point light shadows
 		RenderTarget m_PointLightsRenderTarget;
 
+		// Primary render target
+		RenderTarget m_PrimaryRenderTarget;
+
 		// Default Render buffer
 		RenderBuffer m_RenderBuffer;
+
+		// Primary render buffer
+		RenderBuffer m_PrimaryRenderBuffer;
 
 		// Intermediate render buffer
 		RenderBuffer m_IntermediateRenderBuffer;
@@ -279,6 +288,9 @@ namespace LinaEngine::Graphics
 
 		// Point lights render target texture
 		Texture m_PointLightsRTTexture;
+
+		// Primary RT Texture
+		Texture m_PrimaryRTTexture;
 
 		// Default texture
 		Texture m_DefaultTexture;
