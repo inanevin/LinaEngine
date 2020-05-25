@@ -290,7 +290,10 @@ namespace LinaEngine::Graphics
 		Texture m_PointLightsRTTexture;
 
 		// Primary RT Texture
-		Texture m_PrimaryRTTexture;
+		Texture m_PrimaryRTTexture0;
+
+		// Primary RT Texture 1
+		Texture m_PrimaryRTTexture1;
 
 		// Default texture
 		Texture m_DefaultTexture;

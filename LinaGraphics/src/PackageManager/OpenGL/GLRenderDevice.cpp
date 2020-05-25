@@ -705,11 +705,13 @@ namespace LinaEngine::Graphics
 		SetFBO(fbo);
 		GLenum attachmentTypeGL = attachment + attachmentNumber;
 
+		glBindTexture(GL_TEXTURE_2D, texture);
 		if (bindTextureMode != TextureBindMode::BINDTEXTURE_NONE)
 			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, bindTextureMode, texture, mipLevel);
 		else
 			glFramebufferTexture(GL_FRAMEBUFFER, attachmentTypeGL, texture, mipLevel);
 
+		glBindTexture(GL_TEXTURE_2D, 0);
 		SetFBO(0);
 	}
 
@@ -1299,6 +1301,7 @@ namespace LinaEngine::Graphics
 		case PixelFormat::FORMAT_SRGB: return GL_RGB;
 		case PixelFormat::FORMAT_SRGBA: return GL_RGBA;
 		case PixelFormat::FORMAT_RGBA16F: return GL_RGBA;
+		case PixelFormat::FORMAT_RGB16F: return GL_RGBA;
 		default:
 			LINA_CORE_ERR("PixelFormat {0} is not a valid PixelFormat.", format);
 			return 0;
@@ -1324,6 +1327,7 @@ namespace LinaEngine::Graphics
 		case PixelFormat::FORMAT_SRGB: return GL_SRGB;
 		case PixelFormat::FORMAT_SRGBA: return GL_SRGB_ALPHA;
 		case PixelFormat::FORMAT_RGBA16F: return GL_RGBA16F;
+		case PixelFormat::FORMAT_RGB16F: return GL_RGB16F;
 		default:
 			LINA_CORE_ERR("PixelFormat {0} is not a valid PixelFormat.", format);
 			return 0;

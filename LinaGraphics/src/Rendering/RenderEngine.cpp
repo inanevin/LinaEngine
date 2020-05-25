@@ -661,9 +661,9 @@ namespace LinaEngine::Graphics
 
 		SamplerParameters primaryRTParams;
 		primaryRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
-		primaryRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
+		primaryRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
 		primaryRTParams.textureParams.minFilter = primaryRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-		primaryRTParams.textureParams.wrapS = primaryRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
+		primaryRTParams.textureParams.wrapS = primaryRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 
 		SamplerParameters intRTParams;
 		intRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
@@ -686,8 +686,9 @@ namespace LinaEngine::Graphics
 		// Initialize frame buffer texture.
 		m_MainRTTexture.ConstructRTTextureMSAA(m_RenderDevice, screenSize, mainRTParams, 4);
 
-		// Initialize primary RT texture
-		m_PrimaryRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, primaryRTParams, false);
+		// Initialize primary RT textures
+		m_PrimaryRTTexture0.ConstructRTTexture(m_RenderDevice, screenSize, primaryRTParams, false);
+		m_PrimaryRTTexture1.ConstructRTTexture(m_RenderDevice, screenSize, primaryRTParams, false);
 
 		// Initialize intermediate frame buffer texture
 		m_IntermediateRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, intRTParams, false);
@@ -715,7 +716,12 @@ namespace LinaEngine::Graphics
 		m_IntermediateRenderTarget.Construct(m_RenderDevice, m_IntermediateRTTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 
 		// Initialize primary render target.
-		m_PrimaryRenderTarget.Construct(m_RenderDevice, m_PrimaryRTTexture, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_PrimaryRenderBuffer.GetID());
+		m_PrimaryRenderTarget.Construct(m_RenderDevice, m_PrimaryRTTexture0, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_PrimaryRenderBuffer.GetID());
+
+		// Bind the extre texture to primary render target, also tell open gl that we are running mrts.
+		m_RenderDevice.BindTextureToRenderTarget(m_PrimaryRenderTarget.GetID(), m_PrimaryRTTexture1.GetID(), screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
+		uint32 attachments[2] = { FrameBufferAttachment::ATTACHMENT_COLOR , (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)1) };
+		m_RenderDevice.MultipleDrawBuffersCommand(m_PrimaryRenderTarget.GetID(), 2, attachments);
 
 		// Bind the secondary texture to intermediate render target & tell open gl to draw 2 buffers.
 		//m_RenderDevice.BindTextureToRenderTarget(m_IntermediateRenderTarget.GetID(), screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1, 0);
@@ -899,7 +905,7 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.Clear(true, false, false, Color::White, 0xFF);
 
 		// Set frame buffer texture on the material.
-		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &m_PrimaryRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+		m_ScreenQuadMaterial.SetTexture(UF_SCREENTEXTURE, &m_PrimaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 
 		// update shader w/ material data.
 		UpdateShaderData(&m_ScreenQuadMaterial);

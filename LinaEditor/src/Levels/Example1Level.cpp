@@ -235,12 +235,12 @@ void Example1Level::Initialize()
 	sofaMaterial = &m_RenderEngine->CreateMaterial("sofa", Shaders::PBR_LIT);
 
 
-	//floorPBRMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedo);
+	floorPBRMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedo);
 	//floorPBRMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normal);
 	//floorPBRMaterial->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughness);
 	//floorPBRMaterial->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallic);
 	//floorPBRMaterial->SetTexture(MC_TEXTURE2D_AOMAP, &ao);
-	//floorPBRMaterial->SetVector2(MC_TILING, Vector2(20, 20));
+	floorPBRMaterial->SetVector2(MC_TILING, Vector2(20, 20));
 
 	//sofaMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoSofa);
 	//sofaMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normalSofa);
@@ -295,26 +295,26 @@ void Example1Level::Initialize()
 	//dirLightT = &m_ECS->get<TransformComponent>(directionalLight);
 
 	
-	ECSEntity glock;
-	glock = m_ECS->CreateEntity("Glock");
-	MeshRendererComponent glockMR;
-	glockMR.mesh = &m_RenderEngine->CreateMesh("resources/meshes/glock.fbx");
-	glockMR.material = glockMaterial;
-	object1Transform.transform.location = Vector3(0, 4, 0);
-	object1Transform.transform.scale = Vector3(0.1f);
-	m_ECS->emplace<TransformComponent>(glock, object1Transform);
-	m_ECS->emplace<MeshRendererComponent>(glock, glockMR);
-
-
-	ECSEntity sofa;
-	sofa = m_ECS->CreateEntity("sofa");
-	MeshRendererComponent sofaMR;
-	sofaMR.mesh = &m_RenderEngine->CreateMesh("resources/meshes/sofa.fbx");
-	sofaMR.material = sofaMaterial;
-	object1Transform.transform.location = Vector3(0, 4, 0);
-	object1Transform.transform.scale = Vector3(1);
-	m_ECS->emplace<TransformComponent>(sofa, object1Transform);
-	m_ECS->emplace<MeshRendererComponent>(sofa, sofaMR);
+//ECSEntity glock;
+//glock = m_ECS->CreateEntity("Glock");
+//MeshRendererComponent glockMR;
+//glockMR.mesh = &m_RenderEngine->CreateMesh("resources/meshes/glock.fbx");
+//glockMR.material = glockMaterial;
+//object1Transform.transform.location = Vector3(0, 4, 0);
+//object1Transform.transform.scale = Vector3(0.1f);
+//m_ECS->emplace<TransformComponent>(glock, object1Transform);
+//m_ECS->emplace<MeshRendererComponent>(glock, glockMR);
+//
+//
+//ECSEntity sofa;
+//sofa = m_ECS->CreateEntity("sofa");
+//MeshRendererComponent sofaMR;
+//sofaMR.mesh = &m_RenderEngine->CreateMesh("resources/meshes/sofa.fbx");
+//sofaMR.material = sofaMaterial;
+//object1Transform.transform.location = Vector3(0, 4, 0);
+//object1Transform.transform.scale = Vector3(1);
+//m_ECS->emplace<TransformComponent>(sofa, object1Transform);
+//m_ECS->emplace<MeshRendererComponent>(sofa, sofaMR);
 
 
 
@@ -328,6 +328,7 @@ void Example1Level::Initialize()
 	object1Transform.transform.scale = Vector3(40.0f);
 	m_ECS->emplace<TransformComponent>(floor, object1Transform);
 	m_ECS->emplace<MeshRendererComponent>(floor, mr);
+
 
 
 
