@@ -91,7 +91,7 @@ void CreateProceduralSkybox(RenderEngine* renderEngine)
 {
 	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_PROCEDURAL);
 	mat.SetColor("material.startColor", Color::Black);
-	mat.SetColor("material.endColor", Color::Gray);
+	mat.SetColor("material.endColor", Color::Black);
 	mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
 	renderEngine->SetSkyboxMaterial(mat);
 }
@@ -218,10 +218,10 @@ void Example1Level::Initialize()
 	//Texture& roughnessGlock = m_RenderEngine->CreateTexture("resources/textures/glock/roughness.png", pbrSampler, false, false);
 	//Texture& aoGlock = m_RenderEngine->CreateTexture("resources/textures/glock/ao.png", pbrSampler, false, false);
 	//
-	//Texture& albedoSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/albedo.png", pbrSampler, false, false);
-	//Texture& normalSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/normal.png", pbrSampler, false, false);
-	//Texture& metallicSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/metallic.png", pbrSampler, false, false);
-	//Texture& roughnessSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/roughness.png", pbrSampler, false, false);
+//	Texture& albedoSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/albedo.png", pbrSampler, false, false);
+//	Texture& normalSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/normal.png", pbrSampler, false, false);
+//	Texture& metallicSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/metallic.png", pbrSampler, false, false);
+//	Texture& roughnessSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/roughness.png", pbrSampler, false, false);
 
 	// Load example mesh.
 	Mesh& cubeMesh = m_RenderEngine->CreateMesh("resources/meshes/cube.obj");
@@ -236,17 +236,17 @@ void Example1Level::Initialize()
 
 
 	floorPBRMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedo);
-	//floorPBRMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normal);
-	//floorPBRMaterial->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughness);
-	//floorPBRMaterial->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallic);
-	//floorPBRMaterial->SetTexture(MC_TEXTURE2D_AOMAP, &ao);
+	floorPBRMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normal);
+	floorPBRMaterial->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughness);
+	floorPBRMaterial->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallic);
+	floorPBRMaterial->SetTexture(MC_TEXTURE2D_AOMAP, &ao);
 	floorPBRMaterial->SetVector2(MC_TILING, Vector2(20, 20));
 
-	//sofaMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoSofa);
-	//sofaMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normalSofa);
-	//sofaMaterial->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughnessSofa);
-	//sofaMaterial->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallicSofa);
-	//sofaMaterial->SetVector2(MC_TILING, Vector2(1,1));
+//	sofaMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoSofa);
+//	sofaMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normalSofa);
+//	sofaMaterial->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughnessSofa);
+//	sofaMaterial->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallicSofa);
+//	sofaMaterial->SetVector2(MC_TILING, Vector2(1,1));
 	//
 	//glockMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoGlock);
 	//glockMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normalGlock);
@@ -313,7 +313,7 @@ void Example1Level::Initialize()
 //sofaMR.mesh = &m_RenderEngine->CreateMesh("resources/meshes/sofa.fbx");
 //sofaMR.material = sofaMaterial;
 //object1Transform.transform.location = Vector3(0, 4, 0);
-//object1Transform.transform.scale = Vector3(1);
+//object1Transform.transform.scale = Vector3(0.05f);
 //m_ECS->emplace<TransformComponent>(sofa, object1Transform);
 //m_ECS->emplace<MeshRendererComponent>(sofa, sofaMR);
 

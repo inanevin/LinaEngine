@@ -20,25 +20,53 @@ project(LinaEditor)
 #--------------------------------------------------------------------
 
 set(LINAEDITOR_SOURCES 
+
+# Core
 src/Core/EditorApplication.cpp
 src/Core/GUILayer.cpp
 src/Core/EditorCommon.cpp
-src/Core/imgui/imgui_impl_opengl3.cpp
-src/Core/imgui/imgui_impl_glfw.cpp
+
+# Panels
 src/Panels/EditorPanel.cpp
 src/Panels/ECSPanel.cpp
 src/Levels/Example1Level.cpp
+
+# Utility
 src/Utility/EditorUtility.cpp
+
+# ImGui
+src/imgui/imgui_impl_opengl3.cpp
+src/imgui/imgui_impl_glfw.cpp
+src/imgui/imguizmo/ImCurveEdit.cpp
+src/imgui/imguizmo/ImGradient.cpp
+src/imgui/imguizmo/ImGuizmo.cpp
+src/imgui/imguizmo/ImSequencer.cpp
 
 )
 
 set(LINAEDITOR_HEADERS
+
+# Core
 include/Core/GUILayer.hpp
 include/Core/EditorCommon.hpp
+
+# World
 include/Levels/Example1Level.hpp
+
+# Panels
 include/Panels/EditorPanel.hpp
 include/Panels/ECSPanel.hpp
+
+# Utility
 include/Utility/EditorUtility.hpp
+
+# ImGuizmo
+include/imgui/imguizmo/ImCurveEdit.h
+include/imgui/imguizmo/ImGradient.h
+include/imgui/imguizmo/ImGuizmo.h
+include/imgui/imguizmo/ImSequencer.h
+
+
 CMakeLists.txt
 
 )

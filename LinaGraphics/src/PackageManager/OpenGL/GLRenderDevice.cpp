@@ -724,9 +724,7 @@ namespace LinaEngine::Graphics
 		}
 		SetFBO(fbo);
 
-		unsigned int attachmentss[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 		glDrawBuffers(2, attachments);
-		//glDrawBuffers(bufferCount, attachmentss);
 		SetFBO(0);
 	}
 
