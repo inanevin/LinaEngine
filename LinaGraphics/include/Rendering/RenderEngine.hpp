@@ -212,23 +212,11 @@ namespace LinaEngine::Graphics
 		// Default drawing
 		void DrawOperationsDefault(float delta);
 
-		// Draw operations plight.
-		void DrawOperationsPointLight(float delta, bool visualizeDepthMap);
-
-		// Drawing onto fullscreen quad via MSAA buffers
-		void DrawOperationsMSAA(float delta);
-
-		// Draw operations for shadow mapping
-		void DrawOperationsShadows(float delta, bool visualizeDepthMap);
-
 		// Renders skybox
 		void DrawSkybox();
 
 		// Renders scene objects.
-		void DrawSceneObjects(bool useStencilOutlining, DrawParams& drawpParams, Material* overrideMaterial = nullptr, bool drawSkybox = true);
-
-		// Draws a full screen quad from frame buffer texture.
-		void DrawFullscreenQuad(Texture& texture, bool blit);
+		void DrawSceneObjects(DrawParams& drawpParams, Material* overrideMaterial = nullptr, bool drawSkybox = true);
 
 		// Updates related uniform buffers on GPU
 		void UpdateUniformBuffers();
@@ -240,18 +228,6 @@ namespace LinaEngine::Graphics
 
 		// Context window
 		Window m_MainWindow;
-
-		// Default render target
-		RenderTarget m_MainRenderTarget;
-
-		// Intermediate render target for blitting
-		RenderTarget m_IntermediateRenderTarget;
-
-		// Depth map render target for shadow mapping
-		RenderTarget m_DepthMapRenderTarget;
-
-		// Depth map render target for point light shadows
-		RenderTarget m_PointLightsRenderTarget;
 
 		// Primary render target
 		RenderTarget m_PrimaryRenderTarget;
@@ -269,9 +245,6 @@ namespace LinaEngine::Graphics
 		// Primary render buffer
 		RenderBuffer m_PrimaryRenderBuffer;
 
-		// Intermediate render buffer
-		RenderBuffer m_IntermediateRenderBuffer;
-
 		// Screen Quad material
 		Material m_ScreenQuadFinalMaterial;
 
@@ -283,24 +256,6 @@ namespace LinaEngine::Graphics
 
 		// Material used to draw skybox.
 		Material* m_SkyboxMaterial = nullptr;
-
-		// Depth buffer material
-		Material* m_DepthBufferMaterial = nullptr;
-
-		// Depth material for point lights
-		Material* m_PointLightsDepthMaterial = nullptr;
-
-		// Main render target Texture
-		Texture m_MainRTTexture;
-
-		// Intermediate render target texture
-		Texture m_IntermediateRTTexture;
-
-		// Depth map render target texture
-		Texture m_DepthMapRTTexture;
-
-		// Point lights render target texture
-		Texture m_PointLightsRTTexture;
 
 		// Primary RT Texture
 		Texture m_PrimaryRTTexture0;
@@ -320,23 +275,11 @@ namespace LinaEngine::Graphics
 		// Default drawing parameters.
 		DrawParams m_DefaultDrawParams;
 
-		// Depth map draw params
-		DrawParams m_DepthMapDrawParams;
-
 		// Skybox drawing parameters.
 		DrawParams m_SkyboxDrawParams;
 
-		// Draw parameters for stencil outline rendering.
-		DrawParams m_StencilOutlineDrawParams;
-
-		// Draw params for stencil outline second pass.
-		DrawParams m_StencilOutlineDrawParams2;
-
 		// Draw parameters for fbo texture rendering
 		DrawParams m_FullscreenQuadDP;
-
-		// Sprite drawing parameters.
-		DrawParams m_SpriteDrawParams;
 
 		// Buffer for global matrices
 		UniformBuffer m_GlobalDataBuffer;

@@ -97,9 +97,7 @@ namespace LinaEngine::Graphics
 		m_ScreenQuad = m_RenderDevice.CreateScreenQuadVertexArray();
 
 		// Construct screen quad materials
-		SetMaterialShader(m_ScreenQuadFinalMaterial, Shaders::SCREEN_QUAD_FINAL);
-		SetMaterialShader(m_ScreenQuadBlurMaterial, Shaders::SCREEN_QUAD_BLUR);
-		SetMaterialShader(m_ScreenQuadOutlineMaterial, Shaders::SCREEN_QUAD_OUTLINE);
+		ConstructEngineMaterials();
 
 		// Construct render targets
 		ConstructRenderTargets();
@@ -644,16 +642,9 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::ConstructEngineMaterials()
 	{
-		// Stencil outline material.
-		CreateMaterial(MAT_LINASTENCILOUTLINE, Shaders::STENCIL_OUTLINE);
-		m_LoadedMaterials[MAT_LINASTENCILOUTLINE].floats[MC_OUTLINETHICKNESS] = 0.015f;
-		m_LoadedMaterials[MAT_LINASTENCILOUTLINE].colors[MC_OBJECTCOLORPROPERTY] = Color::Red;
-
-		// Create material for rendering directional shadows onto the depth buffer
-		m_DepthBufferMaterial = &CreateMaterial("dirShadowsDepth", Shaders::DEPTH_DIRECTIONAL_SHADOWS);
-
-		// Create material for rendering point shadows onto the depth buffer
-		m_PointLightsDepthMaterial = &CreateMaterial("pointShadowsDepth", Shaders::DEPTH_POINT_SHADOWS);
+		SetMaterialShader(m_ScreenQuadFinalMaterial, Shaders::SCREEN_QUAD_FINAL);
+		SetMaterialShader(m_ScreenQuadBlurMaterial, Shaders::SCREEN_QUAD_BLUR);
+		SetMaterialShader(m_ScreenQuadOutlineMaterial, Shaders::SCREEN_QUAD_OUTLINE);
 	}
 
 	void RenderEngine::ConstructEnginePrimitives()
@@ -689,26 +680,6 @@ namespace LinaEngine::Graphics
 		pingPongRTParams.textureParams.minFilter = pingPongRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
 		pingPongRTParams.textureParams.wrapS = pingPongRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 
-		SamplerParameters intRTParams;
-		intRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
-		intRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
-		intRTParams.textureParams.minFilter = intRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-		intRTParams.textureParams.wrapS = intRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-
-		SamplerParameters depthRTParams;
-		depthRTParams.textureParams.pixelFormat = depthRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_DEPTH;
-		depthRTParams.textureParams.minFilter = depthRTParams.textureParams.magFilter = SamplerFilter::FILTER_NEAREST;
-		depthRTParams.textureParams.wrapS = depthRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-
-		SamplerParameters pointLightRTParams;
-		pointLightRTParams.textureParams.pixelFormat = pointLightRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_DEPTH;
-		pointLightRTParams.textureParams.minFilter = pointLightRTParams.textureParams.magFilter = SamplerFilter::FILTER_NEAREST;
-		pointLightRTParams.textureParams.wrapS = pointLightRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-
-		m_ShadowMapResolution = Vector2(2048, 2048);
-
-		// Initialize frame buffer texture.
-		m_MainRTTexture.ConstructRTTextureMSAA(m_RenderDevice, screenSize, mainRTParams, 4);
 
 		// Initialize primary RT textures
 		m_PrimaryRTTexture0.ConstructRTTexture(m_RenderDevice, screenSize, primaryRTParams, false);
@@ -722,30 +693,11 @@ namespace LinaEngine::Graphics
 		// Initialize outilne RT texture
 		//m_OutlineRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, primaryRTParams, false);
 
-		// Initialize intermediate frame buffer texture
-		m_IntermediateRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, intRTParams, false);
-
-		// Initialize depth map teture
-		m_DepthMapRTTexture.ConstructRTTexture(m_RenderDevice, m_ShadowMapResolution, depthRTParams, true);
-
-		// Initialize point light rt texture
-		m_PointLightsRTTexture.ConstructRTCubemapTexture(m_RenderDevice, m_ShadowMapResolution, pointLightRTParams);
-
 		// Initialize render buffer.
 		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);
 
 		// Initialize primary render buffer
 		m_PrimaryRenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH, screenSize.x, screenSize.y);
-
-		// Initialize intermediate render buffer
-		m_IntermediateRenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH, screenSize.x, screenSize.y);
-
-		// Initialize the render target w/ render buffer.
-		m_MainRenderTarget.Construct(m_RenderDevice, m_MainRTTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, m_RenderBuffer.GetID());
-
-		// Initialize intermediate render target.
-		//m_IntermediateRenderTarget.Construct(m_RenderDevice, m_IntermediateRTTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_IntermediateRenderBuffer.GetID());
-		m_IntermediateRenderTarget.Construct(m_RenderDevice, m_IntermediateRTTexture, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 
 		// Initialize primary render target.
 		m_PrimaryRenderTarget.Construct(m_RenderDevice, m_PrimaryRTTexture0, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_PrimaryRenderBuffer.GetID());
@@ -762,12 +714,6 @@ namespace LinaEngine::Graphics
 
 		// Initialize outline render target
 		//m_OutlineRenderTarget.Construct(m_RenderDevice, m_OutlineRTTexture, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
-
-		// Initialize shadow map target
-		m_DepthMapRenderTarget.Construct(m_RenderDevice, m_DepthMapRTTexture, m_ShadowMapResolution.x, m_ShadowMapResolution.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
-
-		// Initialize point light shadow map target
-		m_PointLightsRenderTarget.Construct(m_RenderDevice, m_PointLightsRTTexture, m_ShadowMapResolution.x, m_ShadowMapResolution.y, TextureBindMode::BINDTEXTURE_NONE, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
 
 	}
 
@@ -795,29 +741,6 @@ namespace LinaEngine::Graphics
 		m_DefaultDrawParams.scissorWidth = 0;
 		m_DefaultDrawParams.scissorHeight = 0;
 
-
-
-		// Set depth map drawing parameters.
-		m_DepthMapDrawParams.useScissorTest = false;
-		m_DepthMapDrawParams.useDepthTest = true;
-		m_DepthMapDrawParams.useStencilTest = false;
-		m_DepthMapDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_DepthMapDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
-		m_DepthMapDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
-		m_DepthMapDrawParams.destBlend = BlendFunc::BLEND_FUNC_NONE;
-		m_DepthMapDrawParams.shouldWriteDepth = true;
-		m_DepthMapDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
-		m_DepthMapDrawParams.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
-		m_DepthMapDrawParams.stencilComparisonVal = 1;
-		m_DepthMapDrawParams.stencilTestMask = 0xFF;
-		m_DepthMapDrawParams.stencilWriteMask = 0xFF;
-		m_DepthMapDrawParams.stencilFail = StencilOp::STENCIL_KEEP;
-		m_DepthMapDrawParams.stencilPass = StencilOp::STENCIL_REPLACE;
-		m_DepthMapDrawParams.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
-		m_DepthMapDrawParams.scissorStartX = 0;
-		m_DepthMapDrawParams.scissorStartY = 0;
-		m_DepthMapDrawParams.scissorWidth = 0;
-		m_DepthMapDrawParams.scissorHeight = 0;
 
 		// Set render to fbo target draw parameters.	
 		m_FullscreenQuadDP.useScissorTest = false;
@@ -862,50 +785,6 @@ namespace LinaEngine::Graphics
 		m_SkyboxDrawParams.scissorStartY = 0;
 		m_SkyboxDrawParams.scissorWidth = 0;
 		m_SkyboxDrawParams.scissorHeight = 0;
-
-		// Set stencil draw params first pass.		
-		m_StencilOutlineDrawParams.useStencilTest = true;
-		m_StencilOutlineDrawParams.useDepthTest = true;
-		m_StencilOutlineDrawParams.useScissorTest = false;
-		m_StencilOutlineDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_StencilOutlineDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
-		m_StencilOutlineDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
-		m_StencilOutlineDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
-		m_StencilOutlineDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
-		m_StencilOutlineDrawParams.shouldWriteDepth = true;
-		m_StencilOutlineDrawParams.stencilComparisonVal = 1;
-		m_StencilOutlineDrawParams.stencilTestMask = 0xFF;
-		m_StencilOutlineDrawParams.stencilWriteMask = 0xFF;
-		m_StencilOutlineDrawParams.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
-		m_StencilOutlineDrawParams.stencilFail = StencilOp::STENCIL_KEEP;
-		m_StencilOutlineDrawParams.stencilPass = StencilOp::STENCIL_REPLACE;
-		m_StencilOutlineDrawParams.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
-		m_StencilOutlineDrawParams.scissorStartX = 0;
-		m_StencilOutlineDrawParams.scissorStartY = 0;
-		m_StencilOutlineDrawParams.scissorWidth = 0;
-		m_StencilOutlineDrawParams.scissorHeight = 0;
-
-		// Set stencil draw params second first pass.		
-		m_StencilOutlineDrawParams2.useStencilTest = true;
-		m_StencilOutlineDrawParams2.useDepthTest = true;
-		m_StencilOutlineDrawParams2.useScissorTest = false;
-		m_StencilOutlineDrawParams2.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_StencilOutlineDrawParams2.faceCulling = FaceCulling::FACE_CULL_BACK;
-		m_StencilOutlineDrawParams2.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
-		m_StencilOutlineDrawParams2.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
-		m_StencilOutlineDrawParams2.depthFunc = DrawFunc::DRAW_FUNC_LESS;
-		m_StencilOutlineDrawParams2.shouldWriteDepth = true;
-		m_StencilOutlineDrawParams2.stencilComparisonVal = 1;
-		m_StencilOutlineDrawParams2.stencilTestMask = 0xFF;
-		m_StencilOutlineDrawParams2.stencilWriteMask = 0x00;
-		m_StencilOutlineDrawParams2.stencilFunc = DrawFunc::DRAW_FUNC_NOT_EQUAL;
-		m_StencilOutlineDrawParams2.stencilFail = StencilOp::STENCIL_KEEP;
-		m_StencilOutlineDrawParams2.stencilPass = StencilOp::STENCIL_REPLACE;
-		m_StencilOutlineDrawParams2.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
-		m_StencilOutlineDrawParams2.scissorStartX = 0;
-		m_StencilOutlineDrawParams2.scissorStartY = 0;
-		m_StencilOutlineDrawParams2.scissorWidth = 0;
-		m_StencilOutlineDrawParams2.scissorHeight = 0;
 	}
 
 	void RenderEngine::DumpMemory()
@@ -931,7 +810,7 @@ namespace LinaEngine::Graphics
 		UpdateUniformBuffers();
 
 		// Draw scene
-		DrawSceneObjects(false, m_DefaultDrawParams);
+		DrawSceneObjects(m_DefaultDrawParams);
 
 		// Back to default buffer
 		m_RenderDevice.SetFBO(0);
@@ -1010,108 +889,11 @@ namespace LinaEngine::Graphics
 		UpdateUniformBuffers();
 
 		// Draw scene
-		DrawSceneObjects(false, m_DefaultDrawParams, nullptr, true);
+		DrawSceneObjects(m_DefaultDrawParams, nullptr, true);
 	}
 
-	void RenderEngine::DrawOperationsPointLight(float delta, bool visualizeDepthMap)
-	{
-		// Clear color.
-		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-
-		// Update pipeline.
-		m_RenderingPipeline.UpdateSystems(delta);
-
-		// Update uniform buffers on GPU
-		UpdateUniformBuffers();
-
-		// Set depth frame buffer
-		m_RenderDevice.SetFBO(m_PointLightsRenderTarget.GetID());
-
-		// Clear color.
-		m_RenderDevice.Clear(false, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-
-		m_RenderDevice.SetShader(m_PointLightsDepthMaterial->GetShaderID());
-
-		std::vector<Matrix> matrices = m_LightingSystem.GetPointLightMatrices();
 
 
-		for (unsigned int i = 0; i < 6; ++i)
-		{
-			std::string name = UF_POINTSHADOWS_SHADOWMATRICES + std::string("[") + std::to_string(i) + std::string("]");
-			m_RenderDevice.UpdateShaderUniformMatrix(m_PointLightsDepthMaterial->GetShaderID(), name, matrices[i]);
-			//m_PointLightsDepthMaterial->SetMatrix4( name, m_LightingSystem.GetPointLightMatrices()[i]);
-		}
-
-		// Draw scene into depth buffer.
-		DrawSceneObjects(false, m_DepthMapDrawParams, m_PointLightsDepthMaterial, false);
-
-		// Visaulize depth buffer
-		if (visualizeDepthMap)
-			DrawFullscreenQuad(m_PointLightsRTTexture, false);
-
-	}
-
-	void RenderEngine::DrawOperationsMSAA(float delta)
-	{
-		m_RenderDevice.SetFBO(m_MainRenderTarget.GetID());
-
-		// Clear color.
-		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-
-		// Update pipeline.
-		m_RenderingPipeline.UpdateSystems(delta);
-
-		// Update uniform buffers on GPU
-		UpdateUniformBuffers();
-
-		// Draw scene
-		DrawSceneObjects(false, m_DefaultDrawParams);
-
-		// Blit frame buffers
-		int w = m_MainWindow.GetWidth();
-		int h = m_MainWindow.GetHeight();
-		m_RenderDevice.BlitFrameBuffers(m_MainRenderTarget.GetID(), w, h, m_IntermediateRenderTarget.GetID(), w, h, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST);
-
-		// Back to default buffer
-		m_RenderDevice.SetFBO(0);
-
-		// Clear color bit.
-		m_RenderDevice.Clear(true, false, false, Color::White, 0xFF);
-
-		// Set frame buffer texture on the material.
-		m_ScreenQuadFinalMaterial.SetTexture(UF_SCREENTEXTURE, &m_IntermediateRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
-
-		// update shader w/ material data.
-		UpdateShaderData(&m_ScreenQuadFinalMaterial);
-
-		// Draw full screen quad.
-		m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
-	}
-
-	void RenderEngine::DrawOperationsShadows(float delta, bool visualizeDepthMap)
-	{
-		// Clear color.
-		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-
-		// Update pipeline.
-		m_RenderingPipeline.UpdateSystems(delta);
-
-		// Update uniform buffers on GPU
-		UpdateUniformBuffers();
-
-		// Set depth frame buffer
-		m_RenderDevice.SetFBO(m_DepthMapRenderTarget.GetID());
-
-		// Clear color.
-		m_RenderDevice.Clear(false, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-
-		// Draw scene into depth buffer.
-		DrawSceneObjects(false, m_DepthMapDrawParams, m_DepthBufferMaterial, false);
-
-		// Visaulize depth buffer
-		if (visualizeDepthMap)
-			DrawFullscreenQuad(m_DepthMapRTTexture, false);
-	}
 
 	void RenderEngine::DrawSkybox()
 	{
@@ -1122,61 +904,16 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void RenderEngine::DrawSceneObjects(bool useStencilOutlining, DrawParams& drawParams, Material* overrideMaterial, bool drawSkybox)
+	void RenderEngine::DrawSceneObjects(DrawParams& drawParams, Material* overrideMaterial, bool drawSkybox)
 	{
-		// Draw opaques.
-		if (useStencilOutlining)
-		{
-			// Draw scene.
-			m_MeshRendererSystem.FlushOpaque(m_StencilOutlineDrawParams, nullptr, false);
-			m_MeshRendererSystem.FlushTransparent(m_StencilOutlineDrawParams, nullptr, false);
-
-			// Enable depth test for drawing w/ new params.
-			m_RenderDevice.SetDepthTestEnable(false);
-
-			// Draw scene.
-			m_MeshRendererSystem.FlushOpaque(m_StencilOutlineDrawParams2, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE], true);
-			m_MeshRendererSystem.FlushTransparent(m_StencilOutlineDrawParams2, &m_LoadedMaterials[MAT_LINASTENCILOUTLINE], true);
-
-			// Reset stencil.
-			m_RenderDevice.SetStencilWriteMask(0xFF);
-			m_RenderDevice.SetDepthTestEnable(true);
-		}
-		else
-		{
-			m_MeshRendererSystem.FlushOpaque(drawParams, overrideMaterial, true);
-			m_MeshRendererSystem.FlushTransparent(drawParams, overrideMaterial, true);
-		}
+		m_MeshRendererSystem.FlushOpaque(drawParams, overrideMaterial, true);
+		m_MeshRendererSystem.FlushTransparent(drawParams, overrideMaterial, true);
 
 		// Draw skybox.
 		if (drawSkybox)
 			DrawSkybox();
 	}
 
-	void RenderEngine::DrawFullscreenQuad(Texture& texture, bool blit)
-	{
-		int w = m_MainWindow.GetWidth();
-		int h = m_MainWindow.GetHeight();
-
-		// Blit read & write buffers.
-		if (blit)
-			m_RenderDevice.BlitFrameBuffers(m_MainRenderTarget.GetID(), w, h, m_IntermediateRenderTarget.GetID(), w, h, BufferBit::BIT_COLOR, SamplerFilter::FILTER_NEAREST);
-
-		// Back to default buffer
-		m_RenderDevice.SetFBO(0);
-
-		// Clear color bit.
-		m_RenderDevice.Clear(true, blit, false, Color::White, 0xFF);
-
-		// Set frame buffer texture on the material.
-		m_ScreenQuadFinalMaterial.SetTexture(UF_SCREENTEXTURE, &texture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
-
-		// update shader w/ material data.
-		UpdateShaderData(&m_ScreenQuadFinalMaterial);
-
-		// Draw
-		m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
-	}
 
 	void RenderEngine::UpdateUniformBuffers()
 	{
