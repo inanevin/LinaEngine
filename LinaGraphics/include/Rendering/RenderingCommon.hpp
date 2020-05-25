@@ -220,7 +220,8 @@ namespace LinaEngine::Graphics
 		SCREEN_QUAD = 7,
 		CUBEMAP_REFLECTIVE = 8,
 		DEPTH_DIRECTIONAL_SHADOWS = 9,
-		DEPTH_POINT_SHADOWS = 10
+		DEPTH_POINT_SHADOWS = 10,
+		PBR_LIT
 	};
 
 	struct RenderingDebugData

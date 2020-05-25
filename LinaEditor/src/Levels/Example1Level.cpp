@@ -52,6 +52,7 @@ Material* objectUnlitMaterial2;
 Material* quadMaterial;
 Material* cubemapReflectiveMaterial;
 Material* floorMaterial;
+Material* floorPBRMaterial;
 
 TransformComponent object1Transform;
 MeshRendererComponent object1Renderer;
@@ -141,9 +142,9 @@ Vector3 spotLightPositions[]
 	Vector3(0,0, -4)
 };
 
-int pLightSize = 2;
+int pLightSize = 1;
 int cubeSize = 4;
-int sLightSize = 1;
+int sLightSize = 0;
 
 
 
@@ -157,9 +158,6 @@ void Example1Level::Initialize()
 
 	// Create, setup & assign skybox material.
 	CreateProceduralSkybox(m_RenderEngine);
-
-
-
 
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);
@@ -188,6 +186,17 @@ void Example1Level::Initialize()
 	crateSampler.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB;
 	crateSampler.textureParams.generateMipMaps = true;
 
+
+
+	SamplerParameters pbrSampler;
+	pbrSampler.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+	pbrSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
+	pbrSampler.textureParams.wrapS = SamplerWrapMode::WRAP_REPEAT;
+	pbrSampler.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
+	pbrSampler.textureParams.pixelFormat = PixelFormat::FORMAT_RGBA;
+	pbrSampler.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB;
+	pbrSampler.textureParams.generateMipMaps = true;
+
 	// Create texture for example mesh.
 	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", crateSampler);
 	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png");
@@ -198,9 +207,11 @@ void Example1Level::Initialize()
 	Texture& bricksParallax = m_RenderEngine->CreateTexture("resources/textures/bricks2_disp.jpg", crateSampler, false);
 	//Texture& cubemap = m_RenderEngine->GetTexture("resources/textures/defaultSkybox/right.png");
 
-
-
-
+	Texture& albedo = m_RenderEngine->CreateTexture("resources/textures/wall/albedo.png", pbrSampler, false, false);
+	Texture& normal = m_RenderEngine->CreateTexture("resources/textures/wall/normal.png", pbrSampler, false, false);
+	Texture& metallic = m_RenderEngine->CreateTexture("resources/textures/wall/metallic.png", pbrSampler, false, false);
+	Texture& roughness = m_RenderEngine->CreateTexture("resources/textures/wall/roughness.png", pbrSampler, false, false);
+	Texture& ao = m_RenderEngine->CreateTexture("resources/textures/wall/ao.png", pbrSampler, false, false);
 
 	// Load example mesh.
 	Mesh& cubeMesh = m_RenderEngine->CreateMesh("resources/meshes/cube.obj");
@@ -209,6 +220,16 @@ void Example1Level::Initialize()
 	objectLitMaterial = &m_RenderEngine->CreateMaterial("object1Material", Shaders::STANDARD_LIT);
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
 	objectUnlitMaterial2 = &m_RenderEngine->CreateMaterial("object3Material", Shaders::STANDARD_UNLIT);
+	floorPBRMaterial = &m_RenderEngine->CreateMaterial("floorPBR", Shaders::PBR_LIT);
+
+	floorPBRMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedo);
+	//floorPBRMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normal);
+	//floorPBRMaterial->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughness);
+	//floorPBRMaterial->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallic);
+	//floorPBRMaterial->SetTexture(MC_TEXTURE2D_AOMAP, &ao);
+	floorPBRMaterial->SetVector2(MC_TILING, Vector2(20, 20));
+
+
 	//quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::STANDARD_LIT);
 	floorMaterial = &m_RenderEngine->CreateMaterial("floor", Shaders::STANDARD_LIT);
 	//cubemapReflectiveMaterial = &m_RenderEngine->CreateMaterial("cubemapReflective", Shaders::CUBEMAP_REFLECTIVE);
@@ -239,21 +260,21 @@ void Example1Level::Initialize()
 
 
 
-	directionalLight = m_ECS->CreateEntity("Directional Light");
-	auto& dirLight = m_ECS->emplace<DirectionalLightComponent>(directionalLight);
-	auto& dirLightTransform = m_ECS->emplace<TransformComponent>(directionalLight);
-	dirLight.color = Color(0.0f, 0.0f, 0.0f);
-	dirLight.direction = Vector3(0, -0.5, 1);
-	dirLightTransform.transform.location = Vector3(2.5f, 5.5f, 0.0f);
-	dirLightTransform.transform.scale = Vector3(0.2f);
-	dirLightT = &m_ECS->get<TransformComponent>(directionalLight);
+	//directionalLight = m_ECS->CreateEntity("Directional Light");
+	//auto& dirLight = m_ECS->emplace<DirectionalLightComponent>(directionalLight);
+	//auto& dirLightTransform = m_ECS->emplace<TransformComponent>(directionalLight);
+	//dirLight.color = Color(0.0f, 0.0f, 0.0f);
+	//dirLight.direction = Vector3(0, -0.5, 1);
+	//dirLightTransform.transform.location = Vector3(2.5f, 5.5f, 0.0f);
+	//dirLightTransform.transform.scale = Vector3(0.2f);
+	//dirLightT = &m_ECS->get<TransformComponent>(directionalLight);
 
 
 	ECSEntity floor;
 	floor = m_ECS->CreateEntity("Floor");
 	MeshRendererComponent mr;
 	mr.mesh = &m_RenderEngine->GetPrimitive(Primitives::PLANE);
-	mr.material = floorMaterial;
+	mr.material = floorPBRMaterial;
 
 	object1Transform.transform.location = Vector3(0, 0, 0);
 	object1Transform.transform.scale = Vector3(40.0f);

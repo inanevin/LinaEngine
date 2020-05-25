@@ -59,15 +59,15 @@ namespace LinaEngine::Graphics
 		m_Pixels = (int32*)Memory::free(m_Pixels);
 	}
 
-	bool ArrayBitmap::Load(const std::string& fileName)
+	int ArrayBitmap::Load(const std::string& fileName)
 	{
-		int32 texWidth, texHeight, bytesPerPixel;
+		int32 texWidth, texHeight, nrComps;
 
-		uint8* data = stbi_load(fileName.c_str(), &texWidth, &texHeight, &bytesPerPixel, 4);
+		uint8* data = stbi_load(fileName.c_str(), &texWidth, &texHeight, &nrComps, 4);
 
 		if (data == nullptr) {
 			LINA_CORE_ERR("Bitmap with the name {0} could not be loaded!", fileName);
-			return false;
+			return -1;
 		}
 
 		if (texWidth == m_Width && texHeight == m_Heigth) {
@@ -82,7 +82,7 @@ namespace LinaEngine::Graphics
 		}
 
 		stbi_image_free(data);
-		return true;
+		return nrComps;
 	}
 
 	bool ArrayBitmap::Save(const std::string& fileName) const

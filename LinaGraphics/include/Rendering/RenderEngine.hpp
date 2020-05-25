@@ -123,7 +123,7 @@ namespace LinaEngine::Graphics
 
 		/// <summary> Creates a texture resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing texture. </param>
-		Texture& CreateTexture(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false);
+		Texture& CreateTexture(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false);
 
 		/// <summary> Creates a cubemap texture resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing cube map texture. </param>

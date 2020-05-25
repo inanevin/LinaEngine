@@ -41,7 +41,7 @@ namespace LinaEngine::Graphics
 		~ArrayBitmap();
 
 		// Load the bitmap from a file in resources.
-		bool Load(const std::string& fileName);
+		int Load(const std::string& fileName);
 
 		// Save the bitmap into a file in resources.
 		bool Save(const std::string& fileName) const;

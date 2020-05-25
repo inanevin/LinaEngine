@@ -183,20 +183,33 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	Texture& RenderEngine::CreateTexture(const std::string& filePath, SamplerParameters samplerParams, bool compress)
+	Texture& RenderEngine::CreateTexture(const std::string& filePath, SamplerParameters samplerParams, bool compress, bool useDefaultFormats)
 	{
 		if (!TextureExists(filePath))
 		{
 			// Create pixel data.
 			ArrayBitmap* textureBitmap = new ArrayBitmap();
 
-			if (!textureBitmap->Load(filePath))
+			int nrComponents = textureBitmap->Load(filePath);
+			if (nrComponents == -1)
 			{
 				LINA_CORE_ERR("Texture with the path {0} doesn't exist, returning empty texture", filePath);
 				delete textureBitmap;
 				return m_DefaultTexture;
 			}
 
+			if (useDefaultFormats)
+			{
+				if (nrComponents == 1)
+					samplerParams.textureParams.internalPixelFormat = samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_R;
+				if (nrComponents == 2)
+					samplerParams.textureParams.internalPixelFormat = samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RG;
+				else if (nrComponents == 3)
+					samplerParams.textureParams.internalPixelFormat = samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
+				else if (nrComponents == 4)
+					samplerParams.textureParams.internalPixelFormat = samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGBA;
+
+			}
 			// Create texture & construct.
 			m_LoadedTextures[filePath].Construct(m_RenderDevice, *textureBitmap, samplerParams, compress);
 
@@ -488,6 +501,17 @@ namespace LinaEngine::Graphics
 			//material.vector3s[UF_POINTSHADOWS_LIGHTPOS] = Vector3(0, 4, 0);
 			//material.floats[UF_POINTSHADOWS_FARPLANE] = 100;
 		}
+		else if (shader == Shaders::PBR_LIT)
+		{
+			material.sampler2Ds[MC_TEXTURE2D_ALBEDOMAP] = { 0 };
+			material.sampler2Ds[MC_TEXTURE2D_NORMALMAP] = { 1 };
+			material.sampler2Ds[MC_TEXTURE2D_METALLICMAP] = { 2 };
+			material.sampler2Ds[MC_TEXTURE2D_ROUGHNESSMAP] = { 3 };
+			material.sampler2Ds[MC_TEXTURE2D_AOMAP] = { 4 };
+			material.vector2s[MC_TILING] = Vector2::One;
+			material.receivesLighting = true;
+			material.isShadowMapped = true;
+		}
 
 
 		return material;
@@ -562,10 +586,17 @@ namespace LinaEngine::Graphics
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
+		// Lit
 		Shader& lit = CreateShader(Shaders::STANDARD_LIT, "resources/shaders/basicStandardLit.glsl", false);
 		lit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		lit.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
 		lit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
+
+		// PBR Lit
+		Shader& pbrLit = CreateShader(Shaders::PBR_LIT, "resources/shaders/PBR/pbrLit.glsl", false);
+		pbrLit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		pbrLit.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
+		pbrLit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
 		// Skies
 		CreateShader(Shaders::SKYBOX_SINGLECOLOR, "resources/shaders/skyboxSingleColor.glsl");
@@ -589,6 +620,8 @@ namespace LinaEngine::Graphics
 
 		// Depth Shader for point lights
 		CreateShader(Shaders::DEPTH_POINT_SHADOWS, "resources/shaders/pointLightDepthMap.glsl", true).BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+
+		
 	}
 
 	void RenderEngine::ConstructEngineMaterials()
@@ -1116,12 +1149,14 @@ namespace LinaEngine::Graphics
 				// Set texture
 				m_RenderDevice.SetTexture(d.second.boundTexture->GetID(), d.second.boundTexture->GetSamplerID(), d.second.unit, d.second.bindMode, true);
 
+
 			}
 			else
 			{
 				m_RenderDevice.SetTexture(m_DefaultTexture.GetID(), 0, d.second.unit);
 			}
 		}
+
 
 		if (data->receivesLighting)
 			m_LightingSystem.SetLightingShaderData(data->GetShaderID());
