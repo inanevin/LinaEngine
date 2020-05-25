@@ -79,7 +79,9 @@ const float PI = 3.14159265359;
 
 vec3 getNormalFromMap(vec2 uv)
 {
-    vec3 tangentNormal = (material.normalMap.isActive != 0 ? texture(material.normalMap.texture, uv).xyz : normalize(fs_in.FragPos))* 2.0 - 1.0;
+	if(material.normalMap.isActive == 0)
+		return normalize(fs_in.Normal);
+    vec3 tangentNormal = texture(material.normalMap.texture, uv).xyz* 2.0 - 1.0;
 
     vec3 Q1  = dFdx(fs_in.FragPos);
     vec3 Q2  = dFdy(fs_in.FragPos);
