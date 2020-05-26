@@ -29,8 +29,9 @@ Class: UILayer
 #include "ImGuiFileBrowser.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include <stdio.h>
 #include "imgui_internal.h"
+#include <imgui/imguizmo/ImGuizmo.h>
+#include <stdio.h>
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glad/glad.h>
@@ -43,6 +44,7 @@ static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTre
 static bool isECSPanelOpen;
 static bool showIMGUIDemo;
 
+
 namespace LinaEditor
 {
 
@@ -53,6 +55,32 @@ namespace LinaEditor
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
+
+		bool enabled = true;
+		ImGuiIO& io = ImGui::GetIO();
+		ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+		ImGuizmo::Enable(&enabled);
+		ImGuizmo::SetOrthographic(false);
+	
+
+		
+
+		if (m_SelectedTransform != nullptr)
+		{
+			Matrix object = m_SelectedTransform->transform.ToMatrix();
+			Matrix view = m_RenderEngine->GetCameraSystem()->GetViewMatrix();
+			Matrix projection = m_RenderEngine->GetCameraSystem()->GetProjectionMatrix();
+			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], ImGuizmo::TRANSLATE, ImGuizmo::WORLD, &object[0][0], NULL, NULL, NULL, NULL);
+
+			float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+			ImGuizmo::DecomposeMatrixToComponents(&object[0][0], matrixTranslation, matrixRotation, matrixScale);
+
+			m_SelectedTransform->transform.location = Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]);
+
+		}
+
+
 
 		// Draw top toolbar.
 		DrawMainMenuBar();
@@ -65,7 +93,6 @@ namespace LinaEditor
 
 		if (showIMGUIDemo)
 			ImGui::ShowDemoWindow(&showIMGUIDemo);
-
 		// Rendering
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());	
@@ -78,6 +105,7 @@ namespace LinaEditor
 
 	void GUILayer::OnAttach()
 	{
+	
 		LINA_CLIENT_INFO("TestLayer Attached");
 
 		// Setup Dear ImGui context
@@ -142,7 +170,7 @@ namespace LinaEditor
 
 
 		// setup panels, windows etc.
-		m_ECSPanel.Setup(*m_ECS, m_RenderEngine->GetMainWindow());
+		m_ECSPanel.Setup(*m_ECS, *this, m_RenderEngine->GetMainWindow());
 		m_ECSPanel.Open();
 
 	}

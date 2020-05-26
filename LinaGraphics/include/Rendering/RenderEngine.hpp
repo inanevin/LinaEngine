@@ -102,7 +102,7 @@ namespace LinaEngine::Graphics
 			return Vector2(m_MainWindow.GetWidth() / 2.0f, m_MainWindow.GetHeight() / 2.0f);
 		}
 
-		FORCEINLINE ECS::CameraSystem& GetCameraSystem() { return m_CameraSystem; }
+		FORCEINLINE ECS::CameraSystem* GetCameraSystem() { return &m_CameraSystem; }
 
 		// Setters for light counts. /* TAKE INSIDE LINA API LATER ON */
 		FORCEINLINE void SetCurrentPLightCount(int count) { m_CurrentPointLightCount = count; }

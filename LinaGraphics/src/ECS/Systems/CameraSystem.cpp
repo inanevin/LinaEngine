@@ -46,7 +46,9 @@ namespace LinaEngine::ECS
 			m_View = Matrix::InitLookAt(transform.transform.location, transform.transform.location + transform.transform.rotation.GetForward(), transform.transform.rotation.GetUp());
 
 			// Update projection matrix.
-			m_Projection = Matrix::Perspective(camera.fieldOfView / 2, m_AspectRatio, camera.zNear, camera.zFar);					
+			m_Projection = Matrix::Perspective(camera.fieldOfView / 2, m_AspectRatio, camera.zNear, camera.zFar);
+
+			
 		}	
 	}
 

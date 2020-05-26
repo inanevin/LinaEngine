@@ -20,6 +20,7 @@ Timestamp: 5/23/2020 4:15:24 PM
 
 
 #include "Panels/ECSPanel.hpp"
+#include "Core/GUILayer.hpp"
 #include "Utility/Log.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
@@ -160,11 +161,19 @@ namespace LinaEditor
 		}
 	}
 
-	void ECSPanel::Setup(LinaEngine::ECS::ECSRegistry& registry, LinaEngine::Graphics::Window& appWindow)
+	void ECSPanel::Setup(LinaEngine::ECS::ECSRegistry& registry, GUILayer& guiLayer, LinaEngine::Graphics::Window& appWindow)
 	{
+		m_GUILayer = &guiLayer;
 		m_ECS = &registry;
 		m_AppWindow = &appWindow;
-		//m_SelectedEntity = entt::null;
+		m_SelectedEntity = entt::null;
+
+		// add scene entitites to the list.
+		m_ECS->each([this](auto entity)
+		{
+			m_EntityList.push_back(entity);
+		});
+
 	}
 
 	void ECSPanel::Draw()
@@ -204,7 +213,7 @@ namespace LinaEditor
 					if (ImGui::BeginMenu("Create"))
 					{
 						if (ImGui::MenuItem("Entity"))
-							m_ECS->CreateEntity("Entity");
+							m_EntityList.push_back(m_ECS->CreateEntity("Entity"));
 
 						ImGui::EndMenu();
 					}
@@ -212,23 +221,29 @@ namespace LinaEditor
 				}
 
 				int entityCounter = 0;
-				// List all the entities in the scene.
-				m_ECS->each([this, &entityCounter](auto entity) {
-					
+
+				for (std::vector<ECSEntity>::iterator it = m_EntityList.begin(); it != m_EntityList.end(); ++it)
+				{
 					// Selection
 					entityCounter++;
+					ECSEntity& entity = *it;
 					strcpy(selectedEntityName, m_ECS->GetEntityName(entity).c_str());
 					if (ImGui::SelectableInput("entSelectable" + entityCounter, m_SelectedEntity == entity, ImGuiSelectableFlags_SelectOnClick, selectedEntityName, IM_ARRAYSIZE(selectedEntityName)))
 					{
 						m_SelectedEntity = entity;
+						m_GUILayer->SetSelectedTransform(m_ECS->has<TransformComponent>(m_SelectedEntity) ? &m_ECS->get<TransformComponent>(m_SelectedEntity) : nullptr);
 						m_ECS->SetEntityName(entity, selectedEntityName);
 					}
 
 					// Deselect.
 					if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					{
 						m_SelectedEntity = entt::null;
-				});
+						m_GUILayer->SetSelectedTransform(nullptr);
+					}
 
+				}
+		
 
 				// End this pane.
 				ImGui::EndChild();
@@ -292,7 +307,7 @@ namespace LinaEditor
 
 	void ECSPanel::AddComponentToEntity(int componentID)
 	{
-		if (m_ECS->valid(m_SelectedEntity)) return;
+		if (!m_ECS->valid(m_SelectedEntity)) return;
 
 		// Add the indexed component to target entity.
 		if (componentID == 0)

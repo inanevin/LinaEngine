@@ -247,9 +247,9 @@ void Example1Level::Initialize()
 
 	floorPBRMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedo);
 	floorPBRMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normal);
-	floorPBRMaterial->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughness);
-	floorPBRMaterial->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallic);
-	floorPBRMaterial->SetTexture(MC_TEXTURE2D_AOMAP, &ao);
+	//floorPBRMaterial->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughness);
+	//floorPBRMaterial->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallic);
+	//floorPBRMaterial->SetTexture(MC_TEXTURE2D_AOMAP, &ao);
 	floorPBRMaterial->SetVector2(MC_TILING, Vector2(20, 20));
 
 	//sofaMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoSofa);

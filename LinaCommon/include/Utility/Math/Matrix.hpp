@@ -39,6 +39,8 @@ namespace LinaEngine
 		FORCEINLINE Matrix() {};
 		FORCEINLINE Matrix(const Vector4& vecX, const Vector4& vecY, const Vector4& vecZ, const Vector4& vecOffset) : glm::mat4(vecX, vecY, vecZ, vecOffset) {};
 		FORCEINLINE Matrix(glm::mat4 mat) : glm::mat4(mat) {};
+		std::string ToString();
+
 
 		static Matrix Identity();
 		static Matrix Translate(const Vector3& amt);
@@ -56,6 +58,7 @@ namespace LinaEngine
 		Matrix Transpose() const;
 		Matrix Inverse() const;
 		Matrix ApplyScale(const Vector3& scale);
+
 
 	private:
 		
