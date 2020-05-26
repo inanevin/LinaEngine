@@ -45,6 +45,7 @@ static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTre
 static bool isECSPanelOpen;
 static bool showIMGUIDemo;
 static ImGuizmo::OPERATION currentTransformGizmoOP = ImGuizmo::OPERATION::TRANSLATE;
+static ImGuizmo::MODE currentTransformGizmoMode = ImGuizmo::MODE::WORLD;
 static Matrix gridLineMatrix = Matrix::Identity();
 
 
@@ -67,14 +68,24 @@ namespace LinaEditor
 		// Handle inputs.
 		ProcessInput();
 
-		// Draw gizmos
-		DrawGizmos();
+		// Draw main docking space.
+		//DrawCentralDockingSpace();
+
+		// Draw game window.
+		//DrawGameWindow();
 
 		// Draw top toolbar.
 		DrawMainMenuBar();
 
+		// Draw tools
+		// DrawTools();
+
 		// Draw overlay fps counter
 		DrawFPSCounter(&m_FPSCounterOpen, 1);
+
+		// Draw gizmos
+		DrawGizmos();
+
 
 		// Draw ECS Panel.
 		m_ECSPanel.Draw();
@@ -177,10 +188,29 @@ namespace LinaEditor
 	{
 		if (ImGui::IsKeyPressed(LINA_KEY_Q))
 			currentTransformGizmoOP = ImGuizmo::TRANSLATE;
-		if (ImGui::IsKeyPressed(LINA_KEY_W))
+		if (ImGui::IsKeyPressed(LINA_KEY_E))
 			currentTransformGizmoOP = ImGuizmo::ROTATE;
-		if (ImGui::IsKeyPressed(LINA_KEY_R)) // r Key
+		if (ImGui::IsKeyPressed(LINA_KEY_R)) 
 			currentTransformGizmoOP = ImGuizmo::SCALE;
+		if (ImGui::IsKeyPressed(LINA_KEY_T))
+			currentTransformGizmoMode = currentTransformGizmoMode == ImGuizmo::MODE::WORLD ? ImGuizmo::MODE::LOCAL : ImGuizmo::MODE::WORLD;
+	}
+
+	void GUILayer::DrawGameWindow()
+	{
+		ImGui::Begin("Game View");
+		ImVec2 pos = ImGui::GetCursorScreenPos();
+
+
+		//pass the texture of the FBO
+		//window.getRenderTexture() is the texture of the FBO
+		//the next parameter is the upper left corner for the uvs to be applied at
+		//the third parameter is the lower right corner
+		//the last two parameters are the UVs
+		//they have to be flipped (normally they would be (0,0);(1,1) 
+		ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetFinalImage(), ImVec2(ImGui::GetCursorScreenPos()), ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetCurrentWindow()->Size.x, ImGui::GetCursorScreenPos().y + ImGui::GetCurrentWindow()->Size.y), ImVec2(0, 1), ImVec2(1, 0));
+
+		ImGui::End();
 	}
 
 	void GUILayer::DrawMainMenuBar()
@@ -199,6 +229,11 @@ namespace LinaEditor
 			}
 			ImGui::EndMainMenuBar();
 		}
+	}
+
+	void GUILayer::DrawTools(bool* p_open, int corner)
+	{
+		
 	}
 
 	void GUILayer::DrawFPSCounter(bool* p_open, int corner)
@@ -240,7 +275,7 @@ namespace LinaEditor
 			Matrix object = m_SelectedTransform->transform.ToMatrix();
 			
 			// Draw transformation handle.
-			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentTransformGizmoOP, ImGuizmo::WORLD, &object[0][0], NULL, NULL, NULL, NULL);
+			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentTransformGizmoOP, currentTransformGizmoMode, &object[0][0], NULL, NULL, NULL, NULL);
 			float matrixTranslation[3], matrixRotation[3], matrixScale[3];
 			ImGuizmo::DecomposeMatrixToComponents(&object[0][0], matrixTranslation, matrixRotation, matrixScale);
 
@@ -250,7 +285,7 @@ namespace LinaEditor
 			m_SelectedTransform->transform.rotation = Quaternion::Euler(matrixRotation[0], matrixRotation[1], matrixRotation[2]);
 		}
 
-		ImGuizmo::DrawGrid(&view[0][0], &projection[0][0], &gridLineMatrix[0][0], GRID_SIZE);
+		// ImGuizmo::DrawGrid(&view[0][0], &projection[0][0], &gridLineMatrix[0][0], GRID_SIZE);
 	}
 
 	void GUILayer::DrawCentralDockingSpace()

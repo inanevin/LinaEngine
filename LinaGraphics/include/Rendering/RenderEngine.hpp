@@ -186,6 +186,9 @@ namespace LinaEngine::Graphics
 		// Updates shader uniforms with material data.
 		void UpdateShaderData(Material* mat);
 
+		// Returns the final render texture.
+		void* GetFinalImage();
+
 	private:
 
 		// Constructs commonly used shaders within Lina Engine.

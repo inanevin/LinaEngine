@@ -196,7 +196,6 @@ namespace LinaEditor
 			ImVec2 panelSize = ImVec2(700, 600);			
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(0.2f);
-			ImGui::SetNextWindowPos(ImVec2(0,  work_area_pos.y));
 
 			if (ImGui::Begin("ECS Panel", &m_Show))
 			{

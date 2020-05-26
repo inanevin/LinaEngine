@@ -810,8 +810,6 @@ namespace LinaEngine::Graphics
 		// Draw scene
 		DrawSceneObjects(m_DefaultDrawParams);
 
-		// Back to default buffer
-		m_RenderDevice.SetFBO(0);
 
 		// Write to the pingpong buffers to apply 2 pass gaussian blur.
 		bool horizontal = true;
@@ -840,14 +838,13 @@ namespace LinaEngine::Graphics
 			horizontal = !horizontal;
 			if (firstIteration) firstIteration = false;
 		}
-		m_RenderDevice.SetFBO(0);
-
 
 		// Back to outline buffer
 		//m_RenderDevice.SetFBO(m_OutlineRenderTarget.GetID());	
 		//m_ScreenQuadOutlineMaterial.SetTexture(UF_SCREENTEXTURE, &m_PrimaryRTTexture2);
 		//UpdateShaderData(&m_ScreenQuadOutlineMaterial);
 		//m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
+
 
 		// Back to default buffer
 		m_RenderDevice.SetFBO(0);
@@ -862,13 +859,16 @@ namespace LinaEngine::Graphics
 		m_ScreenQuadFinalMaterial.SetBool(UF_BLOOM, true);
 		m_ScreenQuadFinalMaterial.SetFloat(UF_EXPOSURE, 1.0f);
 
-
-
 		// update shader w/ material data.
 		UpdateShaderData(&m_ScreenQuadFinalMaterial);
 
 		// Draw full screen quad.
 		m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
+
+		// Draw the final texture into primary fbo for storing purposes.
+		//m_RenderDevice.SetFBO(m_PrimaryRenderTarget.GetID());
+		//m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
+		//m_RenderDevice.SetFBO(0);
 	}
 
 	void RenderEngine::DrawOperationsDefault(float delta)
@@ -1031,6 +1031,11 @@ namespace LinaEngine::Graphics
 		if (data->receivesLighting)
 			m_LightingSystem.SetLightingShaderData(data->GetShaderID());
 
+	}
+
+	void* RenderEngine::GetFinalImage()
+	{
+		return (void*)m_PrimaryRTTexture0.GetID();
 	}
 
 }
