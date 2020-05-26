@@ -43,10 +43,14 @@ namespace LinaEngine::Graphics
 		// Load the bitmap from a file in resources.
 		int Load(const std::string& fileName);
 
+		// Loads a floting point data.
+		bool LoadF(const std::string& fileName);
+
 		// Save the bitmap into a file in resources.
 		bool Save(const std::string& fileName) const;
 
 		static unsigned char* LoadImmediate(const char* filename, int& w, int& h,  int& nrchannels);
+		static float* LoadImmediateF(const char* filename, int& w, int& h,  int& nrchannels);
 
 		// Clr colors.
 		void Clear(int32 color);

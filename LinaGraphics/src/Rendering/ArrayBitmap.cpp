@@ -57,6 +57,8 @@ namespace LinaEngine::Graphics
 	ArrayBitmap::~ArrayBitmap()
 	{
 		m_Pixels = (int32*)Memory::free(m_Pixels);
+
+		//m_FPPixels = (float*)Memory::free(m_FPPixels);
 	}
 
 	int ArrayBitmap::Load(const std::string& fileName)
@@ -85,6 +87,32 @@ namespace LinaEngine::Graphics
 		return nrComps;
 	}
 
+	bool ArrayBitmap::LoadF(const std::string& fileName)
+	{
+		//int32 texWidth, texHeight, nrComps;
+		//
+		//float* data = stbi_loadf(fileName.c_str(), &texWidth, &texHeight, &nrComps, 4);
+		//
+		//if (data == nullptr) {
+		//	LINA_CORE_ERR("Bitmap with the name {0} could not be loaded!", fileName);
+		//	return false;
+		//}
+		//
+		//if (texWidth == m_Width && texHeight == m_Heigth) {
+		//	Memory::memcpy(m_FPPixels, data, GetPixelsSize());
+		//}
+		//else {
+		//	m_Width = texWidth;
+		//	m_Heigth = texHeight;
+		//	m_FPPixels = (float*)Memory::free(m_FPPixels);
+		//	m_FPPixels = (float*)Memory::malloc(GetPixelsSize());
+		//	Memory::memcpy(m_FPPixels, data, GetPixelsSize());
+		//}
+
+		//stbi_image_free(data);
+		return true;
+	}
+
 	bool ArrayBitmap::Save(const std::string& fileName) const
 	{
 		// TODO: Serialization
@@ -93,8 +121,13 @@ namespace LinaEngine::Graphics
 
 	unsigned char * ArrayBitmap::LoadImmediate(const char * filename, int & w, int & h, int & nrChannels)
 	{
-		unsigned char *data = stbi_load(filename, &w, &h, &nrChannels, 0);
+		uint8* data = stbi_load(filename, &w, &h, &nrChannels, 0);
 		return data;
+	}
+
+	float* ArrayBitmap::LoadImmediateF(const char* filename, int& w, int& h, int& nrchannels)
+	{
+		return stbi_loadf(filename, &w, &h, &nrchannels, 0);
 	}
 
 	void ArrayBitmap::Clear(int32 color)

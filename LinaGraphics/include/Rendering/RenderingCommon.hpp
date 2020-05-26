@@ -249,6 +249,15 @@ namespace LinaEngine::Graphics
 		CYLINDER = 5
 	};
 
+	enum class SkyboxDrawType
+	{
+		SINGLECOLOR,
+		GRADIENT,
+		PROCEDURAL,
+		CUBEMAP,
+		HDRI
+	};
+
 	struct TextureParameters
 	{
 		PixelFormat pixelFormat = PixelFormat::FORMAT_RGBA;

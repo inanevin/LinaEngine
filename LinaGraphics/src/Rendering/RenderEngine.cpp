@@ -225,7 +225,7 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	Texture& RenderEngine::CreateTexture(const std::string filePaths[6], SamplerParameters samplerParams, bool compress)
+	Texture& RenderEngine::CreateTextureCubemap(const std::string filePaths[6], SamplerParameters samplerParams, bool compress)
 	{
 		if (!TextureExists(filePaths[0]))
 		{
@@ -257,6 +257,39 @@ namespace LinaEngine::Graphics
 			// Texture with this name already exists!
 			LINA_CORE_ERR("Texture with the path {0} already exists, returning that...", filePaths[0]);
 			return m_LoadedTextures[filePaths[0]];
+		}
+	}
+
+	Texture& RenderEngine::CreateTextureHDRI(const std::string filePath)
+	{
+
+		if (!TextureExists(filePath))
+		{
+			// Create pixel data.
+			int w, h, nrChannels;
+			float* data = ArrayBitmap::LoadImmediateF(filePath.c_str(), w, h, nrChannels);
+
+			if (!data)
+			{
+				LINA_CORE_ERR("Texture with the path {0} doesn't exist, returning empty texture", filePath);
+				return m_DefaultTexture;
+			}
+
+			SamplerParameters samplerParams;
+			samplerParams.textureParams.minFilter = samplerParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
+			samplerParams.textureParams.wrapR = samplerParams.textureParams.wrapS = samplerParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+			samplerParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
+			samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
+
+			// Create texture & construct.
+			m_LoadedTextures[filePath].ConstructHDRI(m_RenderDevice, data, m_HDRIResolution, samplerParams);
+
+		}
+		else
+		{
+			// Texture with this name already exists!
+			LINA_CORE_ERR("Texture with the path {0} already exists, returning that...", filePath);
+			return m_LoadedTextures[filePath];
 		}
 	}
 
