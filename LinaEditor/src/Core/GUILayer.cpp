@@ -23,6 +23,7 @@ Class: UILayer
 #include "Utility/Log.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Core/EditorCommon.hpp"
+#include "Input/InputCommon.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/RenderConstants.hpp"
 #include "imgui.h"
@@ -37,12 +38,14 @@ Class: UILayer
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-
+#define GRID_SIZE 1000
 imgui_addons::ImGuiFileBrowser file_dialog; // As a class member or globally
 static bool rightClickedContentBrowser = false;
 static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 static bool isECSPanelOpen;
 static bool showIMGUIDemo;
+static ImGuizmo::OPERATION currentTransformGizmoOP = ImGuizmo::OPERATION::TRANSLATE;
+static Matrix gridLineMatrix = Matrix::Identity();
 
 
 namespace LinaEditor
@@ -51,36 +54,21 @@ namespace LinaEditor
 	void GUILayer::OnUpdate()
 	{
 		
-		// Start the Dear ImGui frame
+		//Setup
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();
-
-		bool enabled = true;
 		ImGuiIO& io = ImGui::GetIO();
 		ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-		ImGuizmo::Enable(&enabled);
+		ImGuizmo::Enable(true);
 		ImGuizmo::SetOrthographic(false);
 	
+		// Handle inputs.
+		ProcessInput();
 
-		
-
-		if (m_SelectedTransform != nullptr)
-		{
-			Matrix object = m_SelectedTransform->transform.ToMatrix();
-			Matrix view = m_RenderEngine->GetCameraSystem()->GetViewMatrix();
-			Matrix projection = m_RenderEngine->GetCameraSystem()->GetProjectionMatrix();
-			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], ImGuizmo::TRANSLATE, ImGuizmo::WORLD, &object[0][0], NULL, NULL, NULL, NULL);
-
-			float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-			ImGuizmo::DecomposeMatrixToComponents(&object[0][0], matrixTranslation, matrixRotation, matrixScale);
-
-			m_SelectedTransform->transform.location = Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]);
-
-		}
-
-
+		// Draw gizmos
+		DrawGizmos();
 
 		// Draw top toolbar.
 		DrawMainMenuBar();
@@ -185,6 +173,16 @@ namespace LinaEditor
 		ImGui::DestroyContext();
 	}
 
+	void GUILayer::ProcessInput()
+	{
+		if (ImGui::IsKeyPressed(LINA_KEY_Q))
+			currentTransformGizmoOP = ImGuizmo::TRANSLATE;
+		if (ImGui::IsKeyPressed(LINA_KEY_W))
+			currentTransformGizmoOP = ImGuizmo::ROTATE;
+		if (ImGui::IsKeyPressed(LINA_KEY_R)) // r Key
+			currentTransformGizmoOP = ImGuizmo::SCALE;
+	}
+
 	void GUILayer::DrawMainMenuBar()
 	{
 		if (ImGui::BeginMainMenuBar())
@@ -229,6 +227,30 @@ namespace LinaEditor
 			ImGui::Text(fpsText.c_str());
 		}
 		ImGui::End();
+	}
+
+	void GUILayer::DrawGizmos()
+	{
+		Matrix& view = m_RenderEngine->GetCameraSystem()->GetViewMatrix();
+		Matrix& projection = m_RenderEngine->GetCameraSystem()->GetProjectionMatrix();
+
+		if (m_SelectedTransform != nullptr)
+		{
+			// Get required matrices.
+			Matrix object = m_SelectedTransform->transform.ToMatrix();
+			
+			// Draw transformation handle.
+			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentTransformGizmoOP, ImGuizmo::WORLD, &object[0][0], NULL, NULL, NULL, NULL);
+			float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+			ImGuizmo::DecomposeMatrixToComponents(&object[0][0], matrixTranslation, matrixRotation, matrixScale);
+
+			// Set object transformation back.
+			m_SelectedTransform->transform.location = Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]);
+			m_SelectedTransform->transform.scale = Vector3(matrixScale[0], matrixScale[1], matrixScale[2]);
+			m_SelectedTransform->transform.rotation = Quaternion::Euler(matrixRotation[0], matrixRotation[1], matrixRotation[2]);
+		}
+
+		ImGuizmo::DrawGrid(&view[0][0], &projection[0][0], &gridLineMatrix[0][0], GRID_SIZE);
 	}
 
 	void GUILayer::DrawCentralDockingSpace()

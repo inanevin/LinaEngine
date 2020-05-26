@@ -64,11 +64,17 @@ namespace LinaEditor
 
 	private:
 
+		// Handle hardware input
+		void ProcessInput();
+
 		// Draws main menu bar.
 		void DrawMainMenuBar();
 
 		// Draws an fps counter overlay.
 		void DrawFPSCounter(bool* p_open, int corner = 0);
+
+		// Handles gizmos
+		void DrawGizmos();
 
 		// Draws a central docking space.
 		void DrawCentralDockingSpace();
