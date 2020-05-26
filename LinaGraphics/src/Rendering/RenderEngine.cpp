@@ -724,7 +724,7 @@ namespace LinaEngine::Graphics
 		m_DefaultDrawParams.useDepthTest = true;
 		m_DefaultDrawParams.useStencilTest = true;
 		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
+		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
 		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
 		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
 		m_DefaultDrawParams.shouldWriteDepth = true;
@@ -845,13 +845,11 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.SetFBO(0);
 
 
-
-
 		// Back to outline buffer
-		m_RenderDevice.SetFBO(m_OutlineRenderTarget.GetID());	
-		m_ScreenQuadOutlineMaterial.SetTexture(UF_SCREENTEXTURE, &m_PrimaryRTTexture2);
-		UpdateShaderData(&m_ScreenQuadOutlineMaterial);
-		m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
+		//m_RenderDevice.SetFBO(m_OutlineRenderTarget.GetID());	
+		//m_ScreenQuadOutlineMaterial.SetTexture(UF_SCREENTEXTURE, &m_PrimaryRTTexture2);
+		//UpdateShaderData(&m_ScreenQuadOutlineMaterial);
+		//m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
 
 		// Back to default buffer
 		m_RenderDevice.SetFBO(0);
@@ -866,12 +864,13 @@ namespace LinaEngine::Graphics
 		m_ScreenQuadFinalMaterial.SetBool(UF_BLOOM, true);
 		m_ScreenQuadFinalMaterial.SetFloat(UF_EXPOSURE, 1.0f);
 
+
+
 		// update shader w/ material data.
 		UpdateShaderData(&m_ScreenQuadFinalMaterial);
 
 		// Draw full screen quad.
 		m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
-
 	}
 
 	void RenderEngine::DrawOperationsDefault(float delta)
@@ -890,7 +889,6 @@ namespace LinaEngine::Graphics
 		// Draw scene
 		DrawSceneObjects(m_DefaultDrawParams, nullptr, true);
 	}
-
 
 
 

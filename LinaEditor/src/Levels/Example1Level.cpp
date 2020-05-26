@@ -55,6 +55,7 @@ Material* floorMaterial;
 Material* floorPBRMaterial;
 Material* glockMaterial;
 Material* sofaMaterial;
+Material* arcadeMaterial;
 
 TransformComponent object1Transform;
 MeshRendererComponent object1Renderer;
@@ -200,6 +201,8 @@ void Example1Level::Initialize()
 	pbrSampler.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB;
 	pbrSampler.textureParams.generateMipMaps = true;
 
+
+
 	// Create texture for example mesh.
 	Texture& brickWall = m_RenderEngine->CreateTexture("resources/textures/bricks2.jpg", woodTextureSampler, false);
 	Texture& brickWallNormal = m_RenderEngine->CreateTexture("resources/textures/bricks2_normal.jpg", crateSampler, false);
@@ -218,10 +221,17 @@ void Example1Level::Initialize()
 	//Texture& roughnessGlock = m_RenderEngine->CreateTexture("resources/textures/glock/roughness.png", pbrSampler, false, false);
 	//Texture& aoGlock = m_RenderEngine->CreateTexture("resources/textures/glock/ao.png", pbrSampler, false, false);
 	//
-//	Texture& albedoSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/albedo.png", pbrSampler, false, false);
-//	Texture& normalSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/normal.png", pbrSampler, false, false);
-//	Texture& metallicSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/metallic.png", pbrSampler, false, false);
-//	Texture& roughnessSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/roughness.png", pbrSampler, false, false);
+	//Texture& albedoSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/albedo.png", pbrSampler, false, false);
+	//Texture& normalSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/normal.png", pbrSampler, false, false);
+	//Texture& metallicSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/metallic.png", pbrSampler, false, false);
+	//Texture& roughnessSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/roughness.png", pbrSampler, false, false);
+
+	//Texture& albedoArcade = m_RenderEngine->CreateTexture("resources/textures/arcade/albedo.png", pbrSampler, false, false);
+	//Texture& normalArcade = m_RenderEngine->CreateTexture("resources/textures/arcade/normal.png", pbrSampler, false, false);
+	//Texture& metallicArcade = m_RenderEngine->CreateTexture("resources/textures/arcade/metallic.png", pbrSampler, false, false);
+	//Texture& roughnessArcade = m_RenderEngine->CreateTexture("resources/textures/arcade/roughness.png", pbrSampler, false, false);
+	//Texture& aoArcade = m_RenderEngine->CreateTexture("resources/textures/arcade/ao.png", pbrSampler, false, false);
+
 
 	// Load example mesh.
 	Mesh& cubeMesh = m_RenderEngine->CreateMesh("resources/meshes/cube.obj");
@@ -233,7 +243,7 @@ void Example1Level::Initialize()
 	floorPBRMaterial = &m_RenderEngine->CreateMaterial("floorPBR", Shaders::PBR_LIT);
 	glockMaterial = &m_RenderEngine->CreateMaterial("glock", Shaders::PBR_LIT);
 	sofaMaterial = &m_RenderEngine->CreateMaterial("sofa", Shaders::PBR_LIT);
-
+	//arcadeMaterial = &m_RenderEngine->CreateMaterial("arcade", Shaders::PBR_LIT);
 
 	floorPBRMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedo);
 	floorPBRMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normal);
@@ -242,18 +252,25 @@ void Example1Level::Initialize()
 	floorPBRMaterial->SetTexture(MC_TEXTURE2D_AOMAP, &ao);
 	floorPBRMaterial->SetVector2(MC_TILING, Vector2(20, 20));
 
-//	sofaMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoSofa);
-//	sofaMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normalSofa);
-//	sofaMaterial->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughnessSofa);
-//	sofaMaterial->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallicSofa);
-//	sofaMaterial->SetVector2(MC_TILING, Vector2(1,1));
-	//
+	//sofaMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoSofa);
+	//sofaMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normalSofa);
+	//sofaMaterial->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughnessSofa);
+	//sofaMaterial->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallicSofa);
+	//sofaMaterial->SetVector2(MC_TILING, Vector2(1,1));
+	////
 	//glockMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoGlock);
 	//glockMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normalGlock);
 	//glockMaterial->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughnessGlock);
 	//glockMaterial->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallicGlock);
 	//glockMaterial->SetTexture(MC_TEXTURE2D_AOMAP, &aoGlock);
 
+
+
+	//arcadeMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoArcade);
+	//arcadeMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normalArcade);
+	//arcadeMaterial->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughnessArcade);
+	//arcadeMaterial->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallicArcade);
+//	arcadeMaterial->SetTexture(MC_TEXTURE2D_AOMAP, &aoArcade);
 
 	//quadMaterial = &m_RenderEngine->CreateMaterial("quadMaterial", Shaders::STANDARD_LIT);
 	floorMaterial = &m_RenderEngine->CreateMaterial("floor", Shaders::STANDARD_LIT);
@@ -317,6 +334,15 @@ void Example1Level::Initialize()
 //m_ECS->emplace<TransformComponent>(sofa, object1Transform);
 //m_ECS->emplace<MeshRendererComponent>(sofa, sofaMR);
 
+//ECSEntity arcade;
+//arcade = m_ECS->CreateEntity("arcade");
+//MeshRendererComponent arcadeMR;
+//arcadeMR.mesh = &m_RenderEngine->CreateMesh("resources/meshes/arcade.obj");
+//arcadeMR.material = arcadeMaterial;
+//object1Transform.transform.location = Vector3(0, 4, 0);
+//object1Transform.transform.scale = Vector3(0.05f);
+//m_ECS->emplace<TransformComponent>(arcade, object1Transform);
+//m_ECS->emplace<MeshRendererComponent>(arcade, arcadeMR);
 
 
 	ECSEntity floor;

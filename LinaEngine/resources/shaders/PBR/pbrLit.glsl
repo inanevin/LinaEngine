@@ -71,6 +71,7 @@ vec2 tiling;
 
 uniform Material material;
 
+
 in VS_OUT
 {
 	vec3 Normal;
@@ -208,7 +209,8 @@ void main()
     else
         brightColor = vec4(0.0, 0.0, 0.0, 1.0);
 
-  outlineColor =  vec4(color,1);
+  //outlineColor = vec4(0.0, 0.0, 0.0, 1.0);
+	outlineColor = vec4(color, 1.0);
 
 	fragColor = vec4(color, 1.0);
 }

@@ -125,6 +125,7 @@ in VS_OUT
 #include "parallaxCalc.glh"
 
 
+const float offset = 1.0 / 128.0;
 
 void main()
 {
@@ -181,7 +182,7 @@ void main()
 		else
 			brightColor = vec4(0.0, 0.0, 0.0, 1.0);
 
-		outlineColor =  vec4(finalColor,1);
+		outlineColor = vec4(finalColor, 1.0);
 
 		// Set fragment
 		float alpha = material.surfaceType == 0 ? 1.0 : diffuseTextureColor.a;
