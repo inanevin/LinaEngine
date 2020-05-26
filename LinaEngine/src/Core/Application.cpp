@@ -105,6 +105,7 @@ namespace LinaEngine
 
 		while (m_Running)
 		{
+
 			// Simple FPS count
 			m_FPSCounter++;
 			double currentTime = glfwGetTime();
