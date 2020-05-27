@@ -109,7 +109,7 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 	SamplerParameters samplerParams;
 	samplerParams.textureParams.generateMipMaps = true;
 	samplerParams.textureParams.minFilter = FILTER_NEAREST;
-	Texture& t = renderEngine->CreateTextureCubemap(fp, samplerParams, false);
+	Texture& t = renderEngine->CreateTexture(fp, samplerParams, false);
 	mat.SetTexture(MC_TEXTURE2D_DIFFUSE, &t, TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }

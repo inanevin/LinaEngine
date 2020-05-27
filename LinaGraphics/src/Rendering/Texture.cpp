@@ -41,7 +41,6 @@ namespace LinaEngine::Graphics
 	}
 
 
-
 	Texture& Texture::ConstructCubemap(RenderDevice& deviceIn, SamplerParameters samplerParams, const LinaArray<ArrayBitmap*>& data, bool shouldCompress)
 	{
 		if (data.size() != 6)
@@ -64,18 +63,6 @@ namespace LinaEngine::Graphics
 		hasMipMaps = samplerParams.textureParams.generateMipMaps;
 		m_IsEmpty = false;
 		cubeMapData.clear();
-		return *this;
-	}
-
-	Texture& Texture::ConstructHDRI(RenderDevice& deviceIn, const float* data, Vector2 size,  SamplerParameters samplerParams)
-	{
-		renderDevice = &deviceIn;
-		m_Sampler.Construct(deviceIn, samplerParams);
-		m_Size = size;
-		m_ID = renderDevice->CreateTexture2D(m_Size, data, samplerParams,false, false, Color::White);
-		isCompressed = false;
-		hasMipMaps = samplerParams.textureParams.generateMipMaps;
-		m_IsEmpty = false;
 		return *this;
 	}
 

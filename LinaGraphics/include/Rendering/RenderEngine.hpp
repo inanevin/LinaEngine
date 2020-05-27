@@ -108,9 +108,6 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void SetCurrentPLightCount(int count) { m_CurrentPointLightCount = count; }
 		FORCEINLINE void SetCurrentSLightCount(int count) { m_CurrentSpotLightCount = count; }
 
-		// Set the skybox draw type
-		FORCEINLINE void SetSkyboxDrawType(SkyboxDrawType type) { m_SkyboxDrawType = type; }
-
 		// Initialize the render renderEngine.
 		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn);
 
@@ -130,12 +127,7 @@ namespace LinaEngine::Graphics
 
 		/// <summary> Creates a cubemap texture resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing cube map texture. </param>
-		Texture& CreateTextureCubemap(const std::string filePath[6], SamplerParameters samplerParams = SamplerParameters(), bool compress = false);
-
-
-		/// <summary> Creates an hdri texture resource. </summary>
-		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing cube map texture. </param>
-		Texture& CreateTextureHDRI(const std::string filePath);
+		Texture& CreateTexture(const std::string filePath[6], SamplerParameters samplerParams = SamplerParameters(), bool compress = false);
 
 		/// <summary> Creates a mesh resource. </summary>
 		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing mesh. </param>
@@ -345,17 +337,11 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		// HDRI skybox resolution
-		Vector2 m_HDRIResolution;
-
 		// Standart Skybox vertex array object.
 		uint32 m_SkyboxVAO;
 
 		// Quad to draw the buffers into.
 		uint32 m_ScreenQuad;
-
-		// Current skybox drawtype
-		SkyboxDrawType m_SkyboxDrawType = SkyboxDrawType::PROCEDURAL;
 
 		// Light counts.
 		int m_CurrentSpotLightCount;

@@ -115,7 +115,7 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 	SamplerParameters samplerParams;
 	samplerParams.textureParams.generateMipMaps = true;
 	samplerParams.textureParams.minFilter = FILTER_NEAREST;
-	Texture& t = renderEngine->CreateTextureCubemap(fp, samplerParams, false);
+	Texture& t = renderEngine->CreateTexture(fp, samplerParams, false);
 	mat.SetTexture(MC_TEXTURE2D_DIFFUSE, &t, TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
@@ -148,7 +148,7 @@ Vector3 spotLightPositions[]
 };
 
 int pLightSize = 1;
-int cubeSize = 20;
+int cubeSize = 4;
 int sLightSize = 0;
 
 
@@ -162,7 +162,7 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-	CreateGradientSkybox(m_RenderEngine);
+	CreateProceduralSkybox(m_RenderEngine);
 
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);
@@ -191,6 +191,8 @@ void Example1Level::Initialize()
 	crateSampler.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB;
 	crateSampler.textureParams.generateMipMaps = true;
 
+
+
 	SamplerParameters pbrSampler;
 	pbrSampler.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
 	pbrSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
@@ -199,6 +201,7 @@ void Example1Level::Initialize()
 	pbrSampler.textureParams.pixelFormat = PixelFormat::FORMAT_RGBA;
 	pbrSampler.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB;
 	pbrSampler.textureParams.generateMipMaps = true;
+
 
 
 	// Create texture for example mesh.
@@ -238,7 +241,7 @@ void Example1Level::Initialize()
 
 
 	// Load example mesh.
-	Mesh& cubeMesh = m_RenderEngine->GetPrimitive(Primitives::SPHERE);
+	Mesh& cubeMesh = m_RenderEngine->CreateMesh("resources/meshes/cube.obj");
 
 	// Create material for example mesh.
 	objectLitMaterial = &m_RenderEngine->CreateMaterial("object1Material", Shaders::STANDARD_LIT);
@@ -310,7 +313,7 @@ void Example1Level::Initialize()
 
 
 	object1Renderer.mesh = &cubeMesh;
-	object1Renderer.material = sphereMaterial;
+	object1Renderer.material = objectLitMaterial;
 	smallCubeRenderer.mesh = &cubeMesh;
 	smallCubeRenderer.material = objectUnlitMaterial;
 
@@ -358,30 +361,43 @@ void Example1Level::Initialize()
 //m_ECS->emplace<MeshRendererComponent>(arcade, arcadeMR);
 
 
-	//ECSEntity floor;
-	//floor = m_ECS->CreateEntity("Floor");
-	//MeshRendererComponent mr;
-	//mr.mesh = &m_RenderEngine->GetPrimitive(Primitives::PLANE);
-	//mr.material = sphereMaterial;
-	//
-	//object1Transform.transform.location = Vector3(0, 0, 0);
-	//object1Transform.transform.scale = Vector3(40.0f);
-	//m_ECS->emplace<TransformComponent>(floor, object1Transform);
-	//m_ECS->emplace<MeshRendererComponent>(floor, mr);
+	ECSEntity floor;
+	floor = m_ECS->CreateEntity("Floor");
+	MeshRendererComponent mr;
+	mr.mesh = &m_RenderEngine->GetPrimitive(Primitives::PLANE);
+	mr.material = sphereMaterial;
 
-	object1Transform.transform.location = Vector3(-5, 5, 0);
-	object1Transform.transform.scale = Vector3::One;
-	object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
+	object1Transform.transform.location = Vector3(0, 0, 0);
+	object1Transform.transform.scale = Vector3(40.0f);
+	m_ECS->emplace<TransformComponent>(floor, object1Transform);
+	m_ECS->emplace<MeshRendererComponent>(floor, mr);
 
-	for (int i = 0; i < 25; i++)
+
+
+
+	for (int i = 0; i < cubeSize; i++)
 	{
 		ECSEntity entity;
 		object1Renderer.material = objectLitMaterial;
+
+		object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
+		object1Transform.transform.location = cubePositions[i];
+		object1Transform.transform.scale = Vector3::One;
+
+		if (i == 0)
+			object1Transform.transform.scale = Vector3(0.1f);
+
+		if (i == 1)
+			object1Transform.transform.scale = Vector3(0.3f);
+
+		if (i == 2)
+			object1Transform.transform.scale = Vector3(0.7f);
+		if (i == 3)
+			object1Transform.transform.scale = Vector3(1.1f);
+		//object1Transform.transform.location = Vector3(Math::RandF(-100, 100), Math::RandF(-100, 100), Math::RandF(-100, 100));
 		entity = m_ECS->CreateEntity("Cube " + std::to_string(i));
 		m_ECS->emplace<TransformComponent>(entity, object1Transform);
 		m_ECS->emplace<MeshRendererComponent>(entity, object1Renderer);
-		object1Transform.transform.location += i % 5 != 4 ? Vector3(2.5, 0, 0) : Vector3(-5, -2.5, 0);
-
 	}
 
 
@@ -403,6 +419,7 @@ void Example1Level::Initialize()
 		pLight1.color = Color(1, 1, 1);
 		smallCubeRenderer.material->SetColor(MC_OBJECTCOLORPROPERTY, pLight1.color);
 		m_ECS->emplace<MeshRendererComponent>(entity, smallCubeRenderer);
+
 		pLight1.distance = 100;
 
 	}
