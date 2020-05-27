@@ -118,26 +118,24 @@ namespace LinaEngine::Graphics
 		void OnWindowResized(float width, float height);
 
 		/// <summary> Creates a material resource with a specific shader. </summary>
-		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing material. </param>
 		Material& CreateMaterial(const std::string& materialName, Shaders shader);
 
 		/// <summary> Creates a texture resource. </summary>
-		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing texture. </param>
-		Texture& CreateTexture(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false);
+		Texture& CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false);
 
 		/// <summary> Creates a cubemap texture resource. </summary>
-		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing cube map texture. </param>
-		Texture& CreateTexture(const std::string filePath[6], SamplerParameters samplerParams = SamplerParameters(), bool compress = false);
+		Texture& CreateTextureCubemap(const std::string filePath[6], SamplerParameters samplerParams = SamplerParameters(), bool compress = false);
+
+		/// <summary> Creates an HDRI texture resource. </summary>
+		Texture& CreateTextureHDRI(const std::string filePath);
 
 		/// <summary> Creates a mesh resource. </summary>
-		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing mesh. </param>
 		Mesh& CreateMesh(const std::string& filePath);
 
 		/// <summary> Creates a primitive resource. </summary>
 		Mesh& CreatePrimitive(Primitives primitive, const std::string& path);
 
 		/// <summary> Creates a shader resource. </summary>
-		/// <param name= "refPointer"> Send a pointer as a reference and it will point to the newly created/existing shader. </param>
 		Shader& CreateShader(Shaders shader, const std::string& path, bool usesGeometryShader = false);
 
 		// Returns a material resource.

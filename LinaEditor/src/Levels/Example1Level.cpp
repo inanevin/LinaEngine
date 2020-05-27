@@ -234,11 +234,11 @@ void Example1Level::Initialize()
 	//Texture& roughnessArcade = m_RenderEngine->CreateTexture("resources/textures/arcade/roughness.png", pbrSampler, false, false);
 	//Texture& aoArcade = m_RenderEngine->CreateTexture("resources/textures/arcade/ao.png", pbrSampler, false, false);
 
-	Texture& albedoSphere = m_RenderEngine->CreateTexture("resources/textures/gold/albedo.png", pbrSampler, false, false);
-	Texture& normalSphere = m_RenderEngine->CreateTexture("resources/textures/gold/normal.png", pbrSampler, false, false);
-	Texture& metallicSphere = m_RenderEngine->CreateTexture("resources/textures/gold/metallic.png", pbrSampler, false, false);
-	Texture& roughnessSphere = m_RenderEngine->CreateTexture("resources/textures/gold/roughness.png", pbrSampler, false, false);
-	Texture& aoSphere = m_RenderEngine->CreateTexture("resources/textures/gold/ao.png", pbrSampler, false, false);
+	Texture& albedoSphere = m_RenderEngine->CreateTexture("resources/textures/plastic/albedo.png", pbrSampler, false, false);
+	Texture& normalSphere = m_RenderEngine->CreateTexture("resources/textures/plastic/normal.png", pbrSampler, false, false);
+	Texture& metallicSphere = m_RenderEngine->CreateTexture("resources/textures/plastic/metallic.png", pbrSampler, false, false);
+	Texture& roughnessSphere = m_RenderEngine->CreateTexture("resources/textures/plastic/roughness.png", pbrSampler, false, false);
+	Texture& aoSphere = m_RenderEngine->CreateTexture("resources/textures/plastic/ao.png", pbrSampler, false, false);
 
 
 	// Load example mesh.

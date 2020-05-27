@@ -44,6 +44,7 @@ namespace LinaEngine::Graphics
 
 		Texture& Construct(RenderDevice& deviceIn, const class ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress);
 		Texture& ConstructCubemap(RenderDevice& deviceIn, SamplerParameters samplerParams, const LinaArray<class ArrayBitmap*>& data, bool compress);
+		Texture& ConstructHDRI(RenderDevice& deviceIn, SamplerParameters samplerParams, Vector2 size, float* data);
 		Texture& ConstructRTCubemapTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams);
 		Texture& ConstructRTTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, bool useBorder = false);
 		Texture& ConstructRTTextureMSAA(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, int sampleCount);

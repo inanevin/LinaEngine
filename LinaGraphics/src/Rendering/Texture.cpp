@@ -66,6 +66,18 @@ namespace LinaEngine::Graphics
 		return *this;
 	}
 
+	Texture& Texture::ConstructHDRI(RenderDevice& deviceIn, SamplerParameters samplerParams, Vector2 size, float* data)
+	{
+		renderDevice = &deviceIn;
+		m_Sampler.Construct(deviceIn, samplerParams);
+		m_Size = size;
+		m_ID = renderDevice->CreateTexture2D(size, data, samplerParams, false);
+		isCompressed = false;
+		hasMipMaps = samplerParams.textureParams.generateMipMaps;
+		m_IsEmpty = false;
+		return *this;
+	}
+
 	Texture& Texture::ConstructRTCubemapTexture(RenderDevice& deviceIn,  Vector2 size, SamplerParameters samplerParams)
 	{
 		m_Sampler.Construct(deviceIn, samplerParams);
