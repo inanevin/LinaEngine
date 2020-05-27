@@ -109,7 +109,7 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 	SamplerParameters samplerParams;
 	samplerParams.textureParams.generateMipMaps = true;
 	samplerParams.textureParams.minFilter = FILTER_NEAREST;
-	Texture& t = renderEngine->CreateTexture(fp, samplerParams, false);
+	Texture& t = renderEngine->CreateTextureCubemap(fp, samplerParams, false);
 	mat.SetTexture(MC_TEXTURE2D_DIFFUSE, &t, TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
@@ -190,11 +190,11 @@ void Example1Level::Initialize()
 	crateSampler.textureParams.generateMipMaps = true;
 
 	// Create texture for example mesh.
-	Texture& crateTexture = m_RenderEngine->CreateTexture("resources/textures/box.png", crateSampler);
-	Texture& crateSpecTexture = m_RenderEngine->CreateTexture("resources/textures/boxSpecular.png");
-	Texture& window = m_RenderEngine->CreateTexture("resources/textures/window.png");
-	Texture& wood = m_RenderEngine->CreateTexture("resources/textures/wood.png", woodTextureSampler, false);
-	Texture& brickWall = m_RenderEngine->CreateTexture("resources/textures/brickWall.jpg", woodTextureSampler, false);
+	Texture& crateTexture = m_RenderEngine->CreateTexture2D("resources/textures/box.png", crateSampler);
+	Texture& crateSpecTexture = m_RenderEngine->CreateTexture2D("resources/textures/boxSpecular.png");
+	Texture& window = m_RenderEngine->CreateTexture2D("resources/textures/window.png");
+	Texture& wood = m_RenderEngine->CreateTexture2D("resources/textures/wood.png", woodTextureSampler, false);
+	Texture& brickWall = m_RenderEngine->CreateTexture2D("resources/textures/brickWall.jpg", woodTextureSampler, false);
 	//Texture& cubemap = m_RenderEngine->GetTexture("resources/textures/defaultSkybox/right.png");
 
 

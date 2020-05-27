@@ -163,15 +163,13 @@ namespace LinaEngine::Graphics
 		glEnable(GL_STENCIL_TEST);
 		glEnable(GL_BLEND);
 		glEnable(GL_CULL_FACE);
-		glCullFace(m_UsedFaceCulling);
 		glEnable(GL_MULTISAMPLE);
 
 		glDepthFunc(GL_LESS);
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 		glFrontFace(GL_CW);
-		if (m_UsedFaceCulling != FaceCulling::FACE_CULL_NONE)
-			glCullFace(m_UsedFaceCulling);
+		
 
 		if (m_IsBlendingEnabled)
 			glBlendFunc(m_UsedSourceBlending, m_UsedDestinationBlending);

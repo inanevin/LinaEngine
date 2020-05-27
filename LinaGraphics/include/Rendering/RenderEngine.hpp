@@ -187,6 +187,9 @@ namespace LinaEngine::Graphics
 		// Returns the final render texture.
 		void* GetFinalImage();
 
+		// Initializes the setup process for loading an HDRI image to the scene
+		void SetupHDRIImage(Texture& hdriTexture);
+
 	private:
 
 		// Constructs commonly used shaders within Lina Engine.
@@ -240,8 +243,14 @@ namespace LinaEngine::Graphics
 		// Outline render target
 		RenderTarget m_OutlineRenderTarget;
 
+		// Equirectangular hdri capture render target
+		RenderTarget m_HDRICaptureRenderTarget;
+
 		// Default Render buffer
-		RenderBuffer m_RenderBuffer;
+		RenderBuffer m_PrimaryRenderBuffer;
+
+		// Equirectangular hdri capture render buffer
+		RenderBuffer m_HDRICaptureRenderBuffer;
 
 		// Primary render buffer
 		RenderBuffer m_PrimaryRenderBuffer;
@@ -344,6 +353,9 @@ namespace LinaEngine::Graphics
 		// Light counts.
 		int m_CurrentSpotLightCount;
 		int m_CurrentPointLightCount;
+
+		// HDRI Skybox resolution
+		Vector2 m_HDRIResolution;
 
 		DISALLOW_COPY_ASSIGN_NEW(RenderEngine);
 	};

@@ -657,6 +657,9 @@ namespace LinaEngine::Graphics
 		singleColor.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		singleColor.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
+		// Equirectangular cube for HDRI skbox
+		CreateShader(Shaders::EQUIRECTANGULAR_HDRI, "resources/shaders/equirectangularHDRI.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+
 		// Screen Quad Shaders
 		CreateShader(Shaders::SCREEN_QUAD_FINAL, "resources/shaders/screenQuadFinal.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		CreateShader(Shaders::SCREEN_QUAD_BLUR, "resources/shaders/screenQuadBlur.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
@@ -727,7 +730,7 @@ namespace LinaEngine::Graphics
 		m_OutlineRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, primaryRTParams, false);
 
 		// Initialize render buffer.
-		m_RenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);
+		m_PrimaryRenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);
 
 		// Initialize primary render buffer
 		m_PrimaryRenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH, screenSize.x, screenSize.y);
@@ -1068,6 +1071,14 @@ namespace LinaEngine::Graphics
 	void* RenderEngine::GetFinalImage()
 	{
 		return (void*)m_PrimaryRTTexture0.GetID();
+	}
+
+	void RenderEngine::SetupHDRIImage(Texture& hdriTexture)
+	{
+		// Construct render buffer birst.
+		m_HDRICaptureRenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH_COMP24, m_HDRIResolution.x, m_HDRIResolution.y, 0);
+
+
 	}
 
 }

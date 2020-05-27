@@ -116,7 +116,7 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 	SamplerParameters samplerParams;
 	samplerParams.textureParams.generateMipMaps = true;
 	samplerParams.textureParams.minFilter = FILTER_NEAREST;
-	Texture& t = renderEngine->CreateTexture(fp, samplerParams, false);
+	Texture& t = renderEngine->CreateTextureCubemap(fp, samplerParams, false);
 	mat.SetTexture(MC_TEXTURE2D_DIFFUSE, &t, TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
@@ -206,39 +206,39 @@ void Example1Level::Initialize()
 
 
 	// Create texture for example mesh.
-	//Texture& brickWall = m_RenderEngine->CreateTexture("resources/textures/bricks2.jpg", woodTextureSampler, false);
-	//Texture& brickWallNormal = m_RenderEngine->CreateTexture("resources/textures/bricks2_normal.jpg", crateSampler, false);
-	//Texture& bricksParallax = m_RenderEngine->CreateTexture("resources/textures/bricks2_disp.jpg", crateSampler, false);
+	//Texture& brickWall = m_RenderEngine->CreateTexture2D("resources/textures/bricks2.jpg", woodTextureSampler, false);
+	//Texture& brickWallNormal = m_RenderEngine->CreateTexture2D("resources/textures/bricks2_normal.jpg", crateSampler, false);
+	//Texture& bricksParallax = m_RenderEngine->CreateTexture2D("resources/textures/bricks2_disp.jpg", crateSampler, false);
 	//Texture& cubemap = m_RenderEngine->GetTexture("resources/textures/defaultSkybox/right.png");
 
-	Texture& albedo = m_RenderEngine->CreateTexture("resources/textures/wall/albedo.png", pbrSampler, false, false);
-	Texture& normal = m_RenderEngine->CreateTexture("resources/textures/wall/normal.png", pbrSampler, false, false);
-	Texture& metallic = m_RenderEngine->CreateTexture("resources/textures/wall/metallic.png", pbrSampler, false, false);
-	Texture& roughness = m_RenderEngine->CreateTexture("resources/textures/wall/roughness.png", pbrSampler, false, false);
-	Texture& ao = m_RenderEngine->CreateTexture("resources/textures/wall/ao.png", pbrSampler, false, false);
+	Texture& albedo = m_RenderEngine->CreateTexture2D("resources/textures/wall/albedo.png", pbrSampler, false, false);
+	Texture& normal = m_RenderEngine->CreateTexture2D("resources/textures/wall/normal.png", pbrSampler, false, false);
+	Texture& metallic = m_RenderEngine->CreateTexture2D("resources/textures/wall/metallic.png", pbrSampler, false, false);
+	Texture& roughness = m_RenderEngine->CreateTexture2D("resources/textures/wall/roughness.png", pbrSampler, false, false);
+	Texture& ao = m_RenderEngine->CreateTexture2D("resources/textures/wall/ao.png", pbrSampler, false, false);
 
-	//Texture& albedoGlock = m_RenderEngine->CreateTexture("resources/textures/glock/albedo.png", pbrSampler, false, false);
-	//Texture& normalGlock = m_RenderEngine->CreateTexture("resources/textures/glock/normal.png", pbrSampler, false, false);
-	//Texture& metallicGlock = m_RenderEngine->CreateTexture("resources/textures/glock/metallic.png", pbrSampler, false, false);
-	//Texture& roughnessGlock = m_RenderEngine->CreateTexture("resources/textures/glock/roughness.png", pbrSampler, false, false);
-	//Texture& aoGlock = m_RenderEngine->CreateTexture("resources/textures/glock/ao.png", pbrSampler, false, false);
+	//Texture& albedoGlock = m_RenderEngine->CreateTexture2D("resources/textures/glock/albedo.png", pbrSampler, false, false);
+	//Texture& normalGlock = m_RenderEngine->CreateTexture2D("resources/textures/glock/normal.png", pbrSampler, false, false);
+	//Texture& metallicGlock = m_RenderEngine->CreateTexture2D("resources/textures/glock/metallic.png", pbrSampler, false, false);
+	//Texture& roughnessGlock = m_RenderEngine->CreateTexture2D("resources/textures/glock/roughness.png", pbrSampler, false, false);
+	//Texture& aoGlock = m_RenderEngine->CreateTexture2D("resources/textures/glock/ao.png", pbrSampler, false, false);
 	//
-	//Texture& albedoSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/albedo.png", pbrSampler, false, false);
-	//Texture& normalSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/normal.png", pbrSampler, false, false);
-	//Texture& metallicSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/metallic.png", pbrSampler, false, false);
-	//Texture& roughnessSofa = m_RenderEngine->CreateTexture("resources/textures/sofa/roughness.png", pbrSampler, false, false);
+	//Texture& albedoSofa = m_RenderEngine->CreateTexture2D("resources/textures/sofa/albedo.png", pbrSampler, false, false);
+	//Texture& normalSofa = m_RenderEngine->CreateTexture2D("resources/textures/sofa/normal.png", pbrSampler, false, false);
+	//Texture& metallicSofa = m_RenderEngine->CreateTexture2D("resources/textures/sofa/metallic.png", pbrSampler, false, false);
+	//Texture& roughnessSofa = m_RenderEngine->CreateTexture2D("resources/textures/sofa/roughness.png", pbrSampler, false, false);
 
-	//Texture& albedoArcade = m_RenderEngine->CreateTexture("resources/textures/arcade/albedo.png", pbrSampler, false, false);
-	//Texture& normalArcade = m_RenderEngine->CreateTexture("resources/textures/arcade/normal.png", pbrSampler, false, false);
-	//Texture& metallicArcade = m_RenderEngine->CreateTexture("resources/textures/arcade/metallic.png", pbrSampler, false, false);
-	//Texture& roughnessArcade = m_RenderEngine->CreateTexture("resources/textures/arcade/roughness.png", pbrSampler, false, false);
-	//Texture& aoArcade = m_RenderEngine->CreateTexture("resources/textures/arcade/ao.png", pbrSampler, false, false);
+	//Texture& albedoArcade = m_RenderEngine->CreateTexture2D("resources/textures/arcade/albedo.png", pbrSampler, false, false);
+	//Texture& normalArcade = m_RenderEngine->CreateTexture2D("resources/textures/arcade/normal.png", pbrSampler, false, false);
+	//Texture& metallicArcade = m_RenderEngine->CreateTexture2D("resources/textures/arcade/metallic.png", pbrSampler, false, false);
+	//Texture& roughnessArcade = m_RenderEngine->CreateTexture2D("resources/textures/arcade/roughness.png", pbrSampler, false, false);
+	//Texture& aoArcade = m_RenderEngine->CreateTexture2D("resources/textures/arcade/ao.png", pbrSampler, false, false);
 
-	Texture& albedoSphere = m_RenderEngine->CreateTexture("resources/textures/plastic/albedo.png", pbrSampler, false, false);
-	Texture& normalSphere = m_RenderEngine->CreateTexture("resources/textures/plastic/normal.png", pbrSampler, false, false);
-	Texture& metallicSphere = m_RenderEngine->CreateTexture("resources/textures/plastic/metallic.png", pbrSampler, false, false);
-	Texture& roughnessSphere = m_RenderEngine->CreateTexture("resources/textures/plastic/roughness.png", pbrSampler, false, false);
-	Texture& aoSphere = m_RenderEngine->CreateTexture("resources/textures/plastic/ao.png", pbrSampler, false, false);
+	Texture& albedoSphere = m_RenderEngine->CreateTexture2D("resources/textures/plastic/albedo.png", pbrSampler, false, false);
+	Texture& normalSphere = m_RenderEngine->CreateTexture2D("resources/textures/plastic/normal.png", pbrSampler, false, false);
+	Texture& metallicSphere = m_RenderEngine->CreateTexture2D("resources/textures/plastic/metallic.png", pbrSampler, false, false);
+	Texture& roughnessSphere = m_RenderEngine->CreateTexture2D("resources/textures/plastic/roughness.png", pbrSampler, false, false);
+	Texture& aoSphere = m_RenderEngine->CreateTexture2D("resources/textures/plastic/ao.png", pbrSampler, false, false);
 
 
 	// Load example mesh.
