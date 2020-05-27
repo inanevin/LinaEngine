@@ -54,6 +54,8 @@ namespace LinaEngine::Graphics
 #define MC_TEXTURE2D_ROUGHNESSMAP "material.roughnessMap"
 #define MC_TEXTURE2D_SPECULAR "material.specular"
 #define MC_TEXTURE2D_SHADOWMAP "material.shadowMap"
+#define MC_METALLICMULTIPLIER "material.metallicMultiplier"
+#define MC_ROUGHNESSMULTIPLIER "material.roughnessMultiplier"
 #define MC_SPECULARINTENSIT "material.specularIntensity"
 #define MC_SPECULAREXPONENT "material.specularExponent"
 #define MC_OUTLINETHICKNESS "material.outlineThickness"

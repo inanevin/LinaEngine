@@ -66,6 +66,8 @@ MaterialSampler2D normalMap;
 MaterialSampler2D metallicMap;
 MaterialSampler2D roughnessMap;
 MaterialSampler2D aoMap;
+float metallicMultiplier;
+float roughnessMultiplier;
 vec2 tiling;
 };
 
@@ -146,8 +148,8 @@ void main()
 
 	vec3 camPos = vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
 	vec3 albedo     = pow(material.albedoMap.isActive != 0  ? texture(material.albedoMap.texture, tiledTexCoords).rgb : vec3(1.0), vec3(2.2));
-    float metallic  = material.metallicMap.isActive != 0 ? texture(material.metallicMap.texture, tiledTexCoords).r : 1.0;
-    float roughness = material.roughnessMap.isActive != 0 ?texture(material.roughnessMap.texture, tiledTexCoords).r : 1.0;
+    float metallic  = material.metallicMap.isActive != 0 ? texture(material.metallicMap.texture, tiledTexCoords).r * material.metallicMultiplier : 1.0;
+    float roughness = material.roughnessMap.isActive != 0 ?texture(material.roughnessMap.texture, tiledTexCoords).r * material.roughnessMultiplier : 1.0;
     float ao        = material.aoMap.isActive != 0 ? texture(material.aoMap.texture, tiledTexCoords).r : 1.0;
 
     vec3 N = getNormalFromMap(tiledTexCoords);

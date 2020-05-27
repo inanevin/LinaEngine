@@ -97,6 +97,11 @@ namespace LinaEngine::Graphics
 		return data;
 	}
 
+	float* ArrayBitmap::LoadImmediateHDRI(const char* fileName, int& w, int& h, int& nrChannels)
+	{
+		return stbi_loadf(fileName, &w, &h, &nrChannels, 0);
+	}
+
 	void ArrayBitmap::Clear(int32 color)
 	{
 		Memory::memset(m_Pixels, color, GetPixelsSize());

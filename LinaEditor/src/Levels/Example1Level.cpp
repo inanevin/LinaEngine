@@ -57,12 +57,13 @@ Material* glockMaterial;
 Material* sofaMaterial;
 Material* arcadeMaterial;
 Material* sphereMaterial;
+Material* sphereMaterial2;
 
 TransformComponent object1Transform;
 MeshRendererComponent object1Renderer;
 MeshRendererComponent smallCubeRenderer;
 
-
+ECSEntity oneSphere;
 
 Example1Level::~Example1Level()
 {
@@ -205,9 +206,9 @@ void Example1Level::Initialize()
 
 
 	// Create texture for example mesh.
-	Texture& brickWall = m_RenderEngine->CreateTexture("resources/textures/bricks2.jpg", woodTextureSampler, false);
-	Texture& brickWallNormal = m_RenderEngine->CreateTexture("resources/textures/bricks2_normal.jpg", crateSampler, false);
-	Texture& bricksParallax = m_RenderEngine->CreateTexture("resources/textures/bricks2_disp.jpg", crateSampler, false);
+	//Texture& brickWall = m_RenderEngine->CreateTexture("resources/textures/bricks2.jpg", woodTextureSampler, false);
+	//Texture& brickWallNormal = m_RenderEngine->CreateTexture("resources/textures/bricks2_normal.jpg", crateSampler, false);
+	//Texture& bricksParallax = m_RenderEngine->CreateTexture("resources/textures/bricks2_disp.jpg", crateSampler, false);
 	//Texture& cubemap = m_RenderEngine->GetTexture("resources/textures/defaultSkybox/right.png");
 
 	Texture& albedo = m_RenderEngine->CreateTexture("resources/textures/wall/albedo.png", pbrSampler, false, false);
@@ -233,15 +234,15 @@ void Example1Level::Initialize()
 	//Texture& roughnessArcade = m_RenderEngine->CreateTexture("resources/textures/arcade/roughness.png", pbrSampler, false, false);
 	//Texture& aoArcade = m_RenderEngine->CreateTexture("resources/textures/arcade/ao.png", pbrSampler, false, false);
 
-	Texture& albedoSphere = m_RenderEngine->CreateTexture("resources/textures/rusted_iron/albedo.png", pbrSampler, false, false);
-	Texture& normalSphere = m_RenderEngine->CreateTexture("resources/textures/rusted_iron/normal.png", pbrSampler, false, false);
-	Texture& metallicSphere = m_RenderEngine->CreateTexture("resources/textures/rusted_iron/metallic.png", pbrSampler, false, false);
-	Texture& roughnessSphere = m_RenderEngine->CreateTexture("resources/textures/rusted_iron/roughness.png", pbrSampler, false, false);
-	Texture& aoSphere = m_RenderEngine->CreateTexture("resources/textures/rusted_iron/ao.png", pbrSampler, false, false);
+	Texture& albedoSphere = m_RenderEngine->CreateTexture("resources/textures/gold/albedo.png", pbrSampler, false, false);
+	Texture& normalSphere = m_RenderEngine->CreateTexture("resources/textures/gold/normal.png", pbrSampler, false, false);
+	Texture& metallicSphere = m_RenderEngine->CreateTexture("resources/textures/gold/metallic.png", pbrSampler, false, false);
+	Texture& roughnessSphere = m_RenderEngine->CreateTexture("resources/textures/gold/roughness.png", pbrSampler, false, false);
+	Texture& aoSphere = m_RenderEngine->CreateTexture("resources/textures/gold/ao.png", pbrSampler, false, false);
 
 
 	// Load example mesh.
-	Mesh& cubeMesh = m_RenderEngine->CreateMesh("resources/meshes/cube.obj");
+	Mesh& cubeMesh = m_RenderEngine->GetPrimitive(Primitives::SPHERE);
 
 	// Create material for example mesh.
 	objectLitMaterial = &m_RenderEngine->CreateMaterial("object1Material", Shaders::STANDARD_LIT);
@@ -251,6 +252,7 @@ void Example1Level::Initialize()
 	glockMaterial = &m_RenderEngine->CreateMaterial("glock", Shaders::PBR_LIT);
 	sofaMaterial = &m_RenderEngine->CreateMaterial("sofa", Shaders::PBR_LIT);
 	sphereMaterial = &m_RenderEngine->CreateMaterial("sp", Shaders::PBR_LIT);
+	sphereMaterial2 = &m_RenderEngine->CreateMaterial("sp2", Shaders::PBR_LIT);
 	//arcadeMaterial = &m_RenderEngine->CreateMaterial("arcade", Shaders::PBR_LIT);
 
 	floorPBRMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedo);
@@ -261,18 +263,29 @@ void Example1Level::Initialize()
 	floorPBRMaterial->SetVector2(MC_TILING, Vector2(20, 20));
 
 
+
 	sphereMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoSphere);
 	sphereMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normalSphere);
 	sphereMaterial->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
 	sphereMaterial->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallicSphere);
 	sphereMaterial->SetTexture(MC_TEXTURE2D_AOMAP, &aoSphere);
-	sphereMaterial->SetVector2(MC_TILING, Vector2(20, 20));
+
+	//sphereMaterial2->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoSphere);
+	//sphereMaterial2->SetTexture(MC_TEXTURE2D_NORMALMAP, &normalSphere);
+	//sphereMaterial2->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
+	//sphereMaterial2->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallicSphere);
+	//sphereMaterial2->SetTexture(MC_TEXTURE2D_AOMAP, &aoSphere);
+	//sphereMaterial2->SetFloat(MC_METALLICMULTIPLIER, 4);
+	//sphereMaterial2->SetFloat(MC_ROUGHNESSMULTIPLIER, .2f);
+	//	sphereMaterial->SetVector2(MC_TILING, Vector2(20, 20));
+
+
 
 	//sofaMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoSofa);
 	//sofaMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normalSofa);
 	//sofaMaterial->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughnessSofa);
 	//sofaMaterial->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallicSofa);
-	//sofaMaterial->SetVector2(MC_TILING, Vector2(1,1));
+	//sofaMaterial->SetVector2(MC_TILING, Vector2(1, 1));
 	////
 	//glockMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoGlock);
 	//glockMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normalGlock);
@@ -293,18 +306,18 @@ void Example1Level::Initialize()
 	//cubemapReflectiveMaterial = &m_RenderEngine->CreateMaterial("cubemapReflective", Shaders::CUBEMAP_REFLECTIVE);
 
 
-	objectLitMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &brickWall);
-	objectLitMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &brickWallNormal);
-	objectLitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
-	objectLitMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
-	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(200, 200, 200));
-	objectUnlitMaterial2->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
-
-	floorMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &brickWall);
-	floorMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &brickWallNormal);
-	floorMaterial->SetTexture(MC_TEXTURE2D_PARALLAXMAP, &bricksParallax);
-	floorMaterial->SetVector2(MC_TILING, Vector2(20, 20));
-	floorMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
+	//objectLitMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &brickWall);
+	//objectLitMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &brickWallNormal);
+	//objectLitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
+	//objectLitMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
+	//objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(200, 200, 200));
+	//objectUnlitMaterial2->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
+	//
+	//floorMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &brickWall);
+	//floorMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &brickWallNormal);
+	//floorMaterial->SetTexture(MC_TEXTURE2D_PARALLAXMAP, &bricksParallax);
+	//floorMaterial->SetVector2(MC_TILING, Vector2(20, 20));
+	//floorMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
 
 	//floorMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &wood);
 	//cubemapReflectiveMaterial->SetTexture(UF_SKYBOXTEXTURE, &cubemap, 0);
@@ -340,6 +353,7 @@ void Example1Level::Initialize()
 //m_ECS->emplace<MeshRendererComponent>(glock, glockMR);
 //
 //
+
 //ECSEntity sofa;
 //sofa = m_ECS->CreateEntity("sofa");
 //MeshRendererComponent sofaMR;
@@ -365,7 +379,7 @@ void Example1Level::Initialize()
 	floor = m_ECS->CreateEntity("Floor");
 	MeshRendererComponent mr;
 	mr.mesh = &m_RenderEngine->GetPrimitive(Primitives::PLANE);
-	mr.material = sphereMaterial;
+	mr.material = floorPBRMaterial;
 
 	object1Transform.transform.location = Vector3(0, 0, 0);
 	object1Transform.transform.scale = Vector3(40.0f);
@@ -375,30 +389,24 @@ void Example1Level::Initialize()
 
 
 
-	for (int i = 0; i < cubeSize; i++)
+
+	object1Transform.transform.location = Vector3(-6, 18, 5);
+	object1Transform.transform.scale = Vector3::One;
+	object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
+
+	for (int i = 0; i < 25; i++)
 	{
 		ECSEntity entity;
-		object1Renderer.material = objectLitMaterial;
 
-		object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
-		object1Transform.transform.location = cubePositions[i];
-		object1Transform.transform.scale = Vector3::One;
-
-		if (i == 0)
-			object1Transform.transform.scale = Vector3(0.1f);
-
-		if (i == 1)
-			object1Transform.transform.scale = Vector3(0.3f);
-
-		if (i == 2)
-			object1Transform.transform.scale = Vector3(0.7f);
-		if (i == 3)
-			object1Transform.transform.scale = Vector3(1.1f);
-		//object1Transform.transform.location = Vector3(Math::RandF(-100, 100), Math::RandF(-100, 100), Math::RandF(-100, 100));
+		object1Renderer.material = sphereMaterial;
 		entity = m_ECS->CreateEntity("Cube " + std::to_string(i));
 		m_ECS->emplace<TransformComponent>(entity, object1Transform);
 		m_ECS->emplace<MeshRendererComponent>(entity, object1Renderer);
+		object1Transform.transform.location += i % 5 != 4 ? Vector3(3, 0, 0) : Vector3(-12, -3, 0);
+
+
 	}
+
 
 
 	object1Transform.transform.scale = Vector3::One;
@@ -495,4 +503,8 @@ void Example1Level::Tick(float delta)
 	level1Systems.UpdateSystems(delta);
 	t2 += delta;
 
+
+	auto& t = m_ECS->get<TransformComponent>(oneSphere);
+
+	//t.transform.location = Vector3(0, 0, Math::Sin(t2) * 5);
 }

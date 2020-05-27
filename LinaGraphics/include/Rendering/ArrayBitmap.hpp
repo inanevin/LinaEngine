@@ -47,6 +47,7 @@ namespace LinaEngine::Graphics
 		bool Save(const std::string& fileName) const;
 
 		static unsigned char* LoadImmediate(const char* filename, int& w, int& h,  int& nrchannels);
+		static float* LoadImmediateHDRI(const char* fileName, int& w, int& h, int& nrChannels);
 
 		// Clr colors.
 		void Clear(int32 color);

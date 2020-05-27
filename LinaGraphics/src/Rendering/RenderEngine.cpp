@@ -520,11 +520,12 @@ namespace LinaEngine::Graphics
 			material.sampler2Ds[MC_TEXTURE2D_METALLICMAP] = { 2 };
 			material.sampler2Ds[MC_TEXTURE2D_ROUGHNESSMAP] = { 3 };
 			material.sampler2Ds[MC_TEXTURE2D_AOMAP] = { 4 };
+			material.floats[MC_METALLICMULTIPLIER] = 1.0f;
+			material.floats[MC_ROUGHNESSMULTIPLIER] = 1.0f;
 			material.vector2s[MC_TILING] = Vector2::One;
 			material.receivesLighting = true;
 			material.isShadowMapped = true;
 		}
-
 
 
 		return material;
@@ -942,6 +943,7 @@ namespace LinaEngine::Graphics
 			currentGlobalDataOffset += sizeof(float);
 
 
+
 			// Update only if changed.
 			if (m_BufferValueRecord.zFar != cameraComponent->zFar)
 			{
@@ -950,7 +952,6 @@ namespace LinaEngine::Graphics
 			}
 			currentGlobalDataOffset += sizeof(float);
 		}
-
 
 		// Update lights buffer.
 		m_GlobalLightBuffer.Update(&m_CurrentPointLightCount, 0, sizeof(int));
@@ -1000,9 +1001,6 @@ namespace LinaEngine::Graphics
 
 		for (auto const& d : (*data).matrices)
 			m_RenderDevice.UpdateShaderUniformMatrix(data->shaderID, d.first, d.second);
-
-
-
 
 
 		for (auto const& d : (*data).sampler2Ds)
