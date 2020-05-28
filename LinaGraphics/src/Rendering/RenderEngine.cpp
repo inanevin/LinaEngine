@@ -540,6 +540,7 @@ namespace LinaEngine::Graphics
 		else if (shader == Shaders::DEPTH_DIRECTIONAL_SHADOWS)
 		{
 
+
 		}
 		else if (shader == Shaders::DEPTH_POINT_SHADOWS)
 		{
@@ -554,15 +555,15 @@ namespace LinaEngine::Graphics
 		}
 		else if (shader == Shaders::PBR_LIT)
 		{
-			material.sampler2Ds[MC_TEXTURE2D_ALBEDOMAP] = { 0 };
-			material.sampler2Ds[MC_TEXTURE2D_NORMALMAP] = { 1 };
-			material.sampler2Ds[MC_TEXTURE2D_METALLICMAP] = { 2 };
-			material.sampler2Ds[MC_TEXTURE2D_ROUGHNESSMAP] = { 3 };
-			material.sampler2Ds[MC_TEXTURE2D_AOMAP] = { 4 };
-			//material.sampler2Ds[MC_TEXTURE2D_IRRADIANCEMAP] = { 5 };
+			//material.sampler2Ds[MC_TEXTURE2D_ALBEDOMAP] = { 0 };
+			//material.sampler2Ds[MC_TEXTURE2D_NORMALMAP] = { 1 };
+			//material.sampler2Ds[MC_TEXTURE2D_METALLICMAP] = { 2 };
+			//material.sampler2Ds[MC_TEXTURE2D_ROUGHNESSMAP] = { 3 };
+			//material.sampler2Ds[MC_TEXTURE2D_AOMAP] = { 4 };
+			material.sampler2Ds[MC_TEXTURE2D_IRRADIANCEMAP] = { 5 };
 			material.floats[MC_METALLICMULTIPLIER] = 1.0f;
 			material.floats[MC_ROUGHNESSMULTIPLIER] = 1.0f;
-			material.vector2s[MC_TILING] = Vector2::One;
+			//material.vector2s[MC_TILING] = Vector2::One;
 			material.receivesLighting = true;
 			material.isShadowMapped = true;
 		}

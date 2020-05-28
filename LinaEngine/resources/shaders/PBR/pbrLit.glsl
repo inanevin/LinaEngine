@@ -28,26 +28,26 @@ Layout(4) attribute vec3 biTangent;
 Layout(5) attribute mat4 model;
 Layout(9) attribute mat4 inverseTransposeModel;
 
-out VS_OUT
-{
-	vec3 Normal;
-	vec3 FragPos;
-	vec2 TexCoords;
-} vs_out;
+out vec2 TexCoords;
+out vec3 WorldPos;
+out vec3 Normal;
 
 
 void main()
 {
-	vs_out.FragPos = vec3(model * vec4(position,1.0));
-    vs_out.TexCoords = texCoord;
-	vs_out.Normal = mat3(inverseTransposeModel) * normal;
-    gl_Position = projection * view * model * vec4(position, 1.0);
+    TexCoords = texCoord;
+    WorldPos = vec3(model * vec4(position, 1.0));
+    Normal = mat3(model) * normal;
+
+    gl_Position =  projection * view * vec4(WorldPos, 1.0);
 }
 
 #elif defined(FS_BUILD)
 
 #include <../lightingData.glh>
-
+in vec2 TexCoords;
+in vec3 WorldPos;
+in vec3 Normal;
 
 layout (location = 0) out vec4 fragColor;
 layout (location = 1) out vec4 brightColor;
@@ -59,48 +59,23 @@ struct MaterialSampler2D
 	int isActive;
 };
 
+struct MaterialSamplerCube
+{
+	samplerCube texture;
+	int isActive;
+};
+
 struct Material
 {
-MaterialSampler2D albedoMap;
-MaterialSampler2D normalMap;
-MaterialSampler2D metallicMap;
-MaterialSampler2D roughnessMap;
-MaterialSampler2D aoMap;
+MaterialSamplerCube irradianceMap;
 float metallicMultiplier;
 float roughnessMultiplier;
-vec2 tiling;
+//vec2 tiling;
 };
 
 uniform Material material;
-
-
-in VS_OUT
-{
-	vec3 Normal;
-	vec3 FragPos;
-	vec2 TexCoords;
-} fs_in;
-
 const float PI = 3.14159265359;
 
-vec3 getNormalFromMap(vec2 uv)
-{
-	if(material.normalMap.isActive == 0)
-		return normalize(fs_in.Normal);
-    vec3 tangentNormal = texture(material.normalMap.texture, uv).xyz* 2.0 - 1.0;
-
-    vec3 Q1  = dFdx(fs_in.FragPos);
-    vec3 Q2  = dFdy(fs_in.FragPos);
-    vec2 st1 = dFdx(uv);
-    vec2 st2 = dFdy(uv);
-
-    vec3 N   = normalize(fs_in.Normal);
-    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
-    vec3 B  = -normalize(cross(N, T));
-    mat3 TBN = mat3(T, B, N);
-
-    return normalize(TBN * tangentNormal);
-}
 // ----------------------------------------------------------------------------
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -141,46 +116,41 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
-
+// ----------------------------------------------------------------------------
 void main()
 {
-	vec2 tiledTexCoords = vec2(fs_in.TexCoords.x * material.tiling.x, fs_in.TexCoords.y * material.tiling.y);
+	float ao = 1.0;
+	vec3 albedo = vec3(0.5, 0.0,0.0);
+    vec3 N = Normal;
+    vec3 V = normalize(vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z) - WorldPos);
+    vec3 R = reflect(-V, N);
 
-	vec3 camPos = vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z);
-	vec3 albedo     = pow(material.albedoMap.isActive != 0  ? texture(material.albedoMap.texture, tiledTexCoords).rgb : vec3(1.0), vec3(2.2));
-    float metallic  = material.metallicMap.isActive != 0 ? texture(material.metallicMap.texture, tiledTexCoords).r * material.metallicMultiplier : 1.0;
-    float roughness = material.roughnessMap.isActive != 0 ?texture(material.roughnessMap.texture, tiledTexCoords).r * material.roughnessMultiplier : 1.0;
-    float ao        = material.aoMap.isActive != 0 ? texture(material.aoMap.texture, tiledTexCoords).r : 1.0;
-
-    vec3 N = getNormalFromMap(tiledTexCoords);
-    vec3 V = normalize(camPos - fs_in.FragPos);
-
-	// calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
+    // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
     vec3 F0 = vec3(0.04);
-    F0 = mix(F0, albedo, metallic);
+    F0 = mix(F0, albedo, material.metallicMultiplier);
 
-	// reflectance equation
+    // reflectance equation
     vec3 Lo = vec3(0.0);
-	for(int i = 0; i < pointLightCount; i++)
-	{
-		// calculate per-light radiance
-        vec3 L = normalize(pointLights[i].position - fs_in.FragPos);
+    for(int i = 0; i < 4; ++i)
+    {
+        // calculate per-light radiance
+        vec3 L = normalize(pointLights[i].position - WorldPos);
         vec3 H = normalize(V + L);
-        float distance = length(pointLights[i].position - fs_in.FragPos);
+        float distance = length(pointLights[i].position - WorldPos);
         float attenuation = 1.0 / (distance * distance);
         vec3 radiance = pointLights[i].color * attenuation;
 
         // Cook-Torrance BRDF
-        float NDF = DistributionGGX(N, H, roughness);
-        float G   = GeometrySmith(N, V, L, roughness);
+        float NDF = DistributionGGX(N, H, material.roughnessMultiplier);
+        float G   = GeometrySmith(N, V, L, material.roughnessMultiplier);
         vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
         vec3 nominator    = NDF * G * F;
         float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
         vec3 specular = nominator / denominator;
 
-        // kS is equal to Fresnel
+         // kS is equal to Fresnel
         vec3 kS = F;
         // for energy conservation, the diffuse and specular light can't
         // be above 1.0 (unless the surface emits light); to preserve this
@@ -189,31 +159,32 @@ void main()
         // multiply kD by the inverse metalness such that only non-metals
         // have diffuse lighting, or a linear blend if partly metal (pure metals
         // have no diffuse light).
-        kD *= 1.0 - metallic;
+        kD *= 1.0 - material.metallicMultiplier;
 
         // scale light by NdotL
         float NdotL = max(dot(N, L), 0.0);
 
         // add to outgoing radiance Lo
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
-	}
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+    }
 
-	  // ambient lighting (note that the next IBL tutorial will replace
-    // this ambient lighting with environment lighting).
-    vec3 ambient = (vec3(0.03) * albedo * ao);
+    // ambient lighting (we now use IBL as the ambient term)
+    vec3 kS = fresnelSchlick(max(dot(N, V), 0.0), F0);
+    vec3 kD = 1.0 - kS;
+    kD *= 1.0 - material.metallicMultiplier;
+    vec3 irradiance = texture(material.irradianceMap.texture, N).rgb;
+    vec3 diffuse      = irradiance * albedo;
+    vec3 ambient = (kD * diffuse) * ao;
+    // vec3 ambient = vec3(0.002);
+
     vec3 color = ambient + Lo;
 
+    // HDR tonemapping
+    color = color / (color + vec3(1.0));
+    // gamma correct
+    color = pow(color, vec3(1.0/2.2));
 
-	// check whether fragment output is higher than threshold, if so output as brightness color
-    float brightness = dot(fragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-    if(brightness > 1.0)
-        brightColor = vec4(fragColor.rgb, 1.0);
-    else
-        brightColor = vec4(0.0, 0.0, 0.0, 1.0);
 
-  //outlineColor = vec4(0.0, 0.0, 0.0, 1.0);
-	outlineColor = vec4(color, 1.0);
-
-	fragColor = vec4(color, 1.0);
+    fragColor = vec4(color, 1.0);
 }
 #endif

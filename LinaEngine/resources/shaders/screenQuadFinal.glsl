@@ -58,16 +58,17 @@ void main()
 	vec3 outlineColor = outlineTexture.isActive != 0 ? texture(outlineTexture.texture, TexCoords).rgb : vec3(0.0);
 
 	// Add bloom.
-	if(bloom)
-        hdrColor += bloomColor;
+	//if(bloom)
+      //  hdrColor += bloomColor;
 
 	  // Add outline
-	  hdrColor += outlineColor;
+	  //hdrColor += outlineColor;
 
 	   // tone mapping
-    /vec3 result = vec3(1.0) - exp(-hdrColor * exposure);
+    //vec3 result = vec3(1.0) - exp(-hdrColor * exposure);
     // also gamma correct while we're at it
-    result = pow(result, vec3(1.0 / gamma));
+  //  result = pow(result, vec3(1.0 / gamma));
+    vec3 result = hdrColor;
     fragColor = vec4(result, 1.0);
 }
 #endif
