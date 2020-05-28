@@ -1106,6 +1106,7 @@ namespace LinaEngine::Graphics
 		glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f))
 		};
 
+
 		//m_HDRIMaterial.SetMatrix4(UF_MATRIX_PROJECTION, captureProjection);
 		//m_HDRIMaterial.SetTexture(UF_MAP_EQUIRECTANGULAR, &hdriTexture);
 		//m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());

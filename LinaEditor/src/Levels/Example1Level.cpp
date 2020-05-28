@@ -244,11 +244,11 @@ void Example1Level::Initialize()
 	//Texture& roughnessArcade = m_RenderEngine->CreateTexture2D("resources/textures/arcade/roughness.png", pbrSampler, false, false);
 	//Texture& aoArcade = m_RenderEngine->CreateTexture2D("resources/textures/arcade/ao.png", pbrSampler, false, false);
 
-	Texture& albedoSphere = m_RenderEngine->CreateTexture2D("resources/textures/plastic/albedo.png", pbrSampler, false, false);
-	Texture& normalSphere = m_RenderEngine->CreateTexture2D("resources/textures/plastic/normal.png", pbrSampler, false, false);
-	Texture& metallicSphere = m_RenderEngine->CreateTexture2D("resources/textures/plastic/metallic.png", pbrSampler, false, false);
-	Texture& roughnessSphere = m_RenderEngine->CreateTexture2D("resources/textures/plastic/roughness.png", pbrSampler, false, false);
-	Texture& aoSphere = m_RenderEngine->CreateTexture2D("resources/textures/plastic/ao.png", pbrSampler, false, false);
+	Texture& albedoSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/albedo.png", pbrSampler, false, false);
+	Texture& normalSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/normal.png", pbrSampler, false, false);
+	Texture& metallicSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/metallic.png", pbrSampler, false, false);
+	Texture& roughnessSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/roughness.png", pbrSampler, false, false);
+	Texture& aoSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/ao.png", pbrSampler, false, false);
 
 
 	// Load example mesh.
@@ -404,7 +404,7 @@ void Example1Level::Initialize()
 	object1Transform.transform.scale = Vector3::One;
 	object1Transform.transform.rotation = Quaternion::Euler(Vector3::Zero);
 
-	for (int i = 0; i < 25; i++)
+/*	for (int i = 0; i < 25; i++)
 	{
 		ECSEntity entity;
 
@@ -415,8 +415,39 @@ void Example1Level::Initialize()
 		object1Transform.transform.location += i % 5 != 4 ? Vector3(3, 0, 0) : Vector3(-12, -3, 0);
 
 
-	}
+	}*/
+	int nrRows = 7;
+	int nrColumns = 7;
+	float spacing = 3.0f;
+	
+	for (int row = 0; row < nrRows; ++row)
+	{
+	//	float metallic = (float)nrRows / (float)(row+1);
 
+		for (int col = 0; col < nrColumns; ++col)
+		{
+			Material& mat = m_RenderEngine->CreateMaterial("sp" + std::to_string(row) + std::to_string(col), Shaders::PBR_LIT);
+			mat.SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoSphere);
+			mat.SetTexture(MC_TEXTURE2D_NORMALMAP, &normalSphere);
+			mat.SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
+			mat.SetTexture(MC_TEXTURE2D_METALLICMAP, &metallicSphere);
+			mat.SetTexture(MC_TEXTURE2D_AOMAP, &aoSphere);
+			//mat.SetFloat(MC_ROUGHNESSMULTIPLIER, glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
+		//	mat.SetFloat(MC_METALLICMULTIPLIER, metallic);
+
+			ECSEntity entity;
+
+			object1Renderer.material = &mat;
+			entity = m_ECS->CreateEntity("Cube " + std::to_string(row+col));
+			m_ECS->emplace<TransformComponent>(entity, object1Transform);
+			m_ECS->emplace<MeshRendererComponent>(entity, object1Renderer);
+			object1Transform.transform.location = glm::vec3(
+				(float)(col - (nrColumns / 2)) * spacing,
+				(float)(row - (nrRows / 2)) * spacing,
+				5.0f
+			);
+		}
+	}
 
 
 	object1Transform.transform.scale = Vector3::One;
