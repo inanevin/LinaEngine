@@ -15,12 +15,14 @@
  */
 
 #include <common.glh>
-#include <uniformBuffers.glh>
-#include <utility.glh>
+
 
 #if defined(VS_BUILD)
 layout (location = 0) in vec3 position;
 out vec3 LocalPos;
+uniform mat4 view;
+uniform mat4 projection;
+
 void main()
 {
     LocalPos = position;
@@ -32,7 +34,13 @@ void main()
 out vec4 FragColor;
 in vec3 LocalPos;
 
-uniform sampler2D equirectangularMap;
+
+struct MaterialSampler2D
+{
+  sampler2D texture;
+  int isActive;
+};
+uniform MaterialSampler2D equirectangularMap;
 
 const vec2 invAtan = vec2(0.1591, 0.3183);
 vec2 SampleSphericalMap(vec3 v)
@@ -46,7 +54,7 @@ vec2 SampleSphericalMap(vec3 v)
 void main()
 {
     vec2 uv = SampleSphericalMap(normalize(LocalPos)); // make sure to normalize localPos
-    vec3 color = texture(equirectangularMap, uv).rgb;
+    vec3 color = equirectangularMap.isActive != 0 ? texture(equirectangularMap.texture, uv).rgb : vec3(0.0);
 
     FragColor = vec4(color, 1.0);
 }

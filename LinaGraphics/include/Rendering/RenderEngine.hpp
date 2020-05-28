@@ -188,7 +188,7 @@ namespace LinaEngine::Graphics
 		void* GetFinalImage();
 
 		// Initializes the setup process for loading an HDRI image to the scene
-		void SetupHDRIImage(Texture& hdriTexture);
+		void CaptureHDRIData(Texture& hdriTexture);
 
 	private:
 
@@ -252,10 +252,6 @@ namespace LinaEngine::Graphics
 		// Equirectangular hdri capture render buffer
 		RenderBuffer m_HDRICaptureRenderBuffer;
 
-		// Primary render buffer
-		RenderBuffer m_PrimaryRenderBuffer;
-
-		// Screen Quad material
 		Material m_ScreenQuadFinalMaterial;
 
 		// Screen quad blur material
@@ -266,6 +262,9 @@ namespace LinaEngine::Graphics
 
 		// Material used to draw skybox.
 		Material* m_SkyboxMaterial = nullptr;
+
+		// HDRI equirectangular cube material
+		Material m_HDRIMaterial;
 
 		// Primary RT Texture
 		Texture m_PrimaryRTTexture0;
@@ -278,6 +277,9 @@ namespace LinaEngine::Graphics
 
 		// Outline RT Texture
 		Texture m_OutlineRTTexture;
+
+		// Cubemap texture for HDRI skybox
+		Texture m_HDRICubemap;
 
 		// Default texture
 		Texture m_DefaultTexture;
@@ -348,7 +350,10 @@ namespace LinaEngine::Graphics
 		uint32 m_SkyboxVAO;
 
 		// Quad to draw the buffers into.
-		uint32 m_ScreenQuad;
+		uint32 m_ScreenQuadVAO;
+
+		// HDRI Cubemap vao
+		uint32 m_HDRICubeVAO;
 
 		// Light counts.
 		int m_CurrentSpotLightCount;

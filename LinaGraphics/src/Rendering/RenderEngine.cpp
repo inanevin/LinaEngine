@@ -59,7 +59,7 @@ namespace LinaEngine::Graphics
 
 		// Release Vertex Array Objects
 		m_SkyboxVAO = m_RenderDevice.ReleaseVertexArray(m_SkyboxVAO);
-		m_ScreenQuad = m_RenderDevice.ReleaseVertexArray(m_ScreenQuad);
+		m_ScreenQuadVAO = m_RenderDevice.ReleaseVertexArray(m_ScreenQuadVAO);
 
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
@@ -93,17 +93,16 @@ namespace LinaEngine::Graphics
 		// Initialize engine vertex arrays.
 		ConstructEnginePrimitives();
 
-		// Construct screen quad.
-		m_ScreenQuad = m_RenderDevice.CreateScreenQuadVertexArray();
+		// Initialize built-in vertex array objects.
+		m_SkyboxVAO = m_RenderDevice.CreateSkyboxVertexArray();
+		m_HDRICubeVAO = m_RenderDevice.CreateHDRICubeVertexArray();
+		m_ScreenQuadVAO = m_RenderDevice.CreateScreenQuadVertexArray();
 
 		// Construct screen quad materials
 		ConstructEngineMaterials();
 
 		// Construct render targets
-		ConstructRenderTargets();
-
-		// Initialize built-in vertex array objects.
-		m_SkyboxVAO = m_RenderDevice.CreateSkyboxVertexArray();
+		ConstructRenderTargets();		
 
 		// Create a default texture for render context.
 		m_DefaultTexture.ConstructEmpty(m_RenderDevice);
@@ -126,6 +125,8 @@ namespace LinaEngine::Graphics
 
 		// Set debug values.
 		m_DebugData.visualizeDepth = false;
+
+		Texture& hdri = CreateTextureHDRI("resources/textures/HDRI/loft.hdr");
 	}
 
 	void RenderEngine::Tick(float delta)
@@ -560,6 +561,12 @@ namespace LinaEngine::Graphics
 			material.receivesLighting = true;
 			material.isShadowMapped = true;
 		}
+		else if (shader == Shaders::EQUIRECTANGULAR_HDRI)
+		{
+			material.sampler2Ds[UF_MAP_EQUIRECTANGULAR] = { 0 };
+			material.matrices[UF_MATRIX_VIEW] = Matrix();
+			material.matrices[UF_MATRIX_PROJECTION] = Matrix();
+		}
 
 
 		return material;
@@ -658,7 +665,7 @@ namespace LinaEngine::Graphics
 		singleColor.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
 		// Equirectangular cube for HDRI skbox
-		CreateShader(Shaders::EQUIRECTANGULAR_HDRI, "resources/shaders/equirectangularHDRI.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::EQUIRECTANGULAR_HDRI, "resources/shaders/equirectangularHDRI.glsl");
 
 		// Screen Quad Shaders
 		CreateShader(Shaders::SCREEN_QUAD_FINAL, "resources/shaders/screenQuadFinal.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
@@ -681,6 +688,7 @@ namespace LinaEngine::Graphics
 		SetMaterialShader(m_ScreenQuadFinalMaterial, Shaders::SCREEN_QUAD_FINAL);
 		SetMaterialShader(m_ScreenQuadBlurMaterial, Shaders::SCREEN_QUAD_BLUR);
 		SetMaterialShader(m_ScreenQuadOutlineMaterial, Shaders::SCREEN_QUAD_OUTLINE);
+		SetMaterialShader(m_HDRIMaterial, Shaders::EQUIRECTANGULAR_HDRI);
 	}
 
 	void RenderEngine::ConstructEnginePrimitives()
@@ -729,18 +737,18 @@ namespace LinaEngine::Graphics
 		// Initialize outilne RT texture
 		m_OutlineRTTexture.ConstructRTTexture(m_RenderDevice, screenSize, primaryRTParams, false);
 
-		// Initialize render buffer.
-		m_PrimaryRenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH24_STENCIL8, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), 4);
-
 		// Initialize primary render buffer
 		m_PrimaryRenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH, screenSize.x, screenSize.y);
+
+		// Initialize hdri render buffer
+		m_HDRICaptureRenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH_COMP24, m_HDRIResolution.x, m_HDRIResolution.y);
 
 		// Initialize primary render target.
 		m_PrimaryRenderTarget.Construct(m_RenderDevice, m_PrimaryRTTexture0, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_PrimaryRenderBuffer.GetID());
 
 		// Bind the extre texture to primary render target, also tell open gl that we are running mrts.
-		m_RenderDevice.BindTextureToRenderTarget(m_PrimaryRenderTarget.GetID(), m_PrimaryRTTexture1.GetID(), screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
-		m_RenderDevice.BindTextureToRenderTarget(m_PrimaryRenderTarget.GetID(), m_PrimaryRTTexture2.GetID(), screenSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 2);
+		m_RenderDevice.BindTextureToRenderTarget(m_PrimaryRenderTarget.GetID(), m_PrimaryRTTexture1.GetID(),  TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
+		m_RenderDevice.BindTextureToRenderTarget(m_PrimaryRenderTarget.GetID(), m_PrimaryRTTexture2.GetID(),  TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 2);
 		uint32 attachments[3] = { FrameBufferAttachment::ATTACHMENT_COLOR , (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)1),(FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)2) };
 		m_RenderDevice.MultipleDrawBuffersCommand(m_PrimaryRenderTarget.GetID(), 3, attachments);
 
@@ -750,6 +758,9 @@ namespace LinaEngine::Graphics
 
 		// Initialize outline render target
 		m_OutlineRenderTarget.Construct(m_RenderDevice, m_OutlineRTTexture, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+
+		// Initialize HDRI render target
+		m_HDRICaptureRenderTarget.Construct(m_RenderDevice,  m_HDRIResolution, FrameBufferAttachment::ATTACHMENT_DEPTH, m_HDRICaptureRenderBuffer.GetID());
 
 	}
 
@@ -872,7 +883,7 @@ namespace LinaEngine::Graphics
 
 			// Update shader data & draw.
 			UpdateShaderData(&m_ScreenQuadBlurMaterial);
-			m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
+			m_RenderDevice.Draw(m_ScreenQuadVAO, m_FullscreenQuadDP, 0, 6, true);
 			horizontal = !horizontal;
 			if (firstIteration) firstIteration = false;
 		}
@@ -881,7 +892,7 @@ namespace LinaEngine::Graphics
 		//m_RenderDevice.SetFBO(m_OutlineRenderTarget.GetID());	
 		//m_ScreenQuadOutlineMaterial.SetTexture(UF_SCREENTEXTURE, &m_PrimaryRTTexture2);
 		//UpdateShaderData(&m_ScreenQuadOutlineMaterial);
-		//m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
+		//m_RenderDevice.Draw(m_ScreenQuadVAO, m_FullscreenQuadDP, 0, 6, true);
 
 
 		// Back to default buffer
@@ -901,11 +912,11 @@ namespace LinaEngine::Graphics
 		UpdateShaderData(&m_ScreenQuadFinalMaterial);
 
 		// Draw full screen quad.
-		m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
+		m_RenderDevice.Draw(m_ScreenQuadVAO, m_FullscreenQuadDP, 0, 6, true);
 
 		// Draw the final texture into primary fbo for storing purposes.
 		//m_RenderDevice.SetFBO(m_PrimaryRenderTarget.GetID());
-		//m_RenderDevice.Draw(m_ScreenQuad, m_FullscreenQuadDP, 0, 6, true);
+		//m_RenderDevice.Draw(m_ScreenQuadVAO, m_FullscreenQuadDP, 0, 6, true);
 		//m_RenderDevice.SetFBO(0);
 	}
 
@@ -926,8 +937,6 @@ namespace LinaEngine::Graphics
 		DrawSceneObjects(m_DefaultDrawParams, nullptr, true);
 	}
 
-
-
 	void RenderEngine::DrawSkybox()
 	{
 		if (m_SkyboxMaterial != nullptr)
@@ -946,7 +955,6 @@ namespace LinaEngine::Graphics
 		if (drawSkybox)
 			DrawSkybox();
 	}
-
 
 	void RenderEngine::UpdateUniformBuffers()
 	{
@@ -1073,12 +1081,43 @@ namespace LinaEngine::Graphics
 		return (void*)m_PrimaryRTTexture0.GetID();
 	}
 
-	void RenderEngine::SetupHDRIImage(Texture& hdriTexture)
+	void RenderEngine::CaptureHDRIData(Texture& hdriTexture)
 	{
-		// Construct render buffer birst.
-		m_HDRICaptureRenderBuffer.Construct(m_RenderDevice, RenderBufferStorage::STORAGE_DEPTH_COMP24, m_HDRIResolution.x, m_HDRIResolution.y, 0);
+	
+		// Construct cubemap texture for skybox.
+		SamplerParameters samplerParams;
+		samplerParams.textureParams.wrapR = samplerParams.textureParams.wrapS = samplerParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		samplerParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
+		samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
+		m_HDRICubemap.ConstructRTCubemapTexture(m_RenderDevice, m_HDRIResolution, samplerParams);
+
+		glm::mat4 captureProjection = glm::perspectiveLH(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+
+		m_HDRIMaterial.SetMatrix4(UF_MATRIX_PROJECTION, captureProjection);
+		m_HDRIMaterial.SetTexture(UF_MAP_EQUIRECTANGULAR, &hdriTexture);
+
+		m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
+
+		glm::mat4 captureViews[] =
+		{
+			glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+			glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+			glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
+			glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+			glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+			glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
+		};
 
 
+		for (uint32 i = 0; i < 6; ++i)
+		{
+			m_HDRIMaterial.SetMatrix4(UF_MATRIX_VIEW, captureViews[i]);
+			m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRICubemap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0);
+			m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+			m_RenderDevice.Draw(m_HDRICubeVAO, m_DefaultDrawParams, 0, 36, true);
+		}
+
+		m_RenderDevice.SetFBO(0);
 	}
 
 }

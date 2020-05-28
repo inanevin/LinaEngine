@@ -154,7 +154,8 @@ int sLightSize = 0;
 
 
 
-
+Texture* bricksParallax;
+Texture* bricksParallax2;
 ECSEntity cubeEntity;
 TransformComponent* dirLightT;
 void Example1Level::Initialize()
@@ -206,10 +207,10 @@ void Example1Level::Initialize()
 
 
 	// Create texture for example mesh.
-	//Texture& brickWall = m_RenderEngine->CreateTexture2D("resources/textures/bricks2.jpg", woodTextureSampler, false);
-	//Texture& brickWallNormal = m_RenderEngine->CreateTexture2D("resources/textures/bricks2_normal.jpg", crateSampler, false);
-	//Texture& bricksParallax = m_RenderEngine->CreateTexture2D("resources/textures/bricks2_disp.jpg", crateSampler, false);
-	//Texture& cubemap = m_RenderEngine->GetTexture("resources/textures/defaultSkybox/right.png");
+	Texture& brickWall = m_RenderEngine->CreateTexture2D("resources/textures/bricks2.jpg", woodTextureSampler, false);
+	Texture& brickWallNormal = m_RenderEngine->CreateTexture2D("resources/textures/bricks2_normal.jpg", crateSampler, false);
+	bricksParallax = &m_RenderEngine->CreateTexture2D("resources/textures/bricks2_disp3.jpg", crateSampler, false);
+	bricksParallax2 = &m_RenderEngine->CreateTexture2D("resources/textures/bricks2_disp4.jpg", crateSampler, false);
 
 	Texture& albedo = m_RenderEngine->CreateTexture2D("resources/textures/wall/albedo.png", pbrSampler, false, false);
 	Texture& normal = m_RenderEngine->CreateTexture2D("resources/textures/wall/normal.png", pbrSampler, false, false);
@@ -313,11 +314,11 @@ void Example1Level::Initialize()
 	//objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(200, 200, 200));
 	//objectUnlitMaterial2->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
 	//
-	//floorMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &brickWall);
-	//floorMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &brickWallNormal);
-	//floorMaterial->SetTexture(MC_TEXTURE2D_PARALLAXMAP, &bricksParallax);
-	//floorMaterial->SetVector2(MC_TILING, Vector2(20, 20));
-	//floorMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
+	floorMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &brickWall);
+	floorMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &brickWallNormal);
+	floorMaterial->SetTexture(MC_TEXTURE2D_PARALLAXMAP, bricksParallax);
+	floorMaterial->SetVector2(MC_TILING, Vector2(20, 20));
+	floorMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
 
 	//floorMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &wood);
 	//cubemapReflectiveMaterial->SetTexture(UF_SKYBOXTEXTURE, &cubemap, 0);
@@ -379,7 +380,7 @@ void Example1Level::Initialize()
 	floor = m_ECS->CreateEntity("Floor");
 	MeshRendererComponent mr;
 	mr.mesh = &m_RenderEngine->GetPrimitive(Primitives::PLANE);
-	mr.material = floorPBRMaterial;
+	mr.material = floorMaterial;
 
 	object1Transform.transform.location = Vector3(0, 0, 0);
 	object1Transform.transform.scale = Vector3(40.0f);
@@ -504,7 +505,6 @@ void Example1Level::Tick(float delta)
 	t2 += delta;
 
 
-	auto& t = m_ECS->get<TransformComponent>(oneSphere);
 
 	//t.transform.location = Vector3(0, 0, Math::Sin(t2) * 5);
 }

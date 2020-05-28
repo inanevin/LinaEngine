@@ -111,6 +111,9 @@ namespace LinaEngine::Graphics
 		// Creates a vertex array for a screen quad
 		uint32 CreateScreenQuadVertexArray();
 
+		// Creates a vertex array for an hdri skybox cube to capture lighting data
+		uint32 CreateHDRICubeVertexArray();
+
 		// Releases a previously created vertex array by id from GL.
 		uint32 ReleaseVertexArray(uint32 vao, bool checkMap = true);
 
@@ -133,10 +136,10 @@ namespace LinaEngine::Graphics
 		uint32 ReleaseShaderProgram(uint32 shader);
 
 		// Creates a render target based on window props & attachments on GL.
-		uint32 CreateRenderTarget(uint32 texture, int32 width, int32 height, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, bool noReadWrite, bool bindRBO = false, FrameBufferAttachment rboAtt = FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, uint32 rbo = 0);
+		uint32 CreateRenderTarget(uint32 texture, int32 width, int32 height, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, bool noReadWrite, bool bindRBO = false, FrameBufferAttachment rboAtt = FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, uint32 rbo = 0, bool errorCheck = true);
 
 		// Binds an additional texture to render target
-		void BindTextureToRenderTarget(uint32 fbo, uint32 texture, Vector2 size, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, int mipLevel = 0);
+		void BindTextureToRenderTarget(uint32 fbo, uint32 texture,TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 textureAttachmentNumber = 0, int mipLevel = 0);
 
 		// Tells open gl drawing into multiple buffers is enabled
 		void MultipleDrawBuffersCommand(uint32 fbo, uint32 bufferCount, uint32* attachments);
@@ -224,6 +227,9 @@ namespace LinaEngine::Graphics
 
 		// Set vertex array object.
 		void SetVAO(uint32 vao);
+
+		// Captures HDRI lighting data.
+		void CaptureHDRILightingData(Matrix& view, Matrix& projection, Vector2 captureSize, uint32 cubeMapTexture, uint32 hdrTexture, uint32 fbo, uint32 rbo, uint32 shader);
 
 	private:
 

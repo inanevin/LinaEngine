@@ -66,7 +66,9 @@ namespace LinaEngine::Graphics
 #define MC_EXTENSION_TEXTURE2D ".texture"
 #define MC_EXTENSION_ISACTIVE ".isActive"
 
-#define UF_MODELMATRIX "model"
+#define UF_MATRIX_MODEL "model"
+#define UF_MATRIX_VIEW "view"
+#define UF_MATRIX_PROJECTION "projection"
 #define UF_SCREENTEXTURE "screenTexture"
 #define UF_BLOOMTEXTURE "bloomTexture"
 #define UF_OUTLINETEXTURE "outlineTexture"
@@ -79,6 +81,7 @@ namespace LinaEngine::Graphics
 #define UF_POINTSHADOWS_SHADOWMATRICES "shadowMatrices"
 #define UF_POINTSHADOWS_LIGHTPOS "lightPosition"
 #define UF_POINTSHADOWS_FARPLANE "farPlane"
+#define UF_MAP_EQUIRECTANGULAR "equirectangularMap"
 
 #define MAT_LINASTENCILOUTLINE "lina_StencilOutline"
 

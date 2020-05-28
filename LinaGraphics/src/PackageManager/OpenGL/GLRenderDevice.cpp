@@ -108,6 +108,52 @@ namespace LinaEngine::Graphics
 		 1.0f,  1.0f,  1.0f, 1.0f
 	};
 
+	float hdriCubemapVertices[] = {
+		// back face
+		-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+		 1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+		 1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
+		 1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+		-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+		-1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
+		// front face
+		-1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+		 1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
+		 1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+		 1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+		-1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
+		-1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+		// left face
+		-1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+		-1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
+		-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+		-1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+		-1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+		-1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+		// right face
+		 1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+		 1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+		 1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
+		 1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+		 1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+		 1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
+		// bottom face
+		-1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+		 1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
+		 1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+		 1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+		-1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+		-1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+		// top face
+		-1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+		 1.0f,  1.0f , 1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+		 1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
+		 1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+		-1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+		-1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
+	};
+
+
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 	// GLOBALS DECLARATIONS
@@ -169,7 +215,7 @@ namespace LinaEngine::Graphics
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 		glFrontFace(GL_CW);
-		
+
 
 		if (m_IsBlendingEnabled)
 			glBlendFunc(m_UsedSourceBlending, m_UsedDestinationBlending);
@@ -510,6 +556,27 @@ namespace LinaEngine::Graphics
 		return quadVAO;
 	}
 
+	uint32 GLRenderDevice::CreateHDRICubeVertexArray()
+	{
+		uint32 cubeVAO, cubeVBO;
+		glGenVertexArrays(1, &cubeVAO);
+		glGenBuffers(1, &cubeVBO);
+		// fill buffer
+		glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(hdriCubemapVertices), hdriCubemapVertices, GL_STATIC_DRAW);
+		// link vertex attributes
+		glBindVertexArray(cubeVAO);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+		return cubeVAO;
+	}
+
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 	// TEXTURE SAMPLER OPERATIONS
@@ -653,7 +720,7 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	uint32 GLRenderDevice::CreateRenderTarget(uint32 texture, int32 width, int32 height, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, bool noReadWrite, bool bindRBO, FrameBufferAttachment rboAttachment, uint32 rbo)
+	uint32 GLRenderDevice::CreateRenderTarget(uint32 texture, int32 width, int32 height, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, bool noReadWrite, bool bindRBO, FrameBufferAttachment rboAttachment, uint32 rbo, bool errorCheck)
 	{
 		// Generate frame buffers & set the current object.
 		uint32 fbo;
@@ -664,9 +731,12 @@ namespace LinaEngine::Graphics
 		GLenum attachmentTypeGL = attachment + attachmentNumber;
 
 		if (bindTextureMode != TextureBindMode::BINDTEXTURE_NONE)
-			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, bindTextureMode, texture, mipLevel);
-		else
-			glFramebufferTexture(GL_FRAMEBUFFER, attachmentTypeGL, texture, mipLevel);
+		{
+			if (bindTextureMode != TextureBindMode::BINDTEXTURE_TEXTURE)
+				glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, bindTextureMode, texture, mipLevel);
+			else
+				glFramebufferTexture(GL_FRAMEBUFFER, attachmentTypeGL, texture, mipLevel);
+		}
 
 		// Disable read&write.
 		if (noReadWrite)
@@ -680,7 +750,7 @@ namespace LinaEngine::Graphics
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, rboAttachment, GL_RENDERBUFFER, rbo);
 
 		// Err check
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		if (errorCheck && glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			LINA_CORE_ERR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
 
 		// Define frame buffer object data and store it in our map.
@@ -692,7 +762,7 @@ namespace LinaEngine::Graphics
 		return fbo;
 	}
 
-	void GLRenderDevice::BindTextureToRenderTarget(uint32 fbo, uint32 texture, Vector2 size, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, int mipLevel)
+	void GLRenderDevice::BindTextureToRenderTarget(uint32 fbo, uint32 texture, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 textureAttachmentNumber, int mipLevel)
 	{
 		if ((m_FBOMap.find(fbo) == m_FBOMap.end()))
 		{
@@ -705,11 +775,11 @@ namespace LinaEngine::Graphics
 
 		glBindTexture(GL_TEXTURE_2D, texture);
 		if (bindTextureMode != TextureBindMode::BINDTEXTURE_NONE)
-			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, bindTextureMode, texture, mipLevel);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, bindTextureMode + textureAttachmentNumber, texture, mipLevel);
 		else
 			glFramebufferTexture(GL_FRAMEBUFFER, attachmentTypeGL, texture, mipLevel);
 
-		
+
 		SetFBO(0);
 	}
 
@@ -1064,6 +1134,21 @@ namespace LinaEngine::Graphics
 		if (vao == m_BoundVAO) 	return;
 		glBindVertexArray(vao);
 		m_BoundVAO = vao;
+	}
+
+	void GLRenderDevice::CaptureHDRILightingData(Matrix& view, Matrix& projection, Vector2 captureSize, uint32 cubeMapTexture, uint32 hdrTexture, uint32 fbo, uint32 rbo, uint32 shader)
+	{
+		uint32 captureFBO;
+		glGenFramebuffers(1, &captureFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+		SetShader(shader);
+		UpdateShaderUniformInt(shader, "equirectangularMap", 0);
+		UpdateShaderUniformMatrix(shader, "projection", projection);
+		SetTexture(hdrTexture, 0, 0);
+
 	}
 
 	void GLRenderDevice::SetFBO(uint32 fbo)
@@ -1484,8 +1569,8 @@ namespace LinaEngine::Graphics
 				GLint loc = glGetUniformLocation(shaderProgram, name.c_str());
 				uniformMap[name] = loc;
 			}
-		
-		
+
+
 		}
 	}
 }
