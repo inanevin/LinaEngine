@@ -46,7 +46,6 @@ namespace LinaEngine::Graphics
 	constexpr int UNIFORMBUFFER_DEBUGDATA_BINDPOINT = 2;
 	constexpr auto UNIFORMBUFFER_DEBUGDATA_NAME = "DebugData";
 
-	Texture hdriTest;
 	RenderEngine::RenderEngine()
 	{
 		LINA_CORE_TRACE("[Constructor] -> RenderEngine ({0})", typeid(*this).name());
@@ -67,8 +66,6 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Initialize(LinaEngine::ECS::ECSRegistry& ecsReg)
 	{
-		hdriTest = CreateTextureHDRI("resources/textures/HDRI/loft.hdr");
-
 		// Setup draw parameters.
 		SetupDrawParameters();
 
@@ -102,7 +99,7 @@ namespace LinaEngine::Graphics
 		m_ScreenQuadVAO = m_RenderDevice.CreateScreenQuadVertexArray();
 
 		// Construct render targets
-		ConstructRenderTargets();		
+		ConstructRenderTargets();
 
 		// Create a default texture for render context.
 		m_DefaultTexture.ConstructEmpty(m_RenderDevice);
@@ -275,7 +272,7 @@ namespace LinaEngine::Graphics
 				return m_DefaultTexture;
 			}
 
-			
+
 			// Create texture & construct.
 			SamplerParameters samplerParams;
 			samplerParams.textureParams.wrapR = samplerParams.textureParams.wrapS = samplerParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
@@ -752,8 +749,8 @@ namespace LinaEngine::Graphics
 		m_PrimaryRenderTarget.Construct(m_RenderDevice, m_PrimaryRTTexture0, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_PrimaryRenderBuffer.GetID());
 
 		// Bind the extre texture to primary render target, also tell open gl that we are running mrts.
-		m_RenderDevice.BindTextureToRenderTarget(m_PrimaryRenderTarget.GetID(), m_PrimaryRTTexture1.GetID(),  TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
-		m_RenderDevice.BindTextureToRenderTarget(m_PrimaryRenderTarget.GetID(), m_PrimaryRTTexture2.GetID(),  TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 2);
+		m_RenderDevice.BindTextureToRenderTarget(m_PrimaryRenderTarget.GetID(), m_PrimaryRTTexture1.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
+		m_RenderDevice.BindTextureToRenderTarget(m_PrimaryRenderTarget.GetID(), m_PrimaryRTTexture2.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 2);
 		uint32 attachments[3] = { FrameBufferAttachment::ATTACHMENT_COLOR , (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)1),(FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)2) };
 		m_RenderDevice.MultipleDrawBuffersCommand(m_PrimaryRenderTarget.GetID(), 3, attachments);
 
@@ -765,7 +762,7 @@ namespace LinaEngine::Graphics
 		m_OutlineRenderTarget.Construct(m_RenderDevice, m_OutlineRTTexture, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 
 		// Initialize HDRI render target
-		m_HDRICaptureRenderTarget.Construct(m_RenderDevice,  m_HDRIResolution, FrameBufferAttachment::ATTACHMENT_DEPTH, m_HDRICaptureRenderBuffer.GetID());
+		m_HDRICaptureRenderTarget.Construct(m_RenderDevice, m_HDRIResolution, FrameBufferAttachment::ATTACHMENT_DEPTH, m_HDRICaptureRenderBuffer.GetID());
 
 	}
 
@@ -1088,7 +1085,7 @@ namespace LinaEngine::Graphics
 
 	Texture& RenderEngine::CaptureHDRIData(Texture& hdriTexture)
 	{
-	
+
 		// Construct cubemap texture for skybox.
 		SamplerParameters samplerParams;
 		samplerParams.textureParams.wrapR = samplerParams.textureParams.wrapS = samplerParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
@@ -1097,16 +1094,18 @@ namespace LinaEngine::Graphics
 		m_HDRICubemap.ConstructRTCubemapTexture(m_RenderDevice, m_HDRIResolution, samplerParams);
 
 
-		glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+		glm::mat4 captureProjection = glm::perspectiveLH(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 		glm::mat4 captureViews[] =
 		{
-			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
-			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
-			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+
+		glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
+		glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
+		glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+		glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
+		glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
+		glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f))
 		};
+
 		//m_HDRIMaterial.SetMatrix4(UF_MATRIX_PROJECTION, captureProjection);
 		//m_HDRIMaterial.SetTexture(UF_MAP_EQUIRECTANGULAR, &hdriTexture);
 		//m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
@@ -1121,7 +1120,7 @@ namespace LinaEngine::Graphics
 		for (uint32 i = 0; i < 6; ++i)
 		{
 			m_RenderDevice.UpdateShaderUniformMatrix(sh, "view", captureViews[i]);
-			m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRICubemap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0, false);		
+			m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRICubemap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0, false);
 			m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
 
 			m_RenderDevice.Clear(true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);

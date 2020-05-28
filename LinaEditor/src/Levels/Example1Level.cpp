@@ -385,16 +385,16 @@ void Example1Level::Initialize()
 //m_ECS->emplace<MeshRendererComponent>(arcade, arcadeMR);
 
 
-	ECSEntity floor;
-	floor = m_ECS->CreateEntity("Floor");
-	MeshRendererComponent mr;
-	mr.mesh = &m_RenderEngine->GetPrimitive(Primitives::PLANE);
-	mr.material = floorMaterial;
-
-	object1Transform.transform.location = Vector3(0, 0, 0);
-	object1Transform.transform.scale = Vector3(40.0f);
-	m_ECS->emplace<TransformComponent>(floor, object1Transform);
-	m_ECS->emplace<MeshRendererComponent>(floor, mr);
+//ECSEntity floor;
+//floor = m_ECS->CreateEntity("Floor");
+//MeshRendererComponent mr;
+//mr.mesh = &m_RenderEngine->GetPrimitive(Primitives::PLANE);
+//mr.material = floorMaterial;
+//
+//object1Transform.transform.location = Vector3(0, 0, 0);
+//object1Transform.transform.scale = Vector3(40.0f);
+//m_ECS->emplace<TransformComponent>(floor, object1Transform);
+//m_ECS->emplace<MeshRendererComponent>(floor, mr);
 
 
 
