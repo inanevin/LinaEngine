@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include <common.glh>
 #include <uniformBuffers.glh>
 #include <utility.glh>
@@ -34,7 +34,7 @@ void main()
     gl_Position = pos.xyww;
 	TexCoords = position;
 }
-  
+
 #elif defined(FS_BUILD)
 
 out vec4 FragColor;
@@ -48,7 +48,7 @@ samplerCube diffuse;
 uniform Material material;
 
 void main()
-{    
+{
    FragColor = texture(material.diffuse, TexCoords);
 }
 #endif

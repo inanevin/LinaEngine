@@ -126,10 +126,9 @@ void CreateHDRISkybox(RenderEngine* renderEngine)
 	Texture& hdri = renderEngine->CreateTextureHDRI("resources/textures/HDRI/canyon3K.hdr");
 	renderEngine->CaptureCalculateHDRI(hdri);
 	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_HDRI);
-	mat.SetTexture(UF_MAP_ENVIRONMENT, &renderEngine->GetIrradianceMap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
+	mat.SetTexture(UF_MAP_ENVIRONMENT, &renderEngine->GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
-
 
 Vector3 cubePositions[] = {
 	Vector3(0.0f, 1, -4.0),
