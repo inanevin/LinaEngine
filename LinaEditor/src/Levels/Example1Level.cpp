@@ -121,6 +121,15 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 	renderEngine->SetSkyboxMaterial(mat);
 }
 
+void CreateHDRISkybox(RenderEngine* renderEngine)
+{
+	Texture& hdri = renderEngine->CreateTextureHDRI("resources/textures/HDRI/loft.hdr");
+	Texture& cube = renderEngine->CaptureHDRIData(hdri);
+	Material& mat = renderEngine->CreateMaterial("skyboMaterial", Shaders::SKYBOX_HDRI);
+	mat.SetTexture(UF_MAP_ENVIRONMENT, &cube, TextureBindMode::BINDTEXTURE_CUBEMAP);
+	renderEngine->SetSkyboxMaterial(mat);
+}
+
 
 Vector3 cubePositions[] = {
 	Vector3(0.0f, 1, -4.0),
@@ -164,7 +173,7 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-	CreateProceduralSkybox(m_RenderEngine);
+	CreateHDRISkybox(m_RenderEngine);
 
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);

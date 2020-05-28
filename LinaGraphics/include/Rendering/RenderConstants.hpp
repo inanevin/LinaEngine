@@ -82,6 +82,7 @@ namespace LinaEngine::Graphics
 #define UF_POINTSHADOWS_LIGHTPOS "lightPosition"
 #define UF_POINTSHADOWS_FARPLANE "farPlane"
 #define UF_MAP_EQUIRECTANGULAR "equirectangularMap"
+#define UF_MAP_ENVIRONMENT "environmentMap"
 
 #define MAT_LINASTENCILOUTLINE "lina_StencilOutline"
 

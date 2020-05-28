@@ -188,7 +188,7 @@ namespace LinaEngine::Graphics
 		void* GetFinalImage();
 
 		// Initializes the setup process for loading an HDRI image to the scene
-		void CaptureHDRIData(Texture& hdriTexture);
+		Texture& CaptureHDRIData(Texture& hdriTexture);
 
 	private:
 
@@ -360,7 +360,7 @@ namespace LinaEngine::Graphics
 		int m_CurrentPointLightCount;
 
 		// HDRI Skybox resolution
-		Vector2 m_HDRIResolution;
+		Vector2 m_HDRIResolution = Vector2(512, 512);
 
 		DISALLOW_COPY_ASSIGN_NEW(RenderEngine);
 	};

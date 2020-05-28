@@ -265,6 +265,38 @@ namespace LinaEngine::Graphics
 		return textureHandle;
 	}
 
+	uint32 GLRenderDevice::CreateTextureHDRI(Vector2 size, float* data, SamplerParameters samplerParams)
+	{
+		// Declare formats, target & handle for the texture.
+		GLint format = GetOpenGLFormat(samplerParams.textureParams.pixelFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(samplerParams.textureParams.internalPixelFormat, false);
+		GLenum textureTarget = GL_TEXTURE_2D;
+		GLuint textureHandle;
+
+		// Generate texture & bind to program.
+		glGenTextures(1, &textureHandle);
+		glBindTexture(textureTarget, textureHandle);
+
+
+		glTexImage2D(textureTarget, 0, internalFormat, size.x, size.y, 0, format, GL_FLOAT, data);
+
+		// OpenGL texture params.
+		SetupTextureParameters(textureTarget, samplerParams);
+
+		// Enable mipmaps if needed.
+		if (samplerParams.textureParams.generateMipMaps)
+			glGenerateMipmap(textureTarget);
+		else
+		{
+			glTexParameteri(textureTarget, GL_TEXTURE_BASE_LEVEL, 0);
+			glTexParameteri(textureTarget, GL_TEXTURE_MAX_LEVEL, 0);
+		}
+
+		glBindTexture(textureTarget, 0);
+
+		return textureHandle;
+	}
+
 	uint32 GLRenderDevice::CreateCubemapTexture(Vector2 size, SamplerParameters samplerParams, const LinaArray<int32*>& data, uint32 dataSize)
 	{
 		GLuint textureHandle;
@@ -324,7 +356,7 @@ namespace LinaEngine::Graphics
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
 		}
 
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 		return textureHandle;
 	}
 
@@ -772,10 +804,10 @@ namespace LinaEngine::Graphics
 
 		SetFBO(fbo);
 		GLenum attachmentTypeGL = attachment + attachmentNumber;
-
+		GLenum textureAttachment = bindTextureMode + textureAttachmentNumber;
 		glBindTexture(GL_TEXTURE_2D, texture);
 		if (bindTextureMode != TextureBindMode::BINDTEXTURE_NONE)
-			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, bindTextureMode + textureAttachmentNumber, texture, mipLevel);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, textureAttachment, texture, mipLevel);
 		else
 			glFramebufferTexture(GL_FRAMEBUFFER, attachmentTypeGL, texture, mipLevel);
 
@@ -843,6 +875,19 @@ namespace LinaEngine::Graphics
 			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, writeFBO);
 		}
 		glBlitFramebuffer(0, 0, readWidth, readHeight, 0, 0, writeWidth, writeHeight, mask, filter);
+	}
+
+	bool GLRenderDevice::IsRenderTargetComplete(uint32 fbo)
+	{
+		SetFBO(fbo);
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		{
+			LINA_CORE_ERR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
+			SetFBO(0);
+			return false;
+		}
+		SetFBO(0);
+		return true;
 	}
 
 

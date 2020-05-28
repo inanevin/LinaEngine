@@ -98,9 +98,6 @@ namespace LinaEngine::Graphics
 		m_HDRICubeVAO = m_RenderDevice.CreateHDRICubeVertexArray();
 		m_ScreenQuadVAO = m_RenderDevice.CreateScreenQuadVertexArray();
 
-		// Construct screen quad materials
-		ConstructEngineMaterials();
-
 		// Construct render targets
 		ConstructRenderTargets();		
 
@@ -126,7 +123,7 @@ namespace LinaEngine::Graphics
 		// Set debug values.
 		m_DebugData.visualizeDepth = false;
 
-		Texture& hdri = CreateTextureHDRI("resources/textures/HDRI/loft.hdr");
+
 	}
 
 	void RenderEngine::Tick(float delta)
@@ -505,6 +502,10 @@ namespace LinaEngine::Graphics
 		{
 			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
 		}
+		else if (shader == Shaders::SKYBOX_HDRI)
+		{
+			material.sampler2Ds[UF_MAP_ENVIRONMENT] = { 0 };
+		}
 		else if (shader == Shaders::STENCIL_OUTLINE)
 		{
 			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
@@ -658,6 +659,7 @@ namespace LinaEngine::Graphics
 		CreateShader(Shaders::SKYBOX_GRADIENT, "resources/shaders/skyboxVertexGradient.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		CreateShader(Shaders::SKYBOX_CUBEMAP, "resources/shaders/skyboxCubemap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		CreateShader(Shaders::SKYBOX_PROCEDURAL, "resources/shaders/skyboxProcedural.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SKYBOX_HDRI, "resources/shaders/skyboxHDRI.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
 		// Others
 		Shader& singleColor = CreateShader(Shaders::STENCIL_OUTLINE, "resources/shaders/stencilOutline.glsl");
@@ -1081,7 +1083,7 @@ namespace LinaEngine::Graphics
 		return (void*)m_PrimaryRTTexture0.GetID();
 	}
 
-	void RenderEngine::CaptureHDRIData(Texture& hdriTexture)
+	Texture& RenderEngine::CaptureHDRIData(Texture& hdriTexture)
 	{
 	
 		// Construct cubemap texture for skybox.
@@ -1091,33 +1093,35 @@ namespace LinaEngine::Graphics
 		samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
 		m_HDRICubemap.ConstructRTCubemapTexture(m_RenderDevice, m_HDRIResolution, samplerParams);
 
-		glm::mat4 captureProjection = glm::perspectiveLH(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 
-		m_HDRIMaterial.SetMatrix4(UF_MATRIX_PROJECTION, captureProjection);
-		m_HDRIMaterial.SetTexture(UF_MAP_EQUIRECTANGULAR, &hdriTexture);
-
-		m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
-
+		glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 		glm::mat4 captureViews[] =
 		{
-			glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
-			glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
-			glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
-			glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-			glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
-			glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
 		};
-
+		m_HDRIMaterial.SetMatrix4(UF_MATRIX_PROJECTION, captureProjection);
+		m_HDRIMaterial.SetTexture(UF_MAP_EQUIRECTANGULAR, &hdriTexture);
+		m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
 
 		for (uint32 i = 0; i < 6; ++i)
 		{
 			m_HDRIMaterial.SetMatrix4(UF_MATRIX_VIEW, captureViews[i]);
 			m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRICubemap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0);
+			UpdateShaderData(&m_HDRIMaterial);
 			m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+			m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
+			m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
 			m_RenderDevice.Draw(m_HDRICubeVAO, m_DefaultDrawParams, 0, 36, true);
 		}
 
+		m_RenderDevice.IsRenderTargetComplete(m_HDRICaptureRenderTarget.GetID());
 		m_RenderDevice.SetFBO(0);
+		return m_HDRICubemap;
 	}
 
 }

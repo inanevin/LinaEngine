@@ -84,6 +84,9 @@ namespace LinaEngine::Graphics
 		// Creates a texture on GL.
 		uint32 CreateTexture2D(Vector2 size, const void* data,  SamplerParameters samplerParams ,bool compress, bool useBorder = false, Color borderColor = Color::White);
 
+		// Creates an HDRI texture
+		uint32 CreateTextureHDRI(Vector2 size, float* data, SamplerParameters samplerParams);
+
 		// Creates a Cubemap texture on GL.
 		uint32 CreateCubemapTexture(Vector2 size, SamplerParameters samplerParams, const LinaArray<int32*>& data, uint32 dataSize = 6);
 		
@@ -155,6 +158,9 @@ namespace LinaEngine::Graphics
 
 		// Binds a rbo to an existing fbo
 		void BlitFrameBuffers(uint32 readFBO, uint32 readWidth, uint32 readHeight, uint32 writeFBO, uint32 writeWidth, uint32 writeHeight, BufferBit mask, SamplerFilter filter);
+
+		// Checks whether a given framebuffer is complete or not.
+		bool IsRenderTargetComplete(uint32 fbo);
 
 		// Updates a vertex array object by id.
 		void UpdateVertexArray(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);

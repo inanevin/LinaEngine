@@ -71,7 +71,7 @@ namespace LinaEngine::Graphics
 		renderDevice = &deviceIn;
 		m_Sampler.Construct(deviceIn, samplerParams);
 		m_Size = size;
-		m_ID = renderDevice->CreateTexture2D(size, data, samplerParams, false);
+		m_ID = renderDevice->CreateTextureHDRI(size, data, samplerParams);
 		isCompressed = false;
 		hasMipMaps = samplerParams.textureParams.generateMipMaps;
 		m_IsEmpty = false;
