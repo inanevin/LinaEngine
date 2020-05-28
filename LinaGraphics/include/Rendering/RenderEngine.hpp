@@ -108,6 +108,10 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void SetCurrentPLightCount(int count) { m_CurrentPointLightCount = count; }
 		FORCEINLINE void SetCurrentSLightCount(int count) { m_CurrentSpotLightCount = count; }
 
+		// Getters for HDRI cubemap and pre-calculated irradiance data. Call CalculateHDRIData before using these.
+		FORCEINLINE Texture& GetHDRICubemap() { return m_HDRICubemap; }
+		FORCEINLINE Texture& GetIrradianceMap() { return m_HDRIIrradianceMap; }
+
 		// Initialize the render renderEngine.
 		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn);
 
@@ -188,7 +192,7 @@ namespace LinaEngine::Graphics
 		void* GetFinalImage();
 
 		// Initializes the setup process for loading an HDRI image to the scene
-		Texture& CaptureHDRIData(Texture& hdriTexture);
+		void CaptureCalculateHDRI(Texture& hdriTexture);
 
 	private:
 
@@ -280,6 +284,9 @@ namespace LinaEngine::Graphics
 
 		// Cubemap texture for HDRI skybox
 		Texture m_HDRICubemap;
+
+		// Irradiance cubemap for HDRI skybox
+		Texture m_HDRIIrradianceMap;
 
 		// Default texture
 		Texture m_DefaultTexture;

@@ -794,7 +794,7 @@ namespace LinaEngine::Graphics
 		return fbo;
 	}
 
-	void GLRenderDevice::BindTextureToRenderTarget(uint32 fbo, uint32 texture, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 textureAttachmentNumber, int mipLevel, bool bindTexture)
+	void GLRenderDevice::BindTextureToRenderTarget(uint32 fbo, uint32 texture, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 textureAttachmentNumber, int mipLevel, bool bindTexture, bool setDefaultFBO)
 	{
 		if ((m_FBOMap.find(fbo) == m_FBOMap.end()))
 		{
@@ -814,8 +814,8 @@ namespace LinaEngine::Graphics
 		else
 			glFramebufferTexture(GL_FRAMEBUFFER, attachmentTypeGL, texture, mipLevel);
 
-
-		SetFBO(0);
+		if (setDefaultFBO)
+			SetFBO(0);
 	}
 
 	void GLRenderDevice::MultipleDrawBuffersCommand(uint32 fbo, uint32 bufferCount, uint32* attachments)
@@ -829,6 +829,22 @@ namespace LinaEngine::Graphics
 
 		glDrawBuffers(bufferCount, attachments);
 		SetFBO(0);
+	}
+
+	void GLRenderDevice::ScaleRenderBuffer(uint32 fbo, uint32 rbo, Vector2 newSize, RenderBufferStorage storage)
+	{
+		if (m_FBOMap.find(fbo) == m_FBOMap.end())
+		{
+			LINA_CORE_ERR("Render buffer to resize does not belong to this fbo! {0}", fbo);
+			return;
+		}
+
+		m_FBOMap[fbo].width = newSize.x;
+		m_FBOMap[fbo].height = newSize.y;
+		SetFBO(fbo);
+		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+		glRenderbufferStorage(GL_RENDERBUFFER, storage, newSize.x, newSize.y);
+		
 	}
 
 	uint32 GLRenderDevice::ReleaseRenderTarget(uint32 fbo)

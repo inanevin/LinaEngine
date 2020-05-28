@@ -124,9 +124,9 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 void CreateHDRISkybox(RenderEngine* renderEngine)
 {
 	Texture& hdri = renderEngine->CreateTextureHDRI("resources/textures/HDRI/loft.hdr");
-	Texture& cube = renderEngine->CaptureHDRIData(hdri);
+	renderEngine->CaptureCalculateHDRI(hdri);
 	Material& mat = renderEngine->CreateMaterial("skyboMaterial", Shaders::SKYBOX_HDRI);
-	mat.SetTexture(UF_MAP_ENVIRONMENT, &cube, TextureBindMode::BINDTEXTURE_CUBEMAP);
+	mat.SetTexture(UF_MAP_ENVIRONMENT, &renderEngine->GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
 

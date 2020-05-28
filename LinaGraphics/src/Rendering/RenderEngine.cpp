@@ -1085,7 +1085,7 @@ namespace LinaEngine::Graphics
 		return (void*)m_PrimaryRTTexture0.GetID();
 	}
 
-	Texture& RenderEngine::CaptureHDRIData(Texture& hdriTexture)
+	void RenderEngine::CaptureCalculateHDRI(Texture& hdriTexture)
 	{
 
 		// Construct cubemap texture for skybox.
@@ -1127,14 +1127,32 @@ namespace LinaEngine::Graphics
 			m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
 
 			m_RenderDevice.Clear(true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-			//m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
-			//m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
 			m_RenderDevice.Draw(m_HDRICubeVAO, m_DefaultDrawParams, 0, 36, true);
 		}
 
 		m_RenderDevice.IsRenderTargetComplete(m_HDRICaptureRenderTarget.GetID());
 		m_RenderDevice.SetFBO(0);
-		return m_HDRICubemap;
+
+		Vector2 irradianceMapResolsution = Vector2(32, 32);
+		m_HDRIIrradianceMap.ConstructRTCubemapTexture(m_RenderDevice, irradianceMapResolsution, samplerParams);
+		m_RenderDevice.ScaleRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), irradianceMapResolsution, RenderBufferStorage::STORAGE_DEPTH_COMP24);
+
+		uint32 irradianceShader = GetShader(Shaders::IRRADIANCE_HDRI).GetID();
+		m_RenderDevice.SetShader(irradianceShader);
+		m_RenderDevice.UpdateShaderUniformInt(irradianceShader, "environmentMap.texture", 0);
+		m_RenderDevice.UpdateShaderUniformInt(irradianceShader, "environmentMap.isActive", 1);
+		m_RenderDevice.UpdateShaderUniformMatrix(irradianceShader, "projection", captureProjection);
+		m_RenderDevice.SetTexture(m_HDRICubemap.GetID(), m_HDRICubemap.GetSamplerID(), 0, TextureBindMode::BINDTEXTURE_CUBEMAP);
+
+		for (uint32 i = 0; i < 6; ++i)
+		{
+			m_RenderDevice.UpdateShaderUniformMatrix(irradianceShader, "view", captureViews[i]);
+			m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRIIrradianceMap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0, false, false);
+			m_RenderDevice.Clear(true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+			m_RenderDevice.Draw(m_HDRICubeVAO, m_DefaultDrawParams, 0, 36, true);
+		}
+
+		m_RenderDevice.SetFBO(0);
 	}
 
 }

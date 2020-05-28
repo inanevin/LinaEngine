@@ -59,6 +59,12 @@ struct MaterialSampler2D
 	int isActive;
 };
 
+struct MaterialSamplerCube
+{
+	samplerCube texture;
+	int isActive;
+};
+
 struct Material
 {
 MaterialSampler2D albedoMap;
@@ -66,6 +72,7 @@ MaterialSampler2D normalMap;
 MaterialSampler2D metallicMap;
 MaterialSampler2D roughnessMap;
 MaterialSampler2D aoMap;
+MaterialSamplerCube irradianceMap;
 float metallicMultiplier;
 float roughnessMultiplier;
 vec2 tiling;
@@ -200,7 +207,7 @@ void main()
 
 	// ambient lighting (note that the next IBL tutorial will replace
     // this ambient lighting with environment lighting).
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    vec3 ambient = (vec3(0.03) * albedo * ao);
     vec3 color = ambient + Lo;
 
 
