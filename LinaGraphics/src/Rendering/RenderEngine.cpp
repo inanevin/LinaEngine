@@ -66,6 +66,9 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Initialize(LinaEngine::ECS::ECSRegistry& ecsReg)
 	{
+		// Flip loaded images.
+		ArrayBitmap::SetImageFlip(true);
+
 		// Setup draw parameters.
 		SetupDrawParameters();
 
@@ -1096,8 +1099,8 @@ namespace LinaEngine::Graphics
 		m_HDRICubemap.ConstructRTCubemapTexture(m_RenderDevice, m_HDRIResolution, samplerParams);
 
 
-		glm::mat4 captureProjection = glm::perspectiveLH(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
-		glm::mat4 captureViews[] =
+		glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+		/*glm::mat4 captureViews[] =
 		{
 
 		glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
@@ -1106,18 +1109,17 @@ namespace LinaEngine::Graphics
 		glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
 		glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
 		glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f))
-		};
+		};*/
 
-		glm::mat4 captureProjection2 = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 
-		glm::mat4 captureViews2[] =
+		glm::mat4 captureViews[] =
 		{
-		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
-		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
-		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
 		};
 
 
@@ -1146,7 +1148,7 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.IsRenderTargetComplete(m_HDRICaptureRenderTarget.GetID());
 		m_RenderDevice.SetFBO(0);
 
-		Vector2 irradianceMapResolsution = Vector2(32, 322);
+		Vector2 irradianceMapResolsution = Vector2(32, 32);
 		m_HDRIIrradianceMap.ConstructRTCubemapTexture(m_RenderDevice, irradianceMapResolsution, samplerParams);
 		m_RenderDevice.ScaleRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), irradianceMapResolsution, RenderBufferStorage::STORAGE_DEPTH_COMP24);
 
@@ -1154,12 +1156,12 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.SetShader(irradianceShader);
 		m_RenderDevice.UpdateShaderUniformInt(irradianceShader, "environmentMap.texture", 0);
 		m_RenderDevice.UpdateShaderUniformInt(irradianceShader, "environmentMap.isActive", 1);
-		m_RenderDevice.UpdateShaderUniformMatrix(irradianceShader, "projection", captureProjection2);
+		m_RenderDevice.UpdateShaderUniformMatrix(irradianceShader, "projection", captureProjection);
 		m_RenderDevice.SetTexture(m_HDRICubemap.GetID(), m_HDRICubemap.GetSamplerID(), 0, TextureBindMode::BINDTEXTURE_CUBEMAP);
 
 		for (uint32 i = 0; i < 6; ++i)
 		{
-			m_RenderDevice.UpdateShaderUniformMatrix(irradianceShader, "view", captureViews2[i]);
+			m_RenderDevice.UpdateShaderUniformMatrix(irradianceShader, "view", captureViews[i]);
 			m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRIIrradianceMap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0, false, false);
 			m_RenderDevice.Clear(true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 			m_RenderDevice.Draw(m_HDRICubeVAO, m_DefaultDrawParams, 0, 36, true);

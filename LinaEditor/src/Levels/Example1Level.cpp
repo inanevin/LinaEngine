@@ -106,8 +106,8 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 	const std::string fp[6] = {
 		"resources/textures/defaultSkybox/right.png",
 		"resources/textures/defaultSkybox/left.png",
-		"resources/textures/defaultSkybox/up.png",
 		"resources/textures/defaultSkybox/down.png",
+		"resources/textures/defaultSkybox/up.png",
 		"resources/textures/defaultSkybox/front.png",
 		"resources/textures/defaultSkybox/back.png",
 	};
@@ -123,10 +123,10 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 
 void CreateHDRISkybox(RenderEngine* renderEngine)
 {
-	Texture& hdri = renderEngine->CreateTextureHDRI("resources/textures/HDRI/loft.hdr");
+	Texture& hdri = renderEngine->CreateTextureHDRI("resources/textures/HDRI/canyon3K.hdr");
 	renderEngine->CaptureCalculateHDRI(hdri);
-	Material& mat = renderEngine->CreateMaterial("skyboMaterial", Shaders::SKYBOX_HDRI);
-	mat.SetTexture(UF_MAP_ENVIRONMENT, &renderEngine->GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
+	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_HDRI);
+	mat.SetTexture(UF_MAP_ENVIRONMENT, &renderEngine->GetIrradianceMap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
 

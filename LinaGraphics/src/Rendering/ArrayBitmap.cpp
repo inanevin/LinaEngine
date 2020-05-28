@@ -91,6 +91,11 @@ namespace LinaEngine::Graphics
 		return false;
 	}
 
+	void ArrayBitmap::SetImageFlip(bool flip)
+	{
+		stbi_set_flip_vertically_on_load(flip);
+	}
+
 	unsigned char * ArrayBitmap::LoadImmediate(const char * filename, int & w, int & h, int & nrChannels)
 	{
 		unsigned char *data = stbi_load(filename, &w, &h, &nrChannels, 0);

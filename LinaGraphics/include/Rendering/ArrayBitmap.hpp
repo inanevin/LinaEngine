@@ -46,6 +46,7 @@ namespace LinaEngine::Graphics
 		// Save the bitmap into a file in resources.
 		bool Save(const std::string& fileName) const;
 
+		static void SetImageFlip(bool flip);
 		static unsigned char* LoadImmediate(const char* filename, int& w, int& h,  int& nrchannels);
 		static float* LoadImmediateHDRI(const char* fileName, int& w, int& h, int& nrChannels);
 
