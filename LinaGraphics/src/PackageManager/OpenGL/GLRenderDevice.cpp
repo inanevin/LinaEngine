@@ -880,6 +880,12 @@ namespace LinaEngine::Graphics
 		return 0;
 	}
 
+	void GLRenderDevice::GenerateTextureMipmaps(uint32 texture, TextureBindMode bindMode)
+	{
+		glBindTexture(bindMode, texture);
+		glGenerateMipmap(bindMode);
+	}
+
 	void GLRenderDevice::BlitFrameBuffers(uint32 readFBO, uint32 readWidth, uint32 readHeight, uint32 writeFBO, uint32 writeWidth, uint32 writeHeight, BufferBit mask, SamplerFilter filter)
 	{
 		if (m_BoundReadFBO != readFBO)

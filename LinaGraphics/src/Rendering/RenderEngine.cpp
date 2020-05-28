@@ -674,6 +674,7 @@ namespace LinaEngine::Graphics
 		// Equirectangular cube & irradiance for HDRI skbox
 		CreateShader(Shaders::EQUIRECTANGULAR_HDRI, "resources/shaders/equirectangularHDRI.glsl");
 		CreateShader(Shaders::IRRADIANCE_HDRI, "resources/shaders/irradianceHDRI.glsl");
+		CreateShader(Shaders::PREFILTER_HDRI, "resources/shaders/prefilterHDRI.glsl");
 
 
 		// Screen Quad Shaders
@@ -1097,7 +1098,15 @@ namespace LinaEngine::Graphics
 		samplerParams.textureParams.minFilter = samplerParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
 		samplerParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
 		samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
-		m_HDRICubemap.ConstructRTCubemapTexture(m_RenderDevice, m_HDRIResolution, samplerParams);
+
+		SamplerParameters prefilterParams;
+		prefilterParams.textureParams.generateMipMaps = true;
+		prefilterParams.textureParams.wrapR = prefilterParams.textureParams.wrapS = prefilterParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		prefilterParams.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+		prefilterParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
+		prefilterParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
+		prefilterParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
+
 
 
 		glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
@@ -1115,11 +1124,8 @@ namespace LinaEngine::Graphics
 		};
 
 
+		m_HDRICubemap.ConstructRTCubemapTexture(m_RenderDevice, m_HDRIResolution, samplerParams);
 
-		//m_HDRIMaterial.SetMatrix4(UF_MATRIX_PROJECTION, captureProjection);
-		//m_HDRIMaterial.SetTexture(UF_MAP_EQUIRECTANGULAR, &hdriTexture);
-		//m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
-		//m_HDRIMaterial.SetInt("equirectangularMap.texture", 0);
 		uint32 sh = GetShader(Shaders::EQUIRECTANGULAR_HDRI).GetID();
 		m_RenderDevice.SetShader(sh);
 		m_RenderDevice.UpdateShaderUniformInt(sh, "equirectangularMap.texture", 0);
@@ -1132,11 +1138,11 @@ namespace LinaEngine::Graphics
 			m_RenderDevice.UpdateShaderUniformMatrix(sh, "view", captureViews[i]);
 			m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRICubemap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0, false);
 			m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
-
 			m_RenderDevice.Clear(true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 			m_RenderDevice.Draw(m_HDRICubeVAO, m_DefaultDrawParams, 0, 36, true);
 		}
 
+		m_RenderDevice.GenerateTextureMipmaps(m_HDRICubemap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 		m_RenderDevice.IsRenderTargetComplete(m_HDRICaptureRenderTarget.GetID());
 		m_RenderDevice.SetFBO(0);
 
@@ -1160,6 +1166,41 @@ namespace LinaEngine::Graphics
 		}
 
 		m_RenderDevice.SetFBO(0);
+		Vector2 prefilterResolution = Vector2(128, 128);
+		m_HDRIPrefilterMap.ConstructRTCubemapTexture(m_RenderDevice, prefilterResolution, prefilterParams);
+
+
+
+		uint32 prefilterShader = GetShader(Shaders::PREFILTER_HDRI).GetID();
+		m_RenderDevice.SetShader(prefilterShader);
+		m_RenderDevice.UpdateShaderUniformInt(prefilterShader, "environmentMap.texture", 0);
+		m_RenderDevice.UpdateShaderUniformInt(prefilterShader, "environmentMap.isActive", 1);
+		m_RenderDevice.UpdateShaderUniformMatrix(prefilterShader, "projection", captureProjection);
+		m_RenderDevice.SetTexture(m_HDRICubemap.GetID(), m_HDRICubemap.GetSamplerID(), 0, TextureBindMode::BINDTEXTURE_CUBEMAP);
+		m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
+		uint32 maxMipLevels = 5;
+		for (uint32 mip = 0; mip < maxMipLevels; ++mip)
+		{
+			// reisze framebuffer according to mip-level size.
+			unsigned int mipWidth = 128 * std::pow(0.5, mip);
+			unsigned int mipHeight = 128 * std::pow(0.5, mip);
+
+			m_RenderDevice.ScaleRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), Vector2(mipWidth, mipHeight), RenderBufferStorage::STORAGE_DEPTH_COMP24);
+
+
+			float roughness = (float)mip / (float)(maxMipLevels - 1);
+			m_RenderDevice.UpdateShaderUniformFloat(prefilterShader, "roughness", roughness);
+			for (unsigned int i = 0; i < 6; ++i)
+			{
+				m_RenderDevice.UpdateShaderUniformMatrix(prefilterShader, "view", captureViews[i]);
+				m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRIPrefilterMap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0, false, false);
+				m_RenderDevice.Clear(true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+				m_RenderDevice.Draw(m_HDRICubeVAO, m_DefaultDrawParams, 0, 36, true);
+			}
+		}
+		m_RenderDevice.SetFBO(0);
+
+
 	}
 
 }

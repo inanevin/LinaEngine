@@ -288,6 +288,9 @@ namespace LinaEngine::Graphics
 		// Irradiance cubemap for HDRI skybox
 		Texture m_HDRIIrradianceMap;
 
+		// Prefilter map for HDRI skybox
+		Texture m_HDRIPrefilterMap;
+
 		// Default texture
 		Texture m_DefaultTexture;
 

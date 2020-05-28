@@ -159,6 +159,9 @@ namespace LinaEngine::Graphics
 		// Deletes a render buffer object.
 		uint32 ReleaseRenderBufferObject(uint32 target);
 
+		// Generate mipmaps for a texture
+		void GenerateTextureMipmaps(uint32 texture, TextureBindMode bindMode);
+
 		// Binds a rbo to an existing fbo
 		void BlitFrameBuffers(uint32 readFBO, uint32 readWidth, uint32 readHeight, uint32 writeFBO, uint32 writeWidth, uint32 writeHeight, BufferBit mask, SamplerFilter filter);
 
