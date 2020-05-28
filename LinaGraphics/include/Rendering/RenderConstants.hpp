@@ -51,6 +51,7 @@ namespace LinaEngine::Graphics
 #define MC_TEXTURE2D_PARALLAXMAP "material.parallaxMap"
 #define MC_TEXTURE2D_METALLICMAP "material.metallicMap"
 #define MC_TEXTURE2D_AOMAP "material.aoMap"
+#define MC_TEXTURE2D_IRRADIANCEMAP "material.irradianceMap"
 #define MC_TEXTURE2D_ROUGHNESSMAP "material.roughnessMap"
 #define MC_TEXTURE2D_SPECULAR "material.specular"
 #define MC_TEXTURE2D_SHADOWMAP "material.shadowMap"

@@ -556,6 +556,7 @@ namespace LinaEngine::Graphics
 			material.sampler2Ds[MC_TEXTURE2D_METALLICMAP] = { 2 };
 			material.sampler2Ds[MC_TEXTURE2D_ROUGHNESSMAP] = { 3 };
 			material.sampler2Ds[MC_TEXTURE2D_AOMAP] = { 4 };
+			//material.sampler2Ds[MC_TEXTURE2D_IRRADIANCEMAP] = { 5 };
 			material.floats[MC_METALLICMULTIPLIER] = 1.0f;
 			material.floats[MC_ROUGHNESSMULTIPLIER] = 1.0f;
 			material.vector2s[MC_TILING] = Vector2::One;
@@ -1065,8 +1066,6 @@ namespace LinaEngine::Graphics
 
 				// Set texture
 				m_RenderDevice.SetTexture(d.second.boundTexture->GetID(), d.second.boundTexture->GetSamplerID(), d.second.unit, d.second.bindMode, true);
-
-
 			}
 			else
 			{
@@ -1091,6 +1090,7 @@ namespace LinaEngine::Graphics
 		// Construct cubemap texture for skybox.
 		SamplerParameters samplerParams;
 		samplerParams.textureParams.wrapR = samplerParams.textureParams.wrapS = samplerParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		samplerParams.textureParams.minFilter = samplerParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
 		samplerParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
 		samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
 		m_HDRICubemap.ConstructRTCubemapTexture(m_RenderDevice, m_HDRIResolution, samplerParams);
@@ -1107,6 +1107,19 @@ namespace LinaEngine::Graphics
 		glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
 		glm::lookAtLH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f))
 		};
+
+		glm::mat4 captureProjection2 = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+
+		glm::mat4 captureViews2[] =
+		{
+		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+		};
+
 
 
 		//m_HDRIMaterial.SetMatrix4(UF_MATRIX_PROJECTION, captureProjection);
@@ -1133,7 +1146,7 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.IsRenderTargetComplete(m_HDRICaptureRenderTarget.GetID());
 		m_RenderDevice.SetFBO(0);
 
-		Vector2 irradianceMapResolsution = Vector2(32, 32);
+		Vector2 irradianceMapResolsution = Vector2(32, 322);
 		m_HDRIIrradianceMap.ConstructRTCubemapTexture(m_RenderDevice, irradianceMapResolsution, samplerParams);
 		m_RenderDevice.ScaleRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), irradianceMapResolsution, RenderBufferStorage::STORAGE_DEPTH_COMP24);
 
@@ -1141,12 +1154,12 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.SetShader(irradianceShader);
 		m_RenderDevice.UpdateShaderUniformInt(irradianceShader, "environmentMap.texture", 0);
 		m_RenderDevice.UpdateShaderUniformInt(irradianceShader, "environmentMap.isActive", 1);
-		m_RenderDevice.UpdateShaderUniformMatrix(irradianceShader, "projection", captureProjection);
+		m_RenderDevice.UpdateShaderUniformMatrix(irradianceShader, "projection", captureProjection2);
 		m_RenderDevice.SetTexture(m_HDRICubemap.GetID(), m_HDRICubemap.GetSamplerID(), 0, TextureBindMode::BINDTEXTURE_CUBEMAP);
 
 		for (uint32 i = 0; i < 6; ++i)
 		{
-			m_RenderDevice.UpdateShaderUniformMatrix(irradianceShader, "view", captureViews[i]);
+			m_RenderDevice.UpdateShaderUniformMatrix(irradianceShader, "view", captureViews2[i]);
 			m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRIIrradianceMap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0, false, false);
 			m_RenderDevice.Clear(true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 			m_RenderDevice.Draw(m_HDRICubeVAO, m_DefaultDrawParams, 0, 36, true);
