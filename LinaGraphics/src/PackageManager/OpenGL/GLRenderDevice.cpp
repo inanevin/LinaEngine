@@ -794,7 +794,7 @@ namespace LinaEngine::Graphics
 		return fbo;
 	}
 
-	void GLRenderDevice::BindTextureToRenderTarget(uint32 fbo, uint32 texture, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 textureAttachmentNumber, int mipLevel)
+	void GLRenderDevice::BindTextureToRenderTarget(uint32 fbo, uint32 texture, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 textureAttachmentNumber, int mipLevel, bool bindTexture)
 	{
 		if ((m_FBOMap.find(fbo) == m_FBOMap.end()))
 		{
@@ -805,7 +805,10 @@ namespace LinaEngine::Graphics
 		SetFBO(fbo);
 		GLenum attachmentTypeGL = attachment + attachmentNumber;
 		GLenum textureAttachment = bindTextureMode + textureAttachmentNumber;
-		glBindTexture(GL_TEXTURE_2D, texture);
+
+		if (bindTexture)
+			glBindTexture(GL_TEXTURE_2D, texture);
+
 		if (bindTextureMode != TextureBindMode::BINDTEXTURE_NONE)
 			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentTypeGL, textureAttachment, texture, mipLevel);
 		else

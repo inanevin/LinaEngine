@@ -142,7 +142,7 @@ namespace LinaEngine::Graphics
 		uint32 CreateRenderTarget(uint32 texture, int32 width, int32 height, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 mipLevel, bool noReadWrite, bool bindRBO = false, FrameBufferAttachment rboAtt = FrameBufferAttachment::ATTACHMENT_DEPTH_AND_STENCIL, uint32 rbo = 0, bool errorCheck = true);
 
 		// Binds an additional texture to render target
-		void BindTextureToRenderTarget(uint32 fbo, uint32 texture,TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 textureAttachmentNumber = 0, int mipLevel = 0);
+		void BindTextureToRenderTarget(uint32 fbo, uint32 texture,TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 textureAttachmentNumber = 0, int mipLevel = 0, bool bindTexture = true);
 
 		// Tells open gl drawing into multiple buffers is enabled
 		void MultipleDrawBuffersCommand(uint32 fbo, uint32 bufferCount, uint32* attachments);

@@ -46,6 +46,7 @@ namespace LinaEngine::Graphics
 	constexpr int UNIFORMBUFFER_DEBUGDATA_BINDPOINT = 2;
 	constexpr auto UNIFORMBUFFER_DEBUGDATA_NAME = "DebugData";
 
+	Texture hdriTest;
 	RenderEngine::RenderEngine()
 	{
 		LINA_CORE_TRACE("[Constructor] -> RenderEngine ({0})", typeid(*this).name());
@@ -66,6 +67,8 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Initialize(LinaEngine::ECS::ECSRegistry& ecsReg)
 	{
+		hdriTest = CreateTextureHDRI("resources/textures/HDRI/loft.hdr");
+
 		// Setup draw parameters.
 		SetupDrawParameters();
 
@@ -1104,18 +1107,26 @@ namespace LinaEngine::Graphics
 			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
 			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
 		};
-		m_HDRIMaterial.SetMatrix4(UF_MATRIX_PROJECTION, captureProjection);
-		m_HDRIMaterial.SetTexture(UF_MAP_EQUIRECTANGULAR, &hdriTexture);
+		//m_HDRIMaterial.SetMatrix4(UF_MATRIX_PROJECTION, captureProjection);
+		//m_HDRIMaterial.SetTexture(UF_MAP_EQUIRECTANGULAR, &hdriTexture);
+		//m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
+		//m_HDRIMaterial.SetInt("equirectangularMap.texture", 0);
+		uint32 sh = GetShader(Shaders::EQUIRECTANGULAR_HDRI).GetID();
+		m_RenderDevice.SetShader(sh);
+		m_RenderDevice.UpdateShaderUniformInt(sh, "equirectangularMap.texture", 0);
+		m_RenderDevice.UpdateShaderUniformInt(sh, "equirectangularMap.isActive", 1);
+		m_RenderDevice.UpdateShaderUniformMatrix(sh, "projection", captureProjection);
+		m_RenderDevice.SetTexture(hdriTexture.GetID(), hdriTexture.GetSamplerID(), 0);
 		m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
-
 		for (uint32 i = 0; i < 6; ++i)
 		{
-			m_HDRIMaterial.SetMatrix4(UF_MATRIX_VIEW, captureViews[i]);
-			m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRICubemap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0);
-			UpdateShaderData(&m_HDRIMaterial);
-			m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-			m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
-			m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
+			m_RenderDevice.UpdateShaderUniformMatrix(sh, "view", captureViews[i]);
+			m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRICubemap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0, false);		
+			m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
+
+			m_RenderDevice.Clear(true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+			//m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
+			//m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
 			m_RenderDevice.Draw(m_HDRICubeVAO, m_DefaultDrawParams, 0, 36, true);
 		}
 
