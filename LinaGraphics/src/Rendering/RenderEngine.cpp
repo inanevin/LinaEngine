@@ -565,7 +565,7 @@ namespace LinaEngine::Graphics
 			material.floats[MC_METALLICMULTIPLIER] = 1.0f;
 			material.floats[MC_ROUGHNESSMULTIPLIER] = 1.0f;
 			material.floats[MC_WORKFLOW] = 0;
-			//material.vector2s[MC_TILING] = Vector2::One;
+			material.vector2s[MC_TILING] = Vector2::One;
 			material.receivesLighting = true;
 			material.isShadowMapped = true;
 		}

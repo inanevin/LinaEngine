@@ -56,13 +56,13 @@ layout (location = 2) out vec4 outlineColor;
 struct MaterialSampler2D
 {
 	sampler2D texture;
-	int isActive;
+	bool isActive;
 };
 
 struct MaterialSamplerCube
 {
 	samplerCube texture;
-	int isActive;
+	bool isActive;
 };
 
 struct Material
@@ -78,7 +78,7 @@ struct Material
   float metallic;
   float roughness;
   int workflow;
-  //vec2 tiling;
+  vec2 tiling;
 };
 
 uniform Material material;
@@ -89,14 +89,14 @@ const float PI = 3.14159265359;
 // Don't worry if you don't get what's going on; you generally want to do normal
 // mapping the usual way for performance anways; I do plan make a note of this
 // technique somewhere later in the normal mapping tutorial.
-vec3 getNormalFromMap(vec3 normalColor)
+vec3 getNormalFromMap(vec3 normalColor, vec2 uv)
 {
     vec3 tangentNormal = normalColor * 2.0 - 1.0;
 
     vec3 Q1  = dFdx(WorldPos);
     vec3 Q2  = dFdy(WorldPos);
-    vec2 st1 = dFdx(TexCoords);
-    vec2 st2 = dFdy(TexCoords);
+    vec2 st1 = dFdx(uv);
+    vec2 st2 = dFdy(uv);
 
     vec3 N   = normalize(Normal);
     vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
@@ -155,14 +155,14 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 // ----------------------------------------------------------------------------
 void main()
 {
+  vec2 tiled = vec2(TexCoords.x * material.tiling.x, TexCoords.y * material.tiling.y);
   // material properties
-  vec3 albedo = material.albedoMap.isActive != 0 ? pow(texture(material.albedoMap.texture, TexCoords).rgb, vec3(2.2)) : vec3(1.0);
-  vec3 normal = material.normalMap.isActive != 0 ? texture(material.normalMap.texture, TexCoords).rgb : Normal;
-  float metallic = material.metallicMap.isActive != 0 ? texture(material.metallicMap.texture, TexCoords).r : material.metallic;
-  float roughness = material.roughnessMap.isActive != 0 ? texture(material.roughnessMap.texture, TexCoords).r : material.roughness;
-  float ao = material.aoMap.isActive != 0 ? texture(material.aoMap.texture, TexCoords).r : 1.0;
+  vec3 albedo = material.albedoMap.isActive ? pow(texture(material.albedoMap.texture, tiled).rgb, vec3(2.2)) : vec3(1.0);
+  float metallic = material.metallicMap.isActive ? texture(material.metallicMap.texture,tiled).r : material.metallic;
+  float roughness = material.roughnessMap.isActive  ? texture(material.roughnessMap.texture, tiled).r : material.roughness;
+  float ao = material.aoMap.isActive? texture(material.aoMap.texture, tiled).r : 1.0;
 
-  vec3 N = getNormalFromMap(normal);
+  vec3 N = material.normalMap.isActive ? getNormalFromMap(texture(material.normalMap.texture, tiled).rgb, tiled) : Normal;
   vec3 V = normalize(vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z) - WorldPos);
   vec3 R = reflect(-V, N);
 
@@ -209,23 +209,30 @@ void main()
         Lo += (kD * albedo / PI + specular) * radiance * NdotL; // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     }
 
-    // ambient lighting (we now use IBL as the ambient term)
-    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
 
-    vec3 kS = F;
-    vec3 kD = 1.0 - kS;
-    kD *= 1.0 - metallic;
 
-    vec3 irradiance = material.irradianceMap.isActive != 0 ? texture(material.irradianceMap.texture, N).rgb : vec3(0.0);
-    vec3 diffuse      = irradiance * albedo;
+    vec3 ambient = vec3(1.0);
+    if(material.irradianceMap.isActive  && material.prefilterMap.isActive && material.brdfLUTMap.isActive)
+    {
+      // ambient lighting (we now use IBL as the ambient term)
+      vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+      vec3 kS = F;
+      vec3 kD = 1.0 - kS;
+      kD *= 1.0 - metallic;
 
-    // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
-    const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = material.prefilterMap.isActive != 0 ? textureLod(material.prefilterMap.texture, R,  roughness * MAX_REFLECTION_LOD).rgb : vec3(0.0);
-    vec2 brdf  = material.brdfLUTMap.isActive != 0 ? texture(material.brdfLUTMap.texture, vec2(max(dot(N, V), 0.0), roughness)).rg : vec2(0.0);
-    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+      vec3 irradiance = texture(material.irradianceMap.texture, N).rgb;
+      vec3 diffuse      = irradiance * albedo;
 
-    vec3 ambient = (kD * diffuse + specular) * ao;
+      // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
+      const float MAX_REFLECTION_LOD = 4.0;
+      vec3 prefilteredColor = textureLod(material.prefilterMap.texture, R,  roughness * MAX_REFLECTION_LOD).rgb;
+      vec2 brdf  = texture(material.brdfLUTMap.texture, vec2(max(dot(N, V), 0.0), roughness)).rg;
+      vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+
+      ambient = (kD * diffuse + specular) * ao;
+    }
+    else
+      ambient = vec3(0.03) * albedo * ao;
 
     vec3 color = ambient + Lo;
 

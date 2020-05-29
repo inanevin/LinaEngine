@@ -28,8 +28,8 @@ namespace LinaEngine::Graphics
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(fileName.c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-
+		const aiScene* scene = importer.ReadFile(fileName.c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals  | aiProcess_CalcTangentSpace);
+		// | aiProcess_FlipUVs
 		if (!scene)
 		{
 			LINA_CORE_ERR("Mesh loading failed! {0}", fileName.c_str());
