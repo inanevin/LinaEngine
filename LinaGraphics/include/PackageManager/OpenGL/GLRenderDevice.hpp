@@ -297,12 +297,6 @@ namespace LinaEngine::Graphics
 		// Shader program map w/ ids.
 		std::map<uint32, ShaderProgram> m_ShaderProgramMap;
 
-		// Bound texture map
-		std::map<uint32, uint32> m_BoundTextures;
-
-		// Bound sampler map.
-		std::map<uint32, uint32> m_BoundSamplers;
-
 		// Storage for shader version.
 		std::string m_ShaderVersion;
 

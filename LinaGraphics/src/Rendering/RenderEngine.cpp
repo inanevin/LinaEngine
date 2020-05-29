@@ -1029,7 +1029,7 @@ namespace LinaEngine::Graphics
 		samplerParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
 		samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
 
-		m_HDRIResolution = Vector2(512, 512);
+		m_HDRIResolution = Vector2(512,512);
 		m_HDRICubemap.ConstructRTCubemapTexture(m_RenderDevice, m_HDRIResolution, samplerParams);
 
 		uint32 sh = GetShader(Shaders::EQUIRECTANGULAR_HDRI).GetID();
@@ -1046,7 +1046,7 @@ namespace LinaEngine::Graphics
 			m_RenderDevice.UpdateShaderUniformMatrix(sh, "view", views[i]);
 			m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRICubemap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0, false);
 			m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
-			m_RenderDevice.Clear(true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+			m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 			m_RenderDevice.Draw(m_HDRICubeVAO, m_DefaultDrawParams, 0, 36, true);
 		}
 
@@ -1081,9 +1081,11 @@ namespace LinaEngine::Graphics
 		{
 			m_RenderDevice.UpdateShaderUniformMatrix(irradianceShader, "view", views[i]);
 			m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRIIrradianceMap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0, false, false);
-			m_RenderDevice.Clear(true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+			m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 			m_RenderDevice.Draw(m_HDRICubeVAO, m_DefaultDrawParams, 0, 36, true);
 		}
+
+
 	}
 
 	void RenderEngine::CalculateHDRIPrefilter(glm::mat4& captureProjection, glm::mat4 views[6])
@@ -1130,7 +1132,7 @@ namespace LinaEngine::Graphics
 			{
 				m_RenderDevice.UpdateShaderUniformMatrix(prefilterShader, "view", views[i]);
 				m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRIPrefilterMap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, mip, false, false);
-				m_RenderDevice.Clear(true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+				m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 				m_RenderDevice.Draw(m_HDRICubeVAO, m_DefaultDrawParams, 0, 36, true);
 			}
 		}
@@ -1228,8 +1230,8 @@ namespace LinaEngine::Graphics
 		CalculateHDRICubemap(hdriTexture, captureProjection, captureViews);
 		m_RenderDevice.SetFBO(0);
 
-		//CalculateHDRIIrradiance(captureProjection, captureViews);
-		//m_RenderDevice.SetFBO(0);
+		CalculateHDRIIrradiance(captureProjection, captureViews);
+		m_RenderDevice.SetFBO(0);
 
 
 		CalculateHDRIPrefilter(captureProjection, captureViews);
