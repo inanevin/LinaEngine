@@ -45,7 +45,6 @@ namespace LinaEngine::Graphics
 	constexpr size_t UNIFORMBUFFER_DEBUGDATA_SIZE = (sizeof(bool) * 1);
 	constexpr int UNIFORMBUFFER_DEBUGDATA_BINDPOINT = 2;
 	constexpr auto UNIFORMBUFFER_DEBUGDATA_NAME = "DebugData";
-
 	RenderEngine::RenderEngine()
 	{
 		LINA_CORE_TRACE("[Constructor] -> RenderEngine ({0})", typeid(*this).name());
@@ -958,6 +957,7 @@ namespace LinaEngine::Graphics
 			UpdateShaderData(m_SkyboxMaterial);
 			m_RenderDevice.Draw(m_SkyboxVAO, m_SkyboxDrawParams, 1, 36, true);
 		}
+
 	}
 
 	void RenderEngine::DrawSceneObjects(DrawParams& drawParams, Material* overrideMaterial, bool drawSkybox)
@@ -1127,7 +1127,7 @@ namespace LinaEngine::Graphics
 			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
 		};
 
-
+		m_HDRIResolution = Vector2(512, 512);
 		m_HDRICubemap.ConstructRTCubemapTexture(m_RenderDevice, m_HDRIResolution, samplerParams);
 
 		uint32 sh = GetShader(Shaders::EQUIRECTANGULAR_HDRI).GetID();
@@ -1174,7 +1174,10 @@ namespace LinaEngine::Graphics
 		}
 
 		m_RenderDevice.SetFBO(0);
+
+		return;
 		Vector2 prefilterResolution = Vector2(128, 128);
+		m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
 
 		m_HDRIPrefilterMap.ConstructRTCubemapTexture(m_RenderDevice, prefilterResolution, prefilterParams);
 		uint32 prefilterShader = GetShader(Shaders::PREFILTER_HDRI).GetID();
@@ -1183,7 +1186,6 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.UpdateShaderUniformInt(prefilterShader, "environmentMap.isActive", 1);
 		m_RenderDevice.UpdateShaderUniformMatrix(prefilterShader, "projection", captureProjection);
 		m_RenderDevice.SetTexture(m_HDRICubemap.GetID(), m_HDRICubemap.GetSamplerID(), 0, TextureBindMode::BINDTEXTURE_CUBEMAP);
-		m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
 		uint32 maxMipLevels = 5;
 		for (uint32 mip = 0; mip < maxMipLevels; ++mip)
 		{
@@ -1205,6 +1207,7 @@ namespace LinaEngine::Graphics
 				m_RenderDevice.Draw(m_HDRICubeVAO, m_DefaultDrawParams, 0, 36, true);
 			}
 		}
+
 		m_RenderDevice.SetFBO(0);
 		/*Vector2 brdfLutSize = Vector2(512, 512);
 		m_HDRILutMap.ConstructRTTexture(m_RenderDevice, brdfLutSize, samplerParams);
