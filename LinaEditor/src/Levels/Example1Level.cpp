@@ -204,14 +204,14 @@ void Example1Level::Initialize()
 //
 //
 //
-//SamplerParameters pbrSampler;
-//pbrSampler.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
-//pbrSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-//pbrSampler.textureParams.wrapS = SamplerWrapMode::WRAP_REPEAT;
-//pbrSampler.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
-//pbrSampler.textureParams.pixelFormat = PixelFormat::FORMAT_RGBA;
-//pbrSampler.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB;
-//pbrSampler.textureParams.generateMipMaps = true;
+SamplerParameters pbrSampler;
+pbrSampler.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+pbrSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
+pbrSampler.textureParams.wrapS = SamplerWrapMode::WRAP_REPEAT;
+pbrSampler.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
+pbrSampler.textureParams.pixelFormat = PixelFormat::FORMAT_RGBA;
+pbrSampler.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB;
+pbrSampler.textureParams.generateMipMaps = true;
 
 
 
@@ -244,11 +244,11 @@ void Example1Level::Initialize()
 	//Texture& roughnessArcade = m_RenderEngine->CreateTexture2D("resources/textures/arcade/roughness.png", pbrSampler, false, false);
 	//Texture& aoArcade = m_RenderEngine->CreateTexture2D("resources/textures/arcade/ao.png", pbrSampler, false, false);
 
-	//Texture& albedoSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/albedo.png", pbrSampler, false, false);
-	//Texture& normalSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/normal.png", pbrSampler, false, false);
-	//Texture& metallicSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/metallic.png", pbrSampler, false, false);
-	//Texture& roughnessSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/roughness.png", pbrSampler, false, false);
-	//Texture& aoSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/ao.png", pbrSampler, false, false);
+	Texture& albedoSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/albedo.png", pbrSampler, false, false);
+	Texture& normalSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/normal.png", pbrSampler, false, false);
+	Texture& metallicSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/metallic.png", pbrSampler, false, false);
+	Texture& roughnessSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/roughness.png", pbrSampler, false, false);
+	Texture& aoSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/ao.png", pbrSampler, false, false);
 
 
 	// Load example mesh.
