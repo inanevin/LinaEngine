@@ -231,6 +231,11 @@ namespace LinaEngine::Graphics
 		// Updates related uniform buffers on GPU
 		void UpdateUniformBuffers();
 
+		// Generating necessary maps for HDRI specular highlighting
+		void CalculateHDRICubemap(Texture& hdriTexture, glm::mat4& captureProjection, glm::mat4 views[6]);
+		void CalculateHDRIIrradiance(glm::mat4& captureProjection, glm::mat4 views[6]);
+		void CalculateHDRIPrefilter(glm::mat4& captureProjection, glm::mat4 views[6]);
+
 	private:
 
 		// Device for rendering operations.
