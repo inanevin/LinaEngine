@@ -85,8 +85,8 @@ namespace LinaEngine
 		FORCEINLINE Vector2 operator-(const Vector2& rhs) { return  Vector2(x- rhs.x, y-rhs.y); };
 		FORCEINLINE Vector2 operator+(const Vector2& rhs) { return  Vector2(x+rhs.x, y+rhs.y); };
 		FORCEINLINE Vector2 operator*(const Vector2& rhs) { return  Vector2(x*rhs.x, y*rhs.y); };
-		FORCEINLINE bool operator==(const Vector2& rhs) const { *this == rhs; }
-		FORCEINLINE bool operator!=(const Vector2& rhs) const { *this == rhs; }
+		FORCEINLINE bool operator==(const Vector2& rhs) const { return x == rhs.x && y == rhs.y; }
+		FORCEINLINE bool operator!=(const Vector2& rhs) const { return !(x == rhs.x && y == rhs.y); }
 		FORCEINLINE bool operator>(const Vector2& rhs) const { return length() > rhs.length(); }
 		FORCEINLINE bool operator<(const Vector2& rhs) const { return length() < rhs.length(); }
 		FORCEINLINE float& operator[] (unsigned int i) { this[i]; }
@@ -158,8 +158,8 @@ namespace LinaEngine
 		FORCEINLINE Vector3 operator-(const Vector3& rhs) { return Vector3(x - rhs.x, y - rhs.y, z - rhs.z);};
 		FORCEINLINE Vector3 operator+(const Vector3& rhs) { return Vector3(x + rhs.x, y + rhs.y, z + rhs.z); };
 		FORCEINLINE Vector3 operator*(const Vector3& rhs) { return Vector3(x * rhs.x, y * rhs.y, z * rhs.z); };
-		FORCEINLINE bool operator==(const Vector3& rhs) const { *this == rhs; }
-		FORCEINLINE bool operator!=(const Vector3& rhs) const { *this == rhs; }
+		FORCEINLINE bool operator==(const Vector3& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
+		FORCEINLINE bool operator!=(const Vector3& rhs) const { return !(x == rhs.x && y == rhs.y && z == rhs.z); }
 		FORCEINLINE bool operator>(const Vector3& rhs) const { return length() > rhs.length(); }
 		FORCEINLINE bool operator<(const Vector3& rhs) const { return length() < rhs.length(); }
 		FORCEINLINE float& operator[] (unsigned int i) { this[i]; }
@@ -229,8 +229,8 @@ namespace LinaEngine
 		FORCEINLINE Vector4 operator-(const Vector4& rhs) { return Vector4(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);};
 		FORCEINLINE Vector4 operator+(const Vector4& rhs) { return Vector4(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w); };
 		FORCEINLINE Vector4 operator*(const Vector4& rhs) { return Vector4(x * rhs.x, y * rhs.y, z * rhs.z, w * rhs.w); };
-		FORCEINLINE bool operator==(const Vector4& rhs) const { *this == rhs; }
-		FORCEINLINE bool operator!=(const Vector4& rhs) const { *this == rhs; }
+		FORCEINLINE bool operator==(const Vector4& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w; }
+		FORCEINLINE bool operator!=(const Vector4& rhs) const { return !(x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w); }
 		FORCEINLINE bool operator>(const Vector4& rhs) const { return length() > rhs.length(); }
 		FORCEINLINE bool operator<(const Vector4& rhs) const { return length() < rhs.length(); }
 		FORCEINLINE float& operator[] (unsigned int i) { this[i]; }

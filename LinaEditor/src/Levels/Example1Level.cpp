@@ -121,11 +121,11 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 	mat.SetTexture(MC_TEXTURE2D_DIFFUSE, &t, TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
-
+Texture* hdri;
 void CreateHDRISkybox(RenderEngine* renderEngine)
 {
-	Texture& hdri = renderEngine->CreateTextureHDRI("resources/textures/HDRI/loft.hdr");
-	renderEngine->CaptureCalculateHDRI(hdri);
+	hdri = &renderEngine->CreateTextureHDRI("resources/textures/HDRI/loft.hdr");
+	renderEngine->CaptureCalculateHDRI(*hdri);
 	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_HDRI);
 	mat.SetTexture(UF_MAP_ENVIRONMENT, &renderEngine->GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
@@ -435,8 +435,11 @@ void Example1Level::Initialize()
 			mat.SetFloat(MC_ROUGHNESSMULTIPLIER, glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
 			mat.SetFloat(MC_METALLICMULTIPLIER, metallic);
 			mat.SetTexture(MC_TEXTURE2D_IRRADIANCEMAP, &m_RenderEngine->GetIrradianceMap());
+			mat.SetTexture(MC_TEXTURE2D_BRDFLUTMAP, &m_RenderEngine->GetBRDFMap());
+			mat.SetTexture(MC_TEXTURE2D_PREFILTERMAP, &m_RenderEngine->GetPrefilterMap());
 
 			ECSEntity entity;
+
 
 
 

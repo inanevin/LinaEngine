@@ -63,13 +63,6 @@ namespace LinaEngine::Graphics
 		std::map<std::string, int32> uniformMap;
 	};
 
-	// Frame buffer object struct for storage.
-	struct FBOData
-	{
-		int32 width;
-		int32 height;
-	};
-
 
 	class GLRenderDevice
 	{
@@ -243,6 +236,9 @@ namespace LinaEngine::Graphics
 		// Captures HDRI lighting data.
 		void CaptureHDRILightingData(Matrix& view, Matrix& projection, Vector2 captureSize, uint32 cubeMapTexture, uint32 hdrTexture, uint32 fbo, uint32 rbo, uint32 shader);
 
+		// Sets viewport dimensions
+		void SetViewport(Vector2 pos, Vector2 size);
+
 
 	private:
 
@@ -250,7 +246,6 @@ namespace LinaEngine::Graphics
 		uint32 GetVersion();
 	
 		void SetRBO(uint32 rbo);
-		void SetViewport(uint32 fbo);
 		void SetFaceCulling(FaceCulling faceCulling);
 		void SetDepthTest(bool shouldWrite, DrawFunc depthFunc);
 		void SetBlending(BlendFunc sourceBlend, BlendFunc destBlend);
@@ -293,11 +288,11 @@ namespace LinaEngine::Graphics
 		// Bound Viewport size
 		Vector2 m_BoundViewportSize;
 
+		// Bound Viewport position
+		Vector2 m_BoundViewportPosition;
+
 		// Map for bound vertex array objects.
 		std::map<uint32, VertexArrayData> m_VAOMap;
-
-		// Frame buffer object map w/ ids.
-		std::map<uint32, FBOData> m_FBOMap;
 
 		// Shader program map w/ ids.
 		std::map<uint32, ShaderProgram> m_ShaderProgramMap;

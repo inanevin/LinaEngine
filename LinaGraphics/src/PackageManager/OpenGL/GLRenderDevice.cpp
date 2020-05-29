@@ -181,12 +181,7 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn, int width, int height, DrawParams& defaultParams)
 	{
-		// Struct fbo data.
-		struct FBOData fboWindowData;
-		fboWindowData.width = width;
-		fboWindowData.height = height;
-		m_FBOMap[0] = fboWindowData;
-
+		
 		m_IsStencilTestEnabled = defaultParams.useStencilTest;
 		m_IsDepthTestEnabled = defaultParams.useDepthTest;
 		m_IsBlendingEnabled = (defaultParams.sourceBlend != BlendFunc::BLEND_FUNC_NONE || defaultParams.destBlend != BlendFunc::BLEND_FUNC_NONE);
@@ -785,23 +780,12 @@ namespace LinaEngine::Graphics
 		if (errorCheck && glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			LINA_CORE_ERR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
 
-		// Define frame buffer object data and store it in our map.
-		FBOData data;
-		data.width = width;
-		data.height = height;
-		m_FBOMap[fbo] = data;
 		SetFBO(0);
 		return fbo;
 	}
 
 	void GLRenderDevice::BindTextureToRenderTarget(uint32 fbo, uint32 texture, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, uint32 attachmentNumber, uint32 textureAttachmentNumber, int mipLevel, bool bindTexture, bool setDefaultFBO)
 	{
-		if ((m_FBOMap.find(fbo) == m_FBOMap.end()))
-		{
-			LINA_CORE_ERR("Frame buffer {0} is not generated, you can't attach a texture to non existing frame buffer!", fbo);
-			return;
-		}
-
 		SetFBO(fbo);
 		GLenum attachmentTypeGL = attachment + attachmentNumber;
 		GLenum textureAttachment = bindTextureMode + textureAttachmentNumber;
@@ -820,43 +804,24 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::MultipleDrawBuffersCommand(uint32 fbo, uint32 bufferCount, uint32* attachments)
 	{
-		if ((m_FBOMap.find(fbo) == m_FBOMap.end()))
-		{
-			LINA_CORE_ERR("Frame buffer {0} is not generated, you can't attach a texture to non existing frame buffer!", fbo);
-			return;
-		}
 		SetFBO(fbo);
-
 		glDrawBuffers(bufferCount, attachments);
 		SetFBO(0);
 	}
 
 	void GLRenderDevice::ScaleRenderBuffer(uint32 fbo, uint32 rbo, Vector2 newSize, RenderBufferStorage storage)
 	{
-		if (m_FBOMap.find(fbo) == m_FBOMap.end())
-		{
-			LINA_CORE_ERR("Render buffer to resize does not belong to this fbo! {0}", fbo);
-			return;
-		}
-
-		m_FBOMap[fbo].width = newSize.x;
-		m_FBOMap[fbo].height = newSize.y;
-		SetFBO(fbo);
 		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
 		glRenderbufferStorage(GL_RENDERBUFFER, storage, newSize.x, newSize.y);
-		
 	}
 
 	uint32 GLRenderDevice::ReleaseRenderTarget(uint32 fbo)
 	{
 		// Terminate if fbo is not valid or does not exist in our map.
 		if (fbo == 0) return 0;
-		std::map<uint32, FBOData>::iterator it = m_FBOMap.find(fbo);
-		if (it == m_FBOMap.end()) return 0;
 
 		// Delete the frame buffer object, erase from our map & return.
 		glDeleteFramebuffers(1, &fbo);
-		m_FBOMap.erase(it);
 		return 0;
 	}
 
@@ -1146,11 +1111,6 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::OnWindowResized(float width, float height)
 	{
-		for (uint32 i = 0; i < m_FBOMap.size(); i++)
-		{
-			m_FBOMap[i].width = (int32)width;
-			m_FBOMap[i].height = (int32)height;
-		}
 		glViewport(0, 0, width, height);
 	}
 
@@ -1227,7 +1187,6 @@ namespace LinaEngine::Graphics
 		if (fbo == m_BoundFBO) return;
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		m_BoundFBO = m_BoundReadFBO = m_BoundWriteFBO = fbo;
-		SetViewport(fbo);
 	}
 
 
@@ -1238,21 +1197,16 @@ namespace LinaEngine::Graphics
 		m_BoundRBO = rbo;
 	}
 
-	void GLRenderDevice::SetViewport(uint32 fbo)
+	void GLRenderDevice::SetViewport(Vector2 pos, Vector2 size)
 	{
 		// Update viewport according to the render targets if exist.
-		if (fbo == m_ViewportFBO) return;
-		m_ViewportFBO = fbo;
+		// if (fbo == m_ViewportFBO) return;
+		// m_ViewportFBO = fbo;
 
-		uint32 w = m_FBOMap[fbo].width;
-		uint32 h = m_FBOMap[fbo].height;
-
-		if (w != m_BoundViewportSize.x || h != m_BoundViewportSize.y)
-		{
-			m_BoundViewportSize.x = w;
-			m_BoundViewportSize.y = h;
-			glViewport(0, 0, m_FBOMap[fbo].width, m_FBOMap[fbo].height);
-		}
+		if (pos == m_BoundViewportPosition && size == m_BoundViewportSize) return;
+		glViewport(pos.x, pos.y, size.x, size.y);
+		m_BoundViewportSize = size;
+		m_BoundViewportPosition = pos;
 
 	}
 

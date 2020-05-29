@@ -111,6 +111,8 @@ namespace LinaEngine::Graphics
 		// Getters for HDRI cubemap and pre-calculated irradiance data. Call CalculateHDRIData before using these.
 		FORCEINLINE Texture& GetHDRICubemap() { return m_HDRICubemap; }
 		FORCEINLINE Texture& GetIrradianceMap() { return m_HDRIIrradianceMap; }
+		FORCEINLINE Texture& GetPrefilterMap() { return m_HDRIPrefilterMap; }
+		FORCEINLINE Texture& GetBRDFMap() { return m_HDRILutMap; }
 
 		// Initialize the render renderEngine.
 		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn);
@@ -290,6 +292,9 @@ namespace LinaEngine::Graphics
 
 		// Prefilter map for HDRI skybox
 		Texture m_HDRIPrefilterMap;
+
+		// BRDF LUT texture for HDRI
+		Texture m_HDRILutMap;
 
 		// Default texture
 		Texture m_DefaultTexture;

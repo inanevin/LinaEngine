@@ -64,6 +64,9 @@ namespace LinaEngine::Graphics
 		// Called every frame.
 		FORCEINLINE void Tick() { m_Derived.Tick(); }
 
+		// Gets size
+		FORCEINLINE Vector2 GetSize() { return Vector2(m_Properties.m_Width, m_Properties.m_Height); }
+
 		// Set event callbacks.
 		FORCEINLINE void SetKeyCallback(std::function<void(int, int)>& cb) { m_Derived.SetKeyCallback(cb); }
 		FORCEINLINE void SetMouseCallback(std::function<void(int, int)>& cb) { m_Derived.SetMouseCallback(cb); }

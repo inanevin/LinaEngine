@@ -68,6 +68,8 @@ struct MaterialSamplerCube
 struct Material
 {
 MaterialSamplerCube irradianceMap;
+MaterialSamplerCube prefilterMap;
+MaterialSampler2D brdfLUTMap;
 float metallicMultiplier;
 float roughnessMultiplier;
 //vec2 tiling;
@@ -75,7 +77,6 @@ float roughnessMultiplier;
 
 uniform Material material;
 const float PI = 3.14159265359;
-
 // ----------------------------------------------------------------------------
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -117,10 +118,15 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 // ----------------------------------------------------------------------------
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
+}
+// ----------------------------------------------------------------------------
 void main()
 {
+	vec3 albedo = vec3(0.5, 0.0, 0.0);
 	float ao = 1.0;
-	vec3 albedo = vec3(0.5, 0.0,0.0);
     vec3 N = Normal;
     vec3 V = normalize(vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z) - WorldPos);
     vec3 R = reflect(-V, N);
@@ -169,13 +175,22 @@ void main()
     }
 
     // ambient lighting (we now use IBL as the ambient term)
-    vec3 kS = fresnelSchlick(max(dot(N, V), 0.0), F0);
+    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, material.roughnessMultiplier);
+
+    vec3 kS = F;
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - material.metallicMultiplier;
-    vec3 irradiance = texture(material.irradianceMap.texture, N).rgb;
+
+    vec3 irradiance = material.irradianceMap.isActive != 0 ? texture(material.irradianceMap.texture, N).rgb : vec3(0.0);
     vec3 diffuse      = irradiance * albedo;
-    vec3 ambient = (kD * diffuse) * ao;
-    // vec3 ambient = vec3(0.002);
+
+    // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
+    const float MAX_REFLECTION_LOD = 4.0;
+    vec3 prefilteredColor = material.prefilterMap.isActive != 0 ? textureLod(material.prefilterMap.texture, R,  material.roughnessMultiplier * MAX_REFLECTION_LOD).rgb : vec3(0.0);
+    vec2 brdf  = material.brdfLUTMap.isActive != 0 ? texture(material.brdfLUTMap.texture, vec2(max(dot(N, V), 0.0), material.roughnessMultiplier)).rg : vec2(0.0);
+    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+
+    vec3 ambient = (kD * diffuse + specular) * ao;
 
     vec3 color = ambient + Lo;
 
@@ -183,7 +198,6 @@ void main()
     color = color / (color + vec3(1.0));
     // gamma correct
     color = pow(color, vec3(1.0/2.2));
-
 
     fragColor = vec4(color, 1.0);
 }
