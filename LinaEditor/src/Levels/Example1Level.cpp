@@ -434,15 +434,11 @@ void Example1Level::Initialize()
 			//mat.SetTexture(MC_TEXTURE2D_AOMAP, &aoSphere);
 			mat.SetFloat(MC_ROUGHNESSMULTIPLIER, glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
 			mat.SetFloat(MC_METALLICMULTIPLIER, metallic);
-			mat.SetTexture(MC_TEXTURE2D_IRRADIANCEMAP, &m_RenderEngine->GetIrradianceMap());
-			mat.SetTexture(MC_TEXTURE2D_BRDFLUTMAP, &m_RenderEngine->GetBRDFMap());
-			mat.SetTexture(MC_TEXTURE2D_PREFILTERMAP, &m_RenderEngine->GetPrefilterMap());
+			mat.SetTexture(MC_TEXTURE2D_IRRADIANCEMAP, &m_RenderEngine->GetIrradianceMap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
+			mat.SetTexture(MC_TEXTURE2D_BRDFLUTMAP, &m_RenderEngine->GetBRDFMap(), TextureBindMode::BINDTEXTURE_TEXTURE2D);
+			mat.SetTexture(MC_TEXTURE2D_PREFILTERMAP, &m_RenderEngine->GetPrefilterMap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 
 			ECSEntity entity;
-
-
-
-
 
 			object1Renderer.material = &mat;
 			entity = m_ECS->CreateEntity("Cube " + std::to_string(row+col));
