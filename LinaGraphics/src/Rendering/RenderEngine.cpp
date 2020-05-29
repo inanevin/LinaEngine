@@ -1139,6 +1139,31 @@ namespace LinaEngine::Graphics
 
 	}
 
+	void RenderEngine::CalculateHDRIBRDF(glm::mat4& captureProjection, glm::mat4 views[6])
+	{
+
+		SamplerParameters samplerParams;
+		samplerParams.textureParams.wrapR = samplerParams.textureParams.wrapS = samplerParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		samplerParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
+		samplerParams.textureParams.minFilter = SamplerFilter::FILTER_LINEAR;
+		samplerParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
+		samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
+
+		Vector2 brdfLutSize = Vector2(512, 512);
+		m_HDRILutMap.ConstructHDRI(m_RenderDevice, samplerParams, brdfLutSize, NULL);
+
+		uint32 brdfShader = GetShader(Shaders::BRDF_HDRI).GetID();
+		m_RenderDevice.ScaleRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), brdfLutSize, RenderBufferStorage::STORAGE_DEPTH_COMP24);
+		m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRILutMap.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 0, 0, 0, true, false);
+	
+		m_RenderDevice.SetShader(brdfShader);
+		m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
+		m_RenderDevice.SetViewport(Vector2::Zero, brdfLutSize);
+		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+		m_RenderDevice.Draw(m_ScreenQuadVAO, m_FullscreenQuadDP, 0, 6, true);
+		m_RenderDevice.SetFBO(0);
+	}
+
 	void RenderEngine::PushLayer(Layer* layer)
 	{
 		m_GUILayerStack.PushLayer(layer);
@@ -1236,18 +1261,9 @@ namespace LinaEngine::Graphics
 
 		CalculateHDRIPrefilter(captureProjection, captureViews);
 		m_RenderDevice.SetFBO(0);
-
-
-		/*Vector2 brdfLutSize = Vector2(512, 512);
-		m_HDRILutMap.ConstructRTTexture(m_RenderDevice, brdfLutSize, samplerParams);
-
-		uint32 brdfShader = GetShader(Shaders::BRDF_HDRI).GetID();
-		m_RenderDevice.SetShader(brdfShader);
-		m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
-		m_RenderDevice.ScaleRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), brdfLutSize, RenderBufferStorage::STORAGE_DEPTH_COMP24);
-		m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRILutMap.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 0, 0, 0, true, false);
-		m_RenderDevice.Draw(m_ScreenQuadVAO, m_FullscreenQuadDP, 0, 6, true);
-		m_RenderDevice.SetFBO(0);*/
+		
+		CalculateHDRIBRDF(captureProjection, captureViews);
+		m_RenderDevice.SetFBO(0);
 
 	}
 
