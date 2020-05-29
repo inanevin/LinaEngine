@@ -347,8 +347,8 @@ namespace LinaEngine::Graphics
 			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 		else
 		{
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
+			//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
+			//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
 		}
 
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
@@ -812,7 +812,7 @@ namespace LinaEngine::Graphics
 	void GLRenderDevice::ScaleRenderBuffer(uint32 fbo, uint32 rbo, Vector2 newSize, RenderBufferStorage storage)
 	{
 		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, storage, newSize.x, newSize.y);
+		glRenderbufferStorage(GL_RENDERBUFFER, storage, (uint32)newSize.x, (uint32)newSize.y);
 	}
 
 	uint32 GLRenderDevice::ReleaseRenderTarget(uint32 fbo)
@@ -1204,7 +1204,7 @@ namespace LinaEngine::Graphics
 		// m_ViewportFBO = fbo;
 
 		if (pos == m_BoundViewportPosition && size == m_BoundViewportSize) return;
-		glViewport(pos.x, pos.y, size.x, size.y);
+		glViewport((uint32)pos.x, (uint32)pos.y, (uint32)size.x, (uint32)size.y);
 		m_BoundViewportSize = size;
 		m_BoundViewportPosition = pos;
 
