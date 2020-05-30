@@ -103,8 +103,9 @@ namespace LinaEngine::Graphics
 		// Construct render targets
 		ConstructRenderTargets();
 
-		// Create a default texture for render context.
+		// Create default textures.
 		m_DefaultTexture.ConstructEmpty(m_RenderDevice);
+		m_DefaultCubemapTexture.ConstructRTCubemapTexture(m_RenderDevice, m_MainWindow.GetSize(), SamplerParameters());
 
 		// Initialize ECS Camera System.
 		Vector2 windowSize = Vector2(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
@@ -559,8 +560,8 @@ namespace LinaEngine::Graphics
 			material.sampler2Ds[MC_TEXTURE2D_ROUGHNESSMAP] = { 2 };
 			material.sampler2Ds[MC_TEXTURE2D_METALLICMAP] = { 3 };
 			material.sampler2Ds[MC_TEXTURE2D_AOMAP] = { 4 };
-			material.sampler2Ds[MC_TEXTURE2D_IRRADIANCEMAP] = { 5 };
-			material.sampler2Ds[MC_TEXTURE2D_PREFILTERMAP] = { 6 };
+			material.sampler2Ds[MC_TEXTURE2D_IRRADIANCEMAP] = { 5, nullptr, TextureBindMode::BINDTEXTURE_CUBEMAP, false };
+			material.sampler2Ds[MC_TEXTURE2D_PREFILTERMAP] = { 6,nullptr, TextureBindMode::BINDTEXTURE_CUBEMAP, false };
 			material.sampler2Ds[MC_TEXTURE2D_BRDFLUTMAP] = { 7 };
 			material.floats[MC_METALLICMULTIPLIER] = 1.0f;
 			material.floats[MC_ROUGHNESSMULTIPLIER] = 1.0f;
@@ -575,6 +576,7 @@ namespace LinaEngine::Graphics
 			material.matrices[UF_MATRIX_VIEW] = Matrix();
 			material.matrices[UF_MATRIX_PROJECTION] = Matrix();
 		}
+
 
 		return material;
 	}
@@ -1029,7 +1031,7 @@ namespace LinaEngine::Graphics
 		samplerParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
 		samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
 
-		m_HDRIResolution = Vector2(512,512);
+		m_HDRIResolution = Vector2(512, 512);
 		m_HDRICubemap.ConstructRTCubemapTexture(m_RenderDevice, m_HDRIResolution, samplerParams);
 
 		uint32 sh = GetShader(Shaders::EQUIRECTANGULAR_HDRI).GetID();
@@ -1156,7 +1158,7 @@ namespace LinaEngine::Graphics
 		uint32 brdfShader = GetShader(Shaders::BRDF_HDRI).GetID();
 		m_RenderDevice.ScaleRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), brdfLutSize, RenderBufferStorage::STORAGE_DEPTH_COMP24);
 		m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRILutMap.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 0, 0, 0, true, false);
-	
+
 		m_RenderDevice.SetShader(brdfShader);
 		m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
 		m_RenderDevice.SetViewport(Vector2::Zero, brdfLutSize);
@@ -1213,17 +1215,19 @@ namespace LinaEngine::Graphics
 			bool isActive = (d.second.isActive && !d.second.boundTexture->GetIsEmpty()) ? true : false;
 			m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first + MC_EXTENSION_ISACTIVE, isActive);
 
-			if (d.second.isActive)
-			{
-				// Set the texture to corresponding active unit.
-				m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first + MC_EXTENSION_TEXTURE2D, d.second.unit);
+			// Set the texture to corresponding active unit.
+			m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first + MC_EXTENSION_TEXTURE2D, d.second.unit);
 
-				// Set texture
+			// Set texture
+			if (d.second.isActive)
 				m_RenderDevice.SetTexture(d.second.boundTexture->GetID(), d.second.boundTexture->GetSamplerID(), d.second.unit, d.second.bindMode, true);
-			}
 			else
 			{
-				m_RenderDevice.SetTexture(m_DefaultTexture.GetID(), 0, d.second.unit);
+
+				if (d.second.bindMode == TextureBindMode::BINDTEXTURE_TEXTURE2D)
+					m_RenderDevice.SetTexture(m_DefaultTexture.GetID(), m_DefaultTexture.GetSamplerID(), d.second.unit);
+				else
+					m_RenderDevice.SetTexture(m_DefaultCubemapTexture.GetID(), m_DefaultCubemapTexture.GetSamplerID(), d.second.unit);
 			}
 		}
 
@@ -1262,7 +1266,7 @@ namespace LinaEngine::Graphics
 
 		CalculateHDRIPrefilter(captureProjection, captureViews);
 		m_RenderDevice.SetFBO(0);
-		
+
 		CalculateHDRIBRDF(captureProjection, captureViews);
 		m_RenderDevice.SetFBO(0);
 

@@ -305,6 +305,9 @@ namespace LinaEngine::Graphics
 		// Default texture
 		Texture m_DefaultTexture;
 
+		// Default empty cubemap texture
+		Texture m_DefaultCubemapTexture;
+
 		// Default drawing parameters.
 		DrawParams m_DefaultDrawParams;
 

@@ -75,7 +75,7 @@ void CreateGradientSkybox(RenderEngine* renderEngine)
 
 void CreateProceduralSkybox(RenderEngine* renderEngine)
 {
-	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_PROCEDURAL);
+	Material& mat = renderEngine->CreateMaterial("skyboxMaterialP", Shaders::SKYBOX_PROCEDURAL);
 	mat.SetColor("material.startColor", Color::Black);
 	mat.SetColor("material.endColor", Color::Black);
 	mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
@@ -180,96 +180,60 @@ void Example1Level::Initialize()
 
 
 
-Texture& albedoSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/albedo.png", pbrSampler, false, false);
-Texture& normalSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/normal.png", pbrSampler, false, false);
-Texture& metallicSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/metallic.png", pbrSampler, false, false);
-Texture& roughnessSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/roughness.png", pbrSampler, false, false);
-Texture& aoSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/ao.png", pbrSampler, false, false);
+	Texture& albedoSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/albedo.png", pbrSampler, false, false);
+	Texture& normalSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/normal.png", pbrSampler, false, false);
+	Texture& metallicSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/metallic.png", pbrSampler, false, false);
+	Texture& roughnessSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/roughness.png", pbrSampler, false, false);
+	Texture& aoSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/ao.png", pbrSampler, false, false);
 
-
-Texture& albedoGun = m_RenderEngine->CreateTexture2D("resources/textures/helmet/albedo.jpg", pbrSampler, false, false);
-Texture& normalGun = m_RenderEngine->CreateTexture2D("resources/textures/helmet/normal.jpg", pbrSampler, false, false);
-Texture& metallicGun = m_RenderEngine->CreateTexture2D("resources/textures/helmet/metallic.jpg", pbrSampler, false, false);
-Texture& roughnessGun = m_RenderEngine->CreateTexture2D("resources/textures/helmet/roughness.jpg", pbrSampler, false, false);
-Texture& aoGun = m_RenderEngine->CreateTexture2D("resources/textures/helmetlow/ao.jpg", pbrSampler, false, false);
 
 	// Load example mesh.
 	Mesh& cubeMesh = m_RenderEngine->GetPrimitive(Primitives::SPHERE);
-	Mesh& gunMesh = m_RenderEngine->CreateMesh("resources/meshes/helmet.obj");
 
 	// Create material for example mesh.
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
-
-gunMaterial = &m_RenderEngine->CreateMaterial("gun", Shaders::PBR_LIT);
-arcadeMaterial = &m_RenderEngine->CreateMaterial("arcd", Shaders::PBR_LIT);
-
-
-gunMaterial->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoGun);
-gunMaterial->SetTexture(MC_TEXTURE2D_NORMALMAP, &normalGun);
-gunMaterial->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughnessGun);
-gunMaterial->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallicGun);
-gunMaterial->SetTexture(MC_TEXTURE2D_AOMAP, &aoGun);
-gunMaterial->SetTexture(MC_TEXTURE2D_IRRADIANCEMAP, &m_RenderEngine->GetIrradianceMap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
-gunMaterial->SetTexture(MC_TEXTURE2D_BRDFLUTMAP, &m_RenderEngine->GetBRDFMap(), TextureBindMode::BINDTEXTURE_TEXTURE2D);
-gunMaterial->SetTexture(MC_TEXTURE2D_PREFILTERMAP, &m_RenderEngine->GetPrefilterMap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
-//gunMaterial->SetVector2(MC_TILING, Vector2(0.1f, 0.1f));
-
-ECSEntity gun;
-gun = m_ECS->CreateEntity("gun");
-MeshRendererComponent gunMR;
-gunMR.mesh = &gunMesh;
-gunMR.material = gunMaterial;
-TransformComponent gunTransform;
-gunTransform.transform.location = Vector3(0, 0, 10);
-m_ECS->emplace<TransformComponent>(gun, gunTransform);
-m_ECS->emplace<MeshRendererComponent>(gun, gunMR);
 
 
 	int nrRows = 7;
 	int nrColumns = 7;
 	float spacing = 3.0f;
 
-sphereMat = &m_RenderEngine->CreateMaterial("sp", Shaders::PBR_LIT);
-sphereMat->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoSphere);
-sphereMat->SetTexture(MC_TEXTURE2D_NORMALMAP, &normalSphere);
-sphereMat->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
-sphereMat->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallicSphere);
-sphereMat->SetTexture(MC_TEXTURE2D_AOMAP, &aoSphere);
-//sphereMat.SetFloat(MC_ROUGHNESSMULTIPLIER, glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
-//sphereMat.SetFloat(MC_METALLICMULTIPLIER, metallic);
-sphereMat->SetTexture(MC_TEXTURE2D_IRRADIANCEMAP, &m_RenderEngine->GetIrradianceMap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
-sphereMat->SetTexture(MC_TEXTURE2D_BRDFLUTMAP, &m_RenderEngine->GetBRDFMap(), TextureBindMode::BINDTEXTURE_TEXTURE2D);
-sphereMat->SetTexture(MC_TEXTURE2D_PREFILTERMAP, &m_RenderEngine->GetPrefilterMap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
-
-for (int row = 0; row < nrRows; ++row)
-{
-	float metallic = (float)row / (float)(nrRows);
+	sphereMat = &m_RenderEngine->CreateMaterial("sp", Shaders::PBR_LIT);
+	sphereMat->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoSphere);
+	sphereMat->SetTexture(MC_TEXTURE2D_NORMALMAP, &normalSphere);
+	sphereMat->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
+	sphereMat->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallicSphere);
+	sphereMat->SetTexture(MC_TEXTURE2D_AOMAP, &aoSphere);
+	//sphereMat.SetFloat(MC_ROUGHNESSMULTIPLIER, glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
+	//sphereMat.SetFloat(MC_METALLICMULTIPLIER, metallic);
+	sphereMat->SetTexture(MC_TEXTURE2D_IRRADIANCEMAP, &m_RenderEngine->GetIrradianceMap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
+	sphereMat->SetTexture(MC_TEXTURE2D_BRDFLUTMAP, &m_RenderEngine->GetBRDFMap(), TextureBindMode::BINDTEXTURE_TEXTURE2D);
+	sphereMat->SetTexture(MC_TEXTURE2D_PREFILTERMAP, &m_RenderEngine->GetPrefilterMap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 
 
-
-	for (int col = 0; col < nrColumns; ++col)
+	for (int row = 0; row < nrRows; ++row)
 	{
+		float metallic = (float)row / (float)(nrRows);
 
-		ECSEntity entity;
-		MeshRendererComponent mr;
-		TransformComponent sphereTransform;
-		mr.mesh = &m_RenderEngine->GetPrimitive(Primitives::SPHERE);
-		mr.material = sphereMat;
-		entity = m_ECS->CreateEntity("Cube " + std::to_string(row + col));
+		for (int col = 0; col < nrColumns; ++col)
+		{
 
-		sphereTransform.transform.location = glm::vec3(
-			(float)(col - (nrColumns / 2)) * spacing,
-			(float)(row - (nrRows / 2)) * spacing,
-			-2.0f
-		);
-		m_ECS->emplace<TransformComponent>(entity, sphereTransform);
-		m_ECS->emplace<MeshRendererComponent>(entity, mr);
+			ECSEntity entity;
+			MeshRendererComponent mr;
+			TransformComponent sphereTransform;
+			mr.mesh = &m_RenderEngine->GetPrimitive(Primitives::SPHERE);
+			mr.material = sphereMat;
+			entity = m_ECS->CreateEntity("Cube " + std::to_string(row + col));
+
+			sphereTransform.transform.location = glm::vec3(
+				(float)(col - (nrColumns / 2)) * spacing,
+				(float)(row - (nrRows / 2)) * spacing,
+				-2.0f
+			);
+			m_ECS->emplace<TransformComponent>(entity, sphereTransform);
+			m_ECS->emplace<MeshRendererComponent>(entity, mr);
+		}
 	}
-}
-
-
-
-
 
 
 
@@ -320,7 +284,7 @@ for (int row = 0; row < nrRows; ++row)
 
 	}
 
-		// Create the free look system & push it.
+	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem();
 	ecsFreeLookSystem->Construct(*m_ECS, *m_InputEngine);
 	level1Systems.AddSystem(*ecsFreeLookSystem);

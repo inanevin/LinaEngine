@@ -164,7 +164,7 @@ void main()
 
   vec3 N = material.normalMap.isActive ? getNormalFromMap(texture(material.normalMap.texture, tiled).rgb, tiled) : Normal;
   vec3 V = normalize(vec3(cameraPosition.x, cameraPosition.y, cameraPosition.z) - WorldPos);
-  vec3 R = reflect(-V, N);
+
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)
@@ -214,6 +214,8 @@ void main()
     vec3 ambient = vec3(1.0);
     if(material.irradianceMap.isActive  && material.prefilterMap.isActive && material.brdfLUTMap.isActive)
     {
+      vec3 R = reflect(-V, N);
+
       // ambient lighting (we now use IBL as the ambient term)
       vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
       vec3 kS = F;
