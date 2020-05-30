@@ -431,7 +431,7 @@ namespace LinaEditor
 				light->color = Color(col.x, col.y, col.z, col.w);
 				
 				if (lightRenderer != nullptr)
-					lightRenderer->material->SetColor(MC_OBJECTCOLORPROPERTY, light->color);
+					lightRenderer->material->SetColor(MAT_OBJECTCOLORPROPERTY, light->color);
 
 				ImGui::Unindent();
 			}
@@ -464,7 +464,7 @@ namespace LinaEditor
 
 
 				if (lightRenderer != nullptr)
-					lightRenderer->material->SetColor(MC_OBJECTCOLORPROPERTY, light->color);
+					lightRenderer->material->SetColor(MAT_OBJECTCOLORPROPERTY, light->color);
 
 				ImGui::Unindent();
 			}
@@ -488,7 +488,7 @@ namespace LinaEditor
 				light->direction = Vector3(direction[0], direction[1], direction[2]);
 				light->color = Color(col.x, col.y, col.z, col.w);
 				if (lightRenderer != nullptr)
-					lightRenderer->material->SetColor(MC_OBJECTCOLORPROPERTY, light->color);
+					lightRenderer->material->SetColor(MAT_OBJECTCOLORPROPERTY, light->color);
 
 				ImGui::Unindent();
 			}

@@ -73,7 +73,7 @@ namespace LinaEngine::Graphics
 		{
 			ints[name] = value;
 
-			if (name == MC_SURFACETYPE)
+			if (name == MAT_SURFACETYPE)
 				m_SurfaceType = static_cast<MaterialSurfaceType>(value);
 		}
 
@@ -143,7 +143,7 @@ namespace LinaEngine::Graphics
 		}
 
 		FORCEINLINE uint32 GetShaderID() { return shaderID; }
-		FORCEINLINE void SetSurfaceType(MaterialSurfaceType type) { m_SurfaceType = type; SetInt(MC_SURFACETYPE, type); }
+		FORCEINLINE void SetSurfaceType(MaterialSurfaceType type) { m_SurfaceType = type; SetInt(MAT_SURFACETYPE, type); }
 		FORCEINLINE MaterialSurfaceType GetSurfaceType() { return m_SurfaceType; }
 
 	private:

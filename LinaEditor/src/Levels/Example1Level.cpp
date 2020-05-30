@@ -101,7 +101,7 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 	samplerParams.textureParams.generateMipMaps = true;
 	samplerParams.textureParams.minFilter = FILTER_NEAREST;
 	Texture& t = renderEngine->CreateTextureCubemap(fp, samplerParams, false);
-	mat.SetTexture(MC_MAP_ENVIRONMENT, &t, TextureBindMode::BINDTEXTURE_CUBEMAP);
+	mat.SetTexture(MAT_MAP_ENVIRONMENT, &t, TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
 void CreateHDRISkybox(RenderEngine* renderEngine)
@@ -109,7 +109,7 @@ void CreateHDRISkybox(RenderEngine* renderEngine)
 	Texture* hdri = &renderEngine->CreateTextureHDRI("resources/textures/HDRI/loft.hdr");
 	renderEngine->CaptureCalculateHDRI(*hdri);
 	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_HDRI);
-	mat.SetTexture(MC_MAP_ENVIRONMENT, &renderEngine->GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
+	mat.SetTexture(MAT_MAP_ENVIRONMENT, &renderEngine->GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
 
@@ -198,14 +198,14 @@ void Example1Level::Initialize()
 	float spacing = 3.0f;
 
 	sphereMat = &m_RenderEngine->CreateMaterial("sp", Shaders::PBR_LIT);
-	sphereMat->SetTexture(MC_TEXTURE2D_ALBEDOMAP, &albedoSphere);
-	sphereMat->SetTexture(MC_TEXTURE2D_NORMALMAP, &normalSphere);
-	sphereMat->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
-	sphereMat->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallicSphere);
-	sphereMat->SetTexture(MC_TEXTURE2D_AOMAP, &aoSphere);
+	sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoSphere);
+	sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalSphere);
+	sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
+	sphereMat->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicSphere);
+	sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
 	m_RenderEngine->SetHDRIData(sphereMat);
-	//sphereMat.SetFloat(MC_ROUGHNESSMULTIPLIER, glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
-	//sphereMat.SetFloat(MC_METALLICMULTIPLIER, metallic);
+	//sphereMat.SetFloat(MAT_ROUGHNESSMULTIPLIER, glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
+	//sphereMat.SetFloat(MAT_METALLICMULTIPLIER, metallic);
 
 
 	for (int row = 0; row < nrRows; ++row)

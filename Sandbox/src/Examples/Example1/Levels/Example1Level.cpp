@@ -110,7 +110,7 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 	samplerParams.textureParams.generateMipMaps = true;
 	samplerParams.textureParams.minFilter = FILTER_NEAREST;
 	Texture& t = renderEngine->CreateTextureCubemap(fp, samplerParams, false);
-	mat.SetTexture(MC_TEXTURE2D_DIFFUSE, &t, TextureBindMode::BINDTEXTURE_CUBEMAP);
+	mat.SetTexture(MAT_TEXTURE2D_DIFFUSE, &t, TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
 
@@ -210,18 +210,18 @@ void Example1Level::Initialize()
 
 
 
-	objectLitMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &brickWall);
-	objectLitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
+	objectLitMaterial->SetTexture(MAT_TEXTURE2D_DIFFUSE, &brickWall);
+	objectLitMaterial->SetColor(MAT_OBJECTCOLORPROPERTY, Color(1, 1, 1));
 	objectLitMaterial->SetSurfaceType(MaterialSurfaceType::Opaque);
-	objectUnlitMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1, 1, 1));
+	objectUnlitMaterial->SetColor(MAT_OBJECTCOLORPROPERTY, Color(1, 1, 1));
 	
-	floorMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &wood);
-	floorMaterial->SetVector2(MC_TILING, Vector2(20, 20));
-	floorMaterial->SetColor(MC_OBJECTCOLORPROPERTY, Color(1,1,1));
+	floorMaterial->SetTexture(MAT_TEXTURE2D_DIFFUSE, &wood);
+	floorMaterial->SetVector2(MAT_TILING, Vector2(20, 20));
+	floorMaterial->SetColor(MAT_OBJECTCOLORPROPERTY, Color(1,1,1));
 
-	//floorMaterial->SetTexture(MC_TEXTURE2D_SPECULAR, &wood);
+	//floorMaterial->SetTexture(MAT_TEXTURE2D_SPECULAR, &wood);
 	//cubemapReflectiveMaterial->SetTexture(UF_SKYBOXTEXTURE, &cubemap, 0);
-	//quadMaterial->SetTexture(MC_TEXTURE2D_DIFFUSE, &window);
+	//quadMaterial->SetTexture(MAT_TEXTURE2D_DIFFUSE, &window);
 	//quadMaterial->SetSurfaceType(MaterialSurfaceType::Transparent);
 
 	object1Renderer.mesh = &cubeMesh;

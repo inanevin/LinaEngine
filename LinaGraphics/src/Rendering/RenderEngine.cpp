@@ -139,10 +139,10 @@ namespace LinaEngine::Graphics
 
 		//DrawOperationsShadows(delta,false);
 		//for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
-			//(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_DepthMapRTTexture);
+			//(*it)->SetTexture(MAT_TEXTURE2D_SHADOWMAP, &m_DepthMapRTTexture);
 
 	//	for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
-		//	(*it)->SetTexture(MC_TEXTURE2D_SHADOWMAP, &m_PointLightsRTTexture, TextureBindMode::BINDTEXTURE_CUBEMAP);
+		//	(*it)->SetTexture(MAT_TEXTURE2D_SHADOWMAP, &m_PointLightsRTTexture, TextureBindMode::BINDTEXTURE_CUBEMAP);
 
 		//DrawOperationsPrimaryRT(delta);
 		//DrawOperationsDefault(delta);
@@ -467,74 +467,74 @@ namespace LinaEngine::Graphics
 
 		 if (shader == Shaders::STANDARD_UNLIT)
 		{
-			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
-			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
-			material.ints[MC_SURFACETYPE] = 0;
+			material.colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
+			material.sampler2Ds[MAT_TEXTURE2D_DIFFUSE] = { 0 };
+			material.ints[MAT_SURFACETYPE] = 0;
 		}
 		else if (shader == Shaders::SKYBOX_SINGLECOLOR)
 		{
-			material.colors[MC_COLOR] = Color::White;
+			material.colors[MAT_COLOR] = Color::White;
 		}
 		else if (shader == Shaders::SKYBOX_GRADIENT)
 		{
-			material.colors[MC_STARTCOLOR] = Color::Black;
-			material.colors[MC_ENDCOLOR] = Color::White;
+			material.colors[MAT_STARTCOLOR] = Color::Black;
+			material.colors[MAT_ENDCOLOR] = Color::White;
 		}
 		else if (shader == Shaders::SKYBOX_PROCEDURAL)
 		{
-			material.colors[MC_STARTCOLOR] = Color::Black;
-			material.colors[MC_ENDCOLOR] = Color::White;
-			material.vector3s[MC_SUNDIRECTION] = Vector3(0, -1, 0);
+			material.colors[MAT_STARTCOLOR] = Color::Black;
+			material.colors[MAT_ENDCOLOR] = Color::White;
+			material.vector3s[MAT_SUNDIRECTION] = Vector3(0, -1, 0);
 		}
 		else if (shader == Shaders::SKYBOX_CUBEMAP)
 		{
-			material.sampler2Ds[MC_MAP_ENVIRONMENT] = { 0 };
+			material.sampler2Ds[MAT_MAP_ENVIRONMENT] = { 0 };
 		}
 		else if (shader == Shaders::SKYBOX_HDRI)
 		{
-			material.sampler2Ds[MC_MAP_ENVIRONMENT] = { 0 };
+			material.sampler2Ds[MAT_MAP_ENVIRONMENT] = { 0 };
 		}
 
 		else if (shader == Shaders::SCREEN_QUAD_FINAL)
 		{
 
-			material.sampler2Ds[MC_MAP_SCREEN] = { 0 };
-			material.sampler2Ds[MC_MAP_BLOOM] = { 1 };
-			material.sampler2Ds[MC_MAP_OUTLINE] = { 2 };
-			material.floats[MC_EXPOSURE] = 1.0f;
+			material.sampler2Ds[MAT_MAP_SCREEN] = { 0 };
+			material.sampler2Ds[MAT_MAP_BLOOM] = { 1 };
+			material.sampler2Ds[MAT_MAP_OUTLINE] = { 2 };
+			material.floats[MAT_EXPOSURE] = 1.0f;
 		}
 		else if (shader == Shaders::SCREEN_QUAD_BLUR)
 		{
-			material.sampler2Ds[MC_MAP_SCREEN] = { 0 };
-			material.booleans[MC_ISHORIZONTAL] = false;
+			material.sampler2Ds[MAT_MAP_SCREEN] = { 0 };
+			material.booleans[MAT_ISHORIZONTAL] = false;
 		}
 		else if (shader == Shaders::SCREEN_QUAD_OUTLINE)
 		{
-			material.sampler2Ds[MC_MAP_SCREEN] = { 0 };
+			material.sampler2Ds[MAT_MAP_SCREEN] = { 0 };
 		}
 
 
 		else if (shader == Shaders::PBR_LIT)
 		{
-			material.sampler2Ds[MC_TEXTURE2D_ALBEDOMAP] = { 0 };
-			material.sampler2Ds[MC_TEXTURE2D_NORMALMAP] = { 1 };
-			material.sampler2Ds[MC_TEXTURE2D_ROUGHNESSMAP] = { 2 };
-			material.sampler2Ds[MC_TEXTURE2D_METALLICMAP] = { 3 };
-			material.sampler2Ds[MC_TEXTURE2D_AOMAP] = { 4 };
-			material.sampler2Ds[MC_TEXTURE2D_IRRADIANCEMAP] = { 5, nullptr, TextureBindMode::BINDTEXTURE_CUBEMAP, false };
-			material.sampler2Ds[MC_TEXTURE2D_PREFILTERMAP] = { 6,nullptr, TextureBindMode::BINDTEXTURE_CUBEMAP, false };
-			material.sampler2Ds[MC_TEXTURE2D_BRDFLUTMAP] = { 7 };
-			material.floats[MC_METALLICMULTIPLIER] = 1.0f;
-			material.floats[MC_ROUGHNESSMULTIPLIER] = 1.0f;
-			material.floats[MC_WORKFLOW] = 0;
-			material.vector2s[MC_TILING] = Vector2::One;
+			material.sampler2Ds[MAT_TEXTURE2D_ALBEDOMAP] = { 0 };
+			material.sampler2Ds[MAT_TEXTURE2D_NORMALMAP] = { 1 };
+			material.sampler2Ds[MAT_TEXTURE2D_ROUGHNESSMAP] = { 2 };
+			material.sampler2Ds[MAT_TEXTURE2D_METALLICMAP] = { 3 };
+			material.sampler2Ds[MAT_TEXTURE2D_AOMAP] = { 4 };
+			material.sampler2Ds[MAT_TEXTURE2D_IRRADIANCEMAP] = { 5, nullptr, TextureBindMode::BINDTEXTURE_CUBEMAP, false };
+			material.sampler2Ds[MAT_TEXTURE2D_PREFILTERMAP] = { 6,nullptr, TextureBindMode::BINDTEXTURE_CUBEMAP, false };
+			material.sampler2Ds[MAT_TEXTURE2D_BRDFLUTMAP] = { 7 };
+			material.floats[MAT_METALLICMULTIPLIER] = 1.0f;
+			material.floats[MAT_ROUGHNESSMULTIPLIER] = 1.0f;
+			material.floats[MAT_WORKFLOW] = 0;
+			material.vector2s[MAT_TILING] = Vector2::One;
 			material.receivesLighting = true;
 			material.isShadowMapped = true;
 			material.usesHDRI = true;
 		}
 		else if (shader == Shaders::EQUIRECTANGULAR_HDRI)
 		{
-			material.sampler2Ds[MC_MAP_EQUIRECTANGULAR] = { 0 };
+			material.sampler2Ds[MAT_MAP_EQUIRECTANGULAR] = { 0 };
 			material.matrices[UF_MATRIX_VIEW] = Matrix();
 			material.matrices[UF_MATRIX_PROJECTION] = Matrix();
 		}
@@ -647,7 +647,6 @@ namespace LinaEngine::Graphics
 		SetMaterialShader(m_ScreenQuadBlurMaterial, Shaders::SCREEN_QUAD_BLUR);
 		SetMaterialShader(m_ScreenQuadOutlineMaterial, Shaders::SCREEN_QUAD_OUTLINE);
 		SetMaterialShader(m_HDRIMaterial, Shaders::EQUIRECTANGULAR_HDRI);
-
 	}
 
 	void RenderEngine::ConstructEnginePrimitives()
@@ -830,15 +829,15 @@ namespace LinaEngine::Graphics
 			m_RenderDevice.SetFBO(horizontal ? m_PingPongRenderTarget1.GetID() : m_PingPongRenderTarget2.GetID());
 
 			// Setup material & use.
-			m_ScreenQuadBlurMaterial.SetBool(MC_ISHORIZONTAL, horizontal);
+			m_ScreenQuadBlurMaterial.SetBool(MAT_ISHORIZONTAL, horizontal);
 			if (firstIteration)
-				m_ScreenQuadBlurMaterial.SetTexture(MC_MAP_SCREEN, &m_PrimaryRTTexture1);
+				m_ScreenQuadBlurMaterial.SetTexture(MAT_MAP_SCREEN, &m_PrimaryRTTexture1);
 			else
 			{
 				if (horizontal)
-					m_ScreenQuadBlurMaterial.SetTexture(MC_MAP_SCREEN, &m_PingPongRTTexture2);
+					m_ScreenQuadBlurMaterial.SetTexture(MAT_MAP_SCREEN, &m_PingPongRTTexture2);
 				else
-					m_ScreenQuadBlurMaterial.SetTexture(MC_MAP_SCREEN, &m_PingPongRTTexture1);
+					m_ScreenQuadBlurMaterial.SetTexture(MAT_MAP_SCREEN, &m_PingPongRTTexture1);
 			}
 
 			// Update shader data & draw.
@@ -863,10 +862,10 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.Clear(true, true, false, Color::White, 0xFF);
 
 		// Set frame buffer texture on the material.
-		m_ScreenQuadFinalMaterial.SetTexture(MC_MAP_SCREEN, &m_PrimaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D);
-		m_ScreenQuadFinalMaterial.SetTexture(MC_MAP_BLOOM, horizontal ? &m_PingPongRTTexture1 : &m_PingPongRTTexture2, TextureBindMode::BINDTEXTURE_TEXTURE2D);
-		m_ScreenQuadFinalMaterial.SetTexture(MC_MAP_OUTLINE, &m_OutlineRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
-		m_ScreenQuadFinalMaterial.SetFloat(MC_EXPOSURE, 1.0f);
+		m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_SCREEN, &m_PrimaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+		m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_BLOOM, horizontal ? &m_PingPongRTTexture1 : &m_PingPongRTTexture2, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+		m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_OUTLINE, &m_OutlineRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+		m_ScreenQuadFinalMaterial.SetFloat(MAT_EXPOSURE, 1.0f);
 
 		// update shader w/ material data.
 		UpdateShaderData(&m_ScreenQuadFinalMaterial);
@@ -1000,10 +999,10 @@ namespace LinaEngine::Graphics
 		{
 			// Set whether the texture is active or not.
 			bool isActive = (d.second.isActive && !d.second.boundTexture->GetIsEmpty()) ? true : false;
-			m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first + MC_EXTENSION_ISACTIVE, isActive);
+			m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first + MAT_EXTENSION_ISACTIVE, isActive);
 
 			// Set the texture to corresponding active unit.
-			m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first + MC_EXTENSION_TEXTURE2D, d.second.unit);
+			m_RenderDevice.UpdateShaderUniformInt(data->shaderID, d.first + MAT_EXTENSION_TEXTURE2D, d.second.unit);
 
 			// Set texture
 			if (d.second.isActive)
@@ -1068,9 +1067,9 @@ namespace LinaEngine::Graphics
 		// Setup shader data.
 		uint32 equirectangularShader = GetShader(Shaders::EQUIRECTANGULAR_HDRI).GetID();
 		m_RenderDevice.SetShader(equirectangularShader);
-		m_RenderDevice.UpdateShaderUniformInt(equirectangularShader, "material.equirectangularMap.texture", 0);
-		m_RenderDevice.UpdateShaderUniformInt(equirectangularShader, "material.equirectangularMap.isActive", 1);
-		m_RenderDevice.UpdateShaderUniformMatrix(equirectangularShader, "projection", captureProjection);
+		m_RenderDevice.UpdateShaderUniformInt(equirectangularShader, MAT_MAP_EQUIRECTANGULAR + std::string(MAT_EXTENSION_TEXTURE2D), 0);
+		m_RenderDevice.UpdateShaderUniformInt(equirectangularShader, MAT_MAP_EQUIRECTANGULAR + std::string(MAT_EXTENSION_ISACTIVE), 1);
+		m_RenderDevice.UpdateShaderUniformMatrix(equirectangularShader, UF_MATRIX_PROJECTION, captureProjection);
 		m_RenderDevice.SetTexture(hdriTexture.GetID(), hdriTexture.GetSamplerID(), 0);
 		m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
 		m_RenderDevice.SetViewport(Vector2::Zero, m_HDRIResolution);
@@ -1078,7 +1077,7 @@ namespace LinaEngine::Graphics
 		// Draw the cubemap.
 		for (uint32 i = 0; i < 6; ++i)
 		{
-			m_RenderDevice.UpdateShaderUniformMatrix(equirectangularShader, "view", views[i]);
+			m_RenderDevice.UpdateShaderUniformMatrix(equirectangularShader, UF_MATRIX_VIEW, views[i]);
 			m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRICubemap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0, false);
 			m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
 			m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
@@ -1111,16 +1110,16 @@ namespace LinaEngine::Graphics
 		// Create & setup shader info.
 		uint32 irradianceShader = GetShader(Shaders::IRRADIANCE_HDRI).GetID();
 		m_RenderDevice.SetShader(irradianceShader);
-		m_RenderDevice.UpdateShaderUniformInt(irradianceShader, "material.environmentMap.texture", 0);
-		m_RenderDevice.UpdateShaderUniformInt(irradianceShader, "material.environmentMap.isActive", 1);
-		m_RenderDevice.UpdateShaderUniformMatrix(irradianceShader, "projection", captureProjection);
+		m_RenderDevice.UpdateShaderUniformInt(irradianceShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_TEXTURE2D), 0);
+		m_RenderDevice.UpdateShaderUniformInt(irradianceShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_ISACTIVE), 1);
+		m_RenderDevice.UpdateShaderUniformMatrix(irradianceShader, UF_MATRIX_PROJECTION, captureProjection);
 		m_RenderDevice.SetTexture(m_HDRICubemap.GetID(), m_HDRICubemap.GetSamplerID(), 0, TextureBindMode::BINDTEXTURE_CUBEMAP);
 		m_RenderDevice.SetViewport(Vector2::Zero, irradianceMapResolsution);
 
 		// Draw cubemap.
 		for (uint32 i = 0; i < 6; ++i)
 		{
-			m_RenderDevice.UpdateShaderUniformMatrix(irradianceShader, "view", views[i]);
+			m_RenderDevice.UpdateShaderUniformMatrix(irradianceShader, UF_MATRIX_VIEW, views[i]);
 			m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRIIrradianceMap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0, false, false);
 			m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 			m_RenderDevice.Draw(m_HDRICubeVAO, m_DefaultDrawParams, 0, 36, true);
@@ -1147,10 +1146,10 @@ namespace LinaEngine::Graphics
 		// Setup shader data.
 		uint32 prefilterShader = GetShader(Shaders::PREFILTER_HDRI).GetID();
 		m_RenderDevice.SetShader(prefilterShader);
-		m_RenderDevice.UpdateShaderUniformInt(prefilterShader, "material.environmentMap.texture", 0);
-		m_RenderDevice.UpdateShaderUniformInt(prefilterShader, "material.environmentMap.isActive", 1);
-		m_RenderDevice.UpdateShaderUniformFloat(prefilterShader, "material.environmentResolution", 512.0f);
-		m_RenderDevice.UpdateShaderUniformMatrix(prefilterShader, "projection", captureProjection);
+		m_RenderDevice.UpdateShaderUniformInt(prefilterShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_TEXTURE2D), 0);
+		m_RenderDevice.UpdateShaderUniformInt(prefilterShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_ISACTIVE), 1);
+		m_RenderDevice.UpdateShaderUniformFloat(prefilterShader, MAT_ENVIRONMENTRESOLUTION, 512.0f);
+		m_RenderDevice.UpdateShaderUniformMatrix(prefilterShader, UF_MATRIX_PROJECTION, captureProjection);
 		m_RenderDevice.SetTexture(m_HDRICubemap.GetID(), m_HDRICubemap.GetSamplerID(), 0, TextureBindMode::BINDTEXTURE_CUBEMAP);
 
 		// Setup mip levels & switch fbo.
@@ -1167,10 +1166,10 @@ namespace LinaEngine::Graphics
 
 			// Draw prefiltered map
 			float roughness = (float)mip / (float)(maxMipLevels - 1);
-			m_RenderDevice.UpdateShaderUniformFloat(prefilterShader, "material.roughness", roughness);
+			m_RenderDevice.UpdateShaderUniformFloat(prefilterShader, MAT_ROUGHNESSMULTIPLIER, roughness);
 			for (unsigned int i = 0; i < 6; ++i)
 			{
-				m_RenderDevice.UpdateShaderUniformMatrix(prefilterShader, "view", views[i]);
+				m_RenderDevice.UpdateShaderUniformMatrix(prefilterShader, UF_MATRIX_VIEW, views[i]);
 				m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRIPrefilterMap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, mip, false, false);
 				m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 				m_RenderDevice.Draw(m_HDRICubeVAO, m_DefaultDrawParams, 0, 36, true);
@@ -1229,9 +1228,9 @@ namespace LinaEngine::Graphics
 			return;
 		}
 
-		mat->SetTexture(MC_TEXTURE2D_IRRADIANCEMAP, &m_HDRIIrradianceMap, TextureBindMode::BINDTEXTURE_CUBEMAP);
-		mat->SetTexture(MC_TEXTURE2D_BRDFLUTMAP, &m_HDRILutMap, TextureBindMode::BINDTEXTURE_TEXTURE2D);
-		mat->SetTexture(MC_TEXTURE2D_PREFILTERMAP, &m_HDRIPrefilterMap, TextureBindMode::BINDTEXTURE_CUBEMAP);
+		mat->SetTexture(MAT_TEXTURE2D_IRRADIANCEMAP, &m_HDRIIrradianceMap, TextureBindMode::BINDTEXTURE_CUBEMAP);
+		mat->SetTexture(MAT_TEXTURE2D_BRDFLUTMAP, &m_HDRILutMap, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+		mat->SetTexture(MAT_TEXTURE2D_PREFILTERMAP, &m_HDRIPrefilterMap, TextureBindMode::BINDTEXTURE_CUBEMAP);
 	}
 
 	void RenderEngine::RemoveHDRIData(Material* mat)
@@ -1248,9 +1247,9 @@ namespace LinaEngine::Graphics
 			return;
 		}
 
-		mat->RemoveTexture(MC_TEXTURE2D_IRRADIANCEMAP);
-		mat->RemoveTexture(MC_TEXTURE2D_BRDFLUTMAP);
-		mat->RemoveTexture(MC_TEXTURE2D_PREFILTERMAP);
+		mat->RemoveTexture(MAT_TEXTURE2D_IRRADIANCEMAP);
+		mat->RemoveTexture(MAT_TEXTURE2D_BRDFLUTMAP);
+		mat->RemoveTexture(MAT_TEXTURE2D_PREFILTERMAP);
 
 	}
 
