@@ -21,23 +21,23 @@ layout (location = 0) in vec3 position;
 out vec3 LocalPos;
 uniform mat4 view;
 uniform mat4 projection;
+
 void main()
 {
     LocalPos = position;
     gl_Position =  projection * view * vec4(LocalPos, 1.0);
 }
 
-
 #elif defined(FS_BUILD)
-out vec4 FragColor;
+#include <../MaterialSamplers.glh>
+out vec4 fragColor;
 in vec3 LocalPos;
 
-struct MaterialSampler2D
+struct Material
 {
-  sampler2D texture;
-  int isActive;
+  MaterialSampler2D equirectangularMap;
 };
-uniform MaterialSampler2D equirectangularMap;
+uniform Material material;
 
 const vec2 invAtan = vec2(0.1591, 0.3183);
 vec2 SampleSphericalMap(vec3 v)
@@ -51,8 +51,7 @@ vec2 SampleSphericalMap(vec3 v)
 void main()
 {
     vec2 uv = SampleSphericalMap(normalize(LocalPos)); // make sure to normalize localPos
-    vec3 color = equirectangularMap.isActive != 0 ? texture(equirectangularMap.texture, uv).rgb : vec3(0.0);
-
-    FragColor = vec4(color, 1.0);
+    vec3 color = material.equirectangularMap.isActive ? texture(material.equirectangularMap.texture, uv).rgb : vec3(0.0);
+    fragColor = vec4(color, 1.0);
 }
 #endif

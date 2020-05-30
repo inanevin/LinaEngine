@@ -554,10 +554,11 @@ namespace LinaEngine::Graphics
 		}
 		else if (shader == Shaders::EQUIRECTANGULAR_HDRI)
 		{
-			material.sampler2Ds[UF_MAP_EQUIRECTANGULAR] = { 0 };
+			material.sampler2Ds[MC_MAP_EQUIRECTANGULAR] = { 0 };
 			material.matrices[UF_MATRIX_VIEW] = Matrix();
 			material.matrices[UF_MATRIX_PROJECTION] = Matrix();
 		}
+
 
 
 		return material;
