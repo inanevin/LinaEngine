@@ -518,20 +518,19 @@ namespace LinaEngine::Graphics
 		else if (shader == Shaders::SCREEN_QUAD_FINAL)
 		{
 
-			material.sampler2Ds[UF_SCREENTEXTURE] = { 0 };
-			material.sampler2Ds[UF_BLOOMTEXTURE] = { 1 };
-			material.sampler2Ds[UF_OUTLINETEXTURE] = { 2 };
-			material.booleans[UF_BLOOM] = 1;
-			material.floats[UF_EXPOSURE] = 1.0f;
+			material.sampler2Ds[MC_MAP_SCREEN] = { 0 };
+			material.sampler2Ds[MC_MAP_BLOOM] = { 1 };
+			material.sampler2Ds[MC_MAP_OUTLINE] = { 2 };
+			material.floats[MC_EXPOSURE] = 1.0f;
 		}
 		else if (shader == Shaders::SCREEN_QUAD_BLUR)
 		{
-			material.sampler2Ds[UF_SCREENTEXTURE] = { 0 };
-			material.booleans[UF_ISHORIZONTAL] = false;
+			material.sampler2Ds[MC_MAP_SCREEN] = { 0 };
+			material.booleans[MC_ISHORIZONTAL] = false;
 		}
 		else if (shader == Shaders::SCREEN_QUAD_OUTLINE)
 		{
-			material.sampler2Ds[UF_SCREENTEXTURE] = { 0 };
+			material.sampler2Ds[MC_MAP_SCREEN] = { 0 };
 		}
 
 
@@ -661,9 +660,9 @@ namespace LinaEngine::Graphics
 
 
 		// Screen Quad Shaders
-		CreateShader(Shaders::SCREEN_QUAD_FINAL, "resources/shaders/screenQuadFinal.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		CreateShader(Shaders::SCREEN_QUAD_BLUR, "resources/shaders/screenQuadBlur.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		CreateShader(Shaders::SCREEN_QUAD_OUTLINE, "resources/shaders/screenQuadOutline.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SCREEN_QUAD_FINAL, "resources/shaders/ScreenQuads/SQFinal.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SCREEN_QUAD_BLUR, "resources/shaders/ScreenQuads/SQBlur.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SCREEN_QUAD_OUTLINE, "resources/shaders/ScreenQuads/SQOutline.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
 	}
 
@@ -856,15 +855,15 @@ namespace LinaEngine::Graphics
 			m_RenderDevice.SetFBO(horizontal ? m_PingPongRenderTarget1.GetID() : m_PingPongRenderTarget2.GetID());
 
 			// Setup material & use.
-			m_ScreenQuadBlurMaterial.SetBool(UF_ISHORIZONTAL, horizontal);
+			m_ScreenQuadBlurMaterial.SetBool(MC_ISHORIZONTAL, horizontal);
 			if (firstIteration)
-				m_ScreenQuadBlurMaterial.SetTexture(UF_SCREENTEXTURE, &m_PrimaryRTTexture1);
+				m_ScreenQuadBlurMaterial.SetTexture(MC_MAP_SCREEN, &m_PrimaryRTTexture1);
 			else
 			{
 				if (horizontal)
-					m_ScreenQuadBlurMaterial.SetTexture(UF_SCREENTEXTURE, &m_PingPongRTTexture2);
+					m_ScreenQuadBlurMaterial.SetTexture(MC_MAP_SCREEN, &m_PingPongRTTexture2);
 				else
-					m_ScreenQuadBlurMaterial.SetTexture(UF_SCREENTEXTURE, &m_PingPongRTTexture1);
+					m_ScreenQuadBlurMaterial.SetTexture(MC_MAP_SCREEN, &m_PingPongRTTexture1);
 			}
 
 			// Update shader data & draw.
@@ -873,6 +872,7 @@ namespace LinaEngine::Graphics
 			horizontal = !horizontal;
 			if (firstIteration) firstIteration = false;
 		}
+
 
 		// Back to outline buffer
 		//m_RenderDevice.SetFBO(m_OutlineRenderTarget.GetID());	
@@ -888,11 +888,10 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.Clear(true, true, false, Color::White, 0xFF);
 
 		// Set frame buffer texture on the material.
-		m_ScreenQuadFinalMaterial.SetTexture(UF_SCREENTEXTURE, &m_PrimaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D);
-		m_ScreenQuadFinalMaterial.SetTexture(UF_BLOOMTEXTURE, horizontal ? &m_PingPongRTTexture1 : &m_PingPongRTTexture2, TextureBindMode::BINDTEXTURE_TEXTURE2D);
-		m_ScreenQuadFinalMaterial.SetTexture(UF_OUTLINETEXTURE, &m_OutlineRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
-		m_ScreenQuadFinalMaterial.SetBool(UF_BLOOM, true);
-		m_ScreenQuadFinalMaterial.SetFloat(UF_EXPOSURE, 1.0f);
+		m_ScreenQuadFinalMaterial.SetTexture(MC_MAP_SCREEN, &m_PrimaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+		m_ScreenQuadFinalMaterial.SetTexture(MC_MAP_BLOOM, horizontal ? &m_PingPongRTTexture1 : &m_PingPongRTTexture2, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+		m_ScreenQuadFinalMaterial.SetTexture(MC_MAP_OUTLINE, &m_OutlineRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+		m_ScreenQuadFinalMaterial.SetFloat(MC_EXPOSURE, 1.0f);
 
 		// update shader w/ material data.
 		UpdateShaderData(&m_ScreenQuadFinalMaterial);

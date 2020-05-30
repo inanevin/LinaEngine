@@ -14,42 +14,33 @@
  * limitations under the License.
  */
 
-#include "common.glh"
-#include <uniformBuffers.glh>
-#include <utility.glh>
-
 
 #if defined(VS_BUILD)
-Layout(0) attribute vec3 position;
-Layout(1) attribute vec2 texCoord;
+#include <../UniformBuffers.glh>
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec2 texCoords;
 
 out vec2 TexCoords;
 
 void main()
 {
     gl_Position = vec4(position.x, position.y, 0.0, 1.0);
-    TexCoords = texCoord;
+    TexCoords = texCoords;
 }
 
 #elif defined(FS_BUILD)
-
-in vec2 TexCoords;
+#include <../MaterialSamplers.glh>
 out vec4 fragColor;
-
-struct MaterialSampler2D
+in vec2 TexCoords;
+struct Material
 {
-	sampler2D texture;
-	int isActive;
+  MaterialSampler2D screenMap;
 };
-
-uniform MaterialSampler2D screenTexture;
-
-const float offset = 1.0 / 300.0;
+uniform Material material;
 
 void main()
 {
-    vec4 textureColor = screenTexture.isActive != 0 ? texture(screenTexture.texture, TexCoords) : vec4(1,1,1,1);
-    //textureColor += vec4(0.4, 0.4, 0.4, 0.4);
+    vec4 textureColor = material.screenMap.isActive ? texture(material.screenMap.texture, TexCoords) : vec4(1,1,1,1);
     fragColor = textureColor;
 }
 #endif
