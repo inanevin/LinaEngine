@@ -507,7 +507,7 @@ namespace LinaEngine::Graphics
 		}
 		else if (shader == Shaders::SKYBOX_HDRI)
 		{
-			material.sampler2Ds[UF_MAP_ENVIRONMENT] = { 0 };
+			material.sampler2Ds[MC_MAP_ENVIRONMENT] = { 0 };
 		}
 		else if (shader == Shaders::STENCIL_OUTLINE)
 		{

@@ -109,7 +109,7 @@ void CreateHDRISkybox(RenderEngine* renderEngine)
 	hdri = &renderEngine->CreateTextureHDRI("resources/textures/HDRI/canyon3K.hdr");
 	renderEngine->CaptureCalculateHDRI(*hdri);
 	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_HDRI);
-	mat.SetTexture(UF_MAP_ENVIRONMENT, &renderEngine->GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
+	mat.SetTexture(MC_MAP_ENVIRONMENT, &renderEngine->GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
 
@@ -157,7 +157,7 @@ void Example1Level::Initialize()
 
 	// Create, setup & assign skybox material.
 	CreateHDRISkybox(m_RenderEngine);
-	CreateProceduralSkybox(m_RenderEngine);
+
 
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);

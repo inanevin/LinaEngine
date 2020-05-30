@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-#include <../common.glh>
-#include <../uniformBuffers.glh>
-#include <../utility.glh>
 
 #if defined(VS_BUILD)
+#include <../UniformBuffers.glh>
 layout (location = 0) in vec3 position;
 out vec3 WorldPos;
-
-
 void main()
 {
   WorldPos = position;
@@ -32,27 +28,24 @@ void main()
 }
 
 #elif defined(FS_BUILD)
-
-out vec4 FragColor;
+#include <../MaterialSamplers.glh>
+out vec4 fragColor;
 in vec3 WorldPos;
-
-struct MaterialSamplerCube
+struct Material
 {
-  samplerCube texture;
-  int isActive;
+  MaterialSamplerCube environmentMap;
 };
-
-uniform MaterialSamplerCube environmentMap;
+uniform Material material;
 
 void main()
 {
-  vec3 envColor = environmentMap.isActive != 0 ? texture(environmentMap.texture, WorldPos).rgb : vec3(1.0);
+  vec3 envColor = material.environmentMap.isActive ? texture(material.environmentMap.texture, WorldPos).rgb : vec3(1.0);
 
   // HDR tonemap and gamma correct
   envColor = envColor / (envColor + vec3(1.0));
   envColor = pow(envColor, vec3(1.0/2.2));
 
-  FragColor = vec4(envColor, 1.0);
+  fragColor = vec4(envColor, 1.0);
 }
 
 #endif
