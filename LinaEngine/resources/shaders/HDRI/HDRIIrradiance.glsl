@@ -30,20 +30,16 @@ void main()
 
 
 #elif defined(FS_BUILD)
-out vec4 FragColor;
+#include <../MaterialSamplers.glh>
+out vec4 fragColor;
 in vec3 WorldPos;
-
-
-struct MaterialSamplerCube
+struct Material
 {
-  samplerCube texture;
-  int isActive;
+  MaterialSamplerCube environmentMap;
 };
+uniform Material material;
 
-uniform MaterialSamplerCube environmentMap;
 const float PI = 3.14159265359;
-
-
 void main()
 {
   // The world vector acts as the normal of a tangent surface
@@ -70,14 +66,14 @@ void main()
           vec3 tangentSample = vec3(sin(theta) * cos(phi),  sin(theta) * sin(phi), cos(theta));
           // tangent space to world
           vec3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * N;
-          vec3 textureColor = environmentMap.isActive != 0 ? texture(environmentMap.texture, sampleVec).rgb : vec3(0.0);
+          vec3 textureColor = material.environmentMap.isActive  ? texture(material.environmentMap.texture, sampleVec).rgb : vec3(0.0);
 
           irradiance += textureColor * cos(theta) * sin(theta);
           nrSamples++;
       }
   }
-  irradiance = PI * irradiance * (1.0 / float(nrSamples));
 
-  FragColor = vec4(irradiance, 1.0);
+  irradiance = PI * irradiance * (1.0 / float(nrSamples));
+  fragColor = vec4(irradiance, 1.0);
 }
 #endif

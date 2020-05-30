@@ -1007,8 +1007,8 @@ namespace LinaEngine::Graphics
 
 		uint32 sh = GetShader(Shaders::EQUIRECTANGULAR_HDRI).GetID();
 		m_RenderDevice.SetShader(sh);
-		m_RenderDevice.UpdateShaderUniformInt(sh, "equirectangularMap.texture", 0);
-		m_RenderDevice.UpdateShaderUniformInt(sh, "equirectangularMap.isActive", 1);
+		m_RenderDevice.UpdateShaderUniformInt(sh, "material.equirectangularMap.texture", 0);
+		m_RenderDevice.UpdateShaderUniformInt(sh, "material.equirectangularMap.isActive", 1);
 		m_RenderDevice.UpdateShaderUniformMatrix(sh, "projection", captureProjection);
 		m_RenderDevice.SetTexture(hdriTexture.GetID(), hdriTexture.GetSamplerID(), 0);
 		m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
@@ -1044,8 +1044,8 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.ScaleRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), irradianceMapResolsution, RenderBufferStorage::STORAGE_DEPTH_COMP24);
 		uint32 irradianceShader = GetShader(Shaders::IRRADIANCE_HDRI).GetID();
 		m_RenderDevice.SetShader(irradianceShader);
-		m_RenderDevice.UpdateShaderUniformInt(irradianceShader, "environmentMap.texture", 0);
-		m_RenderDevice.UpdateShaderUniformInt(irradianceShader, "environmentMap.isActive", 1);
+		m_RenderDevice.UpdateShaderUniformInt(irradianceShader, "material.environmentMap.texture", 0);
+		m_RenderDevice.UpdateShaderUniformInt(irradianceShader, "material.environmentMap.isActive", 1);
 		m_RenderDevice.UpdateShaderUniformMatrix(irradianceShader, "projection", captureProjection);
 		m_RenderDevice.SetTexture(m_HDRICubemap.GetID(), m_HDRICubemap.GetSamplerID(), 0, TextureBindMode::BINDTEXTURE_CUBEMAP);
 		m_RenderDevice.SetViewport(Vector2::Zero, irradianceMapResolsution);
@@ -1080,9 +1080,9 @@ namespace LinaEngine::Graphics
 		m_HDRIPrefilterMap.ConstructRTCubemapTexture(m_RenderDevice, prefilterResolution, prefilterParams);
 		uint32 prefilterShader = GetShader(Shaders::PREFILTER_HDRI).GetID();
 		m_RenderDevice.SetShader(prefilterShader);
-		m_RenderDevice.UpdateShaderUniformInt(prefilterShader, "environmentMap.texture", 0);
-		m_RenderDevice.UpdateShaderUniformInt(prefilterShader, "environmentMap.isActive", 1);
-		m_RenderDevice.UpdateShaderUniformFloat(prefilterShader, "environmentResolution", 512.0f);
+		m_RenderDevice.UpdateShaderUniformInt(prefilterShader, "material.environmentMap.texture", 0);
+		m_RenderDevice.UpdateShaderUniformInt(prefilterShader, "material.environmentMap.isActive", 1);
+		m_RenderDevice.UpdateShaderUniformFloat(prefilterShader, "material.environmentResolution", 512.0f);
 		m_RenderDevice.UpdateShaderUniformMatrix(prefilterShader, "projection", captureProjection);
 		m_RenderDevice.SetTexture(m_HDRICubemap.GetID(), m_HDRICubemap.GetSamplerID(), 0, TextureBindMode::BINDTEXTURE_CUBEMAP);
 
@@ -1099,9 +1099,8 @@ namespace LinaEngine::Graphics
 			m_RenderDevice.ScaleRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), Vector2(mipWidth, mipHeight), RenderBufferStorage::STORAGE_DEPTH_COMP24);
 			m_RenderDevice.SetViewport(Vector2::Zero, Vector2(mipWidth, mipHeight));
 
-
 			float roughness = (float)mip / (float)(maxMipLevels - 1);
-			m_RenderDevice.UpdateShaderUniformFloat(prefilterShader, "roughness", roughness);
+			m_RenderDevice.UpdateShaderUniformFloat(prefilterShader, "material.roughness", roughness);
 			for (unsigned int i = 0; i < 6; ++i)
 			{
 				m_RenderDevice.UpdateShaderUniformMatrix(prefilterShader, "view", views[i]);

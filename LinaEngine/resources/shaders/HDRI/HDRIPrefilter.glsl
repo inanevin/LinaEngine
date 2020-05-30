@@ -30,19 +30,20 @@ void main()
 
 
 #elif defined(FS_BUILD)
-out vec4 FragColor;
+#include <../MaterialSamplers.glh>
+out vec4 fragColor;
 in vec3 WorldPos;
 
 
-struct MaterialSamplerCube
+struct Material
 {
-  samplerCube texture;
-  int isActive;
+  MaterialSamplerCube environmentMap;
+  float environmentResolution;
+  float roughness;
 };
 
-uniform float environmentResolution;
-uniform float roughness;
-uniform MaterialSamplerCube environmentMap;
+
+uniform Material material;
 
 const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
@@ -116,31 +117,30 @@ void main()
     {
         // generates a sample vector that's biased towards the preferred alignment direction (importance sampling).
         vec2 Xi = Hammersley(i, SAMPLE_COUNT);
-        vec3 H = ImportanceSampleGGX(Xi, N, roughness);
+        vec3 H = ImportanceSampleGGX(Xi, N, material.roughness);
         vec3 L  = normalize(2.0 * dot(V, H) * H - V);
 
         float NdotL = max(dot(N, L), 0.0);
         if(NdotL > 0.0)
         {
             // sample from the environment's mip level based on roughness/pdf
-            float D   = DistributionGGX(N, H, roughness);
+            float D   = DistributionGGX(N, H, material.roughness);
             float NdotH = max(dot(N, H), 0.0);
             float HdotV = max(dot(H, V), 0.0);
             float pdf = D * NdotH / (4.0 * HdotV) + 0.0001;
 
-            float resolution = environmentResolution; // resolution of source cubemap (per face)
+            float resolution = material.environmentResolution; // resolution of source cubemap (per face)
             float saTexel  = 4.0 * PI / (6.0 * resolution * resolution);
             float saSample = 1.0 / (float(SAMPLE_COUNT) * pdf + 0.0001);
 
-            float mipLevel = roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel);
+            float mipLevel = material.roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel);
 
-            prefilteredColor += environmentMap.isActive != 0 ? (textureLod(environmentMap.texture, L, mipLevel).rgb * NdotL) : vec3(1.0);
+            prefilteredColor += material.environmentMap.isActive ? (textureLod(material.environmentMap.texture, L, mipLevel).rgb * NdotL) : vec3(1.0);
             totalWeight      += NdotL;
         }
     }
 
     prefilteredColor = prefilteredColor / totalWeight;
-
-    FragColor = vec4(prefilteredColor, 1.0);
+    fragColor = vec4(prefilteredColor, 1.0);
 }
 #endif
