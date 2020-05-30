@@ -1,0 +1,11 @@
+struct MaterialSamplerCube
+{
+  samplerCube texture;
+  bool isActive;
+};
+
+struct MaterialSampler2D
+{
+  sampler2D texture;
+  bool isActive;
+};

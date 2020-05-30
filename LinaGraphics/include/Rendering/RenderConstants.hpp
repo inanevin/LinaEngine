@@ -40,11 +40,11 @@ namespace LinaEngine::Graphics
 #define SC_SPOTLIGHTS std::string("spotLights")
 
 #define MC_SKYBOXMATERIALNAME "skybox_defaultMat"
-#define MC_COLORPROPERTY "material.color"
-#define MC_STARTCOLORPROPERTY "material.startColor"
-#define MC_ENDCOLORPROPERTY "material.endColor"
+#define MC_COLOR "material.color"
+#define MC_STARTCOLOR "material.startColor"
+#define MC_ENDCOLOR "material.endColor"
 #define MC_OBJECTCOLORPROPERTY "material.objectColor"
-#define MC_SUNDIRECTIONPROPERTY "material.sunDirection"
+#define MC_SUNDIRECTION "material.sunDirection"
 #define MC_TEXTURE2D_DIFFUSE "material.diffuse"
 #define MC_TEXTURE2D_ALBEDOMAP "material.albedoMap"
 #define MC_TEXTURE2D_NORMALMAP "material.normalMap"
@@ -57,6 +57,7 @@ namespace LinaEngine::Graphics
 #define MC_TEXTURE2D_ROUGHNESSMAP "material.roughnessMap"
 #define MC_TEXTURE2D_SPECULAR "material.specular"
 #define MC_TEXTURE2D_SHADOWMAP "material.shadowMap"
+#define MC_MAP_ENVIRONMENT "material.environmentMap"
 #define MC_METALLICMULTIPLIER "material.metallic"
 #define MC_ROUGHNESSMULTIPLIER "material.roughness"
 #define MC_WORKFLOW "material.workflow"
@@ -69,6 +70,7 @@ namespace LinaEngine::Graphics
 #define MC_TILING "material.tiling"
 #define MC_EXTENSION_TEXTURE2D ".texture"
 #define MC_EXTENSION_ISACTIVE ".isActive"
+
 
 #define UF_MATRIX_MODEL "model"
 #define UF_MATRIX_VIEW "view"

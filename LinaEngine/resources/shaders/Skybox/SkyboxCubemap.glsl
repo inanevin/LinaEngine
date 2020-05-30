@@ -14,41 +14,33 @@
  * limitations under the License.
  */
 
-#include <../common.glh>
-#include <../uniformBuffers.glh>
-#include <../utility.glh>
 
 #if defined(VS_BUILD)
+#include <../UniformBuffers.glh>
 layout (location = 0) in vec3 position;
-Layout(1) attribute vec2 texCoord;
-
+layout (location = 1) in vec2 texCoords;
 out vec3 TexCoords;
-
-mat4 viewWOTranslation;
 
 void main()
 {
-    viewWOTranslation = view;
-	viewWOTranslation[3] = vec4(0,0,0,1.0);
-    vec4 pos = projection * viewWOTranslation * vec4(position, 1.0);
-    gl_Position = pos.xyww;
-	TexCoords = position;
+  mat4 rotView = mat4(mat3(view));
+  vec4 clipPos = projection * rotView * vec4(position, 1.0);
+  gl_Position = clipPos.xyww;
+  TexCoords = position;
 }
 
 #elif defined(FS_BUILD)
-
-out vec4 FragColor;
+#include <../MaterialSamplers.glh>
+out vec4 fragColor;
 in vec3 TexCoords;
-
 struct Material
 {
-samplerCube diffuse;
+  MaterialSamplerCube environmentMap;
 };
-
 uniform Material material;
 
 void main()
 {
-   FragColor = texture(material.diffuse, TexCoords);
+   fragColor = material.environmentMap.isActive ? texture(material.environmentMap.texture, TexCoords) : vec4(1.0);
 }
 #endif

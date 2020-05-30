@@ -488,22 +488,22 @@ namespace LinaEngine::Graphics
 		}
 		else if (shader == Shaders::SKYBOX_SINGLECOLOR)
 		{
-			material.colors[MC_COLORPROPERTY] = Color::White;
+			material.colors[MC_COLOR] = Color::White;
 		}
 		else if (shader == Shaders::SKYBOX_GRADIENT)
 		{
-			material.colors[MC_STARTCOLORPROPERTY] = Color::Black;
-			material.colors[MC_ENDCOLORPROPERTY] = Color::White;
+			material.colors[MC_STARTCOLOR] = Color::Black;
+			material.colors[MC_ENDCOLOR] = Color::White;
 		}
 		else if (shader == Shaders::SKYBOX_PROCEDURAL)
 		{
-			material.colors[MC_STARTCOLORPROPERTY] = Color::Black;
-			material.colors[MC_ENDCOLORPROPERTY] = Color::White;
-			material.vector3s[MC_SUNDIRECTIONPROPERTY] = Vector3(0, -1, 0);
+			material.colors[MC_STARTCOLOR] = Color::Black;
+			material.colors[MC_ENDCOLOR] = Color::White;
+			material.vector3s[MC_SUNDIRECTION] = Vector3(0, -1, 0);
 		}
 		else if (shader == Shaders::SKYBOX_CUBEMAP)
 		{
-			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
+			material.sampler2Ds[MC_MAP_ENVIRONMENT] = { 0 };
 		}
 		else if (shader == Shaders::SKYBOX_HDRI)
 		{
@@ -533,26 +533,8 @@ namespace LinaEngine::Graphics
 		{
 			material.sampler2Ds[UF_SCREENTEXTURE] = { 0 };
 		}
-		else if (shader == Shaders::CUBEMAP_REFLECTIVE)
-		{
-			material.sampler2Ds[UF_SKYBOXTEXTURE] = { 0 };
-		}
-		else if (shader == Shaders::DEPTH_DIRECTIONAL_SHADOWS)
-		{
 
 
-		}
-		else if (shader == Shaders::DEPTH_POINT_SHADOWS)
-		{
-			//material.matrices[UF_POINTSHADOWS_SHADOWMATRICES + std::string("[0]")] = Matrix();
-			//material.matrices[UF_POINTSHADOWS_SHADOWMATRICES + std::string("[1]")] = Matrix();
-			//material.matrices[UF_POINTSHADOWS_SHADOWMATRICES + std::string("[2]")] = Matrix();
-			//material.matrices[UF_POINTSHADOWS_SHADOWMATRICES + std::string("[3]")] = Matrix();
-			//material.matrices[UF_POINTSHADOWS_SHADOWMATRICES + std::string("[4]")] = Matrix();
-			//material.matrices[UF_POINTSHADOWS_SHADOWMATRICES + std::string("[5]")] = Matrix();
-			//material.vector3s[UF_POINTSHADOWS_LIGHTPOS] = Vector3(0, 4, 0);
-			//material.floats[UF_POINTSHADOWS_FARPLANE] = 100;
-		}
 		else if (shader == Shaders::PBR_LIT)
 		{
 			material.sampler2Ds[MC_TEXTURE2D_ALBEDOMAP] = { 0 };

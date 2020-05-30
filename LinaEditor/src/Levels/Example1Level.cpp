@@ -60,7 +60,7 @@ void Example1Level::Install()
 
 void CreateSingleColorSkybox(RenderEngine* renderEngine)
 {
-	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_SINGLECOLOR);
+	Material& mat = renderEngine->CreateMaterial("skyboxMaterialS", Shaders::SKYBOX_SINGLECOLOR);
 	mat.SetColor("material.color", Color::Red);
 	renderEngine->SetSkyboxMaterial(mat);
 }
@@ -84,7 +84,7 @@ void CreateProceduralSkybox(RenderEngine* renderEngine)
 
 void CreateCubemapSkybox(RenderEngine* renderEngine)
 {
-	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_CUBEMAP);
+	Material& mat = renderEngine->CreateMaterial("skyboxMaterialC", Shaders::SKYBOX_CUBEMAP);
 
 	const std::string fp[6] = {
 		"resources/textures/defaultSkybox/right.png",
@@ -101,7 +101,7 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 	samplerParams.textureParams.generateMipMaps = true;
 	samplerParams.textureParams.minFilter = FILTER_NEAREST;
 	Texture& t = renderEngine->CreateTextureCubemap(fp, samplerParams, false);
-	mat.SetTexture(MC_TEXTURE2D_DIFFUSE, &t, TextureBindMode::BINDTEXTURE_CUBEMAP);
+	mat.SetTexture(MC_MAP_ENVIRONMENT, &t, TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
 Texture* hdri;
@@ -158,6 +158,7 @@ void Example1Level::Initialize()
 
 	// Create, setup & assign skybox material.
 	CreateHDRISkybox(m_RenderEngine);
+	CreateCubemapSkybox(m_RenderEngine);
 
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);

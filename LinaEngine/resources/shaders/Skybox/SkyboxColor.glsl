@@ -14,34 +14,25 @@
  * limitations under the License.
  */
 
-#include <../common.glh>
-#include <../uniformBuffers.glh>
-#include <../utility.glh>
 
 #if defined(VS_BUILD)
+#include <../UniformBuffers.glh>
 layout (location = 0) in vec3 position;
-
-mat4 viewWOTranslation;
 
 void main()
 {
-    viewWOTranslation = view;
-	viewWOTranslation[3] = vec4(0,0,0,1.0);
-    vec4 pos = projection * viewWOTranslation * vec4(position, 1.0);
-    gl_Position = pos.xyww;
+  mat4 rotView = mat4(mat3(view));
+  vec4 clipPos = projection * rotView * vec4(position, 1.0);
+  gl_Position = clipPos.xyww;
 }
 
-
 #elif defined(FS_BUILD)
-
+out vec4 fragColor;
 struct Material
 {
-vec3 color;
+  vec3 color;
 };
-
 uniform Material material;
-
-out vec4 fragColor;
 
 void main()
 {
