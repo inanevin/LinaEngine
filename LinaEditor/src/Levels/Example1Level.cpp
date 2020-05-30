@@ -204,11 +204,9 @@ void Example1Level::Initialize()
 	sphereMat->SetTexture(MC_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
 	sphereMat->SetTexture(MC_TEXTURE2D_METALLICMAP, &metallicSphere);
 	sphereMat->SetTexture(MC_TEXTURE2D_AOMAP, &aoSphere);
+	m_RenderEngine->SetHDRIData(sphereMat);
 	//sphereMat.SetFloat(MC_ROUGHNESSMULTIPLIER, glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
 	//sphereMat.SetFloat(MC_METALLICMULTIPLIER, metallic);
-	sphereMat->SetTexture(MC_TEXTURE2D_IRRADIANCEMAP, &m_RenderEngine->GetIrradianceMap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
-	sphereMat->SetTexture(MC_TEXTURE2D_BRDFLUTMAP, &m_RenderEngine->GetBRDFMap(), TextureBindMode::BINDTEXTURE_TEXTURE2D);
-	sphereMat->SetTexture(MC_TEXTURE2D_PREFILTERMAP, &m_RenderEngine->GetPrefilterMap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 
 
 	for (int row = 0; row < nrRows; ++row)

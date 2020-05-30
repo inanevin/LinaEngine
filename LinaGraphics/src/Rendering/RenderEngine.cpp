@@ -569,6 +569,7 @@ namespace LinaEngine::Graphics
 			material.vector2s[MC_TILING] = Vector2::One;
 			material.receivesLighting = true;
 			material.isShadowMapped = true;
+			material.usesHDRI = true;
 		}
 		else if (shader == Shaders::EQUIRECTANGULAR_HDRI)
 		{
@@ -1167,6 +1168,51 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.SetFBO(0);
 	}
 
+	void RenderEngine::SetHDRIData(Material* mat)
+	{
+		if (mat == nullptr)
+		{
+			LINA_CORE_ERR("Materialto set HDRI data for is null, returning...");
+			return;
+		}
+
+		if (!mat->usesHDRI)
+		{
+			LINA_CORE_ERR("This material's shader does not use HDRI calculations, returning...");
+			return;
+		}
+
+		if (!m_HDRIDataCaptured)
+		{
+			LINA_CORE_ERR("HDRI data is not captured, please capture it first then set the material's data.");
+			return;
+		}
+
+		mat->SetTexture(MC_TEXTURE2D_IRRADIANCEMAP, &m_HDRIIrradianceMap, TextureBindMode::BINDTEXTURE_CUBEMAP);
+		mat->SetTexture(MC_TEXTURE2D_BRDFLUTMAP, &m_HDRILutMap, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+		mat->SetTexture(MC_TEXTURE2D_PREFILTERMAP, &m_HDRIPrefilterMap, TextureBindMode::BINDTEXTURE_CUBEMAP);
+	}
+
+	void RenderEngine::RemoveHDRIData(Material* mat)
+	{
+		if (mat == nullptr)
+		{
+			LINA_CORE_ERR("Materialto set HDRI data for is null, returning...");
+			return;
+		}
+
+		if (!mat->usesHDRI)
+		{
+			LINA_CORE_ERR("This material's shader does not use HDRI calculations, returning...");
+			return;
+		}
+
+		mat->RemoveTexture(MC_TEXTURE2D_IRRADIANCEMAP);
+		mat->RemoveTexture(MC_TEXTURE2D_BRDFLUTMAP);
+		mat->RemoveTexture(MC_TEXTURE2D_PREFILTERMAP);
+
+	}
+
 	void RenderEngine::PushLayer(Layer* layer)
 	{
 		m_GUILayerStack.PushLayer(layer);
@@ -1207,7 +1253,6 @@ namespace LinaEngine::Graphics
 
 		for (auto const& d : (*data).matrices)
 			m_RenderDevice.UpdateShaderUniformMatrix(data->shaderID, d.first, d.second);
-
 
 		for (auto const& d : (*data).sampler2Ds)
 		{
@@ -1270,6 +1315,8 @@ namespace LinaEngine::Graphics
 		CalculateHDRIBRDF(captureProjection, captureViews);
 		m_RenderDevice.SetFBO(0);
 
+		// Set flag
+		m_HDRIDataCaptured = true;
 	}
 
 }

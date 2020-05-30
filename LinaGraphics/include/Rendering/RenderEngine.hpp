@@ -108,11 +108,8 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void SetCurrentPLightCount(int count) { m_CurrentPointLightCount = count; }
 		FORCEINLINE void SetCurrentSLightCount(int count) { m_CurrentSpotLightCount = count; }
 
-		// Getters for HDRI cubemap and pre-calculated irradiance data. Call CalculateHDRIData before using these.
+		// Get hdri cubemap data.
 		FORCEINLINE Texture& GetHDRICubemap() { return m_HDRICubemap; }
-		FORCEINLINE Texture& GetIrradianceMap() { return m_HDRIIrradianceMap; }
-		FORCEINLINE Texture& GetPrefilterMap() { return m_HDRIPrefilterMap; }
-		FORCEINLINE Texture& GetBRDFMap() { return m_HDRILutMap; }
 
 		// Initialize the render renderEngine.
 		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn);
@@ -196,6 +193,10 @@ namespace LinaEngine::Graphics
 		// Initializes the setup process for loading an HDRI image to the scene
 		void CaptureCalculateHDRI(Texture& hdriTexture);
 
+		// Set & remove the HDRI data for a material
+		void SetHDRIData(Material* mat);
+		void RemoveHDRIData(Material* mat);
+
 	private:
 
 		// Constructs commonly used shaders within Lina Engine.
@@ -236,6 +237,7 @@ namespace LinaEngine::Graphics
 		void CalculateHDRIIrradiance(glm::mat4& captureProjection, glm::mat4 views[6]);
 		void CalculateHDRIPrefilter(glm::mat4& captureProjection, glm::mat4 views[6]);
 		void CalculateHDRIBRDF(glm::mat4& captureProjection, glm::mat4 views[6]);
+
 
 	private:
 
@@ -382,6 +384,9 @@ namespace LinaEngine::Graphics
 		// Light counts.
 		int m_CurrentSpotLightCount;
 		int m_CurrentPointLightCount;
+
+		// Whether hdri data is captured & calculated or not.
+		bool m_HDRIDataCaptured;
 
 		// HDRI Skybox resolution
 		Vector2 m_HDRIResolution = Vector2(512, 512);

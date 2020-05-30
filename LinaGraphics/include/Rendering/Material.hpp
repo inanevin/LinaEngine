@@ -152,6 +152,7 @@ namespace LinaEngine::Graphics
 		friend class RenderContext;
 
 		uint32 shaderID;
+		bool usesHDRI = false;
 		bool receivesLighting = false;
 		bool isShadowMapped = false;
 		MaterialSurfaceType m_SurfaceType = MaterialSurfaceType::Opaque;
