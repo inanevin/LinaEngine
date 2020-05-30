@@ -424,8 +424,8 @@ namespace LinaEngine::Graphics
 		if (!ShaderExists(shader))
 		{
 			// Shader not found.
-			LINA_CORE_ERR("Shader with the ID {0} was not found, returning standardLitShader", shader);
-			return GetShader(Shaders::STANDARD_LIT);
+			LINA_CORE_ERR("Shader with the ID {0} was not found, returning standardUnlit Shader", shader);
+			return GetShader(Shaders::STANDARD_UNLIT);
 		}
 
 		return m_LoadedShaders[shader];
@@ -448,8 +448,8 @@ namespace LinaEngine::Graphics
 
 		// If no shader found, fall back to standardLit
 		if (m_LoadedShaders.find(shader) == m_LoadedShaders.end()) {
-			LINA_CORE_ERR("Shader with engine ID {0} was not found. Setting material's shader to standardLit.", shader);
-			material.shaderID = m_LoadedShaders[Shaders::STANDARD_LIT].GetID();
+			LINA_CORE_ERR("Shader with engine ID {0} was not found. Setting material's shader to standardUnlit.", shader);
+			material.shaderID = m_LoadedShaders[Shaders::STANDARD_UNLIT].GetID();
 		}
 		else
 			material.shaderID = m_LoadedShaders[shader].GetID();
@@ -464,23 +464,8 @@ namespace LinaEngine::Graphics
 		material.matrices.clear();
 		material.vector4s.clear();
 
-		// Set shader data for material based on it's shader.
-		if (shader == Shaders::STANDARD_LIT)
-		{
-			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
-			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
-			material.sampler2Ds[MC_TEXTURE2D_NORMALMAP] = { 1 };
-			material.sampler2Ds[MC_TEXTURE2D_PARALLAXMAP] = { 2 };
-			material.ints[MC_SURFACETYPE] = 0;
-			material.ints[MC_SPECULAREXPONENT] = 32;
-			material.vector2s[MC_TILING] = Vector2::One;
-			material.receivesLighting = true;
-			material.isShadowMapped = true;
 
-			// Add to the shadow mapped materials.
-			m_ShadowMappedMaterials.emplace(&material);
-		}
-		else if (shader == Shaders::STANDARD_UNLIT)
+		 if (shader == Shaders::STANDARD_UNLIT)
 		{
 			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
 			material.sampler2Ds[MC_TEXTURE2D_DIFFUSE] = { 0 };
@@ -509,12 +494,7 @@ namespace LinaEngine::Graphics
 		{
 			material.sampler2Ds[MC_MAP_ENVIRONMENT] = { 0 };
 		}
-		else if (shader == Shaders::STENCIL_OUTLINE)
-		{
-			material.colors[MC_OBJECTCOLORPROPERTY] = Color::White;
-			material.floats[MC_OUTLINETHICKNESS] = 0.1f;
-			material.ints[MC_SURFACETYPE] = 0;
-		}
+
 		else if (shader == Shaders::SCREEN_QUAD_FINAL)
 		{
 
@@ -632,12 +612,6 @@ namespace LinaEngine::Graphics
 		Shader& unlit = CreateShader(Shaders::STANDARD_UNLIT, "resources/shaders/basicStandardUnlit.glsl");
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
-
-		// Lit
-		Shader& lit = CreateShader(Shaders::STANDARD_LIT, "resources/shaders/basicStandardLit.glsl", false);
-		lit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		lit.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
-		lit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
 		// PBR Lit
 		Shader& pbrLit = CreateShader(Shaders::PBR_LIT, "resources/shaders/PBR/pbrLit.glsl", false);
