@@ -56,6 +56,13 @@ namespace LinaEngine
 		return glm::perspectiveLH(glm::radians(halfFov), aspect, nearZ, farZ);
 	}
 
+
+	Matrix Matrix::PerspectiveRH(float halfFov, float aspect, float nearZ, float farZ)
+	{
+		return glm::perspective(glm::radians(halfFov), aspect, nearZ, farZ);
+	}
+
+
 	Matrix Matrix::TransformMatrix(const Vector3& translation, const Quaternion& rotation, const Vector3& scale)
 	{
 		Matrix trans = glm::translate(translation);
@@ -121,6 +128,11 @@ namespace LinaEngine
 		return glm::lookAtLH(location, forward, up);
 	}	
 
+
+	Matrix Matrix::InitLookAtRH(const Vector3& location, const Vector3& forward, const Vector3& up)
+	{
+		return glm::lookAt(location, forward, up);
+	}
 
 	Matrix Matrix::ApplyScale(const Vector3& scale)
 	{

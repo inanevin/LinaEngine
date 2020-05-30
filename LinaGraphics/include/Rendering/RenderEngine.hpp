@@ -234,9 +234,9 @@ namespace LinaEngine::Graphics
 
 		// Generating necessary maps for HDRI specular highlighting
 		void CalculateHDRICubemap(Texture& hdriTexture, glm::mat4& captureProjection, glm::mat4 views[6]);
-		void CalculateHDRIIrradiance(glm::mat4& captureProjection, glm::mat4 views[6]);
-		void CalculateHDRIPrefilter(glm::mat4& captureProjection, glm::mat4 views[6]);
-		void CalculateHDRIBRDF(glm::mat4& captureProjection, glm::mat4 views[6]);
+		void CalculateHDRIIrradiance(Matrix& captureProjection, Matrix views[6]);
+		void CalculateHDRIPrefilter(Matrix& captureProjection, Matrix views[6]);
+		void CalculateHDRIBRDF(Matrix& captureProjection, Matrix views[6]);
 
 
 	private:

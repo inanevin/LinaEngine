@@ -48,11 +48,13 @@ namespace LinaEngine
 		static Matrix Scale(float amt);
 		static Matrix Orthographic(float left, float right, float bottom, float top, float near, float far);
 		static Matrix Perspective(float halfFov, float aspect, float nearZ, float farZ);
+		static Matrix PerspectiveRH(float halfFov, float aspect, float nearZ, float farZ);
 		static Matrix TransformMatrix(const Vector3& translation, const Quaternion& rotation, const Vector3& scale);
 		static Matrix InitRotationFromVectors(const Vector3&, const Vector3&, const Vector3&);
 		static Matrix InitRotationFromDirection(const Vector3& forward, const Vector3& up);
 		static Matrix InitRotation(const Quaternion& q);
 		static Matrix InitLookAt(const Vector3& location, const Vector3& forward, const Vector3& up);
+		static Matrix InitLookAtRH(const Vector3& location, const Vector3& forward, const Vector3& up);
 		float Determinant4x4() const;
 		Matrix ToNormalMatrix() const;
 		Matrix Transpose() const;

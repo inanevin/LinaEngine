@@ -1001,7 +1001,7 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.IsRenderTargetComplete(m_HDRICaptureRenderTarget.GetID());
 	}
 
-	void RenderEngine::CalculateHDRIIrradiance(glm::mat4& captureProjection, glm::mat4 views[6])
+	void RenderEngine::CalculateHDRIIrradiance(Matrix& captureProjection, Matrix views[6])
 	{
 		SamplerParameters irradianceParams;
 		irradianceParams.textureParams.wrapR = irradianceParams.textureParams.wrapS = irradianceParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
@@ -1035,7 +1035,7 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void RenderEngine::CalculateHDRIPrefilter(glm::mat4& captureProjection, glm::mat4 views[6])
+	void RenderEngine::CalculateHDRIPrefilter(Matrix& captureProjection, Matrix views[6])
 	{
 
 
@@ -1086,7 +1086,7 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void RenderEngine::CalculateHDRIBRDF(glm::mat4& captureProjection, glm::mat4 views[6])
+	void RenderEngine::CalculateHDRIBRDF(Matrix& captureProjection, Matrix views[6])
 	{
 
 		SamplerParameters samplerParams;
@@ -1232,29 +1232,22 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::CaptureCalculateHDRI(Texture& hdriTexture)
 	{
-
-		glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
-
-		glm::mat4 captureViews[] =
+		// Create projection & view matrices for capturing HDRI data.
+		Matrix captureProjection = Matrix::PerspectiveRH(90.0f, 1.0f, 0.1f, 10.0f);
+		Matrix captureViews[] =
 		{
-			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
-			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
-			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-			glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+			Matrix::InitLookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			Matrix::InitLookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			Matrix::InitLookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+			Matrix::InitLookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+			Matrix::InitLookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+			Matrix::InitLookAtRH(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
 		};
 
+		// Calculate HDRI, Irradiance, Prefilter and BRDF
 		CalculateHDRICubemap(hdriTexture, captureProjection, captureViews);
-		m_RenderDevice.SetFBO(0);
-
 		CalculateHDRIIrradiance(captureProjection, captureViews);
-		m_RenderDevice.SetFBO(0);
-
-
 		CalculateHDRIPrefilter(captureProjection, captureViews);
-		m_RenderDevice.SetFBO(0);
-
 		CalculateHDRIBRDF(captureProjection, captureViews);
 		m_RenderDevice.SetFBO(0);
 
