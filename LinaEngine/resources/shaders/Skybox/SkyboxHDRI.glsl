@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include <common.glh>
-#include <uniformBuffers.glh>
-#include <utility.glh>
+#include <../common.glh>
+#include <../uniformBuffers.glh>
+#include <../utility.glh>
 
 #if defined(VS_BUILD)
 layout (location = 0) in vec3 position;

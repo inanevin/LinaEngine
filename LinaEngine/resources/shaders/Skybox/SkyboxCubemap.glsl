@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-#include <common.glh>
-#include <uniformBuffers.glh>
-#include <utility.glh>
+
+#include <../common.glh>
+#include <../uniformBuffers.glh>
+#include <../utility.glh>
 
 #if defined(VS_BUILD)
 layout (location = 0) in vec3 position;
+Layout(1) attribute vec2 texCoord;
+
+out vec3 TexCoords;
 
 mat4 viewWOTranslation;
 
@@ -29,22 +32,23 @@ void main()
 	viewWOTranslation[3] = vec4(0,0,0,1.0);
     vec4 pos = projection * viewWOTranslation * vec4(position, 1.0);
     gl_Position = pos.xyww;
+	TexCoords = position;
 }
-  
- 
+
 #elif defined(FS_BUILD)
+
+out vec4 FragColor;
+in vec3 TexCoords;
 
 struct Material
 {
-vec3 color;
+samplerCube diffuse;
 };
 
 uniform Material material;
 
-out vec4 fragColor;
-
 void main()
-{    
-   fragColor = vec4(material.color.x, material.color.y, material.color.z, 1);
+{
+   FragColor = texture(material.diffuse, TexCoords);
 }
 #endif

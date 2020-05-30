@@ -664,16 +664,12 @@ namespace LinaEngine::Graphics
 		pbrLit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
 		// Skies
-		CreateShader(Shaders::SKYBOX_SINGLECOLOR, "resources/shaders/skyboxSingleColor.glsl");
-		CreateShader(Shaders::SKYBOX_GRADIENT, "resources/shaders/skyboxVertexGradient.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		CreateShader(Shaders::SKYBOX_CUBEMAP, "resources/shaders/skyboxCubemap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		CreateShader(Shaders::SKYBOX_PROCEDURAL, "resources/shaders/skyboxProcedural.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		CreateShader(Shaders::SKYBOX_HDRI, "resources/shaders/skyboxHDRI.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SKYBOX_SINGLECOLOR, "resources/shaders/Skybox/SkyboxColor.glsl");
+		CreateShader(Shaders::SKYBOX_GRADIENT, "resources/shaders/Skybox/SkyboxGradient.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SKYBOX_CUBEMAP, "resources/shaders/Skybox/SkyboxCubemap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SKYBOX_PROCEDURAL, "resources/shaders/Skybox/SkyboxProcedural.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SKYBOX_HDRI, "resources/shaders/Skybox/SkyboxHDRI.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
-		// Others
-		Shader& singleColor = CreateShader(Shaders::STENCIL_OUTLINE, "resources/shaders/stencilOutline.glsl");
-		singleColor.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		singleColor.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
 		// Equirectangular cube & irradiance for HDRI skbox
 		CreateShader(Shaders::EQUIRECTANGULAR_HDRI, "resources/shaders/equirectangularHDRI.glsl");
@@ -687,15 +683,6 @@ namespace LinaEngine::Graphics
 		CreateShader(Shaders::SCREEN_QUAD_BLUR, "resources/shaders/screenQuadBlur.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		CreateShader(Shaders::SCREEN_QUAD_OUTLINE, "resources/shaders/screenQuadOutline.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
-		// Cubemap reflective
-		CreateShader(Shaders::CUBEMAP_REFLECTIVE, "resources/shaders/cubemapReflective.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-
-		// Depth Shader
-		CreateShader(Shaders::DEPTH_DIRECTIONAL_SHADOWS, "resources/shaders/directionalDepthMap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-
-		// Depth Shader for point lights
-		CreateShader(Shaders::DEPTH_POINT_SHADOWS, "resources/shaders/pointLightDepthMap.glsl", true).BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-
 	}
 
 	void RenderEngine::ConstructEngineMaterials()
@@ -704,6 +691,7 @@ namespace LinaEngine::Graphics
 		SetMaterialShader(m_ScreenQuadBlurMaterial, Shaders::SCREEN_QUAD_BLUR);
 		SetMaterialShader(m_ScreenQuadOutlineMaterial, Shaders::SCREEN_QUAD_OUTLINE);
 		SetMaterialShader(m_HDRIMaterial, Shaders::EQUIRECTANGULAR_HDRI);
+
 	}
 
 	void RenderEngine::ConstructEnginePrimitives()

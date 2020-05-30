@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2019 Inan Evin
  *
@@ -14,17 +15,15 @@
  * limitations under the License.
  */
 
-#include <common.glh>
-#include <uniformBuffers.glh>
-#include <utility.glh>
+#include <../common.glh>
+#include <../uniformBuffers.glh>
+#include <../utility.glh>
 
 #if defined(VS_BUILD)
 layout (location = 0) in vec3 position;
-Layout(1) attribute vec2 texCoord;
-
-out vec3 TexCoords;
 
 mat4 viewWOTranslation;
+out vec3 TexCoords;
 
 void main()
 {
@@ -35,20 +34,25 @@ void main()
 	TexCoords = position;
 }
 
+
 #elif defined(FS_BUILD)
 
-out vec4 FragColor;
+out vec4 fragColor;
 in vec3 TexCoords;
 
 struct Material
 {
-samplerCube diffuse;
+vec3 startColor;
+vec3 endColor;
+vec3 sunDirection;
 };
 
 uniform Material material;
 
 void main()
 {
-   FragColor = texture(material.diffuse, TexCoords);
+
+	float f = dot(normalize(TexCoords), normalize(-material.sunDirection)) * 0.5f + 0.5f;
+    fragColor = mix(vec4(material.startColor, 1.0), vec4(material.endColor, 1.0), pow(f,2)) * 1;
 }
 #endif

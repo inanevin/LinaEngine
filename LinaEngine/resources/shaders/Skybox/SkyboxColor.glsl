@@ -13,29 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-#include "common.glh"
-#include <uniformBuffers.glh>
-#include <utility.glh>
 
+#include <../common.glh>
+#include <../uniformBuffers.glh>
+#include <../utility.glh>
 
 #if defined(VS_BUILD)
-Layout(0) attribute vec3 position;
-Layout(1) attribute vec2 texCoord;
-Layout(4) attribute mat4 model;
+layout (location = 0) in vec3 position;
+
+mat4 viewWOTranslation;
 
 void main()
 {
-    gl_Position = lightSpace * model * vec4(position, 1.0);
-    //gl_Position = model * vec4(position, 1.0);
+    viewWOTranslation = view;
+	viewWOTranslation[3] = vec4(0,0,0,1.0);
+    vec4 pos = projection * viewWOTranslation * vec4(position, 1.0);
+    gl_Position = pos.xyww;
 }
 
+
 #elif defined(FS_BUILD)
-#define BIAS 0.01
+
+struct Material
+{
+vec3 color;
+};
+
+uniform Material material;
+
+out vec4 fragColor;
 
 void main()
 {
-	// = gl_FragCoord.z;
-    //gl_FragDepth += gl_FrontFacing ? BIAS : 0.0; //  float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005); 
+   fragColor = vec4(material.color.x, material.color.y, material.color.z, 1);
 }
 #endif
