@@ -67,10 +67,10 @@ void CreateSingleColorSkybox(RenderEngine* renderEngine)
 
 void CreateGradientSkybox(RenderEngine* renderEngine)
 {
-	renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_GRADIENT);
-	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.startColor", Color::Green);
-	renderEngine->GetMaterial("skyboxMaterial").SetColor("material.endColor", Color::White);
-	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial("skyboxMaterial"));
+	renderEngine->CreateMaterial("skyboxMaterialG", Shaders::SKYBOX_GRADIENT);
+	renderEngine->GetMaterial("skyboxMaterialG").SetColor("material.startColor", Color::Green);
+	renderEngine->GetMaterial("skyboxMaterialG").SetColor("material.endColor", Color::White);
+	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial("skyboxMaterialG"));
 }
 
 void CreateProceduralSkybox(RenderEngine* renderEngine)
@@ -94,7 +94,6 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 		"resources/textures/defaultSkybox/front.png",
 		"resources/textures/defaultSkybox/back.png",
 	};
-
 
 	SamplerData data = SamplerData();
 	SamplerParameters samplerParams;
@@ -158,7 +157,7 @@ void Example1Level::Initialize()
 
 	// Create, setup & assign skybox material.
 	CreateHDRISkybox(m_RenderEngine);
-	CreateCubemapSkybox(m_RenderEngine);
+	CreateGradientSkybox(m_RenderEngine);
 
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);

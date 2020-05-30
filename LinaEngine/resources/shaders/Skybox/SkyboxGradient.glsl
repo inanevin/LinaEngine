@@ -15,44 +15,34 @@
  * limitations under the License.
  */
 
-#include <../common.glh>
-#include <../uniformBuffers.glh>
-#include <../utility.glh>
-
 #if defined(VS_BUILD)
+#include <../UniformBuffers.glh>
 layout (location = 0) in vec3 position;
-
-out vec3 rawPosition;
-mat4 viewWOTranslation;
+out vec3 RawPosition;
 
 void main()
 {
-	viewWOTranslation = view;
-	viewWOTranslation[3] = vec4(0,0,0,1.0);
-    vec4 pos = projection * viewWOTranslation * vec4(position, 1.0);
-    gl_Position = pos.xyww;
-	rawPosition = position;
+	mat4 rotView = mat4(mat3(view));
+  vec4 clipPos = projection * rotView * vec4(position, 1.0);
+  gl_Position = clipPos.xyww;
+  RawPosition = position;
 }
 
-
-
 #elif defined(FS_BUILD)
-
-in vec3 rawPosition;
+#include <../Utility.glh>
 out vec4 fragColor;
-
+in vec3 RawPosition;
 struct Material
 {
-vec3 startColor;
-vec3 endColor;
+	vec3 startColor;
+	vec3 endColor;
 };
-
 uniform Material material;
 
 void main()
 {
-	float u = rawPosition.y;
+	float u = RawPosition.y;
 	u = remap(u, -1.0f, 1.0f, 0.0f, 1.0f);
-    gl_FragColor = mix( vec4(material.startColor, 1.0), vec4(material.endColor, 1.0), u );
+  fragColor = mix( vec4(material.startColor, 1.0), vec4(material.endColor, 1.0), u );
 }
 #endif

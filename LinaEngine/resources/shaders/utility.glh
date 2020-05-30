@@ -1,6 +1,11 @@
 
-float LinearizeDepth(float depth, float far, float near) 
+float LinearizeDepth(float depth, float far, float near)
 {
-    float z = depth * 2.0 - 1.0; // back to NDC 
-    return (2.0 * near * far) / (far + near - z * (far - near));	
+    float z = depth * 2.0 - 1.0; // back to NDC
+    return (2.0 * near * far) / (far + near - z * (far - near));
+}
+
+float remap( float value, float low1, float high1, float low2, float high2)
+{
+    return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
 }
