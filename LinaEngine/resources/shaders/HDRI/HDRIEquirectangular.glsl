@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include <common.glh>
 
 
 #if defined(VS_BUILD)
@@ -22,7 +21,6 @@ layout (location = 0) in vec3 position;
 out vec3 LocalPos;
 uniform mat4 view;
 uniform mat4 projection;
-
 void main()
 {
     LocalPos = position;
@@ -33,7 +31,6 @@ void main()
 #elif defined(FS_BUILD)
 out vec4 FragColor;
 in vec3 LocalPos;
-
 
 struct MaterialSampler2D
 {

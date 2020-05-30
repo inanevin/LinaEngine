@@ -653,10 +653,10 @@ namespace LinaEngine::Graphics
 
 
 		// Equirectangular cube & irradiance for HDRI skbox
-		CreateShader(Shaders::EQUIRECTANGULAR_HDRI, "resources/shaders/equirectangularHDRI.glsl");
-		CreateShader(Shaders::IRRADIANCE_HDRI, "resources/shaders/irradianceHDRI.glsl");
-		CreateShader(Shaders::PREFILTER_HDRI, "resources/shaders/prefilterHDRI.glsl");
-		CreateShader(Shaders::BRDF_HDRI, "resources/shaders/brdfHDRI.glsl");
+		CreateShader(Shaders::EQUIRECTANGULAR_HDRI, "resources/shaders/HDRI/HDRIEquirectangular.glsl");
+		CreateShader(Shaders::IRRADIANCE_HDRI, "resources/shaders/HDRI/HDRIIrradiance.glsl");
+		CreateShader(Shaders::PREFILTER_HDRI, "resources/shaders/HDRI/HDRIPrefilter.glsl");
+		CreateShader(Shaders::BRDF_HDRI, "resources/shaders/HDRI/HDRIBRDF.glsl");
 
 
 		// Screen Quad Shaders

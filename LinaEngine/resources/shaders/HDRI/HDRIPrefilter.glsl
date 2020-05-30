@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include <common.glh>
 
 
 #if defined(VS_BUILD)

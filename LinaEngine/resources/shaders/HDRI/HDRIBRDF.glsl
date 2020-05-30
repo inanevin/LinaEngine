@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-#include <common.glh>
 
 
 #if defined(VS_BUILD)
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec2 texCoords;
-
 out vec2 TexCoords;
 
 
@@ -30,9 +28,8 @@ void main()
 	gl_Position = vec4(position, 1.0);
 }
 
-
 #elif defined(FS_BUILD)
-out vec2 FragColor;
+out vec2 fragColor;
 in vec2 TexCoords;
 
 const float PI = 3.14159265359;
@@ -142,6 +139,6 @@ vec2 IntegrateBRDF(float NdotV, float roughness)
 void main()
 {
     vec2 integratedBRDF = IntegrateBRDF(TexCoords.x, TexCoords.y);
-    FragColor = integratedBRDF;
+    fragColor = integratedBRDF;
 }
 #endif

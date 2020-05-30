@@ -157,7 +157,6 @@ void Example1Level::Initialize()
 
 	// Create, setup & assign skybox material.
 	CreateHDRISkybox(m_RenderEngine);
-	CreateProceduralSkybox(m_RenderEngine);
 
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);
