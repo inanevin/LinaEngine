@@ -13,68 +13,64 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-#include "common.glh"
-#include <uniformBuffers.glh>
-#include <utility.glh>
 
-varying vec2 texCoord0;
 
 #if defined(VS_BUILD)
-Layout(0) attribute vec3 position;
-Layout(1) attribute vec2 texCoord;
-Layout(2) attribute vec3 normal;
-Layout(3) attribute vec3 tangent;
-Layout(4) attribute vec3 biTangent;
-Layout(5) attribute mat4 model;
-Layout(9) attribute mat4 inverseTransposeModel;
-
+#include <../UniformBuffers.glh>
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec2 texCoords;
+layout (location = 2) in vec3 normal;
+layout (location = 3) in vec3 tangent;
+layout (location = 4) in vec3 biTangent;
+layout (location = 5) in mat4 model;
+layout (location = 9) in mat4 inverseTransposeModel;
 out vec2 TexCoords;
 out vec3 FragPos;
 
 void main()
 {
-    gl_Position = projection * view * model * vec4(position, 1.0);
+  gl_Position = projection * view * model * vec4(position, 1.0);
 	FragPos = vec3(model * vec4(position,1.0));
-    TexCoords = texCoord;
+  TexCoords = texCoords;
 }
 
 #elif defined(FS_BUILD)
+#include <../UniformBuffers.glh>
+#include <../Utility.glh>
+#include <../MaterialSamplers.glh>
 layout (location = 0) out vec4 fragColor;
 layout (location = 1) out vec4 brightColor;
+in vec3 FragPos;
+in vec2 TexCoords;
 
 struct Material
 {
-vec3 objectColor;
-sampler2D diffuse;
-int surfaceType;
+  MaterialSampler2D diffuse;
+  vec3 objectColor;
+  int surfaceType;
 };
 
 uniform Material material;
-
-in vec3 FragPos;
-in vec2 TexCoords;
 
 
 void main()
 {
 	if(visualizeDepth)
 	{
-		float depth = LinearizeDepth(gl_FragCoord.z, cameraFar, cameraNear) / cameraFar;		
+		float depth = LinearizeDepth(gl_FragCoord.z, cameraFar, cameraNear) / cameraFar;
 		fragColor = vec4(vec3(depth), 1);
 	}
 	else
 	{
-		float alpha = material.surfaceType == 0 ? 1.0 : texture(material.diffuse, TexCoords).a;
+		float alpha = material.surfaceType == 0 ? 1.0 : texture(material.diffuse.texture, TexCoords).a;
 
-		fragColor = texture(material.diffuse ,TexCoords) * vec4(material.objectColor, 1.0);	
-		
 		float brightness = dot(fragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
 		if(brightness > 1.0)
 			brightColor = vec4(fragColor.rgb, 1.0);
 		else
 			brightColor = vec4(0.0, 0.0, 0.0, 1.0);
-		
+
+    fragColor = (material.diffuse.isActive ? texture(material.diffuse.texture ,TexCoords) : vec4(1.0)) * vec4(material.objectColor, 1.0);
 	}
 }
 #endif

@@ -609,7 +609,7 @@ namespace LinaEngine::Graphics
 	void RenderEngine::ConstructEngineShaders()
 	{
 		// Unlit.
-		Shader& unlit = CreateShader(Shaders::STANDARD_UNLIT, "resources/shaders/basicStandardUnlit.glsl");
+		Shader& unlit = CreateShader(Shaders::STANDARD_UNLIT, "resources/shaders/Unlit/Unlit.glsl");
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
