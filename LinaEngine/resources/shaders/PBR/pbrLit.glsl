@@ -14,56 +14,39 @@
  * limitations under the License.
  */
 
-#include <../common.glh>
-#include <../uniformBuffers.glh>
-#include <../utility.glh>
 
 #if defined(VS_BUILD)
-
-Layout(0) attribute vec3 position;
-Layout(1) attribute vec2 texCoord;
-Layout(2) attribute vec3 normal;
-Layout(3) attribute vec3 tangent;
-Layout(4) attribute vec3 biTangent;
-Layout(5) attribute mat4 model;
-Layout(9) attribute mat4 inverseTransposeModel;
-
+#include <../UniformBuffers.glh>
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec2 texCoords;
+layout (location = 2) in vec3 normal;
+layout (location = 3) in vec3 tangent;
+layout (location = 4) in vec3 biTangent;
+layout (location = 5) in mat4 model;
+layout (location = 9) in mat4 inverseTransposeModel;
 out vec2 TexCoords;
 out vec3 WorldPos;
 out vec3 Normal;
 
-
 void main()
 {
-    TexCoords = texCoord;
+    TexCoords = texCoords;
     WorldPos = vec3(model * vec4(position, 1.0));
     Normal = mat3(model) * normal;
-
     gl_Position =  projection * view * vec4(WorldPos, 1.0);
 }
 
 #elif defined(FS_BUILD)
-
-#include <../lightingData.glh>
-in vec2 TexCoords;
-in vec3 WorldPos;
-in vec3 Normal;
+#include <../UniformBuffers.glh>
+#include <../LightingData.glh>
+#include <../MaterialSamplers.glh>
 
 layout (location = 0) out vec4 fragColor;
 layout (location = 1) out vec4 brightColor;
 layout (location = 2) out vec4 outlineColor;
-
-struct MaterialSampler2D
-{
-	sampler2D texture;
-	bool isActive;
-};
-
-struct MaterialSamplerCube
-{
-	samplerCube texture;
-	bool isActive;
-};
+in vec2 TexCoords;
+in vec3 WorldPos;
+in vec3 Normal;
 
 struct Material
 {

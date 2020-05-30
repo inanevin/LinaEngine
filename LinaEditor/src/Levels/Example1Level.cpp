@@ -95,6 +95,7 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 		"resources/textures/defaultSkybox/back.png",
 	};
 
+
 	SamplerData data = SamplerData();
 	SamplerParameters samplerParams;
 	samplerParams.textureParams.generateMipMaps = true;

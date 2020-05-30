@@ -614,7 +614,7 @@ namespace LinaEngine::Graphics
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
 		// PBR Lit
-		Shader& pbrLit = CreateShader(Shaders::PBR_LIT, "resources/shaders/PBR/pbrLit.glsl", false);
+		Shader& pbrLit = CreateShader(Shaders::PBR_LIT, "resources/shaders/PBR/PBRLit.glsl", false);
 		pbrLit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		pbrLit.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
 		pbrLit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
