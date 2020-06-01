@@ -209,7 +209,6 @@ void Example1Level::Initialize()
 	float spacing = 3.0f;
 
 
-
 	sphereMat = &m_RenderEngine->CreateMaterial("sp", Shaders::PBR_LIT);
 	sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalSphere);
