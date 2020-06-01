@@ -137,13 +137,12 @@ Vector3 pointLightPositions[]
 
 Vector3 spotLightPositions[]
 {
-	Vector3(0,0, -4)
+	glm::vec3(0.0f, 4.0f, 0.0f)
 };
 
 int pLightSize = 1;
 int cubeSize = 4;
 int sLightSize = 0;
-
 
 
 void Example1Level::Initialize()
@@ -298,27 +297,23 @@ void Example1Level::Initialize()
 
 	for (int i = 0; i < sLightSize; i++)
 	{
-		ECSEntity entity;
+		ECSEntity sLight;
 		TransformComponent lightTransform;
 		MeshRendererComponent lightRenderer;
-		lightRenderer.mesh = &m_RenderEngine->GetPrimitive(Primitives::SPHERE);
+		SpotLightComponent sLight1;
+		lightTransform.transform.location = spotLightPositions[i];
 		lightRenderer.material = objectUnlitMaterial;
-		lightTransform.transform.location = pointLightPositions[i];
-		lightTransform.transform.scale = 0.1f;
-		entity = m_ECS->CreateEntity("Point Light " + i);
-		auto lightT = m_ECS->emplace<TransformComponent>(entity, lightTransform);
-		auto& sLight1 = m_ECS->emplace<SpotLightComponent>(entity);
-		sLight1.color = Color(300, 300, 300);
-		m_ECS->emplace<MeshRendererComponent>(entity, lightRenderer);
-		sLight1.distance = 100;
-
-
+		lightRenderer.mesh = &m_RenderEngine->GetPrimitive(Primitives::CUBE);
+		sLight = m_ECS->CreateEntity("Spot light" + i);
+	
 
 		sLight1.color = Color(0.05f, 0.05f, 0.05f);
 		sLight1.distance = 150;
 		sLight1.cutOff = Math::Cos(Math::ToRadians(12.5f));
 		sLight1.outerCutOff = Math::Cos(Math::ToRadians(15.5f));
-
+		m_ECS->emplace<MeshRendererComponent>(sLight, lightRenderer);
+		m_ECS->emplace<TransformComponent>(sLight, lightTransform);
+		m_ECS->emplace<SpotLightComponent>(sLight, sLight1);
 
 	}
 

@@ -1010,9 +1010,9 @@ namespace LinaEngine::Graphics
 			{
 
 				if (d.second.bindMode == TextureBindMode::BINDTEXTURE_TEXTURE2D)
-					m_RenderDevice.SetTexture(m_DefaultTexture.GetID(), m_DefaultTexture.GetSamplerID(), d.second.unit);
+					m_RenderDevice.SetTexture(m_DefaultTexture.GetID(), m_DefaultTexture.GetSamplerID(), d.second.unit, BINDTEXTURE_TEXTURE2D);
 				else
-					m_RenderDevice.SetTexture(m_DefaultCubemapTexture.GetID(), m_DefaultCubemapTexture.GetSamplerID(), d.second.unit);
+					m_RenderDevice.SetTexture(m_DefaultCubemapTexture.GetID(), m_DefaultCubemapTexture.GetSamplerID(), d.second.unit, BINDTEXTURE_CUBEMAP);
 			}
 		}
 

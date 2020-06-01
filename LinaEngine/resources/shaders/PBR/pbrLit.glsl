@@ -107,6 +107,17 @@ void main()
         Lo += CalculateLight(N, V, L, albedo, metallic, roughness, radiance, F0);
     }
 
+    // Spot lights
+    for(int i = 0; i < spotLightCount; ++i)
+    {
+      // calculate per-light radiance
+      vec3 L = normalize(spotLights[i].position - WorldPos);
+      float distance = length(spotLights[i].position - WorldPos);
+      float attenuation = 1.0 / (distance * distance);
+      vec3 radiance = spotLights[i].color * attenuation;
+      Lo += CalculateLight(N, V, L, albedo, metallic, roughness, radiance, F0);
+    }
+
     vec3 ambient = vec3(0.0);
     if(material.irradianceMap.isActive  && material.prefilterMap.isActive && material.brdfLUTMap.isActive)
     {
