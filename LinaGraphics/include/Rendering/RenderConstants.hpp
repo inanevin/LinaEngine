@@ -64,9 +64,10 @@ namespace LinaEngine::Graphics
 #define MAT_WORKFLOW "material.workflow"
 #define MAT_SURFACETYPE "material.surfaceType"
 #define MAT_TILING "material.tiling"
-#define MAT_ISHORIZONTAL "horizontal"
-#define MAT_BLOOM "bloom"
-#define MAT_EXPOSURE "exposure"
+#define MAT_ISHORIZONTAL "material.horizontal"
+#define MAT_BLOOM "material.bloomEnabled"
+#define MAT_EXPOSURE "material.exposure"
+#define MAT_INVERSESCREENMAPSIZE "material.inverseScreenMapSize"
 #define MAT_EXTENSION_TEXTURE2D ".texture"
 #define MAT_EXTENSION_ISACTIVE ".isActive"
 	

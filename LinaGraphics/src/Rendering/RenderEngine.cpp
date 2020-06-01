@@ -502,6 +502,8 @@ namespace LinaEngine::Graphics
 			material.sampler2Ds[MAT_MAP_BLOOM] = { 1 };
 			material.sampler2Ds[MAT_MAP_OUTLINE] = { 2 };
 			material.floats[MAT_EXPOSURE] = 1.0f;
+			material.booleans[MAT_BLOOM] = true;
+			material.vector3s[MAT_INVERSESCREENMAPSIZE] = Vector3();
 		}
 		else if (shader == Shaders::SCREEN_QUAD_BLUR)
 		{
@@ -865,6 +867,9 @@ namespace LinaEngine::Graphics
 		m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_BLOOM, horizontal ? &m_PingPongRTTexture1 : &m_PingPongRTTexture2, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_OUTLINE, &m_OutlineRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		m_ScreenQuadFinalMaterial.SetFloat(MAT_EXPOSURE, 1.0f);
+		m_ScreenQuadFinalMaterial.SetBool(MAT_BLOOM, true);
+		Vector2 inverseMapSize = 1.0f / m_PrimaryRTTexture0.GetSize();
+		m_ScreenQuadFinalMaterial.SetVector3(MAT_INVERSESCREENMAPSIZE, Vector3(inverseMapSize.x, inverseMapSize.y, 0.0));
 
 		// update shader w/ material data.
 		UpdateShaderData(&m_ScreenQuadFinalMaterial);

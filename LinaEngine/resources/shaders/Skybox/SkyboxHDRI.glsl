@@ -42,8 +42,8 @@ void main()
   vec3 envColor = material.environmentMap.isActive ? texture(material.environmentMap.texture, WorldPos).rgb : vec3(1.0);
 
   // HDR tonemap and gamma correct
-  envColor = envColor / (envColor + vec3(1.0));
-  envColor = pow(envColor, vec3(1.0/2.2));
+  //envColor = envColor / (envColor + vec3(1.0));
+  //envColor = pow(envColor, vec3(1.0/2.2));
 
   fragColor = vec4(envColor, 1.0);
 }
