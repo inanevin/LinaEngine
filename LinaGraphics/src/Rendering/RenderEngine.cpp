@@ -38,7 +38,7 @@ namespace LinaEngine::Graphics
 	constexpr int UNIFORMBUFFER_VIEWDATA_BINDPOINT = 0;
 	constexpr auto UNIFORMBUFFER_VIEWDATA_NAME = "ViewData";
 
-	constexpr size_t UNIFORMBUFFER_LIGHTDATA_SIZE = (sizeof(int) * 8);
+	constexpr size_t UNIFORMBUFFER_LIGHTDATA_SIZE = (sizeof(int) * 2);
 	constexpr int UNIFORMBUFFER_LIGHTDATA_BINDPOINT = 1;
 	constexpr auto UNIFORMBUFFER_LIGHTDATA_NAME = "LightData";
 
@@ -526,7 +526,7 @@ namespace LinaEngine::Graphics
 			material.sampler2Ds[MAT_TEXTURE2D_BRDFLUTMAP] = { 7 };
 			material.floats[MAT_METALLICMULTIPLIER] = 1.0f;
 			material.floats[MAT_ROUGHNESSMULTIPLIER] = 1.0f;
-			material.floats[MAT_WORKFLOW] = 0;
+			material.ints[MAT_WORKFLOW] = 0;
 			material.vector2s[MAT_TILING] = Vector2::One;
 			material.receivesLighting = true;
 			material.isShadowMapped = true;
@@ -538,7 +538,6 @@ namespace LinaEngine::Graphics
 			material.matrices[UF_MATRIX_VIEW] = Matrix();
 			material.matrices[UF_MATRIX_PROJECTION] = Matrix();
 		}
-
 
 
 		return material;

@@ -50,7 +50,7 @@ void main()
   vec3 outlineColor = material.outlineMap.isActive ? texture(material.outlineMap.texture, TexCoords).rgb : vec3(0.0);
 
   // Add bloom.
-  //hdrColor += bloomColor;
+  hdrColor += bloomColor;
 
   // Add outline
   hdrColor += outlineColor;

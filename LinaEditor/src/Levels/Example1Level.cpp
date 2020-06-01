@@ -42,9 +42,10 @@ FreeLookComponent cameraFreeLookComponent;
 ECSEntity camera;
 
 Material* objectUnlitMaterial;
-Material* gunMaterial;
+Material* helmetMaterial;
 Material* sphereMat;
 Material* arcadeMaterial;
+Material* floorMaterial;
 
 
 
@@ -106,7 +107,7 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 }
 void CreateHDRISkybox(RenderEngine* renderEngine)
 {
-	Texture* hdri = &renderEngine->CreateTextureHDRI("resources/textures/HDRI/loft.hdr");
+	Texture* hdri = &renderEngine->CreateTextureHDRI("resources/textures/HDRI/canyon3K.hdr");
 	renderEngine->CaptureCalculateHDRI(*hdri);
 	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_HDRI);
 	mat.SetTexture(MAT_MAP_ENVIRONMENT, &renderEngine->GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
@@ -128,7 +129,7 @@ Vector3 cubePositions[] = {
 
 Vector3 pointLightPositions[]
 {
-	glm::vec3(-10.0f,  10.0f, 10.0f),
+	glm::vec3(0.0f, 8.0f, 0.0f),
 	glm::vec3(10.0f,  10.0f, 10.0f),
 	glm::vec3(-10.0f, -10.0f, 10.0f),
 	glm::vec3(10.0f, -10.0f, 10.0f),
@@ -139,24 +140,19 @@ Vector3 spotLightPositions[]
 	Vector3(0,0, -4)
 };
 
-int pLightSize = 4;
+int pLightSize = 1;
 int cubeSize = 4;
 int sLightSize = 0;
 
 
 
-Texture* bricksParallax;
-Texture* bricksParallax2;
-ECSEntity cubeEntity;
-TransformComponent* dirLightT;
 void Example1Level::Initialize()
 {
-
 
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-	CreateHDRISkybox(m_RenderEngine);
+	CreateProceduralSkybox(m_RenderEngine);
 
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);
@@ -185,9 +181,25 @@ void Example1Level::Initialize()
 	Texture& roughnessSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/roughness.png", pbrSampler, false, false);
 	Texture& aoSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/ao.png", pbrSampler, false, false);
 
+	Texture& albedoFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/albedo.png", pbrSampler, false, false);
+	Texture& normalFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/normal.png", pbrSampler, false, false);
+	Texture& metallicFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/metallic.png", pbrSampler, false, false);
+	Texture& roughnessFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/roughness.png", pbrSampler, false, false);
+	Texture& aoFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/ao.png", pbrSampler, false, false);
+
+
+
+	Texture& albedoHelmet = m_RenderEngine->CreateTexture2D("resources/textures/helmet/albedo.jpg", pbrSampler, false, false);
+	Texture& normalHelmet = m_RenderEngine->CreateTexture2D("resources/textures/helmet/normal.jpg", pbrSampler, false, false);
+	Texture& metallicHelmet = m_RenderEngine->CreateTexture2D("resources/textures/helmet/metallic.jpg", pbrSampler, false, false);
+	Texture& roughnessHelmet = m_RenderEngine->CreateTexture2D("resources/textures/helmet/roughness.jpg", pbrSampler, false, false);
+	Texture& aoHelmet = m_RenderEngine->CreateTexture2D("resources/textures/helmet/ao.jpg", pbrSampler, false, false);
+
 
 	// Load example mesh.
 	Mesh& cubeMesh = m_RenderEngine->GetPrimitive(Primitives::SPHERE);
+	Mesh& floorMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
+	Mesh& helmetMesh = m_RenderEngine->CreateMesh("resources/meshes/helmet.obj");
 
 	// Create material for example mesh.
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
@@ -197,42 +209,65 @@ void Example1Level::Initialize()
 	int nrColumns = 7;
 	float spacing = 3.0f;
 
+
+
 	sphereMat = &m_RenderEngine->CreateMaterial("sp", Shaders::PBR_LIT);
 	sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
-	m_RenderEngine->SetHDRIData(sphereMat);
-	//sphereMat.SetFloat(MAT_ROUGHNESSMULTIPLIER, glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
-	//sphereMat.SetFloat(MAT_METALLICMULTIPLIER, metallic);
+	//m_RenderEngine->SetHDRIData(sphereMat);
+
+	helmetMaterial = &m_RenderEngine->CreateMaterial("hp", Shaders::PBR_LIT);
+	helmetMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoHelmet);
+	helmetMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalHelmet);
+	helmetMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessHelmet);
+	helmetMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicHelmet);
+	helmetMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoHelmet);
+
+	floorMaterial = &m_RenderEngine->CreateMaterial("fs", Shaders::PBR_LIT);
+	floorMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoFloor);
+	floorMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalFloor);
+	floorMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessFloor);
+	floorMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicFloor);
+	floorMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoFloor);
+	floorMaterial->SetVector2(MAT_TILING, Vector2(100, 100));
 
 
-	for (int row = 0; row < nrRows; ++row)
-	{
-		float metallic = (float)row / (float)(nrRows);
 
-		for (int col = 0; col < nrColumns; ++col)
-		{
+	MeshRendererComponent sphereMR;
+	sphereMR.mesh = &m_RenderEngine->GetPrimitive(Primitives::SPHERE);
+	sphereMR.material = sphereMat;
 
-			ECSEntity entity;
-			MeshRendererComponent mr;
-			TransformComponent sphereTransform;
-			mr.mesh = &m_RenderEngine->GetPrimitive(Primitives::SPHERE);
-			mr.material = sphereMat;
-			entity = m_ECS->CreateEntity("Cube " + std::to_string(row + col));
+	MeshRendererComponent helmetMR;
+	helmetMR.mesh = &helmetMesh;
+	helmetMR.material = helmetMaterial;
 
-			sphereTransform.transform.location = glm::vec3(
-				(float)(col - (nrColumns / 2)) * spacing,
-				(float)(row - (nrRows / 2)) * spacing,
-				-2.0f
-			);
-			m_ECS->emplace<TransformComponent>(entity, sphereTransform);
-			m_ECS->emplace<MeshRendererComponent>(entity, mr);
-		}
-	}
+	MeshRendererComponent floorMR;
+	floorMR.mesh = &floorMesh;
+	floorMR.material = floorMaterial;
 
+	TransformComponent objectTransform;
 
+	ECSEntity sphereEntity;
+	sphereEntity = m_ECS->CreateEntity("Sphere");
+	objectTransform.transform.location = Vector3(0, 5, 5);
+	m_ECS->emplace<TransformComponent>(sphereEntity, objectTransform);
+	m_ECS->emplace<MeshRendererComponent>(sphereEntity, sphereMR);
+
+	ECSEntity helmetEntity;
+	helmetEntity = m_ECS->CreateEntity("Helmet");
+	objectTransform.transform.location = Vector3(0, 5, -5);
+	m_ECS->emplace<TransformComponent>(helmetEntity, objectTransform);
+	m_ECS->emplace<MeshRendererComponent>(helmetEntity, helmetMR);
+
+	ECSEntity floorEntity;
+	floorEntity = m_ECS->CreateEntity("Floor");
+	objectTransform.transform.scale = Vector3(100, 1, 100);
+	objectTransform.transform.location = Vector3(0, 0, 0);
+	m_ECS->emplace<TransformComponent>(floorEntity, objectTransform);
+	m_ECS->emplace<MeshRendererComponent>(floorEntity, floorMR);
 
 	for (int i = 0; i < pLightSize; i++)
 	{
