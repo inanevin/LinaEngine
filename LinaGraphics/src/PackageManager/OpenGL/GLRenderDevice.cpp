@@ -204,7 +204,6 @@ namespace LinaEngine::Graphics
 		glEnable(GL_STENCIL_TEST);
 		glEnable(GL_BLEND);
 		glEnable(GL_CULL_FACE);
-		glEnable(GL_MULTISAMPLE);
 
 		glDepthFunc(GL_LESS);
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
