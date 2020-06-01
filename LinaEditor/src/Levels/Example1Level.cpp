@@ -235,7 +235,6 @@ void Example1Level::Initialize()
 	floorMaterial->SetVector2(MAT_TILING, Vector2(100, 100));
 
 
-
 	MeshRendererComponent sphereMR;
 	sphereMR.mesh = &m_RenderEngine->GetPrimitive(Primitives::SPHERE);
 	sphereMR.material = sphereMat;
@@ -248,7 +247,14 @@ void Example1Level::Initialize()
 	floorMR.mesh = &floorMesh;
 	floorMR.material = floorMaterial;
 
+	DirectionalLightComponent dirLightComp;
+	dirLightComp.direction = Vector3(0, 0, 1);
 	TransformComponent objectTransform;
+
+	ECSEntity directionalLightEntity;
+	directionalLightEntity = m_ECS->CreateEntity("DirLight");
+	m_ECS->emplace<TransformComponent>(directionalLightEntity, objectTransform);
+	m_ECS->emplace<DirectionalLightComponent>(directionalLightEntity, dirLightComp);
 
 	ECSEntity sphereEntity;
 	sphereEntity = m_ECS->CreateEntity("Sphere");
