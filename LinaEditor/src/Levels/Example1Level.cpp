@@ -142,7 +142,7 @@ Vector3 spotLightPositions[]
 
 int pLightSize = 1;
 int cubeSize = 4;
-int sLightSize = 0;
+int sLightSize = 1;
 
 
 void Example1Level::Initialize()
@@ -321,7 +321,6 @@ void Example1Level::Initialize()
 	ecsFreeLookSystem = new FreeLookSystem();
 	ecsFreeLookSystem->Construct(*m_ECS, *m_InputEngine);
 	level1Systems.AddSystem(*ecsFreeLookSystem);
-
 
 }
 

@@ -114,7 +114,12 @@ void main()
       vec3 L = normalize(spotLights[i].position - WorldPos);
       float distance = length(spotLights[i].position - WorldPos);
       float attenuation = 1.0 / (distance * distance);
-      vec3 radiance = spotLights[i].color * attenuation;
+
+      float theta = dot(L, normalize(-spotLights[i].direction));
+      float epsilon = (spotLights[i].cutOff - spotLights[i].outerCutOff);
+      float intensity = clamp((theta - spotLights[i].outerCutOff) / epsilon, 0.0, 1.0);
+      vec3 radiance = spotLights[i].color * attenuation * intensity;
+
       Lo += CalculateLight(N, V, L, albedo, metallic, roughness, radiance, F0);
     }
 
