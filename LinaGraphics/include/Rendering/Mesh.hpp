@@ -38,7 +38,7 @@ namespace LinaEngine::Graphics
 
 		Mesh() {};
 
-		~Mesh();
+		virtual ~Mesh();
 
 		FORCEINLINE VertexArray* GetVertexArray(uint32 index)
 		{
