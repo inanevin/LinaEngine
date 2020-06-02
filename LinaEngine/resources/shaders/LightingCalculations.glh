@@ -73,16 +73,16 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 vec3 CalculateLight(vec3 N, vec3 V, vec3 L, vec3 albedo, float metallic, float roughness, vec3 radiance, vec3 F0)
 {
   vec3 H = normalize(V + L);
-  
+
   // Cook-Torrance BRDF
   float NDF = DistributionGGX(N, H, roughness);
   float G   = GeometrySmith(N, V, L, roughness);
   vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
-  
+
   vec3 nominator    = NDF * G * F;
   float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
   vec3 specular = nominator / denominator;
-  
+
   // kS is equal to Fresnel
   vec3 kS = F;
   // for energy conservation, the diffuse and specular light can't
@@ -93,10 +93,10 @@ vec3 CalculateLight(vec3 N, vec3 V, vec3 L, vec3 albedo, float metallic, float r
   // have diffuse lighting, or a linear blend if partly metal (pure metals
   // have no diffuse light).
   kD *= 1.0 - metallic;
-  
+
   // scale light by NdotL
   float NdotL = max(dot(N, L), 0.0);
-  
+
   // add to outgoing radiance Lo
   return (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
 }

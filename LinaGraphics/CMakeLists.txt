@@ -32,6 +32,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Rendering/Material.cpp
 	src/Rendering/RenderEngine.cpp
 	src/Rendering/Mesh.cpp
+	src/Rendering/SkinnedMesh.cpp
 	
 	src/PackageManager/OpenGL/GLRenderDevice.cpp
 	src/PackageManager/OpenGL/GLWindow.cpp

@@ -33,22 +33,21 @@ namespace LinaEngine::Graphics
 	public:
 
 		Joint() {};
-		Joint(int id, std::string name, Matrix bindLocalTransform)
+		~Joint() {};
+
+		FORCEINLINE void Construct(int id, std::string name, Matrix bindLocalTransform)
 		{
 			m_ID = id;
 			m_Name = name;
 			m_LocalBindTransform = bindLocalTransform;
 		}
 
-		~Joint() {};
-
 		FORCEINLINE void AddChild(Joint child) { m_Children.push_back(child); }
 		FORCEINLINE Matrix& GetAnimatedTransform() { return m_AnimatedTransform; }
 		FORCEINLINE void SetAnimationTransform(Matrix animationTransform) { m_AnimatedTransform = animationTransform; }
 		FORCEINLINE Matrix GetInverseBindTransform() { return m_InverseBindTransform; }
-
-	protected:
-
+		FORCEINLINE int GetID() { return m_ID; }
+		FORCEINLINE std::vector<Joint>& GetChildren() { return m_Children; }
 		void CalculateInverseBindTransform(Matrix parentBindTransform);
 
 	private:
