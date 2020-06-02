@@ -198,7 +198,7 @@ void Example1Level::Initialize()
 	// Load example mesh.
 	Mesh& cubeMesh = m_RenderEngine->GetPrimitive(Primitives::SPHERE);
 	Mesh& floorMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
-	Mesh& helmetMesh = m_RenderEngine->CreateMesh("resources/meshes/helmet.obj");
+	Mesh& helmetMesh = m_RenderEngine->CreateMesh("resources/meshes/ybot.fbx");
 
 	// Create material for example mesh.
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);

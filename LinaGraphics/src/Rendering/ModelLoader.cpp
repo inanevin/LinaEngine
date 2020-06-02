@@ -66,7 +66,7 @@ namespace LinaEngine::Graphics
 				const aiVector3D texCoord = model->HasTextureCoords(0) ? model->mTextureCoords[0][i] : aiZeroVector;
 				const aiVector3D tangent = model->HasTangentsAndBitangents() ? model->mTangents[i] : aiZeroVector;
 				const aiVector3D biTangent = model->HasTangentsAndBitangents() ? model->mBitangents[i] : aiZeroVector;
-
+				
 				// Set model vertex data.
 				currentModel.AddElement(0, pos.x, pos.y, pos.z);
 				currentModel.AddElement(1, texCoord.x, texCoord.y);

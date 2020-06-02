@@ -20,6 +20,10 @@ set(CMAKE_CXX_STANDARD 17)
 # Set sources
 #--------------------------------------------------------------------
 set (LINAGRAPHICS_SOURCES
+
+	# Animations
+	src/Animation/Joint.cpp
+	
 	#Rendering
 	src/Rendering/ArrayBitmap.cpp
 	src/Rendering/Texture.cpp
@@ -42,6 +46,9 @@ set (LINAGRAPHICS_SOURCES
 #--------------------------------------------------------------------
 set(LINAGRAPHICS_HEADERS
 
+	# Animations
+	include/Animation/Joint.hpp
+	
 	#Rendering
 	include/Rendering/ArrayBitmap.hpp
 	include/Rendering/RenderEngine.hpp
