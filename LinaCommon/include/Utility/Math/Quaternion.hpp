@@ -25,6 +25,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 #define Quaternion_HPP
 
 #include "Vector.hpp"
+#include "Utility/Math/Matrix.hpp"  
 #include "Core/LinaAPI.hpp"
 #include "Core/Internal.hpp"
 
@@ -68,7 +69,7 @@ namespace LinaEngine
 		Vector3 GetEuler();
 		Vector3 GetAxis() const;
 		Vector3 GetRotated(const Vector3& other) const;
-		Quaternion Slerp(const Quaternion& dest, float t) const;
+		Matrix ToMatrix();
 		Quaternion Conjugate() const;
 		Quaternion Inverse() const;
 		Quaternion Normalized() const;
@@ -76,6 +77,7 @@ namespace LinaEngine
 		static Quaternion Euler(const Vector3& v);
 		static Quaternion Euler(float x, float y, float z);
 		static Quaternion AxisAngle(const Vector3& axis, float angle);
+		static Quaternion Slerp(const Quaternion& from, const Quaternion& dest, float t);
 		float GetAngle() const;
 		float Dot(const Quaternion& other) const;
 		float Length() const;

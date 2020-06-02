@@ -83,9 +83,15 @@ namespace LinaEngine
 		v.z = glm::radians(other.z);
 		return glm::rotate(*this, other);
 	}
-	Quaternion Quaternion::Slerp(const Quaternion& dest, float t) const
+
+	Matrix Quaternion::ToMatrix()
 	{
-		return glm::slerp(*this, dest, t);
+		return glm::toMat4(*this);
+	}
+
+	Quaternion Quaternion::Slerp(const Quaternion& from, const Quaternion& dest, float t)
+	{
+		return glm::slerp(from, dest, t);
 	}
 	Quaternion Quaternion::Conjugate() const
 	{

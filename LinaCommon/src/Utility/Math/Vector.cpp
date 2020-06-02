@@ -128,6 +128,15 @@ namespace LinaEngine
 	//////////////////////////////////////////////////////////////////////////
 
 
+	Vector3 Vector3::Lerp(Vector3& from, Vector3& to, float t)
+	{
+		return Vector3(
+			from.x + (to.x - from.x) * t,
+			from.y + (to.y - from.y) * t,
+			from.z + (to.z - from.z) * t		
+		);
+	}
+
 	Vector3 Vector3::Cross(const Vector3& other) const
 	{
 		return glm::cross(glm::vec3(*this), glm::vec3(other));
