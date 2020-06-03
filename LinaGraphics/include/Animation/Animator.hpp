@@ -22,7 +22,6 @@ Timestamp: 6/3/2020 1:52:31 PM
 #ifndef Animator_HPP
 #define Animator_HPP
 
-#include "Rendering/SkinnedMesh.hpp"
 #include "Animation.hpp"
 
 namespace LinaEngine::Graphics
@@ -33,7 +32,7 @@ namespace LinaEngine::Graphics
 	public:
 		
 		Animator() {};
-		Animator(SkinnedMesh mesh) { m_Mesh = mesh; }
+		Animator(class SkinnedMesh& mesh) { m_Mesh = &mesh; }
 		~Animator() {};
 	
 		FORCEINLINE void PlayAnimation(Animation animation)
@@ -52,7 +51,7 @@ namespace LinaEngine::Graphics
 
 	private:
 	
-		SkinnedMesh m_Mesh;
+		class SkinnedMesh* m_Mesh;
 		Animation m_CurrentAnimation;
 		float m_AnimationTime = 0.0f;
 	};

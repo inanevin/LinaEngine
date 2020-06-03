@@ -181,7 +181,7 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn, int width, int height, DrawParams& defaultParams)
 	{
-		
+
 		m_IsStencilTestEnabled = defaultParams.useStencilTest;
 		m_IsDepthTestEnabled = defaultParams.useDepthTest;
 		m_IsBlendingEnabled = (defaultParams.sourceBlend != BlendFunc::BLEND_FUNC_NONE || defaultParams.destBlend != BlendFunc::BLEND_FUNC_NONE);
@@ -440,7 +440,7 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	uint32 GLRenderDevice::CreateVertexArray(const float** vertexData, const uint32* vertexElementSizes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage)
+	uint32 GLRenderDevice::CreateVertexArray(const float** vertexData, const uint32* vertexElementSizes, const uint32* vertexElementTypes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage)
 	{
 		// Define vertex array object, buffers, buffer count & their sizes.
 		unsigned int numBuffers = numVertexComponents + numInstanceComponents + 1;
@@ -467,6 +467,7 @@ namespace LinaEngine::Graphics
 
 			// Define element size for the current buffers, as well as buffer data if applicable.
 			uint32 elementSize = vertexElementSizes[i];
+			uint32 elementType = vertexElementTypes[i];
 			const void* bufferData = inInstancedMode ? nullptr : vertexData[i];
 			uintptr dataSize = inInstancedMode ? elementSize * sizeof(float) : elementSize * sizeof(float) * numVertices;
 
@@ -483,7 +484,11 @@ namespace LinaEngine::Graphics
 			for (uint32 j = 0; j < elementSizeDiv; j++)
 			{
 				glEnableVertexAttribArray(attribute);
-				glVertexAttribPointer(attribute, 4, GL_FLOAT, GL_FALSE, elementSize * sizeof(GLfloat), (const GLvoid*)(sizeof(GLfloat) * j * 4));
+
+				if (elementType != 0)
+					glVertexAttribPointer(attribute, 4, GL_FLOAT, GL_FALSE, elementSize * sizeof(GLfloat), (const GLvoid*)(sizeof(GLfloat) * j * 4));
+				else
+					glVertexAttribIPointer(attribute, 4, GL_INT, elementSize * sizeof(GLfloat), (const GLvoid*)(sizeof(GL_INT) * j * 4));
 
 				if (inInstancedMode)
 					glVertexAttribDivisor(attribute, 1);
@@ -495,7 +500,11 @@ namespace LinaEngine::Graphics
 			if (elementSizeRem != 0)
 			{
 				glEnableVertexAttribArray(attribute);
-				glVertexAttribPointer(attribute, elementSize, GL_FLOAT, GL_FALSE, elementSize * sizeof(GLfloat), (const GLvoid*)(sizeof(GLfloat) * elementSizeDiv * 4));
+
+				if (elementType != 0)
+					glVertexAttribPointer(attribute, elementSize, GL_FLOAT, GL_FALSE, elementSize * sizeof(GLfloat), (const GLvoid*)(sizeof(GLint) * elementSizeDiv * 4));
+				else
+					glVertexAttribIPointer(attribute, elementSize, GL_INT, elementSize * sizeof(GLfloat), (const GLvoid*)(sizeof(GLint) * elementSizeDiv * 4));
 
 				if (inInstancedMode)
 					glVertexAttribDivisor(attribute, 1);

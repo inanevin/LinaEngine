@@ -80,9 +80,10 @@ namespace LinaEngine::Graphics
 		m_Indices.push_back(i3);
 	}
 
-	void IndexedModel::AllocateElement(uint32 elementSize)
+	void IndexedModel::AllocateElement(uint32 elementSize, bool isFloat)
 	{
 		m_ElementSizes.push_back(elementSize);
+		m_ElementTypes.push_back(isFloat ? 1 : 0);
 		m_Elements.push_back(LinaArray<float>());
 	}
 
@@ -102,12 +103,12 @@ namespace LinaEngine::Graphics
 		
 		const float** vertexData = &vertexDataArray[0];
 		const uint32* vertexElementSizes = &m_ElementSizes[0];
-
+		const uint32* vertexElementTypes = &m_ElementTypes[0];
 		// Find vertex & index counts to send into render renderEngine.
 		uint32 numVertices = m_Elements[0].size() / vertexElementSizes[0];
 		uint32 numIndices = m_Indices.size();
 
-		return engine.CreateVertexArray(vertexData, vertexElementSizes, numVertexComponents, numInstanceComponents, numVertices, &m_Indices[0], numIndices, bufferUsage);
+		return engine.CreateVertexArray(vertexData, vertexElementSizes, vertexElementTypes, numVertexComponents, numInstanceComponents, numVertices, &m_Indices[0], numIndices, bufferUsage);
 	}
 }
 

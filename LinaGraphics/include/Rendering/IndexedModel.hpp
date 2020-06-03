@@ -38,7 +38,7 @@ namespace LinaEngine::Graphics
 		uint32 CreateVertexArray(RenderDevice& engine, BufferUsage bufferUsage) const;
 
 		// Sets the element size array according to the desired size.
-		void AllocateElement(uint32 elementSize);
+		void AllocateElement(uint32 elementSize, bool isFloat);
 
 		// Adds float data to the m_Elements array, 1 to 4 elems. TODO: Maybe template? Consider inline array push performance.
 		void AddElement(uint32 elementIndex, float e0);
@@ -64,6 +64,7 @@ namespace LinaEngine::Graphics
 		// Index & element data.
 		LinaArray<uint32> m_Indices;
 		LinaArray<uint32> m_ElementSizes;
+		LinaArray<uint32> m_ElementTypes;
 		LinaArray<LinaArray<float>> m_Elements;
 
 		// Start index for instanced elements.

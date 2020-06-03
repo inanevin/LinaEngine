@@ -77,7 +77,7 @@ void CreateGradientSkybox(RenderEngine* renderEngine)
 void CreateProceduralSkybox(RenderEngine* renderEngine)
 {
 	Material& mat = renderEngine->CreateMaterial("skyboxMaterialP", Shaders::SKYBOX_PROCEDURAL);
-	mat.SetColor("material.startColor", Color::Black);
+	mat.SetColor("material.startColor", Color::Blue);
 	mat.SetColor("material.endColor", Color::Black);
 	mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
 	renderEngine->SetSkyboxMaterial(mat);
@@ -142,7 +142,7 @@ Vector3 spotLightPositions[]
 
 int pLightSize = 1;
 int cubeSize = 4;
-int sLightSize = 1;
+int sLightSize = 0;
 
 
 void Example1Level::Initialize()
@@ -198,7 +198,7 @@ void Example1Level::Initialize()
 	// Load example mesh.
 	Mesh& cubeMesh = m_RenderEngine->GetPrimitive(Primitives::SPHERE);
 	Mesh& floorMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
-	Mesh& helmetMesh = m_RenderEngine->CreateMesh("resources/meshes/ybot.fbx");
+	Mesh& helmetMesh = m_RenderEngine->CreateMesh("resources/meshes/helmet.obj");
 
 	// Create material for example mesh.
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
@@ -219,20 +219,20 @@ void Example1Level::Initialize()
 	sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
 	//m_RenderEngine->SetHDRIData(sphereMat);
 
-	helmetMaterial = &m_RenderEngine->CreateMaterial("hp", Shaders::PBR_LIT);
-	helmetMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoHelmet);
-	helmetMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalHelmet);
-	helmetMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessHelmet);
-	helmetMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicHelmet);
-	helmetMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoHelmet);
-
-	floorMaterial = &m_RenderEngine->CreateMaterial("fs", Shaders::PBR_LIT);
-	floorMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoFloor);
-	floorMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalFloor);
-	floorMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessFloor);
-	floorMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicFloor);
-	floorMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoFloor);
-	floorMaterial->SetVector2(MAT_TILING, Vector2(100, 100));
+	//helmetMaterial = &m_RenderEngine->CreateMaterial("hp", Shaders::PBR_LIT);
+	//helmetMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoHelmet);
+	//helmetMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalHelmet);
+	//helmetMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessHelmet);
+	//helmetMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicHelmet);
+	//helmetMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoHelmet);
+	//
+	//floorMaterial = &m_RenderEngine->CreateMaterial("fs", Shaders::PBR_LIT);
+	//floorMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoFloor);
+	//floorMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalFloor);
+	//floorMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessFloor);
+	//floorMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicFloor);
+	//floorMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoFloor);
+	//floorMaterial->SetVector2(MAT_TILING, Vector2(100, 100));
 
 
 	MeshRendererComponent sphereMR;
@@ -261,13 +261,13 @@ void Example1Level::Initialize()
 	objectTransform.transform.location = Vector3(0, 5, 5);
 	m_ECS->emplace<TransformComponent>(sphereEntity, objectTransform);
 	m_ECS->emplace<MeshRendererComponent>(sphereEntity, sphereMR);
-
+	
 	ECSEntity helmetEntity;
 	helmetEntity = m_ECS->CreateEntity("Helmet");
 	objectTransform.transform.location = Vector3(0, 5, -5);
 	m_ECS->emplace<TransformComponent>(helmetEntity, objectTransform);
 	m_ECS->emplace<MeshRendererComponent>(helmetEntity, helmetMR);
-
+	
 	ECSEntity floorEntity;
 	floorEntity = m_ECS->CreateEntity("Floor");
 	objectTransform.transform.scale = Vector3(100, 1, 100);
@@ -280,16 +280,16 @@ void Example1Level::Initialize()
 
 		ECSEntity entity;
 		TransformComponent lightTransform;
-		MeshRendererComponent lightRenderer;
-		lightRenderer.mesh = &m_RenderEngine->GetPrimitive(Primitives::SPHERE);
-		lightRenderer.material = objectUnlitMaterial;
+		//MeshRendererComponent lightRenderer;
+		//lightRenderer.mesh = &m_RenderEngine->GetPrimitive(Primitives::SPHERE);
+		//lightRenderer.material = objectUnlitMaterial;
 		lightTransform.transform.location = pointLightPositions[i];
 		lightTransform.transform.scale = 0.1f;
 		entity = m_ECS->CreateEntity("Point Light " + i);
 		auto lightT = m_ECS->emplace<TransformComponent>(entity, lightTransform);
 		auto& pLight1 = m_ECS->emplace<PointLightComponent>(entity);
 		pLight1.color = Color(300, 300, 300);
-		m_ECS->emplace<MeshRendererComponent>(entity, lightRenderer);
+	//	m_ECS->emplace<MeshRendererComponent>(entity, lightRenderer);
 		pLight1.distance = 100;
 
 	}
@@ -318,6 +318,7 @@ void Example1Level::Initialize()
 
 	}
 
+
 	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem();
 	ecsFreeLookSystem->Construct(*m_ECS, *m_InputEngine);
@@ -331,9 +332,5 @@ void Example1Level::Tick(float delta)
 {
 	// Update the systems in this level.
 	level1Systems.UpdateSystems(delta);
-	t2 += delta;
-
-
-
-	//t.transform.location = Vector3(0, 0, Math::Sin(t2) * 5);
+	t2 += delta * 0.75f;
 }

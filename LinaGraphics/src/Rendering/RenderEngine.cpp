@@ -302,7 +302,7 @@ namespace LinaEngine::Graphics
 
 			// Create object data & feed it from model.
 			Mesh& mesh = m_LoadedMeshes[filePath];
-			m_ModelLoader.LoadModels(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs());
+			m_ModelLoader.LoadModel(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs());
 
 			if (mesh.GetIndexedModels().size() == 0)
 			{
@@ -339,7 +339,7 @@ namespace LinaEngine::Graphics
 			// Create object data & feed it from model.
 			Mesh& mesh = m_LoadedPrimitives[primitive];
 
-			m_ModelLoader.LoadModels(path, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs());
+			m_ModelLoader.LoadModel(path, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs());
 
 			if (mesh.GetIndexedModels().size() == 0)
 			{
@@ -505,8 +505,8 @@ namespace LinaEngine::Graphics
 			material.floats[MAT_FXAAREDUCEMIN] = 1.0f / 128.0f;
 			material.floats[MAT_FXAAREDUCEMUL] = 1.0f / 8.0f;
 			material.floats[MAT_FXAASPANMAX] = 8.0f;
-			material.booleans[MAT_BLOOMENABLED] = true;
-			material.booleans[MAT_FXAAENABLED] = true;
+			material.booleans[MAT_BLOOMENABLED] = false;
+			material.booleans[MAT_FXAAENABLED] = false;
 			material.vector3s[MAT_INVERSESCREENMAPSIZE] = Vector3();
 		}
 		else if (shader == Shaders::SCREEN_QUAD_BLUR)

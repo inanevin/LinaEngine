@@ -99,7 +99,7 @@ namespace LinaEngine::Graphics
 		uint32 ReleaseTexture2D(uint32 texture2D);
 
 		// Creates a vertex array on GL for mesh & model data.
-		uint32 CreateVertexArray(const float** vertexData, const uint32* vertexElementSizes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage);
+		uint32 CreateVertexArray(const float** vertexData, const uint32* vertexElementSizes, const uint32* vertexElementTypes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage);
 
 		// Creates a skybox vertex array.
 		uint32 CreateSkyboxVertexArray();

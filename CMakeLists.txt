@@ -50,8 +50,8 @@ elseif(${x64_COMPILATION} MATCHES OFF)
 endif()
 
 
-set(ASSIMP_LIB "assimp-vc142-mtd.lib")
-set(ASSIMP_DLL "assimp-vc142-mtd.dll")
+set(ASSIMP_LIB "assimp-vc142-mt.lib")
+set(ASSIMP_DLL "assimp-vc142-mt.dll")
 
 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
