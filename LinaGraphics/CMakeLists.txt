@@ -23,7 +23,6 @@ set (LINAGRAPHICS_SOURCES
 
 	# Animations
 	src/Animation/Joint.cpp
-	src/Animation/JointTransformation.cpp
 	
 	#Rendering
 	src/Rendering/ArrayBitmap.cpp
@@ -51,7 +50,7 @@ set(LINAGRAPHICS_HEADERS
 	# Animations
 	include/Animation/Joint.hpp
 	include/Animation/KeyFrame.hpp
-	include/Animation/JointTransformation.hpp
+	include/Animation/Animation.hpp
 
 	#Rendering
 	include/Rendering/ArrayBitmap.hpp

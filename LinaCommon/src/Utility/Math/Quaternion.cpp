@@ -84,10 +84,6 @@ namespace LinaEngine
 		return glm::rotate(*this, other);
 	}
 
-	Matrix Quaternion::ToMatrix()
-	{
-		return glm::toMat4(*this);
-	}
 
 	Quaternion Quaternion::Slerp(const Quaternion& from, const Quaternion& dest, float t)
 	{

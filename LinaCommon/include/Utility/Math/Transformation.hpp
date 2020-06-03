@@ -36,6 +36,9 @@ namespace LinaEngine
 		Transformation(const Vector3& translationIn) : location(translationIn), rotation(0.0f, 0.0f, 0.0f, 1.0f), scale(1.0f, 1.0f, 1.0f) {}
 		Transformation(const Quaternion& rotationIn) : location(0.0f, 0.0f, 0.0f), rotation(rotationIn), scale(1.0f, 1.0f, 1.0f) {}
 		Transformation(const Vector3& translationIn, const Quaternion& rotationIn, const Vector3& scaleIn) : location(translationIn), rotation(rotationIn), scale(scaleIn) {}
+		
+		// Returns interpolated transformation
+		static Transformation Interpolate(Transformation& from, Transformation& to, float t);
 
 		// Returns the transformation matrix.
 		FORCEINLINE Matrix ToMatrix() const

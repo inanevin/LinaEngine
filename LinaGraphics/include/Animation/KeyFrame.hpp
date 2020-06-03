@@ -22,6 +22,7 @@ Timestamp: 6/2/2020 11:55:10 PM
 #ifndef KeyFrame_HPP
 #define KeyFrame_HPP
 #include "Joint.hpp"
+#include "Utility/Math/Transformation.hpp"
 #include <map>
 
 namespace LinaEngine::Graphics
@@ -31,13 +32,19 @@ namespace LinaEngine::Graphics
 		
 	public:
 		
-		KeyFrame();
-		~KeyFrame();
+		KeyFrame() {};
+		KeyFrame(float timeStamp, std::map<std::string, Transformation> jointKeyFrames) { m_TimeStamp = timeStamp; m_Pose = jointKeyFrames; }
+		~KeyFrame() {};
 	
+	protected:
+
+		FORCEINLINE float GetTimeStamp() { return m_TimeStamp; }
+		FORCEINLINE std::map<std::string, Transformation>& GetPose() { return m_Pose; }
+
 	private:
 	
 		float m_TimeStamp;
-		//std::map<std::string, Joint
+		std::map<std::string, Transformation> m_Pose;
 	};
 }
 

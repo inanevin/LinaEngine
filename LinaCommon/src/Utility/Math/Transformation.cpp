@@ -21,6 +21,9 @@ Timestamp: 4/9/2019 12:06:04 PM
 
 namespace LinaEngine
 {
-
+	Transformation Transformation::Interpolate(Transformation& from, Transformation& to, float t)
+	{
+		return Transformation(Vector3::Lerp(from.location, to.location, t), Quaternion::Slerp(from.rotation, to.rotation, t), Vector3::Lerp(from.scale, to.scale, t));
+	}
 }
 
