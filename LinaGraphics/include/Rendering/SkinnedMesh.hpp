@@ -24,6 +24,9 @@ Timestamp: 6/2/2020 8:11:34 PM
 
 #include "Mesh.hpp"
 #include "Animation/Joint.hpp"
+#include "Animation/Animator.hpp"
+#include "Animation/Animation.hpp"
+
 
 
 namespace LinaEngine::Graphics
@@ -37,14 +40,14 @@ namespace LinaEngine::Graphics
 		virtual ~SkinnedMesh() {  };
 
 		void Construct(Joint rootJoint, int jointCount);
-		void PlayAnimation(); // Gonna take in animation later on.
-		void Update();
+		void PlayAnimation(Animation animation); // Gonna take in animation later on.
+		void Update(float delta);
 		void AddJointsToList(Joint head, std::map<int,Matrix>& jointMatrices);
 		std::map<int, Matrix> GetJointTransforms();
 		FORCEINLINE Joint& GetRootJoint() { return m_RootJoint; }
 	private:
 
-		// Animator m_Animator;
+		Animator m_Animator;
 		Joint m_RootJoint;
 		int m_JointCount;
 

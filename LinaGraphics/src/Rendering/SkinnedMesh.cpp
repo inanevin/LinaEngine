@@ -28,13 +28,14 @@ namespace LinaEngine::Graphics
 		m_JointCount = jointCount;
 		m_RootJoint.CalculateInverseBindTransform(Matrix::Identity());
 	}
-	void SkinnedMesh::PlayAnimation()
+	void SkinnedMesh::PlayAnimation(Animation animation)
 	{
 		// Play animation.
+		m_Animator.PlayAnimation(animation);
 	}
-	void SkinnedMesh::Update()
+	void SkinnedMesh::Update(float delta)
 	{
-		// Update animator
+		m_Animator.Update(delta);
 	}
 	void SkinnedMesh::AddJointsToList(Joint head, std::map<int, Matrix>& jointMatrices)
 	{

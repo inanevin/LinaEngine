@@ -67,6 +67,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/UniformBuffer.hpp
 	include/Rendering/RenderTarget.hpp
 	include/Rendering/Mesh.hpp
+	include/Rendering/SkinnedMesh.hpp
 	include/Rendering/RenderingCommon.hpp
 	include/Rendering/RenderConstants.hpp
 	include/Rendering/RenderBuffer.hpp

@@ -42,7 +42,7 @@ namespace LinaEngine::Graphics
 			m_CurrentAnimation = animation;
 		}
 
-		void Update();
+		void Update(float delta);
 		void IncreaseAnimationTime(float delta);
 		std::map<std::string, Matrix> CalculateCurrentAnimationPose();
 		void ApplyPoseToJoints(std::map<std::string, Matrix> currentPose, Joint joint, Matrix parentTransform);

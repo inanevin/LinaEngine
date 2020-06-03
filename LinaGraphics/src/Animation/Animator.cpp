@@ -22,10 +22,10 @@ Timestamp: 6/3/2020 1:52:45 PM
 
 namespace LinaEngine::Graphics
 {
-	void Animator::Update()
+	void Animator::Update(float delta)
 	{
 		// IF Current anim is null
-		IncreaseAnimationTime();
+		IncreaseAnimationTime(delta);
 		std::map<std::string, Matrix> currentPose = CalculateCurrentAnimationPose();
 		ApplyPoseToJoints(currentPose, m_Mesh.GetRootJoint(), Matrix());
 	}
@@ -83,7 +83,8 @@ namespace LinaEngine::Graphics
 	std::map<std::string, Matrix> Animator::InterpolatePoses(KeyFrame previousFrame, KeyFrame nextFrame, float progression)
 	{
 		std::map<std::string, Matrix> currentPose;
-		for (std::map<std::string, Transformation>::iterator it = previousFrame.GetPose().begin; it != previousFrame.GetPose().end(); ++it)
+		std::map<std::string, Transformation> pose = previousFrame.GetPose();
+		for (std::map<std::string, Transformation>::iterator it = pose.begin(); it != pose.end(); ++it)
 		{
 			Transformation previousTransform = it->second;
 			Transformation nextTransform = nextFrame.GetPose()[it->first];
