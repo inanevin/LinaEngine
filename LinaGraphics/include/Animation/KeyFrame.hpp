@@ -36,7 +36,7 @@ namespace LinaEngine::Graphics
 		KeyFrame(float timeStamp, std::map<std::string, Transformation> jointKeyFrames) { m_TimeStamp = timeStamp; m_Pose = jointKeyFrames; }
 		~KeyFrame() {};
 	
-	protected:
+
 
 		FORCEINLINE float GetTimeStamp() { return m_TimeStamp; }
 		FORCEINLINE std::map<std::string, Transformation>& GetPose() { return m_Pose; }

@@ -47,6 +47,7 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void SetAnimationTransform(Matrix animationTransform) { m_AnimatedTransform = animationTransform; }
 		FORCEINLINE Matrix GetInverseBindTransform() { return m_InverseBindTransform; }
 		FORCEINLINE int GetID() { return m_ID; }
+		FORCEINLINE std::string& GetName() { return m_Name; }
 		FORCEINLINE std::vector<Joint>& GetChildren() { return m_Children; }
 		void CalculateInverseBindTransform(Matrix parentBindTransform);
 
