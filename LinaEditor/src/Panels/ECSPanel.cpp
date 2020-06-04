@@ -20,6 +20,7 @@ Timestamp: 5/23/2020 4:15:24 PM
 
 
 #include "Panels/ECSPanel.hpp"
+#include "Panels/MaterialPanel.hpp"
 #include "Core/GUILayer.hpp"
 #include "Utility/Log.hpp"
 #include "ECS/Components/TransformComponent.hpp"
@@ -161,12 +162,13 @@ namespace LinaEditor
 		}
 	}
 
-	void ECSPanel::Setup(LinaEngine::ECS::ECSRegistry& registry, GUILayer& guiLayer, LinaEngine::Graphics::Window& appWindow)
+	void ECSPanel::Setup(LinaEngine::ECS::ECSRegistry& registry, GUILayer& guiLayer, LinaEngine::Graphics::Window& appWindow, MaterialPanel& materialPanel)
 	{
 		m_GUILayer = &guiLayer;
 		m_ECS = &registry;
 		m_AppWindow = &appWindow;
 		m_SelectedEntity = entt::null;
+		m_MaterialPanel = &materialPanel;
 
 		// add scene entitites to the list.
 		m_ECS->each([this](auto entity)
@@ -507,7 +509,7 @@ namespace LinaEditor
 
 				if (renderer->material != nullptr)
 				{
-
+					m_MaterialPanel->SetCurrentMaterial(renderer->material);
 				}
 
 				//ImVec4 col = ImVec4(light->color.r, light->color.g, light->color.b, light->color.a);

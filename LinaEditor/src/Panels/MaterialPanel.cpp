@@ -19,10 +19,31 @@ Timestamp: 6/4/2020 8:35:30 PM
 */
 
 #include "Panels/MaterialPanel.hpp"
+#include "imgui.h"
+#include "ImGuiFileBrowser.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 namespace LinaEditor
 {
 	void MaterialPanel::Draw()
 	{
+		if (m_Show)
+		{
+			// Set window properties.
+			ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImVec2 work_area_pos = viewport->GetWorkPos();
+			ImVec2 panelSize = ImVec2(m_Size.x, m_Size.y);
+			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
+			ImGui::SetNextWindowBgAlpha(0.2f);
+
+			if (ImGui::Begin("Material Panel", &m_Show))
+			{
+				if (m_CurrentSelectedMaterial != nullptr)
+				{
+					
+				}
+			}
+		}
 	}
 }

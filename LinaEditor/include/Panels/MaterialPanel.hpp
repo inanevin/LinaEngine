@@ -24,7 +24,7 @@ Timestamp: 6/4/2020 8:31:22 PM
 
 #include "Panels/EditorPanel.hpp"
 #include "Utility/EditorUtility.hpp"
-
+#include "Rendering/Material.hpp"
 namespace LinaEditor
 {
 	class MaterialPanel : public EditorPanel
@@ -36,9 +36,11 @@ namespace LinaEditor
 		virtual ~MaterialPanel() {};
 	
 		virtual void Draw() override;
+		FORCEINLINE void SetCurrentMaterial(LinaEngine::Graphics::Material* mat) { m_CurrentSelectedMaterial = mat; }
 
 	private:
 	
+		LinaEngine::Graphics::Material* m_CurrentSelectedMaterial = nullptr;
 	};
 }
 

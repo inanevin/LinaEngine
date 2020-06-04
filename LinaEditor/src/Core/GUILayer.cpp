@@ -174,7 +174,7 @@ namespace LinaEditor
 		// setup panels, windows etc.
 		m_ECSPanel = new ECSPanel(Vector2::Zero, Vector2(700,600));
 		m_MaterialPanel = new MaterialPanel(Vector2::Zero, Vector2(700, 600));
-		m_ECSPanel->Setup(*m_ECS, *this, m_RenderEngine->GetMainWindow());
+		m_ECSPanel->Setup(*m_ECS, *this, m_RenderEngine->GetMainWindow(), *m_MaterialPanel);
 		m_ECSPanel->Open();
 		m_MaterialPanel->Open();
 	}
