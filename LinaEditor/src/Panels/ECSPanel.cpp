@@ -31,7 +31,6 @@ Timestamp: 5/23/2020 4:15:24 PM
 #include "REndering/Material.hpp"
 #include "Rendering/Window.hpp"
 #include "imgui.h"
-#include "ImGuiFileBrowser.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>

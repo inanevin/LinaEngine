@@ -27,7 +27,6 @@ Class: UILayer
 #include "Rendering/Material.hpp"
 #include "Rendering/RenderConstants.hpp"
 #include "imgui.h"
-#include "ImGuiFileBrowser.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
@@ -39,7 +38,6 @@ Class: UILayer
 #include <GLFW/glfw3.h>
 
 #define GRID_SIZE 1000
-imgui_addons::ImGuiFileBrowser file_dialog; // As a class member or globally
 static bool rightClickedContentBrowser = false;
 static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 static bool isECSPanelOpen;

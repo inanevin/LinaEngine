@@ -232,7 +232,7 @@ void Example1Level::Initialize()
 	roadMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalRoad);
 	roadMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessRoad);
 	roadMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoRoad);
-	roadMaterial->SetVector2(MAT_TILING, Vector2(5.0f, 50.0f));
+	roadMaterial->SetVector2(MAT_TILING, Vector2(5.0f, 2.0f));
 	//_RenderEngine->SetHDRIData(roadMaterial);
 
 	//helmetMaterial = &m_RenderEngine->CreateMaterial("hp", Shaders::PBR_LIT);

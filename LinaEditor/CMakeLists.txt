@@ -46,6 +46,7 @@ src/imgui/imguizmo/ImCurveEdit.cpp
 src/imgui/imguizmo/ImGradient.cpp
 src/imgui/imguizmo/ImGuizmo.cpp
 src/imgui/imguizmo/ImSequencer.cpp
+src/imgui/ImGuiFileDialogue/ImGuiFileDialog.cpp
 
 )
 
@@ -73,6 +74,8 @@ include/imgui/imguizmo/ImCurveEdit.h
 include/imgui/imguizmo/ImGradient.h
 include/imgui/imguizmo/ImGuizmo.h
 include/imgui/imguizmo/ImSequencer.h
+include/imgui/ImGuiFileDialogue/ImGuiFileDialog.h
+include/imgui/ImGuiFileDialogue/ImGuiFileDialogConfig.h
 
 
 CMakeLists.txt

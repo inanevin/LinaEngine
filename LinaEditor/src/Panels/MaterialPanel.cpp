@@ -20,9 +20,10 @@ Timestamp: 6/4/2020 8:35:30 PM
 
 #include "Panels/MaterialPanel.hpp"
 #include "imgui.h"
-#include "ImGuiFileBrowser.h"
+#include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+
 
 namespace LinaEditor
 {
@@ -36,7 +37,6 @@ namespace LinaEditor
 			ImVec2 panelSize = ImVec2(m_Size.x, m_Size.y);
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(0.2f);
-
 			if (ImGui::Begin("Material Panel", &m_Show))
 			{
 				if (m_CurrentSelectedMaterial != nullptr)
@@ -44,6 +44,22 @@ namespace LinaEditor
 					if (m_CurrentSelectedMaterial->GetShaderType() == Graphics::Shaders::PBR_LIT)
 					{
 						// 8 ? textures
+						if(ImGui::Button("Test"))
+							igfd::ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".cpp\0.h\0.hpp\0\0", ".");
+
+						// display
+						if (igfd::ImGuiFileDialog::Instance()->FileDialog("ChooseFileDlgKey"))
+						{
+							// action if OK
+							if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
+							{
+								std::string filePathName = igfd::ImGuiFileDialog::Instance()->GetFilepathName();
+								std::string filePath = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
+								// action
+							}
+							// close
+							igfd::ImGuiFileDialog::Instance()->CloseDialog("ChooseFileDlgKey");
+						}
 
 						// Metallic & specular multipliers
 						float m = m_CurrentSelectedMaterial->GetFloat(MAT_METALLICMULTIPLIER);
