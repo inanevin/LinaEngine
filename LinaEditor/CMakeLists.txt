@@ -29,6 +29,7 @@ src/Core/EditorCommon.cpp
 # Panels
 src/Panels/EditorPanel.cpp
 src/Panels/ECSPanel.cpp
+src/Panels/MaterialPanel.cpp
 
 
 # World
@@ -62,6 +63,7 @@ include/Levels/GroundCubeComponent.hpp
 # Panels
 include/Panels/EditorPanel.hpp
 include/Panels/ECSPanel.hpp
+include/Panels/MaterialPanel.hpp
 
 # Utility
 include/Utility/EditorUtility.hpp

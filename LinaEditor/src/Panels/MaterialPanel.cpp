@@ -13,41 +13,16 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: EditorPanel
-Timestamp: 5/23/2020 4:16:05 PM
+Class: MaterialPanel
+Timestamp: 6/4/2020 8:35:30 PM
 
 */
-#pragma once
 
-#ifndef EditorPanel_HPP
-#define EditorPanel_HPP
-
-// Headers here.
-#include "Utility/Math/Vector.hpp"
+#include "Panels/MaterialPanel.hpp"
 
 namespace LinaEditor
 {
-	using namespace LinaEngine;
-
-	class EditorPanel
+	void MaterialPanel::Draw()
 	{
-
-	public:
-		
-		EditorPanel(Vector2 position, Vector2 size) : m_Position(position), m_Size(size) { };
-		virtual ~EditorPanel() {};
-	
-		virtual FORCEINLINE void Open() { m_Show = true; }
-		virtual FORCEINLINE void Close() { m_Show = false; }
-		virtual void Draw() = 0;
-		FORCEINLINE bool* GetShow() { return &m_Show; }
-
-	protected:
-
-		Vector2 m_Position;
-		Vector2 m_Size;
-		bool m_Show = false;
-	};
+	}
 }
-
-#endif

@@ -88,7 +88,10 @@ namespace LinaEditor
 
 
 		// Draw ECS Panel.
-		m_ECSPanel.Draw();
+		m_ECSPanel->Draw();
+
+		// Draw material panel.
+		m_MaterialPanel->Draw();
 
 		if (showIMGUIDemo)
 			ImGui::ShowDemoWindow(&showIMGUIDemo);
@@ -169,9 +172,11 @@ namespace LinaEditor
 
 
 		// setup panels, windows etc.
-		m_ECSPanel.Setup(*m_ECS, *this, m_RenderEngine->GetMainWindow());
-		m_ECSPanel.Open();
-
+		m_ECSPanel = new ECSPanel(Vector2::Zero, Vector2(700,600));
+		m_MaterialPanel = new MaterialPanel(Vector2::Zero, Vector2(700, 600));
+		m_ECSPanel->Setup(*m_ECS, *this, m_RenderEngine->GetMainWindow());
+		m_ECSPanel->Open();
+		m_MaterialPanel->Open();
 	}
 
 	void GUILayer::OnDetach()
@@ -182,6 +187,9 @@ namespace LinaEditor
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
+
+		delete m_ECSPanel;
+		delete m_MaterialPanel;
 	}
 
 	void GUILayer::ProcessInput()
@@ -221,7 +229,7 @@ namespace LinaEditor
 			if (ImGui::BeginMenu("Panels"))
 			{
 				if (ImGui::MenuItem("ECS Panel"))
-					m_ECSPanel.Open();
+					m_ECSPanel->Open();
 				if (ImGui::MenuItem("IMGUI Demo"))
 					showIMGUIDemo = true;
 

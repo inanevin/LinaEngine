@@ -13,51 +13,32 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: ECSPanel
-Timestamp: 5/23/2020 4:15:06 PM
+Class: MaterialPanel
+Timestamp: 6/4/2020 8:31:22 PM
 
 */
 #pragma once
 
-#ifndef ECSPanel_HPP
-#define ECSPanel_HPP
+#ifndef MaterialPanel_HPP
+#define MaterialPanel_HPP
 
 #include "Panels/EditorPanel.hpp"
 #include "Utility/EditorUtility.hpp"
-#include "ECS/ECS.hpp"
 
-namespace LinaEngine
-{
-	namespace Graphics
-	{
-		class Window;
-	}
-}
 namespace LinaEditor
 {
-	class ECSPanel : public EditorPanel
+	class MaterialPanel : public EditorPanel
 	{
 		
 	public:
 		
-		ECSPanel(Vector2 position, Vector2 size) : EditorPanel(position,size) {};
-		virtual ~ECSPanel() {};
+		MaterialPanel(Vector2 position, Vector2 size) : EditorPanel(position, size) {};
+		virtual ~MaterialPanel() {};
 	
 		virtual void Draw() override;
-		void Setup(LinaEngine::ECS::ECSRegistry& registry, class GUILayer& guiLayer, LinaEngine::Graphics::Window& appWindow);
 
 	private:
-
-		void AddComponentToEntity(int componentID);
-		void DrawComponents(LinaEngine::ECS::ECSEntity& entity);
-
-	private:
-
-		GUILayer* m_GUILayer;
-		LinaEngine::Graphics::Window* m_AppWindow;
-		LinaEngine::ECS::ECSRegistry* m_ECS;
-		LinaEngine::ECS::ECSEntity m_SelectedEntity;
-		std::vector<LinaEngine::ECS::ECSEntity> m_EntityList;
+	
 	};
 }
 
