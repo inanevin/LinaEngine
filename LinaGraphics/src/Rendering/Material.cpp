@@ -55,7 +55,7 @@ namespace LinaEngine::Graphics
 			return sampler2Ds[name].boundTexture;
 		else
 		{
-			LINA_CORE_ERR("This material doesn't support texture slot with the name {0}, returning null pointer", name);
+			LINA_CORE_WARN("This material doesn't support texture slot with the name {0}, returning null pointer", name);
 			return nullptr;
 		}
 	}

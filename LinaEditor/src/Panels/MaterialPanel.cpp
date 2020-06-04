@@ -23,10 +23,13 @@ Timestamp: 6/4/2020 8:35:30 PM
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "Rendering/Texture.hpp"
 
 
 namespace LinaEditor
 {
+	static std::string chosenMapID;
+
 	void MaterialPanel::Draw()
 	{
 		if (m_Show)
@@ -44,18 +47,82 @@ namespace LinaEditor
 					if (m_CurrentSelectedMaterial->GetShaderType() == Graphics::Shaders::PBR_LIT)
 					{
 						// 8 ? textures
-						if(ImGui::Button("Test"))
-							igfd::ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".cpp\0.h\0.hpp\0\0", ".");
+
+						Graphics::Texture* albedo = m_CurrentSelectedMaterial->GetTexture(MAT_TEXTURE2D_ALBEDOMAP);
+						Graphics::Texture* normal = m_CurrentSelectedMaterial->GetTexture(MAT_TEXTURE2D_NORMALMAP);
+						Graphics::Texture* roughness = m_CurrentSelectedMaterial->GetTexture(MAT_TEXTURE2D_ROUGHNESSMAP);
+						Graphics::Texture* metallic = m_CurrentSelectedMaterial->GetTexture(MAT_TEXTURE2D_METALLICMAP);
+						Graphics::Texture* ao = m_CurrentSelectedMaterial->GetTexture(MAT_TEXTURE2D_AOMAP);
+						Graphics::Texture* chosenTexture = nullptr;
+
+						ImVec2 imageButtonSize = ImVec2(50, 50);
+						// Albedo Map
+						ImGui::Text("Albedo Map");
+						ImGui::SameLine();
+						if (ImGui::ImageButton(albedo != nullptr ? (void*)albedo->GetID() : 0, imageButtonSize))
+						{
+							chosenTexture = albedo;
+							chosenMapID = MAT_TEXTURE2D_ALBEDOMAP;
+							igfd::ImGuiFileDialog::Instance()->OpenDialog("ChooseMap", "Choose File", ".png\0.jpg\0.jpeg\0.tga\0", ".");
+						}
+
+						// Normal Map
+						ImGui::Text("Normal Map");
+						ImGui::SameLine();
+						if (ImGui::ImageButton(normal != nullptr ? (void*)normal->GetID() : 0, imageButtonSize))
+						{
+							chosenTexture = normal;
+							chosenMapID = MAT_TEXTURE2D_NORMALMAP;
+							igfd::ImGuiFileDialog::Instance()->OpenDialog("ChooseMap", "Choose File", ".png\0.jpg\0.jpeg\0.tga\0", ".");
+						}
+
+						// Roughness Map
+						ImGui::Text("Roughness Map");
+						ImGui::SameLine();
+						if (ImGui::ImageButton(roughness != nullptr ? (void*)roughness->GetID() : 0, imageButtonSize))
+						{
+							chosenTexture = roughness;
+							chosenMapID = MAT_TEXTURE2D_ROUGHNESSMAP;
+							igfd::ImGuiFileDialog::Instance()->OpenDialog("ChooseMap", "Choose File", ".png\0.jpg\0.jpeg\0.tga\0", ".");
+						}
+
+						// Metalic Map
+						ImGui::Text("Metallic Map");
+						ImGui::SameLine();
+						if (ImGui::ImageButton(metallic != nullptr ? (void*)metallic->GetID() : 0, imageButtonSize))
+						{
+							chosenTexture = metallic;
+							chosenMapID = MAT_TEXTURE2D_METALLICMAP;
+							igfd::ImGuiFileDialog::Instance()->OpenDialog("ChooseMap", "Choose File", ".png\0.jpg\0.jpeg\0.tga\0", ".");
+						}
+
+						// AO Map
+						ImGui::Text("AO Map");
+						ImGui::SameLine();
+						if (ImGui::ImageButton(ao != nullptr ? (void*)ao->GetID() : 0, imageButtonSize))
+						{
+							chosenTexture = ao;
+							chosenMapID = MAT_TEXTURE2D_AOMAP;
+							igfd::ImGuiFileDialog::Instance()->OpenDialog("ChooseMap", "Choose File", ".png\0.jpg\0.jpeg\0.tga\0", ".");
+						}
+							
 
 						// display
-						if (igfd::ImGuiFileDialog::Instance()->FileDialog("ChooseFileDlgKey"))
+						if (igfd::ImGuiFileDialog::Instance()->FileDialog("ChooseMap"))
 						{
 							// action if OK
 							if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
 							{
 								std::string filePathName = igfd::ImGuiFileDialog::Instance()->GetFilepathName();
 								std::string filePath = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
-								// action
+								LINA_CLIENT_WARN("{0}", filePathName);
+								
+								if (chosenTexture != nullptr)
+								{
+									
+								}
+
+								igfd::ImGuiFileDialog::Instance()->CloseDialog("ChooseFileDlgKey");
 							}
 							// close
 							igfd::ImGuiFileDialog::Instance()->CloseDialog("ChooseFileDlgKey");
