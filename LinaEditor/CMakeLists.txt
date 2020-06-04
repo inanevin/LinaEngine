@@ -29,7 +29,11 @@ src/Core/EditorCommon.cpp
 # Panels
 src/Panels/EditorPanel.cpp
 src/Panels/ECSPanel.cpp
+
+
+# World
 src/Levels/Example1Level.cpp
+src/Levels/GroundCubeSystem.cpp
 
 # Utility
 src/Utility/EditorUtility.cpp
@@ -52,6 +56,8 @@ include/Core/EditorCommon.hpp
 
 # World
 include/Levels/Example1Level.hpp
+include/Levels/GroundCubeSystem.hpp
+include/Levels/GroundCubeComponent.hpp
 
 # Panels
 include/Panels/EditorPanel.hpp

@@ -733,7 +733,7 @@ namespace LinaEngine::Graphics
 		m_DefaultDrawParams.useDepthTest = true;
 		m_DefaultDrawParams.useStencilTest = true;
 		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
+		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
 		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
 		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
 		m_DefaultDrawParams.shouldWriteDepth = true;
