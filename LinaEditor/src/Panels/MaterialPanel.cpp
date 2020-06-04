@@ -41,7 +41,30 @@ namespace LinaEditor
 			{
 				if (m_CurrentSelectedMaterial != nullptr)
 				{
-					
+					if (m_CurrentSelectedMaterial->GetShaderType() == Graphics::Shaders::PBR_LIT)
+					{
+						// 8 ? textures
+
+						// Metallic & specular multipliers
+						float m = m_CurrentSelectedMaterial->GetFloat(MAT_METALLICMULTIPLIER);
+						float r = m_CurrentSelectedMaterial->GetFloat(MAT_ROUGHNESSMULTIPLIER);
+						ImGui::DragFloat("Metallic", &m);
+						ImGui::DragFloat("Roughness", &r);
+						m_CurrentSelectedMaterial->SetFloat(MAT_METALLICMULTIPLIER, m);
+						m_CurrentSelectedMaterial->SetFloat(MAT_ROUGHNESSMULTIPLIER, r);
+
+						// Workflow
+						bool isMetallic = m_CurrentSelectedMaterial->GetInt(MAT_WORKFLOW) == 1 ? true : false;
+						ImGui::Checkbox("Metalilc Workflow", &isMetallic);
+						m_CurrentSelectedMaterial->SetInt(MAT_WORKFLOW, isMetallic ? 1 : 0);
+
+						// Tiling
+						Vector2 tiling = m_CurrentSelectedMaterial->GetVector2(MAT_TILING);
+						float tilingF[2] = { tiling.x, tiling.y };
+						ImGui::InputFloat2("Tiling", tilingF);
+						m_CurrentSelectedMaterial->SetVector2(MAT_TILING, Vector2(tilingF[0], tilingF[1]));
+
+					}
 				}
 			}
 		}

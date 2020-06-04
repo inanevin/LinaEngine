@@ -463,7 +463,7 @@ namespace LinaEngine::Graphics
 		material.vector2s.clear();
 		material.matrices.clear();
 		material.vector4s.clear();
-
+		material.m_ShaderType = shader;
 
 		 if (shader == Shaders::STANDARD_UNLIT)
 		{

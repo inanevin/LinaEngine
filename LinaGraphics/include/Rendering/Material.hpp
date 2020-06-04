@@ -141,7 +141,8 @@ namespace LinaEngine::Graphics
 		{
 			return matrices[name];
 		}
-
+		
+		FORCEINLINE Shaders GetShaderType() { return m_ShaderType; }
 		FORCEINLINE uint32 GetShaderID() { return shaderID; }
 		FORCEINLINE void SetSurfaceType(MaterialSurfaceType type) { m_SurfaceType = type; SetInt(MAT_SURFACETYPE, type); }
 		FORCEINLINE MaterialSurfaceType GetSurfaceType() { return m_SurfaceType; }
@@ -155,6 +156,7 @@ namespace LinaEngine::Graphics
 		bool usesHDRI = false;
 		bool receivesLighting = false;
 		bool isShadowMapped = false;
+		Shaders m_ShaderType;
 		MaterialSurfaceType m_SurfaceType = MaterialSurfaceType::Opaque;
 		std::map<std::string, float> floats;
 		std::map<std::string, int> ints;
