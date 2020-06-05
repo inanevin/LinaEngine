@@ -27,28 +27,22 @@ Class: UILayer
 #include "Utility/Log.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Core/EditorCommon.hpp"
-#include "Input/InputCommon.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/RenderConstants.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
-#include <imgui/imguizmo/ImGuizmo.h>
 #include <stdio.h>
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#define GRID_SIZE 1000
 static bool rightClickedContentBrowser = false;
 static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 static bool isECSPanelOpen;
 static bool showIMGUIDemo;
-static ImGuizmo::OPERATION currentTransformGizmoOP = ImGuizmo::OPERATION::TRANSLATE;
-static ImGuizmo::MODE currentTransformGizmoMode = ImGuizmo::MODE::WORLD;
-static Matrix gridLineMatrix = Matrix::Identity();
 static bool setDockspaceLayout = true;
 
 namespace LinaEditor
@@ -61,15 +55,8 @@ namespace LinaEditor
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		ImGuizmo::BeginFrame();
-		ImGuiIO& io = ImGui::GetIO();
-		ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-		ImGuizmo::Enable(true);
-		ImGuizmo::SetOrthographic(false);
+		
 	
-		// Handle inputs.
-		ProcessInput();
-
 		// Draw main docking space.
 		DrawCentralDockingSpace();
 
@@ -79,8 +66,7 @@ namespace LinaEditor
 		// Draw overlay fps counter
 		DrawFPSCounter(&m_FPSCounterOpen, 1);
 		//
-		//// Draw gizmos
-		DrawGizmos();
+
 		//
 		//// Draw ECS Panel.
 		m_ECSPanel->Draw();
@@ -178,7 +164,7 @@ namespace LinaEditor
 		m_ResourcesPanel = new ResourcesPanel(Vector2::Zero, Vector2(700, 400));
 		m_ScenePanel = new ScenePanel(Vector2::Zero, Vector2(800, 600));
 
-		m_ECSPanel->Setup(*m_ECS, *this, m_RenderEngine->GetMainWindow(), *m_MaterialPanel);
+		m_ECSPanel->Setup(*m_ECS, *m_ScenePanel, m_RenderEngine->GetMainWindow(), *m_MaterialPanel);
 		m_ECSPanel->Open();
 
 		m_MaterialPanel->Setup(*m_RenderEngine);
@@ -208,17 +194,7 @@ namespace LinaEditor
 		delete m_ScenePanel;
 	}
 
-	void GUILayer::ProcessInput()
-	{
-		if (ImGui::IsKeyPressed(LINA_KEY_Q))
-			currentTransformGizmoOP = ImGuizmo::TRANSLATE;
-		if (ImGui::IsKeyPressed(LINA_KEY_E))
-			currentTransformGizmoOP = ImGuizmo::ROTATE;
-		if (ImGui::IsKeyPressed(LINA_KEY_R)) 
-			currentTransformGizmoOP = ImGuizmo::SCALE;
-		if (ImGui::IsKeyPressed(LINA_KEY_T))
-			currentTransformGizmoMode = currentTransformGizmoMode == ImGuizmo::MODE::WORLD ? ImGuizmo::MODE::LOCAL : ImGuizmo::MODE::WORLD;
-	}
+
 
 	void GUILayer::DrawTools(bool* p_open, int corner)
 	{
@@ -253,29 +229,7 @@ namespace LinaEditor
 		ImGui::End();
 	}
 
-	void GUILayer::DrawGizmos()
-	{
-		Matrix& view = m_RenderEngine->GetCameraSystem()->GetViewMatrix();
-		Matrix& projection = m_RenderEngine->GetCameraSystem()->GetProjectionMatrix();
-
-		if (m_SelectedTransform != nullptr)
-		{
-			// Get required matrices.
-			Matrix object = m_SelectedTransform->transform.ToMatrix();
-			
-			// Draw transformation handle.
-			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentTransformGizmoOP, currentTransformGizmoMode, &object[0][0], NULL, NULL, NULL, NULL);
-			float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-			ImGuizmo::DecomposeMatrixToComponents(&object[0][0], matrixTranslation, matrixRotation, matrixScale);
-
-			// Set object transformation back.
-			m_SelectedTransform->transform.location = Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]);
-			m_SelectedTransform->transform.scale = Vector3(matrixScale[0], matrixScale[1], matrixScale[2]);
-			m_SelectedTransform->transform.rotation = Quaternion::Euler(matrixRotation[0], matrixRotation[1], matrixRotation[2]);
-		}
-
-		// ImGuizmo::DrawGrid(&view[0][0], &projection[0][0], &gridLineMatrix[0][0], GRID_SIZE);
-	}
+	
 
 	void GUILayer::DrawCentralDockingSpace()
 	{

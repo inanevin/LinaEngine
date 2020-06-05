@@ -18,7 +18,6 @@ Class: UILayer
 
 #include "Core/Layer.hpp"
 #include "Rendering/RenderEngine.hpp"
-#include "ECS/Components/TransformComponent.hpp"
 #include "ECS/ECSSystem.hpp"
 #include <vector>
 
@@ -58,13 +57,9 @@ namespace LinaEditor
 		// CLASS METHODS
 		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& engine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs) { m_RenderEngine = &engine; m_Application = application; m_ECS = &ecs; }
 
-		// Set selected entity's transform component
-		FORCEINLINE void SetSelectedTransform(LinaEngine::ECS::TransformComponent* tr) { m_SelectedTransform = tr; }
 
 	private:
 
-		// Handle hardware input
-		void ProcessInput();
 
 		// Draws a tools overlay.
 		void DrawTools(bool* p_open, int corner = 0);
@@ -72,8 +67,6 @@ namespace LinaEditor
 		// Draws an fps counter overlay.
 		void DrawFPSCounter(bool* p_open, int corner = 0);
 
-		// Handles gizmos
-		void DrawGizmos();
 
 		// Draws a central docking space.
 		void DrawCentralDockingSpace();
@@ -98,7 +91,6 @@ namespace LinaEditor
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
 		LinaEngine::ECS::ECSRegistry* m_ECS = nullptr;
 		LinaEngine::Application* m_Application = nullptr;
-		LinaEngine::ECS::TransformComponent* m_SelectedTransform = nullptr;
 		std::vector<ContentFolder> m_ContentFolders;
 		bool m_FPSCounterOpen = true;
 		class ECSPanel* m_ECSPanel;

@@ -44,7 +44,7 @@ namespace LinaEditor
 		virtual ~ECSPanel() {};
 	
 		virtual void Draw() override;
-		void Setup(LinaEngine::ECS::ECSRegistry& registry, class GUILayer& guiLayer, LinaEngine::Graphics::Window& appWindow, class MaterialPanel& materialPanel);
+		void Setup(LinaEngine::ECS::ECSRegistry& registry, class ScenePanel& scenePanel, LinaEngine::Graphics::Window& appWindow, class MaterialPanel& materialPanel);
 
 	private:
 
@@ -53,7 +53,7 @@ namespace LinaEditor
 
 	private:
 
-		GUILayer* m_GUILayer;
+		class ScenePanel* m_ScenePanel;
 		LinaEngine::Graphics::Window* m_AppWindow;
 		LinaEngine::ECS::ECSRegistry* m_ECS;
 		LinaEngine::ECS::ECSEntity m_SelectedEntity;

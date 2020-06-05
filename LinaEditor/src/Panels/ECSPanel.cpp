@@ -21,7 +21,7 @@ Timestamp: 5/23/2020 4:15:24 PM
 
 #include "Panels/ECSPanel.hpp"
 #include "Panels/MaterialPanel.hpp"
-#include "Core/GUILayer.hpp"
+#include "Panels/ScenePanel.hpp"
 #include "Utility/Log.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
@@ -161,9 +161,9 @@ namespace LinaEditor
 		}
 	}
 
-	void ECSPanel::Setup(LinaEngine::ECS::ECSRegistry& registry, GUILayer& guiLayer, LinaEngine::Graphics::Window& appWindow, MaterialPanel& materialPanel)
+	void ECSPanel::Setup(LinaEngine::ECS::ECSRegistry& registry, ScenePanel& scenePanel, LinaEngine::Graphics::Window& appWindow, MaterialPanel& materialPanel)
 	{
-		m_GUILayer = &guiLayer;
+		m_ScenePanel = &scenePanel;
 		m_ECS = &registry;
 		m_AppWindow = &appWindow;
 		m_SelectedEntity = entt::null;
@@ -231,7 +231,7 @@ namespace LinaEditor
 					if (ImGui::SelectableInput("entSelectable" + entityCounter, m_SelectedEntity == entity, ImGuiSelectableFlags_SelectOnClick, selectedEntityName, IM_ARRAYSIZE(selectedEntityName)))
 					{
 						m_SelectedEntity = entity;
-						m_GUILayer->SetSelectedTransform(m_ECS->has<TransformComponent>(m_SelectedEntity) ? &m_ECS->get<TransformComponent>(m_SelectedEntity) : nullptr);
+						m_ScenePanel->SetSelectedTransform(m_ECS->has<TransformComponent>(m_SelectedEntity) ? &m_ECS->get<TransformComponent>(m_SelectedEntity) : nullptr);
 						m_ECS->SetEntityName(entity, selectedEntityName);
 					}
 
@@ -239,7 +239,7 @@ namespace LinaEditor
 					if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 					{
 						m_SelectedEntity = entt::null;
-						m_GUILayer->SetSelectedTransform(nullptr);
+						m_ScenePanel->SetSelectedTransform(nullptr);
 					}
 
 				}

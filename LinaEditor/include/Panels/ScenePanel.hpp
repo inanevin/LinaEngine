@@ -24,6 +24,7 @@ Timestamp: 6/5/2020 6:51:29 PM
 
 #include "Panels/EditorPanel.hpp"
 #include "Utility/EditorUtility.hpp"
+#include "ECS/Components/TransformComponent.hpp"
 
 namespace LinaEngine
 {
@@ -46,7 +47,19 @@ namespace LinaEditor
 		virtual void Draw() override;
 		void Setup(class LinaEngine::Graphics::RenderEngine& renderEngine);
 
+		// Set selected entity's transform component
+		FORCEINLINE void SetSelectedTransform(LinaEngine::ECS::TransformComponent* tr) { m_SelectedTransform = tr; }
+
+		// Handle hardware input
+		void ProcessInput();
+
+
+		// Handles gizmos
+		void DrawGizmos();
+
 	private:
+
+		LinaEngine::ECS::TransformComponent* m_SelectedTransform = nullptr;
 
 		class LinaEngine::Graphics::RenderEngine* m_RenderEngine;
 	};
