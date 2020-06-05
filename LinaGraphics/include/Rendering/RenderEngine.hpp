@@ -391,6 +391,11 @@ namespace LinaEngine::Graphics
 		// HDRI Skybox resolution
 		Vector2 m_HDRIResolution = Vector2(512, 512);
 
+		// Frame buffer texture parameters
+		SamplerParameters mainRTParams;
+		SamplerParameters primaryRTParams;
+		SamplerParameters pingPongRTParams;
+
 		DISALLOW_COPY_ASSIGN_NEW(RenderEngine);
 	};
 

@@ -817,10 +817,20 @@ namespace LinaEngine::Graphics
 		SetFBO(0);
 	}
 
-	void GLRenderDevice::ScaleRenderBuffer(uint32 fbo, uint32 rbo, Vector2 newSize, RenderBufferStorage storage)
+	void GLRenderDevice::ResizeRTTexture(uint32 texture, Vector2 newSize, PixelFormat internalPixelFormat, PixelFormat pixelFormat, TextureBindMode bindMode, bool compress)
+	{
+		glBindTexture(bindMode, texture);
+		GLint format = GetOpenGLFormat(pixelFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(internalPixelFormat, compress);
+		glTexImage2D(bindMode, 0, internalFormat, (uint32)newSize.x, (uint32)newSize.y, 0, format, GL_UNSIGNED_BYTE, NULL);
+		glBindTexture(bindMode, 0);
+	}
+
+	void GLRenderDevice::ResizeRenderBuffer(uint32 fbo, uint32 rbo, Vector2 newSize, RenderBufferStorage storage)
 	{
 		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
 		glRenderbufferStorage(GL_RENDERBUFFER, storage, (uint32)newSize.x, (uint32)newSize.y);
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	}
 
 	uint32 GLRenderDevice::ReleaseRenderTarget(uint32 fbo)

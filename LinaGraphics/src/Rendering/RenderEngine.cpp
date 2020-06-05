@@ -163,8 +163,17 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.OnWindowResized(width, height);
 
 		// Update camera system's projection matrix.
-		Vector2 windowSize = Vector2(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
+		Vector2 windowSize = Vector2(width, height);
 		m_CameraSystem.SetAspectRatio(windowSize.x / windowSize.y);
+
+		// Resize render buffers & frame buffer textures
+		m_RenderDevice.ResizeRTTexture(m_PrimaryRTTexture0.GetID(), windowSize, primaryRTParams.textureParams.internalPixelFormat, primaryRTParams.textureParams.pixelFormat);
+		m_RenderDevice.ResizeRTTexture(m_PrimaryRTTexture1.GetID(), windowSize, primaryRTParams.textureParams.internalPixelFormat, primaryRTParams.textureParams.pixelFormat);
+		m_RenderDevice.ResizeRTTexture(m_PrimaryRTTexture2.GetID(), windowSize, primaryRTParams.textureParams.internalPixelFormat, primaryRTParams.textureParams.pixelFormat);
+		m_RenderDevice.ResizeRTTexture(m_OutlineRTTexture.GetID(), windowSize, primaryRTParams.textureParams.internalPixelFormat, primaryRTParams.textureParams.pixelFormat);
+		m_RenderDevice.ResizeRTTexture(m_PingPongRTTexture1.GetID(), windowSize, pingPongRTParams.textureParams.internalPixelFormat, pingPongRTParams.textureParams.pixelFormat);
+		m_RenderDevice.ResizeRTTexture(m_PingPongRTTexture1.GetID(), windowSize, pingPongRTParams.textureParams.internalPixelFormat, pingPongRTParams.textureParams.pixelFormat);
+		m_RenderDevice.ResizeRenderBuffer(m_PrimaryRenderTarget.GetID(), m_PrimaryRenderBuffer.GetID(), windowSize, RenderBufferStorage::STORAGE_DEPTH);
 	}
 
 	Material& RenderEngine::CreateMaterial(const std::string& materialName, Shaders shader)
@@ -667,20 +676,17 @@ namespace LinaEngine::Graphics
 	void RenderEngine::ConstructRenderTargets()
 	{
 		Vector2 screenSize = Vector2(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
-		SamplerParameters mainRTParams;
 		mainRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
 		mainRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
 		mainRTParams.textureParams.minFilter = mainRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
 		mainRTParams.textureParams.wrapS = mainRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
 
-		SamplerParameters primaryRTParams;
 		primaryRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
 		primaryRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
 		primaryRTParams.textureParams.minFilter = primaryRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
 		primaryRTParams.textureParams.wrapS = primaryRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 
 
-		SamplerParameters pingPongRTParams;
 		pingPongRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
 		pingPongRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
 		pingPongRTParams.textureParams.minFilter = pingPongRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
@@ -1111,7 +1117,7 @@ namespace LinaEngine::Graphics
 		// Create irradiance texture & scale render buffer according to the resolution.
 		m_HDRIIrradianceMap.ConstructRTCubemapTexture(m_RenderDevice, irradianceMapResolsution, irradianceParams);
 		m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
-		m_RenderDevice.ScaleRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), irradianceMapResolsution, RenderBufferStorage::STORAGE_DEPTH_COMP24);
+		m_RenderDevice.ResizeRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), irradianceMapResolsution, RenderBufferStorage::STORAGE_DEPTH_COMP24);
 
 		// Create & setup shader info.
 		uint32 irradianceShader = GetShader(Shaders::IRRADIANCE_HDRI).GetID();
@@ -1167,7 +1173,7 @@ namespace LinaEngine::Graphics
 			// reisze framebuffer according to mip-level size.
 			unsigned int mipWidth = 128 * std::pow(0.5, mip);
 			unsigned int mipHeight = 128 * std::pow(0.5, mip);
-			m_RenderDevice.ScaleRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), Vector2(mipWidth, mipHeight), RenderBufferStorage::STORAGE_DEPTH_COMP24);
+			m_RenderDevice.ResizeRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), Vector2(mipWidth, mipHeight), RenderBufferStorage::STORAGE_DEPTH_COMP24);
 			m_RenderDevice.SetViewport(Vector2::Zero, Vector2(mipWidth, mipHeight));
 
 			// Draw prefiltered map
@@ -1200,7 +1206,7 @@ namespace LinaEngine::Graphics
 		m_HDRILutMap.ConstructHDRI(m_RenderDevice, samplerParams, brdfLutSize, NULL);
 
 		// Scale render buffer according to the resolution & bind lut map to frame buffer.
-		m_RenderDevice.ScaleRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), brdfLutSize, RenderBufferStorage::STORAGE_DEPTH_COMP24);
+		m_RenderDevice.ResizeRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), brdfLutSize, RenderBufferStorage::STORAGE_DEPTH_COMP24);
 		m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRILutMap.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 0, 0, 0, true, false);
 		
 		// Setup shader.

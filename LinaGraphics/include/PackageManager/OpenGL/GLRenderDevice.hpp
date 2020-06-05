@@ -140,8 +140,11 @@ namespace LinaEngine::Graphics
 		// Tells open gl drawing into multiple buffers is enabled
 		void MultipleDrawBuffersCommand(uint32 fbo, uint32 bufferCount, uint32* attachments);
 
+		// Scale an existing texture
+		void ResizeRTTexture(uint32 texture, Vector2 newSize, PixelFormat internalPixelFormat, PixelFormat pixelFormat, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D, bool compress = false);
+
 		// Scales an existing render buffer
-		void ScaleRenderBuffer(uint32 fbo, uint32 rbo, Vector2 newSize, RenderBufferStorage storage);
+		void ResizeRenderBuffer(uint32 fbo, uint32 rbo, Vector2 newSize, RenderBufferStorage storage);
 
 		// Releases a previously created render target from GL.
 		uint32 ReleaseRenderTarget(uint32 target);
