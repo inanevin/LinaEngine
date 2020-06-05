@@ -73,20 +73,17 @@ namespace LinaEditor
 		// Draw main docking space.
 		DrawCentralDockingSpace();
 
-		// Draw game window.
-		//DrawGameWindow();
-
 		// Draw tools
 		// DrawTools();
 
 		// Draw overlay fps counter
-		//DrawFPSCounter(&m_FPSCounterOpen, 1);
+		DrawFPSCounter(&m_FPSCounterOpen, 1);
 		//
 		//// Draw gizmos
-		//DrawGizmos();
+		DrawGizmos();
 		//
 		//// Draw ECS Panel.
-		//m_ECSPanel->Draw();
+		m_ECSPanel->Draw();
 		//
 		//// Draw material panel.
 		//m_MaterialPanel->Draw();
@@ -95,7 +92,7 @@ namespace LinaEditor
 		m_ResourcesPanel->Draw();
 		//
 		//// Draw Scene Panel
-		//m_ScenePanel->Draw();
+		m_ScenePanel->Draw();
 
 		if (showIMGUIDemo)
 			ImGui::ShowDemoWindow(&showIMGUIDemo);
@@ -192,6 +189,8 @@ namespace LinaEditor
 
 		m_ScenePanel->Setup(*m_RenderEngine);
 		m_ScenePanel->Open();
+
+		setDockspaceLayout = true;
 	}
 
 	void GUILayer::OnDetach()
@@ -323,7 +322,7 @@ namespace LinaEditor
 			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 
-			if (setDockspaceLayout && ImGui::DockBuilderGetNode(dockspace_id) == NULL)
+			if (setDockspaceLayout)
 			{
 				setDockspaceLayout = false;
 				Vector2 screenSize = m_RenderEngine->GetWindowSize();
@@ -335,7 +334,12 @@ namespace LinaEditor
 				ImGuiID dock_id_prop = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.20f, NULL, &dock_main_id);
 				ImGuiID dock_id_bottom = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Down, 0.20f, NULL, &dock_main_id);
 
-				ImGui::DockBuilderDockWindow("Resources", dock_id_bottom);
+				ImGui::DockBuilderDockWindow("ECS", dock_id_prop);
+				ImGui::DockBuilderDockWindow("Resources", dock_id_prop);
+				ImGui::DockBuilderDockWindow("Scene", dock_main_id);
+
+				ImGui::DockBuilderFinish(dockspace_id);
+
 			}
 		
 		}

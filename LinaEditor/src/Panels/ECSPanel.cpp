@@ -198,7 +198,7 @@ namespace LinaEditor
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(0.2f);
 
-			if (ImGui::Begin("ECS Panel", &m_Show))
+			if (ImGui::Begin("ECS", &m_Show))
 			{
 				// Statics.
 				static int componentsComboCurrentItem = 0;
