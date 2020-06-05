@@ -39,7 +39,7 @@ namespace LinaEditor
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(0.2f);
 
-			if (ImGui::Begin("Resources Panel", &m_Show))
+			if (ImGui::Begin("Scene", &m_Show))
 			{
 				ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetFinalImage(), ImVec2(ImGui::GetCursorScreenPos()), ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetCurrentWindow()->Size.x, ImGui::GetCursorScreenPos().y + ImGui::GetCurrentWindow()->Size.y), ImVec2(0, 1), ImVec2(1, 0));
 

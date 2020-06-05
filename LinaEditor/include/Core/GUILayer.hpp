@@ -66,12 +66,6 @@ namespace LinaEditor
 		// Handle hardware input
 		void ProcessInput();
 
-		// Draws the game window
-		void DrawGameWindow();
-
-		// Draws main menu bar.
-		void DrawMainMenuBar();
-
 		// Draws a tools overlay.
 		void DrawTools(bool* p_open, int corner = 0);
 

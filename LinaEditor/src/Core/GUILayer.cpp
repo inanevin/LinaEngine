@@ -49,7 +49,7 @@ static bool showIMGUIDemo;
 static ImGuizmo::OPERATION currentTransformGizmoOP = ImGuizmo::OPERATION::TRANSLATE;
 static ImGuizmo::MODE currentTransformGizmoMode = ImGuizmo::MODE::WORLD;
 static Matrix gridLineMatrix = Matrix::Identity();
-
+static bool setDockspaceLayout = true;
 
 namespace LinaEditor
 {
@@ -71,34 +71,31 @@ namespace LinaEditor
 		ProcessInput();
 
 		// Draw main docking space.
-		//DrawCentralDockingSpace();
+		DrawCentralDockingSpace();
 
 		// Draw game window.
 		//DrawGameWindow();
-
-		// Draw top toolbar.
-		DrawMainMenuBar();
 
 		// Draw tools
 		// DrawTools();
 
 		// Draw overlay fps counter
-		DrawFPSCounter(&m_FPSCounterOpen, 1);
-
-		// Draw gizmos
-		DrawGizmos();
-
-		// Draw ECS Panel.
-		m_ECSPanel->Draw();
-
-		// Draw material panel.
-		m_MaterialPanel->Draw();
-
-		// Draw resources panel
+		//DrawFPSCounter(&m_FPSCounterOpen, 1);
+		//
+		//// Draw gizmos
+		//DrawGizmos();
+		//
+		//// Draw ECS Panel.
+		//m_ECSPanel->Draw();
+		//
+		//// Draw material panel.
+		//m_MaterialPanel->Draw();
+		//
+		//// Draw resources panel
 		m_ResourcesPanel->Draw();
-
-		// Draw Scene Panel
-		m_ScenePanel->Draw();
+		//
+		//// Draw Scene Panel
+		//m_ScenePanel->Draw();
 
 		if (showIMGUIDemo)
 			ImGui::ShowDemoWindow(&showIMGUIDemo);
@@ -224,41 +221,6 @@ namespace LinaEditor
 			currentTransformGizmoMode = currentTransformGizmoMode == ImGuizmo::MODE::WORLD ? ImGuizmo::MODE::LOCAL : ImGuizmo::MODE::WORLD;
 	}
 
-	void GUILayer::DrawGameWindow()
-	{
-		ImGui::Begin("Game View");
-		ImVec2 pos = ImGui::GetCursorScreenPos();
-
-
-		//pass the texture of the FBO
-		//window.getRenderTexture() is the texture of the FBO
-		//the next parameter is the upper left corner for the uvs to be applied at
-		//the third parameter is the lower right corner
-		//the last two parameters are the UVs
-		//they have to be flipped (normally they would be (0,0);(1,1) 
-		ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetFinalImage(), ImVec2(ImGui::GetCursorScreenPos()), ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetCurrentWindow()->Size.x, ImGui::GetCursorScreenPos().y + ImGui::GetCurrentWindow()->Size.y), ImVec2(0, 1), ImVec2(1, 0));
-
-		ImGui::End();
-	}
-
-	void GUILayer::DrawMainMenuBar()
-	{
-		if (ImGui::BeginMainMenuBar())
-		{
-
-			if (ImGui::BeginMenu("Panels"))
-			{
-				if (ImGui::MenuItem("ECS Panel"))
-					m_ECSPanel->Open();
-				if (ImGui::MenuItem("IMGUI Demo"))
-					showIMGUIDemo = true;
-
-				ImGui::EndMenu();
-			}
-			ImGui::EndMainMenuBar();
-		}
-	}
-
 	void GUILayer::DrawTools(bool* p_open, int corner)
 	{
 		
@@ -348,7 +310,7 @@ namespace LinaEditor
 		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
 		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::Begin("DockSpace Demo", NULL, window_flags);
+		ImGui::Begin("DockSpace", NULL, window_flags);
 		ImGui::PopStyleVar();
 
 		if (opt_fullscreen)
@@ -360,6 +322,22 @@ namespace LinaEditor
 		{
 			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+
+			if (setDockspaceLayout && ImGui::DockBuilderGetNode(dockspace_id) == NULL)
+			{
+				setDockspaceLayout = false;
+				Vector2 screenSize = m_RenderEngine->GetWindowSize();
+				ImGui::DockBuilderRemoveNode(dockspace_id); // Clear out existing layout
+				ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace); // Add empty node
+				ImGui::DockBuilderSetNodeSize(dockspace_id, ImVec2(screenSize.x, screenSize.y));
+
+				ImGuiID dock_main_id = dockspace_id; // This variable will track the document node, however we are not using it here as we aren't docking anything into it.
+				ImGuiID dock_id_prop = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.20f, NULL, &dock_main_id);
+				ImGuiID dock_id_bottom = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Down, 0.20f, NULL, &dock_main_id);
+
+				ImGui::DockBuilderDockWindow("Resources", dock_id_bottom);
+			}
+		
 		}
 		else
 		{
@@ -368,7 +346,7 @@ namespace LinaEditor
 
 		if (ImGui::BeginMenuBar())
 		{
-			if (ImGui::BeginMenu("Docking"))
+			/* if (ImGui::BeginMenu("Docking"))
 			{
 				// Disabling fullscreen would allow the window to be moved to the front of other windows,
 				// which we can't undo at the moment without finer window depth/z control.
@@ -383,9 +361,23 @@ namespace LinaEditor
 				//if (ImGui::MenuItem("Close DockSpace", NULL, false, p_open != NULL))
 					//*p_open = false;
 				ImGui::EndMenu();
-			}
-			
+			} */
 
+			if (ImGui::BeginMenu("Panels"))
+			{
+				if (ImGui::MenuItem("ECS Panel"))
+					m_ECSPanel->Open();
+				if (ImGui::MenuItem("Material Panel"))
+					m_MaterialPanel->Open();
+				if (ImGui::MenuItem("Scene Panel"))
+					m_ScenePanel->Open();
+				if (ImGui::MenuItem("Resources Panel"))
+					m_ResourcesPanel->Open();
+				if (ImGui::MenuItem("IMGUI Demo"))
+					showIMGUIDemo = true;
+
+				ImGui::EndMenu();
+			}
 			ImGui::EndMenuBar();
 		}
 
