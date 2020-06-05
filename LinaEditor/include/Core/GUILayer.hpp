@@ -20,8 +20,6 @@ Class: UILayer
 #include "Rendering/RenderEngine.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/ECSSystem.hpp"
-#include "Panels/ECSPanel.hpp"
-#include "Panels/MaterialPanel.hpp"
 #include <vector>
 
 namespace LinaEngine
@@ -109,7 +107,8 @@ namespace LinaEditor
 		LinaEngine::ECS::TransformComponent* m_SelectedTransform = nullptr;
 		std::vector<ContentFolder> m_ContentFolders;
 		bool m_FPSCounterOpen = true;
-		ECSPanel* m_ECSPanel;
-		MaterialPanel* m_MaterialPanel;
+		class ECSPanel* m_ECSPanel;
+		class MaterialPanel* m_MaterialPanel;
+		class ResourcesPanel* m_ResourcesPanel;
 	};
 }

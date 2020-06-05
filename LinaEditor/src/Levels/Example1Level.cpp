@@ -178,11 +178,11 @@ void Example1Level::Initialize()
 
 
 
-	//Texture& albedoSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/albedo.png", pbrSampler, false, false);
-	//Texture& normalSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/normal.png", pbrSampler, false, false);
-	//Texture& metallicSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/metallic.png", pbrSampler, false, false);
-	//Texture& roughnessSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/roughness.png", pbrSampler, false, false);
-	//Texture& aoSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/ao.png", pbrSampler, false, false);
+	Texture& albedoSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/albedo.png", pbrSampler, false, false);
+	Texture& normalSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/normal.png", pbrSampler, false, false);
+	Texture& metallicSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/metallic.png", pbrSampler, false, false);
+	Texture& roughnessSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/roughness.png", pbrSampler, false, false);
+	Texture& aoSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/ao.png", pbrSampler, false, false);
 	//
 	//Texture& albedoFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/albedo.png", pbrSampler, false, false);
 	//Texture& normalFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/normal.png", pbrSampler, false, false);
@@ -198,16 +198,18 @@ void Example1Level::Initialize()
 	//Texture& roughnessHelmet = m_RenderEngine->CreateTexture2D("resources/textures/helmet/roughness.jpg", pbrSampler, false, false);
 	//Texture& aoHelmet = m_RenderEngine->CreateTexture2D("resources/textures/helmet/ao.jpg", pbrSampler, false, false);
 
-	Texture& albedoRoad = m_RenderEngine->CreateTexture2D("resources/textures/road/albedo.png", pbrSampler, false, false);
-	Texture& normalRoad = m_RenderEngine->CreateTexture2D("resources/textures/road/normal.png", pbrSampler, false, false);
-	Texture& roughnessRoad = m_RenderEngine->CreateTexture2D("resources/textures/road/roughness.png", pbrSampler, false, false);
-	Texture& aoRoad = m_RenderEngine->CreateTexture2D("resources/textures/road/ao.png", pbrSampler, false, false);
+//Texture& albedoRoad = m_RenderEngine->CreateTexture2D("resources/textures/road/albedo.png", pbrSampler, false, false);
+//Texture& normalRoad = m_RenderEngine->CreateTexture2D("resources/textures/road/normal.png", pbrSampler, false, false);
+//Texture& roughnessRoad = m_RenderEngine->CreateTexture2D("resources/textures/road/roughness.png", pbrSampler, false, false);
+//Texture& aoRoad = m_RenderEngine->CreateTexture2D("resources/textures/road/ao.png", pbrSampler, false, false);
 
+
+	
 	// Load example mesh.
-	Mesh& cubeMesh = m_RenderEngine->GetPrimitive(Primitives::CUBE);
-	Mesh& floorMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
-	Mesh& helmetMesh = m_RenderEngine->CreateMesh("resources/meshes/glock.fbx");
-	Mesh& roadMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
+//	Mesh& cubeMesh = m_RenderEngine->GetPrimitive(Primitives::CUBE);
+//	Mesh& floorMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
+//	Mesh& helmetMesh = m_RenderEngine->CreateMesh("resources/meshes/glock.fbx");
+//	Mesh& roadMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
 	// Create material for example mesh.
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
 
@@ -219,20 +221,20 @@ void Example1Level::Initialize()
 
 
 
-	//sphereMat = &m_RenderEngine->CreateMaterial("sp", Shaders::PBR_LIT);
-	//sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoSphere);
-	//sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalSphere);
-	//sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
-	//sphereMat->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicSphere);
-	//sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
-	//m_RenderEngine->SetHDRIData(sphereMat);
+	sphereMat = &m_RenderEngine->CreateMaterial("sp", Shaders::PBR_LIT);
+	sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoSphere);
+	sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalSphere);
+	sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
+	sphereMat->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicSphere);
+	sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
+	m_RenderEngine->SetHDRIData(sphereMat);
 
-	roadMaterial = &m_RenderEngine->CreateMaterial("road", Shaders::PBR_LIT);
-	roadMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoRoad);
-	roadMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalRoad);
-	roadMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessRoad);
-	roadMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoRoad);
-	roadMaterial->SetVector2(MAT_TILING, Vector2(5.0f, 2.0f));
+//roadMaterial = &m_RenderEngine->CreateMaterial("road", Shaders::PBR_LIT);
+//roadMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoRoad);
+//roadMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalRoad);
+//roadMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessRoad);
+//roadMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoRoad);
+//roadMaterial->SetVector2(MAT_TILING, Vector2(5.0f, 2.0f));
 	//_RenderEngine->SetHDRIData(roadMaterial);
 
 	//helmetMaterial = &m_RenderEngine->CreateMaterial("hp", Shaders::PBR_LIT);
@@ -242,7 +244,7 @@ void Example1Level::Initialize()
 	//helmetMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicHelmet);
 	//helmetMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoHelmet);
 	//
-	floorMaterial = &m_RenderEngine->CreateMaterial("fs", Shaders::PBR_LIT);
+	//floorMaterial = &m_RenderEngine->CreateMaterial("fs", Shaders::PBR_LIT);
 	//floorMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoFloor);
 	//floorMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalFloor);
 	//floorMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessFloor);
@@ -251,9 +253,9 @@ void Example1Level::Initialize()
 	//floorMaterial->SetVector2(MAT_TILING, Vector2(100, 100));
 
 
-	//MeshRendererComponent sphereMR;
-	//sphereMR.mesh = &m_RenderEngine->GetPrimitive(Primitives::SPHERE);
-	//sphereMR.material = sphereMat;
+	MeshRendererComponent sphereMR;
+	sphereMR.mesh = &m_RenderEngine->GetPrimitive(Primitives::SPHERE);
+	sphereMR.material = sphereMat;
 	//
 	//MeshRendererComponent helmetMR;
 	//helmetMR.mesh = &helmetMesh;
@@ -272,11 +274,11 @@ void Example1Level::Initialize()
 	m_ECS->emplace<TransformComponent>(directionalLightEntity, objectTransform);
 	m_ECS->emplace<DirectionalLightComponent>(directionalLightEntity, dirLightComp);
 
-	//ECSEntity sphereEntity;
-	//sphereEntity = m_ECS->CreateEntity("Sphere");
-	//objectTransform.transform.location = Vector3(0, 5, 5);
-	//m_ECS->emplace<TransformComponent>(sphereEntity, objectTransform);
-	//m_ECS->emplace<MeshRendererComponent>(sphereEntity, sphereMR);
+	ECSEntity sphereEntity;
+	sphereEntity = m_ECS->CreateEntity("Sphere");
+	objectTransform.transform.location = Vector3(0, 5, 5);
+	m_ECS->emplace<TransformComponent>(sphereEntity, objectTransform);
+	m_ECS->emplace<MeshRendererComponent>(sphereEntity, sphereMR);
 	//
 	//ECSEntity helmetEntity;
 	//helmetEntity = m_ECS->CreateEntity("Helmet");
@@ -291,16 +293,16 @@ void Example1Level::Initialize()
 	//m_ECS->emplace<TransformComponent>(floorEntity, objectTransform);
 	//m_ECS->emplace<MeshRendererComponent>(floorEntity, floorMR);
 
-	MeshRendererComponent roadMR;
-	roadMR.mesh = &roadMesh;
-	roadMR.material = roadMaterial;
-
-	ECSEntity roadEntity;
-	roadEntity = m_ECS->CreateEntity("Floor");
-	objectTransform.transform.scale = Vector3(5, 1, 50);
-	objectTransform.transform.location = Vector3(0, 0, 0);
-	m_ECS->emplace<TransformComponent>(roadEntity, objectTransform);
-	m_ECS->emplace<MeshRendererComponent>(roadEntity, roadMR);
+	//MeshRendererComponent roadMR;
+	//roadMR.mesh = &roadMesh;
+	//roadMR.material = roadMaterial;
+	//
+	//ECSEntity roadEntity;
+	//roadEntity = m_ECS->CreateEntity("Floor");
+	//objectTransform.transform.scale = Vector3(5, 1, 50);
+	//objectTransform.transform.location = Vector3(0, 0, 0);
+	//m_ECS->emplace<TransformComponent>(roadEntity, objectTransform);
+	//m_ECS->emplace<MeshRendererComponent>(roadEntity, roadMR);
 
 	for (int i = 0; i < pLightSize; i++)
 	{
@@ -345,19 +347,19 @@ void Example1Level::Initialize()
 
 	}
 
-	int rows = 100;
-	int cols = 100;
-	float posInc = 25.0f;
-	TransformComponent cubeTransform;
-	MeshRendererComponent cubeRenderer;
-	GroundCubeComponent gc;
-	Vector3 initialPos = Vector3(0, -50, 0);
-	cubeTransform.transform.location = initialPos;
-	cubeTransform.transform.scale = 1.0f;
-	gc.initialPos = initialPos;
-
-	cubeRenderer.material = floorMaterial;
-	cubeRenderer.mesh = &cubeMesh;
+	//int rows = 100;
+	//int cols = 100;
+	//float posInc = 25.0f;
+	//TransformComponent cubeTransform;
+	//MeshRendererComponent cubeRenderer;
+	//GroundCubeComponent gc;
+	//Vector3 initialPos = Vector3(0, -50, 0);
+	//cubeTransform.transform.location = initialPos;
+	//cubeTransform.transform.scale = 1.0f;
+	//gc.initialPos = initialPos;
+	//
+	//cubeRenderer.material = floorMaterial;
+	//cubeRenderer.mesh = &cubeMesh;
 
 	//float delay = 0.0f;
 	//for (int i = 0; i < rows; i+=2)

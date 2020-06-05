@@ -20,6 +20,9 @@ Class: UILayer
 #include "World/Level.hpp"
 #include "Core/GUILayer.hpp"
 #include "Core/Application.hpp"
+#include "Panels/ECSPanel.hpp"
+#include "Panels/MaterialPanel.hpp"
+#include "Panels/ResourcesPanel.hpp"
 #include "Utility/Log.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Core/EditorCommon.hpp"
@@ -84,12 +87,14 @@ namespace LinaEditor
 		// Draw gizmos
 		DrawGizmos();
 
-
 		// Draw ECS Panel.
 		m_ECSPanel->Draw();
 
 		// Draw material panel.
 		m_MaterialPanel->Draw();
+
+		// Draw resources panel
+		m_ResourcesPanel->Draw();
 
 		if (showIMGUIDemo)
 			ImGui::ShowDemoWindow(&showIMGUIDemo);
@@ -172,9 +177,16 @@ namespace LinaEditor
 		// setup panels, windows etc.
 		m_ECSPanel = new ECSPanel(Vector2::Zero, Vector2(700,600));
 		m_MaterialPanel = new MaterialPanel(Vector2::Zero, Vector2(700, 600));
+		m_ResourcesPanel = new ResourcesPanel(Vector2::Zero, Vector2(700, 400));
+
 		m_ECSPanel->Setup(*m_ECS, *this, m_RenderEngine->GetMainWindow(), *m_MaterialPanel);
 		m_ECSPanel->Open();
+
+		m_MaterialPanel->Setup(*m_RenderEngine);
 		m_MaterialPanel->Open();
+
+		m_ResourcesPanel->Setup();
+		m_ResourcesPanel->Open();
 	}
 
 	void GUILayer::OnDetach()
@@ -188,6 +200,7 @@ namespace LinaEditor
 
 		delete m_ECSPanel;
 		delete m_MaterialPanel;
+		delete m_ResourcesPanel;
 	}
 
 	void GUILayer::ProcessInput()

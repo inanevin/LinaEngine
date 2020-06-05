@@ -24,6 +24,7 @@ Timestamp: 6/4/2020 8:35:30 PM
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "Rendering/Texture.hpp"
+#include "Rendering/RenderEngine.hpp"
 
 
 namespace LinaEditor
@@ -53,17 +54,16 @@ namespace LinaEditor
 						Graphics::Texture* roughness = m_CurrentSelectedMaterial->GetTexture(MAT_TEXTURE2D_ROUGHNESSMAP);
 						Graphics::Texture* metallic = m_CurrentSelectedMaterial->GetTexture(MAT_TEXTURE2D_METALLICMAP);
 						Graphics::Texture* ao = m_CurrentSelectedMaterial->GetTexture(MAT_TEXTURE2D_AOMAP);
-						Graphics::Texture* chosenTexture = nullptr;
 
 						ImVec2 imageButtonSize = ImVec2(50, 50);
+						std::string fileDialogueID = "ChooseMap";
 						// Albedo Map
 						ImGui::Text("Albedo Map");
 						ImGui::SameLine();
 						if (ImGui::ImageButton(albedo != nullptr ? (void*)albedo->GetID() : 0, imageButtonSize))
 						{
-							chosenTexture = albedo;
 							chosenMapID = MAT_TEXTURE2D_ALBEDOMAP;
-							igfd::ImGuiFileDialog::Instance()->OpenDialog("ChooseMap", "Choose File", ".png\0.jpg\0.jpeg\0.tga\0", ".");
+							igfd::ImGuiFileDialog::Instance()->OpenDialog(fileDialogueID, "Choose File", ".png\0.jpg\0.jpeg\0.tga\0", ".");
 						}
 
 						// Normal Map
@@ -71,9 +71,8 @@ namespace LinaEditor
 						ImGui::SameLine();
 						if (ImGui::ImageButton(normal != nullptr ? (void*)normal->GetID() : 0, imageButtonSize))
 						{
-							chosenTexture = normal;
 							chosenMapID = MAT_TEXTURE2D_NORMALMAP;
-							igfd::ImGuiFileDialog::Instance()->OpenDialog("ChooseMap", "Choose File", ".png\0.jpg\0.jpeg\0.tga\0", ".");
+							igfd::ImGuiFileDialog::Instance()->OpenDialog(fileDialogueID, "Choose File", ".png\0.jpg\0.jpeg\0.tga\0", ".");
 						}
 
 						// Roughness Map
@@ -81,9 +80,8 @@ namespace LinaEditor
 						ImGui::SameLine();
 						if (ImGui::ImageButton(roughness != nullptr ? (void*)roughness->GetID() : 0, imageButtonSize))
 						{
-							chosenTexture = roughness;
 							chosenMapID = MAT_TEXTURE2D_ROUGHNESSMAP;
-							igfd::ImGuiFileDialog::Instance()->OpenDialog("ChooseMap", "Choose File", ".png\0.jpg\0.jpeg\0.tga\0", ".");
+							igfd::ImGuiFileDialog::Instance()->OpenDialog(fileDialogueID, "Choose File", ".png\0.jpg\0.jpeg\0.tga\0", ".");
 						}
 
 						// Metalic Map
@@ -91,9 +89,8 @@ namespace LinaEditor
 						ImGui::SameLine();
 						if (ImGui::ImageButton(metallic != nullptr ? (void*)metallic->GetID() : 0, imageButtonSize))
 						{
-							chosenTexture = metallic;
 							chosenMapID = MAT_TEXTURE2D_METALLICMAP;
-							igfd::ImGuiFileDialog::Instance()->OpenDialog("ChooseMap", "Choose File", ".png\0.jpg\0.jpeg\0.tga\0", ".");
+							igfd::ImGuiFileDialog::Instance()->OpenDialog(fileDialogueID, "Choose File", ".png\0.jpg\0.jpeg\0.tga\0", ".");
 						}
 
 						// AO Map
@@ -101,31 +98,29 @@ namespace LinaEditor
 						ImGui::SameLine();
 						if (ImGui::ImageButton(ao != nullptr ? (void*)ao->GetID() : 0, imageButtonSize))
 						{
-							chosenTexture = ao;
 							chosenMapID = MAT_TEXTURE2D_AOMAP;
-							igfd::ImGuiFileDialog::Instance()->OpenDialog("ChooseMap", "Choose File", ".png\0.jpg\0.jpeg\0.tga\0", ".");
+							igfd::ImGuiFileDialog::Instance()->OpenDialog(fileDialogueID, "Choose File", ".png\0.jpg\0.jpeg\0.tga\0", ".");
 						}
 							
 
 						// display
-						if (igfd::ImGuiFileDialog::Instance()->FileDialog("ChooseMap"))
+						if (igfd::ImGuiFileDialog::Instance()->FileDialog(fileDialogueID))
 						{
 							// action if OK
 							if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
 							{
 								std::string filePathName = igfd::ImGuiFileDialog::Instance()->GetFilepathName();
 								std::string filePath = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
-								LINA_CLIENT_WARN("{0}", filePathName);
-								
-								if (chosenTexture != nullptr)
-								{
-									
-								}
+								std::string fileName = igfd::ImGuiFileDialog::Instance()->GetCurrentFileName();
+							
+								m_CurrentSelectedMaterial->SetTexture(chosenMapID, &m_RenderEngine->CreateTexture2D(filePathName));
 
-								igfd::ImGuiFileDialog::Instance()->CloseDialog("ChooseFileDlgKey");
+
+							
+								igfd::ImGuiFileDialog::Instance()->CloseDialog(fileDialogueID);
 							}
 							// close
-							igfd::ImGuiFileDialog::Instance()->CloseDialog("ChooseFileDlgKey");
+							igfd::ImGuiFileDialog::Instance()->CloseDialog(fileDialogueID);
 						}
 
 						// Metallic & specular multipliers
@@ -150,6 +145,12 @@ namespace LinaEditor
 					}
 				}
 			}
+
+			ImGui::End();
 		}
+	}
+	void MaterialPanel::Setup(LinaEngine::Graphics::RenderEngine& renderEngine)
+	{
+		m_RenderEngine = &renderEngine;
 	}
 }
