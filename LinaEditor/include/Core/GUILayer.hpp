@@ -110,5 +110,6 @@ namespace LinaEditor
 		class ECSPanel* m_ECSPanel;
 		class MaterialPanel* m_MaterialPanel;
 		class ResourcesPanel* m_ResourcesPanel;
+		class ScenePanel* m_ScenePanel;
 	};
 }

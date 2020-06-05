@@ -20,13 +20,39 @@ Timestamp: 6/5/2020 6:51:39 PM
 
 
 #include "Panels/ScenePanel.hpp"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+#include "imgui_internal.h"
+#include "Rendering/RenderEngine.hpp"
 
 namespace LinaEditor
 {
 	void ScenePanel::Draw()
 	{
+		if (m_Show)
+		{
+			// Set window properties.
+			ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImVec2 work_area_pos = viewport->GetWorkPos();
+			ImVec2 panelSize = ImVec2(m_Size.x, m_Size.y);
+			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
+			ImGui::SetNextWindowBgAlpha(0.2f);
+
+			if (ImGui::Begin("Resources Panel", &m_Show))
+			{
+				ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetFinalImage(), ImVec2(ImGui::GetCursorScreenPos()), ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetCurrentWindow()->Size.x, ImGui::GetCursorScreenPos().y + ImGui::GetCurrentWindow()->Size.y), ImVec2(0, 1), ImVec2(1, 0));
+
+			}
+
+			ImGui::End();
+		}
 	}
-	void ScenePanel::Setup()
+
+	void ScenePanel::Setup(LinaEngine::Graphics::RenderEngine& renderEngine)
 	{
+		m_RenderEngine = &renderEngine;
 	}
+
+
 }

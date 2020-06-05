@@ -25,6 +25,7 @@ Timestamp: 6/4/2020 8:31:22 PM
 #include "Panels/EditorPanel.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Rendering/Material.hpp"
+
 namespace LinaEditor
 {
 	class MaterialPanel : public EditorPanel

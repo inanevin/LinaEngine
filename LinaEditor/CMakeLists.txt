@@ -31,6 +31,7 @@ src/Panels/EditorPanel.cpp
 src/Panels/ECSPanel.cpp
 src/Panels/MaterialPanel.cpp
 src/Panels/ResourcesPanel.cpp
+src/Panels/ScenePanel.cpp
 
 
 # World
@@ -67,6 +68,7 @@ include/Panels/EditorPanel.hpp
 include/Panels/ECSPanel.hpp
 include/Panels/MaterialPanel.hpp
 include/Panels/ResourcesPanel.hpp
+include/Panels/ScenePanel.hpp
 
 # Utility
 include/Utility/EditorUtility.hpp

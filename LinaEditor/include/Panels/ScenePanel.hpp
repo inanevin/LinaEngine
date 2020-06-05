@@ -21,9 +21,17 @@ Timestamp: 6/5/2020 6:51:29 PM
 
 #ifndef ScenePanel_HPP
 #define ScenePanel_HPP
+
 #include "Panels/EditorPanel.hpp"
 #include "Utility/EditorUtility.hpp"
 
+namespace LinaEngine
+{
+	namespace Graphics
+	{
+		class RenderEngine;
+	}
+}
 
 namespace LinaEditor
 {
@@ -36,9 +44,11 @@ namespace LinaEditor
 		virtual ~ScenePanel() {};
 
 		virtual void Draw() override;
-		void Setup();
+		void Setup(class LinaEngine::Graphics::RenderEngine& renderEngine);
+
 	private:
-	
+
+		class LinaEngine::Graphics::RenderEngine* m_RenderEngine;
 	};
 }
 
