@@ -288,8 +288,8 @@ namespace LinaEditor
 				ImGuiID dock_id_prop = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.20f, NULL, &dock_main_id);
 				ImGuiID dock_id_bottom = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Down, 0.20f, NULL, &dock_main_id);
 
-				ImGui::DockBuilderDockWindow("ECS", dock_id_prop);
 				ImGui::DockBuilderDockWindow("Resources", dock_id_prop);
+				ImGui::DockBuilderDockWindow("ECS", dock_id_prop);
 				ImGui::DockBuilderDockWindow("Scene", dock_main_id);
 
 				ImGui::DockBuilderFinish(dockspace_id);
