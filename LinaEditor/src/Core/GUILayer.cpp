@@ -120,10 +120,16 @@ namespace LinaEditor
 		ImGuiStyle& style = ImGui::GetStyle();
 	
 		ImVec4* colors = ImGui::GetStyle().Colors;
+		style.WindowRounding = 0.0f;
+		style.TabRounding = 0.0f;
+		style.ChildRounding = 0.0f;
+		style.PopupRounding = 0.0f;
+		style.FrameRounding = 0.0f;
+		style.ScrollbarRounding = 0.0f;
 		colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 		colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
 		colors[ImGuiCol_WindowBg] = ImVec4(0.06f, 0.06f, 0.06f, 0.94f);
-		colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+		colors[ImGuiCol_ChildBg] = ImVec4(0.08f, 0.08f, 0.08f, 0.00f);
 		colors[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
 		colors[ImGuiCol_Border] = ImVec4(0.39f, 0.38f, 0.39f, 0.50f);
 		colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
@@ -170,6 +176,7 @@ namespace LinaEditor
 		colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
 		colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+
 
 
 
