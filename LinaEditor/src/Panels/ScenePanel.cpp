@@ -49,9 +49,9 @@ namespace LinaEditor
 			ImVec2 work_area_pos = viewport->GetWorkPos();
 			ImVec2 panelSize = ImVec2(m_Size.x, m_Size.y);
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
-			ImGui::SetNextWindowBgAlpha(0.2f);
-	
-			if (ImGui::Begin("Scene", &m_Show))
+			ImGui::SetNextWindowBgAlpha(1.0f);
+			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+			if (ImGui::Begin("Scene", &m_Show, flags))
 			{
 				Vector2 drawSize = m_RenderEngine->GetMainWindow().GetSize();
 				float currentWindowX = ImGui::GetCurrentWindow()->Size.x;

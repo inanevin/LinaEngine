@@ -36,9 +36,10 @@ namespace LinaEditor
 			ImVec2 work_area_pos = viewport->GetWorkPos();
 			ImVec2 panelSize = ImVec2(m_Size.x, m_Size.y);
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
-			ImGui::SetNextWindowBgAlpha(0.2f);
+			ImGui::SetNextWindowBgAlpha(1.0f);
+			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 
-			if (ImGui::Begin("Resources", &m_Show))
+			if (ImGui::Begin("Resources", &m_Show, flags))
 			{
 
 			}
