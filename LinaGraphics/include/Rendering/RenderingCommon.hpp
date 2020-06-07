@@ -76,16 +76,16 @@ namespace LinaEngine::Graphics
 
 	enum PixelFormat
 	{
-		FORMAT_R,
-		FORMAT_RG,
-		FORMAT_RGB,
-		FORMAT_RGBA,
-		FORMAT_RGB16F,
-		FORMAT_RGBA16F,
-		FORMAT_DEPTH,
-		FORMAT_DEPTH_AND_STENCIL,
-		FORMAT_SRGB,
-		FORMAT_SRGBA
+		FORMAT_R = 0,
+		FORMAT_RG = 1,
+		FORMAT_RGB = 2,
+		FORMAT_RGBA = 3,
+		FORMAT_RGB16F = 4,
+		FORMAT_RGBA16F = 5,
+		FORMAT_DEPTH = 6,
+		FORMAT_DEPTH_AND_STENCIL = 7,
+		FORMAT_SRGB = 8,
+		FORMAT_SRGBA = 9
 	};
 
 
@@ -266,7 +266,7 @@ namespace LinaEngine::Graphics
 	struct SamplerParameters
 	{
 		TextureParameters textureParams;
-		float anisotropy = 0.0f;
+		int anisotropy = 0.0f;
 	};
 
 	/* Struct containing basic data about window properties. */

@@ -48,8 +48,10 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void UpdateSettings(SamplerParameters samplerParams) 
 		{
 			m_Params = samplerParams;
-			renderDevice->UpdateSamplerParameters(samplerParams);
+			renderDevice->UpdateSamplerParameters(m_EngineBoundID, samplerParams);
 		}
+
+		FORCEINLINE SamplerParameters& GetSamplerParameters() { return m_Params; }
 
 		FORCEINLINE uint32 GetID() const { return m_EngineBoundID; }
 

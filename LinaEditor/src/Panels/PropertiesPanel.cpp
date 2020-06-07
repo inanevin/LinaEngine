@@ -38,6 +38,17 @@ namespace LinaEditor
 	using namespace LinaEngine;
 	static bool openCompExistsModal;
 	const char* entityComponents[] = { "Transform", "Mesh Renderer", "Camera", "Directional Light", "Point Light", "Spot Light", "Free Look" };
+	const char* pixelFormats[]{
+		"FORMAT_R",
+		"FORMAT_RG",
+		"FORMAT_RGB",
+		"FORMAT_RGBA",
+		"FORMAT_RGB16F",
+		"FORMAT_RGBA16F",
+		"FORMAT_DEPTH",
+		"FORMAT_DEPTH_AND_STENCIL",
+		"FORMAT_SRGB",
+		"FORMAT_SRGBA" };
 
 	void PropertiesPanel::Setup()
 	{
@@ -347,6 +358,32 @@ namespace LinaEditor
 
 	void PropertiesPanel::DrawTextureProperties()
 	{
-		
+		Graphics::SamplerParameters& params = m_SelectedTexture->GetSampler().GetSamplerParameters();
+
+		ImGui::Checkbox("Generate Mipmaps?", &params.textureParams.generateMipMaps);
+		ImGui::DragInt("Anisotropy", &params.anisotropy, 0.5f, 0, 8);
+
+		static int internalPixelFormatCurrentItem = (int)params.textureParams.internalPixelFormat;
+		static Graphics::PixelFormat selectedInternalFormat = params.textureParams.internalPixelFormat;
+
+		static ImGuiComboFlags flags = 0;
+		const char* combo_label = pixelFormats[internalPixelFormatCurrentItem];  // Label to preview before opening the combo (technically could be anything)(
+		if (ImGui::BeginCombo("Internal Pixel Format", combo_label, flags))
+		{
+			for (int n = 0; n < IM_ARRAYSIZE(pixelFormats); n++)
+			{
+				const bool is_selected = (internalPixelFormatCurrentItem == n);
+				if (ImGui::Selectable(pixelFormats[n], is_selected))
+					internalPixelFormatCurrentItem = n;
+
+				// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+				if (is_selected)
+				{
+					selectedInternalFormat = (Graphics::PixelFormat)n;
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+			ImGui::EndCombo();
+		}
 	}
 }
