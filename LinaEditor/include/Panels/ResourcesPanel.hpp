@@ -42,18 +42,20 @@ namespace LinaEditor
 
 		struct EditorFile
 		{
-			std::string fileName;
-			std::string fileExtension;
-			std::string filePath;
-			FileType fileType;
+			std::string name;
+			std::string extension;
+			std::string path;
+			FileType type;
+			int id;
 		};
 
 		struct EditorFolder
 		{
 			std::string path;
-			std::string folderName;
+			std::string name;
 			std::vector<EditorFolder> subFolders;
 			std::vector<EditorFile> files;
+			int id;
 		};
 		
 		
@@ -65,8 +67,11 @@ namespace LinaEditor
 
 	private:
 	
-		void ScanFilesAndFolders(EditorFolder& folder);
+		void ScanRoot();
+		void ScanFolder(EditorFolder& folder);
+		void DrawFolder(EditorFolder& folder);
 		FileType GetFileType(std::string& extension);
+
 	private:
 
 		std::vector<EditorFolder> m_ResourceFolders;

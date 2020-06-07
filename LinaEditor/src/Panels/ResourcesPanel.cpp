@@ -27,6 +27,8 @@ Timestamp: 6/5/2020 12:55:10 AM
 
 namespace LinaEditor
 {
+	static int itemIDCounter = 0;
+	static int selectedItem = -1;
 
 	void ResourcesPanel::Draw()
 	{
@@ -40,10 +42,10 @@ namespace LinaEditor
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 
-			if (ImGui::Begin("Resources", &m_Show, flags))
-			{
 
-			}
+			ImGui::Begin("Resources", &m_Show, flags);
+
+			DrawFolder(m_ResourceFolders[0]);
 
 			ImGui::End();
 		}
@@ -51,19 +53,25 @@ namespace LinaEditor
 
 	void ResourcesPanel::Setup()
 	{
+		// Scan root resources folder.
+		ScanRoot();
+	}
+
+	void ResourcesPanel::ScanRoot()
+	{
 		// Create root.
 		EditorFolder root;
-		root.folderName = "Resources";
+		root.name = "Resources";
 		root.path = "resources";
 		m_ResourceFolders.push_back(root);
 
 		// Recursively fill in root.
+		itemIDCounter = -1;
 		std::string path = "resources";
-		ScanFilesAndFolders(m_ResourceFolders[0]);
-
+		ScanFolder(m_ResourceFolders[0]);
 	}
 
-	void ResourcesPanel::ScanFilesAndFolders(EditorFolder& root)
+	void ResourcesPanel::ScanFolder(EditorFolder& root)
 	{
 		for (const auto& entry : std::filesystem::directory_iterator(root.path))
 		{
@@ -71,11 +79,12 @@ namespace LinaEditor
 			{
 				// Is a file
 				EditorFile file;
-				file.fileName = entry.path().filename().string();
-				file.filePath = entry.path().relative_path().string();
-				file.fileExtension = file.fileName.substr(file.fileName.find(".") + 1);
-				file.fileType = GetFileType(file.fileExtension);
-				
+				file.name = entry.path().filename().string();
+				file.path = entry.path().relative_path().string();
+				file.extension = file.name.substr(file.name.find(".") + 1);
+				file.type = GetFileType(file.extension);
+				file.id = ++itemIDCounter;
+
 				// Add to the folder data.
 				root.files.push_back(file);
 			}
@@ -83,15 +92,63 @@ namespace LinaEditor
 			{
 				// Is a folder
 				EditorFolder folder;
-				folder.folderName = entry.path().filename().string();
+				folder.name = entry.path().filename().string();
 				folder.path = entry.path().relative_path().string();
+				folder.id = ++itemIDCounter;
 
 				// Add to the sub folders.
 				root.subFolders.push_back(folder);
 
 				// Iterate recursively.
-				ScanFilesAndFolders(root.subFolders.back());
+				ScanFolder(root.subFolders.back());
 			}
+		}
+
+	}
+
+	void ResourcesPanel::DrawFolder(EditorFolder& folder)
+	{
+		static ImGuiTreeNodeFlags folderFlagsNotSelected = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+		static ImGuiTreeNodeFlags folderFlagsSelected = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Selected;
+		static ImGuiTreeNodeFlags fileNodeFlagsNotSelected = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth;
+		static ImGuiTreeNodeFlags fileNodeFlagsSelected = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Selected;
+
+
+		for (int i = 0; i < folder.subFolders.size(); i++)
+		{
+			ImGuiTreeNodeFlags folderFlags = folder.subFolders[i].id == selectedItem ? folderFlagsSelected : folderFlagsNotSelected;
+
+			bool nodeOpen = ImGui::TreeNodeEx(folder.subFolders[i].name.c_str(), folderFlags);
+
+			if (ImGui::IsItemClicked())
+			{
+				selectedItem = folder.subFolders[i].id;
+			}
+
+			if (nodeOpen)
+			{
+				DrawFolder(folder.subFolders[i]);
+				ImGui::TreePop();
+			}
+
+		}
+
+		for (int i = 0; i < folder.files.size(); i++)
+		{
+			ImGuiTreeNodeFlags fileFlags = folder.files[i].id == selectedItem ? fileNodeFlagsSelected : fileNodeFlagsNotSelected;
+
+			bool nodeOpen = ImGui::TreeNodeEx(folder.files[i].name.c_str(), fileFlags);
+
+			if (ImGui::IsItemClicked())
+			{
+				selectedItem = folder.files[i].id;
+			}
+
+			if (nodeOpen)
+			{
+				ImGui::TreePop();
+			}
+
 		}
 
 	}
