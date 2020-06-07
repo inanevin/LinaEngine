@@ -45,14 +45,13 @@ namespace LinaEditor
 		virtual ~ScenePanel() {};
 
 		virtual void Draw() override;
-		void Setup(class LinaEngine::Graphics::RenderEngine& renderEngine);
+		virtual void Setup() override;
 
 		// Set selected entity's transform component
 		FORCEINLINE void SetSelectedTransform(LinaEngine::ECS::TransformComponent* tr) { m_SelectedTransform = tr; }
 
 		// Handle hardware input
 		void ProcessInput();
-
 
 		// Handles gizmos
 		void DrawGizmos();

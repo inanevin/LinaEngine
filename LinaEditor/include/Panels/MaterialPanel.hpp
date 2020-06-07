@@ -37,7 +37,7 @@ namespace LinaEditor
 		virtual ~MaterialPanel() {};
 	
 		virtual void Draw() override;
-		void Setup(class LinaEngine::Graphics::RenderEngine& renderEngine);
+		virtual void Setup() override;
 		FORCEINLINE void SetCurrentMaterial(LinaEngine::Graphics::Material* mat) { m_CurrentSelectedMaterial = mat; }
 
 	private:

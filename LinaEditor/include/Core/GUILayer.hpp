@@ -57,6 +57,14 @@ namespace LinaEditor
 		// CLASS METHODS
 		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& engine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs) { m_RenderEngine = &engine; m_Application = application; m_ECS = &ecs; }
 
+		// Getters for references.
+		FORCEINLINE LinaEngine::ECS::ECSRegistry* GetECS() const { return m_ECS; }
+		FORCEINLINE class ECSPanel* GetECSPanel() const { return m_ECSPanel; }
+		FORCEINLINE class PropertiesPanel* GetPropertiesPanel() const { return m_PropertiesPanel; }
+		FORCEINLINE class MaterialPanel* GetMaterialPanel() const { return m_MaterialPanel; }
+		FORCEINLINE class ResourcesPanel* GetResourcesPanel() const { return m_ResourcesPanel; }
+		FORCEINLINE class ScenePanel* GetScenePanel() const { return m_ScenePanel; }
+		FORCEINLINE LinaEngine::Graphics::RenderEngine* GetRenderEngine() const { return m_RenderEngine; }
 
 	private:
 
@@ -66,7 +74,6 @@ namespace LinaEditor
 
 		// Draws an fps counter overlay.
 		void DrawFPSCounter(bool* p_open, int corner = 0);
-
 
 		// Draws a central docking space.
 		void DrawCentralDockingSpace();

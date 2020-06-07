@@ -20,6 +20,7 @@ Timestamp: 6/5/2020 6:51:39 PM
 
 
 #include "Panels/ScenePanel.hpp"
+#include "Core/GUILayer.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -92,9 +93,9 @@ namespace LinaEditor
 		}
 	}
 
-	void ScenePanel::Setup(LinaEngine::Graphics::RenderEngine& renderEngine)
+	void ScenePanel::Setup()
 	{
-		m_RenderEngine = &renderEngine;
+		m_RenderEngine = m_GUILayer->GetRenderEngine();
 	}
 
 	void ScenePanel::ProcessInput()

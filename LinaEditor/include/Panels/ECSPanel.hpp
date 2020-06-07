@@ -23,7 +23,6 @@ Timestamp: 5/23/2020 4:15:06 PM
 #define ECSPanel_HPP
 
 #include "Panels/EditorPanel.hpp"
-#include "Utility/EditorUtility.hpp"
 #include "ECS/ECS.hpp"
 
 namespace LinaEngine
@@ -44,8 +43,7 @@ namespace LinaEditor
 		virtual ~ECSPanel() {};
 	
 		virtual void Draw() override;
-		void Setup(LinaEngine::ECS::ECSRegistry& registry, class ScenePanel& scenePanel, LinaEngine::Graphics::Window& appWindow, class MaterialPanel& materialPanel
-		, class PropertiesPanel& propPanel);
+		virtual void Setup() override;
 
 	private:
 
@@ -56,11 +54,10 @@ namespace LinaEditor
 
 		class ScenePanel* m_ScenePanel;
 		class PropertiesPanel* m_PropertiesPanel;
-		LinaEngine::Graphics::Window* m_AppWindow;
 		LinaEngine::ECS::ECSRegistry* m_ECS;
+
 		LinaEngine::ECS::ECSEntity m_SelectedEntity;
 		std::vector<LinaEngine::ECS::ECSEntity> m_EntityList;
-		class MaterialPanel* m_MaterialPanel;
 	};
 }
 

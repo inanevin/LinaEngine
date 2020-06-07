@@ -181,10 +181,6 @@ namespace LinaEditor
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 
 
-
-
-
-
 		// setup panels, windows etc.
 		m_ECSPanel = new ECSPanel(Vector2::Zero, Vector2(700,600), *this);
 		m_MaterialPanel = new MaterialPanel(Vector2::Zero, Vector2(700, 600), *this);
@@ -192,16 +188,16 @@ namespace LinaEditor
 		m_ScenePanel = new ScenePanel(Vector2::Zero, Vector2(800, 600), *this);
 		m_PropertiesPanel = new PropertiesPanel(Vector2::Zero, Vector2(700, 600), *this);
 
-		m_ECSPanel->Setup(*m_ECS, *m_ScenePanel, m_RenderEngine->GetMainWindow(), *m_MaterialPanel, *m_PropertiesPanel);
+		m_ECSPanel->Setup();
 		m_ECSPanel->Open();
 
-		m_MaterialPanel->Setup(*m_RenderEngine);
+		m_MaterialPanel->Setup();
 		m_MaterialPanel->Open();
 
 		m_ResourcesPanel->Setup();
 		m_ResourcesPanel->Open();
 
-		m_ScenePanel->Setup(*m_RenderEngine);
+		m_ScenePanel->Setup();
 		m_ScenePanel->Open();
 
 		m_PropertiesPanel->Setup();
@@ -561,7 +557,7 @@ namespace LinaEditor
 			{
 				if (ImGui::MenuItem("Folder"))
 				{
-					Utility::EditorUtility::CreateFolderInPath(EditorPathConstants::contentsPath + "NewFolder");
+					EditorUtility::CreateFolderInPath(EditorPathConstants::contentsPath + "NewFolder");
 					ReadProjectContentsFolder();
 				}
 
@@ -689,7 +685,7 @@ namespace LinaEditor
 	{
 		// Get folders in directory.
 		std::vector<std::string> rootFolders;
-		Utility::EditorUtility::GetDirectories(rootFolders, EditorPathConstants::contentsPath);
+		EditorUtility::GetDirectories(rootFolders, EditorPathConstants::contentsPath);
 
 		// Clear current folders.
 		m_ContentFolders.clear();

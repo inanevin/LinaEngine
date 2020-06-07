@@ -22,34 +22,28 @@ Timestamp: 5/9/2020 1:22:23 AM
 #ifndef EditorUtility_HPP
 #define EditorUtility_HPP
 
-// Headers here.
-#include "ECS/ECS.hpp"
-#include "ECS/ECSComponent.hpp"
 #include <string>
 #include <vector>
-#include <map>
+#include "Utility/Math/Vector.hpp"
 
 
 namespace LinaEditor
 {
-
-	namespace Utility
+	class EditorUtility
 	{
-		class EditorUtility
-		{
 
-		public:
+	public:
 
-			EditorUtility();
-			~EditorUtility();
+		EditorUtility();
+		~EditorUtility();
 
-			static bool CreateFolderInPath(const std::string& path);
-			static bool GetDirectories(std::vector<std::string>& vec, const std::string& path);
-		private:
+		static void EditorUtility::ColorButton(LinaEngine::Vector4 col);
+		static bool SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size);
+		static bool CreateFolderInPath(const std::string& path);
+		static bool GetDirectories(std::vector<std::string>& vec, const std::string& path);
+	private:
 
-		};
-	}
-
+	};
 }
 
 

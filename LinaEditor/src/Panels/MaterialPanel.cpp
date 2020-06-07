@@ -19,6 +19,7 @@ Timestamp: 6/4/2020 8:35:30 PM
 */
 
 #include "Panels/MaterialPanel.hpp"
+#include "Core/GUILayer.hpp"
 #include "imgui.h"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 #include "imgui_impl_glfw.h"
@@ -149,8 +150,9 @@ namespace LinaEditor
 			ImGui::End();
 		}
 	}
-	void MaterialPanel::Setup(LinaEngine::Graphics::RenderEngine& renderEngine)
+
+	void MaterialPanel::Setup()
 	{
-		m_RenderEngine = &renderEngine;
+		m_RenderEngine = m_GUILayer->GetRenderEngine();
 	}
 }
