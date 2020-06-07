@@ -105,5 +105,6 @@ namespace LinaEditor
 		class ResourcesPanel* m_ResourcesPanel;
 		class ScenePanel* m_ScenePanel;
 		class PropertiesPanel* m_PropertiesPanel;
+		class LogPanel* m_LogPanel;
 	};
 }

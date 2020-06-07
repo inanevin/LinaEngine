@@ -25,6 +25,7 @@ Class: UILayer
 #include "Panels/ResourcesPanel.hpp"
 #include "Panels/ScenePanel.hpp"
 #include "Panels/PropertiesPanel.hpp"
+#include "Panels/LogPanel.hpp"
 #include "Utility/Log.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Core/EditorCommon.hpp"
@@ -51,13 +52,13 @@ namespace LinaEditor
 
 	void GUILayer::OnUpdate()
 	{
-		
+
 		//Setup
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		
-	
+
+
 		// Draw main docking space.
 		DrawCentralDockingSpace();
 
@@ -69,7 +70,7 @@ namespace LinaEditor
 
 		//// Draw material panel.
 		//m_MaterialPanel->Draw();
-		
+
 		// Draw resources panel
 		m_ResourcesPanel->Draw();
 
@@ -82,11 +83,15 @@ namespace LinaEditor
 		// Draw properties panel
 		m_PropertiesPanel->Draw();
 
+		// Draw Log Panel
+		m_LogPanel->Draw();
+
 		if (showIMGUIDemo)
 			ImGui::ShowDemoWindow(&showIMGUIDemo);
+
 		// Rendering
 		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());	
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	}
 
 	void GUILayer::OnEvent()
@@ -96,7 +101,7 @@ namespace LinaEditor
 
 	void GUILayer::OnAttach()
 	{
-	
+
 		LINA_CLIENT_INFO("TestLayer Attached");
 
 		// Setup Dear ImGui context
@@ -105,7 +110,7 @@ namespace LinaEditor
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 
 		io.Fonts->AddFontFromFileTTF("resources/fonts/defaultFont.ttf", 20.0f, NULL)->Scale = 0.92f;
-		
+
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -115,13 +120,13 @@ namespace LinaEditor
 
 
 		GLFWwindow* window = static_cast<GLFWwindow*>(m_RenderEngine->GetNativeWindow());
-		
+
 		// Setup Platform/Renderer bindings
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init();
 
 		ImGuiStyle& style = ImGui::GetStyle();
-	
+
 		ImVec4* colors = ImGui::GetStyle().Colors;
 		style.WindowRounding = 0.0f;
 		style.TabRounding = 0.0f;
@@ -150,8 +155,8 @@ namespace LinaEditor
 		colors[ImGuiCol_CheckMark] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
 		colors[ImGuiCol_SliderGrab] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
 		colors[ImGuiCol_SliderGrabActive] = ImVec4(0.74f, 0.74f, 0.74f, 1.00f);
-		colors[ImGuiCol_Button] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
-		colors[ImGuiCol_ButtonHovered] = ImVec4(0.24f, 0.24f, 0.24f, 1.00f);
+		colors[ImGuiCol_Button] = ImVec4(0.21f, 0.21f, 0.21f, 1.00f);
+		colors[ImGuiCol_ButtonHovered] = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
 		colors[ImGuiCol_ButtonActive] = ImVec4(0.33f, 0.33f, 0.33f, 1.00f);
 		colors[ImGuiCol_Header] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
 		colors[ImGuiCol_HeaderHovered] = ImVec4(0.29f, 0.29f, 0.29f, 1.00f);
@@ -180,14 +185,13 @@ namespace LinaEditor
 		colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 
-
-
 		// setup panels, windows etc.
-		m_ECSPanel = new ECSPanel(Vector2::Zero, Vector2(700,600), *this);
+		m_ECSPanel = new ECSPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_MaterialPanel = new MaterialPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_ResourcesPanel = new ResourcesPanel(Vector2::Zero, Vector2(700, 400), *this);
 		m_ScenePanel = new ScenePanel(Vector2::Zero, Vector2(800, 600), *this);
 		m_PropertiesPanel = new PropertiesPanel(Vector2::Zero, Vector2(700, 600), *this);
+		m_LogPanel = new LogPanel(Vector2::Zero, Vector2(700, 600), *this);
 
 		m_ECSPanel->Setup();
 		m_ECSPanel->Open();
@@ -203,6 +207,9 @@ namespace LinaEditor
 
 		m_PropertiesPanel->Setup();
 		m_PropertiesPanel->Open();
+
+		m_LogPanel->Setup();
+		m_LogPanel->Open();
 
 		setDockspaceLayout = true;
 	}
@@ -222,11 +229,9 @@ namespace LinaEditor
 		delete m_ScenePanel;
 	}
 
-
-
 	void GUILayer::DrawTools(bool* p_open, int corner)
 	{
-		
+
 	}
 
 	void GUILayer::DrawFPSCounter(bool* p_open, int corner)
@@ -255,7 +260,7 @@ namespace LinaEditor
 			ImGui::Text(fpsText.c_str());
 		}
 		ImGui::End();
-	}	
+	}
 
 	void GUILayer::DrawCentralDockingSpace()
 	{
@@ -318,36 +323,18 @@ namespace LinaEditor
 				ImGui::DockBuilderDockWindow("Resources", dock_id_prop);
 				ImGui::DockBuilderDockWindow("Entities", dock_id_prop);
 				ImGui::DockBuilderDockWindow("Scene", dock_main_id);
+				ImGui::DockBuilderDockWindow("Log", dock_id_bottom);
 				ImGui::DockBuilderDockWindow("Properties", dock_id_right);
 
 				ImGui::DockBuilderFinish(dockspace_id);
 
 			}
-		
+
 		}
-		else
-		{
-			//ShowDockingDisabledMessage();
-		}
+
 
 		if (ImGui::BeginMenuBar())
 		{
-			/* if (ImGui::BeginMenu("Docking"))
-			{
-				// Disabling fullscreen would allow the window to be moved to the front of other windows,
-				// which we can't undo at the moment without finer window depth/z control.
-				//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
-
-				if (ImGui::MenuItem("Flag: NoSplit", "", (dockspace_flags & ImGuiDockNodeFlags_NoSplit) != 0))                 dockspace_flags ^= ImGuiDockNodeFlags_NoSplit;
-				if (ImGui::MenuItem("Flag: NoResize", "", (dockspace_flags & ImGuiDockNodeFlags_NoResize) != 0))                dockspace_flags ^= ImGuiDockNodeFlags_NoResize;
-				if (ImGui::MenuItem("Flag: NoDockingInCentralNode", "", (dockspace_flags & ImGuiDockNodeFlags_NoDockingInCentralNode) != 0))  dockspace_flags ^= ImGuiDockNodeFlags_NoDockingInCentralNode;
-				if (ImGui::MenuItem("Flag: PassthruCentralNode", "", (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode) != 0))     dockspace_flags ^= ImGuiDockNodeFlags_PassthruCentralNode;
-				if (ImGui::MenuItem("Flag: AutoHideTabBar", "", (dockspace_flags & ImGuiDockNodeFlags_AutoHideTabBar) != 0))          dockspace_flags ^= ImGuiDockNodeFlags_AutoHideTabBar;
-				ImGui::Separator();
-				//if (ImGui::MenuItem("Close DockSpace", NULL, false, p_open != NULL))
-					//*p_open = false;
-				ImGui::EndMenu();
-			} */
 
 			if (ImGui::BeginMenu("Panels"))
 			{
@@ -359,6 +346,10 @@ namespace LinaEditor
 					m_ScenePanel->Open();
 				if (ImGui::MenuItem("Resources Panel"))
 					m_ResourcesPanel->Open();
+				if (ImGui::MenuItem("Properties Panel"))
+					m_PropertiesPanel->Open();
+				if (ImGui::MenuItem("Log Panel"))
+					m_LogPanel->Open();
 				if (ImGui::MenuItem("IMGUI Demo"))
 					showIMGUIDemo = true;
 
@@ -426,12 +417,12 @@ namespace LinaEditor
 			}
 
 			// Show color picker.
-			ImGui::Text("Color"); 
+			ImGui::Text("Color");
 			ImGui::SameLine();
-			
+
 
 			bool isEditing = ImGui::ColorEdit4("Color##1", (float*)& color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
-		
+
 			// Update if changing the colors.
 			if (isEditing)
 				skyboxMaterial.SetColor(Graphics::MaterialConstants::colorProperty, Color(color.x, color.y, color.z, color.w));*/
@@ -509,10 +500,10 @@ namespace LinaEditor
 
 				// Set colors.
 				skyboxMaterial.SetColor(Graphics::MaterialConstants::startColorProperty, Color(colorStart.x, colorStart.y, colorStart.z, colorStart.w));
-				skyboxMaterial.SetColor(Graphics::MaterialConstants::endColorProperty, Color(colorEnd.x, colorEnd.y, colorEnd.z, colorEnd.w));			
+				skyboxMaterial.SetColor(Graphics::MaterialConstants::endColorProperty, Color(colorEnd.x, colorEnd.y, colorEnd.z, colorEnd.w));
 			}
 
-			
+
 			ImGui::Text("End Color");
 			ImGui::SameLine();
 			bool isEditingEndColor = ImGui::ColorEdit4("Color##5", (float*)& colorEnd, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
@@ -570,7 +561,7 @@ namespace LinaEditor
 				}
 				ImGui::EndMenu();
 			}
-			
+
 			ImGui::EndPopup();
 		}
 
