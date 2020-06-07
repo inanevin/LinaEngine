@@ -47,11 +47,6 @@ namespace LinaEditor
 
 	private:
 
-		void AddComponentToEntity(int componentID);
-		void DrawComponents(LinaEngine::ECS::ECSEntity& entity);
-
-	private:
-
 		class ScenePanel* m_ScenePanel;
 		class PropertiesPanel* m_PropertiesPanel;
 		LinaEngine::ECS::ECSRegistry* m_ECS;

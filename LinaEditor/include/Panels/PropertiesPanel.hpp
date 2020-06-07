@@ -47,16 +47,21 @@ namespace LinaEditor
 		void Setup();
 
 
-
-	private:
-
-		FORCEINLINE void DrawEntityProperties(LinaEngine::ECS::ECSEntity selectedEntity) 
+		FORCEINLINE void EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity) 
 		{
-			m_SelectedEntity = selectedEntity; m_CurrentDrawType = DrawType::ENTITIES;
+			m_SelectedEntity = selectedEntity; selectedEntity == entt::null ? m_CurrentDrawType = DrawType::NONE : m_CurrentDrawType = DrawType::ENTITIES;
 		}
 
 	private:
 
+		// Drawing Entities
+		void DrawEntityProperties();
+		void AddComponentToEntity(int componentID);
+		void DrawComponents(LinaEngine::ECS::ECSEntity& entity);
+
+	private:
+
+		LinaEngine::ECS::ECSRegistry* m_ECS;
 		LinaEngine::ECS::ECSEntity m_SelectedEntity;
 		DrawType m_CurrentDrawType = DrawType::NONE;
 
