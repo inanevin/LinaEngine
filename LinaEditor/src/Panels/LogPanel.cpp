@@ -20,6 +20,7 @@ Timestamp: 6/7/2020 8:56:51 PM
 
 
 #include "Panels/LogPanel.hpp"
+#include "Utility/Log.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -30,7 +31,7 @@ namespace LinaEditor
 	{
 		if (m_Show)
 		{
-
+			
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 			ImVec2 work_area_pos = viewport->GetWorkPos();

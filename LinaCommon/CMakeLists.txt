@@ -69,61 +69,7 @@ set(LINACOMMON_HEADERS
 	include/Utility/Log.hpp
 	include/Utility/UtilityFunctions.hpp
 
-# SPDLOG
-	include/Utility/spdlog/spdlog.h
-	include/Utility/spdlog/async.h
-	include/Utility/spdlog/async_logger.h
-	include/Utility/spdlog/common.h
-	include/Utility/spdlog/formatter.h
-	include/Utility/spdlog/logger.h
-	include/Utility/spdlog/spdlog.h
-	include/Utility/spdlog/tolib.c
-	include/Utility/spdlog/tweakme.h
-	include/Utility/spdlog/version.h
-	include/Utility/spdlog/sinks/stdout_color_sinks.h
-	include/Utility/spdlog/sinks/android_sink.h
-	include/Utility/spdlog/sinks/ansicolor_sink.h
-	include/Utility/spdlog/sinks/base_sink.h
-	include/Utility/spdlog/sinks/basic_file_sink.h
-	include/Utility/spdlog/sinks/daily_file_sink.h
-	include/Utility/spdlog/sinks/dist_sink.h
-	include/Utility/spdlog/sinks/msvc_sink.h
-	include/Utility/spdlog/sinks/null_sink.h
-	include/Utility/spdlog/sinks/ostream_sink.h
-	include/Utility/spdlog/sinks/rotating_file_sink.h
-	include/Utility/spdlog/sinks/sink.h
-	include/Utility/spdlog/sinks/stdout_sinks.h
-	include/Utility/spdlog/sinks/syslog_sink.h
-	include/Utility/spdlog/sinks/systemd_sink.h
-	include/Utility/spdlog/sinks/wincolor_sink.h
-	include/Utility/spdlog/details/async_logger_impl.h
-	include/Utility/spdlog/details/circular_q.h
-	include/Utility/spdlog/details/console_globals.h
-	include/Utility/spdlog/details/file_helper.h
-	include/Utility/spdlog/details/fmt_helper.h
-	include/Utility/spdlog/details/log_msg.h
-	include/Utility/spdlog/details/logger_impl.h
-	include/Utility/spdlog/details/mpmc_blocking_q.h
-	include/Utility/spdlog/details/null_mutex.h
-	include/Utility/spdlog/details/os.h
-	include/Utility/spdlog/details/pattern_formatter.h
-	include/Utility/spdlog/details/periodic_worker.h
-	include/Utility/spdlog/details/registry.h
-	include/Utility/spdlog/details/thread_pool.h
-	include/Utility/spdlog/fmt/bin_to_hex.h
-	include/Utility/spdlog/fmt/fmt.h
-	include/Utility/spdlog/fmt/ostr.h
-	include/Utility/spdlog/fmt/bundled/chrono.h
-	include/Utility/spdlog/fmt/bundled/color.h
-	include/Utility/spdlog/fmt/bundled/core.h
-	include/Utility/spdlog/fmt/bundled/format.h
-	include/Utility/spdlog/fmt/bundled/format-inl.h
-	include/Utility/spdlog/fmt/bundled/locale.h
-	include/Utility/spdlog/fmt/bundled/ostream.h
-	include/Utility/spdlog/fmt/bundled/posix.h
-	include/Utility/spdlog/fmt/bundled/printf.h
-	include/Utility/spdlog/fmt/bundled/ranges.h
-	include/Utility/spdlog/fmt/bundled/time.h
+
 
 )
 
@@ -226,6 +172,7 @@ endif ( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glm/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/spdlog/include)
 
 
 # Language standard
