@@ -157,8 +157,8 @@ namespace LinaEditor
 		colors[ImGuiCol_HeaderHovered] = ImVec4(0.54f, 0.12f, 0.23f, 1.00f);
 		colors[ImGuiCol_HeaderActive] = ImVec4(0.69f, 0.15f, 0.29f, 1.00f);
 		colors[ImGuiCol_Separator] = ImVec4(0.39f, 0.10f, 0.18f, 1.00f);
-		colors[ImGuiCol_SeparatorHovered] = ImVec4(0.54f, 0.12f, 0.23f, 1.00f);
-		colors[ImGuiCol_SeparatorActive] = ImVec4(0.69f, 0.15f, 0.29f, 1.00f);
+		colors[ImGuiCol_SeparatorHovered] = ImVec4(0.39f, 0.10f, 0.18f, 1.00f);
+		colors[ImGuiCol_SeparatorActive] = ImVec4(0.39f, 0.10f, 0.18f, 1.00f);
 		colors[ImGuiCol_ResizeGrip] = ImVec4(0.39f, 0.10f, 0.18f, 1.00f);
 		colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.54f, 0.12f, 0.23f, 1.00f);
 		colors[ImGuiCol_ResizeGripActive] = ImVec4(0.69f, 0.15f, 0.29f, 1.00f);
@@ -179,6 +179,8 @@ namespace LinaEditor
 		colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
 		colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+
+
 
 
 
@@ -317,7 +319,7 @@ namespace LinaEditor
 				ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Right, 0.350f, NULL, &dock_main_id);
 
 				ImGui::DockBuilderDockWindow("Resources", dock_id_prop);
-				ImGui::DockBuilderDockWindow("ECS", dock_id_prop);
+				ImGui::DockBuilderDockWindow("Entities", dock_id_prop);
 				ImGui::DockBuilderDockWindow("Scene", dock_main_id);
 				ImGui::DockBuilderDockWindow("Properties", dock_id_right);
 
@@ -352,7 +354,7 @@ namespace LinaEditor
 
 			if (ImGui::BeginMenu("Panels"))
 			{
-				if (ImGui::MenuItem("ECS Panel"))
+				if (ImGui::MenuItem("Entity Panel"))
 					m_ECSPanel->Open();
 				if (ImGui::MenuItem("Material Panel"))
 					m_MaterialPanel->Open();

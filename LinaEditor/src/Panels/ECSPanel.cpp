@@ -199,14 +199,12 @@ namespace LinaEditor
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 
-			if (ImGui::Begin("ECS", &m_Show, flags))
+			if (ImGui::Begin("Entities", &m_Show, flags))
 			{
 				// Statics.
 				static int componentsComboCurrentItem = 0;
 				static char selectedEntityName[256] = "Entity";
 
-				// Left pane group.
-				ImGui::BeginChild("left pane", ImVec2(150, 0), true);
 
 				// Handle Right Click.
 				if (ImGui::BeginPopupContextWindow())
@@ -244,13 +242,10 @@ namespace LinaEditor
 					}
 
 				}
-		
-
-				// End this pane.
-				ImGui::EndChild();
-				ImGui::SameLine();
 
 				// Right pane.
+				/*ImGui::EndChild();
+				ImGui::SameLine();
 				ImGui::BeginGroup();
 				ImGui::BeginChild("Component View", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
 				if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
@@ -300,7 +295,7 @@ namespace LinaEditor
 				}
 
 
-				ImGui::EndGroup();
+				ImGui::EndGroup();*/
 			}
 			ImGui::End();
 		}
