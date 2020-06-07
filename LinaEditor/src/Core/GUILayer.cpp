@@ -541,60 +541,60 @@ namespace LinaEditor
 
 	void GUILayer::DrawContentBrowserWindow()
 	{
-		ImGui::Begin("Content Browser");
-
-		// Handle Right click popup.
-		if (ImGui::BeginPopupContextWindow())
-		{
-			if (ImGui::BeginMenu("Create"))
-			{
-				if (ImGui::MenuItem("Folder"))
-				{
-					EditorUtility::CreateFolderInPath(EditorPathConstants::contentsPath + "NewFolder");
-					ReadProjectContentsFolder();
-				}
-
-				ImGui::Separator();
-
-				if (ImGui::MenuItem("Material"))
-				{
-
-				}
-				ImGui::EndMenu();
-			}
-
-			ImGui::EndPopup();
-		}
-
-
-		ImGuiTreeNodeFlags node_flags = base_flags;
-		static int selection_mask = (1 << 2);
-		int node_clicked = -1;
-
-		for (int i = 0; i < m_ContentFolders.size(); i++)
-		{
-			const bool is_selected = (selection_mask & (1 << i)) != 0;
-			if (is_selected)
-				node_flags |= ImGuiTreeNodeFlags_Selected;
-			bool node_open = ImGui::TreeNodeEx(m_ContentFolders[i].name.c_str());
-
-			if (ImGui::IsItemClicked())
-				node_clicked = i;
-			if (ImGui::BeginDragDropSource())
-			{
-				ImGui::SetDragDropPayload("_TREENODE", NULL, 0);
-				ImGui::Text("This is a drag and drop source");
-				ImGui::EndDragDropSource();
-			}
-			if (node_open)
-			{
-				ImGui::BulletText("Blah blah\nBlah Blah");
-				ImGui::TreePop();
-			}
-		}
-
-
-		ImGui::End();
+	//ImGui::Begin("Content Browser");
+	//
+	//// Handle Right click popup.
+	//if (ImGui::BeginPopupContextWindow())
+	//{
+	//	if (ImGui::BeginMenu("Create"))
+	//	{
+	//		if (ImGui::MenuItem("Folder"))
+	//		{
+	//			EditorUtility::CreateFolderInPath(EditorPathConstants::contentsPath + "NewFolder");
+	//			ReadProjectContentsFolder();
+	//		}
+	//
+	//		ImGui::Separator();
+	//
+	//		if (ImGui::MenuItem("Material"))
+	//		{
+	//
+	//		}
+	//		ImGui::EndMenu();
+	//	}
+	//
+	//	ImGui::EndPopup();
+	//}
+	//
+	//
+	//ImGuiTreeNodeFlags node_flags = base_flags;
+	//static int selection_mask = (1 << 2);
+	//int node_clicked = -1;
+	//
+	//for (int i = 0; i < m_ContentFolders.size(); i++)
+	//{
+	//	const bool is_selected = (selection_mask & (1 << i)) != 0;
+	//	if (is_selected)
+	//		node_flags |= ImGuiTreeNodeFlags_Selected;
+	//	bool node_open = ImGui::TreeNodeEx(m_ContentFolders[i].name.c_str());
+	//
+	//	if (ImGui::IsItemClicked())
+	//		node_clicked = i;
+	//	if (ImGui::BeginDragDropSource())
+	//	{
+	//		ImGui::SetDragDropPayload("_TREENODE", NULL, 0);
+	//		ImGui::Text("This is a drag and drop source");
+	//		ImGui::EndDragDropSource();
+	//	}
+	//	if (node_open)
+	//	{
+	//		ImGui::BulletText("Blah blah\nBlah Blah");
+	//		ImGui::TreePop();
+	//	}
+	//}
+	//
+	//
+	//ImGui::End();
 
 	}
 
@@ -681,18 +681,18 @@ namespace LinaEditor
 		EditorUtility::GetDirectories(rootFolders, EditorPathConstants::contentsPath);
 
 		// Clear current folders.
-		m_ContentFolders.clear();
+		//m_ContentFolders.clear();
 
 		// Iterate folders & fill data.
 		for (auto& f : rootFolders)
 		{
-			ContentFolder folder;
-			folder.path = EditorPathConstants::contentsPath;
-			folder.parent = NULL;
-			folder.name = f;
-
-			// Add to contents list.
-			m_ContentFolders.push_back(folder);
+			//ContentFolder folder;
+			//folder.path = EditorPathConstants::contentsPath;
+			//folder.parent = NULL;
+			//folder.name = f;
+			//
+			//// Add to contents list.
+			//m_ContentFolders.push_back(folder);
 		}
 
 	}

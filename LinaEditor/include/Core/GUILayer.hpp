@@ -29,14 +29,6 @@ namespace LinaEngine
 namespace LinaEditor
 {
 
-	struct ContentFolder
-	{
-		std::vector<ContentFolder> children;
-		std::string name;
-		std::string path;
-		ContentFolder* parent;
-	};
-
 
 	class GUILayer : public LinaEngine::Layer
 	{
@@ -98,7 +90,6 @@ namespace LinaEditor
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
 		LinaEngine::ECS::ECSRegistry* m_ECS = nullptr;
 		LinaEngine::Application* m_Application = nullptr;
-		std::vector<ContentFolder> m_ContentFolders;
 		bool m_FPSCounterOpen = true;
 		class ECSPanel* m_ECSPanel;
 		class MaterialPanel* m_MaterialPanel;

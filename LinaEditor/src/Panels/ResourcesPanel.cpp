@@ -27,6 +27,7 @@ Timestamp: 6/5/2020 12:55:10 AM
 
 namespace LinaEditor
 {
+
 	void ResourcesPanel::Draw()
 	{
 		if (m_Show)
@@ -50,9 +51,56 @@ namespace LinaEditor
 
 	void ResourcesPanel::Setup()
 	{
-		
+		// Create root.
+		EditorFolder root;
+		root.folderName = "Resources";
+		root.path = "resources";
+		m_ResourceFolders.push_back(root);
+
+		// Recursively fill in root.
 		std::string path = "resources";
-		for (const auto& entry : std::filesystem::directory_iterator(path))
-			std::cout << entry.path() << std::endl;
+		ScanFilesAndFolders(m_ResourceFolders[0]);
+
+	}
+
+	void ResourcesPanel::ScanFilesAndFolders(EditorFolder& root)
+	{
+		for (const auto& entry : std::filesystem::directory_iterator(root.path))
+		{
+			if (entry.path().has_extension())
+			{
+				// Is a file
+				EditorFile file;
+				file.fileName = entry.path().filename().string();
+				file.filePath = entry.path().relative_path().string();
+				file.fileExtension = file.fileName.substr(file.fileName.find(".") + 1);
+				file.fileType = GetFileType(file.fileExtension);
+				
+				// Add to the folder data.
+				root.files.push_back(file);
+			}
+			else
+			{
+				// Is a folder
+				EditorFolder folder;
+				folder.folderName = entry.path().filename().string();
+				folder.path = entry.path().relative_path().string();
+
+				// Add to the sub folders.
+				root.subFolders.push_back(folder);
+
+				// Iterate recursively.
+				ScanFilesAndFolders(root.subFolders.back());
+			}
+		}
+
+	}
+
+	ResourcesPanel::FileType ResourcesPanel::GetFileType(std::string& extension)
+	{
+		if (extension.compare(".jpg") == 0 || extension.compare(".jpeg") == 0 || extension.compare(".png") == 0 || extension.compare(".tga") == 0)
+			return FileType::TEXTURE;
+		else if (extension.compare(".ttf") == 0)
+			return FileType::FONT;
 	}
 }

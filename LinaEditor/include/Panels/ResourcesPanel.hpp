@@ -29,16 +29,47 @@ namespace LinaEditor
 {
 	class ResourcesPanel : public EditorPanel
 	{
-		
+
 	public:
+
+		enum class FileType
+		{
+			UNKNOWN,
+			TEXTURE,
+			FONT,
+			MATERIAL
+		};
+
+		struct EditorFile
+		{
+			std::string fileName;
+			std::string fileExtension;
+			std::string filePath;
+			FileType fileType;
+		};
+
+		struct EditorFolder
+		{
+			std::string path;
+			std::string folderName;
+			std::vector<EditorFolder> subFolders;
+			std::vector<EditorFile> files;
+		};
+		
 		
 		ResourcesPanel(Vector2 position, Vector2 size, class GUILayer& guiLayer) :EditorPanel(position, size, guiLayer) {};
 		virtual ~ResourcesPanel() {};
 	
 		virtual void Draw() override;
 		void Setup();
+
 	private:
 	
+		void ScanFilesAndFolders(EditorFolder& folder);
+		FileType GetFileType(std::string& extension);
+	private:
+
+		std::vector<EditorFolder> m_ResourceFolders;
 	};
 }
 
