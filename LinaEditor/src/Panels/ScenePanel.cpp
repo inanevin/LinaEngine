@@ -32,15 +32,17 @@ Timestamp: 6/5/2020 6:51:39 PM
 static ImGuizmo::OPERATION currentTransformGizmoOP = ImGuizmo::OPERATION::TRANSLATE;
 static ImGuizmo::MODE currentTransformGizmoMode = ImGuizmo::MODE::WORLD;
 static Matrix gridLineMatrix = Matrix::Identity();
+static ImVec2 previousWindowSize;
 #define GRID_SIZE 1000
+static float f;
 namespace LinaEditor
 {
 
 	void ScenePanel::Draw()
 	{
 		ImGuizmo::BeginFrame();
-		
-		
+
+
 
 		if (m_Show)
 		{
@@ -55,13 +57,22 @@ namespace LinaEditor
 			{
 				Vector2 drawSize = m_RenderEngine->GetMainWindow().GetSize();
 				float currentWindowX = ImGui::GetCurrentWindow()->Size.x;
+				float currentWindowY = ImGui::GetCurrentWindow()->Size.y;
 				float aspect = (float)drawSize.x / (float)drawSize.y;
 				float desiredH = currentWindowX / aspect;
-				
-				ImVec2 pMin = ImVec2(ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y);
-				ImVec2 pMax = ImVec2(ImGui::GetCursorScreenPos().x + currentWindowX, ImGui::GetCursorScreenPos().y + desiredH);
 
-				ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetFinalImage(), pMin , pMax, ImVec2(0, 1), ImVec2(1, 0));
+				ImGui::DragFloat("F", &f);
+
+				ImVec2 pMin = ImVec2(ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y);
+				ImVec2 pMax = ImVec2(ImGui::GetCursorScreenPos().x + currentWindowX, ImGui::GetCursorScreenPos().y + currentWindowY);
+				ImVec2 size = ImGui::GetCurrentWindow()->Size;
+
+				if ((size.x != previousWindowSize.x || size.y != previousWindowSize.y) && size.x > 0.0f && size.y > 0.0f)
+				{
+					m_RenderEngine->OnWindowResized((uint32)ImGui::GetCurrentWindow()->Size.x, (uint32)ImGui::GetCurrentWindow()->Size.y);
+					previousWindowSize = size;
+				}
+				ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetFinalImage(), pMin, pMax, ImVec2(0, 1), ImVec2(1, 0));
 
 				// Handle inputs.
 				ProcessInput();
@@ -87,7 +98,7 @@ namespace LinaEditor
 
 	void ScenePanel::ProcessInput()
 	{
-		
+
 		if (ImGui::IsKeyPressed(LINA_KEY_Q))
 			currentTransformGizmoOP = ImGuizmo::TRANSLATE;
 		if (ImGui::IsKeyPressed(LINA_KEY_E))
