@@ -24,6 +24,7 @@ Timestamp: 6/7/2020 8:56:51 PM
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "spdlog/details/log_msg.h"
 
 namespace LinaEditor
 {
@@ -50,6 +51,5 @@ namespace LinaEditor
 
 	void LogPanel::Setup()
 	{
-
 	}
 }

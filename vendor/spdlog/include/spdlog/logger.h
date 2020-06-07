@@ -362,13 +362,14 @@ public:
     // create new logger with same sinks and configuration.
     virtual std::shared_ptr<logger> clone(std::string logger_name);
 
+
 protected:
+    details::backtracer tracer_;
     std::string name_;
     std::vector<sink_ptr> sinks_;
     spdlog::level_t level_{level::info};
     spdlog::level_t flush_level_{level::off};
     err_handler custom_err_handler_{nullptr};
-    details::backtracer tracer_;
 
     // log the given message (if the given log level is high enough),
     // and save backtrace (if backtrace is enabled).
