@@ -863,6 +863,19 @@ namespace LinaEngine::Graphics
 		return 0;
 	}
 
+	void GLRenderDevice::UpdateSamplerParameters(uint32 sampler, SamplerParameters samplerParams)
+	{
+		glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, samplerParams.textureParams.wrapS);
+		glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, samplerParams.textureParams.wrapT);
+		glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, samplerParams.textureParams.magFilter);
+		glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, samplerParams.textureParams.minFilter);
+
+		// Set anisotropy if applicable.
+		if (samplerParams.anisotropy != 0.0f && samplerParams.textureParams.minFilter != FILTER_NEAREST && samplerParams.textureParams.minFilter != FILTER_LINEAR)
+			glSamplerParameterf(sampler, GL_TEXTURE_MAX_ANISOTROPY, samplerParams.anisotropy);
+
+	}
+
 	void GLRenderDevice::GenerateTextureMipmaps(uint32 texture, TextureBindMode bindMode)
 	{
 		glBindTexture(bindMode, texture);

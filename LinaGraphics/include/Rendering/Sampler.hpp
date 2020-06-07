@@ -42,12 +42,20 @@ namespace LinaEngine::Graphics
 		{
 			renderDevice = &deviceIn;
 			m_EngineBoundID = renderDevice->CreateSampler(samplerParams);
+			m_Params = samplerParams;
+		}
+
+		FORCEINLINE void UpdateSettings(SamplerParameters samplerParams) 
+		{
+			m_Params = samplerParams;
+			renderDevice->UpdateSamplerParameters(samplerParams);
 		}
 
 		FORCEINLINE uint32 GetID() const { return m_EngineBoundID; }
 
 	private:
 
+		SamplerParameters m_Params;
 		RenderDevice* renderDevice;
 		uint32 m_EngineBoundID;
 

@@ -51,6 +51,7 @@ namespace LinaEngine::Graphics
 		Texture& ConstructEmpty(RenderDevice& deviceIn, SamplerParameters samplerParams = SamplerParameters());
 		FORCEINLINE uint32 GetID() const { return m_ID; };
 		FORCEINLINE uint32 GetSamplerID() const { return m_Sampler.GetID(); }
+		FORCEINLINE Sampler& GetSampler() { return m_Sampler; }
 		FORCEINLINE bool IsCompressed() const { return isCompressed; }
 		FORCEINLINE bool HasMipmaps() const { return hasMipMaps; }
 		FORCEINLINE Vector2 GetSize() { return m_Size; }

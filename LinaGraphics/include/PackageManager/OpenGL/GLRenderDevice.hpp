@@ -155,6 +155,9 @@ namespace LinaEngine::Graphics
 		// Deletes a render buffer object.
 		uint32 ReleaseRenderBufferObject(uint32 target);
 
+		// Updates parameter settings for a sampler
+		void UpdateSamplerParameters(uint32 sampler, SamplerParameters params);
+
 		// Generate mipmaps for a texture
 		void GenerateTextureMipmaps(uint32 texture, TextureBindMode bindMode);
 

@@ -21,6 +21,8 @@ Timestamp: 6/7/2020 5:13:42 PM
 
 #include "Panels/PropertiesPanel.hpp"
 #include "Core/GUILayer.hpp"
+#include "Rendering/Texture.hpp"
+#include "Rendering/Sampler.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
@@ -345,6 +347,6 @@ namespace LinaEditor
 
 	void PropertiesPanel::DrawTextureProperties()
 	{
-
+		
 	}
 }
