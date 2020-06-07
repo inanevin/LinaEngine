@@ -32,7 +32,7 @@ namespace LinaEditor
 		
 	public:
 		
-		ResourcesPanel(Vector2 position, Vector2 size) : EditorPanel(position, size) {};
+		ResourcesPanel(Vector2 position, Vector2 size, class GUILayer& guiLayer) :EditorPanel(position, size, guiLayer) {};
 		virtual ~ResourcesPanel() {};
 	
 		virtual void Draw() override;

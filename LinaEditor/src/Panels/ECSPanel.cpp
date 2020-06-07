@@ -22,6 +22,7 @@ Timestamp: 5/23/2020 4:15:24 PM
 #include "Panels/ECSPanel.hpp"
 #include "Panels/MaterialPanel.hpp"
 #include "Panels/ScenePanel.hpp"
+#include "Panels/PropertiesPanel.hpp"
 #include "Utility/Log.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
@@ -161,14 +162,14 @@ namespace LinaEditor
 		}
 	}
 
-	void ECSPanel::Setup(LinaEngine::ECS::ECSRegistry& registry, ScenePanel& scenePanel, LinaEngine::Graphics::Window& appWindow, MaterialPanel& materialPanel)
+	void ECSPanel::Setup(LinaEngine::ECS::ECSRegistry& registry, ScenePanel& scenePanel, LinaEngine::Graphics::Window& appWindow, MaterialPanel& materialPanel, PropertiesPanel& propsPanel)
 	{
 		m_ScenePanel = &scenePanel;
 		m_ECS = &registry;
 		m_AppWindow = &appWindow;
 		m_SelectedEntity = entt::null;
 		m_MaterialPanel = &materialPanel;
-
+		m_PropertiesPanel = &propsPanel;
 		// add scene entitites to the list.
 		m_ECS->each([this](auto entity)
 		{

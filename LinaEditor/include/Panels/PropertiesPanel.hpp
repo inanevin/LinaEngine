@@ -24,23 +24,41 @@ Timestamp: 6/7/2020 5:13:24 PM
 
 #include "Panels/EditorPanel.hpp"
 #include "Utility/EditorUtility.hpp"
+#include "ECS/ECS.hpp"
 
 namespace LinaEditor
 {
 	class PropertiesPanel : public EditorPanel
 	{
-		
+
+		enum class DrawType
+		{
+			NONE,
+			ENTITIES,
+			MATERIAL
+		};
+
 	public:
-		
-		PropertiesPanel(Vector2 position, Vector2 size) : EditorPanel(position, size) {};
+
+		PropertiesPanel(Vector2 position, Vector2 size, class GUILayer& guiLayer) : EditorPanel(position, size, guiLayer) {};
 		virtual ~PropertiesPanel() {};
-	
+
 		virtual void Draw() override;
 		void Setup();
 
-	private:
-	
 
+
+	private:
+
+		FORCEINLINE void DrawEntityProperties(LinaEngine::ECS::ECSEntity selectedEntity) 
+		{
+			m_SelectedEntity = selectedEntity; m_CurrentDrawType = DrawType::ENTITIES;
+		}
+
+	private:
+
+		LinaEngine::ECS::ECSEntity m_SelectedEntity;
+		DrawType m_CurrentDrawType = DrawType::NONE;
 
 	};
 }

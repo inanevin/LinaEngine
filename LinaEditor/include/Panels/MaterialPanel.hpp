@@ -33,7 +33,7 @@ namespace LinaEditor
 		
 	public:
 		
-		MaterialPanel(Vector2 position, Vector2 size) : EditorPanel(position, size) {};
+		MaterialPanel(Vector2 position, Vector2 size, class GUILayer& guiLayer) : EditorPanel(position, size, guiLayer) {};
 		virtual ~MaterialPanel() {};
 	
 		virtual void Draw() override;

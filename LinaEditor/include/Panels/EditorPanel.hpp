@@ -34,7 +34,7 @@ namespace LinaEditor
 
 	public:
 		
-		EditorPanel(Vector2 position, Vector2 size) : m_Position(position), m_Size(size) { };
+		EditorPanel(Vector2 position, Vector2 size, class GUILayer& guiLayer) : m_Position(position), m_Size(size), m_GUILayer(&guiLayer) { };
 		virtual ~EditorPanel() {};
 	
 		virtual FORCEINLINE void Open() { m_Show = true; }
@@ -47,6 +47,7 @@ namespace LinaEditor
 		Vector2 m_Position;
 		Vector2 m_Size;
 		bool m_Show = false;
+		class GUILayer* m_GUILayer;
 	};
 }
 

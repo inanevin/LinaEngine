@@ -41,7 +41,7 @@ namespace LinaEditor
 		
 	public:
 		
-		ScenePanel(Vector2 position, Vector2 size) : EditorPanel(position, size) {};
+		ScenePanel(Vector2 position, Vector2 size, class GUILayer& guiLayer) :EditorPanel(position, size, guiLayer) {};
 		virtual ~ScenePanel() {};
 
 		virtual void Draw() override;

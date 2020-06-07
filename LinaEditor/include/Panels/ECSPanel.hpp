@@ -40,11 +40,12 @@ namespace LinaEditor
 		
 	public:
 		
-		ECSPanel(Vector2 position, Vector2 size) : EditorPanel(position,size) {};
+		ECSPanel(Vector2 position, Vector2 size, class GUILayer& guiLayer) : EditorPanel(position,size, guiLayer) {};
 		virtual ~ECSPanel() {};
 	
 		virtual void Draw() override;
-		void Setup(LinaEngine::ECS::ECSRegistry& registry, class ScenePanel& scenePanel, LinaEngine::Graphics::Window& appWindow, class MaterialPanel& materialPanel);
+		void Setup(LinaEngine::ECS::ECSRegistry& registry, class ScenePanel& scenePanel, LinaEngine::Graphics::Window& appWindow, class MaterialPanel& materialPanel
+		, class PropertiesPanel& propPanel);
 
 	private:
 
@@ -54,6 +55,7 @@ namespace LinaEditor
 	private:
 
 		class ScenePanel* m_ScenePanel;
+		class PropertiesPanel* m_PropertiesPanel;
 		LinaEngine::Graphics::Window* m_AppWindow;
 		LinaEngine::ECS::ECSRegistry* m_ECS;
 		LinaEngine::ECS::ECSEntity m_SelectedEntity;
