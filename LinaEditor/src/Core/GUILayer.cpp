@@ -161,9 +161,9 @@ namespace LinaEditor
 		colors[ImGuiCol_Header] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
 		colors[ImGuiCol_HeaderHovered] = ImVec4(0.29f, 0.29f, 0.29f, 1.00f);
 		colors[ImGuiCol_HeaderActive] = ImVec4(0.44f, 0.44f, 0.44f, 1.00f);
-		colors[ImGuiCol_Separator] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
-		colors[ImGuiCol_SeparatorHovered] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
-		colors[ImGuiCol_SeparatorActive] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+		colors[ImGuiCol_Separator] = ImVec4(0.17f, 0.17f, 0.17f, 1.00f);
+		colors[ImGuiCol_SeparatorHovered] = ImVec4(0.23f, 0.23f, 0.23f, 1.00f);
+		colors[ImGuiCol_SeparatorActive] = ImVec4(0.23f, 0.23f, 0.23f, 1.00f);
 		colors[ImGuiCol_ResizeGrip] = ImVec4(0.44f, 0.44f, 0.44f, 1.00f);
 		colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.58f, 0.58f, 0.58f, 1.00f);
 		colors[ImGuiCol_ResizeGripActive] = ImVec4(0.73f, 0.73f, 0.73f, 1.00f);
@@ -184,6 +184,7 @@ namespace LinaEditor
 		colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
 		colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+
 
 		// setup panels, windows etc.
 		m_ECSPanel = new ECSPanel(Vector2::Zero, Vector2(700, 600), *this);
