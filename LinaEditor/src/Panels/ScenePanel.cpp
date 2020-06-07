@@ -34,7 +34,7 @@ static ImGuizmo::MODE currentTransformGizmoMode = ImGuizmo::MODE::WORLD;
 static Matrix gridLineMatrix = Matrix::Identity();
 static ImVec2 previousWindowSize;
 #define GRID_SIZE 1000
-static float f;
+
 namespace LinaEditor
 {
 
@@ -53,6 +53,7 @@ namespace LinaEditor
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+
 			if (ImGui::Begin("Scene", &m_Show, flags))
 			{
 				Vector2 drawSize = m_RenderEngine->GetMainWindow().GetSize();
@@ -61,17 +62,17 @@ namespace LinaEditor
 				float aspect = (float)drawSize.x / (float)drawSize.y;
 				float desiredH = currentWindowX / aspect;
 
-				ImGui::DragFloat("F", &f);
-
 				ImVec2 pMin = ImVec2(ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y);
 				ImVec2 pMax = ImVec2(ImGui::GetCursorScreenPos().x + currentWindowX, ImGui::GetCursorScreenPos().y + currentWindowY);
 				ImVec2 size = ImGui::GetCurrentWindow()->Size;
 
-				if ((size.x != previousWindowSize.x || size.y != previousWindowSize.y) && size.x > 0.0f && size.y > 0.0f)
+				// Resize scene panel.
+				if ((size.x != previousWindowSize.x || size.y != previousWindowSize.y))
 				{
 					m_RenderEngine->OnWindowResized((uint32)ImGui::GetCurrentWindow()->Size.x, (uint32)ImGui::GetCurrentWindow()->Size.y);
 					previousWindowSize = size;
 				}
+				
 				ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetFinalImage(), pMin, pMax, ImVec2(0, 1), ImVec2(1, 0));
 
 				// Handle inputs.
