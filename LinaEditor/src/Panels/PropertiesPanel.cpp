@@ -81,6 +81,26 @@ namespace LinaEditor
 		// Buttons down below.
 		if (m_ECS->valid(m_SelectedEntity))
 		{
+			ImGui::BeginChild("Component View", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
+			if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
+			{
+				// Component view tab
+				bool isValid = m_ECS->valid(m_SelectedEntity);
+				std::string selectedName = m_ECS->valid(m_SelectedEntity) ? "Component View" : ("Component View: " + m_ECS->GetEntityName(m_SelectedEntity));
+				char titleName[256];
+				strcpy(titleName, selectedName.c_str());
+				if (ImGui::BeginTabItem(titleName))
+				{
+					if (!isValid)
+						ImGui::TextWrapped("No entity is selected.");
+					else
+						DrawComponents(m_SelectedEntity);
+					ImGui::EndTabItem();
+				}
+				ImGui::EndTabBar();
+			}
+			ImGui::EndChild();
+
 			if (ImGui::Button("Add Component"))
 				AddComponentToEntity(componentsComboCurrentItem);
 
