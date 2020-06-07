@@ -191,9 +191,9 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	Texture& RenderEngine::CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams, bool compress, bool useDefaultFormats)
+	Texture& RenderEngine::CreateTexture2D(int id, const std::string& filePath, SamplerParameters samplerParams, bool compress, bool useDefaultFormats)
 	{
-		if (!TextureExists(filePath))
+		if (!TextureExists(id))
 		{
 			// Create pixel data.
 			ArrayBitmap* textureBitmap = new ArrayBitmap();
@@ -219,60 +219,25 @@ namespace LinaEngine::Graphics
 
 			}
 			// Create texture & construct.
-			m_LoadedTextures[filePath].Construct(m_RenderDevice, *textureBitmap, samplerParams, compress);
+			m_LoadedTextures[id].Construct(m_RenderDevice, *textureBitmap, samplerParams, compress);
 
 			// Delete pixel data.
 			delete textureBitmap;
 
 			// Return
-			return m_LoadedTextures[filePath];
+			return m_LoadedTextures[id];
 		}
 		else
 		{
 			// Texture with this name already exists!
 			LINA_CORE_ERR("Texture with the path {0} already exists, returning that...", filePath);
-			return m_LoadedTextures[filePath];
+			return m_LoadedTextures[id];
 		}
 	}
 
-	Texture& RenderEngine::CreateTextureCubemap(const std::string filePaths[6], SamplerParameters samplerParams, bool compress)
+	Texture& RenderEngine::CreateTextureHDRI(int id, const std::string filePath)
 	{
-		if (!TextureExists(filePaths[0]))
-		{
-			LinaArray<ArrayBitmap*> bitmaps;
-
-			// Load bitmap for each face.
-			for (uint32 i = 0; i < 6; i++)
-			{
-				ArrayBitmap* faceBitmap = new ArrayBitmap();
-				faceBitmap->Load(filePaths[i]);
-				bitmaps.push_back(faceBitmap);
-			}
-
-			// Create texture & construct.
-			Texture& texture = m_LoadedTextures[filePaths[0]].ConstructCubemap(m_RenderDevice, samplerParams, bitmaps, compress);
-
-			// Delete pixel data.
-			for (uint32 i = 0; i < bitmaps.size(); i++)
-				delete bitmaps[i];
-
-			// Clear list.
-			bitmaps.clear();
-
-			// Return
-			return texture;
-		}
-		else
-		{
-			// Texture with this name already exists!
-			LINA_CORE_ERR("Texture with the path {0} already exists, returning that...", filePaths[0]);
-			return m_LoadedTextures[filePaths[0]];
-		}
-	}
-
-	Texture& RenderEngine::CreateTextureHDRI(const std::string filePath)
-	{
-		if (!TextureExists(filePath))
+		if (!TextureExists(id))
 		{
 			// Create pixel data.
 			int w, h, nrComponents;
@@ -291,16 +256,16 @@ namespace LinaEngine::Graphics
 			samplerParams.textureParams.minFilter = samplerParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
 			samplerParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
 			samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
-			m_LoadedTextures[filePath].ConstructHDRI(m_RenderDevice, samplerParams, Vector2(w, h), data);
+			m_LoadedTextures[id].ConstructHDRI(m_RenderDevice, samplerParams, Vector2(w, h), data);
 
 			// Return
-			return m_LoadedTextures[filePath];
+			return m_LoadedTextures[id];
 		}
 		else
 		{
 			// Texture with this name already exists!
 			LINA_CORE_ERR("Texture with the path {0} already exists, returning that...", filePath);
-			return m_LoadedTextures[filePath];
+			return m_LoadedTextures[id];
 		}
 	}
 
@@ -404,16 +369,16 @@ namespace LinaEngine::Graphics
 		return m_LoadedMaterials[materialName];
 	}
 
-	Texture& RenderEngine::GetTexture(const std::string& textureName)
+	Texture& RenderEngine::GetTexture(int id)
 	{
-		if (!TextureExists(textureName))
+		if (!TextureExists(id))
 		{
 			// Mesh not found.
-			LINA_CORE_ERR("Texture with the name {0} was not found, returning un-constructed texture...", textureName);
+			LINA_CORE_ERR("Texture with the id {0} was not found, returning un-constructed texture...", id);
 			return Texture();
 		}
 
-		return m_LoadedTextures[textureName];
+		return m_LoadedTextures[id];
 	}
 
 	Mesh& RenderEngine::GetMesh(const std::string& meshName)
@@ -557,15 +522,15 @@ namespace LinaEngine::Graphics
 		return material;
 	}
 
-	void RenderEngine::UnloadTextureResource(const std::string& textureName)
+	void RenderEngine::UnloadTextureResource(int id)
 	{
-		if (!TextureExists(textureName))
+		if (!TextureExists(id))
 		{
 			LINA_CORE_ERR("Texture not found! Aborting... ");
 			return;
 		}
 
-		m_LoadedTextures.erase(textureName);
+		m_LoadedTextures.erase(id);
 	}
 
 	void RenderEngine::UnloadMeshResource(const std::string& meshName)
@@ -599,9 +564,9 @@ namespace LinaEngine::Graphics
 		return !(m_LoadedMaterials.find(materialName) == m_LoadedMaterials.end());
 	}
 
-	bool RenderEngine::TextureExists(const std::string& textureName)
+	bool RenderEngine::TextureExists(int id)
 	{
-		return !(m_LoadedTextures.find(textureName) == m_LoadedTextures.end());
+		return !(m_LoadedTextures.find(id) == m_LoadedTextures.end());
 	}
 
 	bool RenderEngine::MeshExists(const std::string& meshName)

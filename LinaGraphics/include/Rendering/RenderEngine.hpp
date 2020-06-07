@@ -124,13 +124,10 @@ namespace LinaEngine::Graphics
 		Material& CreateMaterial(const std::string& materialName, Shaders shader);
 
 		/// <summary> Creates a texture resource. </summary>
-		Texture& CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false);
-
-		/// <summary> Creates a cubemap texture resource. </summary>
-		Texture& CreateTextureCubemap(const std::string filePath[6], SamplerParameters samplerParams = SamplerParameters(), bool compress = false);
+		Texture& CreateTexture2D(int id, const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false);
 
 		/// <summary> Creates an HDRI texture resource. </summary>
-		Texture& CreateTextureHDRI(const std::string filePath);
+		Texture& CreateTextureHDRI(int id, const std::string filePath);
 
 		/// <summary> Creates a mesh resource. </summary>
 		Mesh& CreateMesh(const std::string& filePath);
@@ -145,7 +142,7 @@ namespace LinaEngine::Graphics
 		Material& GetMaterial(const std::string& materialName);
 
 		// Returns a texture resource
-		Texture& GetTexture(const std::string& textureName);
+		Texture& GetTexture(int id);
 
 		// Returns a mesh resource.
 		Mesh& GetMesh(const std::string& meshName);
@@ -157,7 +154,7 @@ namespace LinaEngine::Graphics
 		Mesh& GetPrimitive(Primitives primitive);
 
 		// Removes the targeted resource from resource map.
-		void UnloadTextureResource(const std::string& textureName);
+		void UnloadTextureResource(int id);
 
 		// Removes the targeted resource from resource map.
 		void UnloadMeshResource(const std::string& meshName);
@@ -167,7 +164,7 @@ namespace LinaEngine::Graphics
 
 		// Returns whether a material/texture/mesh/shader exists or not.
 		bool MaterialExists(const std::string& materialName);
-		bool TextureExists(const std::string& textureName);
+		bool TextureExists(int id);
 		bool MeshExists(const std::string& meshName);
 		bool ShaderExists(Shaders shader);
 		bool PrimitiveExists(Primitives primitive);
@@ -353,7 +350,7 @@ namespace LinaEngine::Graphics
 		LinaEngine::ECS::ECSSystemList m_RenderingPipeline;
 
 		// Texture resources.
-		std::map<std::string, Texture> m_LoadedTextures;
+		std::map<int, Texture> m_LoadedTextures;
 
 		// Model resources
 		std::map<std::string, Mesh> m_LoadedMeshes;

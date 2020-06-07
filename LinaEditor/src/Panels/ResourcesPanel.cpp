@@ -19,6 +19,9 @@ Timestamp: 6/5/2020 12:55:10 AM
 */
 
 #include "Panels/ResourcesPanel.hpp"
+#include "Core/GUILayer.hpp"
+#include "Panels/PropertiesPanel.hpp"
+#include "Rendering/RenderEngine.hpp"
 #include "imgui.h"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 #include "imgui_impl_glfw.h"
@@ -53,6 +56,9 @@ namespace LinaEditor
 
 	void ResourcesPanel::Setup()
 	{
+		m_PropertiesPanel = m_GUILayer->GetPropertiesPanel();
+		m_RenderEngine = m_GUILayer->GetRenderEngine();
+		
 		// Scan root resources folder.
 		ScanRoot();
 	}
@@ -69,6 +75,9 @@ namespace LinaEditor
 		itemIDCounter = -1;
 		std::string path = "resources";
 		ScanFolder(m_ResourceFolders[0]);
+
+		// Load resources
+		LoadResources();
 	}
 
 	void ResourcesPanel::ScanFolder(EditorFolder& root)
@@ -113,17 +122,14 @@ namespace LinaEditor
 		static ImGuiTreeNodeFlags fileNodeFlagsNotSelected = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth;
 		static ImGuiTreeNodeFlags fileNodeFlagsSelected = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Selected;
 
-
+		// Draw folders.
 		for (int i = 0; i < folder.subFolders.size(); i++)
 		{
 			ImGuiTreeNodeFlags folderFlags = folder.subFolders[i].id == selectedItem ? folderFlagsSelected : folderFlagsNotSelected;
-
 			bool nodeOpen = ImGui::TreeNodeEx(folder.subFolders[i].name.c_str(), folderFlags);
 
 			if (ImGui::IsItemClicked())
-			{
 				selectedItem = folder.subFolders[i].id;
-			}
 
 			if (nodeOpen)
 			{
@@ -133,30 +139,44 @@ namespace LinaEditor
 
 		}
 
+		// Draw files.
 		for (int i = 0; i < folder.files.size(); i++)
 		{
 			ImGuiTreeNodeFlags fileFlags = folder.files[i].id == selectedItem ? fileNodeFlagsSelected : fileNodeFlagsNotSelected;
-
 			bool nodeOpen = ImGui::TreeNodeEx(folder.files[i].name.c_str(), fileFlags);
 
 			if (ImGui::IsItemClicked())
 			{
 				selectedItem = folder.files[i].id;
+				//m_PropertiesPanel->FileSelected(folder.files[i].type);
 			}
 
 			if (nodeOpen)
-			{
 				ImGui::TreePop();
-			}
 
 		}
+	}
 
+	void ResourcesPanel::LoadResources()
+	{
+		for (int i = 0; i < m_ResourceFolders.size(); i++)
+		{
+			for (int j = 0; j < m_ResourceFolders[i].files.size(); j++)
+			{
+				EditorFile& file = m_ResourceFolders[i].files[j];
+
+				if (file.type == FileType::TEXTURE2D)
+				{
+					m_RenderEngine->CreateTexture2D(file.id, file.path);
+				}
+			}
+		}
 	}
 
 	ResourcesPanel::FileType ResourcesPanel::GetFileType(std::string& extension)
 	{
 		if (extension.compare(".jpg") == 0 || extension.compare(".jpeg") == 0 || extension.compare(".png") == 0 || extension.compare(".tga") == 0)
-			return FileType::TEXTURE;
+			return FileType::TEXTURE2D;
 		else if (extension.compare(".ttf") == 0)
 			return FileType::FONT;
 	}

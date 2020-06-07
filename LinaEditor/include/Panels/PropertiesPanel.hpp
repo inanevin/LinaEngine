@@ -26,6 +26,7 @@ Timestamp: 6/7/2020 5:13:24 PM
 #include "Utility/EditorUtility.hpp"
 #include "ECS/ECS.hpp"
 
+
 namespace LinaEditor
 {
 	class PropertiesPanel : public EditorPanel
@@ -51,6 +52,7 @@ namespace LinaEditor
 		{
 			m_SelectedEntity = selectedEntity; selectedEntity == entt::null ? m_CurrentDrawType = DrawType::NONE : m_CurrentDrawType = DrawType::ENTITIES;
 		}
+
 
 	private:
 

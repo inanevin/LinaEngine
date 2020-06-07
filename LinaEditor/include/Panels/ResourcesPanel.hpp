@@ -25,6 +25,15 @@ Timestamp: 6/5/2020 12:54:52 AM
 #include "Panels/EditorPanel.hpp"
 #include "Utility/EditorUtility.hpp"
 
+namespace LinaEngine
+{
+	namespace Graphics
+	{
+		class RenderEngine;
+	}
+}
+
+
 namespace LinaEditor 
 {
 	class ResourcesPanel : public EditorPanel
@@ -35,7 +44,7 @@ namespace LinaEditor
 		enum class FileType
 		{
 			UNKNOWN,
-			TEXTURE,
+			TEXTURE2D,
 			FONT,
 			MATERIAL
 		};
@@ -70,10 +79,13 @@ namespace LinaEditor
 		void ScanRoot();
 		void ScanFolder(EditorFolder& folder);
 		void DrawFolder(EditorFolder& folder);
+		void LoadResources();
 		FileType GetFileType(std::string& extension);
 
 	private:
 
+		class LinaEngine::Graphics::RenderEngine* m_RenderEngine;
+		class PropertiesPanel* m_PropertiesPanel;
 		std::vector<EditorFolder> m_ResourceFolders;
 	};
 }

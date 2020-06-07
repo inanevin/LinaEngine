@@ -105,13 +105,13 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 	SamplerParameters samplerParams;
 	samplerParams.textureParams.generateMipMaps = true;
 	samplerParams.textureParams.minFilter = FILTER_NEAREST;
-	Texture& t = renderEngine->CreateTextureCubemap(fp, samplerParams, false);
-	mat.SetTexture(MAT_MAP_ENVIRONMENT, &t, TextureBindMode::BINDTEXTURE_CUBEMAP);
+	//Texture& t = renderEngine->CreateTextureCubemap(fp, samplerParams, false);
+	//mat.SetTexture(MAT_MAP_ENVIRONMENT, &t, TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
 void CreateHDRISkybox(RenderEngine* renderEngine)
 {
-	Texture* hdri = &renderEngine->CreateTextureHDRI("resources/textures/HDRI/canyon3K.hdr");
+	Texture* hdri = &renderEngine->CreateTextureHDRI(0, "resources/textures/HDRI/canyon3K.hdr");
 	renderEngine->CaptureCalculateHDRI(*hdri);
 	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_HDRI);
 	mat.SetTexture(MAT_MAP_ENVIRONMENT, &renderEngine->GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
@@ -178,11 +178,11 @@ void Example1Level::Initialize()
 
 
 
-	Texture& albedoSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/albedo.png", pbrSampler, false, false);
-	Texture& normalSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/normal.png", pbrSampler, false, false);
-	Texture& metallicSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/metallic.png", pbrSampler, false, false);
-	Texture& roughnessSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/roughness.png", pbrSampler, false, false);
-	Texture& aoSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/ao.png", pbrSampler, false, false);
+//Texture& albedoSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/albedo.png", pbrSampler, false, false);
+//Texture& normalSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/normal.png", pbrSampler, false, false);
+//Texture& metallicSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/metallic.png", pbrSampler, false, false);
+//Texture& roughnessSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/roughness.png", pbrSampler, false, false);
+//Texture& aoSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/ao.png", pbrSampler, false, false);
 	//
 	//Texture& albedoFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/albedo.png", pbrSampler, false, false);
 	//Texture& normalFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/normal.png", pbrSampler, false, false);
@@ -222,11 +222,11 @@ void Example1Level::Initialize()
 
 
 	sphereMat = &m_RenderEngine->CreateMaterial("sp", Shaders::PBR_LIT);
-	sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoSphere);
-	sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalSphere);
-	sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
-	sphereMat->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicSphere);
-	sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
+//sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoSphere);
+//sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalSphere);
+//sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
+//sphereMat->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicSphere);
+//sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
 	m_RenderEngine->SetHDRIData(sphereMat);
 
 //roadMaterial = &m_RenderEngine->CreateMaterial("road", Shaders::PBR_LIT);

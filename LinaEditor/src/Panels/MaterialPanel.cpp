@@ -114,7 +114,7 @@ namespace LinaEditor
 								std::string filePath = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
 								std::string fileName = igfd::ImGuiFileDialog::Instance()->GetCurrentFileName();
 							
-								m_CurrentSelectedMaterial->SetTexture(chosenMapID, &m_RenderEngine->CreateTexture2D(filePathName));
+								//m_CurrentSelectedMaterial->SetTexture(chosenMapID, &m_RenderEngine->CreateTexture2D(filePathName));
 
 
 							
