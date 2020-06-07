@@ -77,7 +77,7 @@ namespace LinaEditor
 		ScanFolder(m_ResourceFolders[0]);
 
 		// Load resources
-		LoadResources();
+		LoadFolderResources(m_ResourceFolders[0]);
 	}
 
 	void ResourcesPanel::ScanFolder(EditorFolder& root)
@@ -153,31 +153,34 @@ namespace LinaEditor
 
 			if (nodeOpen)
 				ImGui::TreePop();
-
 		}
 	}
 
-	void ResourcesPanel::LoadResources()
+	void ResourcesPanel::LoadFolderResources(EditorFolder& folder)
 	{
-		for (int i = 0; i < m_ResourceFolders.size(); i++)
+		// Load files.
+		for (int i = 0; i < folder.files.size(); i++)
 		{
-			for (int j = 0; j < m_ResourceFolders[i].files.size(); j++)
-			{
-				EditorFile& file = m_ResourceFolders[i].files[j];
+			EditorFile& file = folder.files[i];
 
-				if (file.type == FileType::TEXTURE2D)
-				{
-					m_RenderEngine->CreateTexture2D(file.id, file.path);
-				}
+			if (file.type == FileType::TEXTURE2D)
+			{
+				m_RenderEngine->CreateTexture2D(file.id, file.path);
 			}
 		}
+
+		// Recursively load subfolders.
+		for (int i = 0; i < folder.subFolders.size(); i++)
+			LoadFolderResources(folder.subFolders[i]);
 	}
 
 	ResourcesPanel::FileType ResourcesPanel::GetFileType(std::string& extension)
 	{
-		if (extension.compare(".jpg") == 0 || extension.compare(".jpeg") == 0 || extension.compare(".png") == 0 || extension.compare(".tga") == 0)
+		if (extension.compare("jpg") == 0 || extension.compare("jpeg") == 0 || extension.compare("png") == 0 || extension.compare("tga") == 0)
 			return FileType::TEXTURE2D;
-		else if (extension.compare(".ttf") == 0)
+		else if (extension.compare("ttf") == 0)
 			return FileType::FONT;
+		else
+			return FileType::UNKNOWN;
 	}
 }

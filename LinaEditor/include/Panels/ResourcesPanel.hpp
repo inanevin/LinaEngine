@@ -79,7 +79,7 @@ namespace LinaEditor
 		void ScanRoot();
 		void ScanFolder(EditorFolder& folder);
 		void DrawFolder(EditorFolder& folder);
-		void LoadResources();
+		void LoadFolderResources(EditorFolder& folder);
 		FileType GetFileType(std::string& extension);
 
 	private:
