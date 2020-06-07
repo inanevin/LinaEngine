@@ -112,7 +112,6 @@ namespace LinaEditor
 				ScanFolder(root.subFolders.back());
 			}
 		}
-
 	}
 
 	void ResourcesPanel::DrawFolder(EditorFolder& folder)
@@ -148,7 +147,10 @@ namespace LinaEditor
 			if (ImGui::IsItemClicked())
 			{
 				selectedItem = folder.files[i].id;
-				//m_PropertiesPanel->FileSelected(folder.files[i].type);
+				
+				// Notify properties panel of file selection.
+				if (folder.files[i].type == FileType::TEXTURE2D)
+					m_PropertiesPanel->Texture2DSelected(&m_RenderEngine->GetTexture(folder.files[i].id));
 			}
 
 			if (nodeOpen)

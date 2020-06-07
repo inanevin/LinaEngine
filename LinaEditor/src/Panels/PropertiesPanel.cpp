@@ -44,6 +44,12 @@ namespace LinaEditor
 
 	void PropertiesPanel::Draw()
 	{
+		if (m_CurrentDrawType != DrawType::NONE)
+		{
+			if (m_SelectedEntity == entt::null && m_SelectedTexture == nullptr)
+				m_CurrentDrawType = DrawType::NONE;
+		}
+
 		if (m_Show)
 		{
 			// Component already exists popup modal.
@@ -68,6 +74,8 @@ namespace LinaEditor
 			{
 				if (m_CurrentDrawType == DrawType::ENTITIES)
 					DrawEntityProperties();
+				else if (m_CurrentDrawType == DrawType::TEXTURE2D)
+					DrawTextureProperties();
 			}
 
 			ImGui::End();
@@ -332,6 +340,11 @@ namespace LinaEditor
 				ImGui::Unindent();
 			}
 		}
+
+	}
+
+	void PropertiesPanel::DrawTextureProperties()
+	{
 
 	}
 }

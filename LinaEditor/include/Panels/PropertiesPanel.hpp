@@ -26,6 +26,14 @@ Timestamp: 6/7/2020 5:13:24 PM
 #include "Utility/EditorUtility.hpp"
 #include "ECS/ECS.hpp"
 
+namespace LinaEngine
+{
+	namespace Graphics
+	{
+		class RenderEngine;
+		class Texture;
+	}
+}
 
 namespace LinaEditor
 {
@@ -36,6 +44,7 @@ namespace LinaEditor
 		{
 			NONE,
 			ENTITIES,
+			TEXTURE2D,
 			MATERIAL
 		};
 
@@ -50,9 +59,22 @@ namespace LinaEditor
 
 		FORCEINLINE void EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity) 
 		{
-			m_SelectedEntity = selectedEntity; selectedEntity == entt::null ? m_CurrentDrawType = DrawType::NONE : m_CurrentDrawType = DrawType::ENTITIES;
+			m_SelectedEntity = selectedEntity;  
+			m_CurrentDrawType = DrawType::ENTITIES;
 		}
 
+		FORCEINLINE void Texture2DSelected(LinaEngine::Graphics::Texture* texture)
+		{
+			m_SelectedTexture = texture; 
+			m_CurrentDrawType = DrawType::TEXTURE2D;
+		}
+
+		FORCEINLINE void Unselect()
+		{
+			m_SelectedEntity = entt::null;
+			m_SelectedTexture = nullptr;
+			m_CurrentDrawType = DrawType::NONE;
+		}
 
 	private:
 
@@ -61,8 +83,12 @@ namespace LinaEditor
 		void AddComponentToEntity(int componentID);
 		void DrawComponents(LinaEngine::ECS::ECSEntity& entity);
 
+		// Drawing textures
+		void DrawTextureProperties();
+
 	private:
 
+		class LinaEngine::Graphics::Texture* m_SelectedTexture;
 		LinaEngine::ECS::ECSRegistry* m_ECS;
 		LinaEngine::ECS::ECSEntity m_SelectedEntity;
 		DrawType m_CurrentDrawType = DrawType::NONE;
