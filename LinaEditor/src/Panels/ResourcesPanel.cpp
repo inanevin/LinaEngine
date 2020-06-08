@@ -171,6 +171,8 @@ namespace LinaEditor
 			if (it->second.markedForErase)
 			{
 				EditorUtility::DeleteDirectory(it->second.path);
+				if (hoveredFolder == &it->second)
+					hoveredFolder = nullptr;
 				folder.subFolders.erase(it++);
 				continue;
 			}

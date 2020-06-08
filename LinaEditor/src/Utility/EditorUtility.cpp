@@ -55,6 +55,7 @@ namespace LinaEditor
 
 	bool EditorUtility::GetDirectories(std::vector<std::string>& vec, const std::string& path)
 	{
+		
 		return false;
 		// Get all folders in path.
 		/*std::vector<std::string> r;
