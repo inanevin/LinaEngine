@@ -1,4 +1,4 @@
-/*
+﻿/*
 Author: Inan Evin
 www.inanevin.com
 https://github.com/inanevin/LinaEngine
@@ -39,16 +39,35 @@ namespace LinaEditor
 	static bool openCompExistsModal;
 	const char* entityComponents[] = { "Transform", "Mesh Renderer", "Camera", "Directional Light", "Point Light", "Spot Light", "Free Look" };
 	const char* pixelFormats[]{
-		"FORMAT_R",
-		"FORMAT_RG",
-		"FORMAT_RGB",
-		"FORMAT_RGBA",
-		"FORMAT_RGB16F",
-		"FORMAT_RGBA16F",
-		"FORMAT_DEPTH",
-		"FORMAT_DEPTH_AND_STENCIL",
-		"FORMAT_SRGB",
-		"FORMAT_SRGBA" };
+		"R",
+		"RG",
+		"RGB",
+		"RGBA",
+		"RGB16F",
+		"RGBA16F",
+		"DEPTH",
+		"DEPTH_AND_STENCIL",
+		"SRGB",
+		"SRGBA" };
+
+	const char* samplerFilters[]
+	{
+		"NEAREST",
+		"LINEAR",
+		"NEAREST_MIPMAP_NEAREST",
+		"LINEAR_MIPMAP_NEAREST",
+		"NEAREST_MIPMAP_LINEAR",
+		"LINEAR_MIPMAP_LINEAR"
+	};
+
+	const char* wrapModes[]
+	{
+		"CLAMP_EDGE",
+		"CLAMP_MIRROR",
+		"CLAMP_BORDER",
+		"REPEAT",
+		"REPEAT_MIRROR"
+	};
 
 	void PropertiesPanel::Setup()
 	{
@@ -359,31 +378,231 @@ namespace LinaEditor
 	void PropertiesPanel::DrawTextureProperties()
 	{
 		Graphics::SamplerParameters& params = m_SelectedTexture->GetSampler().GetSamplerParameters();
+		static ImGuiComboFlags flags = 0;
+
+		static int internalPFCurrentItem = (int)params.textureParams.internalPixelFormat;
+		static int pfCurrentItem = (int)params.textureParams.pixelFormat;
+		static int minFilterCurrentItem = GetSamplerFilterID(params.textureParams.minFilter);
+		static int magFilterCurrentItem = GetSamplerFilterID(params.textureParams.magFilter);
+		static int wrapSCurrentItem = GetWrapModeID(params.textureParams.wrapS);
+		static int wrapRCurrentItem = GetWrapModeID(params.textureParams.wrapR);
+		static int wrapTCurrentItem = GetWrapModeID(params.textureParams.wrapT);
+
+		static Graphics::PixelFormat selectedInternalPF = params.textureParams.internalPixelFormat;
+		static Graphics::PixelFormat selectedPF = params.textureParams.pixelFormat;
+		static Graphics::SamplerFilter selectedMinFilter = params.textureParams.minFilter;
+		static Graphics::SamplerFilter selectedMagFilter = params.textureParams.magFilter;
+		static Graphics::SamplerWrapMode selectedWrapS = params.textureParams.wrapS;
+		static Graphics::SamplerWrapMode selectedWrapR = params.textureParams.wrapR;
+		static Graphics::SamplerWrapMode selectedWrapT = params.textureParams.wrapT;
+
+		const char* internalPFLabel = pixelFormats[internalPFCurrentItem];
+		const char* pfLabel = pixelFormats[pfCurrentItem];
+		const char* minFilterLabel = samplerFilters[minFilterCurrentItem];
+		const char* magFilterLabel = samplerFilters[magFilterCurrentItem];
+		const char* wrapSLabel = wrapModes[wrapSCurrentItem];
+		const char* wrapRLabel = wrapModes[wrapRCurrentItem];
+		const char* wrapTLabel = wrapModes[wrapTCurrentItem];
+
 
 		ImGui::Checkbox("Generate Mipmaps?", &params.textureParams.generateMipMaps);
-		ImGui::DragInt("Anisotropy", &params.anisotropy, 0.5f, 0, 8);
+		ImGui::DragInt("Anisotropy", &params.anisotropy, 0.05f, 0, 8);
 
-		static int internalPixelFormatCurrentItem = (int)params.textureParams.internalPixelFormat;
-		static Graphics::PixelFormat selectedInternalFormat = params.textureParams.internalPixelFormat;
-
-		static ImGuiComboFlags flags = 0;
-		const char* combo_label = pixelFormats[internalPixelFormatCurrentItem];  // Label to preview before opening the combo (technically could be anything)(
-		if (ImGui::BeginCombo("Internal Pixel Format", combo_label, flags))
+		// Internal Pixel Format ComboBox
+		if (ImGui::BeginCombo("Internal Pixel Format", internalPFLabel, flags))
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(pixelFormats); n++)
 			{
-				const bool is_selected = (internalPixelFormatCurrentItem == n);
+				const bool is_selected = (internalPFCurrentItem == n);
 				if (ImGui::Selectable(pixelFormats[n], is_selected))
-					internalPixelFormatCurrentItem = n;
+					internalPFCurrentItem = n;
 
-				// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
 				if (is_selected)
 				{
-					selectedInternalFormat = (Graphics::PixelFormat)n;
+					selectedInternalPF = (Graphics::PixelFormat)n;
 					ImGui::SetItemDefaultFocus();
 				}
 			}
 			ImGui::EndCombo();
 		}
+		// Pixel Format ComboBox
+		if (ImGui::BeginCombo("Pixel Format", internalPFLabel, flags))
+		{
+			for (int n = 0; n < IM_ARRAYSIZE(pixelFormats); n++)
+			{
+				const bool is_selected = (pfCurrentItem == n);
+				if (ImGui::Selectable(pixelFormats[n], is_selected))
+					pfCurrentItem = n;
+
+				if (is_selected)
+				{
+					selectedPF = (Graphics::PixelFormat)n;
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+		// Mın Filter ComboBox
+		if (ImGui::BeginCombo("Min Filter", minFilterLabel, flags))
+		{
+			for (int n = 0; n < IM_ARRAYSIZE(samplerFilters); n++)
+			{
+				const bool is_selected = (minFilterCurrentItem == n);
+				if (ImGui::Selectable(samplerFilters[n], is_selected))
+					minFilterCurrentItem = n;
+
+				if (is_selected)
+				{
+					selectedMinFilter = GetSamplerFilterFromID(n);
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+		// Mın Filter ComboBox
+		if (ImGui::BeginCombo("Mag Filter", magFilterLabel, flags))
+		{
+			for (int n = 0; n < IM_ARRAYSIZE(samplerFilters); n++)
+			{
+				const bool is_selected = (magFilterCurrentItem == n);
+				if (ImGui::Selectable(samplerFilters[n], is_selected))
+					magFilterCurrentItem = n;
+
+				if (is_selected)
+				{
+					selectedMagFilter = GetSamplerFilterFromID(n);
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+		// Wrap S ComboBox
+		if (ImGui::BeginCombo("Wrap S", wrapSLabel, flags))
+		{
+			for (int n = 0; n < IM_ARRAYSIZE(wrapModes); n++)
+			{
+				const bool is_selected = (wrapSCurrentItem == n);
+				if (ImGui::Selectable(wrapModes[n], is_selected))
+					wrapSCurrentItem = n;
+
+				if (is_selected)
+				{
+					selectedWrapS = GetWrapModeFromID(n);
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+		// Wrap T ComboBox
+		if (ImGui::BeginCombo("Wrap R", wrapRLabel, flags))
+		{
+			for (int n = 0; n < IM_ARRAYSIZE(wrapModes); n++)
+			{
+				const bool is_selected = (wrapRCurrentItem == n);
+				if (ImGui::Selectable(wrapModes[n], is_selected))
+					wrapRCurrentItem = n;
+
+				if (is_selected)
+				{
+					selectedWrapS = GetWrapModeFromID(n);
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+		// Wrap T ComboBox
+		if (ImGui::BeginCombo("Wrap T", wrapTLabel, flags))
+		{
+			for (int n = 0; n < IM_ARRAYSIZE(wrapModes); n++)
+			{
+				const bool is_selected = (wrapTCurrentItem == n);
+				if (ImGui::Selectable(wrapModes[n], is_selected))
+					wrapTCurrentItem = n;
+
+				if (is_selected)
+				{
+					selectedWrapS = GetWrapModeFromID(n);
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+
+		// Apply button
+		if (ImGui::Button("Apply"))
+		{
+			params.textureParams.internalPixelFormat = selectedInternalPF;
+			params.textureParams.pixelFormat = selectedPF;
+			params.textureParams.minFilter = selectedMinFilter;
+			params.textureParams.magFilter = selectedMagFilter;
+			params.textureParams.wrapR = selectedWrapR;
+			params.textureParams.wrapS = selectedWrapS;
+			params.textureParams.wrapT = selectedWrapT;
+		}
+	}
+	int PropertiesPanel::GetSamplerFilterID(Graphics::SamplerFilter filter)
+	{
+		if (filter == Graphics::SamplerFilter::FILTER_NEAREST)
+			return 0;
+		else if (filter == Graphics::SamplerFilter::FILTER_LINEAR)
+			return 1;
+		else if (filter == Graphics::SamplerFilter::FILTER_NEAREST_MIPMAP_NEAREST)
+			return 2;
+		else if (filter == Graphics::SamplerFilter::FILTER_LINEAR_MIPMAP_NEAREST)
+			return 3;
+		else if (filter == Graphics::SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR)
+			return 4;
+		else if (filter == Graphics::SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR)
+			return 5;
+	}
+
+	int PropertiesPanel::GetWrapModeID(Graphics::SamplerWrapMode wrapMode)
+	{
+		if (wrapMode == Graphics::SamplerWrapMode::WRAP_CLAMP_EDGE)
+			return 0;
+		else if (wrapMode == Graphics::SamplerWrapMode::WRAP_CLAMP_MIRROR)
+			return 1;
+		else if (wrapMode == Graphics::SamplerWrapMode::WRAP_CLAMP_BORDER)
+			return 2;
+		else if (wrapMode == Graphics::SamplerWrapMode::WRAP_REPEAT)
+			return 3;
+		else if (wrapMode == Graphics::SamplerWrapMode::WRAP_REPEAT_MIRROR)
+			return 4;
+	}
+
+	Graphics::SamplerFilter PropertiesPanel::GetSamplerFilterFromID(int id)
+	{
+		if (id == 0)
+			return Graphics::SamplerFilter::FILTER_NEAREST;
+		else if (id == 1)
+			return Graphics::SamplerFilter::FILTER_LINEAR;
+		else if (id == 2)
+			return Graphics::SamplerFilter::FILTER_NEAREST_MIPMAP_NEAREST;
+		else if (id == 3)
+			return Graphics::SamplerFilter::FILTER_LINEAR_MIPMAP_NEAREST;
+		else if (id == 4)
+			return Graphics::SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR;
+		else if (id == 5)
+			return Graphics::SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+	}
+
+	Graphics::SamplerWrapMode PropertiesPanel::GetWrapModeFromID(int id)
+	{
+		if (id == 0)
+			return Graphics::SamplerWrapMode::WRAP_CLAMP_EDGE;
+		else if (id == 1)
+			return Graphics::SamplerWrapMode::WRAP_CLAMP_MIRROR;
+		else if (id == 2)
+			return Graphics::SamplerWrapMode::WRAP_CLAMP_BORDER;
+		else if (id == 2)
+			return Graphics::SamplerWrapMode::WRAP_REPEAT;
+		else if (id == 4)
+			return Graphics::SamplerWrapMode::WRAP_REPEAT_MIRROR;
 	}
 }

@@ -24,6 +24,7 @@ Timestamp: 6/7/2020 5:13:24 PM
 
 #include "Panels/EditorPanel.hpp"
 #include "Utility/EditorUtility.hpp"
+#include "Rendering/RenderingCommon.hpp"
 #include "ECS/ECS.hpp"
 
 namespace LinaEngine
@@ -85,7 +86,10 @@ namespace LinaEditor
 
 		// Drawing textures
 		void DrawTextureProperties();
-
+		int GetSamplerFilterID(Graphics::SamplerFilter filter);
+		int GetWrapModeID(Graphics::SamplerWrapMode wrapMode);
+		Graphics::SamplerFilter GetSamplerFilterFromID(int id);
+		Graphics::SamplerWrapMode GetWrapModeFromID(int id);
 	private:
 
 		class LinaEngine::Graphics::Texture* m_SelectedTexture;
