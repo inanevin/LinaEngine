@@ -38,10 +38,11 @@ namespace LinaEngine::Graphics
 			m_EngineBoundID = renderDevice->ReleaseSampler(m_EngineBoundID);
 		}
 
-		FORCEINLINE void Construct(RenderDevice& deviceIn, SamplerParameters samplerParams)
+		FORCEINLINE void Construct(RenderDevice& deviceIn, SamplerParameters samplerParams, TextureBindMode bindMode)
 		{
 			renderDevice = &deviceIn;
 			m_EngineBoundID = renderDevice->CreateSampler(samplerParams);
+			m_TargetBindMode = bindMode;
 			m_Params = samplerParams;
 		}
 
@@ -49,14 +50,17 @@ namespace LinaEngine::Graphics
 		{
 			m_Params = samplerParams;
 			renderDevice->UpdateSamplerParameters(m_EngineBoundID, samplerParams);
+			renderDevice->UpdateTextureParameters(m_TargetBindMode, m_TargetTextureID, samplerParams);
 		}
 
 		FORCEINLINE SamplerParameters& GetSamplerParameters() { return m_Params; }
 
 		FORCEINLINE uint32 GetID() const { return m_EngineBoundID; }
-
+		FORCEINLINE void SetTargetTextureID(uint32 id) { m_TargetTextureID = id; }
 	private:
 
+		uint32 m_TargetTextureID;
+		TextureBindMode m_TargetBindMode;
 		SamplerParameters m_Params;
 		RenderDevice* renderDevice;
 		uint32 m_EngineBoundID;

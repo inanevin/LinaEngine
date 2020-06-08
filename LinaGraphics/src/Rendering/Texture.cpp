@@ -31,9 +31,11 @@ namespace LinaEngine::Graphics
 	Texture& Texture::Construct(RenderDevice& deviceIn, const ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress)
 	{
 		renderDevice = &deviceIn;
-		m_Sampler.Construct(deviceIn, samplerParams);
 		m_Size = Vector2(data.GetWidth(), data.GetHeight());
+		m_BindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
+		m_Sampler.Construct(deviceIn, samplerParams, m_BindMode);
 		m_ID = renderDevice->CreateTexture2D(m_Size, data.GetPixelArray(), samplerParams, shouldCompress, false, Color::White);
+		m_Sampler.SetTargetTextureID(m_ID);
 		isCompressed = shouldCompress;
 		hasMipMaps = samplerParams.textureParams.generateMipMaps;
 		m_IsEmpty = false;
@@ -49,16 +51,18 @@ namespace LinaEngine::Graphics
 			return Texture();
 		}
 
-		m_Sampler.Construct(deviceIn, samplerParams);
 		renderDevice = &deviceIn;
 		m_Size = Vector2(data[0]->GetWidth(), data[0]->GetHeight());
+		m_BindMode = TextureBindMode::BINDTEXTURE_CUBEMAP;
 
 		LinaArray<int32*> cubeMapData;
 
 		for (uint32 i = 0; i < 6; i++)
 			cubeMapData.push_back(data[i]->GetPixelArray());
 
+		m_Sampler.Construct(deviceIn, samplerParams, m_BindMode);
 		m_ID = renderDevice->CreateCubemapTexture(m_Size, samplerParams, cubeMapData, 6U);
+		m_Sampler.SetTargetTextureID(m_ID);
 		isCompressed = shouldCompress;
 		hasMipMaps = samplerParams.textureParams.generateMipMaps;
 		m_IsEmpty = false;
@@ -69,9 +73,11 @@ namespace LinaEngine::Graphics
 	Texture& Texture::ConstructHDRI(RenderDevice& deviceIn, SamplerParameters samplerParams, Vector2 size, float* data)
 	{
 		renderDevice = &deviceIn;
-		m_Sampler.Construct(deviceIn, samplerParams);
 		m_Size = size;
+		m_BindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
+		m_Sampler.Construct(deviceIn, samplerParams, m_BindMode);
 		m_ID = renderDevice->CreateTextureHDRI(size, data, samplerParams);
+		m_Sampler.SetTargetTextureID(m_ID);
 		isCompressed = false;
 		hasMipMaps = samplerParams.textureParams.generateMipMaps;
 		m_IsEmpty = false;
@@ -80,10 +86,12 @@ namespace LinaEngine::Graphics
 
 	Texture& Texture::ConstructRTCubemapTexture(RenderDevice& deviceIn,  Vector2 size, SamplerParameters samplerParams)
 	{
-		m_Sampler.Construct(deviceIn, samplerParams);
 		renderDevice = &deviceIn;
 		m_Size = size;
+		m_BindMode = TextureBindMode::BINDTEXTURE_CUBEMAP;
+		m_Sampler.Construct(deviceIn,samplerParams, m_BindMode);
 		m_ID = renderDevice->CreateCubemapTextureEmpty(m_Size, samplerParams);
+		m_Sampler.SetTargetTextureID(m_ID);
 		isCompressed = false;
 		m_IsEmpty = false;
 		hasMipMaps = samplerParams.textureParams.generateMipMaps;
@@ -96,8 +104,10 @@ namespace LinaEngine::Graphics
 
 		renderDevice = &deviceIn;
 		SamplerParameters params;
-		m_Sampler.Construct(deviceIn, params);
+		m_BindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
+		m_Sampler.Construct(deviceIn, params, m_BindMode);
 		m_ID = renderDevice->CreateTexture2D(size, NULL, samplerParams, false, useBorder, Color::White);
+		m_Sampler.SetTargetTextureID(m_ID);
 		m_Size = size;
 		isCompressed = false;
 		m_IsEmpty = false;
@@ -109,8 +119,10 @@ namespace LinaEngine::Graphics
 	{
 		renderDevice = &deviceIn;
 		SamplerParameters params;
-		m_Sampler.Construct(deviceIn, params);
+		m_BindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE;
+		m_Sampler.Construct(deviceIn, params, m_BindMode);
 		m_ID = renderDevice->CreateTexture2DMSAA(size, samplerParams, sampleCount);
+		m_Sampler.SetTargetTextureID(m_ID);
 		m_Size = size;
 		isCompressed = false;
 		m_IsEmpty = false;
@@ -124,8 +136,10 @@ namespace LinaEngine::Graphics
 
 		SamplerParameters params;
 
-		m_Sampler.Construct(deviceIn, params);
+		m_BindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
+		m_Sampler.Construct(deviceIn, params, m_BindMode);
 		m_ID = renderDevice->CreateTexture2DEmpty(Vector2::One, samplerParams);
+		m_Sampler.SetTargetTextureID(m_ID);
 		m_Size = Vector2::One;
 		isCompressed = false;
 		hasMipMaps = false;

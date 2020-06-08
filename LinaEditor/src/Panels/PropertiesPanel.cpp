@@ -31,6 +31,7 @@ Timestamp: 6/7/2020 5:13:42 PM
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "imgui_internal.h"
 
 namespace LinaEditor
 {
@@ -533,7 +534,6 @@ namespace LinaEditor
 			ImGui::EndCombo();
 		}
 
-
 		// Apply button
 		if (ImGui::Button("Apply"))
 		{
@@ -544,7 +544,23 @@ namespace LinaEditor
 			params.textureParams.wrapR = selectedWrapR;
 			params.textureParams.wrapS = selectedWrapS;
 			params.textureParams.wrapT = selectedWrapT;
+			m_SelectedTexture->GetSampler().UpdateSettings(params);
 		}
+
+		// Setup data for drawing texture.
+		float currentWindowX = ImGui::GetCurrentWindow()->Size.x;
+		float currentWindowY = ImGui::GetCurrentWindow()->Size.y;
+		Vector2 textureSize = m_SelectedTexture->GetSize();
+		float textureAspect = textureSize.x / textureSize.y;
+		float desiredH = currentWindowX / textureAspect;
+		ImVec2 pMin = ImVec2(ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y);
+		ImVec2 pMax = ImVec2(ImGui::GetCursorScreenPos().x + currentWindowX, ImGui::GetCursorScreenPos().y + desiredH);
+		ImVec2 size = ImGui::GetCurrentWindow()->Size;
+
+		// Draw texture
+		ImGui::GetWindowDrawList()->AddImage((void*)m_SelectedTexture->GetID(), pMin, pMax, ImVec2(0, 1), ImVec2(1, 0));
+
+		
 	}
 	int PropertiesPanel::GetSamplerFilterID(Graphics::SamplerFilter filter)
 	{

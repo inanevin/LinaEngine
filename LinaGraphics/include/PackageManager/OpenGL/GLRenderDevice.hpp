@@ -95,6 +95,9 @@ namespace LinaEngine::Graphics
 		// Sets up texture parameters
 		void SetupTextureParameters(uint32 textureTarget, SamplerParameters samplerParams);
 
+		// Updates texture parameters
+		void UpdateTextureParameters(uint32 bindMode, uint32 id, SamplerParameters samplerParmas);
+
 		// Releases a previously created texture from GL.
 		uint32 ReleaseTexture2D(uint32 texture2D);
 

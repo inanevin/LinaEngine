@@ -426,6 +426,27 @@ namespace LinaEngine::Graphics
 		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_R, samplerParams.textureParams.wrapR);
 	}
 
+	void GLRenderDevice::UpdateTextureParameters(uint32 bindMode, uint32 id, SamplerParameters samplerParams)
+	{
+		glBindTexture(bindMode, id);
+		glTexParameterf(bindMode, GL_TEXTURE_MIN_FILTER, samplerParams.textureParams.minFilter);
+		glTexParameterf(bindMode, GL_TEXTURE_MAG_FILTER, samplerParams.textureParams.magFilter);
+		glTexParameteri(bindMode, GL_TEXTURE_WRAP_S, samplerParams.textureParams.wrapS);
+		glTexParameteri(bindMode, GL_TEXTURE_WRAP_T, samplerParams.textureParams.wrapT);
+		glTexParameteri(bindMode, GL_TEXTURE_WRAP_R, samplerParams.textureParams.wrapR);
+
+		// Enable mipmaps if needed.
+		if (samplerParams.textureParams.generateMipMaps)
+			glGenerateMipmap(bindMode);
+		else
+		{
+			glTexParameteri(bindMode, GL_TEXTURE_BASE_LEVEL, 0);
+			glTexParameteri(bindMode, GL_TEXTURE_MAX_LEVEL, 0);
+		}
+
+		glBindTexture(bindMode, 0);
+	}
+
 	uint32 GLRenderDevice::ReleaseTexture2D(uint32 texture2D)
 	{
 		// Delete the texture binding if exists.

@@ -59,6 +59,7 @@ namespace LinaEngine::Graphics
 
 	private:
 
+		TextureBindMode m_BindMode;
 		Sampler m_Sampler;
 		RenderDevice* renderDevice = nullptr;
 		uint32 m_ID = 0;
