@@ -70,12 +70,39 @@ namespace LinaEditor
 		"REPEAT_MIRROR"
 	};
 
+	static Graphics::PixelFormat selectedInternalPF;
+	static Graphics::PixelFormat selectedPF;
+	static Graphics::SamplerFilter selectedMinFilter;
+	static Graphics::SamplerFilter selectedMagFilter;
+	static Graphics::SamplerWrapMode selectedWrapS;
+	static Graphics::SamplerWrapMode selectedWrapR;
+	static Graphics::SamplerWrapMode selectedWrapT;
+
 	const int TEXTUREPREVIEW_MAX_WIDTH = 250;
 
 	void PropertiesPanel::Setup()
 	{
 		m_ECS = m_GUILayer->GetECS();
 		m_RenderEngine = m_GUILayer->GetRenderEngine();
+	}
+
+	void PropertiesPanel::Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path)
+	{
+
+		m_SelectedTexture = texture;
+		m_CurrentDrawType = DrawType::TEXTURE2D;
+		m_SelectedTextureID = id;
+		m_SelectedTexturePath = path;
+
+		// Reset selected sampler params.
+		Graphics::SamplerParameters& params = texture->GetSampler().GetSamplerParameters();
+		m_CurrentInternalPF = (int)params.textureParams.internalPixelFormat;
+		m_CurrentPF = (int)params.textureParams.pixelFormat;
+		m_CurrentMinFilter = GetSamplerFilterID(params.textureParams.minFilter);
+		m_CurrentMagFilter = GetSamplerFilterID(params.textureParams.magFilter);
+		m_CurrentWrapS = GetWrapModeID(params.textureParams.wrapS);
+		m_CurrentWrapR = GetWrapModeID(params.textureParams.wrapR);
+		m_CurrentWrapT = GetWrapModeID(params.textureParams.wrapT);
 	}
 
 	void PropertiesPanel::Draw()
@@ -383,16 +410,10 @@ namespace LinaEditor
 
 	void PropertiesPanel::DrawTextureProperties()
 	{
-		Graphics::SamplerParameters params = m_SelectedTexture->GetSampler().GetSamplerParameters();
+		Graphics::SamplerParameters& params = m_SelectedTexture->GetSampler().GetSamplerParameters();
 		static ImGuiComboFlags flags = 0;
 
-		static int internalPFCurrentItem = (int)params.textureParams.internalPixelFormat;
-		static int pfCurrentItem = (int)params.textureParams.pixelFormat;
-		static int minFilterCurrentItem = GetSamplerFilterID(params.textureParams.minFilter);
-		static int magFilterCurrentItem = GetSamplerFilterID(params.textureParams.magFilter);
-		static int wrapSCurrentItem = GetWrapModeID(params.textureParams.wrapS);
-		static int wrapRCurrentItem = GetWrapModeID(params.textureParams.wrapR);
-		static int wrapTCurrentItem = GetWrapModeID(params.textureParams.wrapT);
+
 
 		static Graphics::PixelFormat selectedInternalPF = params.textureParams.internalPixelFormat;
 		static Graphics::PixelFormat selectedPF = params.textureParams.pixelFormat;
@@ -402,13 +423,13 @@ namespace LinaEditor
 		static Graphics::SamplerWrapMode selectedWrapR = params.textureParams.wrapR;
 		static Graphics::SamplerWrapMode selectedWrapT = params.textureParams.wrapT;
 
-		const char* internalPFLabel = pixelFormats[internalPFCurrentItem];
-		const char* pfLabel = pixelFormats[pfCurrentItem];
-		const char* minFilterLabel = samplerFilters[minFilterCurrentItem];
-		const char* magFilterLabel = samplerFilters[magFilterCurrentItem];
-		const char* wrapSLabel = wrapModes[wrapSCurrentItem];
-		const char* wrapRLabel = wrapModes[wrapRCurrentItem];
-		const char* wrapTLabel = wrapModes[wrapTCurrentItem];
+		const char* internalPFLabel = pixelFormats[m_CurrentInternalPF];
+		const char* pfLabel = pixelFormats[m_CurrentPF];
+		const char* minFilterLabel = samplerFilters[m_CurrentMinFilter];
+		const char* magFilterLabel = samplerFilters[m_CurrentMagFilter];
+		const char* wrapSLabel = wrapModes[m_CurrentWrapS];
+		const char* wrapRLabel = wrapModes[m_CurrentWrapR];
+		const char* wrapTLabel = wrapModes[m_CurrentWrapT];
 
 
 		ImGui::Checkbox("Generate Mipmaps?", &params.textureParams.generateMipMaps);
@@ -419,11 +440,11 @@ namespace LinaEditor
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(pixelFormats); n++)
 			{
-				const bool is_selected = (internalPFCurrentItem == n);
+				const bool is_selected = (m_CurrentInternalPF == n);
 				if (ImGui::Selectable(pixelFormats[n], is_selected))
 				{
 					selectedInternalPF = (Graphics::PixelFormat)n;
-					internalPFCurrentItem = n;
+					m_CurrentInternalPF = n;
 				}
 
 				if (is_selected)
@@ -436,11 +457,11 @@ namespace LinaEditor
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(pixelFormats); n++)
 			{
-				const bool is_selected = (pfCurrentItem == n);
+				const bool is_selected = (m_CurrentPF == n);
 				if (ImGui::Selectable(pixelFormats[n], is_selected))
 				{
 					selectedPF = (Graphics::PixelFormat)n;
-					pfCurrentItem = n;
+					m_CurrentPF = n;
 				}
 
 				if (is_selected)
@@ -454,11 +475,11 @@ namespace LinaEditor
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(samplerFilters); n++)
 			{
-				const bool is_selected = (minFilterCurrentItem == n);
+				const bool is_selected = (m_CurrentMinFilter== n);
 				if (ImGui::Selectable(samplerFilters[n], is_selected))
 				{
 					selectedMinFilter = GetSamplerFilterFromID(n);
-					minFilterCurrentItem = n;
+					m_CurrentMinFilter = n;
 				}
 
 				if (is_selected)
@@ -472,10 +493,10 @@ namespace LinaEditor
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(samplerFilters); n++)
 			{
-				const bool is_selected = (magFilterCurrentItem == n);
+				const bool is_selected = (m_CurrentMagFilter == n);
 				if (ImGui::Selectable(samplerFilters[n], is_selected))
 				{
-					magFilterCurrentItem = n;
+					m_CurrentMagFilter= n;
 					selectedMagFilter = GetSamplerFilterFromID(n);
 				}
 
@@ -490,11 +511,11 @@ namespace LinaEditor
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(wrapModes); n++)
 			{
-				const bool is_selected = (wrapSCurrentItem == n);
+				const bool is_selected = (m_CurrentWrapS == n);
 				if (ImGui::Selectable(wrapModes[n], is_selected))
 				{
 					selectedWrapS = GetWrapModeFromID(n);
-					wrapSCurrentItem = n;
+					m_CurrentWrapS = n;
 				}
 
 				if (is_selected)
@@ -508,11 +529,11 @@ namespace LinaEditor
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(wrapModes); n++)
 			{
-				const bool is_selected = (wrapRCurrentItem == n);
+				const bool is_selected = (m_CurrentWrapR == n);
 				if (ImGui::Selectable(wrapModes[n], is_selected))
 				{
 					selectedWrapS = GetWrapModeFromID(n);
-					wrapRCurrentItem = n;
+					m_CurrentWrapR = n;
 				}
 
 				if (is_selected)
@@ -526,11 +547,11 @@ namespace LinaEditor
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(wrapModes); n++)
 			{
-				const bool is_selected = (wrapTCurrentItem == n);
+				const bool is_selected = (m_CurrentWrapT == n);
 				if (ImGui::Selectable(wrapModes[n], is_selected))
 				{
 					selectedWrapS = GetWrapModeFromID(n);
-					wrapTCurrentItem = n;
+					m_CurrentWrapT = n;
 				}
 
 				if (is_selected)
@@ -549,8 +570,9 @@ namespace LinaEditor
 			params.textureParams.wrapR = selectedWrapR;
 			params.textureParams.wrapS = selectedWrapS;
 			params.textureParams.wrapT = selectedWrapT;
+			Graphics::SamplerParameters newParams = params;
 			m_RenderEngine->UnloadTextureResource(m_SelectedTextureID);
-			m_SelectedTexture = &m_RenderEngine->CreateTexture2D(m_SelectedTextureID, m_SelectedTexturePath, params);
+			m_SelectedTexture = &m_RenderEngine->CreateTexture2D(m_SelectedTextureID, m_SelectedTexturePath, newParams);
 		}
 
 		// Setup data for drawing texture.
@@ -570,7 +592,7 @@ namespace LinaEditor
 		// Draw texture
 		ImGui::GetWindowDrawList()->AddImage((void*)m_SelectedTexture->GetID(), pMin, pMax, ImVec2(0, 1), ImVec2(1, 0));
 
-		
+
 	}
 
 	int PropertiesPanel::GetSamplerFilterID(Graphics::SamplerFilter filter)
@@ -635,6 +657,7 @@ namespace LinaEditor
 
 	void PropertiesPanel::DrawMeshProperties()
 	{
-		
+		Graphics::MeshParameters params = m_SelectedMesh->GetParameters();
+
 	}
 }

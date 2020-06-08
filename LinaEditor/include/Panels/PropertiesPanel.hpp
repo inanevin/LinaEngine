@@ -66,13 +66,7 @@ namespace LinaEditor
 			m_CurrentDrawType = DrawType::ENTITIES;
 		}
 
-		FORCEINLINE void Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path)
-		{
-			m_SelectedTexture = texture; 
-			m_CurrentDrawType = DrawType::TEXTURE2D;
-			m_SelectedTextureID = id;
-			m_SelectedTexturePath = path;
-		}
+		void Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path);
 
 		FORCEINLINE void MeshSelected(LinaEngine::Graphics::Mesh* mesh, int id, std::string& path)
 		{
@@ -112,6 +106,13 @@ namespace LinaEditor
 		class LinaEngine::Graphics::Texture* m_SelectedTexture;
 		int m_SelectedTextureID;
 		std::string m_SelectedTexturePath;
+		int m_CurrentInternalPF;
+		int m_CurrentPF;
+		int m_CurrentMinFilter;
+		int m_CurrentMagFilter;
+		int m_CurrentWrapS;
+		int m_CurrentWrapR;
+		int m_CurrentWrapT;
 
 		// Selected mesh
 		class LinaEngine::Graphics::Mesh* m_SelectedMesh;
