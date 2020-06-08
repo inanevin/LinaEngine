@@ -150,7 +150,7 @@ namespace LinaEditor
 				
 				// Notify properties panel of file selection.
 				if (folder.files[i].type == FileType::TEXTURE2D)
-					m_PropertiesPanel->Texture2DSelected(&m_RenderEngine->GetTexture(folder.files[i].id));
+					m_PropertiesPanel->Texture2DSelected(&m_RenderEngine->GetTexture(folder.files[i].id), folder.files[i].id, folder.files[i].path);
 			}
 
 			if (nodeOpen)

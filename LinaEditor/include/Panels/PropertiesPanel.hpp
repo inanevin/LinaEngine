@@ -64,10 +64,12 @@ namespace LinaEditor
 			m_CurrentDrawType = DrawType::ENTITIES;
 		}
 
-		FORCEINLINE void Texture2DSelected(LinaEngine::Graphics::Texture* texture)
+		FORCEINLINE void Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path)
 		{
 			m_SelectedTexture = texture; 
 			m_CurrentDrawType = DrawType::TEXTURE2D;
+			m_SelectedTextureID = id;
+			m_SelectedTexturePath = path;
 		}
 
 		FORCEINLINE void Unselect()
@@ -90,9 +92,13 @@ namespace LinaEditor
 		int GetWrapModeID(Graphics::SamplerWrapMode wrapMode);
 		Graphics::SamplerFilter GetSamplerFilterFromID(int id);
 		Graphics::SamplerWrapMode GetWrapModeFromID(int id);
+
 	private:
 
+		class LinaEngine::Graphics::RenderEngine* m_RenderEngine;
 		class LinaEngine::Graphics::Texture* m_SelectedTexture;
+		int m_SelectedTextureID;
+		std::string m_SelectedTexturePath;
 		LinaEngine::ECS::ECSRegistry* m_ECS;
 		LinaEngine::ECS::ECSEntity m_SelectedEntity;
 		DrawType m_CurrentDrawType = DrawType::NONE;

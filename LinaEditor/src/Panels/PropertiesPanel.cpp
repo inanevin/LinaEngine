@@ -70,9 +70,12 @@ namespace LinaEditor
 		"REPEAT_MIRROR"
 	};
 
+	const int TEXTUREPREVIEW_MAX_WIDTH = 250;
+
 	void PropertiesPanel::Setup()
 	{
 		m_ECS = m_GUILayer->GetECS();
+		m_RenderEngine = m_GUILayer->GetRenderEngine();
 	}
 
 	void PropertiesPanel::Draw()
@@ -378,7 +381,7 @@ namespace LinaEditor
 
 	void PropertiesPanel::DrawTextureProperties()
 	{
-		Graphics::SamplerParameters& params = m_SelectedTexture->GetSampler().GetSamplerParameters();
+		Graphics::SamplerParameters params = m_SelectedTexture->GetSampler().GetSamplerParameters();
 		static ImGuiComboFlags flags = 0;
 
 		static int internalPFCurrentItem = (int)params.textureParams.internalPixelFormat;
@@ -416,30 +419,30 @@ namespace LinaEditor
 			{
 				const bool is_selected = (internalPFCurrentItem == n);
 				if (ImGui::Selectable(pixelFormats[n], is_selected))
-					internalPFCurrentItem = n;
-
-				if (is_selected)
 				{
 					selectedInternalPF = (Graphics::PixelFormat)n;
-					ImGui::SetItemDefaultFocus();
+					internalPFCurrentItem = n;
 				}
+
+				if (is_selected)
+					ImGui::SetItemDefaultFocus();
 			}
 			ImGui::EndCombo();
 		}
 		// Pixel Format ComboBox
-		if (ImGui::BeginCombo("Pixel Format", internalPFLabel, flags))
+		if (ImGui::BeginCombo("Pixel Format", pfLabel, flags))
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(pixelFormats); n++)
 			{
 				const bool is_selected = (pfCurrentItem == n);
 				if (ImGui::Selectable(pixelFormats[n], is_selected))
-					pfCurrentItem = n;
-
-				if (is_selected)
 				{
 					selectedPF = (Graphics::PixelFormat)n;
-					ImGui::SetItemDefaultFocus();
+					pfCurrentItem = n;
 				}
+
+				if (is_selected)
+					ImGui::SetItemDefaultFocus();
 			}
 			ImGui::EndCombo();
 		}
@@ -451,13 +454,13 @@ namespace LinaEditor
 			{
 				const bool is_selected = (minFilterCurrentItem == n);
 				if (ImGui::Selectable(samplerFilters[n], is_selected))
-					minFilterCurrentItem = n;
-
-				if (is_selected)
 				{
 					selectedMinFilter = GetSamplerFilterFromID(n);
-					ImGui::SetItemDefaultFocus();
+					minFilterCurrentItem = n;
 				}
+
+				if (is_selected)
+					ImGui::SetItemDefaultFocus();
 			}
 			ImGui::EndCombo();
 		}
@@ -469,13 +472,13 @@ namespace LinaEditor
 			{
 				const bool is_selected = (magFilterCurrentItem == n);
 				if (ImGui::Selectable(samplerFilters[n], is_selected))
+				{
 					magFilterCurrentItem = n;
+					selectedMagFilter = GetSamplerFilterFromID(n);
+				}
 
 				if (is_selected)
-				{
-					selectedMagFilter = GetSamplerFilterFromID(n);
 					ImGui::SetItemDefaultFocus();
-				}
 			}
 			ImGui::EndCombo();
 		}
@@ -487,13 +490,13 @@ namespace LinaEditor
 			{
 				const bool is_selected = (wrapSCurrentItem == n);
 				if (ImGui::Selectable(wrapModes[n], is_selected))
-					wrapSCurrentItem = n;
-
-				if (is_selected)
 				{
 					selectedWrapS = GetWrapModeFromID(n);
-					ImGui::SetItemDefaultFocus();
+					wrapSCurrentItem = n;
 				}
+
+				if (is_selected)
+					ImGui::SetItemDefaultFocus();
 			}
 			ImGui::EndCombo();
 		}
@@ -505,13 +508,13 @@ namespace LinaEditor
 			{
 				const bool is_selected = (wrapRCurrentItem == n);
 				if (ImGui::Selectable(wrapModes[n], is_selected))
-					wrapRCurrentItem = n;
-
-				if (is_selected)
 				{
 					selectedWrapS = GetWrapModeFromID(n);
-					ImGui::SetItemDefaultFocus();
+					wrapRCurrentItem = n;
 				}
+
+				if (is_selected)
+					ImGui::SetItemDefaultFocus();
 			}
 			ImGui::EndCombo();
 		}
@@ -523,13 +526,13 @@ namespace LinaEditor
 			{
 				const bool is_selected = (wrapTCurrentItem == n);
 				if (ImGui::Selectable(wrapModes[n], is_selected))
-					wrapTCurrentItem = n;
-
-				if (is_selected)
 				{
 					selectedWrapS = GetWrapModeFromID(n);
-					ImGui::SetItemDefaultFocus();
+					wrapTCurrentItem = n;
 				}
+
+				if (is_selected)
+					ImGui::SetItemDefaultFocus();
 			}
 			ImGui::EndCombo();
 		}
@@ -544,11 +547,16 @@ namespace LinaEditor
 			params.textureParams.wrapR = selectedWrapR;
 			params.textureParams.wrapS = selectedWrapS;
 			params.textureParams.wrapT = selectedWrapT;
-			m_SelectedTexture->GetSampler().UpdateSettings(params);
+			m_RenderEngine->UnloadTextureResource(m_SelectedTextureID);
+			m_SelectedTexture = &m_RenderEngine->CreateTexture2D(m_SelectedTextureID, m_SelectedTexturePath, params);
 		}
 
 		// Setup data for drawing texture.
 		float currentWindowX = ImGui::GetCurrentWindow()->Size.x;
+
+		if (currentWindowX > TEXTUREPREVIEW_MAX_WIDTH)
+			currentWindowX = TEXTUREPREVIEW_MAX_WIDTH;
+
 		float currentWindowY = ImGui::GetCurrentWindow()->Size.y;
 		Vector2 textureSize = m_SelectedTexture->GetSize();
 		float textureAspect = textureSize.x / textureSize.y;
