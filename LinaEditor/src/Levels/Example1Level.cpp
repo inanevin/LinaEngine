@@ -65,22 +65,22 @@ void Example1Level::Install()
 
 void CreateSingleColorSkybox(RenderEngine* renderEngine)
 {
-	Material& mat = renderEngine->CreateMaterial("skyboxMaterialS", Shaders::SKYBOX_SINGLECOLOR);
+	Material& mat = renderEngine->CreateMaterial(-6, Shaders::SKYBOX_SINGLECOLOR);
 	mat.SetColor("material.color", Color::Red);
 	renderEngine->SetSkyboxMaterial(mat);
 }
 
 void CreateGradientSkybox(RenderEngine* renderEngine)
 {
-	renderEngine->CreateMaterial("skyboxMaterialG", Shaders::SKYBOX_GRADIENT);
-	renderEngine->GetMaterial("skyboxMaterialG").SetColor("material.startColor", Color::Green);
-	renderEngine->GetMaterial("skyboxMaterialG").SetColor("material.endColor", Color::White);
-	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial("skyboxMaterialG"));
+	renderEngine->CreateMaterial(-4, Shaders::SKYBOX_GRADIENT);
+	renderEngine->GetMaterial(-4).SetColor("material.startColor", Color::Green);
+	renderEngine->GetMaterial(-4).SetColor("material.endColor", Color::White);
+	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial(-4));
 }
 
 void CreateProceduralSkybox(RenderEngine* renderEngine)
 {
-	Material& mat = renderEngine->CreateMaterial("skyboxMaterialP", Shaders::SKYBOX_PROCEDURAL);
+	Material& mat = renderEngine->CreateMaterial(-1, Shaders::SKYBOX_PROCEDURAL);
 	mat.SetColor("material.startColor", Color::White);
 	mat.SetColor("material.endColor", Color(0.2f, 0.2f, 0.2f));
 	mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
@@ -89,7 +89,7 @@ void CreateProceduralSkybox(RenderEngine* renderEngine)
 
 void CreateCubemapSkybox(RenderEngine* renderEngine)
 {
-	Material& mat = renderEngine->CreateMaterial("skyboxMaterialC", Shaders::SKYBOX_CUBEMAP);
+	Material& mat = renderEngine->CreateMaterial(-2, Shaders::SKYBOX_CUBEMAP);
 
 	const std::string fp[6] = {
 		"resources/textures/defaultSkybox/right.png",
@@ -113,7 +113,7 @@ void CreateHDRISkybox(RenderEngine* renderEngine)
 {
 	Texture* hdri = &renderEngine->CreateTextureHDRI(0, "resources/textures/HDRI/canyon3K.hdr");
 	renderEngine->CaptureCalculateHDRI(*hdri);
-	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_HDRI);
+	Material& mat = renderEngine->CreateMaterial(-5, Shaders::SKYBOX_HDRI);
 	mat.SetTexture(MAT_MAP_ENVIRONMENT, &renderEngine->GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
@@ -211,7 +211,7 @@ void Example1Level::Initialize()
 //	Mesh& helmetMesh = m_RenderEngine->CreateMesh("resources/meshes/glock.fbx");
 //	Mesh& roadMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
 	// Create material for example mesh.
-	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
+	objectUnlitMaterial = &m_RenderEngine->CreateMaterial(-7, Shaders::STANDARD_UNLIT);
 
 
 	int nrRows = 7;
@@ -221,7 +221,7 @@ void Example1Level::Initialize()
 
 
 
-	sphereMat = &m_RenderEngine->CreateMaterial("sp", Shaders::PBR_LIT);
+	sphereMat = &m_RenderEngine->CreateMaterial(-8, Shaders::PBR_LIT);
 //sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoSphere);
 //sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalSphere);
 //sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);

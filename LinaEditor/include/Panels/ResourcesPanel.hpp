@@ -86,11 +86,14 @@ namespace LinaEditor
 
 	private:
 	
+
 		void DrawContent();
 		void ScanRoot();
 		void ScanFolder(EditorFolder& folder);
 		void DrawFolder(EditorFolder& folder);
 		void LoadFolderResources(EditorFolder& folder);
+		void UnloadFileResource(EditorFile& file);
+		void UnloadFileResourcesInFolder(EditorFolder& folder);
 		FileType GetFileType(std::string& extension);
 
 	private:

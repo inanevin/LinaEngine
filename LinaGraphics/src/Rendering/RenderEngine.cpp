@@ -545,19 +545,19 @@ namespace LinaEngine::Graphics
 		m_LoadedMeshes.erase(id);
 	}
 
-	void RenderEngine::UnloadMaterialResource(const std::string& materialName)
+	void RenderEngine::UnloadMaterialResource(int id)
 	{
-		if (!MaterialExists(materialName))
+		if (!MaterialExists(id))
 		{
 			LINA_CORE_ERR("Material not found! Aborting... ");
 			return;
 		}
 
 		// If its in the internal list, remove first.
-		if (m_ShadowMappedMaterials.find(&m_LoadedMaterials[materialName]) != m_ShadowMappedMaterials.end())
-			m_ShadowMappedMaterials.erase(&m_LoadedMaterials[materialName]);
+		if (m_ShadowMappedMaterials.find(&m_LoadedMaterials[id]) != m_ShadowMappedMaterials.end())
+			m_ShadowMappedMaterials.erase(&m_LoadedMaterials[id]);
 
-		m_LoadedMaterials.erase(materialName);
+		m_LoadedMaterials.erase(id);
 	}
 
 	bool RenderEngine::MaterialExists(int id)

@@ -103,10 +103,8 @@ namespace LinaEditor
 				// Create a material.
 				if (ImGui::MenuItem("Material"))
 				{
-					std::string name = "/NewMaterial" + std::to_string(++itemIDCounter) + ".mat";
-					std::string materialPath = rootPath + name;
-					Graphics::Material& m = m_RenderEngine->CreateMaterial(name, Graphics::Shaders::PBR_LIT);
-					EditorUtility::SerializeMaterial(materialPath, m);		
+					std::string name = "NewMaterial" + std::to_string(++itemIDCounter) + ".mat";
+					std::string materialPath = rootPath + "/" + name;
 					
 					EditorFile file;
 					file.path = materialPath;
@@ -114,6 +112,10 @@ namespace LinaEditor
 					file.extension = "mat";
 					file.type = FileType::MATERIAL;
 					file.id = ++itemIDCounter;
+
+					Graphics::Material& m = m_RenderEngine->CreateMaterial(file.id, Graphics::Shaders::PBR_LIT);
+					EditorUtility::SerializeMaterial(materialPath, m);
+
 
 					if (hoveredFolder != nullptr)
 						hoveredFolder->files[file.id] = file;
@@ -191,9 +193,15 @@ namespace LinaEditor
 		{
 			if (it->second.markedForErase)
 			{
+				// Delete directory.
 				EditorUtility::DeleteDirectory(it->second.path);
+
+				// Nullout reference.
 				if (hoveredFolder == &it->second)
 					hoveredFolder = nullptr;
+
+				// Unload the contained resources & erase.
+				UnloadFileResourcesInFolder(it->second);
 				folder.subFolders.erase(it++);
 				continue;
 			}
@@ -201,6 +209,7 @@ namespace LinaEditor
 			ImGuiTreeNodeFlags folderFlags = (it->second).id == selectedItem ? folderFlagsSelected : folderFlagsNotSelected;
 			bool nodeOpen = ImGui::TreeNodeEx((it->second).name.c_str(), folderFlags);
 
+			// Click
 			if (ImGui::IsItemClicked())
 			{
 				selectedItem = (it->second).id;
@@ -208,6 +217,7 @@ namespace LinaEditor
 				selectedFolder = &(it->second);
 			}
 
+			// Hover.
 			if (ImGui::IsWindowHovered() && ImGui::IsItemHovered())
 				hoveredFolder = &(it->second);
 
@@ -225,7 +235,11 @@ namespace LinaEditor
 		{
 			if (it->second.markedForErase)
 			{
+				// Delete directory.
 				EditorUtility::DeleteDirectory(it->second.path);
+
+				// Unload the resources & erase.
+				UnloadFileResource(it->second);
 				folder.files.erase(it++);
 				continue;
 			}
@@ -233,6 +247,7 @@ namespace LinaEditor
 			ImGuiTreeNodeFlags fileFlags = it->second.id == selectedItem ? fileNodeFlagsSelected : fileNodeFlagsNotSelected;
 			bool nodeOpen = ImGui::TreeNodeEx(it->second.name.c_str(), fileFlags);
 
+			// Click.
 			if (ImGui::IsItemClicked())
 			{
 				selectedItem = it->second.id;
@@ -260,6 +275,7 @@ namespace LinaEditor
 			selectedItem = -1;
 		}
 
+		// Delete item.
 		if (ImGui::IsKeyPressed(Input::InputCode::Delete) && selectedItem != -1)
 		{
 			if (selectedFolder != nullptr)
@@ -291,6 +307,22 @@ namespace LinaEditor
 		// Recursively load subfolders.
 		for (std::map<int, EditorFolder>::iterator it = folder.subFolders.begin(); it != folder.subFolders.end(); ++it)
 			LoadFolderResources(it->second);
+	}
+
+	void ResourcesPanel::UnloadFileResource(EditorFile& file)
+	{
+		if (file.type == FileType::TEXTURE2D)
+			m_RenderEngine->UnloadTextureResource(file.id);
+		else if (file.type == FileType::MESH)
+			m_RenderEngine->UnloadMeshResource(file.id);
+		else if (file.type == FileType::MATERIAL)
+			m_RenderEngine->UnloadMaterialResource(file.id);
+	}
+
+	void ResourcesPanel::UnloadFileResourcesInFolder(EditorFolder& folder)
+	{
+		for (std::map<int, EditorFile>::iterator it = folder.files.begin(); it != folder.files.end(); ++it)
+			UnloadFileResource(it->second);
 	}
 
 	FileType ResourcesPanel::GetFileType(std::string& extension)

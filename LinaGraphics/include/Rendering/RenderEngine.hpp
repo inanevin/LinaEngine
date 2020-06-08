@@ -160,7 +160,7 @@ namespace LinaEngine::Graphics
 		void UnloadMeshResource(int id);
 
 		// Removes the targeted resource from resource map.
-		void UnloadMaterialResource(const std::string& materialName);
+		void UnloadMaterialResource(int id);
 
 		// Returns whether a material/texture/mesh/shader exists or not.
 		bool MaterialExists(int id);
