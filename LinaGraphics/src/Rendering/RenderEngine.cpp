@@ -269,19 +269,19 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	Mesh& RenderEngine::CreateMesh(const std::string& filePath)
+	Mesh& RenderEngine::CreateMesh(int id, const std::string& filePath, MeshParameters meshParams)
 	{
-		if (!MeshExists(filePath))
+		if (!MeshExists(id))
 		{
 
 			// Create object data & feed it from model.
-			Mesh& mesh = m_LoadedMeshes[filePath];
-			m_ModelLoader.LoadModel(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs());
+			Mesh& mesh = m_LoadedMeshes[id];
+			m_ModelLoader.LoadModel(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs(), meshParams);
 
 			if (mesh.GetIndexedModels().size() == 0)
 			{
 				LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad...", filePath);
-				UnloadMeshResource(filePath);
+				UnloadMeshResource(id);
 				return GetPrimitive(Primitives::PLANE);
 			}
 
@@ -294,13 +294,13 @@ namespace LinaEngine::Graphics
 			}
 
 			// Return
-			return m_LoadedMeshes[filePath];
+			return m_LoadedMeshes[id];
 		}
 		else
 		{
 			// Mesh with this name already exists!
 			LINA_CORE_ERR("Mesh with the name {0} already exists, returning that...", filePath);
-			return m_LoadedMeshes[filePath];
+			return m_LoadedMeshes[id];
 		}
 
 	}
@@ -313,7 +313,7 @@ namespace LinaEngine::Graphics
 			// Create object data & feed it from model.
 			Mesh& mesh = m_LoadedPrimitives[primitive];
 
-			m_ModelLoader.LoadModel(path, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs());
+			m_ModelLoader.LoadModel(path, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs(), MeshParameters());
 
 			if (mesh.GetIndexedModels().size() == 0)
 			{
@@ -381,16 +381,16 @@ namespace LinaEngine::Graphics
 		return m_LoadedTextures[id];
 	}
 
-	Mesh& RenderEngine::GetMesh(const std::string& meshName)
+	Mesh& RenderEngine::GetMesh(int id)
 	{
-		if (!MeshExists(meshName))
+		if (!MeshExists(id))
 		{
 			// Mesh not found.
-			LINA_CORE_ERR("Mesh with the name {0} was not found, returning un-constructed mesh...", meshName);
+			LINA_CORE_ERR("Mesh with the id {0} was not found, returning un-constructed mesh...", id);
 			return Mesh();
 		}
 
-		return m_LoadedMeshes[meshName];
+		return m_LoadedMeshes[id];
 	}
 
 	Shader& RenderEngine::GetShader(Shaders shader)
@@ -533,15 +533,15 @@ namespace LinaEngine::Graphics
 		m_LoadedTextures.erase(id);
 	}
 
-	void RenderEngine::UnloadMeshResource(const std::string& meshName)
+	void RenderEngine::UnloadMeshResource(int id)
 	{
-		if (!MeshExists(meshName))
+		if (!MeshExists(id))
 		{
 			LINA_CORE_ERR("Mesh not found! Aborting... ");
 			return;
 		}
 
-		m_LoadedMeshes.erase(meshName);
+		m_LoadedMeshes.erase(id);
 	}
 
 	void RenderEngine::UnloadMaterialResource(const std::string& materialName)
@@ -569,9 +569,9 @@ namespace LinaEngine::Graphics
 		return !(m_LoadedTextures.find(id) == m_LoadedTextures.end());
 	}
 
-	bool RenderEngine::MeshExists(const std::string& meshName)
+	bool RenderEngine::MeshExists(int id)
 	{
-		return !(m_LoadedMeshes.find(meshName) == m_LoadedMeshes.end());
+		return !(m_LoadedMeshes.find(id) == m_LoadedMeshes.end());
 	}
 
 	bool RenderEngine::ShaderExists(Shaders shader)

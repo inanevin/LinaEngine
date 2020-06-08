@@ -251,6 +251,13 @@ namespace LinaEngine::Graphics
 		CYLINDER = 5
 	};
 
+	struct MeshParameters
+	{
+		bool triangulate;
+		bool smoothNormals;
+		bool calculateTangentSpace;
+	};
+
 	struct TextureParameters
 	{
 		PixelFormat pixelFormat = PixelFormat::FORMAT_RGBA;

@@ -24,11 +24,21 @@ Timestamp: 4/26/2019 12:11:04 AM
 
 namespace LinaEngine::Graphics
 {
-	bool ModelLoader::LoadModel(const std::string& fileName, LinaArray<IndexedModel>& models, LinaArray<uint32>& modelMaterialIndices, LinaArray<ModelMaterial>& materials)
+	bool ModelLoader::LoadModel(const std::string& fileName, LinaArray<IndexedModel>& models, LinaArray<uint32>& modelMaterialIndices, LinaArray<ModelMaterial>& materials, MeshParameters meshParams)
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(fileName.c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals  | aiProcess_CalcTangentSpace);
+		unsigned int importFlags;
+		if (meshParams.calculateTangentSpace)
+			importFlags |= aiProcess_CalcTangentSpace;
+
+		if (meshParams.triangulate)
+			importFlags |= aiProcess_Triangulate;
+
+		if (meshParams.smoothNormals)
+			importFlags |= aiProcess_GenSmoothNormals;
+
+		const aiScene* scene = importer.ReadFile(fileName.c_str(), importFlags);
 		// | aiProcess_FlipUVs
 		if (!scene)
 		{
