@@ -81,6 +81,7 @@ namespace LinaEditor
 		{
 			if (ImGui::BeginMenu("Create"))
 			{
+				// Create a folder.
 				if (ImGui::MenuItem("Folder"))
 				{
 					std::string folderPath = rootPath + "/NewFolder"+ std::to_string(++itemIDCounter);
@@ -95,19 +96,31 @@ namespace LinaEditor
 					else
 						m_ResourceFolders[0].subFolders[folder.id] = folder;
 
-					//ReadProjectContentsFolder();
 				}
 
 				ImGui::Separator();
 
+				// Create a material.
 				if (ImGui::MenuItem("Material"))
 				{
 					std::string name = "/NewMaterial" + std::to_string(++itemIDCounter) + ".mat";
 					std::string materialPath = rootPath + name;
 					Graphics::Material& m = m_RenderEngine->CreateMaterial(name, Graphics::Shaders::PBR_LIT);
 					EditorUtility::SerializeMaterial(materialPath, m);		
-				
+					
+					EditorFile file;
+					file.path = materialPath;
+					file.name = name;
+					file.extension = "mat";
+					file.type = FileType::MATERIAL;
+					file.id = ++itemIDCounter;
+
+					if (hoveredFolder != nullptr)
+						hoveredFolder->files[file.id] = file;
+					else
+						m_ResourceFolders[0].files[file.id] = file;
 				}
+
 				ImGui::EndMenu();
 			}
 

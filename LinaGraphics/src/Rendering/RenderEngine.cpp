@@ -176,18 +176,18 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.ResizeRenderBuffer(m_PrimaryRenderTarget.GetID(), m_PrimaryRenderBuffer.GetID(), windowSize, RenderBufferStorage::STORAGE_DEPTH);
 	}
 
-	Material& RenderEngine::CreateMaterial(const std::string& materialName, Shaders shader)
+	Material& RenderEngine::CreateMaterial(int id, Shaders shader)
 	{
-		if (!MaterialExists(materialName))
+		if (!MaterialExists(id))
 		{
 			// Create material & set it's shader.
-			return SetMaterialShader(m_LoadedMaterials[materialName], shader);
+			return SetMaterialShader(m_LoadedMaterials[id], shader);
 		}
 		else
 		{
 			// Abort if material exists.
-			LINA_CORE_ERR("Material with the name {0} already exists, returning that...", materialName);
-			return m_LoadedMaterials[materialName];
+			LINA_CORE_ERR("Material with the id {0} already exists, returning that...", id);
+			return m_LoadedMaterials[id];
 		}
 	}
 
@@ -358,16 +358,16 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	Material& RenderEngine::GetMaterial(const std::string& materialName)
+	Material& RenderEngine::GetMaterial(int id)
 	{
-		if (!MaterialExists(materialName))
+		if (!MaterialExists(id))
 		{
 			// Mesh not found.
-			LINA_CORE_ERR("Material with the name {0} was not found, returning un-constructed material...", materialName);
+			LINA_CORE_ERR("Material with the id {0} was not found, returning un-constructed material...", id);
 			return Material();
 		}
 
-		return m_LoadedMaterials[materialName];
+		return m_LoadedMaterials[id];
 	}
 
 	Texture& RenderEngine::GetTexture(int id)
@@ -560,9 +560,9 @@ namespace LinaEngine::Graphics
 		m_LoadedMaterials.erase(materialName);
 	}
 
-	bool RenderEngine::MaterialExists(const std::string& materialName)
+	bool RenderEngine::MaterialExists(int id)
 	{
-		return !(m_LoadedMaterials.find(materialName) == m_LoadedMaterials.end());
+		return !(m_LoadedMaterials.find(id) == m_LoadedMaterials.end());
 	}
 
 	bool RenderEngine::TextureExists(int id)

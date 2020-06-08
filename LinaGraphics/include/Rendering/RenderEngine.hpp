@@ -121,7 +121,7 @@ namespace LinaEngine::Graphics
 		void OnWindowResized(float width, float height);
 
 		/// <summary> Creates a material resource with a specific shader. </summary>
-		Material& CreateMaterial(const std::string& materialName, Shaders shader);
+		Material& CreateMaterial(int id, Shaders shader);
 
 		/// <summary> Creates a texture resource. </summary>
 		Texture& CreateTexture2D(int id, const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false);
@@ -139,7 +139,7 @@ namespace LinaEngine::Graphics
 		Shader& CreateShader(Shaders shader, const std::string& path, bool usesGeometryShader = false);
 
 		// Returns a material resource.
-		Material& GetMaterial(const std::string& materialName);
+		Material& GetMaterial(int id);
 
 		// Returns a texture resource
 		Texture& GetTexture(int id);
@@ -163,7 +163,7 @@ namespace LinaEngine::Graphics
 		void UnloadMaterialResource(const std::string& materialName);
 
 		// Returns whether a material/texture/mesh/shader exists or not.
-		bool MaterialExists(const std::string& materialName);
+		bool MaterialExists(int id);
 		bool TextureExists(int id);
 		bool MeshExists(int id);
 		bool ShaderExists(Shaders shader);
@@ -359,7 +359,7 @@ namespace LinaEngine::Graphics
 		std::map<int, Mesh> m_LoadedPrimitives;
 
 		// Material storage
-		std::map<std::string, Material> m_LoadedMaterials;
+		std::map<int, Material> m_LoadedMaterials;
 
 		// Map that stores shader ID's by name
 		std::map<int, Shader> m_LoadedShaders;

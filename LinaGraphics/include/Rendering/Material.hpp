@@ -151,7 +151,7 @@ namespace LinaEngine::Graphics
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(usesHDRI, receivesLighting, isShadowMapped); // serialize things by passing them to the archive
+			archive(usesHDRI, receivesLighting, isShadowMapped, m_ShaderType, m_SurfaceType);
 		}
 
 	private:
