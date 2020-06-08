@@ -116,7 +116,6 @@ namespace LinaEditor
 					Graphics::Material& m = m_RenderEngine->CreateMaterial(file.id, Graphics::Shaders::PBR_LIT);
 					EditorUtility::SerializeMaterial(materialPath, m);
 
-
 					if (hoveredFolder != nullptr)
 						hoveredFolder->files[file.id] = file;
 					else
@@ -259,6 +258,8 @@ namespace LinaEditor
 					m_PropertiesPanel->Texture2DSelected(&m_RenderEngine->GetTexture(it->second.id), it->second.id, it->second.path);
 				else if (it->second.type == FileType::MESH)
 					m_PropertiesPanel->MeshSelected(&m_RenderEngine->GetMesh(it->second.id), it->second.id, it->second.path);
+				else if (it->second.type == FileType::MATERIAL)
+					m_PropertiesPanel->MaterialSelected(&m_RenderEngine->GetMaterial(it->second.id), it->second.id, it->second.path);
 			}
 
 			if (nodeOpen)

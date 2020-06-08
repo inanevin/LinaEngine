@@ -23,6 +23,7 @@ Timestamp: 6/7/2020 5:13:42 PM
 #include "Core/GUILayer.hpp"
 #include "Rendering/Texture.hpp"
 #include "Rendering/Sampler.hpp"
+#include "Rendering/Material.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
@@ -111,7 +112,7 @@ namespace LinaEditor
 	{
 		if (m_CurrentDrawType != DrawType::NONE)
 		{
-			if (m_SelectedEntity == entt::null && m_SelectedTexture == nullptr && m_SelectedMesh == nullptr)
+			if (m_SelectedEntity == entt::null && m_SelectedTexture == nullptr && m_SelectedMesh == nullptr && m_SelectedMaterial == nullptr)
 				m_CurrentDrawType = DrawType::NONE;
 		}
 
@@ -143,6 +144,8 @@ namespace LinaEditor
 					DrawTextureProperties();
 				else if (m_CurrentDrawType == DrawType::MESH)
 					DrawMeshProperties();
+				else if (m_CurrentDrawType == DrawType::MATERIAL)
+					DrawMaterialProperties();
 			}
 
 			ImGui::End();
@@ -669,5 +672,9 @@ namespace LinaEditor
 			m_RenderEngine->UnloadMeshResource(m_SelectedMeshID);
 			m_SelectedMesh = &m_RenderEngine->CreateMesh(m_SelectedMeshID, m_SelectedMeshPath, params);
 		}
+	}
+	void PropertiesPanel::DrawMaterialProperties()
+	{
+		ImGui::Text("test");
 	}
 }

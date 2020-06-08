@@ -35,6 +35,7 @@ namespace LinaEngine
 		class RenderEngine;
 		class Mesh;
 		class Texture;
+		class Material;
 	}
 }
 
@@ -80,11 +81,20 @@ namespace LinaEditor
 			m_CurrentMeshParams = params;
 		}
 
+		FORCEINLINE void MaterialSelected(LinaEngine::Graphics::Material* material, int id, std::string& path)
+		{
+			m_SelectedMaterial = material;
+			m_SelectedMaterialID = id;
+			m_SelectedMaterialPath = path;
+			m_CurrentDrawType = DrawType::MATERIAL;
+		}
+
 		FORCEINLINE void Unselect()
 		{
 			m_SelectedEntity = entt::null;
 			m_SelectedTexture = nullptr;
 			m_SelectedMesh = nullptr;
+			m_SelectedMaterial = nullptr;
 			m_CurrentDrawType = DrawType::NONE;
 		}
 
@@ -104,6 +114,9 @@ namespace LinaEditor
 
 		// Drawing Meshes
 		void DrawMeshProperties();
+
+		// Drawing materials
+		void DrawMaterialProperties();
 
 	private:
 
@@ -126,6 +139,11 @@ namespace LinaEditor
 		int m_SelectedMeshID;
 		std::string m_SelectedMeshPath;
 		Graphics::MeshParameters m_CurrentMeshParams;
+
+		// Selected material
+		class LinaEngine::Graphics::Material* m_SelectedMaterial;
+		int m_SelectedMaterialID;
+		std::string m_SelectedMaterialPath;
 
 		class LinaEngine::Graphics::RenderEngine* m_RenderEngine;
 		LinaEngine::ECS::ECSRegistry* m_ECS;
