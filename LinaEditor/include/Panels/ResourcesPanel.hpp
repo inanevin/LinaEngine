@@ -55,6 +55,7 @@ namespace LinaEditor
 		std::string path;
 		FileType type;
 		int id;
+		bool markedForErase = false;
 	};
 
 

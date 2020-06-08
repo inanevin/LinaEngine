@@ -35,9 +35,7 @@ namespace LinaEditor
 	static int selectedItem = -1;
 	static EditorFolder* hoveredFolder;
 	static EditorFile* selectedFile;
-	static EditorFolder* selectedFileParent;
 	static EditorFolder* selectedFolder;
-	static EditorFolder* selectedFolderParent;
 
 	void ResourcesPanel::Draw()
 	{
@@ -184,9 +182,7 @@ namespace LinaEditor
 			{
 				selectedItem = (it->second).id;
 				selectedFile = nullptr;
-				selectedFileParent = nullptr;
 				selectedFolder = &(it->second);
-				selectedFolderParent = &folder;
 			}
 
 			if (ImGui::IsWindowHovered() && ImGui::IsItemHovered())
@@ -202,8 +198,15 @@ namespace LinaEditor
 		}
 
 		// Draw files.
-		for (std::map<int, EditorFile>::iterator it = folder.files.begin(); it != folder.files.end(); ++it)
+		for (std::map<int, EditorFile>::iterator it = folder.files.begin(); it != folder.files.end();)
 		{
+			if (it->second.markedForErase)
+			{
+				EditorUtility::DeleteDirectory(it->second.path);
+				folder.files.erase(it++);
+				continue;
+			}
+
 			ImGuiTreeNodeFlags fileFlags = it->second.id == selectedItem ? fileNodeFlagsSelected : fileNodeFlagsNotSelected;
 			bool nodeOpen = ImGui::TreeNodeEx(it->second.name.c_str(), fileFlags);
 
@@ -211,9 +214,7 @@ namespace LinaEditor
 			{
 				selectedItem = it->second.id;
 				selectedFolder = nullptr;
-				selectedFolderParent = nullptr;
 				selectedFile = &it->second;
-				selectedFileParent = &folder;
 
 				// Notify properties panel of file selection.
 				if (it->second.type == FileType::TEXTURE2D)
@@ -224,6 +225,8 @@ namespace LinaEditor
 
 			if (nodeOpen)
 				ImGui::TreePop();
+			++it;
+
 		}
 
 
@@ -237,13 +240,9 @@ namespace LinaEditor
 		if (ImGui::IsKeyPressed(Input::InputCode::Delete) && selectedItem != -1)
 		{
 			if (selectedFolder != nullptr)
-			{
 				selectedFolder->markedForErase = true;
-				//std::string path = selectedFolder->path;
-				//selectedFolderParent->subFolders.erase(selectedFolder->id);
-				
-				
-			}
+			if (selectedFile != nullptr)
+				selectedFile->markedForErase = true;
 			// Deselect
 			m_PropertiesPanel->Unselect();
 			selectedItem = -1;
