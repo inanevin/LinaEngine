@@ -65,6 +65,7 @@ namespace LinaEngine::World
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
 		LinaEngine::Input::InputEngine* m_InputEngine = nullptr;
 
+		std::vector<ECSEntity> m_LevelEntities;
 
 	private:
 

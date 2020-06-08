@@ -34,7 +34,6 @@ Timestamp: 6/5/2020 12:55:10 AM
 namespace LinaEditor
 {
 
-
 	static int itemIDCounter = 0;
 	static int selectedItem = -1;
 	static EditorFolder* hoveredFolder;

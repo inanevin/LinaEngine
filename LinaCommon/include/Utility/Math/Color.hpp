@@ -47,6 +47,12 @@ namespace LinaEngine
 			return (r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a);
 		}
 
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(r,g,b,a);
+		}
+
 		static Color Red;
 		static Color Green;
 		static Color LightBlue;
