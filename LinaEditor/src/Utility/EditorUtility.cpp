@@ -65,6 +65,12 @@ namespace LinaEditor
 		return true;*/
 	}
 
+	bool EditorUtility::DeleteDirectory(const std::string& path)
+	{
+		std::filesystem::remove_all(path);
+		return false;
+	}
+
 	void EditorUtility::ColorButton(LinaEngine::Vector4 col)
 	{
 		ImVec4 color = ImVec4(col.x, col.y, col.z, col.w);

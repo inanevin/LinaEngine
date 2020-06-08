@@ -22,6 +22,7 @@ Timestamp: 6/5/2020 12:55:10 AM
 #include "Core/GUILayer.hpp"
 #include "Panels/PropertiesPanel.hpp"
 #include "Rendering/RenderEngine.hpp"
+#include "Input/InputMappings.hpp"
 #include "imgui.h"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 #include "imgui_impl_glfw.h"
@@ -32,7 +33,11 @@ namespace LinaEditor
 {
 	static int itemIDCounter = 0;
 	static int selectedItem = -1;
-	static ResourcesPanel::EditorFolder* hoveredFolder;
+	static EditorFolder* hoveredFolder;
+	static EditorFile* selectedFile;
+	static EditorFolder* selectedFileParent;
+	static EditorFolder* selectedFolder;
+	static EditorFolder* selectedFolderParent;
 
 	void ResourcesPanel::Draw()
 	{
@@ -84,9 +89,9 @@ namespace LinaEditor
 					folder.id = itemIDCounter;
 					
 					if (hoveredFolder != nullptr)
-						hoveredFolder->subFolders.push_back(folder);
+						hoveredFolder->subFolders[folder.id] = folder;
 					else
-						m_ResourceFolders[0].subFolders.push_back(folder);
+						m_ResourceFolders[0].subFolders[folder.id] = folder;
 
 					//ReadProjectContentsFolder();
 				}
@@ -117,7 +122,7 @@ namespace LinaEditor
 		std::string path = "resources";
 		ScanFolder(m_ResourceFolders[0]);
 
-		// Load resources
+		// Load resources	
 		LoadFolderResources(m_ResourceFolders[0]);
 	}
 
@@ -136,7 +141,7 @@ namespace LinaEditor
 				file.id = ++itemIDCounter;
 
 				// Add to the folder data.
-				root.files.push_back(file);
+				root.files[file.id] = file;
 			}
 			else
 			{
@@ -147,10 +152,10 @@ namespace LinaEditor
 				folder.id = ++itemIDCounter;
 
 				// Add to the sub folders.
-				root.subFolders.push_back(folder);
+				root.subFolders[folder.id] = folder;
 
 				// Iterate recursively.
-				ScanFolder(root.subFolders.back());
+				ScanFolder(root.subFolders[folder.id]);
 			}
 		}
 	}
@@ -163,49 +168,86 @@ namespace LinaEditor
 		static ImGuiTreeNodeFlags fileNodeFlagsSelected = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Selected;
 
 		// Draw folders.
-		for (int i = 0; i < folder.subFolders.size(); i++)
+		for (std::map<int, EditorFolder>::iterator it = folder.subFolders.begin(); it != folder.subFolders.end();)
 		{
-			ImGuiTreeNodeFlags folderFlags = folder.subFolders[i].id == selectedItem ? folderFlagsSelected : folderFlagsNotSelected;
-			bool nodeOpen = ImGui::TreeNodeEx(folder.subFolders[i].name.c_str(), folderFlags);
+			if (it->second.markedForErase)
+			{
+				EditorUtility::DeleteDirectory(it->second.path);
+				folder.subFolders.erase(it++);
+				continue;
+			}
+			
+			ImGuiTreeNodeFlags folderFlags = (it->second).id == selectedItem ? folderFlagsSelected : folderFlagsNotSelected;
+			bool nodeOpen = ImGui::TreeNodeEx((it->second).name.c_str(), folderFlags);
 
 			if (ImGui::IsItemClicked())
-				selectedItem = folder.subFolders[i].id;
+			{
+				selectedItem = (it->second).id;
+				selectedFile = nullptr;
+				selectedFileParent = nullptr;
+				selectedFolder = &(it->second);
+				selectedFolderParent = &folder;
+			}
 
 			if (ImGui::IsWindowHovered() && ImGui::IsItemHovered())
-				hoveredFolder = &folder.subFolders[i];
+				hoveredFolder = &(it->second);
 
 			if (nodeOpen)
 			{
-				DrawFolder(folder.subFolders[i]);
+				DrawFolder(it->second);
 				ImGui::TreePop();
 			}
+			++it;
 
 		}
 
 		// Draw files.
-		for (int i = 0; i < folder.files.size(); i++)
+		for (std::map<int, EditorFile>::iterator it = folder.files.begin(); it != folder.files.end(); ++it)
 		{
-			ImGuiTreeNodeFlags fileFlags = folder.files[i].id == selectedItem ? fileNodeFlagsSelected : fileNodeFlagsNotSelected;
-			bool nodeOpen = ImGui::TreeNodeEx(folder.files[i].name.c_str(), fileFlags);
+			ImGuiTreeNodeFlags fileFlags = it->second.id == selectedItem ? fileNodeFlagsSelected : fileNodeFlagsNotSelected;
+			bool nodeOpen = ImGui::TreeNodeEx(it->second.name.c_str(), fileFlags);
 
 			if (ImGui::IsItemClicked())
 			{
-				selectedItem = folder.files[i].id;
-				
+				selectedItem = it->second.id;
+				selectedFolder = nullptr;
+				selectedFolderParent = nullptr;
+				selectedFile = &it->second;
+				selectedFileParent = &folder;
+
 				// Notify properties panel of file selection.
-				if (folder.files[i].type == FileType::TEXTURE2D)
-					m_PropertiesPanel->Texture2DSelected(&m_RenderEngine->GetTexture(folder.files[i].id), folder.files[i].id, folder.files[i].path);
-				else if (folder.files[i].type == FileType::MESH)
-					m_PropertiesPanel->MeshSelected(&m_RenderEngine->GetMesh(folder.files[i].id), folder.files[i].id, folder.files[i].path);
+				if (it->second.type == FileType::TEXTURE2D)
+					m_PropertiesPanel->Texture2DSelected(&m_RenderEngine->GetTexture(it->second.id), it->second.id, it->second.path);
+				else if (it->second.type == FileType::MESH)
+					m_PropertiesPanel->MeshSelected(&m_RenderEngine->GetMesh(it->second.id), it->second.id, it->second.path);
 			}
 
 			if (nodeOpen)
 				ImGui::TreePop();
 		}
 
+
 		// Deselect.
 		if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+		{
 			m_PropertiesPanel->Unselect();
+			selectedItem = -1;
+		}
+
+		if (ImGui::IsKeyPressed(Input::InputCode::Delete) && selectedItem != -1)
+		{
+			if (selectedFolder != nullptr)
+			{
+				selectedFolder->markedForErase = true;
+				//std::string path = selectedFolder->path;
+				//selectedFolderParent->subFolders.erase(selectedFolder->id);
+				
+				
+			}
+			// Deselect
+			m_PropertiesPanel->Unselect();
+			selectedItem = -1;
+		}
 
 		if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered())
 			hoveredFolder = nullptr;
@@ -214,9 +256,9 @@ namespace LinaEditor
 	void ResourcesPanel::LoadFolderResources(EditorFolder& folder)
 	{
 		// Load files.
-		for (int i = 0; i < folder.files.size(); i++)
+		for (std::map<int, EditorFile>::iterator it = folder.files.begin(); it != folder.files.end(); ++it)
 		{
-			EditorFile& file = folder.files[i];
+			EditorFile& file = it->second;
 
 			if (file.type == FileType::TEXTURE2D)
 				m_RenderEngine->CreateTexture2D(file.id, file.path);
@@ -225,11 +267,11 @@ namespace LinaEditor
 		}
 
 		// Recursively load subfolders.
-		for (int i = 0; i < folder.subFolders.size(); i++)
-			LoadFolderResources(folder.subFolders[i]);
+		for (std::map<int, EditorFolder>::iterator it = folder.subFolders.begin(); it != folder.subFolders.end(); ++it)
+			LoadFolderResources(it->second);
 	}
 
-	ResourcesPanel::FileType ResourcesPanel::GetFileType(std::string& extension)
+	FileType ResourcesPanel::GetFileType(std::string& extension)
 	{
 		if (extension.compare("jpg") == 0 || extension.compare("jpeg") == 0 || extension.compare("png") == 0 || extension.compare("tga") == 0)
 			return FileType::TEXTURE2D;

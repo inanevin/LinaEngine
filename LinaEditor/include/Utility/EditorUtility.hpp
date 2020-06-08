@@ -41,6 +41,8 @@ namespace LinaEditor
 		static bool SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size);
 		static bool CreateFolderInPath(const std::string& path);
 		static bool GetDirectories(std::vector<std::string>& vec, const std::string& path);
+		static bool DeleteDirectory(const std::string& path);
+
 	private:
 
 	};
