@@ -103,6 +103,8 @@ namespace LinaEditor
 		m_CurrentWrapS = GetWrapModeID(params.textureParams.wrapS);
 		m_CurrentWrapR = GetWrapModeID(params.textureParams.wrapR);
 		m_CurrentWrapT = GetWrapModeID(params.textureParams.wrapT);
+		m_CurrentAnisotropy = params.anisotropy;
+		m_CurrentGenerateMips = params.textureParams.generateMipMaps;
 	}
 
 	void PropertiesPanel::Draw()
@@ -412,9 +414,6 @@ namespace LinaEditor
 	{
 		Graphics::SamplerParameters& params = m_SelectedTexture->GetSampler().GetSamplerParameters();
 		static ImGuiComboFlags flags = 0;
-
-
-
 		static Graphics::PixelFormat selectedInternalPF = params.textureParams.internalPixelFormat;
 		static Graphics::PixelFormat selectedPF = params.textureParams.pixelFormat;
 		static Graphics::SamplerFilter selectedMinFilter = params.textureParams.minFilter;
@@ -422,7 +421,6 @@ namespace LinaEditor
 		static Graphics::SamplerWrapMode selectedWrapS = params.textureParams.wrapS;
 		static Graphics::SamplerWrapMode selectedWrapR = params.textureParams.wrapR;
 		static Graphics::SamplerWrapMode selectedWrapT = params.textureParams.wrapT;
-
 		const char* internalPFLabel = pixelFormats[m_CurrentInternalPF];
 		const char* pfLabel = pixelFormats[m_CurrentPF];
 		const char* minFilterLabel = samplerFilters[m_CurrentMinFilter];
@@ -432,8 +430,8 @@ namespace LinaEditor
 		const char* wrapTLabel = wrapModes[m_CurrentWrapT];
 
 
-		ImGui::Checkbox("Generate Mipmaps?", &params.textureParams.generateMipMaps);
-		ImGui::DragInt("Anisotropy", &params.anisotropy, 0.05f, 0, 8);
+		ImGui::Checkbox("Generate Mipmaps?", &m_CurrentGenerateMips);
+		ImGui::DragInt("Anisotropy", &m_CurrentAnisotropy, 0.05f, 0, 8);
 
 		// Internal Pixel Format ComboBox
 		if (ImGui::BeginCombo("Internal Pixel Format", internalPFLabel, flags))
@@ -563,6 +561,8 @@ namespace LinaEditor
 		// Apply button
 		if (ImGui::Button("Apply"))
 		{
+			params.anisotropy = m_CurrentAnisotropy;
+			params.textureParams.generateMipMaps = m_CurrentGenerateMips;
 			params.textureParams.internalPixelFormat = selectedInternalPF;
 			params.textureParams.pixelFormat = selectedPF;
 			params.textureParams.minFilter = selectedMinFilter;
@@ -659,5 +659,15 @@ namespace LinaEditor
 	{
 		Graphics::MeshParameters params = m_SelectedMesh->GetParameters();
 
+		ImGui::Checkbox("Triangulate", &m_CurrentMeshParams.triangulate);
+		ImGui::Checkbox("Generate Smooth Normals", &m_CurrentMeshParams.smoothNormals);
+		ImGui::Checkbox("Calculate Tangent Space", &m_CurrentMeshParams.calculateTangentSpace);
+
+		if (ImGui::Button("Apply"))
+		{
+			Graphics::MeshParameters params = m_CurrentMeshParams;
+			m_RenderEngine->UnloadMeshResource(m_SelectedMeshID);
+			m_SelectedMesh = &m_RenderEngine->CreateMesh(m_SelectedMeshID, m_SelectedMeshPath, params);
+		}
 	}
 }

@@ -25,6 +25,7 @@ Timestamp: 6/7/2020 5:13:24 PM
 #include "Panels/EditorPanel.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Rendering/RenderingCommon.hpp"
+#include "Rendering/Mesh.hpp"
 #include "ECS/ECS.hpp"
 
 namespace LinaEngine
@@ -74,6 +75,9 @@ namespace LinaEditor
 			m_CurrentDrawType = DrawType::MESH;
 			m_SelectedMeshID = id;
 			m_SelectedMeshPath = path;
+
+			Graphics::MeshParameters& params = mesh->GetParameters();
+			m_CurrentMeshParams = params;
 		}
 
 		FORCEINLINE void Unselect()
@@ -113,11 +117,14 @@ namespace LinaEditor
 		int m_CurrentWrapS;
 		int m_CurrentWrapR;
 		int m_CurrentWrapT;
+		bool m_CurrentGenerateMips;
+		int m_CurrentAnisotropy;
 
 		// Selected mesh
 		class LinaEngine::Graphics::Mesh* m_SelectedMesh;
 		int m_SelectedMeshID;
 		std::string m_SelectedMeshPath;
+		Graphics::MeshParameters m_CurrentMeshParams;
 
 		class LinaEngine::Graphics::RenderEngine* m_RenderEngine;
 		LinaEngine::ECS::ECSRegistry* m_ECS;

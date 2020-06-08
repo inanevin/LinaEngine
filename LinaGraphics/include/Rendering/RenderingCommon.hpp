@@ -253,9 +253,9 @@ namespace LinaEngine::Graphics
 
 	struct MeshParameters
 	{
-		bool triangulate;
-		bool smoothNormals;
-		bool calculateTangentSpace;
+		bool triangulate = true;
+		bool smoothNormals = true;
+		bool calculateTangentSpace = true;
 	};
 
 	struct TextureParameters
