@@ -22,6 +22,7 @@ Timestamp: 6/5/2020 12:55:10 AM
 #include "Core/GUILayer.hpp"
 #include "Panels/PropertiesPanel.hpp"
 #include "Rendering/RenderEngine.hpp"
+#include "Rendering/Material.hpp"
 #include "Input/InputMappings.hpp"
 #include "imgui.h"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
@@ -29,8 +30,11 @@ Timestamp: 6/5/2020 12:55:10 AM
 #include "imgui_impl_opengl3.h"
 #include <filesystem>
 
+
 namespace LinaEditor
 {
+
+
 	static int itemIDCounter = 0;
 	static int selectedItem = -1;
 	static EditorFolder* hoveredFolder;
@@ -98,7 +102,11 @@ namespace LinaEditor
 
 				if (ImGui::MenuItem("Material"))
 				{
-
+					std::string name = "/NewMaterial" + std::to_string(++itemIDCounter) + ".mat";
+					std::string materialPath = rootPath + name;
+					Graphics::Material& m = m_RenderEngine->CreateMaterial(name, Graphics::Shaders::PBR_LIT);
+					EditorUtility::SerializeMaterial(materialPath, m);		
+				
 				}
 				ImGui::EndMenu();
 			}

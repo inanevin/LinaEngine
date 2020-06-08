@@ -147,6 +147,13 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void SetSurfaceType(MaterialSurfaceType type) { m_SurfaceType = type; SetInt(MAT_SURFACETYPE, type); }
 		FORCEINLINE MaterialSurfaceType GetSurfaceType() { return m_SurfaceType; }
 
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(usesHDRI, receivesLighting, isShadowMapped); // serialize things by passing them to the archive
+		}
+
 	private:
 
 		friend class RenderEngine;

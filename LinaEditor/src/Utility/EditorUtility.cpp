@@ -20,6 +20,7 @@ Timestamp: 5/9/2020 1:23:05 AM
 
 
 #include "Utility/EditorUtility.hpp"
+#include "Rendering/Material.hpp"
 //#include "boost/filesystem.hpp"
 #include <filesystem>
 #include "imgui.h"
@@ -27,49 +28,34 @@ Timestamp: 5/9/2020 1:23:05 AM
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
 
+#include <cereal/archives/binary.hpp>
+#include <fstream>
+
 namespace LinaEditor
 {
 	bool EditorUtility::CreateFolderInPath(const std::string& path)
 	{
-		std::filesystem::create_directory(path);
-		return false;
-		/*std::string newPath = path;
-		int i = 0;
-		const int counterLimit = 50;
-
-		// Check if file exists, append number if so.
-		while (boost::filesystem::exists(newPath))
-		{	
-			newPath = path + " [" + std::to_string(i) + "]";
-			i++;
-
-			if (i == counterLimit)
-			{
-				return false;
-			}
-		}
-		
-		// Create file.
-		return boost::filesystem::create_directories(newPath);*/
+		return std::filesystem::create_directory(path);
 	}
 
 	bool EditorUtility::GetDirectories(std::vector<std::string>& vec, const std::string& path)
 	{
 		
 		return false;
-		// Get all folders in path.
-		/*std::vector<std::string> r;
-		for (auto& p : std::filesystem::recursive_directory_iterator(path))
-			if (p.is_directory())
-				r.push_back(p.path().filename().string());
-		vec = r;
-		return true;*/
 	}
 
 	bool EditorUtility::DeleteDirectory(const std::string& path)
 	{
-		std::filesystem::remove_all(path);
 		return false;
+	}
+
+	void EditorUtility::SerializeMaterial(const std::string& path, LinaEngine::Graphics::Material& mat)
+	{
+		std::ofstream os(path);
+		{
+			cereal::BinaryOutputArchive oarchive(os); // Create an output archive
+			oarchive(mat); // Write the data to the archive
+		}
 	}
 
 	void EditorUtility::ColorButton(LinaEngine::Vector4 col)
