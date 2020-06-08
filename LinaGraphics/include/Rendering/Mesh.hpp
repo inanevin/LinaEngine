@@ -72,9 +72,12 @@ namespace LinaEngine::Graphics
 			return m_MaterialIndexArray;
 		}
 
-	
+		FORCEINLINE void SetParameters(MeshParameters params) { m_Parameters = params; }
+		FORCEINLINE MeshParameters& GetParameters() { return m_Parameters; }
+
 	private:
 
+		MeshParameters m_Parameters;
 		LinaArray<VertexArray*> m_VertexArrays;
 		LinaArray<IndexedModel> m_IndexedModelArray;
 		LinaArray<ModelMaterial> m_MaterialSpecArray;

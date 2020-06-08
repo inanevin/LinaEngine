@@ -276,6 +276,7 @@ namespace LinaEngine::Graphics
 
 			// Create object data & feed it from model.
 			Mesh& mesh = m_LoadedMeshes[id];
+			mesh.SetParameters(meshParams);
 			m_ModelLoader.LoadModel(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs(), meshParams);
 
 			if (mesh.GetIndexedModels().size() == 0)

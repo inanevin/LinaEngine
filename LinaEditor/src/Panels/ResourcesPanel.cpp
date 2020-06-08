@@ -151,6 +151,8 @@ namespace LinaEditor
 				// Notify properties panel of file selection.
 				if (folder.files[i].type == FileType::TEXTURE2D)
 					m_PropertiesPanel->Texture2DSelected(&m_RenderEngine->GetTexture(folder.files[i].id), folder.files[i].id, folder.files[i].path);
+				else if (folder.files[i].type == FileType::MESH)
+					m_PropertiesPanel->MeshSelected(&m_RenderEngine->GetMesh(folder.files[i].id), folder.files[i].id, folder.files[i].path);
 			}
 
 			if (nodeOpen)
@@ -166,9 +168,9 @@ namespace LinaEditor
 			EditorFile& file = folder.files[i];
 
 			if (file.type == FileType::TEXTURE2D)
-			{
 				m_RenderEngine->CreateTexture2D(file.id, file.path);
-			}
+			else if (file.type == FileType::MESH)
+				m_RenderEngine->CreateMesh(file.id, file.path);
 		}
 
 		// Recursively load subfolders.
@@ -182,6 +184,8 @@ namespace LinaEditor
 			return FileType::TEXTURE2D;
 		else if (extension.compare("ttf") == 0)
 			return FileType::FONT;
+		else if (extension.compare("obj") == 0 || extension.compare("fbx") == 0 || extension.compare("3ds") == 0)
+			return FileType::MESH;
 		else
 			return FileType::UNKNOWN;
 	}

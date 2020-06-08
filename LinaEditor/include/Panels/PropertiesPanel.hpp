@@ -32,6 +32,7 @@ namespace LinaEngine
 	namespace Graphics
 	{
 		class RenderEngine;
+		class Mesh;
 		class Texture;
 	}
 }
@@ -46,6 +47,7 @@ namespace LinaEditor
 			NONE,
 			ENTITIES,
 			TEXTURE2D,
+			MESH,
 			MATERIAL
 		};
 
@@ -72,6 +74,14 @@ namespace LinaEditor
 			m_SelectedTexturePath = path;
 		}
 
+		FORCEINLINE void MeshSelected(LinaEngine::Graphics::Mesh* mesh, int id, std::string& path)
+		{
+			m_SelectedMesh = mesh;
+			m_CurrentDrawType = DrawType::MESH;
+			m_SelectedMeshID = id;
+			m_SelectedMeshPath = path;
+		}
+
 		FORCEINLINE void Unselect()
 		{
 			m_SelectedEntity = entt::null;
@@ -93,12 +103,22 @@ namespace LinaEditor
 		Graphics::SamplerFilter GetSamplerFilterFromID(int id);
 		Graphics::SamplerWrapMode GetWrapModeFromID(int id);
 
+		// Drawing Meshes
+		void DrawMeshProperties();
+
 	private:
 
-		class LinaEngine::Graphics::RenderEngine* m_RenderEngine;
+		// Selected texture
 		class LinaEngine::Graphics::Texture* m_SelectedTexture;
 		int m_SelectedTextureID;
 		std::string m_SelectedTexturePath;
+
+		// Selected mesh
+		class LinaEngine::Graphics::Mesh* m_SelectedMesh;
+		int m_SelectedMeshID;
+		std::string m_SelectedMeshPath;
+
+		class LinaEngine::Graphics::RenderEngine* m_RenderEngine;
 		LinaEngine::ECS::ECSRegistry* m_ECS;
 		LinaEngine::ECS::ECSEntity m_SelectedEntity;
 		DrawType m_CurrentDrawType = DrawType::NONE;

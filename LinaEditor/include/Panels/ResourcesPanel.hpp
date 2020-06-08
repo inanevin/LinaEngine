@@ -45,6 +45,7 @@ namespace LinaEditor
 		{
 			UNKNOWN,
 			TEXTURE2D,
+			MESH,
 			FONT,
 			MATERIAL
 		};

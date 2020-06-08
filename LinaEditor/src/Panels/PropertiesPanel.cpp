@@ -112,6 +112,8 @@ namespace LinaEditor
 					DrawEntityProperties();
 				else if (m_CurrentDrawType == DrawType::TEXTURE2D)
 					DrawTextureProperties();
+				else if (m_CurrentDrawType == DrawType::MESH)
+					DrawMeshProperties();
 			}
 
 			ImGui::End();
@@ -570,6 +572,7 @@ namespace LinaEditor
 
 		
 	}
+
 	int PropertiesPanel::GetSamplerFilterID(Graphics::SamplerFilter filter)
 	{
 		if (filter == Graphics::SamplerFilter::FILTER_NEAREST)
@@ -628,5 +631,10 @@ namespace LinaEditor
 			return Graphics::SamplerWrapMode::WRAP_REPEAT;
 		else if (id == 4)
 			return Graphics::SamplerWrapMode::WRAP_REPEAT_MIRROR;
+	}
+
+	void PropertiesPanel::DrawMeshProperties()
+	{
+		
 	}
 }
