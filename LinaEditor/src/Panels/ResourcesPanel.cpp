@@ -32,6 +32,7 @@ namespace LinaEditor
 {
 	static int itemIDCounter = 0;
 	static int selectedItem = -1;
+	static ResourcesPanel::EditorFolder* hoveredFolder;
 
 	void ResourcesPanel::Draw()
 	{
@@ -66,6 +67,8 @@ namespace LinaEditor
 
 	void ResourcesPanel::DrawContent()
 	{
+		std::string rootPath = hoveredFolder == nullptr ? "resources" : hoveredFolder->path;
+
 		// Handle Right click popup.
 		if (ImGui::BeginPopupContextWindow())
 		{
@@ -73,7 +76,18 @@ namespace LinaEditor
 			{
 				if (ImGui::MenuItem("Folder"))
 				{
-					//EditorUtility::CreateFolderInPath(EditorPathConstants::contentsPath + "NewFolder");
+					std::string folderPath = rootPath + "/NewFolder"+ std::to_string(++itemIDCounter);
+					EditorUtility::CreateFolderInPath(folderPath);
+					EditorFolder folder;
+					folder.path = folderPath;
+					folder.name = "NewFolder" + std::to_string(itemIDCounter);
+					folder.id = itemIDCounter;
+					
+					if (hoveredFolder != nullptr)
+						hoveredFolder->subFolders.push_back(folder);
+					else
+						m_ResourceFolders[0].subFolders.push_back(folder);
+
 					//ReadProjectContentsFolder();
 				}
 
@@ -157,6 +171,9 @@ namespace LinaEditor
 			if (ImGui::IsItemClicked())
 				selectedItem = folder.subFolders[i].id;
 
+			if (ImGui::IsWindowHovered() && ImGui::IsItemHovered())
+				hoveredFolder = &folder.subFolders[i];
+
 			if (nodeOpen)
 			{
 				DrawFolder(folder.subFolders[i]);
@@ -188,9 +205,10 @@ namespace LinaEditor
 
 		// Deselect.
 		if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-		{
 			m_PropertiesPanel->Unselect();
-		}
+
+		if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered())
+			hoveredFolder = nullptr;
 	}
 
 	void ResourcesPanel::LoadFolderResources(EditorFolder& folder)

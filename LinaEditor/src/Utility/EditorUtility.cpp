@@ -21,7 +21,7 @@ Timestamp: 5/9/2020 1:23:05 AM
 
 #include "Utility/EditorUtility.hpp"
 //#include "boost/filesystem.hpp"
-//#include <filesystem>
+#include <filesystem>
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -31,6 +31,7 @@ namespace LinaEditor
 {
 	bool EditorUtility::CreateFolderInPath(const std::string& path)
 	{
+		std::filesystem::create_directory(path);
 		return false;
 		/*std::string newPath = path;
 		int i = 0;
