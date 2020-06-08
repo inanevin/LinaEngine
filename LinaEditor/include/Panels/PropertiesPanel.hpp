@@ -84,6 +84,7 @@ namespace LinaEditor
 		{
 			m_SelectedEntity = entt::null;
 			m_SelectedTexture = nullptr;
+			m_SelectedMesh = nullptr;
 			m_CurrentDrawType = DrawType::NONE;
 		}
 

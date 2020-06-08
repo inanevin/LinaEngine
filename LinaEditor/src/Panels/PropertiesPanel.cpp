@@ -111,7 +111,7 @@ namespace LinaEditor
 	{
 		if (m_CurrentDrawType != DrawType::NONE)
 		{
-			if (m_SelectedEntity == entt::null && m_SelectedTexture == nullptr)
+			if (m_SelectedEntity == entt::null && m_SelectedTexture == nullptr && m_SelectedMesh == nullptr)
 				m_CurrentDrawType = DrawType::NONE;
 		}
 

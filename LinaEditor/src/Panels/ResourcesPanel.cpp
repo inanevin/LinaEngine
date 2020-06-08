@@ -48,6 +48,7 @@ namespace LinaEditor
 
 			ImGui::Begin("Resources", &m_Show, flags);
 
+			DrawContent();
 			DrawFolder(m_ResourceFolders[0]);
 
 			ImGui::End();
@@ -61,6 +62,32 @@ namespace LinaEditor
 		
 		// Scan root resources folder.
 		ScanRoot();
+	}
+
+	void ResourcesPanel::DrawContent()
+	{
+		// Handle Right click popup.
+		if (ImGui::BeginPopupContextWindow())
+		{
+			if (ImGui::BeginMenu("Create"))
+			{
+				if (ImGui::MenuItem("Folder"))
+				{
+					//EditorUtility::CreateFolderInPath(EditorPathConstants::contentsPath + "NewFolder");
+					//ReadProjectContentsFolder();
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("Material"))
+				{
+
+				}
+				ImGui::EndMenu();
+			}
+
+			ImGui::EndPopup();
+		}
 	}
 
 	void ResourcesPanel::ScanRoot()
@@ -157,6 +184,12 @@ namespace LinaEditor
 
 			if (nodeOpen)
 				ImGui::TreePop();
+		}
+
+		// Deselect.
+		if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+		{
+			m_PropertiesPanel->Unselect();
 		}
 	}
 

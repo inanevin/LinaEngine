@@ -77,6 +77,7 @@ namespace LinaEditor
 
 	private:
 	
+		void DrawContent();
 		void ScanRoot();
 		void ScanFolder(EditorFolder& folder);
 		void DrawFolder(EditorFolder& folder);
