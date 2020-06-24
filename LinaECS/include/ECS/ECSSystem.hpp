@@ -32,8 +32,10 @@ Timestamp: 4/8/2019 5:28:34 PM
 
 namespace LinaEngine::ECS
 {
+
 	typedef entt::entity ECSEntity;
 
+	
 	class ECSRegistry : public entt::registry
 	{
 	public:

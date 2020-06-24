@@ -58,15 +58,13 @@ namespace LinaEngine::World
 		virtual void Initialize() {};
 		virtual void Tick(float delta) {};
 
+		void SerializeLevel();
 
 	protected:
 
 		LinaEngine::ECS::ECSRegistry* m_ECS = nullptr;
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
 		LinaEngine::Input::InputEngine* m_InputEngine = nullptr;
-
-		std::vector<ECSEntity> m_LevelEntities;
-
 	private:
 
 		friend class LinaEngine::Application;

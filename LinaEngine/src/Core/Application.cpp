@@ -72,6 +72,7 @@ namespace LinaEngine
 		// Set running flag.
 		m_Running = true;
 
+		
 
 	}
 
