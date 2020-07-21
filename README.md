@@ -15,6 +15,8 @@ Lina Engine is an open-source game engine, that is dedicated to bring alternativ
 
 Lina Engine is a research project, and it is aimed to be the basis of development for more open-source game engine projects. It is our hope that the techniques and architecture used in this game engine can play the initiative role for more projects to develop open source game engines.
 
+![Lina](Docs/Images/linass.png)
+
 ## Announcements / Notes
 
 - As a build system, this project uses CMake 3.6. Please make sure you have a working version of [CMake](https://cmake.org/), prerably 3.6 or above installed on your machine.
