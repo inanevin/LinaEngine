@@ -36,7 +36,6 @@ Class: UILayer
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
 
-
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -347,6 +346,7 @@ namespace LinaEditor
 				if (ImGui::MenuItem("Save Level"))
 				{
 					// Save level.
+					m_CurrentLevel->SerializeLevel();					
 				}
 				if (ImGui::MenuItem("Load Level"))
 				{

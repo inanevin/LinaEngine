@@ -58,8 +58,16 @@ namespace LinaEngine::World
 		virtual void Initialize() {};
 		virtual void Tick(float delta) {};
 
-		void SerializeLevel();
+		static Level* SerializeLevel(Level& level);
+		static Level* DeserializeLevel(const std::string& path);
 
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(dummy); // serialize things by passing them to the archive
+		}
+
+		int dummy;
 	protected:
 
 		LinaEngine::ECS::ECSRegistry* m_ECS = nullptr;

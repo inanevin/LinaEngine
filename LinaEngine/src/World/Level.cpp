@@ -20,38 +20,37 @@ Timestamp: 5/23/2020 2:23:02 PM
 
 #include "World/Level.hpp"
 #include <stdio.h>
-#include <cereal/archives/xml.hpp>
+#include <cereal/archives/binary.hpp>
 #include <fstream>
-
 namespace LinaEngine::World
 {
-	struct MyClass
+	Level* Level::SerializeLevel(Level& level)
 	{
-		int x, y, z;
-
-		// This method lets cereal know which data members to serialize
-		template<class Archive>
-		void serialize(Archive& archive)
+		std::ofstream os("levelname.linalevel");
 		{
-			archive(x, y, z); // serialize things by passing them to the archive
-		}
-	};
+			cereal::BinaryOutputArchive oarchive(os); // Create an output archive
 
-	void Level::SerializeLevel()
-	{
-
-		{
-			std::ofstream os("data.xml");
-			MyClass m1;
-			cereal::XMLOutputArchive archive(os);
-
-
-			entt::snapshot{ *m_ECS }.entities(archive);
-			archive(CEREAL_NVP(m1));
-
-			//MyData m1, m2, m3;
-			//oarchive(m1, m2, m3); // Write the data to the archive
+			oarchive(level); // Write the data to the archive
 		} // archive goes out of scope, ensuring all contents are flushed
 
-	} 
+		return &level;
+	}
+
+	Level* Level::DeserializeLevel(const std::string& path)
+	{
+		std::ifstream is("levelname.linalevel");
+
+		{
+			cereal::BinaryInputArchive iarchive(is);
+
+			// Create the level.
+			Level* readLevel = new Level();
+
+			// Read the data into it.
+			iarchive(*readLevel);
+
+			// Return the created level's pointer.
+			return readLevel;
+		}
+	}
 }
