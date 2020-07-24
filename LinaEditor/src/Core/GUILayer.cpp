@@ -352,6 +352,8 @@ namespace LinaEditor
 				{
 					// Load level.
 				}
+
+				ImGui::EndMenu();
 			}
 			// Panels menu bar
 			if (ImGui::BeginMenu("Panels"))
