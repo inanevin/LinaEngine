@@ -338,6 +338,22 @@ namespace LinaEditor
 		if (ImGui::BeginMenuBar())
 		{
 
+			if (ImGui::BeginMenu("Levels"))
+			{
+				if (ImGui::MenuItem("New Level"))
+				{
+					// Save current level prompt
+				}
+				if (ImGui::MenuItem("Save Level"))
+				{
+					// Save level.
+				}
+				if (ImGui::MenuItem("Load Level"))
+				{
+					// Load level.
+				}
+			}
+			// Panels menu bar
 			if (ImGui::BeginMenu("Panels"))
 			{
 				if (ImGui::MenuItem("Entity Panel"))
