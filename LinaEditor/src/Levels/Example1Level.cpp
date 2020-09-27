@@ -151,11 +151,14 @@ int sLightSize = 0;
 
 void Example1Level::Initialize()
 {
-
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-	CreateProceduralSkybox(m_RenderEngine);
+	CreateHDRISkybox(m_RenderEngine);
+
+
+
+
 
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);
@@ -165,6 +168,7 @@ void Example1Level::Initialize()
 	camCamera.isActive = true;
 	camFreeLook.movementSpeedX = camFreeLook.movementSpeedZ = 12.0f;
 	camFreeLook.rotationSpeedX = camFreeLook.rotationSpeedY = 3;
+
 
 
 	SamplerParameters pbrSampler;
@@ -178,12 +182,14 @@ void Example1Level::Initialize()
 
 
 
-//Texture& albedoSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/albedo.png", pbrSampler, false, false);
-//Texture& normalSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/normal.png", pbrSampler, false, false);
-//Texture& metallicSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/metallic.png", pbrSampler, false, false);
-//Texture& roughnessSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/roughness.png", pbrSampler, false, false);
-//Texture& aoSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/ao.png", pbrSampler, false, false);
+Texture& albedoSphere = m_RenderEngine->CreateTexture2D(-5, "resources/textures/rusted_iron/albedo.png", pbrSampler, false, false);
+Texture& normalSphere = m_RenderEngine->CreateTexture2D(1, "resources/textures/rusted_iron/normal.png", pbrSampler, false, false);
+Texture& metallicSphere = m_RenderEngine->CreateTexture2D(2, "resources/textures/rusted_iron/metallic.png", pbrSampler, false, false);
+Texture& roughnessSphere = m_RenderEngine->CreateTexture2D(3, "resources/textures/rusted_iron/roughness.png", pbrSampler, false, false);
+Texture& aoSphere = m_RenderEngine->CreateTexture2D(4, "resources/textures/rusted_iron/ao.png", pbrSampler, false, false);
 	//
+
+
 	//Texture& albedoFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/albedo.png", pbrSampler, false, false);
 	//Texture& normalFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/normal.png", pbrSampler, false, false);
 	//Texture& metallicFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/metallic.png", pbrSampler, false, false);
@@ -274,11 +280,14 @@ void Example1Level::Initialize()
 	m_ECS->emplace<TransformComponent>(directionalLightEntity, objectTransform);
 	m_ECS->emplace<DirectionalLightComponent>(directionalLightEntity, dirLightComp);
 
-	ECSEntity sphereEntity;
-	sphereEntity = m_ECS->CreateEntity("Sphere");
-	objectTransform.transform.location = Vector3(0, 5, 5);
-	m_ECS->emplace<TransformComponent>(sphereEntity, objectTransform);
-	m_ECS->emplace<MeshRendererComponent>(sphereEntity, sphereMR);
+
+ECSEntity sphereEntity;
+sphereEntity = m_ECS->CreateEntity("Sphere");
+objectTransform.transform.location = Vector3(0, 5, 5);
+m_ECS->emplace<TransformComponent>(sphereEntity, objectTransform);
+m_ECS->emplace<MeshRendererComponent>(sphereEntity, sphereMR);
+
+
 	//
 	//ECSEntity helmetEntity;
 	//helmetEntity = m_ECS->CreateEntity("Helmet");

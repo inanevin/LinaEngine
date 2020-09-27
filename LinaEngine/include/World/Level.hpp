@@ -58,7 +58,7 @@ namespace LinaEngine::World
 		virtual void Initialize() {};
 		virtual void Tick(float delta) {};
 
-		static Level* SerializeLevel(Level& level);
+		static Level* SerializeLevel(const std::string& path, Level& level);
 		static Level* DeserializeLevel(const std::string& path);
 
 		template<class Archive>

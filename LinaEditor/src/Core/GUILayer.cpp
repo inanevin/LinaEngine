@@ -346,7 +346,7 @@ namespace LinaEditor
 				if (ImGui::MenuItem("Save Level"))
 				{
 					// Save level.
-					m_CurrentLevel->SerializeLevel();					
+					m_CurrentLevel->SerializeLevel("level.linalevel", *m_CurrentLevel);					
 				}
 				if (ImGui::MenuItem("Load Level"))
 				{

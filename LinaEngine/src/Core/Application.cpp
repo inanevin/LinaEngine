@@ -71,9 +71,6 @@ namespace LinaEngine
 
 		// Set running flag.
 		m_Running = true;
-
-		
-
 	}
 
 	Application::~Application()
@@ -133,6 +130,15 @@ namespace LinaEngine
 			// Update layers.
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
+
+
+
+			if (m_FirstRun)
+			{
+				m_RenderEngine.FirstRun();
+				m_FirstRun = false;
+			}
+
 		}
 
 	}

@@ -114,6 +114,9 @@ namespace LinaEngine::Graphics
 		// Initialize the render renderEngine.
 		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn);
 
+		// Called before the first run.
+		void FirstRun();
+
 		// Called each frame.
 		void Tick(float delta);
 
@@ -198,6 +201,9 @@ namespace LinaEngine::Graphics
 
 		// Constructs commonly used shaders within Lina Engine.
 		void ConstructEngineShaders();
+
+		// Checks if engine shaders contain errors.
+		bool ValidateEngineShaders();
 
 		// Constructs engine materials
 		void ConstructEngineMaterials();

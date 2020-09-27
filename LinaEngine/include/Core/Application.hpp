@@ -104,6 +104,9 @@ namespace LinaEngine
 		// Is application running?
 		bool m_Running = false;
 
+		// Is his the first run
+		bool m_FirstRun = true;
+
 		// Callbacks
 		std::function<void(int, int)> m_KeyCallback;
 		std::function<void(int, int)> m_MouseCallback;

@@ -24,9 +24,9 @@ Timestamp: 5/23/2020 2:23:02 PM
 #include <fstream>
 namespace LinaEngine::World
 {
-	Level* Level::SerializeLevel(Level& level)
+	Level* Level::SerializeLevel(const std::string& path, Level& level)
 	{
-		std::ofstream os("levelname.linalevel");
+		std::ofstream os(path);
 		{
 			cereal::BinaryOutputArchive oarchive(os); // Create an output archive
 
@@ -38,7 +38,7 @@ namespace LinaEngine::World
 
 	Level* Level::DeserializeLevel(const std::string& path)
 	{
-		std::ifstream is("levelname.linalevel");
+		std::ifstream is(path);
 
 		{
 			cereal::BinaryInputArchive iarchive(is);

@@ -131,6 +131,9 @@ namespace LinaEngine::Graphics
 		// Creates a shader program based on shader text on GL.
 		uint32 CreateShaderProgram(const std::string& shaderText, bool usesGeometryShader);
 
+		// Runs glValidate on the target program.
+		bool ValidateShaderProgram(uint32 shader);
+
 		// Releases a previously created shader program from GL.
 		uint32 ReleaseShaderProgram(uint32 shader);
 

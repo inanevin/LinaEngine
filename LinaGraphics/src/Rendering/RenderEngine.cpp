@@ -129,6 +129,11 @@ namespace LinaEngine::Graphics
 
 	}
 
+	void RenderEngine::FirstRun()
+	{
+		ValidateEngineShaders();
+	}
+
 	void RenderEngine::Tick(float delta)
 	{
 
@@ -440,7 +445,7 @@ namespace LinaEngine::Graphics
 		material.vector4s.clear();
 		material.m_ShaderType = shader;
 
-		 if (shader == Shaders::STANDARD_UNLIT)
+		if (shader == Shaders::STANDARD_UNLIT)
 		{
 			material.colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
 			material.sampler2Ds[MAT_TEXTURE2D_DIFFUSE] = { 0 };
@@ -618,6 +623,27 @@ namespace LinaEngine::Graphics
 		CreateShader(Shaders::SCREEN_QUAD_BLUR, "resources/shaders/ScreenQuads/SQBlur.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		CreateShader(Shaders::SCREEN_QUAD_OUTLINE, "resources/shaders/ScreenQuads/SQOutline.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
+	}
+
+	bool RenderEngine::ValidateEngineShaders()
+	{
+		int validation = 0;
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::STANDARD_UNLIT).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::PBR_LIT).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::SKYBOX_SINGLECOLOR).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::SKYBOX_GRADIENT).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::SKYBOX_CUBEMAP).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::SKYBOX_PROCEDURAL).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::SKYBOX_HDRI).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::EQUIRECTANGULAR_HDRI).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::IRRADIANCE_HDRI).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::PREFILTER_HDRI).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::BRDF_HDRI).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::SCREEN_QUAD_FINAL).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::SCREEN_QUAD_BLUR).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::SCREEN_QUAD_OUTLINE).GetID());
+
+		return !validation;
 	}
 
 	void RenderEngine::ConstructEngineMaterials()
@@ -841,7 +867,7 @@ namespace LinaEngine::Graphics
 		m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_SCREEN, &m_PrimaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_BLOOM, horizontal ? &m_PingPongRTTexture1 : &m_PingPongRTTexture2, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_OUTLINE, &m_OutlineRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
-		
+
 		Vector2 inverseMapSize = 1.0f / m_PrimaryRTTexture0.GetSize();
 		m_ScreenQuadFinalMaterial.SetVector3(MAT_INVERSESCREENMAPSIZE, Vector3(inverseMapSize.x, inverseMapSize.y, 0.0));
 
@@ -1174,11 +1200,11 @@ namespace LinaEngine::Graphics
 		// Scale render buffer according to the resolution & bind lut map to frame buffer.
 		m_RenderDevice.ResizeRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), brdfLutSize, RenderBufferStorage::STORAGE_DEPTH_COMP24);
 		m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRILutMap.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 0, 0, 0, true, false);
-		
+
 		// Setup shader.
 		uint32 brdfShader = GetShader(Shaders::BRDF_HDRI).GetID();
 		m_RenderDevice.SetShader(brdfShader);
-		
+
 		// Switch framebuffer & draw.
 		m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
 		m_RenderDevice.SetViewport(Vector2::Zero, brdfLutSize);
