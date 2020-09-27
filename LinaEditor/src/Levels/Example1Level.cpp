@@ -182,14 +182,12 @@ void Example1Level::Initialize()
 
 
 
-Texture& albedoSphere = m_RenderEngine->CreateTexture2D(-5, "resources/textures/rusted_iron/albedo.png", pbrSampler, false, false);
-Texture& normalSphere = m_RenderEngine->CreateTexture2D(1, "resources/textures/rusted_iron/normal.png", pbrSampler, false, false);
-Texture& metallicSphere = m_RenderEngine->CreateTexture2D(2, "resources/textures/rusted_iron/metallic.png", pbrSampler, false, false);
-Texture& roughnessSphere = m_RenderEngine->CreateTexture2D(3, "resources/textures/rusted_iron/roughness.png", pbrSampler, false, false);
-Texture& aoSphere = m_RenderEngine->CreateTexture2D(4, "resources/textures/rusted_iron/ao.png", pbrSampler, false, false);
+Texture& albedoSphere = m_RenderEngine->CreateTexture2D(-5, "resources/textures/plastic/albedo.png", pbrSampler, false, false);
+Texture& normalSphere = m_RenderEngine->CreateTexture2D(1, "resources/textures/plastic/normal.png", pbrSampler, false, false);
+Texture& metallicSphere = m_RenderEngine->CreateTexture2D(2, "resources/textures/plastic/metallic.png", pbrSampler, false, false);
+Texture& roughnessSphere = m_RenderEngine->CreateTexture2D(3, "resources/textures/plastic/roughness.png", pbrSampler, false, false);
+Texture& aoSphere = m_RenderEngine->CreateTexture2D(4, "resources/textures/plastic/ao.png", pbrSampler, false, false);
 	//
-
-
 	//Texture& albedoFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/albedo.png", pbrSampler, false, false);
 	//Texture& normalFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/normal.png", pbrSampler, false, false);
 	//Texture& metallicFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/metallic.png", pbrSampler, false, false);
@@ -260,7 +258,7 @@ Texture& aoSphere = m_RenderEngine->CreateTexture2D(4, "resources/textures/ruste
 
 
 	MeshRendererComponent sphereMR;
-	sphereMR.mesh = &m_RenderEngine->GetPrimitive(Primitives::SPHERE);
+	sphereMR.mesh = &m_RenderEngine->GetPrimitive(Primitives::CUBE);
 	sphereMR.material = sphereMat;
 	//
 	//MeshRendererComponent helmetMR;
