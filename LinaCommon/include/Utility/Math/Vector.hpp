@@ -105,6 +105,12 @@ namespace LinaEngine
 			return ss.str();
 		}
 
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(x,y);
+		}
+
 	private:
 	};
 
@@ -180,7 +186,11 @@ namespace LinaEngine
 			return ss.str();
 		}
 
-
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(x, y,z);
+		}
 	};
 
 
@@ -248,6 +258,12 @@ namespace LinaEngine
 			std::stringstream ss;
 			ss << "(X: " << x << " Y: " << y << " Z: " << z << " W: " << w << ")";
 			return ss.str();
+		}
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(x, y,z,w);
 		}
 
 	};

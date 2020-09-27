@@ -24,6 +24,11 @@ Class: UILayer
 namespace LinaEngine
 {
 	class Application;
+
+	namespace World
+	{
+		class Level;
+	}
 }
 
 namespace LinaEditor
@@ -47,7 +52,7 @@ namespace LinaEditor
 		void OnEvent() override;
 
 		// CLASS METHODS
-		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& engine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs) { m_RenderEngine = &engine; m_Application = application; m_ECS = &ecs; }
+		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& engine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::World::Level& level) { m_RenderEngine = &engine; m_Application = application; m_ECS = &ecs;	m_CurrentLevel = &level; }
 
 		// Getters for references.
 		FORCEINLINE LinaEngine::ECS::ECSRegistry* GetECS() const { return m_ECS; }
@@ -90,6 +95,7 @@ namespace LinaEditor
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
 		LinaEngine::ECS::ECSRegistry* m_ECS = nullptr;
 		LinaEngine::Application* m_Application = nullptr;
+		LinaEngine::World::Level* m_CurrentLevel;
 		bool m_FPSCounterOpen = true;
 		class ECSPanel* m_ECSPanel;
 		class MaterialPanel* m_MaterialPanel;

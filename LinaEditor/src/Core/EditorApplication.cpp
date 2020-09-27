@@ -34,8 +34,9 @@ namespace LinaEditor
 			layer = new LinaEditor::GUILayer();
 
 			LinaEngine::ECS::ECSRegistry& reg = GetECSREgistry();
+
 			// Setup layer
-			layer->Setup(GetRenderEngine(), this, reg);
+			layer->Setup(GetRenderEngine(), this, reg, m_StartupLevel);
 
 			// Load startup level.
 			LoadLevel(&m_StartupLevel);

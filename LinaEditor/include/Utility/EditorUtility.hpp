@@ -26,6 +26,13 @@ Timestamp: 5/9/2020 1:22:23 AM
 #include <vector>
 #include "Utility/Math/Vector.hpp"
 
+namespace LinaEngine
+{
+	namespace Graphics
+	{
+		class Material;
+	}
+}
 
 namespace LinaEditor
 {
@@ -41,6 +48,9 @@ namespace LinaEditor
 		static bool SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size);
 		static bool CreateFolderInPath(const std::string& path);
 		static bool GetDirectories(std::vector<std::string>& vec, const std::string& path);
+		static bool DeleteDirectory(const std::string& path);
+		static void SerializeMaterial(const std::string& path, class LinaEngine::Graphics::Material& mat);
+
 	private:
 
 	};

@@ -732,12 +732,6 @@ namespace LinaEngine::Graphics
 		if (CheckShaderError(shaderProgram, GL_LINK_STATUS, true, "Error linking shader program"))
 			return (uint32)-1;
 
-		// Validate program & check validation errors.
-		glValidateProgram(shaderProgram);
-
-		if (CheckShaderError(shaderProgram, GL_VALIDATE_STATUS, true, "Invalid shader program"))
-			return (uint32)-1;
-
 		// Bind attributes for GL & add shader uniforms.
 		AddAllAttributes(shaderProgram, vertexShaderText, GetVersion());
 		AddShaderUniforms(shaderProgram, shaderText, programData.uniformBlockMap, programData.uniformMap, programData.samplerMap);
@@ -745,6 +739,14 @@ namespace LinaEngine::Graphics
 		// Store the program in our map & return it.
 		m_ShaderProgramMap[shaderProgram] = programData;
 		return shaderProgram;
+	}
+
+	bool GLRenderDevice::ValidateShaderProgram(uint32 shader)
+	{
+		// Validate program & check validation errors.
+		glValidateProgram(shader);
+
+		return CheckShaderError(shader, GL_VALIDATE_STATUS, true, "Invalid shader program");
 	}
 
 	uint32 GLRenderDevice::ReleaseShaderProgram(uint32 shader)

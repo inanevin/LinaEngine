@@ -35,7 +35,6 @@ Class: UILayer
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
-#include <stdio.h>
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glad/glad.h>
@@ -101,7 +100,6 @@ namespace LinaEditor
 
 	void GUILayer::OnAttach()
 	{
-
 		LINA_CLIENT_INFO("TestLayer Attached");
 
 		// Setup Dear ImGui context
@@ -339,6 +337,25 @@ namespace LinaEditor
 		if (ImGui::BeginMenuBar())
 		{
 
+			if (ImGui::BeginMenu("Levels"))
+			{
+				if (ImGui::MenuItem("New Level"))
+				{
+					// Save current level prompt
+				}
+				if (ImGui::MenuItem("Save Level"))
+				{
+					// Save level.
+					m_CurrentLevel->SerializeLevel("level.linalevel", *m_CurrentLevel);					
+				}
+				if (ImGui::MenuItem("Load Level"))
+				{
+					// Load level.
+				}
+
+				ImGui::EndMenu();
+			}
+			// Panels menu bar
 			if (ImGui::BeginMenu("Panels"))
 			{
 				if (ImGui::MenuItem("Entity Panel"))

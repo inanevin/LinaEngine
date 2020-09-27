@@ -124,7 +124,12 @@ void main()
     }
 
     vec3 ambient = vec3(0.0);
-    if(material.irradianceMap.isActive  && material.prefilterMap.isActive && material.brdfLUTMap.isActive)
+
+    bool irrActive = material.irradianceMap.isActive;
+    bool preActive = material.prefilterMap.isActive;
+    bool lutActive = material.brdfLUTMap.isActive;
+
+    if(irrActive && preActive && lutActive)
     {
       vec3 R = reflect(-V, N);
 

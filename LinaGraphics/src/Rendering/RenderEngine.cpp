@@ -129,6 +129,11 @@ namespace LinaEngine::Graphics
 
 	}
 
+	void RenderEngine::FirstRun()
+	{
+		ValidateEngineShaders();
+	}
+
 	void RenderEngine::Tick(float delta)
 	{
 
@@ -176,18 +181,18 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.ResizeRenderBuffer(m_PrimaryRenderTarget.GetID(), m_PrimaryRenderBuffer.GetID(), windowSize, RenderBufferStorage::STORAGE_DEPTH);
 	}
 
-	Material& RenderEngine::CreateMaterial(const std::string& materialName, Shaders shader)
+	Material& RenderEngine::CreateMaterial(int id, Shaders shader)
 	{
-		if (!MaterialExists(materialName))
+		if (!MaterialExists(id))
 		{
 			// Create material & set it's shader.
-			return SetMaterialShader(m_LoadedMaterials[materialName], shader);
+			return SetMaterialShader(m_LoadedMaterials[id], shader);
 		}
 		else
 		{
 			// Abort if material exists.
-			LINA_CORE_ERR("Material with the name {0} already exists, returning that...", materialName);
-			return m_LoadedMaterials[materialName];
+			LINA_CORE_ERR("Material with the id {0} already exists, returning that...", id);
+			return m_LoadedMaterials[id];
 		}
 	}
 
@@ -358,16 +363,16 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	Material& RenderEngine::GetMaterial(const std::string& materialName)
+	Material& RenderEngine::GetMaterial(int id)
 	{
-		if (!MaterialExists(materialName))
+		if (!MaterialExists(id))
 		{
 			// Mesh not found.
-			LINA_CORE_ERR("Material with the name {0} was not found, returning un-constructed material...", materialName);
+			LINA_CORE_ERR("Material with the id {0} was not found, returning un-constructed material...", id);
 			return Material();
 		}
 
-		return m_LoadedMaterials[materialName];
+		return m_LoadedMaterials[id];
 	}
 
 	Texture& RenderEngine::GetTexture(int id)
@@ -440,7 +445,7 @@ namespace LinaEngine::Graphics
 		material.vector4s.clear();
 		material.m_ShaderType = shader;
 
-		 if (shader == Shaders::STANDARD_UNLIT)
+		if (shader == Shaders::STANDARD_UNLIT)
 		{
 			material.colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
 			material.sampler2Ds[MAT_TEXTURE2D_DIFFUSE] = { 0 };
@@ -545,24 +550,24 @@ namespace LinaEngine::Graphics
 		m_LoadedMeshes.erase(id);
 	}
 
-	void RenderEngine::UnloadMaterialResource(const std::string& materialName)
+	void RenderEngine::UnloadMaterialResource(int id)
 	{
-		if (!MaterialExists(materialName))
+		if (!MaterialExists(id))
 		{
 			LINA_CORE_ERR("Material not found! Aborting... ");
 			return;
 		}
 
 		// If its in the internal list, remove first.
-		if (m_ShadowMappedMaterials.find(&m_LoadedMaterials[materialName]) != m_ShadowMappedMaterials.end())
-			m_ShadowMappedMaterials.erase(&m_LoadedMaterials[materialName]);
+		if (m_ShadowMappedMaterials.find(&m_LoadedMaterials[id]) != m_ShadowMappedMaterials.end())
+			m_ShadowMappedMaterials.erase(&m_LoadedMaterials[id]);
 
-		m_LoadedMaterials.erase(materialName);
+		m_LoadedMaterials.erase(id);
 	}
 
-	bool RenderEngine::MaterialExists(const std::string& materialName)
+	bool RenderEngine::MaterialExists(int id)
 	{
-		return !(m_LoadedMaterials.find(materialName) == m_LoadedMaterials.end());
+		return !(m_LoadedMaterials.find(id) == m_LoadedMaterials.end());
 	}
 
 	bool RenderEngine::TextureExists(int id)
@@ -618,6 +623,27 @@ namespace LinaEngine::Graphics
 		CreateShader(Shaders::SCREEN_QUAD_BLUR, "resources/shaders/ScreenQuads/SQBlur.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		CreateShader(Shaders::SCREEN_QUAD_OUTLINE, "resources/shaders/ScreenQuads/SQOutline.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
+	}
+
+	bool RenderEngine::ValidateEngineShaders()
+	{
+		int validation = 0;
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::STANDARD_UNLIT).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::PBR_LIT).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::SKYBOX_SINGLECOLOR).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::SKYBOX_GRADIENT).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::SKYBOX_CUBEMAP).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::SKYBOX_PROCEDURAL).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::SKYBOX_HDRI).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::EQUIRECTANGULAR_HDRI).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::IRRADIANCE_HDRI).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::PREFILTER_HDRI).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::BRDF_HDRI).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::SCREEN_QUAD_FINAL).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::SCREEN_QUAD_BLUR).GetID());
+		validation += m_RenderDevice.ValidateShaderProgram(GetShader(Shaders::SCREEN_QUAD_OUTLINE).GetID());
+
+		return !validation;
 	}
 
 	void RenderEngine::ConstructEngineMaterials()
@@ -841,7 +867,7 @@ namespace LinaEngine::Graphics
 		m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_SCREEN, &m_PrimaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_BLOOM, horizontal ? &m_PingPongRTTexture1 : &m_PingPongRTTexture2, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_OUTLINE, &m_OutlineRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
-		
+
 		Vector2 inverseMapSize = 1.0f / m_PrimaryRTTexture0.GetSize();
 		m_ScreenQuadFinalMaterial.SetVector3(MAT_INVERSESCREENMAPSIZE, Vector3(inverseMapSize.x, inverseMapSize.y, 0.0));
 
@@ -1174,11 +1200,11 @@ namespace LinaEngine::Graphics
 		// Scale render buffer according to the resolution & bind lut map to frame buffer.
 		m_RenderDevice.ResizeRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), brdfLutSize, RenderBufferStorage::STORAGE_DEPTH_COMP24);
 		m_RenderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRILutMap.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 0, 0, 0, true, false);
-		
+
 		// Setup shader.
 		uint32 brdfShader = GetShader(Shaders::BRDF_HDRI).GetID();
 		m_RenderDevice.SetShader(brdfShader);
-		
+
 		// Switch framebuffer & draw.
 		m_RenderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
 		m_RenderDevice.SetViewport(Vector2::Zero, brdfLutSize);

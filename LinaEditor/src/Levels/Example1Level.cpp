@@ -65,22 +65,22 @@ void Example1Level::Install()
 
 void CreateSingleColorSkybox(RenderEngine* renderEngine)
 {
-	Material& mat = renderEngine->CreateMaterial("skyboxMaterialS", Shaders::SKYBOX_SINGLECOLOR);
+	Material& mat = renderEngine->CreateMaterial(-6, Shaders::SKYBOX_SINGLECOLOR);
 	mat.SetColor("material.color", Color::Red);
 	renderEngine->SetSkyboxMaterial(mat);
 }
 
 void CreateGradientSkybox(RenderEngine* renderEngine)
 {
-	renderEngine->CreateMaterial("skyboxMaterialG", Shaders::SKYBOX_GRADIENT);
-	renderEngine->GetMaterial("skyboxMaterialG").SetColor("material.startColor", Color::Green);
-	renderEngine->GetMaterial("skyboxMaterialG").SetColor("material.endColor", Color::White);
-	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial("skyboxMaterialG"));
+	renderEngine->CreateMaterial(-4, Shaders::SKYBOX_GRADIENT);
+	renderEngine->GetMaterial(-4).SetColor("material.startColor", Color::Green);
+	renderEngine->GetMaterial(-4).SetColor("material.endColor", Color::White);
+	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial(-4));
 }
 
 void CreateProceduralSkybox(RenderEngine* renderEngine)
 {
-	Material& mat = renderEngine->CreateMaterial("skyboxMaterialP", Shaders::SKYBOX_PROCEDURAL);
+	Material& mat = renderEngine->CreateMaterial(-1, Shaders::SKYBOX_PROCEDURAL);
 	mat.SetColor("material.startColor", Color::White);
 	mat.SetColor("material.endColor", Color(0.2f, 0.2f, 0.2f));
 	mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
@@ -89,7 +89,7 @@ void CreateProceduralSkybox(RenderEngine* renderEngine)
 
 void CreateCubemapSkybox(RenderEngine* renderEngine)
 {
-	Material& mat = renderEngine->CreateMaterial("skyboxMaterialC", Shaders::SKYBOX_CUBEMAP);
+	Material& mat = renderEngine->CreateMaterial(-2, Shaders::SKYBOX_CUBEMAP);
 
 	const std::string fp[6] = {
 		"resources/textures/defaultSkybox/right.png",
@@ -113,7 +113,7 @@ void CreateHDRISkybox(RenderEngine* renderEngine)
 {
 	Texture* hdri = &renderEngine->CreateTextureHDRI(0, "resources/textures/HDRI/canyon3K.hdr");
 	renderEngine->CaptureCalculateHDRI(*hdri);
-	Material& mat = renderEngine->CreateMaterial("skyboxMaterial", Shaders::SKYBOX_HDRI);
+	Material& mat = renderEngine->CreateMaterial(-5, Shaders::SKYBOX_HDRI);
 	mat.SetTexture(MAT_MAP_ENVIRONMENT, &renderEngine->GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
@@ -151,11 +151,14 @@ int sLightSize = 0;
 
 void Example1Level::Initialize()
 {
-
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-	CreateProceduralSkybox(m_RenderEngine);
+	CreateHDRISkybox(m_RenderEngine);
+
+
+
+
 
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);
@@ -165,6 +168,7 @@ void Example1Level::Initialize()
 	camCamera.isActive = true;
 	camFreeLook.movementSpeedX = camFreeLook.movementSpeedZ = 12.0f;
 	camFreeLook.rotationSpeedX = camFreeLook.rotationSpeedY = 3;
+
 
 
 	SamplerParameters pbrSampler;
@@ -178,11 +182,11 @@ void Example1Level::Initialize()
 
 
 
-//Texture& albedoSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/albedo.png", pbrSampler, false, false);
-//Texture& normalSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/normal.png", pbrSampler, false, false);
-//Texture& metallicSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/metallic.png", pbrSampler, false, false);
-//Texture& roughnessSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/roughness.png", pbrSampler, false, false);
-//Texture& aoSphere = m_RenderEngine->CreateTexture2D("resources/textures/gold/ao.png", pbrSampler, false, false);
+Texture& albedoSphere = m_RenderEngine->CreateTexture2D(-5, "resources/textures/plastic/albedo.png", pbrSampler, false, false);
+Texture& normalSphere = m_RenderEngine->CreateTexture2D(1, "resources/textures/plastic/normal.png", pbrSampler, false, false);
+Texture& metallicSphere = m_RenderEngine->CreateTexture2D(2, "resources/textures/plastic/metallic.png", pbrSampler, false, false);
+Texture& roughnessSphere = m_RenderEngine->CreateTexture2D(3, "resources/textures/plastic/roughness.png", pbrSampler, false, false);
+Texture& aoSphere = m_RenderEngine->CreateTexture2D(4, "resources/textures/plastic/ao.png", pbrSampler, false, false);
 	//
 	//Texture& albedoFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/albedo.png", pbrSampler, false, false);
 	//Texture& normalFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/normal.png", pbrSampler, false, false);
@@ -211,7 +215,7 @@ void Example1Level::Initialize()
 //	Mesh& helmetMesh = m_RenderEngine->CreateMesh("resources/meshes/glock.fbx");
 //	Mesh& roadMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
 	// Create material for example mesh.
-	objectUnlitMaterial = &m_RenderEngine->CreateMaterial("object2Material", Shaders::STANDARD_UNLIT);
+	objectUnlitMaterial = &m_RenderEngine->CreateMaterial(-7, Shaders::STANDARD_UNLIT);
 
 
 	int nrRows = 7;
@@ -221,7 +225,7 @@ void Example1Level::Initialize()
 
 
 
-	sphereMat = &m_RenderEngine->CreateMaterial("sp", Shaders::PBR_LIT);
+	sphereMat = &m_RenderEngine->CreateMaterial(-8, Shaders::PBR_LIT);
 //sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoSphere);
 //sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalSphere);
 //sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
@@ -254,7 +258,7 @@ void Example1Level::Initialize()
 
 
 	MeshRendererComponent sphereMR;
-	sphereMR.mesh = &m_RenderEngine->GetPrimitive(Primitives::SPHERE);
+	sphereMR.mesh = &m_RenderEngine->GetPrimitive(Primitives::CUBE);
 	sphereMR.material = sphereMat;
 	//
 	//MeshRendererComponent helmetMR;
@@ -274,11 +278,14 @@ void Example1Level::Initialize()
 	m_ECS->emplace<TransformComponent>(directionalLightEntity, objectTransform);
 	m_ECS->emplace<DirectionalLightComponent>(directionalLightEntity, dirLightComp);
 
-	ECSEntity sphereEntity;
-	sphereEntity = m_ECS->CreateEntity("Sphere");
-	objectTransform.transform.location = Vector3(0, 5, 5);
-	m_ECS->emplace<TransformComponent>(sphereEntity, objectTransform);
-	m_ECS->emplace<MeshRendererComponent>(sphereEntity, sphereMR);
+
+ECSEntity sphereEntity;
+sphereEntity = m_ECS->CreateEntity("Sphere");
+objectTransform.transform.location = Vector3(0, 5, 5);
+m_ECS->emplace<TransformComponent>(sphereEntity, objectTransform);
+m_ECS->emplace<MeshRendererComponent>(sphereEntity, sphereMR);
+
+
 	//
 	//ECSEntity helmetEntity;
 	//helmetEntity = m_ECS->CreateEntity("Helmet");

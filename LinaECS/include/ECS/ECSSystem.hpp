@@ -27,12 +27,15 @@ Timestamp: 4/8/2019 5:28:34 PM
 #include "entt/entity/registry.hpp"
 #include "entt/entity/entity.hpp"
 #include <map>
-
+#include <cereal/types/string.hpp>
+#include <cereal/types/map.hpp>
 
 namespace LinaEngine::ECS
 {
+
 	typedef entt::entity ECSEntity;
 
+	
 	class ECSRegistry : public entt::registry
 	{
 	public:

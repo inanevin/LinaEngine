@@ -26,8 +26,9 @@ Timestamp: 4/26/2019 1:12:18 AM
 #include "Utility/Math/Matrix.hpp"
 #include "Utility/Math/Color.hpp"
 #include "Rendering/RenderConstants.hpp"
-#include <map>
-#include <Rendering\RenderingCommon.hpp>
+#include "Rendering/RenderingCommon.hpp"
+#include <cereal/types/string.hpp>
+#include <cereal/types/map.hpp>
 
 namespace LinaEngine::Graphics
 {
@@ -146,6 +147,13 @@ namespace LinaEngine::Graphics
 		FORCEINLINE uint32 GetShaderID() { return shaderID; }
 		FORCEINLINE void SetSurfaceType(MaterialSurfaceType type) { m_SurfaceType = type; SetInt(MAT_SURFACETYPE, type); }
 		FORCEINLINE MaterialSurfaceType GetSurfaceType() { return m_SurfaceType; }
+
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(usesHDRI, receivesLighting, isShadowMapped, m_ShaderType, m_SurfaceType, floats, ints, colors, vector2s, vector3s, vector4s, matrices, booleans);
+		}
 
 	private:
 

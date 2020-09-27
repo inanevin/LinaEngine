@@ -24,6 +24,7 @@ Timestamp: 6/5/2020 12:54:52 AM
 
 #include "Panels/EditorPanel.hpp"
 #include "Utility/EditorUtility.hpp"
+#include <map>
 
 namespace LinaEngine
 {
@@ -36,38 +37,46 @@ namespace LinaEngine
 
 namespace LinaEditor 
 {
+
+	enum class FileType
+	{
+		UNKNOWN,
+		TEXTURE2D,
+		MESH,
+		FONT,
+		MATERIAL
+	};
+
+
+	struct EditorFile
+	{
+		std::string name;
+		std::string extension;
+		std::string path;
+		FileType type;
+		int id;
+		bool markedForErase = false;
+	};
+
+
+	class EditorFolder
+	{
+	public:
+		EditorFolder() {};
+		~EditorFolder() {};
+		std::string path;
+		std::string name;
+		std::map<int, EditorFolder> subFolders;
+		std::map<int, EditorFile> files;
+		int id;
+		bool markedForErase = false;
+	};
+
 	class ResourcesPanel : public EditorPanel
 	{
 
 	public:
 
-		enum class FileType
-		{
-			UNKNOWN,
-			TEXTURE2D,
-			MESH,
-			FONT,
-			MATERIAL
-		};
-
-		struct EditorFile
-		{
-			std::string name;
-			std::string extension;
-			std::string path;
-			FileType type;
-			int id;
-		};
-
-		struct EditorFolder
-		{
-			std::string path;
-			std::string name;
-			std::vector<EditorFolder> subFolders;
-			std::vector<EditorFile> files;
-			int id;
-		};
-		
 		
 		ResourcesPanel(Vector2 position, Vector2 size, class GUILayer& guiLayer) :EditorPanel(position, size, guiLayer) {};
 		virtual ~ResourcesPanel() {};
@@ -77,10 +86,14 @@ namespace LinaEditor
 
 	private:
 	
+
+		void DrawContent();
 		void ScanRoot();
 		void ScanFolder(EditorFolder& folder);
 		void DrawFolder(EditorFolder& folder);
 		void LoadFolderResources(EditorFolder& folder);
+		void UnloadFileResource(EditorFile& file);
+		void UnloadFileResourcesInFolder(EditorFolder& folder);
 		FileType GetFileType(std::string& extension);
 
 	private:

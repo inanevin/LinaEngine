@@ -19,8 +19,38 @@ Timestamp: 5/23/2020 2:23:02 PM
 */
 
 #include "World/Level.hpp"
-
+#include <stdio.h>
+#include <cereal/archives/binary.hpp>
+#include <fstream>
 namespace LinaEngine::World
 {
-	
+	Level* Level::SerializeLevel(const std::string& path, Level& level)
+	{
+		std::ofstream os(path);
+		{
+			cereal::BinaryOutputArchive oarchive(os); // Create an output archive
+
+			oarchive(level); // Write the data to the archive
+		} // archive goes out of scope, ensuring all contents are flushed
+
+		return &level;
+	}
+
+	Level* Level::DeserializeLevel(const std::string& path)
+	{
+		std::ifstream is(path);
+
+		{
+			cereal::BinaryInputArchive iarchive(is);
+
+			// Create the level.
+			Level* readLevel = new Level();
+
+			// Read the data into it.
+			iarchive(*readLevel);
+
+			// Return the created level's pointer.
+			return readLevel;
+		}
+	}
 }
