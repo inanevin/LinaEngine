@@ -21,7 +21,7 @@ LinaEngineBuildLauncher
 *.jar
 
 # Build results
-[Bb]in/
+
 [Bb]in-obj/
 
 # Visual Studio 2015 cache/options directory
