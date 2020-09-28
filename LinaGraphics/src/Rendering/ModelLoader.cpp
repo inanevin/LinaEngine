@@ -28,7 +28,7 @@ namespace LinaEngine::Graphics
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
-		unsigned int importFlags;
+		uint32 importFlags = 0;
 		if (meshParams.calculateTangentSpace)
 			importFlags |= aiProcess_CalcTangentSpace;
 
