@@ -31,6 +31,13 @@ namespace LinaEngine::Physics
 	PhysicsEngine::~PhysicsEngine()
 	{
 		LINA_CORE_TRACE("[Destructor] -> Physics Engine ({0})", typeid(*this).name());
+
+
+		delete m_world;
+		delete m_impulseSolver;
+		delete m_overlappingPairCache;
+		delete m_collisionDispatcher;
+		delete m_collisionConfig;
 	}
 
 	void PhysicsEngine::Initialize()
@@ -38,27 +45,27 @@ namespace LinaEngine::Physics
 		LINA_CORE_TRACE("[Initialization] -> Physics Engine ({0})", typeid(*this).name());
 
 		///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
-		btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+		m_collisionConfig = new btDefaultCollisionConfiguration();
 
 		///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
-		btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
+		m_collisionDispatcher = new btCollisionDispatcher(m_collisionConfig);
 
 		///btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
-		btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
+		m_overlappingPairCache = new btDbvtBroadphase();
 
 		///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-		btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
+		m_impulseSolver = new btSequentialImpulseConstraintSolver;
 
 		// Create dynamics world
-		btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
-		dynamicsWorld->setGravity(btVector3(0, -10, 0));
-	
-		
+		m_world = new btDiscreteDynamicsWorld(m_collisionDispatcher, m_overlappingPairCache, m_impulseSolver, m_collisionConfig);
+		m_world->setGravity(btVector3(0, -10, 0));
+
+
 	}
 
 	void PhysicsEngine::Tick(float fixedDelta)
 	{
-		
+		m_world->stepSimulation(fixedDelta, 10);
 	}
 
 	void PhysicsEngine::CleanUp()

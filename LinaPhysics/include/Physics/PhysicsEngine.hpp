@@ -30,6 +30,12 @@ namespace LinaEngine::ECS
 
 using namespace LinaEngine::ECS;
 
+class btDefaultCollisionConfiguration;
+class btCollisionDispatcher;
+class btBroadphaseInterface;
+class btSequentialImpulseConstraintSolver;
+class btDiscreteDynamicsWorld;
+
 namespace LinaEngine::Physics
 {
 
@@ -51,6 +57,11 @@ namespace LinaEngine::Physics
 
 	private:
 
+		btDefaultCollisionConfiguration* m_collisionConfig = nullptr;
+		btCollisionDispatcher* m_collisionDispatcher = nullptr;
+		btBroadphaseInterface* m_overlappingPairCache = nullptr;
+		btSequentialImpulseConstraintSolver* m_impulseSolver = nullptr;
+		btDiscreteDynamicsWorld* m_world = nullptr;
 
 	};
 }
