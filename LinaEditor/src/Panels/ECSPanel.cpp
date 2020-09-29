@@ -52,6 +52,9 @@ namespace LinaEditor
 	void ECSPanel::Refresh()
 	{
 		m_EntityList.clear();
+		m_SelectedEntity = entt::null;
+		m_ScenePanel->SetSelectedTransform(nullptr);
+		m_PropertiesPanel->EntitySelected(entt::null);
 
 		// add scene entitites to the list.
 		m_ECS->each([this](auto entity)
