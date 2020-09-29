@@ -389,8 +389,11 @@ namespace LinaEditor
 					size_t lastIndex = fileName.find_last_of(".");
 					std::string rawName = fileName.substr(0, lastIndex);
 
-					// LOAD LEVEL.
+					// Load level data.
 					World::Level::DeserializeLevelData(filePath, rawName, *m_CurrentLevel, *m_ECS);
+
+					// Refresh ECS panel.
+					m_ECSPanel->Refresh();
 
 					igfd::ImGuiFileDialog::Instance()->CloseDialog(loadFileDialogueID);
 				}

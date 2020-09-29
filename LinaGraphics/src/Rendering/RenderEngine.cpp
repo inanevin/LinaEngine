@@ -278,6 +278,7 @@ namespace LinaEngine::Graphics
 
 	Mesh& RenderEngine::CreateMesh(int id, const std::string& filePath, MeshParameters meshParams)
 	{
+
 		if (!MeshExists(id))
 		{
 
@@ -660,12 +661,12 @@ namespace LinaEngine::Graphics
 	void RenderEngine::ConstructEnginePrimitives()
 	{
 		// Primitives
-		CreatePrimitive(Primitives::CUBE, "resources/meshes/primitives/cube.obj");
-		CreatePrimitive(Primitives::CYLINDER, "resources/meshes/primitives/cylinder.obj");
-		CreatePrimitive(Primitives::PLANE, "resources/meshes/primitives/plane.obj");
-		CreatePrimitive(Primitives::SPHERE, "resources/meshes/primitives/sphere.obj");
-		CreatePrimitive(Primitives::ICOSPHERE, "resources/meshes/primitives/icosphere.obj");
-		CreatePrimitive(Primitives::CONE, "resources/meshes/primitives/cone.obj");
+		CreateMesh(Primitives::CUBE, "resources/meshes/primitives/cube.obj");
+		CreateMesh(Primitives::CYLINDER, "resources/meshes/primitives/cylinder.obj");
+		CreateMesh(Primitives::PLANE, "resources/meshes/primitives/plane.obj");
+		CreateMesh(Primitives::SPHERE, "resources/meshes/primitives/sphere.obj");
+		CreateMesh(Primitives::ICOSPHERE, "resources/meshes/primitives/icosphere.obj");
+		CreateMesh(Primitives::CONE, "resources/meshes/primitives/cone.obj");
 	}
 
 	void RenderEngine::ConstructRenderTargets()

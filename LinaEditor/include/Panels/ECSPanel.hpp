@@ -45,6 +45,8 @@ namespace LinaEditor
 		virtual void Draw() override;
 		virtual void Setup() override;
 
+		void Refresh();
+
 	private:
 
 		class ScenePanel* m_ScenePanel;

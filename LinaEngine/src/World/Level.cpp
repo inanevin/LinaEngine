@@ -26,6 +26,7 @@ Timestamp: 5/23/2020 2:23:02 PM
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
+#include "ECS/Components/LightComponent.hpp"
 
 #include <cereal/archives/json.hpp>
 
@@ -43,6 +44,7 @@ namespace LinaEngine::World
 				.component<LinaEngine::ECS::TransformComponent,
 				LinaEngine::ECS::CameraComponent,
 				LinaEngine::ECS::FreeLookComponent,
+				LinaEngine::ECS::LightComponent,
 				LinaEngine::ECS::MeshRendererComponent>(oarchive);
 		}
 
@@ -70,17 +72,18 @@ namespace LinaEngine::World
 
 		registry.clear();
 
-		std::ifstream reg(path + "/" + levelName + "_ecsreg.linaregistry");
-		{
-			cereal::BinaryInputArchive iarchive(reg);
-
-			entt::snapshot_loader{ registry}
-				.entities(iarchive)
-				.component<LinaEngine::ECS::TransformComponent, 
-				LinaEngine::ECS::CameraComponent,
-				LinaEngine::ECS::FreeLookComponent,
-				LinaEngine::ECS::MeshRendererComponent>(iarchive)
-				.orphans();
-		}
+		//std::ifstream reg(path + "/" + levelName + "_ecsreg.linaregistry");
+		//{
+		//	cereal::BinaryInputArchive iarchive(reg);
+		//
+		//	entt::snapshot_loader{ registry}
+		//		.entities(iarchive)
+		//		.component<LinaEngine::ECS::TransformComponent, 
+		//		LinaEngine::ECS::CameraComponent,
+		//		LinaEngine::ECS::FreeLookComponent,
+		//		LinaEngine::ECS::LightComponent,
+		//		LinaEngine::ECS::MeshRendererComponent>(iarchive)
+		//		.orphans();
+		//}
 	}
 }

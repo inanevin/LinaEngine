@@ -34,11 +34,23 @@ namespace LinaEngine::ECS
 	struct LightComponent : public ECSComponent
 	{
 		Color color;
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(color); // serialize things by passing them to the archive
+		}
 	};
 
 	struct PointLightComponent : public LightComponent
 	{
 		float distance;
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(distance); // serialize things by passing them to the archive
+		}
 	};
 
 	struct SpotLightComponent : public LightComponent
@@ -47,11 +59,23 @@ namespace LinaEngine::ECS
 		float distance;
 		float cutOff = Math::Cos(Math::ToRadians(12.5f));
 		float outerCutOff = Math::Cos(Math::ToRadians(17.5f));
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(direction, distance, cutOff, outerCutOff); // serialize things by passing them to the archive
+		}
 	};
 
 	struct DirectionalLightComponent : public LightComponent
 	{
 		Vector3 direction = Vector3(0, 0, 1);
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(direction); // serialize things by passing them to the archive
+		}
 	};
 }
 
