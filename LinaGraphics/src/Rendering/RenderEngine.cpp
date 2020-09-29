@@ -134,7 +134,7 @@ namespace LinaEngine::Graphics
 		ValidateEngineShaders();
 	}
 
-	void RenderEngine::Tick(float delta)
+	void RenderEngine::Render()
 	{
 
 		//DrawOperationsDefault(delta);
@@ -151,7 +151,7 @@ namespace LinaEngine::Graphics
 
 		//DrawOperationsPrimaryRT(delta);
 		//DrawOperationsDefault(delta);
-		Render(delta);
+		Draw();
 
 		//DrawOperationsMSAA(delta);
 		// Draw GUI Layers
@@ -806,7 +806,7 @@ namespace LinaEngine::Graphics
 		m_LoadedMaterials.clear();
 	}
 
-	void RenderEngine::Render(float delta)
+	void RenderEngine::Draw()
 	{
 		// Set render target
 		m_RenderDevice.SetFBO(m_PrimaryRenderTarget.GetID());
@@ -816,7 +816,7 @@ namespace LinaEngine::Graphics
 		m_RenderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Update pipeline.
-		m_RenderingPipeline.UpdateSystems(delta);
+		m_RenderingPipeline.UpdateSystems(0.0f);
 
 		// Update uniform buffers on GPU
 		UpdateUniformBuffers();

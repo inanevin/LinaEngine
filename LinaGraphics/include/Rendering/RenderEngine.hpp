@@ -118,7 +118,7 @@ namespace LinaEngine::Graphics
 		void FirstRun();
 
 		// Called each frame.
-		void Tick(float delta);
+		void Render();
 
 		// Called when the main window is resized.
 		void OnWindowResized(float width, float height);
@@ -220,7 +220,7 @@ namespace LinaEngine::Graphics
 		void DumpMemory();
 
 		// Renders the scene.
-		void Render(float delta);
+		void Draw();
 
 		// Default drawing
 		void DrawOperationsDefault(float delta);

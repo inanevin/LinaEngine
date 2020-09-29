@@ -100,13 +100,50 @@ namespace LinaEngine
 
 	void Application::Run()
 	{
+		double t = 0.0;
+		double dt = 0.01;
+
+		double currentTime = (double)glfwGetTime();
+		double accumulator = 0.0;
 
 		while (m_Running)
 		{
 
+			// Update input engine.
+			m_InputEngine.Tick();
+
+			// Update layers.
+			for (Layer* layer : m_LayerStack)
+				layer->OnUpdate();
+
+			double newTime = (double)glfwGetTime();
+			double frameTime = newTime - currentTime;
+
+			// Update current level.
+			if (m_ActiveLevelExists)
+				m_CurrentLevel->Tick(frameTime);
+
+			if (frameTime > 0.25)
+				frameTime = 0.25;
+
+			currentTime = newTime;
+			accumulator += frameTime;
+
+			while (accumulator >= dt)
+			{
+				
+				// Update physics engine.
+				m_PhysicsEngine.Tick(dt);
+				t += dt;
+				accumulator -= dt;
+			}
+
+			// Update render engine.
+			m_RenderEngine.Render();
+
 			// Simple FPS count
 			m_FPSCounter++;
-			double currentTime = glfwGetTime();
+		
 			if (currentTime - m_PreviousTime >= 1.0)
 			{
 				m_PreviousTime = currentTime;
@@ -114,31 +151,12 @@ namespace LinaEngine
 				m_FPSCounter = 0;
 			}
 
-			// Update input engine.
-			m_InputEngine.Tick();
-
-			// Update physics engine.
-			//m_PhysicsEngine.Tick(0.01f);
-
-			// Update render engine.
-			m_RenderEngine.Tick(0.01f);
-
-			// Update current level.
-			if (m_ActiveLevelExists)
-				m_CurrentLevel->Tick(0.01f);
-
-			// Update layers.
-			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate();
-
-
-
+			// Update necessary engines that the first run has finished.
 			if (m_FirstRun)
 			{
 				m_RenderEngine.FirstRun();
 				m_FirstRun = false;
 			}
-
 		}
 
 	}
