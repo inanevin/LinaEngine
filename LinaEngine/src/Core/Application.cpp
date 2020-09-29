@@ -40,7 +40,7 @@ namespace LinaEngine
 
 	Application::Application()
 	{
-		LINA_CORE_TRACE("[Constructor] -> Application ({0})" , typeid(*this).name());
+		LINA_CORE_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
 		LINA_CORE_ASSERT(!instance, "Application already exists!");
 
 		// Create main window.
@@ -89,7 +89,7 @@ namespace LinaEngine
 			WindowResizeEvent& windowEvent = (WindowResizeEvent&)(e);
 			m_RenderEngine.OnWindowResized((float)windowEvent.GetWidth(), (float)windowEvent.GetHeight());
 		}
-		
+
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{
 			(*--it)->OnEvent(e);
@@ -116,7 +116,7 @@ namespace LinaEngine
 
 			// Update input engine.
 			m_InputEngine.Tick();
-	
+
 			// Update physics engine.
 			//m_PhysicsEngine.Tick(0.01f);
 
@@ -126,7 +126,7 @@ namespace LinaEngine
 			// Update current level.
 			if (m_ActiveLevelExists)
 				m_CurrentLevel->Tick(0.01f);
-	
+
 			// Update layers.
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
@@ -154,25 +154,37 @@ namespace LinaEngine
 		m_RenderEngine.OnWindowResized(size.x, size.y);
 	}
 
-	void Application::PushLayer(Layer * layer)
+	void Application::PushLayer(Layer* layer)
 	{
 		m_LayerStack.PushLayer(layer);
 		layer->OnAttach();
 	}
-	void Application::PushOverlay(Layer * layer)
+	void Application::PushOverlay(Layer* layer)
 	{
 		m_LayerStack.PushOverlay(layer);
 		layer->OnAttach();
 	}
 
-	 void Application::LoadLevel(LinaEngine::World::Level * level)
+	void Application::LoadLevel(LinaEngine::World::Level* level)
 	{
 		// TODO: Implement unloading the current level & loading a new one later.
 		m_CurrentLevel = level;
-		m_CurrentLevel->SetEngineReferences(m_ECS, m_RenderEngine, m_InputEngine);
+		m_CurrentLevel->SetEngineReferences(&m_ECS, m_RenderEngine, m_InputEngine);
 		m_CurrentLevel->Install();
 		m_CurrentLevel->Initialize();
 		m_ActiveLevelExists = true;
+	}
+
+
+	void Application::UnloadLevel(LinaEngine::World::Level* level)
+	{
+		if (m_CurrentLevel == level)
+		{
+			m_ActiveLevelExists = false;
+			m_CurrentLevel = nullptr;
+		}
+
+		level->Uninstall();
 	}
 }
 

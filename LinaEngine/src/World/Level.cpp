@@ -26,55 +26,50 @@ Timestamp: 5/23/2020 2:23:02 PM
 #include <cereal/archives/json.hpp>
 namespace LinaEngine::World
 {
-	Level* Level::SerializeLevel(const std::string& path, const std::string& levelName, Level& level)
+	void Level::SerializeLevelData(const std::string& path, const std::string& levelName, Level& level, LinaEngine::ECS::ECSRegistry& registry)
 	{
 
-		std::ofstream reg(path + "/ecsreg.linaregistry");
+		std::ofstream reg(path + "/" + levelName + "_ecsreg.linaregistry");
 		{
 			cereal::BinaryOutputArchive oarchive(reg); // Create an output archive
 
-			entt::snapshot{ *level.m_ECS }
+			entt::snapshot{ registry }
 				.entities(oarchive)
 				.component<LinaEngine::ECS::TransformComponent>(oarchive);
 		}
 
-		std::ofstream os(path + "/" + levelName);
+		std::ofstream os(path + "/" + levelName + ".linaleveldata");
 		{
 			cereal::BinaryOutputArchive oarchive(os); // Create an output archive
 
-			oarchive(level); // Write the data to the archive
+			oarchive(level.m_LevelData); // Write the data to the archive
 		} // archive goes out of scope, ensuring all contents are flushed
 
-		return &level;
 	}
 
-	Level* Level::DeserializeLevel(const std::string& path, const std::string& levelName)
+	void Level::DeserializeLevelData(const std::string& path, const std::string& levelName, Level& level, LinaEngine::ECS::ECSRegistry& registry)
 	{
 
-		// Create the level.
-		Level* readLevel = new Level();
 
-		std::ifstream is(path + "/" + levelName);
+		std::ifstream is(path + "/" + levelName + ".linaleveldata");
 		{
 			cereal::BinaryInputArchive iarchive(is);
 
 			// Read the data into it.
-			iarchive(*readLevel);
+			iarchive(level.m_LevelData);
 
 		}
 
-		std::ifstream reg(path + "/ecsreg.linaregistry");
+		registry.clear();
+
+		std::ifstream reg(path + "/" + levelName + "_ecsreg.linaregistry");
 		{
 			cereal::BinaryInputArchive iarchive(reg);
 
-			entt::snapshot_loader{ *readLevel->m_ECS }
+			entt::snapshot_loader{ registry}
 				.entities(iarchive)
 				.component<LinaEngine::ECS::TransformComponent>(iarchive)
 				.orphans();
 		}
-
-
-		// Return the created level's pointer.
-		return readLevel;
 	}
 }

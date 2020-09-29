@@ -40,7 +40,7 @@ namespace LinaEngine::ECS
 	{
 	public:
 
-		ECSRegistry() {};
+		ECSRegistry() {  };
 		virtual ~ECSRegistry() {};
 
 		ECSEntity CreateEntity(const std::string& name);
