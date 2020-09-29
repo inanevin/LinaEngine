@@ -126,6 +126,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaECS/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/include)
+
 # Language standard
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
@@ -134,6 +136,12 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 #--------------------------------------------------------------------
 
 target_link_libraries(${PROJECT_NAME} 
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3Common.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3Collision.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletCollision.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3Dynamics.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/BulletDynamics.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/Bullet3Geometry.lib
 	PRIVATE Lina::Common
 	PRIVATE Lina::ECS
 )

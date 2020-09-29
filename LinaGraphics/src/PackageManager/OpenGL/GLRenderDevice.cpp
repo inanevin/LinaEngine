@@ -1,4 +1,4 @@
-/*
+﻿/*
 Author: Inan Evin
 www.inanevin.com
 
@@ -181,6 +181,9 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn, int width, int height, DrawParams& defaultParams)
 	{
+		const GLubyte* vendor = glGetString(GL_VENDOR); // Returns the vendor
+		const GLubyte* renderer = glGetString(GL_RENDERER); // Returns a hint to the model
+		LINA_CORE_TRACE("Graphics Information: {0}, {1}", vendor, renderer);
 
 		m_IsStencilTestEnabled = defaultParams.useStencilTest;
 		m_IsDepthTestEnabled = defaultParams.useDepthTest;

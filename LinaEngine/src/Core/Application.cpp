@@ -102,7 +102,6 @@ namespace LinaEngine
 	{
 		double t = 0.0;
 		double dt = 0.01;
-
 		double currentTime = (double)glfwGetTime();
 		double accumulator = 0.0;
 
