@@ -100,7 +100,7 @@ namespace LinaEditor
 
 	void GUILayer::OnAttach()
 	{
-		LINA_CLIENT_INFO("TestLayer Attached");
+		LINA_CLIENT_INFO("Editor GUI Layer Attached");
 
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
@@ -217,7 +217,7 @@ namespace LinaEditor
 
 	void GUILayer::OnDetach()
 	{
-		LINA_CLIENT_INFO("TestLayer Detached");
+		LINA_CLIENT_INFO("Editor GUI Layer Detached");
 
 		// Cleanup
 		ImGui_ImplOpenGL3_Shutdown();
@@ -346,7 +346,7 @@ namespace LinaEditor
 				if (ImGui::MenuItem("Save Level"))
 				{
 					// Save level.
-					m_CurrentLevel->SerializeLevel("level.linalevel", *m_CurrentLevel);					
+					m_CurrentLevel->SerializeLevel("","level.linalevel", *m_CurrentLevel);					
 				}
 				if (ImGui::MenuItem("Load Level"))
 				{

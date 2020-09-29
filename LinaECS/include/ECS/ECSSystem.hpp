@@ -47,6 +47,7 @@ namespace LinaEngine::ECS
 		void SetEntityName(ECSEntity entity, const std::string& name);
 		std::string& GetEntityName(ECSEntity e);
 
+
 	private:
 		std::map<entt::entity, std::string> m_EntityNameMap;
 	};

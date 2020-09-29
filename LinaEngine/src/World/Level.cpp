@@ -22,11 +22,23 @@ Timestamp: 5/23/2020 2:23:02 PM
 #include <stdio.h>
 #include <cereal/archives/binary.hpp>
 #include <fstream>
+#include "ECS/Components/TransformComponent.hpp"
+#include <cereal/archives/json.hpp>
 namespace LinaEngine::World
 {
-	Level* Level::SerializeLevel(const std::string& path, Level& level)
+	Level* Level::SerializeLevel(const std::string& path, const std::string& levelName, Level& level)
 	{
-		std::ofstream os(path);
+
+		std::ofstream reg(path + "ecsreg.linaregistry");
+		{
+			cereal::BinaryOutputArchive oarchive(reg); // Create an output archive
+
+			entt::snapshot{ *level.m_ECS }
+				.entities(oarchive)
+				.component<LinaEngine::ECS::TransformComponent>(oarchive);
+		}
+
+		std::ofstream os(path + levelName);
 		{
 			cereal::BinaryOutputArchive oarchive(os); // Create an output archive
 
@@ -36,21 +48,33 @@ namespace LinaEngine::World
 		return &level;
 	}
 
-	Level* Level::DeserializeLevel(const std::string& path)
+	Level* Level::DeserializeLevel(const std::string& path, const std::string& levelName)
 	{
-		std::ifstream is(path);
 
+		// Create the level.
+		Level* readLevel = new Level();
+
+		std::ifstream is(path + levelName);
 		{
 			cereal::BinaryInputArchive iarchive(is);
-
-			// Create the level.
-			Level* readLevel = new Level();
 
 			// Read the data into it.
 			iarchive(*readLevel);
 
-			// Return the created level's pointer.
-			return readLevel;
 		}
+
+		std::ifstream reg(path + "ecsreg.linaregistry");
+		{
+			cereal::BinaryInputArchive iarchive(reg);
+
+			entt::snapshot_loader{ *readLevel->m_ECS }
+				.entities(iarchive)
+				.component<LinaEngine::ECS::TransformComponent>(iarchive)
+				.orphans();
+		}
+
+
+		// Return the created level's pointer.
+		return readLevel;
 	}
 }

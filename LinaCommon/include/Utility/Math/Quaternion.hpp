@@ -81,7 +81,11 @@ namespace LinaEngine
 		float Length() const;
 		float LengthSquared() const;
 
-
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(x,y,z,w); // serialize things by passing them to the archive
+		}
 	};
 
 
