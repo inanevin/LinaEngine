@@ -24,6 +24,8 @@ set (LINAPHYSICS_SOURCES
 
 	#Physics
 	src/Physics/PhysicsEngine.cpp
+	src/ECS/Systems/RigidbodySystem.cpp
+
 )
 
 #--------------------------------------------------------------------
@@ -33,6 +35,8 @@ set(LINAPHYSICS_HEADERS
 	
 	#Physics
 	include/Physics/PhysicsEngine.hpp
+	include/ECS/Components/RigidbodyComponent.hpp
+	include/ECS/Systems/RigidbodySystem.hpp
 )
 
 

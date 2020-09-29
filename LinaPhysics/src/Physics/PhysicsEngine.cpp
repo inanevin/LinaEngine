@@ -70,7 +70,6 @@ namespace LinaEngine::Physics
 
 	void PhysicsEngine::CleanUp()
 	{
-
 	}
 }
 
