@@ -28,6 +28,9 @@ namespace LinaEngine
 {
 	namespace Utility
 	{
+		// Gets a unique ID
+		int GetUniqueID();
+
 		// Create a unique hash from string.
 		size_t StringToHash(std::string str);
 
@@ -39,6 +42,8 @@ namespace LinaEngine
 
 		// Loads a text file, parsing through include keywords.
 		bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword);
+
+		static int uniqueID = 100;
 	}
 }
 

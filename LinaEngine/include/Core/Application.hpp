@@ -55,6 +55,9 @@ namespace LinaEngine
 		// Loads a level into memory.
 		void LoadLevel(LinaEngine::World::Level* level);
 
+		// Unloads a level from memory.
+		void UnloadLevel(LinaEngine::World::Level* level);
+
 		// Get current frames per second.
 		FORCEINLINE int GetCurrentFPS() { return m_CurrentFPS; }
 

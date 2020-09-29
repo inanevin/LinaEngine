@@ -38,29 +38,18 @@ namespace LinaEngine
 	{
 		class InputEngine;
 	}
+
+	namespace ECS
+	{
+		class ECSRegistry;
+	}
 }
 
 
 namespace LinaEngine::World
 {
-	
-
-	class Level
+	struct LevelData
 	{
-	public:
-
-		Level() {};
-		virtual ~Level() {};
-
-		virtual void OnLevelLoaded() {};
-		virtual void OnLevelRemoved() {};
-		virtual void Install() {};
-		virtual void Initialize() {};
-		virtual void Tick(float delta) {};
-
-		static Level* SerializeLevel(const std::string& path, Level& level);
-		static Level* DeserializeLevel(const std::string& path);
-
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
@@ -68,18 +57,44 @@ namespace LinaEngine::World
 		}
 
 		int dummy;
+
+	};
+
+	class Level
+	{
+	public:
+
+		Level() { };
+		virtual ~Level() {  };
+
+		virtual void OnLevelLoaded() {};
+		virtual void OnLevelRemoved() {};
+		virtual void Install() {};
+		virtual void Uninstall() {};
+		virtual void Initialize() {};
+		virtual void Tick(float delta) {};
+
+
+
+		static void SerializeLevelData(const std::string& path, const std::string& levelName, Level& level, LinaEngine::ECS::ECSRegistry& registry);
+		static void DeserializeLevelData(const std::string& path, const std::string& levelName, Level& level, LinaEngine::ECS::ECSRegistry& registry);
+
+		LevelData m_LevelData;
+		LinaEngine::ECS::ECSRegistry* m_ECS;
+
+
 	protected:
 
-		LinaEngine::ECS::ECSRegistry* m_ECS = nullptr;
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
 		LinaEngine::Input::InputEngine* m_InputEngine = nullptr;
+
 	private:
 
 		friend class LinaEngine::Application;
 
-		void SetEngineReferences(LinaEngine::ECS::ECSRegistry& ecsIn, LinaEngine::Graphics::RenderEngine& renderEngineIn, LinaEngine::Input::InputEngine& inputEngineIn)
+		void SetEngineReferences(LinaEngine::ECS::ECSRegistry* reg, LinaEngine::Graphics::RenderEngine& renderEngineIn, LinaEngine::Input::InputEngine& inputEngineIn)
 		{
-			m_ECS = &ecsIn;
+			m_ECS = reg;
 			m_RenderEngine = &renderEngineIn;
 			m_InputEngine = &inputEngineIn;
 		}

@@ -44,12 +44,23 @@ namespace LinaEditor
 		m_ECS = m_GUILayer->GetECS();
 		m_ScenePanel = m_GUILayer->GetScenePanel();
 		m_PropertiesPanel = m_GUILayer->GetPropertiesPanel();
+		
+		// Refresh entity list.
+		Refresh();
+	}
+
+	void ECSPanel::Refresh()
+	{
+		m_EntityList.clear();
+		m_SelectedEntity = entt::null;
+		m_ScenePanel->SetSelectedTransform(nullptr);
+		m_PropertiesPanel->EntitySelected(entt::null);
 
 		// add scene entitites to the list.
 		m_ECS->each([this](auto entity)
-		{
-			m_EntityList.push_back(entity);
-		});
+			{
+				m_EntityList.push_back(entity);
+			});
 	}
 
 	void ECSPanel::Draw()

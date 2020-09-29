@@ -40,6 +40,7 @@ namespace LinaEngine::Graphics
 
 		virtual ~Mesh();
 
+
 		FORCEINLINE VertexArray* GetVertexArray(uint32 index)
 		{
 
@@ -75,8 +76,10 @@ namespace LinaEngine::Graphics
 		FORCEINLINE void SetParameters(MeshParameters params) { m_Parameters = params; }
 		FORCEINLINE MeshParameters& GetParameters() { return m_Parameters; }
 
-	private:
+		int m_MeshID = -1;
 
+	private:
+		
 		MeshParameters m_Parameters;
 		LinaArray<VertexArray*> m_VertexArrays;
 		LinaArray<IndexedModel> m_IndexedModelArray;

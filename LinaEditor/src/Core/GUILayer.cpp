@@ -31,6 +31,7 @@ Class: UILayer
 #include "Core/EditorCommon.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/RenderConstants.hpp"
+#include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -100,7 +101,7 @@ namespace LinaEditor
 
 	void GUILayer::OnAttach()
 	{
-		LINA_CLIENT_INFO("TestLayer Attached");
+		LINA_CLIENT_INFO("Editor GUI Layer Attached");
 
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
@@ -217,7 +218,7 @@ namespace LinaEditor
 
 	void GUILayer::OnDetach()
 	{
-		LINA_CLIENT_INFO("TestLayer Detached");
+		LINA_CLIENT_INFO("Editor GUI Layer Detached");
 
 		// Cleanup
 		ImGui_ImplOpenGL3_Shutdown();
@@ -336,25 +337,72 @@ namespace LinaEditor
 
 		if (ImGui::BeginMenuBar())
 		{
+			std::string saveFileDialogueID = "Save Level";
+			std::string loadFileDialogueID = "Load Level";
 
 			if (ImGui::BeginMenu("Levels"))
 			{
-				if (ImGui::MenuItem("New Level"))
-				{
-					// Save current level prompt
-				}
-				if (ImGui::MenuItem("Save Level"))
+
+				if (ImGui::MenuItem("Save Level Data"))
 				{
 					// Save level.
-					m_CurrentLevel->SerializeLevel("level.linalevel", *m_CurrentLevel);					
+					igfd::ImGuiFileDialog::Instance()->OpenDialog(saveFileDialogueID, "Choose File", ".linaleveldata", ".");
 				}
-				if (ImGui::MenuItem("Load Level"))
+				if (ImGui::MenuItem("Load Level Data"))
 				{
 					// Load level.
+					igfd::ImGuiFileDialog::Instance()->OpenDialog(loadFileDialogueID, "Choose File", ".linaleveldata", ".");
 				}
 
 				ImGui::EndMenu();
 			}
+
+			// Save level dialogue.
+			if (igfd::ImGuiFileDialog::Instance()->FileDialog(saveFileDialogueID))
+			{
+				// action if OK
+				if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
+				{
+					std::string filePathName = igfd::ImGuiFileDialog::Instance()->GetFilepathName();
+					std::string filePath = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
+					std::string fileName = igfd::ImGuiFileDialog::Instance()->GetCurrentFileName();
+					size_t lastIndex = fileName.find_last_of(".");
+					std::string rawName = fileName.substr(0, lastIndex);
+
+					m_CurrentLevel->SerializeLevelData(filePath, rawName, *m_CurrentLevel, *m_ECS);
+
+					igfd::ImGuiFileDialog::Instance()->CloseDialog(saveFileDialogueID);
+				}
+
+				igfd::ImGuiFileDialog::Instance()->CloseDialog(saveFileDialogueID);
+			}
+
+			// Load level dialogue.
+			if (igfd::ImGuiFileDialog::Instance()->FileDialog(loadFileDialogueID))
+			{
+				// action if OK
+				if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
+				{
+					std::string filePathName = igfd::ImGuiFileDialog::Instance()->GetFilepathName();
+					std::string filePath = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
+					std::string fileName = igfd::ImGuiFileDialog::Instance()->GetCurrentFileName();
+					size_t lastIndex = fileName.find_last_of(".");
+					std::string rawName = fileName.substr(0, lastIndex);
+
+					// Load level data.
+					World::Level::DeserializeLevelData(filePath, rawName, *m_CurrentLevel, *m_ECS);
+
+					// Refresh ECS panel.
+					m_ECSPanel->Refresh();
+
+					igfd::ImGuiFileDialog::Instance()->CloseDialog(loadFileDialogueID);
+				}
+
+				igfd::ImGuiFileDialog::Instance()->CloseDialog(loadFileDialogueID);
+
+			}
+
+
 			// Panels menu bar
 			if (ImGui::BeginMenu("Panels"))
 			{
@@ -560,60 +608,60 @@ namespace LinaEditor
 
 	void GUILayer::DrawContentBrowserWindow()
 	{
-	//ImGui::Begin("Content Browser");
-	//
-	//// Handle Right click popup.
-	//if (ImGui::BeginPopupContextWindow())
-	//{
-	//	if (ImGui::BeginMenu("Create"))
-	//	{
-	//		if (ImGui::MenuItem("Folder"))
-	//		{
-	//			EditorUtility::CreateFolderInPath(EditorPathConstants::contentsPath + "NewFolder");
-	//			ReadProjectContentsFolder();
-	//		}
-	//
-	//		ImGui::Separator();
-	//
-	//		if (ImGui::MenuItem("Material"))
-	//		{
-	//
-	//		}
-	//		ImGui::EndMenu();
-	//	}
-	//
-	//	ImGui::EndPopup();
-	//}
-	//
-	//
-	//ImGuiTreeNodeFlags node_flags = base_flags;
-	//static int selection_mask = (1 << 2);
-	//int node_clicked = -1;
-	//
-	//for (int i = 0; i < m_ContentFolders.size(); i++)
-	//{
-	//	const bool is_selected = (selection_mask & (1 << i)) != 0;
-	//	if (is_selected)
-	//		node_flags |= ImGuiTreeNodeFlags_Selected;
-	//	bool node_open = ImGui::TreeNodeEx(m_ContentFolders[i].name.c_str());
-	//
-	//	if (ImGui::IsItemClicked())
-	//		node_clicked = i;
-	//	if (ImGui::BeginDragDropSource())
-	//	{
-	//		ImGui::SetDragDropPayload("_TREENODE", NULL, 0);
-	//		ImGui::Text("This is a drag and drop source");
-	//		ImGui::EndDragDropSource();
-	//	}
-	//	if (node_open)
-	//	{
-	//		ImGui::BulletText("Blah blah\nBlah Blah");
-	//		ImGui::TreePop();
-	//	}
-	//}
-	//
-	//
-	//ImGui::End();
+		//ImGui::Begin("Content Browser");
+		//
+		//// Handle Right click popup.
+		//if (ImGui::BeginPopupContextWindow())
+		//{
+		//	if (ImGui::BeginMenu("Create"))
+		//	{
+		//		if (ImGui::MenuItem("Folder"))
+		//		{
+		//			EditorUtility::CreateFolderInPath(EditorPathConstants::contentsPath + "NewFolder");
+		//			ReadProjectContentsFolder();
+		//		}
+		//
+		//		ImGui::Separator();
+		//
+		//		if (ImGui::MenuItem("Material"))
+		//		{
+		//
+		//		}
+		//		ImGui::EndMenu();
+		//	}
+		//
+		//	ImGui::EndPopup();
+		//}
+		//
+		//
+		//ImGuiTreeNodeFlags node_flags = base_flags;
+		//static int selection_mask = (1 << 2);
+		//int node_clicked = -1;
+		//
+		//for (int i = 0; i < m_ContentFolders.size(); i++)
+		//{
+		//	const bool is_selected = (selection_mask & (1 << i)) != 0;
+		//	if (is_selected)
+		//		node_flags |= ImGuiTreeNodeFlags_Selected;
+		//	bool node_open = ImGui::TreeNodeEx(m_ContentFolders[i].name.c_str());
+		//
+		//	if (ImGui::IsItemClicked())
+		//		node_clicked = i;
+		//	if (ImGui::BeginDragDropSource())
+		//	{
+		//		ImGui::SetDragDropPayload("_TREENODE", NULL, 0);
+		//		ImGui::Text("This is a drag and drop source");
+		//		ImGui::EndDragDropSource();
+		//	}
+		//	if (node_open)
+		//	{
+		//		ImGui::BulletText("Blah blah\nBlah Blah");
+		//		ImGui::TreePop();
+		//	}
+		//}
+		//
+		//
+		//ImGui::End();
 
 	}
 

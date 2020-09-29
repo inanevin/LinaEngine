@@ -125,7 +125,11 @@ namespace LinaEngine
 			rotation = Quaternion::Euler(x,y,z);
 		}
 
-
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(location, rotation, scale); // serialize things by passing them to the archive
+		}
 
 		Vector3 location = Vector3::Zero;
 		Quaternion rotation;

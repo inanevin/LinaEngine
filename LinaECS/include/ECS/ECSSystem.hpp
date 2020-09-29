@@ -40,12 +40,18 @@ namespace LinaEngine::ECS
 	{
 	public:
 
-		ECSRegistry() {};
+		ECSRegistry() {  };
 		virtual ~ECSRegistry() {};
 
 		ECSEntity CreateEntity(const std::string& name);
 		void SetEntityName(ECSEntity entity, const std::string& name);
 		std::string& GetEntityName(ECSEntity e);
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(m_EntityNameMap); // serialize things by passing them to the archive
+		}
 
 	private:
 		std::map<entt::entity, std::string> m_EntityNameMap;

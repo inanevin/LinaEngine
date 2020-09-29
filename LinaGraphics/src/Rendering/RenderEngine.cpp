@@ -186,7 +186,9 @@ namespace LinaEngine::Graphics
 		if (!MaterialExists(id))
 		{
 			// Create material & set it's shader.
-			return SetMaterialShader(m_LoadedMaterials[id], shader);
+			SetMaterialShader(m_LoadedMaterials[id], shader);
+			m_LoadedMaterials[id].m_MaterialID = id;
+			return m_LoadedMaterials[id];
 		}
 		else
 		{
@@ -276,6 +278,7 @@ namespace LinaEngine::Graphics
 
 	Mesh& RenderEngine::CreateMesh(int id, const std::string& filePath, MeshParameters meshParams)
 	{
+
 		if (!MeshExists(id))
 		{
 
@@ -299,6 +302,9 @@ namespace LinaEngine::Graphics
 				mesh.GetVertexArrays().push_back(vertexArray);
 			}
 
+			// Set id
+			mesh.m_MeshID = id;
+
 			// Return
 			return m_LoadedMeshes[id];
 		}
@@ -313,11 +319,11 @@ namespace LinaEngine::Graphics
 
 	Mesh& RenderEngine::CreatePrimitive(Primitives primitive, const std::string& path)
 	{
-		if (!PrimitiveExists(primitive))
+		if (!MeshExists(primitive))
 		{
 
 			// Create object data & feed it from model.
-			Mesh& mesh = m_LoadedPrimitives[primitive];
+			Mesh& mesh = m_LoadedMeshes[primitive];
 
 			m_ModelLoader.LoadModel(path, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs(), MeshParameters());
 
@@ -335,14 +341,17 @@ namespace LinaEngine::Graphics
 				mesh.GetVertexArrays().push_back(vertexArray);
 			}
 
+			// Set ID
+			mesh.m_MeshID = primitive;
+
 			// Return
-			return m_LoadedPrimitives[primitive];
+			return m_LoadedMeshes[primitive];
 		}
 		else
 		{
 			// Mesh with this name already exists!
 			LINA_CORE_ERR("Primitive with the ID{0} already exists, returning that...", primitive);
-			return m_LoadedPrimitives[primitive];
+			return m_LoadedMeshes[primitive];
 		}
 	}
 
@@ -413,14 +422,14 @@ namespace LinaEngine::Graphics
 
 	Mesh& RenderEngine::GetPrimitive(Primitives primitive)
 	{
-		if (!PrimitiveExists(primitive))
+		if (!MeshExists(primitive))
 		{
 			// VA not found.
 			LINA_CORE_ERR("Primitive with the ID {0} was not found, returning plane...", primitive);
 			return GetPrimitive(Primitives::PLANE);
 		}
 		else
-			return m_LoadedPrimitives[primitive];
+			return m_LoadedMeshes[primitive];
 	}
 
 	Material& RenderEngine::SetMaterialShader(Material& material, Shaders shader)
@@ -585,11 +594,6 @@ namespace LinaEngine::Graphics
 		return !(m_LoadedShaders.find(shader) == m_LoadedShaders.end());
 	}
 
-	bool RenderEngine::PrimitiveExists(Primitives primitive)
-	{
-		return !(m_LoadedPrimitives.find(primitive) == m_LoadedPrimitives.end());
-	}
-
 	void RenderEngine::ConstructEngineShaders()
 	{
 		// Unlit.
@@ -657,12 +661,12 @@ namespace LinaEngine::Graphics
 	void RenderEngine::ConstructEnginePrimitives()
 	{
 		// Primitives
-		CreatePrimitive(Primitives::CUBE, "resources/meshes/primitives/cube.obj");
-		CreatePrimitive(Primitives::CYLINDER, "resources/meshes/primitives/cylinder.obj");
-		CreatePrimitive(Primitives::PLANE, "resources/meshes/primitives/plane.obj");
-		CreatePrimitive(Primitives::SPHERE, "resources/meshes/primitives/sphere.obj");
-		CreatePrimitive(Primitives::ICOSPHERE, "resources/meshes/primitives/icosphere.obj");
-		CreatePrimitive(Primitives::CONE, "resources/meshes/primitives/cone.obj");
+		CreateMesh(Primitives::CUBE, "resources/meshes/primitives/cube.obj");
+		CreateMesh(Primitives::CYLINDER, "resources/meshes/primitives/cylinder.obj");
+		CreateMesh(Primitives::PLANE, "resources/meshes/primitives/plane.obj");
+		CreateMesh(Primitives::SPHERE, "resources/meshes/primitives/sphere.obj");
+		CreateMesh(Primitives::ICOSPHERE, "resources/meshes/primitives/icosphere.obj");
+		CreateMesh(Primitives::CONE, "resources/meshes/primitives/cone.obj");
 	}
 
 	void RenderEngine::ConstructRenderTargets()

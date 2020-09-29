@@ -298,10 +298,11 @@ namespace LinaEditor
 		{
 			EditorFile& file = it->second;
 
-			if (file.type == FileType::TEXTURE2D)
+			// SKIP FOR NOW BC WE NEED TO MAKE SURE WE HANDLE BOTH ENGINE CREATION & EDITOR CREATION
+			/*if (file.type == FileType::TEXTURE2D)
 				m_RenderEngine->CreateTexture2D(file.id, file.path);
 			else if (file.type == FileType::MESH)
-				m_RenderEngine->CreateMesh(file.id, file.path);
+				m_RenderEngine->CreateMesh(file.id, file.path);*/
 		}
 
 		// Recursively load subfolders.

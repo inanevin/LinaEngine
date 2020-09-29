@@ -22,35 +22,88 @@ Timestamp: 5/23/2020 2:23:02 PM
 #include <stdio.h>
 #include <cereal/archives/binary.hpp>
 #include <fstream>
+#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/CameraComponent.hpp"
+#include "ECS/Components/FreeLookComponent.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
+#include "ECS/Components/LightComponent.hpp"
+
+#include <cereal/archives/json.hpp>
+
 namespace LinaEngine::World
 {
-	Level* Level::SerializeLevel(const std::string& path, Level& level)
+	void Level::SerializeLevelData(const std::string& path, const std::string& levelName, Level& level, LinaEngine::ECS::ECSRegistry& registry)
 	{
-		std::ofstream os(path);
-		{
-			cereal::BinaryOutputArchive oarchive(os); // Create an output archive
 
-			oarchive(level); // Write the data to the archive
+		std::ofstream registrySnapshotStream(path + "/" + levelName + "_ecsSnapshot.linasnapshot");
+		{
+			cereal::BinaryOutputArchive oarchive(registrySnapshotStream); // Create an output archive
+
+			entt::snapshot{ registry }
+				.entities(oarchive)
+				.component<LinaEngine::ECS::TransformComponent,
+				LinaEngine::ECS::CameraComponent,
+				LinaEngine::ECS::FreeLookComponent,
+				LinaEngine::ECS::PointLightComponent,
+				LinaEngine::ECS::DirectionalLightComponent,
+				LinaEngine::ECS::SpotLightComponent,
+				LinaEngine::ECS::MeshRendererComponent>(oarchive);
+		}
+
+		std::ofstream levelDataStream(path + "/" + levelName + ".linaleveldata");
+		{
+			cereal::BinaryOutputArchive oarchive(levelDataStream); // Create an output archive
+
+			oarchive(level.m_LevelData); // Write the data to the archive
 		} // archive goes out of scope, ensuring all contents are flushed
 
-		return &level;
+		std::ofstream registryStream(path + "/" + levelName + "_ecsReg.linaregistry");
+		{
+			cereal::BinaryOutputArchive oarchive(registryStream); // Create an output archive
+
+			oarchive(registry); // Write the data to the archive
+		}
+
 	}
 
-	Level* Level::DeserializeLevel(const std::string& path)
+	void Level::DeserializeLevelData(const std::string& path, const std::string& levelName, Level& level, LinaEngine::ECS::ECSRegistry& registry)
 	{
-		std::ifstream is(path);
 
+
+		std::ifstream levelDataStream(path + "/" + levelName + ".linaleveldata");
 		{
-			cereal::BinaryInputArchive iarchive(is);
-
-			// Create the level.
-			Level* readLevel = new Level();
+			cereal::BinaryInputArchive iarchive(levelDataStream);
 
 			// Read the data into it.
-			iarchive(*readLevel);
+			iarchive(level.m_LevelData);
 
-			// Return the created level's pointer.
-			return readLevel;
+		}
+
+		registry.clear();
+
+		std::ifstream regSnapshotStream(path + "/" + levelName + "_ecsSnapshot.linasnapshot");
+		{
+			cereal::BinaryInputArchive iarchive(regSnapshotStream);
+		
+			entt::snapshot_loader{ registry}
+				.entities(iarchive)
+				.component<LinaEngine::ECS::TransformComponent, 
+				LinaEngine::ECS::CameraComponent,
+				LinaEngine::ECS::FreeLookComponent,
+				LinaEngine::ECS::PointLightComponent,
+				LinaEngine::ECS::DirectionalLightComponent,
+				LinaEngine::ECS::SpotLightComponent,
+				LinaEngine::ECS::MeshRendererComponent>(iarchive)
+				.orphans();
+		}
+
+		std::ifstream registryStream(path + "/" + levelName + "_ecsReg.linaregistry");
+		{
+			cereal::BinaryInputArchive iarchive(registryStream);
+
+			// Read the data into it.
+			iarchive(registry);
+
 		}
 	}
 }

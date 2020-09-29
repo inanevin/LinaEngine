@@ -95,7 +95,7 @@ namespace LinaEditor
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
 		LinaEngine::ECS::ECSRegistry* m_ECS = nullptr;
 		LinaEngine::Application* m_Application = nullptr;
-		LinaEngine::World::Level* m_CurrentLevel;
+		LinaEngine::World::Level* m_CurrentLevel = nullptr;
 		bool m_FPSCounterOpen = true;
 		class ECSPanel* m_ECSPanel;
 		class MaterialPanel* m_MaterialPanel;

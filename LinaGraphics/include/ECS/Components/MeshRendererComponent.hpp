@@ -44,8 +44,14 @@ namespace LinaEngine::ECS
 {
 	struct MeshRendererComponent : public ECSComponent
 	{
-		LinaEngine::Graphics::Mesh* mesh = nullptr;
-		LinaEngine::Graphics::Material* material = nullptr;
+		int meshID = 0;
+		int materialID = 0;
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(meshID, materialID); // serialize things by passing them to the archive
+		}
 	};
 }
 
