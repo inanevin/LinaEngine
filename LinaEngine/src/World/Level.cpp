@@ -23,7 +23,12 @@ Timestamp: 5/23/2020 2:23:02 PM
 #include <cereal/archives/binary.hpp>
 #include <fstream>
 #include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/CameraComponent.hpp"
+#include "ECS/Components/FreeLookComponent.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
+
 #include <cereal/archives/json.hpp>
+
 namespace LinaEngine::World
 {
 	void Level::SerializeLevelData(const std::string& path, const std::string& levelName, Level& level, LinaEngine::ECS::ECSRegistry& registry)
@@ -35,7 +40,10 @@ namespace LinaEngine::World
 
 			entt::snapshot{ registry }
 				.entities(oarchive)
-				.component<LinaEngine::ECS::TransformComponent>(oarchive);
+				.component<LinaEngine::ECS::TransformComponent,
+				LinaEngine::ECS::CameraComponent,
+				LinaEngine::ECS::FreeLookComponent,
+				LinaEngine::ECS::MeshRendererComponent>(oarchive);
 		}
 
 		std::ofstream os(path + "/" + levelName + ".linaleveldata");
@@ -68,7 +76,10 @@ namespace LinaEngine::World
 
 			entt::snapshot_loader{ registry}
 				.entities(iarchive)
-				.component<LinaEngine::ECS::TransformComponent>(iarchive)
+				.component<LinaEngine::ECS::TransformComponent, 
+				LinaEngine::ECS::CameraComponent,
+				LinaEngine::ECS::FreeLookComponent,
+				LinaEngine::ECS::MeshRendererComponent>(iarchive)
 				.orphans();
 		}
 	}

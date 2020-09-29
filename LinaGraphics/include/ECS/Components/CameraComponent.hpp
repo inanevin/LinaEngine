@@ -34,6 +34,12 @@ namespace LinaEngine::ECS
 		float zNear = 0.01f;
 		float zFar = 1000.0f;
 		bool isActive = false;
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(clearColor, fieldOfView, zNear, zFar, isActive); // serialize things by passing them to the archive
+		}
 	};
 }
 

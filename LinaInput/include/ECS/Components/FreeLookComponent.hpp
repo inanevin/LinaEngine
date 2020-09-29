@@ -28,12 +28,19 @@ namespace LinaEngine::ECS
 {
 	struct FreeLookComponent : public ECSComponent
 	{
-		float movementSpeedX;
-		float movementSpeedZ;
-		float rotationSpeedX;
-		float rotationSpeedY;
-		float horizontalAngle;
-		float verticalAngle;
+		float movementSpeedX = 0.0f;
+		float movementSpeedZ = 0.0f;
+		float rotationSpeedX = 0.0f;
+		float rotationSpeedY = 0.0f;
+		float horizontalAngle = 0.0f;
+		float verticalAngle = 0.0f;
+
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(movementSpeedX, movementSpeedZ, rotationSpeedX, rotationSpeedY, horizontalAngle, verticalAngle); // serialize things by passing them to the archive
+		}
 	};
 }
 

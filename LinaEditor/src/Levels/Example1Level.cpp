@@ -100,7 +100,6 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 		"resources/textures/defaultSkybox/back.png",
 	};
 
-
 	SamplerData data = SamplerData();
 	SamplerParameters samplerParams;
 	samplerParams.textureParams.generateMipMaps = true;
@@ -215,7 +214,7 @@ Texture& aoSphere = m_RenderEngine->CreateTexture2D(4, "resources/textures/ruste
 //	Mesh& helmetMesh = m_RenderEngine->CreateMesh("resources/meshes/glock.fbx");
 //	Mesh& roadMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
 	// Create material for example mesh.
-	objectUnlitMaterial = &m_RenderEngine->CreateMaterial(-7, Shaders::STANDARD_UNLIT);
+	objectUnlitMaterial = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::STANDARD_UNLIT);
 
 
 	int nrRows = 7;
@@ -223,7 +222,7 @@ Texture& aoSphere = m_RenderEngine->CreateTexture2D(4, "resources/textures/ruste
 	float spacing = 3.0f;
 
 
-	sphereMat = &m_RenderEngine->CreateMaterial(-8, Shaders::PBR_LIT);
+	sphereMat = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::PBR_LIT);
 sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoSphere);
 sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalSphere);
 sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
@@ -256,8 +255,8 @@ sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
 
 
 	MeshRendererComponent sphereMR;
-	sphereMR.mesh = &m_RenderEngine->GetPrimitive(Primitives::CUBE);
-	sphereMR.material = sphereMat;
+	sphereMR.meshID = Primitives::CUBE;
+	sphereMR.materialID = sphereMat->m_MaterialID;
 	//
 	//MeshRendererComponent helmetMR;
 	//helmetMR.mesh = &helmetMesh;
@@ -337,8 +336,8 @@ m_ECS->emplace<MeshRendererComponent>(sphereEntity, sphereMR);
 		MeshRendererComponent lightRenderer;
 		SpotLightComponent sLight1;
 		lightTransform.transform.location = spotLightPositions[i];
-		lightRenderer.material = objectUnlitMaterial;
-		lightRenderer.mesh = &m_RenderEngine->GetPrimitive(Primitives::CUBE);
+		lightRenderer.materialID = objectUnlitMaterial->m_MaterialID;
+		lightRenderer.meshID = Primitives::CUBE;
 		sLight = m_ECS->CreateEntity("Spot light" + i);
 
 

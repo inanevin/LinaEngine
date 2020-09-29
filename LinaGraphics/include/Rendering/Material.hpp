@@ -54,10 +54,11 @@ namespace LinaEngine::Graphics
 	{
 
 	public:
-		
+
 		void SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		void RemoveTexture(const std::string& textureName);
 		Texture* GetTexture(const std::string& name);
+
 
 		FORCEINLINE void SetFloat(const std::string& name, float value)
 		{
@@ -154,6 +155,8 @@ namespace LinaEngine::Graphics
 		{
 			archive(usesHDRI, receivesLighting, isShadowMapped, m_ShaderType, m_SurfaceType, floats, ints, colors, vector2s, vector3s, vector4s, matrices, booleans);
 		}
+
+		int m_MaterialID = -1;
 
 	private:
 

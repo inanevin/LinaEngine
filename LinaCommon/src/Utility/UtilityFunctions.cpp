@@ -28,6 +28,12 @@ namespace LinaEngine
 {
 	namespace Utility
 	{
+
+		int GetUniqueID()
+		{
+			return ++uniqueID;
+		}
+
 		size_t StringToHash(std::string str)
 		{
 			std::hash<std::string> hasher;

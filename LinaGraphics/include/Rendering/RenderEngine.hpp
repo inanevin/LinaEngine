@@ -170,7 +170,6 @@ namespace LinaEngine::Graphics
 		bool TextureExists(int id);
 		bool MeshExists(int id);
 		bool ShaderExists(Shaders shader);
-		bool PrimitiveExists(Primitives primitive);
 
 		// Sets the shader of a material to the shader specified by name. Also resets material properties based on the shader, caution!
 		Material& SetMaterialShader(Material& material, Shaders shader);
@@ -360,9 +359,6 @@ namespace LinaEngine::Graphics
 
 		// Model resources
 		std::map<int, Mesh> m_LoadedMeshes;
-
-		// Primitive resources
-		std::map<int, Mesh> m_LoadedPrimitives;
 
 		// Material storage
 		std::map<int, Material> m_LoadedMaterials;

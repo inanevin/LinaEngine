@@ -39,33 +39,22 @@ namespace LinaEngine::ECS
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 			MeshRendererComponent& renderer = view.get<MeshRendererComponent>(entity);
 
-
-			// Null check.
-			if (renderer.material == nullptr)
-			{
-				LINA_CORE_ERR("Please assign a material to the MeshRendererComponent to draw!");
-				continue;
-			}
-
-			if (renderer.mesh == nullptr)
-			{
-				LINA_CORE_ERR("Renderer component's has no mesh is assigned, no drawing will occur for this.");
-				continue;
-			}
-
 			// Render different batches.
-			if (renderer.material->GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
+			Graphics::Material& mat = m_RenderEngine->GetMaterial(renderer.materialID);
+			Graphics::Mesh& mesh = m_RenderEngine->GetMesh(renderer.meshID);
+
+			if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
 			{
-				for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
-					RenderOpaque(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix());
+				for (int i = 0; i < mesh.GetVertexArrays().size(); i++)
+					RenderOpaque(*mesh.GetVertexArray(i), mat, transform.transform.ToMatrix());
 			}
 			else
 			{
 				// Set the priority as distance to the camera.
 				float priority = (m_RenderEngine->GetCameraSystem()->GetCameraLocation() - transform.transform.location).MagnitudeSqrt();
 
-				for (int i = 0; i < renderer.mesh->GetVertexArrays().size(); i++)
-					RenderTransparent(*renderer.mesh->GetVertexArray(i), *renderer.material, transform.transform.ToMatrix(), priority);
+				for (int i = 0; i < mesh.GetVertexArrays().size(); i++)
+					RenderTransparent(*mesh.GetVertexArray(i), mat, transform.transform.ToMatrix(), priority);
 			}
 		}
 
