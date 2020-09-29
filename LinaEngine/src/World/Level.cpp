@@ -29,7 +29,7 @@ namespace LinaEngine::World
 	Level* Level::SerializeLevel(const std::string& path, const std::string& levelName, Level& level)
 	{
 
-		std::ofstream reg(path + "ecsreg.linaregistry");
+		std::ofstream reg(path + "/ecsreg.linaregistry");
 		{
 			cereal::BinaryOutputArchive oarchive(reg); // Create an output archive
 
@@ -38,7 +38,7 @@ namespace LinaEngine::World
 				.component<LinaEngine::ECS::TransformComponent>(oarchive);
 		}
 
-		std::ofstream os(path + levelName);
+		std::ofstream os(path + "/" + levelName);
 		{
 			cereal::BinaryOutputArchive oarchive(os); // Create an output archive
 
@@ -54,7 +54,7 @@ namespace LinaEngine::World
 		// Create the level.
 		Level* readLevel = new Level();
 
-		std::ifstream is(path + levelName);
+		std::ifstream is(path + "/" + levelName);
 		{
 			cereal::BinaryInputArchive iarchive(is);
 
@@ -63,7 +63,7 @@ namespace LinaEngine::World
 
 		}
 
-		std::ifstream reg(path + "ecsreg.linaregistry");
+		std::ifstream reg(path + "/ecsreg.linaregistry");
 		{
 			cereal::BinaryInputArchive iarchive(reg);
 

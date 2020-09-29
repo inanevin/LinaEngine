@@ -31,6 +31,7 @@ Class: UILayer
 #include "Core/EditorCommon.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/RenderConstants.hpp"
+#include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -336,6 +337,7 @@ namespace LinaEditor
 
 		if (ImGui::BeginMenuBar())
 		{
+			std::string saveFileDialogueID = "Save Level";
 
 			if (ImGui::BeginMenu("Levels"))
 			{
@@ -346,7 +348,7 @@ namespace LinaEditor
 				if (ImGui::MenuItem("Save Level"))
 				{
 					// Save level.
-					m_CurrentLevel->SerializeLevel("","level.linalevel", *m_CurrentLevel);					
+					igfd::ImGuiFileDialog::Instance()->OpenDialog(saveFileDialogueID, "Choose File", ".linalevel", ".");
 				}
 				if (ImGui::MenuItem("Load Level"))
 				{
@@ -355,6 +357,25 @@ namespace LinaEditor
 
 				ImGui::EndMenu();
 			}
+
+			if (igfd::ImGuiFileDialog::Instance()->FileDialog(saveFileDialogueID))
+			{
+				// action if OK
+				if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
+				{
+					std::string filePathName = igfd::ImGuiFileDialog::Instance()->GetFilepathName();
+					std::string filePath = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
+					std::string fileName = igfd::ImGuiFileDialog::Instance()->GetCurrentFileName();
+					m_CurrentLevel->SerializeLevel(filePath, fileName, *m_CurrentLevel);
+
+					igfd::ImGuiFileDialog::Instance()->CloseDialog(saveFileDialogueID);
+				}
+				// close
+				igfd::ImGuiFileDialog::Instance()->CloseDialog(saveFileDialogueID);
+			}
+
+
+
 			// Panels menu bar
 			if (ImGui::BeginMenu("Panels"))
 			{
