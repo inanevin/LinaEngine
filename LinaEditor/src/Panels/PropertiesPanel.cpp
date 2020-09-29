@@ -327,7 +327,7 @@ namespace LinaEditor
 
 				ImVec4 col = ImVec4(light->color.r, light->color.g, light->color.b, light->color.a);
 				float d = light->distance;
-				EditorUtility::ColorButton(Vector4(col.x, col.y, col.z, col.w));
+				EditorUtility::ColorButton(&col.x);
 				ImGui::DragFloat("Distance ", &d, dragSensitivity);
 				light->distance = d;
 				light->color = Color(col.x, col.y, col.z, col.w);
@@ -355,7 +355,7 @@ namespace LinaEditor
 				float d = light->distance;
 				float cutOff = light->cutOff;
 				float outerCutOff = light->outerCutOff;
-				EditorUtility::ColorButton(Vector4(col.x, col.y, col.z, col.w));
+				EditorUtility::ColorButton(&col.x);
 				ImGui::DragFloat("Distance ", &d, dragSensitivity);
 				ImGui::DragFloat("CutOff ", &cutOff, dragSensitivity);
 				ImGui::DragFloat("Outer Cutoff ", &outerCutOff, dragSensitivity);
@@ -386,7 +386,7 @@ namespace LinaEditor
 				ImVec4 col = ImVec4(light->color.r, light->color.g, light->color.b, light->color.a);
 				float direction[3] = { light->direction.x, light->direction.y, light->direction.z };
 
-				EditorUtility::ColorButton(Vector4(col.x, col.y, col.z, col.w));
+				EditorUtility::ColorButton(&col.x);
 				ImGui::DragFloat3("Direction ", direction, dragSensitivity);
 				light->direction = Vector3(direction[0], direction[1], direction[2]);
 				light->color = Color(col.x, col.y, col.z, col.w);

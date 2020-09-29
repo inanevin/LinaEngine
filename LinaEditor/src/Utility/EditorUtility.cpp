@@ -58,9 +58,8 @@ namespace LinaEditor
 		}
 	}
 
-	void EditorUtility::ColorButton(LinaEngine::Vector4 col)
+	void EditorUtility::ColorButton(float* colorX)
 	{
-		ImVec4 color = ImVec4(col.x, col.y, col.z, col.w);
 		static bool alpha_preview = true;
 		static bool alpha_half_preview = false;
 		static bool drag_and_drop = true;
@@ -82,13 +81,13 @@ namespace LinaEditor
 		}
 
 		static ImVec4 backup_color;
-		bool open_popup = ImGui::ColorButton("MyColor##3b", color, misc_flags);
+		bool open_popup = ImGui::ColorButton("MyColor##3b", ImVec4(colorX[0], colorX[1], colorX[2], colorX[3]), misc_flags);
 		ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
 		open_popup |= ImGui::Button("Light Color");
 		if (open_popup)
 		{
 			ImGui::OpenPopup("mypicker");
-			backup_color = color;
+			backup_color = ImVec4(colorX[0], colorX[1], colorX[2], colorX[3]);
 		}
 		if (ImGui::BeginPopup("mypicker"))
 		{
@@ -96,15 +95,21 @@ namespace LinaEditor
 
 			ImGui::Text("Color Picker!");
 			ImGui::Separator();
-			ImGui::ColorPicker4("##picker", (float*)&color, misc_flags | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoSmallPreview);
+			ImGui::ColorPicker4("##picker", colorX, misc_flags | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoSmallPreview);
 			ImGui::SameLine();
 
 			ImGui::BeginGroup(); // Lock X position
 			ImGui::Text("Current");
-			ImGui::ColorButton("##current", color, ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_AlphaPreviewHalf, ImVec2(60, 40));
+			ImGui::ColorButton("##current", ImVec4(colorX[0], colorX[1], colorX[2], colorX[3]), ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_AlphaPreviewHalf, ImVec2(60, 40));
 			ImGui::Text("Previous");
+
 			if (ImGui::ColorButton("##previous", backup_color, ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_AlphaPreviewHalf, ImVec2(60, 40)))
-				color = backup_color;
+			{
+				colorX[0] = backup_color.x;
+				colorX[1] = backup_color.y;
+				colorX[2] = backup_color.z;
+				colorX[3] = backup_color.w;
+			}
 
 			ImGui::EndGroup();
 			ImGui::EndPopup();

@@ -44,7 +44,7 @@ namespace LinaEditor
 		EditorUtility();
 		~EditorUtility();
 
-		static void EditorUtility::ColorButton(LinaEngine::Vector4 col);
+		static void EditorUtility::ColorButton(float* colorX);
 		static bool SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size);
 		static bool CreateFolderInPath(const std::string& path);
 		static bool GetDirectories(std::vector<std::string>& vec, const std::string& path);

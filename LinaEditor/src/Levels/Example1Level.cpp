@@ -153,7 +153,7 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-	CreateHDRISkybox(m_RenderEngine);
+	CreateProceduralSkybox(m_RenderEngine);
 
 
 
