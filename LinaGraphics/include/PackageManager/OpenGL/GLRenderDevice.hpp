@@ -207,7 +207,7 @@ namespace LinaEngine::Graphics
 		void Draw(uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements, bool drawArrays = false);
 
 		// Draws line bw two points
-		void DrawLine(float width = 1.0f);
+		void DrawLine(uint32 shader, const Matrix& model, const Vector3& from, const Vector3& to, float width = 1.0f);
 
 		// Clears context.
 		void Clear(bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const class Color& color, uint32 stencil);

@@ -50,12 +50,18 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	float lineVertices[] =
-	{
-		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 0.0f
+	struct btLine {
+		GLfloat vertices[6];
+		btLine(const Vector3& f, const Vector3& t) {
+			vertices[0] = f.x;
+			vertices[1] = f.y;
+			vertices[2] = f.z;
+
+			vertices[3] = t.x;
+			vertices[4] = t.y;
+			vertices[5] = t.z;
+		}
 	};
-	
 
 	float skyboxVertices[] = {
 		// positions          
@@ -628,9 +634,11 @@ namespace LinaEngine::Graphics
 		glGenBuffers(1, &lineVBO);
 		SetVAO(lineVAO);
 		glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(lineVertices), &lineVertices, GL_STATIC_DRAW);
+		//glBufferData(GL_ARRAY_BUFFER, sizeof(lineVertices), &lineVertices, GL_STATIC_DRAW);
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+
 		return lineVAO;
 	}
 
@@ -1141,10 +1149,55 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void GLRenderDevice::DrawLine(float width)
+	void GLRenderDevice::DrawLine(uint32 shader, const Matrix& model, const Vector3& from, const Vector3& to, float width)
 	{
 		glLineWidth(width);
-		glDrawArrays(GL_LINES, 0, 6);
+		
+
+		btLine lines(from, to);
+		Vector3 result = to - from;
+		glm::vec3 colors = { result.x, result.y, result.z };
+		colors = glm::normalize(colors);
+		GLuint indices[] = { 0,1 };
+
+		GLuint vao, vbo, ebo;
+
+		glGenVertexArrays(1, &vao);
+		glGenBuffers(1, &vbo);
+		glGenBuffers(1, &ebo);
+
+		glBindVertexArray(vao);
+
+		//UPLOADING VERTEX
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER,
+			sizeof(GLfloat) * 6, lines.vertices, GL_STATIC_DRAW);
+		//UPLOADING INDEXES
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+			sizeof(GLuint) * 2,
+			indices,
+			GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+			sizeof(GLfloat) * 3, (GLvoid*)0);
+		glBindVertexArray(0);
+
+
+		//use program
+		SetShader(shader);
+		UpdateShaderUniformMatrix(shader, "model", model);
+		
+		//use geometry
+		glBindVertexArray(vao);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+
+		//delete buffers
+		glDeleteVertexArrays(1, &vao);
+		glDeleteBuffers(1, &vbo);
+		glDeleteBuffers(1, &ebo);
 	}
 
 	void GLRenderDevice::Clear(bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)
