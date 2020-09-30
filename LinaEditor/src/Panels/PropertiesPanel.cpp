@@ -29,6 +29,7 @@ Timestamp: 6/7/2020 5:13:42 PM
 #include "ECS/Components/LightComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
+#include "ECS/Components/RigidbodyComponent.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -71,6 +72,14 @@ namespace LinaEditor
 		"REPEAT_MIRROR"
 	};
 
+	const char* rigidbodyShapes[]
+	{
+		"BOX",
+		"SPHERE",
+		"CYLINDER",
+		"CAPSULE"
+	};
+
 	static Graphics::PixelFormat selectedInternalPF;
 	static Graphics::PixelFormat selectedPF;
 	static Graphics::SamplerFilter selectedMinFilter;
@@ -78,6 +87,7 @@ namespace LinaEditor
 	static Graphics::SamplerWrapMode selectedWrapS;
 	static Graphics::SamplerWrapMode selectedWrapR;
 	static Graphics::SamplerWrapMode selectedWrapT;
+	static ECS::CollisionShape selectedCollisionShape;
 
 	const int TEXTUREPREVIEW_MAX_WIDTH = 250;
 
@@ -408,6 +418,34 @@ namespace LinaEditor
 			{
 				ImGui::Indent();
 				ImGui::Unindent();
+			}
+		}
+
+		// Draw rigidbody component
+		if (m_ECS->has<RigidbodyComponent>(entity))
+		{
+			RigidbodyComponent& rb = m_ECS->get<RigidbodyComponent>(entity);
+			static ImGuiComboFlags flags = 0;
+			static ECS::CollisionShape selectedCollisionShape = rb.m_collisionShape;
+			const char* collisionShapeLabel = rigidbodyShapes[m_currentCollisionShape];
+
+			if (ImGui::BeginCombo("Collision Shape", collisionShapeLabel, flags))
+			{
+				for (int i = 0; i < IM_ARRAYSIZE(rigidbodyShapes); i++)
+				{
+					const bool is_selected = (m_currentCollisionShape == i);
+					if (ImGui::Selectable(rigidbodyShapes[i], is_selected))
+					{
+						selectedCollisionShape = (ECS::CollisionShape)i;
+						m_currentCollisionShape = i;
+						rb.m_collisionShape = selectedCollisionShape;
+					}
+
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+
 			}
 		}
 
