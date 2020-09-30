@@ -424,29 +424,59 @@ namespace LinaEditor
 		// Draw rigidbody component
 		if (m_ECS->has<RigidbodyComponent>(entity))
 		{
-			RigidbodyComponent& rb = m_ECS->get<RigidbodyComponent>(entity);
-			static ImGuiComboFlags flags = 0;
-			static ECS::CollisionShape selectedCollisionShape = rb.m_collisionShape;
-			const char* collisionShapeLabel = rigidbodyShapes[m_currentCollisionShape];
-
-			if (ImGui::BeginCombo("Collision Shape", collisionShapeLabel, flags))
+			if (ImGui::CollapsingHeader("Rigidbody", ImGuiTreeNodeFlags_None))
 			{
-				for (int i = 0; i < IM_ARRAYSIZE(rigidbodyShapes); i++)
+				ImGui::Indent();
+
+				RigidbodyComponent& rb = m_ECS->get<RigidbodyComponent>(entity);
+
+				m_currentCollisionShape = (int)rb.m_collisionShape;
+
+				// Draw collision shape.
+				static ImGuiComboFlags flags = 0;
+				static ECS::CollisionShape selectedCollisionShape = rb.m_collisionShape;
+				const char* collisionShapeLabel = rigidbodyShapes[m_currentCollisionShape];
+
+				if (ImGui::BeginCombo("Collision Shape", collisionShapeLabel, flags))
 				{
-					const bool is_selected = (m_currentCollisionShape == i);
-					if (ImGui::Selectable(rigidbodyShapes[i], is_selected))
+					for (int i = 0; i < IM_ARRAYSIZE(rigidbodyShapes); i++)
 					{
-						selectedCollisionShape = (ECS::CollisionShape)i;
-						m_currentCollisionShape = i;
-						rb.m_collisionShape = selectedCollisionShape;
+						const bool is_selected = (m_currentCollisionShape == i);
+						if (ImGui::Selectable(rigidbodyShapes[i], is_selected))
+						{
+							selectedCollisionShape = (ECS::CollisionShape)i;
+							m_currentCollisionShape = i;
+							rb.m_collisionShape = selectedCollisionShape;
+						}
+
+						if (is_selected)
+							ImGui::SetItemDefaultFocus();
 					}
+					ImGui::EndCombo();
 
-					if (is_selected)
-						ImGui::SetItemDefaultFocus();
 				}
-				ImGui::EndCombo();
 
+				ImGui::InputFloat("Mass", &rb.m_mass);
+
+				if (rb.m_collisionShape == ECS::CollisionShape::BOX || rb.m_collisionShape == ECS::CollisionShape::CYLINDER)
+				{
+					ImGui::InputFloat3("Half Extents", &rb.m_halfExtents.x);
+				}
+				else if (rb.m_collisionShape == ECS::CollisionShape::SPHERE)
+				{
+					ImGui::InputFloat("Radius", &rb.m_radius);
+				}
+				else if (rb.m_collisionShape == ECS::CollisionShape::CAPSULE)
+				{
+					ImGui::InputFloat("Radius", &rb.m_radius);
+					ImGui::InputFloat("Height", &rb.m_capsuleHeight);
+				}
+
+
+				ImGui::Unindent();
 			}
+
+			
 		}
 
 	}

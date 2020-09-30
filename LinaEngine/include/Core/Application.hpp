@@ -110,6 +110,9 @@ namespace LinaEngine
 		// Is his the first run
 		bool m_FirstRun = true;
 
+		// Can we render
+		bool m_canRender = true;
+
 		// Callbacks
 		std::function<void(int, int)> m_KeyCallback;
 		std::function<void(int, int)> m_MouseCallback;

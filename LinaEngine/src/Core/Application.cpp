@@ -130,7 +130,7 @@ namespace LinaEngine
 
 			while (accumulator >= dt)
 			{
-				
+
 				// Update physics engine.
 				m_PhysicsEngine.Tick(dt);
 				t += dt;
@@ -138,11 +138,12 @@ namespace LinaEngine
 			}
 
 			// Update render engine.
-			m_RenderEngine.Render();
+			if (m_canRender)
+				m_RenderEngine.Render();
 
 			// Simple FPS count
 			m_FPSCounter++;
-		
+
 			if (currentTime - m_PreviousTime >= 1.0)
 			{
 				m_PreviousTime = currentTime;
@@ -168,6 +169,11 @@ namespace LinaEngine
 
 	void Application::OnWindowResize(Vector2 size)
 	{
+		if (size.x == 0.0f || size.y == 0.0f)
+			m_canRender = false;
+		else
+			m_canRender = true;
+
 		m_RenderEngine.OnWindowResized(size.x, size.y);
 	}
 

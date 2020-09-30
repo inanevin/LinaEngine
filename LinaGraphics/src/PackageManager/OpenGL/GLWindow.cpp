@@ -108,7 +108,7 @@ namespace LinaEngine::Graphics
 
 		// set user pointer for callbacks.
 		glfwSetWindowUserPointer(window, this);
-
+	
 		auto windowResizeFunc = [](GLFWwindow* w, int wi, int he)
 		{
 			static_cast<GLWindow*>(glfwGetWindowUserPointer(w))->WindowResized(w, wi, he);
