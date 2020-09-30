@@ -91,6 +91,7 @@ namespace LinaEngine::Physics
 		// connects a member function
 		ecsReg.on_construct<LinaEngine::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyAdded>(this);
 		ecsReg.on_destroy<LinaEngine::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyAdded>(this);
+
 	}
 
 
@@ -144,6 +145,8 @@ namespace LinaEngine::Physics
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(transform);
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
+
+		
 
 		// Set the body in the map & assign rb component info.
 		int id = LinaEngine::Utility::GetUniqueID();

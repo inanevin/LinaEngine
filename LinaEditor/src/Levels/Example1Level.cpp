@@ -189,11 +189,11 @@ Texture& metallicSphere = m_RenderEngine->CreateTexture2D(2, "resources/textures
 Texture& roughnessSphere = m_RenderEngine->CreateTexture2D(3, "resources/textures/rusted_iron/roughness.png", pbrSampler, false, false);
 Texture& aoSphere = m_RenderEngine->CreateTexture2D(4, "resources/textures/rusted_iron/ao.png", pbrSampler, false, false);
 	//
-	//Texture& albedoFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/albedo.png", pbrSampler, false, false);
-	//Texture& normalFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/normal.png", pbrSampler, false, false);
-	//Texture& metallicFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/metallic.png", pbrSampler, false, false);
-	//Texture& roughnessFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/roughness.png", pbrSampler, false, false);
-	//Texture& aoFloor = m_RenderEngine->CreateTexture2D("resources/textures/wall/ao.png", pbrSampler, false, false);
+	Texture& albedoFloor = m_RenderEngine->CreateTexture2D(-11, "resources/textures/grass/albedo.png", pbrSampler, false, false);
+	Texture& normalFloor = m_RenderEngine->CreateTexture2D(-12, "resources/textures/grass/normal.png", pbrSampler, false, false);
+	Texture& metallicFloor = m_RenderEngine->CreateTexture2D(-13, "resources/textures/grass/metallic.png", pbrSampler, false, false);
+	Texture& roughnessFloor = m_RenderEngine->CreateTexture2D(-14, "resources/textures/grass/roughness.png", pbrSampler, false, false);
+	Texture& aoFloor = m_RenderEngine->CreateTexture2D(-15, "resources/textures/grass/ao.png", pbrSampler, false, false);
 	//
 	//
 	//
@@ -212,7 +212,7 @@ Texture& aoSphere = m_RenderEngine->CreateTexture2D(4, "resources/textures/ruste
 	
 	// Load example mesh.
 //	Mesh& cubeMesh = m_RenderEngine->GetPrimitive(Primitives::CUBE);
-//	Mesh& floorMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
+	Mesh& floorMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
 //	Mesh& helmetMesh = m_RenderEngine->CreateMesh("resources/meshes/glock.fbx");
 //	Mesh& roadMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
 	// Create material for example mesh.
@@ -247,13 +247,13 @@ sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
 	//helmetMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicHelmet);
 	//helmetMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoHelmet);
 	//
-	//floorMaterial = &m_RenderEngine->CreateMaterial("fs", Shaders::PBR_LIT);
-	//floorMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoFloor);
-	//floorMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalFloor);
-	//floorMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessFloor);
-	//floorMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicFloor);
-	//floorMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoFloor);
-	//floorMaterial->SetVector2(MAT_TILING, Vector2(100, 100));
+	floorMaterial = &m_RenderEngine->CreateMaterial(-55, Shaders::PBR_LIT);
+	floorMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoFloor);
+	floorMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalFloor);
+	floorMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessFloor);
+	floorMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicFloor);
+	floorMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoFloor);
+	floorMaterial->SetVector2(MAT_TILING, Vector2(100, 100));
 
 
 	MeshRendererComponent sphereMR;
@@ -262,19 +262,23 @@ sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
 
 	RigidbodyComponent sphereRB;
 	sphereRB.m_mass = 1.0f;
-	sphereRB.m_halfExtents = Vector3(1.0f);
+	sphereRB.m_halfExtents = Vector3(0.1f, 0.1f, 0.1f);
+	sphereRB.m_collisionShape = CollisionShape::BOX;
 
+	RigidbodyComponent floorRB;
+	floorRB.m_mass = 0.0f;
+	floorRB.m_collisionShape = CollisionShape::BOX;
 	//
 	//MeshRendererComponent helmetMR;
 	//helmetMR.mesh = &helmetMesh;
 	//helmetMR.material = helmetMaterial;
 	//
-	//MeshRendererComponent floorMR;
-	//floorMR.mesh = &floorMesh;
-	//floorMR.material = floorMaterial;
+	MeshRendererComponent floorMR;
+	floorMR.meshID = Primitives::PLANE;
+	floorMR.materialID = floorMaterial->m_MaterialID;
 
 	DirectionalLightComponent dirLightComp;
-	dirLightComp.direction = Vector3(0, 0, 1);
+	dirLightComp.direction = Vector3(0, -1, 1);
 	TransformComponent objectTransform;
 
 	ECSEntity directionalLightEntity;
@@ -285,11 +289,18 @@ sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
 
 ECSEntity sphereEntity;
 sphereEntity = m_ECS->CreateEntity("Sphere");
-objectTransform.transform.location = Vector3(0, 5, 5);
+objectTransform.transform.location = Vector3(0, 10, 5);
+sphereRB.m_halfExtents = Vector3(1,1,1);
 m_ECS->emplace<TransformComponent>(sphereEntity, objectTransform);
 m_ECS->emplace<MeshRendererComponent>(sphereEntity, sphereMR);
 m_ECS->emplace<RigidbodyComponent>(sphereEntity, sphereRB);
 
+	ECSEntity sphereEntity2;
+	sphereEntity2 = m_ECS->CreateEntity("Sphere");
+	objectTransform.transform.location = Vector3(1.5f, 15.5f, 5);
+	m_ECS->emplace<TransformComponent>(sphereEntity2, objectTransform);
+	m_ECS->emplace<MeshRendererComponent>(sphereEntity2, sphereMR);
+	m_ECS->emplace<RigidbodyComponent>(sphereEntity2, sphereRB);
 
 	//
 	//ECSEntity helmetEntity;
@@ -298,12 +309,15 @@ m_ECS->emplace<RigidbodyComponent>(sphereEntity, sphereRB);
 	//m_ECS->emplace<TransformComponent>(helmetEntity, objectTransform);
 	//m_ECS->emplace<MeshRendererComponent>(helmetEntity, helmetMR);
 	//
-	//ECSEntity floorEntity;
-	//floorEntity = m_ECS->CreateEntity("Floor");
-	//objectTransform.transform.scale = Vector3(100, 1, 100);
-	//objectTransform.transform.location = Vector3(0, 0, 0);
-	//m_ECS->emplace<TransformComponent>(floorEntity, objectTransform);
-	//m_ECS->emplace<MeshRendererComponent>(floorEntity, floorMR);
+	ECSEntity floorEntity;
+	floorEntity = m_ECS->CreateEntity("Floor");
+	objectTransform.transform.scale = Vector3(100, 1, 100);
+	objectTransform.transform.location = Vector3(0, -15, 0);
+	floorRB.m_halfExtents = Vector3(50.0f, 0.5f, 50.0f);
+
+	m_ECS->emplace<TransformComponent>(floorEntity, objectTransform);
+	m_ECS->emplace<MeshRendererComponent>(floorEntity, floorMR);
+	m_ECS->emplace<RigidbodyComponent>(floorEntity, floorRB);
 
 	//MeshRendererComponent roadMR;
 	//roadMR.mesh = &roadMesh;
