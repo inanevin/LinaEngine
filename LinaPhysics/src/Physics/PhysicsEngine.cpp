@@ -86,7 +86,7 @@ namespace LinaEngine::Physics
 
 		// Setup rigidbody system.
 		m_rigidbodySystem.Construct(ecsReg, this);
-		m_physicsPipeline.RemoveSystem(m_rigidbodySystem);
+		m_physicsPipeline.AddSystem(m_rigidbodySystem);
 
 		// connects a member function
 		ecsReg.on_construct<LinaEngine::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyAdded>(this);

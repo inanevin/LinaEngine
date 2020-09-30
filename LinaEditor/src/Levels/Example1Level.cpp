@@ -26,6 +26,7 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
+#include "ECS/Components/RigidbodyComponent.hpp"
 #include "Levels/GroundCubeSystem.hpp"
 #include "Levels/GroundCubeComponent.hpp"
 #include "Rendering/RenderEngine.hpp"
@@ -258,6 +259,11 @@ sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
 	MeshRendererComponent sphereMR;
 	sphereMR.meshID = Primitives::CUBE;
 	sphereMR.materialID = sphereMat->m_MaterialID;
+
+	RigidbodyComponent sphereRB;
+	sphereRB.m_mass = 1.0f;
+	sphereRB.m_halfExtents = Vector3(1.0f);
+
 	//
 	//MeshRendererComponent helmetMR;
 	//helmetMR.mesh = &helmetMesh;
@@ -282,6 +288,7 @@ sphereEntity = m_ECS->CreateEntity("Sphere");
 objectTransform.transform.location = Vector3(0, 5, 5);
 m_ECS->emplace<TransformComponent>(sphereEntity, objectTransform);
 m_ECS->emplace<MeshRendererComponent>(sphereEntity, sphereMR);
+m_ECS->emplace<RigidbodyComponent>(sphereEntity, sphereRB);
 
 
 	//
