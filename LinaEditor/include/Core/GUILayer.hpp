@@ -68,10 +68,7 @@ namespace LinaEditor
 		FORCEINLINE class MaterialPanel* GetMaterialPanel() const { return m_MaterialPanel; }
 		FORCEINLINE class ResourcesPanel* GetResourcesPanel() const { return m_ResourcesPanel; }
 		FORCEINLINE class ScenePanel* GetScenePanel() const { return m_ScenePanel; }
-		FORCEINLINE LinaEngine::Graphics::RenderEngine* GetRenderEngine() const { return m_RenderEngine; }
-
-		void DrawLine(Vector3 from, Vector3 to, Color color, float width = 1.0f);
-	
+		FORCEINLINE LinaEngine::Graphics::RenderEngine* GetRenderEngine() const { return m_RenderEngine; }	
 
 	private:
 

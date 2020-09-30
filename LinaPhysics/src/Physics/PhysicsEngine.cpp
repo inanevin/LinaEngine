@@ -105,7 +105,6 @@ namespace LinaEngine::Physics
 
 	void PhysicsEngine::Tick(float fixedDelta)
 	{
-		m_world->debugDrawWorld();
 
 		// Physics simulation.
 		m_world->stepSimulation(fixedDelta, 10);
@@ -188,6 +187,12 @@ namespace LinaEngine::Physics
 
 		// remove from the map.
 		m_bodies.erase(rbComp.m_bodyID);
+	}
+
+	void PhysicsEngine::OnPostSceneDraw()
+	{
+		// Draw world debug.
+		m_world->debugDrawWorld();
 	}
 
 }

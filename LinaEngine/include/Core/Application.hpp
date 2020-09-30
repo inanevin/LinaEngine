@@ -83,12 +83,17 @@ namespace LinaEngine
 		// Called when main application window is closed.
 		bool OnWindowClose();
 
+		// Window resize event
 		void OnWindowResize(Vector2 size);
+
+		// Called when scene objects are drawn
+		void OnPostSceneDraw();
 
 		// Callbacks & events.
 		FORCEINLINE void KeyCallback(int key, int action) { m_InputEngine.DispatchKeyAction(static_cast<LinaEngine::Input::InputCode::Key>(key), action); }
 		FORCEINLINE void MouseCallback(int button, int action) { m_InputEngine.DispatchMouseAction(static_cast<LinaEngine::Input::InputCode::Mouse>(button), action); }
 		FORCEINLINE void WindowCloseCallback() {};
+		
 
 	private:
 
@@ -122,6 +127,7 @@ namespace LinaEngine
 		std::function<void(Vector2)> m_WindowResizeCallback;
 		std::function<void()> m_WindowClosedCallback;
 		std::function<void(Vector3, Vector3, Color, float)> m_drawLineCallback;
+		std::function<void()> m_postSceneDrawCallback;
 
 		// FPS counting
 		int m_CurrentFPS;

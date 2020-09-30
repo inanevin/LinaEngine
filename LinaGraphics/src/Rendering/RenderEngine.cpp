@@ -897,8 +897,16 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::DrawLine(Vector3 p1, Vector3 p2, Color col, float width)
 	{
-
-		
+		Color c = Color::Green;
+		Matrix mod = Matrix::Identity();
+		mod.Scale(1.0f);
+		mod.ApplyScale(13);
+		UpdateShaderData(&m_debugDrawMaterial);
+		m_RenderDevice.UpdateShaderUniformMatrix(m_debugDrawMaterial.shaderID, UF_MATRIX_MODEL, &mod);
+		m_RenderDevice.UpdateShaderUniformColor(m_debugDrawMaterial.shaderID, MAT_COLOR, c);
+		m_RenderDevice.SetVAO(m_lineVAO);
+	
+		m_RenderDevice.DrawLine(&p1.x, &p2.x, &c.r, 2);
 	}
 
 	void RenderEngine::DrawOperationsDefault(float delta)
@@ -936,18 +944,10 @@ namespace LinaEngine::Graphics
 		// Draw skybox.
 		if (drawSkybox)
 			DrawSkybox();
-		Color c = Color::Green;
 
-		Matrix mod = Matrix::Identity();
-		mod.Scale(1.0f);
-		mod.ApplyScale(13);
-		UpdateShaderData(&m_debugDrawMaterial);
-		m_RenderDevice.UpdateShaderUniformMatrix(m_debugDrawMaterial.shaderID, UF_MATRIX_MODEL, &mod);
-		m_RenderDevice.UpdateShaderUniformColor(m_debugDrawMaterial.shaderID, MAT_COLOR, c);
-		m_RenderDevice.SetVAO(m_lineVAO);
-		Vector3 p1 = Vector3(0, 0, 0);
-		Vector3 p2 = Vector3(0, 15, 0);
-		m_RenderDevice.DrawLine(&p1.x, &p2.x, &c.r, 2);
+		// Post scene draw callback.
+		if (m_postSceneDrawCallback)
+			m_postSceneDrawCallback();
 
 	}
 

@@ -231,11 +231,6 @@ namespace LinaEditor
 		delete m_ScenePanel;
 	}
 
-	void GUILayer::DrawLine(Vector3 from, Vector3 to, Color color, float width)
-	{
-		m_ScenePanel->DrawLine(from, to, color, width);
-	}
-
 	void GUILayer::DrawTools(bool* p_open, int corner)
 	{
 

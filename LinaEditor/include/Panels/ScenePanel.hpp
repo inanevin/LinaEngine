@@ -51,9 +51,6 @@ namespace LinaEditor
 		// Set selected entity's transform component
 		FORCEINLINE void SetSelectedTransform(LinaEngine::ECS::TransformComponent* tr) { m_SelectedTransform = tr; }
 
-		// Draws a line in scene view.
-		void DrawLine(Vector3 p1, Vector3 p2, Color col, float width = 1.0f);
-
 		// Handle hardware input
 		void ProcessInput();
 

@@ -51,12 +51,6 @@ namespace LinaEditor
 			LINA_CLIENT_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
 		
 		}
-
-		virtual void OnDrawLine(Vector3 from, Vector3 to, Color color, float width = 1.0f) override
-		{
-			m_guiLayer->DrawLine(from, to, color, width);
-		}
-
 	private:
 
 		GUILayer* m_guiLayer;

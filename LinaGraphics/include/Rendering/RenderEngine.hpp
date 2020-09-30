@@ -68,6 +68,11 @@ namespace LinaEngine::Graphics
 
 		~RenderEngine();
 
+		// Setter for post scene draw callback.
+		FORCEINLINE void SetPostSceneDrawCallback(std::function<void()>& cb)
+		{
+			m_postSceneDrawCallback = cb;
+		}
 
 		// Creates an GLFW window.
 		FORCEINLINE bool CreateContextWindow()
@@ -404,6 +409,9 @@ namespace LinaEngine::Graphics
 		SamplerParameters mainRTParams;
 		SamplerParameters primaryRTParams;
 		SamplerParameters pingPongRTParams;
+
+		// Post scene draw callback
+		std::function<void()> m_postSceneDrawCallback;
 
 		DISALLOW_COPY_ASSIGN_NEW(RenderEngine);
 	};

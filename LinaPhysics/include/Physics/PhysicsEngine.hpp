@@ -62,6 +62,9 @@ namespace LinaEngine::Physics
 		// Called when rigidbody components are added/removed from an entity.
 		void OnRigidbodyOrTransformAdded(entt::registry&, entt::entity);
 		void OnRigidbodyRemoved(entt::registry&, entt::entity);
+		
+		// Callbacks
+		void OnPostSceneDraw();
 
 		// Returns an active rigidbody.
 		btRigidBody* GetActiveRigidbody(int id) { return m_bodies[id]; }

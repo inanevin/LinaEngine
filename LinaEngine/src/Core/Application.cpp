@@ -57,12 +57,14 @@ namespace LinaEngine
 		m_WindowResizeCallback = std::bind(&Application::OnWindowResize, this, std::placeholders::_1);
 		m_WindowClosedCallback = std::bind(&Application::OnWindowClose, this);
 		m_drawLineCallback = std::bind(&Application::OnDrawLine, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+		m_postSceneDrawCallback = std::bind(&Application::OnPostSceneDraw, this);
 
 		// Set event callback for main window.
 		m_RenderEngine.GetMainWindow().SetKeyCallback(m_KeyCallback);
 		m_RenderEngine.GetMainWindow().SetMouseCallback(m_MouseCallback);
 		m_RenderEngine.GetMainWindow().SetWindowResizeCallback(m_WindowResizeCallback);
 		m_RenderEngine.GetMainWindow().SetWindowClosedCallback(m_WindowClosedCallback);
+		m_RenderEngine.SetPostSceneDrawCallback(m_postSceneDrawCallback);
 
 		// Initialize engines.
 		m_InputEngine.Initialize(m_RenderEngine.GetNativeWindow());
@@ -178,6 +180,11 @@ namespace LinaEngine
 		m_RenderEngine.OnWindowResized(size.x, size.y);
 	}
 
+	void Application::OnPostSceneDraw()
+	{
+		m_PhysicsEngine.OnPostSceneDraw();
+	}
+
 	void Application::PushLayer(Layer* layer)
 	{
 		m_LayerStack.PushLayer(layer);
@@ -213,7 +220,7 @@ namespace LinaEngine
 
 	void Application::OnDrawLine(Vector3 from, Vector3 to, Color color, float width)
 	{
-		m_RenderEngine.DrawLine(Vector3(0.0f), Vector3(0.0f, 15.0f, 0.0f), color, width);
+		m_RenderEngine.DrawLine(from, to, color, width);
 	}
 }
 

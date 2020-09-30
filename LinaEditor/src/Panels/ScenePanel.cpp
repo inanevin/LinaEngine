@@ -96,12 +96,6 @@ namespace LinaEditor
 		m_RenderEngine = m_GUILayer->GetRenderEngine();
 	}
 
-	void ScenePanel::DrawLine(Vector3 p1, Vector3 p2, Color col, float width)
-	{
-		Matrix& view = m_RenderEngine->GetCameraSystem()->GetViewMatrix();
-		Matrix& projection = m_RenderEngine->GetCameraSystem()->GetProjectionMatrix();
-		ImGuizmo::DrawLine(&p1.x, &p2.x, 0xFF808080, width, &view[0][0], &projection[0][0], &gridLineMatrix[0][0]);
-	}
 
 	void ScenePanel::ProcessInput()
 	{
@@ -118,7 +112,6 @@ namespace LinaEditor
 
 	void ScenePanel::DrawGizmos()
 	{
-		DrawLine(Vector3(-12, -12, 6), Vector3(-4, -12, 6), Color::Red, 2.0f);
 		Matrix& view = m_RenderEngine->GetCameraSystem()->GetViewMatrix();
 		Matrix& projection = m_RenderEngine->GetCameraSystem()->GetProjectionMatrix();
 
