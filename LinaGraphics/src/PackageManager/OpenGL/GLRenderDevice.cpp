@@ -42,7 +42,6 @@ namespace LinaEngine::Graphics
 #define FOURCC_DXT3 MAKEFOURCCDXT('3')
 #define FOURCC_DXT4 MAKEFOURCCDXT('4')
 #define FOURCC_DXT5 MAKEFOURCCDXT('5')
-#define LINE_WIDTH 2.0f
 
 
 	// ---------------------------------------------------------------------
@@ -1142,9 +1141,9 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void GLRenderDevice::DrawLine(float* p1, float* p2, float* color, float width)
+	void GLRenderDevice::DrawLine(float width)
 	{
-		glLineWidth(LINE_WIDTH);
+		glLineWidth(width);
 		glDrawArrays(GL_LINES, 0, 2);
 	}
 

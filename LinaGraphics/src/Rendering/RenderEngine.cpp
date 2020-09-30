@@ -897,16 +897,13 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::DrawLine(Vector3 p1, Vector3 p2, Color col, float width)
 	{
-		Color c = Color::Green;
-		Matrix mod = Matrix::Identity();
-		mod.Scale(1.0f);
-		mod.ApplyScale(13);
+		Matrix mod = Matrix::TransformMatrix(p1, Quaternion::LookAt(p1, p2, Vector3::Up), Vector3(0.0f, 0.0f, (p2 - p1).Magnitude()));
+
 		UpdateShaderData(&m_debugDrawMaterial);
 		m_RenderDevice.UpdateShaderUniformMatrix(m_debugDrawMaterial.shaderID, UF_MATRIX_MODEL, &mod);
-		m_RenderDevice.UpdateShaderUniformColor(m_debugDrawMaterial.shaderID, MAT_COLOR, c);
+		m_RenderDevice.UpdateShaderUniformColor(m_debugDrawMaterial.shaderID, MAT_COLOR, col);
 		m_RenderDevice.SetVAO(m_lineVAO);
-	
-		m_RenderDevice.DrawLine(&p1.x, &p2.x, &c.r, 2);
+		m_RenderDevice.DrawLine(width);
 	}
 
 	void RenderEngine::DrawOperationsDefault(float delta)

@@ -76,6 +76,7 @@ namespace LinaEngine
 		static Quaternion Euler(float x, float y, float z);
 		static Quaternion AxisAngle(const Vector3& axis, float angle);
 		static Quaternion Slerp(const Quaternion& from, const Quaternion& dest, float t);
+		static Quaternion LookAt(const Vector3& from, const Vector3& to, const Vector3& up);
 		float GetAngle() const;
 		float Dot(const Quaternion& other) const;
 		float Length() const;

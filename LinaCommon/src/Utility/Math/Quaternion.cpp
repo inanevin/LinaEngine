@@ -89,6 +89,14 @@ namespace LinaEngine
 	{
 		return glm::slerp(from, dest, t);
 	}
+
+	Quaternion Quaternion::LookAt(const Vector3& from, const Vector3& to, const Vector3& up)
+	{
+		Vector3 dir = to - from;
+		dir = dir.Normalized();
+		return glm::quatLookAtLH(dir, up);
+	}
+
 	Quaternion Quaternion::Conjugate() const
 	{
 		return glm::conjugate(*this);

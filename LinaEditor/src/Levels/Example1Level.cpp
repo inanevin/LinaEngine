@@ -297,10 +297,10 @@ m_ECS->emplace<RigidbodyComponent>(sphereEntity, sphereRB);
 
 	ECSEntity sphereEntity2;
 	sphereEntity2 = m_ECS->CreateEntity("Sphere");
-	objectTransform.transform.location = Vector3(1.5f, 15.5f, 5);
+	objectTransform.transform.location = Vector3(-15, 5, 0);
 	m_ECS->emplace<TransformComponent>(sphereEntity2, objectTransform);
 	m_ECS->emplace<MeshRendererComponent>(sphereEntity2, sphereMR);
-	m_ECS->emplace<RigidbodyComponent>(sphereEntity2, sphereRB);
+	//m_ECS->emplace<RigidbodyComponent>(sphereEntity2, sphereRB);
 
 	//
 	//ECSEntity helmetEntity;
