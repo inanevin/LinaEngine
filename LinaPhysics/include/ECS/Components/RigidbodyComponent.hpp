@@ -44,6 +44,7 @@ namespace LinaEngine::ECS
 		float m_mass = 0.0f;
 		float m_radius = 0.0f; // used for sphere & capsule shapes.
 		float m_capsuleHeight = 0.0f; 
+		int m_bodyID = 0;
 	};
 }
 

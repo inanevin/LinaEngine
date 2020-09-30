@@ -34,6 +34,7 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "Rendering/Shader.hpp"
 
 using namespace LinaEngine::Graphics;
+using namespace LinaEngine::ECS;
 
 ECSSystemList level1Systems;
 FreeLookSystem* ecsFreeLookSystem;

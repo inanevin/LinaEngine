@@ -66,7 +66,7 @@ namespace LinaEngine
 
 		// Initialize engines.
 		m_InputEngine.Initialize(m_RenderEngine.GetNativeWindow());
-		m_PhysicsEngine.Initialize();
+		m_PhysicsEngine.Initialize(m_ECS);
 		m_RenderEngine.Initialize(m_ECS);
 
 		// Set running flag.
@@ -153,7 +153,7 @@ namespace LinaEngine
 			// Update necessary engines that the first run has finished.
 			if (m_FirstRun)
 			{
-				m_RenderEngine.FirstRun();
+				m_RenderEngine.PostInitialFrame();
 				m_FirstRun = false;
 			}
 		}

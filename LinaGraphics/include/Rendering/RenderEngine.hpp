@@ -115,7 +115,7 @@ namespace LinaEngine::Graphics
 		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn);
 
 		// Called before the first run.
-		void FirstRun();
+		void PostInitialFrame();
 
 		// Called each frame.
 		void Render();

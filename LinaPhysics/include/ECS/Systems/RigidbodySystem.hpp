@@ -23,20 +23,34 @@ Timestamp: 9/30/2020 2:52:58 AM
 #define RigidbodySystem_HPP
 
 // Headers here.
-
+#include "ECS/ECS.hpp"
 
 namespace LinaEngine
 {
-	class RigidbodySystem
+	namespace Physics
 	{
-		
+		class PhysicsEngine;
+	}
+}
+
+namespace LinaEngine::ECS
+{
+	class RigidbodySystem : public BaseECSSystem
+	{
 	public:
-		
-		RigidbodySystem();
-		~RigidbodySystem();
-	
+
+		RigidbodySystem() {};
+		virtual void UpdateComponents(float delta) override;
+
+		// Construct the system.
+		FORCEINLINE void Construct(ECSRegistry& registry, LinaEngine::Physics::PhysicsEngine* physicsEngine) { BaseECSSystem::Construct(registry); m_physicsEngine = physicsEngine; }
+
+
+
 	private:
-	
+
+		LinaEngine::Physics::PhysicsEngine* m_physicsEngine = nullptr;
+
 	};
 }
 

@@ -129,7 +129,7 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void RenderEngine::FirstRun()
+	void RenderEngine::PostInitialFrame()
 	{
 		ValidateEngineShaders();
 	}

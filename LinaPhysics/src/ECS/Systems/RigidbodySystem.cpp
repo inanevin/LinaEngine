@@ -19,8 +19,39 @@ Timestamp: 9/30/2020 2:54:13 AM
 */
 
 #include "ECS/Systems/RigidbodySystem.hpp"
+#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/RigidbodyComponent.hpp"
+#include "Physics/PhysicsEngine.hpp"
 
-namespace LinaEngine
+namespace LinaEngine::ECS
 {
-	
+	void RigidbodySystem::UpdateComponents(float delta)
+	{
+		auto view = m_Registry->view<TransformComponent, RigidbodyComponent>();
+
+
+		for (auto entity : view)
+		{
+			TransformComponent& transform = view.get<TransformComponent>(entity);
+			RigidbodyComponent& rbComponent = view.get<RigidbodyComponent>(entity);
+			btRigidBody* rb = m_physicsEngine->GetActiveRigidbody(rbComponent.m_bodyID);
+
+			// Get transform.
+			btTransform btTrans;
+			rb->getMotionState()->getWorldTransform(btTrans);
+
+			// Set location
+			transform.transform.location.x = btTrans.getOrigin().getX();
+			transform.transform.location.y = btTrans.getOrigin().getY();
+			transform.transform.location.z = btTrans.getOrigin().getZ();
+
+			// Set rotation
+			transform.transform.rotation.x = btTrans.getRotation().getX();
+			transform.transform.rotation.y = btTrans.getRotation().getY();
+			transform.transform.rotation.z = btTrans.getRotation().getZ();
+			transform.transform.rotation.w = btTrans.getRotation().getW();
+		}
+	}
 }
+
+

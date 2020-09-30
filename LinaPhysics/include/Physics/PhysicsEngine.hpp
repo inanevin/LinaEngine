@@ -22,19 +22,10 @@ Timestamp: 5/1/2019 2:35:28 AM
 #ifndef PhysicsEngine_HPP
 #define PhysicsEngine_HPP
 
+#include "ECS/Systems/RigidbodySystem.hpp"
+#include "btBulletDynamicsCommon.h"
 
-namespace LinaEngine::ECS
-{
-	class EntityComponentSystem;
-}
 
-using namespace LinaEngine::ECS;
-
-class btDefaultCollisionConfiguration;
-class btCollisionDispatcher;
-class btBroadphaseInterface;
-class btSequentialImpulseConstraintSolver;
-class btDiscreteDynamicsWorld;
 
 namespace LinaEngine::Physics
 {
@@ -47,13 +38,20 @@ namespace LinaEngine::Physics
 		~PhysicsEngine();
 
 		// Initializes the physics engine.
-		void Initialize();
+		void Initialize(LinaEngine::ECS::ECSRegistry& ecsReg);
 
 		// Update physics systems.
 		void Tick(float fixedDelta);
 
 		// Termination.
 		void CleanUp();
+
+		// Called when rigidbody components are added/removed from an entity.
+		void OnRigidbodyAdded(entt::registry&, entt::entity);
+		void OnRigidbodyRemoved(entt::registry&, entt::entity);
+
+		// Returns an active rigidbody.
+		btRigidBody* GetActiveRigidbody(int id) { return m_bodies[id]; }
 
 	private:
 
@@ -63,6 +61,14 @@ namespace LinaEngine::Physics
 		btSequentialImpulseConstraintSolver* m_impulseSolver = nullptr;
 		btDiscreteDynamicsWorld* m_world = nullptr;
 
+		// ECS system for handling rigidbody physics
+		LinaEngine::ECS::RigidbodySystem m_rigidbodySystem;
+
+		// ECS system list for physics operations.
+		LinaEngine::ECS::ECSSystemList m_physicsPipeline;
+
+		// Map for keeping track of bodies
+		std::map<int, btRigidBody*> m_bodies;
 	};
 }
 
