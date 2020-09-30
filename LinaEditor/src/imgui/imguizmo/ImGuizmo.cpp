@@ -1231,6 +1231,16 @@ namespace ImGuizmo
       }
    }
 
+   static void DrawLine()
+   {
+       ImDrawList* drawList = gContext.mDrawList;
+       vec_t dirPlaneX, dirPlaneY, dirAxis;
+       bool belowAxisLimit, belowPlaneLimit;
+       ComputeTripodAxisAndVisibility(0, dirAxis, dirPlaneX, dirPlaneY, belowAxisLimit, belowPlaneLimit);
+       ImVec2 baseSSpace = worldToPos(dirAxis * 0.1f * gContext.mScreenFactor, gContext.mMVP);
+       ImVec2 worldDirSSpaceNoScale = worldToPos(dirAxis * gContext.mScreenFactor, gContext.mMVP);
+       drawList->AddLine(baseSSpace, worldDirSSpaceNoScale, 0xFF404040, 3.f);
+   }
 
    static void DrawTranslationGizmo(int type)
    {
@@ -2263,6 +2273,15 @@ namespace ImGuizmo
          const CubeFace& cubeFace = faces[iFace];
          gContext.mDrawList->AddConvexPolyFilled(cubeFace.faceCoordsScreen, 4, cubeFace.color);
       }
+   }
+   
+   void DrawLine(float* p1, float* p2, ImU32 color, float thickness, const float* view, const float* projection, const float* matrix)
+   {
+       matrix_t viewProjection = *(matrix_t*)view * *(matrix_t*)projection;
+       vec_t ptA = makeVect(p1[0], p1[1], p1[2]);
+       vec_t ptB = makeVect(p2[0], p2[1], p2[2]);
+       matrix_t res = *(matrix_t*)matrix * viewProjection;
+       gContext.mDrawList->AddLine(worldToPos(ptA, res), worldToPos(ptB, res), color, thickness);
    }
 
    void DrawGrid(const float* view, const float* projection, const float* matrix, const float gridSize)

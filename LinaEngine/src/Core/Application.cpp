@@ -56,7 +56,7 @@ namespace LinaEngine
 		m_MouseCallback = std::bind(&Application::MouseCallback, this, std::placeholders::_1, std::placeholders::_2);
 		m_WindowResizeCallback = std::bind(&Application::OnWindowResize, this, std::placeholders::_1);
 		m_WindowClosedCallback = std::bind(&Application::OnWindowClose, this);
-
+		m_drawLineCallback = std::bind(&Application::OnDrawLine, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
 
 		// Set event callback for main window.
 		m_RenderEngine.GetMainWindow().SetKeyCallback(m_KeyCallback);
@@ -66,7 +66,7 @@ namespace LinaEngine
 
 		// Initialize engines.
 		m_InputEngine.Initialize(m_RenderEngine.GetNativeWindow());
-		m_PhysicsEngine.Initialize(m_ECS);
+		m_PhysicsEngine.Initialize(m_ECS, m_drawLineCallback);
 		m_RenderEngine.Initialize(m_ECS);
 
 		// Set running flag.
@@ -157,6 +157,7 @@ namespace LinaEngine
 				m_RenderEngine.PostInitialFrame();
 				m_FirstRun = false;
 			}
+
 		}
 
 	}
@@ -208,6 +209,11 @@ namespace LinaEngine
 		}
 
 		level->Uninstall();
+	}
+
+	void Application::OnDrawLine(Vector3 from, Vector3 to, Color color, float width)
+	{
+		
 	}
 }
 

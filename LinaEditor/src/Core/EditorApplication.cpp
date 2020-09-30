@@ -19,7 +19,6 @@ Timestamp: 12/29/2018 11:15:41 PM
 
 #include <Lina.hpp>
 #include "Core/GUILayer.hpp"
-#include "Core/GizmoLayer.hpp"
 #include "Levels/Example1Level.hpp"
 
 namespace LinaEditor
@@ -33,20 +32,17 @@ namespace LinaEditor
 
 			// Create layers
 			m_guiLayer = new LinaEditor::GUILayer();
-			m_gizmoLayer = new LinaEditor::GizmoLayer();
 
 			LinaEngine::ECS::ECSRegistry& reg = GetECSREgistry();
 
 			// Setup layers
-			m_gizmoLayer->Setup(GetRenderEngine(), this, reg);
-			m_guiLayer->Setup(GetRenderEngine(), this, reg, m_StartupLevel, *m_gizmoLayer);
+			m_guiLayer->Setup(GetRenderEngine(), this, reg, m_StartupLevel);
 
 			// Load startup level.
 			LoadLevel(&m_StartupLevel);
 
 			// Push layer into the engine. ** WHILE LOOP INSIDE ** 
 			GetRenderEngine().PushLayer(m_guiLayer);
-			GetRenderEngine().PushLayer(m_gizmoLayer);
 
 			//PushOverlay(new LinaEngine::Layer_IMGUI());
 
@@ -56,10 +52,14 @@ namespace LinaEditor
 		
 		}
 
+		virtual void OnDrawLine(Vector3 from, Vector3 to, Color color, float width = 1.0f) override
+		{
+			m_guiLayer->DrawLine(from, to, color, width);
+		}
+
 	private:
 
 		GUILayer* m_guiLayer;
-		GizmoLayer* m_gizmoLayer;
 		Example1Level m_StartupLevel;
 
 	};

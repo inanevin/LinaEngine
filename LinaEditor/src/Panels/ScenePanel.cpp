@@ -33,6 +33,7 @@ Timestamp: 6/5/2020 6:51:39 PM
 static ImGuizmo::OPERATION currentTransformGizmoOP = ImGuizmo::OPERATION::TRANSLATE;
 static ImGuizmo::MODE currentTransformGizmoMode = ImGuizmo::MODE::WORLD;
 static Matrix gridLineMatrix = Matrix::Identity();
+static Matrix modelMatrix = Matrix::Identity();
 static ImVec2 previousWindowSize;
 #define GRID_SIZE 1000
 
@@ -43,8 +44,6 @@ namespace LinaEditor
 	{
 		ImGuizmo::BeginFrame();
 
-
-
 		if (m_Show)
 		{
 			// Set window properties.
@@ -54,7 +53,6 @@ namespace LinaEditor
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
-
 			if (ImGui::Begin("Scene", &m_Show, flags))
 			{
 				Vector2 drawSize = m_RenderEngine->GetMainWindow().GetSize();
@@ -98,6 +96,13 @@ namespace LinaEditor
 		m_RenderEngine = m_GUILayer->GetRenderEngine();
 	}
 
+	void ScenePanel::DrawLine(Vector3 p1, Vector3 p2, Color col, float width)
+	{
+		Matrix& view = m_RenderEngine->GetCameraSystem()->GetViewMatrix();
+		Matrix& projection = m_RenderEngine->GetCameraSystem()->GetProjectionMatrix();
+		ImGuizmo::DrawLine(&p1.x, &p2.x, 0xFF808080, width, &view[0][0], &projection[0][0], &gridLineMatrix[0][0]);
+	}
+
 	void ScenePanel::ProcessInput()
 	{
 
@@ -113,9 +118,11 @@ namespace LinaEditor
 
 	void ScenePanel::DrawGizmos()
 	{
+		DrawLine(Vector3(-12, -12, 6), Vector3(-4, -12, 6), Color::Red, 2.0f);
 		Matrix& view = m_RenderEngine->GetCameraSystem()->GetViewMatrix();
 		Matrix& projection = m_RenderEngine->GetCameraSystem()->GetProjectionMatrix();
 
+		//ImGui::GetWindowDrawList()->AddLine(ImVec2(coord.x, coord.y), ImVec2(coord2.x, coord2.y), col, 2);
 		if (m_SelectedTransform != nullptr)
 		{
 			// Get required matrices.
@@ -131,8 +138,9 @@ namespace LinaEditor
 			m_SelectedTransform->transform.scale = Vector3(matrixScale[0], matrixScale[1], matrixScale[2]);
 			m_SelectedTransform->transform.rotation = Quaternion::Euler(matrixRotation[0], matrixRotation[1], matrixRotation[2]);
 		}
-
+		
 		// ImGuizmo::DrawGrid(&view[0][0], &projection[0][0], &gridLineMatrix[0][0], GRID_SIZE);
+		 
 	}
 
 }

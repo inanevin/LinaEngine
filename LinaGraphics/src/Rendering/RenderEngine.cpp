@@ -59,6 +59,7 @@ namespace LinaEngine::Graphics
 		// Release Vertex Array Objects
 		m_SkyboxVAO = m_RenderDevice.ReleaseVertexArray(m_SkyboxVAO);
 		m_ScreenQuadVAO = m_RenderDevice.ReleaseVertexArray(m_ScreenQuadVAO);
+		m_lineVAO = m_RenderDevice.ReleaseVertexArray(m_lineVAO);
 
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
@@ -99,6 +100,7 @@ namespace LinaEngine::Graphics
 		m_SkyboxVAO = m_RenderDevice.CreateSkyboxVertexArray();
 		m_HDRICubeVAO = m_RenderDevice.CreateHDRICubeVertexArray();
 		m_ScreenQuadVAO = m_RenderDevice.CreateScreenQuadVertexArray();
+		m_lineVAO = m_RenderDevice.CreateLineVertexArray();
 
 		// Construct render targets
 		ConstructRenderTargets();
@@ -153,6 +155,7 @@ namespace LinaEngine::Graphics
 		//DrawOperationsDefault(delta);
 		Draw();
 
+	
 		//DrawOperationsMSAA(delta);
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
@@ -532,6 +535,10 @@ namespace LinaEngine::Graphics
 			material.matrices[UF_MATRIX_VIEW] = Matrix();
 			material.matrices[UF_MATRIX_PROJECTION] = Matrix();
 		}
+		else if (shader == Shaders::DEBUG_LINE)
+		{
+			material.colors[MAT_COLOR] = Color::Blue;
+		}
 
 
 		return material;
@@ -627,6 +634,8 @@ namespace LinaEngine::Graphics
 		CreateShader(Shaders::SCREEN_QUAD_BLUR, "resources/shaders/ScreenQuads/SQBlur.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		CreateShader(Shaders::SCREEN_QUAD_OUTLINE, "resources/shaders/ScreenQuads/SQOutline.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
+		// Line
+		CreateShader(Shaders::DEBUG_LINE, "resources/shaders/Misc/DebugLine.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 	}
 
 	bool RenderEngine::ValidateEngineShaders()
@@ -656,6 +665,7 @@ namespace LinaEngine::Graphics
 		SetMaterialShader(m_ScreenQuadBlurMaterial, Shaders::SCREEN_QUAD_BLUR);
 		SetMaterialShader(m_ScreenQuadOutlineMaterial, Shaders::SCREEN_QUAD_OUTLINE);
 		SetMaterialShader(m_HDRIMaterial, Shaders::EQUIRECTANGULAR_HDRI);
+		SetMaterialShader(m_debugDrawMaterial, Shaders::DEBUG_LINE);
 	}
 
 	void RenderEngine::ConstructEnginePrimitives()
@@ -824,7 +834,6 @@ namespace LinaEngine::Graphics
 		// Draw scene
 		DrawSceneObjects(m_DefaultDrawParams);
 
-
 		// Write to the pingpong buffers to apply 2 pass gaussian blur.
 		bool horizontal = true;
 		bool firstIteration = true;
@@ -887,6 +896,11 @@ namespace LinaEngine::Graphics
 		//m_RenderDevice.SetFBO(0);
 	}
 
+	void RenderEngine::DrawLine(Vector3 p1, Vector3 p2, Color col, float width)
+	{
+		m_RenderDevice.DrawLine(&p1.x, &p2.x, &col.r, width);
+	}
+
 	void RenderEngine::DrawOperationsDefault(float delta)
 	{
 		m_RenderDevice.SetFBO(0);
@@ -922,6 +936,15 @@ namespace LinaEngine::Graphics
 		// Draw skybox.
 		if (drawSkybox)
 			DrawSkybox();
+
+		UpdateShaderData(&m_debugDrawMaterial);
+
+		m_RenderDevice.SetVAO(m_lineVAO);
+		Vector3 p1 = Vector3(0, 0, 0);
+		Vector3 p2 = Vector3(0, 15, 0);
+		Color c = Color::Green;
+		m_RenderDevice.DrawLine(&p1.x, &p2.x, &c.r, 2);
+
 	}
 
 	void RenderEngine::UpdateUniformBuffers()

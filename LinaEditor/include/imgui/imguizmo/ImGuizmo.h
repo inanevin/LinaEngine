@@ -152,6 +152,7 @@ namespace ImGuizmo
 	IMGUI_API void DrawCubes(const float *view, const float *projection, const float *matrices, int matrixCount);
 	IMGUI_API void DrawGrid(const float *view, const float *projection, const float *matrix, const float gridSize);
 
+	IMGUI_API void DrawLine(float* p1, float* p2, ImU32 color, float thickness, const float* view, const float* projection, const float* matrix);
 	// call it when you want a gizmo
 	// Needs view and projection matrices. 
 	// matrix parameter is the source matrix (where will be gizmo be drawn) and might be transformed by the function. Return deltaMatrix is optional

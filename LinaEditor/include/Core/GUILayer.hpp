@@ -31,10 +31,6 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEditor
-{
-	class GizmoLayer;
-}
 
 namespace LinaEditor
 {
@@ -57,13 +53,12 @@ namespace LinaEditor
 		void OnEvent() override;
 
 		// CLASS METHODS
-		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& engine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::World::Level& level, GizmoLayer& gizmoLayer) 
+		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& engine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::World::Level& level) 
 		{ 
 			m_RenderEngine = &engine; 
 			m_Application = application; 
 			m_ECS = &ecs;	
 			m_CurrentLevel = &level; 
-			m_gizmoLayer = &gizmoLayer;
 		}
 
 		// Getters for references.
@@ -74,6 +69,9 @@ namespace LinaEditor
 		FORCEINLINE class ResourcesPanel* GetResourcesPanel() const { return m_ResourcesPanel; }
 		FORCEINLINE class ScenePanel* GetScenePanel() const { return m_ScenePanel; }
 		FORCEINLINE LinaEngine::Graphics::RenderEngine* GetRenderEngine() const { return m_RenderEngine; }
+
+		void DrawLine(Vector3 from, Vector3 to, Color color, float width = 1.0f);
+	
 
 	private:
 
@@ -104,7 +102,6 @@ namespace LinaEditor
 
 	private:
 
-		GizmoLayer* m_gizmoLayer = nullptr;
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
 		LinaEngine::ECS::ECSRegistry* m_ECS = nullptr;
 		LinaEngine::Application* m_Application = nullptr;

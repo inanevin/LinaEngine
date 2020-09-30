@@ -24,6 +24,7 @@ Timestamp: 6/5/2020 6:51:29 PM
 
 #include "Panels/EditorPanel.hpp"
 #include "Utility/EditorUtility.hpp"
+#include "Utility/Math/Color.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 
 namespace LinaEngine
@@ -49,6 +50,9 @@ namespace LinaEditor
 
 		// Set selected entity's transform component
 		FORCEINLINE void SetSelectedTransform(LinaEngine::ECS::TransformComponent* tr) { m_SelectedTransform = tr; }
+
+		// Draws a line in scene view.
+		void DrawLine(Vector3 p1, Vector3 p2, Color col, float width = 1.0f);
 
 		// Handle hardware input
 		void ProcessInput();

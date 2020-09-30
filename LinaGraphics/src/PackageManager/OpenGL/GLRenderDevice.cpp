@@ -51,6 +51,12 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
+	float lineVertices[] =
+	{
+		1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f
+	};
+	
 
 	float skyboxVertices[] = {
 		// positions          
@@ -615,6 +621,19 @@ namespace LinaEngine::Graphics
 		return quadVAO;
 	}
 
+	uint32 GLRenderDevice::CreateLineVertexArray()
+	{
+		unsigned int lineVAO, lineVBO;
+		glGenVertexArrays(1, &lineVAO);
+		glGenBuffers(1, &lineVBO);
+		SetVAO(lineVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(lineVertices), &lineVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		return lineVAO;
+	}
+
 	uint32 GLRenderDevice::CreateHDRICubeVertexArray()
 	{
 		uint32 cubeVAO, cubeVBO;
@@ -1120,6 +1139,11 @@ namespace LinaEngine::Graphics
 		}
 
 
+	}
+
+	void GLRenderDevice::DrawLine(float* p1, float* p2, float* color, float width)
+	{
+		glDrawArrays(GL_LINES, 0, 2);
 	}
 
 	void GLRenderDevice::Clear(bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)

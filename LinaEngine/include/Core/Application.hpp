@@ -65,6 +65,8 @@ namespace LinaEngine
 
 		Application();
 
+		// Delegates draw commands from physics engine to rendering engine
+		virtual void OnDrawLine(Vector3 from, Vector3 to, Color color, float width = 1.0f);
 
 		// Get render engine
 		FORCEINLINE LinaEngine::Graphics::RenderEngine& GetRenderEngine() { return m_RenderEngine; }
@@ -73,6 +75,7 @@ namespace LinaEngine
 		FORCEINLINE LinaEngine::ECS::ECSRegistry& GetECSREgistry() { return m_ECS; }
 
 	private:
+
 
 		// Called when an internal event occurs.
 		void OnEvent();
@@ -118,6 +121,7 @@ namespace LinaEngine
 		std::function<void(int, int)> m_MouseCallback;
 		std::function<void(Vector2)> m_WindowResizeCallback;
 		std::function<void()> m_WindowClosedCallback;
+		std::function<void(Vector3, Vector3, Color, float)> m_drawLineCallback;
 
 		// FPS counting
 		int m_CurrentFPS;

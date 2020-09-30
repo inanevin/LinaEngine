@@ -22,6 +22,7 @@ Timestamp: 5/1/2019 2:35:43 AM
 #include "ECS/Components/RigidbodyComponent.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "Utility/Math/Color.hpp"
 
 namespace LinaEngine::Physics
 {
@@ -64,7 +65,7 @@ namespace LinaEngine::Physics
 		delete m_collisionConfig;
 	}
 
-	void PhysicsEngine::Initialize(LinaEngine::ECS::ECSRegistry& ecsReg)
+	void PhysicsEngine::Initialize(LinaEngine::ECS::ECSRegistry& ecsReg, std::function<void(Vector3,Vector3,Color,float)>& cb)
 	{
 		LINA_CORE_TRACE("[Initialization] -> Physics Engine ({0})", typeid(*this).name());
 
@@ -84,6 +85,13 @@ namespace LinaEngine::Physics
 		m_world = new btDiscreteDynamicsWorld(m_collisionDispatcher, m_overlappingPairCache, m_impulseSolver, m_collisionConfig);
 		m_world->setGravity(btVector3(0, -10, 0));
 
+		// Init physics drawer.
+		m_gizmoDrawer.Setup(cb);
+
+		// Set debug drawer.
+		m_world->setDebugDrawer(&m_gizmoDrawer);
+		m_world->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawAabb);
+
 		// Setup rigidbody system.
 		m_rigidbodySystem.Construct(ecsReg, this);
 		m_physicsPipeline.AddSystem(m_rigidbodySystem);
@@ -97,7 +105,6 @@ namespace LinaEngine::Physics
 
 	void PhysicsEngine::Tick(float fixedDelta)
 	{
-		m_world->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 		m_world->debugDrawWorld();
 
 		// Physics simulation.

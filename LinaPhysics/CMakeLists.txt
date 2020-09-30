@@ -24,6 +24,7 @@ set (LINAPHYSICS_SOURCES
 
 	#Physics
 	src/Physics/PhysicsEngine.cpp
+	src/Physics/PhysicsGizmoDrawer.cpp
 	src/ECS/Systems/RigidbodySystem.cpp
 
 )
@@ -35,6 +36,7 @@ set(LINAPHYSICS_HEADERS
 	
 	#Physics
 	include/Physics/PhysicsEngine.hpp
+	include/Physics/PhysicsGizmoDrawer.hpp
 	include/ECS/Components/RigidbodyComponent.hpp
 	include/ECS/Systems/RigidbodySystem.hpp
 )
@@ -131,6 +133,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaECS/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bullet3/include)
+
+if(LINA_GRAPHICS_OPENGL)
+	include(../CMake/GLGraphicsDefinitions.cmake)
+endif()
 
 # Language standard
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)

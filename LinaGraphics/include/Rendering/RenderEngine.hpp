@@ -196,6 +196,9 @@ namespace LinaEngine::Graphics
 		void SetHDRIData(Material* mat);
 		void RemoveHDRIData(Material* mat);
 
+		// Draws a line bw 2 points.
+		void DrawLine(Vector3 p1, Vector3 p2, Color col, float width = 1.0f);
+
 	private:
 
 		// Constructs commonly used shaders within Lina Engine.
@@ -268,6 +271,7 @@ namespace LinaEngine::Graphics
 		// Equirectangular hdri capture render buffer
 		RenderBuffer m_HDRICaptureRenderBuffer;
 
+		// quad mateiral.
 		Material m_ScreenQuadFinalMaterial;
 
 		// Screen quad blur material
@@ -278,6 +282,9 @@ namespace LinaEngine::Graphics
 
 		// Material used to draw skybox.
 		Material* m_SkyboxMaterial = nullptr;
+
+		// Material for debug drawing
+		Material m_debugDrawMaterial;
 
 		// HDRI equirectangular cube material
 		Material m_HDRIMaterial;
@@ -379,6 +386,9 @@ namespace LinaEngine::Graphics
 
 		// HDRI Cubemap vao
 		uint32 m_HDRICubeVAO;
+
+		// VAO for drawing lines
+		uint32 m_lineVAO;
 
 		// Light counts.
 		int m_CurrentSpotLightCount;

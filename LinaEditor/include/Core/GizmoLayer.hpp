@@ -26,6 +26,7 @@ Timestamp: 9/30/2020 3:27:33 PM
 #include "Core/Layer.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "ECS/ECSSystem.hpp"
+#include "btBulletDynamicsCommon.h"
 
 namespace LinaEngine
 {
@@ -45,6 +46,7 @@ namespace LinaEngine
 
 namespace LinaEditor
 {
+
 	class GizmoLayer : public LinaEngine::Layer
 	{
 		
@@ -62,9 +64,6 @@ namespace LinaEditor
 		void OnDetach() override;
 		void OnUpdate() override;
 		void OnEvent() override;
-	
-		void RegisterGizmo(LinaEngine::ECS::ECSEntity handle, LinaEngine::Graphics::Primitives primitiveType, LinaEngine::ECS::TransformComponent& entityTransform);
-		void UnregisterGizmo(LinaEngine::ECS::ECSEntity handle);
 
 	private:
 
@@ -72,7 +71,6 @@ namespace LinaEditor
 		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
 		LinaEngine::Application* m_application = nullptr;
 		LinaEngine::ECS::ECSRegistry* m_ecs = nullptr;
-		std::map<LinaEngine::ECS::ECSEntity, std::pair<LinaEngine::ECS::ECSEntity, LinaEngine::ECS::TransformComponent*>> m_gizmoMap;
 	};
 }
 

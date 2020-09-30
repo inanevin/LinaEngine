@@ -192,7 +192,7 @@ namespace LinaEditor
 		m_MaterialPanel = new MaterialPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_ResourcesPanel = new ResourcesPanel(Vector2::Zero, Vector2(700, 400), *this);
 		m_ScenePanel = new ScenePanel(Vector2::Zero, Vector2(800, 600), *this);
-		m_PropertiesPanel = new PropertiesPanel(Vector2::Zero, Vector2(700, 600), *this, *m_gizmoLayer);
+		m_PropertiesPanel = new PropertiesPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_LogPanel = new LogPanel(Vector2::Zero, Vector2(700, 600), *this);
 
 		m_ECSPanel->Setup();
@@ -229,6 +229,11 @@ namespace LinaEditor
 		delete m_MaterialPanel;
 		delete m_ResourcesPanel;
 		delete m_ScenePanel;
+	}
+
+	void GUILayer::DrawLine(Vector3 from, Vector3 to, Color color, float width)
+	{
+		m_ScenePanel->DrawLine(from, to, color, width);
 	}
 
 	void GUILayer::DrawTools(bool* p_open, int corner)

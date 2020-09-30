@@ -226,7 +226,8 @@ namespace LinaEngine::Graphics
 		BRDF_HDRI = 103,
 		SCREEN_QUAD_FINAL = 110,
 		SCREEN_QUAD_BLUR = 111,
-		SCREEN_QUAD_OUTLINE = 112
+		SCREEN_QUAD_OUTLINE = 112,
+		DEBUG_LINE = 121
 	};
 
 	struct RenderingDebugData
