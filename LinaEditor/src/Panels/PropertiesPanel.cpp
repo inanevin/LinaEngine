@@ -428,10 +428,7 @@ namespace LinaEditor
 			{
 				ImGui::Indent();
 
-			//	if (m_ECS->has<TransformComponent>(entity))
-				//	m_gizmoLayer->RegisterGizmo(entity, LinaEngine::Graphics::Primitives::CUBE, m_ECS->get<TransformComponent>(entity));
-
-					RigidbodyComponent& rb = m_ECS->get<RigidbodyComponent>(entity);
+				RigidbodyComponent& rb = m_ECS->get<RigidbodyComponent>(entity);
 
 				m_currentCollisionShape = (int)rb.m_collisionShape;
 
@@ -475,7 +472,10 @@ namespace LinaEditor
 					ImGui::InputFloat("Height", &rb.m_capsuleHeight);
 				}
 
-
+				if (ImGui::Button("Apply"))
+				{
+					m_ECS->replace<LinaEngine::ECS::RigidbodyComponent>(entity, rb);
+				}
 				ImGui::Unindent();
 			}
 

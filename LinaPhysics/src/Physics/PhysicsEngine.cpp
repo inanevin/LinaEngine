@@ -100,6 +100,8 @@ namespace LinaEngine::Physics
 		ecsReg.on_construct<LinaEngine::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
 		ecsReg.on_destroy<LinaEngine::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
 		ecsReg.on_construct<LinaEngine::ECS::TransformComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
+		ecsReg.on_update<LinaEngine::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyUpdated>(this);
+		
 	}
 
 
@@ -129,17 +131,7 @@ namespace LinaEngine::Physics
 		// Get the transform.
 		LinaEngine::ECS::TransformComponent& tr = reg.get<LinaEngine::ECS::TransformComponent>(ent);
 
-		btCollisionShape* colShape = nullptr;
-
-		// Create collision shape depending on the type
-		if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::BOX)
-			colShape = new btBoxShape(btVector3(rb.m_halfExtents.x, rb.m_halfExtents.y, rb.m_halfExtents.z));
-		else if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::SPHERE)
-			colShape = new btSphereShape(btScalar(rb.m_radius));
-		else if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::CAPSULE)
-			colShape = new btCapsuleShape(btScalar(rb.m_radius), btScalar(rb.m_capsuleHeight));
-		else if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::CYLINDER)
-			colShape = new btCylinderShape(btVector3(rb.m_halfExtents.x, rb.m_halfExtents.y, rb.m_halfExtents.z));
+		btCollisionShape* colShape = GetCollisionShape(rb);
 
 		// Transformation
 		btTransform transform;
@@ -189,10 +181,60 @@ namespace LinaEngine::Physics
 		m_bodies.erase(rbComp.m_bodyID);
 	}
 
+	void PhysicsEngine::OnRigidbodyUpdated(entt::registry& reg, entt::entity ent)
+	{
+		LinaEngine::ECS::RigidbodyComponent& rbComp = reg.get<LinaEngine::ECS::RigidbodyComponent>(ent);
+		btRigidBody* rb = m_bodies[rbComp.m_bodyID];
+
+		// Activat the body
+		rb->activate(true);
+
+		// Remove the body.
+		m_world->removeRigidBody(rb);
+
+		// Replace the collision shape.
+		btCollisionShape* previousShape = rb->getCollisionShape();
+		btCollisionShape* newShape = GetCollisionShape(rbComp);
+		rb->setCollisionShape(newShape);
+
+		btVector3 inertia(0, 0, 0);
+		newShape->calculateLocalInertia(btScalar(rbComp.m_mass), inertia);
+
+		// Set mass.
+		rb->setMassProps(btScalar(rbComp.m_mass), inertia);
+
+		// Update tensor.
+		rb->updateInertiaTensor();
+
+		// Remove the previous shape.
+		delete previousShape;
+
+		// Re-add the body.
+		m_world->addRigidBody(rb);
+
+	}
+
 	void PhysicsEngine::OnPostSceneDraw()
 	{
 		// Draw world debug.
 		m_world->debugDrawWorld();
+	}
+
+	btCollisionShape* PhysicsEngine::GetCollisionShape(LinaEngine::ECS::RigidbodyComponent rb)
+	{
+		btCollisionShape* colShape = nullptr;
+
+		// Create collision shape depending on the type
+		if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::BOX)
+			colShape = new btBoxShape(btVector3(rb.m_halfExtents.x, rb.m_halfExtents.y, rb.m_halfExtents.z));
+		else if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::SPHERE)
+			colShape = new btSphereShape(btScalar(rb.m_radius));
+		else if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::CAPSULE)
+			colShape = new btCapsuleShape(btScalar(rb.m_radius), btScalar(rb.m_capsuleHeight));
+		else if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::CYLINDER)
+			colShape = new btCylinderShape(btVector3(rb.m_halfExtents.x, rb.m_halfExtents.y, rb.m_halfExtents.z));
+
+		return colShape;
 	}
 
 }
