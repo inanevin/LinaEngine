@@ -42,7 +42,7 @@ namespace LinaEditor
 			LoadLevel(&m_StartupLevel);
 
 			// Push layer into the engine. ** WHILE LOOP INSIDE ** 
-			GetRenderEngine().PushLayer(m_guiLayer);
+			//GetRenderEngine().PushLayer(m_guiLayer);
 
 			//PushOverlay(new LinaEngine::Layer_IMGUI());
 

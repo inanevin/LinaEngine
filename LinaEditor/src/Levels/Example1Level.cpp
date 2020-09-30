@@ -263,7 +263,7 @@ sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
 	RigidbodyComponent sphereRB;
 	sphereRB.m_mass = 1.0f;
 	sphereRB.m_halfExtents = Vector3(1,1,1);
-	sphereRB.m_collisionShape = CollisionShape::CAPSULE;
+	sphereRB.m_collisionShape = CollisionShape::BOX;
 
 	RigidbodyComponent floorRB;
 	floorRB.m_mass = 0.0f;
@@ -289,9 +289,9 @@ sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
 
 ECSEntity sphereEntity;
 sphereEntity = m_ECS->CreateEntity("Sphere");
-objectTransform.transform.location = Vector3(0, 10, 5);
+objectTransform.transform.location = Vector3(-13.5f, 10, 5);
 sphereRB.m_halfExtents = Vector3(1,1,1);
-sphereRB.m_capsuleHeight = 3;
+
 sphereRB.m_radius = 3.0f;
 m_ECS->emplace<TransformComponent>(sphereEntity, objectTransform);
 m_ECS->emplace<MeshRendererComponent>(sphereEntity, sphereMR);
@@ -299,7 +299,7 @@ m_ECS->emplace<RigidbodyComponent>(sphereEntity, sphereRB);
 
 	ECSEntity sphereEntity2;
 	sphereEntity2 = m_ECS->CreateEntity("Sphere");
-	objectTransform.transform.location = Vector3(-15, 5, 0);
+	objectTransform.transform.location = Vector3(-15, 5, 5);
 	m_ECS->emplace<TransformComponent>(sphereEntity2, objectTransform);
 	m_ECS->emplace<MeshRendererComponent>(sphereEntity2, sphereMR);
 	m_ECS->emplace<RigidbodyComponent>(sphereEntity2, sphereRB);
