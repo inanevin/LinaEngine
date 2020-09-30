@@ -155,7 +155,6 @@ namespace LinaEngine::Graphics
 		//DrawOperationsDefault(delta);
 		Draw();
 
-	
 		//DrawOperationsMSAA(delta);
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
@@ -898,7 +897,8 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::DrawLine(Vector3 p1, Vector3 p2, Color col, float width)
 	{
-		m_RenderDevice.DrawLine(&p1.x, &p2.x, &col.r, width);
+
+		
 	}
 
 	void RenderEngine::DrawOperationsDefault(float delta)
@@ -936,13 +936,17 @@ namespace LinaEngine::Graphics
 		// Draw skybox.
 		if (drawSkybox)
 			DrawSkybox();
+		Color c = Color::Green;
 
+		Matrix mod = Matrix::Identity();
+		mod.Scale(1.0f);
+		mod.ApplyScale(13);
 		UpdateShaderData(&m_debugDrawMaterial);
-
+		m_RenderDevice.UpdateShaderUniformMatrix(m_debugDrawMaterial.shaderID, UF_MATRIX_MODEL, &mod);
+		m_RenderDevice.UpdateShaderUniformColor(m_debugDrawMaterial.shaderID, MAT_COLOR, c);
 		m_RenderDevice.SetVAO(m_lineVAO);
 		Vector3 p1 = Vector3(0, 0, 0);
 		Vector3 p2 = Vector3(0, 15, 0);
-		Color c = Color::Green;
 		m_RenderDevice.DrawLine(&p1.x, &p2.x, &c.r, 2);
 
 	}

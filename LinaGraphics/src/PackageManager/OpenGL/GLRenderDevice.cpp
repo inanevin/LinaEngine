@@ -42,7 +42,7 @@ namespace LinaEngine::Graphics
 #define FOURCC_DXT3 MAKEFOURCCDXT('3')
 #define FOURCC_DXT4 MAKEFOURCCDXT('4')
 #define FOURCC_DXT5 MAKEFOURCCDXT('5')
-
+#define LINE_WIDTH 2.0f
 
 
 	// ---------------------------------------------------------------------
@@ -53,7 +53,7 @@ namespace LinaEngine::Graphics
 
 	float lineVertices[] =
 	{
-		1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
 		0.0f, 0.0f, 0.0f
 	};
 	
@@ -213,6 +213,7 @@ namespace LinaEngine::Graphics
 		glEnable(GL_STENCIL_TEST);
 		glEnable(GL_BLEND);
 		glEnable(GL_CULL_FACE);
+		glEnable(GL_LINE_SMOOTH);
 
 		glDepthFunc(GL_LESS);
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
@@ -1143,6 +1144,7 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::DrawLine(float* p1, float* p2, float* color, float width)
 	{
+		glLineWidth(LINE_WIDTH);
 		glDrawArrays(GL_LINES, 0, 2);
 	}
 

@@ -213,7 +213,7 @@ namespace LinaEngine
 
 	void Application::OnDrawLine(Vector3 from, Vector3 to, Color color, float width)
 	{
-		
+		m_RenderEngine.DrawLine(Vector3(0.0f), Vector3(0.0f, 15.0f, 0.0f), color, width);
 	}
 }
 
