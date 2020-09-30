@@ -88,10 +88,10 @@ namespace LinaEngine::Physics
 		m_rigidbodySystem.Construct(ecsReg, this);
 		m_physicsPipeline.AddSystem(m_rigidbodySystem);
 
-		// connects a member function
-		ecsReg.on_construct<LinaEngine::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyAdded>(this);
-		ecsReg.on_destroy<LinaEngine::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyAdded>(this);
-
+		// Listen to rigidbody add/remove events.
+		ecsReg.on_construct<LinaEngine::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
+		ecsReg.on_destroy<LinaEngine::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
+		ecsReg.on_construct<LinaEngine::ECS::TransformComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
 	}
 
 
@@ -108,11 +108,19 @@ namespace LinaEngine::Physics
 	{
 	}
 
-	void PhysicsEngine::OnRigidbodyAdded(entt::registry& reg, entt::entity ent)
+	void PhysicsEngine::OnRigidbodyOrTransformAdded(entt::registry& reg, entt::entity ent)
 	{
-		btCollisionShape* colShape = nullptr;
+		// If the object doesn't have a transform & rigidbody yet, return.
+		if (!reg.has<LinaEngine::ECS::TransformComponent>(ent) || !reg.has<LinaEngine::ECS::RigidbodyComponent>(ent)) return;
 		LinaEngine::ECS::RigidbodyComponent& rb = reg.get<LinaEngine::ECS::RigidbodyComponent>(ent);
+
+		// Return if rigidbody is already alive.
+		if (rb.m_alive) return;
+
+		// Get the transform.
 		LinaEngine::ECS::TransformComponent& tr = reg.get<LinaEngine::ECS::TransformComponent>(ent);
+
+		btCollisionShape* colShape = nullptr;
 
 		// Create collision shape depending on the type
 		if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::BOX)
@@ -146,14 +154,13 @@ namespace LinaEngine::Physics
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
 
-		
-
 		// Set the body in the map & assign rb component info.
 		int id = LinaEngine::Utility::GetUniqueID();
 		m_bodies[id] = body;
 		rb.m_bodyID = id;
-		
+
 		// Add the body to world.
+		rb.m_alive = true;
 		m_world->addRigidBody(body);
 	}
 

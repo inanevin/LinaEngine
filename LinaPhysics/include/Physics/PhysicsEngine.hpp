@@ -25,7 +25,14 @@ Timestamp: 5/1/2019 2:35:28 AM
 #include "ECS/Systems/RigidbodySystem.hpp"
 #include "btBulletDynamicsCommon.h"
 
-
+namespace LinaEngine
+{
+	namespace ECS
+	{
+		struct TransformComponent;
+		struct RigidbodyComponent;
+	}
+}
 
 namespace LinaEngine::Physics
 {
@@ -47,11 +54,14 @@ namespace LinaEngine::Physics
 		void CleanUp();
 
 		// Called when rigidbody components are added/removed from an entity.
-		void OnRigidbodyAdded(entt::registry&, entt::entity);
+		void OnRigidbodyOrTransformAdded(entt::registry&, entt::entity);
 		void OnRigidbodyRemoved(entt::registry&, entt::entity);
 
 		// Returns an active rigidbody.
 		btRigidBody* GetActiveRigidbody(int id) { return m_bodies[id]; }
+
+	private:
+
 
 	private:
 

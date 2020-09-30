@@ -27,6 +27,7 @@ Timestamp: 5/23/2020 2:23:02 PM
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
+#include "ECS/Components/RigidbodyComponent.hpp"
 
 #include <cereal/archives/json.hpp>
 
@@ -41,13 +42,14 @@ namespace LinaEngine::World
 
 			entt::snapshot{ registry }
 				.entities(oarchive)
-				.component<LinaEngine::ECS::TransformComponent,
-				LinaEngine::ECS::CameraComponent,
+				.component<LinaEngine::ECS::CameraComponent,
 				LinaEngine::ECS::FreeLookComponent,
 				LinaEngine::ECS::PointLightComponent,
 				LinaEngine::ECS::DirectionalLightComponent,
 				LinaEngine::ECS::SpotLightComponent,
-				LinaEngine::ECS::MeshRendererComponent>(oarchive);
+				LinaEngine::ECS::RigidbodyComponent,
+				LinaEngine::ECS::MeshRendererComponent,
+				LinaEngine::ECS::TransformComponent>(oarchive);
 		}
 
 		std::ofstream levelDataStream(path + "/" + levelName + ".linaleveldata");
@@ -87,13 +89,14 @@ namespace LinaEngine::World
 		
 			entt::snapshot_loader{ registry}
 				.entities(iarchive)
-				.component<LinaEngine::ECS::TransformComponent, 
-				LinaEngine::ECS::CameraComponent,
+				.component<LinaEngine::ECS::CameraComponent,
 				LinaEngine::ECS::FreeLookComponent,
 				LinaEngine::ECS::PointLightComponent,
 				LinaEngine::ECS::DirectionalLightComponent,
 				LinaEngine::ECS::SpotLightComponent,
-				LinaEngine::ECS::MeshRendererComponent>(iarchive)
+				LinaEngine::ECS::RigidbodyComponent,
+				LinaEngine::ECS::MeshRendererComponent,
+				LinaEngine::ECS::TransformComponent>(iarchive)
 				.orphans();
 		}
 

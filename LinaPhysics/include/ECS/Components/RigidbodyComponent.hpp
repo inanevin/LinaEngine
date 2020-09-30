@@ -45,6 +45,13 @@ namespace LinaEngine::ECS
 		float m_radius = 0.0f; // used for sphere & capsule shapes.
 		float m_capsuleHeight = 0.0f; 
 		int m_bodyID = 0;
+		bool m_alive = false;
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(m_collisionShape, m_localInertia, m_halfExtents, m_mass, m_radius, m_capsuleHeight, m_bodyID, m_alive); // serialize things by passing them to the archive
+		}
 	};
 }
 
