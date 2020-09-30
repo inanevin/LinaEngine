@@ -1144,7 +1144,7 @@ namespace LinaEngine::Graphics
 	void GLRenderDevice::DrawLine(float width)
 	{
 		glLineWidth(width);
-		glDrawArrays(GL_LINES, 0, 2);
+		glDrawArrays(GL_LINES, 0, 6);
 	}
 
 	void GLRenderDevice::Clear(bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const Color& color, uint32 stencil)

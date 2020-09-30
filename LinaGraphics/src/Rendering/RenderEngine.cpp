@@ -898,7 +898,6 @@ namespace LinaEngine::Graphics
 	void RenderEngine::DrawLine(Vector3 p1, Vector3 p2, Color col, float width)
 	{
 		Matrix mod = Matrix::TransformMatrix(p1, Quaternion::LookAt(p1, p2, Vector3::Up), Vector3(0.0f, 0.0f, (p2 - p1).Magnitude()));
-
 		UpdateShaderData(&m_debugDrawMaterial);
 		m_RenderDevice.UpdateShaderUniformMatrix(m_debugDrawMaterial.shaderID, UF_MATRIX_MODEL, &mod);
 		m_RenderDevice.UpdateShaderUniformColor(m_debugDrawMaterial.shaderID, MAT_COLOR, col);

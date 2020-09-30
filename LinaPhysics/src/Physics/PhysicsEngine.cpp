@@ -90,7 +90,7 @@ namespace LinaEngine::Physics
 
 		// Set debug drawer.
 		m_world->setDebugDrawer(&m_gizmoDrawer);
-		m_world->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawAabb);
+		m_world->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 
 		// Setup rigidbody system.
 		m_rigidbodySystem.Construct(ecsReg, this);
