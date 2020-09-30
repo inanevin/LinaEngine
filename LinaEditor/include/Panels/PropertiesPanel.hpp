@@ -41,6 +41,12 @@ namespace LinaEngine
 
 namespace LinaEditor
 {
+	class GizmoLayer;
+	class GUILayer;
+}
+
+namespace LinaEditor
+{
 	class PropertiesPanel : public EditorPanel
 	{
 
@@ -55,7 +61,7 @@ namespace LinaEditor
 
 	public:
 
-		PropertiesPanel(Vector2 position, Vector2 size, class GUILayer& guiLayer) : EditorPanel(position, size, guiLayer) {};
+		PropertiesPanel(Vector2 position, Vector2 size, GUILayer& guiLayer, GizmoLayer& gizmoLayer) : EditorPanel(position, size, guiLayer) { m_gizmoLayer = &gizmoLayer; };
 		virtual ~PropertiesPanel() {};
 
 		virtual void Draw() override;
@@ -119,6 +125,9 @@ namespace LinaEditor
 		void DrawMaterialProperties();
 
 	private:
+
+		// Gizmo layer
+		GizmoLayer* m_gizmoLayer = nullptr;
 
 		// Selected texture
 		class LinaEngine::Graphics::Texture* m_SelectedTexture;

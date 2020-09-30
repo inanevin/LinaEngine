@@ -97,6 +97,9 @@ namespace LinaEngine::Physics
 
 	void PhysicsEngine::Tick(float fixedDelta)
 	{
+		m_world->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+		m_world->debugDrawWorld();
+
 		// Physics simulation.
 		m_world->stepSimulation(fixedDelta, 10);
 

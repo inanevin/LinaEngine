@@ -38,8 +38,8 @@ namespace LinaEditor
 			LinaEngine::ECS::ECSRegistry& reg = GetECSREgistry();
 
 			// Setup layers
-			m_guiLayer->Setup(GetRenderEngine(), this, reg, m_StartupLevel);
-			m_gizmoLayer->Setup(GetRenderEngine(), this);
+			m_gizmoLayer->Setup(GetRenderEngine(), this, reg);
+			m_guiLayer->Setup(GetRenderEngine(), this, reg, m_StartupLevel, *m_gizmoLayer);
 
 			// Load startup level.
 			LoadLevel(&m_StartupLevel);

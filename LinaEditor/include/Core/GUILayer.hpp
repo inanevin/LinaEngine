@@ -33,6 +33,11 @@ namespace LinaEngine
 
 namespace LinaEditor
 {
+	class GizmoLayer;
+}
+
+namespace LinaEditor
+{
 
 
 	class GUILayer : public LinaEngine::Layer
@@ -52,7 +57,14 @@ namespace LinaEditor
 		void OnEvent() override;
 
 		// CLASS METHODS
-		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& engine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::World::Level& level) { m_RenderEngine = &engine; m_Application = application; m_ECS = &ecs;	m_CurrentLevel = &level; }
+		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& engine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::World::Level& level, GizmoLayer& gizmoLayer) 
+		{ 
+			m_RenderEngine = &engine; 
+			m_Application = application; 
+			m_ECS = &ecs;	
+			m_CurrentLevel = &level; 
+			m_gizmoLayer = &gizmoLayer;
+		}
 
 		// Getters for references.
 		FORCEINLINE LinaEngine::ECS::ECSRegistry* GetECS() const { return m_ECS; }
@@ -92,6 +104,7 @@ namespace LinaEditor
 
 	private:
 
+		GizmoLayer* m_gizmoLayer = nullptr;
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
 		LinaEngine::ECS::ECSRegistry* m_ECS = nullptr;
 		LinaEngine::Application* m_Application = nullptr;

@@ -24,20 +24,23 @@ Timestamp: 9/30/2020 3:27:33 PM
 
 // Headers here.
 #include "Core/Layer.hpp"
+#include "Rendering/RenderEngine.hpp"
+#include "ECS/ECSSystem.hpp"
 
 namespace LinaEngine
 {
 	class Application;
 
-	namespace Graphics
-	{
-		class RenderEngine;
-	}
-
 	namespace World
 	{
 		class Level;
 	}
+
+	namespace ECS
+	{
+		struct TransformComponent;
+	}
+
 }
 
 namespace LinaEditor
@@ -52,7 +55,7 @@ namespace LinaEditor
 
 		}
 
-		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& engine, LinaEngine::Application* application) { m_RenderEngine = &engine; m_Application = application; }
+		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& engine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs) { m_renderEngine = &engine; m_application = application; m_ecs = &ecs; }
 
 		// OVERRIDES
 		void OnAttach() override;
@@ -60,10 +63,16 @@ namespace LinaEditor
 		void OnUpdate() override;
 		void OnEvent() override;
 	
+		void RegisterGizmo(LinaEngine::ECS::ECSEntity handle, LinaEngine::Graphics::Primitives primitiveType, LinaEngine::ECS::TransformComponent& entityTransform);
+		void UnregisterGizmo(LinaEngine::ECS::ECSEntity handle);
+
 	private:
 
-		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
-		LinaEngine::Application* m_Application = nullptr;
+		LinaEngine::Graphics::Material* m_gizmoMaterial = nullptr;
+		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
+		LinaEngine::Application* m_application = nullptr;
+		LinaEngine::ECS::ECSRegistry* m_ecs = nullptr;
+		std::map<LinaEngine::ECS::ECSEntity, std::pair<LinaEngine::ECS::ECSEntity, LinaEngine::ECS::TransformComponent*>> m_gizmoMap;
 	};
 }
 

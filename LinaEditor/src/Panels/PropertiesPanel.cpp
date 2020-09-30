@@ -30,6 +30,7 @@ Timestamp: 6/7/2020 5:13:42 PM
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
+#include "Core/GizmoLayer.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -428,7 +429,10 @@ namespace LinaEditor
 			{
 				ImGui::Indent();
 
-				RigidbodyComponent& rb = m_ECS->get<RigidbodyComponent>(entity);
+				if (m_ECS->has<TransformComponent>(entity))
+					m_gizmoLayer->RegisterGizmo(entity, LinaEngine::Graphics::Primitives::CUBE, m_ECS->get<TransformComponent>(entity));
+
+					RigidbodyComponent& rb = m_ECS->get<RigidbodyComponent>(entity);
 
 				m_currentCollisionShape = (int)rb.m_collisionShape;
 
