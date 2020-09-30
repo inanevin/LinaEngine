@@ -127,17 +127,17 @@ namespace LinaEditor
 
 		// Selected texture
 		class LinaEngine::Graphics::Texture* m_SelectedTexture;
-		int m_SelectedTextureID = 0;
+		int m_SelectedTextureID;
 		std::string m_SelectedTexturePath;
-		int m_CurrentInternalPF = 0;
-		int m_CurrentPF = 0;
-		int m_CurrentMinFilter = 0;
-		int m_CurrentMagFilter = 0;
-		int m_CurrentWrapS = 0;
-		int m_CurrentWrapR = 0;
-		int m_CurrentWrapT = 0;
-		bool m_CurrentGenerateMips = 0;
-		int m_CurrentAnisotropy= 0;
+		int m_CurrentInternalPF;
+		int m_CurrentPF;
+		int m_CurrentMinFilter;
+		int m_CurrentMagFilter ;
+		int m_CurrentWrapS;
+		int m_CurrentWrapR ;
+		int m_CurrentWrapT ;
+		bool m_CurrentGenerateMips;
+		int m_CurrentAnisotropy;
 
 		// Selected colilsion shape
 		int m_currentCollisionShape = 0;

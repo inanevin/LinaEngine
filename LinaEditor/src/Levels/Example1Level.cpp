@@ -49,6 +49,7 @@ ECSEntity camera;
 Material* objectUnlitMaterial;
 Material* helmetMaterial;
 Material* sphereMat;
+Material* spriteMat;
 Material* arcadeMaterial;
 Material* floorMaterial;
 Material* roadMaterial;
@@ -209,7 +210,7 @@ Texture& aoSphere = m_RenderEngine->CreateTexture2D(4, "resources/textures/ruste
 //Texture& aoRoad = m_RenderEngine->CreateTexture2D("resources/textures/road/ao.png", pbrSampler, false, false);
 
 
-	
+	Texture& sprite = m_RenderEngine->CreateTexture2D(LinaEngine::Utility::GetUniqueID(), "resources/textures/sprite.png");
 	// Load example mesh.
 //	Mesh& cubeMesh = m_RenderEngine->GetPrimitive(Primitives::CUBE);
 	Mesh& floorMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
@@ -223,7 +224,9 @@ Texture& aoSphere = m_RenderEngine->CreateTexture2D(4, "resources/textures/ruste
 	int nrColumns = 7;
 	float spacing = 3.0f;
 
-
+	spriteMat = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::STANDARD_UNLIT);
+	spriteMat->SetTexture(MAT_TEXTURE2D_DIFFUSE, &sprite);
+	spriteMat->SetSurfaceType(LinaEngine::Graphics::MaterialSurfaceType::Transparent);
 	sphereMat = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::PBR_LIT);
 sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoSphere);
 sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalSphere);
@@ -297,12 +300,16 @@ m_ECS->emplace<TransformComponent>(sphereEntity, objectTransform);
 m_ECS->emplace<MeshRendererComponent>(sphereEntity, sphereMR);
 m_ECS->emplace<RigidbodyComponent>(sphereEntity, sphereRB);
 
+
+
 	ECSEntity sphereEntity2;
-	sphereEntity2 = m_ECS->CreateEntity("Sphere");
+	sphereEntity2 = m_ECS->CreateEntity("Sprite");
 	objectTransform.transform.location = Vector3(-15, 5, 5);
+	sphereMR.meshID = Primitives::PLANE;
+	sphereMR.materialID = spriteMat->m_MaterialID;
 	m_ECS->emplace<TransformComponent>(sphereEntity2, objectTransform);
 	m_ECS->emplace<MeshRendererComponent>(sphereEntity2, sphereMR);
-	m_ECS->emplace<RigidbodyComponent>(sphereEntity2, sphereRB);
+	//m_ECS->emplace<RigidbodyComponent>(sphereEntity2, sphereRB);
 
 	//
 	//ECSEntity helmetEntity;
@@ -311,12 +318,12 @@ m_ECS->emplace<RigidbodyComponent>(sphereEntity, sphereRB);
 	//m_ECS->emplace<TransformComponent>(helmetEntity, objectTransform);
 	//m_ECS->emplace<MeshRendererComponent>(helmetEntity, helmetMR);
 	//
+
 	ECSEntity floorEntity;
 	floorEntity = m_ECS->CreateEntity("Floor");
 	objectTransform.transform.scale = Vector3(100, 1, 100);
 	objectTransform.transform.location = Vector3(0, -15, 0);
 	floorRB.m_halfExtents = Vector3(50.0f, 0.5f, 50.0f);
-
 	m_ECS->emplace<TransformComponent>(floorEntity, objectTransform);
 	m_ECS->emplace<MeshRendererComponent>(floorEntity, floorMR);
 	m_ECS->emplace<RigidbodyComponent>(floorEntity, floorRB);

@@ -145,8 +145,8 @@ namespace LinaEngine::ECS
 
 			// Draw call.
 			// Update the buffer w/ each transform.
-			vertexArray->UpdateBuffer(4, models, numTransforms * sizeof(Matrix));
-			vertexArray->UpdateBuffer(5, inverseTransposeModels, numTransforms * sizeof(Matrix));
+			vertexArray->UpdateBuffer(5, models, numTransforms * sizeof(Matrix));
+			vertexArray->UpdateBuffer(6, inverseTransposeModels, numTransforms * sizeof(Matrix));
 
 			// Update shader
 			m_RenderEngine->UpdateShaderData(mat);
