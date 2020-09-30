@@ -31,6 +31,7 @@ Class: UILayer
 #include "Core/EditorCommon.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/RenderConstants.hpp"
+#include "Physics/PhysicsEngine.hpp"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -46,6 +47,7 @@ static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTre
 static bool isECSPanelOpen;
 static bool showIMGUIDemo;
 static bool setDockspaceLayout = true;
+static bool physicsDebugEnabled = false;
 
 namespace LinaEditor
 {
@@ -423,6 +425,20 @@ namespace LinaEditor
 
 				ImGui::EndMenu();
 			}
+
+
+			if (ImGui::BeginMenu("Debug"))
+			{
+				
+				if (ImGui::MenuItem("Physics Debug", NULL, &physicsDebugEnabled))
+				{
+					m_physicsEngine->SetDebugDraw(physicsDebugEnabled);
+				}
+
+				ImGui::EndMenu();
+			}
+
+
 			ImGui::EndMenuBar();
 		}
 

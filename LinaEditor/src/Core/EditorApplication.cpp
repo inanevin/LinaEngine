@@ -36,7 +36,7 @@ namespace LinaEditor
 			LinaEngine::ECS::ECSRegistry& reg = GetECSREgistry();
 
 			// Setup layers
-			m_guiLayer->Setup(GetRenderEngine(), this, reg, m_StartupLevel);
+			m_guiLayer->Setup(GetRenderEngine(), GetPhysicsEngine(), this, reg, m_StartupLevel);
 
 			// Load startup level.
 			LoadLevel(&m_StartupLevel);

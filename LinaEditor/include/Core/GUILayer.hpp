@@ -29,6 +29,11 @@ namespace LinaEngine
 	{
 		class Level;
 	}
+
+	namespace Physics
+	{
+		class PhysicsEngine;
+	}
 }
 
 
@@ -53,9 +58,10 @@ namespace LinaEditor
 		void OnEvent() override;
 
 		// CLASS METHODS
-		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& engine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::World::Level& level) 
+		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& renderEngine, LinaEngine::Physics::PhysicsEngine& physicsEngine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::World::Level& level)
 		{ 
-			m_RenderEngine = &engine; 
+			m_RenderEngine = &renderEngine; 
+			m_physicsEngine = &physicsEngine;
 			m_Application = application; 
 			m_ECS = &ecs;	
 			m_CurrentLevel = &level; 
@@ -100,6 +106,7 @@ namespace LinaEditor
 	private:
 
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
+		LinaEngine::Physics::PhysicsEngine* m_physicsEngine = nullptr;
 		LinaEngine::ECS::ECSRegistry* m_ECS = nullptr;
 		LinaEngine::Application* m_Application = nullptr;
 		LinaEngine::World::Level* m_CurrentLevel = nullptr;

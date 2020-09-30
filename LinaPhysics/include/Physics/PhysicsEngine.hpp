@@ -67,9 +67,10 @@ namespace LinaEngine::Physics
 		// Callbacks
 		void OnPostSceneDraw();
 
-
 		// Returns an active rigidbody.
 		btRigidBody* GetActiveRigidbody(int id) { return m_bodies[id]; }
+
+		FORCEINLINE void SetDebugDraw(bool enabled) { m_debugDrawEnabled = enabled; }
 
 	private:
 
@@ -94,6 +95,9 @@ namespace LinaEngine::Physics
 
 		// Map for keeping track of bodies
 		std::map<int, btRigidBody*> m_bodies;
+		
+		// Flag to enable debug drawing
+		bool m_debugDrawEnabled = false;
 	};
 }
 

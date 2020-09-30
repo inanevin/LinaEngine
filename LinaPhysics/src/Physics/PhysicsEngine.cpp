@@ -216,8 +216,11 @@ namespace LinaEngine::Physics
 
 	void PhysicsEngine::OnPostSceneDraw()
 	{
-		// Draw world debug.
-		m_world->debugDrawWorld();
+		if (m_debugDrawEnabled)
+		{
+			// Draw world debug.
+			m_world->debugDrawWorld();
+		}
 	}
 
 	btCollisionShape* PhysicsEngine::GetCollisionShape(LinaEngine::ECS::RigidbodyComponent rb)
