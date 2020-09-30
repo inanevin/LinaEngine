@@ -74,8 +74,8 @@ namespace LinaEditor
 
 	const char* rigidbodyShapes[]
 	{
-		"BOX",
 		"SPHERE",
+		"BOX",
 		"CYLINDER",
 		"CAPSULE"
 	};
@@ -476,7 +476,7 @@ namespace LinaEditor
 				ImGui::Unindent();
 			}
 
-			
+
 		}
 
 	}
@@ -544,7 +544,7 @@ namespace LinaEditor
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(samplerFilters); n++)
 			{
-				const bool is_selected = (m_CurrentMinFilter== n);
+				const bool is_selected = (m_CurrentMinFilter == n);
 				if (ImGui::Selectable(samplerFilters[n], is_selected))
 				{
 					selectedMinFilter = GetSamplerFilterFromID(n);
@@ -565,7 +565,7 @@ namespace LinaEditor
 				const bool is_selected = (m_CurrentMagFilter == n);
 				if (ImGui::Selectable(samplerFilters[n], is_selected))
 				{
-					m_CurrentMagFilter= n;
+					m_CurrentMagFilter = n;
 					selectedMagFilter = GetSamplerFilterFromID(n);
 				}
 
