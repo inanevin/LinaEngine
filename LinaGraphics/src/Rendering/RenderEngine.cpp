@@ -149,17 +149,18 @@ namespace LinaEngine::Graphics
 
 
 		//DrawOperationsShadows(delta,false);
-		//for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
-			//(*it)->SetTexture(MAT_TEXTURE2D_SHADOWMAP, &m_DepthMapRTTexture);
+	
 
 	//	for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
 		//	(*it)->SetTexture(MAT_TEXTURE2D_SHADOWMAP, &m_PointLightsRTTexture, TextureBindMode::BINDTEXTURE_CUBEMAP);
 
-		//DrawOperationsPrimaryRT(delta);
-		//DrawOperationsDefault(delta);
+
+		DrawShadows();
+
+		
+
 		Draw();
 
-		//DrawOperationsMSAA(delta);
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
 			layer->OnUpdate();
@@ -524,6 +525,7 @@ namespace LinaEngine::Graphics
 			material.sampler2Ds[MAT_TEXTURE2D_IRRADIANCEMAP] = { 5, nullptr, TextureBindMode::BINDTEXTURE_CUBEMAP, false };
 			material.sampler2Ds[MAT_TEXTURE2D_PREFILTERMAP] = { 6,nullptr, TextureBindMode::BINDTEXTURE_CUBEMAP, false };
 			material.sampler2Ds[MAT_TEXTURE2D_BRDFLUTMAP] = { 7 };
+			material.sampler2Ds[MAT_TEXTURE2D_SHADOWMAP] = { 8 };
 			material.floats[MAT_METALLICMULTIPLIER] = 1.0f;
 			material.floats[MAT_ROUGHNESSMULTIPLIER] = 1.0f;
 			material.ints[MAT_WORKFLOW] = 0;
@@ -531,6 +533,8 @@ namespace LinaEngine::Graphics
 			material.receivesLighting = true;
 			material.isShadowMapped = true;
 			material.usesHDRI = true;
+
+			m_ShadowMappedMaterials.emplace(&material);
 		}
 		else if (shader == Shaders::EQUIRECTANGULAR_HDRI)
 		{
@@ -641,6 +645,7 @@ namespace LinaEngine::Graphics
 		CreateShader(Shaders::SCREEN_QUAD_FINAL, "resources/shaders/ScreenQuads/SQFinal.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		CreateShader(Shaders::SCREEN_QUAD_BLUR, "resources/shaders/ScreenQuads/SQBlur.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		CreateShader(Shaders::SCREEN_QUAD_OUTLINE, "resources/shaders/ScreenQuads/SQOutline.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SCREEN_SHADOWMAP, "resources/shaders/ScreenQuads/SQShadowMap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
 		// Line
 		CreateShader(Shaders::DEBUG_LINE, "resources/shaders/Misc/DebugLine.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
@@ -666,6 +671,9 @@ namespace LinaEngine::Graphics
 		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::SCREEN_QUAD_FINAL).GetID());
 		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::SCREEN_QUAD_BLUR).GetID());
 		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::SCREEN_QUAD_OUTLINE).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::SCREEN_SHADOWMAP).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::DEBUG_LINE).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::RENDERER2D_SPRITE).GetID());
 
 		return !validation;
 	}
@@ -677,6 +685,7 @@ namespace LinaEngine::Graphics
 		SetMaterialShader(m_ScreenQuadOutlineMaterial, Shaders::SCREEN_QUAD_OUTLINE);
 		SetMaterialShader(m_HDRIMaterial, Shaders::EQUIRECTANGULAR_HDRI);
 		SetMaterialShader(m_debugDrawMaterial, Shaders::DEBUG_LINE);
+		SetMaterialShader(m_shadowMapMaterial, Shaders::SCREEN_SHADOWMAP);
 	}
 
 	void RenderEngine::ConstructEnginePrimitives()
@@ -831,6 +840,29 @@ namespace LinaEngine::Graphics
 		m_SkyboxDrawParams.scissorStartY = 0;
 		m_SkyboxDrawParams.scissorWidth = 0;
 		m_SkyboxDrawParams.scissorHeight = 0;
+
+
+		// Set depth map drawing parameters.
+		m_shadowMapDrawParams.useScissorTest = false;
+		m_shadowMapDrawParams.useDepthTest = true;
+		m_shadowMapDrawParams.useStencilTest = false;
+		m_shadowMapDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
+		m_shadowMapDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
+		m_shadowMapDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
+		m_shadowMapDrawParams.destBlend = BlendFunc::BLEND_FUNC_NONE;
+		m_shadowMapDrawParams.shouldWriteDepth = true;
+		m_shadowMapDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
+		m_shadowMapDrawParams.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
+		m_shadowMapDrawParams.stencilComparisonVal = 1;
+		m_shadowMapDrawParams.stencilTestMask = 0xFF;
+		m_shadowMapDrawParams.stencilWriteMask = 0xFF;
+		m_shadowMapDrawParams.stencilFail = StencilOp::STENCIL_KEEP;
+		m_shadowMapDrawParams.stencilPass = StencilOp::STENCIL_REPLACE;
+		m_shadowMapDrawParams.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+		m_shadowMapDrawParams.scissorStartX = 0;
+		m_shadowMapDrawParams.scissorStartY = 0;
+		m_shadowMapDrawParams.scissorWidth = 0;
+		m_shadowMapDrawParams.scissorHeight = 0;
 	}
 
 	void RenderEngine::DumpMemory()
@@ -839,6 +871,37 @@ namespace LinaEngine::Graphics
 		m_LoadedMeshes.clear();
 		m_LoadedTextures.clear();
 		m_LoadedMaterials.clear();
+	}
+
+	void RenderEngine::DrawShadows()
+	{
+		// Clear color.
+		m_renderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+
+		// Change perspective to render the scene from light perspective into the depth frame buffer
+		m_CameraSystem.SetUseDirLightView(true);
+
+		// Update pipeline.
+		m_RenderingPipeline.UpdateSystems(0.0f);
+
+		// Update uniform buffers on GPU
+		UpdateUniformBuffers();
+
+		// Set depth frame buffer
+		m_renderDevice.SetFBO(m_shadowMapTarget.GetID());
+
+		// Clear color.
+		m_renderDevice.Clear(false, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+
+		// Draw scene
+		DrawSceneObjects(m_shadowMapDrawParams, &m_shadowMapMaterial, false);
+
+		// Disable light view.
+		m_CameraSystem.SetUseDirLightView(false);
+
+		// Add the shadow texture
+		for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
+			(*it)->SetTexture(MAT_TEXTURE2D_SHADOWMAP, &m_shadowMapRTTexture);
 	}
 
 	void RenderEngine::Draw()
@@ -887,14 +950,6 @@ namespace LinaEngine::Graphics
 			if (firstIteration) firstIteration = false;
 		}
 
-
-		// Back to outline buffer
-		//m_RenderDevice.SetFBO(m_OutlineRenderTarget.GetID());	
-		//m_ScreenQuadOutlineMaterial.SetTexture(UF_SCREENTEXTURE, &m_PrimaryRTTexture2);
-		//UpdateShaderData(&m_ScreenQuadOutlineMaterial);
-		//m_RenderDevice.Draw(m_ScreenQuadVAO, m_FullscreenQuadDP, 0, 6, true);
-
-
 		// Back to default buffer
 		m_renderDevice.SetFBO(0);
 
@@ -914,11 +969,6 @@ namespace LinaEngine::Graphics
 
 		// Draw full screen quad.
 		m_renderDevice.Draw(m_ScreenQuadVAO, m_FullscreenQuadDP, 0, 6, true);
-
-		// Draw the final texture into primary fbo for storing purposes.
-		//m_RenderDevice.SetFBO(m_PrimaryRenderTarget.GetID());
-		//m_RenderDevice.Draw(m_ScreenQuadVAO, m_FullscreenQuadDP, 0, 6, true);
-		//m_RenderDevice.SetFBO(0);
 	}
 
 	void RenderEngine::DrawLine(Vector3 p1, Vector3 p2, Color col, float width)

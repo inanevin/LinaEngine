@@ -228,6 +228,9 @@ namespace LinaEngine::Graphics
 		// clears resource memory.
 		void DumpMemory();
 
+		// Renders the shadow depth buffer
+		void DrawShadows();
+
 		// Renders the scene.
 		void Draw();
 
@@ -298,6 +301,9 @@ namespace LinaEngine::Graphics
 		// HDRI equirectangular cube material
 		Material m_HDRIMaterial;
 
+		// Shadow map material
+		Material m_shadowMapMaterial;
+
 		// Primary RT Texture
 		Texture m_PrimaryRTTexture0;
 		Texture m_PrimaryRTTexture1;
@@ -323,7 +329,7 @@ namespace LinaEngine::Graphics
 		Texture m_HDRILutMap;
 
 		// Shadow map RT texture
-		Texture m_shadowMap;
+		Texture m_shadowMapRTTexture;
 
 		// Default texture
 		Texture m_DefaultTexture;
@@ -339,6 +345,9 @@ namespace LinaEngine::Graphics
 
 		// Draw parameters for fbo texture rendering
 		DrawParams m_FullscreenQuadDP;
+
+		// Shadow map draw params
+		DrawParams m_shadowMapDrawParams;
 
 		// Buffer for global matrices
 		UniformBuffer m_GlobalDataBuffer;

@@ -52,6 +52,7 @@ namespace LinaEngine::Graphics
 #define MAT_TEXTURE2D_IRRADIANCEMAP "material.irradianceMap"
 #define MAT_TEXTURE2D_PREFILTERMAP "material.prefilterMap"
 #define MAT_TEXTURE2D_BRDFLUTMAP "material.brdfLUTMap"
+#define MAT_TEXTURE2D_SHADOWMAP "material.shadowMap"
 #define MAT_TEXTURE2D_ROUGHNESSMAP "material.roughnessMap"
 #define MAT_MAP_ENVIRONMENT "material.environmentMap"
 #define MAT_MAP_SCREEN "material.screenMap"
