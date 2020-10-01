@@ -226,9 +226,11 @@ Texture& aoSphere = m_RenderEngine->CreateTexture2D(4, "resources/textures/ruste
 	float spacing = 3.0f;
 
 
+
+
 	spriteMat = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::RENDERER2D_SPRITE);
 	spriteMat->SetTexture(MAT_TEXTURE2D_DIFFUSE, &sprite);
-	//spriteMat->SetSurfaceType(LinaEngine::Graphics::MaterialSurfaceType::Transparent);
+	spriteMat->SetSurfaceType(Graphics::MaterialSurfaceType::Transparent);
 	sphereMat = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::PBR_LIT);
 sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoSphere);
 sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalSphere);

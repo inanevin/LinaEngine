@@ -229,10 +229,10 @@ namespace LinaEngine::Graphics
 
 		// Tex coords.
 		Vector2 texCoords[] = {
-			Vector2(-0.5f, 0.5f),  // left top, id 0
-			Vector2(-0.5f, -0.5f), // left bottom, id 1
-			Vector2(0.5f, -0.5f),  // right bottom, id 2
-			Vector2(0.5f, 0.5f),   // right top, id 3
+			Vector2(1.0f, 1.0f),  // left top, id 0
+			Vector2(1.0f, 0.0f), // left bottom, id 1
+			Vector2(0.0f, 0.0f),  // right bottom, id 2
+			Vector2(0.0f, 1.0f),   // right top, id 3
 		};
 
 

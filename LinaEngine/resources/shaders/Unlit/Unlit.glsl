@@ -70,7 +70,7 @@ void main()
 		else
 			brightColor = vec4(0.0, 0.0, 0.0, 1.0);
 
-    fragColor = (material.diffuse.isActive ? texture(material.diffuse.texture ,TexCoords) : vec4(1.0)) * vec4(material.objectColor, 1.0);
+		fragColor = (material.diffuse.isActive ? texture(material.diffuse.texture ,TexCoords) : vec4(1.0)) * vec4(material.objectColor, 1.0);
 	}
 }
 #endif
