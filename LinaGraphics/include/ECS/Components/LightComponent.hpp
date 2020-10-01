@@ -49,7 +49,7 @@ namespace LinaEngine::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(distance); // serialize things by passing them to the archive
+			archive(distance, color); // serialize things by passing them to the archive
 		}
 	};
 
@@ -63,7 +63,7 @@ namespace LinaEngine::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(direction, distance, cutOff, outerCutOff); // serialize things by passing them to the archive
+			archive(color, direction, distance, cutOff, outerCutOff); // serialize things by passing them to the archive
 		}
 	};
 
@@ -74,7 +74,7 @@ namespace LinaEngine::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(direction); // serialize things by passing them to the archive
+			archive(direction, color); // serialize things by passing them to the archive
 		}
 	};
 }

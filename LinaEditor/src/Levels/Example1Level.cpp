@@ -157,11 +157,7 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-	CreateProceduralSkybox(m_RenderEngine);
-
-
-
-
+	CreateHDRISkybox(m_RenderEngine);
 
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);
@@ -310,11 +306,11 @@ spriteRenderer.materialID = spriteMat->m_MaterialID;
 	ECSEntity sphereEntity2;
 	sphereEntity2 = m_ECS->CreateEntity("Sprite");
 	objectTransform.transform.location = Vector3(-15, 5, 5);
-	sphereMR.meshID = Primitives::PLANE;
-	sphereMR.materialID = spriteMat->m_MaterialID;
+	sphereMR.meshID = Primitives::CUBE;
+	sphereMR.materialID = sphereMat->m_MaterialID;
 	m_ECS->emplace<TransformComponent>(sphereEntity2, objectTransform);
-	m_ECS->emplace<SpriteRendererComponent>(sphereEntity2, spriteRenderer);
-	//m_ECS->emplace<RigidbodyComponent>(sphereEntity2, sphereRB);
+	m_ECS->emplace<MeshRendererComponent>(sphereEntity2, sphereMR);
+	m_ECS->emplace<RigidbodyComponent>(sphereEntity2, sphereRB);
 
 	//
 	//ECSEntity helmetEntity;
