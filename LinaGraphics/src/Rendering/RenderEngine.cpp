@@ -693,22 +693,30 @@ namespace LinaEngine::Graphics
 	void RenderEngine::ConstructRenderTargets()
 	{
 		Vector2 screenSize = Vector2(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
+
+		// Main
 		mainRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
 		mainRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
 		mainRTParams.textureParams.minFilter = mainRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
 		mainRTParams.textureParams.wrapS = mainRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
 
+		// Primary
 		primaryRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
 		primaryRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
 		primaryRTParams.textureParams.minFilter = primaryRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
 		primaryRTParams.textureParams.wrapS = primaryRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 
 
+		// Ping pong
 		pingPongRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
 		pingPongRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
 		pingPongRTParams.textureParams.minFilter = pingPongRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
 		pingPongRTParams.textureParams.wrapS = pingPongRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 
+		// Shadows depth.
+		shadowsRTParams.textureParams.pixelFormat = shadowsRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_DEPTH;
+		shadowsRTParams.textureParams.minFilter = shadowsRTParams.textureParams.magFilter = SamplerFilter::FILTER_NEAREST;
+		shadowsRTParams.textureParams.wrapS = shadowsRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 
 		// Initialize primary RT textures
 		m_PrimaryRTTexture0.ConstructRTTexture(m_renderDevice, screenSize, primaryRTParams, false);
@@ -721,6 +729,9 @@ namespace LinaEngine::Graphics
 
 		// Initialize outilne RT texture
 		m_OutlineRTTexture.ConstructRTTexture(m_renderDevice, screenSize, primaryRTParams, false);
+
+		// Shadow map RT texture
+		m_shadowMapRTTexture.ConstructRTTexture(m_renderDevice, m_shadowMapResolution, shadowsRTParams, true);
 
 		// Initialize primary render buffer
 		m_PrimaryRenderBuffer.Construct(m_renderDevice, RenderBufferStorage::STORAGE_DEPTH, screenSize.x, screenSize.y);
@@ -746,6 +757,9 @@ namespace LinaEngine::Graphics
 
 		// Initialize HDRI render target
 		m_HDRICaptureRenderTarget.Construct(m_renderDevice, m_HDRIResolution, FrameBufferAttachment::ATTACHMENT_DEPTH, m_HDRICaptureRenderBuffer.GetID());
+
+		// Initialize depth map for shadows
+		m_shadowMapTarget.Construct(m_renderDevice, m_shadowMapRTTexture,  m_shadowMapResolution.x, m_shadowMapResolution.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
 
 	}
 

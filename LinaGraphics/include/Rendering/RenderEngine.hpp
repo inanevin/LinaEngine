@@ -271,6 +271,9 @@ namespace LinaEngine::Graphics
 		// Equirectangular hdri capture render target
 		RenderTarget m_HDRICaptureRenderTarget;
 
+		// Shadows depth map
+		RenderTarget m_shadowMapTarget;
+
 		// Default Render buffer
 		RenderBuffer m_PrimaryRenderBuffer;
 
@@ -318,6 +321,9 @@ namespace LinaEngine::Graphics
 
 		// BRDF LUT texture for HDRI
 		Texture m_HDRILutMap;
+
+		// Shadow map RT texture
+		Texture m_shadowMap;
 
 		// Default texture
 		Texture m_DefaultTexture;
@@ -406,10 +412,14 @@ namespace LinaEngine::Graphics
 		// HDRI Skybox resolution
 		Vector2 m_HDRIResolution = Vector2(512, 512);
 
+		// Shadow map resolution
+		Vector2 m_shadowMapResolution = Vector2(512, 512);
+
 		// Frame buffer texture parameters
 		SamplerParameters mainRTParams;
 		SamplerParameters primaryRTParams;
 		SamplerParameters pingPongRTParams;
+		SamplerParameters shadowsRTParams;
 
 		// Post scene draw callback
 		std::function<void()> m_postSceneDrawCallback;
