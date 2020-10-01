@@ -435,6 +435,12 @@ namespace LinaEditor
 					m_physicsEngine->SetDebugDraw(physicsDebugEnabled);
 				}
 
+				if (ImGui::MenuItem("Draw Final Image"))
+					m_ScenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::FinalImage);
+
+				if (ImGui::MenuItem("Draw Shadow Map"))
+					m_ScenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::ShadowMap);
+
 				ImGui::EndMenu();
 			}
 

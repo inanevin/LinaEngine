@@ -104,12 +104,6 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 		"resources/textures/defaultSkybox/back.png",
 	};
 
-	SamplerData data = SamplerData();
-	SamplerParameters samplerParams;
-	samplerParams.textureParams.generateMipMaps = true;
-	samplerParams.textureParams.minFilter = FILTER_NEAREST;
-	//Texture& t = renderEngine->CreateTextureCubemap(fp, samplerParams, false);
-	//mat.SetTexture(MAT_MAP_ENVIRONMENT, &t, TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine->SetSkyboxMaterial(mat);
 }
 void CreateHDRISkybox(RenderEngine* renderEngine)
@@ -382,6 +376,7 @@ spriteRenderer.materialID = spriteMat->m_MaterialID;
 		m_ECS->emplace<SpotLightComponent>(sLight, sLight1);
 
 	}
+
 
 	//int rows = 100;
 	//int cols = 100;

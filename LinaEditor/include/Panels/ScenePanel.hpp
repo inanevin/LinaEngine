@@ -39,8 +39,15 @@ namespace LinaEditor
 {
 	class ScenePanel : public EditorPanel
 	{
+	
 		
 	public:
+
+		enum DrawMode
+		{
+			FinalImage,
+			ShadowMap
+		};
 		
 		ScenePanel(Vector2 position, Vector2 size, class GUILayer& guiLayer) :EditorPanel(position, size, guiLayer) {};
 		virtual ~ScenePanel() {};
@@ -57,10 +64,13 @@ namespace LinaEditor
 		// Handles gizmos
 		void DrawGizmos();
 
+		// Sets draw mode
+		FORCEINLINE void SetDrawMode(DrawMode mode) { m_drawMode = mode; }
+
 	private:
 
 		LinaEngine::ECS::TransformComponent* m_SelectedTransform = nullptr;
-
+		DrawMode m_drawMode = DrawMode::FinalImage;
 		class LinaEngine::Graphics::RenderEngine* m_RenderEngine;
 	};
 }

@@ -38,7 +38,7 @@ namespace LinaEngine::Graphics
 	constexpr int UNIFORMBUFFER_VIEWDATA_BINDPOINT = 0;
 	constexpr auto UNIFORMBUFFER_VIEWDATA_NAME = "ViewData";
 
-	constexpr size_t UNIFORMBUFFER_LIGHTDATA_SIZE = (sizeof(int) * 2);
+	constexpr size_t UNIFORMBUFFER_LIGHTDATA_SIZE = (sizeof(int) * 2) + sizeof(Vector4);
 	constexpr int UNIFORMBUFFER_LIGHTDATA_BINDPOINT = 1;
 	constexpr auto UNIFORMBUFFER_LIGHTDATA_NAME = "LightData";
 
@@ -157,7 +157,6 @@ namespace LinaEngine::Graphics
 
 		DrawShadows();
 
-		
 
 		Draw();
 
@@ -181,8 +180,7 @@ namespace LinaEngine::Graphics
 		// Resize render buffers & frame buffer textures
 		m_renderDevice.ResizeRTTexture(m_PrimaryRTTexture0.GetID(), windowSize, primaryRTParams.textureParams.internalPixelFormat, primaryRTParams.textureParams.pixelFormat);
 		m_renderDevice.ResizeRTTexture(m_PrimaryRTTexture1.GetID(), windowSize, primaryRTParams.textureParams.internalPixelFormat, primaryRTParams.textureParams.pixelFormat);
-		m_renderDevice.ResizeRTTexture(m_PrimaryRTTexture2.GetID(), windowSize, primaryRTParams.textureParams.internalPixelFormat, primaryRTParams.textureParams.pixelFormat);
-		m_renderDevice.ResizeRTTexture(m_OutlineRTTexture.GetID(), windowSize, primaryRTParams.textureParams.internalPixelFormat, primaryRTParams.textureParams.pixelFormat);
+		//m_renderDevice.ResizeRTTexture(m_OutlineRTTexture.GetID(), windowSize, primaryRTParams.textureParams.internalPixelFormat, primaryRTParams.textureParams.pixelFormat);
 		m_renderDevice.ResizeRTTexture(m_PingPongRTTexture1.GetID(), windowSize, pingPongRTParams.textureParams.internalPixelFormat, pingPongRTParams.textureParams.pixelFormat);
 		m_renderDevice.ResizeRTTexture(m_PingPongRTTexture1.GetID(), windowSize, pingPongRTParams.textureParams.internalPixelFormat, pingPongRTParams.textureParams.pixelFormat);
 		m_renderDevice.ResizeRenderBuffer(m_PrimaryRenderTarget.GetID(), m_PrimaryRenderBuffer.GetID(), windowSize, RenderBufferStorage::STORAGE_DEPTH);
@@ -465,7 +463,11 @@ namespace LinaEngine::Graphics
 		{
 			material.colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
 			material.sampler2Ds[MAT_TEXTURE2D_DIFFUSE] = { 0 };
+			material.sampler2Ds[MAT_TEXTURE2D_SHADOWMAP] = { 1 };
 			material.ints[MAT_SURFACETYPE] = 0;
+			material.isShadowMapped = true;
+			m_ShadowMappedMaterials.emplace(&material);
+
 		}
 		else if (shader == Shaders::SKYBOX_SINGLECOLOR)
 		{
@@ -514,7 +516,10 @@ namespace LinaEngine::Graphics
 		{
 			material.sampler2Ds[MAT_MAP_SCREEN] = { 0 };
 		}
-
+		else if (shader == Shaders::SCREEN_SHADOWMAP)
+		{
+			
+		}
 		else if (shader == Shaders::PBR_LIT)
 		{
 			material.sampler2Ds[MAT_TEXTURE2D_ALBEDOMAP] = { 0 };
@@ -730,14 +735,13 @@ namespace LinaEngine::Graphics
 		// Initialize primary RT textures
 		m_PrimaryRTTexture0.ConstructRTTexture(m_renderDevice, screenSize, primaryRTParams, false);
 		m_PrimaryRTTexture1.ConstructRTTexture(m_renderDevice, screenSize, primaryRTParams, false);
-		m_PrimaryRTTexture2.ConstructRTTexture(m_renderDevice, screenSize, primaryRTParams, false);
 
 		// Initialize ping pong rt texture
 		m_PingPongRTTexture1.ConstructRTTexture(m_renderDevice, screenSize, pingPongRTParams, false);
 		m_PingPongRTTexture2.ConstructRTTexture(m_renderDevice, screenSize, pingPongRTParams, false);
 
 		// Initialize outilne RT texture
-		m_OutlineRTTexture.ConstructRTTexture(m_renderDevice, screenSize, primaryRTParams, false);
+		//m_OutlineRTTexture.ConstructRTTexture(m_renderDevice, screenSize, primaryRTParams, false);
 
 		// Shadow map RT texture
 		m_shadowMapRTTexture.ConstructRTTexture(m_renderDevice, m_shadowMapResolution, shadowsRTParams, true);
@@ -753,16 +757,15 @@ namespace LinaEngine::Graphics
 
 		// Bind the extre texture to primary render target, also tell open gl that we are running mrts.
 		m_renderDevice.BindTextureToRenderTarget(m_PrimaryRenderTarget.GetID(), m_PrimaryRTTexture1.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
-		m_renderDevice.BindTextureToRenderTarget(m_PrimaryRenderTarget.GetID(), m_PrimaryRTTexture2.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 2);
-		uint32 attachments[3] = { FrameBufferAttachment::ATTACHMENT_COLOR , (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)1),(FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)2) };
-		m_renderDevice.MultipleDrawBuffersCommand(m_PrimaryRenderTarget.GetID(), 3, attachments);
+		uint32 attachments[2] = { FrameBufferAttachment::ATTACHMENT_COLOR , (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)1)};
+		m_renderDevice.MultipleDrawBuffersCommand(m_PrimaryRenderTarget.GetID(), 2, attachments);
 
 		// Initialize ping pong render targets
 		m_PingPongRenderTarget1.Construct(m_renderDevice, m_PingPongRTTexture1, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 		m_PingPongRenderTarget2.Construct(m_renderDevice, m_PingPongRTTexture2, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 
 		// Initialize outline render target
-		m_OutlineRenderTarget.Construct(m_renderDevice, m_OutlineRTTexture, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+		//m_OutlineRenderTarget.Construct(m_renderDevice, m_OutlineRTTexture, screenSize.x, screenSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 
 		// Initialize HDRI render target
 		m_HDRICaptureRenderTarget.Construct(m_renderDevice, m_HDRIResolution, FrameBufferAttachment::ATTACHMENT_DEPTH, m_HDRICaptureRenderBuffer.GetID());
@@ -876,7 +879,7 @@ namespace LinaEngine::Graphics
 	void RenderEngine::DrawShadows()
 	{
 		// Clear color.
-		m_renderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+		//m_renderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Change perspective to render the scene from light perspective into the depth frame buffer
 		m_CameraSystem.SetUseDirLightView(true);
@@ -889,6 +892,7 @@ namespace LinaEngine::Graphics
 
 		// Set depth frame buffer
 		m_renderDevice.SetFBO(m_shadowMapTarget.GetID());
+		//m_renderDevice.SetViewport(Vector2::Zero, m_shadowMapResolution);
 
 		// Clear color.
 		m_renderDevice.Clear(false, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
@@ -959,7 +963,7 @@ namespace LinaEngine::Graphics
 		// Set frame buffer texture on the material.
 		m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_SCREEN, &m_PrimaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_BLOOM, horizontal ? &m_PingPongRTTexture1 : &m_PingPongRTTexture2, TextureBindMode::BINDTEXTURE_TEXTURE2D);
-		m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_OUTLINE, &m_OutlineRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+		// m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_OUTLINE, &m_OutlineRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 
 		Vector2 inverseMapSize = 1.0f / m_PrimaryRTTexture0.GetSize();
 		m_ScreenQuadFinalMaterial.SetVector3(MAT_INVERSESCREENMAPSIZE, Vector3(inverseMapSize.x, inverseMapSize.y, 0.0));
@@ -1034,7 +1038,7 @@ namespace LinaEngine::Graphics
 		m_GlobalDataBuffer.Update(&m_CameraSystem.GetViewMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 
-		m_GlobalDataBuffer.Update(&m_LightingSystem.GetDirectionalLightMatrix(), currentGlobalDataOffset, sizeof(Matrix));
+		m_GlobalDataBuffer.Update(&m_LightingSystem.GetDirectionalLightMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 
 		m_GlobalDataBuffer.Update(&viewPos, currentGlobalDataOffset, sizeof(Vector4));
@@ -1053,7 +1057,6 @@ namespace LinaEngine::Graphics
 			currentGlobalDataOffset += sizeof(float);
 
 
-
 			// Update only if changed.
 			if (m_BufferValueRecord.zFar != cameraComponent->zFar)
 			{
@@ -1064,8 +1067,11 @@ namespace LinaEngine::Graphics
 		}
 
 		// Update lights buffer.
+		Color ambient = m_LightingSystem.GetAmbientColor();
+		Vector4 ambientColor = Vector4(ambient.r, ambient.g, ambient.b, 1.0f);
 		m_GlobalLightBuffer.Update(&m_CurrentPointLightCount, 0, sizeof(int));
 		m_GlobalLightBuffer.Update(&m_CurrentSpotLightCount, sizeof(int), sizeof(int));
+		m_GlobalLightBuffer.Update(&ambientColor, sizeof(int) * 2, sizeof(float) * 4);
 
 		// Update debug fufer.
 		m_GlobalDebugBuffer.Update(&m_DebugData.visualizeDepth, 0, sizeof(bool));
@@ -1373,6 +1379,11 @@ namespace LinaEngine::Graphics
 	void* RenderEngine::GetFinalImage()
 	{
 		return (void*)m_PrimaryRTTexture0.GetID();
+	}
+
+	void* RenderEngine::GetShadowMapImage()
+	{
+		return (void*)m_shadowMapRTTexture.GetID();
 	}
 
 }

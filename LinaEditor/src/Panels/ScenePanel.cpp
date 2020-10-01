@@ -31,7 +31,7 @@ Timestamp: 6/5/2020 6:51:39 PM
 #include "ECS/Components/CameraComponent.hpp"
 
 static ImGuizmo::OPERATION currentTransformGizmoOP = ImGuizmo::OPERATION::TRANSLATE;
-static ImGuizmo::MODE currentTransformGizmoMode = ImGuizmo::MODE::WORLD;
+static ImGuizmo::MODE currentTransformGizmoMode = ImGuizmo::MODE::LOCAL;
 static Matrix gridLineMatrix = Matrix::Identity();
 static Matrix modelMatrix = Matrix::Identity();
 static ImVec2 previousWindowSize;
@@ -71,8 +71,11 @@ namespace LinaEditor
 					m_RenderEngine->OnWindowResized((uint32)ImGui::GetCurrentWindow()->Size.x, (uint32)ImGui::GetCurrentWindow()->Size.y);
 					previousWindowSize = size;
 				}
-				
-				ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetFinalImage(), pMin, pMax, ImVec2(0, 1), ImVec2(1, 0));
+
+				if (m_drawMode == DrawMode::FinalImage)
+					ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetFinalImage(), pMin, pMax, ImVec2(0, 1), ImVec2(1, 0));
+				else if (m_drawMode == DrawMode::ShadowMap)
+					ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetShadowMapImage(), pMin, pMax, ImVec2(0, 1), ImVec2(1, 0));
 
 				// Handle inputs.
 				ProcessInput();
@@ -131,9 +134,9 @@ namespace LinaEditor
 			m_SelectedTransform->transform.scale = Vector3(matrixScale[0], matrixScale[1], matrixScale[2]);
 			m_SelectedTransform->transform.rotation = Quaternion::Euler(matrixRotation[0], matrixRotation[1], matrixRotation[2]);
 		}
-		
+
 		// ImGuizmo::DrawGrid(&view[0][0], &projection[0][0], &gridLineMatrix[0][0], GRID_SIZE);
-		 
+
 	}
 
 }

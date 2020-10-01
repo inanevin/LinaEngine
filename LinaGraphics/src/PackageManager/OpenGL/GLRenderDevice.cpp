@@ -1299,7 +1299,6 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::SetFBO(uint32 fbo)
 	{
-		// Use FBO if exists.
 		if (fbo == m_BoundFBO) return;
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		m_BoundFBO = m_BoundReadFBO = m_BoundWriteFBO = fbo;

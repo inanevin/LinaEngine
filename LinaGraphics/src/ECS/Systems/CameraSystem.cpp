@@ -53,13 +53,21 @@ namespace LinaEngine::ECS
 			else
 			{
 
-				float near_plane = 1.0f, far_plane = 7.5f;
-				glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+				float near_plane = 1.0f, far_plane = 15.5f;
+				Vector3 location = Vector3(-2.0f, 2.0f, -1.0f);
 
-				glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f),
-					glm::vec3(0.0f, 0.0f, 0.0f),
-					glm::vec3(0.0f, 1.0f, 0.0f));
+				//glm::mat4 lightProjection = Matrix::Orthographic(-20.0f, 20.0f, -20.0f, 20.0f, 1.0f, 14.5f);
+				//
+				//Matrix view = Matrix::TransformMatrix(location, Quaternion::LookAt(location, Vector3::Zero, Vector3::Up), Vector3::One);
+				//
+				//glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f),
+				//	glm::vec3(0.0f, 0.0f, 0.0f),
+				//	glm::vec3(0.0f, 1.0f, 0.0f));
+				//
+			//	m_lightSpaceMatrix = lightProjection * view;
 
+				Matrix lightProjection = Matrix::Orthographic(-20.0f, 20.0f, -20.0f, 20.0f, 1.0f, 14.5f);
+				Matrix lightView = Matrix::InitLookAt(location, Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
 				m_lightSpaceMatrix = lightProjection * lightView;
 
 			}

@@ -50,6 +50,7 @@ layout (location = 2) out vec4 outlineColor;
 in vec2 TexCoords;
 in vec3 WorldPos;
 in vec3 Normal;
+in vec4 FragPosLightSpace;
 
 struct Material
 {
@@ -153,10 +154,11 @@ void main()
 
       ambient = (kD * diffuse + specular) * ao;
     }
-    //else
-      //ambient = vec3(0.03) * albedo * ao;
+   // else
+     // ambient = ambientColor.xyz * albedo * ao;
 
-    vec3 color = ambient + Lo;
+	float shadow = material.shadowMap.isActive ? CalculateShadow(FragPosLightSpace, material.shadowMap.texture) : 0.0;       	
+    vec3 color = ambient * (1.0-shadow) + Lo;
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));

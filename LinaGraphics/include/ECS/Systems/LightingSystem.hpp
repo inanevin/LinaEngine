@@ -59,6 +59,7 @@ namespace LinaEngine::ECS
 		void ResetLightData();
 		Matrix GetDirectionalLightMatrix();
 		std::vector<Matrix> GetPointLightMatrices();
+		FORCEINLINE Color& GetAmbientColor() { return m_ambientColor; }
 
 	private:
 
@@ -67,6 +68,7 @@ namespace LinaEngine::ECS
 		std::tuple < TransformComponent*, DirectionalLightComponent*> directionalLight;
 		std::vector<std::tuple<TransformComponent*, PointLightComponent*>> pointLights;
 		std::vector<std::tuple<TransformComponent*, SpotLightComponent*>> spotLights;
+		Color m_ambientColor = Color(0.0f, 0.0f, 0.0f);
 	};
 }
 

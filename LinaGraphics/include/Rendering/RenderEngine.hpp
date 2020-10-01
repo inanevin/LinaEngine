@@ -195,6 +195,9 @@ namespace LinaEngine::Graphics
 		// Returns the final render texture.
 		void* GetFinalImage();
 
+		// Returns the directional shadow map texture
+		void* GetShadowMapImage();
+
 		// Initializes the setup process for loading an HDRI image to the scene
 		void CaptureCalculateHDRI(Texture& hdriTexture);
 
@@ -307,7 +310,6 @@ namespace LinaEngine::Graphics
 		// Primary RT Texture
 		Texture m_PrimaryRTTexture0;
 		Texture m_PrimaryRTTexture1;
-		Texture m_PrimaryRTTexture2;
 
 		// Ping pong RT textures
 		Texture m_PingPongRTTexture1;

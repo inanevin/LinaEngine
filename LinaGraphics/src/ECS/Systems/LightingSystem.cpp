@@ -62,8 +62,9 @@ namespace LinaEngine::ECS
 		DirectionalLightComponent* dirLight = std::get<1>(directionalLight);
 		if (dirLightTransform != nullptr && dirLight != nullptr)
 		{
+			Vector3 direction = dirLightTransform->transform.rotation.GetForward().Normalized();
 			m_RenderDevice->UpdateShaderUniformColor(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTCOLOR, dirLight->color);
-			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTDIRECTION, dirLight->direction);
+			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTDIRECTION, -direction);
 			//m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTPOSITION, dirLightTransform->transform.location);
 		}
 
@@ -116,7 +117,8 @@ namespace LinaEngine::ECS
 		TransformComponent* directionalLightTransform = std::get<0>(directionalLight);
 		float zFar = directionalLightTransform == nullptr ? 0.0f : directionalLightTransform->transform.location.Magnitude();
 		Matrix lightProjection = Matrix::Orthographic(-10.0f,10.0f, -10.0f, 10.0f, 1.0f, 15.5f);
-		Matrix lightView = Matrix::InitLookAt(directionalLightTransform == nullptr ? Vector3::Zero: directionalLightTransform->transform.location, Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
+		//Matrix lightView = Matrix::InitLookAt(directionalLightTransform == nullptr ? Vector3::Zero: directionalLightTransform->transform.location, Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
+		Matrix lightView = Matrix::InitRotationFromDirection(directionalLightTransform->transform.rotation.GetForward(), directionalLightTransform->transform.rotation.GetUp());
 		return lightProjection * lightView;
 	}
 
