@@ -84,6 +84,7 @@ set(LINAGRAPHICS_HEADERS
 	include/ECS/Components/MeshRendererComponent.hpp
 	include/ECS/Components/CameraComponent.hpp
 	include/ECS/Components/LightComponent.hpp
+	include/ECS/Components/SpriteRendererComponent.hpp
 	
 	include/Utility/stb/stb.h
 	include/Utility/stb/stb_c_lexer.h

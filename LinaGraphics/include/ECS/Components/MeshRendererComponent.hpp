@@ -21,10 +21,9 @@ Timestamp: 4/14/2019 1:37:59 AM
 
 #ifndef RenderableMeshComponent_HPP
 #define RenderableMeshComponent_HPP
+
 #include "Core/SizeDefinitions.hpp"
 #include "ECS/ECSComponent.hpp"
-
-
 
 namespace LinaEngine
 {
@@ -33,11 +32,7 @@ namespace LinaEngine
 		class Mesh;
 		class Material;
 		class VertexArray;
-
-
 	}
-
-	
 }
 
 namespace LinaEngine::ECS
