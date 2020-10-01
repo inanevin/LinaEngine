@@ -49,7 +49,6 @@ namespace LinaEngine::Graphics
 			m_IndexCount = model.GetIndexCount();
 		}
 
-
 		FORCEINLINE void UpdateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize)
 		{
 			return m_RenderDevice->UpdateVertexArrayBuffer(m_EngineBoundID, bufferIndex, data, dataSize);

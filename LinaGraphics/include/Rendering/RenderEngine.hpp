@@ -28,6 +28,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "ECS/Systems/CameraSystem.hpp"
 #include "ECS/Systems/LightingSystem.hpp"
 #include "ECS/Systems/MeshRendererSystem.hpp"
+#include "ECS/Systems/SpriteRendererSystem.hpp"
 #include "Rendering/ModelLoader.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Rendering/RenderBuffer.hpp"
@@ -252,7 +253,7 @@ namespace LinaEngine::Graphics
 	private:
 
 		// Device for rendering operations.
-		RenderDevice m_RenderDevice;
+		RenderDevice m_renderDevice;
 
 		// Context window
 		Window m_MainWindow;
@@ -342,9 +343,6 @@ namespace LinaEngine::Graphics
 		// Buffer for debugging.
 		UniformBuffer m_GlobalDebugBuffer;
 
-		// Model loader.
-		ModelLoader m_ModelLoader;
-
 		// GUI layer queue.
 		LayerStack m_GUILayerStack;
 
@@ -359,6 +357,9 @@ namespace LinaEngine::Graphics
 
 		// ECS Mesh Renderer system
 		LinaEngine::ECS::MeshRendererSystem m_MeshRendererSystem;
+
+		// ECS Sprite rendere system
+		LinaEngine::ECS::SpriteRendererSystem m_spriteRendererSystem;
 
 		// ECS system for handling lighting
 		LinaEngine::ECS::LightingSystem m_LightingSystem;

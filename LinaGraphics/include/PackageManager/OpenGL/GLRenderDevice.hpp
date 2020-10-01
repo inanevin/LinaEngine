@@ -113,6 +113,9 @@ namespace LinaEngine::Graphics
 		// Creates a vertex array for line drawing.
 		uint32 CreateLineVertexArray();
 
+		// Creates a quad vertex array for sprites.
+		uint32 CreateSpriteQuadVertexArray();
+
 		// Creates a vertex array for an hdri skybox cube to capture lighting data
 		uint32 CreateHDRICubeVertexArray();
 

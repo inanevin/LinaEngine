@@ -100,7 +100,6 @@ namespace LinaEngine::ECS
 		Graphics::RenderEngine* m_RenderEngine = nullptr;
 
 		// Map & queue to see the list of same vertex array & textures to compress them into single draw call.
-
 		std::map<Graphics::BatchDrawData, Graphics::BatchModelData, BatchDrawDataComp> m_OpaqueRenderBatch;
 		std::priority_queue<BatchPair, std::vector<BatchPair>, BatchComparison> m_TransparentRenderBatch;
 	};

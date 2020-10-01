@@ -227,7 +227,8 @@ namespace LinaEngine::Graphics
 		SCREEN_QUAD_FINAL = 110,
 		SCREEN_QUAD_BLUR = 111,
 		SCREEN_QUAD_OUTLINE = 112,
-		DEBUG_LINE = 121
+		DEBUG_LINE = 121,
+		RENDERER2D_SPRITE = 131
 	};
 
 	struct RenderingDebugData

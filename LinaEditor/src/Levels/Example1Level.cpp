@@ -27,6 +27,7 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
+#include "ECS/Components/SpriteRendererComponent.hpp"
 #include "Levels/GroundCubeSystem.hpp"
 #include "Levels/GroundCubeComponent.hpp"
 #include "Rendering/RenderEngine.hpp"
@@ -224,9 +225,10 @@ Texture& aoSphere = m_RenderEngine->CreateTexture2D(4, "resources/textures/ruste
 	int nrColumns = 7;
 	float spacing = 3.0f;
 
-	spriteMat = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::STANDARD_UNLIT);
+
+	spriteMat = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::RENDERER2D_SPRITE);
 	spriteMat->SetTexture(MAT_TEXTURE2D_DIFFUSE, &sprite);
-	spriteMat->SetSurfaceType(LinaEngine::Graphics::MaterialSurfaceType::Transparent);
+	//spriteMat->SetSurfaceType(LinaEngine::Graphics::MaterialSurfaceType::Transparent);
 	sphereMat = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::PBR_LIT);
 sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoSphere);
 sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalSphere);
@@ -301,14 +303,15 @@ m_ECS->emplace<MeshRendererComponent>(sphereEntity, sphereMR);
 m_ECS->emplace<RigidbodyComponent>(sphereEntity, sphereRB);
 
 
-
+SpriteRendererComponent spriteRenderer;
+spriteRenderer.materialID = spriteMat->m_MaterialID;
 	ECSEntity sphereEntity2;
 	sphereEntity2 = m_ECS->CreateEntity("Sprite");
 	objectTransform.transform.location = Vector3(-15, 5, 5);
 	sphereMR.meshID = Primitives::PLANE;
 	sphereMR.materialID = spriteMat->m_MaterialID;
 	m_ECS->emplace<TransformComponent>(sphereEntity2, objectTransform);
-	m_ECS->emplace<MeshRendererComponent>(sphereEntity2, sphereMR);
+	m_ECS->emplace<SpriteRendererComponent>(sphereEntity2, spriteRenderer);
 	//m_ECS->emplace<RigidbodyComponent>(sphereEntity2, sphereRB);
 
 	//
