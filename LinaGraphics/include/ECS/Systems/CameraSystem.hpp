@@ -26,7 +26,7 @@ Timestamp: 5/2/2019 12:40:46 AM
 #include "Utility/Math/Matrix.hpp"
 #include "Utility/Math/Color.hpp"
 
-
+#include "ECS/Components/LightComponent.hpp"
 namespace LinaEngine::ECS
 {
 	struct TransformComponent;
@@ -51,6 +51,8 @@ namespace LinaEngine::ECS
 
 		// Get camera location, if camera is not defined, get zero.
 		Vector3 GetCameraLocation();
+
+		Matrix GetLightMatrix(DirectionalLightComponent* c);
 
 		// Set aspect ratio for the camera.
 		FORCEINLINE void SetAspectRatio(float aspect) { m_AspectRatio = aspect; }

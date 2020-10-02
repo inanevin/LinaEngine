@@ -85,7 +85,8 @@ namespace LinaEngine::Graphics
 		FORMAT_DEPTH = 6,
 		FORMAT_DEPTH_AND_STENCIL = 7,
 		FORMAT_SRGB = 8,
-		FORMAT_SRGBA = 9
+		FORMAT_SRGBA = 9,
+		FORMAT_DEPTH16 = 61
 	};
 
 

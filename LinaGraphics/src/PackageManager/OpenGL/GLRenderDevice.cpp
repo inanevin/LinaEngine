@@ -260,11 +260,10 @@ namespace LinaEngine::Graphics
 		glGenTextures(1, &textureHandle);
 		glBindTexture(textureTarget, textureHandle);
 
-
 		glTexImage2D(textureTarget, 0, internalFormat, size.x, size.y, 0, format, GL_UNSIGNED_BYTE, data);
 
 		// OpenGL texture params.
-		SetupTextureParameters(textureTarget, samplerParams);
+		SetupTextureParameters(textureTarget, samplerParams, useBorder, &borderColor.r);
 
 		// Enable mipmaps if needed.
 		if (samplerParams.textureParams.generateMipMaps)
@@ -437,7 +436,7 @@ namespace LinaEngine::Graphics
 		return textureHandle;
 	}
 
-	void GLRenderDevice::SetupTextureParameters(uint32 textureTarget, SamplerParameters samplerParams)
+	void GLRenderDevice::SetupTextureParameters(uint32 textureTarget, SamplerParameters samplerParams, bool useBorder, float* borderColor)
 	{
 		// OpenGL texture params.
 		glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, samplerParams.textureParams.minFilter);
@@ -445,6 +444,12 @@ namespace LinaEngine::Graphics
 		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, samplerParams.textureParams.wrapS);
 		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, samplerParams.textureParams.wrapT);
 		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_R, samplerParams.textureParams.wrapR);
+
+		if (useBorder)
+		{
+			float borderColor[] = { borderColor[0], borderColor[1], borderColor[2], borderColor[3] };
+			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+		}
 	}
 
 	void GLRenderDevice::UpdateTextureParameters(uint32 bindMode, uint32 id, SamplerParameters samplerParams)
@@ -1515,6 +1520,7 @@ namespace LinaEngine::Graphics
 		case PixelFormat::FORMAT_RGB: return GL_RGB;
 		case PixelFormat::FORMAT_RGBA: return GL_RGBA;
 		case PixelFormat::FORMAT_DEPTH: return GL_DEPTH_COMPONENT;
+		case PixelFormat::FORMAT_DEPTH16: return GL_DEPTH_COMPONENT16;
 		case PixelFormat::FORMAT_DEPTH_AND_STENCIL: return 0; // GL_DEPTH_STENCIL;
 		case PixelFormat::FORMAT_SRGB: return GL_RGB;
 		case PixelFormat::FORMAT_SRGBA: return GL_RGBA;
@@ -1541,6 +1547,7 @@ namespace LinaEngine::Graphics
 			if (compress)  return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT; // GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
 			else  return GL_RGBA;
 		case PixelFormat::FORMAT_DEPTH: return GL_DEPTH_COMPONENT;
+		case PixelFormat::FORMAT_DEPTH16: return GL_DEPTH_COMPONENT16;
 		case PixelFormat::FORMAT_DEPTH_AND_STENCIL: return GL_DEPTH_STENCIL;
 		case PixelFormat::FORMAT_SRGB: return GL_SRGB;
 		case PixelFormat::FORMAT_SRGBA: return GL_SRGB_ALPHA;

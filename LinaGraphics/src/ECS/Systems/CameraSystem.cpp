@@ -47,12 +47,20 @@ namespace LinaEngine::ECS
 
 			// Update projection matrix.
 			m_Projection = Matrix::Perspective(camera.fieldOfView / 2, m_AspectRatio, camera.zNear, camera.zFar);		
+	
 		}	
 	}
 
 	Vector3 CameraSystem::GetCameraLocation()
 	{
 		return (m_CurrentCameraComponent == nullptr || m_CurrentCameraTransform == nullptr)? Vector3(Vector3::Zero): m_CurrentCameraTransform->transform.location;
+	}
+
+	Matrix CameraSystem::GetLightMatrix(DirectionalLightComponent* c)
+	{
+		Matrix lightProjection = Matrix::Orthographic(c->shadowProjectionSettings.x, c->shadowProjectionSettings.y, c->shadowProjectionSettings.z, c->shadowProjectionSettings.w, c->shadowNearPlane, c->shadowFarPlane);;
+		Matrix lightView = Matrix::InitLookAt(m_CurrentCameraTransform->transform.location, m_CurrentCameraTransform->transform.location + m_CurrentCameraTransform->transform.rotation.GetForward().Normalized(), Vector3::Up);
+		return lightProjection * lightView;
 	}
 
 	LinaEngine::Color& CameraSystem::GetCurrentClearColor()

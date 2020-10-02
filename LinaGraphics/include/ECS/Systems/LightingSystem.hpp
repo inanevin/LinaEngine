@@ -53,11 +53,12 @@ namespace LinaEngine::ECS
 			m_RenderEngine = &renderEngineIn;
 		}
 
-
+		DirectionalLightComponent* GetDirLight() { return std::get<1>(directionalLight); }
 		virtual void UpdateComponents(float delta) override;
 		void SetLightingShaderData(uint32 shaderID);
 		void ResetLightData();
 		Matrix GetDirectionalLightMatrix();
+		Matrix GetDirLightBiasMatrix();
 		std::vector<Matrix> GetPointLightMatrices();
 		FORCEINLINE Color& GetAmbientColor() { return m_ambientColor; }
 		Vector3& GetDirectionalLightPos();

@@ -712,9 +712,10 @@ namespace LinaEngine::Graphics
 		pingPongRTParams.textureParams.wrapS = pingPongRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 
 		// Shadows depth.
-		shadowsRTParams.textureParams.pixelFormat = shadowsRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_DEPTH;
+		shadowsRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_DEPTH;
+		shadowsRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_DEPTH16;
 		shadowsRTParams.textureParams.minFilter = shadowsRTParams.textureParams.magFilter = SamplerFilter::FILTER_NEAREST;
-		shadowsRTParams.textureParams.wrapS = shadowsRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		shadowsRTParams.textureParams.wrapS = shadowsRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_BORDER;
 
 		// Initialize primary RT textures
 		m_PrimaryRTTexture0.ConstructRTTexture(m_renderDevice, m_viewportSize, primaryRTParams, false);
@@ -834,7 +835,7 @@ namespace LinaEngine::Graphics
 		m_shadowMapDrawParams.useDepthTest = true;
 		m_shadowMapDrawParams.useStencilTest = false;
 		m_shadowMapDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_shadowMapDrawParams.faceCulling = FaceCulling::FACE_CULL_FRONT;
+		m_shadowMapDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
 		m_shadowMapDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
 		m_shadowMapDrawParams.destBlend = BlendFunc::BLEND_FUNC_NONE;
 		m_shadowMapDrawParams.shouldWriteDepth = true;
@@ -862,12 +863,8 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::DrawShadows()
 	{
-		// Set depth frame 
-		m_renderDevice.SetFBO(m_shadowMapTarget.GetID());
-		m_renderDevice.SetViewport(Vector2::Zero, m_shadowMapResolution);
-
 		// Clear color.
-		m_renderDevice.Clear(false, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+		m_renderDevice.Clear(true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Update pipeline.
 		m_RenderingPipeline.UpdateSystems(0.0f);
@@ -875,6 +872,13 @@ namespace LinaEngine::Graphics
 		// Update uniform buffers on GPU
 		UpdateUniformBuffers();
 
+		// Set depth frame 
+		m_renderDevice.SetFBO(m_shadowMapTarget.GetID());
+		m_renderDevice.SetViewport(Vector2::Zero, m_shadowMapResolution);
+
+		// Clear color.
+		m_renderDevice.Clear(false, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+		
 		// Draw scene
 		DrawSceneObjects(m_shadowMapDrawParams, &m_shadowMapMaterial, false);
 
@@ -1022,7 +1026,7 @@ namespace LinaEngine::Graphics
 		m_GlobalDataBuffer.Update(&m_CameraSystem.GetViewMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 
-		m_GlobalDataBuffer.Update(&m_LightingSystem.GetDirectionalLightMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
+		m_GlobalDataBuffer.Update(&m_CameraSystem.GetLightMatrix(m_LightingSystem.GetDirLight())[0][0], currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 
 		m_GlobalDataBuffer.Update(&viewPos, currentGlobalDataOffset, sizeof(Vector4));
@@ -1056,7 +1060,7 @@ namespace LinaEngine::Graphics
 		m_GlobalLightBuffer.Update(&m_CurrentPointLightCount, 0, sizeof(int));
 		m_GlobalLightBuffer.Update(&m_CurrentSpotLightCount, sizeof(int), sizeof(int));
 		m_GlobalLightBuffer.Update(&ambientColor, sizeof(int) * 2, sizeof(float) * 4);
-		m_GlobalLightBuffer.Update(&m_LightingSystem.GetDirectionalLightPos(), (sizeof(int) * 2) + (sizeof(float) * 4), sizeof(float) * 4);
+		m_GlobalLightBuffer.Update(&m_CameraSystem.GetCameraLocation(), (sizeof(int) * 2) + (sizeof(float) * 4), sizeof(float) * 4);
 
 		// Update debug fufer.
 		m_GlobalDebugBuffer.Update(&m_DebugData.visualizeDepth, 0, sizeof(bool));

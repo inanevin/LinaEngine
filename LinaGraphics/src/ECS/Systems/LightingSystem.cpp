@@ -114,20 +114,36 @@ namespace LinaEngine::ECS
 
 	Matrix LightingSystem::GetDirectionalLightMatrix()
 	{
+		
 		TransformComponent* directionalLightTransform = std::get<0>(directionalLight);
 		DirectionalLightComponent* light = std::get<1>(directionalLight);
-
+		
 		if (directionalLightTransform == nullptr || light == nullptr) return Matrix();
 
 		Matrix lightProjection = Matrix::Orthographic(light->shadowProjectionSettings.x, light->shadowProjectionSettings.y, light->shadowProjectionSettings.z, light->shadowProjectionSettings.w, light->shadowNearPlane, light->shadowFarPlane);
+		Matrix lightView = Matrix::TransformMatrix(directionalLightTransform->transform.location, directionalLightTransform->transform.rotation, Vector3::One);
+
 		//Matrix lightView = Matrix::InitRotationFromDirection(directionalLightTransform->transform.rotation.GetForward(), directionalLightTransform->transform.rotation.GetUp());
-		Matrix lightView = glm::lookAt(directionalLightTransform->transform.location, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+		//Matrix lightView = Matrix::InitLookAt(directionalLightTransform == nullptr ? Vector3::Zero : directionalLightTransform->transform.location, Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
+		//Matrix lightView = glm::lookAt(directionalLightTransform->transform.location, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+		//Matrix lightView = Matrix::InitRotationFromDirection(directionalLightTransform->transform.rotation.GetForward(), directionalLightTransform->transform.rotation.GetUp());
+		//Matrix lightView = glm::lookAt(directionalLightTransform->transform.location, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
 		//glm::mat4 lightView = glm::lookAt(directionalLightTransform->transform.location,
 		//	glm::vec3(0.0f, 0.0f, 0.0f),
 		//	glm::vec3(0.0f, 1.0f, 0.0f));
 
+		return lightView * lightProjection;
+	}
 
-		return lightProjection * lightView;
+	Matrix LightingSystem::GetDirLightBiasMatrix()
+	{
+		glm::mat4 biasMatrix(
+			0.5, 0.0, 0.0, 0.0,
+			0.0, 0.5, 0.0, 0.0,
+			0.0, 0.0, 0.5, 0.0,
+			0.5, 0.5, 0.5, 1.0
+		);
+		return GetDirectionalLightMatrix() * biasMatrix;
 	}
 
 	Vector3& LightingSystem::GetDirectionalLightPos() 

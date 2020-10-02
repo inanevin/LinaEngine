@@ -9,7 +9,7 @@ float cameraNear;
 float cameraFar;
 };
 
-layout (std140, row_major) uniform LightData
+layout (std140, column_major) uniform LightData
 {
 int pointLightCount; 
 int spotLightCount;
@@ -17,7 +17,7 @@ vec4 ambientColor;
 vec4 dirLightPos;
 };
  
-layout (std140, row_major) uniform DebugData 
+layout (std140, column_major) uniform DebugData 
 { 
 bool visualizeDepth; 
 };

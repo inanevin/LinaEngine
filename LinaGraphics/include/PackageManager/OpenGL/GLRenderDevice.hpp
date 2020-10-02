@@ -93,7 +93,7 @@ namespace LinaEngine::Graphics
 		uint32 CreateTexture2DEmpty(Vector2 size, SamplerParameters samplerParams);
 
 		// Sets up texture parameters
-		void SetupTextureParameters(uint32 textureTarget, SamplerParameters samplerParams);
+		void SetupTextureParameters(uint32 textureTarget, SamplerParameters samplerParams, bool useBorder = false, float* borderColor = NULL);
 
 		// Updates texture parameters
 		void UpdateTextureParameters(uint32 bindMode, uint32 id, SamplerParameters samplerParmas);

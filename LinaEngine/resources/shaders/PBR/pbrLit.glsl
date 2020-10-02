@@ -92,13 +92,14 @@ void main()
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
+	float shadow = material.shadowMap.isActive ? CalculateShadow(FragPosLightSpace, material.shadowMap.texture, Normal, WorldPos, dirLightPos.xyz) : 0.0;       	
 
     // Directional Light
     {
       vec3 L = -directionalLight.direction;
       vec3 radiance = directionalLight.color;
 
-      Lo += CalculateLight(N, V, L, albedo, metallic, roughness, radiance, F0);
+      Lo += CalculateLight(N, V, L, albedo, metallic, roughness, radiance, F0, shadow);
     }
 
     // Point lights.
@@ -109,7 +110,7 @@ void main()
         float distance = length(pointLights[i].position - WorldPos);
         float attenuation = 1.0 / (distance * distance);
         vec3 radiance = pointLights[i].color * attenuation;
-        Lo += CalculateLight(N, V, L, albedo, metallic, roughness, radiance, F0);
+        Lo += CalculateLight(N, V, L, albedo, metallic, roughness, radiance, F0, shadow);
     }
 
     // Spot lights
@@ -125,7 +126,7 @@ void main()
       float intensity = clamp((theta - spotLights[i].outerCutOff) / epsilon, 0.0, 1.0);
       vec3 radiance = spotLights[i].color * attenuation * intensity;
 
-      Lo += CalculateLight(N, V, L, albedo, metallic, roughness, radiance, F0);
+      Lo += CalculateLight(N, V, L, albedo, metallic, roughness, radiance, F0, shadow);
     }
 
     vec3 ambient = vec3(0.0);
@@ -158,9 +159,8 @@ void main()
    // else
      // ambient = ambientColor.xyz * albedo * ao;
 	 
-	float shadow = material.shadowMap.isActive ? CalculateShadow(FragPosLightSpace, material.shadowMap.texture, Normal, WorldPos, dirLightPos.xyz) : 0.0;       	
 
-    vec3 color = ambient + Lo* (1.0-shadow);
+    vec3 color = ambient + Lo;
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));

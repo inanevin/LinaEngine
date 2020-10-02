@@ -27,11 +27,12 @@ void main()
 }
 
 #elif defined(FS_BUILD)
+layout(location = 0) out float fragmentdepth;
 
-#define BIAS 0.01
 
 void main()
 {
-   //gl_FragDepth += gl_FrontFacing ? BIAS : 0.0; //  float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+    // Not really needed, OpenGL does it anyway
+    fragmentdepth = gl_FragCoord.z;
 }
 #endif

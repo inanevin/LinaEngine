@@ -429,7 +429,7 @@ namespace LinaEngine::Graphics
 		Vector2 m_HDRIResolution = Vector2(512, 512);
 
 		// Shadow map resolution
-		Vector2 m_shadowMapResolution = Vector2(16,16);
+		Vector2 m_shadowMapResolution = Vector2(2048, 2048);
 
 		// Viewport data
 		Vector2 m_viewportPos;

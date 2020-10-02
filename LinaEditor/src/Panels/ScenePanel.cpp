@@ -96,8 +96,8 @@ namespace LinaEditor
 				ImGuizmo::Enable(true);
 				ImGuizmo::SetOrthographic(false);
 				ImGuizmo::SetDrawlist();
-				ImGuizmo::SetRect(pMin.x, pMin.y, currentWindowX, currentWindowY);
-				ImGui::PushClipRect(pMin, pMax, false);
+				ImGuizmo::SetRect(imageRectMin.x, imageRectMin.y, imageRectMax.x - imageRectMin.x, imageRectMax.y - imageRectMin.y);
+				ImGui::PushClipRect(imageRectMin, imageRectMax, false);
 				// Draw Gizmos
 				DrawGizmos();
 			}

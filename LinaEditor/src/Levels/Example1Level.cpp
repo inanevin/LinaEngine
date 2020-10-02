@@ -290,10 +290,10 @@ objectTransform.transform.location = Vector3(-13.5f, 10, 5);
 sphereRB.m_halfExtents = Vector3(1,1,1);
 
 sphereRB.m_radius = 3.0f;
+objectTransform.transform.location = Vector3(0.0f, 2.0f, 0.0f);
 m_ECS->emplace<TransformComponent>(sphereEntity, objectTransform);
 m_ECS->emplace<MeshRendererComponent>(sphereEntity, sphereMR);
-m_ECS->emplace<RigidbodyComponent>(sphereEntity, sphereRB);
-
+//m_ECS->emplace<RigidbodyComponent>(sphereEntity, sphereRB);
 
 SpriteRendererComponent spriteRenderer;
 spriteRenderer.materialID = spriteMat->m_MaterialID;
@@ -306,6 +306,8 @@ spriteRenderer.materialID = spriteMat->m_MaterialID;
 	m_ECS->emplace<MeshRendererComponent>(sphereEntity2, sphereMR);
 	m_ECS->emplace<RigidbodyComponent>(sphereEntity2, sphereRB);
 
+
+
 	//
 	//ECSEntity helmetEntity;
 	//helmetEntity = m_ECS->CreateEntity("Helmet");
@@ -317,7 +319,7 @@ spriteRenderer.materialID = spriteMat->m_MaterialID;
 	ECSEntity floorEntity;
 	floorEntity = m_ECS->CreateEntity("Floor");
 	objectTransform.transform.scale = Vector3(100, 1, 100);
-	objectTransform.transform.location = Vector3(0, -15, 0);
+	objectTransform.transform.location = Vector3(0, 0, 0);
 	floorRB.m_halfExtents = Vector3(50.0f, 0.5f, 50.0f);
 	m_ECS->emplace<TransformComponent>(floorEntity, objectTransform);
 	m_ECS->emplace<MeshRendererComponent>(floorEntity, floorMR);
