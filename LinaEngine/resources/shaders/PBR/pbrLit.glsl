@@ -97,6 +97,7 @@ void main()
     {
       vec3 L = -directionalLight.direction;
       vec3 radiance = directionalLight.color;
+
       Lo += CalculateLight(N, V, L, albedo, metallic, roughness, radiance, F0);
     }
 
@@ -142,9 +143,9 @@ void main()
       vec3 kS = F;
       vec3 kD = 1.0 - kS;
       kD *= 1.0 - metallic;
-
+	  
       vec3 irradiance = texture(material.irradianceMap.texture, N).rgb;
-      vec3 diffuse      = irradiance * albedo;
+      vec3 diffuse = irradiance * albedo;
 
       // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
       const float MAX_REFLECTION_LOD = 4.0;
@@ -152,13 +153,14 @@ void main()
       vec2 brdf  = texture(material.brdfLUTMap.texture, vec2(max(dot(N, V), 0.0), roughness)).rg;
       vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
-      ambient = (kD * diffuse + specular) * ao;
+      ambient = (kD * (diffuse + specular)) * ao;
     }
    // else
      // ambient = ambientColor.xyz * albedo * ao;
+	 
+	float shadow = material.shadowMap.isActive ? CalculateShadow(FragPosLightSpace, material.shadowMap.texture, Normal, WorldPos, dirLightPos.xyz) : 0.0;       	
 
-	float shadow = material.shadowMap.isActive ? CalculateShadow(FragPosLightSpace, material.shadowMap.texture) : 0.0;       	
-    vec3 color = ambient * (1.0-shadow) + Lo;
+    vec3 color = ambient + Lo* (1.0-shadow);
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));

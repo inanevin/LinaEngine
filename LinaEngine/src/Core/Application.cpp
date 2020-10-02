@@ -65,6 +65,7 @@ namespace LinaEngine
 		m_RenderEngine.GetMainWindow().SetWindowResizeCallback(m_WindowResizeCallback);
 		m_RenderEngine.GetMainWindow().SetWindowClosedCallback(m_WindowClosedCallback);
 		m_RenderEngine.SetPostSceneDrawCallback(m_postSceneDrawCallback);
+		m_RenderEngine.SetViewportDisplay(Vector2::Zero, m_RenderEngine.GetMainWindow().GetSize());
 
 		// Initialize engines.
 		m_InputEngine.Initialize(m_RenderEngine.GetNativeWindow());
@@ -161,7 +162,6 @@ namespace LinaEngine
 			}
 
 		}
-
 	}
 
 	bool Application::OnWindowClose()
@@ -177,7 +177,7 @@ namespace LinaEngine
 		else
 			m_canRender = true;
 
-		m_RenderEngine.OnWindowResized(size.x, size.y);
+		m_RenderEngine.SetViewportDisplay(Vector2::Zero, size);
 	}
 
 	void Application::OnPostSceneDraw()

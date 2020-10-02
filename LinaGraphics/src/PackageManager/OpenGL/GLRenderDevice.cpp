@@ -1225,10 +1225,6 @@ namespace LinaEngine::Graphics
 		glClear(flags);
 	}
 
-	void GLRenderDevice::OnWindowResized(float width, float height)
-	{
-		glViewport(0, 0, width, height);
-	}
 
 
 	void GLRenderDevice::UpdateShaderUniformFloat(uint32 shader, const std::string& uniform, const float f)

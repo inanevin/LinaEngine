@@ -60,13 +60,8 @@ namespace LinaEngine::ECS
 
 		FORCEINLINE CameraComponent& GetCurrentCameraComponent() { return *m_CurrentCameraComponent; }
 		
-		// For switching to shadow mapping
-		FORCEINLINE void SetUseDirLightView(bool use) { m_UseDirLightView = use; }
-		FORCEINLINE Matrix& GetLightSpaceMatrix() { return m_lightSpaceMatrix; }
-
 	private:
 
-		Matrix m_lightSpaceMatrix;
 		Matrix m_View = Matrix::Identity();
 		Matrix m_Projection =Matrix::Perspective(35, 1.33f, 0.01f, 1000.0f);
 		CameraComponent* m_CurrentCameraComponent = nullptr;

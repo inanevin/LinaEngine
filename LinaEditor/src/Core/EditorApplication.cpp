@@ -33,10 +33,8 @@ namespace LinaEditor
 			// Create layers
 			m_guiLayer = new LinaEditor::GUILayer();
 
-			LinaEngine::ECS::ECSRegistry& reg = GetECSREgistry();
-
 			// Setup layers
-			m_guiLayer->Setup(GetRenderEngine(), GetPhysicsEngine(), this, reg, m_StartupLevel);
+			m_guiLayer->Setup(GetRenderEngine(), GetPhysicsEngine(), this, GetECSREgistry(), m_StartupLevel, m_scenePanelSize);
 
 			// Load startup level.
 			LoadLevel(&m_StartupLevel);
@@ -44,6 +42,7 @@ namespace LinaEditor
 			// Push layer into the engine. ** WHILE LOOP INSIDE ** 
 			GetRenderEngine().PushLayer(m_guiLayer);
 
+			// Set display size to match scene panel.
 			//PushOverlay(new LinaEngine::Layer_IMGUI());
 
 		}
@@ -53,6 +52,7 @@ namespace LinaEditor
 		}
 	private:
 
+		Vector2 m_scenePanelSize = Vector2(800, 600);
 		GUILayer* m_guiLayer;
 		Example1Level m_StartupLevel;
 

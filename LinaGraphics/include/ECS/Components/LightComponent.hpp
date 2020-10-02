@@ -69,12 +69,15 @@ namespace LinaEngine::ECS
 
 	struct DirectionalLightComponent : public LightComponent
 	{
-		Vector3 direction = Vector3(0, 0, 1);
+		Vector4 shadowProjectionSettings = Vector4(-20, 20, -20, 20);
+		float shadowNearPlane = 10.0f;
+		float shadowFarPlane = 15.0f;
+		Vector3 direction = Vector3::Zero;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(direction, color); // serialize things by passing them to the archive
+			archive(shadowProjectionSettings, shadowNearPlane, shadowFarPlane, color, direction); // serialize things by passing them to the archive
 		}
 	};
 }

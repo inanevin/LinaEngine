@@ -108,6 +108,11 @@ namespace LinaEngine::Graphics
 			return Vector2(m_MainWindow.GetWidth() / 2.0f, m_MainWindow.GetHeight() / 2.0f);
 		}
 
+		FORCEINLINE Vector2 GetViewportSize()
+		{
+			return m_viewportSize;
+		}
+
 		FORCEINLINE ECS::CameraSystem* GetCameraSystem() { return &m_CameraSystem; }
 
 		// Setters for light counts. /* TAKE INSIDE LINA API LATER ON */
@@ -126,8 +131,8 @@ namespace LinaEngine::Graphics
 		// Called each frame.
 		void Render();
 
-		// Called when the main window is resized.
-		void OnWindowResized(float width, float height);
+		// Sets the viewport offset & display size
+		void SetViewportDisplay(Vector2 offset, Vector2 size);
 
 		/// <summary> Creates a material resource with a specific shader. </summary>
 		Material& CreateMaterial(int id, Shaders shader);
@@ -238,7 +243,7 @@ namespace LinaEngine::Graphics
 		void Draw();
 
 		// Default drawing
-		void DrawOperationsDefault(float delta);
+		void DrawOperationsDefault();
 
 		// Renders skybox
 		void DrawSkybox();
@@ -424,7 +429,11 @@ namespace LinaEngine::Graphics
 		Vector2 m_HDRIResolution = Vector2(512, 512);
 
 		// Shadow map resolution
-		Vector2 m_shadowMapResolution = Vector2(512, 512);
+		Vector2 m_shadowMapResolution = Vector2(16,16);
+
+		// Viewport data
+		Vector2 m_viewportPos;
+		Vector2 m_viewportSize;
 
 		// Frame buffer texture parameters
 		SamplerParameters mainRTParams;

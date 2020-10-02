@@ -14,6 +14,7 @@ layout (std140, row_major) uniform LightData
 int pointLightCount; 
 int spotLightCount;
 vec4 ambientColor;
+vec4 dirLightPos;
 };
  
 layout (std140, row_major) uniform DebugData 

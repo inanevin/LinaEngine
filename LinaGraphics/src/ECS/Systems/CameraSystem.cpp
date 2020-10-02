@@ -42,42 +42,17 @@ namespace LinaEngine::ECS
 			m_CurrentCameraComponent = &camera;
 			m_CurrentCameraTransform = &transform;
 			
-			if (!m_UseDirLightView)
-			{
-				// Actual camera view matrix.
-				m_View = Matrix::InitLookAt(transform.transform.location, transform.transform.location + transform.transform.rotation.GetForward(), transform.transform.rotation.GetUp());
+			// Actual camera view matrix.
+			m_View = Matrix::InitLookAt(transform.transform.location, transform.transform.location + transform.transform.rotation.GetForward(), transform.transform.rotation.GetUp());
 
-				// Update projection matrix.
-				m_Projection = Matrix::Perspective(camera.fieldOfView / 2, m_AspectRatio, camera.zNear, camera.zFar);
-			}
-			else
-			{
-
-				float near_plane = 1.0f, far_plane = 15.5f;
-				Vector3 location = Vector3(-2.0f, 2.0f, -1.0f);
-
-				//glm::mat4 lightProjection = Matrix::Orthographic(-20.0f, 20.0f, -20.0f, 20.0f, 1.0f, 14.5f);
-				//
-				//Matrix view = Matrix::TransformMatrix(location, Quaternion::LookAt(location, Vector3::Zero, Vector3::Up), Vector3::One);
-				//
-				//glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f),
-				//	glm::vec3(0.0f, 0.0f, 0.0f),
-				//	glm::vec3(0.0f, 1.0f, 0.0f));
-				//
-			//	m_lightSpaceMatrix = lightProjection * view;
-
-				Matrix lightProjection = Matrix::Orthographic(-20.0f, 20.0f, -20.0f, 20.0f, 1.0f, 14.5f);
-				Matrix lightView = Matrix::InitLookAt(location, Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
-				m_lightSpaceMatrix = lightProjection * lightView;
-
-			}
-			
+			// Update projection matrix.
+			m_Projection = Matrix::Perspective(camera.fieldOfView / 2, m_AspectRatio, camera.zNear, camera.zFar);		
 		}	
 	}
 
 	Vector3 CameraSystem::GetCameraLocation()
 	{
-		return (m_CurrentCameraComponent == nullptr | m_CurrentCameraTransform == nullptr)? Vector3(Vector3::Zero): m_CurrentCameraTransform->transform.location;
+		return (m_CurrentCameraComponent == nullptr || m_CurrentCameraTransform == nullptr)? Vector3(Vector3::Zero): m_CurrentCameraTransform->transform.location;
 	}
 
 	LinaEngine::Color& CameraSystem::GetCurrentClearColor()

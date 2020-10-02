@@ -44,20 +44,20 @@ namespace LinaEngine::Graphics
 
 		// TODO: Take care of texture compression. Should not be compressed.
 		// Constructors create the target through render engine.
-		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, Texture& texture, uint32 width, uint32 height, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, bool noReadWrite = false, uint32 attachmentNumber = 0, uint32 mipLevel = 0)
+		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, Texture& texture, const Vector2& size, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, bool noReadWrite = false, uint32 attachmentNumber = 0, uint32 mipLevel = 0)
 		{
 			m_Constructed = true;
 			renderDevice = &renderDeviceIn;
-			m_EngineBoundID = renderDevice->CreateRenderTarget(texture.GetID(), width, height, bindTextureMode, attachment, attachmentNumber, mipLevel, noReadWrite, false, FrameBufferAttachment::ATTACHMENT_COLOR, 0, true);
+			m_EngineBoundID = renderDevice->CreateRenderTarget(texture.GetID(), (uint32)size.x, (uint32)size.y, bindTextureMode, attachment, attachmentNumber, mipLevel, noReadWrite, false, FrameBufferAttachment::ATTACHMENT_COLOR, 0, true);
 			CheckCompressed(texture);
 		}
 
-		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, Texture& texture, uint32 width, uint32 height, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, FrameBufferAttachment rboAttachment, uint32 rbo, uint32 attachmentNumber = 0, uint32 mipLevel = 0)
+		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, Texture& texture, const Vector2& size, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, FrameBufferAttachment rboAttachment, uint32 rbo, uint32 attachmentNumber = 0, uint32 mipLevel = 0)
 		{
 			m_Constructed = true;
 			renderDevice = &renderDeviceIn;
 			m_RBO = rbo;
-			m_EngineBoundID = renderDevice->CreateRenderTarget(texture.GetID(), width, height, bindTextureMode, attachment, attachmentNumber, mipLevel, false, rbo != 0, rboAttachment, rbo, true);
+			m_EngineBoundID = renderDevice->CreateRenderTarget(texture.GetID(), (uint32)size.x, (uint32)size.y, bindTextureMode, attachment, attachmentNumber, mipLevel, false, rbo != 0, rboAttachment, rbo, true);
 			CheckCompressed(texture);
 		}
 

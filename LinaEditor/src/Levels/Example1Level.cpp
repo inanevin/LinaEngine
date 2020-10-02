@@ -151,7 +151,7 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-	CreateHDRISkybox(m_RenderEngine);
+	CreateProceduralSkybox(m_RenderEngine);
 
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);
@@ -227,7 +227,7 @@ sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalSphere);
 sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
 sphereMat->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicSphere);
 sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
-	m_RenderEngine->SetHDRIData(sphereMat);
+	//m_RenderEngine->SetHDRIData(sphereMat);
 
 //roadMaterial = &m_RenderEngine->CreateMaterial("road", Shaders::PBR_LIT);
 //roadMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoRoad);
@@ -251,7 +251,7 @@ sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicFloor);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoFloor);
 	floorMaterial->SetVector2(MAT_TILING, Vector2(100, 100));
-
+	//m_RenderEngine->SetHDRIData(floorMaterial);
 
 	MeshRendererComponent sphereMR;
 	sphereMR.meshID = Primitives::CUBE;
@@ -275,14 +275,14 @@ sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
 	floorMR.materialID = floorMaterial->m_MaterialID;
 
 	DirectionalLightComponent dirLightComp;
-	dirLightComp.direction = Vector3(0, -1, 1);
 	TransformComponent objectTransform;
 
 	ECSEntity directionalLightEntity;
 	directionalLightEntity = m_ECS->CreateEntity("DirLight");
+	objectTransform.transform.location = Vector3(0, 15, 0);
+	objectTransform.transform.Rotate(Vector3(25, 0, 0));
 	m_ECS->emplace<TransformComponent>(directionalLightEntity, objectTransform);
 	m_ECS->emplace<DirectionalLightComponent>(directionalLightEntity, dirLightComp);
-
 
 ECSEntity sphereEntity;
 sphereEntity = m_ECS->CreateEntity("Sphere");

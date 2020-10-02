@@ -213,9 +213,6 @@ namespace LinaEngine::Graphics
 		// Clears context.
 		void Clear(bool shouldClearColor, bool shouldClearDepth, bool shouldClearStencil, const class Color& color, uint32 stencil);
 
-		// Called when main window is resized.
-		void OnWindowResized(float width, float height);
-
 		// Updates a float type uniform on a shader w/ given name.
 		void UpdateShaderUniformFloat(uint32 shader, const std::string& uniform, const float f);
 

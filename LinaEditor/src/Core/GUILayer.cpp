@@ -193,7 +193,7 @@ namespace LinaEditor
 		m_ECSPanel = new ECSPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_MaterialPanel = new MaterialPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_ResourcesPanel = new ResourcesPanel(Vector2::Zero, Vector2(700, 400), *this);
-		m_ScenePanel = new ScenePanel(Vector2::Zero, Vector2(800, 600), *this);
+		m_ScenePanel = new ScenePanel(Vector2::Zero, m_scenePanelSize, *this);
 		m_PropertiesPanel = new PropertiesPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_LogPanel = new LogPanel(Vector2::Zero, Vector2(700, 600), *this);
 
@@ -327,8 +327,8 @@ namespace LinaEditor
 				ImGui::DockBuilderDockWindow("Resources", dock_id_prop);
 				ImGui::DockBuilderDockWindow("Entities", dock_id_prop);
 				ImGui::DockBuilderDockWindow("Scene", dock_main_id);
-				ImGui::DockBuilderDockWindow("Properties", dock_id_right);
 				ImGui::DockBuilderDockWindow("Log", dock_id_bottom);
+				ImGui::DockBuilderDockWindow("Properties", dock_id_right);
 
 				ImGui::DockBuilderFinish(dockspace_id);
 

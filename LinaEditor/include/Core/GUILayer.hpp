@@ -58,13 +58,14 @@ namespace LinaEditor
 		void OnEvent() override;
 
 		// CLASS METHODS
-		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& renderEngine, LinaEngine::Physics::PhysicsEngine& physicsEngine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::World::Level& level)
+		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& renderEngine, LinaEngine::Physics::PhysicsEngine& physicsEngine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::World::Level& level, const Vector2& scenePanelSize)
 		{ 
 			m_RenderEngine = &renderEngine; 
 			m_physicsEngine = &physicsEngine;
 			m_Application = application; 
 			m_ECS = &ecs;	
 			m_CurrentLevel = &level; 
+			m_scenePanelSize = scenePanelSize;
 		}
 
 		// Getters for references.
@@ -117,5 +118,6 @@ namespace LinaEditor
 		class ScenePanel* m_ScenePanel;
 		class PropertiesPanel* m_PropertiesPanel;
 		class LogPanel* m_LogPanel;
+		Vector2 m_scenePanelSize = Vector2::Zero;
 	};
 }

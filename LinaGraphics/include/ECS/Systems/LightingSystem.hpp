@@ -60,6 +60,7 @@ namespace LinaEngine::ECS
 		Matrix GetDirectionalLightMatrix();
 		std::vector<Matrix> GetPointLightMatrices();
 		FORCEINLINE Color& GetAmbientColor() { return m_ambientColor; }
+		Vector3& GetDirectionalLightPos();
 
 	private:
 

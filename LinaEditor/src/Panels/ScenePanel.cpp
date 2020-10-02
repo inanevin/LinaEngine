@@ -46,36 +46,48 @@ namespace LinaEditor
 
 		if (m_Show)
 		{
+
 			// Set window properties.
-			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImVec2 work_area_pos = viewport->GetWorkPos();
+
 			ImVec2 panelSize = ImVec2(m_Size.x, m_Size.y);
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+
 			if (ImGui::Begin("Scene", &m_Show, flags))
 			{
-				Vector2 drawSize = m_RenderEngine->GetMainWindow().GetSize();
-				float currentWindowX = ImGui::GetCurrentWindow()->Size.x;
-				float currentWindowY = ImGui::GetCurrentWindow()->Size.y;
-				float aspect = (float)drawSize.x / (float)drawSize.y;
-				float desiredH = currentWindowX / aspect;
 
+				// Get game viewport aspect.
+				Vector2 vpSize = m_RenderEngine->GetViewportSize();
+				float aspect = (float)vpSize.x / (float)vpSize.y;
+
+				// Mins & max for scene panel area.
+				float currentWindowX = ImGui::GetWindowSize().x;
+				float currentWindowY = ImGui::GetWindowSize().y;
 				ImVec2 pMin = ImVec2(ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y);
-				ImVec2 pMax = ImVec2(ImGui::GetCursorScreenPos().x + currentWindowX, ImGui::GetCursorScreenPos().y + currentWindowY);
+				ImVec2 pMax = ImVec2(ImGui::GetCursorScreenPos().x + currentWindowX - 12, ImGui::GetCursorScreenPos().y + currentWindowY - 42);
 				ImVec2 size = ImGui::GetCurrentWindow()->Size;
+				ImVec2 currentPanelSize = ImVec2(pMax.x - pMin.x, pMax.y - pMin.y);
 
 				// Resize scene panel.
 				if ((size.x != previousWindowSize.x || size.y != previousWindowSize.y))
 				{
-					m_RenderEngine->OnWindowResized((uint32)ImGui::GetCurrentWindow()->Size.x, (uint32)ImGui::GetCurrentWindow()->Size.y);
+					//m_RenderEngine->SetViewportDisplay(Vector2(0,0), Vector2((int)(512), (int)(512)));
+					//m_RenderEngine->OnWindowResized((uint32)ImGui::GetCurrentWindow()->Size.x, (uint32)ImGui::GetCurrentWindow()->Size.y);
 					previousWindowSize = size;
 				}
 
+				// Desired window height.
+				float desiredHeight = currentPanelSize.x / aspect;
+				
+				// Calculate desired drawing rect for the image.
+				ImVec2 imageRectMin = ImVec2(pMin.x, pMin.y + (currentPanelSize.y - desiredHeight) / 2.0f);
+				ImVec2 imageRectMax = ImVec2(pMax.x, pMax.y - (currentPanelSize.y - desiredHeight) / 2.0f);
+
 				if (m_drawMode == DrawMode::FinalImage)
-					ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetFinalImage(), pMin, pMax, ImVec2(0, 1), ImVec2(1, 0));
+					ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetFinalImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
 				else if (m_drawMode == DrawMode::ShadowMap)
-					ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetShadowMapImage(), pMin, pMax, ImVec2(0, 1), ImVec2(1, 0));
+					ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetShadowMapImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
 
 				// Handle inputs.
 				ProcessInput();
@@ -97,6 +109,7 @@ namespace LinaEditor
 	void ScenePanel::Setup()
 	{
 		m_RenderEngine = m_GUILayer->GetRenderEngine();
+
 	}
 
 

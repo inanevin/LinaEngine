@@ -394,12 +394,17 @@ namespace LinaEditor
 				ImGui::Indent();
 
 				ImVec4 col = ImVec4(light->color.r, light->color.g, light->color.b, light->color.a);
-				float direction[3] = { light->direction.x, light->direction.y, light->direction.z };
+				float projectionSettings[4] = { light->shadowProjectionSettings.x, light->shadowProjectionSettings.y, light->shadowProjectionSettings.z, light->shadowProjectionSettings.w };
+				float dir[3] = { light->direction.x, light->direction.y, light->direction.z};
 
 				EditorUtility::ColorButton(&col.x);
-				ImGui::DragFloat3("Direction ", direction, dragSensitivity);
-				light->direction = Vector3(direction[0], direction[1], direction[2]);
+				ImGui::InputFloat4("Shadow Projection ", projectionSettings, dragSensitivity);
+				ImGui::InputFloat("Shadow Near", &light->shadowNearPlane);
+				ImGui::InputFloat("Shadow Far", &light->shadowFarPlane);
+				ImGui::InputFloat3("Direction", dir);
 				light->color = Color(col.x, col.y, col.z, col.w);
+				light->shadowProjectionSettings = Vector4(projectionSettings[0], projectionSettings[1], projectionSettings[2], projectionSettings[3]);
+				light->direction = Vector3(dir[0], dir[1], dir[2]);
 				if (lightRenderer != nullptr)
 					m_RenderEngine->GetMaterial(lightRenderer->materialID).SetColor(MAT_OBJECTCOLORPROPERTY, light->color);
 
