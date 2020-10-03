@@ -157,12 +157,10 @@ void Example1Level::Initialize()
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);
 	auto& camTransform = m_ECS->emplace<TransformComponent>(camera);
 	auto& camCamera = m_ECS->emplace<CameraComponent>(camera);
-	camTransform.transform.location = Vector3(-25, 1.5f, -15);
+	camTransform.transform.location = Vector3(0,5,-5);
 	camCamera.isActive = true;
 	camFreeLook.movementSpeedX = camFreeLook.movementSpeedZ = 12.0f;
 	camFreeLook.rotationSpeedX = camFreeLook.rotationSpeedY = 3;
-
-
 
 	SamplerParameters pbrSampler;
 	pbrSampler.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
@@ -175,75 +173,37 @@ void Example1Level::Initialize()
 
 
 
-Texture& albedoSphere = m_RenderEngine->CreateTexture2D(-5, "resources/textures/rusted_iron/albedo.png", pbrSampler, false, false);
-Texture& normalSphere = m_RenderEngine->CreateTexture2D(1, "resources/textures/rusted_iron/normal.png", pbrSampler, false, false);
-Texture& metallicSphere = m_RenderEngine->CreateTexture2D(2, "resources/textures/rusted_iron/metallic.png", pbrSampler, false, false);
-Texture& roughnessSphere = m_RenderEngine->CreateTexture2D(3, "resources/textures/rusted_iron/roughness.png", pbrSampler, false, false);
-Texture& aoSphere = m_RenderEngine->CreateTexture2D(4, "resources/textures/rusted_iron/ao.png", pbrSampler, false, false);
-	//
+	Texture& albedoSphere = m_RenderEngine->CreateTexture2D(-5, "resources/textures/rusted_iron/albedo.png", pbrSampler, false, false);
+	Texture& normalSphere = m_RenderEngine->CreateTexture2D(1, "resources/textures/rusted_iron/normal.png", pbrSampler, false, false);
+	Texture& metallicSphere = m_RenderEngine->CreateTexture2D(2, "resources/textures/rusted_iron/metallic.png", pbrSampler, false, false);
+	Texture& roughnessSphere = m_RenderEngine->CreateTexture2D(3, "resources/textures/rusted_iron/roughness.png", pbrSampler, false, false);
+	Texture& aoSphere = m_RenderEngine->CreateTexture2D(4, "resources/textures/rusted_iron/ao.png", pbrSampler, false, false);
 	Texture& albedoFloor = m_RenderEngine->CreateTexture2D(-11, "resources/textures/grass/albedo.png", pbrSampler, false, false);
 	Texture& normalFloor = m_RenderEngine->CreateTexture2D(-12, "resources/textures/grass/normal.png", pbrSampler, false, false);
 	Texture& metallicFloor = m_RenderEngine->CreateTexture2D(-13, "resources/textures/grass/metallic.png", pbrSampler, false, false);
 	Texture& roughnessFloor = m_RenderEngine->CreateTexture2D(-14, "resources/textures/grass/roughness.png", pbrSampler, false, false);
 	Texture& aoFloor = m_RenderEngine->CreateTexture2D(-15, "resources/textures/grass/ao.png", pbrSampler, false, false);
-	//
-	//
-	//
-	//Texture& albedoHelmet = m_RenderEngine->CreateTexture2D("resources/textures/helmet/albedo.jpg", pbrSampler, false, false);
-	//Texture& normalHelmet = m_RenderEngine->CreateTexture2D("resources/textures/helmet/normal.jpg", pbrSampler, false, false);
-	//Texture& metallicHelmet = m_RenderEngine->CreateTexture2D("resources/textures/helmet/metallic.jpg", pbrSampler, false, false);
-	//Texture& roughnessHelmet = m_RenderEngine->CreateTexture2D("resources/textures/helmet/roughness.jpg", pbrSampler, false, false);
-	//Texture& aoHelmet = m_RenderEngine->CreateTexture2D("resources/textures/helmet/ao.jpg", pbrSampler, false, false);
 
-//Texture& albedoRoad = m_RenderEngine->CreateTexture2D("resources/textures/road/albedo.png", pbrSampler, false, false);
-//Texture& normalRoad = m_RenderEngine->CreateTexture2D("resources/textures/road/normal.png", pbrSampler, false, false);
-//Texture& roughnessRoad = m_RenderEngine->CreateTexture2D("resources/textures/road/roughness.png", pbrSampler, false, false);
-//Texture& aoRoad = m_RenderEngine->CreateTexture2D("resources/textures/road/ao.png", pbrSampler, false, false);
 
 
 	Texture& sprite = m_RenderEngine->CreateTexture2D(LinaEngine::Utility::GetUniqueID(), "resources/textures/sprite.png");
-	// Load example mesh.
-//	Mesh& cubeMesh = m_RenderEngine->GetPrimitive(Primitives::CUBE);
 	Mesh& floorMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
-//	Mesh& helmetMesh = m_RenderEngine->CreateMesh("resources/meshes/glock.fbx");
-//	Mesh& roadMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
 	// Create material for example mesh.
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::STANDARD_UNLIT);
-
-
-	int nrRows = 7;
-	int nrColumns = 7;
-	float spacing = 3.0f;
-
-
-
 
 	spriteMat = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::RENDERER2D_SPRITE);
 	spriteMat->SetTexture(MAT_TEXTURE2D_DIFFUSE, &sprite);
 	spriteMat->SetSurfaceType(Graphics::MaterialSurfaceType::Transparent);
 	sphereMat = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::PBR_LIT);
-sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoSphere);
-sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalSphere);
-sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
-sphereMat->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicSphere);
-sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
+
+	sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoSphere);
+	sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalSphere);
+	sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
+	sphereMat->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicSphere);
+	sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
 	//m_RenderEngine->SetHDRIData(sphereMat);
 
-//roadMaterial = &m_RenderEngine->CreateMaterial("road", Shaders::PBR_LIT);
-//roadMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoRoad);
-//roadMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalRoad);
-//roadMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessRoad);
-//roadMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoRoad);
-//roadMaterial->SetVector2(MAT_TILING, Vector2(5.0f, 2.0f));
-	//_RenderEngine->SetHDRIData(roadMaterial);
 
-	//helmetMaterial = &m_RenderEngine->CreateMaterial("hp", Shaders::PBR_LIT);
-	//helmetMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoHelmet);
-	//helmetMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalHelmet);
-	//helmetMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessHelmet);
-	//helmetMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicHelmet);
-	//helmetMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoHelmet);
-	//
 	floorMaterial = &m_RenderEngine->CreateMaterial(-55, Shaders::PBR_LIT);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoFloor);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalFloor);
@@ -253,88 +213,69 @@ sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
 	floorMaterial->SetVector2(MAT_TILING, Vector2(100, 100));
 	//m_RenderEngine->SetHDRIData(floorMaterial);
 
-	MeshRendererComponent sphereMR;
-	sphereMR.meshID = Primitives::CUBE;
-	sphereMR.materialID = sphereMat->m_MaterialID;
+	MeshRendererComponent cubeRenderer;
+	cubeRenderer.meshID = Primitives::CUBE;
+	cubeRenderer.materialID = sphereMat->m_MaterialID;
 
-	RigidbodyComponent sphereRB;
-	sphereRB.m_mass = 1.0f;
-	sphereRB.m_halfExtents = Vector3(1,1,1);
-	sphereRB.m_collisionShape = CollisionShape::BOX;
+	MeshRendererComponent portalRenderer;
+	portalRenderer.meshID = Primitives::PLANE;
+	portalRenderer.materialID = sphereMat->m_MaterialID;
 
-	RigidbodyComponent floorRB;
-	floorRB.m_mass = 0.0f;
-	floorRB.m_collisionShape = CollisionShape::BOX;
-	//
-	//MeshRendererComponent helmetMR;
-	//helmetMR.mesh = &helmetMesh;
-	//helmetMR.material = helmetMaterial;
-	//
-	MeshRendererComponent floorMR;
-	floorMR.meshID = Primitives::PLANE;
-	floorMR.materialID = floorMaterial->m_MaterialID;
+	//RigidbodyComponent sphereRB;
+	//sphereRB.m_mass = 1.0f;
+	//sphereRB.m_halfExtents = Vector3(1, 1, 1);
+	//sphereRB.m_collisionShape = CollisionShape::BOX;
+
+	MeshRendererComponent floorRenderer;
+	floorRenderer.meshID = Primitives::PLANE;
+	floorRenderer.materialID = floorMaterial->m_MaterialID;
 
 	DirectionalLightComponent dirLightComp;
 	TransformComponent objectTransform;
 
 	ECSEntity directionalLightEntity;
 	directionalLightEntity = m_ECS->CreateEntity("DirLight");
-	objectTransform.transform.location = Vector3(0, 15, 0);
+	objectTransform.transform.location = Vector3(0, 15, -15);
 	objectTransform.transform.Rotate(Vector3(25, 0, 0));
 	m_ECS->emplace<TransformComponent>(directionalLightEntity, objectTransform);
 	m_ECS->emplace<DirectionalLightComponent>(directionalLightEntity, dirLightComp);
 
-ECSEntity sphereEntity;
-sphereEntity = m_ECS->CreateEntity("Sphere");
-objectTransform.transform.location = Vector3(-13.5f, 10, 5);
-sphereRB.m_halfExtents = Vector3(1,1,1);
+	ECSEntity cube1;
+	cube1 = m_ECS->CreateEntity("Sphere");
+	objectTransform.transform.location = Vector3(-13, 5, 5);
+	m_ECS->emplace<TransformComponent>(cube1, objectTransform);
+	m_ECS->emplace<MeshRendererComponent>(cube1, cubeRenderer);
 
-sphereRB.m_radius = 3.0f;
-objectTransform.transform.location = Vector3(0.0f, 2.0f, 0.0f);
-m_ECS->emplace<TransformComponent>(sphereEntity, objectTransform);
-m_ECS->emplace<MeshRendererComponent>(sphereEntity, sphereMR);
-//m_ECS->emplace<RigidbodyComponent>(sphereEntity, sphereRB);
+	ECSEntity portal;
+	portal = m_ECS->CreateEntity("PortalFrame");
+	objectTransform.transform.location = Vector3(0, 5, 5);
+	objectTransform.transform.Rotate(Vector3(-90, 0, 0));
+	objectTransform.transform.scale = Vector3::One * 2;
+	m_ECS->emplace<TransformComponent>(portal, objectTransform);
+	m_ECS->emplace<MeshRendererComponent>(portal, portalRenderer);
 
-SpriteRendererComponent spriteRenderer;
-spriteRenderer.materialID = spriteMat->m_MaterialID;
-	ECSEntity sphereEntity2;
-	sphereEntity2 = m_ECS->CreateEntity("Sprite");
-	objectTransform.transform.location = Vector3(-15, 5, 5);
-	sphereMR.meshID = Primitives::CUBE;
-	sphereMR.materialID = sphereMat->m_MaterialID;
-	m_ECS->emplace<TransformComponent>(sphereEntity2, objectTransform);
-	m_ECS->emplace<MeshRendererComponent>(sphereEntity2, sphereMR);
-	m_ECS->emplace<RigidbodyComponent>(sphereEntity2, sphereRB);
+	//SpriteRendererComponent spriteRenderer;
+	//spriteRenderer.materialID = spriteMat->m_MaterialID;
+	//ECSEntity sphereEntity2;
+	//sphereEntity2 = m_ECS->CreateEntity("Sprite");
+	//objectTransform.transform.location = Vector3(-15, 5, 5);
+	//cubeRenderer.meshID = Primitives::CUBE;
+	//cubeRenderer.materialID = sphereMat->m_MaterialID;
+	//m_ECS->emplace<TransformComponent>(sphereEntity2, objectTransform);
+	//m_ECS->emplace<MeshRendererComponent>(sphereEntity2, cubeRenderer);
+	//m_ECS->emplace<RigidbodyComponent>(sphereEntity2, sphereRB);
 
 
-
-	//
-	//ECSEntity helmetEntity;
-	//helmetEntity = m_ECS->CreateEntity("Helmet");
-	//objectTransform.transform.location = Vector3(0, 5, -5);
-	//m_ECS->emplace<TransformComponent>(helmetEntity, objectTransform);
-	//m_ECS->emplace<MeshRendererComponent>(helmetEntity, helmetMR);
-	//
 
 	ECSEntity floorEntity;
 	floorEntity = m_ECS->CreateEntity("Floor");
 	objectTransform.transform.scale = Vector3(100, 1, 100);
 	objectTransform.transform.location = Vector3(0, 0, 0);
-	floorRB.m_halfExtents = Vector3(50.0f, 0.5f, 50.0f);
+	objectTransform.transform.rotation = Vector4::Zero;
 	m_ECS->emplace<TransformComponent>(floorEntity, objectTransform);
-	m_ECS->emplace<MeshRendererComponent>(floorEntity, floorMR);
-	m_ECS->emplace<RigidbodyComponent>(floorEntity, floorRB);
+	m_ECS->emplace<MeshRendererComponent>(floorEntity, floorRenderer);
 
-	//MeshRendererComponent roadMR;
-	//roadMR.mesh = &roadMesh;
-	//roadMR.material = roadMaterial;
-	//
-	//ECSEntity roadEntity;
-	//roadEntity = m_ECS->CreateEntity("Floor");
-	//objectTransform.transform.scale = Vector3(5, 1, 50);
-	//objectTransform.transform.location = Vector3(0, 0, 0);
-	//m_ECS->emplace<TransformComponent>(roadEntity, objectTransform);
-	//m_ECS->emplace<MeshRendererComponent>(roadEntity, roadMR);
+
 
 	for (int i = 0; i < pLightSize; i++)
 	{
@@ -380,38 +321,8 @@ spriteRenderer.materialID = spriteMat->m_MaterialID;
 	}
 
 
-	//int rows = 100;
-	//int cols = 100;
-	//float posInc = 25.0f;
-	//TransformComponent cubeTransform;
-	//MeshRendererComponent cubeRenderer;
-	//GroundCubeComponent gc;
-	//Vector3 initialPos = Vector3(0, -50, 0);
-	//cubeTransform.transform.location = initialPos;
-	//cubeTransform.transform.scale = 1.0f;
-	//gc.initialPos = initialPos;
-	//
-	//cubeRenderer.material = floorMaterial;
-	//cubeRenderer.mesh = &cubeMesh;
-
-	//float delay = 0.0f;
-	//for (int i = 0; i < rows; i+=2)
-	//{
-	//	for (int j = 0; j < cols; j+=2)
-	//	{
-	//		delay += 0.1f;
-	//		gc.delay = delay;
-	//		gc.targetPos = Vector3(j - posInc, 0.0f, i - posInc);
-	//		ECSEntity cube = m_ECS->CreateEntity("Cube");
-	//		m_ECS->emplace<TransformComponent>(cube, cubeTransform);
-	//		m_ECS->emplace<MeshRendererComponent>(cube, cubeRenderer);
-	//		m_ECS->emplace<GroundCubeComponent>(cube, gc);
-	//	}
-	//}
-	//
 	groundCubeSystem = new GroundCubeSystem();
 	groundCubeSystem->Construct(*m_ECS);
-
 
 
 	// Create the free look system & push it.

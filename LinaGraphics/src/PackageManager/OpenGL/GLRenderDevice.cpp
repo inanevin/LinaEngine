@@ -1580,7 +1580,7 @@ namespace LinaEngine::Graphics
 		// Add the source & compile.
 		glShaderSource(shader, 1, p, lengths);
 		glCompileShader(shader);
-
+		
 		// Check error & report if exists.
 		GLint success;
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
