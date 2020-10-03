@@ -141,7 +141,7 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Render()
 	{
-		DrawShadows();
+		// DrawShadows();
 		Draw();
 		//DrawOperationsDefault();
 		// Draw GUI Layers
