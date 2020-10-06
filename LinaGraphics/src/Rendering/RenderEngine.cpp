@@ -66,8 +66,11 @@ namespace LinaEngine::Graphics
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
 
-	void RenderEngine::Initialize(LinaEngine::ECS::ECSRegistry& ecsReg)
+	void RenderEngine::Initialize(LinaEngine::ECS::ECSRegistry& ecsReg, Window& appWindow)
 	{
+		// Set references.
+		m_appWindow = &appWindow;
+
 		// Flip loaded images.
 		ArrayBitmap::SetImageFlip(true);
 
@@ -75,7 +78,7 @@ namespace LinaEngine::Graphics
 		SetupDrawParameters();
 
 		// Initialize the render device.
-		m_renderDevice.Initialize(m_LightingSystem, m_MainWindow.GetWidth(), m_MainWindow.GetHeight(), m_DefaultDrawParams);
+		m_renderDevice.Initialize(m_LightingSystem, m_appWindow->GetWidth(), m_appWindow->GetHeight(), m_DefaultDrawParams);
 
 		// Construct the uniform buffer for global matrices.
 		m_GlobalDataBuffer.Construct(m_renderDevice, UNIFORMBUFFER_VIEWDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
@@ -149,7 +152,7 @@ namespace LinaEngine::Graphics
 			layer->OnUpdate();
 
 		// Update window.
-		m_MainWindow.Tick();
+		m_appWindow->Tick();
 	}
 
 	void RenderEngine::SetViewportDisplay(Vector2 pos, Vector2 size)

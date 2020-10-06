@@ -120,7 +120,7 @@ namespace LinaEditor
 		ImGui::StyleColorsDark();
 
 
-		GLFWwindow* window = static_cast<GLFWwindow*>(m_RenderEngine->GetNativeWindow());
+		GLFWwindow* window = static_cast<GLFWwindow*>(m_appWindow->GetNativeWindow());
 
 		// Setup Platform/Renderer bindings
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -314,7 +314,7 @@ namespace LinaEditor
 			if (setDockspaceLayout)
 			{
 				setDockspaceLayout = false;
-				Vector2 screenSize = m_RenderEngine->GetWindowSize();
+				Vector2 screenSize = m_appWindow->GetSize();
 				ImGui::DockBuilderRemoveNode(dockspace_id); // Clear out existing layout
 				ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace); // Add empty node
 				ImGui::DockBuilderSetNodeSize(dockspace_id, ImVec2(screenSize.x, screenSize.y));

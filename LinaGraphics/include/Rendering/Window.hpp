@@ -22,10 +22,9 @@ Timestamp: 4/14/2019 7:46:12 PM
 #ifndef WINDOW_HPP
 #define WINDOW_HPP
 
-
-#include "PackageManager/PAMWindow.hpp"
-#include "Utility/Log.hpp"
-
+#include <functional>
+#include "Utility/Math/Vector.hpp"
+#include "RenderingCommon.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -33,49 +32,50 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-		FORCEINLINE Window()
-		{
-			LINA_CORE_TRACE("[Constructor] -> Window ({0})", typeid(*this).name());
-		}
+		Window() {};
 
-		virtual ~Window()
-		{
-			LINA_CORE_TRACE("[Destructor] -> Window ({0})", typeid(*this).name());
-		};
+		virtual ~Window() {};
 
 		// Initializes the window.
-		FORCEINLINE bool Initialize() { return m_Derived.Initialize(m_Properties); }
-
-		// Enables/disables vsync.
-		FORCEINLINE void SetVsync(bool enabled) { m_Properties.vSyncEnabled = enabled; m_Derived.SetVsync(enabled); }
-
-		// Get vsync state.
-		FORCEINLINE bool GetVsycnEnabled() { return m_Properties.vSyncEnabled; }
-
-		// Get window width.
-		FORCEINLINE uint32 GetWidth() { return m_Properties.m_Width; }
-
-		// Get window height.
-		FORCEINLINE uint32 GetHeight() { return m_Properties.m_Height; }
-
-		// Get pointer to native window.
-		FORCEINLINE void* GetNativeWindow() const { return m_Derived.GetNativeWindow(); }
+		virtual bool CreateContext(WindowProperties& propsIn) = 0;
 
 		// Called every frame.
-		FORCEINLINE void Tick() { m_Derived.Tick(); }
+		virtual void Tick() = 0;
+
+		// Get pointer to native window.
+		virtual void* GetNativeWindow() const = 0;
+
+		// Enables/disables vsync.
+		virtual void SetVsync(bool enabled)
+		{
+			m_windowProperties.vSyncEnabled = enabled;
+		}
+
+		// Get vsync state.
+		FORCEINLINE bool GetVsycnEnabled() { return m_windowProperties.vSyncEnabled; }
+
+		// Get window width.
+		FORCEINLINE uint32 GetWidth() { return m_windowProperties.m_Width; }
+
+		// Get window height.
+		FORCEINLINE uint32 GetHeight() { return m_windowProperties.m_Height; }
 
 		// Gets size
-		FORCEINLINE Vector2 GetSize() { return Vector2(m_Properties.m_Width, m_Properties.m_Height); }
+		FORCEINLINE Vector2 GetSize() { return Vector2(m_windowProperties.m_Width, m_windowProperties.m_Height); }
 
 		// Set event callbacks.
-		FORCEINLINE void SetKeyCallback(std::function<void(int, int)>& cb) { m_Derived.SetKeyCallback(cb); }
-		FORCEINLINE void SetMouseCallback(std::function<void(int, int)>& cb) { m_Derived.SetMouseCallback(cb); }
-		FORCEINLINE void SetWindowResizeCallback(std::function<void(Vector2)>& cb) { m_Derived.SetWindowResizeCallback(cb); };
-		FORCEINLINE void SetWindowClosedCallback(std::function<void()>& cb) { m_Derived.SetWindowClosedCallback(cb); };
-	private:
+		FORCEINLINE void SetKeyCallback(std::function<void(int, int)>& callback) { m_keyCallback = callback; }
+		FORCEINLINE void SetMouseCallback(std::function<void(int, int)>& callback) { m_mouseCallback = callback; }
+		FORCEINLINE void SetWindowResizeCallback(std::function<void(Vector2)>& callback) { m_windowResizeCallback = callback; }
+		FORCEINLINE void SetWindowClosedCallback(std::function<void()>& callback) { m_windowCloseCallback = callback; }
+	
+	protected:
 
-		WindowProperties m_Properties;
-		ContextWindow m_Derived;
+		std::function<void(int, int)> m_keyCallback;
+		std::function<void(int, int)> m_mouseCallback;
+		std::function<void(Vector2)> m_windowResizeCallback;
+		std::function<void()> m_windowCloseCallback;
+		WindowProperties m_windowProperties;
 	};
 }
 

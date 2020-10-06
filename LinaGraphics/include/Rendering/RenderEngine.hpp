@@ -75,39 +75,6 @@ namespace LinaEngine::Graphics
 			m_postSceneDrawCallback = cb;
 		}
 
-		// Creates an GLFW window.
-		FORCEINLINE bool CreateContextWindow()
-		{
-			return m_MainWindow.Initialize();
-		}
-
-		// Returns GLFW window instance.
-		FORCEINLINE void* GetNativeWindow()
-		{
-			return m_MainWindow.GetNativeWindow();
-		}
-
-		// Swaps window buffer.
-		FORCEINLINE void TickWindow()
-		{
-			m_MainWindow.Tick();
-		}
-
-		// Get main window.
-		FORCEINLINE Window& GetMainWindow() { return m_MainWindow; }
-
-		// Returns the window width & height
-		FORCEINLINE Vector2 GetWindowSize()
-		{
-			return Vector2(m_MainWindow.GetWidth(), m_MainWindow.GetHeight());
-		};
-
-		// Returns the window center coordinates.
-		FORCEINLINE Vector2 GetWindowCenter()
-		{
-			return Vector2(m_MainWindow.GetWidth() / 2.0f, m_MainWindow.GetHeight() / 2.0f);
-		}
-
 		FORCEINLINE Vector2 GetViewportSize()
 		{
 			return m_viewportSize;
@@ -123,7 +90,7 @@ namespace LinaEngine::Graphics
 		FORCEINLINE Texture& GetHDRICubemap() { return m_HDRICubemap; }
 
 		// Initialize the render renderEngine.
-		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn);
+		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn, Window& appWindow);
 
 		// Called before the first run.
 		void PostInitialFrame();
@@ -267,7 +234,7 @@ namespace LinaEngine::Graphics
 		RenderDevice m_renderDevice;
 
 		// Context window
-		Window m_MainWindow;
+		Window* m_appWindow;
 
 		// Primary render target
 		RenderTarget m_PrimaryRenderTarget;

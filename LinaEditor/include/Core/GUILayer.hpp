@@ -34,6 +34,11 @@ namespace LinaEngine
 	{
 		class PhysicsEngine;
 	}
+
+	namespace Graphics
+	{
+		class Window;
+	}
 }
 
 
@@ -58,8 +63,9 @@ namespace LinaEditor
 		void OnEvent() override;
 
 		// CLASS METHODS
-		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine& renderEngine, LinaEngine::Physics::PhysicsEngine& physicsEngine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::World::Level& level, const Vector2& scenePanelSize)
+		FORCEINLINE void Setup(LinaEngine::Graphics::Window& window, LinaEngine::Graphics::RenderEngine& renderEngine, LinaEngine::Physics::PhysicsEngine& physicsEngine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::World::Level& level, const Vector2& scenePanelSize)
 		{ 
+			m_appWindow = &window;
 			m_RenderEngine = &renderEngine; 
 			m_physicsEngine = &physicsEngine;
 			m_Application = application; 
@@ -106,6 +112,7 @@ namespace LinaEditor
 
 	private:
 
+		LinaEngine::Graphics::Window* m_appWindow = nullptr;
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
 		LinaEngine::Physics::PhysicsEngine* m_physicsEngine = nullptr;
 		LinaEngine::ECS::ECSRegistry* m_ECS = nullptr;

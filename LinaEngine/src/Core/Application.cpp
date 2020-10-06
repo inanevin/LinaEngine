@@ -30,6 +30,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include <entt/meta/meta.hpp>
 #include <entt/meta/factory.hpp>
 #include <GLFW/glfw3.h>
+#include "Rendering/Window.hpp"
 
 
 namespace LinaEngine
@@ -43,8 +44,11 @@ namespace LinaEngine
 		LINA_CORE_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
 		LINA_CORE_ASSERT(!instance, "Application already exists!");
 
+		// Get window instance.
+		m_appWindow = CreateContextWindow();
+
 		// Create main window.
-		bool windowCreationSuccess = m_RenderEngine.CreateContextWindow();
+		bool windowCreationSuccess = m_appWindow->CreateContext(Graphics::WindowProperties());
 		if (!windowCreationSuccess)
 		{
 			LINA_CORE_ERR("Window Creation Failed!");
@@ -60,17 +64,17 @@ namespace LinaEngine
 		m_postSceneDrawCallback = std::bind(&Application::OnPostSceneDraw, this);
 
 		// Set event callback for main window.
-		m_RenderEngine.GetMainWindow().SetKeyCallback(m_KeyCallback);
-		m_RenderEngine.GetMainWindow().SetMouseCallback(m_MouseCallback);
-		m_RenderEngine.GetMainWindow().SetWindowResizeCallback(m_WindowResizeCallback);
-		m_RenderEngine.GetMainWindow().SetWindowClosedCallback(m_WindowClosedCallback);
+		m_appWindow->SetKeyCallback(m_KeyCallback);
+		m_appWindow->SetMouseCallback(m_MouseCallback);
+		m_appWindow->SetWindowResizeCallback(m_WindowResizeCallback);
+		m_appWindow->SetWindowClosedCallback(m_WindowClosedCallback);
 		m_RenderEngine.SetPostSceneDrawCallback(m_postSceneDrawCallback);
-		m_RenderEngine.SetViewportDisplay(Vector2::Zero, m_RenderEngine.GetMainWindow().GetSize());
+		m_RenderEngine.SetViewportDisplay(Vector2::Zero, m_appWindow->GetSize());
 
 		// Initialize engines.
-		m_InputEngine.Initialize(m_RenderEngine.GetNativeWindow());
+		m_InputEngine.Initialize(m_appWindow->GetNativeWindow());
 		m_PhysicsEngine.Initialize(m_ECS, m_drawLineCallback);
-		m_RenderEngine.Initialize(m_ECS);
+		m_RenderEngine.Initialize(m_ECS, *m_appWindow);
 
 		// Set running flag.
 		m_Running = true;

@@ -28,9 +28,15 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "ECS/ECSSystem.hpp"
 #include "Physics/PhysicsEngine.hpp"
 #include <functional>
+
 namespace LinaEngine::World
 {
 	class Level;
+}
+
+namespace LinaEngine::Graphics
+{
+	class Window;
 }
 
 namespace LinaEngine
@@ -69,10 +75,11 @@ namespace LinaEngine
 		virtual void OnDrawLine(Vector3 from, Vector3 to, Color color, float width = 1.0f);
 
 		// Get render engine
-		FORCEINLINE LinaEngine::Graphics::RenderEngine& GetRenderEngine() { return m_RenderEngine; }
-		FORCEINLINE LinaEngine::Input::InputEngine& GetInputEngine() { return m_InputEngine; }
-		FORCEINLINE LinaEngine::Physics::PhysicsEngine& GetPhysicsEngine() { return m_PhysicsEngine; }
-		FORCEINLINE LinaEngine::ECS::ECSRegistry& GetECSREgistry() { return m_ECS; }
+		FORCEINLINE Graphics::Window& GetAppWindow() { return *m_appWindow; }
+		FORCEINLINE Graphics::RenderEngine& GetRenderEngine() { return m_RenderEngine; }
+		FORCEINLINE Input::InputEngine& GetInputEngine() { return m_InputEngine; }
+		FORCEINLINE Physics::PhysicsEngine& GetPhysicsEngine() { return m_PhysicsEngine; }
+		FORCEINLINE ECS::ECSRegistry& GetECSREgistry() { return m_ECS; }
 
 	private:
 
@@ -101,13 +108,14 @@ namespace LinaEngine
 		LayerStack m_LayerStack;
 
 		// Active engines running in the application.
-		LinaEngine::Input::InputEngine m_InputEngine;
-		LinaEngine::Graphics::RenderEngine m_RenderEngine;
-		LinaEngine::Physics::PhysicsEngine m_PhysicsEngine;
-		LinaEngine::ECS::ECSRegistry m_ECS;
+		Input::InputEngine m_InputEngine;
+		Graphics::RenderEngine m_RenderEngine;
+		Physics::PhysicsEngine m_PhysicsEngine;
+		ECS::ECSRegistry m_ECS;
+		Graphics::Window* m_appWindow = nullptr;
 
 		// Current active level.
-		LinaEngine::World::Level* m_CurrentLevel = nullptr;
+		World::Level* m_CurrentLevel = nullptr;
 
 		// Do we have a currently active level?
 		bool m_ActiveLevelExists = false;
@@ -137,7 +145,7 @@ namespace LinaEngine
 
 	// Defined in client.
 	Application* CreateApplication();
-
+	Graphics::Window* CreateContextWindow();
 
 }
 

@@ -55,6 +55,7 @@ namespace LinaEngine::Graphics
 
 	void GLWindow::SetVsync(bool enabled)
 	{
+		Window::SetVsync(enabled);
 		glfwSwapInterval(enabled);
 	}
 
@@ -63,12 +64,12 @@ namespace LinaEngine::Graphics
 		LINA_CORE_ERR("GLFW Error: {0} Description: {1} ", error, desc);
 	}
 
-	bool GLWindow::Initialize(WindowProperties& propsIn)
+	bool GLWindow::CreateContext(WindowProperties& propsIn)
 	{
 		LINA_CORE_TRACE("[Initialization] -> GLWindow ({0})", typeid(*this).name());
 		
 		// Set props.
-		m_WindowProperties = &propsIn;
+		m_windowProperties = propsIn;
 
 		// Initialize glfw & set window hints
 		int init = glfwInit();
@@ -82,7 +83,7 @@ namespace LinaEngine::Graphics
 #endif
 
 		// Create window
-		GLFWwindow* window = (glfwCreateWindow(m_WindowProperties->m_Width, m_WindowProperties->m_Height, m_WindowProperties->m_Title.c_str(), NULL, NULL));
+		GLFWwindow* window = (glfwCreateWindow(m_windowProperties.m_Width, m_windowProperties.m_Height, m_windowProperties.m_Title.c_str(), NULL, NULL));
 	
 		if (!window)
 		{
@@ -104,7 +105,7 @@ namespace LinaEngine::Graphics
 		}
 	
 		// Update OpenGL about the window data.
-		glViewport(0, 0, m_WindowProperties->m_Width, m_WindowProperties->m_Height);
+		glViewport(0, 0, m_windowProperties.m_Width, m_windowProperties.m_Height);
 
 		// set user pointer for callbacks.
 		glfwSetWindowUserPointer(window, this);
@@ -180,14 +181,14 @@ namespace LinaEngine::Graphics
 
 	void GLWindow::WindowResized(void* window, int width, int height)
 	{
-		m_WindowProperties->m_Width = width;
-		m_WindowProperties->m_Height = height;		
-		m_WindowResizeCallback(Vector2((float)width, (float)height));
+		m_windowProperties.m_Width = width;
+		m_windowProperties.m_Height = height;		
+		m_windowResizeCallback(Vector2((float)width, (float)height));
 	}
 
 	void GLWindow::WindowClosed(void* window)
 	{
-		m_WindowClosedCallback();
+		m_windowCloseCallback();
 	}
 
 	void GLWindow::WindowKeyCallback(void* window, int key, int scancode, int action, int mods)
@@ -242,14 +243,12 @@ namespace LinaEngine::Graphics
 
 	void GLWindow::KeyCallback(void* w, int key, int scancode, int action, int mods)
 	{
-		m_KeyCallback(key, action);
-		//inputEngine->DispatchKeyAction(static_cast<LinaEngine::Input::InputCode::Key>(key), action);
+		m_keyCallback(key, action);
 	}
 
 	void GLWindow::MouseCallback(void* w, int button, int action, int mods)
 	{
-		m_MouseCallback(button, action);
-		//inputEngine->DispatchMouseAction(static_cast<LinaEngine::Input::InputCode::Mouse>(button), action);
+		m_mouseCallback(button, action);
 	}
 
 }

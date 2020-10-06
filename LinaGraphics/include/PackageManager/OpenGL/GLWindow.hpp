@@ -23,43 +23,30 @@ Timestamp: 4/14/2019 5:12:19 PM
 #define GLWindow_HPP
 
 #include "Rendering/RenderingCommon.hpp"
-#include "Core/Common.hpp"
-#include <functional>
-#include "Utility/Math/Vector.hpp"
-
-namespace LinaEngine
-{
-	namespace Input
-	{
-		class InputEngine;
-	}
-}
+#include "Rendering/Window.hpp"
 
 namespace LinaEngine::Graphics
 {
 
-	class GLWindow
+	class GLWindow : public Window
 	{
 	public:
 
+		GLWindow();
+		~GLWindow();
+
 		// Creates the native window.
-		bool Initialize(WindowProperties& propsIn);
+		bool CreateContext(WindowProperties& propsIn) override;
 
 		// Called every frame.
-		void Tick();
+		void Tick() override;
 
 		// Enables/Disables Vsync.
-		void SetVsync(bool enable);
+		void SetVsync(bool enable) override;
 
 		// Gets the native glfw window.
-		FORCEINLINE void* GetNativeWindow() const { return m_Window; }
+		virtual void* GetNativeWindow() const { return m_Window; }
 
-		// Sets event callbacks.
-		//FORCEINLINE void SetEventCallback(const std::function<void(Event&)>& callback) { m_EventCallback = callback; }
-		FORCEINLINE void SetKeyCallback(std::function<void(int,int)>& callback) { m_KeyCallback = callback; }
-		FORCEINLINE void SetMouseCallback(std::function<void(int,int)>& callback) { m_MouseCallback = callback; }
-		FORCEINLINE void SetWindowResizeCallback(std::function<void(Vector2)>& callback) { m_WindowResizeCallback = callback; }
-		FORCEINLINE void SetWindowClosedCallback(std::function<void()>& callback) { m_WindowClosedCallback = callback; }
 	private:
 
 
@@ -77,19 +64,8 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		friend class Window;
-
-		GLWindow();
-		~GLWindow();
-	
 		void* m_Window = nullptr;
-		WindowProperties* m_WindowProperties = nullptr;
-		LinaEngine::Input::InputEngine* inputEngine = nullptr;
-
-		std::function<void(int, int)> m_KeyCallback;
-		std::function<void(int, int)> m_MouseCallback;
-		std::function<void(Vector2)> m_WindowResizeCallback;
-		std::function<void()> m_WindowClosedCallback;
+		
 	};
 }
 

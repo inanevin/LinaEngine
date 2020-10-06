@@ -20,6 +20,7 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include <Lina.hpp>
 #include "Core/GUILayer.hpp"
 #include "Levels/Example1Level.hpp"
+#include "PackageManager/PAMWindow.hpp"
 
 namespace LinaEditor
 {
@@ -34,13 +35,13 @@ namespace LinaEditor
 			m_guiLayer = new LinaEditor::GUILayer();
 
 			// Setup layers
-			m_guiLayer->Setup(GetRenderEngine(), GetPhysicsEngine(), this, GetECSREgistry(), m_StartupLevel, m_scenePanelSize);
+			m_guiLayer->Setup(GetAppWindow(), GetRenderEngine(), GetPhysicsEngine(), this, GetECSREgistry(), m_StartupLevel, m_scenePanelSize);
 
 			// Load startup level.
 			LoadLevel(&m_StartupLevel);
 
 			// Push layer into the engine. ** WHILE LOOP INSIDE ** 
-			GetRenderEngine().PushLayer(m_guiLayer);
+			//GetRenderEngine().PushLayer(m_guiLayer);
 
 			// Set display size to match scene panel.
 			//PushOverlay(new LinaEngine::Layer_IMGUI());
@@ -50,8 +51,11 @@ namespace LinaEditor
 			LINA_CLIENT_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
 		
 		}
+
+
 	private:
 
+	
 		Vector2 m_scenePanelSize = Vector2(800, 600);
 		GUILayer* m_guiLayer;
 		Example1Level m_StartupLevel;
@@ -66,3 +70,7 @@ LinaEngine::Application* LinaEngine::CreateApplication()
 	return new LinaEditor::EditorApplication();
 }
 
+LinaEngine::Graphics::Window* LinaEngine::CreateContextWindow()
+{
+	return new ContextWindow();
+}
