@@ -19,6 +19,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 #include "LinaPch.hpp"
 #include "Core/Application.hpp"
+#include "Rendering/RenderEngine.hpp"
 #include "Core/Layer.hpp"
 #include "World/Level.hpp"
 #include "ECS/Components/TransformComponent.hpp"
@@ -47,6 +48,7 @@ namespace LinaEngine
 		// Get engine instances.
 		m_appWindow = CreateContextWindow();
 		m_inputDevice = CreateInputDevice();
+		m_renderEngine = CreateRenderEngine();
 
 		// Create main window.
 		bool windowCreationSuccess = m_appWindow->CreateContext(Graphics::WindowProperties());
@@ -69,13 +71,13 @@ namespace LinaEngine
 		m_appWindow->SetMouseCallback(m_MouseCallback);
 		m_appWindow->SetWindowResizeCallback(m_WindowResizeCallback);
 		m_appWindow->SetWindowClosedCallback(m_WindowClosedCallback);
-		m_RenderEngine.SetPostSceneDrawCallback(m_postSceneDrawCallback);
-		m_RenderEngine.SetViewportDisplay(Vector2::Zero, m_appWindow->GetSize());
+		m_renderEngine->SetPostSceneDrawCallback(m_postSceneDrawCallback);
+		m_renderEngine->SetViewportDisplay(Vector2::Zero, m_appWindow->GetSize());
 
 		// Initialize engines.
 		m_InputEngine.Initialize(m_appWindow->GetNativeWindow(), m_inputDevice);
 		m_PhysicsEngine.Initialize(m_ECS, m_drawLineCallback);
-		m_RenderEngine.Initialize(m_ECS, *m_appWindow);
+		m_renderEngine->Initialize(m_ECS, *m_appWindow);
 
 		// Set running flag.
 		m_Running = true;
@@ -83,6 +85,7 @@ namespace LinaEngine
 
 	Application::~Application()
 	{
+		delete m_renderEngine;
 		delete m_inputDevice;
 		delete m_appWindow;
 		LINA_CORE_TRACE("[Destructor] -> Application ({0})", typeid(*this).name());
@@ -97,7 +100,7 @@ namespace LinaEngine
 		if (e.GetEventType() == EventType::WindowResize)
 		{
 			WindowResizeEvent& windowEvent = (WindowResizeEvent&)(e);
-			m_RenderEngine.OnWindowResized((float)windowEvent.GetWidth(), (float)windowEvent.GetHeight());
+			m_RenderEngine->OnWindowResized((float)windowEvent.GetWidth(), (float)windowEvent.GetHeight());
 		}
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
@@ -149,7 +152,7 @@ namespace LinaEngine
 
 			// Update render engine.
 			if (m_canRender)
-				m_RenderEngine.Render();
+				m_renderEngine->Render();
 
 			// Simple FPS count
 			m_FPSCounter++;
@@ -164,7 +167,7 @@ namespace LinaEngine
 			// Update necessary engines that the first run has finished.
 			if (m_FirstRun)
 			{
-				m_RenderEngine.PostInitialFrame();
+				m_renderEngine->PostInitialFrame();
 				m_FirstRun = false;
 			}
 
@@ -184,7 +187,7 @@ namespace LinaEngine
 		else
 			m_canRender = true;
 
-		m_RenderEngine.SetViewportDisplay(Vector2::Zero, size);
+		m_renderEngine->SetViewportDisplay(Vector2::Zero, size);
 	}
 
 	void Application::OnPostSceneDraw()
@@ -207,7 +210,7 @@ namespace LinaEngine
 	{
 		// TODO: Implement unloading the current level & loading a new one later.
 		m_CurrentLevel = level;
-		m_CurrentLevel->SetEngineReferences(&m_ECS, m_RenderEngine, m_InputEngine);
+		m_CurrentLevel->SetEngineReferences(&m_ECS, *m_renderEngine, m_InputEngine);
 		m_CurrentLevel->Install();
 		m_CurrentLevel->Initialize();
 		m_ActiveLevelExists = true;
@@ -227,7 +230,7 @@ namespace LinaEngine
 
 	void Application::OnDrawLine(Vector3 from, Vector3 to, Color color, float width)
 	{
-		m_RenderEngine.DrawLine(from, to, color, width);
+		m_renderEngine->DrawLine(from, to, color, width);
 	}
 }
 

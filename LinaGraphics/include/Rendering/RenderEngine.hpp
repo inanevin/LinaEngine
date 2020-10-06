@@ -410,8 +410,6 @@ namespace LinaEngine::Graphics
 
 		// Post scene draw callback
 		std::function<void()> m_postSceneDrawCallback;
-
-		DISALLOW_COPY_ASSIGN_NEW(RenderEngine);
 	};
 
 }

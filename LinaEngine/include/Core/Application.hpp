@@ -23,7 +23,6 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 
 #include "Core/LayerStack.hpp"
-#include "Rendering/RenderEngine.hpp"
 #include "ECS/ECSSystem.hpp"
 #include "Physics/PhysicsEngine.hpp"
 #include "Input/InputEngine.hpp"
@@ -37,6 +36,7 @@ namespace LinaEngine::World
 namespace LinaEngine::Graphics
 {
 	class Window;
+	class RenderEngine;
 }
 
 namespace LinaEngine::Input
@@ -82,7 +82,7 @@ namespace LinaEngine
 
 		// Get render engine
 		FORCEINLINE Graphics::Window& GetAppWindow() { return *m_appWindow; }
-		FORCEINLINE Graphics::RenderEngine& GetRenderEngine() { return m_RenderEngine; }
+		FORCEINLINE Graphics::RenderEngine& GetRenderEngine() { return *m_renderEngine; }
 		FORCEINLINE Input::InputEngine& GetInputEngine() { return m_InputEngine; }
 		FORCEINLINE Physics::PhysicsEngine& GetPhysicsEngine() { return m_PhysicsEngine; }
 		FORCEINLINE ECS::ECSRegistry& GetECSREgistry() { return m_ECS; }
@@ -115,7 +115,7 @@ namespace LinaEngine
 
 		// Active engines running in the application.
 		Input::InputEngine m_InputEngine;
-		Graphics::RenderEngine m_RenderEngine;
+		Graphics::RenderEngine* m_renderEngine;
 		Physics::PhysicsEngine m_PhysicsEngine;
 		ECS::ECSRegistry m_ECS;
 
@@ -156,6 +156,7 @@ namespace LinaEngine
 	Application* CreateApplication();
 	Graphics::Window* CreateContextWindow();
 	Input::InputDevice* CreateInputDevice();
+	Graphics::RenderEngine* CreateRenderEngine();
 
 }
 

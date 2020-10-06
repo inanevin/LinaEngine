@@ -22,6 +22,7 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include "Levels/Example1Level.hpp"
 #include "PackageManager/PAMWindow.hpp"
 #include "PackageManager/PAMInputDevice.hpp"
+#include "Rendering/RenderEngine.hpp"
 
 namespace LinaEditor
 {
@@ -81,4 +82,10 @@ LinaEngine::Graphics::Window* LinaEngine::CreateContextWindow()
 LinaEngine::Input::InputDevice* LinaEngine::CreateInputDevice()
 {
 	return new InputDevice();
+}
+
+// Default engine
+LinaEngine::Graphics::RenderEngine* LinaEngine::CreateRenderEngine()
+{
+	return new LinaEngine::Graphics::RenderEngine();
 }
