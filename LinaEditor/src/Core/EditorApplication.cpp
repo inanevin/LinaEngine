@@ -23,6 +23,8 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include "PackageManager/PAMWindow.hpp"
 #include "PackageManager/PAMInputDevice.hpp"
 #include "Rendering/RenderEngine.hpp"
+#include "Physics/PhysicsEngine.hpp"
+#include "Input/InputEngine.hpp"
 
 namespace LinaEditor
 {
@@ -88,4 +90,16 @@ LinaEngine::Input::InputDevice* LinaEngine::CreateInputDevice()
 LinaEngine::Graphics::RenderEngine* LinaEngine::CreateRenderEngine()
 {
 	return new LinaEngine::Graphics::RenderEngine();
+}
+
+// Default engine
+LinaEngine::Physics::PhysicsEngine * LinaEngine::CreatePhysicsEngine()
+{
+	return new LinaEngine::Physics::PhysicsEngine();
+}
+
+// Default engine
+LinaEngine::Input::InputEngine* LinaEngine::CreateInputEngine()
+{
+	return new LinaEngine::Input::InputEngine();
 }

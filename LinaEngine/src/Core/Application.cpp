@@ -20,6 +20,9 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "LinaPch.hpp"
 #include "Core/Application.hpp"
 #include "Rendering/RenderEngine.hpp"
+#include "Physics/PhysicsEngine.hpp"
+#include "Input/InputEngine.hpp"
+#include "Rendering/Window.hpp"
 #include "Core/Layer.hpp"
 #include "World/Level.hpp"
 #include "ECS/Components/TransformComponent.hpp"
@@ -31,7 +34,6 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include <entt/meta/meta.hpp>
 #include <entt/meta/factory.hpp>
 #include <GLFW/glfw3.h>
-#include "Rendering/Window.hpp"
 
 
 namespace LinaEngine
@@ -49,6 +51,8 @@ namespace LinaEngine
 		m_appWindow = CreateContextWindow();
 		m_inputDevice = CreateInputDevice();
 		m_renderEngine = CreateRenderEngine();
+		m_inputEngine = CreateInputEngine();
+		m_physicsEngine = CreatePhysicsEngine();
 
 		// Create main window.
 		bool windowCreationSuccess = m_appWindow->CreateContext(Graphics::WindowProperties());
@@ -75,8 +79,8 @@ namespace LinaEngine
 		m_renderEngine->SetViewportDisplay(Vector2::Zero, m_appWindow->GetSize());
 
 		// Initialize engines.
-		m_InputEngine.Initialize(m_appWindow->GetNativeWindow(), m_inputDevice);
-		m_PhysicsEngine.Initialize(m_ECS, m_drawLineCallback);
+		m_inputEngine->Initialize(m_appWindow->GetNativeWindow(), m_inputDevice);
+		m_physicsEngine->Initialize(m_ECS, m_drawLineCallback);
 		m_renderEngine->Initialize(m_ECS, *m_appWindow);
 
 		// Set running flag.
@@ -85,6 +89,8 @@ namespace LinaEngine
 
 	Application::~Application()
 	{
+		delete m_physicsEngine;
+		delete m_inputEngine;
 		delete m_renderEngine;
 		delete m_inputDevice;
 		delete m_appWindow;
@@ -122,7 +128,7 @@ namespace LinaEngine
 		{
 
 			// Update input engine.
-			m_InputEngine.Tick();
+			m_inputEngine->Tick();
 
 			// Update layers.
 			for (Layer* layer : m_LayerStack)
@@ -145,7 +151,7 @@ namespace LinaEngine
 			{
 
 				// Update physics engine.
-				m_PhysicsEngine.Tick(dt);
+				m_physicsEngine->Tick(dt);
 				t += dt;
 				accumulator -= dt;
 			}
@@ -192,7 +198,17 @@ namespace LinaEngine
 
 	void Application::OnPostSceneDraw()
 	{
-		m_PhysicsEngine.OnPostSceneDraw();
+		m_physicsEngine->OnPostSceneDraw();
+	}
+
+	void Application::KeyCallback(int key, int action)
+	{
+		m_inputEngine->DispatchKeyAction(static_cast<LinaEngine::Input::InputCode::Key>(key), action);
+	}
+
+	void Application::MouseCallback(int button, int action)
+	{
+		m_inputEngine->DispatchMouseAction(static_cast<LinaEngine::Input::InputCode::Mouse>(button), action);
 	}
 
 	void Application::PushLayer(Layer* layer)
@@ -210,7 +226,7 @@ namespace LinaEngine
 	{
 		// TODO: Implement unloading the current level & loading a new one later.
 		m_CurrentLevel = level;
-		m_CurrentLevel->SetEngineReferences(&m_ECS, *m_renderEngine, m_InputEngine);
+		m_CurrentLevel->SetEngineReferences(&m_ECS, *m_renderEngine, *m_inputEngine);
 		m_CurrentLevel->Install();
 		m_CurrentLevel->Initialize();
 		m_ActiveLevelExists = true;

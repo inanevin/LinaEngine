@@ -21,11 +21,11 @@ Timestamp: 12/29/2018 10:43:46 PM
 #ifndef Lina_Application_HPP
 #define Lina_Application_HPP
 
-
+#include "Utility/Math/Vector.hpp"
+#include "Utility/Math/Color.hpp"
 #include "Core/LayerStack.hpp"
 #include "ECS/ECSSystem.hpp"
-#include "Physics/PhysicsEngine.hpp"
-#include "Input/InputEngine.hpp"
+
 #include <functional>
 
 namespace LinaEngine::World
@@ -43,6 +43,11 @@ namespace LinaEngine::Input
 {
 	class InputEngine;
 	class InputDevice;
+}
+
+namespace LinaEngine::Physics
+{
+	class PhysicsEngine;
 }
 
 namespace LinaEngine
@@ -83,8 +88,8 @@ namespace LinaEngine
 		// Get render engine
 		FORCEINLINE Graphics::Window& GetAppWindow() { return *m_appWindow; }
 		FORCEINLINE Graphics::RenderEngine& GetRenderEngine() { return *m_renderEngine; }
-		FORCEINLINE Input::InputEngine& GetInputEngine() { return m_InputEngine; }
-		FORCEINLINE Physics::PhysicsEngine& GetPhysicsEngine() { return m_PhysicsEngine; }
+		FORCEINLINE Input::InputEngine& GetInputEngine() { return *m_inputEngine; }
+		FORCEINLINE Physics::PhysicsEngine& GetPhysicsEngine() { return *m_physicsEngine; }
 		FORCEINLINE ECS::ECSRegistry& GetECSREgistry() { return m_ECS; }
 
 	private:
@@ -103,9 +108,9 @@ namespace LinaEngine
 		void OnPostSceneDraw();
 
 		// Callbacks & events.
-		FORCEINLINE void KeyCallback(int key, int action) { m_InputEngine.DispatchKeyAction(static_cast<LinaEngine::Input::InputCode::Key>(key), action); }
-		FORCEINLINE void MouseCallback(int button, int action) { m_InputEngine.DispatchMouseAction(static_cast<LinaEngine::Input::InputCode::Mouse>(button), action); }
-		FORCEINLINE void WindowCloseCallback() {};
+		void KeyCallback(int key, int action);
+		void MouseCallback(int button, int action);
+		void WindowCloseCallback() {};
 		
 
 	private:
@@ -114,9 +119,9 @@ namespace LinaEngine
 		LayerStack m_LayerStack;
 
 		// Active engines running in the application.
-		Input::InputEngine m_InputEngine;
+		Input::InputEngine* m_inputEngine;
 		Graphics::RenderEngine* m_renderEngine;
-		Physics::PhysicsEngine m_PhysicsEngine;
+		Physics::PhysicsEngine* m_physicsEngine;
 		ECS::ECSRegistry m_ECS;
 
 		// Devices.
@@ -155,10 +160,12 @@ namespace LinaEngine
 	// Defined in client.
 	Application* CreateApplication();
 	Graphics::Window* CreateContextWindow();
-	Input::InputDevice* CreateInputDevice();
 	Graphics::RenderEngine* CreateRenderEngine();
+	Input::InputDevice* CreateInputDevice();
+	Input::InputEngine* CreateInputEngine();
+	Physics::PhysicsEngine* CreatePhysicsEngine();
 
-}
+};
 
 
 #endif

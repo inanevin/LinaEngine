@@ -34,6 +34,7 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "Core/Application.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/Shader.hpp"
+#include "Utility/UtilityFunctions.hpp"
 
 using namespace LinaEngine::Graphics;
 using namespace LinaEngine::ECS;
