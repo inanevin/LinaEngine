@@ -59,6 +59,11 @@ namespace LinaEngine::Graphics
 		glfwSwapInterval(enabled);
 	}
 
+	double GLWindow::GetTime()
+	{
+		return glfwGetTime();
+	}
+
 	static void GLFWErrorCallback(int error, const char* desc)
 	{
 		LINA_CORE_ERR("GLFW Error: {0} Description: {1} ", error, desc);

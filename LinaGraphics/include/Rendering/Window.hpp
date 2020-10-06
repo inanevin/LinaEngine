@@ -51,6 +51,9 @@ namespace LinaEngine::Graphics
 			m_windowProperties.vSyncEnabled = enabled;
 		}
 
+		// returns window active time.
+		virtual double GetTime() = 0;
+
 		// Get vsync state.
 		FORCEINLINE bool GetVsycnEnabled() { return m_windowProperties.vSyncEnabled; }
 

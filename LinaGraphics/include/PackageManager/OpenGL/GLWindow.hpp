@@ -47,6 +47,9 @@ namespace LinaEngine::Graphics
 		// Gets the native glfw window.
 		virtual void* GetNativeWindow() const { return m_Window; }
 
+		// Returns window active time
+		virtual double GetTime() override;
+
 	private:
 
 

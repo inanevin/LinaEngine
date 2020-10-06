@@ -121,7 +121,7 @@ namespace LinaEngine
 	{
 		double t = 0.0;
 		double dt = 0.01;
-		double currentTime = (double)glfwGetTime();
+		double currentTime = (double)m_appWindow->GetTime();
 		double accumulator = 0.0;
 
 		while (m_Running)
@@ -134,7 +134,7 @@ namespace LinaEngine
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
 
-			double newTime = (double)glfwGetTime();
+			double newTime = (double)m_appWindow->GetTime();
 			double frameTime = newTime - currentTime;
 
 			// Update current level.
