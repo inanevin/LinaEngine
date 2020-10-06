@@ -1,10 +1,11 @@
 /*
 Author: Inan Evin
 www.inanevin.com
+https://github.com/inanevin/LinaEngine
 
-Copyright 2018 Inan Evin
+Copyright 2020~ Inan Evin
 
-Licensed under the Apache License, Version 2.0 (the "License") override; you may not use this file except in compliance with the License. You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
 http://www.apache.org/licenses/LICENSE-2.0
 
@@ -12,72 +13,72 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: GLInputEngine
-Timestamp: 4/14/2019 5:15:15 PM
+Class: InputDevice
+Timestamp: 10/6/2020 11:13:50 AM
 
 */
-
 #pragma once
 
-#ifndef GLInputDevice_HPP
-#define GLInputDevice_HPP
+#ifndef InputDevice_HPP
+#define InputDevice_HPP
 
-#include "Input/InputDevice.hpp"
+// Headers here.
+
+#include "Utility/Math/Vector.hpp"
+#include "Input/InputMappings.hpp"
+#include "Input/InputCommon.hpp"
 
 namespace LinaEngine::Input
 {
-	// A subclass of Input Device.
-	class GLInputDevice : public InputDevice
+	class InputDevice
 	{
-
+		
 	public:
-
-		GLInputDevice();
-		virtual ~GLInputDevice();
+		
+		InputDevice() {};
+		~InputDevice() {};
 
 		// Initializes the device.
-		void Initialize(void* contextWindowPointer) override;
-
+		virtual void Initialize(void* contextWindowPointer) = 0;
+		
 		// Called each frame.
-		void Tick() override;
-
+		virtual void Tick()=0;
+		
 		// Returns true each frame key mapped with the keyCode is pressed
-		bool GetKey(int keyCode) override;
-
+		virtual bool GetKey(int keyCode) = 0;
+		
 		// Returns true in the frame key mapped with the keyCode is pressed.
-		bool GetKeyDown(int keyCode) override;
-
+		virtual bool GetKeyDown(int keyCode) = 0;
+		
 		// Returns true in the frame key mapped with the keyCode is stopped being pressed.
-		bool GetKeyUp(int keyCode) override;
-
+		virtual bool GetKeyUp(int keyCode) = 0;
+		
 		// Returns true each frame mouse button mapped with the index is pressed
-		bool GetMouseButton(int index) override;
-
+		virtual bool GetMouseButton(int index) = 0;
+		
 		// Returns true in the frame mouse button mapped with the index is pressed. 
-		bool GetMouseButtonDown(int index) override;
-
+		virtual bool GetMouseButtonDown(int index) = 0;
+		 
 		// Returns true in the frame mouse mapped with the index is stopped being pressed.
-		bool GetMouseButtonUp(int index) override;
-
+		virtual bool GetMouseButtonUp(int index) = 0;
+		
 		// Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Not smoothed.
-		Vector2 GetRawMouseAxis() override;
-
+		virtual Vector2 GetRawMouseAxis()=0;
+		
 		// Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Delta smoothed.
-		Vector2 GetMouseAxis() override;
-
+		virtual Vector2 GetMouseAxis()=0;
+		
 		// Returns a Vector2 containing screen space mouse positions
-		Vector2 GetMousePosition() override;
-
+		virtual Vector2 GetMousePosition()=0;
+		
 		// Set cursor visible/invisible.
-		void SetCursorMode(CursorMode mode) const override;
-
+		virtual void SetCursorMode(CursorMode mode) const = 0;
+	
 		// Set mouse position.
-		void SetMousePosition(const Vector2& v) const override;
-
+		virtual void SetMousePosition(const Vector2& v) const = 0;
+	
 	private:
-
-		int previousKeys[NUM_KEY_STATES];
-		int currentKeys[NUM_KEY_STATES];
+	
 	};
 }
 

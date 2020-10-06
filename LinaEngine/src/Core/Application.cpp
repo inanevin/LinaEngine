@@ -44,8 +44,9 @@ namespace LinaEngine
 		LINA_CORE_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
 		LINA_CORE_ASSERT(!instance, "Application already exists!");
 
-		// Get window instance.
+		// Get engine instances.
 		m_appWindow = CreateContextWindow();
+		m_inputDevice = CreateInputDevice();
 
 		// Create main window.
 		bool windowCreationSuccess = m_appWindow->CreateContext(Graphics::WindowProperties());
@@ -72,7 +73,7 @@ namespace LinaEngine
 		m_RenderEngine.SetViewportDisplay(Vector2::Zero, m_appWindow->GetSize());
 
 		// Initialize engines.
-		m_InputEngine.Initialize(m_appWindow->GetNativeWindow());
+		m_InputEngine.Initialize(m_appWindow->GetNativeWindow(), m_inputDevice);
 		m_PhysicsEngine.Initialize(m_ECS, m_drawLineCallback);
 		m_RenderEngine.Initialize(m_ECS, *m_appWindow);
 
@@ -82,6 +83,8 @@ namespace LinaEngine
 
 	Application::~Application()
 	{
+		delete m_inputDevice;
+		delete m_appWindow;
 		LINA_CORE_TRACE("[Destructor] -> Application ({0})", typeid(*this).name());
 	}
 

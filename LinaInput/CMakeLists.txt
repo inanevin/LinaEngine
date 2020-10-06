@@ -39,6 +39,7 @@ set(LINAINPUT_HEADERS
 	include/Input/InputEngine.hpp
 	include/Input/InputMappings.hpp
 	include/Input/InputCommon.hpp
+	include/Input/InputDevice.hpp
 	
 	#ECS
 	include/ECS/Components/FreeLookComponent.hpp

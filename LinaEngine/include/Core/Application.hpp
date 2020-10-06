@@ -23,10 +23,10 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 
 #include "Core/LayerStack.hpp"
-#include "Input/InputEngine.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "ECS/ECSSystem.hpp"
 #include "Physics/PhysicsEngine.hpp"
+#include "Input/InputEngine.hpp"
 #include <functional>
 
 namespace LinaEngine::World
@@ -37,6 +37,12 @@ namespace LinaEngine::World
 namespace LinaEngine::Graphics
 {
 	class Window;
+}
+
+namespace LinaEngine::Input
+{
+	class InputEngine;
+	class InputDevice;
 }
 
 namespace LinaEngine
@@ -112,7 +118,10 @@ namespace LinaEngine
 		Graphics::RenderEngine m_RenderEngine;
 		Physics::PhysicsEngine m_PhysicsEngine;
 		ECS::ECSRegistry m_ECS;
+
+		// Devices.
 		Graphics::Window* m_appWindow = nullptr;
+		Input::InputDevice* m_inputDevice = nullptr;
 
 		// Current active level.
 		World::Level* m_CurrentLevel = nullptr;
@@ -146,6 +155,7 @@ namespace LinaEngine
 	// Defined in client.
 	Application* CreateApplication();
 	Graphics::Window* CreateContextWindow();
+	Input::InputDevice* CreateInputDevice();
 
 }
 

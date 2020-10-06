@@ -21,6 +21,7 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include "Core/GUILayer.hpp"
 #include "Levels/Example1Level.hpp"
 #include "PackageManager/PAMWindow.hpp"
+#include "PackageManager/PAMInputDevice.hpp"
 
 namespace LinaEditor
 {
@@ -70,7 +71,14 @@ LinaEngine::Application* LinaEngine::CreateApplication()
 	return new LinaEditor::EditorApplication();
 }
 
+// Default platform context window.
 LinaEngine::Graphics::Window* LinaEngine::CreateContextWindow()
 {
 	return new ContextWindow();
+}
+
+// Default platform input device.
+LinaEngine::Input::InputDevice* LinaEngine::CreateInputDevice()
+{
+	return new InputDevice();
 }
