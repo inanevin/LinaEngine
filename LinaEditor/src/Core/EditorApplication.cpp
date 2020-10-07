@@ -32,7 +32,7 @@ namespace LinaEditor
 	{
 	public:
 
-		EditorApplication() {
+		EditorApplication(LinaEngine::Graphics::WindowProperties& props) : Application(props) {
 			LINA_CLIENT_TRACE("[Constructor] -> Editor Application ({0})", typeid(*this).name());
 
 			// Create layers
@@ -68,7 +68,12 @@ namespace LinaEditor
 
 LinaEngine::Application* LinaEngine::CreateApplication()
 {
-	return new LinaEditor::EditorApplication();
+	LinaEngine::Graphics::WindowProperties props;
+	props.m_Width = 1440;
+	props.m_Height = 900;
+	props.m_decorated = false;
+	props.m_resizable = false;
+	return new LinaEditor::EditorApplication(props);
 }
 
 // Default platform context window.

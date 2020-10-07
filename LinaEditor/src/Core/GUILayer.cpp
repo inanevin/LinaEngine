@@ -51,6 +51,8 @@ static bool isECSPanelOpen;
 static bool showIMGUIDemo;
 static bool setDockspaceLayout = true;
 static bool physicsDebugEnabled = false;
+static ImVec2 dockWindowPrevSize;
+
 LinaEngine::Graphics::Texture* logo;
 
 ImVec4 m_menuBarBackground = ImVec4(0, 0, 0, 1);
@@ -74,6 +76,7 @@ namespace LinaEditor
 		io.Fonts->AddFontFromFileTTF("resources/fonts/Mukta-Medium.ttf", 20.0f, NULL)->Scale = 1;
 
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io.ConfigWindowsResizeFromEdges = true;
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
@@ -209,18 +212,24 @@ namespace LinaEditor
 		ImGui::NewFrame();
 
 		ImGuiViewport* viewport = ImGui::GetMainViewport();
-		ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y));
-		ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, 80));
-
-		ImGui::PushStyleColor(ImGuiCol_WindowBg, m_menuBarBackground);
-		ImGui::Begin("MenuBar", NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar);
-
-		ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - 115);
-		ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 15);
-		ImGui::Image((void*)logo->GetID(), ImVec2(230, 27), ImVec2(0, 1), ImVec2(1, 0));
-
-		ImGui::End();
-		ImGui::PopStyleColor();
+	
+		//ImGui::SetNextWindowPos(ImVec2(0, 0));
+		//ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, viewport->GetWorkSize().y));
+		//ImGui::Begin("MainWindow", 0,  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse 
+		//| ImGuiWindowFlags_NoBackground);
+		//
+		//ImGui::End();
+	// ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y));
+	// ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, 80));
+	// ImGui::PushStyleColor(ImGuiCol_WindowBg, m_menuBarBackground);
+	// ImGui::Begin("MenuBar", NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+	// 
+	// ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - 115);
+	// ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 15);
+	// ImGui::Image((void*)logo->GetID(), ImVec2(230, 27), ImVec2(0, 1), ImVec2(1, 0));
+	// 
+	// ImGui::End();
+	// ImGui::PopStyleColor();
 		// Draw main docking space.
 		DrawCentralDockingSpace();
 
@@ -228,7 +237,7 @@ namespace LinaEditor
 		// DrawTools();
 
 		// Draw overlay fps counter
-		DrawFPSCounter(&m_FPSCounterOpen, 1);
+	//	DrawFPSCounter(&m_FPSCounterOpen, 1);
 
 		//// Draw material panel.
 		//m_MaterialPanel->Draw();
@@ -237,16 +246,16 @@ namespace LinaEditor
 		m_ResourcesPanel->Draw();
 
 		// Draw ECS Panel.
-		m_ECSPanel->Draw();
+	//	m_ECSPanel->Draw();
 
 		// Draw Scene Panel
-		m_ScenePanel->Draw();
+	//	m_ScenePanel->Draw();
 
 		// Draw Log Panel
-		m_LogPanel->Draw();
+	//	m_LogPanel->Draw();
 
 		// Draw properties panel
-		m_PropertiesPanel->Draw();
+//		m_PropertiesPanel->Draw();
 
 		if (showIMGUIDemo)
 			ImGui::ShowDemoWindow(&showIMGUIDemo);
@@ -294,21 +303,22 @@ namespace LinaEditor
 		static bool opt_fullscreen_persistant = true;
 		bool opt_fullscreen = opt_fullscreen_persistant;
 		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-
 		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
 		// because it would be confusing to have two docking targets within each others.
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
 		if (opt_fullscreen)
 		{
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y + 100));
+			ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y));
 			ImGui::SetNextWindowSize(viewport->GetWorkSize());
 			ImGui::SetNextWindowViewport(viewport->ID);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
 			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+			
 		}
+
 
 		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
 		// and handle the pass-thru hole, so we ask Begin() to not render a background.
@@ -324,11 +334,19 @@ namespace LinaEditor
 
 		ImGui::Begin("DockSpace", NULL, window_flags);
 
+
+		if (ImGui::GetWindowSize().x != dockWindowPrevSize.x || ImGui::GetWindowSize().y != dockWindowPrevSize.y)
+		{
+			dockWindowPrevSize = ImGui::GetWindowSize();
+			m_appWindow->Resize(Vector2(dockWindowPrevSize.x, dockWindowPrevSize.y));
+		}
+
 		ImGui::PopStyleVar();
 
 		if (opt_fullscreen)
 			ImGui::PopStyleVar(2);
-
+		ImGui::End();
+		return;
 		// DockSpace
 		ImGuiIO& io = ImGui::GetIO();
 		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)

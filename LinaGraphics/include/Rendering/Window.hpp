@@ -54,6 +54,9 @@ namespace LinaEngine::Graphics
 		// returns window active time.
 		virtual double GetTime() = 0;
 
+		// Resizes the native window.
+		virtual void Resize(const Vector2& newSize) = 0;
+
 		// Get vsync state.
 		FORCEINLINE bool GetVsycnEnabled() { return m_windowProperties.vSyncEnabled; }
 

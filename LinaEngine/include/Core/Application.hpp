@@ -37,6 +37,7 @@ namespace LinaEngine::Graphics
 {
 	class Window;
 	class RenderEngine;
+	struct WindowProperties;
 }
 
 namespace LinaEngine::Input
@@ -80,7 +81,7 @@ namespace LinaEngine
 
 	protected:
 
-		Application();
+		Application(Graphics::WindowProperties& props);
 
 		// Delegates draw commands from physics engine to rendering engine
 		virtual void OnDrawLine(Vector3 from, Vector3 to, Color color, float width = 1.0f);

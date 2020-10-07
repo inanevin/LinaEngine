@@ -17,8 +17,26 @@ Timestamp: 4/14/2019 5:12:19 PM
 
 */
 
+/*
+// ** WINDOWS ONLY **
+#define GLFW_EXPOSE_NATIVE_WIN32
+HWND win32Window = glfwGetWin32Window(window);
+
+long style = GetWindowLong(win32Window, GWL_STYLE);
+
+//style |= WS_DLGFRAME;
+//style &= ~WS_ACTIVECAPTION;
+//style &= ~WS_CAPTION;
+//style &= ~WS_SYSMENU;
+//style |= WS_THICKFRAME;
+// style |= WS_SIZEBOX;
+//style |= WS_BORDER;
+//SetWindowLong(win32Window, GWL_STYLE, style);
+*/
+
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
+#include "GLFW/glfw3native.h"
 #include "PackageManager/OpenGL/GLWindow.hpp"
 #include "Utility/Log.hpp"
 
@@ -40,10 +58,10 @@ namespace LinaEngine::Graphics
 
 	void GLWindow::Tick()
 	{
-		if (!glfwWindowShouldClose(static_cast<GLFWwindow*>(m_Window)))
+		if (!glfwWindowShouldClose(static_cast<GLFWwindow*>(m_window)))
 		{
 			// Swap Buffers
-			glfwSwapBuffers(static_cast<GLFWwindow*>(m_Window));
+			glfwSwapBuffers(static_cast<GLFWwindow*>(m_window));
 		}
 		else
 		{
@@ -64,6 +82,11 @@ namespace LinaEngine::Graphics
 		return glfwGetTime();
 	}
 
+	void GLWindow::Resize(const Vector2& newSize)
+	{
+		glfwSetWindowSize(static_cast<GLFWwindow*>(m_window), newSize.x, newSize.y);
+	}
+
 	static void GLFWErrorCallback(int error, const char* desc)
 	{
 		LINA_CORE_ERR("GLFW Error: {0} Description: {1} ", error, desc);
@@ -82,14 +105,18 @@ namespace LinaEngine::Graphics
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_SAMPLES, 4);
-
+		glfwWindowHint(GLFW_DECORATED, m_windowProperties.m_decorated);
+		glfwWindowHint(GLFW_RESIZABLE, m_windowProperties.m_resizable);
+	
 #ifdef __APPLE__
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
+
+
 		// Create window
 		GLFWwindow* window = (glfwCreateWindow(m_windowProperties.m_Width, m_windowProperties.m_Height, m_windowProperties.m_Title.c_str(), NULL, NULL));
-	
+
 		if (!window)
 		{
 			// Assert window creation.
@@ -109,6 +136,7 @@ namespace LinaEngine::Graphics
 			return false;
 		}
 	
+
 		// Update OpenGL about the window data.
 		glViewport(0, 0, m_windowProperties.m_Width, m_windowProperties.m_Height);
 
@@ -179,7 +207,7 @@ namespace LinaEngine::Graphics
 		glfwSetKeyCallback(window, keyPressedFunc);
 		glfwSetMouseButtonCallback(window, mousePressedFunc);
 
-		m_Window = static_cast<void*>(window);
+		m_window = static_cast<void*>(window);
 		return true;
 	}
 

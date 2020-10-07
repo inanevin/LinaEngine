@@ -45,10 +45,13 @@ namespace LinaEngine::Graphics
 		void SetVsync(bool enable) override;
 
 		// Gets the native glfw window.
-		virtual void* GetNativeWindow() const { return m_Window; }
+		virtual void* GetNativeWindow() const { return m_window; }
 
 		// Returns window active time
 		virtual double GetTime() override;
+
+		// Resizes the native window
+		virtual void Resize(const Vector2& newSize);
 
 	private:
 
@@ -67,7 +70,8 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		void* m_Window = nullptr;
+
+		void* m_window = nullptr;
 		
 	};
 }

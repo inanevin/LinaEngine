@@ -287,6 +287,8 @@ namespace LinaEngine::Graphics
 		unsigned int m_Width;
 		unsigned int m_Height;
 		bool vSyncEnabled;
+		bool m_decorated = true;
+		bool m_resizable = true;
 
 		WindowProperties()
 		{

@@ -42,7 +42,7 @@ namespace LinaEngine
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
 
-	Application::Application()
+	Application::Application(Graphics::WindowProperties& props)
 	{
 		LINA_CORE_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
 		LINA_CORE_ASSERT(!instance, "Application already exists!");
@@ -55,7 +55,7 @@ namespace LinaEngine
 		m_physicsEngine = CreatePhysicsEngine();
 
 		// Create main window.
-		bool windowCreationSuccess = m_appWindow->CreateContext(Graphics::WindowProperties());
+		bool windowCreationSuccess = m_appWindow->CreateContext(props);
 		if (!windowCreationSuccess)
 		{
 			LINA_CORE_ERR("Window Creation Failed!");
