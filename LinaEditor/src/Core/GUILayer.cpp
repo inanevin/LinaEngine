@@ -53,53 +53,10 @@ static bool setDockspaceLayout = true;
 static bool physicsDebugEnabled = false;
 LinaEngine::Graphics::Texture* logo;
 
+ImVec4 m_menuBarBackground = ImVec4(0, 0, 0, 1);
+
 namespace LinaEditor
 {
-
-	void GUILayer::OnUpdate()
-	{
-
-		//Setup
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-
-
-		// Draw main docking space.
-		DrawCentralDockingSpace();
-
-		// Draw tools
-		// DrawTools();
-
-		// Draw overlay fps counter
-		DrawFPSCounter(&m_FPSCounterOpen, 1);
-
-		//// Draw material panel.
-		//m_MaterialPanel->Draw();
-
-		// Draw resources panel
-		m_ResourcesPanel->Draw();
-
-		// Draw ECS Panel.
-		m_ECSPanel->Draw();
-
-		// Draw Scene Panel
-		m_ScenePanel->Draw();
-
-		// Draw Log Panel
-		m_LogPanel->Draw();
-
-		// Draw properties panel
-		m_PropertiesPanel->Draw();
-
-		if (showIMGUIDemo)
-			ImGui::ShowDemoWindow(&showIMGUIDemo);
-
-		// Rendering
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	}
-
 	void GUILayer::OnEvent()
 	{
 
@@ -242,6 +199,63 @@ namespace LinaEditor
 		delete m_ScenePanel;
 	}
 
+
+	void GUILayer::OnUpdate()
+	{
+
+		//Setup
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y));
+		ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, 80));
+
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, m_menuBarBackground);
+		ImGui::Begin("MenuBar", NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar);
+
+		ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - 115);
+		ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 15);
+		ImGui::Image((void*)logo->GetID(), ImVec2(230, 27), ImVec2(0, 1), ImVec2(1, 0));
+
+		ImGui::End();
+		ImGui::PopStyleColor();
+		// Draw main docking space.
+		DrawCentralDockingSpace();
+
+		// Draw tools
+		// DrawTools();
+
+		// Draw overlay fps counter
+		DrawFPSCounter(&m_FPSCounterOpen, 1);
+
+		//// Draw material panel.
+		//m_MaterialPanel->Draw();
+
+		// Draw resources panel
+		m_ResourcesPanel->Draw();
+
+		// Draw ECS Panel.
+		m_ECSPanel->Draw();
+
+		// Draw Scene Panel
+		m_ScenePanel->Draw();
+
+		// Draw Log Panel
+		m_LogPanel->Draw();
+
+		// Draw properties panel
+		m_PropertiesPanel->Draw();
+
+		if (showIMGUIDemo)
+			ImGui::ShowDemoWindow(&showIMGUIDemo);
+
+		// Rendering
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	}
+
 	void GUILayer::DrawTools(bool* p_open, int corner)
 	{
 
@@ -283,11 +297,11 @@ namespace LinaEditor
 
 		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
 		// because it would be confusing to have two docking targets within each others.
-		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
 		if (opt_fullscreen)
 		{
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImGui::SetNextWindowPos(viewport->GetWorkPos());
+			ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y + 100));
 			ImGui::SetNextWindowSize(viewport->GetWorkSize());
 			ImGui::SetNextWindowViewport(viewport->ID);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
@@ -347,8 +361,11 @@ namespace LinaEditor
 
 		}
 
-		DrawMenuBar();
-		
+		//DrawMenuBar();
+
+		ImGui::End();
+
+
 
 	}
 
@@ -494,10 +511,7 @@ namespace LinaEditor
 
 		}
 
-		
-		ImGui::End();
 
-		
 
 	}
 
