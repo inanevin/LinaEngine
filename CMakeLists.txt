@@ -72,8 +72,6 @@ set(LINASANDBOX_HEADER_DIR Sandbox/include)
 #--------------------------------------------------------------------
 
 
-
-add_subdirectory(Sandbox)
 add_subdirectory(LinaEditor)
 add_subdirectory(LinaEngine)
 add_subdirectory(LinaECS)

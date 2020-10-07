@@ -154,6 +154,7 @@ void Example1Level::Initialize()
 	// Create, setup & assign skybox material.
 	CreateProceduralSkybox(m_RenderEngine);
 
+	return;
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);
 	auto& camTransform = m_ECS->emplace<TransformComponent>(camera);

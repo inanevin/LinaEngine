@@ -28,10 +28,13 @@ Class: UILayer
 #include "Panels/LogPanel.hpp"
 #include "Utility/Log.hpp"
 #include "Utility/EditorUtility.hpp"
+#include "Utility/UtilityFunctions.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/RenderConstants.hpp"
+#include "Rendering/Texture.hpp"
 #include "Physics/PhysicsEngine.hpp"
+#include "Rendering/RenderEngine.hpp"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -48,6 +51,7 @@ static bool isECSPanelOpen;
 static bool showIMGUIDemo;
 static bool setDockspaceLayout = true;
 static bool physicsDebugEnabled = false;
+LinaEngine::Graphics::Texture* logo;
 
 namespace LinaEditor
 {
@@ -110,7 +114,7 @@ namespace LinaEditor
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-		io.Fonts->AddFontFromFileTTF("resources/fonts/defaultFont.ttf", 20.0f, NULL)->Scale = 0.92f;
+		io.Fonts->AddFontFromFileTTF("resources/fonts/Mukta-Medium.ttf", 20.0f, NULL)->Scale = 1;
 
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
@@ -135,10 +139,12 @@ namespace LinaEditor
 		style.PopupRounding = 0.0f;
 		style.FrameRounding = 0.0f;
 		style.ScrollbarRounding = 0.0f;
+		style.FramePadding = ImVec2(6, 5);
+		style.WindowMenuButtonPosition = ImGuiDir_None;
 		colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 		colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
 		colors[ImGuiCol_WindowBg] = ImVec4(0.15f, 0.15f, 0.15f, 0.54f);
-		colors[ImGuiCol_ChildBg] = ImVec4(0.15f, 0.15f, 0.15f, 0.54f);
+		colors[ImGuiCol_ChildBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.54f);
 		colors[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
 		colors[ImGuiCol_Border] = ImVec4(0.11f, 0.11f, 0.11f, 0.54f);
 		colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
@@ -216,6 +222,9 @@ namespace LinaEditor
 		m_LogPanel->Open();
 
 		setDockspaceLayout = true;
+
+		// Logo texture
+		logo = &m_RenderEngine->CreateTexture2D(LinaEngine::Utility::GetUniqueID(), "resources/textures/linaEngineText.png");
 	}
 
 	void GUILayer::OnDetach()
@@ -298,7 +307,9 @@ namespace LinaEditor
 		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
 		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
 		ImGui::Begin("DockSpace", NULL, window_flags);
+
 		ImGui::PopStyleVar();
 
 		if (opt_fullscreen)
@@ -336,11 +347,33 @@ namespace LinaEditor
 
 		}
 
+		DrawMenuBar();
+		
+
+	}
+
+	void GUILayer::DrawMenuBar()
+	{
 
 		if (ImGui::BeginMenuBar())
 		{
 			std::string saveFileDialogueID = "Save Level";
 			std::string loadFileDialogueID = "Load Level";
+
+			if (ImGui::BeginMenu("File"))
+			{
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Edit"))
+			{
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("View"))
+			{
+				ImGui::EndMenu();
+			}
 
 			if (ImGui::BeginMenu("Levels"))
 			{
@@ -429,7 +462,7 @@ namespace LinaEditor
 
 			if (ImGui::BeginMenu("Debug"))
 			{
-				
+
 				if (ImGui::MenuItem("Physics Debug", NULL, &physicsDebugEnabled))
 				{
 					m_physicsEngine->SetDebugDraw(physicsDebugEnabled);
@@ -445,10 +478,27 @@ namespace LinaEditor
 			}
 
 
+			if (ImGui::BeginMenu("Help"))
+			{
+				ImGui::EndMenu();
+			}
+
+
+			ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - 115);
+			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 15);
+			ImGui::Image((void*)logo->GetID(), ImVec2(230, 27), ImVec2(0, 1), ImVec2(1, 0));
+
+		
+
 			ImGui::EndMenuBar();
+
 		}
 
+		
 		ImGui::End();
+
+		
+
 	}
 
 	void GUILayer::DrawSkyboxSettingsWindow()

@@ -44,11 +44,8 @@ namespace LinaEditor
 			// Load startup level.
 			LoadLevel(&m_StartupLevel);
 
-			// Push layer into the engine. ** WHILE LOOP INSIDE ** 
-			//GetRenderEngine().PushLayer(m_guiLayer);
-
-			// Set display size to match scene panel.
-			//PushOverlay(new LinaEngine::Layer_IMGUI());
+			// Push layer into the engine.
+			GetRenderEngine().PushLayer(m_guiLayer);
 
 		}
 		~EditorApplication() {

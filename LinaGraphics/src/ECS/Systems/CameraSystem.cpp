@@ -58,6 +58,7 @@ namespace LinaEngine::ECS
 
 	Matrix CameraSystem::GetLightMatrix(DirectionalLightComponent* c)
 	{
+		if (c == nullptr) return Matrix();
 		Matrix lightProjection = Matrix::Orthographic(c->shadowProjectionSettings.x, c->shadowProjectionSettings.y, c->shadowProjectionSettings.z, c->shadowProjectionSettings.w, c->shadowNearPlane, c->shadowFarPlane);;
 		Matrix lightView = Matrix::InitLookAt(m_CurrentCameraTransform->transform.location, m_CurrentCameraTransform->transform.location + m_CurrentCameraTransform->transform.rotation.GetForward().Normalized(), Vector3::Up);
 		return lightProjection * lightView;

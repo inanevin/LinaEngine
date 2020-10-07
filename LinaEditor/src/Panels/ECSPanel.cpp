@@ -75,12 +75,20 @@ namespace LinaEditor
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, 8.0f);
 
+			ImGui::Begin("Entities");
+
+			ImGui::End();
+			ImGui::PopStyleVar();
+
+			return;
 			if (ImGui::Begin("Entities", &m_Show, flags))
 			{
 				// Statics.
 				static char selectedEntityName[256] = "Entity";
 
+				ImGui::Text("hoho");
 				// Handle Right Click.
 				if (ImGui::BeginPopupContextWindow())
 				{
