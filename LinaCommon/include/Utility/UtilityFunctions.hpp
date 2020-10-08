@@ -23,7 +23,7 @@ Timestamp: 1/5/2019 12:42:58 AM
 #include <string>
 #include <vector>
 #include "Core/LinaAPI.hpp"
-
+#include <functional>
 namespace LinaEngine
 {
 	namespace Utility
@@ -61,7 +61,8 @@ namespace LinaEngine
 
 			// have a derived type to wrap the actual functor object:
 			template <typename... Args>
-			struct Wrapped : Base {
+			struct Wrapped : Base 
+			{
 				typedef std::function<void(Args...)> func_type;
 				func_type f;
 				Wrapped(func_type aFunc) : f(aFunc) { };

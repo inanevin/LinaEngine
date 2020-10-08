@@ -53,16 +53,6 @@ namespace LinaEditor
 
 	private:
 
-		// Menu bar item callbacks.
-		void SaveLevelData();
-		void LoadLevelData();
-		void OpenPanel(Panels panel);
-		void DebugPhysics();
-		void DebugShadowMap();
-		void DebugFinalTexture();
-
-	private:
-
 		std::string m_title;
 		std::vector<MenuButton*> m_menuBarButtons;
 		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;

@@ -41,6 +41,7 @@ Class: UILayer
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
 #include "IconsFontAwesome5.h"
+#include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
@@ -52,7 +53,8 @@ static bool showIMGUIDemo;
 static bool setDockspaceLayout = true;
 static bool physicsDebugEnabled = false;
 static bool dockWindowInit = true;
-
+static const char* saveLevelDialogID = "id_saveLevel";
+static const char* loadLevelDialogID = "id_loadLevel";
 
 #define DOCKSPACE_BEGIN 100
 
@@ -218,6 +220,9 @@ namespace LinaEditor
 		// Top header.
 		m_headerPanel->Draw();
 
+		// Level data dialogs.
+		DrawLevelDataDialogs();
+
 		// Draw main docking space.
 		DrawCentralDockingSpace();
 
@@ -248,6 +253,113 @@ namespace LinaEditor
 		// Rendering
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	}
+
+
+	void GUILayer::MenuBarItemClicked(const MenuBarItems& item)
+	{
+		// File
+		if (item == MenuBarItems::NewProject)
+		{
+
+		}
+		else if (item == MenuBarItems::LoadProject)
+		{
+
+		}
+		else if (item == MenuBarItems::SaveProject)
+		{
+
+		}
+
+		// Edit
+
+		// View
+
+		// Level
+		else if (item == MenuBarItems::SaveLevelData)
+		{
+			igfd::ImGuiFileDialog::Instance()->OpenDialog(saveLevelDialogID, "Choose File", ".linaleveldata", ".");
+		}
+		else if (item == MenuBarItems::LoadLevelData)
+		{
+			igfd::ImGuiFileDialog::Instance()->OpenDialog(loadLevelDialogID, "Choose File", ".linaleveldata", ".");
+		}
+
+		// Panels.
+		else if (item == MenuBarItems::ECSPanel)
+			m_ecsPanel->Open();
+		else if (item == MenuBarItems::MaterialPanel)
+			m_materialPanel->Open();
+		else if (item == MenuBarItems::ScenePanel)
+			m_scenePanel->Open();
+		else if (item == MenuBarItems::ResourcesPanel)
+			m_resourcesPanel->Open();
+		else if (item == MenuBarItems::PropertiesPanel)
+			m_propertiesPanel->Open();
+		else if (item == MenuBarItems::LogPanel)
+			m_logPanel->Open();
+		else if (item == MenuBarItems::ImGuiPanel)
+			showIMGUIDemo = true;
+
+		// Debug
+		else if (item == MenuBarItems::DebugViewPhysics)
+			m_physicsEngine->SetDebugDraw(physicsDebugEnabled);
+
+		else if (item == MenuBarItems::DebugViewShadows)
+			m_scenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::ShadowMap);
+
+		else if (item == MenuBarItems::DebugViewNormal)
+			m_scenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::FinalImage);
+
+	}
+
+	void GUILayer::DrawLevelDataDialogs()
+	{
+		// Save level dialogue.
+		if (igfd::ImGuiFileDialog::Instance()->FileDialog(saveLevelDialogID))
+		{
+			// action if OK
+			if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
+			{
+				std::string filePathName = igfd::ImGuiFileDialog::Instance()->GetFilepathName();
+				std::string filePath = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
+				std::string fileName = igfd::ImGuiFileDialog::Instance()->GetCurrentFileName();
+				size_t lastIndex = fileName.find_last_of(".");
+				std::string rawName = fileName.substr(0, lastIndex);
+
+				m_currentLevel->SerializeLevelData(filePath, rawName, *m_currentLevel, *m_ecs);
+
+				igfd::ImGuiFileDialog::Instance()->CloseDialog(saveLevelDialogID);
+			}
+
+			igfd::ImGuiFileDialog::Instance()->CloseDialog(saveLevelDialogID);
+		}
+
+		// Load level dialogue.
+		if (igfd::ImGuiFileDialog::Instance()->FileDialog(loadLevelDialogID))
+		{
+			// action if OK
+			if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
+			{
+				std::string filePathName = igfd::ImGuiFileDialog::Instance()->GetFilepathName();
+				std::string filePath = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
+				std::string fileName = igfd::ImGuiFileDialog::Instance()->GetCurrentFileName();
+				size_t lastIndex = fileName.find_last_of(".");
+				std::string rawName = fileName.substr(0, lastIndex);
+
+				// Load level data.
+				World::Level::DeserializeLevelData(filePath, rawName, *m_currentLevel, *m_ecs);
+
+				// Refresh ECS panel.
+				m_ecsPanel->Refresh();
+
+				igfd::ImGuiFileDialog::Instance()->CloseDialog(loadLevelDialogID);
+			}
+
+			igfd::ImGuiFileDialog::Instance()->CloseDialog(loadLevelDialogID);
+
+		}
 	}
 
 	void GUILayer::DrawFPSCounter(int corner)
@@ -596,82 +708,6 @@ namespace LinaEditor
 		//
 		//ImGui::End();
 
-	}
-
-	void GUILayer::ShowContentBrowserFileMenu()
-	{
-		ImGui::MenuItem("(dummy menu)", NULL, false, false);
-		if (ImGui::MenuItem("New")) {}
-		if (ImGui::MenuItem("Open", "Ctrl+O")) {}
-		if (ImGui::BeginMenu("Open Recent"))
-		{
-			ImGui::MenuItem("fish_hat.c");
-			ImGui::MenuItem("fish_hat.inl");
-			ImGui::MenuItem("fish_hat.h");
-			if (ImGui::BeginMenu("More.."))
-			{
-				ImGui::MenuItem("Hello");
-				ImGui::MenuItem("Sailor");
-				if (ImGui::BeginMenu("Recurse.."))
-				{
-					//ShowContentBrowserFileMenu();
-					ImGui::EndMenu();
-				}
-				ImGui::EndMenu();
-			}
-			ImGui::EndMenu();
-		}
-		if (ImGui::MenuItem("Save", "Ctrl+S")) {}
-		if (ImGui::MenuItem("Save As..")) {}
-
-		ImGui::Separator();
-		if (ImGui::BeginMenu("Options"))
-		{
-			static bool enabled = true;
-			ImGui::MenuItem("Enabled", "", &enabled);
-			ImGui::BeginChild("child", ImVec2(0, 60), true);
-			for (int i = 0; i < 10; i++)
-				ImGui::Text("Scrolling Text %d", i);
-			ImGui::EndChild();
-			static float f = 0.5f;
-			static int n = 0;
-			ImGui::SliderFloat("Value", &f, 0.0f, 1.0f);
-			ImGui::InputFloat("Input", &f, 0.1f);
-			ImGui::Combo("Combo", &n, "Yes\0No\0Maybe\0\0");
-			ImGui::EndMenu();
-		}
-
-		if (ImGui::BeginMenu("Colors"))
-		{
-			float sz = ImGui::GetTextLineHeight();
-			for (int i = 0; i < ImGuiCol_COUNT; i++)
-			{
-				const char* name = ImGui::GetStyleColorName((ImGuiCol)i);
-				ImVec2 p = ImGui::GetCursorScreenPos();
-				ImGui::GetWindowDrawList()->AddRectFilled(p, ImVec2(p.x + sz, p.y + sz), ImGui::GetColorU32((ImGuiCol)i));
-				ImGui::Dummy(ImVec2(sz, sz));
-				ImGui::SameLine();
-				ImGui::MenuItem(name);
-			}
-			ImGui::EndMenu();
-		}
-
-		// Here we demonstrate appending again to the "Options" menu (which we already created above)
-		// Of course in this demo it is a little bit silly that this function calls BeginMenu("Options") twice.
-		// In a real code-base using it would make senses to use this feature from very different code locations.
-		if (ImGui::BeginMenu("Options")) // <-- Append!
-		{
-			static bool b = true;
-			ImGui::Checkbox("SomeOption", &b);
-			ImGui::EndMenu();
-		}
-
-		if (ImGui::BeginMenu("Disabled", false)) // Disabled
-		{
-			IM_ASSERT(0);
-		}
-		if (ImGui::MenuItem("Checked", NULL, true)) {}
-		if (ImGui::MenuItem("Quit", "Alt+F4")) {}
 	}
 
 	void GUILayer::ReadProjectContentsFolder()

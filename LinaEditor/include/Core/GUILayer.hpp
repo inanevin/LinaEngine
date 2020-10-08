@@ -45,6 +45,32 @@ namespace LinaEngine
 namespace LinaEditor
 {
 
+	enum class MenuBarItems
+	{
+		NewProject = 0,
+		LoadProject = 1,
+		SaveProject = 2,
+
+		Edit = 10,
+		View = 20,
+
+		SaveLevelData = 30,
+		LoadLevelData = 31,
+
+		ECSPanel = 40,
+		HeaderPanel = 11,
+		LogPanel = 42,
+		MaterialPanel = 43,
+		PropertiesPanel = 44,
+		ResourcesPanel = 45,
+		ScenePanel = 46,
+		ImGuiPanel = 47,
+
+		DebugViewPhysics = 61,
+		DebugViewShadows = 62,
+		DebugViewNormal = 63,
+
+	};
 
 	class GUILayer : public LinaEngine::Layer
 	{
@@ -61,6 +87,10 @@ namespace LinaEditor
 		void OnDetach() override;
 		void OnUpdate() override;
 		void OnEvent() override;
+
+
+		// Menu bar item callbacks.
+		void MenuBarItemClicked(const MenuBarItems& item);
 
 		// CLASS METHODS
 		FORCEINLINE void Setup(LinaEngine::Graphics::Window& window, LinaEngine::Graphics::RenderEngine& renderEngine, LinaEngine::Physics::PhysicsEngine& physicsEngine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::World::Level& level, const Vector2& scenePanelSize)
@@ -86,6 +116,8 @@ namespace LinaEditor
 
 	private:
 
+		// Draws level data dialogs.
+		void DrawLevelDataDialogs();
 
 		// Draws an fps counter overlay.
 		void DrawFPSCounter(int corner = 0);
@@ -98,9 +130,6 @@ namespace LinaEditor
 
 		// Draw skybox settings.
 		void DrawSkyboxSettingsWindow();
-
-		// Show the file menu for content browser.
-		void ShowContentBrowserFileMenu();
 
 		// Checks the project content folder for new files.
 		void ReadProjectContentsFolder();

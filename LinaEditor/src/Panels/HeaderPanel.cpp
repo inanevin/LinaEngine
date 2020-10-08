@@ -29,7 +29,6 @@ Timestamp: 10/8/2020 1:39:19 PM
 #include "Utility/UtilityFunctions.hpp"
 #include "imgui.h"
 #include "IconsFontAwesome5.h"
-#include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 
 LinaEngine::Color headerBGColor = LinaEngine::Color(0, 0, 0, 1);
 LinaEngine::Color headerButtonsColor = LinaEngine::Color(1, 1, 1, 1); // ImVec4(113.f / 255.f, 36.f / 255.f, 78.f / 255.f, 1);
@@ -44,6 +43,7 @@ bool appResizeActive;
 
 #define RESIZE_THRESHOLD 10
 
+
 namespace LinaEditor
 {
 	HeaderPanel::~HeaderPanel()
@@ -51,6 +51,7 @@ namespace LinaEditor
 		for (int i = 0; i < m_menuBarButtons.size(); i++)
 			delete m_menuBarButtons[i];
 	}
+
 
 	void HeaderPanel::Setup()
 	{
@@ -69,7 +70,7 @@ namespace LinaEditor
 		fileItems.emplace_back(new MenuItem(ICON_FA_FOLDER_OPEN " Open Project", nullptr));
 		fileItems.emplace_back(new MenuItem(ICON_FA_SAVE " Save Project", nullptr));
 		m_menuBarButtons.push_back(new MenuButton(ICON_FA_FILE " File", "pu_file", fileItems, headerBGColor, false));
-		
+
 		// Edit menu.
 		std::vector<MenuElement*> edit;
 		m_menuBarButtons.emplace_back(new MenuButton(ICON_FA_EDIT " Edit", "pu_edit", edit, headerBGColor, true));
@@ -80,54 +81,27 @@ namespace LinaEditor
 
 		// Levels menu.
 		std::vector<MenuElement*> level;
-		level.emplace_back(new MenuItem(ICON_FA_DOWNLOAD " Save Level Data", std::bind(&HeaderPanel::SaveLevelData, this)));
-		level.emplace_back(new MenuItem(ICON_FA_UPLOAD " Load Level Data", std::bind(&HeaderPanel::LoadLevelData, this)));
+		level.emplace_back(new MenuItem(ICON_FA_DOWNLOAD " Save Level Data", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::SaveLevelData)));
+		level.emplace_back(new MenuItem(ICON_FA_UPLOAD " Load Level Data", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::LoadLevelData)));
 		m_menuBarButtons.emplace_back(new MenuButton(ICON_FA_ARCHWAY " Level", "pu_level", level, headerBGColor, true));
 
 		// Panels menu
 		std::vector<MenuElement*> panels;
-		panels.emplace_back(new MenuItem(ICON_FA_DOWNLOAD " Entity Panel", std::bind(&HeaderPanel::OpenPanel, this, Panels::ECSPanel, std::placeholders::_1)));
-		panels.emplace_back(new MenuItem(ICON_FA_UPLOAD " Load Level Data", std::bind(&HeaderPanel::LoadLevelData, this)));
+		panels.emplace_back(new MenuItem(ICON_FA_DOWNLOAD " Entity Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ECSPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_UPLOAD " Material Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::MaterialPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_UPLOAD " Scene Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ScenePanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_UPLOAD " Resources Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::PropertiesPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_UPLOAD " Properties Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ResourcesPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_UPLOAD " Log Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::LogPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_UPLOAD " ImGui Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ImGuiPanel)));
 		m_menuBarButtons.emplace_back(new MenuButton(ICON_FA_COLUMNS " Level", "pu_panel", panels, headerBGColor, true));
 
-		if (ImGui::BeginMenu("Panels"))
-		{
-			if (ImGui::MenuItem("Entity Panel"))
-				m_ecsPanel->Open();
-			if (ImGui::MenuItem("Material Panel"))
-				m_materialPanel->Open();
-			if (ImGui::MenuItem("Scene Panel"))
-				m_scenePanel->Open();
-			if (ImGui::MenuItem("Resources Panel"))
-				m_resourcesPanel->Open();
-			if (ImGui::MenuItem("Properties Panel"))
-				m_propertiesPanel->Open();
-			if (ImGui::MenuItem("Log Panel"))
-				m_logPanel->Open();
-			if (ImGui::MenuItem("IMGUI Demo"))
-				showIMGUIDemo = true;
-
-			ImGui::EndMenu();
-		}
-
-
-		if (ImGui::BeginMenu("Debug"))
-		{
-
-			if (ImGui::MenuItem("Physics Debug", NULL, &physicsDebugEnabled))
-			{
-				m_physicsEngine->SetDebugDraw(physicsDebugEnabled);
-			}
-
-			if (ImGui::MenuItem("Draw Final Image"))
-				m_scenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::FinalImage);
-
-			if (ImGui::MenuItem("Draw Shadow Map"))
-				m_scenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::ShadowMap);
-
-			ImGui::EndMenu();
-		}
-
+		// Debug menu
+		std::vector<MenuElement*> debug;
+		debug.emplace_back(new MenuItem(ICON_FA_DOWNLOAD " Debug View Physics", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewPhysics)));
+		debug.emplace_back(new MenuItem(ICON_FA_DOWNLOAD " Debug View Shadows", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewShadows)));
+		debug.emplace_back(new MenuItem(ICON_FA_DOWNLOAD " Debug View NOrmal", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewNormal)));
+		m_menuBarButtons.emplace_back(new MenuButton(ICON_FA_COLUMNS " Debug", "dbg_panel", debug, headerBGColor, true));
 	}
 
 	void HeaderPanel::Draw()
@@ -207,7 +181,7 @@ namespace LinaEditor
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - linaLogoSize.y / 2.0f);
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(headerBGColor.r, headerBGColor.g, headerBGColor.b, headerBGColor.a));
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(headerButtonsColor.r, headerButtonsColor.g, headerButtonsColor.b, headerButtonsColor.a));
-		
+
 			// Minimize
 			if (ImGui::Button(ICON_FA_WINDOW_MINIMIZE))
 			{
@@ -237,233 +211,15 @@ namespace LinaEditor
 			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + linaLogoSize.y / 2.0f + 15);
 			ImGui::Image((void*)windowLogo->GetID(), linaLogoSize, ImVec2(0, 1), ImVec2(1, 0));
 
+			// Draw bar buttons & items.
 			ImGui::SetCursorPosY(35);
 			for (int i = 0; i < m_menuBarButtons.size(); i++)
 				m_menuBarButtons[i]->Draw();
 
-
 			ImGui::End();
 			ImGui::PopStyleColor();
 
-			// File Menu
-			/*ImGui::PushStyleColor(ImGuiCol_Button, headerBGColor);
-			ImGui::SetCursorPosY(35);
-			static bool popupFile = false;
-			static bool popupEdit = false;
-			static bool popupView = false;
-			static bool popupLevels = false;
-			static bool popupPanels = false;
-			static bool popupDebug = false;
-			static bool popupHelp = false;
-
-			// File.
-			if (popupFile)
-				ImGui::PushStyleColor(ImGuiCol_Button, menuBarButtonActiveColor);
-
-			if (ImGui::Button(ICON_FA_FILE " File"))
-				ImGui::OpenPopup("popup_file");
-
-			if (popupFile)
-				ImGui::PopStyleColor();
-			
-			ImGui::SetNextWindowPos(ImVec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y));
-			popupFile = ImGui::BeginPopup("popup_file");
-			if (popupFile)
-			{
-				ImGui::TextDisabled(ICON_FA_FOLDER_PLUS " New Project");
-				ImGui::TextDisabled(ICON_FA_FOLDER_OPEN " Open Project");
-				ImGui::TextDisabled(ICON_FA_SAVE " Save Project");
-				ImGui::EndPopup();
-			}
-
-			// Edit 
-			if (popupEdit)
-				ImGui::PushStyleColor(ImGuiCol_Button, menuBarButtonActiveColor);
-
-			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_EDIT " Edit"))
-				ImGui::OpenPopup("popup_edit");
-
-			if (popupEdit)
-				ImGui::PopStyleColor();
-
-			ImGui::SetNextWindowPos(ImVec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y));
-			popupEdit = ImGui::BeginPopup("popup_edit");
-			if (popupEdit)
-			{
-				ImGui::EndPopup();
-			}
-
-
-			// Eye 
-			if (popupView)
-				ImGui::PushStyleColor(ImGuiCol_Button, menuBarButtonActiveColor);
-
-			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_EYE" View"))
-				ImGui::OpenPopup("popup_view");
-
-			if (popupView)
-				ImGui::PopStyleColor();
-
-			ImGui::SetNextWindowPos(ImVec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y));
-			popupView = ImGui::BeginPopup("popup_view");
-			if (popupView)
-			{
-				ImGui::EndPopup();
-			}
-
-			// Level
-			std::string saveFileDialogueID = "Save Level";
-			std::string loadFileDialogueID = "Load Level";
-
-			if(popupLevels)
-				ImGui::PushStyleColor(ImGuiCol_Button, menuBarButtonActiveColor);
-
-			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_ARCHWAY " Levels"))
-				ImGui::OpenPopup("popup_levels");
-
-			if (popupLevels)
-				ImGui::PopStyleColor();
-
-			ImGui::SetNextWindowPos(ImVec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y));
-			popupLevels = ImGui::BeginPopup("popup_levels");
-			if (popupLevels)
-			{
-
-				if (ImGui::MenuItem(ICON_FA_DOWNLOAD " Save Level Data"))
-				{
-					// Save level.
-					igfd::ImGuiFileDialog::Instance()->OpenDialog(saveFileDialogueID, "Choose File", ".linaleveldata", ".");
-				}
-				if (ImGui::MenuItem(ICON_FA_UPLOAD " Load Level Data"))
-				{
-					// Load level.
-					igfd::ImGuiFileDialog::Instance()->OpenDialog(loadFileDialogueID, "Choose File", ".linaleveldata", ".");
-				}
-
-				ImGui::EndPopup();
-			}
-
-			// Save level dialogue.
-			if (igfd::ImGuiFileDialog::Instance()->FileDialog(saveFileDialogueID))
-			{
-				// action if OK
-				if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
-				{
-					std::string filePathName = igfd::ImGuiFileDialog::Instance()->GetFilepathName();
-					std::string filePath = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
-					std::string fileName = igfd::ImGuiFileDialog::Instance()->GetCurrentFileName();
-					size_t lastIndex = fileName.find_last_of(".");
-					std::string rawName = fileName.substr(0, lastIndex);
-
-					m_currentLevel->SerializeLevelData(filePath, rawName, *m_currentLevel, *m_ecs);
-
-					igfd::ImGuiFileDialog::Instance()->CloseDialog(saveFileDialogueID);
-				}
-
-				igfd::ImGuiFileDialog::Instance()->CloseDialog(saveFileDialogueID);
-			}
-
-			// Load level dialogue.
-			if (igfd::ImGuiFileDialog::Instance()->FileDialog(loadFileDialogueID))
-			{
-				// action if OK
-				if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
-				{
-					std::string filePathName = igfd::ImGuiFileDialog::Instance()->GetFilepathName();
-					std::string filePath = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
-					std::string fileName = igfd::ImGuiFileDialog::Instance()->GetCurrentFileName();
-					size_t lastIndex = fileName.find_last_of(".");
-					std::string rawName = fileName.substr(0, lastIndex);
-
-					// Load level data.
-					World::Level::DeserializeLevelData(filePath, rawName, *m_currentLevel, *m_ecs);
-
-					// Refresh ECS panel.
-					m_ecsPanel->Refresh();
-
-					igfd::ImGuiFileDialog::Instance()->CloseDialog(loadFileDialogueID);
-				}
-
-				igfd::ImGuiFileDialog::Instance()->CloseDialog(loadFileDialogueID);
-
-			}
-
-
-			// Panels menu bar
-			if (ImGui::BeginMenu("Panels"))
-			{
-				if (ImGui::MenuItem("Entity Panel"))
-					m_ecsPanel->Open();
-				if (ImGui::MenuItem("Material Panel"))
-					m_materialPanel->Open();
-				if (ImGui::MenuItem("Scene Panel"))
-					m_scenePanel->Open();
-				if (ImGui::MenuItem("Resources Panel"))
-					m_resourcesPanel->Open();
-				if (ImGui::MenuItem("Properties Panel"))
-					m_propertiesPanel->Open();
-				if (ImGui::MenuItem("Log Panel"))
-					m_logPanel->Open();
-				if (ImGui::MenuItem("IMGUI Demo"))
-					showIMGUIDemo = true;
-
-				ImGui::EndMenu();
-			}
-
-
-			if (ImGui::BeginMenu("Debug"))
-			{
-
-				if (ImGui::MenuItem("Physics Debug", NULL, &physicsDebugEnabled))
-				{
-					m_physicsEngine->SetDebugDraw(physicsDebugEnabled);
-				}
-
-				if (ImGui::MenuItem("Draw Final Image"))
-					m_scenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::FinalImage);
-
-				if (ImGui::MenuItem("Draw Shadow Map"))
-					m_scenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::ShadowMap);
-
-				ImGui::EndMenu();
-			}
-
-
-			if (ImGui::BeginMenu("Help"))
-			{
-				ImGui::EndMenu();
-			}
-			
-			
-			ImGui::EndMenuBar();	
-			ImGui::PopStyleColor();*/
-
-
-		
 		}
-	}
-
-	void HeaderPanel::SaveLevelData()
-	{
-	}
-
-	void HeaderPanel::LoadLevelData()
-	{
-	}
-
-	void HeaderPanel::DebugPhysics()
-	{
-	}
-
-	void HeaderPanel::DebugShadowMap()
-	{
-	}
-
-	void HeaderPanel::DebugFinalTexture()
-	{
 	}
 
 }
