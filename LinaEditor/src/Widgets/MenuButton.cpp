@@ -25,21 +25,9 @@ Timestamp: 10/8/2020 9:02:44 PM
 
 namespace LinaEditor
 {
-	MenuButtonItem::MenuButtonItem(const char* title, std::function<void()>& onClick, size_t childrenSize, MenuButtonItem** children)
-	{
-		m_title = title;
-		m_onClick = onClick;
-		m_childrenSize = childrenSize;
-		m_children = children;
-	}
 
-	MenuButtonItem::~MenuButtonItem()
-	{
-		for (int i = 0; i < m_childrenSize; i++)
-			delete m_children[i];
-	}
 
-	void MenuButtonItem::Draw()
+	void MenuItem::Draw()
 	{
 		if (ImGui::MenuItem(m_title))
 		{
@@ -48,20 +36,18 @@ namespace LinaEditor
 		}
 	}
 
-
-	MenuButton::MenuButton(const char* title, size_t childrenSize, MenuButtonItem** children, const LinaEngine::Color& bgColor, const LinaEngine::Color& activeColor)
+	MenuButton::MenuButton(const char* title, std::vector<MenuElement*>& children, const LinaEngine::Color& bgColor, const LinaEngine::Color& activeColor) : MenuElement(title)
 	{
-		m_title = title;
-		m_childrenSize = childrenSize;
 		m_children = children;
-		m_bgColor = bgColor;
 		m_activeColor = activeColor;
-		m_popupID = LinaEngine::Utility::GetUniqueIDString().c_str();
+		m_bgColor = bgColor;
+		std::string id = LinaEngine::Utility::GetUniqueIDString();
+		m_popupID = id.c_str();
 	}
 
 	MenuButton::~MenuButton()
 	{
-		for(int i = 0; i < m_childrenSize; i++)
+		for (int i = 0; i < m_children.size(); i++)
 			delete m_children[i];
 	}
 
@@ -72,8 +58,8 @@ namespace LinaEditor
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(m_bgColor.r, m_bgColor.g, m_bgColor.b, m_bgColor.a));
 
 		if (popupOpen)
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(m_activeColor.r, m_activeColor.g, m_activeColor.b, m_activeColor.a));
-
+			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered));
+		
 		if (ImGui::Button(m_title))
 			ImGui::OpenPopup(m_popupID);
 
@@ -82,16 +68,17 @@ namespace LinaEditor
 
 		ImGui::PopStyleColor();
 
-		popupOpen = ImGui::BeginPopup(m_popupID);
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y));
+		popupOpen = ImGui::BeginPopup(m_popupID);
 		if (popupOpen)
 		{
-			for (int i = 0; i < m_childrenSize; i++)
+			for (int i = 0; i < m_children.size(); i++)
 				m_children[i]->Draw();
 
 			ImGui::EndPopup();
 		}
 		
 	}
+
 
 }

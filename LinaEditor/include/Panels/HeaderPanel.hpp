@@ -23,6 +23,7 @@ Timestamp: 10/8/2020 1:39:03 PM
 #define HeaderPanel_HPP
 
 // Headers here.
+#include "Widgets/MenuButton.hpp"
 #include "Panels/EditorPanel.hpp"
 
 namespace LinaEngine
@@ -37,6 +38,7 @@ namespace LinaEngine
 namespace LinaEditor
 {
 	class GUILayer;
+	class MenuButton;
 
 	class HeaderPanel : public EditorPanel
 	{
@@ -44,7 +46,7 @@ namespace LinaEditor
 	public:
 
 		HeaderPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer, const std::string& title) : EditorPanel(position, size, guiLayer) { m_title = title; };
-		virtual ~HeaderPanel() {};
+		virtual ~HeaderPanel();
 
 		virtual void Setup() override;
 		virtual void Draw() override;
@@ -53,6 +55,7 @@ namespace LinaEditor
 	private:
 
 		std::string m_title;
+		std::vector<MenuButton*> m_menuBarButtons;
 		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
 		LinaEngine::Graphics::Window* m_appWindow = nullptr;
 

@@ -28,45 +28,52 @@ Timestamp: 10/8/2020 9:02:33 PM
 
 namespace LinaEditor
 {
-	class MenuButton;
-
-	class MenuButtonItem
+	class MenuElement
 	{
-	private:
+	public:
 
-		friend class MenuButton;
+		MenuElement(const char* title) : m_title(title) {};
+		~MenuElement() {}
 
-		MenuButtonItem(const char* title, std::function<void()>& onClick, size_t childrenSize = 0, MenuButtonItem** children = nullptr);
-		~MenuButtonItem();
+		// Draw this element.
+		virtual void Draw() {};
 
-		// Draw this menu button item.
-		void Draw();
+	protected:
 
-	private:
+		const char* m_title;
 
-		const char* m_title = nullptr;
-		MenuButtonItem** m_children = nullptr;
-		std::function<void()> m_onClick;
-		size_t m_childrenSize = 0;
 	};
 
-	class MenuButton
+	class MenuItem : public MenuElement
+	{
+	public:
+
+		MenuItem(const char* title, std::function<void()> onClick) : MenuElement(title), m_onClick(onClick) {};
+		~MenuItem() {};
+
+		// Draw this menu button item.
+		virtual void Draw() override;
+
+	private:
+
+		std::function<void()> m_onClick;
+	};
+
+	class MenuButton : public MenuElement
 	{
 		
 	public:
 		
-		MenuButton(const char* title, size_t childrenSize, MenuButtonItem** children, const LinaEngine::Color& bgColor = LinaEngine::Color(0,0,0,0), const LinaEngine::Color& activeColor = LinaEngine::Color(0,0,0,0));
+		MenuButton(const char* title, std::vector<MenuElement*>& children, const LinaEngine::Color& bgColor = LinaEngine::Color(0,0,0,0), const LinaEngine::Color& activeColor = LinaEngine::Color(0,0,0,0));
 		~MenuButton();
 
 		// Draw this item.
-		void Draw();
+		virtual void Draw() override;
 	
 	private:
 	
-		const char* m_title;
 		const char* m_popupID;
-		MenuButtonItem** m_children;
-		size_t m_childrenSize;
+		std::vector<MenuElement*> m_children;
 		LinaEngine::Color m_bgColor;
 		LinaEngine::Color m_activeColor;
 	};

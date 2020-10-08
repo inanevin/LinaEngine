@@ -31,9 +31,9 @@ Timestamp: 10/8/2020 1:39:19 PM
 #include "IconsFontAwesome5.h"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 
-ImVec4 headerBGColor = ImVec4(0, 0, 0, 1);
-ImVec4 headerButtonsColor = ImVec4(1, 1, 1, 1); // ImVec4(113.f / 255.f, 36.f / 255.f, 78.f / 255.f, 1);
-ImVec4 menuBarButtonActiveColor = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
+LinaEngine::Color headerBGColor = LinaEngine::Color(0, 0, 0, 1);
+LinaEngine::Color headerButtonsColor = LinaEngine::Color(1, 1, 1, 1); // ImVec4(113.f / 255.f, 36.f / 255.f, 78.f / 255.f, 1);
+LinaEngine::Color menuBarButtonActiveColor = LinaEngine::Color(0.5f, 0.5f, 0.5f, 1.0f);
 ImVec2 resizeStartPos;
 ImVec2 headerClickPos;
 ImVec2 linaLogoSize = ImVec2(160, 18);
@@ -46,6 +46,12 @@ bool appResizeActive;
 
 namespace LinaEditor
 {
+	HeaderPanel::~HeaderPanel()
+	{
+		for (int i = 0; i < m_menuBarButtons.size(); i++)
+			delete m_menuBarButtons[i];
+	}
+
 	void HeaderPanel::Setup()
 	{
 		m_renderEngine = m_guiLayer->GetRenderEngine();
@@ -54,6 +60,16 @@ namespace LinaEditor
 		// Logo texture
 		windowLogo = &m_renderEngine->CreateTexture2D(LinaEngine::Utility::GetUniqueID(), "resources/textures/linaEngineText.png");
 		windowIcon = &m_renderEngine->CreateTexture2D(LinaEngine::Utility::GetUniqueID(), "resources/textures/linaEngineIcon.png");
+
+		// Add menu bar buttons.
+
+		// File Button
+		std::vector<MenuElement*> fileItems;
+		fileItems.emplace_back(new MenuItem(ICON_FA_FOLDER_PLUS " New Project", nullptr));
+		fileItems.emplace_back(new MenuItem(ICON_FA_FOLDER_OPEN " Open Project", nullptr));
+		fileItems.emplace_back(new MenuItem(ICON_FA_SAVE " Save Project", nullptr));
+		m_menuBarButtons.push_back(new MenuButton(ICON_FA_EDIT " File", fileItems, headerBGColor, menuBarButtonActiveColor));
+
 	}
 
 	void HeaderPanel::Draw()
@@ -99,7 +115,7 @@ namespace LinaEditor
 			// Start drawing window.
 			ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y));
 			ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, 80));
-			ImGui::PushStyleColor(ImGuiCol_WindowBg, headerBGColor);
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(headerBGColor.r, headerBGColor.g, headerBGColor.b, headerBGColor.a));
 			ImGui::Begin("Header", NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
 			// Handle window movement.
@@ -131,8 +147,8 @@ namespace LinaEditor
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - 105);
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - linaLogoSize.y / 2.0f);
-			ImGui::PushStyleColor(ImGuiCol_Button, headerBGColor);
-			ImGui::PushStyleColor(ImGuiCol_Text, headerButtonsColor);
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(headerBGColor.r, headerBGColor.g, headerBGColor.b, headerBGColor.a));
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(headerButtonsColor.r, headerButtonsColor.g, headerButtonsColor.b, headerButtonsColor.a));
 		
 			// Minimize
 			if (ImGui::Button(ICON_FA_WINDOW_MINIMIZE))
@@ -163,8 +179,15 @@ namespace LinaEditor
 			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + linaLogoSize.y / 2.0f + 15);
 			ImGui::Image((void*)windowLogo->GetID(), linaLogoSize, ImVec2(0, 1), ImVec2(1, 0));
 
+			ImGui::SetCursorPosY(35);
+			for (int i = 0; i < m_menuBarButtons.size(); i++)
+				m_menuBarButtons[i]->Draw();
+
+			ImGui::End();
+			ImGui::PopStyleColor();
+
 			// File Menu
-			ImGui::PushStyleColor(ImGuiCol_Button, headerBGColor);
+			/*ImGui::PushStyleColor(ImGuiCol_Button, headerBGColor);
 			ImGui::SetCursorPosY(35);
 			static bool popupFile = false;
 			static bool popupEdit = false;
@@ -263,7 +286,7 @@ namespace LinaEditor
 
 				ImGui::EndPopup();
 			}
-/*
+
 			// Save level dialogue.
 			if (igfd::ImGuiFileDialog::Instance()->FileDialog(saveFileDialogueID))
 			{
@@ -356,13 +379,11 @@ namespace LinaEditor
 			}
 			
 			
-			ImGui::EndMenuBar();
-			*/
-			ImGui::PopStyleColor();
+			ImGui::EndMenuBar();	
+			ImGui::PopStyleColor();*/
 
 
-			ImGui::End();
-			ImGui::PopStyleColor();
+		
 		}
 	}
 
