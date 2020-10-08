@@ -73,6 +73,7 @@ LinaEngine::Application* LinaEngine::CreateApplication()
 	props.m_Height = 900;
 	props.m_decorated = false;
 	props.m_resizable = false;
+	props.m_Title = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
 	return new LinaEditor::EditorApplication(props);
 }
 

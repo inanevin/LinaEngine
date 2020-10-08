@@ -28,12 +28,14 @@ Timestamp: 10/8/2020 1:39:19 PM
 #include "Core/GUILayer.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "imgui.h"
+#include "IconsFontAwesome5.h"
 
 ImVec4 menuBarBackground = ImVec4(0, 0, 0, 1);
 ImVec2 resizeStartPos;
 ImVec2 headerClickPos;
 LinaEngine::Vector2 resizeStartSize;
-LinaEngine::Graphics::Texture* logo;
+LinaEngine::Graphics::Texture* windowLogo;
+LinaEngine::Graphics::Texture* windowIcon;
 bool appResizeActive;
 
 #define RESIZE_THRESHOLD 10
@@ -46,8 +48,8 @@ namespace LinaEditor
 		m_appWindow = m_guiLayer->GetAppWindow();
 
 		// Logo texture
-		logo = &m_renderEngine->CreateTexture2D(LinaEngine::Utility::GetUniqueID(), "resources/textures/linaEngineText.png");
-
+		windowLogo = &m_renderEngine->CreateTexture2D(LinaEngine::Utility::GetUniqueID(), "resources/textures/linaEngineText.png");
+		windowIcon = &m_renderEngine->CreateTexture2D(LinaEngine::Utility::GetUniqueID(), "resources/textures/linaEngineIcon.png");
 	}
 
 	void HeaderPanel::Draw()
@@ -89,11 +91,12 @@ namespace LinaEditor
 					appResizeActive = false;
 				}
 			}
+
+			// Start drawing window.
 			ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y));
 			ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, 80));
 			ImGui::PushStyleColor(ImGuiCol_WindowBg, menuBarBackground);
 			ImGui::Begin("Header", NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
-
 
 			// Handle window movement.
 			if (ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
@@ -111,13 +114,22 @@ namespace LinaEditor
 					newPos.y = 0.0f;
 
 				m_appWindow->SetPos(newPos);
-
-
 			}
+
+			// Icon
+			ImGui::Image((void*)windowIcon->GetID(), ImVec2(16, 16), ImVec2(0, 1), ImVec2(1, 0));
+
+			// Title
+			ImGui::SameLine();
+			ImGui::Text(m_title.c_str());
+
+			ImGui::Text(ICON_FA_PAINT_BRUSH "  Paint");    // use string literal concatenation
 
 			ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - 115);
 			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 15);
-			ImGui::Image((void*)logo->GetID(), ImVec2(230, 27), ImVec2(0, 1), ImVec2(1, 0));
+
+			// Logo
+			ImGui::Image((void*)windowLogo->GetID(), ImVec2(230, 27), ImVec2(0, 1), ImVec2(1, 0));
 
 			ImGui::End();
 			ImGui::PopStyleColor();

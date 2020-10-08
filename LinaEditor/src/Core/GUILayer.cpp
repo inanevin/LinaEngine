@@ -41,6 +41,7 @@ Class: UILayer
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
+#include "IconsFontAwesome5.h"
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glad/glad.h>
@@ -71,15 +72,20 @@ namespace LinaEditor
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 
+		// Add default font.
 		io.Fonts->AddFontFromFileTTF("resources/fonts/Mukta-Medium.ttf", 20.0f, NULL)->Scale = 1;
 
+		// merge in icons from Font Awesome
+		static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+		ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
+		std::string fontPath = "resources/fonts/FontAwesome/" + std::string(FONT_ICON_FILE_NAME_FAS);
+		io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 16.0f, &icons_config, icons_ranges);
+		// use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
+
+		// Setup configuration flags.
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-		//	io.ConfigWindowsResizeFromEdges = true;
 
-			//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-			//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-			// Setup Dear ImGui style
+		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
 
 
@@ -159,7 +165,7 @@ namespace LinaEditor
 		m_scenePanel = new ScenePanel(Vector2::Zero, m_scenePanelSize, *this);
 		m_propertiesPanel = new PropertiesPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_logPanel = new LogPanel(Vector2::Zero, Vector2(700, 600), *this);
-		m_headerPanel = new HeaderPanel(Vector2::Zero, Vector2::Zero, *this);
+		m_headerPanel = new HeaderPanel(Vector2::Zero, Vector2::Zero, *this, m_appWindow->GetWindowProperties().m_Title);
 
 		m_ecsPanel->Setup();
 		m_ecsPanel->Open();

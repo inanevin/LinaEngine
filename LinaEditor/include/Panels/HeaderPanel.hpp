@@ -43,7 +43,7 @@ namespace LinaEditor
 
 	public:
 
-		HeaderPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) : EditorPanel(position, size, guiLayer) {};
+		HeaderPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer, const std::string& title) : EditorPanel(position, size, guiLayer) { m_title = title; };
 		virtual ~HeaderPanel() {};
 
 		virtual void Setup() override;
@@ -52,6 +52,7 @@ namespace LinaEditor
 
 	private:
 
+		std::string m_title;
 		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
 		LinaEngine::Graphics::Window* m_appWindow = nullptr;
 
