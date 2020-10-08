@@ -45,6 +45,9 @@ src/Levels/GroundCubeSystem.cpp
 # Utility
 src/Utility/EditorUtility.cpp
 
+# Widgets
+src/Widgets/MenuButton.cpp
+
 # ImGui
 src/imgui/imgui_impl_opengl3.cpp
 src/imgui/imgui_impl_glfw.cpp
@@ -80,6 +83,9 @@ include/Panels/HeaderPanel.hpp
 
 # Utility
 include/Utility/EditorUtility.hpp
+
+# Widgets
+include/Widgets/MenuButton.hpp
 
 # ImGuizmo
 include/imgui/imguizmo/ImCurveEdit.h

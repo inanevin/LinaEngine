@@ -79,7 +79,7 @@ namespace LinaEngine::Graphics
 	bool GLWindow::CreateContext(WindowProperties& propsIn)
 	{
 		LINA_CORE_TRACE("[Initialization] -> GLWindow ({0})", typeid(*this).name());
-		
+
 		// Set props.
 		m_windowProperties = propsIn;
 
@@ -91,7 +91,7 @@ namespace LinaEngine::Graphics
 		glfwWindowHint(GLFW_SAMPLES, 4);
 		glfwWindowHint(GLFW_DECORATED, m_windowProperties.m_decorated);
 		glfwWindowHint(GLFW_RESIZABLE, m_windowProperties.m_resizable);
-	
+
 		if (propsIn.m_windowState == WindowState::ICONIFIED)
 			glfwWindowHint(GLFW_ICONIFIED, GLFW_TRUE);
 		else if (propsIn.m_windowState == WindowState::MAXIMIZED)
@@ -122,13 +122,13 @@ namespace LinaEngine::Graphics
 			LINA_CORE_ERR("GLAD Loader failed!");
 			return false;
 		}
-	
+
 		// Update OpenGL about the window data.
 		glViewport(0, 0, m_windowProperties.m_Width, m_windowProperties.m_Height);
 
 		// set user pointer for callbacks.
 		glfwSetWindowUserPointer(m_glfwWindow, this);
-	
+
 		auto windowResizeFunc = [](GLFWwindow* w, int wi, int he)
 		{
 			static_cast<GLWindow*>(glfwGetWindowUserPointer(w))->WindowResized(w, wi, he);
@@ -254,14 +254,14 @@ namespace LinaEngine::Graphics
 	void GLWindow::WindowResized(void* window, int width, int height)
 	{
 		m_windowProperties.m_Width = width;
-		m_windowProperties.m_Height = height;		
+		m_windowProperties.m_Height = height;
 		m_windowResizeCallback(Vector2((float)width, (float)height));
 	}
 
 	void GLWindow::WindowClosed(void* window)
 	{
-		if(m_windowCloseCallback)
-		m_windowCloseCallback();
+		if (m_windowCloseCallback)
+			m_windowCloseCallback();
 	}
 
 	void GLWindow::WindowKeyCallback(void* window, int key, int scancode, int action, int mods)
@@ -269,14 +269,14 @@ namespace LinaEngine::Graphics
 		switch (action)
 		{
 		case GLFW_PRESS:
-			
+
 			break;
 		case GLFW_RELEASE:
-			
+
 			break;
 
 		case GLFW_REPEAT:
-			
+
 			break;
 		}
 	}
@@ -286,28 +286,28 @@ namespace LinaEngine::Graphics
 		switch (action)
 		{
 		case GLFW_PRESS:
-			
+
 			break;
 
 		case GLFW_RELEASE:
-			
+
 			break;
 		}
 	}
 
 	void GLWindow::WindowMouseScrollCallback(void* window, double xOff, double yOff)
 	{
-		
+
 	}
 
 	void GLWindow::WindowCursorPosCallback(void* window, double xPos, double yPos)
 	{
-		
+
 	}
 
 	void GLWindow::WindowFocusCallback(void* window, int focused)
 	{
-		
+
 	}
 
 	void GLWindow::CharCallback(void* window, unsigned int keycode)
