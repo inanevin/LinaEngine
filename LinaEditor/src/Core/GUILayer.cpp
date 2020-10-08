@@ -56,11 +56,13 @@ static bool dockWindowInit = true;
 LinaEngine::Graphics::Texture* logo;
 
 ImVec4 m_menuBarBackground = ImVec4(0, 0, 0, 1);
-
+ImVec2 m_resizeStartPos;
+Vector2 m_resizeStartSize;
 ImVec2 m_headerClickPos;
-bool m_headerDragged;
-#define DOCKSPACE_BEGIN 100
+bool m_appResizeActive;
 
+#define DOCKSPACE_BEGIN 100
+#define RESIZE_THRESHOLD 10
 namespace LinaEditor
 {
 	void GUILayer::OnEvent()
@@ -80,12 +82,12 @@ namespace LinaEditor
 		io.Fonts->AddFontFromFileTTF("resources/fonts/Mukta-Medium.ttf", 20.0f, NULL)->Scale = 1;
 
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-	//	io.ConfigWindowsResizeFromEdges = true;
+		//	io.ConfigWindowsResizeFromEdges = true;
 
-		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+			//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+			//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-		// Setup Dear ImGui style
+			// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
 
 
@@ -220,34 +222,34 @@ namespace LinaEditor
 		DrawHeader();
 
 		// Draw main docking space.
-	DrawCentralDockingSpace();
+		DrawCentralDockingSpace();
 
-	// Draw tools
-	// DrawTools();
+		// Draw tools
+		// DrawTools();
 
-	// Draw overlay fps counter
-	DrawFPSCounter(&m_FPSCounterOpen, 1);
+		// Draw overlay fps counter
+		DrawFPSCounter(&m_FPSCounterOpen, 1);
 
-	//// Draw material panel.
-	//m_MaterialPanel->Draw();
+		//// Draw material panel.
+		//m_MaterialPanel->Draw();
 
-	// Draw resources panel
-	m_ResourcesPanel->Draw();
+		// Draw resources panel
+		m_ResourcesPanel->Draw();
 
-	// Draw ECS Panel.
-	m_ECSPanel->Draw();
+		// Draw ECS Panel.
+		m_ECSPanel->Draw();
 
-	// Draw Scene Panel
-	m_ScenePanel->Draw();
+		// Draw Scene Panel
+		m_ScenePanel->Draw();
 
-	// Draw Log Panel
-	m_LogPanel->Draw();
+		// Draw Log Panel
+		m_LogPanel->Draw();
 
-	// Draw properties panel
-	m_PropertiesPanel->Draw();
+		// Draw properties panel
+		m_PropertiesPanel->Draw();
 
-	if (showIMGUIDemo)
-		ImGui::ShowDemoWindow(&showIMGUIDemo);
+		if (showIMGUIDemo)
+			ImGui::ShowDemoWindow(&showIMGUIDemo);
 
 		// Rendering
 		ImGui::Render();
@@ -257,16 +259,51 @@ namespace LinaEditor
 	void GUILayer::DrawHeader()
 	{
 		ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+		// Handle app window resize.
+		bool horizontalResize = Math::Abs(ImGui::GetMousePos().x - viewport->Size.x) < RESIZE_THRESHOLD;
+		bool verticalResize = Math::Abs(ImGui::GetMousePos().y - viewport->Size.y) < RESIZE_THRESHOLD;
+
+		if (horizontalResize && !verticalResize)
+		{
+			ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+		}
+		else if (verticalResize && !horizontalResize)
+		{
+			ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
+		}
+		else if (verticalResize && horizontalResize)
+		{
+			ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
+		}
+
+		if (horizontalResize || verticalResize || m_appResizeActive)
+		{
+			if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
+			{
+				m_appResizeActive = true;
+				ImVec2 delta = ImVec2(ImGui::GetMousePos().x - m_resizeStartPos.x, ImGui::GetMousePos().y - m_resizeStartPos.y);
+
+				LINA_CLIENT_TRACE("{0}   {1}", delta.x, delta.y);
+				m_appWindow->SetSize(Vector2(m_resizeStartSize.x + delta.x, m_resizeStartSize.y + delta.y));
+			}
+			else
+			{
+				m_resizeStartSize = m_appWindow->GetSize();
+				m_resizeStartPos = ImGui::GetMousePos();
+				m_appResizeActive = false;
+			}
+		}
 		ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y));
 		ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, 80));
 		ImGui::PushStyleColor(ImGuiCol_WindowBg, m_menuBarBackground);
 		ImGui::Begin("Header", NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
-		
+
+		// Handle window movement.
 		if (ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
 		{
 			m_headerClickPos = ImGui::GetMousePos();
-			m_headerDragged = true;
 
 			ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 			Vector2 windowPos = m_appWindow->GetPos();
@@ -280,11 +317,6 @@ namespace LinaEditor
 
 			m_appWindow->SetPos(newPos);
 
-
-		}
-
-		if (m_headerDragged)
-		{
 
 		}
 
@@ -350,7 +382,7 @@ namespace LinaEditor
 			ImGui::SetNextWindowViewport(viewport->ID);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |  ImGuiWindowFlags_NoMove;
+			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
 			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 		}
 
@@ -368,7 +400,7 @@ namespace LinaEditor
 
 		ImGui::Begin("DockSpace", NULL, window_flags);
 
-	
+
 		ImGui::PopStyleVar();
 
 		if (opt_fullscreen)
@@ -549,7 +581,7 @@ namespace LinaEditor
 			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 15);
 			ImGui::Image((void*)logo->GetID(), ImVec2(230, 27), ImVec2(0, 1), ImVec2(1, 0));
 
-		
+
 
 			ImGui::EndMenuBar();
 

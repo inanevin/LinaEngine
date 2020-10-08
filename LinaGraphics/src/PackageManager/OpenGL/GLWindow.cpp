@@ -93,7 +93,6 @@ namespace LinaEngine::Graphics
 	{
 		m_windowProperties.m_xPos = newPos.x;
 		m_windowProperties.m_yPos = newPos.y;
-		std::cout << newPos.x << std::endl;
 		glfwSetWindowPos(m_glfwWindow, newPos.x, newPos.y);
 	}
 	static void GLFWErrorCallback(int error, const char* desc)
