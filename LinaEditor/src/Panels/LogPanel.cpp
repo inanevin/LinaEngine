@@ -30,7 +30,7 @@ namespace LinaEditor
 {
 	void LogPanel::Draw()
 	{
-		if (m_Show)
+		if (m_show)
 		{
 			
 			// Set window properties.
@@ -41,7 +41,7 @@ namespace LinaEditor
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 
-			if (ImGui::Begin("Log", &m_Show, flags))
+			if (ImGui::Begin("Log", &m_show, flags))
 			{
 
 			}

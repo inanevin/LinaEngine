@@ -41,9 +41,9 @@ namespace LinaEditor
 	void ECSPanel::Setup()
 	{
 		// Store references.
-		m_ECS = m_GUILayer->GetECS();
-		m_ScenePanel = m_GUILayer->GetScenePanel();
-		m_PropertiesPanel = m_GUILayer->GetPropertiesPanel();
+		m_ECS = m_guiLayer->GetECS();
+		m_ScenePanel = m_guiLayer->GetScenePanel();
+		m_PropertiesPanel = m_guiLayer->GetPropertiesPanel();
 		
 		// Refresh entity list.
 		Refresh();
@@ -65,7 +65,7 @@ namespace LinaEditor
 
 	void ECSPanel::Draw()
 	{
-		if (m_Show)
+		if (m_show)
 		{
 			
 			// Set window properties.
@@ -76,7 +76,7 @@ namespace LinaEditor
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 
-			if (ImGui::Begin("Entities", &m_Show, flags))
+			if (ImGui::Begin("Entities", &m_show, flags))
 			{
 				// Statics.
 				static char selectedEntityName[256] = "Entity";

@@ -72,13 +72,16 @@ namespace LinaEditor
 		bool markedForErase = false;
 	};
 
+	class GUILayer;
+	class PropertiesPanel;
+
 	class ResourcesPanel : public EditorPanel
 	{
 
 	public:
 
 		
-		ResourcesPanel(Vector2 position, Vector2 size, class GUILayer& guiLayer) :EditorPanel(position, size, guiLayer) {};
+		ResourcesPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) :EditorPanel(position, size, guiLayer) {};
 		virtual ~ResourcesPanel() {};
 	
 		virtual void Draw() override;
@@ -98,8 +101,8 @@ namespace LinaEditor
 
 	private:
 
-		class LinaEngine::Graphics::RenderEngine* m_RenderEngine;
-		class PropertiesPanel* m_PropertiesPanel;
+		LinaEngine::Graphics::RenderEngine* m_RenderEngine;
+		PropertiesPanel* m_PropertiesPanel;
 		std::vector<EditorFolder> m_ResourceFolders;
 	};
 }

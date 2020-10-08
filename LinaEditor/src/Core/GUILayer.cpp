@@ -26,6 +26,7 @@ Class: UILayer
 #include "Panels/ScenePanel.hpp"
 #include "Panels/PropertiesPanel.hpp"
 #include "Panels/LogPanel.hpp"
+#include "Panels/HeaderPanel.hpp"
 #include "Utility/Log.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Utility/UtilityFunctions.hpp"
@@ -45,24 +46,15 @@ Class: UILayer
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-static bool rightClickedContentBrowser = false;
 static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-static bool isECSPanelOpen;
 static bool showIMGUIDemo;
 static bool setDockspaceLayout = true;
 static bool physicsDebugEnabled = false;
 static bool dockWindowInit = true;
 
-LinaEngine::Graphics::Texture* logo;
-
-ImVec4 m_menuBarBackground = ImVec4(0, 0, 0, 1);
-ImVec2 m_resizeStartPos;
-Vector2 m_resizeStartSize;
-ImVec2 m_headerClickPos;
-bool m_appResizeActive;
 
 #define DOCKSPACE_BEGIN 100
-#define RESIZE_THRESHOLD 10
+
 namespace LinaEditor
 {
 	void GUILayer::OnEvent()
@@ -160,38 +152,37 @@ namespace LinaEditor
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 
 
-
-
 		// setup panels, windows etc.
-		m_ECSPanel = new ECSPanel(Vector2::Zero, Vector2(700, 600), *this);
-		m_MaterialPanel = new MaterialPanel(Vector2::Zero, Vector2(700, 600), *this);
-		m_ResourcesPanel = new ResourcesPanel(Vector2::Zero, Vector2(700, 400), *this);
-		m_ScenePanel = new ScenePanel(Vector2::Zero, m_scenePanelSize, *this);
-		m_PropertiesPanel = new PropertiesPanel(Vector2::Zero, Vector2(700, 600), *this);
-		m_LogPanel = new LogPanel(Vector2::Zero, Vector2(700, 600), *this);
+		m_ecsPanel = new ECSPanel(Vector2::Zero, Vector2(700, 600), *this);
+		m_materialPanel = new MaterialPanel(Vector2::Zero, Vector2(700, 600), *this);
+		m_resourcesPanel = new ResourcesPanel(Vector2::Zero, Vector2(700, 400), *this);
+		m_scenePanel = new ScenePanel(Vector2::Zero, m_scenePanelSize, *this);
+		m_propertiesPanel = new PropertiesPanel(Vector2::Zero, Vector2(700, 600), *this);
+		m_logPanel = new LogPanel(Vector2::Zero, Vector2(700, 600), *this);
+		m_headerPanel = new HeaderPanel(Vector2::Zero, Vector2::Zero, *this);
 
-		m_ECSPanel->Setup();
-		m_ECSPanel->Open();
+		m_ecsPanel->Setup();
+		m_ecsPanel->Open();
 
-		m_MaterialPanel->Setup();
-		m_MaterialPanel->Open();
+		m_materialPanel->Setup();
+		m_materialPanel->Open();
 
-		m_ResourcesPanel->Setup();
-		m_ResourcesPanel->Open();
+		m_resourcesPanel->Setup();
+		m_resourcesPanel->Open();
 
-		m_ScenePanel->Setup();
-		m_ScenePanel->Open();
+		m_scenePanel->Setup();
+		m_scenePanel->Open();
 
-		m_PropertiesPanel->Setup();
-		m_PropertiesPanel->Open();
+		m_propertiesPanel->Setup();
+		m_propertiesPanel->Open();
 
-		m_LogPanel->Setup();
-		m_LogPanel->Open();
+		m_logPanel->Setup();
+		m_logPanel->Open();
+
+		m_headerPanel->Setup();
+		m_headerPanel->Open();
 
 		setDockspaceLayout = true;
-
-		// Logo texture
-		logo = &m_RenderEngine->CreateTexture2D(LinaEngine::Utility::GetUniqueID(), "resources/textures/linaEngineText.png");
 	}
 
 	void GUILayer::OnDetach()
@@ -203,10 +194,10 @@ namespace LinaEditor
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 
-		delete m_ECSPanel;
-		delete m_MaterialPanel;
-		delete m_ResourcesPanel;
-		delete m_ScenePanel;
+		delete m_ecsPanel;
+		delete m_materialPanel;
+		delete m_resourcesPanel;
+		delete m_scenePanel;
 	}
 
 
@@ -219,34 +210,31 @@ namespace LinaEditor
 		ImGui::NewFrame();
 
 		// Top header.
-		DrawHeader();
+		m_headerPanel->Draw();
 
 		// Draw main docking space.
 		DrawCentralDockingSpace();
 
-		// Draw tools
-		// DrawTools();
-
 		// Draw overlay fps counter
-		DrawFPSCounter(&m_FPSCounterOpen, 1);
+		DrawFPSCounter(1);
 
 		//// Draw material panel.
 		//m_MaterialPanel->Draw();
 
 		// Draw resources panel
-		m_ResourcesPanel->Draw();
+		m_resourcesPanel->Draw();
 
 		// Draw ECS Panel.
-		m_ECSPanel->Draw();
+		m_ecsPanel->Draw();
 
 		// Draw Scene Panel
-		m_ScenePanel->Draw();
+		m_scenePanel->Draw();
 
 		// Draw Log Panel
-		m_LogPanel->Draw();
+		m_logPanel->Draw();
 
 		// Draw properties panel
-		m_PropertiesPanel->Draw();
+		m_propertiesPanel->Draw();
 
 		if (showIMGUIDemo)
 			ImGui::ShowDemoWindow(&showIMGUIDemo);
@@ -256,86 +244,7 @@ namespace LinaEditor
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	}
 
-	void GUILayer::DrawHeader()
-	{
-		ImGuiViewport* viewport = ImGui::GetMainViewport();
-
-		// Handle app window resize.
-		bool horizontalResize = Math::Abs(ImGui::GetMousePos().x - viewport->Size.x) < RESIZE_THRESHOLD;
-		bool verticalResize = Math::Abs(ImGui::GetMousePos().y - viewport->Size.y) < RESIZE_THRESHOLD;
-
-		if (horizontalResize && !verticalResize)
-		{
-			ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
-		}
-		else if (verticalResize && !horizontalResize)
-		{
-			ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
-		}
-		else if (verticalResize && horizontalResize)
-		{
-			ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
-		}
-
-		if (horizontalResize || verticalResize || m_appResizeActive)
-		{
-			if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
-			{
-				m_appResizeActive = true;
-				ImVec2 delta = ImVec2(ImGui::GetMousePos().x - m_resizeStartPos.x, ImGui::GetMousePos().y - m_resizeStartPos.y);
-
-				LINA_CLIENT_TRACE("{0}   {1}", delta.x, delta.y);
-				m_appWindow->SetSize(Vector2(m_resizeStartSize.x + delta.x, m_resizeStartSize.y + delta.y));
-			}
-			else
-			{
-				m_resizeStartSize = m_appWindow->GetSize();
-				m_resizeStartPos = ImGui::GetMousePos();
-				m_appResizeActive = false;
-			}
-		}
-		ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y));
-		ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, 80));
-		ImGui::PushStyleColor(ImGuiCol_WindowBg, m_menuBarBackground);
-		ImGui::Begin("Header", NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
-
-
-		// Handle window movement.
-		if (ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
-		{
-			m_headerClickPos = ImGui::GetMousePos();
-
-			ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
-			Vector2 windowPos = m_appWindow->GetPos();
-			Vector2 newPos = Vector2(windowPos.x + delta.x, windowPos.y + delta.y);
-
-			if (newPos.x < 0.0f)
-				newPos.x = 0.0f;
-
-			if (newPos.y < 0.0f)
-				newPos.y = 0.0f;
-
-			m_appWindow->SetPos(newPos);
-
-
-		}
-
-
-
-		ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - 115);
-		ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 15);
-		ImGui::Image((void*)logo->GetID(), ImVec2(230, 27), ImVec2(0, 1), ImVec2(1, 0));
-
-		ImGui::End();
-		ImGui::PopStyleColor();
-	}
-
-	void GUILayer::DrawTools(bool* p_open, int corner)
-	{
-
-	}
-
-	void GUILayer::DrawFPSCounter(bool* p_open, int corner)
+	void GUILayer::DrawFPSCounter(int corner)
 	{
 		// FIXME-VIEWPORT: Select a default viewport
 		const float DISTANCE = 10.0f;
@@ -353,11 +262,11 @@ namespace LinaEditor
 
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
 
-		if (ImGui::Begin("FPSOverlay", p_open, window_flags))
+		if (ImGui::Begin("FPSOverlay", NULL, window_flags))
 		{
 			ImGui::Text("FPS Overlay");
 			ImGui::Separator();
-			std::string fpsText = std::to_string(m_Application->GetCurrentFPS()) + " Frames per second";
+			std::string fpsText = std::to_string(m_application->GetCurrentFPS()) + " Frames per second";
 			ImGui::Text(fpsText.c_str());
 		}
 		ImGui::End();
@@ -497,7 +406,7 @@ namespace LinaEditor
 					size_t lastIndex = fileName.find_last_of(".");
 					std::string rawName = fileName.substr(0, lastIndex);
 
-					m_CurrentLevel->SerializeLevelData(filePath, rawName, *m_CurrentLevel, *m_ECS);
+					m_currentLevel->SerializeLevelData(filePath, rawName, *m_currentLevel, *m_ecs);
 
 					igfd::ImGuiFileDialog::Instance()->CloseDialog(saveFileDialogueID);
 				}
@@ -518,10 +427,10 @@ namespace LinaEditor
 					std::string rawName = fileName.substr(0, lastIndex);
 
 					// Load level data.
-					World::Level::DeserializeLevelData(filePath, rawName, *m_CurrentLevel, *m_ECS);
+					World::Level::DeserializeLevelData(filePath, rawName, *m_currentLevel, *m_ecs);
 
 					// Refresh ECS panel.
-					m_ECSPanel->Refresh();
+					m_ecsPanel->Refresh();
 
 					igfd::ImGuiFileDialog::Instance()->CloseDialog(loadFileDialogueID);
 				}
@@ -535,17 +444,17 @@ namespace LinaEditor
 			if (ImGui::BeginMenu("Panels"))
 			{
 				if (ImGui::MenuItem("Entity Panel"))
-					m_ECSPanel->Open();
+					m_ecsPanel->Open();
 				if (ImGui::MenuItem("Material Panel"))
-					m_MaterialPanel->Open();
+					m_materialPanel->Open();
 				if (ImGui::MenuItem("Scene Panel"))
-					m_ScenePanel->Open();
+					m_scenePanel->Open();
 				if (ImGui::MenuItem("Resources Panel"))
-					m_ResourcesPanel->Open();
+					m_resourcesPanel->Open();
 				if (ImGui::MenuItem("Properties Panel"))
-					m_PropertiesPanel->Open();
+					m_propertiesPanel->Open();
 				if (ImGui::MenuItem("Log Panel"))
-					m_LogPanel->Open();
+					m_logPanel->Open();
 				if (ImGui::MenuItem("IMGUI Demo"))
 					showIMGUIDemo = true;
 
@@ -562,10 +471,10 @@ namespace LinaEditor
 				}
 
 				if (ImGui::MenuItem("Draw Final Image"))
-					m_ScenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::FinalImage);
+					m_scenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::FinalImage);
 
 				if (ImGui::MenuItem("Draw Shadow Map"))
-					m_ScenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::ShadowMap);
+					m_scenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::ShadowMap);
 
 				ImGui::EndMenu();
 			}
@@ -575,12 +484,6 @@ namespace LinaEditor
 			{
 				ImGui::EndMenu();
 			}
-
-
-			ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - 115);
-			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 15);
-			ImGui::Image((void*)logo->GetID(), ImVec2(230, 27), ImVec2(0, 1), ImVec2(1, 0));
-
 
 
 			ImGui::EndMenuBar();

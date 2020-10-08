@@ -13,44 +13,48 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: ECSPanel
-Timestamp: 5/23/2020 4:15:06 PM
+Class: HeaderPanel
+Timestamp: 10/8/2020 1:39:03 PM
 
 */
 #pragma once
 
-#ifndef ECSPanel_HPP
-#define ECSPanel_HPP
+#ifndef HeaderPanel_HPP
+#define HeaderPanel_HPP
 
+// Headers here.
 #include "Panels/EditorPanel.hpp"
-#include "ECS/ECS.hpp"
+
+namespace LinaEngine
+{
+	namespace Graphics
+	{
+		class RenderEngine;
+		class Window;
+	}
+}
 
 namespace LinaEditor
 {
-	class ScenePanel;
-	class PropertiesPanel;
 	class GUILayer;
 
-	class ECSPanel : public EditorPanel
+	class HeaderPanel : public EditorPanel
 	{
-		
+
 	public:
-		
-		ECSPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size,GUILayer& guiLayer) : EditorPanel(position,size, guiLayer) {};
-		virtual ~ECSPanel() {};
-	
+
+		HeaderPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) : EditorPanel(position, size, guiLayer) {};
+		virtual ~HeaderPanel() {};
+
 		virtual void Setup() override;
 		virtual void Draw() override;
 
-		void Refresh();
 
 	private:
 
-		ScenePanel* m_ScenePanel;
-		PropertiesPanel* m_PropertiesPanel;
-		LinaEngine::ECS::ECSRegistry* m_ECS;
-		LinaEngine::ECS::ECSEntity m_SelectedEntity;
-		std::vector<LinaEngine::ECS::ECSEntity> m_EntityList;
+		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
+		LinaEngine::Graphics::Window* m_appWindow = nullptr;
+
 	};
 }
 

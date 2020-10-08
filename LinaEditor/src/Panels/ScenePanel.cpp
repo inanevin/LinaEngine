@@ -44,7 +44,7 @@ namespace LinaEditor
 	{
 		ImGuizmo::BeginFrame();
 
-		if (m_Show)
+		if (m_show)
 		{
 
 			// Set window properties.
@@ -54,7 +54,7 @@ namespace LinaEditor
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 
-			if (ImGui::Begin("Scene", &m_Show, flags))
+			if (ImGui::Begin("Scene", &m_show, flags))
 			{
 
 				// Get game viewport aspect.
@@ -108,7 +108,7 @@ namespace LinaEditor
 
 	void ScenePanel::Setup()
 	{
-		m_RenderEngine = m_GUILayer->GetRenderEngine();
+		m_RenderEngine = m_guiLayer->GetRenderEngine();
 
 	}
 

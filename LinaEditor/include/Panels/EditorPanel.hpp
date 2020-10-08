@@ -27,28 +27,28 @@ Timestamp: 5/23/2020 4:16:05 PM
 
 namespace LinaEditor
 {
-	using namespace LinaEngine;
+	class GUILayer;
 
 	class EditorPanel
 	{
 
 	public:
 		
-		EditorPanel(Vector2 position, Vector2 size, class GUILayer& guiLayer) : m_Position(position), m_Size(size), m_GUILayer(&guiLayer) { };
+		EditorPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) : m_Position(position), m_Size(size), m_guiLayer(&guiLayer) { };
 		virtual ~EditorPanel() {};
 	
-		virtual FORCEINLINE void Open() { m_Show = true; }
-		virtual FORCEINLINE void Close() { m_Show = false; }
+		virtual FORCEINLINE void Open() { m_show = true; }
+		virtual FORCEINLINE void Close() { m_show = false; }
 		virtual void Draw() = 0;
 		virtual void Setup() = 0;
-		FORCEINLINE bool* GetShow() { return &m_Show; }
+		FORCEINLINE bool* GetShow() { return &m_show; }
 
 	protected:
 
-		Vector2 m_Position;
-		Vector2 m_Size;
-		bool m_Show = false;
-		class GUILayer* m_GUILayer;
+		GUILayer* m_guiLayer;
+		LinaEngine::Vector2 m_Position;
+		LinaEngine::Vector2 m_Size;
+		bool m_show = false;
 	};
 }
 

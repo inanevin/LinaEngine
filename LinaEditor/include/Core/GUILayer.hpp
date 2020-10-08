@@ -66,33 +66,29 @@ namespace LinaEditor
 		FORCEINLINE void Setup(LinaEngine::Graphics::Window& window, LinaEngine::Graphics::RenderEngine& renderEngine, LinaEngine::Physics::PhysicsEngine& physicsEngine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::World::Level& level, const Vector2& scenePanelSize)
 		{ 
 			m_appWindow = &window;
-			m_RenderEngine = &renderEngine; 
+			m_renderEngine = &renderEngine; 
 			m_physicsEngine = &physicsEngine;
-			m_Application = application; 
-			m_ECS = &ecs;	
-			m_CurrentLevel = &level; 
+			m_application = application; 
+			m_ecs = &ecs;	
+			m_currentLevel = &level; 
 			m_scenePanelSize = scenePanelSize;
 		}
 
 		// Getters for references.
-		FORCEINLINE LinaEngine::ECS::ECSRegistry* GetECS() const { return m_ECS; }
-		FORCEINLINE class ECSPanel* GetECSPanel() const { return m_ECSPanel; }
-		FORCEINLINE class PropertiesPanel* GetPropertiesPanel() const { return m_PropertiesPanel; }
-		FORCEINLINE class MaterialPanel* GetMaterialPanel() const { return m_MaterialPanel; }
-		FORCEINLINE class ResourcesPanel* GetResourcesPanel() const { return m_ResourcesPanel; }
-		FORCEINLINE class ScenePanel* GetScenePanel() const { return m_ScenePanel; }
-		FORCEINLINE LinaEngine::Graphics::RenderEngine* GetRenderEngine() const { return m_RenderEngine; }	
+		FORCEINLINE LinaEngine::ECS::ECSRegistry* GetECS() const { return m_ecs; }
+		FORCEINLINE class ECSPanel* GetECSPanel() const { return m_ecsPanel; }
+		FORCEINLINE class PropertiesPanel* GetPropertiesPanel() const { return m_propertiesPanel; }
+		FORCEINLINE class MaterialPanel* GetMaterialPanel() const { return m_materialPanel; }
+		FORCEINLINE class ResourcesPanel* GetResourcesPanel() const { return m_resourcesPanel; }
+		FORCEINLINE class ScenePanel* GetScenePanel() const { return m_scenePanel; }
+		FORCEINLINE LinaEngine::Graphics::RenderEngine* GetRenderEngine() const { return m_renderEngine; }
+		FORCEINLINE class LinaEngine::Graphics::Window* GetAppWindow() const { return m_appWindow; }
 
 	private:
 
-		// Draws menubars, icons, maximize close buttons etc.
-		void DrawHeader();
-
-		// Draws a tools overlay.
-		void DrawTools(bool* p_open, int corner = 0);
 
 		// Draws an fps counter overlay.
-		void DrawFPSCounter(bool* p_open, int corner = 0);
+		void DrawFPSCounter(int corner = 0);
 
 		// Draws a central docking space.
 		void DrawCentralDockingSpace();
@@ -118,18 +114,18 @@ namespace LinaEditor
 	private:
 
 		LinaEngine::Graphics::Window* m_appWindow = nullptr;
-		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
+		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
 		LinaEngine::Physics::PhysicsEngine* m_physicsEngine = nullptr;
-		LinaEngine::ECS::ECSRegistry* m_ECS = nullptr;
-		LinaEngine::Application* m_Application = nullptr;
-		LinaEngine::World::Level* m_CurrentLevel = nullptr;
-		bool m_FPSCounterOpen = true;
-		class ECSPanel* m_ECSPanel;
-		class MaterialPanel* m_MaterialPanel;
-		class ResourcesPanel* m_ResourcesPanel;
-		class ScenePanel* m_ScenePanel;
-		class PropertiesPanel* m_PropertiesPanel;
-		class LogPanel* m_LogPanel;
+		LinaEngine::ECS::ECSRegistry* m_ecs = nullptr;
+		LinaEngine::Application* m_application = nullptr;
+		LinaEngine::World::Level* m_currentLevel = nullptr;
+		class ECSPanel* m_ecsPanel;
+		class MaterialPanel* m_materialPanel;
+		class ResourcesPanel* m_resourcesPanel;
+		class ScenePanel* m_scenePanel;
+		class PropertiesPanel* m_propertiesPanel;
+		class LogPanel* m_logPanel;
+		class HeaderPanel* m_headerPanel;
 		Vector2 m_scenePanelSize = Vector2::Zero;
 	};
 }

@@ -26,12 +26,14 @@ Timestamp: 6/7/2020 8:56:39 PM
 
 namespace LinaEditor
 {
+	class GUILayer;
+
 	class LogPanel : public EditorPanel
 	{
 		
 	public:
 		
-		LogPanel(Vector2 position, Vector2 size, class GUILayer& guiLayer) : EditorPanel(position, size, guiLayer) {};
+		LogPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) : EditorPanel(position, size, guiLayer) {};
 		virtual ~LogPanel() {};
 
 		virtual void Draw() override;

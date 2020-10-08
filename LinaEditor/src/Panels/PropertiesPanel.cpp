@@ -93,8 +93,8 @@ namespace LinaEditor
 
 	void PropertiesPanel::Setup()
 	{
-		m_ECS = m_GUILayer->GetECS();
-		m_RenderEngine = m_GUILayer->GetRenderEngine();
+		m_ECS = m_guiLayer->GetECS();
+		m_RenderEngine = m_guiLayer->GetRenderEngine();
 	}
 
 	void PropertiesPanel::Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path)
@@ -126,7 +126,7 @@ namespace LinaEditor
 				m_CurrentDrawType = DrawType::NONE;
 		}
 
-		if (m_Show)
+		if (m_show)
 		{
 			// Component already exists popup modal.
 			if (openCompExistsModal)
@@ -146,7 +146,7 @@ namespace LinaEditor
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 
-			if (ImGui::Begin("Properties", &m_Show, flags))
+			if (ImGui::Begin("Properties", &m_show, flags))
 			{
 				if (m_CurrentDrawType == DrawType::ENTITIES)
 					DrawEntityProperties();

@@ -37,6 +37,9 @@ namespace LinaEngine
 
 namespace LinaEditor
 {
+
+	class GUIlayer;
+
 	class ScenePanel : public EditorPanel
 	{
 	
@@ -49,7 +52,7 @@ namespace LinaEditor
 			ShadowMap
 		};
 		
-		ScenePanel(Vector2 position, Vector2 size, class GUILayer& guiLayer) :EditorPanel(position, size, guiLayer) {};
+		ScenePanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) :EditorPanel(position, size, guiLayer) {};
 		virtual ~ScenePanel() {};
 
 		virtual void Draw() override;
@@ -71,7 +74,7 @@ namespace LinaEditor
 
 		LinaEngine::ECS::TransformComponent* m_SelectedTransform = nullptr;
 		DrawMode m_drawMode = DrawMode::FinalImage;
-		class LinaEngine::Graphics::RenderEngine* m_RenderEngine;
+	    LinaEngine::Graphics::RenderEngine* m_RenderEngine;
 	};
 }
 

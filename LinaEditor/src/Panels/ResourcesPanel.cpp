@@ -42,7 +42,7 @@ namespace LinaEditor
 
 	void ResourcesPanel::Draw()
 	{
-		if (m_Show)
+		if (m_show)
 		{
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -53,7 +53,7 @@ namespace LinaEditor
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 
 
-			ImGui::Begin("Resources", &m_Show, flags);
+			ImGui::Begin("Resources", &m_show, flags);
 
 			DrawContent();
 			DrawFolder(m_ResourceFolders[0]);
@@ -64,8 +64,8 @@ namespace LinaEditor
 
 	void ResourcesPanel::Setup()
 	{
-		m_PropertiesPanel = m_GUILayer->GetPropertiesPanel();
-		m_RenderEngine = m_GUILayer->GetRenderEngine();
+		m_PropertiesPanel = m_guiLayer->GetPropertiesPanel();
+		m_RenderEngine = m_guiLayer->GetRenderEngine();
 		
 		// Scan root resources folder.
 		ScanRoot();

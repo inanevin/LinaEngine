@@ -26,14 +26,25 @@ Timestamp: 6/4/2020 8:31:22 PM
 #include "Utility/EditorUtility.hpp"
 #include "Rendering/Material.hpp"
 
+namespace LinaEngine
+{
+	namespace Graphics
+	{
+		class RenderEngine;
+		class Material;
+	}
+}
+
 namespace LinaEditor
 {
+	class GUIlayer;
+
 	class MaterialPanel : public EditorPanel
 	{
 		
 	public:
 		
-		MaterialPanel(Vector2 position, Vector2 size, class GUILayer& guiLayer) : EditorPanel(position, size, guiLayer) {};
+		MaterialPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) : EditorPanel(position, size, guiLayer) {};
 		virtual ~MaterialPanel() {};
 	
 		virtual void Draw() override;
@@ -43,7 +54,7 @@ namespace LinaEditor
 	private:
 	
 		LinaEngine::Graphics::Material* m_CurrentSelectedMaterial = nullptr;
-		class LinaEngine::Graphics::RenderEngine* m_RenderEngine;
+		LinaEngine::Graphics::RenderEngine* m_RenderEngine;
 	};
 }
 

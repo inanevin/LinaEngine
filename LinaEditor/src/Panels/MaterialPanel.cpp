@@ -34,7 +34,7 @@ namespace LinaEditor
 
 	void MaterialPanel::Draw()
 	{
-		if (m_Show)
+		if (m_show)
 		{
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -42,7 +42,7 @@ namespace LinaEditor
 			ImVec2 panelSize = ImVec2(m_Size.x, m_Size.y);
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(0.2f);
-			if (ImGui::Begin("Material Panel", &m_Show))
+			if (ImGui::Begin("Material Panel", &m_show))
 			{
 				if (m_CurrentSelectedMaterial != nullptr)
 				{
@@ -153,6 +153,6 @@ namespace LinaEditor
 
 	void MaterialPanel::Setup()
 	{
-		m_RenderEngine = m_GUILayer->GetRenderEngine();
+		m_RenderEngine = m_guiLayer->GetRenderEngine();
 	}
 }

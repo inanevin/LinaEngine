@@ -35,6 +35,7 @@ src/Panels/ResourcesPanel.cpp
 src/Panels/ScenePanel.cpp
 src/Panels/PropertiesPanel.cpp
 src/Panels/LogPanel.cpp
+src/Panels/HeaderPanel.cpp
 
 
 # World
@@ -75,6 +76,7 @@ include/Panels/ResourcesPanel.hpp
 include/Panels/ScenePanel.hpp
 include/Panels/PropertiesPanel.hpp
 include/Panels/LogPanel.hpp
+include/Panels/HeaderPanel.hpp
 
 # Utility
 include/Utility/EditorUtility.hpp
