@@ -57,6 +57,8 @@ LinaEngine::Graphics::Texture* logo;
 
 ImVec4 m_menuBarBackground = ImVec4(0, 0, 0, 1);
 
+ImVec2 m_headerClickPos;
+bool m_headerDragged;
 #define DOCKSPACE_BEGIN 100
 
 namespace LinaEditor
@@ -214,58 +216,86 @@ namespace LinaEditor
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		ImGuiViewport* viewport = ImGui::GetMainViewport();
-	
-		//ImGui::SetNextWindowPos(ImVec2(0, 0));
-		//ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, viewport->GetWorkSize().y));
-		//ImGui::Begin("MainWindow", 0,  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse 
-		//| ImGuiWindowFlags_NoBackground);
-		//
-		//ImGui::End();
-		ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y));
-		ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, 80));
-		ImGui::PushStyleColor(ImGuiCol_WindowBg, m_menuBarBackground);
-		ImGui::Begin("MenuBar", NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
-		
-		ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - 115);
-		ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 15);
-		ImGui::Image((void*)logo->GetID(), ImVec2(230, 27), ImVec2(0, 1), ImVec2(1, 0));
-		
-		ImGui::End();
-		ImGui::PopStyleColor();
+		// Top header.
+		DrawHeader();
+
 		// Draw main docking space.
-		DrawCentralDockingSpace();
+	DrawCentralDockingSpace();
 
-		// Draw tools
-		// DrawTools();
+	// Draw tools
+	// DrawTools();
 
-		// Draw overlay fps counter
-	//	DrawFPSCounter(&m_FPSCounterOpen, 1);
+	// Draw overlay fps counter
+	DrawFPSCounter(&m_FPSCounterOpen, 1);
 
-		//// Draw material panel.
-		//m_MaterialPanel->Draw();
+	//// Draw material panel.
+	//m_MaterialPanel->Draw();
 
-		// Draw resources panel
-		m_ResourcesPanel->Draw();
+	// Draw resources panel
+	m_ResourcesPanel->Draw();
 
-		// Draw ECS Panel.
-		m_ECSPanel->Draw();
+	// Draw ECS Panel.
+	m_ECSPanel->Draw();
 
-		// Draw Scene Panel
-		m_ScenePanel->Draw();
+	// Draw Scene Panel
+	m_ScenePanel->Draw();
 
-		// Draw Log Panel
-		m_LogPanel->Draw();
+	// Draw Log Panel
+	m_LogPanel->Draw();
 
-		// Draw properties panel
-		m_PropertiesPanel->Draw();
+	// Draw properties panel
+	m_PropertiesPanel->Draw();
 
-		if (showIMGUIDemo)
-			ImGui::ShowDemoWindow(&showIMGUIDemo);
+	if (showIMGUIDemo)
+		ImGui::ShowDemoWindow(&showIMGUIDemo);
 
 		// Rendering
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	}
+
+	void GUILayer::DrawHeader()
+	{
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y));
+		ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, 80));
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, m_menuBarBackground);
+		ImGui::Begin("Header", NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+
+		
+		if (ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
+		{
+			m_headerClickPos = ImGui::GetMousePos();
+			m_headerDragged = true;
+
+			ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
+			Vector2 windowPos = m_appWindow->GetPos();
+			Vector2 newPos = Vector2(windowPos.x + delta.x, windowPos.y + delta.y);
+
+			if (newPos.x < 0.0f)
+				newPos.x = 0.0f;
+
+			if (newPos.y < 0.0f)
+				newPos.y = 0.0f;
+
+			m_appWindow->SetPos(newPos);
+
+
+		}
+
+		if (m_headerDragged)
+		{
+
+		}
+
+
+
+		ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - 115);
+		ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 15);
+		ImGui::Image((void*)logo->GetID(), ImVec2(230, 27), ImVec2(0, 1), ImVec2(1, 0));
+
+		ImGui::End();
+		ImGui::PopStyleColor();
 	}
 
 	void GUILayer::DrawTools(bool* p_open, int corner)

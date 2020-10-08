@@ -54,10 +54,10 @@ namespace LinaEngine::Graphics
 		virtual double GetTime() override;
 
 		// Resizes the native window
-		virtual void SetWindowSize(const Vector2& newSize) override;
+		virtual void SetSize(const Vector2& newSize) override;
 
 		// Sets a new pos for the native window.
-		virtual void SetWindowPos(const Vector2& newPos) override;
+		virtual void SetPos(const Vector2& newPos) override;
 
 	private:
 

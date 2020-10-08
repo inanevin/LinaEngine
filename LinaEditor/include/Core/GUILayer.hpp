@@ -85,6 +85,8 @@ namespace LinaEditor
 
 	private:
 
+		// Draws menubars, icons, maximize close buttons etc.
+		void DrawHeader();
 
 		// Draws a tools overlay.
 		void DrawTools(bool* p_open, int corner = 0);

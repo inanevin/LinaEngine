@@ -55,10 +55,10 @@ namespace LinaEngine::Graphics
 		virtual double GetTime() = 0;
 
 		// Resizes the native window.
-		virtual void SetWindowSize(const Vector2& newSize) = 0;
+		virtual void SetSize(const Vector2& newSize) = 0;
 
 		// Sets a new position for the native window.
-		virtual void SetWindowPos(const Vector2& newPos) = 0;
+		virtual void SetPos(const Vector2& newPos) = 0;
 
 		// Get vsync state.
 		FORCEINLINE bool GetVsycnEnabled() { return m_windowProperties.vSyncEnabled; }

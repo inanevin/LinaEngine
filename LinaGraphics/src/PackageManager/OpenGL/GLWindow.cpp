@@ -82,21 +82,19 @@ namespace LinaEngine::Graphics
 		return glfwGetTime();
 	}
 
-	void GLWindow::SetWindowSize(const Vector2& newSize)
+	void GLWindow::SetSize(const Vector2& newSize)
 	{
 		glfwSetWindowSize(m_glfwWindow, newSize.x, newSize.y);
 		m_windowProperties.m_Width = newSize.x;
 		m_windowProperties.m_Height = newSize.y;
 	}
 
-	void GLWindow::SetWindowPos(const Vector2& newPos)
+	void GLWindow::SetPos(const Vector2& newPos)
 	{
-		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-		//glfwSetWindowPos(m_glfwWindow, (mode->width - (int)newPos.x) / 2, (mode->height - (int)newPos.y) / 2); // Center window
-
+		m_windowProperties.m_xPos = newPos.x;
+		m_windowProperties.m_yPos = newPos.y;
+		std::cout << newPos.x << std::endl;
 		glfwSetWindowPos(m_glfwWindow, newPos.x, newPos.y);
-		//m_windowProperties.m_xPos = newPos.x;
-		//m_windowProperties.m_yPos = newPos.y;
 	}
 	static void GLFWErrorCallback(int error, const char* desc)
 	{
