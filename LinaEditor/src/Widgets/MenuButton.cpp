@@ -22,6 +22,7 @@ Timestamp: 10/8/2020 9:02:44 PM
 #include "imgui.h"
 #include "Widgets/MenuButton.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "Utility/Log.hpp"
 
 namespace LinaEditor
 {
@@ -36,13 +37,12 @@ namespace LinaEditor
 		}
 	}
 
-	MenuButton::MenuButton(const char* title, std::vector<MenuElement*>& children, const LinaEngine::Color& bgColor, const LinaEngine::Color& activeColor) : MenuElement(title)
+	MenuButton::MenuButton(const char* title, const char* popupID,  std::vector<MenuElement*>& children, const LinaEngine::Color& bgColor, bool sameLine) : MenuElement(title)
 	{
 		m_children = children;
-		m_activeColor = activeColor;
 		m_bgColor = bgColor;
-		std::string id = LinaEngine::Utility::GetUniqueIDString();
-		m_popupID = id.c_str();
+		m_useSameLine = sameLine;
+		m_popupID = popupID;
 	}
 
 	MenuButton::~MenuButton()
@@ -53,30 +53,42 @@ namespace LinaEditor
 
 	void MenuButton::Draw()
 	{
-		static bool popupOpen = false;
+		
 
+		if(m_useSameLine)
+			ImGui::SameLine();
+
+		// Background color
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(m_bgColor.r, m_bgColor.g, m_bgColor.b, m_bgColor.a));
 
-		if (popupOpen)
+		// Active color if popup is openþ
+		if (m_popupOpen)
 			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered));
-		
-		if (ImGui::Button(m_title))
+
+		// Draw button.
+		ImGui::Button(m_title);
+
+		// Open popup
+		if (ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax()) && !m_popupOpen)
 			ImGui::OpenPopup(m_popupID);
 
-		if (popupOpen)
+		if (m_popupOpen)
 			ImGui::PopStyleColor();
 
 		ImGui::PopStyleColor();
 
+		// Draw popup
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y));
-		popupOpen = ImGui::BeginPopup(m_popupID);
-		if (popupOpen)
+		m_popupOpen = ImGui::BeginPopup(m_popupID);
+		if (m_popupOpen)
 		{
+
 			for (int i = 0; i < m_children.size(); i++)
 				m_children[i]->Draw();
 
 			ImGui::EndPopup();
 		}
+
 		
 	}
 

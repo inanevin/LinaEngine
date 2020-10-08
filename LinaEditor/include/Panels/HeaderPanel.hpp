@@ -51,6 +51,14 @@ namespace LinaEditor
 		virtual void Setup() override;
 		virtual void Draw() override;
 
+	private:
+
+		// Menu bar item callbacks.
+		void SaveLevelData();
+		void LoadLevelData();
+		void DebugPhysics();
+		void DebugShadowMap();
+		void DebugFinalTexture();
 
 	private:
 

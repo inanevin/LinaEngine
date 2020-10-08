@@ -63,13 +63,26 @@ namespace LinaEditor
 
 		// Add menu bar buttons.
 
-		// File Button
+		// File menu.
 		std::vector<MenuElement*> fileItems;
 		fileItems.emplace_back(new MenuItem(ICON_FA_FOLDER_PLUS " New Project", nullptr));
 		fileItems.emplace_back(new MenuItem(ICON_FA_FOLDER_OPEN " Open Project", nullptr));
 		fileItems.emplace_back(new MenuItem(ICON_FA_SAVE " Save Project", nullptr));
-		m_menuBarButtons.push_back(new MenuButton(ICON_FA_EDIT " File", fileItems, headerBGColor, menuBarButtonActiveColor));
+		m_menuBarButtons.push_back(new MenuButton(ICON_FA_FILE " File", "pu_file", fileItems, headerBGColor, false));
+		
+		// Edit menu.
+		std::vector<MenuElement*> edit;
+		m_menuBarButtons.emplace_back(new MenuButton(ICON_FA_EDIT " Edit", "pu_edit", edit, headerBGColor, true));
 
+		// View menu.
+		std::vector<MenuElement*> view;
+		m_menuBarButtons.emplace_back(new MenuButton(ICON_FA_EYE " View", "pu_view", view, headerBGColor, true));
+
+		// Levels menu.
+		std::vector<MenuElement*> level;
+		level.emplace_back(new MenuItem(ICON_FA_DOWNLOAD " Save Level Data", std::bind(&HeaderPanel::SaveLevelData, this)));
+		level.emplace_back(new MenuItem(ICON_FA_UPLOAD " Load Level Data", std::bind(&HeaderPanel::LoadLevelData, this)));
+		m_menuBarButtons.emplace_back(new MenuButton(ICON_FA_ARCHWAY " Level", "pu_level", level, headerBGColor, true));
 	}
 
 	void HeaderPanel::Draw()
@@ -182,6 +195,7 @@ namespace LinaEditor
 			ImGui::SetCursorPosY(35);
 			for (int i = 0; i < m_menuBarButtons.size(); i++)
 				m_menuBarButtons[i]->Draw();
+
 
 			ImGui::End();
 			ImGui::PopStyleColor();
@@ -385,6 +399,26 @@ namespace LinaEditor
 
 		
 		}
+	}
+
+	void HeaderPanel::SaveLevelData()
+	{
+	}
+
+	void HeaderPanel::LoadLevelData()
+	{
+	}
+
+	void HeaderPanel::DebugPhysics()
+	{
+	}
+
+	void HeaderPanel::DebugShadowMap()
+	{
+	}
+
+	void HeaderPanel::DebugFinalTexture()
+	{
 	}
 
 }

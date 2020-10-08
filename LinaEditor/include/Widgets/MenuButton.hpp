@@ -64,7 +64,7 @@ namespace LinaEditor
 		
 	public:
 		
-		MenuButton(const char* title, std::vector<MenuElement*>& children, const LinaEngine::Color& bgColor = LinaEngine::Color(0,0,0,0), const LinaEngine::Color& activeColor = LinaEngine::Color(0,0,0,0));
+		MenuButton(const char* title, const char* popupID, std::vector<MenuElement*>& children, const LinaEngine::Color& bgColor = LinaEngine::Color(0,0,0,0), bool useSameLine = false);
 		~MenuButton();
 
 		// Draw this item.
@@ -73,9 +73,10 @@ namespace LinaEditor
 	private:
 	
 		const char* m_popupID;
+		bool m_popupOpen = false;
+		bool m_useSameLine = false;
 		std::vector<MenuElement*> m_children;
 		LinaEngine::Color m_bgColor;
-		LinaEngine::Color m_activeColor;
 	};
 }
 
