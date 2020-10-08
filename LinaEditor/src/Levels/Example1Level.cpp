@@ -152,9 +152,8 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-	CreateProceduralSkybox(m_RenderEngine);
+	CreateHDRISkybox(m_RenderEngine);
 
-	return;
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);
 	auto& camTransform = m_ECS->emplace<TransformComponent>(camera);
@@ -203,7 +202,7 @@ void Example1Level::Initialize()
 	sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
-	//m_RenderEngine->SetHDRIData(sphereMat);
+	m_RenderEngine->SetHDRIData(sphereMat);
 
 
 	floorMaterial = &m_RenderEngine->CreateMaterial(-55, Shaders::PBR_LIT);
@@ -213,7 +212,7 @@ void Example1Level::Initialize()
 	floorMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicFloor);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoFloor);
 	floorMaterial->SetVector2(MAT_TILING, Vector2(100, 100));
-	//m_RenderEngine->SetHDRIData(floorMaterial);
+	m_RenderEngine->SetHDRIData(floorMaterial);
 
 	MeshRendererComponent cubeRenderer;
 	cubeRenderer.meshID = Primitives::CUBE;

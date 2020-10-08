@@ -53,7 +53,6 @@ namespace LinaEditor
 
 	void MenuButton::Draw()
 	{
-		
 
 		if(m_useSameLine)
 			ImGui::SameLine();

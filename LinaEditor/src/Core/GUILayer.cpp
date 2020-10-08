@@ -56,7 +56,7 @@ static bool dockWindowInit = true;
 static const char* saveLevelDialogID = "id_saveLevel";
 static const char* loadLevelDialogID = "id_loadLevel";
 
-#define DOCKSPACE_BEGIN 100
+#define DOCKSPACE_BEGIN 95
 
 namespace LinaEditor
 {
@@ -111,25 +111,27 @@ namespace LinaEditor
 
 		ImVec4* colors = ImGui::GetStyle().Colors;
 		style.AntiAliasedFill = false;
-		style.WindowRounding = 0.0f;
-		style.TabRounding = 0.0f;
-		style.ChildRounding = 0.0f;
-		style.PopupRounding = 0.0f;
-		style.FrameRounding = 0.0f;
-		style.ScrollbarRounding = 0.0f;
+		style.WindowRounding = 6.0f;
+		style.TabRounding = 4.0f;
+		style.ChildRounding = 1.0f;
+		style.PopupRounding = 3.0f;
+		style.FrameRounding = 6.0f;
+		style.ScrollbarRounding = 5.0f;
 		style.FramePadding = ImVec2(3, 5);
+		style.GrabRounding = 6.0f;
 		style.WindowMenuButtonPosition = ImGuiDir_None;
+
 		colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 		colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-		colors[ImGuiCol_WindowBg] = ImVec4(0.15f, 0.15f, 0.15f, 0.54f);
-		colors[ImGuiCol_ChildBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.54f);
+		colors[ImGuiCol_WindowBg] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+		colors[ImGuiCol_ChildBg] = ImVec4(0.07f, 0.07f, 0.07f, 0.54f);
 		colors[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
-		colors[ImGuiCol_Border] = ImVec4(0.11f, 0.11f, 0.11f, 0.54f);
+		colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
 		colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
 		colors[ImGuiCol_FrameBg] = ImVec4(0.11f, 0.11f, 0.11f, 0.54f);
 		colors[ImGuiCol_FrameBgHovered] = ImVec4(0.40f, 0.40f, 0.40f, 0.40f);
 		colors[ImGuiCol_FrameBgActive] = ImVec4(0.56f, 0.56f, 0.56f, 0.67f);
-		colors[ImGuiCol_TitleBg] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+		colors[ImGuiCol_TitleBg] = ImVec4(0.07f, 0.07f, 0.07f, 0.54f);
 		colors[ImGuiCol_TitleBgActive] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
 		colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
 		colors[ImGuiCol_MenuBarBg] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
@@ -146,7 +148,7 @@ namespace LinaEditor
 		colors[ImGuiCol_Header] = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
 		colors[ImGuiCol_HeaderHovered] = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
 		colors[ImGuiCol_HeaderActive] = ImVec4(0.44f, 0.44f, 0.44f, 1.00f);
-		colors[ImGuiCol_Separator] = ImVec4(0.17f, 0.17f, 0.17f, 1.00f);
+		colors[ImGuiCol_Separator] = ImVec4(0.07f, 0.07f, 0.07f, 1.00f);
 		colors[ImGuiCol_SeparatorHovered] = ImVec4(0.23f, 0.23f, 0.23f, 1.00f);
 		colors[ImGuiCol_SeparatorActive] = ImVec4(0.23f, 0.23f, 0.23f, 1.00f);
 		colors[ImGuiCol_ResizeGrip] = ImVec4(0.44f, 0.44f, 0.44f, 1.00f);
@@ -169,6 +171,7 @@ namespace LinaEditor
 		colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
 		colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+
 
 
 		// setup panels, windows etc.
@@ -255,7 +258,7 @@ namespace LinaEditor
 		// Draw properties panel
 		m_propertiesPanel->Draw();
 
-		//if (showIMGUIDemo)
+		if (showIMGUIDemo)
 		ImGui::ShowDemoWindow(&showIMGUIDemo);
 
 		// Rendering

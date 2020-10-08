@@ -30,6 +30,7 @@ Timestamp: 10/8/2020 1:39:19 PM
 #include "imgui.h"
 #include "IconsFontAwesome5.h"
 #include "IconsForkAwesome.h"
+
 LinaEngine::Color headerBGColor = LinaEngine::Color(0, 0, 0, 1);
 LinaEngine::Color headerButtonsColor = LinaEngine::Color(1, 1, 1, 1); // ImVec4(113.f / 255.f, 36.f / 255.f, 78.f / 255.f, 1);
 LinaEngine::Color menuBarButtonActiveColor = LinaEngine::Color(0.5f, 0.5f, 0.5f, 1.0f);
@@ -40,8 +41,11 @@ LinaEngine::Vector2 resizeStartSize;
 LinaEngine::Graphics::Texture* windowLogo;
 LinaEngine::Graphics::Texture* windowIcon;
 bool appResizeActive;
+bool isAxisPivotLocal;
 
 #define RESIZE_THRESHOLD 10
+#define HEIGHT_HEADER 95
+#define OFFSET_WINDOWBUTTONS 80
 
 
 namespace LinaEditor
@@ -101,12 +105,12 @@ namespace LinaEditor
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_COLUMNS*/ "Panels", "pu_panel", panels, headerBGColor, true));
 
 		// Debug menu
-		std::vector<MenuElement*> debug;
-		
+		std::vector<MenuElement*> debug;		
 		debug.emplace_back(new MenuItem(ICON_FA_BOXES " Debug View Physics", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewPhysics)));
 		debug.emplace_back(new MenuItem(ICON_FA_ADJUST " Debug View Shadows", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewShadows)));
 		debug.emplace_back(new MenuItem(ICON_FA_IMAGES " Debug View Normal", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewNormal)));
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_BUG*/ "Debug", "dbg_panel", debug, headerBGColor, true));
+
 	}
 
 	void HeaderPanel::Draw()
@@ -151,9 +155,9 @@ namespace LinaEditor
 
 			// Start drawing window.
 			ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y));
-			ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, 80));
+			ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, HEIGHT_HEADER));
 			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(headerBGColor.r, headerBGColor.g, headerBGColor.b, headerBGColor.a));
-			ImGui::Begin("Header", NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+			ImGui::Begin("Header", NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration);
 
 			// Handle window movement.
 			if (ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
@@ -182,7 +186,7 @@ namespace LinaEditor
 
 			// Minimize, maximize, exit buttons.
 			ImGui::SameLine();
-			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - 80.0f);
+			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - OFFSET_WINDOWBUTTONS);
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - linaLogoSize.y / 2.0f);
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(headerBGColor.r, headerBGColor.g, headerBGColor.b, headerBGColor.a));
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(headerButtonsColor.r, headerButtonsColor.g, headerButtonsColor.b, headerButtonsColor.a));
@@ -221,7 +225,44 @@ namespace LinaEditor
 			for (int i = 0; i < m_menuBarButtons.size(); i++)
 				m_menuBarButtons[i]->Draw();
 
-			
+			// Draw Tool Buttons
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(headerBGColor.r, headerBGColor.g, headerBGColor.b, headerBGColor.a));
+
+			// Move
+			if (ImGui::Button(ICON_FA_ARROWS_ALT))
+			{
+
+			}
+
+			// Rotate
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_FA_SYNC))
+			{
+
+			}
+			// Scale
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_FA_COMPRESS_ALT))
+			{
+
+			}
+
+			static const char* pivotButtonText = ICON_FA_GLOBE;
+
+			// Change pivot
+			ImGui::SameLine();
+			if (ImGui::Button(pivotButtonText))
+			{
+				isAxisPivotLocal = !isAxisPivotLocal;
+
+				if(isAxisPivotLocal)
+					pivotButtonText = ICON_FA_THUMBTACK;
+				else
+					pivotButtonText = ICON_FA_GLOBE;
+				
+			}
+
+			ImGui::PopStyleColor();
 			ImGui::End();
 			ImGui::PopStyleColor();
 
