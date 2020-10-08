@@ -157,7 +157,6 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::SetViewportDisplay(Vector2 pos, Vector2 size)
 	{
-		LINA_CORE_TRACE("Requested display size X: {0} -- Y: {1}", size.x, size.y);
 		m_renderDevice.SetViewport(pos, size);
 		m_viewportPos = pos;
 		m_viewportSize = size;

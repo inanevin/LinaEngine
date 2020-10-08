@@ -82,11 +82,22 @@ namespace LinaEngine::Graphics
 		return glfwGetTime();
 	}
 
-	void GLWindow::Resize(const Vector2& newSize)
+	void GLWindow::SetWindowSize(const Vector2& newSize)
 	{
-		glfwSetWindowSize(static_cast<GLFWwindow*>(m_window), newSize.x, newSize.y);
+		glfwSetWindowSize(m_glfwWindow, newSize.x, newSize.y);
+		m_windowProperties.m_Width = newSize.x;
+		m_windowProperties.m_Height = newSize.y;
 	}
 
+	void GLWindow::SetWindowPos(const Vector2& newPos)
+	{
+		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		//glfwSetWindowPos(m_glfwWindow, (mode->width - (int)newPos.x) / 2, (mode->height - (int)newPos.y) / 2); // Center window
+
+		glfwSetWindowPos(m_glfwWindow, newPos.x, newPos.y);
+		//m_windowProperties.m_xPos = newPos.x;
+		//m_windowProperties.m_yPos = newPos.y;
+	}
 	static void GLFWErrorCallback(int error, const char* desc)
 	{
 		LINA_CORE_ERR("GLFW Error: {0} Description: {1} ", error, desc);
@@ -112,12 +123,10 @@ namespace LinaEngine::Graphics
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-
-
 		// Create window
-		GLFWwindow* window = (glfwCreateWindow(m_windowProperties.m_Width, m_windowProperties.m_Height, m_windowProperties.m_Title.c_str(), NULL, NULL));
+		m_glfwWindow = (glfwCreateWindow(m_windowProperties.m_Width, m_windowProperties.m_Height, m_windowProperties.m_Title.c_str(), NULL, NULL));
 
-		if (!window)
+		if (!m_glfwWindow)
 		{
 			// Assert window creation.
 			LINA_CORE_ERR("GLFW could not initialize!");
@@ -127,7 +136,7 @@ namespace LinaEngine::Graphics
 		glfwSetErrorCallback(GLFWErrorCallback);
 
 		// Set context.
-		glfwMakeContextCurrent(window);
+		glfwMakeContextCurrent(m_glfwWindow);
 		// Load glad
 		bool loaded = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		if (!loaded)
@@ -141,7 +150,7 @@ namespace LinaEngine::Graphics
 		glViewport(0, 0, m_windowProperties.m_Width, m_windowProperties.m_Height);
 
 		// set user pointer for callbacks.
-		glfwSetWindowUserPointer(window, this);
+		glfwSetWindowUserPointer(m_glfwWindow, this);
 	
 		auto windowResizeFunc = [](GLFWwindow* w, int wi, int he)
 		{
@@ -196,18 +205,18 @@ namespace LinaEngine::Graphics
 
 
 		// Register window callbacks.
-		glfwSetFramebufferSizeCallback(window, windowResizeFunc);
-		glfwSetWindowCloseCallback(window, windowCloseFunc);
-		glfwSetKeyCallback(window, windowKeyFunc);
-		glfwSetMouseButtonCallback(window, windowButtonFunc);
-		glfwSetScrollCallback(window, windowMouseScrollFunc);
-		glfwSetCursorPosCallback(window, windowCursorPosFunc);
-		glfwSetWindowFocusCallback(window, windowFocusFunc);
-		glfwSetCharCallback(window, charFunc);
-		glfwSetKeyCallback(window, keyPressedFunc);
-		glfwSetMouseButtonCallback(window, mousePressedFunc);
+		glfwSetFramebufferSizeCallback(m_glfwWindow, windowResizeFunc);
+		glfwSetWindowCloseCallback(m_glfwWindow, windowCloseFunc);
+		glfwSetKeyCallback(m_glfwWindow, windowKeyFunc);
+		glfwSetMouseButtonCallback(m_glfwWindow, windowButtonFunc);
+		glfwSetScrollCallback(m_glfwWindow, windowMouseScrollFunc);
+		glfwSetCursorPosCallback(m_glfwWindow, windowCursorPosFunc);
+		glfwSetWindowFocusCallback(m_glfwWindow, windowFocusFunc);
+		glfwSetCharCallback(m_glfwWindow, charFunc);
+		glfwSetKeyCallback(m_glfwWindow, keyPressedFunc);
+		glfwSetMouseButtonCallback(m_glfwWindow, mousePressedFunc);
 
-		m_window = static_cast<void*>(window);
+		m_window = static_cast<void*>(m_glfwWindow);
 		return true;
 	}
 

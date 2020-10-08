@@ -55,7 +55,10 @@ namespace LinaEngine::Graphics
 		virtual double GetTime() = 0;
 
 		// Resizes the native window.
-		virtual void Resize(const Vector2& newSize) = 0;
+		virtual void SetWindowSize(const Vector2& newSize) = 0;
+
+		// Sets a new position for the native window.
+		virtual void SetWindowPos(const Vector2& newPos) = 0;
 
 		// Get vsync state.
 		FORCEINLINE bool GetVsycnEnabled() { return m_windowProperties.vSyncEnabled; }
@@ -68,6 +71,12 @@ namespace LinaEngine::Graphics
 
 		// Gets size
 		FORCEINLINE Vector2 GetSize() { return Vector2(m_windowProperties.m_Width, m_windowProperties.m_Height); }
+
+		// Gets the current window position.
+		FORCEINLINE Vector2 GetPos() { return Vector2(m_windowProperties.m_xPos, m_windowProperties.m_yPos); }
+
+		// Getter for window props
+		FORCEINLINE const WindowProperties& GetWindowProperties() { return m_windowProperties; }
 
 		// Set event callbacks.
 		FORCEINLINE void SetKeyCallback(std::function<void(int, int)>& callback) { m_keyCallback = callback; }

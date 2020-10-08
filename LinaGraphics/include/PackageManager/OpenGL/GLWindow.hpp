@@ -25,6 +25,9 @@ Timestamp: 4/14/2019 5:12:19 PM
 #include "Rendering/RenderingCommon.hpp"
 #include "Rendering/Window.hpp"
 
+struct GLFWwindow;
+
+
 namespace LinaEngine::Graphics
 {
 
@@ -51,7 +54,10 @@ namespace LinaEngine::Graphics
 		virtual double GetTime() override;
 
 		// Resizes the native window
-		virtual void Resize(const Vector2& newSize);
+		virtual void SetWindowSize(const Vector2& newSize) override;
+
+		// Sets a new pos for the native window.
+		virtual void SetWindowPos(const Vector2& newPos) override;
 
 	private:
 
@@ -72,6 +78,7 @@ namespace LinaEngine::Graphics
 
 
 		void* m_window = nullptr;
+		GLFWwindow* m_glfwWindow = nullptr;
 		
 	};
 }

@@ -286,6 +286,8 @@ namespace LinaEngine::Graphics
 		std::string m_Title;
 		unsigned int m_Width;
 		unsigned int m_Height;
+		unsigned int m_xPos = 0;
+		unsigned int m_yPos = 0;
 		bool vSyncEnabled;
 		bool m_decorated = true;
 		bool m_resizable = true;
