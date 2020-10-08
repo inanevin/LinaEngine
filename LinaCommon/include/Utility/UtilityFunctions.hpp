@@ -31,6 +31,9 @@ namespace LinaEngine
 		// Gets a unique ID
 		int GetUniqueID();
 
+		// Gets a UniqueID as string
+		std::string GetUniqueIDString();
+
 		// Create a unique hash from string.
 		size_t StringToHash(std::string str);
 

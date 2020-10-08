@@ -21,6 +21,7 @@ Timestamp: 10/8/2020 9:02:44 PM
 
 #include "imgui.h"
 #include "Widgets/MenuButton.hpp"
+#include "Utility/UtilityFunctions.hpp"
 
 namespace LinaEditor
 {
@@ -34,11 +35,8 @@ namespace LinaEditor
 
 	MenuButtonItem::~MenuButtonItem()
 	{
-		if (m_childrenSize != 0)
-		{
-			for (int i = 0; i < m_childrenSize; i++)
-				delete m_children[i];
-		}
+		for (int i = 0; i < m_childrenSize; i++)
+			delete m_children[i];
 	}
 
 	void MenuButtonItem::Draw()
@@ -49,4 +47,51 @@ namespace LinaEditor
 				m_onClick();
 		}
 	}
+
+
+	MenuButton::MenuButton(const char* title, size_t childrenSize, MenuButtonItem** children, const LinaEngine::Color& bgColor, const LinaEngine::Color& activeColor)
+	{
+		m_title = title;
+		m_childrenSize = childrenSize;
+		m_children = children;
+		m_bgColor = bgColor;
+		m_activeColor = activeColor;
+		m_popupID = LinaEngine::Utility::GetUniqueIDString().c_str();
+	}
+
+	MenuButton::~MenuButton()
+	{
+		for(int i = 0; i < m_childrenSize; i++)
+			delete m_children[i];
+	}
+
+	void MenuButton::Draw()
+	{
+		static bool popupOpen = false;
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(m_bgColor.r, m_bgColor.g, m_bgColor.b, m_bgColor.a));
+
+		if (popupOpen)
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(m_activeColor.r, m_activeColor.g, m_activeColor.b, m_activeColor.a));
+
+		if (ImGui::Button(m_title))
+			ImGui::OpenPopup(m_popupID);
+
+		if (popupOpen)
+			ImGui::PopStyleColor();
+
+		ImGui::PopStyleColor();
+
+		popupOpen = ImGui::BeginPopup(m_popupID);
+		ImGui::SetNextWindowPos(ImVec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y));
+		if (popupOpen)
+		{
+			for (int i = 0; i < m_childrenSize; i++)
+				m_children[i]->Draw();
+
+			ImGui::EndPopup();
+		}
+		
+	}
+
 }

@@ -23,13 +23,19 @@ Timestamp: 10/8/2020 9:02:33 PM
 #define MenuButton_HPP
 
 // Headers here.
+#include "Utility/Math/Color.hpp"
 #include <functional>
 
 namespace LinaEditor
 {
+	class MenuButton;
 
 	class MenuButtonItem
 	{
+	private:
+
+		friend class MenuButton;
+
 		MenuButtonItem(const char* title, std::function<void()>& onClick, size_t childrenSize = 0, MenuButtonItem** children = nullptr);
 		~MenuButtonItem();
 
@@ -49,11 +55,20 @@ namespace LinaEditor
 		
 	public:
 		
-		MenuButton();
+		MenuButton(const char* title, size_t childrenSize, MenuButtonItem** children, const LinaEngine::Color& bgColor = LinaEngine::Color(0,0,0,0), const LinaEngine::Color& activeColor = LinaEngine::Color(0,0,0,0));
 		~MenuButton();
+
+		// Draw this item.
+		void Draw();
 	
 	private:
 	
+		const char* m_title;
+		const char* m_popupID;
+		MenuButtonItem** m_children;
+		size_t m_childrenSize;
+		LinaEngine::Color m_bgColor;
+		LinaEngine::Color m_activeColor;
 	};
 }
 
