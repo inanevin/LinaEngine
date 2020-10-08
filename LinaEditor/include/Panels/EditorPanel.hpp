@@ -29,8 +29,20 @@ namespace LinaEditor
 {
 	class GUILayer;
 
+	enum class Panels
+	{
+		ECSPanel = 0,
+		HeaderPanel = 1,
+		LogPanel = 2,
+		MaterialPanel = 3,
+		PropertiesPanel = 4,
+		ResourcesPanel = 5,
+		ScenePanel = 6
+	};
+
 	class EditorPanel
 	{
+		
 
 	public:
 		

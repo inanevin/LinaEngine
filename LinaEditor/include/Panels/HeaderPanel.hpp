@@ -56,6 +56,7 @@ namespace LinaEditor
 		// Menu bar item callbacks.
 		void SaveLevelData();
 		void LoadLevelData();
+		void OpenPanel(Panels panel);
 		void DebugPhysics();
 		void DebugShadowMap();
 		void DebugFinalTexture();

@@ -83,6 +83,51 @@ namespace LinaEditor
 		level.emplace_back(new MenuItem(ICON_FA_DOWNLOAD " Save Level Data", std::bind(&HeaderPanel::SaveLevelData, this)));
 		level.emplace_back(new MenuItem(ICON_FA_UPLOAD " Load Level Data", std::bind(&HeaderPanel::LoadLevelData, this)));
 		m_menuBarButtons.emplace_back(new MenuButton(ICON_FA_ARCHWAY " Level", "pu_level", level, headerBGColor, true));
+
+		// Panels menu
+		std::vector<MenuElement*> panels;
+		panels.emplace_back(new MenuItem(ICON_FA_DOWNLOAD " Entity Panel", std::bind(&HeaderPanel::OpenPanel, this, Panels::ECSPanel, std::placeholders::_1)));
+		panels.emplace_back(new MenuItem(ICON_FA_UPLOAD " Load Level Data", std::bind(&HeaderPanel::LoadLevelData, this)));
+		m_menuBarButtons.emplace_back(new MenuButton(ICON_FA_COLUMNS " Level", "pu_panel", panels, headerBGColor, true));
+
+		if (ImGui::BeginMenu("Panels"))
+		{
+			if (ImGui::MenuItem("Entity Panel"))
+				m_ecsPanel->Open();
+			if (ImGui::MenuItem("Material Panel"))
+				m_materialPanel->Open();
+			if (ImGui::MenuItem("Scene Panel"))
+				m_scenePanel->Open();
+			if (ImGui::MenuItem("Resources Panel"))
+				m_resourcesPanel->Open();
+			if (ImGui::MenuItem("Properties Panel"))
+				m_propertiesPanel->Open();
+			if (ImGui::MenuItem("Log Panel"))
+				m_logPanel->Open();
+			if (ImGui::MenuItem("IMGUI Demo"))
+				showIMGUIDemo = true;
+
+			ImGui::EndMenu();
+		}
+
+
+		if (ImGui::BeginMenu("Debug"))
+		{
+
+			if (ImGui::MenuItem("Physics Debug", NULL, &physicsDebugEnabled))
+			{
+				m_physicsEngine->SetDebugDraw(physicsDebugEnabled);
+			}
+
+			if (ImGui::MenuItem("Draw Final Image"))
+				m_scenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::FinalImage);
+
+			if (ImGui::MenuItem("Draw Shadow Map"))
+				m_scenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::ShadowMap);
+
+			ImGui::EndMenu();
+		}
+
 	}
 
 	void HeaderPanel::Draw()
