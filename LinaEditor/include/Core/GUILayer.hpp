@@ -93,9 +93,6 @@ namespace LinaEditor
 		// Draws a central docking space.
 		void DrawCentralDockingSpace();
 
-		// Draws top menu bar
-		void DrawMenuBar();
-
 		// Draw content browser.
 		void DrawContentBrowserWindow();
 

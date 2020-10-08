@@ -29,9 +29,11 @@ Timestamp: 10/8/2020 1:39:19 PM
 #include "Utility/UtilityFunctions.hpp"
 #include "imgui.h"
 #include "IconsFontAwesome5.h"
+#include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 
 ImVec4 headerBGColor = ImVec4(0, 0, 0, 1);
 ImVec4 headerButtonsColor = ImVec4(1, 1, 1, 1); // ImVec4(113.f / 255.f, 36.f / 255.f, 78.f / 255.f, 1);
+ImVec4 menuBarButtonActiveColor = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
 ImVec2 resizeStartPos;
 ImVec2 headerClickPos;
 ImVec2 linaLogoSize = ImVec2(160, 18);
@@ -132,20 +134,21 @@ namespace LinaEditor
 			ImGui::PushStyleColor(ImGuiCol_Button, headerBGColor);
 			ImGui::PushStyleColor(ImGuiCol_Text, headerButtonsColor);
 		
+			// Minimize
 			if (ImGui::Button(ICON_FA_WINDOW_MINIMIZE))
 			{
 				m_appWindow->Iconify();
 			}
 
+			// Maximize/Restore
 			ImGui::SameLine();
-
 			if (ImGui::Button(ICON_FA_WINDOW_MAXIMIZE))
 			{
 				m_appWindow->Maximize();
 			}
 
+			// Exit.
 			ImGui::SameLine();
-
 			if (ImGui::Button(ICON_FA_WINDOW_CLOSE))
 			{
 				m_appWindow->Close();
@@ -160,7 +163,204 @@ namespace LinaEditor
 			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + linaLogoSize.y / 2.0f + 15);
 			ImGui::Image((void*)windowLogo->GetID(), linaLogoSize, ImVec2(0, 1), ImVec2(1, 0));
 
-		
+			// File Menu
+			ImGui::PushStyleColor(ImGuiCol_Button, headerBGColor);
+			ImGui::SetCursorPosY(35);
+			static bool popupFile = false;
+			static bool popupEdit = false;
+			static bool popupView = false;
+			static bool popupLevels = false;
+			static bool popupPanels = false;
+			static bool popupDebug = false;
+			static bool popupHelp = false;
+
+			// File.
+			if (popupFile)
+				ImGui::PushStyleColor(ImGuiCol_Button, menuBarButtonActiveColor);
+
+			if (ImGui::Button(ICON_FA_FILE " File"))
+				ImGui::OpenPopup("popup_file");
+
+			if (popupFile)
+				ImGui::PopStyleColor();
+			
+			ImGui::SetNextWindowPos(ImVec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y));
+			popupFile = ImGui::BeginPopup("popup_file");
+			if (popupFile)
+			{
+				ImGui::TextDisabled(ICON_FA_FOLDER_PLUS " New Project");
+				ImGui::TextDisabled(ICON_FA_FOLDER_OPEN " Open Project");
+				ImGui::TextDisabled(ICON_FA_SAVE " Save Project");
+				ImGui::EndPopup();
+			}
+
+			// Edit 
+			if (popupEdit)
+				ImGui::PushStyleColor(ImGuiCol_Button, menuBarButtonActiveColor);
+
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_FA_EDIT " Edit"))
+				ImGui::OpenPopup("popup_edit");
+
+			if (popupEdit)
+				ImGui::PopStyleColor();
+
+			ImGui::SetNextWindowPos(ImVec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y));
+			popupEdit = ImGui::BeginPopup("popup_edit");
+			if (popupEdit)
+			{
+				ImGui::EndPopup();
+			}
+
+
+			// Eye 
+			if (popupView)
+				ImGui::PushStyleColor(ImGuiCol_Button, menuBarButtonActiveColor);
+
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_FA_EYE" View"))
+				ImGui::OpenPopup("popup_view");
+
+			if (popupView)
+				ImGui::PopStyleColor();
+
+			ImGui::SetNextWindowPos(ImVec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y));
+			popupView = ImGui::BeginPopup("popup_view");
+			if (popupView)
+			{
+				ImGui::EndPopup();
+			}
+
+			// Level
+			std::string saveFileDialogueID = "Save Level";
+			std::string loadFileDialogueID = "Load Level";
+
+			if(popupLevels)
+				ImGui::PushStyleColor(ImGuiCol_Button, menuBarButtonActiveColor);
+
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_FA_ARCHWAY " Levels"))
+				ImGui::OpenPopup("popup_levels");
+
+			if (popupLevels)
+				ImGui::PopStyleColor();
+
+			ImGui::SetNextWindowPos(ImVec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y));
+			popupLevels = ImGui::BeginPopup("popup_levels");
+			if (popupLevels)
+			{
+
+				if (ImGui::MenuItem(ICON_FA_DOWNLOAD " Save Level Data"))
+				{
+					// Save level.
+					igfd::ImGuiFileDialog::Instance()->OpenDialog(saveFileDialogueID, "Choose File", ".linaleveldata", ".");
+				}
+				if (ImGui::MenuItem(ICON_FA_UPLOAD " Load Level Data"))
+				{
+					// Load level.
+					igfd::ImGuiFileDialog::Instance()->OpenDialog(loadFileDialogueID, "Choose File", ".linaleveldata", ".");
+				}
+
+				ImGui::EndPopup();
+			}
+/*
+			// Save level dialogue.
+			if (igfd::ImGuiFileDialog::Instance()->FileDialog(saveFileDialogueID))
+			{
+				// action if OK
+				if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
+				{
+					std::string filePathName = igfd::ImGuiFileDialog::Instance()->GetFilepathName();
+					std::string filePath = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
+					std::string fileName = igfd::ImGuiFileDialog::Instance()->GetCurrentFileName();
+					size_t lastIndex = fileName.find_last_of(".");
+					std::string rawName = fileName.substr(0, lastIndex);
+
+					m_currentLevel->SerializeLevelData(filePath, rawName, *m_currentLevel, *m_ecs);
+
+					igfd::ImGuiFileDialog::Instance()->CloseDialog(saveFileDialogueID);
+				}
+
+				igfd::ImGuiFileDialog::Instance()->CloseDialog(saveFileDialogueID);
+			}
+
+			// Load level dialogue.
+			if (igfd::ImGuiFileDialog::Instance()->FileDialog(loadFileDialogueID))
+			{
+				// action if OK
+				if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
+				{
+					std::string filePathName = igfd::ImGuiFileDialog::Instance()->GetFilepathName();
+					std::string filePath = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
+					std::string fileName = igfd::ImGuiFileDialog::Instance()->GetCurrentFileName();
+					size_t lastIndex = fileName.find_last_of(".");
+					std::string rawName = fileName.substr(0, lastIndex);
+
+					// Load level data.
+					World::Level::DeserializeLevelData(filePath, rawName, *m_currentLevel, *m_ecs);
+
+					// Refresh ECS panel.
+					m_ecsPanel->Refresh();
+
+					igfd::ImGuiFileDialog::Instance()->CloseDialog(loadFileDialogueID);
+				}
+
+				igfd::ImGuiFileDialog::Instance()->CloseDialog(loadFileDialogueID);
+
+			}
+
+
+			// Panels menu bar
+			if (ImGui::BeginMenu("Panels"))
+			{
+				if (ImGui::MenuItem("Entity Panel"))
+					m_ecsPanel->Open();
+				if (ImGui::MenuItem("Material Panel"))
+					m_materialPanel->Open();
+				if (ImGui::MenuItem("Scene Panel"))
+					m_scenePanel->Open();
+				if (ImGui::MenuItem("Resources Panel"))
+					m_resourcesPanel->Open();
+				if (ImGui::MenuItem("Properties Panel"))
+					m_propertiesPanel->Open();
+				if (ImGui::MenuItem("Log Panel"))
+					m_logPanel->Open();
+				if (ImGui::MenuItem("IMGUI Demo"))
+					showIMGUIDemo = true;
+
+				ImGui::EndMenu();
+			}
+
+
+			if (ImGui::BeginMenu("Debug"))
+			{
+
+				if (ImGui::MenuItem("Physics Debug", NULL, &physicsDebugEnabled))
+				{
+					m_physicsEngine->SetDebugDraw(physicsDebugEnabled);
+				}
+
+				if (ImGui::MenuItem("Draw Final Image"))
+					m_scenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::FinalImage);
+
+				if (ImGui::MenuItem("Draw Shadow Map"))
+					m_scenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::ShadowMap);
+
+				ImGui::EndMenu();
+			}
+
+
+			if (ImGui::BeginMenu("Help"))
+			{
+				ImGui::EndMenu();
+			}
+			
+			
+			ImGui::EndMenuBar();
+			*/
+			ImGui::PopStyleColor();
+
+
 			ImGui::End();
 			ImGui::PopStyleColor();
 		}
