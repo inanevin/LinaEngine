@@ -59,6 +59,15 @@ namespace LinaEngine::Graphics
 		// Sets a new pos for the native window.
 		virtual void SetPos(const Vector2& newPos) override;
 
+		// Minimizes the window.
+		virtual void Iconify() override;
+
+		// Maximizes the window.
+		virtual void Maximize() override;
+
+		// Closes the application.
+		virtual void Close() override;
+
 	private:
 
 
@@ -79,7 +88,8 @@ namespace LinaEngine::Graphics
 
 		void* m_window = nullptr;
 		GLFWwindow* m_glfwWindow = nullptr;
-		
+
+
 	};
 }
 

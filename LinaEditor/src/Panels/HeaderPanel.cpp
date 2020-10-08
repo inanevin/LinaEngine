@@ -30,9 +30,11 @@ Timestamp: 10/8/2020 1:39:19 PM
 #include "imgui.h"
 #include "IconsFontAwesome5.h"
 
-ImVec4 menuBarBackground = ImVec4(0, 0, 0, 1);
+ImVec4 headerBGColor = ImVec4(0, 0, 0, 1);
+ImVec4 headerButtonsColor = ImVec4(1, 1, 1, 1); // ImVec4(113.f / 255.f, 36.f / 255.f, 78.f / 255.f, 1);
 ImVec2 resizeStartPos;
 ImVec2 headerClickPos;
+ImVec2 linaLogoSize = ImVec2(160, 18);
 LinaEngine::Vector2 resizeStartSize;
 LinaEngine::Graphics::Texture* windowLogo;
 LinaEngine::Graphics::Texture* windowIcon;
@@ -95,7 +97,7 @@ namespace LinaEditor
 			// Start drawing window.
 			ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y));
 			ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, 80));
-			ImGui::PushStyleColor(ImGuiCol_WindowBg, menuBarBackground);
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, headerBGColor);
 			ImGui::Begin("Header", NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
 			// Handle window movement.
@@ -123,14 +125,42 @@ namespace LinaEditor
 			ImGui::SameLine();
 			ImGui::Text(m_title.c_str());
 
-			ImGui::Text(ICON_FA_PAINT_BRUSH "  Paint");    // use string literal concatenation
+			// Minimize, maximize, exit buttons.
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - 105);
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - linaLogoSize.y / 2.0f);
+			ImGui::PushStyleColor(ImGuiCol_Button, headerBGColor);
+			ImGui::PushStyleColor(ImGuiCol_Text, headerButtonsColor);
+		
+			if (ImGui::Button(ICON_FA_WINDOW_MINIMIZE))
+			{
+				m_appWindow->Iconify();
+			}
 
-			ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - 115);
-			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + 15);
+			ImGui::SameLine();
+
+			if (ImGui::Button(ICON_FA_WINDOW_MAXIMIZE))
+			{
+				m_appWindow->Maximize();
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button(ICON_FA_WINDOW_CLOSE))
+			{
+				m_appWindow->Close();
+			}
+
+			ImGui::PopStyleColor();
+			ImGui::PopStyleColor();
 
 			// Logo
-			ImGui::Image((void*)windowLogo->GetID(), ImVec2(230, 27), ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - linaLogoSize.x / 2.0f);
+			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + linaLogoSize.y / 2.0f + 15);
+			ImGui::Image((void*)windowLogo->GetID(), linaLogoSize, ImVec2(0, 1), ImVec2(1, 0));
 
+		
 			ImGui::End();
 			ImGui::PopStyleColor();
 		}

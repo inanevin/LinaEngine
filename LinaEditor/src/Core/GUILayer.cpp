@@ -43,6 +43,7 @@ Class: UILayer
 #include "imgui_internal.h"
 #include "IconsFontAwesome5.h"
 
+
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -242,7 +243,7 @@ namespace LinaEditor
 		// Draw properties panel
 		m_propertiesPanel->Draw();
 
-		if (showIMGUIDemo)
+		//if (showIMGUIDemo)
 			ImGui::ShowDemoWindow(&showIMGUIDemo);
 
 		// Rendering

@@ -60,6 +60,15 @@ namespace LinaEngine::Graphics
 		// Sets a new position for the native window.
 		virtual void SetPos(const Vector2& newPos) = 0;
 
+		// Minimizes the window.
+		virtual void Iconify() = 0;
+
+		// Maximizes the window.
+		virtual void Maximize() = 0;
+
+		// Closes the application.
+		virtual void Close() = 0;
+
 		// Get vsync state.
 		FORCEINLINE bool GetVsycnEnabled() { return m_windowProperties.vSyncEnabled; }
 

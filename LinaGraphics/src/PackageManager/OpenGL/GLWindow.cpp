@@ -71,30 +71,6 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void GLWindow::SetVsync(bool enabled)
-	{
-		Window::SetVsync(enabled);
-		glfwSwapInterval(enabled);
-	}
-
-	double GLWindow::GetTime()
-	{
-		return glfwGetTime();
-	}
-
-	void GLWindow::SetSize(const Vector2& newSize)
-	{
-		glfwSetWindowSize(m_glfwWindow, newSize.x, newSize.y);
-		m_windowProperties.m_Width = newSize.x;
-		m_windowProperties.m_Height = newSize.y;
-	}
-
-	void GLWindow::SetPos(const Vector2& newPos)
-	{
-		m_windowProperties.m_xPos = newPos.x;
-		m_windowProperties.m_yPos = newPos.y;
-		glfwSetWindowPos(m_glfwWindow, newPos.x, newPos.y);
-	}
 	static void GLFWErrorCallback(int error, const char* desc)
 	{
 		LINA_CORE_ERR("GLFW Error: {0} Description: {1} ", error, desc);
@@ -218,6 +194,49 @@ namespace LinaEngine::Graphics
 	}
 
 
+
+	void GLWindow::SetVsync(bool enabled)
+	{
+		Window::SetVsync(enabled);
+		glfwSwapInterval(enabled);
+	}
+
+	double GLWindow::GetTime()
+	{
+		return glfwGetTime();
+	}
+
+	void GLWindow::SetSize(const Vector2& newSize)
+	{
+		glfwSetWindowSize(m_glfwWindow, newSize.x, newSize.y);
+		m_windowProperties.m_Width = newSize.x;
+		m_windowProperties.m_Height = newSize.y;
+	}
+
+	void GLWindow::SetPos(const Vector2& newPos)
+	{
+		m_windowProperties.m_xPos = newPos.x;
+		m_windowProperties.m_yPos = newPos.y;
+		glfwSetWindowPos(m_glfwWindow, newPos.x, newPos.y);
+	}
+
+
+	void GLWindow::Iconify()
+	{
+		glfwIconifyWindow(m_glfwWindow);
+	}
+
+	void GLWindow::Maximize()
+	{
+		glfwMaximizeWindow(m_glfwWindow);
+	}
+
+	void GLWindow::Close()
+	{
+		WindowClosed(m_window);
+	}
+
+
 	void GLWindow::WindowResized(void* window, int width, int height)
 	{
 		m_windowProperties.m_Width = width;
@@ -227,6 +246,7 @@ namespace LinaEngine::Graphics
 
 	void GLWindow::WindowClosed(void* window)
 	{
+		if(m_windowCloseCallback)
 		m_windowCloseCallback();
 	}
 
@@ -289,6 +309,7 @@ namespace LinaEngine::Graphics
 	{
 		m_mouseCallback(button, action);
 	}
+
 
 }
 
