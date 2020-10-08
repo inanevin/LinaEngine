@@ -29,7 +29,7 @@ Timestamp: 10/8/2020 1:39:19 PM
 #include "Utility/UtilityFunctions.hpp"
 #include "imgui.h"
 #include "IconsFontAwesome5.h"
-
+#include "IconsForkAwesome.h"
 LinaEngine::Color headerBGColor = LinaEngine::Color(0, 0, 0, 1);
 LinaEngine::Color headerButtonsColor = LinaEngine::Color(1, 1, 1, 1); // ImVec4(113.f / 255.f, 36.f / 255.f, 78.f / 255.f, 1);
 LinaEngine::Color menuBarButtonActiveColor = LinaEngine::Color(0.5f, 0.5f, 0.5f, 1.0f);
@@ -87,21 +87,22 @@ namespace LinaEditor
 
 		// Panels menu
 		std::vector<MenuElement*> panels;
-		panels.emplace_back(new MenuItem(ICON_FA_DOWNLOAD " Entity Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ECSPanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_UPLOAD " Material Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::MaterialPanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_UPLOAD " Scene Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ScenePanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_UPLOAD " Resources Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::PropertiesPanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_UPLOAD " Properties Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ResourcesPanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_UPLOAD " Log Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::LogPanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_UPLOAD " ImGui Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ImGuiPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP " Entity Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ECSPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_CUBE" Material Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::MaterialPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_EYE" Scene Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ScenePanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_FILE" Resources Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::PropertiesPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_COG" Properties Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ResourcesPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_CLIPBOARD" Log Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::LogPanel)));
+		panels.emplace_back(new MenuItem("ImGui Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ImGuiPanel)));
 		m_menuBarButtons.emplace_back(new MenuButton(ICON_FA_COLUMNS " Level", "pu_panel", panels, headerBGColor, true));
 
 		// Debug menu
 		std::vector<MenuElement*> debug;
-		debug.emplace_back(new MenuItem(ICON_FA_DOWNLOAD " Debug View Physics", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewPhysics)));
-		debug.emplace_back(new MenuItem(ICON_FA_DOWNLOAD " Debug View Shadows", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewShadows)));
-		debug.emplace_back(new MenuItem(ICON_FA_DOWNLOAD " Debug View NOrmal", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewNormal)));
-		m_menuBarButtons.emplace_back(new MenuButton(ICON_FA_COLUMNS " Debug", "dbg_panel", debug, headerBGColor, true));
+		
+		debug.emplace_back(new MenuItem(ICON_FA_BOXES " Debug View Physics", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewPhysics)));
+		debug.emplace_back(new MenuItem(ICON_FA_ADJUST " Debug View Shadows", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewShadows)));
+		debug.emplace_back(new MenuItem(ICON_FA_IMAGES " Debug View Normal", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewNormal)));
+		m_menuBarButtons.emplace_back(new MenuButton(ICON_FA_BUG " Debug", "dbg_panel", debug, headerBGColor, true));
 	}
 
 	void HeaderPanel::Draw()

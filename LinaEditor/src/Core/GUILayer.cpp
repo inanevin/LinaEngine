@@ -80,8 +80,10 @@ namespace LinaEditor
 		// merge in icons from Font Awesome
 		static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 		ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
-		std::string fontPath = "resources/fonts/FontAwesome/" + std::string(FONT_ICON_FILE_NAME_FAS);
-		io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 16.0f, &icons_config, icons_ranges);
+		io.Fonts->AddFontFromFileTTF("resources/fonts/FontAwesome/fa-solid-900.ttf", 16.0f, &icons_config, icons_ranges);
+		io.Fonts->AddFontFromFileTTF("resources/fonts/ForkAwesome/forkawesome-webfont.ttf", 16.0f, &icons_config, icons_ranges);
+
+
 		// use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
 
 		// Setup configuration flags.
@@ -248,7 +250,7 @@ namespace LinaEditor
 		m_propertiesPanel->Draw();
 
 		//if (showIMGUIDemo)
-			ImGui::ShowDemoWindow(&showIMGUIDemo);
+		ImGui::ShowDemoWindow(&showIMGUIDemo);
 
 		// Rendering
 		ImGui::Render();
