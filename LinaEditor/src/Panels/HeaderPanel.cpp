@@ -35,7 +35,7 @@ LinaEngine::Color headerButtonsColor = LinaEngine::Color(1, 1, 1, 1); // ImVec4(
 LinaEngine::Color menuBarButtonActiveColor = LinaEngine::Color(0.5f, 0.5f, 0.5f, 1.0f);
 ImVec2 resizeStartPos;
 ImVec2 headerClickPos;
-ImVec2 linaLogoSize = ImVec2(160, 18);
+ImVec2 linaLogoSize = ImVec2(160, 20);
 LinaEngine::Vector2 resizeStartSize;
 LinaEngine::Graphics::Texture* windowLogo;
 LinaEngine::Graphics::Texture* windowIcon;
@@ -48,6 +48,7 @@ namespace LinaEditor
 {
 	HeaderPanel::~HeaderPanel()
 	{
+		LINA_CLIENT_TRACE("[Destructor] -> Header Panel ({0})", typeid(*this).name());
 		for (int i = 0; i < m_menuBarButtons.size(); i++)
 			delete m_menuBarButtons[i];
 	}
@@ -69,21 +70,24 @@ namespace LinaEditor
 		fileItems.emplace_back(new MenuItem(ICON_FA_FOLDER_PLUS " New Project", nullptr));
 		fileItems.emplace_back(new MenuItem(ICON_FA_FOLDER_OPEN " Open Project", nullptr));
 		fileItems.emplace_back(new MenuItem(ICON_FA_SAVE " Save Project", nullptr));
-		m_menuBarButtons.push_back(new MenuButton(ICON_FA_FILE " File", "pu_file", fileItems, headerBGColor, false));
+		m_menuBarButtons.push_back(new MenuButton(/*ICON_FA_FILE*/ "File", "pu_file", fileItems, headerBGColor, false));
 
+		std::cout << "first " << fileItems[0] << std::endl;
+		std::cout << "sec " << fileItems[1] << std::endl;
+		std::cout << "third " << fileItems[2] << std::endl;
 		// Edit menu.
 		std::vector<MenuElement*> edit;
-		m_menuBarButtons.emplace_back(new MenuButton(ICON_FA_EDIT " Edit", "pu_edit", edit, headerBGColor, true));
+		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_EDIT*/ "Edit", "pu_edit", edit, headerBGColor, true));
 
 		// View menu.
 		std::vector<MenuElement*> view;
-		m_menuBarButtons.emplace_back(new MenuButton(ICON_FA_EYE " View", "pu_view", view, headerBGColor, true));
+		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_EYE*/ "View", "pu_view", view, headerBGColor, true));
 
 		// Levels menu.
 		std::vector<MenuElement*> level;
 		level.emplace_back(new MenuItem(ICON_FA_DOWNLOAD " Save Level Data", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::SaveLevelData)));
 		level.emplace_back(new MenuItem(ICON_FA_UPLOAD " Load Level Data", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::LoadLevelData)));
-		m_menuBarButtons.emplace_back(new MenuButton(ICON_FA_ARCHWAY " Level", "pu_level", level, headerBGColor, true));
+		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_ARCHWAY*/ "Level", "pu_level", level, headerBGColor, true));
 
 		// Panels menu
 		std::vector<MenuElement*> panels;
@@ -94,7 +98,7 @@ namespace LinaEditor
 		panels.emplace_back(new MenuItem(ICON_FA_COG" Properties Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ResourcesPanel)));
 		panels.emplace_back(new MenuItem(ICON_FA_CLIPBOARD" Log Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::LogPanel)));
 		panels.emplace_back(new MenuItem("ImGui Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ImGuiPanel)));
-		m_menuBarButtons.emplace_back(new MenuButton(ICON_FA_COLUMNS " Level", "pu_panel", panels, headerBGColor, true));
+		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_COLUMNS*/ "Panels", "pu_panel", panels, headerBGColor, true));
 
 		// Debug menu
 		std::vector<MenuElement*> debug;
@@ -102,7 +106,7 @@ namespace LinaEditor
 		debug.emplace_back(new MenuItem(ICON_FA_BOXES " Debug View Physics", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewPhysics)));
 		debug.emplace_back(new MenuItem(ICON_FA_ADJUST " Debug View Shadows", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewShadows)));
 		debug.emplace_back(new MenuItem(ICON_FA_IMAGES " Debug View Normal", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewNormal)));
-		m_menuBarButtons.emplace_back(new MenuButton(ICON_FA_BUG " Debug", "dbg_panel", debug, headerBGColor, true));
+		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_BUG*/ "Debug", "dbg_panel", debug, headerBGColor, true));
 	}
 
 	void HeaderPanel::Draw()
@@ -178,7 +182,7 @@ namespace LinaEditor
 
 			// Minimize, maximize, exit buttons.
 			ImGui::SameLine();
-			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - 105);
+			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - 80.0f);
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - linaLogoSize.y / 2.0f);
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(headerBGColor.r, headerBGColor.g, headerBGColor.b, headerBGColor.a));
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(headerButtonsColor.r, headerButtonsColor.g, headerButtonsColor.b, headerButtonsColor.a));
@@ -213,10 +217,11 @@ namespace LinaEditor
 			ImGui::Image((void*)windowLogo->GetID(), linaLogoSize, ImVec2(0, 1), ImVec2(1, 0));
 
 			// Draw bar buttons & items.
-			ImGui::SetCursorPosY(35);
+			ImGui::SetCursorPosY(30);
 			for (int i = 0; i < m_menuBarButtons.size(); i++)
 				m_menuBarButtons[i]->Draw();
 
+			
 			ImGui::End();
 			ImGui::PopStyleColor();
 

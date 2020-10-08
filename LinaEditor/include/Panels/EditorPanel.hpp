@@ -49,7 +49,7 @@ namespace LinaEditor
 		GUILayer* m_guiLayer;
 		LinaEngine::Vector2 m_Position;
 		LinaEngine::Vector2 m_Size;
-		bool m_show = false;
+		bool m_show = true;
 	};
 }
 

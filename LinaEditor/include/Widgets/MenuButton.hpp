@@ -24,6 +24,7 @@ Timestamp: 10/8/2020 9:02:33 PM
 
 // Headers here.
 #include "Utility/Math/Color.hpp"
+#include "Core/Common.hpp"
 #include <functional>
 
 namespace LinaEditor
@@ -70,11 +71,15 @@ namespace LinaEditor
 		// Draw this item.
 		virtual void Draw() override;
 	
+		// Set on click explicitly.
+		FORCEINLINE void SetOnClick(std::function<void()> onClick) { m_onClick = onClick; }
+
 	private:
 	
 		const char* m_popupID;
 		bool m_popupOpen = false;
 		bool m_useSameLine = false;
+		std::function<void()> m_onClick;
 		std::vector<MenuElement*> m_children;
 		LinaEngine::Color m_bgColor;
 	};

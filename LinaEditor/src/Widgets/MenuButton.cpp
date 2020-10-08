@@ -23,10 +23,10 @@ Timestamp: 10/8/2020 9:02:44 PM
 #include "Widgets/MenuButton.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Utility/Log.hpp"
+#include <iostream>
 
 namespace LinaEditor
 {
-
 
 	void MenuItem::Draw()
 	{
@@ -82,9 +82,18 @@ namespace LinaEditor
 		m_popupOpen = ImGui::BeginPopup(m_popupID);
 		if (m_popupOpen)
 		{
+			if (m_children.size() == 0)
+			{
+				if (m_onClick)
+					m_onClick();
+			}
+			else
+			{
+				for (int i = 0; i < m_children.size(); i++)
+					m_children[i]->Draw();
+			}
 
-			for (int i = 0; i < m_children.size(); i++)
-				m_children[i]->Draw();
+	
 
 			ImGui::EndPopup();
 		}

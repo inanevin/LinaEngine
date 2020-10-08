@@ -19,6 +19,7 @@ Class: UILayer
 #include "Core/Layer.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "ECS/ECSSystem.hpp"
+#include "Panels/EditorPanel.hpp"
 #include <vector>
 
 namespace LinaEngine
@@ -81,6 +82,8 @@ namespace LinaEditor
 		{
 
 		}
+
+		~GUILayer();
 
 		// OVERRIDES
 		void OnAttach() override;
@@ -152,6 +155,7 @@ namespace LinaEditor
 		class PropertiesPanel* m_propertiesPanel;
 		class LogPanel* m_logPanel;
 		class HeaderPanel* m_headerPanel;
+		std::vector<EditorPanel*> m_panels;
 		Vector2 m_scenePanelSize = Vector2::Zero;
 	};
 }

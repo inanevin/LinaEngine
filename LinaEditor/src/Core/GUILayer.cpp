@@ -65,6 +65,14 @@ namespace LinaEditor
 
 	}
 
+	GUILayer::~GUILayer()
+	{
+		LINA_CLIENT_TRACE("[Destructor] -> GUI Layer ({0})", typeid(*this).name());
+
+		for (int i = 0; i < m_panels.size(); i++)
+			delete m_panels[i];
+	}
+
 	void GUILayer::OnAttach()
 	{
 		LINA_CLIENT_INFO("Editor GUI Layer Attached");
@@ -80,7 +88,7 @@ namespace LinaEditor
 		// merge in icons from Font Awesome
 		static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 		ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
-		io.Fonts->AddFontFromFileTTF("resources/fonts/FontAwesome/fa-solid-900.ttf", 16.0f, &icons_config, icons_ranges);
+		io.Fonts->AddFontFromFileTTF("resources/fonts/FontAwesome/fa-solid-900.ttf", 12.0f, &icons_config, icons_ranges);
 		io.Fonts->AddFontFromFileTTF("resources/fonts/ForkAwesome/forkawesome-webfont.ttf", 16.0f, &icons_config, icons_ranges);
 
 
@@ -102,13 +110,14 @@ namespace LinaEditor
 		ImGuiStyle& style = ImGui::GetStyle();
 
 		ImVec4* colors = ImGui::GetStyle().Colors;
+		style.AntiAliasedFill = false;
 		style.WindowRounding = 0.0f;
 		style.TabRounding = 0.0f;
 		style.ChildRounding = 0.0f;
 		style.PopupRounding = 0.0f;
 		style.FrameRounding = 0.0f;
 		style.ScrollbarRounding = 0.0f;
-		style.FramePadding = ImVec2(6, 5);
+		style.FramePadding = ImVec2(3, 5);
 		style.WindowMenuButtonPosition = ImGuiDir_None;
 		colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 		colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
@@ -171,26 +180,23 @@ namespace LinaEditor
 		m_logPanel = new LogPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_headerPanel = new HeaderPanel(Vector2::Zero, Vector2::Zero, *this, m_appWindow->GetWindowProperties().m_Title);
 
+		// Add to the list.
+		m_panels.push_back(m_ecsPanel);
+		m_panels.push_back(m_materialPanel);
+		m_panels.push_back(m_resourcesPanel);
+		m_panels.push_back(m_scenePanel);
+		m_panels.push_back(m_propertiesPanel);
+		m_panels.push_back(m_logPanel);
+		m_panels.push_back(m_headerPanel);
+
+		// Setup panels.
 		m_ecsPanel->Setup();
-		m_ecsPanel->Open();
-
 		m_materialPanel->Setup();
-		m_materialPanel->Open();
-
 		m_resourcesPanel->Setup();
-		m_resourcesPanel->Open();
-
 		m_scenePanel->Setup();
-		m_scenePanel->Open();
-
 		m_propertiesPanel->Setup();
-		m_propertiesPanel->Open();
-
 		m_logPanel->Setup();
-		m_logPanel->Open();
-
 		m_headerPanel->Setup();
-		m_headerPanel->Open();
 
 		setDockspaceLayout = true;
 	}

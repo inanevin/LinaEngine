@@ -55,6 +55,7 @@ namespace LinaEditor
 
 		std::string m_title;
 		std::vector<MenuButton*> m_menuBarButtons;
+		std::vector<MenuButton*> m_toolButtons;
 		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
 		LinaEngine::Graphics::Window* m_appWindow = nullptr;
 
