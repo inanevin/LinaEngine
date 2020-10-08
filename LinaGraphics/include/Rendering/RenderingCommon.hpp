@@ -280,6 +280,12 @@ namespace LinaEngine::Graphics
 		int anisotropy = 0.0f;
 	};
 
+	enum class WindowState
+	{
+		NORMAL = 0,
+		MAXIMIZED = 1,
+		ICONIFIED = 2
+	};
 	/* Struct containing basic data about window properties. */
 	struct WindowProperties
 	{
@@ -291,6 +297,7 @@ namespace LinaEngine::Graphics
 		bool vSyncEnabled;
 		bool m_decorated = true;
 		bool m_resizable = true;
+		WindowState m_windowState;
 
 		WindowProperties()
 		{

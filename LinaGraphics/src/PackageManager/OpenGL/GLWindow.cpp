@@ -92,6 +92,11 @@ namespace LinaEngine::Graphics
 		glfwWindowHint(GLFW_DECORATED, m_windowProperties.m_decorated);
 		glfwWindowHint(GLFW_RESIZABLE, m_windowProperties.m_resizable);
 	
+		if (propsIn.m_windowState == WindowState::ICONIFIED)
+			glfwWindowHint(GLFW_ICONIFIED, GLFW_TRUE);
+		else if (propsIn.m_windowState == WindowState::MAXIMIZED)
+			glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
+
 #ifdef __APPLE__
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
@@ -118,7 +123,6 @@ namespace LinaEngine::Graphics
 			return false;
 		}
 	
-
 		// Update OpenGL about the window data.
 		glViewport(0, 0, m_windowProperties.m_Width, m_windowProperties.m_Height);
 
@@ -223,12 +227,22 @@ namespace LinaEngine::Graphics
 
 	void GLWindow::Iconify()
 	{
+		m_windowProperties.m_windowState = WindowState::ICONIFIED;
 		glfwIconifyWindow(m_glfwWindow);
 	}
 
 	void GLWindow::Maximize()
 	{
-		glfwMaximizeWindow(m_glfwWindow);
+		if (m_windowProperties.m_windowState != WindowState::MAXIMIZED)
+		{
+			m_windowProperties.m_windowState = WindowState::MAXIMIZED;
+			glfwMaximizeWindow(m_glfwWindow);
+		}
+		else
+		{
+			m_windowProperties.m_windowState = WindowState::NORMAL;
+			glfwRestoreWindow(m_glfwWindow);
+		}
 	}
 
 	void GLWindow::Close()
