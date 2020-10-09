@@ -88,7 +88,7 @@ namespace LinaEditor
 		// OVERRIDES
 		void OnAttach() override;
 		void OnDetach() override;
-		void OnUpdate() override;
+		void OnTick(float dt) override;
 		void OnEvent() override;
 
 

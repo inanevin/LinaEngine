@@ -63,7 +63,7 @@ namespace LinaEditor
 			});
 	}
 
-	void ECSPanel::Draw()
+	void ECSPanel::Draw(float frameTime)
 	{
 		if (m_show)
 		{
@@ -74,9 +74,9 @@ namespace LinaEditor
 			ImVec2 panelSize = ImVec2(m_Size.x, m_Size.y);			
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(1.0f);
-			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDecoration;
 
-			if (ImGui::Begin("Entities", &m_show, flags))
+			if (ImGui::Begin("Entities", NULL, flags))
 			{
 				// Statics.
 				static char selectedEntityName[256] = "Entity";

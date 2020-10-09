@@ -32,7 +32,7 @@ namespace LinaEditor
 {
 	static std::string chosenMapID;
 
-	void MaterialPanel::Draw()
+	void MaterialPanel::Draw(float frameTime)
 	{
 		if (m_show)
 		{

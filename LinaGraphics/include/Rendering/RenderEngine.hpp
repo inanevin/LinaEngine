@@ -96,7 +96,7 @@ namespace LinaEngine::Graphics
 		void PostInitialFrame();
 
 		// Called each frame.
-		void Render();
+		void Render(float frameTime);
 
 		// Sets the viewport offset & display size
 		void SetViewportDisplay(Vector2 offset, Vector2 size);

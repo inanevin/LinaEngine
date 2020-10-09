@@ -152,7 +152,9 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-	CreateHDRISkybox(m_RenderEngine);
+	CreateProceduralSkybox(m_RenderEngine);
+
+	return;
 
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);

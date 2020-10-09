@@ -63,7 +63,7 @@ namespace LinaEditor
 		PropertiesPanel(Vector2 position, Vector2 size, GUILayer& guiLayer) : EditorPanel(position, size, guiLayer) { };
 		virtual ~PropertiesPanel() {};
 
-		virtual void Draw() override;
+		virtual void Draw(float frameTime) override;
 		void Setup();
 
 

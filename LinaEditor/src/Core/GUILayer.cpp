@@ -56,7 +56,7 @@ static bool dockWindowInit = true;
 static const char* saveLevelDialogID = "id_saveLevel";
 static const char* loadLevelDialogID = "id_loadLevel";
 
-#define DOCKSPACE_BEGIN 95
+#define DOCKSPACE_BEGIN 60
 
 namespace LinaEditor
 {
@@ -111,13 +111,13 @@ namespace LinaEditor
 
 		ImVec4* colors = ImGui::GetStyle().Colors;
 		style.AntiAliasedFill = false;
-		style.WindowRounding = 6.0f;
+		style.WindowRounding = 0.0f;
 		style.TabRounding = 4.0f;
 		style.ChildRounding = 1.0f;
 		style.PopupRounding = 3.0f;
 		style.FrameRounding = 6.0f;
 		style.ScrollbarRounding = 5.0f;
-		style.FramePadding = ImVec2(3, 5);
+		style.FramePadding = ImVec2(3, 1);
 		style.GrabRounding = 6.0f;
 		style.WindowMenuButtonPosition = ImGuiDir_None;
 
@@ -220,7 +220,7 @@ namespace LinaEditor
 	}
 
 
-	void GUILayer::OnUpdate()
+	void GUILayer::OnTick(float dt)
 	{
 
 		//Setup
@@ -229,7 +229,7 @@ namespace LinaEditor
 		ImGui::NewFrame();
 
 		// Top header.
-		m_headerPanel->Draw();
+		m_headerPanel->Draw(dt);
 
 		// Level data dialogs.
 		DrawLevelDataDialogs();
@@ -238,25 +238,25 @@ namespace LinaEditor
 		DrawCentralDockingSpace();
 
 		// Draw overlay fps counter
-		DrawFPSCounter(1);
+		// DrawFPSCounter(1);
 
 		//// Draw material panel.
 		//m_MaterialPanel->Draw();
 
 		// Draw resources panel
-		m_resourcesPanel->Draw();
+		m_resourcesPanel->Draw(dt);
 
 		// Draw ECS Panel.
-		m_ecsPanel->Draw();
+		m_ecsPanel->Draw(dt);
 
 		// Draw Scene Panel
-		m_scenePanel->Draw();
+		m_scenePanel->Draw(dt);
 
 		// Draw Log Panel
-		m_logPanel->Draw();
+		m_logPanel->Draw(dt);
 
 		// Draw properties panel
-		m_propertiesPanel->Draw();
+		m_propertiesPanel->Draw(dt);
 
 		if (showIMGUIDemo)
 		ImGui::ShowDemoWindow(&showIMGUIDemo);

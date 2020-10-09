@@ -40,7 +40,7 @@ namespace LinaEditor
 		virtual ~ECSPanel() {};
 	
 		virtual void Setup() override;
-		virtual void Draw() override;
+		virtual void Draw(float frameTime) override;
 
 		void Refresh();
 

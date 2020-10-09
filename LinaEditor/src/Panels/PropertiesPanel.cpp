@@ -118,7 +118,7 @@ namespace LinaEditor
 		m_CurrentGenerateMips = params.textureParams.generateMipMaps;
 	}
 
-	void PropertiesPanel::Draw()
+	void PropertiesPanel::Draw(float frameTime)
 	{
 		if (m_CurrentDrawType != DrawType::NONE)
 		{

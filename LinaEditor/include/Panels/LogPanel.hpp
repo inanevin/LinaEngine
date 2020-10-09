@@ -36,7 +36,7 @@ namespace LinaEditor
 		LogPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) : EditorPanel(position, size, guiLayer) {};
 		virtual ~LogPanel() {};
 
-		virtual void Draw() override;
+		virtual void Draw(float frameTime) override;
 		virtual void Setup() override;
 	
 	private:

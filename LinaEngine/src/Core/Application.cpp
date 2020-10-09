@@ -127,16 +127,15 @@ namespace LinaEngine
 
 		while (m_Running)
 		{
-
 			// Update input engine.
 			m_inputEngine->Tick();
 
-			// Update layers.
-			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate();
-
 			double newTime = (double)m_appWindow->GetTime();
 			double frameTime = newTime - currentTime;
+
+			// Update layers.
+			for (Layer* layer : m_LayerStack)
+				layer->OnTick(frameTime);
 
 			// Update current level.
 			if (m_ActiveLevelExists)
@@ -150,7 +149,6 @@ namespace LinaEngine
 
 			while (accumulator >= dt)
 			{
-
 				// Update physics engine.
 				m_physicsEngine->Tick(dt);
 				t += dt;
@@ -159,7 +157,8 @@ namespace LinaEngine
 
 			// Update render engine.
 			if (m_canRender)
-				m_renderEngine->Render();
+				m_renderEngine->Render(frameTime);
+
 
 			// Simple FPS count
 			m_FPSCounter++;

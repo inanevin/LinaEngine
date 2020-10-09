@@ -47,7 +47,7 @@ namespace LinaEditor
 		MaterialPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) : EditorPanel(position, size, guiLayer) {};
 		virtual ~MaterialPanel() {};
 	
-		virtual void Draw() override;
+		virtual void Draw(float frameTime) override;
 		virtual void Setup() override;
 		FORCEINLINE void SetCurrentMaterial(LinaEngine::Graphics::Material* mat) { m_CurrentSelectedMaterial = mat; }
 

@@ -40,7 +40,7 @@ static ImVec2 previousWindowSize;
 namespace LinaEditor
 {
 
-	void ScenePanel::Draw()
+	void ScenePanel::Draw(float frameTime)
 	{
 		ImGuizmo::BeginFrame();
 

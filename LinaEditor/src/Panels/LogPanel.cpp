@@ -28,7 +28,7 @@ Timestamp: 6/7/2020 8:56:51 PM
 
 namespace LinaEditor
 {
-	void LogPanel::Draw()
+	void LogPanel::Draw(float frameTime)
 	{
 		if (m_show)
 		{

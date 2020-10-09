@@ -42,7 +42,7 @@ namespace LinaEngine
 		virtual void OnDetach() {}
 
 		// Called each frame.
-		 virtual void OnUpdate() {}
+		 virtual void OnTick(float dt) {}
 
 		// Called when an engine event occurs on this layer.
 		 virtual void OnEvent() {}

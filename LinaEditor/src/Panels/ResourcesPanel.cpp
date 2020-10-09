@@ -40,7 +40,7 @@ namespace LinaEditor
 	static EditorFile* selectedFile;
 	static EditorFolder* selectedFolder;
 
-	void ResourcesPanel::Draw()
+	void ResourcesPanel::Draw(float frameTime)
 	{
 		if (m_show)
 		{

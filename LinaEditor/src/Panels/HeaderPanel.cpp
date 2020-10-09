@@ -34,19 +34,30 @@ Timestamp: 10/8/2020 1:39:19 PM
 LinaEngine::Color headerBGColor = LinaEngine::Color(0, 0, 0, 1);
 LinaEngine::Color headerButtonsColor = LinaEngine::Color(1, 1, 1, 1); // ImVec4(113.f / 255.f, 36.f / 255.f, 78.f / 255.f, 1);
 LinaEngine::Color menuBarButtonActiveColor = LinaEngine::Color(0.5f, 0.5f, 0.5f, 1.0f);
+LinaEngine::Color logoTint1;
+LinaEngine::Color logoTint2;
+
 ImVec2 resizeStartPos;
 ImVec2 headerClickPos;
-ImVec2 linaLogoSize = ImVec2(160, 20);
+ImVec2 linaLogoSize = ImVec2(180, 29);
 LinaEngine::Vector2 resizeStartSize;
 LinaEngine::Graphics::Texture* windowLogo;
 LinaEngine::Graphics::Texture* windowIcon;
 bool appResizeActive;
 bool isAxisPivotLocal;
 
-#define RESIZE_THRESHOLD 10
-#define HEIGHT_HEADER 95
-#define OFFSET_WINDOWBUTTONS 80
 
+#define RESIZE_THRESHOLD 10
+#define HEIGHT_HEADER 60
+#define OFFSET_WINDOWBUTTONS 80
+#define LINALOGO_ANIMSIZE 132
+
+LinaEngine::Graphics::Texture* linaLogoAnimation[LINALOGO_ANIMSIZE];
+uint32 linaLogoID;
+float logoAnimRatio = 0.0f;
+float logoAnimSpeed = 1.2f;
+float logoAnimWait = 5.0f;
+float logoAnimWaitCounter = 0.0f;
 
 namespace LinaEditor
 {
@@ -66,6 +77,19 @@ namespace LinaEditor
 		// Logo texture
 		windowLogo = &m_renderEngine->CreateTexture2D(LinaEngine::Utility::GetUniqueID(), "resources/textures/linaEngineText.png");
 		windowIcon = &m_renderEngine->CreateTexture2D(LinaEngine::Utility::GetUniqueID(), "resources/textures/linaEngineIcon.png");
+
+		// Logo animation textures
+		for (int i = 0; i < LINALOGO_ANIMSIZE; i++)
+		{
+			std::string logoID = std::to_string(i);
+			if(i < 10)
+				logoID = ("00" + std::to_string(i)); 
+			else if(i < 100)
+				logoID = ("0" + std::to_string(i));
+			linaLogoAnimation[i] = &m_renderEngine->CreateTexture2D(LinaEngine::Utility::GetUniqueID(), "resources/textures/LinaLogoJitterAnimation/anim " + logoID + ".png");
+		}
+
+		linaLogoID = linaLogoAnimation[0]->GetID();
 
 		// Add menu bar buttons.
 
@@ -105,7 +129,7 @@ namespace LinaEditor
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_COLUMNS*/ "Panels", "pu_panel", panels, headerBGColor, true));
 
 		// Debug menu
-		std::vector<MenuElement*> debug;		
+		std::vector<MenuElement*> debug;
 		debug.emplace_back(new MenuItem(ICON_FA_BOXES " Debug View Physics", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewPhysics)));
 		debug.emplace_back(new MenuItem(ICON_FA_ADJUST " Debug View Shadows", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewShadows)));
 		debug.emplace_back(new MenuItem(ICON_FA_IMAGES " Debug View Normal", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewNormal)));
@@ -113,10 +137,31 @@ namespace LinaEditor
 
 	}
 
-	void HeaderPanel::Draw()
+	void HeaderPanel::Draw(float frameTime)
 	{
 		if (m_show)
 		{
+			// Logo animation
+			if (logoAnimRatio < 0.99f)
+			{
+				logoAnimRatio = Math::Lerp(logoAnimRatio, 1.0f, frameTime * logoAnimSpeed);
+				int logoAnimIndex = (int)Math::Remap(logoAnimRatio, 0.0f, 1.0f, 0.0f, (float)LINALOGO_ANIMSIZE);
+				linaLogoID = linaLogoAnimation[logoAnimIndex]->GetID();
+			}
+			else
+			{
+				if (linaLogoID != linaLogoAnimation[0]->GetID())
+					linaLogoID = linaLogoAnimation[0]->GetID();
+
+				logoAnimWaitCounter += frameTime;
+
+				if (logoAnimWaitCounter > logoAnimWait)
+				{
+					logoAnimWaitCounter = 0.0f;
+					logoAnimRatio = 0.0f;
+				}
+			}
+
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 
 			// Handle app window resize.
@@ -187,7 +232,7 @@ namespace LinaEditor
 			// Minimize, maximize, exit buttons.
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - OFFSET_WINDOWBUTTONS);
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - linaLogoSize.y / 2.0f);
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - linaLogoSize.y / 2.0f + 5.5f);
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(headerBGColor.r, headerBGColor.g, headerBGColor.b, headerBGColor.a));
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(headerButtonsColor.r, headerButtonsColor.g, headerButtonsColor.b, headerButtonsColor.a));
 
@@ -217,52 +262,59 @@ namespace LinaEditor
 			// Logo
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - linaLogoSize.x / 2.0f);
-			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + linaLogoSize.y / 2.0f + 15);
-			ImGui::Image((void*)windowLogo->GetID(), linaLogoSize, ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + linaLogoSize.y / 2.0f + 8);
+			ImGui::Image((void*)linaLogoID, linaLogoSize, ImVec2(0, 1), ImVec2(1, 0));
 
 			// Draw bar buttons & items.
 			ImGui::SetCursorPosY(30);
 			for (int i = 0; i < m_menuBarButtons.size(); i++)
 				m_menuBarButtons[i]->Draw();
 
+			ImGui::SameLine();
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, 1.7f));
+			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - OFFSET_WINDOWBUTTONS - 100);
+			static char searchStr[128] = "";
+			ImGui::InputTextWithHint("", ICON_FA_SEARCH " search", searchStr, IM_ARRAYSIZE(searchStr));
+			ImGui::PopStyleVar();
+
 			// Draw Tool Buttons
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(headerBGColor.r, headerBGColor.g, headerBGColor.b, headerBGColor.a));
-
-			// Move
-			if (ImGui::Button(ICON_FA_ARROWS_ALT))
-			{
-
-			}
-
-			// Rotate
-			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_SYNC))
-			{
-
-			}
-			// Scale
-			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_COMPRESS_ALT))
-			{
-
-			}
-
-			static const char* pivotButtonText = ICON_FA_GLOBE;
-
-			// Change pivot
-			ImGui::SameLine();
-			if (ImGui::Button(pivotButtonText))
-			{
-				isAxisPivotLocal = !isAxisPivotLocal;
-
-				if(isAxisPivotLocal)
-					pivotButtonText = ICON_FA_THUMBTACK;
-				else
-					pivotButtonText = ICON_FA_GLOBE;
-				
-			}
-
-			ImGui::PopStyleColor();
+		//	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(headerBGColor.r, headerBGColor.g, headerBGColor.b, headerBGColor.a));
+		//
+		//	// Move
+		//	if (ImGui::Button(ICON_FA_ARROWS_ALT))
+		//	{
+		//
+		//	}
+		//
+		//	// Rotate
+		//	ImGui::SameLine();
+		//	if (ImGui::Button(ICON_FA_SYNC))
+		//	{
+		//
+		//	}
+		//	// Scale
+		//	ImGui::SameLine();
+		//	if (ImGui::Button(ICON_FA_COMPRESS_ALT))
+		//	{
+		//
+		//	}
+		//
+		//	static const char* pivotButtonText = ICON_FA_GLOBE;
+		//
+		//	// Change pivot
+		//	ImGui::SameLine();
+		//	if (ImGui::Button(pivotButtonText))
+		//	{
+		//		isAxisPivotLocal = !isAxisPivotLocal;
+		//
+		//		if(isAxisPivotLocal)
+		//			pivotButtonText = ICON_FA_THUMBTACK;
+		//		else
+		//			pivotButtonText = ICON_FA_GLOBE;
+		//		
+		//	}
+		//
+		//	ImGui::PopStyleColor();
 			ImGui::End();
 			ImGui::PopStyleColor();
 

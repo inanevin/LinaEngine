@@ -49,7 +49,7 @@ namespace LinaEditor
 		virtual ~HeaderPanel();
 
 		virtual void Setup() override;
-		virtual void Draw() override;
+		virtual void Draw(float frameTime) override;
 
 	private:
 

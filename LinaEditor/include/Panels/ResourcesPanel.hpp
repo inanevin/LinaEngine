@@ -84,7 +84,7 @@ namespace LinaEditor
 		ResourcesPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) :EditorPanel(position, size, guiLayer) {};
 		virtual ~ResourcesPanel() {};
 	
-		virtual void Draw() override;
+		virtual void Draw(float frameTime) override;
 		void Setup();
 
 	private:

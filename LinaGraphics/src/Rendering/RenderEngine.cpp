@@ -142,14 +142,14 @@ namespace LinaEngine::Graphics
 		ValidateEngineShaders();
 	}
 
-	void RenderEngine::Render()
+	void RenderEngine::Render(float frameTime)
 	{
 		// DrawShadows();
 		Draw();
 		//DrawOperationsDefault();
 		// Draw GUI Layers
 		for (Layer* layer : m_GUILayerStack)
-			layer->OnUpdate();
+			layer->OnTick(frameTime);
 
 		// Update window.
 		m_appWindow->Tick();

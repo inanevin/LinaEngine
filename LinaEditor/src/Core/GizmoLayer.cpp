@@ -37,7 +37,7 @@ namespace LinaEditor
 		m_renderEngine->UnloadMaterialResource(m_gizmoMaterial->m_MaterialID);
 	}
 
-	void GizmoLayer::OnUpdate()
+	void GizmoLayer::OnTick(float deltaTime)
 	{
 		
 	}

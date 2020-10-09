@@ -55,7 +55,7 @@ namespace LinaEditor
 		ScenePanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) :EditorPanel(position, size, guiLayer) {};
 		virtual ~ScenePanel() {};
 
-		virtual void Draw() override;
+		virtual void Draw(float frameTime) override;
 		virtual void Setup() override;
 
 		// Set selected entity's transform component
