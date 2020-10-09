@@ -7980,7 +7980,7 @@ bool ImGui::TabItemLabelAndCloseButton(ImDrawList* draw_list, const ImRect& bb, 
 
 	// Render text label (with clipping + alpha gradient) + unsaved marker
 	const char* TAB_UNSAVED_MARKER = "*";
-	ImRect text_pixel_clip_bb(bb.Min.x + frame_padding.x, bb.Min.y + frame_padding.y, bb.Max.x - frame_padding.x, bb.Max.y);
+	ImRect text_pixel_clip_bb(bb.Min.x + frame_padding.x + 11, bb.Min.y + frame_padding.y + 0.95f, bb.Max.x - frame_padding.x, bb.Max.y);
 	if (flags & ImGuiTabItemFlags_UnsavedDocument)
 	{
 		text_pixel_clip_bb.Max.x -= CalcTextSize(TAB_UNSAVED_MARKER, NULL, false).x;
