@@ -59,6 +59,8 @@ namespace LinaEditor
 
 		// Background color
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(m_bgColor.r, m_bgColor.g, m_bgColor.b, m_bgColor.a));
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
+
 
 		// Active color if popup is openþ
 		if (m_popupOpen)
@@ -75,6 +77,7 @@ namespace LinaEditor
 			ImGui::PopStyleColor();
 
 		ImGui::PopStyleColor();
+			ImGui::PopStyleVar();
 
 		// Draw popup
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y));

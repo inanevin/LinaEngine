@@ -50,14 +50,21 @@ namespace LinaEditor
 			ImVec2 panelSize = ImVec2(m_Size.x, m_Size.y);
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(1.0f);
-			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
 
 
 			ImGui::Begin("Resources", &m_show, flags);
 
+			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_TabUnfocusedActive));
+			ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
+			ImGui::BeginChild("Resources_child", ImVec2(0,0), false, ImGuiWindowFlags_NoScrollbar);
+		
 			DrawContent();
 			DrawFolder(m_ResourceFolders[0]);
 
+			ImGui::EndChild();
+			ImGui::PopStyleColor();
+			ImGui::PopStyleVar();
 			ImGui::End();
 		}
 	}

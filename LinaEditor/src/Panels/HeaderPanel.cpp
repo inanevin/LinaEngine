@@ -276,9 +276,11 @@ namespace LinaEditor
 
 			// Draw bar buttons & items.
 			ImGui::SetCursorPosY(30);
+
 			for (int i = 0; i < m_menuBarButtons.size(); i++)
 				m_menuBarButtons[i]->Draw();
 
+			// Draw search bar.
 			ImGui::SameLine();
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, 1.7f));
 			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - OFFSET_WINDOWBUTTONS - 100);
