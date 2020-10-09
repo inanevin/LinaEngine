@@ -146,19 +146,36 @@ namespace LinaEditor
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 
-			if (ImGui::Begin("Properties", &m_show, flags))
+			static bool pushStyle = false;
+			static bool wasPushed = false;
+
+			if (pushStyle)
 			{
-				if (m_CurrentDrawType == DrawType::ENTITIES)
-					DrawEntityProperties();
-				else if (m_CurrentDrawType == DrawType::TEXTURE2D)
-					DrawTextureProperties();
-				else if (m_CurrentDrawType == DrawType::MESH)
-					DrawMeshProperties();
-				else if (m_CurrentDrawType == DrawType::MATERIAL)
-					DrawMaterialProperties();
+				wasPushed = true;
 			}
 
+
+			ImGui::Begin("Properties", &m_show, flags);
+			pushStyle = ImGui::IsWindowFocused();
+
+
+			if (m_CurrentDrawType == DrawType::ENTITIES)
+				DrawEntityProperties();
+			else if (m_CurrentDrawType == DrawType::TEXTURE2D)
+				DrawTextureProperties();
+			else if (m_CurrentDrawType == DrawType::MESH)
+				DrawMeshProperties();
+			else if (m_CurrentDrawType == DrawType::MATERIAL)
+				DrawMaterialProperties();
+
 			ImGui::End();
+
+
+			if (pushStyle && wasPushed)
+			{
+				wasPushed = false;
+			}
+				
 		}
 	}
 

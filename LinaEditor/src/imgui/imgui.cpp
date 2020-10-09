@@ -5701,14 +5701,28 @@ void ImGui::RenderWindowDecorations(ImGuiWindow* window, const ImRect& title_bar
             }
             window->DrawList->AddRectFilled(window->Pos + ImVec2(0, window->TitleBarHeight()), window->Pos + window->Size, bg_col, window_rounding, (flags & ImGuiWindowFlags_NoTitleBar) ? ImDrawCornerFlags_All : ImDrawCornerFlags_Bot);
         }
-
+        
         // Title bar
         // (when docked, DockNode are drawing their own title bar. Individual windows however do NOT set the _NoTitleBar flag,
         // in order for their pos/size to be matching their undocking state.)
         if (!(flags & ImGuiWindowFlags_NoTitleBar) && !window->DockIsActive)
         {
             ImU32 title_bar_col = GetColorU32(title_bar_is_highlight ? ImGuiCol_TitleBgActive : ImGuiCol_TitleBg);
-            window->DrawList->AddRectFilled(title_bar_rect.Min, title_bar_rect.Max, title_bar_col, window_rounding, ImDrawCornerFlags_Top);
+            ImVec2 titleRectMin = title_bar_rect.Min;
+
+            if (ImGui::IsWindowFocused())
+            {
+                ImVec2 activeLineMax = ImVec2(title_bar_rect.Max.x, title_bar_rect.Min.y + 3.5f);
+                titleRectMin = ImVec2(title_bar_rect.Min.x, activeLineMax.y);
+                window->DrawList->AddRectFilled(title_bar_rect.Min, activeLineMax, ColorConvertFloat4ToU32(ImVec4(0, 0, 1, 1)), window_rounding, ImDrawCornerFlags_Top);
+            }
+            else
+            {
+
+            }
+
+            window->DrawList->AddRectFilled(titleRectMin, title_bar_rect.Max, title_bar_col, window_rounding, ImDrawCornerFlags_Top);
+
         }
 
         // Menu bar
