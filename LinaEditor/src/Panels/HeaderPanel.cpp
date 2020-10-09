@@ -34,8 +34,7 @@ Timestamp: 10/8/2020 1:39:19 PM
 LinaEngine::Color headerBGColor = LinaEngine::Color(0, 0, 0, 1);
 LinaEngine::Color headerButtonsColor = LinaEngine::Color(1, 1, 1, 1); // ImVec4(113.f / 255.f, 36.f / 255.f, 78.f / 255.f, 1);
 LinaEngine::Color menuBarButtonActiveColor = LinaEngine::Color(0.5f, 0.5f, 0.5f, 1.0f);
-LinaEngine::Color logoTint1;
-LinaEngine::Color logoTint2;
+
 
 ImVec2 resizeStartPos;
 ImVec2 headerClickPos;
@@ -232,6 +231,8 @@ namespace LinaEditor
 			}
 
 			// Icon
+			ImGui::SetCursorPosX(12);
+			ImGui::SetCursorPosY(7.5f);
 			ImGui::Image((void*)windowIcon->GetID(), ImVec2(16, 16), ImVec2(0, 1), ImVec2(1, 0));
 
 			// Title
@@ -241,7 +242,7 @@ namespace LinaEditor
 			// Minimize, maximize, exit buttons.
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - OFFSET_WINDOWBUTTONS);
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - linaLogoSize.y / 2.0f + 5.5f);
+			ImGui::SetCursorPosY(5);
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(headerBGColor.r, headerBGColor.g, headerBGColor.b, headerBGColor.a));
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(headerButtonsColor.r, headerButtonsColor.g, headerButtonsColor.b, headerButtonsColor.a));
 
@@ -271,11 +272,12 @@ namespace LinaEditor
 			// Logo
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - linaLogoSize.x / 2.0f);
-			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + linaLogoSize.y / 2.0f + 8);
+			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + linaLogoSize.y / 2.0f );
 			ImGui::Image((void*)linaLogoID, linaLogoSize, ImVec2(0, 1), ImVec2(1, 0));
 
 			// Draw bar buttons & items.
 			ImGui::SetCursorPosY(30);
+			ImGui::SetCursorPosX(12);
 
 			for (int i = 0; i < m_menuBarButtons.size(); i++)
 				m_menuBarButtons[i]->Draw();
@@ -285,6 +287,7 @@ namespace LinaEditor
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, 1.7f));
 			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - OFFSET_WINDOWBUTTONS - 100);
 			static char searchStr[128] = "";
+			ImGui::SetNextItemWidth(170);
 			ImGui::InputTextWithHint("", ICON_FA_SEARCH " search", searchStr, IM_ARRAYSIZE(searchStr));
 			ImGui::PopStyleVar();
 

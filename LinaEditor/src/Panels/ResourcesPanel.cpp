@@ -54,17 +54,19 @@ namespace LinaEditor
 
 
 			ImGui::Begin("Resources", &m_show, flags);
+			
+			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowWidth() - 55, 0), ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowContentRegionMax().y), ImGui::ColorConvertFloat4ToU32(ImVec4(1,1,1,1)));
 
-			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_TabUnfocusedActive));
-			ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
-			ImGui::BeginChild("Resources_child", ImVec2(0,0), false, ImGuiWindowFlags_NoScrollbar);
-		
+			//ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_TabUnfocusedActive));
+			//ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
+			//ImGui::BeginChild("Resources_child", ImVec2(0,0), false, ImGuiWindowFlags_NoScrollbar);
+
 			DrawContent();
 			DrawFolder(m_ResourceFolders[0]);
 
-			ImGui::EndChild();
-			ImGui::PopStyleColor();
-			ImGui::PopStyleVar();
+			//	ImGui::EndChild();
+			//	ImGui::PopStyleColor();
+			//	ImGui::PopStyleVar();
 			ImGui::End();
 		}
 	}
@@ -73,7 +75,7 @@ namespace LinaEditor
 	{
 		m_PropertiesPanel = m_guiLayer->GetPropertiesPanel();
 		m_RenderEngine = m_guiLayer->GetRenderEngine();
-		
+
 		// Scan root resources folder.
 		ScanRoot();
 	}
@@ -90,13 +92,13 @@ namespace LinaEditor
 				// Create a folder.
 				if (ImGui::MenuItem("Folder"))
 				{
-					std::string folderPath = rootPath + "/NewFolder"+ std::to_string(++itemIDCounter);
+					std::string folderPath = rootPath + "/NewFolder" + std::to_string(++itemIDCounter);
 					EditorUtility::CreateFolderInPath(folderPath);
 					EditorFolder folder;
 					folder.path = folderPath;
 					folder.name = "NewFolder" + std::to_string(itemIDCounter);
 					folder.id = itemIDCounter;
-					
+
 					if (hoveredFolder != nullptr)
 						hoveredFolder->subFolders[folder.id] = folder;
 					else
@@ -111,7 +113,7 @@ namespace LinaEditor
 				{
 					std::string name = "NewMaterial" + std::to_string(++itemIDCounter) + ".mat";
 					std::string materialPath = rootPath + "/" + name;
-					
+
 					EditorFile file;
 					file.path = materialPath;
 					file.name = name;
@@ -210,7 +212,7 @@ namespace LinaEditor
 				folder.subFolders.erase(it++);
 				continue;
 			}
-			
+
 			ImGuiTreeNodeFlags folderFlags = (it->second).id == selectedItem ? folderFlagsSelected : folderFlagsNotSelected;
 			bool nodeOpen = ImGui::TreeNodeEx((it->second).name.c_str(), folderFlags);
 
