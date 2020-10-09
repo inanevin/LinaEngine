@@ -181,9 +181,14 @@ namespace LinaEditor
 				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
 			}
 
+			static bool clicked = false;
 			if (horizontalResize || verticalResize || appResizeActive)
 			{
-				if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
+				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					clicked = true;
+
+
+				if (clicked)
 				{
 					appResizeActive = true;
 					ImVec2 delta = ImVec2(ImGui::GetMousePos().x - resizeStartPos.x, ImGui::GetMousePos().y - resizeStartPos.y);
@@ -197,6 +202,10 @@ namespace LinaEditor
 					appResizeActive = false;
 				}
 			}
+
+
+			if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+				clicked = false;
 
 			// Start drawing window.
 			ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y));
