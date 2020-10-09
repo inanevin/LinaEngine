@@ -7944,7 +7944,11 @@ void ImGui::TabItemBackgroundHighlighted(ImDrawList* draw_list, const ImRect& bb
 
 	// Highlight.
 	const float a1 = y1;
-	const float a2 = y1 + 1.35f + rounding;
+	float a2 = y1 + 3.8f;
+
+	if(rounding > 2.0f)
+		a2 += (0.3f * rounding);
+
 	draw_list->PathLineTo(ImVec2(bb.Min.x, a2));
 	draw_list->PathArcToFast(ImVec2(bb.Min.x + rounding, a1 + rounding), rounding, 6, 9);
 	draw_list->PathArcToFast(ImVec2(bb.Max.x - rounding, a1 + rounding), rounding, 9, 12);
@@ -7980,7 +7984,7 @@ bool ImGui::TabItemLabelAndCloseButton(ImDrawList* draw_list, const ImRect& bb, 
 
 	// Render text label (with clipping + alpha gradient) + unsaved marker
 	const char* TAB_UNSAVED_MARKER = "*";
-	ImRect text_pixel_clip_bb(bb.Min.x + frame_padding.x + 11, bb.Min.y + frame_padding.y + 0.95f, bb.Max.x - frame_padding.x, bb.Max.y);
+	ImRect text_pixel_clip_bb(bb.Min.x + frame_padding.x + 11, bb.Min.y + frame_padding.y + 1, bb.Max.x - frame_padding.x, bb.Max.y);
 	if (flags & ImGuiTabItemFlags_UnsavedDocument)
 	{
 		text_pixel_clip_bb.Max.x -= CalcTextSize(TAB_UNSAVED_MARKER, NULL, false).x;
