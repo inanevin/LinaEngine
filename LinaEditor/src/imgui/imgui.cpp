@@ -5710,11 +5710,12 @@ void ImGui::RenderWindowDecorations(ImGuiWindow* window, const ImRect& title_bar
             ImU32 title_bar_col = GetColorU32(title_bar_is_highlight ? ImGuiCol_TitleBgActive : ImGuiCol_TitleBg);
             ImVec2 titleRectMin = title_bar_rect.Min;
 
+            // Highlight aga.
             if (ImGui::IsWindowFocused())
             {
-                ImVec2 activeLineMax = ImVec2(title_bar_rect.Max.x, title_bar_rect.Min.y + 3.5f);
+                ImVec2 activeLineMax = ImVec2(title_bar_rect.Max.x, title_bar_rect.Min.y + 4.3f);
                 titleRectMin = ImVec2(title_bar_rect.Min.x, activeLineMax.y);
-                window->DrawList->AddRectFilled(title_bar_rect.Min, activeLineMax, ColorConvertFloat4ToU32(ImVec4(0.4509f, 0.2823f, 0.4627f, 1)), window_rounding, ImDrawCornerFlags_Top);
+                window->DrawList->AddRectFilled(title_bar_rect.Min, activeLineMax, ColorConvertFloat4ToU32(ImVec4(0.4509f, 0.2823f, 0.4627f, 1)), window_rounding);
             }
             window->DrawList->AddRectFilled(titleRectMin, title_bar_rect.Max, title_bar_col, window_rounding, ImDrawCornerFlags_Top);
         }

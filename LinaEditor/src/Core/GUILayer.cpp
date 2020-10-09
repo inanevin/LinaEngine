@@ -112,7 +112,7 @@ namespace LinaEditor
 		ImVec4* colors = ImGui::GetStyle().Colors;
 		style.AntiAliasedFill = false;
 		style.WindowRounding = 0.0f;
-		style.TabRounding = 0.0f;
+		style.TabRounding = 3.0f;
 		style.ChildRounding = 1.0f;
 		style.PopupRounding = 3.0f;
 		style.FrameRounding = 6.0f;
@@ -146,7 +146,7 @@ namespace LinaEditor
 		colors[ImGuiCol_Button] = ImVec4(0.21f, 0.21f, 0.21f, 1.00f);
 		colors[ImGuiCol_ButtonHovered] = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
 		colors[ImGuiCol_ButtonActive] = ImVec4(0.33f, 0.33f, 0.33f, 1.00f);
-		colors[ImGuiCol_Header] = ImVec4(0.68f, 0.24f, 0.40f, 1.00f);
+		colors[ImGuiCol_Header] = ImVec4(0.4509f, 0.2823f, 0.4627f, 1);
 		colors[ImGuiCol_HeaderHovered] = ImVec4(0.67f, 0.30f, 0.44f, 1.00f);
 		colors[ImGuiCol_HeaderActive] = ImVec4(0.67f, 0.36f, 0.48f, 1.00f);
 		colors[ImGuiCol_Separator] = ImVec4(0.17f, 0.17f, 0.18f, 1.00f);
