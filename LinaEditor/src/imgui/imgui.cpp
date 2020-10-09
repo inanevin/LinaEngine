@@ -5714,15 +5714,9 @@ void ImGui::RenderWindowDecorations(ImGuiWindow* window, const ImRect& title_bar
             {
                 ImVec2 activeLineMax = ImVec2(title_bar_rect.Max.x, title_bar_rect.Min.y + 3.5f);
                 titleRectMin = ImVec2(title_bar_rect.Min.x, activeLineMax.y);
-                window->DrawList->AddRectFilled(title_bar_rect.Min, activeLineMax, ColorConvertFloat4ToU32(ImVec4(0, 0, 1, 1)), window_rounding, ImDrawCornerFlags_Top);
+                window->DrawList->AddRectFilled(title_bar_rect.Min, activeLineMax, ColorConvertFloat4ToU32(ImVec4(0.4509f, 0.2823f, 0.4627f, 1)), window_rounding, ImDrawCornerFlags_Top);
             }
-            else
-            {
-
-            }
-
             window->DrawList->AddRectFilled(titleRectMin, title_bar_rect.Max, title_bar_col, window_rounding, ImDrawCornerFlags_Top);
-
         }
 
         // Menu bar
