@@ -20,10 +20,10 @@ Timestamp: 6/4/2020 8:35:30 PM
 
 #include "Panels/MaterialPanel.hpp"
 #include "Core/GUILayer.hpp"
-#include "imgui.h"
+#include "imgui/imgui.h"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 #include "Rendering/Texture.hpp"
 #include "Rendering/RenderEngine.hpp"
 

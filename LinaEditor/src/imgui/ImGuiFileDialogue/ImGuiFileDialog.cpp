@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
-#include "imgui.h"
+#include "imgui/imgui.h"
 
 #include <string.h> // stricmp / strcasecmp
 #include <sstream>
@@ -37,7 +37,7 @@ SOFTWARE.
 #define stat _stat
 #define stricmp _stricmp
 #include <cctype>
-#include <dirent.h>
+#include <imgui/dirent.h>
 #define PATH_SEP '\\'
 #ifndef PATH_MAX
 #define PATH_MAX 260
@@ -49,11 +49,11 @@ SOFTWARE.
 #define PATH_SEP '/'
 #endif
 
-#include "imgui.h"
+#include "imgui/imgui.h"
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
-#include "imgui_internal.h"
+#include "imgui/imgui_internal.h"
 
 #include <cstdlib>
 #include <algorithm>

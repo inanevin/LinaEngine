@@ -51,6 +51,10 @@ src/Widgets/MenuButton.cpp
 # ImGui
 src/imgui/imgui_impl_opengl3.cpp
 src/imgui/imgui_impl_glfw.cpp
+src/imgui/imgui.cpp
+src/imgui/imgui_demo.cpp
+src/imgui/imgui_draw.cpp
+src/imgui/imgui_widgets.cpp
 src/imgui/imguizmo/ImCurveEdit.cpp
 src/imgui/imguizmo/ImGradient.cpp
 src/imgui/imguizmo/ImGuizmo.cpp
@@ -87,7 +91,16 @@ include/Utility/EditorUtility.hpp
 # Widgets
 include/Widgets/MenuButton.hpp
 
-# ImGuizmo
+# ImGui
+include/imgui/dirent.h
+include/imgui/imconfig.h
+include/imgui/imgui.h
+include/imgui/imgui_impl_glfw.h
+include/imgui/imgui_impl_opengl3.h
+include/imgui/imgui_internal.h
+include/imgui/imstb_rectpack.h
+include/imgui/imstb_textedit.h
+include/imgui/imstb_truetype.h
 include/imgui/imguizmo/ImCurveEdit.h
 include/imgui/imguizmo/ImGradient.h
 include/imgui/imguizmo/ImGuizmo.h
@@ -109,7 +122,6 @@ add_executable(${PROJECT_NAME} ${LINAEDITOR_SOURCES} ${LINAEDITOR_HEADERS})
 # Options & Definitions
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/imgui/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glad/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/IconFontCPPHeaders/include)
@@ -127,7 +139,6 @@ endif()
 #--------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} 
 PRIVATE Lina::Engine
-PRIVATE ${CMAKE_SOURCE_DIR}/vendor/imgui/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/IMGUI.lib
 PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
 PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glad/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glad.lib
 )

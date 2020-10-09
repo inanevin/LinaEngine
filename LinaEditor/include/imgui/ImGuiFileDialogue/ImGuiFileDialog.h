@@ -26,7 +26,7 @@ SOFTWARE.
 
 #define IMGUIFILEDIALOG_VERSION "v0.1"
 
-#include <imgui.h>
+#include <imgui/imgui.h>
 
 #include <float.h>
 

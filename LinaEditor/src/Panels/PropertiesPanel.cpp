@@ -30,10 +30,10 @@ Timestamp: 6/7/2020 5:13:42 PM
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-#include "imgui_internal.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+#include "imgui/imgui_internal.h"
 
 namespace LinaEditor
 {

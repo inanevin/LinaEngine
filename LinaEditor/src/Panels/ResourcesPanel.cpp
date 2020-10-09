@@ -24,10 +24,10 @@ Timestamp: 6/5/2020 12:55:10 AM
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Material.hpp"
 #include "Input/InputMappings.hpp"
-#include "imgui.h"
+#include "imgui/imgui.h"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 #include <filesystem>
 
 

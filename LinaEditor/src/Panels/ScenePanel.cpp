@@ -21,10 +21,10 @@ Timestamp: 6/5/2020 6:51:39 PM
 
 #include "Panels/ScenePanel.hpp"
 #include "Core/GUILayer.hpp"
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-#include "imgui_internal.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+#include "imgui/imgui_internal.h"
 #include <imgui/imguizmo/ImGuizmo.h>
 #include "Input/InputMappings.hpp"
 #include "Rendering/RenderEngine.hpp"
