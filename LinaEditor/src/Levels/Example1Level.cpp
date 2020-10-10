@@ -109,7 +109,7 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 }
 void CreateHDRISkybox(RenderEngine* renderEngine)
 {
-	Texture* hdri = &renderEngine->CreateTextureHDRI(0, "resources/textures/HDRI/canyon3K.hdr");
+	Texture* hdri = &renderEngine->CreateTextureHDRI("resources/textures/HDRI/canyon3K.hdr");
 	renderEngine->CaptureCalculateHDRI(*hdri);
 	Material& mat = renderEngine->CreateMaterial(-5, Shaders::SKYBOX_HDRI);
 	mat.SetTexture(MAT_MAP_ENVIRONMENT, &renderEngine->GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
@@ -152,7 +152,7 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-	CreateProceduralSkybox(m_RenderEngine);
+	CreateHDRISkybox(m_RenderEngine);
 	
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);
@@ -174,20 +174,20 @@ void Example1Level::Initialize()
 
 
 
-	Texture& albedoSphere = m_RenderEngine->CreateTexture2D(-5, "resources/textures/rusted_iron/albedo.png", pbrSampler, false, false);
-	Texture& normalSphere = m_RenderEngine->CreateTexture2D(1, "resources/textures/rusted_iron/normal.png", pbrSampler, false, false);
-	Texture& metallicSphere = m_RenderEngine->CreateTexture2D(2, "resources/textures/rusted_iron/metallic.png", pbrSampler, false, false);
-	Texture& roughnessSphere = m_RenderEngine->CreateTexture2D(3, "resources/textures/rusted_iron/roughness.png", pbrSampler, false, false);
-	Texture& aoSphere = m_RenderEngine->CreateTexture2D(4, "resources/textures/rusted_iron/ao.png", pbrSampler, false, false);
-	Texture& albedoFloor = m_RenderEngine->CreateTexture2D(-11, "resources/textures/grass/albedo.png", pbrSampler, false, false);
-	Texture& normalFloor = m_RenderEngine->CreateTexture2D(-12, "resources/textures/grass/normal.png", pbrSampler, false, false);
-	Texture& metallicFloor = m_RenderEngine->CreateTexture2D(-13, "resources/textures/grass/metallic.png", pbrSampler, false, false);
-	Texture& roughnessFloor = m_RenderEngine->CreateTexture2D(-14, "resources/textures/grass/roughness.png", pbrSampler, false, false);
-	Texture& aoFloor = m_RenderEngine->CreateTexture2D(-15, "resources/textures/grass/ao.png", pbrSampler, false, false);
+	Texture& albedoSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/albedo.png", pbrSampler, false, false);
+	Texture& normalSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/normal.png", pbrSampler, false, false);
+	Texture& metallicSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/metallic.png", pbrSampler, false, false);
+	Texture& roughnessSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/roughness.png", pbrSampler, false, false);
+	Texture& aoSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/ao.png", pbrSampler, false, false);
+	Texture& albedoFloor = m_RenderEngine->CreateTexture2D("resources/textures/grass/albedo.png", pbrSampler, false, false);
+	Texture& normalFloor = m_RenderEngine->CreateTexture2D("resources/textures/grass/normal.png", pbrSampler, false, false);
+	Texture& metallicFloor = m_RenderEngine->CreateTexture2D("resources/textures/grass/metallic.png", pbrSampler, false, false);
+	Texture& roughnessFloor = m_RenderEngine->CreateTexture2D("resources/textures/grass/roughness.png", pbrSampler, false, false);
+	Texture& aoFloor = m_RenderEngine->CreateTexture2D("resources/textures/grass/ao.png", pbrSampler, false, false);
 
 
 
-	Texture& sprite = m_RenderEngine->CreateTexture2D(LinaEngine::Utility::GetUniqueID(), "resources/textures/sprite.png");
+	Texture& sprite = m_RenderEngine->CreateTexture2D("resources/textures/sprite.png");
 	Mesh& floorMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
 	// Create material for example mesh.
 	objectUnlitMaterial = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::STANDARD_UNLIT);
@@ -202,7 +202,7 @@ void Example1Level::Initialize()
 	sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
-	//m_RenderEngine->SetHDRIData(sphereMat);
+	m_RenderEngine->SetHDRIData(sphereMat);
 
 
 	floorMaterial = &m_RenderEngine->CreateMaterial(-55, Shaders::PBR_LIT);
@@ -212,7 +212,7 @@ void Example1Level::Initialize()
 	floorMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicFloor);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoFloor);
 	floorMaterial->SetVector2(MAT_TILING, Vector2(100, 100));
-	//m_RenderEngine->SetHDRIData(floorMaterial);
+	m_RenderEngine->SetHDRIData(floorMaterial);
 
 	MeshRendererComponent cubeRenderer;
 	cubeRenderer.meshID = Primitives::CUBE;

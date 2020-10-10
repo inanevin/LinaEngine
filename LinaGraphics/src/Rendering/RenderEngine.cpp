@@ -53,6 +53,9 @@ namespace LinaEngine::Graphics
 
 	RenderEngine::~RenderEngine()
 	{
+		// Delete textures.
+		for (std::map<int, Texture*>::iterator it = m_loadedTextures.begin(); it != m_loadedTextures.end(); it++)
+			delete it->second;
 
 		// Dump the remaining memory.
 		DumpMemory();
@@ -197,82 +200,69 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	Texture& RenderEngine::CreateTexture2D(int id, const std::string& filePath, SamplerParameters samplerParams, bool compress, bool useDefaultFormats)
+	Texture& RenderEngine::CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams, bool compress, bool useDefaultFormats)
 	{
-		if (!TextureExists(id))
+		// Create pixel data.
+		ArrayBitmap* textureBitmap = new ArrayBitmap();
+
+		int nrComponents = textureBitmap->Load(filePath);
+		if (nrComponents == -1)
 		{
-			// Create pixel data.
-			ArrayBitmap* textureBitmap = new ArrayBitmap();
-
-			int nrComponents = textureBitmap->Load(filePath);
-			if (nrComponents == -1)
-			{
-				LINA_CORE_ERR("Texture with the path {0} doesn't exist, returning empty texture", filePath);
-				delete textureBitmap;
-				return m_defaultTexture;
-			}
-
-			if (useDefaultFormats)
-			{
-				if (nrComponents == 1)
-					samplerParams.textureParams.internalPixelFormat = samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_R;
-				if (nrComponents == 2)
-					samplerParams.textureParams.internalPixelFormat = samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RG;
-				else if (nrComponents == 3)
-					samplerParams.textureParams.internalPixelFormat = samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
-				else if (nrComponents == 4)
-					samplerParams.textureParams.internalPixelFormat = samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGBA;
-
-			}
-			// Create texture & construct.
-			m_loadedTextures[id].Construct(m_renderDevice, *textureBitmap, samplerParams, compress);
-
-			// Delete pixel data.
+			LINA_CORE_ERR("Texture with the path {0} doesn't exist, returning empty texture", filePath);
 			delete textureBitmap;
+			return m_defaultTexture;
+		}
 
-			// Return
-			return m_loadedTextures[id];
-		}
-		else
+		if (useDefaultFormats)
 		{
-			// Texture with this name already exists!
-			LINA_CORE_ERR("Texture with the path {0} already exists, returning that...", filePath);
-			return m_loadedTextures[id];
+			if (nrComponents == 1)
+				samplerParams.textureParams.internalPixelFormat = samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_R;
+			if (nrComponents == 2)
+				samplerParams.textureParams.internalPixelFormat = samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RG;
+			else if (nrComponents == 3)
+				samplerParams.textureParams.internalPixelFormat = samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
+			else if (nrComponents == 4)
+				samplerParams.textureParams.internalPixelFormat = samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGBA;
+
 		}
+
+		// Create texture & construct.
+		Texture* texture = new Texture();
+		texture->Construct(m_renderDevice, *textureBitmap, samplerParams, compress);
+		m_loadedTextures[texture->GetID()] = texture;
+
+		// Delete pixel data.
+		delete textureBitmap;
+
+		// Return
+		return *m_loadedTextures[texture->GetID()];
 	}
 
-	Texture& RenderEngine::CreateTextureHDRI(int id, const std::string filePath)
+	Texture& RenderEngine::CreateTextureHDRI(const std::string filePath)
 	{
-		if (!TextureExists(id))
+		// Create pixel data.
+		int w, h, nrComponents;
+		float* data = ArrayBitmap::LoadImmediateHDRI(filePath.c_str(), w, h, nrComponents);
+
+		if (!data)
 		{
-			// Create pixel data.
-			int w, h, nrComponents;
-			float* data = ArrayBitmap::LoadImmediateHDRI(filePath.c_str(), w, h, nrComponents);
-
-			if (!data)
-			{
-				LINA_CORE_ERR("Texture with the path {0} doesn't exist, returning empty texture", filePath);
-				return m_defaultTexture;
-			}
-
-
-			// Create texture & construct.
-			SamplerParameters samplerParams;
-			samplerParams.textureParams.wrapR = samplerParams.textureParams.wrapS = samplerParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-			samplerParams.textureParams.minFilter = samplerParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-			samplerParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
-			samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
-			m_loadedTextures[id].ConstructHDRI(m_renderDevice, samplerParams, Vector2(w, h), data);
-
-			// Return
-			return m_loadedTextures[id];
+			LINA_CORE_ERR("Texture with the path {0} doesn't exist, returning empty texture", filePath);
+			return m_defaultTexture;
 		}
-		else
-		{
-			// Texture with this name already exists!
-			LINA_CORE_ERR("Texture with the path {0} already exists, returning that...", filePath);
-			return m_loadedTextures[id];
-		}
+
+		// Create texture & construct.
+		SamplerParameters samplerParams;
+		samplerParams.textureParams.wrapR = samplerParams.textureParams.wrapS = samplerParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		samplerParams.textureParams.minFilter = samplerParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
+		samplerParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
+		samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
+
+		Texture* texture = new Texture();
+		texture->ConstructHDRI(m_renderDevice, samplerParams, Vector2(w, h), data);
+		m_loadedTextures[texture->GetID()] = texture;
+
+		// Return
+		return *m_loadedTextures[texture->GetID()];
 	}
 
 	Mesh& RenderEngine::CreateMesh(int id, const std::string& filePath, MeshParameters meshParams)
@@ -392,7 +382,7 @@ namespace LinaEngine::Graphics
 			return Texture();
 		}
 
-		return m_loadedTextures[id];
+		return *m_loadedTextures[id];
 	}
 
 	Mesh& RenderEngine::GetMesh(int id)
@@ -563,6 +553,7 @@ namespace LinaEngine::Graphics
 			return;
 		}
 
+		delete m_loadedTextures[id];
 		m_loadedTextures.erase(id);
 	}
 
@@ -888,7 +879,7 @@ namespace LinaEngine::Graphics
 
 		// Clear color.
 		m_renderDevice.Clear(false, true, false, m_cameraSystem.GetCurrentClearColor(), 0xFF);
-		
+
 		// Draw scene
 		DrawSceneObjects(m_shadowMapDrawParams, &m_shadowMapMaterial, false);
 

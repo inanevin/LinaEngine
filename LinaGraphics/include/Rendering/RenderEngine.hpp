@@ -105,10 +105,10 @@ namespace LinaEngine::Graphics
 		Material& CreateMaterial(int id, Shaders shader);
 
 		/// <summary> Creates a texture resource. </summary>
-		Texture& CreateTexture2D(int id, const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false);
+		Texture& CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false);
 
 		/// <summary> Creates an HDRI texture resource. </summary>
-		Texture& CreateTextureHDRI(int id, const std::string filePath);
+		Texture& CreateTextureHDRI(const std::string filePath);
 
 		/// <summary> Creates a mesh resource. </summary>
 		Mesh& CreateMesh(int id, const std::string& filePath, MeshParameters meshParams = MeshParameters());
@@ -363,7 +363,7 @@ namespace LinaEngine::Graphics
 		LinaEngine::ECS::ECSSystemList m_renderingPipeline;
 
 		// Texture resources.
-		std::map<int, Texture> m_loadedTextures;
+		std::map<int, Texture*> m_loadedTextures;
 
 		// Model resources
 		std::map<int, Mesh> m_loadedMeshes;

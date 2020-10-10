@@ -28,6 +28,7 @@ namespace LinaEngine
 {
 	namespace Graphics
 	{
+		class RenderEngine;
 		class Window;
 		struct WindowProperties;
 	}
@@ -44,11 +45,12 @@ namespace LinaEditor
 		~SplashScreen();
 		
 		void Draw();
-		void Setup(LinaEngine::Graphics::Window* splashWindow, const LinaEngine::Graphics::WindowProperties& props);
+		void Setup(LinaEngine::Graphics::RenderEngine* renderEngine, LinaEngine::Graphics::Window* splashWindow, const LinaEngine::Graphics::WindowProperties& props);
 
 	private:
 	
-		LinaEngine::Graphics::Window* m_window;
+		LinaEngine::Graphics::Window* m_window = nullptr;
+		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
 	};
 }
 

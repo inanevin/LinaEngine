@@ -670,7 +670,7 @@ namespace LinaEditor
 			params.textureParams.wrapT = selectedWrapT;
 			Graphics::SamplerParameters newParams = params;
 			m_RenderEngine->UnloadTextureResource(m_SelectedTextureID);
-			m_SelectedTexture = &m_RenderEngine->CreateTexture2D(m_SelectedTextureID, m_SelectedTexturePath, newParams);
+			m_SelectedTexture = &m_RenderEngine->CreateTexture2D(m_SelectedTexturePath, newParams);
 		}
 
 		// Setup data for drawing texture.

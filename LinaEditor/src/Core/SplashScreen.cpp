@@ -22,6 +22,9 @@ Timestamp: 10/10/2020 3:26:27 PM
 #include "Core/SplashScreen.hpp"
 #include "Rendering/Window.hpp"
 #include "Utility/Log.hpp"
+#include "Rendering/RenderEngine.hpp"
+#include "Rendering/Texture.hpp"
+#include "Utility/UtilityFunctions.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -31,30 +34,19 @@ Timestamp: 10/10/2020 3:26:27 PM
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+LinaEngine::Graphics::Texture* splashScreenTexture;
+
 namespace LinaEditor
 {
-	void SplashScreen::Draw()
-	{
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
 
-		ImGui::Begin("sa");
-		ImGui::Text("heeey");
-		ImGui::End();
 
-		// Rendering
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-		m_window->Tick();
-
-	}
-
-	void SplashScreen::Setup(LinaEngine::Graphics::Window* splashWindow, const LinaEngine::Graphics::WindowProperties& props)
+	void SplashScreen::Setup(LinaEngine::Graphics::RenderEngine* renderEngine, LinaEngine::Graphics::Window* splashWindow, const LinaEngine::Graphics::WindowProperties& props)
 	{
 		// Set ref.
 		m_window = splashWindow;
+
+		// Create splash texture
+		splashScreenTexture = &renderEngine->CreateTexture2D("resources/textures/splashScreen.png");
 
 		// Create context.
 		bool windowCreationSuccess = splashWindow->CreateContext(props);
@@ -76,6 +68,34 @@ namespace LinaEditor
 
 	}
 
+	void SplashScreen::Draw()
+	{
+		// Nf
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		// Setup wndow.
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(ImVec2(0, 0));
+		ImGui::SetNextWindowSize(viewport->Size);
+
+		// Draw window.
+		ImGui::Begin("SplashScreen", NULL, ImGuiWindowFlags_NoDecoration);
+
+
+
+		ImGui::End();
+
+		// Rendering
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		// swap buffers.
+		m_window->Tick();
+
+	}
+
 	SplashScreen::~SplashScreen()
 	{
 		// Cleanup
@@ -83,6 +103,7 @@ namespace LinaEditor
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 
+		m_renderEngine->UnloadTextureResource(splashScreenTexture->GetID());
 		delete m_window;
 	}
 }

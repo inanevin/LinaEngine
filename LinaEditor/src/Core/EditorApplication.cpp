@@ -38,24 +38,34 @@ namespace LinaEditor
 
 			LINA_CLIENT_TRACE("[Constructor] -> Editor Application ({0})", typeid(*this).name());
 
-			LinaEngine::Graphics::WindowProperties splashProps;
-			splashProps.m_width = 720;
-			splashProps.m_height = 450;
-			splashProps.m_decorated = false;
-			splashProps.m_resizable = false;
-
-			SplashScreen* splashScreen = new SplashScreen();
-		
-			// Setup splash screen.
-			splashScreen->Setup(CreateContextWindow(), splashProps);
-
-			while (true)
-			{
-				splashScreen->Draw();
-			}
-
-			delete splashScreen;
-			return;
+			//LinaEngine::Graphics::WindowProperties props;
+			//props.m_width = 1440;
+			//props.m_height = 900;
+			//props.m_decorated = false;
+			//props.m_resizable = false;
+			//props.m_title = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
+			//
+			//
+			//Initialize(props);
+			//
+			//LinaEngine::Graphics::WindowProperties splashProps;
+			//splashProps.m_width = 720;
+			//splashProps.m_height = 450;
+			//splashProps.m_decorated = false;
+			//splashProps.m_resizable = false;
+			//
+			//SplashScreen* splashScreen = new SplashScreen();
+			//
+			//// Setup splash screen.
+			//splashScreen->Setup(&GetRenderEngine(), CreateContextWindow(), splashProps);
+			//
+			//while (true)
+			//{
+			//	splashScreen->Draw();
+			//}
+			//
+			//delete splashScreen;
+			//return;
 
 			LinaEngine::Graphics::WindowProperties props;
 			props.m_width = 1440;
@@ -63,6 +73,7 @@ namespace LinaEditor
 			props.m_decorated = false;
 			props.m_resizable = false;
 			props.m_title = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
+
 
 			Initialize(props);
 
@@ -80,11 +91,14 @@ namespace LinaEditor
 			// Load startup level.
 			LoadLevel(&m_startupLevel);
 
+
+			Run();
+
 		}
 
-		~EditorApplication() 
+		~EditorApplication()
 		{
-			LINA_CLIENT_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());		
+			LINA_CLIENT_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
 		}
 
 
@@ -122,7 +136,7 @@ LinaEngine::Graphics::RenderEngine* LinaEngine::CreateRenderEngine()
 }
 
 // Default engine
-LinaEngine::Physics::PhysicsEngine * LinaEngine::CreatePhysicsEngine()
+LinaEngine::Physics::PhysicsEngine* LinaEngine::CreatePhysicsEngine()
 {
 	return new LinaEngine::Physics::PhysicsEngine();
 }
