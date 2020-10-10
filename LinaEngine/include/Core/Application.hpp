@@ -133,7 +133,7 @@ namespace LinaEngine
 		World::Level* m_CurrentLevel = nullptr;
 
 		// Do we have a currently active level?
-		bool m_ActiveLevelExists = false;
+		bool m_activeLevelExists = false;
 
 		// Is application running?
 		bool m_Running = false;

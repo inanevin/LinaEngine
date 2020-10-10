@@ -1115,18 +1115,15 @@ namespace LinaEngine::Graphics
 		glUnmapBuffer(GL_UNIFORM_BUFFER);
 	}
 
+
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 	// DRAWING OPERATIONS
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-
-	void GLRenderDevice::Draw(uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements, bool drawArrays)
+	void GLRenderDevice::SetDrawParameters(const DrawParams& drawParams)
 	{
-		// No need to draw nothin dude.
-		if (!drawArrays && numInstances == 0) return;
-
 		// Setup draw parameters.
 		SetFaceCulling(drawParams.faceCulling);
 		SetBlending(drawParams.sourceBlend, drawParams.destBlend);
@@ -1141,6 +1138,17 @@ namespace LinaEngine::Graphics
 			SetDepthTestEnable(false);
 
 		SetStencilTest(drawParams.useStencilTest, drawParams.stencilFunc, drawParams.stencilTestMask, drawParams.stencilWriteMask, drawParams.stencilComparisonVal, drawParams.stencilFail, drawParams.stencilPassButDepthFail, drawParams.stencilPass);
+
+	}
+
+
+	void GLRenderDevice::Draw(uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements, bool drawArrays)
+	{
+		// No need to draw nothin dude.
+		if (!drawArrays && numInstances == 0) return;
+
+		// Set parameters.
+		SetDrawParameters(drawParams);
 
 		// Set vao & draw
 		SetVAO(vao);

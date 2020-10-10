@@ -174,11 +174,6 @@ namespace LinaEditor
 		colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 
-
-
-
-
-
 		// setup panels, windows etc.
 		m_ecsPanel = new ECSPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_materialPanel = new MaterialPanel(Vector2::Zero, Vector2(700, 600), *this);
@@ -206,7 +201,31 @@ namespace LinaEditor
 		m_logPanel->Setup();
 		m_headerPanel->Setup();
 
+		// Dockspace settings.
 		setDockspaceLayout = true;
+
+		// Set GUI draw params.
+		m_drawParameters.useScissorTest = false;
+		m_drawParameters.useDepthTest = true;
+		m_drawParameters.useStencilTest = true;
+		m_drawParameters.primitiveType = Graphics::PrimitiveType::PRIMITIVE_TRIANGLES;
+		m_drawParameters.faceCulling = Graphics::FaceCulling::FACE_CULL_BACK;
+		m_drawParameters.sourceBlend = Graphics::BlendFunc::BLEND_FUNC_SRC_ALPHA;
+		m_drawParameters.destBlend = Graphics::BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+		m_drawParameters.shouldWriteDepth = true;
+		m_drawParameters.depthFunc = Graphics::DrawFunc::DRAW_FUNC_LEQUAL;
+		m_drawParameters.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_ALWAYS;
+		m_drawParameters.stencilComparisonVal = 0;
+		m_drawParameters.stencilTestMask = 0xFF;
+		m_drawParameters.stencilWriteMask = 0xFF;
+		m_drawParameters.stencilFail = Graphics::StencilOp::STENCIL_KEEP;
+		m_drawParameters.stencilPass = Graphics::StencilOp::STENCIL_REPLACE;
+		m_drawParameters.stencilPassButDepthFail = Graphics::StencilOp::STENCIL_KEEP;
+		m_drawParameters.scissorStartX = 0;
+		m_drawParameters.scissorStartY = 0;
+		m_drawParameters.scissorWidth = 0;
+		m_drawParameters.scissorHeight = 0;
+
 	}
 
 	void GUILayer::OnDetach()
@@ -227,6 +246,8 @@ namespace LinaEditor
 
 	void GUILayer::OnTick(float dt)
 	{
+		// Set draw params first.
+		m_renderEngine->SetDrawParameters(m_drawParameters);
 
 		//Setup
 		ImGui_ImplOpenGL3_NewFrame();

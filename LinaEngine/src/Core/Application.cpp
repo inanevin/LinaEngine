@@ -138,7 +138,7 @@ namespace LinaEngine
 				layer->OnTick(frameTime);
 
 			// Update current level.
-			if (m_ActiveLevelExists)
+			if (m_activeLevelExists)
 				m_CurrentLevel->Tick(frameTime);
 
 			if (frameTime > 0.25)
@@ -157,7 +157,14 @@ namespace LinaEngine
 
 			// Update render engine.
 			if (m_canRender)
-				m_renderEngine->Render(frameTime);
+			{
+				// render level.
+				if(m_activeLevelExists)
+					m_renderEngine->Render();
+
+				// Update gui layers & swap buffers
+				m_renderEngine->TickAndSwap(frameTime);
+			}
 
 
 			// Simple FPS count
@@ -229,7 +236,7 @@ namespace LinaEngine
 		m_CurrentLevel->SetEngineReferences(&m_ECS, *m_renderEngine, *m_inputEngine);
 		m_CurrentLevel->Install();
 		m_CurrentLevel->Initialize();
-		m_ActiveLevelExists = true;
+		m_activeLevelExists = true;
 	}
 
 
@@ -237,7 +244,7 @@ namespace LinaEngine
 	{
 		if (m_CurrentLevel == level)
 		{
-			m_ActiveLevelExists = false;
+			m_activeLevelExists = false;
 			m_CurrentLevel = nullptr;
 		}
 

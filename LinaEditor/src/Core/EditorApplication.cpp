@@ -42,10 +42,10 @@ namespace LinaEditor
 			m_guiLayer->Setup(GetAppWindow(), GetRenderEngine(), GetPhysicsEngine(), this, GetECSREgistry(), m_StartupLevel, m_scenePanelSize);
 
 			// Load startup level.
-			LoadLevel(&m_StartupLevel);
+			//LoadLevel(&m_StartupLevel);
 
 			// Push layer into the engine.
-			//GetRenderEngine().PushLayer(m_guiLayer);
+			GetRenderEngine().PushLayer(m_guiLayer);
 
 		}
 		~EditorApplication() {

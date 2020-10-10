@@ -203,6 +203,9 @@ namespace LinaEngine::Graphics
 		// Updates a uniform buffer for a shader by id without offset.
 		void UpdateUniformBuffer(uint32 buffer, const void* data, uintptr dataSize);
 
+		// Sets draw parameters.
+		void SetDrawParameters(const DrawParams& drawParams);
+
 		// Actual drawing process for meshes.
 		void Draw(uint32 vao, const DrawParams& drawParams, uint32 numInstances, uint32 numElements, bool drawArrays = false);
 

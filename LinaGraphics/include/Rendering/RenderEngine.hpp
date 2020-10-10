@@ -96,7 +96,10 @@ namespace LinaEngine::Graphics
 		void PostInitialFrame();
 
 		// Called each frame.
-		void Render(float frameTime);
+		void Render();
+
+		// Updates the layers & swaps buffers
+		void TickAndSwap(float frameTime);
 
 		// Sets the viewport offset & display size
 		void SetViewportDisplay(Vector2 offset, Vector2 size);
@@ -179,6 +182,9 @@ namespace LinaEngine::Graphics
 
 		// Draws a line bw 2 points.
 		void DrawLine(Vector3 p1, Vector3 p2, Color col, float width = 1.0f);
+
+		// Commands the render device to put the params in place.
+		void SetDrawParameters(const DrawParams& params);
 
 	private:
 

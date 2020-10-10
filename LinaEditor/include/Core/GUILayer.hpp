@@ -142,6 +142,7 @@ namespace LinaEditor
 
 	private:
 
+		LinaEngine::Graphics::DrawParams m_drawParameters;
 		LinaEngine::Graphics::Window* m_appWindow = nullptr;
 		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
 		LinaEngine::Physics::PhysicsEngine* m_physicsEngine = nullptr;

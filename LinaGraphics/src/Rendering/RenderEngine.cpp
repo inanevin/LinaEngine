@@ -134,7 +134,6 @@ namespace LinaEngine::Graphics
 		// Set debug values.
 		m_debugData.visualizeDepth = false;
 
-
 	}
 
 	void RenderEngine::PostInitialFrame()
@@ -142,7 +141,7 @@ namespace LinaEngine::Graphics
 		ValidateEngineShaders();
 	}
 
-	void RenderEngine::Render(float frameTime)
+	void RenderEngine::Render()
 	{
 		// DrawShadows();
 
@@ -150,6 +149,10 @@ namespace LinaEngine::Graphics
 
 		//DrawOperationsDefault();
 
+	}
+
+	void RenderEngine::TickAndSwap(float frameTime)
+	{
 		// Draw GUI Layers
 		for (Layer* layer : m_guiLayerStack)
 			layer->OnTick(frameTime);
@@ -974,6 +977,11 @@ namespace LinaEngine::Graphics
 		m_renderDevice.SetShader(m_debugDrawMaterial.shaderID);
 		m_renderDevice.UpdateShaderUniformColor(m_debugDrawMaterial.shaderID, MAT_COLOR, col);
 		m_renderDevice.DrawLine(m_debugDrawMaterial.shaderID, Matrix::Identity(), p1, p2, width);
+	}
+
+	void RenderEngine::SetDrawParameters(const DrawParams& params)
+	{
+		m_renderDevice.SetDrawParameters(params);
 	}
 
 	void RenderEngine::DrawOperationsDefault()
