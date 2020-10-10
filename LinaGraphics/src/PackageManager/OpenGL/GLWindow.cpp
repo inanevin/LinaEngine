@@ -105,8 +105,7 @@ namespace LinaEngine::Graphics
 		m_glfwWindow = (glfwCreateWindow(m_windowProperties.m_width, m_windowProperties.m_height, m_windowProperties.m_title.c_str(), NULL, NULL));
 
 		// Set window position.
-		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-		SetPos(LinaEngine::Vector2(mode->width / 2.0f + m_windowProperties.m_xPos - m_windowProperties.m_width / 2.0f, mode->height / 2.0f + m_windowProperties.m_yPos - m_windowProperties.m_height / 2.0f));
+		SetPosCentered(Vector2::Zero);
 
 		if (!m_glfwWindow)
 		{
@@ -226,6 +225,12 @@ namespace LinaEngine::Graphics
 		m_windowProperties.m_xPos = newPos.x;
 		m_windowProperties.m_yPos = newPos.y;
 		glfwSetWindowPos(m_glfwWindow, newPos.x, newPos.y);
+	}
+
+	void GLWindow::SetPosCentered(const Vector2 newPos)
+	{
+		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		SetPos(LinaEngine::Vector2(mode->width / 2.0f + newPos.x - m_windowProperties.m_width / 2.0f, mode->height / 2.0f + newPos.y - m_windowProperties.m_height / 2.0f));
 	}
 
 

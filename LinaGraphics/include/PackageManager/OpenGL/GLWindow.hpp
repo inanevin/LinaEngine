@@ -59,6 +59,9 @@ namespace LinaEngine::Graphics
 		// Sets a new pos for the native window.
 		virtual void SetPos(const Vector2& newPos) override;
 
+		// Sets a new post for the native window based on monitor & screen center.
+		virtual void SetPosCentered(const Vector2 newPos) override;
+
 		// Minimizes the window.
 		virtual void Iconify() override;
 

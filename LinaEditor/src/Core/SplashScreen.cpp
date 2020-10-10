@@ -35,6 +35,7 @@ Timestamp: 10/10/2020 3:26:27 PM
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <thread>
 
 LinaEngine::Graphics::Texture* splashScreenTexture;
 
@@ -42,7 +43,7 @@ namespace LinaEditor
 {
 
 
-	void SplashScreen::Setup(LinaEngine::Graphics::Window* splashWindow, const LinaEngine::Graphics::WindowProperties& props)
+	void SplashScreen::Setup(LinaEngine::Graphics::Window* splashWindow, LinaEngine::Graphics::RenderEngine* renderEngine, const LinaEngine::Graphics::WindowProperties& props)
 	{
 		// Set ref.
 		m_window = splashWindow;
@@ -70,13 +71,8 @@ namespace LinaEditor
 		splashDrawParams.scissorWidth = 0;
 		splashDrawParams.scissorHeight = 0;
 
-		// Create context.
-		bool windowCreationSuccess = splashWindow->CreateContext(props);
-		if (!windowCreationSuccess)
-		{
-			LINA_CORE_ERR("Window Creation Failed!");
-			return;
-		}
+		// Set draw params.
+		renderEngine->SetDrawParameters(splashDrawParams);
 
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
@@ -88,28 +84,15 @@ namespace LinaEditor
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init();
 
+		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		splashWindow->SetSize(Vector2(props.m_width, props.m_height));
+		splashWindow->SetPos(LinaEngine::Vector2(mode->width / 2.0f + props.m_xPos - props.m_width / 2.0f, mode->height / 2.0f + props.m_yPos - props.m_height / 2.0f));
+
 		// Create pixel data.
-		Graphics::ArrayBitmap::SetImageFlip(true);
-		Graphics::ArrayBitmap* textureBitmap = new Graphics::ArrayBitmap();
-
-		int nrComponents = textureBitmap->Load("resources/textures/splashScreen.png");
-		if (nrComponents == -1)
-		{
-			LINA_CORE_ERR("Texture with the path {0} doesn't exist, returning empty texture", filePath);
-			delete textureBitmap;
-		}
-		
-
-		RenderDevice renderDevice;
-		renderDevice.Initialize(props.m_width, props.m_height, Graphics::DrawParams());
-		renderDevice.SetDrawParameters(splashDrawParams);
-
-		// Create texture & construct.
-		splashScreenTexture = new Graphics::Texture();
-		splashScreenTexture->Construct(renderDevice, *textureBitmap, Graphics::SamplerParameters(), false);
-
-		delete textureBitmap;
+		splashScreenTexture = &renderEngine->CreateTexture2D("resources/textures/splashScreen.png");
 	}
+
+
 
 	void SplashScreen::Draw()
 	{
@@ -125,8 +108,9 @@ namespace LinaEditor
 
 		// Draw window.
 		ImGui::Begin("SplashScreen", NULL, ImGuiWindowFlags_NoDecoration);
-	
+
 		ImGui::GetWindowDrawList()->AddImage((void*)splashScreenTexture->GetID(), ImVec2(0,0), viewport->Size, ImVec2(0,1), ImVec2(1,0));
+		ImGui::Text("Loading %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
 
 		ImGui::End();
 
@@ -141,12 +125,14 @@ namespace LinaEditor
 
 	SplashScreen::~SplashScreen()
 	{
+		// Remove image.
+		m_window->Tick();
+
 		// Cleanup
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 
 		delete splashScreenTexture;
-		delete m_window;
 	}
 }

@@ -26,11 +26,10 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include "Physics/PhysicsEngine.hpp"
 #include "Input/InputEngine.hpp"
 #include "Core/SplashScreen.hpp"
-#include <thread>
 
 namespace LinaEditor
 {
-	void CreateSplashScreen(bool* run)
+	void CreateSplashScreen()
 	{
 
 		LinaEngine::Graphics::WindowProperties splashProps;
@@ -39,16 +38,10 @@ namespace LinaEditor
 		splashProps.m_decorated = false;
 		splashProps.m_resizable = false;
 
-		SplashScreen* splashScreen = new SplashScreen();
-
 		// Setup splash screen.
-		splashScreen->Setup(new ContextWindow(), splashProps);
-
-		while (*run)
-		{
-			splashScreen->Draw();
-		}
-
+		SplashScreen* splashScreen = new SplashScreen();
+		//splashScreen->Setup(new ContextWindow(), splashProps);
+		//splashScreen->Draw();		
 		delete splashScreen;
 	}
 
@@ -61,40 +54,48 @@ namespace LinaEditor
 
 			LINA_CLIENT_TRACE("[Constructor] -> Editor Application ({0})", typeid(*this).name());
 
-		//bool showSplashScreen = true;
-		//
-		//// Load startup level.
-		//!InstallLevel(&m_startupLevel);
-		//
-		//std::thread t1(LinaEditor::CreateSplashScreen, &showSplashScreen);
-		//
-		//t1.join();
-		//
-		//return;
 
+			// Init engine.
 			LinaEngine::Graphics::WindowProperties props;
 			props.m_width = 1440;
 			props.m_height = 900;
 			props.m_decorated = false;
 			props.m_resizable = false;
 			props.m_title = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
-
 			Initialize(props);
+	
+			LinaEngine::Graphics::WindowProperties splashProps;
+			splashProps.m_width = 720;
+			splashProps.m_height = 450;
+			splashProps.m_decorated = false;
+			splashProps.m_resizable = false;
 
-		
+			SplashScreen* splash = new SplashScreen();
+			splash->Setup(&GetAppWindow(), &GetRenderEngine(), splashProps);
+			splash->Draw(); // We should carry this over to a separate thread later on when things are more complex and requires data shown to the user while loading.
+
 			// Create layers
 			m_guiLayer = new LinaEditor::GUILayer();
 
 			// Setup layers
 			m_guiLayer->Setup(GetAppWindow(), GetRenderEngine(), GetPhysicsEngine(), this, GetECSREgistry(), m_startupLevel, m_scenePanelSize);
 
-			InstallLevel(&m_startupLevel);
+			// Install level.
+			InstallLevel(&m_startupLevel);	
 			InitializeLevel(&m_startupLevel);
+
+			// Remove splash.
+			delete splash;
 
 			// Push layer into the engine.
 			GetRenderEngine().PushLayer(m_guiLayer);
 
+			// Set the app window size back to original.
+			GetAppWindow().SetSize(Vector2(props.m_width, props.m_height));
+			GetAppWindow().SetPosCentered(Vector2::Zero);
 
+
+			// Run engine.
 			Run();
 
 
