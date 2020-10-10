@@ -80,14 +80,14 @@ namespace LinaEngine::Graphics
 			return m_viewportSize;
 		}
 
-		FORCEINLINE ECS::CameraSystem* GetCameraSystem() { return &m_CameraSystem; }
+		FORCEINLINE ECS::CameraSystem* GetCameraSystem() { return &m_cameraSystem; }
 
 		// Setters for light counts. /* TAKE INSIDE LINA API LATER ON */
-		FORCEINLINE void SetCurrentPLightCount(int count) { m_CurrentPointLightCount = count; }
-		FORCEINLINE void SetCurrentSLightCount(int count) { m_CurrentSpotLightCount = count; }
+		FORCEINLINE void SetCurrentPLightCount(int count) { m_currentPointLightCount = count; }
+		FORCEINLINE void SetCurrentSLightCount(int count) { m_currentSpotLightCount = count; }
 
 		// Get hdri cubemap data.
-		FORCEINLINE Texture& GetHDRICubemap() { return m_HDRICubemap; }
+		FORCEINLINE Texture& GetHDRICubemap() { return m_hdriCubemap; }
 
 		// Initialize the render renderEngine.
 		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn, Window& appWindow);
@@ -153,7 +153,7 @@ namespace LinaEngine::Graphics
 		Material& SetMaterialShader(Material& material, Shaders shader);
 
 		// Sets the skybox material.
-		FORCEINLINE void SetSkyboxMaterial(Material& skyboxMaterial) { m_SkyboxMaterial = &skyboxMaterial; }
+		FORCEINLINE void SetSkyboxMaterial(Material& skyboxMaterial) { m_skyboxMaterial = &skyboxMaterial; }
 
 		// Pushes a new layer into the gui stack.
 		void PushLayer(Layer* layer);
@@ -237,67 +237,70 @@ namespace LinaEngine::Graphics
 		Window* m_appWindow;
 
 		// Primary render target
-		RenderTarget m_PrimaryRenderTarget;
+		RenderTarget m_primaryRenderTarget;
 
 		// Ping-pong render targets
-		RenderTarget m_PingPongRenderTarget1;
-		RenderTarget m_PingPongRenderTarget2;
+		RenderTarget m_pingPongRenderTarget1;
+		RenderTarget m_pingPongRenderTarget2;
 
 		// Outline render target
-		RenderTarget m_OutlineRenderTarget;
+		RenderTarget m_outlineRenderTarget;
 
 		// Equirectangular hdri capture render target
-		RenderTarget m_HDRICaptureRenderTarget;
+		RenderTarget m_hdriCaptureRenderTarget;
 
 		// Shadows depth map
 		RenderTarget m_shadowMapTarget;
 
 		// Default Render buffer
-		RenderBuffer m_PrimaryRenderBuffer;
+		RenderBuffer m_primaryRenderBuffer;
 
 		// Equirectangular hdri capture render buffer
-		RenderBuffer m_HDRICaptureRenderBuffer;
+		RenderBuffer m_hdriCaptureRenderBuffer;
 
 		// quad mateiral.
-		Material m_ScreenQuadFinalMaterial;
+		Material m_screenQuadFinalMaterial;
 
 		// Screen quad blur material
-		Material m_ScreenQuadBlurMaterial;
+		Material m_screenQuadBlurMaterial;
 
 		// Screen quad outline material
-		Material m_ScreenQuadOutlineMaterial;
+		Material m_screenQuadOutlineMaterial;
 
 		// Material used to draw skybox.
-		Material* m_SkyboxMaterial = nullptr;
+		Material* m_skyboxMaterial = nullptr;
 
 		// Material for debug drawing
 		Material m_debugDrawMaterial;
 
 		// HDRI equirectangular cube material
-		Material m_HDRIMaterial;
+		Material m_hdriMaterial;
 
 		// Shadow map material
 		Material m_shadowMapMaterial;
 
+		// Dummy skybox
+		Material m_defaultSkyboxMaterial;
+
 		// Primary RT Texture
-		Texture m_PrimaryRTTexture0;
-		Texture m_PrimaryRTTexture1;
+		Texture m_primaryRTTexture0;
+		Texture m_primaryRTTexture1;
 
 		// Ping pong RT textures
-		Texture m_PingPongRTTexture1;
-		Texture m_PingPongRTTexture2;
+		Texture m_pingPongRTTexture1;
+		Texture m_pingPongRTTexture2;
 
 		// Outline RT Texture
-		Texture m_OutlineRTTexture;
+		Texture m_outlineRTTexture;
 
 		// Cubemap texture for HDRI skybox
-		Texture m_HDRICubemap;
+		Texture m_hdriCubemap;
 
 		// Irradiance cubemap for HDRI skybox
-		Texture m_HDRIIrradianceMap;
+		Texture m_hdriIrradianceMap;
 
 		// Prefilter map for HDRI skybox
-		Texture m_HDRIPrefilterMap;
+		Texture m_hdriPrefilterMap;
 
 		// BRDF LUT texture for HDRI
 		Texture m_HDRILutMap;
@@ -306,94 +309,94 @@ namespace LinaEngine::Graphics
 		Texture m_shadowMapRTTexture;
 
 		// Default texture
-		Texture m_DefaultTexture;
+		Texture m_defaultTexture;
 
 		// Default empty cubemap texture
-		Texture m_DefaultCubemapTexture;
+		Texture m_defaultCubemapTexture;
 
 		// Default drawing parameters.
-		DrawParams m_DefaultDrawParams;
+		DrawParams m_defaultDrawParams;
 
 		// Skybox drawing parameters.
-		DrawParams m_SkyboxDrawParams;
+		DrawParams m_skyboxDrawParams;
 
 		// Draw parameters for fbo texture rendering
-		DrawParams m_FullscreenQuadDP;
+		DrawParams m_fullscreenQuadDP;
 
 		// Shadow map draw params
 		DrawParams m_shadowMapDrawParams;
 
 		// Buffer for global matrices
-		UniformBuffer m_GlobalDataBuffer;
+		UniformBuffer m_globalDataBuffer;
 
 		// Buffer for lights.
-		UniformBuffer m_GlobalLightBuffer;
+		UniformBuffer m_globalLightBuffer;
 
 		// Buffer for debugging.
-		UniformBuffer m_GlobalDebugBuffer;
+		UniformBuffer m_globalDebugBuffer;
 
 		// GUI layer queue.
-		LayerStack m_GUILayerStack;
+		LayerStack m_guiLayerStack;
 
 		// Debug data
-		RenderingDebugData m_DebugData;
+		RenderingDebugData m_debugData;
 
 		// Structure that keeps track of current buffer values
-		BufferValueRecord m_BufferValueRecord;
+		BufferValueRecord m_bufferValueRecord;
 
 		// ECS system for rendering camera perspective.
-		LinaEngine::ECS::CameraSystem m_CameraSystem;
+		LinaEngine::ECS::CameraSystem m_cameraSystem;
 
 		// ECS Mesh Renderer system
-		LinaEngine::ECS::MeshRendererSystem m_MeshRendererSystem;
+		LinaEngine::ECS::MeshRendererSystem m_meshRendererSystem;
 
 		// ECS Sprite rendere system
 		LinaEngine::ECS::SpriteRendererSystem m_spriteRendererSystem;
 
 		// ECS system for handling lighting
-		LinaEngine::ECS::LightingSystem m_LightingSystem;
+		LinaEngine::ECS::LightingSystem m_lightingSystem;
 
 		// ECS system list for rendering operations.
-		LinaEngine::ECS::ECSSystemList m_RenderingPipeline;
+		LinaEngine::ECS::ECSSystemList m_renderingPipeline;
 
 		// Texture resources.
-		std::map<int, Texture> m_LoadedTextures;
+		std::map<int, Texture> m_loadedTextures;
 
 		// Model resources
-		std::map<int, Mesh> m_LoadedMeshes;
+		std::map<int, Mesh> m_loadedMeshes;
 
 		// Material storage
-		std::map<int, Material> m_LoadedMaterials;
+		std::map<int, Material> m_loadedMaterials;
 
 		// Map that stores shader ID's by name
-		std::map<int, Shader> m_LoadedShaders;
+		std::map<int, Shader> m_loadedShaders;
 
 		// List that stores the materials to receive shadows.
-		std::set<Material*> m_ShadowMappedMaterials;
+		std::set<Material*> m_shadowMappedMaterials;
 
 	private:
 
 		// Standart Skybox vertex array object.
-		uint32 m_SkyboxVAO;
+		uint32 m_skyboxVAO;
 
 		// Quad to draw the buffers into.
-		uint32 m_ScreenQuadVAO;
+		uint32 m_screenQuadVAO;
 
 		// HDRI Cubemap vao
-		uint32 m_HDRICubeVAO;
+		uint32 m_hdriCubeVAO;
 
 		// VAO for drawing lines
 		uint32 m_lineVAO;
 
 		// Light counts.
-		int m_CurrentSpotLightCount;
-		int m_CurrentPointLightCount;
+		int m_currentSpotLightCount;
+		int m_currentPointLightCount;
 
 		// Whether hdri data is captured & calculated or not.
-		bool m_HDRIDataCaptured;
+		bool m_hdriDataCaptured = false;
 
 		// HDRI Skybox resolution
-		Vector2 m_HDRIResolution = Vector2(512, 512);
+		Vector2 m_hdriResolution = Vector2(512, 512);
 
 		// Shadow map resolution
 		Vector2 m_shadowMapResolution = Vector2(2048, 2048);
@@ -403,10 +406,10 @@ namespace LinaEngine::Graphics
 		Vector2 m_viewportSize;
 
 		// Frame buffer texture parameters
-		SamplerParameters mainRTParams;
-		SamplerParameters primaryRTParams;
-		SamplerParameters pingPongRTParams;
-		SamplerParameters shadowsRTParams;
+		SamplerParameters m_mainRTParams;
+		SamplerParameters m_primaryRTParams;
+		SamplerParameters m_pingPongRTParams;
+		SamplerParameters m_shadowsRTParams;
 
 		// Post scene draw callback
 		std::function<void()> m_postSceneDrawCallback;

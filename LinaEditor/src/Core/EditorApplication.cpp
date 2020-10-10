@@ -45,7 +45,7 @@ namespace LinaEditor
 			LoadLevel(&m_StartupLevel);
 
 			// Push layer into the engine.
-			GetRenderEngine().PushLayer(m_guiLayer);
+			//GetRenderEngine().PushLayer(m_guiLayer);
 
 		}
 		~EditorApplication() {

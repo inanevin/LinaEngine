@@ -58,9 +58,9 @@ namespace LinaEngine::Graphics
 		DumpMemory();
 
 		// Release Vertex Array Objects
-		m_SkyboxVAO = m_renderDevice.ReleaseVertexArray(m_SkyboxVAO);
-		m_ScreenQuadVAO = m_renderDevice.ReleaseVertexArray(m_ScreenQuadVAO);
-		m_HDRICubeVAO = m_renderDevice.ReleaseVertexArray(m_HDRICubeVAO);
+		m_skyboxVAO = m_renderDevice.ReleaseVertexArray(m_skyboxVAO);
+		m_screenQuadVAO = m_renderDevice.ReleaseVertexArray(m_screenQuadVAO);
+		m_hdriCubeVAO = m_renderDevice.ReleaseVertexArray(m_hdriCubeVAO);
 		m_lineVAO = m_renderDevice.ReleaseVertexArray(m_lineVAO);
 
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
@@ -78,19 +78,19 @@ namespace LinaEngine::Graphics
 		SetupDrawParameters();
 
 		// Initialize the render device.
-		m_renderDevice.Initialize(m_LightingSystem, m_appWindow->GetWidth(), m_appWindow->GetHeight(), m_DefaultDrawParams);
+		m_renderDevice.Initialize(m_lightingSystem, m_appWindow->GetWidth(), m_appWindow->GetHeight(), m_defaultDrawParams);
 
 		// Construct the uniform buffer for global matrices.
-		m_GlobalDataBuffer.Construct(m_renderDevice, UNIFORMBUFFER_VIEWDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
-		m_GlobalDataBuffer.Bind(UNIFORMBUFFER_VIEWDATA_BINDPOINT);
+		m_globalDataBuffer.Construct(m_renderDevice, UNIFORMBUFFER_VIEWDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
+		m_globalDataBuffer.Bind(UNIFORMBUFFER_VIEWDATA_BINDPOINT);
 
 		// Construct the uniform buffer for lights.
-		m_GlobalLightBuffer.Construct(m_renderDevice, UNIFORMBUFFER_LIGHTDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
-		m_GlobalLightBuffer.Bind(UNIFORMBUFFER_LIGHTDATA_BINDPOINT);
+		m_globalLightBuffer.Construct(m_renderDevice, UNIFORMBUFFER_LIGHTDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
+		m_globalLightBuffer.Bind(UNIFORMBUFFER_LIGHTDATA_BINDPOINT);
 
 		// Construct the uniform buffer for debugging.
-		m_GlobalDebugBuffer.Construct(m_renderDevice, UNIFORMBUFFER_DEBUGDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
-		m_GlobalDebugBuffer.Bind(UNIFORMBUFFER_DEBUGDATA_BINDPOINT);
+		m_globalDebugBuffer.Construct(m_renderDevice, UNIFORMBUFFER_DEBUGDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);
+		m_globalDebugBuffer.Bind(UNIFORMBUFFER_DEBUGDATA_BINDPOINT);
 
 		// Initialize the engine shaders.
 		ConstructEngineShaders();
@@ -102,37 +102,37 @@ namespace LinaEngine::Graphics
 		ConstructEnginePrimitives();
 
 		// Initialize built-in vertex array objects.
-		m_SkyboxVAO = m_renderDevice.CreateSkyboxVertexArray();
-		m_HDRICubeVAO = m_renderDevice.CreateHDRICubeVertexArray();
-		m_ScreenQuadVAO = m_renderDevice.CreateScreenQuadVertexArray();
+		m_skyboxVAO = m_renderDevice.CreateSkyboxVertexArray();
+		m_hdriCubeVAO = m_renderDevice.CreateHDRICubeVertexArray();
+		m_screenQuadVAO = m_renderDevice.CreateScreenQuadVertexArray();
 		m_lineVAO = m_renderDevice.CreateLineVertexArray();
 
 		// Construct render targets
 		ConstructRenderTargets();
 
 		// Create default textures.
-		m_DefaultTexture.ConstructEmpty(m_renderDevice);
-		m_DefaultCubemapTexture.ConstructRTCubemapTexture(m_renderDevice, m_viewportSize, SamplerParameters());
+		m_defaultTexture.ConstructEmpty(m_renderDevice);
+		m_defaultCubemapTexture.ConstructRTCubemapTexture(m_renderDevice, m_viewportSize, SamplerParameters());
 
 		// Initialize ECS Camera System.
-		m_CameraSystem.Construct(ecsReg);
-		m_CameraSystem.SetAspectRatio((float)m_viewportSize.x / (float)m_viewportSize.y);
+		m_cameraSystem.Construct(ecsReg);
+		m_cameraSystem.SetAspectRatio((float)m_viewportSize.x / (float)m_viewportSize.y);
 
 		// Initialize ECS Mesh Renderer System
-		m_MeshRendererSystem.Construct(ecsReg, *this, m_renderDevice);
+		m_meshRendererSystem.Construct(ecsReg, *this, m_renderDevice);
 		m_spriteRendererSystem.Construct(ecsReg, *this, m_renderDevice);
 
 		// Initialize ECS Lighting system.
-		m_LightingSystem.Construct(ecsReg, m_renderDevice, *this);
+		m_lightingSystem.Construct(ecsReg, m_renderDevice, *this);
 
 		// Add the ECS systems into the pipeline.
-		m_RenderingPipeline.AddSystem(m_CameraSystem);
-		m_RenderingPipeline.AddSystem(m_MeshRendererSystem);
-		m_RenderingPipeline.AddSystem(m_spriteRendererSystem);
-		m_RenderingPipeline.AddSystem(m_LightingSystem);
+		m_renderingPipeline.AddSystem(m_cameraSystem);
+		m_renderingPipeline.AddSystem(m_meshRendererSystem);
+		m_renderingPipeline.AddSystem(m_spriteRendererSystem);
+		m_renderingPipeline.AddSystem(m_lightingSystem);
 
 		// Set debug values.
-		m_DebugData.visualizeDepth = false;
+		m_debugData.visualizeDepth = false;
 
 
 	}
@@ -145,10 +145,13 @@ namespace LinaEngine::Graphics
 	void RenderEngine::Render(float frameTime)
 	{
 		// DrawShadows();
+
 		Draw();
+
 		//DrawOperationsDefault();
+
 		// Draw GUI Layers
-		for (Layer* layer : m_GUILayerStack)
+		for (Layer* layer : m_guiLayerStack)
 			layer->OnTick(frameTime);
 
 		// Update window.
@@ -161,15 +164,15 @@ namespace LinaEngine::Graphics
 		m_viewportPos = pos;
 		m_viewportSize = size;
 
-		m_CameraSystem.SetAspectRatio((float)m_viewportSize.x / (float)m_viewportSize.y);
+		m_cameraSystem.SetAspectRatio((float)m_viewportSize.x / (float)m_viewportSize.y);
 
 		// Resize render buffers & frame buffer textures
-		m_renderDevice.ResizeRTTexture(m_PrimaryRTTexture0.GetID(), m_viewportSize, primaryRTParams.textureParams.internalPixelFormat, primaryRTParams.textureParams.pixelFormat);
-		m_renderDevice.ResizeRTTexture(m_PrimaryRTTexture1.GetID(), m_viewportSize, primaryRTParams.textureParams.internalPixelFormat, primaryRTParams.textureParams.pixelFormat);
+		m_renderDevice.ResizeRTTexture(m_primaryRTTexture0.GetID(), m_viewportSize, m_primaryRTParams.textureParams.internalPixelFormat, m_primaryRTParams.textureParams.pixelFormat);
+		m_renderDevice.ResizeRTTexture(m_primaryRTTexture1.GetID(), m_viewportSize, m_primaryRTParams.textureParams.internalPixelFormat, m_primaryRTParams.textureParams.pixelFormat);
 		//m_renderDevice.ResizeRTTexture(m_OutlineRTTexture.GetID(), windowSize, primaryRTParams.textureParams.internalPixelFormat, primaryRTParams.textureParams.pixelFormat);
-		m_renderDevice.ResizeRTTexture(m_PingPongRTTexture1.GetID(), m_viewportSize, pingPongRTParams.textureParams.internalPixelFormat, pingPongRTParams.textureParams.pixelFormat);
-		m_renderDevice.ResizeRTTexture(m_PingPongRTTexture1.GetID(), m_viewportSize, pingPongRTParams.textureParams.internalPixelFormat, pingPongRTParams.textureParams.pixelFormat);
-		m_renderDevice.ResizeRenderBuffer(m_PrimaryRenderTarget.GetID(), m_PrimaryRenderBuffer.GetID(), m_viewportSize, RenderBufferStorage::STORAGE_DEPTH);
+		m_renderDevice.ResizeRTTexture(m_pingPongRTTexture1.GetID(), m_viewportSize, m_pingPongRTParams.textureParams.internalPixelFormat, m_pingPongRTParams.textureParams.pixelFormat);
+		m_renderDevice.ResizeRTTexture(m_pingPongRTTexture1.GetID(), m_viewportSize, m_pingPongRTParams.textureParams.internalPixelFormat, m_pingPongRTParams.textureParams.pixelFormat);
+		m_renderDevice.ResizeRenderBuffer(m_primaryRenderTarget.GetID(), m_primaryRenderBuffer.GetID(), m_viewportSize, RenderBufferStorage::STORAGE_DEPTH);
 	}
 
 
@@ -178,15 +181,15 @@ namespace LinaEngine::Graphics
 		if (!MaterialExists(id))
 		{
 			// Create material & set it's shader.
-			SetMaterialShader(m_LoadedMaterials[id], shader);
-			m_LoadedMaterials[id].m_MaterialID = id;
-			return m_LoadedMaterials[id];
+			SetMaterialShader(m_loadedMaterials[id], shader);
+			m_loadedMaterials[id].m_MaterialID = id;
+			return m_loadedMaterials[id];
 		}
 		else
 		{
 			// Abort if material exists.
 			LINA_CORE_ERR("Material with the id {0} already exists, returning that...", id);
-			return m_LoadedMaterials[id];
+			return m_loadedMaterials[id];
 		}
 	}
 
@@ -202,7 +205,7 @@ namespace LinaEngine::Graphics
 			{
 				LINA_CORE_ERR("Texture with the path {0} doesn't exist, returning empty texture", filePath);
 				delete textureBitmap;
-				return m_DefaultTexture;
+				return m_defaultTexture;
 			}
 
 			if (useDefaultFormats)
@@ -218,19 +221,19 @@ namespace LinaEngine::Graphics
 
 			}
 			// Create texture & construct.
-			m_LoadedTextures[id].Construct(m_renderDevice, *textureBitmap, samplerParams, compress);
+			m_loadedTextures[id].Construct(m_renderDevice, *textureBitmap, samplerParams, compress);
 
 			// Delete pixel data.
 			delete textureBitmap;
 
 			// Return
-			return m_LoadedTextures[id];
+			return m_loadedTextures[id];
 		}
 		else
 		{
 			// Texture with this name already exists!
 			LINA_CORE_ERR("Texture with the path {0} already exists, returning that...", filePath);
-			return m_LoadedTextures[id];
+			return m_loadedTextures[id];
 		}
 	}
 
@@ -245,7 +248,7 @@ namespace LinaEngine::Graphics
 			if (!data)
 			{
 				LINA_CORE_ERR("Texture with the path {0} doesn't exist, returning empty texture", filePath);
-				return m_DefaultTexture;
+				return m_defaultTexture;
 			}
 
 
@@ -255,16 +258,16 @@ namespace LinaEngine::Graphics
 			samplerParams.textureParams.minFilter = samplerParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
 			samplerParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
 			samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
-			m_LoadedTextures[id].ConstructHDRI(m_renderDevice, samplerParams, Vector2(w, h), data);
+			m_loadedTextures[id].ConstructHDRI(m_renderDevice, samplerParams, Vector2(w, h), data);
 
 			// Return
-			return m_LoadedTextures[id];
+			return m_loadedTextures[id];
 		}
 		else
 		{
 			// Texture with this name already exists!
 			LINA_CORE_ERR("Texture with the path {0} already exists, returning that...", filePath);
-			return m_LoadedTextures[id];
+			return m_loadedTextures[id];
 		}
 	}
 
@@ -275,7 +278,7 @@ namespace LinaEngine::Graphics
 		{
 
 			// Create object data & feed it from model.
-			Mesh& mesh = m_LoadedMeshes[id];
+			Mesh& mesh = m_loadedMeshes[id];
 			mesh.SetParameters(meshParams);
 			ModelLoader::LoadModel(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs(), meshParams);
 
@@ -298,13 +301,13 @@ namespace LinaEngine::Graphics
 			mesh.m_MeshID = id;
 
 			// Return
-			return m_LoadedMeshes[id];
+			return m_loadedMeshes[id];
 		}
 		else
 		{
 			// Mesh with this name already exists!
 			LINA_CORE_ERR("Mesh with the name {0} already exists, returning that...", filePath);
-			return m_LoadedMeshes[id];
+			return m_loadedMeshes[id];
 		}
 
 	}
@@ -315,7 +318,7 @@ namespace LinaEngine::Graphics
 		{
 
 			// Create object data & feed it from model.
-			Mesh& mesh = m_LoadedMeshes[primitive];
+			Mesh& mesh = m_loadedMeshes[primitive];
 
 			ModelLoader::LoadModel(path, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs(), MeshParameters());
 
@@ -337,13 +340,13 @@ namespace LinaEngine::Graphics
 			mesh.m_MeshID = primitive;
 
 			// Return
-			return m_LoadedMeshes[primitive];
+			return m_loadedMeshes[primitive];
 		}
 		else
 		{
 			// Mesh with this name already exists!
 			LINA_CORE_ERR("Primitive with the ID{0} already exists, returning that...", primitive);
-			return m_LoadedMeshes[primitive];
+			return m_loadedMeshes[primitive];
 		}
 	}
 
@@ -354,13 +357,13 @@ namespace LinaEngine::Graphics
 		{
 			std::string shaderText;
 			Utility::LoadTextFileWithIncludes(shaderText, path, "#include");
-			return m_LoadedShaders[shader].Construct(m_renderDevice, shaderText, usesGeometryShader);
+			return m_loadedShaders[shader].Construct(m_renderDevice, shaderText, usesGeometryShader);
 		}
 		else
 		{
 			// Shader with this name already exists!
 			LINA_CORE_WARN("Shader with the id {0} already exists, returning that...", shader);
-			return m_LoadedShaders[shader];
+			return m_loadedShaders[shader];
 		}
 	}
 
@@ -373,7 +376,7 @@ namespace LinaEngine::Graphics
 			return Material();
 		}
 
-		return m_LoadedMaterials[id];
+		return m_loadedMaterials[id];
 	}
 
 	Texture& RenderEngine::GetTexture(int id)
@@ -385,7 +388,7 @@ namespace LinaEngine::Graphics
 			return Texture();
 		}
 
-		return m_LoadedTextures[id];
+		return m_loadedTextures[id];
 	}
 
 	Mesh& RenderEngine::GetMesh(int id)
@@ -397,7 +400,7 @@ namespace LinaEngine::Graphics
 			return Mesh();
 		}
 
-		return m_LoadedMeshes[id];
+		return m_loadedMeshes[id];
 	}
 
 	Shader& RenderEngine::GetShader(Shaders shader)
@@ -409,7 +412,7 @@ namespace LinaEngine::Graphics
 			return GetShader(Shaders::STANDARD_UNLIT);
 		}
 
-		return m_LoadedShaders[shader];
+		return m_loadedShaders[shader];
 	}
 
 	Mesh& RenderEngine::GetPrimitive(Primitives primitive)
@@ -421,19 +424,19 @@ namespace LinaEngine::Graphics
 			return GetPrimitive(Primitives::PLANE);
 		}
 		else
-			return m_LoadedMeshes[primitive];
+			return m_loadedMeshes[primitive];
 	}
 
 	Material& RenderEngine::SetMaterialShader(Material& material, Shaders shader)
 	{
 
 		// If no shader found, fall back to standardLit
-		if (m_LoadedShaders.find(shader) == m_LoadedShaders.end()) {
+		if (m_loadedShaders.find(shader) == m_loadedShaders.end()) {
 			LINA_CORE_ERR("Shader with engine ID {0} was not found. Setting material's shader to standardUnlit.", shader);
-			material.shaderID = m_LoadedShaders[Shaders::STANDARD_UNLIT].GetID();
+			material.shaderID = m_loadedShaders[Shaders::STANDARD_UNLIT].GetID();
 		}
 		else
-			material.shaderID = m_LoadedShaders[shader].GetID();
+			material.shaderID = m_loadedShaders[shader].GetID();
 
 		// Clear all shader related material data.
 		material.sampler2Ds.clear();
@@ -453,12 +456,12 @@ namespace LinaEngine::Graphics
 			material.sampler2Ds[MAT_TEXTURE2D_SHADOWMAP] = { 1 };
 			material.ints[MAT_SURFACETYPE] = 0;
 			material.isShadowMapped = true;
-			m_ShadowMappedMaterials.emplace(&material);
+			m_shadowMappedMaterials.emplace(&material);
 
 		}
 		else if (shader == Shaders::SKYBOX_SINGLECOLOR)
 		{
-			material.colors[MAT_COLOR] = Color::White;
+			material.colors[MAT_COLOR] = Color::Gray;
 		}
 		else if (shader == Shaders::SKYBOX_GRADIENT)
 		{
@@ -526,7 +529,7 @@ namespace LinaEngine::Graphics
 			material.isShadowMapped = true;
 			material.usesHDRI = true;
 
-			m_ShadowMappedMaterials.emplace(&material);
+			m_shadowMappedMaterials.emplace(&material);
 		}
 		else if (shader == Shaders::EQUIRECTANGULAR_HDRI)
 		{
@@ -556,7 +559,7 @@ namespace LinaEngine::Graphics
 			return;
 		}
 
-		m_LoadedTextures.erase(id);
+		m_loadedTextures.erase(id);
 	}
 
 	void RenderEngine::UnloadMeshResource(int id)
@@ -567,7 +570,7 @@ namespace LinaEngine::Graphics
 			return;
 		}
 
-		m_LoadedMeshes.erase(id);
+		m_loadedMeshes.erase(id);
 	}
 
 	void RenderEngine::UnloadMaterialResource(int id)
@@ -579,30 +582,30 @@ namespace LinaEngine::Graphics
 		}
 
 		// If its in the internal list, remove first.
-		if (m_ShadowMappedMaterials.find(&m_LoadedMaterials[id]) != m_ShadowMappedMaterials.end())
-			m_ShadowMappedMaterials.erase(&m_LoadedMaterials[id]);
+		if (m_shadowMappedMaterials.find(&m_loadedMaterials[id]) != m_shadowMappedMaterials.end())
+			m_shadowMappedMaterials.erase(&m_loadedMaterials[id]);
 
-		m_LoadedMaterials.erase(id);
+		m_loadedMaterials.erase(id);
 	}
 
 	bool RenderEngine::MaterialExists(int id)
 	{
-		return !(m_LoadedMaterials.find(id) == m_LoadedMaterials.end());
+		return !(m_loadedMaterials.find(id) == m_loadedMaterials.end());
 	}
 
 	bool RenderEngine::TextureExists(int id)
 	{
-		return !(m_LoadedTextures.find(id) == m_LoadedTextures.end());
+		return !(m_loadedTextures.find(id) == m_loadedTextures.end());
 	}
 
 	bool RenderEngine::MeshExists(int id)
 	{
-		return !(m_LoadedMeshes.find(id) == m_LoadedMeshes.end());
+		return !(m_loadedMeshes.find(id) == m_loadedMeshes.end());
 	}
 
 	bool RenderEngine::ShaderExists(Shaders shader)
 	{
-		return !(m_LoadedShaders.find(shader) == m_LoadedShaders.end());
+		return !(m_loadedShaders.find(shader) == m_loadedShaders.end());
 	}
 
 	void RenderEngine::ConstructEngineShaders()
@@ -672,12 +675,13 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::ConstructEngineMaterials()
 	{
-		SetMaterialShader(m_ScreenQuadFinalMaterial, Shaders::SCREEN_QUAD_FINAL);
-		SetMaterialShader(m_ScreenQuadBlurMaterial, Shaders::SCREEN_QUAD_BLUR);
-		SetMaterialShader(m_ScreenQuadOutlineMaterial, Shaders::SCREEN_QUAD_OUTLINE);
-		SetMaterialShader(m_HDRIMaterial, Shaders::EQUIRECTANGULAR_HDRI);
+		SetMaterialShader(m_screenQuadFinalMaterial, Shaders::SCREEN_QUAD_FINAL);
+		SetMaterialShader(m_screenQuadBlurMaterial, Shaders::SCREEN_QUAD_BLUR);
+		SetMaterialShader(m_screenQuadOutlineMaterial, Shaders::SCREEN_QUAD_OUTLINE);
+		SetMaterialShader(m_hdriMaterial, Shaders::EQUIRECTANGULAR_HDRI);
 		SetMaterialShader(m_debugDrawMaterial, Shaders::DEBUG_LINE);
 		SetMaterialShader(m_shadowMapMaterial, Shaders::SCREEN_SHADOWMAP);
+		SetMaterialShader(m_defaultSkyboxMaterial, Shaders::SKYBOX_SINGLECOLOR);
 	}
 
 	void RenderEngine::ConstructEnginePrimitives()
@@ -695,67 +699,67 @@ namespace LinaEngine::Graphics
 	{
 
 		// Main
-		mainRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
-		mainRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
-		mainRTParams.textureParams.minFilter = mainRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-		mainRTParams.textureParams.wrapS = mainRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
+		m_mainRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
+		m_mainRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
+		m_mainRTParams.textureParams.minFilter = m_mainRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
+		m_mainRTParams.textureParams.wrapS = m_mainRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
 
 		// Primary
-		primaryRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
-		primaryRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
-		primaryRTParams.textureParams.minFilter = primaryRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-		primaryRTParams.textureParams.wrapS = primaryRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		m_primaryRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
+		m_primaryRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
+		m_primaryRTParams.textureParams.minFilter = m_primaryRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
+		m_primaryRTParams.textureParams.wrapS = m_primaryRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 
 
 		// Ping pong
-		pingPongRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
-		pingPongRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
-		pingPongRTParams.textureParams.minFilter = pingPongRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-		pingPongRTParams.textureParams.wrapS = pingPongRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		m_pingPongRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
+		m_pingPongRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
+		m_pingPongRTParams.textureParams.minFilter = m_pingPongRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
+		m_pingPongRTParams.textureParams.wrapS = m_pingPongRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 
 		// Shadows depth.
-		shadowsRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_DEPTH;
-		shadowsRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_DEPTH16;
-		shadowsRTParams.textureParams.minFilter = shadowsRTParams.textureParams.magFilter = SamplerFilter::FILTER_NEAREST;
-		shadowsRTParams.textureParams.wrapS = shadowsRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_BORDER;
+		m_shadowsRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_DEPTH;
+		m_shadowsRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_DEPTH16;
+		m_shadowsRTParams.textureParams.minFilter = m_shadowsRTParams.textureParams.magFilter = SamplerFilter::FILTER_NEAREST;
+		m_shadowsRTParams.textureParams.wrapS = m_shadowsRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_BORDER;
 
 		// Initialize primary RT textures
-		m_PrimaryRTTexture0.ConstructRTTexture(m_renderDevice, m_viewportSize, primaryRTParams, false);
-		m_PrimaryRTTexture1.ConstructRTTexture(m_renderDevice, m_viewportSize, primaryRTParams, false);
+		m_primaryRTTexture0.ConstructRTTexture(m_renderDevice, m_viewportSize, m_primaryRTParams, false);
+		m_primaryRTTexture1.ConstructRTTexture(m_renderDevice, m_viewportSize, m_primaryRTParams, false);
 
 		// Initialize ping pong rt texture
-		m_PingPongRTTexture1.ConstructRTTexture(m_renderDevice, m_viewportSize, pingPongRTParams, false);
-		m_PingPongRTTexture2.ConstructRTTexture(m_renderDevice, m_viewportSize, pingPongRTParams, false);
+		m_pingPongRTTexture1.ConstructRTTexture(m_renderDevice, m_viewportSize, m_pingPongRTParams, false);
+		m_pingPongRTTexture2.ConstructRTTexture(m_renderDevice, m_viewportSize, m_pingPongRTParams, false);
 
 		// Initialize outilne RT texture
 		//m_OutlineRTTexture.ConstructRTTexture(m_renderDevice, screenSize, primaryRTParams, false);
 
 		// Shadow map RT texture
-		m_shadowMapRTTexture.ConstructRTTexture(m_renderDevice, m_shadowMapResolution, shadowsRTParams, true);
+		m_shadowMapRTTexture.ConstructRTTexture(m_renderDevice, m_shadowMapResolution, m_shadowsRTParams, true);
 
 		// Initialize primary render buffer
-		m_PrimaryRenderBuffer.Construct(m_renderDevice, RenderBufferStorage::STORAGE_DEPTH, m_viewportSize);
+		m_primaryRenderBuffer.Construct(m_renderDevice, RenderBufferStorage::STORAGE_DEPTH, m_viewportSize);
 
 		// Initialize hdri render buffer
-		m_HDRICaptureRenderBuffer.Construct(m_renderDevice, RenderBufferStorage::STORAGE_DEPTH_COMP24, m_HDRIResolution);
+		m_hdriCaptureRenderBuffer.Construct(m_renderDevice, RenderBufferStorage::STORAGE_DEPTH_COMP24, m_hdriResolution);
 
 		// Initialize primary render target.
-		m_PrimaryRenderTarget.Construct(m_renderDevice, m_PrimaryRTTexture0, m_viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_PrimaryRenderBuffer.GetID());
+		m_primaryRenderTarget.Construct(m_renderDevice, m_primaryRTTexture0, m_viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_primaryRenderBuffer.GetID());
 
 		// Bind the extre texture to primary render target, also tell open gl that we are running mrts.
-		m_renderDevice.BindTextureToRenderTarget(m_PrimaryRenderTarget.GetID(), m_PrimaryRTTexture1.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
+		m_renderDevice.BindTextureToRenderTarget(m_primaryRenderTarget.GetID(), m_primaryRTTexture1.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 1);
 		uint32 attachments[2] = { FrameBufferAttachment::ATTACHMENT_COLOR , (FrameBufferAttachment::ATTACHMENT_COLOR + (uint32)1) };
-		m_renderDevice.MultipleDrawBuffersCommand(m_PrimaryRenderTarget.GetID(), 2, attachments);
+		m_renderDevice.MultipleDrawBuffersCommand(m_primaryRenderTarget.GetID(), 2, attachments);
 
 		// Initialize ping pong render targets
-		m_PingPongRenderTarget1.Construct(m_renderDevice, m_PingPongRTTexture1, m_viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
-		m_PingPongRenderTarget2.Construct(m_renderDevice, m_PingPongRTTexture2, m_viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+		m_pingPongRenderTarget1.Construct(m_renderDevice, m_pingPongRTTexture1, m_viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+		m_pingPongRenderTarget2.Construct(m_renderDevice, m_pingPongRTTexture2, m_viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 
 		// Initialize outline render target
 		//m_OutlineRenderTarget.Construct(m_renderDevice, m_OutlineRTTexture, m_viewportSize.x, m_viewportSize.y, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 
 		// Initialize HDRI render target
-		m_HDRICaptureRenderTarget.Construct(m_renderDevice, m_HDRIResolution, FrameBufferAttachment::ATTACHMENT_DEPTH, m_HDRICaptureRenderBuffer.GetID());
+		m_hdriCaptureRenderTarget.Construct(m_renderDevice, m_hdriResolution, FrameBufferAttachment::ATTACHMENT_DEPTH, m_hdriCaptureRenderBuffer.GetID());
 
 		// Initialize depth map for shadows
 		m_shadowMapTarget.Construct(m_renderDevice, m_shadowMapRTTexture, m_shadowMapResolution, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
@@ -765,71 +769,71 @@ namespace LinaEngine::Graphics
 	void RenderEngine::SetupDrawParameters()
 	{
 		// Set default drawing parameters.
-		m_DefaultDrawParams.useScissorTest = false;
-		m_DefaultDrawParams.useDepthTest = true;
-		m_DefaultDrawParams.useStencilTest = true;
-		m_DefaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_DefaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
-		m_DefaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
-		m_DefaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
-		m_DefaultDrawParams.shouldWriteDepth = true;
-		m_DefaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
-		m_DefaultDrawParams.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
-		m_DefaultDrawParams.stencilComparisonVal = 1;
-		m_DefaultDrawParams.stencilTestMask = 0xFF;
-		m_DefaultDrawParams.stencilWriteMask = 0x00;
-		m_DefaultDrawParams.stencilFail = StencilOp::STENCIL_KEEP;
-		m_DefaultDrawParams.stencilPass = StencilOp::STENCIL_REPLACE;
-		m_DefaultDrawParams.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
-		m_DefaultDrawParams.scissorStartX = 0;
-		m_DefaultDrawParams.scissorStartY = 0;
-		m_DefaultDrawParams.scissorWidth = 0;
-		m_DefaultDrawParams.scissorHeight = 0;
+		m_defaultDrawParams.useScissorTest = false;
+		m_defaultDrawParams.useDepthTest = true;
+		m_defaultDrawParams.useStencilTest = true;
+		m_defaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
+		m_defaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
+		m_defaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
+		m_defaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+		m_defaultDrawParams.shouldWriteDepth = true;
+		m_defaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
+		m_defaultDrawParams.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
+		m_defaultDrawParams.stencilComparisonVal = 1;
+		m_defaultDrawParams.stencilTestMask = 0xFF;
+		m_defaultDrawParams.stencilWriteMask = 0x00;
+		m_defaultDrawParams.stencilFail = StencilOp::STENCIL_KEEP;
+		m_defaultDrawParams.stencilPass = StencilOp::STENCIL_REPLACE;
+		m_defaultDrawParams.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+		m_defaultDrawParams.scissorStartX = 0;
+		m_defaultDrawParams.scissorStartY = 0;
+		m_defaultDrawParams.scissorWidth = 0;
+		m_defaultDrawParams.scissorHeight = 0;
 
 
 		// Set render to fbo target draw parameters.	
-		m_FullscreenQuadDP.useScissorTest = false;
-		m_FullscreenQuadDP.useDepthTest = false;
-		m_FullscreenQuadDP.useStencilTest = true;
-		m_FullscreenQuadDP.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_FullscreenQuadDP.faceCulling = FaceCulling::FACE_CULL_NONE;
-		m_FullscreenQuadDP.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
-		m_FullscreenQuadDP.destBlend = BlendFunc::BLEND_FUNC_NONE;
-		m_FullscreenQuadDP.shouldWriteDepth = true;
-		m_FullscreenQuadDP.depthFunc = DrawFunc::DRAW_FUNC_LESS;
-		m_FullscreenQuadDP.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
-		m_FullscreenQuadDP.stencilComparisonVal = 1;
-		m_FullscreenQuadDP.stencilTestMask = 0xFF;
-		m_FullscreenQuadDP.stencilWriteMask = 0xFF;
-		m_FullscreenQuadDP.stencilFail = StencilOp::STENCIL_KEEP;
-		m_FullscreenQuadDP.stencilPass = StencilOp::STENCIL_REPLACE;
-		m_FullscreenQuadDP.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
-		m_FullscreenQuadDP.scissorStartX = 0;
-		m_FullscreenQuadDP.scissorStartY = 0;
-		m_FullscreenQuadDP.scissorWidth = 0;
-		m_FullscreenQuadDP.scissorHeight = 0;
+		m_fullscreenQuadDP.useScissorTest = false;
+		m_fullscreenQuadDP.useDepthTest = false;
+		m_fullscreenQuadDP.useStencilTest = true;
+		m_fullscreenQuadDP.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
+		m_fullscreenQuadDP.faceCulling = FaceCulling::FACE_CULL_NONE;
+		m_fullscreenQuadDP.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
+		m_fullscreenQuadDP.destBlend = BlendFunc::BLEND_FUNC_NONE;
+		m_fullscreenQuadDP.shouldWriteDepth = true;
+		m_fullscreenQuadDP.depthFunc = DrawFunc::DRAW_FUNC_LESS;
+		m_fullscreenQuadDP.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
+		m_fullscreenQuadDP.stencilComparisonVal = 1;
+		m_fullscreenQuadDP.stencilTestMask = 0xFF;
+		m_fullscreenQuadDP.stencilWriteMask = 0xFF;
+		m_fullscreenQuadDP.stencilFail = StencilOp::STENCIL_KEEP;
+		m_fullscreenQuadDP.stencilPass = StencilOp::STENCIL_REPLACE;
+		m_fullscreenQuadDP.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+		m_fullscreenQuadDP.scissorStartX = 0;
+		m_fullscreenQuadDP.scissorStartY = 0;
+		m_fullscreenQuadDP.scissorWidth = 0;
+		m_fullscreenQuadDP.scissorHeight = 0;
 
 		// Set skybox draw params.	
-		m_SkyboxDrawParams.useScissorTest = false;
-		m_SkyboxDrawParams.useDepthTest = true;
-		m_SkyboxDrawParams.useStencilTest = true;
-		m_SkyboxDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_SkyboxDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
-		m_SkyboxDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
-		m_SkyboxDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
-		m_SkyboxDrawParams.shouldWriteDepth = true;
-		m_SkyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
-		m_SkyboxDrawParams.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
-		m_SkyboxDrawParams.stencilComparisonVal = 0;
-		m_SkyboxDrawParams.stencilTestMask = 0xFF;
-		m_SkyboxDrawParams.stencilWriteMask = 0xFF;
-		m_SkyboxDrawParams.stencilFail = StencilOp::STENCIL_KEEP;
-		m_SkyboxDrawParams.stencilPass = StencilOp::STENCIL_REPLACE;
-		m_SkyboxDrawParams.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
-		m_SkyboxDrawParams.scissorStartX = 0;
-		m_SkyboxDrawParams.scissorStartY = 0;
-		m_SkyboxDrawParams.scissorWidth = 0;
-		m_SkyboxDrawParams.scissorHeight = 0;
+		m_skyboxDrawParams.useScissorTest = false;
+		m_skyboxDrawParams.useDepthTest = true;
+		m_skyboxDrawParams.useStencilTest = true;
+		m_skyboxDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
+		m_skyboxDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
+		m_skyboxDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
+		m_skyboxDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+		m_skyboxDrawParams.shouldWriteDepth = true;
+		m_skyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
+		m_skyboxDrawParams.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
+		m_skyboxDrawParams.stencilComparisonVal = 0;
+		m_skyboxDrawParams.stencilTestMask = 0xFF;
+		m_skyboxDrawParams.stencilWriteMask = 0xFF;
+		m_skyboxDrawParams.stencilFail = StencilOp::STENCIL_KEEP;
+		m_skyboxDrawParams.stencilPass = StencilOp::STENCIL_REPLACE;
+		m_skyboxDrawParams.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+		m_skyboxDrawParams.scissorStartX = 0;
+		m_skyboxDrawParams.scissorStartY = 0;
+		m_skyboxDrawParams.scissorWidth = 0;
+		m_skyboxDrawParams.scissorHeight = 0;
 
 
 		// Set depth map drawing parameters.
@@ -858,18 +862,18 @@ namespace LinaEngine::Graphics
 	void RenderEngine::DumpMemory()
 	{
 		// Clear dumps.
-		m_LoadedMeshes.clear();
-		m_LoadedTextures.clear();
-		m_LoadedMaterials.clear();
+		m_loadedMeshes.clear();
+		m_loadedTextures.clear();
+		m_loadedMaterials.clear();
 	}
 
 	void RenderEngine::DrawShadows()
 	{
 		// Clear color.
-		m_renderDevice.Clear(true, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+		m_renderDevice.Clear(true, true, false, m_cameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Update pipeline.
-		m_RenderingPipeline.UpdateSystems(0.0f);
+		m_renderingPipeline.UpdateSystems(0.0f);
 
 		// Update uniform buffers on GPU
 		UpdateUniformBuffers();
@@ -879,13 +883,13 @@ namespace LinaEngine::Graphics
 		m_renderDevice.SetViewport(Vector2::Zero, m_shadowMapResolution);
 
 		// Clear color.
-		m_renderDevice.Clear(false, true, false, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+		m_renderDevice.Clear(false, true, false, m_cameraSystem.GetCurrentClearColor(), 0xFF);
 		
 		// Draw scene
 		DrawSceneObjects(m_shadowMapDrawParams, &m_shadowMapMaterial, false);
 
 		// Add the shadow texture
-		for (std::set<Material*>::iterator it = m_ShadowMappedMaterials.begin(); it != m_ShadowMappedMaterials.end(); ++it)
+		for (std::set<Material*>::iterator it = m_shadowMappedMaterials.begin(); it != m_shadowMappedMaterials.end(); ++it)
 			(*it)->SetTexture(MAT_TEXTURE2D_SHADOWMAP, &m_shadowMapRTTexture);
 
 	}
@@ -893,24 +897,24 @@ namespace LinaEngine::Graphics
 	void RenderEngine::Draw()
 	{
 		// Set render target
-		m_renderDevice.SetFBO(m_PrimaryRenderTarget.GetID());
+		m_renderDevice.SetFBO(m_primaryRenderTarget.GetID());
 		m_renderDevice.SetViewport(Vector2::Zero, m_viewportSize);
 
 		// Clear color.
-		m_renderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+		m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Update pipeline.
-		m_RenderingPipeline.UpdateSystems(0.0f);
+		m_renderingPipeline.UpdateSystems(0.0f);
 
 		// Update uniform buffers on GPU
 		UpdateUniformBuffers();
 
 		// Draw scene
-		DrawSceneObjects(m_DefaultDrawParams);
+		DrawSceneObjects(m_defaultDrawParams);
 
 		bool horizontal = true;
 
-		if (m_ScreenQuadFinalMaterial.booleans[MAT_BLOOMENABLED])
+		if (m_screenQuadFinalMaterial.booleans[MAT_BLOOMENABLED])
 		{
 			// Write to the pingpong buffers to apply 2 pass gaussian blur.
 			bool firstIteration = true;
@@ -918,23 +922,23 @@ namespace LinaEngine::Graphics
 			for (unsigned int i = 0; i < amount; i++)
 			{
 				// Select FBO
-				m_renderDevice.SetFBO(horizontal ? m_PingPongRenderTarget1.GetID() : m_PingPongRenderTarget2.GetID());
+				m_renderDevice.SetFBO(horizontal ? m_pingPongRenderTarget1.GetID() : m_pingPongRenderTarget2.GetID());
 
 				// Setup material & use.
-				m_ScreenQuadBlurMaterial.SetBool(MAT_ISHORIZONTAL, horizontal);
+				m_screenQuadBlurMaterial.SetBool(MAT_ISHORIZONTAL, horizontal);
 				if (firstIteration)
-					m_ScreenQuadBlurMaterial.SetTexture(MAT_MAP_SCREEN, &m_PrimaryRTTexture1);
+					m_screenQuadBlurMaterial.SetTexture(MAT_MAP_SCREEN, &m_primaryRTTexture1);
 				else
 				{
 					if (horizontal)
-						m_ScreenQuadBlurMaterial.SetTexture(MAT_MAP_SCREEN, &m_PingPongRTTexture2);
+						m_screenQuadBlurMaterial.SetTexture(MAT_MAP_SCREEN, &m_pingPongRTTexture2);
 					else
-						m_ScreenQuadBlurMaterial.SetTexture(MAT_MAP_SCREEN, &m_PingPongRTTexture1);
+						m_screenQuadBlurMaterial.SetTexture(MAT_MAP_SCREEN, &m_pingPongRTTexture1);
 				}
 
 				// Update shader data & draw.
-				UpdateShaderData(&m_ScreenQuadBlurMaterial);
-				m_renderDevice.Draw(m_ScreenQuadVAO, m_FullscreenQuadDP, 0, 6, true);
+				UpdateShaderData(&m_screenQuadBlurMaterial);
+				m_renderDevice.Draw(m_screenQuadVAO, m_fullscreenQuadDP, 0, 6, true);
 				horizontal = !horizontal;
 				if (firstIteration) firstIteration = false;
 			}
@@ -948,21 +952,21 @@ namespace LinaEngine::Graphics
 		m_renderDevice.Clear(true, true, false, Color::White, 0xFF);
 
 		// Set frame buffer texture on the material.
-		m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_SCREEN, &m_PrimaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+		m_screenQuadFinalMaterial.SetTexture(MAT_MAP_SCREEN, &m_primaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 
-		if (m_ScreenQuadFinalMaterial.booleans[MAT_BLOOMENABLED])
-			m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_BLOOM, horizontal ? &m_PingPongRTTexture1 : &m_PingPongRTTexture2, TextureBindMode::BINDTEXTURE_TEXTURE2D);
+		if (m_screenQuadFinalMaterial.booleans[MAT_BLOOMENABLED])
+			m_screenQuadFinalMaterial.SetTexture(MAT_MAP_BLOOM, horizontal ? &m_pingPongRTTexture1 : &m_pingPongRTTexture2, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 
 		// m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_OUTLINE, &m_OutlineRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 
-		Vector2 inverseMapSize = 1.0f / m_PrimaryRTTexture0.GetSize();
-		m_ScreenQuadFinalMaterial.SetVector3(MAT_INVERSESCREENMAPSIZE, Vector3(inverseMapSize.x, inverseMapSize.y, 0.0));
+		Vector2 inverseMapSize = 1.0f / m_primaryRTTexture0.GetSize();
+		m_screenQuadFinalMaterial.SetVector3(MAT_INVERSESCREENMAPSIZE, Vector3(inverseMapSize.x, inverseMapSize.y, 0.0));
 
 		// update shader w/ material data.
-		UpdateShaderData(&m_ScreenQuadFinalMaterial);
+		UpdateShaderData(&m_screenQuadFinalMaterial);
 
 		// Draw full screen quad.
-		m_renderDevice.Draw(m_ScreenQuadVAO, m_FullscreenQuadDP, 0, 6, true);
+		m_renderDevice.Draw(m_screenQuadVAO, m_fullscreenQuadDP, 0, 6, true);
 	}
 
 	void RenderEngine::DrawLine(Vector3 p1, Vector3 p2, Color col, float width)
@@ -977,32 +981,36 @@ namespace LinaEngine::Graphics
 		m_renderDevice.SetFBO(0);
 
 		// Clear color.
-		m_renderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
+		m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Update pipeline.
-		m_RenderingPipeline.UpdateSystems(0.0f);
+		m_renderingPipeline.UpdateSystems(0.0f);
 
 		// Update uniform buffers on GPU
 		UpdateUniformBuffers();
 
 		// Draw scene
-		DrawSceneObjects(m_DefaultDrawParams, nullptr, true);
+		DrawSceneObjects(m_defaultDrawParams, nullptr, true);
 	}
 
 	void RenderEngine::DrawSkybox()
 	{
-		if (m_SkyboxMaterial != nullptr)
+		if (m_skyboxMaterial != nullptr)
 		{
-			UpdateShaderData(m_SkyboxMaterial);
-			m_renderDevice.Draw(m_SkyboxVAO, m_SkyboxDrawParams, 1, 36, true);
+			UpdateShaderData(m_skyboxMaterial);
+			m_renderDevice.Draw(m_skyboxVAO, m_skyboxDrawParams, 1, 36, true);
 		}
-
+		else
+		{
+			UpdateShaderData(&m_defaultSkyboxMaterial);
+			m_renderDevice.Draw(m_skyboxVAO, m_skyboxDrawParams, 1, 36, true);
+		}
 	}
 
 	void RenderEngine::DrawSceneObjects(DrawParams& drawParams, Material* overrideMaterial, bool drawSkybox)
 	{
-		m_MeshRendererSystem.FlushOpaque(drawParams, overrideMaterial, true);
-		m_MeshRendererSystem.FlushTransparent(drawParams, overrideMaterial, true);
+		m_meshRendererSystem.FlushOpaque(drawParams, overrideMaterial, true);
+		m_meshRendererSystem.FlushTransparent(drawParams, overrideMaterial, true);
 		m_spriteRendererSystem.Flush(drawParams, overrideMaterial, true);
 
 		// Draw skybox.
@@ -1017,55 +1025,55 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::UpdateUniformBuffers()
 	{
-		Vector3 cameraLocation = m_CameraSystem.GetCameraLocation();
+		Vector3 cameraLocation = m_cameraSystem.GetCameraLocation();
 		Vector4 viewPos = Vector4(cameraLocation.x, cameraLocation.y, cameraLocation.z, 1.0f);
 
 		// Update global matrix buffer
 		uintptr currentGlobalDataOffset = 0;
-		m_GlobalDataBuffer.Update(&m_CameraSystem.GetProjectionMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
+		m_globalDataBuffer.Update(&m_cameraSystem.GetProjectionMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 
-		m_GlobalDataBuffer.Update(&m_CameraSystem.GetViewMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
+		m_globalDataBuffer.Update(&m_cameraSystem.GetViewMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 
-		m_GlobalDataBuffer.Update(&m_CameraSystem.GetLightMatrix(m_LightingSystem.GetDirLight())[0][0], currentGlobalDataOffset, sizeof(Matrix));
+		m_globalDataBuffer.Update(&m_cameraSystem.GetLightMatrix(m_lightingSystem.GetDirLight())[0][0], currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 
-		m_GlobalDataBuffer.Update(&viewPos, currentGlobalDataOffset, sizeof(Vector4));
+		m_globalDataBuffer.Update(&viewPos, currentGlobalDataOffset, sizeof(Vector4));
 		currentGlobalDataOffset += sizeof(Vector4);
 
-		ECS::CameraComponent* cameraComponent = &m_CameraSystem.GetCurrentCameraComponent();
+		ECS::CameraComponent* cameraComponent = &m_cameraSystem.GetCurrentCameraComponent();
 
 		if (cameraComponent != nullptr)
 		{
 			// Update only if changed.
-			if (m_BufferValueRecord.zNear != cameraComponent->zNear)
+			if (m_bufferValueRecord.zNear != cameraComponent->zNear)
 			{
-				m_BufferValueRecord.zNear = cameraComponent->zNear;
-				m_GlobalDataBuffer.Update(&cameraComponent->zNear, currentGlobalDataOffset, sizeof(float));
+				m_bufferValueRecord.zNear = cameraComponent->zNear;
+				m_globalDataBuffer.Update(&cameraComponent->zNear, currentGlobalDataOffset, sizeof(float));
 			}
 			currentGlobalDataOffset += sizeof(float);
 
 
 			// Update only if changed.
-			if (m_BufferValueRecord.zFar != cameraComponent->zFar)
+			if (m_bufferValueRecord.zFar != cameraComponent->zFar)
 			{
-				m_BufferValueRecord.zFar = cameraComponent->zFar;
-				m_GlobalDataBuffer.Update(&cameraComponent->zNear, currentGlobalDataOffset, sizeof(float));
+				m_bufferValueRecord.zFar = cameraComponent->zFar;
+				m_globalDataBuffer.Update(&cameraComponent->zNear, currentGlobalDataOffset, sizeof(float));
 			}
 			currentGlobalDataOffset += sizeof(float);
 		}
 
 		// Update lights buffer.
-		Color ambient = m_LightingSystem.GetAmbientColor();
+		Color ambient = m_lightingSystem.GetAmbientColor();
 		Vector4 ambientColor = Vector4(ambient.r, ambient.g, ambient.b, 1.0f);
-		m_GlobalLightBuffer.Update(&m_CurrentPointLightCount, 0, sizeof(int));
-		m_GlobalLightBuffer.Update(&m_CurrentSpotLightCount, sizeof(int), sizeof(int));
-		m_GlobalLightBuffer.Update(&ambientColor, sizeof(int) * 2, sizeof(float) * 4);
-		m_GlobalLightBuffer.Update(&m_CameraSystem.GetCameraLocation(), (sizeof(int) * 2) + (sizeof(float) * 4), sizeof(float) * 4);
+		m_globalLightBuffer.Update(&m_currentPointLightCount, 0, sizeof(int));
+		m_globalLightBuffer.Update(&m_currentSpotLightCount, sizeof(int), sizeof(int));
+		m_globalLightBuffer.Update(&ambientColor, sizeof(int) * 2, sizeof(float) * 4);
+		m_globalLightBuffer.Update(&m_cameraSystem.GetCameraLocation(), (sizeof(int) * 2) + (sizeof(float) * 4), sizeof(float) * 4);
 
 		// Update debug fufer.
-		m_GlobalDebugBuffer.Update(&m_DebugData.visualizeDepth, 0, sizeof(bool));
+		m_globalDebugBuffer.Update(&m_debugData.visualizeDepth, 0, sizeof(bool));
 	}
 
 	void RenderEngine::UpdateShaderData(Material* data)
@@ -1113,15 +1121,15 @@ namespace LinaEngine::Graphics
 			{
 
 				if (d.second.bindMode == TextureBindMode::BINDTEXTURE_TEXTURE2D)
-					m_renderDevice.SetTexture(m_DefaultTexture.GetID(), m_DefaultTexture.GetSamplerID(), d.second.unit, BINDTEXTURE_TEXTURE2D);
+					m_renderDevice.SetTexture(m_defaultTexture.GetID(), m_defaultTexture.GetSamplerID(), d.second.unit, BINDTEXTURE_TEXTURE2D);
 				else
-					m_renderDevice.SetTexture(m_DefaultCubemapTexture.GetID(), m_DefaultCubemapTexture.GetSamplerID(), d.second.unit, BINDTEXTURE_CUBEMAP);
+					m_renderDevice.SetTexture(m_defaultCubemapTexture.GetID(), m_defaultCubemapTexture.GetSamplerID(), d.second.unit, BINDTEXTURE_CUBEMAP);
 			}
 		}
 
 
 		if (data->receivesLighting)
-			m_LightingSystem.SetLightingShaderData(data->GetShaderID());
+			m_lightingSystem.SetLightingShaderData(data->GetShaderID());
 
 	}
 
@@ -1148,7 +1156,7 @@ namespace LinaEngine::Graphics
 		m_renderDevice.SetViewport(m_viewportPos, m_viewportSize);
 
 		// Set flag
-		m_HDRIDataCaptured = true;
+		m_hdriDataCaptured = true;
 	}
 
 	void RenderEngine::CalculateHDRICubemap(Texture& hdriTexture, glm::mat4& captureProjection, glm::mat4 views[6])
@@ -1162,10 +1170,10 @@ namespace LinaEngine::Graphics
 		samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
 
 		// Set resolution.
-		m_HDRIResolution = Vector2(512, 512);
+		m_hdriResolution = Vector2(512, 512);
 
 		// Construct Cubemap texture.
-		m_HDRICubemap.ConstructRTCubemapTexture(m_renderDevice, m_HDRIResolution, samplerParams);
+		m_hdriCubemap.ConstructRTCubemapTexture(m_renderDevice, m_hdriResolution, samplerParams);
 
 		// Setup shader data.
 		uint32 equirectangularShader = GetShader(Shaders::EQUIRECTANGULAR_HDRI).GetID();
@@ -1174,22 +1182,22 @@ namespace LinaEngine::Graphics
 		m_renderDevice.UpdateShaderUniformInt(equirectangularShader, MAT_MAP_EQUIRECTANGULAR + std::string(MAT_EXTENSION_ISACTIVE), 1);
 		m_renderDevice.UpdateShaderUniformMatrix(equirectangularShader, UF_MATRIX_PROJECTION, captureProjection);
 		m_renderDevice.SetTexture(hdriTexture.GetID(), hdriTexture.GetSamplerID(), 0);
-		m_renderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
-		m_renderDevice.SetViewport(Vector2::Zero, m_HDRIResolution);
+		m_renderDevice.SetFBO(m_hdriCaptureRenderTarget.GetID());
+		m_renderDevice.SetViewport(Vector2::Zero, m_hdriResolution);
 
 		// Draw the cubemap.
 		for (uint32 i = 0; i < 6; ++i)
 		{
 			m_renderDevice.UpdateShaderUniformMatrix(equirectangularShader, UF_MATRIX_VIEW, views[i]);
-			m_renderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRICubemap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0, false);
-			m_renderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
-			m_renderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-			m_renderDevice.Draw(m_HDRICubeVAO, m_DefaultDrawParams, 0, 36, true);
+			m_renderDevice.BindTextureToRenderTarget(m_hdriCaptureRenderTarget.GetID(), m_hdriCubemap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0, false);
+			m_renderDevice.SetFBO(m_hdriCaptureRenderTarget.GetID());
+			m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
+			m_renderDevice.Draw(m_hdriCubeVAO, m_defaultDrawParams, 0, 36, true);
 		}
 
 		// Generate mipmaps & check errors.
-		m_renderDevice.GenerateTextureMipmaps(m_HDRICubemap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP);
-		m_renderDevice.IsRenderTargetComplete(m_HDRICaptureRenderTarget.GetID());
+		m_renderDevice.GenerateTextureMipmaps(m_hdriCubemap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP);
+		m_renderDevice.IsRenderTargetComplete(m_hdriCaptureRenderTarget.GetID());
 	}
 
 	void RenderEngine::CalculateHDRIIrradiance(Matrix& captureProjection, Matrix views[6])
@@ -1206,9 +1214,9 @@ namespace LinaEngine::Graphics
 		Vector2 irradianceMapResolsution = Vector2(32, 32);
 
 		// Create irradiance texture & scale render buffer according to the resolution.
-		m_HDRIIrradianceMap.ConstructRTCubemapTexture(m_renderDevice, irradianceMapResolsution, irradianceParams);
-		m_renderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
-		m_renderDevice.ResizeRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), irradianceMapResolsution, RenderBufferStorage::STORAGE_DEPTH_COMP24);
+		m_hdriIrradianceMap.ConstructRTCubemapTexture(m_renderDevice, irradianceMapResolsution, irradianceParams);
+		m_renderDevice.SetFBO(m_hdriCaptureRenderTarget.GetID());
+		m_renderDevice.ResizeRenderBuffer(m_hdriCaptureRenderTarget.GetID(), m_hdriCaptureRenderBuffer.GetID(), irradianceMapResolsution, RenderBufferStorage::STORAGE_DEPTH_COMP24);
 
 		// Create & setup shader info.
 		uint32 irradianceShader = GetShader(Shaders::IRRADIANCE_HDRI).GetID();
@@ -1216,16 +1224,16 @@ namespace LinaEngine::Graphics
 		m_renderDevice.UpdateShaderUniformInt(irradianceShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_TEXTURE2D), 0);
 		m_renderDevice.UpdateShaderUniformInt(irradianceShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_ISACTIVE), 1);
 		m_renderDevice.UpdateShaderUniformMatrix(irradianceShader, UF_MATRIX_PROJECTION, captureProjection);
-		m_renderDevice.SetTexture(m_HDRICubemap.GetID(), m_HDRICubemap.GetSamplerID(), 0, TextureBindMode::BINDTEXTURE_CUBEMAP);
+		m_renderDevice.SetTexture(m_hdriCubemap.GetID(), m_hdriCubemap.GetSamplerID(), 0, TextureBindMode::BINDTEXTURE_CUBEMAP);
 		m_renderDevice.SetViewport(Vector2::Zero, irradianceMapResolsution);
 
 		// Draw cubemap.
 		for (uint32 i = 0; i < 6; ++i)
 		{
 			m_renderDevice.UpdateShaderUniformMatrix(irradianceShader, UF_MATRIX_VIEW, views[i]);
-			m_renderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRIIrradianceMap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0, false, false);
-			m_renderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-			m_renderDevice.Draw(m_HDRICubeVAO, m_DefaultDrawParams, 0, 36, true);
+			m_renderDevice.BindTextureToRenderTarget(m_hdriCaptureRenderTarget.GetID(), m_hdriIrradianceMap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, 0, false, false);
+			m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
+			m_renderDevice.Draw(m_hdriCubeVAO, m_defaultDrawParams, 0, 36, true);
 		}
 	}
 
@@ -1244,7 +1252,7 @@ namespace LinaEngine::Graphics
 		Vector2 prefilterResolution = Vector2(128, 128);
 
 		// Construct prefilter texture.
-		m_HDRIPrefilterMap.ConstructRTCubemapTexture(m_renderDevice, prefilterResolution, prefilterParams);
+		m_hdriPrefilterMap.ConstructRTCubemapTexture(m_renderDevice, prefilterResolution, prefilterParams);
 
 		// Setup shader data.
 		uint32 prefilterShader = GetShader(Shaders::PREFILTER_HDRI).GetID();
@@ -1253,18 +1261,18 @@ namespace LinaEngine::Graphics
 		m_renderDevice.UpdateShaderUniformInt(prefilterShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_ISACTIVE), 1);
 		m_renderDevice.UpdateShaderUniformFloat(prefilterShader, MAT_ENVIRONMENTRESOLUTION, 512.0f);
 		m_renderDevice.UpdateShaderUniformMatrix(prefilterShader, UF_MATRIX_PROJECTION, captureProjection);
-		m_renderDevice.SetTexture(m_HDRICubemap.GetID(), m_HDRICubemap.GetSamplerID(), 0, TextureBindMode::BINDTEXTURE_CUBEMAP);
+		m_renderDevice.SetTexture(m_hdriCubemap.GetID(), m_hdriCubemap.GetSamplerID(), 0, TextureBindMode::BINDTEXTURE_CUBEMAP);
 
 		// Setup mip levels & switch fbo.
 		uint32 maxMipLevels = 5;
-		m_renderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
+		m_renderDevice.SetFBO(m_hdriCaptureRenderTarget.GetID());
 
 		for (uint32 mip = 0; mip < maxMipLevels; ++mip)
 		{
 			// reisze framebuffer according to mip-level size.
 			unsigned int mipWidth = 128 * std::pow(0.5, mip);
 			unsigned int mipHeight = 128 * std::pow(0.5, mip);
-			m_renderDevice.ResizeRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), Vector2(mipWidth, mipHeight), RenderBufferStorage::STORAGE_DEPTH_COMP24);
+			m_renderDevice.ResizeRenderBuffer(m_hdriCaptureRenderTarget.GetID(), m_hdriCaptureRenderBuffer.GetID(), Vector2(mipWidth, mipHeight), RenderBufferStorage::STORAGE_DEPTH_COMP24);
 			m_renderDevice.SetViewport(Vector2::Zero, Vector2(mipWidth, mipHeight));
 
 			// Draw prefiltered map
@@ -1273,9 +1281,9 @@ namespace LinaEngine::Graphics
 			for (unsigned int i = 0; i < 6; ++i)
 			{
 				m_renderDevice.UpdateShaderUniformMatrix(prefilterShader, UF_MATRIX_VIEW, views[i]);
-				m_renderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRIPrefilterMap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, mip, false, false);
-				m_renderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-				m_renderDevice.Draw(m_HDRICubeVAO, m_DefaultDrawParams, 0, 36, true);
+				m_renderDevice.BindTextureToRenderTarget(m_hdriCaptureRenderTarget.GetID(), m_hdriPrefilterMap.GetID(), TextureBindMode::BINDTEXTURE_CUBEMAP_POSITIVE_X, FrameBufferAttachment::ATTACHMENT_COLOR, 0, i, mip, false, false);
+				m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
+				m_renderDevice.Draw(m_hdriCubeVAO, m_defaultDrawParams, 0, 36, true);
 			}
 		}
 	}
@@ -1297,18 +1305,18 @@ namespace LinaEngine::Graphics
 		m_HDRILutMap.ConstructHDRI(m_renderDevice, samplerParams, brdfLutSize, NULL);
 
 		// Scale render buffer according to the resolution & bind lut map to frame buffer.
-		m_renderDevice.ResizeRenderBuffer(m_HDRICaptureRenderTarget.GetID(), m_HDRICaptureRenderBuffer.GetID(), brdfLutSize, RenderBufferStorage::STORAGE_DEPTH_COMP24);
-		m_renderDevice.BindTextureToRenderTarget(m_HDRICaptureRenderTarget.GetID(), m_HDRILutMap.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 0, 0, 0, true, false);
+		m_renderDevice.ResizeRenderBuffer(m_hdriCaptureRenderTarget.GetID(), m_hdriCaptureRenderBuffer.GetID(), brdfLutSize, RenderBufferStorage::STORAGE_DEPTH_COMP24);
+		m_renderDevice.BindTextureToRenderTarget(m_hdriCaptureRenderTarget.GetID(), m_HDRILutMap.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 0, 0, 0, true, false);
 
 		// Setup shader.
 		uint32 brdfShader = GetShader(Shaders::BRDF_HDRI).GetID();
 		m_renderDevice.SetShader(brdfShader);
 
 		// Switch framebuffer & draw.
-		m_renderDevice.SetFBO(m_HDRICaptureRenderTarget.GetID());
+		m_renderDevice.SetFBO(m_hdriCaptureRenderTarget.GetID());
 		m_renderDevice.SetViewport(Vector2::Zero, brdfLutSize);
-		m_renderDevice.Clear(true, true, true, m_CameraSystem.GetCurrentClearColor(), 0xFF);
-		m_renderDevice.Draw(m_ScreenQuadVAO, m_FullscreenQuadDP, 0, 6, true);
+		m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
+		m_renderDevice.Draw(m_screenQuadVAO, m_fullscreenQuadDP, 0, 6, true);
 	}
 
 	void RenderEngine::SetHDRIData(Material* mat)
@@ -1325,15 +1333,15 @@ namespace LinaEngine::Graphics
 			return;
 		}
 
-		if (!m_HDRIDataCaptured)
+		if (!m_hdriDataCaptured)
 		{
 			LINA_CORE_ERR("HDRI data is not captured, please capture it first then set the material's data.");
 			return;
 		}
 
-		mat->SetTexture(MAT_TEXTURE2D_IRRADIANCEMAP, &m_HDRIIrradianceMap, TextureBindMode::BINDTEXTURE_CUBEMAP);
+		mat->SetTexture(MAT_TEXTURE2D_IRRADIANCEMAP, &m_hdriIrradianceMap, TextureBindMode::BINDTEXTURE_CUBEMAP);
 		mat->SetTexture(MAT_TEXTURE2D_BRDFLUTMAP, &m_HDRILutMap, TextureBindMode::BINDTEXTURE_TEXTURE2D);
-		mat->SetTexture(MAT_TEXTURE2D_PREFILTERMAP, &m_HDRIPrefilterMap, TextureBindMode::BINDTEXTURE_CUBEMAP);
+		mat->SetTexture(MAT_TEXTURE2D_PREFILTERMAP, &m_hdriPrefilterMap, TextureBindMode::BINDTEXTURE_CUBEMAP);
 	}
 
 	void RenderEngine::RemoveHDRIData(Material* mat)
@@ -1358,19 +1366,19 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::PushLayer(Layer* layer)
 	{
-		m_GUILayerStack.PushLayer(layer);
+		m_guiLayerStack.PushLayer(layer);
 		layer->OnAttach();
 	}
 
 	void RenderEngine::PushOverlay(Layer* layer)
 	{
-		m_GUILayerStack.PushOverlay(layer);
+		m_guiLayerStack.PushOverlay(layer);
 		layer->OnAttach();
 	}
 
 	void* RenderEngine::GetFinalImage()
 	{
-		return (void*)m_PrimaryRTTexture0.GetID();
+		return (void*)m_primaryRTTexture0.GetID();
 	}
 
 	void* RenderEngine::GetShadowMapImage()

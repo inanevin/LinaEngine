@@ -152,8 +152,9 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 
 	// Create, setup & assign skybox material.
-	CreateProceduralSkybox(m_RenderEngine);
+	//CreateProceduralSkybox(m_RenderEngine);
 
+	
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);
 	auto& camTransform = m_ECS->emplace<TransformComponent>(camera);
@@ -202,7 +203,7 @@ void Example1Level::Initialize()
 	sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
-	m_RenderEngine->SetHDRIData(sphereMat);
+	//m_RenderEngine->SetHDRIData(sphereMat);
 
 
 	floorMaterial = &m_RenderEngine->CreateMaterial(-55, Shaders::PBR_LIT);
@@ -212,7 +213,7 @@ void Example1Level::Initialize()
 	floorMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicFloor);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoFloor);
 	floorMaterial->SetVector2(MAT_TILING, Vector2(100, 100));
-	m_RenderEngine->SetHDRIData(floorMaterial);
+	//m_RenderEngine->SetHDRIData(floorMaterial);
 
 	MeshRendererComponent cubeRenderer;
 	cubeRenderer.meshID = Primitives::CUBE;
@@ -246,7 +247,7 @@ void Example1Level::Initialize()
 	objectTransform.transform.location = Vector3(-13, 5, 5);
 	m_ECS->emplace<TransformComponent>(cube1, objectTransform);
 	m_ECS->emplace<MeshRendererComponent>(cube1, cubeRenderer);
-	m_ECS->emplace<RigidbodyComponent>(cube1, sphereRB);
+	//m_ECS->emplace<RigidbodyComponent>(cube1, sphereRB);
 
 	ECSEntity portal;
 	portal = m_ECS->CreateEntity("PortalFrame");
