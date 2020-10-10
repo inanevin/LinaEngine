@@ -92,9 +92,6 @@ namespace LinaEngine::Graphics
 		// Initialize the render renderEngine.
 		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn, Window& appWindow);
 
-		// Called before the first run.
-		void PostInitialFrame();
-
 		// Called each frame.
 		void Render();
 
@@ -419,6 +416,9 @@ namespace LinaEngine::Graphics
 
 		// Post scene draw callback
 		std::function<void()> m_postSceneDrawCallback;
+
+		// Flag to determine the first frame drawn.
+		bool m_firstFrameDrawn = false;
 	};
 
 }

@@ -136,16 +136,17 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void RenderEngine::PostInitialFrame()
-	{
-		ValidateEngineShaders();
-	}
-
 	void RenderEngine::Render()
 	{
 		// DrawShadows();
 
 		Draw();
+
+		if (!m_firstFrameDrawn)
+		{
+			ValidateEngineShaders();
+			m_firstFrameDrawn = true;
+		}
 
 		//DrawOperationsDefault();
 

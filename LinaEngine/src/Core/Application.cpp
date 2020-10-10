@@ -180,10 +180,9 @@ namespace LinaEngine
 			}
 
 			// Update necessary engines that the first run has finished.
-			if (m_FirstRun)
+			if (m_firstRun)
 			{
-				m_renderEngine->PostInitialFrame();
-				m_FirstRun = false;
+				m_firstRun = false;
 			}
 
 		}

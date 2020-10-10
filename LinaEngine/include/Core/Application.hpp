@@ -142,7 +142,7 @@ namespace LinaEngine
 		bool m_Running = false;
 
 		// Is his the first run
-		bool m_FirstRun = true;
+		bool m_firstRun = true;
 
 		// Can we render
 		bool m_canRender = true;
