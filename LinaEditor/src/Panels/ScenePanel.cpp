@@ -56,7 +56,6 @@ namespace LinaEditor
 
 			if (ImGui::Begin("Scene", &m_show, flags))
 			{
-				DrawWindowRect();
 		
 				// Get game viewport aspect.
 				Vector2 vpSize = m_RenderEngine->GetViewportSize();
@@ -81,17 +80,23 @@ namespace LinaEditor
 				// Desired window height.
 				float desiredHeight = currentPanelSize.x / aspect;
 				
+
 				// Calculate desired drawing rect for the image.
 				ImVec2 imageRectMin = ImVec2(pMin.x, pMin.y + (currentPanelSize.y - desiredHeight) / 2.0f);
 				ImVec2 imageRectMax = ImVec2(pMax.x, pMax.y - (currentPanelSize.y - desiredHeight) / 2.0f);
+
 
 				if (m_drawMode == DrawMode::FinalImage)
 					ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetFinalImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
 				else if (m_drawMode == DrawMode::ShadowMap)
 					ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetShadowMapImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
 
+
 				// Handle inputs.
 				ProcessInput();
+
+			
+
 
 				ImGuiIO& io = ImGui::GetIO();
 				ImGuizmo::Enable(true);
@@ -99,6 +104,7 @@ namespace LinaEditor
 				ImGuizmo::SetDrawlist();
 				ImGuizmo::SetRect(imageRectMin.x, imageRectMin.y, imageRectMax.x - imageRectMin.x, imageRectMax.y - imageRectMin.y);
 				ImGui::PushClipRect(imageRectMin, imageRectMax, false);
+
 				// Draw Gizmos
 				DrawGizmos();
 

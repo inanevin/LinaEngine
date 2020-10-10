@@ -157,7 +157,6 @@ namespace LinaEditor
 
 			ImGui::Begin("Properties", &m_show, flags);
 			pushStyle = ImGui::IsWindowFocused();
-			DrawWindowRect();
 
 
 			if (m_CurrentDrawType == DrawType::ENTITIES)
@@ -168,6 +167,8 @@ namespace LinaEditor
 				DrawMeshProperties();
 			else if (m_CurrentDrawType == DrawType::MATERIAL)
 				DrawMaterialProperties();
+
+			DrawWindowRect();
 
 			ImGui::End();
 

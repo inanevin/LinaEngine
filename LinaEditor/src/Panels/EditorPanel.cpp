@@ -32,7 +32,7 @@ namespace LinaEditor
     {
 		ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
 		ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight());
-		ImGui::BeginChild("Resources_child");
+		ImGui::BeginChild("##ch");
 		ImGui::PushClipRect(min, max, false);
 		ImGui::GetWindowDrawList()->AddRect(min, max, ImGui::ColorConvertFloat4ToU32(ImVec4(HEADER_BG_COLOR.r, HEADER_BG_COLOR.g, HEADER_BG_COLOR.b, HEADER_BG_COLOR.a)), 0, 15, OFFSET);
 		ImGui::PopClipRect();
