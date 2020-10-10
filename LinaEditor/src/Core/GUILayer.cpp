@@ -198,7 +198,7 @@ namespace LinaEditor
 		m_scenePanel = new ScenePanel(Vector2::Zero, m_scenePanelSize, *this);
 		m_propertiesPanel = new PropertiesPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_logPanel = new LogPanel(Vector2::Zero, Vector2(700, 600), *this);
-		m_headerPanel = new HeaderPanel(Vector2::Zero, Vector2::Zero, *this, m_appWindow->GetWindowProperties().m_Title);
+		m_headerPanel = new HeaderPanel(Vector2::Zero, Vector2::Zero, *this, m_appWindow->GetWindowProperties().m_title);
 
 		// Add to the list.
 		m_panels.push_back(m_ecsPanel);

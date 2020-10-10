@@ -102,7 +102,11 @@ namespace LinaEngine::Graphics
 #endif
 
 		// Create window
-		m_glfwWindow = (glfwCreateWindow(m_windowProperties.m_Width, m_windowProperties.m_Height, m_windowProperties.m_Title.c_str(), NULL, NULL));
+		m_glfwWindow = (glfwCreateWindow(m_windowProperties.m_width, m_windowProperties.m_height, m_windowProperties.m_title.c_str(), NULL, NULL));
+
+		// Set window position.
+		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		SetPos(LinaEngine::Vector2(mode->width / 2.0f + m_windowProperties.m_xPos - m_windowProperties.m_width / 2.0f, mode->height / 2.0f + m_windowProperties.m_yPos - m_windowProperties.m_height / 2.0f));
 
 		if (!m_glfwWindow)
 		{
@@ -124,7 +128,7 @@ namespace LinaEngine::Graphics
 		}
 
 		// Update OpenGL about the window data.
-		glViewport(0, 0, m_windowProperties.m_Width, m_windowProperties.m_Height);
+		glViewport(0, 0, m_windowProperties.m_width, m_windowProperties.m_height);
 
 		// set user pointer for callbacks.
 		glfwSetWindowUserPointer(m_glfwWindow, this);
@@ -213,8 +217,8 @@ namespace LinaEngine::Graphics
 	void GLWindow::SetSize(const Vector2& newSize)
 	{
 		glfwSetWindowSize(m_glfwWindow, newSize.x, newSize.y);
-		m_windowProperties.m_Width = newSize.x;
-		m_windowProperties.m_Height = newSize.y;
+		m_windowProperties.m_width = newSize.x;
+		m_windowProperties.m_height = newSize.y;
 	}
 
 	void GLWindow::SetPos(const Vector2& newPos)
@@ -253,8 +257,8 @@ namespace LinaEngine::Graphics
 
 	void GLWindow::WindowResized(void* window, int width, int height)
 	{
-		m_windowProperties.m_Width = width;
-		m_windowProperties.m_Height = height;
+		m_windowProperties.m_width = width;
+		m_windowProperties.m_height = height;
 		m_windowResizeCallback(Vector2((float)width, (float)height));
 	}
 

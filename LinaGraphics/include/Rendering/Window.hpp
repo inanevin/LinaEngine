@@ -73,13 +73,13 @@ namespace LinaEngine::Graphics
 		FORCEINLINE bool GetVsycnEnabled() { return m_windowProperties.vSyncEnabled; }
 
 		// Get window width.
-		FORCEINLINE uint32 GetWidth() { return m_windowProperties.m_Width; }
+		FORCEINLINE uint32 GetWidth() { return m_windowProperties.m_width; }
 
 		// Get window height.
-		FORCEINLINE uint32 GetHeight() { return m_windowProperties.m_Height; }
+		FORCEINLINE uint32 GetHeight() { return m_windowProperties.m_height; }
 
 		// Gets size
-		FORCEINLINE Vector2 GetSize() { return Vector2(m_windowProperties.m_Width, m_windowProperties.m_Height); }
+		FORCEINLINE Vector2 GetSize() { return Vector2(m_windowProperties.m_width, m_windowProperties.m_height); }
 
 		// Gets the current window position.
 		FORCEINLINE Vector2 GetPos() { return Vector2(m_windowProperties.m_xPos, m_windowProperties.m_yPos); }

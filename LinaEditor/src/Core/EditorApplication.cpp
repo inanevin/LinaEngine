@@ -39,8 +39,8 @@ namespace LinaEditor
 			LINA_CLIENT_TRACE("[Constructor] -> Editor Application ({0})", typeid(*this).name());
 
 			LinaEngine::Graphics::WindowProperties splashProps;
-			splashProps.m_Width = 720;
-			splashProps.m_Height = 450;
+			splashProps.m_width = 720;
+			splashProps.m_height = 450;
 			splashProps.m_decorated = false;
 			splashProps.m_resizable = false;
 
@@ -58,11 +58,11 @@ namespace LinaEditor
 			return;
 
 			LinaEngine::Graphics::WindowProperties props;
-			props.m_Width = 1440;
-			props.m_Height = 900;
+			props.m_width = 1440;
+			props.m_height = 900;
 			props.m_decorated = false;
 			props.m_resizable = false;
-			props.m_Title = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
+			props.m_title = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
 
 			Initialize(props);
 
