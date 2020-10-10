@@ -57,6 +57,8 @@ namespace LinaEditor
 			if (ImGui::Begin("Scene", &m_show, flags))
 			{
 		
+				ImGui::BeginChild("finalImage");
+
 				// Get game viewport aspect.
 				Vector2 vpSize = m_RenderEngine->GetViewportSize();
 				float aspect = (float)vpSize.x / (float)vpSize.y;
@@ -92,12 +94,6 @@ namespace LinaEditor
 					ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetShadowMapImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
 
 
-				// Handle inputs.
-				ProcessInput();
-
-			
-
-
 				ImGuiIO& io = ImGui::GetIO();
 				ImGuizmo::Enable(true);
 				ImGuizmo::SetOrthographic(false);
@@ -105,8 +101,16 @@ namespace LinaEditor
 				ImGuizmo::SetRect(imageRectMin.x, imageRectMin.y, imageRectMax.x - imageRectMin.x, imageRectMax.y - imageRectMin.y);
 				ImGui::PushClipRect(imageRectMin, imageRectMax, false);
 
+				// Handle inputs.
+				ProcessInput();
+
 				// Draw Gizmos
 				DrawGizmos();
+
+				ImGui::EndChild();
+
+				// Draw borders.
+				DrawWindowRect();
 
 			}
 

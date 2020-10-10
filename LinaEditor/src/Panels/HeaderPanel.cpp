@@ -91,9 +91,6 @@ namespace LinaEditor
 		fileItems.emplace_back(new MenuItem(ICON_FA_SAVE " Save Project", nullptr));
 		m_menuBarButtons.push_back(new MenuButton(/*ICON_FA_FILE*/ "File", "pu_file", fileItems, HEADER_BG_COLOR, false));
 
-		std::cout << "first " << fileItems[0] << std::endl;
-		std::cout << "sec " << fileItems[1] << std::endl;
-		std::cout << "third " << fileItems[2] << std::endl;
 		// Edit menu.
 		std::vector<MenuElement*> edit;
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_EDIT*/ "Edit", "pu_edit", edit, HEADER_BG_COLOR, true));

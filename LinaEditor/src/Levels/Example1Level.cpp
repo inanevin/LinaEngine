@@ -154,8 +154,6 @@ void Example1Level::Initialize()
 	// Create, setup & assign skybox material.
 	CreateProceduralSkybox(m_RenderEngine);
 
-	return;
-
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);
 	auto& camTransform = m_ECS->emplace<TransformComponent>(camera);
@@ -224,10 +222,10 @@ void Example1Level::Initialize()
 	portalRenderer.meshID = Primitives::PLANE;
 	portalRenderer.materialID = sphereMat->m_MaterialID;
 
-	//RigidbodyComponent sphereRB;
-	//sphereRB.m_mass = 1.0f;
-	//sphereRB.m_halfExtents = Vector3(1, 1, 1);
-	//sphereRB.m_collisionShape = CollisionShape::BOX;
+	RigidbodyComponent sphereRB;
+	sphereRB.m_mass = 1.0f;
+	sphereRB.m_halfExtents = Vector3(1, 1, 1);
+	sphereRB.m_collisionShape = CollisionShape::BOX;
 
 	MeshRendererComponent floorRenderer;
 	floorRenderer.meshID = Primitives::PLANE;
@@ -248,6 +246,7 @@ void Example1Level::Initialize()
 	objectTransform.transform.location = Vector3(-13, 5, 5);
 	m_ECS->emplace<TransformComponent>(cube1, objectTransform);
 	m_ECS->emplace<MeshRendererComponent>(cube1, cubeRenderer);
+	m_ECS->emplace<RigidbodyComponent>(cube1, sphereRB);
 
 	ECSEntity portal;
 	portal = m_ECS->CreateEntity("PortalFrame");
