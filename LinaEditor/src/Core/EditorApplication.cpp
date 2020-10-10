@@ -32,35 +32,45 @@ namespace LinaEditor
 	{
 	public:
 
-		EditorApplication(LinaEngine::Graphics::WindowProperties& props) : Application(props) {
+		EditorApplication() {
+
 			LINA_CLIENT_TRACE("[Constructor] -> Editor Application ({0})", typeid(*this).name());
+
+			LinaEngine::Graphics::WindowProperties props;
+			props.m_Width = 1440;
+			props.m_Height = 900;
+			props.m_decorated = false;
+			props.m_resizable = false;
+			props.m_Title = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
+
+			Initialize(props);
 
 			// Create layers
 			m_guiLayer = new LinaEditor::GUILayer();
 
 			// Setup layers
-			m_guiLayer->Setup(GetAppWindow(), GetRenderEngine(), GetPhysicsEngine(), this, GetECSREgistry(), m_StartupLevel, m_scenePanelSize);
-
-			// Load startup level.
-			//LoadLevel(&m_StartupLevel);
+			m_guiLayer->Setup(GetAppWindow(), GetRenderEngine(), GetPhysicsEngine(), this, GetECSREgistry(), m_startupLevel, m_scenePanelSize);
 
 			// Push layer into the engine.
 			GetRenderEngine().PushLayer(m_guiLayer);
 
+
+			// Load startup level.
+			// LoadLevel(&m_startupLevel);
+
 		}
-		~EditorApplication() {
-			LINA_CLIENT_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
-		
+
+		~EditorApplication() 
+		{
+			LINA_CLIENT_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());		
 		}
 
 
 	private:
 
-	
 		Vector2 m_scenePanelSize = Vector2(800, 600);
 		GUILayer* m_guiLayer;
-		Example1Level m_StartupLevel;
-
+		Example1Level m_startupLevel;
 	};
 
 }
@@ -68,13 +78,7 @@ namespace LinaEditor
 
 LinaEngine::Application* LinaEngine::CreateApplication()
 {
-	LinaEngine::Graphics::WindowProperties props;
-	props.m_Width = 1440;
-	props.m_Height = 900;
-	props.m_decorated = false;
-	props.m_resizable = false;
-	props.m_Title = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
-	return new LinaEditor::EditorApplication(props);
+	return new LinaEditor::EditorApplication();
 }
 
 // Default platform context window.

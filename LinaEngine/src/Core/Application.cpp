@@ -39,14 +39,14 @@ Timestamp: 12/29/2018 10:43:46 PM
 namespace LinaEngine
 {
 
-#define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
-
-
-	Application::Application(Graphics::WindowProperties& props)
+	Application::Application()
 	{
 		LINA_CORE_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
 		LINA_CORE_ASSERT(!instance, "Application already exists!");
+	}
 
+	void Application::Initialize(Graphics::WindowProperties& props)
+	{
 		// Get engine instances.
 		m_appWindow = CreateContextWindow();
 		m_inputDevice = CreateInputDevice();
@@ -62,7 +62,7 @@ namespace LinaEngine
 			return;
 		}
 
-	
+
 		// Set callbacks.
 		m_KeyCallback = std::bind(&Application::KeyCallback, this, std::placeholders::_1, std::placeholders::_2);
 		m_MouseCallback = std::bind(&Application::MouseCallback, this, std::placeholders::_1, std::placeholders::_2);
@@ -70,6 +70,7 @@ namespace LinaEngine
 		m_WindowClosedCallback = std::bind(&Application::OnWindowClose, this);
 		m_drawLineCallback = std::bind(&Application::OnDrawLine, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
 		m_postSceneDrawCallback = std::bind(&Application::OnPostSceneDraw, this);
+
 
 		// Set event callback for main window.
 		m_appWindow->SetKeyCallback(m_KeyCallback);
@@ -87,6 +88,7 @@ namespace LinaEngine
 		// Set running flag.
 		m_Running = true;
 	}
+
 
 	Application::~Application()
 	{

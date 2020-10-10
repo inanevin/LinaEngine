@@ -81,7 +81,10 @@ namespace LinaEngine
 
 	protected:
 
-		Application(Graphics::WindowProperties& props);
+		// Initializes the engine.
+		virtual void Initialize(Graphics::WindowProperties& props);
+
+		Application();
 
 		// Delegates draw commands from physics engine to rendering engine
 		virtual void OnDrawLine(Vector3 from, Vector3 to, Color color, float width = 1.0f);
