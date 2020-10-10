@@ -33,6 +33,23 @@ namespace LinaEditor
 	{
 		static std::string& contentsPath;
 	};
+
+
+#define HEADER_FILEMENU_FRAMEPADDING ImVec2(5,3)
+#define HEADER_MENUBUTTON_WINDOWPADDING ImVec2(7,4)
+#define HEADER_ICONIFYBUTTONS_FRAMEPADDING ImVec2(3,2)
+#define WINDOW_FRAMEPADDING ImVec2(0,6)
+#define HEADER_BG_COLOR LinaEngine::Color(0, 0, 0, 1)
+#define HEADER_BUTTONS_COLOR LinaEngine::Color(1, 1, 1, 1)
+#define HEADER_MENUBARBUTTON_ACTIVECOLOR LinaEngine::Color(0.5f, 0.5f, 0.5f, 1.0f)
+
+
+#define RESIZE_THRESHOLD 10
+#define HEIGHT_HEADER 60
+#define OFFSET_WINDOWBUTTONS 80
+#define LINALOGO_ANIMSIZE 132
+#define LINALOGO_SIZE ImVec2(180, 29)
+
 }
 
 #endif

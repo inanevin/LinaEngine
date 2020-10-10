@@ -24,6 +24,7 @@ Timestamp: 6/5/2020 12:55:10 AM
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Material.hpp"
 #include "Input/InputMappings.hpp"
+#include "Core/EditorCommon.hpp"
 #include "imgui/imgui.h"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -52,22 +53,22 @@ namespace LinaEditor
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
 
-
-			ImGui::Begin("Resources", &m_show, flags);
 			
-			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowWidth() - 55, 0), ImVec2(ImGui::GetWindowSize().x, ImGui::GetWindowContentRegionMax().y), ImGui::ColorConvertFloat4ToU32(ImVec4(1,1,1,1)));
+			ImGui::Begin("Resources", &m_show, flags);
+			ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
+			ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight());
 
-			//ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_TabUnfocusedActive));
-			//ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
-			//ImGui::BeginChild("Resources_child", ImVec2(0,0), false, ImGuiWindowFlags_NoScrollbar);
 
+			//ImGui::BeginChild("Resources_child");
+			//ImGui::SetWindowPos(ImVec2(12, 12));
 			DrawContent();
 			DrawFolder(m_ResourceFolders[0]);
+			//ImGui::EndChild();
+			DrawWindowSpaces();
 
-			//	ImGui::EndChild();
-			//	ImGui::PopStyleColor();
-			//	ImGui::PopStyleVar();
 			ImGui::End();
+
+
 		}
 	}
 

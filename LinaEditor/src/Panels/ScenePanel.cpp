@@ -56,10 +56,7 @@ namespace LinaEditor
 
 			if (ImGui::Begin("Scene", &m_show, flags))
 			{
-				ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_TabUnfocusedActive));
-				ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
-				ImGui::BeginChild("Scenes_child", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar);
-
+				DrawWindowSpaces();
 		
 				// Get game viewport aspect.
 				Vector2 vpSize = m_RenderEngine->GetViewportSize();
@@ -105,9 +102,6 @@ namespace LinaEditor
 				// Draw Gizmos
 				DrawGizmos();
 
-				ImGui::EndChild();
-				ImGui::PopStyleColor();
-				ImGui::PopStyleVar();
 			}
 
 			ImGui::End();

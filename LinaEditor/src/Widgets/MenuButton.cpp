@@ -23,6 +23,7 @@ Timestamp: 10/8/2020 9:02:44 PM
 #include "Widgets/MenuButton.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Utility/Log.hpp"
+#include "Core/EditorCommon.hpp"
 #include <iostream>
 
 namespace LinaEditor
@@ -80,6 +81,7 @@ namespace LinaEditor
 			ImGui::PopStyleVar();
 
 		// Draw popup
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, HEADER_MENUBUTTON_WINDOWPADDING);
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y));
 		m_popupOpen = ImGui::BeginPopup(m_popupID);
 		if (m_popupOpen)
@@ -100,6 +102,7 @@ namespace LinaEditor
 			ImGui::EndPopup();
 		}
 
+		ImGui::PopStyleVar();
 		
 	}
 

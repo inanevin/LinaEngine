@@ -20,8 +20,17 @@ Timestamp: 5/23/2020 4:16:19 PM
 
 
 #include "Panels/EditorPanel.hpp"
+#include "imgui/imgui.h"
+
+#define OFFSET 4
 
 namespace LinaEditor
 {
+    void EditorPanel::DrawWindowSpaces()
+    {
+       // ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
+       // ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight());
+       // ImGui::GetWindowDrawList()->AddRect(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_DockingEmptyBg)), 0, 15, OFFSET);
 
+    }
 }

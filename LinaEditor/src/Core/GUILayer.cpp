@@ -113,13 +113,14 @@ namespace LinaEditor
 		style.AntiAliasedFill = false;
 		style.WindowRounding = 0.0f;
 		style.TabRounding = 3.0f;
-		style.ChildRounding = 1.0f;
+		style.ChildRounding = 0.0f;
 		style.PopupRounding = 3.0f;
 		style.FrameRounding = 6.0f;
 		style.ScrollbarRounding = 5.0f;
-		style.FramePadding = ImVec2(3, 3);
-		style.WindowPadding = ImVec2(0, 0);
+		style.FramePadding = ImVec2(0, 5);
+		style.WindowPadding = ImVec2(6, 7);
 		style.GrabRounding = 6.0f;
+		style.ChildBorderSize = 1.0f;
 		style.TabBorderSize = 0.0f;
 		style.WindowMenuButtonPosition = ImGuiDir_None;
 		colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
@@ -150,7 +151,7 @@ namespace LinaEditor
 		colors[ImGuiCol_HeaderHovered] = ImVec4(0.67f, 0.30f, 0.44f, 1.00f);
 		colors[ImGuiCol_HeaderActive] = ImVec4(0.67f, 0.36f, 0.48f, 1.00f);
 		colors[ImGuiCol_Separator] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
-		colors[ImGuiCol_SeparatorHovered] = ImVec4(0.13f, 0.13f, 0.15f, 1.00f);
+		colors[ImGuiCol_SeparatorHovered] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
 		colors[ImGuiCol_SeparatorActive] = ImVec4(0.18f, 0.18f, 0.20f, 1.00f);
 		colors[ImGuiCol_ResizeGrip] = ImVec4(0.44f, 0.44f, 0.44f, 1.00f);
 		colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.58f, 0.58f, 0.58f, 1.00f);
@@ -161,7 +162,7 @@ namespace LinaEditor
 		colors[ImGuiCol_TabUnfocused] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
 		colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.17f, 0.17f, 0.18f, 1.00f);
 		colors[ImGuiCol_DockingPreview] = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
-		colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+		colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
 		colors[ImGuiCol_PlotLines] = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
 		colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
 		colors[ImGuiCol_PlotHistogram] = ImVec4(0.69f, 0.15f, 0.29f, 1.00f);
@@ -176,12 +177,10 @@ namespace LinaEditor
 
 
 
-
-
 		// setup panels, windows etc.
 		m_ecsPanel = new ECSPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_materialPanel = new MaterialPanel(Vector2::Zero, Vector2(700, 600), *this);
-		m_resourcesPanel = new ResourcesPanel(Vector2::Zero, Vector2(700, 400), *this);
+		m_resourcesPanel = new ResourcesPanel(Vector2::Zero, Vector2(700, 200), *this);
 		m_scenePanel = new ScenePanel(Vector2::Zero, m_scenePanelSize, *this);
 		m_propertiesPanel = new PropertiesPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_logPanel = new LogPanel(Vector2::Zero, Vector2(700, 600), *this);
@@ -247,6 +246,7 @@ namespace LinaEditor
 		//// Draw material panel.
 		//m_MaterialPanel->Draw();
 
+
 		// Draw resources panel
 		m_resourcesPanel->Draw(dt);
 
@@ -262,8 +262,9 @@ namespace LinaEditor
 		// Draw properties panel
 		m_propertiesPanel->Draw(dt);
 
+
 		if (showIMGUIDemo)
-		ImGui::ShowDemoWindow(&showIMGUIDemo);
+			ImGui::ShowDemoWindow(&showIMGUIDemo);
 
 		// Rendering
 		ImGui::Render();
@@ -438,10 +439,15 @@ namespace LinaEditor
 		// all active windows docked into it will lose their parent and become undocked.
 		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
 		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
+	
+
+		
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(HEADER_BG_COLOR.r, HEADER_BG_COLOR.g, HEADER_BG_COLOR.b, HEADER_BG_COLOR.a));
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(4.0f, 4.0f));
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, WINDOW_FRAMEPADDING);
 
 		ImGui::Begin("DockSpace", NULL, window_flags);
-
 
 		ImGui::PopStyleVar();
 
@@ -453,7 +459,8 @@ namespace LinaEditor
 		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 		{
 			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+		
+			ImGui::DockSpace(dockspace_id, ImVec2(0,0), dockspace_flags);
 
 			if (setDockspaceLayout)
 			{
@@ -480,11 +487,13 @@ namespace LinaEditor
 
 		}
 
-		//DrawMenuBar();
-
 		ImGui::End();
+		ImGui::PopStyleVar();
 
-
+	ImGui::Begin("Background", NULL, ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoInputs);
+	
+	ImGui::End();
+	ImGui::PopStyleColor();
 	}
 
 

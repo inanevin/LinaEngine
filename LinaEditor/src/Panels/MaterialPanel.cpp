@@ -44,6 +44,8 @@ namespace LinaEditor
 			ImGui::SetNextWindowBgAlpha(0.2f);
 			if (ImGui::Begin("Material Panel", &m_show))
 			{
+				DrawWindowSpaces();
+
 				if (m_CurrentSelectedMaterial != nullptr)
 				{
 					if (m_CurrentSelectedMaterial->GetShaderType() == Graphics::Shaders::PBR_LIT)
