@@ -38,11 +38,10 @@ Timestamp: 10/8/2020 1:39:19 PM
 ImVec2 resizeStartPos;
 ImVec2 headerClickPos;
 LinaEngine::Vector2 resizeStartSize;
-LinaEngine::Graphics::Texture* windowLogo;
-LinaEngine::Graphics::Texture* windowIcon;
 bool appResizeActive;
 bool isAxisPivotLocal;
 
+LinaEngine::Graphics::Texture* windowIcon;
 LinaEngine::Graphics::Texture* linaLogoAnimation[LINALOGO_ANIMSIZE];
 uint32 linaLogoID;
 float logoAnimRatio = 0.0f;
@@ -66,7 +65,6 @@ namespace LinaEditor
 		m_appWindow = m_guiLayer->GetAppWindow();
 
 		// Logo texture
-		windowLogo = &m_renderEngine->CreateTexture2D("resources/textures/linaEngineText.png");
 		windowIcon = &m_renderEngine->CreateTexture2D("resources/textures/linaEngineIcon.png");
 
 		// Logo animation textures

@@ -45,9 +45,6 @@ namespace LinaEditor
 		// Set ref.
 		m_window = splashWindow;
 
-		// Create splash texture
-		splashScreenTexture = &renderEngine->CreateTexture2D("resources/textures/splashScreen.png");
-
 		// Create context.
 		bool windowCreationSuccess = splashWindow->CreateContext(props);
 		if (!windowCreationSuccess)
@@ -66,6 +63,8 @@ namespace LinaEditor
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init();
 
+		// Create splash texture
+		splashScreenTexture = &renderEngine->CreateTexture2D("resources/textures/splashScreen.png");
 	}
 
 	void SplashScreen::Draw()
@@ -82,8 +81,8 @@ namespace LinaEditor
 
 		// Draw window.
 		ImGui::Begin("SplashScreen", NULL, ImGuiWindowFlags_NoDecoration);
-
-
+	
+		ImGui::GetWindowDrawList()->AddImage((void*)splashScreenTexture->GetID(), ImVec2(0,0), viewport->Size, ImVec2(0,1), ImVec2(1,0));
 
 		ImGui::End();
 
