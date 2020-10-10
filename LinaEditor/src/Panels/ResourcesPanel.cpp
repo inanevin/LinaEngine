@@ -55,16 +55,10 @@ namespace LinaEditor
 
 			
 			ImGui::Begin("Resources", &m_show, flags);
-			ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
-			ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight());
-
-
-			//ImGui::BeginChild("Resources_child");
-			//ImGui::SetWindowPos(ImVec2(12, 12));
+			
 			DrawContent();
 			DrawFolder(m_ResourceFolders[0]);
-			//ImGui::EndChild();
-			DrawWindowSpaces();
+			DrawWindowRect();
 
 			ImGui::End();
 

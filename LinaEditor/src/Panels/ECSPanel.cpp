@@ -78,7 +78,7 @@ namespace LinaEditor
 
 			if (ImGui::Begin("Entities", &m_show, flags))
 			{
-				DrawWindowSpaces();
+				DrawWindowRect();
 
 				// Statics.
 				static char selectedEntityName[256] = "Entity";

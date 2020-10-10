@@ -117,7 +117,7 @@ namespace LinaEditor
 		style.PopupRounding = 3.0f;
 		style.FrameRounding = 6.0f;
 		style.ScrollbarRounding = 5.0f;
-		style.FramePadding = ImVec2(0, 5);
+		style.FramePadding = ImVec2(3, 5);
 		style.WindowPadding = ImVec2(6, 7);
 		style.GrabRounding = 6.0f;
 		style.ChildBorderSize = 1.0f;
@@ -150,9 +150,9 @@ namespace LinaEditor
 		colors[ImGuiCol_Header] = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
 		colors[ImGuiCol_HeaderHovered] = ImVec4(0.67f, 0.30f, 0.44f, 1.00f);
 		colors[ImGuiCol_HeaderActive] = ImVec4(0.67f, 0.36f, 0.48f, 1.00f);
-		colors[ImGuiCol_Separator] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
-		colors[ImGuiCol_SeparatorHovered] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
-		colors[ImGuiCol_SeparatorActive] = ImVec4(0.18f, 0.18f, 0.20f, 1.00f);
+		colors[ImGuiCol_Separator] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+		colors[ImGuiCol_SeparatorHovered] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+		colors[ImGuiCol_SeparatorActive] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
 		colors[ImGuiCol_ResizeGrip] = ImVec4(0.44f, 0.44f, 0.44f, 1.00f);
 		colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.58f, 0.58f, 0.58f, 1.00f);
 		colors[ImGuiCol_ResizeGripActive] = ImVec4(0.73f, 0.73f, 0.73f, 1.00f);
@@ -173,6 +173,8 @@ namespace LinaEditor
 		colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
 		colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+
+
 
 
 

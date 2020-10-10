@@ -44,7 +44,7 @@ namespace LinaEditor
 			ImGui::SetNextWindowBgAlpha(0.2f);
 			if (ImGui::Begin("Material Panel", &m_show))
 			{
-				DrawWindowSpaces();
+				DrawWindowRect();
 
 				if (m_CurrentSelectedMaterial != nullptr)
 				{

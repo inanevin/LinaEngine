@@ -42,7 +42,7 @@ namespace LinaEditor
 		virtual FORCEINLINE void Close() { m_show = false; }
 		virtual void Draw(float frameTime) = 0;
 		virtual void Setup() = 0;
-		virtual void DrawWindowSpaces();
+		virtual void DrawWindowRect();
 		FORCEINLINE bool* GetShow() { return &m_show; }
 
 	protected:

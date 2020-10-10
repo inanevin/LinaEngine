@@ -56,7 +56,7 @@ namespace LinaEditor
 
 			if (ImGui::Begin("Scene", &m_show, flags))
 			{
-				DrawWindowSpaces();
+				DrawWindowRect();
 		
 				// Get game viewport aspect.
 				Vector2 vpSize = m_RenderEngine->GetViewportSize();

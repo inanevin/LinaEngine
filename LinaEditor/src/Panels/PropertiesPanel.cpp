@@ -157,7 +157,7 @@ namespace LinaEditor
 
 			ImGui::Begin("Properties", &m_show, flags);
 			pushStyle = ImGui::IsWindowFocused();
-			DrawWindowSpaces();
+			DrawWindowRect();
 
 
 			if (m_CurrentDrawType == DrawType::ENTITIES)

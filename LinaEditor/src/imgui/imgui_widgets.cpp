@@ -6960,21 +6960,27 @@ bool    ImGui::BeginTabBarEx(ImGuiTabBar* tab_bar, const ImRect& tab_bar_bb, ImG
 	window->DC.CursorPos.x = tab_bar->BarRect.Min.x;
 	window->DC.CursorPos.y = tab_bar->BarRect.Max.y + g.Style.ItemSpacing.y;
 
+	// To Draw Rect over tab bar for separating windows.
+	// ImU32 wcol = ImGui::ColorConvertFloat4ToU32(ImVec4(0, 0, 0, 1));
+	// window->DrawList->AddLine(tab_bar->BarRect.Min, ImVec2(tab_bar->BarRect.Min.x, tab_bar->BarRect.Max.y), wcol, 6);
+	// window->DrawList->AddLine(tab_bar->BarRect.Min, ImVec2(tab_bar->BarRect.Max.x, tab_bar->BarRect.Min.y), wcol, 6);
+	// window->DrawList->AddLine(ImVec2(tab_bar->BarRect.Max.x, tab_bar->BarRect.Min.y), tab_bar->BarRect.Max, wcol, 6);
+
 	// Draw separator
-	const ImU32 col = GetColorU32((flags & ImGuiTabBarFlags_IsFocused) ? ImGuiCol_TabActive : ImGuiCol_TabUnfocusedActive);
+	/*const ImU32 col = GetColorU32((flags & ImGuiTabBarFlags_IsFocused) ? ImGuiCol_TabActive : ImGuiCol_TabUnfocusedActive);
 	const float y = tab_bar->BarRect.Max.y - 1.0f;
 	if (dock_node != NULL)
 	{
 		const float separator_min_x = dock_node->Pos.x + window->WindowBorderSize;
 		const float separator_max_x = dock_node->Pos.x + dock_node->Size.x - window->WindowBorderSize;
-		//window->DrawList->AddLine(ImVec2(separator_min_x, y), ImVec2(separator_max_x, y), col, 1.0f);
+		window->DrawList->AddLine(ImVec2(separator_min_x, y), ImVec2(separator_max_x, y), col, 1.0f);
 	}
 	else
 	{
 		const float separator_min_x = tab_bar->BarRect.Min.x - IM_FLOOR(window->WindowPadding.x * 0.5f);
 		const float separator_max_x = tab_bar->BarRect.Max.x + IM_FLOOR(window->WindowPadding.x * 0.5f);
-		//window->DrawList->AddLine(ImVec2(separator_min_x, y), ImVec2(separator_max_x, y), col, 1.0f);
-	}
+		window->DrawList->AddLine(ImVec2(separator_min_x, y), ImVec2(separator_max_x, y), col, 1.0f);
+	}*/
 	return true;
 }
 
@@ -8009,7 +8015,7 @@ bool ImGui::TabItemLabelAndCloseButton(ImDrawList* draw_list, const ImRect& bb, 
 		ImGuiLastItemDataBackup last_item_backup;
 		const float close_button_sz = g.FontSize;
 		PushStyleVar(ImGuiStyleVar_FramePadding, frame_padding);
-		if (CloseButton(close_button_id, ImVec2(bb.Max.x - frame_padding.x * 2.0f - close_button_sz, bb.Min.y)))
+		if (CloseButton(close_button_id, ImVec2(bb.Max.x - frame_padding.x * 2.0f - close_button_sz + 4.5f, bb.Min.y + 1.5f)))
 			close_button_pressed = true;
 		PopStyleVar();
 		last_item_backup.Restore();
@@ -8018,7 +8024,7 @@ bool ImGui::TabItemLabelAndCloseButton(ImDrawList* draw_list, const ImRect& bb, 
 		if (!(flags & ImGuiTabItemFlags_NoCloseWithMiddleMouseButton) && IsMouseClicked(2))
 			close_button_pressed = true;
 
-		text_pixel_clip_bb.Max.x -= close_button_sz;
+		// text_pixel_clip_bb.Max.x -= close_button_sz;
 	}
 
 	float ellipsis_max_x = close_button_visible ? text_pixel_clip_bb.Max.x : bb.Max.x - 1.0f;
