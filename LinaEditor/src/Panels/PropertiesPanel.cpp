@@ -144,7 +144,7 @@ namespace LinaEditor
 			ImVec2 panelSize = ImVec2(m_Size.x, m_Size.y);
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(1.0f);
-			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
 			static bool pushStyle = false;
 			static bool wasPushed = false;

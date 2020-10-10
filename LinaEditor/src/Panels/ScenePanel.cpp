@@ -52,11 +52,11 @@ namespace LinaEditor
 			ImVec2 panelSize = ImVec2(m_Size.x, m_Size.y);
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(1.0f);
-			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
 			if (ImGui::Begin("Scene", &m_show, flags))
 			{
-		
+
 				ImGui::BeginChild("finalImage");
 
 				// Get game viewport aspect.
@@ -81,7 +81,7 @@ namespace LinaEditor
 
 				// Desired window height.
 				float desiredHeight = currentPanelSize.x / aspect;
-				
+
 
 				// Calculate desired drawing rect for the image.
 				ImVec2 imageRectMin = ImVec2(pMin.x, pMin.y + (currentPanelSize.y - desiredHeight) / 2.0f);

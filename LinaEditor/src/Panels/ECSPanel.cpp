@@ -74,11 +74,10 @@ namespace LinaEditor
 			ImVec2 panelSize = ImVec2(m_Size.x, m_Size.y);			
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(1.0f);
-			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;;
 
 			if (ImGui::Begin("Entities", &m_show, flags))
 			{
-				DrawWindowRect();
 
 				// Statics.
 				static char selectedEntityName[256] = "Entity";
@@ -122,6 +121,9 @@ namespace LinaEditor
 				}
 
 			}
+
+			DrawWindowRect();
+
 			ImGui::End();
 		}
 	}
