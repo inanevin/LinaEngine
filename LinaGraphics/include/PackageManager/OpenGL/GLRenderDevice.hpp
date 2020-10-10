@@ -29,13 +29,6 @@ Timestamp: 4/27/2019 10:12:16 PM
 #include "Rendering/RenderingCommon.hpp"
 #include <map>
 
-namespace LinaEngine
-{
-	namespace ECS
-	{
-		class LightingSystem;
-	}
-}
 
 using namespace LinaEngine;
 
@@ -72,7 +65,7 @@ namespace LinaEngine::Graphics
 		~GLRenderDevice();
 
 		// Initializes the devices & params.
-		void Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn, int width, int height, DrawParams& defaultParams);
+		void Initialize(int width, int height, DrawParams& defaultParams);
 
 		// Creates a texture on GL.
 		uint32 CreateTexture2D(Vector2 size, const void* data,  SamplerParameters samplerParams ,bool compress, bool useBorder = false, Color borderColor = Color::White);
@@ -273,9 +266,6 @@ namespace LinaEngine::Graphics
 
 
 	private:
-
-		// Reference to the ECS Lighting system in Render Engine
-		LinaEngine::ECS::LightingSystem* m_LightingSystem;
 
 		// Currently active shader.
 		uint32 m_BoundShader = 0;

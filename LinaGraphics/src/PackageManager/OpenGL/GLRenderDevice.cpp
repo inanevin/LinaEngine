@@ -196,7 +196,7 @@ namespace LinaEngine::Graphics
 	}
 
 
-	void GLRenderDevice::Initialize(LinaEngine::ECS::LightingSystem& lightingSystemIn, int width, int height, DrawParams& defaultParams)
+	void GLRenderDevice::Initialize(int width, int height, DrawParams& defaultParams)
 	{
 		const GLubyte* vendor = glGetString(GL_VENDOR); // Returns the vendor
 		const GLubyte* renderer = glGetString(GL_RENDERER); // Returns a hint to the model
@@ -234,10 +234,6 @@ namespace LinaEngine::Graphics
 
 		if (m_IsBlendingEnabled)
 			glBlendFunc(m_UsedSourceBlending, m_UsedDestinationBlending);
-
-
-		// Set lighting system reference.
-		m_LightingSystem = &lightingSystemIn;
 
 	}
 

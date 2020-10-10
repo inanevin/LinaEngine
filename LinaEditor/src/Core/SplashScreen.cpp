@@ -23,7 +23,9 @@ Timestamp: 10/10/2020 3:26:27 PM
 #include "Rendering/Window.hpp"
 #include "Utility/Log.hpp"
 #include "Rendering/RenderEngine.hpp"
+#include "Rendering/ArrayBitmap.hpp"
 #include "Rendering/Texture.hpp"
+#include "PackageManager/PAMRenderDevice.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -40,10 +42,33 @@ namespace LinaEditor
 {
 
 
-	void SplashScreen::Setup(LinaEngine::Graphics::RenderEngine* renderEngine, LinaEngine::Graphics::Window* splashWindow, const LinaEngine::Graphics::WindowProperties& props)
+	void SplashScreen::Setup(LinaEngine::Graphics::Window* splashWindow, const LinaEngine::Graphics::WindowProperties& props)
 	{
 		// Set ref.
 		m_window = splashWindow;
+
+		// Set GUI draw params.
+		LinaEngine::Graphics::DrawParams splashDrawParams;
+		splashDrawParams.useScissorTest = false;
+		splashDrawParams.useDepthTest = true;
+		splashDrawParams.useStencilTest = true;
+		splashDrawParams.primitiveType = Graphics::PrimitiveType::PRIMITIVE_TRIANGLES;
+		splashDrawParams.faceCulling = Graphics::FaceCulling::FACE_CULL_BACK;
+		splashDrawParams.sourceBlend = Graphics::BlendFunc::BLEND_FUNC_SRC_ALPHA;
+		splashDrawParams.destBlend = Graphics::BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+		splashDrawParams.shouldWriteDepth = true;
+		splashDrawParams.depthFunc = Graphics::DrawFunc::DRAW_FUNC_LEQUAL;
+		splashDrawParams.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_ALWAYS;
+		splashDrawParams.stencilComparisonVal = 0;
+		splashDrawParams.stencilTestMask = 0xFF;
+		splashDrawParams.stencilWriteMask = 0xFF;
+		splashDrawParams.stencilFail = Graphics::StencilOp::STENCIL_KEEP;
+		splashDrawParams.stencilPass = Graphics::StencilOp::STENCIL_REPLACE;
+		splashDrawParams.stencilPassButDepthFail = Graphics::StencilOp::STENCIL_KEEP;
+		splashDrawParams.scissorStartX = 0;
+		splashDrawParams.scissorStartY = 0;
+		splashDrawParams.scissorWidth = 0;
+		splashDrawParams.scissorHeight = 0;
 
 		// Create context.
 		bool windowCreationSuccess = splashWindow->CreateContext(props);
@@ -63,8 +88,27 @@ namespace LinaEditor
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init();
 
-		// Create splash texture
-		splashScreenTexture = &renderEngine->CreateTexture2D("resources/textures/splashScreen.png");
+		// Create pixel data.
+		Graphics::ArrayBitmap::SetImageFlip(true);
+		Graphics::ArrayBitmap* textureBitmap = new Graphics::ArrayBitmap();
+
+		int nrComponents = textureBitmap->Load("resources/textures/splashScreen.png");
+		if (nrComponents == -1)
+		{
+			LINA_CORE_ERR("Texture with the path {0} doesn't exist, returning empty texture", filePath);
+			delete textureBitmap;
+		}
+		
+
+		RenderDevice renderDevice;
+		renderDevice.Initialize(props.m_width, props.m_height, Graphics::DrawParams());
+		renderDevice.SetDrawParameters(splashDrawParams);
+
+		// Create texture & construct.
+		splashScreenTexture = new Graphics::Texture();
+		splashScreenTexture->Construct(renderDevice, *textureBitmap, Graphics::SamplerParameters(), false);
+
+		delete textureBitmap;
 	}
 
 	void SplashScreen::Draw()
@@ -102,7 +146,7 @@ namespace LinaEditor
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 
-		m_renderEngine->UnloadTextureResource(splashScreenTexture->GetID());
+		delete splashScreenTexture;
 		delete m_window;
 	}
 }

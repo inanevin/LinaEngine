@@ -69,7 +69,7 @@ namespace LinaEngine::World
 
 		virtual void OnLevelLoaded() {};
 		virtual void OnLevelRemoved() {};
-		virtual void Install() {};
+		virtual bool Install() = 0;
 		virtual void Uninstall() {};
 		virtual void Initialize() {};
 		virtual void Tick(float delta) {};

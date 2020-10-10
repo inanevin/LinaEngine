@@ -240,12 +240,15 @@ namespace LinaEngine
 		layer->OnAttach();
 	}
 
-	void Application::LoadLevel(LinaEngine::World::Level* level)
+	bool Application::InstallLevel(LinaEngine::World::Level* level)
 	{
-		// TODO: Implement unloading the current level & loading a new one later.
+		level->SetEngineReferences(&m_ECS, *m_renderEngine, *m_inputEngine);
+		return level->Install();
+	}
+
+	void Application::InitializeLevel(LinaEngine::World::Level* level)
+	{
 		m_CurrentLevel = level;
-		m_CurrentLevel->SetEngineReferences(&m_ECS, *m_renderEngine, *m_inputEngine);
-		m_CurrentLevel->Install();
 		m_CurrentLevel->Initialize();
 		m_activeLevelExists = true;
 	}

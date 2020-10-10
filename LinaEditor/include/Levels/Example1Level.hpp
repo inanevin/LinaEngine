@@ -31,7 +31,7 @@ public:
 	Example1Level() {};
 	~Example1Level();
 
-	virtual void Install() override;
+	virtual bool Install() override;
 	virtual void Initialize() override;
 	virtual void Tick(float delta) override;
 };

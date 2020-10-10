@@ -81,7 +81,7 @@ namespace LinaEngine::Graphics
 		SetupDrawParameters();
 
 		// Initialize the render device.
-		m_renderDevice.Initialize(m_lightingSystem, m_appWindow->GetWidth(), m_appWindow->GetHeight(), m_defaultDrawParams);
+		m_renderDevice.Initialize(m_appWindow->GetWidth(), m_appWindow->GetHeight(), m_defaultDrawParams);
 
 		// Construct the uniform buffer for global matrices.
 		m_globalDataBuffer.Construct(m_renderDevice, UNIFORMBUFFER_VIEWDATA_SIZE, BufferUsage::USAGE_DYNAMIC_DRAW, NULL);

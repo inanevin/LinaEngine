@@ -26,17 +26,51 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include "Physics/PhysicsEngine.hpp"
 #include "Input/InputEngine.hpp"
 #include "Core/SplashScreen.hpp"
-
+#include <thread>
 
 namespace LinaEditor
 {
+	void CreateSplashScreen(bool* run)
+	{
+
+		LinaEngine::Graphics::WindowProperties splashProps;
+		splashProps.m_width = 720;
+		splashProps.m_height = 450;
+		splashProps.m_decorated = false;
+		splashProps.m_resizable = false;
+
+		SplashScreen* splashScreen = new SplashScreen();
+
+		// Setup splash screen.
+		splashScreen->Setup(new ContextWindow(), splashProps);
+
+		while (*run)
+		{
+			splashScreen->Draw();
+		}
+
+		delete splashScreen;
+	}
+
 	class EditorApplication : public LinaEngine::Application
 	{
 	public:
 
+
 		EditorApplication() {
 
 			LINA_CLIENT_TRACE("[Constructor] -> Editor Application ({0})", typeid(*this).name());
+
+		//bool showSplashScreen = true;
+		//
+		//// Load startup level.
+		//!InstallLevel(&m_startupLevel);
+		//
+		//std::thread t1(LinaEditor::CreateSplashScreen, &showSplashScreen);
+		//
+		//t1.join();
+		//
+		//return;
 
 			LinaEngine::Graphics::WindowProperties props;
 			props.m_width = 1440;
@@ -44,49 +78,28 @@ namespace LinaEditor
 			props.m_decorated = false;
 			props.m_resizable = false;
 			props.m_title = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
-			
-			
+
 			Initialize(props);
-			
-			LinaEngine::Graphics::WindowProperties splashProps;
-			splashProps.m_width = 720;
-			splashProps.m_height = 450;
-			splashProps.m_decorated = false;
-			splashProps.m_resizable = false;
-			
-			SplashScreen* splashScreen = new SplashScreen();
-			
-			// Setup splash screen.
-			splashScreen->Setup(&GetRenderEngine(), CreateContextWindow(), splashProps);
-			
-			while (true)
-			{
-				splashScreen->Draw();
-			}
-			
-			delete splashScreen;
-			return;
 
-
-
+		
 			// Create layers
 			m_guiLayer = new LinaEditor::GUILayer();
 
 			// Setup layers
 			m_guiLayer->Setup(GetAppWindow(), GetRenderEngine(), GetPhysicsEngine(), this, GetECSREgistry(), m_startupLevel, m_scenePanelSize);
 
+			InstallLevel(&m_startupLevel);
+			InitializeLevel(&m_startupLevel);
+
 			// Push layer into the engine.
 			GetRenderEngine().PushLayer(m_guiLayer);
-
-			m_guiLayer->DrawSplash();
-
-			// Load startup level.
-			LoadLevel(&m_startupLevel);
 
 
 			Run();
 
+
 		}
+
 
 		~EditorApplication()
 		{

@@ -63,9 +63,43 @@ Example1Level::~Example1Level()
 	delete groundCubeSystem;
 }
 
-void Example1Level::Install()
+Texture* albedoSphere;
+Texture*  normalSphere;
+Texture*  metallicSphere;
+Texture*  roughnessSphere;
+Texture*  aoSphere;
+Texture*  albedoFloor;
+Texture*  normalFloor;
+Texture*  metallicFloor;
+Texture*  roughnessFloor;
+Texture*  aoFloor;
+
+bool Example1Level::Install()
 {
 	LINA_CLIENT_WARN("Example level 1 install.");
+
+	SamplerParameters pbrSampler;
+	pbrSampler.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+	pbrSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
+	pbrSampler.textureParams.wrapS = SamplerWrapMode::WRAP_REPEAT;
+	pbrSampler.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
+	pbrSampler.textureParams.pixelFormat = PixelFormat::FORMAT_RGBA;
+	pbrSampler.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB;
+	pbrSampler.textureParams.generateMipMaps = true;
+
+
+	albedoSphere = &m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/albedo.png", pbrSampler, false, false);
+	normalSphere = &m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/normal.png", pbrSampler, false, false);
+	metallicSphere = &m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/metallic.png", pbrSampler, false, false);
+	roughnessSphere = &m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/roughness.png", pbrSampler, false, false);
+	aoSphere = &m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/ao.png", pbrSampler, false, false);
+	albedoFloor = &m_RenderEngine->CreateTexture2D("resources/textures/grass/albedo.png", pbrSampler, false, false);
+	normalFloor = &m_RenderEngine->CreateTexture2D("resources/textures/grass/normal.png", pbrSampler, false, false);
+	metallicFloor = &m_RenderEngine->CreateTexture2D("resources/textures/grass/metallic.png", pbrSampler, false, false);
+	roughnessFloor = &m_RenderEngine->CreateTexture2D("resources/textures/grass/roughness.png", pbrSampler, false, false);
+	aoFloor = &m_RenderEngine->CreateTexture2D("resources/textures/grass/ao.png", pbrSampler, false, false);
+
+	return true;
 }
 
 void CreateSingleColorSkybox(RenderEngine* renderEngine)
@@ -163,29 +197,6 @@ void Example1Level::Initialize()
 	camFreeLook.movementSpeedX = camFreeLook.movementSpeedZ = 12.0f;
 	camFreeLook.rotationSpeedX = camFreeLook.rotationSpeedY = 3;
 
-	SamplerParameters pbrSampler;
-	pbrSampler.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
-	pbrSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-	pbrSampler.textureParams.wrapS = SamplerWrapMode::WRAP_REPEAT;
-	pbrSampler.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
-	pbrSampler.textureParams.pixelFormat = PixelFormat::FORMAT_RGBA;
-	pbrSampler.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB;
-	pbrSampler.textureParams.generateMipMaps = true;
-
-
-
-	Texture& albedoSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/albedo.png", pbrSampler, false, false);
-	Texture& normalSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/normal.png", pbrSampler, false, false);
-	Texture& metallicSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/metallic.png", pbrSampler, false, false);
-	Texture& roughnessSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/roughness.png", pbrSampler, false, false);
-	Texture& aoSphere = m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/ao.png", pbrSampler, false, false);
-	Texture& albedoFloor = m_RenderEngine->CreateTexture2D("resources/textures/grass/albedo.png", pbrSampler, false, false);
-	Texture& normalFloor = m_RenderEngine->CreateTexture2D("resources/textures/grass/normal.png", pbrSampler, false, false);
-	Texture& metallicFloor = m_RenderEngine->CreateTexture2D("resources/textures/grass/metallic.png", pbrSampler, false, false);
-	Texture& roughnessFloor = m_RenderEngine->CreateTexture2D("resources/textures/grass/roughness.png", pbrSampler, false, false);
-	Texture& aoFloor = m_RenderEngine->CreateTexture2D("resources/textures/grass/ao.png", pbrSampler, false, false);
-
-
 
 	Texture& sprite = m_RenderEngine->CreateTexture2D("resources/textures/sprite.png");
 	Mesh& floorMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
@@ -197,20 +208,20 @@ void Example1Level::Initialize()
 	spriteMat->SetSurfaceType(Graphics::MaterialSurfaceType::Transparent);
 	sphereMat = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::PBR_LIT);
 
-	sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoSphere);
-	sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalSphere);
-	sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessSphere);
-	sphereMat->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicSphere);
-	sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, &aoSphere);
+	sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, albedoSphere);
+	sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, normalSphere);
+	sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, roughnessSphere);
+	sphereMat->SetTexture(MAT_TEXTURE2D_METALLICMAP, metallicSphere);
+	sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, aoSphere);
 	m_RenderEngine->SetHDRIData(sphereMat);
 
 
 	floorMaterial = &m_RenderEngine->CreateMaterial(-55, Shaders::PBR_LIT);
-	floorMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, &albedoFloor);
-	floorMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, &normalFloor);
-	floorMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, &roughnessFloor);
-	floorMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, &metallicFloor);
-	floorMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, &aoFloor);
+	floorMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, albedoFloor);
+	floorMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, normalFloor);
+	floorMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, roughnessFloor);
+	floorMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, metallicFloor);
+	floorMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, aoFloor);
 	floorMaterial->SetVector2(MAT_TILING, Vector2(100, 100));
 	m_RenderEngine->SetHDRIData(floorMaterial);
 

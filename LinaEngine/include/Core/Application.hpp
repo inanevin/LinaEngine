@@ -71,7 +71,10 @@ namespace LinaEngine
 		void PushOverlay(Layer* layer);
 
 		// Loads a level into memory.
-		void LoadLevel(LinaEngine::World::Level* level);
+		bool InstallLevel(LinaEngine::World::Level* level);
+
+		// Inits a level.
+		void InitializeLevel(LinaEngine::World::Level* level);
 
 		// Unloads a level from memory.
 		void UnloadLevel(LinaEngine::World::Level* level);
