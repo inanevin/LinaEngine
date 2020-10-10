@@ -26,6 +26,7 @@ src/Core/EditorApplication.cpp
 src/Core/GUILayer.cpp
 src/Core/EditorCommon.cpp
 src/Core/GizmoLayer.cpp
+src/Core/SplashScreen.cpp
 
 # Panels
 src/Panels/EditorPanel.cpp
@@ -69,6 +70,7 @@ set(LINAEDITOR_HEADERS
 include/Core/GUILayer.hpp
 include/Core/EditorCommon.hpp
 include/Core/GizmoLayer.hpp
+include/Core/SplashScreen.hpp
 
 # World
 include/Levels/Example1Level.hpp

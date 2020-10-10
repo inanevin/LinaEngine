@@ -92,11 +92,21 @@ namespace LinaEngine
 
 	Application::~Application()
 	{
-		delete m_physicsEngine;
-		delete m_inputEngine;
-		delete m_renderEngine;
-		delete m_inputDevice;
-		delete m_appWindow;
+		if (m_physicsEngine)
+			delete m_physicsEngine;
+
+		if (m_inputEngine)
+			delete m_inputEngine;
+
+		if (m_renderEngine)
+			delete m_renderEngine;
+
+		if (m_inputDevice)
+			delete m_inputDevice;
+
+		if (m_appWindow)
+			delete m_appWindow;
+
 		LINA_CORE_TRACE("[Destructor] -> Application ({0})", typeid(*this).name());
 	}
 
@@ -161,7 +171,7 @@ namespace LinaEngine
 			if (m_canRender)
 			{
 				// render level.
-				if(m_activeLevelExists)
+				if (m_activeLevelExists)
 					m_renderEngine->Render();
 
 				// Update gui layers & swap buffers

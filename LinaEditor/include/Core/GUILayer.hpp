@@ -85,12 +85,14 @@ namespace LinaEditor
 
 		~GUILayer();
 
+		// Draws the launcher splash screen.
+		void DrawSplash();
+
 		// OVERRIDES
 		void OnAttach() override;
 		void OnDetach() override;
 		void OnTick(float dt) override;
 		void OnEvent() override;
-
 
 		// Menu bar item callbacks.
 		void MenuBarItemClicked(const MenuBarItems& item);

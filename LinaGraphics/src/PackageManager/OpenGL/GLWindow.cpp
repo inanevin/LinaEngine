@@ -76,7 +76,7 @@ namespace LinaEngine::Graphics
 		LINA_CORE_ERR("GLFW Error: {0} Description: {1} ", error, desc);
 	}
 
-	bool GLWindow::CreateContext(WindowProperties& propsIn)
+	bool GLWindow::CreateContext(WindowProperties propsIn)
 	{
 		LINA_CORE_TRACE("[Initialization] -> GLWindow ({0})", typeid(*this).name());
 

@@ -29,10 +29,8 @@ extern LinaEngine::Application* LinaEngine::CreateApplication();
 
 int main(int argc, char** argv)
 {
-	LinaEngine::Log::Init();
-	
+	LinaEngine::Log::Init();	
 	auto app = LinaEngine::CreateApplication();
-	app->Run();
 	delete app;
 }
 

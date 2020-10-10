@@ -73,6 +73,23 @@ namespace LinaEditor
 			delete m_panels[i];
 	}
 
+	void GUILayer::DrawSplash()
+	{
+		// Set draw params first.
+		m_renderEngine->SetDrawParameters(m_drawParameters);
+
+		//Setup
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		ImGui::Text("saaaaaaaaa");
+
+		// Rendering
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	}
+
 	void GUILayer::OnAttach()
 	{
 		LINA_CLIENT_INFO("Editor GUI Layer Attached");

@@ -25,6 +25,8 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include "Rendering/RenderEngine.hpp"
 #include "Physics/PhysicsEngine.hpp"
 #include "Input/InputEngine.hpp"
+#include "Core/SplashScreen.hpp"
+
 
 namespace LinaEditor
 {
@@ -35,6 +37,25 @@ namespace LinaEditor
 		EditorApplication() {
 
 			LINA_CLIENT_TRACE("[Constructor] -> Editor Application ({0})", typeid(*this).name());
+
+			LinaEngine::Graphics::WindowProperties splashProps;
+			splashProps.m_Width = 720;
+			splashProps.m_Height = 450;
+			splashProps.m_decorated = false;
+			splashProps.m_resizable = false;
+
+			SplashScreen* splashScreen = new SplashScreen();
+		
+			// Setup splash screen.
+			splashScreen->Setup(CreateContextWindow(), splashProps);
+
+			while (true)
+			{
+				splashScreen->Draw();
+			}
+
+			delete splashScreen;
+			return;
 
 			LinaEngine::Graphics::WindowProperties props;
 			props.m_Width = 1440;
@@ -54,9 +75,10 @@ namespace LinaEditor
 			// Push layer into the engine.
 			GetRenderEngine().PushLayer(m_guiLayer);
 
+			m_guiLayer->DrawSplash();
 
 			// Load startup level.
-			// LoadLevel(&m_startupLevel);
+			LoadLevel(&m_startupLevel);
 
 		}
 

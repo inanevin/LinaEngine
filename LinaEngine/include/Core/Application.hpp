@@ -123,9 +123,9 @@ namespace LinaEngine
 		LayerStack m_LayerStack;
 
 		// Active engines running in the application.
-		Input::InputEngine* m_inputEngine;
-		Graphics::RenderEngine* m_renderEngine;
-		Physics::PhysicsEngine* m_physicsEngine;
+		Input::InputEngine* m_inputEngine = nullptr;
+		Graphics::RenderEngine* m_renderEngine = nullptr;
+		Physics::PhysicsEngine* m_physicsEngine = nullptr;
 		ECS::ECSRegistry m_ECS;
 
 		// Devices.

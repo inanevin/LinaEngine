@@ -37,7 +37,7 @@ namespace LinaEngine::Graphics
 		virtual ~Window() {};
 
 		// Initializes the window.
-		virtual bool CreateContext(WindowProperties& propsIn) = 0;
+		virtual bool CreateContext(WindowProperties propsIn) = 0;
 
 		// Called every frame.
 		virtual void Tick() = 0;

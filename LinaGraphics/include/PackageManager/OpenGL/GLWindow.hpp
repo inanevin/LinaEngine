@@ -39,7 +39,7 @@ namespace LinaEngine::Graphics
 		~GLWindow();
 
 		// Creates the native window.
-		bool CreateContext(WindowProperties& propsIn) override;
+		bool CreateContext(WindowProperties propsIn) override;
 
 		// Called every frame.
 		void Tick() override;
