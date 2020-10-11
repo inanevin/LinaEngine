@@ -194,7 +194,7 @@ namespace LinaEditor
 
 			// Start drawing window.
 			ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y));
-			ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, HEIGHT_HEADER));
+			ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x / 2.0f - (LINALOGO_SIZE.x / 2.0f) - 5, HEIGHT_HEADER / 2));
 			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(HEADER_BG_COLOR.r, HEADER_BG_COLOR.g, HEADER_BG_COLOR.b, HEADER_BG_COLOR.a));
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, HEADER_FILEMENU_FRAMEPADDING);
 
@@ -227,6 +227,13 @@ namespace LinaEditor
 			ImGui::SameLine();
 			ImGui::Text(m_title.c_str());
 
+			ImGui::End();
+		
+			ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkSize().x / 2.0f - (LINALOGO_SIZE.x / 2.0f) - 5, viewport->GetWorkPos().y));
+			ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x / 2.0f + (LINALOGO_SIZE.x / 2.0f) + 5, HEIGHT_HEADER));
+			ImGui::Begin("HeaderR", NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration);
+
+			
 			// Minimize, maximize, exit buttons.
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - OFFSET_WINDOWBUTTONS);
@@ -263,7 +270,7 @@ namespace LinaEditor
 
 			// Logo
 			ImGui::SameLine();
-			ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - LINALOGO_SIZE.x / 2.0f);
+			ImGui::SetCursorPosX(0.0f);
 			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + LINALOGO_SIZE.y / 2.0f);
 			ImGui::Image((void*)linaLogoID, LINALOGO_SIZE, ImVec2(0, 1), ImVec2(1, 0));
 
@@ -277,7 +284,7 @@ namespace LinaEditor
 			// Draw search bar.		
 			ImGui::SameLine();
 			WidgetsUtility::FramePaddingY(1.7f);
-			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - OFFSET_WINDOWBUTTONS - 100);
+			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - OFFSET_WINDOWBUTTONS - WidgetsUtility::DebugFloat());
 			WidgetsUtility::Icon(ICON_FA_SEARCH); ImGui::SameLine();
 			static char searchStr[128] = "";
 			ImGui::SetNextItemWidth(170);
@@ -285,6 +292,10 @@ namespace LinaEditor
 			ImGui::InputTextWithHint("", "search...", searchStr, IM_ARRAYSIZE(searchStr));
 			WidgetsUtility::PopStyleVar();
 
+			ImGui::End();
+
+			ImGui::PopStyleVar();
+			ImGui::PopStyleColor();
 			// Draw Tool Buttons
 		//	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(headerBGColor.r, headerBGColor.g, headerBGColor.b, headerBGColor.a));
 		//
@@ -324,9 +335,9 @@ namespace LinaEditor
 		//
 		//	ImGui::PopStyleColor();
 
-			ImGui::End();
-			ImGui::PopStyleColor();
-			ImGui::PopStyleVar();
+			//ImGui::End();
+			//ImGui::PopStyleColor();
+			//ImGui::PopStyleVar();
 
 
 		}

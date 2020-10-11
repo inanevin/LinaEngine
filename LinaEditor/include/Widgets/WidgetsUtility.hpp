@@ -56,7 +56,7 @@ namespace LinaEditor
 		static void CenterCursorX();
 		static void CenterCursorY();
 		static void CenterCursor();
-		static float DebugFloat();
+		static float DebugFloat(const char* id = "");
 		static void PushScaledFont(float defaultScale = 0.6f);
 		static void PopScaledFont();
 		static void FramePaddingX(float amt);
@@ -67,6 +67,7 @@ namespace LinaEditor
 	private:
 	
 		static std::map<std::string, std::tuple<bool,bool>> s_iconButtons;
+		static std::map<std::string, float> s_debugFloats;
 		static int s_debugCallCount;
 	};
 }

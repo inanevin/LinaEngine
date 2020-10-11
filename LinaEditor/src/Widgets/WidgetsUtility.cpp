@@ -27,6 +27,7 @@ namespace LinaEditor
 {
 	int WidgetsUtility::s_debugCallCount = 0;
 	std::map<std::string, std::tuple<bool,bool>> WidgetsUtility::s_iconButtons;
+	std::map<std::string, float > WidgetsUtility::s_debugFloats;
 
 	void WidgetsUtility::ColorButton(float* colorX)
 	{
@@ -250,14 +251,13 @@ namespace LinaEditor
 		CenterCursorY();
 	}
 
-	float WidgetsUtility::DebugFloat()
+	float WidgetsUtility::DebugFloat(const char* id)
 	{
 		s_debugCallCount++;
 		ImGui::Begin("Debug Float");
-		static float f = 0.0f;
-		ImGui::InputFloat("Debug", &f);
+		ImGui::InputFloat("Debug", &s_debugFloats[id]);
 		ImGui::End();
-		return f;
+		return s_debugFloats[id];
 	}
 
 	void WidgetsUtility::PushScaledFont(float defaultScale)
