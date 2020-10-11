@@ -32,7 +32,7 @@ Timestamp: 6/7/2020 5:13:42 PM
 #include "ECS/Components/RigidbodyComponent.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "IconsFontAwesome5.h"
-
+#include "Drawers/EntityDrawer.hpp"
 
 namespace LinaEditor
 {
@@ -147,14 +147,17 @@ namespace LinaEditor
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
-		
-			
+
+
 			ImGui::Begin("Properties", &m_show, flags);
-	
+
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, 0));
 
 			if (m_CurrentDrawType == DrawType::ENTITIES)
-				DrawEntityProperties();
+			{
+				if (m_ecs->valid(m_selectedEntity))
+					EntityDrawer::DrawEntity(m_ecs, m_selectedEntity, &m_copySelectedEntityName);
+			}
 			else if (m_CurrentDrawType == DrawType::TEXTURE2D)
 				DrawTextureProperties();
 			else if (m_CurrentDrawType == DrawType::MESH)
@@ -172,124 +175,6 @@ namespace LinaEditor
 
 	void PropertiesPanel::DrawEntityProperties()
 	{
-		static int componentsComboCurrentItem = 0;
-
-		// Buttons down below.
-		if (m_ecs->valid(m_selectedEntity))
-		{
-
-			// Shadow.
-			WidgetsUtility::DrawShadowedLine(5);
-
-			// Align.
-			ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(16);	
-			WidgetsUtility::PushScaledFont(0.8f);
-			WidgetsUtility::AlignedText(ICON_FA_CUBE);	ImGui::SameLine();
-			WidgetsUtility::PopScaledFont();
-
-			// Setup char.
-			static char entityName[64] = "";
-			if (m_copySelectedEntityName)
-			{
-				m_copySelectedEntityName = false;
-				memset(entityName, 0, sizeof entityName);
-				std::string str = m_ecs->GetEntityName(m_selectedEntity);
-				std::copy(str.begin(), str.end(), entityName);
-			}
-
-			// Entity name input text.
-			WidgetsUtility::FramePaddingX(5);
-			WidgetsUtility::IncrementCursorPosY(-5);  ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
-			ImGui::InputText("##ename", entityName, IM_ARRAYSIZE(entityName));
-			m_ecs->SetEntityName(m_selectedEntity, entityName);
-			WidgetsUtility::PopStyleVar();
-			
-			// Entity enabled toggle button.
-			ImGui::SameLine();	WidgetsUtility::IncrementCursorPosY(1.5f);
-			static bool b = false;	ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
-			WidgetsUtility::ToggleButton("##eactive", &b, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
-			
-			ImGui::SetCursorPosX(13);
-			WidgetsUtility::IncrementCursorPosY(6);
-			if (WidgetsUtility::IconButton("addcomp", ICON_FA_PLUS_SQUARE, 0.0f, 0.9f, ImVec4(1,1,1,0.8f), ImVec4(1,1,1,1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-			{
-				ImGui::OpenPopup("Select Component");
-			}
-
-			if (ImGui::BeginPopupModal("Select Component"))
-			{
-				ImGui::EndPopup();
-			}
-
-		
-
-
-			// Bevel.
-			WidgetsUtility::IncrementCursorPosY(6.0f);
-			WidgetsUtility::DrawBeveledLine();
-
-			ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(15);
-			static bool open = false;
-			WidgetsUtility::DrawComponentTitle("Transformation" , ICON_FA_ARROWS_ALT, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
-
-			if (open)
-			{
-				
-			}
-		
-			WidgetsUtility::DrawBeveledLine();			
-			WidgetsUtility::IncrementCursorPosY(15);
-			WidgetsUtility::CenterCursorX();
-
-			//if (ImGui::Button(ICON_FA_PLUS, ImVec2(WidgetsUtility::DebugFloat(), WidgetsUtility::DebugFloat())))
-			//{
-			//
-			//}
-			
-			/*ImGui::BeginChild("Component View", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
-			if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
-			{
-				// Component view tab
-				bool isValid = m_ecs->valid(m_selectedEntity);
-				std::string selectedName = m_ecs->valid(m_selectedEntity) ? "Component View" : ("Component View: " + m_ecs->GetEntityName(m_selectedEntity));
-				char titleName[256];
-				strcpy(titleName, selectedName.c_str());
-				if (ImGui::BeginTabItem(titleName))
-				{
-					if (!isValid)
-						ImGui::TextWrapped("No entity is selected.");
-					else
-						DrawComponents(m_selectedEntity);
-					ImGui::EndTabItem();
-				}
-				ImGui::EndTabBar();
-			}
-			ImGui::EndChild();
-
-			if (ImGui::Button("Add Component"))
-				AddComponentToEntity(componentsComboCurrentItem);
-
-			ImGui::SameLine();
-
-			// Combo box for components.
-			static ImGuiComboFlags flags = 0;
-			const char* combo_label = entityComponents[componentsComboCurrentItem];  // Label to preview before opening the combo (technically could be anything)(
-			if (ImGui::BeginCombo("ComponentsCombo", combo_label, flags))
-			{
-				for (int n = 0; n < IM_ARRAYSIZE(entityComponents); n++)
-				{
-					const bool is_selected = (componentsComboCurrentItem == n);
-					if (ImGui::Selectable(entityComponents[n], is_selected))
-						componentsComboCurrentItem = n;
-
-					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-					if (is_selected)
-						ImGui::SetItemDefaultFocus();
-				}
-				ImGui::EndCombo();
-			}*/
-		}
-
 
 	}
 
@@ -380,7 +265,7 @@ namespace LinaEditor
 				float rot[3] = { transform->transform.m_rotation.GetEuler().x, transform->transform.m_rotation.GetEuler().y, transform->transform.m_rotation.GetEuler().z };
 				ImGui::Text("Location"); ImGui::SameLine(); ImGui::InputFloat3("", transform->transform.m_location.Get());
 				ImGui::Text("Rotation"); ImGui::SameLine(); ImGui::InputFloat3("", rot);
-				ImGui::Text("Scale"); ImGui::SameLine(); ImGui::InputFloat3("", transform->transform.m_scale.Get());			
+				ImGui::Text("Scale"); ImGui::SameLine(); ImGui::InputFloat3("", transform->transform.m_scale.Get());
 				transform->transform.m_rotation = Quaternion::Euler(rot[0], rot[1], rot[2]);
 				ImGui::Unindent();
 			}
@@ -459,7 +344,7 @@ namespace LinaEditor
 
 				ImVec4 col = ImVec4(light->color.r, light->color.g, light->color.b, light->color.a);
 				float projectionSettings[4] = { light->shadowProjectionSettings.x, light->shadowProjectionSettings.y, light->shadowProjectionSettings.z, light->shadowProjectionSettings.w };
-				float dir[3] = { light->direction.x, light->direction.y, light->direction.z};
+				float dir[3] = { light->direction.x, light->direction.y, light->direction.z };
 
 				WidgetsUtility::ColorButton(&col.x);
 				ImGui::InputFloat4("Shadow Projection ", projectionSettings, dragSensitivity);

@@ -28,6 +28,12 @@ src/Core/EditorCommon.cpp
 src/Core/GizmoLayer.cpp
 src/Core/SplashScreen.cpp
 
+#Drawers
+src/Drawers/EntityDrawer.cpp
+
+#Modals
+src/Modals/SelectComponentModal.cpp
+
 # Panels
 src/Panels/EditorPanel.cpp
 src/Panels/ECSPanel.cpp
@@ -77,6 +83,12 @@ include/Core/SplashScreen.hpp
 include/Levels/Example1Level.hpp
 include/Levels/GroundCubeSystem.hpp
 include/Levels/GroundCubeComponent.hpp
+
+#Drawers
+include/Drawers/EntityDrawer.hpp
+
+# Modals
+include/Modals/SelectComponentModal.hpp
 
 # Panels
 include/Panels/EditorPanel.hpp
