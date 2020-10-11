@@ -101,7 +101,7 @@ namespace LinaEditor
 
 		// Add default font.
 		io.Fonts->AddFontFromFileTTF("resources/fonts/Mukta-Medium.ttf", 20.0f, NULL);
-
+		
 		// merge in icons from Font Awesome
 		static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 		static const ImWchar icons_ranges2[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
@@ -111,8 +111,8 @@ namespace LinaEditor
 		icons_config.PixelSnapH = true;
 		icons_config2.MergeMode = true;
 		icons_config2.PixelSnapH = true;
-		io.Fonts->AddFontFromFileTTF("resources/fonts/FontAwesome/fa-solid-900.ttf", 14.0f, &icons_config, icons_ranges);
-		io.Fonts->AddFontFromFileTTF("resources/fonts/ForkAwesome/forkawesome-webfont.ttf", 16.0f, &icons_config, icons_ranges);
+		io.Fonts->AddFontFromFileTTF("resources/fonts/FontAwesome/fa-solid-900.ttf", 20.0f, &icons_config, icons_ranges);
+		io.Fonts->AddFontFromFileTTF("resources/fonts/ForkAwesome/forkawesome-webfont.ttf", 30.0f, &icons_config, icons_ranges);
 		
 		// Setup configuration flags.
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;

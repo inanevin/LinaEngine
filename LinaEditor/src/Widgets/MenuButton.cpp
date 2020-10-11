@@ -24,6 +24,7 @@ Timestamp: 10/8/2020 9:02:44 PM
 #include "Utility/UtilityFunctions.hpp"
 #include "Utility/Log.hpp"
 #include "Core/EditorCommon.hpp"
+#include "Widgets/WidgetsUtility.hpp"
 #include <iostream>
 
 namespace LinaEditor
@@ -31,14 +32,32 @@ namespace LinaEditor
 
 	void MenuItem::Draw()
 	{
-		if (ImGui::MenuItem(m_title))
+		ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
+		ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetCursorPosY() + ImGui::GetFrameHeight());
+
+		if (m_isHovered)
+			ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Header)));
+		ImGui::GetFont()->Scale = 0.6f;
+		ImGui::PushFont(ImGui::GetFont());
+		WidgetsUtility::IncrementCursorPosY(6);
+		WidgetsUtility::AlignedText(m_icon);
+		ImGui::GetFont()->Scale = 1;
+		ImGui::PopFont();
+		ImGui::SameLine();
+		WidgetsUtility::IncrementCursorPosY(-6);
+		ImGui::SetCursorPosX(23);
+		WidgetsUtility::AlignedText(m_title);
+
+		m_isHovered = ImGui::IsMouseHoveringRect(min, max);
+
+		if (m_isHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 		{
 			if (m_onClick)
 				m_onClick();
 		}
 	}
 
-	MenuButton::MenuButton(const char* title, const char* popupID,  std::vector<MenuElement*>& children, const LinaEngine::Color& bgColor, bool sameLine) : MenuElement(title)
+	MenuButton::MenuButton(const char* title, const char* popupID, std::vector<MenuElement*>& children, const LinaEngine::Color& bgColor, bool sameLine) : MenuElement("", title)
 	{
 		m_children = children;
 		m_bgColor = bgColor;
@@ -55,7 +74,7 @@ namespace LinaEditor
 	void MenuButton::Draw()
 	{
 
-		if(m_useSameLine)
+		if (m_useSameLine)
 			ImGui::SameLine();
 
 		// Background color
@@ -78,7 +97,7 @@ namespace LinaEditor
 			ImGui::PopStyleColor();
 
 		ImGui::PopStyleColor();
-			ImGui::PopStyleVar();
+		ImGui::PopStyleVar();
 
 		// Draw popup
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, HEADER_MENUBUTTON_WINDOWPADDING);
@@ -97,13 +116,13 @@ namespace LinaEditor
 					m_children[i]->Draw();
 			}
 
-	
+
 
 			ImGui::EndPopup();
 		}
 
 		ImGui::PopStyleVar();
-		
+
 	}
 
 

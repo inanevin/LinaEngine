@@ -71,9 +71,9 @@ namespace LinaEditor
 		for (int i = 0; i < LINALOGO_ANIMSIZE; i++)
 		{
 			std::string logoID = std::to_string(i);
-			if(i < 10)
-				logoID = ("00" + std::to_string(i)); 
-			else if(i < 100)
+			if (i < 10)
+				logoID = ("00" + std::to_string(i));
+			else if (i < 100)
 				logoID = ("0" + std::to_string(i));
 			linaLogoAnimation[i] = &m_renderEngine->CreateTexture2D("resources/textures/LinaLogoJitterAnimation/anim " + logoID + ".png");
 		}
@@ -84,9 +84,9 @@ namespace LinaEditor
 
 		// File menu.
 		std::vector<MenuElement*> fileItems;
-		fileItems.emplace_back(new MenuItem(ICON_FA_FOLDER_PLUS " New Project", nullptr));
-		fileItems.emplace_back(new MenuItem(ICON_FA_FOLDER_OPEN " Open Project", nullptr));
-		fileItems.emplace_back(new MenuItem(ICON_FA_SAVE " Save Project", nullptr));
+		fileItems.emplace_back(new MenuItem(ICON_FA_FOLDER_PLUS, " New Project", nullptr));
+		fileItems.emplace_back(new MenuItem(ICON_FA_FOLDER_OPEN, " Open Project", nullptr));
+		fileItems.emplace_back(new MenuItem(ICON_FA_SAVE, " Save Project", nullptr));
 		m_menuBarButtons.push_back(new MenuButton(/*ICON_FA_FILE*/ "File", "pu_file", fileItems, HEADER_BG_COLOR, false));
 
 		// Edit menu.
@@ -99,26 +99,26 @@ namespace LinaEditor
 
 		// Levels menu.
 		std::vector<MenuElement*> level;
-		level.emplace_back(new MenuItem(ICON_FA_DOWNLOAD " Save Level Data", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::SaveLevelData)));
-		level.emplace_back(new MenuItem(ICON_FA_UPLOAD " Load Level Data", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::LoadLevelData)));
+		level.emplace_back(new MenuItem(ICON_FA_DOWNLOAD, " Save Level Data", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::SaveLevelData)));
+		level.emplace_back(new MenuItem(ICON_FA_UPLOAD, " Load Level Data", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::LoadLevelData)));
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_ARCHWAY*/ "Level", "pu_level", level, HEADER_BG_COLOR, true));
 
 		// Panels menu
 		std::vector<MenuElement*> panels;
-		panels.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP " Entity Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ECSPanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_CUBE" Material Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::MaterialPanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_EYE" Scene Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ScenePanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_FILE" Resources Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::PropertiesPanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_COG" Properties Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ResourcesPanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_CLIPBOARD" Log Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::LogPanel)));
-		panels.emplace_back(new MenuItem("ImGui Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ImGuiPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, " Entity Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ECSPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_CUBE, " Material Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::MaterialPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_EYE, " Scene Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ScenePanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_FILE, " Resources Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::PropertiesPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_COG, " Properties Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ResourcesPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_CLIPBOARD, " Log Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::LogPanel)));
+		panels.emplace_back(new MenuItem("", "ImGui Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ImGuiPanel)));
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_COLUMNS*/ "Panels", "pu_panel", panels, HEADER_BG_COLOR, true));
 
 		// Debug menu
 		std::vector<MenuElement*> debug;
-		debug.emplace_back(new MenuItem(ICON_FA_BOXES " Debug View Physics", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewPhysics)));
-		debug.emplace_back(new MenuItem(ICON_FA_ADJUST " Debug View Shadows", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewShadows)));
-		debug.emplace_back(new MenuItem(ICON_FA_IMAGES " Debug View Normal", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewNormal)));
+		debug.emplace_back(new MenuItem(ICON_FA_BOXES, " Debug View Physics", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewPhysics)));
+		debug.emplace_back(new MenuItem(ICON_FA_ADJUST, " Debug View Shadows", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewShadows)));
+		debug.emplace_back(new MenuItem(ICON_FA_IMAGES, " Debug View Normal", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewNormal)));
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_BUG*/ "Debug", "dbg_panel", debug, HEADER_BG_COLOR, true));
 
 	}
@@ -263,7 +263,7 @@ namespace LinaEditor
 			// Logo
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - LINALOGO_SIZE.x / 2.0f);
-			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + LINALOGO_SIZE.y / 2.0f );
+			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + LINALOGO_SIZE.y / 2.0f);
 			ImGui::Image((void*)linaLogoID, LINALOGO_SIZE, ImVec2(0, 1), ImVec2(1, 0));
 
 			// Draw bar buttons & items.

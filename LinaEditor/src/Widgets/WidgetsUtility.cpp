@@ -25,6 +25,7 @@ Timestamp: 10/11/2020 1:39:27 PM
 
 namespace LinaEditor
 {
+	int WidgetsUtility::s_debugCallCount = 0;
 
 	void WidgetsUtility::ColorButton(float* colorX)
 	{
@@ -242,12 +243,12 @@ namespace LinaEditor
 
 	void WidgetsUtility::CenterCursorX()
 	{
-		ImGui::SetCursorPosX(ImGui::GetWindowPos().x + ImGui::GetWindowWidth() / 2.0f);
+		ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2.0f);
 	}
 
 	void WidgetsUtility::CenterCursorY()
 	{
-		ImGui::SetCursorPosY(ImGui::GetWindowPos().y + ImGui::GetWindowHeight() / 2.0f);
+		ImGui::SetCursorPosY(ImGui::GetWindowHeight() / 2.0f);
 
 	}
 
@@ -259,7 +260,8 @@ namespace LinaEditor
 
 	float WidgetsUtility::DebugFloat()
 	{
-		ImGui::Begin("Debug Float");
+		s_debugCallCount++;
+		ImGui::Begin("Debug Float" );
 		static float f = 0.0f;
 		ImGui::InputFloat("Debug", &f);
 		ImGui::End();

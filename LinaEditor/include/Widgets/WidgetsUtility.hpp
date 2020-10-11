@@ -54,6 +54,7 @@ namespace LinaEditor
 
 	private:
 	
+		static int s_debugCallCount;
 	};
 }
 

@@ -220,13 +220,12 @@ namespace LinaEditor
 		
 			WidgetsUtility::DrawBeveledLine();
 			
-			WidgetsUtility::IncrementCursorPosY(10);
+			WidgetsUtility::IncrementCursorPosY(15);
 			WidgetsUtility::CenterCursorX();
-			ImGui::SetNextItemWidth(150 + WidgetsUtility::DebugFloat());
-			if (ImGui::Button(ICON_FA_PLUS))
-			{
-
-			}
+			//if (ImGui::Button(ICON_FA_PLUS, ImVec2(WidgetsUtility::DebugFloat(), WidgetsUtility::DebugFloat())))
+			//{
+			//
+			//}
 			
 			/*ImGui::BeginChild("Component View", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
 			if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))

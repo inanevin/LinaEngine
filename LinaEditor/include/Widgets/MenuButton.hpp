@@ -33,7 +33,7 @@ namespace LinaEditor
 	{
 	public:
 
-		MenuElement(const char* title) : m_title(title) {};
+		MenuElement(const char* icon, const char* title) : m_icon(icon), m_title(title) {};
 		~MenuElement() {}
 
 		// Draw this element.
@@ -41,6 +41,7 @@ namespace LinaEditor
 
 	protected:
 
+		const char* m_icon;
 		const char* m_title;
 
 	};
@@ -49,7 +50,7 @@ namespace LinaEditor
 	{
 	public:
 
-		MenuItem(const char* title, std::function<void()> onClick) : MenuElement(title), m_onClick(onClick) {};
+		MenuItem(const char* icon, const char* title, std::function<void()> onClick) : MenuElement(icon, title), m_onClick(onClick) {};
 		~MenuItem() {};
 
 		// Draw this menu button item.
@@ -57,6 +58,8 @@ namespace LinaEditor
 
 	private:
 
+		bool m_isHovered = false;
+		LinaEngine::Color m_color = LinaEngine::Color(0, 0, 0, 0);
 		std::function<void()> m_onClick;
 	};
 
