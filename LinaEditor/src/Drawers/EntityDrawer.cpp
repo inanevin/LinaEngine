@@ -23,9 +23,29 @@ Timestamp: 10/12/2020 1:02:39 AM
 #include "Widgets/WidgetsUtility.hpp"
 #include "IconsFontAwesome5.h"
 #include "Modals/SelectComponentModal.hpp"
+#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/CameraComponent.hpp"
+#include "ECS/Components/LightComponent.hpp"
+#include "ECS/Components/FreeLookComponent.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
+#include "ECS/Components/RigidbodyComponent.hpp"
+
+using namespace LinaEngine::ECS;
 
 namespace LinaEditor
 {
+	// Component types array.
+	std::vector<ComponentTypes> s_componentTypes{
+	ComponentTypes::TransformComponent,
+	ComponentTypes::MeshRendererComponent,
+	ComponentTypes::CameraComponent,
+	ComponentTypes::DirectionalLightComponent,
+	ComponentTypes::SpotLightComponent,
+	ComponentTypes::PointLightComponent,
+	ComponentTypes::RigidbodyComponent,
+	ComponentTypes::FreeLookComponent
+	};
+
 	void EntityDrawer::DrawEntity(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity, bool* copySelectedEntityName)
 	{
 		static int componentsComboCurrentItem = 0;
@@ -74,13 +94,10 @@ namespace LinaEditor
 		bool o = true;
 		if (ImGui::BeginPopupModal("Select Component", &o, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 		{
-
-			SelectComponentModal::Draw();
+			std::vector<ComponentTypes> types = GetEligibleComponents(ecs, entity);
+			SelectComponentModal::Draw(types);
 			ImGui::EndPopup();
 		}
-
-
-
 
 		// Bevel.
 		WidgetsUtility::IncrementCursorPosY(6.0f);
@@ -148,5 +165,33 @@ namespace LinaEditor
 			ImGui::EndCombo();
 		}*/
 
+	}
+
+	// Use reflection for gods sake later on.
+	std::vector<ComponentTypes> EntityDrawer::GetEligibleComponents(LinaEngine::ECS::ECSRegistry* reg, LinaEngine::ECS::ECSEntity entity)
+	{
+		std::vector<ComponentTypes> eligibleTypes;
+			
+		for (int i = 0; i < s_componentTypes.size(); i++)
+		{
+			if (s_componentTypes[i] == ComponentTypes::TransformComponent && !reg->has<TransformComponent>(entity))
+				eligibleTypes.push_back(ComponentTypes::TransformComponent);
+			else if (s_componentTypes[i] == ComponentTypes::MeshRendererComponent && !reg->has<MeshRendererComponent>(entity))
+				eligibleTypes.push_back(ComponentTypes::MeshRendererComponent);
+			else if (s_componentTypes[i] == ComponentTypes::CameraComponent && !reg->has<CameraComponent>(entity))
+				eligibleTypes.push_back(ComponentTypes::CameraComponent);
+			else if (s_componentTypes[i] == ComponentTypes::FreeLookComponent && !reg->has<FreeLookComponent>(entity))
+				eligibleTypes.push_back(ComponentTypes::FreeLookComponent);
+			else if (s_componentTypes[i] == ComponentTypes::PointLightComponent && !reg->has<PointLightComponent>(entity))
+				eligibleTypes.push_back(ComponentTypes::PointLightComponent);
+			else if (s_componentTypes[i] == ComponentTypes::SpotLightComponent && !reg->has<SpotLightComponent>(entity))
+				eligibleTypes.push_back(ComponentTypes::SpotLightComponent);
+			else if (s_componentTypes[i] == ComponentTypes::DirectionalLightComponent && !reg->has<DirectionalLightComponent>(entity))
+				eligibleTypes.push_back(ComponentTypes::DirectionalLightComponent);
+			else if (s_componentTypes[i] == ComponentTypes::RigidbodyComponent && !reg->has<RigidbodyComponent>(entity))
+				eligibleTypes.push_back(ComponentTypes::RigidbodyComponent);
+		}
+
+		return eligibleTypes;
 	}
 }

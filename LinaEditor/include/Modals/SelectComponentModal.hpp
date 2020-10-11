@@ -23,7 +23,7 @@ Timestamp: 10/12/2020 12:45:38 AM
 #define SelectComponentModal_HPP
 
 // Headers here.
-
+#include "Drawers/EntityDrawer.hpp"
 
 namespace LinaEditor
 {
@@ -35,7 +35,7 @@ namespace LinaEditor
 		SelectComponentModal();
 		~SelectComponentModal();
 	
-		static void Draw();
+		static void Draw(const std::vector<ComponentTypes>& types);
 
 	private:
 	

@@ -28,7 +28,7 @@ Timestamp: 10/12/2020 12:45:51 AM
 
 namespace LinaEditor
 {
-	void SelectComponentModal::Draw()
+	void SelectComponentModal::Draw(const std::vector<EntityDrawer::ComponentTypes>& types)
 	{
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
       
