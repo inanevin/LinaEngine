@@ -271,8 +271,8 @@ namespace LinaEditor
 			ImGui::SetCursorPosY(30);
 			ImGui::SetCursorPosX(12);
 
-			for (int i = 0; i < m_menuBarButtons.size(); i++)
-				m_menuBarButtons[i]->Draw();
+			//for (int i = 0; i < m_menuBarButtons.size(); i++)
+			//	m_menuBarButtons[i]->Draw();
 
 			// Draw search bar.		
 			ImGui::SameLine();

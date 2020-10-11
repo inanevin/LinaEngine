@@ -101,9 +101,11 @@ namespace LinaEditor
 
 		// Draw button.
 		ImGui::Button(m_title);
+		bool itemFocused = ImGui::IsItemHovered();
+
 
 		// Open popup
-		if (ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax()) && !m_popupOpen)
+		if (ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax()) && !m_popupOpen && (ImGui::IsItemHovered))
 			ImGui::OpenPopup(m_popupID);
 
 		if (m_popupOpen)
@@ -135,6 +137,7 @@ namespace LinaEditor
 		}
 
 		ImGui::PopStyleVar();
+
 
 	}
 
