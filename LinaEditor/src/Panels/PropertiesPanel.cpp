@@ -27,7 +27,12 @@ Timestamp: 6/7/2020 5:13:42 PM
 #include "Widgets/WidgetsUtility.hpp"
 #include "IconsFontAwesome5.h"
 #include "Drawers/EntityDrawer.hpp"
-
+#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/CameraComponent.hpp"
+#include "ECS/Components/LightComponent.hpp"
+#include "ECS/Components/FreeLookComponent.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
+#include "ECS/Components/RigidbodyComponent.hpp"
 namespace LinaEditor
 {
 	using namespace LinaEngine::ECS;

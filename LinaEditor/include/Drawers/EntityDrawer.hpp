@@ -27,18 +27,6 @@ Timestamp: 10/12/2020 1:02:29 AM
 
 namespace LinaEditor
 {
-	// Component types.
-	enum class ComponentTypes
-	{
-		TransformComponent,
-		MeshRendererComponent,
-		CameraComponent,
-		DirectionalLightComponent,
-		SpotLightComponent,
-		PointLightComponent,
-		RigidbodyComponent,
-		FreeLookComponent
-	};
 
 
 	class EntityDrawer
@@ -51,11 +39,9 @@ namespace LinaEditor
 		~EntityDrawer();
 	
 		static void DrawEntity(LinaEngine::ECS::ECSRegistry* reg, LinaEngine::ECS::ECSEntity entity, bool* copySelectedEntityName);
-		static std::vector<ComponentTypes> GetEligibleComponents(LinaEngine::ECS::ECSRegistry* reg, LinaEngine::ECS::ECSEntity entity);
+		static std::vector<std::string> GetEligibleComponents(LinaEngine::ECS::ECSRegistry* reg, LinaEngine::ECS::ECSEntity entity);
 
-	private:
 	
-		static std::vector<ComponentTypes> s_componentTypes;
 	};
 }
 

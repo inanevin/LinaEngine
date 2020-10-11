@@ -26,26 +26,48 @@ Timestamp: 10/12/2020 12:45:51 AM
 #include "Core/EditorCommon.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 
+#define MAX_SELECTABLE_COMPONENTS 100
+
 namespace LinaEditor
 {
-	void SelectComponentModal::Draw(const std::vector<EntityDrawer::ComponentTypes>& types)
+	void SelectComponentModal::Draw(const std::vector<std::string>& types)
 	{
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
-      
-        WidgetsUtility::FramePaddingX(3);
-        ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-        ImGui::BeginChild("ChildR", ImVec2(0, 400), true, window_flags);
 
-        ImGui::Columns(2);
-        for (int i = 0; i < 100; i++)
-        {
-            char buf[32];
-            sprintf(buf, "%03d", i);
-            ImGui::Button(buf, ImVec2(-FLT_MIN, 0.0f));
-            ImGui::NextColumn();
-        }
-        ImGui::EndChild();
-        WidgetsUtility::PopStyleVar();
-        ImGui::PopStyleVar();
+		ImGui::BeginChild("SelectComponentModalChild", ImVec2(0, 300), true);
+		WidgetsUtility::IncrementCursorPosY(5);
+
+		ImGui::Columns(2, NULL, false);
+
+		static bool selection[MAX_SELECTABLE_COMPONENTS] = { false };
+
+		for (int n = 0; n < types.size(); n++)
+		{
+			char buf[32];
+			sprintf(buf, types[n].c_str(), n);
+			if (ImGui::Selectable(buf, selection[n]))
+			{
+				if (!ImGui::GetIO().KeyCtrl)    // Clear selection when CTRL is not held
+					memset(selection, 0, sizeof(selection));
+				selection[n] ^= 1;
+			}
+
+			ImGui::NextColumn();
+		}
+
+		ImGui::EndChild();
+		WidgetsUtility::IncrementCursorPosY(15);
+		WidgetsUtility::CenterCursorX();
+		WidgetsUtility::IncrementCursorPosX(-80);
+
+		if (ImGui::Button("Add Selected"))
+		{
+
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Close"))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+
 	}
 }
