@@ -204,27 +204,24 @@ namespace LinaEditor
 
 		// Caret button.
 		const char* caret = *foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
-		ImGui::SetNextItemWidth(30);
-		WidgetsUtility::PushScaledFont(0.8f);
-		if (ImGui::Button(caret))
+		if (IconButton(caret, 30, 0.8f))
 			*foldoutOpen = !*foldoutOpen;
-		WidgetsUtility::PopScaledFont();
+
 
 		// Pop colors for caret.
 		ImGui::PopStyleColor();
 		ImGui::PopStyleColor();
 		ImGui::PopStyleColor();
 
-		// Titlke.
+		// Title.
 		ImGui::SameLine(); ImGui::AlignTextToFramePadding();
-		WidgetsUtility::IncrementCursorPosY(WidgetsUtility::DebugFloat());
+		WidgetsUtility::IncrementCursorPosY(-5);
 		ImGui::Text(title);
 		ImGui::AlignTextToFramePadding(); ImGui::SameLine();
 
 		// Icon
-		ImGui::PushStyleColor(ImGuiCol_Text, iconColor);
-		ImGui::Text(icon);
-		ImGui::PopStyleColor();
+		WidgetsUtility::IncrementCursorPosY(6);
+		Icon(icon, 0.6f, iconColor);
 	}
 
 	void WidgetsUtility::AlignedText(const char* label)
@@ -299,11 +296,13 @@ namespace LinaEditor
 		ImGui::PopStyleVar();
 	}
 
-	void WidgetsUtility::Icon(const char* label, float scale)
+	void WidgetsUtility::Icon(const char* label, float scale, const ImVec4& color)
 	{
+		ImGui::PushStyleColor(ImGuiCol_Text, color);
 		PushScaledFont(scale);
 		ImGui::Text(label);
 		PopScaledFont();
+		ImGui::PopStyleColor();
 	}
 
 	bool WidgetsUtility::IconButton(const char* label, float width, float scale)

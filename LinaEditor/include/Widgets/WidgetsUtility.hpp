@@ -56,7 +56,7 @@ namespace LinaEditor
 		static void FramePaddingX(float amt);
 		static void FramePaddingY(float amt);
 		static void PopStyleVar();
-		static void Icon(const char* label, float scale = 0.6f);
+		static void Icon(const char* label, float scale = 0.6f, const ImVec4& color = ImVec4(1,1,1,1));
 		static bool IconButton( const char* label, float width = 0.0f, float scale = 0.6f);
 	private:
 	

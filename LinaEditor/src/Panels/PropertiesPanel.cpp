@@ -219,13 +219,13 @@ namespace LinaEditor
 
 			if (open)
 			{
-
+				
 			}
 		
-			WidgetsUtility::DrawBeveledLine();
-			
+			WidgetsUtility::DrawBeveledLine();			
 			WidgetsUtility::IncrementCursorPosY(15);
 			WidgetsUtility::CenterCursorX();
+
 			//if (ImGui::Button(ICON_FA_PLUS, ImVec2(WidgetsUtility::DebugFloat(), WidgetsUtility::DebugFloat())))
 			//{
 			//
