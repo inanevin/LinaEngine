@@ -31,8 +31,7 @@ Timestamp: 10/8/2020 1:39:19 PM
 #include "IconsFontAwesome5.h"
 #include "IconsForkAwesome.h"
 #include "Core/EditorCommon.hpp"
-
-
+#include "Widgets/WidgetsUtility.hpp"
 
 
 ImVec2 resizeStartPos;
@@ -235,6 +234,7 @@ namespace LinaEditor
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(HEADER_BG_COLOR.r, HEADER_BG_COLOR.g, HEADER_BG_COLOR.b, HEADER_BG_COLOR.a));
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(HEADER_BUTTONS_COLOR.r, HEADER_BUTTONS_COLOR.g, HEADER_BUTTONS_COLOR.b, HEADER_BUTTONS_COLOR.a));
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, HEADER_ICONIFYBUTTONS_FRAMEPADDING);
+			WidgetsUtility::PushScaledFont();
 
 			// Minimize
 			if (ImGui::Button(ICON_FA_WINDOW_MINIMIZE))
@@ -256,6 +256,7 @@ namespace LinaEditor
 				m_appWindow->Close();
 			}
 
+			WidgetsUtility::PopScaledFont();
 			ImGui::PopStyleColor();
 			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();

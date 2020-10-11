@@ -267,4 +267,15 @@ namespace LinaEditor
 		ImGui::End();
 		return f;
 	}
+
+	void WidgetsUtility::PushScaledFont(float defaultScale)
+	{
+		ImGui::GetFont()->Scale = defaultScale;
+		ImGui::PushFont(ImGui::GetFont());
+	}
+	void WidgetsUtility::PopScaledFont()
+	{
+		ImGui::GetFont()->Scale = 1.0f;
+		ImGui::PopFont();
+	}
 }

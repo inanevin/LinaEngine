@@ -35,21 +35,29 @@ namespace LinaEditor
 		ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
 		ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetCursorPosY() + ImGui::GetFrameHeight());
 
+		// Draw bg.
 		if (m_isHovered)
 			ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Header)));
+
+		// Push scaled font to get a smaller icon.
 		ImGui::GetFont()->Scale = 0.6f;
 		ImGui::PushFont(ImGui::GetFont());
+
+		// Draw icon.
 		WidgetsUtility::IncrementCursorPosY(6);
 		WidgetsUtility::AlignedText(m_icon);
+
+		// Pop font.
 		ImGui::GetFont()->Scale = 1;
 		ImGui::PopFont();
+
+		// Draw title.
 		ImGui::SameLine();
-		WidgetsUtility::IncrementCursorPosY(-6);
-		ImGui::SetCursorPosX(23);
+		WidgetsUtility::IncrementCursorPosY(-6); ImGui::SetCursorPosX(23);
 		WidgetsUtility::AlignedText(m_title);
 
+		// Handle click
 		m_isHovered = ImGui::IsMouseHoveringRect(min, max);
-
 		if (m_isHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 		{
 			if (m_onClick)

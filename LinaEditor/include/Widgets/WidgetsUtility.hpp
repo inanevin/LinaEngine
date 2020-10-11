@@ -51,6 +51,8 @@ namespace LinaEditor
 		static void CenterCursorY();
 		static void CenterCursor();
 		static float DebugFloat();
+		static void PushScaledFont(float defaultScale = 0.6f);
+		static void PopScaledFont();
 
 	private:
 	
