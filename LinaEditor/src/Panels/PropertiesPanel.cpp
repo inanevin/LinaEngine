@@ -177,7 +177,6 @@ namespace LinaEditor
 		{
 		
 	
-			ImGui::BeginChild("EntityProps");
 	
 			WidgetsUtility::DrawShadowedLine(5);
 
@@ -195,20 +194,29 @@ namespace LinaEditor
 			}
 
 			// Entity name input text.
-			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 1.6f);  ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
 			ImGui::InputText("##hidelabel", entityName, IM_ARRAYSIZE(entityName));
 			m_ecs->SetEntityName(m_selectedEntity, entityName);
 
 			// Entity enabled toggle button.
-			ImGui::SameLine();
+			ImGui::SameLine();	ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 1.5f);
 			static bool b = false;	ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
 			WidgetsUtility::ToggleButton("##hideLabel", &b, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
 			
 
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 7);
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 6);
 			WidgetsUtility::DrawBeveledLine();
 
-			ImGui::EndChild();
+			ImGui::SetCursorPos(ImVec2(12, ImGui::GetCursorPosY() + 15)); 
+			static bool open = false;
+			WidgetsUtility::DrawComponentTitle("Transformation" , ICON_FA_ARROWS_ALT, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+
+			if (open)
+			{
+
+			}
+		
+		
 			
 			/*ImGui::BeginChild("Component View", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
 			if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))

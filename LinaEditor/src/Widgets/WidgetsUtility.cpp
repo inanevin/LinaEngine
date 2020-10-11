@@ -21,6 +21,7 @@ Timestamp: 10/11/2020 1:39:27 PM
 
 #include "Widgets/WidgetsUtility.hpp"
 #include "Utility/Math/Math.hpp"
+#include "IconsFontAwesome5.h"
 
 namespace LinaEditor
 {
@@ -190,5 +191,40 @@ namespace LinaEditor
 
 		ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImVec4(0.1f, 0.1f, 0.1f, 1.0f)), 1);
 		ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + 2), ImVec2(max.x, max.y + 2), ImGui::ColorConvertFloat4ToU32(ImVec4(0.2f, 0.2f, 0.2f, 1.0f)), 1);
+	}
+
+	void WidgetsUtility::DrawComponentTitle(const char* title, const char* icon, bool* foldoutOpen, const ImVec4& iconColor)
+	{
+		
+		// Colors for caret.
+		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ChildBg));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyleColorVec4(ImGuiCol_ChildBg));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_ChildBg));
+
+		const char* caret = *foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
+		ImGui::SetNextItemWidth(30);
+		if (ImGui::Button(caret))
+			*foldoutOpen = !*foldoutOpen;	
+
+		// Pop colors for caret.
+		ImGui::PopStyleColor();
+		ImGui::PopStyleColor();
+		ImGui::PopStyleColor();
+
+		ImGui::SameLine(); ImGui::AlignTextToFramePadding();
+		ImGui::Text("Transformation");	
+		ImGui::AlignTextToFramePadding(); ImGui::SameLine();
+		ImGui::PushStyleColor(ImGuiCol_Text, iconColor);
+		ImGui::Text(icon);
+		ImGui::PopStyleColor();
+	}
+
+	float WidgetsUtility::DebugFloat()
+	{
+		ImGui::Begin("Debug Float");
+		static float f = 0.0f;
+		ImGui::InputFloat("Debug", &f);
+		ImGui::End();
+		return f;
 	}
 }

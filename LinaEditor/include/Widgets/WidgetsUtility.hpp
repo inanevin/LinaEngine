@@ -41,6 +41,8 @@ namespace LinaEditor
 		static void DrawWindowBorders(const ImVec4& color, float thickness);
 		static void DrawShadowedLine(int height = 10, const ImVec4& color = ImVec4(0.1f, 0.1f,0.1f, 1.0f), float thickness = 1.0f, ImVec2 min = ImVec2(0,0), ImVec2 max = ImVec2(0,0));
 		static void DrawBeveledLine(ImVec2 min = ImVec2(0, 0), ImVec2 max = ImVec2(0, 0));
+		static void DrawComponentTitle(const char* title, const char* icon, bool* foldoutOpen, const ImVec4& iconFolor = ImVec4(1,1,1,1));
+		static float DebugFloat();
 
 	private:
 	
