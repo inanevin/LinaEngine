@@ -179,7 +179,7 @@ namespace LinaEditor
 		{
 
 			// Align.
-			ImGui::SetCursorPos(ImVec2(15, 40));	ImGui::AlignTextToFramePadding();	ImGui::Text(ICON_FA_CUBE);	ImGui::SameLine();	
+			ImGui::SetCursorPos(ImVec2(12,42));	ImGui::AlignTextToFramePadding();	ImGui::Text(ICON_FA_CUBE);	ImGui::SameLine();
 
 			// Setup char.
 			static char entityName[64] = "";
@@ -192,13 +192,14 @@ namespace LinaEditor
 			}
 
 			// Entity name input text.
+			ImGui::SetCursorPosY(40);	ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
 			ImGui::InputText("##hidelabel", entityName, IM_ARRAYSIZE(entityName));
 			m_ecs->SetEntityName(m_selectedEntity, entityName);
 
 			// Entity enabled toggle button.
-			ImGui::SameLine();
-			static bool b = false;
-			ImGui::ToggleButton("##hideLabel", &b);
+			ImGui::SameLine();	ImGui::SetCursorPosY(41.5f);
+			static bool b = false;	ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
+			ImGui::ToggleButton("##hideLabel", &b, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
 
 			/*ImGui::BeginChild("Component View", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
 			if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))

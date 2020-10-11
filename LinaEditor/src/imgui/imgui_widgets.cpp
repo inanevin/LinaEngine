@@ -7994,7 +7994,7 @@ void ImGui::TabItemBackgroundHighlighted(ImDrawList* draw_list, const ImRect& bb
 	draw_list->PathArcToFast(ImVec2(bb.Min.x + rounding, a1 + rounding), rounding, 6, 9);
 	draw_list->PathArcToFast(ImVec2(bb.Max.x - rounding, a1 + rounding), rounding, 9, 12);
 	draw_list->PathLineTo(ImVec2(bb.Max.x, a2));
-	draw_list->PathFillConvex(ColorConvertFloat4ToU32(ImVec4(0.4509f, 0.2823f, 0.4627f, 1)));
+	draw_list->PathFillConvex(GetColorU32(ImGuiCol_Header));
 
 	if (g.Style.TabBorderSize > 0.0f)
 	{
