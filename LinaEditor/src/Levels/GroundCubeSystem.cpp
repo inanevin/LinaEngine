@@ -46,7 +46,7 @@ namespace LinaEngine::ECS
 					gc.time = time;
 
 				float currentT = Math::Remap(gc.time, 0.0f, time, 0.0f, 1.0f);
-				tc.transform.location = Vector3::Lerp(gc.initialPos, gc.targetPos, currentT);
+				tc.transform.m_location = Vector3::Lerp(gc.initialPos, gc.targetPos, currentT);
 			}
 
 			

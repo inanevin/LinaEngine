@@ -51,7 +51,7 @@ namespace LinaEngine::ECS
 			else
 			{
 				// Set the priority as distance to the camera.
-				float priority = (m_RenderEngine->GetCameraSystem()->GetCameraLocation() - transform.transform.location).MagnitudeSqrt();
+				float priority = (m_RenderEngine->GetCameraSystem()->GetCameraLocation() - transform.transform.m_location).MagnitudeSqrt();
 
 				for (int i = 0; i < mesh.GetVertexArrays().size(); i++)
 					RenderTransparent(*mesh.GetVertexArray(i), mat, transform.transform.ToMatrix(), priority);

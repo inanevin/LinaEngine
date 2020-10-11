@@ -32,10 +32,10 @@ namespace LinaEngine
 	public:
 
 		// Param constructors w/ various options.
-		Transformation() : location(0.0f, 0.0f, 0.0f),rotation(0.0f, 0.0f, 0.0f, 1.0f), scale(1.0f, 1.0f, 1.0f) {}
-		Transformation(const Vector3& translationIn) : location(translationIn), rotation(0.0f, 0.0f, 0.0f, 1.0f), scale(1.0f, 1.0f, 1.0f) {}
-		Transformation(const Quaternion& rotationIn) : location(0.0f, 0.0f, 0.0f), rotation(rotationIn), scale(1.0f, 1.0f, 1.0f) {}
-		Transformation(const Vector3& translationIn, const Quaternion& rotationIn, const Vector3& scaleIn) : location(translationIn), rotation(rotationIn), scale(scaleIn) {}
+		Transformation() : m_location(0.0f, 0.0f, 0.0f),m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f) {}
+		Transformation(const Vector3& translationIn) : m_location(translationIn), m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f) {}
+		Transformation(const Quaternion& rotationIn) : m_location(0.0f, 0.0f, 0.0f), m_rotation(rotationIn), m_scale(1.0f, 1.0f, 1.0f) {}
+		Transformation(const Vector3& translationIn, const Quaternion& rotationIn, const Vector3& scaleIn) : m_location(translationIn), m_rotation(rotationIn), m_scale(scaleIn) {}
 		
 		// Returns interpolated transformation
 		static Transformation Interpolate(Transformation& from, Transformation& to, float t);
@@ -43,97 +43,97 @@ namespace LinaEngine
 		// Returns the transformation matrix.
 		FORCEINLINE Matrix ToMatrix() const
 		{
-			return Matrix::TransformMatrix(location, rotation, scale);
+			return Matrix::TransformMatrix(m_location, m_rotation, m_scale);
 		}
 
 		// Normalizes rotation Quaternion.
 		FORCEINLINE void NormalizeRotation()
 		{
-			rotation = rotation.Normalized();
+			m_rotation = m_rotation.Normalized();
 		}
 
 		// Returns whether the rotation is normalized.
 		FORCEINLINE bool IsRotationNormalized()
 		{
-			return rotation.IsNormalized();
+			return m_rotation.IsNormalized();
 		}
 
 		/* ------------------- OPERATOR OVERLOADS ------------------- */
 
 		FORCEINLINE Transformation operator+(const Transformation& other) const
 		{
-			return Transformation(location + other.location, rotation + other.rotation, scale + other.scale);
+			return Transformation(m_location + other.m_location, m_rotation + other.m_rotation, m_scale + other.m_scale);
 		}
 
 		FORCEINLINE Transformation operator+=(const Transformation& other)
 		{
-			location += other.location;
-			rotation += other.rotation;
-			scale += other.scale;
+			m_location += other.m_location;
+			m_rotation += other.m_rotation;
+			m_scale += other.m_scale;
 			return *this;
 		}
 
 		FORCEINLINE Transformation operator*(const Transformation& other) const
 		{
-			return Transformation(location * other.location, rotation * other.rotation, scale * other.scale);
+			return Transformation(m_location * other.m_location, m_rotation * other.m_rotation, m_scale * other.m_scale);
 		}
 
 		FORCEINLINE Transformation operator*=(const Transformation& other)
 		{
-			location *= other.location;
-			rotation *= other.rotation;
-			scale *= other.scale;
+			m_location *= other.m_location;
+			m_rotation *= other.m_rotation;
+			m_scale *= other.m_scale;
 			return *this;
 		}
 
 		FORCEINLINE Transformation operator*(float other) const
 		{
-			return Transformation(location * other, rotation * other, scale * other);
+			return Transformation(m_location * other, m_rotation * other, m_scale * other);
 		}
 
 		FORCEINLINE Transformation operator*=(float other)
 		{
-			location *= other;
-			rotation *= other;
-			scale *= other;
+			m_location *= other;
+			m_rotation *= other;
+			m_scale *= other;
 			return *this;
 		}
 	
 		// Sets the location, rotation & scale.
 		FORCEINLINE void Set(const Vector3& translationIn, const Quaternion& rotationIn, const Vector3& scaleIn)
 		{
-			location = translationIn;
-			rotation = rotationIn;
-			scale = scaleIn;
+			m_location = translationIn;
+			m_rotation = rotationIn;
+			m_scale = scaleIn;
 		}
 
 		// Sets the rotation of this transformation based on an angle & axis.
 		FORCEINLINE void Rotate(const Vector3& axis, float angle)
 		{
-			rotation = Quaternion(axis, angle);
+			m_rotation = Quaternion(axis, angle);
 		}
 
 		// Sets the rotation of this transformation based on an euler vector.
 		FORCEINLINE void Rotate(const Vector3& euler)
 		{
-			rotation = Quaternion::Euler(euler.x, euler.y, euler.z);
+			m_rotation = Quaternion::Euler(euler.x, euler.y, euler.z);
 		}
 
 		// Sets the rotation of this transformation based on an euler vector.
 		FORCEINLINE void Rotate(float x, float y, float z)
 		{
-			rotation = Quaternion::Euler(x,y,z);
+			m_rotation = Quaternion::Euler(x,y,z);
 		}
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(location, rotation, scale); // serialize things by passing them to the archive
+			archive(m_location, m_rotation, m_scale); // serialize things by passing them to the archive
 		}
 
-		Vector3 location = Vector3::Zero;
-		Quaternion rotation;
-		Vector3 scale = Vector3::One;
+		Vector3 m_location = Vector3::Zero;
+		Quaternion m_rotation;
+		Vector3 m_scale = Vector3::One;
 
 	private:
 

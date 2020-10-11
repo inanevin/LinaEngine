@@ -55,7 +55,6 @@ namespace LinaEditor
 
 			
 			ImGui::Begin("Resources", &m_show, flags);
-			
 			DrawContent();
 			DrawFolder(m_ResourceFolders[0]);
 			DrawWindowRect();

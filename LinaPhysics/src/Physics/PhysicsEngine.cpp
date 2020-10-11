@@ -136,7 +136,7 @@ namespace LinaEngine::Physics
 		// Transformation
 		btTransform transform;
 		transform.setIdentity();
-		transform.setOrigin(btVector3(tr.transform.location.x, tr.transform.location.y, tr.transform.location.z));
+		transform.setOrigin(btVector3(tr.transform.m_location.x, tr.transform.m_location.y, tr.transform.m_location.z));
 
 		btScalar mass(rb.m_mass);
 

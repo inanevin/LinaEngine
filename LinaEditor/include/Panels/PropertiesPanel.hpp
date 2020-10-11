@@ -69,8 +69,9 @@ namespace LinaEditor
 
 		FORCEINLINE void EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity) 
 		{
-			m_SelectedEntity = selectedEntity;  
+			m_selectedEntity = selectedEntity;  
 			m_CurrentDrawType = DrawType::ENTITIES;
+			m_copySelectedEntityName = true;
 		}
 
 		void Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path);
@@ -96,7 +97,7 @@ namespace LinaEditor
 
 		FORCEINLINE void Unselect()
 		{
-			m_SelectedEntity = entt::null;
+			m_selectedEntity = entt::null;
 			m_SelectedTexture = nullptr;
 			m_SelectedMesh = nullptr;
 			m_SelectedMaterial = nullptr;
@@ -109,6 +110,9 @@ namespace LinaEditor
 		void DrawEntityProperties();
 		void AddComponentToEntity(int componentID);
 		void DrawComponents(LinaEngine::ECS::ECSEntity& entity);
+		void DrawVector2(const char* label, Vector2& v);
+		void DrawVector3(const char* label, Vector3& v);
+		void DrawVector4(const char* label, Vector4& v);
 
 		// Drawing textures
 		void DrawTextureProperties();
@@ -153,9 +157,12 @@ namespace LinaEditor
 		int m_SelectedMaterialID = 0;
 		std::string m_SelectedMaterialPath;
 
+		// Selected entity.
+		LinaEngine::ECS::ECSEntity m_selectedEntity;
+		bool m_copySelectedEntityName = true;
+
 		class LinaEngine::Graphics::RenderEngine* m_RenderEngine;
-		LinaEngine::ECS::ECSRegistry* m_ECS;
-		LinaEngine::ECS::ECSEntity m_SelectedEntity;
+		LinaEngine::ECS::ECSRegistry* m_ecs;
 		DrawType m_CurrentDrawType = DrawType::NONE;
 
 	};

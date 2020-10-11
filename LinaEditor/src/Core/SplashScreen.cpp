@@ -125,9 +125,6 @@ namespace LinaEditor
 
 	SplashScreen::~SplashScreen()
 	{
-		// Remove image.
-		m_window->Tick();
-
 		// Cleanup
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();

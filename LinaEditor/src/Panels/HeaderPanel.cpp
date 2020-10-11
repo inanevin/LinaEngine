@@ -198,6 +198,7 @@ namespace LinaEditor
 			ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, HEIGHT_HEADER));
 			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(HEADER_BG_COLOR.r, HEADER_BG_COLOR.g, HEADER_BG_COLOR.b, HEADER_BG_COLOR.a));
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, HEADER_FILEMENU_FRAMEPADDING);
+
 			ImGui::Begin("Header", NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration);
 
 			// Handle window movement.
@@ -323,6 +324,7 @@ namespace LinaEditor
 			ImGui::End();
 			ImGui::PopStyleColor();
 			ImGui::PopStyleVar();
+
 
 		}
 	}

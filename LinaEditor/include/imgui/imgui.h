@@ -450,6 +450,7 @@ namespace ImGui
     // - Most widgets return true when the value has been changed or when pressed/selected
     // - You may also use one of the many IsItemXXX functions (e.g. IsItemActive, IsItemHovered, etc.) to query widget state.
     IMGUI_API bool          Button(const char* label, const ImVec2& size = ImVec2(0, 0));   // button
+    IMGUI_API bool          ToggleButton(const char* label, bool* v, float heightMultiplier = 1.0f, float widthMultiplier = 1.0f, ImVec4 activeColor = ImVec4(0.56f, 0.83f, 0.26f, 1.0f), ImVec4 activeHoveredColor = ImVec4(0.64f, 0.83f, 0.34f, 1.0f), ImVec4 inActiveColor = ImVec4(0.85f, 0.85f, 0.85f, 1.0f), ImVec4 inActiveHovered = ImVec4(0.78f, 0.78f, 0.78f, 1.0f));   // toggle button
     IMGUI_API bool          SmallButton(const char* label);                                 // button with FramePadding=(0,0) to easily embed within text
     IMGUI_API bool          InvisibleButton(const char* str_id, const ImVec2& size, ImGuiButtonFlags flags = 0); // flexible button behavior without the visuals, frequently useful to build custom behaviors using the public api (along with IsItemActive, IsItemHovered, etc.)
     IMGUI_API bool          ArrowButton(const char* str_id, ImGuiDir dir);                  // square button with an arrow shape

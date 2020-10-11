@@ -77,7 +77,7 @@ Texture*  aoFloor;
 bool Example1Level::Install()
 {
 	LINA_CLIENT_WARN("Example level 1 install.");
-
+	return true;
 	SamplerParameters pbrSampler;
 	pbrSampler.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
 	pbrSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
@@ -184,24 +184,41 @@ int sLightSize = 0;
 void Example1Level::Initialize()
 {
 	LINA_CLIENT_WARN("Example level 1 initialize.");
-
 	// Create, setup & assign skybox material.
-	CreateHDRISkybox(m_RenderEngine);
-	
+	CreateProceduralSkybox(m_RenderEngine);
+	objectUnlitMaterial = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::STANDARD_UNLIT);
+
+	MeshRendererComponent cr;
+	cr.meshID = Primitives::CUBE;
+	cr.materialID = objectUnlitMaterial->m_MaterialID;
+	TransformComponent objectTransform;
+
+	ECSEntity c1;
+	c1 = m_ECS->CreateEntity("Sphere");
+	objectTransform.transform.m_location = Vector3(0,0,0);
+	m_ECS->emplace<TransformComponent>(c1, objectTransform);
+	m_ECS->emplace<MeshRendererComponent>(c1, cr);
+
+
 	camera = m_ECS->CreateEntity("Camera");
 	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);
 	auto& camTransform = m_ECS->emplace<TransformComponent>(camera);
 	auto& camCamera = m_ECS->emplace<CameraComponent>(camera);
-	camTransform.transform.location = Vector3(0,5,-5);
+	camTransform.transform.m_location = Vector3(0,5,-5);
 	camCamera.isActive = true;
 	camFreeLook.movementSpeedX = camFreeLook.movementSpeedZ = 12.0f;
 	camFreeLook.rotationSpeedX = camFreeLook.rotationSpeedY = 3;
 
 
+	// Create the free look system & push it.
+	ecsFreeLookSystem = new FreeLookSystem();
+	ecsFreeLookSystem->Construct(*m_ECS, *m_InputEngine);
+	level1Systems.AddSystem(*ecsFreeLookSystem);
+
+	return;
+
 	Texture& sprite = m_RenderEngine->CreateTexture2D("resources/textures/sprite.png");
 	Mesh& floorMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
-	// Create material for example mesh.
-	objectUnlitMaterial = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::STANDARD_UNLIT);
 
 	spriteMat = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::RENDERER2D_SPRITE);
 	spriteMat->SetTexture(MAT_TEXTURE2D_DIFFUSE, &sprite);
@@ -243,27 +260,26 @@ void Example1Level::Initialize()
 	floorRenderer.materialID = floorMaterial->m_MaterialID;
 
 	DirectionalLightComponent dirLightComp;
-	TransformComponent objectTransform;
 
 	ECSEntity directionalLightEntity;
 	directionalLightEntity = m_ECS->CreateEntity("DirLight");
-	objectTransform.transform.location = Vector3(0, 15, -15);
+	objectTransform.transform.m_location = Vector3(0, 15, -15);
 	objectTransform.transform.Rotate(Vector3(25, 0, 0));
 	m_ECS->emplace<TransformComponent>(directionalLightEntity, objectTransform);
 	m_ECS->emplace<DirectionalLightComponent>(directionalLightEntity, dirLightComp);
 
 	ECSEntity cube1;
 	cube1 = m_ECS->CreateEntity("Sphere");
-	objectTransform.transform.location = Vector3(-13, 5, 5);
+	objectTransform.transform.m_location = Vector3(-13, 5, 5);
 	m_ECS->emplace<TransformComponent>(cube1, objectTransform);
 	m_ECS->emplace<MeshRendererComponent>(cube1, cubeRenderer);
 	//m_ECS->emplace<RigidbodyComponent>(cube1, sphereRB);
 
 	ECSEntity portal;
 	portal = m_ECS->CreateEntity("PortalFrame");
-	objectTransform.transform.location = Vector3(0, 5, 5);
+	objectTransform.transform.m_location = Vector3(0, 5, 5);
 	objectTransform.transform.Rotate(Vector3(-90, 0, 0));
-	objectTransform.transform.scale = Vector3::One * 2;
+	objectTransform.transform.m_scale = Vector3::One * 2;
 	m_ECS->emplace<TransformComponent>(portal, objectTransform);
 	m_ECS->emplace<MeshRendererComponent>(portal, portalRenderer);
 
@@ -282,9 +298,9 @@ void Example1Level::Initialize()
 
 	ECSEntity floorEntity;
 	floorEntity = m_ECS->CreateEntity("Floor");
-	objectTransform.transform.scale = Vector3(100, 1, 100);
-	objectTransform.transform.location = Vector3(0, 0, 0);
-	objectTransform.transform.rotation = Vector4::Zero;
+	objectTransform.transform.m_scale = Vector3(100, 1, 100);
+	objectTransform.transform.m_location = Vector3(0, 0, 0);
+	objectTransform.transform.m_rotation = Vector4::Zero;
 	m_ECS->emplace<TransformComponent>(floorEntity, objectTransform);
 	m_ECS->emplace<MeshRendererComponent>(floorEntity, floorRenderer);
 
@@ -298,8 +314,8 @@ void Example1Level::Initialize()
 		//MeshRendererComponent lightRenderer;
 		//lightRenderer.mesh = &m_RenderEngine->GetPrimitive(Primitives::SPHERE);
 		//lightRenderer.material = objectUnlitMaterial;
-		lightTransform.transform.location = pointLightPositions[i];
-		lightTransform.transform.scale = 0.1f;
+		lightTransform.transform.m_location = pointLightPositions[i];
+		lightTransform.transform.m_scale = 0.1f;
 		entity = m_ECS->CreateEntity("Point Light " + i);
 		auto lightT = m_ECS->emplace<TransformComponent>(entity, lightTransform);
 		auto& pLight1 = m_ECS->emplace<PointLightComponent>(entity);
@@ -317,7 +333,7 @@ void Example1Level::Initialize()
 		TransformComponent lightTransform;
 		MeshRendererComponent lightRenderer;
 		SpotLightComponent sLight1;
-		lightTransform.transform.location = spotLightPositions[i];
+		lightTransform.transform.m_location = spotLightPositions[i];
 		lightRenderer.materialID = objectUnlitMaterial->m_MaterialID;
 		lightRenderer.meshID = Primitives::CUBE;
 		sLight = m_ECS->CreateEntity("Spot light" + i);
@@ -333,16 +349,6 @@ void Example1Level::Initialize()
 
 	}
 
-
-	groundCubeSystem = new GroundCubeSystem();
-	groundCubeSystem->Construct(*m_ECS);
-
-
-	// Create the free look system & push it.
-	ecsFreeLookSystem = new FreeLookSystem();
-	ecsFreeLookSystem->Construct(*m_ECS, *m_InputEngine);
-	level1Systems.AddSystem(*ecsFreeLookSystem);
-	level1Systems.AddSystem(*groundCubeSystem);
 
 }
 

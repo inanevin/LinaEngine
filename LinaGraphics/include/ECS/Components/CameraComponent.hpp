@@ -27,6 +27,7 @@ Timestamp: 5/2/2019 12:20:42 AM
 
 namespace LinaEngine::ECS
 {
+
 	struct CameraComponent : public ECSComponent
 	{
 		LinaEngine::Color clearColor = LinaEngine::Color(0.1f, 0.1f, 0.1f, 1.0f);

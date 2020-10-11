@@ -100,17 +100,20 @@ namespace LinaEditor
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 
 		// Add default font.
-		io.Fonts->AddFontFromFileTTF("resources/fonts/Mukta-Medium.ttf", 20.0f, NULL)->Scale = 1;
+		io.Fonts->AddFontFromFileTTF("resources/fonts/Mukta-Medium.ttf", 20.0f, NULL);
 
 		// merge in icons from Font Awesome
 		static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-		ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
-		io.Fonts->AddFontFromFileTTF("resources/fonts/FontAwesome/fa-solid-900.ttf", 12.0f, &icons_config, icons_ranges);
+		static const ImWchar icons_ranges2[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+		ImFontConfig icons_config; 
+		ImFontConfig icons_config2; 
+		icons_config.MergeMode = true; 
+		icons_config.PixelSnapH = true;
+		icons_config2.MergeMode = true;
+		icons_config2.PixelSnapH = true;
+		io.Fonts->AddFontFromFileTTF("resources/fonts/FontAwesome/fa-solid-900.ttf", 14.0f, &icons_config, icons_ranges);
 		io.Fonts->AddFontFromFileTTF("resources/fonts/ForkAwesome/forkawesome-webfont.ttf", 16.0f, &icons_config, icons_ranges);
-
-
-		// use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
-
+		
 		// Setup configuration flags.
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
@@ -132,10 +135,11 @@ namespace LinaEditor
 		style.TabRounding = 3.0f;
 		style.ChildRounding = 0.0f;
 		style.PopupRounding = 3.0f;
-		style.FrameRounding = 6.0f;
+		style.FrameRounding = 0.0f;
 		style.ScrollbarRounding = 5.0f;
 		style.FramePadding = ImVec2(3, 5);
-		style.WindowPadding = ImVec2(6, 7);
+		style.WindowPadding = ImVec2(8, 7);
+		style.ItemInnerSpacing = ImVec2(8, 4);
 		style.GrabRounding = 6.0f;
 		style.ChildBorderSize = 1.0f;
 		style.TabBorderSize = 0.0f;

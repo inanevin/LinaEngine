@@ -27,13 +27,13 @@ Timestamp: 5/23/2020 5:17:02 PM
 
 namespace LinaEngine::ECS
 {
+
 	class ECSComponent
 	{
 	public:
 		ECSComponent() {};
 		virtual ~ECSComponent() {};
 	
-		virtual void func() {};
 	};
 }
 

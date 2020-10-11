@@ -89,9 +89,9 @@ namespace LinaEngine
 		FORCEINLINE bool operator!=(const Vector2& rhs) const { return !(x == rhs.x && y == rhs.y); }
 		FORCEINLINE bool operator>(const Vector2& rhs) const { return length() > rhs.length(); }
 		FORCEINLINE bool operator<(const Vector2& rhs) const { return length() < rhs.length(); }
-		FORCEINLINE float& operator[] (unsigned int i) { this[i]; }
-		FORCEINLINE float operator[] (unsigned int i) const { this[i]; }
+		FORCEINLINE float& operator[] (unsigned int i) { return (&x)[i]; }
 		FORCEINLINE Vector2 operator-() const { return Vector2(-*this); }
+		FORCEINLINE float* Get() { return &x; }
 
 		FORCEINLINE std::ostream& operator<<(std::ostream& os)
 		{
@@ -169,9 +169,9 @@ namespace LinaEngine
 		FORCEINLINE bool operator!=(const Vector3& rhs) const { return !(x == rhs.x && y == rhs.y && z == rhs.z); }
 		FORCEINLINE bool operator>(const Vector3& rhs) const { return length() > rhs.length(); }
 		FORCEINLINE bool operator<(const Vector3& rhs) const { return length() < rhs.length(); }
-		FORCEINLINE float& operator[] (unsigned int i) { this[i]; }
-		FORCEINLINE float operator[] (unsigned int i) const { this[i]; }
+		FORCEINLINE float& operator[] (unsigned int i) { return (&x)[i]; }
 		FORCEINLINE Vector3 operator-() const { return Vector3(-x, -y, -z); }
+		FORCEINLINE float* Get() { return &x; }
 
 
 		FORCEINLINE std::ostream& operator<<(std::ostream& os)
@@ -244,9 +244,9 @@ namespace LinaEngine
 		FORCEINLINE bool operator!=(const Vector4& rhs) const { return !(x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w); }
 		FORCEINLINE bool operator>(const Vector4& rhs) const { return length() > rhs.length(); }
 		FORCEINLINE bool operator<(const Vector4& rhs) const { return length() < rhs.length(); }
-		FORCEINLINE float& operator[] (unsigned int i) { this[i]; }
-		FORCEINLINE float operator[] (unsigned int i) const { this[i]; }
+		FORCEINLINE float& operator[] (unsigned int i) { return (&x)[i]; }
 		FORCEINLINE Vector4 operator-() const { return Vector4(-*this); }
+		FORCEINLINE float* Get() { return &x; }
 
 		FORCEINLINE std::ostream& operator<<(std::ostream& os)
 		{

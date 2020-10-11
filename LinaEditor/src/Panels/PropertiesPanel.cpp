@@ -34,6 +34,7 @@ Timestamp: 6/7/2020 5:13:42 PM
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_internal.h"
+#include "IconsFontAwesome5.h"
 
 namespace LinaEditor
 {
@@ -93,8 +94,9 @@ namespace LinaEditor
 
 	void PropertiesPanel::Setup()
 	{
-		m_ECS = m_guiLayer->GetECS();
+		m_ecs = m_guiLayer->GetECS();
 		m_RenderEngine = m_guiLayer->GetRenderEngine();
+
 	}
 
 	void PropertiesPanel::Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path)
@@ -122,7 +124,7 @@ namespace LinaEditor
 	{
 		if (m_CurrentDrawType != DrawType::NONE)
 		{
-			if (m_SelectedEntity == entt::null && m_SelectedTexture == nullptr && m_SelectedMesh == nullptr && m_SelectedMaterial == nullptr)
+			if (m_selectedEntity == entt::null && m_SelectedTexture == nullptr && m_SelectedMesh == nullptr && m_SelectedMaterial == nullptr)
 				m_CurrentDrawType = DrawType::NONE;
 		}
 
@@ -146,18 +148,10 @@ namespace LinaEditor
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
-			static bool pushStyle = false;
-			static bool wasPushed = false;
-
-			if (pushStyle)
-			{
-				wasPushed = true;
-			}
-
 
 			ImGui::Begin("Properties", &m_show, flags);
-			pushStyle = ImGui::IsWindowFocused();
 
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, 0));
 
 			if (m_CurrentDrawType == DrawType::ENTITIES)
 				DrawEntityProperties();
@@ -167,17 +161,12 @@ namespace LinaEditor
 				DrawMeshProperties();
 			else if (m_CurrentDrawType == DrawType::MATERIAL)
 				DrawMaterialProperties();
+			ImGui::PopStyleVar();
 
 			DrawWindowRect();
 
 			ImGui::End();
 
-
-			if (pushStyle && wasPushed)
-			{
-				wasPushed = false;
-			}
-				
 		}
 	}
 
@@ -186,14 +175,37 @@ namespace LinaEditor
 		static int componentsComboCurrentItem = 0;
 
 		// Buttons down below.
-		if (m_ECS->valid(m_SelectedEntity))
+		if (m_ecs->valid(m_selectedEntity))
 		{
-			ImGui::BeginChild("Component View", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
+
+			// Align.
+			ImGui::SetCursorPos(ImVec2(15, 40));	ImGui::AlignTextToFramePadding();	ImGui::Text(ICON_FA_CUBE);	ImGui::SameLine();	
+
+			// Setup char.
+			static char entityName[64] = "";
+			if (m_copySelectedEntityName)
+			{
+				m_copySelectedEntityName = false;
+				memset(entityName, 0, sizeof entityName);
+				std::string str = m_ecs->GetEntityName(m_selectedEntity);
+				std::copy(str.begin(), str.end(), entityName);
+			}
+
+			// Entity name input text.
+			ImGui::InputText("##hidelabel", entityName, IM_ARRAYSIZE(entityName));
+			m_ecs->SetEntityName(m_selectedEntity, entityName);
+
+			// Entity enabled toggle button.
+			ImGui::SameLine();
+			static bool b = false;
+			ImGui::ToggleButton("##hideLabel", &b);
+
+			/*ImGui::BeginChild("Component View", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
 			if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
 			{
 				// Component view tab
-				bool isValid = m_ECS->valid(m_SelectedEntity);
-				std::string selectedName = m_ECS->valid(m_SelectedEntity) ? "Component View" : ("Component View: " + m_ECS->GetEntityName(m_SelectedEntity));
+				bool isValid = m_ecs->valid(m_selectedEntity);
+				std::string selectedName = m_ecs->valid(m_selectedEntity) ? "Component View" : ("Component View: " + m_ecs->GetEntityName(m_selectedEntity));
 				char titleName[256];
 				strcpy(titleName, selectedName.c_str());
 				if (ImGui::BeginTabItem(titleName))
@@ -201,7 +213,7 @@ namespace LinaEditor
 					if (!isValid)
 						ImGui::TextWrapped("No entity is selected.");
 					else
-						DrawComponents(m_SelectedEntity);
+						DrawComponents(m_selectedEntity);
 					ImGui::EndTabItem();
 				}
 				ImGui::EndTabBar();
@@ -229,7 +241,7 @@ namespace LinaEditor
 						ImGui::SetItemDefaultFocus();
 				}
 				ImGui::EndCombo();
-			}
+			}*/
 		}
 
 
@@ -237,74 +249,74 @@ namespace LinaEditor
 
 	void PropertiesPanel::AddComponentToEntity(int componentID)
 	{
-		if (!m_ECS->valid(m_SelectedEntity)) return;
+		if (!m_ecs->valid(m_selectedEntity)) return;
 
 		// Add the indexed component to target entity.
 		if (componentID == 0)
 		{
-			if (m_ECS->has<LinaEngine::ECS::TransformComponent>(m_SelectedEntity))
+			if (m_ecs->has<LinaEngine::ECS::TransformComponent>(m_selectedEntity))
 				openCompExistsModal = true;
 			else
 			{
-				auto& e = m_ECS->emplace<LinaEngine::ECS::TransformComponent>(m_SelectedEntity);
+				auto& e = m_ecs->emplace<LinaEngine::ECS::TransformComponent>(m_selectedEntity);
 			}
 		}
 		else if (componentID == 1)
 		{
-			if (m_ECS->has<LinaEngine::ECS::MeshRendererComponent>(m_SelectedEntity))
+			if (m_ecs->has<LinaEngine::ECS::MeshRendererComponent>(m_selectedEntity))
 				openCompExistsModal = true;
 			else
 			{
-				auto& e = m_ECS->emplace<LinaEngine::ECS::MeshRendererComponent>(m_SelectedEntity);
+				auto& e = m_ecs->emplace<LinaEngine::ECS::MeshRendererComponent>(m_selectedEntity);
 			}
 		}
 		else if (componentID == 2)
 		{
-			if (m_ECS->has<LinaEngine::ECS::CameraComponent>(m_SelectedEntity))
+			if (m_ecs->has<LinaEngine::ECS::CameraComponent>(m_selectedEntity))
 				openCompExistsModal = true;
 			else
 			{
-				auto& e = m_ECS->emplace<LinaEngine::ECS::CameraComponent>(m_SelectedEntity);
+				auto& e = m_ecs->emplace<LinaEngine::ECS::CameraComponent>(m_selectedEntity);
 			}
 
 		}
 		else if (componentID == 3)
 		{
-			if (m_ECS->has<LinaEngine::ECS::DirectionalLightComponent>(m_SelectedEntity))
+			if (m_ecs->has<LinaEngine::ECS::DirectionalLightComponent>(m_selectedEntity))
 				openCompExistsModal = true;
 			else
 			{
-				auto& e = m_ECS->emplace<LinaEngine::ECS::DirectionalLightComponent>(m_SelectedEntity);
+				auto& e = m_ecs->emplace<LinaEngine::ECS::DirectionalLightComponent>(m_selectedEntity);
 			}
 
 		}
 		else if (componentID == 4)
 		{
-			if (m_ECS->has<LinaEngine::ECS::PointLightComponent>(m_SelectedEntity))
+			if (m_ecs->has<LinaEngine::ECS::PointLightComponent>(m_selectedEntity))
 				openCompExistsModal = true;
 			else
 			{
-				auto& e = m_ECS->emplace<LinaEngine::ECS::PointLightComponent>(m_SelectedEntity);
+				auto& e = m_ecs->emplace<LinaEngine::ECS::PointLightComponent>(m_selectedEntity);
 			}
 
 		}
 		else if (componentID == 5)
 		{
-			if (m_ECS->has<LinaEngine::ECS::SpotLightComponent>(m_SelectedEntity))
+			if (m_ecs->has<LinaEngine::ECS::SpotLightComponent>(m_selectedEntity))
 				openCompExistsModal = true;
 			else
 			{
-				auto& e = m_ECS->emplace<LinaEngine::ECS::SpotLightComponent>(m_SelectedEntity);
+				auto& e = m_ecs->emplace<LinaEngine::ECS::SpotLightComponent>(m_selectedEntity);
 			}
 
 		}
 		else if (componentID == 6)
 		{
-			if (m_ECS->has<LinaEngine::ECS::FreeLookComponent>(m_SelectedEntity))
+			if (m_ecs->has<LinaEngine::ECS::FreeLookComponent>(m_selectedEntity))
 				openCompExistsModal = true;
 			else
 			{
-				auto& e = m_ECS->emplace<LinaEngine::ECS::FreeLookComponent>(m_SelectedEntity);
+				auto& e = m_ecs->emplace<LinaEngine::ECS::FreeLookComponent>(m_selectedEntity);
 			}
 		}
 
@@ -312,31 +324,18 @@ namespace LinaEditor
 
 	void PropertiesPanel::DrawComponents(LinaEngine::ECS::ECSEntity& entity)
 	{
-		// Check if entity has any component.
-		if (!m_ECS->any<TransformComponent, MeshRendererComponent, CameraComponent, DirectionalLightComponent, SpotLightComponent, PointLightComponent, FreeLookComponent>(entity))
-			ImGui::TextWrapped("This entity doesn't contain any components");
-
 		// Draw transform component.
-		if (m_ECS->has<TransformComponent>(entity))
+		if (TransformComponent* transform = m_ecs->try_get<TransformComponent>(entity))
 		{
-			float dragSensitivity = 0.05f;
-			float dragSensitivityRotation = 0.25f;
-			TransformComponent* transform = &m_ECS->get<TransformComponent>(entity);
-
 			if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_None))
 			{
 				ImGui::Indent();
-
-				float location[3] = { transform->transform.location.x, transform->transform.location.y, transform->transform.location.z };
-				float rot[3] = { transform->transform.rotation.GetEuler().x, transform->transform.rotation.GetEuler().y, transform->transform.rotation.GetEuler().z };
-				float scale[3] = { transform->transform.scale.x, transform->transform.scale.y, transform->transform.scale.z };
-				ImGui::DragFloat3("Location", location, dragSensitivity);
-				ImGui::DragFloat3("Rotation", rot, dragSensitivityRotation);
-				ImGui::DragFloat3("Scale", scale, dragSensitivity);
-				transform->transform.location = Vector3(location[0], location[1], location[2]);
-				transform->transform.scale = Vector3(scale[0], scale[1], scale[2]);
-				transform->transform.rotation = Quaternion::Euler(rot[0], rot[1], rot[2]);
-
+				float a = transform->transform.m_location[0];
+				float rot[3] = { transform->transform.m_rotation.GetEuler().x, transform->transform.m_rotation.GetEuler().y, transform->transform.m_rotation.GetEuler().z };
+				ImGui::Text("Location"); ImGui::SameLine(); ImGui::InputFloat3("", transform->transform.m_location.Get());
+				ImGui::Text("Rotation"); ImGui::SameLine(); ImGui::InputFloat3("", rot);
+				ImGui::Text("Scale"); ImGui::SameLine(); ImGui::InputFloat3("", transform->transform.m_scale.Get());			
+				transform->transform.m_rotation = Quaternion::Euler(rot[0], rot[1], rot[2]);
 				ImGui::Unindent();
 			}
 
@@ -344,10 +343,10 @@ namespace LinaEditor
 
 
 		// Draw Point Light component.
-		if (m_ECS->has<PointLightComponent>(entity))
+		if (m_ecs->has<PointLightComponent>(entity))
 		{
-			PointLightComponent* light = &m_ECS->get<PointLightComponent>(entity);
-			MeshRendererComponent* lightRenderer = m_ECS->has<MeshRendererComponent>(entity) ? &m_ECS->get<MeshRendererComponent>(entity) : nullptr;
+			PointLightComponent* light = &m_ecs->get<PointLightComponent>(entity);
+			MeshRendererComponent* lightRenderer = m_ecs->has<MeshRendererComponent>(entity) ? &m_ecs->get<MeshRendererComponent>(entity) : nullptr;
 
 			float dragSensitivity = 0.05f;
 			if (ImGui::CollapsingHeader("Point Light", ImGuiTreeNodeFlags_None))
@@ -370,10 +369,10 @@ namespace LinaEditor
 		}
 
 		// Draw spot light component.
-		if (m_ECS->has<SpotLightComponent>(entity))
+		if (m_ecs->has<SpotLightComponent>(entity))
 		{
-			SpotLightComponent* light = &m_ECS->get<SpotLightComponent>(entity);
-			MeshRendererComponent* lightRenderer = m_ECS->has<MeshRendererComponent>(entity) ? &m_ECS->get<MeshRendererComponent>(entity) : nullptr;
+			SpotLightComponent* light = &m_ecs->get<SpotLightComponent>(entity);
+			MeshRendererComponent* lightRenderer = m_ecs->has<MeshRendererComponent>(entity) ? &m_ecs->get<MeshRendererComponent>(entity) : nullptr;
 
 			float dragSensitivity = 0.005f;
 			if (ImGui::CollapsingHeader("Spot Light", ImGuiTreeNodeFlags_None))
@@ -402,10 +401,10 @@ namespace LinaEditor
 		}
 
 		// Draw directional light component.
-		if (m_ECS->has<DirectionalLightComponent>(entity))
+		if (m_ecs->has<DirectionalLightComponent>(entity))
 		{
-			DirectionalLightComponent* light = &m_ECS->get<DirectionalLightComponent>(entity);
-			MeshRendererComponent* lightRenderer = m_ECS->has<MeshRendererComponent>(entity) ? &m_ECS->get<MeshRendererComponent>(entity) : nullptr;
+			DirectionalLightComponent* light = &m_ecs->get<DirectionalLightComponent>(entity);
+			MeshRendererComponent* lightRenderer = m_ecs->has<MeshRendererComponent>(entity) ? &m_ecs->get<MeshRendererComponent>(entity) : nullptr;
 
 			float dragSensitivity = 0.005f;
 			if (ImGui::CollapsingHeader("Directional Light", ImGuiTreeNodeFlags_None))
@@ -432,27 +431,28 @@ namespace LinaEditor
 		}
 
 		// Draw mesh renderer component
-		if (m_ECS->has<MeshRendererComponent>(entity))
+		if (m_ecs->has<MeshRendererComponent>(entity))
 		{
-			MeshRendererComponent* renderer = m_ECS->has<MeshRendererComponent>(entity) ? &m_ECS->get<MeshRendererComponent>(entity) : nullptr;
-
+			MeshRendererComponent* renderer = m_ecs->has<MeshRendererComponent>(entity) ? &m_ecs->get<MeshRendererComponent>(entity) : nullptr;
 
 			float dragSensitivity = 0.005f;
 			if (ImGui::CollapsingHeader("Mesh Renderer", ImGuiTreeNodeFlags_None))
 			{
 				ImGui::Indent();
+
+
 				ImGui::Unindent();
 			}
 		}
 
 		// Draw rigidbody component
-		if (m_ECS->has<RigidbodyComponent>(entity))
+		if (m_ecs->has<RigidbodyComponent>(entity))
 		{
 			if (ImGui::CollapsingHeader("Rigidbody", ImGuiTreeNodeFlags_None))
 			{
 				ImGui::Indent();
 
-				RigidbodyComponent& rb = m_ECS->get<RigidbodyComponent>(entity);
+				RigidbodyComponent& rb = m_ecs->get<RigidbodyComponent>(entity);
 
 				m_currentCollisionShape = (int)rb.m_collisionShape;
 
@@ -498,7 +498,7 @@ namespace LinaEditor
 
 				if (ImGui::Button("Apply"))
 				{
-					m_ECS->replace<LinaEngine::ECS::RigidbodyComponent>(entity, rb);
+					m_ecs->replace<LinaEngine::ECS::RigidbodyComponent>(entity, rb);
 				}
 				ImGui::Unindent();
 			}
@@ -506,6 +506,24 @@ namespace LinaEditor
 
 		}
 
+	}
+
+	void PropertiesPanel::DrawVector2(const char* label, Vector2& v)
+	{
+		float location[2] = { v.x, v.y };
+		ImGui::Text(label);
+		ImGui::SameLine();
+		ImGui::InputFloat2("", location);
+		v.x = location[0];
+		v.y = location[1];
+	}
+
+	void PropertiesPanel::DrawVector3(const char* label, Vector3& v)
+	{
+	}
+
+	void PropertiesPanel::DrawVector4(const char* label, Vector4& v)
+	{
 	}
 
 	void PropertiesPanel::DrawTextureProperties()

@@ -23,7 +23,7 @@ namespace LinaEngine
 {
 	Transformation Transformation::Interpolate(Transformation& from, Transformation& to, float t)
 	{
-		return Transformation(Vector3::Lerp(from.location, to.location, t), Quaternion::Slerp(from.rotation, to.rotation, t), Vector3::Lerp(from.scale, to.scale, t));
+		return Transformation(Vector3::Lerp(from.m_location, to.m_location, t), Quaternion::Slerp(from.m_rotation, to.m_rotation, t), Vector3::Lerp(from.m_scale, to.m_scale, t));
 	}
 }
 

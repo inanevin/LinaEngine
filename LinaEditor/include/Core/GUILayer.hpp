@@ -160,5 +160,6 @@ namespace LinaEditor
 		class HeaderPanel* m_headerPanel;
 		std::vector<EditorPanel*> m_panels;
 		Vector2 m_scenePanelSize = Vector2::Zero;
+
 	};
 }
