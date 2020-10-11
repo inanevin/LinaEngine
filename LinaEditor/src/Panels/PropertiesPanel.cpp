@@ -182,8 +182,10 @@ namespace LinaEditor
 			WidgetsUtility::DrawShadowedLine(5);
 
 			// Align.
-			ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(15);	
+			ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(16);	
+			WidgetsUtility::PushScaledFont(0.8f);
 			WidgetsUtility::AlignedText(ICON_FA_CUBE);	ImGui::SameLine();
+			WidgetsUtility::PopScaledFont();
 
 			// Setup char.
 			static char entityName[64] = "";
@@ -196,10 +198,12 @@ namespace LinaEditor
 			}
 
 			// Entity name input text.
-			WidgetsUtility::IncrementCursorPosY(-1.6f);  ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
+			WidgetsUtility::FramePaddingX(5);
+			WidgetsUtility::IncrementCursorPosY(-5);  ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
 			ImGui::InputText("##hidelabel", entityName, IM_ARRAYSIZE(entityName));
 			m_ecs->SetEntityName(m_selectedEntity, entityName);
-
+			WidgetsUtility::PopStyleVar();
+			
 			// Entity enabled toggle button.
 			ImGui::SameLine();	WidgetsUtility::IncrementCursorPosY(1.5f);
 			static bool b = false;	ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);

@@ -196,25 +196,32 @@ namespace LinaEditor
 
 	void WidgetsUtility::DrawComponentTitle(const char* title, const char* icon, bool* foldoutOpen, const ImVec4& iconColor)
 	{
-		
+
 		// Colors for caret.
 		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ChildBg));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyleColorVec4(ImGuiCol_ChildBg));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_ChildBg));
 
+		// Caret button.
 		const char* caret = *foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
 		ImGui::SetNextItemWidth(30);
+		WidgetsUtility::PushScaledFont(0.8f);
 		if (ImGui::Button(caret))
-			*foldoutOpen = !*foldoutOpen;	
+			*foldoutOpen = !*foldoutOpen;
+		WidgetsUtility::PopScaledFont();
 
 		// Pop colors for caret.
 		ImGui::PopStyleColor();
 		ImGui::PopStyleColor();
 		ImGui::PopStyleColor();
 
+		// Titlke.
 		ImGui::SameLine(); ImGui::AlignTextToFramePadding();
-		ImGui::Text("Transformation");	
+		WidgetsUtility::IncrementCursorPosY(WidgetsUtility::DebugFloat());
+		ImGui::Text(title);
 		ImGui::AlignTextToFramePadding(); ImGui::SameLine();
+
+		// Icon
 		ImGui::PushStyleColor(ImGuiCol_Text, iconColor);
 		ImGui::Text(icon);
 		ImGui::PopStyleColor();
@@ -261,7 +268,7 @@ namespace LinaEditor
 	float WidgetsUtility::DebugFloat()
 	{
 		s_debugCallCount++;
-		ImGui::Begin("Debug Float" );
+		ImGui::Begin("Debug Float");
 		static float f = 0.0f;
 		ImGui::InputFloat("Debug", &f);
 		ImGui::End();
@@ -277,5 +284,36 @@ namespace LinaEditor
 	{
 		ImGui::GetFont()->Scale = 1.0f;
 		ImGui::PopFont();
+	}
+	void WidgetsUtility::FramePaddingX(float amt)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(amt, ImGui::GetStyle().FramePadding.y));
+	}
+
+	void WidgetsUtility::FramePaddingY(float amt)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, amt));
+	}
+	void WidgetsUtility::PopStyleVar()
+	{
+		ImGui::PopStyleVar();
+	}
+
+	void WidgetsUtility::Icon(const char* label, float scale)
+	{
+		PushScaledFont(scale);
+		ImGui::Text(label);
+		PopScaledFont();
+	}
+
+	bool WidgetsUtility::IconButton(const char* label, float width, float scale)
+	{
+		if (width != 0.0f)
+			ImGui::SetNextItemWidth(width);
+
+		PushScaledFont(scale);
+		bool pressed = ImGui::Button(label);
+		PopScaledFont();
+		return pressed;
 	}
 }

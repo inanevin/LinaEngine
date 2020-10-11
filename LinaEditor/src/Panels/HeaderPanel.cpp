@@ -274,14 +274,16 @@ namespace LinaEditor
 			for (int i = 0; i < m_menuBarButtons.size(); i++)
 				m_menuBarButtons[i]->Draw();
 
-			// Draw search bar.
+			// Draw search bar.		
 			ImGui::SameLine();
-			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, 1.7f));
+			WidgetsUtility::FramePaddingY(1.7f);
 			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - OFFSET_WINDOWBUTTONS - 100);
+			WidgetsUtility::Icon(ICON_FA_SEARCH); ImGui::SameLine();
 			static char searchStr[128] = "";
 			ImGui::SetNextItemWidth(170);
-			ImGui::InputTextWithHint("", ICON_FA_SEARCH " search", searchStr, IM_ARRAYSIZE(searchStr));
-			ImGui::PopStyleVar();
+			WidgetsUtility::IncrementCursorPosY(-5);
+			ImGui::InputTextWithHint("", "search...", searchStr, IM_ARRAYSIZE(searchStr));
+			WidgetsUtility::PopStyleVar();
 
 			// Draw Tool Buttons
 		//	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(headerBGColor.r, headerBGColor.g, headerBGColor.b, headerBGColor.a));

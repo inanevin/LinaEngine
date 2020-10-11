@@ -53,7 +53,11 @@ namespace LinaEditor
 		static float DebugFloat();
 		static void PushScaledFont(float defaultScale = 0.6f);
 		static void PopScaledFont();
-
+		static void FramePaddingX(float amt);
+		static void FramePaddingY(float amt);
+		static void PopStyleVar();
+		static void Icon(const char* label, float scale = 0.6f);
+		static bool IconButton( const char* label, float width = 0.0f, float scale = 0.6f);
 	private:
 	
 		static int s_debugCallCount;
