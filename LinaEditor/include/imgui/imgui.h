@@ -36,7 +36,12 @@ Index of this file:
 
 */
 
+
 #pragma once
+
+
+#define LINA_DOCKOFFSET_X 3.0f
+#define LINA_DOCKOFFSET_Y 3.0f
 
 // Configuration file with compile-time options (edit imconfig.h or #define IMGUI_USER_CONFIG to your own filename)
 #ifdef IMGUI_USER_CONFIG

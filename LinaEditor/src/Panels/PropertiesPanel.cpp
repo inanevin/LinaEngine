@@ -145,9 +145,10 @@ namespace LinaEditor
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
-
+		
+			
 			ImGui::Begin("Properties", &m_show, flags);
-
+	
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, 0));
 
 			if (m_CurrentDrawType == DrawType::ENTITIES)
@@ -158,9 +159,10 @@ namespace LinaEditor
 				DrawMeshProperties();
 			else if (m_CurrentDrawType == DrawType::MATERIAL)
 				DrawMaterialProperties();
-			ImGui::PopStyleVar();
 
+			ImGui::PopStyleVar();
 			DrawWindowRect();
+
 
 			ImGui::End();
 
@@ -220,7 +222,7 @@ namespace LinaEditor
 			ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y+2), ImVec2(max.x, max.y + 2), ImGui::ColorConvertFloat4ToU32(ImVec4(0.2f, 0.2f, 0.2f, 1.0f)), 1);
 
 			ImGui::EndChild();
-
+			
 			/*ImGui::BeginChild("Component View", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
 			if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
 			{

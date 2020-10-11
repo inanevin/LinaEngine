@@ -13541,7 +13541,7 @@ static bool ImGui::DockNodeIsDropAllowed(ImGuiWindow* host_window, ImGuiWindow* 
 static void ImGui::DockNodeCalcTabBarLayout(const ImGuiDockNode* node, ImRect* out_title_rect, ImRect* out_tab_bar_rect, ImVec2* out_window_menu_button_pos)
 {
     ImGuiContext& g = *GImGui;
-    ImRect r = ImRect(node->Pos.x, node->Pos.y, node->Pos.x + node->Size.x, node->Pos.y + g.FontSize + g.Style.FramePadding.y * 2.0f);
+    ImRect r = ImRect(node->Pos.x + LINA_DOCKOFFSET_X, node->Pos.y, node->Pos.x + node->Size.x + 1 , node->Pos.y + g.FontSize + g.Style.FramePadding.y * 2.0f);
     if (out_title_rect) { *out_title_rect = r; }
 
     ImVec2 window_menu_button_pos = r.Min;
@@ -14931,8 +14931,8 @@ void ImGui::BeginDocked(ImGuiWindow* window, bool* p_open)
     }
 
     // Position/Size window
-    SetNextWindowPos(node->Pos);
-    SetNextWindowSize(node->Size);
+    SetNextWindowPos(ImVec2(node->Pos.x + LINA_DOCKOFFSET_X, node->Pos.y));
+    SetNextWindowSize(ImVec2(node->Size.x - LINA_DOCKOFFSET_X / 2.0f, node->Size.y));
     g.NextWindowData.PosUndock = false; // Cancel implicit undocking of SetNextWindowPos()
     window->DockIsActive = true;
     window->DockTabIsVisible = false;
