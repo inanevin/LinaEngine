@@ -44,6 +44,12 @@ namespace LinaEditor
 		const char* m_icon;
 		const char* m_title;
 
+	private:
+
+		friend class MenuButton;
+		friend class MenuItem;
+		MenuButton* m_parent;
+
 	};
 
 	class MenuItem : public MenuElement
@@ -57,6 +63,8 @@ namespace LinaEditor
 		virtual void Draw() override;
 
 	private:
+
+		friend class MenuButton;
 
 		bool m_isHovered = false;
 		LinaEngine::Color m_color = LinaEngine::Color(0, 0, 0, 0);
@@ -74,6 +82,9 @@ namespace LinaEditor
 		// Draw this item.
 		virtual void Draw() override;
 	
+		// Closes children popup
+		void ClosePopup();
+
 		// Set on click explicitly.
 		FORCEINLINE void SetOnClick(std::function<void()> onClick) { m_onClick = onClick; }
 

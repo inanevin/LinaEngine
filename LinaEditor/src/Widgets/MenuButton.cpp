@@ -62,6 +62,8 @@ namespace LinaEditor
 		{
 			if (m_onClick)
 				m_onClick();
+
+			m_parent->ClosePopup();
 		}
 	}
 
@@ -71,6 +73,9 @@ namespace LinaEditor
 		m_bgColor = bgColor;
 		m_useSameLine = sameLine;
 		m_popupID = popupID;
+
+		for (int i = 0; i < m_children.size(); i++)
+			m_children[i]->m_parent = this;
 	}
 
 	MenuButton::~MenuButton()
@@ -131,6 +136,12 @@ namespace LinaEditor
 
 		ImGui::PopStyleVar();
 
+	}
+
+	void MenuButton::ClosePopup()
+	{
+		ImGui::CloseCurrentPopup();
+		m_popupOpen = false;
 	}
 
 

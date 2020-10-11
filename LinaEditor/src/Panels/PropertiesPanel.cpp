@@ -200,21 +200,29 @@ namespace LinaEditor
 			// Entity name input text.
 			WidgetsUtility::FramePaddingX(5);
 			WidgetsUtility::IncrementCursorPosY(-5);  ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
-			ImGui::InputText("##hidelabel", entityName, IM_ARRAYSIZE(entityName));
+			ImGui::InputText("##ename", entityName, IM_ARRAYSIZE(entityName));
 			m_ecs->SetEntityName(m_selectedEntity, entityName);
 			WidgetsUtility::PopStyleVar();
 			
 			// Entity enabled toggle button.
 			ImGui::SameLine();	WidgetsUtility::IncrementCursorPosY(1.5f);
 			static bool b = false;	ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
-			WidgetsUtility::ToggleButton("##hideLabel", &b, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
+			WidgetsUtility::ToggleButton("##eactive", &b, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
 			
-			ImGui::SetCursorPosX(12);
+			ImGui::SetCursorPosX(13);
 			WidgetsUtility::IncrementCursorPosY(6);
 			if (WidgetsUtility::IconButton("addcomp", ICON_FA_PLUS_SQUARE, 0.0f, 0.9f, ImVec4(1,1,1,0.8f), ImVec4(1,1,1,1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 			{
-				std::cout << "hoooy";
+				ImGui::OpenPopup("Select Component");
 			}
+
+			if (ImGui::BeginPopupModal("Select Component"))
+			{
+				ImGui::EndPopup();
+			}
+
+		
+
 
 			// Bevel.
 			WidgetsUtility::IncrementCursorPosY(6.0f);
