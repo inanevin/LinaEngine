@@ -219,6 +219,44 @@ namespace LinaEditor
 		ImGui::PopStyleColor();
 	}
 
+	void WidgetsUtility::AlignedText(const char* label)
+	{
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text(label);
+	}
+
+	void WidgetsUtility::IncrementCursorPosX(float f)
+	{
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + f);
+	}
+
+	void WidgetsUtility::IncrementCursorPosY(float f)
+	{
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + f);
+	}
+
+	void WidgetsUtility::IncrementCursorPos(const LinaEngine::Vector2& v)
+	{
+		ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + v.x, ImGui::GetCursorPosY() + v.y));
+	}
+
+	void WidgetsUtility::CenterCursorX()
+	{
+		ImGui::SetCursorPosX(ImGui::GetWindowPos().x + ImGui::GetWindowWidth() / 2.0f);
+	}
+
+	void WidgetsUtility::CenterCursorY()
+	{
+		ImGui::SetCursorPosY(ImGui::GetWindowPos().y + ImGui::GetWindowHeight() / 2.0f);
+
+	}
+
+	void WidgetsUtility::CenterCursor()
+	{
+		CenterCursorX();
+		CenterCursorY();
+	}
+
 	float WidgetsUtility::DebugFloat()
 	{
 		ImGui::Begin("Debug Float");

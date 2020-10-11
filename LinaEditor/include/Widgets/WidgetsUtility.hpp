@@ -23,6 +23,7 @@ Timestamp: 10/11/2020 1:39:01 PM
 #define WidgetsUtility_HPP
 
 // Headers here.
+#include "Utility/Math/Vector.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -42,6 +43,13 @@ namespace LinaEditor
 		static void DrawShadowedLine(int height = 10, const ImVec4& color = ImVec4(0.1f, 0.1f,0.1f, 1.0f), float thickness = 1.0f, ImVec2 min = ImVec2(0,0), ImVec2 max = ImVec2(0,0));
 		static void DrawBeveledLine(ImVec2 min = ImVec2(0, 0), ImVec2 max = ImVec2(0, 0));
 		static void DrawComponentTitle(const char* title, const char* icon, bool* foldoutOpen, const ImVec4& iconFolor = ImVec4(1,1,1,1));
+		static void AlignedText(const char* label);
+		static void IncrementCursorPosX(float f);
+		static void IncrementCursorPosY(float f);
+		static void IncrementCursorPos(const LinaEngine::Vector2& v);
+		static void CenterCursorX();
+		static void CenterCursorY();
+		static void CenterCursor();
 		static float DebugFloat();
 
 	private:

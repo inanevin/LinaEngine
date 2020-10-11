@@ -33,6 +33,7 @@ Timestamp: 6/7/2020 5:13:42 PM
 #include "Widgets/WidgetsUtility.hpp"
 #include "IconsFontAwesome5.h"
 
+
 namespace LinaEditor
 {
 	using namespace LinaEngine::ECS;
@@ -93,6 +94,7 @@ namespace LinaEditor
 	{
 		m_ecs = m_guiLayer->GetECS();
 		m_RenderEngine = m_guiLayer->GetRenderEngine();
+
 
 	}
 
@@ -175,13 +177,13 @@ namespace LinaEditor
 		// Buttons down below.
 		if (m_ecs->valid(m_selectedEntity))
 		{
-		
-	
-	
+
+			// Shadow.
 			WidgetsUtility::DrawShadowedLine(5);
 
 			// Align.
-			ImGui::SetCursorPos(ImVec2(12,ImGui::GetCursorPosY() + 15));	ImGui::AlignTextToFramePadding();	ImGui::Text(ICON_FA_CUBE);	ImGui::SameLine();
+			ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(15);	
+			WidgetsUtility::AlignedText(ICON_FA_CUBE);	ImGui::SameLine();
 
 			// Setup char.
 			static char entityName[64] = "";
@@ -194,20 +196,20 @@ namespace LinaEditor
 			}
 
 			// Entity name input text.
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 1.6f);  ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
+			WidgetsUtility::IncrementCursorPosY(-1.6f);  ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
 			ImGui::InputText("##hidelabel", entityName, IM_ARRAYSIZE(entityName));
 			m_ecs->SetEntityName(m_selectedEntity, entityName);
 
 			// Entity enabled toggle button.
-			ImGui::SameLine();	ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 1.5f);
+			ImGui::SameLine();	WidgetsUtility::IncrementCursorPosY(1.5f);
 			static bool b = false;	ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
 			WidgetsUtility::ToggleButton("##hideLabel", &b, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
 			
-
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 6);
+			// Bevel.
+			WidgetsUtility::IncrementCursorPosY(6.0f);
 			WidgetsUtility::DrawBeveledLine();
 
-			ImGui::SetCursorPos(ImVec2(12, ImGui::GetCursorPosY() + 15)); 
+			ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(15);
 			static bool open = false;
 			WidgetsUtility::DrawComponentTitle("Transformation" , ICON_FA_ARROWS_ALT, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
@@ -216,7 +218,15 @@ namespace LinaEditor
 
 			}
 		
-		
+			WidgetsUtility::DrawBeveledLine();
+			
+			WidgetsUtility::IncrementCursorPosY(10);
+			WidgetsUtility::CenterCursorX();
+			ImGui::SetNextItemWidth(150 + WidgetsUtility::DebugFloat());
+			if (ImGui::Button(ICON_FA_PLUS))
+			{
+
+			}
 			
 			/*ImGui::BeginChild("Component View", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
 			if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
