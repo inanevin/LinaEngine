@@ -68,7 +68,6 @@ namespace LinaEditor
 	
 		static std::map<std::string, std::tuple<bool,bool>> s_iconButtons;
 		static std::map<std::string, float> s_debugFloats;
-		static int s_debugCallCount;
 	};
 }
 

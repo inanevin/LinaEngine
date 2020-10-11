@@ -25,9 +25,8 @@ Timestamp: 10/11/2020 1:39:27 PM
 
 namespace LinaEditor
 {
-	int WidgetsUtility::s_debugCallCount = 0;
 	std::map<std::string, std::tuple<bool,bool>> WidgetsUtility::s_iconButtons;
-	std::map<std::string, float > WidgetsUtility::s_debugFloats;
+	std::map<std::string, float> WidgetsUtility::s_debugFloats;
 
 	void WidgetsUtility::ColorButton(float* colorX)
 	{
@@ -253,8 +252,7 @@ namespace LinaEditor
 
 	float WidgetsUtility::DebugFloat(const char* id)
 	{
-		s_debugCallCount++;
-		ImGui::Begin("Debug Float");
+		ImGui::Begin(id);
 		ImGui::InputFloat("Debug", &s_debugFloats[id]);
 		ImGui::End();
 		return s_debugFloats[id];

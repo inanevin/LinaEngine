@@ -29,6 +29,7 @@ Timestamp: 10/8/2020 9:02:44 PM
 
 namespace LinaEditor
 {
+	bool MenuButton::s_anyButtonFocused = false;
 
 	void MenuItem::Draw()
 	{
@@ -45,7 +46,7 @@ namespace LinaEditor
 
 		// Draw icon.
 		WidgetsUtility::IncrementCursorPosY(6);
-		WidgetsUtility::AlignedText(m_icon);
+		 WidgetsUtility::AlignedText(m_icon);
 
 		// Pop font.
 		ImGui::GetFont()->Scale = 1;
@@ -95,17 +96,17 @@ namespace LinaEditor
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
 
 
-		// Active color if popup is openþ
+		// Active color if popup is open
 		if (m_popupOpen)
 			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered));
 
 		// Draw button.
-		ImGui::Button(m_title);
-		bool itemFocused = ImGui::IsItemHovered();
+		if (ImGui::Button(m_title))
+			s_anyButtonFocused = true;
 
 
 		// Open popup
-		if (ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax()) && !m_popupOpen && (ImGui::IsItemHovered))
+		if (ImGui::GetTopMostPopupModal() == nullptr && ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax()) && !m_popupOpen)
 			ImGui::OpenPopup(m_popupID);
 
 		if (m_popupOpen)
@@ -113,7 +114,7 @@ namespace LinaEditor
 
 		ImGui::PopStyleColor();
 		ImGui::PopStyleVar();
-
+		
 		// Draw popup
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, HEADER_MENUBUTTON_WINDOWPADDING);
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y));
@@ -131,10 +132,12 @@ namespace LinaEditor
 					m_children[i]->Draw();
 			}
 
-
+			if (!ImGui::IsItemFocused())
+				s_anyButtonFocused = false;
 
 			ImGui::EndPopup();
 		}
+
 
 		ImGui::PopStyleVar();
 
