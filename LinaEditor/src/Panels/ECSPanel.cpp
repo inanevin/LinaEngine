@@ -118,7 +118,6 @@ namespace LinaEditor
 
 			}
 
-			DrawWindowRect();
 
 			ImGui::End();
 		}

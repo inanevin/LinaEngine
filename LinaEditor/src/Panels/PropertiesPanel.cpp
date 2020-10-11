@@ -161,7 +161,6 @@ namespace LinaEditor
 				DrawMaterialProperties();
 
 			ImGui::PopStyleVar();
-			DrawWindowRect();
 
 
 			ImGui::End();
@@ -180,15 +179,7 @@ namespace LinaEditor
 	
 			ImGui::BeginChild("EntityProps");
 
-			{
-				ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
-				ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
-
-				for (int i = 0; i < 10; i++)
-				{
-					ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + 1 * i), ImVec2(max.x, max.y + 1 * i), ImGui::ColorConvertFloat4ToU32(ImVec4(0.1f, 0.1f, 0.1f, Math::Remap((float)i, 0.0f, 10.0f, 1.0f, 0.0f))), 1.0f);
-				}
-			}
+			
 
 
 			// Align.

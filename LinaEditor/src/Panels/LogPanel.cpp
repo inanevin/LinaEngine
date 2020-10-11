@@ -43,7 +43,6 @@ namespace LinaEditor
 
 			if (ImGui::Begin("Log", &m_show, flags))
 			{
-				DrawWindowRect();
 
 			}
 			ImGui::End();

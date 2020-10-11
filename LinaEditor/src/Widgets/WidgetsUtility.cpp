@@ -20,7 +20,7 @@ Timestamp: 10/11/2020 1:39:27 PM
 
 
 #include "Widgets/WidgetsUtility.hpp"
-
+#include "Utility/Math/Math.hpp"
 
 namespace LinaEditor
 {
@@ -150,5 +150,33 @@ namespace LinaEditor
 		draw_list->AddCircleFilled(ImVec2(p.x + radius + t * (width - radius * 2.0f), p.y + radius), radius - 1.5f, IM_COL32(255, 255, 255, 255));
 
 		return *v;
+	}
+
+	void WidgetsUtility::DrawWindowBorders(const ImVec4& color, float thickness)
+	{
+		ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
+		ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetWindowHeight());
+		ImGui::BeginChild("##ch");
+		ImGui::PushClipRect(min, max, false);
+		ImGui::GetWindowDrawList()->AddRect(min, max, ImGui::ColorConvertFloat4ToU32(color), 0, 15, thickness);
+		ImGui::PopClipRect();
+		ImGui::EndChild();
+	}
+
+	void WidgetsUtility::DrawShadowedLine(const ImVec4& color, float thickness, ImVec2 min, ImVec2 max)
+	{
+		{
+
+			if (min.x == 0 && min.y == 0)
+				min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
+
+			if (max.x == 0 && max.y == 0)
+				max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
+
+			for (int i = 0; i < 10; i++)
+			{
+				ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + thickness * i), ImVec2(max.x, max.y + thickness * i), ImGui::ColorConvertFloat4ToU32(ImVec4(color.x, color.y, color.z, Math::Remap((float)i, 0.0f, 10.0f, 1.0f, 0.0f))), thickness);
+			}
+		}
 	}
 }

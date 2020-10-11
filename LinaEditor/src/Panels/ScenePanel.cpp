@@ -109,9 +109,6 @@ namespace LinaEditor
 
 				ImGui::EndChild();
 
-				// Draw borders.
-				DrawWindowRect();
-
 			}
 
 			ImGui::End();
