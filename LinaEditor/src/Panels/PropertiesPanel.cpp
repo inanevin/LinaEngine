@@ -30,10 +30,7 @@ Timestamp: 6/7/2020 5:13:42 PM
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
-#include "imgui/imgui_internal.h"
+#include "Widgets/WidgetsUtility.hpp"
 #include "IconsFontAwesome5.h"
 
 namespace LinaEditor
@@ -177,9 +174,23 @@ namespace LinaEditor
 		// Buttons down below.
 		if (m_ecs->valid(m_selectedEntity))
 		{
+		
+	
+			ImGui::BeginChild("EntityProps");
+
+			{
+				ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
+				ImVec2 max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
+
+				for (int i = 0; i < 10; i++)
+				{
+					ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + 1 * i), ImVec2(max.x, max.y + 1 * i), ImGui::ColorConvertFloat4ToU32(ImVec4(0.1f, 0.1f, 0.1f, Math::Remap((float)i, 0.0f, 10.0f, 1.0f, 0.0f))), 1.0f);
+				}
+			}
+
 
 			// Align.
-			ImGui::SetCursorPos(ImVec2(12,42));	ImGui::AlignTextToFramePadding();	ImGui::Text(ICON_FA_CUBE);	ImGui::SameLine();
+			ImGui::SetCursorPos(ImVec2(12,ImGui::GetCursorPosY() + 10));	ImGui::AlignTextToFramePadding();	ImGui::Text(ICON_FA_CUBE);	ImGui::SameLine();
 
 			// Setup char.
 			static char entityName[64] = "";
@@ -192,14 +203,23 @@ namespace LinaEditor
 			}
 
 			// Entity name input text.
-			ImGui::SetCursorPosY(40);	ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
 			ImGui::InputText("##hidelabel", entityName, IM_ARRAYSIZE(entityName));
 			m_ecs->SetEntityName(m_selectedEntity, entityName);
 
 			// Entity enabled toggle button.
-			ImGui::SameLine();	ImGui::SetCursorPosY(41.5f);
+			ImGui::SameLine();
 			static bool b = false;	ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
-			ImGui::ToggleButton("##hideLabel", &b, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
+			WidgetsUtility::ToggleButton("##hideLabel", &b, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
+			
+
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 15);
+			ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y +  ImGui::GetCursorPosY());
+			ImVec2 max = ImVec2(ImGui::GetWindowPos().x  + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
+			ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImVec4(0.1f, 0.1f, 0.1f, 1.0f)), 1);
+			ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y+2), ImVec2(max.x, max.y + 2), ImGui::ColorConvertFloat4ToU32(ImVec4(0.2f, 0.2f, 0.2f, 1.0f)), 1);
+
+			ImGui::EndChild();
 
 			/*ImGui::BeginChild("Component View", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
 			if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
@@ -356,7 +376,7 @@ namespace LinaEditor
 
 				ImVec4 col = ImVec4(light->color.r, light->color.g, light->color.b, light->color.a);
 				float d = light->distance;
-				EditorUtility::ColorButton(&col.x);
+				WidgetsUtility::ColorButton(&col.x);
 				ImGui::DragFloat("Distance ", &d, dragSensitivity);
 				light->distance = d;
 				light->color = Color(col.x, col.y, col.z, col.w);
@@ -384,7 +404,7 @@ namespace LinaEditor
 				float d = light->distance;
 				float cutOff = light->cutOff;
 				float outerCutOff = light->outerCutOff;
-				EditorUtility::ColorButton(&col.x);
+				WidgetsUtility::ColorButton(&col.x);
 				ImGui::DragFloat("Distance ", &d, dragSensitivity);
 				ImGui::DragFloat("CutOff ", &cutOff, dragSensitivity);
 				ImGui::DragFloat("Outer Cutoff ", &outerCutOff, dragSensitivity);
@@ -416,7 +436,7 @@ namespace LinaEditor
 				float projectionSettings[4] = { light->shadowProjectionSettings.x, light->shadowProjectionSettings.y, light->shadowProjectionSettings.z, light->shadowProjectionSettings.w };
 				float dir[3] = { light->direction.x, light->direction.y, light->direction.z};
 
-				EditorUtility::ColorButton(&col.x);
+				WidgetsUtility::ColorButton(&col.x);
 				ImGui::InputFloat4("Shadow Projection ", projectionSettings, dragSensitivity);
 				ImGui::InputFloat("Shadow Near", &light->shadowNearPlane);
 				ImGui::InputFloat("Shadow Far", &light->shadowFarPlane);

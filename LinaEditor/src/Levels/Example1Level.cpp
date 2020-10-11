@@ -77,7 +77,7 @@ Texture*  aoFloor;
 bool Example1Level::Install()
 {
 	LINA_CLIENT_WARN("Example level 1 install.");
-	return true;
+
 	SamplerParameters pbrSampler;
 	pbrSampler.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
 	pbrSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;

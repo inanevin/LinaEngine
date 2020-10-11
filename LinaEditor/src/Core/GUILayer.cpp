@@ -137,11 +137,11 @@ namespace LinaEditor
 		style.PopupRounding = 3.0f;
 		style.FrameRounding = 0.0f;
 		style.ScrollbarRounding = 5.0f;
-		style.FramePadding = ImVec2(3, 5);
-		style.WindowPadding = ImVec2(8, 7);
+		style.FramePadding = ImVec2(0, 5);
+		style.WindowPadding = ImVec2(0, 0);
 		style.ItemInnerSpacing = ImVec2(8, 4);
 		style.GrabRounding = 6.0f;
-		style.ChildBorderSize = 1.0f;
+		style.ChildBorderSize = 0.0f;
 		style.TabBorderSize = 0.0f;
 		style.WindowMenuButtonPosition = ImGuiDir_None;
 		colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);

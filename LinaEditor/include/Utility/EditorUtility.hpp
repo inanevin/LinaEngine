@@ -34,6 +34,8 @@ namespace LinaEngine
 	}
 }
 
+struct ImVec4;
+
 namespace LinaEditor
 {
 	class EditorUtility
@@ -44,8 +46,6 @@ namespace LinaEditor
 		EditorUtility();
 		~EditorUtility();
 
-		static void EditorUtility::ColorButton(float* colorX);
-		static bool SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size);
 		static bool CreateFolderInPath(const std::string& path);
 		static bool GetDirectories(std::vector<std::string>& vec, const std::string& path);
 		static bool DeleteDirectory(const std::string& path);

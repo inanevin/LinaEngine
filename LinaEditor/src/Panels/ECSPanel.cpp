@@ -24,11 +24,7 @@ Timestamp: 5/23/2020 4:15:24 PM
 #include "Panels/PropertiesPanel.hpp"
 #include "Core/GUILayer.hpp"
 #include "Utility/Log.hpp"
-#include "Utility/EditorUtility.hpp"
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
-#include "imgui/imgui_internal.h"
+#include "Widgets/WidgetsUtility.hpp"
 #include <stdio.h>
 
 
@@ -103,7 +99,7 @@ namespace LinaEditor
 					entityCounter++;
 					ECSEntity& entity = *it;
 					strcpy(selectedEntityName, m_ECS->GetEntityName(entity).c_str());
-					if (EditorUtility::SelectableInput("entSelectable" + entityCounter, m_SelectedEntity == entity, ImGuiSelectableFlags_SelectOnClick, selectedEntityName, IM_ARRAYSIZE(selectedEntityName)))
+					if (WidgetsUtility::SelectableInput("entSelectable" + entityCounter, m_SelectedEntity == entity, ImGuiSelectableFlags_SelectOnClick, selectedEntityName, IM_ARRAYSIZE(selectedEntityName)))
 					{
 						m_SelectedEntity = entity;
 						m_ScenePanel->SetSelectedTransform(m_ECS->has<TransformComponent>(m_SelectedEntity) ? &m_ECS->get<TransformComponent>(m_SelectedEntity) : nullptr);
