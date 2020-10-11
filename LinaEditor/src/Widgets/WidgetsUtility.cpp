@@ -26,6 +26,7 @@ Timestamp: 10/11/2020 1:39:27 PM
 namespace LinaEditor
 {
 	int WidgetsUtility::s_debugCallCount = 0;
+	std::map<std::string, std::tuple<bool,bool>> WidgetsUtility::s_iconButtons;
 
 	void WidgetsUtility::ColorButton(float* colorX)
 	{
@@ -167,18 +168,16 @@ namespace LinaEditor
 
 	void WidgetsUtility::DrawShadowedLine(int height, const ImVec4& color, float thickness, ImVec2 min, ImVec2 max)
 	{
+
+		if (min.x == 0 && min.y == 0)
+			min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
+
+		if (max.x == 0 && max.y == 0)
+			max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
+
+		for (int i = 0; i < height; i++)
 		{
-
-			if (min.x == 0 && min.y == 0)
-				min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
-
-			if (max.x == 0 && max.y == 0)
-				max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
-
-			for (int i = 0; i < height; i++)
-			{
-				ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + thickness * i), ImVec2(max.x, max.y + thickness * i), ImGui::ColorConvertFloat4ToU32(ImVec4(color.x, color.y, color.z, LinaEngine::Math::Remap((float)i, 0.0f, (float)height, 1.0f, 0.0f))), thickness);
-			}
+			ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + thickness * i), ImVec2(max.x, max.y + thickness * i), ImGui::ColorConvertFloat4ToU32(ImVec4(color.x, color.y, color.z, LinaEngine::Math::Remap((float)i, 0.0f, (float)height, 1.0f, 0.0f))), thickness);
 		}
 	}
 
@@ -197,21 +196,10 @@ namespace LinaEditor
 	void WidgetsUtility::DrawComponentTitle(const char* title, const char* icon, bool* foldoutOpen, const ImVec4& iconColor)
 	{
 
-		// Colors for caret.
-		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ChildBg));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyleColorVec4(ImGuiCol_ChildBg));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_ChildBg));
-
 		// Caret button.
 		const char* caret = *foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
-		if (IconButton(caret, 30, 0.8f))
+		if (IconButtonNoDecoration(caret, 30, 0.8f))
 			*foldoutOpen = !*foldoutOpen;
-
-
-		// Pop colors for caret.
-		ImGui::PopStyleColor();
-		ImGui::PopStyleColor();
-		ImGui::PopStyleColor();
 
 		// Title.
 		ImGui::SameLine(); ImGui::AlignTextToFramePadding();
@@ -305,14 +293,46 @@ namespace LinaEditor
 		ImGui::PopStyleColor();
 	}
 
-	bool WidgetsUtility::IconButton(const char* label, float width, float scale)
+	bool WidgetsUtility::IconButtonNoDecoration(const char* label, float width, float scale)
 	{
+		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ChildBg));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyleColorVec4(ImGuiCol_ChildBg));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_ChildBg));
+
 		if (width != 0.0f)
 			ImGui::SetNextItemWidth(width);
 
 		PushScaledFont(scale);
-		bool pressed = ImGui::Button(label);
+		ImGui::Text(label);
+		bool pressed = ImGui::IsItemClicked();
 		PopScaledFont();
+
+		ImGui::PopStyleColor();
+		ImGui::PopStyleColor();
+		ImGui::PopStyleColor();
+
 		return pressed;
+	}
+
+
+	bool WidgetsUtility::IconButton(const char* id, const char* label, float width, float scale, const ImVec4& color, const ImVec4& hoverColor, const ImVec4& pressedColor)
+	{
+		if (width != 0.0f)
+			ImGui::SetNextItemWidth(width);
+
+		bool isHovered = std::get<0>(s_iconButtons[id]);
+		bool isPressed = std::get<1>(s_iconButtons[id]);
+
+		Icon(label, scale, isPressed ? pressedColor : (isHovered ? hoverColor : color));
+		float w = ImGui::GetItemRectSize().x * 1.5f;
+
+		bool pressed = ImGui::IsItemClicked();
+		bool hovered = ImGui::IsItemHovered();
+		bool beingPressed = hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
+		bool released = hovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left);
+		std::get<0>(s_iconButtons[id]) = hovered;
+		std::get<1>(s_iconButtons[id]) = hovered && beingPressed;
+
+		return released;
 	}
 }

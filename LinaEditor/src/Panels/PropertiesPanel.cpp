@@ -209,6 +209,13 @@ namespace LinaEditor
 			static bool b = false;	ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
 			WidgetsUtility::ToggleButton("##hideLabel", &b, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
 			
+			ImGui::SetCursorPosX(12);
+			WidgetsUtility::IncrementCursorPosY(6);
+			if (WidgetsUtility::IconButton("addcomp", ICON_FA_PLUS_SQUARE, 0.0f, 0.9f, ImVec4(1,1,1,0.8f), ImVec4(1,1,1,1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
+			{
+				std::cout << "hoooy";
+			}
+
 			// Bevel.
 			WidgetsUtility::IncrementCursorPosY(6.0f);
 			WidgetsUtility::DrawBeveledLine();
