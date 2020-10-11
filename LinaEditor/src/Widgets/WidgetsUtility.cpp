@@ -163,7 +163,7 @@ namespace LinaEditor
 		ImGui::EndChild();
 	}
 
-	void WidgetsUtility::DrawShadowedLine(const ImVec4& color, float thickness, ImVec2 min, ImVec2 max)
+	void WidgetsUtility::DrawShadowedLine(int height, const ImVec4& color, float thickness, ImVec2 min, ImVec2 max)
 	{
 		{
 
@@ -173,10 +173,22 @@ namespace LinaEditor
 			if (max.x == 0 && max.y == 0)
 				max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
 
-			for (int i = 0; i < 10; i++)
+			for (int i = 0; i < height; i++)
 			{
-				ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + thickness * i), ImVec2(max.x, max.y + thickness * i), ImGui::ColorConvertFloat4ToU32(ImVec4(color.x, color.y, color.z, Math::Remap((float)i, 0.0f, 10.0f, 1.0f, 0.0f))), thickness);
+				ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + thickness * i), ImVec2(max.x, max.y + thickness * i), ImGui::ColorConvertFloat4ToU32(ImVec4(color.x, color.y, color.z, LinaEngine::Math::Remap((float)i, 0.0f, (float)height, 1.0f, 0.0f))), thickness);
 			}
 		}
+	}
+
+	void WidgetsUtility::DrawBeveledLine(ImVec2 min, ImVec2 max)
+	{
+		if (min.x == 0 && min.y == 0)
+			min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
+
+		if (max.x == 0 && max.y == 0)
+			max = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
+
+		ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImVec4(0.1f, 0.1f, 0.1f, 1.0f)), 1);
+		ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + 2), ImVec2(max.x, max.y + 2), ImGui::ColorConvertFloat4ToU32(ImVec4(0.2f, 0.2f, 0.2f, 1.0f)), 1);
 	}
 }

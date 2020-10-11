@@ -178,12 +178,11 @@ namespace LinaEditor
 		
 	
 			ImGui::BeginChild("EntityProps");
-
-			
-
+	
+			WidgetsUtility::DrawShadowedLine(5);
 
 			// Align.
-			ImGui::SetCursorPos(ImVec2(12,ImGui::GetCursorPosY() + 10));	ImGui::AlignTextToFramePadding();	ImGui::Text(ICON_FA_CUBE);	ImGui::SameLine();
+			ImGui::SetCursorPos(ImVec2(12,ImGui::GetCursorPosY() + 15));	ImGui::AlignTextToFramePadding();	ImGui::Text(ICON_FA_CUBE);	ImGui::SameLine();
 
 			// Setup char.
 			static char entityName[64] = "";
@@ -206,11 +205,8 @@ namespace LinaEditor
 			WidgetsUtility::ToggleButton("##hideLabel", &b, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
 			
 
-			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 15);
-			ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y +  ImGui::GetCursorPosY());
-			ImVec2 max = ImVec2(ImGui::GetWindowPos().x  + ImGui::GetWindowWidth(), ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
-			ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImVec4(0.1f, 0.1f, 0.1f, 1.0f)), 1);
-			ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y+2), ImVec2(max.x, max.y + 2), ImGui::ColorConvertFloat4ToU32(ImVec4(0.2f, 0.2f, 0.2f, 1.0f)), 1);
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 7);
+			WidgetsUtility::DrawBeveledLine();
 
 			ImGui::EndChild();
 			
