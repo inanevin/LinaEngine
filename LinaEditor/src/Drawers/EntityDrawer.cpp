@@ -104,7 +104,7 @@ namespace LinaEditor
 		ecs->visit(entity, [](const auto component)
 			{
 				if (ComponentDrawer::s_componentDrawFuncMap.find(component) != ComponentDrawer::s_componentDrawFuncMap.end())
-					ComponentDrawer::s_componentDrawFuncMap[component]();
+					ComponentDrawer::s_componentDrawFuncMap[component](entity);
 			});
 
 

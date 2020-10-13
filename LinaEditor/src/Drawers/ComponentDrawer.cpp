@@ -36,11 +36,11 @@ using namespace LinaEditor;
 
 namespace LinaEditor
 {
-	std::map<entt::id_type, std::function<void()>> ComponentDrawer::s_componentDrawFuncMap;
+	std::map<entt::id_type, std::function<void(LinaEngine::ECS::ECSEntity)>> ComponentDrawer::s_componentDrawFuncMap;
 
 	void ComponentDrawer::RegisterComponentFunctions()
 	{
-		s_componentDrawFuncMap[entt::type_info<TransformComponent>::id()] = std::bind(&TransformComponent::COMPONENT_DRAWFUNC);
+		s_componentDrawFuncMap[entt::type_info<TransformComponent>::id()] = std::bind(&TransformComponent::COMPONENT_DRAWFUNC, std::placeholders::_1);
 	}
 
 	// Use reflection for gods sake later on.
@@ -95,17 +95,26 @@ namespace LinaEditor
 }
 
 
-void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC()
+void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSEntity entity)
 {
 	static bool open = false;
 	WidgetsUtility::DrawComponentTitle("Transformation", ICON_FA_ARROWS_ALT, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	if (open)
 	{
+		WidgetsUtility::AlignedText("Location"); ImGui::SameLine(); 
 
+		ImGui::Indent();
+		float a = transform->transform.m_location[0];
+		float rot[3] = { transform->transform.m_rotation.GetEuler().x, transform->transform.m_rotation.GetEuler().y, transform->transform.m_rotation.GetEuler().z };
+		WidgetsUtility::AlignedText("Location"); ImGui::SameLine(); ImGui::InputFloat3("", transform->transform.m_location.Get());
+		WidgetsUtility::AlignedText("Rotation"); ImGui::SameLine(); ImGui::InputFloat3("", rot);
+		WidgetsUtility::AlignedText("Scale"); ImGui::SameLine(); ImGui::InputFloat3("", transform->transform.m_scale.Get());
+		transform->transform.m_rotation = Quaternion::Euler(rot[0], rot[1], rot[2]);
+		ImGui::Unindent();
 	}
 
 	WidgetsUtility::DrawBeveledLine();
 	WidgetsUtility::IncrementCursorPosY(15);
-	WidgetsUtility::CenterCursorX();
+	
 }
