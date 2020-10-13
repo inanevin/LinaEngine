@@ -23,12 +23,7 @@ Timestamp: 10/12/2020 1:02:39 AM
 #include "Widgets/WidgetsUtility.hpp"
 #include "IconsFontAwesome5.h"
 #include "Modals/SelectComponentModal.hpp"
-#include "ECS/Components/TransformComponent.hpp"
-#include "ECS/Components/CameraComponent.hpp"
-#include "ECS/Components/LightComponent.hpp"
-#include "ECS/Components/FreeLookComponent.hpp"
-#include "ECS/Components/MeshRendererComponent.hpp"
-#include "ECS/Components/RigidbodyComponent.hpp"
+#include "Drawers/ComponentDrawer.hpp"
 
 using namespace LinaEngine::ECS;
 
@@ -104,6 +99,11 @@ namespace LinaEditor
 		WidgetsUtility::IncrementCursorPosY(6.0f);
 		WidgetsUtility::DrawBeveledLine();
 
+		// Visit each component an entity has & call the draw functions.
+		ecs->visit(entity, [](const auto component) 
+		{
+			ComponentDrawer::s_componentDrawFuncMap[component]();
+		});
 
 		ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(15);
 		static bool open = false;
@@ -117,6 +117,8 @@ namespace LinaEditor
 		WidgetsUtility::DrawBeveledLine();
 		WidgetsUtility::IncrementCursorPosY(15);
 		WidgetsUtility::CenterCursorX();
+
+		
 
 		//if (ImGui::Button(ICON_FA_PLUS, ImVec2(WidgetsUtility::DebugFloat(), WidgetsUtility::DebugFloat())))
 		//{

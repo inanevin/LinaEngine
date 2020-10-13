@@ -30,6 +30,7 @@ src/Core/SplashScreen.cpp
 
 #Drawers
 src/Drawers/EntityDrawer.cpp
+src/Drawers/ComponentDrawer.cpp
 
 #Modals
 src/Modals/SelectComponentModal.cpp
@@ -86,6 +87,7 @@ include/Levels/GroundCubeComponent.hpp
 
 #Drawers
 include/Drawers/EntityDrawer.hpp
+include/Drawers/ComponentDrawer.hpp
 
 # Modals
 include/Modals/SelectComponentModal.hpp
@@ -145,6 +147,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/Ico
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 option(LINA_CLIENT_ENABLE_LOGGING "Enables console logging" ON)
+
+add_compile_definitions(LINA_EDITOR)
 
 if(LINA_CLIENT_ENABLE_LOGGING)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_CLIENT_ENABLE_LOGGING=1)

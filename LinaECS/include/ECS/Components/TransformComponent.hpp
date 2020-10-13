@@ -31,12 +31,17 @@ namespace LinaEngine::ECS
 	struct TransformComponent : public ECSComponent
 	{
 		LinaEngine::Transformation transform;
-
+	
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
 			archive(transform); // serialize things by passing them to the archive
 		}
+
+#ifdef LINA_EDITOR
+		static void Draw();
+#endif
+
 	};
 }
 
