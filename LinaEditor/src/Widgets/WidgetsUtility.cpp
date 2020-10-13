@@ -194,7 +194,7 @@ namespace LinaEditor
 		ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + 2), ImVec2(max.x, max.y + 2), ImGui::ColorConvertFloat4ToU32(ImVec4(0.2f, 0.2f, 0.2f, 1.0f)), 1);
 	}
 
-	bool WidgetsUtility::DrawComponentTitle(const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor)
+	bool WidgetsUtility::DrawComponentTitle(const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor, const ImVec2& iconOffset)
 	{
 		// Caret button.
 		const char* caret = *foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
@@ -209,8 +209,10 @@ namespace LinaEditor
 
 		// Icon
 		WidgetsUtility::IncrementCursorPosY(6);
+		WidgetsUtility::IncrementCursorPos(iconOffset);
 		Icon(icon, 0.6f, iconColor);
-		
+		WidgetsUtility::IncrementCursorPos(ImVec2(-iconOffset.x, -iconOffset.y));
+
 		// Enabled toggle
 		std::string buf(title); buf.append("t");
 		ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
@@ -260,7 +262,7 @@ namespace LinaEditor
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + f);
 	}
 
-	void WidgetsUtility::IncrementCursorPos(const LinaEngine::Vector2& v)
+	void WidgetsUtility::IncrementCursorPos(const  ImVec2& v)
 	{
 		ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + v.x, ImGui::GetCursorPosY() + v.y));
 	}
