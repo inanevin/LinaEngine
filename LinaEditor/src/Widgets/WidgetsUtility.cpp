@@ -277,6 +277,10 @@ namespace LinaEditor
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, amt));
 	}
+	void WidgetsUtility::FrameRounding(float rounding)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, rounding);
+	}
 	void WidgetsUtility::PopStyleVar()
 	{
 		ImGui::PopStyleVar();
@@ -332,5 +336,12 @@ namespace LinaEditor
 		std::get<1>(s_iconButtons[id]) = hovered && beingPressed;
 
 		return released;
+	}
+	bool WidgetsUtility::Button(const char* label, const ImVec2& size)
+	{
+		FrameRounding(2.0f);
+		bool button = ImGui::Button(label, size);
+		PopStyleVar();
+		return button;
 	}
 }

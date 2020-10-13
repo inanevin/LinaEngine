@@ -59,12 +59,12 @@ namespace LinaEditor
 		WidgetsUtility::CenterCursorX();
 		WidgetsUtility::IncrementCursorPosX(-80);
 
-		if (ImGui::Button("Add Selected"))
+		if (WidgetsUtility::Button("Add Selected"))
 		{
 
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("Close"))
+		if (WidgetsUtility::Button("Close"))
 		{
 			ImGui::CloseCurrentPopup();
 		}

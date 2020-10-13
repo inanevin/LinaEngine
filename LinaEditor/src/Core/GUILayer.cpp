@@ -143,6 +143,7 @@ namespace LinaEditor
 		style.GrabRounding = 6.0f;
 		style.ChildBorderSize = 0.0f;
 		style.TabBorderSize = 0.0f;
+		style.WindowBorderSize = 0.0f;
 		style.WindowMenuButtonPosition = ImGuiDir_None;
 		colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 		colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
