@@ -35,7 +35,7 @@ namespace LinaEngine::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(materialID); // serialize things by passing them to the archive
+			archive(materialID, m_isEnabled); // serialize things by passing them to the archive
 		}
 	};
 }

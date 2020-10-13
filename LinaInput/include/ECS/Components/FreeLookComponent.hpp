@@ -39,7 +39,7 @@ namespace LinaEngine::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(movementSpeedX, movementSpeedZ, rotationSpeedX, rotationSpeedY, horizontalAngle, verticalAngle); // serialize things by passing them to the archive
+			archive(movementSpeedX, movementSpeedZ, rotationSpeedX, rotationSpeedY, horizontalAngle, verticalAngle, m_isEnabled); // serialize things by passing them to the archive
 		}
 	};
 }

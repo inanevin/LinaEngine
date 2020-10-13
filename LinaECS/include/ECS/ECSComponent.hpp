@@ -36,8 +36,10 @@ namespace LinaEngine::ECS
 	class ECSComponent
 	{
 	public:
+
 		ECSComponent() {};
 		virtual ~ECSComponent() {};
+		bool m_isEnabled = true;
 	
 	};
 }

@@ -34,9 +34,13 @@ namespace LinaEngine::ECS
 
 		for (auto entity : view)
 		{
+			// Free look
+			FreeLookComponent& freeLook = m_Registry->get<FreeLookComponent>(entity);		
+			if (!freeLook.m_isEnabled) continue;
+
+			// Transform.
 			TransformComponent& transform = m_Registry->get<TransformComponent>(entity);
-			FreeLookComponent& freeLook = m_Registry->get<FreeLookComponent>(entity);
-		
+
 			// Disable cursor upon starting mouse look.
 			if (inputEngine->GetMouseButtonDown(LinaEngine::Input::InputCode::Mouse::Mouse2))
 				inputEngine->SetCursorMode(LinaEngine::Input::CursorMode::Disabled);

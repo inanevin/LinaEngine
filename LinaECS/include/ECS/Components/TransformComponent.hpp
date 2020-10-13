@@ -35,7 +35,7 @@ namespace LinaEngine::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(transform); // serialize things by passing them to the archive
+			archive(transform, m_isEnabled); // serialize things by passing them to the archive
 		}
 
 #ifdef LINA_EDITOR

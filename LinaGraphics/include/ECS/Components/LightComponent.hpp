@@ -38,7 +38,7 @@ namespace LinaEngine::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(color); // serialize things by passing them to the archive
+			archive(color, m_isEnabled); // serialize things by passing them to the archive
 		}
 	};
 
@@ -49,7 +49,7 @@ namespace LinaEngine::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(distance, color); // serialize things by passing them to the archive
+			archive(distance, color, m_isEnabled); // serialize things by passing them to the archive
 		}
 	};
 
@@ -63,7 +63,7 @@ namespace LinaEngine::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(color, direction, distance, cutOff, outerCutOff); // serialize things by passing them to the archive
+			archive(color, direction, distance, cutOff, outerCutOff, m_isEnabled); // serialize things by passing them to the archive
 		}
 	};
 
@@ -77,7 +77,7 @@ namespace LinaEngine::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(shadowProjectionSettings, shadowNearPlane, shadowFarPlane, color, direction); // serialize things by passing them to the archive
+			archive(shadowProjectionSettings, shadowNearPlane, shadowFarPlane, color, direction, m_isEnabled); // serialize things by passing them to the archive
 		}
 	};
 }

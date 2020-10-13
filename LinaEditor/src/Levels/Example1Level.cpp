@@ -207,7 +207,6 @@ void Example1Level::Initialize()
 	auto& camTransform = m_ECS->emplace<TransformComponent>(camera);
 	auto& camCamera = m_ECS->emplace<CameraComponent>(camera);
 	camTransform.transform.m_location = Vector3(0,5,-5);
-	camCamera.isActive = true;
 	camFreeLook.movementSpeedX = camFreeLook.movementSpeedZ = 12.0f;
 	camFreeLook.rotationSpeedX = camFreeLook.rotationSpeedY = 3;
 

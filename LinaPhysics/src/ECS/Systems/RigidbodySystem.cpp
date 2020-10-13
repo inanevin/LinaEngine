@@ -29,11 +29,16 @@ namespace LinaEngine::ECS
 	{
 		auto view = m_Registry->view<TransformComponent, RigidbodyComponent>();
 
-
 		for (auto entity : view)
 		{
-			TransformComponent& transform = view.get<TransformComponent>(entity);
+			// Rigidbody
 			RigidbodyComponent& rbComponent = view.get<RigidbodyComponent>(entity);
+			if (!rbComponent.m_isEnabled) continue;
+
+			// Transform
+			TransformComponent& transform = view.get<TransformComponent>(entity);
+
+			// Bt body.
 			btRigidBody* rb = m_physicsEngine->GetActiveRigidbody(rbComponent.m_bodyID);
 
 			// Get transform.

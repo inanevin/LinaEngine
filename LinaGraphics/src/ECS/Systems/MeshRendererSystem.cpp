@@ -36,8 +36,12 @@ namespace LinaEngine::ECS
 
 		for (auto entity : view)
 		{
-			TransformComponent& transform = view.get<TransformComponent>(entity);
+			// Mesh renderer
 			MeshRendererComponent& renderer = view.get<MeshRendererComponent>(entity);
+			if (!renderer.m_isEnabled) return;
+
+			// Transform
+			TransformComponent& transform = view.get<TransformComponent>(entity);
 
 			// Render different batches.
 			Graphics::Material& mat = m_RenderEngine->GetMaterial(renderer.materialID);

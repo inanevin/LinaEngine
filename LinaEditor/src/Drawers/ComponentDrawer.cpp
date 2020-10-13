@@ -109,13 +109,16 @@ const char* rigidbodyShapes[]
 
 void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
 {
+	// Get component
+	TransformComponent& transform = ecs->get<TransformComponent>(entity);
+
 	// Align.
 	WidgetsUtility::IncrementCursorPosY(15);
 	WidgetsUtility::IncrementCursorPosX(12);
 
 	// Draw title.
 	static bool open = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle("Transformation", ICON_FA_ARROWS_ALT, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool removeComponent = WidgetsUtility::DrawComponentTitle("Transformation", ICON_FA_ARROWS_ALT, &transform.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -124,8 +127,7 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		return;
 	}
 
-	// Draw component.
-	TransformComponent& transform = ecs->get<TransformComponent>(entity);
+	// Draw component
 	if (open)
 	{
 		float cursorPosInputs = ImGui::GetWindowSize().x * 0.32f;
@@ -144,13 +146,16 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 
 void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
 {
+	// Get component
+	RigidbodyComponent& rb = ecs->get<RigidbodyComponent>(entity);
+
 	// Align.
 	WidgetsUtility::IncrementCursorPosY(15);
 	WidgetsUtility::IncrementCursorPosX(12);
 
 	// Draw title.
 	static bool open = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle("Rigidbody", ICON_FA_BOX, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool removeComponent = WidgetsUtility::DrawComponentTitle("Rigidbody", ICON_FA_BOX, &rb.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -160,7 +165,6 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	}
 
 	// Draw component.
-	RigidbodyComponent& rb = ecs->get<RigidbodyComponent>(entity);
 	if (open)
 	{
 		float cursorPos = ImGui::GetWindowSize().x * 0.32f;
@@ -221,13 +225,16 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 
 void LinaEngine::ECS::CameraComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
 {
+	// Get component
+	CameraComponent& camera = ecs->get<CameraComponent>(entity);
+
 	// Align.
 	WidgetsUtility::IncrementCursorPosY(15);
 	WidgetsUtility::IncrementCursorPosX(12);
 
 	// Draw title.
 	static bool open = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle("Camera", ICON_FA_CAMERA, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool removeComponent = WidgetsUtility::DrawComponentTitle("Camera", ICON_FA_CAMERA, &camera.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -237,7 +244,6 @@ void LinaEngine::ECS::CameraComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRe
 	}
 
 	// Draw component.
-	CameraComponent& Camera = ecs->get<CameraComponent>(entity);
 	if (open)
 	{
 		float cursorPosInputs = ImGui::GetWindowSize().x * 0.32f;

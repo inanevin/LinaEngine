@@ -120,7 +120,7 @@ namespace LinaEditor
 		return ret;
 	}
 
-	bool WidgetsUtility::ToggleButton(char* label, bool* v, float heightMultiplier, float widthMultiplier, const ImVec4& activeColor, const ImVec4& activeHoveredColor, const ImVec4& inactiveColor, const ImVec4& inactiveHoveredColor)
+	bool WidgetsUtility::ToggleButton(const char* label, bool* v, float heightMultiplier, float widthMultiplier, const ImVec4& activeColor, const ImVec4& activeHoveredColor, const ImVec4& inactiveColor, const ImVec4& inactiveHoveredColor)
 	{
 		ImVec2 p = ImGui::GetCursorScreenPos();
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -193,9 +193,8 @@ namespace LinaEditor
 		ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + 2), ImVec2(max.x, max.y + 2), ImGui::ColorConvertFloat4ToU32(ImVec4(0.2f, 0.2f, 0.2f, 1.0f)), 1);
 	}
 
-	bool WidgetsUtility::DrawComponentTitle(const char* title, const char* icon, bool* foldoutOpen, const ImVec4& iconColor)
+	bool WidgetsUtility::DrawComponentTitle(const char* title, const char* icon, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor)
 	{
-
 		// Caret button.
 		const char* caret = *foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
 		if (IconButtonNoDecoration(caret, 30, 0.8f))
@@ -210,10 +209,16 @@ namespace LinaEditor
 		// Icon
 		WidgetsUtility::IncrementCursorPosY(6);
 		Icon(icon, 0.6f, iconColor);
-
+		
+		// Enabled toggle
+		ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
+		std::string buf(title); buf.append("tgl");
+		ImGui::SameLine();  ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 65);	IncrementCursorPosY(-4);	
+		ToggleButton(buf.c_str(), enabled, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
+		
 		// Close button
-		ImGui::SameLine();  ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 20);
-		std::string buf(title); buf.append("cb");
+		buf.append("cb");		
+		ImGui::SameLine(); ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 20); IncrementCursorPosY(4);
 		return IconButton(buf.c_str(), ICON_FA_TIMES, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
 	}
 

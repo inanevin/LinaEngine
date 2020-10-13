@@ -34,12 +34,11 @@ namespace LinaEngine::ECS
 		float fieldOfView = 90.0f;
 		float zNear = 0.01f;
 		float zFar = 1000.0f;
-		bool isActive = false;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(clearColor, fieldOfView, zNear, zFar, isActive); // serialize things by passing them to the archive
+			archive(clearColor, fieldOfView, zNear, zFar, m_isEnabled); // serialize things by passing them to the archive
 		}
 
 #ifdef LINA_EDITOR
