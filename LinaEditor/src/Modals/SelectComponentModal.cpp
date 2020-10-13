@@ -56,15 +56,16 @@ namespace LinaEditor
 
 		ImGui::EndChild();
 		WidgetsUtility::IncrementCursorPosY(15);
-		WidgetsUtility::CenterCursorX();
-		WidgetsUtility::IncrementCursorPosX(-80);
+		WidgetsUtility::IncrementCursorPosX(10);
 
-		if (WidgetsUtility::Button("Add Selected"))
+		if (WidgetsUtility::Button("Add Selected", ImVec2(ImGui::GetWindowSize().x * 0.5f - 20, 0.0f)))
 		{
 
 		}
+
 		ImGui::SameLine();
-		if (WidgetsUtility::Button("Close"))
+		WidgetsUtility::IncrementCursorPosX(10);
+		if (WidgetsUtility::Button("Close", ImVec2(ImGui::GetWindowSize().x * 0.5f - 20, 0.0f)))
 		{
 			ImGui::CloseCurrentPopup();
 		}

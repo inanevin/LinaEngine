@@ -56,7 +56,7 @@ namespace LinaEditor
 		static void CenterCursorX();
 		static void CenterCursorY();
 		static void CenterCursor();
-		static float DebugFloat(const char* id = "debug");
+		static float DebugFloat(const char* id = "debug", bool currentWindow = false);
 		static void PushScaledFont(float defaultScale = 0.6f);
 		static void PopScaledFont();
 		static void FramePaddingX(float amt);

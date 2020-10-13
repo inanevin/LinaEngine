@@ -25,7 +25,7 @@ Timestamp: 10/11/2020 1:39:27 PM
 
 namespace LinaEditor
 {
-	std::map<std::string, std::tuple<bool,bool>> WidgetsUtility::s_iconButtons;
+	std::map<std::string, std::tuple<bool, bool>> WidgetsUtility::s_iconButtons;
 	std::map<std::string, float> WidgetsUtility::s_debugFloats;
 
 	void WidgetsUtility::ColorButton(float* colorX)
@@ -250,11 +250,16 @@ namespace LinaEditor
 		CenterCursorY();
 	}
 
-	float WidgetsUtility::DebugFloat(const char* id)
+	float WidgetsUtility::DebugFloat(const char* id, bool currentWindow)
 	{
-		ImGui::Begin(id);
+		if (!currentWindow)
+			ImGui::Begin(id);
+		
 		ImGui::InputFloat("Debug", &s_debugFloats[id]);
-		ImGui::End();
+
+		if (!currentWindow)
+			ImGui::End();
+
 		return s_debugFloats[id];
 	}
 
