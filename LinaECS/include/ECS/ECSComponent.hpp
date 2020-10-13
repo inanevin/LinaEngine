@@ -25,7 +25,8 @@ Timestamp: 5/23/2020 5:17:02 PM
 // Headers here.
 
 #ifdef LINA_EDITOR
-#define COMPONENT_DRAWFUNC_SIG static void Draw(LinaEngine::ECS::ECSEntity entity);
+#include "ECS/ECS.hpp"
+#define COMPONENT_DRAWFUNC_SIG static void Draw(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity);
 #define COMPONENT_DRAWFUNC Draw
 #endif
 

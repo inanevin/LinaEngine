@@ -101,10 +101,10 @@ namespace LinaEditor
 
 		ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(15);
 		// Visit each component an entity has & call the draw functions.
-		ecs->visit(entity, [](const auto component)
+		ecs->visit(entity, [ecs, entity](const auto component)
 			{
 				if (ComponentDrawer::s_componentDrawFuncMap.find(component) != ComponentDrawer::s_componentDrawFuncMap.end())
-					ComponentDrawer::s_componentDrawFuncMap[component](entity);
+					ComponentDrawer::s_componentDrawFuncMap[component](ecs, entity);
 			});
 
 

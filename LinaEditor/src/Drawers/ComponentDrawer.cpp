@@ -36,11 +36,11 @@ using namespace LinaEditor;
 
 namespace LinaEditor
 {
-	std::map<entt::id_type, std::function<void(LinaEngine::ECS::ECSEntity)>> ComponentDrawer::s_componentDrawFuncMap;
+	std::map<entt::id_type, std::function<void(LinaEngine::ECS::ECSRegistry*, LinaEngine::ECS::ECSEntity)>> ComponentDrawer::s_componentDrawFuncMap;
 
 	void ComponentDrawer::RegisterComponentFunctions()
 	{
-		s_componentDrawFuncMap[entt::type_info<TransformComponent>::id()] = std::bind(&TransformComponent::COMPONENT_DRAWFUNC, std::placeholders::_1);
+		s_componentDrawFuncMap[entt::type_info<TransformComponent>::id()] = std::bind(&TransformComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
 	}
 
 	// Use reflection for gods sake later on.
@@ -91,14 +91,14 @@ namespace LinaEditor
 
 	}
 
-	
 }
 
 
-void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSEntity entity)
+void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
 {
 	static bool open = false;
 	WidgetsUtility::DrawComponentTitle("Transformation", ICON_FA_ARROWS_ALT, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	TransformComponent* transform = &ecs->get<TransformComponent>(entity);
 
 	if (open)
 	{

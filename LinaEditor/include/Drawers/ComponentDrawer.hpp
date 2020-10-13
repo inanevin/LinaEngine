@@ -35,12 +35,13 @@ namespace LinaEditor
 	public:
 		
 		static void RegisterComponentFunctions();
+		static std::vector<std::string> GetEligibleComponents(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity);
+		static void AddComponentToEntity(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity, const std::string& comp);
 
 	public:
 
-		static std::map<entt::id_type, std::function<void(LinaEngine::ECS::ECSEntity)>> s_componentDrawFuncMap;
-		static std::vector<std::string> GetEligibleComponents(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity);
-		static void AddComponentToEntity(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity, const std::string& comp);
+		static std::map<entt::id_type, std::function<void(LinaEngine::ECS::ECSRegistry*, LinaEngine::ECS::ECSEntity)>> s_componentDrawFuncMap;
+
 	
 	};
 }
