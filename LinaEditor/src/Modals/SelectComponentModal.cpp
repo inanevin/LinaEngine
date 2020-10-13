@@ -30,8 +30,9 @@ Timestamp: 10/12/2020 12:45:51 AM
 
 namespace LinaEditor
 {
-	void SelectComponentModal::Draw(const std::vector<std::string>& types)
+	std::vector<std::string> SelectComponentModal::Draw(const std::vector<std::string>& types)
 	{
+		std::vector<std::string> v;
 
 		ImGui::BeginChild("SelectComponentModalChild", ImVec2(0, 300), true);
 		WidgetsUtility::IncrementCursorPosY(5);
@@ -60,7 +61,13 @@ namespace LinaEditor
 
 		if (WidgetsUtility::Button("Add Selected", ImVec2(ImGui::GetWindowSize().x * 0.5f - 20, 0.0f)))
 		{
+			for (int i = 0; i < types.size(); i++)
+			{
+				if (selection[i])
+					v.push_back(types[i]);
+			}
 
+			ImGui::CloseCurrentPopup();
 		}
 
 		ImGui::SameLine();
@@ -70,5 +77,6 @@ namespace LinaEditor
 			ImGui::CloseCurrentPopup();
 		}
 
+		return v;
 	}
 }

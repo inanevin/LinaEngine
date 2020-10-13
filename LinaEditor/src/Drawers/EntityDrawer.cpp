@@ -89,8 +89,13 @@ namespace LinaEditor
 		if (ImGui::BeginPopupModal("Select Component", &o, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 		{
 			std::vector<std::string> types = GetEligibleComponents(ecs, entity);
-			SelectComponentModal::Draw(types);
-			ImGui::EndPopup();
+			std::vector<std::string> chosenComponents = SelectComponentModal::Draw(types);
+
+			// Add the selected components to the entity.
+			for (int i = 0; i < chosenComponents.size(); i++)
+				AddComponentToEntity(ecs, entity, chosenComponents[i]);
+
+;			ImGui::EndPopup();
 		}
 		WidgetsUtility::PopStyleVar();
 		WidgetsUtility::PopStyleVar();
@@ -186,5 +191,28 @@ namespace LinaEditor
 			eligibleTypes.push_back("Rigidbody");
 
 		return eligibleTypes;
+	}
+
+	void EntityDrawer::AddComponentToEntity(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity, const std::string& comp)
+	{
+
+		LINA_CLIENT_TRACE(comp);
+		if (comp.compare("Transformation") == 0)
+			ecs->emplace<TransformComponent>(entity, TransformComponent());
+		else if (comp.compare("MeshRenderer") == 0)
+			ecs->emplace<MeshRendererComponent>(entity, MeshRendererComponent());
+		else if (comp.compare("Camera") == 0)
+			ecs->emplace<CameraComponent>(entity, CameraComponent());
+		else if (comp.compare("FreeLook") == 0)
+			ecs->emplace<FreeLookComponent>(entity, FreeLookComponent());
+		else if (comp.compare("PointLight") == 0)
+			ecs->emplace<PointLightComponent>(entity, PointLightComponent());
+		else if (comp.compare("SpotLight") == 0)
+			ecs->emplace<SpotLightComponent>(entity, SpotLightComponent());
+		else if (comp.compare("DirectionalLight") == 0)
+			ecs->emplace<DirectionalLightComponent>(entity, DirectionalLightComponent());
+		else if (comp.compare("Rigidbody") == 0)
+			ecs->emplace<RigidbodyComponent>(entity,RigidbodyComponent());
+
 	}
 }

@@ -39,8 +39,8 @@ namespace LinaEditor
 		~EntityDrawer();
 	
 		static void DrawEntity(LinaEngine::ECS::ECSRegistry* reg, LinaEngine::ECS::ECSEntity entity, bool* copySelectedEntityName);
-		static std::vector<std::string> GetEligibleComponents(LinaEngine::ECS::ECSRegistry* reg, LinaEngine::ECS::ECSEntity entity);
-
+		static std::vector<std::string> GetEligibleComponents(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity);
+		static void AddComponentToEntity(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity, const std::string& comp);
 	
 	};
 }

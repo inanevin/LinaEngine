@@ -35,7 +35,7 @@ namespace LinaEditor
 		SelectComponentModal();
 		~SelectComponentModal();
 	
-		static void Draw(const std::vector<std::string>& types);
+		static std::vector<std::string> Draw(const std::vector<std::string>& types);
 
 	private:
 	
