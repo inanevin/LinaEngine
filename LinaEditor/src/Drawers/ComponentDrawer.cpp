@@ -96,7 +96,9 @@ namespace LinaEditor
 
 }
 
-
+#define CURSORPOS_X_LABELS 12
+#define CURSORPOS_Y_INCREMENT 15
+#define CURSORPOS_XPERC_VALUES 0.32f
 
 const char* rigidbodyShapes[]
 {
@@ -113,8 +115,8 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	TransformComponent& transform = ecs->get<TransformComponent>(entity);
 
 	// Align.
-	WidgetsUtility::IncrementCursorPosY(15);
-	WidgetsUtility::IncrementCursorPosX(12);
+	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT);
+	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
 
 	// Draw title.
 	static bool open = false;
@@ -130,11 +132,11 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	// Draw component
 	if (open)
 	{
-		float cursorPosInputs = ImGui::GetWindowSize().x * 0.32f;
-		float cursorPosLabels = 12;
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Location"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosInputs); ImGui::DragFloat3("##loc", transform.transform.m_location.Get());
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Rotation"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosInputs); WidgetsUtility::DragQuaternion("##rot", transform.transform.m_rotation);
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Scale");	 ImGui::SameLine();	ImGui::SetCursorPosX(cursorPosInputs); ImGui::DragFloat3("##scale", transform.transform.m_scale.Get());
+		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
+		float cursorPosLabels = CURSORPOS_X_LABELS;
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Location"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat3("##loc", transform.transform.m_location.Get());
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Rotation"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); WidgetsUtility::DragQuaternion("##rot", transform.transform.m_rotation);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Scale");	 ImGui::SameLine();	ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat3("##scale", transform.transform.m_scale.Get());
 		WidgetsUtility::IncrementCursorPosY(6.5f);
 
 	}
@@ -150,8 +152,8 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	RigidbodyComponent& rb = ecs->get<RigidbodyComponent>(entity);
 
 	// Align.
-	WidgetsUtility::IncrementCursorPosY(15);
-	WidgetsUtility::IncrementCursorPosX(12);
+	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT);
+	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
 
 	// Draw title.
 	static bool open = false;
@@ -167,8 +169,8 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	// Draw component.
 	if (open)
 	{
-		float cursorPos = ImGui::GetWindowSize().x * 0.32f;
-		float cursorPosLabels = 12;
+		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
+		float cursorPosLabels = CURSORPOS_X_LABELS;
 
 		ComponentDrawer::s_currentCollisionShape = (int)rb.m_collisionShape;
 
@@ -177,7 +179,7 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		static ECS::CollisionShape selectedCollisionShape = rb.m_collisionShape;
 		const char* collisionShapeLabel = rigidbodyShapes[ComponentDrawer::s_currentCollisionShape];
 
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Shape"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPos);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Shape"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues);
 		if (ImGui::BeginCombo("##collshape", collisionShapeLabel, flags))
 		{
 			for (int i = 0; i < IM_ARRAYSIZE(rigidbodyShapes); i++)
@@ -197,26 +199,27 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 
 		}
 
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Mass"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPos);  ImGui::DragFloat("##mass", &rb.m_mass);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Mass"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues);  ImGui::DragFloat("##mass", &rb.m_mass);
 
 		if (rb.m_collisionShape == ECS::CollisionShape::BOX || rb.m_collisionShape == ECS::CollisionShape::CYLINDER)
 		{
-			ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Half Extents"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPos); ImGui::DragFloat3("##halfextents", &rb.m_halfExtents.x);
+			ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Half Extents"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat3("##halfextents", &rb.m_halfExtents.x);
 		}
 		else if (rb.m_collisionShape == ECS::CollisionShape::SPHERE)
 		{
-			ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Radius"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPos); ImGui::DragFloat("##radius", &rb.m_radius);
+			ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Radius"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##radius", &rb.m_radius);
 		}
 		else if (rb.m_collisionShape == ECS::CollisionShape::CAPSULE)
 		{
-			ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Radius"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPos); ImGui::DragFloat("##radius", &rb.m_radius);
-			ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Height"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPos); ImGui::DragFloat("##height", &rb.m_capsuleHeight);
+			ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Radius"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##radius", &rb.m_radius);
+			ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Height"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##height", &rb.m_capsuleHeight);
 		}
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		if (ImGui::Button("Apply"))
 			ecs->replace<LinaEngine::ECS::RigidbodyComponent>(entity, rb);
 
+		WidgetsUtility::IncrementCursorPosY(6.5f);
 	}
 
 	// Draw bevel line
@@ -229,8 +232,8 @@ void LinaEngine::ECS::CameraComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRe
 	CameraComponent& camera = ecs->get<CameraComponent>(entity);
 
 	// Align.
-	WidgetsUtility::IncrementCursorPosY(15);
-	WidgetsUtility::IncrementCursorPosX(12);
+	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT);
+	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
 
 	// Draw title.
 	static bool open = false;
@@ -246,13 +249,13 @@ void LinaEngine::ECS::CameraComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRe
 	// Draw component.
 	if (open)
 	{
-		float cursorPosInputs = ImGui::GetWindowSize().x * 0.32f;
-		float cursorPosLabels = 12;
-		//ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Location"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosInputs); ImGui::DragFloat3("##loc", Camera.Camera.m_location.Get());
-		//ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Rotation"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosInputs); WidgetsUtility::DragQuaternion("##rot", Camera.Camera.m_rotation);
-		//ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Scale");	 ImGui::SameLine();	ImGui::SetCursorPosX(cursorPosInputs); ImGui::DragFloat3("##scale", Camera.Camera.m_scale.Get());
+		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
+		float cursorPosLabels = CURSORPOS_X_LABELS;
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Field of View"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##fov", &camera.fieldOfView);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Near Plane");	 ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##zNear", &camera.zNear);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Far Plane");	 ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##zFar", &camera.zFar);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Clear Color");	 ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); WidgetsUtility::ColorButton(&camera.clearColor.r);
 		WidgetsUtility::IncrementCursorPosY(6.5f);
-
 	}
 
 	// Draw bevel line.

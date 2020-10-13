@@ -52,8 +52,6 @@ namespace LinaEditor
 
 		static ImVec4 backup_color;
 		bool open_popup = ImGui::ColorButton("MyColor##3b", ImVec4(colorX[0], colorX[1], colorX[2], colorX[3]), misc_flags);
-		ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
-		open_popup |= ImGui::Button("Light Color");
 		if (open_popup)
 		{
 			ImGui::OpenPopup("mypicker");
