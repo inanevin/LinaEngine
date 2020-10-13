@@ -28,7 +28,7 @@ namespace LinaEditor
 	std::map<std::string, std::tuple<bool, bool>> WidgetsUtility::s_iconButtons;
 	std::map<std::string, float> WidgetsUtility::s_debugFloats;
 
-	void WidgetsUtility::ColorButton(float* colorX)
+	void WidgetsUtility::ColorButton(const char* id, float* colorX)
 	{
 		static bool alpha_preview = true;
 		static bool alpha_half_preview = false;
@@ -50,25 +50,28 @@ namespace LinaEditor
 			saved_palette_init = false;
 		}
 
-		static ImVec4 backup_color;
-		bool open_popup = ImGui::ColorButton("MyColor##3b", ImVec4(colorX[0], colorX[1], colorX[2], colorX[3]), misc_flags);
+		std::string buf(id);
+		static ImVec4 backup_color;	
+		bool open_popup = ImGui::ColorButton(buf.c_str(), ImVec4(colorX[0], colorX[1], colorX[2], colorX[3]), misc_flags);
+		buf.append("##p");
 		if (open_popup)
 		{
-			ImGui::OpenPopup("mypicker");
+			ImGui::OpenPopup(buf.c_str());
 			backup_color = ImVec4(colorX[0], colorX[1], colorX[2], colorX[3]);
 		}
-		if (ImGui::BeginPopup("mypicker"))
+		if (ImGui::BeginPopup(buf.c_str()))
 		{
 			ImGui::PushItemWidth(160);
 
-			ImGui::Text("Color Picker!");
+			buf.append("##picker");
 			ImGui::Separator();
-			ImGui::ColorPicker4("##picker", colorX, misc_flags | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoSmallPreview);
+			ImGui::ColorPicker4(buf.c_str(), colorX, misc_flags | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoSmallPreview);
 			ImGui::SameLine();
-
+			
+			buf.append("##current");
 			ImGui::BeginGroup(); // Lock X position
 			ImGui::Text("Current");
-			ImGui::ColorButton("##current", ImVec4(colorX[0], colorX[1], colorX[2], colorX[3]), ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_AlphaPreviewHalf, ImVec2(60, 40));
+			ImGui::ColorButton(buf.c_str(), ImVec4(colorX[0], colorX[1], colorX[2], colorX[3]), ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_AlphaPreviewHalf, ImVec2(60, 40));
 			ImGui::Text("Previous");
 
 			if (ImGui::ColorButton("##previous", backup_color, ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_AlphaPreviewHalf, ImVec2(60, 40)))

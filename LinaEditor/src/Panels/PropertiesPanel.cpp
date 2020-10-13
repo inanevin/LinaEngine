@@ -279,7 +279,7 @@ namespace LinaEditor
 
 				ImVec4 col = ImVec4(light->color.r, light->color.g, light->color.b, light->color.a);
 				float d = light->distance;
-				WidgetsUtility::ColorButton(&col.x);
+			//	WidgetsUtility::ColorButton(&col.x);
 				ImGui::DragFloat("Distance ", &d, dragSensitivity);
 				light->distance = d;
 				light->color = Color(col.x, col.y, col.z, col.w);
@@ -307,7 +307,7 @@ namespace LinaEditor
 				float d = light->distance;
 				float cutOff = light->cutOff;
 				float outerCutOff = light->outerCutOff;
-				WidgetsUtility::ColorButton(&col.x);
+				//WidgetsUtility::ColorButton(&col.x);
 				ImGui::DragFloat("Distance ", &d, dragSensitivity);
 				ImGui::DragFloat("CutOff ", &cutOff, dragSensitivity);
 				ImGui::DragFloat("Outer Cutoff ", &outerCutOff, dragSensitivity);
@@ -337,16 +337,13 @@ namespace LinaEditor
 
 				ImVec4 col = ImVec4(light->color.r, light->color.g, light->color.b, light->color.a);
 				float projectionSettings[4] = { light->shadowProjectionSettings.x, light->shadowProjectionSettings.y, light->shadowProjectionSettings.z, light->shadowProjectionSettings.w };
-				float dir[3] = { light->direction.x, light->direction.y, light->direction.z };
 
-				WidgetsUtility::ColorButton(&col.x);
+				//WidgetsUtility::ColorButton(&col.x);
 				ImGui::InputFloat4("Shadow Projection ", projectionSettings, dragSensitivity);
 				ImGui::InputFloat("Shadow Near", &light->shadowNearPlane);
 				ImGui::InputFloat("Shadow Far", &light->shadowFarPlane);
-				ImGui::InputFloat3("Direction", dir);
 				light->color = Color(col.x, col.y, col.z, col.w);
 				light->shadowProjectionSettings = Vector4(projectionSettings[0], projectionSettings[1], projectionSettings[2], projectionSettings[3]);
-				light->direction = Vector3(dir[0], dir[1], dir[2]);
 				if (lightRenderer != nullptr)
 					m_RenderEngine->GetMaterial(lightRenderer->materialID).SetColor(MAT_OBJECTCOLORPROPERTY, light->color);
 

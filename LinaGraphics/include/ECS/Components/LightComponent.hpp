@@ -40,6 +40,10 @@ namespace LinaEngine::ECS
 		{
 			archive(color, m_isEnabled); // serialize things by passing them to the archive
 		}
+
+#ifdef LINA_EDITOR
+		COMPONENT_DRAWFUNC_SIG
+#endif
 	};
 
 	struct PointLightComponent : public LightComponent
@@ -51,11 +55,14 @@ namespace LinaEngine::ECS
 		{
 			archive(distance, color, m_isEnabled); // serialize things by passing them to the archive
 		}
+
+#ifdef LINA_EDITOR
+		COMPONENT_DRAWFUNC_SIG
+#endif
 	};
 
 	struct SpotLightComponent : public LightComponent
 	{
-		Vector3 direction = Vector3::Zero;
 		float distance;
 		float cutOff = Math::Cos(Math::ToRadians(12.5f));
 		float outerCutOff = Math::Cos(Math::ToRadians(17.5f));
@@ -63,8 +70,12 @@ namespace LinaEngine::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(color, direction, distance, cutOff, outerCutOff, m_isEnabled); // serialize things by passing them to the archive
+			archive(color, distance, cutOff, outerCutOff, m_isEnabled); // serialize things by passing them to the archive
 		}
+
+#ifdef LINA_EDITOR
+		COMPONENT_DRAWFUNC_SIG
+#endif
 	};
 
 	struct DirectionalLightComponent : public LightComponent
@@ -72,13 +83,16 @@ namespace LinaEngine::ECS
 		Vector4 shadowProjectionSettings = Vector4(-20, 20, -20, 20);
 		float shadowNearPlane = 10.0f;
 		float shadowFarPlane = 15.0f;
-		Vector3 direction = Vector3::Zero;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(shadowProjectionSettings, shadowNearPlane, shadowFarPlane, color, direction, m_isEnabled); // serialize things by passing them to the archive
+			archive(shadowProjectionSettings, shadowNearPlane, shadowFarPlane, color, m_isEnabled); // serialize things by passing them to the archive
 		}
+
+#ifdef LINA_EDITOR
+		COMPONENT_DRAWFUNC_SIG
+#endif
 	};
 }
 

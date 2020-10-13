@@ -37,6 +37,10 @@ namespace LinaEngine::ECS
 		{
 			archive(materialID, m_isEnabled); // serialize things by passing them to the archive
 		}
+
+#ifdef LINA_EDITOR
+		COMPONENT_DRAWFUNC_SIG
+#endif
 	};
 }
 

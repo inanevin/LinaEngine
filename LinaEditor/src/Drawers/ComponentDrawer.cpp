@@ -26,9 +26,11 @@ Timestamp: 10/13/2020 2:34:33 PM
 #include "ECS/Components/LightComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
+#include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
 #include "imgui/imgui.h"
 #include "IconsFontAwesome5.h"
+#include "IconsMaterialDesign.h"
 #include "Widgets/WidgetsUtility.hpp"
 
 using namespace LinaEngine::ECS;
@@ -44,6 +46,12 @@ namespace LinaEditor
 		s_componentDrawFuncMap[entt::type_info<TransformComponent>::id()] = std::bind(&TransformComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
 		s_componentDrawFuncMap[entt::type_info<RigidbodyComponent>::id()] = std::bind(&RigidbodyComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
 		s_componentDrawFuncMap[entt::type_info<CameraComponent>::id()] = std::bind(&CameraComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		s_componentDrawFuncMap[entt::type_info<DirectionalLightComponent>::id()] = std::bind(&DirectionalLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		s_componentDrawFuncMap[entt::type_info<SpotLightComponent>::id()] = std::bind(&SpotLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		s_componentDrawFuncMap[entt::type_info<PointLightComponent>::id()] = std::bind(&PointLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		s_componentDrawFuncMap[entt::type_info<FreeLookComponent>::id()] = std::bind(&FreeLookComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		s_componentDrawFuncMap[entt::type_info<MeshRendererComponent>::id()] = std::bind(&MeshRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		s_componentDrawFuncMap[entt::type_info<SpriteRendererComponent>::id()] = std::bind(&SpriteRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
 	}
 
 	// Use reflection for gods sake later on.
@@ -143,9 +151,9 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 		float cursorPosLabels = CURSORPOS_X_LABELS;
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Location"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat3("##loc", transform.transform.m_location.Get());
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Location"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat3("##loc", &transform.transform.m_location.x);
 		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Rotation"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); WidgetsUtility::DragQuaternion("##rot", transform.transform.m_rotation);
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Scale");	 ImGui::SameLine();	ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat3("##scale", transform.transform.m_scale.Get());
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Scale");	 ImGui::SameLine();	ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat3("##scale", &transform.transform.m_scale.x);
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 
 	}
@@ -272,10 +280,255 @@ void LinaEngine::ECS::CameraComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRe
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 		float cursorPosLabels = CURSORPOS_X_LABELS;
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Clear Color");	 ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); WidgetsUtility::ColorButton("##clrclr", &camera.clearColor.r);
 		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Field of View"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##fov", &camera.fieldOfView);
 		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Near Plane");	 ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##zNear", &camera.zNear);
 		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Far Plane");	 ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##zFar", &camera.zFar);
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Clear Color");	 ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); WidgetsUtility::ColorButton(&camera.clearColor.r);
+		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
+	}
+
+	// Draw bevel line.
+	WidgetsUtility::DrawBeveledLine();
+}
+
+void LinaEngine::ECS::DirectionalLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
+{
+	// Get component
+	DirectionalLightComponent& dLight = ecs->get<DirectionalLightComponent>(entity);
+
+	// Align.
+	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
+	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
+
+	// Draw title.
+	static bool open = false;
+	bool refreshPressed = false;
+	bool removeComponent = WidgetsUtility::DrawComponentTitle("DirectionalLight", ICON_FA_SUN, &refreshPressed, &dLight.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+
+	// Remove if requested.
+	if (removeComponent)
+	{
+		ecs->remove<DirectionalLightComponent>(entity);
+		return;
+	}
+
+	// Refresh
+	if (refreshPressed)
+		ecs->replace<DirectionalLightComponent>(entity, DirectionalLightComponent());
+
+	// Draw component.
+	if (open)
+	{
+		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
+		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
+		float cursorPosLabels = CURSORPOS_X_LABELS;
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Color");				ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); WidgetsUtility::ColorButton("##dclr", &dLight.color.r);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Shadow Near Plane");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##zNear", &dLight.shadowNearPlane);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Shadow Far Plane");		ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##szFar", &dLight.shadowFarPlane);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Shadow Projection");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat4("##sproj", &dLight.shadowProjectionSettings.x);
+		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
+	}
+
+	// Draw bevel line.
+	WidgetsUtility::DrawBeveledLine();
+}
+
+void LinaEngine::ECS::PointLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
+{
+	// Get component
+	PointLightComponent& pLight = ecs->get<PointLightComponent>(entity);
+
+	// Align.
+	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
+	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
+
+	// Draw title.
+	static bool open = false;
+	bool refreshPressed = false;
+	bool removeComponent = WidgetsUtility::DrawComponentTitle("PointLight", ICON_FA_LIGHTBULB, &refreshPressed, &pLight.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+
+	// Remove if requested.
+	if (removeComponent)
+	{
+		ecs->remove<PointLightComponent>(entity);
+		return;
+	}
+
+	// Refresh
+	if (refreshPressed)
+		ecs->replace<PointLightComponent>(entity, PointLightComponent());
+
+	// Draw component.
+	if (open)
+	{
+		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
+		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
+		float cursorPosLabels = CURSORPOS_X_LABELS;
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Color");		ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); WidgetsUtility::ColorButton("##pclr", &pLight.color.r);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Distance");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##dist", &pLight.distance);
+		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
+	}
+
+	// Draw bevel line.
+	WidgetsUtility::DrawBeveledLine();
+}
+
+void LinaEngine::ECS::SpotLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
+{
+	// Get component
+	SpotLightComponent& sLight = ecs->get<SpotLightComponent>(entity);
+
+	// Align.
+	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
+	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
+
+	// Draw title.
+	static bool open = false;
+	bool refreshPressed = false;
+	bool removeComponent = WidgetsUtility::DrawComponentTitle("SpotLight", ICON_MD_HIGHLIGHT, &refreshPressed, &sLight.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+
+	// Remove if requested.
+	if (removeComponent)
+	{
+		ecs->remove<SpotLightComponent>(entity);
+		return;
+	}
+
+	// Refresh
+	if (refreshPressed)
+		ecs->replace<SpotLightComponent>(entity, SpotLightComponent());
+
+	// Draw component.
+	if (open)
+	{
+		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
+		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
+		float cursorPosLabels = CURSORPOS_X_LABELS;
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Color");		ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); WidgetsUtility::ColorButton("##sclr", &sLight.color.r);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Distance");		ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##dist", &sLight.distance);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Cutoff");		ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##cutOff", &sLight.cutOff);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Outer Cutoff");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##outerCutOff", &sLight.outerCutOff);
+		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
+	}
+
+	// Draw bevel line.
+	WidgetsUtility::DrawBeveledLine();
+}
+
+
+void LinaEngine::ECS::FreeLookComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
+{
+	// Get component
+	FreeLookComponent& freeLook = ecs->get<FreeLookComponent>(entity);
+
+	// Align.
+	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
+	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
+
+	// Draw title.
+	static bool open = false;
+	bool refreshPressed = false;
+	bool removeComponent = WidgetsUtility::DrawComponentTitle("FreeLook", ICON_FA_EYE, &refreshPressed, &freeLook.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+
+	// Remove if requested.
+	if (removeComponent)
+	{
+		ecs->remove<FreeLookComponent>(entity);
+		return;
+	}
+
+	// Refresh
+	if (refreshPressed)
+		ecs->replace<FreeLookComponent>(entity, FreeLookComponent());
+
+	// Draw component.
+	if (open)
+	{
+		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
+		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
+		float cursorPosLabels = CURSORPOS_X_LABELS;
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Movement Speeds");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat2("##ms", &freeLook.m_movementSpeeds.x);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Rotation Speeds");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat2("##rs", &freeLook.m_rotationSpeeds.x);
+		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
+	}
+
+	// Draw bevel line.
+	WidgetsUtility::DrawBeveledLine();
+}
+
+void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
+{
+	// Get component
+	MeshRendererComponent& renderer = ecs->get<MeshRendererComponent>(entity);
+
+	// Align.
+	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
+	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
+
+	// Draw title.
+	static bool open = false;
+	bool refreshPressed = false;
+	bool removeComponent = WidgetsUtility::DrawComponentTitle("MeshRenderer", ICON_FA_LIGHTBULB, &refreshPressed, &renderer.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+
+	// Remove if requested.
+	if (removeComponent)
+	{
+		ecs->remove<MeshRendererComponent>(entity);
+		return;
+	}
+
+	// Refresh
+	if (refreshPressed)
+		ecs->replace<MeshRendererComponent>(entity, MeshRendererComponent());
+
+	// Draw component.
+	if (open)
+	{
+		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
+		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
+		float cursorPosLabels = CURSORPOS_X_LABELS;
+		//ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Movement Speeds");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat2("##ms", &renderer.m_movementSpeeds.x);
+		//ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Rotation Speeds");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat2("##rs", &renderer.m_rotationSpeeds.x);
+		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
+	}
+
+	// Draw bevel line.
+	WidgetsUtility::DrawBeveledLine();
+}
+
+void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
+{
+	// Get component
+	SpriteRendererComponent& renderer = ecs->get<SpriteRendererComponent>(entity);
+
+	// Align.
+	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
+	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
+
+	// Draw title.
+	static bool open = false;
+	bool refreshPressed = false;
+	bool removeComponent = WidgetsUtility::DrawComponentTitle("SpriteRenderer", ICON_FA_LIGHTBULB, &refreshPressed, &renderer.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+
+	// Remove if requested.
+	if (removeComponent)
+	{
+		ecs->remove<SpriteRendererComponent>(entity);
+		return;
+	}
+
+	// Refresh
+	if (refreshPressed)
+		ecs->replace<SpriteRendererComponent>(entity, SpriteRendererComponent());
+
+	// Draw component.
+	if (open)
+	{
+		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
+		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
+		float cursorPosLabels = CURSORPOS_X_LABELS;
+		//ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Movement Speeds");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat2("##ms", &renderer.m_movementSpeeds.x);
+		//ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Rotation Speeds");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat2("##rs", &renderer.m_rotationSpeeds.x);
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 	}
 

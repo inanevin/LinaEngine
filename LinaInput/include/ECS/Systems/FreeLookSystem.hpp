@@ -47,8 +47,8 @@ namespace LinaEngine::ECS
 	private:
 
 		LinaEngine::Input::InputEngine* inputEngine;
-		float horizontalKeyAmount = 0.0f;
-		float verticalKeyAmount = 0.0f;
+		float m_horizontalKeyAmt = 0.0f;
+		float m_verticalKeyAmt = 0.0f;
 	};
 }
 

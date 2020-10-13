@@ -51,11 +51,11 @@ namespace LinaEngine::ECS
 			if (inputEngine->GetMouseButton(LinaEngine::Input::InputCode::Mouse::Mouse2))
 			{
 				// Apply angles based on mouse axis.
-				freeLook.verticalAngle += mouseAxis.y * freeLook.rotationSpeedX * delta * 50;
-				freeLook.horizontalAngle += mouseAxis.x * freeLook.rotationSpeedY * delta * 50;
+				freeLook.m_angles.y += mouseAxis.y * freeLook.m_rotationSpeeds.x * delta * 50;
+				freeLook.m_angles.x += mouseAxis.x * freeLook.m_rotationSpeeds.y * delta * 50;
 
 				// Rotate
-				transform.transform.Rotate(Vector3(freeLook.verticalAngle, freeLook.horizontalAngle, 0.0f));
+				transform.transform.Rotate(Vector3(freeLook.m_angles.y, freeLook.m_angles.x, 0.0f));
 
 			}
 
@@ -75,12 +75,12 @@ namespace LinaEngine::ECS
 			// Set movement based on vertical axis.
 			Vector3 vertical = transform.transform.m_rotation.GetForward();
 			vertical.Normalize();
-			vertical *= freeLook.movementSpeedZ * verticalKey * delta;
+			vertical *= freeLook.m_movementSpeeds.y * verticalKey * delta;
 
 			// Set movement based on horizontal axis.
 			Vector3 horizontal = transform.transform.m_rotation.GetRight();
 			horizontal.Normalize();
-			horizontal *= freeLook.movementSpeedX * horizontalKey * delta;
+			horizontal *= freeLook.m_movementSpeeds.x * horizontalKey * delta;
 
 			// Move.
 			transform.transform.m_location = transform.transform.m_location + vertical + horizontal;
