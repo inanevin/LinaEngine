@@ -72,14 +72,6 @@ namespace LinaEditor
 		"REPEAT_MIRROR"
 	};
 
-	const char* rigidbodyShapes[]
-	{
-		"SPHERE",
-		"BOX",
-		"CYLINDER",
-		"CAPSULE"
-	};
-
 	static Graphics::PixelFormat selectedInternalPF;
 	static Graphics::PixelFormat selectedPF;
 	static Graphics::SamplerFilter selectedMinFilter;
@@ -378,66 +370,6 @@ namespace LinaEditor
 			}
 		}
 
-		// Draw rigidbody component
-		if (m_ecs->has<RigidbodyComponent>(entity))
-		{
-			if (ImGui::CollapsingHeader("Rigidbody", ImGuiTreeNodeFlags_None))
-			{
-				ImGui::Indent();
-
-				RigidbodyComponent& rb = m_ecs->get<RigidbodyComponent>(entity);
-
-				m_currentCollisionShape = (int)rb.m_collisionShape;
-
-				// Draw collision shape.
-				static ImGuiComboFlags flags = 0;
-				static ECS::CollisionShape selectedCollisionShape = rb.m_collisionShape;
-				const char* collisionShapeLabel = rigidbodyShapes[m_currentCollisionShape];
-
-				if (ImGui::BeginCombo("Collision Shape", collisionShapeLabel, flags))
-				{
-					for (int i = 0; i < IM_ARRAYSIZE(rigidbodyShapes); i++)
-					{
-						const bool is_selected = (m_currentCollisionShape == i);
-						if (ImGui::Selectable(rigidbodyShapes[i], is_selected))
-						{
-							selectedCollisionShape = (ECS::CollisionShape)i;
-							m_currentCollisionShape = i;
-							rb.m_collisionShape = selectedCollisionShape;
-						}
-
-						if (is_selected)
-							ImGui::SetItemDefaultFocus();
-					}
-					ImGui::EndCombo();
-
-				}
-
-				ImGui::InputFloat("Mass", &rb.m_mass);
-
-				if (rb.m_collisionShape == ECS::CollisionShape::BOX || rb.m_collisionShape == ECS::CollisionShape::CYLINDER)
-				{
-					ImGui::InputFloat3("Half Extents", &rb.m_halfExtents.x);
-				}
-				else if (rb.m_collisionShape == ECS::CollisionShape::SPHERE)
-				{
-					ImGui::InputFloat("Radius", &rb.m_radius);
-				}
-				else if (rb.m_collisionShape == ECS::CollisionShape::CAPSULE)
-				{
-					ImGui::InputFloat("Radius", &rb.m_radius);
-					ImGui::InputFloat("Height", &rb.m_capsuleHeight);
-				}
-
-				if (ImGui::Button("Apply"))
-				{
-					m_ecs->replace<LinaEngine::ECS::RigidbodyComponent>(entity, rb);
-				}
-				ImGui::Unindent();
-			}
-
-
-		}
 
 	}
 

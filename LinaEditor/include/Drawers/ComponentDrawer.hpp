@@ -42,6 +42,8 @@ namespace LinaEditor
 
 		static std::map<entt::id_type, std::function<void(LinaEngine::ECS::ECSRegistry*, LinaEngine::ECS::ECSEntity)>> s_componentDrawFuncMap;
 
+		// Selected colilsion shape in editor.
+		static int s_currentCollisionShape;
 	
 	};
 }

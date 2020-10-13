@@ -52,6 +52,11 @@ namespace LinaEngine::ECS
 		{
 			archive(m_collisionShape, m_localInertia, m_halfExtents, m_mass, m_radius, m_capsuleHeight, m_bodyID, m_alive); // serialize things by passing them to the archive
 		}
+
+#ifdef LINA_EDITOR
+		COMPONENT_DRAWFUNC_SIG
+#endif
+
 	};
 }
 

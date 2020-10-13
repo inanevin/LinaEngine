@@ -193,7 +193,7 @@ namespace LinaEditor
 		ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + 2), ImVec2(max.x, max.y + 2), ImGui::ColorConvertFloat4ToU32(ImVec4(0.2f, 0.2f, 0.2f, 1.0f)), 1);
 	}
 
-	void WidgetsUtility::DrawComponentTitle(const char* title, const char* icon, bool* foldoutOpen, const ImVec4& iconColor)
+	bool WidgetsUtility::DrawComponentTitle(const char* title, const char* icon, bool* foldoutOpen, const ImVec4& iconColor)
 	{
 
 		// Caret button.
@@ -210,6 +210,11 @@ namespace LinaEditor
 		// Icon
 		WidgetsUtility::IncrementCursorPosY(6);
 		Icon(icon, 0.6f, iconColor);
+
+		// Close button
+		ImGui::SameLine();  ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 20);
+		std::string buf(title); buf.append("cb");
+		return IconButton(buf.c_str(), ICON_FA_TIMES, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
 	}
 
 	bool WidgetsUtility::InputQuaternion(const char* label, LinaEngine::Quaternion& v)
@@ -358,6 +363,7 @@ namespace LinaEditor
 
 		return released;
 	}
+
 	bool WidgetsUtility::Button(const char* label, const ImVec2& size)
 	{
 		FrameRounding(2.0f);

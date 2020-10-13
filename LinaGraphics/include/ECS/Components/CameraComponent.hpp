@@ -41,6 +41,11 @@ namespace LinaEngine::ECS
 		{
 			archive(clearColor, fieldOfView, zNear, zFar, isActive); // serialize things by passing them to the archive
 		}
+
+#ifdef LINA_EDITOR
+		COMPONENT_DRAWFUNC_SIG
+#endif
+
 	};
 }
 

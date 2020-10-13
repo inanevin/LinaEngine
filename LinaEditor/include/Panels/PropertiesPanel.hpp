@@ -143,8 +143,6 @@ namespace LinaEditor
 		bool m_CurrentGenerateMips;
 		int m_CurrentAnisotropy;
 
-		// Selected colilsion shape
-		int m_currentCollisionShape = 0;
 
 		// Selected mesh
 		class LinaEngine::Graphics::Mesh* m_SelectedMesh;

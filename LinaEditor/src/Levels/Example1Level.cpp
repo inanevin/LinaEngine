@@ -192,12 +192,14 @@ void Example1Level::Initialize()
 	cr.meshID = Primitives::CUBE;
 	cr.materialID = objectUnlitMaterial->m_MaterialID;
 	TransformComponent objectTransform;
+	RigidbodyComponent r;
 
 	ECSEntity c1;
 	c1 = m_ECS->CreateEntity("Sphere");
 	objectTransform.transform.m_location = Vector3(0,0,0);
 	m_ECS->emplace<TransformComponent>(c1, objectTransform);
 	m_ECS->emplace<MeshRendererComponent>(c1, cr);
+	m_ECS->emplace<RigidbodyComponent>(c1, r);
 
 
 	camera = m_ECS->CreateEntity("Camera");
