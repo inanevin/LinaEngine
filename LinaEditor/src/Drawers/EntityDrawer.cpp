@@ -98,7 +98,7 @@ namespace LinaEditor
 		WidgetsUtility::IncrementCursorPosY(6.0f);
 		WidgetsUtility::DrawBeveledLine();
 
-
+		WidgetsUtility::FramePaddingX(4);
 		ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(15);
 		// Visit each component an entity has & call the draw functions.
 		ecs->visit(entity, [ecs, entity](const auto component)
@@ -107,6 +107,7 @@ namespace LinaEditor
 					ComponentDrawer::s_componentDrawFuncMap[component](ecs, entity);
 			});
 
+		WidgetsUtility::PopStyleVar();
 
 		//if (ImGui::Button(ICON_FA_PLUS, ImVec2(WidgetsUtility::DebugFloat(), WidgetsUtility::DebugFloat())))
 		//{

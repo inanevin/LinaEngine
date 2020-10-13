@@ -100,17 +100,14 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	WidgetsUtility::DrawComponentTitle("Transformation", ICON_FA_ARROWS_ALT, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 	TransformComponent* transform = &ecs->get<TransformComponent>(entity);
 
+
 	if (open)
 	{
-		WidgetsUtility::AlignedText("Location"); ImGui::SameLine(); 
-
 		ImGui::Indent();
-		float a = transform->transform.m_location[0];
-		float rot[3] = { transform->transform.m_rotation.GetEuler().x, transform->transform.m_rotation.GetEuler().y, transform->transform.m_rotation.GetEuler().z };
-		WidgetsUtility::AlignedText("Location"); ImGui::SameLine(); ImGui::InputFloat3("", transform->transform.m_location.Get());
-		WidgetsUtility::AlignedText("Rotation"); ImGui::SameLine(); ImGui::InputFloat3("", rot);
-		WidgetsUtility::AlignedText("Scale"); ImGui::SameLine(); ImGui::InputFloat3("", transform->transform.m_scale.Get());
-		transform->transform.m_rotation = Quaternion::Euler(rot[0], rot[1], rot[2]);
+		float cursorPos = ImGui::GetWindowSize().x * 0.32f;
+		WidgetsUtility::AlignedText("Location"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPos); ImGui::DragFloat3("##loc", transform->transform.m_location.Get());
+		WidgetsUtility::AlignedText("Rotation"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPos); WidgetsUtility::DragQuaternion("##rot", transform->transform.m_rotation);
+		WidgetsUtility::AlignedText("Scale");	 ImGui::SameLine();	ImGui::SetCursorPosX(cursorPos); ImGui::DragFloat3("##scale", transform->transform.m_scale.Get());
 		ImGui::Unindent();
 	}
 

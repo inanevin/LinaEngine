@@ -212,6 +212,22 @@ namespace LinaEditor
 		Icon(icon, 0.6f, iconColor);
 	}
 
+	bool WidgetsUtility::InputQuaternion(const char* label, LinaEngine::Quaternion& v)
+	{
+		float rot[3] = { v.GetEuler().x, v.GetEuler().y,v.GetEuler().z };
+		bool edited = ImGui::InputFloat3(label, rot);
+		v = LinaEngine::Quaternion::Euler(rot[0], rot[1], rot[2]);
+		return edited;
+	}
+
+	bool WidgetsUtility::DragQuaternion(const char* label, LinaEngine::Quaternion& v)
+	{
+		float rot[3] = { v.GetEuler().x, v.GetEuler().y,v.GetEuler().z };
+		bool edited = ImGui::DragFloat3(label, rot);
+		v = LinaEngine::Quaternion::Euler(rot[0], rot[1], rot[2]);
+		return edited;
+	}
+
 	void WidgetsUtility::AlignedText(const char* label)
 	{
 		ImGui::AlignTextToFramePadding();
@@ -253,9 +269,9 @@ namespace LinaEditor
 	float WidgetsUtility::DebugFloat(const char* id, bool currentWindow)
 	{
 		if (!currentWindow)
-			ImGui::Begin(id);
-		
-		ImGui::InputFloat("Debug", &s_debugFloats[id]);
+			ImGui::Begin("WidgetsUtility");
+
+		ImGui::InputFloat(id, &s_debugFloats[id]);
 
 		if (!currentWindow)
 			ImGui::End();
@@ -349,4 +365,5 @@ namespace LinaEditor
 		PopStyleVar();
 		return button;
 	}
+
 }
