@@ -78,7 +78,7 @@ namespace LinaEditor
 
 		if (WidgetsUtility::IconButton("addcomp", ICON_FA_PLUS_SQUARE, 0.0f, 0.9f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 		{
-			ImGui::OpenPopup("Select ");
+			ImGui::OpenPopup("Select Component");
 		}
 
 		bool o = true;
@@ -86,7 +86,7 @@ namespace LinaEditor
 		WidgetsUtility::FramePaddingX(4);
 		ImGui::SetNextWindowSize(ImVec2(280, 400));
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
-		if (ImGui::BeginPopupModal("Select ", &o, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+		if (ImGui::BeginPopupModal("Select Component", &o, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 		{
 			std::vector<std::string> types = GetEligibleComponents(ecs, entity);
 			SelectComponentModal::Draw(types);
