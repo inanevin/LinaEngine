@@ -123,7 +123,8 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 
 	// Draw title.
 	static bool open = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle("Transformation", ICON_FA_ARROWS_ALT, &transform.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool refreshPressed = false;
+	bool removeComponent = WidgetsUtility::DrawComponentTitle("Transformation", ICON_FA_ARROWS_ALT, &refreshPressed, &transform.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -131,6 +132,10 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		ecs->remove<TransformComponent>(entity);
 		return;
 	}
+
+	// Refresh
+	if (refreshPressed)
+		ecs->replace<TransformComponent>(entity, TransformComponent());
 
 	// Draw component
 	if (open)
@@ -161,7 +166,8 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 
 	// Draw title.
 	static bool open = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle("Rigidbody", ICON_FA_BOX, &rb.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool refreshPressed = false;
+	bool removeComponent = WidgetsUtility::DrawComponentTitle("Rigidbody", ICON_FA_BOX, &refreshPressed, &rb.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -169,6 +175,10 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		ecs->remove<RigidbodyComponent>(entity);
 		return;
 	}
+
+	// Refresh
+	if (refreshPressed)
+		ecs->replace<RigidbodyComponent>(entity, RigidbodyComponent());
 
 	// Draw component.
 	if (open)
@@ -242,7 +252,8 @@ void LinaEngine::ECS::CameraComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRe
 
 	// Draw title.
 	static bool open = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle("Camera", ICON_FA_CAMERA, &camera.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool refreshPressed = false;
+	bool removeComponent = WidgetsUtility::DrawComponentTitle("Camera", ICON_FA_CAMERA, &refreshPressed, &camera.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -250,6 +261,10 @@ void LinaEngine::ECS::CameraComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRe
 		ecs->remove<CameraComponent>(entity);
 		return;
 	}
+
+	// Refresh
+	if (refreshPressed)
+		ecs->replace<CameraComponent>(entity, CameraComponent());
 
 	// Draw component.
 	if (open)

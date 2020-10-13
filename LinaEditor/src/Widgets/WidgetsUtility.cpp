@@ -191,7 +191,7 @@ namespace LinaEditor
 		ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + 2), ImVec2(max.x, max.y + 2), ImGui::ColorConvertFloat4ToU32(ImVec4(0.2f, 0.2f, 0.2f, 1.0f)), 1);
 	}
 
-	bool WidgetsUtility::DrawComponentTitle(const char* title, const char* icon, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor)
+	bool WidgetsUtility::DrawComponentTitle(const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor)
 	{
 		// Caret button.
 		const char* caret = *foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
@@ -209,14 +209,19 @@ namespace LinaEditor
 		Icon(icon, 0.6f, iconColor);
 		
 		// Enabled toggle
+		std::string buf(title); buf.append("t");
 		ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
-		std::string buf(title); buf.append("tgl");
-		ImGui::SameLine();  ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 65);	IncrementCursorPosY(-4);	
+		ImGui::SameLine();  ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 88);	IncrementCursorPosY(-4);
 		ToggleButton(buf.c_str(), enabled, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
+
+		// Refresh button
+		buf.append("r");
+		ImGui::SameLine(); ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 43); IncrementCursorPosY(4);
+		*refreshPressed = IconButton(buf.c_str(), ICON_FA_SYNC_ALT, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
 		
 		// Close button
-		buf.append("cb");		
-		ImGui::SameLine(); ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 20); IncrementCursorPosY(4);
+		buf.append("c");		
+		ImGui::SameLine(); ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 20); 
 		return IconButton(buf.c_str(), ICON_FA_TIMES, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
 	}
 
