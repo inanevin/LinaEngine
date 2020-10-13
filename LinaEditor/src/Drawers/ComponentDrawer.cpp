@@ -175,7 +175,7 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	// Draw title.
 	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle("Rigidbody", ICON_FA_BOX, &refreshPressed, &rb.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool removeComponent = WidgetsUtility::DrawComponentTitle("Rigidbody", ICON_MD_ACCESSIBILITY, &refreshPressed, &rb.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0,3));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -261,7 +261,7 @@ void LinaEngine::ECS::CameraComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRe
 	// Draw title.
 	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle("Camera", ICON_FA_CAMERA, &refreshPressed, &camera.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool removeComponent = WidgetsUtility::DrawComponentTitle("Camera", ICON_FA_VIDEO, &refreshPressed, &camera.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -428,7 +428,7 @@ void LinaEngine::ECS::FreeLookComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECS
 	// Draw title.
 	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle("FreeLook", ICON_FA_EYE, &refreshPressed, &freeLook.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool removeComponent = WidgetsUtility::DrawComponentTitle("FreeLook", ICON_MD_3D_ROTATION, &refreshPressed, &freeLook.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0,3));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -468,7 +468,7 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 	// Draw title.
 	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle("MeshRenderer", ICON_FA_LIGHTBULB, &refreshPressed, &renderer.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool removeComponent = WidgetsUtility::DrawComponentTitle("MeshRenderer", ICON_MD_GRID_ON, &refreshPressed, &renderer.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0,3));
 
 	// Remove if requested.
 	if (removeComponent)
