@@ -39,7 +39,7 @@ namespace LinaEngine::ECS
 		}
 
 #ifdef LINA_EDITOR
-		static void Draw();
+		COMPONENT_DRAWFUNC_SIG();
 #endif
 
 	};

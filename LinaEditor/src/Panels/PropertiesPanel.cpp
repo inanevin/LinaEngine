@@ -33,6 +33,8 @@ Timestamp: 6/7/2020 5:13:42 PM
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
+#include "Drawers/ComponentDrawer.hpp"
+
 namespace LinaEditor
 {
 	using namespace LinaEngine::ECS;
@@ -94,7 +96,8 @@ namespace LinaEditor
 		m_ecs = m_guiLayer->GetECS();
 		m_RenderEngine = m_guiLayer->GetRenderEngine();
 
-
+		// Register component draw functions
+		ComponentDrawer::RegisterComponentFunctions();
 	}
 
 	void PropertiesPanel::Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path)

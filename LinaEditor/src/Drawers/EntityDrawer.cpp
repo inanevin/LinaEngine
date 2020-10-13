@@ -25,7 +25,6 @@ Timestamp: 10/12/2020 1:02:39 AM
 #include "Modals/SelectComponentModal.hpp"
 #include "Drawers/ComponentDrawer.hpp"
 
-using namespace LinaEngine::ECS;
 
 namespace LinaEditor
 {
@@ -83,14 +82,14 @@ namespace LinaEditor
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
 		if (ImGui::BeginPopupModal("Select Component", &o, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 		{
-			std::vector<std::string> types = GetEligibleComponents(ecs, entity);
+			std::vector<std::string> types = ComponentDrawer::GetEligibleComponents(ecs, entity);
 			std::vector<std::string> chosenComponents = SelectComponentModal::Draw(types);
 
 			// Add the selected components to the entity.
 			for (int i = 0; i < chosenComponents.size(); i++)
-				AddComponentToEntity(ecs, entity, chosenComponents[i]);
+				ComponentDrawer::AddComponentToEntity(ecs, entity, chosenComponents[i]);
 
-;			ImGui::EndPopup();
+			;			ImGui::EndPopup();
 		}
 		WidgetsUtility::PopStyleVar();
 		WidgetsUtility::PopStyleVar();
@@ -99,26 +98,15 @@ namespace LinaEditor
 		WidgetsUtility::IncrementCursorPosY(6.0f);
 		WidgetsUtility::DrawBeveledLine();
 
-		// Visit each component an entity has & call the draw functions.
-		ecs->visit(entity, [](const auto component) 
-		{
-			ComponentDrawer::s_componentDrawFuncMap[component]();
-		});
 
 		ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(15);
-		static bool open = false;
-		WidgetsUtility::DrawComponentTitle("Transformation", ICON_FA_ARROWS_ALT, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+		// Visit each component an entity has & call the draw functions.
+		ecs->visit(entity, [](const auto component)
+			{
+				if (ComponentDrawer::s_componentDrawFuncMap.find(component) != ComponentDrawer::s_componentDrawFuncMap.end())
+					ComponentDrawer::s_componentDrawFuncMap[component]();
+			});
 
-		if (open)
-		{
-
-		}
-
-		WidgetsUtility::DrawBeveledLine();
-		WidgetsUtility::IncrementCursorPosY(15);
-		WidgetsUtility::CenterCursorX();
-
-		
 
 		//if (ImGui::Button(ICON_FA_PLUS, ImVec2(WidgetsUtility::DebugFloat(), WidgetsUtility::DebugFloat())))
 		//{
@@ -170,51 +158,4 @@ namespace LinaEditor
 
 	}
 
-	// Use reflection for gods sake later on.
-	std::vector<std::string> EntityDrawer::GetEligibleComponents(LinaEngine::ECS::ECSRegistry* reg, LinaEngine::ECS::ECSEntity entity)
-	{
-		std::vector<std::string> eligibleTypes;
-
-		if (!reg->has<TransformComponent>(entity))
-			eligibleTypes.push_back("Transformation");
-		if (!reg->has<MeshRendererComponent>(entity))
-			eligibleTypes.push_back("MeshRenderer");
-		if (!reg->has<CameraComponent>(entity))
-			eligibleTypes.push_back("Camera");
-		if (!reg->has<FreeLookComponent>(entity))
-			eligibleTypes.push_back("FreeLook");
-		if (!reg->has<PointLightComponent>(entity))
-			eligibleTypes.push_back("PointLight");
-		if (!reg->has<SpotLightComponent>(entity))
-			eligibleTypes.push_back("SpotLight");
-		if (!reg->has<DirectionalLightComponent>(entity))
-			eligibleTypes.push_back("DirectionalLight");
-		if (!reg->has<RigidbodyComponent>(entity))
-			eligibleTypes.push_back("Rigidbody");
-
-		return eligibleTypes;
-	}
-
-	void EntityDrawer::AddComponentToEntity(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity, const std::string& comp)
-	{
-
-		LINA_CLIENT_TRACE(comp);
-		if (comp.compare("Transformation") == 0)
-			ecs->emplace<TransformComponent>(entity, TransformComponent());
-		else if (comp.compare("MeshRenderer") == 0)
-			ecs->emplace<MeshRendererComponent>(entity, MeshRendererComponent());
-		else if (comp.compare("Camera") == 0)
-			ecs->emplace<CameraComponent>(entity, CameraComponent());
-		else if (comp.compare("FreeLook") == 0)
-			ecs->emplace<FreeLookComponent>(entity, FreeLookComponent());
-		else if (comp.compare("PointLight") == 0)
-			ecs->emplace<PointLightComponent>(entity, PointLightComponent());
-		else if (comp.compare("SpotLight") == 0)
-			ecs->emplace<SpotLightComponent>(entity, SpotLightComponent());
-		else if (comp.compare("DirectionalLight") == 0)
-			ecs->emplace<DirectionalLightComponent>(entity, DirectionalLightComponent());
-		else if (comp.compare("Rigidbody") == 0)
-			ecs->emplace<RigidbodyComponent>(entity,RigidbodyComponent());
-
-	}
 }
