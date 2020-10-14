@@ -91,14 +91,15 @@ namespace LinaEngine
 	{
 	public:
 
-		enum class LogLevel
+		enum LogLevel
 		{
-			Debug,
-			Info,
-			Critical,
-			Error,
-			Trace,
-			Warn
+			None = 1 << 0,
+			Debug = 1 << 1,
+			Info = 1 << 2,
+			Critical = 1 << 3,
+			Error = 1 << 4,
+			Trace = 1 << 5,
+			Warn = 1 << 6
 		};
 
 		struct LogDump

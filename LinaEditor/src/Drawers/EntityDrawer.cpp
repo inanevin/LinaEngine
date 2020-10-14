@@ -31,9 +31,6 @@ namespace LinaEditor
 
 	void EntityDrawer::DrawEntity(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity, bool* copySelectedEntityName)
 	{
-		// Shadow.
-		WidgetsUtility::DrawShadowedLine(5);
-
 		// Align.
 		ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(16);
 		WidgetsUtility::PushScaledFont(0.8f);

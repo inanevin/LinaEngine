@@ -23,7 +23,9 @@ Timestamp: 6/7/2020 8:56:51 PM
 #include "imgui/imgui.h"
 #include "Core/GUILayer.hpp"
 #include "Core/Application.hpp"
-
+#include "Widgets/WidgetsUtility.hpp"
+#include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
+#include "IconsFontAwesome5.h"
 
 namespace LinaEditor
 {
@@ -47,14 +49,88 @@ namespace LinaEditor
 			
 			if (ImGui::Begin("Log", &m_show, flags))
 			{
-				if(ImGui::BeginChild("Log_"))
+				// Shadow.
+				WidgetsUtility::DrawShadowedLine(5);
+	
+				// Align.
+				WidgetsUtility::IncrementCursorPosX(11);
+				WidgetsUtility::IncrementCursorPosY(11);
+				
+				// Empty dump
+				if (ImGui::Button("Clear"))
+				{
+					m_logDeque.clear();
+				}
+				ImGui::SameLine();
+
+				WidgetsUtility::IncrementCursorPosX(3);
+
+				// Save dump contents on a file.
+				static const char* saveLogDataID = "saveLogDump";
+				if (ImGui::Button("Save"))
+				{
+					igfd::ImGuiFileDialog::Instance()->OpenDialog(saveLogDataID, "Choose Location", ".txt", ".");
+				}
+
+				if (igfd::ImGuiFileDialog::Instance()->FileDialog(saveLogDataID))
+				{
+					// action if OK
+					if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
+					{
+						std::string filePathName = igfd::ImGuiFileDialog::Instance()->GetFilepathName();
+						std::string filePath = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
+						std::string fileName = igfd::ImGuiFileDialog::Instance()->GetCurrentFileName();
+						size_t lastIndex = fileName.find_last_of(".");
+						std::string rawName = fileName.substr(0, lastIndex);
+
+						// SAVE LATER 
+
+						igfd::ImGuiFileDialog::Instance()->CloseDialog(saveLogDataID);
+					}
+
+					igfd::ImGuiFileDialog::Instance()->CloseDialog(saveLogDataID);
+				}
+
+				ImGui::SameLine();
+
+				ImVec4 defaultIconColor = ImVec4(1.0f, 1.0f, 1.0f, 0.5f);
+				ImVec4 defaultHoveredColor = ImVec4(1.0f, 1.0f, 1.0f, 0.8f);
+				ImVec4 defaultPressedColor = ImVec4(1.0f, 1.0f, 1.0f, .4f);
+				static ImVec4 debugColor = defaultIconColor;
+				static ImVec4 debugHoveredColor = defaultHoveredColor;
+				static ImVec4 debugPressedColor = defaultPressedColor;
+
+				if (WidgetsUtility::IconButton("logicon_debug", ICON_FA_BUG, 0.0f, 0.9f, debugColor, debugHoveredColor, debugPressedColor))
+				{
+					if (m_logLevelFlags & LinaEngine::Log::LogLevel::Debug)
+					{
+						m_logLevelFlags &= ~LinaEngine::Log::LogLevel::Debug;
+						debugColor = defaultIconColor;
+						debugHoveredColor = defaultHoveredColor;
+						debugPressedColor = defaultPressedColor;
+					}
+					else
+					{
+						m_logLevelFlags |= LinaEngine::Log::LogLevel::Debug;
+						debugColor = ImVec4(0.0f, 0.6f, 0.0f, 1.0f);
+						debugHoveredColor = ImVec4(0.0f, 0.8f, 0.0f, 1.0f);
+						debugPressedColor = ImVec4(0.0f, 1.0f, 0.0f, .4f);
+					}
+				}
+
+				// Draw dump contents.
+				ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0, 0, 0, 1));
+				float maxWidth = ImGui::GetWindowWidth() * WidgetsUtility::DebugFloat("3");
+				if(ImGui::BeginChild("Log_", ImVec2(maxWidth, 0), false))
 				{
 					for (std::deque<LinaEngine::Log::LogDump>::iterator it = m_logDeque.begin(); it != m_logDeque.end(); it++)
 					{
-						ImGui::Text(it->m_message.c_str());
+						ImGui::Selectable(it->m_message.c_str());
 					}
 				}
 				ImGui::EndChild();
+				ImGui::PopStyleColor();
+
 			}
 			ImGui::End();
 		}
@@ -68,7 +144,7 @@ namespace LinaEditor
 
 	void LogPanel::OnLog(LinaEngine::Log::LogDump dump)
 	{
-		if (m_logDeque.size() == 3)
+		if (m_logDeque.size() == MAX_BACKTRACE_SIZE)
 			m_logDeque.pop_front();
 
 		m_logDeque.push_back(dump);

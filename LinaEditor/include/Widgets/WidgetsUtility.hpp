@@ -64,9 +64,11 @@ namespace LinaEditor
 		static void PopScaledFont();
 		static void FramePaddingX(float amt);
 		static void FramePaddingY(float amt);
+		static void FramePadding(const ImVec2& amt);
 		static void FrameRounding(float rounding);
 		static void WindowPaddingX(float amt);
 		static void WindowPaddingY(float amt);
+		static void WindowPadding(const ImVec2& amt);
 		static void WindowRounding(float rounding);
 		static void PopStyleVar();
 	

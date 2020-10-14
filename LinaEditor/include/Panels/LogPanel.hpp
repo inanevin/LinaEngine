@@ -46,6 +46,7 @@ namespace LinaEditor
 
 	private:
 	
+		unsigned int m_logLevelFlags =LinaEngine::Log::LogLevel::None;
 		std::deque<LinaEngine::Log::LogDump> m_logDeque;
 	};
 }

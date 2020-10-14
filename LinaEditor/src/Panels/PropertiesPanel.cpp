@@ -139,6 +139,9 @@ namespace LinaEditor
 			ImGui::Begin("Properties", &m_show, flags);
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, 0));
 
+			// Shadow.
+			WidgetsUtility::DrawShadowedLine(5);
+
 			// Draw the selected item.
 			if (m_CurrentDrawType == DrawType::ENTITIES)
 			{

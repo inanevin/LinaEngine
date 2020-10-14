@@ -327,11 +327,13 @@ namespace LinaEditor
 		ImGui::GetFont()->Scale = defaultScale;
 		ImGui::PushFont(ImGui::GetFont());
 	}
+
 	void WidgetsUtility::PopScaledFont()
 	{
 		ImGui::GetFont()->Scale = 1.0f;
 		ImGui::PopFont();
 	}
+
 	void WidgetsUtility::FramePaddingX(float amt)
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(amt, ImGui::GetStyle().FramePadding.y));
@@ -341,13 +343,15 @@ namespace LinaEditor
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, amt));
 	}
+
+	void WidgetsUtility::FramePadding(const ImVec2& amt)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, amt);
+	}
+
 	void WidgetsUtility::FrameRounding(float rounding)
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, rounding);
-	}
-	void WidgetsUtility::PopStyleVar()
-	{
-		ImGui::PopStyleVar();
 	}
 
 	void WidgetsUtility::WindowPaddingX(float amt)
@@ -359,12 +363,21 @@ namespace LinaEditor
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(ImGui::GetStyle().WindowPadding.x, amt));
 	}
+
+	void WidgetsUtility::WindowPadding(const ImVec2& amt)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, amt);
+	}
+
 	void WidgetsUtility::WindowRounding(float rounding)
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, rounding);
 	}
 
-
+	void WidgetsUtility::PopStyleVar()
+	{
+		ImGui::PopStyleVar();
+	}
 
 	void WidgetsUtility::Icon(const char* label, float scale, const ImVec4& color)
 	{
