@@ -41,6 +41,9 @@ namespace LinaEngine
 
 	Application::Application()
 	{
+		// Make sure log event is delegated to the application.
+		Log::s_onLog = std::bind(&Application::OnLog, this, std::placeholders::_1);
+
 		LINA_CORE_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
 		LINA_CORE_ASSERT(!instance, "Application already exists!");
 	}
@@ -61,7 +64,6 @@ namespace LinaEngine
 			LINA_CORE_ERR("Window Creation Failed!");
 			return;
 		}
-
 
 		// Set callbacks.
 		m_KeyCallback = std::bind(&Application::KeyCallback, this, std::placeholders::_1, std::placeholders::_2);
@@ -110,24 +112,13 @@ namespace LinaEngine
 		LINA_CORE_TRACE("[Destructor] -> Application ({0})", typeid(*this).name());
 	}
 
-	void Application::OnEvent()
+	void Application::OnLog(Log::LogDump dump)
 	{
-		/*EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
+		// Dump to cout
+		std::cout << dump.m_message << std::endl;
 
-		// Propagate the window resize event to render engine.
-		if (e.GetEventType() == EventType::WindowResize)
-		{
-			WindowResizeEvent& windowEvent = (WindowResizeEvent&)(e);
-			m_RenderEngine->OnWindowResized((float)windowEvent.GetWidth(), (float)windowEvent.GetHeight());
-		}
-
-		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
-		{
-			(*--it)->OnEvent(e);
-			if (e.isHandled)
-				break;
-		}*/
+		// Dispatch the action to any listeners.
+		DispatchAction<Log::LogDump>(Action::ActionType::MessageLogged,dump);
 	}
 
 	void Application::Run()

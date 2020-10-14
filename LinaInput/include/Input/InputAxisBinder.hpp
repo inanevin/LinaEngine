@@ -36,7 +36,6 @@ namespace LinaEngine::Input
 
 		FORCEINLINE void Initialize(InputCode::Mouse button = InputCode::Mouse::MouseUnknown)
 		{
-			IInputSubscriber::Initialize();
 			SubscribeMousePressedAction("buttonDown", LINA_ACTION_CALLBACK(InputMouseButtonBinder::OnButtonDown), button);
 			SubscribeMouseReleasedAction("buttonUp", LINA_ACTION_CALLBACK(InputMouseButtonBinder::OnButtonUp), button);
 		}

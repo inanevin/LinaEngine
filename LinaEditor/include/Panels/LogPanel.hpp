@@ -23,12 +23,15 @@ Timestamp: 6/7/2020 8:56:39 PM
 #define LogPanel_HPP
 
 #include "Panels/EditorPanel.hpp"
+#include "Utility/Log.hpp"
+#include <queue>
+#include "Actions/ActionSubscriber.hpp"
 
 namespace LinaEditor
 {
 	class GUILayer;
 
-	class LogPanel : public EditorPanel
+	class LogPanel : public EditorPanel, public LinaEngine::Action::ActionSubscriber
 	{
 		
 	public:
@@ -39,8 +42,11 @@ namespace LinaEditor
 		virtual void Draw(float frameTime) override;
 		virtual void Setup() override;
 	
+		void OnLog(LinaEngine::Log::LogDump dump);
+
 	private:
 	
+		//std::queue<LogDump> m_logQueue;
 	};
 }
 

@@ -25,8 +25,10 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "Utility/Math/Color.hpp"
 #include "Core/LayerStack.hpp"
 #include "ECS/ECSSystem.hpp"
-
+#include "Utility/Log.hpp"
+#include "Actions/ActionDispatcher.hpp"
 #include <functional>
+
 
 namespace LinaEngine::World
 {
@@ -54,8 +56,7 @@ namespace LinaEngine::Physics
 namespace LinaEngine
 {
 
-
-	class Application
+	class Application : public Action::ActionDispatcher
 	{
 	public:
 
@@ -101,9 +102,8 @@ namespace LinaEngine
 
 	private:
 
-
-		// Called when an internal event occurs.
-		void OnEvent();
+		// Called when a message is logged through Log class.
+		void OnLog(Log::LogDump dump);
 
 		// Called when main application window is closed.
 		bool OnWindowClose();

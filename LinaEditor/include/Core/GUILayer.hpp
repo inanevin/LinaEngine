@@ -118,6 +118,7 @@ namespace LinaEditor
 		FORCEINLINE class ScenePanel* GetScenePanel() const { return m_scenePanel; }
 		FORCEINLINE LinaEngine::Graphics::RenderEngine* GetRenderEngine() const { return m_renderEngine; }
 		FORCEINLINE class LinaEngine::Graphics::Window* GetAppWindow() const { return m_appWindow; }
+		FORCEINLINE class LinaEngine::Application* GetApp() const { return m_application; }
 
 	private:
 

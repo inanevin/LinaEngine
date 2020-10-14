@@ -18,6 +18,7 @@ Timestamp: 4/10/2019 1:26:39 PM
 */
 
 #include "Actions/ActionDispatcher.hpp"  
+#include <stdexcept>
 
 namespace LinaEngine::Action
 {

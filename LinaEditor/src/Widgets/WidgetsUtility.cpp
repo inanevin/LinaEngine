@@ -209,18 +209,18 @@ namespace LinaEditor
 		ImGui::AlignTextToFramePadding(); ImGui::SameLine();
 
 
-		// Our buttons are both drag sources and drag targets here!
+		// Title is the drag and drop target.
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 		{
-			// Set payload to carry the index of our item (could be anything)
+			// Set payload to carry the type id.
 			ImGui::SetDragDropPayload("COMP_MOVE_PAYLOAD", &typeID, sizeof(int));
 
-			// Display preview (could be anything, e.g. when dragging an image we could decide to display
-			// the filename and a small preview of the image, etc.)
+			// Display preview 
 			ImGui::Text("Move ");
 			ImGui::EndDragDropSource();
 		}
 
+		// Dropped on another title, swap component orders.
 		if (ImGui::BeginDragDropTarget())
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("COMP_MOVE_PAYLOAD"))

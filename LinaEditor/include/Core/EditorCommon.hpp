@@ -22,9 +22,8 @@ Timestamp: 5/8/2020 11:04:45 PM
 #ifndef EditorCommon_HPP
 #define EditorCommon_HPP
 
+#include "Utility/Log.hpp"
 #include <string>
-
-// Headers here.
 
 
 namespace LinaEditor

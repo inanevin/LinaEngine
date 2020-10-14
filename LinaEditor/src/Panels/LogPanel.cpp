@@ -20,11 +20,9 @@ Timestamp: 6/7/2020 8:56:51 PM
 
 
 #include "Panels/LogPanel.hpp"
-#include "Utility/Log.hpp"
 #include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
-#include "spdlog/details/log_msg.h"
+#include "Core/GUILayer.hpp"
+#include "Core/Application.hpp"
 
 namespace LinaEditor
 {
@@ -32,7 +30,6 @@ namespace LinaEditor
 	{
 		if (m_show)
 		{
-			
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 			ImVec2 work_area_pos = viewport->GetWorkPos();
@@ -51,5 +48,19 @@ namespace LinaEditor
 
 	void LogPanel::Setup()
 	{
+		SetActionDispatcher(m_guiLayer->GetApp());
+		SubscribeAction<LinaEngine::Log::LogDump>("##logPanel", LinaEngine::Action::ActionType::MessageLogged, std::bind(&LogPanel::OnLog, this, std::placeholders::_1));
 	}
+
+	void LogPanel::OnLog(LinaEngine::Log::LogDump dump)
+	{
+		std::cout << "huraay" << dump.m_message << std::endl;
+
+	//	if (m_logQueue.size() == MAX_BACKTRACE_SIZE)
+	//		m_logQueue.pop();
+
+	//	m_logQueue.push(LogDump(level, message));
+
+	}
+
 }
