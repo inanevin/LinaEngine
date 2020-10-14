@@ -67,6 +67,9 @@ namespace LinaEditor
 					v.push_back(types[i]);
 			}
 
+			// Clear selection
+			memset(selection, 0, sizeof(selection));
+
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -74,6 +77,9 @@ namespace LinaEditor
 		WidgetsUtility::IncrementCursorPosX(10);
 		if (WidgetsUtility::Button("Close", ImVec2(ImGui::GetWindowSize().x * 0.5f - 20, 0.0f)))
 		{
+			// Clear selection
+			memset(selection, 0, sizeof(selection));
+
 			ImGui::CloseCurrentPopup();
 		}
 
