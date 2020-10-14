@@ -29,6 +29,7 @@ Timestamp: 10/11/2020 1:39:01 PM
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_internal.h"
+#include "ECS/ECS.hpp"
 #include <map>
 
 namespace LinaEditor
@@ -44,7 +45,7 @@ namespace LinaEditor
 		static void DrawWindowBorders(const ImVec4& color, float thickness);
 		static void DrawShadowedLine(int height = 10, const ImVec4& color = ImVec4(0.1f, 0.1f,0.1f, 1.0f), float thickness = 1.0f, ImVec2 min = ImVec2(0,0), ImVec2 max = ImVec2(0,0));
 		static void DrawBeveledLine(ImVec2 min = ImVec2(0, 0), ImVec2 max = ImVec2(0, 0));
-		static bool DrawComponentTitle(const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconFolor = ImVec4(1,1,1,1), const ImVec2& iconOffset = ImVec2(0,0));
+		static bool DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconFolor = ImVec4(1,1,1,1), const ImVec2& iconOffset = ImVec2(0,0));
 		static void Icon(const char* label, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 1));
 		static bool IconButtonNoDecoration(const char* label, float width = 0.0f, float scale = 0.6f);
 		static bool IconButton(const char* id, const char* label, float width = 0.0f, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 0.6f), const ImVec4& hoverColor = ImVec4(1,1,1,.8f), const ImVec4& pressedColor = ImVec4(1, 1, 1, 1.0f));

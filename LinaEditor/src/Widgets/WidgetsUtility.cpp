@@ -22,6 +22,7 @@ Timestamp: 10/11/2020 1:39:27 PM
 #include "Widgets/WidgetsUtility.hpp"
 #include "Utility/Math/Math.hpp"
 #include "IconsFontAwesome5.h"
+#include "Drawers/ComponentDrawer.hpp"
 
 namespace LinaEditor
 {
@@ -194,7 +195,7 @@ namespace LinaEditor
 		ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + 2), ImVec2(max.x, max.y + 2), ImGui::ColorConvertFloat4ToU32(ImVec4(0.2f, 0.2f, 0.2f, 1.0f)), 1);
 	}
 
-	bool WidgetsUtility::DrawComponentTitle(const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor, const ImVec2& iconOffset)
+	bool WidgetsUtility::DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor, const ImVec2& iconOffset)
 	{
 		// Caret button.
 		const char* caret = *foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
@@ -206,6 +207,30 @@ namespace LinaEditor
 		WidgetsUtility::IncrementCursorPosY(-5);
 		ImGui::Text(title);
 		ImGui::AlignTextToFramePadding(); ImGui::SameLine();
+
+
+		// Our buttons are both drag sources and drag targets here!
+		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+		{
+			// Set payload to carry the index of our item (could be anything)
+			ImGui::SetDragDropPayload("COMP_MOVE_PAYLOAD", &typeID, sizeof(int));
+
+			// Display preview (could be anything, e.g. when dragging an image we could decide to display
+			// the filename and a small preview of the image, etc.)
+			ImGui::Text("Move ");
+			ImGui::EndDragDropSource();
+		}
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("COMP_MOVE_PAYLOAD"))
+			{
+				IM_ASSERT(payload->DataSize == sizeof(LinaEngine::ECS::ECSTypeID));
+				LinaEngine::ECS::ECSTypeID payloadID = *(const LinaEngine::ECS::ECSTypeID*)payload->Data;
+				ComponentDrawer::SwapComponentOrder(payloadID, typeID);
+			}
+			ImGui::EndDragDropTarget();
+		}
 
 		// Icon
 		WidgetsUtility::IncrementCursorPosY(6);

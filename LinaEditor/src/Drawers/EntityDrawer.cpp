@@ -97,12 +97,15 @@ namespace LinaEditor
 		WidgetsUtility::DrawBeveledLine();
 		WidgetsUtility::FramePaddingX(4);
 
-		// Visit each component an entity has & call the draw functions.
+		// Visit each component an entity has and add the component to the draw list if its registered as a drawable component.
 		ecs->visit(entity, [ecs, entity](const auto component)
 		{
 				if (ComponentDrawer::s_componentDrawFuncMap.find(component) != ComponentDrawer::s_componentDrawFuncMap.end())
-					std::get<2>(ComponentDrawer::s_componentDrawFuncMap[component])(ecs, entity);
+					ComponentDrawer::AddIDToDrawList(component);
 		});
+
+		// Draw the added components.
+		ComponentDrawer::DrawComponents(ecs, entity);
 
 		WidgetsUtility::PopStyleVar();
 

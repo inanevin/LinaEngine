@@ -41,10 +41,14 @@ namespace LinaEditor
 		static void RegisterComponentFunctions();
 		static std::vector<std::string> GetEligibleComponents(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity);
 		static void AddComponentToEntity(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity, const std::string& comp);
-
+		static void SwapComponentOrder(LinaEngine::ECS::ECSTypeID id1, LinaEngine::ECS::ECSTypeID id2);
+		static void AddIDToDrawList(LinaEngine::ECS::ECSTypeID id);
+		static void DrawComponents(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity);
+		
 	public:
 
 		static std::map<LinaEngine::ECS::ECSTypeID, ComponentValueTuple> s_componentDrawFuncMap;
+		static std::vector<LinaEngine::ECS::ECSTypeID> s_componentDrawList;
 
 		// Selected colilsion shape in editor.
 		static int s_currentCollisionShape;
