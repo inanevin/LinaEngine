@@ -24,7 +24,7 @@ Timestamp: 6/7/2020 8:56:39 PM
 
 #include "Panels/EditorPanel.hpp"
 #include "Utility/Log.hpp"
-#include <queue>
+#include <deque>
 #include "Actions/ActionSubscriber.hpp"
 
 namespace LinaEditor
@@ -46,7 +46,7 @@ namespace LinaEditor
 
 	private:
 	
-		//std::queue<LogDump> m_logQueue;
+		std::deque<LinaEngine::Log::LogDump> m_logDeque;
 	};
 }
 

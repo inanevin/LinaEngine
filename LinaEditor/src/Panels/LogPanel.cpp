@@ -24,10 +24,16 @@ Timestamp: 6/7/2020 8:56:51 PM
 #include "Core/GUILayer.hpp"
 #include "Core/Application.hpp"
 
+
 namespace LinaEditor
 {
+	static int c = 0;
 	void LogPanel::Draw(float frameTime)
 	{
+
+		if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+			LINA_CLIENT_INFO("heyy {0}", ++c);
+
 		if (m_show)
 		{
 			// Set window properties.
@@ -40,7 +46,10 @@ namespace LinaEditor
 
 			if (ImGui::Begin("Log", &m_show, flags))
 			{
-
+				for (std::deque<LinaEngine::Log::LogDump>::iterator it = m_logDeque.begin(); it != m_logDeque.end(); it++)
+				{
+					ImGui::Text(it->m_message.c_str());
+				}
 			}
 			ImGui::End();
 		}
@@ -54,13 +63,10 @@ namespace LinaEditor
 
 	void LogPanel::OnLog(LinaEngine::Log::LogDump dump)
 	{
-		std::cout << "huraay" << dump.m_message << std::endl;
+		if (m_logDeque.size() == 3)
+			m_logDeque.pop_front();
 
-	//	if (m_logQueue.size() == MAX_BACKTRACE_SIZE)
-	//		m_logQueue.pop();
-
-	//	m_logQueue.push(LogDump(level, message));
-
+		m_logDeque.push_back(dump);
 	}
 
 }
