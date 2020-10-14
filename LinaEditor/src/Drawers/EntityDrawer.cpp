@@ -29,10 +29,8 @@ Timestamp: 10/12/2020 1:02:39 AM
 namespace LinaEditor
 {
 
-
 	void EntityDrawer::DrawEntity(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity, bool* copySelectedEntityName)
 	{
-		static int componentsComboCurrentItem = 0;
 		// Shadow.
 		WidgetsUtility::DrawShadowedLine(5);
 
@@ -70,14 +68,15 @@ namespace LinaEditor
 		ImGui::Text("Add "); ImGui::SameLine();
 		WidgetsUtility::IncrementCursorPosY(4);
 
+		// add component button.
 		if (WidgetsUtility::IconButton("addcomp", ICON_FA_PLUS_SQUARE, 0.0f, 0.9f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 		{
 			ImGui::OpenPopup("Select Component");
 		}
 
+		// Component selection modal.
 		bool o = true;
-		WidgetsUtility::FramePaddingY(8);
-		WidgetsUtility::FramePaddingX(4);
+		WidgetsUtility::FramePaddingY(8); WidgetsUtility::FramePaddingX(4);
 		ImGui::SetNextWindowSize(ImVec2(280, 400));
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
 		if (ImGui::BeginPopupModal("Select Component", &o, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
@@ -88,74 +87,24 @@ namespace LinaEditor
 			// Add the selected components to the entity.
 			for (int i = 0; i < chosenComponents.size(); i++)
 				ComponentDrawer::AddComponentToEntity(ecs, entity, chosenComponents[i]);
-
-			;			ImGui::EndPopup();
+			
+			ImGui::EndPopup();
 		}
-		WidgetsUtility::PopStyleVar();
-		WidgetsUtility::PopStyleVar();
+		WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
 
 		// Bevel.
 		WidgetsUtility::IncrementCursorPosY(6.0f);
 		WidgetsUtility::DrawBeveledLine();
-
 		WidgetsUtility::FramePaddingX(4);
 
 		// Visit each component an entity has & call the draw functions.
 		ecs->visit(entity, [ecs, entity](const auto component)
-			{
+		{
 				if (ComponentDrawer::s_componentDrawFuncMap.find(component) != ComponentDrawer::s_componentDrawFuncMap.end())
-					ComponentDrawer::s_componentDrawFuncMap[component](ecs, entity);
-			});
+					std::get<2>(ComponentDrawer::s_componentDrawFuncMap[component])(ecs, entity);
+		});
 
 		WidgetsUtility::PopStyleVar();
-
-		//if (ImGui::Button(ICON_FA_PLUS, ImVec2(WidgetsUtility::DebugFloat(), WidgetsUtility::DebugFloat())))
-		//{
-		//
-		//}
-
-		/*ImGui::BeginChild("Component View", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
-		if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
-		{
-			// Component view tab
-			bool isValid = m_ecs->valid(m_selectedEntity);
-			std::string selectedName = m_ecs->valid(m_selectedEntity) ? "Component View" : ("Component View: " + m_ecs->GetEntityName(m_selectedEntity));
-			char titleName[256];
-			strcpy(titleName, selectedName.c_str());
-			if (ImGui::BeginTabItem(titleName))
-			{
-				if (!isValid)
-					ImGui::TextWrapped("No entity is selected.");
-				else
-					DrawComponents(m_selectedEntity);
-				ImGui::EndTabItem();
-			}
-			ImGui::EndTabBar();
-		}
-		ImGui::EndChild();
-
-		if (ImGui::Button("Add "))
-			AddComponentToEntity(componentsComboCurrentItem);
-
-		ImGui::SameLine();
-
-		// Combo box for components.
-		static ImGuiComboFlags flags = 0;
-		const char* combo_label = entityComponents[componentsComboCurrentItem];  // Label to preview before opening the combo (technically could be anything)(
-		if (ImGui::BeginCombo("ComponentsCombo", combo_label, flags))
-		{
-			for (int n = 0; n < IM_ARRAYSIZE(entityComponents); n++)
-			{
-				const bool is_selected = (componentsComboCurrentItem == n);
-				if (ImGui::Selectable(entityComponents[n], is_selected))
-					componentsComboCurrentItem = n;
-
-				// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-				if (is_selected)
-					ImGui::SetItemDefaultFocus();
-			}
-			ImGui::EndCombo();
-		}*/
 
 	}
 

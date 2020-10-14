@@ -42,7 +42,8 @@ namespace LinaEngine::ECS
 		}
 
 #ifdef LINA_EDITOR
-		COMPONENT_DRAWFUNC_SIG
+		COMPONENT_DRAWFUNC_SIG;
+		COMPONENT_ADDFUNC_SIG{ ecs->emplace<CameraComponent>(entity, CameraComponent()); }
 #endif
 
 	};

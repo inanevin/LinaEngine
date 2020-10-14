@@ -38,68 +38,78 @@ using namespace LinaEditor;
 
 namespace LinaEditor
 {
-	std::map<entt::id_type, std::function<void(LinaEngine::ECS::ECSRegistry*, LinaEngine::ECS::ECSEntity)>> ComponentDrawer::s_componentDrawFuncMap;
+	std::map<LinaEngine::ECS::ECSTypeID, ComponentValueTuple> ComponentDrawer::s_componentDrawFuncMap;
+
 	int ComponentDrawer::s_currentCollisionShape = 0;
 
 	void ComponentDrawer::RegisterComponentFunctions()
 	{
-		s_componentDrawFuncMap[entt::type_info<TransformComponent>::id()] = std::bind(&TransformComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		s_componentDrawFuncMap[entt::type_info<RigidbodyComponent>::id()] = std::bind(&RigidbodyComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		s_componentDrawFuncMap[entt::type_info<CameraComponent>::id()] = std::bind(&CameraComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		s_componentDrawFuncMap[entt::type_info<DirectionalLightComponent>::id()] = std::bind(&DirectionalLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		s_componentDrawFuncMap[entt::type_info<SpotLightComponent>::id()] = std::bind(&SpotLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		s_componentDrawFuncMap[entt::type_info<PointLightComponent>::id()] = std::bind(&PointLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		s_componentDrawFuncMap[entt::type_info<FreeLookComponent>::id()] = std::bind(&FreeLookComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		s_componentDrawFuncMap[entt::type_info<MeshRendererComponent>::id()] = std::bind(&MeshRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		s_componentDrawFuncMap[entt::type_info<SpriteRendererComponent>::id()] = std::bind(&SpriteRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+
+		// Display names.
+		std::get<0>(s_componentDrawFuncMap[GetTypeID<TransformComponent>()]) = "Transformation";
+		std::get<0>(s_componentDrawFuncMap[GetTypeID<RigidbodyComponent>()]) = "Rigidbody";
+		std::get<0>(s_componentDrawFuncMap[GetTypeID<CameraComponent>()]) = "Camera";
+		std::get<0>(s_componentDrawFuncMap[GetTypeID<DirectionalLightComponent>()]) = "Directional Light";
+		std::get<0>(s_componentDrawFuncMap[GetTypeID<SpotLightComponent>()]) = "Spot Light";
+		std::get<0>(s_componentDrawFuncMap[GetTypeID<PointLightComponent>()]) = "Point Light";
+		std::get<0>(s_componentDrawFuncMap[GetTypeID<FreeLookComponent>()]) = "Free Look";
+		std::get<0>(s_componentDrawFuncMap[GetTypeID<MeshRendererComponent>()]) = "Mesh Renderer";
+		std::get<0>(s_componentDrawFuncMap[GetTypeID<SpriteRendererComponent>()]) = "Sprite Renderer";
+
+		// Add functions.
+		std::get<1>(s_componentDrawFuncMap[GetTypeID<TransformComponent>()]) = std::bind(&TransformComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(s_componentDrawFuncMap[GetTypeID<RigidbodyComponent>()]) = std::bind(&RigidbodyComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(s_componentDrawFuncMap[GetTypeID<CameraComponent>()]) = std::bind(&CameraComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(s_componentDrawFuncMap[GetTypeID<DirectionalLightComponent>()]) = std::bind(&DirectionalLightComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(s_componentDrawFuncMap[GetTypeID<SpotLightComponent>()]) = std::bind(&SpotLightComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(s_componentDrawFuncMap[GetTypeID<PointLightComponent>()]) = std::bind(&PointLightComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(s_componentDrawFuncMap[GetTypeID<FreeLookComponent>()]) = std::bind(&FreeLookComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(s_componentDrawFuncMap[GetTypeID<MeshRendererComponent>()]) = std::bind(&MeshRendererComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(s_componentDrawFuncMap[GetTypeID<SpriteRendererComponent>()]) = std::bind(&SpriteRendererComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+
+		// Draw functions.
+		std::get<2>(s_componentDrawFuncMap[GetTypeID<TransformComponent>()]) = std::bind(&TransformComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(s_componentDrawFuncMap[GetTypeID<RigidbodyComponent>()]) = std::bind(&RigidbodyComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(s_componentDrawFuncMap[GetTypeID<CameraComponent>()]) = std::bind(&CameraComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(s_componentDrawFuncMap[GetTypeID<DirectionalLightComponent>()]) = std::bind(&DirectionalLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(s_componentDrawFuncMap[GetTypeID<SpotLightComponent>()]) = std::bind(&SpotLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(s_componentDrawFuncMap[GetTypeID<PointLightComponent>()]) = std::bind(&PointLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(s_componentDrawFuncMap[GetTypeID<FreeLookComponent>()]) = std::bind(&FreeLookComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(s_componentDrawFuncMap[GetTypeID<MeshRendererComponent>()]) = std::bind(&MeshRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(s_componentDrawFuncMap[GetTypeID<SpriteRendererComponent>()]) = std::bind(&SpriteRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
 	}
 
 	// Use reflection for gods sake later on.
-	std::vector<std::string> ComponentDrawer::GetEligibleComponents(LinaEngine::ECS::ECSRegistry* reg, LinaEngine::ECS::ECSEntity entity)
+	std::vector<std::string> ComponentDrawer::GetEligibleComponents(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
 	{
 		std::vector<std::string> eligibleTypes;
+		std::vector<ECSTypeID> typeIDs;
+		
+		// Store all components of the entity.
+		ecs->visit(entity, [&typeIDs](const auto component)
+			{
+				ECSTypeID id = component;
+				typeIDs.push_back(id);
+			});
 
-		if (!reg->has<TransformComponent>(entity))
-			eligibleTypes.push_back("Transformation");
-		if (!reg->has<MeshRendererComponent>(entity))
-			eligibleTypes.push_back("MeshRenderer");
-		if (!reg->has<CameraComponent>(entity))
-			eligibleTypes.push_back("Camera");
-		if (!reg->has<FreeLookComponent>(entity))
-			eligibleTypes.push_back("FreeLook");
-		if (!reg->has<PointLightComponent>(entity))
-			eligibleTypes.push_back("PointLight");
-		if (!reg->has<SpotLightComponent>(entity))
-			eligibleTypes.push_back("SpotLight");
-		if (!reg->has<DirectionalLightComponent>(entity))
-			eligibleTypes.push_back("DirectionalLight");
-		if (!reg->has<RigidbodyComponent>(entity))
-			eligibleTypes.push_back("Rigidbody");
+		// Iterate registered types & add as eligible if entity does not contain the type.
+		for (std::map<ECSTypeID, ComponentValueTuple>::iterator it = ComponentDrawer::s_componentDrawFuncMap.begin(); it != ComponentDrawer::s_componentDrawFuncMap.end(); ++it)
+		{
+			if (std::find(typeIDs.begin(), typeIDs.end(), it->first) == typeIDs.end())
+				eligibleTypes.push_back(std::get<0>(it->second));
+		}
 
 		return eligibleTypes;
 	}
 
 	void ComponentDrawer::AddComponentToEntity(ECSRegistry* ecs, ECSEntity entity, const std::string& comp)
 	{
-
-		LINA_CLIENT_TRACE(comp);
-		if (comp.compare("Transformation") == 0)
-			ecs->emplace<TransformComponent>(entity, TransformComponent());
-		else if (comp.compare("MeshRenderer") == 0)
-			ecs->emplace<MeshRendererComponent>(entity, MeshRendererComponent());
-		else if (comp.compare("Camera") == 0)
-			ecs->emplace<CameraComponent>(entity, CameraComponent());
-		else if (comp.compare("FreeLook") == 0)
-			ecs->emplace<FreeLookComponent>(entity, FreeLookComponent());
-		else if (comp.compare("PointLight") == 0)
-			ecs->emplace<PointLightComponent>(entity, PointLightComponent());
-		else if (comp.compare("SpotLight") == 0)
-			ecs->emplace<SpotLightComponent>(entity, SpotLightComponent());
-		else if (comp.compare("DirectionalLight") == 0)
-			ecs->emplace<DirectionalLightComponent>(entity, DirectionalLightComponent());
-		else if (comp.compare("Rigidbody") == 0)
-			ecs->emplace<RigidbodyComponent>(entity, RigidbodyComponent());
-
+		// Call the add function of the type when the requested strings match.
+		for (std::map<ECSTypeID, ComponentValueTuple>::iterator it = ComponentDrawer::s_componentDrawFuncMap.begin(); it != ComponentDrawer::s_componentDrawFuncMap.end(); ++it)
+		{
+			if (std::get<0>(it->second).compare(comp) == 0)
+				std::get<1>(it->second)(ecs, entity);
+		}
 	}
 
 }

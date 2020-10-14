@@ -26,9 +26,13 @@ Timestamp: 10/13/2020 2:34:21 PM
 #include "ECS/ECS.hpp"
 #include <functional>
 #include <map>
+#include <tuple>
 
 namespace LinaEditor
 {
+	typedef std::function<void(LinaEngine::ECS::ECSRegistry*, LinaEngine::ECS::ECSEntity)> ComponentFunction;
+	typedef std::tuple<std::string, ComponentFunction, ComponentFunction> ComponentValueTuple;
+
 	class ComponentDrawer
 	{
 		
@@ -40,7 +44,7 @@ namespace LinaEditor
 
 	public:
 
-		static std::map<entt::id_type, std::function<void(LinaEngine::ECS::ECSRegistry*, LinaEngine::ECS::ECSEntity)>> s_componentDrawFuncMap;
+		static std::map<LinaEngine::ECS::ECSTypeID, ComponentValueTuple> s_componentDrawFuncMap;
 
 		// Selected colilsion shape in editor.
 		static int s_currentCollisionShape;

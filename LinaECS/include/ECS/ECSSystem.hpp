@@ -34,7 +34,13 @@ namespace LinaEngine::ECS
 {
 
 	typedef entt::entity ECSEntity;
+	typedef entt::id_type ECSTypeID;
 
+	template<typename T>
+	ECSTypeID GetTypeID()
+	{
+		return entt::type_info<T>::id();
+	}
 	
 	class ECSRegistry : public entt::registry
 	{

@@ -27,12 +27,6 @@ Timestamp: 6/7/2020 5:13:42 PM
 #include "Widgets/WidgetsUtility.hpp"
 #include "IconsFontAwesome5.h"
 #include "Drawers/EntityDrawer.hpp"
-#include "ECS/Components/TransformComponent.hpp"
-#include "ECS/Components/CameraComponent.hpp"
-#include "ECS/Components/LightComponent.hpp"
-#include "ECS/Components/FreeLookComponent.hpp"
-#include "ECS/Components/MeshRendererComponent.hpp"
-#include "ECS/Components/RigidbodyComponent.hpp"
 #include "Drawers/ComponentDrawer.hpp"
 
 namespace LinaEditor
@@ -79,7 +73,6 @@ namespace LinaEditor
 	static Graphics::SamplerWrapMode selectedWrapS;
 	static Graphics::SamplerWrapMode selectedWrapR;
 	static Graphics::SamplerWrapMode selectedWrapT;
-	static ECS::CollisionShape selectedCollisionShape;
 
 	const int TEXTUREPREVIEW_MAX_WIDTH = 250;
 
@@ -115,6 +108,7 @@ namespace LinaEditor
 
 	void PropertiesPanel::Draw(float frameTime)
 	{
+		// Make sure we draw nothing if nothing is selected.
 		if (m_CurrentDrawType != DrawType::NONE)
 		{
 			if (m_selectedEntity == entt::null && m_SelectedTexture == nullptr && m_SelectedMesh == nullptr && m_SelectedMaterial == nullptr)
@@ -123,16 +117,7 @@ namespace LinaEditor
 
 		if (m_show)
 		{
-			// Component already exists popup modal.
-			if (openCompExistsModal)
-				ImGui::OpenPopup("Component Exists!");
-			if (ImGui::BeginPopupModal("Component Exists!", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-			{
-				ImGui::Text("This component already exists!\n\n");
-				if (ImGui::Button("OK", ImVec2(120, 0))) { openCompExistsModal = false; ImGui::CloseCurrentPopup(); }
-				ImGui::EndPopup();
-			}
-
+			
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 			ImVec2 work_area_pos = viewport->GetWorkPos();
@@ -142,10 +127,11 @@ namespace LinaEditor
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
 
+			// window.
 			ImGui::Begin("Properties", &m_show, flags);
-
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, 0));
 
+			// Draw the selected item.
 			if (m_CurrentDrawType == DrawType::ENTITIES)
 			{
 				if (m_ecs->valid(m_selectedEntity))
@@ -159,233 +145,11 @@ namespace LinaEditor
 				DrawMaterialProperties();
 
 			ImGui::PopStyleVar();
-
-
 			ImGui::End();
 
 		}
 	}
 
-	void PropertiesPanel::DrawEntityProperties()
-	{
-
-	}
-
-	void PropertiesPanel::AddComponentToEntity(int componentID)
-	{
-		if (!m_ecs->valid(m_selectedEntity)) return;
-
-		// Add the indexed component to target entity.
-		if (componentID == 0)
-		{
-			if (m_ecs->has<LinaEngine::ECS::TransformComponent>(m_selectedEntity))
-				openCompExistsModal = true;
-			else
-			{
-				auto& e = m_ecs->emplace<LinaEngine::ECS::TransformComponent>(m_selectedEntity);
-			}
-		}
-		else if (componentID == 1)
-		{
-			if (m_ecs->has<LinaEngine::ECS::MeshRendererComponent>(m_selectedEntity))
-				openCompExistsModal = true;
-			else
-			{
-				auto& e = m_ecs->emplace<LinaEngine::ECS::MeshRendererComponent>(m_selectedEntity);
-			}
-		}
-		else if (componentID == 2)
-		{
-			if (m_ecs->has<LinaEngine::ECS::CameraComponent>(m_selectedEntity))
-				openCompExistsModal = true;
-			else
-			{
-				auto& e = m_ecs->emplace<LinaEngine::ECS::CameraComponent>(m_selectedEntity);
-			}
-
-		}
-		else if (componentID == 3)
-		{
-			if (m_ecs->has<LinaEngine::ECS::DirectionalLightComponent>(m_selectedEntity))
-				openCompExistsModal = true;
-			else
-			{
-				auto& e = m_ecs->emplace<LinaEngine::ECS::DirectionalLightComponent>(m_selectedEntity);
-			}
-
-		}
-		else if (componentID == 4)
-		{
-			if (m_ecs->has<LinaEngine::ECS::PointLightComponent>(m_selectedEntity))
-				openCompExistsModal = true;
-			else
-			{
-				auto& e = m_ecs->emplace<LinaEngine::ECS::PointLightComponent>(m_selectedEntity);
-			}
-
-		}
-		else if (componentID == 5)
-		{
-			if (m_ecs->has<LinaEngine::ECS::SpotLightComponent>(m_selectedEntity))
-				openCompExistsModal = true;
-			else
-			{
-				auto& e = m_ecs->emplace<LinaEngine::ECS::SpotLightComponent>(m_selectedEntity);
-			}
-
-		}
-		else if (componentID == 6)
-		{
-			if (m_ecs->has<LinaEngine::ECS::FreeLookComponent>(m_selectedEntity))
-				openCompExistsModal = true;
-			else
-			{
-				auto& e = m_ecs->emplace<LinaEngine::ECS::FreeLookComponent>(m_selectedEntity);
-			}
-		}
-
-	}
-
-	void PropertiesPanel::DrawComponents(LinaEngine::ECS::ECSEntity& entity)
-	{
-		// Draw transform component.
-		if (TransformComponent* transform = m_ecs->try_get<TransformComponent>(entity))
-		{
-			if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_None))
-			{
-				ImGui::Indent();
-				float a = transform->transform.m_location[0];
-				float rot[3] = { transform->transform.m_rotation.GetEuler().x, transform->transform.m_rotation.GetEuler().y, transform->transform.m_rotation.GetEuler().z };
-				ImGui::Text("Location"); ImGui::SameLine(); ImGui::InputFloat3("", transform->transform.m_location.Get());
-				ImGui::Text("Rotation"); ImGui::SameLine(); ImGui::InputFloat3("", rot);
-				ImGui::Text("Scale"); ImGui::SameLine(); ImGui::InputFloat3("", transform->transform.m_scale.Get());
-				transform->transform.m_rotation = Quaternion::Euler(rot[0], rot[1], rot[2]);
-				ImGui::Unindent();
-			}
-
-		}
-
-
-		// Draw Point Light component.
-		if (m_ecs->has<PointLightComponent>(entity))
-		{
-			PointLightComponent* light = &m_ecs->get<PointLightComponent>(entity);
-			MeshRendererComponent* lightRenderer = m_ecs->has<MeshRendererComponent>(entity) ? &m_ecs->get<MeshRendererComponent>(entity) : nullptr;
-
-			float dragSensitivity = 0.05f;
-			if (ImGui::CollapsingHeader("Point Light", ImGuiTreeNodeFlags_None))
-			{
-				ImGui::Indent();
-
-				ImVec4 col = ImVec4(light->color.r, light->color.g, light->color.b, light->color.a);
-				float d = light->distance;
-			//	WidgetsUtility::ColorButton(&col.x);
-				ImGui::DragFloat("Distance ", &d, dragSensitivity);
-				light->distance = d;
-				light->color = Color(col.x, col.y, col.z, col.w);
-
-				if (lightRenderer != nullptr)
-					m_RenderEngine->GetMaterial(lightRenderer->materialID).SetColor(MAT_OBJECTCOLORPROPERTY, light->color);
-
-				ImGui::Unindent();
-			}
-
-		}
-
-		// Draw spot light component.
-		if (m_ecs->has<SpotLightComponent>(entity))
-		{
-			SpotLightComponent* light = &m_ecs->get<SpotLightComponent>(entity);
-			MeshRendererComponent* lightRenderer = m_ecs->has<MeshRendererComponent>(entity) ? &m_ecs->get<MeshRendererComponent>(entity) : nullptr;
-
-			float dragSensitivity = 0.005f;
-			if (ImGui::CollapsingHeader("Spot Light", ImGuiTreeNodeFlags_None))
-			{
-				ImGui::Indent();
-
-				ImVec4 col = ImVec4(light->color.r, light->color.g, light->color.b, light->color.a);
-				float d = light->distance;
-				float cutOff = light->cutOff;
-				float outerCutOff = light->outerCutOff;
-				//WidgetsUtility::ColorButton(&col.x);
-				ImGui::DragFloat("Distance ", &d, dragSensitivity);
-				ImGui::DragFloat("CutOff ", &cutOff, dragSensitivity);
-				ImGui::DragFloat("Outer Cutoff ", &outerCutOff, dragSensitivity);
-				light->distance = d;
-				light->cutOff = cutOff;
-				light->outerCutOff = outerCutOff;
-				light->color = Color(col.x, col.y, col.z, col.w);
-
-
-				if (lightRenderer != nullptr)
-					m_RenderEngine->GetMaterial(lightRenderer->materialID).SetColor(MAT_OBJECTCOLORPROPERTY, light->color);
-
-				ImGui::Unindent();
-			}
-		}
-
-		// Draw directional light component.
-		if (m_ecs->has<DirectionalLightComponent>(entity))
-		{
-			DirectionalLightComponent* light = &m_ecs->get<DirectionalLightComponent>(entity);
-			MeshRendererComponent* lightRenderer = m_ecs->has<MeshRendererComponent>(entity) ? &m_ecs->get<MeshRendererComponent>(entity) : nullptr;
-
-			float dragSensitivity = 0.005f;
-			if (ImGui::CollapsingHeader("Directional Light", ImGuiTreeNodeFlags_None))
-			{
-				ImGui::Indent();
-
-				ImVec4 col = ImVec4(light->color.r, light->color.g, light->color.b, light->color.a);
-				float projectionSettings[4] = { light->shadowProjectionSettings.x, light->shadowProjectionSettings.y, light->shadowProjectionSettings.z, light->shadowProjectionSettings.w };
-
-				//WidgetsUtility::ColorButton(&col.x);
-				ImGui::InputFloat4("Shadow Projection ", projectionSettings, dragSensitivity);
-				ImGui::InputFloat("Shadow Near", &light->shadowNearPlane);
-				ImGui::InputFloat("Shadow Far", &light->shadowFarPlane);
-				light->color = Color(col.x, col.y, col.z, col.w);
-				light->shadowProjectionSettings = Vector4(projectionSettings[0], projectionSettings[1], projectionSettings[2], projectionSettings[3]);
-				if (lightRenderer != nullptr)
-					m_RenderEngine->GetMaterial(lightRenderer->materialID).SetColor(MAT_OBJECTCOLORPROPERTY, light->color);
-
-				ImGui::Unindent();
-			}
-		}
-
-		// Draw mesh renderer component
-		if (m_ecs->has<MeshRendererComponent>(entity))
-		{
-			MeshRendererComponent* renderer = m_ecs->has<MeshRendererComponent>(entity) ? &m_ecs->get<MeshRendererComponent>(entity) : nullptr;
-
-			float dragSensitivity = 0.005f;
-			if (ImGui::CollapsingHeader("Mesh Renderer", ImGuiTreeNodeFlags_None))
-			{
-				ImGui::Indent();
-
-
-				ImGui::Unindent();
-			}
-		}
-
-
-	}
-
-	void PropertiesPanel::DrawVector2(const char* label, Vector2& v)
-	{
-		float location[2] = { v.x, v.y };
-		ImGui::Text(label);
-		ImGui::SameLine();
-		ImGui::InputFloat2("", location);
-		v.x = location[0];
-		v.y = location[1];
-	}
-
-	void PropertiesPanel::DrawVector3(const char* label, Vector3& v)
-	{
-	}
-
-	void PropertiesPanel::DrawVector4(const char* label, Vector4& v)
-	{
-	}
 
 	void PropertiesPanel::DrawTextureProperties()
 	{
