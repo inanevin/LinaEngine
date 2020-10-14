@@ -65,6 +65,9 @@ namespace LinaEditor
 		static void FramePaddingX(float amt);
 		static void FramePaddingY(float amt);
 		static void FrameRounding(float rounding);
+		static void WindowPaddingX(float amt);
+		static void WindowPaddingY(float amt);
+		static void WindowRounding(float rounding);
 		static void PopStyleVar();
 	
 

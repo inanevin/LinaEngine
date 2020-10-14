@@ -44,12 +44,17 @@ namespace LinaEditor
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 
+			
 			if (ImGui::Begin("Log", &m_show, flags))
 			{
-				for (std::deque<LinaEngine::Log::LogDump>::iterator it = m_logDeque.begin(); it != m_logDeque.end(); it++)
+				if(ImGui::BeginChild("Log_"))
 				{
-					ImGui::Text(it->m_message.c_str());
+					for (std::deque<LinaEngine::Log::LogDump>::iterator it = m_logDeque.begin(); it != m_logDeque.end(); it++)
+					{
+						ImGui::Text(it->m_message.c_str());
+					}
 				}
+				ImGui::EndChild();
 			}
 			ImGui::End();
 		}

@@ -350,6 +350,22 @@ namespace LinaEditor
 		ImGui::PopStyleVar();
 	}
 
+	void WidgetsUtility::WindowPaddingX(float amt)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(amt, ImGui::GetStyle().WindowPadding.y));
+	}
+
+	void WidgetsUtility::WindowPaddingY(float amt)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(ImGui::GetStyle().WindowPadding.x, amt));
+	}
+	void WidgetsUtility::WindowRounding(float rounding)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, rounding);
+	}
+
+
+
 	void WidgetsUtility::Icon(const char* label, float scale, const ImVec4& color)
 	{
 		ImGui::PushStyleColor(ImGuiCol_Text, color);
