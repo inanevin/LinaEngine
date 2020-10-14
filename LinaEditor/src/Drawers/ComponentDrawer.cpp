@@ -128,6 +128,11 @@ namespace LinaEditor
 			s_componentDrawList.push_back(id);
 	}
 
+	void ComponentDrawer::ClearDrawList()
+	{
+		s_componentDrawList.clear();
+	}
+
 	void ComponentDrawer::DrawComponents(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
 	{
 		// Draw components.

@@ -43,6 +43,9 @@ namespace LinaEngine::ECS
 			// Transform
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 
+			// Dont draw if mesh or material does not exist.
+			if (renderer.materialID < 0 || renderer.meshID < 0) continue;
+
 			// Render different batches.
 			Graphics::Material& mat = m_RenderEngine->GetMaterial(renderer.materialID);
 			Graphics::Mesh& mesh = m_RenderEngine->GetMesh(renderer.meshID);

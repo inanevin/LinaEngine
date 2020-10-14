@@ -67,12 +67,7 @@ namespace LinaEditor
 		void Setup();
 
 
-		FORCEINLINE void EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity) 
-		{
-			m_selectedEntity = selectedEntity;  
-			m_CurrentDrawType = DrawType::ENTITIES;
-			m_copySelectedEntityName = true;
-		}
+		void EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity);
 
 		void Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path);
 

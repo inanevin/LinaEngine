@@ -85,6 +85,14 @@ namespace LinaEditor
 		ComponentDrawer::RegisterComponentFunctions();
 	}
 
+	void PropertiesPanel::EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity)
+	{
+		m_selectedEntity = selectedEntity;
+		m_CurrentDrawType = DrawType::ENTITIES;
+		m_copySelectedEntityName = true;
+		ComponentDrawer::ClearDrawList();
+	}
+
 	void PropertiesPanel::Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path)
 	{
 

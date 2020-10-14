@@ -43,6 +43,7 @@ namespace LinaEditor
 		static void AddComponentToEntity(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity, const std::string& comp);
 		static void SwapComponentOrder(LinaEngine::ECS::ECSTypeID id1, LinaEngine::ECS::ECSTypeID id2);
 		static void AddIDToDrawList(LinaEngine::ECS::ECSTypeID id);
+		static void ClearDrawList();
 		static void DrawComponents(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity);
 		
 	public:
