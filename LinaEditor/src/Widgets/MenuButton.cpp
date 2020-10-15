@@ -116,7 +116,7 @@ namespace LinaEditor
 		ImGui::PopStyleVar();
 		
 		// Draw popup
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, HEADER_MENUBUTTON_WINDOWPADDING);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, HEADER_WINDOWPADDING_MENUBUTTON);
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y));
 		m_popupOpen = ImGui::BeginPopup(m_popupID);
 		if (m_popupOpen)

@@ -402,7 +402,7 @@ namespace LinaEditor
 
 			igfd::ImGuiFileDialog::Instance()->CloseDialog(saveLevelDialogID);
 		}
-
+		
 		// Load level dialogue.
 		if (igfd::ImGuiFileDialog::Instance()->FileDialog(loadLevelDialogID))
 		{
@@ -494,9 +494,9 @@ namespace LinaEditor
 	
 
 		
-		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(HEADER_BG_COLOR.r, HEADER_BG_COLOR.g, HEADER_BG_COLOR.b, HEADER_BG_COLOR.a));
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(HEADER_COLOR_BG.r, HEADER_COLOR_BG.g, HEADER_COLOR_BG.b, HEADER_COLOR_BG.a));
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, WINDOW_FRAMEPADDING);
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, GLOBAL_FRAMEPADDING_WINDOW);
 
 		ImGui::Begin("DockSpace", NULL, window_flags);
 

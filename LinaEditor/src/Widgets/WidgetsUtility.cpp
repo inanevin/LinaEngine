@@ -418,8 +418,8 @@ namespace LinaEditor
 		bool isHovered = std::get<0>(s_iconButtons[id]);
 		bool isPressed = std::get<1>(s_iconButtons[id]);
 
+
 		Icon(label, scale, isPressed ? pressedColor : (isHovered ? hoverColor : color));
-		float w = ImGui::GetItemRectSize().x * 1.5f;
 
 		bool pressed = ImGui::IsItemClicked();
 		bool hovered = ImGui::IsItemHovered();

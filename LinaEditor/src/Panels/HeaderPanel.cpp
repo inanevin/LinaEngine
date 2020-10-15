@@ -41,7 +41,7 @@ bool appResizeActive;
 bool isAxisPivotLocal;
 
 LinaEngine::Graphics::Texture* windowIcon;
-LinaEngine::Graphics::Texture* linaLogoAnimation[LINALOGO_ANIMSIZE];
+LinaEngine::Graphics::Texture* linaLogoAnimation[HEADER_LINALOGO_ANIMSIZE];
 uint32 linaLogoID;
 float logoAnimRatio = 0.0f;
 float logoAnimSpeed = 1.2f;
@@ -67,7 +67,7 @@ namespace LinaEditor
 		windowIcon = &m_renderEngine->CreateTexture2D("resources/textures/linaEngineIcon.png");
 
 		// Logo animation textures
-		for (int i = 0; i < LINALOGO_ANIMSIZE; i++)
+		for (int i = 0; i < HEADER_LINALOGO_ANIMSIZE; i++)
 		{
 			std::string logoID = std::to_string(i);
 			if (i < 10)
@@ -86,21 +86,21 @@ namespace LinaEditor
 		fileItems.emplace_back(new MenuItem(ICON_FA_FOLDER_PLUS, " New Project", nullptr));
 		fileItems.emplace_back(new MenuItem(ICON_FA_FOLDER_OPEN, " Open Project", nullptr));
 		fileItems.emplace_back(new MenuItem(ICON_FA_SAVE, " Save Project", nullptr));
-		m_menuBarButtons.push_back(new MenuButton(/*ICON_FA_FILE*/ "File", "pu_file", fileItems, HEADER_BG_COLOR, false));
+		m_menuBarButtons.push_back(new MenuButton(/*ICON_FA_FILE*/ "File", "pu_file", fileItems, HEADER_COLOR_BG, false));
 
 		// Edit menu.
 		std::vector<MenuElement*> edit;
-		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_EDIT*/ "Edit", "pu_edit", edit, HEADER_BG_COLOR, true));
+		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_EDIT*/ "Edit", "pu_edit", edit, HEADER_COLOR_BG, true));
 
 		// View menu.
 		std::vector<MenuElement*> view;
-		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_EYE*/ "View", "pu_view", view, HEADER_BG_COLOR, true));
+		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_EYE*/ "View", "pu_view", view, HEADER_COLOR_BG, true));
 
 		// Levels menu.
 		std::vector<MenuElement*> level;
 		level.emplace_back(new MenuItem(ICON_FA_DOWNLOAD, " Save Level Data", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::SaveLevelData)));
 		level.emplace_back(new MenuItem(ICON_FA_UPLOAD, " Load Level Data", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::LoadLevelData)));
-		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_ARCHWAY*/ "Level", "pu_level", level, HEADER_BG_COLOR, true));
+		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_ARCHWAY*/ "Level", "pu_level", level, HEADER_COLOR_BG, true));
 
 		// Panels menu
 		std::vector<MenuElement*> panels;
@@ -111,14 +111,14 @@ namespace LinaEditor
 		panels.emplace_back(new MenuItem(ICON_FA_COG, " Properties Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ResourcesPanel)));
 		panels.emplace_back(new MenuItem(ICON_FA_CLIPBOARD, " Log Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::LogPanel)));
 		panels.emplace_back(new MenuItem("", "ImGui Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ImGuiPanel)));
-		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_COLUMNS*/ "Panels", "pu_panel", panels, HEADER_BG_COLOR, true));
+		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_COLUMNS*/ "Panels", "pu_panel", panels, HEADER_COLOR_BG, true));
 
 		// Debug menu
 		std::vector<MenuElement*> debug;
 		debug.emplace_back(new MenuItem(ICON_FA_BOXES, " Debug View Physics", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewPhysics)));
 		debug.emplace_back(new MenuItem(ICON_FA_ADJUST, " Debug View Shadows", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewShadows)));
 		debug.emplace_back(new MenuItem(ICON_FA_IMAGES, " Debug View Normal", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewNormal)));
-		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_BUG*/ "Debug", "dbg_panel", debug, HEADER_BG_COLOR, true));
+		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_BUG*/ "Debug", "dbg_panel", debug, HEADER_COLOR_BG, true));
 
 	}
 
@@ -131,7 +131,7 @@ namespace LinaEditor
 			if (logoAnimRatio < 0.99f)
 			{
 				logoAnimRatio = Math::Lerp(logoAnimRatio, 1.0f, frameTime * logoAnimSpeed);
-				int logoAnimIndex = (int)Math::Remap(logoAnimRatio, 0.0f, 1.0f, 0.0f, (float)LINALOGO_ANIMSIZE);
+				int logoAnimIndex = (int)Math::Remap(logoAnimRatio, 0.0f, 1.0f, 0.0f, (float)HEADER_LINALOGO_ANIMSIZE);
 				linaLogoID = linaLogoAnimation[logoAnimIndex]->GetID();
 			}
 			else
@@ -151,8 +151,8 @@ namespace LinaEditor
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 
 			// Handle app window resize.
-			bool horizontalResize = Math::Abs(ImGui::GetMousePos().x - viewport->Size.x) < RESIZE_THRESHOLD;
-			bool verticalResize = Math::Abs(ImGui::GetMousePos().y - viewport->Size.y) < RESIZE_THRESHOLD;
+			bool horizontalResize = Math::Abs(ImGui::GetMousePos().x - viewport->Size.x) < HEADER_RESIZE_THRESHOLD;
+			bool verticalResize = Math::Abs(ImGui::GetMousePos().y - viewport->Size.y) < HEADER_RESIZE_THRESHOLD;
 
 			if (horizontalResize && !verticalResize)
 			{
@@ -195,9 +195,9 @@ namespace LinaEditor
 
 			// Start drawing window.
 			ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y));
-			ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, HEIGHT_HEADER));
-			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(HEADER_BG_COLOR.r, HEADER_BG_COLOR.g, HEADER_BG_COLOR.b, HEADER_BG_COLOR.a));
-			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, HEADER_FILEMENU_FRAMEPADDING);
+			ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, HEADER_HEIGHT));
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(HEADER_COLOR_BG.r, HEADER_COLOR_BG.g, HEADER_COLOR_BG.b, HEADER_COLOR_BG.a));
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, HEADER_FRAMEPADDING_FILEMENU);
 
 			ImGui::Begin("Header", NULL, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration);
 
@@ -230,11 +230,11 @@ namespace LinaEditor
 
 			// Minimize, maximize, exit buttons.
 			ImGui::SameLine();
-			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - OFFSET_WINDOWBUTTONS);
+			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - HEADER_OFFSET_TOPBUTTONS);
 			ImGui::SetCursorPosY(5);
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(HEADER_BG_COLOR.r, HEADER_BG_COLOR.g, HEADER_BG_COLOR.b, HEADER_BG_COLOR.a));
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(HEADER_BUTTONS_COLOR.r, HEADER_BUTTONS_COLOR.g, HEADER_BUTTONS_COLOR.b, HEADER_BUTTONS_COLOR.a));
-			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, HEADER_ICONIFYBUTTONS_FRAMEPADDING);
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(HEADER_COLOR_BG.r, HEADER_COLOR_BG.g, HEADER_COLOR_BG.b, HEADER_COLOR_BG.a));
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(HEADER_COLOR_TOPBUTTONS.r, HEADER_COLOR_TOPBUTTONS.g, HEADER_COLOR_TOPBUTTONS.b, HEADER_COLOR_TOPBUTTONS.a));
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, HEADER_FRAMEPADDING_TOPBUTTONS);
 			WidgetsUtility::PushScaledFont();
 
 			// Minimize
@@ -264,9 +264,9 @@ namespace LinaEditor
 
 			// Logo
 			ImGui::SameLine();
-			ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - LINALOGO_SIZE.x / 2.0f);
-			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + LINALOGO_SIZE.y / 2.0f);
-			ImGui::Image((void*)linaLogoID, LINALOGO_SIZE, ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - HEADER_LINALOGO_SIZE.x / 2.0f);
+			ImGui::SetCursorPosY(ImGui::GetCursorPos().y + HEADER_LINALOGO_SIZE.y / 2.0f);
+			ImGui::Image((void*)linaLogoID, HEADER_LINALOGO_SIZE, ImVec2(0, 1), ImVec2(1, 0));
 
 			// Draw bar buttons & items.
 			ImGui::SetCursorPosY(30);
@@ -278,7 +278,7 @@ namespace LinaEditor
 			// Draw search bar.		
 			ImGui::SameLine();
 			WidgetsUtility::FramePaddingY(1.7f);
-			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - OFFSET_WINDOWBUTTONS - 100);
+			ImGui::SetCursorPosX(ImGui::GetWindowSize().x - HEADER_OFFSET_TOPBUTTONS - 100);
 			WidgetsUtility::Icon(ICON_FA_SEARCH); ImGui::SameLine();
 			static char searchStr[128] = "";
 			ImGui::SetNextItemWidth(170);
