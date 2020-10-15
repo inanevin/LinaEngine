@@ -1043,7 +1043,7 @@ namespace LinaEngine::Graphics
 		m_globalDataBuffer.Update(&viewPos, currentGlobalDataOffset, sizeof(Vector4));
 		currentGlobalDataOffset += sizeof(Vector4);
 
-		ECS::CameraComponent* cameraComponent = &m_cameraSystem.GetCurrentCameraComponent();
+		ECS::CameraComponent* cameraComponent = m_cameraSystem.GetCurrentCameraComponent();
 
 		if (cameraComponent != nullptr)
 		{

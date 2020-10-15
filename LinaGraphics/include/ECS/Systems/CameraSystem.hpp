@@ -60,14 +60,14 @@ namespace LinaEngine::ECS
 		// Get clear color of the current camera.
 		Color& GetCurrentClearColor();
 
-		FORCEINLINE CameraComponent& GetCurrentCameraComponent() { return *m_CurrentCameraComponent; }
-		
+		FORCEINLINE CameraComponent* GetCurrentCameraComponent() { return m_currentCameraComponent; }
+
 	private:
 
 		Matrix m_View = Matrix::Identity();
 		Matrix m_Projection =Matrix::Perspective(35, 1.33f, 0.01f, 1000.0f);
-		CameraComponent* m_CurrentCameraComponent = nullptr;
-		TransformComponent* m_CurrentCameraTransform = nullptr;
+		CameraComponent* m_currentCameraComponent = nullptr;
+		TransformComponent* m_currentCameraTransform = nullptr;
 		float m_AspectRatio = 1.33f;
 		bool m_UseDirLightView = false;
 
