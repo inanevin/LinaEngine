@@ -117,14 +117,16 @@ namespace LinaEditor
 
 				ImGui::Button("sssss");
 				ImGui::SameLine();
-				ImGui::SetCursorPosX(ImGui::GetWindowWidth() * WidgetsUtility::DebugFloat("ml") - WidgetsUtility::DebugFloat("sb"));
+				ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - 200);
 
 				// Draw icon buttons.
-				// TERSTEN ÇÝZ
+				
 				for (int i = 0; i < m_logLevelIconButtons.size(); i++)
 				{
-					m_logLevelIconButtons[i].DrawButton(&m_logLevelFlags);	ImGui::SameLine(); WidgetsUtility::IncrementCursorPosX(5);
+					m_logLevelIconButtons[i].DrawButton(&m_logLevelFlags); ImGui::SameLine(); WidgetsUtility::IncrementCursorPosX(5);
 				}
+
+		
 
 				//Draw dump contents.
 				/*ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0, 0, 0, 1));
