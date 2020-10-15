@@ -48,10 +48,7 @@ class SandboxApplication : public LinaEngine::Application
 
 		m_editor.Initialize(&GetAppWindow(), &GetRenderEngine(), this, &GetPhysicsEngine(), &GetECSREgistry());
 
-		// Install level.
-		InstallLevel(&m_startupLevel);
-		InitializeLevel(&m_startupLevel);
-
+		
 		// Refresh after level init.
 		m_editor.Refresh();
 

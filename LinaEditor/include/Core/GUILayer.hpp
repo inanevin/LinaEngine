@@ -98,14 +98,13 @@ namespace LinaEditor
 		void MenuBarItemClicked(const MenuBarItems& item);
 
 		// CLASS METHODS
-		FORCEINLINE void Setup(LinaEngine::Graphics::Window& window, LinaEngine::Graphics::RenderEngine& renderEngine, LinaEngine::Physics::PhysicsEngine& physicsEngine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::World::Level* level)
+		FORCEINLINE void Setup(LinaEngine::Graphics::Window& window, LinaEngine::Graphics::RenderEngine& renderEngine, LinaEngine::Physics::PhysicsEngine& physicsEngine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs)
 		{ 
 			m_appWindow = &window;
 			m_renderEngine = &renderEngine; 
 			m_physicsEngine = &physicsEngine;
 			m_application = application; 
 			m_ecs = &ecs;	
-			m_currentLevel = level; 
 		}
 
 		// Getters for references.
@@ -118,6 +117,7 @@ namespace LinaEditor
 		FORCEINLINE LinaEngine::Graphics::RenderEngine* GetRenderEngine() const { return m_renderEngine; }
 		FORCEINLINE class LinaEngine::Graphics::Window* GetAppWindow() const { return m_appWindow; }
 		FORCEINLINE class LinaEngine::Application* GetApp() const { return m_application; }
+		FORCEINLINE void SetCurrentLevel(LinaEngine::World::Level& currentLevel) { m_currentLevel = &currentLevel; }
 
 	private:
 

@@ -46,7 +46,7 @@ namespace LinaEditor
 		m_guiLayer = new LinaEditor::GUILayer();
 
 		// Setup layers
-		m_guiLayer->Setup(*appWindow, *renderEngine, *physicsEngine, app, *ecs, nullptr);
+		m_guiLayer->Setup(*appWindow, *renderEngine, *physicsEngine, app, *ecs);
 
 		// Remove splash.
 		delete splash;

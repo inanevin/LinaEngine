@@ -74,6 +74,7 @@ namespace LinaEditor
 
 			if (ImGui::Begin("Entities", &m_show, flags))
 			{
+				WidgetsUtility::DrawShadowedLine(10);
 
 				// Statics.
 				static char selectedEntityName[256] = "Entity";

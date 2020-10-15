@@ -65,6 +65,7 @@ namespace LinaEditor
 
 			
 			ImGui::Begin("Resources", &m_show, flags);
+			WidgetsUtility::DrawShadowedLine(10);
 			DrawContent();
 			DrawFolder(m_ResourceFolders[0], true);
 
