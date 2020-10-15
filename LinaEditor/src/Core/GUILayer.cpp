@@ -342,6 +342,12 @@ namespace LinaEditor
 		// View
 
 		// Level
+		else if (item == MenuBarItems::NewLevelData)
+		{
+			// Prompt saving the current one.
+
+			// Create a new level.
+					}
 		else if (item == MenuBarItems::SaveLevelData)
 		{
 			if (m_currentLevel != nullptr)

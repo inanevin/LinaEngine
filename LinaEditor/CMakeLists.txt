@@ -45,6 +45,9 @@ src/Panels/PropertiesPanel.cpp
 src/Panels/LogPanel.cpp
 src/Panels/HeaderPanel.cpp
 
+#World
+src/World/DefaultLevel.cpp
+
 # Utility
 src/Utility/EditorUtility.cpp
 
@@ -92,6 +95,9 @@ include/Panels/ScenePanel.hpp
 include/Panels/PropertiesPanel.hpp
 include/Panels/LogPanel.hpp
 include/Panels/HeaderPanel.hpp
+
+#World
+include/World/DefaultLevel.hpp
 
 # Utility
 include/Utility/EditorUtility.hpp

@@ -57,6 +57,7 @@ namespace LinaEditor
 
 		SaveLevelData = 30,
 		LoadLevelData = 31,
+		NewLevelData = 32,
 
 		ECSPanel = 40,
 		HeaderPanel = 11,

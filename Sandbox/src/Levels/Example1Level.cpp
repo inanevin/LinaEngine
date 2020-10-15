@@ -84,16 +84,16 @@ bool Example1Level::Install()
 	pbrSampler.textureParams.generateMipMaps = true;
 
 
-	albedoSphere = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/albedo.png", pbrSampler, false, false);
-	normalSphere = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/normal.png", pbrSampler, false, false);
-	metallicSphere = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/metallic.png", pbrSampler, false, false);
-	roughnessSphere = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/roughness.png", pbrSampler, false, false);
-	aoSphere = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/ao.png", pbrSampler, false, false);
-	albedoFloor = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/grass/albedo.png", pbrSampler, false, false);
-	normalFloor = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/grass/normal.png", pbrSampler, false, false);
-	metallicFloor = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/grass/metallic.png", pbrSampler, false, false);
-	roughnessFloor = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/grass/roughness.png", pbrSampler, false, false);
-	aoFloor = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/grass/ao.png", pbrSampler, false, false);
+	albedoSphere = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/albedo.png", pbrSampler, false, false);
+	normalSphere = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/normal.png", pbrSampler, false, false);
+	metallicSphere = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/metallic.png", pbrSampler, false, false);
+	roughnessSphere = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/roughness.png", pbrSampler, false, false);
+	aoSphere = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/ao.png", pbrSampler, false, false);
+	albedoFloor = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/grass/albedo.png", pbrSampler, false, false);
+	normalFloor = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/grass/normal.png", pbrSampler, false, false);
+	metallicFloor = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/grass/metallic.png", pbrSampler, false, false);
+	roughnessFloor = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/grass/roughness.png", pbrSampler, false, false);
+	aoFloor = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/grass/ao.png", pbrSampler, false, false);
 
 	return true;
 }
@@ -181,8 +181,8 @@ void Example1Level::Initialize()
 {
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 	// Create, setup & assign skybox material.
-	CreateProceduralSkybox(m_RenderEngine);
-	objectUnlitMaterial = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::STANDARD_UNLIT);
+	CreateProceduralSkybox(m_renderEngine);
+	objectUnlitMaterial = &m_renderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::STANDARD_UNLIT);
 
 	MeshRendererComponent cr;
 	cr.meshID = Primitives::CUBE;
@@ -191,17 +191,17 @@ void Example1Level::Initialize()
 	RigidbodyComponent r;
 
 	ECSEntity c1;
-	c1 = m_ECS->CreateEntity("Sphere");
+	c1 = m_ecs->CreateEntity("Sphere");
 	objectTransform.transform.m_location = Vector3(0,0,0);
-	m_ECS->emplace<TransformComponent>(c1, objectTransform);
-	m_ECS->emplace<MeshRendererComponent>(c1, cr);
-	m_ECS->emplace<RigidbodyComponent>(c1, r);
+	m_ecs->emplace<TransformComponent>(c1, objectTransform);
+	m_ecs->emplace<MeshRendererComponent>(c1, cr);
+	m_ecs->emplace<RigidbodyComponent>(c1, r);
 
 
-	camera = m_ECS->CreateEntity("Camera");
-	auto& camFreeLook = m_ECS->emplace<FreeLookComponent>(camera);
-	auto& camTransform = m_ECS->emplace<TransformComponent>(camera);
-	auto& camCamera = m_ECS->emplace<CameraComponent>(camera);
+	camera = m_ecs->CreateEntity("Camera");
+	auto& camFreeLook = m_ecs->emplace<FreeLookComponent>(camera);
+	auto& camTransform = m_ecs->emplace<TransformComponent>(camera);
+	auto& camCamera = m_ecs->emplace<CameraComponent>(camera);
 	camTransform.transform.m_location = Vector3(0,5,-5);
 	camFreeLook.m_movementSpeeds = Vector2(12, 12);
 	camFreeLook.m_rotationSpeeds = Vector2(3, 3);
@@ -209,35 +209,35 @@ void Example1Level::Initialize()
 
 	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem();
-	ecsFreeLookSystem->Construct(*m_ECS, *m_InputEngine);
+	ecsFreeLookSystem->Construct(*m_ecs, *m_inputEngine);
 	level1Systems.AddSystem(*ecsFreeLookSystem);
 
 	return;
 
-	Texture& sprite = m_RenderEngine->CreateTexture2D("resources/sandbox/textures/sprite.png");
-	Mesh& floorMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
+	Texture& sprite = m_renderEngine->CreateTexture2D("resources/sandbox/textures/sprite.png");
+	Mesh& floorMesh = m_renderEngine->GetPrimitive(Primitives::PLANE);
 
-	spriteMat = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::RENDERER2D_SPRITE);
+	spriteMat = &m_renderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::RENDERER2D_SPRITE);
 	spriteMat->SetTexture(MAT_TEXTURE2D_DIFFUSE, &sprite);
 	spriteMat->SetSurfaceType(Graphics::MaterialSurfaceType::Transparent);
-	sphereMat = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::PBR_LIT);
+	sphereMat = &m_renderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::PBR_LIT);
 
 	sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, albedoSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, normalSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, roughnessSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_METALLICMAP, metallicSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, aoSphere);
-	m_RenderEngine->SetHDRIData(sphereMat);
+	m_renderEngine->SetHDRIData(sphereMat);
 
 
-	floorMaterial = &m_RenderEngine->CreateMaterial(-55, Shaders::PBR_LIT);
+	floorMaterial = &m_renderEngine->CreateMaterial(-55, Shaders::PBR_LIT);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, albedoFloor);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, normalFloor);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, roughnessFloor);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, metallicFloor);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, aoFloor);
 	floorMaterial->SetVector2(MAT_TILING, Vector2(100, 100));
-	m_RenderEngine->SetHDRIData(floorMaterial);
+	m_renderEngine->SetHDRIData(floorMaterial);
 
 	MeshRendererComponent cubeRenderer;
 	cubeRenderer.meshID = Primitives::CUBE;
@@ -259,26 +259,26 @@ void Example1Level::Initialize()
 	DirectionalLightComponent dirLightComp;
 
 	ECSEntity directionalLightEntity;
-	directionalLightEntity = m_ECS->CreateEntity("DirLight");
+	directionalLightEntity = m_ecs->CreateEntity("DirLight");
 	objectTransform.transform.m_location = Vector3(0, 15, -15);
 	objectTransform.transform.Rotate(Vector3(25, 0, 0));
-	m_ECS->emplace<TransformComponent>(directionalLightEntity, objectTransform);
-	m_ECS->emplace<DirectionalLightComponent>(directionalLightEntity, dirLightComp);
+	m_ecs->emplace<TransformComponent>(directionalLightEntity, objectTransform);
+	m_ecs->emplace<DirectionalLightComponent>(directionalLightEntity, dirLightComp);
 
 	ECSEntity cube1;
-	cube1 = m_ECS->CreateEntity("Sphere");
+	cube1 = m_ecs->CreateEntity("Sphere");
 	objectTransform.transform.m_location = Vector3(-13, 5, 5);
-	m_ECS->emplace<TransformComponent>(cube1, objectTransform);
-	m_ECS->emplace<MeshRendererComponent>(cube1, cubeRenderer);
+	m_ecs->emplace<TransformComponent>(cube1, objectTransform);
+	m_ecs->emplace<MeshRendererComponent>(cube1, cubeRenderer);
 	//m_ECS->emplace<RigidbodyComponent>(cube1, sphereRB);
 
 	ECSEntity portal;
-	portal = m_ECS->CreateEntity("PortalFrame");
+	portal = m_ecs->CreateEntity("PortalFrame");
 	objectTransform.transform.m_location = Vector3(0, 5, 5);
 	objectTransform.transform.Rotate(Vector3(-90, 0, 0));
 	objectTransform.transform.m_scale = Vector3::One * 2;
-	m_ECS->emplace<TransformComponent>(portal, objectTransform);
-	m_ECS->emplace<MeshRendererComponent>(portal, portalRenderer);
+	m_ecs->emplace<TransformComponent>(portal, objectTransform);
+	m_ecs->emplace<MeshRendererComponent>(portal, portalRenderer);
 
 	//SpriteRendererComponent spriteRenderer;
 	//spriteRenderer.materialID = spriteMat->m_MaterialID;
@@ -294,12 +294,12 @@ void Example1Level::Initialize()
 
 
 	ECSEntity floorEntity;
-	floorEntity = m_ECS->CreateEntity("Floor");
+	floorEntity = m_ecs->CreateEntity("Floor");
 	objectTransform.transform.m_scale = Vector3(100, 1, 100);
 	objectTransform.transform.m_location = Vector3(0, 0, 0);
 	objectTransform.transform.m_rotation = Vector4::Zero;
-	m_ECS->emplace<TransformComponent>(floorEntity, objectTransform);
-	m_ECS->emplace<MeshRendererComponent>(floorEntity, floorRenderer);
+	m_ecs->emplace<TransformComponent>(floorEntity, objectTransform);
+	m_ecs->emplace<MeshRendererComponent>(floorEntity, floorRenderer);
 
 
 
@@ -313,9 +313,9 @@ void Example1Level::Initialize()
 		//lightRenderer.material = objectUnlitMaterial;
 		lightTransform.transform.m_location = pointLightPositions[i];
 		lightTransform.transform.m_scale = 0.1f;
-		entity = m_ECS->CreateEntity("Point Light " + i);
-		auto lightT = m_ECS->emplace<TransformComponent>(entity, lightTransform);
-		auto& pLight1 = m_ECS->emplace<PointLightComponent>(entity);
+		entity = m_ecs->CreateEntity("Point Light " + i);
+		auto lightT = m_ecs->emplace<TransformComponent>(entity, lightTransform);
+		auto& pLight1 = m_ecs->emplace<PointLightComponent>(entity);
 		pLight1.color = Color(300, 300, 300);
 		//	m_ECS->emplace<MeshRendererComponent>(entity, lightRenderer);
 		pLight1.distance = 100;
@@ -333,16 +333,16 @@ void Example1Level::Initialize()
 		lightTransform.transform.m_location = spotLightPositions[i];
 		lightRenderer.materialID = objectUnlitMaterial->m_MaterialID;
 		lightRenderer.meshID = Primitives::CUBE;
-		sLight = m_ECS->CreateEntity("Spot light" + i);
+		sLight = m_ecs->CreateEntity("Spot light" + i);
 
 
 		sLight1.color = Color(0.05f, 0.05f, 0.05f);
 		sLight1.distance = 150;
 		sLight1.cutOff = Math::Cos(Math::ToRadians(12.5f));
 		sLight1.outerCutOff = Math::Cos(Math::ToRadians(15.5f));
-		m_ECS->emplace<MeshRendererComponent>(sLight, lightRenderer);
-		m_ECS->emplace<TransformComponent>(sLight, lightTransform);
-		m_ECS->emplace<SpotLightComponent>(sLight, sLight1);
+		m_ecs->emplace<MeshRendererComponent>(sLight, lightRenderer);
+		m_ecs->emplace<TransformComponent>(sLight, lightTransform);
+		m_ecs->emplace<SpotLightComponent>(sLight, sLight1);
 
 	}
 

@@ -79,14 +79,14 @@ namespace LinaEngine::World
 		static void SerializeLevelData(const std::string& path, const std::string& levelName, Level& level, LinaEngine::ECS::ECSRegistry& registry);
 		static void DeserializeLevelData(const std::string& path, const std::string& levelName, Level& level, LinaEngine::ECS::ECSRegistry& registry);
 
-		LevelData m_LevelData;
-		LinaEngine::ECS::ECSRegistry* m_ECS;
+		LevelData m_levelData;
+		LinaEngine::ECS::ECSRegistry* m_ecs;
 
 
 	protected:
 
-		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
-		LinaEngine::Input::InputEngine* m_InputEngine = nullptr;
+		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
+		LinaEngine::Input::InputEngine* m_inputEngine = nullptr;
 
 	private:
 
@@ -94,9 +94,9 @@ namespace LinaEngine::World
 
 		void SetEngineReferences(LinaEngine::ECS::ECSRegistry* reg, LinaEngine::Graphics::RenderEngine& renderEngineIn, LinaEngine::Input::InputEngine& inputEngineIn)
 		{
-			m_ECS = reg;
-			m_RenderEngine = &renderEngineIn;
-			m_InputEngine = &inputEngineIn;
+			m_ecs = reg;
+			m_renderEngine = &renderEngineIn;
+			m_inputEngine = &inputEngineIn;
 		}
 		
 	};
