@@ -87,7 +87,6 @@ PRIVATE Lina::Engine
 #COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/LinaEngine/vendor/glad/lib/$<CONFIGURATION>/glad.pdb" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
 
 
-
 # Copy project resources to binary directory
 add_custom_command(
 TARGET ${PROJECT_NAME}

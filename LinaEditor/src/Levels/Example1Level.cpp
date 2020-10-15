@@ -88,16 +88,16 @@ bool Example1Level::Install()
 	pbrSampler.textureParams.generateMipMaps = true;
 
 
-	albedoSphere = &m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/albedo.png", pbrSampler, false, false);
-	normalSphere = &m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/normal.png", pbrSampler, false, false);
-	metallicSphere = &m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/metallic.png", pbrSampler, false, false);
-	roughnessSphere = &m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/roughness.png", pbrSampler, false, false);
-	aoSphere = &m_RenderEngine->CreateTexture2D("resources/textures/rusted_iron/ao.png", pbrSampler, false, false);
-	albedoFloor = &m_RenderEngine->CreateTexture2D("resources/textures/grass/albedo.png", pbrSampler, false, false);
-	normalFloor = &m_RenderEngine->CreateTexture2D("resources/textures/grass/normal.png", pbrSampler, false, false);
-	metallicFloor = &m_RenderEngine->CreateTexture2D("resources/textures/grass/metallic.png", pbrSampler, false, false);
-	roughnessFloor = &m_RenderEngine->CreateTexture2D("resources/textures/grass/roughness.png", pbrSampler, false, false);
-	aoFloor = &m_RenderEngine->CreateTexture2D("resources/textures/grass/ao.png", pbrSampler, false, false);
+	albedoSphere = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/albedo.png", pbrSampler, false, false);
+	normalSphere = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/normal.png", pbrSampler, false, false);
+	metallicSphere = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/metallic.png", pbrSampler, false, false);
+	roughnessSphere = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/roughness.png", pbrSampler, false, false);
+	aoSphere = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/ao.png", pbrSampler, false, false);
+	albedoFloor = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/grass/albedo.png", pbrSampler, false, false);
+	normalFloor = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/grass/normal.png", pbrSampler, false, false);
+	metallicFloor = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/grass/metallic.png", pbrSampler, false, false);
+	roughnessFloor = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/grass/roughness.png", pbrSampler, false, false);
+	aoFloor = &m_RenderEngine->CreateTexture2D("resources/sandbox/textures/grass/ao.png", pbrSampler, false, false);
 
 	return true;
 }
@@ -131,19 +131,19 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 	Material& mat = renderEngine->CreateMaterial(-2, Shaders::SKYBOX_CUBEMAP);
 
 	const std::string fp[6] = {
-		"resources/textures/defaultSkybox/right.png",
-		"resources/textures/defaultSkybox/left.png",
-		"resources/textures/defaultSkybox/down.png",
-		"resources/textures/defaultSkybox/up.png",
-		"resources/textures/defaultSkybox/front.png",
-		"resources/textures/defaultSkybox/back.png",
+		"resources/sandbox/textures/defaultSkybox/right.png",
+		"resources/sandbox/textures/defaultSkybox/left.png",
+		"resources/sandbox/textures/defaultSkybox/down.png",
+		"resources/sandbox/textures/defaultSkybox/up.png",
+		"resources/sandbox/textures/defaultSkybox/front.png",
+		"resources/sandbox/textures/defaultSkybox/back.png",
 	};
 
 	renderEngine->SetSkyboxMaterial(mat);
 }
 void CreateHDRISkybox(RenderEngine* renderEngine)
 {
-	Texture* hdri = &renderEngine->CreateTextureHDRI("resources/textures/HDRI/canyon3K.hdr");
+	Texture* hdri = &renderEngine->CreateTextureHDRI("resources/sandbox/textures/HDRI/canyon3K.hdr");
 	renderEngine->CaptureCalculateHDRI(*hdri);
 	Material& mat = renderEngine->CreateMaterial(-5, Shaders::SKYBOX_HDRI);
 	mat.SetTexture(MAT_MAP_ENVIRONMENT, &renderEngine->GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
@@ -218,7 +218,7 @@ void Example1Level::Initialize()
 
 	return;
 
-	Texture& sprite = m_RenderEngine->CreateTexture2D("resources/textures/sprite.png");
+	Texture& sprite = m_RenderEngine->CreateTexture2D("resources/sandbox/textures/sprite.png");
 	Mesh& floorMesh = m_RenderEngine->GetPrimitive(Primitives::PLANE);
 
 	spriteMat = &m_RenderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::RENDERER2D_SPRITE);
