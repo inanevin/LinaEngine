@@ -37,14 +37,15 @@ namespace LinaEditor
 	{
 	public:
 
-		LogLevelIconButton(const char* id, const char* icon, unsigned int targetLevel, ImVec4 colorDefault, ImVec4 colorHovered, ImVec4 colorPressed) :
-			m_id(id), m_icon(icon), m_targetLevel(targetLevel), m_colorDefault(colorDefault), m_colorHovered(colorHovered), m_colorPressed(colorPressed) {};
+		LogLevelIconButton(const char* id, const char* tooltip, const char* icon, unsigned int targetLevel, ImVec4 colorDefault, ImVec4 colorHovered, ImVec4 colorPressed) :
+			m_id(id), m_tooltip(tooltip), m_icon(icon), m_targetLevel(targetLevel), m_colorDefault(colorDefault), m_colorHovered(colorHovered), m_colorPressed(colorPressed) {};
 
 		void DrawButton(unsigned int* flags);
 
 	private:
 
 		const char* m_id = "";
+		const char* m_tooltip = "";
 		const char* m_icon = "";
 		unsigned int m_targetLevel = LinaEngine::Log::LogLevel::None;
 		ImVec4 m_colorDefault;
