@@ -22,6 +22,8 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 
 - Lina Engine is currently compatible to be compiled only with x64 architecture on Windows. If you would like to use it on different architectures & platforms, you need to compile the vendors for your target architecture and platform include them manually.
 
+- Lina is currently in active development so it's not stable on all platforms. It's being developed in Visual Studio 2019 in Windows 10 with x64 architecture, so that's the best setup to contribute to the project for now.
+
 ## Lina Engine Tools
 
 - [Lina Engine Build Launcher](https://github.com/inanevin/Lina-Engine-Build-Launcher) (deprecated)
