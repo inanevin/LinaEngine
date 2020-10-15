@@ -29,6 +29,7 @@ Timestamp: 6/5/2020 6:51:39 PM
 #include "Input/InputMappings.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "ECS/Components/CameraComponent.hpp"
+#include "Widgets/WidgetsUtility.hpp"
 
 static ImGuizmo::OPERATION currentTransformGizmoOP = ImGuizmo::OPERATION::TRANSLATE;
 static ImGuizmo::MODE currentTransformGizmoMode = ImGuizmo::MODE::LOCAL;
@@ -57,7 +58,9 @@ namespace LinaEditor
 			if (ImGui::Begin("Scene", &m_show, flags))
 			{
 
+
 				ImGui::BeginChild("finalImage");
+				WidgetsUtility::DrawShadowedLine(5);
 
 				// Get game viewport aspect.
 				Vector2 vpSize = m_RenderEngine->GetViewportSize();
