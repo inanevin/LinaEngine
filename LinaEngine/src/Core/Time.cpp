@@ -20,7 +20,7 @@ Timestamp: 4/28/2019 3:10:17 PM
 #include "LinaPch.hpp"
 #include "Core/Time.hpp"  
 #include "Utility/Log.hpp"
-
+#include <chrono>
 
 
 #ifdef LINA_PLATFORM_WINDOWS

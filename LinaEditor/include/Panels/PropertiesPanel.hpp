@@ -67,12 +67,7 @@ namespace LinaEditor
 		void Setup();
 
 
-		FORCEINLINE void EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity) 
-		{
-			m_selectedEntity = selectedEntity;  
-			m_CurrentDrawType = DrawType::ENTITIES;
-			m_copySelectedEntityName = true;
-		}
+		void EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity);
 
 		void Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path);
 
@@ -107,12 +102,7 @@ namespace LinaEditor
 	private:
 
 		// Drawing Entities
-		void DrawEntityProperties();
-		void AddComponentToEntity(int componentID);
-		void DrawComponents(LinaEngine::ECS::ECSEntity& entity);
-		void DrawVector2(const char* label, Vector2& v);
-		void DrawVector3(const char* label, Vector3& v);
-		void DrawVector4(const char* label, Vector4& v);
+		
 
 		// Drawing textures
 		void DrawTextureProperties();

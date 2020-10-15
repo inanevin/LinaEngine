@@ -93,7 +93,7 @@ namespace LinaEditor
 		void DrawContent();
 		void ScanRoot();
 		void ScanFolder(EditorFolder& folder);
-		void DrawFolder(EditorFolder& folder);
+		void DrawFolder(EditorFolder& folder, bool isRoot = false);
 		void LoadFolderResources(EditorFolder& folder);
 		void UnloadFileResource(EditorFile& file);
 		void UnloadFileResourcesInFolder(EditorFolder& folder);

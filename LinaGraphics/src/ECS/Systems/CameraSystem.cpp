@@ -33,10 +33,12 @@ namespace LinaEngine::ECS
 
 		for (auto entity : view)
 		{
-			TransformComponent& transform = view.get<TransformComponent>(entity);
+			// Camera
 			CameraComponent& camera = view.get<CameraComponent>(entity);
+			if (!camera.m_isEnabled) continue;
 
-			if (!camera.isActive) return;
+			// Transform
+			TransformComponent& transform = view.get<TransformComponent>(entity);
 
 			// Set current camera component.
 			m_CurrentCameraComponent = &camera;

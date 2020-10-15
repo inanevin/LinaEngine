@@ -285,6 +285,9 @@ namespace LinaEngine::Graphics
 		// Dummy skybox
 		Material m_defaultSkyboxMaterial;
 
+		// Default unlit material
+		Material m_defaultUnlit;
+
 		// Primary RT Texture
 		Texture m_primaryRTTexture0;
 		Texture m_primaryRTTexture1;

@@ -23,13 +23,11 @@ Timestamp: 12/29/2018 11:28:02 PM
 #ifdef LINA_PLATFORM_WINDOWS
 
 #include "Core/Application.hpp"
-#include "Utility/Log.hpp"
 
 extern LinaEngine::Application* LinaEngine::CreateApplication();
 
 int main(int argc, char** argv)
 {
-	LinaEngine::Log::Init();	
 	auto app = LinaEngine::CreateApplication();
 	delete app;
 }

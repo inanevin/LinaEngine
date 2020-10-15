@@ -29,6 +29,7 @@ Timestamp: 10/11/2020 1:39:01 PM
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_internal.h"
+#include "ECS/ECS.hpp"
 #include <map>
 
 namespace LinaEditor
@@ -38,13 +39,14 @@ namespace LinaEditor
 		
 	public:
 		
-		static void ColorButton(float* colorX);
+		static void ColorButton(const char* id, float* colorX);
 		static bool SelectableInput(const char* str_id, bool selected, int flags, char* buf, size_t buf_size);
-		static bool ToggleButton(char* label, bool* v, float heightMultiplier = 1.0f, float widthMultiplier = 1.0f, const ImVec4& activeColor = ImVec4(0.56f, 0.83f, 0.26f, 1.0f), const ImVec4& activeHoveredColor = ImVec4(0.64f, 0.83f, 0.34f, 1.0f), const ImVec4& inActiveColor = ImVec4(0.85f, 0.85f, 0.85f, 1.0f), const ImVec4& inActiveHovered = ImVec4(0.78f, 0.78f, 0.78f, 1.0f));   // toggle button
+		static bool ToggleButton(const char* label, bool* v, float heightMultiplier = 1.0f, float widthMultiplier = 1.0f, const ImVec4& activeColor = ImVec4(0.56f, 0.83f, 0.26f, 1.0f), const ImVec4& activeHoveredColor = ImVec4(0.64f, 0.83f, 0.34f, 1.0f), const ImVec4& inActiveColor = ImVec4(0.85f, 0.85f, 0.85f, 1.0f), const ImVec4& inActiveHovered = ImVec4(0.78f, 0.78f, 0.78f, 1.0f));   // toggle button
 		static void DrawWindowBorders(const ImVec4& color, float thickness);
 		static void DrawShadowedLine(int height = 10, const ImVec4& color = ImVec4(0.1f, 0.1f,0.1f, 1.0f), float thickness = 1.0f, ImVec2 min = ImVec2(0,0), ImVec2 max = ImVec2(0,0));
 		static void DrawBeveledLine(ImVec2 min = ImVec2(0, 0), ImVec2 max = ImVec2(0, 0));
-		static bool DrawComponentTitle(const char* title, const char* icon, bool* foldoutOpen, const ImVec4& iconFolor = ImVec4(1,1,1,1));
+		static void ScreenPosLine();
+		static bool DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconFolor = ImVec4(1,1,1,1), const ImVec2& iconOffset = ImVec2(0,0));
 		static void Icon(const char* label, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 1));
 		static bool IconButtonNoDecoration(const char* label, float width = 0.0f, float scale = 0.6f);
 		static bool IconButton(const char* id, const char* label, float width = 0.0f, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 0.6f), const ImVec4& hoverColor = ImVec4(1,1,1,.8f), const ImVec4& pressedColor = ImVec4(1, 1, 1, 1.0f));
@@ -54,7 +56,7 @@ namespace LinaEditor
 		static void AlignedText(const char* label);
 		static void IncrementCursorPosX(float f);
 		static void IncrementCursorPosY(float f);
-		static void IncrementCursorPos(const LinaEngine::Vector2& v);
+		static void IncrementCursorPos(const ImVec2& v);
 		static void CenterCursorX();
 		static void CenterCursorY();
 		static void CenterCursor();
@@ -63,7 +65,15 @@ namespace LinaEditor
 		static void PopScaledFont();
 		static void FramePaddingX(float amt);
 		static void FramePaddingY(float amt);
+		static void FramePadding(const ImVec2& amt);
 		static void FrameRounding(float rounding);
+		static void WindowPaddingX(float amt);
+		static void WindowPaddingY(float amt);
+		static void WindowPadding(const ImVec2& amt);
+		static void ItemSpacingX(float amt);
+		static void ItemSpacingY(float amt);
+		static void ItemSpacing(const ImVec2& amt);
+		static void WindowRounding(float rounding);
 		static void PopStyleVar();
 	
 

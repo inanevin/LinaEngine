@@ -195,7 +195,7 @@ namespace LinaEngine::Graphics
 		else
 		{
 			// Abort if material exists.
-			LINA_CORE_ERR("Material with the id {0} already exists, returning that...", id);
+			LINA_CORE_WARN("Material with the id {0} already exists, returning that...", id);
 			return m_loadedMaterials[id];
 		}
 	}
@@ -208,7 +208,7 @@ namespace LinaEngine::Graphics
 		int nrComponents = textureBitmap->Load(filePath);
 		if (nrComponents == -1)
 		{
-			LINA_CORE_ERR("Texture with the path {0} doesn't exist, returning empty texture", filePath);
+			LINA_CORE_WARN("Texture with the path {0} doesn't exist, returning empty texture", filePath);
 			delete textureBitmap;
 			return m_defaultTexture;
 		}
@@ -246,7 +246,7 @@ namespace LinaEngine::Graphics
 
 		if (!data)
 		{
-			LINA_CORE_ERR("Texture with the path {0} doesn't exist, returning empty texture", filePath);
+			LINA_CORE_WARN("Texture with the path {0} doesn't exist, returning empty texture", filePath);
 			return m_defaultTexture;
 		}
 
@@ -278,7 +278,7 @@ namespace LinaEngine::Graphics
 
 			if (mesh.GetIndexedModels().size() == 0)
 			{
-				LINA_CORE_ERR("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad...", filePath);
+				LINA_CORE_WARN("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad...", filePath);
 				UnloadMeshResource(id);
 				return GetPrimitive(Primitives::PLANE);
 			}
@@ -300,7 +300,7 @@ namespace LinaEngine::Graphics
 		else
 		{
 			// Mesh with this name already exists!
-			LINA_CORE_ERR("Mesh with the name {0} already exists, returning that...", filePath);
+			LINA_CORE_WARN("Mesh with the name {0} already exists, returning that...", filePath);
 			return m_loadedMeshes[id];
 		}
 
@@ -318,7 +318,7 @@ namespace LinaEngine::Graphics
 
 			if (mesh.GetIndexedModels().size() == 0)
 			{
-				LINA_CORE_ERR("Indexed model array is empty! Primitive {0} could not be loaded, returning empty mesh", primitive);
+				LINA_CORE_WARN("Indexed model array is empty! Primitive {0} could not be loaded, returning empty mesh", primitive);
 				return Mesh();
 			}
 
@@ -339,7 +339,7 @@ namespace LinaEngine::Graphics
 		else
 		{
 			// Mesh with this name already exists!
-			LINA_CORE_ERR("Primitive with the ID{0} already exists, returning that...", primitive);
+			LINA_CORE_WARN("Primitive with the ID{0} already exists, returning that...", primitive);
 			return m_loadedMeshes[primitive];
 		}
 	}
@@ -366,8 +366,8 @@ namespace LinaEngine::Graphics
 		if (!MaterialExists(id))
 		{
 			// Mesh not found.
-			LINA_CORE_ERR("Material with the id {0} was not found, returning un-constructed material...", id);
-			return Material();
+			LINA_CORE_WARN("Material with the id {0} was not found, returning default material...", id);
+			return m_defaultUnlit;
 		}
 
 		return m_loadedMaterials[id];
@@ -378,7 +378,7 @@ namespace LinaEngine::Graphics
 		if (!TextureExists(id))
 		{
 			// Mesh not found.
-			LINA_CORE_ERR("Texture with the id {0} was not found, returning un-constructed texture...", id);
+			LINA_CORE_WARN("Texture with the id {0} was not found, returning un-constructed texture...", id);
 			return Texture();
 		}
 
@@ -390,7 +390,7 @@ namespace LinaEngine::Graphics
 		if (!MeshExists(id))
 		{
 			// Mesh not found.
-			LINA_CORE_ERR("Mesh with the id {0} was not found, returning un-constructed mesh...", id);
+			LINA_CORE_WARN("Mesh with the id {0} was not found, returning un-constructed mesh...", id);
 			return Mesh();
 		}
 
@@ -402,7 +402,7 @@ namespace LinaEngine::Graphics
 		if (!ShaderExists(shader))
 		{
 			// Shader not found.
-			LINA_CORE_ERR("Shader with the ID {0} was not found, returning standardUnlit Shader", shader);
+			LINA_CORE_WARN("Shader with the ID {0} was not found, returning standardUnlit Shader", shader);
 			return GetShader(Shaders::STANDARD_UNLIT);
 		}
 
@@ -414,7 +414,7 @@ namespace LinaEngine::Graphics
 		if (!MeshExists(primitive))
 		{
 			// VA not found.
-			LINA_CORE_ERR("Primitive with the ID {0} was not found, returning plane...", primitive);
+			LINA_CORE_WARN("Primitive with the ID {0} was not found, returning plane...", primitive);
 			return GetPrimitive(Primitives::PLANE);
 		}
 		else
@@ -426,7 +426,7 @@ namespace LinaEngine::Graphics
 
 		// If no shader found, fall back to standardLit
 		if (m_loadedShaders.find(shader) == m_loadedShaders.end()) {
-			LINA_CORE_ERR("Shader with engine ID {0} was not found. Setting material's shader to standardUnlit.", shader);
+			LINA_CORE_WARN("Shader with engine ID {0} was not found. Setting material's shader to standardUnlit.", shader);
 			material.shaderID = m_loadedShaders[Shaders::STANDARD_UNLIT].GetID();
 		}
 		else
@@ -549,7 +549,7 @@ namespace LinaEngine::Graphics
 	{
 		if (!TextureExists(id))
 		{
-			LINA_CORE_ERR("Texture not found! Aborting... ");
+			LINA_CORE_WARN("Texture not found! Aborting... ");
 			return;
 		}
 
@@ -561,7 +561,7 @@ namespace LinaEngine::Graphics
 	{
 		if (!MeshExists(id))
 		{
-			LINA_CORE_ERR("Mesh not found! Aborting... ");
+			LINA_CORE_WARN("Mesh not found! Aborting... ");
 			return;
 		}
 
@@ -572,7 +572,7 @@ namespace LinaEngine::Graphics
 	{
 		if (!MaterialExists(id))
 		{
-			LINA_CORE_ERR("Material not found! Aborting... ");
+			LINA_CORE_WARN("Material not found! Aborting... ");
 			return;
 		}
 
@@ -677,6 +677,7 @@ namespace LinaEngine::Graphics
 		SetMaterialShader(m_debugDrawMaterial, Shaders::DEBUG_LINE);
 		SetMaterialShader(m_shadowMapMaterial, Shaders::SCREEN_SHADOWMAP);
 		SetMaterialShader(m_defaultSkyboxMaterial, Shaders::SKYBOX_SINGLECOLOR);
+		SetMaterialShader(m_defaultUnlit, Shaders::STANDARD_UNLIT);
 	}
 
 	void RenderEngine::ConstructEnginePrimitives()
@@ -1323,19 +1324,19 @@ namespace LinaEngine::Graphics
 	{
 		if (mat == nullptr)
 		{
-			LINA_CORE_ERR("Materialto set HDRI data for is null, returning...");
+			LINA_CORE_WARN("Material set HDRI data for is null, returning...");
 			return;
 		}
 
 		if (!mat->usesHDRI)
 		{
-			LINA_CORE_ERR("This material's shader does not use HDRI calculations, returning...");
+			LINA_CORE_WARN("This material's shader does not use HDRI calculations, returning...");
 			return;
 		}
 
 		if (!m_hdriDataCaptured)
 		{
-			LINA_CORE_ERR("HDRI data is not captured, please capture it first then set the material's data.");
+			LINA_CORE_WARN("HDRI data is not captured, please capture it first then set the material's data.");
 			return;
 		}
 
@@ -1348,13 +1349,13 @@ namespace LinaEngine::Graphics
 	{
 		if (mat == nullptr)
 		{
-			LINA_CORE_ERR("Materialto set HDRI data for is null, returning...");
+			LINA_CORE_WARN("Material set HDRI data for is null, returning...");
 			return;
 		}
 
 		if (!mat->usesHDRI)
 		{
-			LINA_CORE_ERR("This material's shader does not use HDRI calculations, returning...");
+			LINA_CORE_WARN("This material's shader does not use HDRI calculations, returning...");
 			return;
 		}
 

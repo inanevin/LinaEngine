@@ -26,8 +26,10 @@ Timestamp: 5/23/2020 5:17:02 PM
 
 #ifdef LINA_EDITOR
 #include "ECS/ECS.hpp"
-#define COMPONENT_DRAWFUNC_SIG static void Draw(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity);
+#define COMPONENT_DRAWFUNC_SIG static void Draw(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
 #define COMPONENT_DRAWFUNC Draw
+#define COMPONENT_ADDFUNC_SIG static void Add(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
+#define COMPONENT_ADDFUNC Add
 #endif
 
 namespace LinaEngine::ECS
@@ -36,8 +38,10 @@ namespace LinaEngine::ECS
 	class ECSComponent
 	{
 	public:
+
 		ECSComponent() {};
 		virtual ~ECSComponent() {};
+		bool m_isEnabled = true;
 	
 	};
 }

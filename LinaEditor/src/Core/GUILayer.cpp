@@ -41,6 +41,8 @@ Class: UILayer
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_internal.h"
 #include "IconsFontAwesome5.h"
+#include "IconsForkAwesome.h"
+#include "IconsMaterialDesign.h"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 
 
@@ -100,19 +102,20 @@ namespace LinaEditor
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 
 		// Add default font.
-		io.Fonts->AddFontFromFileTTF("resources/fonts/Mukta-Medium.ttf", 20.0f, NULL);
+		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/Mukta-Medium.ttf", 20.0f, NULL);
 		
 		// merge in icons from Font Awesome
-		static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-		static const ImWchar icons_ranges2[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+		static const ImWchar icons_rangesFA[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+		static const ImWchar icons_rangesFK[] = { ICON_MIN_FK, ICON_MAX_FK, 0 };
+		static const ImWchar icons_rangesMD[] = { ICON_MIN_MD, ICON_MAX_MD, 0 };
+		
 		ImFontConfig icons_config; 
-		ImFontConfig icons_config2; 
 		icons_config.MergeMode = true; 
 		icons_config.PixelSnapH = true;
-		icons_config2.MergeMode = true;
-		icons_config2.PixelSnapH = true;
-		io.Fonts->AddFontFromFileTTF("resources/fonts/FontAwesome/fa-solid-900.ttf", 20.0f, &icons_config, icons_ranges);
-		io.Fonts->AddFontFromFileTTF("resources/fonts/ForkAwesome/forkawesome-webfont.ttf", 30.0f, &icons_config, icons_ranges);
+
+		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/FontAwesome/fa-solid-900.ttf", 20.0f, &icons_config, icons_rangesFA);
+		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/ForkAwesome/forkawesome-webfont.ttf", 30.0f, &icons_config, icons_rangesFK);
+		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/MaterialIcons/MaterialIcons-Regular.ttf", 30.0f, &icons_config, icons_rangesMD);
 		
 		// Setup configuration flags.
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -399,7 +402,7 @@ namespace LinaEditor
 
 			igfd::ImGuiFileDialog::Instance()->CloseDialog(saveLevelDialogID);
 		}
-
+		
 		// Load level dialogue.
 		if (igfd::ImGuiFileDialog::Instance()->FileDialog(loadLevelDialogID))
 		{
@@ -491,9 +494,9 @@ namespace LinaEditor
 	
 
 		
-		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(HEADER_BG_COLOR.r, HEADER_BG_COLOR.g, HEADER_BG_COLOR.b, HEADER_BG_COLOR.a));
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(HEADER_COLOR_BG.r, HEADER_COLOR_BG.g, HEADER_COLOR_BG.b, HEADER_COLOR_BG.a));
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, WINDOW_FRAMEPADDING);
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, GLOBAL_FRAMEPADDING_WINDOW);
 
 		ImGui::Begin("DockSpace", NULL, window_flags);
 

@@ -50,11 +50,12 @@ namespace LinaEngine::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_collisionShape, m_localInertia, m_halfExtents, m_mass, m_radius, m_capsuleHeight, m_bodyID, m_alive); // serialize things by passing them to the archive
+			archive(m_collisionShape, m_localInertia, m_halfExtents, m_mass, m_radius, m_capsuleHeight, m_bodyID, m_alive, m_isEnabled); // serialize things by passing them to the archive
 		}
 
 #ifdef LINA_EDITOR
-		COMPONENT_DRAWFUNC_SIG
+		COMPONENT_DRAWFUNC_SIG;
+		COMPONENT_ADDFUNC_SIG{ ecs->emplace<RigidbodyComponent>(entity, RigidbodyComponent()); }
 #endif
 
 	};

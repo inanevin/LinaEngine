@@ -39,19 +39,38 @@ namespace LinaEngine::ECS
 		auto& dirLightView = m_Registry->view<TransformComponent, DirectionalLightComponent>();
 		for (auto& entity : dirLightView)
 		{
+			// Dirlight
+			DirectionalLightComponent* dirLight = &dirLightView.get<DirectionalLightComponent>(entity);
+			if (!dirLight->m_isEnabled) continue;
+
+			// Set
 			std::get<0>(directionalLight) = &dirLightView.get<TransformComponent>(entity);
-			std::get<1>(directionalLight) = &dirLightView.get<DirectionalLightComponent>(entity);
+			std::get<1>(directionalLight) = dirLight;
 		}
 
 		// Set point lights.
 		auto& pointLightView = m_Registry->view<TransformComponent, PointLightComponent>();
 		for (auto it = pointLightView.begin(); it != pointLightView.end(); ++it)
-			pointLights.push_back(std::make_pair(&pointLightView.get<TransformComponent>(*it), &pointLightView.get<PointLightComponent>(*it)));
+		{
+			// P light
+			PointLightComponent* pLight = &pointLightView.get<PointLightComponent>(*it);
+			if (!pLight->m_isEnabled) return;
+
+			// Set
+			pointLights.push_back(std::make_pair(&pointLightView.get<TransformComponent>(*it), pLight));
+		}
 
 		// Set Spot lights.
 		auto& spotLightView = m_Registry->view<TransformComponent, SpotLightComponent>();
 		for (auto it = spotLightView.begin(); it != spotLightView.end(); ++it)
-			spotLights.push_back(std::make_pair(&spotLightView.get<TransformComponent>(*it), &spotLightView.get<SpotLightComponent>(*it)));
+		{
+			// S Light
+			SpotLightComponent* sLight = &spotLightView.get<SpotLightComponent>(*it);
+			if (!sLight->m_isEnabled) return;
+
+			// Set
+			spotLights.push_back(std::make_pair(&spotLightView.get<TransformComponent>(*it), sLight));
+		}
 	}
 
 	void LightingSystem::SetLightingShaderData(uint32 shaderID)
@@ -70,7 +89,6 @@ namespace LinaEngine::ECS
 
 
 		// Iterate point lights.
-		auto& pointLightView = m_Registry->view<TransformComponent, PointLightComponent>();
 		int currentPointLightCount = 0;
 
 		for (std::vector<std::tuple<TransformComponent*, PointLightComponent*>>::iterator it = pointLights.begin(); it != pointLights.end(); ++it)
@@ -84,7 +102,6 @@ namespace LinaEngine::ECS
 		}
 
 		// Iterate Spot lights.
-		auto& spotLightView = m_Registry->view<TransformComponent, SpotLightComponent>();
 		int currentSpotLightCount = 0;
 
 		for (std::vector<std::tuple<TransformComponent*, SpotLightComponent*>>::iterator it = spotLights.begin(); it != spotLights.end(); ++it)

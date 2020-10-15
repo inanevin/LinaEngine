@@ -18,30 +18,10 @@ Timestamp: 12/30/2018 1:54:10 AM
 */
 
 #include "Utility/Log.hpp"
-#include "spdlog/sinks/stdout_color_sinks.h"
-#include "spdlog/fmt/ostr.h"
+#include <sstream>
 
 namespace LinaEngine
 {
-
-	std::shared_ptr<spdlog::logger> Log::s_CoreLogger;
-	std::shared_ptr<spdlog::logger> Log::s_ClientLogger;
-
-	void Log::Init()
-	{
-		
-		// Set the pattern as time stamp, caller, message
-		spdlog::set_pattern("%^[%T] [%l] %n: %v  %$");
-
-		// Init the loggers, get a multithreaded console for both.
-		s_CoreLogger = spdlog::stdout_color_mt("LINA CORE");
-		s_CoreLogger->set_level(spdlog::level::trace);
-		s_ClientLogger = spdlog::stdout_color_mt("SANDBOX APP");
-		s_ClientLogger->set_level(spdlog::level::trace);
-		LINA_CORE_WARN("[Initialization] -> Core Logger");
-		LINA_CORE_WARN("[Initialization] -> Client Logger");
-
-	}
-
+	std::function<void(Log::LogDump)> Log::s_onLog;
 }
 

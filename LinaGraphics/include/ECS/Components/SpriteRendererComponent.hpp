@@ -35,8 +35,13 @@ namespace LinaEngine::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(materialID); // serialize things by passing them to the archive
+			archive(materialID, m_isEnabled); // serialize things by passing them to the archive
 		}
+
+#ifdef LINA_EDITOR
+		COMPONENT_DRAWFUNC_SIG;
+		COMPONENT_ADDFUNC_SIG{ ecs->emplace<SpriteRendererComponent>(entity, SpriteRendererComponent()); }
+#endif
 	};
 }
 

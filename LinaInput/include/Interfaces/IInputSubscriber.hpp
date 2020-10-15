@@ -36,8 +36,6 @@ namespace LinaEngine::Input
 		IInputSubscriber() { };
 		virtual ~IInputSubscriber() {};
 
-		void Initialize() override {};
-
 	protected:
 		
 		void SubscribeKeyPressedAction(const std::string& handlerID, std::function<void(InputCode::Key)>&& cb, InputCode::Key key = InputCode::Key::Unknown)

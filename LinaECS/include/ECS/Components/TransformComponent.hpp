@@ -35,11 +35,12 @@ namespace LinaEngine::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(transform); // serialize things by passing them to the archive
+			archive(transform, m_isEnabled); // serialize things by passing them to the archive
 		}
 
 #ifdef LINA_EDITOR
-		COMPONENT_DRAWFUNC_SIG
+		COMPONENT_DRAWFUNC_SIG;
+		COMPONENT_ADDFUNC_SIG { ecs->emplace<TransformComponent>(entity, TransformComponent()); }
 #endif
 
 	};

@@ -34,7 +34,8 @@ namespace LinaEngine::Action
 		KeyReleased,
 		MouseButtonPressed,
 		MouseButtonReleased,
-		ACTION_TYPES_LASTINDEX = MouseButtonReleased
+		MessageLogged,
+		ACTION_TYPES_LASTINDEX = MessageLogged
 	};
 
 

@@ -89,7 +89,7 @@ namespace LinaEditor
 		splashWindow->SetPos(LinaEngine::Vector2(mode->width / 2.0f + props.m_xPos - props.m_width / 2.0f, mode->height / 2.0f + props.m_yPos - props.m_height / 2.0f));
 
 		// Create pixel data.
-		splashScreenTexture = &renderEngine->CreateTexture2D("resources/textures/splashScreen.png");
+		splashScreenTexture = &renderEngine->CreateTexture2D("resources/editor/textures/splashScreen.png");
 	}
 
 
@@ -109,7 +109,7 @@ namespace LinaEditor
 		// Draw window.
 		ImGui::Begin("SplashScreen", NULL, ImGuiWindowFlags_NoDecoration);
 
-		ImGui::GetWindowDrawList()->AddImage((void*)splashScreenTexture->GetID(), ImVec2(0,0), viewport->Size, ImVec2(0,1), ImVec2(1,0));
+		ImGui::GetWindowDrawList()->AddImage((void*)splashScreenTexture->GetID(), ImVec2(0, 0), viewport->Size, ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::Text("Loading %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
 
 		ImGui::End();
@@ -130,6 +130,7 @@ namespace LinaEditor
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 
-		delete splashScreenTexture;
+		if (splashScreenTexture)
+			delete splashScreenTexture;
 	}
 }

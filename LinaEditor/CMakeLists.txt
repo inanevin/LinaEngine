@@ -149,6 +149,7 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 option(LINA_CLIENT_ENABLE_LOGGING "Enables console logging" ON)
 
 add_compile_definitions(LINA_EDITOR)
+add_compile_definitions(SANDBOX_DIR ${SANDBOX_DIR})
 
 if(LINA_CLIENT_ENABLE_LOGGING)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_CLIENT_ENABLE_LOGGING=1)

@@ -39,14 +39,19 @@ namespace LinaEngine::ECS
 {
 	struct MeshRendererComponent : public ECSComponent
 	{
-		int meshID = 0;
-		int materialID = 0;
+		int meshID = -1;
+		int materialID = -1;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(meshID, materialID); // serialize things by passing them to the archive
+			archive(meshID, materialID, m_isEnabled); // serialize things by passing them to the archive
 		}
+
+#ifdef LINA_EDITOR
+		COMPONENT_DRAWFUNC_SIG;
+		COMPONENT_ADDFUNC_SIG{ ecs->emplace<MeshRendererComponent>(entity, MeshRendererComponent()); }
+#endif
 	};
 }
 

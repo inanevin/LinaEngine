@@ -23,24 +23,26 @@ Timestamp: 5/2/2019 1:40:16 AM
 #define FreeLookComponent_HPP
 
 #include "ECS/ECSComponent.hpp"
+#include "Utility/Math/Vector.hpp"
 
 namespace LinaEngine::ECS
 {
 	struct FreeLookComponent : public ECSComponent
 	{
-		float movementSpeedX = 0.0f;
-		float movementSpeedZ = 0.0f;
-		float rotationSpeedX = 0.0f;
-		float rotationSpeedY = 0.0f;
-		float horizontalAngle = 0.0f;
-		float verticalAngle = 0.0f;
-
+		LinaEngine::Vector2 m_angles;
+		LinaEngine::Vector2 m_movementSpeeds;
+		LinaEngine::Vector2 m_rotationSpeeds;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(movementSpeedX, movementSpeedZ, rotationSpeedX, rotationSpeedY, horizontalAngle, verticalAngle); // serialize things by passing them to the archive
+			archive(m_movementSpeeds, m_rotationSpeeds, m_angles, m_isEnabled); // serialize things by passing them to the archive
 		}
+
+#ifdef LINA_EDITOR
+		COMPONENT_DRAWFUNC_SIG;
+		COMPONENT_ADDFUNC_SIG{ ecs->emplace<FreeLookComponent>(entity, FreeLookComponent()); }
+#endif
 	};
 }
 

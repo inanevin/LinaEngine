@@ -27,8 +27,8 @@ Timestamp: 6/5/2020 12:55:10 AM
 #include "Core/EditorCommon.hpp"
 #include "imgui/imgui.h"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
+#include "Widgets/WidgetsUtility.hpp"
+#include "IconsFontAwesome5.h"
 #include <filesystem>
 
 
@@ -40,6 +40,16 @@ namespace LinaEditor
 	static EditorFolder* hoveredFolder;
 	static EditorFile* selectedFile;
 	static EditorFolder* selectedFolder;
+
+
+	void ResourcesPanel::Setup()
+	{
+		m_PropertiesPanel = m_guiLayer->GetPropertiesPanel();
+		m_RenderEngine = m_guiLayer->GetRenderEngine();
+
+		// Scan root resources folder.
+		ScanRoot();
+	}
 
 	void ResourcesPanel::Draw(float frameTime)
 	{
@@ -56,22 +66,12 @@ namespace LinaEditor
 			
 			ImGui::Begin("Resources", &m_show, flags);
 			DrawContent();
-			DrawFolder(m_ResourceFolders[0]);
+			DrawFolder(m_ResourceFolders[0], true);
 
 			ImGui::End();
-
-
 		}
 	}
 
-	void ResourcesPanel::Setup()
-	{
-		m_PropertiesPanel = m_guiLayer->GetPropertiesPanel();
-		m_RenderEngine = m_guiLayer->GetRenderEngine();
-
-		// Scan root resources folder.
-		ScanRoot();
-	}
 
 	void ResourcesPanel::DrawContent()
 	{
@@ -181,16 +181,29 @@ namespace LinaEditor
 		}
 	}
 
-	void ResourcesPanel::DrawFolder(EditorFolder& folder)
+	void ResourcesPanel::DrawFolder(EditorFolder& folder, bool isRoot)
 	{
 		static ImGuiTreeNodeFlags folderFlagsNotSelected = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 		static ImGuiTreeNodeFlags folderFlagsSelected = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Selected;
 		static ImGuiTreeNodeFlags fileNodeFlagsNotSelected = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth;
 		static ImGuiTreeNodeFlags fileNodeFlagsSelected = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Selected;
 
+
+		WidgetsUtility::IncrementCursorPosY(11);
+		WidgetsUtility::ItemSpacingX(0);
+
+		if (!isRoot)
+			WidgetsUtility::IncrementCursorPosY(-11);
+		else
+		{
+
+		}
+
 		// Draw folders.
 		for (std::map<int, EditorFolder>::iterator it = folder.subFolders.begin(); it != folder.subFolders.end();)
 		{
+			WidgetsUtility::IncrementCursorPosX(4);
+
 			if (it->second.markedForErase)
 			{
 				// Delete directory.
@@ -207,7 +220,12 @@ namespace LinaEditor
 			}
 
 			ImGuiTreeNodeFlags folderFlags = (it->second).id == selectedItem ? folderFlagsSelected : folderFlagsNotSelected;
-			bool nodeOpen = ImGui::TreeNodeEx((it->second).name.c_str(), folderFlags);
+			std::string id = "##" + (it->second).name;
+			bool nodeOpen = ImGui::TreeNodeEx(id.c_str(), folderFlags);
+			ImGui::SameLine();  WidgetsUtility::IncrementCursorPosY(5);
+			WidgetsUtility::Icon(ICON_FA_FOLDER, 0.7f, ImVec4(0.9f, 0.83f, 0.0f, 1.0f));
+			ImGui::SameLine(); WidgetsUtility::IncrementCursorPosX(3); WidgetsUtility::IncrementCursorPosY(-5);
+			ImGui::Text((it->second).name.c_str());
 
 			// Click
 			if (ImGui::IsItemClicked())
@@ -229,10 +247,13 @@ namespace LinaEditor
 			++it;
 
 		}
+		WidgetsUtility::PopStyleVar();
+
 
 		// Draw files.
 		for (std::map<int, EditorFile>::iterator it = folder.files.begin(); it != folder.files.end();)
 		{
+			WidgetsUtility::IncrementCursorPosX(-9);
 			if (it->second.markedForErase)
 			{
 				// Delete directory.

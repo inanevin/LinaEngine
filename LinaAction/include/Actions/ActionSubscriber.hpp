@@ -48,13 +48,10 @@ namespace LinaEngine::Action
 
 	protected:
 
-		// Initialize the subscriber.
-		virtual void Initialize() = 0;
-
 		// Subscribes an action with particular id.
 		void UnsubscribeAction(std::string actionID);
 
-		// Subscribe an action with a condition.
+		// Subscribe an action with a condition, action types must have an available default constructor.
 		template<typename T>
 		FORCEINLINE void SubscribeAction(const std::string& actionID, ActionType at, const std::function<void(T)>& callback, T condition)
 		{
@@ -85,7 +82,7 @@ namespace LinaEngine::Action
 			m_ActionDispatcher->SubscribeHandler(handler);
 		}
 
-		// Subscribe an action without a condition.
+		// Subscribe an action without a condition, action types must have an available default constructor.
 		template<typename T>
 		FORCEINLINE void SubscribeAction(const std::string& actionID, ActionType at, const std::function<void(T)>& callback)
 		{
