@@ -45,11 +45,6 @@ src/Panels/PropertiesPanel.cpp
 src/Panels/LogPanel.cpp
 src/Panels/HeaderPanel.cpp
 
-
-# World
-src/Levels/Example1Level.cpp
-src/Levels/GroundCubeSystem.cpp
-
 # Utility
 src/Utility/EditorUtility.cpp
 
@@ -79,11 +74,7 @@ include/Core/GUILayer.hpp
 include/Core/EditorCommon.hpp
 include/Core/GizmoLayer.hpp
 include/Core/SplashScreen.hpp
-
-# World
-include/Levels/Example1Level.hpp
-include/Levels/GroundCubeSystem.hpp
-include/Levels/GroundCubeComponent.hpp
+include/Core/EditorApplication.hpp
 
 #Drawers
 include/Drawers/EntityDrawer.hpp
@@ -134,23 +125,21 @@ CMakeLists.txt
 #--------------------------------------------------------------------
 # Create executable project
 #--------------------------------------------------------------------
-add_executable(${PROJECT_NAME} ${LINAEDITOR_SOURCES} ${LINAEDITOR_HEADERS})
+add_library(${PROJECT_NAME} ${LINAEDITOR_SOURCES} ${LINAEDITOR_HEADERS})
+add_library(Lina::Editor ALIAS ${PROJECT_NAME}) 
 
 #--------------------------------------------------------------------
 # Options & Definitions
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glad/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/IconFontCPPHeaders/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${SANDBOX_DIR}/include)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 option(LINA_CLIENT_ENABLE_LOGGING "Enables console logging" ON)
 
 add_compile_definitions(LINA_EDITOR)
-add_compile_definitions(SANDBOX_DIR ${SANDBOX_DIR})
+
 
 if(LINA_CLIENT_ENABLE_LOGGING)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_CLIENT_ENABLE_LOGGING=1)
@@ -161,8 +150,6 @@ endif()
 #--------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} 
 PRIVATE Lina::Engine
-PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
-PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glad/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glad.lib
 )
 
 

@@ -13,36 +13,37 @@ Unless required by applicable law or agreed to in writing, software distributed 
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
-Class: GroundCubeSystem
-Timestamp: 6/4/2020 1:43:53 AM
+Class: EditorApplication
+Timestamp: 10/15/2020 10:44:39 PM
 
 */
 #pragma once
 
-#ifndef GroundCubeSystem_HPP
-#define GroundCubeSystem_HPP
+#ifndef EditorApplication_HPP
+#define EditorApplication_HPP
 
-#include "ECS/ECS.hpp"
+// Headers here.
+#include "Core/GUILayer.hpp"
+#include "Core/SplashScreen.hpp"
 
-
-namespace LinaEngine::ECS
+namespace LinaEditor
 {
-	class GroundCubeSystem : public BaseECSSystem
+	class EditorApplication
 	{
-		
 	public:
-		
-		GroundCubeSystem() {};
-		virtual ~GroundCubeSystem() {};
 
-		// Construct the system.
-		FORCEINLINE void Construct(ECSRegistry& registry) { BaseECSSystem::Construct(registry); }
+		EditorApplication() {}
 
-		virtual void UpdateComponents(float delta) override;
+		void Initialize(LinaEngine::Graphics::Window* appWindow, LinaEngine::Graphics::RenderEngine* renderEngine, LinaEngine::Application* app, LinaEngine::Physics::PhysicsEngine* physicsEngine, LinaEngine::ECS::ECSRegistry* ecs);
 
-	
+		~EditorApplication()
+		{
+			LINA_CLIENT_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
+		}
+
 	private:
-	
+
+		GUILayer* m_guiLayer;
 	};
 }
 

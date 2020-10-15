@@ -98,15 +98,14 @@ namespace LinaEditor
 		void MenuBarItemClicked(const MenuBarItems& item);
 
 		// CLASS METHODS
-		FORCEINLINE void Setup(LinaEngine::Graphics::Window& window, LinaEngine::Graphics::RenderEngine& renderEngine, LinaEngine::Physics::PhysicsEngine& physicsEngine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::World::Level& level, const Vector2& scenePanelSize)
+		FORCEINLINE void Setup(LinaEngine::Graphics::Window& window, LinaEngine::Graphics::RenderEngine& renderEngine, LinaEngine::Physics::PhysicsEngine& physicsEngine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::World::Level* level)
 		{ 
 			m_appWindow = &window;
 			m_renderEngine = &renderEngine; 
 			m_physicsEngine = &physicsEngine;
 			m_application = application; 
 			m_ecs = &ecs;	
-			m_currentLevel = &level; 
-			m_scenePanelSize = scenePanelSize;
+			m_currentLevel = level; 
 		}
 
 		// Getters for references.
@@ -160,7 +159,6 @@ namespace LinaEditor
 		class LogPanel* m_logPanel;
 		class HeaderPanel* m_headerPanel;
 		std::vector<EditorPanel*> m_panels;
-		Vector2 m_scenePanelSize = Vector2::Zero;
 
 	};
 }
