@@ -56,7 +56,7 @@ namespace LinaEngine::World
 		{
 			cereal::BinaryOutputArchive oarchive(levelDataStream); // Create an output archive
 
-			oarchive(level.m_LevelData); // Write the data to the archive
+			oarchive(level.m_levelData); // Write the data to the archive
 		} // archive goes out of scope, ensuring all contents are flushed
 
 		std::ofstream registryStream(path + "/" + levelName + "_ecsReg.linaregistry");
@@ -77,7 +77,7 @@ namespace LinaEngine::World
 			cereal::BinaryInputArchive iarchive(levelDataStream);
 
 			// Read the data into it.
-			iarchive(level.m_LevelData);
+			iarchive(level.m_levelData);
 
 		}
 

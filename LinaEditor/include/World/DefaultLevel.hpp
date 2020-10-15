@@ -32,8 +32,8 @@ namespace LinaEditor
 		
 	public:
 		
-		DefaultLevel();
-		~DefaultLevel();
+		DefaultLevel() {};
+		~DefaultLevel() {};
 	
 	private:
 	

@@ -44,7 +44,7 @@ Class: UILayer
 #include "IconsForkAwesome.h"
 #include "IconsMaterialDesign.h"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
-
+#include "World/DefaultLevel.hpp"
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glad/glad.h>
@@ -345,9 +345,13 @@ namespace LinaEditor
 		else if (item == MenuBarItems::NewLevelData)
 		{
 			// Prompt saving the current one.
+		
 
 			// Create a new level.
-					}
+			m_currentLevel = new DefaultLevel();
+			m_application->InstallLevel(m_currentLevel);
+			m_application->InitializeLevel(m_currentLevel);
+		}
 		else if (item == MenuBarItems::SaveLevelData)
 		{
 			if (m_currentLevel != nullptr)
