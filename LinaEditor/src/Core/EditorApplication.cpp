@@ -23,6 +23,7 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include "Rendering/RenderEngine.hpp"
 #include "Physics/PhysicsEngine.hpp"
 #include "Input/InputEngine.hpp"
+#include "Panels/ECSPanel.hpp"
 
 namespace LinaEditor
 {
@@ -53,6 +54,11 @@ namespace LinaEditor
 		// Push layer into the engine.
 		renderEngine->PushLayer(m_guiLayer);
 
+	}
+
+	void EditorApplication::Refresh()
+	{
+		m_guiLayer->GetECSPanel()->Refresh();
 	}
 
 

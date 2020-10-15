@@ -35,6 +35,7 @@ namespace LinaEditor
 		EditorApplication() {}
 
 		void Initialize(LinaEngine::Graphics::Window* appWindow, LinaEngine::Graphics::RenderEngine* renderEngine, LinaEngine::Application* app, LinaEngine::Physics::PhysicsEngine* physicsEngine, LinaEngine::ECS::ECSRegistry* ecs);
+		void Refresh();
 
 		~EditorApplication()
 		{
