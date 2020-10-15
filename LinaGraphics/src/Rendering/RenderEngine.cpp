@@ -606,42 +606,42 @@ namespace LinaEngine::Graphics
 	void RenderEngine::ConstructEngineShaders()
 	{
 		// Unlit.
-		Shader& unlit = CreateShader(Shaders::STANDARD_UNLIT, "resources/shaders/Unlit/Unlit.glsl");
+		Shader& unlit = CreateShader(Shaders::STANDARD_UNLIT, "resources/engine/shaders/Unlit/Unlit.glsl");
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
 		// PBR Lit
-		Shader& pbrLit = CreateShader(Shaders::PBR_LIT, "resources/shaders/PBR/PBRLit.glsl", false);
+		Shader& pbrLit = CreateShader(Shaders::PBR_LIT, "resources/engine/shaders/PBR/PBRLit.glsl", false);
 		pbrLit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		pbrLit.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
 		pbrLit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
 		// Skies
-		CreateShader(Shaders::SKYBOX_SINGLECOLOR, "resources/shaders/Skybox/SkyboxColor.glsl");
-		CreateShader(Shaders::SKYBOX_GRADIENT, "resources/shaders/Skybox/SkyboxGradient.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		CreateShader(Shaders::SKYBOX_CUBEMAP, "resources/shaders/Skybox/SkyboxCubemap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		CreateShader(Shaders::SKYBOX_PROCEDURAL, "resources/shaders/Skybox/SkyboxProcedural.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		CreateShader(Shaders::SKYBOX_HDRI, "resources/shaders/Skybox/SkyboxHDRI.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SKYBOX_SINGLECOLOR, "resources/engine/shaders/Skybox/SkyboxColor.glsl");
+		CreateShader(Shaders::SKYBOX_GRADIENT, "resources/engine/shaders/Skybox/SkyboxGradient.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SKYBOX_CUBEMAP, "resources/engine/shaders/Skybox/SkyboxCubemap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SKYBOX_PROCEDURAL, "resources/engine/shaders/Skybox/SkyboxProcedural.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SKYBOX_HDRI, "resources/engine/shaders/Skybox/SkyboxHDRI.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
 
 		// Equirectangular cube & irradiance for HDRI skbox
-		CreateShader(Shaders::EQUIRECTANGULAR_HDRI, "resources/shaders/HDRI/HDRIEquirectangular.glsl");
-		CreateShader(Shaders::IRRADIANCE_HDRI, "resources/shaders/HDRI/HDRIIrradiance.glsl");
-		CreateShader(Shaders::PREFILTER_HDRI, "resources/shaders/HDRI/HDRIPrefilter.glsl");
-		CreateShader(Shaders::BRDF_HDRI, "resources/shaders/HDRI/HDRIBRDF.glsl");
+		CreateShader(Shaders::EQUIRECTANGULAR_HDRI, "resources/engine/shaders/HDRI/HDRIEquirectangular.glsl");
+		CreateShader(Shaders::IRRADIANCE_HDRI, "resources/engine/shaders/HDRI/HDRIIrradiance.glsl");
+		CreateShader(Shaders::PREFILTER_HDRI, "resources/engine/shaders/HDRI/HDRIPrefilter.glsl");
+		CreateShader(Shaders::BRDF_HDRI, "resources/engine/shaders/HDRI/HDRIBRDF.glsl");
 
 
 		// Screen Quad Shaders
-		CreateShader(Shaders::SCREEN_QUAD_FINAL, "resources/shaders/ScreenQuads/SQFinal.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		CreateShader(Shaders::SCREEN_QUAD_BLUR, "resources/shaders/ScreenQuads/SQBlur.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		CreateShader(Shaders::SCREEN_QUAD_OUTLINE, "resources/shaders/ScreenQuads/SQOutline.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		CreateShader(Shaders::SCREEN_SHADOWMAP, "resources/shaders/ScreenQuads/SQShadowMap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SCREEN_QUAD_FINAL, "resources/engine/shaders/ScreenQuads/SQFinal.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SCREEN_QUAD_BLUR, "resources/engine/shaders/ScreenQuads/SQBlur.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SCREEN_QUAD_OUTLINE, "resources/engine/shaders/ScreenQuads/SQOutline.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::SCREEN_SHADOWMAP, "resources/engine/shaders/ScreenQuads/SQShadowMap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
 		// Line
-		CreateShader(Shaders::DEBUG_LINE, "resources/shaders/Misc/DebugLine.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::DEBUG_LINE, "resources/engine/shaders/Misc/DebugLine.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
 		// 2D
-		CreateShader(Shaders::RENDERER2D_SPRITE, "resources/shaders/2D/Sprite.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::RENDERER2D_SPRITE, "resources/engine/shaders/2D/Sprite.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 	}
 
 	bool RenderEngine::ValidateEngineShaders()
@@ -683,12 +683,12 @@ namespace LinaEngine::Graphics
 	void RenderEngine::ConstructEnginePrimitives()
 	{
 		// Primitives
-		CreateMesh(Primitives::CUBE, "resources/meshes/primitives/cube.obj");
-		CreateMesh(Primitives::CYLINDER, "resources/meshes/primitives/cylinder.obj");
-		CreateMesh(Primitives::PLANE, "resources/meshes/primitives/plane.obj");
-		CreateMesh(Primitives::SPHERE, "resources/meshes/primitives/sphere.obj");
-		CreateMesh(Primitives::ICOSPHERE, "resources/meshes/primitives/icosphere.obj");
-		CreateMesh(Primitives::CONE, "resources/meshes/primitives/cone.obj");
+		CreateMesh(Primitives::CUBE, "resources/engine/meshes/primitives/cube.obj");
+		CreateMesh(Primitives::CYLINDER, "resources/engine/meshes/primitives/cylinder.obj");
+		CreateMesh(Primitives::PLANE, "resources/engine/meshes/primitives/plane.obj");
+		CreateMesh(Primitives::SPHERE, "resources/engine/meshes/primitives/sphere.obj");
+		CreateMesh(Primitives::ICOSPHERE, "resources/engine/meshes/primitives/icosphere.obj");
+		CreateMesh(Primitives::CONE, "resources/engine/meshes/primitives/cone.obj");
 	}
 
 	void RenderEngine::ConstructRenderTargets()
