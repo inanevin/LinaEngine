@@ -20,20 +20,25 @@ Lina Engine is a research project, and it is aimed to be the basis of developmen
 
 - As a build system, this project uses CMake 3.6. Please make sure you have a working version of [CMake](https://cmake.org/), prerably 3.6 or above installed on your machine.
 
-- Lina Engine is currently compatible to be compiled only with Win32 architecture. If you would like to use it on different architectures, you need to compile the vendors for your target architecture and include them manually.
+- Lina Engine is currently compatible to be compiled only with x64 architecture on Windows. If you would like to use it on different architectures & platforms, you need to compile the vendors for your target architecture and platform include them manually.
 
 ## Lina Engine Tools
 
-- [Lina Engine Build Launcher](https://github.com/inanevin/Lina-Engine-Build-Launcher)
+- [Lina Engine Build Launcher](https://github.com/inanevin/Lina-Engine-Build-Launcher) (deprecated)
 
 ## External Dependencies
 
--  [Glad](https://github.com/Dav1dde/glad)
--  [GLFW](https://github.com/glfw/glfw)
-
-## Libraries Included in Source Code
-
--  [spdlog](https://github.com/gabime/spdlog)
+-  [assimp](https://github.com/assimp/assimp)
+-  [bullet3](https://github.com/bulletphysics/bullet3)
+-  [cereal](https://github.com/USCiLab/cereal)
+-  [entt](https://github.com/skypjack/entt)
+-  [fmt](https://github.com/fmtlib/fmt)
+-  [fontawesome](https://github.com/FortAwesome/Font-Awesome)
+-  [forkawesome](https://github.com/ForkAwesome/Fork-Awesome)
+-  [glm](https://github.com/g-truc/glm)
+-  [glfw](https://github.com/glfw/glfw)
+-  [glad](https://github.com/Dav1dde/glad)
+-  [iconfontcppheaders](https://github.com/juliettef/IconFontCppHeaders)
 -  [imgui](https://github.com/ocornut/imgui)
 -  [stb](https://github.com/nothings/stb)
 
@@ -54,7 +59,7 @@ git clone --recursive https://github.com/inanevin/LinaEngine
 ```
 -  You can generate the project files and build using; **Lina Engine Build Launcher**, **CMake with Shell** or **CMake GUI**
 
-#### Using Lina Engine Build Launcher
+#### Using Lina Engine Build Launcher (deprectaed)
 
 -  You need to have JavaFX Runtime library installed on your computer & environment paths set for it. For more information visit [Java FX](https://openjfx.io/).
 -  Download a binary release from [Lina Engine Build Launcher Repository](https://github.com/inanevin/Lina-Engine-Build-Launcher).
@@ -86,7 +91,6 @@ cmake -DLINA_ENABLE_LOGGING:BOOL=OFF -DLINA_BUILD_SANDBOX:BOOL=OFF -DCMAKE_CONFI
 cmake -DLINA_ENABLE_LOGGING=OFF -G "Visual Studio 15 2017"
 
 ```
-
 -  After generating project files you can either open your IDE and build the ALL_BUILD project which will build all the targets or you can build the binaries from shell.
 
 ```shell
@@ -138,10 +142,6 @@ cmake --build ../
 ## License
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
-## Notes
-
--  OpenGL version guards have not been implemented yet, so if you are recieving memory crashes due to OpenGL buffers, please do update your graphics card to the latest version. Especially if you are running Intel HD chipsets.
 
 ## Design Diagrams
 
