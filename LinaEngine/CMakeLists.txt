@@ -22,16 +22,12 @@ set(CMAKE_CXX_STANDARD 17)
 #--------------------------------------------------------------------
 set (LINAENGINE_SOURCES
 
-	src/CompileTest.cpp
+	src/CompileTest.cpp	
 	
 	# CORE
     src/Core/Application.cpp
 	src/Core/Time.cpp
 	src/World/Level.cpp
-
-	#Interfaces
-		
-
 
 )
 
@@ -44,22 +40,15 @@ set(LINAENGINE_HEADERS
 	include/Core/Application.hpp
 	include/Core/Time.hpp
 
-
-	
 	#World
 	include/World/Level.hpp
 
-	
-
 	#API
 	include/Lina.hpp
-	
-	
+		
 	#Others
 	include/EntryPoint.hpp
 	include/LinaPch.hpp
-	
-
 	
 )
 

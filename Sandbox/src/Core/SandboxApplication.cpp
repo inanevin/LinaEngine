@@ -22,6 +22,7 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include "PackageManager/PAMInputDevice.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Physics/PhysicsEngine.hpp"
+#include "Levels/Example1Level.hpp"
 #include "Input/InputEngine.hpp"
 
 class SandboxApplication : public LinaEngine::Application
@@ -43,10 +44,15 @@ class SandboxApplication : public LinaEngine::Application
 		props.m_title = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
 		Initialize(props);
 
+		// Install level.
+		InstallLevel(&m_startupLevel);
+		InitializeLevel(&m_startupLevel);
+
 		// Set the app window size back to original.
 		GetAppWindow().SetSize(Vector2(props.m_width, props.m_height));
 		GetAppWindow().SetPosCentered(Vector2::Zero);
 
+		
 
 		// Run engine.
 		Run();
@@ -61,6 +67,8 @@ class SandboxApplication : public LinaEngine::Application
 	}
 
 	private:
+
+		Example1Level m_startupLevel;
 
 	};
 

@@ -22,24 +22,26 @@ project(Sandbox)
 set(SANDBOX_SOURCES 
 
 src/Core/SandboxApplication.cpp
+src/Levels/Example1Level.cpp
 
 )
 
 set(SANDBOX_HEADERS
 
-
+include/Core/test.hpp
+include/Levels/Example1Level.hpp
 )
 
 #--------------------------------------------------------------------
 # Create executable project
 #--------------------------------------------------------------------
 add_executable(${PROJECT_NAME} ${SANDBOX_SOURCES} ${SANDBOX_HEADERS})
+add_executable(Lina::Sandbox ALIAS ${PROJECT_NAME}) 
 
 #--------------------------------------------------------------------
 # Options & Definitions
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
@@ -56,7 +58,6 @@ endif()
 #--------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} 
 PRIVATE Lina::Engine
-
 )
 
 
@@ -87,6 +88,19 @@ PRIVATE Lina::Engine
 #COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/LinaEngine/vendor/glad/lib/$<CONFIGURATION>/glad.pdb" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
 
 
+# Copy engine resources to project solution directory to run within IDE.
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/LinaEngine/resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/resources/")
+
+# Copy engine resources to binary directory
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/LinaEngine/resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/resources")
+
+
 # Copy project resources to binary directory
 add_custom_command(
 TARGET ${PROJECT_NAME}
@@ -103,9 +117,9 @@ COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
 if(MSVC_IDE)
-	foreach(source IN LISTS LINAEDITOR_HEADERS LINAEDITOR_SOURCES)
+	foreach(source IN LISTS SANDBOX_HEADERS SANDBOX_SOURCES)
 		get_filename_component(source_path "${source}" PATH)
-		string(REPLACE "${LINAEDITOR_SOURCE_DIR}" "" relative_source_path "${source_path}")
+		string(REPLACE "${SANDBOX_SOURCE_DIR}" "" relative_source_path "${source_path}")
 		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
 				source_group("${source_path_msvc}" FILES "${source}")
 	endforeach()
