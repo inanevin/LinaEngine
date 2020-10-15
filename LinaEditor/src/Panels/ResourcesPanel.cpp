@@ -191,8 +191,13 @@ namespace LinaEditor
 
 		WidgetsUtility::IncrementCursorPosY(11);
 		WidgetsUtility::ItemSpacingX(0);
+
 		if (!isRoot)
 			WidgetsUtility::IncrementCursorPosY(-11);
+		else
+		{
+
+		}
 
 		// Draw folders.
 		for (std::map<int, EditorFolder>::iterator it = folder.subFolders.begin(); it != folder.subFolders.end();)
@@ -221,6 +226,7 @@ namespace LinaEditor
 			WidgetsUtility::Icon(ICON_FA_FOLDER, 0.7f, ImVec4(0.9f, 0.83f, 0.0f, 1.0f));
 			ImGui::SameLine(); WidgetsUtility::IncrementCursorPosX(3); WidgetsUtility::IncrementCursorPosY(-5);
 			ImGui::Text((it->second).name.c_str());
+
 			// Click
 			if (ImGui::IsItemClicked())
 			{

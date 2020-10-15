@@ -45,7 +45,6 @@ namespace LinaEditor
 
 	void ComponentDrawer::RegisterComponentFunctions()
 	{
-
 		// Display names.
 		std::get<0>(s_componentDrawFuncMap[GetTypeID<TransformComponent>()]) = "Transformation";
 		std::get<0>(s_componentDrawFuncMap[GetTypeID<RigidbodyComponent>()]) = "Rigidbody";
