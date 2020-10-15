@@ -13,143 +13,39 @@
 # and limitations under the License.
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 cmake_minimum_required (VERSION 3.6)
-project(LinaEditor)
+project(Sandbox)
 
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
 
-set(LINAEDITOR_SOURCES 
+set(SANDBOX_SOURCES 
 
-# Core
-src/Core/EditorApplication.cpp
-src/Core/GUILayer.cpp
-src/Core/EditorCommon.cpp
-src/Core/GizmoLayer.cpp
-src/Core/SplashScreen.cpp
-
-#Drawers
-src/Drawers/EntityDrawer.cpp
-src/Drawers/ComponentDrawer.cpp
-
-#Modals
-src/Modals/SelectComponentModal.cpp
-
-# Panels
-src/Panels/EditorPanel.cpp
-src/Panels/ECSPanel.cpp
-src/Panels/MaterialPanel.cpp
-src/Panels/ResourcesPanel.cpp
-src/Panels/ScenePanel.cpp
-src/Panels/PropertiesPanel.cpp
-src/Panels/LogPanel.cpp
-src/Panels/HeaderPanel.cpp
-
-
-# World
-src/Levels/Example1Level.cpp
-src/Levels/GroundCubeSystem.cpp
-
-# Utility
-src/Utility/EditorUtility.cpp
-
-# Widgets
-src/Widgets/MenuButton.cpp
-src/Widgets/WidgetsUtility.cpp
-
-# ImGui
-src/imgui/imgui_impl_opengl3.cpp
-src/imgui/imgui_impl_glfw.cpp
-src/imgui/imgui.cpp
-src/imgui/imgui_demo.cpp
-src/imgui/imgui_draw.cpp
-src/imgui/imgui_widgets.cpp
-src/imgui/imguizmo/ImCurveEdit.cpp
-src/imgui/imguizmo/ImGradient.cpp
-src/imgui/imguizmo/ImGuizmo.cpp
-src/imgui/imguizmo/ImSequencer.cpp
-src/imgui/ImGuiFileDialogue/ImGuiFileDialog.cpp
+src/Core/SandboxApplication.cpp
 
 )
 
-set(LINAEDITOR_HEADERS
+set(SANDBOX_HEADERS
 
-# Core
-include/Core/GUILayer.hpp
-include/Core/EditorCommon.hpp
-include/Core/GizmoLayer.hpp
-include/Core/SplashScreen.hpp
-
-# World
-include/Levels/Example1Level.hpp
-include/Levels/GroundCubeSystem.hpp
-include/Levels/GroundCubeComponent.hpp
-
-#Drawers
-include/Drawers/EntityDrawer.hpp
-include/Drawers/ComponentDrawer.hpp
-
-# Modals
-include/Modals/SelectComponentModal.hpp
-
-# Panels
-include/Panels/EditorPanel.hpp
-include/Panels/ECSPanel.hpp
-include/Panels/MaterialPanel.hpp
-include/Panels/ResourcesPanel.hpp
-include/Panels/ScenePanel.hpp
-include/Panels/PropertiesPanel.hpp
-include/Panels/LogPanel.hpp
-include/Panels/HeaderPanel.hpp
-
-# Utility
-include/Utility/EditorUtility.hpp
-
-# Widgets
-include/Widgets/MenuButton.hpp
-include/Widgets/WidgetsUtility.hpp
-
-# ImGui
-include/imgui/dirent.h
-include/imgui/imconfig.h
-include/imgui/imgui.h
-include/imgui/imgui_impl_glfw.h
-include/imgui/imgui_impl_opengl3.h
-include/imgui/imgui_internal.h
-include/imgui/imstb_rectpack.h
-include/imgui/imstb_textedit.h
-include/imgui/imstb_truetype.h
-include/imgui/imguizmo/ImCurveEdit.h
-include/imgui/imguizmo/ImGradient.h
-include/imgui/imguizmo/ImGuizmo.h
-include/imgui/imguizmo/ImSequencer.h
-include/imgui/ImGuiFileDialogue/ImGuiFileDialog.h
-include/imgui/ImGuiFileDialogue/ImGuiFileDialogConfig.h
-
-
-CMakeLists.txt
 
 )
 
 #--------------------------------------------------------------------
 # Create executable project
 #--------------------------------------------------------------------
-add_executable(${PROJECT_NAME} ${LINAEDITOR_SOURCES} ${LINAEDITOR_HEADERS})
+add_executable(${PROJECT_NAME} ${SANDBOX_SOURCES} ${SANDBOX_HEADERS})
 
 #--------------------------------------------------------------------
 # Options & Definitions
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glad/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/IconFontCPPHeaders/include)
+
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 option(LINA_CLIENT_ENABLE_LOGGING "Enables console logging" ON)
 
 add_compile_definitions(LINA_EDITOR)
-add_compile_definitions(SANDBOX_DIR ${SANDBOX_DIR})
 
 if(LINA_CLIENT_ENABLE_LOGGING)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_CLIENT_ENABLE_LOGGING=1)
@@ -160,8 +56,7 @@ endif()
 #--------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} 
 PRIVATE Lina::Engine
-PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
-PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glad/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glad.lib
+
 )
 
 
@@ -191,11 +86,7 @@ PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glad/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATI
 #PRE_BUILD
 #COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/LinaEngine/vendor/glad/lib/$<CONFIGURATION>/glad.pdb" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
 
-# Copy engine resources to project solution directory to run within IDE.
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/LinaEngine/resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/resources/")
+
 
 # Copy project resources to binary directory
 add_custom_command(

@@ -30,6 +30,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_SUPPRESS_REGENERATION true)
+set(SANDBOX_DIR "" CACHE FILEPATH "" FORCE)
 #option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
 
 
@@ -80,6 +81,7 @@ add_subdirectory(LinaCommon)
 add_subdirectory(LinaAction)
 add_subdirectory(LinaInput)
 add_subdirectory(LinaPhysics)
+add_subdirectory(Sandbox)
 
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT LinaEditor)
