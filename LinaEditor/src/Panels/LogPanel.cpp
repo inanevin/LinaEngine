@@ -232,15 +232,15 @@ namespace LinaEditor
 	{
 		if (*flags & m_targetLevel)
 		{
-			m_usedColorDefault = LOGPANEL_COLOR_ICONDEFAULT;
-			m_usedColorHovered = LOGPANEL_COLOR_ICONHOVERED;
-			m_usedColorPressed = LOGPANEL_COLOR_ICONPRESSED;
-		}
-		else
-		{
 			m_usedColorDefault = m_colorDefault;
 			m_usedColorHovered = m_colorHovered;
 			m_usedColorPressed = m_colorPressed;
+		}
+		else
+		{
+			m_usedColorDefault = LOGPANEL_COLOR_ICONDEFAULT;
+			m_usedColorHovered = LOGPANEL_COLOR_ICONHOVERED;
+			m_usedColorPressed = LOGPANEL_COLOR_ICONPRESSED;			
 		}
 	}
 

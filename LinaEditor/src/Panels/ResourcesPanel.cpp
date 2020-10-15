@@ -27,8 +27,8 @@ Timestamp: 6/5/2020 12:55:10 AM
 #include "Core/EditorCommon.hpp"
 #include "imgui/imgui.h"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
+#include "Widgets/WidgetsUtility.hpp"
+#include "IconsFontAwesome5.h"
 #include <filesystem>
 
 
@@ -40,6 +40,16 @@ namespace LinaEditor
 	static EditorFolder* hoveredFolder;
 	static EditorFile* selectedFile;
 	static EditorFolder* selectedFolder;
+
+
+	void ResourcesPanel::Setup()
+	{
+		m_PropertiesPanel = m_guiLayer->GetPropertiesPanel();
+		m_RenderEngine = m_guiLayer->GetRenderEngine();
+
+		// Scan root resources folder.
+		ScanRoot();
+	}
 
 	void ResourcesPanel::Draw(float frameTime)
 	{
@@ -59,19 +69,9 @@ namespace LinaEditor
 			DrawFolder(m_ResourceFolders[0]);
 
 			ImGui::End();
-
-
 		}
 	}
 
-	void ResourcesPanel::Setup()
-	{
-		m_PropertiesPanel = m_guiLayer->GetPropertiesPanel();
-		m_RenderEngine = m_guiLayer->GetRenderEngine();
-
-		// Scan root resources folder.
-		ScanRoot();
-	}
 
 	void ResourcesPanel::DrawContent()
 	{
@@ -188,9 +188,14 @@ namespace LinaEditor
 		static ImGuiTreeNodeFlags fileNodeFlagsNotSelected = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth;
 		static ImGuiTreeNodeFlags fileNodeFlagsSelected = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Selected;
 
+
+		WidgetsUtility::IncrementCursorPosY(11);
+
 		// Draw folders.
 		for (std::map<int, EditorFolder>::iterator it = folder.subFolders.begin(); it != folder.subFolders.end();)
 		{
+			WidgetsUtility::IncrementCursorPosX(11);
+
 			if (it->second.markedForErase)
 			{
 				// Delete directory.
@@ -207,6 +212,8 @@ namespace LinaEditor
 			}
 
 			ImGuiTreeNodeFlags folderFlags = (it->second).id == selectedItem ? folderFlagsSelected : folderFlagsNotSelected;
+			WidgetsUtility::Icon(ICON_FA_FOLDER, 0.8f, ImVec4(0.9f, 0.83f, 0.0f, 1.0f));
+			ImGui::SameLine(); WidgetsUtility::IncrementCursorPosY(-4);
 			bool nodeOpen = ImGui::TreeNodeEx((it->second).name.c_str(), folderFlags);
 
 			// Click
