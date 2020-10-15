@@ -63,7 +63,7 @@ namespace LinaEditor
 		{
 			LogDumpEntry(LinaEngine::Log::LogDump dump, int count) : m_dump(dump), m_count(count) {};
 			LinaEngine::Log::LogDump m_dump;
-			int m_count = 0;
+			int m_count = 1;
 		};
 
 	public:
