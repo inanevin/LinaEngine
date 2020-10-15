@@ -27,6 +27,7 @@ Timestamp: 6/7/2020 8:56:51 PM
 #include "IconsFontAwesome5.h"
 #include "Core/EditorCommon.hpp"
 
+bool m_iconsEnabled = false;
 
 namespace LinaEditor
 {
@@ -52,7 +53,7 @@ namespace LinaEditor
 	{
 
 		if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
-			LINA_CLIENT_INFO("heyy {0}", ++c);
+			LINA_CLIENT_INFO("This is for testing different types of lengths hehey....", ++c);
 
 		if (m_show)
 		{
@@ -107,32 +108,82 @@ namespace LinaEditor
 					igfd::ImGuiFileDialog::Instance()->CloseDialog(saveLogDataID);
 				}
 
-				
+
 
 				// Draw icon buttons.			
 				for (int i = 0; i < m_logLevelIconButtons.size(); i++)
 				{
-					ImGui::SameLine(); ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - 200 + 35 * i); 
+					ImGui::SameLine(); ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - 200 + 35 * i);
 					m_logLevelIconButtons[i].DrawButton(&m_logLevelFlags);
 				}
 
+				WidgetsUtility::IncrementCursorPosY(4);
 				WidgetsUtility::DrawBeveledLine();
-
+				WidgetsUtility::IncrementCursorPosY(4);
 				//Draw dump contents.
-				ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0, 0, 0, 1));
-				WidgetsUtility::IncrementCursorPos(ImVec2(11,11));
 				if (ImGui::BeginChild("Log_", ImVec2(0, 0), false))
 				{
-					ImGui::PushTextWrapPos(ImGui::GetWindowContentRegionMax().x - 5);
-					for (std::deque<LinaEngine::Log::LogDump>::iterator it = m_logDeque.begin(); it != m_logDeque.end(); it++)
+					WidgetsUtility::IncrementCursorPosY(11);
+					for (std::deque<LogDumpEntry>::iterator it = m_logDeque.begin(); it != m_logDeque.end(); it++)
 					{
-						ImGui::Text(it->m_message.c_str());
+						ImGui::PushTextWrapPos(ImGui::GetWindowContentRegionMax().x - 5);
+
+						// Draw the level icon.
+						WidgetsUtility::IncrementCursorPos(ImVec2(15, 0));
+
+						// Draw the icon depending on the log level type also set the text color ready.
+						if (it->m_dump.m_level == LinaEngine::Log::LogLevel::Critical)
+						{
+							if (m_iconsEnabled) WidgetsUtility::Icon(ICON_FA_SKULL_CROSSBONES, 0.6f, LOGPANEL_COLOR_CRIT_DEFAULT);
+							ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_CRIT_DEFAULT);
+						}
+						else if (it->m_dump.m_level == LinaEngine::Log::LogLevel::Debug)
+						{
+							if (m_iconsEnabled) WidgetsUtility::Icon(ICON_FA_BUG, 0.6f, LOGPANEL_COLOR_DEBUG_DEFAULT);
+							ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_DEBUG_DEFAULT);
+						}
+						else if (it->m_dump.m_level == LinaEngine::Log::LogLevel::Error)
+						{
+							if (m_iconsEnabled) WidgetsUtility::Icon(ICON_FA_TIMES_CIRCLE, 0.6f, LOGPANEL_COLOR_ERR_DEFAULT);
+							ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_ERR_DEFAULT);
+						}
+						else if (it->m_dump.m_level == LinaEngine::Log::LogLevel::Info)
+						{
+							if (m_iconsEnabled) WidgetsUtility::Icon(ICON_FA_INFO_CIRCLE, 0.6f, LOGPANEL_COLOR_INFO_DEFAULT);
+							ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_INFO_DEFAULT);
+						}
+						else if (it->m_dump.m_level == LinaEngine::Log::LogLevel::Trace)
+						{
+							if (m_iconsEnabled) WidgetsUtility::Icon(ICON_FA_CLIPBOARD_LIST, 0.6f, LOGPANEL_COLOR_TRACE_DEFAULT);
+							ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_TRACE_DEFAULT);
+						}
+						else if (it->m_dump.m_level == LinaEngine::Log::LogLevel::Warn)
+						{
+							if (m_iconsEnabled) WidgetsUtility::Icon(ICON_FA_EXCLAMATION_TRIANGLE, 0.6f, LOGPANEL_COLOR_WARN_DEFAULT);
+							ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_WARN_DEFAULT);
+						}
+
+						// Draw the message text.
+						if (m_iconsEnabled) ImGui::SameLine();
+						WidgetsUtility::IncrementCursorPosY(-5);
+						ImGui::Text(it->m_dump.m_message.c_str());
+						ImGui::PopStyleColor();
+						ImGui::PopTextWrapPos();
+
+						// Display the amount of calls for this same entry.
+						if (it->m_count != 0)
+						{
+							ImGui::SameLine();	ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - 35);
+							std::string text = "x " + std::to_string(it->m_count);
+							ImGui::Text(text.c_str());
+						}
+
+						if (m_iconsEnabled) WidgetsUtility::IncrementCursorPosY(6);
 					}
-					ImGui::PopTextWrapPos();
+
 				}
 				ImGui::EndChild();
-				ImGui::PopStyleColor();
-			
+
 			}
 			ImGui::End();
 		}
@@ -141,10 +192,24 @@ namespace LinaEditor
 
 	void LogPanel::OnLog(LinaEngine::Log::LogDump dump)
 	{
+		LogDumpEntry entry(dump, 0);
+
+		// Check if we have an entry with the same message and message type.
+		std::deque<LogDumpEntry>::iterator it = std::find_if(m_logDeque.begin(), m_logDeque.end(), [&ce = entry]
+		(const LogDumpEntry& m) -> bool { return (ce.m_dump.m_message.compare(m.m_dump.m_message) == 0 && ce.m_dump.m_level == m.m_dump.m_level); });
+
+		// If so, increase it's count so that we can display how many times the same entry is called.
+		if (it != m_logDeque.end())
+		{
+			it->m_count++;
+			return;
+		}
+
+		// Pop if exceeds max size.
 		if (m_logDeque.size() == MAX_BACKTRACE_SIZE)
 			m_logDeque.pop_front();
 
-		m_logDeque.push_back(dump);
+		m_logDeque.push_back(entry);
 	}
 
 
