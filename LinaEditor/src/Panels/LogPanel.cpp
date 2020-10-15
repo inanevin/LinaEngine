@@ -43,6 +43,13 @@ namespace LinaEditor
 		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_warn", "Warn", ICON_FA_EXCLAMATION_TRIANGLE, LinaEngine::Log::LogLevel::Warn, LOGPANEL_COLOR_WARN_DEFAULT, LOGPANEL_COLOR_WARN_HOVERED, LOGPANEL_COLOR_WARN_PRESSED));
 		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_error", "Error", ICON_FA_TIMES_CIRCLE, LinaEngine::Log::LogLevel::Error, LOGPANEL_COLOR_ERR_DEFAULT, LOGPANEL_COLOR_ERR_HOVERED, LOGPANEL_COLOR_ERR_PRESSED));
 		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_critical", "Critical", ICON_FA_SKULL_CROSSBONES, LinaEngine::Log::LogLevel::Critical, LOGPANEL_COLOR_CRIT_DEFAULT, LOGPANEL_COLOR_CRIT_HOVERED, LOGPANEL_COLOR_CRIT_PRESSED));
+	
+		// To be retrieved from editor settings file later on.
+		m_logLevelFlags = LinaEngine::Log::LogLevel::Critical | LinaEngine::Log::LogLevel::Debug | LinaEngine::Log::LogLevel::Trace | LinaEngine::Log::LogLevel::Info | LinaEngine::Log::LogLevel::Error | LinaEngine::Log::LogLevel::Warn;
+		
+		// Update icon colors depending on the chosen log levels
+		for (int i = 0; i < m_logLevelIconButtons.size(); i++)
+			m_logLevelIconButtons[i].UpdateColors(&m_logLevelFlags);
 	}
 
 
@@ -221,6 +228,22 @@ namespace LinaEditor
 	}
 
 
+	void LogLevelIconButton::UpdateColors(unsigned int* flags)
+	{
+		if (*flags & m_targetLevel)
+		{
+			m_usedColorDefault = LOGPANEL_COLOR_ICONDEFAULT;
+			m_usedColorHovered = LOGPANEL_COLOR_ICONHOVERED;
+			m_usedColorPressed = LOGPANEL_COLOR_ICONPRESSED;
+		}
+		else
+		{
+			m_usedColorDefault = m_colorDefault;
+			m_usedColorHovered = m_colorHovered;
+			m_usedColorPressed = m_colorPressed;
+		}
+	}
+
 	void LogLevelIconButton::DrawButton(unsigned int* flags)
 	{
 		if (WidgetsUtility::IconButton(m_id, m_icon, 0.0f, 1.0f, m_usedColorDefault, m_usedColorHovered, m_usedColorPressed))
@@ -228,16 +251,12 @@ namespace LinaEditor
 			if (*flags & m_targetLevel)
 			{
 				*flags &= ~m_targetLevel;
-				m_usedColorDefault = LOGPANEL_COLOR_ICONDEFAULT;
-				m_usedColorHovered = LOGPANEL_COLOR_ICONHOVERED;
-				m_usedColorPressed = LOGPANEL_COLOR_ICONPRESSED;
+				UpdateColors(flags);
 			}
 			else
 			{
 				*flags |= m_targetLevel;
-				m_usedColorDefault = m_colorDefault;
-				m_usedColorHovered = m_colorHovered;
-				m_usedColorPressed = m_colorPressed;
+				UpdateColors(flags);
 			}
 		}
 
