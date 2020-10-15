@@ -69,9 +69,7 @@ namespace LinaEditor
 			{
 				// Shadow.
 				WidgetsUtility::DrawShadowedLine(5);
-
-				// Align.
-			/*	WidgetsUtility::IncrementCursorPosX(11);
+				WidgetsUtility::IncrementCursorPosX(11);
 				WidgetsUtility::IncrementCursorPosY(11);
 
 				// Empty dump
@@ -109,38 +107,32 @@ namespace LinaEditor
 					igfd::ImGuiFileDialog::Instance()->CloseDialog(saveLogDataID);
 				}
 
-				ImGui::SameLine();
-				WidgetsUtility::IncrementCursorPosY(WidgetsUtility::DebugFloat("y"));
-				ImGui::SetCursorPosX(ImGui::GetWindowWidth() * WidgetsUtility::DebugFloat("x"));
-				*/
-				WidgetsUtility::IncrementCursorPosY(18);
-
-				ImGui::Button("sssss");
-				ImGui::SameLine();
-				ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - 200);
-
-				// Draw icon buttons.
 				
+
+				// Draw icon buttons.			
 				for (int i = 0; i < m_logLevelIconButtons.size(); i++)
 				{
-					m_logLevelIconButtons[i].DrawButton(&m_logLevelFlags); ImGui::SameLine(); WidgetsUtility::IncrementCursorPosX(5);
+					ImGui::SameLine(); ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - 200 + 35 * i); 
+					m_logLevelIconButtons[i].DrawButton(&m_logLevelFlags);
 				}
 
-		
+				WidgetsUtility::DrawBeveledLine();
 
 				//Draw dump contents.
-				/*ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0, 0, 0, 1));
-				float maxWidth = ImGui::GetWindowWidth() * WidgetsUtility::DebugFloat("3");
-				if (ImGui::BeginChild("Log_", ImVec2(maxWidth, 0), false))
+				ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0, 0, 0, 1));
+				WidgetsUtility::IncrementCursorPos(ImVec2(11,11));
+				if (ImGui::BeginChild("Log_", ImVec2(0, 0), false))
 				{
+					ImGui::PushTextWrapPos(ImGui::GetWindowContentRegionMax().x - 5);
 					for (std::deque<LinaEngine::Log::LogDump>::iterator it = m_logDeque.begin(); it != m_logDeque.end(); it++)
 					{
-						ImGui::Selectable(it->m_message.c_str());
+						ImGui::Text(it->m_message.c_str());
 					}
+					ImGui::PopTextWrapPos();
 				}
 				ImGui::EndChild();
-				ImGui::PopStyleColor();*/
-
+				ImGui::PopStyleColor();
+			
 			}
 			ImGui::End();
 		}
