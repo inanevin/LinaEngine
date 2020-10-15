@@ -70,6 +70,9 @@ namespace LinaEditor
 		static void WindowPaddingX(float amt);
 		static void WindowPaddingY(float amt);
 		static void WindowPadding(const ImVec2& amt);
+		static void ItemSpacingX(float amt);
+		static void ItemSpacingY(float amt);
+		static void ItemSpacing(const ImVec2& amt);
 		static void WindowRounding(float rounding);
 		static void PopStyleVar();
 	

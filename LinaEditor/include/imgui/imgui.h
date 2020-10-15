@@ -44,7 +44,7 @@ Index of this file:
 #define LINA_DOCKOFFSET_Y 3.0f
 #define LINA_UNDOCKEDWINDOW_TITLE_XOFFSET 7
 #define LINA_UNDOCKEDWINDOW_TITLE_YOFFSET 4
-
+#define LINA_TREENODE_ARROW_SCALE 0.22f
 // Configuration file with compile-time options (edit imconfig.h or #define IMGUI_USER_CONFIG to your own filename)
 #ifdef IMGUI_USER_CONFIG
 #include IMGUI_USER_CONFIG

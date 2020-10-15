@@ -376,6 +376,21 @@ namespace LinaEditor
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, amt);
 	}
 
+	void WidgetsUtility::ItemSpacingX(float amt)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(amt, ImGui::GetStyle().ItemSpacing.y));
+	}
+
+	void WidgetsUtility::ItemSpacingY(float amt)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, amt));
+	}
+
+	void WidgetsUtility::ItemSpacing(const ImVec2& amt)
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, amt);
+	}
+
 	void WidgetsUtility::WindowRounding(float rounding)
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, rounding);

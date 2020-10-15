@@ -66,7 +66,7 @@ namespace LinaEditor
 			
 			ImGui::Begin("Resources", &m_show, flags);
 			DrawContent();
-			DrawFolder(m_ResourceFolders[0]);
+			DrawFolder(m_ResourceFolders[0], true);
 
 			ImGui::End();
 		}
@@ -181,7 +181,7 @@ namespace LinaEditor
 		}
 	}
 
-	void ResourcesPanel::DrawFolder(EditorFolder& folder)
+	void ResourcesPanel::DrawFolder(EditorFolder& folder, bool isRoot)
 	{
 		static ImGuiTreeNodeFlags folderFlagsNotSelected = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 		static ImGuiTreeNodeFlags folderFlagsSelected = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Selected;
@@ -190,11 +190,14 @@ namespace LinaEditor
 
 
 		WidgetsUtility::IncrementCursorPosY(11);
+		WidgetsUtility::ItemSpacingX(0);
+		if (!isRoot)
+			WidgetsUtility::IncrementCursorPosY(-11);
 
 		// Draw folders.
 		for (std::map<int, EditorFolder>::iterator it = folder.subFolders.begin(); it != folder.subFolders.end();)
 		{
-			WidgetsUtility::IncrementCursorPosX(11);
+			WidgetsUtility::IncrementCursorPosX(4);
 
 			if (it->second.markedForErase)
 			{
@@ -212,10 +215,12 @@ namespace LinaEditor
 			}
 
 			ImGuiTreeNodeFlags folderFlags = (it->second).id == selectedItem ? folderFlagsSelected : folderFlagsNotSelected;
-			WidgetsUtility::Icon(ICON_FA_FOLDER, 0.8f, ImVec4(0.9f, 0.83f, 0.0f, 1.0f));
-			ImGui::SameLine(); WidgetsUtility::IncrementCursorPosY(-4);
-			bool nodeOpen = ImGui::TreeNodeEx((it->second).name.c_str(), folderFlags);
-
+			std::string id = "##" + (it->second).name;
+			bool nodeOpen = ImGui::TreeNodeEx(id.c_str(), folderFlags);
+			ImGui::SameLine();  WidgetsUtility::IncrementCursorPosY(5);
+			WidgetsUtility::Icon(ICON_FA_FOLDER, 0.7f, ImVec4(0.9f, 0.83f, 0.0f, 1.0f));
+			ImGui::SameLine(); WidgetsUtility::IncrementCursorPosX(3); WidgetsUtility::IncrementCursorPosY(-5);
+			ImGui::Text((it->second).name.c_str());
 			// Click
 			if (ImGui::IsItemClicked())
 			{
@@ -236,10 +241,13 @@ namespace LinaEditor
 			++it;
 
 		}
+		WidgetsUtility::PopStyleVar();
+
 
 		// Draw files.
 		for (std::map<int, EditorFile>::iterator it = folder.files.begin(); it != folder.files.end();)
 		{
+			WidgetsUtility::IncrementCursorPosX(-9);
 			if (it->second.markedForErase)
 			{
 				// Delete directory.
