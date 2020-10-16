@@ -185,6 +185,7 @@ PRIVATE Lina::Engine
 #PRE_BUILD
 #COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/LinaEngine/vendor/glad/lib/$<CONFIGURATION>/glad.pdb" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
 
+
 # Copy engine resources to project solution directory to run within IDE.
 add_custom_command(
 TARGET ${PROJECT_NAME}

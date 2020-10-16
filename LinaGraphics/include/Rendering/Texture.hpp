@@ -42,13 +42,13 @@ namespace LinaEngine::Graphics
 		Texture() {};
 		~Texture();
 
-		Texture& Construct(RenderDevice& deviceIn, const class ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress);
-		Texture& ConstructCubemap(RenderDevice& deviceIn, SamplerParameters samplerParams, const LinaArray<class ArrayBitmap*>& data, bool compress);
-		Texture& ConstructHDRI(RenderDevice& deviceIn, SamplerParameters samplerParams, Vector2 size, float* data);
-		Texture& ConstructRTCubemapTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams);
-		Texture& ConstructRTTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, bool useBorder = false);
-		Texture& ConstructRTTextureMSAA(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, int sampleCount);
-		Texture& ConstructEmpty(RenderDevice& deviceIn, SamplerParameters samplerParams = SamplerParameters());
+		Texture& Construct(RenderDevice& deviceIn, const class ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress, const std::string& path = "");
+		Texture& ConstructCubemap(RenderDevice& deviceIn, SamplerParameters samplerParams, const LinaArray<class ArrayBitmap*>& data, bool compress, const std::string& path = "");
+		Texture& ConstructHDRI(RenderDevice& deviceIn, SamplerParameters samplerParams, Vector2 size, float* data, const std::string& path = "");
+		Texture& ConstructRTCubemapTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, const std::string& path = "");
+		Texture& ConstructRTTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, bool useBorder = false, const std::string& path = "");
+		Texture& ConstructRTTextureMSAA(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, int sampleCount, const std::string& path = "");
+		Texture& ConstructEmpty(RenderDevice& deviceIn, SamplerParameters samplerParams = SamplerParameters(), const std::string& path = "");
 		FORCEINLINE uint32 GetID() const { return m_ID; };
 		FORCEINLINE uint32 GetSamplerID() const { return m_Sampler.GetID(); }
 		FORCEINLINE Sampler& GetSampler() { return m_Sampler; }
@@ -56,6 +56,7 @@ namespace LinaEngine::Graphics
 		FORCEINLINE bool HasMipmaps() const { return hasMipMaps; }
 		FORCEINLINE Vector2 GetSize() { return m_Size; }
 		FORCEINLINE bool GetIsEmpty() { return m_IsEmpty; }
+		FORCEINLINE const std::string& GetPath() const { return m_path; }
 
 	private:
 
@@ -67,6 +68,7 @@ namespace LinaEngine::Graphics
 		bool isCompressed = false;
 		bool hasMipMaps = true;
 		bool m_IsEmpty = true;
+		std::string m_path = "";
 	};
 }
 

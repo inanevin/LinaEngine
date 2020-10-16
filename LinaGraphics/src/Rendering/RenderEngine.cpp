@@ -228,7 +228,7 @@ namespace LinaEngine::Graphics
 
 		// Create texture & construct.
 		Texture* texture = new Texture();
-		texture->Construct(m_renderDevice, *textureBitmap, samplerParams, compress);
+		texture->Construct(m_renderDevice, *textureBitmap, samplerParams, compress, filePath);
 		m_loadedTextures[texture->GetID()] = texture;
 
 		// Delete pixel data.
@@ -258,7 +258,7 @@ namespace LinaEngine::Graphics
 		samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
 
 		Texture* texture = new Texture();
-		texture->ConstructHDRI(m_renderDevice, samplerParams, Vector2(w, h), data);
+		texture->ConstructHDRI(m_renderDevice, samplerParams, Vector2(w, h), data, filePath);
 		m_loadedTextures[texture->GetID()] = texture;
 
 		// Return
@@ -293,6 +293,7 @@ namespace LinaEngine::Graphics
 
 			// Set id
 			mesh.m_MeshID = id;
+			mesh.m_path = filePath;
 
 			// Return
 			return m_loadedMeshes[id];
@@ -385,6 +386,21 @@ namespace LinaEngine::Graphics
 		return *m_loadedTextures[id];
 	}
 
+	Texture& RenderEngine::GetTexture(const std::string& path)
+	{
+		std::map<int, Texture*>::iterator it = std::find_if(m_loadedTextures.begin(), m_loadedTextures.end(), [path]
+		(std::pair<int, Texture*> const& item) -> bool { return item.second->GetPath().compare(path) == 0; });
+
+		if (it == m_loadedTextures.end())
+		{
+			// Mesh not found.
+			LINA_CORE_WARN("Texture with the path {0} was not found, returning un-constructed texture...", path);
+			return Texture();
+		}
+
+		return *it->second;
+	}
+
 	Mesh& RenderEngine::GetMesh(int id)
 	{
 		if (!MeshExists(id))
@@ -395,6 +411,21 @@ namespace LinaEngine::Graphics
 		}
 
 		return m_loadedMeshes[id];
+	}
+
+	Mesh& RenderEngine::GetMesh(const std::string& path)
+	{
+		std::map<int, Mesh>::iterator it = std::find_if(m_loadedMeshes.begin(), m_loadedMeshes.end(), [path]
+		(std::pair<int, Mesh> const& item) -> bool { return item.second.GetPath().compare(path) == 0; });
+
+		if (it == m_loadedMeshes.end())
+		{
+			// Mesh not found.
+			LINA_CORE_WARN("Mesh with the path {0} was not found, returning un-constructed mesh...", path);
+			return Mesh();
+		}
+
+		return it->second;
 	}
 
 	Shader& RenderEngine::GetShader(Shaders shader)

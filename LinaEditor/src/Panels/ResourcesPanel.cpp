@@ -31,6 +31,7 @@ Timestamp: 6/5/2020 12:55:10 AM
 #include "IconsFontAwesome5.h"
 #include <filesystem>
 
+#define ROOT_NAME "###Resources"
 
 namespace LinaEditor
 {
@@ -67,7 +68,7 @@ namespace LinaEditor
 			ImGui::Begin("Resources", &m_show, flags);
 			WidgetsUtility::DrawShadowedLine(5);
 			DrawContent();
-			DrawFolder(m_ResourceFolders[0], true);
+			DrawFolder(m_resourceFolders[0], true);
 
 			ImGui::End();
 		}
@@ -96,7 +97,7 @@ namespace LinaEditor
 					if (hoveredFolder != nullptr)
 						hoveredFolder->subFolders[folder.id] = folder;
 					else
-						m_ResourceFolders[0].subFolders[folder.id] = folder;
+						m_resourceFolders[0].subFolders[folder.id] = folder;
 
 				}
 
@@ -121,7 +122,7 @@ namespace LinaEditor
 					if (hoveredFolder != nullptr)
 						hoveredFolder->files[file.id] = file;
 					else
-						m_ResourceFolders[0].files[file.id] = file;
+						m_resourceFolders[0].files[file.id] = file;
 				}
 
 				ImGui::EndMenu();
@@ -135,17 +136,17 @@ namespace LinaEditor
 	{
 		// Create root.
 		EditorFolder root;
-		root.name = "Resources";
+		root.name = ROOT_NAME;
 		root.path = "resources";
-		m_ResourceFolders.push_back(root);
+		m_resourceFolders.push_back(root);
 
 		// Recursively fill in root.
 		itemIDCounter = -1;
 		std::string path = "resources";
-		ScanFolder(m_ResourceFolders[0]);
+		ScanFolder(m_resourceFolders[0]);
 
 		// Load resources	
-		LoadFolderResources(m_ResourceFolders[0]);
+		LoadFolderResources(m_resourceFolders[0]);
 	}
 
 	void ResourcesPanel::ScanFolder(EditorFolder& root)
@@ -172,6 +173,7 @@ namespace LinaEditor
 				folder.name = entry.path().filename().string();
 				folder.path = entry.path().relative_path().string();
 				folder.id = ++itemIDCounter;
+				folder.m_parent = &root;
 
 				// Add to the sub folders.
 				root.subFolders[folder.id] = folder;
@@ -204,6 +206,16 @@ namespace LinaEditor
 		// Draw folders.
 		for (std::map<int, EditorFolder>::iterator it = folder.subFolders.begin(); it != folder.subFolders.end();)
 		{
+			// Skip drawing if internal folders.
+			if (it->second.m_parent != nullptr && it->second.m_parent->name.compare(ROOT_NAME) == 0)
+			{
+				if (it->second.name.compare("engine") == 0 || it->second.name.compare("editor") == 0)
+				{
+					it++;
+					continue;
+				}				
+			}
+			
 			WidgetsUtility::IncrementCursorPosX(4);
 
 			if (it->second.markedForErase)
@@ -279,7 +291,7 @@ namespace LinaEditor
 
 				// Notify properties panel of file selection.
 				if (it->second.type == FileType::TEXTURE2D)
-					m_PropertiesPanel->Texture2DSelected(&m_RenderEngine->GetTexture(it->second.id), it->second.id, it->second.path);
+					m_PropertiesPanel->Texture2DSelected(&m_RenderEngine->GetTexture(it->second.path), it->second.id, it->second.path);
 				else if (it->second.type == FileType::MESH)
 					m_PropertiesPanel->MeshSelected(&m_RenderEngine->GetMesh(it->second.id), it->second.id, it->second.path);
 				else if (it->second.type == FileType::MATERIAL)
@@ -324,10 +336,10 @@ namespace LinaEditor
 			EditorFile& file = it->second;
 
 			// SKIP FOR NOW BC WE NEED TO MAKE SURE WE HANDLE BOTH ENGINE CREATION & EDITOR CREATION
-			/*if (file.type == FileType::TEXTURE2D)
-				m_RenderEngine->CreateTexture2D(file.id, file.path);
+			if (file.type == FileType::TEXTURE2D)
+				m_RenderEngine->CreateTexture2D(file.path);
 			else if (file.type == FileType::MESH)
-				m_RenderEngine->CreateMesh(file.id, file.path);*/
+				m_RenderEngine->CreateMesh(file.id, file.path);
 		}
 
 		// Recursively load subfolders.
