@@ -24,9 +24,9 @@ Timestamp: 6/7/2020 5:13:24 PM
 
 #include "Panels/EditorPanel.hpp"
 #include "Utility/EditorUtility.hpp"
-#include "Rendering/RenderingCommon.hpp"
 #include "Rendering/Mesh.hpp"
 #include "ECS/ECS.hpp"
+#include "Drawers/TextureDrawer.hpp"
 
 namespace LinaEngine
 {
@@ -68,7 +68,6 @@ namespace LinaEditor
 
 
 		void EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity);
-
 		void Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path);
 
 		FORCEINLINE void MeshSelected(LinaEngine::Graphics::Mesh* mesh, int id, std::string& path)
@@ -93,23 +92,13 @@ namespace LinaEditor
 		FORCEINLINE void Unselect()
 		{
 			m_selectedEntity = entt::null;
-			m_SelectedTexture = nullptr;
+			m_selectedTexture = nullptr;
 			m_selectedMesh = nullptr;
 			m_selectedMaterial = nullptr;
 			m_currentDrawType = DrawType::NONE;
 		}
 
 	private:
-
-		// Drawing Entities
-		
-
-		// Drawing textures
-		void DrawTextureProperties();
-		int GetSamplerFilterID(Graphics::SamplerFilter filter);
-		int GetWrapModeID(Graphics::SamplerWrapMode wrapMode);
-		Graphics::SamplerFilter GetSamplerFilterFromID(int id);
-		Graphics::SamplerWrapMode GetWrapModeFromID(int id);
 
 		// Drawing Meshes
 		void DrawMeshProperties();
@@ -120,18 +109,8 @@ namespace LinaEditor
 	private:
 
 		// Selected texture
-		class LinaEngine::Graphics::Texture* m_SelectedTexture;
-		std::string m_SelectedTexturePath;
-		int m_currentInternalPixelFormat;
-		int m_currentPixelFormat;
-		int m_currentMinFilter;
-		int m_currentMagFilter ;
-		int m_currentWrapS;
-		int m_currentWrapR ;
-		int m_currentWrapT ;
-		bool m_currentGenerateMips;
-		int m_currentAnisotropy;
-
+		class LinaEngine::Graphics::Texture* m_selectedTexture;
+		TextureDrawer m_textureDrawer;
 
 		// Selected mesh
 		class LinaEngine::Graphics::Mesh* m_selectedMesh;

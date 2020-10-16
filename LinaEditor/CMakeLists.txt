@@ -31,6 +31,7 @@ src/Core/SplashScreen.cpp
 #Drawers
 src/Drawers/EntityDrawer.cpp
 src/Drawers/ComponentDrawer.cpp
+src/Drawers/TextureDrawer.cpp
 
 #Modals
 src/Modals/SelectComponentModal.cpp
@@ -82,6 +83,7 @@ include/Core/EditorApplication.hpp
 #Drawers
 include/Drawers/EntityDrawer.hpp
 include/Drawers/ComponentDrawer.hpp
+include/Drawers/TextureDrawer.hpp
 
 # Modals
 include/Modals/SelectComponentModal.hpp
