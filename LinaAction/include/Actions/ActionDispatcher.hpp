@@ -24,37 +24,33 @@ Timestamp: 4/10/2019 1:26:00 PM
 
 #include "Action.hpp"
 #include "Utility/Log.hpp"
-#include "Core/LinaArray.hpp"
 #include "Core/SizeDefinitions.hpp"
 #include <map>
-
+#include <vector>
 
 namespace LinaEngine::Action 
 {
-	// Dispatcher class for actions.
 	class ActionDispatcher
 	{
 
 	public:
 
-		
 		virtual ~ActionDispatcher();
 
 	protected:
 
 		ActionDispatcher();
 
-		/* Dispatches the given action. */
 		template<typename T>
 		FORCEINLINE void DispatchAction(ActionType at, const T& data)
 		{
 			try {
 
 				// Get the handler array corresponding to the action type.
-				LinaArray<ActionHandlerBase*>& arr = m_ActionHandlerMap.at(at);
+				std::vector<ActionHandlerBase*>& arr = m_actionHandlerMap.at(at);
 
-				// Iterate through the array of handlers w/ the same action type.
-				LinaArray<ActionHandlerBase*>::iterator it;
+				// Iterate through the array of handlers w/ the same action type and execute to check conditions (if exists).
+				std::vector<ActionHandlerBase*>::iterator it;
 				for (it = arr.begin(); it != arr.end(); it++)
 				{
 					ActionHandler<T>* handler = (static_cast<ActionHandler<T>*>(*it));
@@ -71,16 +67,12 @@ namespace LinaEngine::Action
 	private:
 
 		friend class ActionSubscriber;
-
-		/* Adds the handler to the list.*/
 		void SubscribeHandler(ActionHandlerBase* ptr);
-
-		/*  Removes the handler from the handlers list. */
 		void UnsubscribeHandler(ActionHandlerBase* handler);
 
 	private:
 
-		std::map<uint32, LinaArray<ActionHandlerBase*>> m_ActionHandlerMap;
+		std::map<uint32, std::vector<ActionHandlerBase*>> m_actionHandlerMap;
 
 	};
 }

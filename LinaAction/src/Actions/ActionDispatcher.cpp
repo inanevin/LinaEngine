@@ -26,23 +26,23 @@ namespace LinaEngine::Action
 	ActionDispatcher::ActionDispatcher()
 	{
 		// For each action type insert a new list to the map.
-		for (int i = 0; i < (ActionType::ACTION_TYPES_LASTINDEX + 1); i++)
+		for (int i = 0; i < (ActionType::ActionTypesLastIndex + 1); i++)
 		{
-			m_ActionHandlerMap.insert(std::make_pair(i, LinaArray<ActionHandlerBase*>()));
+			m_actionHandlerMap.insert(std::make_pair(i, std::vector<ActionHandlerBase*>()));
 		}
 	}
 
 	ActionDispatcher::~ActionDispatcher()
 	{		
 		// Clear map, no ownership action.
-		m_ActionHandlerMap.clear();
+		m_actionHandlerMap.clear();
 	}
 
-	void ActionDispatcher::SubscribeHandler(ActionHandlerBase * handler)
+	void ActionDispatcher::SubscribeHandler(ActionHandlerBase* handler)
 	{
 		try {
 			// Add the pointer to the array.
-			LinaArray<ActionHandlerBase*>& arr = m_ActionHandlerMap.at(handler->GetActionType());
+			std::vector<ActionHandlerBase*>& arr = m_actionHandlerMap.at(handler->GetActionType());
 			arr.push_back(handler);
 		}
 		catch (const std::out_of_range& e)
@@ -52,11 +52,11 @@ namespace LinaEngine::Action
 
 	}
 
-	void ActionDispatcher::UnsubscribeHandler(ActionHandlerBase * handler)
+	void ActionDispatcher::UnsubscribeHandler(ActionHandlerBase* handler)
 	{
 		try {
 			// Remove the pointer from the corresponding array.
-			LinaArray<ActionHandlerBase*>& arr = m_ActionHandlerMap.at(handler->GetActionType());
+			std::vector<ActionHandlerBase*>& arr = m_actionHandlerMap.at(handler->GetActionType());
 			arr.erase(std::remove(arr.begin(), arr.end(), handler));
 		}
 		catch (const std::out_of_range& e)

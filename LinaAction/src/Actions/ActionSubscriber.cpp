@@ -29,25 +29,25 @@ namespace LinaEngine::Action
 	void ActionSubscriber::UnsubscribeAll()
 	{
 		// Abort if dispatcher is not set.
-		if (!m_ActionDispatcher)
+		if (!m_targetDispatcher)
 		{
 			LINA_CORE_WARN("Dispatcher is not set yet, aborting unsubscription. {0} ", typeid(*this).name());
 			return;
 		}
 
-		for (std::map<size_t, ActionHandlerBase*>::iterator it = m_Handlers.begin(); it != m_Handlers.end(); it++)
+		for (std::map<size_t, ActionHandlerBase*>::iterator it = m_handlers.begin(); it != m_handlers.end(); it++)
 		{
-			m_ActionDispatcher->UnsubscribeHandler(it->second);
+			m_targetDispatcher->UnsubscribeHandler(it->second);
 			delete it->second;
 		}
 
-		m_Handlers.clear();
+		m_handlers.clear();
 	}
 
 	void ActionSubscriber::UnsubscribeAction(std::string actionID)
 	{
 		// Abort if dispatcher is not set.
-		if (!m_ActionDispatcher)
+		if (!m_targetDispatcher)
 		{
 			LINA_CORE_WARN("Dispatcher is not set yet, aborting unsubscription. {0} {1}",actionID,  typeid(*this).name());
 			return;
@@ -56,15 +56,15 @@ namespace LinaEngine::Action
 		size_t actionIDHashed = Utility::StringToHash(actionID);
 
 		// Abort if the handler does not exists.
-		if (m_Handlers.count(actionIDHashed) != 1)
+		if (m_handlers.count(actionIDHashed) != 1)
 		{
 			LINA_CORE_WARN("No handler with the name {0} exists, aborting unsubscription. {1} ", actionID, typeid(*this).name());
 			return;
 		}
 
-		m_ActionDispatcher->UnsubscribeHandler(m_Handlers.at(actionIDHashed));
-		delete m_Handlers.at(actionIDHashed);
-		m_Handlers.erase(actionIDHashed);
+		m_targetDispatcher->UnsubscribeHandler(m_handlers.at(actionIDHashed));
+		delete m_handlers.at(actionIDHashed);
+		m_handlers.erase(actionIDHashed);
 	}
 }
 

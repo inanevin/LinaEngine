@@ -27,13 +27,7 @@ Timestamp: 4/17/2019 1:49:50 AM
 
 namespace LinaEngine
 {
-	class PROP_FLOAT {
-	public:
-		float& value;
-		PROP_FLOAT(float& v) : value(v) {}
-		float& operator = (const float& f) { value = f;	return value; }
-		operator float() const { return value; }
-	};
+
 
 	namespace Internal
 	{

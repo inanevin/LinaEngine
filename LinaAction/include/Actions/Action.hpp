@@ -22,86 +22,38 @@ Timestamp: 1/6/2019 5:41:20 AM
 #ifndef Action_HPP
 #define Action_HPP
 
-
 #include "Core/Common.hpp"
 #include <functional>
 
 namespace LinaEngine::Action
 {
-	enum  ActionType
+	enum ActionType
 	{
-		KeyPressed,
+		KeyPressed = 0,
 		KeyReleased,
 		MouseButtonPressed,
 		MouseButtonReleased,
 		MessageLogged,
-		ACTION_TYPES_LASTINDEX = MessageLogged
+		ActionTypesLastIndex = MessageLogged
 	};
-
-
-	class ActionHandlerParamsBase
-	{
-
-	public:
-
-		virtual ~ActionHandlerParamsBase () {};
-
-	protected:
-
-		ActionHandlerParamsBase(ActionType type) : m_ActionType(type), m_UseCondition(false) {};
-
-		bool m_UseCondition = false;
-		ActionType m_ActionType;
-
-
-	private:
-
-	};
-
-	template<typename T>
-	class ActionHandlerParams : public ActionHandlerParamsBase
-	{
-	public:
-
-		virtual ~ActionHandlerParams() {};
-
-	private:
-
-		friend class ActionHandlerFactory;
-
-		ActionHandlerParams(ActionType type)
-			: ActionHandlerParamsBase(type){};
-
-
-		ActionType actionType;
-		T condition;
-		std::function<void(T)> callback;
-
-	private:
-
-		bool useCondition = false;
-
-	};
-
 
 	class ActionHandlerBase
 	{
 
 	public:
 
-		DISALLOW_COPY_AND_ASSIGN(ActionHandlerBase);
-
 		virtual ~ActionHandlerBase() {};
-		FORCEINLINE ActionType GetActionType() const { return m_ActionType; }
-		FORCEINLINE void* GetCondition() const { return 0; }
-		FORCEINLINE bool GetUseCondition() const { return useCondition; }
+		FORCEINLINE ActionType GetActionType() const { return m_actionType; }
+		FORCEINLINE bool GetUseCondition() const { return m_useCondition; }
 
 	protected:
 
-		ActionHandlerBase(ActionType at) : m_ActionType(at) {};
+		ActionHandlerBase(ActionType at) : m_actionType(at) {};
 
-		bool useCondition = false;
-		ActionType m_ActionType;
+	protected:
+
+		bool m_useCondition = false;
+		ActionType m_actionType;
 
 	};
 
@@ -110,25 +62,28 @@ namespace LinaEngine::Action
 	{
 
 	public:
-
-		DISALLOW_COPY_AND_ASSIGN(ActionHandler);
-
-		
+	
 		virtual ~ActionHandler() {};
 
-		FORCEINLINE void SetCondition(const T& cond) { m_Condition = cond; useCondition = true; }
-		FORCEINLINE void SetCallback(const std::function<void(T)>& cb) { m_Callback = cb; }
-		FORCEINLINE void* GetCondition() const { return &m_Condition; }
-		FORCEINLINE void ControlExecute(const T& data) { if (!useCondition || ( useCondition && m_Condition == data)) m_Callback(data); }
+		FORCEINLINE void SetCondition(const T& cond) { m_condition = cond; m_useCondition = true; }
+		FORCEINLINE void SetCallback(const std::function<void(T)>& cb) { m_callback = cb; }
 
+		// Checks condition if one is used and invokes the callback.
+		FORCEINLINE void ControlExecute(const T& data) 
+		{ 
+			if (!m_useCondition || ( m_useCondition && m_condition == data))
+				m_callback(data);
+		}
 
 	private:
 
 		friend class ActionSubscriber;
 		ActionHandler(ActionType at) : ActionHandlerBase(at) {};
 
-		std::function<void(T)> m_Callback;
-		T m_Condition;
+	private:
+
+		std::function<void(T)> m_callback;
+		T m_condition;
 	};
 
 
