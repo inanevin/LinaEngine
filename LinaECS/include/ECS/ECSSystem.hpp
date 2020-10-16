@@ -1,20 +1,38 @@
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
+Author: Inan Evin
+http://www.inanevin.com
+
+Copyright (c) [2018-2020] [Inan Evin]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 /*
-Author: Inan Evin - Thanks to the lectures & contributions of Benny Bobaganoosh, thebennybox.
-www.inanevin.com
-
-Copyright 2018 Inan Evin
-
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
-and limitations under the License.
-
 Class: ECSSystem
-Timestamp: 4/8/2019 5:28:34 PM
 
+Defines ECSRegistry wrapper, base ECS system class that defines functions for updating entity components
+as well as an ECS Systems class responsible for iterating & calling update functions of containted systems.
+
+Timestamp: 4/8/2019 5:28:34 PM
 */
 
 #pragma once
@@ -22,13 +40,12 @@ Timestamp: 4/8/2019 5:28:34 PM
 #ifndef ECSSystem_HPP
 #define ECSSystem_HPP
 
-
 #include "Core/Common.hpp"
 #include "entt/entity/registry.hpp"
 #include "entt/entity/entity.hpp"
-#include <map>
 #include <cereal/types/string.hpp>
 #include <cereal/types/map.hpp>
+#include <map>
 
 namespace LinaEngine::ECS
 {
@@ -83,7 +100,6 @@ namespace LinaEngine::ECS
 	{
 	public:
 
-		/* Adds a system */
 		FORCEINLINE bool AddSystem(BaseECSSystem& system)
 		{
 			m_systems.push_back(&system);
@@ -96,13 +112,12 @@ namespace LinaEngine::ECS
 				s->UpdateComponents(delta);
 		}
 
-		/* Remove a system */
 		bool RemoveSystem(BaseECSSystem& system);
 
 	private:
 
-		/* Array of EntityComponentSystem systems */
 		std::vector<BaseECSSystem*> m_systems;
+
 	};
 }
 
