@@ -22,8 +22,6 @@ Timestamp: 5/13/2020 11:49:35 PM
 #ifndef LINAECS_HPP
 #define LINAECS_HPP
 
-// Headers here.
 #include "ECS/ECSSystem.hpp"
-
 
 #endif

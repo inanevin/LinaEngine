@@ -56,11 +56,11 @@ namespace LinaEngine::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_EntityNameMap); // serialize things by passing them to the archive
+			archive(m_entityNameMap); 
 		}
 
 	private:
-		std::map<entt::entity, std::string> m_EntityNameMap;
+		std::map<entt::entity, std::string> m_entityNameMap;
 	};
 	
 
@@ -74,8 +74,8 @@ namespace LinaEngine::ECS
 
 	protected:
 
-		virtual void Construct(ECSRegistry& reg) { m_Registry = &reg; };
-		ECSRegistry* m_Registry;
+		virtual void Construct(ECSRegistry& reg) { m_ecs = &reg; };
+		ECSRegistry* m_ecs;
 
 	};
 
@@ -86,13 +86,13 @@ namespace LinaEngine::ECS
 		/* Adds a system */
 		FORCEINLINE bool AddSystem(BaseECSSystem& system)
 		{
-			systems.push_back(&system);
+			m_systems.push_back(&system);
 			return true;
 		}
 
 		FORCEINLINE void UpdateSystems(float delta)
 		{
-			for (auto s : systems)
+			for (auto s : m_systems)
 				s->UpdateComponents(delta);
 		}
 
@@ -102,7 +102,7 @@ namespace LinaEngine::ECS
 	private:
 
 		/* Array of EntityComponentSystem systems */
-		std::vector<BaseECSSystem*> systems;
+		std::vector<BaseECSSystem*> m_systems;
 	};
 }
 

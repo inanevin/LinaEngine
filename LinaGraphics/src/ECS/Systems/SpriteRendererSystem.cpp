@@ -37,7 +37,7 @@ namespace LinaEngine::ECS
 
 	void SpriteRendererSystem::UpdateComponents(float delta)
 	{
-		auto view = m_Registry->view<TransformComponent, SpriteRendererComponent>();
+		auto view = m_ecs->view<TransformComponent, SpriteRendererComponent>();
 
 		for (auto entity : view)
 		{

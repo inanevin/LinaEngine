@@ -1,20 +1,29 @@
-/*
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
 Author: Inan Evin
-www.inanevin.com
+http://www.inanevin.com
 
-Copyright 2018 Inan Evin
+Copyright (c) [2018-2020] [Inan Evin]
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-http://www.apache.org/licenses/LICENSE-2.0
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
-and limitations under the License.
-
-Class: ActionDispatcher
-Timestamp: 4/10/2019 1:26:39 PM
-
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 */
 
 #include "Actions/ActionDispatcher.hpp"  
@@ -27,9 +36,7 @@ namespace LinaEngine::Action
 	{
 		// For each action type insert a new list to the map.
 		for (int i = 0; i < (ActionType::ActionTypesLastIndex + 1); i++)
-		{
 			m_actionHandlerMap.insert(std::make_pair(i, std::vector<ActionHandlerBase*>()));
-		}
 	}
 
 	ActionDispatcher::~ActionDispatcher()
@@ -40,7 +47,8 @@ namespace LinaEngine::Action
 
 	void ActionDispatcher::SubscribeHandler(ActionHandlerBase* handler)
 	{
-		try {
+		try 
+		{
 			// Add the pointer to the array.
 			std::vector<ActionHandlerBase*>& arr = m_actionHandlerMap.at(handler->GetActionType());
 			arr.push_back(handler);
@@ -54,7 +62,8 @@ namespace LinaEngine::Action
 
 	void ActionDispatcher::UnsubscribeHandler(ActionHandlerBase* handler)
 	{
-		try {
+		try 
+		{
 			// Remove the pointer from the corresponding array.
 			std::vector<ActionHandlerBase*>& arr = m_actionHandlerMap.at(handler->GetActionType());
 			arr.erase(std::remove(arr.begin(), arr.end(), handler));

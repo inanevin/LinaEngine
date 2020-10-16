@@ -27,7 +27,7 @@ namespace LinaEngine::ECS
 {
 	void RigidbodySystem::UpdateComponents(float delta)
 	{
-		auto view = m_Registry->view<TransformComponent, RigidbodyComponent>();
+		auto view = m_ecs->view<TransformComponent, RigidbodyComponent>();
 
 		for (auto entity : view)
 		{

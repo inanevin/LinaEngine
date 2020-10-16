@@ -36,7 +36,7 @@ namespace LinaEngine::ECS
 		spotLights.clear();
 
 		// Set directional light.
-		auto& dirLightView = m_Registry->view<TransformComponent, DirectionalLightComponent>();
+		auto& dirLightView = m_ecs->view<TransformComponent, DirectionalLightComponent>();
 		for (auto& entity : dirLightView)
 		{
 			// Dirlight
@@ -49,7 +49,7 @@ namespace LinaEngine::ECS
 		}
 
 		// Set point lights.
-		auto& pointLightView = m_Registry->view<TransformComponent, PointLightComponent>();
+		auto& pointLightView = m_ecs->view<TransformComponent, PointLightComponent>();
 		for (auto it = pointLightView.begin(); it != pointLightView.end(); ++it)
 		{
 			// P light
@@ -61,7 +61,7 @@ namespace LinaEngine::ECS
 		}
 
 		// Set Spot lights.
-		auto& spotLightView = m_Registry->view<TransformComponent, SpotLightComponent>();
+		auto& spotLightView = m_ecs->view<TransformComponent, SpotLightComponent>();
 		for (auto it = spotLightView.begin(); it != spotLightView.end(); ++it)
 		{
 			// S Light

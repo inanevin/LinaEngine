@@ -32,7 +32,7 @@ namespace LinaEngine::ECS
 
 	void MeshRendererSystem::UpdateComponents(float delta)
 	{
-		auto view = m_Registry->view<TransformComponent, MeshRendererComponent>();
+		auto view = m_ecs->view<TransformComponent, MeshRendererComponent>();
 
 		for (auto entity : view)
 		{

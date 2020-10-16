@@ -26,12 +26,12 @@ namespace LinaEngine::ECS
 	{
 
 		// Iterate through systems.
-		for (unsigned int i = 0; i < systems.size(); i++)
+		for (unsigned int i = 0; i < m_systems.size(); i++)
 		{
 			// If the addr of the target system matches any system, erase it from the array.
-			if (&system == systems[i])
+			if (&system == m_systems[i])
 			{
-				systems.erase(systems.begin() + i);
+				m_systems.erase(m_systems.begin() + i);
 				return true;
 			}
 		}
@@ -41,19 +41,19 @@ namespace LinaEngine::ECS
 	entt::entity ECSRegistry::CreateEntity(const std::string& name)
 	{
 		entt::entity ent = create();
-		m_EntityNameMap[ent] = name;
+		m_entityNameMap[ent] = name;
 		return ent;
 	}
 
 	void ECSRegistry::SetEntityName(ECSEntity entity, const std::string& name)
 	{
-		m_EntityNameMap[entity] = name;
+		m_entityNameMap[entity] = name;
 	}
 
 
 	std::string& ECSRegistry::GetEntityName(ECSEntity e)
 	{
-		return m_EntityNameMap[e];
+		return m_entityNameMap[e];
 	}
 }
 
