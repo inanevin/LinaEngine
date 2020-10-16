@@ -27,7 +27,6 @@ Timestamp: 6/7/2020 5:13:42 PM
 #include "Widgets/WidgetsUtility.hpp"
 #include "IconsFontAwesome5.h"
 #include "Drawers/EntityDrawer.hpp"
-#include "Drawers/ComponentDrawer.hpp"
 
 namespace LinaEditor
 {
@@ -95,7 +94,7 @@ namespace LinaEditor
 			// Draw the selected item.
 			if (m_currentDrawType == DrawType::ENTITIES)
 			{
-				EntityDrawer::DrawEntity(m_ecs, m_selectedEntity, &m_copySelectedEntityName);
+				m_entityDrawer.DrawEntity(m_selectedEntity, &m_copySelectedEntityName);
 			}
 			else if (m_currentDrawType == DrawType::TEXTURE2D)
 			{

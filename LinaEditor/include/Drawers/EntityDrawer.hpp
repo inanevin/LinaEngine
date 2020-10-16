@@ -27,20 +27,20 @@ Timestamp: 10/12/2020 1:02:29 AM
 
 namespace LinaEditor
 {
-
-
 	class EntityDrawer
 	{
 	public:
 
-
-		
-		EntityDrawer();
-		~EntityDrawer();
+		EntityDrawer() {};
+		~EntityDrawer() {};
 	
-		static void DrawEntity(LinaEngine::ECS::ECSRegistry* reg, LinaEngine::ECS::ECSEntity entity, bool* copySelectedEntityName);
+		FORCEINLINE void Setup(LinaEngine::ECS::ECSRegistry* ecs) { m_ecs = ecs; }
+		void DrawEntity(LinaEngine::ECS::ECSEntity entity, bool* copySelectedEntityName);
 
-	
+	private:
+
+		LinaEngine::ECS::ECSRegistry* m_ecs = nullptr;
+
 	};
 }
 

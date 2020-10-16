@@ -29,7 +29,7 @@ Timestamp: 10/12/2020 1:02:39 AM
 namespace LinaEditor
 {
 
-	void EntityDrawer::DrawEntity(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity, bool* copySelectedEntityName)
+	void EntityDrawer::DrawEntity(LinaEngine::ECS::ECSEntity entity, bool* copySelectedEntityName)
 	{
 		// Align.
 		ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(16);
@@ -43,7 +43,7 @@ namespace LinaEditor
 		{
 			*copySelectedEntityName = false;
 			memset(entityName, 0, sizeof entityName);
-			std::string str = ecs->GetEntityName(entity);
+			std::string str = m_ecs->GetEntityName(entity);
 			std::copy(str.begin(), str.end(), entityName);
 		}
 
@@ -51,7 +51,7 @@ namespace LinaEditor
 		WidgetsUtility::FramePaddingX(5);
 		WidgetsUtility::IncrementCursorPosY(-5);  ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
 		ImGui::InputText("##ename", entityName, IM_ARRAYSIZE(entityName));
-		ecs->SetEntityName(entity, entityName);
+		m_ecs->SetEntityName(entity, entityName);
 		WidgetsUtility::PopStyleVar();
 
 		// Entity enabled toggle button.
@@ -78,12 +78,12 @@ namespace LinaEditor
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
 		if (ImGui::BeginPopupModal("Select Component", &o, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 		{
-			std::vector<std::string> types = ComponentDrawer::GetEligibleComponents(ecs, entity);
+			std::vector<std::string> types = ComponentDrawer::GetEligibleComponents(m_ecs, entity);
 			std::vector<std::string> chosenComponents = SelectComponentModal::Draw(types);
 
 			// Add the selected components to the entity.
 			for (int i = 0; i < chosenComponents.size(); i++)
-				ComponentDrawer::AddComponentToEntity(ecs, entity, chosenComponents[i]);
+				ComponentDrawer::AddComponentToEntity(m_ecs, entity, chosenComponents[i]);
 			
 			ImGui::EndPopup();
 		}
@@ -95,14 +95,14 @@ namespace LinaEditor
 		WidgetsUtility::FramePaddingX(4);
 
 		// Visit each component an entity has and add the component to the draw list if its registered as a drawable component.
-		ecs->visit(entity, [ecs, entity](const auto component)
+		m_ecs->visit(entity, [entity](const auto component)
 		{
 				if (ComponentDrawer::s_componentDrawFuncMap.find(component) != ComponentDrawer::s_componentDrawFuncMap.end())
 					ComponentDrawer::AddIDToDrawList(component);
 		});
 
 		// Draw the added components.
-		ComponentDrawer::DrawComponents(ecs, entity);
+		ComponentDrawer::DrawComponents(m_ecs, entity);
 
 		WidgetsUtility::PopStyleVar();
 

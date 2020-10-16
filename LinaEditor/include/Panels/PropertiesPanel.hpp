@@ -27,6 +27,7 @@ Timestamp: 6/7/2020 5:13:24 PM
 #include "Rendering/Mesh.hpp"
 #include "ECS/ECS.hpp"
 #include "Drawers/TextureDrawer.hpp"
+#include "Drawers/ComponentDrawer.hpp"
 
 namespace LinaEngine
 {
@@ -126,6 +127,7 @@ namespace LinaEditor
 		// Selected entity.
 		LinaEngine::ECS::ECSEntity m_selectedEntity;
 		bool m_copySelectedEntityName = true;
+		EntityDrawer m_entityDrawer;
 
 		class LinaEngine::Graphics::RenderEngine* m_renderEngine;
 		LinaEngine::ECS::ECSRegistry* m_ecs;
