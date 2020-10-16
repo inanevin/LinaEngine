@@ -1,18 +1,36 @@
-/*
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
 Author: Inan Evin
-www.inanevin.com
+http://www.inanevin.com
 
-Copyright 2018 Inan Evin
+Copyright (c) [2018-2020] [Inan Evin]
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-http://www.apache.org/licenses/LICENSE-2.0
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
-and limitations under the License.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 
+/*
 Class: GenericMemory
+
+Memory manager wrapper.
+
 Timestamp: 4/8/2019 9:04:58 PM
 
 */
@@ -22,7 +40,6 @@ Timestamp: 4/8/2019 9:04:58 PM
 #ifndef GenericMemory_HPP
 #define GenericMemory_HPP
 
-
 #include <cstring>
 #include "Core/Common.hpp"
 #include "Core/LinaAPI.hpp"
@@ -31,7 +48,6 @@ Timestamp: 4/8/2019 9:04:58 PM
 
 #define GENERIC_MEMORY_SMALL_MEMSWAP_MAX 16
 
-
 namespace LinaEngine
 {
 
@@ -39,8 +55,8 @@ namespace LinaEngine
 	{
 		enum
 		{
-			DEFAULT_ALIGNMENT = 16,
-			MIN_ALIGNMENT = 8
+			DefaultAlignment = 16,
+			MinAlignment = 8
 		};
 
 
@@ -60,9 +76,10 @@ namespace LinaEngine
 			T* dest = (T*)destIn;
 			uintptr amtT = amt / sizeof(T);
 			uintptr remainder = amt % sizeof(T);
-			for (uintptr i = 0; i < amtT; ++i, ++dest) {
+
+			for (uintptr i = 0; i < amtT; ++i, ++dest)
 				memcpy(dest, &val, sizeof(T));
-			}
+
 			memcpy(dest, &val, remainder);
 			return destIn;
 		}
@@ -79,12 +96,10 @@ namespace LinaEngine
 
 		static void memswap(void* a, void* b, uintptr size)
 		{
-			if (size <= GENERIC_MEMORY_SMALL_MEMSWAP_MAX) {
+			if (size <= GENERIC_MEMORY_SMALL_MEMSWAP_MAX)
 				smallmemswap(a, b, size);
-			}
-			else {
+			else
 				bigmemswap(a, b, size);
-			}
 		}
 
 		template<typename T>
@@ -93,11 +108,13 @@ namespace LinaEngine
 			return (T)(((intptr)ptr + alignment - 1) & ~(alignment - 1));
 		}
 
-		static void* malloc(uintptr amt, uint32 alignment = DEFAULT_ALIGNMENT);
+		static void* malloc(uintptr amt, uint32 alignment = DefaultAlignment);
 		static void* realloc(void* ptr, uintptr amt, uint32 alignment);
 		static void* free(void* ptr);
 		static uintptr getAllocSize(void* ptr);
+
 	private:
+
 		static void bigmemswap(void* a, void* b, uintptr size);
 		static void smallmemswap(void* a, void* b, uintptr size)
 		{

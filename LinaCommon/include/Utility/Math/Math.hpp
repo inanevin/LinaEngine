@@ -1,20 +1,37 @@
-/*
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
 Author: Inan Evin
-www.inanevin.com
+http://www.inanevin.com
 
-Copyright 2018 Inan Evin
+Copyright (c) [2018-2020] [Inan Evin]
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-http://www.apache.org/licenses/LICENSE-2.0
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
-and limitations under the License.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 
-Class: GenericMath
+/*
+Class: Math
+
+Math wrapper.
+
 Timestamp: 4/8/2019 9:14:44 PM
-
 */
 
 #pragma once
@@ -23,12 +40,13 @@ Timestamp: 4/8/2019 9:14:44 PM
 #define Math_HPP
 
 #include "PackageManager/Generic/cmwc4096.hpp"
+#include "Core/SizeDefinitions.hpp"
+#include "Core/Common.hpp"
+
 #include <cmath>
 #include <cstdlib>
 
-#include "Core/SizeDefinitions.hpp"
-#include "Core/Common.hpp"
-#include "Core/LinaAPI.hpp"
+
 #define MATH_PI 3.1415926535897932f
 #define MATH_TWO_PI 6.28318530717959f
 #define MATH_HALF_PI 1.57079632679f
@@ -117,9 +135,7 @@ namespace LinaEngine
 		static FORCEINLINE float Sqrt(float val) { return sqrtf(val); }
 
 		template<typename T>
-		static constexpr FORCEINLINE T Select(const T& cmp,
-			const T& valIfGreaterOrEqualToZero,
-			const T& valIfLessZero)
+		static constexpr FORCEINLINE T Select(const T& cmp, const T& valIfGreaterOrEqualToZero, const T& valIfLessZero)
 		{
 			return cmp >= (T)(0) ? valIfGreaterOrEqualToZero : valIfLessZero;
 		}

@@ -1,22 +1,37 @@
-/*
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
 Author: Inan Evin
-www.inanevin.com
+http://www.inanevin.com
 
-MIT License
+Copyright (c) [2018-2020] [Inan Evin]
 
-Lina Engine, Copyright (c) 2018 Inan Evin
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
-to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-4.0.30319.42000
-10/30/2018 1:00:25 PM
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 
+/*
+Class: Matrix
+
+Data structure for representing matrices.
+
+Timestamp: 10/30/2018 1:00:25 PM
 */
 
 #pragma once
@@ -39,8 +54,7 @@ namespace LinaEngine
 		FORCEINLINE Matrix() {};
 		FORCEINLINE Matrix(const Vector4& vecX, const Vector4& vecY, const Vector4& vecZ, const Vector4& vecOffset) : glm::mat4(vecX, vecY, vecZ, vecOffset) {};
 		FORCEINLINE Matrix(glm::mat4 mat) : glm::mat4(mat) {};
-		std::string ToString();
-
+		
 		static Matrix Identity();
 		static Matrix Translate(const Vector3& amt);
 		static Matrix Scale(const Vector3& amt);
@@ -59,6 +73,7 @@ namespace LinaEngine
 		Matrix Transpose() const;
 		Matrix Inverse() const;
 		Matrix ApplyScale(const Vector3& scale);
+		std::string ToString();
 
 		template<class Archive>
 		void serialize(Archive& archive)
@@ -70,9 +85,9 @@ namespace LinaEngine
 				(*this)[2][0], (*this)[2][1], (*this)[2][2], (*this)[2][3],
 				(*this)[3][0], (*this)[3][1], (*this)[3][2], (*this)[3][3]);
 		}
+
 	private:
 		
-
 	};
 
 

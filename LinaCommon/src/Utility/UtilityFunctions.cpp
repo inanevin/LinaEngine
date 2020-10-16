@@ -1,28 +1,36 @@
-#include "..\..\include\Utility\UtilityFunctions.hpp"
 /*
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
 Author: Inan Evin
-www.inanevin.com
+http://www.inanevin.com
 
-Copyright 2018 Inan Evin
+Copyright (c) [2018-2020] [Inan Evin]
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-http://www.apache.org/licenses/LICENSE-2.0
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
-and limitations under the License.
-
-Class: UtilityFunctions
-Timestamp: 1/5/2019 1:39:45 PM
-
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 */
 
-
+#include "Utility/UtilityFunctions.hpp"
+#include "Utility/Log.hpp"
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include "Utility/Log.hpp"
 
 namespace LinaEngine
 {
@@ -31,12 +39,12 @@ namespace LinaEngine
 
 		int GetUniqueID()
 		{
-			return ++uniqueID;
+			return ++s_uniqueID;
 		}
 
 		std::string GetUniqueIDString()
 		{
-			return std::to_string(++uniqueID);
+			return std::to_string(++s_uniqueID);
 		}
 
 		size_t StringToHash(std::string str)
@@ -45,7 +53,7 @@ namespace LinaEngine
 			return hasher(str);
 		}
 
-		std::vector<std::string> split(const std::string& s, char delim)
+		std::vector<std::string> Split(const std::string& s, char delim)
 		{
 			std::vector<std::string> elems;
 
@@ -54,11 +62,13 @@ namespace LinaEngine
 			unsigned int start = 0;
 			unsigned int end = 0;
 
-			while (end <= strLength) {
-				while (end <= strLength) {
-					if (cstr[end] == delim) {
+			while (end <= strLength)
+			{
+				while (end <= strLength)
+				{
+					if (cstr[end] == delim)
 						break;
-					}
+
 					end++;
 				}
 
@@ -69,23 +79,26 @@ namespace LinaEngine
 
 			return elems;
 		}
-		std::string getFilePath(const std::string& fileName)
+
+		std::string GetFilePath(const std::string& fileName)
 		{
 			const char* cstr = fileName.c_str();
 			unsigned int strLength = (unsigned int)fileName.length();
 			unsigned int end = strLength - 1;
 
-			while (end != 0) {
-				if (cstr[end] == '/') {
+			while (end != 0)
+			{
+				if (cstr[end] == '/')
 					break;
-				}
+
 				end--;
 			}
 
-			if (end == 0) {
+			if (end == 0)
 				return fileName;
-			}
-			else {
+
+			else
+			{
 				unsigned int start = 0;
 				end = end + 1;
 				return fileName.substr(start, end - start);
@@ -96,19 +109,22 @@ namespace LinaEngine
 			std::ifstream file;
 			file.open(fileName.c_str());
 
-			std::string filePath = getFilePath(fileName);
+			std::string filePath = GetFilePath(fileName);
 			std::stringstream ss;
 			std::string line;
 
-			if (file.is_open()) {
-				while (file.good()) {
+			if (file.is_open())
+			{
+				while (file.good())
+				{
 					getline(file, line);
 
-					if (line.find(includeKeyword) == std::string::npos) {
+					if (line.find(includeKeyword) == std::string::npos)
 						ss << line << "\n";
-					}
-					else {
-						std::string includeFileName = split(line, ' ')[1];
+
+					else
+					{
+						std::string includeFileName = Split(line, ' ')[1];
 						includeFileName =
 							includeFileName.substr(1, includeFileName.length() - 2);
 
@@ -119,7 +135,8 @@ namespace LinaEngine
 					}
 				}
 			}
-			else {
+			else
+			{
 				LINA_CORE_ERR("File could not be loaded! {0}", fileName);
 				return false;
 			}
