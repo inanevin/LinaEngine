@@ -87,7 +87,7 @@ namespace LinaEditor
 		m_currentGenerateMips = params.textureParams.generateMipMaps;
 	}
 
-	void TextureDrawer::DrawTextureProperties()
+	void TextureDrawer::DrawSelectedTexture()
 	{
 		SamplerParameters& params = m_selectedTexture->GetSampler().GetSamplerParameters();
 		static ImGuiComboFlags flags = 0;

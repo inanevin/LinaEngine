@@ -24,12 +24,14 @@ Timestamp: 10/13/2020 2:34:21 PM
 
 // Headers here.
 #include "ECS/ECS.hpp"
+#include "imgui/imgui.h"
 #include <functional>
 #include <map>
 #include <tuple>
 
 namespace LinaEditor
 {
+
 	typedef std::function<void(LinaEngine::ECS::ECSRegistry*, LinaEngine::ECS::ECSEntity)> ComponentFunction;
 	typedef std::tuple<std::string, ComponentFunction, ComponentFunction> ComponentValueTuple;
 
@@ -38,23 +40,31 @@ namespace LinaEditor
 		
 	public:
 		
-		static void RegisterComponentFunctions();
-		static std::vector<std::string> GetEligibleComponents(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity);
-		static void AddComponentToEntity(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity, const std::string& comp);
-		static void SwapComponentOrder(LinaEngine::ECS::ECSTypeID id1, LinaEngine::ECS::ECSTypeID id2);
-		static void AddIDToDrawList(LinaEngine::ECS::ECSTypeID id);
-		static void ClearDrawList();
-		static void DrawComponents(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity);
-		
+		void RegisterComponentFunctions();
+		std::vector<std::string> GetEligibleComponents(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity);
+		void AddComponentToEntity(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity, const std::string& comp);
+		void SwapComponentOrder(LinaEngine::ECS::ECSTypeID id1, LinaEngine::ECS::ECSTypeID id2);
+		void AddIDToDrawList(LinaEngine::ECS::ECSTypeID id);
+		void ClearDrawList();
+		void DrawComponents(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity);
+		bool DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconFolor = ImVec4(1, 1, 1, 1), const ImVec2& iconOffset = ImVec2(0, 0));
+
 	public:
-
-		static std::map<LinaEngine::ECS::ECSTypeID, ComponentValueTuple> s_componentDrawFuncMap;
-		static std::vector<LinaEngine::ECS::ECSTypeID> s_componentDrawList;
-
 		// Selected colilsion shape in editor.
-		static int s_currentCollisionShape;
+		int m_currentCollisionShape;
+
+		// We use this instance to call DrawTitle method for defining the payload target while dragging & dropping component titles.
+		static ComponentDrawer* s_activeInstance;
+
+	private:
+
+		std::map<LinaEngine::ECS::ECSTypeID, ComponentValueTuple> m_componentDrawFuncMap;
+		std::vector<LinaEngine::ECS::ECSTypeID> m_componentDrawList;
+
 	
 	};
+
+
 }
 
 #endif

@@ -27,7 +27,7 @@ Timestamp: 6/7/2020 5:13:24 PM
 #include "Rendering/Mesh.hpp"
 #include "ECS/ECS.hpp"
 #include "Drawers/TextureDrawer.hpp"
-#include "Drawers/ComponentDrawer.hpp"
+#include "Drawers/EntityDrawer.hpp"
 
 namespace LinaEngine
 {
@@ -92,8 +92,6 @@ namespace LinaEditor
 
 		FORCEINLINE void Unselect()
 		{
-			m_selectedEntity = entt::null;
-			m_selectedTexture = nullptr;
 			m_selectedMesh = nullptr;
 			m_selectedMaterial = nullptr;
 			m_currentDrawType = DrawType::NONE;
@@ -110,7 +108,6 @@ namespace LinaEditor
 	private:
 
 		// Selected texture
-		class LinaEngine::Graphics::Texture* m_selectedTexture;
 		TextureDrawer m_textureDrawer;
 
 		// Selected mesh
@@ -125,8 +122,6 @@ namespace LinaEditor
 		std::string m_selectedMaterialPath;
 
 		// Selected entity.
-		LinaEngine::ECS::ECSEntity m_selectedEntity;
-		bool m_copySelectedEntityName = true;
 		EntityDrawer m_entityDrawer;
 
 		class LinaEngine::Graphics::RenderEngine* m_renderEngine;

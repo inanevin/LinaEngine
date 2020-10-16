@@ -40,38 +40,24 @@ namespace LinaEditor
 		m_renderEngine = m_guiLayer->GetRenderEngine();
 
 		m_textureDrawer.Setup(m_renderEngine);
+		m_entityDrawer.Setup(m_ecs);
 
-		// Register component draw functions
-		ComponentDrawer::RegisterComponentFunctions();
 	}
 
 	void PropertiesPanel::EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity)
 	{
-		m_selectedEntity = selectedEntity;
 		m_currentDrawType = DrawType::ENTITIES;
-		m_copySelectedEntityName = true;
-		ComponentDrawer::ClearDrawList();
+		m_entityDrawer.SetSelectedEntity(selectedEntity);
 	}
 
 	void PropertiesPanel::Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path)
 	{
 		m_currentDrawType = DrawType::TEXTURE2D;
-		m_selectedTexture = texture;
 		m_textureDrawer.SetSelectedTexture(texture);
-
-
-		
 	}
 
 	void PropertiesPanel::Draw(float frameTime)
 	{
-		// Make sure we draw nothing if nothing is selected.
-		if (m_currentDrawType != DrawType::NONE)
-		{
-			if (m_selectedEntity == entt::null && m_selectedTexture == nullptr && m_selectedMesh == nullptr && m_selectedMaterial == nullptr)
-				m_currentDrawType = DrawType::NONE;
-		}
-
 		if (m_show)
 		{
 
@@ -94,11 +80,11 @@ namespace LinaEditor
 			// Draw the selected item.
 			if (m_currentDrawType == DrawType::ENTITIES)
 			{
-				m_entityDrawer.DrawEntity(m_selectedEntity, &m_copySelectedEntityName);
+				m_entityDrawer.DrawSelectedEntity();
 			}
 			else if (m_currentDrawType == DrawType::TEXTURE2D)
 			{
-				m_textureDrawer.DrawTextureProperties();
+				m_textureDrawer.DrawSelectedTexture();
 			}
 			else if (m_currentDrawType == DrawType::MESH)
 				DrawMeshProperties();

@@ -50,7 +50,7 @@ namespace LinaEditor
 		// Drawing textures
 		FORCEINLINE void Setup(LinaEngine::Graphics::RenderEngine* renderEngine) { m_renderEngine = renderEngine; }
 		void SetSelectedTexture(LinaEngine::Graphics::Texture* texture);
-		void DrawTextureProperties();
+		void DrawSelectedTexture();
 		int GetSamplerFilterID(LinaEngine::Graphics::SamplerFilter filter);
 		int GetWrapModeID(LinaEngine::Graphics::SamplerWrapMode wrapMode);
 		LinaEngine::Graphics::SamplerFilter GetSamplerFilterFromID(int id);
