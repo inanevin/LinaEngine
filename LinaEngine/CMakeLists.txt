@@ -202,22 +202,6 @@ if(LINA_GRAPHICS_OPENGL)
 	find_package(OpenGL REQUIRED)
 endif()
 
-#--------------------------------------------------------------------
-# Generate export header for this dll project 
-#--------------------------------------------------------------------
-# include (GenerateExportHeader)
-# GENERATE_EXPORT_HEADER (LinaEngine
-#    BASE_NAME LinaEngine
-#    EXPORT_MACRO_NAME LINA_API
-#    EXPORT_FILE_NAME LinaCore.hpp
-#)
-
-# Copy engine resources to build directory
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/LinaEngine/resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/resources")
-
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

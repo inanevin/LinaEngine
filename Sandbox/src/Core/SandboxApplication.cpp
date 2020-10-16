@@ -31,7 +31,6 @@ class SandboxApplication : public LinaEngine::Application
 {
 	public:
 
-
 	SandboxApplication() 
 	{
 
@@ -48,7 +47,6 @@ class SandboxApplication : public LinaEngine::Application
 
 		m_editor.Initialize(&GetAppWindow(), &GetRenderEngine(), this, &GetPhysicsEngine(), &GetECSREgistry());
 
-		
 		// Refresh after level init.
 		m_editor.Refresh();
 

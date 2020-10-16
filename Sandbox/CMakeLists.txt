@@ -66,33 +66,6 @@ PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATI
 )
 
 
-
-#--------------------------------------------------------------------
-# Build Commands
-#--------------------------------------------------------------------
-
-#add_custom_command(TARGET ${PROJECT_NAME}
-#POST_BUILD
-#COMMAND ${CMAKE_COMMAND}
-#	-Dsrc_dir="${CMAKE_CURRENT_SOURCE_DIR}/Resources"
-#    -Ddst_dir="${CMAKE_BINARY_DIR}/Sandbox/Resources"
-#    -P "${CMAKE_SOURCE_DIR}/CMake/UpdateDirectory.cmake"
-#)
-
-
-#Copy PDBs
-#add_custom_command(
-#TARGET ${PROJECT_NAME}
-#PRE_BUILD
-#COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/LinaEngine/vendor/glfw/lib/$<CONFIGURATION>/glfw.pdb" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
-
-#Copy PDBs
-#add_custom_command(
-#TARGET ${PROJECT_NAME}
-#PRE_BUILD
-#COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/LinaEngine/vendor/glad/lib/$<CONFIGURATION>/glad.pdb" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
-
-
 # Copy engine resources to project solution directory to run within IDE.
 add_custom_command(
 TARGET ${PROJECT_NAME}
@@ -129,6 +102,19 @@ add_custom_command(
 TARGET ${PROJECT_NAME}
 POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/resources/")
+
+# Copy assimp dll to project binary directory
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vendor/assimp/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/assimp-vc142-mtd.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
+
+
+# Copy assimp dll to project solution directory to run within IDE.
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vendor/assimp/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/assimp-vc142-mtd.dll" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}")
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
