@@ -28,7 +28,7 @@ namespace LinaEngine::Graphics
 
 	}
 
-	Texture& Texture::Construct(RenderDevice& deviceIn, const ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress)
+	Texture& Texture::Construct(RenderDevice& deviceIn, const ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress, const std::string& path)
 	{
 		renderDevice = &deviceIn;
 		m_Size = Vector2(data.GetWidth(), data.GetHeight());
@@ -39,11 +39,12 @@ namespace LinaEngine::Graphics
 		isCompressed = shouldCompress;
 		hasMipMaps = samplerParams.textureParams.generateMipMaps;
 		m_IsEmpty = false;
+		m_path = path;
 		return *this;
 	}
 
 
-	Texture& Texture::ConstructCubemap(RenderDevice& deviceIn, SamplerParameters samplerParams, const LinaArray<ArrayBitmap*>& data, bool shouldCompress)
+	Texture& Texture::ConstructCubemap(RenderDevice& deviceIn, SamplerParameters samplerParams, const LinaArray<ArrayBitmap*>& data, bool shouldCompress, const std::string& path)
 	{
 		if (data.size() != 6)
 		{
@@ -66,11 +67,12 @@ namespace LinaEngine::Graphics
 		isCompressed = shouldCompress;
 		hasMipMaps = samplerParams.textureParams.generateMipMaps;
 		m_IsEmpty = false;
+		m_path = path;
 		cubeMapData.clear();
 		return *this;
 	}
 
-	Texture& Texture::ConstructHDRI(RenderDevice& deviceIn, SamplerParameters samplerParams, Vector2 size, float* data)
+	Texture& Texture::ConstructHDRI(RenderDevice& deviceIn, SamplerParameters samplerParams, Vector2 size, float* data, const std::string& path)
 	{
 		renderDevice = &deviceIn;
 		m_Size = size;
@@ -81,10 +83,11 @@ namespace LinaEngine::Graphics
 		isCompressed = false;
 		hasMipMaps = samplerParams.textureParams.generateMipMaps;
 		m_IsEmpty = false;
+		m_path = path;
 		return *this;
 	}
 
-	Texture& Texture::ConstructRTCubemapTexture(RenderDevice& deviceIn,  Vector2 size, SamplerParameters samplerParams)
+	Texture& Texture::ConstructRTCubemapTexture(RenderDevice& deviceIn,  Vector2 size, SamplerParameters samplerParams, const std::string& path)
 	{
 		renderDevice = &deviceIn;
 		m_Size = size;
@@ -95,10 +98,11 @@ namespace LinaEngine::Graphics
 		isCompressed = false;
 		m_IsEmpty = false;
 		hasMipMaps = samplerParams.textureParams.generateMipMaps;
+		m_path = path;
 		return *this;
 	}
 
-	Texture& Texture::ConstructRTTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, bool useBorder)
+	Texture& Texture::ConstructRTTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, bool useBorder, const std::string& path)
 	{
 		// Frame buffer texture.
 
@@ -112,10 +116,11 @@ namespace LinaEngine::Graphics
 		isCompressed = false;
 		m_IsEmpty = false;
 		hasMipMaps = false;
+		m_path = path;
 		return *this;
 	}
 
-	Texture& Texture::ConstructRTTextureMSAA(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, int sampleCount)
+	Texture& Texture::ConstructRTTextureMSAA(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, int sampleCount, const std::string& path)
 	{
 		renderDevice = &deviceIn;
 		SamplerParameters params;
@@ -127,10 +132,11 @@ namespace LinaEngine::Graphics
 		isCompressed = false;
 		m_IsEmpty = false;
 		hasMipMaps = false;
+		m_path = path;
 		return *this;
 	}
 
-	Texture& Texture::ConstructEmpty(RenderDevice& deviceIn, SamplerParameters samplerParams)
+	Texture& Texture::ConstructEmpty(RenderDevice& deviceIn, SamplerParameters samplerParams, const std::string& path)
 	{
 		renderDevice = &deviceIn;
 
@@ -144,6 +150,7 @@ namespace LinaEngine::Graphics
 		isCompressed = false;
 		hasMipMaps = false;
 		m_IsEmpty = true;
+		m_path = path;
 		return *this;
 	}
 

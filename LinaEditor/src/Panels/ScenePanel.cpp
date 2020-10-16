@@ -29,6 +29,7 @@ Timestamp: 6/5/2020 6:51:39 PM
 #include "Input/InputMappings.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "ECS/Components/CameraComponent.hpp"
+#include "Widgets/WidgetsUtility.hpp"
 
 static ImGuizmo::OPERATION currentTransformGizmoOP = ImGuizmo::OPERATION::TRANSLATE;
 static ImGuizmo::MODE currentTransformGizmoMode = ImGuizmo::MODE::LOCAL;
@@ -56,11 +57,17 @@ namespace LinaEditor
 
 			if (ImGui::Begin("Scene", &m_show, flags))
 			{
+				if (m_renderEngine->GetCameraSystem()->GetCurrentCameraComponent() == nullptr)
+				{
+					ImGui::Text("NO CAMERA AVAILABLE");
+				}
 
 				ImGui::BeginChild("finalImage");
+				WidgetsUtility::DrawShadowedLine(5);
 
+				
 				// Get game viewport aspect.
-				Vector2 vpSize = m_RenderEngine->GetViewportSize();
+				Vector2 vpSize = m_renderEngine->GetViewportSize();
 				float aspect = (float)vpSize.x / (float)vpSize.y;
 
 				// Mins & max for scene panel area.
@@ -89,9 +96,9 @@ namespace LinaEditor
 
 
 				if (m_drawMode == DrawMode::FinalImage)
-					ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetFinalImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
+					ImGui::GetWindowDrawList()->AddImage((void*)m_renderEngine->GetFinalImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
 				else if (m_drawMode == DrawMode::ShadowMap)
-					ImGui::GetWindowDrawList()->AddImage((void*)m_RenderEngine->GetShadowMapImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
+					ImGui::GetWindowDrawList()->AddImage((void*)m_renderEngine->GetShadowMapImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
 
 
 				ImGuiIO& io = ImGui::GetIO();
@@ -117,7 +124,7 @@ namespace LinaEditor
 
 	void ScenePanel::Setup()
 	{
-		m_RenderEngine = m_guiLayer->GetRenderEngine();
+		m_renderEngine = m_guiLayer->GetRenderEngine();
 
 	}
 
@@ -137,8 +144,8 @@ namespace LinaEditor
 
 	void ScenePanel::DrawGizmos()
 	{
-		Matrix& view = m_RenderEngine->GetCameraSystem()->GetViewMatrix();
-		Matrix& projection = m_RenderEngine->GetCameraSystem()->GetProjectionMatrix();
+		Matrix& view = m_renderEngine->GetCameraSystem()->GetViewMatrix();
+		Matrix& projection = m_renderEngine->GetCameraSystem()->GetProjectionMatrix();
 
 		//ImGui::GetWindowDrawList()->AddLine(ImVec2(coord.x, coord.y), ImVec2(coord2.x, coord2.y), col, 2);
 		if (m_SelectedTransform != nullptr)

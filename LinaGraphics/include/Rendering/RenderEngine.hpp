@@ -125,8 +125,14 @@ namespace LinaEngine::Graphics
 		// Returns a texture resource
 		Texture& GetTexture(int id);
 
+		// Return texture resource from the path.
+		Texture& GetTexture(const std::string& path);
+
 		// Returns a mesh resource.
 		Mesh& GetMesh(int id);
+
+		// Returns a mesh resource from the path.
+		Mesh& GetMesh(const std::string& path);
 
 		// Returns a shader resource.
 		Shader& GetShader(Shaders shader);

@@ -24,23 +24,28 @@ Timestamp: 10/12/2020 1:02:29 AM
 
 // Headers here.
 #include "ECS/ECS.hpp"
+#include "ComponentDrawer.hpp"
 
 namespace LinaEditor
 {
-
-
 	class EntityDrawer
 	{
 	public:
 
-
+		EntityDrawer() {};
+		~EntityDrawer() {};
 		
-		EntityDrawer();
-		~EntityDrawer();
-	
-		static void DrawEntity(LinaEngine::ECS::ECSRegistry* reg, LinaEngine::ECS::ECSEntity entity, bool* copySelectedEntityName);
+		void Setup(LinaEngine::ECS::ECSRegistry* ecs);
+		void SetSelectedEntity(LinaEngine::ECS::ECSEntity entity);
+		void DrawSelectedEntity();
 
-	
+	private:
+
+		ComponentDrawer m_componentDrawer;
+		LinaEngine::ECS::ECSRegistry* m_ecs = nullptr;
+		LinaEngine::ECS::ECSEntity m_selectedEntity;
+		bool m_shouldCopyEntityName = false;
+
 	};
 }
 

@@ -31,6 +31,7 @@ src/Core/SplashScreen.cpp
 #Drawers
 src/Drawers/EntityDrawer.cpp
 src/Drawers/ComponentDrawer.cpp
+src/Drawers/TextureDrawer.cpp
 
 #Modals
 src/Modals/SelectComponentModal.cpp
@@ -45,10 +46,8 @@ src/Panels/PropertiesPanel.cpp
 src/Panels/LogPanel.cpp
 src/Panels/HeaderPanel.cpp
 
-
-# World
-src/Levels/Example1Level.cpp
-src/Levels/GroundCubeSystem.cpp
+#World
+src/World/DefaultLevel.cpp
 
 # Utility
 src/Utility/EditorUtility.cpp
@@ -79,15 +78,12 @@ include/Core/GUILayer.hpp
 include/Core/EditorCommon.hpp
 include/Core/GizmoLayer.hpp
 include/Core/SplashScreen.hpp
-
-# World
-include/Levels/Example1Level.hpp
-include/Levels/GroundCubeSystem.hpp
-include/Levels/GroundCubeComponent.hpp
+include/Core/EditorApplication.hpp
 
 #Drawers
 include/Drawers/EntityDrawer.hpp
 include/Drawers/ComponentDrawer.hpp
+include/Drawers/TextureDrawer.hpp
 
 # Modals
 include/Modals/SelectComponentModal.hpp
@@ -101,6 +97,9 @@ include/Panels/ScenePanel.hpp
 include/Panels/PropertiesPanel.hpp
 include/Panels/LogPanel.hpp
 include/Panels/HeaderPanel.hpp
+
+#World
+include/World/DefaultLevel.hpp
 
 # Utility
 include/Utility/EditorUtility.hpp
@@ -134,14 +133,13 @@ CMakeLists.txt
 #--------------------------------------------------------------------
 # Create executable project
 #--------------------------------------------------------------------
-add_executable(${PROJECT_NAME} ${LINAEDITOR_SOURCES} ${LINAEDITOR_HEADERS})
+add_library(${PROJECT_NAME} ${LINAEDITOR_SOURCES} ${LINAEDITOR_HEADERS})
+add_library(Lina::Editor ALIAS ${PROJECT_NAME}) 
 
 #--------------------------------------------------------------------
 # Options & Definitions
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glad/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/IconFontCPPHeaders/include)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
@@ -149,7 +147,7 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 option(LINA_CLIENT_ENABLE_LOGGING "Enables console logging" ON)
 
 add_compile_definitions(LINA_EDITOR)
-add_compile_definitions(SANDBOX_DIR ${SANDBOX_DIR})
+
 
 if(LINA_CLIENT_ENABLE_LOGGING)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_CLIENT_ENABLE_LOGGING=1)
@@ -160,54 +158,9 @@ endif()
 #--------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} 
 PRIVATE Lina::Engine
-PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
-PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glad/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glad.lib
 )
 
 
-
-#--------------------------------------------------------------------
-# Build Commands
-#--------------------------------------------------------------------
-
-#add_custom_command(TARGET ${PROJECT_NAME}
-#POST_BUILD
-#COMMAND ${CMAKE_COMMAND}
-#	-Dsrc_dir="${CMAKE_CURRENT_SOURCE_DIR}/Resources"
-#    -Ddst_dir="${CMAKE_BINARY_DIR}/Sandbox/Resources"
-#    -P "${CMAKE_SOURCE_DIR}/CMake/UpdateDirectory.cmake"
-#)
-
-
-#Copy PDBs
-#add_custom_command(
-#TARGET ${PROJECT_NAME}
-#PRE_BUILD
-#COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/LinaEngine/vendor/glfw/lib/$<CONFIGURATION>/glfw.pdb" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
-
-#Copy PDBs
-#add_custom_command(
-#TARGET ${PROJECT_NAME}
-#PRE_BUILD
-#COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/LinaEngine/vendor/glad/lib/$<CONFIGURATION>/glad.pdb" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
-
-# Copy engine resources to project solution directory to run within IDE.
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/LinaEngine/resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/resources/")
-
-# Copy project resources to binary directory
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/resources")
-
-# Copy project resources to project solution directory to run within IDE.
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/resources/")
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

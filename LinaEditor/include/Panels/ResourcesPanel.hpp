@@ -70,6 +70,7 @@ namespace LinaEditor
 		std::map<int, EditorFile> files;
 		int id;
 		bool markedForErase = false;
+		EditorFolder* m_parent = nullptr;
 	};
 
 	class GUILayer;
@@ -103,7 +104,7 @@ namespace LinaEditor
 
 		LinaEngine::Graphics::RenderEngine* m_RenderEngine;
 		PropertiesPanel* m_PropertiesPanel;
-		std::vector<EditorFolder> m_ResourceFolders;
+		std::vector<EditorFolder> m_resourceFolders;
 	};
 }
 

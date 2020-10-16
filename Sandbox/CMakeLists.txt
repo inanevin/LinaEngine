@@ -22,24 +22,28 @@ project(Sandbox)
 set(SANDBOX_SOURCES 
 
 src/Core/SandboxApplication.cpp
+src/Levels/Example1Level.cpp
 
 )
 
 set(SANDBOX_HEADERS
 
-
+include/Core/test.hpp
+include/Levels/Example1Level.hpp
 )
 
 #--------------------------------------------------------------------
 # Create executable project
 #--------------------------------------------------------------------
 add_executable(${PROJECT_NAME} ${SANDBOX_SOURCES} ${SANDBOX_HEADERS})
+add_executable(Lina::Sandbox ALIAS ${PROJECT_NAME}) 
 
 #--------------------------------------------------------------------
 # Options & Definitions
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaEditor/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
@@ -56,36 +60,35 @@ endif()
 #--------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} 
 PRIVATE Lina::Engine
+PRIVATE Lina::Editor
+PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
 
 )
 
 
+# Copy engine resources to project solution directory to run within IDE.
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/LinaEngine/resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/resources/")
 
-#--------------------------------------------------------------------
-# Build Commands
-#--------------------------------------------------------------------
+# Copy engine resources to binary directory
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/LinaEngine/resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/resources")
 
-#add_custom_command(TARGET ${PROJECT_NAME}
-#POST_BUILD
-#COMMAND ${CMAKE_COMMAND}
-#	-Dsrc_dir="${CMAKE_CURRENT_SOURCE_DIR}/Resources"
-#    -Ddst_dir="${CMAKE_BINARY_DIR}/Sandbox/Resources"
-#    -P "${CMAKE_SOURCE_DIR}/CMake/UpdateDirectory.cmake"
-#)
+# Copy editor resources to project solution directory to run within IDE.
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/LinaEditor/resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/resources/")
 
-
-#Copy PDBs
-#add_custom_command(
-#TARGET ${PROJECT_NAME}
-#PRE_BUILD
-#COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/LinaEngine/vendor/glfw/lib/$<CONFIGURATION>/glfw.pdb" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
-
-#Copy PDBs
-#add_custom_command(
-#TARGET ${PROJECT_NAME}
-#PRE_BUILD
-#COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/LinaEngine/vendor/glad/lib/$<CONFIGURATION>/glad.pdb" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
-
+# Copy editor resources to binary directory
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/LinaEditor/resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/resources")
 
 
 # Copy project resources to binary directory
@@ -100,13 +103,26 @@ TARGET ${PROJECT_NAME}
 POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/resources/")
 
+# Copy assimp dll to project binary directory
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vendor/assimp/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/assimp-vc142-mtd.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
+
+
+# Copy assimp dll to project solution directory to run within IDE.
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vendor/assimp/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/assimp-vc142-mtd.dll" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}")
+
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
 if(MSVC_IDE)
-	foreach(source IN LISTS LINAEDITOR_HEADERS LINAEDITOR_SOURCES)
+	foreach(source IN LISTS SANDBOX_HEADERS SANDBOX_SOURCES)
 		get_filename_component(source_path "${source}" PATH)
-		string(REPLACE "${LINAEDITOR_SOURCE_DIR}" "" relative_source_path "${source_path}")
+		string(REPLACE "${SANDBOX_SOURCE_DIR}" "" relative_source_path "${source_path}")
 		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
 				source_group("${source_path_msvc}" FILES "${source}")
 	endforeach()

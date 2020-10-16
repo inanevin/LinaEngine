@@ -202,66 +202,6 @@ namespace LinaEditor
 		ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImVec4(0, 0, 0, 1)));
 	}
 
-	bool WidgetsUtility::DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor, const ImVec2& iconOffset)
-	{
-		// Caret button.
-		const char* caret = *foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
-		if (IconButtonNoDecoration(caret, 30, 0.8f))
-			*foldoutOpen = !*foldoutOpen;
-
-		// Title.
-		ImGui::SameLine(); ImGui::AlignTextToFramePadding();
-		WidgetsUtility::IncrementCursorPosY(-5);
-		ImGui::Text(title);
-		ImGui::AlignTextToFramePadding(); ImGui::SameLine();
-
-
-		// Title is the drag and drop target.
-		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-		{
-			// Set payload to carry the type id.
-			ImGui::SetDragDropPayload("COMP_MOVE_PAYLOAD", &typeID, sizeof(int));
-
-			// Display preview 
-			ImGui::Text("Move ");
-			ImGui::EndDragDropSource();
-		}
-
-		// Dropped on another title, swap component orders.
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("COMP_MOVE_PAYLOAD"))
-			{
-				IM_ASSERT(payload->DataSize == sizeof(LinaEngine::ECS::ECSTypeID));
-				LinaEngine::ECS::ECSTypeID payloadID = *(const LinaEngine::ECS::ECSTypeID*)payload->Data;
-				ComponentDrawer::SwapComponentOrder(payloadID, typeID);
-			}
-			ImGui::EndDragDropTarget();
-		}
-
-		// Icon
-		WidgetsUtility::IncrementCursorPosY(6);
-		WidgetsUtility::IncrementCursorPos(iconOffset);
-		Icon(icon, 0.6f, iconColor);
-		WidgetsUtility::IncrementCursorPos(ImVec2(-iconOffset.x, -iconOffset.y));
-
-		// Enabled toggle
-		std::string buf(title); buf.append("t");
-		ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
-		ImGui::SameLine();  ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 88);	IncrementCursorPosY(-4);
-		ToggleButton(buf.c_str(), enabled, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
-
-		// Refresh button
-		buf.append("r");
-		ImGui::SameLine(); ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 43); IncrementCursorPosY(4);
-		*refreshPressed = IconButton(buf.c_str(), ICON_FA_SYNC_ALT, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
-		
-		// Close button
-		buf.append("c");		
-		ImGui::SameLine(); ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 20); 
-		return IconButton(buf.c_str(), ICON_FA_TIMES, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
-	}
-
 	bool WidgetsUtility::InputQuaternion(const char* label, LinaEngine::Quaternion& v)
 	{
 		float rot[3] = { v.GetEuler().x, v.GetEuler().y,v.GetEuler().z };

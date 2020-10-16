@@ -75,8 +75,10 @@ namespace LinaEngine::Graphics
 
 		FORCEINLINE void SetParameters(MeshParameters params) { m_Parameters = params; }
 		FORCEINLINE MeshParameters& GetParameters() { return m_Parameters; }
+		FORCEINLINE const std::string& GetPath() const { return m_path; }
 
 		int m_MeshID = -1;
+		std::string m_path;
 
 	private:
 		

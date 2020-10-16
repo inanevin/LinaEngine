@@ -22,16 +22,12 @@ set(CMAKE_CXX_STANDARD 17)
 #--------------------------------------------------------------------
 set (LINAENGINE_SOURCES
 
-	src/CompileTest.cpp
+	src/CompileTest.cpp	
 	
 	# CORE
     src/Core/Application.cpp
 	src/Core/Time.cpp
 	src/World/Level.cpp
-
-	#Interfaces
-		
-
 
 )
 
@@ -44,22 +40,15 @@ set(LINAENGINE_HEADERS
 	include/Core/Application.hpp
 	include/Core/Time.hpp
 
-
-	
 	#World
 	include/World/Level.hpp
 
-	
-
 	#API
 	include/Lina.hpp
-	
-	
+		
 	#Others
 	include/EntryPoint.hpp
 	include/LinaPch.hpp
-	
-
 	
 )
 
@@ -212,22 +201,6 @@ target_link_libraries(${PROJECT_NAME}
 if(LINA_GRAPHICS_OPENGL)
 	find_package(OpenGL REQUIRED)
 endif()
-
-#--------------------------------------------------------------------
-# Generate export header for this dll project 
-#--------------------------------------------------------------------
-# include (GenerateExportHeader)
-# GENERATE_EXPORT_HEADER (LinaEngine
-#    BASE_NAME LinaEngine
-#    EXPORT_MACRO_NAME LINA_API
-#    EXPORT_FILE_NAME LinaCore.hpp
-#)
-
-# Copy engine resources to build directory
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/LinaEngine/resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/resources")
 
 
 #--------------------------------------------------------------------

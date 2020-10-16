@@ -28,8 +28,19 @@ Timestamp: 10/12/2020 1:02:39 AM
 
 namespace LinaEditor
 {
+	void EntityDrawer::Setup(LinaEngine::ECS::ECSRegistry* ecs)
+	{
+		m_ecs = ecs;
+		m_componentDrawer.RegisterComponentFunctions();
+	}
 
-	void EntityDrawer::DrawEntity(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity, bool* copySelectedEntityName)
+	void EntityDrawer::SetSelectedEntity(LinaEngine::ECS::ECSEntity entity)
+	{
+		m_selectedEntity = entity;
+		m_componentDrawer.ClearDrawList();
+	}
+
+	void EntityDrawer::DrawSelectedEntity()
 	{
 		// Align.
 		ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(16);
@@ -39,11 +50,11 @@ namespace LinaEditor
 
 		// Setup char.
 		static char entityName[64] = "";
-		if (*copySelectedEntityName)
+		if (m_shouldCopyEntityName)
 		{
-			*copySelectedEntityName = false;
+			m_shouldCopyEntityName = false;
 			memset(entityName, 0, sizeof entityName);
-			std::string str = ecs->GetEntityName(entity);
+			std::string str = m_ecs->GetEntityName(m_selectedEntity);
 			std::copy(str.begin(), str.end(), entityName);
 		}
 
@@ -51,7 +62,7 @@ namespace LinaEditor
 		WidgetsUtility::FramePaddingX(5);
 		WidgetsUtility::IncrementCursorPosY(-5);  ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
 		ImGui::InputText("##ename", entityName, IM_ARRAYSIZE(entityName));
-		ecs->SetEntityName(entity, entityName);
+		m_ecs->SetEntityName(m_selectedEntity, entityName);
 		WidgetsUtility::PopStyleVar();
 
 		// Entity enabled toggle button.
@@ -78,13 +89,13 @@ namespace LinaEditor
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
 		if (ImGui::BeginPopupModal("Select Component", &o, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 		{
-			std::vector<std::string> types = ComponentDrawer::GetEligibleComponents(ecs, entity);
+			std::vector<std::string> types = m_componentDrawer.GetEligibleComponents(m_ecs, m_selectedEntity);
 			std::vector<std::string> chosenComponents = SelectComponentModal::Draw(types);
 
 			// Add the selected components to the entity.
 			for (int i = 0; i < chosenComponents.size(); i++)
-				ComponentDrawer::AddComponentToEntity(ecs, entity, chosenComponents[i]);
-			
+				m_componentDrawer.AddComponentToEntity(m_ecs, m_selectedEntity, chosenComponents[i]);
+
 			ImGui::EndPopup();
 		}
 		WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
@@ -95,14 +106,13 @@ namespace LinaEditor
 		WidgetsUtility::FramePaddingX(4);
 
 		// Visit each component an entity has and add the component to the draw list if its registered as a drawable component.
-		ecs->visit(entity, [ecs, entity](const auto component)
-		{
-				if (ComponentDrawer::s_componentDrawFuncMap.find(component) != ComponentDrawer::s_componentDrawFuncMap.end())
-					ComponentDrawer::AddIDToDrawList(component);
-		});
+		m_ecs->visit(m_selectedEntity, [this](const auto component)
+			{
+				m_componentDrawer.AddIDToDrawList(component);
+			});
 
 		// Draw the added components.
-		ComponentDrawer::DrawComponents(ecs, entity);
+		m_componentDrawer.DrawComponents(m_ecs, m_selectedEntity);
 
 		WidgetsUtility::PopStyleVar();
 

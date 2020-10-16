@@ -276,7 +276,7 @@ namespace LinaEngine::Graphics
 
 	struct SamplerParameters
 	{
-		TextureParameters textureParams;
+		TextureParameters textureParams = TextureParameters();
 		int anisotropy = 0.0f;
 	};
 

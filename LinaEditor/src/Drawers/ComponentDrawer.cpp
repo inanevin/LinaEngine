@@ -28,7 +28,6 @@ Timestamp: 10/13/2020 2:34:33 PM
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
-#include "imgui/imgui.h"
 #include "IconsFontAwesome5.h"
 #include "IconsMaterialDesign.h"
 #include "Widgets/WidgetsUtility.hpp"
@@ -38,45 +37,42 @@ using namespace LinaEditor;
 
 namespace LinaEditor
 {
-	std::map<LinaEngine::ECS::ECSTypeID, ComponentValueTuple> ComponentDrawer::s_componentDrawFuncMap;
-	std::vector<LinaEngine::ECS::ECSTypeID> ComponentDrawer::s_componentDrawList;
-
-	int ComponentDrawer::s_currentCollisionShape = 0;
+	ComponentDrawer* ComponentDrawer::s_activeInstance = nullptr;
 
 	void ComponentDrawer::RegisterComponentFunctions()
 	{
 		// Display names.
-		std::get<0>(s_componentDrawFuncMap[GetTypeID<TransformComponent>()]) = "Transformation";
-		std::get<0>(s_componentDrawFuncMap[GetTypeID<RigidbodyComponent>()]) = "Rigidbody";
-		std::get<0>(s_componentDrawFuncMap[GetTypeID<CameraComponent>()]) = "Camera";
-		std::get<0>(s_componentDrawFuncMap[GetTypeID<DirectionalLightComponent>()]) = "Directional Light";
-		std::get<0>(s_componentDrawFuncMap[GetTypeID<SpotLightComponent>()]) = "Spot Light";
-		std::get<0>(s_componentDrawFuncMap[GetTypeID<PointLightComponent>()]) = "Point Light";
-		std::get<0>(s_componentDrawFuncMap[GetTypeID<FreeLookComponent>()]) = "Free Look";
-		std::get<0>(s_componentDrawFuncMap[GetTypeID<MeshRendererComponent>()]) = "Mesh Renderer";
-		std::get<0>(s_componentDrawFuncMap[GetTypeID<SpriteRendererComponent>()]) = "Sprite Renderer";
+		std::get<0>(m_componentDrawFuncMap[GetTypeID<TransformComponent>()]) = "Transformation";
+		std::get<0>(m_componentDrawFuncMap[GetTypeID<RigidbodyComponent>()]) = "Rigidbody";
+		std::get<0>(m_componentDrawFuncMap[GetTypeID<CameraComponent>()]) = "Camera";
+		std::get<0>(m_componentDrawFuncMap[GetTypeID<DirectionalLightComponent>()]) = "Directional Light";
+		std::get<0>(m_componentDrawFuncMap[GetTypeID<SpotLightComponent>()]) = "Spot Light";
+		std::get<0>(m_componentDrawFuncMap[GetTypeID<PointLightComponent>()]) = "Point Light";
+		std::get<0>(m_componentDrawFuncMap[GetTypeID<FreeLookComponent>()]) = "Free Look";
+		std::get<0>(m_componentDrawFuncMap[GetTypeID<MeshRendererComponent>()]) = "Mesh Renderer";
+		std::get<0>(m_componentDrawFuncMap[GetTypeID<SpriteRendererComponent>()]) = "Sprite Renderer";
 
 		// Add functions.
-		std::get<1>(s_componentDrawFuncMap[GetTypeID<TransformComponent>()]) = std::bind(&TransformComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(s_componentDrawFuncMap[GetTypeID<RigidbodyComponent>()]) = std::bind(&RigidbodyComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(s_componentDrawFuncMap[GetTypeID<CameraComponent>()]) = std::bind(&CameraComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(s_componentDrawFuncMap[GetTypeID<DirectionalLightComponent>()]) = std::bind(&DirectionalLightComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(s_componentDrawFuncMap[GetTypeID<SpotLightComponent>()]) = std::bind(&SpotLightComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(s_componentDrawFuncMap[GetTypeID<PointLightComponent>()]) = std::bind(&PointLightComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(s_componentDrawFuncMap[GetTypeID<FreeLookComponent>()]) = std::bind(&FreeLookComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(s_componentDrawFuncMap[GetTypeID<MeshRendererComponent>()]) = std::bind(&MeshRendererComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(s_componentDrawFuncMap[GetTypeID<SpriteRendererComponent>()]) = std::bind(&SpriteRendererComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(m_componentDrawFuncMap[GetTypeID<TransformComponent>()]) = std::bind(&TransformComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(m_componentDrawFuncMap[GetTypeID<RigidbodyComponent>()]) = std::bind(&RigidbodyComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(m_componentDrawFuncMap[GetTypeID<CameraComponent>()]) = std::bind(&CameraComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(m_componentDrawFuncMap[GetTypeID<DirectionalLightComponent>()]) = std::bind(&DirectionalLightComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(m_componentDrawFuncMap[GetTypeID<SpotLightComponent>()]) = std::bind(&SpotLightComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(m_componentDrawFuncMap[GetTypeID<PointLightComponent>()]) = std::bind(&PointLightComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(m_componentDrawFuncMap[GetTypeID<FreeLookComponent>()]) = std::bind(&FreeLookComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(m_componentDrawFuncMap[GetTypeID<MeshRendererComponent>()]) = std::bind(&MeshRendererComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(m_componentDrawFuncMap[GetTypeID<SpriteRendererComponent>()]) = std::bind(&SpriteRendererComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
 
 		// Draw functions.
-		std::get<2>(s_componentDrawFuncMap[GetTypeID<TransformComponent>()]) = std::bind(&TransformComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(s_componentDrawFuncMap[GetTypeID<RigidbodyComponent>()]) = std::bind(&RigidbodyComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(s_componentDrawFuncMap[GetTypeID<CameraComponent>()]) = std::bind(&CameraComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(s_componentDrawFuncMap[GetTypeID<DirectionalLightComponent>()]) = std::bind(&DirectionalLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(s_componentDrawFuncMap[GetTypeID<SpotLightComponent>()]) = std::bind(&SpotLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(s_componentDrawFuncMap[GetTypeID<PointLightComponent>()]) = std::bind(&PointLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(s_componentDrawFuncMap[GetTypeID<FreeLookComponent>()]) = std::bind(&FreeLookComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(s_componentDrawFuncMap[GetTypeID<MeshRendererComponent>()]) = std::bind(&MeshRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(s_componentDrawFuncMap[GetTypeID<SpriteRendererComponent>()]) = std::bind(&SpriteRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(m_componentDrawFuncMap[GetTypeID<TransformComponent>()]) = std::bind(&TransformComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(m_componentDrawFuncMap[GetTypeID<RigidbodyComponent>()]) = std::bind(&RigidbodyComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(m_componentDrawFuncMap[GetTypeID<CameraComponent>()]) = std::bind(&CameraComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(m_componentDrawFuncMap[GetTypeID<DirectionalLightComponent>()]) = std::bind(&DirectionalLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(m_componentDrawFuncMap[GetTypeID<SpotLightComponent>()]) = std::bind(&SpotLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(m_componentDrawFuncMap[GetTypeID<PointLightComponent>()]) = std::bind(&PointLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(m_componentDrawFuncMap[GetTypeID<FreeLookComponent>()]) = std::bind(&FreeLookComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(m_componentDrawFuncMap[GetTypeID<MeshRendererComponent>()]) = std::bind(&MeshRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(m_componentDrawFuncMap[GetTypeID<SpriteRendererComponent>()]) = std::bind(&SpriteRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
 	}
 
 	// Use reflection for gods sake later on.
@@ -93,7 +89,7 @@ namespace LinaEditor
 			});
 
 		// Iterate registered types & add as eligible if entity does not contain the type.
-		for (std::map<ECSTypeID, ComponentValueTuple>::iterator it = s_componentDrawFuncMap.begin(); it != s_componentDrawFuncMap.end(); ++it)
+		for (std::map<ECSTypeID, ComponentValueTuple>::iterator it = m_componentDrawFuncMap.begin(); it != m_componentDrawFuncMap.end(); ++it)
 		{
 			if (std::find(typeIDs.begin(), typeIDs.end(), it->first) == typeIDs.end())
 				eligibleTypes.push_back(std::get<0>(it->second));
@@ -105,7 +101,7 @@ namespace LinaEditor
 	void ComponentDrawer::AddComponentToEntity(ECSRegistry* ecs, ECSEntity entity, const std::string& comp)
 	{
 		// Call the add function of the type when the requested strings match.
-		for (std::map<ECSTypeID, ComponentValueTuple>::iterator it = s_componentDrawFuncMap.begin(); it != s_componentDrawFuncMap.end(); ++it)
+		for (std::map<ECSTypeID, ComponentValueTuple>::iterator it = m_componentDrawFuncMap.begin(); it != m_componentDrawFuncMap.end(); ++it)
 		{
 			if (std::get<0>(it->second).compare(comp) == 0)
 				std::get<1>(it->second)(ecs, entity);
@@ -115,30 +111,91 @@ namespace LinaEditor
 	void ComponentDrawer::SwapComponentOrder(LinaEngine::ECS::ECSTypeID id1, LinaEngine::ECS::ECSTypeID id2)
 	{
 		// Swap iterators.
-		std::vector<ECSTypeID>::iterator it1 = std::find(s_componentDrawList.begin(), s_componentDrawList.end(), id1);
-		std::vector<ECSTypeID>::iterator it2 = std::find(s_componentDrawList.begin(), s_componentDrawList.end(), id2);
+		std::vector<ECSTypeID>::iterator it1 = std::find(m_componentDrawList.begin(), m_componentDrawList.end(), id1);
+		std::vector<ECSTypeID>::iterator it2 = std::find(m_componentDrawList.begin(), m_componentDrawList.end(), id2);
 		std::iter_swap(it1, it2);
 	}
 
 	void ComponentDrawer::AddIDToDrawList(LinaEngine::ECS::ECSTypeID id)
 	{
 		// Add only if it doesn't exists.
-		if (std::find(s_componentDrawList.begin(), s_componentDrawList.end(), id) == s_componentDrawList.end())
-			s_componentDrawList.push_back(id);
+		if (std::find(m_componentDrawList.begin(), m_componentDrawList.end(), id) == m_componentDrawList.end())
+			m_componentDrawList.push_back(id);
 	}
 
 	void ComponentDrawer::ClearDrawList()
 	{
-		s_componentDrawList.clear();
+		m_componentDrawList.clear();
 	}
 
 	void ComponentDrawer::DrawComponents(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
 	{
+		s_activeInstance = this;
+
 		// Draw components.
-		for (int i = 0; i < s_componentDrawList.size(); i++)
-			std::get<2>(s_componentDrawFuncMap[s_componentDrawList[i]])(ecs, entity);
+		for (int i = 0; i < m_componentDrawList.size(); i++)
+			std::get<2>(m_componentDrawFuncMap[m_componentDrawList[i]])(ecs, entity);
 	}
 
+	bool ComponentDrawer::DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor, const ImVec2& iconOffset)
+	{
+		// Caret button.
+		const char* caret = *foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
+		if (WidgetsUtility::IconButtonNoDecoration(caret, 30, 0.8f))
+			*foldoutOpen = !*foldoutOpen;
+
+		// Title.
+		ImGui::SameLine(); ImGui::AlignTextToFramePadding();
+		WidgetsUtility::IncrementCursorPosY(-5);
+		ImGui::Text(title);
+		ImGui::AlignTextToFramePadding(); ImGui::SameLine();
+
+
+		// Title is the drag and drop target.
+		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+		{
+			// Set payload to carry the type id.
+			ImGui::SetDragDropPayload("COMP_MOVE_PAYLOAD", &typeID, sizeof(int));
+
+			// Display preview 
+			ImGui::Text("Move ");
+			ImGui::EndDragDropSource();
+		}
+
+		// Dropped on another title, swap component orders.
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("COMP_MOVE_PAYLOAD"))
+			{
+				IM_ASSERT(payload->DataSize == sizeof(LinaEngine::ECS::ECSTypeID));
+				LinaEngine::ECS::ECSTypeID payloadID = *(const LinaEngine::ECS::ECSTypeID*)payload->Data;
+				SwapComponentOrder(payloadID, typeID);
+			}
+			ImGui::EndDragDropTarget();
+		}
+
+		// Icon
+		WidgetsUtility::IncrementCursorPosY(6);
+		WidgetsUtility::IncrementCursorPos(ImVec2(iconOffset.x, iconOffset.y));
+		WidgetsUtility::Icon(icon, 0.6f, iconColor);
+		WidgetsUtility::IncrementCursorPos(ImVec2(-iconOffset.x, -iconOffset.y));
+
+		// Enabled toggle
+		std::string buf(title); buf.append("t");
+		ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
+		ImGui::SameLine();  ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 88);	WidgetsUtility::IncrementCursorPosY(-4);
+		WidgetsUtility::ToggleButton(buf.c_str(), enabled, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
+
+		// Refresh button
+		buf.append("r");
+		ImGui::SameLine(); ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 43); WidgetsUtility::IncrementCursorPosY(4);
+		*refreshPressed = WidgetsUtility::IconButton(buf.c_str(), ICON_FA_SYNC_ALT, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
+
+		// Close button
+		buf.append("c");
+		ImGui::SameLine(); ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 20);
+		return WidgetsUtility::IconButton(buf.c_str(), ICON_FA_TIMES, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	}
 }
 
 #define CURSORPOS_X_LABELS 12
@@ -169,7 +226,7 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	// Draw title.
 	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle(GetTypeID<TransformComponent>(), "Transformation", ICON_FA_ARROWS_ALT, &refreshPressed, &transform.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<TransformComponent>(), "Transformation", ICON_FA_ARROWS_ALT, &refreshPressed, &transform.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -192,13 +249,11 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Rotation"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); WidgetsUtility::DragQuaternion("##rot", transform.transform.m_rotation);
 		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Scale");	 ImGui::SameLine();	ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat3("##scale", &transform.transform.m_scale.x);
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
-
 	}
 
 	// Draw bevel line
 	WidgetsUtility::DrawBeveledLine();
 }
-
 
 void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
 {
@@ -212,7 +267,7 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	// Draw title.
 	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle(GetTypeID<RigidbodyComponent>(), "Rigidbody", ICON_MD_ACCESSIBILITY, &refreshPressed, &rb.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<RigidbodyComponent>(), "Rigidbody", ICON_MD_ACCESSIBILITY, &refreshPressed, &rb.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -232,23 +287,23 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		float cursorPosLabels = CURSORPOS_X_LABELS;
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 
-		ComponentDrawer::s_currentCollisionShape = (int)rb.m_collisionShape;
+		ComponentDrawer::s_activeInstance->m_currentCollisionShape = (int)rb.m_collisionShape;
 
 		// Draw collision shape.
 		static ImGuiComboFlags flags = 0;
 		static ECS::CollisionShape selectedCollisionShape = rb.m_collisionShape;
-		const char* collisionShapeLabel = rigidbodyShapes[ComponentDrawer::s_currentCollisionShape];
+		const char* collisionShapeLabel = rigidbodyShapes[ComponentDrawer::s_activeInstance->m_currentCollisionShape];
 
 		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Shape"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues);
 		if (ImGui::BeginCombo("##collshape", collisionShapeLabel, flags))
 		{
 			for (int i = 0; i < IM_ARRAYSIZE(rigidbodyShapes); i++)
 			{
-				const bool is_selected = (ComponentDrawer::s_currentCollisionShape == i);
+				const bool is_selected = (ComponentDrawer::s_activeInstance->m_currentCollisionShape == i);
 				if (ImGui::Selectable(rigidbodyShapes[i], is_selected))
 				{
 					selectedCollisionShape = (ECS::CollisionShape)i;
-					ComponentDrawer::s_currentCollisionShape = i;
+					ComponentDrawer::s_activeInstance->m_currentCollisionShape = i;
 					rb.m_collisionShape = selectedCollisionShape;
 				}
 
@@ -298,7 +353,7 @@ void LinaEngine::ECS::CameraComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRe
 	// Draw title.
 	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle(GetTypeID<CameraComponent>(), "Camera", ICON_FA_VIDEO, &refreshPressed, &camera.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<CameraComponent>(), "Camera", ICON_FA_VIDEO, &refreshPressed, &camera.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -340,7 +395,7 @@ void LinaEngine::ECS::DirectionalLightComponent::COMPONENT_DRAWFUNC(LinaEngine::
 	// Draw title.
 	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle(GetTypeID<DirectionalLightComponent>(), "DirectionalLight", ICON_FA_SUN, &refreshPressed, &dLight.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<DirectionalLightComponent>(), "DirectionalLight", ICON_FA_SUN, &refreshPressed, &dLight.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -382,7 +437,7 @@ void LinaEngine::ECS::PointLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::E
 	// Draw title.
 	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle(GetTypeID<PointLightComponent>(), "PointLight", ICON_FA_LIGHTBULB, &refreshPressed, &pLight.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<PointLightComponent>(), "PointLight", ICON_FA_LIGHTBULB, &refreshPressed, &pLight.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -422,7 +477,7 @@ void LinaEngine::ECS::SpotLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	// Draw title.
 	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle(GetTypeID<SpotLightComponent>(), "SpotLight", ICON_MD_HIGHLIGHT, &refreshPressed, &sLight.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3.0f));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<SpotLightComponent>(), "SpotLight", ICON_MD_HIGHLIGHT, &refreshPressed, &sLight.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3.0f));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -452,7 +507,6 @@ void LinaEngine::ECS::SpotLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	WidgetsUtility::DrawBeveledLine();
 }
 
-
 void LinaEngine::ECS::FreeLookComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
 {
 	// Get component
@@ -465,7 +519,7 @@ void LinaEngine::ECS::FreeLookComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECS
 	// Draw title.
 	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle(GetTypeID<FreeLookComponent>(), "FreeLook", ICON_MD_3D_ROTATION, &refreshPressed, &freeLook.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<FreeLookComponent>(), "FreeLook", ICON_MD_3D_ROTATION, &refreshPressed, &freeLook.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -505,7 +559,7 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 	// Draw title.
 	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle(GetTypeID<MeshRendererComponent>(), "MeshRenderer", ICON_MD_GRID_ON, &refreshPressed, &renderer.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<MeshRendererComponent>(), "MeshRenderer", ICON_MD_GRID_ON, &refreshPressed, &renderer.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -545,7 +599,7 @@ void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::EC
 	// Draw title.
 	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = WidgetsUtility::DrawComponentTitle(GetTypeID<SpriteRendererComponent>(), "SpriteRenderer", ICON_FA_LIGHTBULB, &refreshPressed, &renderer.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<SpriteRendererComponent>(), "SpriteRenderer", ICON_FA_LIGHTBULB, &refreshPressed, &renderer.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	// Remove if requested.
 	if (removeComponent)

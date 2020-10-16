@@ -22,12 +22,14 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include "PackageManager/PAMInputDevice.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Physics/PhysicsEngine.hpp"
+#include "Levels/Example1Level.hpp"
 #include "Input/InputEngine.hpp"
+#include "Core/EditorApplication.hpp"
+
 
 class SandboxApplication : public LinaEngine::Application
 {
 	public:
-
 
 	SandboxApplication() 
 	{
@@ -43,10 +45,14 @@ class SandboxApplication : public LinaEngine::Application
 		props.m_title = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
 		Initialize(props);
 
+		m_editor.Initialize(&GetAppWindow(), &GetRenderEngine(), this, &GetPhysicsEngine(), &GetECSREgistry());
+
+		// Refresh after level init.
+		m_editor.Refresh();
+
 		// Set the app window size back to original.
 		GetAppWindow().SetSize(Vector2(props.m_width, props.m_height));
 		GetAppWindow().SetPosCentered(Vector2::Zero);
-
 
 		// Run engine.
 		Run();
@@ -61,6 +67,9 @@ class SandboxApplication : public LinaEngine::Application
 	}
 
 	private:
+		
+		LinaEditor::EditorApplication m_editor;
+		Example1Level m_startupLevel;
 
 	};
 

@@ -57,6 +57,7 @@ namespace LinaEditor
 
 		SaveLevelData = 30,
 		LoadLevelData = 31,
+		NewLevelData = 32,
 
 		ECSPanel = 40,
 		HeaderPanel = 11,
@@ -98,15 +99,13 @@ namespace LinaEditor
 		void MenuBarItemClicked(const MenuBarItems& item);
 
 		// CLASS METHODS
-		FORCEINLINE void Setup(LinaEngine::Graphics::Window& window, LinaEngine::Graphics::RenderEngine& renderEngine, LinaEngine::Physics::PhysicsEngine& physicsEngine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::World::Level& level, const Vector2& scenePanelSize)
+		FORCEINLINE void Setup(LinaEngine::Graphics::Window& window, LinaEngine::Graphics::RenderEngine& renderEngine, LinaEngine::Physics::PhysicsEngine& physicsEngine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs)
 		{ 
 			m_appWindow = &window;
 			m_renderEngine = &renderEngine; 
 			m_physicsEngine = &physicsEngine;
 			m_application = application; 
 			m_ecs = &ecs;	
-			m_currentLevel = &level; 
-			m_scenePanelSize = scenePanelSize;
 		}
 
 		// Getters for references.
@@ -119,6 +118,7 @@ namespace LinaEditor
 		FORCEINLINE LinaEngine::Graphics::RenderEngine* GetRenderEngine() const { return m_renderEngine; }
 		FORCEINLINE class LinaEngine::Graphics::Window* GetAppWindow() const { return m_appWindow; }
 		FORCEINLINE class LinaEngine::Application* GetApp() const { return m_application; }
+		FORCEINLINE void SetCurrentLevel(LinaEngine::World::Level& currentLevel) { m_currentLevel = &currentLevel; }
 
 	private:
 
@@ -160,7 +160,6 @@ namespace LinaEditor
 		class LogPanel* m_logPanel;
 		class HeaderPanel* m_headerPanel;
 		std::vector<EditorPanel*> m_panels;
-		Vector2 m_scenePanelSize = Vector2::Zero;
 
 	};
 }

@@ -44,7 +44,7 @@ Class: UILayer
 #include "IconsForkAwesome.h"
 #include "IconsMaterialDesign.h"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
-
+#include "World/DefaultLevel.hpp"
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glad/glad.h>
@@ -103,20 +103,20 @@ namespace LinaEditor
 
 		// Add default font.
 		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/Mukta-Medium.ttf", 20.0f, NULL);
-		
+
 		// merge in icons from Font Awesome
 		static const ImWchar icons_rangesFA[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 		static const ImWchar icons_rangesFK[] = { ICON_MIN_FK, ICON_MAX_FK, 0 };
 		static const ImWchar icons_rangesMD[] = { ICON_MIN_MD, ICON_MAX_MD, 0 };
-		
-		ImFontConfig icons_config; 
-		icons_config.MergeMode = true; 
+
+		ImFontConfig icons_config;
+		icons_config.MergeMode = true;
 		icons_config.PixelSnapH = true;
 
 		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/FontAwesome/fa-solid-900.ttf", 20.0f, &icons_config, icons_rangesFA);
 		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/ForkAwesome/forkawesome-webfont.ttf", 30.0f, &icons_config, icons_rangesFK);
 		io.Fonts->AddFontFromFileTTF("resources/editor/fonts/MaterialIcons/MaterialIcons-Regular.ttf", 30.0f, &icons_config, icons_rangesMD);
-		
+
 		// Setup configuration flags.
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
@@ -206,7 +206,7 @@ namespace LinaEditor
 		m_ecsPanel = new ECSPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_materialPanel = new MaterialPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_resourcesPanel = new ResourcesPanel(Vector2::Zero, Vector2(700, 200), *this);
-		m_scenePanel = new ScenePanel(Vector2::Zero, m_scenePanelSize, *this);
+		m_scenePanel = new ScenePanel(Vector2::Zero, Vector2(800, 500), *this);
 		m_propertiesPanel = new PropertiesPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_logPanel = new LogPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_headerPanel = new HeaderPanel(Vector2::Zero, Vector2::Zero, *this, m_appWindow->GetWindowProperties().m_title);
@@ -271,7 +271,6 @@ namespace LinaEditor
 		delete m_scenePanel;
 	}
 
-
 	void GUILayer::OnTick(float dt)
 	{
 		// Set draw params first.
@@ -322,7 +321,6 @@ namespace LinaEditor
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	}
 
-
 	void GUILayer::MenuBarItemClicked(const MenuBarItems& item)
 	{
 		// File
@@ -344,9 +342,20 @@ namespace LinaEditor
 		// View
 
 		// Level
+		else if (item == MenuBarItems::NewLevelData)
+		{
+			// Prompt saving the current one.
+		
+
+			// Create a new level.
+			m_currentLevel = new DefaultLevel();
+			m_application->InstallLevel(m_currentLevel);
+			m_application->InitializeLevel(m_currentLevel);
+		}
 		else if (item == MenuBarItems::SaveLevelData)
 		{
-			igfd::ImGuiFileDialog::Instance()->OpenDialog(saveLevelDialogID, "Choose File", ".linaleveldata", ".");
+			if (m_currentLevel != nullptr)
+				igfd::ImGuiFileDialog::Instance()->OpenDialog(saveLevelDialogID, "Choose File", ".linaleveldata", ".");
 		}
 		else if (item == MenuBarItems::LoadLevelData)
 		{
@@ -402,7 +411,7 @@ namespace LinaEditor
 
 			igfd::ImGuiFileDialog::Instance()->CloseDialog(saveLevelDialogID);
 		}
-		
+
 		// Load level dialogue.
 		if (igfd::ImGuiFileDialog::Instance()->FileDialog(loadLevelDialogID))
 		{
@@ -491,11 +500,11 @@ namespace LinaEditor
 		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
 		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 
-	
 
-		
+
+
 		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(HEADER_COLOR_BG.r, HEADER_COLOR_BG.g, HEADER_COLOR_BG.b, HEADER_COLOR_BG.a));
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, GLOBAL_FRAMEPADDING_WINDOW);
 
 		ImGui::Begin("DockSpace", NULL, window_flags);
@@ -510,8 +519,8 @@ namespace LinaEditor
 		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 		{
 			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-		
-			ImGui::DockSpace(dockspace_id, ImVec2(0,0), dockspace_flags);
+
+			ImGui::DockSpace(dockspace_id, ImVec2(0, 0), dockspace_flags);
 
 			if (setDockspaceLayout)
 			{
@@ -541,13 +550,11 @@ namespace LinaEditor
 		ImGui::End();
 		ImGui::PopStyleVar();
 
-	ImGui::Begin("Background", NULL, ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoInputs);
-	
-	ImGui::End();
-	ImGui::PopStyleColor();
+		ImGui::Begin("Background", NULL, ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoInputs);
+
+		ImGui::End();
+		ImGui::PopStyleColor();
 	}
-
-
 
 	void GUILayer::DrawSkyboxSettingsWindow()
 	{

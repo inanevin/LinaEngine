@@ -98,6 +98,7 @@ namespace LinaEditor
 
 		// Levels menu.
 		std::vector<MenuElement*> level;
+		level.emplace_back(new MenuItem(ICON_FA_DOWNLOAD, " New Level Data", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::NewLevelData)));
 		level.emplace_back(new MenuItem(ICON_FA_DOWNLOAD, " Save Level Data", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::SaveLevelData)));
 		level.emplace_back(new MenuItem(ICON_FA_UPLOAD, " Load Level Data", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::LoadLevelData)));
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_ARCHWAY*/ "Level", "pu_level", level, HEADER_COLOR_BG, true));

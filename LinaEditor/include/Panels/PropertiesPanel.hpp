@@ -24,9 +24,10 @@ Timestamp: 6/7/2020 5:13:24 PM
 
 #include "Panels/EditorPanel.hpp"
 #include "Utility/EditorUtility.hpp"
-#include "Rendering/RenderingCommon.hpp"
 #include "Rendering/Mesh.hpp"
 #include "ECS/ECS.hpp"
+#include "Drawers/TextureDrawer.hpp"
+#include "Drawers/EntityDrawer.hpp"
 
 namespace LinaEngine
 {
@@ -68,48 +69,35 @@ namespace LinaEditor
 
 
 		void EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity);
-
 		void Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path);
 
 		FORCEINLINE void MeshSelected(LinaEngine::Graphics::Mesh* mesh, int id, std::string& path)
 		{
-			m_SelectedMesh = mesh;
-			m_CurrentDrawType = DrawType::MESH;
-			m_SelectedMeshID = id;
-			m_SelectedMeshPath = path;
+			m_selectedMesh = mesh;
+			m_currentDrawType = DrawType::MESH;
+			m_selectedMeshID = id;
+			m_selectedMeshPath = path;
 
 			Graphics::MeshParameters& params = mesh->GetParameters();
-			m_CurrentMeshParams = params;
+			m_currentMeshParams = params;
 		}
 
 		FORCEINLINE void MaterialSelected(LinaEngine::Graphics::Material* material, int id, std::string& path)
 		{
-			m_SelectedMaterial = material;
-			m_SelectedMaterialID = id;
-			m_SelectedMaterialPath = path;
-			m_CurrentDrawType = DrawType::MATERIAL;
+			m_selectedMaterial = material;
+			m_selectedMaterialID = id;
+			m_selectedMaterialPath = path;
+			m_currentDrawType = DrawType::MATERIAL;
 		}
 
 		FORCEINLINE void Unselect()
 		{
-			m_selectedEntity = entt::null;
-			m_SelectedTexture = nullptr;
-			m_SelectedMesh = nullptr;
-			m_SelectedMaterial = nullptr;
-			m_CurrentDrawType = DrawType::NONE;
+			m_selectedMesh = nullptr;
+			m_selectedMaterial = nullptr;
+			m_currentDrawType = DrawType::NONE;
 		}
 
 	private:
-
-		// Drawing Entities
-		
-
-		// Drawing textures
-		void DrawTextureProperties();
-		int GetSamplerFilterID(Graphics::SamplerFilter filter);
-		int GetWrapModeID(Graphics::SamplerWrapMode wrapMode);
-		Graphics::SamplerFilter GetSamplerFilterFromID(int id);
-		Graphics::SamplerWrapMode GetWrapModeFromID(int id);
 
 		// Drawing Meshes
 		void DrawMeshProperties();
@@ -120,38 +108,25 @@ namespace LinaEditor
 	private:
 
 		// Selected texture
-		class LinaEngine::Graphics::Texture* m_SelectedTexture;
-		int m_SelectedTextureID;
-		std::string m_SelectedTexturePath;
-		int m_CurrentInternalPF;
-		int m_CurrentPF;
-		int m_CurrentMinFilter;
-		int m_CurrentMagFilter ;
-		int m_CurrentWrapS;
-		int m_CurrentWrapR ;
-		int m_CurrentWrapT ;
-		bool m_CurrentGenerateMips;
-		int m_CurrentAnisotropy;
-
+		TextureDrawer m_textureDrawer;
 
 		// Selected mesh
-		class LinaEngine::Graphics::Mesh* m_SelectedMesh;
-		int m_SelectedMeshID = 0;
-		std::string m_SelectedMeshPath;
-		Graphics::MeshParameters m_CurrentMeshParams;
+		class LinaEngine::Graphics::Mesh* m_selectedMesh;
+		int m_selectedMeshID = 0;
+		std::string m_selectedMeshPath;
+		Graphics::MeshParameters m_currentMeshParams;
 
 		// Selected material
-		class LinaEngine::Graphics::Material* m_SelectedMaterial;
-		int m_SelectedMaterialID = 0;
-		std::string m_SelectedMaterialPath;
+		class LinaEngine::Graphics::Material* m_selectedMaterial;
+		int m_selectedMaterialID = 0;
+		std::string m_selectedMaterialPath;
 
 		// Selected entity.
-		LinaEngine::ECS::ECSEntity m_selectedEntity;
-		bool m_copySelectedEntityName = true;
+		EntityDrawer m_entityDrawer;
 
-		class LinaEngine::Graphics::RenderEngine* m_RenderEngine;
+		class LinaEngine::Graphics::RenderEngine* m_renderEngine;
 		LinaEngine::ECS::ECSRegistry* m_ecs;
-		DrawType m_CurrentDrawType = DrawType::NONE;
+		DrawType m_currentDrawType = DrawType::NONE;
 
 	};
 }
