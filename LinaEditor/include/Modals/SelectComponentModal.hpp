@@ -22,7 +22,7 @@ Timestamp: 10/12/2020 12:45:38 AM
 #ifndef SelectComponentModal_HPP
 #define SelectComponentModal_HPP
 
-// Headers here.
+
 #include "Drawers/EntityDrawer.hpp"
 
 namespace LinaEditor

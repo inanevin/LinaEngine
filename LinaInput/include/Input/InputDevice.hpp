@@ -22,7 +22,7 @@ Timestamp: 10/6/2020 11:13:50 AM
 #ifndef InputDevice_HPP
 #define InputDevice_HPP
 
-// Headers here.
+
 
 #include "Utility/Math/Vector.hpp"
 #include "Input/InputMappings.hpp"

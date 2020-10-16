@@ -22,7 +22,7 @@ Timestamp: 10/15/2020 10:44:39 PM
 #ifndef EditorApplication_HPP
 #define EditorApplication_HPP
 
-// Headers here.
+
 #include "Core/GUILayer.hpp"
 #include "Core/SplashScreen.hpp"
 

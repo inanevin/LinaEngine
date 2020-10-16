@@ -22,7 +22,7 @@ Timestamp: 10/16/2020 12:58:01 AM
 #ifndef DefaultLevel_HPP
 #define DefaultLevel_HPP
 
-// Headers here.
+
 #include "World/Level.hpp"
 
 namespace LinaEditor

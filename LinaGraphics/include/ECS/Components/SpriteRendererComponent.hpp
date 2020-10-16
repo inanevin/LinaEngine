@@ -22,7 +22,7 @@ Timestamp: 10/1/2020 9:26:21 AM
 #ifndef SpriteRendererComponent_HPP
 #define SpriteRendererComponent_HPP
 
-// Headers here.
+
 #include "ECS/ECSComponent.hpp"
 
 

@@ -22,7 +22,7 @@ Timestamp: 10/11/2020 1:39:01 PM
 #ifndef WidgetsUtility_HPP
 #define WidgetsUtility_HPP
 
-// Headers here.
+
 #include "Utility/Math/Vector.hpp"
 #include "Utility/Math/Quaternion.hpp"
 #include "imgui/imgui.h"

@@ -22,7 +22,7 @@ Timestamp: 5/23/2020 4:16:05 PM
 #ifndef EditorPanel_HPP
 #define EditorPanel_HPP
 
-// Headers here.
+
 #include "Utility/Math/Vector.hpp"
 
 namespace LinaEditor

@@ -22,7 +22,7 @@ Timestamp: 10/8/2020 9:02:33 PM
 #ifndef MenuButton_HPP
 #define MenuButton_HPP
 
-// Headers here.
+
 #include "Utility/Math/Color.hpp"
 #include "Core/Common.hpp"
 #include <functional>

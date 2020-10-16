@@ -1,20 +1,37 @@
-/*
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
 Author: Inan Evin
-www.inanevin.com
+http://www.inanevin.com
 
-Copyright 2018 Inan Evin
+Copyright (c) [2018-2020] [Inan Evin]
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-http://www.apache.org/licenses/LICENSE-2.0
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
-and limitations under the License.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 
+/*
 Class: PhysicsEngine
-Timestamp: 5/1/2019 2:35:28 AM
 
+Responsible for initializing, running and cleaning up the physics world. Also a wrapper for bt3.
+
+Timestamp: 5/1/2019 2:35:28 AM
 */
 
 #pragma once
@@ -50,13 +67,8 @@ namespace LinaEngine::Physics
 		PhysicsEngine();
 		~PhysicsEngine();
 
-		// Initializes the physics engine.
 		void Initialize(LinaEngine::ECS::ECSRegistry& ecsReg, std::function<void(Vector3, Vector3, Color, float)>& cb);
-
-		// Update physics systems.
 		void Tick(float fixedDelta);
-
-		// Termination.
 		void CleanUp();
 
 		// Called when rigidbody components are added/removed from an entity.
@@ -67,9 +79,7 @@ namespace LinaEngine::Physics
 		// Callbacks
 		void OnPostSceneDraw();
 
-		// Returns an active rigidbody.
 		btRigidBody* GetActiveRigidbody(int id) { return m_bodies[id]; }
-
 		FORCEINLINE void SetDebugDraw(bool enabled) { m_debugDrawEnabled = enabled; }
 
 	private:
@@ -84,19 +94,12 @@ namespace LinaEngine::Physics
 		btSequentialImpulseConstraintSolver* m_impulseSolver = nullptr;
 		btDiscreteDynamicsWorld* m_world = nullptr;
 
-		// Gizmo drawer
 		PhysicsGizmoDrawer m_gizmoDrawer;
 
-		// ECS system for handling rigidbody physics
 		LinaEngine::ECS::RigidbodySystem m_rigidbodySystem;
-
-		// ECS system list for physics operations.
 		LinaEngine::ECS::ECSSystemList m_physicsPipeline;
 
-		// Map for keeping track of bodies
-		std::map<int, btRigidBody*> m_bodies;
-		
-		// Flag to enable debug drawing
+		std::map<int, btRigidBody*> m_bodies;		
 		bool m_debugDrawEnabled = false;
 	};
 }

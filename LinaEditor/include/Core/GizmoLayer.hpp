@@ -22,7 +22,7 @@ Timestamp: 9/30/2020 3:27:33 PM
 #ifndef GizmoLayer_HPP
 #define GizmoLayer_HPP
 
-// Headers here.
+
 #include "Core/Layer.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "ECS/ECSSystem.hpp"

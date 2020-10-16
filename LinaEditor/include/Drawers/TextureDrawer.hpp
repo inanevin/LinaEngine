@@ -22,7 +22,7 @@ Timestamp: 10/16/2020 6:27:20 PM
 #ifndef TextureDrawer_HPP
 #define TextureDrawer_HPP
 
-// Headers here.
+
 #include "Rendering/RenderingCommon.hpp"
 #include "Core/Common.hpp"
 namespace LinaEngine

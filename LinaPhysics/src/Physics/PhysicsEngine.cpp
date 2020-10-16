@@ -1,20 +1,29 @@
-/*
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
 Author: Inan Evin
-www.inanevin.com
+http://www.inanevin.com
 
-Copyright 2018 Inan Evin
+Copyright (c) [2018-2020] [Inan Evin]
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-http://www.apache.org/licenses/LICENSE-2.0
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
-and limitations under the License.
-
-Class: PhysicsEngine
-Timestamp: 5/1/2019 2:35:43 AM
-
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 */
 
 #include "Physics/PhysicsEngine.hpp"  
@@ -29,14 +38,13 @@ namespace LinaEngine::Physics
 	PhysicsEngine::PhysicsEngine()
 	{
 		LINA_CORE_TRACE("[Constructor] -> Physics Engine ({0})", typeid(*this).name());
-
-		
 	}
 
 	PhysicsEngine::~PhysicsEngine()
 	{
 		LINA_CORE_TRACE("[Destructor] -> Physics Engine ({0})", typeid(*this).name());
 
+		// Remove collision shapes.
 		for (std::map<int, btRigidBody*>::iterator it = m_bodies.begin(); it != m_bodies.end(); ++it)
 		{
 			if (it->second->getMotionState())
@@ -50,10 +58,10 @@ namespace LinaEngine::Physics
 		{
 			btCollisionObject* obj = m_world->getCollisionObjectArray()[i];
 			btRigidBody* body = btRigidBody::upcast(obj);
+
 			if (body && body->getMotionState())
-			{
 				delete body->getMotionState();
-			}
+			
 			m_world->removeCollisionObject(obj);
 			delete obj;
 		}
@@ -69,34 +77,30 @@ namespace LinaEngine::Physics
 	{
 		LINA_CORE_TRACE("[Initialization] -> Physics Engine ({0})", typeid(*this).name());
 
-		///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
+		// collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
 		m_collisionConfig = new btDefaultCollisionConfiguration();
 
-		///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+		// use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 		m_collisionDispatcher = new btCollisionDispatcher(m_collisionConfig);
 
-		///btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
+		// btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
 		m_overlappingPairCache = new btDbvtBroadphase();
 
-		///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
+		// the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 		m_impulseSolver = new btSequentialImpulseConstraintSolver;
 
 		// Create dynamics world
 		m_world = new btDiscreteDynamicsWorld(m_collisionDispatcher, m_overlappingPairCache, m_impulseSolver, m_collisionConfig);
 		m_world->setGravity(btVector3(0, -10, 0));
 
-		// Init physics drawer.
+		// Initialize the debug drawer.
 		m_gizmoDrawer.Setup(cb);
-
-		// Set debug drawer.
 		m_world->setDebugDrawer(&m_gizmoDrawer);
 		m_world->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 
-		// Setup rigidbody system.
+		// Setup rigidbody system and listen to events so that we can refresh bodies when new rigidbodies are created, destroyed etc.
 		m_rigidbodySystem.Construct(ecsReg, this);
 		m_physicsPipeline.AddSystem(m_rigidbodySystem);
-
-		// Listen to rigidbody add/remove events.
 		ecsReg.on_construct<LinaEngine::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
 		ecsReg.on_destroy<LinaEngine::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
 		ecsReg.on_construct<LinaEngine::ECS::TransformComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
@@ -107,16 +111,14 @@ namespace LinaEngine::Physics
 
 	void PhysicsEngine::Tick(float fixedDelta)
 	{
-
-		// Physics simulation.
+		// Update physics.
 		m_world->stepSimulation(fixedDelta, 10);
-
-		// Update system.
 		m_physicsPipeline.UpdateSystems(fixedDelta);
 	}
 
 	void PhysicsEngine::CleanUp()
 	{
+
 	}
 
 	void PhysicsEngine::OnRigidbodyOrTransformAdded(entt::registry& reg, entt::entity ent)
@@ -128,12 +130,9 @@ namespace LinaEngine::Physics
 		// Return if rigidbody is already alive.
 		if (rb.m_alive) return;
 
-		// Get the transform.
 		LinaEngine::ECS::TransformComponent& tr = reg.get<LinaEngine::ECS::TransformComponent>(ent);
-
 		btCollisionShape* colShape = GetCollisionShape(rb);
 
-		// Transformation
 		btTransform transform;
 		transform.setIdentity();
 		transform.setOrigin(btVector3(tr.transform.m_location.x, tr.transform.m_location.y, tr.transform.m_location.z));
@@ -150,17 +149,17 @@ namespace LinaEngine::Physics
 
 		rb.m_localInertia = Vector3(localInertia.getX(), localInertia.getY(), localInertia.getZ());
 
-		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+		// using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(transform);
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
 
-		// Set the body in the map & assign rb component info.
+		// Register the body to the map and assign it to the world
+		// so that its simulated.
 		int id = LinaEngine::Utility::GetUniqueID();
 		m_bodies[id] = body;
 		rb.m_bodyID = id;
 
-		// Add the body to world.
 		rb.m_alive = true;
 		m_world->addRigidBody(body);
 	}
@@ -170,14 +169,11 @@ namespace LinaEngine::Physics
 		LinaEngine::ECS::RigidbodyComponent& rbComp = reg.get<LinaEngine::ECS::RigidbodyComponent>(ent);
 		btRigidBody* rb = m_bodies[rbComp.m_bodyID];
 		
-		// delete motion state.
 		if (rb->getMotionState())
 			delete rb->getMotionState();
 
-		// remove body.
 		m_world->removeRigidBody(rb);
 
-		// remove from the map.
 		m_bodies.erase(rbComp.m_bodyID);
 	}
 
@@ -186,13 +182,11 @@ namespace LinaEngine::Physics
 		LinaEngine::ECS::RigidbodyComponent& rbComp = reg.get<LinaEngine::ECS::RigidbodyComponent>(ent);
 		btRigidBody* rb = m_bodies[rbComp.m_bodyID];
 
-		// Activat the body
+		// We remove the body, replace the collision shape
+		// Recalculate it and add it to the world again.
 		rb->activate(true);
-
-		// Remove the body.
 		m_world->removeRigidBody(rb);
 
-		// Replace the collision shape.
 		btCollisionShape* previousShape = rb->getCollisionShape();
 		btCollisionShape* newShape = GetCollisionShape(rbComp);
 		rb->setCollisionShape(newShape);
@@ -200,27 +194,18 @@ namespace LinaEngine::Physics
 		btVector3 inertia(0, 0, 0);
 		newShape->calculateLocalInertia(btScalar(rbComp.m_mass), inertia);
 
-		// Set mass.
 		rb->setMassProps(btScalar(rbComp.m_mass), inertia);
-
-		// Update tensor.
 		rb->updateInertiaTensor();
 
-		// Remove the previous shape.
 		delete previousShape;
 
-		// Re-add the body.
 		m_world->addRigidBody(rb);
-
 	}
 
 	void PhysicsEngine::OnPostSceneDraw()
 	{
 		if (m_debugDrawEnabled)
-		{
-			// Draw world debug.
 			m_world->debugDrawWorld();
-		}
 	}
 
 	btCollisionShape* PhysicsEngine::GetCollisionShape(LinaEngine::ECS::RigidbodyComponent rb)

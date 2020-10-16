@@ -22,7 +22,7 @@ Timestamp: 10/8/2020 1:39:03 PM
 #ifndef HeaderPanel_HPP
 #define HeaderPanel_HPP
 
-// Headers here.
+
 #include "Widgets/MenuButton.hpp"
 #include "Panels/EditorPanel.hpp"
 

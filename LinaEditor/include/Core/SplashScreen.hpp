@@ -22,7 +22,7 @@ Timestamp: 10/10/2020 3:25:27 PM
 #ifndef SplashScreen_HPP
 #define SplashScreen_HPP
 
-// Headers here.
+
 
 namespace LinaEngine
 {

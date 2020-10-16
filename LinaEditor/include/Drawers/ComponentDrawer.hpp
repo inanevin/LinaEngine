@@ -22,7 +22,7 @@ Timestamp: 10/13/2020 2:34:21 PM
 #ifndef ComponentDrawer_HPP
 #define ComponentDrawer_HPP
 
-// Headers here.
+
 #include "ECS/ECS.hpp"
 #include "imgui/imgui.h"
 #include <functional>

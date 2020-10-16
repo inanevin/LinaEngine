@@ -22,7 +22,7 @@ Timestamp: 10/1/2020 9:27:40 AM
 #ifndef SpriteRendererSystem_HPP
 #define SpriteRendererSystem_HPP
 
-// Headers here.
+
 #include "ECS/ECSSystem.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
 #include "Rendering/VertexArray.hpp"
