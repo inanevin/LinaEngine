@@ -63,7 +63,6 @@ namespace LinaEditor
 		void OnAttach() override;
 		void OnDetach() override;
 		void OnTick(float deltaTime) override;
-		void OnEvent() override;
 
 	private:
 

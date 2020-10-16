@@ -62,10 +62,6 @@ static const char* loadLevelDialogID = "id_loadLevel";
 
 namespace LinaEditor
 {
-	void GUILayer::OnEvent()
-	{
-
-	}
 
 	GUILayer::~GUILayer()
 	{

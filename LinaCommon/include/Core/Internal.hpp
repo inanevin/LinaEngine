@@ -28,7 +28,6 @@ Timestamp: 4/17/2019 1:49:50 AM
 namespace LinaEngine
 {
 
-
 	namespace Internal
 	{
 

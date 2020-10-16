@@ -42,10 +42,4 @@ namespace LinaEditor
 		
 	}
 
-	void GizmoLayer::OnEvent()
-	{
-
-	}
-
-	
 }

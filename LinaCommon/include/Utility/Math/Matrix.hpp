@@ -41,7 +41,6 @@ namespace LinaEngine
 		FORCEINLINE Matrix(glm::mat4 mat) : glm::mat4(mat) {};
 		std::string ToString();
 
-
 		static Matrix Identity();
 		static Matrix Translate(const Vector3& amt);
 		static Matrix Scale(const Vector3& amt);
@@ -64,7 +63,7 @@ namespace LinaEngine
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			;
+			
 			archive(
 				(*this)[0][0], (*this)[0][1], (*this)[0][2], (*this)[0][3],
 				(*this)[1][0], (*this)[1][1], (*this)[1][2], (*this)[1][3],

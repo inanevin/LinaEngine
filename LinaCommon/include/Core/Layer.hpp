@@ -8,8 +8,8 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 
 http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 and limitations under the License.
 
 Class: Layer
@@ -23,7 +23,6 @@ Timestamp: 1/2/2019 1:42:06 AM
 
 
 #include "Core/Common.hpp"
-#include "Core/LinaAPI.hpp"
 #include <string>
 
 namespace LinaEngine
@@ -32,27 +31,18 @@ namespace LinaEngine
 	{
 	public:
 
-		 Layer(const std::string& name = "Layer");
-		 virtual ~Layer();
+		Layer(const std::string& name = "Layer") : m_name(name) {};
+		virtual ~Layer() {};
 
-		// Called when this layer is attached to application.
 		virtual void OnAttach() {}
-
-		// Called when this layer is detached from application.
 		virtual void OnDetach() {}
+		virtual void OnTick(float dt) {}
 
-		// Called each frame.
-		 virtual void OnTick(float dt) {}
-
-		// Called when an engine event occurs on this layer.
-		 virtual void OnEvent() {}
-
-		// Get the layer name.
-		FORCEINLINE const std::string& GetName() const { return m_DebugName; }
+		FORCEINLINE const std::string& GetName() const { return m_name; }
 
 	protected:
 
-		std::string m_DebugName;
+		std::string m_name = "";
 
 	};
 }

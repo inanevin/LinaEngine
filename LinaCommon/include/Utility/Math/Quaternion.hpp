@@ -37,8 +37,6 @@ namespace LinaEngine
 
 	public:
 
-
-	public:
 		FORCEINLINE Quaternion()  : glm::quat(1,0,0,0) {};
 		FORCEINLINE Quaternion(const Vector4& v) : glm::quat(v.w, v.x, v.y, v.z) {};
 		FORCEINLINE Quaternion(float x, float y, float z, float w) : glm::quat(w,x,y,z) {};
@@ -63,24 +61,23 @@ namespace LinaEngine
 		Vector3 GetRight() const;
 		Vector3 GetUp() const;
 		Vector3 GetForward() const;
-		FORCEINLINE Vector4 ToVector() const { return Vector4(x, y, z, w); }
-
 		Vector3 GetEuler();
 		Vector3 GetAxis() const;
 		Vector3 GetRotated(const Vector3& other) const;
 		Quaternion Conjugate() const;
 		Quaternion Inverse() const;
 		Quaternion Normalized() const;
-		bool IsNormalized() const;
 		static Quaternion Euler(const Vector3& v);
 		static Quaternion Euler(float x, float y, float z);
 		static Quaternion AxisAngle(const Vector3& axis, float angle);
 		static Quaternion Slerp(const Quaternion& from, const Quaternion& dest, float t);
 		static Quaternion LookAt(const Vector3& from, const Vector3& to, const Vector3& up);
+		bool IsNormalized() const;
 		float GetAngle() const;
 		float Dot(const Quaternion& other) const;
 		float Length() const;
 		float LengthSquared() const;
+		FORCEINLINE Vector4 ToVector() const { return Vector4(x, y, z, w); }
 
 		template<class Archive>
 		void serialize(Archive& archive)

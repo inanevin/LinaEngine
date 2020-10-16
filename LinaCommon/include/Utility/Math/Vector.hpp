@@ -71,8 +71,6 @@ namespace LinaEngine
 		float Min() const;
 		void Normalize();
 
-
-
 		FORCEINLINE Vector2& operator+=(const Vector2& rhs) { x += rhs.x; y += rhs.y; return *this; };
 		FORCEINLINE Vector2& operator-=(const Vector2& rhs) { x -= rhs.x; y -= rhs.y;	return *this; };
 		FORCEINLINE Vector2& operator*=(const Vector2& rhs) { x *= rhs.x; y *= rhs.y;	return *this; };
@@ -226,7 +224,6 @@ namespace LinaEngine
 		float Max() const;
 		float Min() const;
 		void Normalize();
-
 
 		FORCEINLINE Vector4& operator+=(const Vector4& rhs) { x += rhs.x; y += rhs.y; z += rhs.z; w += rhs.w; return *this; };
 		FORCEINLINE Vector4& operator-=(const Vector4& rhs) { x -= rhs.x; y -= rhs.y; z -= rhs.z; w -= rhs.w; return *this; };

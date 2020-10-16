@@ -32,8 +32,11 @@ namespace LinaEngine
 
 	public:
 
-		Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f, bool is255 = false) : r(is255 ? rv/255.0f : rv), g(is255 ? gv / 255.0f : gv),
-			b(is255 ? bv / 255.0f : bv), a(is255 ? av / 255.0f : av) {};
+		Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f, bool is255 = false) : 
+			r(is255 ? rv/255.0f : rv),
+			g(is255 ? gv / 255.0f : gv),
+			b(is255 ? bv / 255.0f : bv), 
+			a(is255 ? av / 255.0f : av) {};
 
 		float r, g, b, a = 1.0f;
 
@@ -47,6 +50,7 @@ namespace LinaEngine
 			return (r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a);
 		}
 
+	public:
 
 		static Color Red;
 		static Color Green;

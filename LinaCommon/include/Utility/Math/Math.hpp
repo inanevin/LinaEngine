@@ -128,14 +128,14 @@ namespace LinaEngine
 		{
 			// If angle is outside range of [0, 2*pi], adjust it so it is.
 			// Using fmod gives worse precision than the following code
-			if ((angle < 0.0f) || (angle >= MATH_TWO_PI)) {
+			if ((angle < 0.0f) || (angle >= MATH_TWO_PI)) 
 				angle -= FloorToFloat(angle * MATH_R_TWO_PI) * MATH_TWO_PI;
-			}
-			//		angle = Math::Fmod(angle, MATH_TWO_PI);
+			
+			// angle = Math::Fmod(angle, MATH_TWO_PI);
 
-					// This approximation is only accurate with angles in the range
-					// [-pi/2, pi/2]. If angle is outside that range, convert it to that
-					// range and find the appropriate sign to adjust the result.
+			// This approximation is only accurate with angles in the range
+			// [-pi/2, pi/2]. If angle is outside that range, convert it to that
+			// range and find the appropriate sign to adjust the result.
 			angle = MATH_PI - angle;
 			float Sign = -1.0f;
 			if (fabsf(angle) >= MATH_HALF_PI) {

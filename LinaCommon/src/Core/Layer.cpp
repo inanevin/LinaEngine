@@ -16,18 +16,11 @@ Class: Layer
 Timestamp: 1/2/2019 1:42:06 AM
 
 */
+
 #include "Core/Layer.hpp"  
 
 namespace LinaEngine
 {
-	Layer::Layer(const std::string& debugName)
-		: m_DebugName(debugName)
-	{
-	}
 
-	Layer::~Layer()
-	{
-		
-	}
 }
 

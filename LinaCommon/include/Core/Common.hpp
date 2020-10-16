@@ -24,8 +24,6 @@ Timestamp: 4/7/2019 3:29:18 PM
 
 /****************************************** OPTIONS ******************************************/
 
-
-
 #ifdef LINA_COMPILER_MSVC
 #define FORCEINLINE __forceinline
 #elif defined(LINA_COMPILER_GCC) || defined(LINA_COMPILER_CLANG)
@@ -64,7 +62,5 @@ Timestamp: 4/7/2019 3:29:18 PM
   TypeName& operator=(TypeName&&) = delete; \
   void operator=(const TypeName&) = delete; \
   void* operator new(std::size_t) = delete;
-
-
 
 #endif
