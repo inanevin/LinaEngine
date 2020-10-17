@@ -70,7 +70,7 @@ namespace LinaEditor
 	private:
 	
 		LinaEngine::Graphics::Material* m_CurrentSelectedMaterial = nullptr;
-		LinaEngine::Graphics::RenderEngine* m_RenderEngine;
+		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
 	};
 }
 

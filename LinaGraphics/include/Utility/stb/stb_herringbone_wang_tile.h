@@ -960,17 +960,17 @@ STBHW_EXTERN void stbhw_free_tileset(stbhw_tileset *ts)
 
 // shared code
 
-static void stbhw__set_pixel(unsigned char *data, int stride, int xpos, int ypos, unsigned char color[3])
+static void stbhw__set_pixel(unsigned char *data, int stride, int xpos, int ypos, unsigned char m_color[3])
 {
-   memcpy(data + ypos*stride + xpos*3, color, 3);
+   memcpy(data + ypos*stride + xpos*3, m_color, 3);
 }
 
-static void stbhw__stbhw__set_pixel_whiten(unsigned char *data, int stride, int xpos, int ypos, unsigned char color[3])
+static void stbhw__stbhw__set_pixel_whiten(unsigned char *data, int stride, int xpos, int ypos, unsigned char m_color[3])
 {
    unsigned char c2[3];
    int i;
    for (i=0; i < 3; ++i)
-      c2[i] = (color[i]*2 + 255)/3;
+      c2[i] = (m_color[i]*2 + 255)/3;
    memcpy(data + ypos*stride + xpos*3, c2, 3);
 }
 
@@ -994,7 +994,7 @@ static unsigned char stbhw__color[7][8][3] =
      { 255,90,90 }, { 160,160,80}, { 50,150,150 }, { 200,50,200 } },
 };
 
-static void stbhw__draw_hline(unsigned char *data, int stride, int xpos, int ypos, int color, int len, int slot)
+static void stbhw__draw_hline(unsigned char *data, int stride, int xpos, int ypos, int m_color, int len, int slot)
 {
    int i;
    int j = len * 6 / 16;
@@ -1008,10 +1008,10 @@ static void stbhw__draw_hline(unsigned char *data, int stride, int xpos, int ypo
          ++k;
    }
    for (i=j; i < k; ++i)
-      stbhw__stbhw__set_pixel_whiten(data, stride, xpos+i, ypos, stbhw__color[slot][color]);
+      stbhw__stbhw__set_pixel_whiten(data, stride, xpos+i, ypos, stbhw__color[slot][m_color]);
 }
 
-static void stbhw__draw_vline(unsigned char *data, int stride, int xpos, int ypos, int color, int len, int slot)
+static void stbhw__draw_vline(unsigned char *data, int stride, int xpos, int ypos, int m_color, int len, int slot)
 {
    int i;
    int j = len * 6 / 16;
@@ -1025,7 +1025,7 @@ static void stbhw__draw_vline(unsigned char *data, int stride, int xpos, int ypo
          ++k;
    }
    for (i=j; i < k; ++i)
-      stbhw__stbhw__set_pixel_whiten(data, stride, xpos, ypos+i, stbhw__color[slot][color]);
+      stbhw__stbhw__set_pixel_whiten(data, stride, xpos, ypos+i, stbhw__color[slot][m_color]);
 }
 
 //                 0--*--1--*--2--*--3

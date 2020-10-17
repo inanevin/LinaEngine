@@ -57,10 +57,10 @@ namespace LinaEngine::ECS
 			m_currentCameraTransform = &transform;
 			
 			// Actual camera view matrix.
-			m_View = Matrix::InitLookAt(transform.transform.m_location, transform.transform.m_location + transform.transform.m_rotation.GetForward(), transform.transform.m_rotation.GetUp());
+			m_view = Matrix::InitLookAt(transform.transform.m_location, transform.transform.m_location + transform.transform.m_rotation.GetForward(), transform.transform.m_rotation.GetUp());
 
 			// Update projection matrix.
-			m_Projection = Matrix::Perspective(camera.fieldOfView / 2, m_AspectRatio, camera.zNear, camera.zFar);		
+			m_projection = Matrix::Perspective(camera.m_fieldOfView / 2, m_aspectRatio, camera.m_zNear, camera.m_zFar);		
 	
 		}	
 	}
@@ -73,14 +73,14 @@ namespace LinaEngine::ECS
 	Matrix CameraSystem::GetLightMatrix(DirectionalLightComponent* c)
 	{
 		if (c == nullptr) return Matrix();
-		Matrix lightProjection = Matrix::Orthographic(c->shadowProjectionSettings.x, c->shadowProjectionSettings.y, c->shadowProjectionSettings.z, c->shadowProjectionSettings.w, c->shadowNearPlane, c->shadowFarPlane);;
+		Matrix lightProjection = Matrix::Orthographic(c->m_shadowOrthoProjection.x, c->m_shadowOrthoProjection.y, c->m_shadowOrthoProjection.z, c->m_shadowOrthoProjection.w, c->m_shadowZNear, c->m_shadowZFar);;
 		Matrix lightView = Matrix::InitLookAt(m_currentCameraTransform->transform.m_location, m_currentCameraTransform->transform.m_location + m_currentCameraTransform->transform.m_rotation.GetForward().Normalized(), Vector3::Up);
 		return lightProjection * lightView;
 	}
 
 	LinaEngine::Color& CameraSystem::GetCurrentClearColor()
 	{
-		return m_currentCameraComponent == nullptr ? LinaEngine::Color::Gray : m_currentCameraComponent->clearColor;
+		return m_currentCameraComponent == nullptr ? LinaEngine::Color::Gray : m_currentCameraComponent->m_clearColor;
 	}
 
 

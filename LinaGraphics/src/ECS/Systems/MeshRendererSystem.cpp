@@ -44,11 +44,11 @@ namespace LinaEngine::ECS
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 
 			// Dont draw if mesh or material does not exist.
-			if (renderer.materialID < 0 || renderer.meshID < 0) continue;
+			if (renderer.m_materialID < 0 || renderer.m_meshID < 0) continue;
 
 			// Render different batches.
-			Graphics::Material& mat = m_RenderEngine->GetMaterial(renderer.materialID);
-			Graphics::Mesh& mesh = m_RenderEngine->GetMesh(renderer.meshID);
+			Graphics::Material& mat = m_renderEngine->GetMaterial(renderer.m_materialID);
+			Graphics::Mesh& mesh = m_renderEngine->GetMesh(renderer.m_meshID);
 
 			if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
 			{
@@ -58,7 +58,7 @@ namespace LinaEngine::ECS
 			else
 			{
 				// Set the priority as distance to the camera.
-				float priority = (m_RenderEngine->GetCameraSystem()->GetCameraLocation() - transform.transform.m_location).MagnitudeSqrt();
+				float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - transform.transform.m_location).MagnitudeSqrt();
 
 				for (int i = 0; i < mesh.GetVertexArrays().size(); i++)
 					RenderTransparent(*mesh.GetVertexArray(i), mat, transform.transform.ToMatrix(), priority);
@@ -70,45 +70,45 @@ namespace LinaEngine::ECS
 	void MeshRendererSystem::RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn)
 	{
 		Graphics::BatchDrawData drawData;
-		drawData.vertexArray = &vertexArray;
-		drawData.material = &material;
+		drawData.m_vertexArray = &vertexArray;
+		drawData.m_material = &material;
 		// Add the new data to the map.
-		m_OpaqueRenderBatch[drawData].models.push_back(transformIn);
-		m_OpaqueRenderBatch[drawData].inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
+		m_opaqueRenderBatch[drawData].m_models.push_back(transformIn);
+		m_opaqueRenderBatch[drawData].m_inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
 	}
 
 	void MeshRendererSystem::RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn,float priority)
 	{
 		//m_TransparentRenderBatch.emplace(std::make);
 		Graphics::BatchDrawData drawData;
-		drawData.vertexArray = &vertexArray;
-		drawData.material = &material;
-		drawData.distance = priority;
+		drawData.m_vertexArray = &vertexArray;
+		drawData.m_material = &material;
+		drawData.m_distance = priority;
 
 		Graphics::BatchModelData modelData;
-		modelData.models.push_back(transformIn);
-		modelData.inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
+		modelData.m_models.push_back(transformIn);
+		modelData.m_inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
 		//// Add the new data to the map.
-		m_TransparentRenderBatch.emplace(std::make_pair(drawData, modelData));	
+		m_transparentRenderBatch.emplace(std::make_pair(drawData, modelData));	
 	}
 
 	void MeshRendererSystem::FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
 	{
-		for (std::map<Graphics::BatchDrawData, Graphics::BatchModelData>::iterator it = m_OpaqueRenderBatch.begin(); it != m_OpaqueRenderBatch.end(); ++it)
+		for (std::map<Graphics::BatchDrawData, Graphics::BatchModelData>::iterator it = m_opaqueRenderBatch.begin(); it != m_opaqueRenderBatch.end(); ++it)
 		{
 
 			// Get references.
 			Graphics::BatchDrawData drawData = it->first;
 			Graphics::BatchModelData& modelData = it->second;
-			size_t numTransforms = modelData.models.size();
+			size_t numTransforms = modelData.m_models.size();
 			if (numTransforms == 0) continue;
 
-			Graphics::VertexArray* vertexArray = drawData.vertexArray;
-			Matrix* models = &modelData.models[0];
-			Matrix* inverseTransposeModels = &modelData.inverseTransposeModels[0];
+			Graphics::VertexArray* vertexArray = drawData.m_vertexArray;
+			Matrix* models = &modelData.m_models[0];
+			Matrix* inverseTransposeModels = &modelData.m_inverseTransposeModels[0];
 
 			// Get the material for drawing, object's own material or overriden material.
-			Graphics::Material* mat = overrideMaterial == nullptr ? drawData.material : overrideMaterial;
+			Graphics::Material* mat = overrideMaterial == nullptr ? drawData.m_material : overrideMaterial;
 
 			// Draw call.
 			// Update the buffer w/ each transform.
@@ -116,16 +116,16 @@ namespace LinaEngine::ECS
 			vertexArray->UpdateBuffer(6, inverseTransposeModels, numTransforms * sizeof(Matrix));
 
 			// Update shader
-			m_RenderEngine->UpdateShaderData(mat);
+			m_renderEngine->UpdateShaderData(mat);
 
 			// Draw
-			m_RenderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
+			m_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
 
 			// Clear the buffer.
 			if (completeFlush)
 			{
-				modelData.models.clear();
-				modelData.inverseTransposeModels.clear();
+				modelData.m_models.clear();
+				modelData.m_inverseTransposeModels.clear();
 			}
 		}
 	}
@@ -134,21 +134,21 @@ namespace LinaEngine::ECS
 	{
 
 		// Empty out the queue
-		while (!m_TransparentRenderBatch.empty())
+		while (!m_transparentRenderBatch.empty())
 		{
-			BatchPair pair = m_TransparentRenderBatch.top();
+			BatchPair pair = m_transparentRenderBatch.top();
 
 			Graphics::BatchDrawData& drawData = std::get<0>(pair);
 			Graphics::BatchModelData& modelData = std::get<1>(pair);
-			size_t numTransforms = modelData.models.size();
+			size_t numTransforms = modelData.m_models.size();
 			if (numTransforms == 0) continue;
 
-			Graphics::VertexArray* vertexArray = drawData.vertexArray;
-			Matrix* models = &modelData.models[0];
-			Matrix* inverseTransposeModels = &modelData.inverseTransposeModels[0];
+			Graphics::VertexArray* vertexArray = drawData.m_vertexArray;
+			Matrix* models = &modelData.m_models[0];
+			Matrix* inverseTransposeModels = &modelData.m_inverseTransposeModels[0];
 
 			// Get the material for drawing, object's own material or overriden material.
-			Graphics::Material* mat = overrideMaterial == nullptr ? drawData.material : overrideMaterial;
+			Graphics::Material* mat = overrideMaterial == nullptr ? drawData.m_material : overrideMaterial;
 
 			// Draw call.
 			// Update the buffer w/ each transform.
@@ -156,19 +156,19 @@ namespace LinaEngine::ECS
 			vertexArray->UpdateBuffer(6, inverseTransposeModels, numTransforms * sizeof(Matrix));
 
 			// Update shader
-			m_RenderEngine->UpdateShaderData(mat);
+			m_renderEngine->UpdateShaderData(mat);
 
 			// Draw
-			m_RenderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
+			m_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
 
 			// Clear the buffer.
 			if (completeFlush)
 			{
-				modelData.models.clear();
-				modelData.inverseTransposeModels.clear();
+				modelData.m_models.clear();
+				modelData.m_inverseTransposeModels.clear();
 			}
 
-			m_TransparentRenderBatch.pop();
+			m_transparentRenderBatch.pop();
 		}
 		
 	}

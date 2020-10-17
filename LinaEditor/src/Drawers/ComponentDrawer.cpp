@@ -372,10 +372,10 @@ void LinaEngine::ECS::CameraComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRe
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 		float cursorPosLabels = CURSORPOS_X_LABELS;
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Clear Color");	 ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); WidgetsUtility::ColorButton("##clrclr", &camera.clearColor.r);
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Field of View"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##fov", &camera.fieldOfView);
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Near Plane");	 ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##zNear", &camera.zNear);
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Far Plane");	 ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##zFar", &camera.zFar);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Clear Color");	 ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); WidgetsUtility::ColorButton("##clrclr", &camera.m_clearColor.r);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Field of View"); ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##fov", &camera.m_fieldOfView);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Near Plane");	 ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##zNear", &camera.m_zNear);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Far Plane");	 ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##zFar", &camera.m_zFar);
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 	}
 
@@ -414,10 +414,10 @@ void LinaEngine::ECS::DirectionalLightComponent::COMPONENT_DRAWFUNC(LinaEngine::
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 		float cursorPosLabels = CURSORPOS_X_LABELS;
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Color");				ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); WidgetsUtility::ColorButton("##dclr", &dLight.color.r);
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Shadow Near Plane");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##szNear", &dLight.shadowNearPlane);
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Shadow Far Plane");		ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##szFar", &dLight.shadowFarPlane);
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Shadow Projection");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat4("##sproj", &dLight.shadowProjectionSettings.x);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Color");				ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); WidgetsUtility::ColorButton("##dclr", &dLight.m_color.r);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Shadow Near Plane");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##szNear", &dLight.m_shadowZNear);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Shadow Far Plane");		ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##szFar", &dLight.m_shadowZFar);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Shadow Projection");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat4("##sproj", &dLight.m_shadowOrthoProjection.x);
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 	}
 
@@ -456,8 +456,8 @@ void LinaEngine::ECS::PointLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::E
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 		float cursorPosLabels = CURSORPOS_X_LABELS;
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Color");		ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); WidgetsUtility::ColorButton("##pclr", &pLight.color.r);
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Distance");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##pldist", &pLight.distance);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Color");		ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); WidgetsUtility::ColorButton("##pclr", &pLight.m_color.r);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Distance");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##pldist", &pLight.m_distance);
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 	}
 
@@ -496,10 +496,10 @@ void LinaEngine::ECS::SpotLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 		float cursorPosLabels = CURSORPOS_X_LABELS;
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Color");		ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); WidgetsUtility::ColorButton("##sclr", &sLight.color.r);
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Distance");		ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##sldist", &sLight.distance);
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Cutoff");		ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##cutOff", &sLight.cutOff);
-		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Outer Cutoff");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##outerCutOff", &sLight.outerCutOff);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Color");		ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); WidgetsUtility::ColorButton("##sclr", &sLight.m_color.r);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Distance");		ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##sldist", &sLight.m_distance);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Cutoff");		ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##cutOff", &sLight.m_cutoff);
+		ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Outer Cutoff");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat("##outerCutOff", &sLight.m_outerCutoff);
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 	}
 

@@ -148,13 +148,13 @@ namespace LinaEditor
 		LinaEngine::ECS::ECSRegistry* m_ecs = nullptr;
 		LinaEngine::Application* m_application = nullptr;
 		LinaEngine::World::Level* m_currentLevel = nullptr;
-		class ECSPanel* m_ecsPanel;
-		class MaterialPanel* m_materialPanel;
-		class ResourcesPanel* m_resourcesPanel;
-		class ScenePanel* m_scenePanel;
-		class PropertiesPanel* m_propertiesPanel;
-		class LogPanel* m_logPanel;
-		class HeaderPanel* m_headerPanel;
+		class ECSPanel* m_ecsPanel = nullptr;
+		class MaterialPanel* m_materialPanel = nullptr;
+		class ResourcesPanel* m_resourcesPanel = nullptr;
+		class ScenePanel* m_scenePanel = nullptr;
+		class PropertiesPanel* m_propertiesPanel = nullptr;
+		class LogPanel* m_logPanel = nullptr;
+		class HeaderPanel* m_headerPanel = nullptr;
 		std::vector<EditorPanel*> m_panels;
 
 	};

@@ -91,7 +91,7 @@ namespace LinaEditor
 
 		LinaEngine::ECS::TransformComponent* m_SelectedTransform = nullptr;
 		DrawMode m_drawMode = DrawMode::FinalImage;
-	    LinaEngine::Graphics::RenderEngine* m_renderEngine;
+		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
 	};
 }
 

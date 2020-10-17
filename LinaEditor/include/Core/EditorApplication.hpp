@@ -62,7 +62,7 @@ namespace LinaEditor
 
 	private:
 
-		GUILayer* m_guiLayer;
+		GUILayer* m_guiLayer = nullptr;
 	};
 }
 

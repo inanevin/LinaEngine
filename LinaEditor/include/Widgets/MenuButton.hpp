@@ -109,12 +109,12 @@ namespace LinaEditor
 
 	private:
 	
-		const char* m_popupID;
+		const char* m_popupID = "";
 		bool m_popupOpen = false;
 		bool m_useSameLine = false;
 		std::function<void()> m_onClick;
 		std::vector<MenuElement*> m_children;
-		LinaEngine::Color m_bgColor;
+		LinaEngine::Color m_bgColor = LinaEngine::Color::Black;
 	};
 }
 

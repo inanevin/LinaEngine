@@ -92,7 +92,7 @@ namespace LinaEngine::ECS
 	protected:
 
 		virtual void Construct(ECSRegistry& reg) { m_ecs = &reg; };
-		ECSRegistry* m_ecs;
+		ECSRegistry* m_ecs = nullptr;
 
 	};
 

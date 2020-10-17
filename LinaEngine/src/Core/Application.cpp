@@ -75,29 +75,29 @@ namespace LinaEngine
 		}
 
 		// Set callbacks.
-		m_KeyCallback = std::bind(&Application::KeyCallback, this, std::placeholders::_1, std::placeholders::_2);
-		m_MouseCallback = std::bind(&Application::MouseCallback, this, std::placeholders::_1, std::placeholders::_2);
-		m_WindowResizeCallback = std::bind(&Application::OnWindowResize, this, std::placeholders::_1);
-		m_WindowClosedCallback = std::bind(&Application::OnWindowClose, this);
+		m_keyCallback = std::bind(&Application::KeyCallback, this, std::placeholders::_1, std::placeholders::_2);
+		m_mouseCallback = std::bind(&Application::MouseCallback, this, std::placeholders::_1, std::placeholders::_2);
+		m_WwndowResizeCallback = std::bind(&Application::OnWindowResize, this, std::placeholders::_1);
+		m_windowClosedCallback = std::bind(&Application::OnWindowClose, this);
 		m_drawLineCallback = std::bind(&Application::OnDrawLine, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
 		m_postSceneDrawCallback = std::bind(&Application::OnPostSceneDraw, this);
 
 
 		// Set event callback for main window.
-		m_appWindow->SetKeyCallback(m_KeyCallback);
-		m_appWindow->SetMouseCallback(m_MouseCallback);
-		m_appWindow->SetWindowResizeCallback(m_WindowResizeCallback);
-		m_appWindow->SetWindowClosedCallback(m_WindowClosedCallback);
+		m_appWindow->SetKeyCallback(m_keyCallback);
+		m_appWindow->SetMouseCallback(m_mouseCallback);
+		m_appWindow->SetWindowResizeCallback(m_WwndowResizeCallback);
+		m_appWindow->SetWindowClosedCallback(m_windowClosedCallback);
 		m_renderEngine->SetPostSceneDrawCallback(m_postSceneDrawCallback);
 		m_renderEngine->SetViewportDisplay(Vector2::Zero, m_appWindow->GetSize());
 
 		// Initialize engines.
 		m_inputEngine->Initialize(m_appWindow->GetNativeWindow(), m_inputDevice);
-		m_physicsEngine->Initialize(m_ECS, m_drawLineCallback);
-		m_renderEngine->Initialize(m_ECS, *m_appWindow);
+		m_physicsEngine->Initialize(m_ecs, m_drawLineCallback);
+		m_renderEngine->Initialize(m_ecs, *m_appWindow);
 
 		// Set running flag.
-		m_Running = true;
+		m_running = true;
 	}
 
 
@@ -137,7 +137,7 @@ namespace LinaEngine
 		double currentTime = (double)m_appWindow->GetTime();
 		double accumulator = 0.0;
 
-		while (m_Running)
+		while (m_running)
 		{
 			// Update input engine.
 			m_inputEngine->Tick();
@@ -146,12 +146,12 @@ namespace LinaEngine
 			double frameTime = newTime - currentTime;
 
 			// Update layers.
-			for (Layer* layer : m_LayerStack)
+			for (Layer* layer : m_layerStack)
 				layer->OnTick(frameTime);
 
 			// Update current level.
 			if (m_activeLevelExists)
-				m_CurrentLevel->Tick(frameTime);
+				m_currentLevel->Tick(frameTime);
 
 			if (frameTime > 0.25)
 				frameTime = 0.25;
@@ -180,13 +180,13 @@ namespace LinaEngine
 
 
 			// Simple FPS count
-			m_FPSCounter++;
+			m_fpsCounter++;
 
-			if (currentTime - m_PreviousTime >= 1.0)
+			if (currentTime - m_previousTime >= 1.0)
 			{
-				m_PreviousTime = currentTime;
-				m_CurrentFPS = m_FPSCounter;
-				m_FPSCounter = 0;
+				m_previousTime = currentTime;
+				m_currentFPS = m_fpsCounter;
+				m_fpsCounter = 0;
 			}
 
 			// Update necessary engines that the first run has finished.
@@ -200,7 +200,7 @@ namespace LinaEngine
 
 	bool Application::OnWindowClose()
 	{
-		m_Running = false;
+		m_running = false;
 		return true;
 	}
 
@@ -231,35 +231,35 @@ namespace LinaEngine
 
 	void Application::PushLayer(Layer* layer)
 	{
-		m_LayerStack.PushLayer(layer);
+		m_layerStack.PushLayer(layer);
 		layer->OnAttach();
 	}
 	void Application::PushOverlay(Layer* layer)
 	{
-		m_LayerStack.PushOverlay(layer);
+		m_layerStack.PushOverlay(layer);
 		layer->OnAttach();
 	}
 
 	bool Application::InstallLevel(LinaEngine::World::Level* level)
 	{
-		level->SetEngineReferences(&m_ECS, *m_renderEngine, *m_inputEngine);
+		level->SetEngineReferences(&m_ecs, *m_renderEngine, *m_inputEngine);
 		return level->Install();
 	}
 
 	void Application::InitializeLevel(LinaEngine::World::Level* level)
 	{
-		m_CurrentLevel = level;
-		m_CurrentLevel->Initialize();
+		m_currentLevel = level;
+		m_currentLevel->Initialize();
 		m_activeLevelExists = true;
 	}
 
 
 	void Application::UnloadLevel(LinaEngine::World::Level* level)
 	{
-		if (m_CurrentLevel == level)
+		if (m_currentLevel == level)
 		{
 			m_activeLevelExists = false;
-			m_CurrentLevel = nullptr;
+			m_currentLevel = nullptr;
 		}
 
 		level->Uninstall();

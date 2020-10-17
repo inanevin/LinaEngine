@@ -70,7 +70,7 @@ namespace LinaEditor
 
 	private:
 
-		std::string m_title;
+		std::string m_title = "";
 		std::vector<MenuButton*> m_menuBarButtons;
 		std::vector<MenuButton*> m_toolButtons;
 		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;

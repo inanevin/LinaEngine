@@ -30,10 +30,10 @@ namespace LinaEngine::ECS
 	void LightingSystem::UpdateComponents(float delta)
 	{
 		// Flush lights.
-		std::get<0>(directionalLight) = nullptr;
-		std::get<1>(directionalLight) = nullptr;
-		pointLights.clear();
-		spotLights.clear();
+		std::get<0>(m_directionalLight) = nullptr;
+		std::get<1>(m_directionalLight) = nullptr;
+		m_pointLights.clear();
+		m_spotLights.clear();
 
 		// Set directional light.
 		auto& dirLightView = m_ecs->view<TransformComponent, DirectionalLightComponent>();
@@ -44,8 +44,8 @@ namespace LinaEngine::ECS
 			if (!dirLight->m_isEnabled) continue;
 
 			// Set
-			std::get<0>(directionalLight) = &dirLightView.get<TransformComponent>(entity);
-			std::get<1>(directionalLight) = dirLight;
+			std::get<0>(m_directionalLight) = &dirLightView.get<TransformComponent>(entity);
+			std::get<1>(m_directionalLight) = dirLight;
 		}
 
 		// Set point lights.
@@ -57,7 +57,7 @@ namespace LinaEngine::ECS
 			if (!pLight->m_isEnabled) return;
 
 			// Set
-			pointLights.push_back(std::make_pair(&pointLightView.get<TransformComponent>(*it), pLight));
+			m_pointLights.push_back(std::make_pair(&pointLightView.get<TransformComponent>(*it), pLight));
 		}
 
 		// Set Spot lights.
@@ -69,7 +69,7 @@ namespace LinaEngine::ECS
 			if (!sLight->m_isEnabled) return;
 
 			// Set
-			spotLights.push_back(std::make_pair(&spotLightView.get<TransformComponent>(*it), sLight));
+			m_spotLights.push_back(std::make_pair(&spotLightView.get<TransformComponent>(*it), sLight));
 		}
 	}
 
@@ -77,13 +77,13 @@ namespace LinaEngine::ECS
 	{
 
 		// Update directional light data.
-		TransformComponent* dirLightTransform = std::get<0>(directionalLight);
-		DirectionalLightComponent* dirLight = std::get<1>(directionalLight);
+		TransformComponent* dirLightTransform = std::get<0>(m_directionalLight);
+		DirectionalLightComponent* dirLight = std::get<1>(m_directionalLight);
 		if (dirLightTransform != nullptr && dirLight != nullptr)
 		{
 			Vector3 direction = Vector3::Zero - dirLightTransform->transform.m_location;
-			m_RenderDevice->UpdateShaderUniformColor(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTCOLOR, dirLight->color);
-			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTDIRECTION, direction.Normalized());
+			m_renderDevice->UpdateShaderUniformColor(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTCOLOR, dirLight->m_color);
+			m_renderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTDIRECTION, direction.Normalized());
 			//m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTPOSITION, dirLightTransform->transform.location);
 		}
 
@@ -91,12 +91,12 @@ namespace LinaEngine::ECS
 		// Iterate point lights.
 		int currentPointLightCount = 0;
 
-		for (std::vector<std::tuple<TransformComponent*, PointLightComponent*>>::iterator it = pointLights.begin(); it != pointLights.end(); ++it)
+		for (std::vector<std::tuple<TransformComponent*, PointLightComponent*>>::iterator it = m_pointLights.begin(); it != m_pointLights.end(); ++it)
 		{
 			TransformComponent* transform = std::get<0>(*it);
 			PointLightComponent* pointLight = std::get<1>(*it);
-			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_POINTLIGHTS + "[" + std::to_string(currentPointLightCount) + "]" + SC_LIGHTPOSITION, transform->transform.m_location);
-			m_RenderDevice->UpdateShaderUniformColor(shaderID, SC_POINTLIGHTS + "[" + std::to_string(currentPointLightCount) + "]" + SC_LIGHTCOLOR, pointLight->color);
+			m_renderDevice->UpdateShaderUniformVector3(shaderID, SC_POINTLIGHTS + "[" + std::to_string(currentPointLightCount) + "]" + SC_LIGHTPOSITION, transform->transform.m_location);
+			m_renderDevice->UpdateShaderUniformColor(shaderID, SC_POINTLIGHTS + "[" + std::to_string(currentPointLightCount) + "]" + SC_LIGHTCOLOR, pointLight->m_color);
 			//m_RenderDevice->UpdateShaderUniformFloat(shaderID, SC_POINTLIGHTS + "[" + std::to_string(currentPointLightCount) + "]" + SC_LIGHTDISTANCE, pointLight->distance);
 			currentPointLightCount++;
 		}
@@ -104,40 +104,40 @@ namespace LinaEngine::ECS
 		// Iterate Spot lights.
 		int currentSpotLightCount = 0;
 
-		for (std::vector<std::tuple<TransformComponent*, SpotLightComponent*>>::iterator it = spotLights.begin(); it != spotLights.end(); ++it)
+		for (std::vector<std::tuple<TransformComponent*, SpotLightComponent*>>::iterator it = m_spotLights.begin(); it != m_spotLights.end(); ++it)
 		{
 			TransformComponent* transform = std::get<0>(*it);
 			SpotLightComponent* spotLight = std::get<1>(*it);
 
-			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTPOSITION, transform->transform.m_location);
-			m_RenderDevice->UpdateShaderUniformColor(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTCOLOR, spotLight->color);
-			m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTDIRECTION, transform->transform.m_rotation.GetForward());
-			m_RenderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTCUTOFF, spotLight->cutOff);
-			m_RenderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTOUTERCUTOFF, spotLight->outerCutOff);
+			m_renderDevice->UpdateShaderUniformVector3(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTPOSITION, transform->transform.m_location);
+			m_renderDevice->UpdateShaderUniformColor(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTCOLOR, spotLight->m_color);
+			m_renderDevice->UpdateShaderUniformVector3(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTDIRECTION, transform->transform.m_rotation.GetForward());
+			m_renderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTCUTOFF, spotLight->m_cutoff);
+			m_renderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTOUTERCUTOFF, spotLight->m_outerCutoff);
 			//m_RenderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTDISTANCE, spotLight->distance);
 			currentSpotLightCount++;
 		}
 
 		// Set light counts.
-		m_RenderEngine->SetCurrentPLightCount(currentPointLightCount);
-		m_RenderEngine->SetCurrentSLightCount(currentSpotLightCount);
+		m_renderEngine->SetCurrentPLightCount(currentPointLightCount);
+		m_renderEngine->SetCurrentSLightCount(currentSpotLightCount);
 	}
 
 	void LightingSystem::ResetLightData()
 	{
-		m_RenderEngine->SetCurrentPLightCount(0);
-		m_RenderEngine->SetCurrentSLightCount(0);
+		m_renderEngine->SetCurrentPLightCount(0);
+		m_renderEngine->SetCurrentSLightCount(0);
 	}
 
 	Matrix LightingSystem::GetDirectionalLightMatrix()
 	{
 		
-		TransformComponent* directionalLightTransform = std::get<0>(directionalLight);
-		DirectionalLightComponent* light = std::get<1>(directionalLight);
+		TransformComponent* directionalLightTransform = std::get<0>(m_directionalLight);
+		DirectionalLightComponent* light = std::get<1>(m_directionalLight);
 		
 		if (directionalLightTransform == nullptr || light == nullptr) return Matrix();
 
-		Matrix lightProjection = Matrix::Orthographic(light->shadowProjectionSettings.x, light->shadowProjectionSettings.y, light->shadowProjectionSettings.z, light->shadowProjectionSettings.w, light->shadowNearPlane, light->shadowFarPlane);
+		Matrix lightProjection = Matrix::Orthographic(light->m_shadowOrthoProjection.x, light->m_shadowOrthoProjection.y, light->m_shadowOrthoProjection.z, light->m_shadowOrthoProjection.w, light->m_shadowZNear, light->m_shadowZFar);
 		Matrix lightView = Matrix::TransformMatrix(directionalLightTransform->transform.m_location, directionalLightTransform->transform.m_rotation, Vector3::One);
 
 		//Matrix lightView = Matrix::InitRotationFromDirection(directionalLightTransform->transform.rotation.GetForward(), directionalLightTransform->transform.rotation.GetUp());
@@ -165,7 +165,7 @@ namespace LinaEngine::ECS
 
 	Vector3& LightingSystem::GetDirectionalLightPos() 
 	{
-		TransformComponent* directionalLightTransform = std::get<0>(directionalLight);
+		TransformComponent* directionalLightTransform = std::get<0>(m_directionalLight);
 		if (directionalLightTransform == nullptr ) return Vector3::Zero;
 		return directionalLightTransform->transform.m_location;
 	}

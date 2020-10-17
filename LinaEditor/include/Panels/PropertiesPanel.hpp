@@ -129,21 +129,21 @@ namespace LinaEditor
 		TextureDrawer m_textureDrawer;
 
 		// Selected mesh
-		class LinaEngine::Graphics::Mesh* m_selectedMesh;
+		class LinaEngine::Graphics::Mesh* m_selectedMesh = nullptr;
 		int m_selectedMeshID = 0;
-		std::string m_selectedMeshPath;
+		std::string m_selectedMeshPath = "";
 		Graphics::MeshParameters m_currentMeshParams;
 
 		// Selected material
-		class LinaEngine::Graphics::Material* m_selectedMaterial;
+		class LinaEngine::Graphics::Material* m_selectedMaterial = nullptr;
 		int m_selectedMaterialID = 0;
-		std::string m_selectedMaterialPath;
+		std::string m_selectedMaterialPath = "";
 
 		// Selected entity.
 		EntityDrawer m_entityDrawer;
 
-		class LinaEngine::Graphics::RenderEngine* m_renderEngine;
-		LinaEngine::ECS::ECSRegistry* m_ecs;
+		class LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
+		LinaEngine::ECS::ECSRegistry* m_ecs = nullptr;
 		DrawType m_currentDrawType = DrawType::NONE;
 
 	};

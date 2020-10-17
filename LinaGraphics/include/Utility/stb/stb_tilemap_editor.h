@@ -866,7 +866,7 @@ typedef struct
 
 typedef struct
 {
-   int x0,y0,x1,y1,color;
+   int x0,y0,x1,y1,m_color;
 } stbte__colorrect;
 
 #define STBTE__MAX_DELAYRECT 256
@@ -1647,33 +1647,33 @@ static void stbte__set_link(stbte_tilemap *tm, int src_x, int src_y, int dest_x,
 #endif
 
 
-static void stbte__draw_rect(int x0, int y0, int x1, int y1, unsigned int color)
+static void stbte__draw_rect(int x0, int y0, int x1, int y1, unsigned int m_color)
 {
-   STBTE_DRAW_RECT(x0,y0,x1,y1, color);
+   STBTE_DRAW_RECT(x0,y0,x1,y1, m_color);
 }
 
 #ifdef STBTE_ALLOW_LINK
-static void stbte__draw_line(int x0, int y0, int x1, int y1, unsigned int color)
+static void stbte__draw_line(int x0, int y0, int x1, int y1, unsigned int m_color)
 {
    int temp;
    if (x1 < x0) temp=x0,x0=x1,x1=temp;
    if (y1 < y0) temp=y0,y0=y1,y1=temp;
-   stbte__draw_rect(x0,y0,x1+1,y1+1,color);
+   stbte__draw_rect(x0,y0,x1+1,y1+1,m_color);
 }
 
-static void stbte__draw_link(int x0, int y0, int x1, int y1, unsigned int color)
+static void stbte__draw_link(int x0, int y0, int x1, int y1, unsigned int m_color)
 {
-   stbte__draw_line(x0,y0,x0,y1, color);
-   stbte__draw_line(x0,y1,x1,y1, color);
+   stbte__draw_line(x0,y0,x0,y1, m_color);
+   stbte__draw_line(x0,y1,x1,y1, m_color);
 }
 #endif
 
-static void stbte__draw_frame(int x0, int y0, int x1, int y1, unsigned int color)
+static void stbte__draw_frame(int x0, int y0, int x1, int y1, unsigned int m_color)
 {
-   stbte__draw_rect(x0,y0,x1-1,y0+1,color);
-   stbte__draw_rect(x1-1,y0,x1,y1-1,color);
-   stbte__draw_rect(x0+1,y1-1,x1,y1,color);
-   stbte__draw_rect(x0,y0+1,x0+1,y1,color);
+   stbte__draw_rect(x0,y0,x1-1,y0+1,m_color);
+   stbte__draw_rect(x1-1,y0,x1,y1-1,m_color);
+   stbte__draw_rect(x0+1,y1-1,x1,y1,m_color);
+   stbte__draw_rect(x0,y0+1,x0+1,y1,m_color);
 }
 
 static int stbte__get_char_width(int ch)
@@ -1686,7 +1686,7 @@ static short *stbte__get_char_bitmap(int ch)
    return stbte__fontdata + stbte__font_offset[ch-16];
 }
 
-static void stbte__draw_bitmask_as_columns(int x, int y, short bitmask, int color)
+static void stbte__draw_bitmask_as_columns(int x, int y, short bitmask, int m_color)
 {
    int start_i = -1, i=0;
    while (bitmask) {
@@ -1694,7 +1694,7 @@ static void stbte__draw_bitmask_as_columns(int x, int y, short bitmask, int colo
          if (start_i < 0)
             start_i = i;   
       } else if (start_i >= 0) {
-         stbte__draw_rect(x, y+start_i, x+1, y+i, color);
+         stbte__draw_rect(x, y+start_i, x+1, y+i, m_color);
          start_i = -1;
          bitmask &= ~((1<<i)-1); // clear all the old bits; we don't clear them as we go to save code
       }
@@ -1702,14 +1702,14 @@ static void stbte__draw_bitmask_as_columns(int x, int y, short bitmask, int colo
    }
 }
 
-static void stbte__draw_bitmap(int x, int y, int w, short *bitmap, int color)
+static void stbte__draw_bitmap(int x, int y, int w, short *bitmap, int m_color)
 {
    int i;
    for (i=0; i < w; ++i)
-      stbte__draw_bitmask_as_columns(x+i, y, *bitmap++, color);
+      stbte__draw_bitmask_as_columns(x+i, y, *bitmap++, m_color);
 }
 
-static void stbte__draw_text_core(int x, int y, const char *str, int w, int color, int digitspace)
+static void stbte__draw_text_core(int x, int y, const char *str, int w, int m_color, int digitspace)
 {
    int x_end = x+w;
    while (*str) {
@@ -1717,16 +1717,16 @@ static void stbte__draw_text_core(int x, int y, const char *str, int w, int colo
       int cw = stbte__get_char_width(c);
       if (x + cw > x_end)
          break;
-      stbte__draw_bitmap(x, y, cw, stbte__get_char_bitmap(c), color);
+      stbte__draw_bitmap(x, y, cw, stbte__get_char_bitmap(c), m_color);
       if (digitspace && c == ' ')
          cw = stbte__get_char_width('0');
       x += cw+1;
    }
 }
 
-static void stbte__draw_text(int x, int y, const char *str, int w, int color)
+static void stbte__draw_text(int x, int y, const char *str, int w, int m_color)
 {
-   stbte__draw_text_core(x,y,str,w,color,0);
+   stbte__draw_text_core(x,y,str,w,m_color,0);
 }
 
 static int stbte__text_width(const char *str)
@@ -1740,10 +1740,10 @@ static int stbte__text_width(const char *str)
    return x;
 }
 
-static void stbte__draw_frame_delayed(int x0, int y0, int x1, int y1, int color)
+static void stbte__draw_frame_delayed(int x0, int y0, int x1, int y1, int m_color)
 {
    if (stbte__ui.delaycount < STBTE__MAX_DELAYRECT) {
-      stbte__colorrect r = { x0,y0,x1,y1,color };
+      stbte__colorrect r = { x0,y0,x1,y1,m_color };
       stbte__ui.delayrect[stbte__ui.delaycount++] = r;
    }
 }
@@ -1754,7 +1754,7 @@ static void stbte__flush_delay(void)
    int i;
    r = stbte__ui.delayrect;
    for (i=0; i < stbte__ui.delaycount; ++i,++r)
-      stbte__draw_frame(r->x0,r->y0,r->x1,r->y1,r->color);
+      stbte__draw_frame(r->x0,r->y0,r->x1,r->y1,r->m_color);
    stbte__ui.delaycount = 0;
 }
 
@@ -3679,17 +3679,17 @@ static void stbte__colorpicker(int x0, int y0, int w, int h)
    
    
    {
-      int color = stbte__color_table[stbte__cp_mode][stbte__cp_aspect][stbte__cp_index];
+      int m_color = stbte__color_table[stbte__cp_mode][stbte__cp_aspect][stbte__cp_index];
       int rgb[3];
       if (stbte__cp_altered && stbte__cp_index == STBTE__idle)
-         color = stbte__save;
+         m_color = stbte__save;
 
       if (stbte__minibutton(STBTE__cmapsize, x1-20,y+ 5, 'C', STBTE__ID2(STBTE__colorpick_id,4,0)))
-         stbte__color_copy = color;
+         stbte__color_copy = m_color;
       if (stbte__minibutton(STBTE__cmapsize, x1-20,y+15, 'P', STBTE__ID2(STBTE__colorpick_id,4,1)))
-         color = stbte__color_copy;
+         m_color = stbte__color_copy;
 
-      rgb[0] = color >> 16; rgb[1] = (color>>8)&255; rgb[2] = color & 255;
+      rgb[0] = m_color >> 16; rgb[1] = (m_color>>8)&255; rgb[2] = m_color & 255;
       for (i=0; i < 3; ++i) {
          if (stbte__slider(x+8,64, y, 255, rgb+i, STBTE__ID2(STBTE__colorpick_id,3,i)) > 0)
             stbte__dump_colorstate();
@@ -3841,7 +3841,7 @@ static void stbte__editor_traverse(stbte_tilemap *tm)
       #ifdef STBTE_ALLOW_LINK
       if (stbte__ui.linking && STBTE__IS_MAP_HOT()) {
          int x0,y0,x1,y1;
-         int color;
+         int m_color;
          int ex = ((stbte__ui.hot_id >> 19) & 4095);
          int ey = ((stbte__ui.hot_id >>  7) & 4095);
          x0 = stbte__ui.x0 + (stbte__ui.sx    ) * tm->spacing_x - tm->scroll_x + (tm->spacing_x>>1)+1;
@@ -3849,10 +3849,10 @@ static void stbte__editor_traverse(stbte_tilemap *tm)
          x1 = stbte__ui.x0 + (ex              ) * tm->spacing_x - tm->scroll_x + (tm->spacing_x>>1)-1;
          y1 = stbte__ui.y0 + (ey              ) * tm->spacing_y - tm->scroll_y + (tm->spacing_y>>1)-1;
          if (STBTE_ALLOW_LINK(tm->data[stbte__ui.sy][stbte__ui.sx], tm->props[stbte__ui.sy][stbte__ui.sx], tm->data[ey][ex], tm->props[ey][ex]))
-            color = STBTE_LINK_COLOR_DRAWING;
+            m_color = STBTE_LINK_COLOR_DRAWING;
          else
-            color = STBTE_LINK_COLOR_DISALLOWED;
-         stbte__draw_link(x0,y0,x1,y1, color);
+            m_color = STBTE_LINK_COLOR_DISALLOWED;
+         stbte__draw_link(x0,y0,x1,y1, m_color);
       }
       #endif
    }

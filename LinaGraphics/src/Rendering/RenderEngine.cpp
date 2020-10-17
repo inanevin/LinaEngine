@@ -1079,19 +1079,19 @@ namespace LinaEngine::Graphics
 		if (cameraComponent != nullptr)
 		{
 			// Update only if changed.
-			if (m_bufferValueRecord.zNear != cameraComponent->zNear)
+			if (m_bufferValueRecord.zNear != cameraComponent->m_zNear)
 			{
-				m_bufferValueRecord.zNear = cameraComponent->zNear;
-				m_globalDataBuffer.Update(&cameraComponent->zNear, currentGlobalDataOffset, sizeof(float));
+				m_bufferValueRecord.zNear = cameraComponent->m_zNear;
+				m_globalDataBuffer.Update(&cameraComponent->m_zNear, currentGlobalDataOffset, sizeof(float));
 			}
 			currentGlobalDataOffset += sizeof(float);
 
 
 			// Update only if changed.
-			if (m_bufferValueRecord.zFar != cameraComponent->zFar)
+			if (m_bufferValueRecord.zFar != cameraComponent->m_zFar)
 			{
-				m_bufferValueRecord.zFar = cameraComponent->zFar;
-				m_globalDataBuffer.Update(&cameraComponent->zNear, currentGlobalDataOffset, sizeof(float));
+				m_bufferValueRecord.zFar = cameraComponent->m_zFar;
+				m_globalDataBuffer.Update(&cameraComponent->m_zNear, currentGlobalDataOffset, sizeof(float));
 			}
 			currentGlobalDataOffset += sizeof(float);
 		}

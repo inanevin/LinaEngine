@@ -67,7 +67,7 @@ namespace LinaEditor
 
 	public:
 		// Selected colilsion shape in editor.
-		int m_currentCollisionShape;
+		int m_currentCollisionShape = 0;
 
 		// We use this instance to call DrawTitle method for defining the payload target while dragging & dropping component titles.
 		static ComponentDrawer* s_activeInstance;

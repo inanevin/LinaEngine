@@ -185,8 +185,8 @@ void Example1Level::Initialize()
 	objectUnlitMaterial = &m_renderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::STANDARD_UNLIT);
 
 	MeshRendererComponent cr;
-	cr.meshID = Primitives::CUBE;
-	cr.materialID = objectUnlitMaterial->m_MaterialID;
+	cr.m_meshID = Primitives::CUBE;
+	cr.m_materialID = objectUnlitMaterial->m_MaterialID;
 	TransformComponent objectTransform;
 	RigidbodyComponent r;
 
@@ -240,12 +240,12 @@ void Example1Level::Initialize()
 	m_renderEngine->SetHDRIData(floorMaterial);
 
 	MeshRendererComponent cubeRenderer;
-	cubeRenderer.meshID = Primitives::CUBE;
-	cubeRenderer.materialID = sphereMat->m_MaterialID;
+	cubeRenderer.m_meshID = Primitives::CUBE;
+	cubeRenderer.m_materialID = sphereMat->m_MaterialID;
 
 	MeshRendererComponent portalRenderer;
-	portalRenderer.meshID = Primitives::PLANE;
-	portalRenderer.materialID = sphereMat->m_MaterialID;
+	portalRenderer.m_meshID = Primitives::PLANE;
+	portalRenderer.m_materialID = sphereMat->m_MaterialID;
 
 	RigidbodyComponent sphereRB;
 	sphereRB.m_mass = 1.0f;
@@ -253,8 +253,8 @@ void Example1Level::Initialize()
 	sphereRB.m_collisionShape = CollisionShape::BOX;
 
 	MeshRendererComponent floorRenderer;
-	floorRenderer.meshID = Primitives::PLANE;
-	floorRenderer.materialID = floorMaterial->m_MaterialID;
+	floorRenderer.m_meshID = Primitives::PLANE;
+	floorRenderer.m_materialID = floorMaterial->m_MaterialID;
 
 	DirectionalLightComponent dirLightComp;
 
@@ -316,9 +316,9 @@ void Example1Level::Initialize()
 		entity = m_ecs->CreateEntity("Point Light " + i);
 		auto lightT = m_ecs->emplace<TransformComponent>(entity, lightTransform);
 		auto& pLight1 = m_ecs->emplace<PointLightComponent>(entity);
-		pLight1.color = Color(300, 300, 300);
+		pLight1.m_color = Color(300, 300, 300);
 		//	m_ECS->emplace<MeshRendererComponent>(entity, lightRenderer);
-		pLight1.distance = 100;
+		pLight1.m_distance = 100;
 
 	}
 
@@ -331,15 +331,15 @@ void Example1Level::Initialize()
 		MeshRendererComponent lightRenderer;
 		SpotLightComponent sLight1;
 		lightTransform.transform.m_location = spotLightPositions[i];
-		lightRenderer.materialID = objectUnlitMaterial->m_MaterialID;
-		lightRenderer.meshID = Primitives::CUBE;
+		lightRenderer.m_materialID = objectUnlitMaterial->m_MaterialID;
+		lightRenderer.m_meshID = Primitives::CUBE;
 		sLight = m_ecs->CreateEntity("Spot light" + i);
 
 
-		sLight1.color = Color(0.05f, 0.05f, 0.05f);
-		sLight1.distance = 150;
-		sLight1.cutOff = Math::Cos(Math::ToRadians(12.5f));
-		sLight1.outerCutOff = Math::Cos(Math::ToRadians(15.5f));
+		sLight1.m_color = Color(0.05f, 0.05f, 0.05f);
+		sLight1.m_distance = 150;
+		sLight1.m_cutoff = Math::Cos(Math::ToRadians(12.5f));
+		sLight1.m_outerCutoff = Math::Cos(Math::ToRadians(15.5f));
 		m_ecs->emplace<MeshRendererComponent>(sLight, lightRenderer);
 		m_ecs->emplace<TransformComponent>(sLight, lightTransform);
 		m_ecs->emplace<SpotLightComponent>(sLight, sLight1);

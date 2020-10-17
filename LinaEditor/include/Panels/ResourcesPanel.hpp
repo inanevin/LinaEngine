@@ -81,12 +81,12 @@ namespace LinaEditor
 	public:
 		EditorFolder() {};
 		~EditorFolder() {};
-		std::string path;
-		std::string name;
-		std::map<int, EditorFolder> subFolders;
-		std::map<int, EditorFile> files;
-		int id;
-		bool markedForErase = false;
+		std::string m_path = "";
+		std::string name = "";
+		std::map<int, EditorFolder> m_subFolders;
+		std::map<int, EditorFile> m_files;
+		int m_id = 0;
+		bool m_markedForErase = false;
 		EditorFolder* m_parent = nullptr;
 	};
 
@@ -119,8 +119,8 @@ namespace LinaEditor
 
 	private:
 
-		LinaEngine::Graphics::RenderEngine* m_RenderEngine;
-		PropertiesPanel* m_PropertiesPanel;
+		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
+		PropertiesPanel* m_PropertiesPanel = nullptr;
 		std::vector<EditorFolder> m_resourceFolders;
 	};
 }

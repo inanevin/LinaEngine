@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -65,9 +65,9 @@ namespace LinaEditor
 		const char* m_tooltip = "";
 		const char* m_icon = "";
 		unsigned int m_targetLevel = LinaEngine::Log::LogLevel::None;
-		ImVec4 m_colorDefault;
-		ImVec4 m_colorHovered;
-		ImVec4 m_colorPressed;
+		ImVec4 m_colorDefault = ImVec4(0, 0, 0, 0);
+		ImVec4 m_colorHovered = ImVec4(0, 0, 0, 0);
+		ImVec4 m_colorPressed = ImVec4(0, 0, 0, 0);
 		ImVec4 m_usedColorDefault = LOGPANEL_COLOR_ICONDEFAULT;
 		ImVec4 m_usedColorHovered = LOGPANEL_COLOR_ICONHOVERED;
 		ImVec4 m_usedColorPressed = LOGPANEL_COLOR_ICONPRESSED;
@@ -84,18 +84,18 @@ namespace LinaEditor
 		};
 
 	public:
-		
+
 		LogPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) : EditorPanel(position, size, guiLayer) {};
 		virtual ~LogPanel() {};
 
 		virtual void Draw(float frameTime) override;
 		virtual void Setup() override;
-	
-		void OnLog(LinaEngine::Log::LogDump dump);	
+
+		void OnLog(LinaEngine::Log::LogDump dump);
 
 	private:
 
-		unsigned int m_logLevelFlags =LinaEngine::Log::LogLevel::None;
+		unsigned int m_logLevelFlags = LinaEngine::Log::LogLevel::None;
 		std::vector<LogLevelIconButton> m_logLevelIconButtons;
 		std::deque<LogDumpEntry> m_logDeque;
 	};

@@ -53,13 +53,13 @@ namespace LinaEngine::ECS
 {
 	struct MeshRendererComponent : public ECSComponent
 	{
-		int meshID = -1;
-		int materialID = -1;
+		int m_meshID = -1;
+		int m_materialID = -1;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(meshID, materialID, m_isEnabled); // serialize things by passing them to the archive
+			archive(m_meshID, m_materialID, m_isEnabled); // serialize things by passing them to the archive
 		}
 
 #ifdef LINA_EDITOR
