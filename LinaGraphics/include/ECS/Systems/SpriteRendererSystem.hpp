@@ -62,8 +62,8 @@ namespace LinaEngine::ECS
 
 		struct BatchModelData
 		{
-			LinaArray<Matrix> models;
-			LinaArray<Matrix> inverseTransposeModels;
+			LinaArray<Matrix> m_models;
+			LinaArray<Matrix> m_inverseTransposeModels;
 		};
 
 	public:
@@ -81,8 +81,8 @@ namespace LinaEngine::ECS
 	
 		Graphics::IndexedModel m_quadModel;
 		Graphics::VertexArray m_spriteVertexArray;
-		RenderDevice* m_RenderDevice = nullptr;
-		Graphics::RenderEngine* m_RenderEngine = nullptr;
+		RenderDevice* m_renderDevice = nullptr;
+		Graphics::RenderEngine* m_renderEngine = nullptr;
 		std::map<Graphics::Material*, BatchModelData> m_renderBatch;
 	};
 }

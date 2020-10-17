@@ -67,11 +67,11 @@ namespace LinaEngine::ECS
 		FORCEINLINE void Construct(ECSRegistry& registry, RenderDevice& rdIn, Graphics::RenderEngine& renderEngineIn)
 		{
 			BaseECSSystem::Construct(registry);
-			m_RenderDevice = &rdIn;
-			m_RenderEngine = &renderEngineIn;
+			m_renderDevice = &rdIn;
+			m_renderEngine = &renderEngineIn;
 		}
 
-		DirectionalLightComponent* GetDirLight() { return std::get<1>(directionalLight); }
+		DirectionalLightComponent* GetDirLight() { return std::get<1>(m_directionalLight); }
 		virtual void UpdateComponents(float delta) override;
 		void SetLightingShaderData(uint32 shaderID);
 		void ResetLightData();
@@ -83,11 +83,11 @@ namespace LinaEngine::ECS
 
 	private:
 
-		RenderDevice* m_RenderDevice;
-		Graphics::RenderEngine* m_RenderEngine;
-		std::tuple < TransformComponent*, DirectionalLightComponent*> directionalLight;
-		std::vector<std::tuple<TransformComponent*, PointLightComponent*>> pointLights;
-		std::vector<std::tuple<TransformComponent*, SpotLightComponent*>> spotLights;
+		RenderDevice* m_renderDevice;
+		Graphics::RenderEngine* m_renderEngine;
+		std::tuple < TransformComponent*, DirectionalLightComponent*> m_directionalLight;
+		std::vector<std::tuple<TransformComponent*, PointLightComponent*>> m_pointLights;
+		std::vector<std::tuple<TransformComponent*, SpotLightComponent*>> m_spotLights;
 		Color m_ambientColor = Color(0.0f, 0.0f, 0.0f);
 	};
 }

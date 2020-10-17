@@ -50,12 +50,12 @@ namespace LinaEngine::ECS
 
 	struct LightComponent : public ECSComponent
 	{
-		Color color;
+		Color m_color;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(color, m_isEnabled); // serialize things by passing them to the archive
+			archive(m_color, m_isEnabled); // serialize things by passing them to the archive
 		}
 
 #ifdef LINA_EDITOR
@@ -66,12 +66,12 @@ namespace LinaEngine::ECS
 
 	struct PointLightComponent : public LightComponent
 	{
-		float distance;
+		float m_distance;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(distance, color, m_isEnabled); // serialize things by passing them to the archive
+			archive(m_distance, m_color, m_isEnabled); // serialize things by passing them to the archive
 		}
 
 #ifdef LINA_EDITOR
@@ -82,14 +82,14 @@ namespace LinaEngine::ECS
 
 	struct SpotLightComponent : public LightComponent
 	{
-		float distance;
-		float cutOff = Math::Cos(Math::ToRadians(12.5f));
-		float outerCutOff = Math::Cos(Math::ToRadians(17.5f));
+		float m_distance;
+		float m_cutoff = Math::Cos(Math::ToRadians(12.5f));
+		float m_outerCutoff = Math::Cos(Math::ToRadians(17.5f));
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(color, distance, cutOff, outerCutOff, m_isEnabled); // serialize things by passing them to the archive
+			archive(m_color, m_distance, m_cutoff, m_outerCutoff, m_isEnabled); // serialize things by passing them to the archive
 		}
 
 #ifdef LINA_EDITOR
@@ -100,14 +100,14 @@ namespace LinaEngine::ECS
 
 	struct DirectionalLightComponent : public LightComponent
 	{
-		Vector4 shadowProjectionSettings = Vector4(-20, 20, -20, 20);
-		float shadowNearPlane = 10.0f;
-		float shadowFarPlane = 15.0f;
+		Vector4 m_shadowOrthoProjection = Vector4(-20, 20, -20, 20);
+		float m_shadowZNear = 10.0f;
+		float m_shadowZFar = 15.0f;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(shadowProjectionSettings, shadowNearPlane, shadowFarPlane, color, m_isEnabled); // serialize things by passing them to the archive
+			archive(m_shadowOrthoProjection, m_shadowZNear, m_shadowZFar, m_color, m_isEnabled); // serialize things by passing them to the archive
 		}
 
 #ifdef LINA_EDITOR

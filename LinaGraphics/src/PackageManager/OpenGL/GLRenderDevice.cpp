@@ -187,7 +187,7 @@ namespace LinaEngine::Graphics
 	GLRenderDevice::GLRenderDevice()
 	{
 		LINA_CORE_TRACE("[Constructor] -> GLRenderDevice ({0})", typeid(*this).name());
-		m_GLVersion = m_BoundFBO = m_BoundVAO = m_BoundShader = m_ViewportFBO = 0;
+		m_GLVersion = m_boundFBO = m_boundVAO = m_boundShader = m_viewportFBO = 0;
 	}
 
 	GLRenderDevice::~GLRenderDevice()
@@ -202,22 +202,22 @@ namespace LinaEngine::Graphics
 		const GLubyte* renderer = glGetString(GL_RENDERER); // Returns a hint to the model
 		LINA_CORE_TRACE("Graphics Information: {0}, {1}", vendor, renderer);
 
-		m_IsStencilTestEnabled = defaultParams.useStencilTest;
-		m_IsDepthTestEnabled = defaultParams.useDepthTest;
-		m_IsBlendingEnabled = (defaultParams.sourceBlend != BlendFunc::BLEND_FUNC_NONE || defaultParams.destBlend != BlendFunc::BLEND_FUNC_NONE);
-		m_IsScissorsTestEnabled = defaultParams.useScissorTest;
-		m_UsedDepthFunction = defaultParams.depthFunc;
-		m_ShouldWriteDepth = defaultParams.shouldWriteDepth;
+		m_isStencilTestEnabled = defaultParams.useStencilTest;
+		m_isDepthTestEnabled = defaultParams.useDepthTest;
+		m_isBlendingEnabled = (defaultParams.sourceBlend != BlendFunc::BLEND_FUNC_NONE || defaultParams.destBlend != BlendFunc::BLEND_FUNC_NONE);
+		m_isScissorsTestEnabled = defaultParams.useScissorTest;
+		m_usedDepthFunction = defaultParams.depthFunc;
+		m_shouldWriteDepth = defaultParams.shouldWriteDepth;
 		m_usedStencilFail = defaultParams.stencilFail;
-		m_UsedStencilPassButDepthFail = defaultParams.stencilPassButDepthFail;
-		m_UsedStencilPass = defaultParams.stencilPass;
-		m_UsedStencilFunction = defaultParams.stencilFunc;
-		m_UsedStencilTestMask = defaultParams.stencilTestMask;
-		m_UsedStencilWriteMask = defaultParams.stencilWriteMask;
-		m_UsedStencilComparisonValue = defaultParams.stencilComparisonVal;
-		m_UsedFaceCulling = defaultParams.faceCulling;
-		m_UsedSourceBlending = defaultParams.sourceBlend;
-		m_UsedDestinationBlending = defaultParams.destBlend;
+		m_usedStencilPassButDepthFail = defaultParams.stencilPassButDepthFail;
+		m_usedStencilPass = defaultParams.stencilPass;
+		m_usedStencilFunction = defaultParams.stencilFunc;
+		m_usedStencilTestMask = defaultParams.stencilTestMask;
+		m_usedStencilWriteMask = defaultParams.stencilWriteMask;
+		m_usedStencilComparisonValue = defaultParams.stencilComparisonVal;
+		m_usedFaceCulling = defaultParams.faceCulling;
+		m_usedSourceBlending = defaultParams.sourceBlend;
+		m_usedDestinationBlending = defaultParams.destBlend;
 
 		// Default GL settings.
 		glEnable(GL_DEPTH_TEST);
@@ -232,8 +232,8 @@ namespace LinaEngine::Graphics
 		glFrontFace(GL_CW);
 
 
-		if (m_IsBlendingEnabled)
-			glBlendFunc(m_UsedSourceBlending, m_UsedDestinationBlending);
+		if (m_isBlendingEnabled)
+			glBlendFunc(m_usedSourceBlending, m_usedDestinationBlending);
 
 	}
 
@@ -572,7 +572,7 @@ namespace LinaEngine::Graphics
 		vaoData.instanceComponentsStartIndex = numVertexComponents;
 
 		// Store the array in our map & return the modified vertex array object.
-		m_VAOMap[VAO] = vaoData;
+		m_vaoMap[VAO] = vaoData;
 		return VAO;
 	}
 
@@ -587,8 +587,8 @@ namespace LinaEngine::Graphics
 
 		// Terminate if vao is null or does not exist in our mapped objects.
 		if (vao == 0) return 0;
-		std::map<uint32, VertexArrayData>::iterator it = m_VAOMap.find(vao);
-		if (it == m_VAOMap.end()) return 0;
+		std::map<uint32, VertexArrayData>::iterator it = m_vaoMap.find(vao);
+		if (it == m_vaoMap.end()) return 0;
 
 		// Get the vertex array object data from the map.
 		const struct VertexArrayData* vaoData = &it->second;
@@ -600,7 +600,7 @@ namespace LinaEngine::Graphics
 		delete[] vaoData->bufferSizes;
 
 		// Remove from the map.
-		m_VAOMap.erase(it);
+		m_vaoMap.erase(it);
 		return 0;
 	}
 
@@ -773,7 +773,7 @@ namespace LinaEngine::Graphics
 		AddShaderUniforms(shaderProgram, shaderText, programData.uniformBlockMap, programData.uniformMap, programData.samplerMap);
 
 		// Store the program in our map & return it.
-		m_ShaderProgramMap[shaderProgram] = programData;
+		m_shaderProgramMap[shaderProgram] = programData;
 		return shaderProgram;
 	}
 
@@ -789,8 +789,8 @@ namespace LinaEngine::Graphics
 	{
 		// Terminate if shader is not valid or does not exist in our map.
 		if (shader == 0) return 0;
-		std::map<uint32, ShaderProgram>::iterator programIt = m_ShaderProgramMap.find(shader);
-		if (programIt == m_ShaderProgramMap.end()) return 0;
+		std::map<uint32, ShaderProgram>::iterator programIt = m_shaderProgramMap.find(shader);
+		if (programIt == m_shaderProgramMap.end()) return 0;
 
 		// Get the program from the map.
 		const ShaderProgram* shaderProgram = &programIt->second;
@@ -804,7 +804,7 @@ namespace LinaEngine::Graphics
 
 		// Delete the program, erase from our map & return.
 		glDeleteProgram(shader);
-		m_ShaderProgramMap.erase(programIt);
+		m_shaderProgramMap.erase(programIt);
 		return 0;
 	}
 
@@ -943,15 +943,15 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::BlitFrameBuffers(uint32 readFBO, uint32 readWidth, uint32 readHeight, uint32 writeFBO, uint32 writeWidth, uint32 writeHeight, BufferBit mask, SamplerFilter filter)
 	{
-		if (m_BoundReadFBO != readFBO)
+		if (m_boundReadFBO != readFBO)
 		{
-			m_BoundReadFBO = readFBO;
+			m_boundReadFBO = readFBO;
 			glBindFramebuffer(GL_READ_FRAMEBUFFER, readFBO);
 		}
 
-		if (m_BoundWriteFBO != writeFBO)
+		if (m_boundWriteFBO != writeFBO)
 		{
-			m_BoundWriteFBO = writeFBO;
+			m_boundWriteFBO = writeFBO;
 			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, writeFBO);
 		}
 		glBlitFramebuffer(0, 0, readWidth, readHeight, 0, 0, writeWidth, writeHeight, mask, filter);
@@ -982,8 +982,8 @@ namespace LinaEngine::Graphics
 	{
 		// Terminate if fbo is not valid or does not exist in our map.
 		if (vao == 0)  return;
-		std::map<uint32, VertexArrayData>::iterator it = m_VAOMap.find(vao);
-		if (it == m_VAOMap.end()) return;
+		std::map<uint32, VertexArrayData>::iterator it = m_vaoMap.find(vao);
+		if (it == m_vaoMap.end()) return;
 
 		// Get the vertex array object data from the map.
 		const VertexArrayData* vaoData = &it->second;
@@ -1018,9 +1018,9 @@ namespace LinaEngine::Graphics
 	void GLRenderDevice::SetShader(uint32 shader)
 	{
 		// Use the target shader if exists.
-		if (shader == m_BoundShader) return;
+		if (shader == m_boundShader) return;
 		glUseProgram(shader);
-		m_BoundShader = shader;
+		m_boundShader = shader;
 	}
 
 	void GLRenderDevice::SetTexture(uint32 texture, uint32 sampler, uint32 unit, TextureBindMode bindTextureMode, bool setSampler)
@@ -1038,7 +1038,7 @@ namespace LinaEngine::Graphics
 		SetShader(shader);
 
 		// Update the uniform data.
-		glBindBufferBase(GL_UNIFORM_BUFFER, m_ShaderProgramMap[shader].uniformBlockMap[uniformBufferName], buffer);
+		glBindBufferBase(GL_UNIFORM_BUFFER, m_shaderProgramMap[shader].uniformBlockMap[uniformBufferName], buffer);
 	}
 
 	void GLRenderDevice::BindUniformBuffer(uint32 bufferObject, uint32 point)
@@ -1049,7 +1049,7 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::BindShaderBlockToBufferPoint(uint32 shader, uint32 blockPoint, std::string& blockName)
 	{
-		glUniformBlockBinding(shader, m_ShaderProgramMap[shader].uniformBlockMap[blockName], blockPoint);
+		glUniformBlockBinding(shader, m_shaderProgramMap[shader].uniformBlockMap[blockName], blockPoint);
 	}
 
 	// ---------------------------------------------------------------------
@@ -1062,8 +1062,8 @@ namespace LinaEngine::Graphics
 	{
 		// Terminate if VAO is not valid or does not exist in our map.
 		if (vao == 0) return;
-		std::map<uint32, VertexArrayData>::iterator it = m_VAOMap.find(vao);
-		if (it == m_VAOMap.end()) return;
+		std::map<uint32, VertexArrayData>::iterator it = m_vaoMap.find(vao);
+		if (it == m_vaoMap.end()) return;
 
 		// Get VAO data from the map.
 		const struct VertexArrayData* vaoData = &it->second;
@@ -1094,10 +1094,10 @@ namespace LinaEngine::Graphics
 	void GLRenderDevice::UpdateUniformBuffer(uint32 buffer, const void* data, uintptr offset, uintptr dataSize)
 	{
 		// Get buffer & set data.
-		if (m_BoundUBO != buffer)
+		if (m_boundUBO != buffer)
 		{
 			glBindBuffer(GL_UNIFORM_BUFFER, buffer);
-			m_BoundUBO = buffer;
+			m_boundUBO = buffer;
 		}
 
 		glBufferSubData(GL_UNIFORM_BUFFER, offset, dataSize, data);
@@ -1216,10 +1216,10 @@ namespace LinaEngine::Graphics
 		{
 			flags |= GL_COLOR_BUFFER_BIT;
 
-			if (color != m_CurrentClearColor)
+			if (color != m_currentClearColor)
 			{
 				glClearColor((GLfloat)color.r, (GLfloat)color.g, (GLfloat)color.b, (GLfloat)color.a);
-				m_CurrentClearColor = color;
+				m_currentClearColor = color;
 			}
 		}
 		if (shouldClearDepth)
@@ -1238,53 +1238,53 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::UpdateShaderUniformFloat(uint32 shader, const std::string& uniform, const float f)
 	{
-		glUniform1f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)f);
+		glUniform1f(m_shaderProgramMap[shader].uniformMap[uniform], (GLfloat)f);
 	}
 
 	void GLRenderDevice::UpdateShaderUniformInt(uint32 shader, const std::string& uniform, const int f)
 	{
-		glUniform1i(m_ShaderProgramMap[shader].uniformMap[uniform], (GLint)f);
+		glUniform1i(m_shaderProgramMap[shader].uniformMap[uniform], (GLint)f);
 	}
 
 	void GLRenderDevice::UpdateShaderUniformColor(uint32 shader, const std::string& uniform, const Color& color)
 	{
-		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)color.r, (GLfloat)color.g, (GLfloat)color.b);
+		glUniform3f(m_shaderProgramMap[shader].uniformMap[uniform], (GLfloat)color.r, (GLfloat)color.g, (GLfloat)color.b);
 	}
 
 	void GLRenderDevice::UpdateShaderUniformVector2(uint32 shader, const std::string& uniform, const Vector2& m)
 	{
-		glUniform2f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y);
+		glUniform2f(m_shaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y);
 	}
 
 	void GLRenderDevice::UpdateShaderUniformVector3(uint32 shader, const std::string& uniform, const Vector3& m)
 	{
-		glUniform3f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y, (GLfloat)m.z);
+		glUniform3f(m_shaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y, (GLfloat)m.z);
 	}
 
 	void GLRenderDevice::UpdateShaderUniformVector4F(uint32 shader, const std::string& uniform, const Vector4& m)
 	{
-		glUniform4f(m_ShaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y, (GLfloat)m.z, (GLfloat)m.w);
+		glUniform4f(m_shaderProgramMap[shader].uniformMap[uniform], (GLfloat)m.x, (GLfloat)m.y, (GLfloat)m.z, (GLfloat)m.w);
 
 	}
 
 	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, void* data)
 	{
 		float* matrixData = ((float*)data);
-		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_FALSE, matrixData);
+		glUniformMatrix4fv(m_shaderProgramMap[shader].uniformMap[uniform], 1, GL_FALSE, matrixData);
 	}
 
 	void GLRenderDevice::UpdateShaderUniformMatrix(uint32 shader, const std::string& uniform, const Matrix& m)
 	{
-		glUniformMatrix4fv(m_ShaderProgramMap[shader].uniformMap[uniform], 1, GL_FALSE, &m[0][0]);
+		glUniformMatrix4fv(m_shaderProgramMap[shader].uniformMap[uniform], 1, GL_FALSE, &m[0][0]);
 	}
 
 
 	void GLRenderDevice::SetVAO(uint32 vao)
 	{
 		// Use VAO if exists.
-		if (vao == m_BoundVAO) 	return;
+		if (vao == m_boundVAO) 	return;
 		glBindVertexArray(vao);
-		m_BoundVAO = vao;
+		m_boundVAO = vao;
 	}
 
 	void GLRenderDevice::CaptureHDRILightingData(Matrix& view, Matrix& projection, Vector2 captureSize, uint32 cubeMapTexture, uint32 hdrTexture, uint32 fbo, uint32 rbo, uint32 shader)
@@ -1304,17 +1304,17 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::SetFBO(uint32 fbo)
 	{
-		if (fbo == m_BoundFBO) return;
+		if (fbo == m_boundFBO) return;
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-		m_BoundFBO = m_BoundReadFBO = m_BoundWriteFBO = fbo;
+		m_boundFBO = m_boundReadFBO = m_boundWriteFBO = fbo;
 	}
 
 
 	void GLRenderDevice::SetRBO(uint32 rbo)
 	{
-		if (rbo == m_BoundRBO) return;
+		if (rbo == m_boundRBO) return;
 		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-		m_BoundRBO = rbo;
+		m_boundRBO = rbo;
 	}
 
 	void GLRenderDevice::SetViewport(Vector2 pos, Vector2 size)
@@ -1323,10 +1323,10 @@ namespace LinaEngine::Graphics
 		// if (fbo == m_ViewportFBO) return;
 		// m_ViewportFBO = fbo;
 
-		if (pos == m_BoundViewportPosition && size == m_BoundViewportSize) return;
+		if (pos == m_boundViewportPos && size == m_boundViewportSize) return;
 		glViewport((uint32)pos.x, (uint32)pos.y, (uint32)size.x, (uint32)size.y);
-		m_BoundViewportSize = size;
-		m_BoundViewportPosition = pos;
+		m_boundViewportSize = size;
+		m_boundViewportPos = pos;
 
 	}
 
@@ -1338,15 +1338,15 @@ namespace LinaEngine::Graphics
 		if (faceCulling == FACE_CULL_NONE)
 		{
 			glDisable(GL_CULL_FACE);
-			m_UsedFaceCulling = FACE_CULL_NONE;
+			m_usedFaceCulling = FACE_CULL_NONE;
 			return;
 		}
-		else if (m_UsedFaceCulling == FACE_CULL_NONE)// Face culling is disabled but needs to be enabled
+		else if (m_usedFaceCulling == FACE_CULL_NONE)// Face culling is disabled but needs to be enabled
 			glEnable(GL_CULL_FACE);
 
-		if (m_UsedFaceCulling != faceCulling)
+		if (m_usedFaceCulling != faceCulling)
 		{
-			m_UsedFaceCulling = faceCulling;
+			m_usedFaceCulling = faceCulling;
 			glCullFace(faceCulling);
 		}
 	}
@@ -1355,38 +1355,38 @@ namespace LinaEngine::Graphics
 	{
 
 		// Toggle dept writing.
-		if (shouldWrite != m_ShouldWriteDepth)
+		if (shouldWrite != m_shouldWriteDepth)
 		{
 			glDepthMask(shouldWrite ? GL_TRUE : GL_FALSE);
-			m_ShouldWriteDepth = shouldWrite;
+			m_shouldWriteDepth = shouldWrite;
 		}
 
 		// Update if change is needed.
-		if (depthFunc == m_UsedDepthFunction)	return;
+		if (depthFunc == m_usedDepthFunction)	return;
 
 		glDepthFunc(depthFunc);
-		m_UsedDepthFunction = depthFunc;
+		m_usedDepthFunction = depthFunc;
 	}
 
 	void GLRenderDevice::SetDepthTestEnable(bool enable)
 	{
-		if (m_IsDepthTestEnabled != enable)
+		if (m_isDepthTestEnabled != enable)
 		{
 			if (enable)
 				glEnable(GL_DEPTH_TEST);
 			else
 				glDisable(GL_DEPTH_TEST);
 
-			m_IsDepthTestEnabled = enable;
+			m_isDepthTestEnabled = enable;
 		}
 	}
 	void GLRenderDevice::SetBlending(BlendFunc sourceBlend, BlendFunc destBlend)
 	{
 		// If no change is needed return.
-		if (sourceBlend == m_UsedSourceBlending && destBlend == m_UsedDestinationBlending) return;
+		if (sourceBlend == m_usedSourceBlending && destBlend == m_usedDestinationBlending) return;
 		else if (sourceBlend == BLEND_FUNC_NONE || destBlend == BLEND_FUNC_NONE)
 			glDisable(GL_BLEND);
-		else if (m_UsedSourceBlending == BLEND_FUNC_NONE || m_UsedDestinationBlending == BLEND_FUNC_NONE)
+		else if (m_usedSourceBlending == BLEND_FUNC_NONE || m_usedDestinationBlending == BLEND_FUNC_NONE)
 		{
 			glEnable(GL_BLEND);
 			glBlendFunc(sourceBlend, destBlend);
@@ -1395,38 +1395,38 @@ namespace LinaEngine::Graphics
 			glBlendFunc(sourceBlend, destBlend);
 
 
-		m_UsedSourceBlending = sourceBlend;
-		m_UsedDestinationBlending = destBlend;
+		m_usedSourceBlending = sourceBlend;
+		m_usedDestinationBlending = destBlend;
 	}
 
 	void GLRenderDevice::SetStencilTest(bool enable, DrawFunc stencilFunc, uint32 stencilTestMask, uint32 stencilWriteMask, int32 stencilComparisonVal, StencilOp stencilFail, StencilOp stencilPassButDepthFail, StencilOp stencilPass)
 	{
 		// If change is needed toggle enabled state & enable/disable stencil test.
-		if (enable != m_IsStencilTestEnabled)
+		if (enable != m_isStencilTestEnabled)
 		{
 			if (enable)
 				glEnable(GL_STENCIL_TEST);
 			else
 				glDisable(GL_STENCIL_TEST);
 
-			m_IsStencilTestEnabled = enable;
+			m_isStencilTestEnabled = enable;
 		}
 
 		// Set stencil params.
-		if (stencilFunc != m_UsedStencilFunction || stencilTestMask != m_UsedStencilTestMask || stencilComparisonVal != m_UsedStencilComparisonValue)
+		if (stencilFunc != m_usedStencilFunction || stencilTestMask != m_usedStencilTestMask || stencilComparisonVal != m_usedStencilComparisonValue)
 		{
 			glStencilFunc(stencilFunc, stencilComparisonVal, stencilTestMask);
-			m_UsedStencilComparisonValue = stencilComparisonVal;
-			m_UsedStencilTestMask = stencilTestMask;
-			m_UsedStencilFunction = stencilFunc;
+			m_usedStencilComparisonValue = stencilComparisonVal;
+			m_usedStencilTestMask = stencilTestMask;
+			m_usedStencilFunction = stencilFunc;
 		}
 
-		if (stencilFail != m_usedStencilFail || stencilPass != m_UsedStencilPass || stencilPassButDepthFail != m_UsedStencilPassButDepthFail)
+		if (stencilFail != m_usedStencilFail || stencilPass != m_usedStencilPass || stencilPassButDepthFail != m_usedStencilPassButDepthFail)
 		{
 			glStencilOp(stencilFail, stencilPassButDepthFail, stencilPass);
 			m_usedStencilFail = stencilFail;
-			m_UsedStencilPass = stencilPass;
-			m_UsedStencilPassButDepthFail = stencilPassButDepthFail;
+			m_usedStencilPass = stencilPass;
+			m_usedStencilPassButDepthFail = stencilPassButDepthFail;
 		}
 
 		SetStencilWriteMask(stencilWriteMask);
@@ -1435,9 +1435,9 @@ namespace LinaEngine::Graphics
 	void GLRenderDevice::SetStencilWriteMask(uint32 mask)
 	{
 		// Set write mask if a change is needed.
-		if (m_UsedStencilWriteMask == mask) return;
+		if (m_usedStencilWriteMask == mask) return;
 		glStencilMask(mask);
-		m_UsedStencilWriteMask = mask;
+		m_usedStencilWriteMask = mask;
 
 	}
 
@@ -1446,19 +1446,19 @@ namespace LinaEngine::Graphics
 		// Disable if enabled.
 		if (!enable)
 		{
-			if (!m_IsScissorsTestEnabled) return;
+			if (!m_isScissorsTestEnabled) return;
 			else
 			{
 				glDisable(GL_SCISSOR_TEST);
-				m_IsScissorsTestEnabled = false;
+				m_isScissorsTestEnabled = false;
 				return;
 			}
 		}
 
 		// Enable if disabled, then bind it.
-		if (!m_IsScissorsTestEnabled) glEnable(GL_SCISSOR_TEST);
+		if (!m_isScissorsTestEnabled) glEnable(GL_SCISSOR_TEST);
 		glScissor(startX, startY, width, height);
-		m_IsScissorsTestEnabled = true;
+		m_isScissorsTestEnabled = true;
 	}
 
 	std::string GLRenderDevice::GetShaderVersion()

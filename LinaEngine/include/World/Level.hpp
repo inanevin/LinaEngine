@@ -93,8 +93,6 @@ namespace LinaEngine::World
 		virtual void Initialize() {};
 		virtual void Tick(float delta) {};
 
-
-
 		static void SerializeLevelData(const std::string& path, const std::string& levelName, Level& level, LinaEngine::ECS::ECSRegistry& registry);
 		static void DeserializeLevelData(const std::string& path, const std::string& levelName, Level& level, LinaEngine::ECS::ECSRegistry& registry);
 

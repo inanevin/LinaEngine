@@ -286,43 +286,43 @@ namespace LinaEngine::Graphics
 	private:
 
 		// Currently active shader.
-		uint32 m_BoundShader = 0;
+		uint32 m_boundShader = 0;
 
 		// Currently active vertex array object.
-		uint32 m_BoundVAO = 0;
+		uint32 m_boundVAO = 0;
 
 		// Currently active frame buffer object.
-		uint32 m_BoundFBO = 0;
+		uint32 m_boundFBO = 0;
 
 		// Currently active read buffer.
-		uint32 m_BoundReadFBO = 0;
+		uint32 m_boundReadFBO = 0;
 
 		// Currently active write buffer.
-		uint32 m_BoundWriteFBO = 0;
+		uint32 m_boundWriteFBO = 0;
 
 		// FBO rep. on viewport.
-		uint32 m_ViewportFBO = 0;
+		uint32 m_viewportFBO = 0;
 
 		// Currently bound render buffer object
-		uint32 m_BoundRBO = 0;
+		uint32 m_boundRBO = 0;
 
 		// Currently bound uniform buffer
-		uint32 m_BoundUBO;
+		uint32 m_boundUBO;
 
 		// Currently bound texture unit
-		uint32 m_BoundTextureUnit;
+		uint32 m_boundTextureUnit;
 
 		// Bound Viewport size
-		Vector2 m_BoundViewportSize;
+		Vector2 m_boundViewportSize;
 
 		// Bound Viewport position
-		Vector2 m_BoundViewportPosition;
+		Vector2 m_boundViewportPos;
 
 		// Map for bound vertex array objects.
-		std::map<uint32, VertexArrayData> m_VAOMap;
+		std::map<uint32, VertexArrayData> m_vaoMap;
 
 		// Shader program map w/ ids.
-		std::map<uint32, ShaderProgram> m_ShaderProgramMap;
+		std::map<uint32, ShaderProgram> m_shaderProgramMap;
 
 		// Storage for shader version.
 		std::string m_ShaderVersion;
@@ -331,25 +331,25 @@ namespace LinaEngine::Graphics
 		uint32 m_GLVersion;
 
 		// Current drawing parameters.
-		FaceCulling m_UsedFaceCulling;
-		DrawFunc m_UsedDepthFunction;
-		BlendFunc m_UsedSourceBlending;
-		BlendFunc m_UsedDestinationBlending;
-		DrawFunc m_UsedStencilFunction;
+		FaceCulling m_usedFaceCulling;
+		DrawFunc m_usedDepthFunction;
+		BlendFunc m_usedSourceBlending;
+		BlendFunc m_usedDestinationBlending;
+		DrawFunc m_usedStencilFunction;
 		StencilOp m_usedStencilFail;
-		StencilOp m_UsedStencilPassButDepthFail;
-		StencilOp m_UsedStencilPass;
+		StencilOp m_usedStencilPassButDepthFail;
+		StencilOp m_usedStencilPass;
 
 		// Current operation parameters.
-		uint32 m_UsedStencilTestMask;
-		uint32 m_UsedStencilWriteMask;
-		int32 m_UsedStencilComparisonValue;
-		bool m_IsBlendingEnabled;
-		bool m_IsStencilTestEnabled;
-		bool m_IsScissorsTestEnabled;
-		bool m_ShouldWriteDepth;
-		bool m_IsDepthTestEnabled;
-		Color m_CurrentClearColor;
+		uint32 m_usedStencilTestMask;
+		uint32 m_usedStencilWriteMask;
+		int32 m_usedStencilComparisonValue;
+		bool m_isBlendingEnabled;
+		bool m_isStencilTestEnabled;
+		bool m_isScissorsTestEnabled;
+		bool m_shouldWriteDepth;
+		bool m_isDepthTestEnabled;
+		Color m_currentClearColor;
 		
 	};
 }

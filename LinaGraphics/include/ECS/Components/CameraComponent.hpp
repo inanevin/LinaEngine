@@ -47,15 +47,15 @@ namespace LinaEngine::ECS
 
 	struct CameraComponent : public ECSComponent
 	{
-		LinaEngine::Color clearColor = LinaEngine::Color(0.1f, 0.1f, 0.1f, 1.0f);
-		float fieldOfView = 90.0f;
-		float zNear = 0.01f;
-		float zFar = 1000.0f;
+		LinaEngine::Color m_clearColor = LinaEngine::Color(0.1f, 0.1f, 0.1f, 1.0f);
+		float m_fieldOfView = 90.0f;
+		float m_zNear = 0.01f;
+		float m_zFar = 1000.0f;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(clearColor, fieldOfView, zNear, zFar, m_isEnabled); // serialize things by passing them to the archive
+			archive(m_clearColor, m_fieldOfView, m_zNear, m_zFar, m_isEnabled); // serialize things by passing them to the archive
 		}
 
 #ifdef LINA_EDITOR

@@ -44,12 +44,12 @@ namespace LinaEngine::ECS
 {
 	struct SpriteRendererComponent : public ECSComponent
 	{
-		int materialID = 0;
+		int m_materialID = 0;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(materialID, m_isEnabled); // serialize things by passing them to the archive
+			archive(m_materialID, m_isEnabled); // serialize things by passing them to the archive
 		}
 
 #ifdef LINA_EDITOR

@@ -56,15 +56,15 @@ namespace LinaEngine
 
 		struct BatchDrawData
 		{
-			Graphics::VertexArray* vertexArray;
-			Graphics::Material* material;
-			float distance;
+			Graphics::VertexArray* m_vertexArray;
+			Graphics::Material* m_material;
+			float m_distance;
 		};
 
 		struct BatchModelData
 		{
-			LinaArray<Matrix> models;
-			LinaArray<Matrix> inverseTransposeModels;
+			LinaArray<Matrix> m_models;
+			LinaArray<Matrix> m_inverseTransposeModels;
 		};
 	}
 }
@@ -83,7 +83,7 @@ namespace LinaEngine::ECS
 			bool const operator()(const BatchPair& lhs, const BatchPair& rhs) const
 			{
 				
-				return std::get<0>(lhs).distance < std::get<0>(rhs).distance;
+				return std::get<0>(lhs).m_distance < std::get<0>(rhs).m_distance;
 			}
 		};
 
@@ -91,7 +91,7 @@ namespace LinaEngine::ECS
 		{
 			bool const operator()(const Graphics::BatchDrawData& lhs, const Graphics::BatchDrawData& rhs) const
 			{
-				return std::tie(lhs.vertexArray, lhs.material) < std::tie(rhs.vertexArray, rhs.material);
+				return std::tie(lhs.m_vertexArray, lhs.m_material) < std::tie(rhs.m_vertexArray, rhs.m_material);
 			}
 		};
 
@@ -100,8 +100,8 @@ namespace LinaEngine::ECS
 		FORCEINLINE void Construct(ECSRegistry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn)
 		{
 			BaseECSSystem::Construct(registry);
-			m_RenderEngine = &renderEngineIn;
-			m_RenderDevice = &renderDeviceIn;
+			m_renderEngine = &renderEngineIn;
+			m_renderDevice = &renderDeviceIn;
 		}
 
 		void RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn);
@@ -114,12 +114,12 @@ namespace LinaEngine::ECS
 
 	private:
 
-		RenderDevice* m_RenderDevice = nullptr;
-		Graphics::RenderEngine* m_RenderEngine = nullptr;
+		RenderDevice* m_renderDevice = nullptr;
+		Graphics::RenderEngine* m_renderEngine = nullptr;
 
 		// Map & queue to see the list of same vertex array & textures to compress them into single draw call.
-		std::map<Graphics::BatchDrawData, Graphics::BatchModelData, BatchDrawDataComp> m_OpaqueRenderBatch;
-		std::priority_queue<BatchPair, std::vector<BatchPair>, BatchComparison> m_TransparentRenderBatch;
+		std::map<Graphics::BatchDrawData, Graphics::BatchModelData, BatchDrawDataComp> m_opaqueRenderBatch;
+		std::priority_queue<BatchPair, std::vector<BatchPair>, BatchComparison> m_transparentRenderBatch;
 	};
 }
 

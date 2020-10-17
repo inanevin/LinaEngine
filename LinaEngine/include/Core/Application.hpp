@@ -83,27 +83,21 @@ namespace LinaEngine
 		// Main application loop.
 		void Run();
 
-		// Pushes a new layer into the application stack.
 		void PushLayer(Layer* layer);
-
-		// Pushes a new overlay layer into the application stack.
 		void PushOverlay(Layer* layer);
 
 		// Loads a level into memory.
 		bool InstallLevel(LinaEngine::World::Level* level);
 
-		// Inits a level.
 		void InitializeLevel(LinaEngine::World::Level* level);
 
 		// Unloads a level from memory.
 		void UnloadLevel(LinaEngine::World::Level* level);
 
-		// Get current frames per second.
-		FORCEINLINE int GetCurrentFPS() { return m_CurrentFPS; }
+		FORCEINLINE int GetCurrentFPS() { return m_currentFPS; }
 
 	protected:
 
-		// Initializes the engine.
 		virtual void Initialize(Graphics::WindowProperties& props);
 
 		Application();
@@ -116,23 +110,15 @@ namespace LinaEngine
 		FORCEINLINE Graphics::RenderEngine& GetRenderEngine() { return *m_renderEngine; }
 		FORCEINLINE Input::InputEngine& GetInputEngine() { return *m_inputEngine; }
 		FORCEINLINE Physics::PhysicsEngine& GetPhysicsEngine() { return *m_physicsEngine; }
-		FORCEINLINE ECS::ECSRegistry& GetECSREgistry() { return m_ECS; }
+		FORCEINLINE ECS::ECSRegistry& GetECSREgistry() { return m_ecs; }
 
 	private:
 
-		// Called when a message is logged through Log class.
+		// Callbacks.
 		void OnLog(Log::LogDump dump);
-
-		// Called when main application window is closed.
 		bool OnWindowClose();
-
-		// Window resize event
 		void OnWindowResize(Vector2 size);
-
-		// Called when scene objects are drawn
 		void OnPostSceneDraw();
-
-		// Callbacks & events.
 		void KeyCallback(int key, int action);
 		void MouseCallback(int button, int action);
 		void WindowCloseCallback() {};
@@ -141,26 +127,26 @@ namespace LinaEngine
 	private:
 
 		// Layer queue.
-		LayerStack m_LayerStack;
+		LayerStack m_layerStack;
 
 		// Active engines running in the application.
 		Input::InputEngine* m_inputEngine = nullptr;
 		Graphics::RenderEngine* m_renderEngine = nullptr;
 		Physics::PhysicsEngine* m_physicsEngine = nullptr;
-		ECS::ECSRegistry m_ECS;
+		ECS::ECSRegistry m_ecs;
 
 		// Devices.
 		Graphics::Window* m_appWindow = nullptr;
 		Input::InputDevice* m_inputDevice = nullptr;
 
 		// Current active level.
-		World::Level* m_CurrentLevel = nullptr;
+		World::Level* m_currentLevel = nullptr;
 
 		// Do we have a currently active level?
 		bool m_activeLevelExists = false;
 
 		// Is application running?
-		bool m_Running = false;
+		bool m_running = false;
 
 		// Is his the first run
 		bool m_firstRun = true;
@@ -169,17 +155,17 @@ namespace LinaEngine
 		bool m_canRender = true;
 
 		// Callbacks
-		std::function<void(int, int)> m_KeyCallback;
-		std::function<void(int, int)> m_MouseCallback;
-		std::function<void(Vector2)> m_WindowResizeCallback;
-		std::function<void()> m_WindowClosedCallback;
+		std::function<void(int, int)> m_keyCallback;
+		std::function<void(int, int)> m_mouseCallback;
+		std::function<void(Vector2)> m_WwndowResizeCallback;
+		std::function<void()> m_windowClosedCallback;
 		std::function<void(Vector3, Vector3, Color, float)> m_drawLineCallback;
 		std::function<void()> m_postSceneDrawCallback;
 
 		// FPS counting
-		int m_CurrentFPS;
-		double m_PreviousTime;
-		int m_FPSCounter;
+		int m_currentFPS;
+		double m_previousTime;
+		int m_fpsCounter;
 	};
 
 	// Defined in client.
