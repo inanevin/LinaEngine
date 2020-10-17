@@ -104,6 +104,7 @@ namespace LinaEngine
 				return fileName.substr(start, end - start);
 			}
 		}
+
 		bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword)
 		{
 			std::ifstream file;

@@ -27,7 +27,7 @@ Timestamp: 6/7/2020 5:13:42 PM
 #include "Widgets/WidgetsUtility.hpp"
 #include "IconsFontAwesome5.h"
 #include "Drawers/EntityDrawer.hpp"
-
+#include "Rendering/RenderEngine.hpp"
 namespace LinaEditor
 {
 	using namespace LinaEngine::ECS;

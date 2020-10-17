@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -35,14 +35,16 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 */
 
 #include "Core/Layer.hpp"
-#include "Rendering/RenderEngine.hpp"
-#include "ECS/ECSSystem.hpp"
-#include "Panels/EditorPanel.hpp"
-#include <vector>
+#include "Rendering/RenderingCommon.hpp"
 
 namespace LinaEngine
 {
 	class Application;
+
+	namespace ECS
+	{
+		class ECSRegistry;
+	}
 
 	namespace World
 	{
@@ -57,11 +59,20 @@ namespace LinaEngine
 	namespace Graphics
 	{
 		class Window;
+		class RenderEngine;
 	}
 }
 
 namespace LinaEditor
 {
+	class ECSPanel;
+	class MaterialPanel;
+	class ResourcesPanel;
+	class ScenePanel;
+	class PropertiesPanel;
+	class LogPanel;
+	class HeaderPanel;
+	class EditorPanel;
 
 	enum class MenuBarItems
 	{
@@ -96,11 +107,7 @@ namespace LinaEditor
 
 	public:
 
-		GUILayer() : LinaEngine::Layer("UILayer")
-		{
-
-		}
-
+		GUILayer() : LinaEngine::Layer("GUILayer") {}
 		~GUILayer();
 
 		void DrawSplash();
@@ -114,23 +121,23 @@ namespace LinaEditor
 		void MenuBarItemClicked(const MenuBarItems& item);
 
 		void Setup(LinaEngine::Graphics::Window& window, LinaEngine::Graphics::RenderEngine& renderEngine, LinaEngine::Physics::PhysicsEngine& physicsEngine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs)
-		{ 
+		{
 			m_appWindow = &window;
-			m_renderEngine = &renderEngine; 
+			m_renderEngine = &renderEngine;
 			m_physicsEngine = &physicsEngine;
-			m_application = application; 
-			m_ecs = &ecs;	
+			m_application = application;
+			m_ecs = &ecs;
 		}
 
+		ECSPanel* GetECSPanel() const { return m_ecsPanel; }
+		PropertiesPanel* GetPropertiesPanel() const { return m_propertiesPanel; }
+		MaterialPanel* GetMaterialPanel() const { return m_materialPanel; }
+		ResourcesPanel* GetResourcesPanel() const { return m_resourcesPanel; }
+		ScenePanel* GetScenePanel() const { return m_scenePanel; }
 		LinaEngine::ECS::ECSRegistry* GetECS() const { return m_ecs; }
-		class ECSPanel* GetECSPanel() const { return m_ecsPanel; }
-		class PropertiesPanel* GetPropertiesPanel() const { return m_propertiesPanel; }
-		class MaterialPanel* GetMaterialPanel() const { return m_materialPanel; }
-		class ResourcesPanel* GetResourcesPanel() const { return m_resourcesPanel; }
-		class ScenePanel* GetScenePanel() const { return m_scenePanel; }
 		LinaEngine::Graphics::RenderEngine* GetRenderEngine() const { return m_renderEngine; }
-		class LinaEngine::Graphics::Window* GetAppWindow() const { return m_appWindow; }
-		class LinaEngine::Application* GetApp() const { return m_application; }
+		LinaEngine::Graphics::Window* GetAppWindow() const { return m_appWindow; }
+		LinaEngine::Application* GetApp() const { return m_application; }
 		void SetCurrentLevel(LinaEngine::World::Level& currentLevel) { m_currentLevel = &currentLevel; }
 
 	private:
@@ -148,13 +155,13 @@ namespace LinaEditor
 		LinaEngine::ECS::ECSRegistry* m_ecs = nullptr;
 		LinaEngine::Application* m_application = nullptr;
 		LinaEngine::World::Level* m_currentLevel = nullptr;
-		class ECSPanel* m_ecsPanel = nullptr;
-		class MaterialPanel* m_materialPanel = nullptr;
-		class ResourcesPanel* m_resourcesPanel = nullptr;
-		class ScenePanel* m_scenePanel = nullptr;
-		class PropertiesPanel* m_propertiesPanel = nullptr;
-		class LogPanel* m_logPanel = nullptr;
-		class HeaderPanel* m_headerPanel = nullptr;
+		ECSPanel* m_ecsPanel = nullptr;
+		MaterialPanel* m_materialPanel = nullptr;
+		ResourcesPanel* m_resourcesPanel = nullptr;
+		ScenePanel* m_scenePanel = nullptr;
+		PropertiesPanel* m_propertiesPanel = nullptr;
+		LogPanel* m_logPanel = nullptr;
+		HeaderPanel* m_headerPanel = nullptr;
 		std::vector<EditorPanel*> m_panels;
 
 	};

@@ -24,6 +24,8 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include "Physics/PhysicsEngine.hpp"
 #include "Input/InputEngine.hpp"
 #include "Panels/ECSPanel.hpp"
+#include "Core/SplashScreen.hpp"
+#include "Core/GUILayer.hpp"
 
 namespace LinaEditor
 {
@@ -43,7 +45,7 @@ namespace LinaEditor
 		splash->Draw(); // We should carry this over to a separate thread later on when things are more complex and requires data shown to the user while loading.
 
 		// Create layers
-		m_guiLayer = new LinaEditor::GUILayer();
+		m_guiLayer = new GUILayer();
 
 		// Setup layers
 		m_guiLayer->Setup(*appWindow, *renderEngine, *physicsEngine, app, *ecs);

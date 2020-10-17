@@ -40,12 +40,35 @@ Timestamp: 10/15/2020 10:44:39 PM
 #ifndef EditorApplication_HPP
 #define EditorApplication_HPP
 
+#include "Utility/Log.hpp"
 
-#include "Core/GUILayer.hpp"
-#include "Core/SplashScreen.hpp"
+namespace LinaEngine
+{
+
+	class Application;
+
+	namespace Graphics
+	{
+		class Window;
+		class RenderEngine;
+	}
+
+	namespace Physics
+	{
+		class PhysicsEngine;
+	}
+
+	namespace ECS
+	{
+		class ECSRegistry;
+	}
+
+}
 
 namespace LinaEditor
 {
+	class GUILayer;
+
 	class EditorApplication
 	{
 	public:

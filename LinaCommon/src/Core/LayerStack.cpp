@@ -29,7 +29,6 @@ SOFTWARE.
 
 #include "Core/LayerStack.hpp"  
 #include "Core/Layer.hpp"
-#include <iostream>
 
 namespace LinaEngine
 {
