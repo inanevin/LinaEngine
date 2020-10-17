@@ -34,16 +34,6 @@ SOFTWARE.
 #include "Rendering/Window.hpp"
 #include "Core/Layer.hpp"
 #include "World/Level.hpp"
-#include "ECS/Components/TransformComponent.hpp"
-#include "ECS/Components/TransformComponent.hpp"
-#include "ECS/Components/CameraComponent.hpp"
-#include "ECS/Components/LightComponent.hpp"
-#include "ECS/Components/MeshRendererComponent.hpp"
-#include "ECS/Components/FreeLookComponent.hpp"
-#include <entt/meta/meta.hpp>
-#include <entt/meta/factory.hpp>
-#include <GLFW/glfw3.h>
-
 
 namespace LinaEngine
 {

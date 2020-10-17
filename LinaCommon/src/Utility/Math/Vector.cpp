@@ -32,7 +32,6 @@ SOFTWARE.
 #include "glm/gtx/rotate_vector.hpp"
 #include "Utility/Math/Quaternion.hpp"
 
-
 namespace LinaEngine
 {
 

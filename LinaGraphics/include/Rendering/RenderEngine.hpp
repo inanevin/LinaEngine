@@ -55,9 +55,9 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "Window.hpp"
 #include "RenderContext.hpp"
 #include "Utility/Math/Color.hpp"
+#include "Core/LayerStack.hpp"
 #include <functional>
 #include <set>
-#include "Core/LayerStack.hpp"
 
 namespace LinaEngine
 {
