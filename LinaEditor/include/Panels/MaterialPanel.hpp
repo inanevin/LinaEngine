@@ -39,8 +39,6 @@ Timestamp: 6/4/2020 8:31:22 PM
 #define MaterialPanel_HPP
 
 #include "Panels/EditorPanel.hpp"
-#include "Utility/EditorUtility.hpp"
-#include "Rendering/Material.hpp"
 
 namespace LinaEngine
 {
@@ -65,12 +63,12 @@ namespace LinaEditor
 	
 		virtual void Draw(float frameTime) override;
 		virtual void Setup() override;
-		void SetCurrentMaterial(LinaEngine::Graphics::Material* mat) { m_CurrentSelectedMaterial = mat; }
+		void SetCurrentMaterial(LinaEngine::Graphics::Material* mat) { m_currentSelectedMaterial = mat; }
 
 	private:
 	
-		LinaEngine::Graphics::Material* m_CurrentSelectedMaterial = nullptr;
-		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
+		LinaEngine::Graphics::Material* m_currentSelectedMaterial = nullptr;
+		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
 	};
 }
 

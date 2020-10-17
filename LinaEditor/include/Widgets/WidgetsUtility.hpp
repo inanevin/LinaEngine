@@ -40,14 +40,18 @@ Timestamp: 10/11/2020 1:39:01 PM
 #define WidgetsUtility_HPP
 
 
-#include "Utility/Math/Vector.hpp"
-#include "Utility/Math/Quaternion.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_internal.h"
-#include "ECS/ECS.hpp"
 #include <map>
+#include <string>
+
+namespace LinaEngine
+{
+	class Quaternion;
+
+}
 
 namespace LinaEditor
 {

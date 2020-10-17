@@ -40,10 +40,10 @@ Timestamp: 6/7/2020 8:56:39 PM
 
 #include "Panels/EditorPanel.hpp"
 #include "Utility/Log.hpp"
-#include <deque>
 #include "Actions/ActionSubscriber.hpp"
-#include "imgui/imgui.h"
 #include "Core/EditorCommon.hpp"
+#include "imgui/imgui.h"
+#include <deque>
 
 namespace LinaEditor
 {

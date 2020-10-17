@@ -41,7 +41,6 @@ Timestamp: 10/8/2020 9:02:33 PM
 
 
 #include "Utility/Math/Color.hpp"
-#include "Core/Common.hpp"
 #include <functional>
 
 namespace LinaEditor

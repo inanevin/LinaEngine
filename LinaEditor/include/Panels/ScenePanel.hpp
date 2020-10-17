@@ -40,8 +40,6 @@ Timestamp: 6/5/2020 6:51:29 PM
 #define ScenePanel_HPP
 
 #include "Panels/EditorPanel.hpp"
-#include "Utility/EditorUtility.hpp"
-#include "Utility/Math/Color.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 
 namespace LinaEngine
@@ -50,6 +48,7 @@ namespace LinaEngine
 	{
 		class RenderEngine;
 	}
+
 }
 
 namespace LinaEditor
@@ -63,7 +62,7 @@ namespace LinaEditor
 		
 	public:
 
-		enum DrawMode
+		enum class DrawMode
 		{
 			FinalImage,
 			ShadowMap
@@ -76,7 +75,7 @@ namespace LinaEditor
 		virtual void Setup() override;
 
 		// Set selected entity's transform component
-		void SetSelectedTransform(LinaEngine::ECS::TransformComponent* tr) { m_SelectedTransform = tr; }
+		void SetSelectedTransform(LinaEngine::ECS::TransformComponent* tr) { m_selectedTransform = tr; }
 
 		// Handle hardware input
 		void ProcessInput();
@@ -89,7 +88,7 @@ namespace LinaEditor
 
 	private:
 
-		LinaEngine::ECS::TransformComponent* m_SelectedTransform = nullptr;
+		LinaEngine::ECS::TransformComponent* m_selectedTransform = nullptr;
 		DrawMode m_drawMode = DrawMode::FinalImage;
 		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
 	};

@@ -25,10 +25,12 @@ Timestamp: 6/5/2020 12:55:10 AM
 #include "Rendering/Material.hpp"
 #include "Input/InputMappings.hpp"
 #include "Core/EditorCommon.hpp"
+#include "Widgets/WidgetsUtility.hpp"
+#include "Utility/EditorUtility.hpp"
+#include "IconsFontAwesome5.h"
+
 #include "imgui/imgui.h"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
-#include "Widgets/WidgetsUtility.hpp"
-#include "IconsFontAwesome5.h"
 #include <filesystem>
 
 #define ROOT_NAME "###Resources"
@@ -46,7 +48,7 @@ namespace LinaEditor
 	void ResourcesPanel::Setup()
 	{
 		m_PropertiesPanel = m_guiLayer->GetPropertiesPanel();
-		m_RenderEngine = m_guiLayer->GetRenderEngine();
+		m_renderEngine = m_guiLayer->GetRenderEngine();
 
 		// Scan root resources folder.
 		ScanRoot();
@@ -116,7 +118,7 @@ namespace LinaEditor
 					file.type = FileType::MATERIAL;
 					file.id = ++itemIDCounter;
 
-					Graphics::Material& m = m_RenderEngine->CreateMaterial(file.id, Graphics::Shaders::PBR_LIT);
+					Graphics::Material& m = m_renderEngine->CreateMaterial(file.id, Graphics::Shaders::PBR_LIT);
 					EditorUtility::SerializeMaterial(materialPath, m);
 
 					if (hoveredFolder != nullptr)
@@ -291,11 +293,11 @@ namespace LinaEditor
 
 				// Notify properties panel of file selection.
 				if (it->second.type == FileType::TEXTURE2D)
-					m_PropertiesPanel->Texture2DSelected(&m_RenderEngine->GetTexture(it->second.path), it->second.id, it->second.path);
+					m_PropertiesPanel->Texture2DSelected(&m_renderEngine->GetTexture(it->second.path), it->second.id, it->second.path);
 				else if (it->second.type == FileType::MESH)
-					m_PropertiesPanel->MeshSelected(&m_RenderEngine->GetMesh(it->second.id), it->second.id, it->second.path);
+					m_PropertiesPanel->MeshSelected(&m_renderEngine->GetMesh(it->second.id), it->second.id, it->second.path);
 				else if (it->second.type == FileType::MATERIAL)
-					m_PropertiesPanel->MaterialSelected(&m_RenderEngine->GetMaterial(it->second.id), it->second.id, it->second.path);
+					m_PropertiesPanel->MaterialSelected(&m_renderEngine->GetMaterial(it->second.id), it->second.id, it->second.path);
 			}
 
 			if (nodeOpen)
@@ -337,9 +339,9 @@ namespace LinaEditor
 
 			// SKIP FOR NOW BC WE NEED TO MAKE SURE WE HANDLE BOTH ENGINE CREATION & EDITOR CREATION
 			if (file.type == FileType::TEXTURE2D)
-				m_RenderEngine->CreateTexture2D(file.path);
+				m_renderEngine->CreateTexture2D(file.path);
 			else if (file.type == FileType::MESH)
-				m_RenderEngine->CreateMesh(file.id, file.path);
+				m_renderEngine->CreateMesh(file.id, file.path);
 		}
 
 		// Recursively load subfolders.
@@ -350,11 +352,11 @@ namespace LinaEditor
 	void ResourcesPanel::UnloadFileResource(EditorFile& file)
 	{
 		if (file.type == FileType::TEXTURE2D)
-			m_RenderEngine->UnloadTextureResource(file.id);
+			m_renderEngine->UnloadTextureResource(file.id);
 		else if (file.type == FileType::MESH)
-			m_RenderEngine->UnloadMeshResource(file.id);
+			m_renderEngine->UnloadMeshResource(file.id);
 		else if (file.type == FileType::MATERIAL)
-			m_RenderEngine->UnloadMaterialResource(file.id);
+			m_renderEngine->UnloadMaterialResource(file.id);
 	}
 
 	void ResourcesPanel::UnloadFileResourcesInFolder(EditorFolder& folder)

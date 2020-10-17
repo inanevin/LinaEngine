@@ -46,8 +46,7 @@ namespace LinaEditor
 	class GUILayer;
 
 	class EditorPanel
-	{
-		
+	{	
 
 	public:
 		

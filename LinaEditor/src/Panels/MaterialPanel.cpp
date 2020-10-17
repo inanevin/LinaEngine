@@ -45,17 +45,17 @@ namespace LinaEditor
 			if (ImGui::Begin("Material Panel", &m_show))
 			{
 
-				if (m_CurrentSelectedMaterial != nullptr)
+				if (m_currentSelectedMaterial != nullptr)
 				{
-					if (m_CurrentSelectedMaterial->GetShaderType() == Graphics::Shaders::PBR_LIT)
+					if (m_currentSelectedMaterial->GetShaderType() == Graphics::Shaders::PBR_LIT)
 					{
 						// 8 ? textures
 
-						Graphics::Texture* albedo = m_CurrentSelectedMaterial->GetTexture(MAT_TEXTURE2D_ALBEDOMAP);
-						Graphics::Texture* normal = m_CurrentSelectedMaterial->GetTexture(MAT_TEXTURE2D_NORMALMAP);
-						Graphics::Texture* roughness = m_CurrentSelectedMaterial->GetTexture(MAT_TEXTURE2D_ROUGHNESSMAP);
-						Graphics::Texture* metallic = m_CurrentSelectedMaterial->GetTexture(MAT_TEXTURE2D_METALLICMAP);
-						Graphics::Texture* ao = m_CurrentSelectedMaterial->GetTexture(MAT_TEXTURE2D_AOMAP);
+						Graphics::Texture* albedo = m_currentSelectedMaterial->GetTexture(MAT_TEXTURE2D_ALBEDOMAP);
+						Graphics::Texture* normal = m_currentSelectedMaterial->GetTexture(MAT_TEXTURE2D_NORMALMAP);
+						Graphics::Texture* roughness = m_currentSelectedMaterial->GetTexture(MAT_TEXTURE2D_ROUGHNESSMAP);
+						Graphics::Texture* metallic = m_currentSelectedMaterial->GetTexture(MAT_TEXTURE2D_METALLICMAP);
+						Graphics::Texture* ao = m_currentSelectedMaterial->GetTexture(MAT_TEXTURE2D_AOMAP);
 
 						ImVec2 imageButtonSize = ImVec2(50, 50);
 						std::string fileDialogueID = "ChooseMap";
@@ -126,23 +126,23 @@ namespace LinaEditor
 						}
 
 						// Metallic & specular multipliers
-						float m = m_CurrentSelectedMaterial->GetFloat(MAT_METALLICMULTIPLIER);
-						float r = m_CurrentSelectedMaterial->GetFloat(MAT_ROUGHNESSMULTIPLIER);
+						float m = m_currentSelectedMaterial->GetFloat(MAT_METALLICMULTIPLIER);
+						float r = m_currentSelectedMaterial->GetFloat(MAT_ROUGHNESSMULTIPLIER);
 						ImGui::DragFloat("Metallic", &m);
 						ImGui::DragFloat("Roughness", &r);
-						m_CurrentSelectedMaterial->SetFloat(MAT_METALLICMULTIPLIER, m);
-						m_CurrentSelectedMaterial->SetFloat(MAT_ROUGHNESSMULTIPLIER, r);
+						m_currentSelectedMaterial->SetFloat(MAT_METALLICMULTIPLIER, m);
+						m_currentSelectedMaterial->SetFloat(MAT_ROUGHNESSMULTIPLIER, r);
 
 						// Workflow
-						bool isMetallic = m_CurrentSelectedMaterial->GetInt(MAT_WORKFLOW) == 1 ? true : false;
+						bool isMetallic = m_currentSelectedMaterial->GetInt(MAT_WORKFLOW) == 1 ? true : false;
 						ImGui::Checkbox("Metalilc Workflow", &isMetallic);
-						m_CurrentSelectedMaterial->SetInt(MAT_WORKFLOW, isMetallic ? 1 : 0);
+						m_currentSelectedMaterial->SetInt(MAT_WORKFLOW, isMetallic ? 1 : 0);
 
 						// Tiling
-						Vector2 tiling = m_CurrentSelectedMaterial->GetVector2(MAT_TILING);
+						Vector2 tiling = m_currentSelectedMaterial->GetVector2(MAT_TILING);
 						float tilingF[2] = { tiling.x, tiling.y };
 						ImGui::InputFloat2("Tiling", tilingF);
-						m_CurrentSelectedMaterial->SetVector2(MAT_TILING, Vector2(tilingF[0], tilingF[1]));
+						m_currentSelectedMaterial->SetVector2(MAT_TILING, Vector2(tilingF[0], tilingF[1]));
 
 					}
 				}
@@ -154,6 +154,6 @@ namespace LinaEditor
 
 	void MaterialPanel::Setup()
 	{
-		m_RenderEngine = m_guiLayer->GetRenderEngine();
+		m_renderEngine = m_guiLayer->GetRenderEngine();
 	}
 }

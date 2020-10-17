@@ -21,8 +21,9 @@ Timestamp: 10/11/2020 1:39:27 PM
 
 #include "Widgets/WidgetsUtility.hpp"
 #include "Utility/Math/Math.hpp"
-#include "IconsFontAwesome5.h"
+#include "Utility/Math/Quaternion.hpp"
 #include "Drawers/ComponentDrawer.hpp"
+#include "IconsFontAwesome5.h"
 
 namespace LinaEditor
 {

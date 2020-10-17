@@ -41,7 +41,6 @@ Timestamp: 5/9/2020 1:22:23
 
 #include <string>
 #include <vector>
-#include "Utility/Math/Vector.hpp"
 
 namespace LinaEngine
 {

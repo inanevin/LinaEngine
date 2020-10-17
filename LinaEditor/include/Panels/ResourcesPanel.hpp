@@ -40,8 +40,8 @@ Timestamp: 6/5/2020 12:54:52 AM
 #define ResourcesPanel_HPP
 
 #include "Panels/EditorPanel.hpp"
-#include "Utility/EditorUtility.hpp"
 #include <map>
+#include <vector>
 
 namespace LinaEngine
 {
@@ -50,7 +50,6 @@ namespace LinaEngine
 		class RenderEngine;
 	}
 }
-
 
 namespace LinaEditor 
 {
@@ -119,7 +118,7 @@ namespace LinaEditor
 
 	private:
 
-		LinaEngine::Graphics::RenderEngine* m_RenderEngine = nullptr;
+		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
 		PropertiesPanel* m_PropertiesPanel = nullptr;
 		std::vector<EditorFolder> m_resourceFolders;
 	};

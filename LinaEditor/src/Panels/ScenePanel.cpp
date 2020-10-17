@@ -28,8 +28,8 @@ Timestamp: 6/5/2020 6:51:39 PM
 #include <imgui/imguizmo/ImGuizmo.h>
 #include "Input/InputMappings.hpp"
 #include "Rendering/RenderEngine.hpp"
-#include "ECS/Components/CameraComponent.hpp"
 #include "Widgets/WidgetsUtility.hpp"
+#include "ECS/Components/CameraComponent.hpp"
 
 static ImGuizmo::OPERATION currentTransformGizmoOP = ImGuizmo::OPERATION::TRANSLATE;
 static ImGuizmo::MODE currentTransformGizmoMode = ImGuizmo::MODE::LOCAL;
@@ -148,10 +148,10 @@ namespace LinaEditor
 		Matrix& projection = m_renderEngine->GetCameraSystem()->GetProjectionMatrix();
 
 		//ImGui::GetWindowDrawList()->AddLine(ImVec2(coord.x, coord.y), ImVec2(coord2.x, coord2.y), col, 2);
-		if (m_SelectedTransform != nullptr)
+		if (m_selectedTransform != nullptr)
 		{
 			// Get required matrices.
-			Matrix object = m_SelectedTransform->transform.ToMatrix();
+			Matrix object = m_selectedTransform->transform.ToMatrix();
 
 			// Draw transformation handle.
 			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentTransformGizmoOP, currentTransformGizmoMode, &object[0][0], NULL, NULL, NULL, NULL);
@@ -159,9 +159,9 @@ namespace LinaEditor
 			ImGuizmo::DecomposeMatrixToComponents(&object[0][0], matrixTranslation, matrixRotation, matrixScale);
 
 			// Set object transformation back.
-			m_SelectedTransform->transform.m_location = Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]);
-			m_SelectedTransform->transform.m_scale = Vector3(matrixScale[0], matrixScale[1], matrixScale[2]);
-			m_SelectedTransform->transform.m_rotation = Quaternion::Euler(matrixRotation[0], matrixRotation[1], matrixRotation[2]);
+			m_selectedTransform->transform.m_location = Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]);
+			m_selectedTransform->transform.m_scale = Vector3(matrixScale[0], matrixScale[1], matrixScale[2]);
+			m_selectedTransform->transform.m_rotation = Quaternion::Euler(matrixRotation[0], matrixRotation[1], matrixRotation[2]);
 		}
 
 		// ImGuizmo::DrawGrid(&view[0][0], &projection[0][0], &gridLineMatrix[0][0], GRID_SIZE);

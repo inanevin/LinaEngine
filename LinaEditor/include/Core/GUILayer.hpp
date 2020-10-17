@@ -36,6 +36,7 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 
 #include "Core/Layer.hpp"
 #include "Rendering/RenderingCommon.hpp"
+#include <vector>
 
 namespace LinaEngine
 {

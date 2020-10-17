@@ -28,6 +28,8 @@ Timestamp: 6/7/2020 5:13:42 PM
 #include "IconsFontAwesome5.h"
 #include "Drawers/EntityDrawer.hpp"
 #include "Rendering/RenderEngine.hpp"
+#include "Rendering/Mesh.hpp"
+
 namespace LinaEditor
 {
 	using namespace LinaEngine::ECS;
@@ -54,6 +56,16 @@ namespace LinaEditor
 	{
 		m_currentDrawType = DrawType::TEXTURE2D;
 		m_textureDrawer.SetSelectedTexture(texture);
+	}
+
+	void PropertiesPanel::MeshSelected(LinaEngine::Graphics::Mesh* mesh, int id, std::string& path)
+	{
+		m_selectedMesh = mesh;
+		m_currentDrawType = DrawType::MESH;
+		m_selectedMeshID = id;
+		m_selectedMeshPath = path;
+		LinaEngine::Graphics::MeshParameters& params = mesh->GetParameters();
+		m_currentMeshParams = params;
 	}
 
 	void PropertiesPanel::Draw(float frameTime)
