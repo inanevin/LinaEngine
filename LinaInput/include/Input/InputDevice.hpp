@@ -1,22 +1,39 @@
-/*
-Author: Inan Evin
-www.inanevin.com
+/* 
+This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
-Copyright 2020~ Inan Evin
+Author: Inan Evin
+http://www.inanevin.com
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+Copyright (c) [2018-2020] [Inan Evin]
 
-http://www.apache.org/licenses/LICENSE-2.0
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
-and limitations under the License.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Class: InputDevice
-Timestamp: 10/6/2020 11:13:50 AM
-
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 */
+
+/*
+Class: InputDevice
+
+Responsible for interacting with the hardware, abstract class.
+
+Timestamp: 10/6/2020 11:13:50 AM
+*/
+
 #pragma once
 
 #ifndef InputDevice_HPP
@@ -32,53 +49,30 @@ namespace LinaEngine::Input
 {
 	class InputDevice
 	{
-		
+
 	public:
-		
+
 		InputDevice() {};
 		~InputDevice() {};
 
-		// Initializes the device.
 		virtual void Initialize(void* contextWindowPointer) = 0;
-		
-		// Called each frame.
-		virtual void Tick()=0;
-		
-		// Returns true each frame key mapped with the keyCode is pressed
+		virtual void Tick() = 0;
 		virtual bool GetKey(int keyCode) = 0;
-		
-		// Returns true in the frame key mapped with the keyCode is pressed.
 		virtual bool GetKeyDown(int keyCode) = 0;
-		
-		// Returns true in the frame key mapped with the keyCode is stopped being pressed.
 		virtual bool GetKeyUp(int keyCode) = 0;
-		
-		// Returns true each frame mouse button mapped with the index is pressed
 		virtual bool GetMouseButton(int index) = 0;
-		
-		// Returns true in the frame mouse button mapped with the index is pressed. 
 		virtual bool GetMouseButtonDown(int index) = 0;
-		 
-		// Returns true in the frame mouse mapped with the index is stopped being pressed.
 		virtual bool GetMouseButtonUp(int index) = 0;
-		
-		// Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Not smoothed.
-		virtual Vector2 GetRawMouseAxis()=0;
-		
-		// Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Delta smoothed.
-		virtual Vector2 GetMouseAxis()=0;
-		
-		// Returns a Vector2 containing screen space mouse positions
-		virtual Vector2 GetMousePosition()=0;
-		
-		// Set cursor visible/invisible.
+		virtual Vector2 GetMousePosition() = 0;
 		virtual void SetCursorMode(CursorMode mode) const = 0;
-	
-		// Set mouse position.
 		virtual void SetMousePosition(const Vector2& v) const = 0;
-	
-	private:
-	
+
+		// Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Not smoothed.
+		virtual Vector2 GetRawMouseAxis() = 0;
+
+		// Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Delta smoothed.
+		virtual Vector2 GetMouseAxis() = 0;
+
 	};
 }
 

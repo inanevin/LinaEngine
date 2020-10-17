@@ -1,20 +1,29 @@
-/*
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
 Author: Inan Evin
-www.inanevin.com
+http://www.inanevin.com
 
-Copyright 2018 Inan Evin
+Copyright (c) [2018-2020] [Inan Evin]
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-http://www.apache.org/licenses/LICENSE-2.0
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
-and limitations under the License.
-
-Class: GLInputDevice
-Timestamp: 4/14/2019 5:15:15 PM
-
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 */
 
 #include "PackageManager/OpenGL/GLInputDevice.hpp"  
@@ -25,8 +34,8 @@ Timestamp: 4/14/2019 5:15:15 PM
 namespace LinaEngine::Input
 {
 
-	static const float axisSensitivity = 0.1f;
-	static const float mouseAxisSensitivity = 5.0f;
+	static const float s_axisSensitivity = 0.1f;
+	static const float s_mouseSensitivity = 5.0f;
 	GLFWwindow* glfwWindow;
 
 	GLInputDevice::GLInputDevice()
@@ -123,28 +132,23 @@ namespace LinaEngine::Input
 
 	Vector2 GLInputDevice::GetMouseAxis()
 	{
-		// Storage for previous mouse position.
 		static Vector2 oldMousePos;
 
-		// Get the cursor position.
 		double posX, posY;
 		glfwGetCursorPos(glfwWindow, &posX, &posY);
 
-		// Get the delta mouse position.
+		// Delta
 		Vector2 diff = Vector2((float)(posX - oldMousePos.x), (float)(posY - oldMousePos.y));
 
-	
-
 		// Clamp and remap delta mouse position.
-		diff.x = Math::Clamp(diff.x, -mouseAxisSensitivity, mouseAxisSensitivity);
-		diff.y = Math::Clamp(diff.y, -mouseAxisSensitivity, mouseAxisSensitivity);
-		diff.x = Math::Remap(diff.x, -mouseAxisSensitivity, mouseAxisSensitivity, -1.0f, 1.0f);
-		diff.y = Math::Remap(diff.y, -mouseAxisSensitivity, mouseAxisSensitivity, -1.0f, 1.0f);
+		diff.x = Math::Clamp(diff.x, -s_mouseSensitivity, s_mouseSensitivity);
+		diff.y = Math::Clamp(diff.y, -s_mouseSensitivity, s_mouseSensitivity);
+		diff.x = Math::Remap(diff.x, -s_mouseSensitivity, s_mouseSensitivity, -1.0f, 1.0f);
+		diff.y = Math::Remap(diff.y, -s_mouseSensitivity, s_mouseSensitivity, -1.0f, 1.0f);
 	
 		// Set the previous position.
 		oldMousePos = Vector2((float)posX, (float)posY);
 
-		// Return delta.
 		return diff;
 	}
 

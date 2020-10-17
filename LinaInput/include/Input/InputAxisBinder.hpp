@@ -1,20 +1,38 @@
-/*
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
 Author: Inan Evin
-www.inanevin.com
+http://www.inanevin.com
 
-Copyright 2018 Inan Evin
+Copyright (c) [2018-2020] [Inan Evin]
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-http://www.apache.org/licenses/LICENSE-2.0
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
-and limitations under the License.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 
+/*
 Class: InputAxisBinder
-Timestamp: 4/13/2019 10:02:03 PM
 
+Used for defining and abstract idea of "axis".
+Basically subscribes various key actions and stores their values into an arbitrary axis structure.
+
+Timestamp: 4/13/2019 10:02:03 PM
 */
 
 #pragma once
@@ -40,13 +58,13 @@ namespace LinaEngine::Input
 			SubscribeMouseReleasedAction("buttonUp", LINA_ACTION_CALLBACK(InputMouseButtonBinder::OnButtonUp), button);
 		}
 
-		FORCEINLINE void OnButtonDown() { isPressed = true; }
-		FORCEINLINE void OnButtonUp() { isPressed = false; }
-		FORCEINLINE bool GetIsPressed() { return isPressed; }
+		FORCEINLINE void OnButtonDown() { m_isPressed = true; }
+		FORCEINLINE void OnButtonUp() { m_isPressed = false; }
+		FORCEINLINE bool GetIsPressed() { return m_isPressed; }
 
 	private:
 
-		bool isPressed = false;
+		bool m_isPressed = false;
 	};
 
 	class InputKeyAxisBinder : public IInputSubscriber
@@ -54,7 +72,6 @@ namespace LinaEngine::Input
 	public:
 
 		InputKeyAxisBinder() {};
-
 		virtual ~InputKeyAxisBinder() {};
 
 		FORCEINLINE void Initialize(InputCode::Key positive, InputCode::Key negative)
@@ -65,19 +82,43 @@ namespace LinaEngine::Input
 			SubscribeKeyReleasedAction("negU", LINA_ACTION_CALLBACK(InputKeyAxisBinder::OnNegativeKeyUp), negative);
 		}
 
-		FORCEINLINE void OnPositiveKeyDown() { m_Amount = 1.0f; positivePressed = true; if (negativePressed) OnNegativeKeyUp(); }
-		FORCEINLINE void OnNegativeKeyDown() { m_Amount = -1.0f; negativePressed = true; if (positivePressed) OnPositiveKeyUp(); }
+		FORCEINLINE void OnPositiveKeyDown()
+		{
+			m_amount = 1.0f;
+			m_positivePressed = true;
+			if (m_negativePressed)
+				OnNegativeKeyUp();
+		}
 
-		FORCEINLINE void OnPositiveKeyUp() { positivePressed = false; if (!negativePressed) m_Amount = 0.0f; }
-		FORCEINLINE void OnNegativeKeyUp() { negativePressed = false; if (!positivePressed) m_Amount = 0.0f; }
+		FORCEINLINE void OnNegativeKeyDown()
+		{
+			m_amount = -1.0f;
+			m_negativePressed = true;
+			if (m_positivePressed)
+				OnPositiveKeyUp();
+		}
 
-		FORCEINLINE float GetAmount() const { return m_Amount; }
+		FORCEINLINE void OnPositiveKeyUp()
+		{
+			m_positivePressed = false;
+			if (!m_negativePressed)
+				m_amount = 0.0f;
+		}
 
+		FORCEINLINE void OnNegativeKeyUp()
+		{
+			m_negativePressed = false;
+			if (!m_positivePressed)
+				m_amount = 0.0f;
+		}
+
+		FORCEINLINE float GetAmount() const { return m_amount; }
 
 	private:
-		float m_Amount = 0.0f;
-		bool positivePressed = false;
-		bool negativePressed = false;
+
+		float m_amount = 0.0f;
+		bool m_positivePressed = false;
+		bool m_negativePressed = false;
 	};
 }
 

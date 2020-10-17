@@ -1,20 +1,37 @@
-/*
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
 Author: Inan Evin
-www.inanevin.com
+http://www.inanevin.com
 
-Copyright 2018 Inan Evin
+Copyright (c) [2018-2020] [Inan Evin]
 
-Licensed under the Apache License, Version 2.0 (the "License") override; you may not use this file except in compliance with the License. You may obtain a copy of the License at
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-http://www.apache.org/licenses/LICENSE-2.0
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
-and limitations under the License.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 
-Class: GLInputEngine
+/*
+Class: GLInputDevice
+
+OpenGL implementation of an input device using GLFW for hardware interaction.
+
 Timestamp: 4/14/2019 5:15:15 PM
-
 */
 
 #pragma once
@@ -35,29 +52,17 @@ namespace LinaEngine::Input
 		GLInputDevice();
 		virtual ~GLInputDevice();
 
-		// Initializes the device.
 		void Initialize(void* contextWindowPointer) override;
-
-		// Called each frame.
 		void Tick() override;
-
-		// Returns true each frame key mapped with the keyCode is pressed
 		bool GetKey(int keyCode) override;
-
-		// Returns true in the frame key mapped with the keyCode is pressed.
 		bool GetKeyDown(int keyCode) override;
-
-		// Returns true in the frame key mapped with the keyCode is stopped being pressed.
 		bool GetKeyUp(int keyCode) override;
-
-		// Returns true each frame mouse button mapped with the index is pressed
 		bool GetMouseButton(int index) override;
-
-		// Returns true in the frame mouse button mapped with the index is pressed. 
 		bool GetMouseButtonDown(int index) override;
-
-		// Returns true in the frame mouse mapped with the index is stopped being pressed.
 		bool GetMouseButtonUp(int index) override;
+		Vector2 GetMousePosition() override;
+		void SetCursorMode(CursorMode mode) const override;
+		void SetMousePosition(const Vector2& v) const override;
 
 		// Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Not smoothed.
 		Vector2 GetRawMouseAxis() override;
@@ -65,19 +70,10 @@ namespace LinaEngine::Input
 		// Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Delta smoothed.
 		Vector2 GetMouseAxis() override;
 
-		// Returns a Vector2 containing screen space mouse positions
-		Vector2 GetMousePosition() override;
-
-		// Set cursor visible/invisible.
-		void SetCursorMode(CursorMode mode) const override;
-
-		// Set mouse position.
-		void SetMousePosition(const Vector2& v) const override;
-
 	private:
 
-		int previousKeys[NUM_KEY_STATES];
-		int currentKeys[NUM_KEY_STATES];
+		int m_previousKeys[NUM_KEY_STATES];
+		int m_currentKeys[NUM_KEY_STATES];
 	};
 }
 
