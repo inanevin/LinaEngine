@@ -36,8 +36,6 @@ SOFTWARE.
 #include "Utility/Math/Color.hpp"
 #include <functional>
 
-
-
 namespace LinaEngine
 {
 	class Application;

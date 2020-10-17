@@ -51,7 +51,6 @@ namespace LinaEngine::Input
 
 	public:
 
-
 		InputEngine() : LinaEngine::Action::ActionDispatcher()
 		{
 			LINA_CORE_TRACE("[Constructor] -> InputEngine ({0})", typeid(*this).name());

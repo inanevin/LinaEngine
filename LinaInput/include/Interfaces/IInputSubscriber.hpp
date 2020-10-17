@@ -39,7 +39,6 @@ Timestamp: 4/4/2019 2:29:37 AM
 #ifndef IInputSubscriber_HPP
 #define IInputSubscriber_HPP
 
-
 #include "Actions/ActionSubscriber.hpp"
 #include "Input/InputMappings.hpp"
 

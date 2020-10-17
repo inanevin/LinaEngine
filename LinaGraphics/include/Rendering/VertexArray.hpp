@@ -39,8 +39,6 @@ Timestamp: 4/26/2019 12:30:15 AM
 #ifndef VertexArray_HPP
 #define VertexArray_HPP
 
-
-#include "Core/Common.hpp"
 #include "Core/SizeDefinitions.hpp"
 #include "RenderingCommon.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
@@ -81,13 +79,11 @@ namespace LinaEngine::Graphics
 			return m_IndexCount;  
 		}
 
-
 	private:
 
 		RenderDevice* m_renderDevice = nullptr;
 		uint32 m_engineBoundID = 0;
 		uint32 m_IndexCount = 0;
-
 		
 	};
 

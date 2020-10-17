@@ -41,11 +41,9 @@ Timestamp: 4/14/2019 11:59:32 AM
 #ifndef ArrayBitmap_HPP
 #define ArrayBitmap_HPP
 
-#include "Core/Common.hpp"
 #include "Core/SizeDefinitions.hpp"
 #include "Utility/Log.hpp"
 #include <string>
-
 
 namespace LinaEngine::Graphics
 {

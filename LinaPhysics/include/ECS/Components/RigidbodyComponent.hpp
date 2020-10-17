@@ -36,7 +36,6 @@ Timestamp: 9/30/2020 2:46:27 AM
 #ifndef RigidbodyComponent_HPP
 #define RigidbodyComponent_HPP
 
-
 #include "ECS/ECSComponent.hpp"
 #include "Utility/Math/Vector.hpp"
 

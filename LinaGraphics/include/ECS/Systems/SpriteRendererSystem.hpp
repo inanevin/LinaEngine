@@ -52,7 +52,6 @@ namespace LinaEngine
 		class RenderEngine;
 		class Material;
 	}
-
 }
 
 namespace LinaEngine::ECS

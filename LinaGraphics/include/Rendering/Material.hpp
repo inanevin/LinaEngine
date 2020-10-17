@@ -50,7 +50,6 @@ Timestamp: 4/26/2019 1:12:18 AM
 
 namespace LinaEngine::Graphics
 {
-
 	class Texture;
 
 	struct MaterialSampler2D

@@ -41,7 +41,6 @@ Timestamp: 5/2/2019 2:21:35 AM
 
 #include "ECS/ECSSystem.hpp"
 
-
 namespace LinaEngine::Input
 {
 	class InputEngine;

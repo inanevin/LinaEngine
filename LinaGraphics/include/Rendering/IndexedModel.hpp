@@ -39,7 +39,7 @@ Timestamp: 4/26/2019 12:11:36 AM
 #ifndef IndexedModel_HPP
 #define IndexedModel_HPP
 
-#include "RenderingCommon.hpp"
+#include "Core/SizeDefinitions.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
 
 namespace LinaEngine::Graphics

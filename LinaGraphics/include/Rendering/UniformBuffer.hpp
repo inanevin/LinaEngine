@@ -41,7 +41,6 @@ Timestamp: 4/26/2019 6:41:58 PM
 
 #include "PackageManager/PAMRenderDevice.hpp"
 
-
 namespace LinaEngine::Graphics
 {
 	class UniformBuffer

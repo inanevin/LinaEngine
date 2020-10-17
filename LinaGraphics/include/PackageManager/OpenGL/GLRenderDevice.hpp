@@ -43,13 +43,10 @@ Timestamp: 4/27/2019 10:12:16 PM
 
 #include "Utility/Math/Matrix.hpp"
 #include "Utility/Math/Color.hpp"
-
 #include "Rendering/RenderingCommon.hpp"
 #include <map>
 
-
 using namespace LinaEngine;
-
 
 namespace LinaEngine::Graphics
 {

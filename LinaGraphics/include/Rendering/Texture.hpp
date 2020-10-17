@@ -43,9 +43,8 @@ Timestamp: 1/7/2019 1:55:47 PM
 
 #include "Rendering/RenderingCommon.hpp"
 #include "Core/Common.hpp"
-#include "PackageManager/OpenGL/GLRenderDevice.hpp"
+#include "PackageManager/PAMRenderDevice.hpp"
 #include "Sampler.hpp"
-#include "Core/SizeDefinitions.hpp"
 
 namespace LinaEngine::Graphics
 {
