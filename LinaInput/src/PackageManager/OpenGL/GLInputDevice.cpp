@@ -28,8 +28,8 @@ SOFTWARE.
 
 #include "PackageManager/OpenGL/GLInputDevice.hpp"  
 #include "Utility/Math/Math.hpp"
-#include "GLFW/glfw3.h"
 #include "Utility/Log.hpp"
+#include <GLFW/glfw3.h>
 
 namespace LinaEngine::Input
 {
