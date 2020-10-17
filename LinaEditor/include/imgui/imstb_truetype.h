@@ -3751,7 +3751,7 @@ typedef struct
 struct stbrp_rect
 {
    stbrp_coord x,y;
-   int m_id,w,h,was_packed;
+   int id,w,h,was_packed;
 };
 
 static void stbrp_init_target(stbrp_context *con, int pw, int ph, stbrp_node *nodes, int num_nodes)

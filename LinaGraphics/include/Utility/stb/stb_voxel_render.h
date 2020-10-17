@@ -1339,7 +1339,7 @@ struct stbvox_mesh_maker
 #ifdef STBVOX_ICONFIG_FACE1_1
    typedef struct
    {
-      unsigned char tex1,tex2,m_color,face_info;
+      unsigned char tex1,tex2,color,face_info;
    } stbvox_mesh_face;
 #else
    #error "internal error, no face type"
@@ -2049,15 +2049,15 @@ stbvox_mesh_face stbvox_compute_mesh_face_value(stbvox_mesh_maker *mm, stbvox_ro
    if (mm->input.rgb) {
       face_data.tex1  = mm->input.rgb[v_off].r;
       face_data.tex2  = mm->input.rgb[v_off].g;
-      face_data.m_color = mm->input.rgb[v_off].b;
+      face_data.color = mm->input.rgb[v_off].b;
       face_data.face_info = (normal<<2);
       return face_data;
    }
    #else
    unsigned char color_face;
 
-   if (mm->input.m_color)
-      face_data.m_color = mm->input.m_color[v_off];
+   if (mm->input.color)
+      face_data.color = mm->input.color[v_off];
 
    if (mm->input.block_tex1)
       face_data.tex1 = mm->input.block_tex1[bt];
@@ -2074,11 +2074,11 @@ stbvox_mesh_face stbvox_compute_mesh_face_value(stbvox_mesh_maker *mm, stbvox_ro
    if (mm->input.block_color) {
       unsigned char mcol = mm->input.block_color[bt];
       if (mcol)
-         face_data.m_color = mcol;
+         face_data.color = mcol;
    } else if (mm->input.block_color_face) {
       unsigned char mcol = mm->input.block_color_face[bt][bt_face];
       if (mcol)
-         face_data.m_color = mcol;
+         face_data.color = mcol;
    }
 
    if (face <= STBVOX_FACE_south) {
@@ -2105,7 +2105,7 @@ stbvox_mesh_face stbvox_compute_mesh_face_value(stbvox_mesh_maker *mm, stbvox_ro
          if (mm->input.overlay_color) {
             unsigned char rep3 = mm->input.overlay_color[over][over_face];
             if (rep3)
-               face_data.m_color = rep3;
+               face_data.color = rep3;
          }
 
          if (mm->input.overlay_side_texrot && face <= STBVOX_FACE_south)
@@ -2126,14 +2126,14 @@ stbvox_mesh_face stbvox_compute_mesh_face_value(stbvox_mesh_maker *mm, stbvox_ro
    if (mm->input.extended_color) {
       unsigned char ec = mm->input.extended_color[v_off];
       if (mm->input.ecolor_facemask[ec] & (1 << color_face))
-         face_data.m_color = mm->input.ecolor_color[ec];
+         face_data.color = mm->input.ecolor_color[ec];
    }
 
    if (mm->input.color2) {
       if (mm->input.color2_facemask[v_off] & (1 << color_face))
-         face_data.m_color = mm->input.color2[v_off];
+         face_data.color = mm->input.color2[v_off];
       if (mm->input.color3 && (mm->input.color3_facemask[v_off] & (1 << color_face)))
-         face_data.m_color = mm->input.color3[v_off];
+         face_data.color = mm->input.color3[v_off];
    }
    #endif
 

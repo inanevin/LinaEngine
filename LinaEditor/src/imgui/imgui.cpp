@@ -2909,7 +2909,7 @@ ImGuiID ImGuiWindow::GetID(const char* str, const char* str_end)
     ImGui::KeepAliveID(id);
 #ifdef IMGUI_ENABLE_TEST_ENGINE
     ImGuiContext& g = *GImGui;
-    IMGUI_TEST_ENGINE_ID_INFO2(m_id, ImGuiDataType_String, str, str_end);
+    IMGUI_TEST_ENGINE_ID_INFO2(id, ImGuiDataType_String, str, str_end);
 #endif
     return id;
 }
@@ -2921,7 +2921,7 @@ ImGuiID ImGuiWindow::GetID(const void* ptr)
     ImGui::KeepAliveID(id);
 #ifdef IMGUI_ENABLE_TEST_ENGINE
     ImGuiContext& g = *GImGui;
-    IMGUI_TEST_ENGINE_ID_INFO(m_id, ImGuiDataType_Pointer, ptr);
+    IMGUI_TEST_ENGINE_ID_INFO(id, ImGuiDataType_Pointer, ptr);
 #endif
     return id;
 }
@@ -2933,7 +2933,7 @@ ImGuiID ImGuiWindow::GetID(int n)
     ImGui::KeepAliveID(id);
 #ifdef IMGUI_ENABLE_TEST_ENGINE
     ImGuiContext& g = *GImGui;
-    IMGUI_TEST_ENGINE_ID_INFO(m_id, ImGuiDataType_S32, (intptr_t)n);
+    IMGUI_TEST_ENGINE_ID_INFO(id, ImGuiDataType_S32, (intptr_t)n);
 #endif
     return id;
 }
@@ -2944,7 +2944,7 @@ ImGuiID ImGuiWindow::GetIDNoKeepAlive(const char* str, const char* str_end)
     ImGuiID id = ImHashStr(str, str_end ? (str_end - str) : 0, seed);
 #ifdef IMGUI_ENABLE_TEST_ENGINE
     ImGuiContext& g = *GImGui;
-    IMGUI_TEST_ENGINE_ID_INFO2(m_id, ImGuiDataType_String, str, str_end);
+    IMGUI_TEST_ENGINE_ID_INFO2(id, ImGuiDataType_String, str, str_end);
 #endif
     return id;
 }
@@ -2955,7 +2955,7 @@ ImGuiID ImGuiWindow::GetIDNoKeepAlive(const void* ptr)
     ImGuiID id = ImHashData(&ptr, sizeof(void*), seed);
 #ifdef IMGUI_ENABLE_TEST_ENGINE
     ImGuiContext& g = *GImGui;
-    IMGUI_TEST_ENGINE_ID_INFO(m_id, ImGuiDataType_Pointer, ptr);
+    IMGUI_TEST_ENGINE_ID_INFO(id, ImGuiDataType_Pointer, ptr);
 #endif
     return id;
 }
@@ -2966,7 +2966,7 @@ ImGuiID ImGuiWindow::GetIDNoKeepAlive(int n)
     ImGuiID id = ImHashData(&n, sizeof(n), seed);
 #ifdef IMGUI_ENABLE_TEST_ENGINE
     ImGuiContext& g = *GImGui;
-    IMGUI_TEST_ENGINE_ID_INFO(m_id, ImGuiDataType_S32, (intptr_t)n);
+    IMGUI_TEST_ENGINE_ID_INFO(id, ImGuiDataType_S32, (intptr_t)n);
 #endif
     return id;
 }
@@ -7479,7 +7479,7 @@ ImGuiID ImGui::GetIDWithSeed(const char* str, const char* str_end, ImGuiID seed)
     ImGui::KeepAliveID(id);
 #ifdef IMGUI_ENABLE_TEST_ENGINE
     ImGuiContext& g = *GImGui;
-    IMGUI_TEST_ENGINE_ID_INFO2(m_id, ImGuiDataType_String, str, str_end);
+    IMGUI_TEST_ENGINE_ID_INFO2(id, ImGuiDataType_String, str, str_end);
 #endif
     return id;
 }
@@ -7773,7 +7773,7 @@ bool ImGui::ItemAdd(const ImRect& bb, ImGuiID id, const ImRect* nav_bb_arg)
 
         // [DEBUG] Item Picker tool, when enabling the "extended" version we perform the check in ItemAdd()
 #ifdef IMGUI_DEBUG_TOOL_ITEM_PICKER_EX
-        if (m_id == g.DebugItemPickerBreakId)
+        if (id == g.DebugItemPickerBreakId)
         {
             IM_DEBUG_BREAK();
             g.DebugItemPickerBreakId = 0;
@@ -7788,8 +7788,8 @@ bool ImGui::ItemAdd(const ImRect& bb, ImGuiID id, const ImRect* nav_bb_arg)
     g.NextItemData.Flags = ImGuiNextItemDataFlags_None;
 
 #ifdef IMGUI_ENABLE_TEST_ENGINE
-    if (m_id != 0)
-        IMGUI_TEST_ENGINE_ITEM_ADD(nav_bb_arg ? *nav_bb_arg : bb, m_id);
+    if (id != 0)
+        IMGUI_TEST_ENGINE_ITEM_ADD(nav_bb_arg ? *nav_bb_arg : bb, id);
 #endif
 
     // Clipping test

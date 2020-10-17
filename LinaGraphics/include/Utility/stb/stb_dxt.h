@@ -175,12 +175,12 @@ static void stb__PrepareOptTable(unsigned char *Table,const unsigned char *expan
    }
 }
 
-static void stb__EvalColors(unsigned char *m_color,unsigned short c0,unsigned short c1)
+static void stb__EvalColors(unsigned char *color,unsigned short c0,unsigned short c1)
 {
-   stb__From16Bit(m_color+ 0, c0);
-   stb__From16Bit(m_color+ 4, c1);
-   stb__Lerp13RGB(m_color+ 8, m_color+0, m_color+4);
-   stb__Lerp13RGB(m_color+12, m_color+4, m_color+0);
+   stb__From16Bit(color+ 0, c0);
+   stb__From16Bit(color+ 4, c1);
+   stb__Lerp13RGB(color+ 8, color+0, color+4);
+   stb__Lerp13RGB(color+12, color+4, color+0);
 }
 
 // Block dithering function. Simply dithers a block to 565 RGB.
@@ -212,12 +212,12 @@ static void stb__DitherBlock(unsigned char *dest, unsigned char *block)
 }
 
 // The color matching function
-static unsigned int stb__MatchColorsBlock(unsigned char *block, unsigned char *m_color,int dither)
+static unsigned int stb__MatchColorsBlock(unsigned char *block, unsigned char *color,int dither)
 {
    unsigned int mask = 0;
-   int dirr = m_color[0*4+0] - m_color[1*4+0];
-   int dirg = m_color[0*4+1] - m_color[1*4+1];
-   int dirb = m_color[0*4+2] - m_color[1*4+2];
+   int dirr = color[0*4+0] - color[1*4+0];
+   int dirg = color[0*4+1] - color[1*4+1];
+   int dirb = color[0*4+2] - color[1*4+2];
    int dots[16];
    int stops[4];
    int i;
@@ -227,7 +227,7 @@ static unsigned int stb__MatchColorsBlock(unsigned char *block, unsigned char *m
       dots[i] = block[i*4+0]*dirr + block[i*4+1]*dirg + block[i*4+2]*dirb;
 
    for(i=0;i<4;i++)
-      stops[i] = m_color[i*4+0]*dirr + m_color[i*4+1]*dirg + m_color[i*4+2]*dirb;
+      stops[i] = color[i*4+0]*dirr + color[i*4+1]*dirg + color[i*4+2]*dirb;
 
    // think of the colors as arranged on a line; project point onto that line, then choose
    // next color out of available ones. we compute the crossover points for "best color in top
@@ -510,7 +510,7 @@ static void stb__CompressColorBlock(unsigned char *dest, unsigned char *block, i
    int dither;
    int refinecount;
    unsigned short max16, min16;
-   unsigned char dblock[16*4],m_color[4*4];
+   unsigned char dblock[16*4],color[4*4];
    
    dither = mode & STB_DXT_DITHER;
    refinecount = (mode & STB_DXT_HIGHQUAL) ? 2 : 1;
@@ -533,8 +533,8 @@ static void stb__CompressColorBlock(unsigned char *dest, unsigned char *block, i
       // second step: pca+map along principal axis
       stb__OptimizeColorsBlock(dither ? dblock : block,&max16,&min16);
       if (max16 != min16) {
-         stb__EvalColors(m_color,max16,min16);
-         mask = stb__MatchColorsBlock(block,m_color,dither);
+         stb__EvalColors(color,max16,min16);
+         mask = stb__MatchColorsBlock(block,color,dither);
       } else
          mask = 0;
 
@@ -544,8 +544,8 @@ static void stb__CompressColorBlock(unsigned char *dest, unsigned char *block, i
          
          if (stb__RefineBlock(dither ? dblock : block,&max16,&min16,mask)) {
             if (max16 != min16) {
-               stb__EvalColors(m_color,max16,min16);
-               mask = stb__MatchColorsBlock(block,m_color,dither);
+               stb__EvalColors(color,max16,min16);
+               mask = stb__MatchColorsBlock(block,color,dither);
             } else {
                mask = 0;
                break;

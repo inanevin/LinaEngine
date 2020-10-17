@@ -2360,11 +2360,11 @@ void stb_replaceinplace(char *src, char *find, char *replace)
    *q = 0;
 }
 
-void stb_fixpath(char *m_path)
+void stb_fixpath(char *path)
 {
-   for(; *m_path; ++m_path)
-      if (*m_path == '\\')
-         *m_path = '/';
+   for(; *path; ++path)
+      if (*path == '\\')
+         *path = '/';
 }
 
 void stb__add_section(char *buffer, char *data, ptrdiff_t curlen, ptrdiff_t newlen)
@@ -2379,22 +2379,22 @@ void stb__add_section(char *buffer, char *data, ptrdiff_t curlen, ptrdiff_t newl
       memcpy(buffer, data, curlen);
 }
 
-char * stb_shorten_path_readable(char *m_path, int len)
+char * stb_shorten_path_readable(char *path, int len)
 {
    static char buffer[1024];
-   ptrdiff_t n = strlen(m_path),n1,n2,r1,r2;
+   ptrdiff_t n = strlen(path),n1,n2,r1,r2;
    char *s;
-   if (n <= len) return m_path;
-   if (len > 1024) return m_path;
-   s = stb_strrchr2(m_path, '/', '\\');
+   if (n <= len) return path;
+   if (len > 1024) return path;
+   s = stb_strrchr2(path, '/', '\\');
    if (s) {
-      n1 = s - m_path + 1;
+      n1 = s - path + 1;
       n2 = n - n1;
       ++s;
    } else {
       n1 = 0;
       n2 = n;
-      s = m_path;
+      s = path;
    }
    // now we need to reduce r1 and r2 so that they fit in len
    if (n1 < len>>1) {
@@ -2411,17 +2411,17 @@ char * stb_shorten_path_readable(char *m_path, int len)
    }
    assert(r1 <= n1 && r2 <= n2);
    if (n1)
-      stb__add_section(buffer, m_path, n1, r1);
+      stb__add_section(buffer, path, n1, r1);
    stb__add_section(buffer+r1, s, n2, r2);
    buffer[len] = 0;
    return buffer;
 }
 
-static char *stb__splitpath_raw(char *buffer, char *m_path, int flag)
+static char *stb__splitpath_raw(char *buffer, char *path, int flag)
 {
-   ptrdiff_t len=0,x,y, n = (int) strlen(m_path), f1,f2;
-   char *s = stb_strrchr2(m_path, '/', '\\');
-   char *t = strrchr(m_path, '.');
+   ptrdiff_t len=0,x,y, n = (int) strlen(path), f1,f2;
+   char *s = stb_strrchr2(path, '/', '\\');
+   char *t = strrchr(path, '.');
    if (s && t && t < s) t = NULL;
    if (s) ++s;
 
@@ -2430,8 +2430,8 @@ static char *stb__splitpath_raw(char *buffer, char *m_path, int flag)
 
    if (!(flag & (STB_PATH | STB_FILE | STB_EXT))) return NULL;
 
-   f1 = s == NULL ? 0 : s-m_path; // start of filename
-   f2 = t == NULL ? n : t-m_path; // just past end of filename
+   f1 = s == NULL ? 0 : s-path; // start of filename
+   f2 = t == NULL ? n : t-path; // just past end of filename
 
    if (flag & STB_PATH) {
       x = 0; if (f1 == 0 && flag == STB_PATH) len=2;
@@ -2457,7 +2457,7 @@ static char *stb__splitpath_raw(char *buffer, char *m_path, int flag)
    }
 
    if (len) { stb_p_strcpy_s(buffer, sizeof(buffer), "./"); return buffer; }
-   stb_p_strncpy_s(buffer, sizeof(buffer),m_path+x, y-x);
+   stb_p_strncpy_s(buffer, sizeof(buffer),path+x, y-x);
    buffer[y-x] = 0;
    return buffer;
 }
@@ -6108,9 +6108,9 @@ STB_EXTERN void stb_delete_directory_recursive(char *dir);
 #include <dirent.h>
 #endif
 
-void stb_readdir_free(char **m_files)
+void stb_readdir_free(char **files)
 {
-   char **f2 = m_files;
+   char **f2 = files;
    int i;
    for (i=0; i < stb_arr_len(f2); ++i)
       free(f2[i]);
@@ -6230,18 +6230,18 @@ char **stb_readdir_subdirs_mask(char *dir, char *wild) { return readdir_raw(dir,
 int stb__rec_max=0x7fffffff;
 static char **stb_readdir_rec(char **sofar, char *dir, char *filespec)
 {
-   char **m_files;
+   char **files;
    char ** dirs;
    char **p;
 
    if (stb_arr_len(sofar) >= stb__rec_max) return sofar;
 
-   m_files = stb_readdir_files_mask(dir, filespec);
-   stb_arr_for(p, m_files) {
+   files = stb_readdir_files_mask(dir, filespec);
+   stb_arr_for(p, files) {
       stb_arr_push(sofar, stb_p_strdup(*p));
       if (stb_arr_len(sofar) >= stb__rec_max) break;
    }
-   stb_readdir_free(m_files);
+   stb_readdir_free(files);
    if (stb_arr_len(sofar) >= stb__rec_max) return sofar;
 
    dirs = stb_readdir_subdirs(dir);
@@ -6320,7 +6320,7 @@ stb_dirtree2 *stb_dirtree2_from_files_relative(char *src, char **filelist, int c
    int dlen = (int) strlen(src), elen;
    stb_dirtree2 *d;
    char ** descendents = NULL;
-   char ** m_files = NULL;
+   char ** files = NULL;
    char *s;
    if (!count) return NULL;
    // first find all the ones that belong here... note this is will take O(NM) with N files and M subdirs
@@ -6340,7 +6340,7 @@ stb_dirtree2 *stb_dirtree2_from_files_relative(char *src, char **filelist, int c
    // now extract all the ones that have their root here
    for (i=0; i < stb_arr_len(descendents);) {
       if (!stb_strchr2(descendents[i]+elen, '/', '\\')) {
-         stb_arr_push(m_files, descendents[i]);
+         stb_arr_push(files, descendents[i]);
          descendents[i] = descendents[stb_arr_len(descendents)-1];
          stb_arr_pop(descendents);
       } else
@@ -6348,7 +6348,7 @@ stb_dirtree2 *stb_dirtree2_from_files_relative(char *src, char **filelist, int c
    }
    // now create a record
    d = (stb_dirtree2 *) malloc(sizeof(*d));
-   d->m_files = m_files;
+   d->files = files;
    d->subdirs = NULL;
    d->fullpath = stb_p_strdup(src);
    s = stb_strrchr2(d->fullpath, '/', '\\');
@@ -7017,12 +7017,12 @@ extern void stb_dirtree_db_read(stb_dirtree *target, char *filename, char *dir);
 extern void stb_dirtree_db_write(stb_dirtree *target, char *filename, char *dir);
 
 #ifdef STB_DEFINE
-static void stb__dirtree_add_dir(char *m_path, time_t last, stb_dirtree *active)
+static void stb__dirtree_add_dir(char *path, time_t last, stb_dirtree *active)
 {
    stb_dirtree_dir d;
    d.last_modified = last;
    d.num_files = 0;
-   d.m_path = stb_strdup(m_path, active->string_pool);
+   d.path = stb_strdup(path, active->string_pool);
    stb_arr_push(active->dirs, d);
 }
 
@@ -7034,7 +7034,7 @@ static void stb__dirtree_add_file(char *name, int dir, stb_int64 size, time_t la
    f.last_modified = last;
    f.name = stb_strdup(name, active->string_pool);
    ++active->dirs[dir].num_files;
-   stb_arr_push(active->m_files, f);
+   stb_arr_push(active->files, f);
 }
 
 // version 02 supports > 4GB files
@@ -7055,7 +7055,7 @@ static void stb__dirtree_save_db(char *filename, stb_dirtree *data, char *root)
    // build remapping table of all dirs we'll be writing out
    remap = (int *) malloc(sizeof(remap[0]) * stb_arr_len(data->dirs));
    for (i=0; i < stb_arr_len(data->dirs); ++i) {
-      if (data->dirs[i].m_path == NULL || (root && 0==stb_stricmp(data->dirs[i].m_path, root))) {
+      if (data->dirs[i].path == NULL || (root && 0==stb_stricmp(data->dirs[i].path, root))) {
          remap[i] = -1;
       } else {
          remap[i] = num_dirs_final++;
@@ -7066,22 +7066,22 @@ static void stb__dirtree_save_db(char *filename, stb_dirtree *data, char *root)
    for (i=0; i < stb_arr_len(data->dirs); ++i) {
       if (remap[i] >= 0) {
          fwrite(&data->dirs[i].last_modified, 4, 1, f);
-         stb_fput_string(f, data->dirs[i].m_path);
+         stb_fput_string(f, data->dirs[i].path);
       }
    }
 
    num_files_final = 0;
-   for (i=0; i < stb_arr_len(data->m_files); ++i)
-      if (remap[data->m_files[i].dir] >= 0 && data->m_files[i].name)
+   for (i=0; i < stb_arr_len(data->files); ++i)
+      if (remap[data->files[i].dir] >= 0 && data->files[i].name)
          ++num_files_final;
 
    fwrite(&num_files_final, 4, 1, f);
-   for (i=0; i < stb_arr_len(data->m_files); ++i) {
-      if (remap[data->m_files[i].dir] >= 0 && data->m_files[i].name) {
-         stb_fput_ranged(f, remap[data->m_files[i].dir], 0, num_dirs_final);
-         stb_fput_varlen64(f, data->m_files[i].size);
-         fwrite(&data->m_files[i].last_modified, 4, 1, f);
-         stb_fput_string(f, data->m_files[i].name);
+   for (i=0; i < stb_arr_len(data->files); ++i) {
+      if (remap[data->files[i].dir] >= 0 && data->files[i].name) {
+         stb_fput_ranged(f, remap[data->files[i].dir], 0, num_dirs_final);
+         stb_fput_varlen64(f, data->files[i].size);
+         fwrite(&data->files[i].last_modified, 4, 1, f);
+         stb_fput_string(f, data->files[i].name);
       }
    }
 
@@ -7109,23 +7109,23 @@ static void stb__dirtree_load_db(char *filename, stb_dirtree *data, char *dir)
    stb_arr_setlen(data->dirs, n);
    for(i=0; i < stb_arr_len(data->dirs); ++i) {
       fread(&data->dirs[i].last_modified, 4, 1, f);
-      data->dirs[i].m_path = stb_fget_string(f, data->string_pool);
-      if (data->dirs[i].m_path == NULL) goto bail;
+      data->dirs[i].path = stb_fget_string(f, data->string_pool);
+      if (data->dirs[i].path == NULL) goto bail;
    }
    fread(&n, 4, 1, f);
-   stb_arr_setlen(data->m_files, n);
-   for (i=0; i < stb_arr_len(data->m_files); ++i) {
-      data->m_files[i].dir  = stb_fget_ranged(f, 0, stb_arr_len(data->dirs));
-      data->m_files[i].size = stb_fget_varlen64(f);
-      fread(&data->m_files[i].last_modified, 4, 1, f);
-      data->m_files[i].name = stb_fget_string(f, data->string_pool);
-      if (data->m_files[i].name == NULL) goto bail;
+   stb_arr_setlen(data->files, n);
+   for (i=0; i < stb_arr_len(data->files); ++i) {
+      data->files[i].dir  = stb_fget_ranged(f, 0, stb_arr_len(data->dirs));
+      data->files[i].size = stb_fget_varlen64(f);
+      fread(&data->files[i].last_modified, 4, 1, f);
+      data->files[i].name = stb_fget_string(f, data->string_pool);
+      if (data->files[i].name == NULL) goto bail;
    }
 
    if (0) {
       bail:
          stb_arr_free(data->dirs);
-         stb_arr_free(data->m_files);
+         stb_arr_free(data->files);
    }
    fclose(f);
 }
@@ -7133,7 +7133,7 @@ static void stb__dirtree_load_db(char *filename, stb_dirtree *data, char *dir)
 FILE *hlog;
 
 static int stb__dircount, stb__dircount_mask, stb__showfile;
-static void stb__dirtree_scandir(char *m_path, time_t last_time, stb_dirtree *active)
+static void stb__dirtree_scandir(char *path, time_t last_time, stb_dirtree *active)
 {
    // this is dumb depth first; theoretically it might be faster
    // to fully traverse each directory before visiting its children,
@@ -7147,34 +7147,34 @@ static void stb__dirtree_scandir(char *m_path, time_t last_time, stb_dirtree *ac
    int has_slash;
    if (stb__showfile) printf("<");
 
-   has_slash = (m_path[0] && m_path[strlen(m_path)-1] == '/'); 
+   has_slash = (path[0] && path[strlen(path)-1] == '/'); 
 
    // @TODO: do this concatenation without using swprintf to avoid this mess:
 #if (defined(_MSC_VER) && _MSC_VER < 1400) // || (defined(__clang__))
    // confusingly, Windows Kits\10 goes down this path?!?
    if (has_slash)
-      swprintf(full_path, L"%s*", stb__from_utf8(m_path));
+      swprintf(full_path, L"%s*", stb__from_utf8(path));
    else
-      swprintf(full_path, L"%s/*", stb__from_utf8(m_path));
+      swprintf(full_path, L"%s/*", stb__from_utf8(path));
 #else
    if (has_slash)
-      swprintf((wchar_t *) full_path, (size_t) 1024, L"%s*", (wchar_t *) stb__from_utf8(m_path));
+      swprintf((wchar_t *) full_path, (size_t) 1024, L"%s*", (wchar_t *) stb__from_utf8(path));
    else
-      swprintf((wchar_t *) full_path, (size_t) 1024, L"%s/*", (wchar_t *) stb__from_utf8(m_path));
+      swprintf((wchar_t *) full_path, (size_t) 1024, L"%s/*", (wchar_t *) stb__from_utf8(path));
 #endif
 
    // it's possible this directory is already present: that means it was in the
    // cache, but its parent wasn't... in that case, we're done with it
    if (stb__showfile) printf("C[%d]", stb_arr_len(active->dirs));
    for (n=0; n < stb_arr_len(active->dirs); ++n)
-      if (0 == stb_stricmp(active->dirs[n].m_path, m_path)) {
+      if (0 == stb_stricmp(active->dirs[n].path, path)) {
          if (stb__showfile) printf("D");
          return;
       }
    if (stb__showfile) printf("E");
 
    // otherwise, we need to add it
-   stb__dirtree_add_dir(m_path, last_time, active);
+   stb__dirtree_add_dir(path, last_time, active);
    n = stb_arr_lastn(active->dirs);
 
    if (stb__showfile) printf("[");
@@ -7188,9 +7188,9 @@ static void stb__dirtree_scandir(char *m_path, time_t last_time, stb_dirtree *ac
                char *temp = stb__to_utf8((stb__wchar *) c_file.name);
 
                if (has_slash)
-                  stb_p_sprintf(new_path stb_p_size(sizeof(full_path)), "%s%s", m_path, temp);
+                  stb_p_sprintf(new_path stb_p_size(sizeof(full_path)), "%s%s", path, temp);
                else
-                  stb_p_sprintf(new_path stb_p_size(sizeof(full_path)), "%s/%s", m_path, temp);
+                  stb_p_sprintf(new_path stb_p_size(sizeof(full_path)), "%s/%s", path, temp);
 
                if (stb__dircount_mask) {
                   ++stb__dircount;
@@ -7248,7 +7248,7 @@ static int stb__dirtree_update_db(stb_dirtree *db, stb_dirtree *active)
             printf(".");
          }
       }
-      if (0 == _stat(db->dirs[i].m_path, &info)) {
+      if (0 == _stat(db->dirs[i].path, &info)) {
          if (info.st_mode & _S_IFDIR) {
             // it's still a directory, as expected
             int n = abs((int) (info.st_mtime - db->dirs[i].last_modified));
@@ -7256,7 +7256,7 @@ static int stb__dirtree_update_db(stb_dirtree *db, stb_dirtree *active)
                // it's changed! force a rescan
                // we don't want to scan it until we've stat()d its
                // subdirs, though, so we queue it
-               if (stb__showfile) printf("Changed: %s - %08x:%08x\n", db->dirs[i].m_path, (unsigned int) db->dirs[i].last_modified, (unsigned int) info.st_mtime);
+               if (stb__showfile) printf("Changed: %s - %08x:%08x\n", db->dirs[i].path, (unsigned int) db->dirs[i].last_modified, (unsigned int) info.st_mtime);
                stb_arr_push(rescan, i);
                // update the last_mod time
                db->dirs[i].last_modified = info.st_mtime;
@@ -7265,7 +7265,7 @@ static int stb__dirtree_update_db(stb_dirtree *db, stb_dirtree *active)
                changes_detected = STB_TRUE;
             } else {
                // it hasn't changed, just copy it through unchanged
-               stb__dirtree_add_dir(db->dirs[i].m_path, db->dirs[i].last_modified, active);
+               stb__dirtree_add_dir(db->dirs[i].path, db->dirs[i].last_modified, active);
                remap[i] = stb_arr_lastn(active->dirs);
             }
          } else {
@@ -7277,7 +7277,7 @@ static int stb__dirtree_update_db(stb_dirtree *db, stb_dirtree *active)
         delete_entry:
          // directory no longer exists, so don't copy it
          // we don't free it because it's in the string pool now
-         db->dirs[i].m_path = NULL;
+         db->dirs[i].path = NULL;
          remap[i] = -1;
          changes_detected = STB_TRUE;
       }
@@ -7290,10 +7290,10 @@ static int stb__dirtree_update_db(stb_dirtree *db, stb_dirtree *active)
    //           directories in <rescan> are not in <active> yet
 
    // so we can go ahead and remap all the known files right now
-   for (i=0; i < stb_arr_len(db->m_files); ++i) {
-      int dir = db->m_files[i].dir;
+   for (i=0; i < stb_arr_len(db->files); ++i) {
+      int dir = db->files[i].dir;
       if (remap[dir] >= 0) {
-         stb__dirtree_add_file(db->m_files[i].name, remap[dir], db->m_files[i].size, db->m_files[i].last_modified, active);
+         stb__dirtree_add_file(db->files[i].name, remap[dir], db->files[i].size, db->files[i].last_modified, active);
       }
    }
 
@@ -7303,7 +7303,7 @@ static int stb__dirtree_update_db(stb_dirtree *db, stb_dirtree *active)
    // now scan those directories using the standard scan
    for (i=0; i < stb_arr_len(rescan); ++i) {
       int z = rescan[i];
-      stb__dirtree_scandir(db->dirs[z].m_path, db->dirs[z].last_modified, active);
+      stb__dirtree_scandir(db->dirs[z].path, db->dirs[z].last_modified, active);
    }
    stb_arr_free(rescan);
 
@@ -7314,7 +7314,7 @@ static void stb__dirtree_free_raw(stb_dirtree *d)
 {
    stb_free(d->string_pool);
    stb_arr_free(d->dirs);
-   stb_arr_free(d->m_files);
+   stb_arr_free(d->files);
 }
 
 stb_dirtree *stb_dirtree_get_with_file(char *dir, char *cache_file)
@@ -7327,7 +7327,7 @@ stb_dirtree *stb_dirtree_get_with_file(char *dir, char *cache_file)
 
    // load the database of last-known state on disk
    db.string_pool = NULL;
-   db.m_files = NULL;
+   db.files = NULL;
    db.dirs = NULL;
 
    stripped_dir = stb_strip_final_slash(stb_p_strdup(dir));
@@ -7337,7 +7337,7 @@ stb_dirtree *stb_dirtree_get_with_file(char *dir, char *cache_file)
    else if (stb__showfile)
       printf("No cache file\n");
 
-   active.m_files = NULL;
+   active.files = NULL;
    active.dirs = NULL;
    active.string_pool = stb_malloc(0,1); // @TODO: share string pools between both?
 
@@ -7416,9 +7416,9 @@ void stb_dirtree_free(stb_dirtree *d)
    free(d);
 }
 
-void stb_dirtree_db_add_dir(stb_dirtree *active, char *m_path, time_t last)
+void stb_dirtree_db_add_dir(stb_dirtree *active, char *path, time_t last)
 {
-   stb__dirtree_add_dir(m_path, last, active);
+   stb__dirtree_add_dir(path, last, active);
 }
 
 void stb_dirtree_db_add_file(stb_dirtree *active, char *name, int dir, stb_int64 size, time_t last)
@@ -7430,7 +7430,7 @@ void stb_dirtree_db_read(stb_dirtree *target, char *filename, char *dir)
 {
    char *s = stb_strip_final_slash(stb_p_strdup(dir));
    target->dirs = 0;
-   target->m_files = 0;
+   target->files = 0;
    target->string_pool = 0;
    stb__dirtree_load_db(filename, target, s);
    free(s);
@@ -10115,7 +10115,7 @@ extern stb_info_struct stb_introspect_output[];
 // 
 
 STB_EXTERN void stb_introspect_precompiled(stb_info_struct *compiled);
-STB_EXTERN void stb__introspect(char *m_path, char *file);
+STB_EXTERN void stb__introspect(char *path, char *file);
 
 #define stb_introspect_ship()            stb__introspect(NULL, NULL, stb__introspect_output)
 
@@ -10147,16 +10147,16 @@ void stb_introspect_precompiled(stb_info_struct *compiled)
 }
 
 
-static void stb__introspect_filename(char *buffer, char *m_path)
+static void stb__introspect_filename(char *buffer, char *path)
 {
    #if STB_INTROSPECT_CPP
-   stb_p_sprintf(buffer stb_p_size(9999), "%s/stb_introspect.cpp", m_path);
+   stb_p_sprintf(buffer stb_p_size(9999), "%s/stb_introspect.cpp", path);
    #else
-   stb_p_sprintf(buffer stb_p_size(9999), "%s/stb_introspect.c", m_path);
+   stb_p_sprintf(buffer stb_p_size(9999), "%s/stb_introspect.c", path);
    #endif
 }
 
-static void stb__introspect_compute(char *m_path, char *file)
+static void stb__introspect_compute(char *path, char *file)
 {
    int i;
    char ** include_list = NULL;
@@ -10190,7 +10190,7 @@ static stb_info_struct *stb__introspect_info;
 
 #endif
 
-void stb__introspect(char *m_path, char *file, stb_info_struct *compiled)
+void stb__introspect(char *path, char *file, stb_info_struct *compiled)
 {
    static int first=1;
    if (!first) return;
@@ -10199,19 +10199,19 @@ void stb__introspect(char *m_path, char *file, stb_info_struct *compiled)
    stb__introspect_info = compiled;
 
    #ifndef STB_SHIP
-   if (m_path || file) {
+   if (path || file) {
       int bail_flag = compiled && compiled[0].structname == (void *) 1;
       int needs_building = bail_flag;
       struct stb__stat st;
       char buffer[1024], buffer2[1024];
-      if (!m_path) {
+      if (!path) {
          stb_splitpath(buffer, file, STB_PATH);
-         m_path = buffer;
+         path = buffer;
       }
       // bail if the source path doesn't exist
-      if (!stb_fexists(m_path)) return;
+      if (!stb_fexists(path)) return;
 
-      stb__introspect_filename(buffer2, m_path);
+      stb__introspect_filename(buffer2, path);
 
       // get source/include files timestamps, compare to output-file timestamp;
       // if mismatched, regenerate 
@@ -10224,9 +10224,9 @@ void stb__introspect(char *m_path, char *file, stb_info_struct *compiled)
          // if needs_building is already true, we don't need to do this test,
          // but we still need these arrays, so go ahead and get them
          char **all[3];
-         all[0] = stb_readdir_files_mask(m_path, "*.h");
-         all[1] = stb_readdir_files_mask(m_path, "*.c");
-         all[2] = stb_readdir_files_mask(m_path, "*.cpp");
+         all[0] = stb_readdir_files_mask(path, "*.h");
+         all[1] = stb_readdir_files_mask(path, "*.c");
+         all[2] = stb_readdir_files_mask(path, "*.cpp");
          int i,j;
          if (needs_building) {
             for (j=0; j < 3; ++j) {
@@ -10276,7 +10276,7 @@ void stb__introspect(char *m_path, char *file, stb_info_struct *compiled)
          }
 
          if (needs_building) {
-            stb__introspect_compute(m_path, buffer2);
+            stb__introspect_compute(path, buffer2);
          }
       }
    }
@@ -10832,14 +10832,14 @@ static size_t stb_out_backpatch_id(void)
       return ftell(stb__outfile);
 }
 
-static void stb_out_backpatch(size_t m_id, stb_uint value)
+static void stb_out_backpatch(size_t id, stb_uint value)
 {
    stb_uchar data[4] = { (stb_uchar)(value >> 24), (stb_uchar)(value >> 16), (stb_uchar)(value >> 8), (stb_uchar)(value) };
    if (stb__out) {
-      memcpy((void *) m_id, data, 4);
+      memcpy((void *) id, data, 4);
    } else {
       stb_uint where = ftell(stb__outfile);
-      fseek(stb__outfile, (long) m_id, SEEK_SET);
+      fseek(stb__outfile, (long) id, SEEK_SET);
       fwrite(data, 4, 1, stb__outfile);
       fseek(stb__outfile, where, SEEK_SET);
    }
@@ -11611,7 +11611,7 @@ static stb_thread stb_create_thread_raw(stb_thread_func f, void *d, volatile voi
    stb_fatal("Error! Cannot use STB_FASTMALLOC with threads.\n");
    return STB_THREAD_NULL;
 #else
-   unsigned long m_id;
+   unsigned long id;
    stb__thread *data = (stb__thread *) malloc(sizeof(*data));
    if (!data) return NULL;
    stb__threadmutex_init();
@@ -11619,9 +11619,9 @@ static stb_thread stb_create_thread_raw(stb_thread_func f, void *d, volatile voi
    data->d = d;
    data->return_val = return_code;
    data->sem = rel;
-   m_id = _beginthread(stb__thread_run, 0, data);
-   if (m_id == -1) return NULL;
-   return (void *) m_id;
+   id = _beginthread(stb__thread_run, 0, data);
+   if (id == -1) return NULL;
+   return (void *) id;
 #endif
 #else
 #ifdef STB_NO_STB_STRINGS
@@ -12866,9 +12866,9 @@ char *stb_sstrdup(char *s)
 STB_EXTERN void stb_source_path(char *str);
 #ifdef STB_DEFINE
 char *stb__source_path;
-void stb_source_path(char *m_path)
+void stb_source_path(char *path)
 {
-   stb__source_path = m_path;
+   stb__source_path = path;
 }
 
 char *stb__get_sourcefile_path(char *file)
@@ -14093,14 +14093,14 @@ static int stu__dictdef(int end, int *count)
    stu__nexttoken();
    while (stu__tok != end) {
       if (stu__tok == ST_id) {
-         stua_obj m_id = stu__tokval;
+         stua_obj id = stu__tokval;
          stu__nexttoken();
          if (stu__tok == '=') {
             flags |= 1;
-            stb_arr_push(dict, stu__cdv(m_id));
+            stb_arr_push(dict, stu__cdv(id));
             z = stu__nexpr(1); if (!z) return 0;
          } else {
-            z = stu__cc2(ST_id, stu__cdv(m_id));
+            z = stu__cc2(ST_id, stu__cdv(id));
             z = stu__postexpr(z,1); if (!z) return 0;
             flags |= 2;
             stb_arr_push(dict, stu__cdv(stu__makeint(n++)));
@@ -14139,7 +14139,7 @@ static int stu__comp_id(void)
    return stu__cc3('[', z, stu__cdt()); // now access the variable from that dir
 }
 
-static stua_obj stu__funcdef(stua_obj *m_id, stua_obj *func);
+static stua_obj stu__funcdef(stua_obj *id, stua_obj *func);
 static int stu__expr(int p)
 {
    int z;
@@ -14222,7 +14222,7 @@ static stua_obj stu__finish_func(stua_obj *param, int start)
    return stu__makeobj(STU___function, f, size, 0);
 }
 
-static int stu__funcdef(stua_obj *m_id, stua_obj *result)
+static int stu__funcdef(stua_obj *id, stua_obj *result)
 {
    int n,z=0,i,q;
    stua_obj *param = NULL;
@@ -14230,8 +14230,8 @@ static int stu__funcdef(stua_obj *m_id, stua_obj *result)
    stua_obj v,f=stua_nil;
    assert(stu__tok == ST_func);
    stu__nexttoken();
-   if (m_id) { 
-      if (!stu__demandv(ST_id, m_id)) return stu__err("Expecting function name");
+   if (id) { 
+      if (!stu__demandv(ST_id, id)) return stu__err("Expecting function name");
    } else
       stu__accept(ST_id);
    if (!stu__demand('(')) return stu__err("Expecting ( for function parameter");
@@ -14289,10 +14289,10 @@ static int stu__compile_global_scope(void)
    stu__push_func_comp();
    while (stu__tok != 0) {
       if (stu__tok == ST_func) {
-         stua_obj m_id, f;
-         if (!stu__funcdef(&m_id,&f))
+         stua_obj id, f;
+         if (!stu__funcdef(&id,&f))
             goto error;
-         stu__set(stu__globaldict, m_id, f);
+         stu__set(stu__globaldict, id, f);
       } else if (stu__tok == ST_var) {
          z = stu__varinit(z,1); if (!z) goto error;
       } else {

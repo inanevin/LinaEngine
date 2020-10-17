@@ -1976,7 +1976,7 @@ int ImFontAtlas::AddCustomRectRegular(int width, int height)
 int ImFontAtlas::AddCustomRectFontGlyph(ImFont* font, ImWchar id, int width, int height, float advance_x, const ImVec2& offset)
 {
 #ifdef IMGUI_USE_WCHAR32
-    IM_ASSERT(m_id <= IM_UNICODE_CODEPOINT_MAX);
+    IM_ASSERT(id <= IM_UNICODE_CODEPOINT_MAX);
 #endif
     IM_ASSERT(font != NULL);
     IM_ASSERT(width > 0 && width <= 0xFFFF);
