@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -41,9 +41,8 @@ Timestamp: 4/8/2019 9:04:58 PM
 #define GenericMemory_HPP
 
 #include <cstring>
-#include "Core/Common.hpp"
-#include "Core/LinaAPI.hpp"
 #include "Core/SizeDefinitions.hpp"
+#include "Core/Common.hpp"
 
 
 #define GENERIC_MEMORY_SMALL_MEMSWAP_MAX 16
@@ -71,7 +70,7 @@ namespace LinaEngine
 		}
 
 		template<typename T>
-		static void* memset(void* destIn, T val, uintptr amt)
+		static FORCEINLINE void* memset(void* destIn, T val, uintptr amt)
 		{
 			T* dest = (T*)destIn;
 			uintptr amtT = amt / sizeof(T);
@@ -128,7 +127,7 @@ namespace LinaEngine
 	};
 
 	template<>
-	void* GenericMemory::memset(void* dest, uint8 val, uintptr amt)
+	FORCEINLINE void* GenericMemory::memset(void* dest, uint8 val, uintptr amt)
 	{
 		return ::memset(dest, val, amt);
 	}
