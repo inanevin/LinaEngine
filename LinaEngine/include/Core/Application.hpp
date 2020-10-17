@@ -43,7 +43,6 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "Utility/Math/Color.hpp"
 #include "Core/LayerStack.hpp"
 #include "ECS/ECSSystem.hpp"
-#include "Utility/Log.hpp"
 #include "Actions/ActionDispatcher.hpp"
 #include <functional>
 

@@ -36,7 +36,7 @@ SOFTWARE.
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
-
+#include "ECS/ECS.hpp"
 #include <cereal/archives/json.hpp>
 
 namespace LinaEngine::World

@@ -41,8 +41,7 @@ Timestamp: 5/6/2019 5:10:23 PM
 #ifndef Level_HPP
 #define Level_HPP
 
-#include "Core/Common.hpp"
-#include "ECS/ECS.hpp"
+#include <string>
 
 namespace LinaEngine
 {
