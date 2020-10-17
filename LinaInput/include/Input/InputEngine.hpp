@@ -123,7 +123,7 @@ namespace LinaEngine::Input
 		// Axis binders.
 		InputKeyAxisBinder m_horizontalKeyAxis;
 		InputKeyAxisBinder m_verticalKeyAxis;
-		InputDevice* m_inputDevice;
+		InputDevice* m_inputDevice = nullptr;
 
 	};
 
