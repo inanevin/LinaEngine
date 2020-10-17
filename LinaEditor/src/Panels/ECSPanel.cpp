@@ -37,9 +37,9 @@ namespace LinaEditor
 	void ECSPanel::Setup()
 	{
 		// Store references.
-		m_ECS = m_guiLayer->GetECS();
-		m_ScenePanel = m_guiLayer->GetScenePanel();
-		m_PropertiesPanel = m_guiLayer->GetPropertiesPanel();
+		m_ecs = m_guiLayer->GetECS();
+		m_scenePanel = m_guiLayer->GetScenePanel();
+		m_propertiesPanel = m_guiLayer->GetPropertiesPanel();
 		
 		// Refresh entity list.
 		Refresh();
@@ -47,15 +47,15 @@ namespace LinaEditor
 
 	void ECSPanel::Refresh()
 	{
-		m_EntityList.clear();
-		m_SelectedEntity = entt::null;
-		m_ScenePanel->SetSelectedTransform(nullptr);
-		m_PropertiesPanel->EntitySelected(entt::null);
+		m_entityList.clear();
+		m_selectedEntity = entt::null;
+		m_scenePanel->SetSelectedTransform(nullptr);
+		m_propertiesPanel->EntitySelected(entt::null);
 
 		// add scene entitites to the list.
-		m_ECS->each([this](auto entity)
+		m_ecs->each([this](auto entity)
 			{
-				m_EntityList.push_back(entity);
+				m_entityList.push_back(entity);
 			});
 	}
 
@@ -67,7 +67,7 @@ namespace LinaEditor
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 			ImVec2 work_area_pos = viewport->GetWorkPos();
-			ImVec2 panelSize = ImVec2(m_Size.x, m_Size.y);			
+			ImVec2 panelSize = ImVec2(m_size.x, m_size.y);			
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;;
@@ -85,7 +85,7 @@ namespace LinaEditor
 					if (ImGui::BeginMenu("Create"))
 					{
 						if (ImGui::MenuItem("Entity"))
-							m_EntityList.push_back(m_ECS->CreateEntity("Entity"));
+							m_entityList.push_back(m_ecs->CreateEntity("Entity"));
 
 						ImGui::EndMenu();
 					}
@@ -94,26 +94,26 @@ namespace LinaEditor
 
 				int entityCounter = 0;
 
-				for (std::vector<ECSEntity>::iterator it = m_EntityList.begin(); it != m_EntityList.end(); ++it)
+				for (std::vector<ECSEntity>::iterator it = m_entityList.begin(); it != m_entityList.end(); ++it)
 				{
 					// Selection
 					entityCounter++;
 					ECSEntity& entity = *it;
-					strcpy(selectedEntityName, m_ECS->GetEntityName(entity).c_str());
-					if (WidgetsUtility::SelectableInput("entSelectable" + entityCounter, m_SelectedEntity == entity, ImGuiSelectableFlags_SelectOnClick, selectedEntityName, IM_ARRAYSIZE(selectedEntityName)))
+					strcpy(selectedEntityName, m_ecs->GetEntityName(entity).c_str());
+					if (WidgetsUtility::SelectableInput("entSelectable" + entityCounter, m_selectedEntity == entity, ImGuiSelectableFlags_SelectOnClick, selectedEntityName, IM_ARRAYSIZE(selectedEntityName)))
 					{
-						m_SelectedEntity = entity;
-						m_ScenePanel->SetSelectedTransform(m_ECS->has<TransformComponent>(m_SelectedEntity) ? &m_ECS->get<TransformComponent>(m_SelectedEntity) : nullptr);
-						m_PropertiesPanel->EntitySelected(m_SelectedEntity);
-						m_ECS->SetEntityName(entity, selectedEntityName);
+						m_selectedEntity = entity;
+						m_scenePanel->SetSelectedTransform(m_ecs->has<TransformComponent>(m_selectedEntity) ? &m_ecs->get<TransformComponent>(m_selectedEntity) : nullptr);
+						m_propertiesPanel->EntitySelected(m_selectedEntity);
+						m_ecs->SetEntityName(entity, selectedEntityName);
 					}
 
 					// Deselect.
 					if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 					{
-						m_SelectedEntity = entt::null;
-						m_PropertiesPanel->EntitySelected(m_SelectedEntity);
-						m_ScenePanel->SetSelectedTransform(nullptr);
+						m_selectedEntity = entt::null;
+						m_propertiesPanel->EntitySelected(m_selectedEntity);
+						m_scenePanel->SetSelectedTransform(nullptr);
 					}
 				}
 

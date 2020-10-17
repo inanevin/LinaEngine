@@ -39,7 +39,7 @@ namespace LinaEditor
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 			ImVec2 work_area_pos = viewport->GetWorkPos();
-			ImVec2 panelSize = ImVec2(m_Size.x, m_Size.y);
+			ImVec2 panelSize = ImVec2(m_size.x, m_size.y);
 			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
 			ImGui::SetNextWindowBgAlpha(0.2f);
 			if (ImGui::Begin("Material Panel", &m_show))

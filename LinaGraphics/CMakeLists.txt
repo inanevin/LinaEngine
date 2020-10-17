@@ -21,9 +21,6 @@ set(CMAKE_CXX_STANDARD 17)
 #--------------------------------------------------------------------
 set (LINAGRAPHICS_SOURCES
 
-	# Animations
-	src/Animation/Joint.cpp
-	
 	#Rendering
 	src/Rendering/ArrayBitmap.cpp
 	src/Rendering/Texture.cpp
@@ -32,7 +29,6 @@ set (LINAGRAPHICS_SOURCES
 	src/Rendering/Material.cpp
 	src/Rendering/RenderEngine.cpp
 	src/Rendering/Mesh.cpp
-	src/Rendering/SkinnedMesh.cpp
 	
 	src/PackageManager/OpenGL/GLRenderDevice.cpp
 	src/PackageManager/OpenGL/GLWindow.cpp
@@ -47,11 +43,6 @@ set (LINAGRAPHICS_SOURCES
 # Set headers
 #--------------------------------------------------------------------
 set(LINAGRAPHICS_HEADERS
-
-	# Animations
-	include/Animation/Joint.hpp
-	include/Animation/KeyFrame.hpp
-	include/Animation/Animation.hpp
 
 	#Rendering
 	include/Rendering/ArrayBitmap.hpp
@@ -68,7 +59,6 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/UniformBuffer.hpp
 	include/Rendering/RenderTarget.hpp
 	include/Rendering/Mesh.hpp
-	include/Rendering/SkinnedMesh.hpp
 	include/Rendering/RenderingCommon.hpp
 	include/Rendering/RenderConstants.hpp
 	include/Rendering/RenderBuffer.hpp
