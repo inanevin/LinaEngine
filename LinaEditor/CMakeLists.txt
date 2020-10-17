@@ -25,7 +25,6 @@ set(LINAEDITOR_SOURCES
 src/Core/EditorApplication.cpp
 src/Core/GUILayer.cpp
 src/Core/EditorCommon.cpp
-src/Core/GizmoLayer.cpp
 src/Core/SplashScreen.cpp
 
 #Drawers
@@ -76,7 +75,6 @@ set(LINAEDITOR_HEADERS
 # Core
 include/Core/GUILayer.hpp
 include/Core/EditorCommon.hpp
-include/Core/GizmoLayer.hpp
 include/Core/SplashScreen.hpp
 include/Core/EditorApplication.hpp
 

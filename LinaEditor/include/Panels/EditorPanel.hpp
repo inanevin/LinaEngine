@@ -1,27 +1,43 @@
-/*
-Author: Inan Evin
-www.inanevin.com
+/* 
+This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
-Copyright 2020~ Inan Evin
+Author: Inan Evin
+http://www.inanevin.com
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+Copyright (c) [2018-2020] [Inan Evin]
 
-http://www.apache.org/licenses/LICENSE-2.0
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
-and limitations under the License.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Class: EditorPanel
-Timestamp: 5/23/2020 4:16:05 PM
-
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 */
+
+/*
+Class: EditorPanel
+
+Base class defining functions for all panels.
+
+Timestamp: 5/23/2020 4:16:05 PM
+*/
+
 #pragma once
 
 #ifndef EditorPanel_HPP
 #define EditorPanel_HPP
-
 
 #include "Utility/Math/Vector.hpp"
 
@@ -35,7 +51,7 @@ namespace LinaEditor
 
 	public:
 		
-		EditorPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) : m_Position(position), m_Size(size), m_guiLayer(&guiLayer) { };
+		EditorPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) : m_position(position), m_size(size), m_guiLayer(&guiLayer) { };
 		virtual ~EditorPanel() {};
 	
 		virtual FORCEINLINE void Open() { m_show = true; }
@@ -46,9 +62,9 @@ namespace LinaEditor
 
 	protected:
 
-		GUILayer* m_guiLayer;
-		LinaEngine::Vector2 m_Position;
-		LinaEngine::Vector2 m_Size;
+		GUILayer* m_guiLayer = nullptr;
+		LinaEngine::Vector2 m_position = LinaEngine::Vector2::Zero;
+		LinaEngine::Vector2 m_size = LinaEngine::Vector2::Zero;
 		bool m_show = true;
 	};
 }

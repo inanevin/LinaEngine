@@ -1,18 +1,36 @@
-/*
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
 Author: Inan Evin
-www.inanevin.com
+http://www.inanevin.com
 
-Copyright 2018 Inan Evin
+Copyright (c) [2018-2020] [Inan Evin]
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-http://www.apache.org/licenses/LICENSE-2.0
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
-and limitations under the License.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 
+/*
 Class: UILayer
+
+This class is pushed as an overlay layer to the render engine and is responsible for drawing the editor.
+It inits panels, drawers etc. and is the main bridge of communication between editor components.
 
 */
 
@@ -41,7 +59,6 @@ namespace LinaEngine
 		class Window;
 	}
 }
-
 
 namespace LinaEditor
 {
@@ -86,18 +103,16 @@ namespace LinaEditor
 
 		~GUILayer();
 
-		// Draws the launcher splash screen.
 		void DrawSplash();
 
-		// OVERRIDES
+		// Overrides
 		void OnAttach() override;
 		void OnDetach() override;
 		void OnTick(float dt) override;
 
-		// Menu bar item callbacks.
+		// Menu bar item callback from header panel.
 		void MenuBarItemClicked(const MenuBarItems& item);
 
-		// CLASS METHODS
 		FORCEINLINE void Setup(LinaEngine::Graphics::Window& window, LinaEngine::Graphics::RenderEngine& renderEngine, LinaEngine::Physics::PhysicsEngine& physicsEngine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs)
 		{ 
 			m_appWindow = &window;
@@ -107,7 +122,6 @@ namespace LinaEditor
 			m_ecs = &ecs;	
 		}
 
-		// Getters for references.
 		FORCEINLINE LinaEngine::ECS::ECSRegistry* GetECS() const { return m_ecs; }
 		FORCEINLINE class ECSPanel* GetECSPanel() const { return m_ecsPanel; }
 		FORCEINLINE class PropertiesPanel* GetPropertiesPanel() const { return m_propertiesPanel; }
@@ -121,26 +135,9 @@ namespace LinaEditor
 
 	private:
 
-		// Draws level data dialogs.
 		void DrawLevelDataDialogs();
-
-		// Draws an fps counter overlay.
 		void DrawFPSCounter(int corner = 0);
-
-		// Draws a central docking space.
 		void DrawCentralDockingSpace();
-
-		// Draw content browser.
-		void DrawContentBrowserWindow();
-
-		// Draw skybox settings.
-		void DrawSkyboxSettingsWindow();
-
-		// Checks the project content folder for new files.
-		void ReadProjectContentsFolder();
-
-	private:
-
 
 	private:
 
