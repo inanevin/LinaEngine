@@ -53,27 +53,27 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-		FORCEINLINE VertexArray() : m_EngineBoundID(0), m_IndexCount(0), m_RenderDevice(nullptr) {};
+		FORCEINLINE VertexArray() : m_engineBoundID(0), m_IndexCount(0), m_renderDevice(nullptr) {};
 		FORCEINLINE ~VertexArray()
 		{
-			m_EngineBoundID = m_RenderDevice->ReleaseVertexArray(m_EngineBoundID);
+			m_engineBoundID = m_renderDevice->ReleaseVertexArray(m_engineBoundID);
 		}
 	
 		FORCEINLINE void Construct(RenderDevice& deviceIn, const IndexedModel& model, BufferUsage bufferUsage)
 		{
-			m_RenderDevice = &deviceIn;
-			m_EngineBoundID = model.CreateVertexArray(deviceIn, bufferUsage);
+			m_renderDevice = &deviceIn;
+			m_engineBoundID = model.CreateVertexArray(deviceIn, bufferUsage);
 			m_IndexCount = model.GetIndexCount();
 		}
 
 		FORCEINLINE void UpdateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize)
 		{
-			return m_RenderDevice->UpdateVertexArrayBuffer(m_EngineBoundID, bufferIndex, data, dataSize);
+			return m_renderDevice->UpdateVertexArrayBuffer(m_engineBoundID, bufferIndex, data, dataSize);
 		}
 
 		FORCEINLINE uint32 GetID()
 		{ 
-			return m_EngineBoundID;
+			return m_engineBoundID;
 		}
 
 		FORCEINLINE uint32 GetIndexCount()
@@ -84,8 +84,8 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		RenderDevice* m_RenderDevice = nullptr;
-		uint32 m_EngineBoundID = 0;
+		RenderDevice* m_renderDevice = nullptr;
+		uint32 m_engineBoundID = 0;
 		uint32 m_IndexCount = 0;
 
 		

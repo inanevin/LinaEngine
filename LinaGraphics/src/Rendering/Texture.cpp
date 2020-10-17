@@ -44,7 +44,7 @@ namespace LinaEngine::Graphics
 	}
 
 
-	Texture& Texture::ConstructCubemap(RenderDevice& deviceIn, SamplerParameters samplerParams, const LinaArray<ArrayBitmap*>& data, bool shouldCompress, const std::string& path)
+	Texture& Texture::ConstructCubemap(RenderDevice& deviceIn, SamplerParameters samplerParams, const std::vector<ArrayBitmap*>& data, bool shouldCompress, const std::string& path)
 	{
 		if (data.size() != 6)
 		{
@@ -56,7 +56,7 @@ namespace LinaEngine::Graphics
 		m_Size = Vector2(data[0]->GetWidth(), data[0]->GetHeight());
 		m_BindMode = TextureBindMode::BINDTEXTURE_CUBEMAP;
 
-		LinaArray<int32*> cubeMapData;
+		std::vector<int32*> cubeMapData;
 
 		for (uint32 i = 0; i < 6; i++)
 			cubeMapData.push_back(data[i]->GetPixelArray());

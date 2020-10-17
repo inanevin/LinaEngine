@@ -54,36 +54,35 @@ namespace LinaEngine::Graphics
 
 		Shader() {};
 
-		FORCEINLINE ~Shader() { m_EngineBoundID = renderDevice->ReleaseShaderProgram(m_EngineBoundID); }
+		FORCEINLINE ~Shader() { m_engineBoundID = m_renderDevice->ReleaseShaderProgram(m_engineBoundID); }
 
 		FORCEINLINE Shader& Construct(RenderDevice& renderDeviceIn, const std::string& text, bool usesGeometryShader)
 		{
-			renderDevice = &renderDeviceIn;
-			m_EngineBoundID = renderDevice->CreateShaderProgram(text, usesGeometryShader);
+			m_renderDevice = &renderDeviceIn;
+			m_engineBoundID = m_renderDevice->CreateShaderProgram(text, usesGeometryShader);
 			return *this;
 		}
 
 		// Set uniform buffer through render engine.
 		FORCEINLINE void SetUniformBuffer(const std::string& name, UniformBuffer& buffer) 
 		{ 
-			renderDevice->SetShaderUniformBuffer(m_EngineBoundID, name, buffer.GetID()); 
+			m_renderDevice->SetShaderUniformBuffer(m_engineBoundID, name, buffer.GetID()); 
 		}
 
 		FORCEINLINE void BindBlockToBuffer(uint32 bindingPoint, std::string blockName)
 		{
-			renderDevice->BindShaderBlockToBufferPoint(m_EngineBoundID, bindingPoint, blockName);
+			m_renderDevice->BindShaderBlockToBufferPoint(m_engineBoundID, bindingPoint, blockName);
 		}
 
 		// Get shader id, this gets matched w/ program id on render engine.
-		FORCEINLINE uint32 GetID() { return m_EngineBoundID; }
+		FORCEINLINE uint32 GetID() { return m_engineBoundID; }
 
 
 	private:
 
-		RenderDevice* renderDevice = nullptr;
-		uint32 m_EngineBoundID;
+		RenderDevice* m_renderDevice = nullptr;
+		uint32 m_engineBoundID = 0;
 
-		//NULL_COPY_AND_ASSIGN(Shader);
 	
 	};
 }

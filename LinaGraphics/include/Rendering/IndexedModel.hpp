@@ -40,7 +40,6 @@ Timestamp: 4/26/2019 12:11:36 AM
 #define IndexedModel_HPP
 
 #include "RenderingCommon.hpp"
-#include "Core/LinaArray.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
 
 namespace LinaEngine::Graphics
@@ -49,7 +48,7 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-		IndexedModel() : m_StartIndex((uint32)-1) {}
+		IndexedModel() : m_startIndex((uint32)-1) {}
 
 		// Creates a vertex array using render renderEngine.
 		uint32 CreateVertexArray(RenderDevice& engine, BufferUsage bufferUsage) const;
@@ -70,24 +69,24 @@ namespace LinaEngine::Graphics
 		void AddIndices(uint32 i0, uint32 i1, uint32 i2, uint32 i3);
 
 		// Gets the element array
-		FORCEINLINE LinaArray<LinaArray<float>>& GetElements() { return m_Elements; }
+		FORCEINLINE std::vector<std::vector<float>>& GetElements() { return m_elements; }
 
 		// Sets the start index for instanced elements.
-		FORCEINLINE void SetStartIndex(uint32 elementIndex) { m_StartIndex = elementIndex; }
+		FORCEINLINE void SetStartIndex(uint32 elementIndex) { m_startIndex = elementIndex; }
 
 		// Accessor for num m_Indices.
-		FORCEINLINE uint32 GetIndexCount() const { return m_Indices.size(); }
+		FORCEINLINE uint32 GetIndexCount() const { return m_indices.size(); }
 
 	private:
 
 		// Index & element data.
-		LinaArray<uint32> m_Indices;
-		LinaArray<uint32> m_ElementSizes;
-		LinaArray<uint32> m_ElementTypes;
-		LinaArray<LinaArray<float>> m_Elements;
+		std::vector<uint32> m_indices;
+		std::vector<uint32> m_elementSizes;
+		std::vector<uint32> m_elementTypes;
+		std::vector<std::vector<float>> m_elements;
 
 		// Start index for instanced elements.
-		uint32 m_StartIndex;
+		uint32 m_startIndex = 0;
 
 	};
 }

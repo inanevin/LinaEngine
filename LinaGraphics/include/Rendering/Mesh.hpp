@@ -62,49 +62,49 @@ namespace LinaEngine::Graphics
 		FORCEINLINE VertexArray* GetVertexArray(uint32 index)
 		{
 
-			if (index >= m_VertexArrays.size() || index < 0 || m_VertexArrays.size() == 0)
+			if (index >= m_vertexArrays.size() || index < 0 || m_vertexArrays.size() == 0)
 			{
 				LINA_CORE_ERR("Index is bigger than the vertex array size or vertex array size is 0. Returning nullptr!");
 				return nullptr;
 			}
 
-			return m_VertexArrays.at(index);
+			return m_vertexArrays.at(index);
 		}
 
-		FORCEINLINE LinaArray<VertexArray*>& GetVertexArrays()
+		FORCEINLINE std::vector<VertexArray*>& GetVertexArrays()
 		{
-			return m_VertexArrays;
+			return m_vertexArrays;
 		}
 
-		FORCEINLINE LinaArray<IndexedModel>& GetIndexedModels()
+		FORCEINLINE std::vector<IndexedModel>& GetIndexedModels()
 		{
-			return m_IndexedModelArray;
+			return m_indexedModelArray;
 		}
 
-		FORCEINLINE LinaArray<ModelMaterial>& GetMaterialSpecs()
+		FORCEINLINE std::vector<ModelMaterial>& GetMaterialSpecs()
 		{
-			return m_MaterialSpecArray;
+			return m_materialSpecArray;
 		}
 
-		FORCEINLINE LinaArray<uint32>& GetMaterialIndices()
+		FORCEINLINE std::vector<uint32>& GetMaterialIndices()
 		{
-			return m_MaterialIndexArray;
+			return m_materialIndexArray;
 		}
 
-		FORCEINLINE void SetParameters(MeshParameters params) { m_Parameters = params; }
-		FORCEINLINE MeshParameters& GetParameters() { return m_Parameters; }
+		FORCEINLINE void SetParameters(MeshParameters params) { m_parameters = params; }
+		FORCEINLINE MeshParameters& GetParameters() { return m_parameters; }
 		FORCEINLINE const std::string& GetPath() const { return m_path; }
 
 		int m_MeshID = -1;
-		std::string m_path;
+		std::string m_path = "";
 
 	private:
 		
-		MeshParameters m_Parameters;
-		LinaArray<VertexArray*> m_VertexArrays;
-		LinaArray<IndexedModel> m_IndexedModelArray;
-		LinaArray<ModelMaterial> m_MaterialSpecArray;
-		LinaArray<uint32> m_MaterialIndexArray;
+		MeshParameters m_parameters;
+		std::vector<VertexArray*> m_vertexArrays;
+		std::vector<IndexedModel> m_indexedModelArray;
+		std::vector<ModelMaterial> m_materialSpecArray;
+		std::vector<uint32> m_materialIndexArray;
 
 	};
 }

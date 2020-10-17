@@ -24,7 +24,7 @@ Timestamp: 4/26/2019 12:11:04 AM
 
 namespace LinaEngine::Graphics
 {
-	bool ModelLoader::LoadModel(const std::string& fileName, LinaArray<IndexedModel>& models, LinaArray<uint32>& modelMaterialIndices, LinaArray<ModelMaterial>& materials, MeshParameters meshParams)
+	bool ModelLoader::LoadModel(const std::string& fileName, std::vector<IndexedModel>& models, std::vector<uint32>& modelMaterialIndices, std::vector<ModelMaterial>& materials, MeshParameters meshParams)
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
@@ -120,7 +120,7 @@ namespace LinaEngine::Graphics
 		return true;
 	}
 
-	bool ModelLoader::LoadModelAnimated(const std::string& fileName, LinaArray<IndexedModel>& models, LinaArray<uint32>& modelMaterialIndices, LinaArray<ModelMaterial>& materials)
+	bool ModelLoader::LoadModelAnimated(const std::string& fileName, std::vector<IndexedModel>& models, std::vector<uint32>& modelMaterialIndices, std::vector<ModelMaterial>& materials)
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
@@ -250,7 +250,7 @@ namespace LinaEngine::Graphics
 		return true;
 	}
 
-	bool ModelLoader::LoadPrimitive(LinaArray<IndexedModel>& models, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords)
+	bool ModelLoader::LoadPrimitive(std::vector<IndexedModel>& models, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords)
 	{
 		// Create and indexed model for each mesh & fill in the data.
 		IndexedModel currentModel;

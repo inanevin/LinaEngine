@@ -97,7 +97,7 @@ namespace LinaEngine::World
 		static void DeserializeLevelData(const std::string& path, const std::string& levelName, Level& level, LinaEngine::ECS::ECSRegistry& registry);
 
 		LevelData m_levelData;
-		LinaEngine::ECS::ECSRegistry* m_ecs;
+		LinaEngine::ECS::ECSRegistry* m_ecs = nullptr;
 
 
 	protected:

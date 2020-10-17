@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -59,7 +59,7 @@ namespace LinaEngine::ECS
 		virtual void UpdateComponents(float delta) override;
 
 		// Construct the system.
-		FORCEINLINE void Construct(ECSRegistry& registry) { BaseECSSystem::Construct(registry);  }
+		FORCEINLINE void Construct(ECSRegistry& registry) { BaseECSSystem::Construct(registry); }
 
 		// Get view matrix.
 		FORCEINLINE Matrix& GetViewMatrix() { return m_view; }
@@ -83,7 +83,7 @@ namespace LinaEngine::ECS
 	private:
 
 		Matrix m_view = Matrix::Identity();
-		Matrix m_projection =Matrix::Perspective(35, 1.33f, 0.01f, 1000.0f);
+		Matrix m_projection = Matrix::Perspective(35, 1.33f, 0.01f, 1000.0f);
 		CameraComponent* m_currentCameraComponent = nullptr;
 		TransformComponent* m_currentCameraTransform = nullptr;
 		float m_aspectRatio = 1.33f;

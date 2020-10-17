@@ -52,35 +52,35 @@ namespace LinaEngine::Graphics
 		// Destructor releases sampler data through render engine
 		FORCEINLINE ~Sampler()
 		{
-			m_EngineBoundID = renderDevice->ReleaseSampler(m_EngineBoundID);
+			m_engineBoundID = m_renderDevice->ReleaseSampler(m_engineBoundID);
 		}
 
 		FORCEINLINE void Construct(RenderDevice& deviceIn, SamplerParameters samplerParams, TextureBindMode bindMode)
 		{
-			renderDevice = &deviceIn;
-			m_EngineBoundID = renderDevice->CreateSampler(samplerParams);
-			m_TargetBindMode = bindMode;
-			m_Params = samplerParams;
+			m_renderDevice = &deviceIn;
+			m_engineBoundID = m_renderDevice->CreateSampler(samplerParams);
+			m_targetBindMode = bindMode;
+			m_params = samplerParams;
 		}
 
 		FORCEINLINE void UpdateSettings(SamplerParameters samplerParams) 
 		{
-			m_Params = samplerParams;
-			renderDevice->UpdateSamplerParameters(m_EngineBoundID, samplerParams);
-			renderDevice->UpdateTextureParameters(m_TargetBindMode, m_TargetTextureID, samplerParams);
+			m_params = samplerParams;
+			m_renderDevice->UpdateSamplerParameters(m_engineBoundID, samplerParams);
+			m_renderDevice->UpdateTextureParameters(m_targetBindMode, m_targetTextureID, samplerParams);
 		}
 
-		FORCEINLINE SamplerParameters& GetSamplerParameters() { return m_Params; }
+		FORCEINLINE SamplerParameters& GetSamplerParameters() { return m_params; }
 
-		FORCEINLINE uint32 GetID() const { return m_EngineBoundID; }
-		FORCEINLINE void SetTargetTextureID(uint32 id) { m_TargetTextureID = id; }
+		FORCEINLINE uint32 GetID() const { return m_engineBoundID; }
+		FORCEINLINE void SetTargetTextureID(uint32 id) { m_targetTextureID = id; }
 	private:
 
-		uint32 m_TargetTextureID;
-		TextureBindMode m_TargetBindMode;
-		SamplerParameters m_Params;
-		RenderDevice* renderDevice;
-		uint32 m_EngineBoundID;
+		uint32 m_targetTextureID = 0;
+		TextureBindMode m_targetBindMode;
+		SamplerParameters m_params;
+		RenderDevice* m_renderDevice = nullptr;
+		uint32 m_engineBoundID = 0;
 
 
 	};

@@ -83,8 +83,8 @@ namespace LinaEngine::ECS
 
 	private:
 
-		RenderDevice* m_renderDevice;
-		Graphics::RenderEngine* m_renderEngine;
+		RenderDevice* m_renderDevice = nullptr;
+		Graphics::RenderEngine* m_renderEngine = nullptr;
 		std::tuple < TransformComponent*, DirectionalLightComponent*> m_directionalLight;
 		std::vector<std::tuple<TransformComponent*, PointLightComponent*>> m_pointLights;
 		std::vector<std::tuple<TransformComponent*, SpotLightComponent*>> m_spotLights;

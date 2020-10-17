@@ -54,9 +54,9 @@ namespace LinaEngine::Graphics
 	public:
 
 		// Param constructors including width, height, pixel array and offsets
-		ArrayBitmap(int32 width = 1, int32 m_Heigth = 1);
-		ArrayBitmap(int32 width, int32 m_Heigth, int32* pixels);
-		ArrayBitmap(int32 width, int32 m_Heigth, int32* pixels, int32 offsetX, int32 offsetY, int32 rowOffset);
+		ArrayBitmap(int32 width = 1, int32 height = 1);
+		ArrayBitmap(int32 width, int32 height, int32* pixels);
+		ArrayBitmap(int32 width, int32 height, int32* pixels, int32 offsetX, int32 offsetY, int32 rowOffset);
 		~ArrayBitmap();
 
 		// Load the bitmap from a file in resources.
@@ -73,34 +73,34 @@ namespace LinaEngine::Graphics
 		void Clear(int32 color);
 
 		// Accessors & Mutators.
-		FORCEINLINE int32 GetWidth() const { return m_Width; };
-		FORCEINLINE int32 GetHeight() const { return m_Heigth; };
+		FORCEINLINE int32 GetWidth() const { return m_width; };
+		FORCEINLINE int32 GetHeight() const { return m_heigth; };
 
 		FORCEINLINE int32 Get(int32 x, int32 y) const
 		{
-			LINA_CORE_ASSERT((x > 0 && x < m_Width) && (y >= 0 && y < m_Heigth), "Conditions are not map on array bitmap !");
-			return m_Pixels[x + y * m_Width];
+			LINA_CORE_ASSERT((x > 0 && x < m_width) && (y >= 0 && y < m_heigth), "Conditions are not map on array bitmap !");
+			return m_pixels[x + y * m_width];
 		};
 
 		FORCEINLINE void Set(int32 x, int32 y, int32 pixel)
 		{
-			LINA_CORE_ASSERT((x > 0 && x < m_Width) && (y >= 0 && y < m_Heigth), "Conditions are not map on array bitmap !");
-			m_Pixels[x + y * m_Width] = pixel;
+			LINA_CORE_ASSERT((x > 0 && x < m_width) && (y >= 0 && y < m_heigth), "Conditions are not map on array bitmap !");
+			m_pixels[x + y * m_width] = pixel;
 		};
 
-		FORCEINLINE int32* GetPixelArray() { return m_Pixels; };
-		FORCEINLINE const int32* GetPixelArray() const { return m_Pixels; };
+		FORCEINLINE int32* GetPixelArray() { return m_pixels; };
+		FORCEINLINE const int32* GetPixelArray() const { return m_pixels; };
 
 	private:
 
 		// Bitmap array properties.
-		int32 m_Width = 0;
-		int32 m_Heigth = 0;
-		int32* m_Pixels = nullptr;
+		int32 m_width = 0;
+		int32 m_heigth = 0;
+		int32* m_pixels = nullptr;
 
 	private:
 
-		FORCEINLINE uintptr GetPixelsSize() const { return (uintptr)(m_Width * m_Heigth) * sizeof(m_Pixels[0]); }
+		FORCEINLINE uintptr GetPixelsSize() const { return (uintptr)(m_width * m_heigth) * sizeof(m_pixels[0]); }
 
 	};
 }

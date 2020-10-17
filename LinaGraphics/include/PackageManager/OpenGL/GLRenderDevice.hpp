@@ -43,7 +43,7 @@ Timestamp: 4/27/2019 10:12:16 PM
 
 #include "Utility/Math/Matrix.hpp"
 #include "Utility/Math/Color.hpp"
-#include "Core/LinaArray.hpp"
+
 #include "Rendering/RenderingCommon.hpp"
 #include <map>
 
@@ -68,7 +68,7 @@ namespace LinaEngine::Graphics
 	// Shader program struct for storage.
 	struct ShaderProgram
 	{
-		LinaArray<uint32> shaders;
+		std::vector<uint32> shaders;
 		std::map<std::string, int32> uniformBlockMap;
 		std::map<std::string, int32> samplerMap;
 		std::map<std::string, int32> uniformMap;
@@ -92,7 +92,7 @@ namespace LinaEngine::Graphics
 		uint32 CreateTextureHDRI(Vector2 size, float* data, SamplerParameters samplerParams);
 
 		// Creates a Cubemap texture on GL.
-		uint32 CreateCubemapTexture(Vector2 size, SamplerParameters samplerParams, const LinaArray<int32*>& data, uint32 dataSize = 6);
+		uint32 CreateCubemapTexture(Vector2 size, SamplerParameters samplerParams, const std::vector<int32*>& data, uint32 dataSize = 6);
 		
 		// Creates an empty cubemap texture.
 		uint32 CreateCubemapTextureEmpty(Vector2 size, SamplerParameters samplerParams);
@@ -341,15 +341,15 @@ namespace LinaEngine::Graphics
 		StencilOp m_usedStencilPass;
 
 		// Current operation parameters.
-		uint32 m_usedStencilTestMask;
-		uint32 m_usedStencilWriteMask;
-		int32 m_usedStencilComparisonValue;
-		bool m_isBlendingEnabled;
-		bool m_isStencilTestEnabled;
-		bool m_isScissorsTestEnabled;
-		bool m_shouldWriteDepth;
-		bool m_isDepthTestEnabled;
-		Color m_currentClearColor;
+		uint32 m_usedStencilTestMask = 0;
+		uint32 m_usedStencilWriteMask = 0;
+		int32 m_usedStencilComparisonValue = 0;
+		bool m_isBlendingEnabled = true;
+		bool m_isStencilTestEnabled = true;
+		bool m_isScissorsTestEnabled = false;
+		bool m_shouldWriteDepth = true;
+		bool m_isDepthTestEnabled = true;
+		Color m_currentClearColor = Color::Black;
 		
 	};
 }

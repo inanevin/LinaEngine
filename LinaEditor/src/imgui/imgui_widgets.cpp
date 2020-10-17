@@ -495,8 +495,8 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
 		g.HoveredWindow = window;
 
 #ifdef IMGUI_ENABLE_TEST_ENGINE
-	if (id != 0 && window->DC.LastItemId != id)
-		IMGUI_TEST_ENGINE_ITEM_ADD(bb, id);
+	if (m_id != 0 && window->DC.LastItemId != m_id)
+		IMGUI_TEST_ENGINE_ITEM_ADD(bb, m_id);
 #endif
 
 	bool pressed = false;

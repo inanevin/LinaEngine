@@ -44,7 +44,7 @@ namespace LinaEngine::ECS
 {
 	struct SpriteRendererComponent : public ECSComponent
 	{
-		int m_materialID = 0;
+		int m_materialID = -1;
 
 		template<class Archive>
 		void serialize(Archive& archive)

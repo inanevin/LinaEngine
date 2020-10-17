@@ -54,37 +54,36 @@ namespace LinaEngine::Graphics
 		// Destructor releases the buffer through render engine.
 		FORCEINLINE ~UniformBuffer()
 		{
-			if (m_IsConstructed)
-				m_EngineBoundID = m_RenderDevice->ReleaseUniformBuffer(m_EngineBoundID);
+			if (m_isConstructed)
+				m_engineBoundID = m_renderDevice->ReleaseUniformBuffer(m_engineBoundID);
 		}
 
 		// Updates the uniform buffer w/ new data, allows dynamic size change.
 		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, uintptr dataSize, BufferUsage usage, const void* data = nullptr)
 		{
-			m_RenderDevice = &renderDeviceIn;
-			m_BufferSize = dataSize;
-			m_EngineBoundID = m_RenderDevice->CreateUniformBuffer(data, dataSize, usage);
-			m_IsConstructed = true;
+			m_renderDevice = &renderDeviceIn;
+			m_bufferSize = dataSize;
+			m_engineBoundID = m_renderDevice->CreateUniformBuffer(data, dataSize, usage);
+			m_isConstructed = true;
 		}
 
 		FORCEINLINE void Bind(uint32 point)
 		{
-			m_RenderDevice->BindUniformBuffer(m_EngineBoundID, point);
+			m_renderDevice->BindUniformBuffer(m_engineBoundID, point);
 		}
 
-		FORCEINLINE void Update(const void* data, uintptr offset, uintptr dataSize) { m_RenderDevice->UpdateUniformBuffer(m_EngineBoundID, data, offset, dataSize); }
-		FORCEINLINE void Update(const void* data,  uintptr dataSize) { m_RenderDevice->UpdateUniformBuffer(m_EngineBoundID, data, dataSize); }
+		FORCEINLINE void Update(const void* data, uintptr offset, uintptr dataSize) { m_renderDevice->UpdateUniformBuffer(m_engineBoundID, data, offset, dataSize); }
+		FORCEINLINE void Update(const void* data,  uintptr dataSize) { m_renderDevice->UpdateUniformBuffer(m_engineBoundID, data, dataSize); }
 
-		FORCEINLINE uint32 GetID() { return m_EngineBoundID; }
+		FORCEINLINE uint32 GetID() { return m_engineBoundID; }
 
 	private:
 
-		RenderDevice* m_RenderDevice;
-		uint32 m_EngineBoundID;
-		uintptr m_BufferSize;
-		bool m_IsConstructed = false;
+		RenderDevice* m_renderDevice = nullptr;
+		uint32 m_engineBoundID = 0;
+		uintptr m_bufferSize = 0;
+		bool m_isConstructed = false;
 
-		NULL_COPY_AND_ASSIGN(UniformBuffer);
 
 	};
 }

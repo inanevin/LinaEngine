@@ -407,20 +407,20 @@ namespace LinaEngine::Graphics
 	private:
 
 		// Standart Skybox vertex array object.
-		uint32 m_skyboxVAO;
+		uint32 m_skyboxVAO = 0;
 
 		// Quad to draw the buffers into.
-		uint32 m_screenQuadVAO;
+		uint32 m_screenQuadVAO = 0;
 
 		// HDRI Cubemap vao
-		uint32 m_hdriCubeVAO;
+		uint32 m_hdriCubeVAO = 0;
 
 		// VAO for drawing lines
-		uint32 m_lineVAO;
+		uint32 m_lineVAO = 0;
 
 		// Light counts.
-		int m_currentSpotLightCount;
-		int m_currentPointLightCount;
+		int m_currentSpotLightCount = 0;
+		int m_currentPointLightCount = 0;
 
 		// Whether hdri data is captured & calculated or not.
 		bool m_hdriDataCaptured = false;

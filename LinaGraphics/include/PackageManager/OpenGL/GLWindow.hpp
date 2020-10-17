@@ -105,7 +105,6 @@ namespace LinaEngine::Graphics
 
 	private:
 
-
 		void* m_window = nullptr;
 		GLFWwindow* m_glfwWindow = nullptr;
 

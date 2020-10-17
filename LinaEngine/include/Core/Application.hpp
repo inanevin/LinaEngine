@@ -163,9 +163,9 @@ namespace LinaEngine
 		std::function<void()> m_postSceneDrawCallback;
 
 		// FPS counting
-		int m_currentFPS;
-		double m_previousTime;
-		int m_fpsCounter;
+		int m_currentFPS = 0;
+		double m_previousTime = 0;
+		int m_fpsCounter = 0;
 	};
 
 	// Defined in client.

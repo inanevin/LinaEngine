@@ -63,8 +63,8 @@ namespace LinaEngine
 
 		struct BatchModelData
 		{
-			LinaArray<Matrix> m_models;
-			LinaArray<Matrix> m_inverseTransposeModels;
+			std::vector<Matrix> m_models;
+			std::vector<Matrix> m_inverseTransposeModels;
 		};
 	}
 }

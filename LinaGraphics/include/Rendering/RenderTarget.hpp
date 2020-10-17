@@ -54,8 +54,8 @@ namespace LinaEngine::Graphics
 		// Destructor releases the render target through render engine.
 		FORCEINLINE ~RenderTarget()
 		{
-			if (m_Constructed)
-				m_EngineBoundID = renderDevice->ReleaseRenderTarget(m_EngineBoundID);
+			if (m_constructed)
+				m_engineBoundID = m_renderDevice->ReleaseRenderTarget(m_engineBoundID);
 		}
 
 
@@ -63,27 +63,27 @@ namespace LinaEngine::Graphics
 		// Constructors create the target through render engine.
 		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, Texture& texture, const Vector2& size, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, bool noReadWrite = false, uint32 attachmentNumber = 0, uint32 mipLevel = 0)
 		{
-			m_Constructed = true;
-			renderDevice = &renderDeviceIn;
-			m_EngineBoundID = renderDevice->CreateRenderTarget(texture.GetID(), (uint32)size.x, (uint32)size.y, bindTextureMode, attachment, attachmentNumber, mipLevel, noReadWrite, false, FrameBufferAttachment::ATTACHMENT_COLOR, 0, true);
+			m_constructed = true;
+			m_renderDevice = &renderDeviceIn;
+			m_engineBoundID = m_renderDevice->CreateRenderTarget(texture.GetID(), (uint32)size.x, (uint32)size.y, bindTextureMode, attachment, attachmentNumber, mipLevel, noReadWrite, false, FrameBufferAttachment::ATTACHMENT_COLOR, 0, true);
 			CheckCompressed(texture);
 		}
 
 		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, Texture& texture, const Vector2& size, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, FrameBufferAttachment rboAttachment, uint32 rbo, uint32 attachmentNumber = 0, uint32 mipLevel = 0)
 		{
-			m_Constructed = true;
-			renderDevice = &renderDeviceIn;
-			m_RBO = rbo;
-			m_EngineBoundID = renderDevice->CreateRenderTarget(texture.GetID(), (uint32)size.x, (uint32)size.y, bindTextureMode, attachment, attachmentNumber, mipLevel, false, rbo != 0, rboAttachment, rbo, true);
+			m_constructed = true;
+			m_renderDevice = &renderDeviceIn;
+			m_rbo = rbo;
+			m_engineBoundID = m_renderDevice->CreateRenderTarget(texture.GetID(), (uint32)size.x, (uint32)size.y, bindTextureMode, attachment, attachmentNumber, mipLevel, false, rbo != 0, rboAttachment, rbo, true);
 			CheckCompressed(texture);
 		}
 
 		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, Vector2 size, FrameBufferAttachment rboAttachment, uint32 rbo)
 		{
-			m_Constructed = true;
-			renderDevice = &renderDeviceIn;
-			m_RBO = rbo;
-			m_EngineBoundID = renderDevice->CreateRenderTarget(0, size.x, size.y, TextureBindMode::BINDTEXTURE_NONE, FrameBufferAttachment::ATTACHMENT_COLOR, 0,0, false, true, rboAttachment, rbo, false);
+			m_constructed = true;
+			m_renderDevice = &renderDeviceIn;
+			m_rbo = rbo;
+			m_engineBoundID = m_renderDevice->CreateRenderTarget(0, size.x, size.y, TextureBindMode::BINDTEXTURE_NONE, FrameBufferAttachment::ATTACHMENT_COLOR, 0,0, false, true, rboAttachment, rbo, false);
 		}
 
 		// Check if the texture is compressed. It should not be so to properly create the target.
@@ -102,14 +102,14 @@ namespace LinaEngine::Graphics
 		}
 
 
-		FORCEINLINE uint32 GetID() { return m_EngineBoundID; }
+		FORCEINLINE uint32 GetID() { return m_engineBoundID; }
 
 	private:
 
-		bool m_Constructed;
-		RenderDevice* renderDevice;
-		uint32 m_EngineBoundID;
-		uint32 m_RBO;
+		bool m_constructed = false;
+		RenderDevice* m_renderDevice = nullptr;
+		uint32 m_engineBoundID = 0;
+		uint32 m_rbo = 0;
 
 	};
 }

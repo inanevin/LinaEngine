@@ -40,7 +40,7 @@ Timestamp: 1/7/2019 1:55:47 PM
 #ifndef Texture_HPP
 #define Texture_HPP
 
-#include "Core/LinaArray.hpp"
+
 #include "Rendering/RenderingCommon.hpp"
 #include "Core/Common.hpp"
 #include "PackageManager/OpenGL/GLRenderDevice.hpp"
@@ -61,31 +61,31 @@ namespace LinaEngine::Graphics
 		~Texture();
 
 		Texture& Construct(RenderDevice& deviceIn, const class ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress, const std::string& path = "");
-		Texture& ConstructCubemap(RenderDevice& deviceIn, SamplerParameters samplerParams, const LinaArray<class ArrayBitmap*>& data, bool compress, const std::string& path = "");
+		Texture& ConstructCubemap(RenderDevice& deviceIn, SamplerParameters samplerParams, const std::vector<class ArrayBitmap*>& data, bool compress, const std::string& path = "");
 		Texture& ConstructHDRI(RenderDevice& deviceIn, SamplerParameters samplerParams, Vector2 size, float* data, const std::string& path = "");
 		Texture& ConstructRTCubemapTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, const std::string& path = "");
 		Texture& ConstructRTTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, bool useBorder = false, const std::string& path = "");
 		Texture& ConstructRTTextureMSAA(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, int sampleCount, const std::string& path = "");
 		Texture& ConstructEmpty(RenderDevice& deviceIn, SamplerParameters samplerParams = SamplerParameters(), const std::string& path = "");
-		FORCEINLINE uint32 GetID() const { return m_ID; };
-		FORCEINLINE uint32 GetSamplerID() const { return m_Sampler.GetID(); }
-		FORCEINLINE Sampler& GetSampler() { return m_Sampler; }
-		FORCEINLINE bool IsCompressed() const { return isCompressed; }
-		FORCEINLINE bool HasMipmaps() const { return hasMipMaps; }
-		FORCEINLINE Vector2 GetSize() { return m_Size; }
-		FORCEINLINE bool GetIsEmpty() { return m_IsEmpty; }
+		FORCEINLINE uint32 GetID() const { return m_id; };
+		FORCEINLINE uint32 GetSamplerID() const { return m_sampler.GetID(); }
+		FORCEINLINE Sampler& GetSampler() { return m_sampler; }
+		FORCEINLINE bool IsCompressed() const { return m_isCompressed; }
+		FORCEINLINE bool HasMipmaps() const { return m_hasMipMaps; }
+		FORCEINLINE Vector2 GetSize() { return m_size; }
+		FORCEINLINE bool GetIsEmpty() { return m_isEmpty; }
 		FORCEINLINE const std::string& GetPath() const { return m_path; }
 
 	private:
 
-		TextureBindMode m_BindMode;
-		Sampler m_Sampler;
-		RenderDevice* renderDevice = nullptr;
-		uint32 m_ID = 0;
-		Vector2 m_Size;
-		bool isCompressed = false;
-		bool hasMipMaps = true;
-		bool m_IsEmpty = true;
+		TextureBindMode m_bindMode;
+		Sampler m_sampler;
+		RenderDevice* m_renderDevice = nullptr;
+		uint32 m_id = 0;
+		Vector2 m_size = Vector2::One;
+		bool m_isCompressed = false;
+		bool m_hasMipMaps = true;
+		bool m_isEmpty = true;
 		std::string m_path = "";
 	};
 }

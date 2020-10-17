@@ -53,19 +53,12 @@ namespace LinaEngine::Graphics
 
 	class Texture;
 
-	struct MaterialTextureData
-	{
-		Texture* texture = nullptr;
-		uint32 unit = 0;
-		TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
-	};
-
 	struct MaterialSampler2D
 	{
-		uint32 unit = 0;
-		Texture* boundTexture = nullptr;
-		TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
-		bool isActive = false;
+		uint32 m_unit = 0;
+		Texture* m_boundTexture = nullptr;
+		TextureBindMode m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
+		bool m_isActive = false;
 	};
 
 	class Material
@@ -80,98 +73,98 @@ namespace LinaEngine::Graphics
 
 		FORCEINLINE void SetFloat(const std::string& name, float value)
 		{
-			floats[name] = value;
+			m_floats[name] = value;
 		}
 
 
 		FORCEINLINE void SetBool(const std::string& name, bool value)
 		{
-			booleans[name] = value;
+			m_bools[name] = value;
 		}
 
 		FORCEINLINE void SetInt(const std::string& name, int value)
 		{
-			ints[name] = value;
+			m_ints[name] = value;
 
 			if (name == MAT_SURFACETYPE)
-				m_SurfaceType = static_cast<MaterialSurfaceType>(value);
+				m_surfaceType = static_cast<MaterialSurfaceType>(value);
 		}
 
 		FORCEINLINE void SetColor(const std::string& name, const Color& color)
 		{
-			colors[name] = color;
+			m_colors[name] = color;
 		}
 
 		FORCEINLINE void SetVector2(const std::string& name, const Vector2& vector)
 		{
-			vector2s[name] = vector;
+			m_vector2s[name] = vector;
 		}
 
 		FORCEINLINE void SetVector3(const std::string& name, const Vector3& vector)
 		{
-			vector3s[name] = vector;
+			m_vector3s[name] = vector;
 		}
 
 		FORCEINLINE void SetVector4(const std::string& name, const Vector4& vector)
 		{
-			vector4s[name] = vector;
+			m_vector4s[name] = vector;
 		}
 
 		FORCEINLINE void SetMatrix4(const std::string& name, const Matrix& matrix)
 		{
-			matrices[name] = matrix;
+			m_matrices[name] = matrix;
 		}	
 
 		FORCEINLINE float GetFloat(const std::string& name)
 		{
-			return floats[name];
+			return m_floats[name];
 		}
 
 		FORCEINLINE float GetBool(const std::string& name)
 		{
-			return booleans[name];
+			return m_bools[name];
 		}
 
 		FORCEINLINE int GetInt(const std::string& name)
 		{
-			return ints[name];
+			return m_ints[name];
 		}
 
 		FORCEINLINE Color GetColor(const std::string& name)
 		{
-			return colors[name];
+			return m_colors[name];
 		}
 
 		FORCEINLINE Vector2 GetVector2(const std::string& name)
 		{
-			return vector2s[name];
+			return m_vector2s[name];
 		}
 
 		FORCEINLINE Vector3 GetVector3(const std::string& name)
 		{
-			return vector3s[name];
+			return m_vector3s[name];
 		}
 
 		FORCEINLINE Vector4 GetVector4(const std::string& name)
 		{
-			return vector4s[name];
+			return m_vector4s[name];
 		}
 
 		FORCEINLINE Matrix GetMatrix(const std::string& name)
 		{
-			return matrices[name];
+			return m_matrices[name];
 		}
 		
-		FORCEINLINE Shaders GetShaderType() { return m_ShaderType; }
-		FORCEINLINE uint32 GetShaderID() { return shaderID; }
-		FORCEINLINE void SetSurfaceType(MaterialSurfaceType type) { m_SurfaceType = type; SetInt(MAT_SURFACETYPE, type); }
-		FORCEINLINE MaterialSurfaceType GetSurfaceType() { return m_SurfaceType; }
+		FORCEINLINE Shaders GetShaderType() { return m_shaderType; }
+		FORCEINLINE uint32 GetShaderID() { return m_shaderID; }
+		FORCEINLINE void SetSurfaceType(MaterialSurfaceType type) { m_surfaceType = type; SetInt(MAT_SURFACETYPE, type); }
+		FORCEINLINE MaterialSurfaceType GetSurfaceType() { return m_surfaceType; }
 
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(usesHDRI, receivesLighting, isShadowMapped, m_ShaderType, m_SurfaceType, floats, ints, colors, vector2s, vector3s, vector4s, matrices, booleans);
+			archive(m_usesHDRI, m_receivesLighting, m_isShadowMapped, m_shaderType, m_surfaceType, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
 		}
 
 		int m_MaterialID = -1;
@@ -181,31 +174,31 @@ namespace LinaEngine::Graphics
 		friend class RenderEngine;
 		friend class RenderContext;
 
-		uint32 shaderID;
-		bool usesHDRI = false;
-		bool receivesLighting = false;
-		bool isShadowMapped = false;
-		Shaders m_ShaderType;
-		MaterialSurfaceType m_SurfaceType = MaterialSurfaceType::Opaque;
-		std::map<std::string, float> floats;
-		std::map<std::string, int> ints;
-		std::map<std::string, MaterialSampler2D> sampler2Ds;
-		std::map<std::string, Color> colors;
-		std::map<std::string, Vector2> vector2s;
-		std::map<std::string, Vector3> vector3s;
-		std::map<std::string, Vector4> vector4s;
-		std::map<std::string, Matrix> matrices;;
-		std::map<std::string, bool> booleans;
+		uint32 m_shaderID = 0;
+		bool m_usesHDRI = false;
+		bool m_receivesLighting = false;
+		bool m_isShadowMapped = false;
+		Shaders m_shaderType;
+		MaterialSurfaceType m_surfaceType = MaterialSurfaceType::Opaque;
+		std::map<std::string, float> m_floats;
+		std::map<std::string, int> m_ints;
+		std::map<std::string, MaterialSampler2D> m_sampler2Ds;
+		std::map<std::string, Color> m_colors;
+		std::map<std::string, Vector2> m_vector2s;
+		std::map<std::string, Vector3> m_vector3s;
+		std::map<std::string, Vector4> m_vector4s;
+		std::map<std::string, Matrix> m_matrices;
+		std::map<std::string, bool> m_bools;
 
 	
 	};
 
 	struct ModelMaterial
 	{
-		std::map<std::string, std::string> textureNames;
-		std::map<std::string, float> floats;
-		std::map<std::string, Vector3> vectors;
-		std::map<std::string, Matrix> matrices;
+		std::map<std::string, std::string> m_textureNames;
+		std::map<std::string, float> m_floats;
+		std::map<std::string, Vector3> m_vectors;
+		std::map<std::string, Matrix> m_matrices;
 	};
 
 }

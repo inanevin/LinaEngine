@@ -50,7 +50,7 @@ namespace LinaEngine::ECS
 
 	struct LightComponent : public ECSComponent
 	{
-		Color m_color;
+		Color m_color = Color::White;
 
 		template<class Archive>
 		void serialize(Archive& archive)
@@ -66,7 +66,7 @@ namespace LinaEngine::ECS
 
 	struct PointLightComponent : public LightComponent
 	{
-		float m_distance;
+		float m_distance = 0;
 
 		template<class Archive>
 		void serialize(Archive& archive)
@@ -82,7 +82,7 @@ namespace LinaEngine::ECS
 
 	struct SpotLightComponent : public LightComponent
 	{
-		float m_distance;
+		float m_distance = 0;
 		float m_cutoff = Math::Cos(Math::ToRadians(12.5f));
 		float m_outerCutoff = Math::Cos(Math::ToRadians(17.5f));
 
