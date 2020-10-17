@@ -83,32 +83,32 @@ namespace LinaEngine
 		float Min() const;
 		void Normalize();
 
-		FORCEINLINE Vector2& operator+=(const Vector2& rhs) { x += rhs.x; y += rhs.y; return *this; };
-		FORCEINLINE Vector2& operator-=(const Vector2& rhs) { x -= rhs.x; y -= rhs.y;	return *this; };
-		FORCEINLINE Vector2& operator*=(const Vector2& rhs) { x *= rhs.x; y *= rhs.y;	return *this; };
-		FORCEINLINE Vector2& operator/=(const Vector2& rhs) { x /= rhs.x == 0 ? 0.0001f : rhs.x; y /= rhs.y == 0 ? 0.0001f : rhs.y;	return *this; };
-		FORCEINLINE Vector2& operator+=(const float& rhs) { x += rhs; y += rhs;	return *this; };
-		FORCEINLINE Vector2& operator-=(const float& rhs) { x -= rhs; y -= rhs;	return *this; };
-		FORCEINLINE Vector2& operator*=(const float& rhs) { x *= rhs; y *= rhs;	return *this; };
-		FORCEINLINE Vector2& operator/=(const float& rhs) { x /= rhs == 0 ? 0.0001f : rhs; y /= rhs == 0 ? 0.0001f : rhs;	return *this; };
-		FORCEINLINE Vector2& operator=(const Vector2& rhs) { x = rhs.x; y = rhs.y; return *this; };
-		FORCEINLINE Vector2 operator-(const Vector2& rhs) { return  Vector2(x- rhs.x, y-rhs.y); };
-		FORCEINLINE Vector2 operator+(const Vector2& rhs) { return  Vector2(x+rhs.x, y+rhs.y); };
-		FORCEINLINE Vector2 operator*(const Vector2& rhs) { return  Vector2(x*rhs.x, y*rhs.y); };
-		FORCEINLINE bool operator==(const Vector2& rhs) const { return x == rhs.x && y == rhs.y; }
-		FORCEINLINE bool operator!=(const Vector2& rhs) const { return !(x == rhs.x && y == rhs.y); }
-		FORCEINLINE bool operator>(const Vector2& rhs) const { return length() > rhs.length(); }
-		FORCEINLINE bool operator<(const Vector2& rhs) const { return length() < rhs.length(); }
-		FORCEINLINE float& operator[] (unsigned int i) { return (&x)[i]; }
-		FORCEINLINE Vector2 operator-() const { return Vector2(-*this); }
-		FORCEINLINE float* Get() { return &x; }
+		Vector2& operator+=(const Vector2& rhs) { x += rhs.x; y += rhs.y; return *this; };
+		Vector2& operator-=(const Vector2& rhs) { x -= rhs.x; y -= rhs.y;	return *this; };
+		Vector2& operator*=(const Vector2& rhs) { x *= rhs.x; y *= rhs.y;	return *this; };
+		Vector2& operator/=(const Vector2& rhs) { x /= rhs.x == 0 ? 0.0001f : rhs.x; y /= rhs.y == 0 ? 0.0001f : rhs.y;	return *this; };
+		Vector2& operator+=(const float& rhs) { x += rhs; y += rhs;	return *this; };
+		Vector2& operator-=(const float& rhs) { x -= rhs; y -= rhs;	return *this; };
+		Vector2& operator*=(const float& rhs) { x *= rhs; y *= rhs;	return *this; };
+		Vector2& operator/=(const float& rhs) { x /= rhs == 0 ? 0.0001f : rhs; y /= rhs == 0 ? 0.0001f : rhs;	return *this; };
+		Vector2& operator=(const Vector2& rhs) { x = rhs.x; y = rhs.y; return *this; };
+		Vector2 operator-(const Vector2& rhs) { return  Vector2(x- rhs.x, y-rhs.y); };
+		Vector2 operator+(const Vector2& rhs) { return  Vector2(x+rhs.x, y+rhs.y); };
+		Vector2 operator*(const Vector2& rhs) { return  Vector2(x*rhs.x, y*rhs.y); };
+		bool operator==(const Vector2& rhs) const { return x == rhs.x && y == rhs.y; }
+		bool operator!=(const Vector2& rhs) const { return !(x == rhs.x && y == rhs.y); }
+		bool operator>(const Vector2& rhs) const { return length() > rhs.length(); }
+		bool operator<(const Vector2& rhs) const { return length() < rhs.length(); }
+		float& operator[] (unsigned int i) { return (&x)[i]; }
+		Vector2 operator-() const { return Vector2(-*this); }
+		float* Get() { return &x; }
 
-		FORCEINLINE std::ostream& operator<<(std::ostream& os)
+		std::ostream& operator<<(std::ostream& os)
 		{
 			return os << "(X: " << x << " Y: " << y << ")";
 		}
 
-		FORCEINLINE std::string ToString()
+		std::string ToString()
 		{
 			std::stringstream ss;
 			ss << "(X: " << x << " Y: " << y << ")";
@@ -165,33 +165,33 @@ namespace LinaEngine
 		float Min() const;
 		void Normalize();
 
-		FORCEINLINE Vector3& operator+=(const Vector3& rhs) { x += rhs.x; y += rhs.y; z += rhs.z;  return *this; };
-		FORCEINLINE Vector3& operator-=(const Vector3& rhs) { x -= rhs.x; y -= rhs.y; z -= rhs.z;	return *this; };
-		FORCEINLINE Vector3& operator*=(const Vector3& rhs) { x *= rhs.x; y *= rhs.y; z *= rhs.z;	return *this; };
-		FORCEINLINE Vector3& operator/=(const Vector3& rhs) { x /= rhs.x == 0 ? 0.0001f : rhs.x; y /= rhs.y == 0 ? 0.0001f : rhs.y;	z/= rhs.z == 0 ? 0.001f : rhs.z; return *this; };
-		FORCEINLINE Vector3& operator+=(const float& rhs) { x += rhs; y += rhs; z += rhs; return *this; };
-		FORCEINLINE Vector3& operator-=(const float& rhs) { x -= rhs; y -= rhs; z -= rhs; return *this; };
-		FORCEINLINE Vector3& operator*=(const float& rhs) { x *= rhs; y *= rhs; z *= rhs; return *this; };
-		FORCEINLINE Vector3& operator/=(const float& rhs) { x /= rhs == 0 ? 0.0001f : rhs; y /= rhs == 0 ? 0.0001f : rhs; z/= rhs == 0 ? 0.001f : rhs; return *this; };
-		FORCEINLINE Vector3& operator=(const Vector3& rhs) { x = rhs.x; y = rhs.y; z = rhs.z; return *this; };
-		FORCEINLINE Vector3 operator-(const Vector3& rhs) { return Vector3(x - rhs.x, y - rhs.y, z - rhs.z);};
-		FORCEINLINE Vector3 operator+(const Vector3& rhs) { return Vector3(x + rhs.x, y + rhs.y, z + rhs.z); };
-		FORCEINLINE Vector3 operator*(const Vector3& rhs) { return Vector3(x * rhs.x, y * rhs.y, z * rhs.z); };
-		FORCEINLINE bool operator==(const Vector3& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
-		FORCEINLINE bool operator!=(const Vector3& rhs) const { return !(x == rhs.x && y == rhs.y && z == rhs.z); }
-		FORCEINLINE bool operator>(const Vector3& rhs) const { return length() > rhs.length(); }
-		FORCEINLINE bool operator<(const Vector3& rhs) const { return length() < rhs.length(); }
-		FORCEINLINE float& operator[] (unsigned int i) { return (&x)[i]; }
-		FORCEINLINE Vector3 operator-() const { return Vector3(-x, -y, -z); }
-		FORCEINLINE float* Get() { return &x; }
+		Vector3& operator+=(const Vector3& rhs) { x += rhs.x; y += rhs.y; z += rhs.z;  return *this; };
+		Vector3& operator-=(const Vector3& rhs) { x -= rhs.x; y -= rhs.y; z -= rhs.z;	return *this; };
+		Vector3& operator*=(const Vector3& rhs) { x *= rhs.x; y *= rhs.y; z *= rhs.z;	return *this; };
+		Vector3& operator/=(const Vector3& rhs) { x /= rhs.x == 0 ? 0.0001f : rhs.x; y /= rhs.y == 0 ? 0.0001f : rhs.y;	z/= rhs.z == 0 ? 0.001f : rhs.z; return *this; };
+		Vector3& operator+=(const float& rhs) { x += rhs; y += rhs; z += rhs; return *this; };
+		Vector3& operator-=(const float& rhs) { x -= rhs; y -= rhs; z -= rhs; return *this; };
+		Vector3& operator*=(const float& rhs) { x *= rhs; y *= rhs; z *= rhs; return *this; };
+		Vector3& operator/=(const float& rhs) { x /= rhs == 0 ? 0.0001f : rhs; y /= rhs == 0 ? 0.0001f : rhs; z/= rhs == 0 ? 0.001f : rhs; return *this; };
+		Vector3& operator=(const Vector3& rhs) { x = rhs.x; y = rhs.y; z = rhs.z; return *this; };
+		Vector3 operator-(const Vector3& rhs) { return Vector3(x - rhs.x, y - rhs.y, z - rhs.z);};
+		Vector3 operator+(const Vector3& rhs) { return Vector3(x + rhs.x, y + rhs.y, z + rhs.z); };
+		Vector3 operator*(const Vector3& rhs) { return Vector3(x * rhs.x, y * rhs.y, z * rhs.z); };
+		bool operator==(const Vector3& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
+		bool operator!=(const Vector3& rhs) const { return !(x == rhs.x && y == rhs.y && z == rhs.z); }
+		bool operator>(const Vector3& rhs) const { return length() > rhs.length(); }
+		bool operator<(const Vector3& rhs) const { return length() < rhs.length(); }
+		float& operator[] (unsigned int i) { return (&x)[i]; }
+		Vector3 operator-() const { return Vector3(-x, -y, -z); }
+		float* Get() { return &x; }
 
 
-		FORCEINLINE std::ostream& operator<<(std::ostream& os)
+		std::ostream& operator<<(std::ostream& os)
 		{
 			return os << "(X: " << x << " Y: " << y << " Z: " << z << ")";
 		}
 
-		FORCEINLINE std::string ToString()
+		std::string ToString()
 		{
 			std::stringstream ss;
 			ss << "(X: " << x << " Y: " << y << " Z: " << z << ")";
@@ -240,32 +240,32 @@ namespace LinaEngine
 		float Min() const;
 		void Normalize();
 
-		FORCEINLINE Vector4& operator+=(const Vector4& rhs) { x += rhs.x; y += rhs.y; z += rhs.z; w += rhs.w; return *this; };
-		FORCEINLINE Vector4& operator-=(const Vector4& rhs) { x -= rhs.x; y -= rhs.y; z -= rhs.z; w -= rhs.w; return *this; };
-		FORCEINLINE Vector4& operator*=(const Vector4& rhs) { x *= rhs.x; y *= rhs.y; z *= rhs.z; w *= rhs.w; return *this; };
-		FORCEINLINE Vector4& operator/=(const Vector4& rhs) { x /= rhs.x == 0 ? 0.0001f : rhs.x; y /= rhs.y == 0 ? 0.0001f : rhs.y;	z/= rhs.z == 0 ? 0.001f : rhs.z; w /= rhs.w == 0 ? 0.001f : rhs.w; return *this; };
-		FORCEINLINE Vector4& operator+=(const float& rhs) { x += rhs; y += rhs; z += rhs; w += rhs; return *this; };
-		FORCEINLINE Vector4& operator-=(const float& rhs) { x -= rhs; y -= rhs; z -= rhs; w -= rhs; return *this; };
-		FORCEINLINE Vector4& operator*=(const float& rhs) { x *= rhs; y *= rhs; z *= rhs; w *= rhs; return *this; };
-		FORCEINLINE Vector4& operator/=(const float& rhs) { x /= rhs == 0 ? 0.0001f : rhs; y /= rhs == 0 ? 0.0001f : rhs; z/= rhs == 0 ? 0.001f : rhs; w /= rhs == 0 ? 0.001f : rhs; return *this; };
-		FORCEINLINE Vector4& operator=(const Vector4& rhs) { x = rhs.x; y = rhs.y; z = rhs.z; w = rhs.w; return *this; };
-		FORCEINLINE Vector4 operator-(const Vector4& rhs) { return Vector4(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);};
-		FORCEINLINE Vector4 operator+(const Vector4& rhs) { return Vector4(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w); };
-		FORCEINLINE Vector4 operator*(const Vector4& rhs) { return Vector4(x * rhs.x, y * rhs.y, z * rhs.z, w * rhs.w); };
-		FORCEINLINE bool operator==(const Vector4& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w; }
-		FORCEINLINE bool operator!=(const Vector4& rhs) const { return !(x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w); }
-		FORCEINLINE bool operator>(const Vector4& rhs) const { return length() > rhs.length(); }
-		FORCEINLINE bool operator<(const Vector4& rhs) const { return length() < rhs.length(); }
-		FORCEINLINE float& operator[] (unsigned int i) { return (&x)[i]; }
-		FORCEINLINE Vector4 operator-() const { return Vector4(-*this); }
-		FORCEINLINE float* Get() { return &x; }
+		Vector4& operator+=(const Vector4& rhs) { x += rhs.x; y += rhs.y; z += rhs.z; w += rhs.w; return *this; };
+		Vector4& operator-=(const Vector4& rhs) { x -= rhs.x; y -= rhs.y; z -= rhs.z; w -= rhs.w; return *this; };
+		Vector4& operator*=(const Vector4& rhs) { x *= rhs.x; y *= rhs.y; z *= rhs.z; w *= rhs.w; return *this; };
+		Vector4& operator/=(const Vector4& rhs) { x /= rhs.x == 0 ? 0.0001f : rhs.x; y /= rhs.y == 0 ? 0.0001f : rhs.y;	z/= rhs.z == 0 ? 0.001f : rhs.z; w /= rhs.w == 0 ? 0.001f : rhs.w; return *this; };
+		Vector4& operator+=(const float& rhs) { x += rhs; y += rhs; z += rhs; w += rhs; return *this; };
+		Vector4& operator-=(const float& rhs) { x -= rhs; y -= rhs; z -= rhs; w -= rhs; return *this; };
+		Vector4& operator*=(const float& rhs) { x *= rhs; y *= rhs; z *= rhs; w *= rhs; return *this; };
+		Vector4& operator/=(const float& rhs) { x /= rhs == 0 ? 0.0001f : rhs; y /= rhs == 0 ? 0.0001f : rhs; z/= rhs == 0 ? 0.001f : rhs; w /= rhs == 0 ? 0.001f : rhs; return *this; };
+		Vector4& operator=(const Vector4& rhs) { x = rhs.x; y = rhs.y; z = rhs.z; w = rhs.w; return *this; };
+		Vector4 operator-(const Vector4& rhs) { return Vector4(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);};
+		Vector4 operator+(const Vector4& rhs) { return Vector4(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w); };
+		Vector4 operator*(const Vector4& rhs) { return Vector4(x * rhs.x, y * rhs.y, z * rhs.z, w * rhs.w); };
+		bool operator==(const Vector4& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w; }
+		bool operator!=(const Vector4& rhs) const { return !(x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w); }
+		bool operator>(const Vector4& rhs) const { return length() > rhs.length(); }
+		bool operator<(const Vector4& rhs) const { return length() < rhs.length(); }
+		float& operator[] (unsigned int i) { return (&x)[i]; }
+		Vector4 operator-() const { return Vector4(-*this); }
+		float* Get() { return &x; }
 
-		FORCEINLINE std::ostream& operator<<(std::ostream& os)
+		std::ostream& operator<<(std::ostream& os)
 		{
 			return os << "(X: " << x << " Y: " << y << " Z: " << z << " W: " << w << ")";
 		}
 
-		FORCEINLINE std::string ToString()
+		std::string ToString()
 		{
 			std::stringstream ss;
 			ss << "(X: " << x << " Y: " << y << " Z: " << z << " W: " << w << ")";

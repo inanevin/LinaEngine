@@ -100,13 +100,13 @@ namespace LinaEngine::ECS
 	{
 	public:
 
-		FORCEINLINE bool AddSystem(BaseECSSystem& system)
+		bool AddSystem(BaseECSSystem& system)
 		{
 			m_systems.push_back(&system);
 			return true;
 		}
 
-		FORCEINLINE void UpdateSystems(float delta)
+		void UpdateSystems(float delta)
 		{
 			for (auto s : m_systems)
 				s->UpdateComponents(delta);

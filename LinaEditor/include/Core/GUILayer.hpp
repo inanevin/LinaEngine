@@ -113,7 +113,7 @@ namespace LinaEditor
 		// Menu bar item callback from header panel.
 		void MenuBarItemClicked(const MenuBarItems& item);
 
-		FORCEINLINE void Setup(LinaEngine::Graphics::Window& window, LinaEngine::Graphics::RenderEngine& renderEngine, LinaEngine::Physics::PhysicsEngine& physicsEngine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs)
+		void Setup(LinaEngine::Graphics::Window& window, LinaEngine::Graphics::RenderEngine& renderEngine, LinaEngine::Physics::PhysicsEngine& physicsEngine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs)
 		{ 
 			m_appWindow = &window;
 			m_renderEngine = &renderEngine; 
@@ -122,16 +122,16 @@ namespace LinaEditor
 			m_ecs = &ecs;	
 		}
 
-		FORCEINLINE LinaEngine::ECS::ECSRegistry* GetECS() const { return m_ecs; }
-		FORCEINLINE class ECSPanel* GetECSPanel() const { return m_ecsPanel; }
-		FORCEINLINE class PropertiesPanel* GetPropertiesPanel() const { return m_propertiesPanel; }
-		FORCEINLINE class MaterialPanel* GetMaterialPanel() const { return m_materialPanel; }
-		FORCEINLINE class ResourcesPanel* GetResourcesPanel() const { return m_resourcesPanel; }
-		FORCEINLINE class ScenePanel* GetScenePanel() const { return m_scenePanel; }
-		FORCEINLINE LinaEngine::Graphics::RenderEngine* GetRenderEngine() const { return m_renderEngine; }
-		FORCEINLINE class LinaEngine::Graphics::Window* GetAppWindow() const { return m_appWindow; }
-		FORCEINLINE class LinaEngine::Application* GetApp() const { return m_application; }
-		FORCEINLINE void SetCurrentLevel(LinaEngine::World::Level& currentLevel) { m_currentLevel = &currentLevel; }
+		LinaEngine::ECS::ECSRegistry* GetECS() const { return m_ecs; }
+		class ECSPanel* GetECSPanel() const { return m_ecsPanel; }
+		class PropertiesPanel* GetPropertiesPanel() const { return m_propertiesPanel; }
+		class MaterialPanel* GetMaterialPanel() const { return m_materialPanel; }
+		class ResourcesPanel* GetResourcesPanel() const { return m_resourcesPanel; }
+		class ScenePanel* GetScenePanel() const { return m_scenePanel; }
+		LinaEngine::Graphics::RenderEngine* GetRenderEngine() const { return m_renderEngine; }
+		class LinaEngine::Graphics::Window* GetAppWindow() const { return m_appWindow; }
+		class LinaEngine::Application* GetApp() const { return m_application; }
+		void SetCurrentLevel(LinaEngine::World::Level& currentLevel) { m_currentLevel = &currentLevel; }
 
 	private:
 

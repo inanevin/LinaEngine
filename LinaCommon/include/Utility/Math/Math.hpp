@@ -63,84 +63,84 @@ namespace LinaEngine
 {
 	struct Math
 	{
-		static constexpr FORCEINLINE int32 TruncToInt(float val)
+		static constexpr int32 TruncToInt(float val)
 		{
 			return (int32)val;
 		}
 
-		static constexpr FORCEINLINE float TruncToFloat(float val)
+		static constexpr float TruncToFloat(float val)
 		{
 			return (float)TruncToInt(val);
 		}
 
-		static FORCEINLINE int32 FloorToInt(float val)
+		static int32 FloorToInt(float val)
 		{
 			return TruncToInt(FloorToFloat(val));
 		}
 
-		static FORCEINLINE float FloorToFloat(float val)
+		static float FloorToFloat(float val)
 		{
 			return floorf(val);
 		}
 
-		static FORCEINLINE double FloorToDouble(double val)
+		static double FloorToDouble(double val)
 		{
 			return floor(val);
 		}
 
-		static FORCEINLINE int32 RoundToInt(float val)
+		static int32 RoundToInt(float val)
 		{
 			return CeilToInt(val - 0.5f);
 		}
 
-		static FORCEINLINE float RoundToFloat(float val)
+		static float RoundToFloat(float val)
 		{
 			return CeilToFloat(val - 0.5f);
 		}
 
-		static FORCEINLINE int32 CeilToInt(float val)
+		static int32 CeilToInt(float val)
 		{
 			return TruncToInt(ceilf(val));
 		}
 
-		static FORCEINLINE float CeilToFloat(float val)
+		static float CeilToFloat(float val)
 		{
 			return ceilf(val);
 		}
 
-		static FORCEINLINE double CeilToDouble(double val)
+		static double CeilToDouble(double val)
 		{
 			return ceil(val);
 		}
 
-		static FORCEINLINE float Fractional(float val)
+		static float Fractional(float val)
 		{
 			return val - TruncToFloat(val);
 		}
 
-		static FORCEINLINE float Exp(float val) { return expf(val); }
-		static FORCEINLINE float Ln(float val) { return logf(val); }
-		static FORCEINLINE float Logx(float base, float val) { return Ln(val) / Ln(base); }
-		static FORCEINLINE float Log2(float val) { return Ln(val) * MATH_R_LN_2; }
+		static float Exp(float val) { return expf(val); }
+		static float Ln(float val) { return logf(val); }
+		static float Logx(float base, float val) { return Ln(val) / Ln(base); }
+		static float Log2(float val) { return Ln(val) * MATH_R_LN_2; }
 
-		static FORCEINLINE float Fmod(float num, float den) { return fmodf(num, den); }
-		static FORCEINLINE float Sin(float val) { return sinf(val); }
-		static FORCEINLINE float Asin(float val) { return asinf(val); }
-		static FORCEINLINE float Cos(float val) { return cosf(val); }
-		static FORCEINLINE float Acos(float val) { return acosf(val); }
-		static FORCEINLINE float Tan(float val) { return tanf(val); }
-		static FORCEINLINE float Atan(float val) { return atanf(val); }
-		static FORCEINLINE float Atan(float val, float val2) { return atan2f(val, val2); }
-		static FORCEINLINE float Pow(float val, float power) { return powf(val, power); }
-		static FORCEINLINE float Sqrt(float val) { return sqrtf(val); }
+		static float Fmod(float num, float den) { return fmodf(num, den); }
+		static float Sin(float val) { return sinf(val); }
+		static float Asin(float val) { return asinf(val); }
+		static float Cos(float val) { return cosf(val); }
+		static float Acos(float val) { return acosf(val); }
+		static float Tan(float val) { return tanf(val); }
+		static float Atan(float val) { return atanf(val); }
+		static float Atan(float val, float val2) { return atan2f(val, val2); }
+		static float Pow(float val, float power) { return powf(val, power); }
+		static float Sqrt(float val) { return sqrtf(val); }
 
 		template<typename T>
-		static constexpr FORCEINLINE T Select(const T& cmp, const T& valIfGreaterOrEqualToZero, const T& valIfLessZero)
+		static constexpr T Select(const T& cmp, const T& valIfGreaterOrEqualToZero, const T& valIfLessZero)
 		{
 			return cmp >= (T)(0) ? valIfGreaterOrEqualToZero : valIfLessZero;
 		}
 
-		static FORCEINLINE void SinCos(float* outSin, float* outCos, float angle)
+		static void SinCos(float* outSin, float* outCos, float angle)
 		{
 			// If angle is outside range of [0, 2*pi], adjust it so it is.
 			// Using fmod gives worse precision than the following code
@@ -195,17 +195,17 @@ namespace LinaEngine
 				a2 + 4.16666418e-02f) * a2 - 4.999999963e-01f) * a2 + 1.0f);
 		}
 
-		static FORCEINLINE float Reciprocal(float val)
+		static float Reciprocal(float val)
 		{
 			return 1.0f / val;
 		}
 
-		static FORCEINLINE float RSqrt(float val)
+		static float RSqrt(float val)
 		{
 			return Reciprocal(sqrtf(val));
 		}
 
-		static FORCEINLINE bool IsNaN(float val)
+		static bool IsNaN(float val)
 		{
 			union {
 				float f;
@@ -215,7 +215,7 @@ namespace LinaEngine
 			return (f.i & 0x7FFFFFFF) > 0x7F800000;
 		}
 
-		static FORCEINLINE bool IsFinite(float val)
+		static bool IsFinite(float val)
 		{
 			union {
 				float f;
@@ -225,12 +225,12 @@ namespace LinaEngine
 			return (f.i & 0x7F800000) != 0x7F800000;
 		}
 
-		static FORCEINLINE int32 Rand() { return ::rand(); }
-		static FORCEINLINE void SeedRand(int32 seed) { srand((uint32)seed); }
-		static FORCEINLINE float RandF() { return ::rand() / (float)RAND_MAX; }
-		static FORCEINLINE float RandF(float Min, float Max) { return Lerp(Min, Max, RandF()); }
+		static int32 Rand() { return ::rand(); }
+		static void SeedRand(int32 seed) { srand((uint32)seed); }
+		static float RandF() { return ::rand() / (float)RAND_MAX; }
+		static float RandF(float Min, float Max) { return Lerp(Min, Max, RandF()); }
 
-		static FORCEINLINE uint32 FloorLog2(uint32 val)
+		static uint32 FloorLog2(uint32 val)
 		{
 			uint32 pos = 0;
 			if (val >= 1 << 16) { val >>= 16; pos += 16; }
@@ -241,7 +241,7 @@ namespace LinaEngine
 			return (val == 0) ? 0 : pos;
 		}
 
-		static FORCEINLINE uint32 GetNumLeadingZeroes(uint32 val)
+		static uint32 GetNumLeadingZeroes(uint32 val)
 		{
 			if (val == 0) {
 				return 32;
@@ -249,7 +249,7 @@ namespace LinaEngine
 			return 31 - FloorLog2(val);
 		}
 
-		static FORCEINLINE uint32 CeilLog2(uint32 val)
+		static uint32 CeilLog2(uint32 val)
 		{
 			if (val <= 1) {
 				return 0;
@@ -257,81 +257,81 @@ namespace LinaEngine
 			return FloorLog2(val - 1) + 1;
 		}
 
-		static FORCEINLINE uint32 RoundUpToNextPowerOf2(uint32 val)
+		static uint32 RoundUpToNextPowerOf2(uint32 val)
 		{
 			return 1 << CeilLog2(val);
 		}
 
 		template<typename T>
-		static constexpr FORCEINLINE T Abs(const T& val)
+		static constexpr T Abs(const T& val)
 		{
 			return val >= (T)(0) ? val : -val;
 		}
 
 		// WARNING: This behavior is not consistent with Vector sign function!
 		//	template<typename T>
-		//	static constexpr FORCEINLINE T sign(const T& val)
+		//	static constexpr T sign(const T& val)
 		//	{
 		//		return (T(0) < val) - (val < T(0));
 		//	}
 
 		template<typename T>
-		static constexpr FORCEINLINE T Min(const T& val1, const T& val2)
+		static constexpr T Min(const T& val1, const T& val2)
 		{
 			return val1 <= val2 ? val1 : val2;
 		}
 
 		template<typename T>
-		static constexpr FORCEINLINE T Min3(const T& val1, const T& val2, const T& val3)
+		static constexpr T Min3(const T& val1, const T& val2, const T& val3)
 		{
 			return Min(Min(val1, val2), val3);
 		}
 
 		template<typename T>
-		static constexpr FORCEINLINE T Max(const T& val1, const T& val2)
+		static constexpr T Max(const T& val1, const T& val2)
 		{
 			return val1 >= val2 ? val1 : val2;
 		}
 
 		template<typename T>
-		static constexpr FORCEINLINE T Max3(const T& val1, const T& val2, const T& val3)
+		static constexpr T Max3(const T& val1, const T& val2, const T& val3)
 		{
 			return Max(Max(val1, val2), val3);
 		}
 
 		template<typename T>
-		static FORCEINLINE T Mad(const T& val1, const T& val2, const T& val3)
+		static T Mad(const T& val1, const T& val2, const T& val3)
 		{
 			return val1 * val2 + val3;
 		}
 
 		template<typename T>
-		static FORCEINLINE T ToDegrees(const T& val)
+		static T ToDegrees(const T& val)
 		{
 			return val * MATH_RAD_TO_DEG_CONV;
 		}
 
 		template<typename T>
-		static FORCEINLINE T ToRadians(const T& val)
+		static T ToRadians(const T& val)
 		{
 			return val * MATH_DEG_TO_RAD_CONV;
 		}
 
 		template<typename T, typename U>
-		static FORCEINLINE T Lerp(const T& val1, const T& val2, const U& amt)
+		static T Lerp(const T& val1, const T& val2, const U& amt)
 		{
 			return (T)(val1 * ((U)(1) - amt) + val2 * amt);
 		}
 
 		template<typename T, typename U>
-		static FORCEINLINE T CubicLerp(const T& val1, const T& val2, const U& amt)
+		static T CubicLerp(const T& val1, const T& val2, const U& amt)
 		{
 			// Cubic interp, assuming tangents are 0 at all points.
 			return Lerp(val1, val2, 3 * amt*amt - 2 * amt*amt*amt);
 		}
 
 		template<typename T, typename U>
-		static FORCEINLINE T CubicInterpolation(const T& val0, const T& val1, const T& val2, const T& val3, const U& amt)
+		static T CubicInterpolation(const T& val0, const T& val1, const T& val2, const T& val3, const U& amt)
 		{
 			// Using Catmull-Rom tangents
 			U amt2 = amt * amt;
@@ -343,7 +343,7 @@ namespace LinaEngine
 		}
 
 		template<typename T, typename U>
-		static FORCEINLINE T CubicInterpolationSpecifyTangents(const T& val1, const T& tan1, const T& val2, const T& tan2, const U& amt)
+		static T CubicInterpolationSpecifyTangents(const T& val1, const T& tan1, const T& val2, const T& tan2, const U& amt)
 		{
 			// Using custom tangents
 			U amt2 = amt * amt;
@@ -355,7 +355,7 @@ namespace LinaEngine
 		}
 
 		template<typename T, typename U>
-		static FORCEINLINE T BiLerp(const T& val00, const T& val10,
+		static T BiLerp(const T& val00, const T& val10,
 			const T& val01, const T& val11,
 			const U& amtX, const U& amtY)
 		{
@@ -366,7 +366,7 @@ namespace LinaEngine
 		}
 
 		template<typename T>
-		static FORCEINLINE T Clamp(const T& val, const T& Min, const T& Max)
+		static T Clamp(const T& val, const T& Min, const T& Max)
 		{
 			if (val > Max) {
 				return Max;
@@ -380,31 +380,31 @@ namespace LinaEngine
 		}
 
 		template<typename T>
-		static FORCEINLINE T Remap(const T& val, const T& fromLow, const T& fromHigh, const T& toLow, const T& toHigh)
+		static T Remap(const T& val, const T& fromLow, const T& fromHigh, const T& toLow, const T& toHigh)
 		{
 			return toLow + (val - fromLow) * (toHigh - toLow) / (fromHigh - fromLow);
 		}
 
 		template<typename T>
-		static FORCEINLINE T Saturate(const T& val)
+		static T Saturate(const T& val)
 		{
 			return Clamp(val, (T)(0), (T)(1));
 		}
 
 		template<typename T>
-		static FORCEINLINE T Square(const T& val)
+		static T Square(const T& val)
 		{
 			return val * val;
 		}
 
 		template<typename T>
-		static FORCEINLINE T Cube(const T& val)
+		static T Cube(const T& val)
 		{
 			return val * val*val;
 		}
 
 		template<typename T>
-		static FORCEINLINE bool Equals(const T& val1, const T& val2, const T& errorMargin)
+		static bool Equals(const T& val1, const T& val2, const T& errorMargin)
 		{
 			return Abs(val1 - val2) < errorMargin;
 		}

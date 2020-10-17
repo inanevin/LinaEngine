@@ -52,7 +52,7 @@ namespace LinaEngine::Input
 	public:
 
 
-		FORCEINLINE InputEngine() : LinaEngine::Action::ActionDispatcher()
+		InputEngine() : LinaEngine::Action::ActionDispatcher()
 		{
 			LINA_CORE_TRACE("[Constructor] -> InputEngine ({0})", typeid(*this).name());
 		};
@@ -63,7 +63,7 @@ namespace LinaEngine::Input
 		};
 		
 		// Initialize the engine, sets the dispatcher references & initializes axes.
-		FORCEINLINE void Initialize(void* contextWindowPointer, InputDevice* inputDevice) 
+		void Initialize(void* contextWindowPointer, InputDevice* inputDevice) 
 		{
 			m_inputDevice = inputDevice;
 			m_horizontalKeyAxis.SetActionDispatcher(this);
@@ -73,35 +73,35 @@ namespace LinaEngine::Input
 			m_inputDevice->Initialize(contextWindowPointer);
 		};
 
-		FORCEINLINE void Tick() { m_inputDevice->Tick(); }
+		void Tick() { m_inputDevice->Tick(); }
 
-		FORCEINLINE bool GetKey(int keyCode) { return m_inputDevice->GetKey(keyCode); }
+		bool GetKey(int keyCode) { return m_inputDevice->GetKey(keyCode); }
 
-		FORCEINLINE bool GetKeyDown(int keyCode) { return m_inputDevice->GetKeyDown(keyCode); }
+		bool GetKeyDown(int keyCode) { return m_inputDevice->GetKeyDown(keyCode); }
 
-		FORCEINLINE bool GetKeyUp(int keyCode) { return m_inputDevice->GetKeyUp(keyCode); }
+		bool GetKeyUp(int keyCode) { return m_inputDevice->GetKeyUp(keyCode); }
 
-		FORCEINLINE bool GetMouseButton(int button) { return m_inputDevice->GetMouseButton(button); }
+		bool GetMouseButton(int button) { return m_inputDevice->GetMouseButton(button); }
 
-		FORCEINLINE bool GetMouseButtonDown(int button) { return m_inputDevice->GetMouseButtonDown(button); }
+		bool GetMouseButtonDown(int button) { return m_inputDevice->GetMouseButtonDown(button); }
 
-		FORCEINLINE bool GetMouseButtonUp(int button) { return m_inputDevice->GetMouseButtonUp(button); }
+		bool GetMouseButtonUp(int button) { return m_inputDevice->GetMouseButtonUp(button); }
 
-		FORCEINLINE Vector2 GetRawMouseAxis() { return m_inputDevice->GetRawMouseAxis(); }
+		Vector2 GetRawMouseAxis() { return m_inputDevice->GetRawMouseAxis(); }
 
-		FORCEINLINE Vector2 GetMouseAxis() { return m_inputDevice->GetMouseAxis(); }
+		Vector2 GetMouseAxis() { return m_inputDevice->GetMouseAxis(); }
 
-		FORCEINLINE Vector2 GetMousePosition() { return m_inputDevice->GetMousePosition(); }
+		Vector2 GetMousePosition() { return m_inputDevice->GetMousePosition(); }
 
-		FORCEINLINE void SetMousePosition(const Vector2& v) { m_inputDevice->SetMousePosition(v); }
+		void SetMousePosition(const Vector2& v) { m_inputDevice->SetMousePosition(v); }
 
-		FORCEINLINE void SetCursorMode(CursorMode cursorMode) { m_inputDevice->SetCursorMode(cursorMode); }
+		void SetCursorMode(CursorMode cursorMode) { m_inputDevice->SetCursorMode(cursorMode); }
 
-		FORCEINLINE float GetHorizontalAxisValue() { return m_horizontalKeyAxis.GetAmount(); }
+		float GetHorizontalAxisValue() { return m_horizontalKeyAxis.GetAmount(); }
 
-		FORCEINLINE float GetVerticalAxisValue() { return m_verticalKeyAxis.GetAmount(); }
+		float GetVerticalAxisValue() { return m_verticalKeyAxis.GetAmount(); }
 
-		FORCEINLINE void DispatchKeyAction(InputCode::Key key, int action)
+		void DispatchKeyAction(InputCode::Key key, int action)
 		{
 			if (action == 1)
 				DispatchAction<InputCode::Key>(LinaEngine::Action::ActionType::KeyPressed, key);
@@ -109,7 +109,7 @@ namespace LinaEngine::Input
 				DispatchAction<InputCode::Key>(LinaEngine::Action::ActionType::KeyReleased, key);
 		}
 
-		FORCEINLINE void DispatchMouseAction(InputCode::Mouse button, int action)
+		void DispatchMouseAction(InputCode::Mouse button, int action)
 		{
 			if (action == 1)
 				DispatchAction<InputCode::Mouse>(LinaEngine::Action::ActionType::MouseButtonPressed, button);

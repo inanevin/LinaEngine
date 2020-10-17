@@ -80,7 +80,7 @@ namespace LinaEngine::Physics
 		void OnPostSceneDraw();
 
 		btRigidBody* GetActiveRigidbody(int id) { return m_bodies[id]; }
-		FORCEINLINE void SetDebugDraw(bool enabled) { m_debugDrawEnabled = enabled; }
+		void SetDebugDraw(bool enabled) { m_debugDrawEnabled = enabled; }
 
 	private:
 

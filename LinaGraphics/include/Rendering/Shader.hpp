@@ -54,9 +54,9 @@ namespace LinaEngine::Graphics
 
 		Shader() {};
 
-		FORCEINLINE ~Shader() { m_engineBoundID = m_renderDevice->ReleaseShaderProgram(m_engineBoundID); }
+		~Shader() { m_engineBoundID = m_renderDevice->ReleaseShaderProgram(m_engineBoundID); }
 
-		FORCEINLINE Shader& Construct(RenderDevice& renderDeviceIn, const std::string& text, bool usesGeometryShader)
+		Shader& Construct(RenderDevice& renderDeviceIn, const std::string& text, bool usesGeometryShader)
 		{
 			m_renderDevice = &renderDeviceIn;
 			m_engineBoundID = m_renderDevice->CreateShaderProgram(text, usesGeometryShader);
@@ -64,18 +64,18 @@ namespace LinaEngine::Graphics
 		}
 
 		// Set uniform buffer through render engine.
-		FORCEINLINE void SetUniformBuffer(const std::string& name, UniformBuffer& buffer) 
+		void SetUniformBuffer(const std::string& name, UniformBuffer& buffer) 
 		{ 
 			m_renderDevice->SetShaderUniformBuffer(m_engineBoundID, name, buffer.GetID()); 
 		}
 
-		FORCEINLINE void BindBlockToBuffer(uint32 bindingPoint, std::string blockName)
+		void BindBlockToBuffer(uint32 bindingPoint, std::string blockName)
 		{
 			m_renderDevice->BindShaderBlockToBufferPoint(m_engineBoundID, bindingPoint, blockName);
 		}
 
 		// Get shader id, this gets matched w/ program id on render engine.
-		FORCEINLINE uint32 GetID() { return m_engineBoundID; }
+		uint32 GetID() { return m_engineBoundID; }
 
 
 	private:

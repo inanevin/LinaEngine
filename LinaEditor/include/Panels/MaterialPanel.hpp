@@ -65,7 +65,7 @@ namespace LinaEditor
 	
 		virtual void Draw(float frameTime) override;
 		virtual void Setup() override;
-		FORCEINLINE void SetCurrentMaterial(LinaEngine::Graphics::Material* mat) { m_CurrentSelectedMaterial = mat; }
+		void SetCurrentMaterial(LinaEngine::Graphics::Material* mat) { m_CurrentSelectedMaterial = mat; }
 
 	private:
 	

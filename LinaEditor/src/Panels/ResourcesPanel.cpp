@@ -77,7 +77,7 @@ namespace LinaEditor
 
 	void ResourcesPanel::DrawContent()
 	{
-		std::string rootPath = hoveredFolder == nullptr ? "resources" : hoveredFolder->path;
+		std::string rootPath = hoveredFolder == nullptr ? "resources" : hoveredFolder->m_path;
 
 		// Handle Right click popup.
 		if (ImGui::BeginPopupContextWindow())
@@ -90,14 +90,14 @@ namespace LinaEditor
 					std::string folderPath = rootPath + "/NewFolder" + std::to_string(++itemIDCounter);
 					EditorUtility::CreateFolderInPath(folderPath);
 					EditorFolder folder;
-					folder.path = folderPath;
+					folder.m_path = folderPath;
 					folder.name = "NewFolder" + std::to_string(itemIDCounter);
-					folder.id = itemIDCounter;
+					folder.m_id = itemIDCounter;
 
 					if (hoveredFolder != nullptr)
-						hoveredFolder->subFolders[folder.id] = folder;
+						hoveredFolder->m_subFolders[folder.m_id] = folder;
 					else
-						m_resourceFolders[0].subFolders[folder.id] = folder;
+						m_resourceFolders[0].m_subFolders[folder.m_id] = folder;
 
 				}
 
@@ -120,9 +120,9 @@ namespace LinaEditor
 					EditorUtility::SerializeMaterial(materialPath, m);
 
 					if (hoveredFolder != nullptr)
-						hoveredFolder->files[file.id] = file;
+						hoveredFolder->m_files[file.id] = file;
 					else
-						m_resourceFolders[0].files[file.id] = file;
+						m_resourceFolders[0].m_files[file.id] = file;
 				}
 
 				ImGui::EndMenu();
@@ -137,7 +137,7 @@ namespace LinaEditor
 		// Create root.
 		EditorFolder root;
 		root.name = ROOT_NAME;
-		root.path = "resources";
+		root.m_path = "resources";
 		m_resourceFolders.push_back(root);
 
 		// Recursively fill in root.
@@ -151,7 +151,7 @@ namespace LinaEditor
 
 	void ResourcesPanel::ScanFolder(EditorFolder& root)
 	{
-		for (const auto& entry : std::filesystem::directory_iterator(root.path))
+		for (const auto& entry : std::filesystem::directory_iterator(root.m_path))
 		{
 			if (entry.path().has_extension())
 			{
@@ -164,22 +164,22 @@ namespace LinaEditor
 				file.id = ++itemIDCounter;
 
 				// Add to the folder data.
-				root.files[file.id] = file;
+				root.m_files[file.id] = file;
 			}
 			else
 			{
 				// Is a folder
 				EditorFolder folder;
 				folder.name = entry.path().filename().string();
-				folder.path = entry.path().relative_path().string();
-				folder.id = ++itemIDCounter;
+				folder.m_path = entry.path().relative_path().string();
+				folder.m_id = ++itemIDCounter;
 				folder.m_parent = &root;
 
 				// Add to the sub folders.
-				root.subFolders[folder.id] = folder;
+				root.m_subFolders[folder.m_id] = folder;
 
 				// Iterate recursively.
-				ScanFolder(root.subFolders[folder.id]);
+				ScanFolder(root.m_subFolders[folder.m_id]);
 			}
 		}
 	}
@@ -204,7 +204,7 @@ namespace LinaEditor
 		}
 
 		// Draw folders.
-		for (std::map<int, EditorFolder>::iterator it = folder.subFolders.begin(); it != folder.subFolders.end();)
+		for (std::map<int, EditorFolder>::iterator it = folder.m_subFolders.begin(); it != folder.m_subFolders.end();)
 		{
 			// Skip drawing if internal folders.
 			if (it->second.m_parent != nullptr && it->second.m_parent->name.compare(ROOT_NAME) == 0)
@@ -218,10 +218,10 @@ namespace LinaEditor
 			
 			WidgetsUtility::IncrementCursorPosX(4);
 
-			if (it->second.markedForErase)
+			if (it->second.m_markedForErase)
 			{
 				// Delete directory.
-				EditorUtility::DeleteDirectory(it->second.path);
+				EditorUtility::DeleteDirectory(it->second.m_path);
 
 				// Nullout reference.
 				if (hoveredFolder == &it->second)
@@ -229,11 +229,11 @@ namespace LinaEditor
 
 				// Unload the contained resources & erase.
 				UnloadFileResourcesInFolder(it->second);
-				folder.subFolders.erase(it++);
+				folder.m_subFolders.erase(it++);
 				continue;
 			}
 
-			ImGuiTreeNodeFlags folderFlags = (it->second).id == selectedItem ? folderFlagsSelected : folderFlagsNotSelected;
+			ImGuiTreeNodeFlags folderFlags = (it->second).m_id == selectedItem ? folderFlagsSelected : folderFlagsNotSelected;
 			std::string id = "##" + (it->second).name;
 			bool nodeOpen = ImGui::TreeNodeEx(id.c_str(), folderFlags);
 			ImGui::SameLine();  WidgetsUtility::IncrementCursorPosY(5);
@@ -244,7 +244,7 @@ namespace LinaEditor
 			// Click
 			if (ImGui::IsItemClicked())
 			{
-				selectedItem = (it->second).id;
+				selectedItem = (it->second).m_id;
 				selectedFile = nullptr;
 				selectedFolder = &(it->second);
 			}
@@ -265,7 +265,7 @@ namespace LinaEditor
 
 
 		// Draw files.
-		for (std::map<int, EditorFile>::iterator it = folder.files.begin(); it != folder.files.end();)
+		for (std::map<int, EditorFile>::iterator it = folder.m_files.begin(); it != folder.m_files.end();)
 		{
 			WidgetsUtility::IncrementCursorPosX(-9);
 			if (it->second.markedForErase)
@@ -275,7 +275,7 @@ namespace LinaEditor
 
 				// Unload the resources & erase.
 				UnloadFileResource(it->second);
-				folder.files.erase(it++);
+				folder.m_files.erase(it++);
 				continue;
 			}
 
@@ -316,7 +316,7 @@ namespace LinaEditor
 		if (ImGui::IsKeyPressed(Input::InputCode::Delete) && selectedItem != -1)
 		{
 			if (selectedFolder != nullptr)
-				selectedFolder->markedForErase = true;
+				selectedFolder->m_markedForErase = true;
 			if (selectedFile != nullptr)
 				selectedFile->markedForErase = true;
 			// Deselect
@@ -331,7 +331,7 @@ namespace LinaEditor
 	void ResourcesPanel::LoadFolderResources(EditorFolder& folder)
 	{
 		// Load files.
-		for (std::map<int, EditorFile>::iterator it = folder.files.begin(); it != folder.files.end(); ++it)
+		for (std::map<int, EditorFile>::iterator it = folder.m_files.begin(); it != folder.m_files.end(); ++it)
 		{
 			EditorFile& file = it->second;
 
@@ -343,7 +343,7 @@ namespace LinaEditor
 		}
 
 		// Recursively load subfolders.
-		for (std::map<int, EditorFolder>::iterator it = folder.subFolders.begin(); it != folder.subFolders.end(); ++it)
+		for (std::map<int, EditorFolder>::iterator it = folder.m_subFolders.begin(); it != folder.m_subFolders.end(); ++it)
 			LoadFolderResources(it->second);
 	}
 
@@ -359,7 +359,7 @@ namespace LinaEditor
 
 	void ResourcesPanel::UnloadFileResourcesInFolder(EditorFolder& folder)
 	{
-		for (std::map<int, EditorFile>::iterator it = folder.files.begin(); it != folder.files.end(); ++it)
+		for (std::map<int, EditorFile>::iterator it = folder.m_files.begin(); it != folder.m_files.end(); ++it)
 			UnloadFileResource(it->second);
 	}
 

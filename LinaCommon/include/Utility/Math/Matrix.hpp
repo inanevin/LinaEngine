@@ -51,9 +51,9 @@ namespace LinaEngine
 	public:
 
 
-		FORCEINLINE Matrix() {};
-		FORCEINLINE Matrix(const Vector4& vecX, const Vector4& vecY, const Vector4& vecZ, const Vector4& vecOffset) : glm::mat4(vecX, vecY, vecZ, vecOffset) {};
-		FORCEINLINE Matrix(glm::mat4 mat) : glm::mat4(mat) {};
+		Matrix() {};
+		Matrix(const Vector4& vecX, const Vector4& vecY, const Vector4& vecZ, const Vector4& vecOffset) : glm::mat4(vecX, vecY, vecZ, vecOffset) {};
+		Matrix(glm::mat4 mat) : glm::mat4(mat) {};
 		
 		static Matrix Identity();
 		static Matrix Translate(const Vector3& amt);

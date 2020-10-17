@@ -91,28 +91,28 @@ namespace LinaEngine::Graphics
 		virtual void Close() = 0;
 
 		// Get vsync state.
-		FORCEINLINE bool GetVsycnEnabled() { return m_windowProperties.vSyncEnabled; }
+		bool GetVsycnEnabled() { return m_windowProperties.vSyncEnabled; }
 
 		// Get window width.
-		FORCEINLINE uint32 GetWidth() { return m_windowProperties.m_width; }
+		uint32 GetWidth() { return m_windowProperties.m_width; }
 
 		// Get window height.
-		FORCEINLINE uint32 GetHeight() { return m_windowProperties.m_height; }
+		uint32 GetHeight() { return m_windowProperties.m_height; }
 
 		// Gets size
-		FORCEINLINE Vector2 GetSize() { return Vector2(m_windowProperties.m_width, m_windowProperties.m_height); }
+		Vector2 GetSize() { return Vector2(m_windowProperties.m_width, m_windowProperties.m_height); }
 
 		// Gets the current window position.
-		FORCEINLINE Vector2 GetPos() { return Vector2(m_windowProperties.m_xPos, m_windowProperties.m_yPos); }
+		Vector2 GetPos() { return Vector2(m_windowProperties.m_xPos, m_windowProperties.m_yPos); }
 
 		// Getter for window props
-		FORCEINLINE const WindowProperties& GetWindowProperties() { return m_windowProperties; }
+		const WindowProperties& GetWindowProperties() { return m_windowProperties; }
 
 		// Set event callbacks.
-		FORCEINLINE void SetKeyCallback(std::function<void(int, int)>& callback) { m_keyCallback = callback; }
-		FORCEINLINE void SetMouseCallback(std::function<void(int, int)>& callback) { m_mouseCallback = callback; }
-		FORCEINLINE void SetWindowResizeCallback(std::function<void(Vector2)>& callback) { m_windowResizeCallback = callback; }
-		FORCEINLINE void SetWindowClosedCallback(std::function<void()>& callback) { m_windowCloseCallback = callback; }
+		void SetKeyCallback(std::function<void(int, int)>& callback) { m_keyCallback = callback; }
+		void SetMouseCallback(std::function<void(int, int)>& callback) { m_mouseCallback = callback; }
+		void SetWindowResizeCallback(std::function<void(Vector2)>& callback) { m_windowResizeCallback = callback; }
+		void SetWindowClosedCallback(std::function<void()>& callback) { m_windowCloseCallback = callback; }
 	
 	protected:
 

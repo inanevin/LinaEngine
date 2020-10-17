@@ -59,7 +59,7 @@ namespace LinaEngine::Graphics
 		virtual ~Mesh();
 
 
-		FORCEINLINE VertexArray* GetVertexArray(uint32 index)
+		VertexArray* GetVertexArray(uint32 index)
 		{
 
 			if (index >= m_vertexArrays.size() || index < 0 || m_vertexArrays.size() == 0)
@@ -71,29 +71,29 @@ namespace LinaEngine::Graphics
 			return m_vertexArrays.at(index);
 		}
 
-		FORCEINLINE std::vector<VertexArray*>& GetVertexArrays()
+		std::vector<VertexArray*>& GetVertexArrays()
 		{
 			return m_vertexArrays;
 		}
 
-		FORCEINLINE std::vector<IndexedModel>& GetIndexedModels()
+		std::vector<IndexedModel>& GetIndexedModels()
 		{
 			return m_indexedModelArray;
 		}
 
-		FORCEINLINE std::vector<ModelMaterial>& GetMaterialSpecs()
+		std::vector<ModelMaterial>& GetMaterialSpecs()
 		{
 			return m_materialSpecArray;
 		}
 
-		FORCEINLINE std::vector<uint32>& GetMaterialIndices()
+		std::vector<uint32>& GetMaterialIndices()
 		{
 			return m_materialIndexArray;
 		}
 
-		FORCEINLINE void SetParameters(MeshParameters params) { m_parameters = params; }
-		FORCEINLINE MeshParameters& GetParameters() { return m_parameters; }
-		FORCEINLINE const std::string& GetPath() const { return m_path; }
+		void SetParameters(MeshParameters params) { m_parameters = params; }
+		MeshParameters& GetParameters() { return m_parameters; }
+		const std::string& GetPath() const { return m_path; }
 
 		int m_MeshID = -1;
 		std::string m_path = "";

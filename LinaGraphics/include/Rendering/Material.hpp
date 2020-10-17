@@ -71,18 +71,18 @@ namespace LinaEngine::Graphics
 		Texture* GetTexture(const std::string& name);
 
 
-		FORCEINLINE void SetFloat(const std::string& name, float value)
+		void SetFloat(const std::string& name, float value)
 		{
 			m_floats[name] = value;
 		}
 
 
-		FORCEINLINE void SetBool(const std::string& name, bool value)
+		void SetBool(const std::string& name, bool value)
 		{
 			m_bools[name] = value;
 		}
 
-		FORCEINLINE void SetInt(const std::string& name, int value)
+		void SetInt(const std::string& name, int value)
 		{
 			m_ints[name] = value;
 
@@ -90,75 +90,75 @@ namespace LinaEngine::Graphics
 				m_surfaceType = static_cast<MaterialSurfaceType>(value);
 		}
 
-		FORCEINLINE void SetColor(const std::string& name, const Color& color)
+		void SetColor(const std::string& name, const Color& color)
 		{
 			m_colors[name] = color;
 		}
 
-		FORCEINLINE void SetVector2(const std::string& name, const Vector2& vector)
+		void SetVector2(const std::string& name, const Vector2& vector)
 		{
 			m_vector2s[name] = vector;
 		}
 
-		FORCEINLINE void SetVector3(const std::string& name, const Vector3& vector)
+		void SetVector3(const std::string& name, const Vector3& vector)
 		{
 			m_vector3s[name] = vector;
 		}
 
-		FORCEINLINE void SetVector4(const std::string& name, const Vector4& vector)
+		void SetVector4(const std::string& name, const Vector4& vector)
 		{
 			m_vector4s[name] = vector;
 		}
 
-		FORCEINLINE void SetMatrix4(const std::string& name, const Matrix& matrix)
+		void SetMatrix4(const std::string& name, const Matrix& matrix)
 		{
 			m_matrices[name] = matrix;
 		}	
 
-		FORCEINLINE float GetFloat(const std::string& name)
+		float GetFloat(const std::string& name)
 		{
 			return m_floats[name];
 		}
 
-		FORCEINLINE float GetBool(const std::string& name)
+		float GetBool(const std::string& name)
 		{
 			return m_bools[name];
 		}
 
-		FORCEINLINE int GetInt(const std::string& name)
+		int GetInt(const std::string& name)
 		{
 			return m_ints[name];
 		}
 
-		FORCEINLINE Color GetColor(const std::string& name)
+		Color GetColor(const std::string& name)
 		{
 			return m_colors[name];
 		}
 
-		FORCEINLINE Vector2 GetVector2(const std::string& name)
+		Vector2 GetVector2(const std::string& name)
 		{
 			return m_vector2s[name];
 		}
 
-		FORCEINLINE Vector3 GetVector3(const std::string& name)
+		Vector3 GetVector3(const std::string& name)
 		{
 			return m_vector3s[name];
 		}
 
-		FORCEINLINE Vector4 GetVector4(const std::string& name)
+		Vector4 GetVector4(const std::string& name)
 		{
 			return m_vector4s[name];
 		}
 
-		FORCEINLINE Matrix GetMatrix(const std::string& name)
+		Matrix GetMatrix(const std::string& name)
 		{
 			return m_matrices[name];
 		}
 		
-		FORCEINLINE Shaders GetShaderType() { return m_shaderType; }
-		FORCEINLINE uint32 GetShaderID() { return m_shaderID; }
-		FORCEINLINE void SetSurfaceType(MaterialSurfaceType type) { m_surfaceType = type; SetInt(MAT_SURFACETYPE, type); }
-		FORCEINLINE MaterialSurfaceType GetSurfaceType() { return m_surfaceType; }
+		Shaders GetShaderType() { return m_shaderType; }
+		uint32 GetShaderID() { return m_shaderID; }
+		void SetSurfaceType(MaterialSurfaceType type) { m_surfaceType = type; SetInt(MAT_SURFACETYPE, type); }
+		MaterialSurfaceType GetSurfaceType() { return m_surfaceType; }
 
 
 		template<class Archive>

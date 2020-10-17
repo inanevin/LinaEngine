@@ -58,7 +58,7 @@ namespace LinaEngine::ECS
 		RigidbodySystem() {};
 
 		virtual void UpdateComponents(float delta) override;
-		FORCEINLINE void Construct(ECSRegistry& registry, LinaEngine::Physics::PhysicsEngine* physicsEngine) { BaseECSSystem::Construct(registry); m_physicsEngine = physicsEngine; }
+		void Construct(ECSRegistry& registry, LinaEngine::Physics::PhysicsEngine* physicsEngine) { BaseECSSystem::Construct(registry); m_physicsEngine = physicsEngine; }
 
 	private:
 

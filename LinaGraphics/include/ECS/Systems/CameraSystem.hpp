@@ -59,13 +59,13 @@ namespace LinaEngine::ECS
 		virtual void UpdateComponents(float delta) override;
 
 		// Construct the system.
-		FORCEINLINE void Construct(ECSRegistry& registry) { BaseECSSystem::Construct(registry); }
+		void Construct(ECSRegistry& registry) { BaseECSSystem::Construct(registry); }
 
 		// Get view matrix.
-		FORCEINLINE Matrix& GetViewMatrix() { return m_view; }
+		Matrix& GetViewMatrix() { return m_view; }
 
 		// Get projection matrix
-		FORCEINLINE Matrix& GetProjectionMatrix() { return m_projection; }
+		Matrix& GetProjectionMatrix() { return m_projection; }
 
 		// Get camera location, if camera is not defined, get zero.
 		Vector3 GetCameraLocation();
@@ -73,12 +73,12 @@ namespace LinaEngine::ECS
 		Matrix GetLightMatrix(DirectionalLightComponent* c);
 
 		// Set aspect ratio for the camera.
-		FORCEINLINE void SetAspectRatio(float aspect) { m_aspectRatio = aspect; }
+		void SetAspectRatio(float aspect) { m_aspectRatio = aspect; }
 
 		// Get clear color of the current camera.
 		Color& GetCurrentClearColor();
 
-		FORCEINLINE CameraComponent* GetCurrentCameraComponent() { return m_currentCameraComponent; }
+		CameraComponent* GetCurrentCameraComponent() { return m_currentCameraComponent; }
 
 	private:
 

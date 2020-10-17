@@ -62,8 +62,8 @@ namespace LinaEngine::Action
 	public:
 
 		virtual ~ActionHandlerBase() {};
-		FORCEINLINE ActionType GetActionType() const { return m_actionType; }
-		FORCEINLINE bool GetUseCondition() const { return m_useCondition; }
+		ActionType GetActionType() const { return m_actionType; }
+		bool GetUseCondition() const { return m_useCondition; }
 
 	protected:
 
@@ -84,11 +84,11 @@ namespace LinaEngine::Action
 	
 		virtual ~ActionHandler() {};
 
-		FORCEINLINE void SetCondition(const T& cond) { m_condition = cond; m_useCondition = true; }
-		FORCEINLINE void SetCallback(const std::function<void(T)>& cb) { m_callback = cb; }
+		void SetCondition(const T& cond) { m_condition = cond; m_useCondition = true; }
+		void SetCallback(const std::function<void(T)>& cb) { m_callback = cb; }
 
 		// Checks condition if one is used and invokes the callback.
-		FORCEINLINE void ControlExecute(const T& data) 
+		void ControlExecute(const T& data) 
 		{ 
 			if (!m_useCondition || ( m_useCondition && m_condition == data))
 				m_callback(data);

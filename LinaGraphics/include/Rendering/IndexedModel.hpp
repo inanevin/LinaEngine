@@ -69,13 +69,13 @@ namespace LinaEngine::Graphics
 		void AddIndices(uint32 i0, uint32 i1, uint32 i2, uint32 i3);
 
 		// Gets the element array
-		FORCEINLINE std::vector<std::vector<float>>& GetElements() { return m_elements; }
+		std::vector<std::vector<float>>& GetElements() { return m_elements; }
 
 		// Sets the start index for instanced elements.
-		FORCEINLINE void SetStartIndex(uint32 elementIndex) { m_startIndex = elementIndex; }
+		void SetStartIndex(uint32 elementIndex) { m_startIndex = elementIndex; }
 
 		// Accessor for num m_Indices.
-		FORCEINLINE uint32 GetIndexCount() const { return m_indices.size(); }
+		uint32 GetIndexCount() const { return m_indices.size(); }
 
 	private:
 

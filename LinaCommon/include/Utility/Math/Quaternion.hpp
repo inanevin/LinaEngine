@@ -50,25 +50,25 @@ namespace LinaEngine
 
 	public:
 
-		FORCEINLINE Quaternion()  : glm::quat(1,0,0,0) {};
-		FORCEINLINE Quaternion(const Vector4& v) : glm::quat(v.w, v.x, v.y, v.z) {};
-		FORCEINLINE Quaternion(float x, float y, float z, float w) : glm::quat(w,x,y,z) {};
-		FORCEINLINE Quaternion(glm::quat q) : glm::quat(q) {};
+		Quaternion()  : glm::quat(1,0,0,0) {};
+		Quaternion(const Vector4& v) : glm::quat(v.w, v.x, v.y, v.z) {};
+		Quaternion(float x, float y, float z, float w) : glm::quat(w,x,y,z) {};
+		Quaternion(glm::quat q) : glm::quat(q) {};
 		Quaternion(const Vector3& axis, float angle);
 
-		FORCEINLINE Quaternion operator+(const Quaternion& other) const { return *this + other; }
-		FORCEINLINE Quaternion operator-(const Quaternion& other) const { return *this - other; }
-		FORCEINLINE Quaternion operator*(const Quaternion& other) const { return glm::quat(*this) * glm::quat(other); }
-		FORCEINLINE Quaternion operator*(float amt) const { return *this * amt; }
-		FORCEINLINE Quaternion operator/(float amt) const { return *this / amt; }
-		FORCEINLINE Quaternion operator+=(const Quaternion& other) { *this += other; return *this; }
-		FORCEINLINE Quaternion operator-=(const Quaternion& other) { *this -= other; return *this; }
-		FORCEINLINE Quaternion operator*=(const Quaternion& other) { *this *= other; return *this; }
-		FORCEINLINE Quaternion operator*=(float amt) { *this *= amt; return *this; }
-		FORCEINLINE Quaternion operator/=(float amt) { *this /= amt; return *this; }
-		FORCEINLINE Quaternion operator=(const Quaternion& other) { x = other.x; y = other.y; z = other.z; w = other.w; return *this; }
-		FORCEINLINE bool operator==(const Quaternion& other) const { return *this == other; }
-		FORCEINLINE bool operator!=(const Quaternion& other) const { return *this != other; }
+		Quaternion operator+(const Quaternion& other) const { return *this + other; }
+		Quaternion operator-(const Quaternion& other) const { return *this - other; }
+		Quaternion operator*(const Quaternion& other) const { return glm::quat(*this) * glm::quat(other); }
+		Quaternion operator*(float amt) const { return *this * amt; }
+		Quaternion operator/(float amt) const { return *this / amt; }
+		Quaternion operator+=(const Quaternion& other) { *this += other; return *this; }
+		Quaternion operator-=(const Quaternion& other) { *this -= other; return *this; }
+		Quaternion operator*=(const Quaternion& other) { *this *= other; return *this; }
+		Quaternion operator*=(float amt) { *this *= amt; return *this; }
+		Quaternion operator/=(float amt) { *this /= amt; return *this; }
+		Quaternion operator=(const Quaternion& other) { x = other.x; y = other.y; z = other.z; w = other.w; return *this; }
+		bool operator==(const Quaternion& other) const { return *this == other; }
+		bool operator!=(const Quaternion& other) const { return *this != other; }
 
 		Vector3 GetRight() const;
 		Vector3 GetUp() const;
@@ -89,7 +89,7 @@ namespace LinaEngine
 		float Dot(const Quaternion& other) const;
 		float Length() const;
 		float LengthSquared() const;
-		FORCEINLINE Vector4 ToVector() const { return Vector4(x, y, z, w); }
+		Vector4 ToVector() const { return Vector4(x, y, z, w); }
 
 		template<class Archive>
 		void serialize(Archive& archive)

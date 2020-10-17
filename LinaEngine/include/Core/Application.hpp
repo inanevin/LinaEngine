@@ -94,7 +94,7 @@ namespace LinaEngine
 		// Unloads a level from memory.
 		void UnloadLevel(LinaEngine::World::Level* level);
 
-		FORCEINLINE int GetCurrentFPS() { return m_currentFPS; }
+		int GetCurrentFPS() { return m_currentFPS; }
 
 	protected:
 
@@ -106,11 +106,11 @@ namespace LinaEngine
 		virtual void OnDrawLine(Vector3 from, Vector3 to, Color color, float width = 1.0f);
 
 		// Get render engine
-		FORCEINLINE Graphics::Window& GetAppWindow() { return *m_appWindow; }
-		FORCEINLINE Graphics::RenderEngine& GetRenderEngine() { return *m_renderEngine; }
-		FORCEINLINE Input::InputEngine& GetInputEngine() { return *m_inputEngine; }
-		FORCEINLINE Physics::PhysicsEngine& GetPhysicsEngine() { return *m_physicsEngine; }
-		FORCEINLINE ECS::ECSRegistry& GetECSREgistry() { return m_ecs; }
+		Graphics::Window& GetAppWindow() { return *m_appWindow; }
+		Graphics::RenderEngine& GetRenderEngine() { return *m_renderEngine; }
+		Input::InputEngine& GetInputEngine() { return *m_inputEngine; }
+		Physics::PhysicsEngine& GetPhysicsEngine() { return *m_physicsEngine; }
+		ECS::ECSRegistry& GetECSREgistry() { return m_ecs; }
 
 	private:
 

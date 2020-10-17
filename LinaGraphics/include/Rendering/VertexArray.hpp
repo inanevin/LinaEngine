@@ -53,30 +53,30 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-		FORCEINLINE VertexArray() : m_engineBoundID(0), m_IndexCount(0), m_renderDevice(nullptr) {};
-		FORCEINLINE ~VertexArray()
+		VertexArray() : m_engineBoundID(0), m_IndexCount(0), m_renderDevice(nullptr) {};
+		~VertexArray()
 		{
 			m_engineBoundID = m_renderDevice->ReleaseVertexArray(m_engineBoundID);
 		}
 	
-		FORCEINLINE void Construct(RenderDevice& deviceIn, const IndexedModel& model, BufferUsage bufferUsage)
+		void Construct(RenderDevice& deviceIn, const IndexedModel& model, BufferUsage bufferUsage)
 		{
 			m_renderDevice = &deviceIn;
 			m_engineBoundID = model.CreateVertexArray(deviceIn, bufferUsage);
 			m_IndexCount = model.GetIndexCount();
 		}
 
-		FORCEINLINE void UpdateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize)
+		void UpdateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize)
 		{
 			return m_renderDevice->UpdateVertexArrayBuffer(m_engineBoundID, bufferIndex, data, dataSize);
 		}
 
-		FORCEINLINE uint32 GetID()
+		uint32 GetID()
 		{ 
 			return m_engineBoundID;
 		}
 
-		FORCEINLINE uint32 GetIndexCount()
+		uint32 GetIndexCount()
 		{ 
 			return m_IndexCount;  
 		}

@@ -39,7 +39,6 @@ Timestamp: 4/17/2019 1:49:50 AM
 #ifndef Internal_HPP
 #define Internal_HPP
 
-#include "Core/LinaAPI.hpp"
 #include <string>
 
 namespace LinaEngine

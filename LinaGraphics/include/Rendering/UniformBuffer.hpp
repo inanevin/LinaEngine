@@ -49,17 +49,17 @@ namespace LinaEngine::Graphics
 	public:
 
 		// Param const creates buffer through render engine.
-		FORCEINLINE UniformBuffer() {}
+		UniformBuffer() {}
 
 		// Destructor releases the buffer through render engine.
-		FORCEINLINE ~UniformBuffer()
+		~UniformBuffer()
 		{
 			if (m_isConstructed)
 				m_engineBoundID = m_renderDevice->ReleaseUniformBuffer(m_engineBoundID);
 		}
 
 		// Updates the uniform buffer w/ new data, allows dynamic size change.
-		FORCEINLINE void Construct(RenderDevice& renderDeviceIn, uintptr dataSize, BufferUsage usage, const void* data = nullptr)
+		void Construct(RenderDevice& renderDeviceIn, uintptr dataSize, BufferUsage usage, const void* data = nullptr)
 		{
 			m_renderDevice = &renderDeviceIn;
 			m_bufferSize = dataSize;
@@ -67,15 +67,15 @@ namespace LinaEngine::Graphics
 			m_isConstructed = true;
 		}
 
-		FORCEINLINE void Bind(uint32 point)
+		void Bind(uint32 point)
 		{
 			m_renderDevice->BindUniformBuffer(m_engineBoundID, point);
 		}
 
-		FORCEINLINE void Update(const void* data, uintptr offset, uintptr dataSize) { m_renderDevice->UpdateUniformBuffer(m_engineBoundID, data, offset, dataSize); }
-		FORCEINLINE void Update(const void* data,  uintptr dataSize) { m_renderDevice->UpdateUniformBuffer(m_engineBoundID, data, dataSize); }
+		void Update(const void* data, uintptr offset, uintptr dataSize) { m_renderDevice->UpdateUniformBuffer(m_engineBoundID, data, offset, dataSize); }
+		void Update(const void* data,  uintptr dataSize) { m_renderDevice->UpdateUniformBuffer(m_engineBoundID, data, dataSize); }
 
-		FORCEINLINE uint32 GetID() { return m_engineBoundID; }
+		uint32 GetID() { return m_engineBoundID; }
 
 	private:
 

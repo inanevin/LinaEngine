@@ -24,13 +24,13 @@ namespace LinaEngine::Graphics
 {
 	Mesh::~Mesh()
 	{
-		for (uint32 i = 0; i < m_VertexArrays.size(); i++)
-			delete m_VertexArrays[i];
+		for (uint32 i = 0; i < m_vertexArrays.size(); i++)
+			delete m_vertexArrays[i];
 
-		m_VertexArrays.clear();
-		m_IndexedModelArray.clear();
-		m_MaterialSpecArray.clear();
-		m_MaterialIndexArray.clear();
+		m_vertexArrays.clear();
+		m_indexedModelArray.clear();
+		m_materialSpecArray.clear();
+		m_materialIndexArray.clear();
 	}
 }
 

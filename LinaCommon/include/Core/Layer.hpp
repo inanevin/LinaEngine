@@ -55,7 +55,7 @@ namespace LinaEngine
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
 		virtual void OnTick(float dt) {}
-		FORCEINLINE const std::string& GetName() const { return m_name; }
+		const std::string& GetName() const { return m_name; }
 
 	protected:
 

@@ -50,12 +50,12 @@ namespace LinaEngine::Graphics
 		Sampler() {};
 
 		// Destructor releases sampler data through render engine
-		FORCEINLINE ~Sampler()
+		~Sampler()
 		{
 			m_engineBoundID = m_renderDevice->ReleaseSampler(m_engineBoundID);
 		}
 
-		FORCEINLINE void Construct(RenderDevice& deviceIn, SamplerParameters samplerParams, TextureBindMode bindMode)
+		void Construct(RenderDevice& deviceIn, SamplerParameters samplerParams, TextureBindMode bindMode)
 		{
 			m_renderDevice = &deviceIn;
 			m_engineBoundID = m_renderDevice->CreateSampler(samplerParams);
@@ -63,17 +63,17 @@ namespace LinaEngine::Graphics
 			m_params = samplerParams;
 		}
 
-		FORCEINLINE void UpdateSettings(SamplerParameters samplerParams) 
+		void UpdateSettings(SamplerParameters samplerParams) 
 		{
 			m_params = samplerParams;
 			m_renderDevice->UpdateSamplerParameters(m_engineBoundID, samplerParams);
 			m_renderDevice->UpdateTextureParameters(m_targetBindMode, m_targetTextureID, samplerParams);
 		}
 
-		FORCEINLINE SamplerParameters& GetSamplerParameters() { return m_params; }
+		SamplerParameters& GetSamplerParameters() { return m_params; }
 
-		FORCEINLINE uint32 GetID() const { return m_engineBoundID; }
-		FORCEINLINE void SetTargetTextureID(uint32 id) { m_targetTextureID = id; }
+		uint32 GetID() const { return m_engineBoundID; }
+		void SetTargetTextureID(uint32 id) { m_targetTextureID = id; }
 	private:
 
 		uint32 m_targetTextureID = 0;

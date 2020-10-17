@@ -76,7 +76,7 @@ namespace LinaEditor
 		virtual void Setup() override;
 
 		// Set selected entity's transform component
-		FORCEINLINE void SetSelectedTransform(LinaEngine::ECS::TransformComponent* tr) { m_SelectedTransform = tr; }
+		void SetSelectedTransform(LinaEngine::ECS::TransformComponent* tr) { m_SelectedTransform = tr; }
 
 		// Handle hardware input
 		void ProcessInput();
@@ -85,7 +85,7 @@ namespace LinaEditor
 		void DrawGizmos();
 
 		// Sets draw mode
-		FORCEINLINE void SetDrawMode(DrawMode mode) { m_drawMode = mode; }
+		void SetDrawMode(DrawMode mode) { m_drawMode = mode; }
 
 	private:
 

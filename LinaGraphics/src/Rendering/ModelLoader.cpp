@@ -111,7 +111,7 @@ namespace LinaEngine::Graphics
 			if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0 && material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) != AI_SUCCESS)
 			{
 				std::string str(texturePath.data);
-				spec.textureNames["diffuse"] = str;
+				spec.m_textureNames["diffuse"] = str;
 			}
 			// Push the material to list.
 			materials.push_back(spec);
@@ -195,7 +195,7 @@ namespace LinaEngine::Graphics
 			if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0 && material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) != AI_SUCCESS)
 			{
 				std::string str(texturePath.data);
-				spec.textureNames["diffuse"] = str;
+				spec.m_textureNames["diffuse"] = str;
 			}
 			// Push the material to list.
 			materials.push_back(spec);

@@ -89,7 +89,7 @@ namespace LinaEditor
 		void EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity);
 		void Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path);
 
-		FORCEINLINE void MeshSelected(LinaEngine::Graphics::Mesh* mesh, int id, std::string& path)
+		void MeshSelected(LinaEngine::Graphics::Mesh* mesh, int id, std::string& path)
 		{
 			m_selectedMesh = mesh;
 			m_currentDrawType = DrawType::MESH;
@@ -100,7 +100,7 @@ namespace LinaEditor
 			m_currentMeshParams = params;
 		}
 
-		FORCEINLINE void MaterialSelected(LinaEngine::Graphics::Material* material, int id, std::string& path)
+		void MaterialSelected(LinaEngine::Graphics::Material* material, int id, std::string& path)
 		{
 			m_selectedMaterial = material;
 			m_selectedMaterialID = id;
@@ -108,7 +108,7 @@ namespace LinaEditor
 			m_currentDrawType = DrawType::MATERIAL;
 		}
 
-		FORCEINLINE void Unselect()
+		void Unselect()
 		{
 			m_selectedMesh = nullptr;
 			m_selectedMaterial = nullptr;

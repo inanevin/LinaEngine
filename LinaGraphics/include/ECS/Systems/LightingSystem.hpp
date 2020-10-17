@@ -64,7 +64,7 @@ namespace LinaEngine::ECS
 
 		LightingSystem() {};
 
-		FORCEINLINE void Construct(ECSRegistry& registry, RenderDevice& rdIn, Graphics::RenderEngine& renderEngineIn)
+		void Construct(ECSRegistry& registry, RenderDevice& rdIn, Graphics::RenderEngine& renderEngineIn)
 		{
 			BaseECSSystem::Construct(registry);
 			m_renderDevice = &rdIn;
@@ -78,7 +78,7 @@ namespace LinaEngine::ECS
 		Matrix GetDirectionalLightMatrix();
 		Matrix GetDirLightBiasMatrix();
 		std::vector<Matrix> GetPointLightMatrices();
-		FORCEINLINE Color& GetAmbientColor() { return m_ambientColor; }
+		Color& GetAmbientColor() { return m_ambientColor; }
 		Vector3& GetDirectionalLightPos();
 
 	private:

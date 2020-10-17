@@ -62,7 +62,7 @@ namespace LinaEngine::Action
 		ActionDispatcher();
 
 		template<typename T>
-		FORCEINLINE void DispatchAction(ActionType at, const T& data)
+		void DispatchAction(ActionType at, const T& data)
 		{
 			try {
 

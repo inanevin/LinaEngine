@@ -225,11 +225,11 @@ namespace igfd
 				CreateDirectoryA(name.c_str(), nullptr);
 #elif defined(LINUX) or defined(APPLE)
 				char buffer[PATH_MAX] = {};
-				snprintf(buffer, PATH_MAX, "mkdir -p %s", name.c_str());
+				snprintf(buffer, PATH_MAX, "mkdir -p %s", m_name.c_str());
 				const int dir_err = std::system(buffer);
 				if (dir_err == -1)
 				{
-					std::cout << "Error creating directory " << name << std::endl;
+					std::cout << "Error creating directory " << m_name << std::endl;
 					res = false;
 				}
 #endif
@@ -1584,7 +1584,7 @@ namespace igfd
 #ifdef WIN32
 			size_t numchar = GetFullPathNameA(path.c_str(), PATH_MAX - 1, real_path, nullptr);
 #elif defined(LINUX) or defined(APPLE)
-			char *numchar = realpath(path.c_str(), real_path);
+			char *numchar = realpath(m_path.c_str(), real_path);
 #endif
 			if (numchar != 0)
 			{

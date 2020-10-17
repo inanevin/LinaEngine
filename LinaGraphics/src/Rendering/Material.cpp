@@ -24,11 +24,11 @@ namespace LinaEngine::Graphics
 {
 	void Material::SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode)
 	{
-		if (!(sampler2Ds.find(textureName) == sampler2Ds.end()))
+		if (!(m_sampler2Ds.find(textureName) == m_sampler2Ds.end()))
 		{
-			sampler2Ds[textureName].boundTexture = texture;
-			sampler2Ds[textureName].bindMode = bindMode;
-			sampler2Ds[textureName].isActive = texture == nullptr ? false : true;
+			m_sampler2Ds[textureName].m_boundTexture = texture;
+			m_sampler2Ds[textureName].m_bindMode = bindMode;
+			m_sampler2Ds[textureName].m_isActive = texture == nullptr ? false : true;
 		}
 		else
 		{
@@ -38,10 +38,10 @@ namespace LinaEngine::Graphics
 	}
 	void Material::RemoveTexture(const std::string& textureName)
 	{
-		if (!(sampler2Ds.find(textureName) == sampler2Ds.end()))
+		if (!(m_sampler2Ds.find(textureName) == m_sampler2Ds.end()))
 		{
-			sampler2Ds[textureName].boundTexture = nullptr;
-			sampler2Ds[textureName].isActive = false;
+			m_sampler2Ds[textureName].m_boundTexture = nullptr;
+			m_sampler2Ds[textureName].m_isActive = false;
 		}
 		else
 		{
@@ -51,8 +51,8 @@ namespace LinaEngine::Graphics
 	}
 	Texture* Material::GetTexture(const std::string& name)
 	{
-		if (!(sampler2Ds.find(name) == sampler2Ds.end()))
-			return sampler2Ds[name].boundTexture;
+		if (!(m_sampler2Ds.find(name) == m_sampler2Ds.end()))
+			return m_sampler2Ds[name].m_boundTexture;
 		else
 		{
 			LINA_CORE_WARN("This material doesn't support texture slot with the name {0}, returning null pointer", name);

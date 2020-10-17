@@ -3730,7 +3730,7 @@ typedef struct
 struct stbrp_rect
 {
    stbrp_coord x,y;
-   int id,w,h,was_packed;
+   int m_id,w,h,was_packed;
 };
 
 static void stbrp_init_target(stbrp_context *con, int pw, int ph, stbrp_node *nodes, int num_nodes)
@@ -4659,8 +4659,8 @@ static int stbtt__matchpair(stbtt_uint8 *fc, stbtt_uint32 nm, stbtt_uint8 *name,
 
    for (i=0; i < count; ++i) {
       stbtt_uint32 loc = nm + 6 + 12 * i;
-      stbtt_int32 id = ttUSHORT(fc+loc+6);
-      if (id == target_id) {
+      stbtt_int32 m_id = ttUSHORT(fc+loc+6);
+      if (m_id == target_id) {
          // find the encoding
          stbtt_int32 platform = ttUSHORT(fc+loc+0), encoding = ttUSHORT(fc+loc+2), language = ttUSHORT(fc+loc+4);
 

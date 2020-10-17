@@ -54,11 +54,11 @@ namespace LinaEditor
 		EditorPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) : m_position(position), m_size(size), m_guiLayer(&guiLayer) { };
 		virtual ~EditorPanel() {};
 	
-		virtual FORCEINLINE void Open() { m_show = true; }
-		virtual FORCEINLINE void Close() { m_show = false; }
+		virtual void Open() { m_show = true; }
+		virtual void Close() { m_show = false; }
 		virtual void Draw(float frameTime) = 0;
 		virtual void Setup() = 0;
-		FORCEINLINE bool* GetShow() { return &m_show; }
+		bool* GetShow() { return &m_show; }
 
 	protected:
 

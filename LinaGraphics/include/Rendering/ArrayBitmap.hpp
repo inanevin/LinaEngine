@@ -73,23 +73,23 @@ namespace LinaEngine::Graphics
 		void Clear(int32 color);
 
 		// Accessors & Mutators.
-		FORCEINLINE int32 GetWidth() const { return m_width; };
-		FORCEINLINE int32 GetHeight() const { return m_heigth; };
+		int32 GetWidth() const { return m_width; };
+		int32 GetHeight() const { return m_heigth; };
 
-		FORCEINLINE int32 Get(int32 x, int32 y) const
+		int32 Get(int32 x, int32 y) const
 		{
 			LINA_CORE_ASSERT((x > 0 && x < m_width) && (y >= 0 && y < m_heigth), "Conditions are not map on array bitmap !");
 			return m_pixels[x + y * m_width];
 		};
 
-		FORCEINLINE void Set(int32 x, int32 y, int32 pixel)
+		void Set(int32 x, int32 y, int32 pixel)
 		{
 			LINA_CORE_ASSERT((x > 0 && x < m_width) && (y >= 0 && y < m_heigth), "Conditions are not map on array bitmap !");
 			m_pixels[x + y * m_width] = pixel;
 		};
 
-		FORCEINLINE int32* GetPixelArray() { return m_pixels; };
-		FORCEINLINE const int32* GetPixelArray() const { return m_pixels; };
+		int32* GetPixelArray() { return m_pixels; };
+		const int32* GetPixelArray() const { return m_pixels; };
 
 	private:
 
@@ -100,7 +100,7 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		FORCEINLINE uintptr GetPixelsSize() const { return (uintptr)(m_width * m_heigth) * sizeof(m_pixels[0]); }
+		uintptr GetPixelsSize() const { return (uintptr)(m_width * m_heigth) * sizeof(m_pixels[0]); }
 
 	};
 }

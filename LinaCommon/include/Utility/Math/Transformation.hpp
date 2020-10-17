@@ -56,49 +56,49 @@ namespace LinaEngine
 		
 		static Transformation Interpolate(Transformation& from, Transformation& to, float t);
 
-		FORCEINLINE Matrix ToMatrix() const
+		Matrix ToMatrix() const
 		{
 			return Matrix::TransformMatrix(m_location, m_rotation, m_scale);
 		}
 
-		FORCEINLINE void NormalizeRotation()
+		void NormalizeRotation()
 		{
 			m_rotation = m_rotation.Normalized();
 		}
 
-		FORCEINLINE bool IsRotationNormalized()
+		bool IsRotationNormalized()
 		{
 			return m_rotation.IsNormalized();
 		}
 	
-		FORCEINLINE void Set(const Vector3& translationIn, const Quaternion& rotationIn, const Vector3& scaleIn)
+		void Set(const Vector3& translationIn, const Quaternion& rotationIn, const Vector3& scaleIn)
 		{
 			m_location = translationIn;
 			m_rotation = rotationIn;
 			m_scale = scaleIn;
 		}
 
-		FORCEINLINE void Rotate(const Vector3& axis, float angle)
+		void Rotate(const Vector3& axis, float angle)
 		{
 			m_rotation = Quaternion(axis, angle);
 		}
 
-		FORCEINLINE void Rotate(const Vector3& euler)
+		void Rotate(const Vector3& euler)
 		{
 			m_rotation = Quaternion::Euler(euler.x, euler.y, euler.z);
 		}
 
-		FORCEINLINE void Rotate(float x, float y, float z)
+		void Rotate(float x, float y, float z)
 		{
 			m_rotation = Quaternion::Euler(x,y,z);
 		}
 
-		FORCEINLINE Transformation operator+(const Transformation& other) const
+		Transformation operator+(const Transformation& other) const
 		{
 			return Transformation(m_location + other.m_location, m_rotation + other.m_rotation, m_scale + other.m_scale);
 		}
 
-		FORCEINLINE Transformation operator+=(const Transformation& other)
+		Transformation operator+=(const Transformation& other)
 		{
 			m_location += other.m_location;
 			m_rotation += other.m_rotation;
@@ -106,12 +106,12 @@ namespace LinaEngine
 			return *this;
 		}
 
-		FORCEINLINE Transformation operator*(const Transformation& other) const
+		Transformation operator*(const Transformation& other) const
 		{
 			return Transformation(m_location * other.m_location, m_rotation * other.m_rotation, m_scale * other.m_scale);
 		}
 
-		FORCEINLINE Transformation operator*=(const Transformation& other)
+		Transformation operator*=(const Transformation& other)
 		{
 			m_location *= other.m_location;
 			m_rotation *= other.m_rotation;
@@ -119,12 +119,12 @@ namespace LinaEngine
 			return *this;
 		}
 
-		FORCEINLINE Transformation operator*(float other) const
+		Transformation operator*(float other) const
 		{
 			return Transformation(m_location * other, m_rotation * other, m_scale * other);
 		}
 
-		FORCEINLINE Transformation operator*=(float other)
+		Transformation operator*=(float other)
 		{
 			m_location *= other;
 			m_rotation *= other;

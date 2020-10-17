@@ -52,15 +52,15 @@ namespace LinaEngine::Input
 		InputMouseButtonBinder() {};
 		~InputMouseButtonBinder() {};
 
-		FORCEINLINE void Initialize(InputCode::Mouse button = InputCode::Mouse::MouseUnknown)
+		void Initialize(InputCode::Mouse button = InputCode::Mouse::MouseUnknown)
 		{
 			SubscribeMousePressedAction("buttonDown", LINA_ACTION_CALLBACK(InputMouseButtonBinder::OnButtonDown), button);
 			SubscribeMouseReleasedAction("buttonUp", LINA_ACTION_CALLBACK(InputMouseButtonBinder::OnButtonUp), button);
 		}
 
-		FORCEINLINE void OnButtonDown() { m_isPressed = true; }
-		FORCEINLINE void OnButtonUp() { m_isPressed = false; }
-		FORCEINLINE bool GetIsPressed() { return m_isPressed; }
+		void OnButtonDown() { m_isPressed = true; }
+		void OnButtonUp() { m_isPressed = false; }
+		bool GetIsPressed() { return m_isPressed; }
 
 	private:
 
@@ -74,7 +74,7 @@ namespace LinaEngine::Input
 		InputKeyAxisBinder() {};
 		virtual ~InputKeyAxisBinder() {};
 
-		FORCEINLINE void Initialize(InputCode::Key positive, InputCode::Key negative)
+		void Initialize(InputCode::Key positive, InputCode::Key negative)
 		{
 			SubscribeKeyPressedAction("posD", LINA_ACTION_CALLBACK(InputKeyAxisBinder::OnPositiveKeyDown), positive);
 			SubscribeKeyPressedAction("negD", LINA_ACTION_CALLBACK(InputKeyAxisBinder::OnNegativeKeyDown), negative);
@@ -82,7 +82,7 @@ namespace LinaEngine::Input
 			SubscribeKeyReleasedAction("negU", LINA_ACTION_CALLBACK(InputKeyAxisBinder::OnNegativeKeyUp), negative);
 		}
 
-		FORCEINLINE void OnPositiveKeyDown()
+		void OnPositiveKeyDown()
 		{
 			m_amount = 1.0f;
 			m_positivePressed = true;
@@ -90,7 +90,7 @@ namespace LinaEngine::Input
 				OnNegativeKeyUp();
 		}
 
-		FORCEINLINE void OnNegativeKeyDown()
+		void OnNegativeKeyDown()
 		{
 			m_amount = -1.0f;
 			m_negativePressed = true;
@@ -98,21 +98,21 @@ namespace LinaEngine::Input
 				OnPositiveKeyUp();
 		}
 
-		FORCEINLINE void OnPositiveKeyUp()
+		void OnPositiveKeyUp()
 		{
 			m_positivePressed = false;
 			if (!m_negativePressed)
 				m_amount = 0.0f;
 		}
 
-		FORCEINLINE void OnNegativeKeyUp()
+		void OnNegativeKeyUp()
 		{
 			m_negativePressed = false;
 			if (!m_positivePressed)
 				m_amount = 0.0f;
 		}
 
-		FORCEINLINE float GetAmount() const { return m_amount; }
+		float GetAmount() const { return m_amount; }
 
 	private:
 

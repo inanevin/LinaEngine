@@ -59,7 +59,7 @@ namespace LinaEngine::Action
 		
 		void UnsubscribeAll();
 
-		FORCEINLINE void SetActionDispatcher(ActionDispatcher* disp) { m_targetDispatcher = disp; }
+		void SetActionDispatcher(ActionDispatcher* disp) { m_targetDispatcher = disp; }
 
 	protected:
 
@@ -67,7 +67,7 @@ namespace LinaEngine::Action
 
 		// Subscribe an action with a condition, action types must have an available default constructor.
 		template<typename T>
-		FORCEINLINE void SubscribeAction(const std::string& actionID, ActionType at, const std::function<void(T)>& callback, T condition)
+		void SubscribeAction(const std::string& actionID, ActionType at, const std::function<void(T)>& callback, T condition)
 		{
 			// Abort if dispatcher is not set.
 			if (!m_targetDispatcher)
@@ -98,7 +98,7 @@ namespace LinaEngine::Action
 
 		// Subscribe an action without a condition, action types must have an available default constructor.
 		template<typename T>
-		FORCEINLINE void SubscribeAction(const std::string& actionID, ActionType at, const std::function<void(T)>& callback)
+		void SubscribeAction(const std::string& actionID, ActionType at, const std::function<void(T)>& callback)
 		{
 			// Abort if dispatcher is not set.
 			if (!m_targetDispatcher)

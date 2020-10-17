@@ -88,24 +88,24 @@ namespace LinaEngine::Graphics
 		~RenderEngine();
 
 		// Setter for post scene draw callback.
-		FORCEINLINE void SetPostSceneDrawCallback(std::function<void()>& cb)
+		void SetPostSceneDrawCallback(std::function<void()>& cb)
 		{
 			m_postSceneDrawCallback = cb;
 		}
 
-		FORCEINLINE Vector2 GetViewportSize()
+		Vector2 GetViewportSize()
 		{
 			return m_viewportSize;
 		}
 
-		FORCEINLINE ECS::CameraSystem* GetCameraSystem() { return &m_cameraSystem; }
+		ECS::CameraSystem* GetCameraSystem() { return &m_cameraSystem; }
 
 		// Setters for light counts. /* TAKE INSIDE LINA API LATER ON */
-		FORCEINLINE void SetCurrentPLightCount(int count) { m_currentPointLightCount = count; }
-		FORCEINLINE void SetCurrentSLightCount(int count) { m_currentSpotLightCount = count; }
+		void SetCurrentPLightCount(int count) { m_currentPointLightCount = count; }
+		void SetCurrentSLightCount(int count) { m_currentSpotLightCount = count; }
 
 		// Get hdri cubemap data.
-		FORCEINLINE Texture& GetHDRICubemap() { return m_hdriCubemap; }
+		Texture& GetHDRICubemap() { return m_hdriCubemap; }
 
 		// Initialize the render renderEngine.
 		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn, Window& appWindow);
@@ -177,7 +177,7 @@ namespace LinaEngine::Graphics
 		Material& SetMaterialShader(Material& material, Shaders shader);
 
 		// Sets the skybox material.
-		FORCEINLINE void SetSkyboxMaterial(Material& skyboxMaterial) { m_skyboxMaterial = &skyboxMaterial; }
+		void SetSkyboxMaterial(Material& skyboxMaterial) { m_skyboxMaterial = &skyboxMaterial; }
 
 		// Pushes a new layer into the gui stack.
 		void PushLayer(Layer* layer);

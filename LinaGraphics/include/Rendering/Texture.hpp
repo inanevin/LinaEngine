@@ -67,14 +67,14 @@ namespace LinaEngine::Graphics
 		Texture& ConstructRTTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, bool useBorder = false, const std::string& path = "");
 		Texture& ConstructRTTextureMSAA(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, int sampleCount, const std::string& path = "");
 		Texture& ConstructEmpty(RenderDevice& deviceIn, SamplerParameters samplerParams = SamplerParameters(), const std::string& path = "");
-		FORCEINLINE uint32 GetID() const { return m_id; };
-		FORCEINLINE uint32 GetSamplerID() const { return m_sampler.GetID(); }
-		FORCEINLINE Sampler& GetSampler() { return m_sampler; }
-		FORCEINLINE bool IsCompressed() const { return m_isCompressed; }
-		FORCEINLINE bool HasMipmaps() const { return m_hasMipMaps; }
-		FORCEINLINE Vector2 GetSize() { return m_size; }
-		FORCEINLINE bool GetIsEmpty() { return m_isEmpty; }
-		FORCEINLINE const std::string& GetPath() const { return m_path; }
+		uint32 GetID() const { return m_id; };
+		uint32 GetSamplerID() const { return m_sampler.GetID(); }
+		Sampler& GetSampler() { return m_sampler; }
+		bool IsCompressed() const { return m_isCompressed; }
+		bool HasMipmaps() const { return m_hasMipMaps; }
+		Vector2 GetSize() { return m_size; }
+		bool GetIsEmpty() { return m_isEmpty; }
+		const std::string& GetPath() const { return m_path; }
 
 	private:
 

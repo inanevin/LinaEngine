@@ -60,18 +60,18 @@ namespace LinaEngine
 		};
 
 
-		static FORCEINLINE void* memmove(void* dest, const void* src, uintptr amt)
+		static void* memmove(void* dest, const void* src, uintptr amt)
 		{
 			return ::memmove(dest, src, amt);
 		}
 
-		static FORCEINLINE int32 memcmp(const void* dest, const void* src, uintptr amt)
+		static int32 memcmp(const void* dest, const void* src, uintptr amt)
 		{
 			return ::memcmp(dest, src, amt);
 		}
 
 		template<typename T>
-		static FORCEINLINE void* memset(void* destIn, T val, uintptr amt)
+		static void* memset(void* destIn, T val, uintptr amt)
 		{
 			T* dest = (T*)destIn;
 			uintptr amtT = amt / sizeof(T);
@@ -84,12 +84,12 @@ namespace LinaEngine
 			return destIn;
 		}
 
-		static FORCEINLINE void* memzero(void* dest, uintptr amt)
+		static void* memzero(void* dest, uintptr amt)
 		{
 			return ::memset(dest, 0, amt);
 		}
 
-		static FORCEINLINE void* memcpy(void* dest, const void* src, uintptr amt)
+		static void* memcpy(void* dest, const void* src, uintptr amt)
 		{
 			return ::memcpy(dest, src, amt);
 		}
@@ -103,7 +103,7 @@ namespace LinaEngine
 		}
 
 		template<typename T>
-		static FORCEINLINE constexpr T align(const T ptr, uintptr alignment)
+		static constexpr T align(const T ptr, uintptr alignment)
 		{
 			return (T)(((intptr)ptr + alignment - 1) & ~(alignment - 1));
 		}
@@ -128,7 +128,7 @@ namespace LinaEngine
 	};
 
 	template<>
-	FORCEINLINE void* GenericMemory::memset(void* dest, uint8 val, uintptr amt)
+	void* GenericMemory::memset(void* dest, uint8 val, uintptr amt)
 	{
 		return ::memset(dest, val, amt);
 	}

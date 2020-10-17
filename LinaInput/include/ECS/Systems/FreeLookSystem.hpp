@@ -53,7 +53,7 @@ namespace LinaEngine::ECS
 	{
 	public:
 
-		FORCEINLINE void Construct(ECSRegistry& registry, LinaEngine::Input::InputEngine& inputEngineIn)
+		void Construct(ECSRegistry& registry, LinaEngine::Input::InputEngine& inputEngineIn)
 		{
 			BaseECSSystem::Construct(registry);
 			m_inputEngine = &inputEngineIn;

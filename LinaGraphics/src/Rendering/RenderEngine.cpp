@@ -458,78 +458,78 @@ namespace LinaEngine::Graphics
 		// If no shader found, fall back to standardLit
 		if (m_loadedShaders.find(shader) == m_loadedShaders.end()) {
 			LINA_CORE_WARN("Shader with engine ID {0} was not found. Setting material's shader to standardUnlit.", shader);
-			material.shaderID = m_loadedShaders[Shaders::STANDARD_UNLIT].GetID();
+			material.m_shaderID = m_loadedShaders[Shaders::STANDARD_UNLIT].GetID();
 		}
 		else
-			material.shaderID = m_loadedShaders[shader].GetID();
+			material.m_shaderID = m_loadedShaders[shader].GetID();
 
 		// Clear all shader related material data.
-		material.sampler2Ds.clear();
-		material.colors.clear();
-		material.floats.clear();
-		material.ints.clear();
-		material.vector3s.clear();
-		material.vector2s.clear();
-		material.matrices.clear();
-		material.vector4s.clear();
-		material.m_ShaderType = shader;
+		material.m_sampler2Ds.clear();
+		material.m_colors.clear();
+		material.m_floats.clear();
+		material.m_ints.clear();
+		material.m_vector3s.clear();
+		material.m_vector2s.clear();
+		material.m_matrices.clear();
+		material.m_vector4s.clear();
+		material.m_shaderType = shader;
 
 		if (shader == Shaders::STANDARD_UNLIT)
 		{
-			material.colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
-			material.sampler2Ds[MAT_TEXTURE2D_DIFFUSE] = { 0 };
-			material.sampler2Ds[MAT_TEXTURE2D_SHADOWMAP] = { 1 };
-			material.ints[MAT_SURFACETYPE] = 0;
-			material.isShadowMapped = true;
+			material.m_colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
+			material.m_sampler2Ds[MAT_TEXTURE2D_DIFFUSE] = { 0 };
+			material.m_sampler2Ds[MAT_TEXTURE2D_SHADOWMAP] = { 1 };
+			material.m_ints[MAT_SURFACETYPE] = 0;
+			material.m_isShadowMapped = true;
 			m_shadowMappedMaterials.emplace(&material);
 
 		}
 		else if (shader == Shaders::SKYBOX_SINGLECOLOR)
 		{
-			material.colors[MAT_COLOR] = Color::Gray;
+			material.m_colors[MAT_COLOR] = Color::Gray;
 		}
 		else if (shader == Shaders::SKYBOX_GRADIENT)
 		{
-			material.colors[MAT_STARTCOLOR] = Color::Black;
-			material.colors[MAT_ENDCOLOR] = Color::White;
+			material.m_colors[MAT_STARTCOLOR] = Color::Black;
+			material.m_colors[MAT_ENDCOLOR] = Color::White;
 		}
 		else if (shader == Shaders::SKYBOX_PROCEDURAL)
 		{
-			material.colors[MAT_STARTCOLOR] = Color::Black;
-			material.colors[MAT_ENDCOLOR] = Color::White;
-			material.vector3s[MAT_SUNDIRECTION] = Vector3(0, -1, 0);
+			material.m_colors[MAT_STARTCOLOR] = Color::Black;
+			material.m_colors[MAT_ENDCOLOR] = Color::White;
+			material.m_vector3s[MAT_SUNDIRECTION] = Vector3(0, -1, 0);
 		}
 		else if (shader == Shaders::SKYBOX_CUBEMAP)
 		{
-			material.sampler2Ds[MAT_MAP_ENVIRONMENT] = { 0 };
+			material.m_sampler2Ds[MAT_MAP_ENVIRONMENT] = { 0 };
 		}
 		else if (shader == Shaders::SKYBOX_HDRI)
 		{
-			material.sampler2Ds[MAT_MAP_ENVIRONMENT] = { 0 };
+			material.m_sampler2Ds[MAT_MAP_ENVIRONMENT] = { 0 };
 		}
 
 		else if (shader == Shaders::SCREEN_QUAD_FINAL)
 		{
 
-			material.sampler2Ds[MAT_MAP_SCREEN] = { 0 };
-			material.sampler2Ds[MAT_MAP_BLOOM] = { 1 };
-			material.sampler2Ds[MAT_MAP_OUTLINE] = { 2 };
-			material.floats[MAT_EXPOSURE] = 1.0f;
-			material.floats[MAT_FXAAREDUCEMIN] = 1.0f / 128.0f;
-			material.floats[MAT_FXAAREDUCEMUL] = 1.0f / 8.0f;
-			material.floats[MAT_FXAASPANMAX] = 8.0f;
-			material.booleans[MAT_BLOOMENABLED] = false;
-			material.booleans[MAT_FXAAENABLED] = false;
-			material.vector3s[MAT_INVERSESCREENMAPSIZE] = Vector3();
+			material.m_sampler2Ds[MAT_MAP_SCREEN] = { 0 };
+			material.m_sampler2Ds[MAT_MAP_BLOOM] = { 1 };
+			material.m_sampler2Ds[MAT_MAP_OUTLINE] = { 2 };
+			material.m_floats[MAT_EXPOSURE] = 1.0f;
+			material.m_floats[MAT_FXAAREDUCEMIN] = 1.0f / 128.0f;
+			material.m_floats[MAT_FXAAREDUCEMUL] = 1.0f / 8.0f;
+			material.m_floats[MAT_FXAASPANMAX] = 8.0f;
+			material.m_bools[MAT_BLOOMENABLED] = false;
+			material.m_bools[MAT_FXAAENABLED] = false;
+			material.m_vector3s[MAT_INVERSESCREENMAPSIZE] = Vector3();
 		}
 		else if (shader == Shaders::SCREEN_QUAD_BLUR)
 		{
-			material.sampler2Ds[MAT_MAP_SCREEN] = { 0 };
-			material.booleans[MAT_ISHORIZONTAL] = false;
+			material.m_sampler2Ds[MAT_MAP_SCREEN] = { 0 };
+			material.m_bools[MAT_ISHORIZONTAL] = false;
 		}
 		else if (shader == Shaders::SCREEN_QUAD_OUTLINE)
 		{
-			material.sampler2Ds[MAT_MAP_SCREEN] = { 0 };
+			material.m_sampler2Ds[MAT_MAP_SCREEN] = { 0 };
 		}
 		else if (shader == Shaders::SCREEN_SHADOWMAP)
 		{
@@ -537,39 +537,39 @@ namespace LinaEngine::Graphics
 		}
 		else if (shader == Shaders::PBR_LIT)
 		{
-			material.sampler2Ds[MAT_TEXTURE2D_ALBEDOMAP] = { 0 };
-			material.sampler2Ds[MAT_TEXTURE2D_NORMALMAP] = { 1 };
-			material.sampler2Ds[MAT_TEXTURE2D_ROUGHNESSMAP] = { 2 };
-			material.sampler2Ds[MAT_TEXTURE2D_METALLICMAP] = { 3 };
-			material.sampler2Ds[MAT_TEXTURE2D_AOMAP] = { 4 };
-			material.sampler2Ds[MAT_TEXTURE2D_BRDFLUTMAP] = { 5 };
-			material.sampler2Ds[MAT_TEXTURE2D_SHADOWMAP] = { 6 };
-			material.sampler2Ds[MAT_TEXTURE2D_IRRADIANCEMAP] = { 7, nullptr, TextureBindMode::BINDTEXTURE_CUBEMAP, false };
-			material.sampler2Ds[MAT_TEXTURE2D_PREFILTERMAP] = { 8,nullptr, TextureBindMode::BINDTEXTURE_CUBEMAP, false };
-			material.floats[MAT_METALLICMULTIPLIER] = 1.0f;
-			material.floats[MAT_ROUGHNESSMULTIPLIER] = 1.0f;
-			material.ints[MAT_WORKFLOW] = 0;
-			material.vector2s[MAT_TILING] = Vector2::One;
-			material.receivesLighting = true;
-			material.isShadowMapped = true;
-			material.usesHDRI = true;
+			material.m_sampler2Ds[MAT_TEXTURE2D_ALBEDOMAP] = { 0 };
+			material.m_sampler2Ds[MAT_TEXTURE2D_NORMALMAP] = { 1 };
+			material.m_sampler2Ds[MAT_TEXTURE2D_ROUGHNESSMAP] = { 2 };
+			material.m_sampler2Ds[MAT_TEXTURE2D_METALLICMAP] = { 3 };
+			material.m_sampler2Ds[MAT_TEXTURE2D_AOMAP] = { 4 };
+			material.m_sampler2Ds[MAT_TEXTURE2D_BRDFLUTMAP] = { 5 };
+			material.m_sampler2Ds[MAT_TEXTURE2D_SHADOWMAP] = { 6 };
+			material.m_sampler2Ds[MAT_TEXTURE2D_IRRADIANCEMAP] = { 7, nullptr, TextureBindMode::BINDTEXTURE_CUBEMAP, false };
+			material.m_sampler2Ds[MAT_TEXTURE2D_PREFILTERMAP] = { 8,nullptr, TextureBindMode::BINDTEXTURE_CUBEMAP, false };
+			material.m_floats[MAT_METALLICMULTIPLIER] = 1.0f;
+			material.m_floats[MAT_ROUGHNESSMULTIPLIER] = 1.0f;
+			material.m_ints[MAT_WORKFLOW] = 0;
+			material.m_vector2s[MAT_TILING] = Vector2::One;
+			material.m_receivesLighting = true;
+			material.m_isShadowMapped = true;
+			material.m_usesHDRI = true;
 
 			m_shadowMappedMaterials.emplace(&material);
 		}
 		else if (shader == Shaders::EQUIRECTANGULAR_HDRI)
 		{
-			material.sampler2Ds[MAT_MAP_EQUIRECTANGULAR] = { 0 };
-			material.matrices[UF_MATRIX_VIEW] = Matrix();
-			material.matrices[UF_MATRIX_PROJECTION] = Matrix();
+			material.m_sampler2Ds[MAT_MAP_EQUIRECTANGULAR] = { 0 };
+			material.m_matrices[UF_MATRIX_VIEW] = Matrix();
+			material.m_matrices[UF_MATRIX_PROJECTION] = Matrix();
 		}
 		else if (shader == Shaders::DEBUG_LINE)
 		{
-			material.colors[MAT_COLOR] = Color::White;
+			material.m_colors[MAT_COLOR] = Color::White;
 		}
 		else if (shader == Shaders::RENDERER2D_SPRITE)
 		{
-			material.colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
-			material.sampler2Ds[MAT_TEXTURE2D_DIFFUSE] = { 0 };
+			material.m_colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
+			material.m_sampler2Ds[MAT_TEXTURE2D_DIFFUSE] = { 0 };
 		}
 
 
@@ -941,7 +941,7 @@ namespace LinaEngine::Graphics
 
 		bool horizontal = true;
 
-		if (m_screenQuadFinalMaterial.booleans[MAT_BLOOMENABLED])
+		if (m_screenQuadFinalMaterial.m_bools[MAT_BLOOMENABLED])
 		{
 			// Write to the pingpong buffers to apply 2 pass gaussian blur.
 			bool firstIteration = true;
@@ -981,7 +981,7 @@ namespace LinaEngine::Graphics
 		// Set frame buffer texture on the material.
 		m_screenQuadFinalMaterial.SetTexture(MAT_MAP_SCREEN, &m_primaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 
-		if (m_screenQuadFinalMaterial.booleans[MAT_BLOOMENABLED])
+		if (m_screenQuadFinalMaterial.m_bools[MAT_BLOOMENABLED])
 			m_screenQuadFinalMaterial.SetTexture(MAT_MAP_BLOOM, horizontal ? &m_pingPongRTTexture1 : &m_pingPongRTTexture2, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 
 		// m_ScreenQuadFinalMaterial.SetTexture(MAT_MAP_OUTLINE, &m_OutlineRTTexture, TextureBindMode::BINDTEXTURE_TEXTURE2D);
@@ -998,9 +998,9 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::DrawLine(Vector3 p1, Vector3 p2, Color col, float width)
 	{
-		m_renderDevice.SetShader(m_debugDrawMaterial.shaderID);
-		m_renderDevice.UpdateShaderUniformColor(m_debugDrawMaterial.shaderID, MAT_COLOR, col);
-		m_renderDevice.DrawLine(m_debugDrawMaterial.shaderID, Matrix::Identity(), p1, p2, width);
+		m_renderDevice.SetShader(m_debugDrawMaterial.m_shaderID);
+		m_renderDevice.UpdateShaderUniformColor(m_debugDrawMaterial.m_shaderID, MAT_COLOR, col);
+		m_renderDevice.DrawLine(m_debugDrawMaterial.m_shaderID, Matrix::Identity(), p1, p2, width);
 	}
 
 	void RenderEngine::SetDrawParameters(const DrawParams& params)
@@ -1113,54 +1113,54 @@ namespace LinaEngine::Graphics
 
 		m_renderDevice.SetShader(data->GetShaderID());
 
-		for (auto const& d : (*data).floats)
-			m_renderDevice.UpdateShaderUniformFloat(data->shaderID, d.first, d.second);
+		for (auto const& d : (*data).m_floats)
+			m_renderDevice.UpdateShaderUniformFloat(data->m_shaderID, d.first, d.second);
 
-		for (auto const& d : (*data).booleans)
-			m_renderDevice.UpdateShaderUniformInt(data->shaderID, d.first, d.second);
+		for (auto const& d : (*data).m_bools)
+			m_renderDevice.UpdateShaderUniformInt(data->m_shaderID, d.first, d.second);
 
-		for (auto const& d : (*data).colors)
-			m_renderDevice.UpdateShaderUniformColor(data->shaderID, d.first, d.second);
+		for (auto const& d : (*data).m_colors)
+			m_renderDevice.UpdateShaderUniformColor(data->m_shaderID, d.first, d.second);
 
-		for (auto const& d : (*data).ints)
-			m_renderDevice.UpdateShaderUniformInt(data->shaderID, d.first, d.second);
+		for (auto const& d : (*data).m_ints)
+			m_renderDevice.UpdateShaderUniformInt(data->m_shaderID, d.first, d.second);
 
-		for (auto const& d : (*data).vector2s)
-			m_renderDevice.UpdateShaderUniformVector2(data->shaderID, d.first, d.second);
+		for (auto const& d : (*data).m_vector2s)
+			m_renderDevice.UpdateShaderUniformVector2(data->m_shaderID, d.first, d.second);
 
-		for (auto const& d : (*data).vector3s)
-			m_renderDevice.UpdateShaderUniformVector3(data->shaderID, d.first, d.second);
+		for (auto const& d : (*data).m_vector3s)
+			m_renderDevice.UpdateShaderUniformVector3(data->m_shaderID, d.first, d.second);
 
-		for (auto const& d : (*data).vector4s)
-			m_renderDevice.UpdateShaderUniformVector4F(data->shaderID, d.first, d.second);
+		for (auto const& d : (*data).m_vector4s)
+			m_renderDevice.UpdateShaderUniformVector4F(data->m_shaderID, d.first, d.second);
 
-		for (auto const& d : (*data).matrices)
-			m_renderDevice.UpdateShaderUniformMatrix(data->shaderID, d.first, d.second);
+		for (auto const& d : (*data).m_matrices)
+			m_renderDevice.UpdateShaderUniformMatrix(data->m_shaderID, d.first, d.second);
 
-		for (auto const& d : (*data).sampler2Ds)
+		for (auto const& d : (*data).m_sampler2Ds)
 		{
 			// Set whether the texture is active or not.
-			bool isActive = (d.second.isActive && !d.second.boundTexture->GetIsEmpty()) ? true : false;
-			m_renderDevice.UpdateShaderUniformInt(data->shaderID, d.first + MAT_EXTENSION_ISACTIVE, isActive);
+			bool isActive = (d.second.m_isActive && !d.second.m_boundTexture->GetIsEmpty()) ? true : false;
+			m_renderDevice.UpdateShaderUniformInt(data->m_shaderID, d.first + MAT_EXTENSION_ISACTIVE, isActive);
 
 			// Set the texture to corresponding active unit.
-			m_renderDevice.UpdateShaderUniformInt(data->shaderID, d.first + MAT_EXTENSION_TEXTURE2D, d.second.unit);
+			m_renderDevice.UpdateShaderUniformInt(data->m_shaderID, d.first + MAT_EXTENSION_TEXTURE2D, d.second.m_unit);
 
 			// Set texture
-			if (d.second.isActive)
-				m_renderDevice.SetTexture(d.second.boundTexture->GetID(), d.second.boundTexture->GetSamplerID(), d.second.unit, d.second.bindMode, true);
+			if (d.second.m_isActive)
+				m_renderDevice.SetTexture(d.second.m_boundTexture->GetID(), d.second.m_boundTexture->GetSamplerID(), d.second.m_unit, d.second.m_bindMode, true);
 			else
 			{
 
-				if (d.second.bindMode == TextureBindMode::BINDTEXTURE_TEXTURE2D)
-					m_renderDevice.SetTexture(m_defaultTexture.GetID(), m_defaultTexture.GetSamplerID(), d.second.unit, BINDTEXTURE_TEXTURE2D);
+				if (d.second.m_bindMode == TextureBindMode::BINDTEXTURE_TEXTURE2D)
+					m_renderDevice.SetTexture(m_defaultTexture.GetID(), m_defaultTexture.GetSamplerID(), d.second.m_unit, BINDTEXTURE_TEXTURE2D);
 				else
-					m_renderDevice.SetTexture(m_defaultCubemapTexture.GetID(), m_defaultCubemapTexture.GetSamplerID(), d.second.unit, BINDTEXTURE_CUBEMAP);
+					m_renderDevice.SetTexture(m_defaultCubemapTexture.GetID(), m_defaultCubemapTexture.GetSamplerID(), d.second.m_unit, BINDTEXTURE_CUBEMAP);
 			}
 		}
 
 
-		if (data->receivesLighting)
+		if (data->m_receivesLighting)
 			m_lightingSystem.SetLightingShaderData(data->GetShaderID());
 
 	}
@@ -1359,7 +1359,7 @@ namespace LinaEngine::Graphics
 			return;
 		}
 
-		if (!mat->usesHDRI)
+		if (!mat->m_usesHDRI)
 		{
 			LINA_CORE_WARN("This material's shader does not use HDRI calculations, returning...");
 			return;
@@ -1384,7 +1384,7 @@ namespace LinaEngine::Graphics
 			return;
 		}
 
-		if (!mat->usesHDRI)
+		if (!mat->m_usesHDRI)
 		{
 			LINA_CORE_WARN("This material's shader does not use HDRI calculations, returning...");
 			return;
