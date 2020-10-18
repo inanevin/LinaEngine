@@ -53,17 +53,18 @@ namespace LinaEngine
 
 namespace LinaEditor
 {
-	class GUILayer;
 	class MenuButton;
+	enum class MenuBarItems;
 
 	class HeaderPanel : public EditorPanel
 	{
 
 	public:
 
-		HeaderPanel();
+		HeaderPanel() {};
 		virtual ~HeaderPanel();
 
+		virtual void Setup() override;
 		virtual void Draw(float frameTime) override;
 
 	private:

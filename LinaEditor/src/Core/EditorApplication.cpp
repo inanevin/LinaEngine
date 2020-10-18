@@ -55,20 +55,17 @@ namespace LinaEditor
 		SplashScreen* splash = new SplashScreen();
 		splash->Setup(splashProps);
 		splash->Draw(); // We should carry this over to a separate thread later on when things are more complex and requires data shown to the user while loading.
-
-		// Create layers
-		m_guiLayer = new GUILayer();
-
+		
 		// Remove splash.
 		delete splash;
-
-		LinaEngine::Application::GetRenderEngine().PushLayer(m_guiLayer);
+		
+		LinaEngine::Application::GetRenderEngine().PushLayer(&m_guiLayer);
 
 	}
 
 	void EditorApplication::Refresh()
 	{
-		m_guiLayer->GetECSPanel()->Refresh();
+		m_guiLayer.Refresh();
 	}
 
 

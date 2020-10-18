@@ -42,7 +42,8 @@ namespace LinaEditor
 	using namespace LinaEngine;
 	static bool s_openCompExistsModal;
 
-	PropertiesPanel::PropertiesPanel()
+
+	void PropertiesPanel::Setup()
 	{
 		EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::ECS::ECSEntity>("##lina_propsPanel_entity", LinaEngine::Action::ActionType::EntitySelected,
 			std::bind(&PropertiesPanel::EntitySelected, this, std::placeholders::_1));

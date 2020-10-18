@@ -45,16 +45,16 @@ namespace LinaEditor
 {
 	class ScenePanel;
 	class PropertiesPanel;
-	class GUILayer;
 
 	class ECSPanel : public EditorPanel
 	{
 		
 	public:
 		
-		ECSPanel();
+		ECSPanel() {};
 		virtual ~ECSPanel() {};
-	
+
+		virtual void Setup() override;
 		virtual void Draw(float frameTime) override;
 		void Refresh();
 

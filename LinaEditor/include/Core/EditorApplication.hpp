@@ -42,6 +42,7 @@ Timestamp: 10/15/2020 10:44:39 PM
 
 #include "Actions/ActionDispatcher.hpp"
 #include "Utility/Log.hpp"
+#include "Core/GUILayer.hpp"
 
 namespace LinaEngine
 {
@@ -68,8 +69,6 @@ namespace LinaEngine
 
 namespace LinaEditor
 {
-	class GUILayer;
-
 	class EditorApplication
 	{
 	public:
@@ -86,9 +85,8 @@ namespace LinaEditor
 		static LinaEngine::Action::ActionDispatcher& GetEditorDispatcher() { return s_editorDispatcher; }
 
 	private:
-
 		static LinaEngine::Action::ActionDispatcher s_editorDispatcher;
-		GUILayer* m_guiLayer = nullptr;
+		GUILayer m_guiLayer;
 	};
 }
 

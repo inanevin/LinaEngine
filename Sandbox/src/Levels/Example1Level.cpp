@@ -99,14 +99,14 @@ bool Example1Level::Install()
 	return true;
 }
 
-void CreateSingleColorSkybox(RenderEngine renderEngine)
+void CreateSingleColorSkybox(RenderEngine& renderEngine)
 {
 	Material& mat = renderEngine.CreateMaterial(-6, Shaders::SKYBOX_SINGLECOLOR);
 	mat.SetColor("material.color", Color::Red);
 	renderEngine.SetSkyboxMaterial(mat);
 }
 
-void CreateGradientSkybox(RenderEngine renderEngine)
+void CreateGradientSkybox(RenderEngine& renderEngine)
 {
 	renderEngine.CreateMaterial(-4, Shaders::SKYBOX_GRADIENT);
 	renderEngine.GetMaterial(-4).SetColor("material.startColor", Color::Green);
@@ -114,7 +114,7 @@ void CreateGradientSkybox(RenderEngine renderEngine)
 	renderEngine.SetSkyboxMaterial(renderEngine.GetMaterial(-4));
 }
 
-void CreateProceduralSkybox(RenderEngine renderEngine)
+void CreateProceduralSkybox(RenderEngine& renderEngine)
 {
 	Material& mat = renderEngine.CreateMaterial(-1, Shaders::SKYBOX_PROCEDURAL);
 	mat.SetColor("material.startColor", Color::White);
@@ -123,7 +123,7 @@ void CreateProceduralSkybox(RenderEngine renderEngine)
 	renderEngine.SetSkyboxMaterial(mat);
 }
 
-void CreateCubemapSkybox(RenderEngine renderEngine)
+void CreateCubemapSkybox(RenderEngine& renderEngine)
 {
 	Material& mat = renderEngine.CreateMaterial(-2, Shaders::SKYBOX_CUBEMAP);
 
@@ -138,7 +138,7 @@ void CreateCubemapSkybox(RenderEngine renderEngine)
 
 	renderEngine.SetSkyboxMaterial(mat);
 }
-void CreateHDRISkybox(RenderEngine renderEngine)
+void CreateHDRISkybox(RenderEngine& renderEngine)
 {
 	Texture* hdri = &renderEngine.CreateTextureHDRI("resources/sandbox/textures/HDRI/canyon3K.hdr");
 	renderEngine.CaptureCalculateHDRI(*hdri);

@@ -60,7 +60,7 @@ namespace LinaEngine::ECS
 
 #ifdef LINA_EDITOR
 		COMPONENT_DRAWFUNC_SIG;
-		COMPONENT_ADDFUNC_SIG{ ecs->emplace<LightComponent>(entity, LightComponent()); }
+		COMPONENT_ADDFUNC_SIG{ ecs.emplace<LightComponent>(entity, LightComponent()); }
 #endif
 	};
 
@@ -76,7 +76,7 @@ namespace LinaEngine::ECS
 
 #ifdef LINA_EDITOR
 		COMPONENT_DRAWFUNC_SIG;
-		COMPONENT_ADDFUNC_SIG{ ecs->emplace<PointLightComponent>(entity, PointLightComponent()); }
+		COMPONENT_ADDFUNC_SIG{ ecs.emplace<PointLightComponent>(entity, PointLightComponent()); }
 #endif
 	};
 
@@ -94,7 +94,7 @@ namespace LinaEngine::ECS
 
 #ifdef LINA_EDITOR
 		COMPONENT_DRAWFUNC_SIG;
-		COMPONENT_ADDFUNC_SIG{ ecs->emplace<SpotLightComponent>(entity, SpotLightComponent()); }
+		COMPONENT_ADDFUNC_SIG{ ecs.emplace<SpotLightComponent>(entity, SpotLightComponent()); }
 #endif
 	};
 
@@ -112,7 +112,7 @@ namespace LinaEngine::ECS
 
 #ifdef LINA_EDITOR
 		COMPONENT_DRAWFUNC_SIG;
-		COMPONENT_ADDFUNC_SIG{ ecs->emplace<DirectionalLightComponent>(entity, DirectionalLightComponent()); }
+		COMPONENT_ADDFUNC_SIG{ ecs.emplace<DirectionalLightComponent>(entity, DirectionalLightComponent()); }
 #endif
 	};
 }

@@ -46,7 +46,6 @@ Timestamp: 6/7/2020 8:56:39 PM
 
 namespace LinaEditor
 {
-	class GUILayer;
 
 	class LogLevelIconButton
 	{
@@ -84,9 +83,10 @@ namespace LinaEditor
 
 	public:
 
-		LogPanel();
+		LogPanel() {};
 		virtual ~LogPanel() {};
 
+		virtual void Setup() override;
 		virtual void Draw(float frameTime) override;
 		void OnLog(LinaEngine::Log::LogDump dump);
 

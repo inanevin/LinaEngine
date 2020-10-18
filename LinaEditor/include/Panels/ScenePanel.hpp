@@ -54,7 +54,6 @@ namespace LinaEngine
 namespace LinaEditor
 {
 
-	class GUIlayer;
 
 	class ScenePanel : public EditorPanel
 	{
@@ -68,9 +67,11 @@ namespace LinaEditor
 			ShadowMap
 		};
 		
-		ScenePanel();
+		ScenePanel() {};
 		virtual ~ScenePanel() {};
 
+
+		virtual void Setup() override;
 		virtual void Draw(float frameTime) override;
 
 		void EntitySelected(LinaEngine::ECS::ECSEntity entity);

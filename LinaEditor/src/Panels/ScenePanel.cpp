@@ -46,8 +46,7 @@ static ImVec2 previousWindowSize;
 
 namespace LinaEditor
 {
-
-	ScenePanel::ScenePanel()
+	void ScenePanel::Setup()
 	{
 		EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::ECS::ECSEntity>("##lina_scenePanel_entity", LinaEngine::Action::ActionType::EntitySelected,
 			std::bind(&ScenePanel::EntitySelected, this, std::placeholders::_1));

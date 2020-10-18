@@ -270,6 +270,9 @@ namespace LinaEngine::Graphics
 
 		std::function<void()> m_postSceneDrawCallback;
 		bool m_firstFrameDrawn = false;
+
+
+		DISALLOW_COPY_ASSIGN_MOVE(RenderEngine)
 	};
 
 }

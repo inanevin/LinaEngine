@@ -196,6 +196,12 @@ namespace LinaEditor
 		m_drawParameters.scissorWidth = 0;
 		m_drawParameters.scissorHeight = 0;
 
+		m_ecsPanel.Setup();
+		m_headerPanel.Setup();
+		m_logPanel.Setup();
+		m_propertiesPanel.Setup();
+		m_scenePanel.Setup();
+		m_resourcesPanel.Setup();
 	}
 
 	void GUILayer::OnDetach()
@@ -307,6 +313,11 @@ namespace LinaEditor
 		else if (item == MenuBarItems::DebugViewNormal)
 			m_scenePanel.SetDrawMode(LinaEditor::ScenePanel::DrawMode::FinalImage);
 
+	}
+
+	void GUILayer::Refresh()
+	{
+		m_ecsPanel.Refresh();
 	}
 
 	void GUILayer::DrawLevelDataDialogs()

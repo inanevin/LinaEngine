@@ -36,7 +36,8 @@ SOFTWARE.
 
 namespace LinaEditor
 {
-	LogPanel::LogPanel()
+
+	void LogPanel::Setup()
 	{
 		// We set our dispatcher & subscribe in order to receive log events.
 		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::Log::LogDump>("##lina_logPanel_onLog", LinaEngine::Action::ActionType::MessageLogged, std::bind(&LogPanel::OnLog, this, std::placeholders::_1));

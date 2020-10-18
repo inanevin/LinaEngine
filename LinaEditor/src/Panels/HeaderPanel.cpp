@@ -57,10 +57,17 @@ float logoAnimWaitCounter = 0.0f;
 
 namespace LinaEditor
 {
-	HeaderPanel::HeaderPanel()
-	{
 
-		// Logo texture
+	HeaderPanel::~HeaderPanel()
+	{
+		LINA_CLIENT_TRACE("[Destructor] -> Header Panel ({0})", typeid(*this).name());
+		for (int i = 0; i < m_menuBarButtons.size(); i++)
+			delete m_menuBarButtons[i];
+	}
+
+
+	void HeaderPanel::Setup()
+	{// Logo texture
 		windowIcon = &LinaEngine::Application::GetRenderEngine().CreateTexture2D("resources/editor/textures/linaEngineIcon.png");
 
 		// Logo animation textures
@@ -119,14 +126,6 @@ namespace LinaEditor
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_BUG*/ "Debug", "dbg_panel", debug, HEADER_COLOR_BG, true));
 
 	}
-
-	HeaderPanel::~HeaderPanel()
-	{
-		LINA_CLIENT_TRACE("[Destructor] -> Header Panel ({0})", typeid(*this).name());
-		for (int i = 0; i < m_menuBarButtons.size(); i++)
-			delete m_menuBarButtons[i];
-	}
-
 
 	void HeaderPanel::Draw(float frameTime)
 	{

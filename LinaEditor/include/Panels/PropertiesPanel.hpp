@@ -56,10 +56,6 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEditor
-{
-	class GUILayer;
-}
 
 namespace LinaEditor
 {
@@ -77,10 +73,12 @@ namespace LinaEditor
 
 	public:
 
-		PropertiesPanel();
+		PropertiesPanel() {};
 		virtual ~PropertiesPanel() {};
 
+		virtual void Setup() override;
 		virtual void Draw(float frameTime) override;
+
 		void EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity);
 		void TextureSelected(LinaEngine::Graphics::Texture* texture);
 		void MeshSelected(LinaEngine::Graphics::Mesh* mesh);

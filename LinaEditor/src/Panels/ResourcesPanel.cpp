@@ -46,13 +46,13 @@ SOFTWARE.
 namespace LinaEditor
 {
 
-	static int itemIDCounter = 0;
-	static int selectedItem = -1;
+	static int s_itemIDCounter = 0;
+	static int s_selectedItem = -1;
 	static EditorFolder* s_hoveredFolder;
 	static EditorFile* s_selectedFile;
 	static EditorFolder* s_selectedFolder;
 
-	ResourcesPanel::ResourcesPanel()
+	void ResourcesPanel::Setup()
 	{
 		ScanRoot();
 	}
@@ -88,12 +88,12 @@ namespace LinaEditor
 				// Create a folder.
 				if (ImGui::MenuItem("Folder"))
 				{
-					std::string folderPath = rootPath + "/NewFolder" + std::to_string(++itemIDCounter);
+					std::string folderPath = rootPath + "/NewFolder" + std::to_string(++s_itemIDCounter);
 					EditorUtility::CreateFolderInPath(folderPath);
 					EditorFolder folder;
 					folder.m_path = folderPath;
-					folder.name = "NewFolder" + std::to_string(itemIDCounter);
-					folder.m_id = itemIDCounter;
+					folder.name = "NewFolder" + std::to_string(s_itemIDCounter);
+					folder.m_id = s_itemIDCounter;
 
 					if (s_hoveredFolder != nullptr)
 						s_hoveredFolder->m_subFolders[folder.m_id] = folder;
@@ -107,7 +107,7 @@ namespace LinaEditor
 				// Create a material.
 				if (ImGui::MenuItem("Material"))
 				{
-					std::string name = "NewMaterial" + std::to_string(++itemIDCounter) + ".mat";
+					std::string name = "NewMaterial" + std::to_string(++s_itemIDCounter) + ".mat";
 					std::string materialPath = rootPath + "/" + name;
 
 					EditorFile file;
@@ -115,7 +115,7 @@ namespace LinaEditor
 					file.name = name;
 					file.extension = "mat";
 					file.type = FileType::Material;
-					file.id = ++itemIDCounter;
+					file.id = ++s_itemIDCounter;
 
 					Graphics::Material& m = LinaEngine::Application::GetRenderEngine().CreateMaterial(file.id, Graphics::Shaders::PBR_LIT);
 					EditorUtility::SerializeMaterial(materialPath, m);
@@ -142,7 +142,7 @@ namespace LinaEditor
 		m_resourceFolders.push_back(root);
 
 		// Recursively fill in root.
-		itemIDCounter = -1;
+		s_itemIDCounter = -1;
 		std::string path = "resources";
 		ScanFolder(m_resourceFolders[0]);
 
@@ -162,7 +162,7 @@ namespace LinaEditor
 				file.path = entry.path().relative_path().string();
 				file.extension = file.name.substr(file.name.find(".") + 1);
 				file.type = GetFileType(file.extension);
-				file.id = ++itemIDCounter;
+				file.id = ++s_itemIDCounter;
 
 				// Add to the folder data.
 				root.m_files[file.id] = file;
@@ -173,7 +173,7 @@ namespace LinaEditor
 				EditorFolder folder;
 				folder.name = entry.path().filename().string();
 				folder.m_path = entry.path().relative_path().string();
-				folder.m_id = ++itemIDCounter;
+				folder.m_id = ++s_itemIDCounter;
 				folder.m_parent = &root;
 
 				// Add to the sub folders.
@@ -234,7 +234,7 @@ namespace LinaEditor
 				continue;
 			}
 
-			ImGuiTreeNodeFlags folderFlags = (it->second).m_id == selectedItem ? folderFlagsSelected : folderFlagsNotSelected;
+			ImGuiTreeNodeFlags folderFlags = (it->second).m_id == s_selectedItem ? folderFlagsSelected : folderFlagsNotSelected;
 			std::string id = "##" + (it->second).name;
 			bool nodeOpen = ImGui::TreeNodeEx(id.c_str(), folderFlags);
 			ImGui::SameLine();  WidgetsUtility::IncrementCursorPosY(5);
@@ -245,7 +245,7 @@ namespace LinaEditor
 			// Click
 			if (ImGui::IsItemClicked())
 			{
-				selectedItem = (it->second).m_id;
+				s_selectedItem = (it->second).m_id;
 				s_selectedFile = nullptr;
 				s_selectedFolder = &(it->second);
 			}
@@ -280,13 +280,13 @@ namespace LinaEditor
 				continue;
 			}
 
-			ImGuiTreeNodeFlags fileFlags = it->second.id == selectedItem ? fileNodeFlagsSelected : fileNodeFlagsNotSelected;
+			ImGuiTreeNodeFlags fileFlags = it->second.id == s_selectedItem ? fileNodeFlagsSelected : fileNodeFlagsNotSelected;
 			bool nodeOpen = ImGui::TreeNodeEx(it->second.name.c_str(), fileFlags);
 
 			// Click.
 			if (ImGui::IsItemClicked())
 			{
-				selectedItem = it->second.id;
+				s_selectedItem = it->second.id;
 				s_selectedFolder = nullptr;
 				s_selectedFile = &it->second;
 
@@ -310,11 +310,11 @@ namespace LinaEditor
 		if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 		{
 			EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
-			selectedItem = -1;
+			s_selectedItem = -1;
 		}
 
 		// Delete item.
-		if (ImGui::IsKeyPressed(Input::InputCode::Delete) && selectedItem != -1)
+		if (ImGui::IsKeyPressed(Input::InputCode::Delete) && s_selectedItem != -1)
 		{
 			if (s_selectedFolder != nullptr)
 				s_selectedFolder->m_markedForErase = true;
@@ -323,7 +323,7 @@ namespace LinaEditor
 
 			// Deselect
 			EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
-			selectedItem = -1;
+			s_selectedItem = -1;
 		}
 
 		if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered())

@@ -60,7 +60,7 @@ namespace LinaEngine::ECS
 
 #ifdef LINA_EDITOR
 		COMPONENT_DRAWFUNC_SIG;
-		COMPONENT_ADDFUNC_SIG { ecs->emplace<TransformComponent>(entity, TransformComponent()); }
+		COMPONENT_ADDFUNC_SIG { ecs.emplace<TransformComponent>(entity, TransformComponent()); }
 #endif
 
 	};

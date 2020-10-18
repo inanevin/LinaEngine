@@ -39,11 +39,10 @@ namespace LinaEditor
 	using namespace LinaEngine::ECS;
 	using namespace LinaEngine;
 	
-	ECSPanel::ECSPanel()
+	void ECSPanel::Setup()
 	{
-		Refresh();
-	}
 
+	}
 
 	void ECSPanel::Refresh()
 	{

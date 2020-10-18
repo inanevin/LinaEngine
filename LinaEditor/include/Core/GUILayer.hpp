@@ -27,12 +27,15 @@ SOFTWARE.
 */
 
 /*
-Class: UILayer
+Class: GUILayer
 
 This class is pushed as an overlay layer to the render engine and is responsible for drawing the editor.
 It inits panels, drawers etc. and is the main bridge of communication between editor components.
 
 */
+
+#ifndef GUILAYER_HPP
+#define GUILAYER_HPP
 
 #include "Core/Layer.hpp"
 #include "Rendering/RenderingCommon.hpp"
@@ -115,6 +118,8 @@ namespace LinaEditor
 		// Menu bar item callback from header panel.
 		void DispatchMenuBarClickedAction(const MenuBarItems& item);
 
+		void Refresh();
+
 	private:
 
 		void DrawLevelDataDialogs();
@@ -134,3 +139,5 @@ namespace LinaEditor
 
 	};
 }
+
+#endif

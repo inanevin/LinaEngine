@@ -90,7 +90,6 @@ namespace LinaEditor
 		EditorFolder* m_parent = nullptr;
 	};
 
-	class GUILayer;
 	class PropertiesPanel;
 
 	class ResourcesPanel : public EditorPanel
@@ -99,16 +98,16 @@ namespace LinaEditor
 	public:
 
 		
-		ResourcesPanel();
+		ResourcesPanel() {};
 		virtual ~ResourcesPanel() {};
 	
+		virtual void Setup() override;
 		virtual void Draw(float frameTime) override;
 
 	private:
 	
-
-		void DrawContent();
 		void ScanRoot();
+		void DrawContent();
 		void ScanFolder(EditorFolder& folder);
 		void DrawFolder(EditorFolder& folder, bool isRoot = false);
 		void LoadFolderResources(EditorFolder& folder);
