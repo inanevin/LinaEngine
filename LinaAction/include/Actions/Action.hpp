@@ -58,8 +58,18 @@ namespace LinaEngine::Action
 
 		// Engine actions
 		MessageLogged,
+		PostSceneDraw,
+		WindowClosed,
+		WindowResized,
 		EngineActionsStartIndex = MessageLogged,
-		EngineActionsEndIndex = MessageLogged
+		EngineActionsEndIndex = WindowResized,
+
+		// Editor actions
+		TextureSelected,
+		EntitySelected,
+		MaterialSelected,
+		EditorActionsStartIndex = TextureSelected,
+		EditorActionsEndIndex = MaterialSelected
 	};
 
 	class ActionHandlerBase

@@ -185,6 +185,7 @@ namespace LinaEngine
 	bool Application::OnWindowClose()
 	{
 		m_running = false;
+		s_engineDispatcher.DispatchAction<void*>(Action::ActionType::WindowClosed, 0);
 		return true;
 	}
 
@@ -196,11 +197,15 @@ namespace LinaEngine
 			m_canRender = true;
 
 		m_renderEngine->SetViewportDisplay(Vector2::Zero, size);
+
+		s_engineDispatcher.DispatchAction<Vector2>(Action::ActionType::WindowResized, size);
 	}
 
 	void Application::OnPostSceneDraw()
 	{
 		m_physicsEngine->OnPostSceneDraw();
+
+		s_engineDispatcher.DispatchAction<void*>(Action::ActionType::PostSceneDraw, 0);
 	}
 
 	void Application::KeyCallback(int key, int action)

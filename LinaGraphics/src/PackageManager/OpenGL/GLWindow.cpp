@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -254,7 +254,8 @@ namespace LinaEngine::Graphics
 	{
 		m_windowProperties.m_width = width;
 		m_windowProperties.m_height = height;
-		m_windowResizeCallback(Vector2((float)width, (float)height));
+		if (m_windowResizeCallback)
+			m_windowResizeCallback(Vector2((float)width, (float)height));
 	}
 
 	void GLWindow::WindowClosed(void* window)
