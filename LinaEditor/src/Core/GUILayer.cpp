@@ -1,23 +1,31 @@
-/*
+/* 
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
 Author: Inan Evin
-www.inanevin.com
+http://www.inanevin.com
 
-Copyright 2018 Inan Evin
+Copyright (c) [2018-2020] [Inan Evin]
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-http://www.apache.org/licenses/LICENSE-2.0
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
-and limitations under the License.
-
-Class: UILayer
-
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 */
 
-
-#include "World/Level.hpp"
 #include "Core/GUILayer.hpp"
 #include "Core/Application.hpp"
 #include "Panels/ECSPanel.hpp"
@@ -28,14 +36,10 @@ Class: UILayer
 #include "Panels/LogPanel.hpp"
 #include "Panels/HeaderPanel.hpp"
 #include "Utility/Log.hpp"
-#include "Utility/EditorUtility.hpp"
-#include "Utility/UtilityFunctions.hpp"
-#include "Core/EditorCommon.hpp"
-#include "Rendering/Material.hpp"
-#include "Rendering/RenderConstants.hpp"
-#include "Rendering/Texture.hpp"
 #include "Physics/PhysicsEngine.hpp"
 #include "Rendering/RenderEngine.hpp"
+#include "World/DefaultLevel.hpp"
+#include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -43,8 +47,7 @@ Class: UILayer
 #include "IconsFontAwesome5.h"
 #include "IconsForkAwesome.h"
 #include "IconsMaterialDesign.h"
-#include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
-#include "World/DefaultLevel.hpp"
+
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glad/glad.h>
@@ -81,7 +84,6 @@ namespace LinaEditor
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		ImGui::Text("saaaaaaaaa");
 
 		// Rendering
 		ImGui::Render();
