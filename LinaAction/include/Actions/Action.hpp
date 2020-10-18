@@ -84,7 +84,12 @@ namespace LinaEngine::Action
 	
 		virtual ~ActionHandler() {};
 
-		void SetCondition(const T& cond) { m_condition = cond; m_useCondition = true; }
+		void SetCondition(const T& cond)
+		{ 
+			m_condition = cond;
+			m_useCondition = true; 
+		}
+
 		void SetCallback(const std::function<void(T)>& cb) { m_callback = cb; }
 
 		// Checks condition if one is used and invokes the callback.
