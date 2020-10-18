@@ -226,15 +226,13 @@ namespace LinaEngine
 		s_inputEngine->DispatchMouseAction(static_cast<LinaEngine::Input::InputCode::Mouse>(button), action);
 	}
 
-	void Application::PushLayer(Layer* layer)
+	void Application::PushLayer(Layer& layer)
 	{
 		m_layerStack.PushLayer(layer);
-		layer->OnAttach();
 	}
-	void Application::PushOverlay(Layer* layer)
+	void Application::PushOverlay(Layer& layer)
 	{
 		m_layerStack.PushOverlay(layer);
-		layer->OnAttach();
 	}
 
 	bool Application::InstallLevel(LinaEngine::World::Level* level)

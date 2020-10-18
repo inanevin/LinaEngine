@@ -137,8 +137,8 @@ namespace LinaEngine::Graphics
 		// Sets the shader of a material to the shader specified by name. Also resets material properties based on the shader, caution!
 		Material& SetMaterialShader(Material& material, Shaders shader);
 		void SetSkyboxMaterial(Material& skyboxMaterial) { m_skyboxMaterial = &skyboxMaterial; }
-		void PushLayer(Layer* layer);
-		void PushOverlay(Layer* layer);
+		void PushLayer(Layer& layer);
+		void PushOverlay(Layer& layer);
 
 		// Updates shader uniforms with material data.
 		void UpdateShaderData(Material* mat);

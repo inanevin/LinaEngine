@@ -1418,16 +1418,14 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void RenderEngine::PushLayer(Layer* layer)
+	void RenderEngine::PushLayer(Layer& layer)
 	{
 		m_guiLayerStack.PushLayer(layer);
-		layer->OnAttach();
 	}
 
-	void RenderEngine::PushOverlay(Layer* layer)
+	void RenderEngine::PushOverlay(Layer& layer)
 	{
 		m_guiLayerStack.PushOverlay(layer);
-		layer->OnAttach();
 	}
 
 	void* RenderEngine::GetFinalImage()

@@ -59,7 +59,7 @@ namespace LinaEditor
 		// Remove splash.
 		delete splash;
 		
-		LinaEngine::Application::GetRenderEngine().PushLayer(&m_guiLayer);
+		LinaEngine::Application::GetRenderEngine().PushLayer(m_guiLayer);
 
 	}
 

@@ -82,8 +82,8 @@ namespace LinaEngine
 		// Main application loop.
 		void Run();
 
-		void PushLayer(Layer* layer);
-		void PushOverlay(Layer* layer);
+		void PushLayer(Layer& layer);
+		void PushOverlay(Layer& layer);
 
 		// Loads a level into memory.
 		bool InstallLevel(LinaEngine::World::Level* level);
