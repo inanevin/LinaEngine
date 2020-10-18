@@ -39,8 +39,7 @@ namespace LinaEngine
 
 	LayerStack::~LayerStack()
 	{
-		for (Layer* layer : m_layers)
-			delete layer;
+		
 	}
 
 	void LayerStack::PushLayer(Layer* layer)

@@ -45,9 +45,10 @@ namespace LinaEngine::Action
 		{
 			for (std::list<ActionHandlerBase*>::iterator listIT = it->second.begin(); listIT != it->second.end(); ++listIT)
 			{
-				delete* listIT;
-				it->second.remove(*listIT);
+				delete *listIT;
 			}
+
+			it->second.clear();
 		}
 		m_actionHandlerMap.clear();
 	}

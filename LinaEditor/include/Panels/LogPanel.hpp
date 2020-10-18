@@ -84,7 +84,7 @@ namespace LinaEditor
 	public:
 
 		LogPanel() {};
-		virtual ~LogPanel() {};
+		virtual ~LogPanel();
 
 		virtual void Setup() override;
 		virtual void Draw(float frameTime) override;

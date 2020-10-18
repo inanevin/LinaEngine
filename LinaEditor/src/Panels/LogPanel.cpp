@@ -36,6 +36,10 @@ SOFTWARE.
 
 namespace LinaEditor
 {
+	LogPanel::~LogPanel()
+	{
+		LinaEngine::Application::GetEngineDispatcher().UnsubscribeAction("##lina_logPanel_onLog", LinaEngine::Action::ActionType::MessageLogged);
+	}
 
 	void LogPanel::Setup()
 	{
