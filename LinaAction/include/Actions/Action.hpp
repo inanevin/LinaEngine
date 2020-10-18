@@ -48,12 +48,18 @@ namespace LinaEngine::Action
 {
 	enum ActionType
 	{
+		// Input actions
 		KeyPressed = 0,
 		KeyReleased,
 		MouseButtonPressed,
 		MouseButtonReleased,
+		InputActionsStartIndex = KeyPressed,
+		InputActionsEndIndex = MouseButtonReleased,
+
+		// Engine actions
 		MessageLogged,
-		ActionTypesLastIndex = MessageLogged
+		EngineActionsStartIndex = MessageLogged,
+		EngineActionsEndIndex = MessageLogged
 	};
 
 	class ActionHandlerBase
@@ -64,13 +70,15 @@ namespace LinaEngine::Action
 		virtual ~ActionHandlerBase() {};
 		ActionType GetActionType() const { return m_actionType; }
 		bool GetUseCondition() const { return m_useCondition; }
+		size_t GetHashedID() const { return m_hashedID; }
 
 	protected:
 
-		ActionHandlerBase(ActionType at) : m_actionType(at) {};
+		ActionHandlerBase(ActionType at, size_t id) : m_actionType(at), m_hashedID(id) {};
 
 	protected:
 
+		size_t m_hashedID = 0;
 		bool m_useCondition = false;
 		ActionType m_actionType;
 
@@ -101,8 +109,8 @@ namespace LinaEngine::Action
 
 	private:
 
-		friend class ActionSubscriber;
-		ActionHandler(ActionType at) : ActionHandlerBase(at) {};
+		friend class ActionDispatcher;
+		ActionHandler(ActionType at, size_t id) : ActionHandlerBase(at, id) {};
 
 	private:
 

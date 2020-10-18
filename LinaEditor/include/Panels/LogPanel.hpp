@@ -40,7 +40,6 @@ Timestamp: 6/7/2020 8:56:39 PM
 
 #include "Panels/EditorPanel.hpp"
 #include "Utility/Log.hpp"
-#include "Actions/ActionSubscriber.hpp"
 #include "Core/EditorCommon.hpp"
 #include "imgui/imgui.h"
 #include <deque>
@@ -73,7 +72,7 @@ namespace LinaEditor
 		ImVec4 m_usedColorPressed = LOGPANEL_COLOR_ICONPRESSED;
 	};
 
-	class LogPanel : public EditorPanel, public LinaEngine::Action::ActionSubscriber
+	class LogPanel : public EditorPanel
 	{
 		// Wrapper for displaying log dumps
 		struct LogDumpEntry

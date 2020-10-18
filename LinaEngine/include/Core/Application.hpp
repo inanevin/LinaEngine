@@ -73,7 +73,7 @@ namespace LinaEngine::Physics
 namespace LinaEngine
 {
 
-	class Application : public Action::ActionDispatcher
+	class Application
 	{
 	public:
 
@@ -94,6 +94,8 @@ namespace LinaEngine
 		void UnloadLevel(LinaEngine::World::Level* level);
 
 		int GetCurrentFPS() { return m_currentFPS; }
+
+		static Action::ActionDispatcher& GetEngineDispatcher() { return s_engineDispatcher; }
 
 	protected:
 
@@ -123,6 +125,8 @@ namespace LinaEngine
 		
 
 	private:
+
+		static Action::ActionDispatcher s_engineDispatcher;
 
 		// Layer queue.
 		LayerStack m_layerStack;

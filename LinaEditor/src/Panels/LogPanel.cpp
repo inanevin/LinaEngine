@@ -39,8 +39,7 @@ namespace LinaEditor
 	void LogPanel::Setup()
 	{
 		// We set our dispatcher & subscribe in order to receive log events.
-		SetActionDispatcher(m_guiLayer->GetApp());
-		SubscribeAction<LinaEngine::Log::LogDump>("##logPanel", LinaEngine::Action::ActionType::MessageLogged, std::bind(&LogPanel::OnLog, this, std::placeholders::_1));
+		m_guiLayer->GetApp()->GetEngineDispatcher().SubscribeAction<LinaEngine::Log::LogDump>("##logPanel", LinaEngine::Action::ActionType::MessageLogged, std::bind(&LogPanel::OnLog, this, std::placeholders::_1));
 
 		// Add icon buttons.
 		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_debug", "Debug", ICON_FA_BUG, LinaEngine::Log::LogLevel::Debug, LOGPANEL_COLOR_DEBUG_DEFAULT, LOGPANEL_COLOR_DEBUG_HOVERED, LOGPANEL_COLOR_DEBUG_PRESSED));

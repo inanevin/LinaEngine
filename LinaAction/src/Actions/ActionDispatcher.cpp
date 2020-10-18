@@ -27,52 +27,53 @@ SOFTWARE.
 */
 
 #include "Actions/ActionDispatcher.hpp"  
-#include <stdexcept>
 
 namespace LinaEngine::Action
 {
-
-	ActionDispatcher::ActionDispatcher()
+	
+	void ActionDispatcher::Initialize(int startIndex, int endIndex)
 	{
 		// For each action type insert a new list to the map.
-		for (int i = 0; i < (ActionType::ActionTypesLastIndex + 1); i++)
-			m_actionHandlerMap.insert(std::make_pair(i, std::vector<ActionHandlerBase*>()));
+		for (int i = startIndex; i < (endIndex + 1); i++)
+			m_actionHandlerMap.insert(std::make_pair(i, std::list<ActionHandlerBase*>()));
 	}
 
 	ActionDispatcher::~ActionDispatcher()
 	{		
-		// Clear map, no ownership action.
+		// Free memory.
+		for (std::map<uint32, std::list<ActionHandlerBase*>>::iterator it = m_actionHandlerMap.begin(); it != m_actionHandlerMap.end(); ++it)
+		{
+			for (std::list<ActionHandlerBase*>::iterator listIT = it->second.begin(); listIT != it->second.end(); ++listIT)
+			{
+				delete* listIT;
+				it->second.remove(*listIT);
+			}
+		}
 		m_actionHandlerMap.clear();
 	}
 
-	void ActionDispatcher::SubscribeHandler(ActionHandlerBase* handler)
-	{
-		try 
-		{
-			// Add the pointer to the array.
-			std::vector<ActionHandlerBase*>& arr = m_actionHandlerMap.at(handler->GetActionType());
-			arr.push_back(handler);
-		}
-		catch (const std::out_of_range& e)
-		{
-			LINA_CORE_ERR("Out of Range Exception while subscribing handler! {0}", e.what());
-		}
 
+	void ActionDispatcher::UnsubscribeAction(const std::string& actionID, ActionType actionType)
+	{
+		std::list<ActionHandlerBase*>& targetList = m_actionHandlerMap.at(actionType);
+		ActionHandlerBase* base = FindAction(targetList, actionID);
+		
+		if (base != nullptr)
+		{
+			delete base;
+			targetList.remove(base);
+		}
+		else
+			LINA_CORE_WARN("This action ID {0} does not exists, aborting unsubscription.", actionID);
 	}
 
-	void ActionDispatcher::UnsubscribeHandler(ActionHandlerBase* handler)
+	ActionHandlerBase* ActionDispatcher::FindAction(std::list<ActionHandlerBase*>& targetList, const std::string& actionID)
 	{
-		try 
-		{
-			// Remove the pointer from the corresponding array.
-			std::vector<ActionHandlerBase*>& arr = m_actionHandlerMap.at(handler->GetActionType());
-			arr.erase(std::remove(arr.begin(), arr.end(), handler));
-		}
-		catch (const std::out_of_range& e)
-		{
-			LINA_CORE_ERR("Out of Range Exception while subscribing handler! {0}", e.what());
-		}
+		size_t actionIDHashed = LinaEngine::Utility::StringToHash(actionID);
+		std::list<ActionHandlerBase*>::iterator it = std::find_if(targetList.begin(), targetList.end(), [actionIDHashed]
+		(const ActionHandlerBase* m) -> bool { return m->GetHashedID() == actionIDHashed; });
 
+		return it != targetList.end() ? *it : nullptr;
 	}
 }
 

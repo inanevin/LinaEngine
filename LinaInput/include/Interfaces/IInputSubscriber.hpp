@@ -39,12 +39,13 @@ Timestamp: 4/4/2019 2:29:37 AM
 #ifndef IInputSubscriber_HPP
 #define IInputSubscriber_HPP
 
-#include "Actions/ActionSubscriber.hpp"
 #include "Input/InputMappings.hpp"
+#include <string>
+#include <functional>
 
 namespace LinaEngine::Input
 {
-	class IInputSubscriber : public LinaEngine::Action::ActionSubscriber
+	class IInputSubscriber
 	{
 
 	public:
@@ -54,53 +55,13 @@ namespace LinaEngine::Input
 
 	protected:
 		
-		void SubscribeKeyPressedAction(const std::string& handlerID, std::function<void(InputCode::Key)>&& cb, InputCode::Key key = InputCode::Key::Unknown)
-		{
-			if (key != InputCode::Key::Unknown)
-				SubscribeAction<InputCode::Key>(handlerID, LinaEngine::Action::ActionType::KeyPressed, cb, key);
-			else
-				SubscribeAction<InputCode::Key>(handlerID, LinaEngine::Action::ActionType::KeyPressed, cb);
-		}
-
-		void SubscribeKeyReleasedAction(const std::string& handlerID, std::function<void(InputCode::Key)>&& cb, InputCode::Key key = InputCode::Key::Unknown)
-		{
-			if (key != InputCode::Key::Unknown)
-				SubscribeAction<InputCode::Key>(handlerID, LinaEngine::Action::ActionType::KeyReleased, cb, key);
-			else
-				SubscribeAction<InputCode::Key>(handlerID, LinaEngine::Action::ActionType::KeyReleased, cb);
-		}
-
-		void SubscribeMouseButtonPressedAction(const std::string& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse button = InputCode::Mouse::MouseUnknown)
-		{
-			if (button != InputCode::Mouse::MouseUnknown)
-				SubscribeAction<InputCode::Mouse>(handlerID, LinaEngine::Action::ActionType::MouseButtonPressed, cb, button);
-			else
-				SubscribeAction<InputCode::Mouse>(handlerID, LinaEngine::Action::ActionType::MouseButtonPressed, cb);
-		}
-
-		void SubscribeMouseButtonReleasedAction(const std::string& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse button = InputCode::Mouse::MouseUnknown)
-		{
-			if (button != InputCode::Mouse::MouseUnknown)
-				SubscribeAction<InputCode::Mouse>(handlerID, LinaEngine::Action::ActionType::MouseButtonReleased, cb, button);
-			else
-				SubscribeAction<InputCode::Mouse>(handlerID, LinaEngine::Action::ActionType::MouseButtonReleased, cb);
-		}
-
-		void SubscribeMousePressedAction(const std::string& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse mouse = InputCode::Mouse::MouseUnknown)
-		{
-			if (mouse != InputCode::Mouse::MouseUnknown)
-				SubscribeAction<InputCode::Mouse>(handlerID, LinaEngine::Action::ActionType::MouseButtonPressed, cb, mouse);
-			else
-				SubscribeAction<InputCode::Mouse>(handlerID, LinaEngine::Action::ActionType::MouseButtonPressed, cb);
-		}
-
-		void SubscribeMouseReleasedAction(const std::string& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse mouse = InputCode::Mouse::MouseUnknown)
-		{
-			if (mouse != InputCode::Mouse::MouseUnknown)
-				SubscribeAction<InputCode::Mouse>(handlerID, LinaEngine::Action::ActionType::MouseButtonReleased, cb, mouse);
-			else
-				SubscribeAction<InputCode::Mouse>(handlerID, LinaEngine::Action::ActionType::MouseButtonReleased, cb);
-		}
+		void SubscribeKeyPressedAction(const std::string& handlerID, std::function<void(InputCode::Key)>&& cb, InputCode::Key key = InputCode::Key::Unknown);
+		void SubscribeKeyReleasedAction(const std::string& handlerID, std::function<void(InputCode::Key)>&& cb, InputCode::Key key = InputCode::Key::Unknown);
+		void SubscribeMouseButtonPressedAction(const std::string& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse button = InputCode::Mouse::MouseUnknown);
+		void SubscribeMouseButtonReleasedAction(const std::string& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse button = InputCode::Mouse::MouseUnknown);
+		void SubscribeMousePressedAction(const std::string& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse mouse = InputCode::Mouse::MouseUnknown);
+		void SubscribeMouseReleasedAction(const std::string& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse mouse = InputCode::Mouse::MouseUnknown);
+		
 
 	private:
 

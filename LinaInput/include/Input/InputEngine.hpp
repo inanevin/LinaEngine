@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -39,38 +39,23 @@ Timestamp: 4/14/2019 7:46:20 PM
 #ifndef INPUTENGINE_HPP
 #define INPUTENGINE_HPP
 
-#include "Input/InputAxisBinder.hpp"
 #include "Utility/Math/Vector.hpp"
 #include "Input/InputCommon.hpp"
+#include "Actions/ActionDispatcher.hpp"
 #include "InputDevice.hpp"
-
+#include "InputAxisBinder.hpp"
 namespace LinaEngine::Input
 {
-	class InputEngine : public LinaEngine::Action::ActionDispatcher
+	class InputEngine
 	{
 
 	public:
 
-		InputEngine() : LinaEngine::Action::ActionDispatcher()
-		{
-			LINA_CORE_TRACE("[Constructor] -> InputEngine ({0})", typeid(*this).name());
-		};
+		InputEngine() {};
+		virtual ~InputEngine() {};
 
-		virtual ~InputEngine()
-		{
-			LINA_CORE_TRACE("[Destructor] -> InputEngine ({0})", typeid(*this).name());
-		};
-		
 		// Initialize the engine, sets the dispatcher references & initializes axes.
-		void Initialize(void* contextWindowPointer, InputDevice* inputDevice) 
-		{
-			m_inputDevice = inputDevice;
-			m_horizontalKeyAxis.SetActionDispatcher(this);
-			m_verticalKeyAxis.SetActionDispatcher(this);
-			m_horizontalKeyAxis.Initialize(InputCode::Key::D, InputCode::Key::A);
-			m_verticalKeyAxis.Initialize(InputCode::Key::W, InputCode::Key::S);
-			m_inputDevice->Initialize(contextWindowPointer);
-		};
+		void Initialize(void* contextWindowPointer, InputDevice* inputDevice);
 
 		void Tick() { m_inputDevice->Tick(); }
 
@@ -103,29 +88,31 @@ namespace LinaEngine::Input
 		void DispatchKeyAction(InputCode::Key key, int action)
 		{
 			if (action == 1)
-				DispatchAction<InputCode::Key>(LinaEngine::Action::ActionType::KeyPressed, key);
+				s_inputDispatcher.DispatchAction<InputCode::Key>(LinaEngine::Action::ActionType::KeyPressed, key);
 			else if (action == 0)
-				DispatchAction<InputCode::Key>(LinaEngine::Action::ActionType::KeyReleased, key);
+				s_inputDispatcher.DispatchAction<InputCode::Key>(LinaEngine::Action::ActionType::KeyReleased, key);
 		}
 
 		void DispatchMouseAction(InputCode::Mouse button, int action)
 		{
 			if (action == 1)
-				DispatchAction<InputCode::Mouse>(LinaEngine::Action::ActionType::MouseButtonPressed, button);
+				s_inputDispatcher.DispatchAction<InputCode::Mouse>(LinaEngine::Action::ActionType::MouseButtonPressed, button);
 			else if (action == 0)
-				DispatchAction<InputCode::Mouse>(LinaEngine::Action::ActionType::MouseButtonReleased, button);
+				s_inputDispatcher.DispatchAction<InputCode::Mouse>(LinaEngine::Action::ActionType::MouseButtonReleased, button);
 		}
 
+		static Action::ActionDispatcher& GetInputDispatcher() { return s_inputDispatcher; }
 
 	private:
 
 		// Axis binders.
 		InputKeyAxisBinder m_horizontalKeyAxis;
 		InputKeyAxisBinder m_verticalKeyAxis;
+
+		static Action::ActionDispatcher s_inputDispatcher;
 		InputDevice* m_inputDevice = nullptr;
 
 	};
-
 }
 
 

@@ -26,43 +26,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: UtilityFunctions
+#include "Input/InputEngine.hpp"
 
-Various utility functions for general purpose use.
-
-Timestamp: 1/5/2019 12:42:58 AM
-*/
-
-#ifndef UtilityFunctions_HPP
-#define UtilityFunctions_HPP
-
-#include <string>
-#include <vector>
-#include <functional>
-
-namespace LinaEngine
+namespace LinaEngine::Input
 {
-	namespace Utility
+	Action::ActionDispatcher InputEngine::s_inputDispatcher;
+
+	void InputEngine::Initialize(void* contextWindowPointer, InputDevice* inputDevice)
 	{
-		static int s_uniqueID = 100;
-
-		// Creates a GUID.
-		int GetUniqueID();
-
-		// Converts the current GUID to string via to_string and simply returns that.
-		std::string GetUniqueIDString();
-
-		size_t StringToHash(const std::string& str);
-
-		std::vector<std::string> Split(const std::string& s, char delim);
-
-		std::string GetFilePath(const std::string& fileName);
-
-		// Mostly used for loading shaders.
-		bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword);
-
+		m_inputDevice = inputDevice;
+		s_inputDispatcher.Initialize(Action::ActionType::InputActionsStartIndex, Action::ActionType::InputActionsEndIndex);
+		m_horizontalKeyAxis.Initialize(InputCode::Key::D, InputCode::Key::A, "##lina_horBinder");
+		m_verticalKeyAxis.Initialize(InputCode::Key::W, InputCode::Key::S, "##lina_verBinder");
+		m_inputDevice->Initialize(contextWindowPointer);
 	}
 }
-
-#endif

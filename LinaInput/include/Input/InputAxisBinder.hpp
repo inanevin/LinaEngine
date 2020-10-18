@@ -44,6 +44,8 @@ Timestamp: 4/13/2019 10:02:03 PM
 
 namespace LinaEngine::Input
 {
+#define LINA_ACTION_CALLBACK(x) std::bind(&x, this)
+#define LINA_ACTION_CALLBACK_PARAM1(x) std::bind(&x, this, std::placeholders::_1)
 
 	class InputMouseButtonBinder : public IInputSubscriber
 	{
@@ -76,12 +78,12 @@ namespace LinaEngine::Input
 		virtual ~InputKeyAxisBinder() {};
 
 		// Upon initialization we immediately listen to target key events.
-		void Initialize(InputCode::Key positive, InputCode::Key negative)
+		void Initialize(InputCode::Key positive, InputCode::Key negative, const std::string& id)
 		{
-			SubscribeKeyPressedAction("posD", LINA_ACTION_CALLBACK(InputKeyAxisBinder::OnPositiveKeyDown), positive);
-			SubscribeKeyPressedAction("negD", LINA_ACTION_CALLBACK(InputKeyAxisBinder::OnNegativeKeyDown), negative);
-			SubscribeKeyReleasedAction("posU", LINA_ACTION_CALLBACK(InputKeyAxisBinder::OnPositiveKeyUp), positive);
-			SubscribeKeyReleasedAction("negU", LINA_ACTION_CALLBACK(InputKeyAxisBinder::OnNegativeKeyUp), negative);
+			SubscribeKeyPressedAction(id + "posD", LINA_ACTION_CALLBACK(InputKeyAxisBinder::OnPositiveKeyDown), positive);
+			SubscribeKeyPressedAction(id + "negD", LINA_ACTION_CALLBACK(InputKeyAxisBinder::OnNegativeKeyDown), negative);
+			SubscribeKeyReleasedAction(id + "posU", LINA_ACTION_CALLBACK(InputKeyAxisBinder::OnPositiveKeyUp), positive);
+			SubscribeKeyReleasedAction(id + "negU", LINA_ACTION_CALLBACK(InputKeyAxisBinder::OnNegativeKeyUp), negative);
 		}
 
 		void OnPositiveKeyDown()

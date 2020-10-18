@@ -27,6 +27,12 @@ set (LINAINPUT_SOURCES
 	
 	#ECS
 	src/ECS/Systems/FreeLookSystem.cpp
+	
+	#Input
+	src/Input/InputEngine.cpp
+	
+	#Interfaces
+	src/Interfaces/IInputSubscriber.cpp
 )
 
 #--------------------------------------------------------------------

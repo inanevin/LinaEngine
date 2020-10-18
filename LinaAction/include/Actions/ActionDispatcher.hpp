@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/* 
+/*
 
 Class: ActionDispatcher
 
@@ -45,21 +45,24 @@ Timestamp: 4/10/2019 1:26:00 PM
 #include "Action.hpp"
 #include "Utility/Log.hpp"
 #include "Core/SizeDefinitions.hpp"
-#include <map>
-#include <vector>
+#include "Utility/UtilityFunctions.hpp"
 
-namespace LinaEngine::Action 
+#include <map>
+#include <list>
+
+namespace LinaEngine::Action
 {
 	class ActionDispatcher
 	{
 
 	public:
 
+		ActionDispatcher() {};
 		virtual ~ActionDispatcher();
 
-	protected:
-
-		ActionDispatcher();
+		// Dispatchers reserve keys at their handler maps
+		// according to these indices, which are sent through ActionType enumeration.
+		void Initialize(int startIndex, int endIndex);
 
 		template<typename T>
 		void DispatchAction(ActionType at, const T& data)
@@ -67,10 +70,10 @@ namespace LinaEngine::Action
 			try {
 
 				// Get the handler array corresponding to the action type.
-				std::vector<ActionHandlerBase*>& arr = m_actionHandlerMap.at(at);
+				std::list<ActionHandlerBase*>& arr = m_actionHandlerMap.at(at);
 
 				// Iterate through the array of handlers w/ the same action type and execute to check conditions (if exists).
-				std::vector<ActionHandlerBase*>::iterator it;
+				std::list<ActionHandlerBase*>::iterator it;
 				for (it = arr.begin(); it != arr.end(); it++)
 				{
 					ActionHandler<T>* handler = (static_cast<ActionHandler<T>*>(*it));
@@ -84,15 +87,62 @@ namespace LinaEngine::Action
 			}
 		}
 
+		// Subscribe an action with a condition, action types must have an available default constructor.
+		template<typename T>
+		void SubscribeAction(const std::string& actionID, ActionType at, const std::function<void(T)>& callback, T condition)
+		{
+			size_t actionIDHashed = LinaEngine::Utility::StringToHash(actionID);
+
+			// If an handler with the same id already exists, abort.
+			std::list<ActionHandlerBase*>& targetList = m_actionHandlerMap.at(at);
+			if (FindAction(targetList, actionID) != nullptr)
+			{
+				LINA_CORE_WARN("The handler {0} already exists. Aborting subscription.", actionID);
+				return;
+			}
+
+
+			// Create handler, assign condition if desired & callback.
+			ActionHandler<T>* handler = new ActionHandler<T>(at, actionIDHashed);
+			handler->SetCondition(condition);
+			handler->SetCallback(callback);
+
+			// Insert the handler to our map & subscribe to dispatcher.
+			targetList.push_back(handler);
+		}
+
+		// Subscribe an action without a condition, action types must have an available default constructor.
+		template<typename T>
+		void SubscribeAction(const std::string& actionID, ActionType at, const std::function<void(T)>& callback)
+		{
+			size_t actionIDHashed = LinaEngine::Utility::StringToHash(actionID);
+
+			// If an handler with the same id already exists, abort.
+			std::list<ActionHandlerBase*>& targetList = m_actionHandlerMap.at(at);
+			if (FindAction(targetList, actionID) != nullptr)
+			{
+				LINA_CORE_WARN("The handler {0} already exists. Aborting subscription.", actionID);
+				return;
+			}
+
+			// Create handler, assign condition if desired & callback.
+			ActionHandler<T>* handler = new ActionHandler<T>(at, actionIDHashed);
+			handler->SetCallback(callback);
+
+			// Insert the handler to our map & subscribe to dispatcher.
+			targetList.push_back(handler);
+		}
+
+		void UnsubscribeAction(const std::string& actionID, ActionType actionType);
+
 	private:
 
 		friend class ActionSubscriber;
-		void SubscribeHandler(ActionHandlerBase* ptr);
-		void UnsubscribeHandler(ActionHandlerBase* handler);
+		ActionHandlerBase* FindAction(std::list<ActionHandlerBase*>& targetList, const std::string& actionID);
 
 	private:
 
-		std::map<uint32, std::vector<ActionHandlerBase*>> m_actionHandlerMap;
+		std::map<uint32, std::list<ActionHandlerBase*>> m_actionHandlerMap;
 
 	};
 }

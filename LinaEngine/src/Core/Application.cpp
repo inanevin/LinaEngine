@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -37,9 +37,12 @@ SOFTWARE.
 
 namespace LinaEngine
 {
+	Action::ActionDispatcher Application::s_engineDispatcher;
 
 	Application::Application()
 	{
+		s_engineDispatcher.Initialize(Action::ActionType::EngineActionsStartIndex, Action::ActionType::EngineActionsEndIndex);
+
 		// Make sure log event is delegated to the application.
 		Log::s_onLog = std::bind(&Application::OnLog, this, std::placeholders::_1);
 
@@ -114,7 +117,7 @@ namespace LinaEngine
 		std::cout << dump.m_message << std::endl;
 
 		// Dispatch the action to any listener.
-		DispatchAction<Log::LogDump>(Action::ActionType::MessageLogged,dump);
+		s_engineDispatcher.DispatchAction<Log::LogDump>(Action::ActionType::MessageLogged, dump);
 	}
 
 	void Application::Run()

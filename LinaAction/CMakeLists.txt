@@ -25,7 +25,6 @@ set (LINAACTION_SOURCES
 
 	#Events
 	src/Actions/ActionDispatcher.cpp
-	src/Actions/ActionSubscriber.cpp
 )
 
 #--------------------------------------------------------------------
@@ -37,7 +36,6 @@ set(LINAACTION_HEADERS
 	#EVENTS
 	include/Actions/Action.hpp
 	include/Actions/ActionDispatcher.hpp
-	include/Actions/ActionSubscriber.hpp
 )
 
 if(NOT LINA_SHARED_ACTION)
