@@ -63,8 +63,8 @@ namespace LinaEditor
 		{
 
 			LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
-
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+			ImGui::SetNextWindowBgAlpha(1.0f);
 
 			if (ImGui::Begin("Scene", &m_show, flags))
 			{

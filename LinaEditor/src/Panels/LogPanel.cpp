@@ -79,6 +79,7 @@ namespace LinaEditor
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 			ImVec2 work_area_pos = viewport->GetWorkPos();
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+			ImGui::SetNextWindowBgAlpha(1.0f);
 
 
 			if (ImGui::Begin("Log", &m_show, flags))

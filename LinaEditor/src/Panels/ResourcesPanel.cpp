@@ -65,6 +65,7 @@ namespace LinaEditor
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 			ImVec2 work_area_pos = viewport->GetWorkPos();
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
+			ImGui::SetNextWindowBgAlpha(1.0f);
 
 			ImGui::Begin("Resources", &m_show, flags);
 			WidgetsUtility::DrawShadowedLine(5);

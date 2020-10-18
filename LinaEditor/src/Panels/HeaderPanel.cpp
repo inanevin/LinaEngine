@@ -200,6 +200,7 @@ namespace LinaEditor
 				clicked = false;
 
 			// Start drawing window.
+			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGui::SetNextWindowPos(ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y));
 			ImGui::SetNextWindowSize(ImVec2(viewport->GetWorkSize().x, HEADER_HEIGHT));
 			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(HEADER_COLOR_BG.r, HEADER_COLOR_BG.g, HEADER_COLOR_BG.b, HEADER_COLOR_BG.a));
