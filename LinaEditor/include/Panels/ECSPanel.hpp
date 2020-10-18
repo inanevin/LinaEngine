@@ -61,8 +61,6 @@ namespace LinaEditor
 
 	private:
 
-		ScenePanel* m_scenePanel = nullptr;
-		PropertiesPanel* m_propertiesPanel = nullptr;
 		LinaEngine::ECS::ECSRegistry* m_ecs = nullptr;
 		LinaEngine::ECS::ECSEntity m_selectedEntity;
 		std::vector<LinaEngine::ECS::ECSEntity> m_entityList;

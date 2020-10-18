@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "Panels/ECSPanel.hpp"
 #include "Panels/ScenePanel.hpp"
-#include "Panels/PropertiesPanel.hpp"
 #include "Core/GUILayer.hpp"
 #include "Utility/Log.hpp"
 #include "Widgets/WidgetsUtility.hpp"
@@ -43,8 +42,6 @@ namespace LinaEditor
 	{
 		// Store references.
 		m_ecs = m_guiLayer->GetECS();
-		m_scenePanel = m_guiLayer->GetScenePanel();
-		m_propertiesPanel = m_guiLayer->GetPropertiesPanel();
 		
 		// Refresh entity list.
 		Refresh();
@@ -54,8 +51,7 @@ namespace LinaEditor
 	{
 		m_entityList.clear();
 		m_selectedEntity = entt::null;
-		m_scenePanel->SetSelectedTransform(nullptr);
-		m_propertiesPanel->EntitySelected(entt::null);
+		EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
 
 		// add scene entitites to the list.
 		m_ecs->each([this](auto entity)
@@ -109,18 +105,14 @@ namespace LinaEditor
 					{
 						m_selectedEntity = entity;
 						EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, entity);
-						//m_scenePanel->SetSelectedTransform(m_ecs->has<TransformComponent>(m_selectedEntity) ? &m_ecs->get<TransformComponent>(m_selectedEntity) : nullptr);
-						//m_propertiesPanel->EntitySelected(m_selectedEntity);
 						m_ecs->SetEntityName(entity, selectedEntityName);
 					}
 
 					// Deselect.
 					if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 					{
-						EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Deselect, 0);
+						EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
 						m_selectedEntity = entt::null;
-						//m_propertiesPanel->EntitySelected(m_selectedEntity);
-						//m_scenePanel->SetSelectedTransform(nullptr);
 					}
 				}
 

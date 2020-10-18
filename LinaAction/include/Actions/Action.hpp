@@ -68,9 +68,9 @@ namespace LinaEngine::Action
 		TextureSelected,
 		EntitySelected,
 		MaterialSelected,
-		Deselect,
+		Unselect,
 		EditorActionsStartIndex = TextureSelected,
-		EditorActionsEndIndex = Deselect
+		EditorActionsEndIndex = Unselect
 	};
 
 	class ActionHandlerBase

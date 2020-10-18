@@ -51,6 +51,9 @@ namespace LinaEditor
 
 		EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::ECS::ECSEntity>("##lina_propsPanel_entity", LinaEngine::Action::ActionType::EntitySelected,
 			std::bind(&PropertiesPanel::EntitySelected, this, std::placeholders::_1));
+
+		EditorApplication::GetEditorDispatcher().SubscribeAction<void*>("##lina_propsPanel_unselect", LinaEngine::Action::ActionType::Unselect,
+			std::bind(&PropertiesPanel::Unselect, this));
 	}
 
 	void PropertiesPanel::EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity)

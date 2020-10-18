@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Rendering/RenderEngine.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "ECS/Components/CameraComponent.hpp"
+#include "Core/EditorApplication.hpp"
 #include "imgui/imgui.h"
 #include <imgui/imguizmo/ImGuizmo.h>
 
@@ -44,6 +45,16 @@ static ImVec2 previousWindowSize;
 
 namespace LinaEditor
 {
+	void ScenePanel::Setup()
+	{
+		m_renderEngine = m_guiLayer->GetRenderEngine();
+
+		EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::ECS::ECSEntity>("##lina_propsPanel_entity", LinaEngine::Action::ActionType::EntitySelected,
+			std::bind(&ScenePanel::EntitySelected, this, std::placeholders::_1));
+
+		EditorApplication::GetEditorDispatcher().SubscribeAction<void*>("##lina_propsPanel_unselect", LinaEngine::Action::ActionType::Unselect,
+			std::bind(&ScenePanel::Unselected, this));
+	}
 
 	void ScenePanel::Draw(float frameTime)
 	{
@@ -51,7 +62,6 @@ namespace LinaEditor
 
 		if (m_show)
 		{
-
 			// Set window properties.
 
 			ImVec2 panelSize = ImVec2(m_size.x, m_size.y);
@@ -123,12 +133,16 @@ namespace LinaEditor
 		}
 	}
 
-	void ScenePanel::Setup()
+	
+	void ScenePanel::EntitySelected(LinaEngine::ECS::ECSEntity entity)
 	{
-		m_renderEngine = m_guiLayer->GetRenderEngine();
-
+		
 	}
 
+	void ScenePanel::Unselected()
+	{
+		m_selectedTransform = nullptr;
+	}
 
 	void ScenePanel::ProcessInput()
 	{
