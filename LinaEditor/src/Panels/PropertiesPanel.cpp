@@ -97,12 +97,12 @@ namespace LinaEditor
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 			ImVec2 work_area_pos = viewport->GetWorkPos();
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+			ImGui::SetNextWindowBgAlpha(1.0f);
 
 
 			// window.
 			ImGui::Begin("Properties", &m_show, flags);
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, 0));
-			ImGui::SetNextWindowBgAlpha(1.0f);
 
 			// Shadow.
 			WidgetsUtility::DrawShadowedLine(5);

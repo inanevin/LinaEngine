@@ -77,6 +77,9 @@ namespace LinaEditor
 
 	const int TEXTUREPREVIEW_MAX_WIDTH = 250;
 
+#define CURSORPOS_X_LABELS 12
+#define CURSORPOS_XPERC_VALUES 0.42f
+#define CURSORPOS_XPERC_VALUES2 
 
 	void TextureDrawer::SetSelectedTexture(LinaEngine::Graphics::Texture* texture)
 	{
@@ -114,12 +117,30 @@ namespace LinaEditor
 		const char* wrapRLabel = wrapModes[m_currentWrapR];
 		const char* wrapTLabel = wrapModes[m_currentWrapT];
 
+		float cursorPosValues = ImGui::GetWindowSize().x * 0.5f;
+		float targetWidth = ImGui::GetWindowWidth() - cursorPosValues - 20;
 
-		ImGui::Checkbox("Generate Mipmaps?", &m_currentGenerateMips);
-		ImGui::DragInt("Anisotropy", &m_currentAnisotropy, 0.05f, 0, 8);
+		WidgetsUtility::IncrementCursorPos(ImVec2(11, 11));
+		WidgetsUtility::AlignedText("Generate Mipmaps?");
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
+		ImGui::Checkbox("##generateMipmaps", &m_currentGenerateMips);
+
+		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
+		WidgetsUtility::AlignedText("Anisotropy");
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
+		ImGui::SetNextItemWidth(targetWidth);
+		ImGui::DragInt("##anisotropy", &m_currentAnisotropy, 0.05f, 0, 8);
+
+		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
+		WidgetsUtility::AlignedText("Internal Pixel Format");
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
+		ImGui::SetNextItemWidth(targetWidth);
 
 		// Internal Pixel Format ComboBox
-		if (ImGui::BeginCombo("Internal Pixel Format", internalPFLabel, flags))
+		if (ImGui::BeginCombo("##internalpixelformat", internalPFLabel, flags))
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(pixelFormats); n++)
 			{
@@ -135,8 +156,15 @@ namespace LinaEditor
 			}
 			ImGui::EndCombo();
 		}
+
+		WidgetsUtility::IncrementCursorPosX(11);
+		WidgetsUtility::AlignedText("Pixel Format");
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
+		ImGui::SetNextItemWidth(targetWidth);
+
 		// Pixel Format ComboBox
-		if (ImGui::BeginCombo("Pixel Format", pfLabel, flags))
+		if (ImGui::BeginCombo("##pixelformat", pfLabel, flags))
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(pixelFormats); n++)
 			{
@@ -153,8 +181,14 @@ namespace LinaEditor
 			ImGui::EndCombo();
 		}
 
+		WidgetsUtility::IncrementCursorPosX(11);
+		WidgetsUtility::AlignedText("Min Filter");
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
+		ImGui::SetNextItemWidth(targetWidth);
+
 		// Mýn Filter ComboBox
-		if (ImGui::BeginCombo("Min Filter", minFilterLabel, flags))
+		if (ImGui::BeginCombo("##minfilter", minFilterLabel, flags))
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(samplerFilters); n++)
 			{
@@ -171,8 +205,14 @@ namespace LinaEditor
 			ImGui::EndCombo();
 		}
 
+		WidgetsUtility::IncrementCursorPosX(11);
+		WidgetsUtility::AlignedText("Mag Filter");
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
+		ImGui::SetNextItemWidth(targetWidth);
+
 		// Mýn Filter ComboBox
-		if (ImGui::BeginCombo("Mag Filter", magFilterLabel, flags))
+		if (ImGui::BeginCombo("##magfilter", magFilterLabel, flags))
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(samplerFilters); n++)
 			{
@@ -189,8 +229,15 @@ namespace LinaEditor
 			ImGui::EndCombo();
 		}
 
+
+		WidgetsUtility::IncrementCursorPosX(11);
+		WidgetsUtility::AlignedText("Wrap S");
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
+		ImGui::SetNextItemWidth(targetWidth);
+
 		// Wrap S ComboBox
-		if (ImGui::BeginCombo("Wrap S", wrapSLabel, flags))
+		if (ImGui::BeginCombo("##wraps", wrapSLabel, flags))
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(wrapModes); n++)
 			{
@@ -207,8 +254,14 @@ namespace LinaEditor
 			ImGui::EndCombo();
 		}
 
+		WidgetsUtility::IncrementCursorPosX(11);
+		WidgetsUtility::AlignedText("Wrap R");
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
+		ImGui::SetNextItemWidth(targetWidth);
+
 		// Wrap T ComboBox
-		if (ImGui::BeginCombo("Wrap R", wrapRLabel, flags))
+		if (ImGui::BeginCombo("##wrapR", wrapRLabel, flags))
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(wrapModes); n++)
 			{
@@ -225,8 +278,14 @@ namespace LinaEditor
 			ImGui::EndCombo();
 		}
 
+		WidgetsUtility::IncrementCursorPosX(11);
+		WidgetsUtility::AlignedText("Wrap T");
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
+		ImGui::SetNextItemWidth(targetWidth);
+
 		// Wrap T ComboBox
-		if (ImGui::BeginCombo("Wrap T", wrapTLabel, flags))
+		if (ImGui::BeginCombo("##wrapT", wrapTLabel, flags))
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(wrapModes); n++)
 			{
@@ -242,6 +301,8 @@ namespace LinaEditor
 			}
 			ImGui::EndCombo();
 		}
+
+		WidgetsUtility::IncrementCursorPosX(11);
 
 		// Apply button
 		if (ImGui::Button("Apply"))
@@ -261,23 +322,35 @@ namespace LinaEditor
 			m_selectedTexture = &LinaEngine::Application::GetRenderEngine().CreateTexture2D(path, newParams);
 		}
 
+		
+		WidgetsUtility::IncrementCursorPosY(12);
+		WidgetsUtility::DrawBeveledLine();
+
+		Vector2 textureSize = m_selectedTexture->GetSize();
+
+		WidgetsUtility::IncrementCursorPosY(12);
+		WidgetsUtility::IncrementCursorPosX(12);
+		ImGui::Text("Preview");
+		WidgetsUtility::IncrementCursorPosX(12);
+		ImGui::Text("Size: ");
+		ImGui::SameLine();
+		ImGui::Text(textureSize.ToString().c_str());	
+		WidgetsUtility::IncrementCursorPosY(25);
+
 		// Setup data for drawing texture.
-		float currentWindowX = ImGui::GetCurrentWindow()->Size.x;
+		float currentWindowX = ImGui::GetWindowWidth();
 
 		if (currentWindowX > TEXTUREPREVIEW_MAX_WIDTH)
 			currentWindowX = TEXTUREPREVIEW_MAX_WIDTH;
 
-		float currentWindowY = ImGui::GetCurrentWindow()->Size.y;
-		Vector2 textureSize = m_selectedTexture->GetSize();
+		float currentWindowY = ImGui::GetWindowHeight();
 		float textureAspect = textureSize.x / textureSize.y;
 		float desiredH = currentWindowX / textureAspect;
-		ImVec2 pMin = ImVec2(ImGui::GetCursorScreenPos().x, ImGui::GetCursorScreenPos().y);
-		ImVec2 pMax = ImVec2(ImGui::GetCursorScreenPos().x + currentWindowX, ImGui::GetCursorScreenPos().y + desiredH);
-		ImVec2 size = ImGui::GetCurrentWindow()->Size;
+		ImVec2 pMin = ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetWindowWidth() / 2.0f - currentWindowX / 2.0f, ImGui::GetCursorScreenPos().y);
+		ImVec2 pMax = ImVec2(pMin.x + currentWindowX, ImGui::GetCursorScreenPos().y + desiredH);
 
 		// Draw texture
 		ImGui::GetWindowDrawList()->AddImage((void*)m_selectedTexture->GetID(), pMin, pMax, ImVec2(0, 1), ImVec2(1, 0));
-
 	}
 
 	int TextureDrawer::GetSamplerFilterID(SamplerFilter filter)
