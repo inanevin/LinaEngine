@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Texture.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
+#include "Core/Application.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -47,11 +48,8 @@ namespace LinaEditor
 {
 
 
-	void SplashScreen::Setup(LinaEngine::Graphics::Window* splashWindow, LinaEngine::Graphics::RenderEngine* renderEngine, const LinaEngine::Graphics::WindowProperties& props)
+	void SplashScreen::Setup(const LinaEngine::Graphics::WindowProperties& props)
 	{
-		// Set ref.
-		m_window = splashWindow;
-
 		// Set GUI draw params.
 		LinaEngine::Graphics::DrawParams splashDrawParams;
 		splashDrawParams.useScissorTest = false;
@@ -76,24 +74,26 @@ namespace LinaEditor
 		splashDrawParams.scissorHeight = 0;
 
 		// Set draw params.
-		renderEngine->SetDrawParameters(splashDrawParams);
+		LinaEngine::Application::GetRenderEngine().SetDrawParameters(splashDrawParams);
 
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 
-		GLFWwindow* window = static_cast<GLFWwindow*>(splashWindow->GetNativeWindow());
+		LinaEngine::Graphics::Window& splashWindow = LinaEngine::Application::GetAppWindow();
+
+		GLFWwindow* window = static_cast<GLFWwindow*>(splashWindow.GetNativeWindow());
 
 		// Setup Platform/Renderer bindings
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init();
 
 		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-		splashWindow->SetSize(Vector2(props.m_width, props.m_height));
-		splashWindow->SetPos(LinaEngine::Vector2(mode->width / 2.0f + props.m_xPos - props.m_width / 2.0f, mode->height / 2.0f + props.m_yPos - props.m_height / 2.0f));
+		splashWindow.SetSize(Vector2(props.m_width, props.m_height));
+		splashWindow.SetPos(LinaEngine::Vector2(mode->width / 2.0f + props.m_xPos - props.m_width / 2.0f, mode->height / 2.0f + props.m_yPos - props.m_height / 2.0f));
 
 		// Create pixel data.
-		splashScreenTexture = &renderEngine->CreateTexture2D("resources/editor/textures/splashScreen.png");
+		splashScreenTexture = &LinaEngine::Application::GetRenderEngine().CreateTexture2D("resources/editor/textures/splashScreen.png");
 	}
 
 
@@ -121,7 +121,7 @@ namespace LinaEditor
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		// swap buffers.
-		m_window->Tick();
+		LinaEngine::Application::GetAppWindow().Tick();
 
 	}
 

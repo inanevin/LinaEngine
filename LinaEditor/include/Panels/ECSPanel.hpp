@@ -52,16 +52,14 @@ namespace LinaEditor
 		
 	public:
 		
-		ECSPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size,GUILayer& guiLayer) : EditorPanel(position,size, guiLayer) {};
+		ECSPanel();
 		virtual ~ECSPanel() {};
 	
-		virtual void Setup() override;
 		virtual void Draw(float frameTime) override;
 		void Refresh();
 
 	private:
 
-		LinaEngine::ECS::ECSRegistry* m_ecs = nullptr;
 		LinaEngine::ECS::ECSEntity m_selectedEntity;
 		std::vector<LinaEngine::ECS::ECSEntity> m_entityList;
 	};

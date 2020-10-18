@@ -61,19 +61,20 @@ namespace LinaEditor
 
 	public:
 
-		HeaderPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer, const std::string& title) : EditorPanel(position, size, guiLayer) { m_title = title; };
+		HeaderPanel();
 		virtual ~HeaderPanel();
 
-		virtual void Setup() override;
 		virtual void Draw(float frameTime) override;
+
+	private:
+
+		void DispatchMenuBarClickedAction(const MenuBarItems& item);
 
 	private:
 
 		std::string m_title = "";
 		std::vector<MenuButton*> m_menuBarButtons;
 		std::vector<MenuButton*> m_toolButtons;
-		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
-		LinaEngine::Graphics::Window* m_appWindow = nullptr;
 
 	};
 }

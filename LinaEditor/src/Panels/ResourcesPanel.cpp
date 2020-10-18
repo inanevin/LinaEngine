@@ -29,6 +29,8 @@ SOFTWARE.
 #include "Panels/ResourcesPanel.hpp"
 #include "Core/GUILayer.hpp"
 #include "Panels/PropertiesPanel.hpp"
+#include "Core/Application.hpp"
+#include "Core/EditorApplication.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Input/InputMappings.hpp"
 #include "Core/EditorCommon.hpp"
@@ -46,17 +48,12 @@ namespace LinaEditor
 
 	static int itemIDCounter = 0;
 	static int selectedItem = -1;
-	static EditorFolder* hoveredFolder;
-	static EditorFile* selectedFile;
-	static EditorFolder* selectedFolder;
+	static EditorFolder* s_hoveredFolder;
+	static EditorFile* s_selectedFile;
+	static EditorFolder* s_selectedFolder;
 
-
-	void ResourcesPanel::Setup()
+	ResourcesPanel::ResourcesPanel()
 	{
-		m_PropertiesPanel = m_guiLayer->GetPropertiesPanel();
-		m_renderEngine = m_guiLayer->GetRenderEngine();
-
-		// Scan root resources folder.
 		ScanRoot();
 	}
 
@@ -67,12 +64,8 @@ namespace LinaEditor
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 			ImVec2 work_area_pos = viewport->GetWorkPos();
-			ImVec2 panelSize = ImVec2(m_size.x, m_size.y);
-			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
-			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
 
-			
 			ImGui::Begin("Resources", &m_show, flags);
 			WidgetsUtility::DrawShadowedLine(5);
 			DrawContent();
@@ -85,7 +78,7 @@ namespace LinaEditor
 
 	void ResourcesPanel::DrawContent()
 	{
-		std::string rootPath = hoveredFolder == nullptr ? "resources" : hoveredFolder->m_path;
+		std::string rootPath = s_hoveredFolder == nullptr ? "resources" : s_hoveredFolder->m_path;
 
 		// Handle Right click popup.
 		if (ImGui::BeginPopupContextWindow())
@@ -102,8 +95,8 @@ namespace LinaEditor
 					folder.name = "NewFolder" + std::to_string(itemIDCounter);
 					folder.m_id = itemIDCounter;
 
-					if (hoveredFolder != nullptr)
-						hoveredFolder->m_subFolders[folder.m_id] = folder;
+					if (s_hoveredFolder != nullptr)
+						s_hoveredFolder->m_subFolders[folder.m_id] = folder;
 					else
 						m_resourceFolders[0].m_subFolders[folder.m_id] = folder;
 
@@ -124,11 +117,11 @@ namespace LinaEditor
 					file.type = FileType::Material;
 					file.id = ++itemIDCounter;
 
-					Graphics::Material& m = m_renderEngine->CreateMaterial(file.id, Graphics::Shaders::PBR_LIT);
+					Graphics::Material& m = LinaEngine::Application::GetRenderEngine().CreateMaterial(file.id, Graphics::Shaders::PBR_LIT);
 					EditorUtility::SerializeMaterial(materialPath, m);
 
-					if (hoveredFolder != nullptr)
-						hoveredFolder->m_files[file.id] = file;
+					if (s_hoveredFolder != nullptr)
+						s_hoveredFolder->m_files[file.id] = file;
 					else
 						m_resourceFolders[0].m_files[file.id] = file;
 				}
@@ -232,8 +225,8 @@ namespace LinaEditor
 				EditorUtility::DeleteDirectory(it->second.m_path);
 
 				// Nullout reference.
-				if (hoveredFolder == &it->second)
-					hoveredFolder = nullptr;
+				if (s_hoveredFolder == &it->second)
+					s_hoveredFolder = nullptr;
 
 				// Unload the contained resources & erase.
 				UnloadFileResourcesInFolder(it->second);
@@ -253,13 +246,13 @@ namespace LinaEditor
 			if (ImGui::IsItemClicked())
 			{
 				selectedItem = (it->second).m_id;
-				selectedFile = nullptr;
-				selectedFolder = &(it->second);
+				s_selectedFile = nullptr;
+				s_selectedFolder = &(it->second);
 			}
 
 			// Hover.
 			if (ImGui::IsWindowHovered() && ImGui::IsItemHovered())
-				hoveredFolder = &(it->second);
+				s_hoveredFolder = &(it->second);
 
 			if (nodeOpen)
 			{
@@ -294,16 +287,16 @@ namespace LinaEditor
 			if (ImGui::IsItemClicked())
 			{
 				selectedItem = it->second.id;
-				selectedFolder = nullptr;
-				selectedFile = &it->second;
+				s_selectedFolder = nullptr;
+				s_selectedFile = &it->second;
 
 				// Notify properties panel of file selection.
 				if (it->second.type == FileType::Texture2D)
-					m_PropertiesPanel->Texture2DSelected(&m_renderEngine->GetTexture(it->second.path), it->second.id, it->second.path);
+					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Texture*>(LinaEngine::Action::ActionType::TextureSelected, &LinaEngine::Application::GetRenderEngine().GetTexture(it->second.path));
 				else if (it->second.type == FileType::Mesh)
-					m_PropertiesPanel->MeshSelected(&m_renderEngine->GetMesh(it->second.id), it->second.id, it->second.path);
+					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Mesh*>(LinaEngine::Action::ActionType::MeshSelected, &LinaEngine::Application::GetRenderEngine().GetMesh(it->second.path));
 				else if (it->second.type == FileType::Material)
-					m_PropertiesPanel->MaterialSelected(&m_renderEngine->GetMaterial(it->second.id), it->second.id, it->second.path);
+					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Material*>(LinaEngine::Action::ActionType::MaterialSelected, &LinaEngine::Application::GetRenderEngine().GetMaterial(it->second.path));
 			}
 
 			if (nodeOpen)
@@ -316,24 +309,25 @@ namespace LinaEditor
 		// Deselect.
 		if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 		{
-			m_PropertiesPanel->Unselect();
+			EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
 			selectedItem = -1;
 		}
 
 		// Delete item.
 		if (ImGui::IsKeyPressed(Input::InputCode::Delete) && selectedItem != -1)
 		{
-			if (selectedFolder != nullptr)
-				selectedFolder->m_markedForErase = true;
-			if (selectedFile != nullptr)
-				selectedFile->markedForErase = true;
+			if (s_selectedFolder != nullptr)
+				s_selectedFolder->m_markedForErase = true;
+			if (s_selectedFile != nullptr)
+				s_selectedFile->markedForErase = true;
+
 			// Deselect
-			m_PropertiesPanel->Unselect();
+			EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
 			selectedItem = -1;
 		}
 
 		if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered())
-			hoveredFolder = nullptr;
+			s_hoveredFolder = nullptr;
 	}
 
 	void ResourcesPanel::LoadFolderResources(EditorFolder& folder)
@@ -345,9 +339,9 @@ namespace LinaEditor
 
 			// SKIP FOR NOW BC WE NEED TO MAKE SURE WE HANDLE BOTH ENGINE CREATION & EDITOR CREATION
 			if (file.type == FileType::Texture2D)
-				m_renderEngine->CreateTexture2D(file.path);
+				LinaEngine::Application::GetRenderEngine().CreateTexture2D(file.path);
 			else if (file.type == FileType::Mesh)
-				m_renderEngine->CreateMesh(file.id, file.path);
+				LinaEngine::Application::GetRenderEngine().CreateMesh(file.id, file.path);
 		}
 
 		// Recursively load subfolders.
@@ -358,11 +352,11 @@ namespace LinaEditor
 	void ResourcesPanel::UnloadFileResource(EditorFile& file)
 	{
 		if (file.type == FileType::Texture2D)
-			m_renderEngine->UnloadTextureResource(file.id);
+			LinaEngine::Application::GetRenderEngine().UnloadTextureResource(file.id);
 		else if (file.type == FileType::Mesh)
-			m_renderEngine->UnloadMeshResource(file.id);
+			LinaEngine::Application::GetRenderEngine().UnloadMeshResource(file.id);
 		else if (file.type == FileType::Material)
-			m_renderEngine->UnloadMaterialResource(file.id);
+			LinaEngine::Application::GetRenderEngine().UnloadMaterialResource(file.id);
 	}
 
 	void ResourcesPanel::UnloadFileResourcesInFolder(EditorFolder& folder)

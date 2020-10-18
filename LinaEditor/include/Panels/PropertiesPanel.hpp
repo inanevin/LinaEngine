@@ -77,22 +77,14 @@ namespace LinaEditor
 
 	public:
 
-		PropertiesPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) : EditorPanel(position, size, guiLayer) { };
+		PropertiesPanel();
 		virtual ~PropertiesPanel() {};
 
 		virtual void Draw(float frameTime) override;
-		void Setup();
 		void EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity);
-		void Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path);
-		void MeshSelected(LinaEngine::Graphics::Mesh* mesh, int id, std::string& path);
-
-		void MaterialSelected(LinaEngine::Graphics::Material* material, int id, std::string& path)
-		{
-			m_selectedMaterial = material;
-			m_selectedMaterialID = id;
-			m_selectedMaterialPath = path;
-			m_currentDrawType = DrawType::Material;
-		}
+		void TextureSelected(LinaEngine::Graphics::Texture* texture);
+		void MeshSelected(LinaEngine::Graphics::Mesh* mesh);
+		void MaterialSelected(LinaEngine::Graphics::Material* material);
 
 		void Unselect()
 		{
@@ -113,20 +105,14 @@ namespace LinaEditor
 
 		// Selected mesh
 		LinaEngine::Graphics::Mesh* m_selectedMesh = nullptr;
-		int m_selectedMeshID = 0;
-		std::string m_selectedMeshPath = "";
 		LinaEngine::Graphics::MeshParameters m_currentMeshParams;
 
 		// Selected material
 		LinaEngine::Graphics::Material* m_selectedMaterial = nullptr;
-		int m_selectedMaterialID = 0;
-		std::string m_selectedMaterialPath = "";
 
 		// Selected entity.
 		EntityDrawer m_entityDrawer;
 
-		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
-		LinaEngine::ECS::ECSRegistry* m_ecs = nullptr;
 		DrawType m_currentDrawType = DrawType::None;
 
 	};

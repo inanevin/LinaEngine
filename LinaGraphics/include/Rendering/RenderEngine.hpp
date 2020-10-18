@@ -119,6 +119,7 @@ namespace LinaEngine::Graphics
 		Mesh& CreatePrimitive(Primitives primitive, const std::string& path);
 		Shader& CreateShader(Shaders shader, const std::string& path, bool usesGeometryShader = false);
 		Material& GetMaterial(int id);
+		Material& GetMaterial(const std::string& path);
 		Texture& GetTexture(int id);
 		Texture& GetTexture(const std::string& path);
 		Mesh& GetMesh(int id);

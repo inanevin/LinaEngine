@@ -154,6 +154,7 @@ namespace LinaEngine::Graphics
 			return m_matrices[name];
 		}
 		
+		const std::string& GetPath() const { return m_path; }
 		Shaders GetShaderType() { return m_shaderType; }
 		uint32 GetShaderID() { return m_shaderID; }
 		void SetSurfaceType(MaterialSurfaceType type) { m_surfaceType = type; SetInt(MAT_SURFACETYPE, type); }
@@ -173,6 +174,7 @@ namespace LinaEngine::Graphics
 		friend class RenderEngine;
 		friend class RenderContext;
 
+		std::string m_path = "";
 		uint32 m_shaderID = 0;
 		bool m_usesHDRI = false;
 		bool m_receivesLighting = false;

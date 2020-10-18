@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "Core/EditorApplication.hpp"
+#include "Core/Application.hpp"
 #include "imgui/imgui.h"
 #include <imgui/imguizmo/ImGuizmo.h>
 
@@ -45,14 +46,13 @@ static ImVec2 previousWindowSize;
 
 namespace LinaEditor
 {
-	void ScenePanel::Setup()
-	{
-		m_renderEngine = m_guiLayer->GetRenderEngine();
 
-		EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::ECS::ECSEntity>("##lina_propsPanel_entity", LinaEngine::Action::ActionType::EntitySelected,
+	ScenePanel::ScenePanel()
+	{
+		EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::ECS::ECSEntity>("##lina_scenePanel_entity", LinaEngine::Action::ActionType::EntitySelected,
 			std::bind(&ScenePanel::EntitySelected, this, std::placeholders::_1));
 
-		EditorApplication::GetEditorDispatcher().SubscribeAction<void*>("##lina_propsPanel_unselect", LinaEngine::Action::ActionType::Unselect,
+		EditorApplication::GetEditorDispatcher().SubscribeAction<void*>("##lina_scenePanel_unselect", LinaEngine::Action::ActionType::Unselect,
 			std::bind(&ScenePanel::Unselected, this));
 	}
 
@@ -62,16 +62,14 @@ namespace LinaEditor
 
 		if (m_show)
 		{
-			// Set window properties.
 
-			ImVec2 panelSize = ImVec2(m_size.x, m_size.y);
-			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
-			ImGui::SetNextWindowBgAlpha(1.0f);
+			LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
 			if (ImGui::Begin("Scene", &m_show, flags))
 			{
-				if (m_renderEngine->GetCameraSystem()->GetCurrentCameraComponent() == nullptr)
+				if (renderEngine.GetCameraSystem()->GetCurrentCameraComponent() == nullptr)
 				{
 					ImGui::Text("NO CAMERA AVAILABLE");
 				}
@@ -81,7 +79,7 @@ namespace LinaEditor
 
 				
 				// Get game viewport aspect.
-				Vector2 vpSize = m_renderEngine->GetViewportSize();
+				Vector2 vpSize = renderEngine.GetViewportSize();
 				float aspect = (float)vpSize.x / (float)vpSize.y;
 
 				// Mins & max for scene panel area.
@@ -110,9 +108,9 @@ namespace LinaEditor
 
 
 				if (m_drawMode == DrawMode::FinalImage)
-					ImGui::GetWindowDrawList()->AddImage((void*)m_renderEngine->GetFinalImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
+					ImGui::GetWindowDrawList()->AddImage((void*)renderEngine.GetFinalImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
 				else if (m_drawMode == DrawMode::ShadowMap)
-					ImGui::GetWindowDrawList()->AddImage((void*)m_renderEngine->GetShadowMapImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
+					ImGui::GetWindowDrawList()->AddImage((void*)renderEngine.GetShadowMapImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
 
 
 				ImGuiIO& io = ImGui::GetIO();
@@ -159,8 +157,10 @@ namespace LinaEditor
 
 	void ScenePanel::DrawGizmos()
 	{
-		Matrix& view = m_renderEngine->GetCameraSystem()->GetViewMatrix();
-		Matrix& projection = m_renderEngine->GetCameraSystem()->GetProjectionMatrix();
+		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+
+		Matrix& view = renderEngine.GetCameraSystem()->GetViewMatrix();
+		Matrix& projection = renderEngine.GetCameraSystem()->GetProjectionMatrix();
 
 		//ImGui::GetWindowDrawList()->AddLine(ImVec2(coord.x, coord.y), ImVec2(coord2.x, coord2.y), col, 2);
 		if (m_selectedTransform != nullptr)

@@ -83,48 +83,49 @@ bool Example1Level::Install()
 	pbrSampler.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB;
 	pbrSampler.textureParams.generateMipMaps = true;
 
+	LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
 
-	albedoSphere = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/albedo.png", pbrSampler, false, false);
-	normalSphere = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/normal.png", pbrSampler, false, false);
-	metallicSphere = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/metallic.png", pbrSampler, false, false);
-	roughnessSphere = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/roughness.png", pbrSampler, false, false);
-	aoSphere = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/rusted_iron/ao.png", pbrSampler, false, false);
-	albedoFloor = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/grass/albedo.png", pbrSampler, false, false);
-	normalFloor = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/grass/normal.png", pbrSampler, false, false);
-	metallicFloor = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/grass/metallic.png", pbrSampler, false, false);
-	roughnessFloor = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/grass/roughness.png", pbrSampler, false, false);
-	aoFloor = &m_renderEngine->CreateTexture2D("resources/sandbox/textures/grass/ao.png", pbrSampler, false, false);
+	albedoSphere = &renderEngine.CreateTexture2D("resources/sandbox/textures/rusted_iron/albedo.png", pbrSampler, false, false);
+	normalSphere = &renderEngine.CreateTexture2D("resources/sandbox/textures/rusted_iron/normal.png", pbrSampler, false, false);
+	metallicSphere = &renderEngine.CreateTexture2D("resources/sandbox/textures/rusted_iron/metallic.png", pbrSampler, false, false);
+	roughnessSphere = &renderEngine.CreateTexture2D("resources/sandbox/textures/rusted_iron/roughness.png", pbrSampler, false, false);
+	aoSphere = &renderEngine.CreateTexture2D("resources/sandbox/textures/rusted_iron/ao.png", pbrSampler, false, false);
+	albedoFloor = &renderEngine.CreateTexture2D("resources/sandbox/textures/grass/albedo.png", pbrSampler, false, false);
+	normalFloor = &renderEngine.CreateTexture2D("resources/sandbox/textures/grass/normal.png", pbrSampler, false, false);
+	metallicFloor = &renderEngine.CreateTexture2D("resources/sandbox/textures/grass/metallic.png", pbrSampler, false, false);
+	roughnessFloor = &renderEngine.CreateTexture2D("resources/sandbox/textures/grass/roughness.png", pbrSampler, false, false);
+	aoFloor = &renderEngine.CreateTexture2D("resources/sandbox/textures/grass/ao.png", pbrSampler, false, false);
 
 	return true;
 }
 
-void CreateSingleColorSkybox(RenderEngine* renderEngine)
+void CreateSingleColorSkybox(RenderEngine renderEngine)
 {
-	Material& mat = renderEngine->CreateMaterial(-6, Shaders::SKYBOX_SINGLECOLOR);
+	Material& mat = renderEngine.CreateMaterial(-6, Shaders::SKYBOX_SINGLECOLOR);
 	mat.SetColor("material.color", Color::Red);
-	renderEngine->SetSkyboxMaterial(mat);
+	renderEngine.SetSkyboxMaterial(mat);
 }
 
-void CreateGradientSkybox(RenderEngine* renderEngine)
+void CreateGradientSkybox(RenderEngine renderEngine)
 {
-	renderEngine->CreateMaterial(-4, Shaders::SKYBOX_GRADIENT);
-	renderEngine->GetMaterial(-4).SetColor("material.startColor", Color::Green);
-	renderEngine->GetMaterial(-4).SetColor("material.endColor", Color::White);
-	renderEngine->SetSkyboxMaterial(renderEngine->GetMaterial(-4));
+	renderEngine.CreateMaterial(-4, Shaders::SKYBOX_GRADIENT);
+	renderEngine.GetMaterial(-4).SetColor("material.startColor", Color::Green);
+	renderEngine.GetMaterial(-4).SetColor("material.endColor", Color::White);
+	renderEngine.SetSkyboxMaterial(renderEngine.GetMaterial(-4));
 }
 
-void CreateProceduralSkybox(RenderEngine* renderEngine)
+void CreateProceduralSkybox(RenderEngine renderEngine)
 {
-	Material& mat = renderEngine->CreateMaterial(-1, Shaders::SKYBOX_PROCEDURAL);
+	Material& mat = renderEngine.CreateMaterial(-1, Shaders::SKYBOX_PROCEDURAL);
 	mat.SetColor("material.startColor", Color::White);
 	mat.SetColor("material.endColor", Color(0.2f, 0.2f, 0.2f));
 	mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
-	renderEngine->SetSkyboxMaterial(mat);
+	renderEngine.SetSkyboxMaterial(mat);
 }
 
-void CreateCubemapSkybox(RenderEngine* renderEngine)
+void CreateCubemapSkybox(RenderEngine renderEngine)
 {
-	Material& mat = renderEngine->CreateMaterial(-2, Shaders::SKYBOX_CUBEMAP);
+	Material& mat = renderEngine.CreateMaterial(-2, Shaders::SKYBOX_CUBEMAP);
 
 	const std::string fp[6] = {
 		"resources/sandbox/textures/defaultSkybox/right.png",
@@ -135,15 +136,15 @@ void CreateCubemapSkybox(RenderEngine* renderEngine)
 		"resources/sandbox/textures/defaultSkybox/back.png",
 	};
 
-	renderEngine->SetSkyboxMaterial(mat);
+	renderEngine.SetSkyboxMaterial(mat);
 }
-void CreateHDRISkybox(RenderEngine* renderEngine)
+void CreateHDRISkybox(RenderEngine renderEngine)
 {
-	Texture* hdri = &renderEngine->CreateTextureHDRI("resources/sandbox/textures/HDRI/canyon3K.hdr");
-	renderEngine->CaptureCalculateHDRI(*hdri);
-	Material& mat = renderEngine->CreateMaterial(-5, Shaders::SKYBOX_HDRI);
-	mat.SetTexture(MAT_MAP_ENVIRONMENT, &renderEngine->GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
-	renderEngine->SetSkyboxMaterial(mat);
+	Texture* hdri = &renderEngine.CreateTextureHDRI("resources/sandbox/textures/HDRI/canyon3K.hdr");
+	renderEngine.CaptureCalculateHDRI(*hdri);
+	Material& mat = renderEngine.CreateMaterial(-5, Shaders::SKYBOX_HDRI);
+	mat.SetTexture(MAT_MAP_ENVIRONMENT, &renderEngine.GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
+	renderEngine.SetSkyboxMaterial(mat);
 }
 
 Vector3 cubePositions[] = {
@@ -180,9 +181,13 @@ int sLightSize = 0;
 void Example1Level::Initialize()
 {
 	LINA_CLIENT_WARN("Example level 1 initialize.");
+
+	LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
+
 	// Create, setup & assign skybox material.
-	CreateProceduralSkybox(m_renderEngine);
-	objectUnlitMaterial = &m_renderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::STANDARD_UNLIT);
+	CreateProceduralSkybox(renderEngine);
+	objectUnlitMaterial = &renderEngine.CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::STANDARD_UNLIT);
 
 	MeshRendererComponent cr;
 	cr.m_meshID = Primitives::CUBE;
@@ -191,17 +196,17 @@ void Example1Level::Initialize()
 	RigidbodyComponent r;
 
 	ECSEntity c1;
-	c1 = m_ecs->CreateEntity("Sphere");
+	c1 = ecs.CreateEntity("Sphere");
 	objectTransform.transform.m_location = Vector3(0,0,0);
-	m_ecs->emplace<TransformComponent>(c1, objectTransform);
-	m_ecs->emplace<MeshRendererComponent>(c1, cr);
-	m_ecs->emplace<RigidbodyComponent>(c1, r);
+	ecs.emplace<TransformComponent>(c1, objectTransform);
+	ecs.emplace<MeshRendererComponent>(c1, cr);
+	ecs.emplace<RigidbodyComponent>(c1, r);
 
 
-	camera = m_ecs->CreateEntity("Camera");
-	auto& camFreeLook = m_ecs->emplace<FreeLookComponent>(camera);
-	auto& camTransform = m_ecs->emplace<TransformComponent>(camera);
-	auto& camCamera = m_ecs->emplace<CameraComponent>(camera);
+	camera = ecs.CreateEntity("Camera");
+	auto& camFreeLook = ecs.emplace<FreeLookComponent>(camera);
+	auto& camTransform = ecs.emplace<TransformComponent>(camera);
+	auto& camCamera = ecs.emplace<CameraComponent>(camera);
 	camTransform.transform.m_location = Vector3(0,5,-5);
 	camFreeLook.m_movementSpeeds = Vector2(12, 12);
 	camFreeLook.m_rotationSpeeds = Vector2(3, 3);
@@ -209,35 +214,35 @@ void Example1Level::Initialize()
 
 	// Create the free look system & push it.
 	ecsFreeLookSystem = new FreeLookSystem();
-	ecsFreeLookSystem->Construct(*m_ecs, *m_inputEngine);
+	ecsFreeLookSystem->Construct(ecs, LinaEngine::Application::GetInputEngine());
 	level1Systems.AddSystem(*ecsFreeLookSystem);
 
 	return;
 
-	Texture& sprite = m_renderEngine->CreateTexture2D("resources/sandbox/textures/sprite.png");
-	Mesh& floorMesh = m_renderEngine->GetPrimitive(Primitives::PLANE);
+	Texture& sprite = renderEngine.CreateTexture2D("resources/sandbox/textures/sprite.png");
+	Mesh& floorMesh = renderEngine.GetPrimitive(Primitives::PLANE);
 
-	spriteMat = &m_renderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::RENDERER2D_SPRITE);
+	spriteMat = &renderEngine.CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::RENDERER2D_SPRITE);
 	spriteMat->SetTexture(MAT_TEXTURE2D_DIFFUSE, &sprite);
 	spriteMat->SetSurfaceType(Graphics::MaterialSurfaceType::Transparent);
-	sphereMat = &m_renderEngine->CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::PBR_LIT);
+	sphereMat = &renderEngine.CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::PBR_LIT);
 
 	sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, albedoSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, normalSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, roughnessSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_METALLICMAP, metallicSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_AOMAP, aoSphere);
-	m_renderEngine->SetHDRIData(sphereMat);
+	renderEngine.SetHDRIData(sphereMat);
 
 
-	floorMaterial = &m_renderEngine->CreateMaterial(-55, Shaders::PBR_LIT);
+	floorMaterial = &renderEngine.CreateMaterial(-55, Shaders::PBR_LIT);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, albedoFloor);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, normalFloor);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, roughnessFloor);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_METALLICMAP, metallicFloor);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_AOMAP, aoFloor);
 	floorMaterial->SetVector2(MAT_TILING, Vector2(100, 100));
-	m_renderEngine->SetHDRIData(floorMaterial);
+	renderEngine.SetHDRIData(floorMaterial);
 
 	MeshRendererComponent cubeRenderer;
 	cubeRenderer.m_meshID = Primitives::CUBE;
@@ -259,26 +264,26 @@ void Example1Level::Initialize()
 	DirectionalLightComponent dirLightComp;
 
 	ECSEntity directionalLightEntity;
-	directionalLightEntity = m_ecs->CreateEntity("DirLight");
+	directionalLightEntity = ecs.CreateEntity("DirLight");
 	objectTransform.transform.m_location = Vector3(0, 15, -15);
 	objectTransform.transform.Rotate(Vector3(25, 0, 0));
-	m_ecs->emplace<TransformComponent>(directionalLightEntity, objectTransform);
-	m_ecs->emplace<DirectionalLightComponent>(directionalLightEntity, dirLightComp);
+	ecs.emplace<TransformComponent>(directionalLightEntity, objectTransform);
+	ecs.emplace<DirectionalLightComponent>(directionalLightEntity, dirLightComp);
 
 	ECSEntity cube1;
-	cube1 = m_ecs->CreateEntity("Sphere");
+	cube1 = ecs.CreateEntity("Sphere");
 	objectTransform.transform.m_location = Vector3(-13, 5, 5);
-	m_ecs->emplace<TransformComponent>(cube1, objectTransform);
-	m_ecs->emplace<MeshRendererComponent>(cube1, cubeRenderer);
+	ecs.emplace<TransformComponent>(cube1, objectTransform);
+	ecs.emplace<MeshRendererComponent>(cube1, cubeRenderer);
 	//m_ECS->emplace<RigidbodyComponent>(cube1, sphereRB);
 
 	ECSEntity portal;
-	portal = m_ecs->CreateEntity("PortalFrame");
+	portal = ecs.CreateEntity("PortalFrame");
 	objectTransform.transform.m_location = Vector3(0, 5, 5);
 	objectTransform.transform.Rotate(Vector3(-90, 0, 0));
 	objectTransform.transform.m_scale = Vector3::One * 2;
-	m_ecs->emplace<TransformComponent>(portal, objectTransform);
-	m_ecs->emplace<MeshRendererComponent>(portal, portalRenderer);
+	ecs.emplace<TransformComponent>(portal, objectTransform);
+	ecs.emplace<MeshRendererComponent>(portal, portalRenderer);
 
 	//SpriteRendererComponent spriteRenderer;
 	//spriteRenderer.materialID = spriteMat->m_MaterialID;
@@ -294,12 +299,12 @@ void Example1Level::Initialize()
 
 
 	ECSEntity floorEntity;
-	floorEntity = m_ecs->CreateEntity("Floor");
+	floorEntity = ecs.CreateEntity("Floor");
 	objectTransform.transform.m_scale = Vector3(100, 1, 100);
 	objectTransform.transform.m_location = Vector3(0, 0, 0);
 	objectTransform.transform.m_rotation = Vector4::Zero;
-	m_ecs->emplace<TransformComponent>(floorEntity, objectTransform);
-	m_ecs->emplace<MeshRendererComponent>(floorEntity, floorRenderer);
+	ecs.emplace<TransformComponent>(floorEntity, objectTransform);
+	ecs.emplace<MeshRendererComponent>(floorEntity, floorRenderer);
 
 
 
@@ -313,9 +318,9 @@ void Example1Level::Initialize()
 		//lightRenderer.material = objectUnlitMaterial;
 		lightTransform.transform.m_location = pointLightPositions[i];
 		lightTransform.transform.m_scale = 0.1f;
-		entity = m_ecs->CreateEntity("Point Light " + i);
-		auto lightT = m_ecs->emplace<TransformComponent>(entity, lightTransform);
-		auto& pLight1 = m_ecs->emplace<PointLightComponent>(entity);
+		entity = ecs.CreateEntity("Point Light " + i);
+		auto lightT = ecs.emplace<TransformComponent>(entity, lightTransform);
+		auto& pLight1 = ecs.emplace<PointLightComponent>(entity);
 		pLight1.m_color = Color(300, 300, 300);
 		//	m_ECS->emplace<MeshRendererComponent>(entity, lightRenderer);
 		pLight1.m_distance = 100;
@@ -333,16 +338,16 @@ void Example1Level::Initialize()
 		lightTransform.transform.m_location = spotLightPositions[i];
 		lightRenderer.m_materialID = objectUnlitMaterial->m_MaterialID;
 		lightRenderer.m_meshID = Primitives::CUBE;
-		sLight = m_ecs->CreateEntity("Spot light" + i);
+		sLight = ecs.CreateEntity("Spot light" + i);
 
 
 		sLight1.m_color = Color(0.05f, 0.05f, 0.05f);
 		sLight1.m_distance = 150;
 		sLight1.m_cutoff = Math::Cos(Math::ToRadians(12.5f));
 		sLight1.m_outerCutoff = Math::Cos(Math::ToRadians(15.5f));
-		m_ecs->emplace<MeshRendererComponent>(sLight, lightRenderer);
-		m_ecs->emplace<TransformComponent>(sLight, lightTransform);
-		m_ecs->emplace<SpotLightComponent>(sLight, sLight1);
+		ecs.emplace<MeshRendererComponent>(sLight, lightRenderer);
+		ecs.emplace<TransformComponent>(sLight, lightTransform);
+		ecs.emplace<SpotLightComponent>(sLight, sLight1);
 
 	}
 

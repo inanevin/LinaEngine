@@ -92,29 +92,11 @@ namespace LinaEngine::World
 		virtual void Initialize() {};
 		virtual void Tick(float delta) {};
 
-		static void SerializeLevelData(const std::string& path, const std::string& levelName, Level& level, LinaEngine::ECS::ECSRegistry& registry);
-		static void DeserializeLevelData(const std::string& path, const std::string& levelName, Level& level, LinaEngine::ECS::ECSRegistry& registry);
+		void SerializeLevelData(const std::string& path, const std::string& levelName);
+		void DeserializeLevelData(const std::string& path, const std::string& levelName);
 
 		LevelData m_levelData;
-		LinaEngine::ECS::ECSRegistry* m_ecs = nullptr;
 
-
-	protected:
-
-		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
-		LinaEngine::Input::InputEngine* m_inputEngine = nullptr;
-
-	private:
-
-		friend class LinaEngine::Application;
-
-		void SetEngineReferences(LinaEngine::ECS::ECSRegistry* reg, LinaEngine::Graphics::RenderEngine& renderEngineIn, LinaEngine::Input::InputEngine& inputEngineIn)
-		{
-			m_ecs = reg;
-			m_renderEngine = &renderEngineIn;
-			m_inputEngine = &inputEngineIn;
-		}
-		
 	};
 }
 

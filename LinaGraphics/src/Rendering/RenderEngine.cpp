@@ -381,6 +381,21 @@ namespace LinaEngine::Graphics
 		return m_loadedMaterials[id];
 	}
 
+	Material& RenderEngine::GetMaterial(const std::string& path)
+	{
+		std::map<int, Material>::iterator it = std::find_if(m_loadedMaterials.begin(), m_loadedMaterials.end(), [path]
+		(std::pair<int, Material> const& item) -> bool { return item.second.GetPath().compare(path) == 0; });
+
+		if (it == m_loadedMaterials.end())
+		{
+			// Mesh not found.
+			LINA_CORE_WARN("Material with the path {0} was not found, returning un-constructed material...", path);
+			return Material();
+		}
+
+		return it->second;
+	}
+
 	Texture& RenderEngine::GetTexture(int id)
 	{
 		if (!TextureExists(id))

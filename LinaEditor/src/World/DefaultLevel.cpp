@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "World/DefaultLevel.hpp"
+#include "Core/Application.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Utility/UtilityFunctions.hpp"
@@ -44,10 +45,11 @@ namespace LinaEditor
 	void DefaultLevel::Initialize()
 	{
 		// Create a simple procedural skybox.
-		Material& mat = m_renderEngine->CreateMaterial(Utility::GetUniqueID(), Shaders::SKYBOX_PROCEDURAL);
+		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+		Material& mat = renderEngine.CreateMaterial(Utility::GetUniqueID(), Shaders::SKYBOX_PROCEDURAL);
 		mat.SetColor("material.startColor", Color(0.8f, 0.8f, 0.8f,1.0f));
 		mat.SetColor("material.endColor", Color(0.2f, 0.2f, 0.2f));
 		mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
-		m_renderEngine->SetSkyboxMaterial(mat);
+		renderEngine.SetSkyboxMaterial(mat);
 	}
 }

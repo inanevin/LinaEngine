@@ -81,7 +81,7 @@ namespace LinaEditor
 		}
 
 
-		void Initialize(LinaEngine::Graphics::Window* appWindow, LinaEngine::Graphics::RenderEngine* renderEngine, LinaEngine::Application* app, LinaEngine::Physics::PhysicsEngine* physicsEngine, LinaEngine::ECS::ECSRegistry* ecs);
+		void Initialize();
 		void Refresh();
 		static LinaEngine::Action::ActionDispatcher& GetEditorDispatcher() { return s_editorDispatcher; }
 

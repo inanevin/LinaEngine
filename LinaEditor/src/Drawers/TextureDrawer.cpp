@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Drawers/TextureDrawer.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Rendering/RenderEngine.hpp"
+#include "Core/Application.hpp"
 #include "Rendering/Texture.hpp"
 
 using namespace LinaEngine::Graphics;
@@ -256,8 +257,8 @@ namespace LinaEditor
 			params.textureParams.wrapT = selectedWrapT;
 			SamplerParameters newParams = params;
 			std::string path = m_selectedTexture->GetPath();
-			m_renderEngine->UnloadTextureResource(m_selectedTexture->GetID());
-			m_selectedTexture = &m_renderEngine->CreateTexture2D(path, newParams);
+			LinaEngine::Application::GetRenderEngine().UnloadTextureResource(m_selectedTexture->GetID());
+			m_selectedTexture = &LinaEngine::Application::GetRenderEngine().CreateTexture2D(path, newParams);
 		}
 
 		// Setup data for drawing texture.

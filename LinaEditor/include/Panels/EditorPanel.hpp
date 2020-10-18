@@ -50,20 +50,14 @@ namespace LinaEditor
 
 	public:
 		
-		EditorPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) : m_position(position), m_size(size), m_guiLayer(&guiLayer) { };
+		EditorPanel() { };
 		virtual ~EditorPanel() {};
-	
+		virtual void Draw(float frameTime) = 0;
 		virtual void Open() { m_show = true; }
 		virtual void Close() { m_show = false; }
-		virtual void Draw(float frameTime) = 0;
-		virtual void Setup() = 0;
-		bool* GetShow() { return &m_show; }
 
 	protected:
 
-		GUILayer* m_guiLayer = nullptr;
-		LinaEngine::Vector2 m_position = LinaEngine::Vector2::Zero;
-		LinaEngine::Vector2 m_size = LinaEngine::Vector2::Zero;
 		bool m_show = true;
 	};
 }

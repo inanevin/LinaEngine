@@ -45,7 +45,7 @@ class SandboxApplication : public LinaEngine::Application
 		props.m_title = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
 		Initialize(props);
 
-		m_editor.Initialize(&GetAppWindow(), &GetRenderEngine(), this, &GetPhysicsEngine(), &GetECSREgistry());
+		m_editor.Initialize(&GetAppWindow(), &GetRenderEngine(), this, &GetPhysicsEngine(), &GetECSRegistry());
 
 		InstallLevel(&m_startupLevel);
 		InitializeLevel(&m_startupLevel);

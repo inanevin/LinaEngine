@@ -52,14 +52,12 @@ namespace LinaEditor
 		EntityDrawer() {};
 		~EntityDrawer() {};
 		
-		void Setup(LinaEngine::ECS::ECSRegistry* ecs);
 		void SetSelectedEntity(LinaEngine::ECS::ECSEntity entity);
 		void DrawSelectedEntity();
 
 	private:
 
 		ComponentDrawer m_componentDrawer;
-		LinaEngine::ECS::ECSRegistry* m_ecs = nullptr;
 		LinaEngine::ECS::ECSEntity m_selectedEntity;
 		bool m_shouldCopyEntityName = false;
 

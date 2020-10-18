@@ -26,6 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "Core/Application.hpp"
 #include "Drawers/EntityDrawer.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Modals/SelectComponentModal.hpp"
@@ -34,12 +35,7 @@ SOFTWARE.
 
 namespace LinaEditor
 {
-	void EntityDrawer::Setup(LinaEngine::ECS::ECSRegistry* ecs)
-	{
-		m_ecs = ecs;
-		m_componentDrawer.RegisterComponentFunctions();
-	}
-
+	
 	void EntityDrawer::SetSelectedEntity(LinaEngine::ECS::ECSEntity entity)
 	{
 		m_selectedEntity = entity;
@@ -48,6 +44,8 @@ namespace LinaEditor
 
 	void EntityDrawer::DrawSelectedEntity()
 	{
+		LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
+
 		// Align.
 		ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(16);
 		WidgetsUtility::PushScaledFont(0.8f);
@@ -60,26 +58,30 @@ namespace LinaEditor
 		{
 			m_shouldCopyEntityName = false;
 			memset(entityName, 0, sizeof entityName);
-			std::string str = m_ecs->GetEntityName(m_selectedEntity);
+			std::string str = ecs.GetEntityName(m_selectedEntity);
 			std::copy(str.begin(), str.end(), entityName);
 		}
 
 		// Entity name input text.
 		WidgetsUtility::FramePaddingX(5);
-		WidgetsUtility::IncrementCursorPosY(-5);  ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
+		WidgetsUtility::IncrementCursorPosY(-5);
+		ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
 		ImGui::InputText("##ename", entityName, IM_ARRAYSIZE(entityName));
-		m_ecs->SetEntityName(m_selectedEntity, entityName);
+		ecs.SetEntityName(m_selectedEntity, entityName);
 		WidgetsUtility::PopStyleVar();
 
 		// Entity enabled toggle button.
-		ImGui::SameLine();	WidgetsUtility::IncrementCursorPosY(1.5f);
-		static bool b = false;	ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
+		ImGui::SameLine();	
+		WidgetsUtility::IncrementCursorPosY(1.5f);
+		static bool b = false;
+		ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
 		WidgetsUtility::ToggleButton("##eactive", &b, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
 
 		// Add component button.
 		ImGui::SetCursorPosX(13);
 		WidgetsUtility::IncrementCursorPosY(6);
-		ImGui::Text("Add "); ImGui::SameLine();
+		ImGui::Text("Add "); 
+		ImGui::SameLine();
 		WidgetsUtility::IncrementCursorPosY(4);
 
 		// add component button.
@@ -90,17 +92,18 @@ namespace LinaEditor
 
 		// Component selection modal.
 		bool o = true;
-		WidgetsUtility::FramePaddingY(8); WidgetsUtility::FramePaddingX(4);
+		WidgetsUtility::FramePaddingY(8);
+		WidgetsUtility::FramePaddingX(4);
 		ImGui::SetNextWindowSize(ImVec2(280, 400));
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
 		if (ImGui::BeginPopupModal("Select Component", &o, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 		{
-			std::vector<std::string> types = m_componentDrawer.GetEligibleComponents(m_ecs, m_selectedEntity);
+			std::vector<std::string> types = m_componentDrawer.GetEligibleComponents(ecs, m_selectedEntity);
 			std::vector<std::string> chosenComponents = SelectComponentModal::Draw(types);
 
 			// Add the selected components to the entity.
 			for (int i = 0; i < chosenComponents.size(); i++)
-				m_componentDrawer.AddComponentToEntity(m_ecs, m_selectedEntity, chosenComponents[i]);
+				m_componentDrawer.AddComponentToEntity(ecs, m_selectedEntity, chosenComponents[i]);
 
 			ImGui::EndPopup();
 		}
@@ -112,13 +115,13 @@ namespace LinaEditor
 		WidgetsUtility::FramePaddingX(4);
 
 		// Visit each component an entity has and add the component to the draw list if its registered as a drawable component.
-		m_ecs->visit(m_selectedEntity, [this](const auto component)
+		ecs.visit(m_selectedEntity, [this](const auto component)
 			{
 				m_componentDrawer.AddIDToDrawList(component);
 			});
 
 		// Draw the added components.
-		m_componentDrawer.DrawComponents(m_ecs, m_selectedEntity);
+		m_componentDrawer.DrawComponents(ecs, m_selectedEntity);
 
 		WidgetsUtility::PopStyleVar();
 

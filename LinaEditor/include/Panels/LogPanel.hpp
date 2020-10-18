@@ -84,11 +84,10 @@ namespace LinaEditor
 
 	public:
 
-		LogPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) : EditorPanel(position, size, guiLayer) {};
+		LogPanel();
 		virtual ~LogPanel() {};
 
 		virtual void Draw(float frameTime) override;
-		virtual void Setup() override;
 		void OnLog(LinaEngine::Log::LogDump dump);
 
 	private:

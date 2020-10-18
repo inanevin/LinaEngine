@@ -96,6 +96,12 @@ namespace LinaEngine
 		int GetCurrentFPS() { return m_currentFPS; }
 
 		static Action::ActionDispatcher& GetEngineDispatcher() { return s_engineDispatcher; }
+		static Application& GetApp() { return *s_application; }
+		static Graphics::Window& GetAppWindow() { return *s_appWindow; }
+		static Graphics::RenderEngine& GetRenderEngine() { return *s_renderEngine; }
+		static Input::InputEngine& GetInputEngine() { return *s_inputEngine; }
+		static Physics::PhysicsEngine& GetPhysicsEngine() { return *s_physicsEngine; }
+		static ECS::ECSRegistry& GetECSRegistry() { return s_ecs; }
 
 	protected:
 
@@ -106,11 +112,6 @@ namespace LinaEngine
 		// Delegates draw commands from physics engine to rendering engine
 		virtual void OnDrawLine(Vector3 from, Vector3 to, Color color, float width = 1.0f);
 
-		Graphics::Window& GetAppWindow() { return *m_appWindow; }
-		Graphics::RenderEngine& GetRenderEngine() { return *m_renderEngine; }
-		Input::InputEngine& GetInputEngine() { return *m_inputEngine; }
-		Physics::PhysicsEngine& GetPhysicsEngine() { return *m_physicsEngine; }
-		ECS::ECSRegistry& GetECSREgistry() { return m_ecs; }
 
 	private:
 
@@ -132,12 +133,13 @@ namespace LinaEngine
 		LayerStack m_layerStack;
 
 		// Active engines running in the application.
-		Input::InputEngine* m_inputEngine = nullptr;
-		Graphics::RenderEngine* m_renderEngine = nullptr;
-		Physics::PhysicsEngine* m_physicsEngine = nullptr;
-		ECS::ECSRegistry m_ecs;
+		static Application* s_application;
+		static Input::InputEngine* s_inputEngine;
+		static Graphics::RenderEngine* s_renderEngine;
+		static Physics::PhysicsEngine* s_physicsEngine;
+		static ECS::ECSRegistry s_ecs;
+		static Graphics::Window* s_appWindow;
 
-		Graphics::Window* m_appWindow = nullptr;
 		Input::InputDevice* m_inputDevice = nullptr;
 		World::Level* m_currentLevel = nullptr;
 

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "Drawers/EntityDrawer.hpp"
 #include "Rendering/RenderEngine.hpp"
+#include "Core/Application.hpp"
 #include "Rendering/Mesh.hpp"
 #include "Core/EditorApplication.hpp"
 #include "IconsFontAwesome5.h"
@@ -39,18 +40,22 @@ namespace LinaEditor
 {
 	using namespace LinaEngine::ECS;
 	using namespace LinaEngine;
-	static bool openCompExistsModal;
+	static bool s_openCompExistsModal;
 
-	void PropertiesPanel::Setup()
+	PropertiesPanel::PropertiesPanel()
 	{
-		m_ecs = m_guiLayer->GetECS();
-		m_renderEngine = m_guiLayer->GetRenderEngine();
-
-		m_textureDrawer.Setup(m_renderEngine);
-		m_entityDrawer.Setup(m_ecs);
-
 		EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::ECS::ECSEntity>("##lina_propsPanel_entity", LinaEngine::Action::ActionType::EntitySelected,
 			std::bind(&PropertiesPanel::EntitySelected, this, std::placeholders::_1));
+
+		EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::Graphics::Mesh*>("##lina_propsPanel_mesh", LinaEngine::Action::ActionType::MeshSelected,
+			std::bind(&PropertiesPanel::MeshSelected, this, std::placeholders::_1));
+
+		EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::Graphics::Material*>("##lina_propsPanel_material", LinaEngine::Action::ActionType::MaterialSelected,
+			std::bind(&PropertiesPanel::MaterialSelected, this, std::placeholders::_1));
+
+
+		EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::Graphics::Texture*>("##lina_propsPanel_texture", LinaEngine::Action::ActionType::TextureSelected,
+			std::bind(&PropertiesPanel::TextureSelected, this, std::placeholders::_1));
 
 		EditorApplication::GetEditorDispatcher().SubscribeAction<void*>("##lina_propsPanel_unselect", LinaEngine::Action::ActionType::Unselect,
 			std::bind(&PropertiesPanel::Unselect, this));
@@ -62,21 +67,25 @@ namespace LinaEditor
 		m_entityDrawer.SetSelectedEntity(selectedEntity);
 	}
 
-	void PropertiesPanel::Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path)
+	void PropertiesPanel::TextureSelected(LinaEngine::Graphics::Texture* texture)
 	{
 		m_currentDrawType = DrawType::Texture2D;
 		m_textureDrawer.SetSelectedTexture(texture);
 	}
 
-	void PropertiesPanel::MeshSelected(LinaEngine::Graphics::Mesh* mesh, int id, std::string& path)
+	void PropertiesPanel::MaterialSelected(LinaEngine::Graphics::Material* material)
+	{
+		m_selectedMaterial = material;
+		m_currentDrawType = DrawType::Material;
+	}
+	void PropertiesPanel::MeshSelected(LinaEngine::Graphics::Mesh* mesh)
 	{
 		m_selectedMesh = mesh;
 		m_currentDrawType = DrawType::Mesh;
-		m_selectedMeshID = id;
-		m_selectedMeshPath = path;
 		LinaEngine::Graphics::MeshParameters& params = mesh->GetParameters();
 		m_currentMeshParams = params;
 	}
+
 
 	void PropertiesPanel::Draw(float frameTime)
 	{
@@ -86,9 +95,6 @@ namespace LinaEditor
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 			ImVec2 work_area_pos = viewport->GetWorkPos();
-			ImVec2 panelSize = ImVec2(m_size.x, m_size.y);
-			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
-			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
 
@@ -132,8 +138,8 @@ namespace LinaEditor
 		if (ImGui::Button("Apply"))
 		{
 			Graphics::MeshParameters params = m_currentMeshParams;
-			m_renderEngine->UnloadMeshResource(m_selectedMeshID);
-			m_selectedMesh = &m_renderEngine->CreateMesh(m_selectedMeshID, m_selectedMeshPath, params);
+		//	LinaEngine::Application::GetRenderEngine().UnloadMeshResource(m_selectedMeshID);
+		//	m_selectedMesh = &m_renderEngine->CreateMesh(m_selectedMeshID, m_selectedMeshPath, params);
 		}
 	}
 	void PropertiesPanel::DrawMaterialProperties()

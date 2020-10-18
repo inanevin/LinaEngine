@@ -68,11 +68,10 @@ namespace LinaEditor
 			ShadowMap
 		};
 		
-		ScenePanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) :EditorPanel(position, size, guiLayer) {};
+		ScenePanel();
 		virtual ~ScenePanel() {};
 
 		virtual void Draw(float frameTime) override;
-		virtual void Setup() override;
 
 		void EntitySelected(LinaEngine::ECS::ECSEntity entity);
 		void Unselected();
@@ -84,7 +83,6 @@ namespace LinaEditor
 
 		LinaEngine::ECS::TransformComponent* m_selectedTransform = nullptr;
 		DrawMode m_drawMode = DrawMode::FinalImage;
-		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
 	};
 }
 

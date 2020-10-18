@@ -46,7 +46,7 @@ namespace LinaEditor
 {
 	ComponentDrawer* ComponentDrawer::s_activeInstance = nullptr;
 
-	void ComponentDrawer::RegisterComponentFunctions()
+	ComponentDrawer::ComponentDrawer()
 	{
 		// Display names.
 		std::get<0>(m_componentDrawFuncMap[GetTypeID<TransformComponent>()]) = "Transformation";
@@ -83,13 +83,13 @@ namespace LinaEditor
 	}
 
 	// Use reflection for gods sake later on.
-	std::vector<std::string> ComponentDrawer::GetEligibleComponents(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
+	std::vector<std::string> ComponentDrawer::GetEligibleComponents(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 	{
 		std::vector<std::string> eligibleTypes;
 		std::vector<ECSTypeID> typeIDs;
 
 		// Store all components of the entity.
-		ecs->visit(entity, [&typeIDs](const auto component)
+		ecs.visit(entity, [&typeIDs](const auto component)
 			{
 				ECSTypeID id = component;
 				typeIDs.push_back(id);
@@ -105,7 +105,7 @@ namespace LinaEditor
 		return eligibleTypes;
 	}
 
-	void ComponentDrawer::AddComponentToEntity(ECSRegistry* ecs, ECSEntity entity, const std::string& comp)
+	void ComponentDrawer::AddComponentToEntity(ECSRegistry& ecs, ECSEntity entity, const std::string& comp)
 	{
 		// Call the add function of the type when the requested strings match.
 		for (std::map<ECSTypeID, ComponentValueTuple>::iterator it = m_componentDrawFuncMap.begin(); it != m_componentDrawFuncMap.end(); ++it)
@@ -135,7 +135,7 @@ namespace LinaEditor
 		m_componentDrawList.clear();
 	}
 
-	void ComponentDrawer::DrawComponents(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
+	void ComponentDrawer::DrawComponents(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 	{
 		s_activeInstance = this;
 
@@ -229,10 +229,10 @@ const char* rigidbodyShapes[]
 };
 
 
-void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
+void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 {
 	// Get component
-	TransformComponent& transform = ecs->get<TransformComponent>(entity);
+	TransformComponent& transform = ecs.get<TransformComponent>(entity);
 
 	// Align.
 	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -246,13 +246,13 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	// Remove if requested.
 	if (removeComponent)
 	{
-		ecs->remove<TransformComponent>(entity);
+		ecs.remove<TransformComponent>(entity);
 		return;
 	}
 
 	// Refresh
 	if (refreshPressed)
-		ecs->replace<TransformComponent>(entity, TransformComponent());
+		ecs.replace<TransformComponent>(entity, TransformComponent());
 
 	// Draw component
 	if (open)
@@ -270,10 +270,10 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	WidgetsUtility::DrawBeveledLine();
 }
 
-void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
+void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 {
 	// Get component
-	RigidbodyComponent& rb = ecs->get<RigidbodyComponent>(entity);
+	RigidbodyComponent& rb = ecs.get<RigidbodyComponent>(entity);
 
 	// Align.
 	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -287,13 +287,13 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	// Remove if requested.
 	if (removeComponent)
 	{
-		ecs->remove<RigidbodyComponent>(entity);
+		ecs.remove<RigidbodyComponent>(entity);
 		return;
 	}
 
 	// Refresh
 	if (refreshPressed)
-		ecs->replace<RigidbodyComponent>(entity, RigidbodyComponent());
+		ecs.replace<RigidbodyComponent>(entity, RigidbodyComponent());
 
 	// Draw component.
 	if (open)
@@ -347,7 +347,7 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		if (ImGui::Button("Apply"))
-			ecs->replace<LinaEngine::ECS::RigidbodyComponent>(entity, rb);
+			ecs.replace<LinaEngine::ECS::RigidbodyComponent>(entity, rb);
 
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 	}
@@ -356,10 +356,10 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	WidgetsUtility::DrawBeveledLine();
 }
 
-void LinaEngine::ECS::CameraComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
+void LinaEngine::ECS::CameraComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 {
 	// Get component
-	CameraComponent& camera = ecs->get<CameraComponent>(entity);
+	CameraComponent& camera = ecs.get<CameraComponent>(entity);
 
 	// Align.
 	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -373,13 +373,13 @@ void LinaEngine::ECS::CameraComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRe
 	// Remove if requested.
 	if (removeComponent)
 	{
-		ecs->remove<CameraComponent>(entity);
+		ecs.remove<CameraComponent>(entity);
 		return;
 	}
 
 	// Refresh
 	if (refreshPressed)
-		ecs->replace<CameraComponent>(entity, CameraComponent());
+		ecs.replace<CameraComponent>(entity, CameraComponent());
 
 	// Draw component.
 	if (open)
@@ -398,10 +398,10 @@ void LinaEngine::ECS::CameraComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRe
 	WidgetsUtility::DrawBeveledLine();
 }
 
-void LinaEngine::ECS::DirectionalLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
+void LinaEngine::ECS::DirectionalLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 {
 	// Get component
-	DirectionalLightComponent& dLight = ecs->get<DirectionalLightComponent>(entity);
+	DirectionalLightComponent& dLight = ecs.get<DirectionalLightComponent>(entity);
 
 	// Align.
 	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -415,13 +415,13 @@ void LinaEngine::ECS::DirectionalLightComponent::COMPONENT_DRAWFUNC(LinaEngine::
 	// Remove if requested.
 	if (removeComponent)
 	{
-		ecs->remove<DirectionalLightComponent>(entity);
+		ecs.remove<DirectionalLightComponent>(entity);
 		return;
 	}
 
 	// Refresh
 	if (refreshPressed)
-		ecs->replace<DirectionalLightComponent>(entity, DirectionalLightComponent());
+		ecs.replace<DirectionalLightComponent>(entity, DirectionalLightComponent());
 
 	// Draw component.
 	if (open)
@@ -440,10 +440,10 @@ void LinaEngine::ECS::DirectionalLightComponent::COMPONENT_DRAWFUNC(LinaEngine::
 	WidgetsUtility::DrawBeveledLine();
 }
 
-void LinaEngine::ECS::PointLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
+void LinaEngine::ECS::PointLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 {
 	// Get component
-	PointLightComponent& pLight = ecs->get<PointLightComponent>(entity);
+	PointLightComponent& pLight = ecs.get<PointLightComponent>(entity);
 
 	// Align.
 	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -457,13 +457,13 @@ void LinaEngine::ECS::PointLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::E
 	// Remove if requested.
 	if (removeComponent)
 	{
-		ecs->remove<PointLightComponent>(entity);
+		ecs.remove<PointLightComponent>(entity);
 		return;
 	}
 
 	// Refresh
 	if (refreshPressed)
-		ecs->replace<PointLightComponent>(entity, PointLightComponent());
+		ecs.replace<PointLightComponent>(entity, PointLightComponent());
 
 	// Draw component.
 	if (open)
@@ -480,10 +480,10 @@ void LinaEngine::ECS::PointLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::E
 	WidgetsUtility::DrawBeveledLine();
 }
 
-void LinaEngine::ECS::SpotLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
+void LinaEngine::ECS::SpotLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 {
 	// Get component
-	SpotLightComponent& sLight = ecs->get<SpotLightComponent>(entity);
+	SpotLightComponent& sLight = ecs.get<SpotLightComponent>(entity);
 
 	// Align.
 	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -497,13 +497,13 @@ void LinaEngine::ECS::SpotLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	// Remove if requested.
 	if (removeComponent)
 	{
-		ecs->remove<SpotLightComponent>(entity);
+		ecs.remove<SpotLightComponent>(entity);
 		return;
 	}
 
 	// Refresh
 	if (refreshPressed)
-		ecs->replace<SpotLightComponent>(entity, SpotLightComponent());
+		ecs.replace<SpotLightComponent>(entity, SpotLightComponent());
 
 	// Draw component.
 	if (open)
@@ -522,10 +522,10 @@ void LinaEngine::ECS::SpotLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	WidgetsUtility::DrawBeveledLine();
 }
 
-void LinaEngine::ECS::FreeLookComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
+void LinaEngine::ECS::FreeLookComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 {
 	// Get component
-	FreeLookComponent& freeLook = ecs->get<FreeLookComponent>(entity);
+	FreeLookComponent& freeLook = ecs.get<FreeLookComponent>(entity);
 
 	// Align.
 	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -539,13 +539,13 @@ void LinaEngine::ECS::FreeLookComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECS
 	// Remove if requested.
 	if (removeComponent)
 	{
-		ecs->remove<FreeLookComponent>(entity);
+		ecs.remove<FreeLookComponent>(entity);
 		return;
 	}
 
 	// Refresh
 	if (refreshPressed)
-		ecs->replace<FreeLookComponent>(entity, FreeLookComponent());
+		ecs.replace<FreeLookComponent>(entity, FreeLookComponent());
 
 	// Draw component.
 	if (open)
@@ -562,10 +562,10 @@ void LinaEngine::ECS::FreeLookComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECS
 	WidgetsUtility::DrawBeveledLine();
 }
 
-void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
+void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 {
 	// Get component
-	MeshRendererComponent& renderer = ecs->get<MeshRendererComponent>(entity);
+	MeshRendererComponent& renderer = ecs.get<MeshRendererComponent>(entity);
 
 	// Align.
 	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -579,13 +579,13 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 	// Remove if requested.
 	if (removeComponent)
 	{
-		ecs->remove<MeshRendererComponent>(entity);
+		ecs.remove<MeshRendererComponent>(entity);
 		return;
 	}
 
 	// Refresh
 	if (refreshPressed)
-		ecs->replace<MeshRendererComponent>(entity, MeshRendererComponent());
+		ecs.replace<MeshRendererComponent>(entity, MeshRendererComponent());
 
 	// Draw component.
 	if (open)
@@ -602,10 +602,10 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 	WidgetsUtility::DrawBeveledLine();
 }
 
-void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity)
+void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 {
 	// Get component
-	SpriteRendererComponent& renderer = ecs->get<SpriteRendererComponent>(entity);
+	SpriteRendererComponent& renderer = ecs.get<SpriteRendererComponent>(entity);
 
 	// Align.
 	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -619,13 +619,13 @@ void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::EC
 	// Remove if requested.
 	if (removeComponent)
 	{
-		ecs->remove<SpriteRendererComponent>(entity);
+		ecs.remove<SpriteRendererComponent>(entity);
 		return;
 	}
 
 	// Refresh
 	if (refreshPressed)
-		ecs->replace<SpriteRendererComponent>(entity, SpriteRendererComponent());
+		ecs.replace<SpriteRendererComponent>(entity, SpriteRendererComponent());
 
 	// Draw component.
 	if (open)

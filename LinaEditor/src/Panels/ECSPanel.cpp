@@ -32,20 +32,18 @@ SOFTWARE.
 #include "Utility/Log.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Core/EditorApplication.hpp"
+#include "Core/Application.hpp"
 
 namespace LinaEditor
 {
 	using namespace LinaEngine::ECS;
 	using namespace LinaEngine;
 	
-	void ECSPanel::Setup()
+	ECSPanel::ECSPanel()
 	{
-		// Store references.
-		m_ecs = m_guiLayer->GetECS();
-		
-		// Refresh entity list.
 		Refresh();
 	}
+
 
 	void ECSPanel::Refresh()
 	{
@@ -54,7 +52,7 @@ namespace LinaEditor
 		EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
 
 		// add scene entitites to the list.
-		m_ecs->each([this](auto entity)
+		LinaEngine::Application::GetECSRegistry().each([this](auto entity)
 			{
 				m_entityList.push_back(entity);
 			});
@@ -64,13 +62,11 @@ namespace LinaEditor
 	{
 		if (m_show)
 		{
-			
+			LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
+
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 			ImVec2 work_area_pos = viewport->GetWorkPos();
-			ImVec2 panelSize = ImVec2(m_size.x, m_size.y);			
-			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
-			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;;
 
 			if (ImGui::Begin("Entities", &m_show, flags))
@@ -86,7 +82,7 @@ namespace LinaEditor
 					if (ImGui::BeginMenu("Create"))
 					{
 						if (ImGui::MenuItem("Entity"))
-							m_entityList.push_back(m_ecs->CreateEntity("Entity"));
+							m_entityList.push_back(ecs.CreateEntity("Entity"));
 
 						ImGui::EndMenu();
 					}
@@ -100,12 +96,12 @@ namespace LinaEditor
 					// Selection
 					entityCounter++;
 					ECSEntity& entity = *it;
-					strcpy(selectedEntityName, m_ecs->GetEntityName(entity).c_str());
+					strcpy(selectedEntityName, ecs.GetEntityName(entity).c_str());
 					if (WidgetsUtility::SelectableInput("entSelectable" + entityCounter, m_selectedEntity == entity, ImGuiSelectableFlags_SelectOnClick, selectedEntityName, IM_ARRAYSIZE(selectedEntityName)))
 					{
 						m_selectedEntity = entity;
 						EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, entity);
-						m_ecs->SetEntityName(entity, selectedEntityName);
+						ecs.SetEntityName(entity, selectedEntityName);
 					}
 
 					// Deselect.

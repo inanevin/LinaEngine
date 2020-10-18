@@ -36,10 +36,10 @@ SOFTWARE.
 
 namespace LinaEditor
 {
-	void LogPanel::Setup()
+	LogPanel::LogPanel()
 	{
 		// We set our dispatcher & subscribe in order to receive log events.
-		m_guiLayer->GetApp()->GetEngineDispatcher().SubscribeAction<LinaEngine::Log::LogDump>("##lina_logPanel_onLog", LinaEngine::Action::ActionType::MessageLogged, std::bind(&LogPanel::OnLog, this, std::placeholders::_1));
+		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::Log::LogDump>("##lina_logPanel_onLog", LinaEngine::Action::ActionType::MessageLogged, std::bind(&LogPanel::OnLog, this, std::placeholders::_1));
 
 		// Add icon buttons.
 		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_debug", "Debug", ICON_FA_BUG, LinaEngine::Log::LogLevel::Debug, LOGPANEL_COLOR_DEBUG_DEFAULT, LOGPANEL_COLOR_DEBUG_HOVERED, LOGPANEL_COLOR_DEBUG_PRESSED));
@@ -48,15 +48,14 @@ namespace LinaEditor
 		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_warn", "Warn", ICON_FA_EXCLAMATION_TRIANGLE, LinaEngine::Log::LogLevel::Warn, LOGPANEL_COLOR_WARN_DEFAULT, LOGPANEL_COLOR_WARN_HOVERED, LOGPANEL_COLOR_WARN_PRESSED));
 		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_error", "Error", ICON_FA_TIMES_CIRCLE, LinaEngine::Log::LogLevel::Error, LOGPANEL_COLOR_ERR_DEFAULT, LOGPANEL_COLOR_ERR_HOVERED, LOGPANEL_COLOR_ERR_PRESSED));
 		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_critical", "Critical", ICON_FA_SKULL_CROSSBONES, LinaEngine::Log::LogLevel::Critical, LOGPANEL_COLOR_CRIT_DEFAULT, LOGPANEL_COLOR_CRIT_HOVERED, LOGPANEL_COLOR_CRIT_PRESSED));
-	
+
 		// To be retrieved from editor settings file later on.
 		m_logLevelFlags = LinaEngine::Log::LogLevel::Critical | LinaEngine::Log::LogLevel::Debug | LinaEngine::Log::LogLevel::Trace | LinaEngine::Log::LogLevel::Info | LinaEngine::Log::LogLevel::Error | LinaEngine::Log::LogLevel::Warn;
-		
+
 		// Update icon colors depending on the chosen log levels
 		for (int i = 0; i < m_logLevelIconButtons.size(); i++)
 			m_logLevelIconButtons[i].UpdateColors(&m_logLevelFlags);
 	}
-
 
 	void LogPanel::Draw(float frameTime)
 	{
@@ -78,9 +77,6 @@ namespace LinaEditor
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 			ImVec2 work_area_pos = viewport->GetWorkPos();
-			ImVec2 panelSize = ImVec2(m_size.x, m_size.y);
-			ImGui::SetNextWindowSize(panelSize, ImGuiCond_FirstUseEver);
-			ImGui::SetNextWindowBgAlpha(1.0f);
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 
 

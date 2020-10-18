@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "World/Level.hpp"
 #include "ECS/ECS.hpp"
+#include "Core/Application.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
@@ -41,8 +42,10 @@ SOFTWARE.
 
 namespace LinaEngine::World
 {
-	void Level::SerializeLevelData(const std::string& path, const std::string& levelName, Level& level, LinaEngine::ECS::ECSRegistry& registry)
+	void Level::SerializeLevelData(const std::string& path, const std::string& levelName)
 	{
+		LinaEngine::ECS::ECSRegistry& registry = LinaEngine::Application::GetECSRegistry();
+
 
 		std::ofstream registrySnapshotStream(path + "/" + levelName + "_ecsSnapshot.linasnapshot");
 		{
@@ -64,7 +67,7 @@ namespace LinaEngine::World
 		{
 			cereal::BinaryOutputArchive oarchive(levelDataStream); // Create an output archive
 
-			oarchive(level.m_levelData); // Write the data to the archive
+			oarchive(m_levelData); // Write the data to the archive
 		} // archive goes out of scope, ensuring all contents are flushed
 
 		std::ofstream registryStream(path + "/" + levelName + "_ecsReg.linaregistry");
@@ -76,16 +79,16 @@ namespace LinaEngine::World
 
 	}
 
-	void Level::DeserializeLevelData(const std::string& path, const std::string& levelName, Level& level, LinaEngine::ECS::ECSRegistry& registry)
+	void Level::DeserializeLevelData(const std::string& path, const std::string& levelName)
 	{
-
+		LinaEngine::ECS::ECSRegistry& registry = LinaEngine::Application::GetECSRegistry();
 
 		std::ifstream levelDataStream(path + "/" + levelName + ".linaleveldata");
 		{
 			cereal::BinaryInputArchive iarchive(levelDataStream);
 
 			// Read the data into it.
-			iarchive(level.m_levelData);
+			iarchive(m_levelData);
 
 		}
 

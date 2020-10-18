@@ -38,9 +38,17 @@ SOFTWARE.
 namespace LinaEngine
 {
 	Action::ActionDispatcher Application::s_engineDispatcher;
+	Input::InputEngine* Application::s_inputEngine = nullptr;
+	Graphics::RenderEngine* Application::s_renderEngine = nullptr;
+	Physics::PhysicsEngine* Application::s_physicsEngine = nullptr;
+	Graphics::Window* Application::s_appWindow = nullptr;
+	ECS::ECSRegistry Application::s_ecs;
+	Application* Application::s_application = nullptr;
 
 	Application::Application()
 	{
+		s_application = this;
+
 		s_engineDispatcher.Initialize(Action::ActionType::EngineActionsStartIndex, Action::ActionType::EngineActionsEndIndex);
 
 		// Make sure log event is delegated to the application.
@@ -53,14 +61,14 @@ namespace LinaEngine
 	void Application::Initialize(Graphics::WindowProperties& props)
 	{
 		// Get engine instances.
-		m_appWindow = CreateContextWindow();
+		s_appWindow = CreateContextWindow();
 		m_inputDevice = CreateInputDevice();
-		m_renderEngine = CreateRenderEngine();
-		m_inputEngine = CreateInputEngine();
-		m_physicsEngine = CreatePhysicsEngine();
+		s_renderEngine = CreateRenderEngine();
+		s_inputEngine = CreateInputEngine();
+		s_physicsEngine = CreatePhysicsEngine();
 
 		// Create main window.
-		bool windowCreationSuccess = m_appWindow->CreateContext(props);
+		bool windowCreationSuccess = s_appWindow->CreateContext(props);
 		if (!windowCreationSuccess)
 		{
 			LINA_CORE_ERR("Window Creation Failed!");
@@ -76,16 +84,16 @@ namespace LinaEngine
 		m_postSceneDrawCallback = std::bind(&Application::OnPostSceneDraw, this);
 
 		// Set event callback for main window.
-		m_appWindow->SetKeyCallback(m_keyCallback);
-		m_appWindow->SetMouseCallback(m_mouseCallback);
-		m_appWindow->SetWindowResizeCallback(m_WwndowResizeCallback);
-		m_appWindow->SetWindowClosedCallback(m_windowClosedCallback);
-		m_renderEngine->SetPostSceneDrawCallback(m_postSceneDrawCallback);
-		m_renderEngine->SetViewportDisplay(Vector2::Zero, m_appWindow->GetSize());
+		s_appWindow->SetKeyCallback(m_keyCallback);
+		s_appWindow->SetMouseCallback(m_mouseCallback);
+		s_appWindow->SetWindowResizeCallback(m_WwndowResizeCallback);
+		s_appWindow->SetWindowClosedCallback(m_windowClosedCallback);
+		s_renderEngine->SetPostSceneDrawCallback(m_postSceneDrawCallback);
+		s_renderEngine->SetViewportDisplay(Vector2::Zero, s_appWindow->GetSize());
 
-		m_inputEngine->Initialize(m_appWindow->GetNativeWindow(), m_inputDevice);
-		m_physicsEngine->Initialize(m_ecs, m_drawLineCallback);
-		m_renderEngine->Initialize(m_ecs, *m_appWindow);
+		s_inputEngine->Initialize(s_appWindow->GetNativeWindow(), m_inputDevice);
+		s_physicsEngine->Initialize(s_ecs, m_drawLineCallback);
+		s_renderEngine->Initialize(s_ecs, *s_appWindow);
 
 		m_running = true;
 	}
@@ -93,20 +101,20 @@ namespace LinaEngine
 
 	Application::~Application()
 	{
-		if (m_physicsEngine)
-			delete m_physicsEngine;
+		if (s_physicsEngine)
+			delete s_physicsEngine;
 
-		if (m_inputEngine)
-			delete m_inputEngine;
+		if (s_inputEngine)
+			delete s_inputEngine;
 
-		if (m_renderEngine)
-			delete m_renderEngine;
+		if (s_renderEngine)
+			delete s_renderEngine;
 
 		if (m_inputDevice)
 			delete m_inputDevice;
 
-		if (m_appWindow)
-			delete m_appWindow;
+		if (s_appWindow)
+			delete s_appWindow;
 
 		LINA_CORE_TRACE("[Destructor] -> Application ({0})", typeid(*this).name());
 	}
@@ -124,15 +132,15 @@ namespace LinaEngine
 	{
 		double t = 0.0;
 		double dt = 0.01;
-		double currentTime = (double)m_appWindow->GetTime();
+		double currentTime = (double)s_appWindow->GetTime();
 		double accumulator = 0.0;
 
 		while (m_running)
 		{
 			// Update input engine.
-			m_inputEngine->Tick();
+			s_inputEngine->Tick();
 
-			double newTime = (double)m_appWindow->GetTime();
+			double newTime = (double)s_appWindow->GetTime();
 			double frameTime = newTime - currentTime;
 
 			// Update layers.
@@ -151,7 +159,7 @@ namespace LinaEngine
 
 			while (accumulator >= dt)
 			{
-				m_physicsEngine->Tick(dt);
+				s_physicsEngine->Tick(dt);
 				t += dt;
 				accumulator -= dt;
 			}
@@ -160,10 +168,10 @@ namespace LinaEngine
 			{
 				// render level.
 				if (m_activeLevelExists)
-					m_renderEngine->Render();
+					s_renderEngine->Render();
 
 				// Update gui layers & swap buffers
-				m_renderEngine->TickAndSwap(frameTime);
+				s_renderEngine->TickAndSwap(frameTime);
 			}
 
 			// Simple FPS count
@@ -196,26 +204,26 @@ namespace LinaEngine
 		else
 			m_canRender = true;
 
-		m_renderEngine->SetViewportDisplay(Vector2::Zero, size);
+		s_renderEngine->SetViewportDisplay(Vector2::Zero, size);
 
 		s_engineDispatcher.DispatchAction<Vector2>(Action::ActionType::WindowResized, size);
 	}
 
 	void Application::OnPostSceneDraw()
 	{
-		m_physicsEngine->OnPostSceneDraw();
+		s_physicsEngine->OnPostSceneDraw();
 
 		s_engineDispatcher.DispatchAction<void*>(Action::ActionType::PostSceneDraw, 0);
 	}
 
 	void Application::KeyCallback(int key, int action)
 	{
-		m_inputEngine->DispatchKeyAction(static_cast<LinaEngine::Input::InputCode::Key>(key), action);
+		s_inputEngine->DispatchKeyAction(static_cast<LinaEngine::Input::InputCode::Key>(key), action);
 	}
 
 	void Application::MouseCallback(int button, int action)
 	{
-		m_inputEngine->DispatchMouseAction(static_cast<LinaEngine::Input::InputCode::Mouse>(button), action);
+		s_inputEngine->DispatchMouseAction(static_cast<LinaEngine::Input::InputCode::Mouse>(button), action);
 	}
 
 	void Application::PushLayer(Layer* layer)
@@ -231,7 +239,6 @@ namespace LinaEngine
 
 	bool Application::InstallLevel(LinaEngine::World::Level* level)
 	{
-		level->SetEngineReferences(&m_ecs, *m_renderEngine, *m_inputEngine);
 		return level->Install();
 	}
 
@@ -256,7 +263,7 @@ namespace LinaEngine
 
 	void Application::OnDrawLine(Vector3 from, Vector3 to, Color color, float width)
 	{
-		m_renderEngine->DrawLine(from, to, color, width);
+		s_renderEngine->DrawLine(from, to, color, width);
 	}
 }
 

@@ -47,7 +47,7 @@ Timestamp: 10/13/2020 2:34:21 PM
 namespace LinaEditor
 {
 
-	typedef std::function<void(LinaEngine::ECS::ECSRegistry*, LinaEngine::ECS::ECSEntity)> ComponentFunction;
+	typedef std::function<void(LinaEngine::ECS::ECSRegistry&, LinaEngine::ECS::ECSEntity)> ComponentFunction;
 	typedef std::tuple<std::string, ComponentFunction, ComponentFunction> ComponentValueTuple;
 
 	class ComponentDrawer
@@ -55,13 +55,15 @@ namespace LinaEditor
 		
 	public:
 		
-		void RegisterComponentFunctions();
-		std::vector<std::string> GetEligibleComponents(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity);
-		void AddComponentToEntity(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity, const std::string& comp);
+		ComponentDrawer();
+		~ComponentDrawer() {};
+
+		std::vector<std::string> GetEligibleComponents(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
+		void AddComponentToEntity(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity, const std::string& comp);
 		void SwapComponentOrder(LinaEngine::ECS::ECSTypeID id1, LinaEngine::ECS::ECSTypeID id2);
 		void AddIDToDrawList(LinaEngine::ECS::ECSTypeID id);
 		void ClearDrawList();
-		void DrawComponents(LinaEngine::ECS::ECSRegistry* ecs, LinaEngine::ECS::ECSEntity entity);
+		void DrawComponents(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
 		bool DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconFolor = ImVec4(1, 1, 1, 1), const ImVec2& iconOffset = ImVec2(0, 0));
 
 	public:

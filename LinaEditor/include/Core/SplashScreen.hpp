@@ -61,11 +61,7 @@ namespace LinaEditor
 		~SplashScreen();
 		
 		void Draw();
-		void Setup(LinaEngine::Graphics::Window* splashWindow, LinaEngine::Graphics::RenderEngine* renderEngine, const LinaEngine::Graphics::WindowProperties& props);
-
-	private:
-	
-		LinaEngine::Graphics::Window* m_window = nullptr;
+		void Setup(const LinaEngine::Graphics::WindowProperties& props);
 	};
 }
 

@@ -38,7 +38,6 @@ src/Modals/SelectComponentModal.cpp
 # Panels
 src/Panels/EditorPanel.cpp
 src/Panels/ECSPanel.cpp
-src/Panels/MaterialPanel.cpp
 src/Panels/ResourcesPanel.cpp
 src/Panels/ScenePanel.cpp
 src/Panels/PropertiesPanel.cpp
@@ -89,7 +88,6 @@ include/Modals/SelectComponentModal.hpp
 # Panels
 include/Panels/EditorPanel.hpp
 include/Panels/ECSPanel.hpp
-include/Panels/MaterialPanel.hpp
 include/Panels/ResourcesPanel.hpp
 include/Panels/ScenePanel.hpp
 include/Panels/PropertiesPanel.hpp

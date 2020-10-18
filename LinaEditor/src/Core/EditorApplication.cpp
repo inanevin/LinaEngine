@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/EditorApplication.hpp"
+#include "Core/Application.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Panels/ECSPanel.hpp"
 #include "Core/SplashScreen.hpp"
@@ -41,7 +42,7 @@ namespace LinaEditor
 		s_editorDispatcher.Initialize(LinaEngine::Action::ActionType::EditorActionsStartIndex, LinaEngine::Action::ActionType::EditorActionsEndIndex);
 	}
 
-	void EditorApplication::Initialize(LinaEngine::Graphics::Window* appWindow, LinaEngine::Graphics::RenderEngine* renderEngine, LinaEngine::Application* app, LinaEngine::Physics::PhysicsEngine* physicsEngine, LinaEngine::ECS::ECSRegistry* ecs)
+	void EditorApplication::Initialize()
 	{
 		LINA_CLIENT_TRACE("[Initialization] -> Editor Application ({0})", typeid(*this).name());
 
@@ -52,17 +53,16 @@ namespace LinaEditor
 		splashProps.m_resizable = false;
 
 		SplashScreen* splash = new SplashScreen();
-		splash->Setup(appWindow, renderEngine, splashProps);
+		splash->Setup(splashProps);
 		splash->Draw(); // We should carry this over to a separate thread later on when things are more complex and requires data shown to the user while loading.
 
 		// Create layers
 		m_guiLayer = new GUILayer();
-		m_guiLayer->Setup(*appWindow, *renderEngine, *physicsEngine, app, *ecs);
 
 		// Remove splash.
 		delete splash;
 
-		renderEngine->PushLayer(m_guiLayer);
+		LinaEngine::Application::GetRenderEngine().PushLayer(m_guiLayer);
 
 	}
 

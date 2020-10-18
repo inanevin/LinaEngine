@@ -28,18 +28,12 @@ SOFTWARE.
 
 #include "Core/GUILayer.hpp"
 #include "Core/Application.hpp"
-#include "Panels/ECSPanel.hpp"
-#include "Panels/MaterialPanel.hpp"
-#include "Panels/ResourcesPanel.hpp"
-#include "Panels/ScenePanel.hpp"
-#include "Panels/PropertiesPanel.hpp"
-#include "Panels/LogPanel.hpp"
-#include "Panels/HeaderPanel.hpp"
 #include "Utility/Log.hpp"
 #include "Physics/PhysicsEngine.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "World/DefaultLevel.hpp"
 #include "Core/EditorCommon.hpp"
+#include "Core/EditorApplication.hpp"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -68,16 +62,16 @@ namespace LinaEditor
 	GUILayer::~GUILayer()
 	{
 		LINA_CLIENT_TRACE("[Destructor] -> GUI Layer ({0})", typeid(*this).name());
-
-		for (int i = 0; i < m_panels.size(); i++)
-			delete m_panels[i];
 	}
 
 	void GUILayer::OnAttach()
 	{
 		LINA_CLIENT_INFO("Editor GUI Layer Attached");
 
-		// Setup Dear ImGui context
+		// Listen to menu bar clicked events.
+		EditorApplication::GetEditorDispatcher().SubscribeAction<MenuBarItems>("##linaeditor_menubarclicked", LinaEngine::Action::ActionType::MenuItemClicked, std::bind(&GUILayer::DispatchMenuBarClickedAction, this, std::placeholders::_1));
+		
+			// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -102,7 +96,7 @@ namespace LinaEditor
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		ImGui::StyleColorsDark();
 
-		GLFWwindow* window = static_cast<GLFWwindow*>(m_appWindow->GetNativeWindow());
+		GLFWwindow* window = static_cast<GLFWwindow*>(LinaEngine::Application::GetAppWindow().GetNativeWindow());
 
 		// Setup Platform/Renderer bindings
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -178,31 +172,6 @@ namespace LinaEditor
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.61f);
 
 
-		// setup panels, windows etc.
-		m_ecsPanel = new ECSPanel(Vector2::Zero, Vector2(700, 600), *this);
-		m_materialPanel = new MaterialPanel(Vector2::Zero, Vector2(700, 600), *this);
-		m_resourcesPanel = new ResourcesPanel(Vector2::Zero, Vector2(700, 200), *this);
-		m_scenePanel = new ScenePanel(Vector2::Zero, Vector2(800, 500), *this);
-		m_propertiesPanel = new PropertiesPanel(Vector2::Zero, Vector2(700, 600), *this);
-		m_logPanel = new LogPanel(Vector2::Zero, Vector2(700, 600), *this);
-		m_headerPanel = new HeaderPanel(Vector2::Zero, Vector2::Zero, *this, m_appWindow->GetWindowProperties().m_title);
-
-		m_panels.push_back(m_ecsPanel);
-		m_panels.push_back(m_materialPanel);
-		m_panels.push_back(m_resourcesPanel);
-		m_panels.push_back(m_scenePanel);
-		m_panels.push_back(m_propertiesPanel);
-		m_panels.push_back(m_logPanel);
-		m_panels.push_back(m_headerPanel);
-
-		m_ecsPanel->Setup();
-		m_materialPanel->Setup();
-		m_resourcesPanel->Setup();
-		m_scenePanel->Setup();
-		m_propertiesPanel->Setup();
-		m_logPanel->Setup();
-		m_headerPanel->Setup();
-
 		s_setDockspaceLayout = true;
 
 		// Set GUI draw params.
@@ -237,24 +206,19 @@ namespace LinaEditor
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
-
-		delete m_ecsPanel;
-		delete m_materialPanel;
-		delete m_resourcesPanel;
-		delete m_scenePanel;
 	}
 
 	void GUILayer::OnTick(float dt)
 	{
 		// Set draw params first.
-		m_renderEngine->SetDrawParameters(m_drawParameters);
+		LinaEngine::Application::GetRenderEngine().SetDrawParameters(m_drawParameters);
 
 		//Setup
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		m_headerPanel->Draw(dt);
+		m_headerPanel.Draw(dt);
 		DrawLevelDataDialogs();
 		DrawCentralDockingSpace();
 
@@ -264,11 +228,11 @@ namespace LinaEditor
 		//// Draw material panel.
 		//m_MaterialPanel->Draw();
 
-		m_resourcesPanel->Draw(dt);
-		m_ecsPanel->Draw(dt);
-		m_scenePanel->Draw(dt);
-		m_logPanel->Draw(dt);
-		m_propertiesPanel->Draw(dt);
+		m_resourcesPanel.Draw(dt);
+		m_ecsPanel.Draw(dt);
+		m_scenePanel.Draw(dt);
+		m_logPanel.Draw(dt);
+		m_propertiesPanel.Draw(dt);
 
 		if (s_showIMGUIDemo)
 			ImGui::ShowDemoWindow(&s_showIMGUIDemo);
@@ -278,7 +242,7 @@ namespace LinaEditor
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	}
 
-	void GUILayer::MenuBarItemClicked(const MenuBarItems& item)
+	void GUILayer::DispatchMenuBarClickedAction(const MenuBarItems& item)
 	{
 		// File
 		if (item == MenuBarItems::NewProject)
@@ -306,8 +270,8 @@ namespace LinaEditor
 
 			// Create a new level.
 			m_currentLevel = new DefaultLevel();
-			m_application->InstallLevel(m_currentLevel);
-			m_application->InitializeLevel(m_currentLevel);
+			LinaEngine::Application::GetApp().InstallLevel(m_currentLevel);
+			LinaEngine::Application::GetApp().InitializeLevel(m_currentLevel);
 		}
 		else if (item == MenuBarItems::SaveLevelData)
 		{
@@ -321,29 +285,27 @@ namespace LinaEditor
 
 		// Panels.
 		else if (item == MenuBarItems::ECSPanel)
-			m_ecsPanel->Open();
-		else if (item == MenuBarItems::MaterialPanel)
-			m_materialPanel->Open();
+			m_ecsPanel.Open();
 		else if (item == MenuBarItems::ScenePanel)
-			m_scenePanel->Open();
+			m_scenePanel.Open();
 		else if (item == MenuBarItems::ResourcesPanel)
-			m_resourcesPanel->Open();
+			m_resourcesPanel.Open();
 		else if (item == MenuBarItems::PropertiesPanel)
-			m_propertiesPanel->Open();
+			m_propertiesPanel.Open();
 		else if (item == MenuBarItems::LogPanel)
-			m_logPanel->Open();
+			m_logPanel.Open();
 		else if (item == MenuBarItems::ImGuiPanel)
 			s_showIMGUIDemo = true;
 
 		// Debug
 		else if (item == MenuBarItems::DebugViewPhysics)
-			m_physicsEngine->SetDebugDraw(s_physicsDebugEnabled);
+			LinaEngine::Application::GetPhysicsEngine().SetDebugDraw(s_physicsDebugEnabled);
 
 		else if (item == MenuBarItems::DebugViewShadows)
-			m_scenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::ShadowMap);
+			m_scenePanel.SetDrawMode(LinaEditor::ScenePanel::DrawMode::ShadowMap);
 
 		else if (item == MenuBarItems::DebugViewNormal)
-			m_scenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::FinalImage);
+			m_scenePanel.SetDrawMode(LinaEditor::ScenePanel::DrawMode::FinalImage);
 
 	}
 
@@ -361,7 +323,7 @@ namespace LinaEditor
 				size_t lastIndex = fileName.find_last_of(".");
 				std::string rawName = fileName.substr(0, lastIndex);
 
-				m_currentLevel->SerializeLevelData(filePath, rawName, *m_currentLevel, *m_ecs);
+				m_currentLevel->SerializeLevelData(filePath, rawName);
 
 				igfd::ImGuiFileDialog::Instance()->CloseDialog(s_saveLevelDialogID);
 			}
@@ -382,10 +344,10 @@ namespace LinaEditor
 				std::string rawName = fileName.substr(0, lastIndex);
 
 				// Load level data.
-				World::Level::DeserializeLevelData(filePath, rawName, *m_currentLevel, *m_ecs);
+				m_currentLevel->DeserializeLevelData(filePath, rawName);
 
 				// Refresh ECS panel.
-				m_ecsPanel->Refresh();
+				m_ecsPanel.Refresh();
 
 				igfd::ImGuiFileDialog::Instance()->CloseDialog(s_loadLevelDialogID);
 			}
@@ -417,7 +379,7 @@ namespace LinaEditor
 		{
 			ImGui::Text("FPS Overlay");
 			ImGui::Separator();
-			std::string fpsText = std::to_string(m_application->GetCurrentFPS()) + " Frames per second";
+			std::string fpsText = std::to_string(LinaEngine::Application::GetApp().GetCurrentFPS()) + " Frames per second";
 			ImGui::Text(fpsText.c_str());
 		}
 		ImGui::End();
@@ -477,7 +439,7 @@ namespace LinaEditor
 			if (s_setDockspaceLayout)
 			{
 				s_setDockspaceLayout = false;
-				Vector2 screenSize = m_appWindow->GetSize();
+				Vector2 screenSize = LinaEngine::Application::GetAppWindow().GetSize();
 				ImGui::DockBuilderRemoveNode(dockspace_id); // Clear out existing layout
 				ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace); // Add empty node
 				ImGui::DockBuilderSetNodeSize(dockspace_id, ImVec2(screenSize.x, screenSize.y));

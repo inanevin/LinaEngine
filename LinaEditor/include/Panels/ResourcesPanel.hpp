@@ -99,11 +99,10 @@ namespace LinaEditor
 	public:
 
 		
-		ResourcesPanel(LinaEngine::Vector2 position, LinaEngine::Vector2 size, GUILayer& guiLayer) :EditorPanel(position, size, guiLayer) {};
+		ResourcesPanel();
 		virtual ~ResourcesPanel() {};
 	
 		virtual void Draw(float frameTime) override;
-		void Setup();
 
 	private:
 	
@@ -119,8 +118,6 @@ namespace LinaEditor
 
 	private:
 
-		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
-		PropertiesPanel* m_PropertiesPanel = nullptr;
 		std::vector<EditorFolder> m_resourceFolders;
 	};
 }

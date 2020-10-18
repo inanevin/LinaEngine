@@ -63,7 +63,6 @@ namespace LinaEditor
 		TextureDrawer() {};
 		~TextureDrawer() {};
 	
-		void Setup(LinaEngine::Graphics::RenderEngine* renderEngine) { m_renderEngine = renderEngine; }
 		void SetSelectedTexture(LinaEngine::Graphics::Texture* texture);
 		void DrawSelectedTexture();
 		int GetSamplerFilterID(LinaEngine::Graphics::SamplerFilter filter);
@@ -73,7 +72,6 @@ namespace LinaEditor
 
 	private:
 
-		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
 		LinaEngine::Graphics::Texture* m_selectedTexture = nullptr;
 		int m_currentInternalPixelFormat = 0;
 		int m_currentPixelFormat = 0;

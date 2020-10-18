@@ -36,6 +36,12 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 
 #include "Core/Layer.hpp"
 #include "Rendering/RenderingCommon.hpp"
+#include "Panels/ECSPanel.hpp"
+#include "Panels/ResourcesPanel.hpp"
+#include "Panels/ScenePanel.hpp"
+#include "Panels/PropertiesPanel.hpp"
+#include "Panels/LogPanel.hpp"
+#include "Panels/HeaderPanel.hpp"
 #include <vector>
 
 namespace LinaEngine
@@ -66,15 +72,6 @@ namespace LinaEngine
 
 namespace LinaEditor
 {
-	class ECSPanel;
-	class MaterialPanel;
-	class ResourcesPanel;
-	class ScenePanel;
-	class PropertiesPanel;
-	class LogPanel;
-	class HeaderPanel;
-	class EditorPanel;
-
 	enum class MenuBarItems
 	{
 		NewProject = 0,
@@ -91,7 +88,6 @@ namespace LinaEditor
 		ECSPanel = 40,
 		HeaderPanel = 11,
 		LogPanel = 42,
-		MaterialPanel = 43,
 		PropertiesPanel = 44,
 		ResourcesPanel = 45,
 		ScenePanel = 46,
@@ -117,27 +113,7 @@ namespace LinaEditor
 		void OnTick(float dt) override;
 
 		// Menu bar item callback from header panel.
-		void MenuBarItemClicked(const MenuBarItems& item);
-
-		void Setup(LinaEngine::Graphics::Window& window, LinaEngine::Graphics::RenderEngine& renderEngine, LinaEngine::Physics::PhysicsEngine& physicsEngine, LinaEngine::Application* application, LinaEngine::ECS::ECSRegistry& ecs)
-		{
-			m_appWindow = &window;
-			m_renderEngine = &renderEngine;
-			m_physicsEngine = &physicsEngine;
-			m_application = application;
-			m_ecs = &ecs;
-		}
-
-		ECSPanel* GetECSPanel() const { return m_ecsPanel; }
-		PropertiesPanel* GetPropertiesPanel() const { return m_propertiesPanel; }
-		MaterialPanel* GetMaterialPanel() const { return m_materialPanel; }
-		ResourcesPanel* GetResourcesPanel() const { return m_resourcesPanel; }
-		ScenePanel* GetScenePanel() const { return m_scenePanel; }
-		LinaEngine::ECS::ECSRegistry* GetECS() const { return m_ecs; }
-		LinaEngine::Graphics::RenderEngine* GetRenderEngine() const { return m_renderEngine; }
-		LinaEngine::Graphics::Window* GetAppWindow() const { return m_appWindow; }
-		LinaEngine::Application* GetApp() const { return m_application; }
-		void SetCurrentLevel(LinaEngine::World::Level& currentLevel) { m_currentLevel = &currentLevel; }
+		void DispatchMenuBarClickedAction(const MenuBarItems& item);
 
 	private:
 
@@ -148,20 +124,13 @@ namespace LinaEditor
 	private:
 
 		LinaEngine::Graphics::DrawParams m_drawParameters;
-		LinaEngine::Graphics::Window* m_appWindow = nullptr;
-		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
-		LinaEngine::Physics::PhysicsEngine* m_physicsEngine = nullptr;
-		LinaEngine::ECS::ECSRegistry* m_ecs = nullptr;
-		LinaEngine::Application* m_application = nullptr;
 		LinaEngine::World::Level* m_currentLevel = nullptr;
-		ECSPanel* m_ecsPanel = nullptr;
-		MaterialPanel* m_materialPanel = nullptr;
-		ResourcesPanel* m_resourcesPanel = nullptr;
-		ScenePanel* m_scenePanel = nullptr;
-		PropertiesPanel* m_propertiesPanel = nullptr;
-		LogPanel* m_logPanel = nullptr;
-		HeaderPanel* m_headerPanel = nullptr;
-		std::vector<EditorPanel*> m_panels;
+		ECSPanel m_ecsPanel;
+		ResourcesPanel m_resourcesPanel;
+		ScenePanel m_scenePanel;
+		PropertiesPanel m_propertiesPanel;
+		LogPanel m_logPanel;
+		HeaderPanel m_headerPanel;
 
 	};
 }

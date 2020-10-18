@@ -35,6 +35,8 @@ SOFTWARE.
 #include "Core/GUILayer.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Widgets/WidgetsUtility.hpp"
+#include "Core/Application.hpp"
+#include "Core/EditorApplication.hpp"
 #include "imgui/imgui.h"
 #include "IconsFontAwesome5.h"
 #include "IconsForkAwesome.h"
@@ -55,21 +57,11 @@ float logoAnimWaitCounter = 0.0f;
 
 namespace LinaEditor
 {
-	HeaderPanel::~HeaderPanel()
+	HeaderPanel::HeaderPanel()
 	{
-		LINA_CLIENT_TRACE("[Destructor] -> Header Panel ({0})", typeid(*this).name());
-		for (int i = 0; i < m_menuBarButtons.size(); i++)
-			delete m_menuBarButtons[i];
-	}
-
-
-	void HeaderPanel::Setup()
-	{
-		m_renderEngine = m_guiLayer->GetRenderEngine();
-		m_appWindow = m_guiLayer->GetAppWindow();
 
 		// Logo texture
-		windowIcon = &m_renderEngine->CreateTexture2D("resources/editor/textures/linaEngineIcon.png");
+		windowIcon = &LinaEngine::Application::GetRenderEngine().CreateTexture2D("resources/editor/textures/linaEngineIcon.png");
 
 		// Logo animation textures
 		for (int i = 0; i < HEADER_LINALOGO_ANIMSIZE; i++)
@@ -79,7 +71,7 @@ namespace LinaEditor
 				logoID = ("00" + std::to_string(i));
 			else if (i < 100)
 				logoID = ("0" + std::to_string(i));
-			linaLogoAnimation[i] = &m_renderEngine->CreateTexture2D("resources/editor/textures/LinaLogoJitterAnimation/anim " + logoID + ".png");
+			linaLogoAnimation[i] = &LinaEngine::Application::GetRenderEngine().CreateTexture2D("resources/editor/textures/LinaLogoJitterAnimation/anim " + logoID + ".png");
 		}
 
 		linaLogoID = linaLogoAnimation[0]->GetID();
@@ -101,31 +93,38 @@ namespace LinaEditor
 		std::vector<MenuElement*> view;
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_EYE*/ "View", "pu_view", view, HEADER_COLOR_BG, true));
 
+
 		// Levels menu.
 		std::vector<MenuElement*> level;
-		level.emplace_back(new MenuItem(ICON_FA_DOWNLOAD, " New Level Data", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::NewLevelData)));
-		level.emplace_back(new MenuItem(ICON_FA_DOWNLOAD, " Save Level Data", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::SaveLevelData)));
-		level.emplace_back(new MenuItem(ICON_FA_UPLOAD, " Load Level Data", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::LoadLevelData)));
+		level.emplace_back(new MenuItem(ICON_FA_DOWNLOAD, " New Level Data", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::NewLevelData)));
+		level.emplace_back(new MenuItem(ICON_FA_DOWNLOAD, " Save Level Data", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::SaveLevelData)));
+		level.emplace_back(new MenuItem(ICON_FA_UPLOAD, " Load Level Data", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::LoadLevelData)));
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_ARCHWAY*/ "Level", "pu_level", level, HEADER_COLOR_BG, true));
 
 		// Panels menu
 		std::vector<MenuElement*> panels;
-		panels.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, " Entity Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ECSPanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_CUBE, " Material Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::MaterialPanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_EYE, " Scene Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ScenePanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_FILE, " Resources Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::PropertiesPanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_COG, " Properties Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ResourcesPanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_CLIPBOARD, " Log Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::LogPanel)));
-		panels.emplace_back(new MenuItem("", "ImGui Panel", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::ImGuiPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, " Entity Panel", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::ECSPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_EYE, " Scene Panel", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::ScenePanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_FILE, " Resources Panel", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::PropertiesPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_COG, " Properties Panel", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::ResourcesPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_CLIPBOARD, " Log Panel", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::LogPanel)));
+		panels.emplace_back(new MenuItem("", "ImGui Panel", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::ImGuiPanel)));
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_COLUMNS*/ "Panels", "pu_panel", panels, HEADER_COLOR_BG, true));
 
 		// Debug menu
 		std::vector<MenuElement*> debug;
-		debug.emplace_back(new MenuItem(ICON_FA_BOXES, " Debug View Physics", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewPhysics)));
-		debug.emplace_back(new MenuItem(ICON_FA_ADJUST, " Debug View Shadows", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewShadows)));
-		debug.emplace_back(new MenuItem(ICON_FA_IMAGES, " Debug View Normal", std::bind(&GUILayer::MenuBarItemClicked, m_guiLayer, MenuBarItems::DebugViewNormal)));
+		debug.emplace_back(new MenuItem(ICON_FA_BOXES, " Debug View Physics", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::DebugViewPhysics)));
+		debug.emplace_back(new MenuItem(ICON_FA_ADJUST, " Debug View Shadows", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::DebugViewShadows)));
+		debug.emplace_back(new MenuItem(ICON_FA_IMAGES, " Debug View Normal", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::DebugViewNormal)));
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_BUG*/ "Debug", "dbg_panel", debug, HEADER_COLOR_BG, true));
 
+	}
+
+	HeaderPanel::~HeaderPanel()
+	{
+		LINA_CLIENT_TRACE("[Destructor] -> Header Panel ({0})", typeid(*this).name());
+		for (int i = 0; i < m_menuBarButtons.size(); i++)
+			delete m_menuBarButtons[i];
 	}
 
 
@@ -133,6 +132,7 @@ namespace LinaEditor
 	{
 		if (m_show)
 		{
+			LinaEngine::Graphics::Window& appWindow = LinaEngine::Application::GetAppWindow();
 			// Logo animation
 			if (logoAnimRatio < 0.99f)
 			{
@@ -185,11 +185,11 @@ namespace LinaEditor
 					appResizeActive = true;
 					ImVec2 delta = ImVec2(ImGui::GetMousePos().x - resizeStartPos.x, ImGui::GetMousePos().y - resizeStartPos.y);
 
-					m_appWindow->SetSize(Vector2(resizeStartSize.x + delta.x, resizeStartSize.y + delta.y));
+					appWindow.SetSize(Vector2(resizeStartSize.x + delta.x, resizeStartSize.y + delta.y));
 				}
 				else
 				{
-					resizeStartSize = m_appWindow->GetSize();
+					resizeStartSize = appWindow.GetSize();
 					resizeStartPos = ImGui::GetMousePos();
 					appResizeActive = false;
 				}
@@ -213,7 +213,7 @@ namespace LinaEditor
 				headerClickPos = ImGui::GetMousePos();
 
 				ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
-				Vector2 windowPos = m_appWindow->GetPos();
+				Vector2 windowPos = appWindow.GetPos();
 				Vector2 newPos = Vector2(windowPos.x + delta.x, windowPos.y + delta.y);
 
 				if (newPos.x < 0.0f)
@@ -222,7 +222,7 @@ namespace LinaEditor
 				if (newPos.y < 0.0f)
 					newPos.y = 0.0f;
 
-				m_appWindow->SetPos(newPos);
+				appWindow.SetPos(newPos);
 			}
 
 			// Icon
@@ -246,21 +246,21 @@ namespace LinaEditor
 			// Minimize
 			if (ImGui::Button(ICON_FA_WINDOW_MINIMIZE))
 			{
-				m_appWindow->Iconify();
+				appWindow.Iconify();
 			}
 
 			// Maximize/Restore
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_FA_WINDOW_MAXIMIZE))
 			{
-				m_appWindow->Maximize();
+				appWindow.Maximize();
 			}
 
 			// Exit.
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_FA_WINDOW_CLOSE))
 			{
-				m_appWindow->Close();
+				appWindow.Close();
 			}
 
 			WidgetsUtility::PopScaledFont();
@@ -337,5 +337,10 @@ namespace LinaEditor
 
 
 		}
+	}
+
+	void HeaderPanel::DispatchMenuBarClickedAction(const MenuBarItems& item)
+	{
+		EditorApplication::GetEditorDispatcher().DispatchAction<MenuBarItems>(LinaEngine::Action::ActionType::MenuItemClicked, item);
 	}
 }
