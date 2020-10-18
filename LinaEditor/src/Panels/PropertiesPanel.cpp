@@ -52,20 +52,20 @@ namespace LinaEditor
 
 	void PropertiesPanel::EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity)
 	{
-		m_currentDrawType = DrawType::ENTITIES;
+		m_currentDrawType = DrawType::Entities;
 		m_entityDrawer.SetSelectedEntity(selectedEntity);
 	}
 
 	void PropertiesPanel::Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path)
 	{
-		m_currentDrawType = DrawType::TEXTURE2D;
+		m_currentDrawType = DrawType::Texture2D;
 		m_textureDrawer.SetSelectedTexture(texture);
 	}
 
 	void PropertiesPanel::MeshSelected(LinaEngine::Graphics::Mesh* mesh, int id, std::string& path)
 	{
 		m_selectedMesh = mesh;
-		m_currentDrawType = DrawType::MESH;
+		m_currentDrawType = DrawType::Mesh;
 		m_selectedMeshID = id;
 		m_selectedMeshPath = path;
 		LinaEngine::Graphics::MeshParameters& params = mesh->GetParameters();
@@ -94,17 +94,17 @@ namespace LinaEditor
 			WidgetsUtility::DrawShadowedLine(5);
 
 			// Draw the selected item.
-			if (m_currentDrawType == DrawType::ENTITIES)
+			if (m_currentDrawType == DrawType::Entities)
 			{
 				m_entityDrawer.DrawSelectedEntity();
 			}
-			else if (m_currentDrawType == DrawType::TEXTURE2D)
+			else if (m_currentDrawType == DrawType::Texture2D)
 			{
 				m_textureDrawer.DrawSelectedTexture();
 			}
-			else if (m_currentDrawType == DrawType::MESH)
+			else if (m_currentDrawType == DrawType::Mesh)
 				DrawMeshProperties();
-			else if (m_currentDrawType == DrawType::MATERIAL)
+			else if (m_currentDrawType == DrawType::Material)
 				DrawMaterialProperties();
 
 			ImGui::PopStyleVar();

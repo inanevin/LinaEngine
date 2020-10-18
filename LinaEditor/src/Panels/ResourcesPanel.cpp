@@ -121,7 +121,7 @@ namespace LinaEditor
 					file.path = materialPath;
 					file.name = name;
 					file.extension = "mat";
-					file.type = FileType::MATERIAL;
+					file.type = FileType::Material;
 					file.id = ++itemIDCounter;
 
 					Graphics::Material& m = m_renderEngine->CreateMaterial(file.id, Graphics::Shaders::PBR_LIT);
@@ -298,11 +298,11 @@ namespace LinaEditor
 				selectedFile = &it->second;
 
 				// Notify properties panel of file selection.
-				if (it->second.type == FileType::TEXTURE2D)
+				if (it->second.type == FileType::Texture2D)
 					m_PropertiesPanel->Texture2DSelected(&m_renderEngine->GetTexture(it->second.path), it->second.id, it->second.path);
-				else if (it->second.type == FileType::MESH)
+				else if (it->second.type == FileType::Mesh)
 					m_PropertiesPanel->MeshSelected(&m_renderEngine->GetMesh(it->second.id), it->second.id, it->second.path);
-				else if (it->second.type == FileType::MATERIAL)
+				else if (it->second.type == FileType::Material)
 					m_PropertiesPanel->MaterialSelected(&m_renderEngine->GetMaterial(it->second.id), it->second.id, it->second.path);
 			}
 
@@ -344,9 +344,9 @@ namespace LinaEditor
 			EditorFile& file = it->second;
 
 			// SKIP FOR NOW BC WE NEED TO MAKE SURE WE HANDLE BOTH ENGINE CREATION & EDITOR CREATION
-			if (file.type == FileType::TEXTURE2D)
+			if (file.type == FileType::Texture2D)
 				m_renderEngine->CreateTexture2D(file.path);
-			else if (file.type == FileType::MESH)
+			else if (file.type == FileType::Mesh)
 				m_renderEngine->CreateMesh(file.id, file.path);
 		}
 
@@ -357,11 +357,11 @@ namespace LinaEditor
 
 	void ResourcesPanel::UnloadFileResource(EditorFile& file)
 	{
-		if (file.type == FileType::TEXTURE2D)
+		if (file.type == FileType::Texture2D)
 			m_renderEngine->UnloadTextureResource(file.id);
-		else if (file.type == FileType::MESH)
+		else if (file.type == FileType::Mesh)
 			m_renderEngine->UnloadMeshResource(file.id);
-		else if (file.type == FileType::MATERIAL)
+		else if (file.type == FileType::Material)
 			m_renderEngine->UnloadMaterialResource(file.id);
 	}
 
@@ -374,12 +374,12 @@ namespace LinaEditor
 	FileType ResourcesPanel::GetFileType(std::string& extension)
 	{
 		if (extension.compare("jpg") == 0 || extension.compare("jpeg") == 0 || extension.compare("png") == 0 || extension.compare("tga") == 0)
-			return FileType::TEXTURE2D;
+			return FileType::Texture2D;
 		else if (extension.compare("ttf") == 0)
-			return FileType::FONT;
+			return FileType::Font;
 		else if (extension.compare("obj") == 0 || extension.compare("fbx") == 0 || extension.compare("3ds") == 0)
-			return FileType::MESH;
+			return FileType::Mesh;
 		else
-			return FileType::UNKNOWN;
+			return FileType::Unknown;
 	}
 }

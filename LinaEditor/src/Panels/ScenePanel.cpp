@@ -112,10 +112,7 @@ namespace LinaEditor
 				ImGuizmo::SetRect(imageRectMin.x, imageRectMin.y, imageRectMax.x - imageRectMin.x, imageRectMax.y - imageRectMin.y);
 				ImGui::PushClipRect(imageRectMin, imageRectMax, false);
 
-				// Handle inputs.
 				ProcessInput();
-
-				// Draw Gizmos
 				DrawGizmos();
 
 				ImGui::EndChild();
