@@ -237,7 +237,7 @@ namespace LinaEditor
 		ImGui::SetNextItemWidth(targetWidth);
 
 		// Wrap S ComboBox
-		if (ImGui::BeginCombo("##wraps", wrapSLabel, flags))
+		if (ImGui::BeginCombo("##wrapS", wrapSLabel, flags))
 		{
 			for (int n = 0; n < IM_ARRAYSIZE(wrapModes); n++)
 			{
@@ -268,7 +268,7 @@ namespace LinaEditor
 				const bool is_selected = (m_currentWrapR == n);
 				if (ImGui::Selectable(wrapModes[n], is_selected))
 				{
-					selectedWrapS = GetWrapModeFromID(n);
+					selectedWrapR = GetWrapModeFromID(n);
 					m_currentWrapR = n;
 				}
 
@@ -292,7 +292,7 @@ namespace LinaEditor
 				const bool is_selected = (m_currentWrapT == n);
 				if (ImGui::Selectable(wrapModes[n], is_selected))
 				{
-					selectedWrapS = GetWrapModeFromID(n);
+					selectedWrapT = GetWrapModeFromID(n);
 					m_currentWrapT = n;
 				}
 
