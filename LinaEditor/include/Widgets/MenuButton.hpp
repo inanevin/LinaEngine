@@ -102,6 +102,8 @@ namespace LinaEditor
 		// Set on click explicitly.
 		void SetOnClick(std::function<void()> onClick) { m_onClick = onClick; }
 
+		bool GetIsPopupOpen();
+
 		static bool s_anyButtonFocused;
 
 	private:

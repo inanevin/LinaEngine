@@ -111,7 +111,7 @@ namespace LinaEditor
 
 
 		// Open popup
-		if (ImGui::GetTopMostPopupModal() == nullptr && ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax()) && !m_popupOpen)
+		if (s_anyButtonFocused && ImGui::GetTopMostPopupModal() == nullptr && ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax()) && !m_popupOpen)
 			ImGui::OpenPopup(m_popupID);
 
 		if (m_popupOpen)
@@ -137,9 +137,6 @@ namespace LinaEditor
 					m_children[i]->Draw();
 			}
 
-			if (!ImGui::IsItemFocused())
-				s_anyButtonFocused = false;
-
 			ImGui::EndPopup();
 		}
 
@@ -153,6 +150,11 @@ namespace LinaEditor
 	{
 		ImGui::CloseCurrentPopup();
 		m_popupOpen = false;
+	}
+
+	bool MenuButton::GetIsPopupOpen()
+	{
+		return ImGui::IsPopupOpen(m_popupID);
 	}
 
 

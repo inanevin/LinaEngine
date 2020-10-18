@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -281,6 +281,16 @@ namespace LinaEditor
 
 			for (int i = 0; i < m_menuBarButtons.size(); i++)
 				m_menuBarButtons[i]->Draw();
+
+			// By setting the flags below we make sure that we need to re-click any menu bar button
+			// to enable the popups after the menu bar loses focus. Otherwise the popups will open
+			// whenever mouse hovers on them.
+			bool anyPopupOpen = false;
+			for (int i = 0; i < m_menuBarButtons.size(); i++)
+				anyPopupOpen |= m_menuBarButtons[i]->GetIsPopupOpen();
+
+			if (!anyPopupOpen)
+				MenuButton::s_anyButtonFocused = false;
 
 			// Draw search bar.		
 			ImGui::SameLine();
