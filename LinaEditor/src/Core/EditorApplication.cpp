@@ -34,6 +34,12 @@ SOFTWARE.
 
 namespace LinaEditor
 {
+	LinaEngine::Action::ActionDispatcher EditorApplication::s_editorDispatcher;
+
+	EditorApplication::EditorApplication()
+	{
+		s_editorDispatcher.Initialize(LinaEngine::Action::ActionType::EditorActionsStartIndex, LinaEngine::Action::ActionType::EditorActionsEndIndex);
+	}
 
 	void EditorApplication::Initialize(LinaEngine::Graphics::Window* appWindow, LinaEngine::Graphics::RenderEngine* renderEngine, LinaEngine::Application* app, LinaEngine::Physics::PhysicsEngine* physicsEngine, LinaEngine::ECS::ECSRegistry* ecs)
 	{

@@ -47,11 +47,11 @@ class SandboxApplication : public LinaEngine::Application
 
 		m_editor.Initialize(&GetAppWindow(), &GetRenderEngine(), this, &GetPhysicsEngine(), &GetECSREgistry());
 
-		// Refresh after level init.
-		m_editor.Refresh();
-
 		InstallLevel(&m_startupLevel);
 		InitializeLevel(&m_startupLevel);
+
+		// Refresh after level init.
+		m_editor.Refresh();
 
 		// Set the app window size back to original.
 		GetAppWindow().SetSize(Vector2(props.m_width, props.m_height));

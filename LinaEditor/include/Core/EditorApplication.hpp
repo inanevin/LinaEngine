@@ -40,6 +40,7 @@ Timestamp: 10/15/2020 10:44:39 PM
 #ifndef EditorApplication_HPP
 #define EditorApplication_HPP
 
+#include "Actions/ActionDispatcher.hpp"
 #include "Utility/Log.hpp"
 
 namespace LinaEngine
@@ -73,18 +74,20 @@ namespace LinaEditor
 	{
 	public:
 
-		EditorApplication() {}
-
-		void Initialize(LinaEngine::Graphics::Window* appWindow, LinaEngine::Graphics::RenderEngine* renderEngine, LinaEngine::Application* app, LinaEngine::Physics::PhysicsEngine* physicsEngine, LinaEngine::ECS::ECSRegistry* ecs);
-		void Refresh();
-
+		EditorApplication();
 		~EditorApplication()
 		{
 			LINA_CLIENT_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
 		}
 
+
+		void Initialize(LinaEngine::Graphics::Window* appWindow, LinaEngine::Graphics::RenderEngine* renderEngine, LinaEngine::Application* app, LinaEngine::Physics::PhysicsEngine* physicsEngine, LinaEngine::ECS::ECSRegistry* ecs);
+		void Refresh();
+		static LinaEngine::Action::ActionDispatcher& GetEditorDispatcher() { return s_editorDispatcher; }
+
 	private:
 
+		static LinaEngine::Action::ActionDispatcher s_editorDispatcher;
 		GUILayer* m_guiLayer = nullptr;
 	};
 }

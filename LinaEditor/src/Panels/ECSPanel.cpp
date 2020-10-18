@@ -32,7 +32,7 @@ SOFTWARE.
 #include "Core/GUILayer.hpp"
 #include "Utility/Log.hpp"
 #include "Widgets/WidgetsUtility.hpp"
-
+#include "Core/EditorApplication.hpp"
 
 namespace LinaEditor
 {
@@ -108,17 +108,19 @@ namespace LinaEditor
 					if (WidgetsUtility::SelectableInput("entSelectable" + entityCounter, m_selectedEntity == entity, ImGuiSelectableFlags_SelectOnClick, selectedEntityName, IM_ARRAYSIZE(selectedEntityName)))
 					{
 						m_selectedEntity = entity;
-						m_scenePanel->SetSelectedTransform(m_ecs->has<TransformComponent>(m_selectedEntity) ? &m_ecs->get<TransformComponent>(m_selectedEntity) : nullptr);
-						m_propertiesPanel->EntitySelected(m_selectedEntity);
+						EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, entity);
+						//m_scenePanel->SetSelectedTransform(m_ecs->has<TransformComponent>(m_selectedEntity) ? &m_ecs->get<TransformComponent>(m_selectedEntity) : nullptr);
+						//m_propertiesPanel->EntitySelected(m_selectedEntity);
 						m_ecs->SetEntityName(entity, selectedEntityName);
 					}
 
 					// Deselect.
 					if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 					{
+						EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Deselect, 0);
 						m_selectedEntity = entt::null;
-						m_propertiesPanel->EntitySelected(m_selectedEntity);
-						m_scenePanel->SetSelectedTransform(nullptr);
+						//m_propertiesPanel->EntitySelected(m_selectedEntity);
+						//m_scenePanel->SetSelectedTransform(nullptr);
 					}
 				}
 

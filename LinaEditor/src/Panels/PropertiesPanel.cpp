@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Drawers/EntityDrawer.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Mesh.hpp"
+#include "Core/EditorApplication.hpp"
 #include "IconsFontAwesome5.h"
 
 namespace LinaEditor
@@ -48,6 +49,8 @@ namespace LinaEditor
 		m_textureDrawer.Setup(m_renderEngine);
 		m_entityDrawer.Setup(m_ecs);
 
+		EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::ECS::ECSEntity>("##lina_propsPanel_entity", LinaEngine::Action::ActionType::EntitySelected,
+			std::bind(&PropertiesPanel::EntitySelected, this, std::placeholders::_1));
 	}
 
 	void PropertiesPanel::EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity)
