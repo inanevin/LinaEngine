@@ -101,6 +101,8 @@ namespace LinaEngine::Physics
 
 		std::map<int, btRigidBody*> m_bodies;		
 		bool m_debugDrawEnabled = false;
+
+		DISALLOW_COPY_ASSIGN_MOVE(PhysicsEngine)
 	};
 }
 

@@ -112,6 +112,9 @@ namespace LinaEngine::Input
 		static Action::ActionDispatcher s_inputDispatcher;
 		InputDevice* m_inputDevice = nullptr;
 
+		DISALLOW_COPY_ASSIGN_MOVE(InputEngine)
+
+
 	};
 }
 
