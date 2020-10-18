@@ -32,6 +32,7 @@ SOFTWARE.
 
 void PhysicsGizmoDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
 {
+	// Delegate the drawLine command coming from BtPhysics to the engine, so that the render engine can issue draw commands.
 	m_drawLineCallback(LinaEngine::Vector3(from.getX(), from.getY(), from.getZ()), LinaEngine::Vector3(to.getX(), to.getY(), to.getZ()), LinaEngine::Color(color.getX(), color.getY(), color.getZ()), LINE_WIDTH);
 }
 
