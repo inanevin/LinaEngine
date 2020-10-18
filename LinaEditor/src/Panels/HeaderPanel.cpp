@@ -125,6 +125,7 @@ namespace LinaEditor
 		debug.emplace_back(new MenuItem(ICON_FA_IMAGES, " Debug View Normal", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::DebugViewNormal)));
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_BUG*/ "Debug", "dbg_panel", debug, HEADER_COLOR_BG, true));
 
+		m_title = Application::GetAppWindow().GetWindowProperties().m_title;
 	}
 
 	void HeaderPanel::Draw(float frameTime)
