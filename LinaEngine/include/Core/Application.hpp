@@ -94,6 +94,7 @@ namespace LinaEngine
 		void UnloadLevel(LinaEngine::World::Level* level);
 
 		int GetCurrentFPS() { return m_currentFPS; }
+		bool GetActiveLevelExists() { return m_activeLevelExists; }
 
 		static Action::ActionDispatcher& GetEngineDispatcher() { return s_engineDispatcher; }
 		static Application& GetApp() { return *s_application; }

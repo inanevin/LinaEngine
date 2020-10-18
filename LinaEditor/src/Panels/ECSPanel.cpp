@@ -75,8 +75,10 @@ namespace LinaEditor
 				// Statics.
 				static char selectedEntityName[256] = "Entity";
 
+				WidgetsUtility::WindowPadding(ImVec2(3, 4));
+
 				// Handle Right Click.
-				if (ImGui::BeginPopupContextWindow())
+				if (LinaEngine::Application::GetApp().GetActiveLevelExists() && ImGui::BeginPopupContextWindow())
 				{
 					if (ImGui::BeginMenu("Create"))
 					{
@@ -88,10 +90,15 @@ namespace LinaEditor
 					ImGui::EndPopup();
 				}
 
+				WidgetsUtility::PopStyleVar();
+
 				int entityCounter = 0;
+
 
 				for (std::vector<ECSEntity>::iterator it = m_entityList.begin(); it != m_entityList.end(); ++it)
 				{
+					WidgetsUtility::IncrementCursorPos(ImVec2(11, 11));
+
 					// Selection
 					entityCounter++;
 					ECSEntity& entity = *it;
