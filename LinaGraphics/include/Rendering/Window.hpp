@@ -54,58 +54,33 @@ namespace LinaEngine::Graphics
 
 		virtual ~Window() {};
 
-		// Initializes the window.
 		virtual bool CreateContext(WindowProperties propsIn) = 0;
-
-		// Called every frame.
 		virtual void Tick() = 0;
-
-		// Get pointer to native window.
 		virtual void* GetNativeWindow() const = 0;
 
-		// Enables/disables vsync.
 		virtual void SetVsync(bool enabled)
 		{
 			m_windowProperties.vSyncEnabled = enabled;
 		}
 
-		// returns window active time.
 		virtual double GetTime() = 0;
-
-		// Resizes the native window.
 		virtual void SetSize(const Vector2& newSize) = 0;
-
-		// Sets a new position for the native window.
 		virtual void SetPos(const Vector2& newPos) = 0;
-
-		// Sets a new post for the native window based on monitor & screen center.
 		virtual void SetPosCentered(const Vector2 newPos) = 0;
-
-		// Minimizes the window.
 		virtual void Iconify() = 0;
-
-		// Maximizes the window.
 		virtual void Maximize() = 0;
-
-		// Closes the application.
 		virtual void Close() = 0;
 
-		// Get vsync state.
 		bool GetVsycnEnabled() { return m_windowProperties.vSyncEnabled; }
 
-		// Get window width.
 		uint32 GetWidth() { return m_windowProperties.m_width; }
 
-		// Get window height.
 		uint32 GetHeight() { return m_windowProperties.m_height; }
 
-		// Gets size
 		Vector2 GetSize() { return Vector2(m_windowProperties.m_width, m_windowProperties.m_height); }
 
-		// Gets the current window position.
 		Vector2 GetPos() { return Vector2(m_windowProperties.m_xPos, m_windowProperties.m_yPos); }
 
-		// Getter for window props
 		const WindowProperties& GetWindowProperties() { return m_windowProperties; }
 
 		// Set event callbacks.

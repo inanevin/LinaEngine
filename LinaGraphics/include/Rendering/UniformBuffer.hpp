@@ -47,10 +47,7 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-		// Param const creates buffer through render engine.
 		UniformBuffer() {}
-
-		// Destructor releases the buffer through render engine.
 		~UniformBuffer()
 		{
 			if (m_isConstructed)

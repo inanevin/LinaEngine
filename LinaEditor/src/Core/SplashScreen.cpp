@@ -112,10 +112,8 @@ namespace LinaEditor
 
 		// Draw window.
 		ImGui::Begin("SplashScreen", NULL, ImGuiWindowFlags_NoDecoration);
-
 		ImGui::GetWindowDrawList()->AddImage((void*)splashScreenTexture->GetID(), ImVec2(0, 0), viewport->Size, ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::Text("Loading %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
-
 		ImGui::End();
 
 		// Rendering

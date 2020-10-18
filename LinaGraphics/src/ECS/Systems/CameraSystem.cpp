@@ -44,10 +44,13 @@ namespace LinaEngine::ECS
 			m_currentCameraTransform = nullptr;
 		}
 
+		// Find cameras, select the most active one, and 
+		// update projection & view matrices according to it's data.
 		for (auto entity : view)
 		{
-			// Camera
 			CameraComponent& camera = view.get<CameraComponent>(entity);
+
+			// If the current camera component exists and not active, continue
 			if (!camera.m_isEnabled)
 			{
 				if(&camera == m_currentCameraComponent)
@@ -58,10 +61,8 @@ namespace LinaEngine::ECS
 				continue;
 			}
 
-			// Transform
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 
-			// Set current camera component.
 			m_currentCameraComponent = &camera;
 			m_currentCameraTransform = &transform;
 			

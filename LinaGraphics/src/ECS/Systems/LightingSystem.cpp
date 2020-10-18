@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -36,34 +36,37 @@ namespace LinaEngine::ECS
 
 	void LightingSystem::UpdateComponents(float delta)
 	{
-		// Flush lights.
+		// Flush lights every update.
 		std::get<0>(m_directionalLight) = nullptr;
 		std::get<1>(m_directionalLight) = nullptr;
 		m_pointLights.clear();
 		m_spotLights.clear();
 
+		// We find the lights here, for the directional light we set it as the current dirLight as there
+		// only can be, actually should be one.
+
 		// Set directional light.
 		auto& dirLightView = m_ecs->view<TransformComponent, DirectionalLightComponent>();
 		for (auto& entity : dirLightView)
 		{
-			// Dirlight
 			DirectionalLightComponent* dirLight = &dirLightView.get<DirectionalLightComponent>(entity);
 			if (!dirLight->m_isEnabled) continue;
 
-			// Set
 			std::get<0>(m_directionalLight) = &dirLightView.get<TransformComponent>(entity);
 			std::get<1>(m_directionalLight) = dirLight;
 		}
+
+		// For the point & spot lights, we simply find them and add them to their respective lists,
+		// which is to be iterated when there is an active shader before drawing, so that we can
+		// update lighting data in the shader.
 
 		// Set point lights.
 		auto& pointLightView = m_ecs->view<TransformComponent, PointLightComponent>();
 		for (auto it = pointLightView.begin(); it != pointLightView.end(); ++it)
 		{
-			// P light
 			PointLightComponent* pLight = &pointLightView.get<PointLightComponent>(*it);
 			if (!pLight->m_isEnabled) return;
 
-			// Set
 			m_pointLights.push_back(std::make_pair(&pointLightView.get<TransformComponent>(*it), pLight));
 		}
 
@@ -71,17 +74,18 @@ namespace LinaEngine::ECS
 		auto& spotLightView = m_ecs->view<TransformComponent, SpotLightComponent>();
 		for (auto it = spotLightView.begin(); it != spotLightView.end(); ++it)
 		{
-			// S Light
 			SpotLightComponent* sLight = &spotLightView.get<SpotLightComponent>(*it);
 			if (!sLight->m_isEnabled) return;
 
-			// Set
 			m_spotLights.push_back(std::make_pair(&spotLightView.get<TransformComponent>(*it), sLight));
 		}
 	}
 
 	void LightingSystem::SetLightingShaderData(uint32 shaderID)
 	{
+		// When this function is called it means a shader is activated in the
+		// gpu pipeline, so we go through our available lights and update the shader
+		// data according to their states.
 
 		// Update directional light data.
 		TransformComponent* dirLightTransform = std::get<0>(m_directionalLight);
@@ -93,7 +97,6 @@ namespace LinaEngine::ECS
 			m_renderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTDIRECTION, direction.Normalized());
 			//m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTPOSITION, dirLightTransform->transform.location);
 		}
-
 
 		// Iterate point lights.
 		int currentPointLightCount = 0;
@@ -125,7 +128,6 @@ namespace LinaEngine::ECS
 			currentSpotLightCount++;
 		}
 
-		// Set light counts.
 		m_renderEngine->SetCurrentPLightCount(currentPointLightCount);
 		m_renderEngine->SetCurrentSLightCount(currentSpotLightCount);
 	}
@@ -138,10 +140,11 @@ namespace LinaEngine::ECS
 
 	Matrix LightingSystem::GetDirectionalLightMatrix()
 	{
-		
+		// Used for directional shadow mapping.
+
 		TransformComponent* directionalLightTransform = std::get<0>(m_directionalLight);
 		DirectionalLightComponent* light = std::get<1>(m_directionalLight);
-		
+
 		if (directionalLightTransform == nullptr || light == nullptr) return Matrix();
 
 		Matrix lightProjection = Matrix::Orthographic(light->m_shadowOrthoProjection.x, light->m_shadowOrthoProjection.y, light->m_shadowOrthoProjection.z, light->m_shadowOrthoProjection.w, light->m_shadowZNear, light->m_shadowZFar);
@@ -170,15 +173,17 @@ namespace LinaEngine::ECS
 		return GetDirectionalLightMatrix() * biasMatrix;
 	}
 
-	Vector3& LightingSystem::GetDirectionalLightPos() 
+	Vector3& LightingSystem::GetDirectionalLightPos()
 	{
 		TransformComponent* directionalLightTransform = std::get<0>(m_directionalLight);
-		if (directionalLightTransform == nullptr ) return Vector3::Zero;
+		if (directionalLightTransform == nullptr) return Vector3::Zero;
 		return directionalLightTransform->transform.m_location;
 	}
 
 	std::vector<Matrix> LightingSystem::GetPointLightMatrices()
 	{
+		// Used for point light shadow mapping.
+
 		float aspect = (float)2048 / (float)2048;
 		float znear = 1;
 		float zfar = 17.5f;
@@ -187,16 +192,13 @@ namespace LinaEngine::ECS
 		std::vector<Matrix> shadowTransforms;
 		glm::vec3 lightPos(0.0f, 4.0f, 0.0f);
 
-	//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-	//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-	//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-	//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
-	//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-	//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+		//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+		//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+		//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+		//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+		//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+		//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
-
-
-		
 		shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 		shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 		shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));

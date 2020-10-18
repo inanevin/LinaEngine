@@ -111,8 +111,6 @@ namespace LinaEditor
 		GUILayer() : LinaEngine::Layer("GUILayer") {}
 		~GUILayer();
 
-		void DrawSplash();
-
 		// Overrides
 		void OnAttach() override;
 		void OnDetach() override;

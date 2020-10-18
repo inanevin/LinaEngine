@@ -52,6 +52,7 @@ namespace LinaEngine::Input
 		InputMouseButtonBinder() {};
 		~InputMouseButtonBinder() {};
 
+		// Upon initialization we immediately listen to target mouse events.
 		void Initialize(InputCode::Mouse button = InputCode::Mouse::MouseUnknown)
 		{
 			SubscribeMousePressedAction("buttonDown", LINA_ACTION_CALLBACK(InputMouseButtonBinder::OnButtonDown), button);
@@ -74,6 +75,7 @@ namespace LinaEngine::Input
 		InputKeyAxisBinder() {};
 		virtual ~InputKeyAxisBinder() {};
 
+		// Upon initialization we immediately listen to target key events.
 		void Initialize(InputCode::Key positive, InputCode::Key negative)
 		{
 			SubscribeKeyPressedAction("posD", LINA_ACTION_CALLBACK(InputKeyAxisBinder::OnPositiveKeyDown), positive);

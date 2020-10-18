@@ -104,7 +104,6 @@ namespace LinaEngine
 		// Delegates draw commands from physics engine to rendering engine
 		virtual void OnDrawLine(Vector3 from, Vector3 to, Color color, float width = 1.0f);
 
-		// Get render engine
 		Graphics::Window& GetAppWindow() { return *m_appWindow; }
 		Graphics::RenderEngine& GetRenderEngine() { return *m_renderEngine; }
 		Input::InputEngine& GetInputEngine() { return *m_inputEngine; }
@@ -134,23 +133,13 @@ namespace LinaEngine
 		Physics::PhysicsEngine* m_physicsEngine = nullptr;
 		ECS::ECSRegistry m_ecs;
 
-		// Devices.
 		Graphics::Window* m_appWindow = nullptr;
 		Input::InputDevice* m_inputDevice = nullptr;
-
-		// Current active level.
 		World::Level* m_currentLevel = nullptr;
 
-		// Do we have a currently active level?
 		bool m_activeLevelExists = false;
-
-		// Is application running?
 		bool m_running = false;
-
-		// Is his the first run
 		bool m_firstRun = true;
-
-		// Can we render
 		bool m_canRender = true;
 
 		// Callbacks
@@ -161,7 +150,6 @@ namespace LinaEngine
 		std::function<void(Vector3, Vector3, Color, float)> m_drawLineCallback;
 		std::function<void()> m_postSceneDrawCallback;
 
-		// FPS counting
 		int m_currentFPS = 0;
 		double m_previousTime = 0;
 		int m_fpsCounter = 0;

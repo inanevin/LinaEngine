@@ -68,11 +68,11 @@ namespace LinaEditor
 
 		enum class DrawType
 		{
-			NONE,
-			ENTITIES,
-			TEXTURE2D,
-			MESH,
-			MATERIAL
+			None,
+			Entities,
+			Texture2D,
+			Mesh,
+			Material
 		};
 
 	public:
@@ -82,8 +82,6 @@ namespace LinaEditor
 
 		virtual void Draw(float frameTime) override;
 		void Setup();
-
-
 		void EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity);
 		void Texture2DSelected(LinaEngine::Graphics::Texture* texture, int id, std::string& path);
 		void MeshSelected(LinaEngine::Graphics::Mesh* mesh, int id, std::string& path);
@@ -93,22 +91,19 @@ namespace LinaEditor
 			m_selectedMaterial = material;
 			m_selectedMaterialID = id;
 			m_selectedMaterialPath = path;
-			m_currentDrawType = DrawType::MATERIAL;
+			m_currentDrawType = DrawType::Material;
 		}
 
 		void Unselect()
 		{
 			m_selectedMesh = nullptr;
 			m_selectedMaterial = nullptr;
-			m_currentDrawType = DrawType::NONE;
+			m_currentDrawType = DrawType::None;
 		}
 
 	private:
 
-		// Drawing Meshes
 		void DrawMeshProperties();
-
-		// Drawing materials
 		void DrawMaterialProperties();
 
 	private:
@@ -132,7 +127,7 @@ namespace LinaEditor
 
 		LinaEngine::Graphics::RenderEngine* m_renderEngine = nullptr;
 		LinaEngine::ECS::ECSRegistry* m_ecs = nullptr;
-		DrawType m_currentDrawType = DrawType::NONE;
+		DrawType m_currentDrawType = DrawType::None;
 
 	};
 }

@@ -71,7 +71,7 @@ namespace LinaEngine::World
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(dummy); // serialize things by passing them to the archive
+			archive(dummy); 
 		}
 
 		int dummy;

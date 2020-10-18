@@ -57,7 +57,6 @@ namespace LinaEditor
 	
 		virtual void Setup() override;
 		virtual void Draw(float frameTime) override;
-
 		void Refresh();
 
 	private:

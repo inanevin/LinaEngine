@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -39,6 +39,7 @@ SOFTWARE.
 #include "Physics/PhysicsEngine.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "World/DefaultLevel.hpp"
+#include "Core/EditorCommon.hpp"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -53,15 +54,13 @@ SOFTWARE.
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-static bool showIMGUIDemo;
-static bool setDockspaceLayout = true;
-static bool physicsDebugEnabled = false;
-static bool dockWindowInit = true;
-static const char* saveLevelDialogID = "id_saveLevel";
-static const char* loadLevelDialogID = "id_loadLevel";
-
-#define DOCKSPACE_BEGIN 60
+static ImGuiTreeNodeFlags s_baseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+static bool s_showIMGUIDemo;
+static bool s_setDockspaceLayout = true;
+static bool s_physicsDebugEnabled = false;
+static bool s_dockWindowInit = true;
+static const char* s_saveLevelDialogID = "id_saveLevel";
+static const char* s_loadLevelDialogID = "id_loadLevel";
 
 namespace LinaEditor
 {
@@ -72,22 +71,6 @@ namespace LinaEditor
 
 		for (int i = 0; i < m_panels.size(); i++)
 			delete m_panels[i];
-	}
-
-	void GUILayer::DrawSplash()
-	{
-		// Set draw params first.
-		m_renderEngine->SetDrawParameters(m_drawParameters);
-
-		//Setup
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-
-
-		// Rendering
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	}
 
 	void GUILayer::OnAttach()
@@ -117,10 +100,7 @@ namespace LinaEditor
 
 		// Setup configuration flags.
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
-		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
-
 
 		GLFWwindow* window = static_cast<GLFWwindow*>(m_appWindow->GetNativeWindow());
 
@@ -128,8 +108,8 @@ namespace LinaEditor
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init();
 
+		// Setup Dear ImGui style
 		ImGuiStyle& style = ImGui::GetStyle();
-
 		ImVec4* colors = ImGui::GetStyle().Colors;
 		style.AntiAliasedFill = false;
 		style.WindowRounding = 0.0f;
@@ -198,8 +178,6 @@ namespace LinaEditor
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.61f);
 
 
-
-
 		// setup panels, windows etc.
 		m_ecsPanel = new ECSPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_materialPanel = new MaterialPanel(Vector2::Zero, Vector2(700, 600), *this);
@@ -209,7 +187,6 @@ namespace LinaEditor
 		m_logPanel = new LogPanel(Vector2::Zero, Vector2(700, 600), *this);
 		m_headerPanel = new HeaderPanel(Vector2::Zero, Vector2::Zero, *this, m_appWindow->GetWindowProperties().m_title);
 
-		// Add to the list.
 		m_panels.push_back(m_ecsPanel);
 		m_panels.push_back(m_materialPanel);
 		m_panels.push_back(m_resourcesPanel);
@@ -218,7 +195,6 @@ namespace LinaEditor
 		m_panels.push_back(m_logPanel);
 		m_panels.push_back(m_headerPanel);
 
-		// Setup panels.
 		m_ecsPanel->Setup();
 		m_materialPanel->Setup();
 		m_resourcesPanel->Setup();
@@ -227,8 +203,7 @@ namespace LinaEditor
 		m_logPanel->Setup();
 		m_headerPanel->Setup();
 
-		// Dockspace settings.
-		setDockspaceLayout = true;
+		s_setDockspaceLayout = true;
 
 		// Set GUI draw params.
 		m_drawParameters.useScissorTest = false;
@@ -279,13 +254,8 @@ namespace LinaEditor
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		// Top header.
 		m_headerPanel->Draw(dt);
-
-		// Level data dialogs.
 		DrawLevelDataDialogs();
-
-		// Draw main docking space.
 		DrawCentralDockingSpace();
 
 		// Draw overlay fps counter
@@ -294,25 +264,14 @@ namespace LinaEditor
 		//// Draw material panel.
 		//m_MaterialPanel->Draw();
 
-
-		// Draw resources panel
 		m_resourcesPanel->Draw(dt);
-
-		// Draw ECS Panel.
 		m_ecsPanel->Draw(dt);
-
-		// Draw Scene Panel
 		m_scenePanel->Draw(dt);
-
-		// Draw Log Panel
 		m_logPanel->Draw(dt);
-
-		// Draw properties panel
 		m_propertiesPanel->Draw(dt);
 
-
-		if (showIMGUIDemo)
-			ImGui::ShowDemoWindow(&showIMGUIDemo);
+		if (s_showIMGUIDemo)
+			ImGui::ShowDemoWindow(&s_showIMGUIDemo);
 
 		// Rendering
 		ImGui::Render();
@@ -343,7 +302,7 @@ namespace LinaEditor
 		else if (item == MenuBarItems::NewLevelData)
 		{
 			// Prompt saving the current one.
-		
+
 
 			// Create a new level.
 			m_currentLevel = new DefaultLevel();
@@ -353,11 +312,11 @@ namespace LinaEditor
 		else if (item == MenuBarItems::SaveLevelData)
 		{
 			if (m_currentLevel != nullptr)
-				igfd::ImGuiFileDialog::Instance()->OpenDialog(saveLevelDialogID, "Choose File", ".linaleveldata", ".");
+				igfd::ImGuiFileDialog::Instance()->OpenDialog(s_saveLevelDialogID, "Choose File", ".linaleveldata", ".");
 		}
 		else if (item == MenuBarItems::LoadLevelData)
 		{
-			igfd::ImGuiFileDialog::Instance()->OpenDialog(loadLevelDialogID, "Choose File", ".linaleveldata", ".");
+			igfd::ImGuiFileDialog::Instance()->OpenDialog(s_loadLevelDialogID, "Choose File", ".linaleveldata", ".");
 		}
 
 		// Panels.
@@ -374,11 +333,11 @@ namespace LinaEditor
 		else if (item == MenuBarItems::LogPanel)
 			m_logPanel->Open();
 		else if (item == MenuBarItems::ImGuiPanel)
-			showIMGUIDemo = true;
+			s_showIMGUIDemo = true;
 
 		// Debug
 		else if (item == MenuBarItems::DebugViewPhysics)
-			m_physicsEngine->SetDebugDraw(physicsDebugEnabled);
+			m_physicsEngine->SetDebugDraw(s_physicsDebugEnabled);
 
 		else if (item == MenuBarItems::DebugViewShadows)
 			m_scenePanel->SetDrawMode(LinaEditor::ScenePanel::DrawMode::ShadowMap);
@@ -391,7 +350,7 @@ namespace LinaEditor
 	void GUILayer::DrawLevelDataDialogs()
 	{
 		// Save level dialogue.
-		if (igfd::ImGuiFileDialog::Instance()->FileDialog(saveLevelDialogID))
+		if (igfd::ImGuiFileDialog::Instance()->FileDialog(s_saveLevelDialogID))
 		{
 			// action if OK
 			if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
@@ -404,14 +363,14 @@ namespace LinaEditor
 
 				m_currentLevel->SerializeLevelData(filePath, rawName, *m_currentLevel, *m_ecs);
 
-				igfd::ImGuiFileDialog::Instance()->CloseDialog(saveLevelDialogID);
+				igfd::ImGuiFileDialog::Instance()->CloseDialog(s_saveLevelDialogID);
 			}
 
-			igfd::ImGuiFileDialog::Instance()->CloseDialog(saveLevelDialogID);
+			igfd::ImGuiFileDialog::Instance()->CloseDialog(s_saveLevelDialogID);
 		}
 
 		// Load level dialogue.
-		if (igfd::ImGuiFileDialog::Instance()->FileDialog(loadLevelDialogID))
+		if (igfd::ImGuiFileDialog::Instance()->FileDialog(s_loadLevelDialogID))
 		{
 			// action if OK
 			if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
@@ -428,10 +387,10 @@ namespace LinaEditor
 				// Refresh ECS panel.
 				m_ecsPanel->Refresh();
 
-				igfd::ImGuiFileDialog::Instance()->CloseDialog(loadLevelDialogID);
+				igfd::ImGuiFileDialog::Instance()->CloseDialog(s_loadLevelDialogID);
 			}
 
-			igfd::ImGuiFileDialog::Instance()->CloseDialog(loadLevelDialogID);
+			igfd::ImGuiFileDialog::Instance()->CloseDialog(s_loadLevelDialogID);
 
 		}
 	}
@@ -476,8 +435,8 @@ namespace LinaEditor
 		if (opt_fullscreen)
 		{
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImVec2 size = ImVec2(viewport->GetWorkSize().x, viewport->GetWorkSize().y - DOCKSPACE_BEGIN);
-			ImVec2 pos = ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y + DOCKSPACE_BEGIN);
+			ImVec2 size = ImVec2(viewport->GetWorkSize().x, viewport->GetWorkSize().y - GLOBAL_DOCKSPACE_BEGIN);
+			ImVec2 pos = ImVec2(viewport->GetWorkPos().x, viewport->GetWorkPos().y + GLOBAL_DOCKSPACE_BEGIN);
 			ImGui::SetNextWindowPos(pos);
 			ImGui::SetNextWindowSize(size);
 			ImGui::SetNextWindowViewport(viewport->ID);
@@ -498,15 +457,10 @@ namespace LinaEditor
 		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
 		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 
-
-
-
 		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(HEADER_COLOR_BG.r, HEADER_COLOR_BG.g, HEADER_COLOR_BG.b, HEADER_COLOR_BG.a));
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, GLOBAL_FRAMEPADDING_WINDOW);
-
 		ImGui::Begin("DockSpace", NULL, window_flags);
-
 		ImGui::PopStyleVar();
 
 		if (opt_fullscreen)
@@ -520,9 +474,9 @@ namespace LinaEditor
 
 			ImGui::DockSpace(dockspace_id, ImVec2(0, 0), dockspace_flags);
 
-			if (setDockspaceLayout)
+			if (s_setDockspaceLayout)
 			{
-				setDockspaceLayout = false;
+				s_setDockspaceLayout = false;
 				Vector2 screenSize = m_appWindow->GetSize();
 				ImGui::DockBuilderRemoveNode(dockspace_id); // Clear out existing layout
 				ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace); // Add empty node
@@ -538,7 +492,6 @@ namespace LinaEditor
 				ImGui::DockBuilderDockWindow("Scene", dock_main_id);
 				ImGui::DockBuilderDockWindow("Log", dock_id_bottom);
 				ImGui::DockBuilderDockWindow("Properties", dock_id_right);
-
 				ImGui::DockBuilderFinish(dockspace_id);
 
 			}
@@ -547,9 +500,7 @@ namespace LinaEditor
 
 		ImGui::End();
 		ImGui::PopStyleVar();
-
 		ImGui::Begin("Background", NULL, ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoInputs);
-
 		ImGui::End();
 		ImGui::PopStyleColor();
 	}

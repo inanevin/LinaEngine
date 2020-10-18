@@ -74,16 +74,9 @@ namespace LinaEditor
 		virtual void Draw(float frameTime) override;
 		virtual void Setup() override;
 
-		// Set selected entity's transform component
 		void SetSelectedTransform(LinaEngine::ECS::TransformComponent* tr) { m_selectedTransform = tr; }
-
-		// Handle hardware input
 		void ProcessInput();
-
-		// Handles gizmos
 		void DrawGizmos();
-
-		// Sets draw mode
 		void SetDrawMode(DrawMode mode) { m_drawMode = mode; }
 
 	private:

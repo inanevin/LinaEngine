@@ -75,7 +75,6 @@ namespace LinaEditor
 		MenuItem(const char* icon, const char* title, std::function<void()> onClick) : MenuElement(icon, title), m_onClick(onClick) {};
 		~MenuItem() {};
 
-		// Draw this menu button item.
 		virtual void Draw() override;
 
 	private:
@@ -95,7 +94,6 @@ namespace LinaEditor
 		MenuButton(const char* title, const char* popupID, std::vector<MenuElement*>& children, const LinaEngine::Color& bgColor = LinaEngine::Color(0,0,0,0), bool useSameLine = false);
 		~MenuButton();
 
-		// Draw this item.
 		virtual void Draw() override;
 	
 		// Closes children popup

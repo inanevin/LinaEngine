@@ -51,10 +51,7 @@ namespace LinaEngine
 		// Make the application thread sleep for designated amount of milliseconds.
 		static void Sleep(uint32 milliSeconds);
 
-		// Get elapesed time in nanoseconds.
 		static double GetCurrentTimeNanoseconds();
-
-		// Get elapsed time in milliseconds.
 		static double GetCurrentTimeMilliseconds();
 	};
 }

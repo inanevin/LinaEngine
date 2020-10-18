@@ -46,19 +46,15 @@ namespace LinaEngine::ECS
 	{
 		auto view = m_ecs->view<TransformComponent, SpriteRendererComponent>();
 
+		// Find the sprites and add them to the render queue.
 		for (auto entity : view)
 		{
-			// Sprite renderer
 			SpriteRendererComponent& renderer = view.get<SpriteRendererComponent>(entity);
 			if (!renderer.m_isEnabled) return;
 
-			// Transform
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 
-			// Render different batches.
 			Graphics::Material& mat = m_renderEngine->GetMaterial(renderer.m_materialID);
-
-			// Add to render queue.
 			Render(mat, transform.transform.ToMatrix());
 		}
 	}
@@ -71,6 +67,9 @@ namespace LinaEngine::ECS
 
 	void SpriteRendererSystem::Flush(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
 	{
+		// When flushed, all the data is delegated to the render device to do the actual
+		// drawing. Then the data is cleared if complete flush is requested.
+
 		for (std::map<Graphics::Material*, BatchModelData>::iterator it = m_renderBatch.begin(); it != m_renderBatch.end(); ++it)
 		{
 			// Get references.
@@ -89,10 +88,7 @@ namespace LinaEngine::ECS
 			m_spriteVertexArray.UpdateBuffer(2, models, numTransforms * sizeof(Matrix));
 			m_spriteVertexArray.UpdateBuffer(3, inverseTransposeModels, numTransforms * sizeof(Matrix));
 
-			// Update shader
 			m_renderEngine->UpdateShaderData(mat);
-
-			// Draw
 			m_renderDevice->Draw(m_spriteVertexArray.GetID(), drawParams, numTransforms, m_spriteVertexArray.GetIndexCount(), false);
 
 			// Clear the buffer.

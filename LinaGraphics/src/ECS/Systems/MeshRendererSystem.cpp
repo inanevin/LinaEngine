@@ -43,17 +43,16 @@ namespace LinaEngine::ECS
 
 		for (auto entity : view)
 		{
-			// Mesh renderer
 			MeshRendererComponent& renderer = view.get<MeshRendererComponent>(entity);
 			if (!renderer.m_isEnabled) return;
 
-			// Transform
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 
 			// Dont draw if mesh or material does not exist.
 			if (renderer.m_materialID < 0 || renderer.m_meshID < 0) continue;
 
-			// Render different batches.
+			// We get the materials, then according to their surface types we add the mesh
+			// data into either opaque queue or the transparent queue.
 			Graphics::Material& mat = m_renderEngine->GetMaterial(renderer.m_materialID);
 			Graphics::Mesh& mesh = m_renderEngine->GetMesh(renderer.m_meshID);
 
@@ -64,7 +63,7 @@ namespace LinaEngine::ECS
 			}
 			else
 			{
-				// Set the priority as distance to the camera.
+				// Transparent queue is a priority queue unlike the opaque one, so we set the priority as distance to the camera.
 				float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - transform.transform.m_location).MagnitudeSqrt();
 
 				for (int i = 0; i < mesh.GetVertexArrays().size(); i++)
@@ -76,17 +75,19 @@ namespace LinaEngine::ECS
 
 	void MeshRendererSystem::RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn)
 	{
+		// Render commands basically add the necessary
+		// draw data into the maps/lists etc.
 		Graphics::BatchDrawData drawData;
 		drawData.m_vertexArray = &vertexArray;
 		drawData.m_material = &material;
-		// Add the new data to the map.
 		m_opaqueRenderBatch[drawData].m_models.push_back(transformIn);
 		m_opaqueRenderBatch[drawData].m_inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
 	}
 
 	void MeshRendererSystem::RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn,float priority)
 	{
-		//m_TransparentRenderBatch.emplace(std::make);
+		// Render commands basically add the necessary
+		// draw data into the maps/lists etc.
 		Graphics::BatchDrawData drawData;
 		drawData.m_vertexArray = &vertexArray;
 		drawData.m_material = &material;
@@ -95,15 +96,16 @@ namespace LinaEngine::ECS
 		Graphics::BatchModelData modelData;
 		modelData.m_models.push_back(transformIn);
 		modelData.m_inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
-		//// Add the new data to the map.
 		m_transparentRenderBatch.emplace(std::make_pair(drawData, modelData));	
 	}
 
 	void MeshRendererSystem::FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
 	{
+		// When flushed, all the data is delegated to the render device to do the actual
+		// drawing. Then the data is cleared if complete flush is requested.
+
 		for (std::map<Graphics::BatchDrawData, Graphics::BatchModelData>::iterator it = m_opaqueRenderBatch.begin(); it != m_opaqueRenderBatch.end(); ++it)
 		{
-
 			// Get references.
 			Graphics::BatchDrawData drawData = it->first;
 			Graphics::BatchModelData& modelData = it->second;
@@ -122,10 +124,7 @@ namespace LinaEngine::ECS
 			vertexArray->UpdateBuffer(5, models, numTransforms * sizeof(Matrix));
 			vertexArray->UpdateBuffer(6, inverseTransposeModels, numTransforms * sizeof(Matrix));
 
-			// Update shader
 			m_renderEngine->UpdateShaderData(mat);
-
-			// Draw
 			m_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
 
 			// Clear the buffer.
@@ -139,6 +138,8 @@ namespace LinaEngine::ECS
 
 	void MeshRendererSystem::FlushTransparent(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
 	{
+		// When flushed, all the data is delegated to the render device to do the actual
+		// drawing. Then the data is cleared if complete flush is requested.
 
 		// Empty out the queue
 		while (!m_transparentRenderBatch.empty())
@@ -162,10 +163,7 @@ namespace LinaEngine::ECS
 			vertexArray->UpdateBuffer(5, models, numTransforms * sizeof(Matrix));
 			vertexArray->UpdateBuffer(6, inverseTransposeModels, numTransforms * sizeof(Matrix));
 
-			// Update shader
 			m_renderEngine->UpdateShaderData(mat);
-
-			// Draw
 			m_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
 
 			// Clear the buffer.

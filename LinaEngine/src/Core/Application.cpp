@@ -72,7 +72,6 @@ namespace LinaEngine
 		m_drawLineCallback = std::bind(&Application::OnDrawLine, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
 		m_postSceneDrawCallback = std::bind(&Application::OnPostSceneDraw, this);
 
-
 		// Set event callback for main window.
 		m_appWindow->SetKeyCallback(m_keyCallback);
 		m_appWindow->SetMouseCallback(m_mouseCallback);
@@ -81,12 +80,10 @@ namespace LinaEngine
 		m_renderEngine->SetPostSceneDrawCallback(m_postSceneDrawCallback);
 		m_renderEngine->SetViewportDisplay(Vector2::Zero, m_appWindow->GetSize());
 
-		// Initialize engines.
 		m_inputEngine->Initialize(m_appWindow->GetNativeWindow(), m_inputDevice);
 		m_physicsEngine->Initialize(m_ecs, m_drawLineCallback);
 		m_renderEngine->Initialize(m_ecs, *m_appWindow);
 
-		// Set running flag.
 		m_running = true;
 	}
 
@@ -116,7 +113,7 @@ namespace LinaEngine
 		// Dump to cout
 		std::cout << dump.m_message << std::endl;
 
-		// Dispatch the action to any listeners.
+		// Dispatch the action to any listener.
 		DispatchAction<Log::LogDump>(Action::ActionType::MessageLogged,dump);
 	}
 
@@ -151,13 +148,11 @@ namespace LinaEngine
 
 			while (accumulator >= dt)
 			{
-				// Update physics engine.
 				m_physicsEngine->Tick(dt);
 				t += dt;
 				accumulator -= dt;
 			}
 
-			// Update render engine.
 			if (m_canRender)
 			{
 				// render level.
@@ -167,7 +162,6 @@ namespace LinaEngine
 				// Update gui layers & swap buffers
 				m_renderEngine->TickAndSwap(frameTime);
 			}
-
 
 			// Simple FPS count
 			m_fpsCounter++;
@@ -179,11 +173,8 @@ namespace LinaEngine
 				m_fpsCounter = 0;
 			}
 
-			// Update necessary engines that the first run has finished.
 			if (m_firstRun)
-			{
 				m_firstRun = false;
-			}
 
 		}
 	}

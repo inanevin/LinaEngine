@@ -56,11 +56,11 @@ namespace LinaEditor
 
 	enum class FileType
 	{
-		UNKNOWN,
-		TEXTURE2D,
-		MESH,
-		FONT,
-		MATERIAL
+		Unknown,
+		Texture2D,
+		Mesh,
+		Font,
+		Material
 	};
 
 
@@ -78,6 +78,7 @@ namespace LinaEditor
 	class EditorFolder
 	{
 	public:
+
 		EditorFolder() {};
 		~EditorFolder() {};
 		std::string m_path = "";
