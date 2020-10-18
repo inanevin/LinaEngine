@@ -30,9 +30,7 @@ SOFTWARE.
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "Input/InputAxisBinder.hpp"
-#include "Input/InputCommon.hpp"
 #include "Input/InputEngine.hpp"
-#include "Utility/Math/Math.hpp"
 
 namespace LinaEngine::ECS
 {
