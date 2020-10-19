@@ -39,11 +39,13 @@ namespace LinaEditor
 	int SelectMeshModal::Draw(const std::map<int, LinaEngine::Graphics::Mesh>& map)
 	{
 		ImGui::BeginChild("SelectMeshModalChild", ImVec2(0, 300), true);
-		WidgetsUtility::IncrementCursorPosY(5);
 		int selected = -1;
 		
 		for(std::map<int, LinaEngine::Graphics::Mesh>::const_iterator it = map.begin(); it != map.end(); it++)
 		{
+			WidgetsUtility::IncrementCursorPosY(5);
+			WidgetsUtility::IncrementCursorPosX(5);
+
 			if (ImGui::Selectable(it->second.GetPath().c_str()))
 			{
 
