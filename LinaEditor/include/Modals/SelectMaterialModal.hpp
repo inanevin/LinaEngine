@@ -29,7 +29,7 @@ SOFTWARE.
 /*
 Class: SelectMaterialModal
 
-
+A selection that popups up when we want to display all the materials to select from.
 
 Timestamp: 10/20/2020 12:53:37 AM
 */

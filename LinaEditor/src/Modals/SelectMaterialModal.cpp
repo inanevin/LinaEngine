@@ -27,11 +27,47 @@ SOFTWARE.
 */
 
 #include "Modals/SelectMaterialModal.hpp"
+#include "Widgets/WidgetsUtility.hpp"
+#include "imgui/imgui.h"
 
 namespace LinaEditor
 {
-	void SelectMaterialModal::Draw(const std::map<int, LinaEngine::Graphics::Material>& map, int* selectedMatID, std::string& matPath)
+	void SelectMaterialModal::Draw(const std::map<int, LinaEngine::Graphics::Material>& map, int* selectedMatID, std::string& selectedMatPath)
 	{
+		ImGui::BeginChild("SelectMeshModalChild", ImVec2(0, 300), true);
+
+		static int selected = -1;
+		static std::string selectedPath = "";
+		for (std::map<int, LinaEngine::Graphics::Material>::const_iterator it = map.begin(); it != map.end(); it++)
+		{
+			WidgetsUtility::IncrementCursorPosY(5);
+			WidgetsUtility::IncrementCursorPosX(5);
+
+			if (ImGui::Selectable(it->second.GetPath().c_str(), selected == it->second.GetID()))
+			{
+				selected = it->second.GetID();
+				selectedPath = it->second.GetPath();
+			}
+		}
+
+		ImGui::EndChild();
+		WidgetsUtility::IncrementCursorPosY(15);
+		WidgetsUtility::IncrementCursorPosX(10);
+
+		if (WidgetsUtility::Button("Add Selected", ImVec2(ImGui::GetWindowSize().x * 0.5f - 20, 0.0f)))
+		{
+			*selectedMatID = selected;
+			selectedMatPath = selectedPath;
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::SameLine();
+		WidgetsUtility::IncrementCursorPosX(10);
+		if (WidgetsUtility::Button("Close", ImVec2(ImGui::GetWindowSize().x * 0.5f - 20, 0.0f)))
+		{
+
+			ImGui::CloseCurrentPopup();
+		}
 	}
 
 }

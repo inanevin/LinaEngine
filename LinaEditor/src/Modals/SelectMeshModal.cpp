@@ -27,12 +27,9 @@ SOFTWARE.
 */
 
 #include "Modals/SelectMeshModal.hpp"
-#include "Core/EditorCommon.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "imgui/imgui.h"
-#include "IconsFontAwesome5.h"
-#include "IconsForkAwesome.h"
-#include <map>
+
 
 namespace LinaEditor
 {

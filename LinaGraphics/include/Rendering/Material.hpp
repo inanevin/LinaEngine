@@ -154,6 +154,7 @@ namespace LinaEngine::Graphics
 			return m_matrices[name];
 		}
 		
+		int GetID() const { return m_MaterialID; }
 		const std::string& GetPath() const { return m_path; }
 		Shaders GetShaderType() { return m_shaderType; }
 		uint32 GetShaderID() { return m_shaderID; }
@@ -164,16 +165,16 @@ namespace LinaEngine::Graphics
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_usesHDRI, m_receivesLighting, m_isShadowMapped, m_shaderType, m_surfaceType, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
+			archive(m_usesHDRI, m_receivesLighting, m_isShadowMapped, m_shaderType, m_surfaceType, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bool);
 		}
 
-		int m_MaterialID = -1;
 
 	private:
 
 		friend class RenderEngine;
 		friend class RenderContext;
 
+		int m_MaterialID = -1;
 		std::string m_path = "";
 		uint32 m_shaderID = 0;
 		bool m_usesHDRI = false;
