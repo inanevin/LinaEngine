@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -42,6 +42,14 @@ SOFTWARE.
 
 namespace LinaEngine::World
 {
+	bool Level::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
+	{
+		if (loadFromFile)
+			DeserializeLevelData(path, levelName);
+
+		return true;
+	}
+
 	void Level::SerializeLevelData(const std::string& path, const std::string& levelName)
 	{
 		LinaEngine::ECS::ECSRegistry& registry = LinaEngine::Application::GetECSRegistry();
@@ -97,8 +105,8 @@ namespace LinaEngine::World
 		std::ifstream regSnapshotStream(path + "/" + levelName + "_ecsSnapshot.linasnapshot");
 		{
 			cereal::BinaryInputArchive iarchive(regSnapshotStream);
-		
-			entt::snapshot_loader{ registry}
+
+			entt::snapshot_loader{ registry }
 				.entities(iarchive)
 				.component<LinaEngine::ECS::CameraComponent,
 				LinaEngine::ECS::FreeLookComponent,

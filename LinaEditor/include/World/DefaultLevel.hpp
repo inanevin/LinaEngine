@@ -55,7 +55,7 @@ namespace LinaEditor
 	
 
 		// Inherited via Level
-		virtual bool Install() override;
+		virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName) override;
 		virtual void Initialize() override;
 	};
 }

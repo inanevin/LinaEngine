@@ -235,12 +235,12 @@ namespace LinaEngine
 		m_layerStack.PushOverlay(layer);
 	}
 
-	bool Application::InstallLevel(LinaEngine::World::Level& level)
+	bool Application::InstallLevel(LinaEngine::World::Level& level, bool loadFromFile, const std::string& path, const std::string& levelName)
 	{
 		if (m_currentLevel != nullptr)
 			UninstallLevel(*m_currentLevel);
 
-		bool install = level.Install();
+		bool install = level.Install(loadFromFile, path, levelName);
 
 		s_engineDispatcher.DispatchAction<World::Level*>(Action::ActionType::LevelInstalled, &level);
 		return install;

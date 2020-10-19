@@ -31,7 +31,7 @@ public:
 	Example1Level() {};
 	~Example1Level();
 
-	virtual bool Install() override;
+	virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName) override;
 	virtual void Initialize() override;
 	virtual void Tick(float delta) override;
 };

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -50,7 +50,7 @@ namespace LinaEngine::World
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(dummy); 
+			archive(dummy);
 		}
 
 		int dummy;
@@ -66,7 +66,7 @@ namespace LinaEngine::World
 
 		virtual void OnLevelLoaded() {};
 		virtual void OnLevelRemoved() {};
-		virtual bool Install() = 0;
+		virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName);
 		virtual void Uninstall() {};
 		virtual void Initialize() {};
 		virtual void Tick(float delta) {};

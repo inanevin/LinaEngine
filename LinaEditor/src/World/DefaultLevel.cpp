@@ -44,7 +44,7 @@ namespace LinaEditor
 		
 	}
 
-	bool DefaultLevel::Install()
+	bool DefaultLevel::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
 	{
 		return true;
 	}

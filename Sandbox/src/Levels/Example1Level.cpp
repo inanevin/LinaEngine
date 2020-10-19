@@ -68,7 +68,7 @@ Texture*  metallicFloor;
 Texture*  roughnessFloor;
 Texture*  aoFloor;
 
-bool Example1Level::Install()
+bool Example1Level::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
 {
 	LINA_CLIENT_WARN("Example level 1 install.");
 
