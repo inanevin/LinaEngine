@@ -118,8 +118,8 @@ namespace LinaEditor
 					file.type = FileType::Material;
 					file.id = ++s_itemIDCounter;
 
-					Graphics::Material& m = LinaEngine::Application::GetRenderEngine().CreateMaterial(file.id, Graphics::Shaders::PBR_LIT);
-					EditorUtility::SerializeMaterial(materialPath, m);
+					Graphics::Material& m = LinaEngine::Application::GetRenderEngine().CreateMaterial(Graphics::Shaders::PBR_LIT);
+					Graphics::Material::SaveMaterialData(m, materialPath);
 
 					if (s_hoveredFolder != nullptr)
 						s_hoveredFolder->m_files[file.id] = file;

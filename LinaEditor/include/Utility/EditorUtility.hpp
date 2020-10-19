@@ -65,7 +65,6 @@ namespace LinaEditor
 		static bool CreateFolderInPath(const std::string& path);
 		static bool GetDirectories(std::vector<std::string>& vec, const std::string& path);
 		static bool DeleteDirectory(const std::string& path);
-		static void SerializeMaterial(const std::string& path, class LinaEngine::Graphics::Material& mat);
 
 	private:
 

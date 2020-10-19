@@ -190,21 +190,13 @@ namespace LinaEngine::Graphics
 	}
 
 
-	Material& RenderEngine::CreateMaterial(int id, Shaders shader)
+	Material& RenderEngine::CreateMaterial(Shaders shader)
 	{
-		if (!MaterialExists(id))
-		{
-			// Create material & set it's shader.
-			SetMaterialShader(m_loadedMaterials[id], shader);
-			m_loadedMaterials[id].m_MaterialID = id;
-			return m_loadedMaterials[id];
-		}
-		else
-		{
-			// Abort if material exists.
-			LINA_CORE_WARN("Material with the id {0} already exists, returning that...", id);
-			return m_loadedMaterials[id];
-		}
+		// Create material & set it's shader.
+		int id = Utility::GetUniqueID();
+		SetMaterialShader(m_loadedMaterials[id], shader);
+		m_loadedMaterials[id].m_MaterialID = id;
+		return m_loadedMaterials[id];
 	}
 
 	Texture& RenderEngine::CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams, bool compress, bool useDefaultFormats)

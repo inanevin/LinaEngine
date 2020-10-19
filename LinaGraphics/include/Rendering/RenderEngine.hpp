@@ -112,7 +112,7 @@ namespace LinaEngine::Graphics
 		// Sets the viewport offset & display size
 		void SetViewportDisplay(Vector2 offset, Vector2 size);
 
-		Material& CreateMaterial(int id, Shaders shader);
+		Material& CreateMaterial(Shaders shader);
 		Texture& CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false);
 		Texture& CreateTextureHDRI(const std::string filePath);
 		Mesh& CreateMesh (const std::string& filePath, MeshParameters meshParams = MeshParameters(), int id = -1);

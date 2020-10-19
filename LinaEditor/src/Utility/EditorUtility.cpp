@@ -50,13 +50,4 @@ namespace LinaEditor
 		return false;
 	}
 
-	void EditorUtility::SerializeMaterial(const std::string& path, LinaEngine::Graphics::Material& mat)
-	{
-		std::ofstream os(path);
-		{
-			cereal::BinaryOutputArchive oarchive(os); // Create an output archive
-			oarchive(mat); // Write the data to the archive
-		}
-	}
-
 }
