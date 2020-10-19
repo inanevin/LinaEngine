@@ -46,9 +46,9 @@ namespace LinaEngine::ECS
 {
 	struct FreeLookComponent : public ECSComponent
 	{
-		LinaEngine::Vector2 m_angles;
-		LinaEngine::Vector2 m_movementSpeeds = LinaEngine::Vector2(3, 3);
-		LinaEngine::Vector2 m_rotationSpeeds = LinaEngine::Vector2(5, 5);
+		LinaEngine::Vector2 m_angles = LinaEngine::Vector2::Zero;
+		LinaEngine::Vector2 m_movementSpeeds = LinaEngine::Vector2(12,12);
+		LinaEngine::Vector2 m_rotationSpeeds = LinaEngine::Vector2(3, 3);
 
 		template<class Archive>
 		void serialize(Archive& archive)

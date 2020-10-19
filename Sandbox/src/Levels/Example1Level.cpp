@@ -201,14 +201,7 @@ void Example1Level::Initialize()
 	ecs.emplace<RigidbodyComponent>(c1, r);
 
 
-	camera = ecs.CreateEntity("Camera");
-	auto& camFreeLook = ecs.emplace<FreeLookComponent>(camera);
-	auto& camTransform = ecs.emplace<TransformComponent>(camera);
-	auto& camCamera = ecs.emplace<CameraComponent>(camera);
-	camTransform.transform.m_location = Vector3(0,5,-5);
-	camFreeLook.m_movementSpeeds = Vector2(12, 12);
-	camFreeLook.m_rotationSpeeds = Vector2(3, 3);
-
+	
 
 	return;
 
