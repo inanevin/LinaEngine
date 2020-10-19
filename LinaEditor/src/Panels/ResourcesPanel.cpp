@@ -342,7 +342,7 @@ namespace LinaEditor
 			if (file.type == FileType::Texture2D)
 				LinaEngine::Application::GetRenderEngine().CreateTexture2D(file.path);
 			else if (file.type == FileType::Mesh)
-				LinaEngine::Application::GetRenderEngine().CreateMesh(file.id, file.path);
+				LinaEngine::Application::GetRenderEngine().CreateMesh(file.path);
 		}
 
 		// Recursively load subfolders.

@@ -115,7 +115,7 @@ namespace LinaEngine::Graphics
 		Material& CreateMaterial(int id, Shaders shader);
 		Texture& CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false);
 		Texture& CreateTextureHDRI(const std::string filePath);
-		Mesh& CreateMesh(int id, const std::string& filePath, MeshParameters meshParams = MeshParameters());
+		Mesh& CreateMesh (const std::string& filePath, MeshParameters meshParams = MeshParameters(), int id = -1);
 		Mesh& CreatePrimitive(Primitives primitive, const std::string& path);
 		Shader& CreateShader(Shaders shader, const std::string& path, bool usesGeometryShader = false);
 		Material& GetMaterial(int id);
@@ -157,6 +157,8 @@ namespace LinaEngine::Graphics
 
 		// Commands the render device to put the params in place.
 		void SetDrawParameters(const DrawParams& params);
+
+		std::map<int, Mesh>& GetLoadedMeshes() { return m_loadedMeshes; }
 
 	private:
 

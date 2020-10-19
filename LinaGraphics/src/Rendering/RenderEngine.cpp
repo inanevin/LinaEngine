@@ -272,46 +272,36 @@ namespace LinaEngine::Graphics
 		return *m_loadedTextures[texture->GetID()];
 	}
 
-	Mesh& RenderEngine::CreateMesh(int id, const std::string& filePath, MeshParameters meshParams)
+	Mesh& RenderEngine::CreateMesh(const std::string& filePath, MeshParameters meshParams, int id)
 	{
+		// Create object data & feed it from model.
+		if (id == -1) id = Utility::GetUniqueID();
 
-		if (!MeshExists(id))
+		Mesh& mesh = m_loadedMeshes[id];
+		mesh.SetParameters(meshParams);
+		ModelLoader::LoadModel(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs(), meshParams);
+
+		if (mesh.GetIndexedModels().size() == 0)
 		{
-
-			// Create object data & feed it from model.
-			Mesh& mesh = m_loadedMeshes[id];
-			mesh.SetParameters(meshParams);
-			ModelLoader::LoadModel(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs(), meshParams);
-
-			if (mesh.GetIndexedModels().size() == 0)
-			{
-				LINA_CORE_WARN("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad...", filePath);
-				UnloadMeshResource(id);
-				return GetPrimitive(Primitives::PLANE);
-			}
-
-			// Create vertex array for each mesh.
-			for (uint32 i = 0; i < mesh.GetIndexedModels().size(); i++)
-			{
-				VertexArray* vertexArray = new VertexArray();
-				vertexArray->Construct(m_renderDevice, mesh.GetIndexedModels()[i], BufferUsage::USAGE_STATIC_COPY);
-				mesh.GetVertexArrays().push_back(vertexArray);
-			}
-
-			// Set id
-			mesh.m_MeshID = id;
-			mesh.m_path = filePath;
-
-			// Return
-			return m_loadedMeshes[id];
-		}
-		else
-		{
-			// Mesh with this name already exists!
-			LINA_CORE_WARN("Mesh with the name {0} already exists, returning that...", filePath);
-			return m_loadedMeshes[id];
+			LINA_CORE_WARN("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad...", filePath);
+			UnloadMeshResource(id);
+			return GetPrimitive(Primitives::PLANE);
 		}
 
+		// Create vertex array for each mesh.
+		for (uint32 i = 0; i < mesh.GetIndexedModels().size(); i++)
+		{
+			VertexArray* vertexArray = new VertexArray();
+			vertexArray->Construct(m_renderDevice, mesh.GetIndexedModels()[i], BufferUsage::USAGE_STATIC_COPY);
+			mesh.GetVertexArrays().push_back(vertexArray);
+		}
+
+		// Set id
+		mesh.m_MeshID = id;
+		mesh.m_path = filePath;
+
+		// Return
+		return m_loadedMeshes[id];
 	}
 
 	Mesh& RenderEngine::CreatePrimitive(Primitives primitive, const std::string& path)
@@ -736,12 +726,12 @@ namespace LinaEngine::Graphics
 	void RenderEngine::ConstructEnginePrimitives()
 	{
 		// Primitives
-		CreateMesh(Primitives::CUBE, "resources/engine/meshes/primitives/cube.obj");
-		CreateMesh(Primitives::CYLINDER, "resources/engine/meshes/primitives/cylinder.obj");
-		CreateMesh(Primitives::PLANE, "resources/engine/meshes/primitives/plane.obj");
-		CreateMesh(Primitives::SPHERE, "resources/engine/meshes/primitives/sphere.obj");
-		CreateMesh(Primitives::ICOSPHERE, "resources/engine/meshes/primitives/icosphere.obj");
-		CreateMesh(Primitives::CONE, "resources/engine/meshes/primitives/cone.obj");
+		CreateMesh("resources/engine/meshes/primitives/cube.obj", MeshParameters(), Primitives::CUBE);
+		CreateMesh("resources/engine/meshes/primitives/cylinder.obj", MeshParameters(), Primitives::CYLINDER);
+		CreateMesh("resources/engine/meshes/primitives/plane.obj", MeshParameters(), Primitives::PLANE);
+		CreateMesh("resources/engine/meshes/primitives/sphere.obj", MeshParameters(), Primitives::SPHERE);
+		CreateMesh("resources/engine/meshes/primitives/icosphere.obj", MeshParameters(), Primitives::ICOSPHERE);
+		CreateMesh("resources/engine/meshes/primitives/cone.obj", MeshParameters(), Primitives::CONE);
 	}
 
 	void RenderEngine::ConstructRenderTargets()
