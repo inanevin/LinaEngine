@@ -731,8 +731,7 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		ImGui::SameLine(); 
 		ImGui::SetCursorPosX(cursorPosValues); 
 		ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
-		static ImGuiInputTextFlags flags = ImGuiInputTextFlags_ReadOnly;
-		ImGui::InputText("##selectedMesh", meshPathCStr, IM_ARRAYSIZE(meshPathCStr), flags);
+		ImGui::InputText("##selectedMesh", meshPathCStr, IM_ARRAYSIZE(meshPathCStr), ImGuiInputTextFlags_ReadOnly);
 		ImGui::SameLine(); 
 		WidgetsUtility::IncrementCursorPosY(5);
 
@@ -754,6 +753,8 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
 
 		renderer.m_meshID = selectedMeshID;
+
+
 		//ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Rotation Speeds");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat2("##rs", &renderer.m_rotationSpeeds.x);
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 	}

@@ -35,6 +35,7 @@ src/Drawers/TextureDrawer.cpp
 #Modals
 src/Modals/SelectComponentModal.cpp
 src/Modals/SelectMeshModal.cpp
+src/Modals/SelectMaterialModal.cpp
 
 # Panels
 src/Panels/EditorPanel.cpp
@@ -86,6 +87,7 @@ include/Drawers/TextureDrawer.hpp
 # Modals
 include/Modals/SelectComponentModal.hpp
 include/Modals/SelectMeshModal.hpp
+include/Modals/SelectMaterialModal.hpp
 
 # Panels
 include/Panels/EditorPanel.hpp
