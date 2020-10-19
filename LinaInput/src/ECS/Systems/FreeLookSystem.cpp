@@ -37,6 +37,8 @@ namespace LinaEngine::ECS
 
 	void FreeLookSystem::UpdateComponents(float delta)
 	{
+		if (!m_isActive) return;
+
 		auto view = m_ecs->view<TransformComponent, FreeLookComponent>();
 
 		for (auto entity : view)
@@ -51,6 +53,7 @@ namespace LinaEngine::ECS
 				m_inputEngine->SetCursorMode(LinaEngine::Input::CursorMode::Disabled);
 
 			Vector2 mouseAxis = m_inputEngine->GetMouseAxis();
+
 
 			// Holding right click enables rotating.
 			if (m_inputEngine->GetMouseButton(LinaEngine::Input::InputCode::Mouse::Mouse2))

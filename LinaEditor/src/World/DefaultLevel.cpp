@@ -31,13 +31,9 @@ SOFTWARE.
 #include "Rendering/Material.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Utility/UtilityFunctions.hpp"
-#include "ECS/Components/TransformComponent.hpp"
-#include "ECS/Components/CameraComponent.hpp"
-#include "ECS/Components/FreeLookComponent.hpp"
-#include "ECS/Systems/FreeLookSystem.hpp"
 
 using namespace LinaEngine::Graphics;
-using namespace LinaEngine::ECS;
+
 
 
 namespace LinaEditor
@@ -62,18 +58,7 @@ namespace LinaEditor
 		mat.SetColor("material.endColor", Color(0.2f, 0.2f, 0.2f));
 		mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
 		renderEngine.SetSkyboxMaterial(mat);
-
-		return;
-		// ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
-		// ECSEntity editorCamera = ecs.CreateEntity("Editor Camera");
-		// TransformComponent cameraTransform;
-		// CameraComponent cameraComponent;
-		// FreeLookComponent freeLookComponent;
-		// ecs.emplace<TransformComponent>(editorCamera, cameraTransform);
-		// ecs.emplace<CameraComponent>(editorCamera, cameraComponent);
-		// ecs.emplace<FreeLookComponent>(editorCamera, freeLookComponent);
-		// ecsFreeLookSystem = new FreeLookSystem();
-		// ecsFreeLookSystem->Construct(ecs, LinaEngine::Application::GetInputEngine());
+	
 	}
 
 

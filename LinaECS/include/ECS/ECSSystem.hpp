@@ -88,11 +88,13 @@ namespace LinaEngine::ECS
 		BaseECSSystem() {};
 
 		virtual void UpdateComponents(float delta) = 0;
+		virtual void SystemActivation(bool active) { m_isActive = active; }
 
 	protected:
 
 		virtual void Construct(ECSRegistry& reg) { m_ecs = &reg; };
 		ECSRegistry* m_ecs = nullptr;
+		bool m_isActive = false;
 
 	};
 

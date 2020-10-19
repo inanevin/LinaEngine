@@ -43,27 +43,6 @@ Timestamp: 5/6/2019 5:10:23 PM
 
 #include <string>
 
-namespace LinaEngine
-{
-	class Application;
-
-	namespace Graphics
-	{
-		class RenderEngine;
-	}
-
-	namespace Input
-	{
-		class InputEngine;
-	}
-
-	namespace ECS
-	{
-		class ECSRegistry;
-	}
-}
-
-
 namespace LinaEngine::World
 {
 	struct LevelData
@@ -94,7 +73,6 @@ namespace LinaEngine::World
 
 		void SerializeLevelData(const std::string& path, const std::string& levelName);
 		void DeserializeLevelData(const std::string& path, const std::string& levelName);
-
 
 		LevelData m_levelData;
 

@@ -32,6 +32,12 @@ SOFTWARE.
 #include "Panels/ECSPanel.hpp"
 #include "Core/SplashScreen.hpp"
 #include "Core/GUILayer.hpp"
+#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/CameraComponent.hpp"
+#include "ECS/Components/FreeLookComponent.hpp"
+#include "ECS/Systems/FreeLookSystem.hpp"
+
+using namespace LinaEngine::ECS;
 
 namespace LinaEditor
 {
@@ -47,9 +53,9 @@ namespace LinaEditor
 		LINA_CLIENT_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
 	}
 
-	void EditorApplication::Initialize()
+	void EditorApplication::OnAttach()
 	{
-		LINA_CLIENT_TRACE("[Initialization] -> Editor Application ({0})", typeid(*this).name());
+		LINA_CLIENT_TRACE("[OnAttach] -> Editor Application ({0})", typeid(*this).name());
 
 		LinaEngine::Graphics::WindowProperties splashProps;
 		splashProps.m_width = 720;
@@ -60,15 +66,25 @@ namespace LinaEditor
 		SplashScreen* splash = new SplashScreen();
 		splash->Setup(splashProps);
 		splash->Draw(); // We should carry this over to a separate thread later on when things are more complex and requires data shown to the user while loading.
-		
+
 		// Remove splash.
 		delete splash;
-		
+
 		LinaEngine::Application::GetRenderEngine().PushLayer(m_guiLayer);
 
 		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::World::Level*>("##linaeditor_level_install", LinaEngine::Action::ActionType::LevelInstalled,
-		std::bind(&EditorApplication::LevelInstalled, this, std::placeholders::_1));
+			std::bind(&EditorApplication::LevelInstalled, this, std::placeholders::_1));
 
+	}
+
+	void EditorApplication::OnDetach()
+	{
+
+	}
+
+	void EditorApplication::OnTick(float dt)
+	{
+		m_freeLookSystem.UpdateComponents(dt);
 	}
 
 	void EditorApplication::Refresh()
@@ -78,7 +94,17 @@ namespace LinaEditor
 
 	void EditorApplication::LevelInstalled(LinaEngine::World::Level* level)
 	{
-		LINA_CLIENT_WARN("level installed");
+		ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
+		ECSEntity editorCamera = ecs.CreateEntity("Editor Camera");
+		TransformComponent cameraTransform;
+		CameraComponent cameraComponent;
+		FreeLookComponent freeLookComponent;
+		ecs.emplace<TransformComponent>(editorCamera, cameraTransform);
+		ecs.emplace<CameraComponent>(editorCamera, cameraComponent);
+		ecs.emplace<FreeLookComponent>(editorCamera, freeLookComponent);
+		m_freeLookSystem.Construct(ecs, LinaEngine::Application::GetInputEngine());
+		m_freeLookSystem.SystemActivation(true);
+		Refresh();
 	}
 
 
