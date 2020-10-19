@@ -27,9 +27,34 @@ SOFTWARE.
 */
 
 #include "Rendering/Material.hpp"
+#include <cereal/archives/json.hpp>
+#include <stdio.h>
+#include <cereal/archives/binary.hpp>
+#include <fstream>
 
 namespace LinaEngine::Graphics
 {
+	void Material::LoadMaterialData(Material& mat, const std::string& path)
+	{
+		std::ifstream stream(path);
+		{
+			cereal::BinaryInputArchive iarchive(stream);
+
+			// Read the data into it.
+			iarchive(mat);
+		}
+	}
+
+	void Material::SaveMaterialData(const Material& mat, const std::string& path)
+	{
+		std::ofstream stream(path);
+		{
+			cereal::BinaryOutputArchive oarchive(stream); // Create an output archive
+
+			oarchive(mat); // Write the data to the archive
+		}
+	}
+
 	void Material::SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode)
 	{
 		if (!(m_sampler2Ds.find(textureName) == m_sampler2Ds.end()))

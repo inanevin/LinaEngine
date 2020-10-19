@@ -188,8 +188,8 @@ void Example1Level::Initialize()
 	objectUnlitMaterial = &renderEngine.CreateMaterial(LinaEngine::Utility::GetUniqueID(), Shaders::STANDARD_UNLIT);
 
 	MeshRendererComponent cr;
-	cr.m_meshID = Primitives::CUBE;
-	cr.m_materialID = objectUnlitMaterial->m_MaterialID;
+	//cr.m_meshID = Primitives::CUBE;
+	//cr.m_materialID = objectUnlitMaterial->m_materialID;
 	TransformComponent objectTransform;
 	RigidbodyComponent r;
 
@@ -232,11 +232,11 @@ void Example1Level::Initialize()
 
 	MeshRendererComponent cubeRenderer;
 	cubeRenderer.m_meshID = Primitives::CUBE;
-	cubeRenderer.m_materialID = sphereMat->m_MaterialID;
+	//cubeRenderer.m_materialID = sphereMat->m_materialID;
 
 	MeshRendererComponent portalRenderer;
 	portalRenderer.m_meshID = Primitives::PLANE;
-	portalRenderer.m_materialID = sphereMat->m_MaterialID;
+	//portalRenderer.m_materialID = sphereMat->m_materialID;
 
 	RigidbodyComponent sphereRB;
 	sphereRB.m_mass = 1.0f;
@@ -245,7 +245,7 @@ void Example1Level::Initialize()
 
 	MeshRendererComponent floorRenderer;
 	floorRenderer.m_meshID = Primitives::PLANE;
-	floorRenderer.m_materialID = floorMaterial->m_MaterialID;
+	//floorRenderer.m_materialID = floorMaterial->m_materialID;
 
 	DirectionalLightComponent dirLightComp;
 
@@ -322,7 +322,7 @@ void Example1Level::Initialize()
 		MeshRendererComponent lightRenderer;
 		SpotLightComponent sLight1;
 		lightTransform.transform.m_location = spotLightPositions[i];
-		lightRenderer.m_materialID = objectUnlitMaterial->m_MaterialID;
+		//lightRenderer.m_materialID = objectUnlitMaterial->m_materialID;
 		lightRenderer.m_meshID = Primitives::CUBE;
 		sLight = ecs.CreateEntity("Spot light" + i);
 

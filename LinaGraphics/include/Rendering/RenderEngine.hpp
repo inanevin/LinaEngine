@@ -160,7 +160,7 @@ namespace LinaEngine::Graphics
 		void SetDrawParameters(const DrawParams& params);
 
 		std::map<int, Mesh>& GetLoadedMeshes() { return m_loadedMeshes; }
-
+		std::map<int, Material>& GetLoadedMaterials()  { return m_loadedMaterials; }
 	private:
 
 		void ConstructEngineShaders();

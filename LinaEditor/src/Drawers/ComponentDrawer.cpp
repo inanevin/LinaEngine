@@ -40,6 +40,7 @@ SOFTWARE.
 #include "ECS/Components/RigidbodyComponent.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Modals/SelectMeshModal.hpp"
+#include "Modals/SelectMaterialModal.hpp"
 #include "IconsFontAwesome5.h"
 #include "IconsMaterialDesign.h"
 
@@ -721,31 +722,30 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		float cursorPosLabels = CURSORPOS_X_LABELS;
 		std::map<int, LinaEngine::Graphics::Mesh>& meshes = LinaEngine::Application::GetRenderEngine().GetLoadedMeshes();
 
+		// Mesh selection
 		static int selectedMeshID = -1;
 		static std::string selectedMeshPath = "";
-		char meshPathCStr[128] = "";
-		strcpy(meshPathCStr, selectedMeshPath.c_str());
+		char meshPathC[128] = "";
+		strcpy(meshPathC, selectedMeshPath.c_str());
 
 		ImGui::SetCursorPosX(cursorPosLabels); 
 		WidgetsUtility::AlignedText("Mesh");
 		ImGui::SameLine(); 
 		ImGui::SetCursorPosX(cursorPosValues); 
 		ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
-		ImGui::InputText("##selectedMesh", meshPathCStr, IM_ARRAYSIZE(meshPathCStr), ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputText("##selectedMesh", meshPathC, IM_ARRAYSIZE(meshPathC), ImGuiInputTextFlags_ReadOnly);
 		ImGui::SameLine(); 
 		WidgetsUtility::IncrementCursorPosY(5);
 
 		if (WidgetsUtility::IconButton("##selectmesh", ICON_FA_PLUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-		{
 			ImGui::OpenPopup("Select Mesh");
-		}
 
-		bool open = true;
+		bool meshPopupOpen = true;
 		WidgetsUtility::FramePaddingY(8);
 		WidgetsUtility::FramePaddingX(4);
 		ImGui::SetNextWindowSize(ImVec2(280, 400));
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
-		if (ImGui::BeginPopupModal("Select Mesh", &open, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+		if (ImGui::BeginPopupModal("Select Mesh", &meshPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 		{
 			SelectMeshModal::Draw(Application::GetRenderEngine().GetLoadedMeshes(), &selectedMeshID, selectedMeshPath);
 			ImGui::EndPopup();
@@ -754,8 +754,38 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 
 		renderer.m_meshID = selectedMeshID;
 
+		// Material selection
+		static int selectedMatID = -1;
+		static std::string selectedMatPath = "";
+		char matPathC[128] = "";
+		strcpy(matPathC, selectedMatPath.c_str());
 
-		//ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Rotation Speeds");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat2("##rs", &renderer.m_rotationSpeeds.x);
+		ImGui::SetCursorPosX(cursorPosLabels);
+		WidgetsUtility::AlignedText("Material");
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
+		ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
+		ImGui::InputText("##selectedMat", matPathC, IM_ARRAYSIZE(matPathC), ImGuiInputTextFlags_ReadOnly);
+		ImGui::SameLine();
+		WidgetsUtility::IncrementCursorPosY(5);
+
+		if (WidgetsUtility::IconButton("##selectmat", ICON_FA_PLUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
+			ImGui::OpenPopup("Select Material");
+
+		bool materialPopupOpen = true;
+		WidgetsUtility::FramePaddingY(8);
+		WidgetsUtility::FramePaddingX(4);
+		ImGui::SetNextWindowSize(ImVec2(280, 400));
+		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
+		if (ImGui::BeginPopupModal("Select Material", &meshPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+		{
+			SelectMaterialModal::Draw(Application::GetRenderEngine().GetLoadedMaterials(), &selectedMatID, selectedMatPath);
+			ImGui::EndPopup();
+		}
+		WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
+
+		renderer.m_materialID = selectedMatID;
+
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 	}
 

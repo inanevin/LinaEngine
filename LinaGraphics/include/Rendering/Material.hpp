@@ -65,6 +65,9 @@ namespace LinaEngine::Graphics
 
 	public:
 
+		static void LoadMaterialData(Material& mat, const std::string& path);
+		static void SaveMaterialData(const Material& mat, const std::string& path);
+
 		void SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		void RemoveTexture(const std::string& textureName);
 		Texture* GetTexture(const std::string& name);
@@ -161,11 +164,18 @@ namespace LinaEngine::Graphics
 		void SetSurfaceType(MaterialSurfaceType type) { m_surfaceType = type; SetInt(MAT_SURFACETYPE, type); }
 		MaterialSurfaceType GetSurfaceType() { return m_surfaceType; }
 
+		friend class cereal::access;
 
 		template<class Archive>
-		void serialize(Archive& archive)
+		void save(Archive& archive) const
 		{
-			archive(m_usesHDRI, m_receivesLighting, m_isShadowMapped, m_shaderType, m_surfaceType, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bool);
+			archive(m_usesHDRI, m_receivesLighting, m_isShadowMapped, m_shaderType, m_surfaceType, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
+		}
+
+		template<class Archive>
+		void load(Archive& archive) 
+		{
+			archive(m_usesHDRI, m_receivesLighting, m_isShadowMapped, m_shaderType, m_surfaceType, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
 		}
 
 
