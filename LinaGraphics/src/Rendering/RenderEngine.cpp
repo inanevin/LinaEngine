@@ -300,7 +300,7 @@ namespace LinaEngine::Graphics
 		mesh.m_MeshID = id;
 		mesh.m_path = filePath;
 
-		// Return
+		LINA_CORE_TRACE("Mesh created. {0}", filePath);
 		return m_loadedMeshes[id];
 	}
 
@@ -639,6 +639,14 @@ namespace LinaEngine::Graphics
 	bool RenderEngine::MeshExists(int id)
 	{
 		return !(m_loadedMeshes.find(id) == m_loadedMeshes.end());
+	}
+
+	bool RenderEngine::MeshExists(const std::string& path)
+	{
+		std::map<int, Mesh>::iterator it = std::find_if(m_loadedMeshes.begin(), m_loadedMeshes.end(), [path]
+		(std::pair<int, Mesh> const& item) -> bool { return item.second.GetPath().compare(path) == 0; });
+
+		return it != m_loadedMeshes.end();	
 	}
 
 	bool RenderEngine::ShaderExists(Shaders shader)

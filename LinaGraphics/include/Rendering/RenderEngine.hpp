@@ -132,6 +132,7 @@ namespace LinaEngine::Graphics
 		bool MaterialExists(int id);
 		bool TextureExists(int id);
 		bool MeshExists(int id);
+		bool MeshExists(const std::string& path);
 		bool ShaderExists(Shaders shader);
 
 		// Sets the shader of a material to the shader specified by name. Also resets material properties based on the shader, caution!
