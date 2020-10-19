@@ -33,6 +33,7 @@ Displays a dialog modal for selecting components to add to an entity.
 
 Timestamp: 10/12/2020 12:45:38 AM
 */
+
 #pragma once
 
 #ifndef SelectComponentModal_HPP
