@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -160,7 +160,9 @@ namespace LinaEditor
 				// Is a file
 				EditorFile file;
 				file.name = entry.path().filename().string();
-				file.path = entry.path().relative_path().string();
+				std::string replacedPath = entry.path().relative_path().string();
+				std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
+				file.path = replacedPath;
 				file.extension = file.name.substr(file.name.find(".") + 1);
 				file.type = GetFileType(file.extension);
 				file.id = ++s_itemIDCounter;
@@ -215,9 +217,9 @@ namespace LinaEditor
 				{
 					it++;
 					continue;
-				}				
+				}
 			}
-			
+
 			WidgetsUtility::IncrementCursorPosX(4);
 
 			if (it->second.m_markedForErase)
@@ -342,7 +344,16 @@ namespace LinaEditor
 			if (file.type == FileType::Texture2D)
 				LinaEngine::Application::GetRenderEngine().CreateTexture2D(file.path);
 			else if (file.type == FileType::Mesh)
-				LinaEngine::Application::GetRenderEngine().CreateMesh(file.path);
+			{
+				bool meshExists = LinaEngine::Application::GetRenderEngine().MeshExists(file.path);
+				std::cout << "meshExists" << meshExists << std::endl;
+				if (!meshExists)
+				{
+					std::cout << "wtf";
+					LinaEngine::Application::GetRenderEngine().CreateMesh(file.path);
+
+				}
+			}
 		}
 
 		// Recursively load subfolders.

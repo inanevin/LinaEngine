@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -643,10 +643,9 @@ namespace LinaEngine::Graphics
 
 	bool RenderEngine::MeshExists(const std::string& path)
 	{
-		std::map<int, Mesh>::iterator it = std::find_if(m_loadedMeshes.begin(), m_loadedMeshes.end(), [path]
-		(std::pair<int, Mesh> const& item) -> bool { return item.second.GetPath().compare(path) == 0; });
-
-		return it != m_loadedMeshes.end();	
+		const auto it = std::find_if(m_loadedMeshes.begin(), m_loadedMeshes.end(), [path]
+		(const auto& it) -> bool { 	return it.second.GetPath().compare(path) == 0; 	});
+		return it != m_loadedMeshes.end();
 	}
 
 	bool RenderEngine::ShaderExists(Shaders shader)
