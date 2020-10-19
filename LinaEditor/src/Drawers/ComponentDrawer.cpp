@@ -28,6 +28,9 @@ SOFTWARE.
 
 #include "Drawers/ComponentDrawer.hpp"
 #include "ECS/ECSComponent.hpp"
+#include "Core/Application.hpp"
+#include "Rendering/RenderEngine.hpp"
+#include "Rendering/Mesh.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
@@ -593,6 +596,10 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 		float cursorPosLabels = CURSORPOS_X_LABELS;
+		std::map<int, LinaEngine::Graphics::Mesh>& meshes = LinaEngine::Application::GetRenderEngine().GetLoadedMeshes();
+
+
+
 		//ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Movement Speeds");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat2("##ms", &renderer.m_movementSpeeds.x);
 		//ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Rotation Speeds");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat2("##rs", &renderer.m_rotationSpeeds.x);
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
