@@ -94,12 +94,15 @@ namespace LinaEngine::Graphics
 		void SetParameters(MeshParameters params) { m_parameters = params; }
 		MeshParameters& GetParameters() { return m_parameters; }
 		const std::string& GetPath() const { return m_path; }
+		const int GetID() const { return m_meshID; }
 
-		int m_MeshID = -1;
+	
+	private:
+
+		friend class RenderEngine;
+		int m_meshID = -1;
 		std::string m_path = "";
 
-	private:
-		
 		MeshParameters m_parameters;
 		std::vector<VertexArray*> m_vertexArrays;
 		std::vector<IndexedModel> m_indexedModelArray;

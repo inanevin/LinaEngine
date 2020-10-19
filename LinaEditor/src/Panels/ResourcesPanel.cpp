@@ -175,7 +175,9 @@ namespace LinaEditor
 				// Is a folder
 				EditorFolder folder;
 				folder.name = entry.path().filename().string();
-				folder.m_path = entry.path().relative_path().string();
+				std::string replacedPath = entry.path().relative_path().string();
+				std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
+				folder.m_path = replacedPath;
 				folder.m_id = ++s_itemIDCounter;
 				folder.m_parent = &root;
 
@@ -346,13 +348,8 @@ namespace LinaEditor
 			else if (file.type == FileType::Mesh)
 			{
 				bool meshExists = LinaEngine::Application::GetRenderEngine().MeshExists(file.path);
-				std::cout << "meshExists" << meshExists << std::endl;
 				if (!meshExists)
-				{
-					std::cout << "wtf";
 					LinaEngine::Application::GetRenderEngine().CreateMesh(file.path);
-
-				}
 			}
 		}
 

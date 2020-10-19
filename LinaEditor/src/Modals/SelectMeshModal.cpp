@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -36,19 +36,21 @@ SOFTWARE.
 
 namespace LinaEditor
 {
-	int SelectMeshModal::Draw(const std::map<int, LinaEngine::Graphics::Mesh>& map)
+	void SelectMeshModal::Draw(const std::map<int, LinaEngine::Graphics::Mesh>& map, int* selectedMeshID, std::string& selectedMeshPath)
 	{
 		ImGui::BeginChild("SelectMeshModalChild", ImVec2(0, 300), true);
-		int selected = -1;
-		
-		for(std::map<int, LinaEngine::Graphics::Mesh>::const_iterator it = map.begin(); it != map.end(); it++)
+
+		static int selected = -1;
+		static std::string selectedPath = "";
+		for (std::map<int, LinaEngine::Graphics::Mesh>::const_iterator it = map.begin(); it != map.end(); it++)
 		{
 			WidgetsUtility::IncrementCursorPosY(5);
 			WidgetsUtility::IncrementCursorPosX(5);
 
-			if (ImGui::Selectable(it->second.GetPath().c_str()))
+			if (ImGui::Selectable(it->second.GetPath().c_str(), selected == it->second.GetID()))
 			{
-
+				selected = it->second.GetID();
+				selectedPath = it->second.GetPath();
 			}
 		}
 
@@ -58,7 +60,8 @@ namespace LinaEditor
 
 		if (WidgetsUtility::Button("Add Selected", ImVec2(ImGui::GetWindowSize().x * 0.5f - 20, 0.0f)))
 		{
-			
+			*selectedMeshID = selected;
+			selectedMeshPath = selectedPath;
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -69,7 +72,5 @@ namespace LinaEditor
 
 			ImGui::CloseCurrentPopup();
 		}
-
-		return selected;
 	}
 }

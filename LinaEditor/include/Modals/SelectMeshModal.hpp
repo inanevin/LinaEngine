@@ -51,7 +51,7 @@ namespace LinaEditor
 		SelectMeshModal();
 		~SelectMeshModal();
 	
-		static int Draw(const std::map<int, LinaEngine::Graphics::Mesh>& map);
+		static void Draw(const std::map<int, LinaEngine::Graphics::Mesh>& map, int* selectedMeshID, std::string& meshPath);
 
 	private:
 	

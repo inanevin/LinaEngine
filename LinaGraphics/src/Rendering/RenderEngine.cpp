@@ -297,7 +297,7 @@ namespace LinaEngine::Graphics
 		}
 
 		// Set id
-		mesh.m_MeshID = id;
+		mesh.m_meshID = id;
 		mesh.m_path = filePath;
 
 		LINA_CORE_TRACE("Mesh created. {0}", filePath);
@@ -329,7 +329,7 @@ namespace LinaEngine::Graphics
 			}
 
 			// Set ID
-			mesh.m_MeshID = primitive;
+			mesh.m_meshID = primitive;
 
 			// Return
 			return m_loadedMeshes[primitive];
