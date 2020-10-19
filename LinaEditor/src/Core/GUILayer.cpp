@@ -271,13 +271,10 @@ namespace LinaEditor
 		// Level
 		else if (item == MenuBarItems::NewLevelData)
 		{
-			// Prompt saving the current one.
-
-
 			// Create a new level.
 			m_currentLevel = new DefaultLevel();
-			LinaEngine::Application::GetApp().InstallLevel(m_currentLevel);
-			LinaEngine::Application::GetApp().InitializeLevel(m_currentLevel);
+			LinaEngine::Application::GetApp().InstallLevel(*m_currentLevel);
+			LinaEngine::Application::GetApp().InitializeLevel(*m_currentLevel);
 		}
 		else if (item == MenuBarItems::SaveLevelData)
 		{

@@ -235,28 +235,37 @@ namespace LinaEngine
 		m_layerStack.PushOverlay(layer);
 	}
 
-	bool Application::InstallLevel(LinaEngine::World::Level* level)
+	bool Application::InstallLevel(LinaEngine::World::Level& level)
 	{
-		return level->Install();
+		if (m_currentLevel != nullptr)
+			UninstallLevel(*m_currentLevel);
+
+		bool install = level.Install();
+
+		s_engineDispatcher.DispatchAction<World::Level*>(Action::ActionType::LevelInstalled, &level);
+		return install;
 	}
 
-	void Application::InitializeLevel(LinaEngine::World::Level* level)
+	void Application::InitializeLevel(LinaEngine::World::Level& level)
 	{
-		m_currentLevel = level;
+		m_currentLevel = &level;
 		m_currentLevel->Initialize();
+		s_engineDispatcher.DispatchAction<World::Level*>(Action::ActionType::LevelInitialized, &level);
 		m_activeLevelExists = true;
 	}
 
 
-	void Application::UnloadLevel(LinaEngine::World::Level* level)
+	void Application::UninstallLevel(LinaEngine::World::Level& level)
 	{
-		if (m_currentLevel == level)
+		if (m_currentLevel == &level)
 		{
 			m_activeLevelExists = false;
 			m_currentLevel = nullptr;
 		}
 
-		level->Uninstall();
+		level.Uninstall();
+		s_ecs.clear();
+		s_engineDispatcher.DispatchAction<World::Level*>(Action::ActionType::LevelUninstalled, &level);
 	}
 
 	void Application::OnDrawLine(Vector3 from, Vector3 to, Color color, float width)

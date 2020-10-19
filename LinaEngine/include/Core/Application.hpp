@@ -86,12 +86,12 @@ namespace LinaEngine
 		void PushOverlay(Layer& layer);
 
 		// Loads a level into memory.
-		bool InstallLevel(LinaEngine::World::Level* level);
+		bool InstallLevel(LinaEngine::World::Level& level);
 
-		void InitializeLevel(LinaEngine::World::Level* level);
+		void InitializeLevel(LinaEngine::World::Level& level);
 
 		// Unloads a level from memory.
-		void UnloadLevel(LinaEngine::World::Level* level);
+		void UninstallLevel(LinaEngine::World::Level& level);
 
 		int GetCurrentFPS() { return m_currentFPS; }
 		bool GetActiveLevelExists() { return m_activeLevelExists; }

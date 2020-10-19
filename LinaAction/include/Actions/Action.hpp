@@ -59,6 +59,9 @@ namespace LinaEngine::Action
 		// Engine actions
 		MessageLogged,
 		PostSceneDraw,
+		LevelInstalled,
+		LevelInitialized,
+		LevelUninstalled,
 		WindowClosed,
 		WindowResized,
 		EngineActionsStartIndex = MessageLogged,

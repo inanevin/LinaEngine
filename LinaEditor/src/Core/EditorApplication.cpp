@@ -42,6 +42,11 @@ namespace LinaEditor
 		s_editorDispatcher.Initialize(LinaEngine::Action::ActionType::EditorActionsStartIndex, LinaEngine::Action::ActionType::EditorActionsEndIndex);
 	}
 
+	EditorApplication::~EditorApplication()
+	{
+		LINA_CLIENT_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
+	}
+
 	void EditorApplication::Initialize()
 	{
 		LINA_CLIENT_TRACE("[Initialization] -> Editor Application ({0})", typeid(*this).name());
@@ -61,11 +66,19 @@ namespace LinaEditor
 		
 		LinaEngine::Application::GetRenderEngine().PushLayer(m_guiLayer);
 
+		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::World::Level*>("##linaeditor_level_install", LinaEngine::Action::ActionType::LevelInstalled,
+		std::bind(&EditorApplication::LevelInstalled, this, std::placeholders::_1));
+
 	}
 
 	void EditorApplication::Refresh()
 	{
 		m_guiLayer.Refresh();
+	}
+
+	void EditorApplication::LevelInstalled(LinaEngine::World::Level* level)
+	{
+		LINA_CLIENT_WARN("level installed");
 	}
 
 

@@ -95,6 +95,7 @@ namespace LinaEngine::World
 		void SerializeLevelData(const std::string& path, const std::string& levelName);
 		void DeserializeLevelData(const std::string& path, const std::string& levelName);
 
+
 		LevelData m_levelData;
 
 	};

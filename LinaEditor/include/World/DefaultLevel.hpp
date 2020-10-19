@@ -49,7 +49,7 @@ namespace LinaEditor
 	public:
 		
 		DefaultLevel() {};
-		~DefaultLevel() {};
+		~DefaultLevel();
 	
 	private:
 	
@@ -57,7 +57,6 @@ namespace LinaEditor
 		// Inherited via Level
 		virtual bool Install() override;
 		virtual void Initialize() override;
-
 	};
 }
 

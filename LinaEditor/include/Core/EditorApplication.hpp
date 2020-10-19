@@ -46,25 +46,10 @@ Timestamp: 10/15/2020 10:44:39 PM
 
 namespace LinaEngine
 {
-
-	class Application;
-
-	namespace Graphics
+	namespace World
 	{
-		class Window;
-		class RenderEngine;
+		class Level;
 	}
-
-	namespace Physics
-	{
-		class PhysicsEngine;
-	}
-
-	namespace ECS
-	{
-		class ECSRegistry;
-	}
-
 }
 
 namespace LinaEditor
@@ -74,17 +59,15 @@ namespace LinaEditor
 	public:
 
 		EditorApplication();
-		~EditorApplication()
-		{
-			LINA_CLIENT_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
-		}
-
+		~EditorApplication();
 
 		void Initialize();
 		void Refresh();
+		void LevelInstalled(LinaEngine::World::Level* level);
 		static LinaEngine::Action::ActionDispatcher& GetEditorDispatcher() { return s_editorDispatcher; }
 
 	private:
+
 		static LinaEngine::Action::ActionDispatcher s_editorDispatcher;
 		GUILayer m_guiLayer;
 	};

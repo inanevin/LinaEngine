@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -47,13 +47,13 @@ namespace LinaEngine::ECS
 	struct FreeLookComponent : public ECSComponent
 	{
 		LinaEngine::Vector2 m_angles;
-		LinaEngine::Vector2 m_movementSpeeds;
-		LinaEngine::Vector2 m_rotationSpeeds;
+		LinaEngine::Vector2 m_movementSpeeds = LinaEngine::Vector2(3, 3);
+		LinaEngine::Vector2 m_rotationSpeeds = LinaEngine::Vector2(5, 5);
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_movementSpeeds, m_rotationSpeeds, m_angles, m_isEnabled); 
+			archive(m_movementSpeeds, m_rotationSpeeds, m_angles, m_isEnabled);
 		}
 
 #ifdef LINA_EDITOR
