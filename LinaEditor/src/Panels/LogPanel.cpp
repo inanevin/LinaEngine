@@ -64,19 +64,7 @@ namespace LinaEditor
 
 	void LogPanel::Draw(float frameTime)
 	{
-		if (ImGui::IsKeyPressed(LinaEngine::Input::InputCode::Key::Alpha1))
-			LINA_CLIENT_INFO("This is an {0} text...", "info");
-		if (ImGui::IsKeyPressed(LinaEngine::Input::InputCode::Key::Alpha2))
-			LINA_CLIENT_DEBUG("This is an {0} text...", "debug");
-		if (ImGui::IsKeyPressed(LinaEngine::Input::InputCode::Key::Alpha3))
-			LINA_CLIENT_WARN("This is an {0} text...", "warn");
-		if (ImGui::IsKeyPressed(LinaEngine::Input::InputCode::Key::Alpha4))
-			LINA_CLIENT_TRACE("This is an {0} text...", "trace");
-		if (ImGui::IsKeyPressed(LinaEngine::Input::InputCode::Key::Alpha5))
-			LINA_CLIENT_ERR("This is an {0} text...", "err");
-		if (ImGui::IsKeyPressed(LinaEngine::Input::InputCode::Key::Alpha6))
-			LINA_CLIENT_CRITICAL("This is an {0} text...", "critical");
-
+		
 		if (m_show)
 		{
 			// Set window properties.

@@ -38,8 +38,6 @@ using namespace LinaEngine::Graphics;
 using namespace LinaEngine::ECS;
 
 ECSSystemList level1Systems;
-FreeLookSystem* ecsFreeLookSystem;
-CameraComponent cameraComponent;
 TransformComponent cameraTransformComponent;
 FreeLookComponent cameraFreeLookComponent;
 
@@ -56,7 +54,7 @@ Material* roadMaterial;
 
 Example1Level::~Example1Level()
 {
-	delete ecsFreeLookSystem;
+
 }
 
 Texture* albedoSphere;
@@ -211,11 +209,6 @@ void Example1Level::Initialize()
 	camFreeLook.m_movementSpeeds = Vector2(12, 12);
 	camFreeLook.m_rotationSpeeds = Vector2(3, 3);
 
-
-	// Create the free look system & push it.
-	ecsFreeLookSystem = new FreeLookSystem();
-	ecsFreeLookSystem->Construct(ecs, LinaEngine::Application::GetInputEngine());
-	level1Systems.AddSystem(*ecsFreeLookSystem);
 
 	return;
 

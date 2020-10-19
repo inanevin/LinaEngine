@@ -47,8 +47,8 @@ class SandboxApplication : public LinaEngine::Application
 
 		PushLayer(m_editor);
 
-		//InstallLevel(&m_startupLevel);
-		//InitializeLevel(&m_startupLevel);
+		InstallLevel(m_startupLevel);
+		InitializeLevel(m_startupLevel);
 
 		// Refresh after level init.
 		m_editor.Refresh();
