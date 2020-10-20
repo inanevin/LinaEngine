@@ -138,7 +138,7 @@ namespace LinaEditor
 			WidgetsUtility::PopStyleVar();
 		}
 
-		
+
 		// Caret.
 		WidgetsUtility::IncrementCursorPosX(11);
 		WidgetsUtility::IncrementCursorPosY(11);
@@ -245,7 +245,7 @@ namespace LinaEditor
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
 				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
-				std::string label = "##i" + it->first;
+				std::string label = "##c" + it->first;
 				WidgetsUtility::ColorButton(label.c_str(), &it->second.r);
 				WidgetsUtility::PopStyleVar();
 			}
@@ -273,12 +273,67 @@ namespace LinaEditor
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
 				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
-				std::string label = "##i" + it->first;
+				std::string label = "##v2" + it->first;
 				ImGui::DragFloat2(label.c_str(), &it->second.x);
 				WidgetsUtility::PopStyleVar();
 			}
 		}
+
+
+		// Caret.
+		WidgetsUtility::IncrementCursorPosX(11);
+		WidgetsUtility::IncrementCursorPosY(11);
+		bool caretVector3s = WidgetsUtility::Caret("##matdraw_Vector3s");
+		ImGui::SameLine();
+		ImGui::AlignTextToFramePadding();
+		WidgetsUtility::IncrementCursorPosY(-5);
+		ImGui::Text("Vector3s");
+		ImGui::AlignTextToFramePadding();
+
+		if (caretVector3s)
+		{
+			WidgetsUtility::IncrementCursorPosY(11);
+
+			for (std::map<std::string, LinaEngine::Vector3>::iterator it = m_selectedMaterial->m_vector3s.begin(); it != m_selectedMaterial->m_vector3s.end(); ++it)
+			{
+				WidgetsUtility::FramePaddingX(4);
+				ImGui::SetCursorPosX(cursorPosLabels);
+				WidgetsUtility::AlignedText(it->first.c_str());
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(cursorPosValues);
+				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
+				std::string label = "##v3" + it->first;
+				ImGui::DragFloat3(label.c_str(), &it->second.x);
+				WidgetsUtility::PopStyleVar();
+			}
+		}
+
+		// Caret.
+		WidgetsUtility::IncrementCursorPosX(11);
+		WidgetsUtility::IncrementCursorPosY(11);
+		bool caretVector4s = WidgetsUtility::Caret("##matdraw_Vector4s");
+		ImGui::SameLine();
+		ImGui::AlignTextToFramePadding();
+		WidgetsUtility::IncrementCursorPosY(-5);
+		ImGui::Text("Vector4s");
+		ImGui::AlignTextToFramePadding();
+
+		if (caretVector4s)
+		{
+			WidgetsUtility::IncrementCursorPosY(11);
+
+			for (std::map<std::string, LinaEngine::Vector4>::iterator it = m_selectedMaterial->m_vector4s.begin(); it != m_selectedMaterial->m_vector4s.end(); ++it)
+			{
+				WidgetsUtility::FramePaddingX(4);
+				ImGui::SetCursorPosX(cursorPosLabels);
+				WidgetsUtility::AlignedText(it->first.c_str());
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(cursorPosValues);
+				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
+				std::string label = "##v4" + it->first;
+				ImGui::DragFloat4(label.c_str(), &it->second.x);
+				WidgetsUtility::PopStyleVar();
+			}
+		}
 	}
-
-
 }
