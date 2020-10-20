@@ -167,17 +167,10 @@ namespace LinaEngine::Graphics
 		friend class cereal::access;
 
 		template<class Archive>
-		void save(Archive& archive) const
+		void serialize(Archive& archive)
 		{
 			archive(m_usesHDRI, m_receivesLighting, m_isShadowMapped, m_shaderType, m_surfaceType, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
 		}
-
-		template<class Archive>
-		void load(Archive& archive) 
-		{
-			archive(m_usesHDRI, m_receivesLighting, m_isShadowMapped, m_shaderType, m_surfaceType, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
-		}
-
 
 	private:
 
