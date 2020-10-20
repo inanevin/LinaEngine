@@ -194,8 +194,21 @@ namespace LinaEngine::Graphics
 	{
 		// Create material & set it's shader.
 		int id = Utility::GetUniqueID();
-		SetMaterialShader(m_loadedMaterials[id], shader);
-		m_loadedMaterials[id].m_MaterialID = id;
+		Material& mat = m_loadedMaterials[id];
+		SetMaterialShader(mat, shader);
+		mat.m_materialID = id;
+		mat.m_path = "null";
+		return m_loadedMaterials[id];
+	}
+
+	Material& RenderEngine::CreateMaterialFromFile(const std::string& path)
+	{
+		// Create material & set it's shader.
+		int id = Utility::GetUniqueID();
+		Material& mat = m_loadedMaterials[id];
+		Material::LoadMaterialData(mat, path);
+		mat.m_materialID = id;
+		mat.m_path = path;
 		return m_loadedMaterials[id];
 	}
 
@@ -365,8 +378,8 @@ namespace LinaEngine::Graphics
 
 	Material& RenderEngine::GetMaterial(const std::string& path)
 	{
-		std::map<int, Material>::iterator it = std::find_if(m_loadedMaterials.begin(), m_loadedMaterials.end(), [path]
-		(std::pair<int, Material> const& item) -> bool { return item.second.GetPath().compare(path) == 0; });
+		const auto it = std::find_if(m_loadedMaterials.begin(), m_loadedMaterials.end(), [path]
+		(const auto& item) -> bool { return item.second.GetPath().compare(path) == 0; });
 
 		if (it == m_loadedMaterials.end())
 		{
@@ -621,6 +634,13 @@ namespace LinaEngine::Graphics
 	bool RenderEngine::MaterialExists(int id)
 	{
 		return !(m_loadedMaterials.find(id) == m_loadedMaterials.end());
+	}
+
+	bool RenderEngine::MaterialExists(const std::string& path)
+	{
+		const auto it = std::find_if(m_loadedMaterials.begin(), m_loadedMaterials.end(), [path]
+		(const auto& it) -> bool { 	return it.second.GetPath().compare(path) == 0; 	});
+		return it != m_loadedMaterials.end();
 	}
 
 	bool RenderEngine::TextureExists(int id)

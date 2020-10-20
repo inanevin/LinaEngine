@@ -345,6 +345,13 @@ namespace LinaEditor
 			// SKIP FOR NOW BC WE NEED TO MAKE SURE WE HANDLE BOTH ENGINE CREATION & EDITOR CREATION
 			if (file.type == FileType::Texture2D)
 				LinaEngine::Application::GetRenderEngine().CreateTexture2D(file.path);
+			if (file.type == FileType::Material)
+			{
+				bool materialExists = LinaEngine::Application::GetRenderEngine().MaterialExists(file.path);
+				if (!materialExists)
+					LinaEngine::Application::GetRenderEngine().CreateMaterialFromFile(file.path);
+				
+			}
 			else if (file.type == FileType::Mesh)
 			{
 				bool meshExists = LinaEngine::Application::GetRenderEngine().MeshExists(file.path);
@@ -382,6 +389,8 @@ namespace LinaEditor
 			return FileType::Font;
 		else if (extension.compare("obj") == 0 || extension.compare("fbx") == 0 || extension.compare("3ds") == 0)
 			return FileType::Mesh;
+		else if (extension.compare("mat") == 0)
+			return FileType::Material;
 		else
 			return FileType::Unknown;
 	}

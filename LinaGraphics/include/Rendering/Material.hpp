@@ -157,7 +157,7 @@ namespace LinaEngine::Graphics
 			return m_matrices[name];
 		}
 		
-		int GetID() const { return m_MaterialID; }
+		int GetID() const { return m_materialID; }
 		const std::string& GetPath() const { return m_path; }
 		Shaders GetShaderType() { return m_shaderType; }
 		uint32 GetShaderID() { return m_shaderID; }
@@ -184,13 +184,13 @@ namespace LinaEngine::Graphics
 		friend class RenderEngine;
 		friend class RenderContext;
 
-		int m_MaterialID = -1;
+		int m_materialID = -1;
 		std::string m_path = "";
 		uint32 m_shaderID = 0;
 		bool m_usesHDRI = false;
 		bool m_receivesLighting = false;
 		bool m_isShadowMapped = false;
-		Shaders m_shaderType;
+		Shaders m_shaderType = Shaders::STANDARD_UNLIT;
 		MaterialSurfaceType m_surfaceType = MaterialSurfaceType::Opaque;
 		std::map<std::string, float> m_floats;
 		std::map<std::string, int> m_ints;

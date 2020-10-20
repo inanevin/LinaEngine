@@ -113,6 +113,7 @@ namespace LinaEngine::Graphics
 		void SetViewportDisplay(Vector2 offset, Vector2 size);
 
 		Material& CreateMaterial(Shaders shader);
+		Material& CreateMaterialFromFile(const std::string& path = "");
 		Texture& CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false);
 		Texture& CreateTextureHDRI(const std::string filePath);
 		Mesh& CreateMesh (const std::string& filePath, MeshParameters meshParams = MeshParameters(), int id = -1);
@@ -130,6 +131,7 @@ namespace LinaEngine::Graphics
 		void UnloadMeshResource(int id);
 		void UnloadMaterialResource(int id);
 		bool MaterialExists(int id);
+		bool MaterialExists(const std::string& path);
 		bool TextureExists(int id);
 		bool MeshExists(int id);
 		bool MeshExists(const std::string& path);
