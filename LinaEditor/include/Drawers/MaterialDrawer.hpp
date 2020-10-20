@@ -39,8 +39,13 @@ Timestamp: 10/20/2020 11:03:45 AM
 #ifndef MaterialDrawer_HPP
 #define MaterialDrawer_HPP
 
-// Headers here.
-
+namespace LinaEngine
+{
+	namespace Graphics 
+	{
+		class Material;
+	}
+}
 
 namespace LinaEditor
 {
@@ -49,10 +54,15 @@ namespace LinaEditor
 		
 	public:
 		
-		MaterialDrawer();
-		~MaterialDrawer();
+		MaterialDrawer() {};
+		~MaterialDrawer() {};
 	
+		void SetSelectedMaterial(LinaEngine::Graphics::Material& entity);
+		void DrawSelectedMaterial();
+
 	private:
+
+		LinaEngine::Graphics::Material* m_selectedMaterial = nullptr;
 	
 	};
 }

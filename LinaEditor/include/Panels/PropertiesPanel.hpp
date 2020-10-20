@@ -44,6 +44,7 @@ Timestamp: 6/7/2020 5:13:24 PM
 #include "ECS/ECS.hpp"
 #include "Drawers/TextureDrawer.hpp"
 #include "Drawers/EntityDrawer.hpp"
+#include "Drawers/MaterialDrawer.hpp"
 #include "Rendering/RenderingCommon.hpp"
 
 namespace LinaEngine
@@ -86,15 +87,12 @@ namespace LinaEditor
 
 		void Unselect()
 		{
-			m_selectedMesh = nullptr;
-			m_selectedMaterial = nullptr;
 			m_currentDrawType = DrawType::None;
 		}
 
 	private:
 
 		void DrawMeshProperties();
-		void DrawMaterialProperties();
 
 	private:
 
@@ -102,11 +100,10 @@ namespace LinaEditor
 		TextureDrawer m_textureDrawer;
 
 		// Selected mesh
-		LinaEngine::Graphics::Mesh* m_selectedMesh = nullptr;
 		LinaEngine::Graphics::MeshParameters m_currentMeshParams;
 
 		// Selected material
-		LinaEngine::Graphics::Material* m_selectedMaterial = nullptr;
+		MaterialDrawer m_materialDrawer;
 
 		// Selected entity.
 		EntityDrawer m_entityDrawer;

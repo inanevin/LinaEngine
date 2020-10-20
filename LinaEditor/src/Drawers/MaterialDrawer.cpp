@@ -30,5 +30,13 @@ SOFTWARE.
 
 namespace LinaEditor
 {
-	
+	void MaterialDrawer::SetSelectedMaterial(LinaEngine::Graphics::Material& entity)
+	{
+
+	}
+
+	void MaterialDrawer::DrawSelectedMaterial()
+	{
+
+	}
 }

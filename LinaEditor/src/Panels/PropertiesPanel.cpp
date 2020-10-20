@@ -76,12 +76,11 @@ namespace LinaEditor
 
 	void PropertiesPanel::MaterialSelected(LinaEngine::Graphics::Material* material)
 	{
-		m_selectedMaterial = material;
+		m_materialDrawer.SetSelectedMaterial(*material);
 		m_currentDrawType = DrawType::Material;
 	}
 	void PropertiesPanel::MeshSelected(LinaEngine::Graphics::Mesh* mesh)
 	{
-		m_selectedMesh = mesh;
 		m_currentDrawType = DrawType::Mesh;
 		LinaEngine::Graphics::MeshParameters& params = mesh->GetParameters();
 		m_currentMeshParams = params;
@@ -119,7 +118,7 @@ namespace LinaEditor
 			else if (m_currentDrawType == DrawType::Mesh)
 				DrawMeshProperties();
 			else if (m_currentDrawType == DrawType::Material)
-				DrawMaterialProperties();
+				m_materialDrawer.DrawSelectedMaterial();
 
 			ImGui::PopStyleVar();
 			ImGui::End();
@@ -131,7 +130,7 @@ namespace LinaEditor
 
 	void PropertiesPanel::DrawMeshProperties()
 	{
-		Graphics::MeshParameters params = m_selectedMesh->GetParameters();
+		/*Graphics::MeshParameters params = m_selectedMesh->GetParameters();
 
 		ImGui::Checkbox("Triangulate", &m_currentMeshParams.triangulate);
 		ImGui::Checkbox("Generate Smooth Normals", &m_currentMeshParams.smoothNormals);
@@ -142,10 +141,7 @@ namespace LinaEditor
 			Graphics::MeshParameters params = m_currentMeshParams;
 		//	LinaEngine::Application::GetRenderEngine().UnloadMeshResource(m_selectedMeshID);
 		//	m_selectedMesh = &m_renderEngine->CreateMesh(m_selectedMeshID, m_selectedMeshPath, params);
-		}
+		}*/
 	}
-	void PropertiesPanel::DrawMaterialProperties()
-	{
-		ImGui::Text("test");
-	}
+
 }
