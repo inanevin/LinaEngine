@@ -180,29 +180,7 @@ namespace LinaEngine::Graphics
 			archive(m_usesHDRI, m_receivesLighting, m_isShadowMapped, m_shaderType, m_surfaceType, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
 		}
 
-		const std::map<std::string, float>& GetFloats() { return m_floats; }
-		const std::map<std::string, int>& GetInts() { m_ints; }
-		const std::map<std::string, MaterialSampler2D>& GetSamplers() { m_sampler2Ds; }
-		const std::map<std::string, Color>& GetColors() { m_colors; }
-		const std::map<std::string, Vector2>& GetVector2s() { m_vector2s; }
-		const std::map<std::string, Vector3>& GetVector3s() { m_vector3s; }
-		const std::map<std::string, Vector4>& GetVector4s() { m_vector4s; }
-		const std::map<std::string, Matrix>& GetMatrices() { m_matrices; }
-		const std::map<std::string, bool>& GetBools() { m_bools; }
 
-	private:
-
-		friend class RenderEngine;
-		friend class RenderContext;
-
-		int m_materialID = -1;
-		std::string m_path = "";
-		uint32 m_shaderID = 0;
-		bool m_usesHDRI = false;
-		bool m_receivesLighting = false;
-		bool m_isShadowMapped = false;
-		Shaders m_shaderType = Shaders::STANDARD_UNLIT;
-		MaterialSurfaceType m_surfaceType = MaterialSurfaceType::Opaque;
 		std::map<std::string, float> m_floats;
 		std::map<std::string, int> m_ints;
 		std::map<std::string, MaterialSampler2D> m_sampler2Ds;
@@ -212,6 +190,23 @@ namespace LinaEngine::Graphics
 		std::map<std::string, Vector4> m_vector4s;
 		std::map<std::string, Matrix> m_matrices;
 		std::map<std::string, bool> m_bools;
+
+		bool m_usesHDRI = false;
+		bool m_receivesLighting = false;
+		bool m_isShadowMapped = false;
+
+	private:
+
+		friend class RenderEngine;
+		friend class RenderContext;
+
+		int m_materialID = -1;
+		std::string m_path = "";
+		uint32 m_shaderID = 0;
+	
+		Shaders m_shaderType = Shaders::STANDARD_UNLIT;
+		MaterialSurfaceType m_surfaceType = MaterialSurfaceType::Opaque;
+		
 	};
 
 	struct ModelMaterial
