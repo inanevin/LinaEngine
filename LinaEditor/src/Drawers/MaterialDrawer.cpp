@@ -251,6 +251,33 @@ namespace LinaEditor
 			}
 		}
 
+		// Caret.
+		WidgetsUtility::IncrementCursorPosX(11);
+		WidgetsUtility::IncrementCursorPosY(11);
+		bool caretVector2s = WidgetsUtility::Caret("##matdraw_Vector2s");
+		ImGui::SameLine();
+		ImGui::AlignTextToFramePadding();
+		WidgetsUtility::IncrementCursorPosY(-5);
+		ImGui::Text("Vector2s");
+		ImGui::AlignTextToFramePadding();
+
+		if (caretVector2s)
+		{
+			WidgetsUtility::IncrementCursorPosY(11);
+
+			for (std::map<std::string, LinaEngine::Vector2>::iterator it = m_selectedMaterial->m_vector2s.begin(); it != m_selectedMaterial->m_vector2s.end(); ++it)
+			{
+				WidgetsUtility::FramePaddingX(4);
+				ImGui::SetCursorPosX(cursorPosLabels);
+				WidgetsUtility::AlignedText(it->first.c_str());
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(cursorPosValues);
+				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
+				std::string label = "##i" + it->first;
+				ImGui::DragFloat2(label.c_str(), &it->second.x);
+				WidgetsUtility::PopStyleVar();
+			}
+		}
 	}
 
 
