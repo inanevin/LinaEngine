@@ -59,7 +59,7 @@ namespace LinaEditor
 
 		ComponentDrawer m_componentDrawer;
 		LinaEngine::ECS::ECSEntity m_selectedEntity;
-		bool m_shouldCopyEntityName = false;
+		bool m_shouldCopyEntityName = true;
 
 	};
 }

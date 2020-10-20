@@ -64,14 +64,14 @@ namespace LinaEditor
 
 	void PropertiesPanel::EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity)
 	{
-		m_currentDrawType = DrawType::Entities;
 		m_entityDrawer.SetSelectedEntity(selectedEntity);
+		m_currentDrawType = DrawType::Entities;
 	}
 
 	void PropertiesPanel::TextureSelected(LinaEngine::Graphics::Texture* texture)
 	{
-		m_currentDrawType = DrawType::Texture2D;
 		m_textureDrawer.SetSelectedTexture(texture);
+		m_currentDrawType = DrawType::Texture2D;
 	}
 
 	void PropertiesPanel::MaterialSelected(LinaEngine::Graphics::Material* material)

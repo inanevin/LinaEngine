@@ -38,6 +38,7 @@ namespace LinaEditor
 	
 	void EntityDrawer::SetSelectedEntity(LinaEngine::ECS::ECSEntity entity)
 	{
+		m_shouldCopyEntityName = true;
 		m_selectedEntity = entity;
 		m_componentDrawer.ClearDrawList();
 	}
