@@ -54,7 +54,7 @@ namespace LinaEditor
 
 		WidgetsUtility::IncrementCursorPos(ImVec2(11, 11));
 
-		// Title.
+		// Caret
 		bool caretGeneral = WidgetsUtility::Caret("##matdraw_general");
 		ImGui::SameLine();
 		ImGui::AlignTextToFramePadding();
@@ -138,20 +138,20 @@ namespace LinaEditor
 			WidgetsUtility::PopStyleVar();
 		}
 
+		
+		// Caret.
 		WidgetsUtility::IncrementCursorPosX(11);
-
-		// Title.
+		WidgetsUtility::IncrementCursorPosY(11);
 		bool caretFloats = WidgetsUtility::Caret("##matdraw_floats");
 		ImGui::SameLine();
 		ImGui::AlignTextToFramePadding();
 		WidgetsUtility::IncrementCursorPosY(-5);
 		ImGui::Text("Floats");
 		ImGui::AlignTextToFramePadding();
-		ImGui::SameLine();
 
 		if (caretFloats)
 		{
-			WidgetsUtility::IncrementCursorPosY(24);
+			WidgetsUtility::IncrementCursorPosY(11);
 
 			for (std::map<std::string, float>::iterator it = m_selectedMaterial->m_floats.begin(); it != m_selectedMaterial->m_floats.end(); ++it)
 			{
@@ -161,11 +161,68 @@ namespace LinaEditor
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
 				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
-				const char* hiddenLabel = ("##l" + it->first).c_str();
-				ImGui::DragFloat(hiddenLabel, &it->second);
+				std::string label = "##f" + it->first;
+				ImGui::DragFloat(label.c_str(), &it->second, 0.4f);
 				WidgetsUtility::PopStyleVar();
 			}
 		}
+
+		// Caret.
+		WidgetsUtility::IncrementCursorPosX(11);
+		WidgetsUtility::IncrementCursorPosY(11);
+		bool caretInts = WidgetsUtility::Caret("##matdraw_ints");
+		ImGui::SameLine();
+		ImGui::AlignTextToFramePadding();
+		WidgetsUtility::IncrementCursorPosY(-5);
+		ImGui::Text("Ints");
+		ImGui::AlignTextToFramePadding();
+
+		if (caretInts)
+		{
+			WidgetsUtility::IncrementCursorPosY(11);
+
+			for (std::map<std::string, int>::iterator it = m_selectedMaterial->m_ints.begin(); it != m_selectedMaterial->m_ints.end(); ++it)
+			{
+				WidgetsUtility::FramePaddingX(4);
+				ImGui::SetCursorPosX(cursorPosLabels);
+				WidgetsUtility::AlignedText(it->first.c_str());
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(cursorPosValues);
+				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
+				std::string label = "##i" + it->first;
+				ImGui::DragInt(label.c_str(), &it->second, 0.4f);
+				WidgetsUtility::PopStyleVar();
+			}
+		}
+
+		// Caret.
+		WidgetsUtility::IncrementCursorPosX(11);
+		WidgetsUtility::IncrementCursorPosY(11);
+		bool caretBools = WidgetsUtility::Caret("##matdraw_bools");
+		ImGui::SameLine();
+		ImGui::AlignTextToFramePadding();
+		WidgetsUtility::IncrementCursorPosY(-5);
+		ImGui::Text("Bools");
+		ImGui::AlignTextToFramePadding();
+
+		if (caretBools)
+		{
+			WidgetsUtility::IncrementCursorPosY(11);
+
+			for (std::map<std::string, bool>::iterator it = m_selectedMaterial->m_bools.begin(); it != m_selectedMaterial->m_bools.end(); ++it)
+			{
+				WidgetsUtility::FramePaddingX(4);
+				ImGui::SetCursorPosX(cursorPosLabels);
+				WidgetsUtility::AlignedText(it->first.c_str());
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(cursorPosValues);
+				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
+				std::string label = "##i" + it->first;
+				ImGui::Checkbox(label.c_str(), &it->second);
+				WidgetsUtility::PopStyleVar();
+			}
+		}
+
 	}
 
 
