@@ -56,6 +56,7 @@ namespace LinaEngine::Graphics
 	{
 		uint32 m_unit = 0;
 		Texture* m_boundTexture = nullptr;
+		std::string m_path = "";
 		TextureBindMode m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
 		bool m_isActive = false;
 	};

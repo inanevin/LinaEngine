@@ -63,6 +63,7 @@ namespace LinaEngine::Graphics
 			m_sampler2Ds[textureName].m_boundTexture = texture;
 			m_sampler2Ds[textureName].m_bindMode = bindMode;
 			m_sampler2Ds[textureName].m_isActive = texture == nullptr ? false : true;
+			m_sampler2Ds[textureName].m_path = texture->GetPath();
 		}
 		else
 		{

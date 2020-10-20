@@ -335,5 +335,41 @@ namespace LinaEditor
 				WidgetsUtility::PopStyleVar();
 			}
 		}
+
+		// Caret.
+		WidgetsUtility::IncrementCursorPosX(11);
+		WidgetsUtility::IncrementCursorPosY(11);
+		bool caretTextures = WidgetsUtility::Caret("##matdraw_textures");
+		ImGui::SameLine();
+		ImGui::AlignTextToFramePadding();
+		WidgetsUtility::IncrementCursorPosY(-5);
+		ImGui::Text("Textures");
+		ImGui::AlignTextToFramePadding();
+
+		if (caretTextures)
+		{
+			WidgetsUtility::IncrementCursorPosY(11);
+
+			for (std::map<std::string, LinaEngine::Graphics::MaterialSampler2D>::iterator it = m_selectedMaterial->m_sampler2Ds.begin(); it != m_selectedMaterial->m_sampler2Ds.end(); ++it)
+			{
+				WidgetsUtility::FramePaddingX(4);
+				ImGui::SetCursorPosX(cursorPosLabels);
+				WidgetsUtility::AlignedText(it->first.c_str());
+				// ImGui::SameLine();
+				//ImGui::SetCursorPosX(cursorPosValues);
+				//ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
+				//
+				//ImVec2 min = ImGui::GetCursorPos();
+				//ImVec2 max = ImVec2(ImGui::GetCursorPosX() + 100, ImGui::GetCursorPosY() + 100);
+				//
+				//ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_FrameBg)), 5);
+				////if(it->second.m_boundTexture != nullptr)
+				////ImGui::GetWindowDrawList()->AddImage()
+				//
+				//std::string label = "##txt" + it->first;
+				
+				WidgetsUtility::PopStyleVar();
+			}
+		}
 	}
 }

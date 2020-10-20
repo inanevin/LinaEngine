@@ -524,8 +524,8 @@ namespace LinaEngine::Graphics
 			material.m_sampler2Ds[MAT_TEXTURE2D_AOMAP] = { 4 };
 			material.m_sampler2Ds[MAT_TEXTURE2D_BRDFLUTMAP] = { 5 };
 			material.m_sampler2Ds[MAT_TEXTURE2D_SHADOWMAP] = { 6 };
-			material.m_sampler2Ds[MAT_TEXTURE2D_IRRADIANCEMAP] = { 7, nullptr, TextureBindMode::BINDTEXTURE_CUBEMAP, false };
-			material.m_sampler2Ds[MAT_TEXTURE2D_PREFILTERMAP] = { 8,nullptr, TextureBindMode::BINDTEXTURE_CUBEMAP, false };
+			material.m_sampler2Ds[MAT_TEXTURE2D_IRRADIANCEMAP] = { 7, nullptr, "", TextureBindMode::BINDTEXTURE_CUBEMAP, false };
+			material.m_sampler2Ds[MAT_TEXTURE2D_PREFILTERMAP] = { 8,nullptr, "", TextureBindMode::BINDTEXTURE_CUBEMAP, false };
 			material.m_floats[MAT_METALLICMULTIPLIER] = 1.0f;
 			material.m_floats[MAT_ROUGHNESSMULTIPLIER] = 1.0f;
 			material.m_ints[MAT_WORKFLOW] = 0;
