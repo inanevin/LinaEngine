@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -233,24 +233,45 @@ namespace LinaEngine::Graphics
 
 	enum Shaders
 	{
-		STANDARD_UNLIT = 11,
-		SKYBOX_SINGLECOLOR = 20,
-		SKYBOX_GRADIENT = 21,
-		SKYBOX_CUBEMAP = 22,
-		SKYBOX_PROCEDURAL = 23,
-		SKYBOX_HDRI = 24,
-		PBR_LIT = 90,
-		EQUIRECTANGULAR_HDRI = 100,
-		IRRADIANCE_HDRI = 101,
-		PREFILTER_HDRI = 102,
-		BRDF_HDRI = 103,
-		SCREEN_QUAD_FINAL = 110,
-		SCREEN_QUAD_BLUR = 111,
-		SCREEN_QUAD_OUTLINE = 112,
-		SCREEN_SHADOWMAP = 113,
-		DEBUG_LINE = 121,
-		RENDERER2D_SPRITE = 131
+		Standard_Unlit = 1,
+		Skybox_SingleColor = 2,
+		Skybox_Gradient = 3,
+		Skybox_Cubemap = 4,
+		Skybox_Procedural = 5,
+		Skybox_HDRI = 6,
+		PBR_LIT = 7,
+		HDRI_Equirectangular = 8,
+		HDRI_Irradiance = 9,
+		HDRI_Prefilter = 10,
+		HDRI_BRDF = 11,
+		ScreenQuad_Final = 12,
+		ScreenQuad_Blur = 13,
+		ScreenQuad_Outline = 14,
+		ScreenQuad_Shadowmap = 15,
+		Debug_Line = 16,
+		Standard_Sprite = 17
 	};
+
+	const char* g_shadersStr[]{
+		"Standard Unlit",
+		"Skybox Single Color",
+		"Skybox Gradient",
+		"Skybox Cubemap",
+		"Skybox Procedural",
+		"Skybox HDRI",
+		"PBR Lit",
+		"HDRI Equirectangular",
+		"HDRI Irradiance ",
+		"HDRI Prefilter ",
+		"HDRI BRDF",
+		"Screen Quad Final",
+		"Screen Quad Blur",
+		"Screen Quad Outline",
+		"Screen Quad Shadowmap",
+		"Debug Line",
+		"Sprite"
+	};
+
 
 	struct RenderingDebugData
 	{
@@ -263,6 +284,12 @@ namespace LinaEngine::Graphics
 		Opaque = 0,
 		Transparent = 1
 	};
+
+	const char* g_materialSurfaceTypeStr[]{
+		"Opaque",
+		"Transparent"
+	};
+
 
 	enum Primitives
 	{

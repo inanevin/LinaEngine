@@ -413,7 +413,7 @@ namespace LinaEngine::Graphics
 		{
 			// Shader not found.
 			LINA_CORE_WARN("Shader with the ID {0} was not found, returning standardUnlit Shader", shader);
-			return GetShader(Shaders::STANDARD_UNLIT);
+			return GetShader(Shaders::Standard_Unlit);
 		}
 
 		return m_loadedShaders[shader];
@@ -437,7 +437,7 @@ namespace LinaEngine::Graphics
 		// If no shader found, fall back to standardLit
 		if (m_loadedShaders.find(shader) == m_loadedShaders.end()) {
 			LINA_CORE_WARN("Shader with engine ID {0} was not found. Setting material's shader to standardUnlit.", shader);
-			material.m_shaderID = m_loadedShaders[Shaders::STANDARD_UNLIT].GetID();
+			material.m_shaderID = m_loadedShaders[Shaders::Standard_Unlit].GetID();
 		}
 		else
 			material.m_shaderID = m_loadedShaders[shader].GetID();
@@ -453,7 +453,7 @@ namespace LinaEngine::Graphics
 		material.m_vector4s.clear();
 		material.m_shaderType = shader;
 
-		if (shader == Shaders::STANDARD_UNLIT)
+		if (shader == Shaders::Standard_Unlit)
 		{
 			material.m_colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
 			material.m_sampler2Ds[MAT_TEXTURE2D_DIFFUSE] = { 0 };
@@ -535,7 +535,7 @@ namespace LinaEngine::Graphics
 
 			m_shadowMappedMaterials.emplace(&material);
 		}
-		else if (shader == Shaders::EQUIRECTANGULAR_HDRI)
+		else if (shader == Shaders::HDRI_EQUIRECTANGULAR)
 		{
 			material.m_sampler2Ds[MAT_MAP_EQUIRECTANGULAR] = { 0 };
 			material.m_matrices[UF_MATRIX_VIEW] = Matrix();
@@ -630,7 +630,7 @@ namespace LinaEngine::Graphics
 	void RenderEngine::ConstructEngineShaders()
 	{
 		// Unlit.
-		Shader& unlit = CreateShader(Shaders::STANDARD_UNLIT, "resources/engine/shaders/Unlit/Unlit.glsl");
+		Shader& unlit = CreateShader(Shaders::Standard_Unlit, "resources/engine/shaders/Unlit/Unlit.glsl");
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
@@ -649,10 +649,10 @@ namespace LinaEngine::Graphics
 
 
 		// Equirectangular cube & irradiance for HDRI skbox
-		CreateShader(Shaders::EQUIRECTANGULAR_HDRI, "resources/engine/shaders/HDRI/HDRIEquirectangular.glsl");
-		CreateShader(Shaders::IRRADIANCE_HDRI, "resources/engine/shaders/HDRI/HDRIIrradiance.glsl");
-		CreateShader(Shaders::PREFILTER_HDRI, "resources/engine/shaders/HDRI/HDRIPrefilter.glsl");
-		CreateShader(Shaders::BRDF_HDRI, "resources/engine/shaders/HDRI/HDRIBRDF.glsl");
+		CreateShader(Shaders::HDRI_EQUIRECTANGULAR, "resources/engine/shaders/HDRI/HDRIEquirectangular.glsl");
+		CreateShader(Shaders::HDRI_IRRADIANCE, "resources/engine/shaders/HDRI/HDRIIrradiance.glsl");
+		CreateShader(Shaders::HDRI_PREFILTER, "resources/engine/shaders/HDRI/HDRIPrefilter.glsl");
+		CreateShader(Shaders::HDRI_BRDF, "resources/engine/shaders/HDRI/HDRIBRDF.glsl");
 
 
 		// Screen Quad Shaders
@@ -671,17 +671,17 @@ namespace LinaEngine::Graphics
 	bool RenderEngine::ValidateEngineShaders()
 	{
 		int validation = 0;
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::STANDARD_UNLIT).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::Standard_Unlit).GetID());
 		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::PBR_LIT).GetID());
 		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::SKYBOX_SINGLECOLOR).GetID());
 		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::SKYBOX_GRADIENT).GetID());
 		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::SKYBOX_CUBEMAP).GetID());
 		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::SKYBOX_PROCEDURAL).GetID());
 		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::SKYBOX_HDRI).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::EQUIRECTANGULAR_HDRI).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::IRRADIANCE_HDRI).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::PREFILTER_HDRI).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::BRDF_HDRI).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::HDRI_EQUIRECTANGULAR).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::HDRI_IRRADIANCE).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::HDRI_PREFILTER).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::HDRI_BRDF).GetID());
 		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::SCREEN_QUAD_FINAL).GetID());
 		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::SCREEN_QUAD_BLUR).GetID());
 		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::SCREEN_QUAD_OUTLINE).GetID());
@@ -697,11 +697,11 @@ namespace LinaEngine::Graphics
 		SetMaterialShader(m_screenQuadFinalMaterial, Shaders::SCREEN_QUAD_FINAL);
 		SetMaterialShader(m_screenQuadBlurMaterial, Shaders::SCREEN_QUAD_BLUR);
 		SetMaterialShader(m_screenQuadOutlineMaterial, Shaders::SCREEN_QUAD_OUTLINE);
-		SetMaterialShader(m_hdriMaterial, Shaders::EQUIRECTANGULAR_HDRI);
+		SetMaterialShader(m_hdriMaterial, Shaders::HDRI_EQUIRECTANGULAR);
 		SetMaterialShader(m_debugDrawMaterial, Shaders::DEBUG_LINE);
 		SetMaterialShader(m_shadowMapMaterial, Shaders::SCREEN_SHADOWMAP);
 		SetMaterialShader(m_defaultSkyboxMaterial, Shaders::SKYBOX_SINGLECOLOR);
-		SetMaterialShader(m_defaultUnlit, Shaders::STANDARD_UNLIT);
+		SetMaterialShader(m_defaultUnlit, Shaders::Standard_Unlit);
 	}
 
 	void RenderEngine::ConstructEnginePrimitives()
@@ -1201,7 +1201,7 @@ namespace LinaEngine::Graphics
 		m_hdriCubemap.ConstructRTCubemapTexture(m_renderDevice, m_hdriResolution, samplerParams);
 
 		// Setup shader data.
-		uint32 equirectangularShader = GetShader(Shaders::EQUIRECTANGULAR_HDRI).GetID();
+		uint32 equirectangularShader = GetShader(Shaders::HDRI_EQUIRECTANGULAR).GetID();
 		m_renderDevice.SetShader(equirectangularShader);
 		m_renderDevice.UpdateShaderUniformInt(equirectangularShader, MAT_MAP_EQUIRECTANGULAR + std::string(MAT_EXTENSION_TEXTURE2D), 0);
 		m_renderDevice.UpdateShaderUniformInt(equirectangularShader, MAT_MAP_EQUIRECTANGULAR + std::string(MAT_EXTENSION_ISACTIVE), 1);
@@ -1244,7 +1244,7 @@ namespace LinaEngine::Graphics
 		m_renderDevice.ResizeRenderBuffer(m_hdriCaptureRenderTarget.GetID(), m_hdriCaptureRenderBuffer.GetID(), irradianceMapResolsution, RenderBufferStorage::STORAGE_DEPTH_COMP24);
 
 		// Create & setup shader info.
-		uint32 irradianceShader = GetShader(Shaders::IRRADIANCE_HDRI).GetID();
+		uint32 irradianceShader = GetShader(Shaders::HDRI_IRRADIANCE).GetID();
 		m_renderDevice.SetShader(irradianceShader);
 		m_renderDevice.UpdateShaderUniformInt(irradianceShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_TEXTURE2D), 0);
 		m_renderDevice.UpdateShaderUniformInt(irradianceShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_ISACTIVE), 1);
@@ -1280,7 +1280,7 @@ namespace LinaEngine::Graphics
 		m_hdriPrefilterMap.ConstructRTCubemapTexture(m_renderDevice, prefilterResolution, prefilterParams);
 
 		// Setup shader data.
-		uint32 prefilterShader = GetShader(Shaders::PREFILTER_HDRI).GetID();
+		uint32 prefilterShader = GetShader(Shaders::HDRI_PREFILTER).GetID();
 		m_renderDevice.SetShader(prefilterShader);
 		m_renderDevice.UpdateShaderUniformInt(prefilterShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_TEXTURE2D), 0);
 		m_renderDevice.UpdateShaderUniformInt(prefilterShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_ISACTIVE), 1);
@@ -1334,7 +1334,7 @@ namespace LinaEngine::Graphics
 		m_renderDevice.BindTextureToRenderTarget(m_hdriCaptureRenderTarget.GetID(), m_HDRILutMap.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 0, 0, 0, true, false);
 
 		// Setup shader.
-		uint32 brdfShader = GetShader(Shaders::BRDF_HDRI).GetID();
+		uint32 brdfShader = GetShader(Shaders::HDRI_BRDF).GetID();
 		m_renderDevice.SetShader(brdfShader);
 
 		// Switch framebuffer & draw.

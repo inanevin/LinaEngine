@@ -34,6 +34,8 @@ SOFTWARE.
 
 namespace LinaEditor
 {
+
+
 #define CURSORPOS_X_LABELS 30
 #define CURSORPOS_XPERC_VALUES 0.52f
 
