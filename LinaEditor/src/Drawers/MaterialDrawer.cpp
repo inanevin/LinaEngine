@@ -64,7 +64,7 @@ namespace LinaEditor
 
 		if (caretGeneral)
 		{
-			WidgetsUtility::IncrementCursorPosY(24);
+			WidgetsUtility::IncrementCursorPosY(12);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Uses HDRI");
@@ -219,6 +219,34 @@ namespace LinaEditor
 				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
 				std::string label = "##i" + it->first;
 				ImGui::Checkbox(label.c_str(), &it->second);
+				WidgetsUtility::PopStyleVar();
+			}
+		}
+
+		// Caret.
+		WidgetsUtility::IncrementCursorPosX(11);
+		WidgetsUtility::IncrementCursorPosY(11);
+		bool caretColors = WidgetsUtility::Caret("##matdraw_Colors");
+		ImGui::SameLine();
+		ImGui::AlignTextToFramePadding();
+		WidgetsUtility::IncrementCursorPosY(-5);
+		ImGui::Text("Colors");
+		ImGui::AlignTextToFramePadding();
+
+		if (caretColors)
+		{
+			WidgetsUtility::IncrementCursorPosY(11);
+
+			for (std::map<std::string, LinaEngine::Color>::iterator it = m_selectedMaterial->m_colors.begin(); it != m_selectedMaterial->m_colors.end(); ++it)
+			{
+				WidgetsUtility::FramePaddingX(4);
+				ImGui::SetCursorPosX(cursorPosLabels);
+				WidgetsUtility::AlignedText(it->first.c_str());
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(cursorPosValues);
+				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
+				std::string label = "##i" + it->first;
+				WidgetsUtility::ColorButton(label.c_str(), &it->second.r);
 				WidgetsUtility::PopStyleVar();
 			}
 		}
