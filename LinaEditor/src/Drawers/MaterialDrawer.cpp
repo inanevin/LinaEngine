@@ -54,17 +54,15 @@ namespace LinaEditor
 
 		WidgetsUtility::IncrementCursorPos(ImVec2(11, 11));
 
-		
-
 		// Title.
+		bool caretGeneral = WidgetsUtility::Caret("##matdraw_general");
 		ImGui::SameLine();
 		ImGui::AlignTextToFramePadding();
 		WidgetsUtility::IncrementCursorPosY(-5);
 		ImGui::Text("General Settings");
 		ImGui::AlignTextToFramePadding();
-		ImGui::SameLine();
 
-		if (foldoutOpenGeneral)
+		if (caretGeneral)
 		{
 			WidgetsUtility::IncrementCursorPosY(24);
 
@@ -137,16 +135,13 @@ namespace LinaEditor
 				}
 				ImGui::EndCombo();
 			}
-			WidgetsUtility::PopStyleVar();	
+			WidgetsUtility::PopStyleVar();
 		}
 
 		WidgetsUtility::IncrementCursorPosX(11);
-		static bool foldOutOpenFloats = false;
-		const char* caret = foldOutOpenFloats ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
-		if (WidgetsUtility::IconButtonNoDecoration(caret, 30, 0.8f))
-			foldOutOpenFloats = !foldOutOpenFloats;
 
 		// Title.
+		bool caretFloats = WidgetsUtility::Caret("##matdraw_floats");
 		ImGui::SameLine();
 		ImGui::AlignTextToFramePadding();
 		WidgetsUtility::IncrementCursorPosY(-5);
@@ -154,8 +149,10 @@ namespace LinaEditor
 		ImGui::AlignTextToFramePadding();
 		ImGui::SameLine();
 
-		if (foldOutOpenFloats)
+		if (caretFloats)
 		{
+			WidgetsUtility::IncrementCursorPosY(24);
+
 			for (std::map<std::string, float>::iterator it = m_selectedMaterial->m_floats.begin(); it != m_selectedMaterial->m_floats.end(); ++it)
 			{
 				WidgetsUtility::FramePaddingX(4);
