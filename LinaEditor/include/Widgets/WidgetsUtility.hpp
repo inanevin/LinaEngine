@@ -74,6 +74,7 @@ namespace LinaEditor
 		static bool InputQuaternion(const char* label, LinaEngine::Quaternion& v);
 		static bool DragQuaternion(const char* label, LinaEngine::Quaternion& v);
 		static void AlignedText(const char* label);
+		static bool Caret(const char* title);
 		static void IncrementCursorPosX(float f);
 		static void IncrementCursorPosY(float f);
 		static void IncrementCursorPos(const ImVec2& v);
@@ -101,6 +102,7 @@ namespace LinaEditor
 	
 		static std::map<std::string, std::tuple<bool,bool>> s_iconButtons;
 		static std::map<std::string, float> s_debugFloats;
+		static std::map<std::string, bool> s_carets;
 	};
 }
 

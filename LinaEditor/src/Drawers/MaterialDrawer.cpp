@@ -54,10 +54,7 @@ namespace LinaEditor
 
 		WidgetsUtility::IncrementCursorPos(ImVec2(11, 11));
 
-		static bool foldoutOpenGeneral = false;
-		const char* caret = foldoutOpenGeneral ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
-		if (WidgetsUtility::IconButtonNoDecoration(caret, 30, 0.8f))
-			foldoutOpenGeneral = !foldoutOpenGeneral;
+		
 
 		// Title.
 		ImGui::SameLine();
@@ -140,8 +137,39 @@ namespace LinaEditor
 				}
 				ImGui::EndCombo();
 			}
-			WidgetsUtility::PopStyleVar();
+			WidgetsUtility::PopStyleVar();	
+		}
 
+		WidgetsUtility::IncrementCursorPosX(11);
+		static bool foldOutOpenFloats = false;
+		const char* caret = foldOutOpenFloats ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
+		if (WidgetsUtility::IconButtonNoDecoration(caret, 30, 0.8f))
+			foldOutOpenFloats = !foldOutOpenFloats;
+
+		// Title.
+		ImGui::SameLine();
+		ImGui::AlignTextToFramePadding();
+		WidgetsUtility::IncrementCursorPosY(-5);
+		ImGui::Text("Floats");
+		ImGui::AlignTextToFramePadding();
+		ImGui::SameLine();
+
+		if (foldOutOpenFloats)
+		{
+			for (std::map<std::string, float>::iterator it = m_selectedMaterial->m_floats.begin(); it != m_selectedMaterial->m_floats.end(); ++it)
+			{
+				WidgetsUtility::FramePaddingX(4);
+				ImGui::SetCursorPosX(cursorPosLabels);
+				WidgetsUtility::AlignedText(it->first.c_str());
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(cursorPosValues);
+				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
+				const char* hiddenLabel = ("##l" + it->first).c_str();
+				ImGui::DragFloat(hiddenLabel, &it->second);
+				WidgetsUtility::PopStyleVar();
+			}
 		}
 	}
+
+
 }

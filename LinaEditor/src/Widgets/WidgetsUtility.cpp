@@ -36,6 +36,7 @@ namespace LinaEditor
 {
 	std::map<std::string, std::tuple<bool, bool>> WidgetsUtility::s_iconButtons;
 	std::map<std::string, float> WidgetsUtility::s_debugFloats;
+	std::map<std::string, bool> WidgetsUtility::s_carets;
 
 	void WidgetsUtility::ColorButton(const char* id, float* colorX)
 	{
@@ -230,6 +231,14 @@ namespace LinaEditor
 	{
 		ImGui::AlignTextToFramePadding();
 		ImGui::Text(label);
+	}
+
+	bool WidgetsUtility::Caret(const char* title)
+	{
+		const char* caret = s_carets[title] ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
+		if (WidgetsUtility::IconButtonNoDecoration(caret, 30, 0.8f))
+			s_carets[title] = !s_carets[title];
+		return s_carets[title];
 	}
 
 	void WidgetsUtility::IncrementCursorPosX(float f)

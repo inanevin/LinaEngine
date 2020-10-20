@@ -59,7 +59,6 @@ namespace LinaEditor
 	
 		void SetSelectedMaterial(LinaEngine::Graphics::Material& entity);
 		void DrawSelectedMaterial();
-
 	private:
 
 		LinaEngine::Graphics::Material* m_selectedMaterial = nullptr;
