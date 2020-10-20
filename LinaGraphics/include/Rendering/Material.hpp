@@ -204,7 +204,7 @@ namespace LinaEngine::Graphics
 		std::string m_path = "";
 		uint32 m_shaderID = 0;
 	
-		Shaders m_shaderType = Shaders::STANDARD_UNLIT;
+		Shaders m_shaderType = Shaders::Standard_Unlit;
 		MaterialSurfaceType m_surfaceType = MaterialSurfaceType::Opaque;
 		
 	};

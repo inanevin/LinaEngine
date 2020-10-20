@@ -239,7 +239,7 @@ namespace LinaEngine::Graphics
 		Skybox_Cubemap = 4,
 		Skybox_Procedural = 5,
 		Skybox_HDRI = 6,
-		PBR_LIT = 7,
+		PBR_Lit = 7,
 		HDRI_Equirectangular = 8,
 		HDRI_Irradiance = 9,
 		HDRI_Prefilter = 10,
@@ -252,25 +252,7 @@ namespace LinaEngine::Graphics
 		Standard_Sprite = 17
 	};
 
-	const char* g_shadersStr[]{
-		"Standard Unlit",
-		"Skybox Single Color",
-		"Skybox Gradient",
-		"Skybox Cubemap",
-		"Skybox Procedural",
-		"Skybox HDRI",
-		"PBR Lit",
-		"HDRI Equirectangular",
-		"HDRI Irradiance ",
-		"HDRI Prefilter ",
-		"HDRI BRDF",
-		"Screen Quad Final",
-		"Screen Quad Blur",
-		"Screen Quad Outline",
-		"Screen Quad Shadowmap",
-		"Debug Line",
-		"Sprite"
-	};
+	extern char* g_shadersStr[17];
 
 
 	struct RenderingDebugData
@@ -285,10 +267,7 @@ namespace LinaEngine::Graphics
 		Transparent = 1
 	};
 
-	const char* g_materialSurfaceTypeStr[]{
-		"Opaque",
-		"Transparent"
-	};
+	extern char* g_materialSurfaceTypeStr[2];
 
 
 	enum Primitives

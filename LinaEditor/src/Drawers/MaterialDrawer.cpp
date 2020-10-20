@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Drawers/MaterialDrawer.hpp"
 #include "Rendering/Material.hpp"
 #include "Widgets/WidgetsUtility.hpp"
+#include "Rendering/RenderingCommon.hpp"
 #include "imgui/imgui.h"
 #include "IconsFontAwesome5.h"
 
@@ -85,6 +86,29 @@ namespace LinaEditor
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::Checkbox("##isshadowmapped", &m_selectedMaterial->m_isShadowMapped);
+
+			const char* surfaceTypeLabel = LinaEngine::Graphics::g_materialSurfaceTypeStr[m_selectedMaterial->GetSurfaceType()];
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Surface Type");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 24 - ImGui::GetCursorPosX());
+
+			if (ImGui::BeginCombo("##surfaceType", surfaceTypeLabel))
+			{
+				for (int n = 0; n < IM_ARRAYSIZE(LinaEngine::Graphics::g_materialSurfaceTypeStr); n++)
+				{
+					const bool is_selected = (m_selectedMaterial->GetSurfaceType() == n);
+					if (ImGui::Selectable(LinaEngine::Graphics::g_materialSurfaceTypeStr[n], is_selected))
+					{
+						m_selectedMaterial->SetSurfaceType((LinaEngine::Graphics::MaterialSurfaceType)n);
+					}
+
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
 		}
 	}
 }

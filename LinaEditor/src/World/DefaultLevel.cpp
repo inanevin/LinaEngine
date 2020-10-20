@@ -56,13 +56,13 @@ namespace LinaEditor
 	{
 		// Create a simple procedural skybox.
 		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
-		Material& mat = renderEngine.CreateMaterial(Shaders::SKYBOX_PROCEDURAL);
+		Material& mat = renderEngine.CreateMaterial(Shaders::Skybox_Procedural);
 		mat.SetColor("material.startColor", Color(0.8f, 0.8f, 0.8f,1.0f));
 		mat.SetColor("material.endColor", Color(0.2f, 0.2f, 0.2f));
 		mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
 		renderEngine.SetSkyboxMaterial(mat);
 	
-		Material& objUnlit = renderEngine.CreateMaterial(Shaders::STANDARD_UNLIT);
+		Material& objUnlit = renderEngine.CreateMaterial(Shaders::Standard_Unlit);
 
 		MeshRendererComponent cr;
 		cr.m_meshID = Primitives::CUBE;

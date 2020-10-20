@@ -29,6 +29,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Rendering/Material.cpp
 	src/Rendering/RenderEngine.cpp
 	src/Rendering/Mesh.cpp
+	src/Rendering/RenderingCommon.cpp
 	
 	src/PackageManager/OpenGL/GLRenderDevice.cpp
 	src/PackageManager/OpenGL/GLWindow.cpp

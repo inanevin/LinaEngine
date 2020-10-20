@@ -99,14 +99,14 @@ bool Example1Level::Install(bool loadFromFile, const std::string& path, const st
 
 void CreateSingleColorSkybox(RenderEngine& renderEngine)
 {
-	Material& mat = renderEngine.CreateMaterial(Shaders::SKYBOX_SINGLECOLOR);
+	Material& mat = renderEngine.CreateMaterial(Shaders::Skybox_SingleColor);
 	mat.SetColor("material.color", Color::Red);
 	renderEngine.SetSkyboxMaterial(mat);
 }
 
 void CreateGradientSkybox(RenderEngine& renderEngine)
 {
-	Material& mat = renderEngine.CreateMaterial(Shaders::SKYBOX_GRADIENT);
+	Material& mat = renderEngine.CreateMaterial(Shaders::Skybox_Gradient);
 	mat.SetColor("material.startColor", Color::Green);
 	mat.SetColor("material.endColor", Color::White);
 	renderEngine.SetSkyboxMaterial(mat);
@@ -114,7 +114,7 @@ void CreateGradientSkybox(RenderEngine& renderEngine)
 
 void CreateProceduralSkybox(RenderEngine& renderEngine)
 {
-	Material& mat = renderEngine.CreateMaterial(Shaders::SKYBOX_PROCEDURAL);
+	Material& mat = renderEngine.CreateMaterial(Shaders::Skybox_Procedural);
 	mat.SetColor("material.startColor", Color::White);
 	mat.SetColor("material.endColor", Color(0.2f, 0.2f, 0.2f));
 	mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
@@ -123,7 +123,7 @@ void CreateProceduralSkybox(RenderEngine& renderEngine)
 
 void CreateCubemapSkybox(RenderEngine& renderEngine)
 {
-	Material& mat = renderEngine.CreateMaterial(Shaders::SKYBOX_CUBEMAP);
+	Material& mat = renderEngine.CreateMaterial(Shaders::Skybox_Cubemap);
 
 	const std::string fp[6] = {
 		"resources/sandbox/textures/defaultSkybox/right.png",
@@ -140,7 +140,7 @@ void CreateHDRISkybox(RenderEngine& renderEngine)
 {
 	Texture* hdri = &renderEngine.CreateTextureHDRI("resources/sandbox/textures/HDRI/canyon3K.hdr");
 	renderEngine.CaptureCalculateHDRI(*hdri);
-	Material& mat = renderEngine.CreateMaterial(Shaders::SKYBOX_HDRI);
+	Material& mat = renderEngine.CreateMaterial(Shaders::Skybox_HDRI);
 	mat.SetTexture(MAT_MAP_ENVIRONMENT, &renderEngine.GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine.SetSkyboxMaterial(mat);
 }
@@ -185,7 +185,7 @@ void Example1Level::Initialize()
 
 	// Create, setup & assign skybox material.
 	CreateProceduralSkybox(renderEngine);
-	objectUnlitMaterial = &renderEngine.CreateMaterial(Shaders::STANDARD_UNLIT);
+	objectUnlitMaterial = &renderEngine.CreateMaterial(Shaders::Standard_Unlit);
 
 	MeshRendererComponent cr;
 	cr.m_meshID = Primitives::CUBE;
@@ -208,10 +208,10 @@ void Example1Level::Initialize()
 	Texture& sprite = renderEngine.CreateTexture2D("resources/sandbox/textures/sprite.png");
 	Mesh& floorMesh = renderEngine.GetPrimitive(Primitives::PLANE);
 
-	spriteMat = &renderEngine.CreateMaterial(Shaders::RENDERER2D_SPRITE);
+	spriteMat = &renderEngine.CreateMaterial(Shaders::Standard_Sprite);
 	spriteMat->SetTexture(MAT_TEXTURE2D_DIFFUSE, &sprite);
 	spriteMat->SetSurfaceType(Graphics::MaterialSurfaceType::Transparent);
-	sphereMat = &renderEngine.CreateMaterial(Shaders::PBR_LIT);
+	sphereMat = &renderEngine.CreateMaterial(Shaders::PBR_Lit);
 
 	sphereMat->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, albedoSphere);
 	sphereMat->SetTexture(MAT_TEXTURE2D_NORMALMAP, normalSphere);
@@ -221,7 +221,7 @@ void Example1Level::Initialize()
 	renderEngine.SetHDRIData(sphereMat);
 
 
-	floorMaterial = &renderEngine.CreateMaterial(Shaders::PBR_LIT);
+	floorMaterial = &renderEngine.CreateMaterial(Shaders::PBR_Lit);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_ALBEDOMAP, albedoFloor);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_NORMALMAP, normalFloor);
 	floorMaterial->SetTexture(MAT_TEXTURE2D_ROUGHNESSMAP, roughnessFloor);
