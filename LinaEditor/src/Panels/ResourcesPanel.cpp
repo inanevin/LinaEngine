@@ -118,7 +118,7 @@ namespace LinaEditor
 					file.type = FileType::Material;
 					file.id = ++s_itemIDCounter;
 
-					Graphics::Material& m = LinaEngine::Application::GetRenderEngine().CreateMaterial(Graphics::Shaders::Standard_Unlit);
+					Graphics::Material& m = LinaEngine::Application::GetRenderEngine().CreateMaterial(Graphics::Shaders::Standard_Unlit, file.path);
 					Graphics::Material::SaveMaterialData(m, materialPath);
 
 					if (s_hoveredFolder != nullptr)
@@ -349,7 +349,7 @@ namespace LinaEditor
 			{
 				bool materialExists = LinaEngine::Application::GetRenderEngine().MaterialExists(file.path);
 				if (!materialExists)
-					LinaEngine::Application::GetRenderEngine().CreateMaterialFromFile(file.path);
+					LinaEngine::Application::GetRenderEngine().LoadMaterialFromFile(file.path);
 				
 			}
 			else if (file.type == FileType::Mesh)

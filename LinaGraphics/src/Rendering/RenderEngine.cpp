@@ -190,18 +190,19 @@ namespace LinaEngine::Graphics
 	}
 
 
-	Material& RenderEngine::CreateMaterial(Shaders shader)
+	Material& RenderEngine::CreateMaterial(Shaders shader, const std::string& path)
 	{
 		// Create material & set it's shader.
 		int id = Utility::GetUniqueID();
 		Material& mat = m_loadedMaterials[id];
 		SetMaterialShader(mat, shader);
 		mat.m_materialID = id;
-		mat.m_path = INTERNAL_MAT_PATH;
+		mat.m_path = path.compare("") == 0 ? INTERNAL_MAT_PATH : path;
 		return m_loadedMaterials[id];
 	}
 
-	Material& RenderEngine::CreateMaterialFromFile(const std::string& path)
+
+	Material& RenderEngine::LoadMaterialFromFile(const std::string& path)
 	{
 		// Create material & set it's shader.
 		int id = Utility::GetUniqueID();

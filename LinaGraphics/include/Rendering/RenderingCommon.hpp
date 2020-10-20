@@ -233,23 +233,23 @@ namespace LinaEngine::Graphics
 
 	enum Shaders
 	{
-		Standard_Unlit = 1,
-		Skybox_SingleColor = 2,
-		Skybox_Gradient = 3,
-		Skybox_Cubemap = 4,
-		Skybox_Procedural = 5,
-		Skybox_HDRI = 6,
-		PBR_Lit = 7,
-		HDRI_Equirectangular = 8,
-		HDRI_Irradiance = 9,
-		HDRI_Prefilter = 10,
-		HDRI_BRDF = 11,
-		ScreenQuad_Final = 12,
-		ScreenQuad_Blur = 13,
-		ScreenQuad_Outline = 14,
-		ScreenQuad_Shadowmap = 15,
-		Debug_Line = 16,
-		Standard_Sprite = 17
+		Standard_Unlit = 0,
+		Skybox_SingleColor = 1,
+		Skybox_Gradient = 2,
+		Skybox_Cubemap = 3,
+		Skybox_Procedural = 4,
+		Skybox_HDRI = 5,
+		PBR_Lit = 6,
+		HDRI_Equirectangular = 7,
+		HDRI_Irradiance = 8,
+		HDRI_Prefilter = 9,
+		HDRI_BRDF = 10,
+		ScreenQuad_Final = 11,
+		ScreenQuad_Blur = 12,
+		ScreenQuad_Outline = 13,
+		ScreenQuad_Shadowmap = 14,
+		Debug_Line = 15,
+		Standard_Sprite = 16
 	};
 
 	extern char* g_shadersStr[17];
