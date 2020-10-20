@@ -32,6 +32,7 @@ namespace LinaEngine::Graphics
 {
 	char* g_shadersStr[17]
 	{
+		"Standard Unlit",
 		"Skybox Single Color",
 		"Skybox Gradient",
 		"Skybox Cubemap",

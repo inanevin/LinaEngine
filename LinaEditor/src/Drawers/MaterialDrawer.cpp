@@ -27,7 +27,9 @@ SOFTWARE.
 */
 
 #include "Drawers/MaterialDrawer.hpp"
+#include "Core/Application.hpp"
 #include "Rendering/Material.hpp"
+#include "Rendering/RenderEngine.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Rendering/RenderingCommon.hpp"
 #include "imgui/imgui.h"
@@ -87,28 +89,59 @@ namespace LinaEditor
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::Checkbox("##isshadowmapped", &m_selectedMaterial->m_isShadowMapped);
 
+			WidgetsUtility::FramePaddingX(4);
 			const char* surfaceTypeLabel = LinaEngine::Graphics::g_materialSurfaceTypeStr[m_selectedMaterial->GetSurfaceType()];
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Surface Type");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 24 - ImGui::GetCursorPosX());
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
 
 			if (ImGui::BeginCombo("##surfaceType", surfaceTypeLabel))
 			{
 				for (int n = 0; n < IM_ARRAYSIZE(LinaEngine::Graphics::g_materialSurfaceTypeStr); n++)
 				{
-					const bool is_selected = (m_selectedMaterial->GetSurfaceType() == n);
-					if (ImGui::Selectable(LinaEngine::Graphics::g_materialSurfaceTypeStr[n], is_selected))
+					const bool is_surface_selected = (m_selectedMaterial->GetSurfaceType() == n);
+					if (ImGui::Selectable(LinaEngine::Graphics::g_materialSurfaceTypeStr[n], is_surface_selected))
 					{
 						m_selectedMaterial->SetSurfaceType((LinaEngine::Graphics::MaterialSurfaceType)n);
 					}
 
-					if (is_selected)
+					if (is_surface_selected)
 						ImGui::SetItemDefaultFocus();
 				}
 				ImGui::EndCombo();
 			}
+
+			WidgetsUtility::PopStyleVar();
+
+			WidgetsUtility::FramePaddingX(4);
+			const char* shaderLabel = LinaEngine::Graphics::g_shadersStr[0];
+			int a = m_selectedMaterial->GetShaderType();
+			std::cout << a << std::endl;
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Shader");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
+
+			if (ImGui::BeginCombo("##shaderType", shaderLabel))
+			{
+				for (int n = 0; n < IM_ARRAYSIZE(LinaEngine::Graphics::g_shadersStr); n++)
+				{
+					const bool is_shader_selected = (m_selectedMaterial->GetShaderType() == n);
+					if (ImGui::Selectable(LinaEngine::Graphics::g_shadersStr[n], is_shader_selected))
+					{
+						LinaEngine::Application::GetRenderEngine().SetMaterialShader(*m_selectedMaterial, (LinaEngine::Graphics::Shaders)n);
+					}
+
+					if (is_shader_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+			WidgetsUtility::PopStyleVar();
+
 		}
 	}
 }
