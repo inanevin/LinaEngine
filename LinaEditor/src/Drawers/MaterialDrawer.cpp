@@ -116,9 +116,7 @@ namespace LinaEditor
 			WidgetsUtility::PopStyleVar();
 
 			WidgetsUtility::FramePaddingX(4);
-			const char* shaderLabel = LinaEngine::Graphics::g_shadersStr[0];
-			int a = m_selectedMaterial->GetShaderType();
-			std::cout << a << std::endl;
+			const char* shaderLabel = LinaEngine::Graphics::g_shadersStr[m_selectedMaterial->GetShaderType()];
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Shader");
 			ImGui::SameLine();
@@ -132,7 +130,9 @@ namespace LinaEditor
 					const bool is_shader_selected = (m_selectedMaterial->GetShaderType() == n);
 					if (ImGui::Selectable(LinaEngine::Graphics::g_shadersStr[n], is_shader_selected))
 					{
-						LinaEngine::Application::GetRenderEngine().SetMaterialShader(*m_selectedMaterial, (LinaEngine::Graphics::Shaders)n);
+						LinaEngine::Graphics::Shaders st = (LinaEngine::Graphics::Shaders)n;
+						std::cout << st << std::endl;
+						LinaEngine::Application::GetRenderEngine().SetMaterialShader(*m_selectedMaterial, st);
 					}
 
 					if (is_shader_selected)
