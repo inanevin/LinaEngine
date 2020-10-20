@@ -42,6 +42,8 @@ Timestamp: 4/14/2019 11:59:32 AM
 
 namespace LinaEngine::Graphics
 {
+#define INTERNAL_MAT_PATH "__internal"
+
 	enum BufferUsage
 	{
 		USAGE_STATIC_DRAW = LINA_GRAPHICS_USAGE_STATIC_DRAW,

@@ -72,8 +72,9 @@ namespace LinaEditor
 
 		LinaEngine::Application::GetRenderEngine().PushLayer(m_guiLayer);
 
-		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::World::Level*>("##linaeditor_level_install", LinaEngine::Action::ActionType::LevelInstalled,
+		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::World::Level*>("##linaeditor_level_init", LinaEngine::Action::ActionType::LevelInitialized,
 			std::bind(&EditorApplication::LevelInstalled, this, std::placeholders::_1));
+
 
 	}
 

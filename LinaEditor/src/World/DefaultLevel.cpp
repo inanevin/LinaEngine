@@ -31,8 +31,11 @@ SOFTWARE.
 #include "Rendering/Material.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
+#include "ECS/Components/TransformComponent.hpp"
 
 using namespace LinaEngine::Graphics;
+using namespace LinaEngine::ECS;
 
 
 
@@ -59,6 +62,22 @@ namespace LinaEditor
 		mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
 		renderEngine.SetSkyboxMaterial(mat);
 	
+		Material& objUnlit = renderEngine.CreateMaterial(Shaders::STANDARD_UNLIT);
+
+		MeshRendererComponent cr;
+		cr.m_meshID = Primitives::CUBE;
+		cr.m_materialID = objUnlit.GetID();
+		cr.m_materialPath = objUnlit.GetPath();
+		cr.m_meshPath = renderEngine.GetPrimitive(Primitives::CUBE).GetPath();
+		TransformComponent objectTransform;
+
+		ECSRegistry& ecs = Application::GetECSRegistry();
+		ECSEntity c1;
+		c1 = ecs.CreateEntity("Sphere");
+		objectTransform.transform.m_location = Vector3(0, 0, 0);
+		ecs.emplace<TransformComponent>(c1, objectTransform);
+		ecs.emplace<MeshRendererComponent>(c1, cr);
+
 	}
 
 

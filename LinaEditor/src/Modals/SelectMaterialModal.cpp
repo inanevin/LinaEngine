@@ -40,10 +40,14 @@ namespace LinaEditor
 		static std::string selectedPath = "";
 		for (std::map<int, LinaEngine::Graphics::Material>::const_iterator it = map.begin(); it != map.end(); it++)
 		{
+			const std::string& path = it->second.GetPath();
+
+			if (path.compare(INTERNAL_MAT_PATH) == 0) continue;
+
 			WidgetsUtility::IncrementCursorPosY(5);
 			WidgetsUtility::IncrementCursorPosX(5);
 
-			if (ImGui::Selectable(it->second.GetPath().c_str(), selected == it->second.GetID()))
+			if (ImGui::Selectable(path.c_str(), selected == it->second.GetID()))
 			{
 				selected = it->second.GetID();
 				selectedPath = it->second.GetPath();

@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Rendering/RenderEngine.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "ECS/Components/CameraComponent.hpp"
+#include "ECS/Components/TransformComponent.hpp"
 #include "Core/EditorApplication.hpp"
 #include "Core/Application.hpp"
 #include "imgui/imgui.h"
@@ -133,7 +134,7 @@ namespace LinaEditor
 	
 	void ScenePanel::EntitySelected(LinaEngine::ECS::ECSEntity entity)
 	{
-		
+		m_selectedTransform = LinaEngine::Application::GetECSRegistry().try_get<LinaEngine::ECS::TransformComponent>(entity);
 	}
 
 	void ScenePanel::Unselected()

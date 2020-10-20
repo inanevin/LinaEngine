@@ -188,8 +188,8 @@ void Example1Level::Initialize()
 	objectUnlitMaterial = &renderEngine.CreateMaterial(Shaders::STANDARD_UNLIT);
 
 	MeshRendererComponent cr;
-	//cr.m_meshID = Primitives::CUBE;
-	//cr.m_materialID = objectUnlitMaterial->m_materialID;
+	cr.m_meshID = Primitives::CUBE;
+	cr.m_materialID = objectUnlitMaterial->GetID();
 	TransformComponent objectTransform;
 	RigidbodyComponent r;
 

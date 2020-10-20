@@ -694,6 +694,8 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 	// Get component
 	MeshRendererComponent& renderer = ecs.get<MeshRendererComponent>(entity);
 
+	LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+
 	// Align.
 	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
 	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
@@ -720,11 +722,17 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 		float cursorPosLabels = CURSORPOS_X_LABELS;
-		std::map<int, LinaEngine::Graphics::Mesh>& meshes = LinaEngine::Application::GetRenderEngine().GetLoadedMeshes();
 
 		// Mesh selection
 		static int selectedMeshID = -1;
 		static std::string selectedMeshPath = "";
+
+		if (renderEngine.MeshExists(renderer.m_meshID))
+		{
+			selectedMeshPath = renderer.m_meshPath;
+			selectedMeshID = renderer.m_meshID;
+		}
+
 		char meshPathC[128] = "";
 		strcpy(meshPathC, selectedMeshPath.c_str());
 
@@ -753,10 +761,18 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
 
 		renderer.m_meshID = selectedMeshID;
+		renderer.m_meshPath = selectedMeshPath;
 
 		// Material selection
 		static int selectedMatID = -1;
 		static std::string selectedMatPath = "";
+
+		if (renderEngine.MaterialExists(renderer.m_materialID))
+		{
+			selectedMatID = renderer.m_materialID;
+			selectedMatPath = renderer.m_materialPath;
+		}
+
 		char matPathC[128] = "";
 		strcpy(matPathC, selectedMatPath.c_str());
 
@@ -785,6 +801,7 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
 
 		renderer.m_materialID = selectedMatID;
+		renderer.m_materialPath = selectedMatPath;
 
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 	}

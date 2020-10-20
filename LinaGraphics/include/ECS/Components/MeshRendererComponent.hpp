@@ -54,11 +54,13 @@ namespace LinaEngine::ECS
 	{
 		int m_meshID = -1;
 		int m_materialID = -1;
+		std::string m_meshPath = "";
+		std::string m_materialPath = "";
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_meshID, m_materialID, m_isEnabled); // serialize things by passing them to the archive
+			archive(m_meshID, m_materialID, m_isEnabled, m_meshPath, m_materialPath); // serialize things by passing them to the archive
 		}
 
 #ifdef LINA_EDITOR

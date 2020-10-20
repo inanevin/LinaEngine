@@ -197,7 +197,7 @@ namespace LinaEngine::Graphics
 		Material& mat = m_loadedMaterials[id];
 		SetMaterialShader(mat, shader);
 		mat.m_materialID = id;
-		mat.m_path = "null";
+		mat.m_path = INTERNAL_MAT_PATH;
 		return m_loadedMaterials[id];
 	}
 
@@ -307,44 +307,6 @@ namespace LinaEngine::Graphics
 
 		LINA_CORE_TRACE("Mesh created. {0}", filePath);
 		return m_loadedMeshes[id];
-	}
-
-	Mesh& RenderEngine::CreatePrimitive(Primitives primitive, const std::string& path)
-	{
-		if (!MeshExists(primitive))
-		{
-
-			// Create object data & feed it from model.
-			Mesh& mesh = m_loadedMeshes[primitive];
-
-			ModelLoader::LoadModel(path, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs(), MeshParameters());
-
-			if (mesh.GetIndexedModels().size() == 0)
-			{
-				LINA_CORE_WARN("Indexed model array is empty! Primitive {0} could not be loaded, returning empty mesh", primitive);
-				return Mesh();
-			}
-
-			// Create vertex array for each mesh.
-			for (uint32 i = 0; i < mesh.GetIndexedModels().size(); i++)
-			{
-				VertexArray* vertexArray = new VertexArray();
-				vertexArray->Construct(m_renderDevice, mesh.GetIndexedModels()[i], BufferUsage::USAGE_STATIC_COPY);
-				mesh.GetVertexArrays().push_back(vertexArray);
-			}
-
-			// Set ID
-			mesh.m_meshID = primitive;
-
-			// Return
-			return m_loadedMeshes[primitive];
-		}
-		else
-		{
-			// Mesh with this name already exists!
-			LINA_CORE_WARN("Primitive with the ID{0} already exists, returning that...", primitive);
-			return m_loadedMeshes[primitive];
-		}
 	}
 
 	Shader& RenderEngine::CreateShader(Shaders shader, const std::string& path, bool usesGeometryShader)
