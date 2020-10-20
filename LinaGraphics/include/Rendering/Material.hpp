@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -70,8 +70,7 @@ namespace LinaEngine::Graphics
 
 		void SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		void RemoveTexture(const std::string& textureName);
-		Texture* GetTexture(const std::string& name);
-
+		Texture& GetTexture(const std::string& name);
 
 		void SetFloat(const std::string& name, float value)
 		{
@@ -115,7 +114,7 @@ namespace LinaEngine::Graphics
 		void SetMatrix4(const std::string& name, const Matrix& matrix)
 		{
 			m_matrices[name] = matrix;
-		}	
+		}
 
 		float GetFloat(const std::string& name)
 		{
@@ -156,13 +155,22 @@ namespace LinaEngine::Graphics
 		{
 			return m_matrices[name];
 		}
-		
+
+
+
 		int GetID() const { return m_materialID; }
 		const std::string& GetPath() const { return m_path; }
 		Shaders GetShaderType() { return m_shaderType; }
 		uint32 GetShaderID() { return m_shaderID; }
-		void SetSurfaceType(MaterialSurfaceType type) { m_surfaceType = type; SetInt(MAT_SURFACETYPE, type); }
+
+		void SetSurfaceType(MaterialSurfaceType type)
+		{
+			m_surfaceType = type;
+			SetInt(MAT_SURFACETYPE, type);
+		}
+
 		MaterialSurfaceType GetSurfaceType() { return m_surfaceType; }
+
 
 		friend class cereal::access;
 
@@ -171,6 +179,16 @@ namespace LinaEngine::Graphics
 		{
 			archive(m_usesHDRI, m_receivesLighting, m_isShadowMapped, m_shaderType, m_surfaceType, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
 		}
+
+		const std::map<std::string, float>& GetFloats() { return m_floats; }
+		const std::map<std::string, int>& GetInts() { m_ints; }
+		const std::map<std::string, MaterialSampler2D>& GetSamplers() { m_sampler2Ds; }
+		const std::map<std::string, Color>& GetColors() { m_colors; }
+		const std::map<std::string, Vector2>& GetVector2s() { m_vector2s; }
+		const std::map<std::string, Vector3>& GetVector3s() { m_vector3s; }
+		const std::map<std::string, Vector4>& GetVector4s() { m_vector4s; }
+		const std::map<std::string, Matrix>& GetMatrices() { m_matrices; }
+		const std::map<std::string, bool>& GetBools() { m_bools; }
 
 	private:
 
@@ -194,8 +212,6 @@ namespace LinaEngine::Graphics
 		std::map<std::string, Vector4> m_vector4s;
 		std::map<std::string, Matrix> m_matrices;
 		std::map<std::string, bool> m_bools;
-
-	
 	};
 
 	struct ModelMaterial

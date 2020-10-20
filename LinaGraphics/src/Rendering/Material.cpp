@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Rendering/Material.hpp"
+#include "Rendering/Texture.hpp"
 #include <cereal/archives/json.hpp>
 #include <stdio.h>
 #include <cereal/archives/binary.hpp>
@@ -82,14 +83,14 @@ namespace LinaEngine::Graphics
 			return;
 		}
 	}
-	Texture* Material::GetTexture(const std::string& name)
+	Texture& Material::GetTexture(const std::string& name)
 	{
 		if (!(m_sampler2Ds.find(name) == m_sampler2Ds.end()))
-			return m_sampler2Ds[name].m_boundTexture;
+			return *m_sampler2Ds[name].m_boundTexture;
 		else
 		{
-			LINA_CORE_WARN("This material doesn't support texture slot with the name {0}, returning null pointer", name);
-			return nullptr;
+			LINA_CORE_WARN("This material doesn't support texture slot with the name {0}, returning empty texture", name);
+			return Texture();
 		}
 	}
 }
