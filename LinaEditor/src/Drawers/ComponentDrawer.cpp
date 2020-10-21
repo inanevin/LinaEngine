@@ -50,6 +50,7 @@ using namespace LinaEditor;
 namespace LinaEditor
 {
 	ComponentDrawer* ComponentDrawer::s_activeInstance = nullptr;
+	std::map<LinaEngine::ECS::ECSTypeID, std::map<LinaEngine::ECS::ECSEntity, bool>> ComponentDrawer::s_componentFoldoutState;
 
 	ComponentDrawer::ComponentDrawer()
 	{
@@ -244,9 +245,10 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
 
 	// Draw title.
-	static bool open = false;
+	LinaEngine::ECS::ECSTypeID id = LinaEngine::ECS::GetTypeID<LinaEngine::ECS::TransformComponent>();
+	bool* open = &ComponentDrawer::s_componentFoldoutState[id][entity];
 	bool refreshPressed = false;
-	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<TransformComponent>(), "Transformation", ICON_FA_ARROWS_ALT, &refreshPressed, &transform.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<TransformComponent>(), "Transformation", ICON_FA_ARROWS_ALT, &refreshPressed, &transform.m_isEnabled, open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -260,7 +262,7 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		ecs.replace<TransformComponent>(entity, TransformComponent());
 
 	// Draw component
-	if (open)
+	if (*open)
 	{
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
