@@ -69,7 +69,8 @@ namespace LinaEngine::World
 				LinaEngine::ECS::SpotLightComponent,
 				LinaEngine::ECS::RigidbodyComponent,
 				LinaEngine::ECS::MeshRendererComponent,
-				LinaEngine::ECS::TransformComponent>(oarchive);
+				LinaEngine::ECS::TransformComponent,
+				LinaEngine::ECS::SpriteRendererComponent>(oarchive);
 		}
 
 		std::ofstream levelDataStream(path + "/" + levelName + ".linaleveldata");
@@ -116,7 +117,8 @@ namespace LinaEngine::World
 				LinaEngine::ECS::SpotLightComponent,
 				LinaEngine::ECS::RigidbodyComponent,
 				LinaEngine::ECS::MeshRendererComponent,
-				LinaEngine::ECS::TransformComponent>(iarchive)
+				LinaEngine::ECS::TransformComponent,
+				LinaEngine::ECS::SpriteRendererComponent>(iarchive)
 				.orphans();
 		}
 
