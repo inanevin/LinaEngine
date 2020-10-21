@@ -38,6 +38,8 @@ Timestamp: 10/22/2020 1:33:48 AM
 
 #ifndef MeshDrawer_HPP
 #define MeshDrawer_HPP
+#include "Rendering/RenderingCommon.hpp"
+
 
 namespace LinaEngine
 {
@@ -64,7 +66,7 @@ namespace LinaEditor
 	private:
 	
 		LinaEngine::Graphics::Mesh* m_selectedMesh = nullptr;
-
+		LinaEngine::Graphics::MeshParameters m_selectedParams;
 	};
 }
 

@@ -81,8 +81,8 @@ namespace LinaEditor
 	}
 	void PropertiesPanel::MeshSelected(LinaEngine::Graphics::Mesh* mesh)
 	{
-		m_currentDrawType = DrawType::Mesh;
 		m_meshDrawer.SetSelectedMesh(*mesh);
+		m_currentDrawType = DrawType::Mesh;
 	}
 
 

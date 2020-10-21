@@ -42,6 +42,7 @@ namespace LinaEditor
 	void MeshDrawer::SetSelectedMesh(LinaEngine::Graphics::Mesh& mesh)
 	{
 		m_selectedMesh = &mesh;
+		m_selectedParams = m_selectedMesh->GetParameters();
 	}
 
 	void MeshDrawer::DrawSelectedMesh()
@@ -50,25 +51,24 @@ namespace LinaEditor
 
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 		float cursorPosLabels = CURSORPOS_X_LABELS;
-		Graphics::MeshParameters params = m_selectedMesh->GetParameters();
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Triangulate");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		ImGui::Checkbox("##triangulate", &params.triangulate);
+		ImGui::Checkbox("##triangulate", &m_selectedParams.triangulate);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Smooth Normals");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		ImGui::Checkbox("##smoothNormals", &params.smoothNormals);
+		ImGui::Checkbox("##smoothNormals", &m_selectedParams.smoothNormals);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Calculate Tangents");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		ImGui::Checkbox("##tangentSpace", &params.calculateTangentSpace);
+		ImGui::Checkbox("##tangentSpace", &m_selectedParams.calculateTangentSpace);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 
@@ -76,8 +76,9 @@ namespace LinaEditor
 		{
 			int id = m_selectedMesh->GetID();
 			LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+			std::string filePath = m_selectedMesh->GetPath();
 			renderEngine.UnloadMeshResource(id);
-			m_selectedMesh = &renderEngine.CreateMesh(m_selectedMesh->GetPath(), params, id);
+			m_selectedMesh = &renderEngine.CreateMesh(filePath, Graphics::MeshParameters(m_selectedParams), id);
 		}
 
 	}

@@ -370,8 +370,8 @@ namespace LinaEngine::Graphics
 
 	Texture& RenderEngine::GetTexture(const std::string& path)
 	{
-		std::map<int, Texture*>::iterator it = std::find_if(m_loadedTextures.begin(), m_loadedTextures.end(), [path]
-		(std::pair<int, Texture*> const& item) -> bool { return item.second->GetPath().compare(path) == 0; });
+		const auto it = std::find_if(m_loadedTextures.begin(), m_loadedTextures.end(), [path]
+		(const auto& item) -> bool { return item.second->GetPath().compare(path) == 0; });
 
 		if (it == m_loadedTextures.end())
 		{
@@ -397,8 +397,8 @@ namespace LinaEngine::Graphics
 
 	Mesh& RenderEngine::GetMesh(const std::string& path)
 	{
-		std::map<int, Mesh>::iterator it = std::find_if(m_loadedMeshes.begin(), m_loadedMeshes.end(), [path]
-		(std::pair<int, Mesh> const& item) -> bool { return item.second.GetPath().compare(path) == 0; });
+		const auto it = std::find_if(m_loadedMeshes.begin(), m_loadedMeshes.end(), [path]
+		(const auto& item) -> bool { return item.second.GetPath().compare(path) == 0; });
 
 		if (it == m_loadedMeshes.end())
 		{
