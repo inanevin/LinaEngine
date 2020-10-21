@@ -400,7 +400,7 @@ namespace LinaEditor
 			if (file.type == FileType::Material)
 			{
 				LinaEngine::Graphics::Material& mat = renderEngine.GetMaterial(file.path);
-				mat.LoadTextures(renderEngine);
+				mat.PostLoadMaterialData(renderEngine);
 			}
 			else if (file.type == FileType::Mesh)
 			{

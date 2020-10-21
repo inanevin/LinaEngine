@@ -33,6 +33,7 @@ SOFTWARE.
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
+#include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
 #include <cereal/archives/json.hpp>
@@ -68,6 +69,7 @@ namespace LinaEngine::World
 				LinaEngine::ECS::SpotLightComponent,
 				LinaEngine::ECS::RigidbodyComponent,
 				LinaEngine::ECS::MeshRendererComponent,
+				LinaEngine::ECS::SpriteRendererComponent,
 				LinaEngine::ECS::TransformComponent>(oarchive);
 		}
 
@@ -115,6 +117,7 @@ namespace LinaEngine::World
 				LinaEngine::ECS::SpotLightComponent,
 				LinaEngine::ECS::RigidbodyComponent,
 				LinaEngine::ECS::MeshRendererComponent,
+				LinaEngine::ECS::SpriteRendererComponent,
 				LinaEngine::ECS::TransformComponent>(iarchive)
 				.orphans();
 		}

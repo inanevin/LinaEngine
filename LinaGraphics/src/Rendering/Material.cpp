@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Rendering/Material.hpp"
 #include "Rendering/RenderEngine.hpp"
+#include "Rendering/Shader.hpp"
 #include "Rendering/Texture.hpp"
 #include <cereal/archives/json.hpp>
 #include <stdio.h>
@@ -37,7 +38,7 @@ SOFTWARE.
 namespace LinaEngine::Graphics
 {
 
-	void Material::LoadTextures(LinaEngine::Graphics::RenderEngine& renderEngine)
+	void Material::PostLoadMaterialData(LinaEngine::Graphics::RenderEngine& renderEngine)
 	{
 		for (std::map<std::string, MaterialSampler2D>::iterator it = m_sampler2Ds.begin(); it != m_sampler2Ds.end(); ++it)
 		{
@@ -46,6 +47,8 @@ namespace LinaEngine::Graphics
 				SetTexture(it->first, &renderEngine.GetTexture(it->second.m_path), it->second.m_bindMode);
 			}
 		}
+
+		m_shaderID = renderEngine.GetShader(m_shaderType).GetID();
 	}
 
 	void Material::LoadMaterialData(Material& mat, const std::string& path)

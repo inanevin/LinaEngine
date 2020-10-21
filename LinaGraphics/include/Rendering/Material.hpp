@@ -62,16 +62,12 @@ namespace LinaEngine::Graphics
 		bool m_isActive = false;
 
 		template<class Archive>
-		void save(Archive& archive) const
+		void serialize(Archive& archive)
 		{
 			archive(m_unit, m_path, m_bindMode, m_isActive);
 		}
 
-		template<class Archive>
-		void load(Archive& archive)
-		{
-			archive(m_unit, m_path, m_bindMode, m_isActive);
-		}
+
 	};
 
 	class Material
@@ -82,7 +78,7 @@ namespace LinaEngine::Graphics
 		static void LoadMaterialData(Material& mat, const std::string& path);
 		static void SaveMaterialData(const Material& mat, const std::string& path);
 		
-		void LoadTextures(LinaEngine::Graphics::RenderEngine& renderEngine);
+		void PostLoadMaterialData(LinaEngine::Graphics::RenderEngine& renderEngine);
 		void SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		void RemoveTexture(const std::string& textureName);
 		Texture& GetTexture(const std::string& name);
