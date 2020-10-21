@@ -63,7 +63,6 @@ namespace LinaEditor
 		renderEngine.SetSkyboxMaterial(mat);
 	
 		Material& objUnlit = renderEngine.CreateMaterial(Shaders::Standard_Unlit);
-
 		MeshRendererComponent cr;
 		cr.m_meshID = Primitives::CUBE;
 		cr.m_materialID = objUnlit.GetID();

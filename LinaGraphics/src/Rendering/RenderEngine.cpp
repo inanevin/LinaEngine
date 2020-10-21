@@ -460,7 +460,6 @@ namespace LinaEngine::Graphics
 		{
 			material.m_colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
 			material.m_sampler2Ds[MAT_TEXTURE2D_DIFFUSE] = { 0 };
-			material.m_sampler2Ds[MAT_TEXTURE2D_SHADOWMAP] = { 1 };
 			material.m_ints[MAT_SURFACETYPE] = 0;
 			material.m_isShadowMapped = true;
 			m_shadowMappedMaterials.emplace(&material);
