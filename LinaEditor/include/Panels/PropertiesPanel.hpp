@@ -45,6 +45,7 @@ Timestamp: 6/7/2020 5:13:24 PM
 #include "Drawers/TextureDrawer.hpp"
 #include "Drawers/EntityDrawer.hpp"
 #include "Drawers/MaterialDrawer.hpp"
+#include "Drawers/MeshDrawer.hpp"
 #include "Rendering/RenderingCommon.hpp"
 
 namespace LinaEngine
@@ -90,9 +91,6 @@ namespace LinaEditor
 			m_currentDrawType = DrawType::None;
 		}
 
-	private:
-
-		void DrawMeshProperties();
 
 	private:
 
@@ -100,7 +98,7 @@ namespace LinaEditor
 		TextureDrawer m_textureDrawer;
 
 		// Selected mesh
-		LinaEngine::Graphics::MeshParameters m_currentMeshParams;
+		MeshDrawer m_meshDrawer;
 
 		// Selected material
 		MaterialDrawer m_materialDrawer;

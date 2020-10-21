@@ -32,6 +32,7 @@ src/Drawers/EntityDrawer.cpp
 src/Drawers/ComponentDrawer.cpp
 src/Drawers/TextureDrawer.cpp
 src/Drawers/MaterialDrawer.cpp
+src/Drawers/MeshDrawer.cpp
 
 #Modals
 src/Modals/SelectComponentModal.cpp
@@ -85,6 +86,7 @@ include/Drawers/EntityDrawer.hpp
 include/Drawers/ComponentDrawer.hpp
 include/Drawers/TextureDrawer.hpp
 include/Drawers/MaterialDrawer.hpp
+include/Drawers/MeshDrawer.hpp
 
 # Modals
 include/Modals/SelectComponentModal.hpp

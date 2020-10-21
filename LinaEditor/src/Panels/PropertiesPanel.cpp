@@ -82,8 +82,7 @@ namespace LinaEditor
 	void PropertiesPanel::MeshSelected(LinaEngine::Graphics::Mesh* mesh)
 	{
 		m_currentDrawType = DrawType::Mesh;
-		LinaEngine::Graphics::MeshParameters& params = mesh->GetParameters();
-		m_currentMeshParams = params;
+		m_meshDrawer.SetSelectedMesh(*mesh);
 	}
 
 
@@ -112,7 +111,7 @@ namespace LinaEditor
 			else if (m_currentDrawType == DrawType::Texture2D)
 				m_textureDrawer.DrawSelectedTexture();
 			else if (m_currentDrawType == DrawType::Mesh)
-				DrawMeshProperties();
+				m_meshDrawer.DrawSelectedMesh();
 			else if (m_currentDrawType == DrawType::Material)
 				m_materialDrawer.DrawSelectedMaterial();
 
@@ -122,22 +121,5 @@ namespace LinaEditor
 		}
 	}
 
-
-
-	void PropertiesPanel::DrawMeshProperties()
-	{
-		/*Graphics::MeshParameters params = m_selectedMesh->GetParameters();
-
-		ImGui::Checkbox("Triangulate", &m_currentMeshParams.triangulate);
-		ImGui::Checkbox("Generate Smooth Normals", &m_currentMeshParams.smoothNormals);
-		ImGui::Checkbox("Calculate Tangent Space", &m_currentMeshParams.calculateTangentSpace);
-
-		if (ImGui::Button("Apply"))
-		{
-			Graphics::MeshParameters params = m_currentMeshParams;
-		//	LinaEngine::Application::GetRenderEngine().UnloadMeshResource(m_selectedMeshID);
-		//	m_selectedMesh = &m_renderEngine->CreateMesh(m_selectedMeshID, m_selectedMeshPath, params);
-		}*/
-	}
 
 }
