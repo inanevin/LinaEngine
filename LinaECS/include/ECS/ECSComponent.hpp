@@ -60,6 +60,9 @@ namespace LinaEngine::ECS
 		virtual ~ECSComponent() {};
 		bool m_isEnabled = true;
 	
+#ifdef LINA_EDITOR
+		bool m_foldoutOpen = false;
+#endif
 	};
 }
 

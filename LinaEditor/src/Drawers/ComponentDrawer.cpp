@@ -245,10 +245,8 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
 
 	// Draw title.
-	LinaEngine::ECS::ECSTypeID id = LinaEngine::ECS::GetTypeID<LinaEngine::ECS::TransformComponent>();
-	bool* open = &ComponentDrawer::s_componentFoldoutState[id][entity];
 	bool refreshPressed = false;
-	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<TransformComponent>(), "Transformation", ICON_FA_ARROWS_ALT, &refreshPressed, &transform.m_isEnabled, open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<TransformComponent>(), "Transformation", ICON_FA_ARROWS_ALT, &refreshPressed, &transform.m_isEnabled, &transform.m_foldoutOpen, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -262,7 +260,7 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		ecs.replace<TransformComponent>(entity, TransformComponent());
 
 	// Draw component
-	if (*open)
+	if (transform.m_foldoutOpen)
 	{
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
@@ -303,9 +301,8 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
 
 	// Draw title.
-	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<RigidbodyComponent>(), "Rigidbody", ICON_MD_ACCESSIBILITY, &refreshPressed, &rb.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<RigidbodyComponent>(), "Rigidbody", ICON_MD_ACCESSIBILITY, &refreshPressed, &rb.m_isEnabled, &rb.m_foldoutOpen, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -319,7 +316,7 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		ecs.replace<RigidbodyComponent>(entity, RigidbodyComponent());
 
 	// Draw component.
-	if (open)
+	if (rb.m_foldoutOpen)
 	{
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 		float cursorPosLabels = CURSORPOS_X_LABELS;
@@ -410,9 +407,8 @@ void LinaEngine::ECS::CameraComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRe
 	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
 
 	// Draw title.
-	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<CameraComponent>(), "Camera", ICON_FA_VIDEO, &refreshPressed, &camera.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<CameraComponent>(), "Camera", ICON_FA_VIDEO, &refreshPressed, &camera.m_isEnabled, &camera.m_foldoutOpen, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -426,7 +422,7 @@ void LinaEngine::ECS::CameraComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRe
 		ecs.replace<CameraComponent>(entity, CameraComponent());
 
 	// Draw component.
-	if (open)
+	if (camera.m_foldoutOpen)
 	{
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
@@ -473,9 +469,8 @@ void LinaEngine::ECS::DirectionalLightComponent::COMPONENT_DRAWFUNC(LinaEngine::
 	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
 
 	// Draw title.
-	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<DirectionalLightComponent>(), "DirectionalLight", ICON_FA_SUN, &refreshPressed, &dLight.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<DirectionalLightComponent>(), "DirectionalLight", ICON_FA_SUN, &refreshPressed, &dLight.m_isEnabled, &dLight.m_foldoutOpen, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -489,7 +484,7 @@ void LinaEngine::ECS::DirectionalLightComponent::COMPONENT_DRAWFUNC(LinaEngine::
 		ecs.replace<DirectionalLightComponent>(entity, DirectionalLightComponent());
 
 	// Draw component.
-	if (open)
+	if (dLight.m_foldoutOpen)
 	{
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
@@ -536,9 +531,8 @@ void LinaEngine::ECS::PointLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::E
 	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
 
 	// Draw title.
-	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<PointLightComponent>(), "PointLight", ICON_FA_LIGHTBULB, &refreshPressed, &pLight.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<PointLightComponent>(), "PointLight", ICON_FA_LIGHTBULB, &refreshPressed, &pLight.m_isEnabled, &pLight.m_foldoutOpen, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -552,7 +546,7 @@ void LinaEngine::ECS::PointLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::E
 		ecs.replace<PointLightComponent>(entity, PointLightComponent());
 
 	// Draw component.
-	if (open)
+	if (pLight.m_foldoutOpen)
 	{
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
@@ -587,9 +581,8 @@ void LinaEngine::ECS::SpotLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
 
 	// Draw title.
-	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<SpotLightComponent>(), "SpotLight", ICON_MD_HIGHLIGHT, &refreshPressed, &sLight.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3.0f));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<SpotLightComponent>(), "SpotLight", ICON_MD_HIGHLIGHT, &refreshPressed, &sLight.m_isEnabled, &sLight.m_foldoutOpen, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3.0f));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -603,7 +596,7 @@ void LinaEngine::ECS::SpotLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		ecs.replace<SpotLightComponent>(entity, SpotLightComponent());
 
 	// Draw component.
-	if (open)
+	if (sLight.m_foldoutOpen)
 	{
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
@@ -650,9 +643,8 @@ void LinaEngine::ECS::FreeLookComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECS
 	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
 
 	// Draw title.
-	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<FreeLookComponent>(), "FreeLook", ICON_MD_3D_ROTATION, &refreshPressed, &freeLook.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<FreeLookComponent>(), "FreeLook", ICON_MD_3D_ROTATION, &refreshPressed, &freeLook.m_isEnabled, &freeLook.m_foldoutOpen, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -666,7 +658,7 @@ void LinaEngine::ECS::FreeLookComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECS
 		ecs.replace<FreeLookComponent>(entity, FreeLookComponent());
 
 	// Draw component.
-	if (open)
+	if (freeLook.m_foldoutOpen)
 	{
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
@@ -703,9 +695,8 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
 
 	// Draw title.
-	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<MeshRendererComponent>(), "MeshRenderer", ICON_MD_GRID_ON, &refreshPressed, &renderer.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<MeshRendererComponent>(), "MeshRenderer", ICON_MD_GRID_ON, &refreshPressed, &renderer.m_isEnabled, &renderer.m_foldoutOpen, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -719,7 +710,7 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		ecs.replace<MeshRendererComponent>(entity, MeshRendererComponent());
 
 	// Draw component.
-	if (open)
+	if (renderer.m_foldoutOpen)
 	{
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
@@ -822,9 +813,8 @@ void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::EC
 	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
 
 	// Draw title.
-	static bool open = false;
 	bool refreshPressed = false;
-	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<SpriteRendererComponent>(), "SpriteRenderer", ICON_FA_LIGHTBULB, &refreshPressed, &renderer.m_isEnabled, &open, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<SpriteRendererComponent>(), "SpriteRenderer", ICON_FA_LIGHTBULB, &refreshPressed, &renderer.m_isEnabled, &renderer.m_foldoutOpen, ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -838,7 +828,7 @@ void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::EC
 		ecs.replace<SpriteRendererComponent>(entity, SpriteRendererComponent());
 
 	// Draw component.
-	if (open)
+	if (renderer.m_foldoutOpen)
 	{
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
