@@ -37,12 +37,13 @@ namespace LinaEditor
 {
 
 #define CURSORPOS_X_LABELS 12
-#define CURSORPOS_XPERC_VALUES 0.32f
+#define CURSORPOS_XPERC_VALUES 0.55f
 
 	void MeshDrawer::SetSelectedMesh(LinaEngine::Graphics::Mesh& mesh)
 	{
 		m_selectedMesh = &mesh;
 	}
+
 	void MeshDrawer::DrawSelectedMesh()
 	{
 		WidgetsUtility::IncrementCursorPosY(12);
@@ -78,5 +79,6 @@ namespace LinaEditor
 			renderEngine.UnloadMeshResource(id);
 			m_selectedMesh = &renderEngine.CreateMesh(m_selectedMesh->GetPath(), params, id);
 		}
+
 	}
 }

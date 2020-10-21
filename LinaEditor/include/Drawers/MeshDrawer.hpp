@@ -54,8 +54,8 @@ namespace LinaEditor
 		
 	public:
 		
-		MeshDrawer();
-		~MeshDrawer();
+		MeshDrawer() {};
+		~MeshDrawer() {};
 	
 		void SetSelectedMesh(LinaEngine::Graphics::Mesh& mesh);
 		void DrawSelectedMesh();
