@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Rendering/RenderEngine.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Rendering/RenderingCommon.hpp"
+#include "Core/EditorCommon.hpp"
 #include "imgui/imgui.h"
 #include "IconsFontAwesome5.h"
 
@@ -350,18 +351,35 @@ namespace LinaEditor
 		{
 			WidgetsUtility::IncrementCursorPosY(11);
 
-			float a = WidgetsUtility::DebugFloat("za");
 			for (std::map<std::string, LinaEngine::Graphics::MaterialSampler2D>::iterator it = m_selectedMaterial->m_sampler2Ds.begin(); it != m_selectedMaterial->m_sampler2Ds.end(); ++it)
-			{		
+			{
 				WidgetsUtility::FramePaddingX(4);
 				WidgetsUtility::IncrementCursorPosX(30);
 				WidgetsUtility::AlignedText(it->first.c_str());
 
-				ImVec2 min = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPos().x + 150, ImGui::GetWindowPos().y + ImGui::GetCursorPos().y - 50);
+				ImVec2 min = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPos().x + 175, ImGui::GetWindowPos().y + ImGui::GetCursorPos().y - 50);
 				ImVec2 max = ImVec2(min.x + 75, min.y + 75);
-				ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_FrameBg)), 5);
-				WidgetsUtility::IncrementCursorPosY(a);
+				//ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_FrameBg)), 5);
+
+				ImVec2 minTexture = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPos().x + 175, ImGui::GetWindowPos().y + ImGui::GetCursorPos().y - 50);
+				ImVec2 maxTexture = ImVec2(minTexture.x + 165, minTexture.y + 165);
+
+				if (it->second.m_boundTexture != nullptr)
+					ImGui::GetWindowDrawList()->AddImage((void*)it->second.m_boundTexture->GetID(), minTexture, maxTexture, ImVec2(0, 1), ImVec2(1, 0));
+
+				WidgetsUtility::IncrementCursorPosY(80);
 				WidgetsUtility::PopStyleVar();
+
+				// Dropped on another title, swap component orders.
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVETEXTURE_ID))
+					{
+						IM_ASSERT(payload->DataSize == sizeof(uint32));
+						m_selectedMaterial->SetTexture(it->first, &LinaEngine::Application::GetRenderEngine().GetTexture(*(uint32*)payload->Data), it->second.m_bindMode);
+					}
+					ImGui::EndDragDropTarget();
+				}
 			}
 		}
 	}

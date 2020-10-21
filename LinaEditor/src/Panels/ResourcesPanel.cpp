@@ -288,8 +288,23 @@ namespace LinaEditor
 			ImGuiTreeNodeFlags fileFlags = it->second.id == s_selectedItem ? fileNodeFlagsSelected : fileNodeFlagsNotSelected;
 			bool nodeOpen = ImGui::TreeNodeEx(it->second.name.c_str(), fileFlags);
 
+			if (it->second.type == FileType::Texture2D)
+			{
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+				{
+					// Set payload to carry the texture;
+					uint32 id = LinaEngine::Application::GetRenderEngine().GetTexture(it->second.path).GetID();
+					ImGui::SetDragDropPayload(RESOURCES_MOVETEXTURE_ID, &id, sizeof(uint32));
+
+					// Display preview 
+					ImGui::Text("Assign ");
+					ImGui::EndDragDropSource();
+				}
+			}
+		
+
 			// Click.
-			if (ImGui::IsItemClicked())
+			if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
 			{
 				s_selectedItem = it->second.id;
 				s_selectedFolder = nullptr;

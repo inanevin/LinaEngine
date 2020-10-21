@@ -247,6 +247,8 @@ namespace LinaEngine::Graphics
 		// Delete pixel data.
 		delete textureBitmap;
 
+		LINA_CORE_TRACE("Texture created. {0}", filePath);
+
 		// Return
 		return *m_loadedTextures[texture->GetID()];
 	}
