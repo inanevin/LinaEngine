@@ -38,15 +38,6 @@ Timestamp: 4/14/2019 1:37:59 AM
 
 #include "ECS/ECSComponent.hpp"
 
-namespace LinaEngine
-{
-	namespace Graphics
-	{
-		class Mesh;
-		class Material;
-		class VertexArray;
-	}
-}
 
 namespace LinaEngine::ECS
 {

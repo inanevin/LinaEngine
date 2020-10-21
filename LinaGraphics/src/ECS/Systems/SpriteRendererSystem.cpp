@@ -54,6 +54,9 @@ namespace LinaEngine::ECS
 
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 
+			// Dont draw if mesh or material does not exist.
+			if (renderer.m_materialID < 0) continue;
+
 			Graphics::Material& mat = m_renderEngine->GetMaterial(renderer.m_materialID);
 			Render(mat, transform.transform.ToMatrix());
 		}

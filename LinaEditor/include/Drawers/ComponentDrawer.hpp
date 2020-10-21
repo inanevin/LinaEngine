@@ -65,7 +65,7 @@ namespace LinaEditor
 		void ClearDrawList();
 		void DrawComponents(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
 		bool DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconFolor = ImVec4(1, 1, 1, 1), const ImVec2& iconOffset = ImVec2(0, 0));
-
+		void ComponentRemoved(entt::registry&, entt::entity);
 	public:
 		// Selected colilsion shape in editor.
 		int m_currentCollisionShape = 0;
@@ -78,7 +78,7 @@ namespace LinaEditor
 
 	private:
 
-		std::map<LinaEngine::ECS::ECSTypeID, ComponentValueTuple> m_componentDrawFuncMap;
+		std::map<LinaEngine::ECS::ECSTypeID, ComponentValueTuple> m_componentFunctionsMap;
 		std::vector<LinaEngine::ECS::ECSTypeID> m_componentDrawList;
 
 

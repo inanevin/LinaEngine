@@ -41,6 +41,7 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "Modals/SelectMeshModal.hpp"
 #include "Modals/SelectMaterialModal.hpp"
+#include "PackageManager/PAMMemory.hpp"
 #include "IconsFontAwesome5.h"
 #include "IconsMaterialDesign.h"
 
@@ -55,37 +56,41 @@ namespace LinaEditor
 	ComponentDrawer::ComponentDrawer()
 	{
 		// Display names.
-		std::get<0>(m_componentDrawFuncMap[GetTypeID<TransformComponent>()]) = "Transformation";
-		std::get<0>(m_componentDrawFuncMap[GetTypeID<RigidbodyComponent>()]) = "Rigidbody";
-		std::get<0>(m_componentDrawFuncMap[GetTypeID<CameraComponent>()]) = "Camera";
-		std::get<0>(m_componentDrawFuncMap[GetTypeID<DirectionalLightComponent>()]) = "Directional Light";
-		std::get<0>(m_componentDrawFuncMap[GetTypeID<SpotLightComponent>()]) = "Spot Light";
-		std::get<0>(m_componentDrawFuncMap[GetTypeID<PointLightComponent>()]) = "Point Light";
-		std::get<0>(m_componentDrawFuncMap[GetTypeID<FreeLookComponent>()]) = "Free Look";
-		std::get<0>(m_componentDrawFuncMap[GetTypeID<MeshRendererComponent>()]) = "Mesh Renderer";
-		std::get<0>(m_componentDrawFuncMap[GetTypeID<SpriteRendererComponent>()]) = "Sprite Renderer";
+		std::get<0>(m_componentFunctionsMap[GetTypeID<TransformComponent>()]) = "Transformation";
+		std::get<0>(m_componentFunctionsMap[GetTypeID<RigidbodyComponent>()]) = "Rigidbody";
+		std::get<0>(m_componentFunctionsMap[GetTypeID<CameraComponent>()]) = "Camera";
+		std::get<0>(m_componentFunctionsMap[GetTypeID<DirectionalLightComponent>()]) = "Directional Light";
+		std::get<0>(m_componentFunctionsMap[GetTypeID<SpotLightComponent>()]) = "Spot Light";
+		std::get<0>(m_componentFunctionsMap[GetTypeID<PointLightComponent>()]) = "Point Light";
+		std::get<0>(m_componentFunctionsMap[GetTypeID<FreeLookComponent>()]) = "Free Look";
+		std::get<0>(m_componentFunctionsMap[GetTypeID<MeshRendererComponent>()]) = "Mesh Renderer";
+		std::get<0>(m_componentFunctionsMap[GetTypeID<SpriteRendererComponent>()]) = "Sprite Renderer";
 
 		// Add functions.
-		std::get<1>(m_componentDrawFuncMap[GetTypeID<TransformComponent>()]) = std::bind(&TransformComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(m_componentDrawFuncMap[GetTypeID<RigidbodyComponent>()]) = std::bind(&RigidbodyComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(m_componentDrawFuncMap[GetTypeID<CameraComponent>()]) = std::bind(&CameraComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(m_componentDrawFuncMap[GetTypeID<DirectionalLightComponent>()]) = std::bind(&DirectionalLightComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(m_componentDrawFuncMap[GetTypeID<SpotLightComponent>()]) = std::bind(&SpotLightComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(m_componentDrawFuncMap[GetTypeID<PointLightComponent>()]) = std::bind(&PointLightComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(m_componentDrawFuncMap[GetTypeID<FreeLookComponent>()]) = std::bind(&FreeLookComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(m_componentDrawFuncMap[GetTypeID<MeshRendererComponent>()]) = std::bind(&MeshRendererComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(m_componentDrawFuncMap[GetTypeID<SpriteRendererComponent>()]) = std::bind(&SpriteRendererComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(m_componentFunctionsMap[GetTypeID<TransformComponent>()]) = std::bind(&TransformComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(m_componentFunctionsMap[GetTypeID<RigidbodyComponent>()]) = std::bind(&RigidbodyComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(m_componentFunctionsMap[GetTypeID<CameraComponent>()]) = std::bind(&CameraComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(m_componentFunctionsMap[GetTypeID<DirectionalLightComponent>()]) = std::bind(&DirectionalLightComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(m_componentFunctionsMap[GetTypeID<SpotLightComponent>()]) = std::bind(&SpotLightComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(m_componentFunctionsMap[GetTypeID<PointLightComponent>()]) = std::bind(&PointLightComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(m_componentFunctionsMap[GetTypeID<FreeLookComponent>()]) = std::bind(&FreeLookComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(m_componentFunctionsMap[GetTypeID<MeshRendererComponent>()]) = std::bind(&MeshRendererComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<1>(m_componentFunctionsMap[GetTypeID<SpriteRendererComponent>()]) = std::bind(&SpriteRendererComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
 
 		// Draw functions.
-		std::get<2>(m_componentDrawFuncMap[GetTypeID<TransformComponent>()]) = std::bind(&TransformComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(m_componentDrawFuncMap[GetTypeID<RigidbodyComponent>()]) = std::bind(&RigidbodyComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(m_componentDrawFuncMap[GetTypeID<CameraComponent>()]) = std::bind(&CameraComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(m_componentDrawFuncMap[GetTypeID<DirectionalLightComponent>()]) = std::bind(&DirectionalLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(m_componentDrawFuncMap[GetTypeID<SpotLightComponent>()]) = std::bind(&SpotLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(m_componentDrawFuncMap[GetTypeID<PointLightComponent>()]) = std::bind(&PointLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(m_componentDrawFuncMap[GetTypeID<FreeLookComponent>()]) = std::bind(&FreeLookComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(m_componentDrawFuncMap[GetTypeID<MeshRendererComponent>()]) = std::bind(&MeshRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(m_componentDrawFuncMap[GetTypeID<SpriteRendererComponent>()]) = std::bind(&SpriteRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(m_componentFunctionsMap[GetTypeID<TransformComponent>()]) = std::bind(&TransformComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(m_componentFunctionsMap[GetTypeID<RigidbodyComponent>()]) = std::bind(&RigidbodyComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(m_componentFunctionsMap[GetTypeID<CameraComponent>()]) = std::bind(&CameraComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(m_componentFunctionsMap[GetTypeID<DirectionalLightComponent>()]) = std::bind(&DirectionalLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(m_componentFunctionsMap[GetTypeID<SpotLightComponent>()]) = std::bind(&SpotLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(m_componentFunctionsMap[GetTypeID<PointLightComponent>()]) = std::bind(&PointLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(m_componentFunctionsMap[GetTypeID<FreeLookComponent>()]) = std::bind(&FreeLookComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(m_componentFunctionsMap[GetTypeID<MeshRendererComponent>()]) = std::bind(&MeshRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		std::get<2>(m_componentFunctionsMap[GetTypeID<SpriteRendererComponent>()]) = std::bind(&SpriteRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+
+		LinaEngine::ECS::ECSRegistry& reg = LinaEngine::Application::GetECSRegistry();
+
+		reg.on_destroy<TransformComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
 	}
 
 	// Use reflection for gods sake later on.
@@ -102,7 +107,7 @@ namespace LinaEditor
 			});
 
 		// Iterate registered types & add as eligible if entity does not contain the type.
-		for (std::map<ECSTypeID, ComponentValueTuple>::iterator it = m_componentDrawFuncMap.begin(); it != m_componentDrawFuncMap.end(); ++it)
+		for (std::map<ECSTypeID, ComponentValueTuple>::iterator it = m_componentFunctionsMap.begin(); it != m_componentFunctionsMap.end(); ++it)
 		{
 			if (std::find(typeIDs.begin(), typeIDs.end(), it->first) == typeIDs.end())
 				eligibleTypes.push_back(std::get<0>(it->second));
@@ -114,7 +119,7 @@ namespace LinaEditor
 	void ComponentDrawer::AddComponentToEntity(ECSRegistry& ecs, ECSEntity entity, const std::string& comp)
 	{
 		// Call the add function of the type when the requested strings match.
-		for (std::map<ECSTypeID, ComponentValueTuple>::iterator it = m_componentDrawFuncMap.begin(); it != m_componentDrawFuncMap.end(); ++it)
+		for (std::map<ECSTypeID, ComponentValueTuple>::iterator it = m_componentFunctionsMap.begin(); it != m_componentFunctionsMap.end(); ++it)
 		{
 			if (std::get<0>(it->second).compare(comp) == 0)
 				std::get<1>(it->second)(ecs, entity);
@@ -147,7 +152,7 @@ namespace LinaEditor
 
 		// Draw components.
 		for (int i = 0; i < m_componentDrawList.size(); i++)
-			std::get<2>(m_componentDrawFuncMap[m_componentDrawList[i]])(ecs, entity);
+			std::get<2>(m_componentFunctionsMap[m_componentDrawList[i]])(ecs, entity);
 	}
 
 	bool ComponentDrawer::DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor, const ImVec2& iconOffset)
@@ -217,6 +222,11 @@ namespace LinaEditor
 		ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 20);
 		return WidgetsUtility::IconButton(buf.c_str(), ICON_FA_TIMES, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
 	}
+	
+	void ComponentDrawer::ComponentRemoved(entt::registry&, entt::entity)
+	{
+		ClearDrawList();
+	}
 }
 
 #define CURSORPOS_X_LABELS 12
@@ -251,7 +261,7 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	// Remove if requested.
 	if (removeComponent)
 	{
-		ecs.remove<TransformComponent>(entity);
+		ecs.remove<TransformComponent>(entity);	
 		return;
 	}
 
@@ -715,18 +725,17 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 		float cursorPosLabels = CURSORPOS_X_LABELS;
-
+		
 		// Mesh selection
-
 		if (renderEngine.MeshExists(renderer.m_meshID))
 		{
 			renderer.m_selectedMeshPath = renderer.m_meshPath;
 			renderer.m_selectedMeshID = renderer.m_meshID;
 		}
-
+		
 		char meshPathC[128] = "";
 		strcpy(meshPathC, renderer.m_selectedMeshPath.c_str());
-
+		
 		ImGui::SetCursorPosX(cursorPosLabels); 
 		WidgetsUtility::AlignedText("Mesh");
 		ImGui::SameLine(); 
@@ -735,10 +744,10 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		ImGui::InputText("##selectedMesh", meshPathC, IM_ARRAYSIZE(meshPathC), ImGuiInputTextFlags_ReadOnly);
 		ImGui::SameLine(); 
 		WidgetsUtility::IncrementCursorPosY(5);
-
+		
 		if (WidgetsUtility::IconButton("##selectmesh", ICON_FA_PLUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 			ImGui::OpenPopup("Select Mesh");
-
+		
 		bool meshPopupOpen = true;
 		WidgetsUtility::FramePaddingY(8);
 		WidgetsUtility::FramePaddingX(4);
@@ -750,12 +759,89 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 			ImGui::EndPopup();
 		}
 		WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
-
+		
 		renderer.m_meshID = renderer.m_selectedMeshID;
 		renderer.m_meshPath = renderer.m_selectedMeshPath;
+		
+		// Material selection
+		if (renderEngine.MaterialExists(renderer.m_materialID))
+		{
+			renderer.m_selectedMatID = renderer.m_materialID;
+			renderer.m_selectedMatPath = renderer.m_materialPath;
+		}
+		
+		char matPathC[128] = "";
+		strcpy(matPathC, renderer.m_selectedMatPath.c_str());
+		
+		ImGui::SetCursorPosX(cursorPosLabels);
+		WidgetsUtility::AlignedText("Material");
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
+		ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
+		ImGui::InputText("##selectedMat", matPathC, IM_ARRAYSIZE(matPathC), ImGuiInputTextFlags_ReadOnly);
+		ImGui::SameLine();
+		WidgetsUtility::IncrementCursorPosY(5);
+		
+		if (WidgetsUtility::IconButton("##selectmat", ICON_FA_PLUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
+			ImGui::OpenPopup("Select Material");
+		
+		bool materialPopupOpen = true;
+		WidgetsUtility::FramePaddingY(8);
+		WidgetsUtility::FramePaddingX(4);
+		ImGui::SetNextWindowSize(ImVec2(280, 400));
+		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
+		if (ImGui::BeginPopupModal("Select Material", &materialPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+		{
+			SelectMaterialModal::Draw(Application::GetRenderEngine().GetLoadedMaterials(), &renderer.m_selectedMatID, renderer.m_selectedMatPath);
+			ImGui::EndPopup();
+		}
+		WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
+		
+		renderer.m_materialID = renderer.m_selectedMatID;
+		renderer.m_materialPath = renderer.m_selectedMatPath;
+		
+		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
+	}
+
+	// Draw bevel line.
+	WidgetsUtility::DrawBeveledLine();
+}
+
+void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
+{
+	// Get component
+	SpriteRendererComponent& renderer = ecs.get<SpriteRendererComponent>(entity);
+
+	LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+
+	// Align.
+	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
+	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
+
+	// Draw title.
+	bool refreshPressed = false;
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<SpriteRendererComponent>(), "SpriteRenderer", ICON_MD_GRID_ON, &refreshPressed, &renderer.m_isEnabled, &renderer.m_foldoutOpen, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
+
+	// Remove if requested.
+	if (removeComponent)
+	{
+		ecs.remove<SpriteRendererComponent>(entity);
+		return;
+	}
+
+	// Refresh
+	if (refreshPressed)
+		ecs.replace<SpriteRendererComponent>(entity, SpriteRendererComponent());
+
+	// Draw component.
+	if (renderer.m_foldoutOpen)
+	{
+		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
+		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
+		float cursorPosLabels = CURSORPOS_X_LABELS;
+	
 
 		// Material selection
-
 		if (renderEngine.MaterialExists(renderer.m_materialID))
 		{
 			renderer.m_selectedMatID = renderer.m_materialID;
@@ -782,7 +868,7 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		WidgetsUtility::FramePaddingX(4);
 		ImGui::SetNextWindowSize(ImVec2(280, 400));
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
-		if (ImGui::BeginPopupModal("Select Material", &meshPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+		if (ImGui::BeginPopupModal("Select Material", &materialPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 		{
 			SelectMaterialModal::Draw(Application::GetRenderEngine().GetLoadedMaterials(), &renderer.m_selectedMatID, renderer.m_selectedMatPath);
 			ImGui::EndPopup();
@@ -792,45 +878,6 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		renderer.m_materialID = renderer.m_selectedMatID;
 		renderer.m_materialPath = renderer.m_selectedMatPath;
 
-		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
-	}
-
-	// Draw bevel line.
-	WidgetsUtility::DrawBeveledLine();
-}
-
-void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
-{
-	// Get component
-	SpriteRendererComponent& renderer = ecs.get<SpriteRendererComponent>(entity);
-
-	// Align.
-	WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
-	WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
-
-	// Draw title.
-	bool refreshPressed = false;
-	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<SpriteRendererComponent>(), "SpriteRenderer", ICON_FA_LIGHTBULB, &refreshPressed, &renderer.m_isEnabled, &renderer.m_foldoutOpen, ImGui::GetStyleColorVec4(ImGuiCol_Header));
-
-	// Remove if requested.
-	if (removeComponent)
-	{
-		ecs.remove<SpriteRendererComponent>(entity);
-		return;
-	}
-
-	// Refresh
-	if (refreshPressed)
-		ecs.replace<SpriteRendererComponent>(entity, SpriteRendererComponent());
-
-	// Draw component.
-	if (renderer.m_foldoutOpen)
-	{
-		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
-		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
-		float cursorPosLabels = CURSORPOS_X_LABELS;
-		//ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Movement Speeds");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat2("##ms", &renderer.m_movementSpeeds.x);
-		//ImGui::SetCursorPosX(cursorPosLabels); WidgetsUtility::AlignedText("Rotation Speeds");	ImGui::SameLine(); ImGui::SetCursorPosX(cursorPosValues); ImGui::DragFloat2("##rs", &renderer.m_rotationSpeeds.x);
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 	}
 

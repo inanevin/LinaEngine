@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -43,16 +43,19 @@ namespace LinaEngine::ECS
 	struct SpriteRendererComponent : public ECSComponent
 	{
 		int m_materialID = -1;
+		std::string m_materialPath = "";
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_materialID, m_isEnabled); // serialize things by passing them to the archive
+			archive(m_materialID, m_isEnabled, m_materialPath); // serialize things by passing them to the archive
 		}
 
 #ifdef LINA_EDITOR
 		COMPONENT_DRAWFUNC_SIG;
 		COMPONENT_ADDFUNC_SIG{ ecs.emplace<SpriteRendererComponent>(entity, SpriteRendererComponent()); }
+		int m_selectedMatID = -1;
+		std::string m_selectedMatPath = "";
 #endif
 	};
 }
