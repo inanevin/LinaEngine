@@ -350,24 +350,17 @@ namespace LinaEditor
 		{
 			WidgetsUtility::IncrementCursorPosY(11);
 
+			float a = WidgetsUtility::DebugFloat("za");
 			for (std::map<std::string, LinaEngine::Graphics::MaterialSampler2D>::iterator it = m_selectedMaterial->m_sampler2Ds.begin(); it != m_selectedMaterial->m_sampler2Ds.end(); ++it)
-			{
+			{		
 				WidgetsUtility::FramePaddingX(4);
-				ImGui::SetCursorPosX(cursorPosLabels);
+				WidgetsUtility::IncrementCursorPosX(30);
 				WidgetsUtility::AlignedText(it->first.c_str());
-				// ImGui::SameLine();
-				//ImGui::SetCursorPosX(cursorPosValues);
-				//ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
-				//
-				//ImVec2 min = ImGui::GetCursorPos();
-				//ImVec2 max = ImVec2(ImGui::GetCursorPosX() + 100, ImGui::GetCursorPosY() + 100);
-				//
-				//ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_FrameBg)), 5);
-				////if(it->second.m_boundTexture != nullptr)
-				////ImGui::GetWindowDrawList()->AddImage()
-				//
-				//std::string label = "##txt" + it->first;
-				
+
+				ImVec2 min = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPos().x + 150, ImGui::GetWindowPos().y + ImGui::GetCursorPos().y - 50);
+				ImVec2 max = ImVec2(min.x + 75, min.y + 75);
+				ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_FrameBg)), 5);
+				WidgetsUtility::IncrementCursorPosY(a);
 				WidgetsUtility::PopStyleVar();
 			}
 		}
