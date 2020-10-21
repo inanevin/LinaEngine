@@ -717,17 +717,15 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		float cursorPosLabels = CURSORPOS_X_LABELS;
 
 		// Mesh selection
-		static int selectedMeshID = -1;
-		static std::string selectedMeshPath = "";
 
 		if (renderEngine.MeshExists(renderer.m_meshID))
 		{
-			selectedMeshPath = renderer.m_meshPath;
-			selectedMeshID = renderer.m_meshID;
+			renderer.m_selectedMeshPath = renderer.m_meshPath;
+			renderer.m_selectedMeshID = renderer.m_meshID;
 		}
 
 		char meshPathC[128] = "";
-		strcpy(meshPathC, selectedMeshPath.c_str());
+		strcpy(meshPathC, renderer.m_selectedMeshPath.c_str());
 
 		ImGui::SetCursorPosX(cursorPosLabels); 
 		WidgetsUtility::AlignedText("Mesh");
@@ -748,26 +746,24 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
 		if (ImGui::BeginPopupModal("Select Mesh", &meshPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 		{
-			SelectMeshModal::Draw(Application::GetRenderEngine().GetLoadedMeshes(), &selectedMeshID, selectedMeshPath);
+			SelectMeshModal::Draw(Application::GetRenderEngine().GetLoadedMeshes(), &renderer.m_selectedMeshID, renderer.m_selectedMeshPath);
 			ImGui::EndPopup();
 		}
 		WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
 
-		renderer.m_meshID = selectedMeshID;
-		renderer.m_meshPath = selectedMeshPath;
+		renderer.m_meshID = renderer.m_selectedMeshID;
+		renderer.m_meshPath = renderer.m_selectedMeshPath;
 
 		// Material selection
-		static int selectedMatID = -1;
-		static std::string selectedMatPath = "";
 
 		if (renderEngine.MaterialExists(renderer.m_materialID))
 		{
-			selectedMatID = renderer.m_materialID;
-			selectedMatPath = renderer.m_materialPath;
+			renderer.m_selectedMatID = renderer.m_materialID;
+			renderer.m_selectedMatPath = renderer.m_materialPath;
 		}
 
 		char matPathC[128] = "";
-		strcpy(matPathC, selectedMatPath.c_str());
+		strcpy(matPathC, renderer.m_selectedMatPath.c_str());
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Material");
@@ -788,13 +784,13 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
 		if (ImGui::BeginPopupModal("Select Material", &meshPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 		{
-			SelectMaterialModal::Draw(Application::GetRenderEngine().GetLoadedMaterials(), &selectedMatID, selectedMatPath);
+			SelectMaterialModal::Draw(Application::GetRenderEngine().GetLoadedMaterials(), &renderer.m_selectedMatID, renderer.m_selectedMatPath);
 			ImGui::EndPopup();
 		}
 		WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
 
-		renderer.m_materialID = selectedMatID;
-		renderer.m_materialPath = selectedMatPath;
+		renderer.m_materialID = renderer.m_selectedMatID;
+		renderer.m_materialPath = renderer.m_selectedMatPath;
 
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 	}

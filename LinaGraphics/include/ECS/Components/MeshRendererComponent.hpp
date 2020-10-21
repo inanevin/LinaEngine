@@ -66,6 +66,10 @@ namespace LinaEngine::ECS
 #ifdef LINA_EDITOR
 		COMPONENT_DRAWFUNC_SIG;
 		COMPONENT_ADDFUNC_SIG{ ecs.emplace<MeshRendererComponent>(entity, MeshRendererComponent()); }
+		int m_selectedMeshID = -1;
+		int m_selectedMatID = -1;
+		std::string m_selectedMeshPath = "";
+		std::string m_selectedMatPath = "";
 #endif
 	};
 }
