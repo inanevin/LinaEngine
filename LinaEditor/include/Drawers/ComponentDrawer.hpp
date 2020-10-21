@@ -72,10 +72,6 @@ namespace LinaEditor
 
 		// We use this instance to call DrawTitle method for defining the payload target while dragging & dropping component titles.
 		static ComponentDrawer* s_activeInstance;
-
-		// This holds the state of the component foldouts
-		static std::map<LinaEngine::ECS::ECSTypeID, std::map<LinaEngine::ECS::ECSEntity, bool>> s_componentFoldoutState;
-
 	private:
 
 		std::map<LinaEngine::ECS::ECSTypeID, ComponentValueTuple> m_componentFunctionsMap;

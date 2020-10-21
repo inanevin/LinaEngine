@@ -599,6 +599,7 @@ namespace LinaEngine::Graphics
 
 	bool RenderEngine::MaterialExists(int id)
 	{
+		if (id < 0) return false;
 		return !(m_loadedMaterials.find(id) == m_loadedMaterials.end());
 	}
 
@@ -611,6 +612,7 @@ namespace LinaEngine::Graphics
 
 	bool RenderEngine::TextureExists(int id)
 	{
+		if (id < 0) return false;
 		return !(m_loadedTextures.find(id) == m_loadedTextures.end());
 	}
 
@@ -623,6 +625,7 @@ namespace LinaEngine::Graphics
 
 	bool RenderEngine::MeshExists(int id)
 	{
+		if (id < 0) return false;
 		return !(m_loadedMeshes.find(id) == m_loadedMeshes.end());
 	}
 

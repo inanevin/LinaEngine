@@ -69,7 +69,6 @@ namespace LinaEngine::World
 				LinaEngine::ECS::SpotLightComponent,
 				LinaEngine::ECS::RigidbodyComponent,
 				LinaEngine::ECS::MeshRendererComponent,
-				LinaEngine::ECS::SpriteRendererComponent,
 				LinaEngine::ECS::TransformComponent>(oarchive);
 		}
 
@@ -117,7 +116,6 @@ namespace LinaEngine::World
 				LinaEngine::ECS::SpotLightComponent,
 				LinaEngine::ECS::RigidbodyComponent,
 				LinaEngine::ECS::MeshRendererComponent,
-				LinaEngine::ECS::SpriteRendererComponent,
 				LinaEngine::ECS::TransformComponent>(iarchive)
 				.orphans();
 		}

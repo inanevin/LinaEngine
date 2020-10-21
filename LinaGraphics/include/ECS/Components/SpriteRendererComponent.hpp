@@ -54,6 +54,7 @@ namespace LinaEngine::ECS
 #ifdef LINA_EDITOR
 		COMPONENT_DRAWFUNC_SIG;
 		COMPONENT_ADDFUNC_SIG{ ecs.emplace<SpriteRendererComponent>(entity, SpriteRendererComponent()); }
+		
 		int m_selectedMatID = -1;
 		std::string m_selectedMatPath = "";
 #endif

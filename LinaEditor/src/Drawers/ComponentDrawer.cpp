@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Drawers/ComponentDrawer.hpp"
-#include "ECS/ECSComponent.hpp"
 #include "Core/Application.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Mesh.hpp"
@@ -51,7 +50,6 @@ using namespace LinaEditor;
 namespace LinaEditor
 {
 	ComponentDrawer* ComponentDrawer::s_activeInstance = nullptr;
-	std::map<LinaEngine::ECS::ECSTypeID, std::map<LinaEngine::ECS::ECSEntity, bool>> ComponentDrawer::s_componentFoldoutState;
 
 	ComponentDrawer::ComponentDrawer()
 	{
@@ -89,8 +87,15 @@ namespace LinaEditor
 		std::get<2>(m_componentFunctionsMap[GetTypeID<SpriteRendererComponent>()]) = std::bind(&SpriteRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
 
 		LinaEngine::ECS::ECSRegistry& reg = LinaEngine::Application::GetECSRegistry();
-
 		reg.on_destroy<TransformComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
+		reg.on_destroy<RigidbodyComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
+		reg.on_destroy<CameraComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
+		reg.on_destroy<DirectionalLightComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
+		reg.on_destroy<SpotLightComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
+		reg.on_destroy<PointLightComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
+		reg.on_destroy<FreeLookComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
+		reg.on_destroy<MeshRendererComponent> ().connect<&ComponentDrawer::ComponentRemoved>(this);
+		reg.on_destroy<SpriteRendererComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
 	}
 
 	// Use reflection for gods sake later on.
@@ -697,7 +702,6 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 {
 	// Get component
 	MeshRendererComponent& renderer = ecs.get<MeshRendererComponent>(entity);
-
 	LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
 
 	// Align.
@@ -811,7 +815,6 @@ void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::EC
 {
 	// Get component
 	SpriteRendererComponent& renderer = ecs.get<SpriteRendererComponent>(entity);
-
 	LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
 
 	// Align.
@@ -820,7 +823,7 @@ void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::EC
 
 	// Draw title.
 	bool refreshPressed = false;
-	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<SpriteRendererComponent>(), "SpriteRenderer", ICON_MD_GRID_ON, &refreshPressed, &renderer.m_isEnabled, &renderer.m_foldoutOpen, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
+	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<SpriteRendererComponent>(), "Sprite Renderer", ICON_MD_GRID_ON, &refreshPressed, &renderer.m_isEnabled, &renderer.m_foldoutOpen, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
 
 	// Remove if requested.
 	if (removeComponent)
@@ -839,8 +842,7 @@ void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::EC
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 		float cursorPosLabels = CURSORPOS_X_LABELS;
-	
-
+		
 		// Material selection
 		if (renderEngine.MaterialExists(renderer.m_materialID))
 		{
@@ -848,27 +850,27 @@ void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::EC
 			renderer.m_selectedMatPath = renderer.m_materialPath;
 		}
 
-		char matPathC[128] = "";
-		strcpy(matPathC, renderer.m_selectedMatPath.c_str());
+		char spriteMaterialPath[128] = "heyaa";
+		strcpy(spriteMaterialPath, renderer.m_selectedMatPath.c_str());
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Material");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
-		ImGui::InputText("##selectedMat", matPathC, IM_ARRAYSIZE(matPathC), ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputText("##aqqq", spriteMaterialPath, IM_ARRAYSIZE(spriteMaterialPath), ImGuiInputTextFlags_ReadOnly);
 		ImGui::SameLine();
 		WidgetsUtility::IncrementCursorPosY(5);
 
-		if (WidgetsUtility::IconButton("##selectmat", ICON_FA_PLUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-			ImGui::OpenPopup("Select Material");
-
+		if (WidgetsUtility::IconButton("##selectspritemat", ICON_FA_PLUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
+			ImGui::OpenPopup("Select Sprite Material");
+		
 		bool materialPopupOpen = true;
 		WidgetsUtility::FramePaddingY(8);
 		WidgetsUtility::FramePaddingX(4);
 		ImGui::SetNextWindowSize(ImVec2(280, 400));
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
-		if (ImGui::BeginPopupModal("Select Material", &materialPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+		if (ImGui::BeginPopupModal("Select Sprite Material", &materialPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 		{
 			SelectMaterialModal::Draw(Application::GetRenderEngine().GetLoadedMaterials(), &renderer.m_selectedMatID, renderer.m_selectedMatPath);
 			ImGui::EndPopup();
@@ -877,7 +879,7 @@ void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::EC
 
 		renderer.m_materialID = renderer.m_selectedMatID;
 		renderer.m_materialPath = renderer.m_selectedMatPath;
-
+		
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 	}
 
