@@ -59,6 +59,18 @@ namespace LinaEngine::Graphics
 		std::string m_path = "";
 		TextureBindMode m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
 		bool m_isActive = false;
+
+		template<class Archive>
+		void save(Archive& archive) const
+		{
+			archive(m_unit, m_path, m_bindMode, m_isActive);
+		}
+
+		template<class Archive>
+		void load(Archive& archive)
+		{
+			archive(m_unit, m_path, m_bindMode, m_isActive);
+		}
 	};
 
 	class Material
@@ -178,7 +190,7 @@ namespace LinaEngine::Graphics
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_usesHDRI, m_receivesLighting, m_isShadowMapped, m_shaderType, m_surfaceType, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
+			archive(m_usesHDRI, m_receivesLighting, m_isShadowMapped, m_shaderType, m_surfaceType, m_sampler2Ds, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
 		}
 
 

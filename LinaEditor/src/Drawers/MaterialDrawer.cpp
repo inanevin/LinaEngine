@@ -382,5 +382,12 @@ namespace LinaEditor
 				}
 			}
 		}
+
+		WidgetsUtility::IncrementCursorPosX(11);
+		WidgetsUtility::IncrementCursorPosY(11);
+		if (ImGui::Button("Apply Changes"))
+		{
+			LinaEngine::Graphics::Material::SaveMaterialData(*m_selectedMaterial, m_selectedMaterial->GetPath());
+		}
 	}
 }

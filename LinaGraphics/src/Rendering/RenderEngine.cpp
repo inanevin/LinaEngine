@@ -455,13 +455,15 @@ namespace LinaEngine::Graphics
 		material.m_matrices.clear();
 		material.m_vector4s.clear();
 		material.m_shaderType = shader;
+		material.m_isShadowMapped = false;
+		material.m_receivesLighting = false;
+		material.m_usesHDRI = false;
 
 		if (shader == Shaders::Standard_Unlit)
 		{
 			material.m_colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
 			material.m_sampler2Ds[MAT_TEXTURE2D_DIFFUSE] = { 0 };
 			material.m_ints[MAT_SURFACETYPE] = 0;
-			material.m_isShadowMapped = true;
 			m_shadowMappedMaterials.emplace(&material);
 
 		}

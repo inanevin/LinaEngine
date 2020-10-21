@@ -95,7 +95,7 @@ namespace LinaEditor
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 			ImVec2 work_area_pos = viewport->GetWorkPos();
-			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 			ImGui::SetNextWindowBgAlpha(1.0f);
 
 
@@ -108,13 +108,9 @@ namespace LinaEditor
 
 			// Draw the selected item.
 			if (m_currentDrawType == DrawType::Entities)
-			{
 				m_entityDrawer.DrawSelectedEntity();
-			}
 			else if (m_currentDrawType == DrawType::Texture2D)
-			{
 				m_textureDrawer.DrawSelectedTexture();
-			}
 			else if (m_currentDrawType == DrawType::Mesh)
 				DrawMeshProperties();
 			else if (m_currentDrawType == DrawType::Material)
