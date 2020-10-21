@@ -69,6 +69,7 @@ namespace LinaEditor
 		std::string name;
 		std::string extension;
 		std::string path;
+		std::string pathToFolder;
 		FileType type;
 		int id;
 		bool markedForErase = false;

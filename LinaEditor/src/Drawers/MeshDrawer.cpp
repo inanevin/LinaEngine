@@ -56,19 +56,19 @@ namespace LinaEditor
 		WidgetsUtility::AlignedText("Triangulate");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		ImGui::Checkbox("##triangulate", &m_selectedParams.triangulate);
+		ImGui::Checkbox("##triangulate", &m_selectedParams.m_triangulate);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Smooth Normals");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		ImGui::Checkbox("##smoothNormals", &m_selectedParams.smoothNormals);
+		ImGui::Checkbox("##smoothNormals", &m_selectedParams.m_smoothNormals);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Calculate Tangents");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		ImGui::Checkbox("##tangentSpace", &m_selectedParams.calculateTangentSpace);
+		ImGui::Checkbox("##tangentSpace", &m_selectedParams.m_calculateTangentSpace);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 
@@ -77,8 +77,11 @@ namespace LinaEditor
 			int id = m_selectedMesh->GetID();
 			LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
 			std::string filePath = m_selectedMesh->GetPath();
+			std::string paramsPath = m_selectedMesh->GetParamsPath();
 			renderEngine.UnloadMeshResource(id);
 			m_selectedMesh = &renderEngine.CreateMesh(filePath, Graphics::MeshParameters(m_selectedParams), id);
+			LinaEngine::Graphics::Mesh::SaveParameters(paramsPath, m_selectedParams);
+
 		}
 
 	}

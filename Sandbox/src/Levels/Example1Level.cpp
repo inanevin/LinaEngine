@@ -188,7 +188,7 @@ void Example1Level::Initialize()
 	objectUnlitMaterial = &renderEngine.CreateMaterial(Shaders::Standard_Unlit);
 
 	MeshRendererComponent cr;
-	cr.m_meshID = Primitives::CUBE;
+	cr.m_meshID = Primitives::Cube;
 	cr.m_materialID = objectUnlitMaterial->GetID();
 	TransformComponent objectTransform;
 	RigidbodyComponent r;
@@ -206,7 +206,7 @@ void Example1Level::Initialize()
 	return;
 
 	Texture& sprite = renderEngine.CreateTexture2D("resources/sandbox/textures/sprite.png");
-	Mesh& floorMesh = renderEngine.GetPrimitive(Primitives::PLANE);
+	Mesh& floorMesh = renderEngine.GetPrimitive(Primitives::Plane);
 
 	spriteMat = &renderEngine.CreateMaterial(Shaders::Standard_Sprite);
 	spriteMat->SetTexture(MAT_TEXTURE2D_DIFFUSE, &sprite);
@@ -231,11 +231,11 @@ void Example1Level::Initialize()
 	renderEngine.SetHDRIData(floorMaterial);
 
 	MeshRendererComponent cubeRenderer;
-	cubeRenderer.m_meshID = Primitives::CUBE;
+	cubeRenderer.m_meshID = Primitives::Cube;
 	//cubeRenderer.m_materialID = sphereMat->m_materialID;
 
 	MeshRendererComponent portalRenderer;
-	portalRenderer.m_meshID = Primitives::PLANE;
+	portalRenderer.m_meshID = Primitives::Plane;
 	//portalRenderer.m_materialID = sphereMat->m_materialID;
 
 	RigidbodyComponent sphereRB;
@@ -244,7 +244,7 @@ void Example1Level::Initialize()
 	sphereRB.m_collisionShape = CollisionShape::BOX;
 
 	MeshRendererComponent floorRenderer;
-	floorRenderer.m_meshID = Primitives::PLANE;
+	floorRenderer.m_meshID = Primitives::Plane;
 	//floorRenderer.m_materialID = floorMaterial->m_materialID;
 
 	DirectionalLightComponent dirLightComp;
@@ -276,7 +276,7 @@ void Example1Level::Initialize()
 	//ECSEntity sphereEntity2;
 	//sphereEntity2 = m_ECS->CreateEntity("Sprite");
 	//objectTransform.transform.location = Vector3(-15, 5, 5);
-	//cubeRenderer.meshID = Primitives::CUBE;
+	//cubeRenderer.meshID = Primitives::Cube;
 	//cubeRenderer.materialID = sphereMat->m_MaterialID;
 	//m_ECS->emplace<TransformComponent>(sphereEntity2, objectTransform);
 	//m_ECS->emplace<MeshRendererComponent>(sphereEntity2, cubeRenderer);
@@ -300,7 +300,7 @@ void Example1Level::Initialize()
 		ECSEntity entity;
 		TransformComponent lightTransform;
 		//MeshRendererComponent lightRenderer;
-		//lightRenderer.mesh = &m_RenderEngine->GetPrimitive(Primitives::SPHERE);
+		//lightRenderer.mesh = &m_RenderEngine->GetPrimitive(Primitives::Sphere);
 		//lightRenderer.material = objectUnlitMaterial;
 		lightTransform.transform.m_location = pointLightPositions[i];
 		lightTransform.transform.m_scale = 0.1f;
@@ -323,7 +323,7 @@ void Example1Level::Initialize()
 		SpotLightComponent sLight1;
 		lightTransform.transform.m_location = spotLightPositions[i];
 		//lightRenderer.m_materialID = objectUnlitMaterial->m_materialID;
-		lightRenderer.m_meshID = Primitives::CUBE;
+		lightRenderer.m_meshID = Primitives::Cube;
 		sLight = ecs.CreateEntity("Spot light" + i);
 
 

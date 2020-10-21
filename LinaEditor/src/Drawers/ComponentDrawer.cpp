@@ -370,7 +370,7 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		ImGui::SetCursorPosX(cursorPosValues); 
 		ImGui::DragFloat("##mass", &rb.m_mass);
 
-		if (rb.m_collisionShape == ECS::CollisionShape::BOX || rb.m_collisionShape == ECS::CollisionShape::CYLINDER)
+		if (rb.m_collisionShape == ECS::CollisionShape::BOX || rb.m_collisionShape == ECS::CollisionShape::Cylinder)
 		{
 			ImGui::SetCursorPosX(cursorPosLabels); 
 			WidgetsUtility::AlignedText("Half Extents");
@@ -378,7 +378,7 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::DragFloat3("##halfextents", &rb.m_halfExtents.x);
 		}
-		else if (rb.m_collisionShape == ECS::CollisionShape::SPHERE)
+		else if (rb.m_collisionShape == ECS::CollisionShape::Sphere)
 		{
 			ImGui::SetCursorPosX(cursorPosLabels); 
 			WidgetsUtility::AlignedText("Radius");

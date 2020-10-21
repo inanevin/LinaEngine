@@ -272,19 +272,25 @@ namespace LinaEngine::Graphics
 
 	enum Primitives
 	{
-		PLANE = 0,
-		CUBE = 1,
-		SPHERE = 2,
-		ICOSPHERE = 3,
-		CONE = 4,
-		CYLINDER = 5
+		Plane = 0,
+		Cube = 1,
+		Sphere = 2,
+		Icosphere = 3,
+		Cone = 4,
+		Cylinder = 5
 	};
 
 	struct MeshParameters
 	{
-		bool triangulate = true;
-		bool smoothNormals = true;
-		bool calculateTangentSpace = true;
+		bool m_triangulate = true;
+		bool m_smoothNormals = true;
+		bool m_calculateTangentSpace = true;
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(m_triangulate, m_smoothNormals, m_calculateTangentSpace);
+		}
 	};
 
 	struct TextureParameters

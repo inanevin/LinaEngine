@@ -28,6 +28,9 @@ SOFTWARE.
 
 #include "Rendering/Mesh.hpp"
 #include "Rendering/VertexArray.hpp"
+#include <stdio.h>
+#include <cereal/archives/binary.hpp>
+#include <fstream>
 
 namespace LinaEngine::Graphics
 {
@@ -40,6 +43,31 @@ namespace LinaEngine::Graphics
 		m_indexedModelArray.clear();
 		m_materialSpecArray.clear();
 		m_materialIndexArray.clear();
+	}
+
+	MeshParameters Mesh::LoadParameters(const std::string& path)
+	{
+		MeshParameters params;
+
+		std::ifstream stream(path);
+		{
+			cereal::BinaryInputArchive iarchive(stream);
+
+			// Read the data into it.
+			iarchive(params);
+		}
+
+		return params;
+	}
+
+	void Mesh::SaveParameters(const std::string& path, MeshParameters params)
+	{
+		std::ofstream stream(path);
+		{
+			cereal::BinaryOutputArchive oarchive(stream); // Create an output archive
+
+			oarchive(params); // Write the data to the archive
+		}
 	}
 }
 

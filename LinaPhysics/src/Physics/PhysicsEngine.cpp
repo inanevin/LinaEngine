@@ -215,11 +215,11 @@ namespace LinaEngine::Physics
 		// Create collision shape depending on the type
 		if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::BOX)
 			colShape = new btBoxShape(btVector3(rb.m_halfExtents.x, rb.m_halfExtents.y, rb.m_halfExtents.z));
-		else if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::SPHERE)
+		else if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::Sphere)
 			colShape = new btSphereShape(btScalar(rb.m_radius));
 		else if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::CAPSULE)
 			colShape = new btCapsuleShape(btScalar(rb.m_radius), btScalar(rb.m_capsuleHeight));
-		else if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::CYLINDER)
+		else if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::Cylinder)
 			colShape = new btCylinderShape(btVector3(rb.m_halfExtents.x, rb.m_halfExtents.y, rb.m_halfExtents.z));
 
 		return colShape;

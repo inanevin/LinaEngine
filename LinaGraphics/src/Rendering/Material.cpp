@@ -30,7 +30,6 @@ SOFTWARE.
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/Texture.hpp"
-#include <cereal/archives/json.hpp>
 #include <stdio.h>
 #include <cereal/archives/binary.hpp>
 #include <fstream>

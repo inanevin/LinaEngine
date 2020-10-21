@@ -64,10 +64,10 @@ namespace LinaEditor
 	
 		Material& objUnlit = renderEngine.CreateMaterial(Shaders::Standard_Unlit);
 		MeshRendererComponent cr;
-		cr.m_meshID = Primitives::CUBE;
+		cr.m_meshID = Primitives::Cube;
 		cr.m_materialID = objUnlit.GetID();
 		cr.m_materialPath = objUnlit.GetPath();
-		cr.m_meshPath = renderEngine.GetPrimitive(Primitives::CUBE).GetPath();
+		cr.m_meshPath = renderEngine.GetPrimitive(Primitives::Cube).GetPath();
 		TransformComponent objectTransform;
 
 		ECSRegistry& ecs = Application::GetECSRegistry();

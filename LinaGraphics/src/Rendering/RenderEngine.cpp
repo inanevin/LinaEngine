@@ -280,9 +280,9 @@ namespace LinaEngine::Graphics
 		return *m_loadedTextures[texture->GetID()];
 	}
 
-	Mesh& RenderEngine::CreateMesh(const std::string& filePath, MeshParameters meshParams, int id)
+	Mesh& RenderEngine::CreateMesh(const std::string& filePath, MeshParameters meshParams, int id, const std::string& paramsPath)
 	{
-		// Create object data & feed it from model.
+		// Internal meshes are created with non-negative ids, user loaded ones should have default id of -1.
 		if (id == -1) id = Utility::GetUniqueID();
 
 		Mesh& mesh = m_loadedMeshes[id];
@@ -293,7 +293,7 @@ namespace LinaEngine::Graphics
 		{
 			LINA_CORE_WARN("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad...", filePath);
 			UnloadMeshResource(id);
-			return GetPrimitive(Primitives::PLANE);
+			return GetPrimitive(Primitives::Plane);
 		}
 
 		// Create vertex array for each mesh.
@@ -307,6 +307,7 @@ namespace LinaEngine::Graphics
 		// Set id
 		mesh.m_meshID = id;
 		mesh.m_path = filePath;
+		mesh.m_paramsPath = paramsPath;
 
 		LINA_CORE_TRACE("Mesh created. {0}", filePath);
 		return m_loadedMeshes[id];
@@ -428,7 +429,7 @@ namespace LinaEngine::Graphics
 		{
 			// VA not found.
 			LINA_CORE_WARN("Primitive with the ID {0} was not found, returning plane...", primitive);
-			return GetPrimitive(Primitives::PLANE);
+			return GetPrimitive(Primitives::Plane);
 		}
 		else
 			return m_loadedMeshes[primitive];
@@ -721,12 +722,12 @@ namespace LinaEngine::Graphics
 	void RenderEngine::ConstructEnginePrimitives()
 	{
 		// Primitives
-		CreateMesh("resources/engine/meshes/primitives/cube.obj", MeshParameters(), Primitives::CUBE);
-		CreateMesh("resources/engine/meshes/primitives/cylinder.obj", MeshParameters(), Primitives::CYLINDER);
-		CreateMesh("resources/engine/meshes/primitives/plane.obj", MeshParameters(), Primitives::PLANE);
-		CreateMesh("resources/engine/meshes/primitives/sphere.obj", MeshParameters(), Primitives::SPHERE);
-		CreateMesh("resources/engine/meshes/primitives/icosphere.obj", MeshParameters(), Primitives::ICOSPHERE);
-		CreateMesh("resources/engine/meshes/primitives/cone.obj", MeshParameters(), Primitives::CONE);
+		CreateMesh("resources/engine/meshes/primitives/cube.obj", MeshParameters(), Primitives::Cube);
+		CreateMesh("resources/engine/meshes/primitives/cylinder.obj", MeshParameters(), Primitives::Cylinder);
+		CreateMesh("resources/engine/meshes/primitives/plane.obj", MeshParameters(), Primitives::Plane);
+		CreateMesh("resources/engine/meshes/primitives/sphere.obj", MeshParameters(), Primitives::Sphere);
+		CreateMesh("resources/engine/meshes/primitives/icosphere.obj", MeshParameters(), Primitives::Icosphere);
+		CreateMesh("resources/engine/meshes/primitives/cone.obj", MeshParameters(), Primitives::Cone);
 	}
 
 	void RenderEngine::ConstructRenderTargets()

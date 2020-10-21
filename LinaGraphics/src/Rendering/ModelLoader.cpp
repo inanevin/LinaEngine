@@ -38,13 +38,13 @@ namespace LinaEngine::Graphics
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
 		uint32 importFlags = 0;
-		if (meshParams.calculateTangentSpace)
+		if (meshParams.m_calculateTangentSpace)
 			importFlags |= aiProcess_CalcTangentSpace;
 
-		if (meshParams.triangulate)
+		if (meshParams.m_triangulate)
 			importFlags |= aiProcess_Triangulate;
 
-		if (meshParams.smoothNormals)
+		if (meshParams.m_smoothNormals)
 			importFlags |= aiProcess_GenSmoothNormals;
 
 		const aiScene* scene = importer.ReadFile(fileName.c_str(), importFlags);

@@ -31,6 +31,9 @@ SOFTWARE.
 #include <filesystem>
 #include <cereal/archives/binary.hpp>
 #include <fstream>
+#include <sys/stat.h>
+#include <string>
+#include <fstream>
 
 namespace LinaEditor
 {
@@ -48,6 +51,18 @@ namespace LinaEditor
 	bool EditorUtility::DeleteDirectory(const std::string& path)
 	{
 		return false;
+	}
+
+	bool EditorUtility::FileExists(const std::string& path)
+	{
+		struct stat buffer;
+		return (stat(path.c_str(), &buffer) == 0);
+	}
+
+	std::string EditorUtility::RemoveExtensionFromFilename(const std::string& fileName)
+	{
+		size_t lastindex = fileName.find_last_of(".");
+		return fileName.substr(0, lastindex);
 	}
 
 }

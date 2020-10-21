@@ -113,6 +113,7 @@ namespace LinaEditor
 
 					EditorFile file;
 					file.path = materialPath;
+					file.pathToFolder = rootPath + "/";
 					file.name = name;
 					file.extension = "mat";
 					file.type = FileType::Material;
@@ -161,6 +162,7 @@ namespace LinaEditor
 				// Is a file
 				EditorFile file;
 				file.name = entry.path().filename().string();
+				file.pathToFolder = entry.path().parent_path().string() + "/";
 				std::string replacedPath = entry.path().relative_path().string();
 				std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
 				file.path = replacedPath;
@@ -302,7 +304,7 @@ namespace LinaEditor
 					ImGui::EndDragDropSource();
 				}
 			}
-		
+
 
 			// Click.
 			if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
@@ -368,13 +370,24 @@ namespace LinaEditor
 				bool materialExists = renderEngine.MaterialExists(file.path);
 				if (!materialExists)
 					renderEngine.LoadMaterialFromFile(file.path);
-				
+
 			}
 			else if (file.type == FileType::Mesh)
 			{
 				bool meshExists = renderEngine.MeshExists(file.path);
+
 				if (!meshExists)
-					renderEngine.CreateMesh(file.path);
+				{
+					LinaEngine::Graphics::MeshParameters meshParams;
+					std::string meshParamsPath = file.pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.name) + ".meshparams";
+					 
+					if (EditorUtility::FileExists(meshParamsPath))
+						meshParams = LinaEngine::Graphics::Mesh::LoadParameters(meshParamsPath);
+
+					renderEngine.CreateMesh(file.path, meshParams, -1 ,meshParamsPath);
+
+					LinaEngine::Graphics::Mesh::SaveParameters(meshParamsPath, meshParams);
+				}
 			}
 		}
 
@@ -404,7 +417,7 @@ namespace LinaEditor
 			}
 			else if (file.type == FileType::Mesh)
 			{
-				
+
 			}
 		}
 

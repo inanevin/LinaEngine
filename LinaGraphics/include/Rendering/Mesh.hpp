@@ -91,17 +91,21 @@ namespace LinaEngine::Graphics
 			return m_materialIndexArray;
 		}
 
+		static MeshParameters LoadParameters(const std::string& path);
+		static void SaveParameters(const std::string& path, MeshParameters params);
 		void SetParameters(MeshParameters params) { m_parameters = params; }
 		MeshParameters& GetParameters() { return m_parameters; }
 		const std::string& GetPath() const { return m_path; }
+		const std::string& GetParamsPath() const { return m_paramsPath; }
 		const int GetID() const { return m_meshID; }
 
-	
+
 	private:
 
 		friend class RenderEngine;
 		int m_meshID = -1;
 		std::string m_path = "";
+		std::string m_paramsPath = "";
 
 		MeshParameters m_parameters;
 		std::vector<VertexArray*> m_vertexArrays;
