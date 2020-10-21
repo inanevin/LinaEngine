@@ -127,7 +127,6 @@ namespace LinaEditor
 					if (ImGui::Selectable(LinaEngine::Graphics::g_shadersStr[n], is_shader_selected))
 					{
 						LinaEngine::Graphics::Shaders st = (LinaEngine::Graphics::Shaders)n;
-						std::cout << st << std::endl;
 						LinaEngine::Application::GetRenderEngine().SetMaterialShader(*m_selectedMaterial, st);
 					}
 

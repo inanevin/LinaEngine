@@ -50,6 +50,7 @@ Timestamp: 4/26/2019 1:12:18 AM
 
 namespace LinaEngine::Graphics
 {
+	class RenderEngine;
 	class Texture;
 
 	struct MaterialSampler2D
@@ -80,7 +81,8 @@ namespace LinaEngine::Graphics
 
 		static void LoadMaterialData(Material& mat, const std::string& path);
 		static void SaveMaterialData(const Material& mat, const std::string& path);
-
+		
+		void LoadTextures(LinaEngine::Graphics::RenderEngine& renderEngine);
 		void SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		void RemoveTexture(const std::string& textureName);
 		Texture& GetTexture(const std::string& name);

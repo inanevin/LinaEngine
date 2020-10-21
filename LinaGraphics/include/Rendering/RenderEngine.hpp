@@ -132,6 +132,7 @@ namespace LinaEngine::Graphics
 		bool MaterialExists(int id);
 		bool MaterialExists(const std::string& path);
 		bool TextureExists(int id);
+		bool TextureExists(const std::string& path);
 		bool MeshExists(int id);
 		bool MeshExists(const std::string& path);
 		bool ShaderExists(Shaders shader);

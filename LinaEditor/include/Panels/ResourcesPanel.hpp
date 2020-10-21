@@ -111,6 +111,7 @@ namespace LinaEditor
 		void ScanFolder(EditorFolder& folder);
 		void DrawFolder(EditorFolder& folder, bool isRoot = false);
 		void LoadFolderResources(EditorFolder& folder);
+		void LoadFolderDependencies(EditorFolder& folder);
 		void UnloadFileResource(EditorFile& file);
 		void UnloadFileResourcesInFolder(EditorFolder& folder);
 		FileType GetFileType(std::string& extension);

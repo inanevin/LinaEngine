@@ -614,6 +614,13 @@ namespace LinaEngine::Graphics
 		return !(m_loadedTextures.find(id) == m_loadedTextures.end());
 	}
 
+	bool RenderEngine::TextureExists(const std::string& path)
+	{
+		const auto it = std::find_if(m_loadedTextures.begin(), m_loadedTextures.end(), [path]
+		(const auto& it) -> bool { 	return it.second->GetPath().compare(path) == 0; 	});
+		return it != m_loadedTextures.end();
+	}
+
 	bool RenderEngine::MeshExists(int id)
 	{
 		return !(m_loadedMeshes.find(id) == m_loadedMeshes.end());

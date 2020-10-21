@@ -149,6 +149,7 @@ namespace LinaEditor
 
 		// Load resources	
 		LoadFolderResources(m_resourceFolders[0]);
+		LoadFolderDependencies(m_resourceFolders[0]);
 	}
 
 	void ResourcesPanel::ScanFolder(EditorFolder& root)
@@ -352,6 +353,8 @@ namespace LinaEditor
 
 	void ResourcesPanel::LoadFolderResources(EditorFolder& folder)
 	{
+		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+
 		// Load files.
 		for (std::map<int, EditorFile>::iterator it = folder.m_files.begin(); it != folder.m_files.end(); ++it)
 		{
@@ -359,25 +362,55 @@ namespace LinaEditor
 
 			// SKIP FOR NOW BC WE NEED TO MAKE SURE WE HANDLE BOTH ENGINE CREATION & EDITOR CREATION
 			if (file.type == FileType::Texture2D)
-				LinaEngine::Application::GetRenderEngine().CreateTexture2D(file.path);
+				renderEngine.CreateTexture2D(file.path);
 			if (file.type == FileType::Material)
 			{
-				bool materialExists = LinaEngine::Application::GetRenderEngine().MaterialExists(file.path);
+				bool materialExists = renderEngine.MaterialExists(file.path);
 				if (!materialExists)
-					LinaEngine::Application::GetRenderEngine().LoadMaterialFromFile(file.path);
+					renderEngine.LoadMaterialFromFile(file.path);
 				
 			}
 			else if (file.type == FileType::Mesh)
 			{
-				bool meshExists = LinaEngine::Application::GetRenderEngine().MeshExists(file.path);
+				bool meshExists = renderEngine.MeshExists(file.path);
 				if (!meshExists)
-					LinaEngine::Application::GetRenderEngine().CreateMesh(file.path);
+					renderEngine.CreateMesh(file.path);
 			}
 		}
 
 		// Recursively load subfolders.
 		for (std::map<int, EditorFolder>::iterator it = folder.m_subFolders.begin(); it != folder.m_subFolders.end(); ++it)
 			LoadFolderResources(it->second);
+	}
+
+	void ResourcesPanel::LoadFolderDependencies(EditorFolder& folder)
+	{
+		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+
+		// Load files.
+		for (std::map<int, EditorFile>::iterator it = folder.m_files.begin(); it != folder.m_files.end(); ++it)
+		{
+			EditorFile& file = it->second;
+
+			// SKIP FOR NOW BC WE NEED TO MAKE SURE WE HANDLE BOTH ENGINE CREATION & EDITOR CREATION
+			if (file.type == FileType::Texture2D)
+			{
+
+			}
+			if (file.type == FileType::Material)
+			{
+				LinaEngine::Graphics::Material& mat = renderEngine.GetMaterial(file.path);
+				mat.LoadTextures(renderEngine);
+			}
+			else if (file.type == FileType::Mesh)
+			{
+				
+			}
+		}
+
+		// Recursively load subfolders.
+		for (std::map<int, EditorFolder>::iterator it = folder.m_subFolders.begin(); it != folder.m_subFolders.end(); ++it)
+			LoadFolderDependencies(it->second);
 	}
 
 	void ResourcesPanel::UnloadFileResource(EditorFile& file)
