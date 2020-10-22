@@ -41,6 +41,8 @@ using namespace LinaEngine::ECS;
 
 namespace LinaEditor
 {
+	ECSEntity sphere;
+	TransformComponent* t;
 
 	DefaultLevel::~DefaultLevel()
 	{
@@ -54,6 +56,7 @@ namespace LinaEditor
 
 	void DefaultLevel::Initialize()
 	{
+
 		// Create a simple procedural skybox.
 		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
 		Material& mat = renderEngine.CreateMaterial(Shaders::Skybox_Procedural);
@@ -71,12 +74,22 @@ namespace LinaEditor
 		TransformComponent objectTransform;
 
 		ECSRegistry& ecs = Application::GetECSRegistry();
-		ECSEntity c1;
-		c1 = ecs.CreateEntity("Sphere");
+		sphere = ecs.CreateEntity("Sphere");
 		objectTransform.transform.m_location = Vector3(0, 0, 0);
-		ecs.emplace<TransformComponent>(c1, objectTransform);
-		ecs.emplace<MeshRendererComponent>(c1, cr);
+		t = &ecs.emplace<TransformComponent>(sphere, objectTransform);
+		ecs.emplace<MeshRendererComponent>(sphere, cr);
 
+	}
+
+	void DefaultLevel::Tick(float dt)
+	{
+		static float counter = 0.0f;
+		float speed = 5.0f;
+		float amount = 12.0f;
+
+		counter += dt;
+		TransformComponent& tr = Application::GetECSRegistry().get<TransformComponent>(sphere);
+		tr.transform.m_location.x = Math::Sin(counter * speed) * amount;
 	}
 
 
