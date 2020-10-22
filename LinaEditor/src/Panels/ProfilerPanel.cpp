@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Panels/ProfilerPanel.hpp"
 #include "Widgets/WidgetsUtility.hpp"
+#include "Core/Application.hpp"
 #include "imgui/imgui.h"
 
 namespace LinaEditor
@@ -43,15 +44,21 @@ namespace LinaEditor
         {
             ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
             ImGui::SetNextWindowBgAlpha(1.0f);
+            LinaEngine::Application& app = LinaEngine::Application::GetApp();
 
+            WidgetsUtility::IncrementCursorPosY(12);
 
             if (ImGui::Begin("Profiler", &m_show, flags))
             {
-                WidgetsUtility::IncrementCursorPos(ImVec2(12, 12));
+                WidgetsUtility::IncrementCursorPosX(12);
 
-                WidgetsUtility::AlignedText("Input MS: ");
-                ImGui::SameLine();
+                ImGui::Text("Input MS: %ld", app.GetInputMS());
+                ImGui::Text("Layers MS: %ld", app.GetLayersMS());
+                ImGui::Text("Level MS: %ld", app.GetLevelMS());
+                ImGui::Text("Render MS: %ld", app.GetRenderMS());
+                ImGui::Text("Physics MS: %ld", app.GetPhysicsMS());
                 
+                ImGui::End();
             }
         }
     }

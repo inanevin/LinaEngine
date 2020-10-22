@@ -33,7 +33,6 @@ set(CMAKE_SUPPRESS_REGENERATION true)
 
 #option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
 
-
 option(LINA_SHARED_COMMON "Build Lina COMMON DLL" OFF)
 option(LINA_SHARED_ECS "Build Lina ECS DLL" OFF)
 option(LINA_SHARED_ACTION "Build Lina ACTION DLL" OFF)
@@ -72,15 +71,14 @@ set(LINASANDBOX_HEADER_DIR Sandbox/include)
 # Sub directories
 #--------------------------------------------------------------------
 
-
-add_subdirectory(LinaEditor)
-add_subdirectory(LinaEngine)
+add_subdirectory(LinaAction)
+add_subdirectory(LinaCommon)
 add_subdirectory(LinaECS)
 add_subdirectory(LinaGraphics)
-add_subdirectory(LinaCommon)
-add_subdirectory(LinaAction)
 add_subdirectory(LinaInput)
 add_subdirectory(LinaPhysics)
+add_subdirectory(LinaEngine)
+add_subdirectory(LinaEditor)
 add_subdirectory(Sandbox)
 
 
