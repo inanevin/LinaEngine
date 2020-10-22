@@ -73,21 +73,14 @@ namespace LinaEngine
 			m_startTimePoint = std::chrono::high_resolution_clock::now();
 		}
 
-		void Stop()
-		{
-			auto endPoint = std::chrono::high_resolution_clock::now();
-			long long start = std::chrono::time_point_cast<std::chrono::milliseconds>(m_startTimePoint).time_since_epoch().count();
-			long long end = std::chrono::time_point_cast<std::chrono::milliseconds>(endPoint).time_since_epoch().count();
-			m_duration = end - start;
-			m_active = false;
-		}
+		void Stop();
 
-		long long GetDuration() 
+		double GetDuration() 
 		{ 
 			return m_duration; 
 		}
 
-
+		static const std::map<std::string, Timer*>& GetTimerMap() { return s_activeTimers; }
 		static Timer& GetTimer(const std::string& name);
 		static void UnloadTimers();
 
@@ -96,7 +89,7 @@ namespace LinaEngine
 		const char* m_name = "";;
 		std::chrono::time_point<std::chrono::steady_clock> m_startTimePoint;
 		bool m_active = false;
-		long long m_duration = 0;
+		double m_duration = 0;
 		static std::map<std::string, Timer*> s_activeTimers;
 	};
 }

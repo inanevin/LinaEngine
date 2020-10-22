@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Panels/ProfilerPanel.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Core/Application.hpp"
+#include "Core/Timer.hpp"
 #include "imgui/imgui.h"
 
 namespace LinaEditor
@@ -44,17 +45,24 @@ namespace LinaEditor
         {
             ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
             ImGui::SetNextWindowBgAlpha(1.0f);
-            LinaEngine::Application& app = LinaEngine::Application::GetApp();
 
             WidgetsUtility::IncrementCursorPosY(12);
 
+            const std::map<std::string, LinaEngine::Timer*>& map = LinaEngine::Timer::GetTimerMap();
+
             if (ImGui::Begin("Profiler", &m_show, flags))
             {
-                WidgetsUtility::IncrementCursorPosX(12);
 
-              
-                ImGui::End();
+                for (std::map<std::string, LinaEngine::Timer*>::const_iterator it = map.begin(); it != map.end(); ++it)
+                {
+                    WidgetsUtility::IncrementCursorPosX(12);
+                    auto a = it->second->GetDuration();
+                    std::string txt = it->first + " " + std::to_string(a) + " ms";
+                    ImGui::Text(txt.c_str());
+                }  
             }
+            ImGui::End();
+
         }
     }
 }

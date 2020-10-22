@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,9 +27,19 @@ SOFTWARE.
 */
 
 #include "Core/Timer.hpp"
+#include "Utility/Log.hpp"
 
 namespace LinaEngine
 {
+	std::map<std::string, Timer*> Timer::s_activeTimers;
+
+	void Timer::Stop()
+	{
+		std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double, std::milli> ms = now - m_startTimePoint;
+		m_duration = ms.count();
+		m_active = false;
+	}
 
 	Timer& Timer::GetTimer(const std::string& name)
 	{
