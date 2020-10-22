@@ -30,5 +30,5 @@ SOFTWARE.
 
 namespace LinaEngine
 {
-	
+	Timer Timer::s_globalTimer;
 }

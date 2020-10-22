@@ -34,6 +34,8 @@ SOFTWARE.
 #include "Rendering/Window.hpp"
 #include "Core/Layer.hpp"
 #include "World/Level.hpp"
+#include "Core/Timer.hpp"
+
 
 namespace LinaEngine
 {
@@ -137,31 +139,31 @@ namespace LinaEngine
 
 		while (m_running)
 		{
-			m_timer.Start();
+			LINA_GLOBALTIMER_START();
 
 			// Update input engine.
 			s_inputEngine->Tick();
 
-			m_inputEngineMS = m_timer.GetDuration();
+			m_inputEngineMS = LINA_GLOBALTIMER_GETDURATION();
 
 			double newTime = (double)s_appWindow->GetTime();
 			double frameTime = newTime - currentTime;
 
-			m_timer.Start();
+			LINA_GLOBALTIMER_START();
 
 			// Update layers.
 			for (Layer* layer : m_layerStack)
 				layer->OnTick(frameTime);
 
-			m_layersMS = m_timer.GetDuration();
+			m_layersMS = LINA_GLOBALTIMER_GETDURATION();
 
-			m_timer.Start();
+			LINA_GLOBALTIMER_START();
 
 			// Update current level.
 			if (m_activeLevelExists)
 				m_currentLevel->Tick(frameTime);
 
-			m_currentLevelMS = m_timer.GetDuration();
+			m_currentLevelMS = LINA_GLOBALTIMER_GETDURATION();
 
 			if (frameTime > 0.25)
 				frameTime = 0.25;
@@ -171,14 +173,14 @@ namespace LinaEngine
 
 			while (accumulator >= dt)
 			{
-				m_timer.Start();
+				LINA_GLOBALTIMER_START();
 				s_physicsEngine->Tick(dt);
-				m_physicsMS = m_timer.GetDuration();
+				m_physicsMS = LINA_GLOBALTIMER_GETDURATION();
 				t += dt;
 				accumulator -= dt;
 			}
 
-			m_timer.Start();
+			LINA_GLOBALTIMER_START();
 
 			if (m_canRender)
 			{
@@ -190,7 +192,7 @@ namespace LinaEngine
 				s_renderEngine->TickAndSwap(frameTime);
 			}
 
-			m_renderMS = m_timer.GetDuration();
+			m_renderMS = LINA_GLOBALTIMER_GETDURATION();
 
 			// Simple FPS count
 			m_fpsCounter++;

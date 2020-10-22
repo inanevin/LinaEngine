@@ -46,11 +46,17 @@ Timestamp: 10/22/2020 11:04:40 PM
 
 #define LINA_TIMER_START(x) x.Start()
 #define LINA_TIMER_END(x) x.End()
+#define LINA_GLOBALTIMER_START() Timer::GetGlobal().Start()
+#define LINA_GLOBALTIMER_END() Timer::GetGlobal().End()
+#define LINA_GLOBALTIMER_GETDURATION() Timer::GetGlobal().GetDuration()
 
 #else
 
 #define LINA_TIMER_START(x)
 #define LINA_TIMER_END(x)
+#define LINA_GLOBALTIMER_START()
+#define LINA_GLOBALTIMER_END()
+#define LINA_GLOBALTIMER_GETDURATION() 0
 
 #endif
 
@@ -94,12 +100,16 @@ namespace LinaEngine
 			return m_duration; 
 		}
 
+		Timer& GetGlobal() const { return s_globalTimer; }
+
+
 	private:
 
 		const char* m_name = "";;
 		std::chrono::time_point<std::chrono::steady_clock> m_startTimePoint;
 		bool m_active = false;
 		long long m_duration = 0;
+		static Timer s_globalTimer;
 
 	};
 }
