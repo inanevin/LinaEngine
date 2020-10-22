@@ -26,17 +26,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ProfilerPanel.hpp"
-#include "..\..\include\Panels\ProfilerPanel.hpp"
+#include "Panels/ProfilerPanel.hpp"
+#include "Widgets/WidgetsUtility.hpp"
+#include "imgui/imgui.h"
 
 namespace LinaEditor
 {
     void ProfilerPanel::Setup()
     {
+
     }
 
     void ProfilerPanel::Draw(float frameTime)
     {
+        if (m_show)
+        {
+            ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+            ImGui::SetNextWindowBgAlpha(1.0f);
 
+
+            if (ImGui::Begin("Profiler", &m_show, flags))
+            {
+                WidgetsUtility::IncrementCursorPos(ImVec2(12, 12));
+
+                WidgetsUtility::AlignedText("Input MS: ");
+                ImGui::SameLine();
+                
+            }
+        }
     }
 }

@@ -47,7 +47,7 @@ src/Panels/ScenePanel.cpp
 src/Panels/PropertiesPanel.cpp
 src/Panels/LogPanel.cpp
 src/Panels/HeaderPanel.cpp
-src/Panels/Profiler.cpp
+src/Panels/ProfilerPanel.cpp
 
 #World
 src/World/DefaultLevel.cpp

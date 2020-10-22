@@ -42,6 +42,18 @@ Timestamp: 10/22/2020 11:04:40 PM
 #include <chrono>
 #include <string>
 
+#ifdef LINA_ENABLE_TIMEPROFILING
+
+#define LINA_TIMER_START(x) x.Start()
+#define LINA_TIMER_END(x) x.End()
+
+#else
+
+#define LINA_TIMER_START(x)
+#define LINA_TIMER_END(x)
+
+#endif
+
 namespace LinaEngine
 {
 	class Timer

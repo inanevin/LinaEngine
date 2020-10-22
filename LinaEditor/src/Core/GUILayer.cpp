@@ -197,6 +197,7 @@ namespace LinaEditor
 		m_drawParameters.scissorWidth = 0;
 		m_drawParameters.scissorHeight = 0;
 
+		m_profilerPanel.Setup();
 		m_ecsPanel.Setup();
 		m_headerPanel.Setup();
 		m_logPanel.Setup();
@@ -240,6 +241,7 @@ namespace LinaEditor
 		m_scenePanel.Draw(dt);
 		m_logPanel.Draw(dt);
 		m_propertiesPanel.Draw(dt);
+		m_profilerPanel.Draw(dt);
 
 		if (s_showIMGUIDemo)
 			ImGui::ShowDemoWindow(&s_showIMGUIDemo);
@@ -469,6 +471,7 @@ namespace LinaEditor
 				ImGui::DockBuilderDockWindow("Entities", dock_id_prop);
 				ImGui::DockBuilderDockWindow("Scene", dock_main_id);
 				ImGui::DockBuilderDockWindow("Log", dock_id_bottom);
+				ImGui::DockBuilderDockWindow("Profiler", dock_id_bottom);
 				ImGui::DockBuilderDockWindow("Properties", dock_id_right);
 				ImGui::DockBuilderFinish(dockspace_id);
 
