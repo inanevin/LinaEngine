@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,68 +27,36 @@ SOFTWARE.
 */
 
 /*
-Class: Timer
+Class: ProfilerPanel
 
-Simple timer class that can be used to record the execution time of a function, block, loop etc.
+Responsible for displaying engine stats.
 
-Timestamp: 10/22/2020 11:04:40 PM
+Timestamp: 10/22/2020 11:22:48 PM
 */
 
 #pragma once
 
-#ifndef Timer_HPP
-#define Timer_HPP
+#ifndef ProfilerPanel_HPP
+#define ProfilerPanel_HPP
 
-#include <chrono>
-#include <string>
+#include "Panels/EditorPanel.hpp"
 
-namespace LinaEngine
+
+namespace LinaEditor
 {
-	class Timer
+	class ProfilerPanel : public EditorPanel
 	{
-
+		
 	public:
+		
+		ProfilerPanel() {};
+		~ProfilerPanel() {};
 
-		Timer() {};
-
-		Timer(const char* name, bool startImmediately) : m_name(name) , m_active(false)
-		{
-			if (startImmediately)
-				Start();
-		}
-
-		~Timer();
-
-		void Start()
-		{
-			m_active = true;
-			m_startTimePoint = std::chrono::high_resolution_clock::now();
-		}
-
-		void Stop()
-		{
-			auto endPoint = std::chrono::high_resolution_clock::now();
-			long long start = std::chrono::time_point_cast<std::chrono::milliseconds>(m_startTimePoint).time_since_epoch().count();
-			long long end = std::chrono::time_point_cast<std::chrono::milliseconds>(endPoint).time_since_epoch().count();
-			m_duration = end - start;
-			m_active = false;
-		}
-
-		long long GetDuration() 
-		{ 
-			if (m_active)
-				Stop();
-
-			return m_duration; 
-		}
-
+		virtual void Setup() override;
+		virtual void Draw(float frameTime) override;
+	
 	private:
-
-		const char* m_name = "";;
-		std::chrono::time_point<std::chrono::steady_clock> m_startTimePoint;
-		bool m_active = false;
-		long long m_duration = 0;
-
+	
 	};
 }
 
