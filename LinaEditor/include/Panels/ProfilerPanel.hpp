@@ -57,7 +57,6 @@ namespace LinaEditor
 		
 	private:
 
-		std::deque<float> m_fpsDeque;	
 	};
 }
 

@@ -174,6 +174,7 @@ namespace LinaEditor
 		colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.61f);
 
+		ImPlot::GetStyle().AntiAliasedLines = true;
 
 		s_setDockspaceLayout = true;
 
