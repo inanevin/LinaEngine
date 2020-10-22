@@ -41,6 +41,7 @@ SOFTWARE.
 #include <cereal/archives/binary.hpp>
 #include <fstream>
 
+
 namespace LinaEngine::World
 {
 	bool Level::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
@@ -69,8 +70,9 @@ namespace LinaEngine::World
 				LinaEngine::ECS::SpotLightComponent,
 				LinaEngine::ECS::RigidbodyComponent,
 				LinaEngine::ECS::MeshRendererComponent,
-				LinaEngine::ECS::TransformComponent,
-				LinaEngine::ECS::SpriteRendererComponent>(oarchive);
+				LinaEngine::ECS::SpriteRendererComponent,
+				LinaEngine::ECS::TransformComponent
+				>(oarchive);
 		}
 
 		std::ofstream levelDataStream(path + "/" + levelName + ".linaleveldata");
@@ -78,12 +80,11 @@ namespace LinaEngine::World
 			cereal::BinaryOutputArchive oarchive(levelDataStream); // Create an output archive
 
 			oarchive(m_levelData); // Write the data to the archive
-		} // archive goes out of scope, ensuring all contents are flushed
+		} 
 
 		std::ofstream registryStream(path + "/" + levelName + "_ecsReg.linaregistry");
 		{
 			cereal::BinaryOutputArchive oarchive(registryStream); // Create an output archive
-
 			oarchive(registry); // Write the data to the archive
 		}
 
@@ -117,9 +118,10 @@ namespace LinaEngine::World
 				LinaEngine::ECS::SpotLightComponent,
 				LinaEngine::ECS::RigidbodyComponent,
 				LinaEngine::ECS::MeshRendererComponent,
-				LinaEngine::ECS::TransformComponent,
-				LinaEngine::ECS::SpriteRendererComponent>(iarchive)
-				.orphans();
+				LinaEngine::ECS::SpriteRendererComponent,
+				LinaEngine::ECS::TransformComponent
+				>(iarchive);
+				
 		}
 
 		std::ifstream registryStream(path + "/" + levelName + "_ecsReg.linaregistry");

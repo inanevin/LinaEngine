@@ -51,7 +51,7 @@ namespace LinaEngine::ECS
 	struct TransformComponent : public ECSComponent
 	{
 		LinaEngine::Transformation transform;
-	
+
 		template<class Archive>
 		void serialize(Archive& archive)
 		{

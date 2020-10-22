@@ -37,31 +37,37 @@ Timestamp: 4/14/2019 1:37:59 AM
 #define RenderableMeshComponent_HPP
 
 #include "ECS/ECSComponent.hpp"
+#include <cereal/types/string.hpp>
 
 
 namespace LinaEngine::ECS
 {
 	struct MeshRendererComponent : public ECSComponent
 	{
+
 		int m_meshID = -1;
 		int m_materialID = -1;
 		std::string m_meshPath = "";
 		std::string m_materialPath = "";
 
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_meshID, m_materialID, m_isEnabled, m_meshPath, m_materialPath); // serialize things by passing them to the archive
-		}
+
 
 #ifdef LINA_EDITOR
 		COMPONENT_DRAWFUNC_SIG;
 		COMPONENT_ADDFUNC_SIG{ ecs.emplace<MeshRendererComponent>(entity, MeshRendererComponent()); }
+#endif
+
+		// Editor properties, not inside the macro to avoid any struct size mismatch during serialization.
 		int m_selectedMeshID = -1;
 		int m_selectedMatID = -1;
 		std::string m_selectedMeshPath = "";
 		std::string m_selectedMatPath = "";
-#endif
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(m_meshID, m_materialID, m_meshPath, m_materialPath, m_isEnabled);
+		}
 	};
 }
 

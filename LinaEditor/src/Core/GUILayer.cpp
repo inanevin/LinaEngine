@@ -34,6 +34,7 @@ SOFTWARE.
 #include "World/DefaultLevel.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Core/EditorApplication.hpp"
+#include "Widgets/WidgetsUtility.hpp"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -70,8 +71,8 @@ namespace LinaEditor
 
 		// Listen to menu bar clicked events.
 		EditorApplication::GetEditorDispatcher().SubscribeAction<MenuBarItems>("##linaeditor_menubarclicked", LinaEngine::Action::ActionType::MenuItemClicked, std::bind(&GUILayer::DispatchMenuBarClickedAction, this, std::placeholders::_1));
-		
-			// Setup Dear ImGui context
+
+		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -283,7 +284,8 @@ namespace LinaEditor
 		}
 		else if (item == MenuBarItems::LoadLevelData)
 		{
-			igfd::ImGuiFileDialog::Instance()->OpenDialog(s_loadLevelDialogID, "Choose File", ".linaleveldata", ".");
+			if (m_currentLevel != nullptr)
+				igfd::ImGuiFileDialog::Instance()->OpenDialog(s_loadLevelDialogID, "Choose File", ".linaleveldata", ".");
 		}
 
 		// Panels.
@@ -319,6 +321,9 @@ namespace LinaEditor
 
 	void GUILayer::DrawLevelDataDialogs()
 	{
+		WidgetsUtility::WindowPadding(ImVec2(7, 5));
+		WidgetsUtility::FramePadding(ImVec2(10, 4));
+
 		// Save level dialogue.
 		if (igfd::ImGuiFileDialog::Instance()->FileDialog(s_saveLevelDialogID))
 		{
@@ -363,6 +368,9 @@ namespace LinaEditor
 			igfd::ImGuiFileDialog::Instance()->CloseDialog(s_loadLevelDialogID);
 
 		}
+
+		WidgetsUtility::PopStyleVar();
+		WidgetsUtility::PopStyleVar();
 	}
 
 	void GUILayer::DrawFPSCounter(int corner)
