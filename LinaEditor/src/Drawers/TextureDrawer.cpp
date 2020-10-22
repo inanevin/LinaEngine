@@ -96,10 +96,14 @@ namespace LinaEditor
 		m_currentWrapT = GetWrapModeID(params.textureParams.wrapT);
 		m_currentAnisotropy = params.anisotropy;
 		m_currentGenerateMips = params.textureParams.generateMipMaps;
+
+		LINA_CLIENT_TRACE("Selecting Texture with ID {0}, params: {1} ** {2} ** {3}", texture->GetPath(), m_currentWrapS, m_currentWrapT, m_currentWrapR);
 	}
 
 	void TextureDrawer::DrawSelectedTexture()
 	{
+		LINA_CLIENT_TRACE("Drawing Texture with ID {0}, params: {1} ** {2} ** {3}", m_selectedTexture->GetPath(), m_currentWrapS, m_currentWrapT, m_currentWrapR);
+
 		SamplerParameters& params = m_selectedTexture->GetSampler().GetSamplerParameters();
 		static ImGuiComboFlags flags = 0;
 		static PixelFormat selectedInternalPF = params.textureParams.internalPixelFormat;
@@ -407,7 +411,7 @@ namespace LinaEditor
 			return SamplerWrapMode::WRAP_CLAMP_MIRROR;
 		else if (id == 2)
 			return SamplerWrapMode::WRAP_CLAMP_BORDER;
-		else if (id == 2)
+		else if (id == 3)
 			return SamplerWrapMode::WRAP_REPEAT;
 		else if (id == 4)
 			return SamplerWrapMode::WRAP_REPEAT_MIRROR;
