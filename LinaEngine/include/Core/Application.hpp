@@ -44,6 +44,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "Core/LayerStack.hpp"
 #include "ECS/ECSSystem.hpp"
 #include "Actions/ActionDispatcher.hpp"
+#include "Core/Timer.hpp"
 #include <functional>
 
 
@@ -157,9 +158,15 @@ namespace LinaEngine
 		std::function<void(Vector3, Vector3, Color, float)> m_drawLineCallback;
 		std::function<void()> m_postSceneDrawCallback;
 
+		Timer m_timer;
 		int m_currentFPS = 0;
 		double m_previousTime = 0;
 		int m_fpsCounter = 0;
+		long long m_inputEngineMS = 0;
+		long long m_layersMS = 0;
+		long long m_currentLevelMS = 0;
+		long long m_physicsMS = 0;
+		long long m_renderMS = 0;
 	};
 
 	// Defined in client.

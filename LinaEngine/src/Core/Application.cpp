@@ -137,19 +137,31 @@ namespace LinaEngine
 
 		while (m_running)
 		{
+			m_timer.Start();
+
 			// Update input engine.
 			s_inputEngine->Tick();
 
+			m_inputEngineMS = m_timer.GetDuration();
+
 			double newTime = (double)s_appWindow->GetTime();
 			double frameTime = newTime - currentTime;
+
+			m_timer.Start();
 
 			// Update layers.
 			for (Layer* layer : m_layerStack)
 				layer->OnTick(frameTime);
 
+			m_layersMS = m_timer.GetDuration();
+
+			m_timer.Start();
+
 			// Update current level.
 			if (m_activeLevelExists)
 				m_currentLevel->Tick(frameTime);
+
+			m_currentLevelMS = m_timer.GetDuration();
 
 			if (frameTime > 0.25)
 				frameTime = 0.25;
@@ -159,10 +171,14 @@ namespace LinaEngine
 
 			while (accumulator >= dt)
 			{
+				m_timer.Start();
 				s_physicsEngine->Tick(dt);
+				m_physicsMS = m_timer.GetDuration();
 				t += dt;
 				accumulator -= dt;
 			}
+
+			m_timer.Start();
 
 			if (m_canRender)
 			{
@@ -173,6 +189,8 @@ namespace LinaEngine
 				// Update gui layers & swap buffers
 				s_renderEngine->TickAndSwap(frameTime);
 			}
+
+			m_renderMS = m_timer.GetDuration();
 
 			// Simple FPS count
 			m_fpsCounter++;
