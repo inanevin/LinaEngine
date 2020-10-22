@@ -47,10 +47,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/gl
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
-option(LINA_ENABLE_TIMEPROFILING "Enables time profiling" ON)
-option(LINA_ENABLE_EDITOR "Enables editor layer" ON)
-option(LINA_CLIENT_ENABLE_LOGGING "Enables console logging" ON)
-
 add_compile_definitions(LINA_EDITOR)
 
 if(LINA_ENABLE_EDITOR)

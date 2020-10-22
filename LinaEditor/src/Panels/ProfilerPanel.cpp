@@ -52,12 +52,7 @@ namespace LinaEditor
             {
                 WidgetsUtility::IncrementCursorPosX(12);
 
-                ImGui::Text("Input MS: %ld", app.GetInputMS());
-                ImGui::Text("Layers MS: %ld", app.GetLayersMS());
-                ImGui::Text("Level MS: %ld", app.GetLevelMS());
-                ImGui::Text("Render MS: %ld", app.GetRenderMS());
-                ImGui::Text("Physics MS: %ld", app.GetPhysicsMS());
-                
+              
                 ImGui::End();
             }
         }

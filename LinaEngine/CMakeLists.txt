@@ -80,7 +80,6 @@ set_target_properties(
         CXX_EXTENSIONS NO
 )
 
-option(LINA_CORE_ENABLE_LOGGING "Enables console logging" ON)
 # option(LINA_GRAPHICS_OPENGL "Graphics: Use OpenGL" ON)
 ## FORCE OPENGL FOR NOW
 
@@ -98,6 +97,13 @@ if(LINA_CORE_ENABLE_LOGGING)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_CORE_ENABLE_LOGGING=1)
 endif()
 
+if(LINA_ENABLE_EDITOR)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_EDITOR=1)
+endif()
+
+if(LINA_ENABLE_TIMEPROFILING)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_ENABLE_TIMEPROFILING=1)
+endif()
 
 if (WIN32)
     target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_PLATFORM_WINDOWS=1)

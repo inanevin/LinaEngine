@@ -30,5 +30,20 @@ SOFTWARE.
 
 namespace LinaEngine
 {
-	Timer Timer::s_globalTimer;
+
+	Timer& Timer::GetTimer(const std::string& name)
+	{
+		if (s_activeTimers.find(name) == s_activeTimers.end())
+			s_activeTimers[name] = new Timer();
+
+		return *s_activeTimers[name];
+	}
+
+	void Timer::UnloadTimers()
+	{
+		for (std::map<std::string, Timer*>::iterator it = s_activeTimers.begin(); it != s_activeTimers.end(); ++it)
+			delete it->second;
+
+		s_activeTimers.clear();
+	}
 }

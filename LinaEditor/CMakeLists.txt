@@ -152,11 +152,16 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 option(LINA_CLIENT_ENABLE_LOGGING "Enables console logging" ON)
 
-add_compile_definitions(LINA_EDITOR)
-
-
 if(LINA_CLIENT_ENABLE_LOGGING)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_CLIENT_ENABLE_LOGGING=1)
+endif()
+
+if(LINA_ENABLE_EDITOR)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_EDITOR=1)
+endif()
+
+if(LINA_ENABLE_TIMEPROFILING)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_ENABLE_TIMEPROFILING=1)
 endif()
 
 #--------------------------------------------------------------------

@@ -41,22 +41,18 @@ Timestamp: 10/22/2020 11:04:40 PM
 
 #include <chrono>
 #include <string>
+#include <map>
 
 #ifdef LINA_ENABLE_TIMEPROFILING
 
-#define LINA_TIMER_START(x) x.Start()
-#define LINA_TIMER_END(x) x.End()
-#define LINA_GLOBALTIMER_START() Timer::GetGlobal().Start()
-#define LINA_GLOBALTIMER_END() Timer::GetGlobal().End()
-#define LINA_GLOBALTIMER_GETDURATION() Timer::GetGlobal().GetDuration()
+#define LINA_TIMER_START(...) ::LinaEngine::Timer::GetTimer(__VA_ARGS__).Start()
+#define LINA_TIMER_STOP(...) ::LinaEngine::Timer::GetTimer(__VA_ARGS__).Stop()
+
 
 #else
 
-#define LINA_TIMER_START(x)
-#define LINA_TIMER_END(x)
-#define LINA_GLOBALTIMER_START()
-#define LINA_GLOBALTIMER_END()
-#define LINA_GLOBALTIMER_GETDURATION() 0
+#define LINA_TIMER_START(...)
+#define LINA_TIMER_END(...)
 
 #endif
 
@@ -69,13 +65,7 @@ namespace LinaEngine
 
 		Timer() {};
 
-		Timer(const char* name, bool startImmediately) : m_name(name) , m_active(false)
-		{
-			if (startImmediately)
-				Start();
-		}
-
-		~Timer();
+		~Timer() {};
 
 		void Start()
 		{
@@ -94,14 +84,12 @@ namespace LinaEngine
 
 		long long GetDuration() 
 		{ 
-			if (m_active)
-				Stop();
-
 			return m_duration; 
 		}
 
-		Timer& GetGlobal() const { return s_globalTimer; }
 
+		static Timer& GetTimer(const std::string& name);
+		static void UnloadTimers();
 
 	private:
 
@@ -109,8 +97,7 @@ namespace LinaEngine
 		std::chrono::time_point<std::chrono::steady_clock> m_startTimePoint;
 		bool m_active = false;
 		long long m_duration = 0;
-		static Timer s_globalTimer;
-
+		static std::map<std::string, Timer*> s_activeTimers;
 	};
 }
 

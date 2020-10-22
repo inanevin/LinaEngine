@@ -95,12 +95,7 @@ namespace LinaEngine
 
 		int GetCurrentFPS() { return m_currentFPS; }
 		bool GetActiveLevelExists() { return m_activeLevelExists; }
-		long long GetInputMS() const { return m_inputEngineMS; }
-		long long GetLayersMS() const { return m_layersMS; }
-		long long GetLevelMS() const { return m_currentLevelMS; }
-		long long GetRenderMS() const { return m_renderMS; }
-		long long GetPhysicsMS() const { return m_physicsMS; }
-		long long GetTotalMS() const { return m_inputEngineMS + m_layersMS + m_currentLevelMS + m_renderMS + m_physicsMS; }
+
 
 		static Action::ActionDispatcher& GetEngineDispatcher() { return s_engineDispatcher; }
 		static Application& GetApp() { return *s_application; }
@@ -166,11 +161,7 @@ namespace LinaEngine
 		int m_currentFPS = 0;
 		double m_previousTime = 0;
 		int m_fpsCounter = 0;
-		long long m_inputEngineMS = 0;
-		long long m_layersMS = 0;
-		long long m_currentLevelMS = 0;
-		long long m_physicsMS = 0;
-		long long m_renderMS = 0;
+
 	};
 
 	// Defined in client.

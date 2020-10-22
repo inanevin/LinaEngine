@@ -42,6 +42,11 @@ option(LINA_SHARED_PHYSICS "Build Lina PHYSICS DLL" OFF)
 option(LINA_SHARED_ENGINE "Build Lina ENGINE DLL" OFF)
 option(x64_COMPILATION "Target Architecture x64" ON)
 
+option(LINA_ENABLE_TIMEPROFILING "Enables time profiling" ON)
+option(LINA_ENABLE_EDITOR "Enables editor layer" ON)
+option(LINA_CLIENT_ENABLE_LOGGING "Enables console logging" ON)
+option(LINA_CORE_ENABLE_LOGGING "Enables console logging" ON)
+
 if(${x64_COMPILATION} MATCHES ON)
 	set(TARGET_ARCHITECTURE "x64")
 	

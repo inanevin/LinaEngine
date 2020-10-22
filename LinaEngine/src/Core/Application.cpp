@@ -139,31 +139,31 @@ namespace LinaEngine
 
 		while (m_running)
 		{
-			LINA_GLOBALTIMER_START();
+			LINA_TIMER_START("App_InputEngine");
 
 			// Update input engine.
 			s_inputEngine->Tick();
 
-			m_inputEngineMS = LINA_GLOBALTIMER_GETDURATION();
+			LINA_TIMER_STOP("App_InputEngine");
 
 			double newTime = (double)s_appWindow->GetTime();
 			double frameTime = newTime - currentTime;
 
-			LINA_GLOBALTIMER_START();
+			LINA_TIMER_START("App_Layers");
 
 			// Update layers.
 			for (Layer* layer : m_layerStack)
 				layer->OnTick(frameTime);
 
-			m_layersMS = LINA_GLOBALTIMER_GETDURATION();
+			LINA_TIMER_STOP("App_Layers");
 
-			LINA_GLOBALTIMER_START();
+			LINA_TIMER_START("App_CurrentLevel");
 
 			// Update current level.
 			if (m_activeLevelExists)
 				m_currentLevel->Tick(frameTime);
 
-			m_currentLevelMS = LINA_GLOBALTIMER_GETDURATION();
+			LINA_TIMER_STOP("App_CurrentLevel");
 
 			if (frameTime > 0.25)
 				frameTime = 0.25;
@@ -173,14 +173,14 @@ namespace LinaEngine
 
 			while (accumulator >= dt)
 			{
-				LINA_GLOBALTIMER_START();
+				LINA_TIMER_START("App_Physics");
 				s_physicsEngine->Tick(dt);
-				m_physicsMS = LINA_GLOBALTIMER_GETDURATION();
+				LINA_TIMER_STOP("App_Physics");
 				t += dt;
 				accumulator -= dt;
 			}
 
-			LINA_GLOBALTIMER_START();
+			LINA_TIMER_START("App_Render");
 
 			if (m_canRender)
 			{
@@ -192,7 +192,7 @@ namespace LinaEngine
 				s_renderEngine->TickAndSwap(frameTime);
 			}
 
-			m_renderMS = LINA_GLOBALTIMER_GETDURATION();
+			LINA_TIMER_STOP("App_Render");
 
 			// Simple FPS count
 			m_fpsCounter++;
@@ -206,7 +206,6 @@ namespace LinaEngine
 
 			if (m_firstRun)
 				m_firstRun = false;
-
 		}
 	}
 
