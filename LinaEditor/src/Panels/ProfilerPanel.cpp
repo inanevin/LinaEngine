@@ -34,6 +34,8 @@ SOFTWARE.
 
 namespace LinaEditor
 {
+#define MAX_DEQUE_SIZE 100
+
     void ProfilerPanel::Setup()
     {
 
@@ -43,15 +45,25 @@ namespace LinaEditor
     {
         if (m_show)
         {
+            if (m_fpsDeque.size() == MAX_DEQUE_SIZE)
+                m_fpsDeque.pop_front();
+
+            int fps = LinaEngine::Application::GetApp().GetCurrentFPS();
+            LINA_CLIENT_TRACE("{0}", fps);
+            m_fpsDeque.push_back(fps);
+
             ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
             ImGui::SetNextWindowBgAlpha(1.0f);
-
             WidgetsUtility::IncrementCursorPosY(12);
 
             const std::map<std::string, LinaEngine::Timer*>& map = LinaEngine::Timer::GetTimerMap();
 
             if (ImGui::Begin("Profiler", &m_show, flags))
             {
+                // Shadow.
+                WidgetsUtility::DrawShadowedLine(5);
+                WidgetsUtility::IncrementCursorPosX(11);
+                WidgetsUtility::IncrementCursorPosY(11);
 
                 for (std::map<std::string, LinaEngine::Timer*>::const_iterator it = map.begin(); it != map.end(); ++it)
                 {
@@ -59,7 +71,15 @@ namespace LinaEditor
                     auto a = it->second->GetDuration();
                     std::string txt = it->first + " " + std::to_string(a) + " ms";
                     ImGui::Text(txt.c_str());
+               
                 }  
+
+                WidgetsUtility::IncrementCursorPosX(12);
+                WidgetsUtility::IncrementCursorPosY(12);
+
+                static int values_offset = 0;
+                values_offset = (values_offset + 1) % MAX_DEQUE_SIZE;
+                ImGui::PlotLines("##fps", &m_fpsDeque[0], m_fpsDeque.size() * sizeof(float), values_offset, 0, -1.0f, 1.0f, ImVec2(0, 80.0f));
             }
             ImGui::End();
 

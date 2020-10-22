@@ -40,6 +40,7 @@ SOFTWARE.
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_internal.h"
+#include "imgui/implot/implot.h"
 #include "IconsFontAwesome5.h"
 #include "IconsForkAwesome.h"
 #include "IconsMaterialDesign.h"
@@ -75,6 +76,7 @@ namespace LinaEditor
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
+		ImPlot::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 
 		// Add default font.
@@ -197,10 +199,10 @@ namespace LinaEditor
 		m_drawParameters.scissorWidth = 0;
 		m_drawParameters.scissorHeight = 0;
 
-		m_profilerPanel.Setup();
 		m_ecsPanel.Setup();
 		m_headerPanel.Setup();
 		m_logPanel.Setup();
+		m_profilerPanel.Setup();
 		m_propertiesPanel.Setup();
 		m_scenePanel.Setup();
 		m_resourcesPanel.Setup();
@@ -214,6 +216,7 @@ namespace LinaEditor
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
+		ImPlot::DestroyContext();
 	}
 
 	void GUILayer::OnTick(float dt)
@@ -240,8 +243,8 @@ namespace LinaEditor
 		m_ecsPanel.Draw(dt);
 		m_scenePanel.Draw(dt);
 		m_logPanel.Draw(dt);
-		m_propertiesPanel.Draw(dt);
 		m_profilerPanel.Draw(dt);
+		m_propertiesPanel.Draw(dt);
 
 		if (s_showIMGUIDemo)
 			ImGui::ShowDemoWindow(&s_showIMGUIDemo);

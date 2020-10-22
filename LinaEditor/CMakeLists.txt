@@ -71,7 +71,9 @@ src/imgui/imguizmo/ImGradient.cpp
 src/imgui/imguizmo/ImGuizmo.cpp
 src/imgui/imguizmo/ImSequencer.cpp
 src/imgui/ImGuiFileDialogue/ImGuiFileDialog.cpp
-
+src/imgui/implot/implot_demo.cpp
+src/imgui/implot/implot.cpp
+src/imgui/implot/implot_items.cpp
 )
 
 set(LINAEDITOR_HEADERS
@@ -130,7 +132,8 @@ include/imgui/imguizmo/ImGuizmo.h
 include/imgui/imguizmo/ImSequencer.h
 include/imgui/ImGuiFileDialogue/ImGuiFileDialog.h
 include/imgui/ImGuiFileDialogue/ImGuiFileDialogConfig.h
-
+include/imgui/implot/implot.h
+include/imgui/implot/implot_internal.h
 
 CMakeLists.txt
 

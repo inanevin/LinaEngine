@@ -1,11 +1,6 @@
-/* 
-This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+MIT License
 
-Author: Inan Evin
-http://www.inanevin.com
-
-Copyright (c) [2018-2020] [Inan Evin]
+Copyright (c) 2020 Evan Pezent
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,41 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-*/
-
-/*
-Class: ProfilerPanel
-
-Responsible for displaying engine stats.
-
-Timestamp: 10/22/2020 11:22:48 PM
-*/
-
-#pragma once
-
-#ifndef ProfilerPanel_HPP
-#define ProfilerPanel_HPP
-
-#include "Panels/EditorPanel.hpp"
-#include <deque>
-
-namespace LinaEditor
-{
-	class ProfilerPanel : public EditorPanel
-	{
-		
-	public:
-		
-		ProfilerPanel() {};
-		~ProfilerPanel() {};
-
-		virtual void Setup() override;
-		virtual void Draw(float frameTime) override;
-		
-	private:
-
-		std::deque<float> m_fpsDeque;	
-	};
-}
-
-#endif
