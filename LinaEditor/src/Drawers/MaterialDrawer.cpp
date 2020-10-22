@@ -356,11 +356,11 @@ namespace LinaEditor
 				WidgetsUtility::IncrementCursorPosX(30);
 				WidgetsUtility::AlignedText(it->first.c_str());
 
-				ImVec2 min = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPos().x + 175, ImGui::GetWindowPos().y + ImGui::GetCursorPos().y - 50);
+				ImVec2 min = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPos().x + 175, ImGui::GetWindowPos().y + ImGui::GetCursorScreenPos().y - 80);
 				ImVec2 max = ImVec2(min.x + 75, min.y + 75);
 				ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_FrameBg)), 5);
 
-				ImVec2 minTexture = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPos().x + 180, ImGui::GetWindowPos().y + ImGui::GetCursorPos().y - 45);
+				ImVec2 minTexture = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPos().x + 180, ImGui::GetWindowPos().y + ImGui::GetCursorScreenPos().y - 75);
 				ImVec2 maxTexture = ImVec2(minTexture.x + 65, minTexture.y + 65);
 
 				if (it->second.m_boundTexture != nullptr)
