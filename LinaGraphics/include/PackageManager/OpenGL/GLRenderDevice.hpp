@@ -158,7 +158,7 @@ namespace LinaEngine::Graphics
 		void MultipleDrawBuffersCommand(uint32 fbo, uint32 bufferCount, uint32* attachments);
 
 		// Scale an existing texture
-		void ResizeRTTexture(uint32 texture, Vector2 newSize, PixelFormat internalPixelFormat, PixelFormat pixelFormat, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D, bool compress = false);
+		void ResizeRTTexture(uint32 texture, Vector2 newSize, PixelFormat m_internalPixelFormat, PixelFormat m_pixelFormat, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D, bool compress = false);
 
 		// Scales an existing render buffer
 		void ResizeRenderBuffer(uint32 fbo, uint32 rbo, Vector2 newSize, RenderBufferStorage storage);

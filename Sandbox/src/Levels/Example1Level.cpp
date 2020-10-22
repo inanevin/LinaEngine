@@ -73,13 +73,13 @@ bool Example1Level::Install(bool loadFromFile, const std::string& path, const st
 	LINA_CLIENT_WARN("Example level 1 install.");
 
 	SamplerParameters pbrSampler;
-	pbrSampler.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
-	pbrSampler.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-	pbrSampler.textureParams.wrapS = SamplerWrapMode::WRAP_REPEAT;
-	pbrSampler.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
-	pbrSampler.textureParams.pixelFormat = PixelFormat::FORMAT_RGBA;
-	pbrSampler.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB;
-	pbrSampler.textureParams.generateMipMaps = true;
+	pbrSampler.m_textureParams.m_minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+	pbrSampler.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
+	pbrSampler.m_textureParams.m_wrapS = SamplerWrapMode::WRAP_REPEAT;
+	pbrSampler.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_REPEAT;
+	pbrSampler.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGBA;
+	pbrSampler.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGB;
+	pbrSampler.m_textureParams.m_generateMipMaps = true;
 
 	LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
 

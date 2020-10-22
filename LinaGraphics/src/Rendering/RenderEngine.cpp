@@ -181,11 +181,11 @@ namespace LinaEngine::Graphics
 		m_cameraSystem.SetAspectRatio((float)m_viewportSize.x / (float)m_viewportSize.y);
 
 		// Resize render buffers & frame buffer textures
-		m_renderDevice.ResizeRTTexture(m_primaryRTTexture0.GetID(), m_viewportSize, m_primaryRTParams.textureParams.internalPixelFormat, m_primaryRTParams.textureParams.pixelFormat);
-		m_renderDevice.ResizeRTTexture(m_primaryRTTexture1.GetID(), m_viewportSize, m_primaryRTParams.textureParams.internalPixelFormat, m_primaryRTParams.textureParams.pixelFormat);
-		//m_renderDevice.ResizeRTTexture(m_OutlineRTTexture.GetID(), windowSize, primaryRTParams.textureParams.internalPixelFormat, primaryRTParams.textureParams.pixelFormat);
-		m_renderDevice.ResizeRTTexture(m_pingPongRTTexture1.GetID(), m_viewportSize, m_pingPongRTParams.textureParams.internalPixelFormat, m_pingPongRTParams.textureParams.pixelFormat);
-		m_renderDevice.ResizeRTTexture(m_pingPongRTTexture1.GetID(), m_viewportSize, m_pingPongRTParams.textureParams.internalPixelFormat, m_pingPongRTParams.textureParams.pixelFormat);
+		m_renderDevice.ResizeRTTexture(m_primaryRTTexture0.GetID(), m_viewportSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
+		m_renderDevice.ResizeRTTexture(m_primaryRTTexture1.GetID(), m_viewportSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
+		//m_renderDevice.ResizeRTTexture(m_OutlineRTTexture.GetID(), windowSize, primaryRTParams.m_textureParams.m_internalPixelFormat, primaryRTParams.m_textureParams.m_pixelFormat);
+		m_renderDevice.ResizeRTTexture(m_pingPongRTTexture1.GetID(), m_viewportSize, m_pingPongRTParams.m_textureParams.m_internalPixelFormat, m_pingPongRTParams.m_textureParams.m_pixelFormat);
+		m_renderDevice.ResizeRTTexture(m_pingPongRTTexture1.GetID(), m_viewportSize, m_pingPongRTParams.m_textureParams.m_internalPixelFormat, m_pingPongRTParams.m_textureParams.m_pixelFormat);
 		m_renderDevice.ResizeRenderBuffer(m_primaryRenderTarget.GetID(), m_primaryRenderBuffer.GetID(), m_viewportSize, RenderBufferStorage::STORAGE_DEPTH);
 	}
 
@@ -213,7 +213,7 @@ namespace LinaEngine::Graphics
 		return m_loadedMaterials[id];
 	}
 
-	Texture& RenderEngine::CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams, bool compress, bool useDefaultFormats)
+	Texture& RenderEngine::CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams, bool compress, bool useDefaultFormats, const std::string& paramsPath)
 	{
 		// Create pixel data.
 		ArrayBitmap* textureBitmap = new ArrayBitmap();
@@ -229,13 +229,13 @@ namespace LinaEngine::Graphics
 		if (useDefaultFormats)
 		{
 			if (nrComponents == 1)
-				samplerParams.textureParams.internalPixelFormat = samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_R;
+				samplerParams.m_textureParams.m_internalPixelFormat = samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_R;
 			if (nrComponents == 2)
-				samplerParams.textureParams.internalPixelFormat = samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RG;
+				samplerParams.m_textureParams.m_internalPixelFormat = samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RG;
 			else if (nrComponents == 3)
-				samplerParams.textureParams.internalPixelFormat = samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
+				samplerParams.m_textureParams.m_internalPixelFormat = samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
 			else if (nrComponents == 4)
-				samplerParams.textureParams.internalPixelFormat = samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGBA;
+				samplerParams.m_textureParams.m_internalPixelFormat = samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGBA;
 
 		}
 
@@ -243,6 +243,7 @@ namespace LinaEngine::Graphics
 		Texture* texture = new Texture();
 		texture->Construct(m_renderDevice, *textureBitmap, samplerParams, compress, filePath);
 		m_loadedTextures[texture->GetID()] = texture;
+		texture->m_paramsPath = paramsPath;
 
 		// Delete pixel data.
 		delete textureBitmap;
@@ -267,10 +268,10 @@ namespace LinaEngine::Graphics
 
 		// Create texture & construct.
 		SamplerParameters samplerParams;
-		samplerParams.textureParams.wrapR = samplerParams.textureParams.wrapS = samplerParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-		samplerParams.textureParams.minFilter = samplerParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-		samplerParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
-		samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
+		samplerParams.m_textureParams.m_wrapR = samplerParams.m_textureParams.m_wrapS = samplerParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		samplerParams.m_textureParams.m_minFilter = samplerParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
+		samplerParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGB16F;
+		samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
 
 		Texture* texture = new Texture();
 		texture->ConstructHDRI(m_renderDevice, samplerParams, Vector2(w, h), data, filePath);
@@ -734,29 +735,29 @@ namespace LinaEngine::Graphics
 	{
 
 		// Main
-		m_mainRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
-		m_mainRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
-		m_mainRTParams.textureParams.minFilter = m_mainRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-		m_mainRTParams.textureParams.wrapS = m_mainRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_REPEAT;
+		m_mainRTParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
+		m_mainRTParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
+		m_mainRTParams.m_textureParams.m_minFilter = m_mainRTParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
+		m_mainRTParams.m_textureParams.m_wrapS = m_mainRTParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_REPEAT;
 
 		// Primary
-		m_primaryRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
-		m_primaryRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
-		m_primaryRTParams.textureParams.minFilter = m_primaryRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-		m_primaryRTParams.textureParams.wrapS = m_primaryRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		m_primaryRTParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
+		m_primaryRTParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGB16F;
+		m_primaryRTParams.m_textureParams.m_minFilter = m_primaryRTParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
+		m_primaryRTParams.m_textureParams.m_wrapS = m_primaryRTParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 
 
 		// Ping pong
-		m_pingPongRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
-		m_pingPongRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
-		m_pingPongRTParams.textureParams.minFilter = m_pingPongRTParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-		m_pingPongRTParams.textureParams.wrapS = m_pingPongRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		m_pingPongRTParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
+		m_pingPongRTParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGB16F;
+		m_pingPongRTParams.m_textureParams.m_minFilter = m_pingPongRTParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
+		m_pingPongRTParams.m_textureParams.m_wrapS = m_pingPongRTParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 
 		// Shadows depth.
-		m_shadowsRTParams.textureParams.pixelFormat = PixelFormat::FORMAT_DEPTH;
-		m_shadowsRTParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_DEPTH16;
-		m_shadowsRTParams.textureParams.minFilter = m_shadowsRTParams.textureParams.magFilter = SamplerFilter::FILTER_NEAREST;
-		m_shadowsRTParams.textureParams.wrapS = m_shadowsRTParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_BORDER;
+		m_shadowsRTParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_DEPTH;
+		m_shadowsRTParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_DEPTH16;
+		m_shadowsRTParams.m_textureParams.m_minFilter = m_shadowsRTParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_NEAREST;
+		m_shadowsRTParams.m_textureParams.m_wrapS = m_shadowsRTParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_BORDER;
 
 		// Initialize primary RT textures
 		m_primaryRTTexture0.ConstructRTTexture(m_renderDevice, m_viewportSize, m_primaryRTParams, false);
@@ -1203,11 +1204,11 @@ namespace LinaEngine::Graphics
 	{
 		// Generate sampler.
 		SamplerParameters samplerParams;
-		samplerParams.textureParams.wrapR = samplerParams.textureParams.wrapS = samplerParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-		samplerParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-		samplerParams.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
-		samplerParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
-		samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
+		samplerParams.m_textureParams.m_wrapR = samplerParams.m_textureParams.m_wrapS = samplerParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		samplerParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
+		samplerParams.m_textureParams.m_minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+		samplerParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGB16F;
+		samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
 
 		// Set resolution.
 		m_hdriResolution = Vector2(512, 512);
@@ -1244,11 +1245,11 @@ namespace LinaEngine::Graphics
 	{
 		// Generate sampler.
 		SamplerParameters irradianceParams;
-		irradianceParams.textureParams.wrapR = irradianceParams.textureParams.wrapS = irradianceParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-		irradianceParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-		irradianceParams.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
-		irradianceParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
-		irradianceParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
+		irradianceParams.m_textureParams.m_wrapR = irradianceParams.m_textureParams.m_wrapS = irradianceParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		irradianceParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
+		irradianceParams.m_textureParams.m_minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+		irradianceParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGB16F;
+		irradianceParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
 
 		// Set resolution
 		Vector2 irradianceMapResolsution = Vector2(32, 32);
@@ -1281,12 +1282,12 @@ namespace LinaEngine::Graphics
 	{
 		// Generate sampler.
 		SamplerParameters prefilterParams;
-		prefilterParams.textureParams.generateMipMaps = true;
-		prefilterParams.textureParams.wrapR = prefilterParams.textureParams.wrapS = prefilterParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-		prefilterParams.textureParams.minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
-		prefilterParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-		prefilterParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
-		prefilterParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
+		prefilterParams.m_textureParams.m_generateMipMaps = true;
+		prefilterParams.m_textureParams.m_wrapR = prefilterParams.m_textureParams.m_wrapS = prefilterParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		prefilterParams.m_textureParams.m_minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+		prefilterParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
+		prefilterParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGB16F;
+		prefilterParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
 
 		// Set resolution
 		Vector2 prefilterResolution = Vector2(128, 128);
@@ -1332,11 +1333,11 @@ namespace LinaEngine::Graphics
 	{
 		// Generate sampler.
 		SamplerParameters samplerParams;
-		samplerParams.textureParams.wrapR = samplerParams.textureParams.wrapS = samplerParams.textureParams.wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-		samplerParams.textureParams.magFilter = SamplerFilter::FILTER_LINEAR;
-		samplerParams.textureParams.minFilter = SamplerFilter::FILTER_LINEAR;
-		samplerParams.textureParams.internalPixelFormat = PixelFormat::FORMAT_RGB16F;
-		samplerParams.textureParams.pixelFormat = PixelFormat::FORMAT_RGB;
+		samplerParams.m_textureParams.m_wrapR = samplerParams.m_textureParams.m_wrapS = samplerParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		samplerParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
+		samplerParams.m_textureParams.m_minFilter = SamplerFilter::FILTER_LINEAR;
+		samplerParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGB16F;
+		samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
 
 		// Set resolution.
 		Vector2 brdfLutSize = Vector2(512, 512);

@@ -200,11 +200,11 @@ namespace LinaEngine::Graphics
 
 	struct SamplerData
 	{
-		SamplerFilter minFilter = SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR;
+		SamplerFilter m_minFilter = SamplerFilter::FILTER_NEAREST_MIPMAP_LINEAR;
 		SamplerFilter maxFilter = SamplerFilter::FILTER_LINEAR;
-		SamplerWrapMode wrapS = SamplerWrapMode::WRAP_CLAMP_EDGE;
-		SamplerWrapMode wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-		float anisotropy = 0.0f;
+		SamplerWrapMode m_wrapS = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		SamplerWrapMode m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		float m_anisotropy = 0.0f;
 	};
 
 	struct DrawParams
@@ -295,28 +295,41 @@ namespace LinaEngine::Graphics
 
 	struct TextureParameters
 	{
-		PixelFormat pixelFormat = PixelFormat::FORMAT_RGBA;
-		PixelFormat internalPixelFormat = PixelFormat::FORMAT_RGBA;
-		SamplerFilter minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
-		SamplerFilter magFilter = SamplerFilter::FILTER_LINEAR;
-		SamplerWrapMode wrapS = SamplerWrapMode::WRAP_CLAMP_EDGE;
-		SamplerWrapMode wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-		SamplerWrapMode wrapR = SamplerWrapMode::WRAP_CLAMP_EDGE;
-		bool generateMipMaps = false;
+		PixelFormat m_pixelFormat = PixelFormat::FORMAT_RGBA;
+		PixelFormat m_internalPixelFormat = PixelFormat::FORMAT_RGBA;
+		SamplerFilter m_minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
+		SamplerFilter m_magFilter = SamplerFilter::FILTER_LINEAR;
+		SamplerWrapMode m_wrapS = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		SamplerWrapMode m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		SamplerWrapMode m_wrapR = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		bool m_generateMipMaps = false;
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(m_pixelFormat, m_internalPixelFormat, m_minFilter, m_magFilter, m_wrapS, m_wrapT, m_wrapR, m_generateMipMaps);
+		}
 	};
 
 	struct SamplerParameters
 	{
-		TextureParameters textureParams = TextureParameters();
-		int anisotropy = 0.0f;
+		TextureParameters m_textureParams = TextureParameters();
+		int m_anisotropy = 0.0f;
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(m_anisotropy, m_textureParams);
+		}
 	};
 
 	enum class WindowState
 	{
-		NORMAL = 0,
-		MAXIMIZED = 1,
-		ICONIFIED = 2
+		Normal = 0,
+		Maximized = 1,
+		Iconified = 2
 	};
+
 	/* Struct containing basic data about window properties. */
 	struct WindowProperties
 	{

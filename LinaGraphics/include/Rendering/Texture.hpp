@@ -66,6 +66,8 @@ namespace LinaEngine::Graphics
 		Texture& ConstructRTTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, bool useBorder = false, const std::string& path = "");
 		Texture& ConstructRTTextureMSAA(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, int sampleCount, const std::string& path = "");
 		Texture& ConstructEmpty(RenderDevice& deviceIn, SamplerParameters samplerParams = SamplerParameters(), const std::string& path = "");
+		static SamplerParameters LoadParameters(const std::string& path);
+		static void SaveParameters(const std::string& path, SamplerParameters params);
 		uint32 GetID() const { return m_id; };
 		uint32 GetSamplerID() const { return m_sampler.GetID(); }
 		Sampler& GetSampler() { return m_sampler; }
@@ -74,8 +76,11 @@ namespace LinaEngine::Graphics
 		Vector2 GetSize() { return m_size; }
 		bool GetIsEmpty() { return m_isEmpty; }
 		const std::string& GetPath() const { return m_path; }
+		const std::string& GetParamsPath() const { return m_paramsPath; }
 
 	private:
+
+		friend class RenderEngine;
 
 		TextureBindMode m_bindMode;
 		Sampler m_sampler;
@@ -86,6 +91,8 @@ namespace LinaEngine::Graphics
 		bool m_hasMipMaps = true;
 		bool m_isEmpty = true;
 		std::string m_path = "";
+		std::string m_paramsPath = "";
+
 	};
 }
 

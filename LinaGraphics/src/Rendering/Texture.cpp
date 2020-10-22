@@ -28,6 +28,9 @@ SOFTWARE.
 
 #include "Rendering/Texture.hpp"  
 #include "Rendering/ArrayBitmap.hpp"
+#include <stdio.h>
+#include <cereal/archives/binary.hpp>
+#include <fstream>
 
 namespace LinaEngine::Graphics
 {
@@ -46,7 +49,7 @@ namespace LinaEngine::Graphics
 		m_id = m_renderDevice->CreateTexture2D(m_size, data.GetPixelArray(), samplerParams, shouldCompress, false, Color::White);
 		m_sampler.SetTargetTextureID(m_id);
 		m_isCompressed = shouldCompress;
-		m_hasMipMaps = samplerParams.textureParams.generateMipMaps;
+		m_hasMipMaps = samplerParams.m_textureParams.m_generateMipMaps;
 		m_isEmpty = false;
 		m_path = path;
 		return *this;
@@ -74,7 +77,7 @@ namespace LinaEngine::Graphics
 		m_id = m_renderDevice->CreateCubemapTexture(m_size, samplerParams, cubeMapData, 6U);
 		m_sampler.SetTargetTextureID(m_id);
 		m_isCompressed = shouldCompress;
-		m_hasMipMaps = samplerParams.textureParams.generateMipMaps;
+		m_hasMipMaps = samplerParams.m_textureParams.m_generateMipMaps;
 		m_isEmpty = false;
 		m_path = path;
 		cubeMapData.clear();
@@ -90,7 +93,7 @@ namespace LinaEngine::Graphics
 		m_id = m_renderDevice->CreateTextureHDRI(size, data, samplerParams);
 		m_sampler.SetTargetTextureID(m_id);
 		m_isCompressed = false;
-		m_hasMipMaps = samplerParams.textureParams.generateMipMaps;
+		m_hasMipMaps = samplerParams.m_textureParams.m_generateMipMaps;
 		m_isEmpty = false;
 		m_path = path;
 		return *this;
@@ -106,7 +109,7 @@ namespace LinaEngine::Graphics
 		m_sampler.SetTargetTextureID(m_id);
 		m_isCompressed = false;
 		m_isEmpty = false;
-		m_hasMipMaps = samplerParams.textureParams.generateMipMaps;
+		m_hasMipMaps = samplerParams.m_textureParams.m_generateMipMaps;
 		m_path = path;
 		return *this;
 	}
@@ -161,6 +164,31 @@ namespace LinaEngine::Graphics
 		m_isEmpty = true;
 		m_path = path;
 		return *this;
+	}
+
+	SamplerParameters Texture::LoadParameters(const std::string& path)
+	{
+		SamplerParameters params;
+
+		std::ifstream stream(path);
+		{
+			cereal::BinaryInputArchive iarchive(stream);
+
+			// Read the data into it.
+			iarchive(params);
+		}
+
+		return params;
+	}
+
+	void Texture::SaveParameters(const std::string& path, SamplerParameters params)
+	{
+		std::ofstream stream(path);
+		{
+			cereal::BinaryOutputArchive oarchive(stream); // Create an output archive
+
+			oarchive(params); // Write the data to the archive
+		}
 	}
 
 

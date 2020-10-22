@@ -82,9 +82,9 @@ namespace LinaEngine::Graphics
 		glfwWindowHint(GLFW_DECORATED, m_windowProperties.m_decorated);
 		glfwWindowHint(GLFW_RESIZABLE, m_windowProperties.m_resizable);
 
-		if (propsIn.m_windowState == WindowState::ICONIFIED)
+		if (propsIn.m_windowState == WindowState::Iconified)
 			glfwWindowHint(GLFW_ICONIFIED, GLFW_TRUE);
-		else if (propsIn.m_windowState == WindowState::MAXIMIZED)
+		else if (propsIn.m_windowState == WindowState::Maximized)
 			glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
 #ifdef __APPLE__
@@ -226,20 +226,20 @@ namespace LinaEngine::Graphics
 
 	void GLWindow::Iconify()
 	{
-		m_windowProperties.m_windowState = WindowState::ICONIFIED;
+		m_windowProperties.m_windowState = WindowState::Iconified;
 		glfwIconifyWindow(m_glfwWindow);
 	}
 
 	void GLWindow::Maximize()
 	{
-		if (m_windowProperties.m_windowState != WindowState::MAXIMIZED)
+		if (m_windowProperties.m_windowState != WindowState::Maximized)
 		{
-			m_windowProperties.m_windowState = WindowState::MAXIMIZED;
+			m_windowProperties.m_windowState = WindowState::Maximized;
 			glfwMaximizeWindow(m_glfwWindow);
 		}
 		else
 		{
-			m_windowProperties.m_windowState = WindowState::NORMAL;
+			m_windowProperties.m_windowState = WindowState::Normal;
 			glfwRestoreWindow(m_glfwWindow);
 		}
 	}

@@ -253,8 +253,8 @@ namespace LinaEngine::Graphics
 	uint32 GLRenderDevice::CreateTexture2D(Vector2 size, const void* data, SamplerParameters samplerParams, bool compress, bool useBorder, Color borderColor)
 	{
 		// Declare formats, target & handle for the texture.
-		GLint format = GetOpenGLFormat(samplerParams.textureParams.pixelFormat);
-		GLint internalFormat = GetOpenGLInternalFormat(samplerParams.textureParams.internalPixelFormat, compress);
+		GLint format = GetOpenGLFormat(samplerParams.m_textureParams.m_pixelFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(samplerParams.m_textureParams.m_internalPixelFormat, compress);
 		GLenum textureTarget = GL_TEXTURE_2D;
 		GLuint textureHandle;
 
@@ -268,7 +268,7 @@ namespace LinaEngine::Graphics
 		SetupTextureParameters(textureTarget, samplerParams, useBorder, &borderColor.r);
 
 		// Enable mipmaps if needed.
-		if (samplerParams.textureParams.generateMipMaps)
+		if (samplerParams.m_textureParams.m_generateMipMaps)
 			glGenerateMipmap(textureTarget);
 		else
 		{
@@ -284,8 +284,8 @@ namespace LinaEngine::Graphics
 	uint32 GLRenderDevice::CreateTextureHDRI(Vector2 size, float* data, SamplerParameters samplerParams)
 	{
 		// Declare formats, target & handle for the texture.
-		GLint format = GetOpenGLFormat(samplerParams.textureParams.pixelFormat);
-		GLint internalFormat = GetOpenGLInternalFormat(samplerParams.textureParams.internalPixelFormat, false);
+		GLint format = GetOpenGLFormat(samplerParams.m_textureParams.m_pixelFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(samplerParams.m_textureParams.m_internalPixelFormat, false);
 		GLenum textureTarget = GL_TEXTURE_2D;
 		GLuint textureHandle;
 
@@ -300,7 +300,7 @@ namespace LinaEngine::Graphics
 		SetupTextureParameters(textureTarget, samplerParams);
 
 		// Enable mipmaps if needed.
-		if (samplerParams.textureParams.generateMipMaps)
+		if (samplerParams.m_textureParams.m_generateMipMaps)
 			glGenerateMipmap(textureTarget);
 		else
 		{
@@ -317,8 +317,8 @@ namespace LinaEngine::Graphics
 	{
 		GLuint textureHandle;
 		// Declare formats, target & handle for the texture.
-		GLint format = GetOpenGLFormat(samplerParams.textureParams.pixelFormat);
-		GLint internalFormat = GetOpenGLInternalFormat(samplerParams.textureParams.internalPixelFormat, false);
+		GLint format = GetOpenGLFormat(samplerParams.m_textureParams.m_pixelFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(samplerParams.m_textureParams.m_internalPixelFormat, false);
 
 		// Generate texture & bind to program.
 		glGenTextures(1, &textureHandle);
@@ -333,7 +333,7 @@ namespace LinaEngine::Graphics
 		// Specify wrapping & filtering
 		SetupTextureParameters(GL_TEXTURE_CUBE_MAP, samplerParams);
 
-		if (samplerParams.textureParams.generateMipMaps)
+		if (samplerParams.m_textureParams.m_generateMipMaps)
 			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 		else
 		{
@@ -350,8 +350,8 @@ namespace LinaEngine::Graphics
 	{
 		GLuint textureHandle;
 		// Declare formats, target & handle for the texture.
-		GLint format = GetOpenGLFormat(samplerParams.textureParams.pixelFormat);
-		GLint internalFormat = GetOpenGLInternalFormat(samplerParams.textureParams.internalPixelFormat, false);
+		GLint format = GetOpenGLFormat(samplerParams.m_textureParams.m_pixelFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(samplerParams.m_textureParams.m_internalPixelFormat, false);
 
 		// Generate texture & bind to program.
 		glGenTextures(1, &textureHandle);
@@ -364,7 +364,7 @@ namespace LinaEngine::Graphics
 		}
 
 
-		if (samplerParams.textureParams.generateMipMaps)
+		if (samplerParams.m_textureParams.m_generateMipMaps)
 			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 		else
 		{
@@ -379,8 +379,8 @@ namespace LinaEngine::Graphics
 	uint32 GLRenderDevice::CreateTexture2DMSAA(Vector2 size, SamplerParameters samplerParams, int sampleCount)
 	{
 		// Declare formats, target & handle for the texture.
-		GLint format = GetOpenGLFormat(samplerParams.textureParams.pixelFormat);
-		GLint internalFormat = GetOpenGLInternalFormat(samplerParams.textureParams.internalPixelFormat, false);
+		GLint format = GetOpenGLFormat(samplerParams.m_textureParams.m_pixelFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(samplerParams.m_textureParams.m_internalPixelFormat, false);
 		GLenum textureTarget = GL_TEXTURE_2D_MULTISAMPLE;
 		GLuint textureHandle;
 
@@ -395,7 +395,7 @@ namespace LinaEngine::Graphics
 		SetupTextureParameters(textureTarget, samplerParams);
 
 		// Enable mipmaps if needed.
-		if (samplerParams.textureParams.generateMipMaps)
+		if (samplerParams.m_textureParams.m_generateMipMaps)
 			glGenerateMipmap(textureTarget);
 		else
 		{
@@ -410,8 +410,8 @@ namespace LinaEngine::Graphics
 	uint32 GLRenderDevice::CreateTexture2DEmpty(Vector2 size, SamplerParameters samplerParams)
 	{
 		// Declare formats, target & handle for the texture.
-		GLint format = GetOpenGLFormat(samplerParams.textureParams.pixelFormat);
-		GLint internalFormat = GetOpenGLInternalFormat(samplerParams.textureParams.internalPixelFormat, false);
+		GLint format = GetOpenGLFormat(samplerParams.m_textureParams.m_pixelFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(samplerParams.m_textureParams.m_internalPixelFormat, false);
 		GLenum textureTarget = GL_TEXTURE_2D;
 		GLuint textureHandle;
 
@@ -426,7 +426,7 @@ namespace LinaEngine::Graphics
 		SetupTextureParameters(textureTarget, samplerParams);
 
 		// Enable mipmaps if needed.
-		if (samplerParams.textureParams.generateMipMaps)
+		if (samplerParams.m_textureParams.m_generateMipMaps)
 			glGenerateMipmap(textureTarget);
 		else
 		{
@@ -441,11 +441,11 @@ namespace LinaEngine::Graphics
 	void GLRenderDevice::SetupTextureParameters(uint32 textureTarget, SamplerParameters samplerParams, bool useBorder, float* borderColor)
 	{
 		// OpenGL texture params.
-		glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, samplerParams.textureParams.minFilter);
-		glTexParameterf(textureTarget, GL_TEXTURE_MAG_FILTER, samplerParams.textureParams.magFilter);
-		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, samplerParams.textureParams.wrapS);
-		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, samplerParams.textureParams.wrapT);
-		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_R, samplerParams.textureParams.wrapR);
+		glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, samplerParams.m_textureParams.m_minFilter);
+		glTexParameterf(textureTarget, GL_TEXTURE_MAG_FILTER, samplerParams.m_textureParams.m_magFilter);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, samplerParams.m_textureParams.m_wrapS);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, samplerParams.m_textureParams.m_wrapT);
+		glTexParameteri(textureTarget, GL_TEXTURE_WRAP_R, samplerParams.m_textureParams.m_wrapR);
 
 		if (useBorder)
 		{
@@ -457,14 +457,14 @@ namespace LinaEngine::Graphics
 	void GLRenderDevice::UpdateTextureParameters(uint32 bindMode, uint32 id, SamplerParameters samplerParams)
 	{
 		glBindTexture(bindMode, id);
-		glTexParameterf(bindMode, GL_TEXTURE_MIN_FILTER, samplerParams.textureParams.minFilter);
-		glTexParameterf(bindMode, GL_TEXTURE_MAG_FILTER, samplerParams.textureParams.magFilter);
-		glTexParameteri(bindMode, GL_TEXTURE_WRAP_S, samplerParams.textureParams.wrapS);
-		glTexParameteri(bindMode, GL_TEXTURE_WRAP_T, samplerParams.textureParams.wrapT);
-		glTexParameteri(bindMode, GL_TEXTURE_WRAP_R, samplerParams.textureParams.wrapR);
+		glTexParameterf(bindMode, GL_TEXTURE_MIN_FILTER, samplerParams.m_textureParams.m_minFilter);
+		glTexParameterf(bindMode, GL_TEXTURE_MAG_FILTER, samplerParams.m_textureParams.m_magFilter);
+		glTexParameteri(bindMode, GL_TEXTURE_WRAP_S, samplerParams.m_textureParams.m_wrapS);
+		glTexParameteri(bindMode, GL_TEXTURE_WRAP_T, samplerParams.m_textureParams.m_wrapT);
+		glTexParameteri(bindMode, GL_TEXTURE_WRAP_R, samplerParams.m_textureParams.m_wrapR);
 
 		// Enable mipmaps if needed.
-		if (samplerParams.textureParams.generateMipMaps)
+		if (samplerParams.m_textureParams.m_generateMipMaps)
 			glGenerateMipmap(bindMode);
 		else
 		{
@@ -686,14 +686,14 @@ namespace LinaEngine::Graphics
 		// OpenGL Texture Sampler parameters.
 		uint32 result = 0;
 		glGenSamplers(1, &result);
-		glSamplerParameteri(result, GL_TEXTURE_WRAP_S, samplerParams.textureParams.wrapS);
-		glSamplerParameteri(result, GL_TEXTURE_WRAP_T, samplerParams.textureParams.wrapT);
-		glSamplerParameteri(result, GL_TEXTURE_MAG_FILTER, samplerParams.textureParams.magFilter);
-		glSamplerParameteri(result, GL_TEXTURE_MIN_FILTER, samplerParams.textureParams.minFilter);
+		glSamplerParameteri(result, GL_TEXTURE_WRAP_S, samplerParams.m_textureParams.m_wrapS);
+		glSamplerParameteri(result, GL_TEXTURE_WRAP_T, samplerParams.m_textureParams.m_wrapT);
+		glSamplerParameteri(result, GL_TEXTURE_MAG_FILTER, samplerParams.m_textureParams.m_magFilter);
+		glSamplerParameteri(result, GL_TEXTURE_MIN_FILTER, samplerParams.m_textureParams.m_minFilter);
 
-		// Set anisotropy if applicable.
-		if (samplerParams.anisotropy != 0.0f && samplerParams.textureParams.minFilter != FILTER_NEAREST && samplerParams.textureParams.minFilter != FILTER_LINEAR)
-			glSamplerParameterf(result, GL_TEXTURE_MAX_ANISOTROPY, samplerParams.anisotropy);
+		// Set m_anisotropy if applicable.
+		if (samplerParams.m_anisotropy != 0.0f && samplerParams.m_textureParams.m_minFilter != FILTER_NEAREST && samplerParams.m_textureParams.m_minFilter != FILTER_LINEAR)
+			glSamplerParameterf(result, GL_TEXTURE_MAX_ANISOTROPY, samplerParams.m_anisotropy);
 
 		return result;
 	}
@@ -882,11 +882,11 @@ namespace LinaEngine::Graphics
 		SetFBO(0);
 	}
 
-	void GLRenderDevice::ResizeRTTexture(uint32 texture, Vector2 newSize, PixelFormat internalPixelFormat, PixelFormat pixelFormat, TextureBindMode bindMode, bool compress)
+	void GLRenderDevice::ResizeRTTexture(uint32 texture, Vector2 newSize, PixelFormat m_internalPixelFormat, PixelFormat m_pixelFormat, TextureBindMode bindMode, bool compress)
 	{
 		glBindTexture(bindMode, texture);
-		GLint format = GetOpenGLFormat(pixelFormat);
-		GLint internalFormat = GetOpenGLInternalFormat(internalPixelFormat, compress);
+		GLint format = GetOpenGLFormat(m_pixelFormat);
+		GLint internalFormat = GetOpenGLInternalFormat(m_internalPixelFormat, compress);
 		glTexImage2D(bindMode, 0, internalFormat, (uint32)newSize.x, (uint32)newSize.y, 0, format, GL_UNSIGNED_BYTE, NULL);
 		glBindTexture(bindMode, 0);
 	}
@@ -930,14 +930,14 @@ namespace LinaEngine::Graphics
 
 	void GLRenderDevice::UpdateSamplerParameters(uint32 sampler, SamplerParameters samplerParams)
 	{
-		glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, samplerParams.textureParams.wrapS);
-		glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, samplerParams.textureParams.wrapT);
-		glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, samplerParams.textureParams.magFilter);
-		glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, samplerParams.textureParams.minFilter);
+		glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, samplerParams.m_textureParams.m_wrapS);
+		glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, samplerParams.m_textureParams.m_wrapT);
+		glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, samplerParams.m_textureParams.m_magFilter);
+		glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, samplerParams.m_textureParams.m_minFilter);
 
-		// Set anisotropy if applicable.
-		if (samplerParams.anisotropy != 0.0f && samplerParams.textureParams.minFilter != FILTER_NEAREST && samplerParams.textureParams.minFilter != FILTER_LINEAR)
-			glSamplerParameterf(sampler, GL_TEXTURE_MAX_ANISOTROPY, samplerParams.anisotropy);
+		// Set m_anisotropy if applicable.
+		if (samplerParams.m_anisotropy != 0.0f && samplerParams.m_textureParams.m_minFilter != FILTER_NEAREST && samplerParams.m_textureParams.m_minFilter != FILTER_LINEAR)
+			glSamplerParameterf(sampler, GL_TEXTURE_MAX_ANISOTROPY, samplerParams.m_anisotropy);
 
 	}
 

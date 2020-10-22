@@ -364,7 +364,23 @@ namespace LinaEditor
 
 			// SKIP FOR NOW BC WE NEED TO MAKE SURE WE HANDLE BOTH ENGINE CREATION & EDITOR CREATION
 			if (file.type == FileType::Texture2D)
-				renderEngine.CreateTexture2D(file.path);
+			{
+				bool textureExists = renderEngine.TextureExists(file.path);
+
+				if (!textureExists)
+				{
+					LinaEngine::Graphics::SamplerParameters samplerParams;
+					std::string samplerParamsPath = file.pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.name) + ".samplerparams";
+
+					if (EditorUtility::FileExists(samplerParamsPath))
+						samplerParams = LinaEngine::Graphics::Texture::LoadParameters(samplerParamsPath);
+
+					renderEngine.CreateTexture2D(file.path, samplerParams, false, false, samplerParamsPath);
+
+					LinaEngine::Graphics::Texture::SaveParameters(samplerParamsPath, samplerParams);
+				}
+
+			}
 			if (file.type == FileType::Material)
 			{
 				bool materialExists = renderEngine.MaterialExists(file.path);

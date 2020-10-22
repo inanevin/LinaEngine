@@ -114,7 +114,7 @@ namespace LinaEngine::Graphics
 
 		Material& CreateMaterial(Shaders shader, const std::string& path = "");
 		Material& LoadMaterialFromFile(const std::string& path = "");
-		Texture& CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false);
+		Texture& CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false, const std::string& paramsPath = "");
 		Texture& CreateTextureHDRI(const std::string filePath);
 		Mesh& CreateMesh (const std::string& filePath, MeshParameters meshParams = MeshParameters(), int id = -1, const std::string& paramsPath = "");
 		Shader& CreateShader(Shaders shader, const std::string& path, bool usesGeometryShader = false);

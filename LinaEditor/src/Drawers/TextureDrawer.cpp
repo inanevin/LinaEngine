@@ -87,15 +87,15 @@ namespace LinaEditor
 
 		// Reset selected sampler params.
 		Graphics::SamplerParameters& params = texture->GetSampler().GetSamplerParameters();
-		m_currentInternalPixelFormat = (int)params.textureParams.internalPixelFormat;
-		m_currentPixelFormat = (int)params.textureParams.pixelFormat;
-		m_currentMinFilter = GetSamplerFilterID(params.textureParams.minFilter);
-		m_currentMagFilter = GetSamplerFilterID(params.textureParams.magFilter);
-		m_currentWrapS = GetWrapModeID(params.textureParams.wrapS);
-		m_currentWrapR = GetWrapModeID(params.textureParams.wrapR);
-		m_currentWrapT = GetWrapModeID(params.textureParams.wrapT);
-		m_currentAnisotropy = params.anisotropy;
-		m_currentGenerateMips = params.textureParams.generateMipMaps;
+		m_currentInternalPixelFormat = (int)params.m_textureParams.m_internalPixelFormat;
+		m_currentPixelFormat = (int)params.m_textureParams.m_pixelFormat;
+		m_currentMinFilter = GetSamplerFilterID(params.m_textureParams.m_minFilter);
+		m_currentMagFilter = GetSamplerFilterID(params.m_textureParams.m_magFilter);
+		m_currentWrapS = GetWrapModeID(params.m_textureParams.m_wrapS);
+		m_currentWrapR = GetWrapModeID(params.m_textureParams.m_wrapR);
+		m_currentWrapT = GetWrapModeID(params.m_textureParams.m_wrapT);
+		m_currentAnisotropy = params.m_anisotropy;
+		m_currentGenerateMips = params.m_textureParams.m_generateMipMaps;
 
 		LINA_CLIENT_TRACE("Selecting Texture with ID {0}, params: {1} ** {2} ** {3}", texture->GetPath(), m_currentWrapS, m_currentWrapT, m_currentWrapR);
 	}
@@ -106,13 +106,13 @@ namespace LinaEditor
 
 		SamplerParameters& params = m_selectedTexture->GetSampler().GetSamplerParameters();
 		static ImGuiComboFlags flags = 0;
-		static PixelFormat selectedInternalPF = params.textureParams.internalPixelFormat;
-		static PixelFormat selectedPF = params.textureParams.pixelFormat;
-		static SamplerFilter selectedMinFilter = params.textureParams.minFilter;
-		static SamplerFilter selectedMagFilter = params.textureParams.magFilter;
-		static SamplerWrapMode selectedWrapS = params.textureParams.wrapS;
-		static SamplerWrapMode selectedWrapR = params.textureParams.wrapR;
-		static SamplerWrapMode selectedWrapT = params.textureParams.wrapT;
+		static PixelFormat selectedInternalPF = params.m_textureParams.m_internalPixelFormat;
+		static PixelFormat selectedPF = params.m_textureParams.m_pixelFormat;
+		static SamplerFilter selectedMinFilter = params.m_textureParams.m_minFilter;
+		static SamplerFilter selectedMagFilter = params.m_textureParams.m_magFilter;
+		static SamplerWrapMode selectedWrapS = params.m_textureParams.m_wrapS;
+		static SamplerWrapMode selectedWrapR = params.m_textureParams.m_wrapR;
+		static SamplerWrapMode selectedWrapT = params.m_textureParams.m_wrapT;
 		const char* internalPFLabel = pixelFormats[m_currentInternalPixelFormat];
 		const char* pfLabel = pixelFormats[m_currentPixelFormat];
 		const char* minFilterLabel = samplerFilters[m_currentMinFilter];
@@ -311,19 +311,23 @@ namespace LinaEditor
 		// Apply button
 		if (ImGui::Button("Apply"))
 		{
-			params.anisotropy = m_currentAnisotropy;
-			params.textureParams.generateMipMaps = m_currentGenerateMips;
-			params.textureParams.internalPixelFormat = selectedInternalPF;
-			params.textureParams.pixelFormat = selectedPF;
-			params.textureParams.minFilter = selectedMinFilter;
-			params.textureParams.magFilter = selectedMagFilter;
-			params.textureParams.wrapR = selectedWrapR;
-			params.textureParams.wrapS = selectedWrapS;
-			params.textureParams.wrapT = selectedWrapT;
+			params.m_anisotropy = m_currentAnisotropy;
+			params.m_textureParams.m_generateMipMaps = m_currentGenerateMips;
+			params.m_textureParams.m_internalPixelFormat = selectedInternalPF;
+			params.m_textureParams.m_pixelFormat = selectedPF;
+			params.m_textureParams.m_minFilter = selectedMinFilter;
+			params.m_textureParams.m_magFilter = selectedMagFilter;
+			params.m_textureParams.m_wrapR = selectedWrapR;
+			params.m_textureParams.m_wrapS = selectedWrapS;
+			params.m_textureParams.m_wrapT = selectedWrapT;
 			SamplerParameters newParams = params;
-			std::string path = m_selectedTexture->GetPath();
-			LinaEngine::Application::GetRenderEngine().UnloadTextureResource(m_selectedTexture->GetID());
-			m_selectedTexture = &LinaEngine::Application::GetRenderEngine().CreateTexture2D(path, newParams);
+
+			LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+			std::string filePath = m_selectedTexture->GetPath();
+			std::string paramsPath = m_selectedTexture->GetParamsPath();
+			renderEngine.UnloadTextureResource(m_selectedTexture->GetID());
+			m_selectedTexture = &renderEngine.CreateTexture2D(filePath, newParams, false, false, paramsPath);
+			LinaEngine::Graphics::Texture::SaveParameters(paramsPath, newParams);
 		}
 
 		
