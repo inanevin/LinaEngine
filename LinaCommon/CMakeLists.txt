@@ -24,6 +24,7 @@ set (LINACOMMON_SOURCES
 
     src/Core/Layer.cpp
     src/Core/LayerStack.cpp
+    src/Core/Timer.cpp
 	
 	src/PackageManager/Generic/cmwc4096.cpp
 	src/PackageManager/Generic/GenericMemory.cpp
@@ -52,6 +53,8 @@ set(LINACOMMON_HEADERS
 	include/Core/Layer.hpp
 	include/Core/LayerStack.hpp
 	include/Core/LinaAPI.hpp
+	include/Core/Timer.hpp
+	
 	# PAM
 	include/PackageManager/Generic/cmwc4096.hpp
 	include/PackageManager/Generic/GenericMemory.hpp
