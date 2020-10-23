@@ -27,11 +27,37 @@ SOFTWARE.
 */
 
 #include "Core/Time.hpp"
+#include "Utility/Log.hpp"
+#include <time.h>
 
 namespace LinaEngine
 {
+
+#ifdef LINA_PLATFORM_WINDOWS
+#include <Windows.h>
+#include <iostream>
+	static double g_freq;
+	static bool g_timerInitialized = false;
+#endif
+
 	double Time::GetTime()
 	{
+#ifdef LINA_PLATFORM_WINDOWS
+		if (!g_timerInitialized)
+		{
+			LARGE_INTEGER li;
+			if (!QueryPerformanceFrequency(&li))
+				LINA_CORE_ERR("QueryPerformanceFrequency fail!");
 
+			g_freq = double(li.QuadPart);
+			g_timerInitialized = true;
+		}
+
+		LARGE_INTEGER li;
+		if (!QueryPerformanceCounter(&li))
+			LINA_CORE_ERR("QueryPerformanceCounter fail!");
+
+		return double(li.QuadPart) / g_freq;
+#endif
 	}
 }
