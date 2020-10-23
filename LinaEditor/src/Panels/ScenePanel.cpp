@@ -67,7 +67,7 @@ namespace LinaEditor
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 			ImGui::SetNextWindowBgAlpha(1.0f);
 
-			if (ImGui::Begin("Scene", &m_show, flags))
+			if (ImGui::Begin(SCENE_ID, &m_show, flags))
 			{
 				if (renderEngine.GetCameraSystem()->GetCurrentCameraComponent() == nullptr)
 				{

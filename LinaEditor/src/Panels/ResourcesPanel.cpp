@@ -67,7 +67,7 @@ namespace LinaEditor
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
 			ImGui::SetNextWindowBgAlpha(1.0f);
 
-			ImGui::Begin("Resources", &m_show, flags);
+			ImGui::Begin(RESOURCES_ID, &m_show, flags);
 			WidgetsUtility::DrawShadowedLine(5);
 			DrawContent();
 			DrawFolder(m_resourceFolders[0], true);

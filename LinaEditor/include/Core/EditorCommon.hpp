@@ -55,8 +55,9 @@ namespace LinaEditor
 #define GLOBAL_FRAMEPADDING_WINDOW ImVec2(0,6)
 #define GLOBAL_DOCKSPACE_BEGIN 60
 
-#define RESOURCES_MOVETEXTURE_ID "RSR_MOVE_TEXTURE"
+
 // HEADER PANEL
+#define HEADER_ID "Header"
 #define HEADER_FRAMEPADDING_FILEMENU ImVec2(5,3)
 #define HEADER_FRAMEPADDING_TOPBUTTONS ImVec2(3,2)
 #define HEADER_WINDOWPADDING_MENUBUTTON ImVec2(7,4)
@@ -70,6 +71,7 @@ namespace LinaEditor
 #define HEADER_LINALOGO_SIZE ImVec2(180, 29)
 
 // LOG PANEL
+#define LOG_ID "Log"
 #define LOGPANEL_ICONSENABLED true
 #define LOGPANEL_COLOR_ICONDEFAULT ImVec4(1.0f, 1.0f, 1.0f, 0.5f);
 #define LOGPANEL_COLOR_ICONHOVERED ImVec4(1.0f, 1.0f, 1.0f, 0.8f);
@@ -99,6 +101,21 @@ namespace LinaEditor
 #define LOGPANEL_COLOR_CRIT_HOVERED ImVec4(0.3f, 0.3f, 0.3f, 1.0f)
 #define LOGPANEL_COLOR_CRIT_PRESSED ImVec4(0.0f, 0.0f, 0.0f, 1.0f)
 
+// ECS
+#define ECS_ID "Entities"
+
+// Resources
+#define RESOURCES_ID "Resources"
+#define RESOURCES_MOVETEXTURE_ID "RSR_MOVE_TEXTURE"
+
+// Profiler
+#define PROFILER_ID "Profiler"
+
+// Properties
+#define PROPERTIES_ID "Properties"
+
+// Scene
+#define SCENE_ID "Viewport"
 }
 
 #endif

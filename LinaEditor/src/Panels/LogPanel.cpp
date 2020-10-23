@@ -73,7 +73,7 @@ namespace LinaEditor
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 			ImGui::SetNextWindowBgAlpha(1.0f);
 
-			if (ImGui::Begin("Log", &m_show, flags))
+			if (ImGui::Begin(LOG_ID, &m_show, flags))
 			{
 				// Shadow.
 				WidgetsUtility::DrawShadowedLine(5);

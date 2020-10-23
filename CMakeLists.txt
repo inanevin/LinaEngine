@@ -54,9 +54,10 @@ elseif(${x64_COMPILATION} MATCHES OFF)
 	set(TARGET_ARCHITECTURE "Win32")
 endif()
 
-
 set(ASSIMP_LIB "assimp-vc142-mtd.lib")
 set(ASSIMP_DLL "assimp-vc142-mtd.dll")
+
+
 
 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")

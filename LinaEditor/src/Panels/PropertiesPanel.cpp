@@ -99,7 +99,7 @@ namespace LinaEditor
 
 
 			// window.
-			ImGui::Begin("Properties", &m_show, flags);
+			ImGui::Begin(PROPERTIES_ID, &m_show, flags);
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(ImGui::GetStyle().FramePadding.x, 0));
 
 			// Shadow.

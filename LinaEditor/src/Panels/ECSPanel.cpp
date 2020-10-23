@@ -69,7 +69,7 @@ namespace LinaEditor
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;;
 			ImGui::SetNextWindowBgAlpha(1.0f);
 
-			if (ImGui::Begin("Entities", &m_show, flags))
+			if (ImGui::Begin(ECS_ID, &m_show, flags))
 			{
 				WidgetsUtility::DrawShadowedLine(5);
 

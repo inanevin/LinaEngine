@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Panels/ProfilerPanel.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Core/Application.hpp"
+#include "Core/EditorCommon.hpp"
 #include "Core/Timer.hpp"
 #include "imgui/imgui.h"
 #include "imgui/implot/implot.h"
@@ -37,78 +38,79 @@ namespace LinaEditor
 {
 #define MAX_DEQUE_SIZE 100
 
-    struct RollingBuffer {
-        float Span;
-        ImVector<ImVec2> Data;
-        RollingBuffer() {
-            Span = 10.0f;
-            Data.reserve(2000);
-        }
-        void AddPoint(float x, float y) {
-            float xmod = fmodf(x, Span);
-            if (!Data.empty() && xmod < Data.back().x)
-                Data.shrink(0);
-            Data.push_back(ImVec2(xmod, y));
-        }
-    };
+	struct RollingBuffer {
+		float Span;
+		ImVector<ImVec2> Data;
+		RollingBuffer() {
+			Span = 10.0f;
+			Data.reserve(2000);
+		}
+		void AddPoint(float x, float y) {
+			float xmod = fmodf(x, Span);
+			if (!Data.empty() && xmod < Data.back().x)
+				Data.shrink(0);
+			Data.push_back(ImVec2(xmod, y));
+		}
+	};
 
-    void ProfilerPanel::Setup()
-    {
+	void ProfilerPanel::Setup()
+	{
 
-    }
+	}
 
-    void ProfilerPanel::Draw(float frameTime)
-    {
-        if (m_show)
-        {
-           
-            ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
-            ImGui::SetNextWindowBgAlpha(1.0f);
-            WidgetsUtility::IncrementCursorPosY(12);
+	void ProfilerPanel::Draw(float frameTime)
+	{
+		if (m_show)
+		{
 
-            const std::map<std::string, LinaEngine::Timer*>& map = LinaEngine::Timer::GetTimerMap();
+			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+			ImGui::SetNextWindowBgAlpha(1.0f);
 
-            if (ImGui::Begin("Profiler", &m_show, flags))
-            {
-                // Shadow.
-                WidgetsUtility::DrawShadowedLine(5);
-                WidgetsUtility::IncrementCursorPosY(11);
+			const std::map<std::string, LinaEngine::Timer*>& map = LinaEngine::Timer::GetTimerMap();
 
-                for (std::map<std::string, LinaEngine::Timer*>::const_iterator it = map.begin(); it != map.end(); ++it)
-                {
-                    auto a = it->second->GetDuration();
-                    std::string txt = it->first + " " + std::to_string(a) + " ms";
+			ImGui::Begin(PROFILER_ID, &m_show, flags);
 
-                    WidgetsUtility::IncrementCursorPosX(12);
-                    ImGui::Text(txt.c_str());        
-                }  
+				// Shadow.
+			WidgetsUtility::DrawShadowedLine(5);
+			WidgetsUtility::IncrementCursorPosY(11);
 
-                WidgetsUtility::IncrementCursorPosX(12);
-                WidgetsUtility::IncrementCursorPosY(12);
+			for (std::map<std::string, LinaEngine::Timer*>::const_iterator it = map.begin(); it != map.end(); ++it)
+			{
+				auto a = it->second->GetDuration();
+				std::string txt = it->first + " " + std::to_string(a) + " ms";
 
-                int fps = LinaEngine::Application::GetApp().GetCurrentFPS();
+				WidgetsUtility::IncrementCursorPosX(12);
+				ImGui::Text(txt.c_str());
+			}
 
-                static RollingBuffer   rdata1;
-                static float t = 0;
-                t += ImGui::GetIO().DeltaTime;
-                rdata1.AddPoint(t, (float)fps);
-                static float history = 10.0f;
-                static ImPlotAxisFlags rt_axis = ImPlotAxisFlags_NoTickLabels;
+			WidgetsUtility::IncrementCursorPosX(12);
+			WidgetsUtility::IncrementCursorPosY(12);
 
-                ImPlot::SetNextPlotLimitsX(0, history, ImGuiCond_Always);
-                ImPlot::SetNextPlotLimitsY(0, 500, ImGuiCond_Always);
-                ImPlot::PushStyleColor(ImPlotCol_Line, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+			int fps = LinaEngine::Application::GetApp().GetCurrentFPS();
 
-                if (ImPlot::BeginPlot("##Profiler", NULL, NULL, ImVec2(-1, 115), 0, rt_axis, rt_axis)) {
-                    
-                    std::string fpsLabel = "FPS " + std::to_string(fps);
-                    ImPlot::PlotLine(fpsLabel.c_str(), &rdata1.Data[0].x, &rdata1.Data[0].y, rdata1.Data.size(), 0, 2 * sizeof(float));
-                    ImPlot::EndPlot();
-                }
-                ImPlot::PopStyleColor();
-            }
-            ImGui::End();
+			static RollingBuffer   rdata1;
+			static float t = 0;
+			t += ImGui::GetIO().DeltaTime;
+			rdata1.AddPoint(t, (float)fps);
+			static float history = 10.0f;
+			static ImPlotAxisFlags rt_axis = ImPlotAxisFlags_NoTickLabels;
 
-        }
-    }
+			ImPlot::SetNextPlotLimitsX(0, history, ImGuiCond_Always);
+			ImPlot::SetNextPlotLimitsY(0, 500, ImGuiCond_Always);
+			ImPlot::PushStyleColor(ImPlotCol_Line, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+
+			if (ImPlot::BeginPlot("##Profiler", NULL, NULL, ImVec2(-1, 115), 0, rt_axis, rt_axis)) {
+
+				std::string fpsLabel = "FPS " + std::to_string(fps);
+				ImPlot::PlotLine(fpsLabel.c_str(), &rdata1.Data[0].x, &rdata1.Data[0].y, rdata1.Data.size(), 0, 2 * sizeof(float));
+				ImPlot::EndPlot();
+			}
+
+			ImPlot::PopStyleColor();
+
+
+			ImGui::End();
+
+		}
+	}
 }
