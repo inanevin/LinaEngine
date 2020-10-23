@@ -75,6 +75,11 @@ namespace LinaEditor
 
 		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::World::Level*>("##linaeditor_level_init", LinaEngine::Action::ActionType::LevelInitialized,
 			std::bind(&EditorApplication::LevelInstalled, this, std::placeholders::_1));
+
+		LinaEngine::Application::GetApp().AddToMainPipeline(m_freeLookSystem);
+
+
+
 	}
 
 	void EditorApplication::Refresh()

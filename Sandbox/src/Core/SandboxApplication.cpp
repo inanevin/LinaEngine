@@ -26,7 +26,6 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include "Input/InputEngine.hpp"
 #include "Core/EditorApplication.hpp"
 
-
 class SandboxApplication : public LinaEngine::Application
 {
 	public:
@@ -46,7 +45,7 @@ class SandboxApplication : public LinaEngine::Application
 		Initialize(props);
 
 		m_editor.Setup();
-
+		
 		InstallLevel(m_startupLevel);
 		InitializeLevel(m_startupLevel);
 
@@ -56,7 +55,7 @@ class SandboxApplication : public LinaEngine::Application
 		// Set the app window size back to original.
 		GetAppWindow().SetSize(Vector2(props.m_width, props.m_height));
 		GetAppWindow().SetPosCentered(Vector2::Zero);
-
+	
 		// Run engine.
 		Run();
 	}

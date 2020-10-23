@@ -97,6 +97,7 @@ namespace LinaEngine
 		bool GetActiveLevelExists() { return m_activeLevelExists; }
 		double GetTime();
 		double GetFrameTime() { return m_frameTime; }
+		void AddToMainPipeline(ECS::BaseECSSystem& system) { m_mainECSPipeline.AddSystem(system); }
 
 		static Action::ActionDispatcher& GetEngineDispatcher() { return s_engineDispatcher; }
 		static Application& GetApp() { return *s_application; }
@@ -145,6 +146,7 @@ namespace LinaEngine
 
 		Input::InputDevice* m_inputDevice = nullptr;
 		World::Level* m_currentLevel = nullptr;
+		ECS::ECSSystemList m_mainECSPipeline;
 
 		bool m_activeLevelExists = false;
 		bool m_running = false;

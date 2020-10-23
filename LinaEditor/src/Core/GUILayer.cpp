@@ -207,6 +207,9 @@ namespace LinaEditor
 		m_propertiesPanel.Setup();
 		m_scenePanel.Setup();
 		m_resourcesPanel.Setup();
+
+		// Imgui first frame initialization.
+		Render();
 	}
 
 	void GUILayer::Detach()
@@ -224,7 +227,7 @@ namespace LinaEditor
 	{
 		// Set draw params first.
 		LinaEngine::Application::GetRenderEngine().SetDrawParameters(m_drawParameters);
-
+	
 		//Setup
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();

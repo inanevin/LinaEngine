@@ -138,6 +138,7 @@ namespace LinaEngine
 		double accumulator = 0.0;
 		int fpsCounter = 0;
 		double previousTime = 0;
+		double frameTime = 0;
 
 		while (m_running)
 		{
@@ -150,11 +151,13 @@ namespace LinaEngine
 
 			LINA_TIMER_STOP("Input Engine Tick");
 
-			double newTime = (double)s_appWindow->GetTime();
+			double newTime = s_appWindow->GetTime();
 			double frameTime = newTime - currentTime;
+			currentTime = newTime;
+
 
 			LINA_TIMER_START("Application Layers Tick");
-			
+
 			// Update layers.
 			for (Layer* layer : m_layerStack)
 				layer->Tick(frameTime);
@@ -169,10 +172,10 @@ namespace LinaEngine
 
 			LINA_TIMER_STOP("Current Level Tick");
 
+
 			if (frameTime > 0.25)
 				frameTime = 0.25;
 
-			currentTime = newTime;
 			accumulator += frameTime;
 
 			while (accumulator >= dt)

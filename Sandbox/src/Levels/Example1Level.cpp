@@ -34,6 +34,7 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "Rendering/Shader.hpp"
 #include "Utility/UtilityFunctions.hpp"
 
+
 using namespace LinaEngine::Graphics;
 using namespace LinaEngine::ECS;
 
@@ -118,7 +119,7 @@ void Example1Level::Initialize()
 
 	ECSRegistry& ecs = Application::GetECSRegistry();
 	sphere = ecs.CreateEntity("Sphere");
-	objectTransform.transform.m_location = Vector3(0, 0, 0);
+	objectTransform.transform.m_location = Vector3(0, 0, 60);
 	t = &ecs.emplace<TransformComponent>(sphere, objectTransform);
 	ecs.emplace<MeshRendererComponent>(sphere, cr);
 
@@ -128,14 +129,25 @@ void Example1Level::Tick(float delta)
 {
 
 	static float counter = 0.0f;
-	float speed = 2.0f;
+	float speed = 5.0f;
 	float speed2 = 1.0f;
 	float amount = 24.0f;
 	float amount2 = 12.0f;
 
-	double time = LinaEngine::Application::GetApp().GetTime();
-
+	static double time = 0;
+	time += delta;
+	static float direction = 1.0f;
+	static float target = 10;
 	TransformComponent& tr = Application::GetECSRegistry().get<TransformComponent>(sphere);
-	tr.transform.m_location.x = Math::Sin(time * speed) * amount;
-	tr.transform.m_location.y = Math::Sin(time * speed2) * amount2;
+	//tr.transform.m_location.x = Math::Sin(time * speed) * amount;
+
+
+	if (Math::Abs(tr.transform.m_location.y - target) < 0.1f)
+	{
+		direction = -direction;
+		target = -target;
+	}
+	else
+		tr.transform.m_location.y += speed * delta * direction;
+
 }

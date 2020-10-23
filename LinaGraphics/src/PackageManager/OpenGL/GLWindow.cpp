@@ -243,6 +243,8 @@ namespace LinaEngine::Graphics
 			m_windowProperties.m_windowState = WindowState::Normal;
 			glfwRestoreWindow(m_glfwWindow);
 		}
+
+		SetVsync(false);
 	}
 
 	void GLWindow::Close()
