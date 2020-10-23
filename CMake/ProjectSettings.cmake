@@ -54,7 +54,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
 target_compile_definitions(${PROJECT_NAME} PUBLIC STB_IMAGE_IMPLEMENTATION=1)
 
 if(LINA_CORE_ENABLE_LOGGING)
-	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_CORE_ENABLE_LOGGING=1)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_CORE_ENABLE_LOGGING=1)
 endif()
 
 if(LINA_ENABLE_EDITOR)

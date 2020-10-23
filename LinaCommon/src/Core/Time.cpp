@@ -35,7 +35,6 @@ namespace LinaEngine
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include <Windows.h>
-#include <iostream>
 	static double g_freq;
 	static bool g_timerInitialized = false;
 #endif
