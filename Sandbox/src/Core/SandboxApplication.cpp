@@ -45,10 +45,10 @@ class SandboxApplication : public LinaEngine::Application
 		props.m_title = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
 		Initialize(props);
 
-		PushLayer(m_editor);
+		m_editor.Setup();
 
-		//InstallLevel(m_startupLevel);
-		//InitializeLevel(m_startupLevel);
+		InstallLevel(m_startupLevel);
+		InitializeLevel(m_startupLevel);
 
 		// Refresh after level init.
 		m_editor.Refresh();

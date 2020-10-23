@@ -42,7 +42,6 @@ Timestamp: 10/15/2020 10:44:39 PM
 
 #include "Actions/ActionDispatcher.hpp"
 #include "Utility/Log.hpp"
-#include "Core/GUILayer.hpp"
 #include "ECS/Systems/FreeLookSystem.hpp"
 
 namespace LinaEngine
@@ -56,17 +55,14 @@ namespace LinaEngine
 
 namespace LinaEditor
 {
-	class EditorApplication : public LinaEngine::Layer
+	class EditorApplication
 	{
 	public:
 
 		EditorApplication();
 		~EditorApplication();
 
-		virtual void OnAttach();
-		virtual void OnDetach();
-		virtual void OnTick(float dt);
-		virtual void OnPostTick(float dt);
+		void Setup();
 		void Refresh();
 		void LevelInstalled(LinaEngine::World::Level* level);
 		static LinaEngine::Action::ActionDispatcher& GetEditorDispatcher() { return s_editorDispatcher; }

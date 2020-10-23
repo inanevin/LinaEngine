@@ -46,6 +46,7 @@ namespace LinaEditor
 	EditorApplication::EditorApplication()
 	{
 		s_editorDispatcher.Initialize(LinaEngine::Action::ActionType::EditorActionsStartIndex, LinaEngine::Action::ActionType::EditorActionsEndIndex);
+
 	}
 
 	EditorApplication::~EditorApplication()
@@ -53,9 +54,9 @@ namespace LinaEditor
 		LINA_CLIENT_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
 	}
 
-	void EditorApplication::OnAttach()
+	void EditorApplication::Setup()
 	{
-		LINA_CLIENT_TRACE("[OnAttach] -> Editor Application ({0})", typeid(*this).name());
+		LINA_CLIENT_TRACE("[Constructor] -> Editor Application ({0})", typeid(*this).name());
 
 		LinaEngine::Graphics::WindowProperties splashProps;
 		splashProps.m_width = 720;
@@ -74,23 +75,6 @@ namespace LinaEditor
 
 		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::World::Level*>("##linaeditor_level_init", LinaEngine::Action::ActionType::LevelInitialized,
 			std::bind(&EditorApplication::LevelInstalled, this, std::placeholders::_1));
-
-
-	}
-
-	void EditorApplication::OnDetach()
-	{
-
-	}
-
-	void EditorApplication::OnTick(float dt)
-	{
-		m_freeLookSystem.UpdateComponents(dt);
-	}
-
-	void EditorApplication::OnPostTick(float dt)
-	{
-		
 	}
 
 	void EditorApplication::Refresh()

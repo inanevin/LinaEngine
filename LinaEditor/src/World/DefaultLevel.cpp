@@ -57,44 +57,9 @@ namespace LinaEditor
 	void DefaultLevel::Initialize()
 	{
 
-		// Create a simple procedural skybox.
-		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
-		Material& mat = renderEngine.CreateMaterial(Shaders::Skybox_Procedural);
-		mat.SetColor("material.startColor", Color(0.8f, 0.8f, 0.8f,1.0f));
-		mat.SetColor("material.endColor", Color(0.2f, 0.2f, 0.2f));
-		mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
-		renderEngine.SetSkyboxMaterial(mat);
 	
-		Material& objUnlit = renderEngine.CreateMaterial(Shaders::Standard_Unlit);
-		MeshRendererComponent cr;
-		cr.m_meshID = Primitives::Cube;
-		cr.m_materialID = objUnlit.GetID();
-		cr.m_materialPath = objUnlit.GetPath();
-		cr.m_meshPath = renderEngine.GetPrimitive(Primitives::Cube).GetPath();
-		TransformComponent objectTransform;
-
-		ECSRegistry& ecs = Application::GetECSRegistry();
-		sphere = ecs.CreateEntity("Sphere");
-		objectTransform.transform.m_location = Vector3(0, 0, 0);
-		t = &ecs.emplace<TransformComponent>(sphere, objectTransform);
-		ecs.emplace<MeshRendererComponent>(sphere, cr);
-
 	}
 
-	void DefaultLevel::Tick(float dt)
-	{
-		static float counter = 0.0f;
-		float speed = 2.0f;
-		float speed2 = 1.0f;
-		float amount = 24.0f;
-		float amount2 = 12.0f;
-
-		double time = LinaEngine::Application::GetApp().GetTime();
-
-		TransformComponent& tr = Application::GetECSRegistry().get<TransformComponent>(sphere);
-		tr.transform.m_location.x = Math::Sin(time * speed) * amount ;
-		tr.transform.m_location.y = Math::Sin(time * speed2) * amount2 ;
-	}
 
 
 }
