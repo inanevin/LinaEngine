@@ -136,6 +136,8 @@ namespace LinaEngine
 		double dt = 0.01;
 		double currentTime = (double)s_appWindow->GetTime();
 		double accumulator = 0.0;
+		int fpsCounter = 0;
+		double previousTime = 0;
 
 		while (m_running)
 		{
@@ -197,13 +199,13 @@ namespace LinaEngine
 			LINA_TIMER_STOP("Render");
 
 			// Simple FPS count
-			m_fpsCounter++;
+			fpsCounter++;
 
-			if (currentTime - m_previousTime >= 1.0)
+			if (currentTime - previousTime >= 1.0)
 			{
-				m_previousTime = currentTime;
-				m_currentFPS = m_fpsCounter;
-				m_fpsCounter = 0;
+				previousTime = currentTime;
+				m_currentFPS = fpsCounter;
+				fpsCounter = 0;
 			}
 
 			if (m_firstRun)
@@ -298,5 +300,11 @@ namespace LinaEngine
 	{
 		s_renderEngine->DrawLine(from, to, color, width);
 	}
+
+	double Application::GetTime()
+	{
+		return s_appWindow->GetTime();
+	}
+
 }
 

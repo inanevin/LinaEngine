@@ -88,6 +88,11 @@ namespace LinaEditor
 		m_freeLookSystem.UpdateComponents(dt);
 	}
 
+	void EditorApplication::OnPostTick(float dt)
+	{
+		
+	}
+
 	void EditorApplication::Refresh()
 	{
 		m_guiLayer.Refresh();

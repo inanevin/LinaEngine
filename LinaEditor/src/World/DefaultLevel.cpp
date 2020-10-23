@@ -84,12 +84,16 @@ namespace LinaEditor
 	void DefaultLevel::Tick(float dt)
 	{
 		static float counter = 0.0f;
-		float speed = 5.0f;
-		float amount = 12.0f;
+		float speed = 2.0f;
+		float speed2 = 1.0f;
+		float amount = 24.0f;
+		float amount2 = 12.0f;
 
-		counter += dt;
+		double time = LinaEngine::Application::GetApp().GetTime();
+
 		TransformComponent& tr = Application::GetECSRegistry().get<TransformComponent>(sphere);
-		tr.transform.m_location.x = Math::Sin(counter * speed) * amount;
+		tr.transform.m_location.x = Math::Sin(time * speed) * amount ;
+		tr.transform.m_location.y = Math::Sin(time * speed2) * amount2 ;
 	}
 
 

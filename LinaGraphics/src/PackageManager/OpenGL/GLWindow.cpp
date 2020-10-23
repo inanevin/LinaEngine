@@ -37,7 +37,6 @@ namespace LinaEngine::Graphics
 	GLWindow::GLWindow()
 	{
 		LINA_CORE_TRACE("[Constructor] -> GLWindow ({0})", typeid(*this).name());
-		SetVsync(false);
 	}
 
 	GLWindow::~GLWindow()
@@ -118,6 +117,8 @@ namespace LinaEngine::Graphics
 
 		// Update OpenGL about the window data.
 		glViewport(0, 0, m_windowProperties.m_width, m_windowProperties.m_height);
+
+		SetVsync(false);
 
 		// set user pointer for callbacks.
 		glfwSetWindowUserPointer(m_glfwWindow, this);

@@ -66,6 +66,7 @@ namespace LinaEditor
 		virtual void OnAttach();
 		virtual void OnDetach();
 		virtual void OnTick(float dt);
+		virtual void OnPostTick(float dt);
 		void Refresh();
 		void LevelInstalled(LinaEngine::World::Level* level);
 		static LinaEngine::Action::ActionDispatcher& GetEditorDispatcher() { return s_editorDispatcher; }

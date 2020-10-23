@@ -55,6 +55,7 @@ namespace LinaEngine
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
 		virtual void OnTick(float dt) {}
+		virtual void OnPostTick(float dt) {};
 		const std::string& GetName() const { return m_name; }
 
 	protected:
