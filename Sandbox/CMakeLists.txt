@@ -45,21 +45,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaEditor/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
 
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
-
-add_compile_definitions(LINA_EDITOR)
-
-if(LINA_ENABLE_EDITOR)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_EDITOR=1)
-endif()
-
-if(LINA_ENABLE_TIMEPROFILING)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_ENABLE_TIMEPROFILING=1)
-endif()
-
-if(LINA_CLIENT_ENABLE_LOGGING)
-	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_CLIENT_ENABLE_LOGGING=1)
-endif()
+include(../CMake/ProjectSettings.cmake)
 
 #--------------------------------------------------------------------
 # Links
@@ -70,7 +56,6 @@ PRIVATE Lina::Editor
 PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
 
 )
-
 
 # Copy engine resources to project solution directory to run within IDE.
 add_custom_command(
@@ -108,8 +93,6 @@ add_custom_command(
 TARGET ${PROJECT_NAME}
 POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/resources/")
-
-
 
 # Copy assimp dll to project binary directory
 add_custom_command(

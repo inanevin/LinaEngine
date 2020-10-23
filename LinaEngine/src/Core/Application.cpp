@@ -154,7 +154,7 @@ namespace LinaEngine
 			double frameTime = newTime - currentTime;
 
 			LINA_TIMER_START("Application Layers Tick");
-
+			
 			// Update layers.
 			for (Layer* layer : m_layerStack)
 				layer->Tick(frameTime);

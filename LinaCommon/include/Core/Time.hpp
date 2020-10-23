@@ -29,9 +29,9 @@ SOFTWARE.
 /*
 Class: Time
 
-Wrapper that provides a high-definition clock.
 
-Timestamp: 4/28/2019 3:10:03 PM
+
+Timestamp: 10/23/2020 10:21:38 PM
 */
 
 #pragma once
@@ -39,22 +39,24 @@ Timestamp: 4/28/2019 3:10:03 PM
 #ifndef Time_HPP
 #define Time_HPP
 
-#include "Core/SizeDefinitions.hpp"
+// Headers here.
+
 
 namespace LinaEngine
 {
 	class Time
 	{
-		// Get elapsed time since the start of the application.
+		
+	public:
+		
+		Time() {};
+		~Time() {};
+
 		static double GetTime();
-
-		// Make the application thread sleep for designated amount of milliseconds.
-		static void Sleep(uint32 milliSeconds);
-
-		static double GetCurrentTimeNanoseconds();
-		static double GetCurrentTimeMilliseconds();
+	
+	private:
+	
 	};
 }
-
 
 #endif

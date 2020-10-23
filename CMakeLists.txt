@@ -31,17 +31,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_SUPPRESS_REGENERATION true)
 
-#option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
-
-option(LINA_SHARED_COMMON "Build Lina COMMON DLL" OFF)
-option(LINA_SHARED_ECS "Build Lina ECS DLL" OFF)
-option(LINA_SHARED_ACTION "Build Lina ACTION DLL" OFF)
-option(LINA_SHARED_INPUT "Build Lina INPUT DLL" OFF)
-option(LINA_SHARED_GRAPHICS "Build Lina GRAPHICS DLL" OFF)
-option(LINA_SHARED_PHYSICS "Build Lina PHYSICS DLL" OFF)
-option(LINA_SHARED_ENGINE "Build Lina ENGINE DLL" OFF)
-option(x64_COMPILATION "Target Architecture x64" ON)
-
 option(LINA_ENABLE_TIMEPROFILING "Enables time profiling" ON)
 option(LINA_ENABLE_EDITOR "Enables editor layer" ON)
 option(LINA_CLIENT_ENABLE_LOGGING "Enables console logging" ON)
@@ -49,7 +38,6 @@ option(LINA_CORE_ENABLE_LOGGING "Enables console logging" ON)
 
 if(${x64_COMPILATION} MATCHES ON)
 	set(TARGET_ARCHITECTURE "x64")
-	
 elseif(${x64_COMPILATION} MATCHES OFF)
 	set(TARGET_ARCHITECTURE "Win32")
 endif()
@@ -57,12 +45,8 @@ endif()
 set(ASSIMP_LIB "assimp-vc142-mtd.lib")
 set(ASSIMP_DLL "assimp-vc142-mtd.dll")
 
-
-
-
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
-set(LINA_GRAPHICS_OPENGL 1)
 
 #--------------------------------------------------------------------
 # Set source & header dirs
@@ -88,5 +72,5 @@ add_subdirectory(LinaEditor)
 add_subdirectory(Sandbox)
 
 
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT LinaEditor)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
 

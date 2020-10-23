@@ -103,95 +103,11 @@ set(LINAGRAPHICS_HEADERS
 )
 
 
-if(NOT LINA_SHARED_GRAPHICS)
-	add_compile_definitions(LINAGRAPHICS_STATIC_DEFINE)
-	set(BUILD_SHARED_LIBS OFF)
-else (LINA_SHARED_GRAPHICS)
-	set(BUILD_SHARED_LIBS ON)
-	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif()
-
-
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
 add_library(${PROJECT_NAME} ${LINAGRAPHICS_SOURCES} ${LINAGRAPHICS_HEADERS})
 add_library(Lina::Graphics ALIAS ${PROJECT_NAME}) 
-
-#--------------------------------------------------------------------
-# Config & Options & Compile Definitions
-#--------------------------------------------------------------------
-
-set_target_properties(
-    ${PROJECT_NAME}
-      PROPERTIES 
-        CXX_STANDARD 17 
-        CXX_STANDARD_REQUIRED YES 
-        CXX_EXTENSIONS NO
-)
-
-
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-   target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_COMPILER_CLANG=1)
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-   target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_COMPILER_GNU=1)
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-   target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_COMPILER_MSVC=1)
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "Intel")
-   target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_COMPILER_INTEL=1)
-else()
-   target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_COMPILER_OTHER=1)
-endif()
-
-if(LINA_CORE_ENABLE_LOGGING)
-	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_CORE_ENABLE_LOGGING=1)
-endif()
-
-if(LINA_ENABLE_EDITOR)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_EDITOR=1)
-endif()
-
-if(LINA_ENABLE_TIMEPROFILING)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_ENABLE_TIMEPROFILING=1)
-endif()
-
-#--------------------------------------------------------------------
-# Build Type Config
-#--------------------------------------------------------------------
-
-if ( CMAKE_BUILD_TYPE STREQUAL "" )
-	# CMake defaults to leaving CMAKE_BUILD_TYPE empty. This screws up
-	# differentiation between debug and release builds.
-	set(
-		CMAKE_BUILD_TYPE
-			"Debug"
-		CACHE STRING
-			"Choose the type of build, options are: None (CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) \"Debug\" \"Release\" \"MinSizeRel\" \"RelWithDebInfo\"."
-		FORCE
-	)
-	
-	set(LINAENGINE_RUNTIME_COPY_DIR "Debug")
-endif ( CMAKE_BUILD_TYPE STREQUAL "" )
-
-if ( CMAKE_BUILD_TYPE STREQUAL "Release" )
-    target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_RELEASE=1)
-	set(LINAENGINE_RUNTIME_COPY_DIR "Release")
-endif ( CMAKE_BUILD_TYPE STREQUAL "Release" )
-
-if ( CMAKE_BUILD_TYPE STREQUAL "Debug" )
-    target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_DEBUG=1)
-	set(LINAENGINE_RUNTIME_COPY_DIR "Debug")
-endif ( CMAKE_BUILD_TYPE STREQUAL "Debug" )
-
-if ( CMAKE_BUILD_TYPE STREQUAL "MinSizeRel" )
-    target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_MINSIZEREL=1)
-	set(LINAENGINE_RUNTIME_COPY_DIR "MinSizeRel")
-endif ( CMAKE_BUILD_TYPE STREQUAL "MinSizeRel" )
-
-if ( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
-    target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_RELWITHDEBINFO=1)
-	set(LINAENGINE_RUNTIME_COPY_DIR "RelWithDebInfo")
-endif ( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
 
 #--------------------------------------------------------------------
 # Set include directories
@@ -205,12 +121,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ass
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaECS/include)
 
-if(LINA_GRAPHICS_OPENGL)
-	include(../CMake/GLGraphicsDefinitions.cmake)
-endif()
-
-# Language standard
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
 #--------------------------------------------------------------------
 # Subdirectories & linking
@@ -226,34 +136,10 @@ target_link_libraries(${PROJECT_NAME}
 	
 
 #--------------------------------------------------------------------
-# Packages
+# Options & Packages
 #--------------------------------------------------------------------
-target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
-
+include(../CMake/GLGraphicsDefinitions.cmake)
 find_package(OpenGL REQUIRED)
-
-#--------------------------------------------------------------------
-# Generate export header for this dll project 
-#--------------------------------------------------------------------
-# include (GenerateExportHeader)
-# GENERATE_EXPORT_HEADER (LinaEngine
-#    BASE_NAME LinaEngine
-#    EXPORT_MACRO_NAME LINA_API
-#    EXPORT_FILE_NAME LinaCore.hpp
-#)
-
-# Copy Assimp DLL
-
-add_custom_command(
-TARGET ${PROJECT_NAME}
-PRE_BUILD
-COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
-
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vendor/assimp/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/${ASSIMP_DLL}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
-
 
 
 #--------------------------------------------------------------------

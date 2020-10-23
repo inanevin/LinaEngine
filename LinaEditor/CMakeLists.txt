@@ -151,21 +151,8 @@ add_library(Lina::Editor ALIAS ${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/IconFontCPPHeaders/include)
 
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+include(../CMake/ProjectSettings.cmake)
 
-option(LINA_CLIENT_ENABLE_LOGGING "Enables console logging" ON)
-
-if(LINA_CLIENT_ENABLE_LOGGING)
-	target_compile_definitions(${PROJECT_NAME} PRIVATE LINA_CLIENT_ENABLE_LOGGING=1)
-endif()
-
-if(LINA_ENABLE_EDITOR)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_EDITOR=1)
-endif()
-
-if(LINA_ENABLE_TIMEPROFILING)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_ENABLE_TIMEPROFILING=1)
-endif()
 
 #--------------------------------------------------------------------
 # Links
@@ -173,8 +160,6 @@ endif()
 target_link_libraries(${PROJECT_NAME} 
 PRIVATE Lina::Engine
 )
-
-
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
