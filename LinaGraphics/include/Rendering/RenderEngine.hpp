@@ -106,9 +106,6 @@ namespace LinaEngine::Graphics
 		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn, Window& appWindow);
 		void Render();
 
-		// Updates the layers & swaps buffers
-		void TickAndSwap(float frameTime);
-
 		// Sets the viewport offset & display size
 		void SetViewportDisplay(Vector2 offset, Vector2 size);
 

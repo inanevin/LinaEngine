@@ -62,7 +62,7 @@ namespace LinaEditor
 			m_logLevelIconButtons[i].UpdateColors(&m_logLevelFlags);
 	}
 
-	void LogPanel::Draw(float frameTime)
+	void LogPanel::Draw()
 	{
 		
 		if (m_show)

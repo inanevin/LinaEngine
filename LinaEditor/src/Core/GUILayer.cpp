@@ -66,7 +66,7 @@ namespace LinaEditor
 		LINA_CLIENT_TRACE("[Destructor] -> GUI Layer ({0})", typeid(*this).name());
 	}
 
-	void GUILayer::OnAttach()
+	void GUILayer::Attach()
 	{
 		LINA_CLIENT_INFO("Editor GUI Layer Attached");
 
@@ -209,7 +209,7 @@ namespace LinaEditor
 		m_resourcesPanel.Setup();
 	}
 
-	void GUILayer::OnDetach()
+	void GUILayer::Detach()
 	{
 		LINA_CLIENT_INFO("Editor GUI Layer Detached");
 
@@ -220,7 +220,7 @@ namespace LinaEditor
 		ImPlot::DestroyContext();
 	}
 
-	void GUILayer::OnTick(float dt)
+	void GUILayer::Render()
 	{
 		// Set draw params first.
 		LinaEngine::Application::GetRenderEngine().SetDrawParameters(m_drawParameters);
@@ -230,22 +230,16 @@ namespace LinaEditor
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		m_headerPanel.Draw(dt);
+		m_headerPanel.Draw();
 		DrawLevelDataDialogs();
 		DrawCentralDockingSpace();
 
-		// Draw overlay fps counter
-		// DrawFPSCounter(1);
-
-		//// Draw material panel.
-		//m_MaterialPanel->Draw();
-
-		m_resourcesPanel.Draw(dt);
-		m_ecsPanel.Draw(dt);
-		m_scenePanel.Draw(dt);
-		m_logPanel.Draw(dt);
-		m_profilerPanel.Draw(dt);
-		m_propertiesPanel.Draw(dt);
+		m_resourcesPanel.Draw();
+		m_ecsPanel.Draw();
+		m_scenePanel.Draw();
+		m_logPanel.Draw();
+		m_profilerPanel.Draw();
+		m_propertiesPanel.Draw();
 
 		if (s_showIMGUIDemo)
 			ImGui::ShowDemoWindow(&s_showIMGUIDemo);

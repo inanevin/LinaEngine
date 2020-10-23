@@ -57,7 +57,7 @@ namespace LinaEditor
 			});
 	}
 
-	void ECSPanel::Draw(float frameTime)
+	void ECSPanel::Draw()
 	{
 		if (m_show)
 		{

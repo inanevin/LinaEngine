@@ -53,7 +53,7 @@ namespace LinaEditor
 		EditorPanel() { };
 		virtual ~EditorPanel() {};
 		virtual void Setup() = 0;
-		virtual void Draw(float frameTime) = 0;
+		virtual void Draw() = 0;
 		virtual void Open() { m_show = true; }
 		virtual void Close() { m_show = false; }
 

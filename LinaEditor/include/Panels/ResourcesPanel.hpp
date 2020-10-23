@@ -103,7 +103,7 @@ namespace LinaEditor
 		virtual ~ResourcesPanel() {};
 	
 		virtual void Setup() override;
-		virtual void Draw(float frameTime) override;
+		virtual void Draw() override;
 
 	private:
 	

@@ -57,7 +57,7 @@ namespace LinaEditor
 		ScanRoot();
 	}
 
-	void ResourcesPanel::Draw(float frameTime)
+	void ResourcesPanel::Draw()
 	{
 		if (m_show)
 		{

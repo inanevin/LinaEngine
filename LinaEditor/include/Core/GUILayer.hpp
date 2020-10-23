@@ -112,9 +112,9 @@ namespace LinaEditor
 		~GUILayer();
 
 		// Overrides
-		void OnAttach() override;
-		void OnDetach() override;
-		void OnTick(float dt) override;
+		void Attach() override;
+		void Detach() override;
+		void Render() override;
 
 		// Menu bar item callback from header panel.
 		void DispatchMenuBarClickedAction(const MenuBarItems& item);

@@ -86,7 +86,7 @@ namespace LinaEditor
 	}
 
 
-	void PropertiesPanel::Draw(float frameTime)
+	void PropertiesPanel::Draw()
 	{
 		if (m_show)
 		{

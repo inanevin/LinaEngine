@@ -87,7 +87,7 @@ namespace LinaEditor
 		virtual ~LogPanel();
 
 		virtual void Setup() override;
-		virtual void Draw(float frameTime) override;
+		virtual void Draw() override;
 		void OnLog(LinaEngine::Log::LogDump dump);
 
 	private:

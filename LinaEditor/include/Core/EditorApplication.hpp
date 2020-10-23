@@ -43,6 +43,7 @@ Timestamp: 10/15/2020 10:44:39 PM
 #include "Actions/ActionDispatcher.hpp"
 #include "Utility/Log.hpp"
 #include "ECS/Systems/FreeLookSystem.hpp"
+#include "Core/GUILayer.hpp"
 
 namespace LinaEngine
 {

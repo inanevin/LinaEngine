@@ -56,7 +56,7 @@ namespace LinaEditor
 			std::bind(&ScenePanel::Unselected, this));
 	}
 
-	void ScenePanel::Draw(float frameTime)
+	void ScenePanel::Draw()
 	{
 		ImGuizmo::BeginFrame();
 

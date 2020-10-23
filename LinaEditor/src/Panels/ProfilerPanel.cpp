@@ -58,7 +58,7 @@ namespace LinaEditor
 
 	}
 
-	void ProfilerPanel::Draw(float frameTime)
+	void ProfilerPanel::Draw()
 	{
 		if (m_show)
 		{

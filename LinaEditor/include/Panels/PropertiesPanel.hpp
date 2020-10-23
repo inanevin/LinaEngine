@@ -79,7 +79,7 @@ namespace LinaEditor
 		virtual ~PropertiesPanel() {};
 
 		virtual void Setup() override;
-		virtual void Draw(float frameTime) override;
+		virtual void Draw() override;
 
 		void EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity);
 		void TextureSelected(LinaEngine::Graphics::Texture* texture);

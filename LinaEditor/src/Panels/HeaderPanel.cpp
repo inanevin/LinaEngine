@@ -128,7 +128,7 @@ namespace LinaEditor
 		m_title = Application::GetAppWindow().GetWindowProperties().m_title;
 	}
 
-	void HeaderPanel::Draw(float frameTime)
+	void HeaderPanel::Draw()
 	{
 		if (m_show)
 		{
@@ -136,7 +136,7 @@ namespace LinaEditor
 			// Logo animation
 			if (logoAnimRatio < 0.99f)
 			{
-				logoAnimRatio = Math::Lerp(logoAnimRatio, 1.0f, frameTime * logoAnimSpeed);
+				logoAnimRatio = Math::Lerp(logoAnimRatio, 1.0f, LinaEngine::Application::GetApp().GetFrameTime() * logoAnimSpeed);
 				int logoAnimIndex = (int)Math::Remap(logoAnimRatio, 0.0f, 1.0f, 0.0f, (float)HEADER_LINALOGO_ANIMSIZE);
 				linaLogoID = linaLogoAnimation[logoAnimIndex]->GetID();
 			}
@@ -145,7 +145,7 @@ namespace LinaEditor
 				if (linaLogoID != linaLogoAnimation[0]->GetID())
 					linaLogoID = linaLogoAnimation[0]->GetID();
 
-				logoAnimWaitCounter += frameTime;
+				logoAnimWaitCounter += LinaEngine::Application::GetApp().GetFrameTime();
 
 				if (logoAnimWaitCounter > logoAnimWait)
 				{

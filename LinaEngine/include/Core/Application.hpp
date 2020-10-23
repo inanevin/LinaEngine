@@ -96,6 +96,7 @@ namespace LinaEngine
 		int GetCurrentFPS() { return m_currentFPS; }
 		bool GetActiveLevelExists() { return m_activeLevelExists; }
 		double GetTime();
+		double GetFrameTime() { return m_frameTime; }
 
 		static Action::ActionDispatcher& GetEngineDispatcher() { return s_engineDispatcher; }
 		static Application& GetApp() { return *s_application; }
@@ -159,7 +160,7 @@ namespace LinaEngine
 		std::function<void()> m_postSceneDrawCallback;
 
 		int m_currentFPS = 0;
-
+		double m_frameTime = 0;
 
 	};
 

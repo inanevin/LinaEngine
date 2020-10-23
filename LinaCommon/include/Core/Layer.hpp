@@ -52,10 +52,11 @@ namespace LinaEngine
 		Layer(const std::string& name = "Layer") : m_name(name) {};
 		virtual ~Layer() {};
 
-		virtual void OnAttach() {}
-		virtual void OnDetach() {}
-		virtual void OnTick(float dt) {}
-		virtual void OnPostTick(float dt) {};
+		virtual void Attach() {}
+		virtual void Detach() {}
+		virtual void Tick(float deltaTime) {}
+		virtual void PostTick(float deltaTime) {}
+		virtual void Render() {};
 		const std::string& GetName() const { return m_name; }
 
 	protected:

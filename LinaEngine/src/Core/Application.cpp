@@ -157,7 +157,7 @@ namespace LinaEngine
 
 			// Update layers.
 			for (Layer* layer : m_layerStack)
-				layer->OnTick(frameTime);
+				layer->Tick(frameTime);
 
 			LINA_TIMER_STOP("Application Layers Tick");
 
@@ -191,9 +191,6 @@ namespace LinaEngine
 				// render level.
 				if (m_activeLevelExists)
 					s_renderEngine->Render();
-
-				// Update gui layers & swap buffers
-				s_renderEngine->TickAndSwap(frameTime);
 			}
 
 			LINA_TIMER_STOP("Render");
