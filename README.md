@@ -9,16 +9,11 @@
 ![GitHub issues](https://img.shields.io/github/issues/inanevin/LinaEngine.svg)
 ![GitHub repo size](https://img.shields.io/github/repo-size/inanevin/LinaEngine.svg)
 
-
-Lina Engine is an open-source game engine, that is dedicated to bring alternative and unique solutions to solve existing problems in the architecture of many game engines. It offers an architecture that has the purpose to create lightweight systems and focus on the robustness of core structure rather than stacking thousands of features for market competence. 
-
-Lina Engine is a research project, and it is aimed to be the basis of development for more open-source game engine projects. It is our hope that the techniques and architecture used in this game engine can play the initiative role for more projects to develop open source game engines.
+Lina Engine is a lightweight and ECS based open-source game engine. Initially it's a research project and is aimed to be a basis of development for more open-source game engine projects. Lina's architecture is designed to be as modular as possible and it focuses on creating replacable modules to customize for project-specific needs, rather than stacking thousands of features into one framework.
 
 ![Lina](Docs/Images/linass.png)
 
 ## Announcements / Notes
-
-- As a build system, this project uses CMake 3.6. Please make sure you have a working version of [CMake](https://cmake.org/), prerably 3.6 or above installed on your machine.
 
 - Lina Engine is currently compatible to be compiled only with x64 architecture on Windows. If you would like to use it on different architectures & platforms, you need to compile the vendors for your target architecture and platform include them manually.
 
@@ -59,9 +54,9 @@ git clone https://github.com/inanevin/LinaEngine
 git clone --recursive https://github.com/inanevin/LinaEngine
 
 ```
--  You can generate the project files and build using; **Lina Engine Build Launcher**, **CMake with Shell** or **CMake GUI**
+-  You can generate the project files and build using; ~~**Lina Engine Build Launcher (deprecated)**~~, **CMake with Shell** or **CMake GUI**
 
-#### Using Lina Engine Build Launcher (deprectaed)
+#### Using Lina Engine Build Launcher (deprecated)
 
 -  You need to have JavaFX Runtime library installed on your computer & environment paths set for it. For more information visit [Java FX](https://openjfx.io/).
 -  Download a binary release from [Lina Engine Build Launcher Repository](https://github.com/inanevin/Lina-Engine-Build-Launcher).
@@ -81,16 +76,16 @@ git clone --recursive https://github.com/inanevin/LinaEngine
 
 ```shell
 # You can define any options before generating project files.
-cmake -DLINA_ENABLE_LOGGING=OFF
+cmake -DLINA_CORE_ENABLE_LOGGING=OFF
 
 # You can define multiple options sequentially.
-cmake -DLINA_ENABLE_LOGGING=OFF -DLINA_BUILD_SANDBOX=OFF
+cmake -DLINA_CORE_ENABLE_LOGGING=OFF -DLINA_CLIENT_ENABLE_LOGGING=OFF
 
 # It is recommended to declare the type of the option if multiple options are defined
-cmake -DLINA_ENABLE_LOGGING:BOOL=OFF -DLINA_BUILD_SANDBOX:BOOL=OFF -DCMAKE_CONFIGURATION_TYPES:STRING="Debug,Release"
+cmake -DLINA_CORE_ENABLE_LOGGING:BOOL=OFF -DLINA_CLIENT_ENABLE_LOGGING:BOOL=OFF -DCMAKE_CONFIGURATION_TYPES:STRING="Debug,Release"
 
 # Above commands will generate project files with default generator, you can specify a generator if you want.
-cmake -DLINA_ENABLE_LOGGING=OFF -G "Visual Studio 15 2017"
+cmake -DLINA_CORE_ENABLE_LOGGING=OFF -G "Visual Studio 15 2017"
 
 ```
 -  After generating project files you can either open your IDE and build the ALL_BUILD project which will build all the targets or you can build the binaries from shell.
@@ -112,38 +107,25 @@ cmake --build ../
 
 -  Choose the directory where the repository is as the source directory.
 -  Choose a build directory, this can be the same as the source directory or anywhere you like.
--  Hit configure, select the IDE you want to generate the project files for.
+-  Hit configure, select the IDE you want to generate the project files for and x64 architecture.
 -  Select options, you can leave them as default.
 -  Hit generate, this will generate the project files for your desired IDE.
-
-#### After project file generation
-
--  After generating files, as mentioned above, you can either build from Lina Engine Build Launcher, your operating system's shell or from your IDE.
--  If you choose to build from your IDE, run the project file generated in the root directory
--  Run the project file located in the root directory (or in the root of your output project file directory if you have specified one), Lina.*
--  The sandbox executable application target is automatically set as the startup project only in Visual Studio IDE if CMake 3.6 or above is used, and if you left the LINA_BUILD_SANDBOX option checked.
--  In any case, do not forget to check whether the sandbox target is the startup project in your IDE if you have generated it.
--  Build the BUILD_ALL project.
--  Now you can work on the sandbox project as well as the engine source code via your IDE.
-
-## Run
--  You can run through any attached debugger on your IDE.
--  Alternatively, you can navigate to bin/Debug/ or bin/Release/ (default directories specified in CMakeLists, if you have have built your binaries from shell and overriden output directory navigate there) depending on your configurations and run the binary outputs.
 
 ## Build Options
 
 | Option  | Description | Default |
 | ------------- | ------------- | ------------- |
-| BUILD_SHARED_LIBS  | Whether to build all dependency libraries as shared dynamic libraries instead of static if not explicitly stated.  | OFF  |
-| CMAKE_CONFIGURATION_TYPES  | Project configuration types for your IDE.  | Debug, Release, MinSizeRel, RelWithDebInfo  |
-| CMAKE_INSTALL_PREFIX  | Default installd directory for CMake install commands.  | depends on platform |
-| LINA_BUILD_SANDBOX  | Whether to build example executable sandbox application. | ON  |
-| LINA_ENABLE_LOGGING  | Whether to enable sink / terminal logging during runtime.  | ON |
-| OTHERS | There also exists a set of build options for GLAD and GLFW if OpenGL is used as graphics device. (currently by default it is) See the relative pages for information about those options in "Dependencies" above.  |  |
+| LINA_CLIENT_ENABLE_LOGGING  | Enables log features for client modules, like Sandbox.  | ON  |
+| LINA_CORE_ENABLE_LOGGING | Enables log features for core modules.  | ON |
+| LINA_ENABLE_EDITOR  | Enables the editor gui.  | ON |
+| LINA_ENABLE_TIMEPROFILING | If enabled, core Lina systems will record their execution durations which can be polled from anywhere to display profiling data. | ON  |
+| CMAKE_CONFIGURATION_TYPES | Config types that will be available on the IDE. | Debug, Release, MinSizeRel, RelWithDebInfo  
+  |
 
 ## License
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT) 
+Check out [Licence](LICENSE) file.
 
 ## Design Diagrams
 
