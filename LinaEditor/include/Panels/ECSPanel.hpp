@@ -61,7 +61,6 @@ namespace LinaEditor
 	private:
 
 		LinaEngine::ECS::ECSEntity m_selectedEntity;
-		std::vector<LinaEngine::ECS::ECSEntity> m_entityList;
 	};
 }
 

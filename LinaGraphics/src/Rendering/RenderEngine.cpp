@@ -158,15 +158,22 @@ namespace LinaEngine::Graphics
 			m_firstFrameDrawn = true;
 		}
 
+		//DrawOperationsDefault();
+
+	}
+
+	void RenderEngine::RenderLayers()
+	{
 		// Draw GUI Layers
 		for (Layer* layer : m_guiLayerStack)
 			layer->Render();
+	}
+
+	void RenderEngine::Swap()
+	{
 
 		// Update window.
 		m_appWindow->Tick();
-
-		//DrawOperationsDefault();
-
 	}
 
 	void RenderEngine::SetViewportDisplay(Vector2 pos, Vector2 size)

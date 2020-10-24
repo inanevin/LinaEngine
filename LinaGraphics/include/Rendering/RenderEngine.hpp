@@ -105,6 +105,8 @@ namespace LinaEngine::Graphics
 		void SetCurrentSLightCount(int count) { m_currentSpotLightCount = count; }
 		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn, Window& appWindow);
 		void Render();
+		void RenderLayers();
+		void Swap();
 
 		// Sets the viewport offset & display size
 		void SetViewportDisplay(Vector2 offset, Vector2 size);

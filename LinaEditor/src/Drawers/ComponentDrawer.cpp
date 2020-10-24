@@ -94,7 +94,7 @@ namespace LinaEditor
 		reg.on_destroy<SpotLightComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
 		reg.on_destroy<PointLightComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
 		reg.on_destroy<FreeLookComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
-		reg.on_destroy<MeshRendererComponent> ().connect<&ComponentDrawer::ComponentRemoved>(this);
+		reg.on_destroy<MeshRendererComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
 		reg.on_destroy<SpriteRendererComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
 	}
 
@@ -157,7 +157,10 @@ namespace LinaEditor
 
 		// Draw components.
 		for (int i = 0; i < m_componentDrawList.size(); i++)
-			std::get<2>(m_componentFunctionsMap[m_componentDrawList[i]])(ecs, entity);
+		{
+			if (std::get<2>(m_componentFunctionsMap[m_componentDrawList[i]]))
+				std::get<2>(m_componentFunctionsMap[m_componentDrawList[i]])(ecs, entity);
+		}
 	}
 
 	bool ComponentDrawer::DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor, const ImVec2& iconOffset)
@@ -227,7 +230,7 @@ namespace LinaEditor
 		ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 20);
 		return WidgetsUtility::IconButton(buf.c_str(), ICON_FA_TIMES, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
 	}
-	
+
 	void ComponentDrawer::ComponentRemoved(entt::registry&, entt::entity)
 	{
 		ClearDrawList();
@@ -266,7 +269,7 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 	// Remove if requested.
 	if (removeComponent)
 	{
-		ecs.remove<TransformComponent>(entity);	
+		ecs.remove<TransformComponent>(entity);
 		return;
 	}
 
@@ -281,22 +284,22 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 		float cursorPosLabels = CURSORPOS_X_LABELS;
 
-		ImGui::SetCursorPosX(cursorPosLabels); 
-		WidgetsUtility::AlignedText("Location"); 
+		ImGui::SetCursorPosX(cursorPosLabels);
+		WidgetsUtility::AlignedText("Location");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::DragFloat3("##loc", &transform.transform.m_location.x);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Rotation");
-		ImGui::SameLine(); 
-		ImGui::SetCursorPosX(cursorPosValues); 
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
 		WidgetsUtility::DragQuaternion("##rot", transform.transform.m_rotation);
 
-		ImGui::SetCursorPosX(cursorPosLabels); 
-		WidgetsUtility::AlignedText("Scale");	
-		ImGui::SameLine();	
-		ImGui::SetCursorPosX(cursorPosValues); 
+		ImGui::SetCursorPosX(cursorPosLabels);
+		WidgetsUtility::AlignedText("Scale");
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::DragFloat3("##scale", &transform.transform.m_scale.x);
 
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
@@ -364,15 +367,15 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 
 		}
 
-		ImGui::SetCursorPosX(cursorPosLabels); 
-		WidgetsUtility::AlignedText("Mass"); 
+		ImGui::SetCursorPosX(cursorPosLabels);
+		WidgetsUtility::AlignedText("Mass");
 		ImGui::SameLine();
-		ImGui::SetCursorPosX(cursorPosValues); 
+		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::DragFloat("##mass", &rb.m_mass);
 
 		if (rb.m_collisionShape == ECS::CollisionShape::BOX || rb.m_collisionShape == ECS::CollisionShape::Cylinder)
 		{
-			ImGui::SetCursorPosX(cursorPosLabels); 
+			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Half Extents");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
@@ -380,7 +383,7 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		}
 		else if (rb.m_collisionShape == ECS::CollisionShape::Sphere)
 		{
-			ImGui::SetCursorPosX(cursorPosLabels); 
+			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Radius");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
@@ -388,15 +391,15 @@ void LinaEngine::ECS::RigidbodyComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		}
 		else if (rb.m_collisionShape == ECS::CollisionShape::CAPSULE)
 		{
-			ImGui::SetCursorPosX(cursorPosLabels); 
+			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Radius");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::DragFloat("##radius", &rb.m_radius);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Height"); 
-			ImGui::SameLine(); 
+			WidgetsUtility::AlignedText("Height");
+			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::DragFloat("##height", &rb.m_capsuleHeight);
 		}
@@ -444,26 +447,26 @@ void LinaEngine::ECS::CameraComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRe
 		float cursorPosLabels = CURSORPOS_X_LABELS;
 		ImGui::SetCursorPosX(cursorPosLabels);
 
-		WidgetsUtility::AlignedText("Clear Color");	
-		ImGui::SameLine(); 
-		ImGui::SetCursorPosX(cursorPosValues); 
+		WidgetsUtility::AlignedText("Clear Color");
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
 		WidgetsUtility::ColorButton("##clrclr", &camera.m_clearColor.r);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Field of View");
 		ImGui::SameLine();
-		ImGui::SetCursorPosX(cursorPosValues); 
+		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::DragFloat("##fov", &camera.m_fieldOfView);
 
-		ImGui::SetCursorPosX(cursorPosLabels); 
+		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Near Plane");
-		ImGui::SameLine(); 
-		ImGui::SetCursorPosX(cursorPosValues); 
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::DragFloat("##zNear", &camera.m_zNear);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
-		WidgetsUtility::AlignedText("Far Plane");	
-		ImGui::SameLine(); 
+		WidgetsUtility::AlignedText("Far Plane");
+		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::DragFloat("##zFar", &camera.m_zFar);
 
@@ -506,15 +509,15 @@ void LinaEngine::ECS::DirectionalLightComponent::COMPONENT_DRAWFUNC(LinaEngine::
 		float cursorPosLabels = CURSORPOS_X_LABELS;
 		ImGui::SetCursorPosX(cursorPosLabels);
 
-		WidgetsUtility::AlignedText("Color");		
+		WidgetsUtility::AlignedText("Color");
 		ImGui::SameLine();
-		ImGui::SetCursorPosX(cursorPosValues); 
+		ImGui::SetCursorPosX(cursorPosValues);
 		WidgetsUtility::ColorButton("##dclr", &dLight.m_color.r);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
-		WidgetsUtility::AlignedText("Shadow Near Plane");	
+		WidgetsUtility::AlignedText("Shadow Near Plane");
 		ImGui::SameLine();
-		ImGui::SetCursorPosX(cursorPosValues); 
+		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::DragFloat("##szNear", &dLight.m_shadowZNear);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
@@ -523,10 +526,10 @@ void LinaEngine::ECS::DirectionalLightComponent::COMPONENT_DRAWFUNC(LinaEngine::
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::DragFloat("##szFar", &dLight.m_shadowZFar);
 
-		ImGui::SetCursorPosX(cursorPosLabels); 
+		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Shadow Projection");
 		ImGui::SameLine();
-		ImGui::SetCursorPosX(cursorPosValues); 
+		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::DragFloat4("##sproj", &dLight.m_shadowOrthoProjection.x);
 
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
@@ -569,14 +572,14 @@ void LinaEngine::ECS::PointLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::E
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Color");
-		ImGui::SameLine(); 
-		ImGui::SetCursorPosX(cursorPosValues); 
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
 		WidgetsUtility::ColorButton("##pclr", &pLight.m_color.r);
 
-		ImGui::SetCursorPosX(cursorPosLabels); 
+		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Distance");
 		ImGui::SameLine();
-		ImGui::SetCursorPosX(cursorPosValues); 
+		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::DragFloat("##pldist", &pLight.m_distance);
 
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
@@ -617,28 +620,28 @@ void LinaEngine::ECS::SpotLightComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 		float cursorPosLabels = CURSORPOS_X_LABELS;
 
-		ImGui::SetCursorPosX(cursorPosLabels); 
-		WidgetsUtility::AlignedText("Color");	
+		ImGui::SetCursorPosX(cursorPosLabels);
+		WidgetsUtility::AlignedText("Color");
 		ImGui::SameLine();
-		ImGui::SetCursorPosX(cursorPosValues); 
+		ImGui::SetCursorPosX(cursorPosValues);
 		WidgetsUtility::ColorButton("##sclr", &sLight.m_color.r);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
-		WidgetsUtility::AlignedText("Distance");	
+		WidgetsUtility::AlignedText("Distance");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::DragFloat("##sldist", &sLight.m_distance);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
-		WidgetsUtility::AlignedText("Cutoff");	
-		ImGui::SameLine(); 
-		ImGui::SetCursorPosX(cursorPosValues); 
+		WidgetsUtility::AlignedText("Cutoff");
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::DragFloat("##cutOff", &sLight.m_cutoff);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
-		WidgetsUtility::AlignedText("Outer Cutoff");	
-		ImGui::SameLine(); 
-		ImGui::SetCursorPosX(cursorPosValues); 
+		WidgetsUtility::AlignedText("Outer Cutoff");
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::DragFloat("##outerCutOff", &sLight.m_outerCutoff);
 
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
@@ -678,17 +681,17 @@ void LinaEngine::ECS::FreeLookComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECS
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 		float cursorPosLabels = CURSORPOS_X_LABELS;
-		ImGui::SetCursorPosX(cursorPosLabels); 
+		ImGui::SetCursorPosX(cursorPosLabels);
 
-		WidgetsUtility::AlignedText("Movement Speeds");	
-		ImGui::SameLine(); 
-		ImGui::SetCursorPosX(cursorPosValues); 
+		WidgetsUtility::AlignedText("Movement Speeds");
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::DragFloat2("##ms", &freeLook.m_movementSpeeds.x);
 
-		ImGui::SetCursorPosX(cursorPosLabels); 
+		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Rotation Speeds");
-		ImGui::SameLine(); 
-		ImGui::SetCursorPosX(cursorPosValues); 
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::DragFloat2("##rs", &freeLook.m_rotationSpeeds.x);
 
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
@@ -729,29 +732,29 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 		float cursorPosLabels = CURSORPOS_X_LABELS;
-		
+
 		// Mesh selection
 		if (renderEngine.MeshExists(renderer.m_meshID))
 		{
 			renderer.m_selectedMeshPath = renderer.m_meshPath;
 			renderer.m_selectedMeshID = renderer.m_meshID;
 		}
-		
+
 		char meshPathC[128] = "";
 		strcpy(meshPathC, renderer.m_selectedMeshPath.c_str());
-		
-		ImGui::SetCursorPosX(cursorPosLabels); 
+
+		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Mesh");
-		ImGui::SameLine(); 
-		ImGui::SetCursorPosX(cursorPosValues); 
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
 		ImGui::InputText("##selectedMesh", meshPathC, IM_ARRAYSIZE(meshPathC), ImGuiInputTextFlags_ReadOnly);
-		ImGui::SameLine(); 
+		ImGui::SameLine();
 		WidgetsUtility::IncrementCursorPosY(5);
-		
+
 		if (WidgetsUtility::IconButton("##selectmesh", ICON_FA_PLUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 			ImGui::OpenPopup("Select Mesh");
-		
+
 		bool meshPopupOpen = true;
 		WidgetsUtility::FramePaddingY(8);
 		WidgetsUtility::FramePaddingX(4);
@@ -763,20 +766,20 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 			ImGui::EndPopup();
 		}
 		WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
-		
+
 		renderer.m_meshID = renderer.m_selectedMeshID;
 		renderer.m_meshPath = renderer.m_selectedMeshPath;
-		
+
 		// Material selection
 		if (renderEngine.MaterialExists(renderer.m_materialID))
 		{
 			renderer.m_selectedMatID = renderer.m_materialID;
 			renderer.m_selectedMatPath = renderer.m_materialPath;
 		}
-		
+
 		char matPathC[128] = "";
 		strcpy(matPathC, renderer.m_selectedMatPath.c_str());
-		
+
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Material");
 		ImGui::SameLine();
@@ -785,10 +788,10 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		ImGui::InputText("##selectedMat", matPathC, IM_ARRAYSIZE(matPathC), ImGuiInputTextFlags_ReadOnly);
 		ImGui::SameLine();
 		WidgetsUtility::IncrementCursorPosY(5);
-		
+
 		if (WidgetsUtility::IconButton("##selectmat", ICON_FA_PLUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 			ImGui::OpenPopup("Select Material");
-		
+
 		bool materialPopupOpen = true;
 		WidgetsUtility::FramePaddingY(8);
 		WidgetsUtility::FramePaddingX(4);
@@ -800,10 +803,10 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 			ImGui::EndPopup();
 		}
 		WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
-		
+
 		renderer.m_materialID = renderer.m_selectedMatID;
 		renderer.m_materialPath = renderer.m_selectedMatPath;
-		
+
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 	}
 
@@ -842,7 +845,7 @@ void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::EC
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 		float cursorPosLabels = CURSORPOS_X_LABELS;
-		
+
 		// Material selection
 		if (renderEngine.MaterialExists(renderer.m_materialID))
 		{
@@ -864,7 +867,7 @@ void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::EC
 
 		if (WidgetsUtility::IconButton("##selectspritemat", ICON_FA_PLUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 			ImGui::OpenPopup("Select Sprite Material");
-		
+
 		bool materialPopupOpen = true;
 		WidgetsUtility::FramePaddingY(8);
 		WidgetsUtility::FramePaddingX(4);
@@ -879,7 +882,7 @@ void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::EC
 
 		renderer.m_materialID = renderer.m_selectedMatID;
 		renderer.m_materialPath = renderer.m_selectedMatPath;
-		
+
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 	}
 

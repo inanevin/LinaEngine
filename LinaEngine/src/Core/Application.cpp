@@ -199,6 +199,9 @@ namespace LinaEngine
 				// render level.
 				if (m_activeLevelExists)
 					s_renderEngine->Render();
+
+				s_renderEngine->RenderLayers();
+				s_renderEngine->Swap();
 			}
 
 			LINA_TIMER_STOP("Render");

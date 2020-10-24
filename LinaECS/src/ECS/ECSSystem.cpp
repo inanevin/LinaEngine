@@ -48,9 +48,7 @@ namespace LinaEngine::ECS
 	entt::entity ECSRegistry::CreateEntity(const std::string& name)
 	{
 		entt::entity ent = create();
-		ECSEntityData data;
-		data.m_name = name;
-		emplace<ECSEntityData>(ent, data);
+		emplace<ECSEntityData>(ent, ECSEntityData {false, false, name} );
 		return ent;
 	}
 

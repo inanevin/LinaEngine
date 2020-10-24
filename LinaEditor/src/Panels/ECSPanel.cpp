@@ -46,15 +46,8 @@ namespace LinaEditor
 
 	void ECSPanel::Refresh()
 	{
-		m_entityList.clear();
 		m_selectedEntity = entt::null;
 		EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
-
-		// add scene entitites to the list.
-		LinaEngine::Application::GetECSRegistry().each([this](auto entity)
-			{
-				m_entityList.push_back(entity);
-			});
 	}
 
 	void ECSPanel::Draw()
@@ -84,7 +77,7 @@ namespace LinaEditor
 					if (ImGui::BeginMenu("Create"))
 					{
 						if (ImGui::MenuItem("Entity"))
-							m_entityList.push_back(ecs.CreateEntity("Entity"));
+							ecs.CreateEntity("Entity");
 
 						ImGui::EndMenu();
 					}
@@ -95,20 +88,21 @@ namespace LinaEditor
 
 				int entityCounter = 0;
 
+				auto singleView = ecs.view<LinaEngine::ECS::ECSEntityData>();
 
-				for (std::vector<ECSEntity>::iterator it = m_entityList.begin(); it != m_entityList.end(); ++it)
+				for (auto entity : singleView)
 				{
 					WidgetsUtility::IncrementCursorPos(ImVec2(11, 11));
 
 					// Selection
 					entityCounter++;
-					ECSEntity& entity = *it;
-					strcpy(selectedEntityName, ecs.get<LinaEngine::ECS::ECSEntityData>(m_selectedEntity).m_name.c_str());
+					LinaEngine::ECS::ECSEntityData& data = singleView.get<LinaEngine::ECS::ECSEntityData>(entity);
+					strcpy(selectedEntityName, data.m_name.c_str());
 					if (WidgetsUtility::SelectableInput("entSelectable" + entityCounter, m_selectedEntity == entity, ImGuiSelectableFlags_SelectOnClick, selectedEntityName, IM_ARRAYSIZE(selectedEntityName)))
 					{
 						m_selectedEntity = entity;
 						EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, entity);
-						ecs.get<LinaEngine::ECS::ECSEntityData>(m_selectedEntity).m_name = selectedEntityName;
+						data.m_name = selectedEntityName;
 					}
 
 					// Deselect.
@@ -118,6 +112,7 @@ namespace LinaEditor
 						m_selectedEntity = entt::null;
 					}
 				}
+	
 
 			}
 
