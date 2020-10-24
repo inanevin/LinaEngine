@@ -60,11 +60,16 @@ namespace LinaEditor
 		
 	public:
 		
-		TextureDrawer() {};
+		TextureDrawer();
 		~TextureDrawer() {};
 	
 		void SetSelectedTexture(LinaEngine::Graphics::Texture* texture);
 		void DrawSelectedTexture();
+	
+
+	private:
+
+		void TextureReimported(std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*> textures);
 		int GetSamplerFilterID(LinaEngine::Graphics::SamplerFilter filter);
 		int GetWrapModeID(LinaEngine::Graphics::SamplerWrapMode wrapMode);
 		LinaEngine::Graphics::SamplerFilter GetSamplerFilterFromID(int id);

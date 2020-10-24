@@ -119,6 +119,7 @@ namespace LinaEditor
 		FileType GetFileType(std::string& extension);
 		void TextureReimported(std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*> textures);
 		bool VerifyMaterialFiles(EditorFolder& folder, std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*> textures);
+
 	private:
 
 		std::vector<EditorFolder> m_resourceFolders;
