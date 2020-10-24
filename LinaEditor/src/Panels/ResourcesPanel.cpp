@@ -52,6 +52,15 @@ namespace LinaEditor
 	static EditorFile* s_selectedFile;
 	static EditorFolder* s_selectedFolder;
 
+
+	static ImVec4 s_highlightColor;
+	static ImVec4 s_fileNameColor;
+	static ImVec4 s_usedFileNameColor;;
+	static bool s_highlightColorSet;
+	static float s_colorLerpTimestamp;
+	static float s_colorLerpDuration = 1.0f;
+	static float s_colorLerpItemID;
+
 	void ResourcesPanel::Setup()
 	{
 		LinaEditor::EditorApplication::GetEditorDispatcher().SubscribeAction<std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*>>("##mrsr_textureReimport", LinaEngine::Action::ActionType::TextureReimported,
@@ -61,6 +70,10 @@ namespace LinaEditor
 			std::bind(&ResourcesPanel::MaterialTextureSelected, this, std::placeholders::_1));
 
 		ScanRoot();
+
+		s_highlightColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
+		s_fileNameColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+		s_usedFileNameColor = s_fileNameColor;
 	}
 
 
@@ -245,15 +258,14 @@ namespace LinaEditor
 			}
 
 			ImGuiTreeNodeFlags folderFlags = (it->second).m_id == s_selectedItem ? folderFlagsSelected : folderFlagsNotSelected;
-			std::string id = "##" + (it->second).m_name;
 
 			if (it->second.m_markedForForceOpen)
 			{
-				LINA_CLIENT_TRACE("Force opening {0}", it->second.m_name);
 				ImGui::SetNextItemOpen(true);
 				it->second.m_markedForForceOpen = false;
 			}
 
+			std::string id = "##" + (it->second).m_name;
 			bool nodeOpen = ImGui::TreeNodeEx(id.c_str(), folderFlags);
 			ImGui::SameLine();  WidgetsUtility::IncrementCursorPosY(5);
 			WidgetsUtility::Icon(ICON_FA_FOLDER, 0.7f, ImVec4(0.9f, 0.83f, 0.0f, 1.0f));
@@ -300,11 +312,39 @@ namespace LinaEditor
 
 			ImGuiTreeNodeFlags fileFlags = it->second.m_id == s_selectedItem ? fileNodeFlagsSelected : fileNodeFlagsNotSelected;
 
+			// Highlight.
 			if (it->second.m_markedForHighlight)
 			{
 				it->second.m_markedForHighlight = false;
-				// highlight.
+				s_usedFileNameColor = s_highlightColor;
+				s_highlightColorSet = true;
+				s_colorLerpItemID = it->second.m_id;
+				s_colorLerpTimestamp = ImGui::GetTime();
 			}
+
+			if (s_highlightColorSet)
+			{
+				float t = ImGui::GetTime() - s_colorLerpTimestamp;
+				float remapped = Math::Remap(t, 0.0f, s_colorLerpDuration, 0.0f, 1.0f);
+
+				s_usedFileNameColor.x = Math::Lerp(s_highlightColor.x, s_fileNameColor.x, remapped);
+				s_usedFileNameColor.y = Math::Lerp(s_highlightColor.y, s_fileNameColor.y, remapped);
+				s_usedFileNameColor.z = Math::Lerp(s_highlightColor.z, s_fileNameColor.z, remapped);
+				s_usedFileNameColor.w = Math::Lerp(s_highlightColor.w, s_fileNameColor.w, remapped);
+
+				LINA_CORE_TRACE("{0}  {1}", t, remapped);
+				if (t > s_colorLerpDuration - 0.1f)
+				{
+					s_highlightColorSet = false;
+					s_usedFileNameColor = s_fileNameColor;
+				}
+			}
+
+			if (it->second.m_id == s_colorLerpItemID)
+				ImGui::PushStyleColor(ImGuiCol_Text, s_usedFileNameColor);
+			else
+				ImGui::PushStyleColor(ImGuiCol_Text, s_fileNameColor);
+
 
 			bool nodeOpen = ImGui::TreeNodeEx(it->second.m_name.c_str(), fileFlags);
 
@@ -322,6 +362,7 @@ namespace LinaEditor
 				}
 			}
 
+			ImGui::PopStyleColor();
 
 			// Click.
 			if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
@@ -413,11 +454,11 @@ namespace LinaEditor
 				{
 					LinaEngine::Graphics::MeshParameters meshParams;
 					std::string meshParamsPath = file.m_pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.m_name) + ".meshparams";
-					 
+
 					if (LinaEngine::Utility::FileExists(meshParamsPath))
 						meshParams = LinaEngine::Graphics::Mesh::LoadParameters(meshParamsPath);
 
-					renderEngine.CreateMesh(file.m_path, meshParams, -1 ,meshParamsPath);
+					renderEngine.CreateMesh(file.m_path, meshParams, -1, meshParamsPath);
 
 					LinaEngine::Graphics::Mesh::SaveParameters(meshParamsPath, meshParams);
 				}
@@ -486,14 +527,11 @@ namespace LinaEditor
 				{
 					file.second.m_markedForHighlight = true;
 					folder.m_markedForForceOpen = true;
-					LINA_CLIENT_TRACE("Marked for force open {0}", folder.m_name);
 
 					EditorFolder* parent = folder.m_parent;
-
 					while (parent != nullptr)
 					{
 						parent->m_markedForForceOpen = true;
-						LINA_CLIENT_TRACE("Marked for force open {0}", parent->m_name);
 
 						parent = parent->m_parent;
 					}
@@ -551,7 +589,7 @@ namespace LinaEditor
 						return true;
 					}
 				}
-							
+
 			}
 		}
 
