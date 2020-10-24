@@ -137,7 +137,8 @@ namespace LinaEditor
 			if (logoAnimRatio < 0.99f)
 			{
 				logoAnimRatio = Math::Lerp(logoAnimRatio, 1.0f, LinaEngine::Application::GetApp().GetFrameTime() * logoAnimSpeed);
-				int logoAnimIndex = (int)Math::Remap(logoAnimRatio, 0.0f, 1.0f, 0.0f, (float)HEADER_LINALOGO_ANIMSIZE);
+				logoAnimRatio = Math::Clamp(logoAnimRatio, 0.0f, 1.0f);
+				int logoAnimIndex = (int)Math::Remap(logoAnimRatio, 0.0f, 1.0f, 0.0f, (float)HEADER_LINALOGO_ANIMSIZE - 1);
 				linaLogoID = linaLogoAnimation[logoAnimIndex]->GetID();
 			}
 			else
