@@ -54,7 +54,9 @@ namespace LinaEditor
 
 		EditorApplication::GetEditorDispatcher().SubscribeAction<void*>("##lina_scenePanel_unselect", LinaEngine::Action::ActionType::Unselect,
 			std::bind(&ScenePanel::Unselected, this));
-	}
+
+		LinaEngine::Application::GetECSRegistry().on_construct<LinaEngine::ECS::TransformComponent>().connect<&ScenePanel::OnTransformAdded>(this);
+	}		
 
 	void ScenePanel::Draw()
 	{
@@ -181,6 +183,11 @@ namespace LinaEditor
 
 		// ImGuizmo::DrawGrid(&view[0][0], &projection[0][0], &gridLineMatrix[0][0], GRID_SIZE);
 
+	}
+
+	void ScenePanel::OnTransformAdded(entt::registry& reg, entt::entity e)
+	{
+		m_selectedTransform = &reg.get<LinaEngine::ECS::TransformComponent>(e);
 	}
 
 }

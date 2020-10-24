@@ -79,6 +79,7 @@ namespace LinaEditor
 		void ProcessInput();
 		void DrawGizmos();
 		void SetDrawMode(DrawMode mode) { m_drawMode = mode; }
+		void OnTransformAdded(entt::registry&, entt::entity);
 
 	private:
 
