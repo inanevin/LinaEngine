@@ -158,8 +158,9 @@ namespace LinaEditor
 		// Draw components.
 		for (int i = 0; i < m_componentDrawList.size(); i++)
 		{
-			if (std::get<2>(m_componentFunctionsMap[m_componentDrawList[i]]))
-				std::get<2>(m_componentFunctionsMap[m_componentDrawList[i]])(ecs, entity);
+			auto func = std::get<2>(m_componentFunctionsMap[m_componentDrawList[i]]);
+			if (func)
+				func(ecs, entity);
 		}
 	}
 

@@ -41,6 +41,8 @@ using namespace LinaEngine::ECS;
 
 namespace LinaEditor
 {
+#define EDITOR_CAMERA_NAME "Editor Camera"
+
 	LinaEngine::Action::ActionDispatcher EditorApplication::s_editorDispatcher;
 
 	EditorApplication::EditorApplication()
@@ -76,7 +78,6 @@ namespace LinaEditor
 		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::World::Level*>("##linaeditor_level_init", LinaEngine::Action::ActionType::LevelInitialized,
 			std::bind(&EditorApplication::LevelInstalled, this, std::placeholders::_1));
 
-		LinaEngine::Application::GetApp().AddToMainPipeline(m_freeLookSystem);
 
 
 
@@ -90,16 +91,35 @@ namespace LinaEditor
 	void EditorApplication::LevelInstalled(LinaEngine::World::Level* level)
 	{
 		ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
-		ECSEntity editorCamera = ecs.CreateEntity("Editor Camera");
-		TransformComponent cameraTransform;
-		CameraComponent cameraComponent;
-		FreeLookComponent freeLookComponent;
-		ecs.emplace<TransformComponent>(editorCamera, cameraTransform);
-		ecs.emplace<CameraComponent>(editorCamera, cameraComponent);
-		ecs.emplace<FreeLookComponent>(editorCamera, freeLookComponent);
-		m_freeLookSystem.Construct(ecs, LinaEngine::Application::GetInputEngine());
-		m_freeLookSystem.SystemActivation(true);
-		Refresh();
+
+		auto singleView = ecs.view<LinaEngine::ECS::ECSEntityData>();
+
+		bool editorCameraExists = false;
+
+		for (auto entity : singleView)
+		{
+			if (singleView.get<LinaEngine::ECS::ECSEntityData>(entity).m_name.compare(EDITOR_CAMERA_NAME) == 0)
+			{
+				editorCameraExists = true;
+				break;
+			}
+		}
+
+		if(!editorCameraExists)
+		{
+			ECSEntity editorCamera = ecs.CreateEntity(EDITOR_CAMERA_NAME);
+			TransformComponent cameraTransform;
+			CameraComponent cameraComponent;
+			FreeLookComponent freeLookComponent;
+			ecs.emplace<TransformComponent>(editorCamera, cameraTransform);
+			ecs.emplace<CameraComponent>(editorCamera, cameraComponent);
+			ecs.emplace<FreeLookComponent>(editorCamera, freeLookComponent);
+			m_freeLookSystem.Construct(ecs, LinaEngine::Application::GetInputEngine());
+			m_freeLookSystem.SystemActivation(true);
+			LinaEngine::Application::GetApp().AddToMainPipeline(m_freeLookSystem);
+			Refresh();
+		}
+		
 	}
 
 
