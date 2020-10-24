@@ -69,6 +69,7 @@ namespace LinaEngine::Action
 
 		// Editor actions
 		TextureSelected,
+		MaterialTextureSelected,
 		TextureReimported,
 		EntitySelected,
 		MaterialSelected,

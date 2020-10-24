@@ -67,13 +67,14 @@ namespace LinaEditor
 
 	struct EditorFile
 	{
-		std::string name;
-		std::string extension;
-		std::string path;
-		std::string pathToFolder;
-		FileType type;
-		int id;
-		bool markedForErase = false;
+		std::string m_name;
+		std::string m_extension;
+		std::string m_path;
+		std::string m_pathToFolder;
+		FileType m_type;
+		int m_id;
+		bool m_markedForErase = false;
+		bool m_markedForHighlight = false;
 	};
 
 
@@ -84,11 +85,12 @@ namespace LinaEditor
 		EditorFolder() {};
 		~EditorFolder() {};
 		std::string m_path = "";
-		std::string name = "";
+		std::string m_name = "";
 		std::map<int, EditorFolder> m_subFolders;
 		std::map<int, EditorFile> m_files;
 		int m_id = 0;
 		bool m_markedForErase = false;
+		bool m_markedForForceOpen = false;
 		EditorFolder* m_parent = nullptr;
 	};
 
@@ -116,7 +118,9 @@ namespace LinaEditor
 		void LoadFolderDependencies(EditorFolder& folder);
 		void UnloadFileResource(EditorFile& file);
 		void UnloadFileResourcesInFolder(EditorFolder& folder);
+		void ExpandFileResource(const std::string& path);
 		FileType GetFileType(std::string& extension);
+		void MaterialTextureSelected(LinaEngine::Graphics::Texture* texture);
 		void TextureReimported(std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*> textures);
 		bool VerifyMaterialFiles(EditorFolder& folder, std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*> textures);
 

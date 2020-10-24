@@ -367,7 +367,17 @@ namespace LinaEditor
 				ImVec2 maxTexture = ImVec2(minTexture.x + 65, minTexture.y + 65);
 
 				if (it->second.m_boundTexture != nullptr)
+				{
 					ImGui::GetWindowDrawList()->AddImage((void*)it->second.m_boundTexture->GetID(), minTexture, maxTexture, ImVec2(0, 1), ImVec2(1, 0));
+
+					if (ImGui::IsMouseHoveringRect(minTexture, maxTexture) && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+					{
+						LinaEditor::EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Texture*>(LinaEngine::Action::ActionType::MaterialTextureSelected, it->second.m_boundTexture);
+					}
+				}
+
+
+				
 
 				WidgetsUtility::IncrementCursorPosY(80);
 				WidgetsUtility::PopStyleVar();

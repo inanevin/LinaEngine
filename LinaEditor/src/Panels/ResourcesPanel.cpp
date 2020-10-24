@@ -57,6 +57,9 @@ namespace LinaEditor
 		LinaEditor::EditorApplication::GetEditorDispatcher().SubscribeAction<std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*>>("##mrsr_textureReimport", LinaEngine::Action::ActionType::TextureReimported,
 			std::bind(&ResourcesPanel::TextureReimported, this, std::placeholders::_1));
 
+		LinaEditor::EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::Graphics::Texture*>("##mrsr_matTextureSelected", LinaEngine::Action::ActionType::MaterialTextureSelected,
+			std::bind(&ResourcesPanel::MaterialTextureSelected, this, std::placeholders::_1));
+
 		ScanRoot();
 	}
 
@@ -79,7 +82,6 @@ namespace LinaEditor
 		}
 	}
 
-
 	void ResourcesPanel::DrawContent()
 	{
 		std::string rootPath = s_hoveredFolder == nullptr ? "resources" : s_hoveredFolder->m_path;
@@ -96,7 +98,7 @@ namespace LinaEditor
 					EditorUtility::CreateFolderInPath(folderPath);
 					EditorFolder folder;
 					folder.m_path = folderPath;
-					folder.name = "NewFolder" + std::to_string(s_itemIDCounter);
+					folder.m_name = "NewFolder" + std::to_string(s_itemIDCounter);
 					folder.m_id = s_itemIDCounter;
 
 					if (s_hoveredFolder != nullptr)
@@ -115,20 +117,20 @@ namespace LinaEditor
 					std::string materialPath = rootPath + "/" + name;
 
 					EditorFile file;
-					file.path = materialPath;
-					file.pathToFolder = rootPath + "/";
-					file.name = name;
-					file.extension = "mat";
-					file.type = FileType::Material;
-					file.id = ++s_itemIDCounter;
+					file.m_path = materialPath;
+					file.m_pathToFolder = rootPath + "/";
+					file.m_name = name;
+					file.m_extension = "mat";
+					file.m_type = FileType::Material;
+					file.m_id = ++s_itemIDCounter;
 
-					Graphics::Material& m = LinaEngine::Application::GetRenderEngine().CreateMaterial(Graphics::Shaders::Standard_Unlit, file.path);
+					Graphics::Material& m = LinaEngine::Application::GetRenderEngine().CreateMaterial(Graphics::Shaders::Standard_Unlit, file.m_path);
 					Graphics::Material::SaveMaterialData(m, materialPath);
 
 					if (s_hoveredFolder != nullptr)
-						s_hoveredFolder->m_files[file.id] = file;
+						s_hoveredFolder->m_files[file.m_id] = file;
 					else
-						m_resourceFolders[0].m_files[file.id] = file;
+						m_resourceFolders[0].m_files[file.m_id] = file;
 				}
 
 				ImGui::EndMenu();
@@ -142,7 +144,7 @@ namespace LinaEditor
 	{
 		// Create root.
 		EditorFolder root;
-		root.name = ROOT_NAME;
+		root.m_name = ROOT_NAME;
 		root.m_path = "resources";
 		m_resourceFolders.push_back(root);
 
@@ -164,23 +166,23 @@ namespace LinaEditor
 			{
 				// Is a file
 				EditorFile file;
-				file.name = entry.path().filename().string();
-				file.pathToFolder = entry.path().parent_path().string() + "/";
+				file.m_name = entry.path().filename().string();
+				file.m_pathToFolder = entry.path().parent_path().string() + "/";
 				std::string replacedPath = entry.path().relative_path().string();
 				std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
-				file.path = replacedPath;
-				file.extension = file.name.substr(file.name.find(".") + 1);
-				file.type = GetFileType(file.extension);
-				file.id = ++s_itemIDCounter;
+				file.m_path = replacedPath;
+				file.m_extension = file.m_name.substr(file.m_name.find(".") + 1);
+				file.m_type = GetFileType(file.m_extension);
+				file.m_id = ++s_itemIDCounter;
 
 				// Add to the folder data.
-				root.m_files[file.id] = file;
+				root.m_files[file.m_id] = file;
 			}
 			else
 			{
 				// Is a folder
 				EditorFolder folder;
-				folder.name = entry.path().filename().string();
+				folder.m_name = entry.path().filename().string();
 				std::string replacedPath = entry.path().relative_path().string();
 				std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
 				folder.m_path = replacedPath;
@@ -209,19 +211,15 @@ namespace LinaEditor
 
 		if (!isRoot)
 			WidgetsUtility::IncrementCursorPosY(-11);
-		else
-		{
 
-
-		}
 
 		// Draw folders.
 		for (std::map<int, EditorFolder>::iterator it = folder.m_subFolders.begin(); it != folder.m_subFolders.end();)
 		{
 			// Skip drawing if internal folders.
-			if (it->second.m_parent != nullptr && it->second.m_parent->name.compare(ROOT_NAME) == 0)
+			if (it->second.m_parent != nullptr && it->second.m_parent->m_name.compare(ROOT_NAME) == 0)
 			{
-				if (it->second.name.compare("engine") == 0 || it->second.name.compare("editor") == 0)
+				if (it->second.m_name.compare("engine") == 0 || it->second.m_name.compare("editor") == 0)
 				{
 					it++;
 					continue;
@@ -246,12 +244,12 @@ namespace LinaEditor
 			}
 
 			ImGuiTreeNodeFlags folderFlags = (it->second).m_id == s_selectedItem ? folderFlagsSelected : folderFlagsNotSelected;
-			std::string id = "##" + (it->second).name;
+			std::string id = "##" + (it->second).m_name;
 			bool nodeOpen = ImGui::TreeNodeEx(id.c_str(), folderFlags);
 			ImGui::SameLine();  WidgetsUtility::IncrementCursorPosY(5);
 			WidgetsUtility::Icon(ICON_FA_FOLDER, 0.7f, ImVec4(0.9f, 0.83f, 0.0f, 1.0f));
 			ImGui::SameLine(); WidgetsUtility::IncrementCursorPosX(3); WidgetsUtility::IncrementCursorPosY(-5);
-			ImGui::Text((it->second).name.c_str());
+			ImGui::Text((it->second).m_name.c_str());
 
 			// Click
 			if (ImGui::IsItemClicked())
@@ -280,10 +278,10 @@ namespace LinaEditor
 		for (std::map<int, EditorFile>::iterator it = folder.m_files.begin(); it != folder.m_files.end();)
 		{
 			WidgetsUtility::IncrementCursorPosX(-9);
-			if (it->second.markedForErase)
+			if (it->second.m_markedForErase)
 			{
 				// Delete directory.
-				EditorUtility::DeleteDirectory(it->second.path);
+				EditorUtility::DeleteDirectory(it->second.m_path);
 
 				// Unload the resources & erase.
 				UnloadFileResource(it->second);
@@ -291,15 +289,15 @@ namespace LinaEditor
 				continue;
 			}
 
-			ImGuiTreeNodeFlags fileFlags = it->second.id == s_selectedItem ? fileNodeFlagsSelected : fileNodeFlagsNotSelected;
-			bool nodeOpen = ImGui::TreeNodeEx(it->second.name.c_str(), fileFlags);
+			ImGuiTreeNodeFlags fileFlags = it->second.m_id == s_selectedItem ? fileNodeFlagsSelected : fileNodeFlagsNotSelected;
+			bool nodeOpen = ImGui::TreeNodeEx(it->second.m_name.c_str(), fileFlags);
 
-			if (it->second.type == FileType::Texture2D)
+			if (it->second.m_type == FileType::Texture2D)
 			{
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 				{
 					// Set payload to carry the texture;
-					uint32 id = LinaEngine::Application::GetRenderEngine().GetTexture(it->second.path).GetID();
+					uint32 id = LinaEngine::Application::GetRenderEngine().GetTexture(it->second.m_path).GetID();
 					ImGui::SetDragDropPayload(RESOURCES_MOVETEXTURE_ID, &id, sizeof(uint32));
 
 					// Display preview 
@@ -312,17 +310,17 @@ namespace LinaEditor
 			// Click.
 			if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
 			{
-				s_selectedItem = it->second.id;
+				s_selectedItem = it->second.m_id;
 				s_selectedFolder = nullptr;
 				s_selectedFile = &it->second;
 
 				// Notify properties panel of file selection.
-				if (it->second.type == FileType::Texture2D)
-					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Texture*>(LinaEngine::Action::ActionType::TextureSelected, &LinaEngine::Application::GetRenderEngine().GetTexture(it->second.path));
-				else if (it->second.type == FileType::Mesh)
-					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Mesh*>(LinaEngine::Action::ActionType::MeshSelected, &LinaEngine::Application::GetRenderEngine().GetMesh(it->second.path));
-				else if (it->second.type == FileType::Material)
-					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Material*>(LinaEngine::Action::ActionType::MaterialSelected, &LinaEngine::Application::GetRenderEngine().GetMaterial(it->second.path));
+				if (it->second.m_type == FileType::Texture2D)
+					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Texture*>(LinaEngine::Action::ActionType::TextureSelected, &LinaEngine::Application::GetRenderEngine().GetTexture(it->second.m_path));
+				else if (it->second.m_type == FileType::Mesh)
+					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Mesh*>(LinaEngine::Action::ActionType::MeshSelected, &LinaEngine::Application::GetRenderEngine().GetMesh(it->second.m_path));
+				else if (it->second.m_type == FileType::Material)
+					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Material*>(LinaEngine::Action::ActionType::MaterialSelected, &LinaEngine::Application::GetRenderEngine().GetMaterial(it->second.m_path));
 			}
 
 			if (nodeOpen)
@@ -345,7 +343,7 @@ namespace LinaEditor
 			if (s_selectedFolder != nullptr)
 				s_selectedFolder->m_markedForErase = true;
 			if (s_selectedFile != nullptr)
-				s_selectedFile->markedForErase = true;
+				s_selectedFile->m_markedForErase = true;
 
 			// Deselect
 			EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
@@ -366,44 +364,44 @@ namespace LinaEditor
 			EditorFile& file = it->second;
 
 			// SKIP FOR NOW BC WE NEED TO MAKE SURE WE HANDLE BOTH ENGINE CREATION & EDITOR CREATION
-			if (file.type == FileType::Texture2D)
+			if (file.m_type == FileType::Texture2D)
 			{
-				bool textureExists = renderEngine.TextureExists(file.path);
+				bool textureExists = renderEngine.TextureExists(file.m_path);
 
 				if (!textureExists)
 				{
 					LinaEngine::Graphics::SamplerParameters samplerParams;
-					std::string samplerParamsPath = file.pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.name) + ".samplerparams";
+					std::string samplerParamsPath = file.m_pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.m_name) + ".samplerparams";
 
 					if (LinaEngine::Utility::FileExists(samplerParamsPath))
 						samplerParams = LinaEngine::Graphics::Texture::LoadParameters(samplerParamsPath);
 
-					renderEngine.CreateTexture2D(file.path, samplerParams, false, false, samplerParamsPath);
+					renderEngine.CreateTexture2D(file.m_path, samplerParams, false, false, samplerParamsPath);
 
 					LinaEngine::Graphics::Texture::SaveParameters(samplerParamsPath, samplerParams);
 				}
 
 			}
-			if (file.type == FileType::Material)
+			if (file.m_type == FileType::Material)
 			{
-				bool materialExists = renderEngine.MaterialExists(file.path);
+				bool materialExists = renderEngine.MaterialExists(file.m_path);
 				if (!materialExists)
-					renderEngine.LoadMaterialFromFile(file.path);
+					renderEngine.LoadMaterialFromFile(file.m_path);
 
 			}
-			else if (file.type == FileType::Mesh)
+			else if (file.m_type == FileType::Mesh)
 			{
-				bool meshExists = renderEngine.MeshExists(file.path);
+				bool meshExists = renderEngine.MeshExists(file.m_path);
 
 				if (!meshExists)
 				{
 					LinaEngine::Graphics::MeshParameters meshParams;
-					std::string meshParamsPath = file.pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.name) + ".meshparams";
+					std::string meshParamsPath = file.m_pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.m_name) + ".meshparams";
 					 
 					if (LinaEngine::Utility::FileExists(meshParamsPath))
 						meshParams = LinaEngine::Graphics::Mesh::LoadParameters(meshParamsPath);
 
-					renderEngine.CreateMesh(file.path, meshParams, -1 ,meshParamsPath);
+					renderEngine.CreateMesh(file.m_path, meshParams, -1 ,meshParamsPath);
 
 					LinaEngine::Graphics::Mesh::SaveParameters(meshParamsPath, meshParams);
 				}
@@ -425,16 +423,16 @@ namespace LinaEditor
 			EditorFile& file = it->second;
 
 			// SKIP FOR NOW BC WE NEED TO MAKE SURE WE HANDLE BOTH ENGINE CREATION & EDITOR CREATION
-			if (file.type == FileType::Texture2D)
+			if (file.m_type == FileType::Texture2D)
 			{
 
 			}
-			if (file.type == FileType::Material)
+			if (file.m_type == FileType::Material)
 			{
-				LinaEngine::Graphics::Material& mat = renderEngine.GetMaterial(file.path);
+				LinaEngine::Graphics::Material& mat = renderEngine.GetMaterial(file.m_path);
 				mat.PostLoadMaterialData(renderEngine);
 			}
-			else if (file.type == FileType::Mesh)
+			else if (file.m_type == FileType::Mesh)
 			{
 
 			}
@@ -447,18 +445,24 @@ namespace LinaEditor
 
 	void ResourcesPanel::UnloadFileResource(EditorFile& file)
 	{
-		if (file.type == FileType::Texture2D)
-			LinaEngine::Application::GetRenderEngine().UnloadTextureResource(file.id);
-		else if (file.type == FileType::Mesh)
-			LinaEngine::Application::GetRenderEngine().UnloadMeshResource(file.id);
-		else if (file.type == FileType::Material)
-			LinaEngine::Application::GetRenderEngine().UnloadMaterialResource(file.id);
+		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+		if (file.m_type == FileType::Texture2D)
+			renderEngine.UnloadTextureResource(renderEngine.GetTexture(file.m_path).GetID());
+		else if (file.m_type == FileType::Mesh)
+			renderEngine.UnloadMeshResource(renderEngine.GetMesh(file.m_path).GetID());
+		else if (file.m_type == FileType::Material)
+			renderEngine.UnloadMaterialResource(renderEngine.GetMaterial(file.m_path).GetID());
 	}
 
 	void ResourcesPanel::UnloadFileResourcesInFolder(EditorFolder& folder)
 	{
 		for (std::map<int, EditorFile>::iterator it = folder.m_files.begin(); it != folder.m_files.end(); ++it)
 			UnloadFileResource(it->second);
+	}
+
+	void ResourcesPanel::ExpandFileResource(const std::string& path)
+	{
+
 	}
 
 	FileType ResourcesPanel::GetFileType(std::string& extension)
@@ -475,6 +479,11 @@ namespace LinaEditor
 			return FileType::Unknown;
 	}
 
+	void ResourcesPanel::MaterialTextureSelected(LinaEngine::Graphics::Texture* texture)
+	{
+		ExpandFileResource(texture->GetPath());
+	}
+
 	void ResourcesPanel::TextureReimported(std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*> texturePair)
 	{
 		VerifyMaterialFiles(m_resourceFolders[0], texturePair);
@@ -485,9 +494,9 @@ namespace LinaEditor
 
 		for (auto file : folder.m_files)
 		{
-			if (file.second.type == FileType::Material)
+			if (file.second.m_type == FileType::Material)
 			{
-				LinaEngine::Graphics::Material& mat = LinaEngine::Application::GetRenderEngine().GetMaterial(file.second.path);
+				LinaEngine::Graphics::Material& mat = LinaEngine::Application::GetRenderEngine().GetMaterial(file.second.m_path);
 				for (auto sampler : mat.m_sampler2Ds)
 				{
 					if (sampler.second.m_boundTexture == textures.first)
