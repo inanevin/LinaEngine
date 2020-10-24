@@ -120,10 +120,18 @@ void Example1Level::Initialize()
 
 	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
 	ECSEntity terrain = ecs.GetEntity("Terrain");
+	ECSEntity cube = ecs.GetEntity("Cube");
 	if (terrain != entt::null)
 	{
 		renderEngine.SetHDRIData(&renderEngine.GetMaterial(ecs.get<LinaEngine::ECS::MeshRendererComponent>(terrain).m_materialID));
 	}
+
+	if (cube != entt::null)
+	{
+		renderEngine.SetHDRIData(&renderEngine.GetMaterial(ecs.get<LinaEngine::ECS::MeshRendererComponent>(cube).m_materialID));
+	}
+
+
 }
 
 void Example1Level::Tick(float delta)

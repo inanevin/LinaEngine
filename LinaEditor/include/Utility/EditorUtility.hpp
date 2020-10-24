@@ -63,10 +63,10 @@ namespace LinaEditor
 		~EditorUtility();
 
 		static bool CreateFolderInPath(const std::string& path);
-		static bool GetDirectories(std::vector<std::string>& vec, const std::string& path);
 		static bool DeleteDirectory(const std::string& path);
 		static std::string RemoveExtensionFromFilename(const std::string& filename);
-
+		static std::string OpenFile(const char* filter, void* window);
+		static std::string SaveFile(const char* filter, void* window);
 	private:
 
 	};

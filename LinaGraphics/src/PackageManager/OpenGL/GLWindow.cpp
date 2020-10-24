@@ -30,13 +30,14 @@ SOFTWARE.
 #include "Utility/Log.hpp"
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#include "GLFW/glfw3native.h"
+
 
 namespace LinaEngine::Graphics
 {
 	GLWindow::GLWindow()
 	{
 		LINA_CORE_TRACE("[Constructor] -> GLWindow ({0})", typeid(*this).name());
+	
 	}
 
 	GLWindow::~GLWindow()

@@ -35,17 +35,19 @@ SOFTWARE.
 #include <string>
 #include <fstream>
 
+#ifdef LINA_PLATFORM_WINDOWS
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include "GLFW/glfw3.h"
+#include "GLFW/glfw3native.h"
+
+#include <commdlg.h>
+#endif
+
 namespace LinaEditor
 {
 	bool EditorUtility::CreateFolderInPath(const std::string& path)
 	{
 		return std::filesystem::create_directory(path);
-	}
-
-	bool EditorUtility::GetDirectories(std::vector<std::string>& vec, const std::string& path)
-	{
-
-		return false;
 	}
 
 	bool EditorUtility::DeleteDirectory(const std::string& path)
@@ -57,6 +59,51 @@ namespace LinaEditor
 	{
 		size_t lastindex = fileName.find_last_of(".");
 		return fileName.substr(0, lastindex);
+	}
+
+	std::string EditorUtility::OpenFile(const char* filter, void* window)
+	{
+#ifdef LINA_PLATFORM_WINDOWS
+		OPENFILENAMEA ofn;
+		CHAR szFile[260] = { 0 };
+		ZeroMemory(&ofn, sizeof(OPENFILENAME));
+		ofn.lStructSize = sizeof(OPENFILENAME);
+		ofn.hwndOwner = glfwGetWin32Window((GLFWwindow*)window);
+		ofn.lpstrFile = szFile;
+		ofn.nMaxFile = sizeof(szFile);
+		ofn.lpstrFilter = filter;
+		ofn.nFilterIndex = 1;
+		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+
+		if (GetOpenFileNameA(&ofn) == TRUE)
+		{
+			return ofn.lpstrFile;
+		}
+
+#endif
+		return std::string();
+	}
+
+	std::string EditorUtility::SaveFile(const char* filter, void* window)
+	{
+
+#ifdef LINA_PLATFORM_WINDOWS
+		OPENFILENAMEA ofn;
+		CHAR szFile[260] = { 0 };
+		ZeroMemory(&ofn, sizeof(OPENFILENAME));
+		ofn.lStructSize = sizeof(OPENFILENAME);
+		ofn.hwndOwner = glfwGetWin32Window((GLFWwindow*)window);
+		ofn.lpstrFile = szFile;
+		ofn.nMaxFile = sizeof(szFile);
+		ofn.lpstrFilter = filter;
+		ofn.nFilterIndex = 1;
+		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+		if (GetSaveFileNameA(&ofn) == TRUE)
+		{
+			return ofn.lpstrFile;
+		}
+#endif
+		return std::string();
 	}
 
 }

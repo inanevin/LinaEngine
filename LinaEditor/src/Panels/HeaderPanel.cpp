@@ -154,6 +154,7 @@ namespace LinaEditor
 				}
 			}
 
+
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 
 			// Handle app window resize.

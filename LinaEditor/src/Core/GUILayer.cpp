@@ -34,6 +34,7 @@ SOFTWARE.
 #include "World/DefaultLevel.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Core/EditorApplication.hpp"
+#include "Utility/EditorUtility.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 #include "imgui/imgui.h"
