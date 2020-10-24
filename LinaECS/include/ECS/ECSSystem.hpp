@@ -81,7 +81,7 @@ namespace LinaEngine::ECS
 		virtual ~ECSRegistry() {};
 
 		ECSEntity CreateEntity(const std::string& name);
-
+		ECSEntity GetEntity(const std::string& name);
 	};
 	
 

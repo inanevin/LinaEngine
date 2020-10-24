@@ -108,11 +108,7 @@ void Example1Level::Initialize()
 
 	// Create a simple procedural skybox.
 	LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
-	Material& mat = renderEngine.CreateMaterial(Shaders::Skybox_Procedural);
-	mat.SetColor("material.startColor", Color(0.8f, 0.8f, 0.8f, 1.0f));
-	mat.SetColor("material.endColor", Color(0.2f, 0.2f, 0.2f));
-	mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
-	renderEngine.SetSkyboxMaterial(mat);
+	CreateHDRISkybox(renderEngine);
 
 	Material& objUnlit = renderEngine.CreateMaterial(Shaders::Standard_Unlit);
 	MeshRendererComponent cr;
@@ -122,6 +118,12 @@ void Example1Level::Initialize()
 	cr.m_meshPath = renderEngine.GetPrimitive(Primitives::Cube).GetPath();
 	TransformComponent objectTransform;
 
+	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
+	ECSEntity terrain = ecs.GetEntity("Terrain");
+	if (terrain != entt::null)
+	{
+		renderEngine.SetHDRIData(&renderEngine.GetMaterial(ecs.get<LinaEngine::ECS::MeshRendererComponent>(terrain).m_materialID));
+	}
 }
 
 void Example1Level::Tick(float delta)

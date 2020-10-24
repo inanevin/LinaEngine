@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "ECS/ECSSystem.hpp"  
+#include "Utility/Log.hpp"
 
 namespace LinaEngine::ECS
 {
@@ -50,6 +51,20 @@ namespace LinaEngine::ECS
 		entt::entity ent = create();
 		emplace<ECSEntityData>(ent, ECSEntityData {false, false, name} );
 		return ent;
+	}
+
+	ECSEntity ECSRegistry::GetEntity(const std::string& name)
+	{
+		auto singleView = view<ECSEntityData>();
+
+		for(auto entity : singleView)
+		{
+			if (singleView.get<ECSEntityData>(entity).m_name.compare(name) == 0)
+				return entity;
+		}
+
+		LINA_CORE_WARN("Entity with the name {0} could not be found, returning null entity.", name);
+		return entt::null;
 	}
 
 }
