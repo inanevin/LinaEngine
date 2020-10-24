@@ -28,7 +28,9 @@ SOFTWARE.
 
 #include "Drawers/MaterialDrawer.hpp"
 #include "Core/Application.hpp"
+#include "Core/EditorApplication.hpp"
 #include "Rendering/Material.hpp"
+#include "Rendering/Texture.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Rendering/RenderingCommon.hpp"
@@ -42,6 +44,7 @@ namespace LinaEditor
 
 #define CURSORPOS_X_LABELS 30
 #define CURSORPOS_XPERC_VALUES 0.52f
+
 
 	void MaterialDrawer::SetSelectedMaterial(LinaEngine::Graphics::Material& mat)
 	{
@@ -389,4 +392,5 @@ namespace LinaEditor
 			LinaEngine::Graphics::Material::SaveMaterialData(*m_selectedMaterial, m_selectedMaterial->GetPath());
 		}
 	}
+
 }

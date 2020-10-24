@@ -54,6 +54,9 @@ namespace LinaEditor
 
 	void ResourcesPanel::Setup()
 	{
+		LinaEditor::EditorApplication::GetEditorDispatcher().SubscribeAction<std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*>>("##matdrawer_textureReimport", LinaEngine::Action::ActionType::TextureReimported,
+			std::bind(&ResourcesPanel::TextureReimported, this, std::placeholders::_1));
+
 		ScanRoot();
 	}
 
@@ -470,5 +473,39 @@ namespace LinaEditor
 			return FileType::Material;
 		else
 			return FileType::Unknown;
+	}
+
+	void ResourcesPanel::TextureReimported(std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*> texturePair)
+	{
+		VerifyMaterialFiles(m_resourceFolders[0], texturePair);
+	}
+
+	bool ResourcesPanel::VerifyMaterialFiles(EditorFolder& folder, std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*> textures)
+	{
+
+		for (auto file : folder.m_files)
+		{
+			if (file.second.type == FileType::Material)
+			{
+				LinaEngine::Graphics::Material& mat = LinaEngine::Application::GetRenderEngine().GetMaterial(file.second.path);
+				for (auto sampler : mat.m_sampler2Ds)
+				{
+					if (sampler.second.m_boundTexture == textures.first)
+					{
+						mat.SetTexture(sampler.first, textures.second, sampler.second.m_bindMode);
+						return true;
+					}
+				}
+							
+			}
+		}
+
+		for (auto folder : folder.m_subFolders)
+		{
+			if (VerifyMaterialFiles(folder.second, textures))
+				break;
+		}
+
+		return true;
 	}
 }

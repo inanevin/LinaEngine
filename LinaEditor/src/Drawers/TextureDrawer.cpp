@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Rendering/RenderEngine.hpp"
 #include "Core/Application.hpp"
 #include "Rendering/Texture.hpp"
+#include "Core/EditorApplication.hpp"
 
 using namespace LinaEngine::Graphics;
 
@@ -324,8 +325,13 @@ namespace LinaEditor
 			LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
 			std::string filePath = m_selectedTexture->GetPath();
 			std::string paramsPath = m_selectedTexture->GetParamsPath();
+			LinaEngine::Graphics::Texture* reimportedTexture = &renderEngine.CreateTexture2D(filePath, newParams, false, false, paramsPath);
+
+			auto pair = std::make_pair(m_selectedTexture, reimportedTexture);
+			LinaEditor::EditorApplication::GetEditorDispatcher().DispatchAction<std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*>>(LinaEngine::Action::ActionType::TextureReimported,
+				pair);
+
 			renderEngine.UnloadTextureResource(m_selectedTexture->GetID());
-			m_selectedTexture = &renderEngine.CreateTexture2D(filePath, newParams, false, false, paramsPath);
 			LinaEngine::Graphics::Texture::SaveParameters(paramsPath, newParams);
 		}
 
