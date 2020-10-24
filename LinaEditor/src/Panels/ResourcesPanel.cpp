@@ -54,7 +54,7 @@ namespace LinaEditor
 
 	void ResourcesPanel::Setup()
 	{
-		LinaEditor::EditorApplication::GetEditorDispatcher().SubscribeAction<std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*>>("##matdrawer_textureReimport", LinaEngine::Action::ActionType::TextureReimported,
+		LinaEditor::EditorApplication::GetEditorDispatcher().SubscribeAction<std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*>>("##mrsr_textureReimport", LinaEngine::Action::ActionType::TextureReimported,
 			std::bind(&ResourcesPanel::TextureReimported, this, std::placeholders::_1));
 
 		ScanRoot();

@@ -82,14 +82,10 @@ namespace LinaEditor
 #define CURSORPOS_XPERC_VALUES 0.42f
 #define CURSORPOS_XPERC_VALUES2 
 
-	TextureDrawer::TextureDrawer()
-	{
-		LinaEditor::EditorApplication::GetEditorDispatcher().SubscribeAction<std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*>>("##matdrawer_textureReimport", LinaEngine::Action::ActionType::TextureReimported,
-			std::bind(&TextureDrawer::TextureReimported, this, std::placeholders::_1));
-	}
 
 	void TextureDrawer::SetSelectedTexture(LinaEngine::Graphics::Texture* texture)
 	{
+
 		m_selectedTexture = texture;
 
 		// Reset selected sampler params.
@@ -103,8 +99,6 @@ namespace LinaEditor
 		m_currentWrapT = GetWrapModeID(params.m_textureParams.m_wrapT);
 		m_currentAnisotropy = params.m_anisotropy;
 		m_currentGenerateMips = params.m_textureParams.m_generateMipMaps;
-
-		LINA_CLIENT_TRACE("Selecting Texture with ID {0}, params: {1} ** {2} ** {3}", texture->GetPath(), m_currentWrapS, m_currentWrapT, m_currentWrapR);
 	}
 
 	void TextureDrawer::DrawSelectedTexture()
@@ -339,6 +333,8 @@ namespace LinaEditor
 
 			renderEngine.UnloadTextureResource(m_selectedTexture->GetID());
 			LinaEngine::Graphics::Texture::SaveParameters(paramsPath, newParams);
+
+			SetSelectedTexture(reimportedTexture);
 		}
 
 		
@@ -372,11 +368,6 @@ namespace LinaEditor
 		ImGui::GetWindowDrawList()->AddImage((void*)m_selectedTexture->GetID(), pMin, pMax, ImVec2(0, 1), ImVec2(1, 0));
 	}
 
-	void TextureDrawer::TextureReimported(std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*> textures)
-	{
-		if (m_selectedTexture != nullptr && m_selectedTexture == textures.first)
-			SetSelectedTexture(textures.second);
-	}
 
 	int TextureDrawer::GetSamplerFilterID(SamplerFilter filter)
 	{
