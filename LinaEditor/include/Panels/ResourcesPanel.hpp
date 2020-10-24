@@ -111,14 +111,14 @@ namespace LinaEditor
 	private:
 	
 		void ScanRoot();
-		void DrawContent();
+		void DrawContextMenu();
 		void ScanFolder(EditorFolder& folder);
 		void DrawFolder(EditorFolder& folder, bool isRoot = false);
 		void LoadFolderResources(EditorFolder& folder);
 		void LoadFolderDependencies(EditorFolder& folder);
 		void UnloadFileResource(EditorFile& file);
 		void UnloadFileResourcesInFolder(EditorFolder& folder);
-		void ExpandFileResource(const std::string& path);
+		bool ExpandFileResource(EditorFolder& folder, const std::string& path, FileType type = FileType::Unknown);
 		FileType GetFileType(std::string& extension);
 		void MaterialTextureSelected(LinaEngine::Graphics::Texture* texture);
 		void TextureReimported(std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*> textures);

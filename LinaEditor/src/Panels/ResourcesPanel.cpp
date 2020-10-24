@@ -63,82 +63,6 @@ namespace LinaEditor
 		ScanRoot();
 	}
 
-	void ResourcesPanel::Draw()
-	{
-		if (m_show)
-		{
-			// Set window properties.
-			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImVec2 work_area_pos = viewport->GetWorkPos();
-			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
-			ImGui::SetNextWindowBgAlpha(1.0f);
-
-			ImGui::Begin(RESOURCES_ID, &m_show, flags);
-			WidgetsUtility::DrawShadowedLine(5);
-			DrawContent();
-			DrawFolder(m_resourceFolders[0], true);
-
-			ImGui::End();
-		}
-	}
-
-	void ResourcesPanel::DrawContent()
-	{
-		std::string rootPath = s_hoveredFolder == nullptr ? "resources" : s_hoveredFolder->m_path;
-
-		// Handle Right click popup.
-		if (ImGui::BeginPopupContextWindow())
-		{
-			if (ImGui::BeginMenu("Create"))
-			{
-				// Create a folder.
-				if (ImGui::MenuItem("Folder"))
-				{
-					std::string folderPath = rootPath + "/NewFolder" + std::to_string(++s_itemIDCounter);
-					EditorUtility::CreateFolderInPath(folderPath);
-					EditorFolder folder;
-					folder.m_path = folderPath;
-					folder.m_name = "NewFolder" + std::to_string(s_itemIDCounter);
-					folder.m_id = s_itemIDCounter;
-
-					if (s_hoveredFolder != nullptr)
-						s_hoveredFolder->m_subFolders[folder.m_id] = folder;
-					else
-						m_resourceFolders[0].m_subFolders[folder.m_id] = folder;
-
-				}
-
-				ImGui::Separator();
-
-				// Create a material.
-				if (ImGui::MenuItem("Material"))
-				{
-					std::string name = "NewMaterial" + std::to_string(++s_itemIDCounter) + ".mat";
-					std::string materialPath = rootPath + "/" + name;
-
-					EditorFile file;
-					file.m_path = materialPath;
-					file.m_pathToFolder = rootPath + "/";
-					file.m_name = name;
-					file.m_extension = "mat";
-					file.m_type = FileType::Material;
-					file.m_id = ++s_itemIDCounter;
-
-					Graphics::Material& m = LinaEngine::Application::GetRenderEngine().CreateMaterial(Graphics::Shaders::Standard_Unlit, file.m_path);
-					Graphics::Material::SaveMaterialData(m, materialPath);
-
-					if (s_hoveredFolder != nullptr)
-						s_hoveredFolder->m_files[file.m_id] = file;
-					else
-						m_resourceFolders[0].m_files[file.m_id] = file;
-				}
-
-				ImGui::EndMenu();
-			}
-
-			ImGui::EndPopup();
-		}
-	}
 
 	void ResourcesPanel::ScanRoot()
 	{
@@ -198,6 +122,83 @@ namespace LinaEditor
 		}
 	}
 
+	void ResourcesPanel::Draw()
+	{
+		if (m_show)
+		{
+			// Set window properties.
+			ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImVec2 work_area_pos = viewport->GetWorkPos();
+			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
+			ImGui::SetNextWindowBgAlpha(1.0f);
+
+			ImGui::Begin(RESOURCES_ID, &m_show, flags);
+			WidgetsUtility::DrawShadowedLine(5);
+			DrawContextMenu();
+			DrawFolder(m_resourceFolders[0], true);
+
+			ImGui::End();
+		}
+	}
+
+	void ResourcesPanel::DrawContextMenu()
+	{
+		std::string rootPath = s_hoveredFolder == nullptr ? "resources" : s_hoveredFolder->m_path;
+
+		// Handle Right click popup.
+		if (ImGui::BeginPopupContextWindow())
+		{
+			if (ImGui::BeginMenu("Create"))
+			{
+				// Create a folder.
+				if (ImGui::MenuItem("Folder"))
+				{
+					std::string folderPath = rootPath + "/NewFolder" + std::to_string(++s_itemIDCounter);
+					EditorUtility::CreateFolderInPath(folderPath);
+					EditorFolder folder;
+					folder.m_path = folderPath;
+					folder.m_name = "NewFolder" + std::to_string(s_itemIDCounter);
+					folder.m_id = s_itemIDCounter;
+
+					if (s_hoveredFolder != nullptr)
+						s_hoveredFolder->m_subFolders[folder.m_id] = folder;
+					else
+						m_resourceFolders[0].m_subFolders[folder.m_id] = folder;
+
+				}
+
+				ImGui::Separator();
+
+				// Create a material.
+				if (ImGui::MenuItem("Material"))
+				{
+					std::string name = "NewMaterial" + std::to_string(++s_itemIDCounter) + ".mat";
+					std::string materialPath = rootPath + "/" + name;
+
+					EditorFile file;
+					file.m_path = materialPath;
+					file.m_pathToFolder = rootPath + "/";
+					file.m_name = name;
+					file.m_extension = "mat";
+					file.m_type = FileType::Material;
+					file.m_id = ++s_itemIDCounter;
+
+					Graphics::Material& m = LinaEngine::Application::GetRenderEngine().CreateMaterial(Graphics::Shaders::Standard_Unlit, file.m_path);
+					Graphics::Material::SaveMaterialData(m, materialPath);
+
+					if (s_hoveredFolder != nullptr)
+						s_hoveredFolder->m_files[file.m_id] = file;
+					else
+						m_resourceFolders[0].m_files[file.m_id] = file;
+				}
+
+				ImGui::EndMenu();
+			}
+
+			ImGui::EndPopup();
+		}
+	}
+
 	void ResourcesPanel::DrawFolder(EditorFolder& folder, bool isRoot)
 	{
 		static ImGuiTreeNodeFlags folderFlagsNotSelected = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
@@ -245,6 +246,14 @@ namespace LinaEditor
 
 			ImGuiTreeNodeFlags folderFlags = (it->second).m_id == s_selectedItem ? folderFlagsSelected : folderFlagsNotSelected;
 			std::string id = "##" + (it->second).m_name;
+
+			if (it->second.m_markedForForceOpen)
+			{
+				LINA_CLIENT_TRACE("Force opening {0}", it->second.m_name);
+				ImGui::SetNextItemOpen(true);
+				it->second.m_markedForForceOpen = false;
+			}
+
 			bool nodeOpen = ImGui::TreeNodeEx(id.c_str(), folderFlags);
 			ImGui::SameLine();  WidgetsUtility::IncrementCursorPosY(5);
 			WidgetsUtility::Icon(ICON_FA_FOLDER, 0.7f, ImVec4(0.9f, 0.83f, 0.0f, 1.0f));
@@ -290,6 +299,13 @@ namespace LinaEditor
 			}
 
 			ImGuiTreeNodeFlags fileFlags = it->second.m_id == s_selectedItem ? fileNodeFlagsSelected : fileNodeFlagsNotSelected;
+
+			if (it->second.m_markedForHighlight)
+			{
+				it->second.m_markedForHighlight = false;
+				// highlight.
+			}
+
 			bool nodeOpen = ImGui::TreeNodeEx(it->second.m_name.c_str(), fileFlags);
 
 			if (it->second.m_type == FileType::Texture2D)
@@ -460,9 +476,38 @@ namespace LinaEditor
 			UnloadFileResource(it->second);
 	}
 
-	void ResourcesPanel::ExpandFileResource(const std::string& path)
+	bool ResourcesPanel::ExpandFileResource(EditorFolder& folder, const std::string& path, FileType type)
 	{
+		for (auto& file : folder.m_files)
+		{
+			if (type == FileType::Unknown || (type != FileType::Unknown && file.second.m_type == type))
+			{
+				if (file.second.m_path.compare(path) == 0)
+				{
+					file.second.m_markedForHighlight = true;
+					folder.m_markedForForceOpen = true;
+					LINA_CLIENT_TRACE("Marked for force open {0}", folder.m_name);
 
+					EditorFolder* parent = folder.m_parent;
+
+					while (parent != nullptr)
+					{
+						parent->m_markedForForceOpen = true;
+						LINA_CLIENT_TRACE("Marked for force open {0}", parent->m_name);
+
+						parent = parent->m_parent;
+					}
+
+					return true;
+				}
+			}
+		}
+
+		for (auto& subFolder : folder.m_subFolders)
+		{
+			if (ExpandFileResource(subFolder.second, path, type))
+				break;
+		}
 	}
 
 	FileType ResourcesPanel::GetFileType(std::string& extension)
@@ -481,7 +526,7 @@ namespace LinaEditor
 
 	void ResourcesPanel::MaterialTextureSelected(LinaEngine::Graphics::Texture* texture)
 	{
-		ExpandFileResource(texture->GetPath());
+		ExpandFileResource(m_resourceFolders[0], texture->GetPath(), FileType::Texture2D);
 	}
 
 	void ResourcesPanel::TextureReimported(std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*> texturePair)
@@ -492,6 +537,7 @@ namespace LinaEditor
 	bool ResourcesPanel::VerifyMaterialFiles(EditorFolder& folder, std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*> textures)
 	{
 
+		// Iterate the files in this folder first & see if there is a match.
 		for (auto file : folder.m_files)
 		{
 			if (file.second.m_type == FileType::Material)
@@ -509,6 +555,7 @@ namespace LinaEditor
 			}
 		}
 
+		// Iterate subfolders.
 		for (auto folder : folder.m_subFolders)
 		{
 			if (VerifyMaterialFiles(folder.second, textures))
