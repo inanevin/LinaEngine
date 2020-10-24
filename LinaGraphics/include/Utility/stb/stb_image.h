@@ -201,7 +201,7 @@ RECENT REVISION HISTORY:
 // I/O callbacks
 //
 // I/O callbacks allow you to read from arbitrary sources, like packaged
-// files or some other source. Data read from callbacks are processed
+// files or some other source. m_data read from callbacks are processed
 // through a small internal buffer (currently 128 bytes) to try to reduce
 // overhead.
 //
@@ -5812,7 +5812,7 @@ static void *stbi__psd_load(stbi__context *s, int *x, int *y, int *comp, int req
    if (stbi__get16be(s) != 3)
       return stbi__errpuc("wrong color format", "PSD is not in RGB color format");
 
-   // Skip the Mode Data.  (It's the palette for indexed color; other info for other modes.)
+   // Skip the Mode m_data.  (It's the palette for indexed color; other info for other modes.)
    stbi__skip(s,stbi__get32be(s) );
 
    // Skip the image resources.  (resolution, pen tool paths, etc)

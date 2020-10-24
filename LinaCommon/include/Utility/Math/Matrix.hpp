@@ -29,7 +29,7 @@ SOFTWARE.
 /*
 Class: Matrix
 
-Data structure for representing matrices.
+m_data structure for representing matrices.
 
 Timestamp: 10/30/2018 1:00:25 PM
 */

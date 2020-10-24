@@ -36,22 +36,33 @@ SOFTWARE.
 
 namespace LinaEditor
 {
-#define MAX_DEQUE_SIZE 100
 
-	struct RollingBuffer {
-		float Span;
-		ImVector<ImVec2> Data;
-		RollingBuffer() {
-			Span = 10.0f;
-			Data.reserve(2000);
+	struct RollingBuffer
+	{
+		float m_span;
+
+		ImVector<ImVec2> m_data;
+
+		RollingBuffer()
+		{
+			m_span = 10.0f;
+			m_data.reserve(2000);
 		}
-		void AddPoint(float x, float y) {
-			float xmod = fmodf(x, Span);
-			if (!Data.empty() && xmod < Data.back().x)
-				Data.shrink(0);
-			Data.push_back(ImVec2(xmod, y));
+
+		void AddPoint(float x, float y)
+		{
+			float xmod = fmodf(x, m_span);
+			if (!m_data.empty() && xmod < m_data.back().x)
+				m_data.shrink(0);
+			m_data.push_back(ImVec2(xmod, y));
 		}
 	};
+
+
+
+#define MS_DISPLAY_TIME .5
+	
+	std::map<std::string, std::string> m_timerMSStorage;
 
 	void ProfilerPanel::Setup()
 	{
@@ -74,14 +85,27 @@ namespace LinaEditor
 			WidgetsUtility::DrawShadowedLine(5);
 			WidgetsUtility::IncrementCursorPosY(11);
 
+			float currentTime = LinaEngine::Application::GetApp().GetTime();
+			bool displayMS = false;
+			if (currentTime > m_lastMSDisplayTime + MS_DISPLAY_TIME)
+			{
+				m_lastMSDisplayTime = currentTime;
+				displayMS = true;	
+			}
+
 			for (std::map<std::string, LinaEngine::Timer*>::const_iterator it = map.begin(); it != map.end(); ++it)
 			{
-				auto a = it->second->GetDuration();
-				std::string txt = it->first + " " + std::to_string(a) + " ms";
+				std::string txt = "";
+				txt = it->first + " " + m_timerMSStorage[it->first] + " ms";
+
+				if (displayMS)
+					m_timerMSStorage[it->first] = std::to_string(it->second->GetDuration());
 
 				WidgetsUtility::IncrementCursorPosX(12);
 				ImGui::Text(txt.c_str());
 			}
+		
+			displayMS = false;
 
 			WidgetsUtility::IncrementCursorPosX(12);
 			WidgetsUtility::IncrementCursorPosY(12);
@@ -102,7 +126,7 @@ namespace LinaEditor
 			if (ImPlot::BeginPlot("##Profiler", NULL, NULL, ImVec2(-1, 115), 0, rt_axis, rt_axis)) {
 
 				std::string fpsLabel = "FPS " + std::to_string(fps);
-				ImPlot::PlotLine(fpsLabel.c_str(), &rdata1.Data[0].x, &rdata1.Data[0].y, rdata1.Data.size(), 0, 2 * sizeof(float));
+				ImPlot::PlotLine(fpsLabel.c_str(), &rdata1.m_data[0].x, &rdata1.m_data[0].y, rdata1.m_data.size(), 0, 2 * sizeof(float));
 				ImPlot::EndPlot();
 			}
 

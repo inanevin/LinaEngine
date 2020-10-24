@@ -145,10 +145,10 @@ struct ImBufferWriter
 // Fixed size point array
 template <int N>
 struct ImPlotPointArray {
-    inline ImPlotPoint&       operator[](int i)       { return Data[i]; }
-    inline const ImPlotPoint& operator[](int i) const { return Data[i]; }
+    inline ImPlotPoint&       operator[](int i)       { return m_data[i]; }
+    inline const ImPlotPoint& operator[](int i) const { return m_data[i]; }
     inline int Size()                                 { return N; }
-    ImPlotPoint Data[N];
+    ImPlotPoint m_data[N];
 };
 
 //-----------------------------------------------------------------------------
@@ -304,7 +304,7 @@ struct ImPlotAnnotationCollection {
     }
 
     const char* GetText(int idx) {
-        return TextBuffer.Buf.Data + Annotations[idx].TextOffset;
+        return TextBuffer.Buf.m_data + Annotations[idx].TextOffset;
     }
 
     void Reset() {
@@ -365,7 +365,7 @@ struct ImPlotTickCollection {
     }
 
     const char* GetText(int idx) {
-        return TextBuffer.Buf.Data + Ticks[idx].TextOffset;
+        return TextBuffer.Buf.m_data + Ticks[idx].TextOffset;
     }
 
     void Reset() {
@@ -656,7 +656,7 @@ struct ImPlotContext {
     // Annotation and User Labels
     ImPlotAnnotationCollection Annotations;
 
-    // Transformations and Data Extents
+    // Transformations and m_data Extents
     ImPlotScale Scales[IMPLOT_Y_AXES];
     ImRect      PixelRange[IMPLOT_Y_AXES];
     double      Mx;
@@ -666,7 +666,7 @@ struct ImPlotContext {
     ImPlotRange ExtentsX;
     ImPlotRange ExtentsY[IMPLOT_Y_AXES];
 
-    // Data Fitting Flags
+    // m_data Fitting Flags
     bool FitThisFrame;
     bool FitX;
     bool FitY[IMPLOT_Y_AXES];

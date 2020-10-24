@@ -29,7 +29,7 @@ SOFTWARE.
 /*
 Class: Transformation
 
-Data structure for representing transformations.
+m_data structure for representing transformations.
 
 Timestamp: 4/9/2019 12:06:04 PM
 

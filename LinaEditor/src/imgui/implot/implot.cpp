@@ -141,7 +141,7 @@ const char* ImPlotPlot::GetLegendLabel(int i) {
     ImPlotItem* item = GetLegendItem(i);
     IM_ASSERT(item != NULL);
     IM_ASSERT(item->NameOffset != -1 && item->NameOffset < LegendData.Labels.Buf.Size);
-    return LegendData.Labels.Buf.Data + item->NameOffset;
+    return LegendData.Labels.Buf.m_data + item->NameOffset;
 }
 
 //-----------------------------------------------------------------------------
@@ -627,7 +627,7 @@ void LabelTickDefault(ImPlotTick& tick, ImGuiTextBuffer& buffer) {
         tick.TextOffset = buffer.size();
         snprintf(temp, 32, "%.10g", tick.PlotPos);
         buffer.append(temp, temp + strlen(temp) + 1);
-        tick.LabelSize = ImGui::CalcTextSize(buffer.Buf.Data + tick.TextOffset);
+        tick.LabelSize = ImGui::CalcTextSize(buffer.Buf.m_data + tick.TextOffset);
     }
 }
 
@@ -637,7 +637,7 @@ void LabelTickScientific(ImPlotTick& tick, ImGuiTextBuffer& buffer) {
         tick.TextOffset = buffer.size();
         snprintf(temp, 32, "%.0E", tick.PlotPos);
         buffer.append(temp, temp + strlen(temp) + 1);
-        tick.LabelSize = ImGui::CalcTextSize(buffer.Buf.Data + tick.TextOffset);
+        tick.LabelSize = ImGui::CalcTextSize(buffer.Buf.m_data + tick.TextOffset);
     }
 }
 
@@ -1025,7 +1025,7 @@ inline void LabelTickTime(ImPlotTick& tick, ImGuiTextBuffer& buffer, const ImPlo
         tick.TextOffset = buffer.size();
         FormatDateTime(t, temp, 32, fmt);
         buffer.append(temp, temp + strlen(temp) + 1);
-        tick.LabelSize = ImGui::CalcTextSize(buffer.Buf.Data + tick.TextOffset);
+        tick.LabelSize = ImGui::CalcTextSize(buffer.Buf.m_data + tick.TextOffset);
     }
 }
 
@@ -1130,7 +1130,7 @@ void AddTicksTime(const ImPlotRange& range, float plot_width, ImPlotTickCollecti
                 ImPlotTick tick_maj(t1.ToDouble(),true,true);
                 tick_maj.Level = 1;
                 LabelTickTime(tick_maj,ticks.TextBuffer,t1, last_major == NULL ? fmtf : fmt1);
-                const char* this_major = ticks.TextBuffer.Buf.Data + tick_maj.TextOffset;
+                const char* this_major = ticks.TextBuffer.Buf.m_data + tick_maj.TextOffset;
                 if (last_major && TimeLabelSame(last_major,this_major))
                     tick_maj.ShowLabel = false;
                 last_major = this_major;
@@ -1150,7 +1150,7 @@ void AddTicksTime(const ImPlotRange& range, float plot_width, ImPlotTickCollecti
                             ImPlotTick tick_maj(t12.ToDouble(),true,true);
                             tick_maj.Level = 1;
                             LabelTickTime(tick_maj,ticks.TextBuffer,t12,fmtf);
-                            last_major = ticks.TextBuffer.Buf.Data + tick_maj.TextOffset;
+                            last_major = ticks.TextBuffer.Buf.m_data + tick_maj.TextOffset;
                             ticks.Append(tick_maj);
                         }
                     }
@@ -3657,7 +3657,7 @@ void ShowMetricsWindow(bool* p_popen) {
                             ImGui::Bullet(); ImGui::Checkbox("Show", &item->Show);
                             ImGui::Bullet(); ImGui::ColorEdit4("Color",&item->Color.x, ImGuiColorEditFlags_NoInputs);
                             ImGui::Bullet(); ImGui::Value("NameOffset",item->NameOffset);
-                            ImGui::Bullet(); ImGui::Text("Name: %s", item->NameOffset != -1 ? plot->LegendData.Labels.Buf.Data + item->NameOffset : "N/A");
+                            ImGui::Bullet(); ImGui::Text("Name: %s", item->NameOffset != -1 ? plot->LegendData.Labels.Buf.m_data + item->NameOffset : "N/A");
                             ImGui::Bullet(); ImGui::Value("Hovered",item->LegendHovered);
                             ImGui::TreePop();
                         }

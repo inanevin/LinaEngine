@@ -1525,9 +1525,9 @@ static void ShowDemoWindowWidgets()
                 if (ImGui::BeginDragDropTarget())
                 {
                     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_3F))
-                        memcpy((float*)&saved_palette[n], payload->Data, sizeof(float) * 3);
+                        memcpy((float*)&saved_palette[n], payload->m_data, sizeof(float) * 3);
                     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_4F))
-                        memcpy((float*)&saved_palette[n], payload->Data, sizeof(float) * 4);
+                        memcpy((float*)&saved_palette[n], payload->m_data, sizeof(float) * 4);
                     ImGui::EndDragDropTarget();
                 }
 
@@ -1924,7 +1924,7 @@ static void ShowDemoWindowWidgets()
                     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_DEMO_CELL"))
                     {
                         IM_ASSERT(payload->DataSize == sizeof(int));
-                        int payload_n = *(const int*)payload->Data;
+                        int payload_n = *(const int*)payload->m_data;
                         if (mode == Mode_Copy)
                         {
                             names[n] = names[payload_n];
@@ -2468,7 +2468,7 @@ static void ShowDemoWindowLayout()
                     }
 
                     if (!open)
-                        active_tabs.erase(active_tabs.Data + n);
+                        active_tabs.erase(active_tabs.m_data + n);
                     else
                         n++;
                 }

@@ -57,6 +57,8 @@ namespace LinaEditor
 		
 	private:
 
+		float m_lastMSDisplayTime = 0.0f;
+
 	};
 }
 

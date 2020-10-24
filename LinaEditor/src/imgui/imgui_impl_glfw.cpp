@@ -64,7 +64,7 @@
 #define GLFW_HAS_NEW_CURSORS          (0)
 #endif
 
-// Data
+// m_data
 enum GlfwClientApi
 {
     GlfwClientApi_Unknown,

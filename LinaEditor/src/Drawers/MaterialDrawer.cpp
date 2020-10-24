@@ -375,7 +375,7 @@ namespace LinaEditor
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVETEXTURE_ID))
 					{
 						IM_ASSERT(payload->DataSize == sizeof(uint32));
-						m_selectedMaterial->SetTexture(it->first, &LinaEngine::Application::GetRenderEngine().GetTexture(*(uint32*)payload->Data), it->second.m_bindMode);
+						m_selectedMaterial->SetTexture(it->first, &LinaEngine::Application::GetRenderEngine().GetTexture(*(uint32*)payload->m_data), it->second.m_bindMode);
 					}
 					ImGui::EndDragDropTarget();
 				}

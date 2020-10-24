@@ -193,7 +193,7 @@ namespace LinaEditor
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("COMP_MOVE_PAYLOAD"))
 			{
 				IM_ASSERT(payload->DataSize == sizeof(LinaEngine::ECS::ECSTypeID));
-				LinaEngine::ECS::ECSTypeID payloadID = *(const LinaEngine::ECS::ECSTypeID*)payload->Data;
+				LinaEngine::ECS::ECSTypeID payloadID = *(const LinaEngine::ECS::ECSTypeID*)payload->m_data;
 				SwapComponentOrder(payloadID, typeID);
 			}
 			ImGui::EndDragDropTarget();

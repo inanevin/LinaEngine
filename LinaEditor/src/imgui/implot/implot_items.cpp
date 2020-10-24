@@ -306,16 +306,16 @@ struct GetterXsYRef {
 struct GetterFuncPtr {
     GetterFuncPtr(ImPlotPoint (*getter)(void* data, int idx), void* data, int count, int offset) :
         Getter(getter),
-        Data(data),
+        m_data(data),
         Count(count),
         Offset(count ? ImPosMod(offset, count) : 0)
     { }
     inline ImPlotPoint operator()(int idx) const {
         idx = ImPosMod(Offset + idx, Count);
-        return Getter(Data, idx);
+        return Getter(m_data, idx);
     }
     ImPlotPoint (* const Getter)(void* data, int idx);
-    void* const Data;
+    void* const m_data;
     const int Count;
     const int Offset;
 };

@@ -29,7 +29,7 @@ SOFTWARE.
 /*
 Class: Vector
 
-Data structure for representing vectors.
+m_data structure for representing vectors.
 
 timestamp: 10/29/2018 11:04:54 PM
 */
@@ -64,8 +64,8 @@ namespace LinaEngine
 		Vector2(float val) : glm::vec2(val, val) {};
 		Vector2(const glm::vec2& rhs) : glm::vec2(rhs.x, rhs.y) {};
 
-		static LINACOMMON_API Vector2 Zero;
-		static LINACOMMON_API Vector2 One;
+		static Vector2 Zero;
+		static Vector2 One;
 
 		Vector2 Abs() const;
 		Vector2 Min(const Vector2& other) const;
@@ -137,14 +137,14 @@ namespace LinaEngine
 		Vector3(float val) : glm::vec3(val, val, val) {};
 		Vector3(const glm::vec3& rhs) : glm::vec3(rhs.x, rhs.y, rhs.z) {};
 
-		static LINACOMMON_API Vector3 Zero;
-		static LINACOMMON_API Vector3 Up;
-		static LINACOMMON_API Vector3 Down;
-		static LINACOMMON_API Vector3 Right;
-		static LINACOMMON_API Vector3 Left;
-		static LINACOMMON_API Vector3 Forward;
-		static LINACOMMON_API Vector3 Back;
-		static LINACOMMON_API Vector3 One;
+		static Vector3 Zero;
+		static Vector3 Up;
+		static Vector3 Down;
+		static Vector3 Right;
+		static Vector3 Left;
+		static Vector3 Forward;
+		static Vector3 Back;
+		static Vector3 One;
 
 		static Vector3 Lerp(Vector3& from, Vector3& to, float t);
 		Vector3 Cross(const Vector3& other) const;
@@ -220,8 +220,8 @@ namespace LinaEngine
 		Vector4(float f) : glm::vec4(f, f, f, f) {};
 		Vector4(const glm::vec4& rhs) : glm::vec4(rhs.x, rhs.y, rhs.z, rhs.w) {};
 
-		static LINACOMMON_API Vector4 Zero;
-		static LINACOMMON_API Vector4 One;
+		static Vector4 Zero;
+		static Vector4 One;
 
 		Vector4 Abs() const;
 		Vector4 Min(const Vector4& other) const;

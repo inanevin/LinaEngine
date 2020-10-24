@@ -36,13 +36,13 @@
 // Encapsulates examples for customizing ImPlot.
 namespace MyImPlot {
 
-// Example for Custom Data and Getters section.
+// Example for Custom m_data and Getters section.
 struct Vector2f {
     Vector2f(float _x, float _y) { x = _x; y = _y; }
     float x, y;
 };
 
-// Example for Custom Data and Getters section.
+// Example for Custom m_data and Getters section.
 struct WaveData {
     double X, Amp, Freq, Offset;
     WaveData(double x, double amp, double freq, double offset) { X = x; Amp = amp; Freq = freq; Offset = offset; }
@@ -76,23 +76,23 @@ inline T RandomRange(T min, T max) {
 struct ScrollingBuffer {
     int MaxSize;
     int Offset;
-    ImVector<ImVec2> Data;
+    ImVector<ImVec2> m_data;
     ScrollingBuffer() {
         MaxSize = 2000;
         Offset  = 0;
-        Data.reserve(MaxSize);
+        m_data.reserve(MaxSize);
     }
     void AddPoint(float x, float y) {
-        if (Data.size() < MaxSize)
-            Data.push_back(ImVec2(x,y));
+        if (m_data.size() < MaxSize)
+            m_data.push_back(ImVec2(x,y));
         else {
-            Data[Offset] = ImVec2(x,y);
+            m_data[Offset] = ImVec2(x,y);
             Offset =  (Offset + 1) % MaxSize;
         }
     }
     void Erase() {
-        if (Data.size() > 0) {
-            Data.shrink(0);
+        if (m_data.size() > 0) {
+            m_data.shrink(0);
             Offset  = 0;
         }
     }
@@ -100,17 +100,17 @@ struct ScrollingBuffer {
 
 // utility structure for realtime plot
 struct RollingBuffer {
-    float Span;
-    ImVector<ImVec2> Data;
+    float m_span;
+    ImVector<ImVec2> m_data;
     RollingBuffer() {
-        Span = 10.0f;
-        Data.reserve(2000);
+        m_span = 10.0f;
+        m_data.reserve(2000);
     }
     void AddPoint(float x, float y) {
-        float xmod = fmodf(x, Span);
-        if (!Data.empty() && xmod < Data.back().x)
-            Data.shrink(0);
-        Data.push_back(ImVec2(xmod, y));
+        float xmod = fmodf(x, m_span);
+        if (!m_data.empty() && xmod < m_data.back().x)
+            m_data.shrink(0);
+        m_data.push_back(ImVec2(xmod, y));
     }
 };
 
@@ -553,20 +553,20 @@ void ShowDemoWindow(bool* p_open) {
 
         static float history = 10.0f;
         ImGui::SliderFloat("History",&history,1,30,"%.1f s");
-        rdata1.Span = history;
-        rdata2.Span = history;
+        rdata1.m_span = history;
+        rdata2.m_span = history;
 
         static ImPlotAxisFlags rt_axis = ImPlotAxisFlags_NoTickLabels;
         ImPlot::SetNextPlotLimitsX(t - history, t, ImGuiCond_Always);
         if (ImPlot::BeginPlot("##Scrolling", NULL, NULL, ImVec2(-1,150), 0, rt_axis, rt_axis | ImPlotAxisFlags_LockMin)) {
-            ImPlot::PlotShaded("Data 1", &sdata1.Data[0].x, &sdata1.Data[0].y, sdata1.Data.size(), 0, sdata1.Offset, 2 * sizeof(float));
-            ImPlot::PlotLine("Data 2", &sdata2.Data[0].x, &sdata2.Data[0].y, sdata2.Data.size(), sdata2.Offset, 2*sizeof(float));
+            ImPlot::PlotShaded("Data 1", &sdata1.m_data[0].x, &sdata1.m_data[0].y, sdata1.m_data.size(), 0, sdata1.Offset, 2 * sizeof(float));
+            ImPlot::PlotLine("Data 2", &sdata2.m_data[0].x, &sdata2.m_data[0].y, sdata2.m_data.size(), sdata2.Offset, 2*sizeof(float));
             ImPlot::EndPlot();
         }
         ImPlot::SetNextPlotLimitsX(0, history, ImGuiCond_Always);
         if (ImPlot::BeginPlot("##Rolling", NULL, NULL, ImVec2(-1,150), 0, rt_axis, rt_axis)) {
-            ImPlot::PlotLine("Data 1", &rdata1.Data[0].x, &rdata1.Data[0].y, rdata1.Data.size(), 0, 2 * sizeof(float));
-            ImPlot::PlotLine("Data 2", &rdata2.Data[0].x, &rdata2.Data[0].y, rdata2.Data.size(), 0, 2 * sizeof(float));
+            ImPlot::PlotLine("Data 1", &rdata1.m_data[0].x, &rdata1.m_data[0].y, rdata1.m_data.size(), 0, 2 * sizeof(float));
+            ImPlot::PlotLine("Data 2", &rdata2.m_data[0].x, &rdata2.m_data[0].y, rdata2.m_data.size(), 0, 2 * sizeof(float));
             ImPlot::EndPlot();
         }
     }
@@ -943,7 +943,7 @@ void ShowDemoWindow(bool* p_open) {
         if (ImGui::Button("Clear", ImVec2(100, 0))) {
             for (int i = 0; i < K_CHANNELS; ++i) {
                 show[i] = false;
-                data[i].Data.shrink(0);
+                data[i].m_data.shrink(0);
                 data[i].Offset = 0;
             }
         }
@@ -973,11 +973,11 @@ void ShowDemoWindow(bool* p_open) {
         ImPlot::SetNextPlotLimitsX((double)t - 10, t, paused ? ImGuiCond_Once : ImGuiCond_Always);
         if (ImPlot::BeginPlot("##DND", NULL, NULL, ImVec2(-1,0), ImPlotFlags_YAxis2 | ImPlotFlags_YAxis3, ImPlotAxisFlags_NoTickLabels)) {
             for (int i = 0; i < K_CHANNELS; ++i) {
-                if (show[i] && data[i].Data.size() > 0) {
+                if (show[i] && data[i].m_data.size() > 0) {
                     char label[K_CHANNELS];
                     sprintf(label, "data_%d", i);
 					ImPlot::SetPlotYAxis(yAxis[i]);
-                    ImPlot::PlotLine(label, &data[i].Data[0].x, &data[i].Data[0].y, data[i].Data.size(), data[i].Offset, 2 * sizeof(float));
+                    ImPlot::PlotLine(label, &data[i].m_data[0].x, &data[i].m_data[0].y, data[i].m_data.size(), data[i].Offset, 2 * sizeof(float));
                     // allow legend labels to be dragged and dropped
                     if (ImPlot::BeginLegendDragDropSource(label)) {
                         ImGui::SetDragDropPayload("DND_PLOT", &i, sizeof(int));
@@ -989,7 +989,7 @@ void ShowDemoWindow(bool* p_open) {
             // make our plot a drag and drop target
 			if (ImGui::BeginDragDropTarget()) {
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_PLOT")) {
-					int i = *(int*)payload->Data;
+					int i = *(int*)payload->m_data;
 					show[i] = true;
                     yAxis[i] = 0;
                     // set specific y-axis if hovered
@@ -1083,18 +1083,18 @@ void ShowDemoWindow(bool* p_open) {
         ImPlot::SetNextPlotLimitsX(t - 10.0, t, paused ? ImGuiCond_Once : ImGuiCond_Always);
         if (ImPlot::BeginPlot("##Digital")) {
             for (int i = 0; i < K_PLOT_DIGITAL_CH_COUNT; ++i) {
-                if (showDigital[i] && dataDigital[i].Data.size() > 0) {
+                if (showDigital[i] && dataDigital[i].m_data.size() > 0) {
                     char label[32];
                     sprintf(label, "digital_%d", i);
-                    ImPlot::PlotDigital(label, &dataDigital[i].Data[0].x, &dataDigital[i].Data[0].y, dataDigital[i].Data.size(), dataDigital[i].Offset, 2 * sizeof(float));
+                    ImPlot::PlotDigital(label, &dataDigital[i].m_data[0].x, &dataDigital[i].m_data[0].y, dataDigital[i].m_data.size(), dataDigital[i].Offset, 2 * sizeof(float));
                 }
             }
             for (int i = 0; i < K_PLOT_ANALOG_CH_COUNT; ++i) {
                 if (showAnalog[i]) {
                     char label[32];
                     sprintf(label, "analog_%d", i);
-                    if (dataAnalog[i].Data.size() > 0)
-                        ImPlot::PlotLine(label, &dataAnalog[i].Data[0].x, &dataAnalog[i].Data[0].y, dataAnalog[i].Data.size(), dataAnalog[i].Offset, 2 * sizeof(float));
+                    if (dataAnalog[i].m_data.size() > 0)
+                        ImPlot::PlotLine(label, &dataAnalog[i].m_data[0].x, &dataAnalog[i].m_data[0].y, dataAnalog[i].m_data.size(), dataAnalog[i].Offset, 2 * sizeof(float));
                 }
             }
             ImPlot::EndPlot();
@@ -1102,14 +1102,14 @@ void ShowDemoWindow(bool* p_open) {
         if (ImGui::BeginDragDropTarget()) {
            const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_DIGITAL_PLOT");
             if (payload) {
-                int i = *(int*)payload->Data;
+                int i = *(int*)payload->m_data;
                 showDigital[i] = true;
             }
             else
             {
                payload = ImGui::AcceptDragDropPayload("DND_ANALOG_PLOT");
                if (payload) {
-                  int i = *(int*)payload->Data;
+                  int i = *(int*)payload->m_data;
                   showAnalog[i] = true;
                }
             }
@@ -1554,14 +1554,14 @@ namespace ImPlot {
 struct BenchData {
     BenchData() {
         float y = RandomRange(0.0f,1.0f);
-        Data = new float[1000];
+        m_data = new float[1000];
         for (int i = 0; i < 1000; ++i) {
-            Data[i] = y + RandomRange(-0.01f,0.01f);
+            m_data[i] = y + RandomRange(-0.01f,0.01f);
         }
         Col = ImVec4(RandomRange(0.0f,1.0f),RandomRange(0.0f,1.0f),RandomRange(0.0f,1.0f),0.5f);
     }
-    ~BenchData() { delete[] Data; }
-    float* Data;
+    ~BenchData() { delete[] m_data; }
+    float* m_data;
     ImVec4 Col;
 };
 
@@ -1575,7 +1575,7 @@ enum BenchMode {
 struct BenchRecord {
     int Mode;
     bool AA;
-    ImVector<ImPlotPoint> Data;
+    ImVector<ImPlotPoint> m_data;
 };
 
 void ShowBenchmarkTool() {
@@ -1595,7 +1595,7 @@ void ShowBenchmarkTool() {
         F++;
         if (F == frames) {
             t2 = ImGui::GetTime();
-            records.back().Data.push_back(ImPlotPoint(L, frames / (t2 - t1)));
+            records.back().m_data.push_back(ImPlotPoint(L, frames / (t2 - t1)));
             L  += 5;
             F  = 0;
             t1 = ImGui::GetTime();
@@ -1621,7 +1621,7 @@ void ShowBenchmarkTool() {
         running = true;
         L = F = 0;
         records.push_back(BenchRecord());
-        records.back().Data.reserve(max_items+1);
+        records.back().m_data.reserve(max_items+1);
         records.back().Mode = mode;
         records.back().AA   = ImPlot::GetStyle().AntiAliasedLines;
         t1 = ImGui::GetTime();
@@ -1643,7 +1643,7 @@ void ShowBenchmarkTool() {
                 for (int i = 0; i < L; ++i) {
                     ImGui::PushID(i);
                     ImPlot::SetNextLineStyle(items[i].Col);
-                    ImPlot::PlotLine("##item", items[i].Data, 1000);
+                    ImPlot::PlotLine("##item", items[i].m_data, 1000);
                     ImGui::PopID();
                 }
             }
@@ -1651,7 +1651,7 @@ void ShowBenchmarkTool() {
                 for (int i = 0; i < L; ++i) {
                     ImGui::PushID(i);
                     ImPlot::SetNextFillStyle(items[i].Col,0.5f);
-                    ImPlot::PlotShaded("##item", items[i].Data, 1000);
+                    ImPlot::PlotShaded("##item", items[i].m_data, 1000);
                     ImGui::PopID();
                 }
             }
@@ -1659,7 +1659,7 @@ void ShowBenchmarkTool() {
                 for (int i = 0; i < L; ++i) {
                     ImGui::PushID(i);
                     ImPlot::SetNextLineStyle(items[i].Col);
-                    ImPlot::PlotScatter("##item", items[i].Data, 1000);
+                    ImPlot::PlotScatter("##item", items[i].m_data, 1000);
                     ImGui::PopID();
                 }
             }
@@ -1667,7 +1667,7 @@ void ShowBenchmarkTool() {
                 for (int i = 0; i < L; ++i) {
                     ImGui::PushID(i);
                     ImPlot::SetNextFillStyle(items[i].Col,0.5f);
-                    ImPlot::PlotBars("##item", items[i].Data, 1000);
+                    ImPlot::PlotBars("##item", items[i].m_data, 1000);
                     ImGui::PopID();
                 }
             }
@@ -1678,9 +1678,9 @@ void ShowBenchmarkTool() {
     static char buffer[64];
     if (ImPlot::BeginPlot("##Stats", "Items (1,000 pts each)", "Framerate (Hz)", ImVec2(-1,0), ImPlotFlags_NoChild)) {
         for (int run = 0; run < records.size(); ++run) {
-            if (records[run].Data.Size > 1) {
+            if (records[run].m_data.Size > 1) {
                 sprintf(buffer, "B%d-%s%s", run + 1, names[records[run].Mode], records[run].AA ? "-AA" : "");
-                ImVector<ImPlotPoint>& d = records[run].Data;
+                ImVector<ImPlotPoint>& d = records[run].m_data;
                 ImPlot::PlotLine(buffer, &d[0].x, &d[0].y, d.Size, 0, 2*sizeof(double));
             }
         }

@@ -137,7 +137,7 @@ namespace LinaEngine
 		double currentTime = (double)s_appWindow->GetTime();
 		double accumulator = 0.0;
 		int fpsCounter = 0;
-		double previousTime = 0;
+		double previousFPSCountTime = 0;
 		double frameTime = 0;
 
 		while (m_running)
@@ -153,8 +153,8 @@ namespace LinaEngine
 
 			double newTime = s_appWindow->GetTime();
 			double frameTime = newTime - currentTime;
+			m_frameTime = frameTime;
 			currentTime = newTime;
-
 
 			LINA_TIMER_START("Application Layers Tick");
 
@@ -172,6 +172,11 @@ namespace LinaEngine
 
 			LINA_TIMER_STOP("Current Level Tick");
 
+			LINA_TIMER_START("Main Pipeline Tick");
+
+			m_mainECSPipeline.UpdateSystems(frameTime);
+
+			LINA_TIMER_STOP("Main Pipeline Tick");
 
 			if (frameTime > 0.25)
 				frameTime = 0.25;
@@ -201,9 +206,9 @@ namespace LinaEngine
 			// Simple FPS count
 			fpsCounter++;
 
-			if (currentTime - previousTime >= 1.0)
+			if (currentTime - previousFPSCountTime >= 1.0)
 			{
-				previousTime = currentTime;
+				previousFPSCountTime = currentTime;
 				m_currentFPS = fpsCounter;
 				fpsCounter = 0;
 			}

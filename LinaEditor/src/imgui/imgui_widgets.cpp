@@ -10,7 +10,7 @@ Index of this file:
 // [SECTION] Widgets: Main (Button, Image, Checkbox, RadioButton, ProgressBar, Bullet, etc.)
 // [SECTION] Widgets: Low-level Layout helpers (Spacing, Dummy, NewLine, Separator, etc.)
 // [SECTION] Widgets: ComboBox
-// [SECTION] Data Type and Data Formatting Helpers
+// [SECTION] m_data Type and m_data Formatting Helpers
 // [SECTION] Widgets: DragScalar, DragFloat, DragInt, etc.
 // [SECTION] Widgets: SliderScalar, SliderFloat, SliderInt, etc.
 // [SECTION] Widgets: InputScalar, InputFloat, InputInt, etc.
@@ -78,7 +78,7 @@ Index of this file:
 #endif
 
 //-------------------------------------------------------------------------
-// Data
+// m_data
 //-------------------------------------------------------------------------
 
 // Those MIN/MAX values are not define because we need to point to them
@@ -1695,7 +1695,7 @@ bool ImGui::Combo(const char* label, int* current_item, const char* items_separa
 }
 
 //-------------------------------------------------------------------------
-// [SECTION] Data Type and Data Formatting Helpers [Internal]
+// [SECTION] m_data Type and m_data Formatting Helpers [Internal]
 //-------------------------------------------------------------------------
 // - PatchFormatStringFloatToInt()
 // - DataTypeGetInfo()
@@ -2200,7 +2200,7 @@ bool ImGui::DragBehavior(ImGuiID id, ImGuiDataType data_type, void* p_v, float v
 }
 
 // Note: p_data, p_min and p_max are _pointers_ to a memory address holding the data. For a Drag widget, p_min and p_max are optional.
-// Read code of e.g. DragFloat(), DragInt() etc. or examples in 'Demo->Widgets->Data Types' to understand how to use this function directly.
+// Read code of e.g. DragFloat(), DragInt() etc. or examples in 'Demo->Widgets->m_data Types' to understand how to use this function directly.
 bool ImGui::DragScalar(const char* label, ImGuiDataType data_type, void* p_data, float v_speed, const void* p_min, const void* p_max, const char* format, ImGuiSliderFlags flags)
 {
 	ImGuiWindow* window = GetCurrentWindow();
@@ -2807,7 +2807,7 @@ bool ImGui::SliderBehavior(const ImRect& bb, ImGuiID id, ImGuiDataType data_type
 }
 
 // Note: p_data, p_min and p_max are _pointers_ to a memory address holding the data. For a slider, they are all required.
-// Read code of e.g. SliderFloat(), SliderInt() etc. or examples in 'Demo->Widgets->Data Types' to understand how to use this function directly.
+// Read code of e.g. SliderFloat(), SliderInt() etc. or examples in 'Demo->Widgets->m_data Types' to understand how to use this function directly.
 bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const char* format, ImGuiSliderFlags flags)
 {
 	ImGuiWindow* window = GetCurrentWindow();
@@ -3210,7 +3210,7 @@ bool ImGui::TempInputScalar(const ImRect& bb, ImGuiID id, const char* label, ImG
 		memcpy(&data_backup, p_data, data_type_size);
 
 		// Apply new value (or operations) then clamp
-		DataTypeApplyOpFromText(data_buf, g.InputTextState.InitialTextA.Data, data_type, p_data, NULL);
+		DataTypeApplyOpFromText(data_buf, g.InputTextState.InitialTextA.m_data, data_type, p_data, NULL);
 		if (p_clamp_min || p_clamp_max)
 		{
 			if (DataTypeCompare(data_type, p_clamp_min, p_clamp_max) > 0)
@@ -3227,7 +3227,7 @@ bool ImGui::TempInputScalar(const ImRect& bb, ImGuiID id, const char* label, ImG
 }
 
 // Note: p_data, p_step, p_step_fast are _pointers_ to a memory address holding the data. For an Input widget, p_step and p_step_fast are optional.
-// Read code of e.g. InputFloat(), InputInt() etc. or examples in 'Demo->Widgets->Data Types' to understand how to use this function directly.
+// Read code of e.g. InputFloat(), InputInt() etc. or examples in 'Demo->Widgets->m_data Types' to understand how to use this function directly.
 bool ImGui::InputScalar(const char* label, ImGuiDataType data_type, void* p_data, const void* p_step, const void* p_step_fast, const char* format, ImGuiInputTextFlags flags)
 {
 	ImGuiWindow* window = GetCurrentWindow();
@@ -3257,7 +3257,7 @@ bool ImGui::InputScalar(const char* label, ImGuiDataType data_type, void* p_data
 		PushID(label);
 		SetNextItemWidth(ImMax(1.0f, CalcItemWidth() - (button_size + style.ItemInnerSpacing.x) * 2));
 		if (InputText("", buf, IM_ARRAYSIZE(buf), flags)) // PushId(label) + "" gives us the expected ID from outside point of view
-			value_changed = DataTypeApplyOpFromText(buf, g.InputTextState.InitialTextA.Data, data_type, p_data, format);
+			value_changed = DataTypeApplyOpFromText(buf, g.InputTextState.InitialTextA.m_data, data_type, p_data, format);
 
 		// Step buttons
 		const ImVec2 backup_frame_padding = style.FramePadding;
@@ -3292,7 +3292,7 @@ bool ImGui::InputScalar(const char* label, ImGuiDataType data_type, void* p_data
 	else
 	{
 		if (InputText(label, buf, IM_ARRAYSIZE(buf), flags))
-			value_changed = DataTypeApplyOpFromText(buf, g.InputTextState.InitialTextA.Data, data_type, p_data, format);
+			value_changed = DataTypeApplyOpFromText(buf, g.InputTextState.InitialTextA.m_data, data_type, p_data, format);
 	}
 	if (value_changed)
 		MarkItemEdited(window->DC.LastItemId);
@@ -3515,7 +3515,7 @@ namespace ImStb
 	static ImWchar STB_TEXTEDIT_NEWLINE = '\n';
 	static void    STB_TEXTEDIT_LAYOUTROW(StbTexteditRow* r, STB_TEXTEDIT_STRING* obj, int line_start_idx)
 	{
-		const ImWchar* text = obj->TextW.Data;
+		const ImWchar* text = obj->TextW.m_data;
 		const ImWchar* text_remaining = NULL;
 		const ImVec2 size = InputTextCalcTextSizeW(text + line_start_idx, text + obj->CurLenW, &text_remaining, NULL, true);
 		r->x0 = 0.0f;
@@ -3540,7 +3540,7 @@ namespace ImStb
 
 	static void STB_TEXTEDIT_DELETECHARS(STB_TEXTEDIT_STRING* obj, int pos, int n)
 	{
-		ImWchar* dst = obj->TextW.Data + pos;
+		ImWchar* dst = obj->TextW.m_data + pos;
 
 		// We maintain our buffer length in both UTF-8 and wchar formats
 		obj->Edited = true;
@@ -3548,7 +3548,7 @@ namespace ImStb
 		obj->CurLenW -= n;
 
 		// Offset remaining text (FIXME-OPT: Use memmove)
-		const ImWchar* src = obj->TextW.Data + pos + n;
+		const ImWchar* src = obj->TextW.m_data + pos + n;
 		while (ImWchar c = *src++)
 			*dst++ = c;
 		*dst = '\0';
@@ -3573,7 +3573,7 @@ namespace ImStb
 			obj->TextW.resize(text_len + ImClamp(new_text_len * 4, 32, ImMax(256, new_text_len)) + 1);
 		}
 
-		ImWchar* text = obj->TextW.Data;
+		ImWchar* text = obj->TextW.m_data;
 		if (pos != text_len)
 			memmove(text + pos + new_text_len, text + pos, (size_t)(text_len - pos) * sizeof(ImWchar));
 		memcpy(text + pos, new_text, (size_t)new_text_len * sizeof(ImWchar));
@@ -3673,10 +3673,10 @@ void ImGuiInputTextCallbackData::InsertChars(int pos, const char* new_text, cons
 		ImGuiContext& g = *GImGui;
 		ImGuiInputTextState* edit_state = &g.InputTextState;
 		IM_ASSERT(edit_state->ID != 0 && g.ActiveId == edit_state->ID);
-		IM_ASSERT(Buf == edit_state->TextA.Data);
+		IM_ASSERT(Buf == edit_state->TextA.m_data);
 		int new_buf_size = BufTextLen + ImClamp(new_text_len * 4, 32, ImMax(256, new_text_len)) + 1;
 		edit_state->TextA.reserve(new_buf_size + 1);
-		Buf = edit_state->TextA.Data;
+		Buf = edit_state->TextA.m_data;
 		BufSize = edit_state->BufCapacityA = new_buf_size;
 	}
 
@@ -3882,15 +3882,15 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 		// Take a copy of the initial buffer value (both in original UTF-8 format and converted to wchar)
 		// From the moment we focused we are ignoring the content of 'buf' (unless we are in read-only mode)
 		const int buf_len = (int)strlen(buf);
-		state->InitialTextA.resize(buf_len + 1);    // UTF-8. we use +1 to make sure that .Data is always pointing to at least an empty string.
-		memcpy(state->InitialTextA.Data, buf, buf_len + 1);
+		state->InitialTextA.resize(buf_len + 1);    // UTF-8. we use +1 to make sure that .m_data is always pointing to at least an empty string.
+		memcpy(state->InitialTextA.m_data, buf, buf_len + 1);
 
 		// Start edition
 		const char* buf_end = NULL;
-		state->TextW.resize(buf_size + 1);          // wchar count <= UTF-8 count. we use +1 to make sure that .Data is always pointing to at least an empty string.
+		state->TextW.resize(buf_size + 1);          // wchar count <= UTF-8 count. we use +1 to make sure that .m_data is always pointing to at least an empty string.
 		state->TextA.resize(0);
 		state->TextAIsValid = false;                // TextA is not valid yet (we will display buf until then)
-		state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, buf_size, buf, NULL, &buf_end);
+		state->CurLenW = ImTextStrFromUtf8(state->TextW.m_data, buf_size, buf, NULL, &buf_end);
 		state->CurLenA = (int)(buf_end - buf);      // We can't get the result from ImStrncpy() above because it is not UTF-8 aware. Here we'll cut off malformed UTF-8.
 
 		// Preserve cursor position and undo/redo stack if we come back to same widget
@@ -3956,7 +3956,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 	{
 		const char* buf_end = NULL;
 		state->TextW.resize(buf_size + 1);
-		state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, state->TextW.Size, buf, NULL, &buf_end);
+		state->CurLenW = ImTextStrFromUtf8(state->TextW.m_data, state->TextW.Size, buf, NULL, &buf_end);
 		state->CurLenA = (int)(buf_end - buf);
 		state->CursorClamp();
 		render_selection &= state->HasSelection();
@@ -3964,7 +3964,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 
 	// Select the buffer to render.
 	const bool buf_display_from_state = (render_cursor || render_selection || g.ActiveId == id) && !is_readonly && state && state->TextAIsValid;
-	const bool is_displaying_hint = (hint != NULL && (buf_display_from_state ? state->TextA.Data : buf)[0] == 0);
+	const bool is_displaying_hint = (hint != NULL && (buf_display_from_state ? state->TextA.m_data : buf)[0] == 0);
 
 	// Password pushes a temporary font with only a fallback glyph
 	if (is_password && !is_displaying_hint)
@@ -4143,9 +4143,9 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 			{
 				const int ib = state->HasSelection() ? ImMin(state->Stb.select_start, state->Stb.select_end) : 0;
 				const int ie = state->HasSelection() ? ImMax(state->Stb.select_start, state->Stb.select_end) : state->CurLenW;
-				const int clipboard_data_len = ImTextCountUtf8BytesFromStr(state->TextW.Data + ib, state->TextW.Data + ie) + 1;
+				const int clipboard_data_len = ImTextCountUtf8BytesFromStr(state->TextW.m_data + ib, state->TextW.m_data + ie) + 1;
 				char* clipboard_data = (char*)IM_ALLOC(clipboard_data_len * sizeof(char));
-				ImTextStrToUtf8(clipboard_data, clipboard_data_len, state->TextW.Data + ib, state->TextW.Data + ie);
+				ImTextStrToUtf8(clipboard_data, clipboard_data_len, state->TextW.m_data + ib, state->TextW.m_data + ie);
 				SetClipboardText(clipboard_data);
 				MemFree(clipboard_data);
 			}
@@ -4198,18 +4198,18 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 		if (cancel_edit)
 		{
 			// Restore initial value. Only return true if restoring to the initial value changes the current buffer contents.
-			if (!is_readonly && strcmp(buf, state->InitialTextA.Data) != 0)
+			if (!is_readonly && strcmp(buf, state->InitialTextA.m_data) != 0)
 			{
 				// Push records into the undo stack so we can CTRL+Z the revert operation itself
-				apply_new_text = state->InitialTextA.Data;
+				apply_new_text = state->InitialTextA.m_data;
 				apply_new_text_length = state->InitialTextA.Size - 1;
 				ImVector<ImWchar> w_text;
 				if (apply_new_text_length > 0)
 				{
 					w_text.resize(ImTextCountCharsFromUtf8(apply_new_text, apply_new_text + apply_new_text_length) + 1);
-					ImTextStrFromUtf8(w_text.Data, w_text.Size, apply_new_text, apply_new_text + apply_new_text_length);
+					ImTextStrFromUtf8(w_text.m_data, w_text.Size, apply_new_text, apply_new_text + apply_new_text_length);
 				}
-				stb_textedit_replace(state, &state->Stb, w_text.Data, (apply_new_text_length > 0) ? (w_text.Size - 1) : 0);
+				stb_textedit_replace(state, &state->Stb, w_text.m_data, (apply_new_text_length > 0) ? (w_text.Size - 1) : 0);
 			}
 		}
 
@@ -4227,7 +4227,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 			{
 				state->TextAIsValid = true;
 				state->TextA.resize(state->TextW.Size * 4 + 1);
-				ImTextStrToUtf8(state->TextA.Data, state->TextA.Size, state->TextW.Data, NULL);
+				ImTextStrToUtf8(state->TextA.m_data, state->TextA.Size, state->TextW.m_data, NULL);
 			}
 
 			// User callback
@@ -4271,13 +4271,13 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 					callback_data.UserData = callback_user_data;
 
 					callback_data.EventKey = event_key;
-					callback_data.Buf = state->TextA.Data;
+					callback_data.Buf = state->TextA.m_data;
 					callback_data.BufTextLen = state->CurLenA;
 					callback_data.BufSize = state->BufCapacityA;
 					callback_data.BufDirty = false;
 
 					// We have to convert from wchar-positions to UTF-8-positions, which can be pretty slow (an incentive to ditch the ImWchar buffer, see https://github.com/nothings/stb/issues/188)
-					ImWchar* text = state->TextW.Data;
+					ImWchar* text = state->TextW.m_data;
 					const int utf8_cursor_pos = callback_data.CursorPos = ImTextCountUtf8BytesFromStr(text, text + state->Stb.cursor);
 					const int utf8_selection_start = callback_data.SelectionStart = ImTextCountUtf8BytesFromStr(text, text + state->Stb.select_start);
 					const int utf8_selection_end = callback_data.SelectionEnd = ImTextCountUtf8BytesFromStr(text, text + state->Stb.select_end);
@@ -4286,7 +4286,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 					callback(&callback_data);
 
 					// Read back what user may have modified
-					IM_ASSERT(callback_data.Buf == state->TextA.Data);  // Invalid to modify those fields
+					IM_ASSERT(callback_data.Buf == state->TextA.m_data);  // Invalid to modify those fields
 					IM_ASSERT(callback_data.BufSize == state->BufCapacityA);
 					IM_ASSERT(callback_data.Flags == flags);
 					if (callback_data.CursorPos != utf8_cursor_pos) { state->Stb.cursor = ImTextCountCharsFromUtf8(callback_data.Buf, callback_data.Buf + callback_data.CursorPos); state->CursorFollow = true; }
@@ -4297,7 +4297,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 						IM_ASSERT(callback_data.BufTextLen == (int)strlen(callback_data.Buf)); // You need to maintain BufTextLen if you change the text!
 						if (callback_data.BufTextLen > backup_current_text_length && is_resizable)
 							state->TextW.resize(state->TextW.Size + (callback_data.BufTextLen - backup_current_text_length));
-						state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, state->TextW.Size, callback_data.Buf, NULL);
+						state->CurLenW = ImTextStrFromUtf8(state->TextW.m_data, state->TextW.Size, callback_data.Buf, NULL);
 						state->CurLenA = callback_data.BufTextLen;  // Assume correct length and valid UTF-8 from user, saves us an extra strlen()
 						state->CursorAnimReset();
 					}
@@ -4305,9 +4305,9 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 			}
 
 			// Will copy result string if modified
-			if (!is_readonly && strcmp(state->TextA.Data, buf) != 0)
+			if (!is_readonly && strcmp(state->TextA.m_data, buf) != 0)
 			{
-				apply_new_text = state->TextA.Data;
+				apply_new_text = state->TextA.m_data;
 				apply_new_text_length = state->CurLenA;
 			}
 		}
@@ -4366,7 +4366,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 	// without any carriage return, which would makes ImFont::RenderText() reserve too many vertices and probably crash. Avoid it altogether.
 	// Note that we only use this limit on single-line InputText(), so a pathologically large line on a InputTextMultiline() would still crash.
 	const int buf_display_max_length = 2 * 1024 * 1024;
-	const char* buf_display = buf_display_from_state ? state->TextA.Data : buf; //-V595
+	const char* buf_display = buf_display_from_state ? state->TextA.m_data : buf; //-V595
 	const char* buf_display_end = NULL; // We have specialized paths below for setting the length
 	if (is_displaying_hint)
 	{
@@ -4389,7 +4389,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 		// - Measure text height (for scrollbar)
 		// We are attempting to do most of that in **one main pass** to minimize the computation cost (non-negligible for large amount of text) + 2nd pass for selection rendering (we could merge them by an extra refactoring effort)
 		// FIXME: This should occur on buf_display but we'd need to maintain cursor/select_start/select_end for UTF-8.
-		const ImWchar* text_begin = state->TextW.Data;
+		const ImWchar* text_begin = state->TextW.m_data;
 		ImVec2 cursor_offset, select_start_offset;
 
 		{
@@ -4817,12 +4817,12 @@ bool ImGui::ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flag
 		bool accepted_drag_drop = false;
 		if (const ImGuiPayload* payload = AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_3F))
 		{
-			memcpy((float*)col, payload->Data, sizeof(float) * 3); // Preserve alpha if any //-V512
+			memcpy((float*)col, payload->m_data, sizeof(float) * 3); // Preserve alpha if any //-V512
 			value_changed = accepted_drag_drop = true;
 		}
 		if (const ImGuiPayload* payload = AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_4F))
 		{
-			memcpy((float*)col, payload->Data, sizeof(float) * components);
+			memcpy((float*)col, payload->m_data, sizeof(float) * components);
 			value_changed = accepted_drag_drop = true;
 		}
 
@@ -6942,7 +6942,7 @@ bool    ImGui::BeginTabBarEx(ImGuiTabBar* tab_bar, const ImRect& tab_bar_bb, ImG
 	// Ensure correct ordering when toggling ImGuiTabBarFlags_Reorderable flag, or when a new tab was added while being not reorderable
 	if ((flags & ImGuiTabBarFlags_Reorderable) != (tab_bar->Flags & ImGuiTabBarFlags_Reorderable) || (tab_bar->TabsAddedNew && !(flags & ImGuiTabBarFlags_Reorderable)))
 		if (tab_bar->Tabs.Size > 1 && (flags & ImGuiTabBarFlags_DockNode) == 0)
-			ImQsort(tab_bar->Tabs.Data, tab_bar->Tabs.Size, sizeof(ImGuiTabItem), TabItemComparerByBeginOrder);
+			ImQsort(tab_bar->Tabs.m_data, tab_bar->Tabs.Size, sizeof(ImGuiTabItem), TabItemComparerByBeginOrder);
 	tab_bar->TabsAddedNew = false;
 
 	// Flags
@@ -7063,7 +7063,7 @@ static void ImGui::TabBarLayout(ImGuiTabBar* tab_bar)
 		tab_bar->Tabs.resize(tab_dst_n);
 
 	if (need_sort_by_section)
-		ImQsort(tab_bar->Tabs.Data, tab_bar->Tabs.Size, sizeof(ImGuiTabItem), TabItemComparerBySection);
+		ImQsort(tab_bar->Tabs.m_data, tab_bar->Tabs.Size, sizeof(ImGuiTabItem), TabItemComparerBySection);
 
 	// Calculate spacing between sections
 	sections[0].Spacing = sections[0].TabCount > 0 && (sections[1].TabCount + sections[2].TabCount) > 0 ? g.Style.ItemInnerSpacing.x : 0.0f;
@@ -7166,7 +7166,7 @@ static void ImGui::TabBarLayout(ImGuiTabBar* tab_bar)
 	{
 		int shrink_data_count = (central_section_is_visible ? sections[1].TabCount : sections[0].TabCount + sections[2].TabCount);
 		int shrink_data_offset = (central_section_is_visible ? sections[0].TabCount + sections[2].TabCount : 0);
-		ShrinkWidths(g.ShrinkWidthBuffer.Data + shrink_data_offset, shrink_data_count, width_excess);
+		ShrinkWidths(g.ShrinkWidthBuffer.m_data + shrink_data_offset, shrink_data_count, width_excess);
 
 		// Apply shrunk values into tabs and sections
 		for (int tab_n = shrink_data_offset; tab_n < shrink_data_offset + shrink_data_count; tab_n++)
@@ -8071,7 +8071,7 @@ void ImGui::SetWindowClipRectBeforeSetChannel(ImGuiWindow* window, const ImRect&
 	ImVec4 clip_rect_vec4 = clip_rect.ToVec4();
 	window->ClipRect = clip_rect;
 	window->DrawList->_CmdHeader.ClipRect = clip_rect_vec4;
-	window->DrawList->_ClipRectStack.Data[window->DrawList->_ClipRectStack.Size - 1] = clip_rect_vec4;
+	window->DrawList->_ClipRectStack.m_data[window->DrawList->_ClipRectStack.Size - 1] = clip_rect_vec4;
 }
 
 int ImGui::GetColumnIndex()

@@ -29,7 +29,7 @@ SOFTWARE.
 /*
 Class: Quaternion
 
-Data structure for representing quaternions, glm wrapper.
+m_data structure for representing quaternions, glm wrapper.
 
 Timestamp: 10/14/2018 10:42:21 PM
 

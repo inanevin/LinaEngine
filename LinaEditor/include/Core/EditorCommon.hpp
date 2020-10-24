@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -50,8 +50,7 @@ namespace LinaEditor
 		static std::string& contentsPath;
 	};
 
-
-// GLOBAL
+	// GLOBAL
 #define GLOBAL_FRAMEPADDING_WINDOW ImVec2(0,6)
 #define GLOBAL_DOCKSPACE_BEGIN 60
 

@@ -447,19 +447,19 @@ void ImDrawList::_PopUnusedDrawCmd()
 {
     if (CmdBuffer.Size == 0)
         return;
-    ImDrawCmd* curr_cmd = &CmdBuffer.Data[CmdBuffer.Size - 1];
+    ImDrawCmd* curr_cmd = &CmdBuffer.m_data[CmdBuffer.Size - 1];
     if (curr_cmd->ElemCount == 0 && curr_cmd->UserCallback == NULL)
         CmdBuffer.pop_back();
 }
 
 void ImDrawList::AddCallback(ImDrawCallback callback, void* callback_data)
 {
-    ImDrawCmd* curr_cmd = &CmdBuffer.Data[CmdBuffer.Size - 1];
+    ImDrawCmd* curr_cmd = &CmdBuffer.m_data[CmdBuffer.Size - 1];
     IM_ASSERT(curr_cmd->UserCallback == NULL);
     if (curr_cmd->ElemCount != 0)
     {
         AddDrawCmd();
-        curr_cmd = &CmdBuffer.Data[CmdBuffer.Size - 1];
+        curr_cmd = &CmdBuffer.m_data[CmdBuffer.Size - 1];
     }
     curr_cmd->UserCallback = callback;
     curr_cmd->UserCallbackData = callback_data;
@@ -477,7 +477,7 @@ void ImDrawList::AddCallback(ImDrawCallback callback, void* callback_data)
 void ImDrawList::_OnChangedClipRect()
 {
     // If current command is used with different settings we need to add a new command
-    ImDrawCmd* curr_cmd = &CmdBuffer.Data[CmdBuffer.Size - 1];
+    ImDrawCmd* curr_cmd = &CmdBuffer.m_data[CmdBuffer.Size - 1];
     if (curr_cmd->ElemCount != 0 && memcmp(&curr_cmd->ClipRect, &_CmdHeader.ClipRect, sizeof(ImVec4)) != 0)
     {
         AddDrawCmd();
@@ -499,7 +499,7 @@ void ImDrawList::_OnChangedClipRect()
 void ImDrawList::_OnChangedTextureID()
 {
     // If current command is used with different settings we need to add a new command
-    ImDrawCmd* curr_cmd = &CmdBuffer.Data[CmdBuffer.Size - 1];
+    ImDrawCmd* curr_cmd = &CmdBuffer.m_data[CmdBuffer.Size - 1];
     if (curr_cmd->ElemCount != 0 && curr_cmd->TextureId != _CmdHeader.TextureId)
     {
         AddDrawCmd();
@@ -522,7 +522,7 @@ void ImDrawList::_OnChangedVtxOffset()
 {
     // We don't need to compare curr_cmd->VtxOffset != _CmdHeader.VtxOffset because we know it'll be different at the time we call this.
     _VtxCurrentIdx = 0;
-    ImDrawCmd* curr_cmd = &CmdBuffer.Data[CmdBuffer.Size - 1];
+    ImDrawCmd* curr_cmd = &CmdBuffer.m_data[CmdBuffer.Size - 1];
     //IM_ASSERT(curr_cmd->VtxOffset != _CmdHeader.VtxOffset); // See #3349
     if (curr_cmd->ElemCount != 0)
     {
@@ -561,7 +561,7 @@ void ImDrawList::PushClipRectFullScreen()
 void ImDrawList::PopClipRect()
 {
     _ClipRectStack.pop_back();
-    _CmdHeader.ClipRect = (_ClipRectStack.Size == 0) ? _Data->ClipRectFullscreen : _ClipRectStack.Data[_ClipRectStack.Size - 1];
+    _CmdHeader.ClipRect = (_ClipRectStack.Size == 0) ? _Data->ClipRectFullscreen : _ClipRectStack.m_data[_ClipRectStack.Size - 1];
     _OnChangedClipRect();
 }
 
@@ -575,7 +575,7 @@ void ImDrawList::PushTextureID(ImTextureID texture_id)
 void ImDrawList::PopTextureID()
 {
     _TextureIdStack.pop_back();
-    _CmdHeader.TextureId = (_TextureIdStack.Size == 0) ? (ImTextureID)NULL : _TextureIdStack.Data[_TextureIdStack.Size - 1];
+    _CmdHeader.TextureId = (_TextureIdStack.Size == 0) ? (ImTextureID)NULL : _TextureIdStack.m_data[_TextureIdStack.Size - 1];
     _OnChangedTextureID();
 }
 
@@ -595,16 +595,16 @@ void ImDrawList::PrimReserve(int idx_count, int vtx_count)
         _OnChangedVtxOffset();
     }
 
-    ImDrawCmd* draw_cmd = &CmdBuffer.Data[CmdBuffer.Size - 1];
+    ImDrawCmd* draw_cmd = &CmdBuffer.m_data[CmdBuffer.Size - 1];
     draw_cmd->ElemCount += idx_count;
 
     int vtx_buffer_old_size = VtxBuffer.Size;
     VtxBuffer.resize(vtx_buffer_old_size + vtx_count);
-    _VtxWritePtr = VtxBuffer.Data + vtx_buffer_old_size;
+    _VtxWritePtr = VtxBuffer.m_data + vtx_buffer_old_size;
 
     int idx_buffer_old_size = IdxBuffer.Size;
     IdxBuffer.resize(idx_buffer_old_size + idx_count);
-    _IdxWritePtr = IdxBuffer.Data + idx_buffer_old_size;
+    _IdxWritePtr = IdxBuffer.m_data + idx_buffer_old_size;
 }
 
 // Release the a number of reserved vertices/indices from the end of the last reservation made with PrimReserve().
@@ -612,7 +612,7 @@ void ImDrawList::PrimUnreserve(int idx_count, int vtx_count)
 {
     IM_ASSERT_PARANOID(idx_count >= 0 && vtx_count >= 0);
 
-    ImDrawCmd* draw_cmd = &CmdBuffer.Data[CmdBuffer.Size - 1];
+    ImDrawCmd* draw_cmd = &CmdBuffer.m_data[CmdBuffer.Size - 1];
     draw_cmd->ElemCount -= idx_count;
     VtxBuffer.shrink(VtxBuffer.Size - vtx_count);
     IdxBuffer.shrink(IdxBuffer.Size - idx_count);
@@ -1492,7 +1492,7 @@ void ImDrawListSplitter::Merge(ImDrawList* draw_list)
                 // Merge previous channel last draw command with current channel first draw command if matching.
                 last_cmd->ElemCount += next_cmd->ElemCount;
                 idx_offset += next_cmd->ElemCount;
-                ch._CmdBuffer.erase(ch._CmdBuffer.Data); // FIXME-OPT: Improve for multiple merges.
+                ch._CmdBuffer.erase(ch._CmdBuffer.m_data); // FIXME-OPT: Improve for multiple merges.
             }
         }
         if (ch._CmdBuffer.Size > 0)
@@ -1501,21 +1501,21 @@ void ImDrawListSplitter::Merge(ImDrawList* draw_list)
         new_idx_buffer_count += ch._IdxBuffer.Size;
         for (int cmd_n = 0; cmd_n < ch._CmdBuffer.Size; cmd_n++)
         {
-            ch._CmdBuffer.Data[cmd_n].IdxOffset = idx_offset;
-            idx_offset += ch._CmdBuffer.Data[cmd_n].ElemCount;
+            ch._CmdBuffer.m_data[cmd_n].IdxOffset = idx_offset;
+            idx_offset += ch._CmdBuffer.m_data[cmd_n].ElemCount;
         }
     }
     draw_list->CmdBuffer.resize(draw_list->CmdBuffer.Size + new_cmd_buffer_count);
     draw_list->IdxBuffer.resize(draw_list->IdxBuffer.Size + new_idx_buffer_count);
 
     // Write commands and indices in order (they are fairly small structures, we don't copy vertices only indices)
-    ImDrawCmd* cmd_write = draw_list->CmdBuffer.Data + draw_list->CmdBuffer.Size - new_cmd_buffer_count;
-    ImDrawIdx* idx_write = draw_list->IdxBuffer.Data + draw_list->IdxBuffer.Size - new_idx_buffer_count;
+    ImDrawCmd* cmd_write = draw_list->CmdBuffer.m_data + draw_list->CmdBuffer.Size - new_cmd_buffer_count;
+    ImDrawIdx* idx_write = draw_list->IdxBuffer.m_data + draw_list->IdxBuffer.Size - new_idx_buffer_count;
     for (int i = 1; i < _Count; i++)
     {
         ImDrawChannel& ch = _Channels[i];
-        if (int sz = ch._CmdBuffer.Size) { memcpy(cmd_write, ch._CmdBuffer.Data, sz * sizeof(ImDrawCmd)); cmd_write += sz; }
-        if (int sz = ch._IdxBuffer.Size) { memcpy(idx_write, ch._IdxBuffer.Data, sz * sizeof(ImDrawIdx)); idx_write += sz; }
+        if (int sz = ch._CmdBuffer.Size) { memcpy(cmd_write, ch._CmdBuffer.m_data, sz * sizeof(ImDrawCmd)); cmd_write += sz; }
+        if (int sz = ch._IdxBuffer.Size) { memcpy(idx_write, ch._IdxBuffer.m_data, sz * sizeof(ImDrawIdx)); idx_write += sz; }
     }
     draw_list->_IdxWritePtr = idx_write;
 
@@ -1524,7 +1524,7 @@ void ImDrawListSplitter::Merge(ImDrawList* draw_list)
         draw_list->AddDrawCmd();
 
     // If current command is used with different settings we need to add a new command
-    ImDrawCmd* curr_cmd = &draw_list->CmdBuffer.Data[draw_list->CmdBuffer.Size - 1];
+    ImDrawCmd* curr_cmd = &draw_list->CmdBuffer.m_data[draw_list->CmdBuffer.Size - 1];
     if (curr_cmd->ElemCount == 0)
         ImDrawCmd_HeaderCopy(curr_cmd, &draw_list->_CmdHeader); // Copy ClipRect, TextureId, VtxOffset
     else if (ImDrawCmd_HeaderCompare(curr_cmd, &draw_list->_CmdHeader) != 0)
@@ -1540,15 +1540,15 @@ void ImDrawListSplitter::SetCurrentChannel(ImDrawList* draw_list, int idx)
         return;
 
     // Overwrite ImVector (12/16 bytes), four times. This is merely a silly optimization instead of doing .swap()
-    memcpy(&_Channels.Data[_Current]._CmdBuffer, &draw_list->CmdBuffer, sizeof(draw_list->CmdBuffer));
-    memcpy(&_Channels.Data[_Current]._IdxBuffer, &draw_list->IdxBuffer, sizeof(draw_list->IdxBuffer));
+    memcpy(&_Channels.m_data[_Current]._CmdBuffer, &draw_list->CmdBuffer, sizeof(draw_list->CmdBuffer));
+    memcpy(&_Channels.m_data[_Current]._IdxBuffer, &draw_list->IdxBuffer, sizeof(draw_list->IdxBuffer));
     _Current = idx;
-    memcpy(&draw_list->CmdBuffer, &_Channels.Data[idx]._CmdBuffer, sizeof(draw_list->CmdBuffer));
-    memcpy(&draw_list->IdxBuffer, &_Channels.Data[idx]._IdxBuffer, sizeof(draw_list->IdxBuffer));
-    draw_list->_IdxWritePtr = draw_list->IdxBuffer.Data + draw_list->IdxBuffer.Size;
+    memcpy(&draw_list->CmdBuffer, &_Channels.m_data[idx]._CmdBuffer, sizeof(draw_list->CmdBuffer));
+    memcpy(&draw_list->IdxBuffer, &_Channels.m_data[idx]._IdxBuffer, sizeof(draw_list->IdxBuffer));
+    draw_list->_IdxWritePtr = draw_list->IdxBuffer.m_data + draw_list->IdxBuffer.Size;
 
     // If current command is used with different settings we need to add a new command
-    ImDrawCmd* curr_cmd = &draw_list->CmdBuffer.Data[draw_list->CmdBuffer.Size - 1];
+    ImDrawCmd* curr_cmd = &draw_list->CmdBuffer.m_data[draw_list->CmdBuffer.Size - 1];
     if (curr_cmd->ElemCount == 0)
         ImDrawCmd_HeaderCopy(curr_cmd, &draw_list->_CmdHeader); // Copy ClipRect, TextureId, VtxOffset
     else if (ImDrawCmd_HeaderCompare(curr_cmd, &draw_list->_CmdHeader) != 0)
@@ -1603,8 +1603,8 @@ void ImGui::ShadeVertsLinearColorGradientKeepAlpha(ImDrawList* draw_list, int ve
 {
     ImVec2 gradient_extent = gradient_p1 - gradient_p0;
     float gradient_inv_length2 = 1.0f / ImLengthSqr(gradient_extent);
-    ImDrawVert* vert_start = draw_list->VtxBuffer.Data + vert_start_idx;
-    ImDrawVert* vert_end = draw_list->VtxBuffer.Data + vert_end_idx;
+    ImDrawVert* vert_start = draw_list->VtxBuffer.m_data + vert_start_idx;
+    ImDrawVert* vert_end = draw_list->VtxBuffer.m_data + vert_end_idx;
     const int col0_r = (int)(col0 >> IM_COL32_R_SHIFT) & 0xFF;
     const int col0_g = (int)(col0 >> IM_COL32_G_SHIFT) & 0xFF;
     const int col0_b = (int)(col0 >> IM_COL32_B_SHIFT) & 0xFF;
@@ -1631,8 +1631,8 @@ void ImGui::ShadeVertsLinearUV(ImDrawList* draw_list, int vert_start_idx, int ve
         size.x != 0.0f ? (uv_size.x / size.x) : 0.0f,
         size.y != 0.0f ? (uv_size.y / size.y) : 0.0f);
 
-    ImDrawVert* vert_start = draw_list->VtxBuffer.Data + vert_start_idx;
-    ImDrawVert* vert_end = draw_list->VtxBuffer.Data + vert_end_idx;
+    ImDrawVert* vert_start = draw_list->VtxBuffer.m_data + vert_start_idx;
+    ImDrawVert* vert_end = draw_list->VtxBuffer.m_data + vert_end_idx;
     if (clamp)
     {
         const ImVec2 min = ImMin(uv_a, uv_b);
@@ -1760,7 +1760,7 @@ void    ImFontAtlas::ClearInputData()
 
     // When clearing this we lose access to the font name and other information used to build the font.
     for (int i = 0; i < Fonts.Size; i++)
-        if (Fonts[i]->ConfigData >= ConfigData.Data && Fonts[i]->ConfigData < ConfigData.Data + ConfigData.Size)
+        if (Fonts[i]->ConfigData >= ConfigData.m_data && Fonts[i]->ConfigData < ConfigData.m_data + ConfigData.Size)
         {
             Fonts[i]->ConfigData = NULL;
             Fonts[i]->ConfigDataCount = 0;
@@ -2049,7 +2049,7 @@ void    ImFontAtlasBuildMultiplyRectAlpha8(const unsigned char table[256], unsig
 struct ImFontBuildSrcData
 {
     stbtt_fontinfo      FontInfo;
-    stbtt_pack_range    PackRange;          // Hold the list of codepoints to pack (essentially points to Codepoints.Data)
+    stbtt_pack_range    PackRange;          // Hold the list of codepoints to pack (essentially points to Codepoints.m_data)
     stbrp_rect*         Rects;              // Rectangle to pack. We first fill in their size and the packer will give us their position.
     stbtt_packedchar*   PackedChars;        // Output glyphs
     const ImWchar*      SrcRanges;          // Ranges as requested by user (user is allowed to request too much, e.g. 0x0020..0xFFFF)
@@ -2071,7 +2071,7 @@ struct ImFontBuildDstData
 
 static void UnpackBitVectorToFlatIndexList(const ImBitVector* in, ImVector<int>* out)
 {
-    IM_ASSERT(sizeof(in->Storage.Data[0]) == sizeof(int));
+    IM_ASSERT(sizeof(in->Storage.m_data[0]) == sizeof(int));
     const ImU32* it_begin = in->Storage.begin();
     const ImU32* it_end = in->Storage.end();
     for (const ImU32* it = it_begin; it < it_end; it++)
@@ -2099,8 +2099,8 @@ bool    ImFontAtlasBuildWithStbTruetype(ImFontAtlas* atlas)
     ImVector<ImFontBuildDstData> dst_tmp_array;
     src_tmp_array.resize(atlas->ConfigData.Size);
     dst_tmp_array.resize(atlas->Fonts.Size);
-    memset(src_tmp_array.Data, 0, (size_t)src_tmp_array.size_in_bytes());
-    memset(dst_tmp_array.Data, 0, (size_t)dst_tmp_array.size_in_bytes());
+    memset(src_tmp_array.m_data, 0, (size_t)src_tmp_array.size_in_bytes());
+    memset(dst_tmp_array.m_data, 0, (size_t)dst_tmp_array.size_in_bytes());
 
     // 1. Initialize font loading structure, check font data validity
     for (int src_i = 0; src_i < atlas->ConfigData.Size; src_i++)
@@ -2179,8 +2179,8 @@ bool    ImFontAtlasBuildWithStbTruetype(ImFontAtlas* atlas)
     ImVector<stbtt_packedchar> buf_packedchars;
     buf_rects.resize(total_glyphs_count);
     buf_packedchars.resize(total_glyphs_count);
-    memset(buf_rects.Data, 0, (size_t)buf_rects.size_in_bytes());
-    memset(buf_packedchars.Data, 0, (size_t)buf_packedchars.size_in_bytes());
+    memset(buf_rects.m_data, 0, (size_t)buf_rects.size_in_bytes());
+    memset(buf_packedchars.m_data, 0, (size_t)buf_packedchars.size_in_bytes());
 
     // 4. Gather glyphs sizes so we can pack them in our virtual canvas.
     int total_surface = 0;
@@ -2201,7 +2201,7 @@ bool    ImFontAtlasBuildWithStbTruetype(ImFontAtlas* atlas)
         ImFontConfig& cfg = atlas->ConfigData[src_i];
         src_tmp.PackRange.font_size = cfg.SizePixels;
         src_tmp.PackRange.first_unicode_codepoint_in_range = 0;
-        src_tmp.PackRange.array_of_unicode_codepoints = src_tmp.GlyphsList.Data;
+        src_tmp.PackRange.array_of_unicode_codepoints = src_tmp.GlyphsList.m_data;
         src_tmp.PackRange.num_chars = src_tmp.GlyphsList.Size;
         src_tmp.PackRange.chardata_for_range = src_tmp.PackedChars;
         src_tmp.PackRange.h_oversample = (unsigned char)cfg.OversampleH;
@@ -2358,7 +2358,7 @@ void ImFontAtlasBuildPackCustomRects(ImFontAtlas* atlas, void* stbrp_context_opa
 
     ImVector<stbrp_rect> pack_rects;
     pack_rects.resize(user_rects.Size);
-    memset(pack_rects.Data, 0, (size_t)pack_rects.size_in_bytes());
+    memset(pack_rects.m_data, 0, (size_t)pack_rects.size_in_bytes());
     for (int i = 0; i < user_rects.Size; i++)
     {
         pack_rects[i].w = user_rects[i].Width;
@@ -2939,34 +2939,34 @@ void ImFont::AddRemapChar(ImWchar dst, ImWchar src, bool overwrite_dst)
     IM_ASSERT(IndexLookup.Size > 0);    // Currently this can only be called AFTER the font has been built, aka after calling ImFontAtlas::GetTexDataAs*() function.
     unsigned int index_size = (unsigned int)IndexLookup.Size;
 
-    if (dst < index_size && IndexLookup.Data[dst] == (ImWchar)-1 && !overwrite_dst) // 'dst' already exists
+    if (dst < index_size && IndexLookup.m_data[dst] == (ImWchar)-1 && !overwrite_dst) // 'dst' already exists
         return;
     if (src >= index_size && dst >= index_size) // both 'dst' and 'src' don't exist -> no-op
         return;
 
     GrowIndex(dst + 1);
-    IndexLookup[dst] = (src < index_size) ? IndexLookup.Data[src] : (ImWchar)-1;
-    IndexAdvanceX[dst] = (src < index_size) ? IndexAdvanceX.Data[src] : 1.0f;
+    IndexLookup[dst] = (src < index_size) ? IndexLookup.m_data[src] : (ImWchar)-1;
+    IndexAdvanceX[dst] = (src < index_size) ? IndexAdvanceX.m_data[src] : 1.0f;
 }
 
 const ImFontGlyph* ImFont::FindGlyph(ImWchar c) const
 {
     if (c >= (size_t)IndexLookup.Size)
         return FallbackGlyph;
-    const ImWchar i = IndexLookup.Data[c];
+    const ImWchar i = IndexLookup.m_data[c];
     if (i == (ImWchar)-1)
         return FallbackGlyph;
-    return &Glyphs.Data[i];
+    return &Glyphs.m_data[i];
 }
 
 const ImFontGlyph* ImFont::FindGlyphNoFallback(ImWchar c) const
 {
     if (c >= (size_t)IndexLookup.Size)
         return NULL;
-    const ImWchar i = IndexLookup.Data[c];
+    const ImWchar i = IndexLookup.m_data[c];
     if (i == (ImWchar)-1)
         return NULL;
-    return &Glyphs.Data[i];
+    return &Glyphs.m_data[i];
 }
 
 const char* ImFont::CalcWordWrapPositionA(float scale, const char* text, const char* text_end, float wrap_width) const
@@ -3023,7 +3023,7 @@ const char* ImFont::CalcWordWrapPositionA(float scale, const char* text, const c
             }
         }
 
-        const float char_width = ((int)c < IndexAdvanceX.Size ? IndexAdvanceX.Data[c] : FallbackAdvanceX);
+        const float char_width = ((int)c < IndexAdvanceX.Size ? IndexAdvanceX.m_data[c] : FallbackAdvanceX);
         if (ImCharIsBlankW(c))
         {
             if (inside_word)
@@ -3140,7 +3140,7 @@ ImVec2 ImFont::CalcTextSizeA(float size, float max_width, float wrap_width, cons
                 continue;
         }
 
-        const float char_width = ((int)c < IndexAdvanceX.Size ? IndexAdvanceX.Data[c] : FallbackAdvanceX) * scale;
+        const float char_width = ((int)c < IndexAdvanceX.Size ? IndexAdvanceX.m_data[c] : FallbackAdvanceX) * scale;
         if (line_width + char_width >= max_width)
         {
             s = prev_s;
@@ -3352,8 +3352,8 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
     }
 
     // Give back unused vertices (clipped ones, blanks) ~ this is essentially a PrimUnreserve() action.
-    draw_list->VtxBuffer.Size = (int)(vtx_write - draw_list->VtxBuffer.Data); // Same as calling shrink()
-    draw_list->IdxBuffer.Size = (int)(idx_write - draw_list->IdxBuffer.Data);
+    draw_list->VtxBuffer.Size = (int)(vtx_write - draw_list->VtxBuffer.m_data); // Same as calling shrink()
+    draw_list->IdxBuffer.Size = (int)(idx_write - draw_list->IdxBuffer.m_data);
     draw_list->CmdBuffer[draw_list->CmdBuffer.Size - 1].ElemCount -= (idx_expected_size - draw_list->IdxBuffer.Size);
     draw_list->_VtxWritePtr = vtx_write;
     draw_list->_IdxWritePtr = idx_write;
