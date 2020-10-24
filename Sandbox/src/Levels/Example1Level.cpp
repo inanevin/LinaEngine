@@ -131,7 +131,6 @@ void Example1Level::Initialize()
 		renderEngine.SetHDRIData(&renderEngine.GetMaterial(ecs.get<LinaEngine::ECS::MeshRendererComponent>(cube).m_materialID));
 	}
 
-
 }
 
 void Example1Level::Tick(float delta)

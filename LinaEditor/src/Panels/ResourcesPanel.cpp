@@ -332,7 +332,6 @@ namespace LinaEditor
 				s_usedFileNameColor.z = Math::Lerp(s_highlightColor.z, s_fileNameColor.z, remapped);
 				s_usedFileNameColor.w = Math::Lerp(s_highlightColor.w, s_fileNameColor.w, remapped);
 
-				LINA_CORE_TRACE("{0}  {1}", t, remapped);
 				if (t > s_colorLerpDuration - 0.1f)
 				{
 					s_highlightColorSet = false;
@@ -345,9 +344,10 @@ namespace LinaEditor
 			else
 				ImGui::PushStyleColor(ImGuiCol_Text, s_fileNameColor);
 
-
+			// Node
 			bool nodeOpen = ImGui::TreeNodeEx(it->second.m_name.c_str(), fileFlags);
 
+			// Drag drop
 			if (it->second.m_type == FileType::Texture2D)
 			{
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))

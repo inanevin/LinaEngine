@@ -376,9 +376,6 @@ namespace LinaEditor
 					}
 				}
 
-
-				
-
 				WidgetsUtility::IncrementCursorPosY(80);
 				WidgetsUtility::PopStyleVar();
 

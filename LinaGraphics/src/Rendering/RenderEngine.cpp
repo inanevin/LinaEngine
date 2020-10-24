@@ -1153,14 +1153,14 @@ namespace LinaEngine::Graphics
 		for (auto const& d : (*data).m_sampler2Ds)
 		{
 			// Set whether the texture is active or not.
-			bool isActive = (d.second.m_isActive && !d.second.m_boundTexture->GetIsEmpty()) ? true : false;
+			bool isActive = (d.second.m_isActive && d.second.m_boundTexture != nullptr && !d.second.m_boundTexture->GetIsEmpty()) ? true : false;
 			m_renderDevice.UpdateShaderUniformInt(data->m_shaderID, d.first + MAT_EXTENSION_ISACTIVE, isActive);
 
 			// Set the texture to corresponding active unit.
 			m_renderDevice.UpdateShaderUniformInt(data->m_shaderID, d.first + MAT_EXTENSION_TEXTURE2D, d.second.m_unit);
 
 			// Set texture
-			if (d.second.m_isActive)
+			if (isActive)
 				m_renderDevice.SetTexture(d.second.m_boundTexture->GetID(), d.second.m_boundTexture->GetSamplerID(), d.second.m_unit, d.second.m_bindMode, true);
 			else
 			{
