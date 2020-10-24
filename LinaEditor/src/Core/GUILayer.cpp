@@ -36,7 +36,6 @@ SOFTWARE.
 #include "Core/EditorApplication.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Widgets/WidgetsUtility.hpp"
-#include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -238,7 +237,6 @@ namespace LinaEditor
 		ImGui::NewFrame();
 
 		m_headerPanel.Draw();
-		DrawLevelDataDialogs();
 		DrawCentralDockingSpace();
 
 		m_resourcesPanel.Draw();
@@ -287,12 +285,34 @@ namespace LinaEditor
 		else if (item == MenuBarItems::SaveLevelData)
 		{
 			if (m_currentLevel != nullptr)
-				igfd::ImGuiFileDialog::Instance()->OpenDialog(s_saveLevelDialogID, "Choose File", ".linaleveldata", ".");
+			{
+				std::string fullPath = "";
+				fullPath = EditorUtility::SaveFile(".linaleveldata", LinaEngine::Application::GetAppWindow().GetNativeWindow());
+
+				if (fullPath.compare("") != 0)
+				{
+					size_t lastIndex = fullPath.find_last_of("/");
+					std::string folderPath = fullPath.substr(0, lastIndex);
+					std::string fileName = fullPath.substr(lastIndex + 1);
+					m_currentLevel->SerializeLevelData(folderPath, fileName);
+				}
+			}
 		}
 		else if (item == MenuBarItems::LoadLevelData)
 		{
 			if (m_currentLevel != nullptr)
-				igfd::ImGuiFileDialog::Instance()->OpenDialog(s_loadLevelDialogID, "Choose File", ".linaleveldata", ".");
+			{
+				std::string fullPath = "";
+				fullPath = EditorUtility::OpenFile(".linaleveldata", LinaEngine::Application::GetAppWindow().GetNativeWindow());
+
+				if (fullPath.compare("") != 0)
+				{
+					size_t lastIndex = fullPath.find_last_of("/");
+					std::string folderPath = fullPath.substr(0, lastIndex);
+					std::string fileName = EditorUtility::RemoveExtensionFromFilename(fullPath.substr(lastIndex + 1));
+					m_currentLevel->DeserializeLevelData(folderPath, fileName);
+				}
+			}
 		}
 
 		// Panels.
@@ -329,60 +349,6 @@ namespace LinaEditor
 	void GUILayer::LevelInstalled(LinaEngine::World::Level* level)
 	{
 		m_currentLevel = level;
-	}
-
-	void GUILayer::DrawLevelDataDialogs()
-	{
-		WidgetsUtility::WindowPadding(ImVec2(7, 5));
-		WidgetsUtility::FramePadding(ImVec2(10, 4));
-
-		// Save level dialogue.
-		if (igfd::ImGuiFileDialog::Instance()->FileDialog(s_saveLevelDialogID))
-		{
-			// action if OK
-			if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
-			{
-				std::string filePathName = igfd::ImGuiFileDialog::Instance()->GetFilepathName();
-				std::string filePath = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
-				std::string fileName = igfd::ImGuiFileDialog::Instance()->GetCurrentFileName();
-				size_t lastIndex = fileName.find_last_of(".");
-				std::string rawName = fileName.substr(0, lastIndex);
-
-				m_currentLevel->SerializeLevelData(filePath, rawName);
-
-				igfd::ImGuiFileDialog::Instance()->CloseDialog(s_saveLevelDialogID);
-			}
-
-			igfd::ImGuiFileDialog::Instance()->CloseDialog(s_saveLevelDialogID);
-		}
-
-		// Load level dialogue.
-		if (igfd::ImGuiFileDialog::Instance()->FileDialog(s_loadLevelDialogID))
-		{
-			// action if OK
-			if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
-			{
-				std::string filePathName = igfd::ImGuiFileDialog::Instance()->GetFilepathName();
-				std::string filePath = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
-				std::string fileName = igfd::ImGuiFileDialog::Instance()->GetCurrentFileName();
-				size_t lastIndex = fileName.find_last_of(".");
-				std::string rawName = fileName.substr(0, lastIndex);
-
-				// Load level data.
-				m_currentLevel->DeserializeLevelData(filePath, rawName);
-
-				// Refresh ECS panel.
-				m_ecsPanel.Refresh();
-
-				igfd::ImGuiFileDialog::Instance()->CloseDialog(s_loadLevelDialogID);
-			}
-
-			igfd::ImGuiFileDialog::Instance()->CloseDialog(s_loadLevelDialogID);
-
-		}
-
-		WidgetsUtility::PopStyleVar();
-		WidgetsUtility::PopStyleVar();
 	}
 
 	void GUILayer::DrawFPSCounter(int corner)

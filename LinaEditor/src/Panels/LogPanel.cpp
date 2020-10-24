@@ -29,9 +29,10 @@ SOFTWARE.
 #include "Panels/LogPanel.hpp"
 #include "Core/GUILayer.hpp"
 #include "Core/Application.hpp"
+#include "Rendering/Window.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Input/InputMappings.hpp"
-#include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
+#include "Utility/EditorUtility.hpp"
 #include "IconsFontAwesome5.h"
 
 namespace LinaEditor
@@ -90,30 +91,21 @@ namespace LinaEditor
 				WidgetsUtility::IncrementCursorPosX(3);
 
 				// Save dump contents on a file.
-				static const char* saveLogDataID = "saveLogDump";
 				if (ImGui::Button("Save"))
 				{
-					igfd::ImGuiFileDialog::Instance()->OpenDialog(saveLogDataID, "Choose Location", ".txt", ".");
-				}
+					std::string fullPath = "";
+					fullPath = EditorUtility::SaveFile(".txt", LinaEngine::Application::GetAppWindow().GetNativeWindow());
 
-				if (igfd::ImGuiFileDialog::Instance()->FileDialog(saveLogDataID))
-				{
-					// action if OK
-					if (igfd::ImGuiFileDialog::Instance()->IsOk == true)
+					if (fullPath.compare("") != 0)
 					{
-						std::string filePathName = igfd::ImGuiFileDialog::Instance()->GetFilepathName();
-						std::string filePath = igfd::ImGuiFileDialog::Instance()->GetCurrentPath();
-						std::string fileName = igfd::ImGuiFileDialog::Instance()->GetCurrentFileName();
-						size_t lastIndex = fileName.find_last_of(".");
-						std::string rawName = fileName.substr(0, lastIndex);
-
-						// SAVE LATER 
-
-						igfd::ImGuiFileDialog::Instance()->CloseDialog(saveLogDataID);
+						size_t lastIndex = fullPath.find_last_of("/");
+						std::string folderPath = fullPath.substr(0, lastIndex);
+						std::string fileName = fullPath.substr(lastIndex + 1);
+						// save later.
 					}
-
-					igfd::ImGuiFileDialog::Instance()->CloseDialog(saveLogDataID);
 				}
+
+
 
 
 

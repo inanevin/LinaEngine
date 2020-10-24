@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -77,7 +77,9 @@ namespace LinaEditor
 
 		if (GetOpenFileNameA(&ofn) == TRUE)
 		{
-			return ofn.lpstrFile;
+			std::string replacedPath = ofn.lpstrFile;
+			std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
+			return replacedPath;
 		}
 
 #endif
@@ -100,7 +102,9 @@ namespace LinaEditor
 		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 		if (GetSaveFileNameA(&ofn) == TRUE)
 		{
-			return ofn.lpstrFile;
+			std::string replacedPath = ofn.lpstrFile;
+			std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
+			return replacedPath;
 		}
 #endif
 		return std::string();

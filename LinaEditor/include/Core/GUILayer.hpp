@@ -124,7 +124,6 @@ namespace LinaEditor
 	private:
 
 		void LevelInstalled(LinaEngine::World::Level* level);
-		void DrawLevelDataDialogs();
 		void DrawFPSCounter(int corner = 0);
 		void DrawCentralDockingSpace();
 
