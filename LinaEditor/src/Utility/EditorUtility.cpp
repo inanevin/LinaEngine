@@ -53,12 +53,6 @@ namespace LinaEditor
 		return false;
 	}
 
-	bool EditorUtility::FileExists(const std::string& path)
-	{
-		struct stat buffer;
-		return (stat(path.c_str(), &buffer) == 0);
-	}
-
 	std::string EditorUtility::RemoveExtensionFromFilename(const std::string& fileName)
 	{
 		size_t lastindex = fileName.find_last_of(".");

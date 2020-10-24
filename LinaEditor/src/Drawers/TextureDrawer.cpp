@@ -102,8 +102,6 @@ namespace LinaEditor
 
 	void TextureDrawer::DrawSelectedTexture()
 	{
-		LINA_CLIENT_TRACE("Drawing Texture with ID {0}, params: {1} ** {2} ** {3}", m_selectedTexture->GetPath(), m_currentWrapS, m_currentWrapT, m_currentWrapR);
-
 		SamplerParameters& params = m_selectedTexture->GetSampler().GetSamplerParameters();
 		static ImGuiComboFlags flags = 0;
 		static PixelFormat selectedInternalPF = params.m_textureParams.m_internalPixelFormat;
@@ -160,6 +158,7 @@ namespace LinaEditor
 			}
 			ImGui::EndCombo();
 		}
+
 
 		WidgetsUtility::IncrementCursorPosX(11);
 		WidgetsUtility::AlignedText("Pixel Format");

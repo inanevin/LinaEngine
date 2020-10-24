@@ -63,7 +63,9 @@ namespace LinaEngine::World
 
 			entt::snapshot{ registry }
 				.entities(oarchive)
-				.component<LinaEngine::ECS::CameraComponent,
+				.component<
+				LinaEngine::ECS::ECSEntityData, 
+				LinaEngine::ECS::CameraComponent,
 				LinaEngine::ECS::FreeLookComponent,
 				LinaEngine::ECS::PointLightComponent,
 				LinaEngine::ECS::DirectionalLightComponent,
@@ -81,12 +83,6 @@ namespace LinaEngine::World
 
 			oarchive(m_levelData); // Write the data to the archive
 		} 
-
-		std::ofstream registryStream(path + "/" + levelName + "_ecsReg.linaregistry");
-		{
-			cereal::BinaryOutputArchive oarchive(registryStream); // Create an output archive
-			oarchive(registry); // Write the data to the archive
-		}
 
 	}
 
@@ -111,7 +107,9 @@ namespace LinaEngine::World
 
 			entt::snapshot_loader{ registry }
 				.entities(iarchive)
-				.component<LinaEngine::ECS::CameraComponent,
+				.component<
+				LinaEngine::ECS::ECSEntityData,
+				LinaEngine::ECS::CameraComponent,
 				LinaEngine::ECS::FreeLookComponent,
 				LinaEngine::ECS::PointLightComponent,
 				LinaEngine::ECS::DirectionalLightComponent,
@@ -124,13 +122,5 @@ namespace LinaEngine::World
 				
 		}
 
-		std::ifstream registryStream(path + "/" + levelName + "_ecsReg.linaregistry");
-		{
-			cereal::BinaryInputArchive iarchive(registryStream);
-
-			// Read the data into it.
-			iarchive(registry);
-
-		}
 	}
 }

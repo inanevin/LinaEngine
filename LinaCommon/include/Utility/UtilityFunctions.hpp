@@ -50,6 +50,8 @@ namespace LinaEngine
 		// Creates a GUID.
 		int GetUniqueID();
 
+		bool FileExists(const std::string& path);
+
 		// Converts the current GUID to string via to_string and simply returns that.
 		std::string GetUniqueIDString();
 

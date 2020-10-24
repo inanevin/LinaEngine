@@ -210,6 +210,9 @@ namespace LinaEditor
 
 		// Imgui first frame initialization.
 		Render();
+
+		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::World::Level*>("##guilayer_level_init", LinaEngine::Action::ActionType::LevelInitialized,
+			std::bind(&GUILayer::LevelInstalled, this, std::placeholders::_1));
 	}
 
 	void GUILayer::Detach()
@@ -320,6 +323,11 @@ namespace LinaEditor
 	void GUILayer::Refresh()
 	{
 		m_ecsPanel.Refresh();
+	}
+
+	void GUILayer::LevelInstalled(LinaEngine::World::Level* level)
+	{
+		m_currentLevel = level;
 	}
 
 	void GUILayer::DrawLevelDataDialogs()

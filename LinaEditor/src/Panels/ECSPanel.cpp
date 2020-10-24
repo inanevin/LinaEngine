@@ -103,12 +103,12 @@ namespace LinaEditor
 					// Selection
 					entityCounter++;
 					ECSEntity& entity = *it;
-					strcpy(selectedEntityName, ecs.GetEntityName(entity).c_str());
+					strcpy(selectedEntityName, ecs.get<LinaEngine::ECS::ECSEntityData>(m_selectedEntity).m_name.c_str());
 					if (WidgetsUtility::SelectableInput("entSelectable" + entityCounter, m_selectedEntity == entity, ImGuiSelectableFlags_SelectOnClick, selectedEntityName, IM_ARRAYSIZE(selectedEntityName)))
 					{
 						m_selectedEntity = entity;
 						EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, entity);
-						ecs.SetEntityName(entity, selectedEntityName);
+						ecs.get<LinaEngine::ECS::ECSEntityData>(m_selectedEntity).m_name = selectedEntityName;
 					}
 
 					// Deselect.

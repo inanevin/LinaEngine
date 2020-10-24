@@ -80,7 +80,8 @@ namespace LinaEditor
 			std::string paramsPath = m_selectedMesh->GetParamsPath();
 			renderEngine.UnloadMeshResource(id);
 			m_selectedMesh = &renderEngine.CreateMesh(filePath, Graphics::MeshParameters(m_selectedParams), id);
-			LinaEngine::Graphics::Mesh::SaveParameters(paramsPath, m_selectedParams);
+			LINA_CORE_TRACE("File: {0} Params: {1}", filePath, paramsPath);
+			//LinaEngine::Graphics::Mesh::SaveParameters(paramsPath, m_selectedParams);
 
 		}
 

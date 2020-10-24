@@ -299,9 +299,9 @@ namespace LinaEngine::Graphics
 		PixelFormat m_internalPixelFormat = PixelFormat::FORMAT_RGBA;
 		SamplerFilter m_minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
 		SamplerFilter m_magFilter = SamplerFilter::FILTER_LINEAR;
-		SamplerWrapMode m_wrapS = SamplerWrapMode::WRAP_CLAMP_EDGE;
-		SamplerWrapMode m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-		SamplerWrapMode m_wrapR = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		SamplerWrapMode m_wrapS = SamplerWrapMode::WRAP_REPEAT;
+		SamplerWrapMode m_wrapT = SamplerWrapMode::WRAP_REPEAT;
+		SamplerWrapMode m_wrapR = SamplerWrapMode::WRAP_REPEAT;
 		bool m_generateMipMaps = false;
 
 		template<class Archive>

@@ -81,6 +81,7 @@ namespace LinaEditor
 
 			ImGui::Begin(PROFILER_ID, &m_show, flags);
 
+
 				// Shadow.
 			WidgetsUtility::DrawShadowedLine(5);
 			WidgetsUtility::IncrementCursorPosY(11);

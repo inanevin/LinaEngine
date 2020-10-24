@@ -372,7 +372,7 @@ namespace LinaEditor
 					LinaEngine::Graphics::SamplerParameters samplerParams;
 					std::string samplerParamsPath = file.pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.name) + ".samplerparams";
 
-					if (EditorUtility::FileExists(samplerParamsPath))
+					if (LinaEngine::Utility::FileExists(samplerParamsPath))
 						samplerParams = LinaEngine::Graphics::Texture::LoadParameters(samplerParamsPath);
 
 					renderEngine.CreateTexture2D(file.path, samplerParams, false, false, samplerParamsPath);
@@ -397,7 +397,7 @@ namespace LinaEditor
 					LinaEngine::Graphics::MeshParameters meshParams;
 					std::string meshParamsPath = file.pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.name) + ".meshparams";
 					 
-					if (EditorUtility::FileExists(meshParamsPath))
+					if (LinaEngine::Utility::FileExists(meshParamsPath))
 						meshParams = LinaEngine::Graphics::Mesh::LoadParameters(meshParamsPath);
 
 					renderEngine.CreateMesh(file.path, meshParams, -1 ,meshParamsPath);

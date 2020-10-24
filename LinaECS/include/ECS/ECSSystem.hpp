@@ -53,6 +53,20 @@ namespace LinaEngine::ECS
 	typedef entt::entity ECSEntity;
 	typedef entt::id_type ECSTypeID;
 
+	struct ECSEntityData
+	{
+		bool m_isHidden = false;
+		bool m_isEnabled = true;
+		std::string m_name = "";
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(m_isHidden, m_isEnabled, m_name);
+		}
+
+	};
+
 	template<typename T>
 	ECSTypeID GetTypeID()
 	{
@@ -67,17 +81,7 @@ namespace LinaEngine::ECS
 		virtual ~ECSRegistry() {};
 
 		ECSEntity CreateEntity(const std::string& name);
-		void SetEntityName(ECSEntity entity, const std::string& name);
-		std::string& GetEntityName(ECSEntity e);
 
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_entityNameMap); 
-		}
-
-	private:
-		std::map<entt::entity, std::string> m_entityNameMap;
 	};
 	
 
