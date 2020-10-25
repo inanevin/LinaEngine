@@ -101,8 +101,8 @@ void CreateHDRISkybox(RenderEngine& renderEngine)
 
 
 
-ECSEntity sphere;
-TransformComponent* t;
+ECSEntity cube1;
+ECSEntity cube2;
 
 void Example1Level::Initialize()
 {
@@ -110,26 +110,35 @@ void Example1Level::Initialize()
 
 	// Create a simple procedural skybox.
 	LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
-	CreateHDRISkybox(renderEngine);
+	CreateProceduralSkybox(renderEngine);
 
-	Material& objUnlit = renderEngine.CreateMaterial(Shaders::Standard_Unlit);
-	MeshRendererComponent cr;
-	cr.m_meshID = Primitives::Cube;
-	cr.m_materialID = objUnlit.GetID();
-	cr.m_materialPath = objUnlit.GetPath();
-	cr.m_meshPath = renderEngine.GetPrimitive(Primitives::Cube).GetPath();
-	TransformComponent objectTransform;
 
 	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
 
+	cube1 = ecs.GetEntity("Cube1");
+	cube2 = ecs.GetEntity("Cube2");
+	//ecs.AddChildTo(cube1, cube2);
+
+	TransformComponent& tr1 = ecs.get<TransformComponent>(cube1);
+	TransformComponent& tr2 = ecs.get<TransformComponent>(cube2);
+	//
+	tr1.transform.AddChild(&tr2.transform);
+
+	tr1.transform.SetGlobalLocation(Vector3(-5, 0, 0));
+	tr2.transform.SetLocalLocation(Vector3(5, 0, 0));
+	tr1.transform.SetGlobalLocation(Vector3(-5, 15, 0));
 }
 
 void Example1Level::Tick(float delta)
 {
+	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
 
-	if (LinaEngine::Application::GetInputEngine().GetKeyDown(LinaEngine::Input::InputCode::Key::K))
+	if (LinaEngine::Application::GetInputEngine().GetKey(LinaEngine::Input::InputCode::Key::K))
 	{
+		LinaEngine::ECS::TransformComponent& tr = ecs.get<LinaEngine::ECS::TransformComponent>(cube1);
 
+		tr.transform.m_location.x += delta * 10;
+		ecs.EntityTransformationUpdate(cube1);
 	}
 
 

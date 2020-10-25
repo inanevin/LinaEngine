@@ -42,6 +42,7 @@ Timestamp: 4/9/2019 12:06:04 PM
 
 #include "Quaternion.hpp"
 #include "Matrix.hpp"
+#include <set>
 
 namespace LinaEngine
 {
@@ -132,18 +133,46 @@ namespace LinaEngine
 			return *this;
 		}
 
+		void SetLocalLocation(const Vector3& loc);
+		void SetLocalRotation(const Quaternion& rot);
+		void SetLocalScale(const Vector3& scale);
+
+		const Vector3& GetLocalLocation() { return m_localLocation; }
+		const Quaternion& GetLocalRotation() { return m_localRotation; }
+		const Vector3& GetLocalScale() { return m_localScale; }
+
+		void SetGlobalLocation(const Vector3& loc);
+		void SetGlobalRotation(const Quaternion& rot);
+		void SetGlobalScale(const Vector3& scale);
+
+		const Vector3& GetGlobalLocation() { return m_location; }
+		const Quaternion& GetGlobalRotation() { return m_rotation; }
+		const Vector3& GetGlobalScale() { return m_scale; }
+
+
+
+		void AddChild(Transformation* child);
+		void RemoveChild(Transformation* child);
+		void RemoveFromParent();
+
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_location, m_rotation, m_scale); 
+			archive(m_location, m_rotation, m_scale, m_localLocation, m_localRotation, m_localScale); 
 		}
 
 		Vector3 m_location = Vector3::Zero;
 		Quaternion m_rotation;
 		Vector3 m_scale = Vector3::One;
 
+		Vector3 m_localLocation = Vector3::Zero;
+		Quaternion m_localRotation;
+		Vector3 m_localScale = Vector3::One;
+
 	private:
 
+		Transformation* m_parent = nullptr;
+		std::set<Transformation*> m_children;
 		
 	};
 

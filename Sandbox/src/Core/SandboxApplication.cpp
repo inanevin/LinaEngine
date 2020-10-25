@@ -44,14 +44,17 @@ class SandboxApplication : public LinaEngine::Application
 		props.m_title = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
 		Initialize(props);
 
+#ifdef LINA_EDITOR
 		m_editor.Setup();
-		
+#endif
 		InstallLevel(m_startupLevel);
 		InitializeLevel(m_startupLevel);
 
+#ifdef LINA_EDITOR
+
 		// Refresh after level init.
 		m_editor.Refresh();
-
+#endif
 		// Set the app window size back to original.
 		GetAppWindow().SetSize(Vector2(props.m_width, props.m_height));
 		GetAppWindow().SetPosCentered(Vector2::Zero);
@@ -67,7 +70,9 @@ class SandboxApplication : public LinaEngine::Application
 
 	private:
 		
+#ifdef LINA_EDITOR
 		LinaEditor::EditorApplication m_editor;
+#endif
 		Example1Level m_startupLevel;
 
 	};

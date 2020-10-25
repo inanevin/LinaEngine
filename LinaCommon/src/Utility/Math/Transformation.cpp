@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -33,6 +33,82 @@ namespace LinaEngine
 	Transformation Transformation::Interpolate(Transformation& from, Transformation& to, float t)
 	{
 		return Transformation(Vector3::Lerp(from.m_location, to.m_location, t), Quaternion::Slerp(from.m_rotation, to.m_rotation, t), Vector3::Lerp(from.m_scale, to.m_scale, t));
+	}
+
+	void Transformation::SetLocalLocation(const Vector3& loc)
+	{
+		m_localLocation = loc;
+		Vector3 locationToSet = loc;
+
+		if (m_parent != nullptr)
+		{
+			Matrix local = Matrix::Translate(m_localLocation);
+			Matrix globalChild = m_parent->ToMatrix() * local;
+			globalChild.Decompose(locationToSet);
+		}
+
+		SetGlobalLocation(locationToSet);
+	}
+
+	void Transformation::SetLocalRotation(const Quaternion& rot)
+	{
+		m_localRotation = rot;
+	}
+
+	void Transformation::SetLocalScale(const Vector3& scale)
+	{
+		m_localScale = scale;
+	}
+
+	void Transformation::SetGlobalLocation(const Vector3& loc)
+	{
+		m_location = loc;
+
+		for (Transformation* child : m_children)
+		{
+			child->SetLocalLocation(child->GetLocalLocation());
+		}
+	}
+
+	void Transformation::SetGlobalRotation(const Quaternion& rot)
+	{
+		m_rotation = rot;
+	}
+
+	void Transformation::SetGlobalScale(const Vector3& scale)
+	{
+		m_scale = scale;
+	}
+
+	void Transformation::AddChild(Transformation* child)
+	{
+		if (child != this)
+		{
+			m_children.emplace(child);
+			child->m_parent = this;
+		}
+		else
+			LINA_CORE_WARN("You can not add a transformation as it's own child.");
+	}
+
+	void Transformation::RemoveChild(Transformation* child)
+	{
+		if (m_children.find(child) != m_children.end())
+		{
+			child->m_parent = nullptr;
+			m_children.erase(child);
+		}
+		else
+			LINA_CORE_WARN("Child not found, can't remove.");
+	}
+
+	void Transformation::RemoveFromParent()
+	{
+		if (m_parent != nullptr)
+			m_parent->RemoveChild(this);
+		else
+			LINA_CORE_WARN("This transformation doesn't have a parent to remove from.");
+
 	}
 }
 

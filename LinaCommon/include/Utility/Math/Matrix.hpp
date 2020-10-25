@@ -46,6 +46,8 @@ Timestamp: 10/30/2018 1:00:25 PM
 
 namespace LinaEngine
 {
+	class Transformation;
+
 	class Matrix : public glm::mat4
 	{
 	public:
@@ -73,6 +75,9 @@ namespace LinaEngine
 		Matrix Transpose() const;
 		Matrix Inverse() const;
 		Matrix ApplyScale(const Vector3& scale);
+		void Decompose(Vector3& position = Vector3::Zero, Quaternion& rotation = Quaternion(), Vector3& scale = Vector3::One);
+		Transformation ToTransform();
+
 		std::string ToString();
 
 		template<class Archive>

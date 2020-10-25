@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "ECS/ECSSystem.hpp"  
 #include "Utility/Log.hpp"
-
+#include "ECS/Components/TransformComponent.hpp"
 namespace LinaEngine::ECS
 {
 	bool ECSSystemList::RemoveSystem(BaseECSSystem& system)
@@ -65,6 +65,29 @@ namespace LinaEngine::ECS
 
 		LINA_CORE_WARN("Entity with the name {0} could not be found, returning null entity.", name);
 		return entt::null;
+	}
+
+	void ECSRegistry::AddChildTo(ECSEntity parent, ECSEntity child)
+	{
+		get<ECSEntityData>(parent).m_children.emplace(child);
+		get<ECSEntityData>(child).m_parent = parent;
+	}
+
+	void ECSRegistry::EntityTransformationUpdate(ECSEntity entity)
+	{
+		TransformComponent& tr = get<TransformComponent>(entity);
+		ECSEntityData& data = get<ECSEntityData>(entity);
+
+		for (auto& child : data.m_children)
+		{
+			TransformComponent* childTr = try_get<TransformComponent>(child);
+
+			if (childTr)
+			{
+				Matrix transformed = ( tr.transform.ToMatrix() * childTr->transform.ToMatrix().Inverse());
+				//transformed.Decompose(childTr->transform.m_location, childTr->transform.m_rotation, childTr->transform.m_scale);
+			}
+		}
 	}
 
 }

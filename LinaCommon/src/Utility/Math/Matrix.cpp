@@ -28,8 +28,9 @@ SOFTWARE.
 
 #include "Utility/Math/Matrix.hpp"  
 #include "Utility/Math/Quaternion.hpp"
+#include "Utility/Math/Transformation.hpp"
 #include "glm/gtx/transform.hpp"
-
+#include <glm/gtx/matrix_decompose.hpp>
 namespace LinaEngine
 {
 
@@ -147,6 +148,25 @@ namespace LinaEngine
 		return *this;
 	}
 
+	void Matrix::Decompose(Vector3& position, Quaternion& rotation, Vector3& scale)
+	{
+		glm::vec4 perspective;
+		glm::vec3 skew;
+		glm::decompose(*this, scale, rotation, position, skew, perspective);
+	}
+
+	Transformation Matrix::ToTransform()
+	{
+		glm::vec3 skew;
+		glm::vec3 scale;
+		Quaternion rotation;
+		glm::vec3 position;
+		glm::vec4 perspective;
+
+		glm::decompose(*this, scale, rotation, position, skew, perspective);
+
+		return Transformation(position, rotation, scale);
+	}
 
 	Matrix Matrix::ToNormalMatrix() const
 	{
