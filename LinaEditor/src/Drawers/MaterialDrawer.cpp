@@ -406,6 +406,7 @@ namespace LinaEditor
 		if (ImGui::Button("Apply Changes"))
 		{
 			LinaEngine::Graphics::Material::SaveMaterialData(*m_selectedMaterial, m_selectedMaterial->GetPath());
+			LinaEngine::Application::GetRenderEngine().MaterialUpdated(*m_selectedMaterial);
 		}
 
 		ImGui::SameLine();
@@ -416,13 +417,10 @@ namespace LinaEditor
 			LinaEngine::Application::GetRenderEngine().SetMaterialShader(*m_selectedMaterial, m_selectedMaterial->GetShaderType());
 		}
 
+
+
 		ImGui::SameLine();
 		WidgetsUtility::IncrementCursorPosX(11);
-
-		if (ImGui::Button("Capture Skybox"))
-		{
-			LinaEngine::Application::GetRenderEngine().SetHDRIData(m_selectedMaterial);
-		}
 	}
 
 	bool MaterialDrawer::ShouldExcludeProperty(const std::string& property)

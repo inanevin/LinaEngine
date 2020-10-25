@@ -200,6 +200,7 @@ namespace LinaEngine::Graphics
 		int id = Utility::GetUniqueID();
 		Material& mat = m_loadedMaterials[id];
 		SetMaterialShader(mat, shader);
+		SetMaterialContainers(mat);
 		mat.m_materialID = id;
 		mat.m_path = path.compare("") == 0 ? INTERNAL_MAT_PATH : path;
 		return m_loadedMaterials[id];
@@ -212,9 +213,24 @@ namespace LinaEngine::Graphics
 		int id = Utility::GetUniqueID();
 		Material& mat = m_loadedMaterials[id];
 		Material::LoadMaterialData(mat, path);
+		SetMaterialContainers(mat);
 		mat.m_materialID = id;
 		mat.m_path = path;
 		return m_loadedMaterials[id];
+	}
+
+	void RenderEngine::MaterialUpdated(Material& mat)
+	{
+		if (!mat.m_usesHDRI && m_hdriMaterials.find(&mat) != m_hdriMaterials.end())
+		{
+			m_hdriMaterials.erase(&mat);
+			RemoveHDRIData(mat);
+		}
+		else if (mat.m_usesHDRI && m_hdriMaterials.find(&mat) == m_hdriMaterials.end())
+		{
+			m_hdriMaterials.emplace(&mat);
+			SetHDRIData(&mat);
+		}
 	}
 
 	Texture& RenderEngine::CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams, bool compress, bool useDefaultFormats, const std::string& paramsPath)
@@ -543,7 +559,6 @@ namespace LinaEngine::Graphics
 			material.m_receivesLighting = true;
 			material.m_isShadowMapped = true;
 			material.m_usesHDRI = true;
-
 			// m_shadowMappedMaterials.emplace(&material);
 		}
 		else if (shader == Shaders::HDRI_Equirectangular)
@@ -564,6 +579,13 @@ namespace LinaEngine::Graphics
 
 
 		return material;
+	}
+
+	void RenderEngine::SetMaterialContainers(Material& material)
+	{
+		if(material.m_usesHDRI)
+			m_hdriMaterials.emplace(&material);
+
 	}
 
 	void RenderEngine::UnloadTextureResource(int id)
@@ -1203,6 +1225,12 @@ namespace LinaEngine::Graphics
 
 		// Set flag
 		m_hdriDataCaptured = true;
+
+		for (Material* mat : m_hdriMaterials)
+		{
+			if (mat != nullptr)
+				SetHDRIData(mat);
+		}
 	}
 
 	void RenderEngine::CalculateHDRICubemap(Texture& hdriTexture, glm::mat4& captureProjection, glm::mat4 views[6])
@@ -1388,6 +1416,13 @@ namespace LinaEngine::Graphics
 		mat->SetTexture(MAT_TEXTURE2D_IRRADIANCEMAP, &m_hdriIrradianceMap, TextureBindMode::BINDTEXTURE_CUBEMAP);
 		mat->SetTexture(MAT_TEXTURE2D_BRDFLUTMAP, &m_HDRILutMap, TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		mat->SetTexture(MAT_TEXTURE2D_PREFILTERMAP, &m_hdriPrefilterMap, TextureBindMode::BINDTEXTURE_CUBEMAP);
+	}
+
+	void RenderEngine::RemoveHDRIData(Material& mat)
+	{
+		mat.RemoveTexture(MAT_TEXTURE2D_IRRADIANCEMAP);
+		mat.RemoveTexture(MAT_TEXTURE2D_BRDFLUTMAP);
+		mat.RemoveTexture(MAT_TEXTURE2D_PREFILTERMAP);
 	}
 
 	void RenderEngine::RemoveHDRIData(Material* mat)

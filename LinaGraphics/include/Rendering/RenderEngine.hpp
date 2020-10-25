@@ -113,6 +113,7 @@ namespace LinaEngine::Graphics
 
 		Material& CreateMaterial(Shaders shader, const std::string& path = "");
 		Material& LoadMaterialFromFile(const std::string& path = "");
+		void MaterialUpdated(Material& mat);
 		Texture& CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false, const std::string& paramsPath = "");
 		Texture& CreateTextureHDRI(const std::string filePath);
 		Mesh& CreateMesh (const std::string& filePath, MeshParameters meshParams = MeshParameters(), int id = -1, const std::string& paramsPath = "");
@@ -138,6 +139,7 @@ namespace LinaEngine::Graphics
 
 		// Sets the shader of a material to the shader specified by name. Also resets material properties based on the shader, caution!
 		Material& SetMaterialShader(Material& material, Shaders shader);
+		void SetMaterialContainers(Material& material);
 		void SetSkyboxMaterial(Material& skyboxMaterial) { m_skyboxMaterial = &skyboxMaterial; }
 		void PushLayer(Layer& layer);
 		void PushOverlay(Layer& layer);
@@ -154,6 +156,7 @@ namespace LinaEngine::Graphics
 		// Initializes the setup process for loading an HDRI image to the scene
 		void CaptureCalculateHDRI(Texture& hdriTexture);
 		void SetHDRIData(Material* mat);
+		void RemoveHDRIData(Material& mat);
 		void RemoveHDRIData(Material* mat);
 		void DrawLine(Vector3 p1, Vector3 p2, Color col, float width = 1.0f);
 
@@ -255,6 +258,7 @@ namespace LinaEngine::Graphics
 		std::map<int, Material> m_loadedMaterials;
 		std::map<int, Shader> m_loadedShaders;
 		std::set<Material*> m_shadowMappedMaterials;
+		std::set<Material*> m_hdriMaterials;
 
 	private:
 

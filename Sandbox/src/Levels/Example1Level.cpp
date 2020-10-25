@@ -33,7 +33,7 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "Rendering/Material.hpp"
 #include "Rendering/Shader.hpp"
 #include "Utility/UtilityFunctions.hpp"
-
+#include "Input/InputEngine.hpp"
 
 using namespace LinaEngine::Graphics;
 using namespace LinaEngine::ECS;
@@ -99,6 +99,8 @@ void CreateHDRISkybox(RenderEngine& renderEngine)
 }
 
 
+
+
 ECSEntity sphere;
 TransformComponent* t;
 
@@ -119,18 +121,6 @@ void Example1Level::Initialize()
 	TransformComponent objectTransform;
 
 	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
-	ECSEntity terrain = ecs.GetEntity("Sphere");
-	ECSEntity cube = ecs.GetEntity("Sphere2");
-
-	if (terrain != entt::null)
-	{
-		renderEngine.SetHDRIData(&renderEngine.GetMaterial(ecs.get<LinaEngine::ECS::MeshRendererComponent>(terrain).m_materialID));
-	}
-
-	if (cube != entt::null)
-	{
-		renderEngine.SetHDRIData(&renderEngine.GetMaterial(ecs.get<LinaEngine::ECS::MeshRendererComponent>(cube).m_materialID));
-	}
 
 
 }
@@ -138,6 +128,10 @@ void Example1Level::Initialize()
 void Example1Level::Tick(float delta)
 {
 
-	
+	if (LinaEngine::Application::GetInputEngine().GetKeyDown(LinaEngine::Input::InputCode::Key::K))
+	{
+
+	}
+
 
 }
