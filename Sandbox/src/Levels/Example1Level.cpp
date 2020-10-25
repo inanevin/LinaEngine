@@ -119,8 +119,9 @@ void Example1Level::Initialize()
 	TransformComponent objectTransform;
 
 	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
-	ECSEntity terrain = ecs.GetEntity("Terrain");
-	ECSEntity cube = ecs.GetEntity("Cube");
+	ECSEntity terrain = ecs.GetEntity("Sphere");
+	ECSEntity cube = ecs.GetEntity("Sphere2");
+
 	if (terrain != entt::null)
 	{
 		renderEngine.SetHDRIData(&renderEngine.GetMaterial(ecs.get<LinaEngine::ECS::MeshRendererComponent>(terrain).m_materialID));
@@ -130,6 +131,7 @@ void Example1Level::Initialize()
 	{
 		renderEngine.SetHDRIData(&renderEngine.GetMaterial(ecs.get<LinaEngine::ECS::MeshRendererComponent>(cube).m_materialID));
 	}
+
 
 }
 

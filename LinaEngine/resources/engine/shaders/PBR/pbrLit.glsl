@@ -60,7 +60,6 @@ struct Material
   MaterialSampler2D metallicMap;
   MaterialSampler2D aoMap;
   MaterialSampler2D brdfLUTMap;
-  MaterialSampler2D shadowMap;
   MaterialSamplerCube irradianceMap;
   MaterialSamplerCube prefilterMap;
   float metallic;
@@ -91,15 +90,14 @@ void main()
     F0 = mix(F0, albedo, metallic);
 
     // reflectance equation
-    vec3 Lo = vec3(0.0);
-	float shadow = material.shadowMap.isActive ? CalculateShadow(FragPosLightSpace, material.shadowMap.texture, Normal, WorldPos, dirLightPos.xyz) : 0.0;       	
+    vec3 Lo = vec3(0.0);       	
 
     // Directional Light
     {
       vec3 L = -directionalLight.direction;
       vec3 radiance = directionalLight.color;
 
-      Lo += CalculateLight(N, V, L, albedo, metallic, roughness, radiance, F0, shadow);
+      Lo += CalculateLight(N, V, L, albedo, metallic, roughness, radiance, F0);
     }
 
     // Point lights.
@@ -110,7 +108,7 @@ void main()
         float distance = length(pointLights[i].position - WorldPos);
         float attenuation = 1.0 / (distance * distance);
         vec3 radiance = pointLights[i].color * attenuation;
-        Lo += CalculateLight(N, V, L, albedo, metallic, roughness, radiance, F0, shadow);
+        Lo += CalculateLight(N, V, L, albedo, metallic, roughness, radiance, F0);
     }
 
     // Spot lights
@@ -126,7 +124,7 @@ void main()
       float intensity = clamp((theta - spotLights[i].outerCutOff) / epsilon, 0.0, 1.0);
       vec3 radiance = spotLights[i].color * attenuation * intensity;
 
-      Lo += CalculateLight(N, V, L, albedo, metallic, roughness, radiance, F0, shadow);
+      Lo += CalculateLight(N, V, L, albedo, metallic, roughness, radiance, F0);
     }
 
     vec3 ambient = vec3(0.0);

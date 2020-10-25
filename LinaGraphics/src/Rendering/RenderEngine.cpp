@@ -470,7 +470,7 @@ namespace LinaEngine::Graphics
 			material.m_colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
 			material.m_sampler2Ds[MAT_TEXTURE2D_DIFFUSE] = { 0 };
 			material.m_ints[MAT_SURFACETYPE] = 0;
-			m_shadowMappedMaterials.emplace(&material);
+			// m_shadowMappedMaterials.emplace(&material);
 
 		}
 		else if (shader == Shaders::Skybox_SingleColor)
@@ -532,9 +532,9 @@ namespace LinaEngine::Graphics
 			material.m_sampler2Ds[MAT_TEXTURE2D_METALLICMAP] = { 3 };
 			material.m_sampler2Ds[MAT_TEXTURE2D_AOMAP] = { 4 };
 			material.m_sampler2Ds[MAT_TEXTURE2D_BRDFLUTMAP] = { 5 };
-			material.m_sampler2Ds[MAT_TEXTURE2D_SHADOWMAP] = { 6 };
-			material.m_sampler2Ds[MAT_TEXTURE2D_IRRADIANCEMAP] = { 7, nullptr, "", TextureBindMode::BINDTEXTURE_CUBEMAP, false };
-			material.m_sampler2Ds[MAT_TEXTURE2D_PREFILTERMAP] = { 8,nullptr, "", TextureBindMode::BINDTEXTURE_CUBEMAP, false };
+			// material.m_sampler2Ds[MAT_TEXTURE2D_SHADOWMAP] = { 6 };
+			material.m_sampler2Ds[MAT_TEXTURE2D_IRRADIANCEMAP] = { 6, nullptr, "", TextureBindMode::BINDTEXTURE_CUBEMAP, false };
+			material.m_sampler2Ds[MAT_TEXTURE2D_PREFILTERMAP] = { 7,nullptr, "", TextureBindMode::BINDTEXTURE_CUBEMAP, false };
 			material.m_floats[MAT_METALLICMULTIPLIER] = 1.0f;
 			material.m_floats[MAT_ROUGHNESSMULTIPLIER] = 1.0f;
 			material.m_ints[MAT_WORKFLOW] = 0;
@@ -543,7 +543,7 @@ namespace LinaEngine::Graphics
 			material.m_isShadowMapped = true;
 			material.m_usesHDRI = true;
 
-			m_shadowMappedMaterials.emplace(&material);
+			// m_shadowMappedMaterials.emplace(&material);
 		}
 		else if (shader == Shaders::HDRI_Equirectangular)
 		{
