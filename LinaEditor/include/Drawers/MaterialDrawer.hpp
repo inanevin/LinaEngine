@@ -48,6 +48,9 @@ namespace LinaEngine
 	}
 }
 
+#include <string>
+
+
 namespace LinaEditor
 {
 	class MaterialDrawer
@@ -63,7 +66,7 @@ namespace LinaEditor
 
 	private:
 
-		
+		bool ShouldExcludeProperty(const std::string& property);
 
 	private:
 

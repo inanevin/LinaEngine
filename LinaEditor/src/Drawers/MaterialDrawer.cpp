@@ -41,9 +41,15 @@ SOFTWARE.
 namespace LinaEditor
 {
 
-
 #define CURSORPOS_X_LABELS 30
 #define CURSORPOS_XPERC_VALUES 0.52f
+
+	const char* excludeProperties[]
+	{
+		"material.irradianceMap",
+		"material.prefilterMap",
+		"material.brdfLUTMap"
+	};
 
 
 	void MaterialDrawer::SetSelectedMaterial(LinaEngine::Graphics::Material& mat)
@@ -353,11 +359,14 @@ namespace LinaEditor
 		{
 			WidgetsUtility::IncrementCursorPosY(11);
 
-			for (std::map<std::string, LinaEngine::Graphics::MaterialSampler2D>::iterator it = m_selectedMaterial->m_sampler2Ds.begin(); it != m_selectedMaterial->m_sampler2Ds.end(); ++it)
+			for (const auto& it : m_selectedMaterial->m_sampler2Ds)
 			{
+				if (ShouldExcludeProperty(it.first))
+					continue;
+
 				WidgetsUtility::FramePaddingX(4);
 				WidgetsUtility::IncrementCursorPosX(30);
-				WidgetsUtility::AlignedText(it->first.c_str());
+				WidgetsUtility::AlignedText(it.first.c_str());
 
 				ImVec2 min = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPos().x + 175, ImGui::GetWindowPos().y + ImGui::GetCursorScreenPos().y - 80);
 				ImVec2 max = ImVec2(min.x + 75, min.y + 75);
@@ -366,13 +375,13 @@ namespace LinaEditor
 				ImVec2 minTexture = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPos().x + 180, ImGui::GetWindowPos().y + ImGui::GetCursorScreenPos().y - 75);
 				ImVec2 maxTexture = ImVec2(minTexture.x + 65, minTexture.y + 65);
 
-				if (it->second.m_boundTexture != nullptr)
+				if (it.second.m_boundTexture != nullptr)
 				{
-					ImGui::GetWindowDrawList()->AddImage((void*)it->second.m_boundTexture->GetID(), minTexture, maxTexture, ImVec2(0, 1), ImVec2(1, 0));
+					ImGui::GetWindowDrawList()->AddImage((void*)it.second.m_boundTexture->GetID(), minTexture, maxTexture, ImVec2(0, 1), ImVec2(1, 0));
 
 					if (ImGui::IsMouseHoveringRect(minTexture, maxTexture) && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
 					{
-						LinaEditor::EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Texture*>(LinaEngine::Action::ActionType::MaterialTextureSelected, it->second.m_boundTexture);
+						LinaEditor::EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Texture*>(LinaEngine::Action::ActionType::MaterialTextureSelected, it.second.m_boundTexture);
 					}
 				}
 
@@ -385,7 +394,7 @@ namespace LinaEditor
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVETEXTURE_ID))
 					{
 						IM_ASSERT(payload->DataSize == sizeof(uint32));
-						m_selectedMaterial->SetTexture(it->first, &LinaEngine::Application::GetRenderEngine().GetTexture(*(uint32*)payload->m_data), it->second.m_bindMode);
+						m_selectedMaterial->SetTexture(it.first, &LinaEngine::Application::GetRenderEngine().GetTexture(*(uint32*)payload->m_data), it.second.m_bindMode);
 					}
 					ImGui::EndDragDropTarget();
 				}
@@ -398,6 +407,17 @@ namespace LinaEditor
 		{
 			LinaEngine::Graphics::Material::SaveMaterialData(*m_selectedMaterial, m_selectedMaterial->GetPath());
 		}
+	}
+
+	bool MaterialDrawer::ShouldExcludeProperty(const std::string& property)
+	{
+		for (auto& a : excludeProperties)
+		{
+			if (property.compare(a) == 0)
+				return true;
+		}
+
+		return false;
 	}
 
 }
