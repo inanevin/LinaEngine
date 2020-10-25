@@ -539,6 +539,7 @@ namespace LinaEngine::Graphics
 			material.m_floats[MAT_ROUGHNESSMULTIPLIER] = 1.0f;
 			material.m_ints[MAT_WORKFLOW] = 0;
 			material.m_vector2s[MAT_TILING] = Vector2::One;
+			material.m_colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
 			material.m_receivesLighting = true;
 			material.m_isShadowMapped = true;
 			material.m_usesHDRI = true;

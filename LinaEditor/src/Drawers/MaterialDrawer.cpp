@@ -171,7 +171,7 @@ namespace LinaEditor
 				ImGui::SetCursorPosX(cursorPosValues);
 				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
 				std::string label = "##f" + it->first;
-				ImGui::DragFloat(label.c_str(), &it->second, 0.4f);
+				ImGui::DragFloat(label.c_str(), &it->second, 0.08f);
 				WidgetsUtility::PopStyleVar();
 			}
 		}
@@ -406,6 +406,22 @@ namespace LinaEditor
 		if (ImGui::Button("Apply Changes"))
 		{
 			LinaEngine::Graphics::Material::SaveMaterialData(*m_selectedMaterial, m_selectedMaterial->GetPath());
+		}
+
+		ImGui::SameLine();
+		WidgetsUtility::IncrementCursorPosX(11);
+
+		if (ImGui::Button("Reset"))
+		{
+			LinaEngine::Application::GetRenderEngine().SetMaterialShader(*m_selectedMaterial, m_selectedMaterial->GetShaderType());
+		}
+
+		ImGui::SameLine();
+		WidgetsUtility::IncrementCursorPosX(11);
+
+		if (ImGui::Button("Capture Skybox"))
+		{
+			LinaEngine::Application::GetRenderEngine().SetHDRIData(m_selectedMaterial);
 		}
 	}
 

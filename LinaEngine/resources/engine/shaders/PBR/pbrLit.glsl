@@ -62,6 +62,7 @@ struct Material
   MaterialSampler2D brdfLUTMap;
   MaterialSamplerCube irradianceMap;
   MaterialSamplerCube prefilterMap;
+  vec3 objectColor;
   float metallic;
   float roughness;
   int workflow;
@@ -75,9 +76,9 @@ void main()
 {
   vec2 tiled = vec2(TexCoords.x * material.tiling.x, TexCoords.y * material.tiling.y);
   // material properties
-  vec3 albedo = material.albedoMap.isActive ? pow(texture(material.albedoMap.texture, tiled).rgb, vec3(2.2)) : vec3(1.0);
-  float metallic = material.metallicMap.isActive ? texture(material.metallicMap.texture,tiled).r : material.metallic;
-  float roughness = material.roughnessMap.isActive  ? texture(material.roughnessMap.texture, tiled).r : material.roughness;
+  vec3 albedo = material.albedoMap.isActive ? (pow(texture(material.albedoMap.texture, tiled).rgb, vec3(2.2)) * material.objectColor) : vec3(1.0);
+  float metallic = material.metallicMap.isActive ? (texture(material.metallicMap.texture,tiled).r * material.metallic) : material.metallic;
+  float roughness = material.roughnessMap.isActive  ? (texture(material.roughnessMap.texture, tiled).r * material.roughness) : material.roughness;
   float ao = material.aoMap.isActive? texture(material.aoMap.texture, tiled).r : 1.0;
 
   vec3 N = material.normalMap.isActive ? getNormalFromMap(texture(material.normalMap.texture, tiled).rgb, tiled, WorldPos, Normal) : Normal;
