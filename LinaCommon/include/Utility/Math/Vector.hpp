@@ -105,13 +105,13 @@ namespace LinaEngine
 
 		std::ostream& operator<<(std::ostream& os)
 		{
-			return os << "(X: " << x << " Y: " << y << ")";
+			return os << "X:" << x << "   Y:" << y;
 		}
 
 		std::string ToString() const
 		{
 			std::stringstream ss;
-			ss << "(X: " << x << " Y: " << y << ")";
+			ss << "X:" << x << "   Y:" << y;
 			return ss.str();
 		}
 
@@ -188,13 +188,13 @@ namespace LinaEngine
 
 		std::ostream& operator<<(std::ostream& os)
 		{
-			return os << "(X: " << x << " Y: " << y << " Z: " << z << ")";
+			return os << "X:" << x << "   Y:" << y << "   Z:" << z;
 		}
 
 		std::string ToString() const
 		{
 			std::stringstream ss;
-			ss << "(X: " << x << " Y: " << y << " Z: " << z << ")";
+			ss << "X:" << x << "   Y:" << y << "   Z:" << z;
 			return ss.str();
 		}
 
@@ -262,13 +262,13 @@ namespace LinaEngine
 
 		std::ostream& operator<<(std::ostream& os)
 		{
-			return os << "(X: " << x << " Y: " << y << " Z: " << z << " W: " << w << ")";
+			return os << "X:" << x << "   Y:" << y << "   Z:" << z << "   W:" << w;
 		}
 
 		std::string ToString() const
 		{
 			std::stringstream ss;
-			ss << "(X: " << x << " Y: " << y << " Z: " << z << " W: " << w << ")";
+			ss << "X:" << x << "   Y:" << y << "   Z:" << z << "   W:" << w;
 			return ss.str();
 		}
 

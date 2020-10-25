@@ -94,14 +94,14 @@ namespace LinaEngine
 		std::string ToStringEuler() const
 		{
 			std::stringstream ss;
-			ss << "(X: " << x << " Y: " << y << " Z: " << z << ")";
+			ss << "X:" << x << "   Y:" << y << "   Z:" << z;
 			return ss.str();
 		}
 
 		std::string ToString() const
 		{
 			std::stringstream ss;
-			ss << "(X: " << x << " Y: " << y << " Z: " << z << " W: " << w << ")";
+			ss << "X:" << x << "   Y:" << y << "   Z:" << z << "   W:" << w;
 			return ss.str();
 		}
 

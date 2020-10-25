@@ -289,7 +289,7 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		WidgetsUtility::AlignedText("Location");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		Vector3 location = transform.transform.m_localLocation;
+		Vector3 location = transform.transform.GetLocalLocation();
 		ImGui::DragFloat3("##loc", &location.x);
 		transform.transform.SetLocalLocation(location);
 
@@ -297,7 +297,7 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		WidgetsUtility::AlignedText("Rotation");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		Quaternion rotation = transform.transform.m_localRotation;
+		Quaternion rotation = transform.transform.GetLocalRotation();
 		WidgetsUtility::DragQuaternion("##rot", rotation);
 		transform.transform.SetLocalRotation(rotation);
 
@@ -305,31 +305,43 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		WidgetsUtility::AlignedText("Scale");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		Vector3 scale = transform.transform.m_localScale;
+		Vector3 scale = transform.transform.GetLocalScale();
 		ImGui::DragFloat3("##scale", &scale.x);
 		transform.transform.SetLocalScale(scale);
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
+		ImGui::SetCursorPosX(cursorPosLabels);
 
-		if (WidgetsUtility::Caret("Global Values"))
+		bool caretGlobal= WidgetsUtility::Caret("##transform_globalValues");
+		ImGui::SameLine();
+		ImGui::AlignTextToFramePadding();
+		WidgetsUtility::IncrementCursorPosY(-5);
+		ImGui::Text("Global Values");
+
+		if (caretGlobal)
 		{
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Location");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
-			WidgetsUtility::AlignedText(transform.transform.GetGlobalLocation().ToString().c_str());
+			Vector3 globalLocation = transform.transform.GetGlobalLocation();
+			ImGui::InputFloat3("##dbg_loc", &globalLocation.x, ImGuiInputTextFlags_ReadOnly);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Rotation");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
-			WidgetsUtility::AlignedText(transform.transform.GetGlobalRotation().ToStringEuler().c_str());
+			Quaternion globalRotation = transform.transform.GetGlobalRotation();
+			ImGui::InputFloat3("##dbg_rot", &globalRotation.x, ImGuiInputTextFlags_ReadOnly);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Scale");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
-			WidgetsUtility::AlignedText(transform.transform.GetGlobalScale().ToString().c_str());
+			Vector3 globalScale = transform.transform.GetGlobalScale();
+			ImGui::InputFloat3("##dbg_scl", &globalScale.x, ImGuiInputTextFlags_ReadOnly);
 		}
+
+
 	}
 
 	// Draw bevel line
