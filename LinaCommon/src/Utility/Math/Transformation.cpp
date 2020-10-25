@@ -53,6 +53,18 @@ namespace LinaEngine
 	void Transformation::SetLocalRotation(const Quaternion& rot)
 	{
 		m_localRotation = rot;
+		Quaternion rotationToSet = rot;
+		Vector3 locationToSet = m_location;
+
+		if (m_parent != nullptr)
+		{
+			Matrix local = Matrix::TransformMatrix(m_localLocation, m_localRotation, Vector3());
+			Matrix globalChild = m_parent->ToMatrix() * local;
+			globalChild.Decompose(locationToSet, rotationToSet);
+		}
+
+		SetGlobalLocation(locationToSet);
+		SetGlobalRotation(rotationToSet);
 	}
 
 	void Transformation::SetLocalScale(const Vector3& scale)
@@ -83,6 +95,11 @@ namespace LinaEngine
 	void Transformation::SetGlobalRotation(const Quaternion& rot)
 	{
 		m_rotation = rot;
+
+		for (Transformation* child : m_children)
+		{
+			child->SetLocalRotation(child->GetLocalRotation());
+		}
 	}
 
 	void Transformation::SetGlobalScale(const Vector3& scale)

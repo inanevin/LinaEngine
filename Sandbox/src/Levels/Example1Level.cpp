@@ -123,10 +123,8 @@ void Example1Level::Initialize()
 	TransformComponent& child = ecs.get<TransformComponent>(cube2);
 	//
 	parent.transform.AddChild(&child.transform);
-
 	child.transform.SetLocalLocation(Vector3(5, 0, 0));
-	parent.transform.SetGlobalScale(Vector3::One * 2);
-	child.transform.SetGlobalScale(0.5f);
+	parent.transform.SetGlobalRotation(Quaternion::Euler(0, 0, 50));
 }
 
 void Example1Level::Tick(float delta)
