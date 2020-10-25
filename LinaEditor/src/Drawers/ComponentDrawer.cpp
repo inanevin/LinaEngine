@@ -289,20 +289,25 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		WidgetsUtility::AlignedText("Location");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		ImGui::DragFloat3("##loc", &transform.transform.m_location.x);
+		Vector3 location = transform.transform.m_location;
+		ImGui::DragFloat3("##loc", &location.x);
+		transform.transform.SetGlobalLocation(location);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Rotation");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		WidgetsUtility::DragQuaternion("##rot", transform.transform.m_rotation);
+		Quaternion rotation = transform.transform.m_rotation;
+		WidgetsUtility::DragQuaternion("##rot", rotation);
+		transform.transform.SetGlobalRotation(rotation);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Scale");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		ImGui::DragFloat3("##scale", &transform.transform.m_scale.x);
-
+		Vector3 scale = transform.transform.m_scale;
+		ImGui::DragFloat3("##scale", &scale.x);
+		transform.transform.SetGlobalScale(scale);
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 	}
 

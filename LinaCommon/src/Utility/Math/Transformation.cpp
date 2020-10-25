@@ -90,6 +90,12 @@ namespace LinaEngine
 		{
 			child->SetLocalLocation(child->GetLocalLocation());
 		}
+
+		if (m_parent != nullptr)
+		{
+			Matrix local = m_parent->ToMatrix().Inverse() * Matrix::Translate(m_location);
+			local.Decompose(m_localLocation);
+		}
 	}
 
 	void Transformation::SetGlobalRotation(const Quaternion& rot)
