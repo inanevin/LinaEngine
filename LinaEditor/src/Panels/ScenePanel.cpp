@@ -39,7 +39,7 @@ SOFTWARE.
 #include <imgui/imguizmo/ImGuizmo.h>
 
 static ImGuizmo::OPERATION currentTransformGizmoOP = ImGuizmo::OPERATION::TRANSLATE;
-static ImGuizmo::MODE currentTransformGizmoMode = ImGuizmo::MODE::LOCAL;
+static ImGuizmo::MODE currentTransformGizmoMode = ImGuizmo::MODE::WORLD;
 static Matrix gridLineMatrix = Matrix::Identity();
 static Matrix modelMatrix = Matrix::Identity();
 static ImVec2 previousWindowSize;
@@ -168,7 +168,7 @@ namespace LinaEditor
 		if (m_selectedTransform != nullptr)
 		{
 			// Get required matrices.
-			Matrix object = m_selectedTransform->transform.ToMatrix();
+			Matrix object = currentTransformGizmoMode == ImGuizmo::MODE::WORLD ? m_selectedTransform->transform.ToMatrix() : m_selectedTransform->transform.ToMatrix();
 
 			// Draw transformation handle.
 			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentTransformGizmoOP, currentTransformGizmoMode, &object[0][0], NULL, NULL, NULL, NULL);
@@ -176,9 +176,19 @@ namespace LinaEditor
 			ImGuizmo::DecomposeMatrixToComponents(&object[0][0], matrixTranslation, matrixRotation, matrixScale);
 
 			// Set object transformation back.
-			m_selectedTransform->transform.m_location = Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]);
-			m_selectedTransform->transform.m_scale = Vector3(matrixScale[0], matrixScale[1], matrixScale[2]);
-			m_selectedTransform->transform.m_rotation = Quaternion::Euler(matrixRotation[0], matrixRotation[1], matrixRotation[2]);
+			if (currentTransformGizmoMode == ImGuizmo::MODE::WORLD)
+			{
+				m_selectedTransform->transform.SetGlobalLocation(Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]));
+				m_selectedTransform->transform.SetGlobalRotation(Quaternion::Euler(matrixRotation[0], matrixRotation[1], matrixRotation[2]));
+				m_selectedTransform->transform.SetGlobalScale(Vector3(matrixScale[0], matrixScale[1], matrixScale[2]));
+			}
+			else
+			{
+				m_selectedTransform->transform.SetLocalLocation(Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]));
+				m_selectedTransform->transform.SetLocalRotation(Quaternion::Euler(matrixRotation[0], matrixRotation[1], matrixRotation[2]));
+				m_selectedTransform->transform.SetLocalScale(Vector3(matrixScale[0], matrixScale[1], matrixScale[2]));
+			}
+
 		}
 
 		// ImGuizmo::DrawGrid(&view[0][0], &projection[0][0], &gridLineMatrix[0][0], GRID_SIZE);

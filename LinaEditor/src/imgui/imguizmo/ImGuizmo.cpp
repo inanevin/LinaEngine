@@ -1901,6 +1901,22 @@ namespace ImGuizmo
          matrix_t res = deltaMatrixScale * gContext.mModel;
          *(matrix_t*)matrix = res;
 
+         if (gContext.mMode == LOCAL)
+         {
+             deltaMatrixScale.Scale(gContext.mScale * gContext.mScaleValueOrigin);
+             *(matrix_t*)matrix = deltaMatrixScale * gContext.mModel;
+         }
+         else
+         {
+             matrix_t scale_mat;
+             scale_mat.Scale(gContext.mScaleValueOrigin);
+             matrix_t rot_mat = gContext.mModelSource;
+             rot_mat.OrthoNormalize();
+             rot_mat.v.position.Set(0.f);
+             deltaMatrixScale.Scale(gContext.mScale);
+             *(matrix_t*)matrix = scale_mat * rot_mat * deltaMatrixScale;
+             ((matrix_t*)matrix)->v.position = gContext.mModelSource.v.position;
+         }
          if (deltaMatrix)
          {
             deltaMatrixScale.Scale(gContext.mScale);

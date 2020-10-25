@@ -62,6 +62,11 @@ namespace LinaEngine
 			return Matrix::TransformMatrix(m_location, m_rotation, m_scale);
 		}
 
+		Matrix ToLocalMatrix() const
+		{
+			return Matrix::TransformMatrix(m_localLocation, m_localRotation, m_localScale);
+		}
+
 		void NormalizeRotation()
 		{
 			m_rotation = m_rotation.Normalized();
