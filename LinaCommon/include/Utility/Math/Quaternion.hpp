@@ -91,6 +91,20 @@ namespace LinaEngine
 		float LengthSquared() const;
 		Vector4 ToVector() const { return Vector4(x, y, z, w); }
 
+		std::string ToStringEuler() const
+		{
+			std::stringstream ss;
+			ss << "(X: " << x << " Y: " << y << " Z: " << z << ")";
+			return ss.str();
+		}
+
+		std::string ToString() const
+		{
+			std::stringstream ss;
+			ss << "(X: " << x << " Y: " << y << " Z: " << z << " W: " << w << ")";
+			return ss.str();
+		}
+
 		template<class Archive>
 		void serialize(Archive& archive)
 		{

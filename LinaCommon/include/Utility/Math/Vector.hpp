@@ -108,7 +108,7 @@ namespace LinaEngine
 			return os << "(X: " << x << " Y: " << y << ")";
 		}
 
-		std::string ToString()
+		std::string ToString() const
 		{
 			std::stringstream ss;
 			ss << "(X: " << x << " Y: " << y << ")";
@@ -191,7 +191,7 @@ namespace LinaEngine
 			return os << "(X: " << x << " Y: " << y << " Z: " << z << ")";
 		}
 
-		std::string ToString()
+		std::string ToString() const
 		{
 			std::stringstream ss;
 			ss << "(X: " << x << " Y: " << y << " Z: " << z << ")";
@@ -265,7 +265,7 @@ namespace LinaEngine
 			return os << "(X: " << x << " Y: " << y << " Z: " << z << " W: " << w << ")";
 		}
 
-		std::string ToString()
+		std::string ToString() const
 		{
 			std::stringstream ss;
 			ss << "(X: " << x << " Y: " << y << " Z: " << z << " W: " << w << ")";

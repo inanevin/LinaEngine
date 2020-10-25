@@ -58,7 +58,7 @@ namespace LinaEngine
 
 		if (m_parent != nullptr)
 		{
-			Matrix local = Matrix::TransformMatrix(m_localLocation, m_localRotation, Vector3());
+			Matrix local = Matrix::TransformMatrix(m_localLocation, m_localRotation, m_localScale);
 			Matrix globalChild = m_parent->ToMatrix() * local;
 			globalChild.Decompose(locationToSet, rotationToSet);
 		}
@@ -69,12 +69,13 @@ namespace LinaEngine
 
 	void Transformation::SetLocalScale(const Vector3& scale)
 	{
-		m_localScale = scale;
-		Vector3 scaleToSet = scale;
+		Vector3 clampedScale = Vector3(scale.x == 0.0f ? 0.001f : scale.x, scale.y == 0.0f ? 0.001f : scale.y, scale.z == 0.0f ? 0.001f : scale.z);
+		m_localScale = clampedScale;
+		Vector3 scaleToSet = clampedScale;
 
 		if (m_parent != nullptr)
 		{
-			Matrix local = Matrix::Scale(m_localScale);
+			Matrix local = Matrix::TransformMatrix(m_localLocation, m_localRotation, m_localScale);
 			Matrix globalChild = m_parent->ToMatrix() * local;
 			globalChild.Decompose(Vector3(), Quaternion(), scaleToSet);
 		}
@@ -106,15 +107,27 @@ namespace LinaEngine
 		{
 			child->SetLocalRotation(child->GetLocalRotation());
 		}
+
+		if (m_parent != nullptr)
+		{
+			Matrix local = m_parent->ToMatrix().Inverse() * Matrix::TransformMatrix(m_location, m_rotation, m_scale);
+			local.Decompose(m_localLocation, m_localRotation);
+		}
 	}
 
 	void Transformation::SetGlobalScale(const Vector3& scale)
 	{
-		m_scale = scale;
+		m_scale = Vector3(scale.x == 0.0f ? 0.001f : scale.x, scale.y == 0.0f ? 0.001f : scale.y, scale.z == 0.0f ? 0.001f : scale.z);
 
 		for (Transformation* child : m_children)
 		{
 			child->SetLocalScale(child->GetLocalScale());
+		}
+
+		if (m_parent != nullptr)
+		{
+			Matrix local = m_parent->ToMatrix().Inverse() * Matrix::TransformMatrix(m_location, m_rotation, m_scale);
+			local.Decompose(Vector3(), Quaternion(), m_localScale);
 		}
 	}
 

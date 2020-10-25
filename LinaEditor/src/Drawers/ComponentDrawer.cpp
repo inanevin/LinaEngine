@@ -289,26 +289,47 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		WidgetsUtility::AlignedText("Location");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		Vector3 location = transform.transform.m_location;
+		Vector3 location = transform.transform.m_localLocation;
 		ImGui::DragFloat3("##loc", &location.x);
-		transform.transform.SetGlobalLocation(location);
+		transform.transform.SetLocalLocation(location);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Rotation");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		Quaternion rotation = transform.transform.m_rotation;
+		Quaternion rotation = transform.transform.m_localRotation;
 		WidgetsUtility::DragQuaternion("##rot", rotation);
-		transform.transform.SetGlobalRotation(rotation);
+		transform.transform.SetLocalRotation(rotation);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Scale");
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
-		Vector3 scale = transform.transform.m_scale;
+		Vector3 scale = transform.transform.m_localScale;
 		ImGui::DragFloat3("##scale", &scale.x);
-		transform.transform.SetGlobalScale(scale);
+		transform.transform.SetLocalScale(scale);
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
+
+		if (WidgetsUtility::Caret("Global Values"))
+		{
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Location");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			WidgetsUtility::AlignedText(transform.transform.GetGlobalLocation().ToString().c_str());
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Rotation");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			WidgetsUtility::AlignedText(transform.transform.GetGlobalRotation().ToStringEuler().c_str());
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Scale");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			WidgetsUtility::AlignedText(transform.transform.GetGlobalScale().ToString().c_str());
+		}
 	}
 
 	// Draw bevel line
