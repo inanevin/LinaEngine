@@ -58,6 +58,16 @@ namespace LinaEngine
 	void Transformation::SetLocalScale(const Vector3& scale)
 	{
 		m_localScale = scale;
+		Vector3 scaleToSet = scale;
+
+		if (m_parent != nullptr)
+		{
+			Matrix local = Matrix::Scale(m_localScale);
+			Matrix globalChild = m_parent->ToMatrix() * local;
+			globalChild.Decompose(Vector3(), Quaternion(), scaleToSet);
+		}
+
+		SetGlobalScale(scaleToSet);
 	}
 
 	void Transformation::SetGlobalLocation(const Vector3& loc)
@@ -78,6 +88,11 @@ namespace LinaEngine
 	void Transformation::SetGlobalScale(const Vector3& scale)
 	{
 		m_scale = scale;
+
+		for (Transformation* child : m_children)
+		{
+			child->SetLocalScale(child->GetLocalScale());
+		}
 	}
 
 	void Transformation::AddChild(Transformation* child)

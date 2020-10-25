@@ -119,14 +119,14 @@ void Example1Level::Initialize()
 	cube2 = ecs.GetEntity("Cube2");
 	//ecs.AddChildTo(cube1, cube2);
 
-	TransformComponent& tr1 = ecs.get<TransformComponent>(cube1);
-	TransformComponent& tr2 = ecs.get<TransformComponent>(cube2);
+	TransformComponent& parent = ecs.get<TransformComponent>(cube1);
+	TransformComponent& child = ecs.get<TransformComponent>(cube2);
 	//
-	tr1.transform.AddChild(&tr2.transform);
+	parent.transform.AddChild(&child.transform);
 
-	tr1.transform.SetGlobalLocation(Vector3(-5, 0, 0));
-	tr2.transform.SetLocalLocation(Vector3(5, 0, 0));
-	tr1.transform.SetGlobalLocation(Vector3(-5, 15, 0));
+	child.transform.SetLocalLocation(Vector3(5, 0, 0));
+	parent.transform.SetGlobalScale(Vector3::One * 2);
+	child.transform.SetGlobalScale(0.5f);
 }
 
 void Example1Level::Tick(float delta)
