@@ -156,7 +156,6 @@ namespace LinaEngine::Graphics
 		// Initializes the setup process for loading an HDRI image to the scene
 		void CaptureCalculateHDRI(Texture& hdriTexture);
 		void SetHDRIData(Material* mat);
-		void RemoveHDRIData(Material& mat);
 		void RemoveHDRIData(Material* mat);
 		void DrawLine(Vector3 p1, Vector3 p2, Color col, float width = 1.0f);
 

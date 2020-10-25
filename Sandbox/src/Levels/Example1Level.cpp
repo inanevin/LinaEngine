@@ -122,7 +122,6 @@ void Example1Level::Initialize()
 
 	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
 
-
 }
 
 void Example1Level::Tick(float delta)

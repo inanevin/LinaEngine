@@ -155,8 +155,8 @@ void main()
 
       ambient = (kD * (diffuse + specular)) * ao;
     }
-   // else
-     // ambient = ambientColor.xyz * albedo * ao;
+    // else
+      // ambient = ambientColor.xyz * albedo * ao;
 	 
 
     vec3 color = ambient + Lo;

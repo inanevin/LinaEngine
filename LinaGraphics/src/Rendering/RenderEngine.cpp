@@ -224,7 +224,7 @@ namespace LinaEngine::Graphics
 		if (!mat.m_usesHDRI && m_hdriMaterials.find(&mat) != m_hdriMaterials.end())
 		{
 			m_hdriMaterials.erase(&mat);
-			RemoveHDRIData(mat);
+			RemoveHDRIData(&mat);
 		}
 		else if (mat.m_usesHDRI && m_hdriMaterials.find(&mat) == m_hdriMaterials.end())
 		{
@@ -1397,13 +1397,7 @@ namespace LinaEngine::Graphics
 	{
 		if (mat == nullptr)
 		{
-			LINA_CORE_WARN("Material set HDRI data for is null, returning...");
-			return;
-		}
-
-		if (!mat->m_usesHDRI)
-		{
-			LINA_CORE_WARN("This material's shader does not use HDRI calculations, returning...");
+			LINA_CORE_WARN("Material to set HDRI data is null, returning...");
 			return;
 		}
 
@@ -1418,30 +1412,16 @@ namespace LinaEngine::Graphics
 		mat->SetTexture(MAT_TEXTURE2D_PREFILTERMAP, &m_hdriPrefilterMap, TextureBindMode::BINDTEXTURE_CUBEMAP);
 	}
 
-	void RenderEngine::RemoveHDRIData(Material& mat)
-	{
-		mat.RemoveTexture(MAT_TEXTURE2D_IRRADIANCEMAP);
-		mat.RemoveTexture(MAT_TEXTURE2D_BRDFLUTMAP);
-		mat.RemoveTexture(MAT_TEXTURE2D_PREFILTERMAP);
-	}
-
 	void RenderEngine::RemoveHDRIData(Material* mat)
 	{
 		if (mat == nullptr)
 		{
-			LINA_CORE_WARN("Material set HDRI data for is null, returning...");
-			return;
-		}
-
-		if (!mat->m_usesHDRI)
-		{
-			LINA_CORE_WARN("This material's shader does not use HDRI calculations, returning...");
+			LINA_CORE_WARN("Material to remove HDRI data from is null, returning...");
 			return;
 		}
 
 		mat->RemoveTexture(MAT_TEXTURE2D_IRRADIANCEMAP);
-		mat->RemoveTexture(MAT_TEXTURE2D_BRDFLUTMAP);
-		mat->RemoveTexture(MAT_TEXTURE2D_PREFILTERMAP);
+		mat->RemoveTexture(MAT_TEXTURE2D_BRDFLUTMAP);		mat->RemoveTexture(MAT_TEXTURE2D_PREFILTERMAP);
 
 	}
 
