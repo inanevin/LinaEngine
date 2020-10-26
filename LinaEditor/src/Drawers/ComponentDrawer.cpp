@@ -299,7 +299,7 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		ImGui::SetCursorPosX(cursorPosValues);
 		Quaternion rotation = transform.transform.GetLocalRotation();
 		WidgetsUtility::DragQuaternion("##rot", rotation);
-		transform.transform.SetLocalRotation(rotation);
+	//	transform.transform.SetLocalRotation(rotation);
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Scale");

@@ -121,7 +121,7 @@ void Example1Level::Initialize()
 
 	TransformComponent& parent = ecs.get<TransformComponent>(cube1);
 	TransformComponent& child = ecs.get<TransformComponent>(cube2);
-	//
+	
 	parent.transform.AddChild(&child.transform);
 	child.transform.SetLocalLocation(Vector3(5, 0, 0));
 }
@@ -130,13 +130,21 @@ void Example1Level::Tick(float delta)
 {
 	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
 
-	if (LinaEngine::Application::GetInputEngine().GetKey(LinaEngine::Input::InputCode::Key::K))
+	if (LinaEngine::Application::GetInputEngine().GetKeyDown(LinaEngine::Input::InputCode::Key::K))
 	{
-		LinaEngine::ECS::TransformComponent& tr = ecs.get<LinaEngine::ECS::TransformComponent>(cube1);
-
-		tr.transform.m_location.x += delta * 10;
-		ecs.EntityTransformationUpdate(cube1);
+		TransformComponent& parent = ecs.get<TransformComponent>(cube1);
+		//parent.transform.SetScale(0.1);
+	}
+	if (LinaEngine::Application::GetInputEngine().GetKeyDown(LinaEngine::Input::InputCode::Key::L))
+	{
+		TransformComponent& parent = ecs.get<TransformComponent>(cube1);
+		//parent.transform.SetScale(1.0f);
 	}
 
+	if (LinaEngine::Application::GetInputEngine().GetKeyDown(LinaEngine::Input::InputCode::Key::J))
+	{
+		TransformComponent& parent = ecs.get<TransformComponent>(cube1);
+		//parent.transform.SetScale(0.0f);
+	}
 
 }

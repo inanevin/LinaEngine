@@ -75,6 +75,17 @@ namespace LinaEngine
 		Matrix Transpose() const;
 		Matrix Inverse() const;
 		Matrix ApplyScale(const Vector3& scale);
+
+		Vector3 GetScale()
+		{
+			return Vector3((*this)[0][0], (*this)[1][1], (*this)[2][2]);
+		}
+
+		Vector3 GetTranslation()
+		{
+			return Vector3((*this)[3][0], (*this)[3][1], (*this)[3][2]);
+		}
+
 		void Decompose(Vector3& position = Vector3::Zero, Quaternion& rotation = Quaternion(), Vector3& scale = Vector3::One);
 		Transformation ToTransform();
 

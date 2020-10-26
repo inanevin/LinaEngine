@@ -174,10 +174,10 @@ namespace LinaEditor
 			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentTransformGizmoOP, currentTransformGizmoMode, &object[0][0], NULL, NULL, NULL, NULL);
 			float matrixTranslation[3], matrixRotation[3], matrixScale[3];
 			ImGuizmo::DecomposeMatrixToComponents(&object[0][0], matrixTranslation, matrixRotation, matrixScale);
-
-			m_selectedTransform->transform.SetGlobalLocation(Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]));
-			m_selectedTransform->transform.SetGlobalRotation(Quaternion::Euler(matrixRotation[0], matrixRotation[1], matrixRotation[2]));
-			m_selectedTransform->transform.SetGlobalScale(Vector3(matrixScale[0], matrixScale[1], matrixScale[2]));
+//
+//m_selectedTransform->transform.SetGlobalLocation(Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]));
+//m_selectedTransform->transform.SetGlobalRotation(Quaternion::Euler(matrixRotation[0], matrixRotation[1], matrixRotation[2]));
+//m_selectedTransform->transform.SetGlobalScale(Vector3(matrixScale[0], matrixScale[1], matrixScale[2]));
 
 		}
 

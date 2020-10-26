@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -50,11 +50,11 @@ namespace LinaEngine
 	{
 	public:
 
-		Transformation() : m_location(0.0f, 0.0f, 0.0f),m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f) {}
+		Transformation() : m_location(0.0f, 0.0f, 0.0f), m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f) {}
 		Transformation(const Vector3& translationIn) : m_location(translationIn), m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f) {}
 		Transformation(const Quaternion& rotationIn) : m_location(0.0f, 0.0f, 0.0f), m_rotation(rotationIn), m_scale(1.0f, 1.0f, 1.0f) {}
 		Transformation(const Vector3& translationIn, const Quaternion& rotationIn, const Vector3& scaleIn) : m_location(translationIn), m_rotation(rotationIn), m_scale(scaleIn) {}
-		
+
 		static Transformation Interpolate(Transformation& from, Transformation& to, float t);
 
 		Matrix ToMatrix() const
@@ -76,7 +76,7 @@ namespace LinaEngine
 		{
 			return m_rotation.IsNormalized();
 		}
-	
+
 		void Set(const Vector3& translationIn, const Quaternion& rotationIn, const Vector3& scaleIn)
 		{
 			m_location = translationIn;
@@ -96,7 +96,7 @@ namespace LinaEngine
 
 		void Rotate(float x, float y, float z)
 		{
-			m_rotation = Quaternion::Euler(x,y,z);
+			m_rotation = Quaternion::Euler(x, y, z);
 		}
 
 		Transformation operator+(const Transformation& other) const
@@ -163,7 +163,7 @@ namespace LinaEngine
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_location, m_rotation, m_scale, m_localLocation, m_localRotation, m_localScale); 
+			archive(m_location, m_rotation, m_scale, m_localLocation, m_localRotation, m_localScale);
 		}
 
 		Vector3 m_location = Vector3::Zero;
@@ -176,9 +176,16 @@ namespace LinaEngine
 
 	private:
 
+		void UpdateGlobalScale();
+		void UpdateGlobalLocation();
+		void UpdateGlobalRotation();
+		void UpdateGlobalMatrix();
+
+	private:
+
 		Transformation* m_parent = nullptr;
 		std::set<Transformation*> m_children;
-		
+
 	};
 
 
