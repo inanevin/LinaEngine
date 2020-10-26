@@ -168,26 +168,16 @@ namespace LinaEditor
 		if (m_selectedTransform != nullptr)
 		{
 			// Get required matrices.
-			Matrix object = currentTransformGizmoMode == ImGuizmo::MODE::WORLD ? m_selectedTransform->transform.ToMatrix() : m_selectedTransform->transform.ToMatrix();
+			Matrix object =  m_selectedTransform->transform.ToMatrix();
 
 			// Draw transformation handle.
 			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentTransformGizmoOP, currentTransformGizmoMode, &object[0][0], NULL, NULL, NULL, NULL);
 			float matrixTranslation[3], matrixRotation[3], matrixScale[3];
 			ImGuizmo::DecomposeMatrixToComponents(&object[0][0], matrixTranslation, matrixRotation, matrixScale);
 
-			// Set object transformation back.
-			if (currentTransformGizmoMode == ImGuizmo::MODE::WORLD)
-			{
-				m_selectedTransform->transform.SetGlobalLocation(Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]));
-				m_selectedTransform->transform.SetGlobalRotation(Quaternion::Euler(matrixRotation[0], matrixRotation[1], matrixRotation[2]));
-				m_selectedTransform->transform.SetGlobalScale(Vector3(matrixScale[0], matrixScale[1], matrixScale[2]));
-			}
-			else
-			{
-				m_selectedTransform->transform.SetLocalLocation(Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]));
-				m_selectedTransform->transform.SetLocalRotation(Quaternion::Euler(matrixRotation[0], matrixRotation[1], matrixRotation[2]));
-				m_selectedTransform->transform.SetLocalScale(Vector3(matrixScale[0], matrixScale[1], matrixScale[2]));
-			}
+			m_selectedTransform->transform.SetGlobalLocation(Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]));
+			m_selectedTransform->transform.SetGlobalRotation(Quaternion::Euler(matrixRotation[0], matrixRotation[1], matrixRotation[2]));
+			m_selectedTransform->transform.SetGlobalScale(Vector3(matrixScale[0], matrixScale[1], matrixScale[2]));
 
 		}
 
