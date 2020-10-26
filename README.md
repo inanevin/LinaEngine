@@ -11,7 +11,8 @@
 
 Lina Engine is a lightweight and ECS based open-source game engine. Initially it's a research project and is aimed to be a basis of development for more open-source game engine projects. Lina's architecture is designed to be as modular as possible and it focuses on creating replacable modules to customize for project-specific needs, rather than stacking thousands of features into one framework.
 
-![Lina](Docs/Images/linass.png)
+![Lina](Docs/Images/linass1.png)
+![Lina](Docs/Images/linass2.png)
 
 ## Announcements / Notes
 
