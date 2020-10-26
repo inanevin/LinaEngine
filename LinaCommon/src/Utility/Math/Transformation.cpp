@@ -46,24 +46,34 @@ namespace LinaEngine
 			child->UpdateGlobalLocation();
 	}
 
-	void Transformation::SetLocalRotation(const Quaternion& rot)
+	void Transformation::SetLocalRotation(const Quaternion& rot, bool isThisPivot)
 	{
 		m_localRotation = rot;
 
 		UpdateGlobalRotation();
 
 		for (Transformation* child : m_children)
+		{
 			child->UpdateGlobalRotation();
+
+			if (isThisPivot)
+				child->UpdateGlobalLocation();
+		}
 	}
 
-	void Transformation::SetLocalScale(const Vector3& scale)
+	void Transformation::SetLocalScale(const Vector3& scale, bool isThisPivot)
 	{
 		m_localScale = scale;
 
 		UpdateGlobalScale();
 
 		for (Transformation* child : m_children)
+		{
 			child->UpdateGlobalScale();
+			
+			if (isThisPivot)
+				child->UpdateGlobalLocation();
+		}
 	}
 
 	void Transformation::SetGlobalLocation(const Vector3& loc)
@@ -179,7 +189,7 @@ namespace LinaEngine
 			m_rotation = m_localRotation;
 		else
 		{
-			Matrix global = m_parent->ToMatrix() * ToLocalMatrix();
+			Matrix global = Matrix::InitRotation(m_parent->m_rotation) * ToLocalMatrix();
 			global.Decompose(Vector3(), m_rotation);
 		}
 	}

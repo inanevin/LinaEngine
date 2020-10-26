@@ -124,6 +124,7 @@ void Example1Level::Initialize()
 	
 	parent.transform.AddChild(&child.transform);
 	child.transform.SetLocalLocation(Vector3(5, 0, 0));
+
 }
 
 void Example1Level::Tick(float delta)
@@ -133,12 +134,12 @@ void Example1Level::Tick(float delta)
 	if (LinaEngine::Application::GetInputEngine().GetKeyDown(LinaEngine::Input::InputCode::Key::K))
 	{
 		TransformComponent& parent = ecs.get<TransformComponent>(cube1);
-		//parent.transform.SetScale(0.1);
+		parent.transform.SetLocalRotation(Quaternion::Euler(0, 30, 0));
 	}
 	if (LinaEngine::Application::GetInputEngine().GetKeyDown(LinaEngine::Input::InputCode::Key::L))
 	{
 		TransformComponent& parent = ecs.get<TransformComponent>(cube1);
-		//parent.transform.SetScale(1.0f);
+		parent.transform.SetLocalScale(Vector3(4, 1, 0.2f));
 	}
 
 	if (LinaEngine::Application::GetInputEngine().GetKeyDown(LinaEngine::Input::InputCode::Key::J))
