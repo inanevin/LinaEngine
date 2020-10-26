@@ -179,7 +179,11 @@ namespace LinaEngine
 		void UpdateGlobalScale();
 		void UpdateGlobalLocation();
 		void UpdateGlobalRotation();
-		void UpdateGlobalMatrix();
+
+
+		void UpdateLocalScale();
+		void UpdateLocalLocation();
+		void UpdateLocalRotation();
 
 	private:
 

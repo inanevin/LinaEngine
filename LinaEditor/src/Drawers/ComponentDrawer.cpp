@@ -298,8 +298,9 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(cursorPosValues);
 		Quaternion rotation = transform.transform.GetLocalRotation();
-		WidgetsUtility::DragQuaternion("##rot", rotation);
-	//	transform.transform.SetLocalRotation(rotation);
+		Vector3 euler = rotation.GetEuler();
+		ImGui::DragFloat3("##rot", &euler.x);
+		transform.transform.SetLocalRotation(Quaternion::Euler(euler));
 
 		ImGui::SetCursorPosX(cursorPosLabels);
 		WidgetsUtility::AlignedText("Scale");
@@ -331,7 +332,8 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
 			Quaternion globalRotation = transform.transform.GetGlobalRotation();
-			ImGui::InputFloat3("##dbg_rot", &globalRotation.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+			Vector3 globalEuler = globalRotation.GetEuler();
+			ImGui::InputFloat3("##dbg_rot", &globalEuler.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Scale");

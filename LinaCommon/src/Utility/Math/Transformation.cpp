@@ -43,42 +43,27 @@ namespace LinaEngine
 		UpdateGlobalLocation();
 
 		for (Transformation* child : m_children)
-		{
 			child->UpdateGlobalLocation();
-		}
 	}
 
 	void Transformation::SetLocalRotation(const Quaternion& rot)
 	{
 		m_localRotation = rot;
-		Quaternion rotationToSet = rot;
-		Vector3 locationToSet = m_location;
 
-		if (m_parent != nullptr)
-		{
-			Matrix local = Matrix::TransformMatrix(m_localLocation, m_localRotation, m_localScale);
-			Matrix globalChild = m_parent->ToMatrix() * local;
-			globalChild.Decompose(locationToSet, rotationToSet);
-		}
+		UpdateGlobalRotation();
 
-		SetGlobalLocation(locationToSet);
-		SetGlobalRotation(rotationToSet);
+		for (Transformation* child : m_children)
+			child->UpdateGlobalRotation();
 	}
 
 	void Transformation::SetLocalScale(const Vector3& scale)
 	{
 		m_localScale = scale;
 
-		//UpdateGlobalScale();
-		//UpdateGlobalLocation();
-		UpdateGlobalMatrix();
+		UpdateGlobalScale();
 
 		for (Transformation* child : m_children)
-		{
-			//child->UpdateGlobalScale();
-			//child->UpdateGlobalLocation();
-			child->UpdateGlobalMatrix();
-		}
+			child->UpdateGlobalScale();
 	}
 
 	void Transformation::SetGlobalLocation(const Vector3& loc)
@@ -172,7 +157,7 @@ namespace LinaEngine
 			m_scale = m_localScale;
 		else
 		{
-			Matrix global = m_parent->ToMatrix() * ToLocalMatrix();
+			Matrix global = Matrix::Scale(m_parent->m_scale) * Matrix::Scale(m_localScale);
 			m_scale = global.GetScale();
 		}
 	}
@@ -199,19 +184,36 @@ namespace LinaEngine
 		}
 	}
 
-	void Transformation::UpdateGlobalMatrix()
+	void Transformation::UpdateLocalScale()
 	{
 		if (m_parent == nullptr)
-		{
-			m_location = m_localLocation;
 			m_scale = m_localScale;
-			m_rotation = m_localRotation;
+		else
+		{
+			Matrix global = Matrix::Scale(m_parent->m_scale).Inverse() * Matrix::Scale(m_localScale);
+			m_scale = global.GetScale();
 		}
+	}
+
+	void Transformation::UpdateLocalLocation()
+	{
+		if (m_parent == nullptr)
+			m_location = m_localLocation;
 		else
 		{
 			Matrix global = m_parent->ToMatrix() * ToLocalMatrix();
-			global.Decompose(m_location, m_rotation);
-			m_scale = global.GetScale();
+			m_location = global.GetTranslation();
+		}
+	}
+
+	void Transformation::UpdateLocalRotation()
+	{
+		if (m_parent == nullptr)
+			m_rotation = m_localRotation;
+		else
+		{
+			Matrix global = m_parent->ToMatrix() * ToLocalMatrix();
+			global.Decompose(Vector3(), m_rotation);
 		}
 	}
 }
