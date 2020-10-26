@@ -39,8 +39,16 @@ namespace LinaEngine
 	void Transformation::SetLocalLocation(const Vector3& loc)
 	{
 		m_localLocation = loc;
-
 		UpdateGlobalLocation();
+
+		for (Transformation* child : m_children)
+			child->UpdateGlobalLocation();
+	}
+
+	void Transformation::SetGlobalLocation(const Vector3& loc)
+	{
+		m_location = loc;
+		UpdateLocalLocation();
 
 		for (Transformation* child : m_children)
 			child->UpdateGlobalLocation();
@@ -49,8 +57,22 @@ namespace LinaEngine
 	void Transformation::SetLocalRotation(const Quaternion& rot, bool isThisPivot)
 	{
 		m_localRotation = rot;
-
 		UpdateGlobalRotation();
+
+		for (Transformation* child : m_children)
+		{
+			child->UpdateGlobalRotation();
+
+			if (isThisPivot)
+				child->UpdateGlobalLocation();
+		}
+	}
+
+
+	void Transformation::SetGlobalRotation(const Quaternion& rot, bool isThisPivot)
+	{
+		m_rotation = rot;
+		UpdateLocalRotation();
 
 		for (Transformation* child : m_children)
 		{
@@ -64,70 +86,31 @@ namespace LinaEngine
 	void Transformation::SetLocalScale(const Vector3& scale, bool isThisPivot)
 	{
 		m_localScale = scale;
-
 		UpdateGlobalScale();
 
 		for (Transformation* child : m_children)
 		{
 			child->UpdateGlobalScale();
-			
+
 			if (isThisPivot)
 				child->UpdateGlobalLocation();
 		}
 	}
 
-	void Transformation::SetGlobalLocation(const Vector3& loc)
-	{
-		m_location = loc;
 
-		for (Transformation* child : m_children)
-		{
-			child->SetLocalLocation(child->GetLocalLocation());
-		}
 
-		if (m_parent != nullptr)
-		{
-			Matrix local = m_parent->ToMatrix().Inverse() * Matrix::Translate(m_location);
-			local.Decompose(m_localLocation);
-		}
-		else
-			m_localLocation = loc;
-	}
-
-	void Transformation::SetGlobalRotation(const Quaternion& rot)
-	{
-		m_rotation = rot;
-
-		for (Transformation* child : m_children)
-		{
-			child->SetLocalRotation(child->GetLocalRotation());
-		}
-
-		if (m_parent != nullptr)
-		{
-			Matrix local = m_parent->ToMatrix().Inverse() * Matrix::TransformMatrix(m_location, m_rotation, m_scale);
-			local.Decompose(m_localLocation, m_localRotation);
-		}
-		else
-			m_localRotation = rot;
-	}
-
-	void Transformation::SetGlobalScale(const Vector3& scale)
+	void Transformation::SetGlobalScale(const Vector3& scale, bool isThisPivot)
 	{
 		m_scale = scale;
+		UpdateLocalScale();
 
 		for (Transformation* child : m_children)
 		{
-			child->SetLocalScale(child->GetLocalScale());
-		}
+			child->UpdateGlobalScale();
 
-		if (m_parent != nullptr)
-		{
-			Matrix local = m_parent->ToMatrix().Inverse() * Matrix::TransformMatrix(m_location, m_rotation, m_scale);
-			local.Decompose(Vector3(), Quaternion(), m_localScale);
+			if (isThisPivot)
+				child->UpdateGlobalLocation();
 		}
-		else
-			m_localScale = scale;
 	}
 
 	void Transformation::AddChild(Transformation* child)
@@ -197,33 +180,33 @@ namespace LinaEngine
 	void Transformation::UpdateLocalScale()
 	{
 		if (m_parent == nullptr)
-			m_scale = m_localScale;
+			m_localScale = m_scale;
 		else
 		{
-			Matrix global = Matrix::Scale(m_parent->m_scale).Inverse() * Matrix::Scale(m_localScale);
-			m_scale = global.GetScale();
+			Matrix global = Matrix::Scale(m_parent->m_scale).Inverse() * Matrix::Scale(m_scale);
+			m_localScale = global.GetScale();
 		}
 	}
 
 	void Transformation::UpdateLocalLocation()
 	{
 		if (m_parent == nullptr)
-			m_location = m_localLocation;
+			m_localLocation = m_location;
 		else
 		{
-			Matrix global = m_parent->ToMatrix() * ToLocalMatrix();
-			m_location = global.GetTranslation();
+			Matrix global = m_parent->ToMatrix().Inverse() * ToMatrix();
+			m_localLocation = global.GetTranslation();
 		}
 	}
 
 	void Transformation::UpdateLocalRotation()
 	{
 		if (m_parent == nullptr)
-			m_rotation = m_localRotation;
+			m_localRotation = m_rotation;
 		else
 		{
-			Matrix global = m_parent->ToMatrix() * ToLocalMatrix();
-			global.Decompose(Vector3(), m_rotation);
+			Matrix global = Matrix::InitRotation(m_parent->m_rotation).Inverse() * ToMatrix();
+			global.Decompose(Vector3(), m_localRotation);
 		}
 	}
 }

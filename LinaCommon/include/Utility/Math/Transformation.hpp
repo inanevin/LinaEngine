@@ -138,21 +138,20 @@ namespace LinaEngine
 			return *this;
 		}
 
-		// Pivot determines whether the children will be rotated/scaled based on this transformation or on their own. 
 
 		void SetLocalLocation(const Vector3& loc);
+		void SetGlobalLocation(const Vector3& loc);
 
+		// Pivot determines whether the children will be rotated/scaled based on this transformation or on their own. 
 		void SetLocalRotation(const Quaternion& rot, bool isThisPivot = true);
-
 		void SetLocalScale(const Vector3& scale, bool isThisPivot = true);
+		void SetGlobalRotation(const Quaternion& rot, bool isThisPivot = true);
+		void SetGlobalScale(const Vector3& scale, bool isThisPivot = true);
 
 		const Vector3& GetLocalLocation() { return m_localLocation; }
 		const Quaternion& GetLocalRotation() { return m_localRotation; }
 		const Vector3& GetLocalScale() { return m_localScale; }
 
-		void SetGlobalLocation(const Vector3& loc);
-		void SetGlobalRotation(const Quaternion& rot);
-		void SetGlobalScale(const Vector3& scale);
 
 		const Vector3& GetGlobalLocation() { return m_location; }
 		const Quaternion& GetGlobalRotation() { return m_rotation; }
