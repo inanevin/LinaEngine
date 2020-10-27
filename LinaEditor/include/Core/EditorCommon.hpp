@@ -102,6 +102,7 @@ namespace LinaEditor
 
 // ECS
 #define ECS_ID "Entities"
+#define ECS_MOVEENTITY "ECS_MOVE_ENTITY"
 
 // Resources
 #define RESOURCES_ID "Resources"

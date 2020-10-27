@@ -60,7 +60,7 @@ namespace LinaEngine::ECS
 		bool m_isEnabled = true;
 		std::string m_name = "";
 		std::set<ECSEntity> m_children;
-		ECSEntity m_parent;
+		ECSEntity m_parent = entt::null;
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
@@ -82,6 +82,10 @@ namespace LinaEngine::ECS
 		ECSRegistry() {  };
 		virtual ~ECSRegistry() {};
 
+		void AddChildToEntity(ECSEntity parent, ECSEntity child);
+		void RemoveChildFromEntity(ECSEntity parent, ECSEntity child);
+		void RemoveFromParent(ECSEntity child);
+		const std::set<ECSEntity> GetChildren(ECSEntity parent);
 		ECSEntity CreateEntity(const std::string& name);
 		ECSEntity GetEntity(const std::string& name);
 	};

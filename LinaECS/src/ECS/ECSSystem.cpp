@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -46,10 +46,44 @@ namespace LinaEngine::ECS
 		return false;
 	}
 
+	void ECSRegistry::AddChildToEntity(ECSEntity parent, ECSEntity child)
+	{
+		if (parent == child) return;
+		get<TransformComponent>(parent).transform.AddChild(&get<TransformComponent>(child).transform);
+		get<ECSEntityData>(parent).m_children.emplace(child);
+		get<ECSEntityData>(child).m_parent = parent;
+	}
+
+	void ECSRegistry::RemoveChildFromEntity(ECSEntity parent, ECSEntity child)
+	{
+		get<TransformComponent>(parent).transform.RemoveChild(&get<TransformComponent>(child).transform);
+
+		std::set<ECSEntity>& children = get<ECSEntityData>(parent).m_children;
+		if (children.find(child) != children.end())
+			children.erase(child);
+
+		get<ECSEntityData>(child).m_parent = entt::null;
+	}
+
+	void ECSRegistry::RemoveFromParent(ECSEntity child)
+	{
+		ECSEntity parent = get<ECSEntityData>(child).m_parent;
+
+		if (parent != entt::null)
+			RemoveChildFromEntity(parent, child);
+
+		get<TransformComponent>(child).transform.RemoveFromParent();
+	}
+
+	const std::set<ECSEntity> ECSRegistry::GetChildren(ECSEntity parent)
+	{
+		return get<ECSEntityData>(parent).m_children;
+	}
+
 	entt::entity ECSRegistry::CreateEntity(const std::string& name)
 	{
 		entt::entity ent = create();
-		emplace<ECSEntityData>(ent, ECSEntityData {false, false, name} );
+		emplace<ECSEntityData>(ent, ECSEntityData{ false, false, name });
 		emplace<TransformComponent>(ent, TransformComponent());
 		return ent;
 	}
@@ -58,7 +92,7 @@ namespace LinaEngine::ECS
 	{
 		auto singleView = view<ECSEntityData>();
 
-		for(auto entity : singleView)
+		for (auto entity : singleView)
 		{
 			if (singleView.get<ECSEntityData>(entity).m_name.compare(name) == 0)
 				return entity;

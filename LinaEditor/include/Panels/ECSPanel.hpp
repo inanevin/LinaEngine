@@ -57,6 +57,7 @@ namespace LinaEditor
 		virtual void Setup() override;
 		virtual void Draw() override;
 		void Refresh();
+		void DrawEntityNode(int id,  LinaEngine::ECS::ECSEntity entity, bool isSelected);
 
 	private:
 

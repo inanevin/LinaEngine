@@ -158,6 +158,9 @@ namespace LinaEngine
 		void AddChild(Transformation* child);
 		void RemoveChild(Transformation* child);
 		void RemoveFromParent();
+		int GetChildCount() { return m_children.size(); }
+		bool HasParent() { return m_parent != nullptr; }
+		const std::set<Transformation*>& GetChildren() { return m_children; }
 
 		template<class Archive>
 		void serialize(Archive& archive)

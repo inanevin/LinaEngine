@@ -50,6 +50,43 @@ namespace LinaEditor
 		EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
 	}
 
+	void ECSPanel::DrawEntityNode(int id, LinaEngine::ECS::ECSEntity entity, bool isSelected)
+	{
+		LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
+		LinaEngine::ECS::ECSEntityData& data = ecs.get<LinaEngine::ECS::ECSEntityData>(entity);
+		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+		static ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth;
+		ImGuiTreeNodeFlags flags = data.m_children.size() == 0 ? leaf_flags : base_flags;
+
+		if (isSelected)
+			flags |= ImGuiTreeNodeFlags_Selected;
+
+		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)id, flags, data.m_name.c_str());
+
+		if (node_open)
+			ImGui::TreePop();
+
+		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+		{
+			ImGui::SetDragDropPayload(ECS_MOVEENTITY, &entity, sizeof(ECSEntity));
+
+			// Display preview 
+			ImGui::Text(data.m_name.c_str());
+			ImGui::EndDragDropSource();
+		}
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ECS_MOVEENTITY))
+			{
+				IM_ASSERT(payload->DataSize == sizeof(ECSEntity));
+				ecs.AddChildToEntity(entity, *(ECSEntity*)payload->m_data);
+			}
+			ImGui::EndDragDropTarget();
+		}
+
+	}
+
 	void ECSPanel::Draw()
 	{
 		if (m_show)
@@ -68,8 +105,7 @@ namespace LinaEditor
 				WidgetsUtility::DrawShadowedLine(5);
 
 				// Statics.
-				static char selectedEntityName[256] = "Entity";
-
+				static char entityName[256] = "Entity";
 				WidgetsUtility::WindowPadding(ImVec2(3, 4));
 
 				// Handle Right Click.
@@ -86,41 +122,38 @@ namespace LinaEditor
 				}
 
 				WidgetsUtility::PopStyleVar();
-
 				WidgetsUtility::WindowPadding(ImVec2(0,0));
 				WidgetsUtility::FramePadding(ImVec2(0, 0));
 
 				int entityCounter = 0;
 				auto singleView = ecs.view<LinaEngine::ECS::ECSEntityData>();
+				static int selected = -1;
 
-				float x = WidgetsUtility::DebugFloat("x");
 				for (auto entity : singleView)
 				{
-					WidgetsUtility::IncrementCursorPosY(7);
+					WidgetsUtility::IncrementCursorPos(ImVec2(4, 7));
+					
+					LinaEngine::ECS::ECSEntityData& data = ecs.get<LinaEngine::ECS::ECSEntityData>(entity);
+					
+					if(data.m_parent == entt::null)
+					DrawEntityNode(entityCounter, entity, selected == entityCounter);
 
-					// Selection
-					entityCounter++;
-					LinaEngine::ECS::ECSEntityData& data = singleView.get<LinaEngine::ECS::ECSEntityData>(entity);
-					strcpy(selectedEntityName, data.m_name.c_str());
-					if (WidgetsUtility::SelectableInput("entSelectable" + entityCounter, m_selectedEntity == entity, ImGuiSelectableFlags_SelectOnClick, selectedEntityName, IM_ARRAYSIZE(selectedEntityName)))
-					{
-						m_selectedEntity = entity;
-						EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, entity);
-						data.m_name = selectedEntityName;
-					}
-
+					if (ImGui::IsItemClicked())
+						selected = entityCounter;
 
 					// Deselect.
 					if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 					{
+						selected = -1;
 						EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
 						m_selectedEntity = entt::null;
 					}
+
+					entityCounter++;
 				}
 	
 				WidgetsUtility::PopStyleVar();
 				WidgetsUtility::PopStyleVar();
-
 			}
 
 			ImGui::End();
