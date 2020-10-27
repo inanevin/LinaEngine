@@ -117,35 +117,16 @@ void Example1Level::Initialize()
 
 	cube1 = ecs.GetEntity("Cube1");
 	cube2 = ecs.GetEntity("Cube2");
-	//ecs.AddChildTo(cube1, cube2);
 
 	TransformComponent& parent = ecs.get<TransformComponent>(cube1);
 	TransformComponent& child = ecs.get<TransformComponent>(cube2);
 	
-	parent.transform.AddChild(&child.transform);
-	child.transform.SetLocalLocation(Vector3(5, 0, 0));
+	
 
 }
 
 void Example1Level::Tick(float delta)
 {
-	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
-
-	if (LinaEngine::Application::GetInputEngine().GetKeyDown(LinaEngine::Input::InputCode::Key::K))
-	{
-		TransformComponent& parent = ecs.get<TransformComponent>(cube2);
-		parent.transform.SetGlobalRotation(Quaternion::Euler(0, 30, 0));
-	}
-	if (LinaEngine::Application::GetInputEngine().GetKeyDown(LinaEngine::Input::InputCode::Key::L))
-	{
-		TransformComponent& parent = ecs.get<TransformComponent>(cube2);
-		parent.transform.SetGlobalScale(Vector3(4, 1, 0.2f));
-	}
-
-	if (LinaEngine::Application::GetInputEngine().GetKeyDown(LinaEngine::Input::InputCode::Key::J))
-	{
-		TransformComponent& parent = ecs.get<TransformComponent>(cube2);
-		parent.transform.SetGlobalLocation(Vector3(0, 15, 0));
-	}
+	
 
 }

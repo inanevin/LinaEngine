@@ -140,24 +140,20 @@ namespace LinaEngine
 
 
 		void SetLocalLocation(const Vector3& loc);
-		void SetGlobalLocation(const Vector3& loc);
+		void SetLocation(const Vector3& loc);
 
 		// Pivot determines whether the children will be rotated/scaled based on this transformation or on their own. 
 		void SetLocalRotation(const Quaternion& rot, bool isThisPivot = true);
 		void SetLocalScale(const Vector3& scale, bool isThisPivot = true);
-		void SetGlobalRotation(const Quaternion& rot, bool isThisPivot = true);
-		void SetGlobalScale(const Vector3& scale, bool isThisPivot = true);
+		void SetRotation(const Quaternion& rot, bool isThisPivot = true);
+		void SetScale(const Vector3& scale, bool isThisPivot = true);
 
 		const Vector3& GetLocalLocation() { return m_localLocation; }
 		const Quaternion& GetLocalRotation() { return m_localRotation; }
 		const Vector3& GetLocalScale() { return m_localScale; }
-
-
-		const Vector3& GetGlobalLocation() { return m_location; }
-		const Quaternion& GetGlobalRotation() { return m_rotation; }
-		const Vector3& GetGlobalScale() { return m_scale; }
-
-
+		const Vector3& GetLocation() { return m_location; }
+		const Quaternion& GetRotation() { return m_rotation; }
+		const Vector3& GetScale() { return m_scale; }
 
 		void AddChild(Transformation* child);
 		void RemoveChild(Transformation* child);
@@ -169,26 +165,24 @@ namespace LinaEngine
 			archive(m_location, m_rotation, m_scale, m_localLocation, m_localRotation, m_localScale);
 		}
 
-		Vector3 m_location = Vector3::Zero;
-		Quaternion m_rotation;
-		Vector3 m_scale = Vector3::One;
-
-		Vector3 m_localLocation = Vector3::Zero;
-		Quaternion m_localRotation;
-		Vector3 m_localScale = Vector3::One;
-
 	private:
 
 		void UpdateGlobalScale();
 		void UpdateGlobalLocation();
 		void UpdateGlobalRotation();
-
-
 		void UpdateLocalScale();
 		void UpdateLocalLocation();
 		void UpdateLocalRotation();
 
 	private:
+
+
+		Vector3 m_location = Vector3::Zero;
+		Quaternion m_rotation;
+		Vector3 m_scale = Vector3::One;
+		Vector3 m_localLocation = Vector3::Zero;
+		Quaternion m_localRotation;
+		Vector3 m_localScale = Vector3::One;
 
 		Transformation* m_parent = nullptr;
 		std::set<Transformation*> m_children;

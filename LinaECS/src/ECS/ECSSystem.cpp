@@ -67,28 +67,5 @@ namespace LinaEngine::ECS
 		return entt::null;
 	}
 
-	void ECSRegistry::AddChildTo(ECSEntity parent, ECSEntity child)
-	{
-		get<ECSEntityData>(parent).m_children.emplace(child);
-		get<ECSEntityData>(child).m_parent = parent;
-	}
-
-	void ECSRegistry::EntityTransformationUpdate(ECSEntity entity)
-	{
-		TransformComponent& tr = get<TransformComponent>(entity);
-		ECSEntityData& data = get<ECSEntityData>(entity);
-
-		for (auto& child : data.m_children)
-		{
-			TransformComponent* childTr = try_get<TransformComponent>(child);
-
-			if (childTr)
-			{
-				Matrix transformed = ( tr.transform.ToMatrix() * childTr->transform.ToMatrix().Inverse());
-				//transformed.Decompose(childTr->transform.m_location, childTr->transform.m_rotation, childTr->transform.m_scale);
-			}
-		}
-	}
-
 }
 

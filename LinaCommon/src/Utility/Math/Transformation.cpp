@@ -45,7 +45,7 @@ namespace LinaEngine
 			child->UpdateGlobalLocation();
 	}
 
-	void Transformation::SetGlobalLocation(const Vector3& loc)
+	void Transformation::SetLocation(const Vector3& loc)
 	{
 		m_location = loc;
 		UpdateLocalLocation();
@@ -69,7 +69,7 @@ namespace LinaEngine
 	}
 
 
-	void Transformation::SetGlobalRotation(const Quaternion& rot, bool isThisPivot)
+	void Transformation::SetRotation(const Quaternion& rot, bool isThisPivot)
 	{
 		m_rotation = rot;
 		UpdateLocalRotation();
@@ -99,7 +99,7 @@ namespace LinaEngine
 
 
 
-	void Transformation::SetGlobalScale(const Vector3& scale, bool isThisPivot)
+	void Transformation::SetScale(const Vector3& scale, bool isThisPivot)
 	{
 		m_scale = scale;
 		UpdateLocalScale();

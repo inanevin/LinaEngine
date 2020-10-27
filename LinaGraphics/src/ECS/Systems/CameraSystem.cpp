@@ -67,7 +67,9 @@ namespace LinaEngine::ECS
 			m_currentCameraTransform = &transform;
 			
 			// Actual camera view matrix.
-			m_view = Matrix::InitLookAt(transform.transform.m_location, transform.transform.m_location + transform.transform.m_rotation.GetForward(), transform.transform.m_rotation.GetUp());
+			Vector3 location = transform.transform.GetLocation();
+			Quaternion rotation = transform.transform.GetRotation();
+			m_view = Matrix::InitLookAt(location, location + rotation.GetForward(), rotation.GetUp());
 
 			// Update projection matrix.
 			m_projection = Matrix::Perspective(camera.m_fieldOfView / 2, m_aspectRatio, camera.m_zNear, camera.m_zFar);		
@@ -77,14 +79,16 @@ namespace LinaEngine::ECS
 
 	Vector3 CameraSystem::GetCameraLocation()
 	{
-		return (m_currentCameraComponent == nullptr || m_currentCameraTransform == nullptr)? Vector3(Vector3::Zero): m_currentCameraTransform->transform.m_location;
+		return (m_currentCameraComponent == nullptr || m_currentCameraTransform == nullptr) ? Vector3(Vector3::Zero) : m_currentCameraTransform->transform.GetLocation();
 	}
 
 	Matrix CameraSystem::GetLightMatrix(DirectionalLightComponent* c)
 	{
 		if (c == nullptr) return Matrix();
 		Matrix lightProjection = Matrix::Orthographic(c->m_shadowOrthoProjection.x, c->m_shadowOrthoProjection.y, c->m_shadowOrthoProjection.z, c->m_shadowOrthoProjection.w, c->m_shadowZNear, c->m_shadowZFar);;
-		Matrix lightView = Matrix::InitLookAt(m_currentCameraTransform->transform.m_location, m_currentCameraTransform->transform.m_location + m_currentCameraTransform->transform.m_rotation.GetForward().Normalized(), Vector3::Up);
+		Vector3 location = m_currentCameraTransform->transform.GetLocation();
+		Quaternion rotation = m_currentCameraTransform->transform.GetRotation();
+		Matrix lightView = Matrix::InitLookAt(location, location + rotation.GetForward().Normalized(), Vector3::Up);
 		return lightProjection * lightView;
 	}
 

@@ -52,14 +52,8 @@ namespace LinaEngine::ECS
 			btTransform btTrans;
 			rb->getMotionState()->getWorldTransform(btTrans);
 
-			transform.transform.m_location.x = btTrans.getOrigin().getX();
-			transform.transform.m_location.y = btTrans.getOrigin().getY();
-			transform.transform.m_location.z = btTrans.getOrigin().getZ();
-
-			transform.transform.m_rotation.x = btTrans.getRotation().getX();
-			transform.transform.m_rotation.y = btTrans.getRotation().getY();
-			transform.transform.m_rotation.z = btTrans.getRotation().getZ();
-			transform.transform.m_rotation.w = btTrans.getRotation().getW();
+			transform.transform.SetLocation(Vector3(btTrans.getOrigin().getX(), btTrans.getOrigin().getY(), btTrans.getOrigin().getZ()));
+			transform.transform.SetRotation(Quaternion(btTrans.getRotation().getX(), btTrans.getRotation().getY(), btTrans.getRotation().getZ(), btTrans.getRotation().getW()));
 		}
 	}
 }

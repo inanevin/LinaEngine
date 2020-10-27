@@ -84,8 +84,6 @@ namespace LinaEngine::ECS
 
 		ECSEntity CreateEntity(const std::string& name);
 		ECSEntity GetEntity(const std::string& name);
-		void AddChildTo(ECSEntity parent, ECSEntity child);
-		void EntityTransformationUpdate(ECSEntity entity);
 	};
 	
 

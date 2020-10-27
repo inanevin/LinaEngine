@@ -324,14 +324,14 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 			WidgetsUtility::AlignedText("Location");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
-			Vector3 globalLocation = transform.transform.GetGlobalLocation();
+			Vector3 globalLocation = transform.transform.GetLocation();
 			ImGui::InputFloat3("##dbg_loc", &globalLocation.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Rotation");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
-			Quaternion globalRotation = transform.transform.GetGlobalRotation();
+			Quaternion globalRotation = transform.transform.GetRotation();
 			Vector3 globalEuler = globalRotation.GetEuler();
 			ImGui::InputFloat3("##dbg_rot", &globalEuler.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
@@ -339,7 +339,7 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 			WidgetsUtility::AlignedText("Scale");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
-			Vector3 globalScale = transform.transform.GetGlobalScale();
+			Vector3 globalScale = transform.transform.GetScale();
 			ImGui::InputFloat3("##dbg_scl", &globalScale.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 		}
 

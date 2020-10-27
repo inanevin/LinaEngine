@@ -77,19 +77,20 @@ namespace LinaEngine::ECS
 			// Handle movement.
 			float horizontalKey = m_inputEngine->GetHorizontalAxisValue();
 			float verticalKey = m_inputEngine->GetVerticalAxisValue();
-			Vector3 fw = transform.transform.m_rotation.GetForward();
-			Vector3 up = transform.transform.m_rotation.GetUp();
-			Vector3 rg = transform.transform.m_rotation.GetRight();
+			Quaternion rotation = transform.transform.GetRotation();
+			Vector3 fw = rotation.GetForward();
+			Vector3 up = rotation.GetUp();
+			Vector3 rg = rotation.GetRight();
 
-			Vector3 vertical = transform.transform.m_rotation.GetForward();
+			Vector3 vertical = rotation.GetForward();
 			vertical.Normalize();
 			vertical *= freeLook.m_movementSpeeds.y * verticalKey * delta;
 
-			Vector3 horizontal = transform.transform.m_rotation.GetRight();
+			Vector3 horizontal = rotation.GetRight();
 			horizontal.Normalize();
 			horizontal *= freeLook.m_movementSpeeds.x * horizontalKey * delta;
 
-			transform.transform.m_location = transform.transform.m_location + vertical + horizontal;
+			transform.transform.SetLocation(transform.transform.GetLocation() + vertical + horizontal);
 		}
 
 	}

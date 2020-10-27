@@ -79,7 +79,7 @@ namespace LinaEngine::ECS
 		Matrix GetDirLightBiasMatrix();
 		std::vector<Matrix> GetPointLightMatrices();
 		Color& GetAmbientColor() { return m_ambientColor; }
-		Vector3& GetDirectionalLightPos();
+		const Vector3& GetDirectionalLightPos();
 
 	private:
 
