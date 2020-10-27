@@ -45,6 +45,7 @@ Timestamp: 4/8/2019 5:28:34 PM
 #include "entt/entity/entity.hpp"
 #include <cereal/types/string.hpp>
 #include <cereal/types/map.hpp>
+#include <cereal/types/set.hpp>
 #include <map>
 #include <set>
 
@@ -61,10 +62,11 @@ namespace LinaEngine::ECS
 		std::string m_name = "";
 		std::set<ECSEntity> m_children;
 		ECSEntity m_parent = entt::null;
+
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_isHidden, m_isEnabled, m_name);
+			archive(m_isHidden, m_isEnabled, m_name, m_parent, m_children);
 		}
 
 	};

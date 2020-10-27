@@ -115,11 +115,6 @@ void Example1Level::Initialize()
 
 	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
 
-	cube1 = ecs.GetEntity("Cube1");
-	cube2 = ecs.GetEntity("Cube2");
-
-	TransformComponent& parent = ecs.get<TransformComponent>(cube1);
-	TransformComponent& child = ecs.get<TransformComponent>(cube2);
 	
 	
 

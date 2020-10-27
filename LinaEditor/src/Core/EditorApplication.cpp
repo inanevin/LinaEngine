@@ -96,24 +96,12 @@ namespace LinaEditor
 
 		auto singleView = ecs.view<LinaEngine::ECS::ECSEntityData>();
 
-		bool editorCameraExists = false;
-
-		for (auto entity : singleView)
-		{
-			if (singleView.get<LinaEngine::ECS::ECSEntityData>(entity).m_name.compare(EDITOR_CAMERA_NAME) == 0)
-			{
-				editorCameraExists = true;
-				break;
-			}
-		}
-
-		if(!editorCameraExists)
+		if (ecs.GetEntity(EDITOR_CAMERA_NAME) == entt::null)
 		{
 			ECSEntity editorCamera = ecs.CreateEntity(EDITOR_CAMERA_NAME);
 			TransformComponent cameraTransform;
 			CameraComponent cameraComponent;
 			FreeLookComponent freeLookComponent;
-			ecs.emplace<TransformComponent>(editorCamera, cameraTransform);
 			ecs.emplace<CameraComponent>(editorCamera, cameraComponent);
 			ecs.emplace<FreeLookComponent>(editorCamera, freeLookComponent);
 			Refresh();
