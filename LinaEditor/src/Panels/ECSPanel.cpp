@@ -64,6 +64,7 @@ namespace LinaEditor
 
 			if (ImGui::Begin(ECS_ID, &m_show, flags))
 			{
+				
 				WidgetsUtility::DrawShadowedLine(5);
 
 				// Statics.
@@ -86,13 +87,16 @@ namespace LinaEditor
 
 				WidgetsUtility::PopStyleVar();
 
-				int entityCounter = 0;
+				WidgetsUtility::WindowPadding(ImVec2(0,0));
+				WidgetsUtility::FramePadding(ImVec2(0, 0));
 
+				int entityCounter = 0;
 				auto singleView = ecs.view<LinaEngine::ECS::ECSEntityData>();
 
+				float x = WidgetsUtility::DebugFloat("x");
 				for (auto entity : singleView)
 				{
-					WidgetsUtility::IncrementCursorPos(ImVec2(11, 11));
+					WidgetsUtility::IncrementCursorPosY(7);
 
 					// Selection
 					entityCounter++;
@@ -113,6 +117,8 @@ namespace LinaEditor
 					}
 				}
 	
+				WidgetsUtility::PopStyleVar();
+				WidgetsUtility::PopStyleVar();
 
 			}
 
