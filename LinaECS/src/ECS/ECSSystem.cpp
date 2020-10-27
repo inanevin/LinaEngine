@@ -49,20 +49,39 @@ namespace LinaEngine::ECS
 	void ECSRegistry::AddChildToEntity(ECSEntity parent, ECSEntity child)
 	{
 		if (parent == child) return;
-		get<TransformComponent>(parent).transform.AddChild(&get<TransformComponent>(child).transform);
-		get<ECSEntityData>(parent).m_children.emplace(child);
-		get<ECSEntityData>(child).m_parent = parent;
+
+		ECSEntityData& childData = get<ECSEntityData>(child);
+		ECSEntityData& parentData = get<ECSEntityData>(parent);
+		Transformation& childTransform = get<TransformComponent>(child).transform;
+		Transformation& parentTransform = get<TransformComponent>(parent).transform;
+		LINA_CORE_TRACE("Adding {0} to entity {1} ", childData.m_name, parentData.m_name);
+
+		if (childData.m_parent != entt::null)
+		{
+			LINA_CORE_TRACE("Child {0} already has a parent", childData.m_name );
+
+			RemoveChildFromEntity(childData.m_parent, child);
+			childTransform.RemoveFromParent();
+		}
+
+		parentTransform.AddChild(&childTransform);
+		parentData.m_children.emplace(child);
+		childData.m_parent = parent;
 	}
 
 	void ECSRegistry::RemoveChildFromEntity(ECSEntity parent, ECSEntity child)
 	{
-		get<TransformComponent>(parent).transform.RemoveChild(&get<TransformComponent>(child).transform);
-
 		std::set<ECSEntity>& children = get<ECSEntityData>(parent).m_children;
 		if (children.find(child) != children.end())
+		{
 			children.erase(child);
 
+			// Remove transformation.
+			get<TransformComponent>(parent).transform.RemoveChild(&get<TransformComponent>(child).transform);
+		}
+
 		get<ECSEntityData>(child).m_parent = entt::null;
+
 	}
 
 	void ECSRegistry::RemoveFromParent(ECSEntity child)
@@ -72,7 +91,6 @@ namespace LinaEngine::ECS
 		if (parent != entt::null)
 			RemoveChildFromEntity(parent, child);
 
-		get<TransformComponent>(child).transform.RemoveFromParent();
 	}
 
 	const std::set<ECSEntity> ECSRegistry::GetChildren(ECSEntity parent)

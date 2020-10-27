@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -38,7 +38,7 @@ namespace LinaEditor
 {
 	using namespace LinaEngine::ECS;
 	using namespace LinaEngine;
-	
+
 	void ECSPanel::Setup()
 	{
 
@@ -50,21 +50,24 @@ namespace LinaEditor
 		EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
 	}
 
-	void ECSPanel::DrawEntityNode(int id, LinaEngine::ECS::ECSEntity entity, bool isSelected)
+	void ECSPanel::DrawEntityNode(int id, LinaEngine::ECS::ECSEntity entity)
 	{
 		LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
 		LinaEngine::ECS::ECSEntityData& data = ecs.get<LinaEngine::ECS::ECSEntityData>(entity);
 		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 		static ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth;
 		ImGuiTreeNodeFlags flags = data.m_children.size() == 0 ? leaf_flags : base_flags;
+		static ECSEntity selected;
 
-		if (isSelected)
+		if (entity == selected)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
 		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)id, flags, data.m_name.c_str());
 
-		if (node_open)
-			ImGui::TreePop();
+
+		if (ImGui::IsItemClicked())
+			selected = entity;
+
 
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 		{
@@ -85,6 +88,19 @@ namespace LinaEditor
 			ImGui::EndDragDropTarget();
 		}
 
+		if (node_open)
+		{
+			int counter = 0;
+			for (ECSEntity child : data.m_children)
+			{
+				DrawEntityNode(counter, child);
+					counter++;
+			}
+			ImGui::TreePop();
+		}
+
+
+
 	}
 
 	void ECSPanel::Draw()
@@ -101,7 +117,7 @@ namespace LinaEditor
 
 			if (ImGui::Begin(ECS_ID, &m_show, flags))
 			{
-				
+
 				WidgetsUtility::DrawShadowedLine(5);
 
 				// Statics.
@@ -122,41 +138,54 @@ namespace LinaEditor
 				}
 
 				WidgetsUtility::PopStyleVar();
-				WidgetsUtility::WindowPadding(ImVec2(0,0));
+				WidgetsUtility::WindowPadding(ImVec2(0, 0));
 				WidgetsUtility::FramePadding(ImVec2(0, 0));
 
 				int entityCounter = 0;
 				auto singleView = ecs.view<LinaEngine::ECS::ECSEntityData>();
-				static int selected = -1;
 
 				for (auto entity : singleView)
 				{
 					WidgetsUtility::IncrementCursorPos(ImVec2(4, 7));
-					
-					LinaEngine::ECS::ECSEntityData& data = ecs.get<LinaEngine::ECS::ECSEntityData>(entity);
-					
-					if(data.m_parent == entt::null)
-					DrawEntityNode(entityCounter, entity, selected == entityCounter);
 
-					if (ImGui::IsItemClicked())
-						selected = entityCounter;
+					LinaEngine::ECS::ECSEntityData& data = ecs.get<LinaEngine::ECS::ECSEntityData>(entity);
+
+					if (data.m_parent == entt::null)
+						DrawEntityNode(entityCounter, entity);
 
 					// Deselect.
 					if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 					{
-						selected = -1;
+						
 						EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
 						m_selectedEntity = entt::null;
 					}
 
 					entityCounter++;
 				}
-	
+
 				WidgetsUtility::PopStyleVar();
 				WidgetsUtility::PopStyleVar();
 			}
 
+			ImGuiID id = ImGui::GetWindowDockID();
+			ImVec2 min = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
+			ImVec2 max = ImVec2(min.x + ImGui::GetWindowSize().x, min.y + ImGui::GetWindowSize().y);
+		
+
+			if (ImGui::BeginDragDropTargetCustom(ImRect(min,max), id))
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ECS_MOVEENTITY))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(ECSEntity));
+					ECSEntity entity = *(ECSEntity*)payload->m_data;
+					ecs.RemoveFromParent(entity);
+				}
+				ImGui::EndDragDropTarget();
+			}
+
 			ImGui::End();
+
 		}
 	}
 
