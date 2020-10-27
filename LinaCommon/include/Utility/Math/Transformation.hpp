@@ -46,6 +46,14 @@ Timestamp: 4/9/2019 12:06:04 PM
 
 namespace LinaEngine
 {
+	namespace ECS
+	{
+		class ECSRegistry;
+	}
+}
+
+namespace LinaEngine
+{
 	class Transformation
 	{
 	public:
@@ -155,9 +163,7 @@ namespace LinaEngine
 		const Quaternion& GetRotation() { return m_rotation; }
 		const Vector3& GetScale() { return m_scale; }
 
-		void AddChild(Transformation* child);
-		void RemoveChild(Transformation* child);
-		void RemoveFromParent();
+		
 		int GetChildCount() { return m_children.size(); }
 		bool HasParent() { return m_parent != nullptr; }
 		const std::set<Transformation*>& GetChildren() { return m_children; }
@@ -177,6 +183,10 @@ namespace LinaEngine
 		void UpdateLocalLocation();
 		void UpdateLocalRotation();
 
+		friend class ECS::ECSRegistry;
+		void AddChild(Transformation* child);
+		void RemoveChild(Transformation* child);
+		void RemoveFromParent();
 	private:
 
 

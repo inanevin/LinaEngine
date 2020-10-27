@@ -153,6 +153,9 @@ namespace LinaEngine
 			Matrix global = Matrix::Scale(m_parent->m_scale) * Matrix::Scale(m_localScale);
 			m_scale = global.GetScale();
 		}
+
+		for (Transformation* child : m_children)
+			child->UpdateGlobalScale();
 	}
 
 	void Transformation::UpdateGlobalLocation()
@@ -164,6 +167,9 @@ namespace LinaEngine
 			Matrix global = m_parent->ToMatrix() * ToLocalMatrix();
 			m_location = global.GetTranslation();
 		}
+
+		for (Transformation* child : m_children)
+			child->UpdateGlobalLocation();
 	}
 
 	void Transformation::UpdateGlobalRotation()
@@ -175,6 +181,9 @@ namespace LinaEngine
 			Matrix global = Matrix::InitRotation(m_parent->m_rotation) * ToLocalMatrix();
 			global.Decompose(Vector3(), m_rotation);
 		}
+
+		for (Transformation* child : m_children)
+			child->UpdateGlobalRotation();
 	}
 
 	void Transformation::UpdateLocalScale()

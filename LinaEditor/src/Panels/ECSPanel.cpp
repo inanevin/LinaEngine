@@ -36,6 +36,7 @@ SOFTWARE.
 
 namespace LinaEditor
 {
+
 	using namespace LinaEngine::ECS;
 	using namespace LinaEngine;
 
@@ -57,16 +58,18 @@ namespace LinaEditor
 		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 		static ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth;
 		ImGuiTreeNodeFlags flags = data.m_children.size() == 0 ? leaf_flags : base_flags;
-		static ECSEntity selected;
 
-		if (entity == selected)
+		if (entity == m_selectedEntity)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
 		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)id, flags, data.m_name.c_str());
 
 
 		if (ImGui::IsItemClicked())
-			selected = entity;
+		{
+			m_selectedEntity = entity;
+			EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, entity);
+		}
 
 
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
@@ -156,7 +159,6 @@ namespace LinaEditor
 					// Deselect.
 					if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 					{
-						
 						EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
 						m_selectedEntity = entt::null;
 					}

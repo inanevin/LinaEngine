@@ -49,17 +49,17 @@ namespace LinaEngine::ECS
 	void ECSRegistry::AddChildToEntity(ECSEntity parent, ECSEntity child)
 	{
 		if (parent == child) return;
-
+		
 		ECSEntityData& childData = get<ECSEntityData>(child);
 		ECSEntityData& parentData = get<ECSEntityData>(parent);
+
+		if (parentData.m_parent == child || childData.m_parent == parent) return;
+
 		Transformation& childTransform = get<TransformComponent>(child).transform;
 		Transformation& parentTransform = get<TransformComponent>(parent).transform;
-		LINA_CORE_TRACE("Adding {0} to entity {1} ", childData.m_name, parentData.m_name);
 
 		if (childData.m_parent != entt::null)
 		{
-			LINA_CORE_TRACE("Child {0} already has a parent", childData.m_name );
-
 			RemoveChildFromEntity(childData.m_parent, child);
 			childTransform.RemoveFromParent();
 		}
