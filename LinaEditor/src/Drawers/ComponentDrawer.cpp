@@ -220,11 +220,14 @@ namespace LinaEditor
 			WidgetsUtility::IncrementCursorPosY(-4);
 			WidgetsUtility::ToggleButton(buf.c_str(), enabled, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
 		}
-		
+
 		// Refresh button
 		buf.append("r");
 		ImGui::SameLine();
-		ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 43);
+		if (alwaysEnabled)
+			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 20);
+		else
+			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 43);
 		WidgetsUtility::IncrementCursorPosY(4);
 		*refreshPressed = WidgetsUtility::IconButton(buf.c_str(), ICON_FA_SYNC_ALT, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
@@ -271,7 +274,7 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 
 	// Draw title.
 	bool refreshPressed = false;
-	ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<TransformComponent>(), "Transformation", ICON_FA_ARROWS_ALT, &refreshPressed, &transform.m_isEnabled, &transform.m_foldoutOpen, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0,0), true);
+	ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<TransformComponent>(), "Transformation", ICON_FA_ARROWS_ALT, &refreshPressed, &transform.m_isEnabled, &transform.m_foldoutOpen, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 0), true);
 
 	// Refresh
 	if (refreshPressed)
@@ -311,7 +314,7 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 		ImGui::SetCursorPosX(cursorPosLabels);
 
-		bool caretGlobal= WidgetsUtility::Caret("##transform_globalValues");
+		bool caretGlobal = WidgetsUtility::Caret("##transform_globalValues");
 		ImGui::SameLine();
 		ImGui::AlignTextToFramePadding();
 		WidgetsUtility::IncrementCursorPosY(-5);
