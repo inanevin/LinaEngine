@@ -109,6 +109,7 @@ namespace LinaEditor
 						data.m_name = selectedEntityName;
 					}
 
+
 					// Deselect.
 					if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 					{

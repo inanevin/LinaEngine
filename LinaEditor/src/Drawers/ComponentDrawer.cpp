@@ -164,7 +164,7 @@ namespace LinaEditor
 		}
 	}
 
-	bool ComponentDrawer::DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor, const ImVec2& iconOffset)
+	bool ComponentDrawer::DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor, const ImVec2& iconOffset, bool alwaysEnabled)
 	{
 		// Caret button.
 		const char* caret = *foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
@@ -211,13 +211,16 @@ namespace LinaEditor
 
 		// Enabled toggle
 		std::string buf(title);
-		buf.append("t");
-		ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
-		ImGui::SameLine();
-		ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 88);
-		WidgetsUtility::IncrementCursorPosY(-4);
-		WidgetsUtility::ToggleButton(buf.c_str(), enabled, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
-
+		if (!alwaysEnabled)
+		{
+			buf.append("t");
+			ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 88);
+			WidgetsUtility::IncrementCursorPosY(-4);
+			WidgetsUtility::ToggleButton(buf.c_str(), enabled, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
+		}
+		
 		// Refresh button
 		buf.append("r");
 		ImGui::SameLine();
@@ -226,10 +229,13 @@ namespace LinaEditor
 		*refreshPressed = WidgetsUtility::IconButton(buf.c_str(), ICON_FA_SYNC_ALT, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 		// Close button
-		buf.append("c");
-		ImGui::SameLine();
-		ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 20);
-		return WidgetsUtility::IconButton(buf.c_str(), ICON_FA_TIMES, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
+		if (!alwaysEnabled)
+		{
+			buf.append("c");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 20);
+			return WidgetsUtility::IconButton(buf.c_str(), ICON_FA_TIMES, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
+		}
 	}
 
 	void ComponentDrawer::ComponentRemoved(entt::registry&, entt::entity)
@@ -265,14 +271,7 @@ void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::EC
 
 	// Draw title.
 	bool refreshPressed = false;
-	bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<TransformComponent>(), "Transformation", ICON_FA_ARROWS_ALT, &refreshPressed, &transform.m_isEnabled, &transform.m_foldoutOpen, ImGui::GetStyleColorVec4(ImGuiCol_Header));
-
-	// Remove if requested.
-	if (removeComponent)
-	{
-		ecs.remove<TransformComponent>(entity);
-		return;
-	}
+	ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<TransformComponent>(), "Transformation", ICON_FA_ARROWS_ALT, &refreshPressed, &transform.m_isEnabled, &transform.m_foldoutOpen, ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0,0), true);
 
 	// Refresh
 	if (refreshPressed)

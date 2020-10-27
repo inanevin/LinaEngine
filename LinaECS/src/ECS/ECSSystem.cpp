@@ -50,6 +50,7 @@ namespace LinaEngine::ECS
 	{
 		entt::entity ent = create();
 		emplace<ECSEntityData>(ent, ECSEntityData {false, false, name} );
+		emplace<TransformComponent>(ent, TransformComponent());
 		return ent;
 	}
 
