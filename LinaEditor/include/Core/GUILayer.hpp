@@ -120,6 +120,7 @@ namespace LinaEditor
 		void DispatchMenuBarClickedAction(const MenuBarItems& item);
 
 		void Refresh();
+		ScenePanel& GetScenePanel() { return m_scenePanel; }
 
 	private:
 

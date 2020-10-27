@@ -72,15 +72,16 @@ namespace LinaEditor
 
 			if (ImGui::Begin(SCENE_ID, &m_show, flags))
 			{
-
+				// Set Focus
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 				{
 					ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
 					ImVec2 max = ImVec2(min.x + ImGui::GetWindowSize().x, min.y + ImGui::GetWindowSize().y);
-					if (ImGui::IsMouseHoveringRect(min, max))
-						Application::GetApp().GetInputEngine().SetInputBlocked(false);
+					
+					if(ImGui::IsMouseHoveringRect(min, max))
+						m_isFocused = true;
 					else
-						Application::GetApp().GetInputEngine().SetInputBlocked(true);
+						m_isFocused = false;
 				}
 
 				if (renderEngine.GetCameraSystem()->GetCurrentCameraComponent() == nullptr)

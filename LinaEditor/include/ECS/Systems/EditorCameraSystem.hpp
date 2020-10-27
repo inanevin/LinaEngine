@@ -27,52 +27,53 @@ SOFTWARE.
 */
 
 /*
-Class: EditorApplication
+Class: EditorCameraSystem
 
-This class can also be derived from LinaEngine::Application to create a standalone editor build.
-Probably will be deprecated in the future as the editor is now a linked-library from Sandbox.
+Responsible for updating/controlling the editor camera.
 
-Timestamp: 10/15/2020 10:44:39 PM
+Timestamp: 10/27/2020 4:58:35 PM
 */
 
 #pragma once
 
-#ifndef EditorApplication_HPP
-#define EditorApplication_HPP
+#ifndef EditorCameraSystem_HPP
+#define EditorCameraSystem_HPP
 
-#include "Actions/ActionDispatcher.hpp"
-#include "Utility/Log.hpp"
-#include "ECS/Systems/EditorCameraSystem.hpp"
-#include "Core/GUILayer.hpp"
+// Headers here.
+#include "ECS/ECSSystem.hpp"
 
-namespace LinaEngine
+namespace LinaEngine::Input
 {
-	namespace World
-	{
-		class Level;
-	}
-
+	class InputEngine;
 }
 
 namespace LinaEditor
 {
-	class EditorApplication
+	class ScenePanel;
+}
+
+namespace LinaEngine::ECS
+{
+	class EditorCameraSystem : public BaseECSSystem
 	{
 	public:
 
-		EditorApplication();
-		~EditorApplication();
+		void Construct(ECSRegistry& registry, LinaEngine::Input::InputEngine& inputEngineIn, LinaEditor::ScenePanel& scenePanel)
+		{
+			BaseECSSystem::Construct(registry);
+			m_inputEngine = &inputEngineIn;
+			m_scenePanel = &scenePanel;
+		}
 
-		void Setup();
-		void Refresh();
-		void LevelInstalled(LinaEngine::World::Level* level);
-		static LinaEngine::Action::ActionDispatcher& GetEditorDispatcher() { return s_editorDispatcher; }
+		virtual void UpdateComponents(float delta) override;
 
 	private:
 
-		LinaEngine::ECS::EditorCameraSystem editorCameraSystem;
-		static LinaEngine::Action::ActionDispatcher s_editorDispatcher;
-		GUILayer m_guiLayer;
+		LinaEditor::ScenePanel* m_scenePanel;
+		LinaEngine::Input::InputEngine* m_inputEngine;
+		float m_horizontalKeyAmt = 0.0f;
+		float m_verticalKeyAmt = 0.0f;
+	
 	};
 }
 

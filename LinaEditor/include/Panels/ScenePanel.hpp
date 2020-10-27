@@ -80,9 +80,11 @@ namespace LinaEditor
 		void DrawGizmos();
 		void SetDrawMode(DrawMode mode) { m_drawMode = mode; }
 		void OnTransformAdded(entt::registry&, entt::entity);
+		bool IsFocused() { return m_isFocused; }
 
 	private:
 
+		bool m_isFocused = true;
 		LinaEngine::ECS::TransformComponent* m_selectedTransform = nullptr;
 		DrawMode m_drawMode = DrawMode::FinalImage;
 	};

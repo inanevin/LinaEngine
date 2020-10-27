@@ -78,9 +78,11 @@ namespace LinaEditor
 		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::World::Level*>("##linaeditor_level_init", LinaEngine::Action::ActionType::LevelInitialized,
 			std::bind(&EditorApplication::LevelInstalled, this, std::placeholders::_1));
 
-		m_freeLookSystem.Construct(LinaEngine::Application::GetECSRegistry(), LinaEngine::Application::GetInputEngine());
-		m_freeLookSystem.SystemActivation(true);
-		LinaEngine::Application::GetApp().AddToMainPipeline(m_freeLookSystem);
+
+		editorCameraSystem.Construct(LinaEngine::Application::GetECSRegistry(), LinaEngine::Application::GetInputEngine(), m_guiLayer.GetScenePanel());
+		editorCameraSystem.SystemActivation(true);
+
+		LinaEngine::Application::GetApp().AddToMainPipeline(editorCameraSystem);
 
 
 	}

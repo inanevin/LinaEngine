@@ -27,6 +27,9 @@ src/Core/GUILayer.cpp
 src/Core/EditorCommon.cpp
 src/Core/SplashScreen.cpp
 
+# ECS
+src/ECS/Systems/EditorCameraSystem.cpp
+
 #Drawers
 src/Drawers/EntityDrawer.cpp
 src/Drawers/ComponentDrawer.cpp
@@ -83,6 +86,9 @@ include/Core/GUILayer.hpp
 include/Core/EditorCommon.hpp
 include/Core/SplashScreen.hpp
 include/Core/EditorApplication.hpp
+
+# ECS
+include/ECS/Systems/EditorCameraSystem.hpp
 
 #Drawers
 include/Drawers/EntityDrawer.hpp
