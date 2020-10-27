@@ -84,12 +84,17 @@ namespace LinaEngine::ECS
 		ECSRegistry() {  };
 		virtual ~ECSRegistry() {};
 
+		void RegistrySnapshotLoaded();
 		void AddChildToEntity(ECSEntity parent, ECSEntity child);
 		void RemoveChildFromEntity(ECSEntity parent, ECSEntity child);
 		void RemoveFromParent(ECSEntity child);
 		const std::set<ECSEntity> GetChildren(ECSEntity parent);
 		ECSEntity CreateEntity(const std::string& name);
 		ECSEntity GetEntity(const std::string& name);
+
+	private:
+
+		void AddEntityChildTransforms(ECSEntity entity);
 	};
 	
 

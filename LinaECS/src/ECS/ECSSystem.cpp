@@ -46,6 +46,16 @@ namespace LinaEngine::ECS
 		return false;
 	}
 
+	void ECSRegistry::RegistrySnapshotLoaded()
+	{
+		auto singleView = view<ECSEntityData>();
+
+		for (ECSEntity entity : singleView)
+		{
+			AddEntityChildTransforms(entity);
+		}
+	}
+
 	void ECSRegistry::AddChildToEntity(ECSEntity parent, ECSEntity child)
 	{
 		if (parent == child) return;
@@ -118,6 +128,17 @@ namespace LinaEngine::ECS
 
 		LINA_CORE_WARN("Entity with the name {0} could not be found, returning null entity.", name);
 		return entt::null;
+	}
+
+	void ECSRegistry::AddEntityChildTransforms(ECSEntity entity)
+	{
+		ECSEntityData data = get<ECSEntityData>(entity);
+	
+		for (ECSEntity child : data.m_children)
+		{
+			get<TransformComponent>(entity).transform.AddChild(&get<TransformComponent>(child).transform);
+			AddEntityChildTransforms(child);
+		}
 	}
 
 }
