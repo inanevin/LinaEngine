@@ -52,10 +52,6 @@ namespace LinaEngine::ECS
 
 			TransformComponent& transform = m_ecs->get<TransformComponent>(entity);
 
-			// Disable cursor upon starting mouse look.
-			if (m_inputEngine->GetMouseButtonDown(LinaEngine::Input::InputCode::Mouse::Mouse2))
-				m_inputEngine->SetCursorMode(LinaEngine::Input::CursorMode::Disabled);
-
 			Vector2 mouseAxis = m_inputEngine->GetMouseAxis();
 
 			// Holding right click enables rotating.
