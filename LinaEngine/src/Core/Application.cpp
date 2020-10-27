@@ -147,7 +147,7 @@ namespace LinaEngine
 			LINA_TIMER_START("Input Engine Tick");
 
 			// Update input engine.
-			s_inputEngine->Tick();
+				s_inputEngine->Tick();
 
 			LINA_TIMER_STOP("Input Engine Tick");
 

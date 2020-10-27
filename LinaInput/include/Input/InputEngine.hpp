@@ -59,34 +59,36 @@ namespace LinaEngine::Input
 
 		void Tick() { m_inputDevice->Tick(); }
 
-		bool GetKey(int keyCode) { return m_inputDevice->GetKey(keyCode); }
+		bool GetKey(int keyCode) { return m_inputBlocked ? false : m_inputDevice->GetKey(keyCode); }
 
-		bool GetKeyDown(int keyCode) { return m_inputDevice->GetKeyDown(keyCode); }
+		bool GetKeyDown(int keyCode) { return m_inputBlocked ? false : m_inputDevice->GetKeyDown(keyCode); }
 
-		bool GetKeyUp(int keyCode) { return m_inputDevice->GetKeyUp(keyCode); }
+		bool GetKeyUp(int keyCode) { return m_inputBlocked ? false : m_inputDevice->GetKeyUp(keyCode); }
 
-		bool GetMouseButton(int button) { return m_inputDevice->GetMouseButton(button); }
+		bool GetMouseButton(int button) { return m_inputBlocked ? false : m_inputDevice->GetMouseButton(button); }
 
-		bool GetMouseButtonDown(int button) { return m_inputDevice->GetMouseButtonDown(button); }
+		bool GetMouseButtonDown(int button) { return m_inputBlocked ? false : m_inputDevice->GetMouseButtonDown(button); }
 
-		bool GetMouseButtonUp(int button) { return m_inputDevice->GetMouseButtonUp(button); }
+		bool GetMouseButtonUp(int button) { return m_inputBlocked ? false : m_inputDevice->GetMouseButtonUp(button); }
 
-		Vector2 GetRawMouseAxis() { return m_inputDevice->GetRawMouseAxis(); }
+		Vector2 GetRawMouseAxis() { return m_inputBlocked ? Vector2::Zero : m_inputDevice->GetRawMouseAxis(); }
 
-		Vector2 GetMouseAxis() { return m_inputDevice->GetMouseAxis(); }
+		Vector2 GetMouseAxis() { return m_inputBlocked ? Vector2::Zero : m_inputDevice->GetMouseAxis(); }
 
-		Vector2 GetMousePosition() { return m_inputDevice->GetMousePosition(); }
+		Vector2 GetMousePosition() { return m_inputBlocked ? Vector2::Zero : m_inputDevice->GetMousePosition(); }
 
 		void SetMousePosition(const Vector2& v) { m_inputDevice->SetMousePosition(v); }
 
 		void SetCursorMode(CursorMode cursorMode) { m_inputDevice->SetCursorMode(cursorMode); }
 
-		float GetHorizontalAxisValue() { return m_horizontalKeyAxis.GetAmount(); }
+		float GetHorizontalAxisValue() { return m_inputBlocked ? 0.0f : m_horizontalKeyAxis.GetAmount(); }
 
-		float GetVerticalAxisValue() { return m_verticalKeyAxis.GetAmount(); }
+		float GetVerticalAxisValue() { return m_inputBlocked ? 0.0f : m_verticalKeyAxis.GetAmount(); }
 
 		void DispatchKeyAction(InputCode::Key key, int action)
 		{
+			if (m_inputBlocked) return;
+
 			if (action == 1)
 				s_inputDispatcher.DispatchAction<InputCode::Key>(LinaEngine::Action::ActionType::KeyPressed, key);
 			else if (action == 0)
@@ -95,6 +97,8 @@ namespace LinaEngine::Input
 
 		void DispatchMouseAction(InputCode::Mouse button, int action)
 		{
+			if (m_inputBlocked) return;
+
 			if (action == 1)
 				s_inputDispatcher.DispatchAction<InputCode::Mouse>(LinaEngine::Action::ActionType::MouseButtonPressed, button);
 			else if (action == 0)
@@ -102,6 +106,9 @@ namespace LinaEngine::Input
 		}
 
 		static Action::ActionDispatcher& GetInputDispatcher() { return s_inputDispatcher; }
+
+		// All input polls return false if blocked.
+		void SetInputBlocked(bool blocked) { m_inputBlocked = blocked; }
 
 	private:
 
@@ -111,6 +118,7 @@ namespace LinaEngine::Input
 
 		static Action::ActionDispatcher s_inputDispatcher;
 		InputDevice* m_inputDevice = nullptr;
+		bool m_inputBlocked = false;
 
 		DISALLOW_COPY_ASSIGN_MOVE(InputEngine)
 

@@ -34,6 +34,7 @@ SOFTWARE.
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "Core/EditorApplication.hpp"
+#include "Input/InputEngine.hpp"
 #include "Core/Application.hpp"
 #include "imgui/imgui.h"
 #include <imgui/imguizmo/ImGuizmo.h>
@@ -71,6 +72,17 @@ namespace LinaEditor
 
 			if (ImGui::Begin(SCENE_ID, &m_show, flags))
 			{
+
+				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+				{
+					ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
+					ImVec2 max = ImVec2(min.x + ImGui::GetWindowSize().x, min.y + ImGui::GetWindowSize().y);
+					if (ImGui::IsMouseHoveringRect(min, max))
+						Application::GetApp().GetInputEngine().SetInputBlocked(false);
+					else
+						Application::GetApp().GetInputEngine().SetInputBlocked(true);
+				}
+
 				if (renderEngine.GetCameraSystem()->GetCurrentCameraComponent() == nullptr)
 				{
 					ImGui::Text("NO CAMERA AVAILABLE");
@@ -129,7 +141,8 @@ namespace LinaEditor
 
 			}
 
-			ImGui::End();
+			ImGui::End();			
+
 		}
 	}
 
