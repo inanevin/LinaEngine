@@ -2,7 +2,7 @@ language: cpp
 os: windows
 
 compiler:
-  - gcc
+  - clang
 
 before_script:
   # create a build folder for the out-of-source build
