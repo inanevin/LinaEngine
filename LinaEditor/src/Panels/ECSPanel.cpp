@@ -36,7 +36,6 @@ SOFTWARE.
 
 namespace LinaEditor
 {
-
 	using namespace LinaEngine::ECS;
 	using namespace LinaEngine;
 
@@ -62,7 +61,7 @@ namespace LinaEditor
 		if (entity == m_selectedEntity)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
-		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)id, flags, data.m_name.c_str());
+		bool nodeOpen = ImGui::TreeNodeEx((void*)(intptr_t)entity, flags, data.m_name.c_str());
 
 
 		if (ImGui::IsItemClicked())
@@ -91,7 +90,7 @@ namespace LinaEditor
 			ImGui::EndDragDropTarget();
 		}
 
-		if (node_open)
+		if (nodeOpen)
 		{
 			int counter = 0;
 			for (ECSEntity child : data.m_children)
@@ -150,7 +149,7 @@ namespace LinaEditor
 
 				for (auto entity : singleView)
 				{
-					WidgetsUtility::IncrementCursorPosX(4);
+					//WidgetsUtility::IncrementCursorPosX(4);
 
 					LinaEngine::ECS::ECSEntityData& data = ecs.get<LinaEngine::ECS::ECSEntityData>(entity);
 
