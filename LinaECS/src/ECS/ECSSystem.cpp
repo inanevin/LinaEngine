@@ -29,7 +29,7 @@ SOFTWARE.
 #include "ECS/ECSSystem.hpp"  
 #include "Utility/Log.hpp"
 #include "ECS/Components/TransformComponent.hpp"
-#include "entt/entity/entity.hpp"
+
 namespace LinaEngine::ECS
 {
 	bool ECSSystemList::RemoveSystem(BaseECSSystem& system)
@@ -121,6 +121,7 @@ namespace LinaEngine::ECS
 	ECSEntity ECSRegistry::CreateEntity(ECSEntity copy)
 	{
 		return entt::null;
+		entt::proto
 		RegistrySnapshotLoaded();
 	}
 
