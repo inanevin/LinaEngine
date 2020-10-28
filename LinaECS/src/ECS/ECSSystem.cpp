@@ -121,7 +121,6 @@ namespace LinaEngine::ECS
 	ECSEntity ECSRegistry::CreateEntity(ECSEntity copy)
 	{
 		return entt::null;
-		entt::proto
 		RegistrySnapshotLoaded();
 	}
 
