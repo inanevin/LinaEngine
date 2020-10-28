@@ -192,6 +192,8 @@ namespace LinaEditor
 				{
 					ECSEntityData& data = ecs.get<ECSEntityData>(m_selectedEntity);
 					m_selectedEntity = ecs.CreateEntity(m_selectedEntity);
+					EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, m_selectedEntity);
+
 				}
 			}
 			ImGui::End();

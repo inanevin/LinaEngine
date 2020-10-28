@@ -122,7 +122,7 @@ namespace LinaEngine::World
 				
 		}
 
-		registry.RegistrySnapshotLoaded();
+		registry.Refresh();
 
 	}
 }

@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "Utility/Math/Color.hpp"
 
+
 namespace LinaEngine::Physics
 {
 	PhysicsEngine::PhysicsEngine()
@@ -76,6 +77,9 @@ namespace LinaEngine::Physics
 	void PhysicsEngine::Initialize(LinaEngine::ECS::ECSRegistry& ecsReg, std::function<void(Vector3,Vector3,Color,float)>& cb)
 	{
 		LINA_CORE_TRACE("[Initialization] -> Physics Engine ({0})", typeid(*this).name());
+
+		// Register components.
+		ecsReg.RegisterComponentToClone<LinaEngine::ECS::RigidbodyComponent>();
 
 		// collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
 		m_collisionConfig = new btDefaultCollisionConfiguration();

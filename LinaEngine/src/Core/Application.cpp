@@ -93,9 +93,14 @@ namespace LinaEngine
 		s_renderEngine->SetPostSceneDrawCallback(m_postSceneDrawCallback);
 		s_renderEngine->SetViewportDisplay(Vector2::Zero, s_appWindow->GetSize());
 
-		s_inputEngine->Initialize(s_appWindow->GetNativeWindow(), m_inputDevice);
+		s_inputEngine->Initialize(s_ecs, s_appWindow->GetNativeWindow(), m_inputDevice);
 		s_physicsEngine->Initialize(s_ecs, m_drawLineCallback);
 		s_renderEngine->Initialize(s_ecs, *s_appWindow);
+
+		// Register ECS components for cloning functionality.
+		s_ecs.RegisterComponentToClone<ECS::ECSEntityData>();
+		s_ecs.RegisterComponentToClone<ECS::TransformComponent>();
+
 
 		m_running = true;
 	}

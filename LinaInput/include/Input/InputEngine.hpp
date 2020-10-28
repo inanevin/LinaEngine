@@ -44,6 +44,15 @@ Timestamp: 4/14/2019 7:46:20 PM
 #include "Actions/ActionDispatcher.hpp"
 #include "InputDevice.hpp"
 #include "InputAxisBinder.hpp"
+
+namespace LinaEngine
+{
+	namespace ECS
+	{
+		class ECSRegistry;
+	}
+}
+
 namespace LinaEngine::Input
 {
 	class InputEngine
@@ -55,7 +64,7 @@ namespace LinaEngine::Input
 		virtual ~InputEngine() {};
 
 		// Initialize the engine, sets the dispatcher references & initializes axes.
-		void Initialize(void* contextWindowPointer, InputDevice* inputDevice);
+		void Initialize(LinaEngine::ECS::ECSRegistry& reg, void* contextWindowPointer, InputDevice* inputDevice);
 
 		void Tick() { m_inputDevice->Tick(); }
 

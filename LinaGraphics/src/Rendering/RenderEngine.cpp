@@ -35,6 +35,8 @@ SOFTWARE.
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/ECS.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
+#include "ECS/Components/SpriteRendererComponent.hpp"
 #include "PackageManager/OpenGL/GLRenderDevice.hpp"
 
 
@@ -78,6 +80,15 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Initialize(LinaEngine::ECS::ECSRegistry& ecsReg, Window& appWindow)
 	{
+
+		// Register ECS components
+		ecsReg.RegisterComponentToClone<LinaEngine::ECS::CameraComponent>();
+		ecsReg.RegisterComponentToClone<LinaEngine::ECS::PointLightComponent>();
+		ecsReg.RegisterComponentToClone<LinaEngine::ECS::SpotLightComponent>();
+		ecsReg.RegisterComponentToClone<LinaEngine::ECS::DirectionalLightComponent>();
+		ecsReg.RegisterComponentToClone<LinaEngine::ECS::MeshRendererComponent>();
+		ecsReg.RegisterComponentToClone<LinaEngine::ECS::SpriteRendererComponent>();
+
 		// Set references.
 		m_appWindow = &appWindow;
 

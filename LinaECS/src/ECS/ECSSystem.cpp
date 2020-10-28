@@ -47,7 +47,7 @@ namespace LinaEngine::ECS
 		return false;
 	}
 
-	void ECSRegistry::RegistrySnapshotLoaded()
+	void ECSRegistry::Refresh()
 	{
 		auto singleView = view<ECSEntityData>();
 
@@ -104,6 +104,14 @@ namespace LinaEngine::ECS
 
 	}
 
+	void ECSRegistry::CloneEntity(ECSEntity from, ECSEntity to)
+	{
+		visit(from, [this, from, to](const auto component)
+			{
+				m_cloneComponentFunctions[component](from, to);
+			});
+	}
+
 	const std::set<ECSEntity> ECSRegistry::GetChildren(ECSEntity parent)
 	{
 		return get<ECSEntityData>(parent).m_children;
@@ -114,14 +122,36 @@ namespace LinaEngine::ECS
 		entt::entity ent = create();
 		emplace<ECSEntityData>(ent, ECSEntityData{ false, false, name });
 		emplace<TransformComponent>(ent, TransformComponent());
-		RegistrySnapshotLoaded();
+		Refresh();
 		return ent;
 	}
 
-	ECSEntity ECSRegistry::CreateEntity(ECSEntity copy)
+	ECSEntity ECSRegistry::CreateEntity(ECSEntity source)
 	{
-		return entt::null;
-		RegistrySnapshotLoaded();
+		ECSEntityData sourceData = get<ECSEntityData>(source);
+
+		// Create the entity.
+		ECSEntity copy = create();
+
+		// Copy entity components to newly created one
+		CloneEntity(source, copy);
+
+		ECSEntityData& copyData = get<ECSEntityData>(copy);
+		copyData.m_name += "-Copy";
+		copyData.m_parent = entt::null;
+		copyData.m_children.clear();
+		Refresh();
+
+	//for (ECSEntity child : sourceData.m_children)
+	//{
+	//	ECSEntity copyChild = CreateEntity(child);
+	//	ECSEntityData& copyChildData = get<ECSEntityData>(copyChild);
+	//	copyChildData.m_parent = copy;
+	//	copyData.m_children.emplace(copyChild);
+	//}
+
+		return copy;
+
 	}
 
 	ECSEntity ECSRegistry::GetEntity(const std::string& name)
@@ -142,6 +172,7 @@ namespace LinaEngine::ECS
 	{
 		ECSEntityData data = get<ECSEntityData>(entity);
 		get<TransformComponent>(entity).transform.m_children.clear();
+		get<TransformComponent>(entity).transform.m_parent = data.m_parent == entt::null ? nullptr : &get<TransformComponent>(data.m_parent).transform;
 
 		for (ECSEntity child : data.m_children)
 		{

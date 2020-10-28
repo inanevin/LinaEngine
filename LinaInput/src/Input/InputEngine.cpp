@@ -27,13 +27,16 @@ SOFTWARE.
 */
 
 #include "Input/InputEngine.hpp"
+#include "ECS/ECS.hpp"
+#include "ECS/Components/FreeLookComponent.hpp"
 
 namespace LinaEngine::Input
 {
 	Action::ActionDispatcher InputEngine::s_inputDispatcher;
 
-	void InputEngine::Initialize(void* contextWindowPointer, InputDevice* inputDevice)
+	void InputEngine::Initialize(LinaEngine::ECS::ECSRegistry& reg, void* contextWindowPointer, InputDevice* inputDevice)
 	{
+		reg.RegisterComponentToClone<LinaEngine::ECS::FreeLookComponent>();
 		m_inputDevice = inputDevice;
 		s_inputDispatcher.Initialize(Action::ActionType::InputActionsStartIndex, Action::ActionType::InputActionsEndIndex);
 		m_horizontalKeyAxis.Initialize(InputCode::Key::D, InputCode::Key::A, "##lina_horBinder");
