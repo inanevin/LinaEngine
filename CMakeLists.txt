@@ -36,11 +36,7 @@ option(LINA_ENABLE_EDITOR "Enables editor layer" ON)
 option(LINA_CLIENT_ENABLE_LOGGING "Enables console logging" ON)
 option(LINA_CORE_ENABLE_LOGGING "Enables console logging" ON)
 
-if(${x64_COMPILATION} MATCHES ON)
-	set(TARGET_ARCHITECTURE "x64")
-elseif(${x64_COMPILATION} MATCHES OFF)
-	set(TARGET_ARCHITECTURE "Win32")
-endif()
+set(TARGET_ARCHITECTURE "x64")
 
 set(ASSIMP_LIB "assimp-vc142-mtd.lib")
 set(ASSIMP_DLL "assimp-vc142-mtd.dll")
