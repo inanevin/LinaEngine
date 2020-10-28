@@ -102,7 +102,7 @@ cd bin
 # Build the root project
 cmake ../ -G "Visual Studio 16 2019" -A "x64"
 
-# After the project files are build, you can build the project via
+# After the project files are built, you can build the project via
 cmake --build . --target ALL_BUILD
 
 ```
