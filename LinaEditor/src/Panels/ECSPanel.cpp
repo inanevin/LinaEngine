@@ -68,7 +68,7 @@ namespace LinaEditor
 		if (ImGui::IsItemClicked())
 		{
 			m_selectedEntity = entity;
-			EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, entity);
+			EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, m_selectedEntity);
 		}
 
 
@@ -101,9 +101,6 @@ namespace LinaEditor
 			}
 			ImGui::TreePop();
 		}
-
-
-
 	}
 
 	void ECSPanel::Draw()
@@ -133,7 +130,11 @@ namespace LinaEditor
 					if (ImGui::BeginMenu("Create"))
 					{
 						if (ImGui::MenuItem("Entity"))
-							ecs.CreateEntity("Entity");
+						{
+							m_selectedEntity = ecs.CreateEntity("Entity");
+							ecs.RegistrySnapshotLoaded();
+							EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, m_selectedEntity);
+						}
 
 						ImGui::EndMenu();
 					}
@@ -143,13 +144,13 @@ namespace LinaEditor
 				WidgetsUtility::PopStyleVar();
 				WidgetsUtility::WindowPadding(ImVec2(0, 0));
 				WidgetsUtility::FramePadding(ImVec2(0, 0));
-
+				WidgetsUtility::IncrementCursorPosY(7);
 				int entityCounter = 0;
 				auto singleView = ecs.view<LinaEngine::ECS::ECSEntityData>();
 
 				for (auto entity : singleView)
 				{
-					WidgetsUtility::IncrementCursorPos(ImVec2(4, 7));
+					WidgetsUtility::IncrementCursorPosX(4);
 
 					LinaEngine::ECS::ECSEntityData& data = ecs.get<LinaEngine::ECS::ECSEntityData>(entity);
 
@@ -162,6 +163,7 @@ namespace LinaEditor
 						EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
 						m_selectedEntity = entt::null;
 					}
+					WidgetsUtility::IncrementCursorPosY(2);
 
 					entityCounter++;
 				}

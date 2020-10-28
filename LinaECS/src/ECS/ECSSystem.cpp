@@ -65,16 +65,16 @@ namespace LinaEngine::ECS
 
 		if (parentData.m_parent == child || childData.m_parent == parent) return;
 
-		Transformation& childTransform = get<TransformComponent>(child).transform;
-		Transformation& parentTransform = get<TransformComponent>(parent).transform;
+		Transformation* childTransform = &get<TransformComponent>(child).transform;
+		Transformation* parentTransform = &get<TransformComponent>(parent).transform;
 
 		if (childData.m_parent != entt::null)
 		{
 			RemoveChildFromEntity(childData.m_parent, child);
-			childTransform.RemoveFromParent();
+			childTransform->RemoveFromParent();
 		}
 
-		parentTransform.AddChild(&childTransform);
+		parentTransform->AddChild(childTransform);
 		parentData.m_children.emplace(child);
 		childData.m_parent = parent;
 	}
@@ -133,7 +133,8 @@ namespace LinaEngine::ECS
 	void ECSRegistry::AddEntityChildTransforms(ECSEntity entity)
 	{
 		ECSEntityData data = get<ECSEntityData>(entity);
-	
+		get<TransformComponent>(entity).transform.m_children.clear();
+
 		for (ECSEntity child : data.m_children)
 		{
 			get<TransformComponent>(entity).transform.AddChild(&get<TransformComponent>(child).transform);

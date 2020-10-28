@@ -84,7 +84,6 @@ namespace LinaEditor
 
 		LinaEngine::Application::GetApp().AddToMainPipeline(editorCameraSystem);
 
-
 	}
 
 	void EditorApplication::Refresh()
