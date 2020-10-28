@@ -100,7 +100,10 @@ mkdir bin
 cd bin
 
 # Build the root project
-cmake --build ../
+cmake ../ -G "Visual Studio 16 2019" -A "x64"
+
+# After the project files are build, you can build the project via
+cmake --build . --target ALL_BUILD
 
 ```
 -  Check out [CMake Documentation](https://cmake.org/cmake/help/v3.2/manual/cmake.1.html) for specifying more options and configurations like project file generation directories and more.
