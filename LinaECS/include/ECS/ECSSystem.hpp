@@ -90,6 +90,7 @@ namespace LinaEngine::ECS
 		void RemoveFromParent(ECSEntity child);
 		const std::set<ECSEntity> GetChildren(ECSEntity parent);
 		ECSEntity CreateEntity(const std::string& name);
+		ECSEntity CreateEntity(ECSEntity copy);
 		ECSEntity GetEntity(const std::string& name);
 
 	private:

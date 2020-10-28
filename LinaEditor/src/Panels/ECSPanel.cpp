@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "Core/EditorApplication.hpp"
 #include "Core/Application.hpp"
+#include "Input/InputEngine.hpp"
 
 namespace LinaEditor
 {
@@ -131,7 +132,6 @@ namespace LinaEditor
 						if (ImGui::MenuItem("Entity"))
 						{
 							m_selectedEntity = ecs.CreateEntity("Entity");
-							ecs.RegistrySnapshotLoaded();
 							EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, m_selectedEntity);
 						}
 
@@ -149,8 +149,6 @@ namespace LinaEditor
 
 				for (auto entity : singleView)
 				{
-					//WidgetsUtility::IncrementCursorPosX(4);
-
 					LinaEngine::ECS::ECSEntityData& data = ecs.get<LinaEngine::ECS::ECSEntityData>(entity);
 
 					if (data.m_parent == entt::null)
@@ -187,6 +185,15 @@ namespace LinaEditor
 				ImGui::EndDragDropTarget();
 			}
 
+
+			if (m_selectedEntity != entt::null)
+			{
+				if (ImGui::IsKeyDown(LinaEngine::Input::InputCode::Key::LCTRL) && ImGui::IsKeyReleased(LinaEngine::Input::InputCode::D))
+				{
+					ECSEntityData& data = ecs.get<ECSEntityData>(m_selectedEntity);
+					m_selectedEntity = ecs.CreateEntity(m_selectedEntity);
+				}
+			}
 			ImGui::End();
 
 		}

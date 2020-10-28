@@ -29,6 +29,7 @@ SOFTWARE.
 #include "ECS/ECSSystem.hpp"  
 #include "Utility/Log.hpp"
 #include "ECS/Components/TransformComponent.hpp"
+#include "entt/entity/entity.hpp"
 namespace LinaEngine::ECS
 {
 	bool ECSSystemList::RemoveSystem(BaseECSSystem& system)
@@ -108,12 +109,19 @@ namespace LinaEngine::ECS
 		return get<ECSEntityData>(parent).m_children;
 	}
 
-	entt::entity ECSRegistry::CreateEntity(const std::string& name)
+	ECSEntity ECSRegistry::CreateEntity(const std::string& name)
 	{
 		entt::entity ent = create();
 		emplace<ECSEntityData>(ent, ECSEntityData{ false, false, name });
 		emplace<TransformComponent>(ent, TransformComponent());
+		RegistrySnapshotLoaded();
 		return ent;
+	}
+
+	ECSEntity ECSRegistry::CreateEntity(ECSEntity copy)
+	{
+		return entt::null;
+		RegistrySnapshotLoaded();
 	}
 
 	ECSEntity ECSRegistry::GetEntity(const std::string& name)
