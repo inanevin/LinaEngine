@@ -56,6 +56,7 @@ namespace LinaEditor
 		EditorApplication::GetEditorDispatcher().SubscribeAction<void*>("##lina_scenePanel_unselect", LinaEngine::Action::ActionType::Unselect,
 			std::bind(&ScenePanel::Unselected, this));
 
+		Application::GetEngineDispatcher().SubscribeAction<int>("#lina_scenePanel_uninstall", LinaEngine::Action::ActionType::LevelUninstalled, std::bind(&ScenePanel::Unselected, this));
 	}		
 
 	void ScenePanel::Draw()

@@ -99,8 +99,10 @@ namespace LinaEngine::ECS
 		ECSEntity CreateEntity(const std::string& name);
 		ECSEntity CreateEntity(ECSEntity copy, bool attachParent = true);
 		ECSEntity GetEntity(const std::string& name);
+		void DestroyEntity(ECSEntity entity, bool isRoot = true);
 
 	private:
+
 
 		template<typename Type>
 		void CloneComponent(ECSEntity from, ECSEntity to)

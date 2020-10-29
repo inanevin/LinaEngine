@@ -49,6 +49,8 @@ namespace LinaEngine::ECS
 
 	void ECSRegistry::Refresh()
 	{
+		LINA_CORE_TRACE("{0}", entt::registry::size<ECSEntityData>());
+
 		auto singleView = view<ECSEntityData>();
 
 		for (ECSEntity entity : singleView)
@@ -135,7 +137,6 @@ namespace LinaEngine::ECS
 
 		// Copy entity components to newly created one
 		CloneEntity(source, copy);
-		LINA_CORE_TRACE("{0}", entt::registry::size<ECSEntityData>());
 
 		//ECSEntityData& copyData = get<ECSEntityData>(copy);
 		get<ECSEntityData>(copy).m_parent = entt::null;
@@ -172,6 +173,24 @@ namespace LinaEngine::ECS
 
 		LINA_CORE_WARN("Entity with the name {0} could not be found, returning null entity.", name);
 		return entt::null;
+	}
+
+	void ECSRegistry::DestroyEntity(ECSEntity entity, bool isRoot)
+	{
+		std::set<ECSEntity> toErase;
+		for (ECSEntity child : get<ECSEntityData>(entity).m_children)
+		{
+			toErase.emplace(child);
+			DestroyEntity(child, false);
+		}
+
+		for (ECSEntity child : toErase)
+			get<ECSEntityData>(entity).m_children.erase(child);
+
+		if (isRoot)
+			RemoveFromParent(entity);
+
+		destroy(entity);
 	}
 
 	void ECSRegistry::AddEntityChildTransforms(ECSEntity entity)

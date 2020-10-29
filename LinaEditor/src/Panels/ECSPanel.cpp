@@ -109,6 +109,25 @@ namespace LinaEditor
 		{
 			LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
 
+
+			if (m_selectedEntity != entt::null)
+			{
+				// Duplicate
+				if (ImGui::IsKeyDown(LinaEngine::Input::InputCode::Key::LCTRL) && ImGui::IsKeyReleased(LinaEngine::Input::InputCode::D))
+				{
+					m_selectedEntity = ecs.CreateEntity(m_selectedEntity);
+					EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, m_selectedEntity);
+				}
+
+				// Delete
+				if (ImGui::IsKeyReleased(LinaEngine::Input::InputCode::Key::Delete))
+				{
+					EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
+					ecs.DestroyEntity(m_selectedEntity);
+					m_selectedEntity = entt::null;
+				}
+			}
+
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 			ImVec2 work_area_pos = viewport->GetWorkPos();
@@ -151,6 +170,8 @@ namespace LinaEditor
 				{
 					LinaEngine::ECS::ECSEntityData& data = ecs.get<LinaEngine::ECS::ECSEntityData>(entity);
 
+					LINA_CORE_TRACE("Drawing entity {0}", data.m_name);
+
 					if (data.m_parent == entt::null)
 						DrawEntityNode(entityCounter, entity);
 
@@ -160,7 +181,6 @@ namespace LinaEditor
 						EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
 						m_selectedEntity = entt::null;
 					}
-					//WidgetsUtility::IncrementCursorPosY(2);
 
 					entityCounter++;
 				}
@@ -185,15 +205,6 @@ namespace LinaEditor
 				ImGui::EndDragDropTarget();
 			}
 
-
-			if (m_selectedEntity != entt::null)
-			{
-				if (ImGui::IsKeyDown(LinaEngine::Input::InputCode::Key::LCTRL) && ImGui::IsKeyReleased(LinaEngine::Input::InputCode::D))
-				{
-					m_selectedEntity = ecs.CreateEntity(m_selectedEntity);
-					EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, m_selectedEntity);
-				}
-			}
 			ImGui::End();
 
 		}
