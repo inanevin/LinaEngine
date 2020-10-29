@@ -55,7 +55,8 @@ namespace LinaEngine::World
 
 		std::string m_skyboxMaterialPath = "";
 		int m_skyboxMaterialID = -1;
-
+		int m_selectedSkyboxMatID = -1;
+		std::string m_selectedSkyboxMatPath = "";
 	};
 
 	class Level
@@ -72,6 +73,9 @@ namespace LinaEngine::World
 		void SetSkyboxMaterial();
 		void SerializeLevelData(const std::string& path, const std::string& levelName);
 		void DeserializeLevelData(const std::string& path, const std::string& levelName);
+		LevelData& GetLevelData() { return m_levelData; }
+
+	private:
 
 		LevelData m_levelData;
 

@@ -41,6 +41,14 @@ Timestamp: 10/29/2020 9:49:24 PM
 
 #include "Panels/EditorPanel.hpp"
 
+namespace LinaEngine
+{
+	namespace World
+	{
+		class Level;
+	}
+}
+
 namespace LinaEditor
 {
 	class LevelSettingsPanel : public EditorPanel
@@ -54,7 +62,12 @@ namespace LinaEditor
 		virtual void Setup() override;
 		virtual void Draw() override;
 
+		void LevelInstalled(LinaEngine::World::Level* level);
+		void LevelIUninstalled(LinaEngine::World::Level* level);
+
 	private:
+
+		LinaEngine::World::Level* m_currentLevel = nullptr;
 	
 	};
 }
