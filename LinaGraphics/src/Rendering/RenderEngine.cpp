@@ -317,23 +317,6 @@ namespace LinaEngine::Graphics
 		return *m_loadedTextures[texture->GetID()];
 	}
 
-	Shader& RenderEngine::CreateShader(Shaders shader, const std::string& path, bool usesGeometryShader)
-	{
-		// Create shader
-		if (!ShaderExists(shader))
-		{
-			std::string shaderText;
-			Utility::LoadTextFileWithIncludes(shaderText, path, "#include");
-			return m_loadedShaders[shader].Construct(m_renderDevice, shaderText, usesGeometryShader);
-		}
-		else
-		{
-			// Shader with this name already exists!
-			LINA_CORE_WARN("Shader with the id {0} already exists, returning that...", shader);
-			return m_loadedShaders[shader];
-		}
-	}
-
 	Material& RenderEngine::GetMaterial(int id)
 	{
 		if (!MaterialExists(id))
@@ -389,27 +372,16 @@ namespace LinaEngine::Graphics
 	}
 
 
-	Shader& RenderEngine::GetShader(Shaders shader)
-	{
-		if (!ShaderExists(shader))
-		{
-			// Shader not found.
-			LINA_CORE_WARN("Shader with the ID {0} was not found, returning standardUnlit Shader", shader);
-			return GetShader(Shaders::Standard_Unlit);
-		}
-
-		return m_loadedShaders[shader];
-	}
-
 	Material& RenderEngine::SetMaterialShader(Material& material, Shaders shader)
 	{
 		// If no shader found, fall back to standardLit
-		if (m_loadedShaders.find(shader) == m_loadedShaders.end()) {
+		std::map<int, Shader>& shaders = Shader::GetLoadedShaders();
+		if (shaders.find(shader) == shaders.end()) {
 			LINA_CORE_WARN("Shader with engine ID {0} was not found. Setting material's shader to standardUnlit.", shader);
-			material.m_shaderID = m_loadedShaders[Shaders::Standard_Unlit].GetID();
+			material.m_shaderID = shaders[Shaders::Standard_Unlit].GetID();
 		}
 		else
-			material.m_shaderID = m_loadedShaders[shader].GetID();
+			material.m_shaderID = shaders[shader].GetID();
 
 		// Clear all shader related material data.
 		material.m_sampler2Ds.clear();
@@ -591,73 +563,68 @@ namespace LinaEngine::Graphics
 		return it != m_loadedTextures.end();
 	}
 
-	bool RenderEngine::ShaderExists(Shaders shader)
-	{
-		return !(m_loadedShaders.find(shader) == m_loadedShaders.end());
-	}
-
 	void RenderEngine::ConstructEngineShaders()
 	{
 		// Unlit.
-		Shader& unlit = CreateShader(Shaders::Standard_Unlit, "resources/engine/shaders/Unlit/Unlit.glsl");
+		Shader& unlit = Shader::CreateShader(Shaders::Standard_Unlit, "resources/engine/shaders/Unlit/Unlit.glsl");
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		unlit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
 		// PBR Lit
-		Shader& pbrLit = CreateShader(Shaders::PBR_Lit, "resources/engine/shaders/PBR/PBRLit.glsl", false);
+		Shader& pbrLit = Shader::CreateShader(Shaders::PBR_Lit, "resources/engine/shaders/PBR/PBRLit.glsl", false);
 		pbrLit.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		pbrLit.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
 		pbrLit.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 
 		// Skies
-		CreateShader(Shaders::Skybox_SingleColor, "resources/engine/shaders/Skybox/SkyboxColor.glsl");
-		CreateShader(Shaders::Skybox_Gradient, "resources/engine/shaders/Skybox/SkyboxGradient.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		CreateShader(Shaders::Skybox_Cubemap, "resources/engine/shaders/Skybox/SkyboxCubemap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		CreateShader(Shaders::Skybox_Procedural, "resources/engine/shaders/Skybox/SkyboxProcedural.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		CreateShader(Shaders::Skybox_HDRI, "resources/engine/shaders/Skybox/SkyboxHDRI.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		CreateShader(Shaders::Skybox_Atmospheric, "resources/engine/shaders/Skybox/SkyboxAtmospheric.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		Shader::CreateShader(Shaders::Skybox_SingleColor, "resources/engine/shaders/Skybox/SkyboxColor.glsl");
+		Shader::CreateShader(Shaders::Skybox_Gradient, "resources/engine/shaders/Skybox/SkyboxGradient.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		Shader::CreateShader(Shaders::Skybox_Cubemap, "resources/engine/shaders/Skybox/SkyboxCubemap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		Shader::CreateShader(Shaders::Skybox_Procedural, "resources/engine/shaders/Skybox/SkyboxProcedural.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		Shader::CreateShader(Shaders::Skybox_HDRI, "resources/engine/shaders/Skybox/SkyboxHDRI.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		Shader::CreateShader(Shaders::Skybox_Atmospheric, "resources/engine/shaders/Skybox/SkyboxAtmospheric.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
 
 		// Equirectangular cube & irradiance for HDRI skbox
-		CreateShader(Shaders::HDRI_Equirectangular, "resources/engine/shaders/HDRI/HDRIEquirectangular.glsl");
-		CreateShader(Shaders::HDRI_Irradiance, "resources/engine/shaders/HDRI/HDRIIrradiance.glsl");
-		CreateShader(Shaders::HDRI_Prefilter, "resources/engine/shaders/HDRI/HDRIPrefilter.glsl");
-		CreateShader(Shaders::HDRI_BRDF, "resources/engine/shaders/HDRI/HDRIBRDF.glsl");
+		Shader::CreateShader(Shaders::HDRI_Equirectangular, "resources/engine/shaders/HDRI/HDRIEquirectangular.glsl");
+		Shader::CreateShader(Shaders::HDRI_Irradiance, "resources/engine/shaders/HDRI/HDRIIrradiance.glsl");
+		Shader::CreateShader(Shaders::HDRI_Prefilter, "resources/engine/shaders/HDRI/HDRIPrefilter.glsl");
+		Shader::CreateShader(Shaders::HDRI_BRDF, "resources/engine/shaders/HDRI/HDRIBRDF.glsl");
 
 
 		// Screen Quad Shaders
-		CreateShader(Shaders::ScreenQuad_Final, "resources/engine/shaders/ScreenQuads/SQFinal.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		CreateShader(Shaders::ScreenQuad_Blur, "resources/engine/shaders/ScreenQuads/SQBlur.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		CreateShader(Shaders::ScreenQuad_Outline, "resources/engine/shaders/ScreenQuads/SQOutline.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
-		CreateShader(Shaders::ScreenQuad_Shadowmap, "resources/engine/shaders/ScreenQuads/SQShadowMap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		Shader::CreateShader(Shaders::ScreenQuad_Final, "resources/engine/shaders/ScreenQuads/SQFinal.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		Shader::CreateShader(Shaders::ScreenQuad_Blur, "resources/engine/shaders/ScreenQuads/SQBlur.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		Shader::CreateShader(Shaders::ScreenQuad_Outline, "resources/engine/shaders/ScreenQuads/SQOutline.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		Shader::CreateShader(Shaders::ScreenQuad_Shadowmap, "resources/engine/shaders/ScreenQuads/SQShadowMap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
 		// Line
-		CreateShader(Shaders::Debug_Line, "resources/engine/shaders/Misc/DebugLine.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		Shader::CreateShader(Shaders::Debug_Line, "resources/engine/shaders/Misc/DebugLine.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
 		// 2D
-		CreateShader(Shaders::Standard_Sprite, "resources/engine/shaders/2D/Sprite.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		Shader::CreateShader(Shaders::Standard_Sprite, "resources/engine/shaders/2D/Sprite.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 	}
 
 	bool RenderEngine::ValidateEngineShaders()
 	{
 		int validation = 0;
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::Standard_Unlit).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::PBR_Lit).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::Skybox_SingleColor).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::Skybox_Gradient).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::Skybox_Cubemap).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::Skybox_Procedural).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::Skybox_HDRI).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::HDRI_Equirectangular).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::HDRI_Irradiance).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::HDRI_Prefilter).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::HDRI_BRDF).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::ScreenQuad_Final).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::ScreenQuad_Blur).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::ScreenQuad_Outline).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::ScreenQuad_Shadowmap).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::Debug_Line).GetID());
-		validation += m_renderDevice.ValidateShaderProgram(GetShader(Shaders::Standard_Sprite).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(Shader::GetShader(Shaders::Standard_Unlit).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(Shader::GetShader(Shaders::PBR_Lit).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(Shader::GetShader(Shaders::Skybox_SingleColor).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(Shader::GetShader(Shaders::Skybox_Gradient).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(Shader::GetShader(Shaders::Skybox_Cubemap).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(Shader::GetShader(Shaders::Skybox_Procedural).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(Shader::GetShader(Shaders::Skybox_HDRI).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(Shader::GetShader(Shaders::HDRI_Equirectangular).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(Shader::GetShader(Shaders::HDRI_Irradiance).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(Shader::GetShader(Shaders::HDRI_Prefilter).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(Shader::GetShader(Shaders::HDRI_BRDF).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(Shader::GetShader(Shaders::ScreenQuad_Final).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(Shader::GetShader(Shaders::ScreenQuad_Blur).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(Shader::GetShader(Shaders::ScreenQuad_Outline).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(Shader::GetShader(Shaders::ScreenQuad_Shadowmap).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(Shader::GetShader(Shaders::Debug_Line).GetID());
+		validation += m_renderDevice.ValidateShaderProgram(Shader::GetShader(Shaders::Standard_Sprite).GetID());
 
 		return !validation;
 	}
@@ -1084,7 +1051,7 @@ namespace LinaEngine::Graphics
 		m_hdriCubemap.ConstructRTCubemapTexture(m_renderDevice, m_hdriResolution, samplerParams);
 
 		// Setup shader data.
-		uint32 equirectangularShader = GetShader(Shaders::HDRI_Equirectangular).GetID();
+		uint32 equirectangularShader = Shader::GetShader(Shaders::HDRI_Equirectangular).GetID();
 		m_renderDevice.SetShader(equirectangularShader);
 		m_renderDevice.UpdateShaderUniformInt(equirectangularShader, MAT_MAP_EQUIRECTANGULAR + std::string(MAT_EXTENSION_TEXTURE2D), 0);
 		m_renderDevice.UpdateShaderUniformInt(equirectangularShader, MAT_MAP_EQUIRECTANGULAR + std::string(MAT_EXTENSION_ISACTIVE), 1);
@@ -1127,7 +1094,7 @@ namespace LinaEngine::Graphics
 		m_renderDevice.ResizeRenderBuffer(m_hdriCaptureRenderTarget.GetID(), m_hdriCaptureRenderBuffer.GetID(), irradianceMapResolsution, RenderBufferStorage::STORAGE_DEPTH_COMP24);
 
 		// Create & setup shader info.
-		uint32 irradianceShader = GetShader(Shaders::HDRI_Irradiance).GetID();
+		uint32 irradianceShader = Shader::GetShader(Shaders::HDRI_Irradiance).GetID();
 		m_renderDevice.SetShader(irradianceShader);
 		m_renderDevice.UpdateShaderUniformInt(irradianceShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_TEXTURE2D), 0);
 		m_renderDevice.UpdateShaderUniformInt(irradianceShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_ISACTIVE), 1);
@@ -1163,7 +1130,7 @@ namespace LinaEngine::Graphics
 		m_hdriPrefilterMap.ConstructRTCubemapTexture(m_renderDevice, prefilterResolution, prefilterParams);
 
 		// Setup shader data.
-		uint32 prefilterShader = GetShader(Shaders::HDRI_Prefilter).GetID();
+		uint32 prefilterShader = Shader::GetShader(Shaders::HDRI_Prefilter).GetID();
 		m_renderDevice.SetShader(prefilterShader);
 		m_renderDevice.UpdateShaderUniformInt(prefilterShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_TEXTURE2D), 0);
 		m_renderDevice.UpdateShaderUniformInt(prefilterShader, MAT_MAP_ENVIRONMENT + std::string(MAT_EXTENSION_ISACTIVE), 1);
@@ -1217,7 +1184,7 @@ namespace LinaEngine::Graphics
 		m_renderDevice.BindTextureToRenderTarget(m_hdriCaptureRenderTarget.GetID(), m_HDRILutMap.GetID(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, 0, 0, 0, true, false);
 
 		// Setup shader.
-		uint32 brdfShader = GetShader(Shaders::HDRI_BRDF).GetID();
+		uint32 brdfShader = Shader::GetShader(Shaders::HDRI_BRDF).GetID();
 		m_renderDevice.SetShader(brdfShader);
 
 		// Switch framebuffer & draw.

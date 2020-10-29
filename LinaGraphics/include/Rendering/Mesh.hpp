@@ -65,7 +65,7 @@ namespace LinaEngine::Graphics
 		static void UnloadMeshResource(int id);
 		static Mesh& GetPrimitive(Primitives primitive);
 		static void UnloadAll();
-		static std::map<int, Mesh>& GetLoadedMeshes() { return m_loadedMeshes; }
+		static std::map<int, Mesh>& GetLoadedMeshes() { return s_loadedMeshes; }
 
 		VertexArray* GetVertexArray(uint32 index)
 		{
@@ -110,7 +110,7 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		static std::map<int, Mesh> m_loadedMeshes;
+		static std::map<int, Mesh> s_loadedMeshes;
 
 		friend class RenderEngine;
 		int m_meshID = -1;

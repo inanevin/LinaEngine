@@ -77,11 +77,16 @@ namespace LinaEngine::Graphics
 		// Get shader id, this gets matched w/ program id on render engine.
 		uint32 GetID() { return m_engineBoundID; }
 
+		static Shader& CreateShader(Shaders shader, const std::string& path, bool usesGeometryShader = false);
+		static Shader& GetShader(Shaders shader);
+		static bool ShaderExists(Shaders shader);
+		static std::map<int, Shader>& GetLoadedShaders() { return s_loadedShaders; }
 
 	private:
 
 		RenderDevice* m_renderDevice = nullptr;
 		uint32 m_engineBoundID = 0;
+		static std::map<int, Shader> s_loadedShaders;
 
 	
 	};

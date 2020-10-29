@@ -47,7 +47,7 @@ namespace LinaEngine::Graphics
 			}
 		}
 
-		m_shaderID = renderEngine.GetShader(m_shaderType).GetID();
+		m_shaderID = Shader::GetShader(m_shaderType).GetID();
 	}
 
 	void Material::LoadMaterialData(Material& mat, const std::string& path)

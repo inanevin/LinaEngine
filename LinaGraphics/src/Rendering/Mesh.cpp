@@ -38,7 +38,7 @@ SOFTWARE.
 namespace LinaEngine::Graphics
 {
 
-	std::map<int, Mesh> Mesh::m_loadedMeshes;
+	std::map<int, Mesh> Mesh::s_loadedMeshes;
 
 	Mesh::~Mesh()
 	{
@@ -56,7 +56,7 @@ namespace LinaEngine::Graphics
 		// Internal meshes are created with non-negative ids, user loaded ones should have default id of -1.
 		if (id == -1) id = Utility::GetUniqueID();
 
-		Mesh& mesh = m_loadedMeshes[id];
+		Mesh& mesh = s_loadedMeshes[id];
 		mesh.SetParameters(meshParams);
 		ModelLoader::LoadModel(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs(), meshParams);
 
@@ -81,7 +81,7 @@ namespace LinaEngine::Graphics
 		mesh.m_paramsPath = paramsPath;
 
 		LINA_CORE_TRACE("Mesh created. {0}", filePath);
-		return m_loadedMeshes[id];
+		return s_loadedMeshes[id];
 	}
 
 	Mesh& Mesh::GetMesh(int id)
@@ -93,15 +93,15 @@ namespace LinaEngine::Graphics
 			return Mesh();
 		}
 
-		return m_loadedMeshes[id];
+		return s_loadedMeshes[id];
 	}
 
 	Mesh& Mesh::GetMesh(const std::string& path)
 	{
-		const auto it = std::find_if(m_loadedMeshes.begin(), m_loadedMeshes.end(), [path]
+		const auto it = std::find_if(s_loadedMeshes.begin(), s_loadedMeshes.end(), [path]
 		(const auto& item) -> bool { return item.second.GetPath().compare(path) == 0; });
 
-		if (it == m_loadedMeshes.end())
+		if (it == s_loadedMeshes.end())
 		{
 			// Mesh not found.
 			LINA_CORE_WARN("Mesh with the path {0} was not found, returning un-constructed mesh...", path);
@@ -114,14 +114,14 @@ namespace LinaEngine::Graphics
 	bool Mesh::MeshExists(int id)
 	{
 		if (id < 0) return false;
-		return !(m_loadedMeshes.find(id) == m_loadedMeshes.end());
+		return !(s_loadedMeshes.find(id) == s_loadedMeshes.end());
 	}
 
 	bool Mesh::MeshExists(const std::string& path)
 	{
-		const auto it = std::find_if(m_loadedMeshes.begin(), m_loadedMeshes.end(), [path]
+		const auto it = std::find_if(s_loadedMeshes.begin(), s_loadedMeshes.end(), [path]
 		(const auto& it) -> bool { 	return it.second.GetPath().compare(path) == 0; 	});
-		return it != m_loadedMeshes.end();
+		return it != s_loadedMeshes.end();
 	}
 
 	void Mesh::UnloadMeshResource(int id)
@@ -132,7 +132,7 @@ namespace LinaEngine::Graphics
 			return;
 		}
 
-		m_loadedMeshes.erase(id);
+		s_loadedMeshes.erase(id);
 	}
 
 	Mesh& Mesh::GetPrimitive(Primitives primitive)
@@ -144,12 +144,12 @@ namespace LinaEngine::Graphics
 			return GetPrimitive(Primitives::Plane);
 		}
 		else
-			return m_loadedMeshes[primitive];
+			return s_loadedMeshes[primitive];
 	}
 
 	void Mesh::UnloadAll()
 	{
-		m_loadedMeshes.clear();
+		s_loadedMeshes.clear();
 	}
 
 	MeshParameters Mesh::LoadParameters(const std::string& path)

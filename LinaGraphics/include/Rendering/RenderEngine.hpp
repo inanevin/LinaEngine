@@ -118,19 +118,16 @@ namespace LinaEngine::Graphics
 		void MaterialUpdated(Material& mat);
 		Texture& CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false, const std::string& paramsPath = "");
 		Texture& CreateTextureHDRI(const std::string filePath);
-		Shader& CreateShader(Shaders shader, const std::string& path, bool usesGeometryShader = false);
 		Material& GetMaterial(int id);
 		Material& GetMaterial(const std::string& path);
 		Texture& GetTexture(int id);
 		Texture& GetTexture(const std::string& path);
-		Shader& GetShader(Shaders shader);
 		void UnloadTextureResource(int id);
 		void UnloadMaterialResource(int id);
 		bool MaterialExists(int id);
 		bool MaterialExists(const std::string& path);
 		bool TextureExists(int id);
 		bool TextureExists(const std::string& path);
-		bool ShaderExists(Shaders shader);
 
 		// Sets the shader of a material to the shader specified by name. Also resets material properties based on the shader, caution!
 		Material& SetMaterialShader(Material& material, Shaders shader);
@@ -247,7 +244,6 @@ namespace LinaEngine::Graphics
 
 		std::map<int, Texture*> m_loadedTextures;
 		std::map<int, Material> m_loadedMaterials;
-		std::map<int, Shader> m_loadedShaders;
 		std::set<Material*> m_shadowMappedMaterials;
 		std::set<Material*> m_hdriMaterials;
 

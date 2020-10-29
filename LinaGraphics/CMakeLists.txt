@@ -30,6 +30,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Rendering/RenderEngine.cpp
 	src/Rendering/Mesh.cpp
 	src/Rendering/RenderingCommon.cpp
+	src/Rendering/Shader.cpp
 	
 	src/PackageManager/OpenGL/GLRenderDevice.cpp
 	src/PackageManager/OpenGL/GLWindow.cpp
