@@ -91,7 +91,7 @@ void CreateProceduralSkybox(RenderEngine& renderEngine)
 
 void CreateHDRISkybox(RenderEngine& renderEngine)
 {
-	Texture* hdri = &renderEngine.CreateTextureHDRI("resources/sandbox/textures/HDRI/canyon3K.hdr");
+	Texture* hdri = &Texture::CreateTextureHDRI("resources/sandbox/textures/HDRI/canyon3K.hdr");
 	renderEngine.CaptureCalculateHDRI(*hdri);
 	Material& mat = renderEngine.CreateMaterial(Shaders::Skybox_HDRI);
 	mat.SetTexture(MAT_MAP_ENVIRONMENT, &renderEngine.GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);

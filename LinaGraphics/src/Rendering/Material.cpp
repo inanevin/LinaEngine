@@ -41,9 +41,9 @@ namespace LinaEngine::Graphics
 	{
 		for (std::map<std::string, MaterialSampler2D>::iterator it = m_sampler2Ds.begin(); it != m_sampler2Ds.end(); ++it)
 		{
-			if (renderEngine.TextureExists(it->second.m_path))
+			if (Texture::TextureExists(it->second.m_path))
 			{
-				SetTexture(it->first, &renderEngine.GetTexture(it->second.m_path), it->second.m_bindMode);
+				SetTexture(it->first, &Texture::GetTexture(it->second.m_path), it->second.m_bindMode);
 			}
 		}
 

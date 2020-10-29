@@ -109,6 +109,7 @@ namespace LinaEngine::Graphics
 		void Swap();
 
 		static RenderDevice& GetRenderDevice() { return m_renderDevice; }
+		static Texture& GetDefaultTexture() { return m_defaultTexture; }
 
 		// Sets the viewport offset & display size
 		void SetViewportDisplay(Vector2 offset, Vector2 size);
@@ -116,18 +117,11 @@ namespace LinaEngine::Graphics
 		Material& CreateMaterial(Shaders shader, const std::string& path = "");
 		Material& LoadMaterialFromFile(const std::string& path = "");
 		void MaterialUpdated(Material& mat);
-		Texture& CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false, const std::string& paramsPath = "");
-		Texture& CreateTextureHDRI(const std::string filePath);
 		Material& GetMaterial(int id);
 		Material& GetMaterial(const std::string& path);
-		Texture& GetTexture(int id);
-		Texture& GetTexture(const std::string& path);
-		void UnloadTextureResource(int id);
 		void UnloadMaterialResource(int id);
 		bool MaterialExists(int id);
 		bool MaterialExists(const std::string& path);
-		bool TextureExists(int id);
-		bool TextureExists(const std::string& path);
 
 		// Sets the shader of a material to the shader specified by name. Also resets material properties based on the shader, caution!
 		Material& SetMaterialShader(Material& material, Shaders shader);
@@ -218,7 +212,7 @@ namespace LinaEngine::Graphics
 		Texture m_hdriPrefilterMap;
 		Texture m_HDRILutMap;
 		Texture m_shadowMapRTTexture;
-		Texture m_defaultTexture;
+		static Texture m_defaultTexture;
 		Texture m_defaultCubemapTexture;
 
 		DrawParams m_defaultDrawParams;
@@ -242,7 +236,6 @@ namespace LinaEngine::Graphics
 		LinaEngine::ECS::LightingSystem m_lightingSystem;
 		LinaEngine::ECS::ECSSystemList m_renderingPipeline;
 
-		std::map<int, Texture*> m_loadedTextures;
 		std::map<int, Material> m_loadedMaterials;
 		std::set<Material*> m_shadowMappedMaterials;
 		std::set<Material*> m_hdriMaterials;

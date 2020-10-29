@@ -43,6 +43,7 @@ SOFTWARE.
 namespace LinaEngine::Graphics
 {
 	RenderDevice RenderEngine::m_renderDevice;
+	Texture RenderEngine::m_defaultTexture;
 
 	constexpr size_t UNIFORMBUFFER_VIEWDATA_SIZE = (sizeof(Matrix) * 3) + (sizeof(Vector4)) + (sizeof(float) * 2);
 	constexpr int UNIFORMBUFFER_VIEWDATA_BINDPOINT = 0;
@@ -63,10 +64,6 @@ namespace LinaEngine::Graphics
 
 	RenderEngine::~RenderEngine()
 	{
-		// Delete textures.
-		for (std::map<int, Texture*>::iterator it = m_loadedTextures.begin(); it != m_loadedTextures.end(); it++)
-			delete it->second;
-
 		// Dump the remaining memory.
 		DumpMemory();
 
@@ -249,74 +246,6 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	Texture& RenderEngine::CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams, bool compress, bool useDefaultFormats, const std::string& paramsPath)
-	{
-		// Create pixel data.
-		ArrayBitmap* textureBitmap = new ArrayBitmap();
-
-		int nrComponents = textureBitmap->Load(filePath);
-		if (nrComponents == -1)
-		{
-			LINA_CORE_WARN("Texture with the path {0} doesn't exist, returning empty texture", filePath);
-			delete textureBitmap;
-			return m_defaultTexture;
-		}
-
-		if (useDefaultFormats)
-		{
-			if (nrComponents == 1)
-				samplerParams.m_textureParams.m_internalPixelFormat = samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_R;
-			if (nrComponents == 2)
-				samplerParams.m_textureParams.m_internalPixelFormat = samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RG;
-			else if (nrComponents == 3)
-				samplerParams.m_textureParams.m_internalPixelFormat = samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
-			else if (nrComponents == 4)
-				samplerParams.m_textureParams.m_internalPixelFormat = samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGBA;
-
-		}
-
-		// Create texture & construct.
-		Texture* texture = new Texture();
-		texture->Construct(m_renderDevice, *textureBitmap, samplerParams, compress, filePath);
-		m_loadedTextures[texture->GetID()] = texture;
-		texture->m_paramsPath = paramsPath;
-
-		// Delete pixel data.
-		delete textureBitmap;
-
-		LINA_CORE_TRACE("Texture created. {0}", filePath);
-
-		// Return
-		return *m_loadedTextures[texture->GetID()];
-	}
-
-	Texture& RenderEngine::CreateTextureHDRI(const std::string filePath)
-	{
-		// Create pixel data.
-		int w, h, nrComponents;
-		float* data = ArrayBitmap::LoadImmediateHDRI(filePath.c_str(), w, h, nrComponents);
-
-		if (!data)
-		{
-			LINA_CORE_WARN("Texture with the path {0} doesn't exist, returning empty texture", filePath);
-			return m_defaultTexture;
-		}
-
-		// Create texture & construct.
-		SamplerParameters samplerParams;
-		samplerParams.m_textureParams.m_wrapR = samplerParams.m_textureParams.m_wrapS = samplerParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-		samplerParams.m_textureParams.m_minFilter = samplerParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
-		samplerParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGB16F;
-		samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
-
-		Texture* texture = new Texture();
-		texture->ConstructHDRI(m_renderDevice, samplerParams, Vector2(w, h), data, filePath);
-		m_loadedTextures[texture->GetID()] = texture;
-
-		// Return
-		return *m_loadedTextures[texture->GetID()];
-	}
-
 	Material& RenderEngine::GetMaterial(int id)
 	{
 		if (!MaterialExists(id))
@@ -343,34 +272,6 @@ namespace LinaEngine::Graphics
 
 		return it->second;
 	}
-
-	Texture& RenderEngine::GetTexture(int id)
-	{
-		if (!TextureExists(id))
-		{
-			// Mesh not found.
-			LINA_CORE_WARN("Texture with the id {0} was not found, returning un-constructed texture...", id);
-			return Texture();
-		}
-
-		return *m_loadedTextures[id];
-	}
-
-	Texture& RenderEngine::GetTexture(const std::string& path)
-	{
-		const auto it = std::find_if(m_loadedTextures.begin(), m_loadedTextures.end(), [path]
-		(const auto& item) -> bool { return item.second->GetPath().compare(path) == 0; });
-
-		if (it == m_loadedTextures.end())
-		{
-			// Mesh not found.
-			LINA_CORE_WARN("Texture with the path {0} was not found, returning un-constructed texture...", path);
-			return Texture();
-		}
-
-		return *it->second;
-	}
-
 
 	Material& RenderEngine::SetMaterialShader(Material& material, Shaders shader)
 	{
@@ -510,18 +411,6 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void RenderEngine::UnloadTextureResource(int id)
-	{
-		if (!TextureExists(id))
-		{
-			LINA_CORE_WARN("Texture not found! Aborting... ");
-			return;
-		}
-
-		delete m_loadedTextures[id];
-		m_loadedTextures.erase(id);
-	}
-
 	void RenderEngine::UnloadMaterialResource(int id)
 	{
 		if (!MaterialExists(id))
@@ -548,19 +437,6 @@ namespace LinaEngine::Graphics
 		const auto it = std::find_if(m_loadedMaterials.begin(), m_loadedMaterials.end(), [path]
 		(const auto& it) -> bool { 	return it.second.GetPath().compare(path) == 0; 	});
 		return it != m_loadedMaterials.end();
-	}
-
-	bool RenderEngine::TextureExists(int id)
-	{
-		if (id < 0) return false;
-		return !(m_loadedTextures.find(id) == m_loadedTextures.end());
-	}
-
-	bool RenderEngine::TextureExists(const std::string& path)
-	{
-		const auto it = std::find_if(m_loadedTextures.begin(), m_loadedTextures.end(), [path]
-		(const auto& it) -> bool { 	return it.second->GetPath().compare(path) == 0; 	});
-		return it != m_loadedTextures.end();
 	}
 
 	void RenderEngine::ConstructEngineShaders()
@@ -727,7 +603,7 @@ namespace LinaEngine::Graphics
 	{
 		// Clear dumps.
 		Mesh::UnloadAll();
-		m_loadedTextures.clear();
+		Texture::UnloadAll();
 		m_loadedMaterials.clear();
 	}
 

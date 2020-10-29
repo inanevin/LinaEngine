@@ -68,7 +68,7 @@ namespace LinaEditor
 
 	void HeaderPanel::Setup()
 	{// Logo texture
-		windowIcon = &LinaEngine::Application::GetRenderEngine().CreateTexture2D("resources/editor/textures/linaEngineIcon.png");
+		windowIcon = &LinaEngine::Graphics::Texture::CreateTexture2D("resources/editor/textures/linaEngineIcon.png");
 
 		// Logo animation textures
 		for (int i = 0; i < HEADER_LINALOGO_ANIMSIZE; i++)
@@ -78,7 +78,7 @@ namespace LinaEditor
 				logoID = ("00" + std::to_string(i));
 			else if (i < 100)
 				logoID = ("0" + std::to_string(i));
-			linaLogoAnimation[i] = &LinaEngine::Application::GetRenderEngine().CreateTexture2D("resources/editor/textures/LinaLogoJitterAnimation/anim " + logoID + ".png");
+			linaLogoAnimation[i] = &LinaEngine::Graphics::Texture::CreateTexture2D("resources/editor/textures/LinaLogoJitterAnimation/anim " + logoID + ".png");
 		}
 
 		linaLogoID = linaLogoAnimation[0]->GetID();

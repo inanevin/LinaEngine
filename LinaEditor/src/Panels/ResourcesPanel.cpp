@@ -353,7 +353,7 @@ namespace LinaEditor
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 				{
 					// Set payload to carry the texture;
-					uint32 id = LinaEngine::Application::GetRenderEngine().GetTexture(it->second.m_path).GetID();
+					uint32 id = LinaEngine::Graphics::Texture::GetTexture(it->second.m_path).GetID();
 					ImGui::SetDragDropPayload(RESOURCES_MOVETEXTURE_ID, &id, sizeof(uint32));
 
 					// Display preview 
@@ -373,7 +373,7 @@ namespace LinaEditor
 
 				// Notify properties panel of file selection.
 				if (it->second.m_type == FileType::Texture2D)
-					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Texture*>(LinaEngine::Action::ActionType::TextureSelected, &LinaEngine::Application::GetRenderEngine().GetTexture(it->second.m_path));
+					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Texture*>(LinaEngine::Action::ActionType::TextureSelected, &LinaEngine::Graphics::Texture::GetTexture(it->second.m_path));
 				else if (it->second.m_type == FileType::Mesh)
 					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Mesh*>(LinaEngine::Action::ActionType::MeshSelected, &LinaEngine::Graphics::Mesh::GetMesh(it->second.m_path));
 				else if (it->second.m_type == FileType::Material)
@@ -423,7 +423,7 @@ namespace LinaEditor
 			// SKIP FOR NOW BC WE NEED TO MAKE SURE WE HANDLE BOTH ENGINE CREATION & EDITOR CREATION
 			if (file.m_type == FileType::Texture2D)
 			{
-				bool textureExists = renderEngine.TextureExists(file.m_path);
+				bool textureExists = LinaEngine::Graphics::Texture::TextureExists(file.m_path);
 
 				if (!textureExists)
 				{
@@ -433,7 +433,7 @@ namespace LinaEditor
 					if (LinaEngine::Utility::FileExists(samplerParamsPath))
 						samplerParams = LinaEngine::Graphics::Texture::LoadParameters(samplerParamsPath);
 
-					renderEngine.CreateTexture2D(file.m_path, samplerParams, false, false, samplerParamsPath);
+					LinaEngine::Graphics::Texture::CreateTexture2D(file.m_path, samplerParams, false, false, samplerParamsPath);
 
 					LinaEngine::Graphics::Texture::SaveParameters(samplerParamsPath, samplerParams);
 				}
@@ -504,7 +504,7 @@ namespace LinaEditor
 	{
 		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
 		if (file.m_type == FileType::Texture2D)
-			renderEngine.UnloadTextureResource(renderEngine.GetTexture(file.m_path).GetID());
+			LinaEngine::Graphics::Texture::UnloadTextureResource(LinaEngine::Graphics::Texture::GetTexture(file.m_path).GetID());
 		else if (file.m_type == FileType::Mesh)
 			LinaEngine::Graphics::Mesh::UnloadMeshResource(LinaEngine::Graphics::Mesh::GetMesh(file.m_path).GetID());
 		else if (file.m_type == FileType::Material)

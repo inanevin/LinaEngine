@@ -28,12 +28,15 @@ SOFTWARE.
 
 #include "Rendering/Texture.hpp"  
 #include "Rendering/ArrayBitmap.hpp"
+#include "Rendering/RenderEngine.hpp"
 #include <stdio.h>
 #include <cereal/archives/binary.hpp>
 #include <fstream>
 
 namespace LinaEngine::Graphics
 {
+	std::map<int, Texture*> Texture::s_loadedTextures;
+
 	Texture::~Texture()
 	{
 		m_id = m_renderDevice->ReleaseTexture2D(m_id);
@@ -191,6 +194,136 @@ namespace LinaEngine::Graphics
 		}
 	}
 
+	Texture& Texture::CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams, bool compress, bool useDefaultFormats, const std::string& paramsPath)
+	{
+		// Create pixel data.
+		ArrayBitmap* textureBitmap = new ArrayBitmap();
+
+		int nrComponents = textureBitmap->Load(filePath);
+		if (nrComponents == -1)
+		{
+			LINA_CORE_WARN("Texture with the path {0} doesn't exist, returning empty texture", filePath);
+			delete textureBitmap;
+			return RenderEngine::GetDefaultTexture();
+		}
+
+		if (useDefaultFormats)
+		{
+			if (nrComponents == 1)
+				samplerParams.m_textureParams.m_internalPixelFormat = samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_R;
+			if (nrComponents == 2)
+				samplerParams.m_textureParams.m_internalPixelFormat = samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RG;
+			else if (nrComponents == 3)
+				samplerParams.m_textureParams.m_internalPixelFormat = samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
+			else if (nrComponents == 4)
+				samplerParams.m_textureParams.m_internalPixelFormat = samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGBA;
+
+		}
+
+		// Create texture & construct.
+		Texture* texture = new Texture();
+		texture->Construct(RenderEngine::GetRenderDevice(), *textureBitmap, samplerParams, compress, filePath);
+		s_loadedTextures[texture->GetID()] = texture;
+		texture->m_paramsPath = paramsPath;
+
+		// Delete pixel data.
+		delete textureBitmap;
+
+		LINA_CORE_TRACE("Texture created. {0}", filePath);
+
+		// Return
+		return *s_loadedTextures[texture->GetID()];
+	}
+
+
+	Texture& Texture::CreateTextureHDRI(const std::string filePath)
+	{
+		// Create pixel data.
+		int w, h, nrComponents;
+		float* data = ArrayBitmap::LoadImmediateHDRI(filePath.c_str(), w, h, nrComponents);
+
+		if (!data)
+		{
+			LINA_CORE_WARN("Texture with the path {0} doesn't exist, returning empty texture", filePath);
+			return RenderEngine::GetDefaultTexture();
+		}
+
+		// Create texture & construct.
+		SamplerParameters samplerParams;
+		samplerParams.m_textureParams.m_wrapR = samplerParams.m_textureParams.m_wrapS = samplerParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		samplerParams.m_textureParams.m_minFilter = samplerParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
+		samplerParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGB16F;
+		samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
+
+		Texture* texture = new Texture();
+		texture->ConstructHDRI(RenderEngine::GetRenderDevice(), samplerParams, Vector2(w, h), data, filePath);
+		s_loadedTextures[texture->GetID()] = texture;
+
+		// Return
+		return *s_loadedTextures[texture->GetID()];
+	}
+
+
+	Texture& Texture::GetTexture(int id)
+	{
+		if (!TextureExists(id))
+		{
+			// Mesh not found.
+			LINA_CORE_WARN("Texture with the id {0} was not found, returning un-constructed texture...", id);
+			return Texture();
+		}
+
+		return *s_loadedTextures[id];
+	}
+
+	Texture& Texture::GetTexture(const std::string& path)
+	{
+		const auto it = std::find_if(s_loadedTextures.begin(), s_loadedTextures.end(), [path]
+		(const auto& item) -> bool { return item.second->GetPath().compare(path) == 0; });
+
+		if (it == s_loadedTextures.end())
+		{
+			// Mesh not found.
+			LINA_CORE_WARN("Texture with the path {0} was not found, returning un-constructed texture...", path);
+			return Texture();
+		}
+
+		return *it->second;
+	}
+
+	void Texture::UnloadTextureResource(int id)
+	{
+		if (!TextureExists(id))
+		{
+			LINA_CORE_WARN("Texture not found! Aborting... ");
+			return;
+		}
+
+		delete s_loadedTextures[id];
+		s_loadedTextures.erase(id);
+	}
+
+	void Texture::UnloadAll()
+	{
+		// Delete textures.
+		for (std::map<int, Texture*>::iterator it = s_loadedTextures.begin(); it != s_loadedTextures.end(); it++)
+			delete it->second;
+
+		s_loadedTextures.clear();
+	}
+
+	bool Texture::TextureExists(int id)
+	{
+		if (id < 0) return false;
+		return !(s_loadedTextures.find(id) == s_loadedTextures.end());
+	}
+
+	bool Texture::TextureExists(const std::string& path)
+	{
+		const auto it = std::find_if(s_loadedTextures.begin(), s_loadedTextures.end(), [path]
+		(const auto& it) -> bool { 	return it.second->GetPath().compare(path) == 0; 	});
+		return it != s_loadedTextures.end();
+	}
 
 }
 

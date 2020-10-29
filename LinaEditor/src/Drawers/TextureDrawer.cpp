@@ -322,16 +322,15 @@ namespace LinaEditor
 			params.m_textureParams.m_wrapT = selectedWrapT;
 			SamplerParameters newParams = params;
 
-			LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
 			std::string filePath = m_selectedTexture->GetPath();
 			std::string paramsPath = m_selectedTexture->GetParamsPath();
-			LinaEngine::Graphics::Texture* reimportedTexture = &renderEngine.CreateTexture2D(filePath, newParams, false, false, paramsPath);
+			LinaEngine::Graphics::Texture* reimportedTexture = &LinaEngine::Graphics::Texture::CreateTexture2D(filePath, newParams, false, false, paramsPath);
 
 			auto pair = std::make_pair(m_selectedTexture, reimportedTexture);
 			LinaEditor::EditorApplication::GetEditorDispatcher().DispatchAction<std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*>>(LinaEngine::Action::ActionType::TextureReimported,
 				pair);
 
-			renderEngine.UnloadTextureResource(m_selectedTexture->GetID());
+			LinaEngine::Graphics::Texture::UnloadTextureResource(m_selectedTexture->GetID());
 			LinaEngine::Graphics::Texture::SaveParameters(paramsPath, newParams);
 
 			SetSelectedTexture(reimportedTexture);

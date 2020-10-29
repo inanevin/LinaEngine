@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -78,7 +78,18 @@ namespace LinaEngine::Graphics
 		const std::string& GetPath() const { return m_path; }
 		const std::string& GetParamsPath() const { return m_paramsPath; }
 
+		static Texture& CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false, const std::string& paramsPath = "");
+		static Texture& CreateTextureHDRI(const std::string filePath);
+		static Texture& GetTexture(int id);
+		static Texture& GetTexture(const std::string& path);
+		static bool TextureExists(int id);
+		static bool TextureExists(const std::string& path);
+		static void UnloadTextureResource(int id);
+		static void UnloadAll();
+
 	private:
+
+		static std::map<int, Texture*> s_loadedTextures;
 
 		friend class RenderEngine;
 
