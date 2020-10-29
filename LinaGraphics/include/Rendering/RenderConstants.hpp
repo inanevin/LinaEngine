@@ -92,10 +92,13 @@ namespace LinaEngine::Graphics
 #define MAT_INVERSESCREENMAPSIZE "material.inverseScreenMapSize"
 #define MAT_EXTENSION_TEXTURE2D ".texture"
 #define MAT_EXTENSION_ISACTIVE ".isActive"
-	
+#define MAT_TIME "material.time"
+#define MAT_CIRRUS "material.cirrus"
+#define MAT_CUMULUS "material.cumulus"
 #define UF_MATRIX_MODEL "model"
 #define UF_MATRIX_VIEW "view"
 #define UF_MATRIX_PROJECTION "projection"
+#define UF_FLOAT_TIME "time"
 
 }
 #endif

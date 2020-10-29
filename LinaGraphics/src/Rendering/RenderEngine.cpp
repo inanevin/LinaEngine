@@ -523,10 +523,16 @@ namespace LinaEngine::Graphics
 		{
 			material.m_sampler2Ds[MAT_MAP_ENVIRONMENT] = { 0 };
 		}
+		else if (shader == Shaders::Skybox_Atmospheric)
+		{
+			material.m_floats[MAT_TIME] = 0.0f;
+			material.m_floats[MAT_CIRRUS] = 0.4f;
+			material.m_floats[MAT_CUMULUS] = 0.8f;
+			material.m_floats[UF_FLOAT_TIME] = 0.0f;
+		}
 
 		else if (shader == Shaders::ScreenQuad_Final)
 		{
-
 			material.m_sampler2Ds[MAT_MAP_SCREEN] = { 0 };
 			material.m_sampler2Ds[MAT_MAP_BLOOM] = { 1 };
 			material.m_sampler2Ds[MAT_MAP_OUTLINE] = { 2 };
@@ -700,6 +706,7 @@ namespace LinaEngine::Graphics
 		CreateShader(Shaders::Skybox_Cubemap, "resources/engine/shaders/Skybox/SkyboxCubemap.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		CreateShader(Shaders::Skybox_Procedural, "resources/engine/shaders/Skybox/SkyboxProcedural.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		CreateShader(Shaders::Skybox_HDRI, "resources/engine/shaders/Skybox/SkyboxHDRI.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+		CreateShader(Shaders::Skybox_Atmospheric, "resources/engine/shaders/Skybox/SkyboxAtmospheric.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
 
 		// Equirectangular cube & irradiance for HDRI skbox
@@ -908,7 +915,6 @@ namespace LinaEngine::Graphics
 		m_skyboxDrawParams.scissorStartY = 0;
 		m_skyboxDrawParams.scissorWidth = 0;
 		m_skyboxDrawParams.scissorHeight = 0;
-
 
 		// Set depth map drawing parameters.
 		m_shadowMapDrawParams.useScissorTest = false;

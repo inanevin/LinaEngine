@@ -40,7 +40,7 @@ namespace LinaEngine::Graphics
 		uint32 importFlags = 0;
 		if (meshParams.m_calculateTangentSpace)
 			importFlags |= aiProcess_CalcTangentSpace;
-
+		
 		if (meshParams.m_triangulate)
 			importFlags |= aiProcess_Triangulate;
 
@@ -49,6 +49,7 @@ namespace LinaEngine::Graphics
 
 		const aiScene* scene = importer.ReadFile(fileName.c_str(), importFlags);
 		// | aiProcess_FlipUVs
+
 		if (!scene)
 		{
 			LINA_CORE_ERR("Mesh loading failed! {0}", fileName.c_str());

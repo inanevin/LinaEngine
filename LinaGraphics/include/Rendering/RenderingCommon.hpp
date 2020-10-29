@@ -249,7 +249,8 @@ namespace LinaEngine::Graphics
 		ScreenQuad_Outline = 13,
 		ScreenQuad_Shadowmap = 14,
 		Debug_Line = 15,
-		Standard_Sprite = 16
+		Standard_Sprite = 16,
+		Skybox_Atmospheric = 17
 	};
 
 	extern char* g_shadersStr[17];

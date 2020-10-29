@@ -98,25 +98,22 @@ void CreateHDRISkybox(RenderEngine& renderEngine)
 	renderEngine.SetSkyboxMaterial(mat);
 }
 
-
-
-
+void CreateAtmosphericSkybox(RenderEngine& renderEngine)
+{
+	Material& mat = renderEngine.CreateMaterial(Shaders::Skybox_Atmospheric);
+	renderEngine.SetSkyboxMaterial(mat);
+}
 ECSEntity cube1;
 ECSEntity cube2;
 
 void Example1Level::Initialize()
 {
 	LINA_CLIENT_WARN("Example level 1 initialize.");
-
 	// Create a simple procedural skybox.
 	LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
-	CreateProceduralSkybox(renderEngine);
-
+	CreateAtmosphericSkybox(renderEngine);
 
 	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
-
-	
-	
 
 }
 

@@ -49,7 +49,6 @@ namespace LinaEngine::ECS
 
 	void ECSRegistry::Refresh()
 	{
-		LINA_CORE_TRACE("{0}", entt::registry::size<ECSEntityData>());
 
 		auto singleView = view<ECSEntityData>();
 

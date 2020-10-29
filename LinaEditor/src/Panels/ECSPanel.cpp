@@ -170,8 +170,6 @@ namespace LinaEditor
 				{
 					LinaEngine::ECS::ECSEntityData& data = ecs.get<LinaEngine::ECS::ECSEntityData>(entity);
 
-					LINA_CORE_TRACE("Drawing entity {0}", data.m_name);
-
 					if (data.m_parent == entt::null)
 						DrawEntityNode(entityCounter, entity);
 
