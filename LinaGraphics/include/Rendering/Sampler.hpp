@@ -52,13 +52,13 @@ namespace LinaEngine::Graphics
 		// Destructor releases sampler data through render engine
 		~Sampler()
 		{
-			m_engineBoundID = m_renderDevice->ReleaseSampler(m_engineBoundID);
+			m_engineBoundID = s_renderDevice->ReleaseSampler(m_engineBoundID);
 		}
 
 		void Construct(RenderDevice& deviceIn, SamplerParameters samplerParams, TextureBindMode bindMode)
 		{
-			m_renderDevice = &deviceIn;
-			m_engineBoundID = m_renderDevice->CreateSampler(samplerParams);
+			s_renderDevice = &deviceIn;
+			m_engineBoundID = s_renderDevice->CreateSampler(samplerParams);
 			m_targetBindMode = bindMode;
 			m_params = samplerParams;
 		}
@@ -66,8 +66,8 @@ namespace LinaEngine::Graphics
 		void UpdateSettings(SamplerParameters samplerParams) 
 		{
 			m_params = samplerParams;
-			m_renderDevice->UpdateSamplerParameters(m_engineBoundID, samplerParams);
-			m_renderDevice->UpdateTextureParameters(m_targetBindMode, m_targetTextureID, samplerParams);
+			s_renderDevice->UpdateSamplerParameters(m_engineBoundID, samplerParams);
+			s_renderDevice->UpdateTextureParameters(m_targetBindMode, m_targetTextureID, samplerParams);
 		}
 
 		SamplerParameters& GetSamplerParameters() { return m_params; }
@@ -79,7 +79,7 @@ namespace LinaEngine::Graphics
 		uint32 m_targetTextureID = 0;
 		TextureBindMode m_targetBindMode;
 		SamplerParameters m_params;
-		RenderDevice* m_renderDevice = nullptr;
+		RenderDevice* s_renderDevice = nullptr;
 		uint32 m_engineBoundID = 0;
 
 

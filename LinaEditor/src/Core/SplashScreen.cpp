@@ -96,8 +96,6 @@ namespace LinaEditor
 		splashScreenTexture = &LinaEngine::Graphics::Texture::CreateTexture2D("resources/editor/textures/splashScreen.png");
 	}
 
-
-
 	void SplashScreen::Draw()
 	{
 		// Nf

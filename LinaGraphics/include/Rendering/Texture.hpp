@@ -95,7 +95,7 @@ namespace LinaEngine::Graphics
 
 		TextureBindMode m_bindMode;
 		Sampler m_sampler;
-		RenderDevice* m_renderDevice = nullptr;
+		RenderDevice* s_renderDevice = nullptr;
 		uint32 m_id = 0;
 		Vector2 m_size = Vector2::One;
 		bool m_isCompressed = false;

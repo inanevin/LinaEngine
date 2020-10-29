@@ -80,7 +80,7 @@ namespace LinaEngine::ECS
 	
 		Graphics::IndexedModel m_quadModel;
 		Graphics::VertexArray m_spriteVertexArray;
-		RenderDevice* m_renderDevice = nullptr;
+		RenderDevice* s_renderDevice = nullptr;
 		Graphics::RenderEngine* m_renderEngine = nullptr;
 		std::map<Graphics::Material*, BatchModelData> m_renderBatch;
 	};

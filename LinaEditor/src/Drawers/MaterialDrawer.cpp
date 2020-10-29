@@ -136,7 +136,7 @@ namespace LinaEditor
 					if (ImGui::Selectable(LinaEngine::Graphics::g_shadersStr[n], is_shader_selected))
 					{
 						LinaEngine::Graphics::Shaders st = (LinaEngine::Graphics::Shaders)n;
-						LinaEngine::Application::GetRenderEngine().SetMaterialShader(*m_selectedMaterial, st);
+						LinaEngine::Graphics::Material::SetMaterialShader(*m_selectedMaterial, st);
 					}
 
 					if (is_shader_selected)
@@ -414,7 +414,7 @@ namespace LinaEditor
 
 		if (ImGui::Button("Reset"))
 		{
-			LinaEngine::Application::GetRenderEngine().SetMaterialShader(*m_selectedMaterial, m_selectedMaterial->GetShaderType());
+			LinaEngine::Graphics::Material::SetMaterialShader(*m_selectedMaterial, m_selectedMaterial->GetShaderType());
 		}
 
 

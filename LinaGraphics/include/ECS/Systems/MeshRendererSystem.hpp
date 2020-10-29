@@ -101,7 +101,7 @@ namespace LinaEngine::ECS
 		{
 			BaseECSSystem::Construct(registry);
 			m_renderEngine = &renderEngineIn;
-			m_renderDevice = &renderDeviceIn;
+			s_renderDevice = &renderDeviceIn;
 		}
 
 		void RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn);
@@ -114,7 +114,7 @@ namespace LinaEngine::ECS
 
 	private:
 
-		RenderDevice* m_renderDevice = nullptr;
+		RenderDevice* s_renderDevice = nullptr;
 		Graphics::RenderEngine* m_renderEngine = nullptr;
 
 		// Map & queue to see the list of same vertex array & textures to compress them into single draw call.

@@ -67,14 +67,14 @@ bool Example1Level::Install(bool loadFromFile, const std::string& path, const st
 
 void CreateSingleColorSkybox(RenderEngine& renderEngine)
 {
-	Material& mat = renderEngine.CreateMaterial(Shaders::Skybox_SingleColor);
+	Material& mat = LinaEngine::Graphics::Material::CreateMaterial(Shaders::Skybox_SingleColor);
 	mat.SetColor("material.color", Color::Red);
 	renderEngine.SetSkyboxMaterial(mat);
 }
 
 void CreateGradientSkybox(RenderEngine& renderEngine)
 {
-	Material& mat = renderEngine.CreateMaterial(Shaders::Skybox_Gradient);
+	Material& mat = LinaEngine::Graphics::Material::CreateMaterial(Shaders::Skybox_Gradient);
 	mat.SetColor("material.startColor", Color::Green);
 	mat.SetColor("material.endColor", Color::White);
 	renderEngine.SetSkyboxMaterial(mat);
@@ -82,7 +82,7 @@ void CreateGradientSkybox(RenderEngine& renderEngine)
 
 void CreateProceduralSkybox(RenderEngine& renderEngine)
 {
-	Material& mat = renderEngine.CreateMaterial(Shaders::Skybox_Procedural);
+	Material& mat = LinaEngine::Graphics::Material::CreateMaterial(Shaders::Skybox_Procedural);
 	mat.SetColor("material.startColor", Color::White);
 	mat.SetColor("material.endColor", Color(0.2f, 0.2f, 0.2f));
 	mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
@@ -93,14 +93,14 @@ void CreateHDRISkybox(RenderEngine& renderEngine)
 {
 	Texture* hdri = &Texture::CreateTextureHDRI("resources/sandbox/textures/HDRI/canyon3K.hdr");
 	renderEngine.CaptureCalculateHDRI(*hdri);
-	Material& mat = renderEngine.CreateMaterial(Shaders::Skybox_HDRI);
+	Material& mat = LinaEngine::Graphics::Material::CreateMaterial(Shaders::Skybox_HDRI);
 	mat.SetTexture(MAT_MAP_ENVIRONMENT, &renderEngine.GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 	renderEngine.SetSkyboxMaterial(mat);
 }
 
 void CreateAtmosphericSkybox(RenderEngine& renderEngine)
 {
-	Material& mat = renderEngine.CreateMaterial(Shaders::Skybox_Atmospheric);
+	Material& mat = LinaEngine::Graphics::Material::CreateMaterial(Shaders::Skybox_Atmospheric);
 	//mat.SetFloat(MAT_TIME, 15);
 	//mat.SetFloat(UF_FLOAT_TIME, 15);
 	renderEngine.SetSkyboxMaterial(mat);

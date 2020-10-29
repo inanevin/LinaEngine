@@ -37,9 +37,9 @@ namespace LinaEngine::ECS
 	{
 		BaseECSSystem::Construct(registry);
 		m_renderEngine = &renderEngineIn;
-		m_renderDevice = &renderDeviceIn;
+		s_renderDevice = &renderDeviceIn;
 		Graphics::ModelLoader::LoadQuad(m_quadModel);
-		m_spriteVertexArray.Construct(*m_renderDevice, m_quadModel, Graphics::BufferUsage::USAGE_STATIC_COPY);
+		m_spriteVertexArray.Construct(*s_renderDevice, m_quadModel, Graphics::BufferUsage::USAGE_STATIC_COPY);
 	}
 
 	void SpriteRendererSystem::UpdateComponents(float delta)
@@ -57,7 +57,7 @@ namespace LinaEngine::ECS
 			// Dont draw if mesh or material does not exist.
 			if (renderer.m_materialID < 0) continue;
 
-			Graphics::Material& mat = m_renderEngine->GetMaterial(renderer.m_materialID);
+			Graphics::Material& mat = LinaEngine::Graphics::Material::GetMaterial(renderer.m_materialID);
 			Render(mat, transform.transform.ToMatrix());
 		}
 	}
@@ -92,7 +92,7 @@ namespace LinaEngine::ECS
 			m_spriteVertexArray.UpdateBuffer(3, inverseTransposeModels, numTransforms * sizeof(Matrix));
 
 			m_renderEngine->UpdateShaderData(mat);
-			m_renderDevice->Draw(m_spriteVertexArray.GetID(), drawParams, numTransforms, m_spriteVertexArray.GetIndexCount(), false);
+			s_renderDevice->Draw(m_spriteVertexArray.GetID(), drawParams, numTransforms, m_spriteVertexArray.GetIndexCount(), false);
 
 			// Clear the buffer.
 			if (completeFlush)

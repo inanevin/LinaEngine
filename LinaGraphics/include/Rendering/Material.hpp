@@ -47,6 +47,7 @@ Timestamp: 4/26/2019 1:12:18 AM
 #include "Rendering/RenderingCommon.hpp"
 #include <cereal/types/string.hpp>
 #include <cereal/types/map.hpp>
+#include <set>
 
 namespace LinaEngine::Graphics
 {
@@ -75,9 +76,22 @@ namespace LinaEngine::Graphics
 
 	public:
 
+		static Material& CreateMaterial(Shaders shader, const std::string& path = "");
+		static Material& LoadMaterialFromFile(const std::string& path = "");
+		static Material& GetMaterial(int id);
+		static Material& GetMaterial(const std::string& path);
+		static bool MaterialExists(int id);
+		static bool MaterialExists(const std::string& path);
+		static void UnloadMaterialResource(int id);
 		static void LoadMaterialData(Material& mat, const std::string& path);
 		static void SaveMaterialData(const Material& mat, const std::string& path);
-		
+		static Material& SetMaterialShader(Material& material, Shaders shader);
+		static void SetMaterialContainers(Material& material);
+		static void UnloadAll();
+		static std::set<Material*>& GetShadowMappedMaterials() { return s_shadowMappedMaterials; }
+		static std::set<Material*>& GetHDRIMaterials() { return s_hdriMaterials; }
+		static std::map<int, Material>& GetLoadedMaterials() { return s_loadedMaterials; }
+
 		void PostLoadMaterialData(LinaEngine::Graphics::RenderEngine& renderEngine);
 		void SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		void RemoveTexture(const std::string& textureName);
@@ -167,8 +181,6 @@ namespace LinaEngine::Graphics
 			return m_matrices[name];
 		}
 
-
-
 		int GetID() const { return m_materialID; }
 		const std::string& GetPath() const { return m_path; }
 		Shaders GetShaderType() { return m_shaderType; }
@@ -208,16 +220,22 @@ namespace LinaEngine::Graphics
 
 	private:
 
+		static std::map<int, Material> s_loadedMaterials;
+		static std::set<Material*> s_shadowMappedMaterials;
+		static std::set<Material*> s_hdriMaterials;
+
+	private:
+
 		friend class RenderEngine;
 		friend class RenderContext;
 
 		int m_materialID = -1;
 		std::string m_path = "";
 		uint32 m_shaderID = 0;
-	
+
 		Shaders m_shaderType = Shaders::Standard_Unlit;
 		MaterialSurfaceType m_surfaceType = MaterialSurfaceType::Opaque;
-		
+
 	};
 
 	struct ModelMaterial

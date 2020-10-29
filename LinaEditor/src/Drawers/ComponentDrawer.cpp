@@ -814,7 +814,7 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		renderer.m_meshPath = renderer.m_selectedMeshPath;
 
 		// Material selection
-		if (renderEngine.MaterialExists(renderer.m_materialID))
+		if (LinaEngine::Graphics::Material::MaterialExists(renderer.m_materialID))
 		{
 			renderer.m_selectedMatID = renderer.m_materialID;
 			renderer.m_selectedMatPath = renderer.m_materialPath;
@@ -842,7 +842,7 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
 		if (ImGui::BeginPopupModal("Select Material", &materialPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 		{
-			SelectMaterialModal::Draw(Application::GetRenderEngine().GetLoadedMaterials(), &renderer.m_selectedMatID, renderer.m_selectedMatPath);
+			SelectMaterialModal::Draw(LinaEngine::Graphics::Material::GetLoadedMaterials(), &renderer.m_selectedMatID, renderer.m_selectedMatPath);
 			ImGui::EndPopup();
 		}
 		WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
@@ -890,7 +890,7 @@ void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::EC
 		float cursorPosLabels = CURSORPOS_X_LABELS;
 
 		// Material selection
-		if (renderEngine.MaterialExists(renderer.m_materialID))
+		if (LinaEngine::Graphics::Material::MaterialExists(renderer.m_materialID))
 		{
 			renderer.m_selectedMatID = renderer.m_materialID;
 			renderer.m_selectedMatPath = renderer.m_materialPath;
@@ -918,7 +918,7 @@ void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::EC
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
 		if (ImGui::BeginPopupModal("Select Sprite Material", &materialPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 		{
-			SelectMaterialModal::Draw(Application::GetRenderEngine().GetLoadedMaterials(), &renderer.m_selectedMatID, renderer.m_selectedMatPath);
+			SelectMaterialModal::Draw(LinaEngine::Graphics::Material::GetLoadedMaterials(), &renderer.m_selectedMatID, renderer.m_selectedMatPath);
 			ImGui::EndPopup();
 		}
 		WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();

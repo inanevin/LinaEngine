@@ -67,7 +67,7 @@ namespace LinaEngine::ECS
 		void Construct(ECSRegistry& registry, RenderDevice& rdIn, Graphics::RenderEngine& renderEngineIn)
 		{
 			BaseECSSystem::Construct(registry);
-			m_renderDevice = &rdIn;
+			s_renderDevice = &rdIn;
 			m_renderEngine = &renderEngineIn;
 		}
 
@@ -83,7 +83,7 @@ namespace LinaEngine::ECS
 
 	private:
 
-		RenderDevice* m_renderDevice = nullptr;
+		RenderDevice* s_renderDevice = nullptr;
 		Graphics::RenderEngine* m_renderEngine = nullptr;
 		std::tuple < TransformComponent*, DirectionalLightComponent*> m_directionalLight;
 		std::vector<std::tuple<TransformComponent*, PointLightComponent*>> m_pointLights;

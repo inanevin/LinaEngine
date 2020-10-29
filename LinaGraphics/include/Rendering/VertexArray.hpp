@@ -51,22 +51,22 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-		VertexArray() : m_engineBoundID(0), m_IndexCount(0), m_renderDevice(nullptr) {};
+		VertexArray() : m_engineBoundID(0), m_IndexCount(0), s_renderDevice(nullptr) {};
 		~VertexArray()
 		{
-			m_engineBoundID = m_renderDevice->ReleaseVertexArray(m_engineBoundID);
+			m_engineBoundID = s_renderDevice->ReleaseVertexArray(m_engineBoundID);
 		}
 	
 		void Construct(RenderDevice& deviceIn, const IndexedModel& model, BufferUsage bufferUsage)
 		{
-			m_renderDevice = &deviceIn;
+			s_renderDevice = &deviceIn;
 			m_engineBoundID = model.CreateVertexArray(deviceIn, bufferUsage);
 			m_IndexCount = model.GetIndexCount();
 		}
 
 		void UpdateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize)
 		{
-			return m_renderDevice->UpdateVertexArrayBuffer(m_engineBoundID, bufferIndex, data, dataSize);
+			return s_renderDevice->UpdateVertexArrayBuffer(m_engineBoundID, bufferIndex, data, dataSize);
 		}
 
 		uint32 GetID()
@@ -81,7 +81,7 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		RenderDevice* m_renderDevice = nullptr;
+		RenderDevice* s_renderDevice = nullptr;
 		uint32 m_engineBoundID = 0;
 		uint32 m_IndexCount = 0;
 		

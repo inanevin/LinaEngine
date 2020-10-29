@@ -53,7 +53,7 @@ namespace LinaEngine::ECS
 
 			// We get the materials, then according to their surface types we add the mesh
 			// data into either opaque queue or the transparent queue.
-			Graphics::Material& mat = m_renderEngine->GetMaterial(renderer.m_materialID);
+			Graphics::Material& mat = LinaEngine::Graphics::Material::GetMaterial(renderer.m_materialID);
 			Graphics::Mesh& mesh = LinaEngine::Graphics::Mesh::GetMesh(renderer.m_meshID);
 
 			if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
@@ -125,7 +125,7 @@ namespace LinaEngine::ECS
 			vertexArray->UpdateBuffer(6, inverseTransposeModels, numTransforms * sizeof(Matrix));
 
 			m_renderEngine->UpdateShaderData(mat);
-			m_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
+			s_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
 
 			// Clear the buffer.
 			if (completeFlush)
@@ -164,7 +164,7 @@ namespace LinaEngine::ECS
 			vertexArray->UpdateBuffer(6, inverseTransposeModels, numTransforms * sizeof(Matrix));
 
 			m_renderEngine->UpdateShaderData(mat);
-			m_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
+			s_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
 
 			// Clear the buffer.
 			if (completeFlush)

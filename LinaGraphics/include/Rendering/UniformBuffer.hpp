@@ -51,31 +51,31 @@ namespace LinaEngine::Graphics
 		~UniformBuffer()
 		{
 			if (m_isConstructed)
-				m_engineBoundID = m_renderDevice->ReleaseUniformBuffer(m_engineBoundID);
+				m_engineBoundID = s_renderDevice->ReleaseUniformBuffer(m_engineBoundID);
 		}
 
 		// Updates the uniform buffer w/ new data, allows dynamic size change.
 		void Construct(RenderDevice& renderDeviceIn, uintptr dataSize, BufferUsage usage, const void* data = nullptr)
 		{
-			m_renderDevice = &renderDeviceIn;
+			s_renderDevice = &renderDeviceIn;
 			m_bufferSize = dataSize;
-			m_engineBoundID = m_renderDevice->CreateUniformBuffer(data, dataSize, usage);
+			m_engineBoundID = s_renderDevice->CreateUniformBuffer(data, dataSize, usage);
 			m_isConstructed = true;
 		}
 
 		void Bind(uint32 point)
 		{
-			m_renderDevice->BindUniformBuffer(m_engineBoundID, point);
+			s_renderDevice->BindUniformBuffer(m_engineBoundID, point);
 		}
 
-		void Update(const void* data, uintptr offset, uintptr dataSize) { m_renderDevice->UpdateUniformBuffer(m_engineBoundID, data, offset, dataSize); }
-		void Update(const void* data,  uintptr dataSize) { m_renderDevice->UpdateUniformBuffer(m_engineBoundID, data, dataSize); }
+		void Update(const void* data, uintptr offset, uintptr dataSize) { s_renderDevice->UpdateUniformBuffer(m_engineBoundID, data, offset, dataSize); }
+		void Update(const void* data,  uintptr dataSize) { s_renderDevice->UpdateUniformBuffer(m_engineBoundID, data, dataSize); }
 
 		uint32 GetID() { return m_engineBoundID; }
 
 	private:
 
-		RenderDevice* m_renderDevice = nullptr;
+		RenderDevice* s_renderDevice = nullptr;
 		uint32 m_engineBoundID = 0;
 		uintptr m_bufferSize = 0;
 		bool m_isConstructed = false;

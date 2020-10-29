@@ -196,7 +196,7 @@ namespace LinaEditor
 					file.m_type = FileType::Material;
 					file.m_id = ++s_itemIDCounter;
 
-					Graphics::Material& m = LinaEngine::Application::GetRenderEngine().CreateMaterial(Graphics::Shaders::Standard_Unlit, file.m_path);
+					Graphics::Material& m = LinaEngine::Graphics::Material::CreateMaterial(Graphics::Shaders::Standard_Unlit, file.m_path);
 					Graphics::Material::SaveMaterialData(m, materialPath);
 
 					if (s_hoveredFolder != nullptr)
@@ -377,7 +377,7 @@ namespace LinaEditor
 				else if (it->second.m_type == FileType::Mesh)
 					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Mesh*>(LinaEngine::Action::ActionType::MeshSelected, &LinaEngine::Graphics::Mesh::GetMesh(it->second.m_path));
 				else if (it->second.m_type == FileType::Material)
-					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Material*>(LinaEngine::Action::ActionType::MaterialSelected, &LinaEngine::Application::GetRenderEngine().GetMaterial(it->second.m_path));
+					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Material*>(LinaEngine::Action::ActionType::MaterialSelected, &LinaEngine::Graphics::Material::GetMaterial(it->second.m_path));
 			}
 
 			if (nodeOpen)
@@ -441,9 +441,9 @@ namespace LinaEditor
 			}
 			if (file.m_type == FileType::Material)
 			{
-				bool materialExists = renderEngine.MaterialExists(file.m_path);
+				bool materialExists = LinaEngine::Graphics::Material::MaterialExists(file.m_path);
 				if (!materialExists)
-					renderEngine.LoadMaterialFromFile(file.m_path);
+					LinaEngine::Graphics::Material::LoadMaterialFromFile(file.m_path);
 
 			}
 			else if (file.m_type == FileType::Mesh)
@@ -486,7 +486,7 @@ namespace LinaEditor
 			}
 			if (file.m_type == FileType::Material)
 			{
-				LinaEngine::Graphics::Material& mat = renderEngine.GetMaterial(file.m_path);
+				LinaEngine::Graphics::Material& mat = LinaEngine::Graphics::Material::GetMaterial(file.m_path);
 				mat.PostLoadMaterialData(renderEngine);
 			}
 			else if (file.m_type == FileType::Mesh)
@@ -508,7 +508,7 @@ namespace LinaEditor
 		else if (file.m_type == FileType::Mesh)
 			LinaEngine::Graphics::Mesh::UnloadMeshResource(LinaEngine::Graphics::Mesh::GetMesh(file.m_path).GetID());
 		else if (file.m_type == FileType::Material)
-			renderEngine.UnloadMaterialResource(renderEngine.GetMaterial(file.m_path).GetID());
+			LinaEngine::Graphics::Material::UnloadMaterialResource(LinaEngine::Graphics::Material::GetMaterial(file.m_path).GetID());
 	}
 
 	void ResourcesPanel::UnloadFileResourcesInFolder(EditorFolder& folder)
@@ -580,7 +580,7 @@ namespace LinaEditor
 		{
 			if (file.second.m_type == FileType::Material)
 			{
-				LinaEngine::Graphics::Material& mat = LinaEngine::Application::GetRenderEngine().GetMaterial(file.second.m_path);
+				LinaEngine::Graphics::Material& mat = LinaEngine::Graphics::Material::GetMaterial(file.second.m_path);
 				for (auto sampler : mat.m_sampler2Ds)
 				{
 					if (sampler.second.m_boundTexture == textures.first)

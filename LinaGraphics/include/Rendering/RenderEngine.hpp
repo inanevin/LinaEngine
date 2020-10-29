@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -84,23 +84,16 @@ namespace LinaEngine::Graphics
 	public:
 
 		RenderEngine();
-
 		~RenderEngine();
 
 		// Setter for post scene draw callback.
-		void SetPostSceneDrawCallback(std::function<void()>& cb)
-		{
-			m_postSceneDrawCallback = cb;
-		}
-
-		Vector2 GetViewportSize()
-		{
-			return m_viewportSize;
-		}
-
+		void SetPostSceneDrawCallback(std::function<void()>& cb) { m_postSceneDrawCallback = cb; }
+		Vector2 GetViewportSize() { return m_viewportSize; }
 		ECS::CameraSystem* GetCameraSystem() { return &m_cameraSystem; }
 		Texture& GetHDRICubemap() { return m_hdriCubemap; }
-
+		static RenderDevice& GetRenderDevice() { return s_renderDevice; }
+		static Texture& GetDefaultTexture() { return s_defaultTexture; }
+		static Material& GetDefaultUnlitMaterial() { return s_defaultUnlit; }
 		void SetCurrentPLightCount(int count) { m_currentPointLightCount = count; }
 		void SetCurrentSLightCount(int count) { m_currentSpotLightCount = count; }
 		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn, Window& appWindow);
@@ -108,27 +101,13 @@ namespace LinaEngine::Graphics
 		void RenderLayers();
 		void Swap();
 
-		static RenderDevice& GetRenderDevice() { return m_renderDevice; }
-		static Texture& GetDefaultTexture() { return m_defaultTexture; }
-
 		// Sets the viewport offset & display size
 		void SetViewportDisplay(Vector2 offset, Vector2 size);
 
-		Material& CreateMaterial(Shaders shader, const std::string& path = "");
-		Material& LoadMaterialFromFile(const std::string& path = "");
-		void MaterialUpdated(Material& mat);
-		Material& GetMaterial(int id);
-		Material& GetMaterial(const std::string& path);
-		void UnloadMaterialResource(int id);
-		bool MaterialExists(int id);
-		bool MaterialExists(const std::string& path);
-
-		// Sets the shader of a material to the shader specified by name. Also resets material properties based on the shader, caution!
-		Material& SetMaterialShader(Material& material, Shaders shader);
-		void SetMaterialContainers(Material& material);
 		void SetSkyboxMaterial(Material& skyboxMaterial) { m_skyboxMaterial = &skyboxMaterial; }
 		void PushLayer(Layer& layer);
 		void PushOverlay(Layer& layer);
+		void MaterialUpdated(Material& mat);
 
 		// Updates shader uniforms with material data.
 		void UpdateShaderData(Material* mat);
@@ -148,7 +127,6 @@ namespace LinaEngine::Graphics
 		// Commands the render device to put the params in place.
 		void SetDrawParameters(const DrawParams& params);
 
-		std::map<int, Material>& GetLoadedMaterials()  { return m_loadedMaterials; }
 	private:
 
 		void ConstructEngineShaders();
@@ -173,7 +151,7 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		static RenderDevice m_renderDevice;
+		static RenderDevice s_renderDevice;
 		Window* m_appWindow;
 
 		RenderTarget m_primaryRenderTarget;
@@ -200,7 +178,7 @@ namespace LinaEngine::Graphics
 		Material m_hdriMaterial;
 		Material m_shadowMapMaterial;
 		Material m_defaultSkyboxMaterial;
-		Material m_defaultUnlit;
+		static Material s_defaultUnlit;
 
 		Texture m_primaryRTTexture0;
 		Texture m_primaryRTTexture1;
@@ -212,7 +190,7 @@ namespace LinaEngine::Graphics
 		Texture m_hdriPrefilterMap;
 		Texture m_HDRILutMap;
 		Texture m_shadowMapRTTexture;
-		static Texture m_defaultTexture;
+		static Texture s_defaultTexture;
 		Texture m_defaultCubemapTexture;
 
 		DrawParams m_defaultDrawParams;
@@ -235,10 +213,6 @@ namespace LinaEngine::Graphics
 		LinaEngine::ECS::SpriteRendererSystem m_spriteRendererSystem;
 		LinaEngine::ECS::LightingSystem m_lightingSystem;
 		LinaEngine::ECS::ECSSystemList m_renderingPipeline;
-
-		std::map<int, Material> m_loadedMaterials;
-		std::set<Material*> m_shadowMappedMaterials;
-		std::set<Material*> m_hdriMaterials;
 
 	private:
 
