@@ -112,7 +112,7 @@ namespace LinaEditor
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
 			ImVec2 work_area_pos = viewport->GetWorkPos();
-			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;;
+			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 			ImGui::SetNextWindowBgAlpha(1.0f);
 
 			if (ImGui::Begin(ECS_ID, &m_show, flags))
@@ -160,7 +160,7 @@ namespace LinaEditor
 						EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
 						m_selectedEntity = entt::null;
 					}
-					WidgetsUtility::IncrementCursorPosY(2);
+					//WidgetsUtility::IncrementCursorPosY(2);
 
 					entityCounter++;
 				}
@@ -190,10 +190,8 @@ namespace LinaEditor
 			{
 				if (ImGui::IsKeyDown(LinaEngine::Input::InputCode::Key::LCTRL) && ImGui::IsKeyReleased(LinaEngine::Input::InputCode::D))
 				{
-					ECSEntityData& data = ecs.get<ECSEntityData>(m_selectedEntity);
 					m_selectedEntity = ecs.CreateEntity(m_selectedEntity);
 					EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, m_selectedEntity);
-
 				}
 			}
 			ImGui::End();

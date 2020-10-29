@@ -60,7 +60,7 @@ namespace LinaEngine::ECS
 	void ECSRegistry::AddChildToEntity(ECSEntity parent, ECSEntity child)
 	{
 		if (parent == child) return;
-		
+
 		ECSEntityData& childData = get<ECSEntityData>(child);
 		ECSEntityData& parentData = get<ECSEntityData>(parent);
 
@@ -126,7 +126,7 @@ namespace LinaEngine::ECS
 		return ent;
 	}
 
-	ECSEntity ECSRegistry::CreateEntity(ECSEntity source)
+	ECSEntity ECSRegistry::CreateEntity(ECSEntity source, bool attachParent)
 	{
 		ECSEntityData sourceData = get<ECSEntityData>(source);
 
@@ -135,20 +135,26 @@ namespace LinaEngine::ECS
 
 		// Copy entity components to newly created one
 		CloneEntity(source, copy);
+		LINA_CORE_TRACE("{0}", entt::registry::size<ECSEntityData>());
 
-		ECSEntityData& copyData = get<ECSEntityData>(copy);
-		copyData.m_name += "-Copy";
-		copyData.m_parent = entt::null;
-		copyData.m_children.clear();
+		//ECSEntityData& copyData = get<ECSEntityData>(copy);
+		get<ECSEntityData>(copy).m_parent = entt::null;
+		get<ECSEntityData>(copy).m_children.clear();
 		Refresh();
 
-	//for (ECSEntity child : sourceData.m_children)
-	//{
-	//	ECSEntity copyChild = CreateEntity(child);
-	//	ECSEntityData& copyChildData = get<ECSEntityData>(copyChild);
-	//	copyChildData.m_parent = copy;
-	//	copyData.m_children.emplace(copyChild);
-	//}
+
+		for (ECSEntity child : sourceData.m_children)
+		{
+			ECSEntity copyChild = CreateEntity(child, false);
+			ECSEntityData& copyChildData = get<ECSEntityData>(copyChild);
+			copyChildData.m_parent = copy;
+			get<ECSEntityData>(copy).m_children.emplace(copyChild);
+		}
+
+		if (attachParent && sourceData.m_parent != entt::null)
+			AddChildToEntity(sourceData.m_parent, copy);
+
+		Refresh();
 
 		return copy;
 
