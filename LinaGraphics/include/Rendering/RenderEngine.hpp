@@ -171,7 +171,6 @@ namespace LinaEngine::Graphics
 		void ConstructEngineMaterials();
 		void ConstructEnginePrimitives();
 		void ConstructRenderTargets();
-		void SetupDrawParameters();
 		void DumpMemory();
 		void DrawShadows();
 		void Draw();

@@ -44,7 +44,9 @@ set (LINAGRAPHICS_SOURCES
 # Set headers
 #--------------------------------------------------------------------
 set(LINAGRAPHICS_HEADERS
-
+	#Helpers
+	include/Helpers/DrawParameterHelper.hpp
+	
 	#Rendering
 	include/Rendering/ArrayBitmap.hpp
 	include/Rendering/RenderEngine.hpp

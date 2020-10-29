@@ -38,7 +38,7 @@ SOFTWARE.
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "PackageManager/OpenGL/GLRenderDevice.hpp"
-
+#include "Helpers/DrawParameterHelper.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -96,7 +96,11 @@ namespace LinaEngine::Graphics
 		ArrayBitmap::SetImageFlip(true);
 
 		// Setup draw parameters.
-		SetupDrawParameters();
+		m_defaultDrawParams= DrawParameterHelper::GetDefault();
+		m_skyboxDrawParams = DrawParameterHelper::GetSkybox();
+		m_fullscreenQuadDP = DrawParameterHelper::GetFullScreenQuad();
+		m_shadowMapDrawParams = DrawParameterHelper::GetShadowMap();
+
 
 		// Initialize the render device.
 		m_renderDevice.Initialize(m_appWindow->GetWidth(), m_appWindow->GetHeight(), m_defaultDrawParams);
@@ -845,98 +849,6 @@ namespace LinaEngine::Graphics
 		// Initialize depth map for shadows
 		m_shadowMapTarget.Construct(m_renderDevice, m_shadowMapRTTexture, m_shadowMapResolution, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
 
-	}
-
-	void RenderEngine::SetupDrawParameters()
-	{
-		// Set default drawing parameters.
-		m_defaultDrawParams.useScissorTest = false;
-		m_defaultDrawParams.useDepthTest = true;
-		m_defaultDrawParams.useStencilTest = true;
-		m_defaultDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_defaultDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
-		m_defaultDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
-		m_defaultDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
-		m_defaultDrawParams.shouldWriteDepth = true;
-		m_defaultDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
-		m_defaultDrawParams.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
-		m_defaultDrawParams.stencilComparisonVal = 1;
-		m_defaultDrawParams.stencilTestMask = 0xFF;
-		m_defaultDrawParams.stencilWriteMask = 0x00;
-		m_defaultDrawParams.stencilFail = StencilOp::STENCIL_KEEP;
-		m_defaultDrawParams.stencilPass = StencilOp::STENCIL_REPLACE;
-		m_defaultDrawParams.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
-		m_defaultDrawParams.scissorStartX = 0;
-		m_defaultDrawParams.scissorStartY = 0;
-		m_defaultDrawParams.scissorWidth = 0;
-		m_defaultDrawParams.scissorHeight = 0;
-
-
-		// Set render to fbo target draw parameters.	
-		m_fullscreenQuadDP.useScissorTest = false;
-		m_fullscreenQuadDP.useDepthTest = false;
-		m_fullscreenQuadDP.useStencilTest = true;
-		m_fullscreenQuadDP.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_fullscreenQuadDP.faceCulling = FaceCulling::FACE_CULL_NONE;
-		m_fullscreenQuadDP.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
-		m_fullscreenQuadDP.destBlend = BlendFunc::BLEND_FUNC_NONE;
-		m_fullscreenQuadDP.shouldWriteDepth = true;
-		m_fullscreenQuadDP.depthFunc = DrawFunc::DRAW_FUNC_LESS;
-		m_fullscreenQuadDP.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
-		m_fullscreenQuadDP.stencilComparisonVal = 1;
-		m_fullscreenQuadDP.stencilTestMask = 0xFF;
-		m_fullscreenQuadDP.stencilWriteMask = 0xFF;
-		m_fullscreenQuadDP.stencilFail = StencilOp::STENCIL_KEEP;
-		m_fullscreenQuadDP.stencilPass = StencilOp::STENCIL_REPLACE;
-		m_fullscreenQuadDP.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
-		m_fullscreenQuadDP.scissorStartX = 0;
-		m_fullscreenQuadDP.scissorStartY = 0;
-		m_fullscreenQuadDP.scissorWidth = 0;
-		m_fullscreenQuadDP.scissorHeight = 0;
-
-		// Set skybox draw params.	
-		m_skyboxDrawParams.useScissorTest = false;
-		m_skyboxDrawParams.useDepthTest = true;
-		m_skyboxDrawParams.useStencilTest = true;
-		m_skyboxDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_skyboxDrawParams.faceCulling = FaceCulling::FACE_CULL_BACK;
-		m_skyboxDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
-		m_skyboxDrawParams.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
-		m_skyboxDrawParams.shouldWriteDepth = true;
-		m_skyboxDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
-		m_skyboxDrawParams.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
-		m_skyboxDrawParams.stencilComparisonVal = 0;
-		m_skyboxDrawParams.stencilTestMask = 0xFF;
-		m_skyboxDrawParams.stencilWriteMask = 0xFF;
-		m_skyboxDrawParams.stencilFail = StencilOp::STENCIL_KEEP;
-		m_skyboxDrawParams.stencilPass = StencilOp::STENCIL_REPLACE;
-		m_skyboxDrawParams.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
-		m_skyboxDrawParams.scissorStartX = 0;
-		m_skyboxDrawParams.scissorStartY = 0;
-		m_skyboxDrawParams.scissorWidth = 0;
-		m_skyboxDrawParams.scissorHeight = 0;
-
-		// Set depth map drawing parameters.
-		m_shadowMapDrawParams.useScissorTest = false;
-		m_shadowMapDrawParams.useDepthTest = true;
-		m_shadowMapDrawParams.useStencilTest = false;
-		m_shadowMapDrawParams.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_shadowMapDrawParams.faceCulling = FaceCulling::FACE_CULL_NONE;
-		m_shadowMapDrawParams.sourceBlend = BlendFunc::BLEND_FUNC_NONE;
-		m_shadowMapDrawParams.destBlend = BlendFunc::BLEND_FUNC_NONE;
-		m_shadowMapDrawParams.shouldWriteDepth = true;
-		m_shadowMapDrawParams.depthFunc = DrawFunc::DRAW_FUNC_LESS;
-		m_shadowMapDrawParams.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
-		m_shadowMapDrawParams.stencilComparisonVal = 1;
-		m_shadowMapDrawParams.stencilTestMask = 0xFF;
-		m_shadowMapDrawParams.stencilWriteMask = 0xFF;
-		m_shadowMapDrawParams.stencilFail = StencilOp::STENCIL_KEEP;
-		m_shadowMapDrawParams.stencilPass = StencilOp::STENCIL_REPLACE;
-		m_shadowMapDrawParams.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
-		m_shadowMapDrawParams.scissorStartX = 0;
-		m_shadowMapDrawParams.scissorStartY = 0;
-		m_shadowMapDrawParams.scissorWidth = 0;
-		m_shadowMapDrawParams.scissorHeight = 0;
 	}
 
 	void RenderEngine::DumpMemory()

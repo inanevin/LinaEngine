@@ -50,10 +50,11 @@ namespace LinaEngine::World
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(dummy);
+			archive(m_skyboxMaterialID, m_skyboxMaterialPath);
 		}
 
-		int dummy;
+		std::string m_skyboxMaterialPath = "";
+		int m_skyboxMaterialID = -1;
 
 	};
 
@@ -64,8 +65,6 @@ namespace LinaEngine::World
 		Level() { };
 		virtual ~Level() {  };
 
-		virtual void OnLevelLoaded() {};
-		virtual void OnLevelRemoved() {};
 		virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName);
 		virtual void Uninstall() {};
 		virtual void Initialize() {};

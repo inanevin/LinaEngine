@@ -29,6 +29,7 @@ SOFTWARE.
 #include "World/Level.hpp"
 #include "ECS/ECS.hpp"
 #include "Core/Application.hpp"
+#include "Rendering/RenderEngine.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
@@ -49,6 +50,12 @@ namespace LinaEngine::World
 		if (loadFromFile)
 			DeserializeLevelData(path, levelName);
 
+		// LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+		// 
+		// if (renderEngine.MaterialExists(m_levelData.m_skyboxMaterialPath))
+		// {
+		// 	renderEngine.SetSkyboxMaterial(renderEngine.GetMaterial(m_levelData.m_skyboxMaterialPath));
+		// }
 		return true;
 	}
 
