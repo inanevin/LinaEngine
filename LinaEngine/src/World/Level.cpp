@@ -50,13 +50,18 @@ namespace LinaEngine::World
 		if (loadFromFile)
 			DeserializeLevelData(path, levelName);
 
-		// LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
-		// 
-		// if (renderEngine.MaterialExists(m_levelData.m_skyboxMaterialPath))
-		// {
-		// 	renderEngine.SetSkyboxMaterial(renderEngine.GetMaterial(m_levelData.m_skyboxMaterialPath));
-		// }
+		SetSkyboxMaterial();
 		return true;
+	}
+
+	void Level::SetSkyboxMaterial()
+	{
+		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+
+		if (Graphics::Material::MaterialExists(m_levelData.m_skyboxMaterialPath))
+		{
+			renderEngine.SetSkyboxMaterial(Graphics::Material::GetMaterial(m_levelData.m_skyboxMaterialPath));
+		}
 	}
 
 	void Level::SerializeLevelData(const std::string& path, const std::string& levelName)

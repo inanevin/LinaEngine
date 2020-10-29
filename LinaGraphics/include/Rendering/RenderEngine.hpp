@@ -85,8 +85,27 @@ namespace LinaEngine::Graphics
 
 		RenderEngine();
 		~RenderEngine();
+		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn, Window& appWindow);
+		void Render();
+		void RenderLayers();
+		void Swap();
+		void SetViewportDisplay(Vector2 offset, Vector2 size);
+		void SetSkyboxMaterial(Material& skyboxMaterial) { m_skyboxMaterial = &skyboxMaterial; }
+		void PushLayer(Layer& layer);
+		void PushOverlay(Layer& layer);
+		void MaterialUpdated(Material& mat);
+		void UpdateShaderData(Material* mat);
+		void SetDrawParameters(const DrawParams& params);
+		void* GetFinalImage();
+		void* GetShadowMapImage();
 
-		// Setter for post scene draw callback.
+		// Initializes the setup process for loading an HDRI image to the scene
+		void CaptureCalculateHDRI(Texture& hdriTexture);
+		void SetHDRIData(Material* mat);
+		void RemoveHDRIData(Material* mat);
+		void DrawLine(Vector3 p1, Vector3 p2, Color col, float width = 1.0f);
+
+		Texture& GetFinalImageTexture() { return m_primaryRTTexture0; }
 		void SetPostSceneDrawCallback(std::function<void()>& cb) { m_postSceneDrawCallback = cb; }
 		Vector2 GetViewportSize() { return m_viewportSize; }
 		ECS::CameraSystem* GetCameraSystem() { return &m_cameraSystem; }
@@ -96,36 +115,6 @@ namespace LinaEngine::Graphics
 		static Material& GetDefaultUnlitMaterial() { return s_defaultUnlit; }
 		void SetCurrentPLightCount(int count) { m_currentPointLightCount = count; }
 		void SetCurrentSLightCount(int count) { m_currentSpotLightCount = count; }
-		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn, Window& appWindow);
-		void Render();
-		void RenderLayers();
-		void Swap();
-
-		// Sets the viewport offset & display size
-		void SetViewportDisplay(Vector2 offset, Vector2 size);
-
-		void SetSkyboxMaterial(Material& skyboxMaterial) { m_skyboxMaterial = &skyboxMaterial; }
-		void PushLayer(Layer& layer);
-		void PushOverlay(Layer& layer);
-		void MaterialUpdated(Material& mat);
-
-		// Updates shader uniforms with material data.
-		void UpdateShaderData(Material* mat);
-
-		// Returns the final render texture.
-		void* GetFinalImage();
-
-		// Returns the directional shadow map texture
-		void* GetShadowMapImage();
-
-		// Initializes the setup process for loading an HDRI image to the scene
-		void CaptureCalculateHDRI(Texture& hdriTexture);
-		void SetHDRIData(Material* mat);
-		void RemoveHDRIData(Material* mat);
-		void DrawLine(Vector3 p1, Vector3 p2, Color col, float width = 1.0f);
-
-		// Commands the render device to put the params in place.
-		void SetDrawParameters(const DrawParams& params);
 
 	private:
 
