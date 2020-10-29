@@ -85,11 +85,11 @@ namespace LinaEngine::Graphics
 			params.useScissorTest = false;
 			params.useDepthTest = true;
 			params.useStencilTest = true;
-			params.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLES;
-			params.faceCulling = FaceCulling::FACE_CULL_BACK;
+			params.primitiveType = PrimitiveType::PRIMITIVE_TRIANGLE_STRIP;
+			params.faceCulling = FaceCulling::FACE_CULL_NONE;
 			params.sourceBlend = BlendFunc::BLEND_FUNC_SRC_ALPHA;
 			params.destBlend = BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
-			params.shouldWriteDepth = true;
+			params.shouldWriteDepth = false;
 			params.depthFunc = DrawFunc::DRAW_FUNC_LEQUAL;
 			params.stencilFunc = DrawFunc::DRAW_FUNC_ALWAYS;
 			params.stencilComparisonVal = 0;

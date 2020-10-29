@@ -23,11 +23,16 @@ out vec3 fsun;
 out vec3 pos;
 uniform float time = 0.0;
 
+const vec2 data[4] = vec2[](
+    vec2(-1.0,  1.0), vec2(-1.0, -1.0),
+    vec2( 1.0,  1.0), vec2( 1.0, -1.0));
+	
 void main()
 {
 	mat4 rotView = mat4(mat3(view));
     vec4 clipPos = projection * rotView * vec4(position, 1.0);
-    gl_Position = clipPos.xyww;
+    // gl_Position = clipPos.xyww;
+	gl_Position = vec4(data[gl_VertexID], 0.0, 1.0);
 	pos = transpose(mat3(view)) * (inverse(projection) * gl_Position).xyz;
     fsun = vec3(0.0, sin(time * 0.01), cos(time * 0.01));
 }
@@ -106,8 +111,8 @@ void main()
 	fragColor.rgb += noise(pos * 1000) * 0.01;
 	
 	// HDR tonemap and gamma correct
-	fragColor.xyz = fragColor.xyz / (fragColor.xyz + vec3(1.0));
-	fragColor.xyz = pow(fragColor.xyz, vec3(1.0/2.2));
+	//fragColor.xyz = fragColor.xyz / (fragColor.xyz + vec3(1.0));
+	//fragColor.xyz = pow(fragColor.xyz, vec3(1.0/2.2));
 }
   
 #endif

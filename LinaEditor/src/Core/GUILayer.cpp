@@ -246,6 +246,7 @@ namespace LinaEditor
 		m_logPanel.Draw();
 		m_profilerPanel.Draw();
 		m_propertiesPanel.Draw();
+		m_levelSettingsPanel.Draw();
 
 		if (s_showIMGUIDemo)
 			ImGui::ShowDemoWindow(&s_showIMGUIDemo);

@@ -30,7 +30,7 @@ SOFTWARE.
 
 namespace LinaEngine::Graphics
 {
-	char* g_shadersStr[17]
+	char* g_shadersStr[18]
 	{
 		"Standard Unlit",
 		"Skybox Single Color",
@@ -48,7 +48,8 @@ namespace LinaEngine::Graphics
 		"Screen Quad Outline",
 		"Screen Quad Shadowmap",
 		"Debug Line",
-		"Sprite"
+		"Sprite",
+		"Skybox Atmospheric"
 	};
 
 	char* g_materialSurfaceTypeStr[2]

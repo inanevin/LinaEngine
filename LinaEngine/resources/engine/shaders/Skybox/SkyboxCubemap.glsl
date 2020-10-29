@@ -17,22 +17,24 @@
 
 #if defined(VS_BUILD)
 #include <../UniformBuffers.glh>
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec2 texCoords;
-out vec3 TexCoords;
+#include <SkyboxCommon.glh>
+out vec3 WorldPos;
 
+	
 void main()
 {
-  mat4 rotView = mat4(mat3(view));
-  vec4 clipPos = projection * rotView * vec4(position, 1.0);
-  gl_Position = clipPos.xyww;
-  TexCoords = position;
+	mat4 inverseProjection = inverse(projection);
+    mat3 inverseModelview = transpose(mat3(view));
+    vec3 unprojected = (inverseProjection * vec4(data[gl_VertexID], 0.0, 1.0)).xyz;
+    vec3 eyeDirection = inverseModelview * unprojected;
+    gl_Position = vec4(data[gl_VertexID], 0.0, 1.0);
+    WorldPos = eyeDirection;
 }
 
 #elif defined(FS_BUILD)
 #include <../MaterialSamplers.glh>
 out vec4 fragColor;
-in vec3 TexCoords;
+in vec3 WorldPos;
 struct Material
 {
   MaterialSamplerCube environmentMap;
@@ -41,6 +43,6 @@ uniform Material material;
 
 void main()
 {
-   fragColor = material.environmentMap.isActive ? texture(material.environmentMap.texture, TexCoords) : vec4(1.0);
+   fragColor = material.environmentMap.isActive ? texture(material.environmentMap.texture, WorldPos) : vec4(1.0);
 }
 #endif

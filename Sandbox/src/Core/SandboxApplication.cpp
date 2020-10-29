@@ -47,11 +47,10 @@ class SandboxApplication : public LinaEngine::Application
 #ifdef LINA_EDITOR
 		m_editor.Setup();
 #endif
-		InstallLevel(m_startupLevel);
+		InstallLevel(m_startupLevel, true, "resources/sandbox/levels/", "Example1Level");
 		InitializeLevel(m_startupLevel);
 
 #ifdef LINA_EDITOR
-
 		// Refresh after level init.
 		m_editor.Refresh();
 #endif

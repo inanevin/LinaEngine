@@ -48,9 +48,17 @@ namespace LinaEngine::World
 	bool Level::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
 	{
 		if (loadFromFile)
-			DeserializeLevelData(path, levelName);
+		{
+			if (LinaEngine::Utility::FileExists(path + levelName + ".linaleveldata"))
+			{
+				DeserializeLevelData("resources/sandbox/levels/", "Example1Level");
+			}
+		}
 
 		SetSkyboxMaterial();
+
+
+
 		return true;
 	}
 

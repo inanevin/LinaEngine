@@ -253,7 +253,7 @@ namespace LinaEngine::Graphics
 		Skybox_Atmospheric = 17
 	};
 
-	extern char* g_shadersStr[17];
+	extern char* g_shadersStr[18];
 
 
 	struct RenderingDebugData

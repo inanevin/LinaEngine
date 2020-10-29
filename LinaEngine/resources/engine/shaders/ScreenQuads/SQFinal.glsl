@@ -49,7 +49,6 @@ uniform Material material;
 
 void main()
 {
-
   if(material.screenMap.isActive)
   {
     const float gamma = 2.2;
@@ -103,12 +102,11 @@ void main()
     if(material.outlineMap.isActive)
       hdrColor += texture(material.outlineMap.texture, TexCoords).rgb;
 
-
     // tone mapping
-    //vec3 result = vec3(1.0) - exp(-hdrColor * material.exposure);
+    vec3 result = vec3(1.0) - exp(-hdrColor * material.exposure);
     // also gamma correct while we're at it
-    //result = pow(result, vec3(1.0 / gamma));
-    fragColor = vec4(hdrColor, 1.0);
+    result = pow(result, vec3(1.0 / gamma));
+    fragColor = vec4(result, 1.0);
   }
   else
     fragColor = vec4(1.0,0.0,0.0,1.0);

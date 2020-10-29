@@ -38,8 +38,8 @@ SOFTWARE.
 
 namespace LinaEditor
 {
-#define CURSORPOS_X_LABELS 30
-#define CURSORPOS_XPERC_VALUES 0.52f
+#define CURSORPOS_X_LABELS 12
+#define CURSORPOS_XPERC_VALUES 0.20f
 
 	void LevelSettingsPanel::Setup()
 	{
@@ -63,6 +63,11 @@ namespace LinaEditor
 
 			ImGui::Begin(LEVELSETTINGS_ID, &m_show, flags);
 
+			// Shadow.
+			WidgetsUtility::DrawShadowedLine(5);
+
+			WidgetsUtility::FramePaddingY(0);
+
 			if (m_currentLevel != nullptr)
 			{
 				LinaEngine::World::LevelData& levelData = m_currentLevel->GetLevelData();
@@ -77,34 +82,47 @@ namespace LinaEditor
 				char matPathC[128] = "";
 				strcpy(matPathC, levelData.m_selectedSkyboxMatPath.c_str());
 
+				WidgetsUtility::IncrementCursorPosY(11);
 				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::AlignedText("Material");
+				WidgetsUtility::AlignedText("Skybox Material");
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
 				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
-				ImGui::InputText("##selectedMat", matPathC, IM_ARRAYSIZE(matPathC), ImGuiInputTextFlags_ReadOnly);
+				ImGui::InputText("##selectedSkyboxMat", matPathC, IM_ARRAYSIZE(matPathC), ImGuiInputTextFlags_ReadOnly);
 				ImGui::SameLine();
 				WidgetsUtility::IncrementCursorPosY(5);
 
-				if (WidgetsUtility::IconButton("##selectmat", ICON_FA_PLUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-					ImGui::OpenPopup("Select Material");
+				if (WidgetsUtility::IconButton("##selectSkyboxMat", ICON_FA_PLUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
+					ImGui::OpenPopup("Select Skybox Material");
 
 				bool materialPopupOpen = true;
 				WidgetsUtility::FramePaddingY(8);
 				WidgetsUtility::FramePaddingX(4);
 				ImGui::SetNextWindowSize(ImVec2(280, 400));
 				ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
-				if (ImGui::BeginPopupModal("Select Material", &materialPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+
+				static bool checkPopup = false;
+				if (ImGui::BeginPopupModal("Select Skybox Material", &materialPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 				{
 					SelectMaterialModal::Draw(LinaEngine::Graphics::Material::GetLoadedMaterials(), &levelData.m_selectedSkyboxMatID, levelData.m_selectedSkyboxMatPath);
+					checkPopup = true;
 					ImGui::EndPopup();
 				}
-				WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
 
 				levelData.m_skyboxMaterialID = levelData.m_selectedSkyboxMatID;
 				levelData.m_skyboxMaterialPath = levelData.m_selectedSkyboxMatPath;
+
+				if (checkPopup && !ImGui::IsPopupOpen("Select Skybox Material"))
+				{
+					checkPopup = false;
+					m_currentLevel->SetSkyboxMaterial();
+				}
+
+				WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
 			}
 
+
+			WidgetsUtility::PopStyleVar();
 			ImGui::End();
 
 		}

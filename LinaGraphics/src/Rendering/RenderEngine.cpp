@@ -95,7 +95,7 @@ namespace LinaEngine::Graphics
 		ArrayBitmap::SetImageFlip(true);
 
 		// Setup draw parameters.
-		m_defaultDrawParams= DrawParameterHelper::GetDefault();
+		m_defaultDrawParams = DrawParameterHelper::GetDefault();
 		m_skyboxDrawParams = DrawParameterHelper::GetSkybox();
 		m_fullscreenQuadDP = DrawParameterHelper::GetFullScreenQuad();
 		m_shadowMapDrawParams = DrawParameterHelper::GetShadowMap();
@@ -173,11 +173,13 @@ namespace LinaEngine::Graphics
 		}
 
 		//DrawOperationsDefault();
-
 	}
 
 	void RenderEngine::RenderLayers()
 	{
+		s_renderDevice.SetFBO(0);
+		s_renderDevice.SetViewport(m_viewportPos, m_viewportSize);
+
 		// Draw GUI Layers
 		for (Layer* layer : m_guiLayerStack)
 			layer->Render();
@@ -469,12 +471,14 @@ namespace LinaEngine::Graphics
 			}
 		}
 
+#ifndef LINA_EDITOR
 		// Back to default buffer
 		s_renderDevice.SetFBO(0);
 		s_renderDevice.SetViewport(m_viewportPos, m_viewportSize);
 
 		// Clear color bit.
 		s_renderDevice.Clear(true, true, false, Color::White, 0xFF);
+#endif
 
 		// Set frame buffer texture on the material.
 		m_screenQuadFinalMaterial.SetTexture(MAT_MAP_SCREEN, &m_primaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D);
@@ -528,24 +532,24 @@ namespace LinaEngine::Graphics
 		if (m_skyboxMaterial != nullptr)
 		{
 			UpdateShaderData(m_skyboxMaterial);
-			s_renderDevice.Draw(m_skyboxVAO, m_skyboxDrawParams, 1, 36, true);
+			s_renderDevice.Draw(m_skyboxVAO, m_skyboxDrawParams, 1, 4, true);
 		}
 		else
 		{
 			UpdateShaderData(&m_defaultSkyboxMaterial);
-			s_renderDevice.Draw(m_skyboxVAO, m_skyboxDrawParams, 1, 36, true);
+			s_renderDevice.Draw(m_skyboxVAO, m_skyboxDrawParams, 1, 4, true);
 		}
 	}
 
 	void RenderEngine::DrawSceneObjects(DrawParams& drawParams, Material* overrideMaterial, bool drawSkybox)
 	{
-		m_meshRendererSystem.FlushOpaque(drawParams, overrideMaterial, true);
-		m_meshRendererSystem.FlushTransparent(drawParams, overrideMaterial, true);
-		m_spriteRendererSystem.Flush(drawParams, overrideMaterial, true);
-
 		// Draw skybox.
 		if (drawSkybox)
 			DrawSkybox();
+
+		m_meshRendererSystem.FlushOpaque(drawParams, overrideMaterial, true);
+		m_meshRendererSystem.FlushTransparent(drawParams, overrideMaterial, true);
+		m_spriteRendererSystem.Flush(drawParams, overrideMaterial, true);
 
 		// Post scene draw callback.
 		if (m_postSceneDrawCallback)

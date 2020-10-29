@@ -48,6 +48,8 @@ bool Example1Level::Install(bool loadFromFile, const std::string& path, const st
 {
 	LINA_CLIENT_WARN("Example level 1 install.");
 
+	Level::Install(loadFromFile, path, levelName);
+
 	SamplerParameters pbrSampler;
 	pbrSampler.m_textureParams.m_minFilter = SamplerFilter::FILTER_LINEAR_MIPMAP_LINEAR;
 	pbrSampler.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
@@ -56,11 +58,6 @@ bool Example1Level::Install(bool loadFromFile, const std::string& path, const st
 	pbrSampler.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGBA;
 	pbrSampler.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGB;
 	pbrSampler.m_textureParams.m_generateMipMaps = true;
-
-	if (LinaEngine::Utility::FileExists("resources/sandbox/levels/Example1Level.linaleveldata"))
-	{
-		DeserializeLevelData("resources/sandbox/levels/", "Example1Level");
-	}
 
 	return true;
 }
@@ -113,9 +110,7 @@ void Example1Level::Initialize()
 	LINA_CLIENT_WARN("Example level 1 initialize.");
 	// Create a simple procedural skybox.
 	LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
-
 	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
-
 }
 
 void Example1Level::Tick(float delta)
