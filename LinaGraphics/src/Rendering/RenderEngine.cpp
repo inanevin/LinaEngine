@@ -42,6 +42,7 @@ SOFTWARE.
 
 namespace LinaEngine::Graphics
 {
+	RenderDevice RenderEngine::m_renderDevice;
 
 	constexpr size_t UNIFORMBUFFER_VIEWDATA_SIZE = (sizeof(Matrix) * 3) + (sizeof(Vector4)) + (sizeof(float) * 2);
 	constexpr int UNIFORMBUFFER_VIEWDATA_BINDPOINT = 0;
@@ -316,39 +317,6 @@ namespace LinaEngine::Graphics
 		return *m_loadedTextures[texture->GetID()];
 	}
 
-	Mesh& RenderEngine::CreateMesh(const std::string& filePath, MeshParameters meshParams, int id, const std::string& paramsPath)
-	{
-		// Internal meshes are created with non-negative ids, user loaded ones should have default id of -1.
-		if (id == -1) id = Utility::GetUniqueID();
-
-		Mesh& mesh = m_loadedMeshes[id];
-		mesh.SetParameters(meshParams);
-		ModelLoader::LoadModel(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs(), meshParams);
-
-		if (mesh.GetIndexedModels().size() == 0)
-		{
-			LINA_CORE_WARN("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad...", filePath);
-			UnloadMeshResource(id);
-			return GetPrimitive(Primitives::Plane);
-		}
-
-		// Create vertex array for each mesh.
-		for (uint32 i = 0; i < mesh.GetIndexedModels().size(); i++)
-		{
-			VertexArray* vertexArray = new VertexArray();
-			vertexArray->Construct(m_renderDevice, mesh.GetIndexedModels()[i], BufferUsage::USAGE_STATIC_COPY);
-			mesh.GetVertexArrays().push_back(vertexArray);
-		}
-
-		// Set id
-		mesh.m_meshID = id;
-		mesh.m_path = filePath;
-		mesh.m_paramsPath = paramsPath;
-
-		LINA_CORE_TRACE("Mesh created. {0}", filePath);
-		return m_loadedMeshes[id];
-	}
-
 	Shader& RenderEngine::CreateShader(Shaders shader, const std::string& path, bool usesGeometryShader)
 	{
 		// Create shader
@@ -420,32 +388,6 @@ namespace LinaEngine::Graphics
 		return *it->second;
 	}
 
-	Mesh& RenderEngine::GetMesh(int id)
-	{
-		if (!MeshExists(id))
-		{
-			// Mesh not found.
-			LINA_CORE_WARN("Mesh with the id {0} was not found, returning un-constructed mesh...", id);
-			return Mesh();
-		}
-
-		return m_loadedMeshes[id];
-	}
-
-	Mesh& RenderEngine::GetMesh(const std::string& path)
-	{
-		const auto it = std::find_if(m_loadedMeshes.begin(), m_loadedMeshes.end(), [path]
-		(const auto& item) -> bool { return item.second.GetPath().compare(path) == 0; });
-
-		if (it == m_loadedMeshes.end())
-		{
-			// Mesh not found.
-			LINA_CORE_WARN("Mesh with the path {0} was not found, returning un-constructed mesh...", path);
-			return Mesh();
-		}
-
-		return it->second;
-	}
 
 	Shader& RenderEngine::GetShader(Shaders shader)
 	{
@@ -459,21 +401,8 @@ namespace LinaEngine::Graphics
 		return m_loadedShaders[shader];
 	}
 
-	Mesh& RenderEngine::GetPrimitive(Primitives primitive)
-	{
-		if (!MeshExists(primitive))
-		{
-			// VA not found.
-			LINA_CORE_WARN("Primitive with the ID {0} was not found, returning plane...", primitive);
-			return GetPrimitive(Primitives::Plane);
-		}
-		else
-			return m_loadedMeshes[primitive];
-	}
-
 	Material& RenderEngine::SetMaterialShader(Material& material, Shaders shader)
 	{
-
 		// If no shader found, fall back to standardLit
 		if (m_loadedShaders.find(shader) == m_loadedShaders.end()) {
 			LINA_CORE_WARN("Shader with engine ID {0} was not found. Setting material's shader to standardUnlit.", shader);
@@ -621,17 +550,6 @@ namespace LinaEngine::Graphics
 		m_loadedTextures.erase(id);
 	}
 
-	void RenderEngine::UnloadMeshResource(int id)
-	{
-		if (!MeshExists(id))
-		{
-			LINA_CORE_WARN("Mesh not found! Aborting... ");
-			return;
-		}
-
-		m_loadedMeshes.erase(id);
-	}
-
 	void RenderEngine::UnloadMaterialResource(int id)
 	{
 		if (!MaterialExists(id))
@@ -671,19 +589,6 @@ namespace LinaEngine::Graphics
 		const auto it = std::find_if(m_loadedTextures.begin(), m_loadedTextures.end(), [path]
 		(const auto& it) -> bool { 	return it.second->GetPath().compare(path) == 0; 	});
 		return it != m_loadedTextures.end();
-	}
-
-	bool RenderEngine::MeshExists(int id)
-	{
-		if (id < 0) return false;
-		return !(m_loadedMeshes.find(id) == m_loadedMeshes.end());
-	}
-
-	bool RenderEngine::MeshExists(const std::string& path)
-	{
-		const auto it = std::find_if(m_loadedMeshes.begin(), m_loadedMeshes.end(), [path]
-		(const auto& it) -> bool { 	return it.second.GetPath().compare(path) == 0; 	});
-		return it != m_loadedMeshes.end();
 	}
 
 	bool RenderEngine::ShaderExists(Shaders shader)
@@ -772,12 +677,12 @@ namespace LinaEngine::Graphics
 	void RenderEngine::ConstructEnginePrimitives()
 	{
 		// Primitives
-		CreateMesh("resources/engine/meshes/primitives/cube.obj", MeshParameters(), Primitives::Cube);
-		CreateMesh("resources/engine/meshes/primitives/cylinder.obj", MeshParameters(), Primitives::Cylinder);
-		CreateMesh("resources/engine/meshes/primitives/plane.obj", MeshParameters(), Primitives::Plane);
-		CreateMesh("resources/engine/meshes/primitives/sphere.obj", MeshParameters(), Primitives::Sphere);
-		CreateMesh("resources/engine/meshes/primitives/icosphere.obj", MeshParameters(), Primitives::Icosphere);
-		CreateMesh("resources/engine/meshes/primitives/cone.obj", MeshParameters(), Primitives::Cone);
+		Mesh::CreateMesh("resources/engine/meshes/primitives/cube.obj", MeshParameters(), Primitives::Cube);
+		Mesh::CreateMesh("resources/engine/meshes/primitives/cylinder.obj", MeshParameters(), Primitives::Cylinder);
+		Mesh::CreateMesh("resources/engine/meshes/primitives/plane.obj", MeshParameters(), Primitives::Plane);
+		Mesh::CreateMesh("resources/engine/meshes/primitives/sphere.obj", MeshParameters(), Primitives::Sphere);
+		Mesh::CreateMesh("resources/engine/meshes/primitives/icosphere.obj", MeshParameters(), Primitives::Icosphere);
+		Mesh::CreateMesh("resources/engine/meshes/primitives/cone.obj", MeshParameters(), Primitives::Cone);
 	}
 
 	void RenderEngine::ConstructRenderTargets()
@@ -854,7 +759,7 @@ namespace LinaEngine::Graphics
 	void RenderEngine::DumpMemory()
 	{
 		// Clear dumps.
-		m_loadedMeshes.clear();
+		Mesh::UnloadAll();
 		m_loadedTextures.clear();
 		m_loadedMaterials.clear();
 	}

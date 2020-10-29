@@ -108,6 +108,8 @@ namespace LinaEngine::Graphics
 		void RenderLayers();
 		void Swap();
 
+		static RenderDevice& GetRenderDevice() { return m_renderDevice; }
+
 		// Sets the viewport offset & display size
 		void SetViewportDisplay(Vector2 offset, Vector2 size);
 
@@ -116,25 +118,18 @@ namespace LinaEngine::Graphics
 		void MaterialUpdated(Material& mat);
 		Texture& CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false, const std::string& paramsPath = "");
 		Texture& CreateTextureHDRI(const std::string filePath);
-		Mesh& CreateMesh (const std::string& filePath, MeshParameters meshParams = MeshParameters(), int id = -1, const std::string& paramsPath = "");
 		Shader& CreateShader(Shaders shader, const std::string& path, bool usesGeometryShader = false);
 		Material& GetMaterial(int id);
 		Material& GetMaterial(const std::string& path);
 		Texture& GetTexture(int id);
 		Texture& GetTexture(const std::string& path);
-		Mesh& GetMesh(int id);
-		Mesh& GetMesh(const std::string& path);
 		Shader& GetShader(Shaders shader);
-		Mesh& GetPrimitive(Primitives primitive);
 		void UnloadTextureResource(int id);
-		void UnloadMeshResource(int id);
 		void UnloadMaterialResource(int id);
 		bool MaterialExists(int id);
 		bool MaterialExists(const std::string& path);
 		bool TextureExists(int id);
 		bool TextureExists(const std::string& path);
-		bool MeshExists(int id);
-		bool MeshExists(const std::string& path);
 		bool ShaderExists(Shaders shader);
 
 		// Sets the shader of a material to the shader specified by name. Also resets material properties based on the shader, caution!
@@ -162,7 +157,6 @@ namespace LinaEngine::Graphics
 		// Commands the render device to put the params in place.
 		void SetDrawParameters(const DrawParams& params);
 
-		std::map<int, Mesh>& GetLoadedMeshes() { return m_loadedMeshes; }
 		std::map<int, Material>& GetLoadedMaterials()  { return m_loadedMaterials; }
 	private:
 
@@ -188,7 +182,7 @@ namespace LinaEngine::Graphics
 
 	private:
 
-		RenderDevice m_renderDevice;
+		static RenderDevice m_renderDevice;
 		Window* m_appWindow;
 
 		RenderTarget m_primaryRenderTarget;
@@ -252,7 +246,6 @@ namespace LinaEngine::Graphics
 		LinaEngine::ECS::ECSSystemList m_renderingPipeline;
 
 		std::map<int, Texture*> m_loadedTextures;
-		std::map<int, Mesh> m_loadedMeshes;
 		std::map<int, Material> m_loadedMaterials;
 		std::map<int, Shader> m_loadedShaders;
 		std::set<Material*> m_shadowMappedMaterials;

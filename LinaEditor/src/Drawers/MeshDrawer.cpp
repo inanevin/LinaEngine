@@ -75,11 +75,10 @@ namespace LinaEditor
 		if (ImGui::Button("Apply"))
 		{
 			int id = m_selectedMesh->GetID();
-			LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
 			std::string filePath = m_selectedMesh->GetPath();
 			std::string paramsPath = m_selectedMesh->GetParamsPath();
-			renderEngine.UnloadMeshResource(id);
-			m_selectedMesh = &renderEngine.CreateMesh(filePath, Graphics::MeshParameters(m_selectedParams), id);
+			LinaEngine::Graphics::Mesh::UnloadMeshResource(id);
+			m_selectedMesh = &LinaEngine::Graphics::Mesh::CreateMesh(filePath, Graphics::MeshParameters(m_selectedParams), id);
 			LINA_CORE_TRACE("File: {0} Params: {1}", filePath, paramsPath);
 			//LinaEngine::Graphics::Mesh::SaveParameters(paramsPath, m_selectedParams);
 

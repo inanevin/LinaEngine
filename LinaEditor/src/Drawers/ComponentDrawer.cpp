@@ -777,7 +777,7 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		float cursorPosLabels = CURSORPOS_X_LABELS;
 
 		// Mesh selection
-		if (renderEngine.MeshExists(renderer.m_meshID))
+		if (LinaEngine::Graphics::Mesh::MeshExists(renderer.m_meshID))
 		{
 			renderer.m_selectedMeshPath = renderer.m_meshPath;
 			renderer.m_selectedMeshID = renderer.m_meshID;
@@ -805,7 +805,7 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
 		if (ImGui::BeginPopupModal("Select Mesh", &meshPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 		{
-			SelectMeshModal::Draw(Application::GetRenderEngine().GetLoadedMeshes(), &renderer.m_selectedMeshID, renderer.m_selectedMeshPath);
+			SelectMeshModal::Draw(LinaEngine::Graphics::Mesh::GetLoadedMeshes(), &renderer.m_selectedMeshID, renderer.m_selectedMeshPath);
 			ImGui::EndPopup();
 		}
 		WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();

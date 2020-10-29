@@ -375,7 +375,7 @@ namespace LinaEditor
 				if (it->second.m_type == FileType::Texture2D)
 					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Texture*>(LinaEngine::Action::ActionType::TextureSelected, &LinaEngine::Application::GetRenderEngine().GetTexture(it->second.m_path));
 				else if (it->second.m_type == FileType::Mesh)
-					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Mesh*>(LinaEngine::Action::ActionType::MeshSelected, &LinaEngine::Application::GetRenderEngine().GetMesh(it->second.m_path));
+					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Mesh*>(LinaEngine::Action::ActionType::MeshSelected, &LinaEngine::Graphics::Mesh::GetMesh(it->second.m_path));
 				else if (it->second.m_type == FileType::Material)
 					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Material*>(LinaEngine::Action::ActionType::MaterialSelected, &LinaEngine::Application::GetRenderEngine().GetMaterial(it->second.m_path));
 			}
@@ -448,7 +448,7 @@ namespace LinaEditor
 			}
 			else if (file.m_type == FileType::Mesh)
 			{
-				bool meshExists = renderEngine.MeshExists(file.m_path);
+				bool meshExists = LinaEngine::Graphics::Mesh::MeshExists(file.m_path);
 
 				if (!meshExists)
 				{
@@ -458,7 +458,7 @@ namespace LinaEditor
 					if (LinaEngine::Utility::FileExists(meshParamsPath))
 						meshParams = LinaEngine::Graphics::Mesh::LoadParameters(meshParamsPath);
 
-					renderEngine.CreateMesh(file.m_path, meshParams, -1, meshParamsPath);
+					LinaEngine::Graphics::Mesh::CreateMesh(file.m_path, meshParams, -1, meshParamsPath);
 
 					LinaEngine::Graphics::Mesh::SaveParameters(meshParamsPath, meshParams);
 				}
@@ -506,7 +506,7 @@ namespace LinaEditor
 		if (file.m_type == FileType::Texture2D)
 			renderEngine.UnloadTextureResource(renderEngine.GetTexture(file.m_path).GetID());
 		else if (file.m_type == FileType::Mesh)
-			renderEngine.UnloadMeshResource(renderEngine.GetMesh(file.m_path).GetID());
+			LinaEngine::Graphics::Mesh::UnloadMeshResource(LinaEngine::Graphics::Mesh::GetMesh(file.m_path).GetID());
 		else if (file.m_type == FileType::Material)
 			renderEngine.UnloadMaterialResource(renderEngine.GetMaterial(file.m_path).GetID());
 	}

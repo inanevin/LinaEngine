@@ -54,7 +54,7 @@ namespace LinaEngine::ECS
 			// We get the materials, then according to their surface types we add the mesh
 			// data into either opaque queue or the transparent queue.
 			Graphics::Material& mat = m_renderEngine->GetMaterial(renderer.m_materialID);
-			Graphics::Mesh& mesh = m_renderEngine->GetMesh(renderer.m_meshID);
+			Graphics::Mesh& mesh = LinaEngine::Graphics::Mesh::GetMesh(renderer.m_meshID);
 
 			if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
 			{

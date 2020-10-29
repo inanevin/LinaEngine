@@ -55,9 +55,17 @@ namespace LinaEngine::Graphics
 	public:
 
 		Mesh() {};
-
 		virtual ~Mesh();
 
+		static Mesh& CreateMesh(const std::string& filePath, MeshParameters meshParams = MeshParameters(), int id = -1, const std::string& paramsPath = "");
+		static Mesh& GetMesh(int id);
+		static Mesh& GetMesh(const std::string& path);
+		static bool MeshExists(int id);
+		static bool MeshExists(const std::string& path);
+		static void UnloadMeshResource(int id);
+		static Mesh& GetPrimitive(Primitives primitive);
+		static void UnloadAll();
+		static std::map<int, Mesh>& GetLoadedMeshes() { return m_loadedMeshes; }
 
 		VertexArray* GetVertexArray(uint32 index)
 		{
@@ -101,6 +109,8 @@ namespace LinaEngine::Graphics
 
 
 	private:
+
+		static std::map<int, Mesh> m_loadedMeshes;
 
 		friend class RenderEngine;
 		int m_meshID = -1;
