@@ -46,6 +46,7 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #include "Panels/LogPanel.hpp"
 #include "Panels/HeaderPanel.hpp"
 #include "Panels/ProfilerPanel.hpp"
+#include "Panels/LevelSettingsPanel.hpp"
 #include <vector>
 
 namespace LinaEngine
@@ -139,6 +140,7 @@ namespace LinaEditor
 		LogPanel m_logPanel;
 		HeaderPanel m_headerPanel;
 		ProfilerPanel m_profilerPanel;
+		LevelSettingsPanel m_levelSettingsPanel;
 	};
 }
 

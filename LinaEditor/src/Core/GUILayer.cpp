@@ -207,6 +207,7 @@ namespace LinaEditor
 		m_propertiesPanel.Setup();
 		m_scenePanel.Setup();
 		m_resourcesPanel.Setup();
+		m_levelSettingsPanel.Setup();
 
 		// Imgui first frame initialization.
 		Render();
@@ -449,6 +450,7 @@ namespace LinaEditor
 				ImGui::DockBuilderDockWindow(LOG_ID, dock_id_bottom);
 				ImGui::DockBuilderDockWindow(PROFILER_ID, dock_id_bottom);
 				ImGui::DockBuilderDockWindow(PROPERTIES_ID, dock_id_right);
+				ImGui::DockBuilderDockWindow(LEVELSETTINGS_ID, dock_id_right);
 				ImGui::DockBuilderFinish(dockspace_id);
 
 			}

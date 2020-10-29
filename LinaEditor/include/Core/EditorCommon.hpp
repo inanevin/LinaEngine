@@ -111,6 +111,8 @@ namespace LinaEditor
 // Profiler
 #define PROFILER_ID "Profiler"
 
+#define LEVELSETTINGS_ID "Level"
+
 // Properties
 #define PROPERTIES_ID "Properties"
 

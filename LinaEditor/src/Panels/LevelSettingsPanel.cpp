@@ -27,13 +27,30 @@ SOFTWARE.
 */
 
 #include "Panels/LevelSettingsPanel.hpp"
+#include "Widgets/WidgetsUtility.hpp"
+#include "Core/Application.hpp"
+#include "Core/EditorCommon.hpp"
+#include "imgui/imgui.h"
 
 namespace LinaEditor
 {
 	void LevelSettingsPanel::Setup()
 	{
 	}
+
 	void LevelSettingsPanel::Draw()
 	{
+		if (m_show)
+		{
+
+			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+			ImGui::SetNextWindowBgAlpha(1.0f);
+
+			ImGui::Begin(LEVELSETTINGS_ID, &m_show, flags);
+
+
+			ImGui::End();
+
+		}
 	}
 }
