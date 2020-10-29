@@ -101,6 +101,8 @@ void CreateHDRISkybox(RenderEngine& renderEngine)
 void CreateAtmosphericSkybox(RenderEngine& renderEngine)
 {
 	Material& mat = renderEngine.CreateMaterial(Shaders::Skybox_Atmospheric);
+	//mat.SetFloat(MAT_TIME, 15);
+	//mat.SetFloat(UF_FLOAT_TIME, 15);
 	renderEngine.SetSkyboxMaterial(mat);
 }
 ECSEntity cube1;

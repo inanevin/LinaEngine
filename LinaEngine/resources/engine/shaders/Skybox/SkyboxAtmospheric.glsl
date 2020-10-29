@@ -104,6 +104,10 @@ void main()
 
 	// Dithering Noise
 	fragColor.rgb += noise(pos * 1000) * 0.01;
+	
+	// HDR tonemap and gamma correct
+	fragColor.xyz = fragColor.xyz / (fragColor.xyz + vec3(1.0));
+	fragColor.xyz = pow(fragColor.xyz, vec3(1.0/2.2));
 }
   
 #endif
