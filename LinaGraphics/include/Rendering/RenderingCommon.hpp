@@ -44,6 +44,10 @@ namespace LinaEngine::Graphics
 {
 #define INTERNAL_MAT_PATH "__internal"
 
+#define RENDERSETTINGS_FULLPATH "resources/engine/defaultSettings.rendersettings"
+#define RENDERSETTINGS_FOLDERPATH "resources/engine"
+#define RENDERSETTINGS_FILE "defaultSettings"
+
 	enum BufferUsage
 	{
 		USAGE_STATIC_DRAW = LINA_GRAPHICS_USAGE_STATIC_DRAW,

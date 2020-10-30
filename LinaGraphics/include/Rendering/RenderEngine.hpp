@@ -56,6 +56,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "RenderContext.hpp"
 #include "Utility/Math/Color.hpp"
 #include "Core/LayerStack.hpp"
+#include "RenderSettings.hpp"
 #include <functional>
 #include <set>
 
@@ -193,6 +194,7 @@ namespace LinaEngine::Graphics
 
 		LayerStack m_guiLayerStack;
 		RenderingDebugData m_debugData;
+		RenderSettings m_renderSettings;
 
 		// Structure that keeps track of current buffer values
 		BufferValueRecord m_bufferValueRecord;

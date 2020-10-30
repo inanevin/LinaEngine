@@ -80,6 +80,9 @@ namespace LinaEngine::Graphics
 	void RenderEngine::Initialize(LinaEngine::ECS::ECSRegistry& ecsReg, Window& appWindow)
 	{
 
+		if (Utility::FileExists(RENDERSETTINGS_FULLPATH))
+			m_renderSettings = RenderSettings::DeserializeRenderSettings(RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
+
 		// Register ECS components
 		ecsReg.RegisterComponentToClone<LinaEngine::ECS::CameraComponent>();
 		ecsReg.RegisterComponentToClone<LinaEngine::ECS::PointLightComponent>();
