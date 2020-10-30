@@ -160,51 +160,45 @@ namespace LinaEngine
 			m_smoothDeltaTime = deltaTime;
 			updates++;
 
-			LINA_TIMER_START("INPUT: Engine Tick");
+			LINA_TIMER_START("[Input] Engine Tick");
 
 			// Update input engine.
 			s_inputEngine->Tick();
 
-			LINA_TIMER_STOP("INPUT: Engine Tick");
+			LINA_TIMER_STOP("[Input] Engine Tick");
 
-			LINA_TIMER_START("CORE: Engine Layers");
+			LINA_TIMER_START("[Core] Engine Layers");
 
 			// Update layers.
 			for (Layer* layer : m_layerStack)
 				layer->Tick(deltaTime);
 
-			LINA_TIMER_STOP("CORE: Engine Layers");
+			LINA_TIMER_STOP("[Core] Engine Layers");
 
-			LINA_TIMER_START("LEVEL: Current");
+			LINA_TIMER_START("[Level] Current");
 
 			// Update current level.
 			if (m_activeLevelExists)
 				m_currentLevel->Tick(deltaTime);
 
-			LINA_TIMER_STOP("LEVEL: Current");
+			LINA_TIMER_STOP("[Level] Current");
 
-			LINA_TIMER_START("CORE: Main Pipeline");
+			LINA_TIMER_START("[Core] Main Pipeline");
 
 			m_mainECSPipeline.UpdateSystems(deltaTime);
 
-			LINA_TIMER_STOP("CORE: Main Pipeline");
+			LINA_TIMER_STOP("[Core] Main Pipeline");
+
+			s_renderEngine->UpdateSystems();
 
 			accumulator += deltaTime;
 
 			while (accumulator >= PHYSICS_DELTA)
 			{
-				LINA_TIMER_START("Physics Tick");
+				LINA_TIMER_START("[Physics] Engine");
 				s_physicsEngine->Tick(PHYSICS_DELTA);
-				LINA_TIMER_STOP("Physics Tick");
+				LINA_TIMER_STOP("[Physics] Engine");
 				accumulator -= PHYSICS_DELTA;
-			}
-
-			if (now > lastFPSTime + 1.0) {
-				lastFPSTime = now;
-				m_currentFPS = frames;
-				m_currentUPS = updates;
-				updates = 0;
-				frames = 0;
 			}
 
 			if (m_canRender)
@@ -218,6 +212,15 @@ namespace LinaEngine
 			}
 
 			frames++;
+
+			if (now > lastFPSTime + 1.0) {
+				lastFPSTime = now;
+				m_currentFPS = frames;
+				m_currentUPS = updates;
+				updates = 0;
+				frames = 0;
+			}
+
 
 			if (m_firstRun)
 				m_firstRun = false;

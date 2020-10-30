@@ -141,6 +141,7 @@ void Example1Level::Tick(float delta)
 		loc.x -= speed * delta;
 	}
 
+
 	tr.transform.SetLocation(loc);
 
 }

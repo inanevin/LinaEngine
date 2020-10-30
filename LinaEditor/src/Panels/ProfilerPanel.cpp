@@ -175,20 +175,6 @@ namespace LinaEditor
 				ImPlot::EndPlot();
 
 			}
-
-			WidgetsUtility::IncrementCursorPosX(12);
-			WidgetsUtility::IncrementCursorPosY(12);
-
-			WidgetsUtility::AlignedText("Y Limit Min");
-			ImGui::SameLine();
-			ImGui::SetNextItemWidth((ImGui::GetWindowWidth() - ImGui::GetCursorPosX()) * 0.5f);
-			ImGui::SliderFloat("##deltaYLimitMin", &deltaYLimitMin, 0.0f, 0.1f);
-
-			WidgetsUtility::AlignedText("Y Limit Max");
-			ImGui::SameLine();
-			ImGui::SetNextItemWidth((ImGui::GetWindowWidth() - ImGui::GetCursorPosX()) * 0.5f);
-			ImGui::SliderFloat("##deltaYLimitMax", &deltaYLimitMax, 0.0f, 0.1f);
-
 			ImGui::End();
 
 		}
