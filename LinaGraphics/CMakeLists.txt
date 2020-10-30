@@ -31,6 +31,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Rendering/Mesh.cpp
 	src/Rendering/RenderingCommon.cpp
 	src/Rendering/Shader.cpp
+	src/Rendering/RenderSettings.cpp
 	
 	src/PackageManager/OpenGL/GLRenderDevice.cpp
 	src/PackageManager/OpenGL/GLWindow.cpp
@@ -66,6 +67,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/RenderingCommon.hpp
 	include/Rendering/RenderConstants.hpp
 	include/Rendering/RenderBuffer.hpp
+	include/Rendering/RenderSettings.hpp
 	
 	include/PackageManager/PAMRenderDevice.hpp	
 	include/PackageManager/PAMWindow.hpp

@@ -44,6 +44,7 @@ struct Material
   float fxaaSpanMax;
   float fxaaReduceMin;
   float fxaaReduceMul;
+  float gamma;
 };
 uniform Material material;
 
@@ -51,7 +52,7 @@ void main()
 {
   if(material.screenMap.isActive)
   {
-    const float gamma = 2.2;
+
     vec3 hdrColor = texture(material.screenMap.texture, TexCoords).rgb;
 
     if(material.fxaaEnabled)
@@ -105,7 +106,7 @@ void main()
     // tone mapping
     vec3 result = vec3(1.0) - exp(-hdrColor * material.exposure);
     // also gamma correct while we're at it
-    result = pow(result, vec3(1.0 / gamma));
+    result = pow(result, vec3(1.0 / material.gamma));
     fragColor = vec4(result, 1.0);
   }
   else
