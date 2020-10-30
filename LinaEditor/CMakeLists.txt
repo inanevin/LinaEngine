@@ -52,6 +52,7 @@ src/Panels/LogPanel.cpp
 src/Panels/HeaderPanel.cpp
 src/Panels/ProfilerPanel.cpp
 src/Panels/LevelSettingsPanel.cpp
+src/Panels/GlobalSettingsPanel.cpp
 
 #World
 src/World/DefaultLevel.cpp
@@ -113,6 +114,7 @@ include/Panels/LogPanel.hpp
 include/Panels/HeaderPanel.hpp
 include/Panels/ProfilerPanel.hpp
 include/Panels/LevelSettingsPanel.hpp
+include/Panels/GlobalSettingsPanel.hpp
 
 #World
 include/World/DefaultLevel.hpp
