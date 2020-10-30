@@ -113,6 +113,9 @@ namespace LinaEditor
 
 #define LEVELSETTINGS_ID "Level"
 
+// global
+#define GLOBALSETTINGS_ID "Global"
+
 // Properties
 #define PROPERTIES_ID "Properties"
 
