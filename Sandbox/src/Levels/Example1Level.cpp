@@ -121,26 +121,25 @@ void Example1Level::Tick(float delta)
 	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
 
 	TransformComponent& tr = ecs.get<TransformComponent>(cube1);
-	float speed = 10;
+	float speed = 10.0f;
 	Vector3 loc = tr.transform.GetLocation();
 
-	if (!locTog && loc.x > 10)
+	if (!locTog && loc.x > 9.9f)
 	{
 		locTog = true;
 	}
 
-	if (locTog && loc.x < -10)
+	if (locTog && loc.x < -9.9f)
 		locTog = false;
 
 	if (!locTog)
 	{
-		loc.x += delta * speed;
+		loc.x += speed * delta;
 	}
 	else if (locTog)
 	{
-		loc.x -= delta * speed;
+		loc.x -= speed * delta;
 	}
-
 
 	tr.transform.SetLocation(loc);
 

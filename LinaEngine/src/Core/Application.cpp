@@ -39,6 +39,9 @@ SOFTWARE.
 
 namespace LinaEngine
 {
+#define DELTA_TIME_DEQUE_HISTORY 11.0
+#define PHYSICS_DELTA 0.01666
+
 	Action::ActionDispatcher Application::s_engineDispatcher;
 	Input::InputEngine* Application::s_inputEngine = nullptr;
 	Graphics::RenderEngine* Application::s_renderEngine = nullptr;
@@ -137,67 +140,72 @@ namespace LinaEngine
 
 	void Application::Run()
 	{
-		double t = 0.0;
-		double dt = 0.01;
-		double currentTime = (double)s_appWindow->GetTime();
-		double accumulator = 0.0;
-		int fpsCounter = 0;
-		double previousFPSCountTime = 0;
-		double frameTime = 0;
 
+		double lastTime = s_appWindow->GetTime();
+		double timer = lastTime;
+		double deltaTime = 0;
+		double accumulator = 0.0;
+		int frames = 0;
+		int updates = 0;
+		double lastFPSTime = 0;
 		while (m_running)
 		{
-			LINA_TIMER_START("Main Loop");
+			LINA_TIMER_START("[Core] Main Loop");
 
-			LINA_TIMER_START("Input Engine Tick");
+			double now = s_appWindow->GetTime();
+			deltaTime = now - lastTime;
+			m_rawDeltaTime = deltaTime;
+			lastTime = now;
+			deltaTime = SmoothDeltaTime(deltaTime);
+			m_smoothDeltaTime = deltaTime;
+			updates++;
+
+			LINA_TIMER_START("INPUT: Engine Tick");
 
 			// Update input engine.
-				s_inputEngine->Tick();
+			s_inputEngine->Tick();
 
-			LINA_TIMER_STOP("Input Engine Tick");
+			LINA_TIMER_STOP("INPUT: Engine Tick");
 
-			double newTime = s_appWindow->GetTime();
-			double frameTime = newTime - currentTime;
-			m_frameTime = frameTime;
-			currentTime = newTime;
-
-			LINA_TIMER_START("Application Layers Tick");
+			LINA_TIMER_START("CORE: Engine Layers");
 
 			// Update layers.
 			for (Layer* layer : m_layerStack)
-				layer->Tick(frameTime);
+				layer->Tick(deltaTime);
 
-			LINA_TIMER_STOP("Application Layers Tick");
+			LINA_TIMER_STOP("CORE: Engine Layers");
 
-			LINA_TIMER_START("Current Level Tick");
+			LINA_TIMER_START("LEVEL: Current");
 
 			// Update current level.
 			if (m_activeLevelExists)
-				m_currentLevel->Tick(frameTime);
+				m_currentLevel->Tick(deltaTime);
 
-			LINA_TIMER_STOP("Current Level Tick");
+			LINA_TIMER_STOP("LEVEL: Current");
 
-			LINA_TIMER_START("Main Pipeline Tick");
+			LINA_TIMER_START("CORE: Main Pipeline");
 
-			m_mainECSPipeline.UpdateSystems(frameTime);
+			m_mainECSPipeline.UpdateSystems(deltaTime);
 
-			LINA_TIMER_STOP("Main Pipeline Tick");
+			LINA_TIMER_STOP("CORE: Main Pipeline");
 
-			if (frameTime > 0.25)
-				frameTime = 0.25;
+			accumulator += deltaTime;
 
-			accumulator += frameTime;
-
-			while (accumulator >= dt)
+			while (accumulator >= PHYSICS_DELTA)
 			{
 				LINA_TIMER_START("Physics Tick");
-				s_physicsEngine->Tick(dt);
+				s_physicsEngine->Tick(PHYSICS_DELTA);
 				LINA_TIMER_STOP("Physics Tick");
-				t += dt;
-				accumulator -= dt;
+				accumulator -= PHYSICS_DELTA;
 			}
 
-			LINA_TIMER_START("Render");
+			if (now > lastFPSTime + 1.0) {
+				lastFPSTime = now;
+				m_currentFPS = frames;
+				m_currentUPS = updates;
+				updates = 0;
+				frames = 0;
+			}
 
 			if (m_canRender)
 			{
@@ -209,22 +217,12 @@ namespace LinaEngine
 				s_renderEngine->Swap();
 			}
 
-			LINA_TIMER_STOP("Render");
-
-			// Simple FPS count
-			fpsCounter++;
-
-			if (currentTime - previousFPSCountTime >= 1.0)
-			{
-				previousFPSCountTime = currentTime;
-				m_currentFPS = fpsCounter;
-				fpsCounter = 0;
-			}
+			frames++;
 
 			if (m_firstRun)
 				m_firstRun = false;
 
-			LINA_TIMER_STOP("Main Loop");
+			LINA_TIMER_STOP("[Core] Main Loop");
 
 		}
 
@@ -265,6 +263,58 @@ namespace LinaEngine
 	void Application::MouseCallback(int button, int action)
 	{
 		s_inputEngine->DispatchMouseAction(static_cast<LinaEngine::Input::InputCode::Mouse>(button), action);
+	}
+
+	void Application::RemoveOutliers(bool biggest)
+	{
+		double outlier = biggest ? 0 : 100;
+		std::deque<double>::iterator itOutlier = m_deltaTimeDeque.begin();
+		for (std::deque<double>::iterator it = m_deltaTimeDeque.begin(); it != m_deltaTimeDeque.end(); ++it)
+		{
+			if(biggest)
+			{
+				if (*it > outlier)
+				{
+					outlier = *it;
+					itOutlier = it;
+				}
+			}
+			else
+			{
+				if (*it < outlier)
+				{
+					outlier = *it;
+					itOutlier = it;
+				}
+			}
+		}
+
+		m_deltaTimeDeque.erase(itOutlier);
+	}
+
+	double Application::SmoothDeltaTime(double dt)
+	{
+		m_deltaTimeDeque.push_back(dt);
+
+		if (m_deltaTimeDeque.size() < DELTA_TIME_DEQUE_HISTORY + 1)
+			return dt;
+
+		m_deltaTimeDeque.pop_front();
+
+		// Remove the biggest & smalles 2 deltas.
+		RemoveOutliers(true);
+		RemoveOutliers(true);
+		RemoveOutliers(false);
+		RemoveOutliers(false);
+
+		double mean = 0;
+
+		for (double delta : m_deltaTimeDeque)
+			mean += delta;
+
+		mean /= (DELTA_TIME_DEQUE_HISTORY - 4.0);
+
+		return Math::Lerp(m_smoothDeltaTime, mean, dt);
 	}
 
 	void Application::PushLayer(Layer& layer)

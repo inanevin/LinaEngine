@@ -39,6 +39,7 @@ SOFTWARE.
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "PackageManager/OpenGL/GLRenderDevice.hpp"
 #include "Helpers/DrawParameterHelper.hpp"
+#include "Core/Timer.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -166,6 +167,8 @@ namespace LinaEngine::Graphics
 	{
 		// DrawShadows();
 
+		LINA_TIMER_START("GRAPHICS: Render");
+
 		Draw();
 
 		if (!m_firstFrameDrawn)
@@ -173,6 +176,8 @@ namespace LinaEngine::Graphics
 			ValidateEngineShaders();
 			m_firstFrameDrawn = true;
 		}
+
+		LINA_TIMER_STOP("GRAPHICS: Render");
 
 		//DrawOperationsDefault();
 	}
@@ -182,16 +187,25 @@ namespace LinaEngine::Graphics
 		s_renderDevice.SetFBO(0);
 		s_renderDevice.SetViewport(m_viewportPos, m_viewportSize);
 
+		LINA_TIMER_START("GRAPHICS: Render Layers");
+
 		// Draw GUI Layers
 		for (Layer* layer : m_guiLayerStack)
 			layer->Render();
+
+		LINA_TIMER_STOP("GRAPHICS: Render Layers");
+
 	}
 
 	void RenderEngine::Swap()
 	{
+		LINA_TIMER_START("GRAPHICS: Swap");
 
 		// Update window.
 		m_appWindow->Tick();
+
+		LINA_TIMER_STOP("GRAPHICS: Swap");
+
 	}
 
 	void RenderEngine::SetViewportDisplay(Vector2 pos, Vector2 size)
@@ -622,6 +636,15 @@ namespace LinaEngine::Graphics
 
 		// Update debug fufer.
 		m_globalDebugBuffer.Update(&m_debugData.visualizeDepth, 0, sizeof(bool));
+	}
+
+	void RenderEngine::UpdateSystems()
+	{
+		// Update pipeline.
+		m_renderingPipeline.UpdateSystems(0.0f);
+
+		// Update uniform buffers on GPU
+		UpdateUniformBuffers();
 	}
 
 	void RenderEngine::UpdateShaderData(Material* data)

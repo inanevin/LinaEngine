@@ -61,7 +61,7 @@ namespace LinaEditor
 
 
 #define MS_DISPLAY_TIME .5
-	
+
 	std::map<std::string, std::string> m_timerMSStorage;
 
 	void ProfilerPanel::Setup()
@@ -82,7 +82,7 @@ namespace LinaEditor
 			ImGui::Begin(PROFILER_ID, &m_show, flags);
 
 
-				// Shadow.
+			// Shadow.
 			WidgetsUtility::DrawShadowedLine(5);
 			WidgetsUtility::IncrementCursorPosY(11);
 
@@ -91,7 +91,7 @@ namespace LinaEditor
 			if (currentTime > m_lastMSDisplayTime + MS_DISPLAY_TIME)
 			{
 				m_lastMSDisplayTime = currentTime;
-				displayMS = true;	
+				displayMS = true;
 			}
 
 			for (std::map<std::string, LinaEngine::Timer*>::const_iterator it = map.begin(); it != map.end(); ++it)
@@ -105,34 +105,89 @@ namespace LinaEditor
 				WidgetsUtility::IncrementCursorPosX(12);
 				ImGui::Text(txt.c_str());
 			}
-		
+
 			displayMS = false;
 
 			WidgetsUtility::IncrementCursorPosX(12);
 			WidgetsUtility::IncrementCursorPosY(12);
 
 			int fps = LinaEngine::Application::GetApp().GetCurrentFPS();
+			int ups = LinaEngine::Application::GetApp().GetCurrentUPS();
+			float rawDelta = LinaEngine::Application::GetApp().GetRawDelta();
+			float smoothDelta = LinaEngine::Application::GetApp().GetSmoothDelta();
 
-			static RollingBuffer   rdata1;
+			static RollingBuffer fpsData;
+			static RollingBuffer upsData;
+			static RollingBuffer rawDeltaData;
+			static RollingBuffer smoothDeltaData;
+
 			static float t = 0;
 			t += ImGui::GetIO().DeltaTime;
-			rdata1.AddPoint(t, (float)fps);
+			fpsData.AddPoint(t, (float)fps);
+			upsData.AddPoint(t, (float)ups);
+			rawDeltaData.AddPoint(t, rawDelta);
+			smoothDeltaData.AddPoint(t, smoothDelta);
+
+
 			static float history = 10.0f;
 			static ImPlotAxisFlags rt_axis = ImPlotAxisFlags_NoTickLabels;
 
 			ImPlot::SetNextPlotLimitsX(0, history, ImGuiCond_Always);
-			ImPlot::SetNextPlotLimitsY(0, 500, ImGuiCond_Always);
-			ImPlot::PushStyleColor(ImPlotCol_Line, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+			//ImPlot::SetNextPlotLimitsY(0, 500, ImGuiCond_Always);
 
-			if (ImPlot::BeginPlot("##Profiler", NULL, NULL, ImVec2(-1, 115), 0, rt_axis, rt_axis)) {
+			if (ImPlot::BeginPlot("##fpsUPS", NULL, NULL, ImVec2(-1, 115), 0, rt_axis, rt_axis)) {
 
 				std::string fpsLabel = "FPS " + std::to_string(fps);
-				ImPlot::PlotLine(fpsLabel.c_str(), &rdata1.m_data[0].x, &rdata1.m_data[0].y, rdata1.m_data.size(), 0, 2 * sizeof(float));
+				std::string upsLabel = "UPS " + std::to_string(ups);
+				ImPlot::PushStyleColor(ImPlotCol_Line, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+				ImPlot::PlotLine(fpsLabel.c_str(), &fpsData.m_data[0].x, &fpsData.m_data[0].y, fpsData.m_data.size(), 0, 2 * sizeof(float));
+				ImPlot::PopStyleColor();
+
+				ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1.0, 1.0, 0.0, 1.0));
+				ImPlot::PlotLine(upsLabel.c_str(), &upsData.m_data[0].x, &upsData.m_data[0].y, upsData.m_data.size(), 0, 2 * sizeof(float));
+				ImPlot::PopStyleColor();
+
 				ImPlot::EndPlot();
+
 			}
 
-			ImPlot::PopStyleColor();
+			WidgetsUtility::IncrementCursorPosX(12);
+			WidgetsUtility::IncrementCursorPosY(12);
+			static float deltaHistory = 10.0f;
+			static float deltaYLimitMin = 0.0f;
+			static float deltaYLimitMax = 0.025f;
 
+		
+			ImPlot::SetNextPlotLimitsX(0, deltaHistory, ImGuiCond_Always);
+			//ImPlot::SetNextPlotLimitsY(deltaYLimitMin, deltaYLimitMax, ImGuiCond_Always);
+		
+			if (ImPlot::BeginPlot("##deltas", NULL, NULL, ImVec2(-1, 115), 0, rt_axis, rt_axis)) {
+
+				std::string rawDeltaLabel = "Raw DT " + std::to_string(rawDelta);
+				std::string smoothDeltaLabel = "Smooth DT " + std::to_string(smoothDelta);
+				ImPlot::PushStyleColor(ImPlotCol_Line, ImGui::GetStyleColorVec4(ImGuiCol_Header));
+				ImPlot::PlotLine(rawDeltaLabel.c_str(), &rawDeltaData.m_data[0].x, &rawDeltaData.m_data[0].y, rawDeltaData.m_data.size(), 0, 2 * sizeof(float));
+				ImPlot::PopStyleColor();
+				ImPlot::PushStyleColor(ImPlotCol_Line, ImVec4(1.0, 1.0, 0.0, 1.0));
+				ImPlot::PlotLine(smoothDeltaLabel.c_str(), &smoothDeltaData.m_data[0].x, &smoothDeltaData.m_data[0].y, smoothDeltaData.m_data.size(), 0, 2 * sizeof(float));
+				ImPlot::PopStyleColor();
+
+				ImPlot::EndPlot();
+
+			}
+
+			WidgetsUtility::IncrementCursorPosX(12);
+			WidgetsUtility::IncrementCursorPosY(12);
+
+			WidgetsUtility::AlignedText("Y Limit Min");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth((ImGui::GetWindowWidth() - ImGui::GetCursorPosX()) * 0.5f);
+			ImGui::SliderFloat("##deltaYLimitMin", &deltaYLimitMin, 0.0f, 0.1f);
+
+			WidgetsUtility::AlignedText("Y Limit Max");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth((ImGui::GetWindowWidth() - ImGui::GetCursorPosX()) * 0.5f);
+			ImGui::SliderFloat("##deltaYLimitMax", &deltaYLimitMax, 0.0f, 0.1f);
 
 			ImGui::End();
 

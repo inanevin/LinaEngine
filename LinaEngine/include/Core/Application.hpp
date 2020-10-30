@@ -45,6 +45,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "ECS/ECSSystem.hpp"
 #include "Actions/ActionDispatcher.hpp"
 #include <functional>
+#include <deque>
 
 
 namespace LinaEngine::World
@@ -94,9 +95,11 @@ namespace LinaEngine
 		void UninstallLevel(LinaEngine::World::Level& level);
 
 		int GetCurrentFPS() { return m_currentFPS; }
+		int GetCurrentUPS() { return m_currentUPS; }
 		bool GetActiveLevelExists() { return m_activeLevelExists; }
 		double GetTime();
-		double GetFrameTime() { return m_frameTime; }
+		double GetRawDelta() { return m_rawDeltaTime; }
+		double GetSmoothDelta() { return m_smoothDeltaTime; }
 		void AddToMainPipeline(ECS::BaseECSSystem& system) { m_mainECSPipeline.AddSystem(system); }
 
 		static Action::ActionDispatcher& GetEngineDispatcher() { return s_engineDispatcher; }
@@ -127,7 +130,8 @@ namespace LinaEngine
 		void KeyCallback(int key, int action);
 		void MouseCallback(int button, int action);
 		void WindowCloseCallback() {};
-		
+		void RemoveOutliers(bool biggest);
+		double SmoothDeltaTime(double dt);
 
 	private:
 
@@ -152,6 +156,12 @@ namespace LinaEngine
 		bool m_running = false;
 		bool m_firstRun = true;
 		bool m_canRender = true;
+		int m_currentFPS = 0;
+		int m_currentUPS = 0;
+		double m_frameTime = 0;
+		double m_smoothDeltaTime;
+		double m_rawDeltaTime;
+
 
 		// Callbacks
 		std::function<void(int, int)> m_keyCallback;
@@ -161,8 +171,8 @@ namespace LinaEngine
 		std::function<void(Vector3, Vector3, Color, float)> m_drawLineCallback;
 		std::function<void()> m_postSceneDrawCallback;
 
-		int m_currentFPS = 0;
-		double m_frameTime = 0;
+
+		std::deque<double> m_deltaTimeDeque;
 
 	};
 

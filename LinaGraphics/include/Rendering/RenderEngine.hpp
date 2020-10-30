@@ -118,6 +118,7 @@ namespace LinaEngine::Graphics
 		RenderSettings& GetRenderSettings() { return m_renderSettings; }
 		void SetCurrentPLightCount(int count) { m_currentPointLightCount = count; }
 		void SetCurrentSLightCount(int count) { m_currentSpotLightCount = count; }
+		void UpdateSystems();
 
 	private:
 
@@ -133,7 +134,7 @@ namespace LinaEngine::Graphics
 		void DrawSkybox();
 		void DrawSceneObjects(DrawParams& drawpParams, Material* overrideMaterial = nullptr, bool drawSkybox = true);
 		void UpdateUniformBuffers();
-
+		
 		// Generating necessary maps for HDRI specular highlighting
 		void CalculateHDRICubemap(Texture& hdriTexture, glm::mat4& captureProjection, glm::mat4 views[6]);
 		void CalculateHDRIIrradiance(Matrix& captureProjection, Matrix views[6]);
