@@ -107,6 +107,7 @@ void main()
     vec3 result = vec3(1.0) - exp(-hdrColor * material.exposure);
     // also gamma correct while we're at it
     result = pow(result, vec3(1.0 / material.gamma));
+	//vec3 result = pow(1.0 - exp(-material.exposure * hdrColor.rgb), vec3(material.exposure));
     fragColor = vec4(result, 1.0);
   }
   else

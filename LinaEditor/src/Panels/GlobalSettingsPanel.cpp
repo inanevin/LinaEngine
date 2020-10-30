@@ -62,6 +62,7 @@ namespace LinaEditor
 			// Shadow.
 			WidgetsUtility::DrawShadowedLine(5);
 			WidgetsUtility::FramePaddingY(0);
+			WidgetsUtility::IncrementCursorPosY(12);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("FXAA");
@@ -90,7 +91,10 @@ namespace LinaEditor
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::DragFloat("##fxaaSpanMax", &renderSettings.m_fxaaSpanMax);
 
+			WidgetsUtility::IncrementCursorPosY(6);
+
 			WidgetsUtility::DrawBeveledLine();
+			WidgetsUtility::IncrementCursorPosY(6);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Bloom");
@@ -101,7 +105,10 @@ namespace LinaEditor
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::Checkbox("##bloomEnabled", &renderSettings.m_bloomEnabled);
 
+			WidgetsUtility::IncrementCursorPosY(6);
+
 			WidgetsUtility::DrawBeveledLine();
+			WidgetsUtility::IncrementCursorPosY(6);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Post FX General");
@@ -118,20 +125,19 @@ namespace LinaEditor
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::DragFloat("##exposure", &renderSettings.m_exposure);
 
+			WidgetsUtility::IncrementCursorPosY(6);
+			WidgetsUtility::DrawBeveledLine();
+			WidgetsUtility::IncrementCursorPosY(6);
 
 			LinaEngine::Application::GetRenderEngine().UpdateRenderSettings();
+			ImGui::SetCursorPosX(cursorPosLabels);
 
 			if (ImGui::Button("Save Settings"))
-			{
-				LinaEngine::Graphics::RenderSettings::SerializeRenderSettings(renderSettings, RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FULLPATH);
-			}
+				LinaEngine::Graphics::RenderSettings::SerializeRenderSettings(renderSettings, RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
 
+			ImGui::PopStyleVar();
 			ImGui::End();
 
-			// Shadow.
-			WidgetsUtility::DrawShadowedLine(5);
-
-			WidgetsUtility::FramePaddingY(0);
 
 		}
     }
