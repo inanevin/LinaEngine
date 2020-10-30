@@ -52,7 +52,7 @@ Timestamp: 10/22/2020 11:04:40 PM
 #else
 
 #define LINA_TIMER_START(...)
-#define LINA_TIMER_END(...)
+#define LINA_TIMER_STOP(...)
 
 #endif
 

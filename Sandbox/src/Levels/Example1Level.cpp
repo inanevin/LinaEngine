@@ -111,10 +111,37 @@ void Example1Level::Initialize()
 	// Create a simple procedural skybox.
 	LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
 	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
+
+	cube1 = ecs.GetEntity("Entity");
 }
 
+bool locTog = false;
 void Example1Level::Tick(float delta)
 {
-	
+	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
+
+	TransformComponent& tr = ecs.get<TransformComponent>(cube1);
+	float speed = 10;
+	Vector3 loc = tr.transform.GetLocation();
+
+	if (!locTog && loc.x > 10)
+	{
+		locTog = true;
+	}
+
+	if (locTog && loc.x < -10)
+		locTog = false;
+
+	if (!locTog)
+	{
+		loc.x += delta * speed;
+	}
+	else if (locTog)
+	{
+		loc.x -= delta * speed;
+	}
+
+
+	tr.transform.SetLocation(loc);
 
 }
