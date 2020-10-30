@@ -89,6 +89,7 @@ namespace LinaEngine::Graphics
 #define MAT_FXAAREDUCEMIN "material.fxaaReduceMin"
 #define MAT_FXAAREDUCEMUL "material.fxaaReduceMul"
 #define MAT_EXPOSURE "material.exposure"
+#define MAT_GAMMA "material.gamma"
 #define MAT_INVERSESCREENMAPSIZE "material.inverseScreenMapSize"
 #define MAT_EXTENSION_TEXTURE2D ".texture"
 #define MAT_EXTENSION_ISACTIVE ".isActive"

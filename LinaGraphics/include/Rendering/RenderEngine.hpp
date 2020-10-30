@@ -97,6 +97,7 @@ namespace LinaEngine::Graphics
 		void MaterialUpdated(Material& mat);
 		void UpdateShaderData(Material* mat);
 		void SetDrawParameters(const DrawParams& params);
+		void UpdateRenderSettings();
 		void* GetFinalImage();
 		void* GetShadowMapImage();
 

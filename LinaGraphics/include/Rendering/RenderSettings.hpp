@@ -59,9 +59,7 @@ namespace LinaEngine
 		{
 			archive(m_bloomEnabled, m_fxaaEnabled, m_fxaaReduceMin, m_fxaaReduceMul, m_fxaaSpanMax, m_gamma, m_exposure);
 		}
-	
-	private:
-	
+		
 		bool m_bloomEnabled = false;
 		bool m_fxaaEnabled = false;
 		float m_fxaaReduceMin = 1.0f / 128.0f;

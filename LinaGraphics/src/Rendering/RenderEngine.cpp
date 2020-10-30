@@ -79,7 +79,6 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Initialize(LinaEngine::ECS::ECSRegistry& ecsReg, Window& appWindow)
 	{
-
 		if (Utility::FileExists(RENDERSETTINGS_FULLPATH))
 			m_renderSettings = RenderSettings::DeserializeRenderSettings(RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
 
@@ -304,6 +303,7 @@ namespace LinaEngine::Graphics
 		Material::SetMaterialShader(m_shadowMapMaterial, Shaders::ScreenQuad_Shadowmap);
 		Material::SetMaterialShader(m_defaultSkyboxMaterial, Shaders::Skybox_SingleColor);
 		Material::SetMaterialShader(s_defaultUnlit, Shaders::Standard_Unlit);
+		UpdateRenderSettings();
 	}
 
 	void RenderEngine::ConstructEnginePrimitives()
@@ -511,6 +511,17 @@ namespace LinaEngine::Graphics
 	void RenderEngine::SetDrawParameters(const DrawParams& params)
 	{
 		s_renderDevice.SetDrawParameters(params);
+	}
+
+	void RenderEngine::UpdateRenderSettings()
+	{
+		m_screenQuadFinalMaterial.SetBool(MAT_FXAAENABLED, m_renderSettings.m_fxaaEnabled);
+		m_screenQuadFinalMaterial.SetBool(MAT_BLOOMENABLED, m_renderSettings.m_bloomEnabled);
+		m_screenQuadFinalMaterial.SetFloat(MAT_FXAAREDUCEMIN, m_renderSettings.m_fxaaReduceMin);
+		m_screenQuadFinalMaterial.SetFloat(MAT_FXAAREDUCEMUL, m_renderSettings.m_fxaaReduceMul);
+		m_screenQuadFinalMaterial.SetFloat(MAT_FXAASPANMAX, m_renderSettings.m_fxaaSpanMax);
+		m_screenQuadFinalMaterial.SetFloat(MAT_GAMMA, m_renderSettings.m_gamma);
+		m_screenQuadFinalMaterial.SetFloat(MAT_EXPOSURE, m_renderSettings.m_exposure);
 	}
 
 	void RenderEngine::DrawOperationsDefault()
