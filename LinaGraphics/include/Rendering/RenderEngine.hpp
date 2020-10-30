@@ -115,6 +115,7 @@ namespace LinaEngine::Graphics
 		static RenderDevice& GetRenderDevice() { return s_renderDevice; }
 		static Texture& GetDefaultTexture() { return s_defaultTexture; }
 		static Material& GetDefaultUnlitMaterial() { return s_defaultUnlit; }
+		RenderSettings& GetRenderSettings() { return m_renderSettings; }
 		void SetCurrentPLightCount(int count) { m_currentPointLightCount = count; }
 		void SetCurrentSLightCount(int count) { m_currentSpotLightCount = count; }
 

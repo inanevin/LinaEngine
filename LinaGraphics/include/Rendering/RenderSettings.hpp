@@ -41,7 +41,7 @@ Timestamp: 10/30/2020 9:17:05 AM
 
 #include <string>
 
-namespace LinaEngine
+namespace LinaEngine::Graphics
 {
 	class RenderSettings
 	{

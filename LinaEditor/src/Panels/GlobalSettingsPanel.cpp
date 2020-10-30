@@ -29,6 +29,9 @@ SOFTWARE.
 #include "Panels/GlobalSettingsPanel.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Core/EditorCommon.hpp"
+#include "Rendering/RenderEngine.hpp"
+#include "Core/Application.hpp"
+#include "Rendering/RenderSettings.hpp"
 #include "imgui/imgui.h"
 #include "IconsFontAwesome5.h"
 
@@ -53,6 +56,75 @@ namespace LinaEditor
 			ImGui::SetNextWindowBgAlpha(1.0f);
 
 			ImGui::Begin(GLOBALSETTINGS_ID, &m_show, flags);
+
+			LinaEngine::Graphics::RenderSettings& renderSettings = LinaEngine::Application::GetRenderEngine().GetRenderSettings();
+
+			// Shadow.
+			WidgetsUtility::DrawShadowedLine(5);
+			WidgetsUtility::FramePaddingY(0);
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("FXAA");
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Enabled");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::Checkbox("##fxaaEnabled", &renderSettings.m_fxaaEnabled);
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Reduce Min");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::DragFloat("##fxaaReduceMin", &renderSettings.m_fxaaReduceMin);
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Reduce Mul");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::DragFloat("##fxaaReduceMul", &renderSettings.m_fxaaReduceMul);
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Span Max");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::DragFloat("##fxaaSpanMax", &renderSettings.m_fxaaSpanMax);
+
+			WidgetsUtility::DrawBeveledLine();
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Bloom");
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Enabled");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::Checkbox("##bloomEnabled", &renderSettings.m_bloomEnabled);
+
+			WidgetsUtility::DrawBeveledLine();
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Post FX General");
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Gamma");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::DragFloat("##gamma", &renderSettings.m_gamma);
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Exposure");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::DragFloat("##exposure", &renderSettings.m_exposure);
+
+
+			LinaEngine::Application::GetRenderEngine().UpdateRenderSettings();
+
+			if (ImGui::Button("Save Settings"))
+			{
+				LinaEngine::Graphics::RenderSettings::SerializeRenderSettings(renderSettings, RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FULLPATH);
+			}
 
 			ImGui::End();
 
