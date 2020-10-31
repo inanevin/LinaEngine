@@ -86,6 +86,7 @@ namespace LinaEngine::Graphics
 			m_sampler2Ds[textureName].m_bindMode = bindMode;
 			m_sampler2Ds[textureName].m_isActive = texture == nullptr ? false : true;
 			m_sampler2Ds[textureName].m_path = texture->GetPath();
+			m_sampler2Ds[textureName].m_paramsPath = texture->GetParamsPath();
 		}
 		else
 		{
@@ -135,6 +136,7 @@ namespace LinaEngine::Graphics
 		Material& mat = s_loadedMaterials[id];
 		Material::LoadMaterialData(mat, path);
 		SetMaterialContainers(mat);
+		SetMaterialShader(mat, mat.m_shaderType, true);
 		mat.m_materialID = id;
 		mat.m_path = path;
 		return s_loadedMaterials[id];
@@ -167,7 +169,7 @@ namespace LinaEngine::Graphics
 	}
 
 
-	Material& Material::SetMaterialShader(Material& material, Shaders shader)
+	Material& Material::SetMaterialShader(Material& material, Shaders shader, bool onlySetID)
 	{
 		// If no shader found, fall back to standardLit
 		std::map<int, Shader>& shaders = Shader::GetLoadedShaders();
@@ -177,6 +179,8 @@ namespace LinaEngine::Graphics
 		}
 		else
 			material.m_shaderID = shaders[shader].GetID();
+
+		if (onlySetID) return material;
 
 		// Clear all shader related material data.
 		material.m_sampler2Ds.clear();
@@ -266,8 +270,8 @@ namespace LinaEngine::Graphics
 			material.m_sampler2Ds[MAT_TEXTURE2D_AOMAP] = { 4 };
 			material.m_sampler2Ds[MAT_TEXTURE2D_BRDFLUTMAP] = { 5 };
 			// material.m_sampler2Ds[MAT_TEXTURE2D_SHADOWMAP] = { 6 };
-			material.m_sampler2Ds[MAT_TEXTURE2D_IRRADIANCEMAP] = { 6, nullptr, "", TextureBindMode::BINDTEXTURE_CUBEMAP, false };
-			material.m_sampler2Ds[MAT_TEXTURE2D_PREFILTERMAP] = { 7,nullptr, "", TextureBindMode::BINDTEXTURE_CUBEMAP, false };
+			material.m_sampler2Ds[MAT_TEXTURE2D_IRRADIANCEMAP] = { 6, nullptr, "", "", TextureBindMode::BINDTEXTURE_CUBEMAP, false };
+			material.m_sampler2Ds[MAT_TEXTURE2D_PREFILTERMAP] = { 7,nullptr, "", "", TextureBindMode::BINDTEXTURE_CUBEMAP, false };
 			material.m_floats[MAT_METALLICMULTIPLIER] = 1.0f;
 			material.m_floats[MAT_ROUGHNESSMULTIPLIER] = 1.0f;
 			material.m_ints[MAT_WORKFLOW] = 0;

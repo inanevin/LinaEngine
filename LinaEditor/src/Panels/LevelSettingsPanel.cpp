@@ -130,6 +130,7 @@ namespace LinaEditor
 	void LevelSettingsPanel::LevelInstalled(LinaEngine::World::Level* level)
 	{
 		m_currentLevel = level;
+		m_currentLevel->SetSkyboxMaterial();
 	}
 
 	void LevelSettingsPanel::LevelIUninstalled(LinaEngine::World::Level* level)

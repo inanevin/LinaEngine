@@ -41,6 +41,7 @@ Timestamp: 6/5/2020 6:51:29 PM
 
 #include "Panels/EditorPanel.hpp"
 #include "ECS/Components/TransformComponent.hpp"
+#include "ECS/ECS.hpp"
 
 namespace LinaEngine
 {

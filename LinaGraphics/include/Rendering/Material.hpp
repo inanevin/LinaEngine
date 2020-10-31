@@ -59,13 +59,14 @@ namespace LinaEngine::Graphics
 		uint32 m_unit = 0;
 		Texture* m_boundTexture = nullptr;
 		std::string m_path = "";
+		std::string m_paramsPath = "";
 		TextureBindMode m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
 		bool m_isActive = false;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_unit, m_path, m_bindMode, m_isActive);
+			archive(m_unit, m_path, m_paramsPath, m_bindMode, m_isActive);
 		}
 
 
@@ -85,7 +86,7 @@ namespace LinaEngine::Graphics
 		static void UnloadMaterialResource(int id);
 		static void LoadMaterialData(Material& mat, const std::string& path);
 		static void SaveMaterialData(const Material& mat, const std::string& path);
-		static Material& SetMaterialShader(Material& material, Shaders shader);
+		static Material& SetMaterialShader(Material& material, Shaders shader, bool onlySetID = false);
 		static void SetMaterialContainers(Material& material);
 		static void UnloadAll();
 		static std::set<Material*>& GetShadowMappedMaterials() { return s_shadowMappedMaterials; }

@@ -70,13 +70,17 @@ namespace LinaEngine::World
 		virtual void Uninstall() {};
 		virtual void Initialize() {};
 		virtual void Tick(float delta) {};
-		void SetSkyboxMaterial();
 		void SerializeLevelData(const std::string& path, const std::string& levelName);
 		void DeserializeLevelData(const std::string& path, const std::string& levelName);
 		LevelData& GetLevelData() { return m_levelData; }
+		void SetSkyboxMaterial();
 
 	private:
 
+		void LoadLevelResources();
+
+
+	private:
 		LevelData m_levelData;
 
 	};

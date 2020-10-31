@@ -49,6 +49,7 @@ namespace LinaEngine::ECS
 		int m_materialID = -1;
 		std::string m_meshPath = "";
 		std::string m_materialPath = "";
+		std::string m_meshParamsPath = "";
 
 
 
@@ -66,7 +67,7 @@ namespace LinaEngine::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_meshID, m_materialID, m_meshPath, m_materialPath, m_isEnabled);
+			archive(m_meshID, m_materialID, m_meshPath, m_meshParamsPath, m_materialPath, m_isEnabled);
 		}
 	};
 }

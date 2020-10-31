@@ -91,7 +91,7 @@ namespace LinaEngine::Graphics
 		void RenderLayers();
 		void Swap();
 		void SetViewportDisplay(Vector2 offset, Vector2 size);
-		void SetSkyboxMaterial(Material& skyboxMaterial) { m_skyboxMaterial = &skyboxMaterial; }
+		void SetSkyboxMaterial(Material* skyboxMaterial) { m_skyboxMaterial = skyboxMaterial; }
 		void PushLayer(Layer& layer);
 		void PushOverlay(Layer& layer);
 		void MaterialUpdated(Material& mat);

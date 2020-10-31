@@ -52,14 +52,83 @@ namespace LinaEngine::World
 			if (LinaEngine::Utility::FileExists(path + levelName + ".linaleveldata"))
 			{
 				DeserializeLevelData("resources/sandbox/levels/", "Example1Level");
+
+#ifndef LINA_EDITOR
+				LoadLevelResources();
+#endif
+
 			}
 		}
-
-		SetSkyboxMaterial();
 
 
 
 		return true;
+	}
+
+	void Level::LoadLevelResources()
+	{
+		ECS::ECSRegistry& ecs = Application::GetECSRegistry();
+
+		auto view = ecs.view<ECS::MeshRendererComponent>();
+
+		for (ECS::ECSEntity entity : view)
+		{
+			ECS::MeshRendererComponent& mr = view.get<ECS::MeshRendererComponent>(entity);
+
+			// Load used materials.
+			if (!Graphics::Material::MaterialExists(mr.m_materialPath))
+			{
+				if (Utility::FileExists(mr.m_materialPath))
+				{
+					Graphics::Material& mat = Graphics::Material::LoadMaterialFromFile(mr.m_materialPath);
+					mr.m_materialID = mat.GetID();
+
+					// Load material textures.
+					for (std::map<std::string, Graphics::MaterialSampler2D>::iterator it = mat.m_sampler2Ds.begin(); it != mat.m_sampler2Ds.end(); ++it)
+					{
+						if (Utility::FileExists(it->second.m_path))
+						{
+							Graphics::SamplerParameters samplerParams;
+
+							if(Utility::FileExists(it->second.m_paramsPath))
+								samplerParams = Graphics::Texture::LoadParameters(it->second.m_paramsPath);
+
+							Graphics::Texture& texture = Graphics::Texture::CreateTexture2D(it->second.m_path, samplerParams, false, false, it->second.m_paramsPath);
+						
+							mat.SetTexture(it->first, &texture, it->second.m_bindMode);
+						}
+					}
+				}
+				
+			}
+			else
+			{
+				Graphics::Material& mat = Graphics::Material::GetMaterial(mr.m_materialPath);
+				mr.m_materialID = mat.GetID();
+			}
+
+			// Load used meshes
+			if (!Graphics::Mesh::MeshExists(mr.m_meshPath))
+			{
+
+				Graphics::MeshParameters params;
+				if (Utility::FileExists(mr.m_meshParamsPath))
+					params = Graphics::Mesh::LoadParameters(mr.m_meshParamsPath);
+
+				Graphics::Mesh& mesh = Graphics::Mesh::CreateMesh(mr.m_meshPath, params, -1, mr.m_meshParamsPath);
+				mr.m_meshID = mesh.GetID();
+			}
+		}
+
+		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+
+		if (Utility::FileExists(m_levelData.m_skyboxMaterialPath))
+		{
+			Graphics::Material& mat = Graphics::Material::LoadMaterialFromFile(m_levelData.m_skyboxMaterialPath);
+			renderEngine.SetSkyboxMaterial(&mat);
+		}
+		else
+			renderEngine.SetSkyboxMaterial(nullptr);
 	}
 
 	void Level::SetSkyboxMaterial()
@@ -68,8 +137,10 @@ namespace LinaEngine::World
 
 		if (Graphics::Material::MaterialExists(m_levelData.m_skyboxMaterialPath))
 		{
-			renderEngine.SetSkyboxMaterial(Graphics::Material::GetMaterial(m_levelData.m_skyboxMaterialPath));
+			renderEngine.SetSkyboxMaterial(&Graphics::Material::GetMaterial(m_levelData.m_skyboxMaterialPath));
 		}
+		else
+			renderEngine.SetSkyboxMaterial(nullptr);
 	}
 
 	void Level::SerializeLevelData(const std::string& path, const std::string& levelName)
@@ -84,7 +155,7 @@ namespace LinaEngine::World
 			entt::snapshot{ registry }
 				.entities(oarchive)
 				.component<
-				LinaEngine::ECS::ECSEntityData, 
+				LinaEngine::ECS::ECSEntityData,
 				LinaEngine::ECS::CameraComponent,
 				LinaEngine::ECS::FreeLookComponent,
 				LinaEngine::ECS::PointLightComponent,
@@ -102,7 +173,7 @@ namespace LinaEngine::World
 			cereal::BinaryOutputArchive oarchive(levelDataStream); // Create an output archive
 
 			oarchive(m_levelData); // Write the data to the archive
-		} 
+		}
 
 	}
 
@@ -139,7 +210,7 @@ namespace LinaEngine::World
 				LinaEngine::ECS::SpriteRendererComponent,
 				LinaEngine::ECS::TransformComponent
 				>(iarchive);
-				
+
 		}
 
 		registry.Refresh();

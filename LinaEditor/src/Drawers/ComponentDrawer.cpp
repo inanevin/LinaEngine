@@ -64,6 +64,7 @@ namespace LinaEditor
 		std::get<0>(m_componentFunctionsMap[GetTypeID<MeshRendererComponent>()]) = "Mesh Renderer";
 		std::get<0>(m_componentFunctionsMap[GetTypeID<SpriteRendererComponent>()]) = "Sprite Renderer";
 
+#ifdef LINA_EDITOR
 		// Add functions.
 		std::get<1>(m_componentFunctionsMap[GetTypeID<TransformComponent>()]) = std::bind(&TransformComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
 		std::get<1>(m_componentFunctionsMap[GetTypeID<RigidbodyComponent>()]) = std::bind(&RigidbodyComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
@@ -86,6 +87,7 @@ namespace LinaEditor
 		std::get<2>(m_componentFunctionsMap[GetTypeID<MeshRendererComponent>()]) = std::bind(&MeshRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
 		std::get<2>(m_componentFunctionsMap[GetTypeID<SpriteRendererComponent>()]) = std::bind(&SpriteRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
 
+#endif
 		LinaEngine::ECS::ECSRegistry& reg = LinaEngine::Application::GetECSRegistry();
 		reg.on_destroy<TransformComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
 		reg.on_destroy<RigidbodyComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
@@ -262,6 +264,7 @@ const char* rigidbodyShapes[]
 	"CAPSULE"
 };
 
+#ifdef LINA_EDITOR
 
 void LinaEngine::ECS::TransformComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 {
@@ -799,17 +802,32 @@ void LinaEngine::ECS::MeshRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::ECS:
 			ImGui::OpenPopup("Select Mesh");
 
 		bool meshPopupOpen = true;
+		static bool meshPopupWasOpen = false;
 		WidgetsUtility::FramePaddingY(8);
 		WidgetsUtility::FramePaddingX(4);
 		ImGui::SetNextWindowSize(ImVec2(280, 400));
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
 		if (ImGui::BeginPopupModal("Select Mesh", &meshPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 		{
+			meshPopupWasOpen = true;
 			SelectMeshModal::Draw(LinaEngine::Graphics::Mesh::GetLoadedMeshes(), &renderer.m_selectedMeshID, renderer.m_selectedMeshPath);
 			ImGui::EndPopup();
 		}
 		WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
 
+		static LinaEngine::Graphics::Mesh* selectedMesh = nullptr;
+		if (meshPopupWasOpen && !ImGui::IsPopupOpen("Select Mesh"))
+		{
+			meshPopupWasOpen = false;
+
+			if (LinaEngine::Graphics::Mesh::MeshExists(renderer.m_selectedMeshID))
+				selectedMesh = &LinaEngine::Graphics::Mesh::GetMesh(renderer.m_selectedMeshID);
+			else
+				selectedMesh = nullptr;
+		}
+
+		if (selectedMesh != nullptr)
+			renderer.m_meshParamsPath = selectedMesh->GetParamsPath();
 		renderer.m_meshID = renderer.m_selectedMeshID;
 		renderer.m_meshPath = renderer.m_selectedMeshPath;
 
@@ -932,3 +950,5 @@ void LinaEngine::ECS::SpriteRendererComponent::COMPONENT_DRAWFUNC(LinaEngine::EC
 	// Draw bevel line.
 	WidgetsUtility::DrawBeveledLine();
 }
+
+#endif

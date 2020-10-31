@@ -66,7 +66,7 @@ void CreateSingleColorSkybox(RenderEngine& renderEngine)
 {
 	Material& mat = LinaEngine::Graphics::Material::CreateMaterial(Shaders::Skybox_SingleColor);
 	mat.SetColor("material.color", Color::Red);
-	renderEngine.SetSkyboxMaterial(mat);
+	renderEngine.SetSkyboxMaterial(&mat);
 }
 
 void CreateGradientSkybox(RenderEngine& renderEngine)
@@ -74,7 +74,7 @@ void CreateGradientSkybox(RenderEngine& renderEngine)
 	Material& mat = LinaEngine::Graphics::Material::CreateMaterial(Shaders::Skybox_Gradient);
 	mat.SetColor("material.startColor", Color::Green);
 	mat.SetColor("material.endColor", Color::White);
-	renderEngine.SetSkyboxMaterial(mat);
+	renderEngine.SetSkyboxMaterial(&mat);
 }
 
 void CreateProceduralSkybox(RenderEngine& renderEngine)
@@ -83,7 +83,7 @@ void CreateProceduralSkybox(RenderEngine& renderEngine)
 	mat.SetColor("material.startColor", Color::White);
 	mat.SetColor("material.endColor", Color(0.2f, 0.2f, 0.2f));
 	mat.SetVector3("material.sunDirection", Vector3(0.0f, -1.0f, 0.0f));
-	renderEngine.SetSkyboxMaterial(mat);
+	renderEngine.SetSkyboxMaterial(&mat);
 }
 
 void CreateHDRISkybox(RenderEngine& renderEngine)
@@ -92,7 +92,7 @@ void CreateHDRISkybox(RenderEngine& renderEngine)
 	renderEngine.CaptureCalculateHDRI(*hdri);
 	Material& mat = LinaEngine::Graphics::Material::CreateMaterial(Shaders::Skybox_HDRI);
 	mat.SetTexture(MAT_MAP_ENVIRONMENT, &renderEngine.GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
-	renderEngine.SetSkyboxMaterial(mat);
+	renderEngine.SetSkyboxMaterial(&mat);
 }
 
 void CreateAtmosphericSkybox(RenderEngine& renderEngine)
@@ -100,7 +100,7 @@ void CreateAtmosphericSkybox(RenderEngine& renderEngine)
 	Material& mat = LinaEngine::Graphics::Material::CreateMaterial(Shaders::Skybox_Atmospheric);
 	//mat.SetFloat(MAT_TIME, 15);
 	//mat.SetFloat(UF_FLOAT_TIME, 15);
-	renderEngine.SetSkyboxMaterial(mat);
+	renderEngine.SetSkyboxMaterial(&mat);
 }
 ECSEntity cube1;
 ECSEntity cube2;
@@ -112,12 +112,15 @@ void Example1Level::Initialize()
 	LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
 	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
 
-	cube1 = ecs.GetEntity("Entity");
+	//cube1 = ecs.GetEntity("Entity");
 }
 
 bool locTog = false;
 void Example1Level::Tick(float delta)
 {
+	return;
+
+
 	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
 
 	TransformComponent& tr = ecs.get<TransformComponent>(cube1);

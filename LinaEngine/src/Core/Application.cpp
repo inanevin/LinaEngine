@@ -199,6 +199,8 @@ namespace LinaEngine
 				accumulator -= PHYSICS_DELTA;
 			}
 
+			LINA_TIMER_START("[Graphics] Render");
+
 			if (m_canRender)
 			{
 				// render level.
@@ -208,6 +210,8 @@ namespace LinaEngine
 				s_renderEngine->RenderLayers();
 				s_renderEngine->Swap();
 			}
+
+			LINA_TIMER_STOP("[Graphics] Render");
 
 			frames++;
 

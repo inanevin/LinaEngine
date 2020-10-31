@@ -54,6 +54,7 @@ class SandboxApplication : public LinaEngine::Application
 		// Refresh after level init.
 		m_editor.Refresh();
 #endif
+
 		// Set the app window size back to original.
 		GetAppWindow().SetSize(Vector2(props.m_width, props.m_height));
 		GetAppWindow().SetPosCentered(Vector2::Zero);
