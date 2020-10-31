@@ -167,7 +167,6 @@ namespace LinaEngine::Graphics
 	{
 		// DrawShadows();
 
-		LINA_TIMER_START("[Graphics] Render");
 
 		Draw();
 
@@ -177,8 +176,6 @@ namespace LinaEngine::Graphics
 			m_firstFrameDrawn = true;
 		}
 
-		LINA_TIMER_STOP("[Graphics] Render");
-
 		//DrawOperationsDefault();
 	}
 
@@ -187,25 +184,16 @@ namespace LinaEngine::Graphics
 		s_renderDevice.SetFBO(0);
 		s_renderDevice.SetViewport(m_viewportPos, m_viewportSize);
 
-		LINA_TIMER_START("[Graphics] Render Layers");
-
 		// Draw GUI Layers
 		for (Layer* layer : m_guiLayerStack)
 			layer->Render();
-
-		LINA_TIMER_STOP("[Graphics] Render Layers");
 
 	}
 
 	void RenderEngine::Swap()
 	{
-		LINA_TIMER_START("[Graphics] Swap");
-
 		// Update window.
 		m_appWindow->Tick();
-
-		LINA_TIMER_STOP("[Graphics] Swap");
-
 	}
 
 	void RenderEngine::SetViewportDisplay(Vector2 pos, Vector2 size)
@@ -448,10 +436,10 @@ namespace LinaEngine::Graphics
 		s_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Update pipeline.
-		//m_renderingPipeline.UpdateSystems(0.0f);
+		m_renderingPipeline.UpdateSystems(0.0f);
 
 		// Update uniform buffers on GPU
-		//UpdateUniformBuffers();
+		UpdateUniformBuffers();
 
 		// Draw scene
 		DrawSceneObjects(m_defaultDrawParams);
@@ -636,24 +624,6 @@ namespace LinaEngine::Graphics
 
 		// Update debug fufer.
 		m_globalDebugBuffer.Update(&m_debugData.visualizeDepth, 0, sizeof(bool));
-	}
-
-	void RenderEngine::UpdateSystems()
-	{
-		LINA_TIMER_START("[Graphics] ECS Systems");
-
-		// Update pipeline.
-		m_renderingPipeline.UpdateSystems(0.0f);
-
-		LINA_TIMER_STOP("[Graphics] ECS Systems");
-
-		LINA_TIMER_START("[Graphics] Buffers");
-
-		// Update uniform buffers on GPU
-		UpdateUniformBuffers();
-
-		LINA_TIMER_STOP("[Graphics] Buffers");
-
 	}
 
 	void RenderEngine::UpdateShaderData(Material* data)

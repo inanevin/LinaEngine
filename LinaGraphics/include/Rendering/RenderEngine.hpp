@@ -118,7 +118,6 @@ namespace LinaEngine::Graphics
 		RenderSettings& GetRenderSettings() { return m_renderSettings; }
 		void SetCurrentPLightCount(int count) { m_currentPointLightCount = count; }
 		void SetCurrentSLightCount(int count) { m_currentSpotLightCount = count; }
-		void UpdateSystems();
 
 	private:
 

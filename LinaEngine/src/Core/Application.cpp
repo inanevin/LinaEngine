@@ -189,8 +189,6 @@ namespace LinaEngine
 
 			LINA_TIMER_STOP("[Core] Main Pipeline");
 
-			s_renderEngine->UpdateSystems();
-
 			accumulator += deltaTime;
 
 			while (accumulator >= PHYSICS_DELTA)
