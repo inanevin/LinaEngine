@@ -211,6 +211,10 @@ namespace LinaEngine::Graphics
 		s_renderDevice.ResizeRTTexture(m_pingPongRTTexture1.GetID(), m_viewportSize, m_pingPongRTParams.m_textureParams.m_internalPixelFormat, m_pingPongRTParams.m_textureParams.m_pixelFormat);
 		s_renderDevice.ResizeRTTexture(m_pingPongRTTexture1.GetID(), m_viewportSize, m_pingPongRTParams.m_textureParams.m_internalPixelFormat, m_pingPongRTParams.m_textureParams.m_pixelFormat);
 		s_renderDevice.ResizeRenderBuffer(m_primaryRenderTarget.GetID(), m_primaryRenderBuffer.GetID(), m_viewportSize, RenderBufferStorage::STORAGE_DEPTH);
+
+#ifdef LINA_EDITOR
+		s_renderDevice.ResizeRTTexture(m_secondaryRTTexture.GetID(), m_viewportSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
+#endif
 	}
 
 
@@ -388,6 +392,11 @@ namespace LinaEngine::Graphics
 		// Initialize depth map for shadows
 		m_shadowMapTarget.Construct(s_renderDevice, m_shadowMapRTTexture, m_shadowMapResolution, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
 
+#ifdef LINA_EDITOR
+		m_secondaryRTTexture.ConstructRTTexture(s_renderDevice, m_viewportSize, m_primaryRTParams, false);
+		m_secondaryRenderBuffer.Construct(s_renderDevice, RenderBufferStorage::STORAGE_DEPTH, m_viewportSize);
+		m_secondaryRenderTarget.Construct(s_renderDevice, m_secondaryRTTexture, m_viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_secondaryRenderBuffer.GetID());
+#endif
 	}
 
 	void RenderEngine::DumpMemory()
@@ -476,14 +485,17 @@ namespace LinaEngine::Graphics
 			}
 		}
 
-#ifndef LINA_EDITOR
+#ifdef LINA_EDITOR
+		s_renderDevice.SetFBO(m_secondaryRenderTarget.GetID());
+#else
 		// Back to default buffer
-		s_renderDevice.SetFBO(0);
+		s_renderDevice.SetFBO(0);	
+#endif
+
 		s_renderDevice.SetViewport(m_viewportPos, m_viewportSize);
 
 		// Clear color bit.
 		s_renderDevice.Clear(true, true, false, Color::White, 0xFF);
-#endif
 
 		// Set frame buffer texture on the material.
 		m_screenQuadFinalMaterial.SetTexture(MAT_MAP_SCREEN, &m_primaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D);
@@ -920,7 +932,7 @@ namespace LinaEngine::Graphics
 
 	void* RenderEngine::GetFinalImage()
 	{
-		return (void*)m_primaryRTTexture0.GetID();
+		return (void*)m_secondaryRTTexture.GetID();
 	}
 
 	void* RenderEngine::GetShadowMapImage()

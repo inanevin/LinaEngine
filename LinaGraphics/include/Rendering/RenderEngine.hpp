@@ -153,6 +153,12 @@ namespace LinaEngine::Graphics
 		RenderTarget m_hdriCaptureRenderTarget;
 		RenderTarget m_shadowMapTarget;
 
+#ifdef LINA_EDITOR
+		RenderTarget m_secondaryRenderTarget;
+		RenderBuffer m_secondaryRenderBuffer;
+		Texture m_secondaryRTTexture;
+#endif
+
 		RenderBuffer m_primaryRenderBuffer;
 		RenderBuffer m_hdriCaptureRenderBuffer;
 
