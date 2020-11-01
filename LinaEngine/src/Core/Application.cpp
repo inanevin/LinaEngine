@@ -39,7 +39,6 @@ SOFTWARE.
 
 namespace LinaEngine
 {
-#define DELTA_TIME_DEQUE_HISTORY 11.0
 #define PHYSICS_DELTA 0.01666
 
 	Action::ActionDispatcher Application::s_engineDispatcher;
@@ -104,7 +103,7 @@ namespace LinaEngine
 		s_ecs.RegisterComponentToClone<ECS::ECSEntityData>();
 		s_ecs.RegisterComponentToClone<ECS::TransformComponent>();
 
-
+		m_deltaTimeArray.fill(-1.0);
 		m_running = true;
 	}
 
@@ -272,39 +271,58 @@ namespace LinaEngine
 
 	void Application::RemoveOutliers(bool biggest)
 	{
-		double outlier = biggest ? 0 : 100;
-		std::deque<double>::iterator itOutlier = m_deltaTimeDeque.begin();
-		for (std::deque<double>::iterator it = m_deltaTimeDeque.begin(); it != m_deltaTimeDeque.end(); ++it)
+		int outlier = biggest ? 0 : 10;
+		int outlierIndex = -1;
+		int indexCounter = 0;
+		for (double d : m_deltaTimeArray)
 		{
-			if(biggest)
+			if (d < 0)
 			{
-				if (*it > outlier)
+				indexCounter++;
+				continue;
+			}
+
+			if (biggest)
+			{
+				if (d > outlier)
 				{
-					outlier = *it;
-					itOutlier = it;
+					outlierIndex = indexCounter;
+					outlier = d;
 				}
 			}
 			else
 			{
-				if (*it < outlier)
+				if (d < outlier)
 				{
-					outlier = *it;
-					itOutlier = it;
+					outlierIndex = indexCounter;
+					outlier = d;
 				}
 			}
+
+			indexCounter++;
 		}
 
-		m_deltaTimeDeque.erase(itOutlier);
+		if (outlierIndex != -1)
+			m_deltaTimeArray[outlierIndex] = m_deltaTimeArray[outlierIndex] * -1.0;
 	}
 
 	double Application::SmoothDeltaTime(double dt)
 	{
-		m_deltaTimeDeque.push_back(dt);
+		if (m_deltaFirstFill < DELTA_TIME_HISTORY)
+		{
+			m_deltaFirstFill++;
+		}
+		else if (!m_deltaFilled)
+			m_deltaFilled = true;
 
-		if (m_deltaTimeDeque.size() < DELTA_TIME_DEQUE_HISTORY + 1)
+		m_deltaTimeArray[m_deltaTimeArrOffset] = dt;
+		m_deltaTimeArrOffset++;
+
+		if (m_deltaTimeArrOffset == DELTA_TIME_HISTORY)
+			m_deltaTimeArrOffset = 0;
+
+		if (!m_deltaFilled)
 			return dt;
-
-		m_deltaTimeDeque.pop_front();
 
 		// Remove the biggest & smalles 2 deltas.
 		RemoveOutliers(true);
@@ -312,14 +330,46 @@ namespace LinaEngine
 		RemoveOutliers(false);
 		RemoveOutliers(false);
 
-		double mean = 0;
+		double avg = 0.0;
+		int index = 0;
+		for (double d : m_deltaTimeArray)
+		{
+			if (d < 0.0)
+			{
+				m_deltaTimeArray[index] = m_deltaTimeArray[index] * -1.0;
+				index++;
+				continue;
+			}
 
-		for (double delta : m_deltaTimeDeque)
-			mean += delta;
+			avg += d;
+			index++;
+		}
 
-		mean /= (DELTA_TIME_DEQUE_HISTORY - 4.0);
+		avg /= DELTA_TIME_HISTORY - 4;
 
-		return Math::Lerp(m_smoothDeltaTime, mean, dt);
+		return avg;
+		//	if (m_deltaTimeDeque.size() > DELTA_TIME_DEQUE_HISTORY +1)
+		//	{
+		//		LINA_CORE_TRACE("Returning DT");
+		//		return dt;
+		//	}
+		//
+		//	m_deltaTimeDeque.pop_front();
+		//
+		//	// Remove the biggest & smalles 2 deltas.
+		//	RemoveOutliers(true);
+		//	RemoveOutliers(true);
+		//	RemoveOutliers(false);
+		//	RemoveOutliers(false);
+		//
+		//	double mean = 0;
+		//
+		//	for (double delta : m_deltaTimeDeque)
+		//		mean += delta;
+		//
+		//	mean /= (DELTA_TIME_DEQUE_HISTORY - 4.0);
+		//
+		//	return Math::Lerp(m_smoothDeltaTime, mean, dt);
 	}
 
 	void Application::PushLayer(Layer& layer)

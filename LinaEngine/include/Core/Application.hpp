@@ -45,8 +45,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "ECS/ECSSystem.hpp"
 #include "Actions/ActionDispatcher.hpp"
 #include <functional>
-#include <deque>
-
+#include <array>
 
 namespace LinaEngine::World
 {
@@ -77,6 +76,8 @@ namespace LinaEngine
 	class Application
 	{
 	public:
+
+#define DELTA_TIME_HISTORY 11
 
 		virtual ~Application();
 
@@ -172,8 +173,11 @@ namespace LinaEngine
 		std::function<void()> m_postSceneDrawCallback;
 
 
-		std::deque<double> m_deltaTimeDeque;
-
+		std::array<double, DELTA_TIME_HISTORY> m_deltaTimeArray;
+		uint8 m_deltaTimeArrIndex = 0;
+		uint8 m_deltaTimeArrOffset = 0;
+		int m_deltaFirstFill = 0;
+		bool m_deltaFilled = false;
 	};
 
 	// Defined in client.
