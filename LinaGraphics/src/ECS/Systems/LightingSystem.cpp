@@ -95,7 +95,10 @@ namespace LinaEngine::ECS
 			Vector3 direction = Vector3::Zero - dirLightTransform->transform.GetLocation();
 			s_renderDevice->UpdateShaderUniformColor(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTCOLOR, dirLight->m_color);
 			s_renderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTDIRECTION, direction.Normalized());
-			//m_RenderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTPOSITION, dirLightTransform->transform.location);
+		}
+		else
+		{
+			s_renderDevice->UpdateShaderUniformColor(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTCOLOR, Color::Black);
 		}
 
 		// Iterate point lights.

@@ -455,7 +455,7 @@ namespace LinaEngine::Graphics
 
 		bool horizontal = true;
 
-		if (m_screenQuadFinalMaterial.m_bools[MAT_BLOOMENABLED])
+		if (m_renderSettings.m_bloomEnabled)
 		{
 			// Write to the pingpong buffers to apply 2 pass gaussian blur.
 			bool firstIteration = true;
@@ -916,7 +916,8 @@ namespace LinaEngine::Graphics
 		}
 
 		mat->RemoveTexture(MAT_TEXTURE2D_IRRADIANCEMAP);
-		mat->RemoveTexture(MAT_TEXTURE2D_BRDFLUTMAP);		mat->RemoveTexture(MAT_TEXTURE2D_PREFILTERMAP);
+		mat->RemoveTexture(MAT_TEXTURE2D_BRDFLUTMAP);	
+		mat->RemoveTexture(MAT_TEXTURE2D_PREFILTERMAP);
 
 	}
 
