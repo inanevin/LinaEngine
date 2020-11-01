@@ -50,6 +50,8 @@ namespace LinaEditor
 		static std::string& contentsPath;
 	};
 
+#define EDITOR_CAMERA_NAME "Editor Camera"
+
 	// GLOBAL
 #define GLOBAL_FRAMEPADDING_WINDOW ImVec2(0,6)
 #define GLOBAL_DOCKSPACE_BEGIN 60

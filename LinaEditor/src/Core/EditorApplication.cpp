@@ -36,12 +36,11 @@ SOFTWARE.
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Systems/FreeLookSystem.hpp"
-
+#include "Core/EditorCommon.hpp"
 using namespace LinaEngine::ECS;
 
 namespace LinaEditor
 {
-#define EDITOR_CAMERA_NAME "Editor Camera"
 
 	LinaEngine::Action::ActionDispatcher EditorApplication::s_editorDispatcher;
 

@@ -53,9 +53,7 @@ namespace LinaEngine::World
 			{
 				DeserializeLevelData("resources/sandbox/levels/", "Example1Level");
 
-#ifndef LINA_EDITOR
 				LoadLevelResources();
-#endif
 
 			}
 		}
@@ -118,6 +116,8 @@ namespace LinaEngine::World
 				Graphics::Mesh& mesh = Graphics::Mesh::CreateMesh(mr.m_meshPath, params, -1, mr.m_meshParamsPath);
 				mr.m_meshID = mesh.GetID();
 			}
+			else
+				mr.m_meshID = Graphics::Mesh::GetMesh(mr.m_meshPath).GetID();
 		}
 
 		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();

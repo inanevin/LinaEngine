@@ -35,8 +35,7 @@ SOFTWARE.
 
 namespace LinaEngine::ECS
 {
-	float targetXAngle = 0.0f;
-	float targetYAngle = 0.0f;
+	
 
 	void FreeLookSystem::UpdateComponents(float delta)
 	{
@@ -60,11 +59,11 @@ namespace LinaEngine::ECS
 			// Holding right click enables rotating.
 			if (m_inputEngine->GetMouseButton(LinaEngine::Input::InputCode::Mouse::Mouse2))
 			{
-				targetYAngle += mouseAxis.y * freeLook.m_rotationSpeeds.x * delta * 50;
-				targetXAngle += mouseAxis.x * freeLook.m_rotationSpeeds.y * delta * 50;
+				m_targetYAngle += mouseAxis.y * freeLook.m_rotationSpeeds.x * delta * 50;
+				m_targetXAngle += mouseAxis.x * freeLook.m_rotationSpeeds.y * delta * 50;
 
-				freeLook.m_angles.y = LinaEngine::Math::Lerp(freeLook.m_angles.y, targetYAngle, 8 * delta);
-				freeLook.m_angles.x = LinaEngine::Math::Lerp(freeLook.m_angles.x, targetXAngle, 8 * delta);
+				freeLook.m_angles.y = LinaEngine::Math::Lerp(freeLook.m_angles.y, m_targetYAngle, 8 * delta);
+				freeLook.m_angles.x = LinaEngine::Math::Lerp(freeLook.m_angles.x, m_targetXAngle, 8 * delta);
 
 				transform.transform.Rotate(Vector3(freeLook.m_angles.y, freeLook.m_angles.x, 0.0f));
 			}

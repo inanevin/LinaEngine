@@ -44,6 +44,7 @@ Example1Level::~Example1Level()
 
 }
 
+
 bool Example1Level::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
 {
 	LINA_CLIENT_WARN("Example level 1 install.");
@@ -115,13 +116,16 @@ void Example1Level::Initialize()
 	//cube1 = ecs.GetEntity("Entity");
 }
 
+ECS::FreeLookSystem freeLookSystem;
 bool locTog = false;
 void Example1Level::Tick(float delta)
 {
-	return;
-
-
 	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
+
+	freeLookSystem.Construct(ecs, LinaEngine::Application::GetInputEngine());
+	freeLookSystem.SystemActivation(true);
+	LinaEngine::Application::GetApp().AddToMainPipeline(freeLookSystem);
+	return;
 
 	TransformComponent& tr = ecs.get<TransformComponent>(cube1);
 	float speed = 10.0f;

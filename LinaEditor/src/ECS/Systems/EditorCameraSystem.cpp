@@ -33,38 +33,36 @@ SOFTWARE.
 #include "Input/InputEngine.hpp"
 #include "Utility/Math/Math.hpp"
 #include "Panels/ScenePanel.hpp"
-
+#include "Core/EditorCommon.hpp"
 namespace LinaEngine::ECS
 {
-	float targetXAngle = 0.0f;
-	float targetYAngle = 0.0f;
+	
 
 	void LinaEngine::ECS::EditorCameraSystem::UpdateComponents(float delta)
 	{
 		if (!m_isActive || !m_scenePanel->IsFocused()) return;
 
-		auto view = m_ecs->view<TransformComponent, FreeLookComponent>();
-
-		for (auto entity : view)
+		static ECSEntity editorCamera = m_ecs->GetEntity(EDITOR_CAMERA_NAME);
+		if (editorCamera != entt::null)
 		{
-			FreeLookComponent& freeLook = m_ecs->get<FreeLookComponent>(entity);
-			if (!freeLook.m_isEnabled) continue;
+			FreeLookComponent& freeLook = m_ecs->get<FreeLookComponent>(editorCamera);
+			if (!freeLook.m_isEnabled) return;
 
-			TransformComponent& transform = m_ecs->get<TransformComponent>(entity);
+			TransformComponent& transform = m_ecs->get<TransformComponent>(editorCamera);
 
 			Vector2 mouseAxis = m_inputEngine->GetMouseAxis();
 
 			// Holding right click enables rotating.
 			if (m_inputEngine->GetMouseButton(LinaEngine::Input::InputCode::Mouse::Mouse2))
 			{
-				targetYAngle += mouseAxis.y * freeLook.m_rotationSpeeds.x * delta * 50;
-				targetXAngle += mouseAxis.x * freeLook.m_rotationSpeeds.y * delta * 50;
+				m_targetYAngle += mouseAxis.y * freeLook.m_rotationSpeeds.x * delta * 50;
+				m_targetXAngle += mouseAxis.x * freeLook.m_rotationSpeeds.y * delta * 50;
 
-				freeLook.m_angles.y = LinaEngine::Math::Lerp(freeLook.m_angles.y, targetYAngle, 8 * delta);
-				freeLook.m_angles.x = LinaEngine::Math::Lerp(freeLook.m_angles.x, targetXAngle, 8 * delta);
+				freeLook.m_angles.y = LinaEngine::Math::Lerp(freeLook.m_angles.y, m_targetYAngle, 8 * delta);
+				freeLook.m_angles.x = LinaEngine::Math::Lerp(freeLook.m_angles.x, m_targetXAngle, 8 * delta);
 
 				transform.transform.Rotate(Vector3(freeLook.m_angles.y, freeLook.m_angles.x, 0.0f));
-			}	
+			}
 
 			// Handle movement.
 			float horizontalKey = m_inputEngine->GetHorizontalAxisValue();
@@ -84,6 +82,7 @@ namespace LinaEngine::ECS
 
 			transform.transform.SetLocation(transform.transform.GetLocation() + vertical + horizontal);
 		}
+
 
 	}
 }
