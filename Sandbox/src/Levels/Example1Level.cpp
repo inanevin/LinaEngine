@@ -105,6 +105,7 @@ void CreateAtmosphericSkybox(RenderEngine& renderEngine)
 }
 ECSEntity cube1;
 ECSEntity cube2;
+ECS::FreeLookSystem freeLookSystem;
 
 void Example1Level::Initialize()
 {
@@ -112,20 +113,18 @@ void Example1Level::Initialize()
 	// Create a simple procedural skybox.
 	LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
 	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
-
-	//cube1 = ecs.GetEntity("Entity");
-}
-
-ECS::FreeLookSystem freeLookSystem;
-bool locTog = false;
-void Example1Level::Tick(float delta)
-{
-	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
-
 	freeLookSystem.Construct(ecs, LinaEngine::Application::GetInputEngine());
 	freeLookSystem.SystemActivation(true);
 	LinaEngine::Application::GetApp().AddToMainPipeline(freeLookSystem);
+	//cube1 = ecs.GetEntity("Entity");
+}
+
+bool locTog = false;
+void Example1Level::Tick(float delta)
+{
+
 	return;
+	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
 
 	TransformComponent& tr = ecs.get<TransformComponent>(cube1);
 	float speed = 10.0f;
