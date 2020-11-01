@@ -113,9 +113,9 @@ void Example1Level::Initialize()
 	// Create a simple procedural skybox.
 	LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
 	LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
-	freeLookSystem.Construct(ecs, LinaEngine::Application::GetInputEngine());
-	freeLookSystem.SystemActivation(true);
-	LinaEngine::Application::GetApp().AddToMainPipeline(freeLookSystem);
+	//freeLookSystem.Construct(ecs, LinaEngine::Application::GetInputEngine());
+	//freeLookSystem.SystemActivation(true);
+	//LinaEngine::Application::GetApp().AddToMainPipeline(freeLookSystem);
 	//cube1 = ecs.GetEntity("Entity");
 }
 
