@@ -26,39 +26,51 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "FPSDemo/FPSDemoLevel.hpp"
-#include "Core/EditorCommon.hpp"
-#include "ECS/Components/CameraComponent.hpp"
-#include "ECS/Components/FreeLookComponent.hpp"
-#include "Core/Application.hpp"
+/*
+Class: Player
+
+FPS player entity for FPSDemo.
+
+Timestamp: 11/3/2020 1:29:47 AM
+*/
+
+#pragma once
+
+#ifndef Player_HPP
+#define Player_HPP
+
+// Headers here.
+#include "ECS/ECS.hpp"
 
 namespace LinaEngine
 {
-	using namespace LinaEngine::ECS;
-
-	bool FPSDemoLevel::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
+	namespace ECS
 	{
-		Level::Install(loadFromFile, path, levelName);
-		return true;
+		class CameraComponent;
 	}
 
-	void FPSDemoLevel::Initialize()
+	class Transformation;
+
+	class Player
 	{
-		m_registry = &Application::GetECSRegistry();
+		
+	public:
+		
+		Player() {};
+		~Player() {};
 
-		// Disable editor camera if exists.
-		ECSEntity editorCamera = m_registry->GetEntity(EDITOR_CAMERA_NAME);
-		if (editorCamera != entt::null)
-		{
-			m_registry->get<CameraComponent>(editorCamera).m_isEnabled = false;
-			m_registry->get<FreeLookComponent>(editorCamera).m_isEnabled = false;
-		}
+		void Setup();
+	
+	private:
+	
+		ECS::ECSEntity m_playerEntity;
+		ECS::ECSEntity m_cameraEntity;
+		ECS::ECSRegistry* m_registry = nullptr;
+		Transformation* m_playerTransform = nullptr;
+		Transformation* m_cameraTransform = nullptr;
+		ECS::CameraComponent* m_cameraComponent = nullptr;
 
-
-		m_player.Setup();
-	}
-
-	void FPSDemoLevel::Tick(float delta)
-	{
-	}
+	};
 }
+
+#endif

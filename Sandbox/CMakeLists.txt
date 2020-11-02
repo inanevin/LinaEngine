@@ -24,6 +24,7 @@ set(SANDBOX_SOURCES
 src/Core/SandboxApplication.cpp
 src/Levels/Example1Level.cpp
 src/FPSDemo/FPSDemoLevel.cpp
+src/FPSDemo/Player.cpp
 )
 
 set(SANDBOX_HEADERS
@@ -31,6 +32,7 @@ set(SANDBOX_HEADERS
 include/Core/test.hpp
 include/Levels/Example1Level.hpp
 include/FPSDemo/FPSDemoLevel.hpp
+include/FPSDemo/Player.hpp
 )
 
 #--------------------------------------------------------------------

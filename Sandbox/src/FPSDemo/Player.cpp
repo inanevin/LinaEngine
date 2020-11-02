@@ -26,39 +26,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "FPSDemo/FPSDemoLevel.hpp"
-#include "Core/EditorCommon.hpp"
-#include "ECS/Components/CameraComponent.hpp"
-#include "ECS/Components/FreeLookComponent.hpp"
+#include "FPSDemo/Player.hpp"
 #include "Core/Application.hpp"
+#include "ECS/Components/CameraComponent.hpp"
+#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/FreeLookComponent.hpp"
 
 namespace LinaEngine
 {
 	using namespace LinaEngine::ECS;
 
-	bool FPSDemoLevel::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
-	{
-		Level::Install(loadFromFile, path, levelName);
-		return true;
-	}
-
-	void FPSDemoLevel::Initialize()
+	void Player::Setup()
 	{
 		m_registry = &Application::GetECSRegistry();
 
-		// Disable editor camera if exists.
-		ECSEntity editorCamera = m_registry->GetEntity(EDITOR_CAMERA_NAME);
-		if (editorCamera != entt::null)
-		{
-			m_registry->get<CameraComponent>(editorCamera).m_isEnabled = false;
-			m_registry->get<FreeLookComponent>(editorCamera).m_isEnabled = false;
-		}
+		// Create player.
+		m_playerEntity = m_registry->CreateEntity("Player");
+		m_cameraEntity = m_registry->CreateEntity("FPS Cam");
+		m_registry->AddChildToEntity(m_playerEntity, m_cameraEntity);
 
+		// Get references
+		m_playerTransform = &m_registry->get<TransformComponent>(m_playerEntity).transform;
+		m_cameraTransform = &m_registry->get<TransformComponent>(m_cameraEntity).transform;
+		m_cameraComponent = &m_registry->emplace<CameraComponent>(m_cameraEntity);
 
-		m_player.Setup();
-	}
+		// Set player hierarchy.
+		m_cameraTransform->SetLocalLocation(Vector3(0, 1.8f, 0.0f));
 
-	void FPSDemoLevel::Tick(float delta)
-	{
 	}
 }

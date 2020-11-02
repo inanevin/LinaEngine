@@ -40,9 +40,15 @@ Timestamp: 11/3/2020 12:39:34 AM
 #define FPSDemoLevel_HPP
 
 #include "World/Level.hpp"
+#include "Player.hpp"
 
 namespace LinaEngine
 {
+	namespace ECS
+	{
+		class ECSRegistry;
+	}
+
 	class FPSDemoLevel : public LinaEngine::World::Level
 	{
 		
@@ -56,6 +62,10 @@ namespace LinaEngine
 		virtual void Initialize() override;
 		virtual void Tick(float delta) override;
 	
+	private:
+		Player m_player;
+		ECS::ECSRegistry* m_registry = nullptr;
+
 	};
 }
 
