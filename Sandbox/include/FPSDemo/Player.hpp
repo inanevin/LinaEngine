@@ -41,6 +41,7 @@ Timestamp: 11/3/2020 1:29:47 AM
 
 // Headers here.
 #include "ECS/ECS.hpp"
+#include "Core/Layer.hpp"
 
 namespace LinaEngine
 {
@@ -51,7 +52,7 @@ namespace LinaEngine
 
 	class Transformation;
 
-	class Player
+	class Player : public Layer
 	{
 		
 	public:
@@ -59,7 +60,9 @@ namespace LinaEngine
 		Player() {};
 		~Player() {};
 
-		void Setup();
+		virtual void Attach() override;
+		virtual void Detach() override;
+		virtual void Tick(float deltaTime) override;
 	
 	private:
 	

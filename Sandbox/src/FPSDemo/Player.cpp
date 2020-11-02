@@ -36,7 +36,7 @@ namespace LinaEngine
 {
 	using namespace LinaEngine::ECS;
 
-	void Player::Setup()
+	void Player::Attach()
 	{
 		m_registry = &Application::GetECSRegistry();
 
@@ -52,6 +52,15 @@ namespace LinaEngine
 
 		// Set player hierarchy.
 		m_cameraTransform->SetLocalLocation(Vector3(0, 1.8f, 0.0f));
+	}
+
+	void Player::Detach()
+	{
+
+	}
+
+	void Player::Tick(float deltaTime)
+	{
 
 	}
 }

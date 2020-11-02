@@ -55,7 +55,7 @@ namespace LinaEngine
 		}
 
 
-		m_player.Setup();
+		Application::GetApp().PushLayer(m_player);
 	}
 
 	void FPSDemoLevel::Tick(float delta)
