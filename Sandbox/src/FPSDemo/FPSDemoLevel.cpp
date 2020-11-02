@@ -36,6 +36,7 @@ namespace LinaEngine
 	ECSEntity m_playerEntity;
 	ECSEntity m_cameraEntity;
 
+
 	bool FPSDemoLevel::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
 	{
 		Level::Install(loadFromFile, path, levelName);

@@ -574,7 +574,6 @@ namespace LinaEditor
 
 	bool ResourcesPanel::VerifyMaterialFiles(EditorFolder& folder, std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*> textures)
 	{
-
 		// Iterate the files in this folder first & see if there is a match.
 		for (auto file : folder.m_files)
 		{
@@ -597,9 +596,9 @@ namespace LinaEditor
 		for (auto folder : folder.m_subFolders)
 		{
 			if (VerifyMaterialFiles(folder.second, textures))
-				break;
+				return true;
 		}
 
-		return true;
+		return false;
 	}
 }

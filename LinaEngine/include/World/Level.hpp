@@ -50,7 +50,7 @@ namespace LinaEngine::World
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_skyboxMaterialID, m_skyboxMaterialPath);
+			archive(m_skyboxMaterialPath);
 		}
 
 		std::string m_skyboxMaterialPath = "";
