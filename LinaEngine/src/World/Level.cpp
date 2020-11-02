@@ -51,15 +51,12 @@ namespace LinaEngine::World
 		{
 			if (LinaEngine::Utility::FileExists(path + levelName + ".linaleveldata"))
 			{
-				DeserializeLevelData("resources/sandbox/levels/", "Example1Level");
+				DeserializeLevelData(path, levelName);
 
 				LoadLevelResources();
 
 			}
 		}
-
-
-
 		return true;
 	}
 

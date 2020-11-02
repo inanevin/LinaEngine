@@ -28,6 +28,10 @@ SOFTWARE.
 
 #include "FPSDemo/FPSDemoLevel.hpp"
 #include "ECS/ECS.hpp"
+#include "Core/Application.hpp"
+#include "ECS/Components/CameraComponent.hpp"
+#include "ECS/Components/TransformComponent.hpp"
+
 
 namespace LinaEngine
 {
@@ -35,16 +39,34 @@ namespace LinaEngine
 
 	ECSEntity m_playerEntity;
 	ECSEntity m_cameraEntity;
-
+	ECSRegistry* m_registry = nullptr;
+	Transformation* m_playerTransform = nullptr;
+	Transformation* m_cameraTransform = nullptr;
 
 	bool FPSDemoLevel::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
 	{
 		Level::Install(loadFromFile, path, levelName);
+
+		m_registry = &Application::GetECSRegistry();
+
 		return true;
 	}
+
 	void FPSDemoLevel::Initialize()
 	{
+		// Create player.
+		m_playerEntity = m_registry->CreateEntity("Player");
+		m_cameraEntity = m_registry->CreateEntity("FPS Cam");
+		m_registry->AddChildToEntity(m_playerEntity, m_cameraEntity);
+		
+		// Get references
+		m_playerTransform = &m_registry->get<TransformComponent>(m_playerEntity).transform;
+		m_cameraTransform = &m_registry->get<TransformComponent>(m_cameraEntity).transform;
+
+		// Set player hierarchy.
+		m_cameraTransform->SetLocalLocation(Vector3(0, 1.8f, 0.0f));
 	}
+
 	void FPSDemoLevel::Tick(float delta)
 	{
 	}
