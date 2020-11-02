@@ -31,7 +31,8 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/TransformComponent.hpp"
-
+#include "ECS/Components/FreeLookComponent.hpp"
+#include "Core/EditorCommon.hpp"
 
 namespace LinaEngine
 {
@@ -42,6 +43,7 @@ namespace LinaEngine
 	ECSRegistry* m_registry = nullptr;
 	Transformation* m_playerTransform = nullptr;
 	Transformation* m_cameraTransform = nullptr;
+	CameraComponent* m_cameraComponent = nullptr;
 
 	bool FPSDemoLevel::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
 	{
@@ -62,9 +64,18 @@ namespace LinaEngine
 		// Get references
 		m_playerTransform = &m_registry->get<TransformComponent>(m_playerEntity).transform;
 		m_cameraTransform = &m_registry->get<TransformComponent>(m_cameraEntity).transform;
+		m_cameraComponent = &m_registry->emplace<CameraComponent>(m_cameraEntity);
 
 		// Set player hierarchy.
 		m_cameraTransform->SetLocalLocation(Vector3(0, 1.8f, 0.0f));
+
+		// Disable editor camera if exists.
+		ECSEntity editorCamera = m_registry->GetEntity(EDITOR_CAMERA_NAME);		
+		if (editorCamera != entt::null)
+		{
+			m_registry->get<CameraComponent>(editorCamera).m_isEnabled = false;
+			m_registry->get<FreeLookComponent>(editorCamera).m_isEnabled = false;
+		}
 	}
 
 	void FPSDemoLevel::Tick(float delta)
