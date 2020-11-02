@@ -70,8 +70,6 @@ namespace LinaEngine::ECS
 		// Get camera location, if camera is not defined, get zero.
 		Vector3 GetCameraLocation();
 
-		Matrix GetLightMatrix(DirectionalLightComponent* c);
-
 		// Set aspect ratio for the camera.
 		void SetAspectRatio(float aspect) { m_aspectRatio = aspect; }
 

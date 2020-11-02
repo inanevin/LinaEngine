@@ -82,16 +82,6 @@ namespace LinaEngine::ECS
 		return (m_currentCameraComponent == nullptr || m_currentCameraTransform == nullptr) ? Vector3(Vector3::Zero) : m_currentCameraTransform->transform.GetLocation();
 	}
 
-	Matrix CameraSystem::GetLightMatrix(DirectionalLightComponent* c)
-	{
-		if (c == nullptr) return Matrix();
-		Matrix lightProjection = Matrix::Orthographic(c->m_shadowOrthoProjection.x, c->m_shadowOrthoProjection.y, c->m_shadowOrthoProjection.z, c->m_shadowOrthoProjection.w, c->m_shadowZNear, c->m_shadowZFar);;
-		Vector3 location = m_currentCameraTransform->transform.GetLocation();
-		Quaternion rotation = m_currentCameraTransform->transform.GetRotation();
-		Matrix lightView = Matrix::InitLookAt(location, location + rotation.GetForward().Normalized(), Vector3::Up);
-		return lightProjection * lightView;
-	}
-
 	LinaEngine::Color& CameraSystem::GetCurrentClearColor()
 	{
 		return m_currentCameraComponent == nullptr ? LinaEngine::Color::Gray : m_currentCameraComponent->m_clearColor;

@@ -48,7 +48,8 @@ namespace LinaEditor
 	{
 		"material.irradianceMap",
 		"material.prefilterMap",
-		"material.brdfLUTMap"
+		"material.brdfLUTMap",
+		"material.shadowMap"
 	};
 
 

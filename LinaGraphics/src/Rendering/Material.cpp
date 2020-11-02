@@ -85,8 +85,12 @@ namespace LinaEngine::Graphics
 			m_sampler2Ds[textureName].m_boundTexture = texture;
 			m_sampler2Ds[textureName].m_bindMode = bindMode;
 			m_sampler2Ds[textureName].m_isActive = texture == nullptr ? false : true;
-			m_sampler2Ds[textureName].m_path = texture->GetPath();
-			m_sampler2Ds[textureName].m_paramsPath = texture->GetParamsPath();
+
+			if (texture != nullptr)
+			{
+				m_sampler2Ds[textureName].m_path = texture->GetPath();
+				m_sampler2Ds[textureName].m_paramsPath = texture->GetParamsPath();
+			}		
 		}
 		else
 		{
@@ -196,13 +200,12 @@ namespace LinaEngine::Graphics
 		material.m_receivesLighting = false;
 		material.m_usesHDRI = false;
 
+
 		if (shader == Shaders::Standard_Unlit)
 		{
 			material.m_colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
 			material.m_sampler2Ds[MAT_TEXTURE2D_DIFFUSE] = { 0 };
 			material.m_ints[MAT_SURFACETYPE] = 0;
-			// s_shadowMappedMaterials.emplace(&material);
-
 		}
 		else if (shader == Shaders::Skybox_SingleColor)
 		{
@@ -260,6 +263,7 @@ namespace LinaEngine::Graphics
 		else if (shader == Shaders::ScreenQuad_Shadowmap)
 		{
 
+
 		}
 		else if (shader == Shaders::PBR_Lit)
 		{
@@ -268,8 +272,8 @@ namespace LinaEngine::Graphics
 			material.m_sampler2Ds[MAT_TEXTURE2D_ROUGHNESSMAP] = { 2 };
 			material.m_sampler2Ds[MAT_TEXTURE2D_METALLICMAP] = { 3 };
 			material.m_sampler2Ds[MAT_TEXTURE2D_AOMAP] = { 4 };
+		//	material.m_sampler2Ds[MAT_TEXTURE2D_SHADOWMAP] = { 5 };
 			material.m_sampler2Ds[MAT_TEXTURE2D_BRDFLUTMAP] = { 5 };
-			// material.m_sampler2Ds[MAT_TEXTURE2D_SHADOWMAP] = { 6 };
 			material.m_sampler2Ds[MAT_TEXTURE2D_IRRADIANCEMAP] = { 6, nullptr, "", "", TextureBindMode::BINDTEXTURE_CUBEMAP, false };
 			material.m_sampler2Ds[MAT_TEXTURE2D_PREFILTERMAP] = { 7,nullptr, "", "", TextureBindMode::BINDTEXTURE_CUBEMAP, false };
 			material.m_floats[MAT_METALLICMULTIPLIER] = 1.0f;
@@ -278,9 +282,8 @@ namespace LinaEngine::Graphics
 			material.m_vector2s[MAT_TILING] = Vector2::One;
 			material.m_colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
 			material.m_receivesLighting = true;
-			material.m_isShadowMapped = true;
+		//	material.m_isShadowMapped = true;
 			material.m_usesHDRI = true;
-			// s_shadowMappedMaterials.emplace(&material);
 		}
 		else if (shader == Shaders::HDRI_Equirectangular)
 		{
@@ -306,6 +309,10 @@ namespace LinaEngine::Graphics
 	{
 		if (material.m_usesHDRI)
 			s_hdriMaterials.emplace(&material);
+
+		if(material.m_isShadowMapped)
+			s_shadowMappedMaterials.emplace(&material);
+
 	}
 
 	void Material::UnloadAll()
@@ -314,6 +321,7 @@ namespace LinaEngine::Graphics
 		s_hdriMaterials.clear();
 		s_shadowMappedMaterials.clear();
 	}
+
 
 	bool Material::MaterialExists(int id)
 	{

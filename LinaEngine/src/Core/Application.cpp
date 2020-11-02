@@ -318,6 +318,7 @@ namespace LinaEngine
 		m_deltaTimeArray[m_deltaTimeArrOffset] = dt;
 		m_deltaTimeArrOffset++;
 
+
 		if (m_deltaTimeArrOffset == DELTA_TIME_HISTORY)
 			m_deltaTimeArrOffset = 0;
 

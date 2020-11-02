@@ -151,8 +151,17 @@ namespace LinaEngine::ECS
 		if (directionalLightTransform == nullptr || light == nullptr) return Matrix();
 
 		Matrix lightProjection = Matrix::Orthographic(light->m_shadowOrthoProjection.x, light->m_shadowOrthoProjection.y, light->m_shadowOrthoProjection.z, light->m_shadowOrthoProjection.w, light->m_shadowZNear, light->m_shadowZFar);
-		Matrix lightView = Matrix::TransformMatrix(directionalLightTransform->transform.GetLocation(), directionalLightTransform->transform.GetRotation(), Vector3::One);
+	//	Matrix lightView = Matrix::TransformMatrix(directionalLightTransform->transform.GetLocation(), directionalLightTransform->transform.GetRotation(), Vector3::One);
+		Matrix lightView = glm::lookAt(directionalLightTransform->transform.GetLocation(), glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
 
+
+
+		//Matrix lightProjection = Matrix::Orthographic(light->m_shadowOrthoProjection.x, light->m_shadowOrthoProjection.y, light->m_shadowOrthoProjection.z, light->m_shadowOrthoProjection.w, 
+			//light->m_shadowZNear, light->m_shadowZFar);
+		Vector3 location = directionalLightTransform->transform.GetLocation();
+		Quaternion rotation = directionalLightTransform->transform.GetRotation();
+		//Matrix lightView = Matrix::InitLookAt(location, location + rotation.GetForward().Normalized(), Vector3::Up);
+		return lightProjection * lightView;
 		//Matrix lightView = Matrix::InitRotationFromDirection(directionalLightTransform->transform.rotation.GetForward(), directionalLightTransform->transform.rotation.GetUp());
 		//Matrix lightView = Matrix::InitLookAt(directionalLightTransform == nullptr ? Vector3::Zero : directionalLightTransform->transform.location, Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
 		//Matrix lightView = glm::lookAt(directionalLightTransform->transform.location, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
@@ -162,7 +171,7 @@ namespace LinaEngine::ECS
 		//	glm::vec3(0.0f, 0.0f, 0.0f),
 		//	glm::vec3(0.0f, 1.0f, 0.0f));
 
-		return lightView * lightProjection;
+	//	return lightView * lightProjection;
 	}
 
 	Matrix LightingSystem::GetDirLightBiasMatrix()

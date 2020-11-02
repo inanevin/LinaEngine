@@ -166,8 +166,6 @@ namespace LinaEngine::Graphics
 	void RenderEngine::Render()
 	{
 		// DrawShadows();
-
-
 		Draw();
 
 		if (!m_firstFrameDrawn)
@@ -231,6 +229,19 @@ namespace LinaEngine::Graphics
 			hdriMaterials.emplace(&mat);
 			SetHDRIData(&mat);
 		}
+
+		std::set<Material*>& shadowMappedMaterials = Material::GetShadowMappedMaterials();
+		if (!mat.m_isShadowMapped && shadowMappedMaterials.find(&mat) != shadowMappedMaterials.end())
+		{
+			shadowMappedMaterials.erase(&mat);
+			mat.RemoveTexture(MAT_TEXTURE2D_SHADOWMAP);
+		}
+		else if (mat.m_isShadowMapped && shadowMappedMaterials.find(&mat) == shadowMappedMaterials.end())
+		{
+			shadowMappedMaterials.emplace(&mat);
+			mat.SetTexture(MAT_TEXTURE2D_SHADOWMAP, nullptr);
+		}
+
 	}
 
 	void RenderEngine::ConstructEngineShaders()
@@ -347,7 +358,7 @@ namespace LinaEngine::Graphics
 
 		// Shadows depth.
 		m_shadowsRTParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_DEPTH;
-		m_shadowsRTParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_DEPTH16;
+		m_shadowsRTParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_DEPTH;
 		m_shadowsRTParams.m_textureParams.m_minFilter = m_shadowsRTParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_NEAREST;
 		m_shadowsRTParams.m_textureParams.m_wrapS = m_shadowsRTParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_BORDER;
 
@@ -598,7 +609,7 @@ namespace LinaEngine::Graphics
 		m_globalDataBuffer.Update(&m_cameraSystem.GetViewMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 
-		m_globalDataBuffer.Update(&m_cameraSystem.GetLightMatrix(m_lightingSystem.GetDirLight())[0][0], currentGlobalDataOffset, sizeof(Matrix));
+		m_globalDataBuffer.Update(&m_lightingSystem.GetDirectionalLightMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 
 		m_globalDataBuffer.Update(&viewPos, currentGlobalDataOffset, sizeof(Vector4));

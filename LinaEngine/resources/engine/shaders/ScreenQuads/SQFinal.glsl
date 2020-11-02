@@ -48,6 +48,11 @@ struct Material
 };
 uniform Material material;
 
+float move(float x)
+	{
+		return abs(1.0 - mod(abs(x), 2.0)) * 5 - (5);
+	}
+	
 void main()
 {
   if(material.screenMap.isActive)
@@ -103,6 +108,16 @@ void main()
     if(material.outlineMap.isActive)
       hdrColor += texture(material.outlineMap.texture, TexCoords).rgb;
 
+	float RANDSIN = 33758.5453;
+	float time = 1.0;
+	vec2 uv = TexCoords;
+	uv.x += move(uv.y * fract(sin(time) * RANDSIN) * 4.0) * fract(sin(time * 2) * RANDSIN) * 0.015 + fract(sin(uv.x * 2 + uv.y * 6.6) * RANDSIN) * 1;
+	uv.y += move(uv.x * fract(sin(time * 3) * RANDSIN) * 4.0) * fract(sin(time * 2) * RANDSIN) * 0.015 + fract(sin(uv.x * 1.5 + uv.y * 6.7) * RANDSIN) *1;
+	uv = clamp(uv, 0, 1);
+	
+	vec4 edges = 1.0 - (vec4(hdrColor,1.0) * 2 / vec4(texture(material.screenMap.texture, uv).rgb, 1.0));
+	//fragColor = edges / vec4(length(edges), length(edges), length(edges), length(edges));
+	
     // tone mapping
     vec3 result = vec3(1.0) - exp(-hdrColor * material.exposure);
     // also gamma correct while we're at it

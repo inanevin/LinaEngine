@@ -92,12 +92,10 @@ void main()
 
     // reflectance equation
     vec3 Lo = vec3(0.0);       	
-
     // Directional Light
     {
       vec3 L = -directionalLight.direction;
       vec3 radiance = directionalLight.color;
-
       Lo += CalculateLight(N, V, L, albedo, metallic, roughness, radiance, F0);
     }
 
