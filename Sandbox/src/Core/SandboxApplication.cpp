@@ -25,6 +25,7 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include "Levels/Example1Level.hpp"
 #include "Input/InputEngine.hpp"
 #include "Core/EditorApplication.hpp"
+#include "FPSDemo/FPSDemoLevel.hpp"
 
 class SandboxApplication : public LinaEngine::Application
 {
@@ -47,8 +48,8 @@ class SandboxApplication : public LinaEngine::Application
 #ifdef LINA_EDITOR
 		m_editor.Setup();
 #endif
-		InstallLevel(m_startupLevel, true, "resources/sandbox/levels/", "Example1Level");
-		InitializeLevel(m_startupLevel);
+		InstallLevel(m_fpsDemoLevel, true, "resources/sandbox/FPSDemo/levels/", "FPSDemo");
+		InitializeLevel(m_fpsDemoLevel);
 
 #ifdef LINA_EDITOR
 		// Refresh after level init.
@@ -73,6 +74,8 @@ class SandboxApplication : public LinaEngine::Application
 #ifdef LINA_EDITOR
 		LinaEditor::EditorApplication m_editor;
 #endif
+
+		FPSDemoLevel m_fpsDemoLevel;
 		Example1Level m_startupLevel;
 
 	};
