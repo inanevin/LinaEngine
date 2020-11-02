@@ -27,56 +27,28 @@ SOFTWARE.
 */
 
 /*
-Class: Player
+Class: PlayerMotionComponent
 
-FPS player entity for FPSDemo.
+Holds information about the player motion, like movement & camera rotation parameters.
 
-Timestamp: 11/3/2020 1:29:47 AM
+Timestamp: 11/3/2020 1:48:06 AM
 */
 
 #pragma once
 
-#ifndef Player_HPP
-#define Player_HPP
+#ifndef PlayerMotionComponent_HPP
+#define PlayerMotionComponent_HPP
 
-// Headers here.
-#include "ECS/ECS.hpp"
-#include "Core/Layer.hpp"
+#include "ECS/ECSComponent.hpp"
+#include "Utility/Math/Vector.hpp"
 
-namespace LinaEngine
+namespace LinaEngine::ECS
 {
-	namespace ECS
+	struct PlayerMotionComponent : public ECSComponent
 	{
-		class CameraComponent;
-		class PlayerMotionComponent;
-	}
-
-	class Transformation;
-
-	class Player : public Layer
-	{
-		
-	public:
-		
-		Player() {};
-		~Player() {};
-
-		virtual void Attach() override;
-		virtual void Detach() override;
-		virtual void Tick(float deltaTime) override;
-	
-	private:
-	
-		ECS::ECSEntity m_playerEntity;
-		ECS::ECSEntity m_cameraEntity;
-		ECS::ECSRegistry* m_registry = nullptr;
-		Transformation* m_playerTransform = nullptr;
-		Transformation* m_cameraTransform = nullptr;
-		ECS::CameraComponent* m_cameraComponent = nullptr;
-		ECS::PlayerMotionComponent* m_motionComponent = nullptr;
-
-		float m_horizontalAxisSmoothed = 0.0f;
-		float m_verticalAxisSmoothed = 0.0f;
+		Vector2 m_movementSpeeds = Vector2::Zero;
+		Vector2 m_rotationSpeeds = Vector2::Zero;
+		Vector2 m_movementSmooths = Vector2::Zero;
 	};
 }
 

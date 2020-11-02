@@ -31,7 +31,9 @@ SOFTWARE.
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
-
+#include "FPSDemo/PlayerMotionComponent.hpp"
+#include "Input/InputEngine.hpp"
+#include "Utility/Math/Math.hpp"
 namespace LinaEngine
 {
 	using namespace LinaEngine::ECS;
@@ -49,9 +51,12 @@ namespace LinaEngine
 		m_playerTransform = &m_registry->get<TransformComponent>(m_playerEntity).transform;
 		m_cameraTransform = &m_registry->get<TransformComponent>(m_cameraEntity).transform;
 		m_cameraComponent = &m_registry->emplace<CameraComponent>(m_cameraEntity);
+		m_motionComponent = &m_registry->emplace<PlayerMotionComponent>(m_playerEntity);
 
 		// Set player hierarchy.
 		m_cameraTransform->SetLocalLocation(Vector3(0, 1.8f, 0.0f));
+		m_motionComponent->m_movementSmooths = Vector2(4.0f, 4.0f);
+		m_motionComponent->m_movementSpeeds = Vector2(9.0f, 9.0f);
 	}
 
 	void Player::Detach()
@@ -61,6 +66,16 @@ namespace LinaEngine
 
 	void Player::Tick(float deltaTime)
 	{
+		float horizontal = Application::GetInputEngine().GetHorizontalAxisValue();
+		float vertical = Application::GetInputEngine().GetVerticalAxisValue();
 
+		m_horizontalAxisSmoothed = Math::Lerp(m_horizontalAxisSmoothed, horizontal, m_motionComponent->m_movementSmooths.x * deltaTime);
+		m_verticalAxisSmoothed = Math::Lerp(m_verticalAxisSmoothed, vertical, m_motionComponent->m_movementSmooths.y * deltaTime);
+
+		// Handle movement.
+		Vector3 moveDirection = m_playerTransform->GetLocation();
+		moveDirection.x += m_horizontalAxisSmoothed * deltaTime * m_motionComponent->m_movementSpeeds.x;
+		moveDirection.z += m_verticalAxisSmoothed * deltaTime * m_motionComponent->m_movementSpeeds.y;
+		m_playerTransform->SetLocation(moveDirection);
 	}
 }
