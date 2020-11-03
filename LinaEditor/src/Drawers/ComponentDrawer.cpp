@@ -70,6 +70,11 @@ namespace LinaEditor
 
 	}
 
+	void ComponentDrawer::Setup()
+	{
+		s_activeInstance = this;
+	}
+
 	// Use reflection for gods sake later on.
 	std::vector<std::string> ComponentDrawer::GetEligibleComponents(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 	{

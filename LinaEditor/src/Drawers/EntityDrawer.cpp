@@ -35,7 +35,10 @@ SOFTWARE.
 
 namespace LinaEditor
 {
-	
+	void EntityDrawer::Setup()
+	{
+		m_componentDrawer.Setup();
+	}
 	void EntityDrawer::SetSelectedEntity(LinaEngine::ECS::ECSEntity entity)
 	{
 		m_shouldCopyEntityName = true;

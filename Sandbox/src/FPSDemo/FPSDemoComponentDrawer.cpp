@@ -30,15 +30,18 @@ SOFTWARE.
 #include "FPSDemo/PlayerMotionComponent.hpp"
 #include "FPSDemo/HeadbobComponent.hpp"
 #include "Drawers/ComponentDrawer.hpp"
+#include "imgui/imgui.h"
+
 namespace LinaEngine
 {
 	void FPSDemoComponentDrawer::AddComponentDrawFunctions()
 	{
-		//LinaEditor::ComponentDrawer::s_activeInstance->RegisterComponentToDraw(LinaEngine::ECS::GetTypeID<LinaEngine::ECS::HeadbobComponent>(), "Headbob", 
+		LinaEditor::ComponentDrawer::s_activeInstance->RegisterComponentToDraw<LinaEngine::ECS::HeadbobComponent>(LinaEngine::ECS::GetTypeID<LinaEngine::ECS::HeadbobComponent>(), "Headbob",
+			std::bind(&FPSDemoComponentDrawer::DrawHeadbobComponent, this, std::placeholders::_1, std::placeholders::_2));
 	}
 	void FPSDemoComponentDrawer::DrawHeadbobComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 	{
-
+		ImGui::Text("sa");
 	}
 	void FPSDemoComponentDrawer::DrawPlayerMotionComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 	{

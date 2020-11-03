@@ -44,6 +44,7 @@ Timestamp: 11/3/2020 12:39:34 AM
 #include "Rendering/RenderTarget.hpp"
 #include "Rendering/Texture.hpp"
 #include "Rendering/Renderbuffer.hpp"
+#include "FPSDemo/FPSDemoComponentDrawer.hpp"
 
 namespace LinaEngine
 {
@@ -80,6 +81,8 @@ namespace LinaEngine
 		Graphics::Texture m_portalTexture;
 		Graphics::RenderBuffer m_portalBuffer;
 		Graphics::SamplerParameters m_portalRTParams;
+
+		FPSDemoComponentDrawer m_componentDrawer;
 	};
 }
 
