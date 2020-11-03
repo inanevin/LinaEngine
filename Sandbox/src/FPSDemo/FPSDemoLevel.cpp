@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -38,6 +38,7 @@ SOFTWARE.
 #include "FPSDemo/HeadbobComponent.hpp"
 #include "FPSDemo/PlayerMotionComponent.hpp"
 #include "Drawers/ComponentDrawer.hpp"
+#include "ECS/Systems/CameraSystem.hpp"
 
 namespace LinaEngine
 {
@@ -55,9 +56,9 @@ namespace LinaEngine
 		m_registry = &Application::GetECSRegistry();
 
 #ifndef LINA_EDITOR
-		
+
 #else
-		
+
 #endif
 		// Disable editor camera if exists.
 		ECSEntity editorCamera = m_registry->GetEntity(EDITOR_CAMERA_NAME);
@@ -139,17 +140,23 @@ namespace LinaEngine
 		RenderDevice& rd = renderEngine.GetRenderDevice();
 		Vector2 viewportSize = renderEngine.GetViewportSize();
 
-		//CameraComponent& camera = m_registry->get<CameraComponent>(m_registry->GetEntity("FPS Cam"));
-		//CameraComponent& cubeCamera = m_registry->get<CameraComponent>(m_registry->GetEntity("Cube Camera"));
-		//camera.m_isEnabled = false;
-		//cubeCamera.m_isEnabled = true;
+		CameraComponent& camera = m_registry->get<CameraComponent>(m_registry->GetEntity("FPS Cam"));
+		CameraComponent& cubeCamera = m_registry->get<CameraComponent>(m_registry->GetEntity("Cube Camera"));
+		camera.m_isEnabled = false;
+		cubeCamera.m_isEnabled = true;
 
-	//rd.SetFBO(m_portalRT.GetID());
-	//rd.SetViewport(Vector2::Zero, viewportSize);
-	//
-	//renderEngine.DrawSceneObjects(renderEngine.GetMainDrawParams());
+		rd.SetFBO(m_portalRT.GetID());
+		rd.SetViewport(Vector2::Zero, viewportSize);
+		
+		// Clear color.
+		rd.Clear(true, true, true, renderEngine.GetCameraSystem()->GetCurrentClearColor(), 0xFF);
 
-	//	camera.m_isEnabled = true;
-		//cubeCamera.m_isEnabled = false;
+		renderEngine.UpdateSystems();
+		renderEngine.DrawSceneObjects(renderEngine.GetMainDrawParams());
+
+		camera.m_isEnabled = true;
+		cubeCamera.m_isEnabled = false;
+
+		Material::GetMaterial(m_registry->get<MeshRendererComponent>(m_registry->GetEntity("Portal")).m_materialID).SetTexture(MAT_TEXTURE2D_DIFFUSE, &m_portalTexture);
 	}
 }

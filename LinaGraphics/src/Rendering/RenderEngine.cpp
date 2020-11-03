@@ -963,4 +963,13 @@ namespace LinaEngine::Graphics
 		return (void*)m_shadowMapRTTexture.GetID();
 	}
 
+	void RenderEngine::UpdateSystems()
+	{
+		// Update pipeline.
+		m_renderingPipeline.UpdateSystems(0.0f);
+
+		// Update uniform buffers on GPU
+		UpdateUniformBuffers();
+	}
+
 }

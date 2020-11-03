@@ -100,6 +100,7 @@ namespace LinaEngine::Graphics
 		void UpdateRenderSettings();
 		void* GetFinalImage();
 		void* GetShadowMapImage();
+		void UpdateSystems();
 
 		// Initializes the setup process for loading an HDRI image to the scene
 		void CaptureCalculateHDRI(Texture& hdriTexture);

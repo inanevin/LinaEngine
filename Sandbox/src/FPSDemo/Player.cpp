@@ -53,10 +53,6 @@ namespace LinaEngine
 		
 		if (m_playerEntity != entt::null && m_headbobEntity != entt::null && m_cameraEntity != entt::null)
 		{
-			// Get references
-			m_registry->get<TransformComponent>(m_playerEntity).transform;
-			m_registry->get<TransformComponent>(m_cameraEntity).transform;
-			m_registry->get<TransformComponent>(m_headbobEntity).transform;
 
 			// Set player hierarchy.
 
@@ -70,7 +66,9 @@ namespace LinaEngine
 			motionComponent.m_movementSpeeds = Vector2(9.0f, 9.0f);
 			motionComponent.m_rotationSpeeds = Vector2(260.0f, 260.0f);
 			headbobTransform.transform.SetLocalLocation(Vector3(0, 1.8f, 0.0f));
-
+			playerTransform.transform.SetLocation(Vector3::Zero);
+			playerTransform.transform.SetRotation(Quaternion::Euler(Vector3::Zero));
+			cameraTransform.transform.SetRotation(Quaternion::Euler(Vector3::Zero));
 			m_initialRotation = playerTransform.transform.GetRotation();
 			m_initialCameraRotation = cameraTransform.transform.GetRotation();
 		}
@@ -79,6 +77,8 @@ namespace LinaEngine
 #ifndef LINA_EDITOR
 		Application::GetInputEngine().SetCursorMode(Input::CursorMode::Disabled);
 #endif
+
+		Application::GetInputEngine().SetCursorMode(Input::CursorMode::Disabled);
 	}
 
 	void Player::Detach()
