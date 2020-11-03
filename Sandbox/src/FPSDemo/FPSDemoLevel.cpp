@@ -68,7 +68,7 @@ namespace LinaEngine
 	//	m_registry->get<FreeLookComponent>(editorCamera).m_isEnabled = false;
 	//}
 
-		Application::GetApp().PushLayer(m_player);
+		Application::GetApp().PushLayerToPlayStack(m_player);
 
 		RenderEngine& renderEngine = Application::GetRenderEngine();
 		RenderDevice& rd = renderEngine.GetRenderDevice();

@@ -72,10 +72,12 @@ namespace LinaEditor
 		// Remove splash.
 		delete splash;
 
-		LinaEngine::Application::GetRenderEngine().PushLayer(m_guiLayer);
+		LinaEngine::Application::GetRenderEngine().PushLayerToMainStack(m_guiLayer);
 
 		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::World::Level*>("##linaeditor_level_init", LinaEngine::Action::ActionType::LevelInitialized,
 			std::bind(&EditorApplication::LevelInstalled, this, std::placeholders::_1));
+
+		LinaEngine::Application::GetEngineDispatcher().SubscribeAction <bool>("##linaeditor_playmode", LinaEngine::Action::ActionType::PlayModeActivation, std::bind(&EditorApplication::PlayModeChanged, this, std::placeholders::_1));
 
 		editorCameraSystem.Construct(LinaEngine::Application::GetECSRegistry(), LinaEngine::Application::GetInputEngine(), m_guiLayer.GetScenePanel());
 		editorCameraSystem.SystemActivation(true);
@@ -107,6 +109,29 @@ namespace LinaEditor
 			Refresh();
 		}
 
+	}
+
+	void EditorApplication::PlayModeChanged(bool enabled)
+	{
+		ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
+		ECSEntity editorCamera = ecs.GetEntity(EDITOR_CAMERA_NAME);
+
+		if (editorCamera != entt::null)
+		{
+			if (enabled)
+			{
+				ecs.get<CameraComponent>(editorCamera).m_isEnabled = false;
+				ecs.get<FreeLookComponent>(editorCamera).m_isEnabled = false;
+				editorCameraSystem.SystemActivation(false);
+			}
+			else
+			{
+				ecs.get<CameraComponent>(editorCamera).m_isEnabled = true;
+				ecs.get<FreeLookComponent>(editorCamera).m_isEnabled = true;
+				editorCameraSystem.SystemActivation(true);
+			}
+			
+		}
 	}
 
 

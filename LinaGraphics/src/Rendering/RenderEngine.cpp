@@ -939,14 +939,14 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void RenderEngine::PushLayer(Layer& layer)
+	void RenderEngine::PushLayerToMainStack(Layer& layer)
 	{
-		m_guiLayerStack.PushLayer(layer);
+		m_guiLayerStack.PushLayerToMainStack(layer);
 	}
 
-	void RenderEngine::PushOverlay(Layer& layer)
+	void RenderEngine::PushOverlayToMainStack(Layer& layer)
 	{
-		m_guiLayerStack.PushOverlay(layer);
+		m_guiLayerStack.PushOverlayToMainStack(layer);
 	}
 
 	void* RenderEngine::GetFinalImage()

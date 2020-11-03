@@ -70,6 +70,10 @@ namespace LinaEditor
 
 	private:
 
+		void PlayModeChanged(bool enabled);
+
+	private:
+
 		LinaEngine::ECS::EditorCameraSystem editorCameraSystem;
 		static LinaEngine::Action::ActionDispatcher s_editorDispatcher;
 		GUILayer m_guiLayer;

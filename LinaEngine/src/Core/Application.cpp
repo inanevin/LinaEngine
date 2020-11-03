@@ -183,6 +183,9 @@ namespace LinaEngine
 					layer->Tick(deltaTime);
 
 				LINA_TIMER_STOP("[Core] PlayModeLayers");
+
+				if (m_inputDevice->GetKeyDown(LinaEngine::Input::InputCode::Escape))
+					SetPlayMode(false);
 			}
 		
 
@@ -386,6 +389,12 @@ namespace LinaEngine
 	void Application::SetPlayMode(bool enabled)
 	{
 		m_isInPlayMode = enabled;
+
+		if (enabled)
+			s_inputEngine->SetCursorMode(LinaEngine::Input::CursorMode::Disabled);
+		else
+			s_inputEngine->SetCursorMode(LinaEngine::Input::CursorMode::Visible);
+
 		s_engineDispatcher.DispatchAction<bool>(LinaEngine::Action::ActionType::PlayModeActivation, enabled);
 	}
 
