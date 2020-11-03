@@ -944,7 +944,11 @@ namespace LinaEngine::Graphics
 
 	void* RenderEngine::GetFinalImage()
 	{
+#ifdef LINA_EDITOR
 		return (void*)m_secondaryRTTexture.GetID();
+#else
+		return (void*)m_primaryRTTexture0.GetID();
+#endif
 	}
 
 	void* RenderEngine::GetShadowMapImage()

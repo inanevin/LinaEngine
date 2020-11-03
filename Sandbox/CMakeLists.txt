@@ -34,6 +34,7 @@ include/Levels/Example1Level.hpp
 include/FPSDemo/FPSDemoLevel.hpp
 include/FPSDemo/Player.hpp
 include/FPSDemo/PlayerMotionComponent.hpp
+include/FPSDemo/HeadbobComponent.hpp
 )
 
 #--------------------------------------------------------------------

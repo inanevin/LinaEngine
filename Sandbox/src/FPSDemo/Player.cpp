@@ -32,8 +32,10 @@ SOFTWARE.
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "FPSDemo/PlayerMotionComponent.hpp"
+#include "FPSDemo/HeadbobComponent.hpp"
 #include "Input/InputEngine.hpp"
 #include "Utility/Math/Math.hpp"
+
 namespace LinaEngine
 {
 	using namespace LinaEngine::ECS;
@@ -44,19 +46,28 @@ namespace LinaEngine
 
 		// Create player.
 		m_playerEntity = m_registry->CreateEntity("Player");
+		m_headbobEntity = m_registry->CreateEntity("Headbobber");
 		m_cameraEntity = m_registry->CreateEntity("FPS Cam");
-		m_registry->AddChildToEntity(m_playerEntity, m_cameraEntity);
+		m_registry->AddChildToEntity(m_playerEntity, m_headbobEntity);
+		m_registry->AddChildToEntity(m_headbobEntity, m_cameraEntity);
 
 		// Get references
 		m_playerTransform = &m_registry->get<TransformComponent>(m_playerEntity).transform;
 		m_cameraTransform = &m_registry->get<TransformComponent>(m_cameraEntity).transform;
+		m_headbobTransform = &m_registry->get<TransformComponent>(m_headbobEntity).transform;
 		m_cameraComponent = &m_registry->emplace<CameraComponent>(m_cameraEntity);
 		m_motionComponent = &m_registry->emplace<PlayerMotionComponent>(m_playerEntity);
 
 		// Set player hierarchy.
-		m_cameraTransform->SetLocalLocation(Vector3(0, 1.8f, 0.0f));
+		m_headbobTransform->SetLocalLocation(Vector3(0, 1.8f, 0.0f));
 		m_motionComponent->m_movementSmooths = Vector2(4.0f, 4.0f);
+		m_motionComponent->m_rotationSmooths = Vector2(7.0f,7.0f);
 		m_motionComponent->m_movementSpeeds = Vector2(9.0f, 9.0f);
+		m_motionComponent->m_rotationSpeeds = Vector2(260.0f, 260.0f);
+
+		m_initialRotation = m_playerTransform->GetRotation();
+		m_initialCameraRotation = m_cameraTransform->GetRotation();
+		Application::GetInputEngine().SetCursorMode(Input::CursorMode::Disabled);
 	}
 
 	void Player::Detach()
@@ -66,16 +77,32 @@ namespace LinaEngine
 
 	void Player::Tick(float deltaTime)
 	{
+		// Mouse axis & smoothing.
+		Vector2 mouseAxis = Application::GetInputEngine().GetMouseAxis();
+		m_mouseHorizontal += mouseAxis.x * deltaTime * m_motionComponent->m_rotationSpeeds.x;
+		m_mouseVertical += mouseAxis.y * deltaTime * m_motionComponent->m_rotationSpeeds.y;
+		m_mouseHorizontalSmoothed = Math::Lerp(m_mouseHorizontalSmoothed, m_mouseHorizontal, deltaTime * m_motionComponent->m_rotationSmooths.x);
+		m_mouseVerticalSmoothed = Math::Lerp(m_mouseVerticalSmoothed, m_mouseVertical, deltaTime * m_motionComponent->m_rotationSmooths.y);
+
+		// handle look rotation.
+		Quaternion qX = Quaternion::AxisAngle(Vector3::Up, m_mouseHorizontalSmoothed);
+		Quaternion qY = Quaternion::AxisAngle(Vector3::Right, m_mouseVerticalSmoothed);
+		m_playerTransform->SetRotation(m_initialRotation * qX);
+		m_cameraTransform->SetLocalRotation(m_initialCameraRotation * qY);
+
+		// Keyboard axis & smoothing
 		float horizontal = Application::GetInputEngine().GetHorizontalAxisValue();
 		float vertical = Application::GetInputEngine().GetVerticalAxisValue();
-
 		m_horizontalAxisSmoothed = Math::Lerp(m_horizontalAxisSmoothed, horizontal, m_motionComponent->m_movementSmooths.x * deltaTime);
 		m_verticalAxisSmoothed = Math::Lerp(m_verticalAxisSmoothed, vertical, m_motionComponent->m_movementSmooths.y * deltaTime);
 
 		// Handle movement.
-		Vector3 moveDirection = m_playerTransform->GetLocation();
-		moveDirection.x += m_horizontalAxisSmoothed * deltaTime * m_motionComponent->m_movementSpeeds.x;
-		moveDirection.z += m_verticalAxisSmoothed * deltaTime * m_motionComponent->m_movementSpeeds.y;
-		m_playerTransform->SetLocation(moveDirection);
+		Vector3 moveDirection = Vector3::Zero;
+		moveDirection.x = m_horizontalAxisSmoothed * deltaTime * m_motionComponent->m_movementSpeeds.x;
+		moveDirection.z = m_verticalAxisSmoothed * deltaTime * m_motionComponent->m_movementSpeeds.y;
+		Vector3 velocity = m_playerTransform->GetRotation() * moveDirection;
+		m_playerTransform->SetLocation(m_playerTransform->GetLocation() + velocity);
+
+
 	}
 }

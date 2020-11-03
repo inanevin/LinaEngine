@@ -27,29 +27,38 @@ SOFTWARE.
 */
 
 /*
-Class: PlayerMotionComponent
+Class: HeadbobComponent
 
-Holds information about the player motion, like movement & camera rotation parameters.
 
-Timestamp: 11/3/2020 1:48:06 AM
+
+Timestamp: 11/3/2020 10:18:39 AM
 */
 
 #pragma once
 
-#ifndef PlayerMotionComponent_HPP
-#define PlayerMotionComponent_HPP
+#ifndef HeadbobComponent_HPP
+#define HeadbobComponent_HPP
 
 #include "ECS/ECSComponent.hpp"
 #include "Utility/Math/Vector.hpp"
 
 namespace LinaEngine::ECS
 {
-	struct PlayerMotionComponent : public ECSComponent
+	struct HeadbobComponent : public ECSComponent
 	{
-		Vector2 m_movementSpeeds = Vector2::Zero;
-		Vector2 m_rotationSpeeds = Vector2::Zero;
-		Vector2 m_movementSmooths = Vector2::Zero;
-		Vector2 m_rotationSmooths = Vector2::Zero;
+		
+		Vector3 m_targetYPR = Vector3::Zero;
+		Vector3 m_actualYPR = Vector3::Zero;
+		float m_walkXSpeed = 8.0f;
+		float m_walkYSpeed = 16.0f;
+		float m_walkXAmp = 2.0f;
+		float m_walkYAmp = 1.0f;
+		float m_runXSpeed = 10.0f;
+		float m_runYSpeed = 20.0f;
+		float m_runXAmp = 4.0f;
+		float m_runYAmp = 2.0f;
+		float m_resetSpeed = 12.0f;
+	
 	};
 }
 

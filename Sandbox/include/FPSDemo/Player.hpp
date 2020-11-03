@@ -42,13 +42,15 @@ Timestamp: 11/3/2020 1:29:47 AM
 // Headers here.
 #include "ECS/ECS.hpp"
 #include "Core/Layer.hpp"
-
+#include "Utility/Math/Quaternion.hpp"
+#
 namespace LinaEngine
 {
 	namespace ECS
 	{
 		class CameraComponent;
 		class PlayerMotionComponent;
+		class HeadbobComponent;
 	}
 
 	class Transformation;
@@ -69,14 +71,24 @@ namespace LinaEngine
 	
 		ECS::ECSEntity m_playerEntity;
 		ECS::ECSEntity m_cameraEntity;
+		ECS::ECSEntity m_headbobEntity;
 		ECS::ECSRegistry* m_registry = nullptr;
 		Transformation* m_playerTransform = nullptr;
 		Transformation* m_cameraTransform = nullptr;
+		Transformation* m_headbobTransform = nullptr;
 		ECS::CameraComponent* m_cameraComponent = nullptr;
 		ECS::PlayerMotionComponent* m_motionComponent = nullptr;
+		ECS::HeadbobComponent* m_headbobComponent = nullptr;
 
 		float m_horizontalAxisSmoothed = 0.0f;
 		float m_verticalAxisSmoothed = 0.0f;
+		float m_mouseHorizontal = 0.0f;
+		float m_mouseVertical = 0.0f;
+		float m_mouseHorizontalSmoothed = 0.0f;
+		float m_mouseVerticalSmoothed = 0.0f;
+
+		Quaternion m_initialRotation;
+		Quaternion m_initialCameraRotation;
 	};
 }
 
