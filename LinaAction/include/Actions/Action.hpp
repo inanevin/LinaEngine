@@ -59,6 +59,8 @@ namespace LinaEngine::Action
 		// Engine actions
 		MessageLogged,
 		PostSceneDraw,
+		PostDraw,
+		PreDraw,
 		LevelInstalled,
 		LevelInitialized,
 		LevelUninstalled,

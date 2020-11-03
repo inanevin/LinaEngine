@@ -132,6 +132,8 @@ namespace LinaEngine
 		bool OnWindowClose();
 		void OnWindowResize(Vector2 size);
 		void OnPostSceneDraw();
+		void OnPostDraw();
+		void OnPreDraw();
 		void KeyCallback(int key, int action);
 		void MouseCallback(int button, int action);
 		void WindowCloseCallback() {};
@@ -177,6 +179,8 @@ namespace LinaEngine
 		std::function<void()> m_windowClosedCallback;
 		std::function<void(Vector3, Vector3, Color, float)> m_drawLineCallback;
 		std::function<void()> m_postSceneDrawCallback;
+		std::function<void()> m_postDrawCallback;
+		std::function<void()> m_preDrawCallback;
 
 
 		std::array<double, DELTA_TIME_HISTORY> m_deltaTimeArray;

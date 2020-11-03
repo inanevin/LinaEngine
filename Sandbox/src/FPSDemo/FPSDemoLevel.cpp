@@ -69,7 +69,8 @@ namespace LinaEngine
 		m_portalTexture.ConstructRTTexture(rd, viewportSize, m_portalRTParams, false);
 		m_portalBuffer.Construct(rd, RenderBufferStorage::STORAGE_DEPTH, viewportSize);
 		m_portalRT.Construct(rd, m_portalTexture, viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_portalBuffer.GetID());
-		renderEngine.SetPreDrawCallback(std::bind(&FPSDemoLevel::PreDraw, this));
+		
+		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<int>("fpsdemo_preDraw", LinaEngine::Action::ActionType::PreDraw, std::bind(&FPSDemoLevel::PreDraw, this));
 
 		// Component drawer.
 		m_componentDrawer.AddComponentDrawFunctions();

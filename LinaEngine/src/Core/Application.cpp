@@ -86,6 +86,8 @@ namespace LinaEngine
 		m_windowClosedCallback = std::bind(&Application::OnWindowClose, this);
 		m_drawLineCallback = std::bind(&Application::OnDrawLine, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
 		m_postSceneDrawCallback = std::bind(&Application::OnPostSceneDraw, this);
+		m_preDrawCallback = std::bind(&Application::OnPreDraw, this);
+		m_postDrawCallback = std::bind(&Application::OnPostDraw, this);
 
 		// Set event callback for main window.
 		s_appWindow->SetKeyCallback(m_keyCallback);
@@ -93,6 +95,8 @@ namespace LinaEngine
 		s_appWindow->SetWindowResizeCallback(m_WwndowResizeCallback);
 		s_appWindow->SetWindowClosedCallback(m_windowClosedCallback);
 		s_renderEngine->SetPostSceneDrawCallback(m_postSceneDrawCallback);
+		s_renderEngine->SetPostDrawCallback(m_postDrawCallback);
+		s_renderEngine->SetPreDrawCallback(m_preDrawCallback);
 		s_renderEngine->SetViewportDisplay(Vector2::Zero, s_appWindow->GetSize());
 
 		s_inputEngine->Initialize(s_ecs, s_appWindow->GetNativeWindow(), m_inputDevice);
@@ -268,8 +272,17 @@ namespace LinaEngine
 	void Application::OnPostSceneDraw()
 	{
 		s_physicsEngine->OnPostSceneDraw();
-
 		s_engineDispatcher.DispatchAction<void*>(Action::ActionType::PostSceneDraw, 0);
+	}
+
+	void Application::OnPostDraw()
+	{
+		s_engineDispatcher.DispatchAction<void*>(Action::ActionType::PostDraw, 0);
+	}
+
+	void Application::OnPreDraw()
+	{
+		s_engineDispatcher.DispatchAction<void*>(Action::ActionType::PreDraw, 0);
 	}
 
 	void Application::KeyCallback(int key, int action)
