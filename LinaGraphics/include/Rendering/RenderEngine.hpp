@@ -118,6 +118,8 @@ namespace LinaEngine::Graphics
 		RenderSettings& GetRenderSettings() { return m_renderSettings; }
 		void SetCurrentPLightCount(int count) { m_currentPointLightCount = count; }
 		void SetCurrentSLightCount(int count) { m_currentSpotLightCount = count; }
+		void SetPreDrawCallback(const std::function<void()>& cb) { m_preDrawCallback = cb; };
+		void SetPostDrawCallback(const std::function<void()>& cb) { m_postDrawCallback = cb; };
 
 	private:
 
@@ -230,6 +232,8 @@ namespace LinaEngine::Graphics
 		Vector2 m_viewportSize = Vector2::Zero;
 
 		std::function<void()> m_postSceneDrawCallback;
+		std::function<void()> m_preDrawCallback;
+		std::function<void()> m_postDrawCallback;
 		bool m_firstFrameDrawn = false;
 
 

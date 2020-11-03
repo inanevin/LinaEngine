@@ -166,7 +166,14 @@ namespace LinaEngine::Graphics
 	void RenderEngine::Render()
 	{
 		// DrawShadows();
+
+		if (m_preDrawCallback)
+			m_preDrawCallback();
+
 		Draw();
+
+		if (m_postDrawCallback)
+			m_postDrawCallback();
 
 		if (!m_firstFrameDrawn)
 		{
