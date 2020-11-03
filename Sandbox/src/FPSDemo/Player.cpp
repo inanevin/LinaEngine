@@ -40,6 +40,8 @@ namespace LinaEngine
 {
 	using namespace LinaEngine::ECS;
 
+#define MIN_MAG_MOVE 0.008f
+
 	void Player::Attach()
 	{
 		m_registry = &Application::GetECSRegistry();
@@ -55,6 +57,7 @@ namespace LinaEngine
 		m_playerTransform = &m_registry->get<TransformComponent>(m_playerEntity).transform;
 		m_cameraTransform = &m_registry->get<TransformComponent>(m_cameraEntity).transform;
 		m_headbobTransform = &m_registry->get<TransformComponent>(m_headbobEntity).transform;
+		m_headbobComponent = &m_registry->emplace<HeadbobComponent>(m_headbobEntity);
 		m_cameraComponent = &m_registry->emplace<CameraComponent>(m_cameraEntity);
 		m_motionComponent = &m_registry->emplace<PlayerMotionComponent>(m_playerEntity);
 
@@ -103,6 +106,29 @@ namespace LinaEngine
 		Vector3 velocity = m_playerTransform->GetRotation() * moveDirection;
 		m_playerTransform->SetLocation(m_playerTransform->GetLocation() + velocity);
 
+		
+		m_isMoving = velocity.Magnitude() > MIN_MAG_MOVE;
 
+		if (m_isMoving)
+		{
+			if (m_isRunning)
+			{
+				m_headbobComponent->m_targetYPR.x = Math::Sin(Application::GetApp().GetTime() * m_headbobComponent->m_runXSpeed) * m_headbobComponent->m_runXAmp;
+				m_headbobComponent->m_targetYPR.y = Math::Sin(Application::GetApp().GetTime() * m_headbobComponent->m_runYSpeed) * m_headbobComponent->m_runYAmp;
+			}
+			else
+			{
+
+				m_headbobComponent->m_targetYPR.x = Math::Sin(Application::GetApp().GetTime() * m_headbobComponent->m_walkXSpeed) * m_headbobComponent->m_walkXAmp;
+				m_headbobComponent->m_targetYPR.y = Math::Sin(Application::GetApp().GetTime() * m_headbobComponent->m_walkYSpeed) * m_headbobComponent->m_walkYAmp;
+			}
+
+			m_headbobComponent->m_targetYPR.z = 0.0f;
+		}
+		else
+			m_headbobComponent->m_targetYPR = Vector3::Zero;
+
+		m_headbobComponent->m_actualYPR = Math::Lerp(m_headbobComponent->m_actualYPR, m_headbobComponent->m_targetYPR, deltaTime * m_headbobComponent->m_resetSpeed);
+		m_headbobTransform->SetLocalRotation(Quaternion::Euler(m_headbobComponent->m_actualYPR));
 	}
 }

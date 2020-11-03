@@ -87,6 +87,9 @@ namespace LinaEngine
 		float m_mouseHorizontalSmoothed = 0.0f;
 		float m_mouseVerticalSmoothed = 0.0f;
 
+		bool m_isMoving = false;
+		bool m_isRunning = false;
+
 		Quaternion m_initialRotation;
 		Quaternion m_initialCameraRotation;
 	};

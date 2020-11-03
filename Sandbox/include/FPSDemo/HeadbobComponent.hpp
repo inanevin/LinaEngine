@@ -49,9 +49,9 @@ namespace LinaEngine::ECS
 		
 		Vector3 m_targetYPR = Vector3::Zero;
 		Vector3 m_actualYPR = Vector3::Zero;
-		float m_walkXSpeed = 8.0f;
-		float m_walkYSpeed = 16.0f;
-		float m_walkXAmp = 2.0f;
+		float m_walkXSpeed = 12.0f;
+		float m_walkYSpeed = 6.0f;
+		float m_walkXAmp = 0.5f;
 		float m_walkYAmp = 1.0f;
 		float m_runXSpeed = 10.0f;
 		float m_runYSpeed = 20.0f;
