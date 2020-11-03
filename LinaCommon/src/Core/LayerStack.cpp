@@ -42,13 +42,13 @@ namespace LinaEngine
 		
 	}
 
-	void LayerStack::PushLayer(Layer& layer)
+	void LayerStack::PushLayerToMainStack(Layer& layer)
 	{
 		m_layerInsert = m_layers.emplace(m_layerInsert, &layer);
 		layer.Attach();
 	}
 
-	void LayerStack::PushOverlay(Layer& overlay)
+	void LayerStack::PushOverlayToMainStack(Layer& overlay)
 	{
 		m_layers.emplace_back(&overlay);
 		overlay.Attach();

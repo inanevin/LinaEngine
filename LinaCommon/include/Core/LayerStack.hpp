@@ -52,8 +52,8 @@ namespace LinaEngine
 		LayerStack();
 		~LayerStack();
 
-		void PushLayer(Layer& layer);
-		void PushOverlay(Layer& overlay);
+		void PushLayerToMainStack(Layer& layer);
+		void PushOverlayToMainStack(Layer& overlay);
 		void PopLayer(Layer& layer);
 		void PopOverlay(Layer& overlay);
 		

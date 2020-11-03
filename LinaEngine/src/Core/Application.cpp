@@ -104,6 +104,7 @@ namespace LinaEngine
 		s_ecs.RegisterComponentToClone<ECS::TransformComponent>();
 
 		m_deltaTimeArray.fill(-1.0);
+		m_isInPlayMode = true;
 		m_running = true;
 	}
 
@@ -183,9 +184,6 @@ namespace LinaEngine
 					layer->Tick(deltaTime);
 
 				LINA_TIMER_STOP("[Core] PlayModeLayers");
-
-				if (m_inputDevice->GetKeyDown(LinaEngine::Input::InputCode::Escape))
-					SetPlayMode(false);
 			}
 		
 
@@ -193,7 +191,7 @@ namespace LinaEngine
 
 			// Update current level.
 			if (m_activeLevelExists)
-				m_currentLevel->Tick(deltaTime);
+				m_currentLevel->Tick(m_isInPlayMode, deltaTime);
 
 			LINA_TIMER_STOP("[Level] Current");
 

@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Utility/Log.hpp"
 #include "Physics/PhysicsEngine.hpp"
+#include "Input/InputEngine.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "World/DefaultLevel.hpp"
 #include "Core/EditorCommon.hpp"
@@ -249,6 +250,10 @@ namespace LinaEditor
 		m_propertiesPanel.Draw();
 		m_levelSettingsPanel.Draw();
 		m_globalSettingsPanel.Draw();
+
+
+		if (LinaEngine::Application::GetInputEngine().GetKeyDown(LinaEngine::Input::InputCode::Escape))
+			LinaEngine::Application::GetApp().SetPlayMode(!LinaEngine::Application::GetApp().GetPlayMode());
 
 		if (s_showIMGUIDemo)
 			ImGui::ShowDemoWindow(&s_showIMGUIDemo);

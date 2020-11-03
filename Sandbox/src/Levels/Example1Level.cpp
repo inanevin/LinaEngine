@@ -120,7 +120,7 @@ void Example1Level::Initialize()
 }
 
 bool locTog = false;
-void Example1Level::Tick(float delta)
+void Example1Level::Tick(bool isInPlayMode, float delta)
 {
 
 	return;

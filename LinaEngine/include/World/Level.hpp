@@ -78,7 +78,7 @@ namespace LinaEngine::World
 		virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName);
 		virtual void Uninstall() {};
 		virtual void Initialize() {};
-		virtual void Tick(float delta) {};
+		virtual void Tick(bool isInPlayMode, float delta) {};
 		virtual void SerializeRegistry(LinaEngine::ECS::ECSRegistry&, cereal::BinaryOutputArchive&);
 		virtual void DeserializeRegistry(LinaEngine::ECS::ECSRegistry&, cereal::BinaryInputArchive&);
 		void SerializeLevelData(const std::string& path, const std::string& levelName);

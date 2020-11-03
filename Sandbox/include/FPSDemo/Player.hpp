@@ -69,6 +69,10 @@ namespace LinaEngine
 	
 	private:
 	
+		void PlayModeChanged(bool enabled);
+
+	private:
+
 		ECS::ECSEntity m_playerEntity;
 		ECS::ECSEntity m_cameraEntity;
 		ECS::ECSEntity m_headbobEntity;

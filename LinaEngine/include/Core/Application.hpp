@@ -105,6 +105,7 @@ namespace LinaEngine
 		double GetSmoothDelta() { return m_smoothDeltaTime; }
 		void AddToMainPipeline(ECS::BaseECSSystem& system) { m_mainECSPipeline.AddSystem(system); }
 		void SetPlayMode(bool enabled);
+		bool GetPlayMode() { return m_isInPlayMode; }
 
 		static Action::ActionDispatcher& GetEngineDispatcher() { return s_engineDispatcher; }
 		static Application& GetApp() { return *s_application; }
@@ -161,7 +162,7 @@ namespace LinaEngine
 		bool m_running = false;
 		bool m_firstRun = true;
 		bool m_canRender = true;
-		bool m_isInPlayMode = true;
+		bool m_isInPlayMode = false;
 		int m_currentFPS = 0;
 		int m_currentUPS = 0;
 		double m_frameTime = 0;

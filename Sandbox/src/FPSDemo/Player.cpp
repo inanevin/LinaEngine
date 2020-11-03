@@ -55,11 +55,11 @@ namespace LinaEngine
 		{
 
 			// Set player hierarchy.
-
 			TransformComponent& headbobTransform = m_registry->get<TransformComponent>(m_headbobEntity);
 			TransformComponent& playerTransform = m_registry->get<TransformComponent>(m_playerEntity);
 			TransformComponent& cameraTransform = m_registry->get<TransformComponent>(m_cameraEntity);
 			PlayerMotionComponent& motionComponent = m_registry->get<PlayerMotionComponent>(m_playerEntity);
+			 m_registry->get<CameraComponent>(m_cameraEntity).m_isEnabled = false;
 
 			motionComponent.m_movementSmooths = Vector2(4.0f, 4.0f);
 			motionComponent.m_rotationSmooths = Vector2(7.0f, 7.0f);
@@ -73,17 +73,17 @@ namespace LinaEngine
 			m_initialCameraRotation = cameraTransform.transform.GetRotation();
 		}
 
-
-#ifndef LINA_EDITOR
-		Application::GetInputEngine().SetCursorMode(Input::CursorMode::Disabled);
-#endif
-
-		//Application::GetInputEngine().SetCursorMode(Input::CursorMode::Disabled);
+		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<bool>("##player_playmode", LinaEngine::Action::ActionType::PlayModeActivation, std::bind(&Player::PlayModeChanged, this, std::placeholders::_1));
 	}
 
 	void Player::Detach()
 	{
 
+	}
+
+	void Player::PlayModeChanged(bool enabled)
+	{
+		m_registry->get<CameraComponent>(m_cameraEntity).m_isEnabled = enabled;
 	}
 
 	void Player::Tick(float deltaTime)

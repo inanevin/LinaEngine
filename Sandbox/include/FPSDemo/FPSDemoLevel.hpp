@@ -64,7 +64,7 @@ namespace LinaEngine
 
 		virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName) override;
 		virtual void Initialize() override;
-		virtual void Tick(float delta) override;
+		virtual void Tick(bool isInPlayMode, float delta) override;
 		virtual void SerializeRegistry(LinaEngine::ECS::ECSRegistry& reg, cereal::BinaryOutputArchive& o) override;
 		virtual void DeserializeRegistry(LinaEngine::ECS::ECSRegistry& reg, cereal::BinaryInputArchive& o) override;
 	
@@ -77,6 +77,7 @@ namespace LinaEngine
 		Player m_player;
 		ECS::ECSRegistry* m_registry = nullptr;
 	
+		bool m_isInPlayMode = false;
 		Graphics::RenderTarget m_portalRT;
 		Graphics::Texture m_portalTexture;
 		Graphics::RenderBuffer m_portalBuffer;

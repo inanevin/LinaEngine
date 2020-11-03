@@ -108,7 +108,12 @@ namespace LinaEditor
 			ecs.emplace<FreeLookComponent>(editorCamera, freeLookComponent);
 			Refresh();
 		}
-
+		else
+		{
+			ECSEntity editorCamera = ecs.GetEntity(EDITOR_CAMERA_NAME);
+			ecs.get<CameraComponent>(editorCamera).m_isEnabled = true;
+			ecs.get<FreeLookComponent>(editorCamera).m_isEnabled = true;
+		}
 	}
 
 	void EditorApplication::PlayModeChanged(bool enabled)
