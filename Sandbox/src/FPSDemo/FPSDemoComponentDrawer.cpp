@@ -38,10 +38,13 @@ namespace LinaEngine
 	{
 		LinaEditor::ComponentDrawer::s_activeInstance->RegisterComponentToDraw<LinaEngine::ECS::HeadbobComponent>(LinaEngine::ECS::GetTypeID<LinaEngine::ECS::HeadbobComponent>(), "Headbob",
 			std::bind(&FPSDemoComponentDrawer::DrawHeadbobComponent, this, std::placeholders::_1, std::placeholders::_2));
+
+			LinaEditor::ComponentDrawer::s_activeInstance->RegisterComponentToDraw<LinaEngine::ECS::PlayerMotionComponent>(LinaEngine::ECS::GetTypeID<LinaEngine::ECS::PlayerMotionComponent>(), "PlayerMotion",
+				std::bind(&FPSDemoComponentDrawer::DrawPlayerMotionComponent, this, std::placeholders::_1, std::placeholders::_2));
 	}
 	void FPSDemoComponentDrawer::DrawHeadbobComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 	{
-		ImGui::Text("sa");
+		
 	}
 	void FPSDemoComponentDrawer::DrawPlayerMotionComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 	{

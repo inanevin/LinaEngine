@@ -51,7 +51,6 @@ namespace LinaEngine::World
 			if (LinaEngine::Utility::FileExists(path + levelName + ".linaleveldata"))
 			{
 				DeserializeLevelData(path, levelName);
-
 				LoadLevelResources();
 
 			}

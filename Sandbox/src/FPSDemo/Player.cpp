@@ -46,14 +46,6 @@ namespace LinaEngine
 	{
 		m_registry = &Application::GetECSRegistry();
 
-		m_playerEntity = m_registry->GetEntity("Player");
-
-		if (m_playerEntity != entt::null)
-		{
-			m_registry->DestroyEntity(m_playerEntity);
-		}
-	
-
 		// Create player.
 		m_playerEntity = m_registry->GetEntity("Player");
 		m_headbobEntity = m_registry->GetEntity("Headbobber");
@@ -71,7 +63,7 @@ namespace LinaEngine
 			TransformComponent& headbobTransform = m_registry->get<TransformComponent>(m_headbobEntity);
 			TransformComponent& playerTransform = m_registry->get<TransformComponent>(m_playerEntity);
 			TransformComponent& cameraTransform = m_registry->get<TransformComponent>(m_cameraEntity);
-			PlayerMotionComponent& motionComponent = m_registry->emplace<PlayerMotionComponent>(m_playerEntity);
+			PlayerMotionComponent& motionComponent = m_registry->get<PlayerMotionComponent>(m_playerEntity);
 
 			motionComponent.m_movementSmooths = Vector2(4.0f, 4.0f);
 			motionComponent.m_rotationSmooths = Vector2(7.0f, 7.0f);
@@ -83,7 +75,6 @@ namespace LinaEngine
 			m_initialCameraRotation = cameraTransform.transform.GetRotation();
 		}
 
-	
 
 #ifndef LINA_EDITOR
 		Application::GetInputEngine().SetCursorMode(Input::CursorMode::Disabled);
@@ -98,9 +89,8 @@ namespace LinaEngine
 	void Player::Tick(float deltaTime)
 	{
 
-#ifdef LINA_EDITOR
-		return;
-#endif
+		if (m_playerEntity == entt::null || m_headbobEntity == entt::null || m_cameraEntity == entt::null) return;
+
 		PlayerMotionComponent& motionComponent = m_registry->get<PlayerMotionComponent>(m_playerEntity);
 		HeadbobComponent& headbobComponent = m_registry->get<HeadbobComponent>(m_headbobEntity);
 		TransformComponent& playerTransform = m_registry->get<TransformComponent>(m_playerEntity);

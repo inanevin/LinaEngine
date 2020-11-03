@@ -55,6 +55,10 @@ namespace LinaEngine
 		m_registry = &Application::GetECSRegistry();
 
 #ifndef LINA_EDITOR
+		
+#else
+		
+#endif
 		// Disable editor camera if exists.
 		ECSEntity editorCamera = m_registry->GetEntity(EDITOR_CAMERA_NAME);
 		if (editorCamera != entt::null)
@@ -62,10 +66,6 @@ namespace LinaEngine
 			m_registry->get<CameraComponent>(editorCamera).m_isEnabled = false;
 			m_registry->get<FreeLookComponent>(editorCamera).m_isEnabled = false;
 		}
-#else
-		
-#endif
-
 
 		Application::GetApp().PushLayer(m_player);
 
