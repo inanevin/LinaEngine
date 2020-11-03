@@ -116,10 +116,12 @@ namespace LinaEngine::Graphics
 		static Texture& GetDefaultTexture() { return s_defaultTexture; }
 		static Material& GetDefaultUnlitMaterial() { return s_defaultUnlit; }
 		RenderSettings& GetRenderSettings() { return m_renderSettings; }
+		DrawParams GetMainDrawParams() { return m_defaultDrawParams; }
 		void SetCurrentPLightCount(int count) { m_currentPointLightCount = count; }
 		void SetCurrentSLightCount(int count) { m_currentSpotLightCount = count; }
 		void SetPreDrawCallback(const std::function<void()>& cb) { m_preDrawCallback = cb; };
 		void SetPostDrawCallback(const std::function<void()>& cb) { m_postDrawCallback = cb; };
+		void DrawSceneObjects(DrawParams& drawpParams, Material* overrideMaterial = nullptr, bool drawSkybox = true);
 
 	private:
 
@@ -133,7 +135,6 @@ namespace LinaEngine::Graphics
 		void Draw();
 		void DrawOperationsDefault();
 		void DrawSkybox();
-		void DrawSceneObjects(DrawParams& drawpParams, Material* overrideMaterial = nullptr, bool drawSkybox = true);
 		void UpdateUniformBuffers();
 		
 		// Generating necessary maps for HDRI specular highlighting

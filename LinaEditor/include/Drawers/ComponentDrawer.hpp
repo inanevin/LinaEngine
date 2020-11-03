@@ -61,17 +61,34 @@ namespace LinaEditor
 		std::vector<std::string> GetEligibleComponents(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
 		void AddComponentToEntity(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity, const std::string& comp);
 		void SwapComponentOrder(LinaEngine::ECS::ECSTypeID id1, LinaEngine::ECS::ECSTypeID id2);
-		void AddIDToDrawList(LinaEngine::ECS::ECSTypeID id);
+		void AddIDToDrawList(LinaEngine::ECS::ECSTypeID id);	
 		void ClearDrawList();
 		void DrawComponents(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
 		bool DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconFolor = ImVec4(1, 1, 1, 1), const ImVec2& iconOffset = ImVec2(0, 0), bool alwaysEnabled = false);
-		void ComponentRemoved(entt::registry&, entt::entity);
+	
+		template<typename T>
+		void RegisterComponentToDraw(LinaEngine::ECS::ECSTypeID typeID, const std::string& label, ComponentFunction drawFunction)
+		{
+			std::get<0>(m_componentFunctionsMap[typeID]) = label;
+			std::get<1>(m_componentFunctionsMap[typeID]) = std::bind(&ComponentDrawer::ComponentAddFunction<T>, this, std::placeholders::_1, std::placeholders::_2);
+			std::get<2>(m_componentFunctionsMap[typeID]) = drawFunction;
+		}
+
 	public:
 		// Selected colilsion shape in editor.
 		int m_currentCollisionShape = 0;
 
 		// We use this instance to call DrawTitle method for defining the payload target while dragging & dropping component titles.
 		static ComponentDrawer* s_activeInstance;
+
+	private:
+
+		template<typename T>
+		void ComponentAddFunction(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
+		{
+			ecs.emplace<T>(entity, T());
+		}
+
 	private:
 
 		std::map<LinaEngine::ECS::ECSTypeID, ComponentValueTuple> m_componentFunctionsMap;

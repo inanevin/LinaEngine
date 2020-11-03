@@ -42,6 +42,15 @@ Timestamp: 5/6/2019 5:10:23 PM
 #define Level_HPP
 
 #include <string>
+#include <cereal/archives/binary.hpp>
+
+namespace LinaEngine
+{
+	namespace ECS
+	{
+		class ECSRegistry;
+	}
+}
 
 namespace LinaEngine::World
 {
@@ -70,6 +79,8 @@ namespace LinaEngine::World
 		virtual void Uninstall() {};
 		virtual void Initialize() {};
 		virtual void Tick(float delta) {};
+		virtual void SerializeRegistry(LinaEngine::ECS::ECSRegistry&, cereal::BinaryOutputArchive&);
+		virtual void DeserializeRegistry(LinaEngine::ECS::ECSRegistry&, cereal::BinaryInputArchive&);
 		void SerializeLevelData(const std::string& path, const std::string& levelName);
 		void DeserializeLevelData(const std::string& path, const std::string& levelName);
 		LevelData& GetLevelData() { return m_levelData; }

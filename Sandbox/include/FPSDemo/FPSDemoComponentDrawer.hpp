@@ -27,65 +27,38 @@ SOFTWARE.
 */
 
 /*
-Class: Player
+Class: FPSDemoComponentDrawer
 
-FPS player entity for FPSDemo.
 
-Timestamp: 11/3/2020 1:29:47 AM
+
+Timestamp: 11/3/2020 1:49:15 PM
 */
 
 #pragma once
 
-#ifndef Player_HPP
-#define Player_HPP
+#ifndef FPSDemoComponentDrawer_HPP
+#define FPSDemoComponentDrawer_HPP
 
-// Headers here.
-#include "ECS/ECS.hpp"
-#include "Core/Layer.hpp"
-#include "Utility/Math/Quaternion.hpp"
-#
+#include "ECS/ECSSystem.hpp"
+
 namespace LinaEngine
 {
-	namespace ECS
-	{
-		class CameraComponent;
-		class PlayerMotionComponent;
-		class HeadbobComponent;
-	}
-
-	class Transformation;
-
-	class Player : public Layer
+	class FPSDemoComponentDrawer
 	{
 		
 	public:
 		
-		Player() {};
-		~Player() {};
+		FPSDemoComponentDrawer() {};
+		~FPSDemoComponentDrawer() {};
 
-		virtual void Attach() override;
-		virtual void Detach() override;
-		virtual void Tick(float deltaTime) override;
-	
-	private:
-	
-		ECS::ECSEntity m_playerEntity;
-		ECS::ECSEntity m_cameraEntity;
-		ECS::ECSEntity m_headbobEntity;
-		ECS::ECSRegistry* m_registry = nullptr;
+		void AddComponentDrawFunctions();
 		
-		float m_horizontalAxisSmoothed = 0.0f;
-		float m_verticalAxisSmoothed = 0.0f;
-		float m_mouseHorizontal = 0.0f;
-		float m_mouseVertical = 0.0f;
-		float m_mouseHorizontalSmoothed = 0.0f;
-		float m_mouseVerticalSmoothed = 0.0f;
+	private:
 
-		bool m_isMoving = false;
-		bool m_isRunning = false;
+		void DrawHeadbobComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
+		void DrawPlayerMotionComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
 
-		Quaternion m_initialRotation;
-		Quaternion m_initialCameraRotation;
+	
 	};
 }
 

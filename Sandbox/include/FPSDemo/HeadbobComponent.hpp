@@ -58,6 +58,13 @@ namespace LinaEngine::ECS
 		float m_runXAmp = 4.0f;
 		float m_runYAmp = 2.0f;
 		float m_resetSpeed = 12.0f;
+
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(m_targetYPR, m_actualYPR, m_walkXSpeed, m_walkYSpeed, m_walkXAmp, m_walkYAmp, m_runXSpeed, m_runYSpeed, m_runXAmp, m_runYAmp, m_resetSpeed);
+		}
 	
 	};
 }

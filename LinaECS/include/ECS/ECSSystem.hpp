@@ -59,6 +59,7 @@ namespace LinaEngine::ECS
 	{
 		bool m_isHidden = false;
 		bool m_isEnabled = true;
+		bool m_serialized = true;
 		std::string m_name = "";
 		std::set<ECSEntity> m_children;
 		ECSEntity m_parent = entt::null;

@@ -50,6 +50,13 @@ namespace LinaEngine::ECS
 		Vector2 m_rotationSpeeds = Vector2::Zero;
 		Vector2 m_movementSmooths = Vector2::Zero;
 		Vector2 m_rotationSmooths = Vector2::Zero;
+
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(m_movementSpeeds, m_rotationSpeeds, m_movementSmooths, m_rotationSmooths);
+		}
 	};
 }
 

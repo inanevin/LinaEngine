@@ -53,51 +53,21 @@ namespace LinaEditor
 
 	ComponentDrawer::ComponentDrawer()
 	{
-		// Display names.
-		std::get<0>(m_componentFunctionsMap[GetTypeID<TransformComponent>()]) = "Transformation";
-		std::get<0>(m_componentFunctionsMap[GetTypeID<RigidbodyComponent>()]) = "Rigidbody";
-		std::get<0>(m_componentFunctionsMap[GetTypeID<CameraComponent>()]) = "Camera";
-		std::get<0>(m_componentFunctionsMap[GetTypeID<DirectionalLightComponent>()]) = "Directional Light";
-		std::get<0>(m_componentFunctionsMap[GetTypeID<SpotLightComponent>()]) = "Spot Light";
-		std::get<0>(m_componentFunctionsMap[GetTypeID<PointLightComponent>()]) = "Point Light";
-		std::get<0>(m_componentFunctionsMap[GetTypeID<FreeLookComponent>()]) = "Free Look";
-		std::get<0>(m_componentFunctionsMap[GetTypeID<MeshRendererComponent>()]) = "Mesh Renderer";
-		std::get<0>(m_componentFunctionsMap[GetTypeID<SpriteRendererComponent>()]) = "Sprite Renderer";
 
 #ifdef LINA_EDITOR
-		// Add functions.
-		std::get<1>(m_componentFunctionsMap[GetTypeID<TransformComponent>()]) = std::bind(&TransformComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(m_componentFunctionsMap[GetTypeID<RigidbodyComponent>()]) = std::bind(&RigidbodyComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(m_componentFunctionsMap[GetTypeID<CameraComponent>()]) = std::bind(&CameraComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(m_componentFunctionsMap[GetTypeID<DirectionalLightComponent>()]) = std::bind(&DirectionalLightComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(m_componentFunctionsMap[GetTypeID<SpotLightComponent>()]) = std::bind(&SpotLightComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(m_componentFunctionsMap[GetTypeID<PointLightComponent>()]) = std::bind(&PointLightComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(m_componentFunctionsMap[GetTypeID<FreeLookComponent>()]) = std::bind(&FreeLookComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(m_componentFunctionsMap[GetTypeID<MeshRendererComponent>()]) = std::bind(&MeshRendererComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<1>(m_componentFunctionsMap[GetTypeID<SpriteRendererComponent>()]) = std::bind(&SpriteRendererComponent::COMPONENT_ADDFUNC, std::placeholders::_1, std::placeholders::_2);
 
-		// Draw functions.
-		std::get<2>(m_componentFunctionsMap[GetTypeID<TransformComponent>()]) = std::bind(&TransformComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(m_componentFunctionsMap[GetTypeID<RigidbodyComponent>()]) = std::bind(&RigidbodyComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(m_componentFunctionsMap[GetTypeID<CameraComponent>()]) = std::bind(&CameraComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(m_componentFunctionsMap[GetTypeID<DirectionalLightComponent>()]) = std::bind(&DirectionalLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(m_componentFunctionsMap[GetTypeID<SpotLightComponent>()]) = std::bind(&SpotLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(m_componentFunctionsMap[GetTypeID<PointLightComponent>()]) = std::bind(&PointLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(m_componentFunctionsMap[GetTypeID<FreeLookComponent>()]) = std::bind(&FreeLookComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(m_componentFunctionsMap[GetTypeID<MeshRendererComponent>()]) = std::bind(&MeshRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
-		std::get<2>(m_componentFunctionsMap[GetTypeID<SpriteRendererComponent>()]) = std::bind(&SpriteRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2);
+		RegisterComponentToDraw<TransformComponent>(GetTypeID<TransformComponent>(), "Transformation", std::bind(&TransformComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2));
+		RegisterComponentToDraw<RigidbodyComponent>(GetTypeID<RigidbodyComponent>(), "Rigidbody", std::bind(&RigidbodyComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2));
+		RegisterComponentToDraw<CameraComponent>(GetTypeID<CameraComponent>(), "Camera", std::bind(&CameraComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2));
+		RegisterComponentToDraw<DirectionalLightComponent>(GetTypeID<DirectionalLightComponent>(), "Directional Light", std::bind(&DirectionalLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2));
+		RegisterComponentToDraw<SpotLightComponent>(GetTypeID<SpotLightComponent>(), "Spot Light", std::bind(&SpotLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2));
+		RegisterComponentToDraw<PointLightComponent> (GetTypeID<PointLightComponent>(), "Point Light", std::bind(&PointLightComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2));
+		RegisterComponentToDraw<FreeLookComponent>(GetTypeID<FreeLookComponent>(), "Free Look", std::bind(&FreeLookComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2));
+		RegisterComponentToDraw<MeshRendererComponent>(GetTypeID<MeshRendererComponent>(), "Mesh Renderer", std::bind(&MeshRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2));
+		RegisterComponentToDraw<SpriteRendererComponent>(GetTypeID<SpriteRendererComponent>(), "Sprite Renderer", std::bind(&SpriteRendererComponent::COMPONENT_DRAWFUNC, std::placeholders::_1, std::placeholders::_2));
 
 #endif
-		LinaEngine::ECS::ECSRegistry& reg = LinaEngine::Application::GetECSRegistry();
-		reg.on_destroy<TransformComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
-		reg.on_destroy<RigidbodyComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
-		reg.on_destroy<CameraComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
-		reg.on_destroy<DirectionalLightComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
-		reg.on_destroy<SpotLightComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
-		reg.on_destroy<PointLightComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
-		reg.on_destroy<FreeLookComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
-		reg.on_destroy<MeshRendererComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
-		reg.on_destroy<SpriteRendererComponent>().connect<&ComponentDrawer::ComponentRemoved>(this);
+
 	}
 
 	// Use reflection for gods sake later on.
@@ -239,14 +209,16 @@ namespace LinaEditor
 			buf.append("c");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 20);
-			return WidgetsUtility::IconButton(buf.c_str(), ICON_FA_TIMES, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
+			bool removed = WidgetsUtility::IconButton(buf.c_str(), ICON_FA_TIMES, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
+
+			if (removed)
+				ClearDrawList();
+
+			return removed;
 		}
 	}
 
-	void ComponentDrawer::ComponentRemoved(entt::registry&, entt::entity)
-	{
-		ClearDrawList();
-	}
+
 }
 
 #define CURSORPOS_X_LABELS 12

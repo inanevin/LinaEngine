@@ -121,7 +121,7 @@ namespace LinaEngine::ECS
 	ECSEntity ECSRegistry::CreateEntity(const std::string& name)
 	{
 		entt::entity ent = create();
-		emplace<ECSEntityData>(ent, ECSEntityData{ false, false, name });
+		emplace<ECSEntityData>(ent, ECSEntityData{ false, false, true, name });
 		emplace<TransformComponent>(ent, TransformComponent());
 		Refresh();
 		return ent;

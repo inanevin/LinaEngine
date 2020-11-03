@@ -55,7 +55,6 @@ namespace LinaEngine::ECS
 
 #ifdef LINA_EDITOR
 		COMPONENT_DRAWFUNC_SIG;
-		COMPONENT_ADDFUNC_SIG{ ecs.emplace<MeshRendererComponent>(entity, MeshRendererComponent()); }
 #endif
 
 		// Editor properties, not inside the macro to avoid any struct size mismatch during serialization.

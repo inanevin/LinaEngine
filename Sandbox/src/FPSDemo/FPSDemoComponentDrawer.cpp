@@ -26,67 +26,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: Player
-
-FPS player entity for FPSDemo.
-
-Timestamp: 11/3/2020 1:29:47 AM
-*/
-
-#pragma once
-
-#ifndef Player_HPP
-#define Player_HPP
-
-// Headers here.
-#include "ECS/ECS.hpp"
-#include "Core/Layer.hpp"
-#include "Utility/Math/Quaternion.hpp"
-#
+#include "FPSDemo/FPSDemoComponentDrawer.hpp"
+#include "FPSDemo/PlayerMotionComponent.hpp"
+#include "FPSDemo/HeadbobComponent.hpp"
+#include "Drawers/ComponentDrawer.hpp"
 namespace LinaEngine
 {
-	namespace ECS
+	void FPSDemoComponentDrawer::AddComponentDrawFunctions()
 	{
-		class CameraComponent;
-		class PlayerMotionComponent;
-		class HeadbobComponent;
+		//LinaEditor::ComponentDrawer::s_activeInstance->RegisterComponentToDraw(LinaEngine::ECS::GetTypeID<LinaEngine::ECS::HeadbobComponent>(), "Headbob", 
 	}
-
-	class Transformation;
-
-	class Player : public Layer
+	void FPSDemoComponentDrawer::DrawHeadbobComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 	{
-		
-	public:
-		
-		Player() {};
-		~Player() {};
 
-		virtual void Attach() override;
-		virtual void Detach() override;
-		virtual void Tick(float deltaTime) override;
-	
-	private:
-	
-		ECS::ECSEntity m_playerEntity;
-		ECS::ECSEntity m_cameraEntity;
-		ECS::ECSEntity m_headbobEntity;
-		ECS::ECSRegistry* m_registry = nullptr;
-		
-		float m_horizontalAxisSmoothed = 0.0f;
-		float m_verticalAxisSmoothed = 0.0f;
-		float m_mouseHorizontal = 0.0f;
-		float m_mouseVertical = 0.0f;
-		float m_mouseHorizontalSmoothed = 0.0f;
-		float m_mouseVerticalSmoothed = 0.0f;
-
-		bool m_isMoving = false;
-		bool m_isRunning = false;
-
-		Quaternion m_initialRotation;
-		Quaternion m_initialCameraRotation;
-	};
+	}
+	void FPSDemoComponentDrawer::DrawPlayerMotionComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
+	{
+	}
 }
-
-#endif

@@ -41,6 +41,9 @@ Timestamp: 11/3/2020 12:39:34 AM
 
 #include "World/Level.hpp"
 #include "Player.hpp"
+#include "Rendering/RenderTarget.hpp"
+#include "Rendering/Texture.hpp"
+#include "Rendering/Renderbuffer.hpp"
 
 namespace LinaEngine
 {
@@ -61,11 +64,22 @@ namespace LinaEngine
 		virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName) override;
 		virtual void Initialize() override;
 		virtual void Tick(float delta) override;
+		virtual void SerializeRegistry(LinaEngine::ECS::ECSRegistry& reg, cereal::BinaryOutputArchive& o) override;
+		virtual void DeserializeRegistry(LinaEngine::ECS::ECSRegistry& reg, cereal::BinaryInputArchive& o) override;
 	
 	private:
+
+		void PreDraw();
+
+	private:
+
 		Player m_player;
 		ECS::ECSRegistry* m_registry = nullptr;
-
+	
+		Graphics::RenderTarget m_portalRT;
+		Graphics::Texture m_portalTexture;
+		Graphics::RenderBuffer m_portalBuffer;
+		Graphics::SamplerParameters m_portalRTParams;
 	};
 }
 

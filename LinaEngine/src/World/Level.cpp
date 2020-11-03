@@ -39,7 +39,6 @@ SOFTWARE.
 #include "ECS/Components/RigidbodyComponent.hpp"
 #include <cereal/archives/json.hpp>
 #include <stdio.h>
-#include <cereal/archives/binary.hpp>
 #include <fstream>
 
 
@@ -140,29 +139,51 @@ namespace LinaEngine::World
 			renderEngine.SetSkyboxMaterial(nullptr);
 	}
 
+	void Level::SerializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryOutputArchive& oarchive)
+	{
+		entt::snapshot{ registry }
+			.entities(oarchive)
+			.component<
+			LinaEngine::ECS::ECSEntityData,
+			LinaEngine::ECS::CameraComponent,
+			LinaEngine::ECS::FreeLookComponent,
+			LinaEngine::ECS::PointLightComponent,
+			LinaEngine::ECS::DirectionalLightComponent,
+			LinaEngine::ECS::SpotLightComponent,
+			LinaEngine::ECS::RigidbodyComponent,
+			LinaEngine::ECS::MeshRendererComponent,
+			LinaEngine::ECS::SpriteRendererComponent,
+			LinaEngine::ECS::TransformComponent
+			>(oarchive);
+	}
+
+	void Level::DeserializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryInputArchive& iarchive)
+	{
+		entt::snapshot_loader{ registry }
+			.entities(iarchive)
+			.component<
+			LinaEngine::ECS::ECSEntityData,
+			LinaEngine::ECS::CameraComponent,
+			LinaEngine::ECS::FreeLookComponent,
+			LinaEngine::ECS::PointLightComponent,
+			LinaEngine::ECS::DirectionalLightComponent,
+			LinaEngine::ECS::SpotLightComponent,
+			LinaEngine::ECS::RigidbodyComponent,
+			LinaEngine::ECS::MeshRendererComponent,
+			LinaEngine::ECS::SpriteRendererComponent,
+			LinaEngine::ECS::TransformComponent
+			>(iarchive);
+	}
+
 	void Level::SerializeLevelData(const std::string& path, const std::string& levelName)
 	{
 		LinaEngine::ECS::ECSRegistry& registry = LinaEngine::Application::GetECSRegistry();
 
-
+		
 		std::ofstream registrySnapshotStream(path + "/" + levelName + "_ecsSnapshot.linasnapshot");
 		{
 			cereal::BinaryOutputArchive oarchive(registrySnapshotStream); // Create an output archive
-
-			entt::snapshot{ registry }
-				.entities(oarchive)
-				.component<
-				LinaEngine::ECS::ECSEntityData,
-				LinaEngine::ECS::CameraComponent,
-				LinaEngine::ECS::FreeLookComponent,
-				LinaEngine::ECS::PointLightComponent,
-				LinaEngine::ECS::DirectionalLightComponent,
-				LinaEngine::ECS::SpotLightComponent,
-				LinaEngine::ECS::RigidbodyComponent,
-				LinaEngine::ECS::MeshRendererComponent,
-				LinaEngine::ECS::SpriteRendererComponent,
-				LinaEngine::ECS::TransformComponent
-				>(oarchive);
+			SerializeRegistry(registry, oarchive);
 		}
 
 		std::ofstream levelDataStream(path + "/" + levelName + ".linaleveldata");
@@ -192,22 +213,7 @@ namespace LinaEngine::World
 		std::ifstream regSnapshotStream(path + "/" + levelName + "_ecsSnapshot.linasnapshot");
 		{
 			cereal::BinaryInputArchive iarchive(regSnapshotStream);
-
-			entt::snapshot_loader{ registry }
-				.entities(iarchive)
-				.component<
-				LinaEngine::ECS::ECSEntityData,
-				LinaEngine::ECS::CameraComponent,
-				LinaEngine::ECS::FreeLookComponent,
-				LinaEngine::ECS::PointLightComponent,
-				LinaEngine::ECS::DirectionalLightComponent,
-				LinaEngine::ECS::SpotLightComponent,
-				LinaEngine::ECS::RigidbodyComponent,
-				LinaEngine::ECS::MeshRendererComponent,
-				LinaEngine::ECS::SpriteRendererComponent,
-				LinaEngine::ECS::TransformComponent
-				>(iarchive);
-
+			DeserializeRegistry(registry, iarchive);
 		}
 
 		registry.Refresh();
