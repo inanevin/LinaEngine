@@ -62,6 +62,7 @@ namespace LinaEngine::Action
 		LevelInstalled,
 		LevelInitialized,
 		LevelUninstalled,
+		PlayModeActivation,
 		WindowClosed,
 		WindowResized,
 		EngineActionsStartIndex = MessageLogged,

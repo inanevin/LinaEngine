@@ -60,13 +60,13 @@ namespace LinaEngine
 #else
 
 #endif
-		// Disable editor camera if exists.
-		ECSEntity editorCamera = m_registry->GetEntity(EDITOR_CAMERA_NAME);
-		if (editorCamera != entt::null)
-		{
-			m_registry->get<CameraComponent>(editorCamera).m_isEnabled = false;
-			m_registry->get<FreeLookComponent>(editorCamera).m_isEnabled = false;
-		}
+	//// Disable editor camera if exists.
+	//ECSEntity editorCamera = m_registry->GetEntity(EDITOR_CAMERA_NAME);
+	//if (editorCamera != entt::null)
+	//{
+	//	m_registry->get<CameraComponent>(editorCamera).m_isEnabled = false;
+	//	m_registry->get<FreeLookComponent>(editorCamera).m_isEnabled = false;
+	//}
 
 		Application::GetApp().PushLayer(m_player);
 
@@ -142,9 +142,10 @@ namespace LinaEngine
 
 		CameraComponent& camera = m_registry->get<CameraComponent>(m_registry->GetEntity("FPS Cam"));
 		CameraComponent& cubeCamera = m_registry->get<CameraComponent>(m_registry->GetEntity("Cube Camera"));
-		camera.m_isEnabled = false;
+		CameraComponent& editorCamera = m_registry->get<CameraComponent>(m_registry->GetEntity("Editor Camera"));
+		//camera.m_isEnabled = false;
 		cubeCamera.m_isEnabled = true;
-
+		editorCamera.m_isEnabled = false;
 		rd.SetFBO(m_portalRT.GetID());
 		rd.SetViewport(Vector2::Zero, viewportSize);
 		
@@ -154,8 +155,9 @@ namespace LinaEngine
 		renderEngine.UpdateSystems();
 		renderEngine.DrawSceneObjects(renderEngine.GetMainDrawParams());
 
-		camera.m_isEnabled = true;
+		//camera.m_isEnabled = true;
 		cubeCamera.m_isEnabled = false;
+		editorCamera.m_isEnabled = true;
 
 		Material::GetMaterial(m_registry->get<MeshRendererComponent>(m_registry->GetEntity("Portal")).m_materialID).SetTexture(MAT_TEXTURE2D_DIFFUSE, &m_portalTexture);
 	}

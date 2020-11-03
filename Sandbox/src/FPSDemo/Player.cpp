@@ -78,7 +78,7 @@ namespace LinaEngine
 		Application::GetInputEngine().SetCursorMode(Input::CursorMode::Disabled);
 #endif
 
-		Application::GetInputEngine().SetCursorMode(Input::CursorMode::Disabled);
+		//Application::GetInputEngine().SetCursorMode(Input::CursorMode::Disabled);
 	}
 
 	void Player::Detach()
@@ -88,7 +88,6 @@ namespace LinaEngine
 
 	void Player::Tick(float deltaTime)
 	{
-
 		if (m_playerEntity == entt::null || m_headbobEntity == entt::null || m_cameraEntity == entt::null) return;
 
 		PlayerMotionComponent& motionComponent = m_registry->get<PlayerMotionComponent>(m_playerEntity);

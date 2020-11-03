@@ -169,10 +169,22 @@ namespace LinaEngine
 			LINA_TIMER_START("[Core] Engine Layers");
 
 			// Update layers.
-			for (Layer* layer : m_layerStack)
+			for (Layer* layer : m_mainLayerStack)
 				layer->Tick(deltaTime);
 
 			LINA_TIMER_STOP("[Core] Engine Layers");
+
+			if (m_isInPlayMode)
+			{
+				LINA_TIMER_START("[Core] PlayMode Layers");
+
+				// Update layers.
+				for (Layer* layer : m_playModeStack)
+					layer->Tick(deltaTime);
+
+				LINA_TIMER_STOP("[Core] PlayModeLayers");
+			}
+		
 
 			LINA_TIMER_START("[Level] Current");
 
@@ -349,37 +361,32 @@ namespace LinaEngine
 		avg /= DELTA_TIME_HISTORY - 4;
 
 		return avg;
-		//	if (m_deltaTimeDeque.size() > DELTA_TIME_DEQUE_HISTORY +1)
-		//	{
-		//		LINA_CORE_TRACE("Returning DT");
-		//		return dt;
-		//	}
-		//
-		//	m_deltaTimeDeque.pop_front();
-		//
-		//	// Remove the biggest & smalles 2 deltas.
-		//	RemoveOutliers(true);
-		//	RemoveOutliers(true);
-		//	RemoveOutliers(false);
-		//	RemoveOutliers(false);
-		//
-		//	double mean = 0;
-		//
-		//	for (double delta : m_deltaTimeDeque)
-		//		mean += delta;
-		//
-		//	mean /= (DELTA_TIME_DEQUE_HISTORY - 4.0);
-		//
-		//	return Math::Lerp(m_smoothDeltaTime, mean, dt);
 	}
 
-	void Application::PushLayer(Layer& layer)
+	void Application::PushLayerToMainStack(Layer& layer)
 	{
-		m_layerStack.PushLayer(layer);
+		m_mainLayerStack.PushLayerToMainStack(layer);
 	}
-	void Application::PushOverlay(Layer& layer)
+
+	void Application::PushOverlayToMainStack(Layer& layer)
 	{
-		m_layerStack.PushOverlay(layer);
+		m_mainLayerStack.PushOverlayToMainStack(layer);
+	}
+
+	void Application::PushLayerToPlayStack(Layer& layer)
+	{
+		m_playModeStack.PushLayerToMainStack(layer);
+	}
+
+	void Application::PushOverlayToPlayStack(Layer& layer)
+	{
+		m_playModeStack.PushOverlayToMainStack(layer);
+	}
+
+	void Application::SetPlayMode(bool enabled)
+	{
+		m_isInPlayMode = enabled;
+		s_engineDispatcher.DispatchAction<bool>(LinaEngine::Action::ActionType::PlayModeActivation, enabled);
 	}
 
 	bool Application::InstallLevel(LinaEngine::World::Level& level, bool loadFromFile, const std::string& path, const std::string& levelName)
