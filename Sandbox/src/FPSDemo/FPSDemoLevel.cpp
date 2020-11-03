@@ -124,26 +124,6 @@ namespace LinaEngine
 
 	void FPSDemoLevel::PreDraw()
 	{
-		if (!m_isInPlayMode) return;
-		RenderEngine& renderEngine = Application::GetRenderEngine();
-		RenderDevice& rd = renderEngine.GetRenderDevice();
-		Vector2 viewportSize = renderEngine.GetViewportSize();
-
-		CameraComponent& cubeCamera = m_registry->get<CameraComponent>(m_registry->GetEntity("Cube Camera"));
-		//camera.m_isEnabled = false;
-		cubeCamera.m_isEnabled = true;
-		rd.SetFBO(m_portalRT.GetID());
-		rd.SetViewport(Vector2::Zero, viewportSize);
 		
-		// Clear color.
-		rd.Clear(true, true, true, renderEngine.GetCameraSystem()->GetCurrentClearColor(), 0xFF);
-		
-		renderEngine.UpdateSystems();
-		renderEngine.DrawSceneObjects(renderEngine.GetMainDrawParams());
-		
-		//camera.m_isEnabled = true;
-		cubeCamera.m_isEnabled = false;
-		
-		Material::GetMaterial(m_registry->get<MeshRendererComponent>(m_registry->GetEntity("Portal")).m_materialID).SetTexture(MAT_TEXTURE2D_DIFFUSE, &m_portalTexture);
 	}
 }
