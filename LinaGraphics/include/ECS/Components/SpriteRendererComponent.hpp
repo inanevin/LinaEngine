@@ -45,10 +45,6 @@ namespace LinaEngine::ECS
 		int m_materialID = -1;
 		std::string m_materialPath = "";
 
-#ifdef LINA_EDITOR
-		COMPONENT_DRAWFUNC_SIG;
-#endif
-
 		// Editor properties, not inside the macro to avoid any struct size mismatch during serialization.
 		int m_selectedMatID = -1;
 		std::string m_selectedMatPath = "";

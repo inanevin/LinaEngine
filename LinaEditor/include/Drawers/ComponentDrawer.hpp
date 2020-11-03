@@ -74,6 +74,16 @@ namespace LinaEditor
 			std::get<2>(m_componentFunctionsMap[typeID]) = drawFunction;
 		}
 
+		void DrawTransformComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
+		void DrawCameraComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
+		void DrawFreeLookComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
+		void DrawRigidbodyComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
+		void DrawPointLightComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
+		void DrawSpotLightComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
+		void DrawDirectionalLightComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
+		void DrawMeshRendererComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
+		void DrawSpriteRendererComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
+
 	public:
 		// Selected colilsion shape in editor.
 		int m_currentCollisionShape = 0;
@@ -92,6 +102,7 @@ namespace LinaEditor
 	private:
 
 		std::map<LinaEngine::ECS::ECSTypeID, ComponentValueTuple> m_componentFunctionsMap;
+		std::map<LinaEngine::ECS::ECSEntity, std::map<LinaEngine::ECS::ECSTypeID, bool>> m_foldoutStateMap;
 		std::vector<LinaEngine::ECS::ECSTypeID> m_componentDrawList;
 
 

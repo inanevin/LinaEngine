@@ -56,9 +56,6 @@ namespace LinaEngine::ECS
 			archive(m_movementSpeeds, m_rotationSpeeds, m_angles, m_isEnabled);
 		}
 
-#ifdef LINA_EDITOR
-		COMPONENT_DRAWFUNC_SIG;
-#endif
 	};
 }
 

@@ -57,10 +57,6 @@ namespace LinaEngine::ECS
 		{
 			archive(m_color, m_isEnabled); // serialize things by passing them to the archive
 		}
-
-#ifdef LINA_EDITOR
-		COMPONENT_DRAWFUNC_SIG;
-#endif
 	};
 
 	struct PointLightComponent : public LightComponent
@@ -73,9 +69,6 @@ namespace LinaEngine::ECS
 			archive(m_distance, m_color, m_isEnabled); // serialize things by passing them to the archive
 		}
 
-#ifdef LINA_EDITOR
-		COMPONENT_DRAWFUNC_SIG;
-#endif
 	};
 
 	struct SpotLightComponent : public LightComponent
@@ -90,9 +83,6 @@ namespace LinaEngine::ECS
 			archive(m_color, m_distance, m_cutoff, m_outerCutoff, m_isEnabled); // serialize things by passing them to the archive
 		}
 
-#ifdef LINA_EDITOR
-		COMPONENT_DRAWFUNC_SIG;
-#endif
 	};
 
 	struct DirectionalLightComponent : public LightComponent
@@ -106,10 +96,6 @@ namespace LinaEngine::ECS
 		{
 			archive(m_shadowOrthoProjection, m_shadowZNear, m_shadowZFar, m_color, m_isEnabled); // serialize things by passing them to the archive
 		}
-
-#ifdef LINA_EDITOR
-		COMPONENT_DRAWFUNC_SIG;
-#endif
 	};
 }
 
