@@ -340,7 +340,7 @@ namespace LinaEditor
 
 		// Draw title.
 		bool refreshPressed = false;
-		bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<CameraComponent>(), "Camera", ICON_FA_VIDEO, &refreshPressed, &camera.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header));
+		bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<CameraComponent>(), "Camera", ICON_FA_VIDEO, &refreshPressed, &camera.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0,0), true);
 
 		// Remove if requested.
 		if (removeComponent)
@@ -383,6 +383,10 @@ namespace LinaEditor
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::DragFloat("##zFar", &camera.m_zFar);
+
+			ImGui::SetCursorPosX(cursorPosValues);
+			if (ImGui::Button("Set Active Camera"))
+				LinaEngine::Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(entity);
 
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 		}

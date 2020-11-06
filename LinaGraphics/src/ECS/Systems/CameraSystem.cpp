@@ -35,56 +35,64 @@ SOFTWARE.
 namespace LinaEngine::ECS
 {
 
-	void CameraSystem::UpdateComponents(float delta)
+	void CameraSystem::Construct(ECSRegistry& registry)
 	{
-		auto view = m_ecs->view<TransformComponent, CameraComponent>();
-		if (view.size() == 0)
+		BaseECSSystem::Construct(registry);
+
+		registry.on_construct<CameraComponent>().connect<&CameraSystem::OnCameraDestroyed>(this);
+	}
+
+	void CameraSystem::SetActiveCamera(ECSEntity cameraOwner)
+	{
+		if (cameraOwner == entt::null)
 		{
-			m_currentCameraComponent = nullptr;
-			m_currentCameraTransform = nullptr;
+			m_activeCameraEntity = entt::null;
+			return;
 		}
 
-		// Find cameras, select the most active one, and 
-		// update projection & view matrices according to it's data.
-		for (auto entity : view)
+		if (m_ecs->has<CameraComponent>(cameraOwner))
+			m_activeCameraEntity = cameraOwner;
+		else
+			LINA_CORE_WARN("This entity does not have a camera component, can not set it as main camera.");
+	}
+
+	void CameraSystem::UpdateComponents(float delta)
+	{
+		if (m_activeCameraEntity != entt::null)
 		{
-			CameraComponent& camera = view.get<CameraComponent>(entity);
+			CameraComponent& camera = m_ecs->get<CameraComponent>(m_activeCameraEntity);
+			TransformComponent& transform = m_ecs->get<TransformComponent>(m_activeCameraEntity);
+			LINA_CORE_TRACE("Camera System Update");
 
-			// If the current camera component exists and not active, continue
-			if (!camera.m_isEnabled)
+			if (!m_viewMatrixInjected)
 			{
-				if(&camera == m_currentCameraComponent)
-				{
-					m_currentCameraComponent = nullptr;
-					m_currentCameraTransform = nullptr;
-				}
-				continue;
+				// Actual camera view matrix.
+				Vector3 location = transform.transform.GetLocation();
+				Quaternion rotation = transform.transform.GetRotation();
+				m_view = Matrix::InitLookAt(location, location + rotation.GetForward(), rotation.GetUp());
 			}
-
-			TransformComponent& transform = view.get<TransformComponent>(entity);
-
-			m_currentCameraComponent = &camera;
-			m_currentCameraTransform = &transform;
-			
-			// Actual camera view matrix.
-			Vector3 location = transform.transform.GetLocation();
-			Quaternion rotation = transform.transform.GetRotation();
-			m_view = Matrix::InitLookAt(location, location + rotation.GetForward(), rotation.GetUp());
+			else
+				m_viewMatrixInjected = false;
 
 			// Update projection matrix.
-			m_projection = Matrix::Perspective(camera.m_fieldOfView / 2, m_aspectRatio, camera.m_zNear, camera.m_zFar);		
-	
-		}	
+			m_projection = Matrix::Perspective(camera.m_fieldOfView / 2, m_aspectRatio, camera.m_zNear, camera.m_zFar);
+		}
 	}
+
 
 	Vector3 CameraSystem::GetCameraLocation()
 	{
-		return (m_currentCameraComponent == nullptr || m_currentCameraTransform == nullptr) ? Vector3(Vector3::Zero) : m_currentCameraTransform->transform.GetLocation();
+		return (m_activeCameraEntity == entt::null) ? Vector3(Vector3::Zero) : m_ecs->get<TransformComponent>(m_activeCameraEntity).transform.GetLocation();
 	}
 
 	LinaEngine::Color& CameraSystem::GetCurrentClearColor()
 	{
-		return m_currentCameraComponent == nullptr ? LinaEngine::Color::Gray : m_currentCameraComponent->m_clearColor;
+		return (m_activeCameraEntity == entt::null) ? LinaEngine::Color::Gray : m_ecs->get<CameraComponent>(m_activeCameraEntity).m_clearColor;
+	}
+
+	CameraComponent* CameraSystem::GetActiveCameraComponent()
+	{
+		return m_activeCameraEntity == entt::null ? nullptr : m_ecs->try_get<CameraComponent>(m_activeCameraEntity);
 	}
 
 

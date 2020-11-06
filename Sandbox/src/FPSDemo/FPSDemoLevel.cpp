@@ -39,6 +39,7 @@ SOFTWARE.
 #include "FPSDemo/PlayerMotionComponent.hpp"
 #include "Drawers/ComponentDrawer.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
+#include "Utility/Math/Matrix.hpp"
 
 namespace LinaEngine
 {
@@ -49,6 +50,19 @@ namespace LinaEngine
 	{
 		Level::Install(loadFromFile, path, levelName);
 		return true;
+	}
+
+	Matrix portalView(Matrix originalView, Transformation* srcTransform, Transformation* destTransform)
+	{
+		Vector3 loc = destTransform->GetLocation();
+		Quaternion rot = destTransform->GetRotation();
+		return Matrix::InitLookAt(loc, loc + rot.GetForward(), rot.GetUp());
+
+		//Matrix mv = originalView * srcTransform->ToMatrix();
+		//Vector3 location = srcTransform->GetLocation();
+		//Quaternion rotation = srcTransform->GetRotation();
+		//Matrix portalCam = mv * Matrix::InitRotation(rotation) * destTransform->ToMatrix().Inverse();
+		//return portalCam;
 	}
 
 	void FPSDemoLevel::Initialize()
@@ -69,17 +83,26 @@ namespace LinaEngine
 		m_portalTexture.ConstructRTTexture(rd, viewportSize, m_portalRTParams, false);
 		m_portalBuffer.Construct(rd, RenderBufferStorage::STORAGE_DEPTH, viewportSize);
 		m_portalRT.Construct(rd, m_portalTexture, viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_portalBuffer.GetID());
-		
-		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<int>("fpsdemo_preDraw", LinaEngine::Action::ActionType::PreDraw, std::bind(&FPSDemoLevel::PreDraw, this));
+
+		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<void*>("fpsdemo_preDraw", LinaEngine::Action::ActionType::PreDraw, std::bind(&FPSDemoLevel::PreDraw, this));
 
 		// Component drawer.
 		m_componentDrawer.AddComponentDrawFunctions();
+
+		
 	}
 
 	void FPSDemoLevel::Tick(bool isInPlayMode, float delta)
 	{
-		m_isInPlayMode = isInPlayMode;
+		if (!m_isInPlayMode && isInPlayMode)
+		{
+			ECSEntity fpsCam = m_registry->GetEntity("FPS Cam");
 
+			if (fpsCam != entt::null)
+				LinaEngine::Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(fpsCam);
+		}
+
+		m_isInPlayMode = isInPlayMode;
 	}
 
 	void FPSDemoLevel::SerializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryOutputArchive& oarchive)
@@ -125,6 +148,29 @@ namespace LinaEngine
 
 	void FPSDemoLevel::PreDraw()
 	{
-		
+		if (!m_isInPlayMode) return;
+		RenderEngine& renderEngine = Application::GetRenderEngine();
+		RenderDevice& rd = renderEngine.GetRenderDevice();
+		Vector2 viewportSize = renderEngine.GetViewportSize();
+
+		TransformComponent& p1tr = m_registry->get<TransformComponent>(m_registry->GetEntity("Portal1"));
+		TransformComponent& p2tr = m_registry->get<TransformComponent>(m_registry->GetEntity("Portal2"));
+
+		rd.SetFBO(m_portalRT.GetID());
+		rd.SetViewport(Vector2::Zero, viewportSize);
+
+		// Clear color.
+		rd.Clear(true, true, true, renderEngine.GetCameraSystem()->GetCurrentClearColor(), 0xFF);
+		Matrix vm = portalView(renderEngine.GetCameraSystem()->GetViewMatrix(), &p1tr.transform, &p2tr.transform);
+		//renderEngine.GetCameraSystem()->InjectViewMatrix(Matrix::Identity());
+
+		LINA_CLIENT_TRACE("Updating from client");
+		//	renderEngine.UpdateSystems();
+
+		//	renderEngine.DrawSceneObjects(renderEngine.GetMainDrawParams());
+
+
+
+		Material::GetMaterial(m_registry->get<MeshRendererComponent>(m_registry->GetEntity("Portal1")).m_materialID).SetTexture(MAT_TEXTURE2D_DIFFUSE, &m_portalTexture);
 	}
 }

@@ -58,34 +58,33 @@ namespace LinaEngine::ECS
 		CameraSystem() {};
 		virtual void UpdateComponents(float delta) override;
 
-		// Construct the system.
-		void Construct(ECSRegistry& registry) { BaseECSSystem::Construct(registry); }
-
-		// Get view matrix.
-		Matrix& GetViewMatrix() { return m_view; }
-
-		// Get projection matrix
-		Matrix& GetProjectionMatrix() { return m_projection; }
-
-		// Get camera location, if camera is not defined, get zero.
-		Vector3 GetCameraLocation();
-
-		// Set aspect ratio for the camera.
+		void Construct(ECSRegistry& registry);
 		void SetAspectRatio(float aspect) { m_aspectRatio = aspect; }
+		void InjectViewMatrix(const Matrix& view) { LINA_CORE_TRACE("Injecting ViewMatrix");  m_viewMatrixInjected = true;  m_view = view; }
+		void SetActiveCamera(ECSEntity cameraOwner);
+		
+		void OnCameraDestroyed(entt::registry& registry, entt::entity entity)
+		{
+			if (entity == m_activeCameraEntity)
+				m_activeCameraEntity = entt::null;
+		}
 
-		// Get clear color of the current camera.
+		ECSEntity GetActiveCamera() { return m_activeCameraEntity; }
+		Matrix& GetViewMatrix() { return m_view; }
+		Matrix& GetProjectionMatrix() { return m_projection; }
+		Vector3 GetCameraLocation();
 		Color& GetCurrentClearColor();
+		CameraComponent* GetActiveCameraComponent();
 
-		CameraComponent* GetCurrentCameraComponent() { return m_currentCameraComponent; }
 
 	private:
 
 		Matrix m_view = Matrix::Identity();
 		Matrix m_projection = Matrix::Perspective(35, 1.33f, 0.01f, 1000.0f);
-		CameraComponent* m_currentCameraComponent = nullptr;
-		TransformComponent* m_currentCameraTransform = nullptr;
 		float m_aspectRatio = 1.33f;
 		bool m_useDirLightView = false;
+		bool m_viewMatrixInjected = false;
+		ECSEntity m_activeCameraEntity = entt::null;
 
 	};
 }

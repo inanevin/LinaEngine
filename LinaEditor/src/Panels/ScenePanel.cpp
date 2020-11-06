@@ -84,7 +84,7 @@ namespace LinaEditor
 						m_isFocused = false;
 				}
 
-				if (renderEngine.GetCameraSystem()->GetCurrentCameraComponent() == nullptr)
+				if (renderEngine.GetCameraSystem()->GetActiveCameraComponent() == nullptr)
 				{
 					ImGui::Text("NO CAMERA AVAILABLE");
 				}

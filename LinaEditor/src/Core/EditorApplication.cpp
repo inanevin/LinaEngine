@@ -106,12 +106,13 @@ namespace LinaEditor
 			FreeLookComponent freeLookComponent;
 			ecs.emplace<CameraComponent>(editorCamera, cameraComponent);
 			ecs.emplace<FreeLookComponent>(editorCamera, freeLookComponent);
+			LinaEngine::Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(editorCamera);
 			Refresh();
 		}
 		else
 		{
 			ECSEntity editorCamera = ecs.GetEntity(EDITOR_CAMERA_NAME);
-			ecs.get<CameraComponent>(editorCamera).m_isEnabled = true;
+			LinaEngine::Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(editorCamera);
 			ecs.get<FreeLookComponent>(editorCamera).m_isEnabled = true;
 		}
 	}
@@ -125,13 +126,16 @@ namespace LinaEditor
 		{
 			if (enabled)
 			{
-				ecs.get<CameraComponent>(editorCamera).m_isEnabled = false;
+				if (LinaEngine::Application::GetRenderEngine().GetCameraSystem()->GetActiveCamera() == editorCamera)
+					LinaEngine::Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(entt::null);
+
 				ecs.get<FreeLookComponent>(editorCamera).m_isEnabled = false;
 				editorCameraSystem.SystemActivation(false);
 			}
 			else
 			{
-				ecs.get<CameraComponent>(editorCamera).m_isEnabled = true;
+				LinaEngine::Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(editorCamera);
+
 				ecs.get<FreeLookComponent>(editorCamera).m_isEnabled = true;
 				editorCameraSystem.SystemActivation(true);
 			}
