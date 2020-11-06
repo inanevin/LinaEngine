@@ -188,7 +188,7 @@ namespace LinaEditor
 
 		// Enabled toggle
 		std::string buf(title);
-		if (!alwaysEnabled)
+		if (!alwaysEnabled && enabled != nullptr)
 		{
 			buf.append("t");
 			ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
@@ -201,7 +201,7 @@ namespace LinaEditor
 		// Refresh button
 		buf.append("r");
 		ImGui::SameLine();
-		if (alwaysEnabled)
+		if (alwaysEnabled && enabled != nullptr)
 			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 20);
 		else
 			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 43);
@@ -340,7 +340,7 @@ namespace LinaEditor
 
 		// Draw title.
 		bool refreshPressed = false;
-		bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<CameraComponent>(), "Camera", ICON_FA_VIDEO, &refreshPressed, &camera.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0,0), true);
+		bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<CameraComponent>(), "Camera", ICON_FA_VIDEO, &refreshPressed, nullptr, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header));
 
 		// Remove if requested.
 		if (removeComponent)

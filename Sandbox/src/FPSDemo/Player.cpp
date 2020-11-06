@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -35,6 +35,8 @@ SOFTWARE.
 #include "FPSDemo/HeadbobComponent.hpp"
 #include "Input/InputEngine.hpp"
 #include "Utility/Math/Math.hpp"
+#include "Rendering/RenderEngine.hpp"
+#include "ECS/Systems/CameraSystem.hpp"
 
 namespace LinaEngine
 {
@@ -50,7 +52,7 @@ namespace LinaEngine
 		m_playerEntity = m_registry->GetEntity("Player");
 		m_headbobEntity = m_registry->GetEntity("Headbobber");
 		m_cameraEntity = m_registry->GetEntity("FPS Cam");
-		
+
 		if (m_playerEntity != entt::null && m_headbobEntity != entt::null && m_cameraEntity != entt::null)
 		{
 
@@ -59,7 +61,7 @@ namespace LinaEngine
 			TransformComponent& playerTransform = m_registry->get<TransformComponent>(m_playerEntity);
 			TransformComponent& cameraTransform = m_registry->get<TransformComponent>(m_cameraEntity);
 			PlayerMotionComponent& motionComponent = m_registry->get<PlayerMotionComponent>(m_playerEntity);
-			 m_registry->get<CameraComponent>(m_cameraEntity).m_isEnabled = false;
+			m_registry->get<CameraComponent>(m_cameraEntity).m_isEnabled = false;
 
 			motionComponent.m_movementSmooths = Vector2(4.0f, 4.0f);
 			motionComponent.m_rotationSmooths = Vector2(7.0f, 7.0f);
@@ -83,7 +85,8 @@ namespace LinaEngine
 
 	void Player::PlayModeChanged(bool enabled)
 	{
-		m_registry->get<CameraComponent>(m_cameraEntity).m_isEnabled = enabled;
+		if (enabled)
+			LinaEngine::Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(m_cameraEntity);
 	}
 
 	void Player::Tick(float deltaTime)
@@ -121,7 +124,7 @@ namespace LinaEngine
 		Vector3 velocity = playerTransform.transform.GetRotation() * moveDirection;
 		m_registry->get<TransformComponent>(m_playerEntity).transform.SetLocation(playerTransform.transform.GetLocation() + velocity);
 
-		
+
 		m_isMoving = velocity.Magnitude() > MIN_MAG_MOVE;
 
 		if (m_isMoving)

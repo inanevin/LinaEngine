@@ -39,7 +39,7 @@ namespace LinaEngine::ECS
 	{
 		BaseECSSystem::Construct(registry);
 
-		registry.on_construct<CameraComponent>().connect<&CameraSystem::OnCameraDestroyed>(this);
+		registry.on_destroy<CameraComponent>().connect<&CameraSystem::OnCameraDestroyed>(this);
 	}
 
 	void CameraSystem::SetActiveCamera(ECSEntity cameraOwner)
@@ -62,7 +62,6 @@ namespace LinaEngine::ECS
 		{
 			CameraComponent& camera = m_ecs->get<CameraComponent>(m_activeCameraEntity);
 			TransformComponent& transform = m_ecs->get<TransformComponent>(m_activeCameraEntity);
-			LINA_CORE_TRACE("Camera System Update");
 
 			if (!m_viewMatrixInjected)
 			{
@@ -72,7 +71,10 @@ namespace LinaEngine::ECS
 				m_view = Matrix::InitLookAt(location, location + rotation.GetForward(), rotation.GetUp());
 			}
 			else
+			{
 				m_viewMatrixInjected = false;
+
+			}
 
 			// Update projection matrix.
 			m_projection = Matrix::Perspective(camera.m_fieldOfView / 2, m_aspectRatio, camera.m_zNear, camera.m_zFar);
@@ -82,12 +84,12 @@ namespace LinaEngine::ECS
 
 	Vector3 CameraSystem::GetCameraLocation()
 	{
-		return (m_activeCameraEntity == entt::null) ? Vector3(Vector3::Zero) : m_ecs->get<TransformComponent>(m_activeCameraEntity).transform.GetLocation();
+		return m_activeCameraEntity == entt::null ? Vector3(Vector3::Zero) : m_ecs->get<TransformComponent>(m_activeCameraEntity).transform.GetLocation();
 	}
 
 	LinaEngine::Color& CameraSystem::GetCurrentClearColor()
 	{
-		return (m_activeCameraEntity == entt::null) ? LinaEngine::Color::Gray : m_ecs->get<CameraComponent>(m_activeCameraEntity).m_clearColor;
+		return m_activeCameraEntity == entt::null ? LinaEngine::Color::Gray : m_ecs->get<CameraComponent>(m_activeCameraEntity).m_clearColor;
 	}
 
 	CameraComponent* CameraSystem::GetActiveCameraComponent()

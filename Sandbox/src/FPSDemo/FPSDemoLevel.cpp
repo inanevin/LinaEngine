@@ -54,15 +54,15 @@ namespace LinaEngine
 
 	Matrix portalView(Matrix originalView, Transformation* srcTransform, Transformation* destTransform)
 	{
-		Vector3 loc = destTransform->GetLocation();
-		Quaternion rot = destTransform->GetRotation();
-		return Matrix::InitLookAt(loc, loc + rot.GetForward(), rot.GetUp());
+		//Vector3 loc = destTransform->GetLocation();
+		//Quaternion rot = destTransform->GetRotation();
+		//return Matrix::InitLookAt(loc, loc + rot.GetForward(), rot.GetUp());
 
-		//Matrix mv = originalView * srcTransform->ToMatrix();
-		//Vector3 location = srcTransform->GetLocation();
-		//Quaternion rotation = srcTransform->GetRotation();
-		//Matrix portalCam = mv * Matrix::InitRotation(rotation) * destTransform->ToMatrix().Inverse();
-		//return portalCam;
+		Matrix mv = originalView * srcTransform->ToMatrix();
+		Vector3 location = srcTransform->GetLocation();
+		Quaternion rotation = srcTransform->GetRotation();
+		Matrix portalCam = mv * Matrix::InitRotation(rotation) * destTransform->ToMatrix().Inverse();
+		return portalCam;
 	}
 
 	void FPSDemoLevel::Initialize()
@@ -89,19 +89,11 @@ namespace LinaEngine
 		// Component drawer.
 		m_componentDrawer.AddComponentDrawFunctions();
 
-		
+
 	}
 
 	void FPSDemoLevel::Tick(bool isInPlayMode, float delta)
 	{
-		if (!m_isInPlayMode && isInPlayMode)
-		{
-			ECSEntity fpsCam = m_registry->GetEntity("FPS Cam");
-
-			if (fpsCam != entt::null)
-				LinaEngine::Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(fpsCam);
-		}
-
 		m_isInPlayMode = isInPlayMode;
 	}
 
@@ -149,6 +141,7 @@ namespace LinaEngine
 	void FPSDemoLevel::PreDraw()
 	{
 		if (!m_isInPlayMode) return;
+	
 		RenderEngine& renderEngine = Application::GetRenderEngine();
 		RenderDevice& rd = renderEngine.GetRenderDevice();
 		Vector2 viewportSize = renderEngine.GetViewportSize();
@@ -162,12 +155,10 @@ namespace LinaEngine
 		// Clear color.
 		rd.Clear(true, true, true, renderEngine.GetCameraSystem()->GetCurrentClearColor(), 0xFF);
 		Matrix vm = portalView(renderEngine.GetCameraSystem()->GetViewMatrix(), &p1tr.transform, &p2tr.transform);
-		//renderEngine.GetCameraSystem()->InjectViewMatrix(Matrix::Identity());
 
-		LINA_CLIENT_TRACE("Updating from client");
-		//	renderEngine.UpdateSystems();
-
-		//	renderEngine.DrawSceneObjects(renderEngine.GetMainDrawParams());
+		renderEngine.GetCameraSystem()->InjectViewMatrix(vm);
+		renderEngine.UpdateSystems();
+		renderEngine.DrawSceneObjects(renderEngine.GetMainDrawParams());
 
 
 

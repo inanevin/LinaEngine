@@ -614,7 +614,6 @@ namespace LinaEngine::Graphics
 		m_globalDataBuffer.Update(&m_cameraSystem.GetProjectionMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 
-		LINA_CORE_TRACE("Getting View Matrix");
 		m_globalDataBuffer.Update(&m_cameraSystem.GetViewMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 
@@ -968,10 +967,10 @@ namespace LinaEngine::Graphics
 	void RenderEngine::UpdateSystems()
 	{
 		// Update pipeline.
-	//	m_renderingPipeline.UpdateSystems(0.0f);
+		m_renderingPipeline.UpdateSystems(0.0f);
 
 		// Update uniform buffers on GPU
-	//	UpdateUniformBuffers();
+		UpdateUniformBuffers();
 	}
 
 }

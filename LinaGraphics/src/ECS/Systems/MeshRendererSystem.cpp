@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -44,12 +44,9 @@ namespace LinaEngine::ECS
 		for (auto entity : view)
 		{
 			MeshRendererComponent& renderer = view.get<MeshRendererComponent>(entity);
-			if (!renderer.m_isEnabled) return;
+			if (!renderer.m_isEnabled || renderer.m_excludeFromDrawList || renderer.m_materialID < 0 || renderer.m_meshID < 0) continue;
 
 			TransformComponent& transform = view.get<TransformComponent>(entity);
-
-			// Dont draw if mesh or material does not exist.
-			if (renderer.m_materialID < 0 || renderer.m_meshID < 0) continue;
 
 			// We get the materials, then according to their surface types we add the mesh
 			// data into either opaque queue or the transparent queue.
@@ -84,7 +81,7 @@ namespace LinaEngine::ECS
 		m_opaqueRenderBatch[drawData].m_inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
 	}
 
-	void MeshRendererSystem::RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn,float priority)
+	void MeshRendererSystem::RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, float priority)
 	{
 		// Render commands basically add the necessary
 		// draw data into the maps/lists etc.
@@ -96,7 +93,7 @@ namespace LinaEngine::ECS
 		Graphics::BatchModelData modelData;
 		modelData.m_models.push_back(transformIn);
 		modelData.m_inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
-		m_transparentRenderBatch.emplace(std::make_pair(drawData, modelData));	
+		m_transparentRenderBatch.emplace(std::make_pair(drawData, modelData));
 	}
 
 	void MeshRendererSystem::FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
@@ -175,7 +172,7 @@ namespace LinaEngine::ECS
 
 			m_transparentRenderBatch.pop();
 		}
-		
+
 	}
 
 }
