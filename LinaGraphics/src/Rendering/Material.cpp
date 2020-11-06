@@ -186,6 +186,7 @@ namespace LinaEngine::Graphics
 
 		if (onlySetID) return material;
 
+
 		// Clear all shader related material data.
 		material.m_sampler2Ds.clear();
 		material.m_colors.clear();
@@ -199,7 +200,6 @@ namespace LinaEngine::Graphics
 		material.m_isShadowMapped = false;
 		material.m_receivesLighting = false;
 		material.m_usesHDRI = false;
-
 
 		if (shader == Shaders::Standard_Unlit)
 		{
@@ -279,6 +279,7 @@ namespace LinaEngine::Graphics
 			material.m_floats[MAT_METALLICMULTIPLIER] = 1.0f;
 			material.m_floats[MAT_ROUGHNESSMULTIPLIER] = 1.0f;
 			material.m_ints[MAT_WORKFLOW] = 0;
+			material.m_ints[MAT_SURFACETYPE] = 0;
 			material.m_vector2s[MAT_TILING] = Vector2::One;
 			material.m_colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
 			material.m_receivesLighting = true;

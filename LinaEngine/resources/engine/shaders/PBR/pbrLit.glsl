@@ -66,6 +66,7 @@ struct Material
   float metallic;
   float roughness;
   int workflow;
+  int surfaceType;
   vec2 tiling;
 };
 
@@ -170,7 +171,8 @@ void main()
     // gamma correct
     color = pow(color, vec3(1.0/2.2));
 
-    fragColor = vec4(color, 1.0);
+	float alpha =  material.surfaceType == 0 ? 1.0 : (material.albedoMap.isActive ? texture(material.albedoMap.texture, tiled).a : 1.0);
+    fragColor = vec4(color, alpha);
 
 }
 #endif
