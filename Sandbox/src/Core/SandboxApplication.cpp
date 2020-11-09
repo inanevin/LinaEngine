@@ -26,6 +26,13 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include "Input/InputEngine.hpp"
 #include "Core/EditorApplication.hpp"
 #include "FPSDemo/FPSDemoLevel.hpp"
+#include "ECS/Components/FreeLookComponent.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
+#include "ECS/Components/SpriteRendererComponent.hpp"
+#include "ECS/Components/CameraComponent.hpp"
+#include "ECS/Components/RigidbodyComponent.hpp"
+#include "FPSDemo/HeadbobComponent.hpp"
+#include "FPSDemo/PlayerMotionComponent.hpp"
 
 class SandboxApplication : public LinaEngine::Application
 {
@@ -47,21 +54,18 @@ class SandboxApplication : public LinaEngine::Application
 
 #ifdef LINA_EDITOR
 		m_editor.Setup();
-#endif
-		InstallLevel(m_fpsDemoLevel, true, "resources/sandbox/FPSDemo/levels/", "FPSDemo");
 
-#ifdef LINA_EDITOR
 		// Refresh after level init.
 		m_editor.Refresh();
-#endif
 
 		// Set the app window size back to original.
 		GetAppWindow().SetSize(Vector2(props.m_width, props.m_height));
 		GetAppWindow().SetPosCentered(Vector2::Zero);
 
-#ifdef LINA_EDITOR
 		SetPlayMode(false);
 #endif
+
+		InstallLevel(m_fpsDemoLevel, true, "resources/sandbox/FPSDemo/levels/", "FPSDemo");
 
 		// Run engine.
 		Run();
@@ -82,7 +86,47 @@ class SandboxApplication : public LinaEngine::Application
 		FPSDemoLevel m_fpsDemoLevel;
 		Example1Level m_startupLevel;
 
-	};
+
+		// Inherited via Application
+		virtual void SerializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryOutputArchive& oarchive) override
+		{
+			entt::snapshot{ registry }
+				.entities(oarchive)
+				.component<
+				LinaEngine::ECS::ECSEntityData,
+				LinaEngine::ECS::CameraComponent,
+				LinaEngine::ECS::FreeLookComponent,
+				LinaEngine::ECS::PointLightComponent,
+				LinaEngine::ECS::DirectionalLightComponent,
+				LinaEngine::ECS::SpotLightComponent,
+				LinaEngine::ECS::RigidbodyComponent,
+				LinaEngine::ECS::MeshRendererComponent,
+				LinaEngine::ECS::SpriteRendererComponent,
+				LinaEngine::ECS::TransformComponent,
+				LinaEngine::ECS::HeadbobComponent,
+				LinaEngine::ECS::PlayerMotionComponent
+				>(oarchive);
+		}
+
+		virtual void DeserializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryInputArchive& iarchive) override
+		{
+			entt::snapshot_loader{ registry }
+				.entities(iarchive)
+				.component<
+				LinaEngine::ECS::ECSEntityData,
+				LinaEngine::ECS::CameraComponent,
+				LinaEngine::ECS::FreeLookComponent,
+				LinaEngine::ECS::PointLightComponent,
+				LinaEngine::ECS::DirectionalLightComponent,
+				LinaEngine::ECS::SpotLightComponent,
+				LinaEngine::ECS::RigidbodyComponent,
+				LinaEngine::ECS::MeshRendererComponent,
+				LinaEngine::ECS::SpriteRendererComponent,
+				LinaEngine::ECS::TransformComponent
+				>(iarchive);
+		}
+
+};
 
 LinaEngine::Application* LinaEngine::CreateApplication()
 {

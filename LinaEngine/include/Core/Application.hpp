@@ -94,6 +94,10 @@ namespace LinaEngine
 		void SaveLevelData(const std::string& folderPath, const std::string& fileName);
 		void LoadLevelData(const std::string& folderPath, const std::string& fileName);
 
+		// Serialization functions for ecs registry.
+		virtual void SerializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryOutputArchive& oarchive) = 0;
+		virtual void DeserializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryInputArchive& iarchive) = 0;
+
 		// Unloads a level from memory.
 		void UninstallLevel();
 

@@ -59,9 +59,9 @@ namespace LinaEngine
 		//return Matrix::InitLookAt(loc, loc + rot.GetForward(), rot.GetUp());
 
 		Matrix mv = originalView * srcTransform->ToMatrix();
-		Vector3 location = srcTransform->GetLocation();
-		Quaternion rotation = srcTransform->GetRotation();
-		Matrix portalCam = mv * Matrix::InitRotation(rotation) * destTransform->ToMatrix().Inverse();
+		Vector3 loc= srcTransform->GetLocation();
+		Quaternion rot = srcTransform->GetRotation();
+		Matrix portalCam = mv * Matrix::InitLookAt(loc, loc + rot.GetForward(), rot.GetUp()) * destTransform->ToMatrix().Inverse();
 		return portalCam;
 	}
 
@@ -94,7 +94,7 @@ namespace LinaEngine
 
 		if (portal1 != entt::null && portal2 != entt::null)
 		{
-			m_registry->get<MeshRendererComponent>(portal1).m_excludeFromDrawList = true;
+			//m_registry->get<MeshRendererComponent>(portal1).m_excludeFromDrawList = true;
 		}
 	}
 
@@ -103,91 +103,10 @@ namespace LinaEngine
 		m_isInPlayMode = isInPlayMode;
 	}
 
-	void FPSDemoLevel::SerializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryOutputArchive& oarchive)
-	{
-		entt::snapshot{ registry }
-			.entities(oarchive)
-			.component<
-			LinaEngine::ECS::ECSEntityData,
-			LinaEngine::ECS::CameraComponent,
-			LinaEngine::ECS::FreeLookComponent,
-			LinaEngine::ECS::PointLightComponent,
-			LinaEngine::ECS::DirectionalLightComponent,
-			LinaEngine::ECS::SpotLightComponent,
-			LinaEngine::ECS::RigidbodyComponent,
-			LinaEngine::ECS::MeshRendererComponent,
-			LinaEngine::ECS::SpriteRendererComponent,
-			LinaEngine::ECS::TransformComponent,
-			LinaEngine::ECS::HeadbobComponent,
-			LinaEngine::ECS::PlayerMotionComponent
-			>(oarchive);
-	}
-
-	void FPSDemoLevel::DeserializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryInputArchive& iarchive)
-	{
-		entt::snapshot_loader{ registry }
-			.entities(iarchive)
-			.component<
-			LinaEngine::ECS::ECSEntityData,
-			LinaEngine::ECS::CameraComponent,
-			LinaEngine::ECS::FreeLookComponent,
-			LinaEngine::ECS::PointLightComponent,
-			LinaEngine::ECS::DirectionalLightComponent,
-			LinaEngine::ECS::SpotLightComponent,
-			LinaEngine::ECS::RigidbodyComponent,
-			LinaEngine::ECS::MeshRendererComponent,
-			LinaEngine::ECS::SpriteRendererComponent,
-			LinaEngine::ECS::TransformComponent,
-			LinaEngine::ECS::HeadbobComponent,
-			LinaEngine::ECS::PlayerMotionComponent
-			>(iarchive);
-	}
-
-	void FPSDemoLevel::SerializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::XMLOutputArchive& oarchive)
-	{
-		entt::snapshot{ registry }
-			.entities(oarchive)
-			.component<
-			LinaEngine::ECS::ECSEntityData,
-			LinaEngine::ECS::CameraComponent,
-			LinaEngine::ECS::FreeLookComponent,
-			LinaEngine::ECS::PointLightComponent,
-			LinaEngine::ECS::DirectionalLightComponent,
-			LinaEngine::ECS::SpotLightComponent,
-			LinaEngine::ECS::RigidbodyComponent,
-			LinaEngine::ECS::MeshRendererComponent,
-			LinaEngine::ECS::SpriteRendererComponent,
-			LinaEngine::ECS::TransformComponent,
-			LinaEngine::ECS::HeadbobComponent,
-			LinaEngine::ECS::PlayerMotionComponent
-			>(oarchive);
-	}
-
-	void FPSDemoLevel::DeserializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::XMLInputArchive& iarchive)
-	{
-		entt::snapshot_loader{ registry }
-			.entities(iarchive)
-			.component<
-			LinaEngine::ECS::ECSEntityData,
-			LinaEngine::ECS::CameraComponent,
-			LinaEngine::ECS::FreeLookComponent,
-			LinaEngine::ECS::PointLightComponent,
-			LinaEngine::ECS::DirectionalLightComponent,
-			LinaEngine::ECS::SpotLightComponent,
-			LinaEngine::ECS::RigidbodyComponent,
-			LinaEngine::ECS::MeshRendererComponent,
-			LinaEngine::ECS::SpriteRendererComponent,
-			LinaEngine::ECS::TransformComponent,
-			LinaEngine::ECS::HeadbobComponent,
-			LinaEngine::ECS::PlayerMotionComponent
-			>(iarchive);
-	}
-
 	void FPSDemoLevel::PreDraw()
 	{
 		if (!m_isInPlayMode) return;
 		
-
 		RenderEngine& renderEngine = Application::GetRenderEngine();
 		RenderDevice& rd = renderEngine.GetRenderDevice();
 		Vector2 viewportSize = renderEngine.GetViewportSize();

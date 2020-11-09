@@ -151,3 +151,4 @@ void Example1Level::Tick(bool isInPlayMode, float delta)
 	tr.transform.SetLocation(loc);
 
 }
+
