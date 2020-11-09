@@ -70,6 +70,20 @@ namespace LinaEditor
 		ImGui::SetCursorPosX(cursorPosValues);
 		ImGui::Checkbox("##tangentSpace", &m_selectedParams.m_calculateTangentSpace);
 
+
+		ImGui::SetCursorPosX(cursorPosLabels);
+		WidgetsUtility::AlignedText("Flip UVs");
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
+		ImGui::Checkbox("##flipUVs", &m_selectedParams.m_flipUVs);
+
+
+		ImGui::SetCursorPosX(cursorPosLabels);
+		WidgetsUtility::AlignedText("Flip Winding (CW)");
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(cursorPosValues);
+		ImGui::Checkbox("##flipWinding", &m_selectedParams.m_flipWinding);
+
 		ImGui::SetCursorPosX(cursorPosLabels);
 
 		if (ImGui::Button("Apply"))

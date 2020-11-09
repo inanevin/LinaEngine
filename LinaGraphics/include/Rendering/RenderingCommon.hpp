@@ -290,11 +290,13 @@ namespace LinaEngine::Graphics
 		bool m_triangulate = true;
 		bool m_smoothNormals = true;
 		bool m_calculateTangentSpace = true;
+		bool m_flipWinding = true;
+		bool m_flipUVs = false;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_triangulate, m_smoothNormals, m_calculateTangentSpace);
+			archive(m_triangulate, m_smoothNormals, m_calculateTangentSpace, m_flipUVs, m_flipWinding);
 		}
 	};
 

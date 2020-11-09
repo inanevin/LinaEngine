@@ -102,11 +102,16 @@ namespace LinaEngine::Graphics
 		void* GetShadowMapImage();
 		void UpdateSystems();
 
+
 		// Initializes the setup process for loading an HDRI image to the scene
 		void CaptureCalculateHDRI(Texture& hdriTexture);
 		void SetHDRIData(Material* mat);
 		void RemoveHDRIData(Material* mat);
+
 		void DrawLine(Vector3 p1, Vector3 p2, Color col, float width = 1.0f);
+
+		void CustomDrawActivation(bool activate) { m_customDrawEnabled = activate; }
+		void SetCustomDrawFunction(const std::function<void()>& func) { m_customDrawFunction = func; }
 
 		Texture& GetFinalImageTexture() { return m_primaryRTTexture0; }
 		void SetPostSceneDrawCallback(std::function<void()>& cb) { m_postSceneDrawCallback = cb; }
@@ -134,6 +139,7 @@ namespace LinaEngine::Graphics
 		void DumpMemory();
 		void DrawShadows();
 		void Draw();
+		void DrawFinalize();
 		void DrawOperationsDefault();
 		void DrawSkybox();
 		void UpdateUniformBuffers();
@@ -227,6 +233,7 @@ namespace LinaEngine::Graphics
 		int m_currentSpotLightCount = 0;
 		int m_currentPointLightCount = 0;
 		bool m_hdriDataCaptured = false;
+		bool m_customDrawEnabled;
 
 		Vector2 m_hdriResolution = Vector2(512, 512);
 		Vector2 m_shadowMapResolution = Vector2(2048, 2048);
@@ -236,6 +243,7 @@ namespace LinaEngine::Graphics
 		std::function<void()> m_postSceneDrawCallback;
 		std::function<void()> m_preDrawCallback;
 		std::function<void()> m_postDrawCallback;
+		std::function<void()> m_customDrawFunction;
 		bool m_firstFrameDrawn = false;
 
 

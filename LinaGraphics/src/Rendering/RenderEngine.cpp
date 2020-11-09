@@ -170,6 +170,7 @@ namespace LinaEngine::Graphics
 		if (m_preDrawCallback)
 			m_preDrawCallback();
 
+
 		Draw();
 
 		if (m_postDrawCallback)
@@ -459,18 +460,29 @@ namespace LinaEngine::Graphics
 		s_renderDevice.SetFBO(m_primaryRenderTarget.GetID());
 		s_renderDevice.SetViewport(Vector2::Zero, m_viewportSize);
 
-		// Clear color.
-		s_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
+		if (m_customDrawEnabled && m_customDrawFunction)
+			m_customDrawFunction();
+		else
+		{		
+			// Clear color.
+			s_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
 
-		// Update pipeline.
-		m_renderingPipeline.UpdateSystems(0.0f);
+			// Update pipeline.
+			m_renderingPipeline.UpdateSystems(0.0f);
 
-		// Update uniform buffers on GPU
-		UpdateUniformBuffers();
+			// Update uniform buffers on GPU
+			UpdateUniformBuffers();
 
-		// Draw scene
-		DrawSceneObjects(m_defaultDrawParams);
+			// Draw scene
+			DrawSceneObjects(m_defaultDrawParams);
+		}
 
+		// Finalize drawing.
+		DrawFinalize();
+	}
+
+	void RenderEngine::DrawFinalize()
+	{
 		bool horizontal = true;
 
 		if (m_renderSettings.m_bloomEnabled)
@@ -507,7 +519,7 @@ namespace LinaEngine::Graphics
 		s_renderDevice.SetFBO(m_secondaryRenderTarget.GetID());
 #else
 		// Back to default buffer
-		s_renderDevice.SetFBO(0);	
+		s_renderDevice.SetFBO(0);
 #endif
 
 		s_renderDevice.SetViewport(m_viewportPos, m_viewportSize);
@@ -934,7 +946,7 @@ namespace LinaEngine::Graphics
 		}
 
 		mat->RemoveTexture(MAT_TEXTURE2D_IRRADIANCEMAP);
-		mat->RemoveTexture(MAT_TEXTURE2D_BRDFLUTMAP);	
+		mat->RemoveTexture(MAT_TEXTURE2D_BRDFLUTMAP);
 		mat->RemoveTexture(MAT_TEXTURE2D_PREFILTERMAP);
 
 	}
@@ -972,4 +984,4 @@ namespace LinaEngine::Graphics
 		UpdateUniformBuffers();
 	}
 
-}
+	}

@@ -46,6 +46,13 @@ namespace LinaEngine::Graphics
 
 		if (meshParams.m_smoothNormals)
 			importFlags |= aiProcess_GenSmoothNormals;
+		
+		if (meshParams.m_flipUVs)
+			importFlags |= aiProcess_FlipUVs;
+
+		if (meshParams.m_flipWinding)
+			importFlags |= aiProcess_FlipWindingOrder;
+
 
 		const aiScene* scene = importer.ReadFile(fileName.c_str(), importFlags);
 		// | aiProcess_FlipUVs

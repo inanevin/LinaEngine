@@ -70,6 +70,7 @@ namespace LinaEngine
 	private:
 
 		void PreDraw();
+		void CustomDraw();
 
 	private:
 

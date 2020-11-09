@@ -40,6 +40,8 @@ SOFTWARE.
 #include "Drawers/ComponentDrawer.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
 #include "Utility/Math/Matrix.hpp"
+#include "Helpers/DrawParameterHelper.hpp"
+#include "glad/glad.h"
 
 namespace LinaEngine
 {
@@ -61,7 +63,7 @@ namespace LinaEngine
 		Matrix mv = originalView * srcTransform->ToMatrix();
 		Vector3 loc= srcTransform->GetLocation();
 		Quaternion rot = srcTransform->GetRotation();
-		Matrix portalCam = mv * Matrix::InitLookAt(loc, loc + rot.GetForward(), rot.GetUp()) * destTransform->ToMatrix().Inverse();
+		Matrix portalCam = mv * Matrix::InitRotation(rot) * destTransform->ToMatrix().Inverse();
 		return portalCam;
 	}
 
@@ -90,7 +92,9 @@ namespace LinaEngine
 		}
 		
 		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<void*>("fpsdemo_preDraw", LinaEngine::Action::ActionType::PreDraw, std::bind(&FPSDemoLevel::PreDraw, this));
-
+		LinaEngine::Application::GetRenderEngine().CustomDrawActivation(true);
+		auto customDrawFunc = std::bind(&FPSDemoLevel::CustomDraw, this);
+		LinaEngine::Application::GetRenderEngine().SetCustomDrawFunction(customDrawFunc);
 		// Component drawer.
 		m_componentDrawer.AddComponentDrawFunctions();
 
@@ -99,7 +103,7 @@ namespace LinaEngine
 
 		if (portal1 != entt::null && portal2 != entt::null)
 		{
-			//m_registry->get<MeshRendererComponent>(portal1).m_excludeFromDrawList = true;
+			m_registry->get<MeshRendererComponent>(portal1).m_excludeFromDrawList = false;
 		}
 	}
 
@@ -117,14 +121,13 @@ namespace LinaEngine
 	void FPSDemoLevel::PreDraw()
 	{
 		if (!m_isInPlayMode) return;
-		
+		return;
 		RenderEngine& renderEngine = Application::GetRenderEngine();
 		RenderDevice& rd = renderEngine.GetRenderDevice();
 		Vector2 viewportSize = renderEngine.GetViewportSize();
 
 		TransformComponent& p1tr = m_registry->get<TransformComponent>(m_registry->GetEntity("Portal1"));
 		TransformComponent& p2tr = m_registry->get<TransformComponent>(m_registry->GetEntity("Portal2"));
-
 		rd.SetFBO(m_portalRT.GetID());
 		rd.SetViewport(Vector2::Zero, viewportSize);
 
@@ -132,12 +135,57 @@ namespace LinaEngine
 		rd.Clear(true, true, true, renderEngine.GetCameraSystem()->GetCurrentClearColor(), 0xFF);
 		Matrix vm = portalView(renderEngine.GetCameraSystem()->GetViewMatrix(), &p1tr.transform, &p2tr.transform);
 
+
+	//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	//glDepthMask(GL_FALSE);
+	//glStencilFunc(GL_NEVER, 0, 0xFF);
+	//glStencilOp(GL_INCR, GL_KEEP, GL_KEEP);  // draw 1s on test fail (always)
+	//// draw stencil pattern
+	//glClear(GL_STENCIL_BUFFER_BIT);  // needs mask=0xFF
+	//
+	//renderEngine.UpdateSystems();
+	//
+	//MeshRendererComponent& mrc = m_registry->get<MeshRendererComponent>(m_registry->GetEntity("Portal1"));
+	//
+	//Mesh& mesh = Mesh::GetMesh(mrc.m_meshID);
+	//Material& mat = Material::GetMaterial(mrc.m_materialID);
+	//for (VertexArray* va : mesh.GetVertexArrays())
+	//{
+	//	va->UpdateBuffer(5, &p1tr.transform.ToMatrix()[0][0], sizeof(Matrix));
+	//	va->UpdateBuffer(6, &p1tr.transform.ToMatrix().Transpose().Inverse()[0][0], sizeof(Matrix));
+	//
+	//	renderEngine.UpdateShaderData(&mat);
+	//	glDrawElements(GL_TRIANGLES, (GLsizei)va->GetIndexCount(), GL_UNSIGNED_INT, 0);
+	//}
+	//
+	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	//glDepthMask(GL_TRUE);
+	//glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	///* Fill 1 or more */
+	//glStencilFunc(GL_LEQUAL, 1, 0xFF);
+
 		renderEngine.GetCameraSystem()->InjectViewMatrix(vm);
 		renderEngine.UpdateSystems();
 		renderEngine.DrawSceneObjects(renderEngine.GetMainDrawParams());
 
 
-
 		Material::GetMaterial(m_registry->get<MeshRendererComponent>(m_registry->GetEntity("Portal1")).m_materialID).SetTexture(MAT_TEXTURE2D_DIFFUSE, &m_portalTexture);
+
+
+	}
+
+	void FPSDemoLevel::CustomDraw()
+	{
+		RenderEngine& renderEngine = Application::GetRenderEngine();
+		RenderDevice& rd = renderEngine.GetRenderDevice();
+
+		// Clear color.
+		rd.Clear(true, true, true, renderEngine.GetCameraSystem()->GetCurrentClearColor(), 0xFF);
+
+		// Update pipeline.
+		renderEngine.UpdateSystems();
+
+		// Draw scene
+		renderEngine.DrawSceneObjects(Graphics::DrawParameterHelper::GetDefault());
 	}
 }
