@@ -122,7 +122,9 @@ class SandboxApplication : public LinaEngine::Application
 				LinaEngine::ECS::RigidbodyComponent,
 				LinaEngine::ECS::MeshRendererComponent,
 				LinaEngine::ECS::SpriteRendererComponent,
-				LinaEngine::ECS::TransformComponent
+				LinaEngine::ECS::TransformComponent,
+				LinaEngine::ECS::HeadbobComponent,
+				LinaEngine::ECS::PlayerMotionComponent
 				>(iarchive);
 		}
 

@@ -377,25 +377,7 @@ namespace LinaEngine
 		return avg;
 	}
 
-	void Application::PushLayerToMainStack(Layer& layer)
-	{
-		m_mainLayerStack.PushLayerToMainStack(layer);
-	}
 
-	void Application::PushOverlayToMainStack(Layer& layer)
-	{
-		m_mainLayerStack.PushOverlayToMainStack(layer);
-	}
-
-	void Application::PushLayerToPlayStack(Layer& layer)
-	{
-		m_playModeStack.PushLayerToMainStack(layer);
-	}
-
-	void Application::PushOverlayToPlayStack(Layer& layer)
-	{
-		m_playModeStack.PushOverlayToMainStack(layer);
-	}
 
 	void Application::SetPlayMode(bool enabled)
 	{

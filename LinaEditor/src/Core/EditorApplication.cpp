@@ -72,7 +72,7 @@ namespace LinaEditor
 		// Remove splash.
 		delete splash;
 
-		LinaEngine::Application::GetRenderEngine().PushLayerToMainStack(m_guiLayer);
+		LinaEngine::Application::GetRenderEngine().PushLayer(m_guiLayer);
 
 		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::World::Level*>("##linaeditor_level_init", LinaEngine::Action::ActionType::LevelInitialized,
 			std::bind(&EditorApplication::LevelInstalled, this, std::placeholders::_1));

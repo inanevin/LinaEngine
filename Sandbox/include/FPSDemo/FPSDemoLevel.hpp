@@ -65,7 +65,7 @@ namespace LinaEngine
 		virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName) override;
 		virtual void Initialize() override;
 		virtual void Tick(bool isInPlayMode, float delta) override;
-	
+		virtual void Uninstall() override;
 
 	private:
 
@@ -83,6 +83,8 @@ namespace LinaEngine
 		Graphics::SamplerParameters m_portalRTParams;
 
 		FPSDemoComponentDrawer m_componentDrawer;
+
+		bool m_processOnce = false;
 	};
 }
 

@@ -52,8 +52,8 @@ namespace LinaEngine
 		LayerStack();
 		~LayerStack();
 
-		void PushLayerToMainStack(Layer& layer);
-		void PushOverlayToMainStack(Layer& overlay);
+		void PushLayer(Layer& layer);
+		void PushOverlay(Layer& overlay);
 		void PopLayer(Layer& layer);
 		void PopOverlay(Layer& overlay);
 		
@@ -63,7 +63,7 @@ namespace LinaEngine
 	private:
 
 		std::vector<Layer*> m_layers;
-		std::vector<Layer*>::iterator m_layerInsert;
+		int m_layerInsertIndex = 0;
 	};
 }
 

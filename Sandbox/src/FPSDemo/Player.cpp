@@ -47,7 +47,7 @@ namespace LinaEngine
 	void Player::Attach()
 	{
 		m_registry = &Application::GetECSRegistry();
-
+		
 		// Create player.
 		m_playerEntity = m_registry->GetEntity("Player");
 		m_headbobEntity = m_registry->GetEntity("Headbobber");

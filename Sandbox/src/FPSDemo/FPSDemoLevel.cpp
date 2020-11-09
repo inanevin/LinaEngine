@@ -69,21 +69,26 @@ namespace LinaEngine
 	{
 		m_registry = &Application::GetECSRegistry();
 
-		Application::GetApp().PushLayerToPlayStack(m_player);
+		Application::GetApp().GetPlayModeStack().PushLayer(m_player);
 
-		RenderEngine& renderEngine = Application::GetRenderEngine();
-		RenderDevice& rd = renderEngine.GetRenderDevice();
-		Vector2 viewportSize = renderEngine.GetViewportSize();
+		if (!m_processOnce)
+		{
+			m_processOnce = true;
+			RenderEngine& renderEngine = Application::GetRenderEngine();
+			RenderDevice& rd = renderEngine.GetRenderDevice();
+			Vector2 viewportSize = renderEngine.GetViewportSize();
 
-		// Setup portal rt
-		m_portalRTParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
-		m_portalRTParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
-		m_portalRTParams.m_textureParams.m_minFilter = m_portalRTParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
-		m_portalRTParams.m_textureParams.m_wrapS = m_portalRTParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_REPEAT;
-		m_portalTexture.ConstructRTTexture(rd, viewportSize, m_portalRTParams, false);
-		m_portalBuffer.Construct(rd, RenderBufferStorage::STORAGE_DEPTH, viewportSize);
-		m_portalRT.Construct(rd, m_portalTexture, viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_portalBuffer.GetID());
+			// Setup portal rt
+			m_portalRTParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
+			m_portalRTParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
+			m_portalRTParams.m_textureParams.m_minFilter = m_portalRTParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
+			m_portalRTParams.m_textureParams.m_wrapS = m_portalRTParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_REPEAT;
+			m_portalTexture.ConstructRTTexture(rd, viewportSize, m_portalRTParams, false);
+			m_portalBuffer.Construct(rd, RenderBufferStorage::STORAGE_DEPTH, viewportSize);
+			m_portalRT.Construct(rd, m_portalTexture, viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_portalBuffer.GetID());
 
+		}
+		
 		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<void*>("fpsdemo_preDraw", LinaEngine::Action::ActionType::PreDraw, std::bind(&FPSDemoLevel::PreDraw, this));
 
 		// Component drawer.
@@ -101,6 +106,12 @@ namespace LinaEngine
 	void FPSDemoLevel::Tick(bool isInPlayMode, float delta)
 	{
 		m_isInPlayMode = isInPlayMode;
+	}
+
+	void FPSDemoLevel::Uninstall()
+	{
+		LinaEngine::Application::GetEngineDispatcher().UnsubscribeAction("fpsdemo_preDraw", LinaEngine::Action::ActionType::PreDraw);
+		LinaEngine::Application::GetApp().GetPlayModeStack().PopLayer(m_player);
 	}
 
 	void FPSDemoLevel::PreDraw()

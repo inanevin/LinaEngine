@@ -84,10 +84,7 @@ namespace LinaEngine
 		// Main application loop.
 		void Run();
 
-		void PushLayerToMainStack(Layer& layer);
-		void PushOverlayToMainStack(Layer& layer);
-		void PushLayerToPlayStack(Layer& layer);
-		void PushOverlayToPlayStack(Layer& layer);
+
 
 		// Loads a level into memory.
 		bool InstallLevel(LinaEngine::World::Level& level, bool loadFromFile = false, const std::string& path = "", const std::string& levelName = "");
@@ -110,6 +107,8 @@ namespace LinaEngine
 		void AddToMainPipeline(ECS::BaseECSSystem& system) { m_mainECSPipeline.AddSystem(system); }
 		void SetPlayMode(bool enabled);
 		bool GetPlayMode() { return m_isInPlayMode; }
+		LayerStack& GetMainStack() { return m_mainLayerStack; }
+		LayerStack& GetPlayModeStack() { return m_playModeStack; }
 
 		static Action::ActionDispatcher& GetEngineDispatcher() { return s_engineDispatcher; }
 		static Application& GetApp() { return *s_application; }
