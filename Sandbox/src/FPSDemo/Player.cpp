@@ -85,7 +85,7 @@ namespace LinaEngine
 
 	void Player::PlayModeChanged(bool enabled)
 	{
-		if (enabled)
+		if (enabled && m_cameraEntity != entt::null)
 			LinaEngine::Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(m_cameraEntity);
 	}
 

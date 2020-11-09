@@ -42,13 +42,12 @@ namespace LinaEngine::ECS
 	{
 		if (!m_isActive || !m_scenePanel->IsFocused()) return;
 
-		static ECSEntity editorCamera = m_ecs->GetEntity(EDITOR_CAMERA_NAME);
-		if (editorCamera != entt::null)
+		if (m_editorCamera != entt::null)
 		{
-			FreeLookComponent& freeLook = m_ecs->get<FreeLookComponent>(editorCamera);
+			FreeLookComponent& freeLook = m_ecs->get<FreeLookComponent>(m_editorCamera);
 			if (!freeLook.m_isEnabled) return;
 
-			TransformComponent& transform = m_ecs->get<TransformComponent>(editorCamera);
+			TransformComponent& transform = m_ecs->get<TransformComponent>(m_editorCamera);
 
 			Vector2 mouseAxis = m_inputEngine->GetMouseAxis();
 

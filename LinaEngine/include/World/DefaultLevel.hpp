@@ -26,40 +26,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "World/DefaultLevel.hpp"
-#include "Core/Application.hpp"
-#include "Rendering/Material.hpp"
-#include "Rendering/RenderEngine.hpp"
-#include "Utility/UtilityFunctions.hpp"
-#include "ECS/Components/MeshRendererComponent.hpp"
-#include "ECS/Components/TransformComponent.hpp"
+/*
+Class: DefaultLevel
 
-using namespace LinaEngine::Graphics;
-using namespace LinaEngine::ECS;
+Default generated level when user requests a new level.
 
+Timestamp: 10/16/2020 12:58:01 AM
+*/
 
+#pragma once
 
-namespace LinaEditor
+#ifndef DefaultLevel_HPP
+#define DefaultLevel_HPP
+
+#include "World/Level.hpp"
+
+namespace LinaEngine::World
 {
-	ECSEntity sphere;
-	TransformComponent* t;
-
-	DefaultLevel::~DefaultLevel()
+	class DefaultLevel : public Level
 	{
 		
-	}
-
-	bool DefaultLevel::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
-	{
-		return true;
-	}
-
-	void DefaultLevel::Initialize()
-	{
-
+	public:
+		
+		DefaultLevel() {};
+		~DefaultLevel();
 	
-	}
+	private:
+	
 
-
-
+		// Inherited via Level
+		virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName) override;
+		virtual void Initialize() override;
+	};
 }
+
+#endif

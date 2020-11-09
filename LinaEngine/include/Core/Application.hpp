@@ -91,11 +91,11 @@ namespace LinaEngine
 
 		// Loads a level into memory.
 		bool InstallLevel(LinaEngine::World::Level& level, bool loadFromFile = false, const std::string& path = "", const std::string& levelName = "");
-
-		void InitializeLevel(LinaEngine::World::Level& level);
+		void SaveLevelData(const std::string& folderPath, const std::string& fileName);
+		void LoadLevelData(const std::string& folderPath, const std::string& fileName);
 
 		// Unloads a level from memory.
-		void UninstallLevel(LinaEngine::World::Level& level);
+		void UninstallLevel();
 
 		int GetCurrentFPS() { return m_currentFPS; }
 		int GetCurrentUPS() { return m_currentUPS; }
@@ -139,6 +139,7 @@ namespace LinaEngine
 		void WindowCloseCallback() {};
 		void RemoveOutliers(bool biggest);
 		double SmoothDeltaTime(double dt);
+		void InitializeLevel(LinaEngine::World::Level& level);
 
 	private:
 

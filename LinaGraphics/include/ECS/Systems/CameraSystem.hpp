@@ -60,7 +60,7 @@ namespace LinaEngine::ECS
 
 		void Construct(ECSRegistry& registry);
 		void SetAspectRatio(float aspect) { m_aspectRatio = aspect; }
-		void InjectViewMatrix(const Matrix& view) { LINA_CORE_TRACE("Injecting ViewMatrix");  m_viewMatrixInjected = true;  m_view = view; }
+		void InjectViewMatrix(const Matrix& view) { m_viewMatrixInjected = true;  m_view = view; }
 		void SetActiveCamera(ECSEntity cameraOwner);
 		
 		void OnCameraDestroyed(entt::registry& registry, entt::entity entity)

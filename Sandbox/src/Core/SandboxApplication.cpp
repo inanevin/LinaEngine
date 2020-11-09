@@ -49,7 +49,6 @@ class SandboxApplication : public LinaEngine::Application
 		m_editor.Setup();
 #endif
 		InstallLevel(m_fpsDemoLevel, true, "resources/sandbox/FPSDemo/levels/", "FPSDemo");
-		InitializeLevel(m_fpsDemoLevel);
 
 #ifdef LINA_EDITOR
 		// Refresh after level init.

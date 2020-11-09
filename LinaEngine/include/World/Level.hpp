@@ -43,6 +43,7 @@ Timestamp: 5/6/2019 5:10:23 PM
 
 #include <string>
 #include <cereal/archives/binary.hpp>
+#include <cereal/archives/xml.hpp>
 
 namespace LinaEngine
 {
@@ -80,7 +81,9 @@ namespace LinaEngine::World
 		virtual void Initialize() {};
 		virtual void Tick(bool isInPlayMode, float delta) {};
 		virtual void SerializeRegistry(LinaEngine::ECS::ECSRegistry&, cereal::BinaryOutputArchive&);
+		virtual void SerializeRegistry(LinaEngine::ECS::ECSRegistry&, cereal::XMLOutputArchive&);
 		virtual void DeserializeRegistry(LinaEngine::ECS::ECSRegistry&, cereal::BinaryInputArchive&);
+		virtual void DeserializeRegistry(LinaEngine::ECS::ECSRegistry&, cereal::XMLInputArchive&);
 		void SerializeLevelData(const std::string& path, const std::string& levelName);
 		void DeserializeLevelData(const std::string& path, const std::string& levelName);
 		LevelData& GetLevelData() { return m_levelData; }

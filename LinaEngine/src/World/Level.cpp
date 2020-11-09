@@ -38,6 +38,7 @@ SOFTWARE.
 #include "ECS/Components/LightComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
 #include <cereal/archives/json.hpp>
+#include <cereal/archives/xml.hpp>
 #include <stdio.h>
 #include <fstream>
 
@@ -48,11 +49,10 @@ namespace LinaEngine::World
 	{
 		if (loadFromFile)
 		{
-			if (LinaEngine::Utility::FileExists(path + levelName + ".linaleveldata"))
+			if (LinaEngine::Utility::FileExists(path + "/" + levelName + ".linaleveldata"))
 			{
 				DeserializeLevelData(path, levelName);
 				LoadLevelResources();
-
 			}
 		}
 		return true;
@@ -156,7 +156,43 @@ namespace LinaEngine::World
 			>(oarchive);
 	}
 
+	void Level::SerializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::XMLOutputArchive& oarchive)
+	{
+		entt::snapshot{ registry }
+			.entities(oarchive)
+			.component<
+			LinaEngine::ECS::ECSEntityData,
+			LinaEngine::ECS::CameraComponent,
+			LinaEngine::ECS::FreeLookComponent,
+			LinaEngine::ECS::PointLightComponent,
+			LinaEngine::ECS::DirectionalLightComponent,
+			LinaEngine::ECS::SpotLightComponent,
+			LinaEngine::ECS::RigidbodyComponent,
+			LinaEngine::ECS::MeshRendererComponent,
+			LinaEngine::ECS::SpriteRendererComponent,
+			LinaEngine::ECS::TransformComponent
+			>(oarchive);
+	}
+
 	void Level::DeserializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryInputArchive& iarchive)
+	{
+		entt::snapshot_loader{ registry }
+			.entities(iarchive)
+			.component<
+			LinaEngine::ECS::ECSEntityData,
+			LinaEngine::ECS::CameraComponent,
+			LinaEngine::ECS::FreeLookComponent,
+			LinaEngine::ECS::PointLightComponent,
+			LinaEngine::ECS::DirectionalLightComponent,
+			LinaEngine::ECS::SpotLightComponent,
+			LinaEngine::ECS::RigidbodyComponent,
+			LinaEngine::ECS::MeshRendererComponent,
+			LinaEngine::ECS::SpriteRendererComponent,
+			LinaEngine::ECS::TransformComponent
+			>(iarchive);
+	}
+
+	void Level::DeserializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::XMLInputArchive& iarchive)
 	{
 		entt::snapshot_loader{ registry }
 			.entities(iarchive)

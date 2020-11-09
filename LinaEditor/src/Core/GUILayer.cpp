@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Physics/PhysicsEngine.hpp"
 #include "Input/InputEngine.hpp"
 #include "Rendering/RenderEngine.hpp"
-#include "World/DefaultLevel.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Core/EditorApplication.hpp"
 #include "Utility/EditorUtility.hpp"
@@ -45,7 +44,6 @@ SOFTWARE.
 #include "IconsFontAwesome5.h"
 #include "IconsForkAwesome.h"
 #include "IconsMaterialDesign.h"
-
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <glad/glad.h>
@@ -214,8 +212,6 @@ namespace LinaEditor
 		// Imgui first frame initialization.
 		Render();
 
-		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::World::Level*>("##guilayer_level_init", LinaEngine::Action::ActionType::LevelInitialized,
-			std::bind(&GUILayer::LevelInstalled, this, std::placeholders::_1));
 	}
 
 	void GUILayer::Detach()
@@ -283,44 +279,37 @@ namespace LinaEditor
 
 		// View
 
+
 		// Level
 		else if (item == MenuBarItems::NewLevelData)
 		{
 			// Create a new level.
-			m_currentLevel = new DefaultLevel();
-			LinaEngine::Application::GetApp().InstallLevel(*m_currentLevel);
-			LinaEngine::Application::GetApp().InitializeLevel(*m_currentLevel);
+			LinaEngine::Application::GetApp().InstallLevel(m_defaultLevel);
 		}
 		else if (item == MenuBarItems::SaveLevelData)
 		{
-			if (m_currentLevel != nullptr)
-			{
-				std::string fullPath = "";
-				fullPath = EditorUtility::SaveFile(".linaleveldata", LinaEngine::Application::GetAppWindow().GetNativeWindow());
+			std::string fullPath = "";
+			fullPath = EditorUtility::SaveFile(".linaleveldata", LinaEngine::Application::GetAppWindow().GetNativeWindow());
 
-				if (fullPath.compare("") != 0)
-				{
-					size_t lastIndex = fullPath.find_last_of("/");
-					std::string folderPath = fullPath.substr(0, lastIndex);
-					std::string fileName = fullPath.substr(lastIndex + 1);
-					m_currentLevel->SerializeLevelData(folderPath, fileName);
-				}
+			if (fullPath.compare("") != 0)
+			{
+				size_t lastIndex = fullPath.find_last_of("/");
+				std::string folderPath = fullPath.substr(0, lastIndex);
+				std::string fileName = fullPath.substr(lastIndex + 1);
+				LinaEngine::Application::GetApp().SaveLevelData(folderPath, fileName);
 			}
 		}
 		else if (item == MenuBarItems::LoadLevelData)
 		{
-			if (m_currentLevel != nullptr)
-			{
-				std::string fullPath = "";
-				fullPath = EditorUtility::OpenFile(".linaleveldata", LinaEngine::Application::GetAppWindow().GetNativeWindow());
+			std::string fullPath = "";
+			fullPath = EditorUtility::OpenFile(".linaleveldata", LinaEngine::Application::GetAppWindow().GetNativeWindow());
 
-				if (fullPath.compare("") != 0)
-				{
-					size_t lastIndex = fullPath.find_last_of("/");
-					std::string folderPath = fullPath.substr(0, lastIndex);
-					std::string fileName = EditorUtility::RemoveExtensionFromFilename(fullPath.substr(lastIndex + 1));
-					m_currentLevel->DeserializeLevelData(folderPath, fileName);
-				}
+			if (fullPath.compare("") != 0)
+			{
+				size_t lastIndex = fullPath.find_last_of("/");
+				std::string folderPath = fullPath.substr(0, lastIndex);
+				std::string fileName = EditorUtility::RemoveExtensionFromFilename(fullPath.substr(lastIndex + 1));
+				LinaEngine::Application::GetApp().LoadLevelData(folderPath, fileName);
 			}
 		}
 
@@ -353,11 +342,6 @@ namespace LinaEditor
 	void GUILayer::Refresh()
 	{
 		m_ecsPanel.Refresh();
-	}
-
-	void GUILayer::LevelInstalled(LinaEngine::World::Level* level)
-	{
-		m_currentLevel = level;
 	}
 
 	void GUILayer::DrawFPSCounter(int corner)

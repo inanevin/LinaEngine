@@ -48,6 +48,7 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #include "Panels/ProfilerPanel.hpp"
 #include "Panels/LevelSettingsPanel.hpp"
 #include "Panels/GlobalSettingsPanel.hpp"
+#include "World/DefaultLevel.hpp"
 #include <vector>
 
 namespace LinaEngine
@@ -126,14 +127,12 @@ namespace LinaEditor
 
 	private:
 
-		void LevelInstalled(LinaEngine::World::Level* level);
 		void DrawFPSCounter(int corner = 0);
 		void DrawCentralDockingSpace();
 
 	private:
 
 		LinaEngine::Graphics::DrawParams m_drawParameters;
-		LinaEngine::World::Level* m_currentLevel = nullptr;
 		ECSPanel m_ecsPanel;
 		ResourcesPanel m_resourcesPanel;
 		ScenePanel m_scenePanel;
@@ -143,6 +142,8 @@ namespace LinaEditor
 		ProfilerPanel m_profilerPanel;
 		LevelSettingsPanel m_levelSettingsPanel;
 		GlobalSettingsPanel m_globalSettingsPanel;
+
+		LinaEngine::World::DefaultLevel m_defaultLevel;
 	};
 }
 

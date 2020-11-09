@@ -42,7 +42,8 @@ namespace LinaEditor
 
 	void ECSPanel::Setup()
 	{
-
+		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::World::Level*>("##ecspanel_levelinstall", LinaEngine::Action::ActionType::LevelInstalled,
+			std::bind(&ECSPanel::OnLevelInstall, this, std::placeholders::_1));
 	}
 
 	void ECSPanel::Refresh()
@@ -101,6 +102,12 @@ namespace LinaEditor
 			}
 			ImGui::TreePop();
 		}
+	}
+
+	void ECSPanel::OnLevelInstall(LinaEngine::World::Level* level)
+	{
+		EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
+		m_selectedEntity = entt::null;
 	}
 
 	void ECSPanel::Draw()

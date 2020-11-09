@@ -54,8 +54,6 @@ src/Panels/ProfilerPanel.cpp
 src/Panels/LevelSettingsPanel.cpp
 src/Panels/GlobalSettingsPanel.cpp
 
-#World
-src/World/DefaultLevel.cpp
 
 # Utility
 src/Utility/EditorUtility.cpp
@@ -116,8 +114,6 @@ include/Panels/ProfilerPanel.hpp
 include/Panels/LevelSettingsPanel.hpp
 include/Panels/GlobalSettingsPanel.hpp
 
-#World
-include/World/DefaultLevel.hpp
 
 # Utility
 include/Utility/EditorUtility.hpp

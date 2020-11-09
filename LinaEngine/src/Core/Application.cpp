@@ -33,7 +33,7 @@ SOFTWARE.
 #include "Input/InputEngine.hpp"
 #include "Rendering/Window.hpp"
 #include "Core/Layer.hpp"
-#include "World/Level.hpp"
+#include "World/DefaultLevel.hpp"
 #include "Core/Timer.hpp"
 
 
@@ -411,35 +411,46 @@ namespace LinaEngine
 
 	bool Application::InstallLevel(LinaEngine::World::Level& level, bool loadFromFile, const std::string& path, const std::string& levelName)
 	{
-		if (m_currentLevel != nullptr)
-			UninstallLevel(*m_currentLevel);
+		UninstallLevel();
 
 		bool install = level.Install(loadFromFile, path, levelName);
-
 		s_engineDispatcher.DispatchAction<World::Level*>(Action::ActionType::LevelInstalled, &level);
+		m_currentLevel = &level;
+		InitializeLevel(level);
 		return install;
 	}
 
 	void Application::InitializeLevel(LinaEngine::World::Level& level)
 	{
-		m_currentLevel = &level;
 		m_currentLevel->Initialize();
 		s_engineDispatcher.DispatchAction<World::Level*>(Action::ActionType::LevelInitialized, &level);
 		m_activeLevelExists = true;
 	}
 
-
-	void Application::UninstallLevel(LinaEngine::World::Level& level)
+	void Application::SaveLevelData(const std::string& folderPath, const std::string& fileName)
 	{
-		if (m_currentLevel == &level)
+		if (m_currentLevel != nullptr)
+			m_currentLevel->SerializeLevelData(folderPath, fileName);
+	}
+
+	void Application::LoadLevelData(const std::string& folderPath, const std::string& fileName)
+	{
+		if (m_currentLevel != nullptr)
 		{
-			m_activeLevelExists = false;
+			InstallLevel(*m_currentLevel, true, folderPath, fileName);
+		}	
+	}
+
+
+	void Application::UninstallLevel()
+	{
+		if (m_currentLevel != nullptr)
+		{
+			m_currentLevel->Uninstall();
+			s_ecs.clear();
+			s_engineDispatcher.DispatchAction<World::Level*>(Action::ActionType::LevelUninstalled, m_currentLevel);
 			m_currentLevel = nullptr;
 		}
-
-		level.Uninstall();
-		s_ecs.clear();
-		s_engineDispatcher.DispatchAction<World::Level*>(Action::ActionType::LevelUninstalled, &level);
 	}
 
 	void Application::OnDrawLine(Vector3 from, Vector3 to, Color color, float width)

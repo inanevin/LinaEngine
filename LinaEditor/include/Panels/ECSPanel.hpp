@@ -41,6 +41,14 @@ Timestamp: 5/23/2020 4:15:06 PM
 #include "Panels/EditorPanel.hpp"
 #include "ECS/ECS.hpp"
 
+namespace LinaEngine
+{
+	namespace World
+	{
+		class Level;
+	}
+}
+
 namespace LinaEditor
 {
 	class ScenePanel;
@@ -58,6 +66,7 @@ namespace LinaEditor
 		virtual void Draw() override;
 		void Refresh();
 		void DrawEntityNode(int id,  LinaEngine::ECS::ECSEntity entity);
+		void OnLevelInstall(LinaEngine::World::Level* level);
 
 	private:
 

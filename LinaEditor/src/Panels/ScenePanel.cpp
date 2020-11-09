@@ -181,9 +181,9 @@ namespace LinaEditor
 		//ImGui::GetWindowDrawList()->AddLine(ImVec2(coord.x, coord.y), ImVec2(coord2.x, coord2.y), col, 2);
 		if (m_selectedTransform != nullptr)
 		{
-			// Get required matrices.
+			 // Get required matrices.
 			Matrix object =  m_selectedTransform->transform.ToMatrix();
-
+			
 			// Draw transformation handle.
 			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentTransformGizmoOP, currentTransformGizmoMode, &object[0][0], NULL, NULL, NULL, NULL);
 			float matrixTranslation[3], matrixRotation[3], matrixScale[3];

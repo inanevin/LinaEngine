@@ -67,7 +67,9 @@ namespace LinaEngine
 		virtual void Tick(bool isInPlayMode, float delta) override;
 		virtual void SerializeRegistry(LinaEngine::ECS::ECSRegistry& reg, cereal::BinaryOutputArchive& o) override;
 		virtual void DeserializeRegistry(LinaEngine::ECS::ECSRegistry& reg, cereal::BinaryInputArchive& o) override;
-	
+		virtual void SerializeRegistry(LinaEngine::ECS::ECSRegistry& reg, cereal::XMLOutputArchive& o) override;
+		virtual void DeserializeRegistry(LinaEngine::ECS::ECSRegistry& reg, cereal::XMLInputArchive& o) override;
+
 	private:
 
 		void PreDraw();

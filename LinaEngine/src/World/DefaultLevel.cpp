@@ -26,38 +26,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: DefaultLevel
+#include "World/DefaultLevel.hpp"
 
-Default generated level when user requests a new level.
 
-Timestamp: 10/16/2020 12:58:01 AM
-*/
-
-#pragma once
-
-#ifndef DefaultLevel_HPP
-#define DefaultLevel_HPP
-
-#include "World/Level.hpp"
-
-namespace LinaEditor
+namespace LinaEngine::World
 {
-	class DefaultLevel : public LinaEngine::World::Level
+
+	DefaultLevel::~DefaultLevel()
 	{
-		
-	public:
-		
-		DefaultLevel() {};
-		~DefaultLevel();
-	
-	private:
-	
+	}
 
-		// Inherited via Level
-		virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName) override;
-		virtual void Initialize() override;
-	};
+	bool DefaultLevel::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
+	{
+		return Level::Install(loadFromFile, path, levelName);
+	}
+
+	void DefaultLevel::Initialize()
+	{
+	}
+
+
+
 }
-
-#endif

@@ -27,7 +27,7 @@ set (LINAENGINE_SOURCES
 	# CORE
     src/Core/Application.cpp
 	src/World/Level.cpp
-
+	src/World/DefaultLevel.cpp
 )
 
 #--------------------------------------------------------------------
@@ -40,7 +40,8 @@ set(LINAENGINE_HEADERS
 
 	#World
 	include/World/Level.hpp
-
+	include/World/DefaultLevel.hpp
+	
 	#API
 	include/Lina.hpp
 		

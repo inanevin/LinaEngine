@@ -589,7 +589,6 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::DrawSceneObjects(DrawParams& drawParams, Material* overrideMaterial, bool drawSkybox)
 	{
-		LINA_CORE_TRACE("Drawing scene objects");
 		// Draw skybox.
 		if (drawSkybox)
 			DrawSkybox();

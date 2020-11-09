@@ -89,7 +89,13 @@ namespace LinaEngine
 		// Component drawer.
 		m_componentDrawer.AddComponentDrawFunctions();
 
+		ECSEntity portal1 = m_registry->GetEntity("Portal1");
+		ECSEntity portal2 = m_registry->GetEntity("Portal2");
 
+		if (portal1 != entt::null && portal2 != entt::null)
+		{
+			m_registry->get<MeshRendererComponent>(portal1).m_excludeFromDrawList = true;
+		}
 	}
 
 	void FPSDemoLevel::Tick(bool isInPlayMode, float delta)
@@ -137,11 +143,51 @@ namespace LinaEngine
 			>(iarchive);
 	}
 
+	void FPSDemoLevel::SerializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::XMLOutputArchive& oarchive)
+	{
+		entt::snapshot{ registry }
+			.entities(oarchive)
+			.component<
+			LinaEngine::ECS::ECSEntityData,
+			LinaEngine::ECS::CameraComponent,
+			LinaEngine::ECS::FreeLookComponent,
+			LinaEngine::ECS::PointLightComponent,
+			LinaEngine::ECS::DirectionalLightComponent,
+			LinaEngine::ECS::SpotLightComponent,
+			LinaEngine::ECS::RigidbodyComponent,
+			LinaEngine::ECS::MeshRendererComponent,
+			LinaEngine::ECS::SpriteRendererComponent,
+			LinaEngine::ECS::TransformComponent,
+			LinaEngine::ECS::HeadbobComponent,
+			LinaEngine::ECS::PlayerMotionComponent
+			>(oarchive);
+	}
+
+	void FPSDemoLevel::DeserializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::XMLInputArchive& iarchive)
+	{
+		entt::snapshot_loader{ registry }
+			.entities(iarchive)
+			.component<
+			LinaEngine::ECS::ECSEntityData,
+			LinaEngine::ECS::CameraComponent,
+			LinaEngine::ECS::FreeLookComponent,
+			LinaEngine::ECS::PointLightComponent,
+			LinaEngine::ECS::DirectionalLightComponent,
+			LinaEngine::ECS::SpotLightComponent,
+			LinaEngine::ECS::RigidbodyComponent,
+			LinaEngine::ECS::MeshRendererComponent,
+			LinaEngine::ECS::SpriteRendererComponent,
+			LinaEngine::ECS::TransformComponent,
+			LinaEngine::ECS::HeadbobComponent,
+			LinaEngine::ECS::PlayerMotionComponent
+			>(iarchive);
+	}
 
 	void FPSDemoLevel::PreDraw()
 	{
 		if (!m_isInPlayMode) return;
-	
+		
+
 		RenderEngine& renderEngine = Application::GetRenderEngine();
 		RenderDevice& rd = renderEngine.GetRenderDevice();
 		Vector2 viewportSize = renderEngine.GetViewportSize();

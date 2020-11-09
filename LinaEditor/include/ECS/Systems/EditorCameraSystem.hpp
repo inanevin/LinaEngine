@@ -67,8 +67,11 @@ namespace LinaEngine::ECS
 
 		virtual void UpdateComponents(float delta) override;
 
+		void SetEditorCamera(ECSEntity entity) { m_editorCamera = entity; }
+
 	private:
 
+		ECSEntity m_editorCamera = entt::null;
 		LinaEditor::ScenePanel* m_scenePanel;
 		LinaEngine::Input::InputEngine* m_inputEngine;
 		float m_horizontalKeyAmt = 0.0f;
