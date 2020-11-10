@@ -55,6 +55,7 @@ namespace LinaEngine::Graphics
 		{
 			// Set default drawing parameters.
 			DrawParams params;
+			params.skipParameters = false;
 			params.useScissorTest = false;
 			params.useDepthTest = true;
 			params.useStencilTest = true;
@@ -82,6 +83,7 @@ namespace LinaEngine::Graphics
 		static DrawParams GetSkybox()
 		{
 			DrawParams params;
+			params.skipParameters = false;
 			params.useScissorTest = false;
 			params.useDepthTest = true;
 			params.useStencilTest = true;
@@ -108,6 +110,7 @@ namespace LinaEngine::Graphics
 		static DrawParams GetFullScreenQuad()
 		{
 			DrawParams params;
+			params.skipParameters = false;
 			params.useScissorTest = false;
 			params.useDepthTest = false;
 			params.useStencilTest = true;
@@ -134,6 +137,7 @@ namespace LinaEngine::Graphics
 		static DrawParams GetShadowMap()
 		{
 			DrawParams params;
+			params.skipParameters = false;
 			params.useScissorTest = false;
 			params.useDepthTest = true;
 			params.useStencilTest = false;
@@ -150,6 +154,32 @@ namespace LinaEngine::Graphics
 			params.stencilFail = StencilOp::STENCIL_KEEP;
 			params.stencilPass = StencilOp::STENCIL_REPLACE;
 			params.stencilPassButDepthFail = StencilOp::STENCIL_KEEP;
+			params.scissorStartX = 0;
+			params.scissorStartY = 0;
+			params.scissorWidth = 0;
+			params.scissorHeight = 0;
+			return params;
+		}
+
+		static DrawParams GetGUILayer() 
+		{
+			DrawParams params;
+			params.useScissorTest = false;
+			params.useDepthTest = true;
+			params.useStencilTest = true;
+			params.primitiveType = Graphics::PrimitiveType::PRIMITIVE_TRIANGLES;
+			params.faceCulling = Graphics::FaceCulling::FACE_CULL_BACK;
+			params.sourceBlend = Graphics::BlendFunc::BLEND_FUNC_SRC_ALPHA;
+			params.destBlend = Graphics::BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
+			params.shouldWriteDepth = true;
+			params.depthFunc = Graphics::DrawFunc::DRAW_FUNC_LEQUAL;
+			params.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_ALWAYS;
+			params.stencilComparisonVal = 0;
+			params.stencilTestMask = 0xFF;
+			params.stencilWriteMask = 0xFF;
+			params.stencilFail = Graphics::StencilOp::STENCIL_KEEP;
+			params.stencilPass = Graphics::StencilOp::STENCIL_REPLACE;
+			params.stencilPassButDepthFail = Graphics::StencilOp::STENCIL_KEEP;
 			params.scissorStartX = 0;
 			params.scissorStartY = 0;
 			params.scissorWidth = 0;

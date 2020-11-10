@@ -213,6 +213,7 @@ namespace LinaEngine::Graphics
 
 	struct DrawParams
 	{
+		bool skipParameters = false;
 		PrimitiveType primitiveType = PRIMITIVE_TRIANGLES;
 		FaceCulling faceCulling = FACE_CULL_NONE;
 		DrawFunc depthFunc = DRAW_FUNC_ALWAYS;

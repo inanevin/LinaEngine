@@ -467,11 +467,8 @@ namespace LinaEngine::Graphics
 			// Clear color.
 			s_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
 
-			// Update pipeline.
-			m_renderingPipeline.UpdateSystems(0.0f);
-
-			// Update uniform buffers on GPU
-			UpdateUniformBuffers();
+			// Update 
+			UpdateSystems();
 
 			// Draw skybox.
 			DrawSkybox();
@@ -528,7 +525,7 @@ namespace LinaEngine::Graphics
 		s_renderDevice.SetViewport(m_viewportPos, m_viewportSize);
 
 		// Clear color bit.
-		s_renderDevice.Clear(true, true, false, Color::White, 0xFF);
+		s_renderDevice.Clear(true, true, true, Color::White, 0xFF);
 
 		// Set frame buffer texture on the material.
 		m_screenQuadFinalMaterial.SetTexture(MAT_MAP_SCREEN, &m_primaryRTTexture0, TextureBindMode::BINDTEXTURE_TEXTURE2D);

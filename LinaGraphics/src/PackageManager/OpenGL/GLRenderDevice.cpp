@@ -1,4 +1,4 @@
-﻿/* 
+﻿/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -1147,7 +1147,8 @@ namespace LinaEngine::Graphics
 		if (!drawArrays && numInstances == 0) return;
 
 		// Set parameters.
-		SetDrawParameters(drawParams);
+		if (!drawParams.skipParameters)
+			SetDrawParameters(drawParams);
 
 		// Set vao & draw
 		SetVAO(vao);
@@ -1587,7 +1588,7 @@ namespace LinaEngine::Graphics
 		// Add the source & compile.
 		glShaderSource(shader, 1, p, lengths);
 		glCompileShader(shader);
-		
+
 		// Check error & report if exists.
 		GLint success;
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);

@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/EditorApplication.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Widgets/WidgetsUtility.hpp"
+#include "Helpers/DrawParameterHelper.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -177,27 +178,7 @@ namespace LinaEditor
 
 		s_setDockspaceLayout = true;
 
-		// Set GUI draw params.
-		m_drawParameters.useScissorTest = false;
-		m_drawParameters.useDepthTest = true;
-		m_drawParameters.useStencilTest = true;
-		m_drawParameters.primitiveType = Graphics::PrimitiveType::PRIMITIVE_TRIANGLES;
-		m_drawParameters.faceCulling = Graphics::FaceCulling::FACE_CULL_BACK;
-		m_drawParameters.sourceBlend = Graphics::BlendFunc::BLEND_FUNC_SRC_ALPHA;
-		m_drawParameters.destBlend = Graphics::BlendFunc::BLEND_FUNC_ONE_MINUS_SRC_ALPHA;
-		m_drawParameters.shouldWriteDepth = true;
-		m_drawParameters.depthFunc = Graphics::DrawFunc::DRAW_FUNC_LEQUAL;
-		m_drawParameters.stencilFunc = Graphics::DrawFunc::DRAW_FUNC_ALWAYS;
-		m_drawParameters.stencilComparisonVal = 0;
-		m_drawParameters.stencilTestMask = 0xFF;
-		m_drawParameters.stencilWriteMask = 0xFF;
-		m_drawParameters.stencilFail = Graphics::StencilOp::STENCIL_KEEP;
-		m_drawParameters.stencilPass = Graphics::StencilOp::STENCIL_REPLACE;
-		m_drawParameters.stencilPassButDepthFail = Graphics::StencilOp::STENCIL_KEEP;
-		m_drawParameters.scissorStartX = 0;
-		m_drawParameters.scissorStartY = 0;
-		m_drawParameters.scissorWidth = 0;
-		m_drawParameters.scissorHeight = 0;
+		m_drawParameters = Graphics::DrawParameterHelper::GetGUILayer();
 
 		m_ecsPanel.Setup();
 		m_headerPanel.Setup();

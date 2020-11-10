@@ -71,13 +71,13 @@ namespace LinaEngine::ECS
 				m_view = Matrix::InitLookAt(location, location + rotation.GetForward(), rotation.GetUp());
 			}
 			else
-			{
 				m_viewMatrixInjected = false;
 
-			}
-
 			// Update projection matrix.
-			m_projection = Matrix::Perspective(camera.m_fieldOfView / 2, m_aspectRatio, camera.m_zNear, camera.m_zFar);
+			if (!m_projMatrixInjected)
+				m_projection = Matrix::Perspective(camera.m_fieldOfView / 2, m_aspectRatio, camera.m_zNear, camera.m_zFar);
+			else
+				m_projMatrixInjected = false;
 		}
 	}
 

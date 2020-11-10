@@ -61,6 +61,7 @@ namespace LinaEngine::ECS
 		void Construct(ECSRegistry& registry);
 		void SetAspectRatio(float aspect) { m_aspectRatio = aspect; }
 		void InjectViewMatrix(const Matrix& view) { m_viewMatrixInjected = true;  m_view = view; }
+		void InjectProjMatrix(const Matrix& proj) { m_projMatrixInjected = true; m_projection = proj; }
 		void SetActiveCamera(ECSEntity cameraOwner);
 		
 		void OnCameraDestroyed(entt::registry& registry, entt::entity entity)
@@ -84,6 +85,7 @@ namespace LinaEngine::ECS
 		float m_aspectRatio = 1.33f;
 		bool m_useDirLightView = false;
 		bool m_viewMatrixInjected = false;
+		bool m_projMatrixInjected = false;
 		ECSEntity m_activeCameraEntity = entt::null;
 
 	};
