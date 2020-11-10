@@ -445,7 +445,7 @@ namespace LinaEngine::Graphics
 		s_renderDevice.Clear(false, true, false, m_cameraSystem.GetCurrentClearColor(), 0xFF);
 
 		// Draw scene
-		DrawSceneObjects(m_shadowMapDrawParams, &m_shadowMapMaterial, false);
+		DrawSceneObjects(m_shadowMapDrawParams, &m_shadowMapMaterial);
 
 		// Add the shadow texture
 		std::set<Material*>& shadowMappedMaterials = Material::GetShadowMappedMaterials();
@@ -472,6 +472,9 @@ namespace LinaEngine::Graphics
 
 			// Update uniform buffers on GPU
 			UpdateUniformBuffers();
+
+			// Draw skybox.
+			DrawSkybox();
 
 			// Draw scene
 			DrawSceneObjects(m_defaultDrawParams);
@@ -582,7 +585,7 @@ namespace LinaEngine::Graphics
 		UpdateUniformBuffers();
 
 		// Draw scene
-		DrawSceneObjects(m_defaultDrawParams, nullptr, true);
+		DrawSceneObjects(m_defaultDrawParams, nullptr);
 	}
 
 	void RenderEngine::DrawSkybox()
@@ -599,12 +602,8 @@ namespace LinaEngine::Graphics
 		}
 	}
 
-	void RenderEngine::DrawSceneObjects(DrawParams& drawParams, Material* overrideMaterial, bool drawSkybox)
+	void RenderEngine::DrawSceneObjects(DrawParams& drawParams, Material* overrideMaterial)
 	{
-		// Draw skybox.
-		if (drawSkybox)
-			DrawSkybox();
-
 		m_meshRendererSystem.FlushOpaque(drawParams, overrideMaterial, true);
 		m_meshRendererSystem.FlushTransparent(drawParams, overrideMaterial, true);
 		m_spriteRendererSystem.Flush(drawParams, overrideMaterial, true);

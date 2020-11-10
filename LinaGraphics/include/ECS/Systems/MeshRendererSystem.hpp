@@ -71,6 +71,9 @@ namespace LinaEngine
 
 namespace LinaEngine::ECS
 {
+	struct TransformComponent;
+	struct MeshRendererComponent;
+
 	class MeshRendererSystem : public BaseECSSystem
 	{
 
@@ -108,9 +111,10 @@ namespace LinaEngine::ECS
 		void RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, float priority);
 		void FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
 		void FlushTransparent(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
-
+	
 		virtual void UpdateComponents(float delta) override;
 
+		void FlushSingleRenderer(MeshRendererComponent& mrc, TransformComponent& transform, Graphics::DrawParams drawParams);
 
 	private:
 

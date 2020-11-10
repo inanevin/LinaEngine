@@ -103,7 +103,7 @@ namespace LinaEngine
 
 		if (portal1 != entt::null && portal2 != entt::null)
 		{
-			m_registry->get<MeshRendererComponent>(portal1).m_excludeFromDrawList = false;
+			m_registry->get<MeshRendererComponent>(portal1).m_excludeFromDrawList = true;
 		}
 	}
 
@@ -185,7 +185,16 @@ namespace LinaEngine
 		// Update pipeline.
 		renderEngine.UpdateSystems();
 
+		MeshRendererComponent& mrc = m_registry->get<MeshRendererComponent>(m_registry->GetEntity("Portal1"));
+		TransformComponent& tr = m_registry->get<TransformComponent>(m_registry->GetEntity("Portal1"));
+
+		renderEngine.DrawSkybox();
+
+		renderEngine.GetMeshRendererSystem()->FlushSingleRenderer(mrc, tr, DrawParameterHelper::GetDefault());
+
 		// Draw scene
 		renderEngine.DrawSceneObjects(Graphics::DrawParameterHelper::GetDefault());
+
+
 	}
 }

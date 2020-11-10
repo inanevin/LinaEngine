@@ -133,6 +133,28 @@ namespace LinaEngine::ECS
 		}
 	}
 
+	void MeshRendererSystem::FlushSingleRenderer(ECS::MeshRendererComponent& mrc, ECS::TransformComponent& tr, Graphics::DrawParams drawParams)
+	{
+		if (!Graphics::Mesh::MeshExists(mrc.m_meshID) || !Graphics::Material::MaterialExists(mrc.m_materialID))
+		{
+			LINA_CORE_WARN("Mesh or material does not exists for this renderer, aborting single flush.");
+			return;
+		}
+
+
+		Graphics::Mesh& mesh = Graphics::Mesh::GetMesh(mrc.m_meshID);
+		Graphics::Material& mat = Graphics::Material::GetMaterial(mrc.m_materialID);
+
+		for (Graphics::VertexArray* va : mesh.GetVertexArrays())
+		{
+			va->UpdateBuffer(5, &tr.transform.ToMatrix()[0][0], sizeof(Matrix));
+			va->UpdateBuffer(6, &tr.transform.ToMatrix().Inverse().Transpose()[0][0], sizeof(Matrix));
+			m_renderEngine->UpdateShaderData(&mat);
+			s_renderDevice->Draw(va->GetID(), drawParams, 1, va->GetIndexCount(), false);
+		}
+
+	}
+
 	void MeshRendererSystem::FlushTransparent(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
 	{
 		// When flushed, all the data is delegated to the render device to do the actual
