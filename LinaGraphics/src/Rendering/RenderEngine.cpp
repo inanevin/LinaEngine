@@ -618,6 +618,7 @@ namespace LinaEngine::Graphics
 
 		// Update global matrix buffer
 		uintptr currentGlobalDataOffset = 0;
+
 		m_globalDataBuffer.Update(&m_cameraSystem.GetProjectionMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 

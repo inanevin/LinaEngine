@@ -93,9 +93,9 @@ namespace LinaEngine
 		}
 		
 		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<void*>("fpsdemo_preDraw", LinaEngine::Action::ActionType::PreDraw, std::bind(&FPSDemoLevel::PreDraw, this));
-		LinaEngine::Application::GetRenderEngine().CustomDrawActivation(true);
-		auto customDrawFunc = std::bind(&FPSDemoLevel::CustomDraw, this);
-		LinaEngine::Application::GetRenderEngine().SetCustomDrawFunction(customDrawFunc);
+		//LinaEngine::Application::GetRenderEngine().CustomDrawActivation(true);
+		//auto customDrawFunc = std::bind(&FPSDemoLevel::CustomDraw, this);
+		//LinaEngine::Application::GetRenderEngine().SetCustomDrawFunction(customDrawFunc);
 		// Component drawer.
 		m_componentDrawer.AddComponentDrawFunctions();
 
@@ -104,7 +104,7 @@ namespace LinaEngine
 
 		if (portal1 != entt::null && portal2 != entt::null)
 		{
-			m_registry->get<MeshRendererComponent>(portal1).m_excludeFromDrawList = true;
+			//m_registry->get<MeshRendererComponent>(portal1).m_excludeFromDrawList = true;
 		}
 	}
 
@@ -122,7 +122,7 @@ namespace LinaEngine
 	void FPSDemoLevel::PreDraw()
 	{
 		if (!m_isInPlayMode) return;
-		return;
+		
 		RenderEngine& renderEngine = Application::GetRenderEngine();
 		RenderDevice& rd = renderEngine.GetRenderDevice();
 		Vector2 viewportSize = renderEngine.GetViewportSize();
@@ -136,35 +136,6 @@ namespace LinaEngine
 		rd.Clear(true, true, true, renderEngine.GetCameraSystem()->GetCurrentClearColor(), 0xFF);
 		Matrix vm = portalView(renderEngine.GetCameraSystem()->GetViewMatrix(), &p1tr.transform, &p2tr.transform);
 
-
-	//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-	//glDepthMask(GL_FALSE);
-	//glStencilFunc(GL_NEVER, 0, 0xFF);
-	//glStencilOp(GL_INCR, GL_KEEP, GL_KEEP);  // draw 1s on test fail (always)
-	//// draw stencil pattern
-	//glClear(GL_STENCIL_BUFFER_BIT);  // needs mask=0xFF
-	//
-	//renderEngine.UpdateSystems();
-	//
-	//MeshRendererComponent& mrc = m_registry->get<MeshRendererComponent>(m_registry->GetEntity("Portal1"));
-	//
-	//Mesh& mesh = Mesh::GetMesh(mrc.m_meshID);
-	//Material& mat = Material::GetMaterial(mrc.m_materialID);
-	//for (VertexArray* va : mesh.GetVertexArrays())
-	//{
-	//	va->UpdateBuffer(5, &p1tr.transform.ToMatrix()[0][0], sizeof(Matrix));
-	//	va->UpdateBuffer(6, &p1tr.transform.ToMatrix().Transpose().Inverse()[0][0], sizeof(Matrix));
-	//
-	//	renderEngine.UpdateShaderData(&mat);
-	//	glDrawElements(GL_TRIANGLES, (GLsizei)va->GetIndexCount(), GL_UNSIGNED_INT, 0);
-	//}
-	//
-	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	//glDepthMask(GL_TRUE);
-	//glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-	///* Fill 1 or more */
-	//glStencilFunc(GL_LEQUAL, 1, 0xFF);
-
 		renderEngine.GetCameraSystem()->InjectViewMatrix(vm);
 		renderEngine.UpdateSystems();
 		renderEngine.DrawSceneObjects(renderEngine.GetMainDrawParams());
@@ -175,14 +146,43 @@ namespace LinaEngine
 
 	}
 
-	glm::mat4 clippedProjMat(glm::mat4 const& viewMat, glm::mat4 const& projMat, glm::vec3 pos, glm::quat rot)
+	Matrix ClipOblique(Matrix& viewMat, Matrix& projection, const Vector3& pos, const Vector3& normal)
 	{
-		float dist = glm::length(pos);
-		glm::vec4 clipPlane(rot * glm::vec3(0.0f, 0.0f, -1.0f), dist);
-		clipPlane = glm::inverse(glm::transpose(viewMat)) * clipPlane;
+		Vector4 viewPos = viewMat * Vector4(pos, 1);
+		Vector4 viewNormal = (viewMat * Vector4(normal, 0));
+		const Vector3 cpos = viewPos.XYZ();
+		const Vector3 cnormal = viewNormal.XYZ();
+		const Vector4 cplane(cnormal.x, cnormal.y, cnormal.z, -cpos.Dot(cnormal));
 
+		const Vector4 q = projection.Inverse() * Vector4(
+			(cplane.x < 0.0f ? 1.0f : -1.0f),
+			(cplane.y < 0.0f ? 1.0f : -1.0f),
+			1.0f,
+			1.0f
+		);
+		const Vector4 c = cplane * (2.0f / cplane.Dot(q));
+
+		float c0 = c.x - projection[0][3];
+		float c1 = c.y - projection[1][3];
+		float c2 = c.z - projection[2][3];
+		float c3 = c.w - projection[3][3];
+
+		projection[0][2] = c0;
+		projection[1][2] = c1;
+		projection[2][2] = c2;
+		projection[3][2] = c3;
+
+		return projection;
+	}
+	glm::mat4 clippedProjMat(Matrix const& viewMat, glm::mat4 const& projMat, float dist, Quaternion rot)
+	{
+		Vector3 mult = rot * Vector3(0.0f, 0.0f, -1.0f);
+		Vector4 clipPlane(mult.x, mult.y, mult.z, dist);
+		clipPlane = viewMat.Transpose().Inverse() * clipPlane;
+	
 		if (clipPlane.w > 0.0f)
 			return projMat;
+		LINA_CORE_TRACE("hah");
 
 		glm::vec4 q = glm::inverse(projMat) * glm::vec4(
 			glm::sign(clipPlane.x),
@@ -191,17 +191,19 @@ namespace LinaEngine
 			1.0f
 		);
 
-		glm::vec4 c = clipPlane * (2.0f / (glm::dot(clipPlane, q)));
+		Vector4 c = clipPlane * (2.0f / (glm::dot(clipPlane, q)));
 
 		glm::mat4 newProj = projMat;
 		// third row = clip plane - fourth row
-		newProj = glm::row(newProj, 2, c - glm::row(newProj, 3));
+		Vector4 row = glm::row(newProj, 3);
+		newProj = glm::row(newProj, 2, c - row);
 
 		return newProj;
 	}
 
 	void FPSDemoLevel::CustomDraw()
 	{
+		return;
 		RenderEngine& renderEngine = Application::GetRenderEngine();
 		RenderDevice& rd = renderEngine.GetRenderDevice();
 
@@ -228,7 +230,7 @@ namespace LinaEngine
 
 		// Fail stencil test when inside of outer portal
 		// (fail where we should be drawing the inner portal)
-		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
 
 		// Increment stencil value on stencil fail
 		// (on area of inner portal)
@@ -269,10 +271,12 @@ namespace LinaEngine
 			// Draw scene objects with destView, limited to stencil buffer
 			// use an edited projection matrix to set the near plane to the portal plane
 			Matrix vm = renderEngine.GetCameraSystem()->GetViewMatrix() * tr.transform.ToMatrix() * Matrix::InitRotation(tr.transform.GetRotation()) * tr.transform.ToMatrix().Inverse();
-			Matrix vproj = clippedProjMat(vm, renderEngine.GetCameraSystem()->GetProjectionMatrix(), tr.transform.GetLocation(), tr.transform.GetRotation());
+			Matrix vproj = ClipOblique(vm, renderEngine.GetCameraSystem()->GetProjectionMatrix(), tr.transform.GetLocation(), tr.transform.GetRotation().GetForward());
+			
 			renderEngine.GetCameraSystem()->InjectViewMatrix(vm);
 			renderEngine.GetCameraSystem()->InjectProjMatrix(vproj);
 
+			//glm::length(tr.transform.GetLocation() - renderEngine.GetCameraSystem()->GetCameraLocation());
 			// Draw scene
 			renderEngine.UpdateSystems();
 			renderEngine.DrawSceneObjects(portalParams);

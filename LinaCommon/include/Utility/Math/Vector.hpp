@@ -157,6 +157,7 @@ namespace LinaEngine
 		Vector3 Rotate(const class Quaternion& rotation) const;
 		Vector3 Reflect(const Vector3& normal) const;
 		Vector3 Refract(const Vector3& normal, float indexOfRefraction) const;
+		Vector2 XY() { return Vector2(x, y); }
 		float Dot(const Vector3& other) const;
 		float Distance(const Vector3& other) const;
 		float Magnitude() const;
@@ -219,7 +220,7 @@ namespace LinaEngine
 		Vector4(const Vector2& rhs) : glm::vec4(rhs.x, rhs.y, 0.0f, 0.0f) {};
 		Vector4(float f) : glm::vec4(f, f, f, f) {};
 		Vector4(const glm::vec4& rhs) : glm::vec4(rhs.x, rhs.y, rhs.z, rhs.w) {};
-
+		Vector4(const Vector3& src, float w) : glm::vec4(src, w) {};
 		static Vector4 Zero;
 		static Vector4 One;
 
@@ -232,6 +233,8 @@ namespace LinaEngine
 		Vector4 Rotate(const Vector3& axis, float angle) const;
 		Vector4 Reflect(const Vector4& normal) const;
 		Vector4 Refract(const Vector4& normal, float indexOfRefraction) const;
+		Vector3 XYZ() { return Vector3(x, y, z); }
+		Vector2 XY() { return Vector2(x, y); }
 		float Dot(const Vector4& other) const;
 		float Distance(const Vector4& other) const;
 		float Magnitude() const;
@@ -250,8 +253,11 @@ namespace LinaEngine
 		Vector4& operator/=(const float& rhs) { x /= rhs == 0 ? 0.0001f : rhs; y /= rhs == 0 ? 0.0001f : rhs; z/= rhs == 0 ? 0.001f : rhs; w /= rhs == 0 ? 0.001f : rhs; return *this; };
 		Vector4& operator=(const Vector4& rhs) { x = rhs.x; y = rhs.y; z = rhs.z; w = rhs.w; return *this; };
 		Vector4 operator-(const Vector4& rhs) { return Vector4(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);};
+		Vector4 operator-(const float& rhs) { return Vector4(x - rhs, y - rhs, z - rhs, w - rhs);};
 		Vector4 operator+(const Vector4& rhs) { return Vector4(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w); };
 		Vector4 operator*(const Vector4& rhs) { return Vector4(x * rhs.x, y * rhs.y, z * rhs.z, w * rhs.w); };
+		Vector4 operator*(const float& rhs) { return Vector4(x * rhs, y * rhs, z * rhs, w * rhs); };
+
 		bool operator==(const Vector4& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w; }
 		bool operator!=(const Vector4& rhs) const { return !(x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w); }
 		bool operator>(const Vector4& rhs) const { return length() > rhs.length(); }
