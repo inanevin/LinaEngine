@@ -735,7 +735,7 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	uint32 GLRenderDevice::CreateShaderProgram(const std::string& shaderText, bool usesGeometryShader)
+	uint32 GLRenderDevice::CreateShaderProgram(const std::string& shaderText, ShaderUniformData* data, bool usesGeometryShader)
 	{
 		// Shader program instance.
 		GLuint shaderProgram = glCreateProgram();
@@ -745,6 +745,7 @@ namespace LinaEngine::Graphics
 			LINA_CORE_ERR("Error creating shader program!");
 			return (uint32)-1;
 		}
+
 
 		// Modify the shader text to include the version data.
 		std::string version = GetShaderVersion();
@@ -775,7 +776,7 @@ namespace LinaEngine::Graphics
 		// Bind attributes for GL & add shader uniforms.
 		AddAllAttributes(shaderProgram, vertexShaderText, GetVersion());
 		AddShaderUniforms(shaderProgram, shaderText, programData.uniformBlockMap, programData.uniformMap, programData.samplerMap);
-
+		*data = ScanShaderUniforms(shaderProgram);
 		// Store the program in our map & return it.
 		m_shaderProgramMap[shaderProgram] = programData;
 		return shaderProgram;
@@ -1112,6 +1113,73 @@ namespace LinaEngine::Graphics
 		void* dest = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
 		GenericMemory::memcpy(dest, data, dataSize);
 		glUnmapBuffer(GL_UNIFORM_BUFFER);
+	}
+
+	ShaderUniformData GLRenderDevice::ScanShaderUniforms(uint32 shader)
+	{
+		GLint count;
+		glGetProgramiv(shader, GL_ACTIVE_UNIFORMS, &count);
+		ShaderUniformData data;
+		uint32 samplerUnit = 0;
+
+		for (int i = 0; i < count; i++)
+		{
+			std::vector<GLchar> uniformName(256);
+
+			GLint arraySize = 0;
+			GLenum type = 0;
+			GLsizei actualLength = 0;
+			// Get sampler uniform data & store it on our sampler map.
+			glGetActiveUniform(shader, (GLuint)i, uniformName.size(), &actualLength, &arraySize, &type, &uniformName[0]);
+			std::string nameStr = "";
+
+			for (int j = 0; j < uniformName.size(); j++)
+				nameStr += uniformName[j];
+
+			if (nameStr.find("material.") != std::string::npos || nameStr.find("uf_") != std::string::npos)
+			{
+				if (nameStr.find(".texture") != std::string::npos)
+				{
+					size_t lastindex = nameStr.find_last_of(".");
+					std::string samplerName = nameStr.substr(0, lastindex);
+
+					if (type == GL_SAMPLER_2D)
+					{
+						data.m_sampler2Ds[samplerName] = { samplerUnit,  TextureBindMode::BINDTEXTURE_TEXTURE2D };
+						samplerUnit++;
+					}
+					else if (type == GL_SAMPLER_CUBE)
+					{
+						data.m_sampler2Ds[samplerName] = { samplerUnit,  TextureBindMode::BINDTEXTURE_CUBEMAP };
+						samplerUnit++;
+					}
+				}
+				else if (nameStr.find(".isActive") != std::string::npos)
+					continue;
+
+				if (type == GL_FLOAT)
+					data.m_floats[nameStr] = 0.0f;
+				else if (type == GL_INT)
+					data.m_ints[nameStr] = 0;
+				else if (type == GL_FLOAT_VEC2)
+					data.m_vector2s[nameStr] = Vector2::One;
+				else if (type == GL_FLOAT_VEC3)
+				{
+					if (nameStr.find("color") != std::string::npos || nameStr.find("Color") != std::string::npos)
+						data.m_colors[nameStr] = Color::White;
+					else
+						data.m_vector3s[nameStr] = Vector3::One;
+				}
+				else if (type == GL_FLOAT_VEC4)
+					data.m_vector4s[nameStr] = Vector4::One;
+				else if (type == GL_BOOL)
+					data.m_bools[nameStr] = false;
+				else if (type == GL_FLOAT_MAT4)
+					data.m_matrices[nameStr] = Matrix::Identity();
+			}
+		}
+
+		return data;
 	}
 
 
@@ -1639,7 +1707,7 @@ namespace LinaEngine::Graphics
 
 
 		// FIXME: This code assumes attributes are listed in order, which isn't
-		// true for all compilers. It's safe to ignore for now because OpenGL versions
+		// true for all compilers. It'nameStr safe to ignore for now because OpenGL versions
 		// requiring this aren't being used.
 		GLint numActiveAttribs = 0;
 		GLint maxAttribNameLength = 0;

@@ -21,7 +21,7 @@
 layout (location = 0) in vec3 position;
 out vec3 fsun;
 out vec3 pos;
-uniform float time = 0.0;
+uniform float uf_time = 0.0;
 
 const vec2 data[4] = vec2[](
     vec2(-1.0,  1.0), vec2(-1.0, -1.0),
@@ -34,7 +34,7 @@ void main()
     // gl_Position = clipPos.xyww;
 	gl_Position = vec4(data[gl_VertexID], 0.0, 1.0);
 	pos = transpose(mat3(view)) * (inverse(projection) * gl_Position).xyz;
-    fsun = vec3(0.0, sin(time * 0.01), cos(time * 0.01));
+    fsun = vec3(0.0, sin(uf_time * 0.01), cos(uf_time * 0.01));
 }
 
 #elif defined(FS_BUILD)

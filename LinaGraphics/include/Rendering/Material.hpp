@@ -86,7 +86,7 @@ namespace LinaEngine::Graphics
 		static void UnloadMaterialResource(int id);
 		static void LoadMaterialData(Material& mat, const std::string& path);
 		static void SaveMaterialData(const Material& mat, const std::string& path);
-		static Material& SetMaterialShader(Material& material, Shaders shader, bool onlySetID = false);
+		static Material& SetMaterialShader(Material& material, Shaders shader, bool onlySetID = false, ShaderUniformData data = ShaderUniformData());
 		static void SetMaterialContainers(Material& material);
 		static void UnloadAll();
 		static std::set<Material*>& GetShadowMappedMaterials() { return s_shadowMappedMaterials; }

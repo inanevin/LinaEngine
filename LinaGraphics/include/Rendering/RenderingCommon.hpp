@@ -39,7 +39,10 @@ Timestamp: 4/14/2019 11:59:32 AM
 
 #include "Core/SizeDefinitions.hpp"
 #include <string>
-
+#include "Utility/Math/Vector.hpp"
+#include "Utility/Math/Matrix.hpp"
+#include "Utility/Math/Color.hpp"
+#include "map"
 namespace LinaEngine::Graphics
 {
 #define INTERNAL_MAT_PATH "__internal"
@@ -201,6 +204,26 @@ namespace LinaEngine::Graphics
 		UT_Float,
 		UT_Int
 	};
+
+	struct ShaderSamplerData
+	{
+		uint32 m_unit = 0;
+		TextureBindMode m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
+	};
+
+	struct ShaderUniformData
+	{
+		std::map<std::string, float> m_floats;
+		std::map<std::string, int> m_ints;
+		std::map<std::string, ShaderSamplerData> m_sampler2Ds;
+		std::map<std::string, Color> m_colors;
+		std::map<std::string, Vector2> m_vector2s;
+		std::map<std::string, Vector3> m_vector3s;
+		std::map<std::string, Vector4> m_vector4s;
+		std::map<std::string, Matrix> m_matrices;
+		std::map<std::string, bool> m_bools;
+	};
+
 
 	struct SamplerData
 	{

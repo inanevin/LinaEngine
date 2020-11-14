@@ -99,7 +99,7 @@ namespace LinaEngine::Graphics
 #define UF_MATRIX_MODEL "model"
 #define UF_MATRIX_VIEW "view"
 #define UF_MATRIX_PROJECTION "projection"
-#define UF_FLOAT_TIME "time"
+#define UF_FLOAT_TIME "uf_time"
 
 }
 #endif

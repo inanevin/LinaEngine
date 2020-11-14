@@ -59,7 +59,7 @@ namespace LinaEngine::Graphics
 		Shader& Construct(RenderDevice& renderDeviceIn, const std::string& text, bool usesGeometryShader)
 		{
 			s_renderDevice = &renderDeviceIn;
-			m_engineBoundID = s_renderDevice->CreateShaderProgram(text, usesGeometryShader);
+			m_engineBoundID = s_renderDevice->CreateShaderProgram(text, &m_uniformData, usesGeometryShader);
 			return *this;
 		}
 
@@ -77,6 +77,8 @@ namespace LinaEngine::Graphics
 		// Get shader id, this gets matched w/ program id on render engine.
 		uint32 GetID() { return m_engineBoundID; }
 
+		ShaderUniformData& GetUniformData() { return m_uniformData; }
+
 		static Shader& CreateShader(Shaders shader, const std::string& path, bool usesGeometryShader = false);
 		static Shader& GetShader(Shaders shader);
 		static bool ShaderExists(Shaders shader);
@@ -84,6 +86,7 @@ namespace LinaEngine::Graphics
 
 	private:
 
+		ShaderUniformData m_uniformData;
 		RenderDevice* s_renderDevice = nullptr;
 		uint32 m_engineBoundID = 0;
 		static std::map<int, Shader> s_loadedShaders;

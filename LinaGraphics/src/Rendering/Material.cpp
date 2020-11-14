@@ -173,7 +173,7 @@ namespace LinaEngine::Graphics
 	}
 
 
-	Material& Material::SetMaterialShader(Material& material, Shaders shader, bool onlySetID)
+	Material& Material::SetMaterialShader(Material& material, Shaders shader, bool onlySetID, ShaderUniformData data)
 	{
 		// If no shader found, fall back to standardLit
 		std::map<int, Shader>& shaders = Shader::GetLoadedShaders();
@@ -213,8 +213,8 @@ namespace LinaEngine::Graphics
 		}
 		else if (shader == Shaders::Skybox_Gradient)
 		{
-			material.m_colors[MAT_STARTCOLOR] = Color::Black;
-			material.m_colors[MAT_ENDCOLOR] = Color::White;
+			material.m_colors = data.m_colors;
+			
 		}
 		else if (shader == Shaders::Skybox_Procedural)
 		{
