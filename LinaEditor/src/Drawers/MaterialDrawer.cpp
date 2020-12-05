@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Core/EditorCommon.hpp"
 #include "Modals/SelectShaderModal.hpp"
 #include "Rendering/Shader.hpp"
+#include "Utility/EditorUtility.hpp"
 #include "imgui/imgui.h"
 #include "IconsFontAwesome5.h"
 
@@ -55,9 +56,11 @@ namespace LinaEditor
 	};
 
 
-	void MaterialDrawer::SetSelectedMaterial(LinaEngine::Graphics::Material& mat)
+	void MaterialDrawer::SetSelectedMaterial(EditorFile* file, LinaEngine::Graphics::Material& mat)
 	{
 		m_selectedMaterial = &mat;
+		m_selectedFile = file;
+		m_shouldCopyMatName = true;
 	}
 
 	void MaterialDrawer::DrawSelectedMaterial()
@@ -66,6 +69,25 @@ namespace LinaEditor
 		float cursorPosLabels = CURSORPOS_X_LABELS;
 
 		WidgetsUtility::IncrementCursorPos(ImVec2(11, 11));
+		WidgetsUtility::IncrementCursorPosX(11);
+
+		// Setup char.
+		static char materialName[64] = "";
+		if (m_shouldCopyMatName)
+		{
+			m_shouldCopyMatName = false;
+			memset(materialName, 0, sizeof materialName);
+			std::string str = m_selectedFile->m_name;
+			std::copy(str.begin(), str.end(), materialName);
+		}
+
+		// Entity name input text.
+		WidgetsUtility::FramePaddingX(5);
+		WidgetsUtility::IncrementCursorPosY(-5);
+		ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
+		ImGui::InputText("##matname", materialName, IM_ARRAYSIZE(materialName));
+		m_selectedFile->m_name = materialName;
+		WidgetsUtility::PopStyleVar();
 
 		// Caret
 		bool caretGeneral = WidgetsUtility::Caret("##matdraw_general");

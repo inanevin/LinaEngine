@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Rendering/Mesh.hpp"
 #include "Core/EditorApplication.hpp"
+#include "Utility/EditorUtility.hpp"
 #include "IconsFontAwesome5.h"
 
 namespace LinaEditor
@@ -51,7 +52,7 @@ namespace LinaEditor
 		EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::Graphics::Mesh*>("##lina_propsPanel_mesh", LinaEngine::Action::ActionType::MeshSelected,
 			std::bind(&PropertiesPanel::MeshSelected, this, std::placeholders::_1));
 
-		EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::Graphics::Material*>("##lina_propsPanel_material", LinaEngine::Action::ActionType::MaterialSelected,
+		EditorApplication::GetEditorDispatcher().SubscribeAction<std::pair<EditorFile*, LinaEngine::Graphics::Material*>>("##lina_propsPanel_material", LinaEngine::Action::ActionType::MaterialSelected,
 			std::bind(&PropertiesPanel::MaterialSelected, this, std::placeholders::_1));
 
 
@@ -76,9 +77,9 @@ namespace LinaEditor
 		m_currentDrawType = DrawType::Texture2D;
 	}
 
-	void PropertiesPanel::MaterialSelected(LinaEngine::Graphics::Material* material)
+	void PropertiesPanel::MaterialSelected(std::pair<EditorFile*, LinaEngine::Graphics::Material*> pair)
 	{
-		m_materialDrawer.SetSelectedMaterial(*material);
+		m_materialDrawer.SetSelectedMaterial(pair.first, *pair.second);
 		m_currentDrawType = DrawType::Material;
 	}
 	void PropertiesPanel::MeshSelected(LinaEngine::Graphics::Mesh* mesh)

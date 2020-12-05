@@ -61,6 +61,8 @@ namespace LinaEngine
 
 namespace LinaEditor
 {
+	class EditorFile;
+
 	class PropertiesPanel : public EditorPanel
 	{
 
@@ -84,7 +86,7 @@ namespace LinaEditor
 		void EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity);
 		void TextureSelected(LinaEngine::Graphics::Texture* texture);
 		void MeshSelected(LinaEngine::Graphics::Mesh* mesh);
-		void MaterialSelected(LinaEngine::Graphics::Material* material);
+		void MaterialSelected(std::pair<EditorFile*, LinaEngine::Graphics::Material*>);
 
 		void Unselect()
 		{

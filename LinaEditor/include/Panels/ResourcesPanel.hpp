@@ -40,6 +40,7 @@ Timestamp: 6/5/2020 12:54:52 AM
 #define ResourcesPanel_HPP
 
 #include "Panels/EditorPanel.hpp"
+#include "Utility/EditorUtility.hpp"
 #include <map>
 #include <vector>
 
@@ -54,45 +55,6 @@ namespace LinaEngine
 
 namespace LinaEditor 
 {
-
-	enum class FileType
-	{
-		Unknown,
-		Texture2D,
-		Mesh,
-		Font,
-		Material
-	};
-
-
-	struct EditorFile
-	{
-		std::string m_name;
-		std::string m_extension;
-		std::string m_path;
-		std::string m_pathToFolder;
-		FileType m_type;
-		int m_id;
-		bool m_markedForErase = false;
-		bool m_markedForHighlight = false;
-	};
-
-
-	class EditorFolder
-	{
-	public:
-
-		EditorFolder() {};
-		~EditorFolder() {};
-		std::string m_path = "";
-		std::string m_name = "";
-		std::map<int, EditorFolder> m_subFolders;
-		std::map<int, EditorFile> m_files;
-		int m_id = 0;
-		bool m_markedForErase = false;
-		bool m_markedForForceOpen = false;
-		EditorFolder* m_parent = nullptr;
-	};
 
 	class PropertiesPanel;
 

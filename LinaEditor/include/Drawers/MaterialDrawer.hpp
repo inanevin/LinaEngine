@@ -53,6 +53,8 @@ namespace LinaEngine
 
 namespace LinaEditor
 {
+	class EditorFile;
+
 	class MaterialDrawer
 	{
 		
@@ -61,7 +63,7 @@ namespace LinaEditor
 		MaterialDrawer() {};
 		~MaterialDrawer() {};
 	
-		void SetSelectedMaterial(LinaEngine::Graphics::Material& entity);
+		void SetSelectedMaterial(EditorFile* file, LinaEngine::Graphics::Material& entity);
 		void DrawSelectedMaterial();
 
 	private:
@@ -70,7 +72,9 @@ namespace LinaEditor
 
 	private:
 
+		bool m_shouldCopyMatName = false;
 		LinaEngine::Graphics::Material* m_selectedMaterial = nullptr;
+		EditorFile* m_selectedFile = nullptr;
 	
 	};
 }

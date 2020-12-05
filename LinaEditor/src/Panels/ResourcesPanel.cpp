@@ -377,7 +377,7 @@ namespace LinaEditor
 				else if (it->second.m_type == FileType::Mesh)
 					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Mesh*>(LinaEngine::Action::ActionType::MeshSelected, &LinaEngine::Graphics::Mesh::GetMesh(it->second.m_path));
 				else if (it->second.m_type == FileType::Material)
-					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Material*>(LinaEngine::Action::ActionType::MaterialSelected, &LinaEngine::Graphics::Material::GetMaterial(it->second.m_path));
+					EditorApplication::GetEditorDispatcher().DispatchAction<std::pair<EditorFile*, LinaEngine::Graphics::Material*>>(LinaEngine::Action::ActionType::MaterialSelected, std::make_pair(&it->second, &LinaEngine::Graphics::Material::GetMaterial(it->second.m_path)));
 			}
 
 			if (nodeOpen)

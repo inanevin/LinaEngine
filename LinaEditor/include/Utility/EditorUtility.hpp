@@ -41,6 +41,7 @@ Timestamp: 5/9/2020 1:22:23
 
 #include <string>
 #include <vector>
+#include <map>
 
 namespace LinaEngine
 {
@@ -54,6 +55,48 @@ struct ImVec4;
 
 namespace LinaEditor
 {
+
+
+	enum class FileType
+	{
+		Unknown,
+		Texture2D,
+		Mesh,
+		Font,
+		Material
+	};
+
+
+	struct EditorFile
+	{
+		std::string m_name;
+		std::string m_extension;
+		std::string m_path;
+		std::string m_pathToFolder;
+		FileType m_type;
+		int m_id;
+		bool m_markedForErase = false;
+		bool m_markedForHighlight = false;
+	};
+
+
+	class EditorFolder
+	{
+	public:
+
+		EditorFolder() {};
+		~EditorFolder() {};
+		std::string m_path = "";
+		std::string m_name = "";
+		std::map<int, EditorFolder> m_subFolders;
+		std::map<int, EditorFile> m_files;
+		int m_id = 0;
+		bool m_markedForErase = false;
+		bool m_markedForForceOpen = false;
+		EditorFolder* m_parent = nullptr;
+	};
+
+
 	class EditorUtility
 	{
 
