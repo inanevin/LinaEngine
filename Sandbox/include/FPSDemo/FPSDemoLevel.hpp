@@ -67,10 +67,7 @@ namespace LinaEngine
 		virtual void Tick(bool isInPlayMode, float delta) override;
 		virtual void Uninstall() override;
 
-	private:
 
-		void PreDraw();
-		void CustomDraw();
 
 	private:
 
