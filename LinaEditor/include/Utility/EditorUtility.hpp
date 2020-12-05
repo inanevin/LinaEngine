@@ -110,7 +110,7 @@ namespace LinaEditor
 		static std::string RemoveExtensionFromFilename(const std::string& filename);
 		static std::string OpenFile(const char* filter, void* window);
 		static std::string SaveFile(const char* filter, void* window);
-		static void ChangeFilename(const char* folderPath, const char* oldName, const char* newName);
+		static bool ChangeFilename(const char* folderPath, const char* oldName, const char* newName);
 
 	private:
 

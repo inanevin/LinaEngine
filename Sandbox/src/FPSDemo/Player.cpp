@@ -55,7 +55,6 @@ namespace LinaEngine
 
 		if (m_playerEntity != entt::null && m_headbobEntity != entt::null && m_cameraEntity != entt::null)
 		{
-
 			// Set player hierarchy.
 			TransformComponent& headbobTransform = m_registry->get<TransformComponent>(m_headbobEntity);
 			TransformComponent& playerTransform = m_registry->get<TransformComponent>(m_playerEntity);

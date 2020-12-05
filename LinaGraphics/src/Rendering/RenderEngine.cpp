@@ -334,8 +334,6 @@ namespace LinaEngine::Graphics
 		Mesh::CreateMesh("resources/engine/meshes/primitives/cylinder.obj", MeshParameters(), Primitives::Cylinder);
 		Mesh::CreateMesh("resources/engine/meshes/primitives/plane.obj", MeshParameters(), Primitives::Plane);
 		Mesh::CreateMesh("resources/engine/meshes/primitives/sphere.obj", MeshParameters(), Primitives::Sphere);
-		Mesh::CreateMesh("resources/engine/meshes/primitives/icosphere.obj", MeshParameters(), Primitives::Icosphere);
-		Mesh::CreateMesh("resources/engine/meshes/primitives/cone.obj", MeshParameters(), Primitives::Cone);
 	}
 
 	void RenderEngine::ConstructRenderTargets()
