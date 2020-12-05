@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Modals/SelectShaderModal.hpp"
 #include "Rendering/Shader.hpp"
 #include "Utility/EditorUtility.hpp"
+#include "PackageManager/Generic/GenericMemory.hpp"
 #include "imgui/imgui.h"
 #include "IconsFontAwesome5.h"
 
@@ -68,8 +69,8 @@ namespace LinaEditor
 		float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
 		float cursorPosLabels = CURSORPOS_X_LABELS;
 
-		WidgetsUtility::IncrementCursorPos(ImVec2(11, 11));
-		WidgetsUtility::IncrementCursorPosX(11);
+		WidgetsUtility::IncrementCursorPosY(12);
+		ImGui::SetCursorPosX(12);
 
 		// Setup char.
 		static char materialName[64] = "";
@@ -77,8 +78,8 @@ namespace LinaEditor
 		{
 			m_shouldCopyMatName = false;
 			memset(materialName, 0, sizeof materialName);
-			std::string str = m_selectedFile->m_name;
-			std::copy(str.begin(), str.end(), materialName);
+			std::string extensionlessStr = EditorUtility::RemoveExtensionFromFilename(m_selectedFile->m_name);
+			std::copy(extensionlessStr.begin(), extensionlessStr.end(), materialName);
 		}
 
 		// Entity name input text.
@@ -86,8 +87,22 @@ namespace LinaEditor
 		WidgetsUtility::IncrementCursorPosY(-5);
 		ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
 		ImGui::InputText("##matname", materialName, IM_ARRAYSIZE(materialName));
-		m_selectedFile->m_name = materialName;
+		if (EditorUtility::RemoveExtensionFromFilename(m_selectedFile->m_name).compare(materialName) != 0)
+		{
+			if (std::string(materialName).find(".") == std::string::npos)
+			{
+				std::string newName = std::string(materialName) + ".mat";
+				EditorUtility::ChangeFilename(m_selectedFile->m_pathToFolder.c_str(), m_selectedFile->m_name.c_str(), newName.c_str());
+				m_selectedFile->m_name = newName;
+				GenericMemory::memset(materialName, 0, 64);
+				std::string extensionlessStr = EditorUtility::RemoveExtensionFromFilename(m_selectedFile->m_name);
+				std::copy(extensionlessStr.begin(), extensionlessStr.end(), materialName);
+			}
+		}
 		WidgetsUtility::PopStyleVar();
+
+		WidgetsUtility::IncrementCursorPosY(12);
+		ImGui::SetCursorPosX(12);
 
 		// Caret
 		bool caretGeneral = WidgetsUtility::Caret("##matdraw_general");
@@ -189,33 +204,33 @@ namespace LinaEditor
 			}
 
 
-		/*	WidgetsUtility::FramePaddingX(4);
-			const char* shaderLabel = LinaEngine::Graphics::g_shadersStr[m_selectedMaterial->GetShaderType()];
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Shader");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
+			/*	WidgetsUtility::FramePaddingX(4);
+				const char* shaderLabel = LinaEngine::Graphics::g_shadersStr[m_selectedMaterial->GetShaderType()];
+				ImGui::SetCursorPosX(cursorPosLabels);
+				WidgetsUtility::AlignedText("Shader");
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(cursorPosValues);
+				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
 
-			if (ImGui::BeginCombo("##shaderType", shaderLabel))
-			{
-				for (int n = 0; n < IM_ARRAYSIZE(LinaEngine::Graphics::g_shadersStr); n++)
+				if (ImGui::BeginCombo("##shaderType", shaderLabel))
 				{
-					const bool is_shader_selected = (m_selectedMaterial->GetShaderType() == n);
-					if (ImGui::Selectable(LinaEngine::Graphics::g_shadersStr[n], is_shader_selected))
+					for (int n = 0; n < IM_ARRAYSIZE(LinaEngine::Graphics::g_shadersStr); n++)
 					{
-						LinaEngine::Graphics::Shaders st = (LinaEngine::Graphics::Shaders)n;
-						LinaEngine::Graphics::Material::SetMaterialShader(*m_selectedMaterial, st);
-					}
+						const bool is_shader_selected = (m_selectedMaterial->GetShaderType() == n);
+						if (ImGui::Selectable(LinaEngine::Graphics::g_shadersStr[n], is_shader_selected))
+						{
+							LinaEngine::Graphics::Shaders st = (LinaEngine::Graphics::Shaders)n;
+							LinaEngine::Graphics::Material::SetMaterialShader(*m_selectedMaterial, st);
+						}
 
-					if (is_shader_selected)
-						ImGui::SetItemDefaultFocus();
+						if (is_shader_selected)
+							ImGui::SetItemDefaultFocus();
+					}
+					ImGui::EndCombo();
 				}
-				ImGui::EndCombo();
-			}
-			WidgetsUtility::PopStyleVar();*/
+				WidgetsUtility::PopStyleVar();*/
 		}
-		
+
 
 		// Caret.
 		WidgetsUtility::IncrementCursorPosX(11);

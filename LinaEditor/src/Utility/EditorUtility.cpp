@@ -110,4 +110,17 @@ namespace LinaEditor
 		return std::string();
 	}
 
+	void EditorUtility::ChangeFilename(const char* folderPath, const char* oldName, const char* newName)
+	{
+		std::string oldPathStr = std::string(folderPath) + std::string(oldName);
+		std::string newPathStr = std::string(folderPath) + std::string(newName);
+	
+		/*	Deletes the file if exists */
+		if (std::rename(oldPathStr.c_str(), newPathStr.c_str()) != 0)
+			std::perror("Error renaming file");
+		else
+			std::cout << "File renamed successfully";
+	}
+
+	
 }
