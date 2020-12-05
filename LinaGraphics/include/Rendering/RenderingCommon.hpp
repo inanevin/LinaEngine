@@ -259,31 +259,6 @@ namespace LinaEngine::Graphics
 		int32 stencilComparisonVal = 0;
 	};
 
-	enum Shaders
-	{
-		Standard_Unlit = 0,
-		Skybox_SingleColor = 1,
-		Skybox_Gradient = 2,
-		Skybox_Cubemap = 3,
-		Skybox_Procedural = 4,
-		Skybox_HDRI = 5,
-		PBR_Lit = 6,
-		HDRI_Equirectangular = 7,
-		HDRI_Irradiance = 8,
-		HDRI_Prefilter = 9,
-		HDRI_BRDF = 10,
-		ScreenQuad_Final = 11,
-		ScreenQuad_Blur = 12,
-		ScreenQuad_Outline = 13,
-		ScreenQuad_Shadowmap = 14,
-		Debug_Line = 15,
-		Standard_Sprite = 16,
-		Skybox_Atmospheric = 17
-	};
-
-	extern char* g_shadersStr[18];
-
-
 	struct RenderingDebugData
 	{
 		bool visualizeDepth;
@@ -314,7 +289,7 @@ namespace LinaEngine::Graphics
 		bool m_triangulate = true;
 		bool m_smoothNormals = true;
 		bool m_calculateTangentSpace = true;
-		bool m_flipWinding = true;
+		bool m_flipWinding = false;
 		bool m_flipUVs = false;
 
 		template<class Archive>

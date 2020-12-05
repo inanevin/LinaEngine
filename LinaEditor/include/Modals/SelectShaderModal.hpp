@@ -26,14 +26,47 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Rendering/RenderingCommon.hpp"
+/*
+Class: SelectShaderModal
 
-namespace LinaEngine::Graphics
+Popup modal for selecting loaded shaders.
+
+Timestamp: 12/5/2020 1:13:57 PM
+*/
+
+#pragma once
+
+#ifndef SelectShaderModal_HPP
+#define SelectShaderModal_HPP
+
+// Headers here.
+#include <map>
+#include <string>
+
+namespace LinaEngine
 {
-
-	char* g_materialSurfaceTypeStr[2]
+	namespace Graphics
 	{
-	   "Opaque",
-	   "Transparent"
+		class Shader;
+	}
+}
+
+namespace LinaEditor
+{
+	class SelectShaderModal
+	{
+		
+	public:
+		
+		SelectShaderModal() {};
+		~SelectShaderModal() {};
+
+		static void Draw(const std::map<int, LinaEngine::Graphics::Shader*>& map, int* selectedShaderID, std::string& shaderPath);
+
+	
+	private:
+	
 	};
 }
+
+#endif

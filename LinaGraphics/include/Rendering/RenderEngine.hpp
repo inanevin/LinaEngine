@@ -122,6 +122,7 @@ namespace LinaEngine::Graphics
 		static RenderDevice& GetRenderDevice() { return s_renderDevice; }
 		static Texture& GetDefaultTexture() { return s_defaultTexture; }
 		static Material& GetDefaultUnlitMaterial() { return s_defaultUnlit; }
+		static Shader& GetDefaultShader() { return *s_standardUnlitShader; }
 		RenderSettings& GetRenderSettings() { return m_renderSettings; }
 		DrawParams GetMainDrawParams() { return m_defaultDrawParams; }
 		void SetCurrentPLightCount(int count) { m_currentPointLightCount = count; }
@@ -188,6 +189,18 @@ namespace LinaEngine::Graphics
 		Material m_shadowMapMaterial;
 		Material m_defaultSkyboxMaterial;
 		static Material s_defaultUnlit;
+
+		Shader* m_hdriBRDFShader = nullptr;
+		Shader* m_hdriPrefilterShader = nullptr;
+		Shader* m_hdriEquirectangularShader = nullptr;
+		Shader* m_hdriIrradianceShader = nullptr;
+		Shader* m_sqFinalShader = nullptr;
+		Shader* m_sqBlurShader = nullptr;
+		Shader* m_sqOutlineShader = nullptr;
+		Shader* m_sqShadowMapShader = nullptr;
+		Shader* m_debugLineShader = nullptr;
+		Shader* m_skyboxSingleColorShader = nullptr;
+		static Shader* s_standardUnlitShader;
 
 		Texture m_primaryRTTexture0;
 		Texture m_primaryRTTexture1;

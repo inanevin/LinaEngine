@@ -196,7 +196,7 @@ namespace LinaEditor
 					file.m_type = FileType::Material;
 					file.m_id = ++s_itemIDCounter;
 
-					Graphics::Material& m = LinaEngine::Graphics::Material::CreateMaterial(Graphics::Shaders::Standard_Unlit, file.m_path);
+					Graphics::Material& m = LinaEngine::Graphics::Material::CreateMaterial(Graphics::RenderEngine::GetDefaultShader(), file.m_path);
 					Graphics::Material::SaveMaterialData(m, materialPath);
 
 					if (s_hoveredFolder != nullptr)

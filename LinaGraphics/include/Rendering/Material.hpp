@@ -53,6 +53,7 @@ namespace LinaEngine::Graphics
 {
 	class RenderEngine;
 	class Texture;
+	class Shader;
 
 	struct MaterialSampler2D
 	{
@@ -77,7 +78,7 @@ namespace LinaEngine::Graphics
 
 	public:
 
-		static Material& CreateMaterial(Shaders shader, const std::string& path = "");
+		static Material& CreateMaterial(Shader& shader, const std::string& path = "");
 		static Material& LoadMaterialFromFile(const std::string& path = "");
 		static Material& GetMaterial(int id);
 		static Material& GetMaterial(const std::string& path);
@@ -86,7 +87,7 @@ namespace LinaEngine::Graphics
 		static void UnloadMaterialResource(int id);
 		static void LoadMaterialData(Material& mat, const std::string& path);
 		static void SaveMaterialData(const Material& mat, const std::string& path);
-		static Material& SetMaterialShader(Material& material, Shaders shader, bool onlySetID = false, ShaderUniformData data = ShaderUniformData());
+		static Material& SetMaterialShader(Material& material, Shader& shader, bool onlySetID = false);
 		static void SetMaterialContainers(Material& material);
 		static void UnloadAll();
 		static std::set<Material*>& GetShadowMappedMaterials() { return s_shadowMappedMaterials; }
@@ -184,7 +185,6 @@ namespace LinaEngine::Graphics
 
 		int GetID() const { return m_materialID; }
 		const std::string& GetPath() const { return m_path; }
-		Shaders GetShaderType() { return m_shaderType; }
 		uint32 GetShaderID() { return m_shaderID; }
 
 		void SetSurfaceType(MaterialSurfaceType type)
@@ -201,7 +201,7 @@ namespace LinaEngine::Graphics
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_usesHDRI, m_receivesLighting, m_isShadowMapped, m_shaderType, m_surfaceType, m_sampler2Ds, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
+			archive(m_usesHDRI, m_receivesLighting, m_isShadowMapped, m_shaderPath, m_surfaceType, m_sampler2Ds, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
 		}
 
 
@@ -218,6 +218,10 @@ namespace LinaEngine::Graphics
 		bool m_usesHDRI = false;
 		bool m_receivesLighting = false;
 		bool m_isShadowMapped = false;
+		std::string m_shaderPath = "";
+		std::string m_selectedShaderPath = "";
+		int m_selectedShaderID = 0;
+		uint32 m_shaderID = 0;
 
 	private:
 
@@ -232,9 +236,7 @@ namespace LinaEngine::Graphics
 
 		int m_materialID = -1;
 		std::string m_path = "";
-		uint32 m_shaderID = 0;
 
-		Shaders m_shaderType = Shaders::Standard_Unlit;
 		MaterialSurfaceType m_surfaceType = MaterialSurfaceType::Opaque;
 
 	};

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -32,39 +32,59 @@ SOFTWARE.
 
 namespace LinaEngine::Graphics
 {
-	std::map<int, Shader> Shader::s_loadedShaders;
+	std::map<int, Shader*> Shader::s_loadedShaders;
 
-	Shader& Shader::CreateShader(Shaders shader, const std::string& path, bool usesGeometryShader)
+	Shader& Shader::CreateShader(const std::string& path, bool usesGeometryShader)
 	{
-		// Create shader
-		if (!ShaderExists(shader))
-		{
-			std::string shaderText;
-			Utility::LoadTextFileWithIncludes(shaderText, path, "#include");
-			return s_loadedShaders[shader].Construct(RenderEngine::GetRenderDevice(), shaderText, usesGeometryShader);
-		}
-		else
-		{
-			// Shader with this name already exists!
-			LINA_CORE_WARN("Shader with the id {0} already exists, returning that...", shader);
-			return s_loadedShaders[shader];
-		}
+		std::string shaderText;
+		Utility::LoadTextFileWithIncludes(shaderText, path, "#include");
+		Shader* shader = new Shader();
+		shader->Construct(RenderEngine::GetRenderDevice(), shaderText, usesGeometryShader);
+		shader->m_path = path;
+		s_loadedShaders[shader->GetID()] = shader;
+		return *shader;
 	}
 
-	Shader& Shader::GetShader(Shaders shader)
+	Shader& Shader::GetShader(const std::string& path)
 	{
-		if (!ShaderExists(shader))
+		const auto it = std::find_if(s_loadedShaders.begin(), s_loadedShaders.end(), [path]
+		(const auto& item) -> bool { return item.second->GetPath().compare(path) == 0; });
+
+		if (it == s_loadedShaders.end())
 		{
-			// Shader not found.
-			LINA_CORE_WARN("Shader with the ID {0} was not found, returning standardUnlit Shader", shader);
-			return GetShader(Shaders::Standard_Unlit);
+			// Mesh not found.
+			LINA_CORE_WARN("Shader with the path {0} was not found, returning un-constructed shader", path);
+			return Shader();
 		}
 
-		return s_loadedShaders[shader];
+		return *it->second;
 	}
 
-	bool Shader::ShaderExists(Shaders shader)
+	Shader& Shader::GetShader(int id)
 	{
-		return !(s_loadedShaders.find(shader) == s_loadedShaders.end());
+		return *s_loadedShaders[id];
 	}
+
+	bool Shader::ShaderExists(const std::string& path)
+	{
+		const auto it = std::find_if(s_loadedShaders.begin(), s_loadedShaders.end(), [path]
+		(const auto& it) -> bool { 	return it.second->GetPath().compare(path) == 0; 	});
+		return it != s_loadedShaders.end();
+	}
+
+	bool Shader::ShaderExists(int id)
+	{
+		if (id < 0) return false;
+		return !(s_loadedShaders.find(id) == s_loadedShaders.end());
+	}
+
+	void Shader::UnloadAll()
+	{
+		// Delete textures.
+		for (std::map<int, Shader*>::iterator it = s_loadedShaders.begin(); it != s_loadedShaders.end(); it++)
+			delete it->second;
+
+		s_loadedShaders.clear();
+	}
+
 }

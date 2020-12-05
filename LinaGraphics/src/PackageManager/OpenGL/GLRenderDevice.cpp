@@ -776,9 +776,10 @@ namespace LinaEngine::Graphics
 		// Bind attributes for GL & add shader uniforms.
 		AddAllAttributes(shaderProgram, vertexShaderText, GetVersion());
 		AddShaderUniforms(shaderProgram, shaderText, programData.uniformBlockMap, programData.uniformMap, programData.samplerMap);
-		*data = ScanShaderUniforms(shaderProgram);
 		// Store the program in our map & return it.
 		m_shaderProgramMap[shaderProgram] = programData;
+		*data = ScanShaderUniforms(shaderProgram);
+
 		return shaderProgram;
 	}
 
@@ -1117,25 +1118,28 @@ namespace LinaEngine::Graphics
 
 	ShaderUniformData GLRenderDevice::ScanShaderUniforms(uint32 shader)
 	{
+
+		
 		GLint count;
 		glGetProgramiv(shader, GL_ACTIVE_UNIFORMS, &count);
 		ShaderUniformData data;
 		uint32 samplerUnit = 0;
 
-		for (int i = 0; i < count; i++)
+		std::vector<GLchar> uniformName(256);
+		for (int32 uniform = 0; uniform < count; ++uniform) 
 		{
-			std::vector<GLchar> uniformName(256);
 
 			GLint arraySize = 0;
 			GLenum type = 0;
 			GLsizei actualLength = 0;
 			// Get sampler uniform data & store it on our sampler map.
-			glGetActiveUniform(shader, (GLuint)i, uniformName.size(), &actualLength, &arraySize, &type, &uniformName[0]);
-			std::string nameStr = "";
+			glGetActiveUniform(shader, uniform, uniformName.size(), &actualLength, &arraySize, &type, &uniformName[0]);
 
-			for (int j = 0; j < uniformName.size(); j++)
-				nameStr += uniformName[j];
+			std::string nameStr = &uniformName[0];
+		//	for (int j = 0; j < uniformName.size(); j++)
+			//	nameStr += uniformName[j];
 
+			
 			if (nameStr.find("material.") != std::string::npos || nameStr.find("uf_") != std::string::npos)
 			{
 				if (nameStr.find(".texture") != std::string::npos)
@@ -1158,24 +1162,24 @@ namespace LinaEngine::Graphics
 					continue;
 
 				if (type == GL_FLOAT)
-					data.m_floats[nameStr] = 0.0f;
+					data.m_floats[&uniformName[0]] = 0.0f;
 				else if (type == GL_INT)
-					data.m_ints[nameStr] = 0;
+					data.m_ints[&uniformName[0]] = 0;
 				else if (type == GL_FLOAT_VEC2)
-					data.m_vector2s[nameStr] = Vector2::One;
+					data.m_vector2s[&uniformName[0]] = Vector2::One;
 				else if (type == GL_FLOAT_VEC3)
 				{
 					if (nameStr.find("color") != std::string::npos || nameStr.find("Color") != std::string::npos)
-						data.m_colors[nameStr] = Color::White;
+						data.m_colors[&uniformName[0]] = Color::White;
 					else
-						data.m_vector3s[nameStr] = Vector3::One;
+						data.m_vector3s[&uniformName[0]] = Vector3::One;
 				}
 				else if (type == GL_FLOAT_VEC4)
-					data.m_vector4s[nameStr] = Vector4::One;
+					data.m_vector4s[&uniformName[0]] = Vector4::One;
 				else if (type == GL_BOOL)
-					data.m_bools[nameStr] = false;
+					data.m_bools[&uniformName[0]] = false;
 				else if (type == GL_FLOAT_MAT4)
-					data.m_matrices[nameStr] = Matrix::Identity();
+					data.m_matrices[&uniformName[0]] = Matrix::Identity();
 			}
 		}
 

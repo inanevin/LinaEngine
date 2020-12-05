@@ -51,8 +51,11 @@ namespace LinaEngine::Graphics
 				SetTexture(it->first, &Texture::GetTexture(it->second.m_path), it->second.m_bindMode);
 			}
 		}
-
-		m_shaderID = Shader::GetShader(m_shaderType).GetID();
+		
+		if (Shader::ShaderExists(m_shaderPath))
+			m_shaderID = Shader::GetShader(m_shaderPath).GetID();
+		else
+			m_shaderID = RenderEngine::GetDefaultShader().GetID();
 	}
 
 
@@ -121,7 +124,7 @@ namespace LinaEngine::Graphics
 			return Texture();
 		}
 	}
-	Material& Material::CreateMaterial(Shaders shader, const std::string& path)
+	Material& Material::CreateMaterial(Shader& shader, const std::string& path)
 	{
 		// Create material & set it's shader.
 		int id = Utility::GetUniqueID();
@@ -139,8 +142,13 @@ namespace LinaEngine::Graphics
 		int id = Utility::GetUniqueID();
 		Material& mat = s_loadedMaterials[id];
 		Material::LoadMaterialData(mat, path);
+
+		if (Shader::ShaderExists(mat.m_shaderPath))
+			SetMaterialShader(mat, Shader::GetShader(mat.m_shaderPath), true);
+		else
+			SetMaterialShader(mat, RenderEngine::GetDefaultShader(), true);
 		SetMaterialContainers(mat);
-		SetMaterialShader(mat, mat.m_shaderType, true);
+
 		mat.m_materialID = id;
 		mat.m_path = path;
 		return s_loadedMaterials[id];
@@ -173,17 +181,12 @@ namespace LinaEngine::Graphics
 	}
 
 
-	Material& Material::SetMaterialShader(Material& material, Shaders shader, bool onlySetID, ShaderUniformData data)
+	Material& Material::SetMaterialShader(Material& material, Shader& shader, bool onlySetID)
 	{
-		// If no shader found, fall back to standardLit
-		std::map<int, Shader>& shaders = Shader::GetLoadedShaders();
-		if (shaders.find(shader) == shaders.end()) {
-			LINA_CORE_WARN("Shader with engine ID {0} was not found. Setting material's shader to standardUnlit.", shader);
-			material.m_shaderID = shaders[Shaders::Standard_Unlit].GetID();
-		}
-		else
-			material.m_shaderID = shaders[shader].GetID();
 
+		material.m_shaderID = shader.GetID();
+		material.m_shaderPath = shader.GetPath();
+		material.m_selectedShaderPath = material.m_shaderPath;
 		if (onlySetID) return material;
 
 
@@ -196,11 +199,27 @@ namespace LinaEngine::Graphics
 		material.m_vector2s.clear();
 		material.m_matrices.clear();
 		material.m_vector4s.clear();
-		material.m_shaderType = shader;
 		material.m_isShadowMapped = false;
 		material.m_receivesLighting = false;
 		material.m_usesHDRI = false;
 
+		ShaderUniformData data = shader.GetUniformData();
+		material.m_colors = data.m_colors;
+		material.m_floats = data.m_floats;
+		material.m_bools = data.m_bools;
+		material.m_ints = data.m_ints;
+		material.m_vector2s = data.m_vector2s;
+		material.m_vector3s = data.m_vector3s;
+		material.m_vector4s = data.m_vector4s;
+		material.m_matrices = data.m_matrices;
+		
+		for (std::map<std::string, ShaderSamplerData>::iterator it = data.m_sampler2Ds.begin(); it != data.m_sampler2Ds.end(); ++it)
+		{
+			material.m_sampler2Ds[it->first] = { it->second.m_unit, nullptr, "","", it->second.m_bindMode, false };
+		}
+
+
+		/*
 		if (shader == Shaders::Standard_Unlit)
 		{
 			material.m_colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
@@ -301,7 +320,7 @@ namespace LinaEngine::Graphics
 			material.m_colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
 			material.m_sampler2Ds[MAT_TEXTURE2D_DIFFUSE] = { 0 };
 		}
-
+		*/
 
 		return material;
 	}
