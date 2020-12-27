@@ -47,8 +47,97 @@ namespace Lina::Graphics
 		VkResult result = vkAllocateCommandBuffers(logicalDevice, &allocateInfo, &m_handles[0]);
 
 		if (result != VK_SUCCESS)
+		{
 			LINA_ERR("[Command Buffer] -> Could not create command buffer.");
+		}
+		else
+			LINA_TRACE("[Command Buffer] -> Successfuly created command buffer.");
 
 		return m_handles;
 	}
+	bool VulkanCommandBuffer::BeginPrimary(VkDevice logicalDevice, uint32_t index, VkCommandBufferUsageFlags usage)
+	{
+		VkCommandBufferBeginInfo beginInfo
+		{
+			VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+			nullptr,
+			usage,
+			VK_NULL_HANDLE
+		};
+		VkResult result = vkBeginCommandBuffer(m_handles[index], &beginInfo);
+
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Command Buffer] -> Could not begin primary command buffer.");
+			return false;
+		}
+
+		LINA_TRACE("[Command Buffer] -> Successfuly beginning command buffer.");
+		return true;
+	}
+
+	bool VulkanCommandBuffer::BeginSecondary(VkDevice logicalDevice, uint32_t index, VkCommandBufferUsageFlags usage, SecondaryCommandBufferData& data)
+	{
+		VkCommandBufferInheritanceInfo inheritanceInfo
+		{
+			VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO,
+			nullptr,
+			data.renderPass,
+			data.renderPassIndex,
+			data.frameBuffer,
+			data.enableOcclusionQuery ? VK_TRUE : VK_FALSE,
+			data.queryFlags, 
+			data.pipelineStatistics
+		};
+
+		VkCommandBufferBeginInfo beginInfo
+		{
+			VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+			nullptr,
+			usage,
+			&inheritanceInfo
+		};
+		VkResult result = vkBeginCommandBuffer(m_handles[index], &beginInfo);
+
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Command Buffer] -> Could not begin secondary command buffer.");
+			return false;
+		}
+
+		LINA_TRACE("[Command Buffer] -> Successfuly beginning secondary buffer.");
+		return true;
+	}
+
+	bool VulkanCommandBuffer::End(uint32_t index)
+	{
+		VkResult result = vkEndCommandBuffer(m_handles[index]);
+
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Command Buffer] -> Could not end command buffer.");
+			return false;
+		}
+
+		LINA_TRACE("[Command Buffer] -> Successfuly ended buffer.");
+		return true;
+	}
+
+	bool VulkanCommandBuffer::Reset(uint32_t index, VkCommandBufferResetFlags resetFlags)
+	{
+		// TODO: Table look up. If the pool allocated for this buffer was not allocated with VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT flag
+		// a seperate reset can not be performed.
+
+		VkResult result = vkResetCommandBuffer(m_handles[index], resetFlags);
+
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Command Buffer] -> Could notresetcommand buffer.");
+			return false;
+		}
+
+		LINA_TRACE("[Command Buffer] -> Successfuly resetted buffer.");
+		return true;
+	}
+
 }

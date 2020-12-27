@@ -55,8 +55,6 @@ namespace Lina::Graphics
 		m_eventSys->Connect<Event::ERender, &RenderEngineVulkan::Render>(this);
 		m_eventSys->Connect<Event::EEarlyInit, &RenderEngineVulkan::OnEarlyInit>(this);
 	}
-
-
 	void RenderEngineVulkan::OnEarlyInit(Event::EEarlyInit& e)
 	{
 		// First create empty window context.
@@ -77,6 +75,18 @@ namespace Lina::Graphics
 			m_swapchain.Create(data);
 
 			VkImage img = m_swapchain.GetImage(m_vulkanData.m_logicalDevice, VK_NULL_HANDLE);
+
+			m_pool.Create(m_vulkanData.m_logicalDevice, m_vulkanData.m_graphicsQueueFamilyIndex, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+			m_primaryBuffer.Create(m_vulkanData.m_logicalDevice, m_pool.m_handle, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1);
+			m_secondaryBuffer.Create(m_vulkanData.m_logicalDevice, m_pool.m_handle, VK_COMMAND_BUFFER_LEVEL_SECONDARY, 1);
+			m_primaryBuffer.BeginPrimary(m_vulkanData.m_logicalDevice, 0, VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT);
+
+			SecondaryCommandBufferData secdata;
+			m_secondaryBuffer.BeginSecondary(m_vulkanData.m_logicalDevice, 0, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, secdata);
+
+			m_primaryBuffer.End(0);
+			m_secondaryBuffer.End(0);
+			m_secondaryBuffer.Reset(0, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 
 			m_initialized = true;
 		}

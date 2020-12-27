@@ -39,8 +39,6 @@ Timestamp: 12/26/2020 9:39:14 PM
 #ifndef VulkanCommon_HPP
 #define VulkanCommon_HPP
 
-#define FRIEND_ACCESS friend class RenderEngineVulkan; \
-					  friend class VulkanHandler
 
 #include "Core/MacroDetection.hpp"
 #include <cstdint>

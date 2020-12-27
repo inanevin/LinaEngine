@@ -29,6 +29,8 @@ set (LINAGRAPHICS_SOURCES
 	src/Core/Backend/Vulkan/VulkanHandler.cpp
 	
 	src/Core/Backend/Vulkan/Objects/VulkanSwapchain.cpp	
+	src/Core/Backend/Vulkan/Objects/VulkanCommandPool.cpp	
+	src/Core/Backend/Vulkan/Objects/VulkanCommandBuffer.cpp	
 	
 	src/Core/Backend/Vulkan/Utility/VulkanFunctions.cpp
 
@@ -53,6 +55,8 @@ set(LINAGRAPHICS_HEADERS
 	include/Core/Backend/Vulkan/VulkanCommon.hpp
 
 	include/Core/Backend/Vulkan/Objects/VulkanSwapchain.hpp
+	include/Core/Backend/Vulkan/Objects/VulkanCommandPool.hpp
+	include/Core/Backend/Vulkan/Objects/VulkanCommandBuffer.hpp
 	
 
 

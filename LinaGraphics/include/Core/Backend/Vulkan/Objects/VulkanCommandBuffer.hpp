@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -44,22 +44,36 @@ Timestamp: 12/28/2020 12:56:41 AM
 
 namespace Lina::Graphics
 {
+	struct SecondaryCommandBufferData
+	{
+		VkRenderPass renderPass = VK_HANDLE_NULL;
+		uint32_t renderPassIndex = 0;
+		VkFramebuffer frameBuffer = VK_HANDLE_NULL;
+		bool enableOcclusionQuery = false;
+		VkQueryControlFlags	queryFlags;
+		VkQueryPipelineStatisticFlags pipelineStatistics;
+	};
 	class VulkanCommandBuffer
 	{
-		
+
 	public:
-		
+
 	private:
 
-		FRIEND_ACCESS;
+		friend class RenderEngineVulkan;
+		friend class VulkanHandler;
 
 		VulkanCommandBuffer() {};
 		~VulkanCommandBuffer() {};
 
 		std::vector<VkCommandBuffer>& Create(VkDevice logicalDevice, VkCommandPool pool, VkCommandBufferLevel level, uint32_t count);
-	
+		bool BeginPrimary(VkDevice logicalDevice, uint32_t index, VkCommandBufferUsageFlags usage);
+		bool BeginSecondary(VkDevice logicalDevice, uint32_t index, VkCommandBufferUsageFlags usage, SecondaryCommandBufferData& data);
+		bool End(uint32_t index);
+		bool Reset(uint32_t index, VkCommandBufferResetFlags resetFlags);
+
 	private:
-	
+
 		std::vector<VkCommandBuffer> m_handles;
 
 	};
