@@ -87,6 +87,7 @@ namespace Lina::Graphics
 			m_primaryBuffer.End(0);
 			m_secondaryBuffer.End(0);
 			m_secondaryBuffer.Reset(0, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
+			m_pool.Reset(m_vulkanData.m_logicalDevice, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
 
 			m_initialized = true;
 		}

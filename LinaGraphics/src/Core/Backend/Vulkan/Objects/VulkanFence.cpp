@@ -26,40 +26,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/Vulkan/Objects/VulkanCommandPool.hpp"
+#include "Core/Backend/Vulkan/Objects/VulkanFence.hpp"
 #include "Core/Backend/Vulkan/Utility/VulkanFunctions.hpp"
 #include "Core/Log.hpp"
 
 namespace Lina::Graphics
 {
-	VkCommandPool VulkanCommandPool::Create(VkDevice logicalDevice, uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags)
+	bool VulkanFence::Create(VkDevice logicalDevice, VkFenceCreateFlags flags)
 	{
-		VkCommandPoolCreateInfo createInfo
+		VkFenceCreateInfo createInfo
 		{
-			VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+			VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
 			nullptr,
-			flags,
-			queueFamilyIndex
+			flags
 		};
 
-		VkResult result = vkCreateCommandPool(logicalDevice, &createInfo, nullptr, &m_handle);
-		if (result != VK_SUCCESS)
-			LINA_ERR("[Command Pool] -> Could not create command pool.");
-
-		return m_handle;
-	}
-
-	bool VulkanCommandPool::Reset(VkDevice logicalDevice, VkCommandPoolResetFlags flags)
-	{
-		VkResult result = vkResetCommandPool(logicalDevice, m_handle, flags);
+		VkResult result = vkCreateFence(logicalDevice, &createInfo, nullptr, &m_handle);
 
 		if (result != VK_SUCCESS)
-		{
-			LINA_ERR("[Command Pool] -> Could not reset command pool.");
-			return false;
-		}
+			LINA_ERR("[Fence] -> Could not create a fence.");
 
-		LINA_TRACE("[Command Buffer] -> Successfuly resetted command pool.");
+		LINA_TRACE("[Fence] -> Successfuly created a fence.");
 		return true;
 	}
 }

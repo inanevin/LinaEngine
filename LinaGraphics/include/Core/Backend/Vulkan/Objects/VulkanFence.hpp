@@ -26,40 +26,42 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/Vulkan/Objects/VulkanCommandPool.hpp"
-#include "Core/Backend/Vulkan/Utility/VulkanFunctions.hpp"
-#include "Core/Log.hpp"
+/*
+Class: VulkanFence
+
+Wrapper for VkFence
+
+Timestamp: 12/28/2020 2:15:20 AM
+*/
+
+#pragma once
+
+#ifndef VulkanFence_HPP
+#define VulkanFence_HPP
+
+// Headers here.
+#include "Core/Backend/Vulkan/VulkanCommon.hpp"
 
 namespace Lina::Graphics
 {
-	VkCommandPool VulkanCommandPool::Create(VkDevice logicalDevice, uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags)
+	class VulkanFence
 	{
-		VkCommandPoolCreateInfo createInfo
-		{
-			VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-			nullptr,
-			flags,
-			queueFamilyIndex
-		};
+		
+	public:
 
-		VkResult result = vkCreateCommandPool(logicalDevice, &createInfo, nullptr, &m_handle);
-		if (result != VK_SUCCESS)
-			LINA_ERR("[Command Pool] -> Could not create command pool.");
+		friend class VulkanHandler;
+		friend class RenderEngineVulkan;
 
-		return m_handle;
-	}
+		VulkanFence() {};
+		~VulkanFence() {};
 
-	bool VulkanCommandPool::Reset(VkDevice logicalDevice, VkCommandPoolResetFlags flags)
-	{
-		VkResult result = vkResetCommandPool(logicalDevice, m_handle, flags);
+		bool Create(VkDevice logicalDevice, VkFenceCreateFlags flags);
+	
+	private:
+	
+		VkFence m_handle;
 
-		if (result != VK_SUCCESS)
-		{
-			LINA_ERR("[Command Pool] -> Could not reset command pool.");
-			return false;
-		}
-
-		LINA_TRACE("[Command Buffer] -> Successfuly resetted command pool.");
-		return true;
-	}
+	};
 }
+
+#endif

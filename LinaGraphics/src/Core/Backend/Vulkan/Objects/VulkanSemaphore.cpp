@@ -26,40 +26,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/Vulkan/Objects/VulkanCommandPool.hpp"
+#include "Core/Backend/Vulkan/Objects/VulkanSemaphore.hpp"
 #include "Core/Backend/Vulkan/Utility/VulkanFunctions.hpp"
 #include "Core/Log.hpp"
 
 namespace Lina::Graphics
 {
-	VkCommandPool VulkanCommandPool::Create(VkDevice logicalDevice, uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags)
-	{
-		VkCommandPoolCreateInfo createInfo
-		{
-			VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-			nullptr,
-			flags,
-			queueFamilyIndex
-		};
+    bool VulkanSemaphore::Create(VkDevice logicalDevice, VkSemaphoreCreateFlags flags)
+    {
+        VkSemaphoreCreateInfo createInfo
+        {
+            VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+            nullptr,
+            flags
+        };
 
-		VkResult result = vkCreateCommandPool(logicalDevice, &createInfo, nullptr, &m_handle);
-		if (result != VK_SUCCESS)
-			LINA_ERR("[Command Pool] -> Could not create command pool.");
+        VkResult result = vkCreateSemaphore(logicalDevice, &createInfo, nullptr, &m_handle);
 
-		return m_handle;
-	}
+        if (result != VK_SUCCESS)
+            LINA_ERR("[Semaphore] -> Could not create a semaphore.");
 
-	bool VulkanCommandPool::Reset(VkDevice logicalDevice, VkCommandPoolResetFlags flags)
-	{
-		VkResult result = vkResetCommandPool(logicalDevice, m_handle, flags);
-
-		if (result != VK_SUCCESS)
-		{
-			LINA_ERR("[Command Pool] -> Could not reset command pool.");
-			return false;
-		}
-
-		LINA_TRACE("[Command Buffer] -> Successfuly resetted command pool.");
-		return true;
-	}
+        LINA_TRACE("[Semaphore] -> Successfuly created a semaphore.");
+        return true;
+    }
 }

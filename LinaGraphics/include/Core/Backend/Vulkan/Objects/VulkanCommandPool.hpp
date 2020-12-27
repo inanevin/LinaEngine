@@ -56,6 +56,7 @@ namespace Lina::Graphics
 		~VulkanCommandPool() {};
 		
 		VkCommandPool Create(VkDevice logicalDevice, uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags);
+		bool Reset(VkDevice logicalDevice, VkCommandPoolResetFlags flags);
 
 	private:
 	
