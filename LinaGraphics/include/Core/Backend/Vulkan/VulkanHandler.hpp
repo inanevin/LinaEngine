@@ -61,7 +61,6 @@ namespace Lina::Graphics
 			m_vulkanData = vulkanData;
 		}
 
-	
 	private:
 	
 		VulkanData* m_vulkanData = nullptr;

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,12 +26,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/Vulkan/VulkanHandler.hpp"
+#include "Core/Backend/Vulkan/Objects/VulkanCommandBuffer.hpp"
 #include "Core/Backend/Vulkan/Utility/VulkanFunctions.hpp"
 #include "Core/Log.hpp"
-#include "Math/Math.hpp"
 
 namespace Lina::Graphics
 {
+	std::vector<VkCommandBuffer>& VulkanCommandBuffer::Create(VkDevice logicalDevice, VkCommandPool pool, VkCommandBufferLevel level, uint32_t count)
+	{
+		VkCommandBufferAllocateInfo allocateInfo
+		{
+			VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+			nullptr,
+			pool,
+			level,
+			count
+		};
 
+		m_handles.resize(count);
+		VkResult result = vkAllocateCommandBuffers(logicalDevice, &allocateInfo, &m_handles[0]);
+
+		if (result != VK_SUCCESS)
+			LINA_ERR("[Command Buffer] -> Could not create command buffer.");
+
+		return m_handles;
+	}
 }

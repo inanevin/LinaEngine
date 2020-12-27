@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Core/Backend/Vulkan/VulkanLoader.hpp"
 #include "Core/Log.hpp"
-#include "Core/Backend/Vulkan/VulkanFunctions.hpp"
+#include "Core/Backend/Vulkan/Utility/VulkanFunctions.hpp"
 #include "Math/Math.hpp"
 
 namespace Lina::Graphics
@@ -248,6 +248,7 @@ namespace Lina::Graphics
 			return false;
 		}
 
+		m_availablePhysicalDeviceExtensions.clear();
 		m_availablePhysicalDeviceExtensions.resize(extensionsCount);
 		result = vkEnumerateDeviceExtensionProperties(m_vulkanData->m_physicalDevice, nullptr, &extensionsCount, m_availablePhysicalDeviceExtensions.data());
 		if ((result != VK_SUCCESS) || (extensionsCount == 0))
@@ -468,7 +469,7 @@ namespace Lina::Graphics
 	  , #name);																	\
       return false;}															\
 
-#include "Core/Backend/Vulkan/VulkanFunctionList.inl"
+#include "Core/Backend/Vulkan/Utility/VulkanFunctionList.inl"
 		return true;
 	}
 
@@ -482,7 +483,7 @@ namespace Lina::Graphics
 	  , #name);																	\
       return false;}															\
 
-#include "Core/Backend/Vulkan/VulkanFunctionList.inl"
+#include "Core/Backend/Vulkan/Utility/VulkanFunctionList.inl"
 
 		return true;
 	}
@@ -508,7 +509,7 @@ namespace Lina::Graphics
             ,#name);	return false; }}}															\
 
 
-#include "Core/Backend/Vulkan/VulkanFunctionList.inl"
+#include "Core/Backend/Vulkan/Utility/VulkanFunctionList.inl"
 
 		return true;
 	}
@@ -538,7 +539,7 @@ namespace Lina::Graphics
       }                                                                         \
     }
 
-#include "Core/Backend/Vulkan/VulkanFunctionList.inl"
+#include "Core/Backend/Vulkan/Utility/VulkanFunctionList.inl"
 
 		return true;
 	}

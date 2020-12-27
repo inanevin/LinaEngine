@@ -26,12 +26,42 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/Vulkan/VulkanHandler.hpp"
-#include "Core/Backend/Vulkan/Utility/VulkanFunctions.hpp"
-#include "Core/Log.hpp"
-#include "Math/Math.hpp"
+/*
+Class: VulkanCommandPool
+
+Wrapper for Vulkan Command Pools.
+
+Timestamp: 12/28/2020 12:40:52 AM
+*/
+
+#pragma once
+
+#ifndef VulkanCommandPool_HPP
+#define VulkanCommandPool_HPP
+
+// Headers here.
+#include "Core/Backend/Vulkan/VulkanCommon.hpp"
 
 namespace Lina::Graphics
 {
+	class VulkanCommandPool
+	{
+		
+	private:
+		
+		friend class VulkanHandler;
+		friend class RenderEngineVulkan;
 
+		VulkanCommandPool() {};
+		~VulkanCommandPool() {};
+		
+		VkCommandPool Create(VkDevice logicalDevice, uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags);
+
+	private:
+	
+		VkCommandPool m_handle = VK_NULL_HANDLE;
+
+	};
 }
+
+#endif

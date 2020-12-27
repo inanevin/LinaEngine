@@ -29,7 +29,7 @@ SOFTWARE.*/
 #include "Profiling/Profiler.hpp"
 #include "Core/Log.hpp"
 #include "EventSystem/EventSystem.hpp"
-#include "Core/Backend/Vulkan/VulkanFunctions.hpp"
+#include "Core/Backend/Vulkan/Utility/VulkanFunctions.hpp"
 
 
 namespace Lina::Graphics

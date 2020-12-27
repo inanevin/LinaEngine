@@ -26,12 +26,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/Vulkan/VulkanHandler.hpp"
 #include "Core/Backend/Vulkan/Utility/VulkanFunctions.hpp"
-#include "Core/Log.hpp"
-#include "Math/Math.hpp"
 
 namespace Lina::Graphics
 {
-
+#define EXPORTED_VULKAN_FUNCTION( name ) PFN_##name name;
+#define GLOBAL_LEVEL_VULKAN_FUNCTION( name ) PFN_##name name;
+#define INSTANCE_LEVEL_VULKAN_FUNCTION( name ) PFN_##name name;
+#define INSTANCE_LEVEL_VULKAN_FUNCTION_FROM_EXTENSION( name,extension ) PFN_##name name;
+#define DEVICE_LEVEL_VULKAN_FUNCTION( name ) PFN_##name name;
+#define DEVICE_LEVEL_VULKAN_FUNCTION_FROM_EXTENSION( name,extension ) PFN_##name name;
+#include "Core/Backend/Vulkan/Utility/VulkanFunctionList.inl"
 }

@@ -26,15 +26,43 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/Vulkan/VulkanFunctions.hpp"
+/*
+Class: VulkanCommandBuffer
+
+Vulkan command buffer wrapper.
+
+Timestamp: 12/28/2020 12:56:41 AM
+*/
+
+#pragma once
+
+#ifndef VulkanCommandBuffer_HPP
+#define VulkanCommandBuffer_HPP
+
+// Headers here.
+#include "Core/Backend/Vulkan/VulkanCommon.hpp"s
 
 namespace Lina::Graphics
 {
-#define EXPORTED_VULKAN_FUNCTION( name ) PFN_##name name;
-#define GLOBAL_LEVEL_VULKAN_FUNCTION( name ) PFN_##name name;
-#define INSTANCE_LEVEL_VULKAN_FUNCTION( name ) PFN_##name name;
-#define INSTANCE_LEVEL_VULKAN_FUNCTION_FROM_EXTENSION( name,extension ) PFN_##name name;
-#define DEVICE_LEVEL_VULKAN_FUNCTION( name ) PFN_##name name;
-#define DEVICE_LEVEL_VULKAN_FUNCTION_FROM_EXTENSION( name,extension ) PFN_##name name;
-#include "Core/Backend/Vulkan/VulkanFunctionList.inl"
+	class VulkanCommandBuffer
+	{
+		
+	public:
+		
+	private:
+
+		FRIEND_ACCESS;
+
+		VulkanCommandBuffer() {};
+		~VulkanCommandBuffer() {};
+
+		std::vector<VkCommandBuffer>& Create(VkDevice logicalDevice, VkCommandPool pool, VkCommandBufferLevel level, uint32_t count);
+	
+	private:
+	
+		std::vector<VkCommandBuffer> m_handles;
+
+	};
 }
+
+#endif

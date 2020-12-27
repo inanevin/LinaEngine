@@ -26,12 +26,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/Vulkan/VulkanHandler.hpp"
+#include "Core/Backend/Vulkan/Objects/VulkanCommandPool.hpp"
 #include "Core/Backend/Vulkan/Utility/VulkanFunctions.hpp"
 #include "Core/Log.hpp"
-#include "Math/Math.hpp"
 
 namespace Lina::Graphics
 {
+	VkCommandPool VulkanCommandPool::Create(VkDevice logicalDevice, uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags)
+	{
+		VkCommandPoolCreateInfo createInfo
+		{
+			VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+			nullptr,
+			flags,
+			queueFamilyIndex
+		};
 
+		VkResult result = vkCreateCommandPool(logicalDevice, &createInfo, nullptr, &m_handle);
+		if (result != VK_SUCCESS)
+			LINA_ERR("[Command Pool] -> Could not create command pool.");
+
+		return m_handle;
+	}
 }

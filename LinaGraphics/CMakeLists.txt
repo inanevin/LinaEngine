@@ -24,11 +24,14 @@ set (LINAGRAPHICS_SOURCES
 
 	#Rendering	
 	src/Core/Backend/Vulkan/RenderEngineVulkan.cpp
-	src/Core/Backend/Vulkan/VulkanFunctions.cpp
 	src/Core/Backend/Vulkan/VulkanLoader.cpp
 	src/Core/Backend/Vulkan/WindowVulkan.cpp
 	src/Core/Backend/Vulkan/VulkanHandler.cpp
-	src/Core/Backend/Vulkan/VulkanSwapchain.cpp
+	
+	src/Core/Backend/Vulkan/Objects/VulkanSwapchain.cpp	
+	
+	src/Core/Backend/Vulkan/Utility/VulkanFunctions.cpp
+
 )
 
 #--------------------------------------------------------------------
@@ -36,6 +39,9 @@ set (LINAGRAPHICS_SOURCES
 #--------------------------------------------------------------------
 set(LINAGRAPHICS_HEADERS
 
+	include/Core/Backend/Vulkan/Utility/VulkanFunctions.hpp
+	include/Core/Backend/Vulkan/Utility/VulkanFunctionList.inl
+	
 	include/Core/RenderingBackend.hpp
 	include/Core/WindowBackend.hpp
 	include/Core/RenderingCommon.hpp
@@ -43,11 +49,12 @@ set(LINAGRAPHICS_HEADERS
 	include/Core/Backend/Vulkan/WindowVulkan.hpp
 	include/Core/Backend/Vulkan/VulkanHandler.hpp
 	include/Core/Backend/Vulkan/RenderEngineVulkan.hpp
-	include/Core/Backend/Vulkan/VulkanFunctions.hpp
 	include/Core/Backend/Vulkan/VulkanLoader.hpp
 	include/Core/Backend/Vulkan/VulkanCommon.hpp
-	include/Core/Backend/Vulkan/VulkanSwapchain.hpp
-	include/Core/Backend/Vulkan/VulkanFunctionList.inl
+
+	include/Core/Backend/Vulkan/Objects/VulkanSwapchain.hpp
+	
+
 
 	include/linagraphics_export.h
 )	
