@@ -27,6 +27,10 @@ I hope this list can grow much more in the future:
   * [EntityX](https://github.com/alecthomas/entityx): a bitset based ECS that
     uses a single large matrix of components indexed with entities.
 
+* Go:
+  * [gecs](https://github.com/tutumagi/gecs): a sparse sets based ECS inspired 
+    by `EnTT`.
+
 * Javascript:
   * [ecsy](https://github.com/MozillaReality/ecsy): I haven't had the time to
     investigate the underlying design of `ecsy` but it looks cool anyway.
@@ -34,9 +38,12 @@ I hope this list can grow much more in the future:
 * Rust:
   * [Legion](https://github.com/TomGillen/legion): a chunk based archetype ECS.
   * [Shipyard](https://github.com/leudz/shipyard): it borrows some ideas from
-    `EnTT` and offers a sparse-sets based ECS with grouping functionalities.
+    `EnTT` and offers a sparse sets based ECS with grouping functionalities.
   * [Specs](https://github.com/amethyst/specs): a parallel ECS based mainly on
     hierarchical bitsets that allows different types of storage as needed.
+
+* Zig
+  * [zig-ecs](https://github.com/prime31/zig-ecs): a _zig-ification_ of `EnTT`.
 
 If you know of other resources out there that can be of interest for the reader,
 feel free to open an issue or a PR and I'll be glad to add them to this page.

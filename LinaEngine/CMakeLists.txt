@@ -15,53 +15,40 @@
 cmake_minimum_required (VERSION 3.6)
 project(LinaEngine)
 set(CMAKE_CXX_STANDARD 17)
-
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
 set (LINAENGINE_SOURCES
 
-	src/CompileTest.cpp	
-	
 	# CORE
     src/Core/Application.cpp
-	src/World/Level.cpp
-	src/World/DefaultLevel.cpp
+    src/Core/Engine.cpp
 )
 
 #--------------------------------------------------------------------
 # Set headers
 #--------------------------------------------------------------------
 set(LINAENGINE_HEADERS
-
 	#CORE
 	include/Core/Application.hpp
-
-	#World
-	include/World/Level.hpp
-	include/World/DefaultLevel.hpp
+	include/Core/EngineCommon.hpp
+	include/Core/Engine.hpp
 	
-	#API
-	include/Lina.hpp
-		
 	#Others
-	include/EntryPoint.hpp
 	include/LinaPch.hpp
-	
+	include/Lina.hpp
+	include/linaengine_export.h
 )
 
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} ${LINAENGINE_SOURCES} ${LINAENGINE_HEADERS})
+add_library(${PROJECT_NAME} SHARED ${LINAENGINE_SOURCES} ${LINAENGINE_HEADERS})
 add_library(Lina::Engine ALIAS ${PROJECT_NAME}) 
-
-#--------------------------------------------------------------------
-# Config & Options & Compile Definitions
-#--------------------------------------------------------------------
-include(../CMake/GLGraphicsDefinitions.cmake)
-
+include(GenerateExportHeader)
+generate_export_header(${PROJECT_NAME})
 
 #--------------------------------------------------------------------
 # Set include directories
@@ -70,33 +57,23 @@ include(../CMake/GLGraphicsDefinitions.cmake)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaECS/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAudio/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaGraphics/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaInput/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaPhysics/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAction/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaInput/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaResource/include)
 
-
-#--------------------------------------------------------------------
-# Subdirectories & linking
-#--------------------------------------------------------------------
-
-
-# Link libraries (e.g. logging)
+# Link libraries 
 target_link_libraries(${PROJECT_NAME} 
-	# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
 	PUBLIC Lina::Common
-	PUBLIC Lina::ECS
+	PUBLIC Lina::Audio
 	PUBLIC Lina::Graphics
-	PUBLIC Lina::Action
-	PUBLIC Lina::Input
 	PUBLIC Lina::Physics
+	PUBLIC Lina::Resource
+	PUBLIC Lina::Input
 )
 
-#--------------------------------------------------------------------
-# Packages
-#--------------------------------------------------------------------
-find_package(OpenGL REQUIRED)
+#target_precompile_headers(${PROJECT_NAME} PUBLIC include/LinaPch.hpp)
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

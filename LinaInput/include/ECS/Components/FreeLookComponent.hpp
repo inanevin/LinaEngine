@@ -1,6 +1,6 @@
 /*
-This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+This file is a part of: Lina AudioEngine
+https://github.com/inanevin/Lina
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -39,16 +39,15 @@ Timestamp: 5/2/2019 1:40:16 AM
 #ifndef FreeLookComponent_HPP
 #define FreeLookComponent_HPP
 
-#include "ECS/ECSComponent.hpp"
-#include "Utility/Math/Vector.hpp"
+#include "Math/Vector.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
-	struct FreeLookComponent : public ECSComponent
+	struct FreeLookComponent
 	{
-		LinaEngine::Vector2 m_angles = LinaEngine::Vector2::Zero;
-		LinaEngine::Vector2 m_movementSpeeds = LinaEngine::Vector2(12,12);
-		LinaEngine::Vector2 m_rotationSpeeds = LinaEngine::Vector2(3, 3);
+		Vector2 m_angles = V2_ZERO;
+		Vector2 m_movementSpeeds = Vector2(12,12);
+		Vector2 m_rotationSpeeds = Vector2(3, 3);
 
 		template<class Archive>
 		void serialize(Archive& archive)

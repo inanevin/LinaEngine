@@ -15,105 +15,51 @@
 cmake_minimum_required (VERSION 3.6)
 project(LinaGraphics)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
 set (LINAGRAPHICS_SOURCES
 
-	#Rendering
-	src/Rendering/ArrayBitmap.cpp
-	src/Rendering/Texture.cpp
-	src/Rendering/IndexedModel.cpp
-	src/Rendering/ModelLoader.cpp
-	src/Rendering/Material.cpp
-	src/Rendering/RenderEngine.cpp
-	src/Rendering/Mesh.cpp
-	src/Rendering/RenderingCommon.cpp
-	src/Rendering/Shader.cpp
-	src/Rendering/RenderSettings.cpp
-	
-	src/PackageManager/OpenGL/GLRenderDevice.cpp
-	src/PackageManager/OpenGL/GLWindow.cpp
-	
-	src/ECS/Systems/MeshRendererSystem.cpp
-	src/ECS/Systems/SpriteRendererSystem.cpp
-	src/ECS/Systems/CameraSystem.cpp
-	src/ECS/Systems/LightingSystem.cpp
+	#Rendering	
+	src/Core/Backend/Vulkan/RenderEngineVulkan.cpp
+	src/Core/Backend/Vulkan/VulkanFunctions.cpp
+	src/Core/Backend/Vulkan/VulkanLoader.cpp
+	src/Core/Backend/Vulkan/WindowVulkan.cpp
+	src/Core/Backend/Vulkan/VulkanHandler.cpp
+	src/Core/Backend/Vulkan/VulkanSwapchain.cpp
 )
 
 #--------------------------------------------------------------------
 # Set headers
 #--------------------------------------------------------------------
 set(LINAGRAPHICS_HEADERS
-	#Helpers
-	include/Helpers/DrawParameterHelper.hpp
+
+	include/Core/RenderingBackend.hpp
+	include/Core/WindowBackend.hpp
+	include/Core/RenderingCommon.hpp
 	
-	#Rendering
-	include/Rendering/ArrayBitmap.hpp
-	include/Rendering/RenderEngine.hpp
-	include/Rendering/Shader.hpp
-	include/Rendering/Texture.hpp
-	include/Rendering/Window.hpp
-	include/Rendering/IndexedModel.hpp
-	include/Rendering/ModelLoader.hpp
-	include/Rendering/VertexArray.hpp
-	include/Rendering/Material.hpp
-	include/Rendering/Shader.hpp
-	include/Rendering/Sampler.hpp
-	include/Rendering/UniformBuffer.hpp
-	include/Rendering/RenderTarget.hpp
-	include/Rendering/Mesh.hpp
-	include/Rendering/RenderingCommon.hpp
-	include/Rendering/RenderConstants.hpp
-	include/Rendering/RenderBuffer.hpp
-	include/Rendering/RenderSettings.hpp
-	
-	include/PackageManager/PAMRenderDevice.hpp	
-	include/PackageManager/PAMWindow.hpp
-	include/PackageManager/OpenGL/GLRenderDevice.hpp
-	include/PackageManager/OpenGL/GLWindow.hpp
-	
-	
-	include/ECS/Systems/CameraSystem.hpp
-	include/ECS/Systems/MeshRendererSystem.hpp
-	include/ECS/Systems/LightingSystem.hpp
-	include/ECS/Systems/SpriteRendererSystem.hpp
-	include/ECS/Components/MeshRendererComponent.hpp
-	include/ECS/Components/CameraComponent.hpp
-	include/ECS/Components/LightComponent.hpp
-	include/ECS/Components/SpriteRendererComponent.hpp
-	
-	include/Utility/stb/stb.h
-	include/Utility/stb/stb_c_lexer.h
-	include/Utility/stb/stb_connected_components.h
-	include/Utility/stb/stb_divide.h
-	include/Utility/stb/stb_ds.h
-	include/Utility/stb/stb_dxt.h
-	include/Utility/stb/stb_easy_font.h
-	include/Utility/stb/stb_herringbone_wang_tile.h
-	include/Utility/stb/stb_image.h
-	include/Utility/stb/stb_image_resize.h
-	include/Utility/stb/stb_image_write.h
-	include/Utility/stb/stb_leakcheck.h
-	include/Utility/stb/stb_perlin.h
-	include/Utility/stb/stb_rect_pack.h
-	include/Utility/stb/stb_sprintf.h
-	include/Utility/stb/stb_textedit.h
-	include/Utility/stb/stb_tilemap_editor.h
-	include/Utility/stb/stb_truetype.h
-	include/Utility/stb/stb_vorbis.c
-	include/Utility/stb/stb_voxel_render.h
-	include/Utility/stb/stretchy_buffer.h
-)
+	include/Core/Backend/Vulkan/WindowVulkan.hpp
+	include/Core/Backend/Vulkan/VulkanHandler.hpp
+	include/Core/Backend/Vulkan/RenderEngineVulkan.hpp
+	include/Core/Backend/Vulkan/VulkanFunctions.hpp
+	include/Core/Backend/Vulkan/VulkanLoader.hpp
+	include/Core/Backend/Vulkan/VulkanCommon.hpp
+	include/Core/Backend/Vulkan/VulkanSwapchain.hpp
+	include/Core/Backend/Vulkan/VulkanFunctionList.inl
+
+	include/linagraphics_export.h
+)	
 
 
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} ${LINAGRAPHICS_SOURCES} ${LINAGRAPHICS_HEADERS})
+add_library(${PROJECT_NAME} SHARED ${LINAGRAPHICS_SOURCES} ${LINAGRAPHICS_HEADERS})
 add_library(Lina::Graphics ALIAS ${PROJECT_NAME}) 
-
+include(GenerateExportHeader)
+generate_export_header(${PROJECT_NAME})
 #--------------------------------------------------------------------
 # Set include directories
 #--------------------------------------------------------------------
@@ -121,10 +67,8 @@ add_library(Lina::Graphics ALIAS ${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glad/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/assimp/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/vulkan/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaECS/include)
 
 
 #--------------------------------------------------------------------
@@ -132,20 +76,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaECS/in
 #--------------------------------------------------------------------
 
 target_link_libraries(${PROJECT_NAME} 
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glad/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glad.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/assimp/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/${ASSIMP_LIB}
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3dll.lib
 	PRIVATE Lina::Common
-	PRIVATE Lina::ECS
 )
 	
-
-#--------------------------------------------------------------------
-# Options & Packages
-#--------------------------------------------------------------------
-include(../CMake/GLGraphicsDefinitions.cmake)
-find_package(OpenGL REQUIRED)
-
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

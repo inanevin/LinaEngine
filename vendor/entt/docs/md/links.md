@@ -52,6 +52,7 @@ I hope this list can grow much more in the future:
     football game.
   * [DungeonSlayer](https://github.com/alohaeee/DungeonSlayer): 2D game made
     from scratch in C++.
+  * [3DGame](https://github.com/kwarkGorny/3DGame): 2.5D top-down space shooter.
 
 * Engines and the like:
   * [Fling Engine](https://github.com/flingengine/FlingEngine): a Vulkan game
@@ -80,8 +81,11 @@ I hope this list can grow much more in the future:
     CRYENGINE games.
   * [LM-Engine](https://github.com/Lawrencemm/LM-Engine): the Vim of game
     engines.
+  * [TiltedOnline](https://github.com/tiltedphoques/TiltedOnline) by
+    [Tilted Phoques](https://github.com/tiltedphoques): Skyrim Together, a mod
+    intended to sync the player and the world state accross multiple clients.
 
-* Articles and blog posts:
+* Articles, videos and blog posts:
   * [Some posts](https://skypjack.github.io/tags/#entt) on my personal
     [blog](https://skypjack.github.io/) are about `EnTT`, for those who want to
     know **more** on this project.
@@ -96,11 +100,26 @@ I hope this list can grow much more in the future:
   * [Conan Adventures (SFML and EnTT in C++)](https://leinnan.github.io/blog/conan-adventuressfml-and-entt-in-c.html):
     create projects in modern C++ using `SFML`, `EnTT`, `Conan` and `CMake`.
   * [Adding EnTT ECS to Chrysalis](https://www.tauradius.com/post/adding-an-ecs-to-chrysalis/):
-    a blog entry about the process followed and the results of the integration
-    of `EnTT` into `Chrysalis`.
+    a blog entry (and its 
+    [follow-up](https://www.tauradius.com/post/chrysalis-update-2020-08-02/)) 
+    about the integration of `EnTT` into `Chrysalis`, an action RPG SDK for
+    CRYENGINE games.
   * [Creating Minecraft in One Week with C++ and Vulkan](https://vazgriz.com/189/creating-minecraft-in-one-week-with-c-and-vulkan/):
     a crack at recreating Minecraft in one week using a custom C++ engine and
     Vulkan ([code included](https://github.com/vazgriz/VoxelGame)).
+  * [Game Engine series](https://www.youtube.com/c/TheChernoProject/videos) by
+    [The Cherno](https://github.com/TheCherno):
+    - [Intro to EnTT](https://www.youtube.com/watch?v=D4hz0wEB978).
+    - [Entities and Components](https://www.youtube.com/watch?v=-B1iu4QJTUc).
+    - [The ENTITY Class](https://www.youtube.com/watch?v=GfSzeAcsBb0).
+    - [Camera Systems](https://www.youtube.com/watch?v=ubZn7BlrnTU).
+    - [Scene Camera](https://www.youtube.com/watch?v=UKVFRRufKzo).
+    - [Native Scripting](https://www.youtube.com/watch?v=iIUhg88MK5M).
+    - [Native Scripting (now with virtual functions!)](https://www.youtube.com/watch?v=1cHEcrIn8IQ).
+    - [Scene Hierarchy Panel](https://www.youtube.com/watch?v=wziDnE8guvI).
+    - [Properties Panel](https://www.youtube.com/watch?v=NBpB0qscF3E).
+  * [Ability Creator](https://www.erichildebrand.net/blog/ability-creator-project-retrospect):
+    project retrospect by [Eric Hildebrand](https://www.erichildebrand.net/).
 
 * Any Other Business:
   * [ArcGIS Runtime SDKs](https://developers.arcgis.com/arcgis-runtime/) by

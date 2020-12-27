@@ -1,6 +1,6 @@
 /*
 This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+https://github.com/inanevin/Lina
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -39,24 +39,25 @@ Timestamp: 10/22/2020 11:04:40 PM
 #ifndef Timer_HPP
 #define Timer_HPP
 
-#include <chrono>
+#include "Utility/EngineUtility.hpp"
 #include <string>
 #include <map>
 
-#ifdef LINA_ENABLE_TIMEPROFILING
+#ifdef LINA_ENABLE_PROFILING
 
-#define LINA_TIMER_START(...) ::LinaEngine::Timer::GetTimer(__VA_ARGS__).Start()
-#define LINA_TIMER_STOP(...) ::LinaEngine::Timer::GetTimer(__VA_ARGS__).Stop()
+#define LINA_TIMER_START(...) ::Lina::Timer::GetTimer(__VA_ARGS__).Start()
+#define LINA_TIMER_STOP(...) ::Lina::Timer::GetTimer(__VA_ARGS__).Stop()
 
 
 #else
 
 #define LINA_TIMER_START(...)
-#define LINA_TIMER_STOP(...)
+#define LINA_TIMER_STOP(...) 0
 
 #endif
 
-namespace LinaEngine
+#include "linacommon_export.h"
+namespace Lina
 {
 	class Timer
 	{
@@ -70,10 +71,12 @@ namespace LinaEngine
 		void Start()
 		{
 			m_active = true;
-			m_startTimePoint = std::chrono::high_resolution_clock::now();
+			m_startTimePoint = Utility::GetCPUTime();
 		}
 
-		void Stop();
+		double Stop();
+
+		void DumpJSON(const std::string& path = "timerResults.json");
 
 		double GetDuration() 
 		{ 
@@ -86,11 +89,12 @@ namespace LinaEngine
 
 	private:
 
-		const char* m_name = "";;
-		std::chrono::time_point<std::chrono::steady_clock> m_startTimePoint;
+		const char* m_name = "";
+		double m_startTimePoint = 0;
 		bool m_active = false;
 		double m_duration = 0;
-		static std::map<std::string, Timer*> s_activeTimers;
+		static LINACOMMON_EXPORT std::map<std::string, Timer*> s_activeTimers;
+
 	};
 }
 

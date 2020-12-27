@@ -1,5 +1,5 @@
 /* 
-This file is a part of: Lina Engine
+This file is a part of: Lina AudioEngine
 https://github.com/inanevin/LinaEngine
 
 Author: Inan Evin
@@ -26,12 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/* 
+/*
 Class: Common
 
-Common macros are defined here.
+AudioEngine wide globals.
 
-Timestamp: 4/7/2019 3:29:18 PM
+Timestamp: 12/22/2020 5:31:01 PM
 */
 
 #pragma once
@@ -39,45 +39,76 @@ Timestamp: 4/7/2019 3:29:18 PM
 #ifndef Common_HPP
 #define Common_HPP
 
-/****************************************** OPTIONS ******************************************/
+// Headers here.
+#include <string>
 
-#ifdef LINA_COMPILER_MSVC
-#define FORCEINLINE __forceinline
-#elif defined(LINA_COMPILER_GCC) || defined(LINA_COMPILER_CLANG)
-#define FORCEINLINE inline __attribute__ ((always_inline))
-#else
-#define FORCEINLINE inline
-#endif
+namespace Lina
+{
+	enum class WindowState
+	{
+		Normal = 0,
+		Maximized = 1,
+		Iconified = 2
+	};
 
-#define BIT(x) (1 << x)
-#define INVALID_VALUE 0xFFFFFFFF
-#define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
-#define LINA_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
+	/* Struct containing basic data about window properties. */
+	struct WindowProperties
+	{
+		std::string m_title;
+		unsigned int m_width;
+		unsigned int m_height;
+		unsigned int m_xPos = 0;
+		unsigned int m_yPos = 0;
+		bool vSyncEnabled;
+		bool m_decorated = true;
+		bool m_resizable = true;
+		bool m_fullscreen = false;
+		WindowState m_windowState;
 
-#define NULL_COPY_AND_ASSIGN(T) \
-	T(const T& other) {(void)other;} \
-	void operator=(const T& other) { (void)other; }
+		WindowProperties()
+		{
+			m_title = "Lina Engine";
+			m_width = 1440;
+			m_height = 900;
+		}
 
-#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&) = delete;      \
-  void operator=(const TypeName&) = delete;
+		WindowProperties(const std::string& title, unsigned int width, unsigned int height)
+		{
+			m_title = title;
+			m_width = width;
+			m_height = height;
+		}
+	};
 
-#define DISALLOW_COPY_ASSIGN_MOVE(TypeName) \
-  TypeName(const TypeName&) = delete;      \
-  void operator=(const TypeName&) = delete; \
-	TypeName(TypeName&&) = delete; \
-  TypeName& operator=(TypeName&&) = delete; 
+	enum class LogLevel
+	{
+		None = 1 << 0,
+		Debug = 1 << 1,
+		Info = 1 << 2,
+		Critical = 1 << 3,
+		Error = 1 << 4,
+		Trace = 1 << 5,
+		Warn = 1 << 6
+	};
 
-#define DISALLOW_COPY_ASSIGN_NEW(TypeName) \
-  TypeName(const TypeName&) = delete;      \
-  void operator=(const TypeName&) = delete; \
-  void* operator new(std::size_t) = delete;
+	enum class ApplicationMode
+	{
+		Unknown = 1 << 0,
+		Editor = 1 << 1,
+		EditorGame = 1 << 2,
+		Standalone = 1 << 3
+	};
 
-#define DISALLOW_COPY_ASSIGN_NEW_MOVE(TypeName) \
-  TypeName(const TypeName&) = delete;      \
-  TypeName(TypeName&&) = delete; \
-  TypeName& operator=(TypeName&&) = delete; \
-  void operator=(const TypeName&) = delete; \
-  void* operator new(std::size_t) = delete;
+	struct ApplicationInfo
+	{
+		const char* m_appName = "";
+		int m_appMajor = 0;
+		int m_appMinor = 0;
+		int m_appPatch = 0;
+
+		ApplicationMode m_appMode = ApplicationMode::Editor;
+		WindowProperties m_windowProperties = WindowProperties();
+	};
+}
 
 #endif

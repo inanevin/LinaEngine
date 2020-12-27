@@ -14,29 +14,34 @@
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 cmake_minimum_required (VERSION 3.6)
 project(LinaCommon CXX)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 17)	
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
-	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
 set (LINACOMMON_SOURCES
 
-    src/Core/Layer.cpp
-    src/Core/LayerStack.cpp
-    src/Core/Timer.cpp
+	src/Core/Log.cpp
+	src/Core/Timer.cpp
+			
+	src/EventSystem/EventSystem.cpp
 	
-	src/PackageManager/Generic/cmwc4096.cpp
-	src/PackageManager/Generic/GenericMemory.cpp
+	src/Memory/StackAllocator.cpp
+	src/Memory/FrameAllocator.cpp
+	src/Memory/PoolAllocator.cpp
+	src/Memory/FreeListAllocator.cpp
 	
-	#Utility
-	src/Utility/Math/Matrix.cpp
-	src/Utility/Math/Quaternion.cpp
-	src/Utility/Math/Transformation.cpp
-	src/Utility/Math/Vector.cpp
-	src/Utility/Math/Color.cpp
-	src/Utility/UtilityFunctions.cpp
-	src/Utility/Log.cpp
+	src/Math/Vector.cpp
+	src/Math/Quaternion.cpp
+	src/Math/Matrix.cpp
+	
+	src/Utility/EngineUtility.cpp
+	src/Utility/FileUtility.cpp
+	src/Utility/StringId.cpp
+	
+	src/ECS/ECS.cpp
+
 )
 
 #--------------------------------------------------------------------
@@ -44,81 +49,79 @@ set (LINACOMMON_SOURCES
 #--------------------------------------------------------------------
 set(LINACOMMON_HEADERS
 
-	#CORE
-	include/Core/Common.hpp
-	include/Core/Environment.hpp
-	include/Core/Internal.hpp
-	include/Core/LinaArray.hpp
-	include/Core/SizeDefinitions.hpp
-	include/Core/Layer.hpp
-	include/Core/LayerStack.hpp
-	include/Core/LinaAPI.hpp
+	include/Core/Log.hpp
+	include/Core/MacroDetection.hpp
 	include/Core/Timer.hpp
+	include/Core/Common.hpp
 	
-	# PAM
-	include/PackageManager/Generic/cmwc4096.hpp
-	include/PackageManager/Generic/GenericMemory.hpp
-	include/PackageManager/PAMMemory.hpp
-	include/PackageManager/PAMSIMD.hpp
-
-
-	# Utility
-	include/Utility/Math/Color.hpp
-	include/Utility/Math/Math.hpp
-	include/Utility/Math/Matrix.hpp
-	include/Utility/Math/Quaternion.hpp
-	include/Utility/Math/Transformation.hpp
-	include/Utility/Math/Vector.hpp
-	include/Utility/Log.hpp
-	include/Utility/UtilityFunctions.hpp
-
+	include/EventSystem/EventSystem.hpp
+	include/EventSystem/Events.hpp
+	include/EventSystem/EventCommon.hpp
+	
+	include/Profiling/Profiler.hpp
+	
+	include/JobSystem/JobSystem.hpp
+	
+	include/Memory/MemoryAllocator.hpp
+	include/Memory/StackAllocator.hpp
+	include/Memory/MemoryUtility.hpp
+	include/Memory/FrameAllocator.hpp
+	include/Memory/PoolAllocator.hpp
+	include/Memory/StackLinkedList.hpp
+	include/Memory/SinglyLinkedList.hpp
+	include/Memory/FreeListAllocator.hpp	
+	
+	include/Math/Math.hpp
+	include/Math/Vector.hpp
+	include/Math/Color.hpp
+	include/Math/Quaternion.hpp
+	include/Math/Matrix.hpp
+	
+	include/Utility/EngineUtility.hpp
+	include/Utility/FileUtility.hpp
+	include/Utility/StringId.hpp
+	
+	include/ECS/Components/ECTransform.hpp
+	include/ECS/ECS.hpp
+	
+	include/linacommon_export.h
 )
 
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} ${LINACOMMON_SOURCES} ${LINACOMMON_HEADERS})
+add_library(${PROJECT_NAME} SHARED ${LINACOMMON_SOURCES} ${LINACOMMON_HEADERS})
 add_library(Lina::Common ALIAS ${PROJECT_NAME}) 
-
-#--------------------------------------------------------------------
-# Config & Options & Compile Definitions
-#--------------------------------------------------------------------
-include(../CMake/ProjectSettings.cmake)
+include(GenerateExportHeader)
+generate_export_header(${PROJECT_NAME})
 
 #--------------------------------------------------------------------
 # Set include directories
 #--------------------------------------------------------------------
-
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/entt/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glm/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/fmt/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/cereal/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/taskflow/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/easy_profiler/include)
 
 
 #--------------------------------------------------------------------
 # Subdirectories & linking
 #--------------------------------------------------------------------
 
+set(CMAKE_DEBUG_POSTFIX "_d")
+set(CMAKE_RELEASE_POSTFIX "")
+
 target_link_libraries(${PROJECT_NAME} 
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glm/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glm_static.lib
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/fmt/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/fmt.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3dll.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/easy_profiler/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/easy_profiler.lib
 )
-
-#--------------------------------------------------------------------
-# Packages
-#--------------------------------------------------------------------
-
-
-#--------------------------------------------------------------------
-# Generate export header for this dll project 
-#--------------------------------------------------------------------
-# include (GenerateExportHeader)
-#	GENERATE_EXPORT_HEADER (LinaCommon
-#	BASE_NAME LinaCommon
-#	EXPORT_MACRO_NAME LINA_API
-#	EXPORT_FILE_NAME Common.hpp
-#)
 
 
 #--------------------------------------------------------------------

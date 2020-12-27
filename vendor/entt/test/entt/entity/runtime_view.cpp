@@ -12,20 +12,20 @@ TEST(RuntimeView, Functionalities) {
     registry.reserve<int>(0);
     registry.reserve<char>(0);
 
-    ENTT_ID_TYPE types[] = { entt::type_info<int>::id(), entt::type_info<char>::id() };
+    entt::id_type types[] = { entt::type_info<int>::id(), entt::type_info<char>::id() };
     auto view = registry.runtime_view(std::begin(types), std::end(types));
 
     ASSERT_TRUE(view.empty());
 
     const auto e0 = registry.create();
-    registry.assign<char>(e0);
+    registry.emplace<char>(e0);
 
     const auto e1 = registry.create();
-    registry.assign<int>(e1);
+    registry.emplace<int>(e1);
 
     ASSERT_FALSE(view.empty());
 
-    registry.assign<char>(e1);
+    registry.emplace<char>(e1);
 
     auto it = view.begin();
 
@@ -52,10 +52,10 @@ TEST(RuntimeView, Iterator) {
     entt::registry registry;
 
     const auto entity = registry.create();
-    registry.assign<int>(entity);
-    registry.assign<char>(entity);
+    registry.emplace<int>(entity);
+    registry.emplace<char>(entity);
 
-    ENTT_ID_TYPE types[] = { entt::type_info<int>::id(), entt::type_info<char>::id() };
+    entt::id_type types[] = { entt::type_info<int>::id(), entt::type_info<char>::id() };
     auto view = registry.runtime_view(std::begin(types), std::end(types));
     using iterator = typename decltype(view)::iterator;
 
@@ -82,16 +82,16 @@ TEST(RuntimeView, Contains) {
     entt::registry registry;
 
     const auto e0 = registry.create();
-    registry.assign<int>(e0);
-    registry.assign<char>(e0);
+    registry.emplace<int>(e0);
+    registry.emplace<char>(e0);
 
     const auto e1 = registry.create();
-    registry.assign<int>(e1);
-    registry.assign<char>(e1);
+    registry.emplace<int>(e1);
+    registry.emplace<char>(e1);
 
     registry.destroy(e0);
 
-    ENTT_ID_TYPE types[] = { entt::type_info<int>::id(), entt::type_info<char>::id() };
+    entt::id_type types[] = { entt::type_info<int>::id(), entt::type_info<char>::id() };
     auto view = registry.runtime_view(std::begin(types), std::end(types));
 
     ASSERT_FALSE(view.contains(e0));
@@ -102,15 +102,15 @@ TEST(RuntimeView, Empty) {
     entt::registry registry;
 
     const auto e0 = registry.create();
-    registry.assign<double>(e0);
-    registry.assign<int>(e0);
-    registry.assign<float>(e0);
+    registry.emplace<double>(e0);
+    registry.emplace<int>(e0);
+    registry.emplace<float>(e0);
 
     const auto e1 = registry.create();
-    registry.assign<char>(e1);
-    registry.assign<float>(e1);
+    registry.emplace<char>(e1);
+    registry.emplace<float>(e1);
 
-    ENTT_ID_TYPE types[] = { entt::type_info<int>::id(), entt::type_info<char>::id(), entt::type_info<float>::id() };
+    entt::id_type types[] = { entt::type_info<int>::id(), entt::type_info<char>::id(), entt::type_info<float>::id() };
     auto view = registry.runtime_view(std::begin(types), std::end(types));
 
     view.each([](auto) { FAIL(); });
@@ -123,14 +123,14 @@ TEST(RuntimeView, Each) {
     entt::registry registry;
 
     const auto e0 = registry.create();
-    registry.assign<int>(e0);
-    registry.assign<char>(e0);
+    registry.emplace<int>(e0);
+    registry.emplace<char>(e0);
 
     const auto e1 = registry.create();
-    registry.assign<int>(e1);
-    registry.assign<char>(e1);
+    registry.emplace<int>(e1);
+    registry.emplace<char>(e1);
 
-    ENTT_ID_TYPE types[] = { entt::type_info<int>::id(), entt::type_info<char>::id() };
+    entt::id_type types[] = { entt::type_info<int>::id(), entt::type_info<char>::id() };
     auto view = registry.runtime_view(std::begin(types), std::end(types));
     std::size_t cnt = 0;
 
@@ -146,13 +146,13 @@ TEST(RuntimeView, EachWithHoles) {
     const auto e1 = registry.create();
     const auto e2 = registry.create();
 
-    registry.assign<char>(e0, '0');
-    registry.assign<char>(e1, '1');
+    registry.emplace<char>(e0, '0');
+    registry.emplace<char>(e1, '1');
 
-    registry.assign<int>(e0, 0);
-    registry.assign<int>(e2, 2);
+    registry.emplace<int>(e0, 0);
+    registry.emplace<int>(e2, 2);
 
-    ENTT_ID_TYPE types[] = { entt::type_info<int>::id(), entt::type_info<char>::id() };
+    entt::id_type types[] = { entt::type_info<int>::id(), entt::type_info<char>::id() };
     auto view = registry.runtime_view(std::begin(types), std::end(types));
 
     view.each([e0](auto entity) {
@@ -164,15 +164,15 @@ TEST(RuntimeView, MissingPool) {
     entt::registry registry;
 
     const auto e0 = registry.create();
-    registry.assign<int>(e0);
+    registry.emplace<int>(e0);
 
-    ENTT_ID_TYPE types[] = { entt::type_info<int>::id(), entt::type_info<char>::id() };
+    entt::id_type types[] = { entt::type_info<int>::id(), entt::type_info<char>::id() };
     auto view = registry.runtime_view(std::begin(types), std::end(types));
 
     ASSERT_TRUE(view.empty());
     ASSERT_EQ(view.size(), decltype(view.size()){0});
 
-    registry.assign<char>(e0);
+    registry.emplace<char>(e0);
 
     ASSERT_TRUE(view.empty());
     ASSERT_EQ(view.size(), decltype(view.size()){0});
@@ -187,9 +187,9 @@ TEST(RuntimeView, EmptyRange) {
     entt::registry registry;
 
     const auto e0 = registry.create();
-    registry.assign<int>(e0);
+    registry.emplace<int>(e0);
 
-    const ENTT_ID_TYPE *ptr = nullptr;
+    const entt::id_type *ptr = nullptr;
     auto view = registry.runtime_view(ptr, ptr);
 
     ASSERT_TRUE(view.empty());
@@ -199,4 +199,27 @@ TEST(RuntimeView, EmptyRange) {
     view.each([](auto) { FAIL(); });
 
     ASSERT_EQ((std::find(view.begin(), view.end(), e0)), view.end());
+}
+
+TEST(RuntimeView, ExcludedComponents) {
+    entt::registry registry;
+
+    const auto e0 = registry.create();
+    registry.emplace<int>(e0);
+
+    const auto e1 = registry.create();
+    registry.emplace<int>(e1);
+    registry.emplace<char>(e1);
+
+    entt::id_type components[] = { entt::type_info<int>::id() };
+    entt::id_type filter[] = { entt::type_info<char>::id(), entt::type_info<double>::id() };
+    auto view = registry.runtime_view(std::begin(components), std::end(components), std::begin(filter), std::end(filter));
+
+    ASSERT_FALSE(view.empty());
+    ASSERT_TRUE(view.contains(e0));
+    ASSERT_FALSE(view.contains(e1));
+
+    view.each([e0](auto entity) {
+        ASSERT_EQ(e0, entity);
+    });
 }

@@ -1,6 +1,6 @@
 /*
 This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+https://github.com/inanevin/Lina
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -27,18 +27,22 @@ SOFTWARE.
 */
 
 #include "Core/Timer.hpp"
-#include "Utility/Log.hpp"
+#include "Core/Log.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 	std::map<std::string, Timer*> Timer::s_activeTimers;
 
-	void Timer::Stop()
+	double Timer::Stop()
 	{
-		std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
-		std::chrono::duration<double, std::milli> ms = now - m_startTimePoint;
-		m_duration = ms.count();
+		m_duration = Utility::GetCPUTime() - m_startTimePoint;
 		m_active = false;
+		return m_duration;
+	}
+
+	void Timer::DumpJSON(const std::string& path)
+	{
+		
 	}
 
 	Timer& Timer::GetTimer(const std::string& name)

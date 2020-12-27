@@ -1,22 +1,41 @@
+#include <array>
+#include <map>
+#include <memory>
+#include <set>
 #include <type_traits>
+#include <vector>
 #include <gtest/gtest.h>
 #include <entt/config/config.h>
 #include <entt/core/hashed_string.hpp>
 #include <entt/core/type_traits.hpp>
 
-TEST(IntegralConstant, Functionalities) {
+TEST(TypeTraits, UnpackAsType) {
+    ASSERT_EQ([](auto &&... args) {
+        return [](entt::unpack_as_t<int, decltype(args)>... value) {
+            return (value + ... + 0);
+        };
+    }('c', 42., true)(1, 2, 3), 6);
+}
+
+TEST(TypeTraits, UnpackAsValue) {
+    ASSERT_EQ([](auto &&... args) {
+        return (entt::unpack_as_v<2, decltype(args)> + ... + 0);
+    }('c', 42., true), 6);
+}
+
+TEST(TypeTraits, IntegralConstant) {
     entt::integral_constant<3> constant;
 
     ASSERT_TRUE((std::is_same_v<typename entt::integral_constant<3>::value_type, int>));
     ASSERT_EQ(constant.value, 3);
 }
 
-TEST(Choice, Functionalities) {
+TEST(TypeTraits, Choice) {
     ASSERT_TRUE((std::is_base_of_v<entt::choice_t<0>, entt::choice_t<1>>));
     ASSERT_FALSE((std::is_base_of_v<entt::choice_t<1>, entt::choice_t<0>>));
 }
 
-TEST(TypeList, Functionalities) {
+TEST(TypeTraits, TypeList) {
     using type = entt::type_list<int, char>;
     using other = entt::type_list<double>;
 
@@ -28,12 +47,12 @@ TEST(TypeList, Functionalities) {
     ASSERT_TRUE((std::is_same_v<entt::type_list_unique_t<entt::type_list_cat_t<type, type>>, entt::type_list<int, char>>));
 }
 
-TEST(IsEqualityComparable, Functionalities) {
+TEST(TypeTraits, IsEqualityComparable) {
     ASSERT_TRUE(entt::is_equality_comparable_v<int>);
     ASSERT_FALSE(entt::is_equality_comparable_v<void>);
 }
 
-TEST(MemberClass, Functionalities) {
+TEST(TypeTraits, MemberClass) {
     struct clazz {
         char foo(int) { return {}; }
         int bar(double, float) const { return {}; }
@@ -45,7 +64,7 @@ TEST(MemberClass, Functionalities) {
     ASSERT_TRUE((std::is_same_v<clazz, entt::member_class_t<decltype(&clazz::quux)>>));
 }
 
-TEST(Tag, Functionalities) {
+TEST(TypeTraits, Tag) {
     ASSERT_EQ(entt::tag<"foobar"_hs>::value, entt::hashed_string::value("foobar"));
-    ASSERT_TRUE((std::is_same_v<typename entt::tag<"foobar"_hs>::value_type, ENTT_ID_TYPE>));
+    ASSERT_TRUE((std::is_same_v<typename entt::tag<"foobar"_hs>::value_type, entt::id_type>));
 }

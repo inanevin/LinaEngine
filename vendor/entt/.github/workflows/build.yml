@@ -20,7 +20,7 @@ jobs:
       env:
         CXX: ${{ matrix.compiler }}
       run: |
-        cmake -DBUILD_TESTING=ON -DBUILD_LIB=ON ..
+        cmake -DBUILD_LIB=ON -DBUILD_EXAMPLE=ON ..
         make -j4
     - name: Run tests
       working-directory: build
@@ -34,13 +34,17 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, windows-2016]
-        toolset: [clang-cl, default]
+        toolset: [clang-cl, default, v141]
         include:
           - toolset: clang-cl
             toolset_option: -T"ClangCl"
+          - toolset: v141
+            toolset_option: -T"v141"
         exclude:
           - os: windows-2016
             toolset: clang-cl
+          - os: windows-2016
+            toolset: v141
 
     runs-on: ${{ matrix.os }}
 
@@ -49,7 +53,7 @@ jobs:
     - name: Compile tests
       working-directory: build
       run: |
-        cmake -DBUILD_TESTING=ON -DBUILD_LIB=ON ${{ matrix.toolset_option }} ..
+        cmake -DBUILD_LIB=ON -DBUILD_EXAMPLE=ON ${{ matrix.toolset_option }} ..
         cmake --build . -j 4
     - name: Run tests
       working-directory: build
@@ -66,7 +70,7 @@ jobs:
     - name: Compile tests
       working-directory: build
       run: |
-        cmake -DBUILD_TESTING=ON -DBUILD_LIB=ON ..
+        cmake -DBUILD_LIB=ON -DBUILD_EXAMPLE=ON ..
         make -j4
     - name: Run tests
       working-directory: build

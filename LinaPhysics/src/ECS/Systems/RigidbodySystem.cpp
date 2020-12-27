@@ -1,6 +1,6 @@
 /* 
 This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+https://github.com/inanevin/Lina
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -27,35 +27,12 @@ SOFTWARE.
 */
 
 #include "ECS/Systems/RigidbodySystem.hpp"
-#include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
-#include "Physics/PhysicsEngine.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
-	void RigidbodySystem::UpdateComponents(float delta)
-	{
-		auto view = m_ecs->view<TransformComponent, RigidbodyComponent>();
-
-		// Find all entities with rigidbody component and transform component attached to them.
-		for (auto entity : view)
-		{
-			RigidbodyComponent& rbComponent = view.get<RigidbodyComponent>(entity);
-			if (!rbComponent.m_isEnabled) continue;
-
-			TransformComponent& transform = view.get<TransformComponent>(entity);
-
-			// We get the rigidbody information from the world, and update the entity's transformation
-			// based on the body's transformation. So we keep the game world that does the rendering via
-			// transformations in sync with the physics world.
-			btRigidBody* rb = m_physicsEngine->GetActiveRigidbody(rbComponent.m_bodyID);
-			btTransform btTrans;
-			rb->getMotionState()->getWorldTransform(btTrans);
-
-			transform.transform.SetLocation(Vector3(btTrans.getOrigin().getX(), btTrans.getOrigin().getY(), btTrans.getOrigin().getZ()));
-			transform.transform.SetRotation(Quaternion(btTrans.getRotation().getX(), btTrans.getRotation().getY(), btTrans.getRotation().getZ(), btTrans.getRotation().getW()));
-		}
-	}
+	
+	
 }
 
 

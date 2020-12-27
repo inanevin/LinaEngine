@@ -16,7 +16,7 @@ jobs:
         CXXFLAGS: "-O0 --coverage -fno-inline -fno-inline-small-functions -fno-default-inline"
         CXX: g++
       run: |
-        cmake -DBUILD_TESTING=ON -DBUILD_LIB=ON ..
+        cmake -DBUILD_LIB=ON -DBUILD_EXAMPLE=ON ..
         make -j4
     - name: Run tests
       working-directory: build
@@ -30,4 +30,4 @@ jobs:
       run: |
         wget https://codecov.io/bash -O codecov
         chmod +x codecov
-        ./codecov -t $CODECOV_TOKEN -B $GITHUB_REF -s test/
+        ./codecov -t $CODECOV_TOKEN -B $GITHUB_REF -s .

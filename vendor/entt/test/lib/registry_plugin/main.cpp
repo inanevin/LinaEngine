@@ -14,10 +14,10 @@ TEST(Lib, Registry) {
 
     for(auto i = 0; i < 3; ++i) {
         const auto entity = registry.create();
-        registry.assign<position>(entity, i, i);
+        registry.emplace<position>(entity, i, i);
 
         if(i % 2) {
-            registry.assign<tag>(entity);
+            registry.emplace<tag>(entity);
         }
     }
 
@@ -31,8 +31,8 @@ TEST(Lib, Registry) {
     ASSERT_TRUE(registry.empty<tag>());
 
     registry.view<position>().each([](auto entity, auto &position) {
-        ASSERT_EQ(position.x, entt::to_integral(entity) + 16);
-        ASSERT_EQ(position.y, entt::to_integral(entity) + 16);
+        ASSERT_EQ(position.x, static_cast<int>(entt::to_integral(entity) + 16u));
+        ASSERT_EQ(position.y, static_cast<int>(entt::to_integral(entity) + 16u));
     });
 
     registry = {};

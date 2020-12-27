@@ -1,6 +1,6 @@
 /* 
 This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+https://github.com/inanevin/Lina
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -36,35 +36,11 @@ Timestamp: 9/30/2020 2:46:27 AM
 #ifndef RigidbodyComponent_HPP
 #define RigidbodyComponent_HPP
 
-#include "ECS/ECSComponent.hpp"
-#include "Utility/Math/Vector.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
-	enum class CollisionShape
+	struct RigidbodyComponent
 	{
-		Sphere,
-		BOX,
-		Cylinder,
-		CAPSULE
-	};
-
-	struct RigidbodyComponent : public ECSComponent
-	{
-		CollisionShape m_collisionShape = CollisionShape::Sphere;
-		LinaEngine::Vector3 m_localInertia = LinaEngine::Vector3::Zero;
-		LinaEngine::Vector3 m_halfExtents = LinaEngine::Vector3::Zero; // used for box & cylinder shapes
-		float m_mass = 0.0f;
-		float m_radius = 0.0f; // used for sphere & capsule shapes.
-		float m_capsuleHeight = 0.0f; 
-		bool m_alive = false;
-		int m_bodyID = 0;
-
-		template<class Archive>
-		void serialize(Archive& archive)
-		{
-			archive(m_collisionShape, m_localInertia, m_halfExtents, m_mass, m_radius, m_capsuleHeight, m_bodyID, m_alive, m_isEnabled); 
-		}
 
 	};
 }

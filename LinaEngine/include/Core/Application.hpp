@@ -1,6 +1,6 @@
-/* 
-This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+/*
+This file is a part of: Lina AudioEngine
+https://github.com/inanevin/Lina
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -39,169 +39,48 @@ Timestamp: 12/29/2018 10:43:46 PM
 #ifndef Lina_Application_HPP
 #define Lina_Application_HPP
 
-#include "Utility/Math/Vector.hpp"
-#include "Utility/Math/Color.hpp"
-#include "Core/LayerStack.hpp"
-#include "ECS/ECSSystem.hpp"
-#include "Actions/ActionDispatcher.hpp"
-#include <functional>
-#include <array>
+#include "Core/Common.hpp"
+#include "Engine.hpp"
+#include "EventSystem/Events.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "Core/InputBackend.hpp"
+#include "Core/AudioBackend.hpp"
+#include "Core/RenderingBackend.hpp"
+#include "Core/WindowBackend.hpp"
+#include "Core/PhysicsBackend.hpp"
+#include "Core/ResourceManager.hpp"
+#include "ECS/ECS.hpp"
 
-namespace LinaEngine::World
-{
-	class Level;
-}
-
-namespace LinaEngine::Graphics
-{
-	class Window;
-	class RenderEngine;
-	struct WindowProperties;
-}
-
-namespace LinaEngine::Input
-{
-	class InputEngine;
-	class InputDevice;
-}
-
-namespace LinaEngine::Physics
-{
-	class PhysicsEngine;
-}
-
-namespace LinaEngine
+namespace Lina
 {
 
-	class Application
+	class Application 
 	{
+
 	public:
+	
+		Application() {};
+		~Application() {};
 
-#define DELTA_TIME_HISTORY 11
-
-		virtual ~Application();
-
-		// Main application loop.
-		void Run();
-
-
-
-		// Loads a level into memory.
-		bool InstallLevel(LinaEngine::World::Level& level, bool loadFromFile = false, const std::string& path = "", const std::string& levelName = "");
-		void SaveLevelData(const std::string& folderPath, const std::string& fileName);
-		void LoadLevelData(const std::string& folderPath, const std::string& fileName);
-
-		// Serialization functions for ecs registry.
-		virtual void SerializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryOutputArchive& oarchive) = 0;
-		virtual void DeserializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryInputArchive& iarchive) = 0;
-
-		// Unloads a level from memory.
-		void UninstallLevel();
-
-		int GetCurrentFPS() { return m_currentFPS; }
-		int GetCurrentUPS() { return m_currentUPS; }
-		bool GetActiveLevelExists() { return m_activeLevelExists; }
-		double GetTime();
-		double GetRawDelta() { return m_rawDeltaTime; }
-		double GetSmoothDelta() { return m_smoothDeltaTime; }
-		void AddToMainPipeline(ECS::BaseECSSystem& system) { m_mainECSPipeline.AddSystem(system); }
-		void SetPlayMode(bool enabled);
-		bool GetPlayMode() { return m_isInPlayMode; }
-		LayerStack& GetMainStack() { return m_mainLayerStack; }
-		LayerStack& GetPlayModeStack() { return m_playModeStack; }
-
-		static Action::ActionDispatcher& GetEngineDispatcher() { return s_engineDispatcher; }
-		static Application& GetApp() { return *s_application; }
-		static Graphics::Window& GetAppWindow() { return *s_appWindow; }
-		static Graphics::RenderEngine& GetRenderEngine() { return *s_renderEngine; }
-		static Input::InputEngine& GetInputEngine() { return *s_inputEngine; }
-		static Physics::PhysicsEngine& GetPhysicsEngine() { return *s_physicsEngine; }
-		static ECS::ECSRegistry& GetECSRegistry() { return s_ecs; }
-
-	protected:
-
-		virtual void Initialize(Graphics::WindowProperties& props);
-
-		Application();
-
-		// Delegates draw commands from physics engine to rendering engine
-		virtual void OnDrawLine(Vector3 from, Vector3 to, Color color, float width = 1.0f);
-
+		void Startup(ApplicationInfo appInfo = ApplicationInfo());
 
 	private:
 
 		// Callbacks.
-		void OnLog(Log::LogDump dump);
-		bool OnWindowClose();
-		void OnWindowResize(Vector2 size);
-		void OnPostSceneDraw();
-		void OnPostDraw();
-		void OnPreDraw();
-		void KeyCallback(int key, int action);
-		void MouseCallback(int button, int action);
-		void WindowCloseCallback() {};
-		void RemoveOutliers(bool biggest);
-		double SmoothDeltaTime(double dt);
-		void InitializeLevel(LinaEngine::World::Level& level);
+		void OnLog(Event::ELog dump);
 
 	private:
 
-		static Action::ActionDispatcher s_engineDispatcher;
-
-		// Layer queue.
-		LayerStack m_mainLayerStack;
-		LayerStack m_playModeStack;
-
-		// Active engines running in the application.
-		static Application* s_application;
-		static Input::InputEngine* s_inputEngine;
-		static Graphics::RenderEngine* s_renderEngine;
-		static Physics::PhysicsEngine* s_physicsEngine;
-		static ECS::ECSRegistry s_ecs;
-		static Graphics::Window* s_appWindow;
-
-		Input::InputDevice* m_inputDevice = nullptr;
-		World::Level* m_currentLevel = nullptr;
-		ECS::ECSSystemList m_mainECSPipeline;
-
-		bool m_activeLevelExists = false;
-		bool m_running = false;
-		bool m_firstRun = true;
-		bool m_canRender = true;
-		bool m_isInPlayMode = false;
-		int m_currentFPS = 0;
-		int m_currentUPS = 0;
-		double m_frameTime = 0;
-		double m_smoothDeltaTime;
-		double m_rawDeltaTime;
-
-
-		// Callbacks
-		std::function<void(int, int)> m_keyCallback;
-		std::function<void(int, int)> m_mouseCallback;
-		std::function<void(Vector2)> m_WwndowResizeCallback;
-		std::function<void()> m_windowClosedCallback;
-		std::function<void(Vector3, Vector3, Color, float)> m_drawLineCallback;
-		std::function<void()> m_postSceneDrawCallback;
-		std::function<void()> m_postDrawCallback;
-		std::function<void()> m_preDrawCallback;
-
-
-		std::array<double, DELTA_TIME_HISTORY> m_deltaTimeArray;
-		uint8 m_deltaTimeArrIndex = 0;
-		uint8 m_deltaTimeArrOffset = 0;
-		int m_deltaFirstFill = 0;
-		bool m_deltaFilled = false;
+		Event::EventSystem m_eventSystem;
+		ECS::Registry m_ecs;
+		Engine m_engine;
+		Graphics::RenderEngineBackend m_renderEngine;
+		Resources::ResourceManager m_resourceManager;
+		Input::InputEngineBackend m_inputEngine;
+		Physics::PhysicsEngineBackend m_physicsEngine;
+		Audio::AudioEngineBackend m_audioEngine;
+		ApplicationInfo m_appInfo;
 	};
-
-	// Defined in client.
-	Application* CreateApplication();
-	Graphics::Window* CreateContextWindow();
-	Graphics::RenderEngine* CreateRenderEngine();
-	Input::InputDevice* CreateInputDevice();
-	Input::InputEngine* CreateInputEngine();
-	Physics::PhysicsEngine* CreatePhysicsEngine();
-
 };
 
 

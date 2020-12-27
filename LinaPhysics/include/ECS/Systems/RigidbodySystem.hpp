@@ -1,6 +1,6 @@
 /* 
 This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+https://github.com/inanevin/Lina
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -39,35 +39,11 @@ Timestamp: 9/30/2020 2:52:58 AM
 #ifndef RigidbodySystem_HPP
 #define RigidbodySystem_HPP
 
-#include "ECS/ECS.hpp"
 
-namespace LinaEngine
+namespace Lina::ECS
 {
-	namespace Physics
+	class RigidbodySystem
 	{
-		class PhysicsEngine;
-	}
-}
-
-namespace LinaEngine::ECS
-{
-	class RigidbodySystem : public BaseECSSystem
-	{
-	public:
-
-		RigidbodySystem() {};
-
-		virtual void UpdateComponents(float delta) override;
-
-		void Construct(ECSRegistry& registry, LinaEngine::Physics::PhysicsEngine* physicsEngine) 
-		{ 
-			BaseECSSystem::Construct(registry);
-			m_physicsEngine = physicsEngine; 
-		}
-
-	private:
-
-		LinaEngine::Physics::PhysicsEngine* m_physicsEngine = nullptr;
 
 	};
 }

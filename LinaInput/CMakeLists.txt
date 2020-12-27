@@ -15,24 +15,20 @@
 cmake_minimum_required (VERSION 3.6)
 project(LinaInput CXX)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
 set (LINAINPUT_SOURCES
-
-	#PAM
-	src/PackageManager/OpenGL/GLInputDevice.cpp
 	
 	#ECS
 	src/ECS/Systems/FreeLookSystem.cpp
 	
 	#Input
-	src/Input/InputEngine.cpp
+	src/Core/Backend/GLFW/InputEngineGLFW.cpp
 	
-	#Interfaces
-	src/Interfaces/IInputSubscriber.cpp
 )
 
 #--------------------------------------------------------------------
@@ -40,38 +36,28 @@ set (LINAINPUT_SOURCES
 #--------------------------------------------------------------------
 set(LINAINPUT_HEADERS
 
+	include/linainput_export.h
+	
 	#Input
-	include/Input/InputAxisBinder.hpp
-	include/Input/InputEngine.hpp
-	include/Input/InputMappings.hpp
-	include/Input/InputCommon.hpp
-	include/Input/InputDevice.hpp
+	include/Core/Backend/GLFW/InputEngineGLFW.hpp
+	include/Core/InputMappings.hpp
+	include/Core/InputCommon.hpp
+	include/Core/InputBackend.hpp
 	
 	#ECS
 	include/ECS/Components/FreeLookComponent.hpp
 	include/ECS/Systems/FreeLookSystem.hpp
 
-
-	#Interfaces
-	include/Interfaces/IInputSubscriber.hpp
-	
-	#Package Manager
-	include/PackageManager/OpenGL/GLInputDevice.hpp
-	include/PackageManager/PAMInputDevice.hpp
 )
 
 
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} ${LINAINPUT_SOURCES} ${LINAINPUT_HEADERS})
+add_library(${PROJECT_NAME} SHARED ${LINAINPUT_SOURCES} ${LINAINPUT_HEADERS})
 add_library(Lina::Input ALIAS ${PROJECT_NAME}) 
-
-#--------------------------------------------------------------------
-# Config & Options & Compile Definitions
-#--------------------------------------------------------------------
-include(../CMake/ProjectSettings.cmake)
-
+include(GenerateExportHeader)
+generate_export_header(${PROJECT_NAME})
 
 #--------------------------------------------------------------------
 # Set include directories
@@ -82,12 +68,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAction/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaECS/include)
-
-# Language standard
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
-target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
 
 #--------------------------------------------------------------------
 # Subdirectories & linking
@@ -95,27 +75,10 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
 
 
 target_link_libraries(${PROJECT_NAME} 
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
-	PRIVATE Lina::Action
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3dll.lib
 	PRIVATE Lina::Common
-	PRIVATE Lina::ECS
 )
 
-
-#--------------------------------------------------------------------
-# Packages
-#--------------------------------------------------------------------
-
-
-#--------------------------------------------------------------------
-# Generate export header for this dll project 
-#--------------------------------------------------------------------
- #include (GenerateExportHeader)
-#	GENERATE_EXPORT_HEADER (LinaInput
-#	BASE_NAME LinaInput
-#	EXPORT_MACRO_NAME LINA_API
-#	EXPORT_FILE_NAME InputEngine.hpp
-#)
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

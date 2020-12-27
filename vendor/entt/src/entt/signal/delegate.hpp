@@ -47,7 +47,7 @@ using function_pointer_t = decltype(internal::function_pointer(std::declval<Type
 
 
 template<typename... Class, typename Ret, typename... Args>
-constexpr auto index_sequence_for(Ret(*)(Args...)) {
+[[nodiscard]] constexpr auto index_sequence_for(Ret(*)(Args...)) {
     return std::index_sequence_for<Class..., Args...>{};
 }
 
@@ -57,7 +57,7 @@ constexpr auto index_sequence_for(Ret(*)(Args...)) {
 
 /**
  * Internal details not to be documented.
- * @endcond TURN_OFF_DOXYGEN
+ * @endcond
  */
 
 
@@ -95,37 +95,39 @@ class delegate;
  */
 template<typename Ret, typename... Args>
 class delegate<Ret(Args...)> {
-    using proto_fn_type = Ret(const void *, Args...);
-
     template<auto Candidate, std::size_t... Index>
-    auto wrap(std::index_sequence<Index...>) ENTT_NOEXCEPT {
+    [[nodiscard]] auto wrap(std::index_sequence<Index...>) ENTT_NOEXCEPT {
         return [](const void *, Args... args) -> Ret {
-            const auto arguments = std::forward_as_tuple(std::forward<Args>(args)...);
+            [[maybe_unused]] const auto arguments = std::forward_as_tuple(std::forward<Args>(args)...);
             return Ret(std::invoke(Candidate, std::forward<std::tuple_element_t<Index, std::tuple<Args...>>>(std::get<Index>(arguments))...));
         };
     }
 
     template<auto Candidate, typename Type, std::size_t... Index>
-    auto wrap(Type &, std::index_sequence<Index...>) ENTT_NOEXCEPT {
+    [[nodiscard]] auto wrap(Type &, std::index_sequence<Index...>) ENTT_NOEXCEPT {
         return [](const void *payload, Args... args) -> Ret {
-            const auto arguments = std::forward_as_tuple(std::forward<Args>(args)...);
+            [[maybe_unused]] const auto arguments = std::forward_as_tuple(std::forward<Args>(args)...);
             Type *curr = static_cast<Type *>(const_cast<std::conditional_t<std::is_const_v<Type>, const void *, void *>>(payload));
             return Ret(std::invoke(Candidate, *curr, std::forward<std::tuple_element_t<Index, std::tuple<Args...>>>(std::get<Index>(arguments))...));
         };
     }
 
     template<auto Candidate, typename Type, std::size_t... Index>
-    auto wrap(Type *, std::index_sequence<Index...>) ENTT_NOEXCEPT {
+    [[nodiscard]] auto wrap(Type *, std::index_sequence<Index...>) ENTT_NOEXCEPT {
         return [](const void *payload, Args... args) -> Ret {
-            const auto arguments = std::forward_as_tuple(std::forward<Args>(args)...);
+            [[maybe_unused]] const auto arguments = std::forward_as_tuple(std::forward<Args>(args)...);
             Type *curr = static_cast<Type *>(const_cast<std::conditional_t<std::is_const_v<Type>, const void *, void *>>(payload));
             return Ret(std::invoke(Candidate, curr, std::forward<std::tuple_element_t<Index, std::tuple<Args...>>>(std::get<Index>(arguments))...));
         };
     }
 
 public:
+    /*! @brief Function type of the contained target. */
+    using function_type = Ret(const void *, Args...);
     /*! @brief Function type of the delegate. */
-    using function_type = Ret(Args...);
+    using type = Ret(Args...);
+    /*! @brief Return type of the delegate. */
+    using result_type = Ret;
 
     /*! @brief Default constructor. */
     delegate() ENTT_NOEXCEPT
@@ -138,9 +140,7 @@ public:
      * @tparam Candidate Function or member to connect to the delegate.
      */
     template<auto Candidate>
-    delegate(connect_arg_t<Candidate>) ENTT_NOEXCEPT
-        : delegate{}
-    {
+    delegate(connect_arg_t<Candidate>) ENTT_NOEXCEPT {
         connect<Candidate>();
     }
 
@@ -152,10 +152,18 @@ public:
      * @param value_or_instance A valid object that fits the purpose.
      */
     template<auto Candidate, typename Type>
-    delegate(connect_arg_t<Candidate>, Type &&value_or_instance) ENTT_NOEXCEPT
-        : delegate{}
-    {
+    delegate(connect_arg_t<Candidate>, Type &&value_or_instance) ENTT_NOEXCEPT {
         connect<Candidate>(std::forward<Type>(value_or_instance));
+    }
+
+    /**
+     * @brief Constructs a delegate and connects an user defined function with
+     * optional payload.
+     * @param function Function to connect to the delegate.
+     * @param payload User defined arbitrary data.
+     */
+    delegate(function_type *function, const void *payload = nullptr) ENTT_NOEXCEPT {
+        connect(function, payload);
     }
 
     /**
@@ -183,7 +191,7 @@ public:
      *
      * The delegate isn't responsible for the connected object or the payload.
      * Users must always guarantee that the lifetime of the instance overcomes
-     * the one  of the delegate.<br/>
+     * the one of the delegate.<br/>
      * When used to connect a free function with payload, its signature must be
      * such that the instance is the first argument before the ones used to
      * define the delegate itself.
@@ -231,6 +239,24 @@ public:
     }
 
     /**
+     * @brief Connects an user defined function with optional payload to a
+     * delegate.
+     *
+     * The delegate isn't responsible for the connected object or the payload.
+     * Users must always guarantee that the lifetime of an instance overcomes
+     * the one of the delegate.<br/>
+     * The payload is returned as the first argument to the target function in
+     * all cases.
+     *
+     * @param function Function to connect to the delegate.
+     * @param payload User defined arbitrary data.
+     */
+    void connect(function_type *function, const void *payload = nullptr) ENTT_NOEXCEPT {
+        fn = function;
+        data = payload;
+    }
+
+    /**
      * @brief Resets a delegate.
      *
      * After a reset, a delegate cannot be invoked anymore.
@@ -244,7 +270,7 @@ public:
      * @brief Returns the instance or the payload linked to a delegate, if any.
      * @return An opaque pointer to the underlying data.
      */
-    const void * instance() const ENTT_NOEXCEPT {
+    [[nodiscard]] const void * instance() const ENTT_NOEXCEPT {
         return data;
     }
 
@@ -271,7 +297,7 @@ public:
      * @brief Checks whether a delegate actually stores a listener.
      * @return False if the delegate is empty, true otherwise.
      */
-    explicit operator bool() const ENTT_NOEXCEPT {
+    [[nodiscard]] explicit operator bool() const ENTT_NOEXCEPT {
         // no need to test also data
         return !(fn == nullptr);
     }
@@ -281,12 +307,12 @@ public:
      * @param other Delegate with which to compare.
      * @return False if the two contents differ, true otherwise.
      */
-    bool operator==(const delegate<Ret(Args...)> &other) const ENTT_NOEXCEPT {
+    [[nodiscard]] bool operator==(const delegate<Ret(Args...)> &other) const ENTT_NOEXCEPT {
         return fn == other.fn && data == other.data;
     }
 
 private:
-    proto_fn_type *fn;
+    function_type *fn;
     const void *data;
 };
 
@@ -300,7 +326,7 @@ private:
  * @return True if the two contents differ, false otherwise.
  */
 template<typename Ret, typename... Args>
-bool operator!=(const delegate<Ret(Args...)> &lhs, const delegate<Ret(Args...)> &rhs) ENTT_NOEXCEPT {
+[[nodiscard]] bool operator!=(const delegate<Ret(Args...)> &lhs, const delegate<Ret(Args...)> &rhs) ENTT_NOEXCEPT {
     return !(lhs == rhs);
 }
 
@@ -322,6 +348,12 @@ delegate(connect_arg_t<Candidate>) ENTT_NOEXCEPT
 template<auto Candidate, typename Type>
 delegate(connect_arg_t<Candidate>, Type &&) ENTT_NOEXCEPT
 -> delegate<std::remove_pointer_t<internal::function_pointer_t<decltype(Candidate), Type>>>;
+
+
+/*! @brief Deduction guide. */
+template<typename Ret, typename... Args>
+delegate(Ret(*)(const void *, Args...), const void * = nullptr) ENTT_NOEXCEPT
+-> delegate<Ret(Args...)>;
 
 
 }

@@ -24,17 +24,17 @@ namespace entt {
  * @tparam Resource Type of resource managed by a handle.
  */
 template<typename Resource>
-class handle {
+class resource_handle {
     /*! @brief Resource handles are friends of their caches. */
-    friend struct cache<Resource>;
+    friend struct resource_cache<Resource>;
 
-    handle(std::shared_ptr<Resource> res) ENTT_NOEXCEPT
+    resource_handle(std::shared_ptr<Resource> res) ENTT_NOEXCEPT
         : resource{std::move(res)}
     {}
 
 public:
     /*! @brief Default constructor. */
-    handle() ENTT_NOEXCEPT = default;
+    resource_handle() ENTT_NOEXCEPT = default;
 
     /**
      * @brief Gets a reference to the managed resource.
@@ -46,27 +46,35 @@ public:
      *
      * @return A reference to the managed resource.
      */
-    const Resource & get() const ENTT_NOEXCEPT {
+    [[nodiscard]] const Resource & get() const ENTT_NOEXCEPT {
         ENTT_ASSERT(static_cast<bool>(resource));
         return *resource;
     }
 
     /*! @copydoc get */
-    Resource & get() ENTT_NOEXCEPT {
+    [[nodiscard]] Resource & get() ENTT_NOEXCEPT {
         return const_cast<Resource &>(std::as_const(*this).get());
     }
 
     /*! @copydoc get */
-    operator const Resource & () const ENTT_NOEXCEPT { return get(); }
+    [[nodiscard]] operator const Resource & () const ENTT_NOEXCEPT {
+        return get();
+    }
 
     /*! @copydoc get */
-    operator Resource & () ENTT_NOEXCEPT { return get(); }
+    [[nodiscard]] operator Resource & () ENTT_NOEXCEPT {
+        return get();
+    }
 
     /*! @copydoc get */
-    const Resource & operator *() const ENTT_NOEXCEPT { return get(); }
+    [[nodiscard]] const Resource & operator *() const ENTT_NOEXCEPT {
+        return get();
+    }
 
     /*! @copydoc get */
-    Resource & operator *() ENTT_NOEXCEPT { return get(); }
+    [[nodiscard]] Resource & operator *() ENTT_NOEXCEPT {
+        return get();
+    }
 
     /**
      * @brief Gets a pointer to the managed resource.
@@ -79,13 +87,13 @@ public:
      * @return A pointer to the managed resource or `nullptr` if the handle
      * contains no resource at all.
      */
-    const Resource * operator->() const ENTT_NOEXCEPT {
+    [[nodiscard]] const Resource * operator->() const ENTT_NOEXCEPT {
         ENTT_ASSERT(static_cast<bool>(resource));
         return resource.get();
     }
 
     /*! @copydoc operator-> */
-    Resource * operator->() ENTT_NOEXCEPT {
+    [[nodiscard]] Resource * operator->() ENTT_NOEXCEPT {
         return const_cast<Resource *>(std::as_const(*this).operator->());
     }
 
@@ -93,7 +101,7 @@ public:
      * @brief Returns true if a handle contains a resource, false otherwise.
      * @return True if the handle contains a resource, false otherwise.
      */
-    explicit operator bool() const ENTT_NOEXCEPT {
+    [[nodiscard]] explicit operator bool() const ENTT_NOEXCEPT {
         return static_cast<bool>(resource);
     }
 

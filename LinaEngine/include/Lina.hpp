@@ -1,6 +1,6 @@
 /* 
 This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+https://github.com/inanevin/Lina
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -35,13 +35,20 @@ Timestamp: 12/29/2018 11:21:31 PM
 #ifndef LinaEngine_HPP
 #define LinaEngine_HPP
 
+#include "Core/Application.hpp"
+#include "Core/InputBackend.hpp"
+#include "Core/PhysicsBackend.hpp"
+#include "Core/RenderingBackend.hpp"
+#include "Core/WindowBackend.hpp"
+#include "Core/AudioBackend.hpp"
+#include "ECS/ECS.hpp"
+#include "Core/ResourceManager.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "JobSystem/JobSystem.hpp"
+#include "Math/Math.hpp"
+#include "Math/Matrix.hpp"
 
-// To be used by Lina applications.
-#include "Core/Layer.hpp"
-
-// *********** ENTRY POINT *********** 
-#include "EntryPoint.hpp"
-// *********** ENTRY POINT *********** 
+using namespace Lina;
 
 
 #endif

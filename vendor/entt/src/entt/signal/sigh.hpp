@@ -64,7 +64,7 @@ public:
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
     /*! @brief Sink type. */
-    using sink_type = entt::sink<Ret(Args...)>;
+    using sink_type = sink<Ret(Args...)>;
 
     /**
      * @brief Instance type when it comes to connecting member functions.
@@ -77,7 +77,7 @@ public:
      * @brief Number of listeners connected to the signal.
      * @return Number of listeners currently connected.
      */
-    size_type size() const ENTT_NOEXCEPT {
+    [[nodiscard]] size_type size() const ENTT_NOEXCEPT {
         return calls.size();
     }
 
@@ -85,7 +85,7 @@ public:
      * @brief Returns false if at least a listener is connected to the signal.
      * @return True if the signal has no listeners connected, false otherwise.
      */
-    bool empty() const ENTT_NOEXCEPT {
+    [[nodiscard]] bool empty() const ENTT_NOEXCEPT {
         return calls.empty();
     }
 
@@ -166,7 +166,7 @@ public:
      * @brief Checks whether a connection is properly initialized.
      * @return True if the connection is properly initialized, false otherwise.
      */
-    explicit operator bool() const ENTT_NOEXCEPT {
+    [[nodiscard]] explicit operator bool() const ENTT_NOEXCEPT {
         return static_cast<bool>(disconnect);
     }
 
@@ -233,7 +233,7 @@ struct scoped_connection {
      * @brief Checks whether a scoped connection is properly initialized.
      * @return True if the connection is properly initialized, false otherwise.
      */
-    explicit operator bool() const ENTT_NOEXCEPT {
+    [[nodiscard]] explicit operator bool() const ENTT_NOEXCEPT {
         return static_cast<bool>(conn);
     }
 
@@ -257,6 +257,10 @@ private:
  * The clear separation between a signal and a sink permits to store the former
  * as private data member without exposing the publish functionality to the
  * users of the class.
+ * 
+ * @warning
+ * Lifetime of a sink must not overcome that of the signal to which it refers.
+ * In any other case, attempting to use a sink results in undefined behavior.
  *
  * @tparam Ret Return type of a function type.
  * @tparam Args Types of arguments of a function type.
@@ -290,7 +294,7 @@ public:
      * @brief Returns false if at least a listener is connected to the sink.
      * @return True if the sink has no listeners connected, false otherwise.
      */
-    bool empty() const ENTT_NOEXCEPT {
+    [[nodiscard]] bool empty() const ENTT_NOEXCEPT {
         return signal->calls.empty();
     }
 
@@ -301,7 +305,7 @@ public:
      * @return A properly initialized sink object.
      */
     template<auto Function>
-    sink before() {
+    [[nodiscard]] sink before() {
         delegate<Ret(Args...)> call{};
         call.template connect<Function>();
 
@@ -322,9 +326,9 @@ public:
      * @return A properly initialized sink object.
      */
     template<auto Candidate, typename Type>
-    sink before(Type &&value_or_instance) {
+    [[nodiscard]] sink before(Type &&value_or_instance) {
         delegate<Ret(Args...)> call{};
-        call.template connect<Candidate>(std::forward<Type>(value_or_instance));
+        call.template connect<Candidate>(value_or_instance);
 
         const auto &calls = signal->calls;
         const auto it = std::find(calls.cbegin(), calls.cend(), std::move(call));
@@ -342,7 +346,7 @@ public:
      * @return A properly initialized sink object.
      */
     template<typename Type>
-    sink before(Type &value_or_instance) {
+    [[nodiscard]] sink before(Type &value_or_instance) {
         return before(&value_or_instance);
     }
 
@@ -354,7 +358,7 @@ public:
      * @return A properly initialized sink object.
      */
     template<typename Type>
-    sink before(Type *value_or_instance) {
+    [[nodiscard]] sink before(Type *value_or_instance) {
         sink other{*this};
 
         if(value_or_instance) {
@@ -373,7 +377,7 @@ public:
      * @brief Returns a sink that connects before anything else.
      * @return A properly initialized sink object.
      */
-    sink before() {
+    [[nodiscard]] sink before() {
         sink other{*this};
         other.offset = signal->calls.size();
         return other;
@@ -454,7 +458,7 @@ public:
     void disconnect(Type &&value_or_instance) {
         auto &calls = signal->calls;
         delegate<Ret(Args...)> call{};
-        call.template connect<Candidate>(std::forward<Type>(value_or_instance));
+        call.template connect<Candidate>(value_or_instance);
         calls.erase(std::remove(calls.begin(), calls.end(), std::move(call)), calls.end());
     }
 

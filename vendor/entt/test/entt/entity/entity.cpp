@@ -5,12 +5,12 @@
 #include <entt/entity/registry.hpp>
 
 TEST(Entity, Null) {
-    using traits_type = entt::entt_traits<std::underlying_type_t<entt::entity>>;
+    using traits_type = entt::entt_traits<entt::entity>;
 
     entt::registry registry{};
     const auto entity = registry.create();
 
-    registry.assign<int>(entity, 42);
+    registry.emplace<int>(entity, 42);
 
     ASSERT_FALSE(entt::entity{} == entt::null);
     ASSERT_TRUE(entt::entity{traits_type::entity_mask} == entt::null);

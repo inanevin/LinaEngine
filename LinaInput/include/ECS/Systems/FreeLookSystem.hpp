@@ -1,6 +1,6 @@
 /* 
-This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+This file is a part of: Lina AudioEngine
+https://github.com/inanevin/Lina
 
 Author: Inan Evin
 http://www.inanevin.com
@@ -39,34 +39,16 @@ Timestamp: 5/2/2019 2:21:35 AM
 #ifndef FreeLookSystem_HPP
 #define FreeLookSystem_HPP
 
-#include "ECS/ECSSystem.hpp"
 
-namespace LinaEngine::Input
+namespace Lina::ECS
 {
-	class InputEngine;
-}
-
-namespace LinaEngine::ECS
-{
-	class FreeLookSystem : public BaseECSSystem
+	class FreeLookSystem
 	{
 	public:
 
-		void Construct(ECSRegistry& registry, LinaEngine::Input::InputEngine& inputEngineIn)
-		{
-			BaseECSSystem::Construct(registry);
-			m_inputEngine = &inputEngineIn;
-		}
-
-		virtual void UpdateComponents(float delta) override;
 
 	private:
 
-		LinaEngine::Input::InputEngine* m_inputEngine;
-		float m_horizontalKeyAmt = 0.0f;
-		float m_verticalKeyAmt = 0.0f;
-		float m_targetXAngle = 0.0f;
-		float m_targetYAngle = 0.0f;
 	};
 }
 

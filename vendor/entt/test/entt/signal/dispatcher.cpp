@@ -8,7 +8,7 @@ struct another_event {};
 struct one_more_event {};
 
 struct receiver {
-    static void forward(entt::dispatcher &dispatcher, const an_event &event) {
+    static void forward(entt::dispatcher &dispatcher, an_event &event) {
         dispatcher.enqueue(event);
     }
 
@@ -80,4 +80,19 @@ TEST(Dispatcher, StopAndGo) {
     dispatcher.update();
 
     ASSERT_EQ(receiver.cnt, 2);
+}
+
+TEST(Dispatcher, OpaqueDisconnect) {
+    entt::dispatcher dispatcher;
+    receiver receiver;
+
+    dispatcher.sink<an_event>().connect<&receiver::receive>(receiver);
+    dispatcher.trigger<an_event>();
+
+    ASSERT_EQ(receiver.cnt, 1);
+
+    dispatcher.disconnect(receiver);
+    dispatcher.trigger<an_event>();
+
+    ASSERT_EQ(receiver.cnt, 1);
 }

@@ -64,13 +64,6 @@ struct basic_collector<> {
     static constexpr auto update() ENTT_NOEXCEPT {
         return basic_collector<matcher<type_list<>, type_list<>, AnyOf>>{};
     }
-
-    /*! @copydoc update */
-    template<typename AnyOf>
-    [[deprecated("use ::update instead")]]
-    static constexpr auto replace() ENTT_NOEXCEPT {
-        return update<AnyOf>();
-    }
 };
 
 /**
@@ -106,14 +99,6 @@ struct basic_collector<matcher<type_list<Reject...>, type_list<Require...>, Rule
     static constexpr auto update() ENTT_NOEXCEPT {
         return basic_collector<matcher<type_list<>, type_list<>, AnyOf>, current_type, Other...>{};
     }
-
-    /*! @copydoc update */
-    template<typename AnyOf>
-    [[deprecated("use ::update instead")]]
-    static constexpr auto replace() ENTT_NOEXCEPT {
-        return update<AnyOf>();
-    }
-
 
     /**
      * @brief Updates the filter of the last added matcher.
@@ -227,9 +212,16 @@ class basic_observer {
 
     template<typename... Reject, typename... Require, typename... NoneOf, typename... AllOf>
     struct matcher_handler<matcher<type_list<Reject...>, type_list<Require...>, type_list<NoneOf...>, AllOf...>> {
-        template<std::size_t Index>
+        template<std::size_t Index, typename... Ignore>
         static void maybe_valid_if(basic_observer &obs, const basic_registry<Entity> &reg, const Entity entt) {
-            if(reg.template has<AllOf..., Require...>(entt) && !reg.template any<NoneOf..., Reject...>(entt)) {
+            if([&reg, entt]() {
+                if constexpr(sizeof...(Ignore) == 0) {
+                    return reg.template has<AllOf..., Require...>(entt) && !reg.template any<NoneOf..., Reject...>(entt);
+                } else {
+                    return reg.template has<AllOf..., Require...>(entt) && ((std::is_same_v<Ignore..., NoneOf> || !reg.template any<NoneOf>(entt)) && ...) && !reg.template any<Reject...>(entt);
+                }
+            }())
+            {
                 if(auto *comp = obs.view.try_get(entt); !comp) {
                     obs.view.emplace(entt);
                 }
@@ -250,7 +242,7 @@ class basic_observer {
             (reg.template on_destroy<Require>().template connect<&discard_if<Index>>(obs), ...);
             (reg.template on_construct<Reject>().template connect<&discard_if<Index>>(obs), ...);
             (reg.template on_construct<AllOf>().template connect<&maybe_valid_if<Index>>(obs), ...);
-            (reg.template on_destroy<NoneOf>().template connect<&maybe_valid_if<Index>>(obs), ...);
+            (reg.template on_destroy<NoneOf>().template connect<&maybe_valid_if<Index, NoneOf>>(obs), ...);
             (reg.template on_destroy<AllOf>().template connect<&discard_if<Index>>(obs), ...);
             (reg.template on_construct<NoneOf>().template connect<&discard_if<Index>>(obs), ...);
         }
@@ -272,7 +264,7 @@ class basic_observer {
 
     template<typename... Matcher, std::size_t... Index>
     void connect(basic_registry<Entity> &reg, std::index_sequence<Index...>) {
-        static_assert(sizeof...(Matcher) < std::numeric_limits<payload_type>::digits);
+        static_assert(sizeof...(Matcher) < std::numeric_limits<payload_type>::digits, "Too many matchers");
         (matcher_handler<Matcher>::template connect<Index>(*this, reg), ...);
         release = &basic_observer::disconnect<Matcher...>;
     }
@@ -282,7 +274,7 @@ public:
     using entity_type = Entity;
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
-    /*! @brief Input iterator type. */
+    /*! @brief Random access iterator type. */
     using iterator = typename sparse_set<Entity>::iterator;
 
     /*! @brief Default constructor. */
@@ -349,7 +341,7 @@ public:
      * @brief Returns the number of elements in an observer.
      * @return Number of elements.
      */
-    size_type size() const ENTT_NOEXCEPT {
+    [[nodiscard]] size_type size() const ENTT_NOEXCEPT {
         return view.size();
     }
 
@@ -357,7 +349,7 @@ public:
      * @brief Checks whether an observer is empty.
      * @return True if the observer is empty, false otherwise.
      */
-    bool empty() const ENTT_NOEXCEPT {
+    [[nodiscard]] bool empty() const ENTT_NOEXCEPT {
         return view.empty();
     }
 
@@ -368,12 +360,12 @@ public:
      * always a valid range, even if the container is empty.
      *
      * @note
-     * There are no guarantees on the order of the entities. Use `begin` and
-     * `end` if you want to iterate the observer in the expected order.
+     * Entities are in the reverse order as returned by the `begin`/`end`
+     * iterators.
      *
      * @return A pointer to the array of entities.
      */
-    const entity_type * data() const ENTT_NOEXCEPT {
+    [[nodiscard]] const entity_type * data() const ENTT_NOEXCEPT {
         return view.data();
     }
 
@@ -385,7 +377,7 @@ public:
      *
      * @return An iterator to the first entity of the observer.
      */
-    iterator begin() const ENTT_NOEXCEPT {
+    [[nodiscard]] iterator begin() const ENTT_NOEXCEPT {
         return view.sparse_set<entity_type>::begin();
     }
 
@@ -399,7 +391,7 @@ public:
      * @return An iterator to the entity following the last entity of the
      * observer.
      */
-    iterator end() const ENTT_NOEXCEPT {
+    [[nodiscard]] iterator end() const ENTT_NOEXCEPT {
         return view.sparse_set<entity_type>::end();
     }
 
@@ -423,8 +415,6 @@ public:
      */
     template<typename Func>
     void each(Func func) const {
-        static_assert(std::is_invocable_v<Func, entity_type>);
-
         for(const auto entity: *this) {
             func(entity);
         }
