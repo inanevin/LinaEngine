@@ -30,7 +30,6 @@ SOFTWARE.
 #include "Profiling/Profiler.hpp"
 #include "Utility/EngineUtility.hpp"
 #include "Core/Log.hpp"
-#include "JobSystem/JobSystem.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "ECS/ECS.hpp"
 
@@ -38,8 +37,8 @@ SOFTWARE.
 
 namespace Lina::Physics
 {
-	Executor m_executor;
-	TaskFlow m_taskflow;
+	
+	//Future<void> m_future;
 
 	PhysicsEnginePhysX::~PhysicsEnginePhysX()
 	{
@@ -65,6 +64,7 @@ namespace Lina::Physics
 	void PhysicsEnginePhysX::OnPostMainLoop(Event::EPostMainLoop& e)
 	{
 		m_isRunning = false;
+		
 		LINA_TRACE("[Physics Engine Nvidia PhysX] -> Shutdown");
 	}
 

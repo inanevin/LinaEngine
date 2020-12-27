@@ -42,7 +42,7 @@ Timestamp: 5/1/2019 2:35:28 AM
 #include "ECS/ECS.hpp"
 #include "EventSystem/Events.hpp"
 #include <linaphysics_export.h>
-
+#include "JobSystem/JobSystem.hpp"
 namespace Lina
 {
 	namespace Event
@@ -78,7 +78,8 @@ namespace Lina::Physics
 		void OnPoll();
 
 	private:
-
+		Executor m_executor;
+		TaskFlow m_taskflow;
 		Event::EventSystem* m_eventSys = nullptr;
 		ECS::Registry* m_ecs = nullptr;
 		bool m_isRunning = false;
