@@ -26,12 +26,40 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/Vulkan/VulkanHandler.hpp"
-#include "Core/Backend/Vulkan/Utility/VulkanFunctions.hpp"
-#include "Core/Log.hpp"
-#include "Math/Math.hpp"
+/*
+Class: VulkanLogicalDevice
+
+Wrapper for VkDevice, along with an interface for executing device level functions.
+
+Timestamp: 12/28/2020 3:11:12 AM
+*/
+
+#pragma once
+
+#ifndef VulkanLogicalDevice_HPP
+#define VulkanLogicalDevice_HPP
+
+// Headers here.
+#include "Core/Backend/Vulkan/VulkanCommon.hpp"
 
 namespace Lina::Graphics
 {
+	class VulkanLogicalDevice
+	{
+		
+	public:
+		
+	private:
 
+		friend class RenderEngineVulkan;
+
+		VulkanLogicalDevice() {};
+		~VulkanLogicalDevice() {};
+
+	
+	private:
+	
+	};
 }
+
+#endif

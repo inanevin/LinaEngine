@@ -26,9 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/Vulkan/VulkanSwapchain.hpp"
+#include "Core/Backend/Vulkan/Objects/VulkanSwapchain.hpp"
 #include "Core/Log.hpp"
-#include "Core/Backend/Vulkan/VulkanFunctions.hpp"
+#include "Core/Backend/Vulkan/Utility/VulkanFunctions.hpp"
 #include "Math/Math.hpp"
 
 namespace Lina::Graphics

@@ -30,6 +30,8 @@ SOFTWARE.*/
 #include "Core/Log.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Core/Backend/Vulkan/Utility/VulkanFunctions.hpp"
+#include "Core/Backend/Vulkan/Objects/VulkanFence.hpp"
+#include "Core/Backend/Vulkan/Objects/VulkanSemaphore.hpp"
 
 
 namespace Lina::Graphics
@@ -67,6 +69,7 @@ namespace Lina::Graphics
 			// Create surface & logical device.
 			m_window.CreateWindowSurface(m_vulkanData.m_instance, m_vulkanData.m_surface);
 			m_loader.CreateLogicalDevice();
+			m_logicalDevice.m_handle = m_vulkanData.m_logicalDevice;
 
 			// Create a swapchain.
 			SwapchainData data;
@@ -76,18 +79,25 @@ namespace Lina::Graphics
 
 			VkImage img = m_swapchain.GetImage(m_vulkanData.m_logicalDevice, VK_NULL_HANDLE);
 
-			m_pool.Create(m_vulkanData.m_logicalDevice, m_vulkanData.m_graphicsQueueFamilyIndex, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-			m_primaryBuffer.Create(m_vulkanData.m_logicalDevice, m_pool.m_handle, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1);
-			m_secondaryBuffer.Create(m_vulkanData.m_logicalDevice, m_pool.m_handle, VK_COMMAND_BUFFER_LEVEL_SECONDARY, 1);
-			m_primaryBuffer.BeginPrimary(m_vulkanData.m_logicalDevice, 0, VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT);
+			VkCommandPool pool = m_logicalDevice.CommandPoolCreate(m_vulkanData.m_graphicsQueueFamilyIndex, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+			std::vector<VkCommandBuffer> primaryBuffers = m_logicalDevice.CommandBufferCreate(pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1);
+			m_logicalDevice.CommandBufferCreate(pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, 1);
+			m_logicalDevice.CommandBufferBeginPrimary(0, VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT);
 
+			
 			SecondaryCommandBufferData secdata;
-			m_secondaryBuffer.BeginSecondary(m_vulkanData.m_logicalDevice, 0, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, secdata);
+			m_logicalDevice.CommandBufferBeginSecondary(0, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, secdata);
 
-			m_primaryBuffer.End(0);
-			m_secondaryBuffer.End(0);
+			m_logicalDevice.CommandBufferEnd(0);
+			m_logicalDevice.CommandBufferEnd(0);
 			m_secondaryBuffer.Reset(0, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 			m_pool.Reset(m_vulkanData.m_logicalDevice, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
+
+			std::vector<VkFence> fences;
+			VkBool32 waitForAll = VK_TRUE;
+			uint64_t timeout = 2000000000;
+			// We can pass a 0 timeout and check the VkResult to see if the fence is available or not.
+			vkWaitForFences(m_vulkanData.m_logicalDevice, static_cast<uint32_t>(fences.size()), &fences[0], waitForAll, timeout);
 
 			m_initialized = true;
 		}

@@ -26,27 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/Vulkan/Objects/VulkanSemaphore.hpp"
-#include "Core/Backend/Vulkan/Utility/VulkanFunctions.hpp"
-#include "Core/Log.hpp"
+#include "Core/Backend/Filament/RenderEngineFilament.hpp"
 
 namespace Lina::Graphics
 {
-    bool VulkanSemaphore::Create(VkDevice logicalDevice, VkSemaphoreCreateFlags flags)
-    {
-        VkSemaphoreCreateInfo createInfo
-        {
-            VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
-            nullptr,
-            flags
-        };
-
-        VkResult result = vkCreateSemaphore(logicalDevice, &createInfo, nullptr, &m_handle);
-
-        if (result != VK_SUCCESS)
-            LINA_ERR("[Semaphore] -> Could not create a semaphore.");
-
-        LINA_TRACE("[Semaphore] -> Successfuly created a semaphore.");
-        return true;
-    }
+	
 }

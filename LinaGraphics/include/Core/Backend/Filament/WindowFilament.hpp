@@ -26,27 +26,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Backend/Vulkan/Objects/VulkanFence.hpp"
-#include "Core/Backend/Vulkan/Utility/VulkanFunctions.hpp"
-#include "Core/Log.hpp"
+/*
+Class: WindowFilament
+
+Window initializer for Filament backend.
+
+Timestamp: 12/28/2020 12:46:03 PM
+*/
+
+#pragma once
+
+#ifndef WindowFilament_HPP
+#define WindowFilament_HPP
+
+// Headers here.
+
 
 namespace Lina::Graphics
 {
-	bool VulkanFence::Create(VkDevice logicalDevice, VkFenceCreateFlags flags)
+	class WindowFilament
 	{
-		VkFenceCreateInfo createInfo
-		{
-			VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-			nullptr,
-			flags
-		};
-
-		VkResult result = vkCreateFence(logicalDevice, &createInfo, nullptr, &m_handle);
-
-		if (result != VK_SUCCESS)
-			LINA_ERR("[Fence] -> Could not create a fence.");
-
-		LINA_TRACE("[Fence] -> Successfuly created a fence.");
-		return true;
-	}
+		
+	public:
+		
+		WindowFilament();
+		~WindowFilament();
+	
+	private:
+	
+	};
 }
+
+#endif

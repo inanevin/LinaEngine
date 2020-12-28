@@ -46,6 +46,12 @@ Timestamp: 12/26/2020 9:37:35 PM
 #include <vector>
 
 
+#ifdef LINA_WINDOWS
+#include <Windows.h>
+#define VULKAN_LIB_TYPE HMODULE
+#elif LINA_LINUX
+#endif
+
 namespace Lina::Graphics
 {
 	class WindowVulkan;

@@ -26,13 +26,9 @@ set (LINAGRAPHICS_SOURCES
 	src/Core/Backend/Vulkan/RenderEngineVulkan.cpp
 	src/Core/Backend/Vulkan/VulkanLoader.cpp
 	src/Core/Backend/Vulkan/WindowVulkan.cpp
-	src/Core/Backend/Vulkan/VulkanHandler.cpp
 	
 	src/Core/Backend/Vulkan/Objects/VulkanSwapchain.cpp	
-	src/Core/Backend/Vulkan/Objects/VulkanCommandPool.cpp	
-	src/Core/Backend/Vulkan/Objects/VulkanCommandBuffer.cpp	
-	src/Core/Backend/Vulkan/Objects/VulkanSemaphore.cpp	
-	src/Core/Backend/Vulkan/Objects/VulkanFence.cpp	
+	src/Core/Backend/Vulkan/Objects/VulkanLogicalDevice.cpp	
 	
 	src/Core/Backend/Vulkan/Utility/VulkanFunctions.cpp
 
@@ -51,16 +47,12 @@ set(LINAGRAPHICS_HEADERS
 	include/Core/RenderingCommon.hpp
 	
 	include/Core/Backend/Vulkan/WindowVulkan.hpp
-	include/Core/Backend/Vulkan/VulkanHandler.hpp
 	include/Core/Backend/Vulkan/RenderEngineVulkan.hpp
 	include/Core/Backend/Vulkan/VulkanLoader.hpp
 	include/Core/Backend/Vulkan/VulkanCommon.hpp
 
 	include/Core/Backend/Vulkan/Objects/VulkanSwapchain.hpp
-	include/Core/Backend/Vulkan/Objects/VulkanCommandPool.hpp
-	include/Core/Backend/Vulkan/Objects/VulkanCommandBuffer.hpp
-	include/Core/Backend/Vulkan/Objects/VulkanSemaphore.hpp
-	include/Core/Backend/Vulkan/Objects/VulkanFence.hpp
+	include/Core/Backend/Vulkan/Objects/VulkanLogicalDevice.hpp
 	
 
 

@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,55 +27,39 @@ SOFTWARE.
 */
 
 /*
-Class: VulkanCommandBuffer
+Class: RenderEngineFilament
 
-Vulkan command buffer wrapper.
+Google Filament based render engine.
 
-Timestamp: 12/28/2020 12:56:41 AM
+Timestamp: 12/28/2020 12:44:36 PM
 */
 
 #pragma once
 
-#ifndef VulkanCommandBuffer_HPP
-#define VulkanCommandBuffer_HPP
+#ifndef RenderEngineFilament_HPP
+#define RenderEngineFilament_HPP
 
 // Headers here.
-#include "Core/Backend/Vulkan/VulkanCommon.hpp"
+#include "Core/Common.hpp"
+#include "ECS/ECS.hpp"
+#include "EventSystem/Events.hpp"
 
-namespace Lina::Graphics
+namespace Lina
 {
-	struct SecondaryCommandBufferData
+	class RenderEngineFilament
 	{
-		VkRenderPass renderPass = VK_HANDLE_NULL;
-		uint32_t renderPassIndex = 0;
-		VkFramebuffer frameBuffer = VK_HANDLE_NULL;
-		bool enableOcclusionQuery = false;
-		VkQueryControlFlags	queryFlags;
-		VkQueryPipelineStatisticFlags pipelineStatistics;
-	};
-	class VulkanCommandBuffer
-	{
-
+		
 	public:
-
+		
 	private:
 
-		friend class RenderEngineVulkan;
-		friend class VulkanHandler;
+		friend class Application;
 
-		VulkanCommandBuffer() {};
-		~VulkanCommandBuffer() {};
-
-		std::vector<VkCommandBuffer>& Create(VkDevice logicalDevice, VkCommandPool pool, VkCommandBufferLevel level, uint32_t count);
-		bool BeginPrimary(VkDevice logicalDevice, uint32_t index, VkCommandBufferUsageFlags usage);
-		bool BeginSecondary(VkDevice logicalDevice, uint32_t index, VkCommandBufferUsageFlags usage, SecondaryCommandBufferData& data);
-		bool End(uint32_t index);
-		bool Reset(uint32_t index, VkCommandBufferResetFlags resetFlags);
-
+		RenderEngineFilament() {};
+		~RenderEngineFilament() {};
+	
 	private:
-
-		std::vector<VkCommandBuffer> m_handles;
-
+	
 	};
 }
 

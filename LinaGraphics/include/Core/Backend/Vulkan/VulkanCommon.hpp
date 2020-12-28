@@ -44,13 +44,6 @@ Timestamp: 12/26/2020 9:39:14 PM
 #include <cstdint>
 #include <vector>
 
-#ifdef LINA_WINDOWS
-#include <Windows.h>
-#define VULKAN_LIB_TYPE HMODULE
-#elif LINA_LINUX
-#endif
-
-
 #define VK_NO_PROTOTYPES
 #ifdef LINA_WINDOWS 
 #define VK_USE_PLATFORM_WIN32_KHR
@@ -84,7 +77,15 @@ namespace Lina::Graphics
 		uint32_t m_presentationQueueFamilyIndex;
 	};
 
-
+	struct SecondaryCommandBufferData
+	{
+		VkRenderPass renderPass = VK_NULL_HANDLE;
+		uint32_t renderPassIndex = 0;
+		VkFramebuffer frameBuffer = VK_NULL_HANDLE;
+		bool enableOcclusionQuery = false;
+		VkQueryControlFlags	queryFlags;
+		VkQueryPipelineStatisticFlags pipelineStatistics;
+	};
 }
 
 
