@@ -103,8 +103,11 @@ namespace Lina::Graphics
 			VkBool32 waitForAll = VK_TRUE;
 			uint64_t timeout = 2000000000;
 			fences.push_back(m_logicalDevice.FenceCreate(VK_FENCE_CREATE_SIGNALED_BIT));
-			m_logicalDevice.WaitForFences(fences, VK_TRUE, 2000000000);
+			m_logicalDevice.FenceWait(fences, VK_TRUE, 2000000000);
 		
+			QueueSubmitInfo submitInfo;
+			// TODO: Initialize stages.
+			m_logicalDevice.QueueSubmit(submitInfo);
 
 			m_initialized = true;
 		}

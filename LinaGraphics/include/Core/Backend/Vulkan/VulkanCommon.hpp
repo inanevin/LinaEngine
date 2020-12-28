@@ -86,6 +86,17 @@ namespace Lina::Graphics
 		VkQueryControlFlags	queryFlags;
 		VkQueryPipelineStatisticFlags pipelineStatistics;
 	};
+
+	struct QueueSubmitInfo
+	{
+		VkQueue submitQueue = VK_NULL_HANDLE;
+		uint32_t submitCount = 0;
+		std::vector<VkSemaphore> waitSemaphores;
+		std::vector<VkPipelineStageFlags> waitSemaphoreStages;
+		std::vector<VkCommandBuffer> commandBuffers;
+		std::vector<VkSemaphore> signalSemaphores;
+		VkFence fence = VK_NULL_HANDLE;
+	};
 }
 
 

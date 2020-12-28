@@ -31,6 +31,15 @@ SOFTWARE.
 #include "Core/Log.hpp"
 namespace Lina::Graphics
 {
+	/* -------------------- DEVICE FUNCTIONS -------------------- */
+	/* -------------------- DEVICE FUNCTIONS -------------------- */
+	/* -------------------- DEVICE FUNCTIONS -------------------- */
+	/* -------------------- DEVICE FUNCTIONS -------------------- */
+	bool VulkanLogicalDevice::DeviceWait()
+	{
+		return vkDeviceWaitIdle(m_handle);
+	}
+
 	/* -------------------- COMMAND POOL FUNCTIONS -------------------- */
 	/* -------------------- COMMAND POOL FUNCTIONS -------------------- */
 	/* -------------------- COMMAND POOL FUNCTIONS -------------------- */
@@ -70,6 +79,12 @@ namespace Lina::Graphics
 
 		LINA_TRACE("[Command Buffer] -> Successfuly resetted command pool.");
 		return true;
+	}
+
+	void VulkanLogicalDevice::CommandPoolDestroy(VkCommandPool pool)
+	{
+		vkDestroyCommandPool(m_handle, pool, nullptr);
+		pool = VK_NULL_HANDLE;
 	}
 
 	/* -------------------- COMMAND BUFFER FUNCTIONS -------------------- */
@@ -118,7 +133,7 @@ namespace Lina::Graphics
 				data->pipelineStatistics
 			};
 		}
-		
+
 		VkCommandBufferBeginInfo beginInfo
 		{
 			VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -170,6 +185,16 @@ namespace Lina::Graphics
 		return true;
 	}
 
+	void VulkanLogicalDevice::CommandBufferFree(std::vector<VkCommandBuffer>& buffers, VkCommandPool pool)
+	{
+		if (buffers.size() > 0)
+		{
+			uint32_t size = static_cast<uint32_t>(buffers.size());
+			vkFreeCommandBuffers(m_handle, pool, size, &buffers[0]);
+			buffers.clear();
+		}
+	}
+
 	/* -------------------- FENCE FUNCTIONS -------------------- */
 	/* -------------------- FENCE FUNCTIONS -------------------- */
 	/* -------------------- FENCE FUNCTIONS -------------------- */
@@ -197,15 +222,15 @@ namespace Lina::Graphics
 		return fence;
 	}
 
-	bool VulkanLogicalDevice::WaitForFences(const std::vector<VkFence>& fences, VkBool32 waitForAll, uint64_t timeOut)
+	bool VulkanLogicalDevice::FenceWait(const std::vector<VkFence>& fences, VkBool32 waitForAll, uint64_t timeOut)
 	{
-		// We can pass a 0 timeout and check the VkResult to see if the fence is available or not.
+		// We can pass a 0 timeout and check the VkResult to see if the semaphore is available or not.
 		VkResult result = vkWaitForFences(m_handle, static_cast<uint32_t>(fences.size()), &fences[0], waitForAll, timeOut);
 
 		return result == VK_TRUE;
 	}
 
-	bool VulkanLogicalDevice::ResetFences(const std::vector<VkFence>& fences)
+	bool VulkanLogicalDevice::FenceReset(const std::vector<VkFence>& fences)
 	{
 		VkResult result = vkResetFences(m_handle, static_cast<uint32_t>(fences.size()), &fences[0]);
 		if (result != VK_SUCCESS)
@@ -216,6 +241,15 @@ namespace Lina::Graphics
 
 		LINA_DEBUG("[Fence] -> Successfuly resetted fences.");
 		return true;
+	}
+
+	void VulkanLogicalDevice::FenceDestroy(VkFence fence)
+	{
+		if (fence != VK_NULL_HANDLE)
+		{
+			vkDestroyFence(m_handle, fence, nullptr);
+			fence = VK_NULL_HANDLE;
+		}
 	}
 
 	/* -------------------- SEMAPHORE FUNCTIONS -------------------- */
@@ -244,4 +278,52 @@ namespace Lina::Graphics
 		m_semaphores.push_back(semaphore);
 		return semaphore;
 	}
+
+	void VulkanLogicalDevice::SemaphoreDestroy(VkSemaphore semaphore)
+	{
+		if (semaphore != VK_NULL_HANDLE)
+		{
+			vkDestroySemaphore(m_handle, semaphore, nullptr);
+			semaphore = VK_NULL_HANDLE;
+		}
+	}
+
+	bool VulkanLogicalDevice::QueueSubmit(QueueSubmitInfo& submitInfo)
+	{
+		uint32_t waitSemaphoresSize = static_cast<uint32_t>(submitInfo.waitSemaphores.size());
+		uint32_t waitSemaphoreStagesSize = static_cast<uint32_t>(submitInfo.waitSemaphoreStages.size());
+		uint32_t commandBuffersSize = static_cast<uint32_t>(submitInfo.commandBuffers.size());
+		uint32_t signalSemaphoresSize = static_cast<uint32_t>(submitInfo.signalSemaphores.size());
+
+		VkSubmitInfo info
+		{
+			VK_STRUCTURE_TYPE_SUBMIT_INFO,
+			nullptr,
+			waitSemaphoresSize,
+			waitSemaphoresSize == 0 ? nullptr : &submitInfo.waitSemaphores[0],
+			waitSemaphoreStagesSize == 0 ? nullptr : &submitInfo.waitSemaphoreStages[0],
+			commandBuffersSize,
+			commandBuffersSize == 0 ? nullptr : &submitInfo.commandBuffers[0],
+			signalSemaphoresSize,
+			signalSemaphoresSize == 0 ? nullptr : &submitInfo.signalSemaphores[0]
+		};
+
+		VkResult result = vkQueueSubmit(submitInfo.submitQueue, submitInfo.submitCount, &info, submitInfo.fence);
+
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Queue] -> Could not submit the queue.");
+			return false;
+		}
+
+		LINA_TRACE("[Semaphore] -> Successfuly submitted the queue.");
+		return true;
+	}
+
+	bool VulkanLogicalDevice::QueueWait(VkQueue queue)
+	{
+		VkResult result = vkQueueWaitIdle(queue);
+		return result == VK_SUCCESS;
+	}
+
 }

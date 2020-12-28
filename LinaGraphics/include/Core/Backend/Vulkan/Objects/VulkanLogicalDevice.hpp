@@ -58,25 +58,34 @@ namespace Lina::Graphics
 		VulkanLogicalDevice() {};
 		~VulkanLogicalDevice() {};
 
+		/* FEVICE FUNCTIONS */
+		bool DeviceWait();
 
 		/* COMMAND POOL FUNCTIONS */
 		VkCommandPool CommandPoolCreate(uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags);
 		bool CommandPoolReset(VkCommandPool pool, VkCommandPoolResetFlags flags);
+		void CommandPoolDestroy(VkCommandPool pool);
 
 		/* COMMAND BUFFER FUNCTIONS */
 		std::vector<VkCommandBuffer>& CommandBufferCreate(VkCommandPool pool, VkCommandBufferLevel level, uint32_t count);
 		bool CommandBufferBegin(VkCommandBuffer cbuffer, VkCommandBufferUsageFlags usage, SecondaryCommandBufferData* data = nullptr);
 		bool CommandBufferEnd(VkCommandBuffer cbuffer);
 		bool CommandBufferReset(VkCommandBuffer cbuffer, VkCommandBufferResetFlags resetFlags);
+		void CommandBufferFree(std::vector<VkCommandBuffer>& buffers, VkCommandPool pool);
 
 		/* FENCE FUNCTIONS */
 		VkFence FenceCreate(VkFenceCreateFlags flags);
-		bool WaitForFences(const std::vector<VkFence>& fences, VkBool32 waitForAll, uint64_t timeOut = 1000000000);
-		bool ResetFences(const std::vector<VkFence>& fences);
+		bool FenceWait(const std::vector<VkFence>& fences, VkBool32 waitForAll, uint64_t timeOut = 1000000000);
+		bool FenceReset(const std::vector<VkFence>& fences);
+		void FenceDestroy(VkFence fence);
 
 		/* SEMAPHORE FUNCTIONS */
 		VkSemaphore SemaphoreCreate(VkSemaphoreCreateFlags flags);
+		void SemaphoreDestroy(VkSemaphore semaphore);
 
+		/* QUEUE FUNCTIONS */
+		bool QueueSubmit(QueueSubmitInfo& submitInfo);
+		bool QueueWait(VkQueue queue);
 
 	private:
 
