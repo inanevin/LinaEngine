@@ -63,7 +63,7 @@ namespace Lina::Graphics
 			return VK_NULL_HANDLE;
 		}
 
-		m_commandPools.push_back(pool);
+		m_commandPools.insert(pool);
 		return pool;
 	}
 
@@ -83,8 +83,10 @@ namespace Lina::Graphics
 
 	void VulkanLogicalDevice::CommandPoolDestroy(VkCommandPool pool)
 	{
+		m_commandPools.erase(pool);
 		vkDestroyCommandPool(m_handle, pool, nullptr);
 		pool = VK_NULL_HANDLE;
+
 	}
 
 	/* -------------------- COMMAND BUFFER FUNCTIONS -------------------- */
@@ -102,19 +104,20 @@ namespace Lina::Graphics
 			count
 		};
 
-		m_commandBuffers.resize(count);
-		VkResult result = vkAllocateCommandBuffers(m_handle, &allocateInfo, &m_commandBuffers[0]);
+		std::vector<VkCommandBuffer> buffers;
+		buffers.resize(count);
+		VkResult result = vkAllocateCommandBuffers(m_handle, &allocateInfo, &buffers[0]);
 
 		if (result != VK_SUCCESS)
 		{
 			LINA_ERR("[Command Buffer] -> Could not create command buffer.");
-			m_commandBuffers.clear();
-			m_commandBuffers.resize(0);
+			m_buffers.clear();
 		}
 		else
 			LINA_TRACE("[Command Buffer] -> Successfuly created command buffer.");
 
-		return m_commandBuffers;
+		m_commandBuffers.insert(buffers);
+		return buffers;
 	}
 	bool VulkanLogicalDevice::CommandBufferBegin(VkCommandBuffer cbuffer, VkCommandBufferUsageFlags usage, SecondaryCommandBufferData* data)
 	{
@@ -187,6 +190,7 @@ namespace Lina::Graphics
 
 	void VulkanLogicalDevice::CommandBufferFree(std::vector<VkCommandBuffer>& buffers, VkCommandPool pool)
 	{
+		m_commandBuffers.erase(buffers);
 		if (buffers.size() > 0)
 		{
 			uint32_t size = static_cast<uint32_t>(buffers.size());
@@ -218,7 +222,7 @@ namespace Lina::Graphics
 		}
 
 		LINA_TRACE("[Fence] -> Successfuly created a fence.");
-		m_fences.push_back(fence);
+		m_fences.insert(fence);
 		return fence;
 	}
 
@@ -245,6 +249,7 @@ namespace Lina::Graphics
 
 	void VulkanLogicalDevice::FenceDestroy(VkFence fence)
 	{
+		m_fences.erase(fence);
 		if (fence != VK_NULL_HANDLE)
 		{
 			vkDestroyFence(m_handle, fence, nullptr);
@@ -275,12 +280,13 @@ namespace Lina::Graphics
 		}
 
 		LINA_TRACE("[Semaphore] -> Successfuly created a semaphore.");
-		m_semaphores.push_back(semaphore);
+		m_semaphores.insert(semaphore);
 		return semaphore;
 	}
 
 	void VulkanLogicalDevice::SemaphoreDestroy(VkSemaphore semaphore)
 	{
+		m_semaphores.erase(semaphore);
 		if (semaphore != VK_NULL_HANDLE)
 		{
 			vkDestroySemaphore(m_handle, semaphore, nullptr);
@@ -324,6 +330,36 @@ namespace Lina::Graphics
 	{
 		VkResult result = vkQueueWaitIdle(queue);
 		return result == VK_SUCCESS;
+	}
+
+	/* -------------------- BUFFER FUNCTIONS -------------------- */
+	/* -------------------- BUFFER FUNCTIONS -------------------- */
+	/* -------------------- BUFFER FUNCTIONS -------------------- */
+	/* -------------------- BUFFER FUNCTIONS -------------------- */
+	VkBuffer VulkanLogicalDevice::BufferCreate(VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode)
+	{
+		VkBufferCreateInfo createInfo
+		{
+			VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+			nullptr,
+			flags,
+			size,
+			usage,
+			sharingMode
+		};
+
+		VkBuffer buffer;
+		VkResult result = vkCreateBuffer(m_handle, &createInfo, nullptr, &buffer);
+
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Buffer] -> Could not create a buffer.");
+			return VK_NULL_HANDLE;
+		}
+
+		LINA_TRACE("[Semaphore] -> Successfuly created a buffer.");
+		m_buffers.insert(buffer);
+		return buffer;
 	}
 
 }

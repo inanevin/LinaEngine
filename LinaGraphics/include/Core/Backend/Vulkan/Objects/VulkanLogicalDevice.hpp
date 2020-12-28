@@ -87,14 +87,17 @@ namespace Lina::Graphics
 		bool QueueSubmit(QueueSubmitInfo& submitInfo);
 		bool QueueWait(VkQueue queue);
 
+		/* BUFFER FUNCTIONS */
+		VkBuffer BufferCreate(VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode);
+
 	private:
 
 		VkDevice m_handle;
-		std::vector<VkCommandBuffer> m_commandBuffers;
-		std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
-		std::vector<VkCommandPool> m_commandPools;
-		std::vector<VkFence> m_fences;
-		std::vector<VkSemaphore> m_semaphores;
+		std::set<std::vector<VkCommandBuffer>> m_commandBuffers;
+		std::set<VkCommandPool> m_commandPools;
+		std::set<VkFence> m_fences;
+		std::set<VkSemaphore> m_semaphores;
+		std::set<VkBuffer> m_buffers;
 	};
 }
 
