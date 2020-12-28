@@ -68,6 +68,8 @@ namespace Lina::Graphics
 			m_window.CreateWindowSurface(m_vulkanData.m_instance, m_vulkanData.m_surface);
 			m_loader.CreateLogicalDevice();
 			m_logicalDevice.m_handle = m_vulkanData.m_logicalDevice;
+			m_logicalDevice.m_physicalDevice = m_vulkanData.m_physicalDevice;
+			m_logicalDevice.GetMemoryProperties();
 
 			// Create a swapchain.
 			SwapchainData data;

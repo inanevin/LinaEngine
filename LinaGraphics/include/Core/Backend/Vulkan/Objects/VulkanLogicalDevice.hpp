@@ -58,7 +58,8 @@ namespace Lina::Graphics
 		VulkanLogicalDevice() {};
 		~VulkanLogicalDevice() {};
 
-		/* FEVICE FUNCTIONS */
+		/* DEVICE FUNCTIONS */
+		void GetMemoryProperties();
 		bool DeviceWait();
 
 		/* COMMAND POOL FUNCTIONS */
@@ -92,7 +93,9 @@ namespace Lina::Graphics
 
 	private:
 
+		VkPhysicalDevice m_physicalDevice;
 		VkDevice m_handle;
+		VkPhysicalDeviceMemoryProperties m_memProperties;
 		std::set<std::vector<VkCommandBuffer>> m_commandBuffers;
 		std::set<VkCommandPool> m_commandPools;
 		std::set<VkFence> m_fences;

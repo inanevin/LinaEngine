@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/Log.hpp"
 namespace Lina::Graphics
 {
+
 	/* -------------------- DEVICE FUNCTIONS -------------------- */
 	/* -------------------- DEVICE FUNCTIONS -------------------- */
 	/* -------------------- DEVICE FUNCTIONS -------------------- */
@@ -38,6 +39,10 @@ namespace Lina::Graphics
 	bool VulkanLogicalDevice::DeviceWait()
 	{
 		return vkDeviceWaitIdle(m_handle);
+	}
+	void VulkanLogicalDevice::GetMemoryProperties()
+	{
+		vkGetPhysicalDeviceMemoryProperties(m_physicalDevice, &m_memProperties);
 	}
 
 	/* -------------------- COMMAND POOL FUNCTIONS -------------------- */
