@@ -87,30 +87,46 @@ namespace Lina::Graphics
 			count
 		};
 
-		m_primaryCommandBuffers.resize(count);
-		VkResult result = vkAllocateCommandBuffers(m_handle, &allocateInfo, &m_primaryCommandBuffers[0]);
+		m_commandBuffers.resize(count);
+		VkResult result = vkAllocateCommandBuffers(m_handle, &allocateInfo, &m_commandBuffers[0]);
 
 		if (result != VK_SUCCESS)
 		{
 			LINA_ERR("[Command Buffer] -> Could not create command buffer.");
-			m_primaryCommandBuffers.clear();
-			m_primaryCommandBuffers.resize(0);
+			m_commandBuffers.clear();
+			m_commandBuffers.resize(0);
 		}
 		else
 			LINA_TRACE("[Command Buffer] -> Successfuly created command buffer.");
 
-		return m_primaryCommandBuffers;
+		return m_commandBuffers;
 	}
-	bool VulkanLogicalDevice::CommandBufferBeginPrimary(uint32_t index, VkCommandBufferUsageFlags usage)
+	bool VulkanLogicalDevice::CommandBufferBegin(VkCommandBuffer cbuffer, VkCommandBufferUsageFlags usage, SecondaryCommandBufferData* data)
 	{
+		VkCommandBufferInheritanceInfo inheritanceInfo;
+
+		if (data != nullptr)
+		{
+			inheritanceInfo = VkCommandBufferInheritanceInfo{
+				VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO,
+				nullptr,
+				data->renderPass,
+				data->renderPassIndex,
+				data->frameBuffer,
+				data->enableOcclusionQuery ? (VkBool32)VK_TRUE : (VkBool32)VK_FALSE,
+				data->queryFlags,
+				data->pipelineStatistics
+			};
+		}
+		
 		VkCommandBufferBeginInfo beginInfo
 		{
 			VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
 			nullptr,
 			usage,
-			VK_NULL_HANDLE
+			data == nullptr ? VK_NULL_HANDLE : &inheritanceInfo
 		};
-		VkResult result = vkBeginCommandBuffer(m_primaryCommandBuffers[index], &beginInfo);
+		VkResult result = vkBeginCommandBuffer(cbuffer, &beginInfo);
 
 		if (result != VK_SUCCESS)
 		{
@@ -122,42 +138,10 @@ namespace Lina::Graphics
 		return true;
 	}
 
-	bool VulkanLogicalDevice::CommandBufferBeginSecondary(uint32_t index, VkCommandBufferUsageFlags usage, SecondaryCommandBufferData& data)
+
+	bool VulkanLogicalDevice::CommandBufferEnd(VkCommandBuffer cbuffer)
 	{
-		VkCommandBufferInheritanceInfo inheritanceInfo
-		{
-			VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO,
-			nullptr,
-			data.renderPass,
-			data.renderPassIndex,
-			data.frameBuffer,
-			data.enableOcclusionQuery ? VK_TRUE : VK_FALSE,
-			data.queryFlags,
-			data.pipelineStatistics
-		};
-
-		VkCommandBufferBeginInfo beginInfo
-		{
-			VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-			nullptr,
-			usage,
-			&inheritanceInfo
-		};
-		VkResult result = vkBeginCommandBuffer(m_primaryCommandBuffers[index], &beginInfo);
-
-		if (result != VK_SUCCESS)
-		{
-			LINA_ERR("[Command Buffer] -> Could not begin secondary command buffer.");
-			return false;
-		}
-
-		LINA_TRACE("[Command Buffer] -> Successfuly beginning secondary buffer.");
-		return true;
-	}
-
-	bool VulkanLogicalDevice::CommandBufferEnd(uint32_t index)
-	{
-		VkResult result = vkEndCommandBuffer(m_primaryCommandBuffers[index]);
+		VkResult result = vkEndCommandBuffer(cbuffer);
 
 		if (result != VK_SUCCESS)
 		{
@@ -169,12 +153,12 @@ namespace Lina::Graphics
 		return true;
 	}
 
-	bool VulkanLogicalDevice::CommandBufferReset(uint32_t index, VkCommandBufferResetFlags resetFlags)
+	bool VulkanLogicalDevice::CommandBufferReset(VkCommandBuffer cbuffer, VkCommandBufferResetFlags resetFlags)
 	{
 		// TODO: Table look up. If the pool allocated for this buffer was not allocated with VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT flag
 		// a seperate reset can not be performed.
 
-		VkResult result = vkResetCommandBuffer(m_primaryCommandBuffers[index], resetFlags);
+		VkResult result = vkResetCommandBuffer(cbuffer, resetFlags);
 
 		if (result != VK_SUCCESS)
 		{
@@ -211,6 +195,27 @@ namespace Lina::Graphics
 		LINA_TRACE("[Fence] -> Successfuly created a fence.");
 		m_fences.push_back(fence);
 		return fence;
+	}
+
+	bool VulkanLogicalDevice::WaitForFences(const std::vector<VkFence>& fences, VkBool32 waitForAll, uint64_t timeOut)
+	{
+		// We can pass a 0 timeout and check the VkResult to see if the fence is available or not.
+		VkResult result = vkWaitForFences(m_handle, static_cast<uint32_t>(fences.size()), &fences[0], waitForAll, timeOut);
+
+		return result == VK_TRUE;
+	}
+
+	bool VulkanLogicalDevice::ResetFences(const std::vector<VkFence>& fences)
+	{
+		VkResult result = vkResetFences(m_handle, static_cast<uint32_t>(fences.size()), &fences[0]);
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Fence] -> Could not reset fences.");
+			return false;
+		}
+
+		LINA_DEBUG("[Fence] -> Successfuly resetted fences.");
+		return true;
 	}
 
 	/* -------------------- SEMAPHORE FUNCTIONS -------------------- */

@@ -65,13 +65,14 @@ namespace Lina::Graphics
 
 		/* COMMAND BUFFER FUNCTIONS */
 		std::vector<VkCommandBuffer>& CommandBufferCreate(VkCommandPool pool, VkCommandBufferLevel level, uint32_t count);
-		bool CommandBufferBeginPrimary(uint32_t index, VkCommandBufferUsageFlags usage);
-		bool CommandBufferBeginSecondary(uint32_t index, VkCommandBufferUsageFlags usage, SecondaryCommandBufferData& data);
-		bool CommandBufferEnd(uint32_t index);
-		bool CommandBufferReset(uint32_t index, VkCommandBufferResetFlags resetFlags);
+		bool CommandBufferBegin(VkCommandBuffer cbuffer, VkCommandBufferUsageFlags usage, SecondaryCommandBufferData* data = nullptr);
+		bool CommandBufferEnd(VkCommandBuffer cbuffer);
+		bool CommandBufferReset(VkCommandBuffer cbuffer, VkCommandBufferResetFlags resetFlags);
 
 		/* FENCE FUNCTIONS */
 		VkFence FenceCreate(VkFenceCreateFlags flags);
+		bool WaitForFences(const std::vector<VkFence>& fences, VkBool32 waitForAll, uint64_t timeOut = 1000000000);
+		bool ResetFences(const std::vector<VkFence>& fences);
 
 		/* SEMAPHORE FUNCTIONS */
 		VkSemaphore SemaphoreCreate(VkSemaphoreCreateFlags flags);
@@ -80,7 +81,7 @@ namespace Lina::Graphics
 	private:
 
 		VkDevice m_handle;
-		std::vector<VkCommandBuffer> m_primaryCommandBuffers;
+		std::vector<VkCommandBuffer> m_commandBuffers;
 		std::vector<VkCommandBuffer> m_secondaryCommandBuffers;
 		std::vector<VkCommandPool> m_commandPools;
 		std::vector<VkFence> m_fences;
