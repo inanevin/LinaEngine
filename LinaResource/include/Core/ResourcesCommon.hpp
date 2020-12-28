@@ -40,11 +40,7 @@ Timestamp: 12/19/2020 6:42:13 PM
 #define ResourcesCommon_HPP
 
 // Headers here.
-#include "Resources/ImageResource.hpp"
-#include "Resources/MeshResource.hpp"
-#include "Resources/AudioResource.hpp"
-#include "Resources/MaterialResource.hpp"
-#include "Resources/ShaderResource.hpp"
+
 #include "Utility/StringId.hpp"
 #include <string>
 
@@ -54,12 +50,6 @@ namespace Lina::Resources
 #define IMAGEPACKAGE_PATH "Resources/Packages/images.linapackage"
 #define PACKAGE_PASS L"1234"
 
-	typedef std::unordered_map<StringIDType, ImageResource*> ImagePackage;
-	typedef std::unordered_map<StringIDType, MeshResource*> MeshPackage;
-	typedef std::unordered_map<StringIDType, AudioResource*> AudioPackage;
-	typedef std::unordered_map<StringIDType, MaterialResource*> MaterialPackage;
-	typedef std::unordered_map<StringIDType, ShaderResource*> ShaderPackage;
-	typedef std::unordered_map<StringIDType, std::vector<unsigned char>> RawPackage;
 
 	enum class ResourceProgressState
 	{
@@ -77,7 +67,10 @@ namespace Lina::Resources
 		Image,
 		Audio,
 		Material,
-		Shader
+		GLSLVertex,
+		GLSLFrag,
+		GLSLGeo,
+		SPIRV
 	};
 
 	extern std::unordered_map<StringIDType, ResourceType> m_resourceTypeTable;

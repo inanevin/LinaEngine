@@ -40,15 +40,22 @@ Timestamp: 12/19/2020 2:26:58 AM
 #define ImageResource_HPP
 
 // Headers here.
-#include "Resource.hpp"
+#include "Utility/StringId.hpp"
 #include <cstdint>
 #include <vector>
-#include <linaresource_export.h>
+
+namespace Lina
+{
+	namespace Event
+	{
+		class EventSystem;
+	}
+}
 
 namespace Lina::Resources
 {
 
-	class ImageResource : public IResource
+	class ImageResource 
 	{
 		
 	public:
@@ -61,8 +68,8 @@ namespace Lina::Resources
 		ImageResource() {};
 		virtual ~ImageResource() {};
 
-		bool LoadFromFile(const std::string& path, Event::EventSystem* eventSys) override;
-		bool LoadFromMemory(StringIDType m_sid, unsigned char* buffer, size_t bufferSize, Event::EventSystem* eventSys) override;
+		bool LoadFromFile(const std::string& path, Event::EventSystem* eventSys);
+		bool LoadFromMemory(StringIDType m_sid, unsigned char* buffer, size_t bufferSize, Event::EventSystem* eventSys);
 
 	};
 

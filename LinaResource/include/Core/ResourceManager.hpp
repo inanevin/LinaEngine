@@ -40,6 +40,7 @@ Timestamp: 5/1/2019 2:35:28 AM
 #define ResourceEngine_HPP
 
 #include "ResourceBundle.hpp"
+#include "ResourcePackages.hpp"
 #include "Resources/LevelResource.hpp"
 #include "Utility/StringId.hpp"
 #include "JobSystem/JobSystem.hpp"

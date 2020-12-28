@@ -98,7 +98,7 @@ namespace Lina::Graphics
 	/* -------------------- COMMAND BUFFER FUNCTIONS -------------------- */
 	/* -------------------- COMMAND BUFFER FUNCTIONS -------------------- */
 	/* -------------------- COMMAND BUFFER FUNCTIONS -------------------- */
-	std::vector<VkCommandBuffer>& VulkanLogicalDevice::CommandBufferCreate(VkCommandPool pool, VkCommandBufferLevel level, uint32_t count)
+	VkCommandBuffer* VulkanLogicalDevice::CommandBufferCreate(VkCommandPool pool, VkCommandBufferLevel level, uint32_t count)
 	{
 		VkCommandBufferAllocateInfo allocateInfo
 		{
@@ -115,14 +115,15 @@ namespace Lina::Graphics
 
 		if (result != VK_SUCCESS)
 		{
-			LINA_ERR("[Command Buffer] -> Could not create command buffer.");
-			m_buffers.clear();
+			LINA_ERR("[Command Buffer] -> Could not create command buffer.");			
+			return nullptr;
 		}
 		else
 			LINA_TRACE("[Command Buffer] -> Successfuly created command buffer.");
 
 		m_commandBuffers.insert(buffers);
-		return buffers;
+		auto buf = *(m_commandBuffers.end());
+		return &buf[0];
 	}
 	bool VulkanLogicalDevice::CommandBufferBegin(VkCommandBuffer cbuffer, VkCommandBufferUsageFlags usage, SecondaryCommandBufferData* data)
 	{
@@ -223,7 +224,8 @@ namespace Lina::Graphics
 		if (result != VK_SUCCESS)
 		{
 			LINA_ERR("[Fence] -> Could not create a fence.");
-			return VK_NULL_HANDLE;
+			fence = VK_NULL_HANDLE;
+			return fence;
 		}
 
 		LINA_TRACE("[Fence] -> Successfuly created a fence.");
@@ -281,7 +283,8 @@ namespace Lina::Graphics
 		if (result != VK_SUCCESS)
 		{
 			LINA_ERR("[Semaphore] -> Could not create a semaphore.");
-			return VK_NULL_HANDLE;
+			semaphore = VK_NULL_HANDLE;
+			return semaphore;
 		}
 
 		LINA_TRACE("[Semaphore] -> Successfuly created a semaphore.");
@@ -362,9 +365,38 @@ namespace Lina::Graphics
 			return VK_NULL_HANDLE;
 		}
 
-		LINA_TRACE("[Semaphore] -> Successfuly created a buffer.");
+		LINA_TRACE("[Buffer] -> Successfuly created a buffer.");
 		m_buffers.insert(buffer);
 		return buffer;
+	}
+
+	/* -------------------- SHADER MODULE FUNCTIONS -------------------- */
+	/* -------------------- SHADER MODULE FUNCTIONS -------------------- */
+	/* -------------------- SHADER MODULE FUNCTIONS -------------------- */
+	/* -------------------- SHADER MODULE FUNCTIONS -------------------- */
+	VkShaderModule VulkanLogicalDevice::ShaderModuleCreate(const std::vector<uint32_t>& buffer)
+	{
+		VkShaderModuleCreateInfo createInfo
+		{
+			VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+			nullptr,
+			0,
+			buffer.size(),
+			buffer.data()
+		};
+
+		VkShaderModule shaderModule;
+		VkResult result = vkCreateShaderModule(m_handle, &createInfo, nullptr, &shaderModule);
+
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Shader Module] -> Could not create a shader module.");
+			shaderModule = VK_NULL_HANDLE;
+			return VK_NULL_HANDLE;
+		}
+
+		LINA_TRACE("[Shader Module] -> Successfuly created  a shader module.");
+		return shaderModule;
 	}
 
 }

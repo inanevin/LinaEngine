@@ -41,13 +41,22 @@ Timestamp: 12/19/2020 2:28:46 AM
 #define MeshResource_HPP
 
 // Headers here.
-#include "Resource.hpp"
+#include "Utility/StringId.hpp"
 #include <linaresource_export.h>
+
+namespace Lina
+{
+	namespace Event
+	{
+		class EventSystem;
+	}
+}
+
 
 namespace Lina::Resources
 {
 
-	class MeshResource : public IResource
+	class MeshResource
 	{
 
 	public:
@@ -60,10 +69,10 @@ namespace Lina::Resources
 		friend class ResourceManager;
 
 		MeshResource() {};
-		virtual ~MeshResource() {};
+		~MeshResource() {};
 
-		bool LoadFromMemory(StringIDType m_sid, unsigned char* buffer, size_t bufferSize, Event::EventSystem* eventSys) override;
-		bool LoadFromFile(const std::string& path, Event::EventSystem* eventSys) override;
+		bool LoadFromMemory(StringIDType m_sid, unsigned char* buffer, size_t bufferSize, Event::EventSystem* eventSys);
+		bool LoadFromFile(const std::string& path, Event::EventSystem* eventSys);
 	};
 }
 

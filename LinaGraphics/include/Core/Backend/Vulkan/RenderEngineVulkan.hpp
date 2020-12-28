@@ -80,8 +80,10 @@ namespace Lina::Graphics
 		void OnEarlyInit(Event::EEarlyInit& e);
 		void OnPreMainLoop(Event::EPreMainLoop& e);
 		void OnPostMainLoop(Event::EPostMainLoop& e);
+		void OnShaderResourceLoaded(Event::EShaderResourceLoaded& e);
 		void Tick();
 		void Render();
+		void DisconnectEvents();
 
 	private:
 

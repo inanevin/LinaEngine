@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/Backend/Vulkan/Utility/VulkanFunctions.hpp"
 #include "Math/Math.hpp"
 
+
 namespace Lina::Graphics
 {
 	bool VulkanSwapchain::Create(const SwapchainData& data)
@@ -118,28 +119,65 @@ namespace Lina::Graphics
 			return false;
 		}
 
-		if (VK_NULL_HANDLE != oldSwapchain) 
+		if (VK_NULL_HANDLE != oldSwapchain)
 		{
 			vkDestroySwapchainKHR(data.vulkanData->m_logicalDevice, oldSwapchain, nullptr);
 			oldSwapchain = VK_NULL_HANDLE;
 		}
 		m_imagesSize = imagesSize;
+		m_imageFormat = selectedFormat;
 		m_images.clear();
 
 		uint32_t createdImagesCount;
-		VkResult getImagesResult = vkGetSwapchainImagesKHR(data.vulkanData->m_logicalDevice, m_handle, &createdImagesCount, nullptr);
-		if (getImagesResult != VK_SUCCESS || createdImagesCount == 0)
+		result = vkGetSwapchainImagesKHR(data.vulkanData->m_logicalDevice, m_handle, &createdImagesCount, nullptr);
+		if (result != VK_SUCCESS || createdImagesCount == 0)
 		{
 			LINA_ERR("[Vulkan Swapchain] -> Could not retrieve swapchain images.");
 			return false;
 		}
 
 		m_images.resize(createdImagesCount);
-		getImagesResult = vkGetSwapchainImagesKHR(data.vulkanData->m_logicalDevice, m_handle, &imagesCount, &m_images[0]);
-		if (getImagesResult != VK_SUCCESS || createdImagesCount == 0)
+
+		result = vkGetSwapchainImagesKHR(data.vulkanData->m_logicalDevice, m_handle, &imagesCount, &m_images[0]);
+		if (result != VK_SUCCESS || createdImagesCount == 0)
 		{
 			LINA_ERR("[Vulkan Swapchain] -> Could not retrieve swapchain images.");
 			return false;
+		}
+
+		m_imageViews.resize(createdImagesCount);
+		VkComponentMapping  components;
+		VkImageSubresourceRange    subresourceRange;
+		components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+		subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		subresourceRange.baseMipLevel = 0;
+		subresourceRange.levelCount = 1;
+		subresourceRange.baseArrayLayer = 0;
+		subresourceRange.layerCount = 1;
+
+		for (int i = 0; i < m_imageViews.size(); ++i)
+		{
+
+			VkImageViewCreateInfo imgViewCreateInfo
+			{
+				VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+				nullptr,
+				0,
+				m_images[i],
+				VK_IMAGE_VIEW_TYPE_2D,
+				m_imageFormat,
+				components,
+				subresourceRange
+			};
+			result = vkCreateImageView(data.vulkanData->m_logicalDevice, &imgViewCreateInfo, nullptr, &m_imageViews[i]);
+			if (result != VK_SUCCESS)
+			{
+				LINA_ERR("[Vulkan Swapchain] -> Could not create image views for the created images.");
+				return false;
+			}
 		}
 
 		LINA_TRACE("[Vulkan Swapchain] -> Successfuly a created swapchain");
@@ -230,22 +268,22 @@ namespace Lina::Graphics
 		}
 
 		std::vector<VkSurfaceFormatKHR> surfaceFormats(formats_count);
-		result = vkGetPhysicalDeviceSurfaceFormatsKHR(data.vulkanData->m_physicalDevice, data.vulkanData->m_surface, &formats_count, surfaceFormats.data());
-		if ((VK_SUCCESS != result) || (0 == formats_count)) 
+		result = vkGetPhysicalDeviceSurfaceFormatsKHR(data.vulkanData->m_physicalDevice, data.vulkanData->m_surface, &formats_count, &surfaceFormats[0]);
+		if ((VK_SUCCESS != result) || (0 == formats_count))
 		{
 			LINA_TRACE("[Vulkan Swapchain] -> Could not enumerate supported surface formats.");
 			return false;
 		}
 
 		// Select surface format
-		if ((1 == surfaceFormats.size()) && (VK_FORMAT_UNDEFINED == surfaceFormats[0].format)) 
+		if ((1 == surfaceFormats.size()) && (VK_FORMAT_UNDEFINED == surfaceFormats[0].format))
 		{
 			outSelectedImageFormat = data.desiredSurfaceFormat.format;
 			outSelectedColorSpace = data.desiredSurfaceFormat.colorSpace;
 			return true;
 		}
 
-		for (auto& sformat : surfaceFormats) 
+		for (auto& sformat : surfaceFormats)
 		{
 			if ((data.desiredSurfaceFormat.format == sformat.format) && (data.desiredSurfaceFormat.colorSpace == sformat.colorSpace))
 			{
@@ -255,7 +293,7 @@ namespace Lina::Graphics
 			}
 		}
 
-		for (auto& sformat : surfaceFormats) 
+		for (auto& sformat : surfaceFormats)
 		{
 			if ((data.desiredSurfaceFormat.format == sformat.format))
 			{

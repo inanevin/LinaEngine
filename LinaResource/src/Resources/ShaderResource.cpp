@@ -29,20 +29,93 @@ SOFTWARE.
 #include "Resources/ShaderResource.hpp"
 #include "EventSystem/Events.hpp"
 #include "EventSystem/EventSystem.hpp"
+#include "Core/Log.hpp"
+#include "Utility/FileUtility.hpp"
+#include <fstream>
+#include <cstdlib>
+#include <shaderc/shaderc.hpp>
 
 namespace Lina::Resources
 {
 
-	bool ShaderResource::LoadFromMemory(StringIDType sid, unsigned char* buffer, size_t bufferSize, Event::EventSystem* eventSys)
+	bool ShaderResource::LoadFromMemory(StringIDType sid, unsigned char* buffer, size_t bufferSize,  Event::EventSystem* eventSys)
 	{
-		// Trigger event w/ data
-		eventSys->Trigger<Event::EShaderResourceLoaded>({sid});
-		return false;
+		
+#ifdef LINA_GRAPHICS_VULKAN
+		// Save data.
+		std::vector<char> charbuf = std::vector<char>(buffer, buffer + bufferSize);
+		uint32_t* intbuf = reinterpret_cast<uint32_t*>(charbuf.data());
+		m_data = std::vector<uint32_t>(intbuf, intbuf + charbuf.size());
+		LINA_TRACE("[Shader Loader] -> Shader loaded from memory.");
+		return true;
+#elif
+#endif
 	}
-	bool ShaderResource::LoadFromFile(const std::string& path, Event::EventSystem* eventSys)
+
+	bool ShaderResource::LoadFromFile(const std::string& path, ResourceType type, Event::EventSystem* eventSys)
 	{	
-		// Trigger event w/ data
-		eventSys->Trigger<Event::EShaderResourceLoaded>({ StringID(path.c_str()).value() });
-		return false;
+
+#ifdef LINA_GRAPHICS_VULKAN
+		shaderc::Compiler compiler;
+		shaderc::CompileOptions options;
+
+		bool optimize = true;
+
+		if (optimize) options.SetOptimizationLevel(shaderc_optimization_level_size);
+
+		shaderc_shader_kind kind;
+		
+		if (type == ResourceType::GLSLFrag)
+			kind = shaderc_glsl_fragment_shader;
+		else if (type == ResourceType::GLSLVertex)
+			kind = shaderc_glsl_vertex_shader;
+		else if (type == ResourceType::GLSLGeo)
+			kind = shaderc_glsl_geometry_shader;
+		else
+		{
+			LINA_ERR("[Shader Loader] -> Could not determine the shader kind for compilation! {0}", path);
+			return false;
+		}
+		
+		std::string sourceName = FileUtility::RemoveExtensionFromFileName(FileUtility::GetFileName(path));
+		std::ifstream stream(path);
+		std::string shaderText((std::istreambuf_iterator<char>(stream)),std::istreambuf_iterator<char>());
+		shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(shaderText, kind, sourceName.c_str(), options);
+
+		if (module.GetCompilationStatus() != shaderc_compilation_status_success) 
+		{
+			LINA_ERR("[Shader Loader] -> Could not compile shader at path {0}, error msg: {1}", path, module.GetErrorMessage());
+			return false;
+		}
+
+		m_data = { module.cbegin(), module.cend() };
+		LINA_TRACE("[Shader Loader] -> Successfuly compiled shader from file: {0}", path);
+
+		return true;
+#elif
+		std::ifstream file(path, std::ios::ate | std::ios::binary);
+
+		if (!file.is_open())
+		{
+			LINA_ERR("[Shader Resource] -> Failed to open file: {0}", path);
+			return false;
+		}
+
+		// Store resource data.
+		size_t fileSize = (size_t)file.tellg();
+		file.seekg(0);
+		file.read(m_textData.data(), fileSize);
+		return true;
+#endif
+
+		//// Send event.
+		//std::string contents((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+		//Event::EShaderResourceLoaded ev;
+		//ev.m_sid = StringID(path.c_str()).value();
+		//ev.m_textData = contents.c_str();
+		//ev.m_dataSize = fileSize;
+		//eventSys->Trigger<Event::EShaderResourceLoaded>(ev);
+		//LINA_TRACE("[Shader Loader] -> Audio loaded from file: {0}", path);
+		//return true;
 	}
 }

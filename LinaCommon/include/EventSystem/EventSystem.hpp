@@ -87,6 +87,13 @@ namespace Lina::Event
 		}
 
 		template<typename Type>
+		void Trigger(Type& args)
+		{
+			std::lock_guard<std::recursive_mutex> l(m_mutex);
+			m_mainDispatcher.trigger<Type>(args);
+		}
+
+		template<typename Type>
 		void Trigger()
 		{
 			std::lock_guard<std::recursive_mutex> l(m_mutex);

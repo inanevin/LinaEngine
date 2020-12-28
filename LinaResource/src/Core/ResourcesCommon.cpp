@@ -43,7 +43,10 @@ namespace Lina::Resources
 		{ StringID("mp3"), ResourceType::Audio },
 		{ StringID("ogg"), ResourceType::Audio },
 		{ StringID("linamat"), ResourceType::Material },
-		{ StringID("glsl"), ResourceType::Shader },
+		{ StringID("vert"), ResourceType::GLSLVertex },
+		{ StringID("geo"), ResourceType::GLSLGeo },
+		{ StringID("frag"), ResourceType::GLSLFrag },
+		{ StringID("spv"), ResourceType::SPIRV },
 	};
 
 	ResourceType GetResourceType(const std::string& extension)

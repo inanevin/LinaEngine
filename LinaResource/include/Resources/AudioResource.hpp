@@ -40,15 +40,22 @@ Timestamp: 12/19/2020 2:28:54 AM
 #define AudioResource_HPP
 
 // Headers here.
-#include "Resource.hpp"
 #include <vector>
-#include <linaresource_export.h>
+#include "Utility/StringId.hpp"
+
+namespace Lina
+{
+	namespace Event
+	{
+		class EventSystem;
+	}
+}
 
 namespace Lina::Resources
 {
 	struct EAudioResourceLoaded { void* m_data; int m_dataSize; };
 
-	class AudioResource : public IResource
+	class AudioResource 
 	{
 
 	public:
@@ -61,8 +68,8 @@ namespace Lina::Resources
 		AudioResource() {};
 		~AudioResource() {};
 
-		virtual bool LoadFromFile(const std::string& path, Event::EventSystem* eventSys) override;
-		virtual bool LoadFromMemory(StringIDType m_sid, unsigned char* buffer, size_t bufferSize, Event::EventSystem* eventSys) override;
+		bool LoadFromFile(const std::string& path, Event::EventSystem* eventSys);
+		bool LoadFromMemory(StringIDType m_sid, unsigned char* buffer, size_t bufferSize, Event::EventSystem* eventSys);
 
 	};
 }

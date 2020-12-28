@@ -53,6 +53,14 @@ namespace Lina::FileUtility
 		return ext;
 	}
 
+	std::string GetFileName(const std::string& path)
+	{
+		size_t i = path.rfind('/', path.length());
+		if (i != std::string::npos) 
+			return(path.substr(i + 1, path.length() - i));	
+		return "";
+	}
+
 	void ScanFolder(Folder& root, bool recursive)
 	{
 		for (const auto& entry : std::filesystem::directory_iterator(root.m_fullPath))

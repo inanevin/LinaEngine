@@ -108,7 +108,7 @@ namespace Lina::Resources
 					else
 						delete mat;
 				}
-				else if (package.first == ResourceType::Shader)
+				else if (package.first == ResourceType::SPIRV)
 				{
 					ShaderResource* shader = new ShaderResource();
 					if (shader->LoadFromMemory(resource.first, &resource.second[0], resource.second.size(), eventSys))
@@ -159,10 +159,10 @@ namespace Lina::Resources
 			else
 				delete mat;
 		}
-		else if (type == ResourceType::Shader)
+		else if (type == ResourceType::GLSLFrag || type == ResourceType::GLSLGeo || type == ResourceType::GLSLVertex)
 		{
 			ShaderResource* shader = new ShaderResource();
-			if (shader->LoadFromFile(path, eventSys))
+			if (shader->LoadFromFile(path, type, eventSys))
 				m_shaderPackage[StringID(path.c_str())] = shader;
 			else
 				delete shader;

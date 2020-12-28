@@ -64,6 +64,7 @@ namespace Lina::FileUtility
 	};
 
 	extern std::string GetFileExtension(const std::string& path);
+	extern std::string GetFileName(const std::string& path);
 	extern void ScanFolder(Folder& root, bool recursive = true);
 	extern bool FileExists(const std::string& path);
 	extern bool DeleteFileInPath(const std::string& path);

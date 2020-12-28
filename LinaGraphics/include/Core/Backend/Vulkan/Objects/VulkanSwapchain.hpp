@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -59,9 +59,9 @@ namespace Lina::Graphics
 
 	class VulkanSwapchain
 	{
-		
+
 	public:
-	
+
 	private:
 
 		friend class RenderEngineVulkan;
@@ -75,10 +75,13 @@ namespace Lina::Graphics
 		bool Create(const SwapchainData& data);
 		VkImage GetImage(VkDevice logicalDevice, VkSemaphore semaphore, VkFence fence = VK_NULL_HANDLE);
 		void Destroy(VkDevice logicalDevice);
+		inline std::vector<VkImageView>& GetImageViews() { return m_imageViews; }
 
 		std::vector<VkImage> m_images;
+		std::vector<VkImageView> m_imageViews;
 		VkSwapchainKHR m_handle = VK_NULL_HANDLE;
 		VkExtent2D m_imagesSize;
+		VkFormat m_imageFormat;
 	};
 }
 

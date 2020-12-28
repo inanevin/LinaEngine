@@ -74,7 +74,6 @@ namespace Lina::Resources
 		// Trigger event & free data.
 		eventSys->Trigger<Event::EAudioResourceLoaded>(Event::EAudioResourceLoaded{ m_sid, (void*)data, size, format, freq });
 		free(data);
-
 		LINA_TRACE("[Audio Loader] -> Audio loaded from memory");
 		return true;
 	}

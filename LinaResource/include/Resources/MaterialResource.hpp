@@ -40,12 +40,20 @@ Timestamp: 12/22/2020 2:03:09 PM
 #define MaterialResource_HPP
 
 // Headers here.
-#include "Resource.hpp"
+#include "Utility/StringId.hpp"
 #include <cereal/cereal.hpp>
+
+namespace Lina
+{
+	namespace Event
+	{
+		class EventSystem;
+	}
+}
 
 namespace Lina::Resources
 {
-	class MaterialResource : IResource
+	class MaterialResource 
 	{
 		
 	private:
@@ -58,8 +66,8 @@ namespace Lina::Resources
 		virtual ~MaterialResource() {};
 
 
-		virtual bool LoadFromFile(const std::string& path, Event::EventSystem* eventSys) override;
-		virtual bool LoadFromMemory(StringIDType m_sid, unsigned char* buffer, size_t bufferSize, Event::EventSystem* eventSys) override;
+		virtual bool LoadFromFile(const std::string& path, Event::EventSystem* eventSys);
+		virtual bool LoadFromMemory(StringIDType m_sid, unsigned char* buffer, size_t bufferSize, Event::EventSystem* eventSys) ;
 		bool Export(const std::string& path);
 		
 		int m_dummy = 0;

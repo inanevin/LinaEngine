@@ -40,14 +40,27 @@ Timestamp: 12/23/2020 1:09:12 AM
 #define ShaderResource_HPP
 
 // Headers here.
-#include "Resource.hpp"
-#include <linaresource_export.h>
+#include "Core/ResourcesCommon.hpp"
+
+namespace Lina
+{
+	namespace Event
+	{
+		class EventSystem;
+	}
+}
 
 namespace Lina::Resources
 {
-
-	class ShaderResource : public IResource
+	class ShaderResource 
 	{
+
+	public:
+
+#ifdef LINA_GRAPHICS_VULKAN
+		const std::vector<uint32_t>& GetData() { return m_data; }
+#elif
+#endif
 
 	private:
 
@@ -57,9 +70,15 @@ namespace Lina::Resources
 		ShaderResource() {};
 		virtual ~ShaderResource() {};
 
-		bool LoadFromMemory(StringIDType sid, unsigned char* buffer, size_t bufferSize, Event::EventSystem* eventSys) override;
-		bool LoadFromFile(const std::string& path, Event::EventSystem* eventSys) override;
+		bool LoadFromMemory(StringIDType sid, unsigned char* buffer, size_t bufferSize, Event::EventSystem* eventSys);
+		bool LoadFromFile(const std::string& path, ResourceType type, Event::EventSystem* eventSys);
 	
+	private:
+
+#ifdef LINA_GRAPHICS_VULKAN
+		std::vector<uint32_t> m_data;
+#elif
+#endif
 	};
 }
 

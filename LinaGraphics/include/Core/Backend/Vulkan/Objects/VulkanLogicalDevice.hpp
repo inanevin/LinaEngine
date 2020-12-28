@@ -91,6 +91,9 @@ namespace Lina::Graphics
 		/* BUFFER FUNCTIONS */
 		VkBuffer BufferCreate(VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode);
 
+		/* SHADER MODULE FUNCTIONS */
+		VkShaderModule ShaderModuleCreate(const std::vector<uint32_t>& buffer);
+
 	private:
 
 		VkPhysicalDevice m_physicalDevice;

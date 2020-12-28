@@ -38,12 +38,16 @@ namespace Lina::Graphics
 	RenderEngineVulkan::~RenderEngineVulkan()
 	{
 		if (m_initialized)
-		{
-			m_eventSys->Disconnect<Event::EPreMainLoop>(this);
-			m_eventSys->Disconnect<Event::EPostMainLoop>(this);
-			m_eventSys->Disconnect<Event::ERender>(this);
-			m_eventSys->Disconnect<Event::EEarlyInit>(this);
-		}
+			DisconnectEvents();
+	}
+
+	void RenderEngineVulkan::DisconnectEvents()
+	{
+		m_eventSys->Disconnect<Event::EPreMainLoop>(this);
+		m_eventSys->Disconnect<Event::EPostMainLoop>(this);
+		m_eventSys->Disconnect<Event::ERender>(this);
+		m_eventSys->Disconnect<Event::EEarlyInit>(this);
+		m_eventSys->Disconnect<Event::EShaderResourceLoaded>(this);
 	}
 
 	void RenderEngineVulkan::SetReferences(Event::EventSystem* eventSys, ECS::Registry* ecs)
@@ -54,6 +58,7 @@ namespace Lina::Graphics
 		m_eventSys->Connect<Event::EPostMainLoop, &RenderEngineVulkan::OnPostMainLoop>(this);
 		m_eventSys->Connect<Event::ERender, &RenderEngineVulkan::Render>(this);
 		m_eventSys->Connect<Event::EEarlyInit, &RenderEngineVulkan::OnEarlyInit>(this);
+		m_eventSys->Connect<Event::EShaderResourceLoaded, &RenderEngineVulkan::OnShaderResourceLoaded>(this);
 	}
 	void RenderEngineVulkan::OnEarlyInit(Event::EEarlyInit& e)
 	{
@@ -69,7 +74,6 @@ namespace Lina::Graphics
 			m_loader.CreateLogicalDevice();
 			m_logicalDevice.m_handle = m_vulkanData.m_logicalDevice;
 			m_logicalDevice.m_physicalDevice = m_vulkanData.m_physicalDevice;
-			m_logicalDevice.GetMemoryProperties();
 
 			// Create a swapchain.
 			SwapchainData data;
@@ -77,50 +81,12 @@ namespace Lina::Graphics
 			data.windowProps = &e.m_appInfo->m_windowProperties;
 			m_swapchain.Create(data);
 
-			// Getting swapchain image
-			VkImage img = m_swapchain.GetImage(m_vulkanData.m_logicalDevice, VK_NULL_HANDLE);
-
-			// Creating command pool
-			VkCommandPool pool = m_logicalDevice.CommandPoolCreate(m_vulkanData.m_graphicsQueueFamilyIndex, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-			
-			// Creating buffers based on pool
-			std::vector<VkCommandBuffer> primaryBuffers = m_logicalDevice.CommandBufferCreate(pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1);
-			std::vector<VkCommandBuffer> secondaryBuffers = m_logicalDevice.CommandBufferCreate(pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, 1);
-			
-			// Begin operations on buffers.
-			SecondaryCommandBufferData secdata;
-			m_logicalDevice.CommandBufferBegin(primaryBuffers[0], VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT);
-			m_logicalDevice.CommandBufferBegin(secondaryBuffers[0], VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, &secdata);
-
-			// End recording on buffers.
-			m_logicalDevice.CommandBufferEnd(0);
-			m_logicalDevice.CommandBufferEnd(0);
-
-			// Explicit reset on buffers & pool
-			m_logicalDevice.CommandBufferReset(0, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
-			m_logicalDevice.CommandPoolReset(pool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
-
-			// Waiting for fences.
-			std::vector<VkFence> fences;
-			VkBool32 waitForAll = VK_TRUE;
-			uint64_t timeout = 2000000000;
-			fences.push_back(m_logicalDevice.FenceCreate(VK_FENCE_CREATE_SIGNALED_BIT));
-			m_logicalDevice.FenceWait(fences, VK_TRUE, 2000000000);
-		
-			QueueSubmitInfo submitInfo;
-			// TODO: Initialize stages.
-			m_logicalDevice.QueueSubmit(submitInfo);
 
 			m_initialized = true;
 		}
 
 		if (!m_initialized)
-		{
-			m_eventSys->Disconnect<Event::EPreMainLoop>(this);
-			m_eventSys->Disconnect<Event::EPostMainLoop>(this);
-			m_eventSys->Disconnect<Event::ERender>(this);
-			m_eventSys->Disconnect<Event::EEarlyInit>(this);
-		}
+			DisconnectEvents();
 	}
 
 	void RenderEngineVulkan::OnPreMainLoop(Event::EPreMainLoop& e)
@@ -143,6 +109,11 @@ namespace Lina::Graphics
 		m_window.Terminate();
 	}
 
+	void RenderEngineVulkan::OnShaderResourceLoaded(Event::EShaderResourceLoaded& e)
+	{
+
+	}
+
 	void RenderEngineVulkan::Tick()
 	{
 		PROFILER_FUNC();
@@ -156,4 +127,5 @@ namespace Lina::Graphics
 		m_eventSys->Trigger<Event::EPostRender>();
 		m_eventSys->Trigger<Event::EFinalizePostRender>();
 	}
+	
 }

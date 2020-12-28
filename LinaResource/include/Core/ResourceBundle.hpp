@@ -41,6 +41,7 @@ Timestamp: 12/22/2020 12:26:55 AM
 
 // Headers here.
 #include "ResourcesCommon.hpp"
+#include "ResourcePackages.hpp"
 
 namespace Lina
 {
