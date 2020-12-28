@@ -30,7 +30,7 @@ SOFTWARE.*/
 #include "Core/Log.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Core/Backend/Vulkan/Utility/VulkanFunctions.hpp"
-
+#include "Core/ResourceManager.hpp"
 
 namespace Lina::Graphics
 {
@@ -46,21 +46,21 @@ namespace Lina::Graphics
 		m_eventSys->Disconnect<Event::EPreMainLoop>(this);
 		m_eventSys->Disconnect<Event::EPostMainLoop>(this);
 		m_eventSys->Disconnect<Event::ERender>(this);
-		m_eventSys->Disconnect<Event::EEarlyInit>(this);
-		m_eventSys->Disconnect<Event::EShaderResourceLoaded>(this);
+		m_eventSys->Disconnect<Event::EAppLoad>(this);
 	}
 
-	void RenderEngineVulkan::SetReferences(Event::EventSystem* eventSys, ECS::Registry* ecs)
+	void RenderEngineVulkan::SetReferences(Event::EventSystem* eventSys, ECS::Registry* ecs, Resources::ResourceManager* resources)
 	{
 		m_eventSys = eventSys;
 		m_ecs = ecs;
+		m_resources = resources;
 		m_eventSys->Connect<Event::EPreMainLoop, &RenderEngineVulkan::OnPreMainLoop>(this);
 		m_eventSys->Connect<Event::EPostMainLoop, &RenderEngineVulkan::OnPostMainLoop>(this);
 		m_eventSys->Connect<Event::ERender, &RenderEngineVulkan::Render>(this);
-		m_eventSys->Connect<Event::EEarlyInit, &RenderEngineVulkan::OnEarlyInit>(this);
-		m_eventSys->Connect<Event::EShaderResourceLoaded, &RenderEngineVulkan::OnShaderResourceLoaded>(this);
+		m_eventSys->Connect<Event::EAppLoad, &RenderEngineVulkan::OnAppLoad>(this);
 	}
-	void RenderEngineVulkan::OnEarlyInit(Event::EEarlyInit& e)
+
+	void RenderEngineVulkan::OnAppLoad(Event::EAppLoad& e)
 	{
 		// First create empty window context.
 		m_window.SetReferences(m_eventSys, e.m_appInfo->m_windowProperties);
@@ -81,7 +81,6 @@ namespace Lina::Graphics
 			data.windowProps = &e.m_appInfo->m_windowProperties;
 			m_swapchain.Create(data);
 
-
 			m_initialized = true;
 		}
 
@@ -92,6 +91,15 @@ namespace Lina::Graphics
 	void RenderEngineVulkan::OnPreMainLoop(Event::EPreMainLoop& e)
 	{
 		LINA_TRACE("[Render Engine Vulkan] -> Startup");
+
+		Resources::ShaderResource* vertShader = m_resources->GetShaderResource(StringID("Resources/Shaders/testTriangle.vert").value());
+		Resources::ShaderResource* fragShader = m_resources->GetShaderResource(StringID("Resources/Shaders/testTriangle.frag").value());
+		VkShaderModule vertModule = m_logicalDevice.ShaderModuleCreate(vertShader->GetData());
+		VkShaderModule fragModule = m_logicalDevice.ShaderModuleCreate(fragShader->GetData());
+
+		m_logicalDevice.ShaderModuleDestroy(vertModule);
+		m_logicalDevice.ShaderModuleDestroy(fragModule);
+
 	}
 
 	void RenderEngineVulkan::OnPostMainLoop(Event::EPostMainLoop& e)

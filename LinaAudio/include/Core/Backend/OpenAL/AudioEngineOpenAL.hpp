@@ -77,7 +77,7 @@ namespace Lina::Audio
 
 	private:
 
-		void OnPreMainLoop(Event::EPreMainLoop& e);
+		void OnAppLoad(Event::EAppLoad& e);
 		void OnPostMainLoop(Event::EPostMainLoop& e);
 		void OnTick();
 		void ListAudioDevices(const char* type, const char* list);

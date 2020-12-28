@@ -51,6 +51,8 @@ namespace Lina::Resources
 	{
 		m_eventSys->Disconnect<Event::EPreMainLoop>(this);
 		m_eventSys->Disconnect<Event::EPostMainLoop>(this);
+		m_eventSys->Disconnect<Event::ETick>(this);
+		m_eventSys->Disconnect<Event::EAppLoad>(this);
 	}
 
 	void ResourceManager::SetReferences(Event::EventSystem* eventSys, ECS::Registry* ecs)
@@ -58,6 +60,7 @@ namespace Lina::Resources
 		m_eventSys = eventSys;
 		m_ecs = ecs;
 		m_eventSys->Connect<Event::EPreMainLoop, &ResourceManager::OnPreMainLoop>(this);
+		m_eventSys->Connect<Event::EAppLoad, &ResourceManager::OnAppLoad>(this);
 		m_eventSys->Connect<Event::EPostMainLoop, &ResourceManager::OnPostMainLoop>(this);
 		m_eventSys->Connect<Event::ETick, &ResourceManager::DebugLevelLoad>(this);
 	}
@@ -66,13 +69,32 @@ namespace Lina::Resources
 	{
 		LINA_TRACE("[Resource Manager] -> Startup");
 
-		m_appMode = e.m_appMode;
+		
+	}
+
+	void ResourceManager::OnPostMainLoop(Event::EPostMainLoop& e)
+	{
+		// Make sure we don't have any packing/unpacking going on.
+		if (m_future.valid())
+		{
+			m_future.cancel();
+			m_future.get();
+		}
+
+		LINA_TRACE("[Resource Manager] -> Shutdown");
+	}
+
+	void ResourceManager::OnAppLoad(Event::EAppLoad& e)
+	{
+		m_appMode = e.m_appInfo->m_appMode;
 
 		m_activeLevel.AddUsedResource("Resources/test.wav");
 
 		// If we are in editor, fill our resource bundle with all the files imported in the project's Resources directory.
 		if (m_appMode == ApplicationMode::Editor || m_appMode == ApplicationMode::EditorGame)
 		{
+			m_currentProgressData.m_state = ResourceProgressState::Pending;
+
 			m_taskflow.emplace([=]()
 				{
 					// Find resources.
@@ -95,6 +117,7 @@ namespace Lina::Resources
 					m_bundle.UnloadProcessedPackages();
 
 					// Notify listeners that unpacking has finished.
+					m_currentProgressData.m_state = ResourceProgressState::None;
 					m_eventSys->Trigger<Event::EResourceProgressEnded>();
 				});
 
@@ -102,18 +125,6 @@ namespace Lina::Resources
 		}
 		else
 			ImportLevel("", "default");
-	}
-
-	void ResourceManager::OnPostMainLoop(Event::EPostMainLoop& e)
-	{
-		// Make sure we don't have any packing/unpacking going on.
-		if (m_future.valid())
-		{
-			m_future.cancel();
-			m_future.get();
-		}
-
-		LINA_TRACE("[Resource Manager] -> Shutdown");
 	}
 
 	void ResourceManager::ImportLevel(const std::string& path, const std::string& levelName)
@@ -131,6 +142,9 @@ namespace Lina::Resources
 		// If not in editor, load & unpack the bundle associated with this level, on a seperate thread.
 		if (m_appMode == ApplicationMode::Standalone)
 		{
+			// Make sure we set state before multithreading.
+			m_currentProgressData.m_state = ResourceProgressState::Pending;
+
 			m_taskflow.emplace([=]()
 				{
 					// Start unpacking process, preceeded & followed by an event dispatch.

@@ -51,11 +51,25 @@ namespace Lina
 		m_engine.SetReferences(&m_eventSystem);
 		m_audioEngine.SetReferences(&m_eventSystem, &m_ecs, appInfo.m_appMode);
 		m_inputEngine.SetReferences(&m_eventSystem, &m_ecs);
-		m_renderEngine.SetReferences(&m_eventSystem, &m_ecs);
+		m_renderEngine.SetReferences(&m_eventSystem, &m_ecs, &m_resourceManager);
 		m_physicsEngine.SetReferences(&m_eventSystem, &m_ecs);
 		m_resourceManager.SetReferences(&m_eventSystem, &m_ecs);
 
-		m_eventSystem.Trigger<Event::EEarlyInit>({&m_appInfo});
+		m_eventSystem.Trigger<Event::EAppLoad>({&m_appInfo});
+
+		// Wait for resource manager before running the main loop.
+		Resources::ResourceProgressData& progData = m_resourceManager.GetCurrentProgressData();
+		static float timer = 0.0f;
+		while (progData.m_state == Resources::ResourceProgressState::Pending || progData.m_state == Resources::ResourceProgressState::InProgress)
+		{
+			timer += 0.001f;
+
+			if (timer > 25000.0f)
+			{
+				timer = 0.0f;
+				LINA_TRACE("{0}", progData.m_progressTitle);
+			}
+		}
 
 		// Run
 		m_engine.Run(appInfo.m_appMode);

@@ -68,7 +68,7 @@ namespace Lina::Graphics
 		void CommandPoolDestroy(VkCommandPool pool);
 
 		/* COMMAND BUFFER FUNCTIONS */
-		std::vector<VkCommandBuffer>& CommandBufferCreate(VkCommandPool pool, VkCommandBufferLevel level, uint32_t count);
+		VkCommandBuffer* CommandBufferCreate(VkCommandPool pool, VkCommandBufferLevel level, uint32_t count);
 		bool CommandBufferBegin(VkCommandBuffer cbuffer, VkCommandBufferUsageFlags usage, SecondaryCommandBufferData* data = nullptr);
 		bool CommandBufferEnd(VkCommandBuffer cbuffer);
 		bool CommandBufferReset(VkCommandBuffer cbuffer, VkCommandBufferResetFlags resetFlags);
@@ -93,6 +93,7 @@ namespace Lina::Graphics
 
 		/* SHADER MODULE FUNCTIONS */
 		VkShaderModule ShaderModuleCreate(const std::vector<uint32_t>& buffer);
+		void ShaderModuleDestroy(VkShaderModule module);
 
 	private:
 

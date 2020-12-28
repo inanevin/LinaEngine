@@ -54,6 +54,11 @@ namespace Lina
 	{
 		class EventSystem;
 	}
+
+	namespace Resources
+	{
+		class ResourceManager;
+	}
 }
 
 namespace Lina::Graphics
@@ -72,12 +77,12 @@ namespace Lina::Graphics
 		RenderEngineVulkan() {};
 		~RenderEngineVulkan();
 
-		void SetReferences(Event::EventSystem* eventSys, ECS::Registry* ecs);
+		void SetReferences(Event::EventSystem* eventSys, ECS::Registry* ecs, Resources::ResourceManager* m_resources);
 		inline WindowVulkan* GetWindow() { return &m_window; }
 
 	private:
 
-		void OnEarlyInit(Event::EEarlyInit& e);
+		void OnAppLoad(Event::EAppLoad& e);
 		void OnPreMainLoop(Event::EPreMainLoop& e);
 		void OnPostMainLoop(Event::EPostMainLoop& e);
 		void OnShaderResourceLoaded(Event::EShaderResourceLoaded& e);
@@ -94,6 +99,7 @@ namespace Lina::Graphics
 		VulkanLogicalDevice m_logicalDevice;
 		Event::EventSystem* m_eventSys = nullptr;
 		ECS::Registry* m_ecs = nullptr;
+		Resources::ResourceManager* m_resources = nullptr;
 		WindowVulkan m_window;
 	};
 

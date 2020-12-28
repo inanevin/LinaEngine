@@ -67,7 +67,7 @@ namespace Lina::Event
 	};
 
 	// App
-	struct EEarlyInit {ApplicationInfo* m_appInfo = nullptr; };
+	struct EAppLoad {ApplicationInfo* m_appInfo = nullptr; };
 
 	// Engine.
 	struct EPreMainLoop { ApplicationMode m_appMode = ApplicationMode::Unknown; };

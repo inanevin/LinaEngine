@@ -399,4 +399,10 @@ namespace Lina::Graphics
 		return shaderModule;
 	}
 
+	void VulkanLogicalDevice::ShaderModuleDestroy(VkShaderModule module)
+	{
+		vkDestroyShaderModule(m_handle, module, nullptr);
+		LINA_TRACE("[Shader Module] -> Successfuly deleted a shader module.");
+	}
+
 }

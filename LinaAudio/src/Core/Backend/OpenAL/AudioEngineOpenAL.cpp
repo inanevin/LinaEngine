@@ -45,7 +45,7 @@ namespace Lina::Audio
 
 	AudioEngineOpenAL::~AudioEngineOpenAL()
 	{
-		m_eventSys->Disconnect<Event::EPreMainLoop>(this);
+		m_eventSys->Disconnect<Event::EAppLoad>(this);
 		m_eventSys->Disconnect<Event::EPostMainLoop>(this);
 		m_eventSys->Disconnect<Event::EAudioResourceLoaded>(this);
 		m_eventSys->Disconnect<Event::EPreTick>(this);
@@ -69,14 +69,14 @@ namespace Lina::Audio
 
 		// Listen to events
 		m_eventSys->Connect<Event::EAudioResourceLoaded, &AudioEngineOpenAL::OnAudioResourceLoaded>(this);
-		m_eventSys->Connect<Event::EPreMainLoop, &AudioEngineOpenAL::OnPreMainLoop>(this);
+		m_eventSys->Connect<Event::EAppLoad, &AudioEngineOpenAL::OnAppLoad>(this);
 		m_eventSys->Connect<Event::EPostMainLoop, &AudioEngineOpenAL::OnPostMainLoop>(this);
 		m_eventSys->Connect<Event::EPreTick, &AudioEngineOpenAL::OnTick>(this);
 		m_eventSys->Connect<Event::ELevelLoaded, &AudioEngineOpenAL::OnLevelLoaded>(this);
 		m_eventSys->Connect<Event::ELevelUnloaded, &AudioEngineOpenAL::OnLevelUnloaded>(this);
 	}
 
-	void AudioEngineOpenAL::OnPreMainLoop(Event::EPreMainLoop& e)
+	void AudioEngineOpenAL::OnAppLoad(Event::EAppLoad& e)
 	{
 		LINA_TRACE("[Audio Engine OpenAL] -> Startup");
 

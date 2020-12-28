@@ -131,7 +131,7 @@ namespace Lina::Resources
 		{
 			ImageResource* img = new ImageResource();
 			if (img->LoadFromFile(path, eventSys))
-				m_imagePackage[StringID(path.c_str())] = img;
+				m_imagePackage[StringID(path.c_str()).value()] = img;
 			else
 				delete img;
 		}
@@ -139,7 +139,7 @@ namespace Lina::Resources
 		{
 			MeshResource* mesh = new MeshResource();
 			if (mesh->LoadFromFile(path, eventSys))
-				m_meshPackage[StringID(path.c_str())] = mesh;
+				m_meshPackage[StringID(path.c_str()).value()] = mesh;
 			else
 				delete mesh;
 		}
@@ -147,7 +147,7 @@ namespace Lina::Resources
 		{
 			AudioResource* aud = new AudioResource();
 			if (aud->LoadFromFile(path, eventSys))
-				m_audioPackage[StringID(path.c_str())] = aud;
+				m_audioPackage[StringID(path.c_str()).value()] = aud;
 			else
 				delete aud;
 		}
@@ -155,7 +155,7 @@ namespace Lina::Resources
 		{
 			MaterialResource* mat = new MaterialResource();
 			if (mat->LoadFromFile(path, eventSys))
-				m_materialPackage[StringID(path.c_str())] = mat;
+				m_materialPackage[StringID(path.c_str()).value()] = mat;
 			else
 				delete mat;
 		}
@@ -163,7 +163,7 @@ namespace Lina::Resources
 		{
 			ShaderResource* shader = new ShaderResource();
 			if (shader->LoadFromFile(path, type, eventSys))
-				m_shaderPackage[StringID(path.c_str())] = shader;
+				m_shaderPackage[StringID(path.c_str()).value()] = shader;
 			else
 				delete shader;
 		}
