@@ -28,7 +28,9 @@ SOFTWARE.
 
 #include "Core/Backend/Vulkan/Objects/VulkanLogicalDevice.hpp"
 #include "Core/Backend/Vulkan/Utility/VulkanFunctions.hpp"
+#include "Core/Backend/Vulkan/Objects/VulkanSwapchain.hpp"
 #include "Core/Log.hpp"
+
 namespace Lina::Graphics
 {
 
@@ -68,7 +70,6 @@ namespace Lina::Graphics
 			return VK_NULL_HANDLE;
 		}
 
-		m_commandPools.insert(pool);
 		return pool;
 	}
 
@@ -88,17 +89,16 @@ namespace Lina::Graphics
 
 	void VulkanLogicalDevice::CommandPoolDestroy(VkCommandPool pool)
 	{
-		m_commandPools.erase(pool);
 		vkDestroyCommandPool(m_handle, pool, nullptr);
 		pool = VK_NULL_HANDLE;
-
+		LINA_TRACE("[Command Pool] -> Successfuly destroyed a command pool.");
 	}
 
 	/* -------------------- COMMAND BUFFER FUNCTIONS -------------------- */
 	/* -------------------- COMMAND BUFFER FUNCTIONS -------------------- */
 	/* -------------------- COMMAND BUFFER FUNCTIONS -------------------- */
 	/* -------------------- COMMAND BUFFER FUNCTIONS -------------------- */
-	VkCommandBuffer* VulkanLogicalDevice::CommandBufferCreate(VkCommandPool pool, VkCommandBufferLevel level, uint32_t count)
+	std::vector<VkCommandBuffer> VulkanLogicalDevice::CommandBufferCreate(VkCommandPool pool, VkCommandBufferLevel level, uint32_t count)
 	{
 		VkCommandBufferAllocateInfo allocateInfo
 		{
@@ -115,15 +115,13 @@ namespace Lina::Graphics
 
 		if (result != VK_SUCCESS)
 		{
-			LINA_ERR("[Command Buffer] -> Could not create command buffer.");			
-			return nullptr;
+			LINA_ERR("[Command Buffer] -> Could not create command buffer.");
+			return {};
 		}
 		else
 			LINA_TRACE("[Command Buffer] -> Successfuly created command buffer.");
 
-		m_commandBuffers.insert(buffers);
-		auto buf = *(m_commandBuffers.end());
-		return &buf[0];
+		return buffers;
 	}
 	bool VulkanLogicalDevice::CommandBufferBegin(VkCommandBuffer cbuffer, VkCommandBufferUsageFlags usage, SecondaryCommandBufferData* data)
 	{
@@ -196,12 +194,12 @@ namespace Lina::Graphics
 
 	void VulkanLogicalDevice::CommandBufferFree(std::vector<VkCommandBuffer>& buffers, VkCommandPool pool)
 	{
-		m_commandBuffers.erase(buffers);
 		if (buffers.size() > 0)
 		{
 			uint32_t size = static_cast<uint32_t>(buffers.size());
 			vkFreeCommandBuffers(m_handle, pool, size, &buffers[0]);
 			buffers.clear();
+			LINA_TRACE("[Command Buffer] -> Successfuly freed a command buffer.");
 		}
 	}
 
@@ -229,7 +227,6 @@ namespace Lina::Graphics
 		}
 
 		LINA_TRACE("[Fence] -> Successfuly created a fence.");
-		m_fences.insert(fence);
 		return fence;
 	}
 
@@ -256,11 +253,11 @@ namespace Lina::Graphics
 
 	void VulkanLogicalDevice::FenceDestroy(VkFence fence)
 	{
-		m_fences.erase(fence);
 		if (fence != VK_NULL_HANDLE)
 		{
 			vkDestroyFence(m_handle, fence, nullptr);
 			fence = VK_NULL_HANDLE;
+			LINA_TRACE("[Fence] -> Successfuly destroyed a fence.");
 		}
 	}
 
@@ -288,17 +285,16 @@ namespace Lina::Graphics
 		}
 
 		LINA_TRACE("[Semaphore] -> Successfuly created a semaphore.");
-		m_semaphores.insert(semaphore);
 		return semaphore;
 	}
 
 	void VulkanLogicalDevice::SemaphoreDestroy(VkSemaphore semaphore)
 	{
-		m_semaphores.erase(semaphore);
 		if (semaphore != VK_NULL_HANDLE)
 		{
 			vkDestroySemaphore(m_handle, semaphore, nullptr);
 			semaphore = VK_NULL_HANDLE;
+			LINA_TRACE("[Semaphore] -> Successfuly destroyed a semaphore.");
 		}
 	}
 
@@ -366,7 +362,6 @@ namespace Lina::Graphics
 		}
 
 		LINA_TRACE("[Buffer] -> Successfuly created a buffer.");
-		m_buffers.insert(buffer);
 		return buffer;
 	}
 
@@ -381,7 +376,7 @@ namespace Lina::Graphics
 			VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
 			nullptr,
 			0,
-			buffer.size(),
+			buffer.size() * sizeof(uint32_t),
 			buffer.data()
 		};
 
@@ -403,6 +398,281 @@ namespace Lina::Graphics
 	{
 		vkDestroyShaderModule(m_handle, module, nullptr);
 		LINA_TRACE("[Shader Module] -> Successfuly deleted a shader module.");
+	}
+
+	/* -------------------- GRAPHICS PIPELINE FUNCTIONS -------------------- */
+	/* -------------------- GRAPHICS PIPELINE FUNCTIONS -------------------- */
+	/* -------------------- GRAPHICS PIPELINE FUNCTIONS -------------------- */
+	/* -------------------- GRAPHICS PIPELINE FUNCTIONS -------------------- */
+	VkPipeline VulkanLogicalDevice::PipelineCreateDefault(VulkanSwapchain* swapchain, VkPipelineLayout layout, VkRenderPass rp, VkPipelineShaderStageCreateInfo& vertShaderStageInfo, VkPipelineShaderStageCreateInfo& fragShaderStageInfo)
+	{
+		VkPipelineVertexInputStateCreateInfo vertexInputInfo
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+			nullptr,
+			0,
+			0,
+			nullptr,
+			0,
+			nullptr
+		};
+
+		VkPipelineInputAssemblyStateCreateInfo inputAssembly
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
+			nullptr,
+			0,
+			VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+			VK_FALSE
+		};
+
+		VkViewport viewport
+		{
+			0.0f,
+			0.0f,
+			(float)swapchain->m_imagesSize.width,
+			(float)swapchain->m_imagesSize.height,
+			0.0f,
+			1.0f
+		};
+
+		VkRect2D scissor
+		{
+			{0, 0},
+			swapchain->m_imagesSize
+		};
+
+		VkPipelineViewportStateCreateInfo viewportState
+		{
+			 VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
+			 nullptr,
+			 0,
+			 1,
+			 &viewport,
+			 1,
+			 &scissor
+		};
+
+		VkPipelineRasterizationStateCreateInfo rasterizer
+		{
+			 VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+			 nullptr,
+			 0,
+			 VK_FALSE,
+			 VK_FALSE,
+			 VK_POLYGON_MODE_FILL,
+			 VK_CULL_MODE_BACK_BIT,
+			 VK_FRONT_FACE_CLOCKWISE,
+			 VK_FALSE,
+			 0.0f,
+			 0.0f,
+			 0.0f,
+			 1.0f
+		};
+
+		VkPipelineMultisampleStateCreateInfo multisampling
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+			nullptr,
+			0,
+			VK_SAMPLE_COUNT_1_BIT,
+			VK_FALSE,	// sample shading?
+			1.0f,
+			nullptr,
+			VK_FALSE,	// alpha to coverage?
+			VK_FALSE	// alpha to one?
+		};
+
+		VkPipelineColorBlendAttachmentState colorBlendAttachment
+		{
+			VK_FALSE,
+			VK_BLEND_FACTOR_ONE,
+			VK_BLEND_FACTOR_ZERO,
+			VK_BLEND_OP_ADD,
+			VK_BLEND_FACTOR_ONE,
+			VK_BLEND_FACTOR_ZERO,
+			VK_BLEND_OP_ADD,
+			(VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT)
+		};
+
+		VkPipelineColorBlendStateCreateInfo colorBlending
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+			nullptr,
+			0,
+			VK_FALSE,
+			VK_LOGIC_OP_COPY,
+			1,
+			&colorBlendAttachment,
+			{0.0f, 0.0f, 0.0f, 0.0f}
+		};
+
+		VkDynamicState dynamicStates[] = {
+			VK_DYNAMIC_STATE_VIEWPORT,
+			VK_DYNAMIC_STATE_LINE_WIDTH
+		};
+
+		VkPipelineDynamicStateCreateInfo dynamicState
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+			nullptr,
+			0,
+			2,
+			dynamicStates
+		};
+
+		VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
+		VkGraphicsPipelineCreateInfo pipelineInfo
+		{
+			VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+			nullptr,
+			0,
+			2,
+			shaderStages,
+			&vertexInputInfo,
+			&inputAssembly,
+			nullptr,
+			&viewportState,
+			&rasterizer,
+			&multisampling,
+			nullptr,
+			&colorBlending,
+			nullptr,
+			layout,
+			rp,
+			0,
+			VK_NULL_HANDLE,
+			-1
+		};
+
+		VkPipeline graphicsPipeline;
+		VkResult result = vkCreateGraphicsPipelines(m_handle, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline);
+		
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Pipeline] -> Could not create a graphics pipeline.");
+			graphicsPipeline = VK_NULL_HANDLE;
+			return VK_NULL_HANDLE;
+		}
+
+		LINA_TRACE("[Pipeline] -> Successfuly created a graphics pipeline.");
+		return graphicsPipeline;
+	}
+
+
+	VkPipelineLayout VulkanLogicalDevice::PipelineCreateLayout()
+	{
+		VkPipelineLayout pipelineLayout;
+		VkPipelineLayoutCreateInfo pipelineLayoutInfo
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+			nullptr,
+			0,
+			0,
+			nullptr,
+			0,
+			nullptr
+		};
+
+		VkResult result = vkCreatePipelineLayout(m_handle, &pipelineLayoutInfo, nullptr, &pipelineLayout);
+
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Pipeline Layout] -> Could not create a pipeline layout.");
+			pipelineLayout = VK_NULL_HANDLE;
+			return VK_NULL_HANDLE;
+		}
+
+		LINA_TRACE("[Pipeline Layout] -> Successfuly created  a pipeline layout.");
+		return pipelineLayout;
+	}
+
+	void VulkanLogicalDevice::PipelineDestroyLayout(VkPipelineLayout layout)
+	{
+		if (layout != VK_NULL_HANDLE)
+		{
+			vkDestroyPipelineLayout(m_handle, layout, nullptr);
+			layout = VK_NULL_HANDLE;
+			LINA_TRACE("[Pipeline layout] -> Successfuly destroyed a pipeline layout.");
+		}
+	}
+
+	void VulkanLogicalDevice::PipelineDestroy(VkPipeline pipeline)
+	{
+		if (pipeline != VK_NULL_HANDLE)
+		{
+			vkDestroyPipeline(m_handle, pipeline, nullptr);
+			pipeline = VK_NULL_HANDLE;
+			LINA_TRACE("[Pipeline] -> Successfuly destroyed a pipeline.");
+		}
+	}
+
+	/* -------------------- RENDER PASS FUNCTIONS -------------------- */
+	/* -------------------- RENDER PASS FUNCTIONS -------------------- */
+	/* -------------------- RENDER PASS FUNCTIONS -------------------- */
+	/* -------------------- RENDER PASS FUNCTIONS -------------------- */
+	VkRenderPass VulkanLogicalDevice::RenderPassCreateDefault(VulkanSwapchain* swapchain)
+	{
+
+		VkAttachmentDescription colorAttachment
+		{
+			0,
+			swapchain->m_imageFormat,
+			VK_SAMPLE_COUNT_1_BIT,
+			VK_ATTACHMENT_LOAD_OP_CLEAR,
+			VK_ATTACHMENT_STORE_OP_STORE,
+			VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+			VK_ATTACHMENT_STORE_OP_DONT_CARE,
+			VK_IMAGE_LAYOUT_UNDEFINED,
+			VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+		};
+
+		VkAttachmentReference colorAttachmentRef
+		{
+			0,
+			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+		};
+
+		VkSubpassDescription subpass{};
+		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		subpass.colorAttachmentCount = 1;
+		subpass.pColorAttachments = &colorAttachmentRef;
+
+		VkRenderPass renderPass;
+		VkRenderPassCreateInfo renderPassInfo
+		{
+			VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
+			nullptr,
+			0,
+			1,
+			&colorAttachment,
+			1,
+			&subpass,
+			0,
+			nullptr
+		};
+
+		VkResult result = vkCreateRenderPass(m_handle, &renderPassInfo, nullptr, &renderPass);
+
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Render Pass] -> Could not create a srender pass.");
+			renderPass = VK_NULL_HANDLE;
+			return VK_NULL_HANDLE;
+		}
+
+		LINA_TRACE("[Render Pass] -> Successfuly created a render pass.");
+		return renderPass;
+	}
+
+	void VulkanLogicalDevice::RenderPassDestroy(VkRenderPass renderPass)
+	{
+		if (renderPass != VK_NULL_HANDLE)
+		{
+			vkDestroyRenderPass(m_handle, renderPass, nullptr);
+			renderPass = VK_NULL_HANDLE;
+			LINA_TRACE("[Render Pass] -> Successfuly destroyed a render pass.");
+		}
 	}
 
 }

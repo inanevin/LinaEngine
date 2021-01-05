@@ -92,10 +92,41 @@ namespace Lina::Graphics
 	{
 		LINA_TRACE("[Render Engine Vulkan] -> Startup");
 
-		Resources::ShaderResource* vertShader = m_resources->GetShaderResource(StringID("Resources/Shaders/vert.spv").value());
-		Resources::ShaderResource* fragShader = m_resources->GetShaderResource(StringID("Resources/Shaders/frag.spv").value());
+		Resources::ShaderResource* vertShader = m_resources->GetShaderResource(StringID("Resources/Shaders/testTriangle.vert").value());
+		Resources::ShaderResource* fragShader = m_resources->GetShaderResource(StringID("Resources/Shaders/testTriangle.frag").value());
 		VkShaderModule vertModule = m_logicalDevice.ShaderModuleCreate(vertShader->GetData());
 		VkShaderModule fragModule = m_logicalDevice.ShaderModuleCreate(fragShader->GetData());
+
+		VkPipelineShaderStageCreateInfo vinfo
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+			nullptr,
+			0,
+			VK_SHADER_STAGE_VERTEX_BIT,
+			vertModule,
+			"main",
+			nullptr
+		};
+
+		VkPipelineShaderStageCreateInfo finfo
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+			nullptr,
+			0,
+			VK_SHADER_STAGE_FRAGMENT_BIT,
+			fragModule,
+			"main",
+			nullptr
+		};
+
+		VkPipelineLayout layout = m_logicalDevice.PipelineCreateLayout();
+		VkRenderPass rp = m_logicalDevice.RenderPassCreateDefault(&m_swapchain);
+		VkPipeline pipeline = m_logicalDevice.PipelineCreateDefault(&m_swapchain, layout, rp, vinfo, finfo);
+
+
+		m_logicalDevice.PipelineDestroy(pipeline);
+		m_logicalDevice.PipelineDestroyLayout(layout);
+		m_logicalDevice.RenderPassDestroy(rp);
 
 		m_logicalDevice.ShaderModuleDestroy(vertModule);
 		m_logicalDevice.ShaderModuleDestroy(fragModule);

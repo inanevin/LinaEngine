@@ -118,7 +118,7 @@ namespace Lina::Resources
 		std::ifstream stream(path);
 		std::string shaderText((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
 		shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(shaderText, kind, sourceName.c_str(), options);
-
+		
 		if (module.GetCompilationStatus() != shaderc_compilation_status_success)
 		{
 			LINA_ERR("[Shader Loader] -> Could not compile shader at path {0}, error msg: {1}", path, module.GetErrorMessage());

@@ -46,6 +46,8 @@ Timestamp: 12/28/2020 3:11:12 AM
 
 namespace Lina::Graphics
 {
+	class VulkanSwapchain;
+
 	class VulkanLogicalDevice
 	{
 		
@@ -68,7 +70,7 @@ namespace Lina::Graphics
 		void CommandPoolDestroy(VkCommandPool pool);
 
 		/* COMMAND BUFFER FUNCTIONS */
-		VkCommandBuffer* CommandBufferCreate(VkCommandPool pool, VkCommandBufferLevel level, uint32_t count);
+		std::vector<VkCommandBuffer> CommandBufferCreate(VkCommandPool pool, VkCommandBufferLevel level, uint32_t count);
 		bool CommandBufferBegin(VkCommandBuffer cbuffer, VkCommandBufferUsageFlags usage, SecondaryCommandBufferData* data = nullptr);
 		bool CommandBufferEnd(VkCommandBuffer cbuffer);
 		bool CommandBufferReset(VkCommandBuffer cbuffer, VkCommandBufferResetFlags resetFlags);
@@ -94,17 +96,22 @@ namespace Lina::Graphics
 		/* SHADER MODULE FUNCTIONS */
 		VkShaderModule ShaderModuleCreate(const std::vector<uint32_t>& buffer);
 		void ShaderModuleDestroy(VkShaderModule module);
+		
+		/* GRAPHICS PIPELINE FUNCTIONS */
+		VkPipeline PipelineCreateDefault(VulkanSwapchain* swapChain, VkPipelineLayout layout, VkRenderPass rp, VkPipelineShaderStageCreateInfo& vertShaderStageInfo, VkPipelineShaderStageCreateInfo& fragShaderStageInfo);
+		VkPipelineLayout PipelineCreateLayout();
+		void PipelineDestroyLayout(VkPipelineLayout layout);
+		void PipelineDestroy(VkPipeline pipeline);
+
+		/* RENDER PASS FUNCTIONS */
+		VkRenderPass RenderPassCreateDefault(VulkanSwapchain* swapChain);
+		void RenderPassDestroy(VkRenderPass renderPass);
 
 	private:
 
 		VkPhysicalDevice m_physicalDevice;
 		VkDevice m_handle;
 		VkPhysicalDeviceMemoryProperties m_memProperties;
-		std::set<std::vector<VkCommandBuffer>> m_commandBuffers;
-		std::set<VkCommandPool> m_commandPools;
-		std::set<VkFence> m_fences;
-		std::set<VkSemaphore> m_semaphores;
-		std::set<VkBuffer> m_buffers;
 	};
 }
 

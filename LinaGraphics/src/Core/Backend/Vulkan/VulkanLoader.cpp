@@ -44,7 +44,15 @@ namespace Lina::Graphics
 	std::vector<char const*>  m_desiredInstanceExtensions = { VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_XCB_SURFACE_EXTENSION_NAME };
 #endif
 #endif
-	std::vector<char const*>  m_desiredDeviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+
+#ifdef LINA_DEBUG
+	const bool validationLayersEnabled = true;
+#elif
+	const bool validationLayersEnabled = false;
+#endif
+
+	const std::vector<char const*>  m_desiredDeviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+	const std::vector<const char*> m_desiredValidationLayers = { "VK_LAYER_KHRONOS_validation" };
 
 	VkPresentModeKHR m_desiredPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
 	VkImageUsageFlags m_desiredSwapchainUsages = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -124,6 +132,7 @@ namespace Lina::Graphics
 
 	bool VulkanLoader::CreateVulkanInstance()
 	{
+		
 		// Extension check.
 		for (auto& extension : m_desiredInstanceExtensions)
 		{
@@ -146,7 +155,7 @@ namespace Lina::Graphics
 			VK_MAKE_VERSION(1, 0, 0)
 		};
 
-		VkInstanceCreateInfo instance_create_info = {
+		VkInstanceCreateInfo instanceCreateInfo = {
 			 VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
 			 nullptr,
 			 0,
@@ -157,8 +166,31 @@ namespace Lina::Graphics
 			 m_desiredInstanceExtensions.data()
 		};
 
+		if (validationLayersEnabled && EnumerateAvailableValidationLayers())
+		{
+
+			bool layersAvailable = true;
+
+			// Validation layer check
+			for (auto& layer : m_desiredValidationLayers)
+			{
+				if (!IsValidationLayerSupported(layer, m_availableValidationLayers))
+				{
+					LINA_ERR("[Vulkan Loader] -> Instance  layer named '{0}' is not supported!", layer);
+					layersAvailable = false;
+					break;
+				}
+			}
+
+			if (layersAvailable)
+			{
+				instanceCreateInfo.enabledLayerCount = static_cast<uint32_t>(m_desiredValidationLayers.size());
+				instanceCreateInfo.ppEnabledLayerNames = m_desiredValidationLayers.data();
+			}
+		}
+
 		// Create m_instance
-		VkResult result = vkCreateInstance(&instance_create_info, nullptr, &m_vulkanData->m_instance);
+		VkResult result = vkCreateInstance(&instanceCreateInfo, nullptr, &m_vulkanData->m_instance);
 
 		if ((result != VK_SUCCESS) || (m_vulkanData->m_instance == VK_NULL_HANDLE))
 		{
@@ -173,7 +205,7 @@ namespace Lina::Graphics
 		uint32_t extensionsCount = 0;
 		VkResult result = VK_SUCCESS;
 
-		// Get extension count.
+		// Get layer count.
 		result = vkEnumerateInstanceExtensionProperties(nullptr, &extensionsCount, nullptr);
 		if ((result != VK_SUCCESS) || (extensionsCount == 0))
 		{
@@ -267,6 +299,29 @@ namespace Lina::Graphics
 					LINA_TRACE("[Vulkan Loader] -> {0} {1}", ex.extensionName, ex.specVersion);
 		#endif
 		*/
+	}
+
+	bool VulkanLoader::EnumerateAvailableValidationLayers()
+	{
+		uint32_t layerCount = 0;
+		VkResult result = VK_SUCCESS;
+
+		result = vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+		if ((result != VK_SUCCESS) || (layerCount == 0))
+		{
+			LINA_ERR("[Vulkan Loader] -> Could not get the number of instance layers.");
+			return false;
+		}
+
+		m_availableValidationLayers.resize(layerCount);
+		result = vkEnumerateInstanceLayerProperties(&layerCount, m_availableValidationLayers.data());
+		if ((result != VK_SUCCESS) || (layerCount == 0))
+		{
+			LINA_ERR("[Vulkan Loader] -> Could not enumerate instance layers.");
+			return false;
+		}
+
+		return true;
 	}
 
 	bool VulkanLoader::ChoosePhysicalDevice()
@@ -422,6 +477,17 @@ namespace Lina::Graphics
 		for (auto& ex : availableExtensions)
 		{
 			if (strstr(ex.extensionName, desiredExtension))
+				return true;
+		}
+
+		return false;
+	}
+
+	bool VulkanLoader::IsValidationLayerSupported(const char* desiredLayer, std::vector<VkLayerProperties>& availableLayers)
+	{
+		for (auto& layer : availableLayers)
+		{
+			if (strstr(layer.layerName, desiredLayer))
 				return true;
 		}
 

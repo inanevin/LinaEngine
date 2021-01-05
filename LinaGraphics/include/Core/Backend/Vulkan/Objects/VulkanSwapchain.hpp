@@ -66,6 +66,7 @@ namespace Lina::Graphics
 
 		friend class RenderEngineVulkan;
 		friend class VulkanHandler;
+		friend class VulkanLogicalDevice;
 
 		VulkanSwapchain() {};
 		~VulkanSwapchain() {};

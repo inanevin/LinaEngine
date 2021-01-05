@@ -74,10 +74,12 @@ namespace Lina::Graphics
 		bool EnumerateAvailableInstanceExtensions();
 		bool EnumerateAvailablePhysicalDevices();
 		bool EnumerateAvailablePhysicalDeviceExtensions();
+		bool EnumerateAvailableValidationLayers();
 		bool ChoosePhysicalDevice();
 		bool SelectQueueFamilyIndexForCapability(std::vector<VkQueueFamilyProperties>& queueFamilies, uint32_t& queueFamilyIndex, VkQueueFlags capability);
 		bool SelectQueueFamilyIndexForPresentation(std::vector<VkQueueFamilyProperties>& queueFamilies);
 		bool IsExtensionSupported(const char* ext, std::vector<VkExtensionProperties>& availableExtensions);
+		bool IsValidationLayerSupported(const char* layer, std::vector<VkLayerProperties>& availableLayers);
 		void Unload();
 		bool LoadExportedFunction();
 		bool LoadGlobalFunctions();
@@ -92,6 +94,7 @@ namespace Lina::Graphics
 		std::vector<VkExtensionProperties> m_availableInstanceExtensions;
 		std::vector<VkExtensionProperties> m_availablePhysicalDeviceExtensions;
 		std::vector<VkPhysicalDevice> m_availablePhysicalDevices;
+		std::vector<VkLayerProperties> m_availableValidationLayers;
 	};
 }
 
