@@ -92,8 +92,8 @@ namespace Lina::Graphics
 	{
 		LINA_TRACE("[Render Engine Vulkan] -> Startup");
 
-		Resources::ShaderResource* vertShader = m_resources->GetShaderResource(StringID("Resources/Shaders/testTriangle.vert").value());
-		Resources::ShaderResource* fragShader = m_resources->GetShaderResource(StringID("Resources/Shaders/testTriangle.frag").value());
+		Resources::ShaderResource* vertShader = m_resources->GetShaderResource(StringID("Resources/Shaders/vert.spv").value());
+		Resources::ShaderResource* fragShader = m_resources->GetShaderResource(StringID("Resources/Shaders/frag.spv").value());
 		VkShaderModule vertModule = m_logicalDevice.ShaderModuleCreate(vertShader->GetData());
 		VkShaderModule fragModule = m_logicalDevice.ShaderModuleCreate(fragShader->GetData());
 

@@ -87,13 +87,11 @@ namespace Lina::Resources
 			// compress.
 			compressor.compressDirectory(wdir, woutput);
 
-			loadingData->m_state = ResourceProgressState::Succeeded;
 			LINA_TRACE("[Packager] -> Successfully packed directory {0}", dir);
 		}
 		catch (const bit7z::BitException& ex)
 		{
 			LINA_ERR("[Packager] -> Failed packaging directory {0} {1}", dir, ex.what());
-			loadingData->m_state = ResourceProgressState::Failed;
 		}
 	}
 
@@ -160,7 +158,6 @@ namespace Lina::Resources
 		catch (const bit7z::BitException& ex)
 		{
 			LINA_ERR("[Packager] -> Failed packaging files {0} {1}", files[0], ex.what());
-			loadingData->m_state = ResourceProgressState::Failed;
 		}
 	}
 
@@ -191,7 +188,7 @@ namespace Lina::Resources
 			loadingData->m_currentResourceName = "nofile";
 			loadingData->m_currentProgress = 0;
 			loadingData->m_state = ResourceProgressState::Pending;
-			loadingData->m_progressTitle = "Unpacking file" + filePath;
+			loadingData->m_progressTitle = "Unpacking file " + filePath;
 
 			extractor.setTotalCallback([=](uint64_t size) {
 				loadingData->m_state = ResourceProgressState::Pending;
@@ -227,12 +224,10 @@ namespace Lina::Resources
 				outBundle->m_rawPackages[resType][StringID(filePathStr.c_str())] = item.second;
 			}
 
-			loadingData->m_state = ResourceProgressState::Succeeded;
 			LINA_TRACE("[Packager] -> Successfully unpacked file {0}", filePath);
 		}
 		catch (const bit7z::BitException& ex) {
 			LINA_ERR("[Packager] -> Failed unpacking file {0} {1}", filePath, ex.what());
-			loadingData->m_state = ResourceProgressState::Failed;
 		}
 	}
 

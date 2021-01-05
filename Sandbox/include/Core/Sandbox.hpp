@@ -45,7 +45,7 @@ int main(int argc, char** argv)
 {
 	Lina::Application app;
 	Lina::ApplicationInfo appInfo;
-	appInfo.m_appMode = Lina::ApplicationMode::Editor;
+	appInfo.m_appMode = Lina::ApplicationMode::Standalone;
 	app.Startup(appInfo);
 	return 0;
 }

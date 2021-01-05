@@ -89,6 +89,8 @@ namespace Lina::Resources
 		m_appMode = e.m_appInfo->m_appMode;
 
 		m_activeLevel.AddUsedResource("Resources/test.wav");
+		m_activeLevel.AddUsedResource("Resources/Shaders/frag.spv");
+		m_activeLevel.AddUsedResource("Resources/Shaders/vert.spv");
 
 		// If we are in editor, fill our resource bundle with all the files imported in the project's Resources directory.
 		if (m_appMode == ApplicationMode::Editor || m_appMode == ApplicationMode::EditorGame)
@@ -130,20 +132,26 @@ namespace Lina::Resources
 	void ResourceManager::ImportLevel(const std::string& path, const std::string& levelName)
 	{
 		// TODO: Unload current level.
-		// m_eventSys->Trigger<Event::ELevelUnloaded>();
+
+		// Make sure we set state before multithreading.
+		std::string fullLevelPath = path + levelName + ".linalevel";
+		m_currentProgressData.m_state = ResourceProgressState::InProgress;
+		m_currentProgressData.m_progressTitle = "Importing level...";
+		m_currentProgressData.m_currentResourceName = fullLevelPath;
 
 		// Make sure we don't have any packing/unpacking going on.
 		m_taskflow.clear();
 		m_executor.wait_for_all();
 
 		// LoadFromFile the level.
-		m_activeLevel.LoadFromFile(path + levelName + ".linalevel", *m_ecs);
+		m_activeLevel.LoadFromFile(fullLevelPath, *m_ecs);
 
 		// If not in editor, load & unpack the bundle associated with this level, on a seperate thread.
 		if (m_appMode == ApplicationMode::Standalone)
 		{
-			// Make sure we set state before multithreading.
-			m_currentProgressData.m_state = ResourceProgressState::Pending;
+			std::string fullBundlePath = path + levelName + ".linabundle";
+			m_currentProgressData.m_progressTitle = "Unpacking level resources...";
+			m_currentProgressData.m_currentResourceName = fullBundlePath;
 
 			m_taskflow.emplace([=]()
 				{
@@ -152,7 +160,7 @@ namespace Lina::Resources
 
 					// Start unpacking.
 					std::unordered_map<std::string, ResourceType> unpackedResources;
-					m_packager.Unpack(path + levelName + ".linabundle", PACKAGE_PASS, &m_bundle, &m_currentProgressData, unpackedResources);
+					m_packager.Unpack(fullBundlePath, PACKAGE_PASS, &m_bundle, &m_currentProgressData, unpackedResources);
 
 					// Create processed resource instances from raw data.
 					m_bundle.ProcessRawPackages(m_eventSys);
@@ -160,6 +168,12 @@ namespace Lina::Resources
 					// Unload all processed packages since the listeners of AddResourceReference already uploaded the buffers
 					// From the packages to necessary memory blocks.
 					m_bundle.UnloadProcessedPackages();
+
+					// Set progress end.
+					m_currentProgressData.m_state = ResourceProgressState::None;
+					m_currentProgressData.m_progressTitle = "";
+					m_currentProgressData.m_currentResourceName = "";
+					m_currentProgressData.m_currentProgress = 0;
 
 					// Notify listeners that unpacking has finished.
 					m_eventSys->Trigger<Event::EResourceProgressEnded>();
@@ -177,13 +191,6 @@ namespace Lina::Resources
 
 	void ResourceManager::ExportLevel(const std::string& path, const std::string& levelName)
 	{
-		m_activeLevel.Export(path + levelName + ".linalevel", *m_ecs);
-
-		// Find out which resources to pack.
-		std::vector<std::string> filesToPack;
-		for (auto& resource : m_activeLevel.m_usedResources)
-			filesToPack.push_back(resource.data());
-
 		// Make sure we don't have any packing/unpacking going on.
 		m_taskflow.clear();
 		m_executor.wait_for_all();
@@ -192,6 +199,19 @@ namespace Lina::Resources
 		m_taskflow.emplace([=]()
 			{
 				m_eventSys->Trigger<Event::EResourceProgressStarted>();
+
+				// Export level first.
+				m_currentProgressData.m_state = ResourceProgressState::InProgress;
+				m_currentProgressData.m_progressTitle = "Exporting level...";
+				m_currentProgressData.m_currentResourceName = levelName + ".linalevel";
+				m_activeLevel.Export(path + levelName + ".linalevel", *m_ecs);
+
+				// Find out which resources to pack.
+				m_currentProgressData.m_progressTitle = "Packing resources...";
+				std::vector<std::string> filesToPack;
+				for (auto& resource : m_activeLevel.m_usedResources)
+					filesToPack.push_back(resource.data());
+
 				m_packager.PackageFileset(filesToPack, path + levelName + ".linabundle", PACKAGE_PASS, &m_currentProgressData);
 				m_eventSys->Trigger<Event::EResourceProgressEnded>();
 			});

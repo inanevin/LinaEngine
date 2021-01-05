@@ -78,7 +78,8 @@ namespace Lina::Resources
 			{ResourceType::Image, RawPackage()},
 			{ResourceType::Material, RawPackage()},
 			{ResourceType::Mesh, RawPackage()},
-			{ResourceType::Audio, RawPackage()}
+			{ResourceType::Audio, RawPackage()},
+			{ResourceType::SPIRV, RawPackage()}
 		};
 
 		ImagePackage m_imagePackage;

@@ -56,42 +56,14 @@ namespace Lina::Resources
 	{	
 
 #ifdef LINA_GRAPHICS_VULKAN
-		shaderc::Compiler compiler;
-		shaderc::CompileOptions options;
-
-		bool optimize = true;
-
-		if (optimize) options.SetOptimizationLevel(shaderc_optimization_level_size);
-
-		shaderc_shader_kind kind;
 		
-		if (type == ResourceType::GLSLFrag)
-			kind = shaderc_glsl_fragment_shader;
-		else if (type == ResourceType::GLSLVertex)
-			kind = shaderc_glsl_vertex_shader;
-		else if (type == ResourceType::GLSLGeo)
-			kind = shaderc_glsl_geometry_shader;
-		else
+		if (CompileShader(path, type, false))
 		{
-			LINA_ERR("[Shader Loader] -> Could not determine the shader kind for compilation! {0}", path);
-			return false;
-		}
-		
-		std::string sourceName = FileUtility::RemoveExtensionFromFileName(FileUtility::GetFileName(path));
-		std::ifstream stream(path);
-		std::string shaderText((std::istreambuf_iterator<char>(stream)),std::istreambuf_iterator<char>());
-		shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(shaderText, kind, sourceName.c_str(), options);
-
-		if (module.GetCompilationStatus() != shaderc_compilation_status_success) 
-		{
-			LINA_ERR("[Shader Loader] -> Could not compile shader at path {0}, error msg: {1}", path, module.GetErrorMessage());
-			return false;
+			LINA_TRACE("[Shader Loader] -> Successfuly compiled shader from file: {0}", path);
+			return true;
 		}
 
-		m_data = { module.cbegin(), module.cend() };
-		LINA_TRACE("[Shader Loader] -> Successfuly compiled shader from file: {0}", path);
-
-		return true;
+		return false;
 #elif
 		std::ifstream file(path, std::ios::ate | std::ios::binary);
 
@@ -117,5 +89,52 @@ namespace Lina::Resources
 		//eventSys->Trigger<Event::EShaderResourceLoaded>(ev);
 		//LINA_TRACE("[Shader Loader] -> Audio loaded from file: {0}", path);
 		//return true;
+	}
+
+	bool ShaderResource::CompileShader(const std::string& path, ResourceType type, bool saveToFile)
+	{
+		shaderc::Compiler compiler;
+		shaderc::CompileOptions options;
+
+		bool optimize = true;
+
+		if (optimize) options.SetOptimizationLevel(shaderc_optimization_level_size);
+
+		shaderc_shader_kind kind;
+
+		if (type == ResourceType::GLSLFrag)
+			kind = shaderc_glsl_fragment_shader;
+		else if (type == ResourceType::GLSLVertex)
+			kind = shaderc_glsl_vertex_shader;
+		else if (type == ResourceType::GLSLGeo)
+			kind = shaderc_glsl_geometry_shader;
+		else
+		{
+			LINA_ERR("[Shader Loader] -> Could not determine the shader kind for compilation! {0}", path);
+			return false;
+	}
+
+		std::string sourceName = FileUtility::RemoveExtensionFromFileName(FileUtility::GetFileName(path));
+		std::ifstream stream(path);
+		std::string shaderText((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+		shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(shaderText, kind, sourceName.c_str(), options);
+
+		if (module.GetCompilationStatus() != shaderc_compilation_status_success)
+		{
+			LINA_ERR("[Shader Loader] -> Could not compile shader at path {0}, error msg: {1}", path, module.GetErrorMessage());
+			return false;
+		}
+	
+		m_data = { module.cbegin(), module.cend() };
+
+		if (saveToFile)
+		{
+			//shaderc::AssemblyCompilationResult result = compiler.CompileGlslToSpvAssembly(shaderText, kind, sourceName.c_str(), options);
+
+			std::ofstream fout(FileUtility::RemoveExtensionFromFileName(path) + ".spv", std::ios::out | std::ios::binary);
+			fout.write((char*)&m_data[0], m_data.size() * sizeof(uint32_t));
+			fout.close();
+		}
+		return true;
 	}
 }

@@ -72,7 +72,8 @@ namespace Lina::Resources
 
 		bool LoadFromMemory(StringIDType sid, unsigned char* buffer, size_t bufferSize, Event::EventSystem* eventSys);
 		bool LoadFromFile(const std::string& path, ResourceType type, Event::EventSystem* eventSys);
-	
+		bool CompileShader(const std::string& path, ResourceType type, bool saveToFile = false);
+
 	private:
 
 #ifdef LINA_GRAPHICS_VULKAN

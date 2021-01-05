@@ -55,9 +55,7 @@ namespace Lina::Resources
 	{
 		None,
 		Pending,
-		InProgress,
-		Succeeded,
-		Failed
+		InProgress	
 	};
 
 	enum class ResourceType
