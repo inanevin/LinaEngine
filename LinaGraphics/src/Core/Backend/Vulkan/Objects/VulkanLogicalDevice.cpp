@@ -656,7 +656,7 @@ namespace Lina::Graphics
 
 		if (result != VK_SUCCESS)
 		{
-			LINA_ERR("[Render Pass] -> Could not create a srender pass.");
+			LINA_ERR("[Render Pass] -> Could not create a render pass.");
 			renderPass = VK_NULL_HANDLE;
 			return VK_NULL_HANDLE;
 		}
@@ -674,5 +674,45 @@ namespace Lina::Graphics
 			LINA_TRACE("[Render Pass] -> Successfuly destroyed a render pass.");
 		}
 	}
+
+
+	VkFramebuffer VulkanLogicalDevice::FramebufferCreate(VulkanSwapchain* swapchain, VkRenderPass renderPass, uint32_t attachmentCount, VkImageView* attachments)
+	{
+		VkFramebufferCreateInfo info
+		{
+			VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+			nullptr,
+			0,
+			renderPass,
+			attachmentCount,
+			attachments,
+			swapchain->m_imagesSize.width,
+			swapchain->m_imagesSize.height,
+			1
+		};
+
+		VkFramebuffer framebuffer;
+		VkResult  result = vkCreateFramebuffer(m_handle, &info, nullptr, &framebuffer);
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Framebuffer] -> Could not create a frame buffer.");
+			framebuffer = VK_NULL_HANDLE;
+			return VK_NULL_HANDLE;
+		}
+
+		LINA_TRACE("[Render Pass] -> Successfuly created a framebuffer.");
+		return framebuffer;
+	}
+
+	void VulkanLogicalDevice::FramebufferDestroy(VkFramebuffer frameBuffer)
+	{
+		if (frameBuffer != VK_NULL_HANDLE)
+		{
+			vkDestroyFramebuffer(m_handle, frameBuffer, nullptr);
+			frameBuffer = VK_NULL_HANDLE;
+			LINA_TRACE("[Frame Buffer] -> Successfuly destroyed a frame buffer.");
+		}
+	}
+
 
 }

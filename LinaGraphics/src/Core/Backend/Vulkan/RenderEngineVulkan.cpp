@@ -123,6 +123,8 @@ namespace Lina::Graphics
 		VkRenderPass rp = m_logicalDevice.RenderPassCreateDefault(&m_swapchain);
 		VkPipeline pipeline = m_logicalDevice.PipelineCreateDefault(&m_swapchain, layout, rp, vinfo, finfo);
 
+		
+		VkFramebuffer framebuffer = m_logicalDevice.FramebufferCreate(&m_swapchain, rp, 1, &m_swapchain.m_imageViews[0]);
 
 		m_logicalDevice.PipelineDestroy(pipeline);
 		m_logicalDevice.PipelineDestroyLayout(layout);
@@ -130,7 +132,7 @@ namespace Lina::Graphics
 
 		m_logicalDevice.ShaderModuleDestroy(vertModule);
 		m_logicalDevice.ShaderModuleDestroy(fragModule);
-
+		m_logicalDevice.FramebufferDestroy(framebuffer);
 	}
 
 	void RenderEngineVulkan::OnPostMainLoop(Event::EPostMainLoop& e)

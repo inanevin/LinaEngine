@@ -107,6 +107,10 @@ namespace Lina::Graphics
 		VkRenderPass RenderPassCreateDefault(VulkanSwapchain* swapChain);
 		void RenderPassDestroy(VkRenderPass renderPass);
 
+		/* FRAME BUFFER FUNCTIONS */
+		VkFramebuffer FramebufferCreate(VulkanSwapchain* swapchain, VkRenderPass renderPass, uint32_t attachmentCount, VkImageView* attachments);
+		void FramebufferDestroy(VkFramebuffer frameBuffer);
+
 	private:
 
 		VkPhysicalDevice m_physicalDevice;
