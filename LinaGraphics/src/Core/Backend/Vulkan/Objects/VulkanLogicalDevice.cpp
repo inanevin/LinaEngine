@@ -1177,5 +1177,58 @@ namespace Lina::Graphics
 		}
 	}
 
+	/* -------------------- SAMPLER FUNCTIONS -------------------- */
+	/* -------------------- SAMPLER FUNCTIONS -------------------- */
+	/* -------------------- SAMPLER FUNCTIONS -------------------- */
+	/* -------------------- SAMPLER FUNCTIONS -------------------- */
+	VkSampler VulkanLogicalDevice::SamplerCreate(SamplerParameters samplerParams, VkSamplerCreateFlags flags)
+	{
+		VkSamplerCreateInfo createInfo
+		{
+			VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+			nullptr,
+			flags,
+			samplerParams.m_magFilter,
+			samplerParams.m_minFilter,
+			samplerParams.m_mipmapMode,
+			samplerParams.m_addressModeU,
+			samplerParams.m_addressModeV,
+			samplerParams.m_addressModeW,
+			samplerParams.m_mipLodBias,
+			samplerParams.m_anisotropyEnable,
+			samplerParams.m_maxAnisotropy,
+			samplerParams.m_compareEnable,
+			samplerParams.m_compareOp,
+			samplerParams.m_minLod,
+			samplerParams.m_maxLod,
+			samplerParams.m_borderColor,
+			samplerParams.m_unnormalizedCoordinates
+		};
+
+		VkSampler sampler;
+		VkResult result = vkCreateSampler(m_handle, &createInfo, nullptr, &sampler);
+
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Sampler] -> Could not create a sampler.");
+			sampler = VK_NULL_HANDLE;
+			return VK_NULL_HANDLE;
+		}
+
+		LINA_TRACE("[Sampler] -> Successfuly created a sampler.");
+		return sampler;
+	}
+
+	void VulkanLogicalDevice::SamplerDestroy(VkSampler sampler)
+	{
+		if (sampler != VK_NULL_HANDLE)
+		{
+			vkDestroySampler(m_handle, sampler, nullptr);
+			sampler = VK_NULL_HANDLE;
+			LINA_TRACE("[Sampler] -> Successfuly destroyed a sampler.");
+		}
+	}
+
+	
 
 }

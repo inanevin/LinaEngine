@@ -142,7 +142,9 @@ namespace Lina::Graphics
 		VkImageView ImageViewCreate(VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspect, VkImageViewCreateFlags flags = 0);
 		void ImageViewDestroy(VkImageView view);
 
-	
+		/* SAMPLER FUNCTIONS */
+		VkSampler SamplerCreate(SamplerParameters samplerParams, VkSamplerCreateFlags flags = 0);
+		void SamplerDestroy(VkSampler sampler);
 
 	private:
 
