@@ -1290,13 +1290,13 @@ namespace Lina::Graphics
 
 	VkDescriptorSetLayout VulkanLogicalDevice::DescriptorSetCreateLayout(std::vector<VkDescriptorSetLayoutBinding> const& bindings, VkDescriptorSetLayoutCreateFlags flags)
 	{
-		VkDescriptorSetLayoutCreateInfo createInfo = 
+		VkDescriptorSetLayoutCreateInfo createInfo =
 		{
-			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO, 
-			nullptr,                                             
-			flags,                                                   
-			static_cast<uint32_t>(bindings.size()),              
-			bindings.data()                                      
+			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+			nullptr,
+			flags,
+			static_cast<uint32_t>(bindings.size()),
+			bindings.data()
 		};
 
 		VkDescriptorSetLayout layout;
@@ -1313,6 +1313,31 @@ namespace Lina::Graphics
 		return layout;
 	}
 
+	VkDescriptorPool VulkanLogicalDevice::DescriptorSetCreatePool(bool freeIndividualSets, uint32_t maxSetsCount, std::vector<VkDescriptorPoolSize> const& descriptorTypes)
+	{
+		VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = 
+		{
+			 VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+			 nullptr,
+			 freeIndividualSets ? VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT : 0u,
+			 maxSetsCount,
+			 static_cast<uint32_t>(descriptorTypes.size()),
+			 descriptorTypes.data()
+		};
+
+		VkDescriptorPool pool;
+		VkResult result = vkCreateDescriptorPool(m_handle, &descriptorPoolCreateInfo, nullptr, &pool);
+		if (VK_SUCCESS != result)
+		{
+			LINA_ERR("[Descriptor Set] -> Could not create a pool for descriptor sets.");
+			pool = VK_NULL_HANDLE;
+			return VK_NULL_HANDLE;
+		}
+
+		LINA_TRACE("[Descriptor Set] -> Successfuly created a descriptor set pool.");
+		return pool;
+	}
+
 	void VulkanLogicalDevice::DescriptorSetDestroyLayout(VkDescriptorSetLayout layout)
 	{
 		if (layout != VK_NULL_HANDLE)
@@ -1320,6 +1345,16 @@ namespace Lina::Graphics
 			vkDestroyDescriptorSetLayout(m_handle, layout, nullptr);
 			layout = VK_NULL_HANDLE;
 			LINA_TRACE("[Descriptor Set] -> Successfuly destroyed a layout.");
+		}
+	}
+
+	void VulkanLogicalDevice::DescriptorSetDestroyPool(VkDescriptorPool pool)
+	{
+		if (pool != VK_NULL_HANDLE)
+		{
+			vkDestroyDescriptorPool(m_handle, pool, nullptr);
+			pool = VK_NULL_HANDLE;
+			LINA_TRACE("[Descriptor Set] -> Successfuly destroyed a pool.");
 		}
 	}
 

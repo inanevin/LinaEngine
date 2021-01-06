@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -50,9 +50,9 @@ namespace Lina::Graphics
 
 	class VulkanLogicalDevice
 	{
-		
+
 	public:
-		
+
 	private:
 
 		friend class RenderEngineVulkan;
@@ -111,7 +111,7 @@ namespace Lina::Graphics
 		/* SHADER MODULE FUNCTIONS */
 		VkShaderModule ShaderModuleCreate(const std::vector<uint32_t>& buffer);
 		void ShaderModuleDestroy(VkShaderModule module);
-		
+
 		/* GRAPHICS PIPELINE FUNCTIONS */
 		VkPipeline PipelineCreateDefault(VulkanSwapchain* swapChain, VkPipelineLayout layout, VkRenderPass rp, VkPipelineShaderStageCreateInfo& vertShaderStageInfo, VkPipelineShaderStageCreateInfo& fragShaderStageInfo);
 		VkPipelineLayout PipelineCreateLayout();
@@ -140,7 +140,7 @@ namespace Lina::Graphics
 		void ImageDestroy(VkImage image);
 		bool ImageBindToMemory(VkImage image, VkDeviceMemory memoryObject, VkDeviceSize offset = 0);
 
-		
+
 		/* IMAGE VIEW FUNCTIONS */
 		VkImageView ImageViewCreate(VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspect, VkImageViewCreateFlags flags = 0);
 		void ImageViewDestroy(VkImageView view);
@@ -151,7 +151,9 @@ namespace Lina::Graphics
 
 		/* DESCRIPTOR SET FUNCTIONS */
 		VkDescriptorSetLayout DescriptorSetCreateLayout(std::vector<VkDescriptorSetLayoutBinding> const& bindings, VkDescriptorSetLayoutCreateFlags flags = 0);
+		VkDescriptorPool DescriptorSetCreatePool(bool freeIndividualSets, uint32_t maxSetsCount, std::vector<VkDescriptorPoolSize> const& descriptorTypes);
 		void DescriptorSetDestroyLayout(VkDescriptorSetLayout layout);
+		void DescriptorSetDestroyPool(VkDescriptorPool pool);
 
 	private:
 
