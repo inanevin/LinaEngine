@@ -85,10 +85,13 @@ namespace Lina::Graphics
 		void OnAppLoad(Event::EAppLoad& e);
 		void OnPreMainLoop(Event::EPreMainLoop& e);
 		void OnPostMainLoop(Event::EPostMainLoop& e);
-		void OnShaderResourceLoaded(Event::EShaderResourceLoaded& e);
+		void OnWindowResize(Event::EWindowResized& e);
 		void Tick();
 		void Render();
 		void DisconnectEvents();
+		void CleanupSwapchain();
+		void CreatePipelineAndCommandBuffers();
+		void RecreateSwapchain();
 
 	private:
 

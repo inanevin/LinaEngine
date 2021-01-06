@@ -498,13 +498,6 @@ namespace Lina::Graphics
 	{
 		LINA_TRACE("[Vulkan Loader] -> Unloading vulkan instance & device.");
 
-		// Destroy physicalDevice.
-		if (m_vulkanData->m_logicalDevice)
-		{
-			vkDestroyDevice(m_vulkanData->m_logicalDevice, nullptr);
-			m_vulkanData->m_logicalDevice = VK_NULL_HANDLE;
-		}
-
 		if (m_vulkanData->m_instance)
 		{
 			vkDestroyInstance(m_vulkanData->m_instance, nullptr);

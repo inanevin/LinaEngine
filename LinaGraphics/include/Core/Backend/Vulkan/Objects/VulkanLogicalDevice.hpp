@@ -63,6 +63,7 @@ namespace Lina::Graphics
 		/* DEVICE FUNCTIONS */
 		void GetMemoryProperties();
 		bool DeviceWait();
+		void DeviceDestroy();
 
 		/* COMMAND POOL FUNCTIONS */
 		VkCommandPool CommandPoolCreate(uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags);
@@ -78,8 +79,10 @@ namespace Lina::Graphics
 
 		/* FENCE FUNCTIONS */
 		VkFence FenceCreate(VkFenceCreateFlags flags);
-		bool FenceWait(const std::vector<VkFence>& fences, VkBool32 waitForAll, uint64_t timeOut = 1000000000);
-		bool FenceReset(const std::vector<VkFence>& fences);
+		bool FencesWait(const std::vector<VkFence>& fences, VkBool32 waitForAll, uint64_t timeOut = 1000000000);
+		bool FencesReset(const std::vector<VkFence>& fences);
+		bool FenceWait(VkFence fence, uint64_t timeOut = 1000000000);
+		bool FenceReset(VkFence fence);
 		void FenceDestroy(VkFence fence);
 
 		/* SEMAPHORE FUNCTIONS */

@@ -50,6 +50,13 @@ namespace Lina::Graphics
 		glfwTerminate();
 	}
 
+	void WindowVulkan::OnWindowResize(int w, int h)
+	{
+		m_windowProperties.m_width = w;
+		m_windowProperties.m_height = h;
+		m_eventSys->Trigger<Event::EWindowResized>({ (void*)w, m_windowProperties });
+	}
+
 	bool WindowVulkan::CreateWindowSurface(VkInstance& instance, VkSurfaceKHR& surface)
 	{
 		if (glfwCreateWindowSurface(instance, m_glfwWindow, nullptr, &surface) != VK_SUCCESS)
@@ -115,7 +122,7 @@ namespace Lina::Graphics
 
 		glfwSetWindowSizeCallback(m_glfwWindow, [](GLFWwindow* w, int wi, int he) 
 		{
-				static_cast<WindowVulkan*>(glfwGetWindowUserPointer(w))->m_eventSys->Trigger<Event::EWindowResized>({ (void*)w, wi, he });
+				static_cast<WindowVulkan*>(glfwGetWindowUserPointer(w))->OnWindowResize(wi, he);	
 		});
 		
 		glfwSetWindowPosCallback(m_glfwWindow, [](GLFWwindow* w, int xpos, int ypos)

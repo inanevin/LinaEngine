@@ -98,7 +98,7 @@ namespace Lina::Graphics
 		data.vulkanData->m_surface,                     // VkSurfaceKHR                     surface
 		imagesCount,                                  // uint32_t                         minImageCount
 		selectedFormat,								// VkFormat                         imageFormat
-		selectedColorspace,                    // VkColorSpaceKHR                  imageColorSpace
+		selectedColorspace,							// VkColorSpaceKHR                  imageColorSpace
 		imagesSize,                                   // VkExtent2D                       imageExtent
 		1,                                            // uint32_t                         imageArrayLayers
 		imageUsage,                                  // VkImageUsageFlags                imageUsage
@@ -201,11 +201,18 @@ namespace Lina::Graphics
 
 	void VulkanSwapchain::Destroy(VkDevice logicalDevice)
 	{
+		for (auto& view : m_imageViews)
+		{
+			if (view != VK_NULL_HANDLE)
+				vkDestroyImageView(logicalDevice, view, nullptr);
+		}
 		if (m_handle)
 		{
 			vkDestroySwapchainKHR(logicalDevice, m_handle, nullptr);
 			m_handle = VK_NULL_HANDLE;
 		}
+		m_images.clear();
+		m_imageViews.clear();
 
 	}
 

@@ -90,7 +90,7 @@ namespace Lina::Event
 
 	// Window
 	struct EWindowContextCreated { void* m_window; };
-	struct EWindowResized { void* m_window;  int m_width; int m_height; };
+	struct EWindowResized { void* m_window;  WindowProperties m_windowProps; };
 	struct EWindowMoved { void* m_window; int m_x; int m_y; };
 	struct EWindowRefreshed { void* m_window;};
 	struct EWindowClosed { void* m_window;};

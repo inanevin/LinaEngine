@@ -42,6 +42,17 @@ namespace Lina::Graphics
 	{
 		return vkDeviceWaitIdle(m_handle);
 	}
+
+	void VulkanLogicalDevice::DeviceDestroy()
+	{
+		if (m_handle != VK_NULL_HANDLE)
+		{
+			vkDestroyDevice(m_handle, nullptr);
+			m_handle = VK_NULL_HANDLE;
+			LINA_TRACE("[Logical Device] -> Successfuly destroyed logical device.");
+		}
+	}
+
 	void VulkanLogicalDevice::GetMemoryProperties()
 	{
 		vkGetPhysicalDeviceMemoryProperties(m_physicalDevice, &m_memProperties);
@@ -230,15 +241,14 @@ namespace Lina::Graphics
 		return fence;
 	}
 
-	bool VulkanLogicalDevice::FenceWait(const std::vector<VkFence>& fences, VkBool32 waitForAll, uint64_t timeOut)
+	bool VulkanLogicalDevice::FencesWait(const std::vector<VkFence>& fences, VkBool32 waitForAll, uint64_t timeOut)
 	{
 		// We can pass a 0 timeout and check the VkResult to see if the semaphore is available or not.
 		VkResult result = vkWaitForFences(m_handle, static_cast<uint32_t>(fences.size()), &fences[0], waitForAll, timeOut);
-
 		return result == VK_TRUE;
 	}
 
-	bool VulkanLogicalDevice::FenceReset(const std::vector<VkFence>& fences)
+	bool VulkanLogicalDevice::FencesReset(const std::vector<VkFence>& fences)
 	{
 		VkResult result = vkResetFences(m_handle, static_cast<uint32_t>(fences.size()), &fences[0]);
 		if (result != VK_SUCCESS)
@@ -248,6 +258,25 @@ namespace Lina::Graphics
 		}
 
 		LINA_DEBUG("[Fence] -> Successfuly resetted fences.");
+		return true;
+	}
+
+	bool VulkanLogicalDevice::FenceWait(VkFence fence, uint64_t timeOut)
+	{
+		// We can pass a 0 timeout and check the VkResult to see if the semaphore is available or not.
+		VkResult result = vkWaitForFences(m_handle, 1, &fence, VK_TRUE, timeOut);
+		return result == VK_TRUE;
+	}
+
+	bool VulkanLogicalDevice::FenceReset(VkFence fence)
+	{
+		VkResult result = vkResetFences(m_handle, 1, &fence);
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Fence] -> Could not reset the fence.");
+			return false;
+		}
+
 		return true;
 	}
 
@@ -326,7 +355,6 @@ namespace Lina::Graphics
 			return false;
 		}
 
-		LINA_TRACE("[Semaphore] -> Successfuly submitted the queue.");
 		return true;
 	}
 
@@ -638,6 +666,17 @@ namespace Lina::Graphics
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
 
+		VkSubpassDependency dependency
+		{
+			VK_SUBPASS_EXTERNAL,
+			0,
+			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+			0,
+			VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+			0
+		};
+
 		VkRenderPass renderPass;
 		VkRenderPassCreateInfo renderPassInfo
 		{
@@ -648,8 +687,8 @@ namespace Lina::Graphics
 			&colorAttachment,
 			1,
 			&subpass,
-			0,
-			nullptr
+			1,
+			&dependency
 		};
 
 		VkResult result = vkCreateRenderPass(m_handle, &renderPassInfo, nullptr, &renderPass);
