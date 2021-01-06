@@ -155,6 +155,7 @@ namespace Lina::Graphics
 		std::vector<VkDescriptorSet> DescriptorSetCreate(VkDescriptorPool pool, std::vector<VkDescriptorSetLayout> const& descriptor_set_layouts);
 		void DescriptorSetDestroyLayout(VkDescriptorSetLayout layout);
 		void DescriptorSetDestroyPool(VkDescriptorPool pool);
+		void DescriptorSetFree(VkDescriptorPool pool, std::vector<VkDescriptorSet>& descriptor_sets);
 		void UpdateDescriptorSets(std::vector<ImageDescriptorInfo> const& imageDescriptorInfos, std::vector<BufferDescriptorInfo> const& bufferDescriptorInfos, std::vector<TexelBufferDescriptorInfo> const& texelBufferDescriptorInfos, std::vector<CopyDescriptorInfo> const& copyDescriptorInfos);
 	
 private:
