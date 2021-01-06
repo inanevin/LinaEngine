@@ -78,6 +78,8 @@ namespace Lina::Graphics
 		void CommandBufferFree(std::vector<VkCommandBuffer>& buffers, VkCommandPool pool);
 		void CommandBufferSetMemoryBarriers(VkCommandBuffer commandbuffer, VkPipelineStageFlags  generatingStages, VkPipelineStageFlags consumingStages, std::vector<BufferTransition> bufferTransitions);
 		void CommandBufferSetImageMemoryBarriers(VkCommandBuffer commandbuffer, VkPipelineStageFlags  generatingStages, VkPipelineStageFlags consumingStages, std::vector<ImageTransition> imageTransitions);
+		void CommandBufferCopyData(VkCommandBuffer commandBuffer, VkBuffer sourceBuffer, VkBuffer destBuffer, std::vector<VkBufferCopy> regions);
+		void CommandBufferCopyToImage(VkCommandBuffer commandBuffer, VkBuffer sourceBuffer, VkImage destImage, VkImageLayout imageLayout, std::vector<VkBufferImageCopy> regions);
 
 		/* FENCE FUNCTIONS */
 		VkFence FenceCreate(VkFenceCreateFlags flags);
@@ -116,11 +118,13 @@ namespace Lina::Graphics
 
 		/* MEMORY FUNCTIONS */
 		VkDeviceMemory MemoryAllocate(VkDeviceSize size, uint32_t typeIndex);
+		void MemoryFree(VkDeviceMemory memory);
+		void MemoryMap(void* data, void** pointer, bool unmap, VkDeviceMemory memoryObject, VkDeviceSize offset, VkDeviceSize dataSize, VkMemoryMapFlags flags = 0);
 
 		/* BUFFER FUNCTIONS */
 		VkBuffer BufferCreate(VkDeviceSize size, VkBufferUsageFlags usage, VkBufferCreateFlags flags = 0, VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE);
+		VkDeviceMemory BufferAllocateAndBindMemory(VkBuffer buffer, VkMemoryPropertyFlagBits memoryProperties);
 		void BufferDestroy(VkBuffer buffer);
-		void BufferAllocateMemory(VkBuffer buffer, VkMemoryPropertyFlagBits memoryProperties);
 		bool BufferBindToMemory(VkBuffer buffer, VkDeviceMemory memoryObject, VkDeviceSize offset = 0);
 
 		/* FRAME BUFFER FUNCTIONS */
@@ -129,13 +133,15 @@ namespace Lina::Graphics
 
 		/* IMAGE FUNCTIONS */
 		VkImage ImageCreate(VkImageType type, VkFormat format, VkExtent3D size, uint32_t mipmaps, uint32_t layerCount, VkSampleCountFlagBits samples, VkImageUsageFlags usage, VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL, VkImageCreateFlags flags = 0, VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE);
-		void ImageAllocateMemory(VkImage image, VkMemoryPropertyFlagBits memoryProperties);
+		VkDeviceMemory ImageAllocateAndBindMemory(VkImage image, VkMemoryPropertyFlagBits memoryProperties);
 		void ImageDestroy(VkImage image);
 		bool ImageBindToMemory(VkImage image, VkDeviceMemory memoryObject, VkDeviceSize offset = 0);
 
 		/* IMAGE VIEW FUNCTIONS */
 		VkImageView ImageViewCreate(VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspect, VkImageViewCreateFlags flags = 0);
 		void ImageViewDestroy(VkImageView view);
+
+	
 
 	private:
 

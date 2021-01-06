@@ -268,6 +268,18 @@ namespace Lina::Graphics
 		}
 	}
 
+	void VulkanLogicalDevice::CommandBufferCopyData(VkCommandBuffer commandBuffer, VkBuffer sourceBuffer, VkBuffer destBuffer, std::vector<VkBufferCopy> regions)
+	{
+		if (regions.size() > 0)
+			vkCmdCopyBuffer(commandBuffer, sourceBuffer, destBuffer, static_cast<uint32_t>(regions.size()), regions.data());
+	}
+
+	void VulkanLogicalDevice::CommandBufferCopyToImage(VkCommandBuffer commandBuffer, VkBuffer sourceBuffer, VkImage destImage, VkImageLayout imageLayout, std::vector<VkBufferImageCopy> regions)
+	{
+		if (regions.size() > 0) 
+			vkCmdCopyBufferToImage(commandBuffer, sourceBuffer, destImage, imageLayout, static_cast<uint32_t>(regions.size()), regions.data());	
+	}
+
 	/* -------------------- FENCE FUNCTIONS -------------------- */
 	/* -------------------- FENCE FUNCTIONS -------------------- */
 	/* -------------------- FENCE FUNCTIONS -------------------- */
@@ -833,6 +845,55 @@ namespace Lina::Graphics
 		return memObject;
 	}
 
+	void VulkanLogicalDevice::MemoryFree(VkDeviceMemory memory)
+	{
+		if (memory != VK_NULL_HANDLE)
+		{
+			vkFreeMemory(m_handle, memory, nullptr);
+			memory = VK_NULL_HANDLE;
+			LINA_TRACE("[Vulkan Memory] -> Successfuly freed a memory object.");
+		}
+	}
+
+	void VulkanLogicalDevice::MemoryMap(void* data, void** pointer, bool unmap, VkDeviceMemory memoryObject, VkDeviceSize offset, VkDeviceSize dataSize, VkMemoryMapFlags flags)
+	{
+		VkResult result;
+		void* local_pointer;
+		result = vkMapMemory(m_handle, memoryObject, offset, dataSize, 0, &local_pointer);
+		if (VK_SUCCESS != result) {
+			LINA_ERR("[Vulkan Memory] -> Could not map memory.");
+			return;
+		}
+
+		std::memcpy(local_pointer, data, dataSize);
+
+		std::vector<VkMappedMemoryRange> memory_ranges =
+		{
+		  {
+			VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,  // VkStructureType    sType
+			nullptr,                                // const void       * pNext
+			memoryObject,                          // VkDeviceMemory     memory
+			offset,                                 // VkDeviceSize       offset
+			VK_WHOLE_SIZE                           // VkDeviceSize       size
+		  }
+		};
+
+		// Flush to update the driver about changes to memory.
+		vkFlushMappedMemoryRanges(m_handle, static_cast<uint32_t>(memory_ranges.size()), memory_ranges.data());
+		if (VK_SUCCESS != result) {
+			LINA_ERR("[Vulkan Memory] -> Could not flush mapped memory.");
+			return;
+		}
+
+		if (unmap)
+			vkUnmapMemory(m_handle, memoryObject);
+		else if (nullptr != pointer) 
+			*pointer = local_pointer;
+
+		LINA_TRACE("[Vulkan Memory] -> Successfuly mapped & flushed memory.");
+	}
+
+
 	/* -------------------- BUFFER FUNCTIONS -------------------- */
 	/* -------------------- BUFFER FUNCTIONS -------------------- */
 	/* -------------------- BUFFER FUNCTIONS -------------------- */
@@ -889,7 +950,7 @@ namespace Lina::Graphics
 		return true;
 	}
 
-	void VulkanLogicalDevice::BufferAllocateMemory(VkBuffer buffer, VkMemoryPropertyFlagBits memoryProperties)
+	VkDeviceMemory VulkanLogicalDevice::BufferAllocateAndBindMemory(VkBuffer buffer, VkMemoryPropertyFlagBits memoryProperties)
 	{
 		VkMemoryRequirements memRequirements;
 		vkGetBufferMemoryRequirements(m_handle, buffer, &memRequirements);
@@ -907,16 +968,18 @@ namespace Lina::Graphics
 
 		if (memoryObject == VK_NULL_HANDLE) {
 			LINA_ERR("[Buffer] -> Could not allocate memory for the buffer.");
-			return;
+			return VK_NULL_HANDLE;
 		}
 
 		if (!BufferBindToMemory(buffer, memoryObject, 0))
 		{
-			return;
+			vkFreeMemory(m_handle, memoryObject, nullptr);
+			memoryObject = VK_NULL_HANDLE;
+			return VK_NULL_HANDLE;
 		}
 
 		LINA_TRACE("[Buffer] -> Successfuly allocated & binded memory for the buffer.");
-
+		return memoryObject;
 	}
 
 	/* -------------------- FRAME BUFFER FUNCTIONS -------------------- */
@@ -999,7 +1062,7 @@ namespace Lina::Graphics
 		return image;
 	}
 
-	void VulkanLogicalDevice::ImageAllocateMemory(VkImage image, VkMemoryPropertyFlagBits memoryProperties)
+	VkDeviceMemory VulkanLogicalDevice::ImageAllocateAndBindMemory(VkImage image, VkMemoryPropertyFlagBits memoryProperties)
 	{
 		VkMemoryRequirements memRequirements;
 		vkGetImageMemoryRequirements(m_handle, image, &memRequirements);
@@ -1017,15 +1080,18 @@ namespace Lina::Graphics
 
 		if (memoryObject == VK_NULL_HANDLE) {
 			LINA_ERR("[Image] -> Could not allocate memory for the image.");
-			return;
+			return VK_NULL_HANDLE;
 		}
 
 		if (!ImageBindToMemory(image, memoryObject, 0))
 		{
-			return;
+			vkFreeMemory(m_handle, memoryObject, nullptr);
+			memoryObject = VK_NULL_HANDLE;
+			return VK_NULL_HANDLE;
 		}
 
 		LINA_TRACE("[Image] -> Successfuly allocated & binded memory for the image.");
+		return memoryObject;
 	}
 
 	void VulkanLogicalDevice::ImageDestroy(VkImage image)
