@@ -885,10 +885,14 @@ namespace Lina::Graphics
 			return;
 		}
 
-		LINA_TRACE("[Buffer] -> Successfuly allocated memory for the buffer.");
+		LINA_TRACE("[Buffer] -> Successfuly allocated & binded memory for the buffer.");
 
 	}
 
+	/* -------------------- FRAME BUFFER FUNCTIONS -------------------- */
+	/* -------------------- FRAME BUFFER FUNCTIONS -------------------- */
+	/* -------------------- FRAME BUFFER FUNCTIONS -------------------- */
+	/* -------------------- FRAME BUFFER FUNCTIONS -------------------- */
 	VkFramebuffer VulkanLogicalDevice::FramebufferCreate(VulkanSwapchain* swapchain, VkRenderPass renderPass, uint32_t attachmentCount, VkImageView* attachments)
 	{
 		VkFramebufferCreateInfo info
@@ -908,12 +912,12 @@ namespace Lina::Graphics
 		VkResult  result = vkCreateFramebuffer(m_handle, &info, nullptr, &framebuffer);
 		if (result != VK_SUCCESS)
 		{
-			LINA_ERR("[Framebuffer] -> Could not create a frame buffer.");
+			LINA_ERR("[Framebuffer] -> Could not create a framebuffer.");
 			framebuffer = VK_NULL_HANDLE;
 			return VK_NULL_HANDLE;
 		}
 
-		LINA_TRACE("[Buffer] -> Successfuly created a framebuffer.");
+		LINA_TRACE("[Framebuffer] -> Successfuly created a framebuffer.");
 		return framebuffer;
 	}
 
@@ -923,8 +927,88 @@ namespace Lina::Graphics
 		{
 			vkDestroyFramebuffer(m_handle, frameBuffer, nullptr);
 			frameBuffer = VK_NULL_HANDLE;
-			LINA_TRACE("[Frame Buffer] -> Successfuly destroyed a frame buffer.");
+			LINA_TRACE("[Framebuffer] -> Successfuly destroyed a framebuffer.");
 		}
+	}
+	/* -------------------- IMAGE FUNCTIONS -------------------- */
+	/* -------------------- IMAGE FUNCTIONS -------------------- */
+	/* -------------------- IMAGE FUNCTIONS -------------------- */
+	/* -------------------- IMAGE FUNCTIONS -------------------- */
+	VkImage VulkanLogicalDevice::ImageCreate(VkImageType type, VkFormat format, VkExtent3D size, uint32_t mipmaps, uint32_t layerCount, VkSampleCountFlagBits samples, VkImageUsageFlags usage, VkImageTiling tiling, VkImageCreateFlags flags, VkSharingMode sharingMode)
+	{
+		VkImageCreateInfo createInfo
+		{
+			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+			nullptr,
+			flags,
+			type,
+			format,
+			size,
+			mipmaps,
+			layerCount,
+			samples,
+			tiling,
+			usage,
+			sharingMode,
+			0,
+			nullptr,
+			VK_IMAGE_LAYOUT_UNDEFINED
+		};
+
+		VkImage image;
+		VkResult  result = vkCreateImage(m_handle, &createInfo, nullptr, &image);
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Image] -> Could not create an image.");
+			image = VK_NULL_HANDLE;
+			return VK_NULL_HANDLE;
+		}
+
+		LINA_TRACE("[Image] -> Successfuly created an image.");
+		return image;
+	}
+
+	void VulkanLogicalDevice::ImageAllocateMemory(VkImage image, VkMemoryPropertyFlagBits memoryProperties)
+	{
+		VkMemoryRequirements memRequirements;
+		vkGetImageMemoryRequirements(m_handle, image, &memRequirements);
+		VkDeviceMemory memoryObject = VK_NULL_HANDLE;
+
+		for (uint32_t type = 0; type < m_memProperties.memoryTypeCount; ++type)
+		{
+			if ((memRequirements.memoryTypeBits & (1 << type)) && ((m_memProperties.memoryTypes[type].propertyFlags & memoryProperties) == memoryProperties))
+			{
+				memoryObject = MemoryAllocate(memRequirements.size, type);
+				if (memoryObject != VK_NULL_HANDLE)
+					break;
+			}
+		}
+
+		if (memoryObject == VK_NULL_HANDLE) {
+			LINA_ERR("[Image] -> Could not allocate memory for the image.");
+			return;
+		}
+
+		if (!ImageBindToMemory(image, memoryObject, 0))
+		{
+			return;
+		}
+
+		LINA_TRACE("[Image] -> Successfuly allocated & binded memory for the image.");
+	}
+
+	bool VulkanLogicalDevice::ImageBindToMemory(VkImage image, VkDeviceMemory memoryObject, VkDeviceSize offset)
+	{
+		VkResult result = vkBindImageMemory(m_handle, image, memoryObject, offset);
+
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Image] -> Could not bind an image to memory.");
+			return false;
+		}
+
+		LINA_TRACE("[Image] -> Successfuly binded an image to memory.");
+		return true;
 	}
 
 
