@@ -34,20 +34,7 @@ SOFTWARE.*/
 
 namespace Lina::Graphics
 {
-	std::vector<VkSemaphore> imageAvailableSemaphores;
-	std::vector<VkSemaphore> renderFinishedSemaphores;
-	VkPipelineLayout layout;
-	VkRenderPass rp;
-	std::vector<VkCommandBuffer> commandBuffers;
-	VkCommandPool pool;
-	VkPipeline pipeline;
-	std::vector<VkFramebuffer> framebuffers;
-	const int MAX_FRAMES_IN_FLIGHT = 2;
-	size_t currentFrame = 0;
-	std::vector<VkFence> inFlightFences;
-	std::vector<VkFence> imagesInFlight;
-	bool m_windowResized = false;
-
+	
 	RenderEngineVulkan::~RenderEngineVulkan()
 	{
 		if (m_initialized)
@@ -91,6 +78,7 @@ namespace Lina::Graphics
 			m_loader.CreateLogicalDevice();
 			m_logicalDevice.m_handle = m_vulkanData.m_logicalDevice;
 			m_logicalDevice.m_physicalDevice = m_vulkanData.m_physicalDevice;
+			m_logicalDevice.GetMemoryProperties();
 
 			// Create a swapchain.
 			SwapchainData data;
@@ -109,21 +97,6 @@ namespace Lina::Graphics
 	{
 		LINA_TRACE("[Render Engine Vulkan] -> Startup");
 
-		pool = m_logicalDevice.CommandPoolCreate(m_vulkanData.m_graphicsQueueFamilyIndex, 0);
-
-		CreatePipelineAndCommandBuffers();
-
-		imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-		renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-		inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-		imagesInFlight.resize(m_swapchain.m_images.size(), VK_NULL_HANDLE);
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-		{
-			imageAvailableSemaphores[i] = m_logicalDevice.SemaphoreCreate(0);
-			renderFinishedSemaphores[i] = m_logicalDevice.SemaphoreCreate(0);
-			inFlightFences[i] = m_logicalDevice.FenceCreate(VK_FENCE_CREATE_SIGNALED_BIT);
-		}
-
 	}
 
 	void RenderEngineVulkan::OnPostMainLoop(Event::EPostMainLoop& e)
@@ -131,16 +104,10 @@ namespace Lina::Graphics
 		LINA_TRACE("[Render Engine Vulkan] -> Shutdown");
 
 		m_logicalDevice.DeviceWait();
-		CleanupSwapchain();
 
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-		{
-			m_logicalDevice.SemaphoreDestroy(imageAvailableSemaphores[i]);
-			m_logicalDevice.SemaphoreDestroy(renderFinishedSemaphores[i]);
-			m_logicalDevice.FenceDestroy(inFlightFences[i]);
-		}
-
-		m_logicalDevice.CommandPoolDestroy(pool);
+		// Finally, the swapchain.
+		m_swapchain.Destroy(m_vulkanData.m_logicalDevice);
+		
 		m_logicalDevice.DeviceDestroy();
 
 		if (m_vulkanData.m_surface)
@@ -156,77 +123,14 @@ namespace Lina::Graphics
 
 	void RenderEngineVulkan::OnWindowResize(Event::EWindowResized& e)
 	{
-		m_windowResized = true;
+		
 	}
 
 	void RenderEngineVulkan::Tick()
 	{
 		PROFILER_FUNC();
 
-		m_logicalDevice.FenceWait(inFlightFences[currentFrame], UINT64_MAX);
-
-		uint32_t imageIndex;
-		VkResult result = vkAcquireNextImageKHR(m_logicalDevice.m_handle, m_swapchain.m_handle, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
-
-		if (result == VK_ERROR_OUT_OF_DATE_KHR)
-		{
-			RecreateSwapchain();
-			return;
-		}
-		else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
-		{
-			LINA_ERR("[Render Engine Vulkan] -> Failed to acquire swapchain image!");
-			return;
-		}
-
-		if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
-			m_logicalDevice.FenceWait(imagesInFlight[imageIndex], UINT64_MAX);
-
-		imagesInFlight[imageIndex] = inFlightFences[currentFrame];
-
-		std::vector<VkSemaphore> waitSemaphores = { imageAvailableSemaphores[currentFrame] };
-		std::vector<VkSemaphore> signalSemaphores = { renderFinishedSemaphores[currentFrame] };
-
-		QueueSubmitInfo submitInfo
-		{
-			m_vulkanData.m_graphicsQueue,
-			1,
-			waitSemaphores,
-			{ VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT},
-			{ commandBuffers[imageIndex] },
-			signalSemaphores,
-			inFlightFences[currentFrame]
-		};
-
-		m_logicalDevice.FenceReset(inFlightFences[currentFrame]);
-		m_logicalDevice.QueueSubmit(submitInfo);
-
-		VkSwapchainKHR swapChains[] = { m_swapchain.m_handle };
-
-		VkPresentInfoKHR presentInfo{};
-		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores = signalSemaphores.data();
-		presentInfo.pImageIndices = &imageIndex;
-		presentInfo.swapchainCount = 1;
-		presentInfo.pSwapchains = swapChains;
-		presentInfo.pResults = nullptr;
-		vkQueuePresentKHR(m_vulkanData.m_presentationQueue, &presentInfo);
-
-		if (m_windowResized || result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
-		{
-			m_windowResized = false;
-			RecreateSwapchain();
-			return;
-		}
-		else if (result != VK_SUCCESS)
-		{
-			LINA_ERR("[Render Engine Vulkan] -> Failed to acquire swapchain image!");
-			return;
-		}
-
-		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-
+		
 	}
 
 	void RenderEngineVulkan::Render()
@@ -238,109 +142,4 @@ namespace Lina::Graphics
 		m_eventSys->Trigger<Event::EFinalizePostRender>();
 	}
 
-	void RenderEngineVulkan::CleanupSwapchain()
-	{
-		for (auto& fb : framebuffers)
-			m_logicalDevice.FramebufferDestroy(fb);
-
-		m_logicalDevice.CommandBufferFree(commandBuffers, pool);
-
-		m_logicalDevice.PipelineDestroy(pipeline);
-		m_logicalDevice.PipelineDestroyLayout(layout);
-		m_logicalDevice.RenderPassDestroy(rp);
-
-		// Finally, the swapchain.
-		m_swapchain.Destroy(m_vulkanData.m_logicalDevice);
-	}
-
-
-	void RenderEngineVulkan::CreatePipelineAndCommandBuffers()
-	{
-
-		Resources::ShaderResource* vertShader = m_resources->GetShaderResource(StringID("Resources/Shaders/testTriangle.vert").value());
-		Resources::ShaderResource* fragShader = m_resources->GetShaderResource(StringID("Resources/Shaders/testTriangle.frag").value());
-		VkShaderModule vertModule = m_logicalDevice.ShaderModuleCreate(vertShader->GetData());
-		VkShaderModule fragModule = m_logicalDevice.ShaderModuleCreate(fragShader->GetData());
-
-		VkPipelineShaderStageCreateInfo vinfo
-		{
-			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-			nullptr,
-			0,
-			VK_SHADER_STAGE_VERTEX_BIT,
-			vertModule,
-			"main",
-			nullptr
-		};
-
-		VkPipelineShaderStageCreateInfo finfo
-		{
-			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-			nullptr,
-			0,
-			VK_SHADER_STAGE_FRAGMENT_BIT,
-			fragModule,
-			"main",
-			nullptr
-		};
-
-		layout = m_logicalDevice.PipelineCreateLayout();
-		rp = m_logicalDevice.RenderPassCreateDefault(&m_swapchain);
-		pipeline = m_logicalDevice.PipelineCreateDefault(&m_swapchain, layout, rp, vinfo, finfo);
-
-		framebuffers.clear();
-		framebuffers.resize(m_swapchain.m_imageViews.size());
-
-		for (int i = 0; i < m_swapchain.m_imageViews.size(); ++i)
-			framebuffers[i] = m_logicalDevice.FramebufferCreate(&m_swapchain, rp, 1, &m_swapchain.m_imageViews[i]);
-
-		commandBuffers.clear();
-		commandBuffers.resize(framebuffers.size());
-		commandBuffers = m_logicalDevice.CommandBufferCreate(pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, framebuffers.size());
-
-		for (int i = 0; i < commandBuffers.size(); ++i)
-		{
-			m_logicalDevice.CommandBufferBegin(commandBuffers[i], 0, nullptr);
-
-			VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-			VkRect2D rpExtent;
-			rpExtent.offset = { 0,0 };
-			rpExtent.extent = m_swapchain.m_imagesSize;
-
-			VkRenderPassBeginInfo renderPassInfo
-			{
-				VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-				nullptr,
-				rp,
-				framebuffers[i],
-				rpExtent,
-				1,
-				&clearColor
-			};
-
-			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-			vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
-			vkCmdEndRenderPass(commandBuffers[i]);
-			m_logicalDevice.CommandBufferEnd(commandBuffers[i]);
-		}
-
-		m_logicalDevice.ShaderModuleDestroy(vertModule);
-		m_logicalDevice.ShaderModuleDestroy(fragModule);
-
-	}
-
-	void RenderEngineVulkan::RecreateSwapchain()
-	{
-		m_logicalDevice.DeviceWait();
-		CleanupSwapchain();
-
-		// Create a swapchain.
-		SwapchainData data;
-		data.vulkanData = &m_vulkanData;
-		data.windowProps = &m_window.m_windowProperties;
-		m_swapchain.Create(data);
-
-		CreatePipelineAndCommandBuffers();
-	}
 }

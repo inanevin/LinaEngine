@@ -89,9 +89,6 @@ namespace Lina::Graphics
 		void Tick();
 		void Render();
 		void DisconnectEvents();
-		void CleanupSwapchain();
-		void CreatePipelineAndCommandBuffers();
-		void RecreateSwapchain();
 
 	private:
 

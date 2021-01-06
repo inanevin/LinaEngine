@@ -75,6 +75,7 @@ namespace Lina::Graphics
 		void SetReferences(Event::EventSystem* eventSys, WindowProperties& props);
 		bool CreateContext();
 		void Terminate();
+		void WaitEvents();
 		void OnWindowResize(int w, int h);
 		bool CreateWindowSurface(VkInstance& instance, VkSurfaceKHR& surface);
 

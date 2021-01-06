@@ -110,6 +110,15 @@ namespace Lina::Graphics
 		VkRenderPass RenderPassCreateDefault(VulkanSwapchain* swapChain);
 		void RenderPassDestroy(VkRenderPass renderPass);
 
+		/* MEMORY FUNCTIONS */
+		VkDeviceMemory MemoryAllocate(VkDeviceSize size, uint32_t typeIndex);
+
+		/* BUFFER FUNCTIONS */
+		VkBuffer BufferCreate(VkDeviceSize size, VkBufferUsageFlags usage, VkBufferCreateFlags flags = 0, VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE);
+		void BufferDestroy(VkBuffer buffer);
+		void BufferAllocateMemory(VkBuffer buffer, VkMemoryPropertyFlagBits memoryProperties);
+		bool BufferBindToMemory(VkBuffer buffer, VkDeviceMemory memoryObject, VkDeviceSize offset = 0);
+
 		/* FRAME BUFFER FUNCTIONS */
 		VkFramebuffer FramebufferCreate(VulkanSwapchain* swapchain, VkRenderPass renderPass, uint32_t attachmentCount, VkImageView* attachments);
 		void FramebufferDestroy(VkFramebuffer frameBuffer);

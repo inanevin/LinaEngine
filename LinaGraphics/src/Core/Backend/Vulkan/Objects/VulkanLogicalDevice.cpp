@@ -418,7 +418,7 @@ namespace Lina::Graphics
 			return VK_NULL_HANDLE;
 		}
 
-		LINA_TRACE("[Shader Module] -> Successfuly created  a shader module.");
+		LINA_TRACE("[Shader Module] -> Successfuly created a shader module.");
 		return shaderModule;
 	}
 
@@ -537,6 +537,7 @@ namespace Lina::Graphics
 
 		VkDynamicState dynamicStates[] = {
 			VK_DYNAMIC_STATE_VIEWPORT,
+			VK_DYNAMIC_STATE_SCISSOR,
 			VK_DYNAMIC_STATE_LINE_WIDTH
 		};
 
@@ -545,7 +546,7 @@ namespace Lina::Graphics
 			VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
 			nullptr,
 			0,
-			2,
+			3,
 			dynamicStates
 		};
 
@@ -565,7 +566,7 @@ namespace Lina::Graphics
 			&multisampling,
 			nullptr,
 			&colorBlending,
-			nullptr,
+			&dynamicState,
 			layout,
 			rp,
 			0,
@@ -714,6 +715,119 @@ namespace Lina::Graphics
 		}
 	}
 
+	/* -------------------- Memory FUNCTIONS -------------------- */
+	/* -------------------- Memory FUNCTIONS -------------------- */
+	/* -------------------- Memory FUNCTIONS -------------------- */
+	/* -------------------- Memory FUNCTIONS -------------------- */
+	VkDeviceMemory VulkanLogicalDevice::MemoryAllocate(VkDeviceSize size, uint32_t typeIndex)
+	{
+		VkMemoryAllocateInfo allocInfo
+		{
+			VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+			nullptr,
+			size,
+			typeIndex
+		};
+
+		VkDeviceMemory memObject;
+		VkResult result = vkAllocateMemory(m_handle, &allocInfo, nullptr, &memObject);
+
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Vulkan Memory] -> Could not allocate a memory object.");
+			memObject = VK_NULL_HANDLE;
+			return VK_NULL_HANDLE;
+		}
+
+		LINA_TRACE("[Vulkan Memory] -> Successfuly allocated a memory object of size {0}", size);
+		return memObject;
+	}
+
+	/* -------------------- BUFFER FUNCTIONS -------------------- */
+	/* -------------------- BUFFER FUNCTIONS -------------------- */
+	/* -------------------- BUFFER FUNCTIONS -------------------- */
+	/* -------------------- BUFFER FUNCTIONS -------------------- */
+	VkBuffer VulkanLogicalDevice::BufferCreate(VkDeviceSize size, VkBufferUsageFlags usage, VkBufferCreateFlags flags, VkSharingMode sharingMode)
+	{
+		VkBufferCreateInfo createInfo
+		{
+			VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+			nullptr,
+			flags,
+			size,
+			usage,
+			sharingMode,
+			0,
+			nullptr
+		};
+
+		VkBuffer buffer;
+		VkResult  result = vkCreateBuffer(m_handle, &createInfo, nullptr, &buffer);
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Buffer] -> Could not create a buffer.");
+			buffer = VK_NULL_HANDLE;
+			return VK_NULL_HANDLE;
+		}
+
+		LINA_TRACE("[Buffer] -> Successfuly created a buffer.");
+		return buffer;
+
+	}
+
+	void VulkanLogicalDevice::BufferDestroy(VkBuffer buffer)
+	{
+		if (buffer != VK_NULL_HANDLE)
+		{
+			vkDestroyBuffer(m_handle, buffer, nullptr);
+			buffer = VK_NULL_HANDLE;
+			LINA_TRACE("[Buffer] -> Successfuly destroyed a buffer.");
+		}
+	}
+
+	bool VulkanLogicalDevice::BufferBindToMemory(VkBuffer buffer, VkDeviceMemory memoryObject, VkDeviceSize offset)
+	{
+		VkResult result = vkBindBufferMemory(m_handle, buffer, memoryObject, offset);
+
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Buffer] -> Could not bind a buffer to memory.");
+			return false;
+		}
+			
+		LINA_TRACE("[Buffer] -> Successfuly binded a buffer to memory.");
+		return true;
+	}
+
+	void VulkanLogicalDevice::BufferAllocateMemory(VkBuffer buffer, VkMemoryPropertyFlagBits memoryProperties)
+	{
+		VkMemoryRequirements memRequirements;
+		vkGetBufferMemoryRequirements(m_handle, buffer, &memRequirements);
+		VkDeviceMemory memoryObject = VK_NULL_HANDLE;
+
+		for (uint32_t type = 0; type < m_memProperties.memoryTypeCount; ++type)
+		{
+			if ((memRequirements.memoryTypeBits & (1 << type)) && ((m_memProperties.memoryTypes[type].propertyFlags & memoryProperties) == memoryProperties))
+			{
+				memoryObject = MemoryAllocate(memRequirements.size, type);
+				if (memoryObject != VK_NULL_HANDLE)
+					break;
+			}
+		}
+
+		if ( memoryObject == VK_NULL_HANDLE) {
+			LINA_ERR("[Buffer] -> Could not allocate memory for the buffer.");
+			return;
+		}
+
+		if (!BufferBindToMemory(buffer, memoryObject, 0))
+		{
+			return;
+		}
+
+		LINA_TRACE("[Buffer] -> Successfuly allocated memory for the buffer.");
+
+	}
 
 	VkFramebuffer VulkanLogicalDevice::FramebufferCreate(VulkanSwapchain* swapchain, VkRenderPass renderPass, uint32_t attachmentCount, VkImageView* attachments)
 	{
@@ -739,7 +853,7 @@ namespace Lina::Graphics
 			return VK_NULL_HANDLE;
 		}
 
-		LINA_TRACE("[Render Pass] -> Successfuly created a framebuffer.");
+		LINA_TRACE("[Buffer] -> Successfuly created a framebuffer.");
 		return framebuffer;
 	}
 

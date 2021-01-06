@@ -50,6 +50,12 @@ namespace Lina::Graphics
 		glfwTerminate();
 	}
 
+
+	void WindowVulkan::WaitEvents()
+	{
+		glfwGetFramebufferSize(m_glfwWindow, &m_windowProperties.m_width, &m_windowProperties.m_height);
+		glfwWaitEvents();
+	}
 	void WindowVulkan::OnWindowResize(int w, int h)
 	{
 		m_windowProperties.m_width = w;
