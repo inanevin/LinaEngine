@@ -844,71 +844,6 @@ namespace Lina::Graphics
 	/* -------------------- RENDER PASS FUNCTIONS -------------------- */
 	/* -------------------- RENDER PASS FUNCTIONS -------------------- */
 	/* -------------------- RENDER PASS FUNCTIONS -------------------- */
-	/*VkRenderPass VulkanLogicalDevice::RenderPassCreateDefault(VulkanSwapchain* swapchain)
-	{
-
-		VkAttachmentDescription colorAttachment
-		{
-			0,
-			swapchain->m_imageFormat,
-			VK_SAMPLE_COUNT_1_BIT,
-			VK_ATTACHMENT_LOAD_OP_CLEAR,
-			VK_ATTACHMENT_STORE_OP_STORE,
-			VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-			VK_ATTACHMENT_STORE_OP_DONT_CARE,
-			VK_IMAGE_LAYOUT_UNDEFINED,
-			VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-		};
-
-		VkAttachmentReference colorAttachmentRef
-		{
-			0,
-			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-		};
-
-		VkSubpassDescription subpass{};
-		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.colorAttachmentCount = 1;
-		subpass.pColorAttachments = &colorAttachmentRef;
-
-		VkSubpassDependency dependency
-		{
-			VK_SUBPASS_EXTERNAL,
-			0,
-			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-			0,
-			VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-			0
-		};
-
-		VkRenderPass renderPass;
-		VkRenderPassCreateInfo renderPassInfo
-		{
-			VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
-			nullptr,
-			0,
-			1,
-			&colorAttachment,
-			1,
-			&subpass,
-			1,
-			&dependency
-		};
-
-		VkResult result = vkCreateRenderPass(m_handle, &renderPassInfo, nullptr, &renderPass);
-
-		if (result != VK_SUCCESS)
-		{
-			LINA_ERR("[Render Pass] -> Could not create a render pass.");
-			renderPass = VK_NULL_HANDLE;
-			return VK_NULL_HANDLE;
-		}
-
-		LINA_TRACE("[Render Pass] -> Successfuly created a render pass.");
-		return renderPass;
-	}*/
-
 	VkRenderPass VulkanLogicalDevice::RenderPassCreate(std::vector<VkAttachmentDescription> const& attachmentsDescriptions, std::vector<SubpassParameters> const& subpassParameters, std::vector<VkSubpassDependency> const& subpassDependencies)
 	{
 		std::vector<VkSubpassDescription> subpass_descriptions;
@@ -936,7 +871,7 @@ namespace Lina::Graphics
 		}
 		return renderPass;
 	}
-
+	
 	void VulkanLogicalDevice::RenderPassDestroy(VkRenderPass renderPass)
 	{
 		if (renderPass != VK_NULL_HANDLE)

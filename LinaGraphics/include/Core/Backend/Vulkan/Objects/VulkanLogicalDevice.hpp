@@ -42,7 +42,6 @@ Timestamp: 12/28/2020 3:11:12 AM
 // Headers here.
 #include "Core/Backend/Vulkan/VulkanCommon.hpp"
 #include <vector>
-#include <set>
 
 namespace Lina::Graphics
 {
@@ -56,6 +55,7 @@ namespace Lina::Graphics
 	private:
 
 		friend class RenderEngineVulkan;
+		friend class VulkanHelper;
 
 		VulkanLogicalDevice() {};
 		~VulkanLogicalDevice() {};
@@ -120,7 +120,6 @@ namespace Lina::Graphics
 		void PipelineDestroy(VkPipeline pipeline);
 
 		/* RENDER PASS FUNCTIONS */
-		//VkRenderPass RenderPassCreateDefault(VulkanSwapchain* swapChain);
 		VkRenderPass RenderPassCreate(std::vector<VkAttachmentDescription> const& attachmentsDescriptions, std::vector<SubpassParameters> const& subpassParameters, std::vector<VkSubpassDependency> const& subpassDependencies);
 		void RenderPassDestroy(VkRenderPass renderPass);
 		void RenderPassSpecifySubpassDescriptions(std::vector<SubpassParameters> const& subpassParameters, std::vector<VkSubpassDescription>& outSubpassDescriptions);

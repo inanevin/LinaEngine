@@ -79,6 +79,7 @@ namespace Lina::Graphics
 			m_logicalDevice.m_handle = m_vulkanData.m_logicalDevice;
 			m_logicalDevice.m_physicalDevice = m_vulkanData.m_physicalDevice;
 			m_logicalDevice.GetMemoryProperties();
+			m_vulkanHelper.SetReferences(&m_logicalDevice);
 
 			// Create a swapchain.
 			SwapchainData data;

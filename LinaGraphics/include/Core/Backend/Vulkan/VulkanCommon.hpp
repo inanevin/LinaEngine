@@ -184,39 +184,4 @@ namespace Lina::Graphics
 
 }
 
-typedef struct VkAttachmentDescription {
-	VkAttachmentDescriptionFlags    m_flags;
-	VkFormat                        m_format;
-	VkSampleCountFlagBits           m_samples;
-	VkAttachmentLoadOp              m_loadOp;
-	VkAttachmentStoreOp             m_storeOp;
-	VkAttachmentLoadOp              m_stencilLoadOp;
-	VkAttachmentStoreOp             m_stencilStoreOp;
-	VkImageLayout                   m_initialLayout;
-	VkImageLayout                   m_finalLayout;
-} VkAttachmentDescription;
-
-
-typedef struct VkSubpassDescription {
-	VkSubpassDescriptionFlags       flags;
-	VkPipelineBindPoint             pipelineBindPoint;
-	uint32_t                        inputAttachmentCount;
-	const VkAttachmentReference* pInputAttachments;
-	uint32_t                        colorAttachmentCount;
-	const VkAttachmentReference* pColorAttachments;
-	const VkAttachmentReference* pResolveAttachments;
-	const VkAttachmentReference* pDepthStencilAttachment;
-	uint32_t                        preserveAttachmentCount;
-	const uint32_t* pPreserveAttachments;
-} VkSubpassDescription;
-
-typedef struct VkSubpassDependency {
-	uint32_t               m_srcSubpass;
-	uint32_t               m_dstSubpass;
-	VkPipelineStageFlags   m_srcStageMask;
-	VkPipelineStageFlags   m_dstStageMask;
-	VkAccessFlags          m_srcAccessMask;
-	VkAccessFlags          m_dstAccessMask;
-	VkDependencyFlags      m_dependencyFlags;
-} VkSubpassDependency;
 #endif

@@ -26,6 +26,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Core/Backend/Vulkan/RenderEngineVulkan.cpp
 	src/Core/Backend/Vulkan/VulkanLoader.cpp
 	src/Core/Backend/Vulkan/WindowVulkan.cpp
+	src/Core/Backend/Vulkan/VulkanHelper.cpp
 	
 	src/Core/Backend/Vulkan/Objects/VulkanSwapchain.cpp	
 	src/Core/Backend/Vulkan/Objects/VulkanLogicalDevice.cpp	
@@ -47,6 +48,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Core/RenderingCommon.hpp
 	
 	include/Core/Backend/Vulkan/WindowVulkan.hpp
+	include/Core/Backend/Vulkan/VulkanHelper.hpp
 	include/Core/Backend/Vulkan/RenderEngineVulkan.hpp
 	include/Core/Backend/Vulkan/VulkanLoader.hpp
 	include/Core/Backend/Vulkan/VulkanCommon.hpp

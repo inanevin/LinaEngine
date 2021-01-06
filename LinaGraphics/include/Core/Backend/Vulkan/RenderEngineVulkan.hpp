@@ -46,7 +46,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "VulkanLoader.hpp"
 #include "WindowVulkan.hpp"
 #include "Objects/VulkanSwapchain.hpp"
-#include "Objects/VulkanLogicalDevice.hpp"
+#include "VulkanHelper.hpp"
 
 namespace Lina
 {
@@ -97,6 +97,7 @@ namespace Lina::Graphics
 		VulkanLoader m_loader;
 		VulkanSwapchain m_swapchain;
 		VulkanLogicalDevice m_logicalDevice;
+		VulkanHelper m_vulkanHelper;
 		Event::EventSystem* m_eventSys = nullptr;
 		ECS::Registry* m_ecs = nullptr;
 		Resources::ResourceManager* m_resources = nullptr;
