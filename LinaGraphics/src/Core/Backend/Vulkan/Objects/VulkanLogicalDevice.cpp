@@ -1399,8 +1399,21 @@ namespace Lina::Graphics
 				return;
 			}
 
-			LINA_TRACE("[Descriptor Set] -> Successfuly freed a descriptor set.");
+			LINA_TRACE("[Descriptor Set] -> Successfuly freed descriptor sets.");
 		}
+	}
+
+	void VulkanLogicalDevice::DescriptorSetFree(VkDescriptorPool pool, VkDescriptorSet set)
+	{
+		VkResult result = vkFreeDescriptorSets(m_handle, pool, 1, &set);
+
+		if (VK_SUCCESS != result)
+		{
+			LINA_ERR("[Descriptor Set] -> Error occurred during freeing a descriptor set.");
+			return;
+		}
+
+		LINA_TRACE("[Descriptor Set] -> Successfuly freed a descriptor set.");
 	}
 
 	void VulkanLogicalDevice::UpdateDescriptorSets(std::vector<ImageDescriptorInfo> const& imageDescriptorInfos, std::vector<BufferDescriptorInfo> const& bufferDescriptorInfos, std::vector<TexelBufferDescriptorInfo> const& texelBufferDescriptorInfos, std::vector<CopyDescriptorInfo> const& copyDescriptorInfos)
