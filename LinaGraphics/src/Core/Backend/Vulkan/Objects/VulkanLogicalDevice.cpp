@@ -143,12 +143,12 @@ namespace Lina::Graphics
 			inheritanceInfo = VkCommandBufferInheritanceInfo{
 				VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO,
 				nullptr,
-				data->renderPass,
-				data->renderPassIndex,
-				data->frameBuffer,
-				data->enableOcclusionQuery ? (VkBool32)VK_TRUE : (VkBool32)VK_FALSE,
-				data->queryFlags,
-				data->pipelineStatistics
+				data->m_renderPass,
+				data->m_renderPassIndex,
+				data->m_frameBuffer,
+				data->m_enableOcclusionQuery ? (VkBool32)VK_TRUE : (VkBool32)VK_FALSE,
+				data->m_queryFlags,
+				data->m_pipelineStatistics
 			};
 		}
 
@@ -212,6 +212,30 @@ namespace Lina::Graphics
 			buffers.clear();
 			LINA_TRACE("[Command Buffer] -> Successfuly freed a command buffer.");
 		}
+	}
+
+	void VulkanLogicalDevice::CommandBufferSetMemoryBarriers(VkCommandBuffer commandBuffer, VkPipelineStageFlags generatingStages, VkPipelineStageFlags consumingStages, std::vector<BufferTransition> bufferTransitions)
+	{
+		std::vector<VkBufferMemoryBarrier> memoryBarriers;
+
+		for (auto& bufferTransition : bufferTransitions) {
+			memoryBarriers.push_back(
+			{
+			  VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,    
+			  nullptr,                                    
+			  bufferTransition.m_currentAccess,           
+			  bufferTransition.m_newAccess,               
+			  bufferTransition.m_currentQueueFamily,      
+			  bufferTransition.m_newQueueFamily,          
+			  bufferTransition.m_buffer,                  
+			  0,                                          
+			  VK_WHOLE_SIZE                               
+			});
+		}
+
+		if (memoryBarriers.size() > 0) 
+			vkCmdPipelineBarrier(commandBuffer, generatingStages, consumingStages, 0, 0, nullptr, static_cast<uint32_t>(memoryBarriers.size()), memoryBarriers.data(), 0, nullptr);
+		
 	}
 
 	/* -------------------- FENCE FUNCTIONS -------------------- */
@@ -329,25 +353,25 @@ namespace Lina::Graphics
 
 	bool VulkanLogicalDevice::QueueSubmit(QueueSubmitInfo& submitInfo)
 	{
-		uint32_t waitSemaphoresSize = static_cast<uint32_t>(submitInfo.waitSemaphores.size());
-		uint32_t waitSemaphoreStagesSize = static_cast<uint32_t>(submitInfo.waitSemaphoreStages.size());
-		uint32_t commandBuffersSize = static_cast<uint32_t>(submitInfo.commandBuffers.size());
-		uint32_t signalSemaphoresSize = static_cast<uint32_t>(submitInfo.signalSemaphores.size());
+		uint32_t waitSemaphoresSize = static_cast<uint32_t>(submitInfo.m_waitSemaphores.size());
+		uint32_t waitSemaphoreStagesSize = static_cast<uint32_t>(submitInfo.m_waitSemaphoreStages.size());
+		uint32_t commandBuffersSize = static_cast<uint32_t>(submitInfo.m_commandBuffers.size());
+		uint32_t signalSemaphoresSize = static_cast<uint32_t>(submitInfo.m_signalSemaphores.size());
 
 		VkSubmitInfo info
 		{
 			VK_STRUCTURE_TYPE_SUBMIT_INFO,
 			nullptr,
 			waitSemaphoresSize,
-			waitSemaphoresSize == 0 ? nullptr : &submitInfo.waitSemaphores[0],
-			waitSemaphoreStagesSize == 0 ? nullptr : &submitInfo.waitSemaphoreStages[0],
+			waitSemaphoresSize == 0 ? nullptr : &submitInfo.m_waitSemaphores[0],
+			waitSemaphoreStagesSize == 0 ? nullptr : &submitInfo.m_waitSemaphoreStages[0],
 			commandBuffersSize,
-			commandBuffersSize == 0 ? nullptr : &submitInfo.commandBuffers[0],
+			commandBuffersSize == 0 ? nullptr : &submitInfo.m_commandBuffers[0],
 			signalSemaphoresSize,
-			signalSemaphoresSize == 0 ? nullptr : &submitInfo.signalSemaphores[0]
+			signalSemaphoresSize == 0 ? nullptr : &submitInfo.m_signalSemaphores[0]
 		};
 
-		VkResult result = vkQueueSubmit(submitInfo.submitQueue, submitInfo.submitCount, &info, submitInfo.fence);
+		VkResult result = vkQueueSubmit(submitInfo.m_submitQueue, submitInfo.m_submitCount, &info, submitInfo.m_fence);
 
 		if (result != VK_SUCCESS)
 		{

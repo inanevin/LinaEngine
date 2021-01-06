@@ -76,6 +76,7 @@ namespace Lina::Graphics
 		bool CommandBufferEnd(VkCommandBuffer cbuffer);
 		bool CommandBufferReset(VkCommandBuffer cbuffer, VkCommandBufferResetFlags resetFlags);
 		void CommandBufferFree(std::vector<VkCommandBuffer>& buffers, VkCommandPool pool);
+		void CommandBufferSetMemoryBarriers(VkCommandBuffer commandbuffer, VkPipelineStageFlags  generatingStages, VkPipelineStageFlags consumingStages, std::vector<BufferTransition> bufferTransitions);
 
 		/* FENCE FUNCTIONS */
 		VkFence FenceCreate(VkFenceCreateFlags flags);

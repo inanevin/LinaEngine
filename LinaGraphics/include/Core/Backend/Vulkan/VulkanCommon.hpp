@@ -64,38 +64,47 @@ namespace Lina::Graphics
 
 	struct VulkanData
 	{
-		VkInstance m_instance;
-		VkDevice m_logicalDevice;
+		VkInstance		 m_instance;
+		VkDevice		 m_logicalDevice;
 		VkPhysicalDevice m_physicalDevice;
-		VkSurfaceKHR m_surface;
-		VkQueue m_graphicsQueue;
-		VkQueue m_computeQueue;
-		VkQueue m_presentationQueue;
+		VkSurfaceKHR	 m_surface;
+		VkQueue			 m_graphicsQueue;
+		VkQueue			 m_computeQueue;
+		VkQueue			 m_presentationQueue;
 		VkPresentModeKHR m_presentMode;
-		uint32_t m_graphicsQueueFamilyIndex;
-		uint32_t m_computeQueueFamilyIndex;
-		uint32_t m_presentationQueueFamilyIndex;
+		uint32_t		 m_graphicsQueueFamilyIndex;
+		uint32_t		 m_computeQueueFamilyIndex;
+		uint32_t		 m_presentationQueueFamilyIndex;
 	};
 
 	struct SecondaryCommandBufferData
 	{
-		VkRenderPass renderPass = VK_NULL_HANDLE;
-		uint32_t renderPassIndex = 0;
-		VkFramebuffer frameBuffer = VK_NULL_HANDLE;
-		bool enableOcclusionQuery = false;
-		VkQueryControlFlags	queryFlags;
-		VkQueryPipelineStatisticFlags pipelineStatistics;
+		VkRenderPass					m_renderPass = VK_NULL_HANDLE;
+		uint32_t						m_renderPassIndex = 0;
+		VkFramebuffer					m_frameBuffer = VK_NULL_HANDLE;
+		bool							m_enableOcclusionQuery = false;
+		VkQueryControlFlags				m_queryFlags;
+		VkQueryPipelineStatisticFlags	m_pipelineStatistics;
 	};
 
 	struct QueueSubmitInfo
 	{
-		VkQueue submitQueue = VK_NULL_HANDLE;
-		uint32_t submitCount = 0;
-		std::vector<VkSemaphore> waitSemaphores;
-		std::vector<VkPipelineStageFlags> waitSemaphoreStages;
-		std::vector<VkCommandBuffer> commandBuffers;
-		std::vector<VkSemaphore> signalSemaphores;
-		VkFence fence = VK_NULL_HANDLE;
+		VkQueue							  m_submitQueue = VK_NULL_HANDLE;
+		uint32_t						  m_submitCount = 0;
+		std::vector<VkSemaphore>		  m_waitSemaphores;
+		std::vector<VkPipelineStageFlags> m_waitSemaphoreStages;
+		std::vector<VkCommandBuffer>	  m_commandBuffers;
+		std::vector<VkSemaphore>		  m_signalSemaphores;
+		VkFence							  m_fence = VK_NULL_HANDLE;
+	};
+
+	struct BufferTransition 
+	{
+		VkBuffer        m_buffer;
+		VkAccessFlags   m_currentAccess;
+		VkAccessFlags   m_newAccess;
+		uint32_t        m_currentQueueFamily;
+		uint32_t        m_newQueueFamily;
 	};
 }
 
