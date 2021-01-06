@@ -81,6 +81,7 @@ namespace Lina::Graphics
 		void CommandBufferCopyData(VkCommandBuffer commandBuffer, VkBuffer sourceBuffer, VkBuffer destBuffer, std::vector<VkBufferCopy> regions);
 		void CommandBufferCopyToImage(VkCommandBuffer commandBuffer, VkBuffer sourceBuffer, VkImage destImage, VkImageLayout imageLayout, std::vector<VkBufferImageCopy> regions);
 		void CommandBufferCopyFromImage(VkCommandBuffer commandBuffer, VkBuffer destBuffer, VkImage sourceImage, VkImageLayout imageLayout, std::vector<VkBufferImageCopy> regions);
+		void CommandBufferBindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineType, VkPipelineLayout pipelineLayout, uint32_t indexForFirstSet, std::vector<VkDescriptorSet> const& descriptorSets, std::vector<uint32_t> const& dynamicOffsets);
 
 		/* FENCE FUNCTIONS */
 		VkFence FenceCreate(VkFenceCreateFlags flags);
@@ -140,7 +141,6 @@ namespace Lina::Graphics
 		void ImageDestroy(VkImage image);
 		bool ImageBindToMemory(VkImage image, VkDeviceMemory memoryObject, VkDeviceSize offset = 0);
 
-
 		/* IMAGE VIEW FUNCTIONS */
 		VkImageView ImageViewCreate(VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspect, VkImageViewCreateFlags flags = 0);
 		void ImageViewDestroy(VkImageView view);
@@ -155,7 +155,7 @@ namespace Lina::Graphics
 		std::vector<VkDescriptorSet> DescriptorSetCreate(VkDescriptorPool pool, std::vector<VkDescriptorSetLayout> const& descriptor_set_layouts);
 		void DescriptorSetDestroyLayout(VkDescriptorSetLayout layout);
 		void DescriptorSetDestroyPool(VkDescriptorPool pool);
-		void UpdateDescriptorSets(std::vector<ImageDescriptorInfo> const& image_descriptor_infos, std::vector<BufferDescriptorInfo> const& buffer_descriptor_infos, std::vector<TexelBufferDescriptorInfo> const& texel_buffer_descriptor_infos, std::vector<CopyDescriptorInfo> const& copy_descriptor_infos);
+		void UpdateDescriptorSets(std::vector<ImageDescriptorInfo> const& imageDescriptorInfos, std::vector<BufferDescriptorInfo> const& bufferDescriptorInfos, std::vector<TexelBufferDescriptorInfo> const& texelBufferDescriptorInfos, std::vector<CopyDescriptorInfo> const& copyDescriptorInfos);
 	
 private:
 		VkPhysicalDevice m_physicalDevice;

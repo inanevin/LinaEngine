@@ -286,6 +286,11 @@ namespace Lina::Graphics
 			vkCmdCopyImageToBuffer(commandBuffer, sourceImage, imageLayout, destBuffer, static_cast<uint32_t>(regions.size()), regions.data());
 	}
 
+	void VulkanLogicalDevice::CommandBufferBindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineType, VkPipelineLayout pipelineLayout, uint32_t indexForFirstSet, std::vector<VkDescriptorSet> const& descriptorSets, std::vector<uint32_t> const& dynamicOffsets)
+	{
+		vkCmdBindDescriptorSets(commandBuffer, pipelineType, pipelineLayout, indexForFirstSet, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), static_cast<uint32_t>(dynamicOffsets.size()), dynamicOffsets.data());
+	}
+
 	/* -------------------- FENCE FUNCTIONS -------------------- */
 	/* -------------------- FENCE FUNCTIONS -------------------- */
 	/* -------------------- FENCE FUNCTIONS -------------------- */
@@ -1315,7 +1320,7 @@ namespace Lina::Graphics
 
 	VkDescriptorPool VulkanLogicalDevice::DescriptorSetCreatePool(bool freeIndividualSets, uint32_t maxSetsCount, std::vector<VkDescriptorPoolSize> const& descriptorTypes)
 	{
-		VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = 
+		VkDescriptorPoolCreateInfo descriptorPoolCreateInfo =
 		{
 			 VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
 			 nullptr,
@@ -1342,21 +1347,21 @@ namespace Lina::Graphics
 	{
 		std::vector<VkDescriptorSet> descriptorSets;
 
-		if (descriptor_set_layouts.size() > 0) 
+		if (descriptor_set_layouts.size() > 0)
 		{
-			VkDescriptorSetAllocateInfo allocInfo = 
+			VkDescriptorSetAllocateInfo allocInfo =
 			{
-			  VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,        
-			  nullptr,                                               
-			  pool,                                      
-			  static_cast<uint32_t>(descriptor_set_layouts.size()),  
-			  descriptor_set_layouts.data()                          
+			  VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+			  nullptr,
+			  pool,
+			  static_cast<uint32_t>(descriptor_set_layouts.size()),
+			  descriptor_set_layouts.data()
 			};
 
 			descriptorSets.resize(descriptor_set_layouts.size());
 
 			VkResult result = vkAllocateDescriptorSets(m_handle, &allocInfo, descriptorSets.data());
-			if (VK_SUCCESS != result) 
+			if (VK_SUCCESS != result)
 				LINA_ERR("[Descriptor Set] -> Could not allocate descriptor sets.");
 		}
 		return descriptorSets;
@@ -1388,19 +1393,19 @@ namespace Lina::Graphics
 		std::vector<VkCopyDescriptorSet> copyDescriptors;
 
 		// image descriptors
-		for (auto& image_descriptor : imageDescriptorInfos) 
+		for (auto& image_descriptor : imageDescriptorInfos)
 		{
 			writeDescriptors.push_back({
-			  VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,                                
-			  nullptr,                                                               
-			  image_descriptor.m_targetDescriptorSet,                                
-			  image_descriptor.m_targetDescriptorBinding,                            
-			  image_descriptor.m_targetArrayElement,                                 
-			  static_cast<uint32_t>(image_descriptor.m_imageInfos.size()),           
-			  image_descriptor.m_targetDescriptorType,                               
-			  image_descriptor.m_imageInfos.data(),                                  
-			  nullptr,                                                               
-			  nullptr                                                                
+			  VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+			  nullptr,
+			  image_descriptor.m_targetDescriptorSet,
+			  image_descriptor.m_targetDescriptorBinding,
+			  image_descriptor.m_targetArrayElement,
+			  static_cast<uint32_t>(image_descriptor.m_imageInfos.size()),
+			  image_descriptor.m_targetDescriptorType,
+			  image_descriptor.m_imageInfos.data(),
+			  nullptr,
+			  nullptr
 				});
 		}
 
@@ -1408,47 +1413,47 @@ namespace Lina::Graphics
 		for (auto& buffer_descriptor : bufferDescriptorInfos)
 		{
 			writeDescriptors.push_back({
-			  VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,                                
-			  nullptr,                                                               
-			  buffer_descriptor.m_targetDescriptorSet,                               
-			  buffer_descriptor.m_targetDescriptorBinding,                           
-			  buffer_descriptor.m_targetArrayElement,                                
-			  static_cast<uint32_t>(buffer_descriptor.m_bufferInfos.size()),         
-			  buffer_descriptor.m_targetDescriptorType,                              
-			  nullptr,                                                               
-			  buffer_descriptor.m_bufferInfos.data(),                                
-			  nullptr                                                                
+			  VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+			  nullptr,
+			  buffer_descriptor.m_targetDescriptorSet,
+			  buffer_descriptor.m_targetDescriptorBinding,
+			  buffer_descriptor.m_targetArrayElement,
+			  static_cast<uint32_t>(buffer_descriptor.m_bufferInfos.size()),
+			  buffer_descriptor.m_targetDescriptorType,
+			  nullptr,
+			  buffer_descriptor.m_bufferInfos.data(),
+			  nullptr
 				});
 		}
 
 		// texel buffer descriptors
 		for (auto& texel_buffer_descriptor : texelBufferDescriptorInfos) {
 			writeDescriptors.push_back({
-			  VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,                                 
-			  nullptr,                                                                
-			  texel_buffer_descriptor.m_targetDescriptorSet,                            
-			  texel_buffer_descriptor.m_targetDescriptorBinding,                        
-			  texel_buffer_descriptor.m_targetArrayElement,                             
-			  static_cast<uint32_t>(texel_buffer_descriptor.m_texelBufferViews.size()), 
-			  texel_buffer_descriptor.m_targetDescriptorType,                           
-			  nullptr,                                                                
-			  nullptr,                                                                
-			  texel_buffer_descriptor.m_texelBufferViews.data()                         
+			  VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+			  nullptr,
+			  texel_buffer_descriptor.m_targetDescriptorSet,
+			  texel_buffer_descriptor.m_targetDescriptorBinding,
+			  texel_buffer_descriptor.m_targetArrayElement,
+			  static_cast<uint32_t>(texel_buffer_descriptor.m_texelBufferViews.size()),
+			  texel_buffer_descriptor.m_targetDescriptorType,
+			  nullptr,
+			  nullptr,
+			  texel_buffer_descriptor.m_texelBufferViews.data()
 				});
 		}
 
 		// copy descriptors
 		for (auto& copy_descriptor : copyDescriptorInfos) {
 			copyDescriptors.push_back({
-			  VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET,                               
-			  nullptr,                                                             
-			  copy_descriptor.m_sourceDescriptorSet,                                 
-			  copy_descriptor.m_sourceDescriptorBinding,                             
-			  copy_descriptor.m_sourceArrayElement,                                  
-			  copy_descriptor.m_targetDescriptorSet,                                 
-			  copy_descriptor.m_targetDescriptorBinding,                             
-			  copy_descriptor.m_targetArrayElement,                                  
-			  copy_descriptor.m_descriptorCount                                      
+			  VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET,
+			  nullptr,
+			  copy_descriptor.m_sourceDescriptorSet,
+			  copy_descriptor.m_sourceDescriptorBinding,
+			  copy_descriptor.m_sourceArrayElement,
+			  copy_descriptor.m_targetDescriptorSet,
+			  copy_descriptor.m_targetDescriptorBinding,
+			  copy_descriptor.m_targetArrayElement,
+			  copy_descriptor.m_descriptorCount
 				});
 		}
 
