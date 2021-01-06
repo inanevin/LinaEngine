@@ -99,9 +99,14 @@ namespace Lina::Graphics
 		bool QueueWait(VkQueue queue);
 
 		/* BUFFER FUNCTIONS */
-		VkBuffer BufferCreate(VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode);
+		VkBuffer BufferCreate(VkDeviceSize size, VkBufferUsageFlags usage, VkBufferCreateFlags flags = 0, VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE);
+		VkBuffer BufferCreateUniform(VkDeviceSize size, VkBufferUsageFlags usage, VkFormat format, VkBufferCreateFlags flags = 0, VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE);
+		VkBuffer BufferCreateStorage(VkDeviceSize size, VkBufferUsageFlags usage, VkFormat format, VkBufferCreateFlags flags = 0, VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE, bool atomicOperations = false);
 		VkBufferView BufferViewCreate(VkBuffer buffer, VkFormat format, VkDeviceSize memOfffset, VkDeviceSize memRange, VkBufferViewCreateFlags flags = 0);
+		VkDeviceMemory BufferAllocateAndBindMemory(VkBuffer buffer, VkMemoryPropertyFlagBits memoryProperties);
 		void BufferViewDestroy(VkBufferView view);
+		void BufferDestroy(VkBuffer buffer);
+		bool BufferBindToMemory(VkBuffer buffer, VkDeviceMemory memoryObject, VkDeviceSize offset = 0);
 
 		/* SHADER MODULE FUNCTIONS */
 		VkShaderModule ShaderModuleCreate(const std::vector<uint32_t>& buffer);
@@ -122,23 +127,20 @@ namespace Lina::Graphics
 		void MemoryFree(VkDeviceMemory memory);
 		void MemoryMapUpdateAndUnmapHostVisible(void* data, void** pointer, bool unmap, VkDeviceMemory memoryObject, VkDeviceSize offset, VkDeviceSize dataSize, VkMemoryMapFlags flags = 0);
 
-		/* BUFFER FUNCTIONS */
-		VkBuffer BufferCreate(VkDeviceSize size, VkBufferUsageFlags usage, VkBufferCreateFlags flags = 0, VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE);
-		VkDeviceMemory BufferAllocateAndBindMemory(VkBuffer buffer, VkMemoryPropertyFlagBits memoryProperties);
-		void BufferDestroy(VkBuffer buffer);
-		bool BufferBindToMemory(VkBuffer buffer, VkDeviceMemory memoryObject, VkDeviceSize offset = 0);
-
 		/* FRAME BUFFER FUNCTIONS */
 		VkFramebuffer FramebufferCreate(VulkanSwapchain* swapchain, VkRenderPass renderPass, uint32_t attachmentCount, VkImageView* attachments);
 		void FramebufferDestroy(VkFramebuffer frameBuffer);
 
 		/* IMAGE FUNCTIONS */
 		VkImage ImageCreate(VkImageType type, VkFormat format, VkExtent3D size, uint32_t mipmaps, uint32_t layerCount, VkSampleCountFlagBits samples, VkImageUsageFlags usage, bool isCubemap = false, VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL, VkImageCreateFlags flags = 0, VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE);
-		VkImage ImageCreateSampled(bool linearFiltering, VkImageType type, VkFormat format, VkExtent3D size, uint32_t mipmaps, uint32_t layerCount, VkImageUsageFlags usage, bool isCubemap = false, VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL, VkImageCreateFlags flags = 0, VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE);
+		VkImage ImageCreateSampled(VkImageType type, VkFormat format, VkExtent3D size, uint32_t mipmaps, uint32_t layerCount, VkImageUsageFlags usage, bool linearFiltering = false, VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL, VkImageCreateFlags flags = 0, VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE);
+		VkImage ImageCreateStorage(VkImageType type, VkFormat format, VkExtent3D size, uint32_t mipmaps, uint32_t layerCount, VkImageUsageFlags usage, bool atomicOperations = false, VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL, VkImageCreateFlags flags = 0, VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE);
+		VkImage ImageCreateAttachment(VkImageType type, VkFormat format, VkExtent3D size, VkImageUsageFlags usage, VkImageAspectFlags aspect, VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL, VkImageCreateFlags flags = 0, VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE);
 		VkDeviceMemory ImageAllocateAndBindMemory(VkImage image, VkMemoryPropertyFlagBits memoryProperties);
 		void ImageDestroy(VkImage image);
 		bool ImageBindToMemory(VkImage image, VkDeviceMemory memoryObject, VkDeviceSize offset = 0);
 
+		
 		/* IMAGE VIEW FUNCTIONS */
 		VkImageView ImageViewCreate(VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspect, VkImageViewCreateFlags flags = 0);
 		void ImageViewDestroy(VkImageView view);
@@ -152,6 +154,7 @@ namespace Lina::Graphics
 		VkPhysicalDevice m_physicalDevice;
 		VkDevice m_handle;
 		VkPhysicalDeviceMemoryProperties m_memProperties;
+
 	};
 }
 

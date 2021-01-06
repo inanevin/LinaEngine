@@ -276,8 +276,8 @@ namespace Lina::Graphics
 
 	void VulkanLogicalDevice::CommandBufferCopyToImage(VkCommandBuffer commandBuffer, VkBuffer sourceBuffer, VkImage destImage, VkImageLayout imageLayout, std::vector<VkBufferImageCopy> regions)
 	{
-		if (regions.size() > 0) 
-			vkCmdCopyBufferToImage(commandBuffer, sourceBuffer, destImage, imageLayout, static_cast<uint32_t>(regions.size()), regions.data());	
+		if (regions.size() > 0)
+			vkCmdCopyBufferToImage(commandBuffer, sourceBuffer, destImage, imageLayout, static_cast<uint32_t>(regions.size()), regions.data());
 	}
 
 	void VulkanLogicalDevice::CommandBufferCopyFromImage(VkCommandBuffer commandBuffer, VkBuffer destBuffer, VkImage sourceImage, VkImageLayout imageLayout, std::vector<VkBufferImageCopy> regions)
@@ -436,11 +436,12 @@ namespace Lina::Graphics
 		return result == VK_SUCCESS;
 	}
 
+
 	/* -------------------- BUFFER FUNCTIONS -------------------- */
 	/* -------------------- BUFFER FUNCTIONS -------------------- */
 	/* -------------------- BUFFER FUNCTIONS -------------------- */
 	/* -------------------- BUFFER FUNCTIONS -------------------- */
-	VkBuffer VulkanLogicalDevice::BufferCreate(VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode)
+	VkBuffer VulkanLogicalDevice::BufferCreate(VkDeviceSize size, VkBufferUsageFlags usage, VkBufferCreateFlags flags, VkSharingMode sharingMode)
 	{
 		VkBufferCreateInfo createInfo
 		{
@@ -449,12 +450,13 @@ namespace Lina::Graphics
 			flags,
 			size,
 			usage,
-			sharingMode
+			sharingMode,
+			0,
+			nullptr
 		};
 
 		VkBuffer buffer;
-		VkResult result = vkCreateBuffer(m_handle, &createInfo, nullptr, &buffer);
-
+		VkResult  result = vkCreateBuffer(m_handle, &createInfo, nullptr, &buffer);
 		if (result != VK_SUCCESS)
 		{
 			LINA_ERR("[Buffer] -> Could not create a buffer.");
@@ -464,6 +466,97 @@ namespace Lina::Graphics
 
 		LINA_TRACE("[Buffer] -> Successfuly created a buffer.");
 		return buffer;
+
+	}
+
+	void VulkanLogicalDevice::BufferDestroy(VkBuffer buffer)
+	{
+		if (buffer != VK_NULL_HANDLE)
+		{
+			vkDestroyBuffer(m_handle, buffer, nullptr);
+			buffer = VK_NULL_HANDLE;
+			LINA_TRACE("[Buffer] -> Successfuly destroyed a buffer.");
+		}
+	}
+
+	bool VulkanLogicalDevice::BufferBindToMemory(VkBuffer buffer, VkDeviceMemory memoryObject, VkDeviceSize offset)
+	{
+		VkResult result = vkBindBufferMemory(m_handle, buffer, memoryObject, offset);
+
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Buffer] -> Could not bind a buffer to memory.");
+			return false;
+		}
+
+		LINA_TRACE("[Buffer] -> Successfuly binded a buffer to memory.");
+		return true;
+	}
+
+	VkDeviceMemory VulkanLogicalDevice::BufferAllocateAndBindMemory(VkBuffer buffer, VkMemoryPropertyFlagBits memoryProperties)
+	{
+		VkMemoryRequirements memRequirements;
+		vkGetBufferMemoryRequirements(m_handle, buffer, &memRequirements);
+		VkDeviceMemory memoryObject = VK_NULL_HANDLE;
+
+		for (uint32_t type = 0; type < m_memProperties.memoryTypeCount; ++type)
+		{
+			if ((memRequirements.memoryTypeBits & (1 << type)) && ((m_memProperties.memoryTypes[type].propertyFlags & memoryProperties) == memoryProperties))
+			{
+				memoryObject = MemoryAllocate(memRequirements.size, type);
+				if (memoryObject != VK_NULL_HANDLE)
+					break;
+			}
+		}
+
+		if (memoryObject == VK_NULL_HANDLE) {
+			LINA_ERR("[Buffer] -> Could not allocate memory for the buffer.");
+			return VK_NULL_HANDLE;
+		}
+
+		if (!BufferBindToMemory(buffer, memoryObject, 0))
+		{
+			vkFreeMemory(m_handle, memoryObject, nullptr);
+			memoryObject = VK_NULL_HANDLE;
+			return VK_NULL_HANDLE;
+		}
+
+		LINA_TRACE("[Buffer] -> Successfuly allocated & binded memory for the buffer.");
+		return memoryObject;
+	}
+
+	VkBuffer VulkanLogicalDevice::BufferCreateUniform(VkDeviceSize size, VkBufferUsageFlags usage, VkFormat format, VkBufferCreateFlags flags, VkSharingMode sharingMode)
+	{
+		VkFormatProperties format_properties;
+		vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &format_properties);
+
+		if (!(format_properties.bufferFeatures & VK_FORMAT_FEATURE_UNIFORM_TEXEL_BUFFER_BIT))
+		{
+			LINA_ERR("[Buffer] -> Provided format is not supported for a uniform texel buffer.");
+			return VK_NULL_HANDLE;
+		}
+
+		return BufferCreate(size, usage | VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT, flags, sharingMode);
+	}
+
+	VkBuffer VulkanLogicalDevice::BufferCreateStorage(VkDeviceSize size, VkBufferUsageFlags usage, VkFormat format, VkBufferCreateFlags flags, VkSharingMode sharingMode, bool atomicOperations)
+	{
+		VkFormatProperties formatProperties;
+		vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &formatProperties);
+
+		if (!(formatProperties.bufferFeatures & VK_FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_BIT))
+		{
+			LINA_ERR("[Buffer] -> Provided format is not supported for a storage texel buffer.");
+			return VK_NULL_HANDLE;
+		}
+
+		if (atomicOperations && !(formatProperties.bufferFeatures & VK_FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_ATOMIC_BIT)) {
+			LINA_ERR("[Buffer] -> Provided format is not supported for atomic operations on storage texel buffers.");
+			return false;
+		}
+
+
+		return BufferCreate(size, usage | VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT, flags, sharingMode);
 	}
 
 	VkBufferView VulkanLogicalDevice::BufferViewCreate(VkBuffer buffer, VkFormat format, VkDeviceSize memOfffset, VkDeviceSize memRange, VkBufferViewCreateFlags flags)
@@ -893,100 +986,12 @@ namespace Lina::Graphics
 
 		if (unmap)
 			vkUnmapMemory(m_handle, memoryObject);
-		else if (nullptr != pointer) 
+		else if (nullptr != pointer)
 			*pointer = local_pointer;
 
 		LINA_TRACE("[Vulkan Memory] -> Successfuly mapped & flushed memory.");
 	}
 
-
-	/* -------------------- BUFFER FUNCTIONS -------------------- */
-	/* -------------------- BUFFER FUNCTIONS -------------------- */
-	/* -------------------- BUFFER FUNCTIONS -------------------- */
-	/* -------------------- BUFFER FUNCTIONS -------------------- */
-	VkBuffer VulkanLogicalDevice::BufferCreate(VkDeviceSize size, VkBufferUsageFlags usage, VkBufferCreateFlags flags, VkSharingMode sharingMode)
-	{
-		VkBufferCreateInfo createInfo
-		{
-			VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-			nullptr,
-			flags,
-			size,
-			usage,
-			sharingMode,
-			0,
-			nullptr
-		};
-
-		VkBuffer buffer;
-		VkResult  result = vkCreateBuffer(m_handle, &createInfo, nullptr, &buffer);
-		if (result != VK_SUCCESS)
-		{
-			LINA_ERR("[Buffer] -> Could not create a buffer.");
-			buffer = VK_NULL_HANDLE;
-			return VK_NULL_HANDLE;
-		}
-
-		LINA_TRACE("[Buffer] -> Successfuly created a buffer.");
-		return buffer;
-
-	}
-
-	void VulkanLogicalDevice::BufferDestroy(VkBuffer buffer)
-	{
-		if (buffer != VK_NULL_HANDLE)
-		{
-			vkDestroyBuffer(m_handle, buffer, nullptr);
-			buffer = VK_NULL_HANDLE;
-			LINA_TRACE("[Buffer] -> Successfuly destroyed a buffer.");
-		}
-	}
-
-	bool VulkanLogicalDevice::BufferBindToMemory(VkBuffer buffer, VkDeviceMemory memoryObject, VkDeviceSize offset)
-	{
-		VkResult result = vkBindBufferMemory(m_handle, buffer, memoryObject, offset);
-
-		if (result != VK_SUCCESS)
-		{
-			LINA_ERR("[Buffer] -> Could not bind a buffer to memory.");
-			return false;
-		}
-
-		LINA_TRACE("[Buffer] -> Successfuly binded a buffer to memory.");
-		return true;
-	}
-
-	VkDeviceMemory VulkanLogicalDevice::BufferAllocateAndBindMemory(VkBuffer buffer, VkMemoryPropertyFlagBits memoryProperties)
-	{
-		VkMemoryRequirements memRequirements;
-		vkGetBufferMemoryRequirements(m_handle, buffer, &memRequirements);
-		VkDeviceMemory memoryObject = VK_NULL_HANDLE;
-
-		for (uint32_t type = 0; type < m_memProperties.memoryTypeCount; ++type)
-		{
-			if ((memRequirements.memoryTypeBits & (1 << type)) && ((m_memProperties.memoryTypes[type].propertyFlags & memoryProperties) == memoryProperties))
-			{
-				memoryObject = MemoryAllocate(memRequirements.size, type);
-				if (memoryObject != VK_NULL_HANDLE)
-					break;
-			}
-		}
-
-		if (memoryObject == VK_NULL_HANDLE) {
-			LINA_ERR("[Buffer] -> Could not allocate memory for the buffer.");
-			return VK_NULL_HANDLE;
-		}
-
-		if (!BufferBindToMemory(buffer, memoryObject, 0))
-		{
-			vkFreeMemory(m_handle, memoryObject, nullptr);
-			memoryObject = VK_NULL_HANDLE;
-			return VK_NULL_HANDLE;
-		}
-
-		LINA_TRACE("[Buffer] -> Successfuly allocated & binded memory for the buffer.");
-		return memoryObject;
-	}
 
 	/* -------------------- FRAME BUFFER FUNCTIONS -------------------- */
 	/* -------------------- FRAME BUFFER FUNCTIONS -------------------- */
@@ -1034,7 +1039,7 @@ namespace Lina::Graphics
 	/* -------------------- IMAGE FUNCTIONS -------------------- */
 	/* -------------------- IMAGE FUNCTIONS -------------------- */
 	/* -------------------- IMAGE FUNCTIONS -------------------- */
-	VkImage VulkanLogicalDevice::ImageCreate(VkImageType type, VkFormat format, VkExtent3D size, uint32_t mipmaps, uint32_t layerCount, VkSampleCountFlagBits samples, VkImageUsageFlags usage, bool isCubemap = false, VkImageTiling tiling, VkImageCreateFlags flags, VkSharingMode sharingMode)
+	VkImage VulkanLogicalDevice::ImageCreate(VkImageType type, VkFormat format, VkExtent3D size, uint32_t mipmaps, uint32_t layerCount, VkSampleCountFlagBits samples, VkImageUsageFlags usage, bool isCubemap, VkImageTiling tiling, VkImageCreateFlags flags, VkSharingMode sharingMode)
 	{
 		VkImageCreateInfo createInfo
 		{
@@ -1068,12 +1073,12 @@ namespace Lina::Graphics
 		return image;
 	}
 
-	VkImage VulkanLogicalDevice::ImageCreateSampled(bool linearFiltering, VkImageType type, VkFormat format, VkExtent3D size, uint32_t mipmaps, uint32_t layerCount, VkImageUsageFlags usage, bool isCubemap, VkImageTiling tiling, VkImageCreateFlags flags, VkSharingMode sharingMode)
+	VkImage VulkanLogicalDevice::ImageCreateSampled(VkImageType type, VkFormat format, VkExtent3D size, uint32_t mipmaps, uint32_t layerCount, VkImageUsageFlags usage, bool linearFiltering, VkImageTiling tiling, VkImageCreateFlags flags, VkSharingMode sharingMode)
 	{
 		VkFormatProperties formatProperties;
 		vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &formatProperties);
 
-		if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT)) 
+		if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT))
 		{
 			LINA_ERR("[Image] -> Provided format is not supported for a sampled image.");
 			return VK_NULL_HANDLE;
@@ -1084,7 +1089,42 @@ namespace Lina::Graphics
 			return VK_NULL_HANDLE;
 		}
 
-		return ImageCreate(type, format, size, mipmaps, layerCount, VK_SAMPLE_COUNT_1_BIT, usage | VK_SAMPLE_COUNT_1_BIT, isCubemap, tiling, flags, sharingMode);
+		return ImageCreate(type, format, size, mipmaps, layerCount, VK_SAMPLE_COUNT_1_BIT, usage | VK_IMAGE_USAGE_SAMPLED_BIT, false, tiling, flags, sharingMode);
+	}
+
+	VkImage VulkanLogicalDevice::ImageCreateStorage(VkImageType type, VkFormat format, VkExtent3D size, uint32_t mipmaps, uint32_t layerCount, VkImageUsageFlags usage, bool atomicOperations, VkImageTiling tiling, VkImageCreateFlags flags, VkSharingMode sharingMode)
+	{
+		VkFormatProperties formatProperties;
+		vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &formatProperties);
+
+		if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT))
+		{
+			LINA_ERR("[Image] -> Provided format is not supported for a storage image.");
+			return VK_NULL_HANDLE;
+		}
+
+		if (atomicOperations && !(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_STORAGE_IMAGE_ATOMIC_BIT)) {
+			LINA_ERR("[Image] -> Provided format is not supported for atomic operations on storage images.");
+			return VK_NULL_HANDLE;
+		}
+
+		return ImageCreate(type, format, size, mipmaps, layerCount, VK_SAMPLE_COUNT_1_BIT, usage | VK_IMAGE_USAGE_STORAGE_BIT, false, tiling, flags, sharingMode);
+	}
+
+	VkImage VulkanLogicalDevice::ImageCreateAttachment(VkImageType type, VkFormat format, VkExtent3D size, VkImageUsageFlags usage, VkImageAspectFlags aspect, VkImageTiling tiling, VkImageCreateFlags flags, VkSharingMode sharingMode)
+	{
+		VkFormatProperties formatProperties;
+		vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &formatProperties);
+		if ((aspect & VK_IMAGE_ASPECT_COLOR_BIT) && !(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)) {
+			LINA_ERR("[Image] -> Provided format is not supported for an input attachment.");
+			return false;
+		}
+		if ((aspect & (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_DEPTH_BIT)) && !(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)) {
+			LINA_ERR("[Image] -> Provided format is not supported for an input attachment.");
+			return false;
+		}
+
+		return ImageCreate(type, format, size, 1, 1, VK_SAMPLE_COUNT_1_BIT, usage | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT, false, tiling, flags, sharingMode);
 	}
 
 	VkDeviceMemory VulkanLogicalDevice::ImageAllocateAndBindMemory(VkImage image, VkMemoryPropertyFlagBits memoryProperties)
@@ -1157,11 +1197,11 @@ namespace Lina::Graphics
 			image,
 			type,
 			format,
-			{                                           
-				VK_COMPONENT_SWIZZLE_IDENTITY,          
-				VK_COMPONENT_SWIZZLE_IDENTITY,          
-				VK_COMPONENT_SWIZZLE_IDENTITY,          
-				VK_COMPONENT_SWIZZLE_IDENTITY           
+			{
+				VK_COMPONENT_SWIZZLE_IDENTITY,
+				VK_COMPONENT_SWIZZLE_IDENTITY,
+				VK_COMPONENT_SWIZZLE_IDENTITY,
+				VK_COMPONENT_SWIZZLE_IDENTITY
 			},
 			{                                           // VkImageSubresourceRange    subresourceRange
 				aspect,                                     // VkImageAspectFlags         aspectMask
@@ -1175,7 +1215,7 @@ namespace Lina::Graphics
 		VkImageView imageView;
 		VkResult result = vkCreateImageView(m_handle, &createInfo, nullptr, &imageView);
 
-		if (VK_SUCCESS != result) 
+		if (VK_SUCCESS != result)
 		{
 			LINA_ERR("[Image View] -> Could not create an image view.");
 			imageView = VK_NULL_HANDLE;
@@ -1248,6 +1288,6 @@ namespace Lina::Graphics
 		}
 	}
 
-	
+
 
 }
