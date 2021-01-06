@@ -136,6 +136,40 @@ namespace Lina::Graphics
 		VkBorderColor           m_borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
 		VkBool32                m_unnormalizedCoordinates = VK_FALSE;
 	};
+
+	struct ImageDescriptorInfo {
+		VkDescriptorSet                     m_targetDescriptorSet;
+		uint32_t                            m_targetDescriptorBinding;
+		uint32_t                            m_targetArrayElement;
+		VkDescriptorType                    m_targetDescriptorType;
+		std::vector<VkDescriptorImageInfo>  m_imageInfos;
+	};
+
+	struct BufferDescriptorInfo {
+		VkDescriptorSet                     m_targetDescriptorSet;
+		uint32_t                            m_targetDescriptorBinding;
+		uint32_t                            m_targetArrayElement;
+		VkDescriptorType                    m_targetDescriptorType;
+		std::vector<VkDescriptorBufferInfo> m_bufferInfos;
+	};
+
+	struct TexelBufferDescriptorInfo {
+		VkDescriptorSet                     m_targetDescriptorSet;
+		uint32_t                            m_targetDescriptorBinding;
+		uint32_t                            m_targetArrayElement;
+		VkDescriptorType                    m_targetDescriptorType;
+		std::vector<VkBufferView>           m_texelBufferViews;
+	};
+
+	struct CopyDescriptorInfo {
+		VkDescriptorSet     m_targetDescriptorSet;
+		uint32_t            m_targetDescriptorBinding;
+		uint32_t            m_targetArrayElement;
+		VkDescriptorSet     m_sourceDescriptorSet;
+		uint32_t            m_sourceDescriptorBinding;
+		uint32_t            m_sourceArrayElement;
+		uint32_t            m_descriptorCount;
+	};
 }
 
 

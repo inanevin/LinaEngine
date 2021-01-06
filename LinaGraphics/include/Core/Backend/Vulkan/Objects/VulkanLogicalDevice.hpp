@@ -152,11 +152,12 @@ namespace Lina::Graphics
 		/* DESCRIPTOR SET FUNCTIONS */
 		VkDescriptorSetLayout DescriptorSetCreateLayout(std::vector<VkDescriptorSetLayoutBinding> const& bindings, VkDescriptorSetLayoutCreateFlags flags = 0);
 		VkDescriptorPool DescriptorSetCreatePool(bool freeIndividualSets, uint32_t maxSetsCount, std::vector<VkDescriptorPoolSize> const& descriptorTypes);
+		std::vector<VkDescriptorSet> DescriptorSetCreate(VkDescriptorPool pool, std::vector<VkDescriptorSetLayout> const& descriptor_set_layouts);
 		void DescriptorSetDestroyLayout(VkDescriptorSetLayout layout);
 		void DescriptorSetDestroyPool(VkDescriptorPool pool);
-
-	private:
-
+		void UpdateDescriptorSets(std::vector<ImageDescriptorInfo> const& image_descriptor_infos, std::vector<BufferDescriptorInfo> const& buffer_descriptor_infos, std::vector<TexelBufferDescriptorInfo> const& texel_buffer_descriptor_infos, std::vector<CopyDescriptorInfo> const& copy_descriptor_infos);
+	
+private:
 		VkPhysicalDevice m_physicalDevice;
 		VkDevice m_handle;
 		VkPhysicalDeviceMemoryProperties m_memProperties;
