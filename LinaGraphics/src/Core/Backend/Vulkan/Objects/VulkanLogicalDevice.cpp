@@ -220,22 +220,22 @@ namespace Lina::Graphics
 
 		for (auto& bufferTransition : bufferTransitions) {
 			memoryBarriers.push_back(
-			{
-			  VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,    
-			  nullptr,                                    
-			  bufferTransition.m_currentAccess,           
-			  bufferTransition.m_newAccess,               
-			  bufferTransition.m_currentQueueFamily,      
-			  bufferTransition.m_newQueueFamily,          
-			  bufferTransition.m_buffer,                  
-			  0,                                          
-			  VK_WHOLE_SIZE                               
-			});
+				{
+				  VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+				  nullptr,
+				  bufferTransition.m_currentAccess,
+				  bufferTransition.m_newAccess,
+				  bufferTransition.m_currentQueueFamily,
+				  bufferTransition.m_newQueueFamily,
+				  bufferTransition.m_buffer,
+				  0,
+				  VK_WHOLE_SIZE
+				});
 		}
 
-		if (memoryBarriers.size() > 0) 
+		if (memoryBarriers.size() > 0)
 			vkCmdPipelineBarrier(commandBuffer, generatingStages, consumingStages, 0, 0, nullptr, static_cast<uint32_t>(memoryBarriers.size()), memoryBarriers.data(), 0, nullptr);
-		
+
 	}
 
 	void VulkanLogicalDevice::CommandBufferSetImageMemoryBarriers(VkCommandBuffer commandBuffer, VkPipelineStageFlags generatingStages, VkPipelineStageFlags consumingStages, std::vector<ImageTransition> imageTransitions)
@@ -244,21 +244,21 @@ namespace Lina::Graphics
 
 		for (auto& imageTransition : imageTransitions) {
 			imageMemoryBarriers.push_back({
-			  VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,   
-			  nullptr,                                  
-			  imageTransition.m_currentAccess,           
-			  imageTransition.m_newAccess,               
-			  imageTransition.m_currentLayout,           
-			  imageTransition.m_newLayout,               
-			  imageTransition.m_currentQueueFamily,      
-			  imageTransition.m_newQueueFamily,          
-			  imageTransition.m_image,                   
-			  {                                         
-				imageTransition.m_aspect,                
-				0,                                      
-				VK_REMAINING_MIP_LEVELS,                
-				0,                                      
-				VK_REMAINING_ARRAY_LAYERS               
+			  VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+			  nullptr,
+			  imageTransition.m_currentAccess,
+			  imageTransition.m_newAccess,
+			  imageTransition.m_currentLayout,
+			  imageTransition.m_newLayout,
+			  imageTransition.m_currentQueueFamily,
+			  imageTransition.m_newQueueFamily,
+			  imageTransition.m_image,
+			  {
+				imageTransition.m_aspect,
+				0,
+				VK_REMAINING_MIP_LEVELS,
+				0,
+				VK_REMAINING_ARRAY_LAYERS
 			  }
 				});
 		}
@@ -481,7 +481,7 @@ namespace Lina::Graphics
 			LINA_TRACE("[Buffer View] -> Successfuly destroyed a buffer view.");
 		}
 	}
-	
+
 
 	/* -------------------- SHADER MODULE FUNCTIONS -------------------- */
 	/* -------------------- SHADER MODULE FUNCTIONS -------------------- */
@@ -666,7 +666,7 @@ namespace Lina::Graphics
 
 		VkPipeline graphicsPipeline;
 		VkResult result = vkCreateGraphicsPipelines(m_handle, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline);
-		
+
 		if (result != VK_SUCCESS)
 		{
 			LINA_ERR("[Pipeline] -> Could not create a graphics pipeline.");
@@ -884,7 +884,7 @@ namespace Lina::Graphics
 			LINA_ERR("[Buffer] -> Could not bind a buffer to memory.");
 			return false;
 		}
-			
+
 		LINA_TRACE("[Buffer] -> Successfuly binded a buffer to memory.");
 		return true;
 	}
@@ -905,7 +905,7 @@ namespace Lina::Graphics
 			}
 		}
 
-		if ( memoryObject == VK_NULL_HANDLE) {
+		if (memoryObject == VK_NULL_HANDLE) {
 			LINA_ERR("[Buffer] -> Could not allocate memory for the buffer.");
 			return;
 		}
@@ -960,6 +960,7 @@ namespace Lina::Graphics
 			LINA_TRACE("[Framebuffer] -> Successfuly destroyed a framebuffer.");
 		}
 	}
+
 	/* -------------------- IMAGE FUNCTIONS -------------------- */
 	/* -------------------- IMAGE FUNCTIONS -------------------- */
 	/* -------------------- IMAGE FUNCTIONS -------------------- */
@@ -1049,6 +1050,59 @@ namespace Lina::Graphics
 
 		LINA_TRACE("[Image] -> Successfuly binded an image to memory.");
 		return true;
+	}
+
+	/* -------------------- IMAGE VIEW FUNCTIONS -------------------- */
+	/* -------------------- IMAGE VIEW FUNCTIONS -------------------- */
+	/* -------------------- IMAGE VIEW FUNCTIONS -------------------- */
+	/* -------------------- IMAGE VIEW FUNCTIONS -------------------- */
+	VkImageView VulkanLogicalDevice::ImageViewCreate(VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspect, VkImageViewCreateFlags flags)
+	{
+		VkImageViewCreateInfo createInfo
+		{
+			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+			nullptr,
+			flags,
+			image,
+			type,
+			format,
+			{                                           
+				VK_COMPONENT_SWIZZLE_IDENTITY,          
+				VK_COMPONENT_SWIZZLE_IDENTITY,          
+				VK_COMPONENT_SWIZZLE_IDENTITY,          
+				VK_COMPONENT_SWIZZLE_IDENTITY           
+			},
+			{                                           // VkImageSubresourceRange    subresourceRange
+				aspect,                                     // VkImageAspectFlags         aspectMask
+				0,                                          // uint32_t                   baseMipLevel
+				VK_REMAINING_MIP_LEVELS,                    // uint32_t                   levelCount
+				0,                                          // uint32_t                   baseArrayLayer
+				VK_REMAINING_ARRAY_LAYERS                   // uint32_t                   layerCount
+			}
+		};
+
+		VkImageView imageView;
+		VkResult result = vkCreateImageView(m_handle, &createInfo, nullptr, &imageView);
+
+		if (VK_SUCCESS != result) 
+		{
+			LINA_ERR("[Image View] -> Could not create an image view.");
+			imageView = VK_NULL_HANDLE;
+			return VK_NULL_HANDLE;
+		}
+
+		LINA_TRACE("[Image View] -> Successfuly created an image view.");
+		return imageView;
+	}
+
+	void VulkanLogicalDevice::ImageViewDestroy(VkImageView view)
+	{
+		if (view != VK_NULL_HANDLE)
+		{
+			vkDestroyImageView(m_handle, view, nullptr);
+			view = VK_NULL_HANDLE;
+			LINA_TRACE("[Image View] -> Successfuly destroyed an image view.");
+		}
 	}
 
 

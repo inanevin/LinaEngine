@@ -134,6 +134,9 @@ namespace Lina::Graphics
 		bool ImageBindToMemory(VkImage image, VkDeviceMemory memoryObject, VkDeviceSize offset = 0);
 
 		/* IMAGE VIEW FUNCTIONS */
+		VkImageView ImageViewCreate(VkImage image, VkImageViewType type, VkFormat format, VkImageAspectFlags aspect, VkImageViewCreateFlags flags = 0);
+		void ImageViewDestroy(VkImageView view);
+
 	private:
 
 		VkPhysicalDevice m_physicalDevice;
