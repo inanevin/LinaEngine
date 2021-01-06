@@ -96,6 +96,8 @@ namespace Lina::Graphics
 
 		/* BUFFER FUNCTIONS */
 		VkBuffer BufferCreate(VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode);
+		VkBufferView BufferViewCreate(VkBuffer buffer, VkFormat format, VkDeviceSize memOfffset, VkDeviceSize memRange, VkBufferViewCreateFlags flags = 0);
+		void BufferViewDestroy(VkBufferView view);
 
 		/* SHADER MODULE FUNCTIONS */
 		VkShaderModule ShaderModuleCreate(const std::vector<uint32_t>& buffer);

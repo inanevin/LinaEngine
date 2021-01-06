@@ -188,7 +188,7 @@ namespace Lina::Graphics
 
 	bool VulkanLogicalDevice::CommandBufferReset(VkCommandBuffer cbuffer, VkCommandBufferResetFlags resetFlags)
 	{
-		// TODO: Table look up. If the pool allocated for this buffer was not allocated with VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT flag
+		// TODO: Table look up. If the pool allocated for this bufferView was not allocated with VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT flag
 		// a seperate reset can not be performed.
 
 		VkResult result = vkResetCommandBuffer(cbuffer, resetFlags);
@@ -410,12 +410,48 @@ namespace Lina::Graphics
 		if (result != VK_SUCCESS)
 		{
 			LINA_ERR("[Buffer] -> Could not create a buffer.");
+			buffer = VK_NULL_HANDLE;
 			return VK_NULL_HANDLE;
 		}
 
 		LINA_TRACE("[Buffer] -> Successfuly created a buffer.");
 		return buffer;
 	}
+
+	VkBufferView VulkanLogicalDevice::BufferViewCreate(VkBuffer buffer, VkFormat format, VkDeviceSize memOfffset, VkDeviceSize memRange, VkBufferViewCreateFlags flags)
+	{
+		VkBufferViewCreateInfo createInfo
+		{
+			VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO,
+			nullptr,
+			flags,
+			buffer
+		};
+
+		VkBufferView bufferView;
+		VkResult result = vkCreateBufferView(m_handle, &createInfo, nullptr, &bufferView);
+
+		if (result != VK_SUCCESS)
+		{
+			LINA_ERR("[Buffer View] -> Could not create a buffer view.");
+			bufferView = VK_NULL_HANDLE;
+			return VK_NULL_HANDLE;
+		}
+
+		LINA_TRACE("[Buffer View] -> Successfuly created a buffer view.");
+		return bufferView;
+	}
+
+	void VulkanLogicalDevice::BufferViewDestroy(VkBufferView view)
+	{
+		if (view != VK_NULL_HANDLE)
+		{
+			vkDestroyBufferView(m_handle, view, nullptr);
+			view = VK_NULL_HANDLE;
+			LINA_TRACE("[Buffer View] -> Successfuly destroyed a buffer view.");
+		}
+	}
+	
 
 	/* -------------------- SHADER MODULE FUNCTIONS -------------------- */
 	/* -------------------- SHADER MODULE FUNCTIONS -------------------- */
