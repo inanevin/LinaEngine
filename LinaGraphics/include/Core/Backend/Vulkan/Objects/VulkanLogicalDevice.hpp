@@ -77,6 +77,7 @@ namespace Lina::Graphics
 		bool CommandBufferReset(VkCommandBuffer cbuffer, VkCommandBufferResetFlags resetFlags);
 		void CommandBufferFree(std::vector<VkCommandBuffer>& buffers, VkCommandPool pool);
 		void CommandBufferSetMemoryBarriers(VkCommandBuffer commandbuffer, VkPipelineStageFlags  generatingStages, VkPipelineStageFlags consumingStages, std::vector<BufferTransition> bufferTransitions);
+		void CommandBufferSetImageMemoryBarriers(VkCommandBuffer commandbuffer, VkPipelineStageFlags  generatingStages, VkPipelineStageFlags consumingStages, std::vector<ImageTransition> imageTransitions);
 
 		/* FENCE FUNCTIONS */
 		VkFence FenceCreate(VkFenceCreateFlags flags);
@@ -129,8 +130,10 @@ namespace Lina::Graphics
 		/* IMAGE FUNCTIONS */
 		VkImage ImageCreate(VkImageType type, VkFormat format, VkExtent3D size, uint32_t mipmaps, uint32_t layerCount, VkSampleCountFlagBits samples, VkImageUsageFlags usage, VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL, VkImageCreateFlags flags = 0, VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE);
 		void ImageAllocateMemory(VkImage image, VkMemoryPropertyFlagBits memoryProperties);
+		void ImageDestroy(VkImage image);
 		bool ImageBindToMemory(VkImage image, VkDeviceMemory memoryObject, VkDeviceSize offset = 0);
 
+		/* IMAGE VIEW FUNCTIONS */
 	private:
 
 		VkPhysicalDevice m_physicalDevice;

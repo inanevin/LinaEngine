@@ -145,40 +145,7 @@ namespace Lina::Graphics
 			return false;
 		}
 
-		m_imageViews.resize(createdImagesCount);
-		VkComponentMapping  components;
-		VkImageSubresourceRange    subresourceRange;
-		components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-		components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-		components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-		components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-		subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		subresourceRange.baseMipLevel = 0;
-		subresourceRange.levelCount = 1;
-		subresourceRange.baseArrayLayer = 0;
-		subresourceRange.layerCount = 1;
-
-		for (int i = 0; i < m_imageViews.size(); ++i)
-		{
-
-			VkImageViewCreateInfo imgViewCreateInfo
-			{
-				VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-				nullptr,
-				0,
-				m_images[i],
-				VK_IMAGE_VIEW_TYPE_2D,
-				m_imageFormat,
-				components,
-				subresourceRange
-			};
-			result = vkCreateImageView(data.vulkanData->m_logicalDevice, &imgViewCreateInfo, nullptr, &m_imageViews[i]);
-			if (result != VK_SUCCESS)
-			{
-				LINA_ERR("[Vulkan Swapchain] -> Could not create image views for the created images.");
-				return false;
-			}
-		}
+		// CreateImageViews(data.vulkanData, createdImagesCount);
 
 		LINA_TRACE("[Vulkan Swapchain] -> Successfuly a created swapchain");
 		return true;
@@ -214,6 +181,44 @@ namespace Lina::Graphics
 		m_images.clear();
 		m_imageViews.clear();
 
+	}
+
+	bool VulkanSwapchain::CreateImageViews(VulkanData* data, uint32_t createdImagesCount)
+	{
+		m_imageViews.resize(createdImagesCount);
+		VkComponentMapping  components;
+		VkImageSubresourceRange    subresourceRange;
+		components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+		subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		subresourceRange.baseMipLevel = 0;
+		subresourceRange.levelCount = 1;
+		subresourceRange.baseArrayLayer = 0;
+		subresourceRange.layerCount = 1;
+
+		for (int i = 0; i < m_imageViews.size(); ++i)
+		{
+
+			VkImageViewCreateInfo imgViewCreateInfo
+			{
+				VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+				nullptr,
+				0,
+				m_images[i],
+				VK_IMAGE_VIEW_TYPE_2D,
+				m_imageFormat,
+				components,
+				subresourceRange
+			};
+			VkResult result = vkCreateImageView(data->m_logicalDevice, &imgViewCreateInfo, nullptr, &m_imageViews[i]);
+			if (result != VK_SUCCESS)
+			{
+				LINA_ERR("[Vulkan Swapchain] -> Could not create image views for the created images.");
+				return false;
+			}
+		}
 	}
 
 	bool VulkanSwapchain::SelectDesiredPresentationMode(const SwapchainData& data, VkPresentModeKHR& outSelectedMode)

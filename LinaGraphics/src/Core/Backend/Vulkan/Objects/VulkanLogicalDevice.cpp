@@ -238,6 +238,36 @@ namespace Lina::Graphics
 		
 	}
 
+	void VulkanLogicalDevice::CommandBufferSetImageMemoryBarriers(VkCommandBuffer commandBuffer, VkPipelineStageFlags generatingStages, VkPipelineStageFlags consumingStages, std::vector<ImageTransition> imageTransitions)
+	{
+		std::vector<VkImageMemoryBarrier> imageMemoryBarriers;
+
+		for (auto& imageTransition : imageTransitions) {
+			imageMemoryBarriers.push_back({
+			  VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,   
+			  nullptr,                                  
+			  imageTransition.m_currentAccess,           
+			  imageTransition.m_newAccess,               
+			  imageTransition.m_currentLayout,           
+			  imageTransition.m_newLayout,               
+			  imageTransition.m_currentQueueFamily,      
+			  imageTransition.m_newQueueFamily,          
+			  imageTransition.m_image,                   
+			  {                                         
+				imageTransition.m_aspect,                
+				0,                                      
+				VK_REMAINING_MIP_LEVELS,                
+				0,                                      
+				VK_REMAINING_ARRAY_LAYERS               
+			  }
+				});
+		}
+
+		if (imageMemoryBarriers.size() > 0) {
+			vkCmdPipelineBarrier(commandBuffer, generatingStages, consumingStages, 0, 0, nullptr, 0, nullptr, static_cast<uint32_t>(imageMemoryBarriers.size()), imageMemoryBarriers.data());
+		}
+	}
+
 	/* -------------------- FENCE FUNCTIONS -------------------- */
 	/* -------------------- FENCE FUNCTIONS -------------------- */
 	/* -------------------- FENCE FUNCTIONS -------------------- */
@@ -995,6 +1025,16 @@ namespace Lina::Graphics
 		}
 
 		LINA_TRACE("[Image] -> Successfuly allocated & binded memory for the image.");
+	}
+
+	void VulkanLogicalDevice::ImageDestroy(VkImage image)
+	{
+		if (image != VK_NULL_HANDLE)
+		{
+			vkDestroyImage(m_handle, image, nullptr);
+			image = VK_NULL_HANDLE;
+			LINA_TRACE("[Image] -> Successfuly destroyed an image.");
+		}
 	}
 
 	bool VulkanLogicalDevice::ImageBindToMemory(VkImage image, VkDeviceMemory memoryObject, VkDeviceSize offset)

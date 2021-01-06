@@ -106,6 +106,17 @@ namespace Lina::Graphics
 		uint32_t        m_currentQueueFamily;
 		uint32_t        m_newQueueFamily;
 	};
+
+	struct ImageTransition {
+		VkImage             m_image;
+		VkAccessFlags       m_currentAccess;
+		VkAccessFlags       m_newAccess;
+		VkImageLayout       m_currentLayout;
+		VkImageLayout       m_newLayout;
+		uint32_t            m_currentQueueFamily;
+		uint32_t            m_newQueueFamily;
+		VkImageAspectFlags  m_aspect;
+	};
 }
 
 
