@@ -131,7 +131,7 @@ namespace Lina::Graphics
 		void MemoryMapUpdateAndUnmapHostVisible(void* data, void** pointer, bool unmap, VkDeviceMemory memoryObject, VkDeviceSize offset, VkDeviceSize dataSize, VkMemoryMapFlags flags = 0);
 
 		/* FRAME BUFFER FUNCTIONS */
-		VkFramebuffer FramebufferCreate(VulkanSwapchain* swapchain, VkRenderPass renderPass, uint32_t attachmentCount, VkImageView* attachments);
+		VkFramebuffer FramebufferCreate(VulkanSwapchain* swapchain, VkRenderPass renderPass, std::vector<VkImageView> const& attachments, uint32_t layers);
 		void FramebufferDestroy(VkFramebuffer frameBuffer);
 
 		/* IMAGE FUNCTIONS */

@@ -1049,7 +1049,7 @@ namespace Lina::Graphics
 	/* -------------------- FRAME BUFFER FUNCTIONS -------------------- */
 	/* -------------------- FRAME BUFFER FUNCTIONS -------------------- */
 	/* -------------------- FRAME BUFFER FUNCTIONS -------------------- */
-	VkFramebuffer VulkanLogicalDevice::FramebufferCreate(VulkanSwapchain* swapchain, VkRenderPass renderPass, uint32_t attachmentCount, VkImageView* attachments)
+	VkFramebuffer VulkanLogicalDevice::FramebufferCreate(VulkanSwapchain* swapchain, VkRenderPass renderPass, std::vector<VkImageView> const& attachments, uint32_t layers)
 	{
 		VkFramebufferCreateInfo info
 		{
@@ -1057,11 +1057,11 @@ namespace Lina::Graphics
 			nullptr,
 			0,
 			renderPass,
-			attachmentCount,
-			attachments,
+			static_cast<uint32_t>(attachments.size()),  
+		    attachments.data(),
 			swapchain->m_imagesSize.width,
 			swapchain->m_imagesSize.height,
-			1
+			layers
 		};
 
 		VkFramebuffer framebuffer;
