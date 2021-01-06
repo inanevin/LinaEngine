@@ -71,7 +71,7 @@ namespace Lina::Graphics
 		void CommandPoolDestroy(VkCommandPool pool);
 
 		/* COMMAND BUFFER FUNCTIONS */
-		std::vector<VkCommandBuffer> CommandBufferCreate(VkCommandPool pool, VkCommandBufferLevel level, uint32_t count);
+		void CommandBufferCreate(std::vector<VkCommandBuffer>& outCommandBuffers, VkCommandPool pool, VkCommandBufferLevel level, uint32_t count);
 		bool CommandBufferBegin(VkCommandBuffer cbuffer, VkCommandBufferUsageFlags usage, SecondaryCommandBufferData* data = nullptr);
 		bool CommandBufferEnd(VkCommandBuffer cbuffer);
 		bool CommandBufferReset(VkCommandBuffer cbuffer, VkCommandBufferResetFlags resetFlags);
@@ -120,8 +120,10 @@ namespace Lina::Graphics
 		void PipelineDestroy(VkPipeline pipeline);
 
 		/* RENDER PASS FUNCTIONS */
-		VkRenderPass RenderPassCreateDefault(VulkanSwapchain* swapChain);
+		//VkRenderPass RenderPassCreateDefault(VulkanSwapchain* swapChain);
+		VkRenderPass RenderPassCreate(std::vector<VkAttachmentDescription> const& attachmentsDescriptions, std::vector<SubpassParameters> const& subpassParameters, std::vector<VkSubpassDependency> const& subpassDependencies);
 		void RenderPassDestroy(VkRenderPass renderPass);
+		void RenderPassSpecifySubpassDescriptions(std::vector<SubpassParameters> const& subpassParameters, std::vector<VkSubpassDescription>& outSubpassDescriptions);
 
 		/* MEMORY FUNCTIONS */
 		VkDeviceMemory MemoryAllocate(VkDeviceSize size, uint32_t typeIndex);
@@ -152,7 +154,7 @@ namespace Lina::Graphics
 		/* DESCRIPTOR SET FUNCTIONS */
 		VkDescriptorSetLayout DescriptorSetCreateLayout(std::vector<VkDescriptorSetLayoutBinding> const& bindings, VkDescriptorSetLayoutCreateFlags flags = 0);
 		VkDescriptorPool DescriptorSetCreatePool(bool freeIndividualSets, uint32_t maxSetsCount, std::vector<VkDescriptorPoolSize> const& descriptorTypes);
-		std::vector<VkDescriptorSet> DescriptorSetCreate(VkDescriptorPool pool, std::vector<VkDescriptorSetLayout> const& descriptor_set_layouts);
+		void DescriptorSetCreate(std::vector<VkDescriptorSet>& outSets, VkDescriptorPool pool, std::vector<VkDescriptorSetLayout> const& descriptor_set_layouts);
 		bool DescriptorSetResetPool(VkDescriptorPool pool);
 		void DescriptorSetDestroyLayout(VkDescriptorSetLayout layout);
 		void DescriptorSetDestroyPool(VkDescriptorPool pool);

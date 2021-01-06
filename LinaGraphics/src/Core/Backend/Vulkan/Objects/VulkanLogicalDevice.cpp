@@ -109,7 +109,7 @@ namespace Lina::Graphics
 	/* -------------------- COMMAND BUFFER FUNCTIONS -------------------- */
 	/* -------------------- COMMAND BUFFER FUNCTIONS -------------------- */
 	/* -------------------- COMMAND BUFFER FUNCTIONS -------------------- */
-	std::vector<VkCommandBuffer> VulkanLogicalDevice::CommandBufferCreate(VkCommandPool pool, VkCommandBufferLevel level, uint32_t count)
+	void VulkanLogicalDevice::CommandBufferCreate(std::vector<VkCommandBuffer>& outCommandBuffers, VkCommandPool pool, VkCommandBufferLevel level, uint32_t count)
 	{
 		VkCommandBufferAllocateInfo allocateInfo
 		{
@@ -120,19 +120,17 @@ namespace Lina::Graphics
 			count
 		};
 
-		std::vector<VkCommandBuffer> buffers;
-		buffers.resize(count);
-		VkResult result = vkAllocateCommandBuffers(m_handle, &allocateInfo, &buffers[0]);
+		outCommandBuffers.resize(count);
+		VkResult result = vkAllocateCommandBuffers(m_handle, &allocateInfo, &outCommandBuffers[0]);
 
 		if (result != VK_SUCCESS)
 		{
 			LINA_ERR("[Command Buffer] -> Could not create command buffer.");
-			return {};
+			return;
 		}
 		else
 			LINA_TRACE("[Command Buffer] -> Successfuly created command buffer.");
 
-		return buffers;
 	}
 	bool VulkanLogicalDevice::CommandBufferBegin(VkCommandBuffer cbuffer, VkCommandBufferUsageFlags usage, SecondaryCommandBufferData* data)
 	{
@@ -846,7 +844,7 @@ namespace Lina::Graphics
 	/* -------------------- RENDER PASS FUNCTIONS -------------------- */
 	/* -------------------- RENDER PASS FUNCTIONS -------------------- */
 	/* -------------------- RENDER PASS FUNCTIONS -------------------- */
-	VkRenderPass VulkanLogicalDevice::RenderPassCreateDefault(VulkanSwapchain* swapchain)
+	/*VkRenderPass VulkanLogicalDevice::RenderPassCreateDefault(VulkanSwapchain* swapchain)
 	{
 
 		VkAttachmentDescription colorAttachment
@@ -909,6 +907,34 @@ namespace Lina::Graphics
 
 		LINA_TRACE("[Render Pass] -> Successfuly created a render pass.");
 		return renderPass;
+	}*/
+
+	VkRenderPass VulkanLogicalDevice::RenderPassCreate(std::vector<VkAttachmentDescription> const& attachmentsDescriptions, std::vector<SubpassParameters> const& subpassParameters, std::vector<VkSubpassDependency> const& subpassDependencies)
+	{
+		std::vector<VkSubpassDescription> subpass_descriptions;
+		RenderPassSpecifySubpassDescriptions(subpassParameters, subpass_descriptions);
+
+		VkRenderPassCreateInfo createInfo = {
+		  VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,               
+		  nullptr,                                                 
+		  0,                                                       
+		  static_cast<uint32_t>(attachmentsDescriptions.size()),  
+		  attachmentsDescriptions.data(),                         
+		  static_cast<uint32_t>(subpass_descriptions.size()),      
+		  subpass_descriptions.data(),                             
+		  static_cast<uint32_t>(subpassDependencies.size()),      
+		  subpassDependencies.data()                              
+		};
+
+		VkRenderPass renderPass;
+		VkResult result = vkCreateRenderPass(m_handle, &createInfo, nullptr, &renderPass);
+		if (VK_SUCCESS != result)
+		{
+			LINA_ERR("[Render Pass] -> Could not create a render pass.");
+			renderPass = VK_NULL_HANDLE;
+			return VK_NULL_HANDLE;
+		}
+		return renderPass;
 	}
 
 	void VulkanLogicalDevice::RenderPassDestroy(VkRenderPass renderPass)
@@ -918,6 +944,27 @@ namespace Lina::Graphics
 			vkDestroyRenderPass(m_handle, renderPass, nullptr);
 			renderPass = VK_NULL_HANDLE;
 			LINA_TRACE("[Render Pass] -> Successfuly destroyed a render pass.");
+		}
+	}
+
+	void VulkanLogicalDevice::RenderPassSpecifySubpassDescriptions(std::vector<SubpassParameters> const& subpassParameters, std::vector<VkSubpassDescription>& subpassDescriptions)
+	{
+		subpassDescriptions.clear();
+
+		for (auto& description : subpassParameters)
+		{
+			subpassDescriptions.push_back({
+			  0,
+			  description.m_pipelineType,
+			  static_cast<uint32_t>(description.m_inputAttachments.size()),
+			  description.m_inputAttachments.data(),
+			  static_cast<uint32_t>(description.m_colorAttachments.size()),
+			  description.m_colorAttachments.data(),
+			  description.m_resolveAttachments.data(),
+			  description.m_depthStencilAttachment,
+			  static_cast<uint32_t>(description.m_preserveAttachments.size()),
+			  description.m_preserveAttachments.data()
+				});
 		}
 	}
 
@@ -1343,28 +1390,30 @@ namespace Lina::Graphics
 		return pool;
 	}
 
-	std::vector<VkDescriptorSet> VulkanLogicalDevice::DescriptorSetCreate(VkDescriptorPool pool, std::vector<VkDescriptorSetLayout> const& descriptor_set_layouts)
+	void VulkanLogicalDevice::DescriptorSetCreate(std::vector<VkDescriptorSet>& outSets, VkDescriptorPool pool, std::vector<VkDescriptorSetLayout> const& descriptorSetLayouts)
 	{
-		std::vector<VkDescriptorSet> descriptorSets;
 
-		if (descriptor_set_layouts.size() > 0)
+		if (descriptorSetLayouts.size() > 0)
 		{
 			VkDescriptorSetAllocateInfo allocInfo =
 			{
 			  VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
 			  nullptr,
 			  pool,
-			  static_cast<uint32_t>(descriptor_set_layouts.size()),
-			  descriptor_set_layouts.data()
+			  static_cast<uint32_t>(descriptorSetLayouts.size()),
+			  descriptorSetLayouts.data()
 			};
 
-			descriptorSets.resize(descriptor_set_layouts.size());
+			outSets.resize(descriptorSetLayouts.size());
 
-			VkResult result = vkAllocateDescriptorSets(m_handle, &allocInfo, descriptorSets.data());
+			VkResult result = vkAllocateDescriptorSets(m_handle, &allocInfo, outSets.data());
 			if (VK_SUCCESS != result)
+			{
 				LINA_ERR("[Descriptor Set] -> Could not allocate descriptor sets.");
+			}
+			else
+				LINA_TRACE("[Descriptor Set] -> Successfuly created descriptor sets.");
 		}
-		return descriptorSets;
 	}
 
 	bool VulkanLogicalDevice::DescriptorSetResetPool(VkDescriptorPool pool)
