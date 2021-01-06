@@ -1367,6 +1367,17 @@ namespace Lina::Graphics
 		return descriptorSets;
 	}
 
+	bool VulkanLogicalDevice::DescriptorSetResetPool(VkDescriptorPool pool)
+	{
+		VkResult result = vkResetDescriptorPool(m_handle, pool, 0);
+		if (VK_SUCCESS != result)
+		{
+			LINA_ERR("[Descriptor Set] -> Error occurred during descriptor pool reset.");
+			return false;
+		}
+		return true;
+	}
+
 	void VulkanLogicalDevice::DescriptorSetDestroyLayout(VkDescriptorSetLayout layout)
 	{
 		if (layout != VK_NULL_HANDLE)
@@ -1387,7 +1398,7 @@ namespace Lina::Graphics
 		}
 	}
 
-	void VulkanLogicalDevice::DescriptorSetFree(VkDescriptorPool pool, std::vector<VkDescriptorSet>& descriptorSets)
+	bool VulkanLogicalDevice::DescriptorSetFree(VkDescriptorPool pool, std::vector<VkDescriptorSet>& descriptorSets)
 	{
 		if (descriptorSets.size() > 0)
 		{
@@ -1396,23 +1407,26 @@ namespace Lina::Graphics
 			if (VK_SUCCESS != result)
 			{
 				LINA_ERR("[Descriptor Set] -> Error occurred during freeing descriptor sets.");
-				return;
+				return false;
 			}
 
 			LINA_TRACE("[Descriptor Set] -> Successfuly freed descriptor sets.");
 		}
+
+		return true;
 	}
 
-	void VulkanLogicalDevice::DescriptorSetFree(VkDescriptorPool pool, VkDescriptorSet set)
+	bool VulkanLogicalDevice::DescriptorSetFree(VkDescriptorPool pool, VkDescriptorSet set)
 	{
 		VkResult result = vkFreeDescriptorSets(m_handle, pool, 1, &set);
 
 		if (VK_SUCCESS != result)
 		{
 			LINA_ERR("[Descriptor Set] -> Error occurred during freeing a descriptor set.");
-			return;
+			return false;
 		}
 
+		return true;
 		LINA_TRACE("[Descriptor Set] -> Successfuly freed a descriptor set.");
 	}
 
