@@ -133,7 +133,8 @@ namespace Lina::Graphics
 		void FramebufferDestroy(VkFramebuffer frameBuffer);
 
 		/* IMAGE FUNCTIONS */
-		VkImage ImageCreate(VkImageType type, VkFormat format, VkExtent3D size, uint32_t mipmaps, uint32_t layerCount, VkSampleCountFlagBits samples, VkImageUsageFlags usage, VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL, VkImageCreateFlags flags = 0, VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE);
+		VkImage ImageCreate(VkImageType type, VkFormat format, VkExtent3D size, uint32_t mipmaps, uint32_t layerCount, VkSampleCountFlagBits samples, VkImageUsageFlags usage, bool isCubemap = false, VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL, VkImageCreateFlags flags = 0, VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE);
+		VkImage ImageCreateSampled(bool linearFiltering, VkImageType type, VkFormat format, VkExtent3D size, uint32_t mipmaps, uint32_t layerCount, VkImageUsageFlags usage, bool isCubemap = false, VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL, VkImageCreateFlags flags = 0, VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE);
 		VkDeviceMemory ImageAllocateAndBindMemory(VkImage image, VkMemoryPropertyFlagBits memoryProperties);
 		void ImageDestroy(VkImage image);
 		bool ImageBindToMemory(VkImage image, VkDeviceMemory memoryObject, VkDeviceSize offset = 0);

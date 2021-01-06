@@ -1034,18 +1034,18 @@ namespace Lina::Graphics
 	/* -------------------- IMAGE FUNCTIONS -------------------- */
 	/* -------------------- IMAGE FUNCTIONS -------------------- */
 	/* -------------------- IMAGE FUNCTIONS -------------------- */
-	VkImage VulkanLogicalDevice::ImageCreate(VkImageType type, VkFormat format, VkExtent3D size, uint32_t mipmaps, uint32_t layerCount, VkSampleCountFlagBits samples, VkImageUsageFlags usage, VkImageTiling tiling, VkImageCreateFlags flags, VkSharingMode sharingMode)
+	VkImage VulkanLogicalDevice::ImageCreate(VkImageType type, VkFormat format, VkExtent3D size, uint32_t mipmaps, uint32_t layerCount, VkSampleCountFlagBits samples, VkImageUsageFlags usage, bool isCubemap = false, VkImageTiling tiling, VkImageCreateFlags flags, VkSharingMode sharingMode)
 	{
 		VkImageCreateInfo createInfo
 		{
 			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
 			nullptr,
-			flags,
+			isCubemap ? flags | VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : flags,
 			type,
 			format,
 			size,
 			mipmaps,
-			layerCount,
+			isCubemap ? 6 * layerCount : layerCount,
 			samples,
 			tiling,
 			usage,
@@ -1066,6 +1066,25 @@ namespace Lina::Graphics
 
 		LINA_TRACE("[Image] -> Successfuly created an image.");
 		return image;
+	}
+
+	VkImage VulkanLogicalDevice::ImageCreateSampled(bool linearFiltering, VkImageType type, VkFormat format, VkExtent3D size, uint32_t mipmaps, uint32_t layerCount, VkImageUsageFlags usage, bool isCubemap, VkImageTiling tiling, VkImageCreateFlags flags, VkSharingMode sharingMode)
+	{
+		VkFormatProperties formatProperties;
+		vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &formatProperties);
+
+		if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT)) 
+		{
+			LINA_ERR("[Image] -> Provided format is not supported for a sampled image.");
+			return VK_NULL_HANDLE;
+		}
+
+		if (linearFiltering && !(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
+			LINA_ERR("[Image] -> Provided format is not supported for a linear image filtering.");
+			return VK_NULL_HANDLE;
+		}
+
+		return ImageCreate(type, format, size, mipmaps, layerCount, VK_SAMPLE_COUNT_1_BIT, usage | VK_SAMPLE_COUNT_1_BIT, isCubemap, tiling, flags, sharingMode);
 	}
 
 	VkDeviceMemory VulkanLogicalDevice::ImageAllocateAndBindMemory(VkImage image, VkMemoryPropertyFlagBits memoryProperties)
