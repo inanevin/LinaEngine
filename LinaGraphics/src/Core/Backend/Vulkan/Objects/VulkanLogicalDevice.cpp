@@ -280,6 +280,12 @@ namespace Lina::Graphics
 			vkCmdCopyBufferToImage(commandBuffer, sourceBuffer, destImage, imageLayout, static_cast<uint32_t>(regions.size()), regions.data());	
 	}
 
+	void VulkanLogicalDevice::CommandBufferCopyFromImage(VkCommandBuffer commandBuffer, VkBuffer destBuffer, VkImage sourceImage, VkImageLayout imageLayout, std::vector<VkBufferImageCopy> regions)
+	{
+		if (regions.size() > 0)
+			vkCmdCopyImageToBuffer(commandBuffer, sourceImage, imageLayout, destBuffer, static_cast<uint32_t>(regions.size()), regions.data());
+	}
+
 	/* -------------------- FENCE FUNCTIONS -------------------- */
 	/* -------------------- FENCE FUNCTIONS -------------------- */
 	/* -------------------- FENCE FUNCTIONS -------------------- */
@@ -855,7 +861,7 @@ namespace Lina::Graphics
 		}
 	}
 
-	void VulkanLogicalDevice::MemoryMap(void* data, void** pointer, bool unmap, VkDeviceMemory memoryObject, VkDeviceSize offset, VkDeviceSize dataSize, VkMemoryMapFlags flags)
+	void VulkanLogicalDevice::MemoryMapUpdateAndUnmapHostVisible(void* data, void** pointer, bool unmap, VkDeviceMemory memoryObject, VkDeviceSize offset, VkDeviceSize dataSize, VkMemoryMapFlags flags)
 	{
 		VkResult result;
 		void* local_pointer;

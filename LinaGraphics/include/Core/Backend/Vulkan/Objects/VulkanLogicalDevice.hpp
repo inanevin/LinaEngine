@@ -80,6 +80,7 @@ namespace Lina::Graphics
 		void CommandBufferSetImageMemoryBarriers(VkCommandBuffer commandbuffer, VkPipelineStageFlags  generatingStages, VkPipelineStageFlags consumingStages, std::vector<ImageTransition> imageTransitions);
 		void CommandBufferCopyData(VkCommandBuffer commandBuffer, VkBuffer sourceBuffer, VkBuffer destBuffer, std::vector<VkBufferCopy> regions);
 		void CommandBufferCopyToImage(VkCommandBuffer commandBuffer, VkBuffer sourceBuffer, VkImage destImage, VkImageLayout imageLayout, std::vector<VkBufferImageCopy> regions);
+		void CommandBufferCopyFromImage(VkCommandBuffer commandBuffer, VkBuffer destBuffer, VkImage sourceImage, VkImageLayout imageLayout, std::vector<VkBufferImageCopy> regions);
 
 		/* FENCE FUNCTIONS */
 		VkFence FenceCreate(VkFenceCreateFlags flags);
@@ -119,7 +120,7 @@ namespace Lina::Graphics
 		/* MEMORY FUNCTIONS */
 		VkDeviceMemory MemoryAllocate(VkDeviceSize size, uint32_t typeIndex);
 		void MemoryFree(VkDeviceMemory memory);
-		void MemoryMap(void* data, void** pointer, bool unmap, VkDeviceMemory memoryObject, VkDeviceSize offset, VkDeviceSize dataSize, VkMemoryMapFlags flags = 0);
+		void MemoryMapUpdateAndUnmapHostVisible(void* data, void** pointer, bool unmap, VkDeviceMemory memoryObject, VkDeviceSize offset, VkDeviceSize dataSize, VkMemoryMapFlags flags = 0);
 
 		/* BUFFER FUNCTIONS */
 		VkBuffer BufferCreate(VkDeviceSize size, VkBufferUsageFlags usage, VkBufferCreateFlags flags = 0, VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE);
