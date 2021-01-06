@@ -149,6 +149,10 @@ namespace Lina::Graphics
 		VkSampler SamplerCreate(SamplerParameters samplerParams, VkSamplerCreateFlags flags = 0);
 		void SamplerDestroy(VkSampler sampler);
 
+		/* DESCRIPTOR SET FUNCTIONS */
+		VkDescriptorSetLayout DescriptorSetCreateLayout(std::vector<VkDescriptorSetLayoutBinding> const& bindings, VkDescriptorSetLayoutCreateFlags flags = 0);
+		void DescriptorSetDestroyLayout(VkDescriptorSetLayout layout);
+
 	private:
 
 		VkPhysicalDevice m_physicalDevice;

@@ -1288,6 +1288,41 @@ namespace Lina::Graphics
 		}
 	}
 
+	VkDescriptorSetLayout VulkanLogicalDevice::DescriptorSetCreateLayout(std::vector<VkDescriptorSetLayoutBinding> const& bindings, VkDescriptorSetLayoutCreateFlags flags)
+	{
+		VkDescriptorSetLayoutCreateInfo createInfo = 
+		{
+			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO, 
+			nullptr,                                             
+			flags,                                                   
+			static_cast<uint32_t>(bindings.size()),              
+			bindings.data()                                      
+		};
+
+		VkDescriptorSetLayout layout;
+		VkResult result = vkCreateDescriptorSetLayout(m_handle, &createInfo, nullptr, &layout);
+
+		if (VK_SUCCESS != result)
+		{
+			LINA_ERR("[Descriptor Set] -> Could not create a layout for descriptor sets.");
+			layout = VK_NULL_HANDLE;
+			return VK_NULL_HANDLE;
+		}
+
+		LINA_TRACE("[Descriptor Set] -> Successfuly created a descriptor set layout.");
+		return layout;
+	}
+
+	void VulkanLogicalDevice::DescriptorSetDestroyLayout(VkDescriptorSetLayout layout)
+	{
+		if (layout != VK_NULL_HANDLE)
+		{
+			vkDestroyDescriptorSetLayout(m_handle, layout, nullptr);
+			layout = VK_NULL_HANDLE;
+			LINA_TRACE("[Descriptor Set] -> Successfuly destroyed a layout.");
+		}
+	}
+
 
 
 }
