@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -30,6 +30,10 @@ SOFTWARE.
 
 namespace Lina::Graphics
 {
+	/* -------------------- RENDER PASS FUNCTIONS -------------------- */
+	/* -------------------- RENDER PASS FUNCTIONS -------------------- */
+	/* -------------------- RENDER PASS FUNCTIONS -------------------- */
+	/* -------------------- RENDER PASS FUNCTIONS -------------------- */
 	VkRenderPass VulkanHelper::RenderPassCreateGeometryAndPostProcess()
 	{
 		std::vector<VkAttachmentDescription> attachments_descriptions = {

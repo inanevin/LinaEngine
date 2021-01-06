@@ -82,6 +82,9 @@ namespace Lina::Graphics
 		void CommandBufferCopyToImage(VkCommandBuffer commandBuffer, VkBuffer sourceBuffer, VkImage destImage, VkImageLayout imageLayout, std::vector<VkBufferImageCopy> regions);
 		void CommandBufferCopyFromImage(VkCommandBuffer commandBuffer, VkBuffer destBuffer, VkImage sourceImage, VkImageLayout imageLayout, std::vector<VkBufferImageCopy> regions);
 		void CommandBufferBindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineType, VkPipelineLayout pipelineLayout, uint32_t indexForFirstSet, std::vector<VkDescriptorSet> const& descriptorSets, std::vector<uint32_t> const& dynamicOffsets);
+		void CommandBufferBeginRenderPass(VkCommandBuffer commandBuffer, VkRenderPass renderPass, VkFramebuffer framebuffer, VkRect2D renderArea, std::vector<VkClearValue> const& clearValues, VkSubpassContents subpassContents);	
+		void CommandBufferProgressToTheNextSubpass(VkCommandBuffer commandBuffer, VkSubpassContents subpassContents);	
+		void CommandBufferEndSubpass(VkCommandBuffer commandBuffer);
 
 		/* FENCE FUNCTIONS */
 		VkFence FenceCreate(VkFenceCreateFlags flags);
@@ -160,8 +163,8 @@ namespace Lina::Graphics
 		bool DescriptorSetFree(VkDescriptorPool pool, std::vector<VkDescriptorSet>& sets);
 		bool DescriptorSetFree(VkDescriptorPool pool, VkDescriptorSet set);
 		void UpdateDescriptorSets(std::vector<ImageDescriptorInfo> const& imageDescriptorInfos, std::vector<BufferDescriptorInfo> const& bufferDescriptorInfos, std::vector<TexelBufferDescriptorInfo> const& texelBufferDescriptorInfos, std::vector<CopyDescriptorInfo> const& copyDescriptorInfos);
-	
-private:
+
+	private:
 		VkPhysicalDevice m_physicalDevice;
 		VkDevice m_handle;
 		VkPhysicalDeviceMemoryProperties m_memProperties;

@@ -289,6 +289,32 @@ namespace Lina::Graphics
 		vkCmdBindDescriptorSets(commandBuffer, pipelineType, pipelineLayout, indexForFirstSet, static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data(), static_cast<uint32_t>(dynamicOffsets.size()), dynamicOffsets.data());
 	}
 
+	void VulkanLogicalDevice::CommandBufferBeginRenderPass(VkCommandBuffer commandBuffer, VkRenderPass renderPass, VkFramebuffer framebuffer, VkRect2D renderArea, std::vector<VkClearValue> const& clearValues, VkSubpassContents subpassContents)
+	{
+		VkRenderPassBeginInfo bgnInfo = 
+		{
+			VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,    
+			nullptr,                                     
+			renderPass,                                  
+			framebuffer,                                 
+			renderArea,                                  
+			static_cast<uint32_t>(clearValues.size()),   
+			clearValues.data()                           
+		};
+
+		vkCmdBeginRenderPass(commandBuffer, &bgnInfo, subpassContents);
+	}
+
+	void VulkanLogicalDevice::CommandBufferProgressToTheNextSubpass(VkCommandBuffer commandBuffer, VkSubpassContents subpassContents)
+	{
+		vkCmdNextSubpass(commandBuffer, subpassContents);
+	}
+
+	void VulkanLogicalDevice::CommandBufferEndSubpass(VkCommandBuffer commandBuffer)
+	{
+		vkCmdEndRenderPass(commandBuffer);
+	}
+
 	/* -------------------- FENCE FUNCTIONS -------------------- */
 	/* -------------------- FENCE FUNCTIONS -------------------- */
 	/* -------------------- FENCE FUNCTIONS -------------------- */
