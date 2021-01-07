@@ -165,7 +165,7 @@ namespace Lina::Graphics
 			return false;
 		}
 
-		LINA_TRACE("[Command Buffer] -> Successfuly beginning command buffer.");
+		// LINA_TRACE("[Command Buffer] -> Successfuly beginning command buffer.");
 		return true;
 	}
 
@@ -180,7 +180,7 @@ namespace Lina::Graphics
 			return false;
 		}
 
-		LINA_TRACE("[Command Buffer] -> Successfuly ended buffer.");
+		// LINA_TRACE("[Command Buffer] -> Successfuly ended buffer.");
 		return true;
 	}
 
@@ -310,7 +310,7 @@ namespace Lina::Graphics
 		vkCmdNextSubpass(commandBuffer, subpassContents);
 	}
 
-	void VulkanLogicalDevice::CommandBufferEndSubpass(VkCommandBuffer commandBuffer)
+	void VulkanLogicalDevice::CommandBufferEndRenderPass(VkCommandBuffer commandBuffer)
 	{
 		vkCmdEndRenderPass(commandBuffer);
 	}
@@ -362,10 +362,10 @@ namespace Lina::Graphics
 		return true;
 	}
 
-	bool VulkanLogicalDevice::FenceWait(VkFence fence, uint64_t timeOut)
+	bool VulkanLogicalDevice::FenceWait(VkFence fence, VkBool32 waitForAll, uint64_t timeOut)
 	{
 		// We can pass a 0 timeout and check the VkResult to see if the semaphore is available or not.
-		VkResult result = vkWaitForFences(m_handle, 1, &fence, VK_TRUE, timeOut);
+		VkResult result = vkWaitForFences(m_handle, 1, &fence, waitForAll, timeOut);
 		return result == VK_TRUE;
 	}
 
@@ -428,40 +428,71 @@ namespace Lina::Graphics
 		}
 	}
 
-	bool VulkanLogicalDevice::QueueSubmit(QueueSubmitInfo& submitInfo)
+	bool VulkanLogicalDevice::QueueSubmit(VkQueue queue, std::vector<WaitSemaphoreInfo> waitSemaphoreInfos, std::vector<VkCommandBuffer> commandBuffers, std::vector<VkSemaphore> signalSemaphores, VkFence fence)
 	{
-		uint32_t waitSemaphoresSize = static_cast<uint32_t>(submitInfo.m_waitSemaphores.size());
-		uint32_t waitSemaphoreStagesSize = static_cast<uint32_t>(submitInfo.m_waitSemaphoreStages.size());
-		uint32_t commandBuffersSize = static_cast<uint32_t>(submitInfo.m_commandBuffers.size());
-		uint32_t signalSemaphoresSize = static_cast<uint32_t>(submitInfo.m_signalSemaphores.size());
+		std::vector<VkSemaphore>          waitSemaphoreHandles;
+		std::vector<VkPipelineStageFlags> waitSemaphoreStages;
 
-		VkSubmitInfo info
+		for (auto& waitSemaphoreInfo : waitSemaphoreInfos)
 		{
-			VK_STRUCTURE_TYPE_SUBMIT_INFO,
-			nullptr,
-			waitSemaphoresSize,
-			waitSemaphoresSize == 0 ? nullptr : &submitInfo.m_waitSemaphores[0],
-			waitSemaphoreStagesSize == 0 ? nullptr : &submitInfo.m_waitSemaphoreStages[0],
-			commandBuffersSize,
-			commandBuffersSize == 0 ? nullptr : &submitInfo.m_commandBuffers[0],
-			signalSemaphoresSize,
-			signalSemaphoresSize == 0 ? nullptr : &submitInfo.m_signalSemaphores[0]
+			waitSemaphoreHandles.emplace_back(waitSemaphoreInfo.m_semaphore);
+			waitSemaphoreStages.emplace_back(waitSemaphoreInfo.m_waitingStage);
+		}
+
+		VkSubmitInfo submitInfo = 
+		{
+		  VK_STRUCTURE_TYPE_SUBMIT_INFO,                        // VkStructureType                sType
+		  nullptr,                                              // const void                   * pNext
+		  static_cast<uint32_t>(waitSemaphoreInfos.size()),   // uint32_t                       waitSemaphoreCount
+		  waitSemaphoreHandles.data(),                        // const VkSemaphore            * pWaitSemaphores
+		  waitSemaphoreStages.data(),                         // const VkPipelineStageFlags   * pWaitDstStageMask
+		  static_cast<uint32_t>(commandBuffers.size()),        // uint32_t                       commandBufferCount
+		  commandBuffers.data(),                               // const VkCommandBuffer        * pCommandBuffers
+		  static_cast<uint32_t>(signalSemaphores.size()),      // uint32_t                       signalSemaphoreCount
+		  signalSemaphores.data()                              // const VkSemaphore            * pSignalSemaphores
 		};
 
-		VkResult result = vkQueueSubmit(submitInfo.m_submitQueue, submitInfo.m_submitCount, &info, submitInfo.m_fence);
+		VkResult result = vkQueueSubmit(queue, 1, &submitInfo, fence);
 
-		if (result != VK_SUCCESS)
+		if (VK_SUCCESS != result)
 		{
 			LINA_ERR("[Queue] -> Could not submit the queue.");
 			return false;
 		}
-
 		return true;
 	}
 
 	bool VulkanLogicalDevice::QueueWait(VkQueue queue)
 	{
 		VkResult result = vkQueueWaitIdle(queue);
+		return result == VK_SUCCESS;
+	}
+
+	bool VulkanLogicalDevice::QueuePresent(VkQueue queue, std::vector<VkSemaphore> renderingSemaphores, std::vector<PresentInfo> imagesToPresent)
+	{
+		VkResult result;
+		std::vector<VkSwapchainKHR> swapchains;
+		std::vector<uint32_t> imageIndices;
+
+		for (auto& imageToPresent : imagesToPresent) 
+		{
+			swapchains.emplace_back(imageToPresent.m_swapchain);
+			imageIndices.emplace_back(imageToPresent.m_imageIndex);
+		}
+
+		VkPresentInfoKHR present_info =
+		{
+		  VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,                   // VkStructureType          sType
+		  nullptr,                                              // const void*              pNext
+		  static_cast<uint32_t>(renderingSemaphores.size()),   // uint32_t                 waitSemaphoreCount
+		  renderingSemaphores.data(),                          // const VkSemaphore      * pWaitSemaphores
+		  static_cast<uint32_t>(swapchains.size()),             // uint32_t                 swapchainCount
+		  swapchains.data(),                                    // const VkSwapchainKHR   * pSwapchains
+		  imageIndices.data(),                                 // const uint32_t         * pImageIndices
+		  nullptr                                               // VkResult*                pResults
+		};
+
+		result = vkQueuePresentKHR(queue, &present_info);
 		return result == VK_SUCCESS;
 	}
 
@@ -1034,7 +1065,7 @@ namespace Lina::Graphics
 			return VK_NULL_HANDLE;
 		}
 
-		LINA_TRACE("[Framebuffer] -> Successfuly created a framebuffer.");
+		// LINA_TRACE("[Framebuffer] -> Successfuly created a framebuffer.");
 		return framebuffer;
 	}
 

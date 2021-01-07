@@ -87,16 +87,7 @@ namespace Lina::Graphics
 		VkQueryPipelineStatisticFlags	m_pipelineStatistics;
 	};
 
-	struct QueueSubmitInfo
-	{
-		VkQueue							  m_submitQueue = VK_NULL_HANDLE;
-		uint32_t						  m_submitCount = 0;
-		std::vector<VkSemaphore>		  m_waitSemaphores;
-		std::vector<VkPipelineStageFlags> m_waitSemaphoreStages;
-		std::vector<VkCommandBuffer>	  m_commandBuffers;
-		std::vector<VkSemaphore>		  m_signalSemaphores;
-		VkFence							  m_fence = VK_NULL_HANDLE;
-	};
+	
 
 	struct BufferTransition 
 	{
@@ -182,6 +173,16 @@ namespace Lina::Graphics
 		std::vector<uint32_t>                m_preserveAttachments;
 	};
 
+	struct WaitSemaphoreInfo
+	{
+		VkSemaphore           m_semaphore;
+		VkPipelineStageFlags  m_waitingStage;
+	};
+
+	struct PresentInfo {
+		VkSwapchainKHR  m_swapchain;
+		uint32_t        m_imageIndex;
+	};
 }
 
 #endif

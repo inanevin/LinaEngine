@@ -145,13 +145,13 @@ namespace Lina::Graphics
 			return false;
 		}
 
-		// CreateImageViews(data.vulkanData, createdImagesCount);
+		CreateImageViews(data.vulkanData, createdImagesCount);
 
 		LINA_TRACE("[Vulkan Swapchain] -> Successfuly a created swapchain");
 		return true;
 	}
 
-	VkImage VulkanSwapchain::GetImage(VkDevice logicalDevice, VkSemaphore semaphore, VkFence fence)
+	uint32_t VulkanSwapchain::AcquireNextImage(VkDevice logicalDevice, VkSemaphore semaphore, VkFence fence)
 	{
 		uint32_t imageIndex;
 		VkResult result = vkAcquireNextImageKHR(logicalDevice, m_handle, 2000000000, semaphore, fence, &imageIndex);
@@ -163,7 +163,7 @@ namespace Lina::Graphics
 		else if (result == VK_SUBOPTIMAL_KHR)
 			LINA_WARN("[Vulkan Swapchain] -> Swapchain image is suboptimal.");
 
-		return m_images[imageIndex];
+		return imageIndex;
 	}
 
 	void VulkanSwapchain::Destroy(VkDevice logicalDevice)

@@ -84,13 +84,13 @@ namespace Lina::Graphics
 		void CommandBufferBindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineType, VkPipelineLayout pipelineLayout, uint32_t indexForFirstSet, std::vector<VkDescriptorSet> const& descriptorSets, std::vector<uint32_t> const& dynamicOffsets);
 		void CommandBufferBeginRenderPass(VkCommandBuffer commandBuffer, VkRenderPass renderPass, VkFramebuffer framebuffer, VkRect2D renderArea, std::vector<VkClearValue> const& clearValues, VkSubpassContents subpassContents);	
 		void CommandBufferProgressToTheNextSubpass(VkCommandBuffer commandBuffer, VkSubpassContents subpassContents);	
-		void CommandBufferEndSubpass(VkCommandBuffer commandBuffer);
+		void CommandBufferEndRenderPass(VkCommandBuffer commandBuffer);
 
 		/* FENCE FUNCTIONS */
 		VkFence FenceCreate(VkFenceCreateFlags flags);
 		bool FencesWait(const std::vector<VkFence>& fences, VkBool32 waitForAll, uint64_t timeOut = 1000000000);
 		bool FencesReset(const std::vector<VkFence>& fences);
-		bool FenceWait(VkFence fence, uint64_t timeOut = 1000000000);
+		bool FenceWait(VkFence fence, VkBool32 waitForAll, uint64_t timeOut = 1000000000);
 		bool FenceReset(VkFence fence);
 		void FenceDestroy(VkFence fence);
 
@@ -99,8 +99,9 @@ namespace Lina::Graphics
 		void SemaphoreDestroy(VkSemaphore semaphore);
 
 		/* QUEUE FUNCTIONS */
-		bool QueueSubmit(QueueSubmitInfo& submitInfo);
+		bool QueueSubmit(VkQueue queue, std::vector<WaitSemaphoreInfo> waitSemaphoreInfos, std::vector<VkCommandBuffer> commandBuffers, std::vector<VkSemaphore> signalSemaphores, VkFence fence);
 		bool QueueWait(VkQueue queue);
+		bool QueuePresent(VkQueue queue, std::vector<VkSemaphore> renderingSemaphores, std::vector<PresentInfo> imagesToPresent);
 
 		/* BUFFER FUNCTIONS */
 		VkBuffer BufferCreate(VkDeviceSize size, VkBufferUsageFlags usage, VkBufferCreateFlags flags = 0, VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE);

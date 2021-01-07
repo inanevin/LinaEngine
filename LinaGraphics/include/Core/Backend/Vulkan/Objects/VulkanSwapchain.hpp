@@ -75,7 +75,7 @@ namespace Lina::Graphics
 		bool SelectFormatOfSwapchainImages(const SwapchainData& data, VkFormat& outSelectedImageFormat, VkColorSpaceKHR& outSelectedColorSpace);
 		bool Create(const SwapchainData& data);
 		bool CreateImageViews(VulkanData* data, uint32_t createdImagesCount);
-		VkImage GetImage(VkDevice logicalDevice, VkSemaphore semaphore, VkFence fence = VK_NULL_HANDLE);
+		uint32_t AcquireNextImage(VkDevice logicalDevice, VkSemaphore semaphore, VkFence fence = VK_NULL_HANDLE);
 		void Destroy(VkDevice logicalDevice);
 		inline std::vector<VkImageView>& GetImageViews() { return m_imageViews; }
 
