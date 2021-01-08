@@ -61,9 +61,9 @@ if(LINA_PRODUCTION_BUILD)
 endif()
 
 add_compile_definitions(LINA_AUDIO_OPENAL)
-add_compile_definitions(LINA_GRAPHICS_VULKAN)
+#add_compile_definitions(LINA_GRAPHICS_VULKAN)
+add_compile_definitions(LINA_GRAPHICS_OPENGL)
 add_compile_definitions(LINA_INPUT_GLFW)
-add_compile_definitions(LINA_WINDOW_GLFW)
 add_compile_definitions(LINA_PHYSICS_NVIDIAPHYSX)
 
 add_definitions(-DLINA_VMAJOR=2)

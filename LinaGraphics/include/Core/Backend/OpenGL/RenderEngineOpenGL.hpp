@@ -27,31 +27,72 @@ SOFTWARE.
 */
 
 /*
-Class: WindowBackend
+Class: RenderEngineOpenGL
 
+OpenGL Renderer.
 
-
-Timestamp: 12/22/2020 6:28:36 PM
+Timestamp: 1/7/2021 7:52:41 PM
 */
 
 #pragma once
 
-#ifndef WindowBackend_HPP
-#define WindowBackend_HPP
+#ifndef RenderEngineOpenGL_HPP
+#define RenderEngineOpenGL_HPP
 
-#ifdef LINA_GRAPHICS_VULKAN
-#include "Core/Backend/Vulkan/WindowVulkan.hpp"
-#elif LINA_GRAPHICS_OPENGL
-#include "Core/Backend/OpenGL/WindowOpenGL.hpp"
-#endif
+// Headers here.
+#include "Core/Common.hpp"
+#include "ECS/ECS.hpp"
+#include "EventSystem/Events.hpp"
+#include "WindowOpenGL.hpp"
+
+namespace Lina
+{
+	namespace Event
+	{
+		class EventSystem;
+	}
+
+	namespace Resources
+	{
+		class ResourceManager;
+	}
+}
 
 namespace Lina::Graphics
 {
-#ifdef LINA_GRAPHICS_VULKAN
-	typedef WindowVulkan WindowBackend;
-#elif LINA_GRAPHICS_OPENGL
-	typedef WindowOpenGL WindowBackend;
-#endif
+	class RenderEngineOpenGL
+	{
+		
+	public:
+		
+		friend class Application;
+
+		RenderEngineOpenGL& operator=(const RenderEngineOpenGL&) = delete;
+		RenderEngineOpenGL(const RenderEngineOpenGL&) = delete;
+		RenderEngineOpenGL() {};
+		~RenderEngineOpenGL();
+
+		void SetReferences(Event::EventSystem* eventSys, ECS::Registry* ecs, Resources::ResourceManager* m_resources);
+
+	private:
+
+		void OnAppLoad(Event::EAppLoad& e);
+		void OnPreMainLoop(Event::EPreMainLoop& e);
+		void OnPostMainLoop(Event::EPostMainLoop& e);
+		void OnWindowResize(Event::EWindowResized& e);
+		void Tick();
+		void Render();
+		void DisconnectEvents();
+
+	private:
+
+		bool m_initialized = false;
+		Event::EventSystem* m_eventSys = nullptr;
+		ECS::Registry* m_ecs = nullptr;
+		Resources::ResourceManager* m_resources = nullptr;
+		WindowOpenGL m_window;
+	
+	};
 }
 
 #endif

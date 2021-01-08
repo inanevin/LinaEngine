@@ -59,7 +59,8 @@ namespace Lina::Resources
 
 #ifdef LINA_GRAPHICS_VULKAN
 		const std::vector<uint32_t>& GetData() { return m_data; }
-#elif
+#elif LINA_GRAPHICS_OPENGL
+		const std::string& GetData() { return m_data; }
 #endif
 
 	private:
@@ -72,13 +73,14 @@ namespace Lina::Resources
 
 		bool LoadFromMemory(StringIDType sid, unsigned char* buffer, size_t bufferSize, Event::EventSystem* eventSys);
 		bool LoadFromFile(const std::string& path, ResourceType type, Event::EventSystem* eventSys);
-		bool CompileShader(const std::string& path, ResourceType type, bool saveToFile = false);
+		bool CompileToSPIRV(const std::string& path, ResourceType type, bool saveToFile = false);
 
 	private:
 
 #ifdef LINA_GRAPHICS_VULKAN
 		std::vector<uint32_t> m_data;
-#elif
+#elif LINA_GRAPHICS_OPENGL
+		std::string m_data;
 #endif
 	};
 }

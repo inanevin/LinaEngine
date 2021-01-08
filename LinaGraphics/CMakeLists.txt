@@ -22,17 +22,18 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 #--------------------------------------------------------------------
 set (LINAGRAPHICS_SOURCES
 
-	#Rendering	
+	# VULKAN
 	src/Core/Backend/Vulkan/RenderEngineVulkan.cpp
 	src/Core/Backend/Vulkan/VulkanLoader.cpp
 	src/Core/Backend/Vulkan/WindowVulkan.cpp
-	src/Core/Backend/Vulkan/VulkanHelper.cpp
-	
+	src/Core/Backend/Vulkan/VulkanHelper.cpp	
 	src/Core/Backend/Vulkan/Objects/VulkanSwapchain.cpp	
 	src/Core/Backend/Vulkan/Objects/VulkanLogicalDevice.cpp	
-	
 	src/Core/Backend/Vulkan/Utility/VulkanFunctions.cpp
 
+	# OPENGL
+	src/Core/Backend/OpenGL/RenderEngineOpenGL.cpp
+	src/Core/Backend/OpenGL/WindowOpenGL.cpp
 )
 
 #--------------------------------------------------------------------
@@ -40,25 +41,26 @@ set (LINAGRAPHICS_SOURCES
 #--------------------------------------------------------------------
 set(LINAGRAPHICS_HEADERS
 
-	include/Core/Backend/Vulkan/Utility/VulkanFunctions.hpp
-	include/Core/Backend/Vulkan/Utility/VulkanFunctionList.inl
-	
 	include/Core/RenderingBackend.hpp
 	include/Core/WindowBackend.hpp
 	include/Core/RenderingCommon.hpp
-	
+	include/linagraphics_export.h
+
+	# VULKAN
+	include/Core/Backend/Vulkan/Utility/VulkanFunctions.hpp
+	include/Core/Backend/Vulkan/Utility/VulkanFunctionList.inl	
 	include/Core/Backend/Vulkan/WindowVulkan.hpp
 	include/Core/Backend/Vulkan/VulkanHelper.hpp
 	include/Core/Backend/Vulkan/RenderEngineVulkan.hpp
 	include/Core/Backend/Vulkan/VulkanLoader.hpp
 	include/Core/Backend/Vulkan/VulkanCommon.hpp
-
 	include/Core/Backend/Vulkan/Objects/VulkanSwapchain.hpp
 	include/Core/Backend/Vulkan/Objects/VulkanLogicalDevice.hpp
 	
+	# OPENGL
+	include/Core/Backend/OpenGL/RenderEngineOpenGL.hpp
+	include/Core/Backend/OpenGL/WindowOpenGL.hpp
 
-
-	include/linagraphics_export.h
 )	
 
 
@@ -76,6 +78,7 @@ generate_export_header(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glad/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/vulkan/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaResource/include)
@@ -87,6 +90,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaResour
 
 target_link_libraries(${PROJECT_NAME} 
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3dll.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glad/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glad.lib
 	PRIVATE Lina::Common
 	PRIVATE Lina::Resource
 )

@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/Log.hpp"
 #include "Utility/FileUtility.hpp"
 #include <fstream>
+#include <sstream>
 #include <cstdlib>
 #include <shaderc/shaderc.hpp>
 
@@ -48,7 +49,9 @@ namespace Lina::Resources
 		m_data = std::vector<uint32_t>(intbuf, intbuf + charbuf.size());
 		LINA_TRACE("[Shader Loader] -> Shader loaded from memory.");
 		return true;
-#elif
+#elif LINA_GRAPHICS_OPENGL
+		m_data = std::string(reinterpret_cast<char*>(buffer), bufferSize);
+		return false;
 #endif
 	}
 
@@ -57,14 +60,38 @@ namespace Lina::Resources
 
 #ifdef LINA_GRAPHICS_VULKAN
 		
-		if (CompileShader(path, type, false))
+		if (CompileToSPIRV(path, type, false))
 		{
 			LINA_TRACE("[Shader Loader] -> Successfuly compiled shader from file: {0}", path);
 			return true;
 		}
 
 		return false;
-#elif
+#elif LINA_GRAPHICS_OPENGL
+
+		std::string code;
+		std::ifstream codeFile;
+
+		codeFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+		try
+		{
+			codeFile.open(path);
+			std::stringstream shaderStream;
+			shaderStream << codeFile.rdbuf();
+			codeFile.close();
+			m_data = shaderStream.str();
+			return true;
+		}
+		catch (std::ifstream::failure e)
+		{
+			LINA_ERR("[Shader Loader] -> File not read successfuly! {0}", e.what());
+			return false;
+		}
+
+		return false;
+
+#else
 		std::ifstream file(path, std::ios::ate | std::ios::binary);
 
 		if (!file.is_open())
@@ -91,7 +118,7 @@ namespace Lina::Resources
 		//return true;
 	}
 
-	bool ShaderResource::CompileShader(const std::string& path, ResourceType type, bool saveToFile)
+	bool ShaderResource::CompileToSPIRV(const std::string& path, ResourceType type, bool saveToFile)
 	{
 		shaderc::Compiler compiler;
 		shaderc::CompileOptions options;
