@@ -75,7 +75,6 @@ namespace Lina
 			lastTime = now;
 			updates++;
 
-			m_eventSys->Trigger<Event::EPoll>();
 			m_eventSys->Trigger<Event::EPreTick>(Event::EPreTick{ (float)m_deltaTime, true });
 			m_eventSys->Trigger<Event::ETick>(Event::ETick{ (float)m_deltaTime, true });
 			m_eventSys->Trigger<Event::EPostTick>(Event::EPostTick{ (float)m_deltaTime, true });

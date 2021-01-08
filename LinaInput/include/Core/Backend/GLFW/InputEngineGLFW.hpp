@@ -59,7 +59,23 @@ namespace Lina::Input
 	{
 
 	public:
-		
+
+		bool GetKey(int keyCode);
+		bool GetKeyDown(int keyCode);
+		bool GetKeyUp(int keyCode);
+		bool GetMouseButton(int index);
+		bool GetMouseButtonDown(int index);
+		bool GetMouseButtonUp(int index);
+		void SetCursorMode(CursorMode mode) const;
+		void SetMousePosition(const Vector2& v) const;
+		Vector2 GetMousePosition();
+
+		// Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Not smoothed.
+		Vector2 GetRawMouseAxis();
+
+		// Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Delta smoothed.
+		Vector2 GetMouseAxis();
+
 	private:
 
 		friend class Application;
@@ -71,25 +87,10 @@ namespace Lina::Input
 
 	private:
 
-		void OnPoll();
 		void OnPreMainLoop(Event::EPreMainLoop& e);
 		void OnPostMainLoop(Event::EPostMainLoop& e);
 		void OnWindowContextCreated(Event::EWindowContextCreated& e);
-		bool GetKey(int keyCode);
-		bool GetKeyDown(int keyCode);
-		bool GetKeyUp(int keyCode);
-		bool GetMouseButton(int index) ;
-		bool GetMouseButtonDown(int index);
-		bool GetMouseButtonUp(int index);
-		void SetCursorMode(CursorMode mode) const ;
-		void SetMousePosition(const Vector2& v) const;
-		Vector2 GetMousePosition();
-
-		// Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Not smoothed.
-		Vector2 GetRawMouseAxis();
-
-		// Returns a Vector2 with parameters ranging from -1 to 1 for X & Y. Delta smoothed.
-		Vector2 GetMouseAxis() ;
+		
 	private:
 
 		Event::EventSystem* m_eventSys = nullptr;

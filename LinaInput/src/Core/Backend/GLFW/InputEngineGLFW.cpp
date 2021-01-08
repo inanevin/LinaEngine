@@ -46,7 +46,6 @@ namespace Lina::Input
 	{
 		m_eventSys->Disconnect<Event::EPreMainLoop>(this);
 		m_eventSys->Disconnect<Event::EPostMainLoop>(this);
-		m_eventSys->Disconnect<Event::EPoll>(this);
 		m_eventSys->Disconnect<Event::EWindowContextCreated>(this);
 	}
 
@@ -56,7 +55,6 @@ namespace Lina::Input
 		m_ecs = ecs;
 		m_eventSys->Connect<Event::EPreMainLoop, &InputEngineGLFW::OnPreMainLoop>(this);
 		m_eventSys->Connect<Event::EPostMainLoop, &InputEngineGLFW::OnPostMainLoop>(this);
-		m_eventSys->Connect<Event::EPoll, &InputEngineGLFW::OnPoll>(this);
 		m_eventSys->Connect<Event::EWindowContextCreated, &InputEngineGLFW::OnWindowContextCreated>(this);
 	}
 
@@ -68,12 +66,6 @@ namespace Lina::Input
 	void InputEngineGLFW::OnPostMainLoop(Event::EPostMainLoop& e)
 	{
 		LINA_TRACE("[Input Engine GLFW] -> Shutdown");
-	}
-
-	void InputEngineGLFW::OnPoll()
-	{
-		PROFILER_FUNC();
-		glfwPollEvents();
 	}
 
 	void InputEngineGLFW::OnWindowContextCreated(Event::EWindowContextCreated& e)

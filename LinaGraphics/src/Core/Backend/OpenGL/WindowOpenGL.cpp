@@ -66,6 +66,12 @@ namespace Lina::Graphics
 		m_eventSys->Trigger<Event::EWindowResized>({ (void*)w, m_windowProperties });
 	}
 
+	void WindowOpenGL::SwapBuffers()
+	{
+		glfwSwapBuffers(m_glfwWindow);
+		glfwPollEvents();
+	}
+
 
 	void WindowOpenGL::SetReferences(Event::EventSystem* eventSys, WindowProperties& props)
 	{

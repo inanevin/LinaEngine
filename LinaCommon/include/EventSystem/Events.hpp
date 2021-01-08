@@ -72,7 +72,6 @@ namespace Lina::Event
 	// Engine.
 	struct EPreMainLoop { ApplicationMode m_appMode = ApplicationMode::Unknown; };
 	struct EPostMainLoop {};
-	struct EPoll {};
 	struct ETick { float m_deltaTime; bool m_isInPlayMode; };
 	struct EPreTick { float m_deltaTime; bool m_isInPlayMode; };
 	struct EPostTick { float m_deltaTime; bool m_isInPlayMode; };

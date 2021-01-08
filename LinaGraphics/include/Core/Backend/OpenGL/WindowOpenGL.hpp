@@ -75,6 +75,7 @@ namespace Lina::Graphics
 		void Terminate();
 		void WaitEvents();
 		void OnWindowResize(int w, int h);
+		void SwapBuffers();
 
 	public:
 

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/Log.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Core/ResourceManager.hpp"
+#include <glad/glad.h>
 
 namespace Lina::Graphics
 {
@@ -69,6 +70,8 @@ namespace Lina::Graphics
 		m_window.SetReferences(m_eventSys, e.m_appInfo->m_windowProperties);
 		m_window.CreateContext();
 
+		m_initialized = true;
+
 		if (!m_initialized)
 			DisconnectEvents();
 	}
@@ -104,5 +107,11 @@ namespace Lina::Graphics
 		m_eventSys->Trigger<Event::EPreRender>();
 		m_eventSys->Trigger<Event::EPostRender>();
 		m_eventSys->Trigger<Event::EFinalizePostRender>();
+
+		glClearColor(0.9f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		m_window.SwapBuffers();
+		
 	}
 }
