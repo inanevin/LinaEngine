@@ -90,8 +90,8 @@ namespace Lina
 				updates = frames = 0;
 			}
 
-			if (m_gameTime > 15.8f)
-				break;
+			//if (m_gameTime > 15.8f)
+				//break;
 
 		}
 

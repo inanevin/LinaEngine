@@ -108,8 +108,8 @@ namespace Lina::Graphics
 		m_eventSys->Trigger<Event::EPostRender>();
 		m_eventSys->Trigger<Event::EFinalizePostRender>();
 
-		glClearColor(0.9f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		// glClearColor(0.9f, 0.3f, 0.3f, 1.0f);
+		// glClear(GL_COLOR_BUFFER_BIT);
 
 		m_window.SwapBuffers();
 		
