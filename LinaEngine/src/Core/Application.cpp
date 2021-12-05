@@ -29,7 +29,8 @@ SOFTWARE.
 #include "LinaPch.hpp"
 #include "Core/Application.hpp"
 #include "Rendering/RenderEngine.hpp"
-#include "Physics/PhysicsEngine.hpp"
+#include "Core/PhysicsEngine.hpp"
+#include "Core/AudioEngine.hpp"
 #include "Input/InputEngine.hpp"
 #include "Rendering/Window.hpp"
 #include "Core/Layer.hpp"
@@ -45,10 +46,12 @@ namespace LinaEngine
 	Input::InputEngine* Application::s_inputEngine = nullptr;
 	Graphics::RenderEngine* Application::s_renderEngine = nullptr;
 	Physics::PhysicsEngine* Application::s_physicsEngine = nullptr;
+	Audio::AudioEngine* Application::s_audioEngine = nullptr;
 	Graphics::Window* Application::s_appWindow = nullptr;
 	ECS::ECSRegistry Application::s_ecs;
 	Application* Application::s_application = nullptr;
 
+	
 	Application::Application()
 	{
 		s_application = this;
@@ -56,10 +59,11 @@ namespace LinaEngine
 		s_engineDispatcher.Initialize(Action::ActionType::EngineActionsStartIndex, Action::ActionType::EngineActionsEndIndex);
 
 		// Make sure log event is delegated to the application.
-		Log::s_onLog = std::bind(&Application::OnLog, this, std::placeholders::_1);
+		Log::s_onLog= std::bind(&Application::OnLog, this, std::placeholders::_1);
 
 		LINA_CORE_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
 		LINA_CORE_ASSERT(!instance, "Application already exists!");
+		
 	}
 
 	void Application::Initialize(Graphics::WindowProperties& props)
@@ -70,8 +74,9 @@ namespace LinaEngine
 		s_renderEngine = CreateRenderEngine();
 		s_inputEngine = CreateInputEngine();
 		s_physicsEngine = CreatePhysicsEngine();
+		s_audioEngine = CreateAudioEngine();
 
-		// Create main window.
+		// Build main window.
 		bool windowCreationSuccess = s_appWindow->CreateContext(props);
 		if (!windowCreationSuccess)
 		{
@@ -102,6 +107,7 @@ namespace LinaEngine
 		s_inputEngine->Initialize(s_ecs, s_appWindow->GetNativeWindow(), m_inputDevice);
 		s_physicsEngine->Initialize(s_ecs, m_drawLineCallback);
 		s_renderEngine->Initialize(s_ecs, *s_appWindow);
+		s_audioEngine->Initialize();
 
 		// Register ECS components for cloning functionality.
 		s_ecs.RegisterComponentToClone<ECS::ECSEntityData>();
@@ -154,7 +160,7 @@ namespace LinaEngine
 		double lastFPSTime = 0;
 		while (m_running)
 		{
-			LINA_TIMER_START("[Core] Main Loop");
+			//LINA_TIMER_START("[Core] Main Loop");
 
 			double now = s_appWindow->GetTime();
 			deltaTime = now - lastTime;
@@ -164,58 +170,82 @@ namespace LinaEngine
 			m_smoothDeltaTime = deltaTime;
 			updates++;
 
-			LINA_TIMER_START("[Input] Engine Tick");
+			//LINA_TIMER_START("[Input] Engine Tick");
 
 			// Update input engine.
 			s_inputEngine->Tick();
 
-			LINA_TIMER_STOP("[Input] Engine Tick");
+			//LINA_TIMER_STOP("[Input] Engine Tick");
 
-			LINA_TIMER_START("[Core] Engine Layers");
+			//LINA_TIMER_START("[Audio] Engine Tick");
+
+			// Update input engine.
+			s_audioEngine->Tick(deltaTime);
+
+			//LINA_TIMER_STOP("[Audio] Engine Tick");
+
+		//	LINA_TIMER_START("[Core] Tick Engine Layers");
 
 			// Update layers.
 			for (Layer* layer : m_mainLayerStack)
 				layer->Tick(deltaTime);
 
-			LINA_TIMER_STOP("[Core] Engine Layers");
+			//LINA_TIMER_STOP("[Core] Tick Engine Layers");
 
 			if (m_isInPlayMode)
 			{
-				LINA_TIMER_START("[Core] PlayMode Layers");
+			//	LINA_TIMER_START("[Core] Tick PlayMode Layers");
 
 				// Update layers.
 				for (Layer* layer : m_playModeStack)
 					layer->Tick(deltaTime);
 
-				LINA_TIMER_STOP("[Core] PlayModeLayers");
+			//	LINA_TIMER_STOP("[Core] Tick PlayMode Layers");
 			}
 		
 
-			LINA_TIMER_START("[Level] Current");
+			//LINA_TIMER_START("[Level] Tick Current");
 
 			// Update current level.
 			if (m_activeLevelExists)
 				m_currentLevel->Tick(m_isInPlayMode, deltaTime);
 
-			LINA_TIMER_STOP("[Level] Current");
+		//	LINA_TIMER_STOP("[Level] Tick Current");
 
-			LINA_TIMER_START("[Core] Main Pipeline");
+		//	LINA_TIMER_START("[Core] Main Pipeline");
 
 			m_mainECSPipeline.UpdateSystems(deltaTime);
 
-			LINA_TIMER_STOP("[Core] Main Pipeline");
+		//	LINA_TIMER_STOP("[Core] Main Pipeline");
 
-			accumulator += deltaTime;
+		//	accumulator += deltaTime;
 
-			while (accumulator >= PHYSICS_DELTA)
+		//while (accumulator >= PHYSICS_DELTA)
+		//{
+		////	LINA_TIMER_START("[Physics] Engine");
+		//	s_physicsEngine->Tick(PHYSICS_DELTA);
+		//	LINA_TIMER_STOP("[Physics] Engine");
+		//	accumulator -= PHYSICS_DELTA;
+		//}
+
+		//	LINA_TIMER_START("[Graphics] Render");
+
+			// Update layers.
+			for (Layer* layer : m_mainLayerStack)
+				layer->PostTick(deltaTime);
+
+			if (m_isInPlayMode)
 			{
-				LINA_TIMER_START("[Physics] Engine");
-				s_physicsEngine->Tick(PHYSICS_DELTA);
-				LINA_TIMER_STOP("[Physics] Engine");
-				accumulator -= PHYSICS_DELTA;
+
+				// Update layers.
+				for (Layer* layer : m_playModeStack)
+					layer->PostTick(deltaTime);
+
 			}
 
-			LINA_TIMER_START("[Graphics] Render");
+			// Update current level.
+			if (m_activeLevelExists)
+				m_currentLevel->PostTick(m_isInPlayMode, deltaTime);
 
 			if (m_canRender)
 			{
@@ -227,7 +257,8 @@ namespace LinaEngine
 				s_renderEngine->Swap();
 			}
 
-			LINA_TIMER_STOP("[Graphics] Render");
+			
+
 
 			frames++;
 
@@ -243,7 +274,6 @@ namespace LinaEngine
 			if (m_firstRun)
 				m_firstRun = false;
 
-			LINA_TIMER_STOP("[Core] Main Loop");
 
 		}
 
@@ -423,6 +453,10 @@ namespace LinaEngine
 		}	
 	}
 
+	void Application::RestartLevel()
+	{
+		InstallLevel(*m_currentLevel);
+	}
 
 	void Application::UninstallLevel()
 	{

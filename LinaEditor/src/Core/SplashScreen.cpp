@@ -92,7 +92,7 @@ namespace LinaEditor
 		splashWindow.SetSize(Vector2(props.m_width, props.m_height));
 		splashWindow.SetPos(LinaEngine::Vector2(mode->width / 2.0f + props.m_xPos - props.m_width / 2.0f, mode->height / 2.0f + props.m_yPos - props.m_height / 2.0f));
 
-		// Create pixel data.
+		// Build pixel data.
 		splashScreenTexture = &LinaEngine::Graphics::Texture::CreateTexture2D("resources/editor/textures/splashScreen.png");
 	}
 

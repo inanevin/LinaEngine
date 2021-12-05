@@ -21,18 +21,18 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include "PackageManager/PAMWindow.hpp"
 #include "PackageManager/PAMInputDevice.hpp"
 #include "Rendering/RenderEngine.hpp"
-#include "Physics/PhysicsEngine.hpp"
-#include "Levels/Example1Level.hpp"
+#include "Core/PhysicsEngine.hpp"
+#include "Core/AudioEngine.hpp"
 #include "Input/InputEngine.hpp"
 #include "Core/EditorApplication.hpp"
-#include "FPSDemo/FPSDemoLevel.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
-#include "FPSDemo/HeadbobComponent.hpp"
-#include "FPSDemo/PlayerMotionComponent.hpp"
+#include "Game/GameManager.hpp"
+#include "Editor/ClientComponentDrawer.hpp"
+
 
 class SandboxApplication : public LinaEngine::Application
 {
@@ -40,32 +40,36 @@ class SandboxApplication : public LinaEngine::Application
 
 	SandboxApplication() 
 	{
-
 		LINA_CLIENT_TRACE("[Constructor] -> Sandbox Application ({0})", typeid(*this).name());
 
 		// Init engine.
 		LinaEngine::Graphics::WindowProperties props;
-		props.m_width = 1440;
-		props.m_height = 900;
+		props.m_width = 1280;
+		props.m_height = 720;
 		props.m_decorated = false;
 		props.m_resizable = false;
+		props.m_fullscreen = false;
 		props.m_title = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
 		Initialize(props);
 
+	
 #ifdef LINA_EDITOR
 		m_editor.Setup();
-
+		
 		// Refresh after level init.
 		m_editor.Refresh();
-
+		
 		// Set the app window size back to original.
 		GetAppWindow().SetSize(Vector2(props.m_width, props.m_height));
 		GetAppWindow().SetPosCentered(Vector2::Zero);
-
+		
 		SetPlayMode(false);
+#else
+		SetPlayMode(true);
 #endif
+	
 
-		InstallLevel(m_fpsDemoLevel, true, "resources/sandbox/FPSDemo/levels/", "FPSDemo");
+		GetMainStack().PushLayer(m_gameManager);
 
 		// Run engine.
 		Run();
@@ -82,10 +86,8 @@ class SandboxApplication : public LinaEngine::Application
 #ifdef LINA_EDITOR
 		LinaEditor::EditorApplication m_editor;
 #endif
-
-		FPSDemoLevel m_fpsDemoLevel;
-		Example1Level m_startupLevel;
-
+		ClientComponentDrawer m_componentDrawer;
+		GameManager m_gameManager;
 
 		// Inherited via Application
 		virtual void SerializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryOutputArchive& oarchive) override
@@ -102,9 +104,7 @@ class SandboxApplication : public LinaEngine::Application
 				LinaEngine::ECS::RigidbodyComponent,
 				LinaEngine::ECS::MeshRendererComponent,
 				LinaEngine::ECS::SpriteRendererComponent,
-				LinaEngine::ECS::TransformComponent,
-				LinaEngine::ECS::HeadbobComponent,
-				LinaEngine::ECS::PlayerMotionComponent
+				LinaEngine::ECS::TransformComponent	
 				>(oarchive);
 		}
 
@@ -122,9 +122,7 @@ class SandboxApplication : public LinaEngine::Application
 				LinaEngine::ECS::RigidbodyComponent,
 				LinaEngine::ECS::MeshRendererComponent,
 				LinaEngine::ECS::SpriteRendererComponent,
-				LinaEngine::ECS::TransformComponent,
-				LinaEngine::ECS::HeadbobComponent,
-				LinaEngine::ECS::PlayerMotionComponent
+				LinaEngine::ECS::TransformComponent
 				>(iarchive);
 		}
 
@@ -157,6 +155,12 @@ LinaEngine::Graphics::RenderEngine* LinaEngine::CreateRenderEngine()
 LinaEngine::Physics::PhysicsEngine* LinaEngine::CreatePhysicsEngine()
 {
 	return new LinaEngine::Physics::PhysicsEngine();
+}
+
+// Default engine
+LinaEngine::Audio::AudioEngine* LinaEngine::CreateAudioEngine()
+{
+	return new LinaEngine::Audio::AudioEngine();
 }
 
 // Default engine

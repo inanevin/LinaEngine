@@ -55,18 +55,21 @@ namespace LinaEngine::Graphics
 		static RenderSettings DeserializeRenderSettings(const std::string& path, const std::string& fileName);
 		
 		template<class Archive>
-		void serialize(Archive& archive)
+		void serialize(Archive& archive) 
 		{
-			archive(m_bloomEnabled, m_fxaaEnabled, m_fxaaReduceMin, m_fxaaReduceMul, m_fxaaSpanMax, m_gamma, m_exposure);
+			archive(m_bloomEnabled, m_fxaaEnabled, m_fxaaReduceMin, m_fxaaReduceMul, m_fxaaSpanMax, m_gamma, m_exposure, m_vignetteEnabled, m_vignetteAmount, m_vignettePow);
 		}
-		
+
 		bool m_bloomEnabled = false;
 		bool m_fxaaEnabled = false;
+		bool m_vignetteEnabled = false;
 		float m_fxaaReduceMin = 1.0f / 128.0f;
 		float m_fxaaReduceMul = 1.0f / 8.0f;
 		float m_fxaaSpanMax = 8.0f;
 		float m_gamma = 2.2f;
 		float m_exposure = 1.0f;
+		float m_vignetteAmount = 25.0f;
+		float m_vignettePow = 0.75f;
 	};
 }
 

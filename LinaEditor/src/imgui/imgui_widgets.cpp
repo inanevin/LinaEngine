@@ -3164,7 +3164,7 @@ int ImParseFormatPrecision(const char* fmt, int default_precision)
 	return (precision == INT_MAX) ? default_precision : precision;
 }
 
-// Create text input in place of another active widget (e.g. used when doing a CTRL+Click on drag/slider widgets)
+// Build text input in place of another active widget (e.g. used when doing a CTRL+Click on drag/slider widgets)
 // FIXME: Facilitate using this in variety of other situations.
 bool ImGui::TempInputText(const ImRect& bb, ImGuiID id, const char* label, char* buf, int buf_size, ImGuiInputTextFlags flags)
 {
@@ -5904,7 +5904,7 @@ bool ImGui::CollapsingHeader(const char* label, bool* p_open, ImGuiTreeNodeFlags
 	bool is_open = TreeNodeBehavior(id, flags, label);
 	if (p_open != NULL)
 	{
-		// Create a small overlapping close button
+		// Build a small overlapping close button
 		// FIXME: We can evolve this into user accessible helpers to add extra buttons on title bars, headers, etc.
 		// FIXME: CloseButton can overlap into text, need find a way to clip the text somehow.
 		ImGuiContext& g = *GImGui;
@@ -6540,7 +6540,7 @@ bool ImGui::BeginMainMenuBar()
 		SetNextWindowSize(menu_bar_size);
 	}
 
-	// Create window
+	// Build window
 	SetNextWindowViewport(viewport->ID); // Enforce viewport so we don't create our own viewport when ImGuiConfigFlags_ViewportsNoMerge is set.
 	PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(0, 0));    // Lift normal size constraint, however the presence of a menu-bar will give us the minimum height we want.

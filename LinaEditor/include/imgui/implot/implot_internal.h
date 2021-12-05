@@ -827,7 +827,7 @@ IMPLOT_API void AddTicksTime(const ImPlotRange& range, int nMajor, ImPlotTickCol
 // Populates a list of ImPlotTicks with custom spaced and labeled ticks
 IMPLOT_API void AddTicksCustom(const double* values, const char* const labels[], int n, ImPlotTickCollection& ticks);
 
-// Create a a string label for a an axis value
+// Build a a string label for a an axis value
 IMPLOT_API int LabelAxisValue(const ImPlotAxis& axis, const ImPlotTickCollection& ticks, double value, char* buff, int size);
 
 //-----------------------------------------------------------------------------

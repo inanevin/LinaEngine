@@ -41,8 +41,10 @@ SOFTWARE.
 #include "Modals/SelectMeshModal.hpp"
 #include "Modals/SelectMaterialModal.hpp"
 #include "PackageManager/PAMMemory.hpp"
+#include "Core/EditorCommon.hpp"
 #include "IconsFontAwesome5.h"
 #include "IconsMaterialDesign.h"
+#include "imgui/imguizmo/ImGuizmo.h"
 
 using namespace LinaEngine::ECS;
 using namespace LinaEditor;
@@ -61,7 +63,7 @@ namespace LinaEditor
 		RegisterComponentToDraw<CameraComponent>(GetTypeID<CameraComponent>(), "Camera", std::bind(&ComponentDrawer::DrawCameraComponent, this, std::placeholders::_1, std::placeholders::_2));
 		RegisterComponentToDraw<DirectionalLightComponent>(GetTypeID<DirectionalLightComponent>(), "Directional Light", std::bind(&ComponentDrawer::DrawDirectionalLightComponent, this, std::placeholders::_1, std::placeholders::_2));
 		RegisterComponentToDraw<SpotLightComponent>(GetTypeID<SpotLightComponent>(), "Spot Light", std::bind(&ComponentDrawer::DrawSpotLightComponent, this, std::placeholders::_1, std::placeholders::_2));
-		RegisterComponentToDraw<PointLightComponent> (GetTypeID<PointLightComponent>(), "Point Light", std::bind(&ComponentDrawer::DrawPointLightComponent, this, std::placeholders::_1, std::placeholders::_2));
+		RegisterComponentToDraw<PointLightComponent>(GetTypeID<PointLightComponent>(), "Point Light", std::bind(&ComponentDrawer::DrawPointLightComponent, this, std::placeholders::_1, std::placeholders::_2));
 		RegisterComponentToDraw<FreeLookComponent>(GetTypeID<FreeLookComponent>(), "Free Look", std::bind(&ComponentDrawer::DrawFreeLookComponent, this, std::placeholders::_1, std::placeholders::_2));
 		RegisterComponentToDraw<MeshRendererComponent>(GetTypeID<MeshRendererComponent>(), "Mesh Renderer", std::bind(&ComponentDrawer::DrawMeshRendererComponent, this, std::placeholders::_1, std::placeholders::_2));
 		RegisterComponentToDraw<SpriteRendererComponent>(GetTypeID<SpriteRendererComponent>(), "Sprite Renderer", std::bind(&ComponentDrawer::DrawSpriteRendererComponent, this, std::placeholders::_1, std::placeholders::_2));
@@ -275,10 +277,9 @@ namespace LinaEditor
 			WidgetsUtility::AlignedText("Rotation");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
-			Quaternion rotation = transform.transform.GetLocalRotation();
-			Vector3 euler = rotation.GetEuler();
-			ImGui::DragFloat3("##rot", &euler.x);
-			transform.transform.SetLocalRotation(Quaternion::Euler(euler));
+			glm::vec3 rot = transform.transform.GetLocalRotationAngles();
+			ImGui::DragFloat3("##rot", &rot.x);
+			transform.transform.SetLocalRotationAngles(rot);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Scale");
@@ -310,8 +311,8 @@ namespace LinaEditor
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
 				Quaternion globalRotation = transform.transform.GetRotation();
-				Vector3 globalEuler = globalRotation.GetEuler();
-				ImGui::InputFloat3("##dbg_rot", &globalEuler.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+				Vector3 angles = transform.transform.GetRotationAngles();
+				ImGui::InputFloat3("##dbg_rot", &angles.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
 				ImGui::SetCursorPosX(cursorPosLabels);
 				WidgetsUtility::AlignedText("Scale");
@@ -597,6 +598,36 @@ namespace LinaEditor
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::DragFloat("##pldist", &pLight.m_distance);
 
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Casts Shadows");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::Checkbox("##castsShadows", &pLight.m_castsShadows);
+
+			if (pLight.m_castsShadows)
+			{
+				ImGui::Indent();
+				ImGui::SetCursorPosX(cursorPosLabels);
+				WidgetsUtility::AlignedText("Bias");
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(cursorPosValues);
+				ImGui::DragFloat("##bias", &pLight.m_bias);
+
+				ImGui::SetCursorPosX(cursorPosLabels);
+				WidgetsUtility::AlignedText("Shadow Near");
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(cursorPosValues);
+				ImGui::DragFloat("##shadowNear", &pLight.m_shadowNear);
+
+				ImGui::SetCursorPosX(cursorPosLabels);
+				WidgetsUtility::AlignedText("Shadow Far");
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(cursorPosValues);
+				ImGui::DragFloat("##shadowFar", &pLight.m_shadowFar);
+				ImGui::Unindent();
+			}
+
+
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 		}
 
@@ -764,14 +795,8 @@ namespace LinaEditor
 			float cursorPosLabels = CURSORPOS_X_LABELS;
 
 			// Mesh selection
-			if (LinaEngine::Graphics::Mesh::MeshExists(renderer.m_meshID))
-			{
-				renderer.m_selectedMeshPath = renderer.m_meshPath;
-				renderer.m_selectedMeshID = renderer.m_meshID;
-			}
-
 			char meshPathC[128] = "";
-			strcpy(meshPathC, renderer.m_selectedMeshPath.c_str());
+			strcpy(meshPathC, renderer.m_meshPath.c_str());
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Mesh");
@@ -782,48 +807,27 @@ namespace LinaEditor
 			ImGui::SameLine();
 			WidgetsUtility::IncrementCursorPosY(5);
 
-			if (WidgetsUtility::IconButton("##selectmesh", ICON_FA_PLUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-				ImGui::OpenPopup("Select Mesh");
-
-			bool meshPopupOpen = true;
-			static bool meshPopupWasOpen = false;
-			WidgetsUtility::FramePaddingY(8);
-			WidgetsUtility::FramePaddingX(4);
-			ImGui::SetNextWindowSize(ImVec2(280, 400));
-			ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
-			if (ImGui::BeginPopupModal("Select Mesh", &meshPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+			// Mesh drag & drop.
+			if (ImGui::BeginDragDropTarget())
 			{
-				meshPopupWasOpen = true;
-				SelectMeshModal::Draw(LinaEngine::Graphics::Mesh::GetLoadedMeshes(), &renderer.m_selectedMeshID, renderer.m_selectedMeshPath);
-				ImGui::EndPopup();
-			}
-			WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
-
-			static LinaEngine::Graphics::Mesh* selectedMesh = nullptr;
-			if (meshPopupWasOpen && !ImGui::IsPopupOpen("Select Mesh"))
-			{
-				meshPopupWasOpen = false;
-
-				if (LinaEngine::Graphics::Mesh::MeshExists(renderer.m_selectedMeshID))
-					selectedMesh = &LinaEngine::Graphics::Mesh::GetMesh(renderer.m_selectedMeshID);
-				else
-					selectedMesh = nullptr;
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMESH_ID))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(uint32));
+					renderer.m_meshID = LinaEngine::Graphics::Mesh::GetMesh(*(uint32*)payload->m_data).GetID();
+					renderer.m_meshPath = LinaEngine::Graphics::Mesh::GetMesh(*(uint32*)payload->m_data).GetPath();
+				}
+				ImGui::EndDragDropTarget();
 			}
 
-			if (selectedMesh != nullptr)
-				renderer.m_meshParamsPath = selectedMesh->GetParamsPath();
-			renderer.m_meshID = renderer.m_selectedMeshID;
-			renderer.m_meshPath = renderer.m_selectedMeshPath;
-
-			// Material selection
-			if (LinaEngine::Graphics::Material::MaterialExists(renderer.m_materialID))
+			if (WidgetsUtility::IconButton("##selectmesh", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 			{
-				renderer.m_selectedMatID = renderer.m_materialID;
-				renderer.m_selectedMatPath = renderer.m_materialPath;
+				renderer.m_meshID = -1;
+				renderer.m_meshPath = "";
 			}
 
+			// Material selection.
 			char matPathC[128] = "";
-			strcpy(matPathC, renderer.m_selectedMatPath.c_str());
+			strcpy(matPathC, renderer.m_materialPath.c_str());
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Material");
@@ -834,26 +838,41 @@ namespace LinaEditor
 			ImGui::SameLine();
 			WidgetsUtility::IncrementCursorPosY(5);
 
-			if (WidgetsUtility::IconButton("##selectmat", ICON_FA_PLUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-				ImGui::OpenPopup("Select Material");
 
-			bool materialPopupOpen = true;
-			WidgetsUtility::FramePaddingY(8);
-			WidgetsUtility::FramePaddingX(4);
-			ImGui::SetNextWindowSize(ImVec2(280, 400));
-			ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
-			if (ImGui::BeginPopupModal("Select Material", &materialPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+			// Material drag & drop.
+			if (ImGui::BeginDragDropTarget())
 			{
-				SelectMaterialModal::Draw(LinaEngine::Graphics::Material::GetLoadedMaterials(), &renderer.m_selectedMatID, renderer.m_selectedMatPath);
-				ImGui::EndPopup();
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(uint32));
+					renderer.m_materialID = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetID();
+					renderer.m_materialPath = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetPath();
+
+				}
+				ImGui::EndDragDropTarget();
 			}
-			WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
 
-			renderer.m_materialID = renderer.m_selectedMatID;
-			renderer.m_materialPath = renderer.m_selectedMatPath;
+			if (WidgetsUtility::IconButton("##selectmat", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
+			{
+				renderer.m_materialID = -1;
+				renderer.m_materialPath = "";
+			}
 
+			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
+
+			if (ImGui::Button("Set World To Model Offset"))
+			{
+				if (Graphics::Mesh::MeshExists(renderer.m_meshPath))
+				{
+					ecs.get<TransformComponent>(entity).transform.SetLocalLocation(Graphics::Mesh::GetMesh(renderer.m_meshPath).GetWorldParameters().m_worldPosition);
+					ecs.get<TransformComponent>(entity).transform.SetLocalRotation(Graphics::Mesh::GetMesh(renderer.m_meshPath).GetWorldParameters().m_worldRotation);
+					ecs.get<TransformComponent>(entity).transform.SetLocalScale(Graphics::Mesh::GetMesh(renderer.m_meshPath).GetWorldParameters().m_worldScale);
+				}
+			}
 		}
+
+
 
 		// Draw bevel line.
 		WidgetsUtility::DrawBeveledLine();
@@ -899,35 +918,38 @@ namespace LinaEditor
 				renderer.m_selectedMatPath = renderer.m_materialPath;
 			}
 
-			char spriteMaterialPath[128] = "heyaa";
-			strcpy(spriteMaterialPath, renderer.m_selectedMatPath.c_str());
+			// Material selection.
+			char matPathC[128] = "";
+			strcpy(matPathC, renderer.m_materialPath.c_str());
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Material");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
-			ImGui::InputText("##aqqq", spriteMaterialPath, IM_ARRAYSIZE(spriteMaterialPath), ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputText("##selectedSpriteMat", matPathC, IM_ARRAYSIZE(matPathC), ImGuiInputTextFlags_ReadOnly);
 			ImGui::SameLine();
 			WidgetsUtility::IncrementCursorPosY(5);
 
-			if (WidgetsUtility::IconButton("##selectspritemat", ICON_FA_PLUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-				ImGui::OpenPopup("Select Sprite Material");
 
-			bool materialPopupOpen = true;
-			WidgetsUtility::FramePaddingY(8);
-			WidgetsUtility::FramePaddingX(4);
-			ImGui::SetNextWindowSize(ImVec2(280, 400));
-			ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
-			if (ImGui::BeginPopupModal("Select Sprite Material", &materialPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+			// Material drag & drop.
+			if (ImGui::BeginDragDropTarget())
 			{
-				SelectMaterialModal::Draw(LinaEngine::Graphics::Material::GetLoadedMaterials(), &renderer.m_selectedMatID, renderer.m_selectedMatPath);
-				ImGui::EndPopup();
-			}
-			WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(uint32));
+					renderer.m_materialID = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetID();
+					renderer.m_materialPath = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetPath();
 
-			renderer.m_materialID = renderer.m_selectedMatID;
-			renderer.m_materialPath = renderer.m_selectedMatPath;
+				}
+				ImGui::EndDragDropTarget();
+			}
+
+			if (WidgetsUtility::IconButton("##selectspritemat", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
+			{
+				renderer.m_materialID = -1;
+				renderer.m_materialPath = "";
+			}
 
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 		}

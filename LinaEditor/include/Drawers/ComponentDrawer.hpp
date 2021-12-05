@@ -92,7 +92,9 @@ namespace LinaEditor
 		// We use this instance to call DrawTitle method for defining the payload target while dragging & dropping component titles.
 		static ComponentDrawer* s_activeInstance;
 
+
 	private:
+
 
 		template<typename T>
 		void ComponentAddFunction(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)

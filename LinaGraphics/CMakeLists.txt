@@ -32,6 +32,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Rendering/RenderingCommon.cpp
 	src/Rendering/Shader.cpp
 	src/Rendering/RenderSettings.cpp
+	src/Rendering/PostProcessEffect.cpp
 	
 	src/PackageManager/OpenGL/GLRenderDevice.cpp
 	src/PackageManager/OpenGL/GLWindow.cpp
@@ -68,6 +69,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/RenderConstants.hpp
 	include/Rendering/RenderBuffer.hpp
 	include/Rendering/RenderSettings.hpp
+	include/Rendering/PostProcessEffect.hpp
 	
 	include/PackageManager/PAMRenderDevice.hpp	
 	include/PackageManager/PAMWindow.hpp

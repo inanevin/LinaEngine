@@ -36,7 +36,7 @@ in vec2 TexCoords;
 struct Material
 {
 	MaterialSampler2D screenMap;
-  bool horizontal;
+	bool horizontal;
 };
 uniform Material material;
 

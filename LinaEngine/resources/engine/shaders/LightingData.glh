@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 struct DirectionalLight
 {
 	vec3 direction;
@@ -26,6 +25,8 @@ struct PointLight
 	vec3 position;
   	vec3 color;
 	float distance;
+	float bias;
+	float shadowFar;
 };
 
 struct SpotLight

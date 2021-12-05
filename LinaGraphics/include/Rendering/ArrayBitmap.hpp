@@ -52,9 +52,6 @@ namespace LinaEngine::Graphics
 	public:
 
 		// Param constructors including width, height, pixel array and offsets
-		ArrayBitmap(int32 width = 1, int32 height = 1);
-		ArrayBitmap(int32 width, int32 height, int32* pixels);
-		ArrayBitmap(int32 width, int32 height, int32* pixels, int32 offsetX, int32 offsetY, int32 rowOffset);
 		~ArrayBitmap();
 
 		// Load the bitmap from a file in resources.
@@ -66,6 +63,7 @@ namespace LinaEngine::Graphics
 		static void SetImageFlip(bool flip);
 		static unsigned char* LoadImmediate(const char* filename, int& w, int& h,  int& nrchannels);
 		static float* LoadImmediateHDRI(const char* fileName, int& w, int& h, int& nrChannels);
+		static bool Free(unsigned char* data);
 
 		// Clr colors.
 		void Clear(int32 color);
@@ -74,31 +72,34 @@ namespace LinaEngine::Graphics
 		int32 GetWidth() const { return m_width; };
 		int32 GetHeight() const { return m_heigth; };
 
-		int32 Get(int32 x, int32 y) const
-		{
-			LINA_CORE_ASSERT((x > 0 && x < m_width) && (y >= 0 && y < m_heigth), "Conditions are not map on array bitmap !");
-			return m_pixels[x + y * m_width];
-		};
+		//int32 Get(int32 x, int32 y) const
+		//{
+		//	LINA_CORE_ASSERT((x > 0 && x < m_width) && (y >= 0 && y < m_heigth), "Conditions are not map on array bitmap !");
+		//	return m_pixels[x + y * m_width];
+		//};
+		//
+		//void Set(int32 x, int32 y, int32 pixel)
+		//{
+		//	LINA_CORE_ASSERT((x > 0 && x < m_width) && (y >= 0 && y < m_heigth), "Conditions are not map on array bitmap !");
+		//	m_pixels[x + y * m_width] = pixel;
+		//};
 
-		void Set(int32 x, int32 y, int32 pixel)
-		{
-			LINA_CORE_ASSERT((x > 0 && x < m_width) && (y >= 0 && y < m_heigth), "Conditions are not map on array bitmap !");
-			m_pixels[x + y * m_width] = pixel;
-		};
+	//int32* GetPixelArray() { return m_pixels; };
+	//const int32* GetPixelArray() const { return m_pixels; };
 
-		int32* GetPixelArray() { return m_pixels; };
-		const int32* GetPixelArray() const { return m_pixels; };
+		unsigned char* GetPixelArray() { return m_pixels; }
+		const unsigned char* GetPixelArray() const { return m_pixels; }
 
 	private:
 
 		// Bitmap array properties.
 		int32 m_width = 0;
 		int32 m_heigth = 0;
-		int32* m_pixels = nullptr;
-
+		//int32* m_pixels = nullptr;
+		unsigned char* m_pixels = nullptr;
 	private:
 
-		uintptr GetPixelsSize() const { return (uintptr)(m_width * m_heigth) * sizeof(m_pixels[0]); }
+		//uintptr GetPixelsSize() const { return (uintptr)(m_width * m_heigth) * sizeof(m_pixels[0]); }
 
 	};
 }

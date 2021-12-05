@@ -1000,7 +1000,7 @@ namespace ImGuizmo
          belowAxisLimit = gContext.mBelowAxisLimit[axisIndex];
          belowPlaneLimit = gContext.mBelowPlaneLimit[axisIndex];
 
-         dirAxis *= gContext.mAxisFactor[axisIndex];
+       //  dirAxis *= gContext.mAxisFactor[axisIndex];
          dirPlaneX *= gContext.mAxisFactor[(axisIndex + 1) % 3];
          dirPlaneY *= gContext.mAxisFactor[(axisIndex + 2) % 3];
       }
@@ -1019,7 +1019,7 @@ namespace ImGuizmo
          float mulAxis = (lenDir < lenDirMinus && fabsf(lenDir - lenDirMinus) > FLT_EPSILON) ? -1.f : 1.f;
          float mulAxisX = (lenDirPlaneX < lenDirMinusPlaneX && fabsf(lenDirPlaneX - lenDirMinusPlaneX) > FLT_EPSILON) ? -1.f : 1.f;
          float mulAxisY = (lenDirPlaneY < lenDirMinusPlaneY && fabsf(lenDirPlaneY - lenDirMinusPlaneY) > FLT_EPSILON) ? -1.f : 1.f;
-         dirAxis *= mulAxis;
+       //  dirAxis *= mulAxis;
          dirPlaneX *= mulAxisX;
          dirPlaneY *= mulAxisY;
 
@@ -1263,7 +1263,7 @@ namespace ImGuizmo
       {
          vec_t dirPlaneX, dirPlaneY, dirAxis;
          ComputeTripodAxisAndVisibility(i, dirAxis, dirPlaneX, dirPlaneY, belowAxisLimit, belowPlaneLimit);
-
+        
          // draw axis
          if (belowAxisLimit)
          {

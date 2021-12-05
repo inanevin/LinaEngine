@@ -61,12 +61,16 @@ namespace LinaEngine::ECS
 
 	struct PointLightComponent : public LightComponent
 	{
-		float m_distance = 0;
-
+		float m_distance = 25.0f;
+		float m_bias = 0.3f;
+		bool m_castsShadows = false;
+		float m_shadowNear = 0.1f;
+		float m_shadowFar = 25.0f;
+		
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_distance, m_color, m_isEnabled); // serialize things by passing them to the archive
+			archive(m_distance, m_shadowNear, m_shadowFar, m_bias, m_color, m_isEnabled, m_castsShadows); // serialize things by passing them to the archive
 		}
 
 	};

@@ -113,7 +113,7 @@ namespace LinaEngine::ECS
 			});
 	}
 
-	const std::set<ECSEntity> ECSRegistry::GetChildren(ECSEntity parent)
+	const std::set<ECSEntity>& ECSRegistry::GetChildren(ECSEntity parent)
 	{
 		return get<ECSEntityData>(parent).m_children;
 	}
@@ -131,7 +131,7 @@ namespace LinaEngine::ECS
 	{
 		ECSEntityData sourceData = get<ECSEntityData>(source);
 
-		// Create the entity.
+		// Build the entity.
 		ECSEntity copy = create();
 
 		// Copy entity components to newly created one

@@ -63,7 +63,8 @@ namespace LinaEditor
 		Texture2D,
 		Mesh,
 		Font,
-		Material
+		Material,
+		Shader
 	};
 
 

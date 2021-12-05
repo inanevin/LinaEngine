@@ -54,13 +54,15 @@ namespace LinaEngine::ECS
 			// Holding right click enables rotating.
 			if (m_inputEngine->GetMouseButton(LinaEngine::Input::InputCode::Mouse::Mouse2))
 			{
-				m_targetYAngle += mouseAxis.y * freeLook.m_rotationSpeeds.x * delta * 50;
-				m_targetXAngle += mouseAxis.x * freeLook.m_rotationSpeeds.y * delta * 50;
+				m_targetYAngle += mouseAxis.y * freeLook.m_rotationSpeeds.x;
+				m_targetXAngle += mouseAxis.x * freeLook.m_rotationSpeeds.y;
 
-				freeLook.m_angles.y = LinaEngine::Math::Lerp(freeLook.m_angles.y, m_targetYAngle, 8 * delta);
-				freeLook.m_angles.x = LinaEngine::Math::Lerp(freeLook.m_angles.x, m_targetXAngle, 8 * delta);
+				freeLook.m_angles.y = LinaEngine::Math::Lerp(freeLook.m_angles.y, m_targetYAngle, 15 * delta);
+				freeLook.m_angles.x = LinaEngine::Math::Lerp(freeLook.m_angles.x, m_targetXAngle, 15 * delta);
 
-				transform.transform.Rotate(Vector3(freeLook.m_angles.y, freeLook.m_angles.x, 0.0f));
+				Quaternion qX = Quaternion::AxisAngle(Vector3::Up, freeLook.m_angles.x);
+				Quaternion qY = Quaternion::AxisAngle(Vector3::Right, freeLook.m_angles.y);
+				transform.transform.SetLocalRotation(qX * qY);
 			}
 
 			// Handle movement.

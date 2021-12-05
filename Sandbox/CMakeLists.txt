@@ -23,20 +23,14 @@ set(SANDBOX_SOURCES
 
 src/Core/SandboxApplication.cpp
 src/Levels/Example1Level.cpp
-src/FPSDemo/FPSDemoLevel.cpp
-src/FPSDemo/Player.cpp
-src/FPSDemo/FPSDemoComponentDrawer.cpp
+src/Game/GameManager.cpp
+src/Editor/ClientComponentDrawer.cpp
 )
 
 set(SANDBOX_HEADERS
-
-include/Core/test.hpp
 include/Levels/Example1Level.hpp
-include/FPSDemo/FPSDemoLevel.hpp
-include/FPSDemo/Player.hpp
-include/FPSDemo/PlayerMotionComponent.hpp
-include/FPSDemo/HeadbobComponent.hpp
-include/FPSDemo/FPSDemoComponentDrawer.hpp
+include/Game/GameManager.hpp
+include/Editor/ClientComponentDrawer.hpp
 )
 
 #--------------------------------------------------------------------
@@ -51,7 +45,7 @@ add_executable(Lina::Sandbox ALIAS ${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaEditor/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glad/include)
+
 
 include(../CMake/ProjectSettings.cmake)
 
@@ -62,9 +56,12 @@ target_link_libraries(${PROJECT_NAME}
 PRIVATE Lina::Engine
 PRIVATE Lina::Editor
 PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
-PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glad/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glad.lib
-
 )
+
+# Always generate PDB files 
+# if(MSVC)
+#    target_link_options(${PROJECT_NAME}  PUBLIC /DEBUG)
+# endif()
 
 # Copy engine resources to project solution directory to run within IDE.
 add_custom_command(
@@ -114,7 +111,34 @@ COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vendor/assimp/bin/${TARGET
 add_custom_command(
 TARGET ${PROJECT_NAME}
 POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vendor/assimp/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/${ASSIMP_DLL}" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}")
+COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vendor/openal/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/OpenAL32.dll" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}")
+
+
+# Copy openal dll to project binary directory
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vendor/openal/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/OpenAL32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
+
+
+# Copy openal dll to project solution directory to run within IDE.
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vendor/openal/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/OpenAL32.dll" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}")
+
+# Copy alut dll to project binary directory
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vendor/alut/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/alut.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
+
+
+# Copy alut dll to project solution directory to run within IDE.
+add_custom_command(
+TARGET ${PROJECT_NAME}
+POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vendor/alut/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/alut.dll" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}")
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

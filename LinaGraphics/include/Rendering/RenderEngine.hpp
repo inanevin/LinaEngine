@@ -57,8 +57,10 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "Utility/Math/Color.hpp"
 #include "Core/LayerStack.hpp"
 #include "RenderSettings.hpp"
+#include "PostProcessEffect.hpp"
 #include <functional>
 #include <set>
+#include <queue>
 
 namespace LinaEngine
 {
@@ -101,7 +103,9 @@ namespace LinaEngine::Graphics
 		void* GetFinalImage();
 		void* GetShadowMapImage();
 		void UpdateSystems();
-
+		void BindShaderToViewBuffer(Shader& shader);
+		void BindShaderToDebugBuffer(Shader& shader);
+		void BindShaderToLightBuffer(Shader& shader);
 
 		// Initializes the setup process for loading an HDRI image to the scene
 		void CaptureCalculateHDRI(Texture& hdriTexture);
@@ -109,14 +113,15 @@ namespace LinaEngine::Graphics
 		void RemoveHDRIData(Material* mat);
 
 		void DrawLine(Vector3 p1, Vector3 p2, Color col, float width = 1.0f);
-
+		void DrawAABB(Vector3 center, Vector3 halfWidths, Color col = Color::White, float width = 1.0f);
+		void ProcessDebugQueue();
 		void CustomDrawActivation(bool activate) { m_customDrawEnabled = activate; }
 		void SetCustomDrawFunction(const std::function<void()>& func) { m_customDrawFunction = func; }
 
-		Texture& GetFinalImageTexture() { return m_primaryRTTexture0; }
 		void SetPostSceneDrawCallback(std::function<void()>& cb) { m_postSceneDrawCallback = cb; }
 		Vector2 GetViewportSize() { return m_viewportSize; }
 		ECS::CameraSystem* GetCameraSystem() { return &m_cameraSystem; }
+		ECS::LightingSystem* GetLightingSystem() { return &m_lightingSystem; }
 		ECS::MeshRendererSystem* GetMeshRendererSystem() { return &m_meshRendererSystem; }
 		Texture& GetHDRICubemap() { return m_hdriCubemap; }
 		static RenderDevice& GetRenderDevice() { return s_renderDevice; }
@@ -129,9 +134,11 @@ namespace LinaEngine::Graphics
 		void SetCurrentSLightCount(int count) { m_currentSpotLightCount = count; }
 		void SetPreDrawCallback(const std::function<void()>& cb) { m_preDrawCallback = cb; };
 		void SetPostDrawCallback(const std::function<void()>& cb) { m_postDrawCallback = cb; };
-		void DrawSceneObjects(DrawParams& drawpParams, Material* overrideMaterial = nullptr);
+		void DrawSceneObjects(DrawParams& drawpParams, Material* overrideMaterial = nullptr, bool completeFlush = true);
 		void DrawSkybox();
-
+		uint32 GetScreenQuadVAO() { return m_screenQuadVAO; }
+		PostProcessEffect& AddPostProcessEffect(Shader& shader);
+		UniformBuffer& GetViewBuffer() { return m_globalDataBuffer; }
 	private:
 
 		void ConstructEngineShaders();
@@ -140,10 +147,8 @@ namespace LinaEngine::Graphics
 		void ConstructEnginePrimitives();
 		void ConstructRenderTargets();
 		void DumpMemory();
-		void DrawShadows();
 		void Draw();
 		void DrawFinalize();
-		void DrawOperationsDefault();
 		void UpdateUniformBuffers();
 		
 		// Generating necessary maps for HDRI specular highlighting
@@ -161,9 +166,9 @@ namespace LinaEngine::Graphics
 		RenderTarget m_primaryRenderTarget;
 		RenderTarget m_pingPongRenderTarget1;
 		RenderTarget m_pingPongRenderTarget2;
-		RenderTarget m_outlineRenderTarget;
 		RenderTarget m_hdriCaptureRenderTarget;
 		RenderTarget m_shadowMapTarget;
+		RenderTarget m_pLightShadowTargets[MAX_POINT_LIGHTS];
 
 #ifdef LINA_EDITOR
 		RenderTarget m_secondaryRenderTarget;
@@ -171,11 +176,10 @@ namespace LinaEngine::Graphics
 		Texture m_secondaryRTTexture;
 #endif
 
-		RenderBuffer m_primaryRenderBuffer;
+		RenderBuffer m_primaryBuffer;
 		RenderBuffer m_hdriCaptureRenderBuffer;
 
 		// Frame buffer texture parameters
-		SamplerParameters m_mainRTParams;
 		SamplerParameters m_primaryRTParams;
 		SamplerParameters m_pingPongRTParams;
 		SamplerParameters m_shadowsRTParams;
@@ -188,6 +192,7 @@ namespace LinaEngine::Graphics
 		Material m_hdriMaterial;
 		Material m_shadowMapMaterial;
 		Material m_defaultSkyboxMaterial;
+		Material m_pLightShadowDepthMaterial;
 		static Material s_defaultUnlit;
 
 		Shader* m_hdriBRDFShader = nullptr;
@@ -196,17 +201,21 @@ namespace LinaEngine::Graphics
 		Shader* m_hdriIrradianceShader = nullptr;
 		Shader* m_sqFinalShader = nullptr;
 		Shader* m_sqBlurShader = nullptr;
-		Shader* m_sqOutlineShader = nullptr;
 		Shader* m_sqShadowMapShader = nullptr;
 		Shader* m_debugLineShader = nullptr;
 		Shader* m_skyboxSingleColorShader = nullptr;
+		Shader* m_pointShadowsDepthShader = nullptr;
 		static Shader* s_standardUnlitShader;
+
+		Texture m_primaryMSAARTTexture0;
+		Texture m_primaryMSAARTTexture1;
+		RenderTarget m_primaryMSAATarget;
+		RenderBuffer m_primaryMSAABuffer;
 
 		Texture m_primaryRTTexture0;
 		Texture m_primaryRTTexture1;
 		Texture m_pingPongRTTexture1;
 		Texture m_pingPongRTTexture2;
-		Texture m_outlineRTTexture;
 		Texture m_hdriCubemap;
 		Texture m_hdriIrradianceMap;
 		Texture m_hdriPrefilterMap;
@@ -214,6 +223,7 @@ namespace LinaEngine::Graphics
 		Texture m_shadowMapRTTexture;
 		static Texture s_defaultTexture;
 		Texture m_defaultCubemapTexture;
+		Texture m_pLightShadowTextures[MAX_POINT_LIGHTS];
 
 		DrawParams m_defaultDrawParams;
 		DrawParams m_skyboxDrawParams;
@@ -253,6 +263,7 @@ namespace LinaEngine::Graphics
 		Vector2 m_shadowMapResolution = Vector2(2048, 2048);
 		Vector2 m_viewportPos = Vector2::Zero;
 		Vector2 m_viewportSize = Vector2::Zero;
+		Vector2 m_pLightShadowResolution = Vector2(1024, 1024);
 
 		std::function<void()> m_postSceneDrawCallback;
 		std::function<void()> m_preDrawCallback;
@@ -260,6 +271,8 @@ namespace LinaEngine::Graphics
 		std::function<void()> m_customDrawFunction;
 		bool m_firstFrameDrawn = false;
 
+		std::queue<DebugLine> m_debugLineQueue;
+		std::map<Shader*, PostProcessEffect> m_postProcessMap;
 
 		DISALLOW_COPY_ASSIGN_MOVE(RenderEngine)
 	};

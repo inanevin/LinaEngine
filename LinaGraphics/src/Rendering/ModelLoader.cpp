@@ -27,13 +27,40 @@ SOFTWARE.
 */
 
 #include "Rendering/ModelLoader.hpp"  
+#include "Rendering/RenderingCommon.hpp"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
 namespace LinaEngine::Graphics
 {
-	bool ModelLoader::LoadModel(const std::string& fileName, std::vector<IndexedModel>& models, std::vector<uint32>& modelMaterialIndices, std::vector<ModelMaterial>& materials, MeshParameters meshParams)
+
+	void AddBoneData(VertexBone* data, uint32 boneID, float weight)
+	{
+		for (uint32 i = 0; i < NUM_BONES_PER_VERTEX; i++)
+		{
+			if (data->m_weights[i] == 0.0f)
+			{
+				data->m_ids[i] = boneID;
+				data->m_weights[i] = weight;
+				return;
+			}
+		}
+		
+			LINA_CORE_ERR("Reached to the end of max bones per vertex!");
+	}
+
+	Matrix AssimpToInternal(aiMatrix4x4 aiMat)
+	{
+		Matrix mat;
+		mat[0][0] = aiMat.a1;	mat[0][1] = aiMat.b1;	mat[0][2] = aiMat.c1;	mat[0][3] = aiMat.d1;
+		mat[1][0] = aiMat.a2;	mat[1][1] = aiMat.b2;	mat[1][2] = aiMat.c2;	mat[1][3] = aiMat.d2;
+		mat[2][0] = aiMat.a3;	mat[2][1] = aiMat.b3;	mat[2][2] = aiMat.c3;	mat[2][3] = aiMat.d3;
+		mat[3][0] = aiMat.a4;	mat[3][1] = aiMat.b4;	mat[3][2] = aiMat.c4;	mat[3][3] = aiMat.d4;
+		return mat;
+	}
+
+	bool ModelLoader::LoadModel(const std::string& fileName, std::vector<IndexedModel>& models, std::vector<uint32>& modelMaterialIndices, std::vector<ModelMaterial>& materials, MeshParameters meshParams, MeshSceneParameters* worldParams)
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
@@ -55,7 +82,7 @@ namespace LinaEngine::Graphics
 
 
 		const aiScene* scene = importer.ReadFile(fileName.c_str(), importFlags);
-		// | aiProcess_FlipUVs
+
 
 		if (!scene)
 		{
@@ -63,22 +90,63 @@ namespace LinaEngine::Graphics
 			return false;
 		}
 
+		if (worldParams != nullptr && scene->mRootNode->mNumChildren > 0)
+		{
+			aiVector3D ps, pr, pos;
+			scene->mRootNode->mChildren[0]->mTransformation.Decompose(ps, pr, pos);
+			worldParams->m_worldPosition = Vector3(pos.x, pos.y, pos.z);
+			worldParams->m_worldRotation = Quaternion::Euler(pr.x, pr.y, pr.z);
+			worldParams->m_worldScale = Vector3(ps.x, ps.y, ps.z);
+		}
+
+		// aiMatrix4x4 rootTransformation = scene->mRootNode->mTransformation;
+		// worldParams->m_rootInverse = AssimpToInternal(rootTransformation).Inverse();	
+
 		// Iterate through the meshes on the scene.
 		for (uint32 j = 0; j < scene->mNumMeshes; j++)
 		{
-			// Create model reference for each mesh.
+			// Build model reference for each mesh.
 			const aiMesh* model = scene->mMeshes[j];
 			modelMaterialIndices.push_back(model->mMaterialIndex);
+			
+			/*
+			// Load bones.
+			for (uint32 i = 0; i < model->mNumBones; i++)
+			{
+				uint32 boneIndex = 0;
+				std::string boneName(model->mBones[i]->mName.data);
 
-			// Create and indexed model for each mesh & fill in the data.
+				if (worldParams->m_boneMapping.find(boneName) == worldParams->m_boneMapping.end())
+				{
+					boneIndex = i;
+					worldParams->m_boneInfos.push_back(BoneInfo());
+				}
+				else
+				{
+					boneIndex = worldParams->m_boneMapping[boneName];
+				}
+
+				worldParams->m_boneMapping[boneName] = boneIndex;
+				worldParams->m_boneInfos[boneIndex].m_offset = AssimpToInternal(model->mBones[i]->mOffsetMatrix);
+
+				for (uint32 k = 0; k < model->mBones[i]->mNumWeights; k++)
+				{
+					uint32 vertexID = model->mBones[i]->mWeights[k].mVertexId;
+					float weight = model->mBones[i]->mWeights[k].mWeight;
+					AddBoneData(&worldParams->m_bones[vertexID], boneIndex, weight);
+				}
+			}
+			*/
+
+			// Build and indexed model for each mesh & fill in the data.
 			IndexedModel currentModel;
 			currentModel.AllocateElement(3, true); // Positions
 			currentModel.AllocateElement(2, true); // TexCoords
 			currentModel.AllocateElement(3, true); // Normals
 			currentModel.AllocateElement(3, true); // Tangents
 			currentModel.AllocateElement(3, true); // Bitangents
-			//currentModel.AllocateElement(3, false); // Joint IDs
-			//currentModel.AllocateElement(3, true); // Weights
+			//currentModel.AllocateElement(4, false); // Bone ids
+			//currentModel.AllocateElement(5, true);	// bone weights
 			currentModel.SetStartIndex(5); // Begin instanced data
 			currentModel.AllocateElement(16, true); // Model Matrix
 			currentModel.AllocateElement(16, true); // Inverse transpose matrix
@@ -94,7 +162,6 @@ namespace LinaEngine::Graphics
 				const aiVector3D texCoord = model->HasTextureCoords(0) ? model->mTextureCoords[0][i] : aiZeroVector;
 				const aiVector3D tangent = model->HasTangentsAndBitangents() ? model->mTangents[i] : aiZeroVector;
 				const aiVector3D biTangent = model->HasTangentsAndBitangents() ? model->mBitangents[i] : aiZeroVector;
-
 
 				// Set model vertex data.
 				currentModel.AddElement(0, pos.x, pos.y, pos.z);
@@ -119,7 +186,7 @@ namespace LinaEngine::Graphics
 		// Iterate through the materials in the scene.
 		for (uint32 i = 0; i < scene->mNumMaterials; i++)
 		{
-			// Create material reference & material specifications.
+			// Build material reference & material specifications.
 			const aiMaterial* material = scene->mMaterials[i];
 			ModelMaterial spec;
 
@@ -152,11 +219,11 @@ namespace LinaEngine::Graphics
 		// Iterate through the meshes on the scene.
 		for (uint32 j = 0; j < scene->mNumMeshes; j++)
 		{
-			// Create model reference for each mesh.
+			// Build model reference for each mesh.
 			const aiMesh* model = scene->mMeshes[j];
 			modelMaterialIndices.push_back(model->mMaterialIndex);
 
-			// Create and indexed model for each mesh & fill in the data.
+			// Build and indexed model for each mesh & fill in the data.
 			IndexedModel currentModel;
 			currentModel.AllocateElement(3, true); // Positions
 			currentModel.AllocateElement(2, true); // TexCoords
@@ -203,7 +270,7 @@ namespace LinaEngine::Graphics
 		// Iterate through the materials in the scene.
 		for (uint32 i = 0; i < scene->mNumMaterials; i++)
 		{
-			// Create material reference & material specifications.
+			// Build material reference & material specifications.
 			const aiMaterial* material = scene->mMaterials[i];
 			ModelMaterial spec;
 
@@ -223,7 +290,7 @@ namespace LinaEngine::Graphics
 
 	bool ModelLoader::LoadQuad(IndexedModel& currentModel)
 	{
-		// Create and indexed model for each mesh & fill in the data.
+		// Build and indexed model for each mesh & fill in the data.
 		currentModel.AllocateElement(3, true); // Positions
 		currentModel.AllocateElement(2, true); // TexCoords
 		currentModel.SetStartIndex(2); // Begin instanced data
@@ -269,7 +336,7 @@ namespace LinaEngine::Graphics
 
 	bool ModelLoader::LoadPrimitive(std::vector<IndexedModel>& models, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords)
 	{
-		// Create and indexed model for each mesh & fill in the data.
+		// Build and indexed model for each mesh & fill in the data.
 		IndexedModel currentModel;
 		currentModel.AllocateElement(3, true); // Positions
 		currentModel.AllocateElement(2, true); // TexCoords

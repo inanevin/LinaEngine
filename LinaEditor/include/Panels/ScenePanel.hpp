@@ -84,7 +84,7 @@ namespace LinaEditor
 	private:
 
 		bool m_isFocused = true;
-		LinaEngine::ECS::TransformComponent* m_selectedTransform = nullptr;
+		LinaEngine::ECS::ECSEntity m_selectedTransform = entt::null;
 		DrawMode m_drawMode = DrawMode::FinalImage;
 	};
 }

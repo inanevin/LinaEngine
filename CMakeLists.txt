@@ -41,6 +41,7 @@ set(TARGET_ARCHITECTURE "x64")
 set(ASSIMP_LIB "assimp-vc142-mtd.lib")
 set(ASSIMP_DLL "assimp-vc142-mtd.dll")
 
+
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
 
@@ -58,6 +59,7 @@ set(LINASANDBOX_HEADER_DIR Sandbox/include)
 #--------------------------------------------------------------------
 
 add_subdirectory(LinaAction)
+add_subdirectory(LinaAudio)
 add_subdirectory(LinaCommon)
 add_subdirectory(LinaECS)
 add_subdirectory(LinaGraphics)

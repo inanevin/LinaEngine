@@ -61,8 +61,8 @@ namespace LinaEngine::Action
 		
 		if (base != nullptr)
 		{
-			delete base;
 			targetList.remove(base);
+			delete base;
 		}
 		else
 			LINA_CORE_WARN("This action ID {0} does not exists, aborting unsubscription.", actionID);

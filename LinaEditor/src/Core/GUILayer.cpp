@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Core/GUILayer.hpp"
 #include "Core/Application.hpp"
 #include "Utility/Log.hpp"
-#include "Physics/PhysicsEngine.hpp"
+#include "Core/PhysicsEngine.hpp"
 #include "Input/InputEngine.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Core/EditorCommon.hpp"
@@ -264,7 +264,7 @@ namespace LinaEditor
 		// Level
 		else if (item == MenuBarItems::NewLevelData)
 		{
-			// Create a new level.
+			// Build a new level.
 			LinaEngine::Application::GetApp().InstallLevel(m_defaultLevel);
 		}
 		else if (item == MenuBarItems::SaveLevelData)

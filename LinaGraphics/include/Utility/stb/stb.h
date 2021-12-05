@@ -3645,8 +3645,8 @@ static int stb__slot_compare(const void *p, const void *q)
 
 int stb_perfect_create(stb_perfect *p, unsigned int *v, int n)
 {
-   unsigned int buffer1[64], buffer2[64], buffer3[64], buffer4[64], buffer5[32];
-   unsigned short *as = (unsigned short *) stb_temp(buffer1, sizeof(*v)*n);
+   unsigned int m_primaryMSAABuffer[64], buffer2[64], buffer3[64], buffer4[64], buffer5[32];
+   unsigned short *as = (unsigned short *) stb_temp(m_primaryMSAABuffer, sizeof(*v)*n);
    unsigned short *bs = (unsigned short *) stb_temp(buffer2, sizeof(*v)*n);
    unsigned short *entries = (unsigned short *) stb_temp(buffer4, sizeof(*entries) * n);
    int size = 1 << stb_log2_ceil(n), bsize=8;
@@ -3796,7 +3796,7 @@ int stb_perfect_create(stb_perfect *p, unsigned int *v, int n)
    if (failure > stb_perfect_hash_max_failures)
       stb_perfect_hash_max_failures = failure;
 
-   stb_tempfree(buffer1, as);
+   stb_tempfree(m_primaryMSAABuffer, as);
    stb_tempfree(buffer2, bs);
    stb_tempfree(buffer4, entries);
 
@@ -6315,7 +6315,7 @@ int stb_dir_is_prefix(char *dir, int dirlen, char *file)
 
 stb_dirtree2 *stb_dirtree2_from_files_relative(char *src, char **filelist, int count)
 {
-   char buffer1[1024];
+   char m_primaryMSAABuffer[1024];
    int i;
    int dlen = (int) strlen(src), elen;
    stb_dirtree2 *d;
@@ -6359,17 +6359,17 @@ stb_dirtree2 *stb_dirtree2_from_files_relative(char *src, char **filelist, int c
    d->relpath = s;
    // now create the children
    qsort(descendents, stb_arr_len(descendents), sizeof(char *), stb_qsort_stricmp(0));
-   buffer1[0] = 0;
+   m_primaryMSAABuffer[0] = 0;
    for (i=0; i < stb_arr_len(descendents); ++i) {
       char buffer2[1024];
       char *s = descendents[i] + elen, *t;
       t = stb_strchr2(s, '/', '\\');
       assert(t);
       stb_strncpy(buffer2, descendents[i], (int) (t-descendents[i]+1));
-      if (stb_stricmp(buffer1, buffer2)) {
+      if (stb_stricmp(m_primaryMSAABuffer, buffer2)) {
          stb_dirtree2 *t = stb_dirtree2_from_files_relative(buffer2, descendents, stb_arr_len(descendents));
          assert(t != NULL);
-         stb_p_strcpy_s(buffer1, sizeof(buffer1), buffer2);
+         stb_p_strcpy_s(m_primaryMSAABuffer, sizeof(m_primaryMSAABuffer), buffer2);
          stb_arr_push(d->subdirs, t);
       }
    }

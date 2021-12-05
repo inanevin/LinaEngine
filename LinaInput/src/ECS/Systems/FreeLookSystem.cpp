@@ -66,7 +66,6 @@ namespace LinaEngine::ECS
 				freeLook.m_angles.x = LinaEngine::Math::Lerp(freeLook.m_angles.x, m_targetXAngle, 8 * delta);
 
 				transform.transform.Rotate(Vector3(freeLook.m_angles.y, freeLook.m_angles.x, 0.0f));
-
 			}
 
 			// Enable cursor after finishing mouse look.

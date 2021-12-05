@@ -33,13 +33,14 @@ SOFTWARE.
 #include "World/Level.hpp"
 #include "Rendering/Material.hpp"
 #include "Modals/SelectMaterialModal.hpp"
+#include "Rendering/RenderEngine.hpp"
 #include "imgui/imgui.h"
 #include "IconsFontAwesome5.h"
 
 namespace LinaEditor
 {
 #define CURSORPOS_X_LABELS 12
-#define CURSORPOS_XPERC_VALUES 0.20f
+#define CURSORPOS_XPERC_VALUES 0.30f
 
 	void LevelSettingsPanel::Setup()
 	{
@@ -72,6 +73,14 @@ namespace LinaEditor
 			{
 				LinaEngine::World::LevelData& levelData = m_currentLevel->GetLevelData();
 
+				ImGui::SetCursorPosX(cursorPosLabels);
+				WidgetsUtility::IncrementCursorPosY(11);
+
+				WidgetsUtility::AlignedText("Ambient Color");
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(cursorPosValues);
+				WidgetsUtility::ColorButton("##lvlAmb", &levelData.m_ambientColor.r);
+				LinaEngine::Application::GetRenderEngine().GetLightingSystem()->SetAmbientColor(levelData.m_ambientColor);
 				// Material selection
 				if (LinaEngine::Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
 				{
@@ -79,46 +88,41 @@ namespace LinaEditor
 					levelData.m_selectedSkyboxMatPath = levelData.m_skyboxMaterialPath;
 				}
 
-				char matPathC[128] = "";
-				strcpy(matPathC, levelData.m_selectedSkyboxMatPath.c_str());
 
-				WidgetsUtility::IncrementCursorPosY(11);
+				// Material selection.
+				char matPathC[128] = "";
+				strcpy(matPathC, levelData.m_skyboxMaterialPath.c_str());
+
 				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::AlignedText("Skybox Material");
+				WidgetsUtility::AlignedText("Material");
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
 				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
-				ImGui::InputText("##selectedSkyboxMat", matPathC, IM_ARRAYSIZE(matPathC), ImGuiInputTextFlags_ReadOnly);
+				ImGui::InputText("##selectedMat", matPathC, IM_ARRAYSIZE(matPathC), ImGuiInputTextFlags_ReadOnly);
 				ImGui::SameLine();
 				WidgetsUtility::IncrementCursorPosY(5);
 
-				if (WidgetsUtility::IconButton("##selectSkyboxMat", ICON_FA_PLUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-					ImGui::OpenPopup("Select Skybox Material");
 
-				bool materialPopupOpen = true;
-				WidgetsUtility::FramePaddingY(8);
-				WidgetsUtility::FramePaddingX(4);
-				ImGui::SetNextWindowSize(ImVec2(280, 400));
-				ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 140, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
-
-				static bool checkPopup = false;
-				if (ImGui::BeginPopupModal("Select Skybox Material", &materialPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+				// Material drag & drop.
+				if (ImGui::BeginDragDropTarget())
 				{
-					SelectMaterialModal::Draw(LinaEngine::Graphics::Material::GetLoadedMaterials(), &levelData.m_selectedSkyboxMatID, levelData.m_selectedSkyboxMatPath);
-					checkPopup = true;
-					ImGui::EndPopup();
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
+					{
+						IM_ASSERT(payload->DataSize == sizeof(uint32));
+						levelData.m_skyboxMaterialID = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetID();
+						levelData.m_skyboxMaterialPath = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetPath();
+						m_currentLevel->SetSkyboxMaterial();
+					}
+
+					ImGui::EndDragDropTarget();
 				}
 
-				levelData.m_skyboxMaterialID = levelData.m_selectedSkyboxMatID;
-				levelData.m_skyboxMaterialPath = levelData.m_selectedSkyboxMatPath;
-
-				if (checkPopup && !ImGui::IsPopupOpen("Select Skybox Material"))
+				if (WidgetsUtility::IconButton("##selectmat", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 				{
-					checkPopup = false;
+					levelData.m_skyboxMaterialID = -1;
+					levelData.m_skyboxMaterialPath = "";
 					m_currentLevel->SetSkyboxMaterial();
-				}
-
-				WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
+				}	
 			}
 
 

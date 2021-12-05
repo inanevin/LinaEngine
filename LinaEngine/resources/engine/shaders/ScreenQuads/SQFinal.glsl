@@ -36,15 +36,17 @@ struct Material
 {
   MaterialSampler2D screenMap;
   MaterialSampler2D bloomMap;
-  MaterialSampler2D outlineMap;
   vec3 inverseScreenMapSize;
-  float exposure;
   bool bloomEnabled;
   bool fxaaEnabled;
+  bool vignetteEnabled;
   float fxaaSpanMax;
   float fxaaReduceMin;
   float fxaaReduceMul;
+  float exposure;
   float gamma;
+  float vignetteAmount;
+  float vignettePow;
 };
 uniform Material material;
 
@@ -60,6 +62,7 @@ void main()
 
     vec3 hdrColor = texture(material.screenMap.texture, TexCoords).rgb;
 
+	
     if(material.fxaaEnabled)
     {
       vec3 fxaaColor = vec3(0.0);
@@ -104,19 +107,14 @@ void main()
     if(material.bloomEnabled && material.bloomMap.isActive)
       hdrColor += texture(material.bloomMap.texture, TexCoords).rgb;
 
-    // Add outline
-    if(material.outlineMap.isActive)
-      hdrColor += texture(material.outlineMap.texture, TexCoords).rgb;
-
-	float RANDSIN = 33758.5453;
-	float time = 1.0;
-	vec2 uv = TexCoords;
-	uv.x += move(uv.y * fract(sin(time) * RANDSIN) * 4.0) * fract(sin(time * 2) * RANDSIN) * 0.015 + fract(sin(uv.x * 2 + uv.y * 6.6) * RANDSIN) * 1;
-	uv.y += move(uv.x * fract(sin(time * 3) * RANDSIN) * 4.0) * fract(sin(time * 2) * RANDSIN) * 0.015 + fract(sin(uv.x * 1.5 + uv.y * 6.7) * RANDSIN) *1;
-	uv = clamp(uv, 0, 1);
-	
-	vec4 edges = 1.0 - (vec4(hdrColor,1.0) * 2 / vec4(texture(material.screenMap.texture, uv).rgb, 1.0));
-	//fragColor = edges / vec4(length(edges), length(edges), length(edges), length(edges));
+	if(material.vignetteEnabled)
+	{
+		vec2 uv = TexCoords;
+		uv *= 1.0 - uv.yx;
+		float vig = uv.x*uv.y * material.vignetteAmount;
+		vig = pow(vig, material.vignettePow); // change pow for modifying the extend of the  vignette
+		hdrColor *= vec3(vig, vig, vig);
+	}
 	
     // tone mapping
     vec3 result = vec3(1.0) - exp(-hdrColor * material.exposure);

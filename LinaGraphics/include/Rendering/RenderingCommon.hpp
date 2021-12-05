@@ -43,13 +43,15 @@ Timestamp: 4/14/2019 11:59:32 AM
 #include "Utility/Math/Matrix.hpp"
 #include "Utility/Math/Color.hpp"
 #include "map"
+
 namespace LinaEngine::Graphics
 {
 #define INTERNAL_MAT_PATH "__internal"
-
+#define MAX_POINT_LIGHTS 12
 #define RENDERSETTINGS_FULLPATH "resources/engine/defaultSettings.rendersettings"
 #define RENDERSETTINGS_FOLDERPATH "resources/engine"
 #define RENDERSETTINGS_FILE "defaultSettings"
+#define NUM_BONES_PER_VERTEX 4
 
 	enum BufferUsage
 	{
@@ -299,6 +301,37 @@ namespace LinaEngine::Graphics
 		}
 	};
 
+	struct DebugLine
+	{
+		Vector3 m_from = Vector3::Zero;
+		Vector3 m_to = Vector3::Zero;
+		Color m_color = Color::White;
+		float m_width = 0.0f;
+	};
+
+	struct BoneInfo
+	{
+		int m_index = -1;
+		Matrix m_offset;
+	};
+
+	struct VertexBone
+	{
+		uint32 m_ids[NUM_BONES_PER_VERTEX];
+		float m_weights[NUM_BONES_PER_VERTEX];
+	};
+
+	struct MeshSceneParameters
+	{
+		Vector3 m_worldPosition;
+		Quaternion m_worldRotation;
+		Vector3 m_worldScale;
+		// Matrix m_rootInverse;
+		// std::vector<VertexBone> m_bones;
+		// std::map<std::string, int> m_boneMapping;
+		// std::vector<BoneInfo> m_boneInfos;
+	};
+
 	struct TextureParameters
 	{
 		PixelFormat m_pixelFormat = PixelFormat::FORMAT_RGBA;
@@ -347,6 +380,7 @@ namespace LinaEngine::Graphics
 		bool vSyncEnabled;
 		bool m_decorated = true;
 		bool m_resizable = true;
+		bool m_fullscreen = false;
 		WindowState m_windowState;
 
 		WindowProperties()

@@ -103,6 +103,7 @@ namespace LinaEngine::Graphics
 		static void SaveParameters(const std::string& path, MeshParameters params);
 		void SetParameters(MeshParameters params) { m_parameters = params; }
 		MeshParameters& GetParameters() { return m_parameters; }
+		MeshSceneParameters& GetWorldParameters() { return m_worldParameters; }
 		const std::string& GetPath() const { return m_path; }
 		const std::string& GetParamsPath() const { return m_paramsPath; }
 		const int GetID() const { return m_meshID; }
@@ -117,11 +118,13 @@ namespace LinaEngine::Graphics
 		std::string m_path = "";
 		std::string m_paramsPath = "";
 
+		MeshSceneParameters m_worldParameters;
 		MeshParameters m_parameters;
 		std::vector<VertexArray*> m_vertexArrays;
 		std::vector<IndexedModel> m_indexedModelArray;
 		std::vector<ModelMaterial> m_materialSpecArray;
 		std::vector<uint32> m_materialIndexArray;
+		
 
 	};
 }

@@ -75,6 +75,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaGraphi
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaInput/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaPhysics/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAction/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAudio/include)
 
 
 #--------------------------------------------------------------------
@@ -91,6 +92,7 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC Lina::Action
 	PUBLIC Lina::Input
 	PUBLIC Lina::Physics
+	PUBLIC Lina::Audio
 )
 
 #--------------------------------------------------------------------

@@ -43,6 +43,7 @@ Timestamp: 5/6/2019 5:10:23 PM
 
 #include <string>
 #include <cereal/archives/binary.hpp>
+#include "Utility/Math/Color.hpp"
 
 namespace LinaEngine
 {
@@ -59,13 +60,14 @@ namespace LinaEngine::World
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_skyboxMaterialPath, m_selectedSkyboxMatPath);
+			archive(m_skyboxMaterialPath, m_selectedSkyboxMatPath, m_ambientColor);
 		}
 
 		std::string m_skyboxMaterialPath = "";
 		int m_skyboxMaterialID = -1;
 		int m_selectedSkyboxMatID = -1;
 		std::string m_selectedSkyboxMatPath = "";
+		Color m_ambientColor = Color(0);
 	};
 
 	class Level
@@ -79,7 +81,7 @@ namespace LinaEngine::World
 		virtual void Uninstall() {};
 		virtual void Initialize() {};
 		virtual void Tick(bool isInPlayMode, float delta) {};
-		
+		virtual void PostTick(bool isInPlayMode, float delta) {};
 		void SerializeLevelData(const std::string& path, const std::string& levelName);
 		void DeserializeLevelData(const std::string& path, const std::string& levelName);
 		LevelData& GetLevelData() { return m_levelData; }
