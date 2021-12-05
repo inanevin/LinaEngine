@@ -109,7 +109,7 @@ namespace LinaEditor
 				// Resize scene panel.
 				if ((size.x != previousWindowSize.x || size.y != previousWindowSize.y))
 				{
-						LinaEngine::Application::GetRenderEngine().SetViewportDisplay(Vector2(0,0), Vector2((int)(512), (int)(512)));
+						LinaEngine::Application::GetRenderEngine().SetViewportDisplay(Vector2(0,0), Vector2((int)(size.x), (int)(size.y)));
 					//LinaEngine::Application::GetRenderEngine().OnWindowResized((uint32)ImGui::GetCurrentWindow()->Size.x, (uint32)ImGui::GetCurrentWindow()->Size.y);
 					previousWindowSize = size;
 				}
