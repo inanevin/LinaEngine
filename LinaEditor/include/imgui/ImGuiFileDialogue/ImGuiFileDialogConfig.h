@@ -24,7 +24,7 @@
 //#define buttonResetSearchString "Reset search"
 //#define buttonDriveString "Drives"
 //#define buttonResetPathString "Reset to current directory"
-//#define buttonCreateDirString "Create Directory"
+//#define buttonCreateDirString "Build Directory"
 
 // theses icons will appear in table headers
 //#define USE_CUSTOM_SORTING_ICON

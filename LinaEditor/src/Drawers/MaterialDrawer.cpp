@@ -53,7 +53,8 @@ namespace LinaEditor
 		"material.irradianceMap",
 		"material.prefilterMap",
 		"material.brdfLUTMap",
-		"material.shadowMap"
+		"material.shadowMap",
+		"material.pointShadowDepthMaps"
 	};
 
 
@@ -94,9 +95,13 @@ namespace LinaEditor
 				std::string newName = std::string(materialName) + ".mat";
 				EditorUtility::ChangeFilename(m_selectedFile->m_pathToFolder.c_str(), m_selectedFile->m_name.c_str(), newName.c_str());
 				m_selectedFile->m_name = newName;
+				
 				GenericMemory::memset(materialName, 0, 64);
 				std::string extensionlessStr = EditorUtility::RemoveExtensionFromFilename(m_selectedFile->m_name);
 				std::copy(extensionlessStr.begin(), extensionlessStr.end(), materialName);
+
+				m_selectedFile->m_path = m_selectedFile->m_pathToFolder + m_selectedFile->m_name;
+				m_selectedMaterial->m_path = m_selectedFile->m_path;
 			}
 		}
 		WidgetsUtility::PopStyleVar();
@@ -160,75 +165,38 @@ namespace LinaEditor
 
 			WidgetsUtility::PopStyleVar();
 
+			// Material selection.
 			char shaderPathC[128] = "";
-			strcpy(shaderPathC, m_selectedMaterial->m_selectedShaderPath.c_str());
+			strcpy(shaderPathC, m_selectedMaterial->m_shaderPath.c_str());
 
 			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Shader");
+			WidgetsUtility::AlignedText("Material");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
-			ImGui::InputText("##selectedShader", shaderPathC, IM_ARRAYSIZE(shaderPathC), ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputText("##selectedSpriteMat", shaderPathC, IM_ARRAYSIZE(shaderPathC), ImGuiInputTextFlags_ReadOnly);
 			ImGui::SameLine();
 			WidgetsUtility::IncrementCursorPosY(5);
 
-			if (WidgetsUtility::IconButton("##selectShader", ICON_FA_PLUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-				ImGui::OpenPopup("Select Shader");
 
-			bool shaderPopupOpen = true;
-			static bool shaderPopupWasOpen = false;
-			WidgetsUtility::FramePaddingY(8);
-			WidgetsUtility::FramePaddingX(4);
-			ImGui::SetNextWindowSize(ImVec2(480, 400));
-			ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Size.x / 2.0f - 240, ImGui::GetMainViewport()->Size.y / 2.0f - 200));
-			if (ImGui::BeginPopupModal("Select Shader", &shaderPopupOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+			// Material drag & drop.
+			if (ImGui::BeginDragDropTarget())
 			{
-				shaderPopupWasOpen = true;
-				SelectShaderModal::Draw(LinaEngine::Graphics::Shader::GetLoadedShaders(), &m_selectedMaterial->m_selectedShaderID, m_selectedMaterial->m_selectedShaderPath);
-				ImGui::EndPopup();
-			}
-			WidgetsUtility::PopStyleVar(); WidgetsUtility::PopStyleVar();
-
-
-			if (shaderPopupWasOpen && !ImGui::IsPopupOpen("Select Shader"))
-			{
-				shaderPopupWasOpen = false;
-
-				if (LinaEngine::Graphics::Shader::ShaderExists(m_selectedMaterial->m_selectedShaderID))
-					Graphics::Material::SetMaterialShader(*m_selectedMaterial, Graphics::Shader::GetShader(m_selectedMaterial->m_selectedShaderID));
-				else
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVESHADER_ID))
 				{
-					m_selectedMaterial->m_selectedShaderID = 0;
-					m_selectedMaterial->m_selectedShaderPath = "";
+					IM_ASSERT(payload->DataSize == sizeof(uint32));
+					Graphics::Material::SetMaterialShader(*m_selectedMaterial, LinaEngine::Graphics::Shader::GetShader(*(uint32*)payload->m_data));
+
 				}
+				ImGui::EndDragDropTarget();
 			}
 
+			if (WidgetsUtility::IconButton("##selectspritemat", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
+			{
 
-			/*	WidgetsUtility::FramePaddingX(4);
-				const char* shaderLabel = LinaEngine::Graphics::g_shadersStr[m_selectedMaterial->GetShaderType()];
-				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::AlignedText("Shader");
-				ImGui::SameLine();
-				ImGui::SetCursorPosX(cursorPosValues);
-				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 12 - ImGui::GetCursorPosX());
+				Graphics::Material::SetMaterialShader(*m_selectedMaterial, LinaEngine::Graphics::RenderEngine::GetDefaultShader());
 
-				if (ImGui::BeginCombo("##shaderType", shaderLabel))
-				{
-					for (int n = 0; n < IM_ARRAYSIZE(LinaEngine::Graphics::g_shadersStr); n++)
-					{
-						const bool is_shader_selected = (m_selectedMaterial->GetShaderType() == n);
-						if (ImGui::Selectable(LinaEngine::Graphics::g_shadersStr[n], is_shader_selected))
-						{
-							LinaEngine::Graphics::Shaders st = (LinaEngine::Graphics::Shaders)n;
-							LinaEngine::Graphics::Material::SetMaterialShader(*m_selectedMaterial, st);
-						}
-
-						if (is_shader_selected)
-							ImGui::SetItemDefaultFocus();
-					}
-					ImGui::EndCombo();
-				}
-				WidgetsUtility::PopStyleVar();*/
+			}
 		}
 
 
@@ -511,7 +479,7 @@ namespace LinaEditor
 	{
 		for (auto& a : excludeProperties)
 		{
-			if (property.compare(a) == 0)
+			if (property.compare(a) == 0 || property.find(a) != std::string::npos)
 				return true;
 		}
 

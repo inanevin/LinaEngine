@@ -70,9 +70,11 @@ namespace LinaEngine::Graphics
 	{
 		LINA_CORE_TRACE("[Initialization] -> GLWindow ({0})", typeid(*this).name());
 
+		
 		// Set props.
 		m_windowProperties = propsIn;
 
+		
 		// Initialize glfw & set window hints
 		int init = glfwInit();
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -90,10 +92,16 @@ namespace LinaEngine::Graphics
 #ifdef __APPLE__
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
+		if (m_windowProperties.m_fullscreen)
+		{
+			m_windowProperties.m_width = glfwGetVideoMode(glfwGetPrimaryMonitor())->width;
+			m_windowProperties.m_height = glfwGetVideoMode(glfwGetPrimaryMonitor())->height;
+		}
 
-		// Create window
-		m_glfwWindow = (glfwCreateWindow(m_windowProperties.m_width, m_windowProperties.m_height, m_windowProperties.m_title.c_str(), NULL, NULL));
 
+		// Build window
+		m_glfwWindow = (glfwCreateWindow(m_windowProperties.m_width, m_windowProperties.m_height, m_windowProperties.m_title.c_str(), m_windowProperties.m_fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL));
+		
 		// Set window position.
 		SetPosCentered(Vector2::Zero);
 
@@ -251,6 +259,11 @@ namespace LinaEngine::Graphics
 	void GLWindow::Close()
 	{
 		WindowClosed(m_window);
+	}
+
+	void GLWindow::Sleep(int milliseconds)
+	{
+		glfwWaitEventsTimeout((float)milliseconds / 1000.0f);
 	}
 
 

@@ -70,6 +70,11 @@ namespace LinaEngine::Physics
 	class PhysicsEngine;
 }
 
+namespace LinaEngine::Audio
+{
+	class AudioEngine;
+}
+
 namespace LinaEngine
 {
 
@@ -90,6 +95,7 @@ namespace LinaEngine
 		bool InstallLevel(LinaEngine::World::Level& level, bool loadFromFile = false, const std::string& path = "", const std::string& levelName = "");
 		void SaveLevelData(const std::string& folderPath, const std::string& fileName);
 		void LoadLevelData(const std::string& folderPath, const std::string& fileName);
+		void RestartLevel();
 
 		// Serialization functions for ecs registry.
 		virtual void SerializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryOutputArchive& oarchive) = 0;
@@ -101,7 +107,6 @@ namespace LinaEngine
 		int GetCurrentFPS() { return m_currentFPS; }
 		int GetCurrentUPS() { return m_currentUPS; }
 		bool GetActiveLevelExists() { return m_activeLevelExists; }
-		double GetTime();
 		double GetRawDelta() { return m_rawDeltaTime; }
 		double GetSmoothDelta() { return m_smoothDeltaTime; }
 		void AddToMainPipeline(ECS::BaseECSSystem& system) { m_mainECSPipeline.AddSystem(system); }
@@ -110,12 +115,14 @@ namespace LinaEngine
 		LayerStack& GetMainStack() { return m_mainLayerStack; }
 		LayerStack& GetPlayModeStack() { return m_playModeStack; }
 
+		static double GetTime();
 		static Action::ActionDispatcher& GetEngineDispatcher() { return s_engineDispatcher; }
 		static Application& GetApp() { return *s_application; }
 		static Graphics::Window& GetAppWindow() { return *s_appWindow; }
 		static Graphics::RenderEngine& GetRenderEngine() { return *s_renderEngine; }
 		static Input::InputEngine& GetInputEngine() { return *s_inputEngine; }
 		static Physics::PhysicsEngine& GetPhysicsEngine() { return *s_physicsEngine; }
+		static Audio::AudioEngine& GetAudioEngine() { return *s_audioEngine; }
 		static ECS::ECSRegistry& GetECSRegistry() { return s_ecs; }
 
 	protected:
@@ -157,6 +164,7 @@ namespace LinaEngine
 		static Input::InputEngine* s_inputEngine;
 		static Graphics::RenderEngine* s_renderEngine;
 		static Physics::PhysicsEngine* s_physicsEngine;
+		static Audio::AudioEngine* s_audioEngine;
 		static ECS::ECSRegistry s_ecs;
 		static Graphics::Window* s_appWindow;
 
@@ -201,7 +209,7 @@ namespace LinaEngine
 	Input::InputDevice* CreateInputDevice();
 	Input::InputEngine* CreateInputEngine();
 	Physics::PhysicsEngine* CreatePhysicsEngine();
-
+	Audio::AudioEngine* CreateAudioEngine();
 };
 
 

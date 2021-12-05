@@ -32,7 +32,8 @@ void main()
 }
 
 #elif defined(FS_BUILD)
-out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
+layout (location = 1) out vec4 brightColor;
 in vec3 WorldPos;
 struct Material
 {
@@ -46,6 +47,12 @@ void main()
 {
 	float f = dot(normalize(WorldPos), normalize(-material.sunDirection)) * 0.5f + 0.5f;
   fragColor = mix(vec4(material.startColor, 1.0), vec4(material.endColor, 1.0), pow(f,2)) * 1;
+  
+  float brightness = dot(fragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+	if(brightness > 1.0)
+		brightColor = vec4(fragColor.rgb, 1.0);
+	else
+		brightColor = vec4(0.0, 0.0, 0.0, 1.0);
 }
 
 #endif

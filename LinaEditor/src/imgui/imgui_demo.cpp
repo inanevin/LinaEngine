@@ -1372,7 +1372,7 @@ static void ShowDemoWindowWidgets()
         static double refresh_time = 0.0;
         if (!animate || refresh_time == 0.0)
             refresh_time = ImGui::GetTime();
-        while (refresh_time < ImGui::GetTime()) // Create data at fixed 60 Hz rate for the demo
+        while (refresh_time < ImGui::GetTime()) // Build data at fixed 60 Hz rate for the demo
         {
             static float phase = 0.0f;
             values[values_offset] = cosf(phase);
@@ -3322,7 +3322,7 @@ static void ShowDemoWindowColumns()
         ImGui::TreePop();
     }
 
-    // Create multiple items in a same cell before switching to next column
+    // Build multiple items in a same cell before switching to next column
     if (ImGui::TreeNode("Mixed items"))
     {
         ImGui::Columns(3, "mixed");
@@ -5593,8 +5593,8 @@ void ShowExampleAppDocuments(bool* p_open)
     enum Target
     {
         Target_None,
-        Target_Tab,                 // Create documents as local tab into a local tab bar
-        Target_DockSpaceAndWindow   // Create documents as regular windows, and create an embedded dockspace
+        Target_Tab,                 // Build documents as local tab into a local tab bar
+        Target_DockSpaceAndWindow   // Build documents as regular windows, and create an embedded dockspace
     };
     static Target opt_target = Target_Tab;
     static bool opt_reorderable = true;
@@ -5711,11 +5711,11 @@ void ShowExampleAppDocuments(bool* p_open)
         {
             NotifyOfDocumentsClosedElsewhere(app);
 
-            // Create a DockSpace node where any window can be docked
+            // Build a DockSpace node where any window can be docked
             ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
             ImGui::DockSpace(dockspace_id);
 
-            // Create Windows
+            // Build Windows
             for (int doc_n = 0; doc_n < app.Documents.Size; doc_n++)
             {
                 MyDocument* doc = &app.Documents[doc_n];

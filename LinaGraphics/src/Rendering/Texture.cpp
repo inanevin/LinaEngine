@@ -71,7 +71,7 @@ namespace LinaEngine::Graphics
 		m_size = Vector2(data[0]->GetWidth(), data[0]->GetHeight());
 		m_bindMode = TextureBindMode::BINDTEXTURE_CUBEMAP;
 
-		std::vector<int32*> cubeMapData;
+		std::vector<unsigned char*> cubeMapData;
 
 		for (uint32 i = 0; i < 6; i++)
 			cubeMapData.push_back(data[i]->GetPixelArray());
@@ -107,7 +107,7 @@ namespace LinaEngine::Graphics
 		s_renderDevice = &deviceIn;
 		m_size = size;
 		m_bindMode = TextureBindMode::BINDTEXTURE_CUBEMAP;
-		m_sampler.Construct(deviceIn,samplerParams, m_bindMode);
+		m_sampler.Construct(deviceIn,samplerParams, m_bindMode, true);
 		m_id = s_renderDevice->CreateCubemapTextureEmpty(m_size, samplerParams);
 		m_sampler.SetTargetTextureID(m_id);
 		m_isCompressed = false;
@@ -140,9 +140,9 @@ namespace LinaEngine::Graphics
 		s_renderDevice = &deviceIn;
 		SamplerParameters params;
 		m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE;
-		m_sampler.Construct(deviceIn, params, m_bindMode);
+	//	m_sampler.Construct(deviceIn, params, m_bindMode);
 		m_id = s_renderDevice->CreateTexture2DMSAA(size, samplerParams, sampleCount);
-		m_sampler.SetTargetTextureID(m_id);
+	//	m_sampler.SetTargetTextureID(m_id);
 		m_size = size;
 		m_isCompressed = false;
 		m_isEmpty = false;
@@ -188,7 +188,7 @@ namespace LinaEngine::Graphics
 	{
 		std::ofstream stream(path);
 		{
-			cereal::BinaryOutputArchive oarchive(stream); // Create an output archive
+			cereal::BinaryOutputArchive oarchive(stream); // Build an output archive
 
 			oarchive(params); // Write the data to the archive
 		}
@@ -196,7 +196,7 @@ namespace LinaEngine::Graphics
 
 	Texture& Texture::CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams, bool compress, bool useDefaultFormats, const std::string& paramsPath)
 	{
-		// Create pixel data.
+		// Build pixel data.
 		ArrayBitmap* textureBitmap = new ArrayBitmap();
 
 		int nrComponents = textureBitmap->Load(filePath);
@@ -220,7 +220,7 @@ namespace LinaEngine::Graphics
 
 		}
 
-		// Create texture & construct.
+		// Build texture & construct.
 		Texture* texture = new Texture();
 		texture->Construct(RenderEngine::GetRenderDevice(), *textureBitmap, samplerParams, compress, filePath);
 		s_loadedTextures[texture->GetID()] = texture;
@@ -238,7 +238,7 @@ namespace LinaEngine::Graphics
 
 	Texture& Texture::CreateTextureHDRI(const std::string filePath)
 	{
-		// Create pixel data.
+		// Build pixel data.
 		int w, h, nrComponents;
 		float* data = ArrayBitmap::LoadImmediateHDRI(filePath.c_str(), w, h, nrComponents);
 
@@ -248,7 +248,7 @@ namespace LinaEngine::Graphics
 			return RenderEngine::GetDefaultTexture();
 		}
 
-		// Create texture & construct.
+		// Build texture & construct.
 		SamplerParameters samplerParams;
 		samplerParams.m_textureParams.m_wrapR = samplerParams.m_textureParams.m_wrapS = samplerParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
 		samplerParams.m_textureParams.m_minFilter = samplerParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;

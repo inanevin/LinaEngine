@@ -23,7 +23,7 @@ set(CMAKE_CXX_STANDARD 17)
 set (LINAPHYSICS_SOURCES
 
 	#Physics
-	src/Physics/PhysicsEngine.cpp
+	src/Core/PhysicsEngine.cpp
 	src/Physics/PhysicsGizmoDrawer.cpp
 	src/ECS/Systems/RigidbodySystem.cpp
 
@@ -35,10 +35,11 @@ set (LINAPHYSICS_SOURCES
 set(LINAPHYSICS_HEADERS
 	
 	#Physics
-	include/Physics/PhysicsEngine.hpp
+	include/Core/PhysicsEngine.hpp
 	include/Physics/PhysicsGizmoDrawer.hpp
 	include/ECS/Components/RigidbodyComponent.hpp
 	include/ECS/Systems/RigidbodySystem.hpp
+	include/ECS/Components/AABBComponent.hpp
 )
 
 

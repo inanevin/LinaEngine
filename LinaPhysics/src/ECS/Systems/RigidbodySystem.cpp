@@ -29,7 +29,7 @@ SOFTWARE.
 #include "ECS/Systems/RigidbodySystem.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
-#include "Physics/PhysicsEngine.hpp"
+#include "Core/PhysicsEngine.hpp"
 
 namespace LinaEngine::ECS
 {

@@ -64,7 +64,7 @@ namespace LinaEngine
 		return GetRotated(Vector3::Forward);
 	}
 
-	Vector3 Quaternion::GetEuler()
+	Vector3 Quaternion::GetEuler() const
 	{
 		Vector3 euler  = glm::eulerAngles(*this);
 		euler = Vector3(glm::degrees(euler.x), glm::degrees(euler.y), glm::degrees(euler.z));
@@ -89,7 +89,6 @@ namespace LinaEngine
 		v.z = glm::radians(other.z);
 		return glm::rotate(*this, other);
 	}
-
 
 	Quaternion Quaternion::Slerp(const Quaternion& from, const Quaternion& dest, float t)
 	{

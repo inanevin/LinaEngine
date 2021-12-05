@@ -58,23 +58,15 @@ uniform Material material;
 
 void main()
 {
-	if(visualizeDepth)
-	{
-		float depth = LinearizeDepth(gl_FragCoord.z, cameraFar, cameraNear) / cameraFar;
-		fragColor = vec4(vec3(depth), 1);
-	}
+	float alpha = material.surfaceType == 0 ? 1.0 : (material.diffuse.isActive ? texture(material.diffuse.texture, TexCoords).a : 1.0);
+
+	vec4 color = (material.diffuse.isActive ? texture(material.diffuse.texture ,TexCoords) : vec4(1.0)) * vec4(material.objectColor, 1.0);
+	fragColor = vec4(color.rgb, alpha);
+		
+	float brightness = dot(fragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+	if(brightness > 1.0)
+		brightColor = vec4(fragColor.rgb, 1.0);
 	else
-	{
-		float alpha = material.surfaceType == 0 ? 1.0 : (material.diffuse.isActive ? texture(material.diffuse.texture, TexCoords).a : 1.0);
-
-		float brightness = dot(fragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-		if(brightness > 1.0)
-			brightColor = vec4(fragColor.rgb, 1.0);
-		else
-			brightColor = vec4(0.0, 0.0, 0.0, 1.0);
-
-		vec4 color = (material.diffuse.isActive ? texture(material.diffuse.texture ,TexCoords) : vec4(1.0)) * vec4(material.objectColor, 1.0);
-		fragColor = vec4(color.rgb, alpha);
-	}
+		brightColor = vec4(0.0, 0.0, 0.0, 1.0);
 }
 #endif

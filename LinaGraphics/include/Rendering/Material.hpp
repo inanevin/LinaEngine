@@ -94,6 +94,7 @@ namespace LinaEngine::Graphics
 		static std::set<Material*>& GetHDRIMaterials() { return s_hdriMaterials; }
 		static std::map<int, Material>& GetLoadedMaterials() { return s_loadedMaterials; }
 
+		void UpdateMaterialData();
 		void PostLoadMaterialData(LinaEngine::Graphics::RenderEngine& renderEngine);
 		void SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		void RemoveTexture(const std::string& textureName);
@@ -219,9 +220,8 @@ namespace LinaEngine::Graphics
 		bool m_receivesLighting = false;
 		bool m_isShadowMapped = false;
 		std::string m_shaderPath = "";
-		std::string m_selectedShaderPath = "";
-		int m_selectedShaderID = 0;
 		uint32 m_shaderID = 0;
+		std::string m_path = "";
 
 	private:
 
@@ -235,7 +235,7 @@ namespace LinaEngine::Graphics
 		friend class RenderContext;
 
 		int m_materialID = -1;
-		std::string m_path = "";
+	
 
 		MaterialSurfaceType m_surfaceType = MaterialSurfaceType::Opaque;
 

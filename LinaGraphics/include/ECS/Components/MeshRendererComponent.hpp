@@ -52,16 +52,10 @@ namespace LinaEngine::ECS
 		std::string m_materialPath = "";
 		std::string m_meshParamsPath = "";
 
-		// Editor properties, not inside the macro to avoid any struct size mismatch during serialization.
-		int m_selectedMeshID = -1;
-		int m_selectedMatID = -1;
-		std::string m_selectedMeshPath = "";
-		std::string m_selectedMatPath = "";
-
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_meshID, m_materialID, m_excludeFromDrawList, m_meshPath, m_meshParamsPath, m_materialPath, m_isEnabled);
+			archive(m_excludeFromDrawList, m_meshPath, m_meshParamsPath, m_materialPath, m_isEnabled);
 		}
 	};
 }

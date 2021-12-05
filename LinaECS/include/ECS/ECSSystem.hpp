@@ -96,7 +96,7 @@ namespace LinaEngine::ECS
 		void RemoveChildFromEntity(ECSEntity parent, ECSEntity child);
 		void RemoveFromParent(ECSEntity child);
 		void CloneEntity(ECSEntity from, ECSEntity to);
-		const std::set<ECSEntity> GetChildren(ECSEntity parent);
+		const std::set<ECSEntity>& GetChildren(ECSEntity parent);
 		ECSEntity CreateEntity(const std::string& name);
 		ECSEntity CreateEntity(ECSEntity copy, bool attachParent = true);
 		ECSEntity GetEntity(const std::string& name);

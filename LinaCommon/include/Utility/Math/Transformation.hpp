@@ -152,18 +152,21 @@ namespace LinaEngine
 
 		// Pivot determines whether the children will be rotated/scaled based on this transformation or on their own. 
 		void SetLocalRotation(const Quaternion& rot, bool isThisPivot = true);
+		void SetLocalRotationAngles(const Vector3& angles, bool isThisPivot = true);
 		void SetLocalScale(const Vector3& scale, bool isThisPivot = true);
 		void SetRotation(const Quaternion& rot, bool isThisPivot = true);
 		void SetScale(const Vector3& scale, bool isThisPivot = true);
+		void SetRotationAngles(const Vector3& angles, bool isThisPivot = true);
 
+		const Vector3& GetLocalRotationAngles() { return m_localRotationAngles; }
 		const Vector3& GetLocalLocation() { return m_localLocation; }
 		const Quaternion& GetLocalRotation() { return m_localRotation; }
 		const Vector3& GetLocalScale() { return m_localScale; }
 		const Vector3& GetLocation() { return m_location; }
 		const Quaternion& GetRotation() { return m_rotation; }
+		const Vector3& GetRotationAngles() { return m_rotationAngles; }
 		const Vector3& GetScale() { return m_scale; }
 
-		
 		int GetChildCount() { return m_children.size(); }
 		bool HasParent() { return m_parent != nullptr; }
 		const std::set<Transformation*>& GetChildren() { return m_children; }
@@ -171,7 +174,7 @@ namespace LinaEngine
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_location, m_rotation, m_scale, m_localLocation, m_localRotation, m_localScale);
+			archive(m_location, m_rotation, m_scale, m_localLocation, m_localRotation, m_localScale, m_localRotationAngles, m_rotationAngles);
 		}
 
 	private:
@@ -187,15 +190,18 @@ namespace LinaEngine
 		void AddChild(Transformation* child);
 		void RemoveChild(Transformation* child);
 		void RemoveFromParent();
+
 	private:
 
 
 		Vector3 m_location = Vector3::Zero;
 		Quaternion m_rotation;
+		Vector3 m_rotationAngles = Vector3::Zero;
 		Vector3 m_scale = Vector3::One;
 		Vector3 m_localLocation = Vector3::Zero;
 		Quaternion m_localRotation;
 		Vector3 m_localScale = Vector3::One;
+		Vector3 m_localRotationAngles = Vector3::Zero;
 
 		Transformation* m_parent = nullptr;
 		std::set<Transformation*> m_children;

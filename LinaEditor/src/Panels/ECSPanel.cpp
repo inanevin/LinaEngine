@@ -117,23 +117,6 @@ namespace LinaEditor
 			LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
 
 
-			if (m_selectedEntity != entt::null)
-			{
-				// Duplicate
-				if (ImGui::IsKeyDown(LinaEngine::Input::InputCode::Key::LCTRL) && ImGui::IsKeyReleased(LinaEngine::Input::InputCode::D))
-				{
-					m_selectedEntity = ecs.CreateEntity(m_selectedEntity);
-					EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, m_selectedEntity);
-				}
-
-				// Delete
-				if (ImGui::IsKeyReleased(LinaEngine::Input::InputCode::Key::Delete))
-				{
-					EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
-					ecs.DestroyEntity(m_selectedEntity);
-					m_selectedEntity = entt::null;
-				}
-			}
 
 			// Set window properties.
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -194,6 +177,25 @@ namespace LinaEditor
 				WidgetsUtility::PopStyleVar();
 			}
 
+
+			if (m_selectedEntity != entt::null)
+			{
+				// Duplicate
+				if (ImGui::IsKeyDown(LinaEngine::Input::InputCode::Key::LCTRL) && ImGui::IsKeyReleased(LinaEngine::Input::InputCode::D))
+				{
+					m_selectedEntity = ecs.CreateEntity(m_selectedEntity);
+					EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, m_selectedEntity);
+				}
+
+				// Delete
+				if (ImGui::IsKeyReleased(LinaEngine::Input::InputCode::Key::Delete) && ImGui::IsWindowFocused())
+				{
+					EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
+					ecs.DestroyEntity(m_selectedEntity);
+					m_selectedEntity = entt::null;
+				}
+
+			}
 			ImGuiID id = ImGui::GetWindowDockID();
 			ImVec2 min = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
 			ImVec2 max = ImVec2(min.x + ImGui::GetWindowSize().x, min.y + ImGui::GetWindowSize().y);

@@ -57,6 +57,7 @@ namespace LinaEngine
 	void Transformation::SetLocalRotation(const Quaternion& rot, bool isThisPivot)
 	{
 		m_localRotation = rot;
+		m_localRotationAngles = rot.GetEuler();
 		UpdateGlobalRotation();
 
 		for (Transformation* child : m_children)
@@ -68,10 +69,40 @@ namespace LinaEngine
 		}
 	}
 
+	void Transformation::SetLocalRotationAngles(const Vector3& angles, bool isThisPivot)
+	{
+		m_localRotationAngles = angles;
+		m_localRotation = Quaternion::FromVector(glm::radians((glm::vec3)angles));
+		UpdateGlobalRotation();
+
+		for (Transformation* child : m_children)
+		{
+			child->UpdateGlobalRotation();
+
+			if (isThisPivot)
+				child->UpdateGlobalLocation();
+		}
+	}
 
 	void Transformation::SetRotation(const Quaternion& rot, bool isThisPivot)
 	{
 		m_rotation = rot;
+		m_rotationAngles = rot.GetEuler();
+		UpdateLocalRotation();
+
+		for (Transformation* child : m_children)
+		{
+			child->UpdateGlobalRotation();
+
+			if (isThisPivot)
+				child->UpdateGlobalLocation();
+		}
+	}
+
+	void Transformation::SetRotationAngles(const Vector3& angles, bool isThisPivot)
+	{
+		m_rotationAngles = angles;
+		m_rotation = Quaternion::FromVector(glm::radians((glm::vec3)angles));
 		UpdateLocalRotation();
 
 		for (Transformation* child : m_children)
@@ -175,11 +206,15 @@ namespace LinaEngine
 	void Transformation::UpdateGlobalRotation()
 	{
 		if (m_parent == nullptr)
+		{
 			m_rotation = m_localRotation;
+			m_rotationAngles = m_localRotationAngles;
+		}
 		else
 		{
 			Matrix global = Matrix::InitRotation(m_parent->m_rotation) * ToLocalMatrix();
 			global.Decompose(Vector3(), m_rotation);
+			m_rotationAngles = m_rotation.GetEuler();
 		}
 
 		for (Transformation* child : m_children)
@@ -211,11 +246,15 @@ namespace LinaEngine
 	void Transformation::UpdateLocalRotation()
 	{
 		if (m_parent == nullptr)
+		{
 			m_localRotation = m_rotation;
+			m_localRotationAngles = m_rotationAngles;
+		}
 		else
 		{
 			Matrix global = Matrix::InitRotation(m_parent->m_rotation).Inverse() * ToMatrix();
 			global.Decompose(Vector3(), m_localRotation);
+			m_localRotationAngles = m_localRotation.GetEuler();
 		}
 	}
 }

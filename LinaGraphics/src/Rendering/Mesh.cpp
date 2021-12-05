@@ -58,7 +58,7 @@ namespace LinaEngine::Graphics
 
 		Mesh& mesh = s_loadedMeshes[id];
 		mesh.SetParameters(meshParams);
-		ModelLoader::LoadModel(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs(), meshParams);
+		ModelLoader::LoadModel(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs(), meshParams, &mesh.m_worldParameters);
 
 		if (mesh.GetIndexedModels().size() == 0)
 		{
@@ -67,11 +67,11 @@ namespace LinaEngine::Graphics
 			return GetPrimitive(Primitives::Plane);
 		}
 
-		// Create vertex array for each mesh.
+		// Build vertex array for each mesh.
 		for (uint32 i = 0; i < mesh.GetIndexedModels().size(); i++)
 		{
 			VertexArray* vertexArray = new VertexArray();
-			vertexArray->Construct(RenderEngine::GetRenderDevice(), mesh.GetIndexedModels()[i], BufferUsage::USAGE_STATIC_COPY);
+			vertexArray->Construct(RenderEngine::GetRenderDevice(), mesh.GetIndexedModels()[i], BufferUsage::USAGE_DYNAMIC_DRAW);
 			mesh.GetVertexArrays().push_back(vertexArray);
 		}
 
@@ -171,7 +171,7 @@ namespace LinaEngine::Graphics
 	{
 		std::ofstream stream(path);
 		{
-			cereal::BinaryOutputArchive oarchive(stream); // Create an output archive
+			cereal::BinaryOutputArchive oarchive(stream); // Build an output archive
 
 			oarchive(params); // Write the data to the archive
 		}

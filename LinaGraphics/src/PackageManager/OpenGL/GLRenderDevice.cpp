@@ -231,6 +231,7 @@ namespace LinaEngine::Graphics
 		glEnable(GL_BLEND);
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_LINE_SMOOTH);
+		glEnable(GL_MULTISAMPLE);
 
 		glDepthFunc(GL_LESS);
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
@@ -242,6 +243,7 @@ namespace LinaEngine::Graphics
 			glBlendFunc(m_usedSourceBlending, m_usedDestinationBlending);
 
 	}
+
 
 
 	// ---------------------------------------------------------------------
@@ -313,7 +315,7 @@ namespace LinaEngine::Graphics
 		return textureHandle;
 	}
 
-	uint32 GLRenderDevice::CreateCubemapTexture(Vector2 size, SamplerParameters samplerParams, const std::vector<int32*>& data, uint32 dataSize)
+	uint32 GLRenderDevice::CreateCubemapTexture(Vector2 size, SamplerParameters samplerParams, const std::vector<unsigned char*>& data, uint32 dataSize)
 	{
 		GLuint textureHandle;
 		// Declare formats, target & handle for the texture.
@@ -363,6 +365,8 @@ namespace LinaEngine::Graphics
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, size.x, size.y, 0, format, GL_FLOAT, NULL);
 		}
 
+		// Specify wrapping & filtering
+		//SetupTextureParameters(GL_TEXTURE_CUBE_MAP, samplerParams);
 
 		if (samplerParams.m_textureParams.m_generateMipMaps)
 			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
@@ -388,20 +392,20 @@ namespace LinaEngine::Graphics
 		glGenTextures(1, &textureHandle);
 		glBindTexture(textureTarget, textureHandle);
 
-		// Create texture
+		// Build texture
 		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, sampleCount, internalFormat, size.x, size.y, GL_TRUE);
-
+		
 		// Setup texture params
-		SetupTextureParameters(textureTarget, samplerParams);
+		//SetupTextureParameters(textureTarget, samplerParams);
 
 		// Enable mipmaps if needed.
-		if (samplerParams.m_textureParams.m_generateMipMaps)
-			glGenerateMipmap(textureTarget);
-		else
-		{
-			glTexParameteri(textureTarget, GL_TEXTURE_BASE_LEVEL, 0);
-			glTexParameteri(textureTarget, GL_TEXTURE_MAX_LEVEL, 0);
-		}
+		//if (samplerParams.m_textureParams.m_generateMipMaps)
+		//	glGenerateMipmap(textureTarget);
+		//else
+		//{
+		//	glTexParameteri(textureTarget, GL_TEXTURE_BASE_LEVEL, 0);
+		//	glTexParameteri(textureTarget, GL_TEXTURE_MAX_LEVEL, 0);
+		//}
 
 		glBindTexture(textureTarget, 0);
 		return textureHandle;
@@ -568,7 +572,7 @@ namespace LinaEngine::Graphics
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, indices, bufferUsage);
 		bufferSizes[numBuffers - 1] = indicesSize;
 
-		// Create vertex array based on our calculated data.
+		// Build vertex array based on our calculated data.
 		struct VertexArrayData vaoData;
 		vaoData.buffers = buffers;
 		vaoData.bufferSizes = bufferSizes;
@@ -679,16 +683,19 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	uint32 GLRenderDevice::CreateSampler(SamplerParameters samplerParams)
+	uint32 GLRenderDevice::CreateSampler(SamplerParameters samplerParams, bool isCubemap)
 	{
 		// OpenGL Texture Sampler parameters.
 		uint32 result = 0;
 		glGenSamplers(1, &result);
+
 		glSamplerParameteri(result, GL_TEXTURE_WRAP_S, samplerParams.m_textureParams.m_wrapS);
 		glSamplerParameteri(result, GL_TEXTURE_WRAP_T, samplerParams.m_textureParams.m_wrapT);
 		glSamplerParameteri(result, GL_TEXTURE_MAG_FILTER, samplerParams.m_textureParams.m_magFilter);
 		glSamplerParameteri(result, GL_TEXTURE_MIN_FILTER, samplerParams.m_textureParams.m_minFilter);
 
+		if (isCubemap)
+			glSamplerParameteri(result, GL_TEXTURE_WRAP_R, samplerParams.m_textureParams.m_wrapR);
 		// Set m_anisotropy if applicable.
 		if (samplerParams.m_anisotropy != 0.0f && samplerParams.m_textureParams.m_minFilter != FILTER_NEAREST && samplerParams.m_textureParams.m_minFilter != FILTER_LINEAR)
 			glSamplerParameterf(result, GL_TEXTURE_MAX_ANISOTROPY, samplerParams.m_anisotropy);
@@ -749,8 +756,8 @@ namespace LinaEngine::Graphics
 
 		// Modify the shader text to include the version data.
 		std::string version = GetShaderVersion();
-		std::string vertexShaderText = "#version " + version + "\n#define VS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
-		std::string fragmentShaderText = "#version " + version + "\n#define FS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
+		std::string vertexShaderText = "#version " + version + " core" + "\n#define VS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
+		std::string fragmentShaderText = "#version " + version + " core" + "\n#define FS_BUILD\n#define GLSL_VERSION " + version + "\n" + shaderText;
 
 		// Add the shader program, terminate if fails.
 		ShaderProgram programData;
@@ -787,7 +794,6 @@ namespace LinaEngine::Graphics
 	{
 		// Validate program & check validation errors.
 		glValidateProgram(shader);
-
 		return CheckShaderError(shader, GL_VALIDATE_STATUS, true, "Invalid shader program");
 	}
 
@@ -829,7 +835,7 @@ namespace LinaEngine::Graphics
 
 		// Define attachment type & use the buffer.
 		GLenum attachmentTypeGL = attachment + attachmentNumber;
-
+		
 		if (bindTextureMode != TextureBindMode::BINDTEXTURE_NONE)
 		{
 			if (bindTextureMode != TextureBindMode::BINDTEXTURE_TEXTURE)
@@ -848,7 +854,7 @@ namespace LinaEngine::Graphics
 		// Set the render buffer object if desired.
 		if (bindRBO)
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, rboAttachment, GL_RENDERBUFFER, rbo);
-
+		
 		// Err check
 		if (errorCheck && glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			LINA_CORE_ERR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
@@ -947,19 +953,22 @@ namespace LinaEngine::Graphics
 		glGenerateMipmap(bindMode);
 	}
 
-	void GLRenderDevice::BlitFrameBuffers(uint32 readFBO, uint32 readWidth, uint32 readHeight, uint32 writeFBO, uint32 writeWidth, uint32 writeHeight, BufferBit mask, SamplerFilter filter)
+	void GLRenderDevice::BlitFrameBuffers(uint32 readFBO, uint32 readWidth, uint32 readHeight, uint32 writeFBO, uint32 writeWidth, uint32 writeHeight, BufferBit mask, SamplerFilter filter, FrameBufferAttachment att, uint32 attCount)
 	{
 		if (m_boundReadFBO != readFBO)
 		{
 			m_boundReadFBO = readFBO;
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, readFBO);
+			
 		}
-
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, readFBO);
+		glReadBuffer(att + attCount);
 		if (m_boundWriteFBO != writeFBO)
 		{
 			m_boundWriteFBO = writeFBO;
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, writeFBO);
+			
 		}
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, writeFBO);
+		glDrawBuffer(att + attCount);
 		glBlitFramebuffer(0, 0, readWidth, readHeight, 0, 0, writeWidth, writeHeight, mask, filter);
 	}
 
@@ -1224,9 +1233,11 @@ namespace LinaEngine::Graphics
 
 		// Set vao & draw
 		SetVAO(vao);
-
+		
 		if (drawArrays)
+		{
 			glDrawArrays(drawParams.primitiveType, 0, numElements);
+		}
 		else
 		{
 			// 1 object or instanced draw calls?
@@ -1642,7 +1653,7 @@ namespace LinaEngine::Graphics
 
 	static bool AddShader(GLuint shaderProgram, const std::string& text, GLenum type, std::vector<GLuint>* shaders)
 	{
-		// Create shader object.
+		// Build shader object.
 		GLuint shader = glCreateShader(type);
 
 		if (shader == 0)

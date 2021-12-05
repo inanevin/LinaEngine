@@ -55,10 +55,10 @@ namespace LinaEngine::Graphics
 			m_engineBoundID = s_renderDevice->ReleaseSampler(m_engineBoundID);
 		}
 
-		void Construct(RenderDevice& deviceIn, SamplerParameters samplerParams, TextureBindMode bindMode)
+		void Construct(RenderDevice& deviceIn, SamplerParameters samplerParams, TextureBindMode bindMode, bool isCubemap = false)
 		{
 			s_renderDevice = &deviceIn;
-			m_engineBoundID = s_renderDevice->CreateSampler(samplerParams);
+			m_engineBoundID = s_renderDevice->CreateSampler(samplerParams, isCubemap);
 			m_targetBindMode = bindMode;
 			m_params = samplerParams;
 		}

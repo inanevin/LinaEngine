@@ -60,7 +60,7 @@ namespace LinaEditor
 
 
 
-#define MS_DISPLAY_TIME .5
+#define MS_DISPLAY_TIME .1
 
 	std::map<std::string, std::string> m_timerMSStorage;
 

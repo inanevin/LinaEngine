@@ -73,12 +73,13 @@ namespace LinaEngine
 		Vector3 GetRight() const;
 		Vector3 GetUp() const;
 		Vector3 GetForward() const;
-		Vector3 GetEuler();
+		Vector3 GetEuler() const;
 		Vector3 GetAxis() const;
 		Vector3 GetRotated(const Vector3& other) const;
 		Quaternion Conjugate() const;
 		Quaternion Inverse() const;
 		Quaternion Normalized() const;
+		static Quaternion FromVector(glm::vec3& rot) { return glm::quat(rot); }
 		static Quaternion Euler(const Vector3& v);
 		static Quaternion Euler(float x, float y, float z);
 		static Quaternion AxisAngle(const Vector3& axis, float angle);

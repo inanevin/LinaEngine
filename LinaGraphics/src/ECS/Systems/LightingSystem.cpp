@@ -65,7 +65,7 @@ namespace LinaEngine::ECS
 		for (auto it = pointLightView.begin(); it != pointLightView.end(); ++it)
 		{
 			PointLightComponent* pLight = &pointLightView.get<PointLightComponent>(*it);
-			if (!pLight->m_isEnabled) return;
+			if (!pLight->m_isEnabled) continue;
 
 			m_pointLights.push_back(std::make_pair(&pointLightView.get<TransformComponent>(*it), pLight));
 		}
@@ -75,7 +75,7 @@ namespace LinaEngine::ECS
 		for (auto it = spotLightView.begin(); it != spotLightView.end(); ++it)
 		{
 			SpotLightComponent* sLight = &spotLightView.get<SpotLightComponent>(*it);
-			if (!sLight->m_isEnabled) return;
+			if (!sLight->m_isEnabled) continue;
 
 			m_spotLights.push_back(std::make_pair(&spotLightView.get<TransformComponent>(*it), sLight));
 		}
@@ -108,9 +108,13 @@ namespace LinaEngine::ECS
 		{
 			TransformComponent* transform = std::get<0>(*it);
 			PointLightComponent* pointLight = std::get<1>(*it);
-			s_renderDevice->UpdateShaderUniformVector3(shaderID, SC_POINTLIGHTS + "[" + std::to_string(currentPointLightCount) + "]" + SC_LIGHTPOSITION, transform->transform.GetLocation());
-			s_renderDevice->UpdateShaderUniformColor(shaderID, SC_POINTLIGHTS + "[" + std::to_string(currentPointLightCount) + "]" + SC_LIGHTCOLOR, pointLight->m_color);
-			//m_RenderDevice->UpdateShaderUniformFloat(shaderID, SC_POINTLIGHTS + "[" + std::to_string(currentPointLightCount) + "]" + SC_LIGHTDISTANCE, pointLight->distance);
+			std::string currentPointLightStr = std::to_string(currentPointLightCount);
+			s_renderDevice->UpdateShaderUniformVector3(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTPOSITION, transform->transform.GetLocation());
+			s_renderDevice->UpdateShaderUniformColor(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTCOLOR, pointLight->m_color);
+			s_renderDevice->UpdateShaderUniformFloat(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTDISTANCE, pointLight->m_distance);
+			s_renderDevice->UpdateShaderUniformFloat(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTBIAS, pointLight->m_bias);
+			s_renderDevice->UpdateShaderUniformFloat(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTSHADOWFAR, pointLight->m_shadowFar);
+
 			currentPointLightCount++;
 		}
 
@@ -121,13 +125,13 @@ namespace LinaEngine::ECS
 		{
 			TransformComponent* transform = std::get<0>(*it);
 			SpotLightComponent* spotLight = std::get<1>(*it);
-
-			s_renderDevice->UpdateShaderUniformVector3(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTPOSITION, transform->transform.GetLocation());
-			s_renderDevice->UpdateShaderUniformColor(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTCOLOR, spotLight->m_color);
-			s_renderDevice->UpdateShaderUniformVector3(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTDIRECTION, transform->transform.GetRotation().GetForward());
-			s_renderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTCUTOFF, spotLight->m_cutoff);
-			s_renderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTOUTERCUTOFF, spotLight->m_outerCutoff);
-			//m_RenderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + std::to_string(currentSpotLightCount) + "]" + SC_LIGHTDISTANCE, spotLight->distance);
+			std::string currentSpotLightStr = std::to_string(currentSpotLightCount);
+			s_renderDevice->UpdateShaderUniformVector3(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTPOSITION, transform->transform.GetLocation());
+			s_renderDevice->UpdateShaderUniformColor(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTCOLOR, spotLight->m_color);
+			s_renderDevice->UpdateShaderUniformVector3(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTDIRECTION, transform->transform.GetRotation().GetForward());
+			s_renderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTCUTOFF, spotLight->m_cutoff);
+			s_renderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTOUTERCUTOFF, spotLight->m_outerCutoff);
+			s_renderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTDISTANCE, spotLight->m_distance);
 			currentSpotLightCount++;
 		}
 
@@ -143,6 +147,7 @@ namespace LinaEngine::ECS
 
 	Matrix LightingSystem::GetDirectionalLightMatrix()
 	{
+
 		// Used for directional shadow mapping.
 
 		TransformComponent* directionalLightTransform = std::get<0>(m_directionalLight);
@@ -151,7 +156,7 @@ namespace LinaEngine::ECS
 		if (directionalLightTransform == nullptr || light == nullptr) return Matrix();
 
 		Matrix lightProjection = Matrix::Orthographic(light->m_shadowOrthoProjection.x, light->m_shadowOrthoProjection.y, light->m_shadowOrthoProjection.z, light->m_shadowOrthoProjection.w, light->m_shadowZNear, light->m_shadowZFar);
-	//	Matrix lightView = Matrix::TransformMatrix(directionalLightTransform->transform.GetLocation(), directionalLightTransform->transform.GetRotation(), Vector3::One);
+		//	Matrix lightView = Matrix::TransformMatrix(directionalLightTransform->transform.GetLocation(), directionalLightTransform->transform.GetRotation(), Vector3::One);
 		Matrix lightView = glm::lookAt(directionalLightTransform->transform.GetLocation(), glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
 
 
@@ -192,34 +197,59 @@ namespace LinaEngine::ECS
 		return directionalLightTransform->transform.GetLocation();
 	}
 
-	std::vector<Matrix> LightingSystem::GetPointLightMatrices()
+	std::vector<Matrix> LightingSystem::GetPointLightMatrices(Vector3 lp, Vector2 m_resolution, float near, float farPlane)
 	{
 		// Used for point light shadow mapping.
 
-		float aspect = (float)2048 / (float)2048;
-		float znear = 1;
-		float zfar = 17.5f;
-		glm::mat4 shadowProj = glm::perspectiveLH(glm::radians(90.0f), aspect, znear, zfar);
+		float aspect = (float)m_resolution.x / (float)m_resolution.y;
+		float znear = near;
+		float zfar = farPlane;
+		glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), aspect, znear, zfar);
+		//glm::mat4 shadowProj = Matrix::Perspective(45, aspect, znear, zfar);
 
 		std::vector<Matrix> shadowTransforms;
-		glm::vec3 lightPos(0.0f, 4.0f, 0.0f);
+		glm::vec3 lightPos = lp;
 
-		//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-		//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-		//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-		//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
-		//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-		//shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
-		shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-		shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-		shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
-		shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-		shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-		shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+		//shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+		//shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+		//shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+		//shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+		//shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+		//shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
+			// + Z DOÐRU
+		//shadowTransforms.push_back(shadowProj * Matrix::InitLookAt(lightPos, Vector3::Right, Vector3::Up));
+		//shadowTransforms.push_back(shadowProj * Matrix::InitLookAt(lightPos, Vector3::Left, Vector3::Up));
+		//shadowTransforms.push_back(shadowProj * Matrix::InitLookAt(lightPos, Vector3::Down, Vector3::Back));
+		//shadowTransforms.push_back(shadowProj * Matrix::InitLookAt(lightPos, Vector3::Up, Vector3::Forward));
+		//shadowTransforms.push_back(shadowProj * Matrix::InitLookAt(lightPos, Vector3::Back, Vector3::Down));
+		//shadowTransforms.push_back(shadowProj * Matrix::InitLookAt(lightPos, Vector3::Forward, Vector3::Down));
+		//
+		//shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+		//shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+		//
+		//shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+		//shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+		//
+		//shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+		//shadowTransforms.push_back(shadowProj * glm::lookAtLH(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+
+
+		shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+		shadowTransforms.push_back(shadowProj *
+			glm::lookAt(lightPos, lightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+		shadowTransforms.push_back(shadowProj *
+			glm::lookAt(lightPos, lightPos + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+		shadowTransforms.push_back(shadowProj *
+			glm::lookAt(lightPos, lightPos + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
+		shadowTransforms.push_back(shadowProj *
+			glm::lookAt(lightPos, lightPos + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
+		shadowTransforms.push_back(shadowProj *
+			glm::lookAt(lightPos, lightPos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
 		return shadowTransforms;
 	}
+
 
 
 }

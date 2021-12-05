@@ -63,7 +63,7 @@ namespace LinaEngine::ECS
 		void InjectViewMatrix(const Matrix& view) { m_viewMatrixInjected = true;  m_view = view; }
 		void InjectProjMatrix(const Matrix& proj) { m_projMatrixInjected = true; m_projection = proj; }
 		void SetActiveCamera(ECSEntity cameraOwner);
-		
+
 		void OnCameraDestroyed(entt::registry& registry, entt::entity entity)
 		{
 			if (entity == m_activeCameraEntity)

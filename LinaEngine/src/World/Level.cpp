@@ -83,16 +83,16 @@ namespace LinaEngine::World
 						{
 							Graphics::SamplerParameters samplerParams;
 
-							if(Utility::FileExists(it->second.m_paramsPath))
+							if (Utility::FileExists(it->second.m_paramsPath))
 								samplerParams = Graphics::Texture::LoadParameters(it->second.m_paramsPath);
 
 							Graphics::Texture& texture = Graphics::Texture::CreateTexture2D(it->second.m_path, samplerParams, false, false, it->second.m_paramsPath);
-						
+
 							mat.SetTexture(it->first, &texture, it->second.m_bindMode);
 						}
 					}
 				}
-				
+
 			}
 			else
 			{
@@ -115,6 +115,43 @@ namespace LinaEngine::World
 				mr.m_meshID = Graphics::Mesh::GetMesh(mr.m_meshPath).GetID();
 		}
 
+		auto viewSprites = ecs.view<ECS::SpriteRendererComponent>();
+
+		for (ECS::ECSEntity entity : viewSprites)
+		{
+			ECS::SpriteRendererComponent& sprite = viewSprites.get<ECS::SpriteRendererComponent>(entity);
+
+			if (!Graphics::Material::MaterialExists(sprite.m_materialPath))
+			{
+				if (Utility::FileExists(sprite.m_materialPath))
+				{
+					Graphics::Material& mat = Graphics::Material::LoadMaterialFromFile(sprite.m_materialPath);
+					sprite.m_materialID = mat.GetID();
+
+					// Load material textures.
+					for (std::map<std::string, Graphics::MaterialSampler2D>::iterator it = mat.m_sampler2Ds.begin(); it != mat.m_sampler2Ds.end(); ++it)
+					{
+						if (Utility::FileExists(it->second.m_path))
+						{
+							Graphics::SamplerParameters samplerParams;
+
+							if (Utility::FileExists(it->second.m_paramsPath))
+								samplerParams = Graphics::Texture::LoadParameters(it->second.m_paramsPath);
+
+							Graphics::Texture& texture = Graphics::Texture::CreateTexture2D(it->second.m_path, samplerParams, false, false, it->second.m_paramsPath);
+
+							mat.SetTexture(it->first, &texture, it->second.m_bindMode);
+						}
+					}
+				}
+			}
+			else
+			{
+				Graphics::Material& mat = Graphics::Material::GetMaterial(sprite.m_materialPath);
+				sprite.m_materialID = mat.GetID();
+			}
+		}
+
 		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
 
 		if (Utility::FileExists(m_levelData.m_skyboxMaterialPath))
@@ -124,6 +161,8 @@ namespace LinaEngine::World
 		}
 		else
 			renderEngine.SetSkyboxMaterial(nullptr);
+
+		renderEngine.GetLightingSystem()->SetAmbientColor(m_levelData.m_ambientColor);
 	}
 
 	void Level::SetSkyboxMaterial()
@@ -143,41 +182,50 @@ namespace LinaEngine::World
 	{
 		LinaEngine::ECS::ECSRegistry& registry = LinaEngine::Application::GetECSRegistry();
 
-		
-		std::ofstream registrySnapshotStream(path + "/" + levelName + "_ecsSnapshot.linasnapshot");
 		{
-			cereal::BinaryOutputArchive oarchive(registrySnapshotStream); // Create an output archive
-			LinaEngine::Application::GetApp().SerializeRegistry(registry, oarchive);
-		}
 
-		std::ofstream levelDataStream(path + "/" + levelName + ".linaleveldata");
+			std::ofstream registrySnapshotStream(path + "/" + levelName + "_ecsSnapshot.linasnapshot", std::ios::binary);
+			{
+				cereal::BinaryOutputArchive oarchive(registrySnapshotStream); // Build an output archive
+				LinaEngine::Application::GetApp().SerializeRegistry(registry, oarchive);
+			}
+
+		}
 		{
-			cereal::BinaryOutputArchive oarchive(levelDataStream); // Create an output archive
 
-			oarchive(m_levelData); // Write the data to the archive
+
+			std::ofstream levelDataStream(path + "/" + levelName + ".linaleveldata", std::ios::binary);
+			{
+				cereal::BinaryOutputArchive oarchive(levelDataStream); // Build an output archive
+
+				oarchive(m_levelData); // Write the data to the archive
+			}
 		}
-
 	}
 
 	void Level::DeserializeLevelData(const std::string& path, const std::string& levelName)
 	{
 		LinaEngine::ECS::ECSRegistry& registry = LinaEngine::Application::GetECSRegistry();
 
-		std::ifstream levelDataStream(path + "/" + levelName + ".linaleveldata");
 		{
-			cereal::BinaryInputArchive iarchive(levelDataStream);
+			std::ifstream levelDataStream(path + "/" + levelName + ".linaleveldata", std::ios::binary);
+			{
+				cereal::BinaryInputArchive iarchive(levelDataStream);
 
-			// Read the data into it.
-			iarchive(m_levelData);
+				// Read the data into it.
+				iarchive(m_levelData);
 
+			}
 		}
 
 		registry.clear();
 
-		std::ifstream regSnapshotStream(path + "/" + levelName + "_ecsSnapshot.linasnapshot");
 		{
-			cereal::BinaryInputArchive iarchive(regSnapshotStream);
-			LinaEngine::Application::GetApp().DeserializeRegistry(registry, iarchive);
+			std::ifstream regSnapshotStream(path + "/" + levelName + "_ecsSnapshot.linasnapshot", std::ios::binary);
+			{
+				cereal::BinaryInputArchive iarchive(regSnapshotStream);
+				LinaEngine::Application::GetApp().DeserializeRegistry(registry, iarchive);
+			}
 		}
 
 		registry.Refresh();

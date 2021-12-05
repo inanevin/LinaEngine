@@ -102,7 +102,7 @@ namespace LinaEngine::Graphics
 		uint32 numInstanceComponents = m_startIndex == ((uint32)-1) ? 0 : (numVertexComponents - m_startIndex);
 		numVertexComponents -= numInstanceComponents;
 
-		// Create a new array to add the instanced data.
+		// Build a new array to add the instanced data.
 		std::vector<const float*> vertexDataArray;
 
 		for (uint32 i = 0; i < numVertexComponents; i++) 

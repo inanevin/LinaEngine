@@ -70,6 +70,7 @@ namespace LinaEngine::Graphics
 		virtual void Iconify() = 0;
 		virtual void Maximize() = 0;
 		virtual void Close() = 0;
+		virtual void Sleep(int milliseconds) = 0;
 
 		bool GetVsycnEnabled() { return m_windowProperties.vSyncEnabled; }
 

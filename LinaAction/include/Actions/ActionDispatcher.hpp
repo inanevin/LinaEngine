@@ -102,7 +102,7 @@ namespace LinaEngine::Action
 			}
 
 
-			// Create handler, assign condition if desired & callback.
+			// Build handler, assign condition if desired & callback.
 			ActionHandler<T>* handler = new ActionHandler<T>(at, actionIDHashed);
 			handler->SetCondition(condition);
 			handler->SetCallback(callback);
@@ -125,7 +125,7 @@ namespace LinaEngine::Action
 				return;
 			}
 
-			// Create handler, assign condition if desired & callback.
+			// Build handler, assign condition if desired & callback.
 			ActionHandler<T>* handler = new ActionHandler<T>(at, actionIDHashed);
 			handler->SetCallback(callback);
 

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -48,6 +48,7 @@ static ImVec2 previousWindowSize;
 
 namespace LinaEditor
 {
+
 	void ScenePanel::Setup()
 	{
 		EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::ECS::ECSEntity>("##lina_scenePanel_entity", LinaEngine::Action::ActionType::EntitySelected,
@@ -57,7 +58,7 @@ namespace LinaEditor
 			std::bind(&ScenePanel::Unselected, this));
 
 		Application::GetEngineDispatcher().SubscribeAction<int>("#lina_scenePanel_uninstall", LinaEngine::Action::ActionType::LevelUninstalled, std::bind(&ScenePanel::Unselected, this));
-	}		
+	}
 
 	void ScenePanel::Draw()
 	{
@@ -77,8 +78,8 @@ namespace LinaEditor
 				{
 					ImVec2 min = ImVec2(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y);
 					ImVec2 max = ImVec2(min.x + ImGui::GetWindowSize().x, min.y + ImGui::GetWindowSize().y);
-					
-					if(ImGui::IsMouseHoveringRect(min, max))
+
+					if (ImGui::IsMouseHoveringRect(min, max))
 						m_isFocused = true;
 					else
 						m_isFocused = false;
@@ -92,7 +93,7 @@ namespace LinaEditor
 				ImGui::BeginChild("finalImage");
 				WidgetsUtility::DrawShadowedLine(5);
 
-				
+
 				// Get game viewport aspect.
 				Vector2 vpSize = renderEngine.GetViewportSize();
 				float aspect = (float)vpSize.x / (float)vpSize.y;
@@ -108,8 +109,8 @@ namespace LinaEditor
 				// Resize scene panel.
 				if ((size.x != previousWindowSize.x || size.y != previousWindowSize.y))
 				{
-					//m_RenderEngine->SetViewportDisplay(Vector2(0,0), Vector2((int)(512), (int)(512)));
-					//m_RenderEngine->OnWindowResized((uint32)ImGui::GetCurrentWindow()->Size.x, (uint32)ImGui::GetCurrentWindow()->Size.y);
+						LinaEngine::Application::GetRenderEngine().SetViewportDisplay(Vector2(0,0), Vector2((int)(512), (int)(512)));
+					//LinaEngine::Application::GetRenderEngine().OnWindowResized((uint32)ImGui::GetCurrentWindow()->Size.x, (uint32)ImGui::GetCurrentWindow()->Size.y);
 					previousWindowSize = size;
 				}
 
@@ -142,33 +143,36 @@ namespace LinaEditor
 
 			}
 
-			ImGui::End();			
+			ImGui::End();
 
 		}
 	}
 
-	
+
 	void ScenePanel::EntitySelected(LinaEngine::ECS::ECSEntity entity)
 	{
-		m_selectedTransform = LinaEngine::Application::GetECSRegistry().try_get<LinaEngine::ECS::TransformComponent>(entity);
+		m_selectedTransform = entity;
 	}
 
 	void ScenePanel::Unselected()
 	{
-		m_selectedTransform = nullptr;
+		m_selectedTransform = entt::null;
 	}
 
 	void ScenePanel::ProcessInput()
 	{
-
-		if (ImGui::IsKeyPressed(LINA_KEY_Q))
-			currentTransformGizmoOP = ImGuizmo::TRANSLATE;
-		if (ImGui::IsKeyPressed(LINA_KEY_E))
-			currentTransformGizmoOP = ImGuizmo::ROTATE;
-		if (ImGui::IsKeyPressed(LINA_KEY_R))
-			currentTransformGizmoOP = ImGuizmo::SCALE;
-		if (ImGui::IsKeyPressed(LINA_KEY_T))
-			currentTransformGizmoMode = currentTransformGizmoMode == ImGuizmo::MODE::WORLD ? ImGuizmo::MODE::LOCAL : ImGuizmo::MODE::WORLD;
+		if (ImGui::IsWindowFocused())
+		{
+			if (ImGui::IsKeyPressed(LINA_KEY_Q))
+				currentTransformGizmoOP = ImGuizmo::TRANSLATE;
+			if (ImGui::IsKeyPressed(LINA_KEY_E))
+				currentTransformGizmoOP = ImGuizmo::ROTATE;
+			if (ImGui::IsKeyPressed(LINA_KEY_R))
+				currentTransformGizmoOP = ImGuizmo::SCALE;
+			if (ImGui::IsKeyPressed(LINA_KEY_T))
+				currentTransformGizmoMode = currentTransformGizmoMode == ImGuizmo::MODE::WORLD ? ImGuizmo::MODE::LOCAL : ImGuizmo::MODE::WORLD;
+		}
+		
 	}
 
 	void ScenePanel::DrawGizmos()
@@ -179,21 +183,32 @@ namespace LinaEditor
 		Matrix& projection = renderEngine.GetCameraSystem()->GetProjectionMatrix();
 
 		//ImGui::GetWindowDrawList()->AddLine(ImVec2(coord.x, coord.y), ImVec2(coord2.x, coord2.y), col, 2);
-		if (m_selectedTransform != nullptr)
+		if (m_selectedTransform != entt::null)
 		{
-			 // Get required matrices.
-			Matrix object =  m_selectedTransform->transform.ToMatrix();
-			
+			ECS::TransformComponent& tr = LinaEngine::Application::GetECSRegistry().get<ECS::TransformComponent>(m_selectedTransform);
+			// Get required matrices.
+			glm::mat4 object = tr.transform.ToMatrix();
+
+
 			// Draw transformation handle.
-			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentTransformGizmoOP, currentTransformGizmoMode, &object[0][0], NULL, NULL, NULL, NULL);
+			ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentTransformGizmoOP, currentTransformGizmoMode, &object[0][0]);
+
 			float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-			ImGuizmo::DecomposeMatrixToComponents(&object[0][0], matrixTranslation, matrixRotation, matrixScale);
+			ImGuizmo::DecomposeMatrixToComponents(&object[0][0], matrixTranslation, matrixRotation, matrixScale);			
+
+			if (ImGuizmo::IsUsing())
+			{
 			
-			m_selectedTransform->transform.SetLocation(Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]));
-			m_selectedTransform->transform.SetRotation(Quaternion::Euler(matrixRotation[0], matrixRotation[1], matrixRotation[2]));
-			m_selectedTransform->transform.SetScale(Vector3(matrixScale[0], matrixScale[1], matrixScale[2]));
+				glm::vec3 rot = tr.transform.GetRotationAngles();
+				glm::vec3 deltaRotation = glm::vec3(matrixRotation[0], matrixRotation[1], matrixRotation[2]) - rot;
+				tr.transform.SetRotationAngles(rot + deltaRotation);
+			}
+
+			tr.transform.SetLocation(Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]));
+			tr.transform.SetScale(Vector3(matrixScale[0], matrixScale[1], matrixScale[2]));
 
 		}
+
 
 		// ImGuizmo::DrawGrid(&view[0][0], &projection[0][0], &gridLineMatrix[0][0], GRID_SIZE);
 

@@ -74,7 +74,7 @@ namespace LinaEngine::Graphics
 	{
 		std::ofstream stream(path);
 		{
-			cereal::BinaryOutputArchive oarchive(stream); // Create an output archive
+			cereal::BinaryOutputArchive oarchive(stream); // Build an output archive
 
 			oarchive(mat); // Write the data to the archive
 		}
@@ -126,7 +126,7 @@ namespace LinaEngine::Graphics
 	}
 	Material& Material::CreateMaterial(Shader& shader, const std::string& path)
 	{
-		// Create material & set it's shader.
+		// Build material & set it's shader.
 		int id = Utility::GetUniqueID();
 		Material& mat = s_loadedMaterials[id];
 		SetMaterialShader(mat, shader);
@@ -138,7 +138,7 @@ namespace LinaEngine::Graphics
 
 	Material& Material::LoadMaterialFromFile(const std::string& path)
 	{
-		// Create material & set it's shader.
+		// Build material & set it's shader.
 		int id = Utility::GetUniqueID();
 		Material& mat = s_loadedMaterials[id];
 		Material::LoadMaterialData(mat, path);
@@ -147,12 +147,78 @@ namespace LinaEngine::Graphics
 			SetMaterialShader(mat, Shader::GetShader(mat.m_shaderPath), true);
 		else
 			SetMaterialShader(mat, RenderEngine::GetDefaultShader(), true);
+
 		SetMaterialContainers(mat);
 
 		mat.m_materialID = id;
 		mat.m_path = path;
+		mat.UpdateMaterialData();
+
 		return s_loadedMaterials[id];
 	}
+
+	void Material::UpdateMaterialData()
+	{
+		if (Shader::ShaderExists(m_shaderID))
+		{
+			ShaderUniformData data = Shader::GetShader(m_shaderID).GetUniformData();
+
+			for (auto& e : data.m_colors)
+			{
+				if (m_colors.find(e.first) == m_colors.end())
+					m_colors[e.first] = e.second;
+			}
+
+			for (auto& e : data.m_floats)
+			{
+				if (m_floats.find(e.first) == m_floats.end())
+					m_floats[e.first] = e.second;
+			}
+
+			for (auto& e : data.m_bools)
+			{
+				if (m_bools.find(e.first) == m_bools.end())
+					m_bools[e.first] = e.second;
+			}
+
+			for (auto& e : data.m_ints)
+			{
+				if (m_ints.find(e.first) == m_ints.end())
+					m_ints[e.first] = e.second;
+			}
+
+			for (auto& e : data.m_vector2s)
+			{
+				if (m_vector2s.find(e.first) == m_vector2s.end())
+					m_vector2s[e.first] = e.second;
+			}
+
+			for (auto& e : data.m_vector3s)
+			{
+				if (m_vector3s.find(e.first) == m_vector3s.end())
+					m_vector3s[e.first] = e.second;
+			}
+
+			for (auto& e : data.m_vector4s)
+			{
+				if (m_vector4s.find(e.first) == m_vector4s.end())
+					m_vector4s[e.first] = e.second;
+			}
+
+			for (auto& e : data.m_matrices)
+			{
+				if (m_matrices.find(e.first) == m_matrices.end())
+					m_matrices[e.first] = e.second;
+			}
+
+			for (auto& e : data.m_sampler2Ds)
+			{
+				if (m_sampler2Ds.find(e.first) == m_sampler2Ds.end())
+					m_sampler2Ds[e.first] = { e.second.m_unit, nullptr, "","", e.second.m_bindMode, false };
+			}
+		}
+	}
+
 	Material& Material::GetMaterial(int id)
 	{
 		if (!MaterialExists(id))
@@ -186,7 +252,7 @@ namespace LinaEngine::Graphics
 
 		material.m_shaderID = shader.GetID();
 		material.m_shaderPath = shader.GetPath();
-		material.m_selectedShaderPath = material.m_shaderPath;
+	
 		if (onlySetID) return material;
 
 

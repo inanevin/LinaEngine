@@ -80,10 +80,9 @@ namespace LinaEngine::Graphics
 		~GLRenderDevice();
 
 		void Initialize(int width, int height, DrawParams& defaultParams);
-
 		uint32 CreateTexture2D(Vector2 size, const void* data,  SamplerParameters samplerParams ,bool compress, bool useBorder = false, Color borderColor = Color::White);
 		uint32 CreateTextureHDRI(Vector2 size, float* data, SamplerParameters samplerParams);
-		uint32 CreateCubemapTexture(Vector2 size, SamplerParameters samplerParams, const std::vector<int32*>& data, uint32 dataSize = 6);
+		uint32 CreateCubemapTexture(Vector2 size, SamplerParameters samplerParams, const std::vector<unsigned char*>& data, uint32 dataSize = 6);
 		uint32 CreateCubemapTextureEmpty(Vector2 size, SamplerParameters samplerParams);
 		uint32 CreateTexture2DMSAA(Vector2 size, SamplerParameters samplerParams, int sampleCount);
 		uint32 CreateTexture2DEmpty(Vector2 size, SamplerParameters samplerParams);
@@ -98,7 +97,7 @@ namespace LinaEngine::Graphics
 		uint32 CreateLineVertexArray();
 		uint32 CreateHDRICubeVertexArray();
 		uint32 ReleaseVertexArray(uint32 vao, bool checkMap = true);
-		uint32 CreateSampler(SamplerParameters samplerParams);
+		uint32 CreateSampler(SamplerParameters samplerParams, bool isCubemap = false);
 		uint32 ReleaseSampler(uint32 sampler);
 		uint32 CreateUniformBuffer(const void* data, uintptr dataSize, BufferUsage usage);
 		uint32 ReleaseUniformBuffer(uint32 buffer);
@@ -119,7 +118,7 @@ namespace LinaEngine::Graphics
 		
 		void UpdateSamplerParameters(uint32 sampler, SamplerParameters params);
 		void GenerateTextureMipmaps(uint32 texture, TextureBindMode bindMode);
-		void BlitFrameBuffers(uint32 readFBO, uint32 readWidth, uint32 readHeight, uint32 writeFBO, uint32 writeWidth, uint32 writeHeight, BufferBit mask, SamplerFilter filter);
+		void BlitFrameBuffers(uint32 readFBO, uint32 readWidth, uint32 readHeight, uint32 writeFBO, uint32 writeWidth, uint32 writeHeight, BufferBit mask, SamplerFilter filter, FrameBufferAttachment att, uint32 attCount);
 		bool IsRenderTargetComplete(uint32 fbo);
 		void UpdateVertexArray(uint32 vao, uint32 bufferIndex, const void* data, uintptr dataSize);
 		void SetShader(uint32 shader);

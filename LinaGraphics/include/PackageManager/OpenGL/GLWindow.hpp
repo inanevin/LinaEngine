@@ -87,6 +87,7 @@ namespace LinaEngine::Graphics
 		// Closes the application.
 		virtual void Close() override;
 
+		virtual void Sleep(int milliseconds) override;
 	private:
 
 

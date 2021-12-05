@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/EditorCommon.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Utility/EditorUtility.hpp"
+#include "Rendering/Shader.hpp"
 #include "IconsFontAwesome5.h"
 #include "imgui/imgui.h"
 #include "imgui/ImGuiFileDialogue/ImGuiFileDialog.h"
@@ -57,6 +58,7 @@ namespace LinaEditor
 	static ImVec4 s_fileNameColor;
 	static ImVec4 s_usedFileNameColor;;
 	static bool s_highlightColorSet;
+	static bool m_drawInternals = true;
 	static float s_colorLerpTimestamp;
 	static float s_colorLerpDuration = 1.0f;
 	static float s_colorLerpItemID;
@@ -79,7 +81,7 @@ namespace LinaEditor
 
 	void ResourcesPanel::ScanRoot()
 	{
-		// Create root.
+		// Build root.
 		EditorFolder root;
 		root.m_name = ROOT_NAME;
 		root.m_path = "resources";
@@ -163,7 +165,7 @@ namespace LinaEditor
 		{
 			if (ImGui::BeginMenu("Create"))
 			{
-				// Create a folder.
+				// Build a folder.
 				if (ImGui::MenuItem("Folder"))
 				{
 					std::string folderPath = rootPath + "/NewFolder" + std::to_string(++s_itemIDCounter);
@@ -182,7 +184,7 @@ namespace LinaEditor
 
 				ImGui::Separator();
 
-				// Create a material.
+				// Build a material.
 				if (ImGui::MenuItem("Material"))
 				{
 					std::string name = "NewMaterial" + std::to_string(++s_itemIDCounter) + ".mat";
@@ -231,14 +233,19 @@ namespace LinaEditor
 		for (std::map<int, EditorFolder>::iterator it = folder.m_subFolders.begin(); it != folder.m_subFolders.end();)
 		{
 			// Skip drawing if internal folders.
-			if (it->second.m_parent != nullptr && it->second.m_parent->m_name.compare(ROOT_NAME) == 0)
+			if (!m_drawInternals)
 			{
-				if (it->second.m_name.compare("engine") == 0 || it->second.m_name.compare("editor") == 0)
+				if (it->second.m_parent != nullptr && it->second.m_parent->m_name.compare(ROOT_NAME) == 0)
 				{
-					it++;
-					continue;
+					if (it->second.m_name.compare("engine") == 0 || it->second.m_name.compare("editor") == 0)
+					{
+						it++;
+						continue;
+					}
 				}
 			}
+
+
 
 			WidgetsUtility::IncrementCursorPosX(4);
 
@@ -361,6 +368,46 @@ namespace LinaEditor
 					ImGui::EndDragDropSource();
 				}
 			}
+			else if (it->second.m_type == FileType::Material)
+			{
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+				{
+					// Set payload to carry the texture;
+					uint32 id = LinaEngine::Graphics::Material::GetMaterial(it->second.m_path).GetID();
+					ImGui::SetDragDropPayload(RESOURCES_MOVEMATERIAL_ID, &id, sizeof(uint32));
+
+					// Display preview 
+					ImGui::Text("Assign ");
+					ImGui::EndDragDropSource();
+				}
+			}
+			else if (it->second.m_type == FileType::Mesh)
+			{
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+				{
+					// Set payload to carry the texture;
+					uint32 id = LinaEngine::Graphics::Mesh::GetMesh(it->second.m_path).GetID();
+					ImGui::SetDragDropPayload(RESOURCES_MOVEMESH_ID, &id, sizeof(uint32));
+
+					// Display preview 
+					ImGui::Text("Assign ");
+					ImGui::EndDragDropSource();
+				}
+			}
+			else if (it->second.m_type == FileType::Shader)
+			{
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+				{
+					// Set payload to carry the texture;
+					uint32 id = LinaEngine::Graphics::Shader::GetShader(it->second.m_path).GetID();
+					ImGui::SetDragDropPayload(RESOURCES_MOVESHADER_ID, &id, sizeof(uint32));
+
+					// Display preview 
+					ImGui::Text("Assign ");
+					ImGui::EndDragDropSource();
+				}
+			}
+
 
 			ImGui::PopStyleColor();
 
@@ -386,7 +433,6 @@ namespace LinaEditor
 
 		}
 
-
 		// Deselect.
 		if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 		{
@@ -395,7 +441,7 @@ namespace LinaEditor
 		}
 
 		// Delete item.
-		if (ImGui::IsKeyPressed(Input::InputCode::Delete) && s_selectedItem != -1)
+		if (ImGui::IsKeyPressed(Input::InputCode::Delete) && s_selectedItem != -1 && ImGui::IsWindowFocused())
 		{
 			if (s_selectedFolder != nullptr)
 				s_selectedFolder->m_markedForErase = true;
@@ -437,7 +483,6 @@ namespace LinaEditor
 
 					LinaEngine::Graphics::Texture::SaveParameters(samplerParamsPath, samplerParams);
 				}
-
 			}
 			if (file.m_type == FileType::Material)
 			{
@@ -558,6 +603,8 @@ namespace LinaEditor
 			return FileType::Mesh;
 		else if (extension.compare("mat") == 0)
 			return FileType::Material;
+		else if (extension.compare("glsl") == 0)
+			return FileType::Shader;
 		else
 			return FileType::Unknown;
 	}

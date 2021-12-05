@@ -65,6 +65,9 @@ namespace LinaEditor
 			WidgetsUtility::IncrementCursorPosY(12);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Lighting");
+
+			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("FXAA");
 
 			ImGui::SetCursorPosX(cursorPosLabels);
@@ -77,19 +80,19 @@ namespace LinaEditor
 			WidgetsUtility::AlignedText("Reduce Min");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##fxaaReduceMin", &renderSettings.m_fxaaReduceMin);
+			ImGui::DragFloat("##fxaaReduceMin", &renderSettings.m_fxaaReduceMin, 0.05f);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Reduce Mul");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##fxaaReduceMul", &renderSettings.m_fxaaReduceMul);
+			ImGui::DragFloat("##fxaaReduceMul", &renderSettings.m_fxaaReduceMul, 0.05f);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Span Max");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##fxaaSpanMax", &renderSettings.m_fxaaSpanMax);
+			ImGui::DragFloat("##fxaaSpanMax", &renderSettings.m_fxaaSpanMax, 0.05f);
 
 			WidgetsUtility::IncrementCursorPosY(6);
 
@@ -117,13 +120,35 @@ namespace LinaEditor
 			WidgetsUtility::AlignedText("Gamma");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##gamma", &renderSettings.m_gamma);
+			ImGui::DragFloat("##gamma", &renderSettings.m_gamma, 0.05f);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Exposure");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::DragFloat("##exposure", &renderSettings.m_exposure);
+			ImGui::DragFloat("##exposure", &renderSettings.m_exposure, 0.05f);
+
+			WidgetsUtility::IncrementCursorPosY(6);
+			WidgetsUtility::DrawBeveledLine();
+			WidgetsUtility::IncrementCursorPosY(6);
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Vignette Enabled");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::Checkbox("##vigEnabled", &renderSettings.m_vignetteEnabled);
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Vignette Amount");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::DragFloat("##vigmat", &renderSettings.m_vignetteAmount, 0.05f);
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Vignette Pow");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::DragFloat("##vigpow", &renderSettings.m_vignettePow, 0.05f);
 
 			WidgetsUtility::IncrementCursorPosY(6);
 			WidgetsUtility::DrawBeveledLine();
