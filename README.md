@@ -4,9 +4,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT) 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c0c10a437a214dbf963210ed3edf3c4f)](https://www.codacy.com/gh/inanevin/LinaEngine/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=inanevin/LinaEngine&amp;utm_campaign=Badge_Grade)
 [![Build Status](https://app.travis-ci.com/inanevin/LinaEngine.svg?branch=master)](https://app.travis-ci.com/inanevin/LinaEngine)
-
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/inanevin/LinaEngine/issues) 
-[![HitCount](http://hits.dwyl.io/inanevin/LinaEngine.svg)](http://hits.dwyl.io/inanevin/LinaEngine)
 ![GitHub issues](https://img.shields.io/github/issues/inanevin/LinaEngine.svg)
 ![GitHub repo size](https://img.shields.io/github/repo-size/inanevin/LinaEngine.svg)
 
