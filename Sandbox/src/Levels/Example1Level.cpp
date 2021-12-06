@@ -26,7 +26,6 @@ using namespace LinaEngine::ECS;
 
 Example1Level::~Example1Level()
 {
-
 }
 
 bool Example1Level::Install(bool loadFromFile, const std::string& path, const std::string& levelName)

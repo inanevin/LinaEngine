@@ -48,7 +48,7 @@ namespace LinaEngine::Graphics
 	Material RenderEngine::s_defaultUnlit;
 	Shader* RenderEngine::s_standardUnlitShader;
 
-	constexpr size_t UNIFORMBUFFER_VIEWDATA_SIZE = (sizeof(Matrix) * 3) + (sizeof(Vector4)) + (sizeof(float) * 2);
+	constexpr size_t UNIFORMBUFFER_VIEWDATA_SIZE = (sizeof(Matrix) * 4) + (sizeof(Vector4)) + (sizeof(float) * 2);
 	constexpr int UNIFORMBUFFER_VIEWDATA_BINDPOINT = 0;
 	constexpr auto UNIFORMBUFFER_VIEWDATA_NAME = "ViewData";
 
@@ -681,6 +681,10 @@ namespace LinaEngine::Graphics
 		currentGlobalDataOffset += sizeof(Matrix);
 
 		m_globalDataBuffer.Update(&m_lightingSystem.GetDirectionalLightMatrix()[0][0], currentGlobalDataOffset, sizeof(Matrix));
+		currentGlobalDataOffset += sizeof(Matrix);
+
+		Matrix VP = m_cameraSystem.GetProjectionMatrix() * m_cameraSystem.GetViewMatrix();
+		m_globalDataBuffer.Update(&VP[0][0], currentGlobalDataOffset, sizeof(Matrix));
 		currentGlobalDataOffset += sizeof(Matrix);
 
 		m_globalDataBuffer.Update(&viewPos, currentGlobalDataOffset, sizeof(Vector4));

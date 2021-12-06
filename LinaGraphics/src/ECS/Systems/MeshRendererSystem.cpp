@@ -118,8 +118,9 @@ namespace LinaEngine::ECS
 
 			// Draw call.
 			// Update the buffer w/ each transform.
-			vertexArray->UpdateBuffer(5, models, numTransforms * sizeof(Matrix));
-			vertexArray->UpdateBuffer(6, inverseTransposeModels, numTransforms * sizeof(Matrix));
+			vertexArray->UpdateBuffer(7, models, numTransforms * sizeof(Matrix));
+			vertexArray->UpdateBuffer(8, inverseTransposeModels, numTransforms * sizeof(Matrix));
+
 
 			m_renderEngine->UpdateShaderData(mat);
 			s_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
@@ -147,8 +148,11 @@ namespace LinaEngine::ECS
 
 		for (Graphics::VertexArray* va : mesh.GetVertexArrays())
 		{
-			va->UpdateBuffer(5, &tr.transform.ToMatrix()[0][0], sizeof(Matrix));
-			va->UpdateBuffer(6, &tr.transform.ToMatrix().Inverse().Transpose()[0][0], sizeof(Matrix));
+			const Matrix model = tr.transform.ToMatrix();
+			va->UpdateBuffer(7, &model[0][0], sizeof(Matrix));
+			va->UpdateBuffer(8, &tr.transform.ToMatrix().Inverse().Transpose()[0][0], sizeof(Matrix));
+
+			
 			m_renderEngine->UpdateShaderData(&mat);
 			s_renderDevice->Draw(va->GetID(), drawParams, 1, va->GetIndexCount(), false);
 		}
@@ -179,9 +183,10 @@ namespace LinaEngine::ECS
 
 			// Draw call.
 			// Update the buffer w/ each transform.
-			vertexArray->UpdateBuffer(5, models, numTransforms * sizeof(Matrix));
-			vertexArray->UpdateBuffer(6, inverseTransposeModels, numTransforms * sizeof(Matrix));
-
+			vertexArray->UpdateBuffer(7, models, numTransforms * sizeof(Matrix));
+			vertexArray->UpdateBuffer(8, inverseTransposeModels, numTransforms * sizeof(Matrix));
+			
+	
 			m_renderEngine->UpdateShaderData(mat);
 			s_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
 

@@ -35,6 +35,7 @@ namespace LinaEngine
 	GameManager* GameManager::s_instance = nullptr;
 	Example1Level* m_exampleLevel = nullptr;
 
+
 	void GameManager::Attach()
 	{
 		s_instance = this;

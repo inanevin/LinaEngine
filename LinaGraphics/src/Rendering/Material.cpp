@@ -284,7 +284,6 @@ namespace LinaEngine::Graphics
 			material.m_sampler2Ds[it->first] = { it->second.m_unit, nullptr, "","", it->second.m_bindMode, false };
 		}
 
-
 		/*
 		if (shader == Shaders::Standard_Unlit)
 		{

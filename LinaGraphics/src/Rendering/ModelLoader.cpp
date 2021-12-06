@@ -145,9 +145,9 @@ namespace LinaEngine::Graphics
 			currentModel.AllocateElement(3, true); // Normals
 			currentModel.AllocateElement(3, true); // Tangents
 			currentModel.AllocateElement(3, true); // Bitangents
-			//currentModel.AllocateElement(4, false); // Bone ids
-			//currentModel.AllocateElement(5, true);	// bone weights
-			currentModel.SetStartIndex(5); // Begin instanced data
+			currentModel.AllocateElement(4, false); // Bone ids
+			currentModel.AllocateElement(4, true);	// bone weights
+			currentModel.SetStartIndex(7); // Begin instanced data
 			currentModel.AllocateElement(16, true); // Model Matrix
 			currentModel.AllocateElement(16, true); // Inverse transpose matrix
 
@@ -169,6 +169,8 @@ namespace LinaEngine::Graphics
 				currentModel.AddElement(2, normal.x, normal.y, normal.z);
 				currentModel.AddElement(3, tangent.x, tangent.y, tangent.z);
 				currentModel.AddElement(4, biTangent.x, biTangent.y, biTangent.z);
+				currentModel.AddElement(5, 0,0,0,0);
+				currentModel.AddElement(6, 0.0f, 0.0f, 0.0f, 0.0f);
 			}
 
 			// Iterate through faces & add indices for each face.

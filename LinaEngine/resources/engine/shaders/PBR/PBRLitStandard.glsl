@@ -22,53 +22,44 @@ layout (location = 1) in vec2 texCoords;
 layout (location = 2) in vec3 normal;
 layout (location = 3) in vec3 tangent;
 layout (location = 4) in vec3 biTangent;
-// layout (location = 5) in ivec4 boneIDs;
-// layout (location = 6) in vec4 boneWeights;
-layout (location = 5) in mat4 model;
-layout (location = 9) in mat4 inverseTransposeModel;
+layout (location = 5) in ivec4 boneIDs;
+layout (location = 6) in vec4 boneWeights;
+
+layout (location = 7) in mat4 model;
+layout (location = 11) in mat4 inverseTransposeModel;
 
 out vec2 TexCoords;
 out vec3 WorldPos;
 out vec3 Normal;
-out float Addition;
-uniform float uf_time;
-uniform bool uf_deform;
-uniform float uf_rand1;
-uniform float uf_amount;
-uniform float uf_speed;
 
-float rand(vec2 co){
-    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
-}
 
-highp float random(vec2 co)
-{
-    highp float a = 12.9898;
-    highp float b = 78.233;
-    highp float c = 43758.5453;
-    highp float dt= dot(co.xy ,vec2(a,b));
-    highp float sn= mod(dt,3.14);
-    return fract(sin(sn) * c);
-}
+uniform bool uf_isSkinned;
+
+const int MAX_BONES = 100;
+uniform mat4 gBones[MAX_BONES];
 
 void main()
 {
 	TexCoords = texCoords;	
-	WorldPos = vec3(model * vec4(position, 1.0));
-	Normal = mat3(model) * normal;
-
-	if(uf_deform)
+	
+	if(uf_isSkinned)
 	{
-		vec3 camera = cameraPosition.xyz;
-		vec3 toCamera = normalize(camera - WorldPos);
-		Addition = sin(uf_time * uf_speed) * random(vec2(4 * gl_VertexID, 25 * uf_rand1)) * uf_amount;
-		WorldPos.x += toCamera.z * Addition;
-		WorldPos.z += toCamera.x * Addition;
+		mat4 boneTransform = gBones[boneIDs[0]] * boneWeights[0];
+		boneTransform += gBones[boneIDs[1]] * boneWeights[1];
+		boneTransform += gBones[boneIDs[2]] * boneWeights[2];
+		boneTransform += gBones[boneIDs[3]] * boneWeights[3];
+		
+		WorldPos = vec3(boneTransform * model * vec4(position, 1.0));
+		Normal = mat3(model) * normal;
+		gl_Position = VP * vec4(WorldPos, 1.0);
 	}
 	else
-		Addition = 0.0;
-	
-	gl_Position =  projection * view * vec4(WorldPos, 1.0);
+	{
+		WorldPos = vec3(model * vec4(position, 1.0));
+		Normal = mat3(model) * normal;
+		gl_Position = VP * vec4(WorldPos, 1.0);
+	}
+
 }
 
 #elif defined(FS_BUILD)
@@ -83,7 +74,6 @@ layout (location = 1) out vec4 brightColor;
 in vec2 TexCoords;
 in vec3 WorldPos;
 in vec3 Normal;
-in float Addition;
 
 struct Material
 {
@@ -228,14 +218,6 @@ void main()
     //color = pow(color, vec3(1.0/2.2));
 
 	float alpha =  material.surfaceType == 0 ? 1.0 : (material.albedoMap.isActive ? texture(material.albedoMap.texture, tiled).a : 1.0);
-	
-	if(Addition != 0.0)
-	{
-		//color.r *= Addition * rand(vec2(2.0));
-		//color.g *= Addition * rand(vec2(2.0));
-		//color.b *= Addition * rand(vec2(2.0));
-	}
-	
 	fragColor = vec4(color, alpha);
 
 }

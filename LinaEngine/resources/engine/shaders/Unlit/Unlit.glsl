@@ -22,14 +22,15 @@ layout (location = 1) in vec2 texCoords;
 layout (location = 2) in vec3 normal;
 layout (location = 3) in vec3 tangent;
 layout (location = 4) in vec3 biTangent;
-layout (location = 5) in mat4 model;
-layout (location = 9) in mat4 inverseTransposeModel;
+layout (location = 7) in mat4 model;
+layout (location = 11) in mat4 inverseTransposeModel;
+
 out vec2 TexCoords;
 out vec3 FragPos;
 
 void main()
 {
-  gl_Position = projection * view * model * vec4(position, 1.0);
+  gl_Position = VP * model * vec4(position, 1.0);
   FragPos = vec3(model * vec4(position,1.0));
   TexCoords = texCoords;
 }
