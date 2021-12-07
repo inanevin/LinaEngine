@@ -39,6 +39,8 @@ Timestamp: 5/1/2019 2:35:28 AM
 #ifndef PhysicsEngine_HPP
 #define PhysicsEngine_HPP
 
+
+#define BT_NO_SIMD_OPERATOR_OVERLOADS
 #include "ECS/Systems/RigidbodySystem.hpp"
 #include "Physics/PhysicsGizmoDrawer.hpp"
 #include "ECS/Components/AABBComponent.hpp"

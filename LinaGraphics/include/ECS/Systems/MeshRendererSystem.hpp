@@ -53,6 +53,7 @@ namespace LinaEngine
 	{
 		class RenderEngine;
 		class Material;
+		class Skeleton;
 
 		struct BatchDrawData
 		{
@@ -65,6 +66,7 @@ namespace LinaEngine
 		{
 			std::vector<Matrix> m_models;
 			std::vector<Matrix> m_inverseTransposeModels;
+			std::vector<Matrix> m_boneTransformations;
 		};
 	}
 }
@@ -107,8 +109,8 @@ namespace LinaEngine::ECS
 			s_renderDevice = &renderDeviceIn;
 		}
 
-		void RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn);
-		void RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, float priority);
+		void RenderOpaque(Graphics::VertexArray& vertexArray, LinaEngine::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn);
+		void RenderTransparent(Graphics::VertexArray& vertexArray, LinaEngine::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn, float priority);
 		void FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
 		void FlushTransparent(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
 	

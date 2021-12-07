@@ -42,6 +42,8 @@ Timestamp: 12/7/2021 11:34:48 AM
 // Headers here.
 #include <string>
 
+#include <ozz/animation/runtime/animation.h>
+
 namespace LinaEngine::Graphics
 {
 	class Animation
@@ -50,10 +52,13 @@ namespace LinaEngine::Graphics
 	public:
 		
 		Animation() {};
-		Animation(const std::string& meshPath, const std::string& animName);
 		~Animation() {};
-	
+
+		ozz::animation::Animation& GetAnim() { return m_anim; }
+		bool LoadAnimation(const std::string& animPath);
+
 	private:
+		ozz::animation::Animation m_anim;
 	
 	};
 }

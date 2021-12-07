@@ -45,6 +45,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "ECS/ECSSystem.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
 #include "ECS/Systems/LightingSystem.hpp"
+#include "ECS/Systems/AnimationSystem.hpp"
 #include "ECS/Systems/MeshRendererSystem.hpp"
 #include "ECS/Systems/SpriteRendererSystem.hpp"
 #include "Rendering/ModelLoader.hpp"
@@ -241,6 +242,7 @@ namespace LinaEngine::Graphics
 		// Structure that keeps track of current buffer values
 		BufferValueRecord m_bufferValueRecord;
 
+		LinaEngine::ECS::AnimationSystem m_animationSystem;
 		LinaEngine::ECS::CameraSystem m_cameraSystem;
 		LinaEngine::ECS::MeshRendererSystem m_meshRendererSystem;
 		LinaEngine::ECS::SpriteRendererSystem m_spriteRendererSystem;

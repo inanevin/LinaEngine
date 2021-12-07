@@ -37,7 +37,7 @@ uniform bool uf_isSkinned;
 
 const int MAX_BONES = 100;
 const int MAX_BONE_INFLUENCE = 4;
-uniform mat4 finalBonesMatrices[MAX_BONES];
+uniform mat4 uf_boneMatrices[MAX_BONES];
 
 void main()
 {
@@ -55,9 +55,9 @@ void main()
 				totalPosition = vec4(position,1.0f);
 				break;
 			}
-			vec4 localPosition = finalBonesMatrices[boneIDs[i]] * vec4(position,1.0f);
+			vec4 localPosition = uf_boneMatrices[boneIDs[i]] * vec4(position,1.0f);
 			totalPosition += localPosition * boneWeights[i];
-			vec3 localNormal = mat3(finalBonesMatrices[boneIDs[i]]) * normal;
+			vec3 localNormal = mat3(uf_boneMatrices[boneIDs[i]]) * normal;
 		}
 		
 

@@ -62,6 +62,7 @@ namespace LinaEngine
 		std::string GetFilePath(const std::string& fileName);
 		std::string GetFileWithoutExtension(const std::string& filename);
 		std::string GetFileNameOnly(const std::string& filename);
+		std::string GetFileExtension(const std::string& file);
 
 		// Mostly used for loading shaders.
 		bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword);

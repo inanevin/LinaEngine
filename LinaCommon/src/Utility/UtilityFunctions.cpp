@@ -116,6 +116,10 @@ namespace LinaEngine
 			}
 		}
 		
+		std::string GetFileExtension(const std::string& file)
+		{
+			return file.substr(file.find_last_of(".") + 1);
+		}
 		std::string GetFileNameOnly(const std::string& fileName)
 		{
 			return fileName.substr(fileName.find_last_of("/\\") + 1);

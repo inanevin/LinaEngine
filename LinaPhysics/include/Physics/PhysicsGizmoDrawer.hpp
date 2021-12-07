@@ -31,6 +31,7 @@ SOFTWARE.
 #ifndef PhysicsGizmoDrawer_HPP
 #define PhysicsGizmoDrawer_HPP
 
+#define BT_NO_SIMD_OPERATOR_OVERLOADS
 #include "btBulletDynamicsCommon.h"
 #include "Utility/Math/Vector.hpp"
 #include "Utility/Math/Color.hpp"

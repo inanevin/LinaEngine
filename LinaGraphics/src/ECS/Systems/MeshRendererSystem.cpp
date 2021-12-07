@@ -32,10 +32,29 @@ SOFTWARE.
 #include "Rendering/Mesh.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Material.hpp"
+#include "Animation/Skeleton.hpp"
 
 namespace LinaEngine::ECS
 {
 
+	Matrix OZZToMatrix(ozz::math::Float4x4& model)
+	{
+
+		Matrix mat;
+#ifdef OZZ_SIMD_SSEx
+		mat[0][0] = model.cols[0].m128_f32[0];	mat[0][1] = model.cols[0].m128_f32[1];	mat[0][2] = model.cols[0].m128_f32[2];	mat[0][3] = model.cols[0].m128_f32[3];
+		mat[1][0] = model.cols[1].m128_f32[0];	mat[1][1] = model.cols[1].m128_f32[1];	mat[1][2] = model.cols[1].m128_f32[2];	mat[1][3] = model.cols[1].m128_f32[3];
+		mat[2][0] = model.cols[2].m128_f32[0];	mat[2][1] = model.cols[2].m128_f32[1];	mat[2][2] = model.cols[2].m128_f32[2];	mat[2][3] = model.cols[2].m128_f32[3];
+		mat[3][0] = model.cols[3].m128_f32[0];	mat[3][1] = model.cols[3].m128_f32[1];	mat[3][2] = model.cols[3].m128_f32[2];	mat[3][3] = model.cols[3].m128_f32[3];
+#else
+		mat[0][0] = model.cols[0].x;	mat[0][1] = model.cols[0].y;	mat[0][2] = model.cols[0].z;	mat[0][3] = model.cols[0].w;
+		mat[1][0] = model.cols[1].x;	mat[1][1] = model.cols[1].y;	mat[1][2] = model.cols[1].z;	mat[1][3] = model.cols[1].w;
+		mat[2][0] = model.cols[2].x;	mat[2][1] = model.cols[2].y;	mat[2][2] = model.cols[2].z;	mat[2][3] = model.cols[2].w;
+		mat[3][0] = model.cols[3].x;	mat[3][1] = model.cols[3].y;	mat[3][2] = model.cols[3].z;	mat[3][3] = model.cols[3].w;
+#endif
+
+		return mat;
+	}
 
 	void MeshRendererSystem::UpdateComponents(float delta)
 	{
@@ -56,7 +75,7 @@ namespace LinaEngine::ECS
 			if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
 			{
 				for (int i = 0; i < mesh.GetVertexArrays().size(); i++)
-					RenderOpaque(*mesh.GetVertexArray(i), mat, transform.transform.ToMatrix());
+					RenderOpaque(*mesh.GetVertexArray(i), mesh.GetSkeleton(), mat, transform.transform.ToMatrix());
 			}
 			else
 			{
@@ -64,13 +83,13 @@ namespace LinaEngine::ECS
 				float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - transform.transform.GetLocation()).MagnitudeSqrt();
 
 				for (int i = 0; i < mesh.GetVertexArrays().size(); i++)
-					RenderTransparent(*mesh.GetVertexArray(i), mat, transform.transform.ToMatrix(), priority);
+					RenderTransparent(*mesh.GetVertexArray(i), mesh.GetSkeleton(), mat, transform.transform.ToMatrix(), priority);
 			}
 		}
 
 	}
 
-	void MeshRendererSystem::RenderOpaque(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn)
+	void MeshRendererSystem::RenderOpaque(Graphics::VertexArray& vertexArray, LinaEngine::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn)
 	{
 		// Render commands basically add the necessary
 		// draw data into the maps/lists etc.
@@ -79,9 +98,22 @@ namespace LinaEngine::ECS
 		drawData.m_material = &material;
 		m_opaqueRenderBatch[drawData].m_models.push_back(transformIn);
 		m_opaqueRenderBatch[drawData].m_inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
+
+		if (skeleton.IsLoaded())
+		{
+			auto& models = skeleton.GetModels();
+
+			for (auto& model : models)
+			{
+				Matrix mat = OZZToMatrix(model);
+				m_opaqueRenderBatch[drawData].m_boneTransformations.push_back(mat);
+			}
+		}
+
+
 	}
 
-	void MeshRendererSystem::RenderTransparent(Graphics::VertexArray& vertexArray, Graphics::Material& material, const Matrix& transformIn, float priority)
+	void MeshRendererSystem::RenderTransparent(Graphics::VertexArray& vertexArray, LinaEngine::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn, float priority)
 	{
 		// Render commands basically add the necessary
 		// draw data into the maps/lists etc.
@@ -93,7 +125,20 @@ namespace LinaEngine::ECS
 		Graphics::BatchModelData modelData;
 		modelData.m_models.push_back(transformIn);
 		modelData.m_inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
+
+		if (skeleton.IsLoaded())
+		{
+			auto& models = skeleton.GetModels();
+
+			for (auto& model : models)
+			{
+				Matrix mat = OZZToMatrix(model);
+				modelData.m_boneTransformations.push_back(mat);
+			}
+		}
+
 		m_transparentRenderBatch.emplace(std::make_pair(drawData, modelData));
+
 	}
 
 	void MeshRendererSystem::FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
@@ -121,6 +166,13 @@ namespace LinaEngine::ECS
 			vertexArray->UpdateBuffer(7, models, numTransforms * sizeof(Matrix));
 			vertexArray->UpdateBuffer(8, inverseTransposeModels, numTransforms * sizeof(Matrix));
 
+			if (modelData.m_boneTransformations.size() == 0)
+				mat->SetBool(UF_BOOL_SKINNED, false);
+			else
+				mat->SetBool(UF_BOOL_SKINNED, true);
+
+			for (int i = 0; i < modelData.m_boneTransformations.size(); i++)
+				mat->SetMatrix4(std::string(UF_BONE_MATRICES) + "[" + std::to_string(i) + "]", modelData.m_boneTransformations[i]);
 
 			m_renderEngine->UpdateShaderData(mat);
 			s_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
@@ -130,6 +182,7 @@ namespace LinaEngine::ECS
 			{
 				modelData.m_models.clear();
 				modelData.m_inverseTransposeModels.clear();
+				modelData.m_boneTransformations.clear();
 			}
 		}
 	}
@@ -151,8 +204,6 @@ namespace LinaEngine::ECS
 			const Matrix model = tr.transform.ToMatrix();
 			va->UpdateBuffer(7, &model[0][0], sizeof(Matrix));
 			va->UpdateBuffer(8, &tr.transform.ToMatrix().Inverse().Transpose()[0][0], sizeof(Matrix));
-
-			
 			m_renderEngine->UpdateShaderData(&mat);
 			s_renderDevice->Draw(va->GetID(), drawParams, 1, va->GetIndexCount(), false);
 		}
@@ -185,8 +236,14 @@ namespace LinaEngine::ECS
 			// Update the buffer w/ each transform.
 			vertexArray->UpdateBuffer(7, models, numTransforms * sizeof(Matrix));
 			vertexArray->UpdateBuffer(8, inverseTransposeModels, numTransforms * sizeof(Matrix));
-			
-	
+
+			if (modelData.m_boneTransformations.size() == 0)
+				mat->SetBool(UF_BOOL_SKINNED, false);
+			else
+				mat->SetBool(UF_BOOL_SKINNED, true);
+
+			for (int i = 0; i < modelData.m_boneTransformations.size(); i++)
+				mat->SetMatrix4(std::string(UF_BONE_MATRICES) + "[" + std::to_string(i) + "]", modelData.m_boneTransformations[i]);
 			m_renderEngine->UpdateShaderData(mat);
 			s_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
 
@@ -195,6 +252,7 @@ namespace LinaEngine::ECS
 			{
 				modelData.m_models.clear();
 				modelData.m_inverseTransposeModels.clear();
+				modelData.m_boneTransformations.clear();
 			}
 
 			m_transparentRenderBatch.pop();

@@ -44,7 +44,7 @@ Timestamp: 5/6/2019 4:23:45 PM
 #include "Rendering/Texture.hpp"
 #include "Rendering/IndexedModel.hpp"
 #include "Rendering/Material.hpp"
-#include "Animation/Animation.hpp"
+#include "Animation/Skeleton.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -95,14 +95,14 @@ namespace LinaEngine::Graphics
 			return m_materialSpecArray;
 		}
 
-		std::vector<Animation>& GetAnimations()
-		{
-			return m_animations;
-		}
-
 		std::vector<uint32>& GetMaterialIndices()
 		{
 			return m_materialIndexArray;
+		}
+
+		Skeleton& GetSkeleton()
+		{
+			return m_skeleton;
 		}
 
 		static MeshParameters LoadParameters(const std::string& path);
@@ -130,7 +130,7 @@ namespace LinaEngine::Graphics
 		std::vector<IndexedModel> m_indexedModelArray;
 		std::vector<ModelMaterial> m_materialSpecArray;
 		std::vector<uint32> m_materialIndexArray;
-		std::vector<Animation> m_animations;
+		Skeleton m_skeleton;
 
 	};
 }

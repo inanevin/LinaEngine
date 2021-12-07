@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -31,8 +31,12 @@ SOFTWARE.
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+
 #include <ozz/animation/offline/tools/import2ozz.h>
 #include <Utility/UtilityFunctions.hpp>
+#include <fstream>
+#include <iostream>
+#include <filesystem>
 
 namespace LinaEngine::Graphics
 {
@@ -48,8 +52,8 @@ namespace LinaEngine::Graphics
 				return;
 			}
 		}
-		
-			LINA_CORE_ERR("Reached to the end of max bones per vertex!");
+
+		LINA_CORE_ERR("Reached to the end of max bones per vertex!");
 	}
 
 	Matrix AssimpToInternal(aiMatrix4x4 aiMat)
@@ -62,20 +66,20 @@ namespace LinaEngine::Graphics
 		return mat;
 	}
 
-	bool ModelLoader::LoadModel(const std::string& fileName, std::vector<IndexedModel>& models, std::vector<uint32>& modelMaterialIndices, std::vector<ModelMaterial>& materials, std::vector<Animation>& anims, MeshParameters meshParams, MeshSceneParameters* worldParams)
+	bool ModelLoader::LoadModel(const std::string& fileName, std::vector<IndexedModel>& models, std::vector<uint32>& modelMaterialIndices, std::vector<ModelMaterial>& materials, Skeleton& skeleton, MeshParameters meshParams, MeshSceneParameters* worldParams)
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
 		uint32 importFlags = 0;
 		if (meshParams.m_calculateTangentSpace)
 			importFlags |= aiProcess_CalcTangentSpace;
-		
+
 		if (meshParams.m_triangulate)
 			importFlags |= aiProcess_Triangulate;
 
 		if (meshParams.m_smoothNormals)
 			importFlags |= aiProcess_GenSmoothNormals;
-		
+
 		if (meshParams.m_flipUVs)
 			importFlags |= aiProcess_FlipUVs;
 
@@ -85,7 +89,7 @@ namespace LinaEngine::Graphics
 
 		const aiScene* scene = importer.ReadFile(fileName.c_str(), importFlags);
 
-		
+
 		if (!scene)
 		{
 			LINA_CORE_ERR("Mesh loading failed! {0}", fileName.c_str());
@@ -102,12 +106,15 @@ namespace LinaEngine::Graphics
 		}
 
 		aiMatrix4x4 rootTransformation = scene->mRootNode->mTransformation;
-		worldParams->m_rootInverse = AssimpToInternal(rootTransformation).Inverse();	
+		worldParams->m_rootInverse = AssimpToInternal(rootTransformation).Inverse();
 
 		const std::string runningDirectory = Utility::GetRunningDirectory();
 
-		if (scene->HasAnimations())
+
+		// Load animations if fbx
+		if (Utility::GetFileExtension(fileName).compare("fbx") == 0 && scene->HasAnimations())
 		{
+			// Create .ozz files out of FBX.
 			const std::string meshPath = runningDirectory + "\\" + fileName;
 			const std::string meshName = Utility::GetFileNameOnly(Utility::GetFileWithoutExtension(fileName));
 			const std::string meshFolder = runningDirectory + "\\" + Utility::GetFilePath(fileName);
@@ -115,24 +122,60 @@ namespace LinaEngine::Graphics
 			const std::string command = cdToBin + "&& fbx2ozz.exe --file=" + meshPath;
 			system(command.c_str());
 
+			// Make directory in the original fbx file dir.
 			const std::string makeDirCommand = "cd " + meshFolder + " && mkdir " + meshName;
 			system(makeDirCommand.c_str());
-			LINA_CORE_ERR("command {0}", makeDirCommand)
+			LINA_CORE_ERR("command {0}", makeDirCommand);
 
+			// Copy the ozz files to the newly created directory.
 			const std::string moveCommand = cdToBin + "&& move *.ozz " + meshFolder + "\\" + meshName;
 			system(moveCommand.c_str());
 
-			for (uint32 i = 0; i < scene->mNumAnimations; i++)
+			// Load skeleton.
+			const std::string skelPath = Utility::GetFileWithoutExtension(fileName) + "/skeleton.ozz";
+			skeleton.LoadSkeleton(skelPath);
+
+			// Create animation structure for each ozz file
+			std::string path(meshFolder + "/");
+			std::string ext(".ozz");
+			for (auto& p : std::filesystem::recursive_directory_iterator(path))
 			{
-				auto aiAnim = scene->mAnimations[i];
-				anims.push_back(Animation(fileName, aiAnim->mName.C_Str()));
-				LINA_CORE_ERR("ANIM {0}", aiAnim->mName.C_Str());
+				if (p.path().extension() == ext)
+				{
+					const std::string animName = p.path().stem().string();
+
+					// Skip skeleton
+					if (animName.compare("skeleton") == 0)
+						continue;
+
+					// Create runtime animation for each ozz
+					const std::string path = Utility::GetFileWithoutExtension(fileName) + "/" + animName + ".ozz";
+					Animation* anim = new Animation();
+					const bool success = anim->LoadAnimation(path);
+
+					if (success)
+					{
+						if (skeleton.GetSkeleton().num_joints() != anim->GetAnim().num_tracks())
+						{
+							LINA_CORE_ERR("Loaded animation does not match with the loaded skeleton. {0}", path);
+							delete anim;
+						}
+						else
+							skeleton.GetAnimations()[animName] = anim;
+
+					}
+					else
+						delete anim;
+
+				}
 			}
 
-		}
-		
 
-	
+
+		}
+
+
+
 		// Iterate through the meshes on the scene.
 		for (uint32 j = 0; j < scene->mNumMeshes; j++)
 		{
@@ -193,7 +236,7 @@ namespace LinaEngine::Graphics
 					SetVertexBoneData(vertexBoneIDs[vertexId], vertexBoneWeights[vertexId], boneID, weight);
 				}
 			}
-		
+
 
 			// Iterate through vertices.
 			for (uint32 i = 0; i < model->mNumVertices; i++)
@@ -205,7 +248,7 @@ namespace LinaEngine::Graphics
 				const aiVector3D texCoord = model->HasTextureCoords(0) ? model->mTextureCoords[0][i] : aiZeroVector;
 				const aiVector3D tangent = model->HasTangentsAndBitangents() ? model->mTangents[i] : aiZeroVector;
 				const aiVector3D biTangent = model->HasTangentsAndBitangents() ? model->mBitangents[i] : aiZeroVector;
-				
+
 				// Set model vertex data.
 				currentModel.AddElement(0, pos.x, pos.y, pos.z);
 				currentModel.AddElement(1, texCoord.x, texCoord.y);
@@ -213,7 +256,7 @@ namespace LinaEngine::Graphics
 				currentModel.AddElement(3, tangent.x, tangent.y, tangent.z);
 				currentModel.AddElement(4, biTangent.x, biTangent.y, biTangent.z);
 
-			
+
 				const std::vector<int>& vboneIDs = vertexBoneIDs[i];
 				const std::vector<float>& vboneWeights = vertexBoneWeights[i];
 				currentModel.AddElement(5, vboneIDs[0], vboneIDs[1], vboneIDs[2], vboneIDs[3]);
@@ -375,7 +418,7 @@ namespace LinaEngine::Graphics
 			currentModel.AddElement(0, vertices[i].x, vertices[i].y, vertices[i].z);
 			currentModel.AddElement(1, texCoords[i].x, texCoords[i].y);
 		}
-		
+
 		// Add indices.
 		currentModel.AddIndices(indices[0], indices[1], indices[2]);
 		currentModel.AddIndices(indices[3], indices[4], indices[5]);

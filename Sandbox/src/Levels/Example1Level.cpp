@@ -20,9 +20,11 @@ Timestamp: 5/6/2019 9:22:56 PM
 
 #include "Levels/Example1Level.hpp"
 #include "Core/Application.hpp"
+#include "ECS/Components/AnimationComponent.hpp"
 
 using namespace LinaEngine::Graphics;
 using namespace LinaEngine::ECS;
+using namespace LinaEngine;
 
 Example1Level::~Example1Level()
 {
@@ -39,6 +41,11 @@ bool Example1Level::Install(bool loadFromFile, const std::string& path, const st
 void Example1Level::Initialize()
 {
 	LINA_CLIENT_TRACE("Example1Level initialized. Implement your logic for instantiating entities, players, assigning cameras etc. from now on.");
+
+	auto ybot = Application::GetECSRegistry().GetEntity("YBot");
+
+	auto& anim = Application::GetECSRegistry().emplace<ECS::AnimationComponent>(ybot);
+	anim.m_animationName = "Armature_Idle";
 }
 
 void Example1Level::Tick(bool isInPlayMode, float delta)

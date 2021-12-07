@@ -45,6 +45,7 @@ namespace LinaEngine::Graphics
 		for (uint32 i = 0; i < m_vertexArrays.size(); i++)
 			delete m_vertexArrays[i];
 
+
 		m_vertexArrays.clear();
 		m_indexedModelArray.clear();
 		m_materialSpecArray.clear();
@@ -58,7 +59,7 @@ namespace LinaEngine::Graphics
 
 		Mesh& mesh = s_loadedMeshes[id];
 		mesh.SetParameters(meshParams);
-		ModelLoader::LoadModel(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs(), mesh.GetAnimations(), meshParams, &mesh.m_worldParameters);
+		ModelLoader::LoadModel(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs(),  mesh.GetSkeleton(), meshParams, &mesh.m_worldParameters);
 
 		if (mesh.GetIndexedModels().size() == 0)
 		{

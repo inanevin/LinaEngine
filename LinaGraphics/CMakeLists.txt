@@ -23,6 +23,8 @@ set (LINAGRAPHICS_SOURCES
 
 	#Animation
 	src/Animation/Animation.cpp
+	src/Animation/Skeleton.cpp
+	src/ECS/Systems/AnimationSystem.cpp
 	
 	#Rendering
 	src/Rendering/ArrayBitmap.cpp
@@ -55,7 +57,10 @@ set(LINAGRAPHICS_HEADERS
 	
 	#Animation
 	include/Animation/Animation.hpp
-	
+	include/Animation/Skeleton.hpp
+	include/ECS/Systems/AnimationSystem.hpp
+	include/ECS/Components/AnimationComponent.hpp
+
 	#Rendering
 	include/Rendering/ArrayBitmap.hpp
 	include/Rendering/RenderEngine.hpp
@@ -144,13 +149,12 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glad/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glad.lib
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/assimp/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/${ASSIMP_LIB}
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_animation_fbx_r.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_animation_offline_r.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_animation_r.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_animation_tools_r.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_base_r.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_geometry_r.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_options_r.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/ozz_animation_offline.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/ozz_animation.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/ozz_animation_tools.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/ozz_base.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/ozz_geometry.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/ozz_options.lib
 
 	PRIVATE Lina::Common
 	PRIVATE Lina::ECS

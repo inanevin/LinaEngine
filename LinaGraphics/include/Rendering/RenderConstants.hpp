@@ -109,6 +109,7 @@ namespace LinaEngine::Graphics
 #define UF_MATRIX_PROJECTION "projection"
 #define UF_MVP "gMVP"
 #define UF_FLOAT_TIME "uf_time"
+#define UF_BONE_MATRICES "uf_boneMatrices"
 #define UF_BOOL_SKINNED "uf_isSkinned"
 #define UF_SHADOWMATRICES "uf_shadowMatrices"
 #define UF_LIGHTPOS "uf_lightPos"
