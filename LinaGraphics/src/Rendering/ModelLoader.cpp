@@ -109,10 +109,11 @@ namespace LinaEngine::Graphics
 		worldParams->m_rootInverse = AssimpToInternal(rootTransformation).Inverse();
 
 		const std::string runningDirectory = Utility::GetRunningDirectory();
-
+		const std::string fileExt = Utility::GetFileExtension(fileName);
+		const bool isFBX = fileExt.compare("fbx") == 0;
 
 		// Load animations if fbx
-		if (Utility::GetFileExtension(fileName).compare("fbx") == 0 && scene->HasAnimations())
+		if (isFBX && scene->HasAnimations())
 		{
 			// Create .ozz files out of FBX.
 			const std::string meshPath = runningDirectory + "\\" + fileName;
@@ -175,14 +176,12 @@ namespace LinaEngine::Graphics
 		}
 
 
-
 		// Iterate through the meshes on the scene.
 		for (uint32 j = 0; j < scene->mNumMeshes; j++)
 		{
 			// Build model reference for each mesh.
 			const aiMesh* model = scene->mMeshes[j];
 			modelMaterialIndices.push_back(model->mMaterialIndex);
-
 
 			// Build and indexed model for each mesh & fill in the data.
 			IndexedModel currentModel;
@@ -197,13 +196,18 @@ namespace LinaEngine::Graphics
 			currentModel.AllocateElement(16, true); // Model Matrix
 			currentModel.AllocateElement(16, true); // Inverse transpose matrix
 
+
 			const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
 
 			std::vector<std::vector<int>> vertexBoneIDs;
 			std::vector<std::vector<float>> vertexBoneWeights;
 
-			vertexBoneIDs.resize(model->mNumVertices, std::vector<int>(4, -1));
-			vertexBoneWeights.resize(model->mNumVertices, std::vector<float>(4, 0.0f));
+			if (model->mNumBones > 0)
+			{
+				vertexBoneIDs.resize(model->mNumVertices, std::vector<int>(4, -1));
+				vertexBoneWeights.resize(model->mNumVertices, std::vector<float>(4, 0.0f));
+			}
+
 
 			int boneCounter = 0;
 			for (int boneIndex = 0; boneIndex < model->mNumBones; ++boneIndex)
@@ -224,19 +228,21 @@ namespace LinaEngine::Graphics
 					boneID = worldParams->m_boneInfoMap[boneName].m_id;
 				}
 				assert(boneID != -1);
-				auto weights = model->mBones[boneIndex]->mWeights;
-				int numWeights = model->mBones[boneIndex]->mNumWeights;
+				auto weights = model->mBones[boneID]->mWeights;
+				int numWeights = model->mBones[boneID]->mNumWeights;
 
 				for (int weightIndex = 0; weightIndex < numWeights; ++weightIndex)
 				{
 					int vertexId = weights[weightIndex].mVertexId;
 					float weight = weights[weightIndex].mWeight;
 					LINA_CORE_ASSERT(vertexId <= vertices.size());
-
 					SetVertexBoneData(vertexBoneIDs[vertexId], vertexBoneWeights[vertexId], boneID, weight);
+					//LINA_CORE_TRACE("MESH {3}, Bone ID {0}, Vertex ID {1},  Bone Weight {2}", boneID, vertexId, weight, j);
+					//LINA_CORE_TRACE("Setting data on vertex {0}, bone: {1}, weight{2}", vboneIDs[0], vboneIDs[1], vboneIDs[2], vboneIDs[3]);
+
 				}
 			}
-
+			
 
 			// Iterate through vertices.
 			for (uint32 i = 0; i < model->mNumVertices; i++)
@@ -257,10 +263,35 @@ namespace LinaEngine::Graphics
 				currentModel.AddElement(4, biTangent.x, biTangent.y, biTangent.z);
 
 
-				const std::vector<int>& vboneIDs = vertexBoneIDs[i];
-				const std::vector<float>& vboneWeights = vertexBoneWeights[i];
-				currentModel.AddElement(5, vboneIDs[0], vboneIDs[1], vboneIDs[2], vboneIDs[3]);
-				currentModel.AddElement(6, vboneWeights[0], vboneWeights[1], vboneWeights[2], vboneWeights[3]);
+				if (vertexBoneIDs.size() > 0)
+				{
+					const std::vector<int>& vboneIDs = vertexBoneIDs[i];
+					const std::vector<float>& vboneWeights = vertexBoneWeights[i];
+					//currentModel.AddElement(5, vboneIDs[0], vboneIDs[1], vboneIDs[2], vboneIDs[3]);
+					//currentModel.AddElement(6, vboneWeights[0], vboneWeights[1], vboneWeights[2], vboneWeights[3]);
+					currentModel.AddElement(5, 1, 3 ,7, 0);
+					currentModel.AddElement(6, 0.05f, 0.4f, 2.0f, 1.0f);
+					//LINA_CORE_ERR("BONE ID: {0}", vertexBoneIDs[i][0]);
+
+
+					if (vboneIDs[0] > 100)
+						LINA_CORE_ERR("BIGGER");
+					if (vboneIDs[1] > 100)
+						LINA_CORE_ERR("BIGGER");
+					if (vboneIDs[2] > 100)
+						LINA_CORE_ERR("BIGGER");
+					if (vboneIDs[3] > 100)
+						LINA_CORE_ERR("BIGGER");
+
+					//LINA_CORE_TRACE("Bone IDs : {0}, {1}, {2}, {3}", vboneIDs[0], vboneIDs[1], vboneIDs[2], vboneIDs[3]);
+					//LINA_CORE_TRACE("Bone Weights : {0}, {1}, {2}, {3}", vboneWeights[0], vboneWeights[1], vboneWeights[2], vboneWeights[3]);
+				}
+				else
+				{
+					currentModel.AddElement(5, -1, -1, -1, -1);
+					currentModel.AddElement(6, 0.0f, 0.0f, 0.0f, 0.0f);
+				}
+			
 			}
 
 			// Iterate through faces & add indices for each face.
@@ -296,89 +327,7 @@ namespace LinaEngine::Graphics
 		return true;
 	}
 
-	bool ModelLoader::LoadModelAnimated(const std::string& fileName, std::vector<IndexedModel>& models, std::vector<uint32>& modelMaterialIndices, std::vector<ModelMaterial>& materials)
-	{
-		// Get the importer & set assimp scene.
-		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(fileName.c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
-		// | aiProcess_FlipUVs
-		if (!scene)
-		{
-			LINA_CORE_ERR("Mesh loading failed! {0}", fileName.c_str());
-			return false;
-		}
 
-		// Iterate through the meshes on the scene.
-		for (uint32 j = 0; j < scene->mNumMeshes; j++)
-		{
-			// Build model reference for each mesh.
-			const aiMesh* model = scene->mMeshes[j];
-			modelMaterialIndices.push_back(model->mMaterialIndex);
-
-			// Build and indexed model for each mesh & fill in the data.
-			IndexedModel currentModel;
-			currentModel.AllocateElement(3, true); // Positions
-			currentModel.AllocateElement(2, true); // TexCoords
-			currentModel.AllocateElement(3, true); // Normals
-			currentModel.AllocateElement(3, true); // Tangents
-			currentModel.AllocateElement(3, true); // Bitangents
-			currentModel.SetStartIndex(5); // Begin instanced data
-			currentModel.AllocateElement(16, true); // Model Matrix
-			currentModel.AllocateElement(16, true); // Inverse transpose matrix
-
-
-			const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
-
-			// Iterate through vertices.
-			for (uint32 i = 0; i < model->mNumVertices; i++)
-			{
-				// Get array references from the current model on stack.
-				const aiVector3D pos = model->mVertices[i];
-				const aiVector3D normal = model->HasNormals() ? model->mNormals[i] : aiZeroVector;
-				const aiVector3D texCoord = model->HasTextureCoords(0) ? model->mTextureCoords[0][i] : aiZeroVector;
-				const aiVector3D tangent = model->HasTangentsAndBitangents() ? model->mTangents[i] : aiZeroVector;
-				const aiVector3D biTangent = model->HasTangentsAndBitangents() ? model->mBitangents[i] : aiZeroVector;
-
-				// Set model vertex data.
-				currentModel.AddElement(0, pos.x, pos.y, pos.z);
-				currentModel.AddElement(1, texCoord.x, texCoord.y);
-				currentModel.AddElement(2, normal.x, normal.y, normal.z);
-				currentModel.AddElement(3, tangent.x, tangent.y, tangent.z);
-				currentModel.AddElement(4, biTangent.x, biTangent.y, biTangent.z);
-			}
-
-			// Iterate through faces & add indices for each face.
-			for (uint32 i = 0; i < model->mNumFaces; i++)
-			{
-				const aiFace& face = model->mFaces[i];
-				LINA_CORE_ASSERT(face.mNumIndices == 3);
-				currentModel.AddIndices(face.mIndices[0], face.mIndices[1], face.mIndices[2]);
-			}
-
-			// Add model to array.
-			models.push_back(currentModel);
-		}
-
-		// Iterate through the materials in the scene.
-		for (uint32 i = 0; i < scene->mNumMaterials; i++)
-		{
-			// Build material reference & material specifications.
-			const aiMaterial* material = scene->mMaterials[i];
-			ModelMaterial spec;
-
-			// Currently only handles diffuse textures.
-			aiString texturePath;
-			if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0 && material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) != AI_SUCCESS)
-			{
-				std::string str(texturePath.data);
-				spec.m_textureNames["diffuse"] = str;
-			}
-			// Push the material to list.
-			materials.push_back(spec);
-		}
-
-		return true;
-	}
 
 	bool ModelLoader::LoadQuad(IndexedModel& currentModel)
 	{
@@ -468,7 +417,7 @@ namespace LinaEngine::Graphics
 		models.push_back(currentModel);
 		return true;
 	}
-	void ModelLoader::SetVertexBoneData(std::vector<int>& vertexBoneIDs, std::vector<float> vertexBoneWeights, int boneID, float weight)
+	void ModelLoader::SetVertexBoneData(std::vector<int>& vertexBoneIDs, std::vector<float>& vertexBoneWeights, int boneID, float weight)
 	{
 		for (int i = 0; i < 4; ++i)
 		{
@@ -476,6 +425,7 @@ namespace LinaEngine::Graphics
 			{
 				vertexBoneIDs[i] = boneID;
 				vertexBoneWeights[i] = weight;
+				break;
 			}
 		}
 	}

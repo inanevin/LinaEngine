@@ -152,16 +152,27 @@ namespace LinaEngine::Graphics
 
 		// Initialize ECS Lighting system.
 		m_lightingSystem.Construct(ecsReg, s_renderDevice, *this);
-
+	
 		// Add the ECS systems into the pipeline.
 		m_renderingPipeline.AddSystem(m_cameraSystem);
 		m_renderingPipeline.AddSystem(m_meshRendererSystem);
 		m_renderingPipeline.AddSystem(m_spriteRendererSystem);
 		m_renderingPipeline.AddSystem(m_lightingSystem);
 
+		// Initialize Animation System.
+		m_animationSystem.Construct(ecsReg, this);
+
+		// Animation pipeline
+		m_animationPipeline.AddSystem(m_animationSystem);
+
 		// Set debug values.
 		m_debugData.visualizeDepth = false;
 
+	}
+
+	void RenderEngine::Tick(float delta)
+	{
+		m_animationPipeline.UpdateSystems(delta);
 	}
 
 	void RenderEngine::Render()

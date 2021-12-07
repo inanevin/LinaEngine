@@ -51,7 +51,7 @@ namespace LinaEngine
 	ECS::ECSRegistry Application::s_ecs;
 	Application* Application::s_application = nullptr;
 
-	
+
 	Application::Application()
 	{
 		s_application = this;
@@ -59,11 +59,11 @@ namespace LinaEngine
 		s_engineDispatcher.Initialize(Action::ActionType::EngineActionsStartIndex, Action::ActionType::EngineActionsEndIndex);
 
 		// Make sure log event is delegated to the application.
-		Log::s_onLog= std::bind(&Application::OnLog, this, std::placeholders::_1);
+		Log::s_onLog = std::bind(&Application::OnLog, this, std::placeholders::_1);
 
 		LINA_CORE_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
 		LINA_CORE_ASSERT(!instance, "Application already exists!");
-		
+
 	}
 
 	void Application::Initialize(Graphics::WindowProperties& props)
@@ -175,6 +175,9 @@ namespace LinaEngine
 			// Update input engine.
 			s_inputEngine->Tick();
 
+			// Tick render engine, this won't render, but will tick any cpu-bound systems within render engine.
+			s_renderEngine->Tick(deltaTime);
+
 			//LINA_TIMER_STOP("[Input] Engine Tick");
 
 			//LINA_TIMER_START("[Audio] Engine Tick");
@@ -184,7 +187,7 @@ namespace LinaEngine
 
 			//LINA_TIMER_STOP("[Audio] Engine Tick");
 
-		//	LINA_TIMER_START("[Core] Tick Engine Layers");
+			//LINA_TIMER_START("[Core] Tick Engine Layers");
 
 			// Update layers.
 			for (Layer* layer : m_mainLayerStack)
@@ -194,15 +197,15 @@ namespace LinaEngine
 
 			if (m_isInPlayMode)
 			{
-			//	LINA_TIMER_START("[Core] Tick PlayMode Layers");
+				//	LINA_TIMER_START("[Core] Tick PlayMode Layers");
 
-				// Update layers.
+					// Update layers.
 				for (Layer* layer : m_playModeStack)
 					layer->Tick(deltaTime);
 
-			//	LINA_TIMER_STOP("[Core] Tick PlayMode Layers");
+				//	LINA_TIMER_STOP("[Core] Tick PlayMode Layers");
 			}
-		
+
 
 			//LINA_TIMER_START("[Level] Tick Current");
 
@@ -210,27 +213,27 @@ namespace LinaEngine
 			if (m_activeLevelExists)
 				m_currentLevel->Tick(m_isInPlayMode, deltaTime);
 
-		//	LINA_TIMER_STOP("[Level] Tick Current");
+			//	LINA_TIMER_STOP("[Level] Tick Current");
 
-		//	LINA_TIMER_START("[Core] Main Pipeline");
+			//	LINA_TIMER_START("[Core] Main Pipeline");
 
 			m_mainECSPipeline.UpdateSystems(deltaTime);
 
-		//	LINA_TIMER_STOP("[Core] Main Pipeline");
+			//	LINA_TIMER_STOP("[Core] Main Pipeline");
 
-		//	accumulator += deltaTime;
+			//	accumulator += deltaTime;
 
-		//while (accumulator >= PHYSICS_DELTA)
-		//{
-		////	LINA_TIMER_START("[Physics] Engine");
-		//	s_physicsEngine->Tick(PHYSICS_DELTA);
-		//	LINA_TIMER_STOP("[Physics] Engine");
-		//	accumulator -= PHYSICS_DELTA;
-		//}
+			//while (accumulator >= PHYSICS_DELTA)
+			//{
+			////	LINA_TIMER_START("[Physics] Engine");
+			//	s_physicsEngine->Tick(PHYSICS_DELTA);
+			//	LINA_TIMER_STOP("[Physics] Engine");
+			//	accumulator -= PHYSICS_DELTA;
+			//}
 
-		//	LINA_TIMER_START("[Graphics] Render");
+			//	LINA_TIMER_START("[Graphics] Render");
 
-			// Update layers.
+				// Update layers.
 			for (Layer* layer : m_mainLayerStack)
 				layer->PostTick(deltaTime);
 
@@ -257,7 +260,7 @@ namespace LinaEngine
 				s_renderEngine->Swap();
 			}
 
-			
+
 
 
 			frames++;
@@ -450,7 +453,7 @@ namespace LinaEngine
 		if (m_currentLevel != nullptr)
 		{
 			InstallLevel(*m_currentLevel, true, folderPath, fileName);
-		}	
+		}
 	}
 
 	void Application::RestartLevel()

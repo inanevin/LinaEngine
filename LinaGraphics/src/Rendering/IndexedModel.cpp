@@ -53,7 +53,23 @@ namespace LinaEngine::Graphics
 		m_elements[elementIndex].push_back(e2);
 	}
 
+	void IndexedModel::AddElement(uint32 elementIndex, int e0, int e1, int e2)
+	{
+		m_elements[elementIndex].push_back(e0);
+		m_elements[elementIndex].push_back(e1);
+		m_elements[elementIndex].push_back(e2);
+	}
+
 	void IndexedModel::AddElement(uint32 elementIndex, float e0, float e1, float e2, float e3)
+	{
+		LINA_CORE_ASSERT(elementIndex < m_elementSizes.size());
+		m_elements[elementIndex].push_back(e0);
+		m_elements[elementIndex].push_back(e1);
+		m_elements[elementIndex].push_back(e2);
+		m_elements[elementIndex].push_back(e3);
+	}
+
+	void IndexedModel::AddElement(uint32 elementIndex, int e0, int e1, int e2, int e3)
 	{
 		LINA_CORE_ASSERT(elementIndex < m_elementSizes.size());
 		m_elements[elementIndex].push_back(e0);
@@ -107,7 +123,6 @@ namespace LinaEngine::Graphics
 
 		for (uint32 i = 0; i < numVertexComponents; i++) 
 			vertexDataArray.push_back(&(m_elements[i][0]));
-
 		
 		const float** vertexData = &vertexDataArray[0];
 		const uint32* vertexElementSizes = &m_elementSizes[0];
@@ -115,7 +130,7 @@ namespace LinaEngine::Graphics
 		// Find vertex & index counts to send into render renderEngine.
 		uint32 numVertices = m_elements[0].size() / vertexElementSizes[0];
 		uint32 numIndices = m_indices.size();
-
+		
 		return renderDevice.CreateVertexArray(vertexData, vertexElementSizes, vertexElementTypes, numVertexComponents, numInstanceComponents, numVertices, &m_indices[0], numIndices, bufferUsage);
 	}
 }

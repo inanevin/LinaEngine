@@ -47,14 +47,13 @@ namespace LinaEngine::ECS
 
 	void AnimationSystem::UpdateComponents(float delta)
 	{
-		LINA_CORE_TRACE("Delta {0}", delta);
-		return;
+	
 		auto view = m_ecs->view<MeshRendererComponent, AnimationComponent>();
 		test += delta * 0.1f;
 
 		if (test > 1.0f)
 			test = 0.0f;
-
+		
 		for (auto entity : view)
 		{
 			MeshRendererComponent& mr = view.get<MeshRendererComponent>(entity);
@@ -69,33 +68,28 @@ namespace LinaEngine::ECS
 			{
 				Graphics::Animation* anim = meshAnimations[ar.m_animationName];
 
-				ozz::animation::SamplingJob sampling_job;
-				sampling_job.animation = &anim->GetAnim();
-				sampling_job.cache = &skeleton.GetCache();
-				sampling_job.ratio = test;
-				sampling_job.output = ozz::make_span(skeleton.GetLocals());
+				ozz::animation::SamplingJob samplingJob;
+				samplingJob.animation = &anim->GetAnim();
+				samplingJob.cache = &skeleton.GetCache();
+				samplingJob.ratio = test;
+				samplingJob.output = ozz::make_span(skeleton.GetLocals());
 
-				LINA_CORE_TRACE("Ratio {0} {1}", sampling_job.ratio, test);
-
-				if (!sampling_job.Run()) {
+				
+				if (!samplingJob.Run()) {
 					continue;
 				}
 
 
-				ozz::animation::LocalToModelJob ltm_job;
-				ltm_job.skeleton = &skeleton.GetSkeleton();
-				ltm_job.input = ozz::make_span(skeleton.GetLocals());
-				ltm_job.output = make_span(skeleton.GetModels());
-				if (!ltm_job.Run()) {
-					continue;
-				}
-
-				LINA_CORE_TRACE("HMM");
-			}
-
-			//// Samples optimized animation at t = animation_time_.
+				ozz::animation::LocalToModelJob toModelJob;
+				toModelJob.skeleton = &skeleton.GetSkeleton();
+				toModelJob.input = ozz::make_span(skeleton.GetLocals());
+				toModelJob.output = make_span(skeleton.GetModels());
 			
+				if (!toModelJob.Run()) {
+					continue;
+				}
 
+			}
 		}
 	}
 }

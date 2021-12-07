@@ -394,7 +394,7 @@ namespace LinaEngine::Graphics
 
 		// Build texture
 		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, sampleCount, internalFormat, size.x, size.y, GL_TRUE);
-		
+
 		// Setup texture params
 		//SetupTextureParameters(textureTarget, samplerParams);
 
@@ -495,21 +495,28 @@ namespace LinaEngine::Graphics
 
 	uint32 GLRenderDevice::CreateVertexArray(const float** vertexData, const uint32* vertexElementSizes, const uint32* vertexElementTypes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage)
 	{
+		// numBuffers is total number of AllocatedElements
+		// We generate a new buffer for each element, GLuint* buffers
+		// vertexElementSizes is the size array for the first X elements, which are not instanced.
+
 		// Define vertex array object, buffers, buffer count & their sizes.
 		unsigned int numBuffers = numVertexComponents + numInstanceComponents + 1;
 		GLuint VAO;
 		GLuint* buffers = new GLuint[numBuffers];
 		uintptr* bufferSizes = new uintptr[numBuffers];
 
-		// Generate vertex array object and activate it, then generate necessary buffers.
+		// We generate a buffer for each allocated element in the indexed model.
 		glGenVertexArrays(1, &VAO);
 		SetVAO(VAO);
 		glGenBuffers(numBuffers, buffers);
 
-		// Define attribute for each buffer.
+		// We create the attributes for each buffer.
 		for (uint32 i = 0, attribute = 0; i < numBuffers - 1; i++)
 		{
-			// Check vertex component count and switch to dynamic draw if current attribute exceeds. This means we are supposed to do instanced rendering.
+			bool isFloatBuffer = vertexElementTypes[i] == 1 ? true : false;
+
+			// Check vertex component count and switch to dynamic draw if current attribute exceeds.
+			// This is for the Allocated Elements after StartElementIndex in indexed model, e.g. attributes that'll be dynamically changed.
 			BufferUsage attribUsage = bufferUsage;
 			bool inInstancedMode = false;
 			if (i >= numVertexComponents)
@@ -518,11 +525,35 @@ namespace LinaEngine::Graphics
 				inInstancedMode = true;
 			}
 
-			// Define element size for the current buffers, as well as buffer data if applicable.
-			uint32 elementSize = vertexElementSizes[i];
-			uint32 elementType = vertexElementTypes[i];
+
+			// Get each Allocated Element as buffer (each one is a std::vector<float>, size of elementSize
+			uint32 elementCount = vertexElementSizes[i];
+			auto typeSize = isFloatBuffer ? sizeof(float) : sizeof(int);
+			uintptr dataSize = inInstancedMode ? elementCount * typeSize : elementCount * typeSize * numVertices;
+
 			const void* bufferData = inInstancedMode ? nullptr : vertexData[i];
-			uintptr dataSize = inInstancedMode ? elementSize * sizeof(float) : elementSize * sizeof(float) * numVertices;
+
+
+			//if (!inInstancedMode)
+			//{
+			//	if (!isFloatBuffer)
+			//	{
+			//		std::vector<int> intBuffer;
+			//		for (uint32 k = 0; k < elementCount; k++)
+			//		{
+			//			LINA_CORE_TRACE("NOT FLOAT {0}", vertexData[i][k]);
+			//			intBuffer.push_back(vertexData[i][k]);
+			//		}
+			//
+			//
+			//
+			//		bufferData = static_cast<void*>(intBuffer.data());
+			//	}
+			//	else
+			//		bufferData = (void*)(&vertexData[i][0]);
+			//}
+
+
 
 			// Bind the current array buffer & set the data.
 			glBindBuffer(GL_ARRAY_BUFFER, buffers[i]);
@@ -530,18 +561,39 @@ namespace LinaEngine::Graphics
 			bufferSizes[i] = dataSize;
 
 			// Define element sizes to pass the required part of the array to the attrib pointer call.
-			uint32 elementSizeDiv = elementSize / 4;
-			uint32 elementSizeRem = elementSize % 4;
+			uint32 elementSizeDiv = elementCount / 4;
+			uint32 elementSizeRem = elementCount % 4;
 
-			// Attribute pointer for each block of elements.
+			LINA_CORE_TRACE("ITERATING BUFFER {0} ElementSizeDiv {1} ElementSizeRem {2}", i, elementSizeDiv, elementSizeRem);
+
+			// This is for elements that has size of 4 or more. 
+			// E.g for matrices, we are going to be buffering them 4 by 4.
 			for (uint32 j = 0; j < elementSizeDiv; j++)
 			{
 				glEnableVertexAttribArray(attribute);
 
-				if (elementType != 0)
-					glVertexAttribPointer(attribute, 4, GL_FLOAT, GL_FALSE, elementSize * sizeof(GLfloat), (const GLvoid*)(sizeof(GLfloat) * j * 4));
+				if (isFloatBuffer)
+				{
+					glVertexAttribPointer(attribute, 4, GL_FLOAT, GL_FALSE, elementCount * sizeof(GLfloat), (const GLvoid*)(sizeof(GLfloat) * j * 4));
+					if (elementSizeDiv == 1)
+					{
+						float* d = (float*)bufferData;
+						float a = *(d);
+						LINA_CORE_TRACE("Float attribute {0} data: {1}", attribute, a);
+					}
+					
+				}
 				else
-					glVertexAttribIPointer(attribute, 4, GL_INT, elementSize * sizeof(GLfloat), (const GLvoid*)(sizeof(GL_INT) * j * 4));
+				{
+					glVertexAttribIPointer(attribute, 4, GL_INT, elementCount * sizeof(GLfloat), (const GLint*)(sizeof(GLfloat) * j * 4));
+					if (elementSizeDiv == 1)
+					{
+						int* d = (int*)bufferData;
+						int a = *(d);
+						//GenericMemory::memcpy(bufferData, a, sizeof(int));
+						LINA_CORE_TRACE("Float attribute {0} data: {1}", attribute, a);
+					}
+				}
 
 				if (inInstancedMode)
 					glVertexAttribDivisor(attribute, 1);
@@ -549,15 +601,27 @@ namespace LinaEngine::Graphics
 				attribute++;
 			}
 
-			// Last elements.
+
+			// This is for the elements that have sizes < 4
 			if (elementSizeRem != 0)
 			{
 				glEnableVertexAttribArray(attribute);
 
-				if (elementType != 0)
-					glVertexAttribPointer(attribute, elementSize, GL_FLOAT, GL_FALSE, elementSize * sizeof(GLfloat), (const GLvoid*)(sizeof(GLint) * elementSizeDiv * 4));
+				if (isFloatBuffer)
+				{
+					glVertexAttribPointer(attribute, elementCount, GL_FLOAT, GL_FALSE, elementCount * sizeof(GLfloat), (const GLvoid*)(sizeof(GLfloat) * elementSizeDiv * 4));
+
+					float* d = (float*)bufferData;
+					float a = *(d + 1);
+					LINA_CORE_TRACE("Float attribute {0} data: {1}", attribute, a);
+
+				}
 				else
-					glVertexAttribIPointer(attribute, elementSize, GL_INT, elementSize * sizeof(GLfloat), (const GLvoid*)(sizeof(GLint) * elementSizeDiv * 4));
+				{
+					glVertexAttribIPointer(attribute, elementCount, GL_INT, elementCount * sizeof(GLfloat), (const GLvoid*)(sizeof(GLfloat) * elementSizeDiv * 4));
+					LINA_CORE_TRACE("Last Integer attribute {0}!", attribute);
+
+				}
 
 				if (inInstancedMode)
 					glVertexAttribDivisor(attribute, 1);
@@ -835,7 +899,7 @@ namespace LinaEngine::Graphics
 
 		// Define attachment type & use the buffer.
 		GLenum attachmentTypeGL = attachment + attachmentNumber;
-		
+
 		if (bindTextureMode != TextureBindMode::BINDTEXTURE_NONE)
 		{
 			if (bindTextureMode != TextureBindMode::BINDTEXTURE_TEXTURE)
@@ -854,7 +918,7 @@ namespace LinaEngine::Graphics
 		// Set the render buffer object if desired.
 		if (bindRBO)
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, rboAttachment, GL_RENDERBUFFER, rbo);
-		
+
 		// Err check
 		if (errorCheck && glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			LINA_CORE_ERR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
@@ -958,14 +1022,14 @@ namespace LinaEngine::Graphics
 		if (m_boundReadFBO != readFBO)
 		{
 			m_boundReadFBO = readFBO;
-			
+
 		}
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, readFBO);
 		glReadBuffer(att + attCount);
 		if (m_boundWriteFBO != writeFBO)
 		{
 			m_boundWriteFBO = writeFBO;
-			
+
 		}
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, writeFBO);
 		glDrawBuffer(att + attCount);
@@ -1128,14 +1192,14 @@ namespace LinaEngine::Graphics
 	ShaderUniformData GLRenderDevice::ScanShaderUniforms(uint32 shader)
 	{
 
-		
+
 		GLint count;
 		glGetProgramiv(shader, GL_ACTIVE_UNIFORMS, &count);
 		ShaderUniformData data;
 		uint32 samplerUnit = 0;
 
 		std::vector<GLchar> uniformName(256);
-		for (int32 uniform = 0; uniform < count; ++uniform) 
+		for (int32 uniform = 0; uniform < count; ++uniform)
 		{
 
 			GLint arraySize = 0;
@@ -1145,10 +1209,10 @@ namespace LinaEngine::Graphics
 			glGetActiveUniform(shader, uniform, uniformName.size(), &actualLength, &arraySize, &type, &uniformName[0]);
 
 			std::string nameStr = &uniformName[0];
-		//	for (int j = 0; j < uniformName.size(); j++)
-			//	nameStr += uniformName[j];
+			//	for (int j = 0; j < uniformName.size(); j++)
+				//	nameStr += uniformName[j];
 
-			
+
 			if (nameStr.find("material.") != std::string::npos || nameStr.find("uf_") != std::string::npos)
 			{
 				if (nameStr.find(".texture") != std::string::npos)
@@ -1233,7 +1297,7 @@ namespace LinaEngine::Graphics
 
 		// Set vao & draw
 		SetVAO(vao);
-		
+
 		if (drawArrays)
 		{
 			glDrawArrays(drawParams.primitiveType, 0, numElements);

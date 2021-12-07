@@ -172,7 +172,16 @@ namespace LinaEngine::ECS
 				mat->SetBool(UF_BOOL_SKINNED, true);
 
 			for (int i = 0; i < modelData.m_boneTransformations.size(); i++)
+			{
 				mat->SetMatrix4(std::string(UF_BONE_MATRICES) + "[" + std::to_string(i) + "]", modelData.m_boneTransformations[i]);
+
+				/*LINA_CORE_TRACE("Local {0} {1} {2}",
+					 modelData.m_boneTransformations[0].GetTranslation().x,
+					 modelData.m_boneTransformations[0].GetTranslation().y,
+					 modelData.m_boneTransformations[0].GetTranslation().z
+				);*/
+
+			}
 
 			m_renderEngine->UpdateShaderData(mat);
 			s_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);

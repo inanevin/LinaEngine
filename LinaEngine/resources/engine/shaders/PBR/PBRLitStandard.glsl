@@ -31,11 +31,12 @@ layout (location = 11) in mat4 inverseTransposeModel;
 out vec2 TexCoords;
 out vec3 WorldPos;
 out vec3 Normal;
+out vec4 outBoneIDs;
 
 
 uniform bool uf_isSkinned;
 
-const int MAX_BONES = 100;
+const int MAX_BONES = 150;
 const int MAX_BONE_INFLUENCE = 4;
 uniform mat4 uf_boneMatrices[MAX_BONES];
 
@@ -45,26 +46,31 @@ void main()
 	
 	if(uf_isSkinned)
 	{
+		
 		vec4 totalPosition = vec4(0.0f);
+		totalPosition = vec4(position,1.0f);
 		for(int i = 0 ; i < MAX_BONE_INFLUENCE ; i++)
 		{
-			if(boneIDs[i] == -1) 
-				continue;
-			if(boneIDs[i] >=MAX_BONES) 
-			{
-				totalPosition = vec4(position,1.0f);
-				break;
-			}
-			vec4 localPosition = uf_boneMatrices[boneIDs[i]] * vec4(position,1.0f);
-			totalPosition += localPosition * boneWeights[i];
-			vec3 localNormal = mat3(uf_boneMatrices[boneIDs[i]]) * normal;
+			//if(boneIDs[i] == -1) 
+				//continue;
+				
+			//if(boneIDs[i] >= MAX_BONES) 
+			//{
+			//	totalPosition = vec4(position,1.0f);
+			//	break;
+			//}
+			
+			//vec4 localPosition = uf_boneMatrices[boneIDs[i]] * vec4(position,1.0f);
+			//totalPosition += localPosition * boneWeights[i];
+			//vec3 localNormal = mat3(uf_boneMatrices[boneIDs[i]]) * normal;
 		}
 		
 
-		WorldPos = vec3(model * vec4(position, 1.0));
+		WorldPos = vec3(model * totalPosition);
 		Normal = mat3(model) * normal;
-		
-		gl_Position = VP * model * totalPosition;
+		outBoneIDs = vec4(float(boneIDs.x), float(boneIDs.y), float(boneIDs.z), float(boneIDs.a));
+	
+		gl_Position = VP * vec4(WorldPos, 1.0);
 	}
 	else
 	{
@@ -87,6 +93,8 @@ layout (location = 1) out vec4 brightColor;
 in vec2 TexCoords;
 in vec3 WorldPos;
 in vec3 Normal;
+in vec4 outBoneIDs;
+
 
 struct Material
 {
@@ -231,7 +239,19 @@ void main()
     //color = pow(color, vec3(1.0/2.2));
 
 	float alpha =  material.surfaceType == 0 ? 1.0 : (material.albedoMap.isActive ? texture(material.albedoMap.texture, tiled).a : 1.0);
-	fragColor = vec4(color, alpha);
+	//fragColor = vec4(color, alpha);
+	
+	if(outBoneIDs.x == 1.0f)
+	fragColor = vec4(1, 0.0f, 0.0f, 1.0);
+	else if(outBoneIDs.x == 2.0f)
+	fragColor = vec4(0, 1.0f, 0.0f, 1.0);
+		else if(outBoneIDs.x == 3.0)
+	fragColor = vec4(0, 0.0f, 1.0f, 1.0);
+	else if(outBoneIDs.x == 0.0f)
+		fragColor = vec4(1, 1.0f, 1.0f, 1.0);
+		else
+		fragColor = vec4(0, 0.0f, 0.0f, 1.0);
+
 
 }
 #endif

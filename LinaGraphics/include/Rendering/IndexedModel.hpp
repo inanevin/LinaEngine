@@ -62,6 +62,9 @@ namespace LinaEngine::Graphics
 		void AddElement(uint32 elementIndex, float e0, float e1, float e2);
 		void AddElement(uint32 elementIndex, float e0, float e1, float e2, float e3);
 
+		void AddElement(uint32 elementIndex, int e0, int e1, int e2);
+		void AddElement(uint32 elementIndex, int e0, int e1, int e2, int e3);
+
 		// Adds index data to m_Indices array, 1 to 4 m_Indices. TODO: Maybe template? Consider inline array push performance.
 		void AddIndices(uint32 i0);
 		void AddIndices(uint32 i0, uint32 i1);
@@ -84,7 +87,9 @@ namespace LinaEngine::Graphics
 		std::vector<uint32> m_elementSizes;
 		std::vector<uint32> m_elementTypes;
 		std::vector<std::vector<float>> m_elements;
-
+		std::vector<uint32> m_elementSizesINT;
+		std::vector<uint32> m_elementTypesINT;
+		std::vector<std::vector<int>> m_elementsINT;
 		// Start index for instanced elements.
 		uint32 m_startIndex = 0;
 

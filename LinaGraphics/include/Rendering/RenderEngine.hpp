@@ -90,6 +90,7 @@ namespace LinaEngine::Graphics
 		RenderEngine();
 		~RenderEngine();
 		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn, Window& appWindow);
+		void Tick(float delta);
 		void Render();
 		void RenderLayers();
 		void Swap();
@@ -248,6 +249,7 @@ namespace LinaEngine::Graphics
 		LinaEngine::ECS::SpriteRendererSystem m_spriteRendererSystem;
 		LinaEngine::ECS::LightingSystem m_lightingSystem;
 		LinaEngine::ECS::ECSSystemList m_renderingPipeline;
+		LinaEngine::ECS::ECSSystemList m_animationPipeline;
 
 	private:
 
