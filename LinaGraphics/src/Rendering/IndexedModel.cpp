@@ -33,61 +33,24 @@ namespace LinaEngine::Graphics
 {
 	void IndexedModel::AddElement(uint32 elementIndex, float e0)
 	{
+		LINA_CORE_ASSERT(elementIndex < m_elementSizes.size());
+
+		if(m_bufferElements[elementIndex].m_isFloat)
+			m_bufferElements[elementIndex].m_floatElements.push_back(e0);
+		else
+			m_bufferElements[elementIndex].m_intElements.push_back(e0);
+	}
+
+	void IndexedModel::AddElement(uint32 elementIndex, int e0)
+	{
+
+		if (m_bufferElements[elementIndex].m_isFloat)
+			m_bufferElements[elementIndex].m_floatElements.push_back(e0);
+		else
+			m_bufferElements[elementIndex].m_intElements.push_back(e0);
+	}
+
 	
-		LINA_CORE_ASSERT(elementIndex < m_elementSizes.size());
-		m_elements[elementIndex].push_back(e0);
-	}
-
-	void IndexedModel::AddElement(uint32 elementIndex, float e0, float e1)
-	{
-		LINA_CORE_ASSERT(elementIndex < m_elementSizes.size());
-		m_elements[elementIndex].push_back(e0);
-		m_elements[elementIndex].push_back(e1);
-	}
-
-	void IndexedModel::AddElement(uint32 elementIndex, float e0, float e1, float e2)
-	{
-		LINA_CORE_ASSERT(elementIndex < m_elementSizes.size());
-		m_elements[elementIndex].push_back(e0);
-		m_elements[elementIndex].push_back(e1);
-		m_elements[elementIndex].push_back(e2);
-	}
-
-	void IndexedModel::AddElement(uint32 elementIndex, int e0, int e1, int e2)
-	{
-		m_elements[elementIndex].push_back(e0);
-		m_elements[elementIndex].push_back(e1);
-		m_elements[elementIndex].push_back(e2);
-	}
-
-	void IndexedModel::AddElement(uint32 elementIndex, float e0, float e1, float e2, float e3)
-	{
-		LINA_CORE_ASSERT(elementIndex < m_elementSizes.size());
-		m_elements[elementIndex].push_back(e0);
-		m_elements[elementIndex].push_back(e1);
-		m_elements[elementIndex].push_back(e2);
-		m_elements[elementIndex].push_back(e3);
-	}
-
-	void IndexedModel::AddElement(uint32 elementIndex, int e0, int e1, int e2, int e3)
-	{
-		LINA_CORE_ASSERT(elementIndex < m_elementSizes.size());
-		m_elements[elementIndex].push_back(e0);
-		m_elements[elementIndex].push_back(e1);
-		m_elements[elementIndex].push_back(e2);
-		m_elements[elementIndex].push_back(e3);
-	}
-
-	void IndexedModel::AddIndices(uint32 i0)
-	{
-		m_indices.push_back(i0);
-	}
-
-	void IndexedModel::AddIndices(uint32 i0, uint32 i1)
-	{
-		m_indices.push_back(i0);
-		m_indices.push_back(i1);
-	}
 
 	void IndexedModel::AddIndices(uint32 i0, uint32 i1, uint32 i2)
 	{
@@ -96,42 +59,25 @@ namespace LinaEngine::Graphics
 		m_indices.push_back(i2);
 	}
 
-	void IndexedModel::AddIndices(uint32 i0, uint32 i1, uint32 i2, uint32 i3)
+	void IndexedModel::AllocateElement(uint32 elementSize, uint32 attrib, bool isFloat, bool isInstanced)
 	{
-		m_indices.push_back(i0);
-		m_indices.push_back(i1);
-		m_indices.push_back(i2);
-		m_indices.push_back(i3);
+		m_bufferElements.push_back(BufferData(elementSize, attrib, isFloat, isInstanced));
 	}
 
-	void IndexedModel::AllocateElement(uint32 elementSize, bool isFloat)
+	uint32 IndexedModel::CreateVertexArray(RenderDevice& renderDevice, BufferUsage bufferUsage)
 	{
-		m_elementSizes.push_back(elementSize);
-		m_elementTypes.push_back(isFloat ? 1 : 0);
-		m_elements.push_back(std::vector<float>());
-	}
-
-	uint32 IndexedModel::CreateVertexArray(RenderDevice& renderDevice, BufferUsage bufferUsage) const
-	{
-		// Find the vertex component size using start index of instanced components.
-		uint32 numVertexComponents = m_elementSizes.size();
-		uint32 numInstanceComponents = m_startIndex == ((uint32)-1) ? 0 : (numVertexComponents - m_startIndex);
-		numVertexComponents -= numInstanceComponents;
-
-		// Build a new array to add the instanced data.
-		std::vector<const float*> vertexDataArray;
-
-		for (uint32 i = 0; i < numVertexComponents; i++) 
-			vertexDataArray.push_back(&(m_elements[i][0]));
-		
-		const float** vertexData = &vertexDataArray[0];
-		const uint32* vertexElementSizes = &m_elementSizes[0];
-		const uint32* vertexElementTypes = &m_elementTypes[0];
-		// Find vertex & index counts to send into render renderEngine.
-		uint32 numVertices = m_elements[0].size() / vertexElementSizes[0];
+		uint32 numVertices = m_bufferElements[0].m_floatElements.size() / m_bufferElements[0].m_elementSize;
 		uint32 numIndices = m_indices.size();
 		
-		return renderDevice.CreateVertexArray(vertexData, vertexElementSizes, vertexElementTypes, numVertexComponents, numInstanceComponents, numVertices, &m_indices[0], numIndices, bufferUsage);
+		int totalVertexComponents = 0;
+		for (int i = 0; i < m_bufferElements.size(); i++)
+		{
+			if (!m_bufferElements[i].m_isInstanced)
+				totalVertexComponents++;
+		}
+
+		int totalInstanceComponents = m_bufferElements.size() - totalVertexComponents;
+		return renderDevice.CreateVertexArray(m_bufferElements, totalVertexComponents, totalInstanceComponents, numVertices, &m_indices[0], numIndices, bufferUsage);
 	}
 }
 

@@ -57,7 +57,7 @@ namespace LinaEngine::Graphics
 			m_engineBoundID = s_renderDevice->ReleaseVertexArray(m_engineBoundID);
 		}
 	
-		void Construct(RenderDevice& deviceIn, const IndexedModel& model, BufferUsage bufferUsage)
+		void Construct(RenderDevice& deviceIn, IndexedModel& model, BufferUsage bufferUsage)
 		{
 			s_renderDevice = &deviceIn;
 			m_engineBoundID = model.CreateVertexArray(deviceIn, bufferUsage);

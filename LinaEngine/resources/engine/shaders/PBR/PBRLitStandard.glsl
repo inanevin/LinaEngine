@@ -68,12 +68,21 @@ void main()
 
 		WorldPos = vec3(model * totalPosition);
 		Normal = mat3(model) * normal;
-		outBoneIDs = vec4(float(boneIDs.x), float(boneIDs.y), float(boneIDs.z), float(boneIDs.a));
+		
+		float a = 0;
+		
+		if(boneIDs[0] == 1)
+		a = 1;
+		else if(boneIDs[0] == 2)
+		a = 2;
+		
+		outBoneIDs = vec4(a, 0,0,1);
 	
 		gl_Position = VP * vec4(WorldPos, 1.0);
 	}
 	else
 	{
+	outBoneIDs = vec4(1,0,0,0);
 		WorldPos = vec3(model * vec4(position, 1.0));
 		Normal = mat3(model) * normal;
 		gl_Position = VP * vec4(WorldPos, 1.0);
@@ -240,17 +249,8 @@ void main()
 
 	float alpha =  material.surfaceType == 0 ? 1.0 : (material.albedoMap.isActive ? texture(material.albedoMap.texture, tiled).a : 1.0);
 	//fragColor = vec4(color, alpha);
-	
-	if(outBoneIDs.x == 1.0f)
-	fragColor = vec4(1, 0.0f, 0.0f, 1.0);
-	else if(outBoneIDs.x == 2.0f)
-	fragColor = vec4(0, 1.0f, 0.0f, 1.0);
-		else if(outBoneIDs.x == 3.0)
-	fragColor = vec4(0, 0.0f, 1.0f, 1.0);
-	else if(outBoneIDs.x == 0.0f)
-		fragColor = vec4(1, 1.0f, 1.0f, 1.0);
-		else
-		fragColor = vec4(0, 0.0f, 0.0f, 1.0);
+
+		fragColor = vec4(outBoneIDs.x, 0.0f, 0.0f, 1.0);
 
 
 }

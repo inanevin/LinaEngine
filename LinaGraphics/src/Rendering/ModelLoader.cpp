@@ -185,16 +185,15 @@ namespace LinaEngine::Graphics
 
 			// Build and indexed model for each mesh & fill in the data.
 			IndexedModel currentModel;
-			currentModel.AllocateElement(3, true); // Positions
-			currentModel.AllocateElement(2, true); // TexCoords
-			currentModel.AllocateElement(3, true); // Normals
-			currentModel.AllocateElement(3, true); // Tangents
-			currentModel.AllocateElement(3, true); // Bitangents
-			currentModel.AllocateElement(4, false); // Bone ids
-			currentModel.AllocateElement(4, true);	// bone weights
-			currentModel.SetStartIndex(7); // Begin instanced data
-			currentModel.AllocateElement(16, true); // Model Matrix
-			currentModel.AllocateElement(16, true); // Inverse transpose matrix
+			currentModel.AllocateElement(3, 0, true); // Positions
+			currentModel.AllocateElement(2, 1, true); // TexCoords
+			currentModel.AllocateElement(3, 2, true); // Normals
+			currentModel.AllocateElement(3, 3, true); // Tangents
+			currentModel.AllocateElement(3, 4, true); // Bitangents
+			currentModel.AllocateElement(4, 5, false); // Bone ids
+			currentModel.AllocateElement(4, 6, true);	// bone weights
+			currentModel.AllocateElement(16, 7, true, true); // Model Matrix
+			currentModel.AllocateElement(16, 11, true, true); // Inverse transpose matrix
 
 
 			const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
@@ -242,7 +241,7 @@ namespace LinaEngine::Graphics
 
 				}
 			}
-			
+
 
 			// Iterate through vertices.
 			for (uint32 i = 0; i < model->mNumVertices; i++)
@@ -269,7 +268,7 @@ namespace LinaEngine::Graphics
 					const std::vector<float>& vboneWeights = vertexBoneWeights[i];
 					//currentModel.AddElement(5, vboneIDs[0], vboneIDs[1], vboneIDs[2], vboneIDs[3]);
 					//currentModel.AddElement(6, vboneWeights[0], vboneWeights[1], vboneWeights[2], vboneWeights[3]);
-					currentModel.AddElement(5, 1, 3 ,7, 0);
+					currentModel.AddElement(5, 1, 3, 7, 0);
 					currentModel.AddElement(6, 0.05f, 0.4f, 2.0f, 1.0f);
 					//LINA_CORE_ERR("BONE ID: {0}", vertexBoneIDs[i][0]);
 
@@ -291,7 +290,7 @@ namespace LinaEngine::Graphics
 					currentModel.AddElement(5, -1, -1, -1, -1);
 					currentModel.AddElement(6, 0.0f, 0.0f, 0.0f, 0.0f);
 				}
-			
+
 			}
 
 			// Iterate through faces & add indices for each face.
@@ -332,11 +331,10 @@ namespace LinaEngine::Graphics
 	bool ModelLoader::LoadQuad(IndexedModel& currentModel)
 	{
 		// Build and indexed model for each mesh & fill in the data.
-		currentModel.AllocateElement(3, true); // Positions
-		currentModel.AllocateElement(2, true); // TexCoords
-		currentModel.SetStartIndex(2); // Begin instanced data
-		currentModel.AllocateElement(16, true); // Model Matrix
-		currentModel.AllocateElement(16, true); // Inverse transpose matrix
+		currentModel.AllocateElement(3, 0, true); // Positions
+		currentModel.AllocateElement(2, 1, true); // TexCoords
+		currentModel.AllocateElement(16, 7, true, true); // Model Matrix
+		currentModel.AllocateElement(16, 11, true, true); // Inverse transpose matrix
 
 		Vector3 vertices[] = {
 			Vector3(-0.5f, 0.5f, 0.0f),  // left top, id 0
@@ -379,13 +377,13 @@ namespace LinaEngine::Graphics
 	{
 		// Build and indexed model for each mesh & fill in the data.
 		IndexedModel currentModel;
-		currentModel.AllocateElement(3, true); // Positions
-		currentModel.AllocateElement(2, true); // TexCoords
-		currentModel.AllocateElement(3, true); // Normals
-		currentModel.AllocateElement(3, true); // Tangents
-		currentModel.SetStartIndex(4); // Begin instanced data
-		currentModel.AllocateElement(16, true); // Model Matrix
-		currentModel.AllocateElement(16, true); // Inverse transpose matrix
+		currentModel.AllocateElement(3, 0, true); // Positions
+		currentModel.AllocateElement(2, 1, true); // TexCoords
+		currentModel.AllocateElement(3, 2, true); // Normals
+		currentModel.AllocateElement(3, 3, true); // Tangents
+
+		currentModel.AllocateElement(16, 7, true, true); // Model Matrix
+		currentModel.AllocateElement(16, 11, true, true); // Inverse transpose matrix
 
 
 		const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
@@ -398,12 +396,13 @@ namespace LinaEngine::Graphics
 			const Vector2 texCoord = texCoords[i];
 			const Vector3 normal = Vector3::Zero;
 			const Vector3 tangent = Vector3::Zero;
-
+			const aiVector3D biTangent = aiZeroVector;
 			// Set model vertex data.
 			currentModel.AddElement(0, pos.x, pos.y, pos.z);
 			currentModel.AddElement(1, texCoord.x, texCoord.y);
 			currentModel.AddElement(2, normal.x, normal.y, normal.z);
 			currentModel.AddElement(3, tangent.x, tangent.y, tangent.z);
+
 		}
 
 		// Iterate through faces & add indices for each face.

@@ -44,39 +44,32 @@ Timestamp: 4/26/2019 12:11:36 AM
 
 namespace LinaEngine::Graphics
 {
+
 	class IndexedModel
 	{
 	public:
 
-		IndexedModel() : m_startIndex((uint32)-1) {}
+		IndexedModel() {}
 
 		// Creates a vertex array using render renderEngine.
-		uint32 CreateVertexArray(RenderDevice& engine, BufferUsage bufferUsage) const;
+		uint32 CreateVertexArray(RenderDevice& engine, BufferUsage bufferUsage);
 
 		// Sets the element size array according to the desired size.
-		void AllocateElement(uint32 elementSize, bool isFloat);
+		void AllocateElement(uint32 elementSize, uint32 attrib, bool isFloat, bool isInstanced = false);
 
-		// Adds float data to the m_Elements array, 1 to 4 elems. TODO: Maybe template? Consider inline array push performance.
 		void AddElement(uint32 elementIndex, float e0);
-		void AddElement(uint32 elementIndex, float e0, float e1);
-		void AddElement(uint32 elementIndex, float e0, float e1, float e2);
-		void AddElement(uint32 elementIndex, float e0, float e1, float e2, float e3);
+		void AddElement(uint32 elementIndex, int e0);
 
-		void AddElement(uint32 elementIndex, int e0, int e1, int e2);
-		void AddElement(uint32 elementIndex, int e0, int e1, int e2, int e3);
+		template <typename T, typename ... Args>
+		void AddElement(uint32 elementIndex, T first, Args ... args)
+		{
+			AddElement(elementIndex, first);
+			AddElement(elementIndex, args...);
+		}
 
 		// Adds index data to m_Indices array, 1 to 4 m_Indices. TODO: Maybe template? Consider inline array push performance.
-		void AddIndices(uint32 i0);
-		void AddIndices(uint32 i0, uint32 i1);
 		void AddIndices(uint32 i0, uint32 i1, uint32 i2);
-		void AddIndices(uint32 i0, uint32 i1, uint32 i2, uint32 i3);
-
-		// Gets the element array
-		std::vector<std::vector<float>>& GetElements() { return m_elements; }
-
-		// Sets the start index for instanced elements.
-		void SetStartIndex(uint32 elementIndex) { m_startIndex = elementIndex; }
-
+	
 		// Accessor for num m_Indices.
 		uint32 GetIndexCount() const { return m_indices.size(); }
 
@@ -84,14 +77,7 @@ namespace LinaEngine::Graphics
 
 		// Index & element data.
 		std::vector<uint32> m_indices;
-		std::vector<uint32> m_elementSizes;
-		std::vector<uint32> m_elementTypes;
-		std::vector<std::vector<float>> m_elements;
-		std::vector<uint32> m_elementSizesINT;
-		std::vector<uint32> m_elementTypesINT;
-		std::vector<std::vector<int>> m_elementsINT;
-		// Start index for instanced elements.
-		uint32 m_startIndex = 0;
+		std::vector<BufferData> m_bufferElements;
 
 	};
 }

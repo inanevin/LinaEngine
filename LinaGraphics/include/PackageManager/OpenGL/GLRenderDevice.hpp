@@ -72,6 +72,19 @@ namespace LinaEngine::Graphics
 	};
 
 
+	struct BufferData
+	{
+		BufferData() {};
+		BufferData(uint32 size, uint32 attrib, bool isFloat, bool isInstanced) : m_isFloat(isFloat), m_attrib(attrib), m_elementSize(size), m_isInstanced(isInstanced) {};
+
+		uint32 m_attrib;
+		uint32 m_elementSize;
+		bool m_isFloat;
+		bool m_isInstanced;
+		std::vector<float> m_floatElements;
+		std::vector<int> m_intElements;
+	};
+
 	class GLRenderDevice
 	{
 	public:
@@ -91,7 +104,9 @@ namespace LinaEngine::Graphics
 		void UpdateTextureParameters(uint32 bindMode, uint32 id, SamplerParameters samplerParmas);
 	
 		uint32 ReleaseTexture2D(uint32 texture2D);
-		uint32 CreateVertexArray(const float** vertexData, const uint32* vertexElementSizes, const uint32* vertexElementTypes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage);
+		uint32 CreateVertexArray(float** vertexData, const uint32* vertexElementSizes, const uint32* vertexElementTypes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage);
+		uint32 CreateVertexArray(const void** vertexData, const uint32* vertexElementSizes, const uint32* vertexElementTypes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage);
+		uint32 CreateVertexArray(const std::vector<BufferData>& bufferData, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage);
 		uint32 CreateSkyboxVertexArray();
 		uint32 CreateScreenQuadVertexArray();
 		uint32 CreateLineVertexArray();

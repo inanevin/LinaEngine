@@ -493,7 +493,7 @@ namespace LinaEngine::Graphics
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
 
-	uint32 GLRenderDevice::CreateVertexArray(const float** vertexData, const uint32* vertexElementSizes, const uint32* vertexElementTypes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage)
+	uint32 GLRenderDevice::CreateVertexArray(float** vertexData, const uint32* vertexElementSizes, const uint32* vertexElementTypes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage)
 	{
 		// numBuffers is total number of AllocatedElements
 		// We generate a new buffer for each element, GLuint* buffers
@@ -533,28 +533,6 @@ namespace LinaEngine::Graphics
 
 			const void* bufferData = inInstancedMode ? nullptr : vertexData[i];
 
-
-			//if (!inInstancedMode)
-			//{
-			//	if (!isFloatBuffer)
-			//	{
-			//		std::vector<int> intBuffer;
-			//		for (uint32 k = 0; k < elementCount; k++)
-			//		{
-			//			LINA_CORE_TRACE("NOT FLOAT {0}", vertexData[i][k]);
-			//			intBuffer.push_back(vertexData[i][k]);
-			//		}
-			//
-			//
-			//
-			//		bufferData = static_cast<void*>(intBuffer.data());
-			//	}
-			//	else
-			//		bufferData = (void*)(&vertexData[i][0]);
-			//}
-
-
-
 			// Bind the current array buffer & set the data.
 			glBindBuffer(GL_ARRAY_BUFFER, buffers[i]);
 			glBufferData(GL_ARRAY_BUFFER, dataSize, bufferData, attribUsage);
@@ -585,7 +563,7 @@ namespace LinaEngine::Graphics
 				}
 				else
 				{
-					glVertexAttribIPointer(attribute, 4, GL_INT, elementCount * sizeof(GLfloat), (const GLint*)(sizeof(GLfloat) * j * 4));
+					glVertexAttribIPointer(attribute, 4, GL_INT, elementCount * sizeof(GLfloat), (const GLvoid*)(sizeof(GLfloat) * j * 4));
 					if (elementSizeDiv == 1)
 					{
 						int* d = (int*)bufferData;
@@ -627,6 +605,259 @@ namespace LinaEngine::Graphics
 					glVertexAttribDivisor(attribute, 1);
 
 				attribute++;
+			}
+		}
+
+		// Finally bind the element array buffer.
+		uintptr indicesSize = numIndices * sizeof(uint32);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[numBuffers - 1]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, indices, bufferUsage);
+		bufferSizes[numBuffers - 1] = indicesSize;
+
+		// Build vertex array based on our calculated data.
+		struct VertexArrayData vaoData;
+		vaoData.buffers = buffers;
+		vaoData.bufferSizes = bufferSizes;
+		vaoData.numBuffers = numBuffers;
+		vaoData.numElements = numIndices;
+		vaoData.bufferUsage = bufferUsage;
+		vaoData.instanceComponentsStartIndex = numVertexComponents;
+
+		// Store the array in our map & return the modified vertex array object.
+		m_vaoMap[VAO] = vaoData;
+		return VAO;
+	}
+
+	uint32 GLRenderDevice::CreateVertexArray(const void** vertexData, const uint32* vertexElementSizes, const uint32* vertexElementTypes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage)
+	{
+		// numBuffers is total number of AllocatedElements
+	// We generate a new buffer for each element, GLuint* buffers
+	// vertexElementSizes is the size array for the first X elements, which are not instanced.
+
+	// Define vertex array object, buffers, buffer count & their sizes.
+		unsigned int numBuffers = numVertexComponents + numInstanceComponents + 1;
+		GLuint VAO;
+		GLuint* buffers = new GLuint[numBuffers];
+		uintptr* bufferSizes = new uintptr[numBuffers];
+
+		// We generate a buffer for each allocated element in the indexed model.
+		glGenVertexArrays(1, &VAO);
+		SetVAO(VAO);
+		glGenBuffers(numBuffers, buffers);
+
+		// We create the attributes for each buffer.
+		for (uint32 i = 0, attribute = 0; i < numBuffers - 1; i++)
+		{
+			bool isFloatBuffer = vertexElementTypes[i] == 1 ? true : false;
+
+			// Check vertex component count and switch to dynamic draw if current attribute exceeds.
+			// This is for the Allocated Elements after StartElementIndex in indexed model, e.g. attributes that'll be dynamically changed.
+			BufferUsage attribUsage = bufferUsage;
+			bool inInstancedMode = false;
+			if (i >= numVertexComponents)
+			{
+				attribUsage = BufferUsage::USAGE_DYNAMIC_DRAW;
+				inInstancedMode = true;
+			}
+
+
+			// Get each Allocated Element as buffer (each one is a std::vector<float>, size of elementSize
+			uint32 elementCount = vertexElementSizes[i];
+			auto typeSize = isFloatBuffer ? sizeof(float) : sizeof(int);
+			uintptr dataSize = inInstancedMode ? elementCount * typeSize : elementCount * typeSize * numVertices;
+
+			const void* bufferData = inInstancedMode ? nullptr : vertexData[i];
+
+			// Bind the current array buffer & set the data.
+			glBindBuffer(GL_ARRAY_BUFFER, buffers[i]);
+			glBufferData(GL_ARRAY_BUFFER, dataSize, bufferData, attribUsage);
+			bufferSizes[i] = dataSize;
+
+			// Define element sizes to pass the required part of the array to the attrib pointer call.
+			uint32 elementSizeDiv = elementCount / 4;
+			uint32 elementSizeRem = elementCount % 4;
+
+			LINA_CORE_TRACE("ITERATING BUFFER {0} ElementSizeDiv {1} ElementSizeRem {2}", i, elementSizeDiv, elementSizeRem);
+
+			// This is for elements that has size of 4 or more. 
+			// E.g for matrices, we are going to be buffering them 4 by 4.
+			for (uint32 j = 0; j < elementSizeDiv; j++)
+			{
+				glEnableVertexAttribArray(attribute);
+
+				if (isFloatBuffer)
+				{
+					glVertexAttribPointer(attribute, 4, GL_FLOAT, GL_FALSE, elementCount * sizeof(GLfloat), (const GLvoid*)(sizeof(GLfloat) * j * 4));
+					if (elementSizeDiv == 1)
+					{
+						float* d = (float*)bufferData;
+						float a = *(d);
+						LINA_CORE_TRACE("Float attribute {0} data: {1}", attribute, a);
+					}
+
+				}
+				else
+				{
+					glVertexAttribIPointer(attribute, 4, GL_UNSIGNED_BYTE, elementCount * sizeof(int), (const GLvoid*)(sizeof(int) * j * 4));
+					if (elementSizeDiv == 1)
+					{
+						int* d = (int*)bufferData;
+						int a = *(d);
+						//GenericMemory::memcpy(bufferData, a, sizeof(int));
+						LINA_CORE_TRACE("Float attribute {0} data: {1}", attribute, a);
+					}
+				}
+
+				if (inInstancedMode)
+					glVertexAttribDivisor(attribute, 1);
+
+				attribute++;
+			}
+
+
+			// This is for the elements that have sizes < 4
+			if (elementSizeRem != 0)
+			{
+				glEnableVertexAttribArray(attribute);
+
+				if (isFloatBuffer)
+				{
+					glVertexAttribPointer(attribute, elementCount, GL_FLOAT, GL_FALSE, elementCount * sizeof(GLfloat), (const GLvoid*)(sizeof(GLfloat) * elementSizeDiv * 4));
+
+					float* d = (float*)bufferData;
+					float a = *(d + 1);
+					LINA_CORE_TRACE("Float attribute {0} data: {1}", attribute, a);
+
+				}
+				else
+				{
+					glVertexAttribIPointer(attribute, elementCount, GL_INT, elementCount * sizeof(GLint), (const GLvoid*)(sizeof(GLint) * elementSizeDiv * 4));
+					LINA_CORE_TRACE("Last Integer attribute {0}!", attribute);
+
+				}
+
+				if (inInstancedMode)
+					glVertexAttribDivisor(attribute, 1);
+
+				attribute++;
+			}
+		}
+
+		// Finally bind the element array buffer.
+		uintptr indicesSize = numIndices * sizeof(uint32);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[numBuffers - 1]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, indices, bufferUsage);
+		bufferSizes[numBuffers - 1] = indicesSize;
+
+		// Build vertex array based on our calculated data.
+		struct VertexArrayData vaoData;
+		vaoData.buffers = buffers;
+		vaoData.bufferSizes = bufferSizes;
+		vaoData.numBuffers = numBuffers;
+		vaoData.numElements = numIndices;
+		vaoData.bufferUsage = bufferUsage;
+		vaoData.instanceComponentsStartIndex = numVertexComponents;
+
+		// Store the array in our map & return the modified vertex array object.
+		m_vaoMap[VAO] = vaoData;
+		return VAO;
+	}
+
+	uint32 GLRenderDevice::CreateVertexArray(const std::vector<BufferData>& data, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage)
+	{
+
+	
+		// Define vertex array object, buffers, buffer count & their sizes.
+		unsigned int numBuffers = numVertexComponents + numInstanceComponents + 1;
+		GLuint VAO;
+		GLuint* buffers = new GLuint[numBuffers];
+		uintptr* bufferSizes = new uintptr[numBuffers];
+
+		// We generate a buffer for each allocated element in the indexed model.
+		glGenVertexArrays(1, &VAO);
+		SetVAO(VAO);
+		glGenBuffers(numBuffers, buffers);
+
+		// We create the attributes for each buffer.
+		for (uint32 i = 0; i < numBuffers - 1; i++)
+		{
+			bool isFloatBuffer = data[i].m_isFloat;
+
+			// Check vertex component count and switch to dynamic draw if current attribute exceeds.
+			// This is for the Allocated Elements after StartElementIndex in indexed model, e.g. attributes that'll be dynamically changed.
+			BufferUsage attribUsage = bufferUsage;
+			bool inInstancedMode = false;
+			if (i >= numVertexComponents)
+			{
+				attribUsage = BufferUsage::USAGE_DYNAMIC_DRAW;
+				inInstancedMode = true;
+			}
+
+
+			// Get each Allocated Element as buffer (each one is a std::vector<float>, size of elementSize
+			uint32 elementCount = data[i].m_elementSize;
+			auto typeSize = isFloatBuffer ? sizeof(float) : sizeof(int);
+			uintptr dataSize = inInstancedMode ? elementCount * typeSize : elementCount * typeSize * numVertices;
+
+
+			//void* bufferData = inInstancedMode ? nullptr : (isFloatBuffer ? (&data[i].m_floatElements[0]) : (&data[i].m_intElements[0]));
+
+			// Bind the current array buffer & set the data.
+			glBindBuffer(GL_ARRAY_BUFFER, buffers[i]);
+
+			if(inInstancedMode)
+			glBufferData(GL_ARRAY_BUFFER, dataSize, nullptr, attribUsage);
+			else
+			{
+				if (isFloatBuffer)
+				{
+					const void* bufferData = &data[i].m_floatElements[0];
+					glBufferData(GL_ARRAY_BUFFER, dataSize, bufferData, attribUsage);
+				}
+				else
+				{
+					const void* bufferData = &data[i].m_intElements[0];
+					glBufferData(GL_ARRAY_BUFFER, dataSize, bufferData, attribUsage);
+				}
+			}
+			bufferSizes[i] = dataSize;
+
+			// Define element sizes to pass the required part of the array to the attrib pointer call.
+			uint32 elementSizeDiv = elementCount / 4;
+			uint32 elementSizeRem = elementCount % 4;
+
+			// This is for elements that has size of 4 or more. 
+			// E.g for matrices, we are going to be buffering them 4 by 4.
+			for (uint32 j = 0; j < elementSizeDiv; j++)
+			{
+				uint32 actualAttrib = data[i].m_attrib + j;
+				glEnableVertexAttribArray(actualAttrib);
+
+				if (isFloatBuffer)
+					glVertexAttribPointer(actualAttrib, 4, GL_FLOAT, GL_FALSE, elementCount * sizeof(GLfloat), (const GLvoid*)(sizeof(GLfloat) * j * 4));
+				else
+					glVertexAttribIPointer(actualAttrib, 4, GL_INT, elementCount * sizeof(GLint), (const GLvoid*)(sizeof(GLint) * j * 4));
+
+				if (inInstancedMode)
+					glVertexAttribDivisor(actualAttrib, 1);
+
+			}
+
+
+			// This is for the elements that have sizes < 4
+			if (elementSizeRem != 0)
+			{
+				uint32 actualAttrib = data[i].m_attrib;
+				glEnableVertexAttribArray(actualAttrib);
+
+				if (isFloatBuffer)
+					glVertexAttribPointer(actualAttrib, elementCount, GL_FLOAT, GL_FALSE, elementCount * sizeof(GLfloat), (const GLvoid*)(sizeof(GLfloat) * elementSizeDiv * 4));
+				else
+					glVertexAttribIPointer(actualAttrib, elementCount, GL_INT, elementCount * sizeof(GLint), (const GLvoid*)(sizeof(GLint) * elementSizeDiv * 4));
+
+				if (inInstancedMode)
+					glVertexAttribDivisor(actualAttrib, 1);
+
 			}
 		}
 
