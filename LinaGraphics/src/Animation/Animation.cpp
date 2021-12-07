@@ -27,8 +27,13 @@ SOFTWARE.
 */
 
 #include "Animation/Animation.hpp"
+#include "Utility/Log.hpp"
 
 namespace LinaEngine::Graphics
 {
-	
+    Animation::Animation(const std::string& meshPath, const std::string& animName)
+    {
+        LINA_CORE_TRACE("Anim Name {0}", animName);
+
+    }
 }

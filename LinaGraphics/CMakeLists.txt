@@ -144,10 +144,10 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glad/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glad.lib
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/assimp/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/${ASSIMP_LIB}
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_animation_fbx.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_animation_fbx_r.lib
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_animation_offline_r.lib
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_animation_r.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_animation_tools.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_animation_tools_r.lib
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_base_r.lib
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_geometry_r.lib
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_options_r.lib

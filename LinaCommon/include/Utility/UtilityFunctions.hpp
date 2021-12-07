@@ -60,10 +60,13 @@ namespace LinaEngine
 		std::vector<std::string> Split(const std::string& s, char delim);
 
 		std::string GetFilePath(const std::string& fileName);
+		std::string GetFileWithoutExtension(const std::string& filename);
+		std::string GetFileNameOnly(const std::string& filename);
 
 		// Mostly used for loading shaders.
 		bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword);
 
+		std::string GetRunningDirectory();
 	}
 }
 

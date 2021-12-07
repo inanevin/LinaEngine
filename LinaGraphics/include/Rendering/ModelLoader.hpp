@@ -41,6 +41,7 @@ Timestamp: 4/26/2019 12:07:47 AM
 
 
 #include "IndexedModel.hpp"
+#include "Animation/Animation.hpp"
 #include "Material.hpp"
 #include <string>
 
@@ -51,7 +52,7 @@ namespace LinaEngine::Graphics
 	public:
 
 		// Load models using ASSIMP
-		static bool LoadModel(const std::string& fileName, std::vector<IndexedModel>& models, std::vector<uint32>& modelMaterialIndices, std::vector<ModelMaterial>& materials, MeshParameters meshParams, MeshSceneParameters* worldParams = nullptr);
+		static bool LoadModel(const std::string& fileName, std::vector<IndexedModel>& models, std::vector<uint32>& modelMaterialIndices, std::vector<ModelMaterial>& materials, std::vector<Animation>& anims, MeshParameters meshParams, MeshSceneParameters* worldParams = nullptr);
 		static bool LoadModelAnimated(const std::string& fileName, std::vector<IndexedModel>& models, std::vector<uint32>& modelMaterialIndices, std::vector<ModelMaterial>& materials);
 		static bool LoadQuad(IndexedModel& model);
 		static bool LoadPrimitive(std::vector<IndexedModel>& models, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords);

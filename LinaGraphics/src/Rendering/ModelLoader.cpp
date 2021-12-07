@@ -31,6 +31,8 @@ SOFTWARE.
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <ozz/animation/offline/tools/import2ozz.h>
+#include <Utility/UtilityFunctions.hpp>
 
 namespace LinaEngine::Graphics
 {
@@ -60,7 +62,7 @@ namespace LinaEngine::Graphics
 		return mat;
 	}
 
-	bool ModelLoader::LoadModel(const std::string& fileName, std::vector<IndexedModel>& models, std::vector<uint32>& modelMaterialIndices, std::vector<ModelMaterial>& materials, MeshParameters meshParams, MeshSceneParameters* worldParams)
+	bool ModelLoader::LoadModel(const std::string& fileName, std::vector<IndexedModel>& models, std::vector<uint32>& modelMaterialIndices, std::vector<ModelMaterial>& materials, std::vector<Animation>& anims, MeshParameters meshParams, MeshSceneParameters* worldParams)
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
@@ -83,7 +85,7 @@ namespace LinaEngine::Graphics
 
 		const aiScene* scene = importer.ReadFile(fileName.c_str(), importFlags);
 
-
+		
 		if (!scene)
 		{
 			LINA_CORE_ERR("Mesh loading failed! {0}", fileName.c_str());
@@ -102,40 +104,41 @@ namespace LinaEngine::Graphics
 		aiMatrix4x4 rootTransformation = scene->mRootNode->mTransformation;
 		worldParams->m_rootInverse = AssimpToInternal(rootTransformation).Inverse();	
 
+		const std::string runningDirectory = Utility::GetRunningDirectory();
+
+		if (scene->HasAnimations())
+		{
+			const std::string meshPath = runningDirectory + "\\" + fileName;
+			const std::string meshName = Utility::GetFileNameOnly(Utility::GetFileWithoutExtension(fileName));
+			const std::string meshFolder = runningDirectory + "\\" + Utility::GetFilePath(fileName);
+			const std::string cdToBin = "cd " + runningDirectory + "\\resources\\engine\\bin";
+			const std::string command = cdToBin + "&& fbx2ozz.exe --file=" + meshPath;
+			system(command.c_str());
+
+			const std::string makeDirCommand = "cd " + meshFolder + " && mkdir " + meshName;
+			system(makeDirCommand.c_str());
+			LINA_CORE_ERR("command {0}", makeDirCommand)
+
+			const std::string moveCommand = cdToBin + "&& move *.ozz " + meshFolder + "\\" + meshName;
+			system(moveCommand.c_str());
+
+			for (uint32 i = 0; i < scene->mNumAnimations; i++)
+			{
+				auto aiAnim = scene->mAnimations[i];
+				anims.push_back(Animation(fileName, aiAnim->mName.C_Str()));
+				LINA_CORE_ERR("ANIM {0}", aiAnim->mName.C_Str());
+			}
+
+		}
+		
+
+	
 		// Iterate through the meshes on the scene.
 		for (uint32 j = 0; j < scene->mNumMeshes; j++)
 		{
 			// Build model reference for each mesh.
 			const aiMesh* model = scene->mMeshes[j];
 			modelMaterialIndices.push_back(model->mMaterialIndex);
-			
-			
-			// Load bones.
-			//for (uint32 i = 0; i < model->mNumBones; i++)
-			//{
-			//	uint32 boneIndex = 0;
-			//	std::string boneName(model->mBones[i]->mName.data);
-			//
-			//	if (worldParams->m_boneMapping.find(boneName) == worldParams->m_boneMapping.end())
-			//	{
-			//		boneIndex = i;
-			//		worldParams->m_boneInfos.push_back(BoneInfo());
-			//	}
-			//	else
-			//	{
-			//		boneIndex = worldParams->m_boneMapping[boneName];
-			//	}
-			//
-			//	worldParams->m_boneMapping[boneName] = boneIndex;
-			//	worldParams->m_boneInfos[boneIndex].m_offset = AssimpToInternal(model->mBones[i]->mOffsetMatrix);
-			//
-			//	for (uint32 k = 0; k < model->mBones[i]->mNumWeights; k++)
-			//	{
-			//		uint32 vertexID = model->mBones[i]->mWeights[k].mVertexId;
-			//		float weight = model->mBones[i]->mWeights[k].mWeight;
-			//		AddBoneData(&worldParams->m_bones[vertexID], boneIndex, weight);
-			//	}
-			//}
 
 
 			// Build and indexed model for each mesh & fill in the data.
@@ -152,21 +155,6 @@ namespace LinaEngine::Graphics
 			currentModel.AllocateElement(16, true); // Inverse transpose matrix
 
 			const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
-
-			/*	for (uint32 j = 0; j < worldParams->m_bones.size(); j++)
-				{
-					BoneData& data = worldParams->m_bones[j];
-					for (uint32 k = 0; k < data.m_weights.size(); k++)
-					{
-						BoneWeight& w = data.m_weights[k];
-
-						if (w.m_id == i)
-						{
-							LINA_CORE_ERR("FOUND A BONE {0}", data.m_boneName);
-						}
-					}
-
-				}*/
 
 			std::vector<std::vector<int>> vertexBoneIDs;
 			std::vector<std::vector<float>> vertexBoneWeights;

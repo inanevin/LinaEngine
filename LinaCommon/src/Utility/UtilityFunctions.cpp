@@ -32,6 +32,12 @@ SOFTWARE.
 #include <iostream>
 #include <sstream>
 
+#ifdef LINA_PLATFORM_WINDOWS
+#include <windows.h>
+#include <iostream>
+#include <string>
+#endif
+
 namespace LinaEngine
 {
 	namespace Utility
@@ -109,7 +115,17 @@ namespace LinaEngine
 				return fileName.substr(start, end - start);
 			}
 		}
+		
+		std::string GetFileNameOnly(const std::string& fileName)
+		{
+			return fileName.substr(fileName.find_last_of("/\\") + 1);
+		}
 
+		std::string GetFileWithoutExtension(const std::string& fileName)
+		{
+			size_t lastindex = fileName.find_last_of(".");
+			return fileName.substr(0, lastindex);
+		}
 		bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword)
 		{
 			std::ifstream file;
@@ -149,6 +165,20 @@ namespace LinaEngine
 
 			output = ss.str();
 			return true;
+		}
+
+		std::string GetRunningDirectory()
+		{
+#ifdef LINA_PLATFORM_WINDOWS
+
+			TCHAR buffer[MAX_PATH] = { 0 };
+			GetModuleFileName(NULL, buffer, MAX_PATH);
+			std::string exeFilename = std::string(buffer);
+			std::string runningDirectory = exeFilename.substr(0, exeFilename.find_last_of("\\/"));
+			return runningDirectory;
+#endif
+
+			return "";
 		}
 	}
 }

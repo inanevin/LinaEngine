@@ -40,7 +40,7 @@ Timestamp: 12/7/2021 11:34:48 AM
 #define Animation_HPP
 
 // Headers here.
-
+#include <string>
 
 namespace LinaEngine::Graphics
 {
@@ -50,6 +50,7 @@ namespace LinaEngine::Graphics
 	public:
 		
 		Animation() {};
+		Animation(const std::string& meshPath, const std::string& animName);
 		~Animation() {};
 	
 	private:
