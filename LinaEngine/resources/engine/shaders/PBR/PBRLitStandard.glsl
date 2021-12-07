@@ -36,7 +36,8 @@ out vec3 Normal;
 uniform bool uf_isSkinned;
 
 const int MAX_BONES = 100;
-uniform mat4 gBones[MAX_BONES];
+const int MAX_BONE_INFLUENCE = 4;
+uniform mat4 finalBonesMatrices[MAX_BONES];
 
 void main()
 {
@@ -44,14 +45,26 @@ void main()
 	
 	if(uf_isSkinned)
 	{
-		mat4 boneTransform = gBones[boneIDs[0]] * boneWeights[0];
-		boneTransform += gBones[boneIDs[1]] * boneWeights[1];
-		boneTransform += gBones[boneIDs[2]] * boneWeights[2];
-		boneTransform += gBones[boneIDs[3]] * boneWeights[3];
+		vec4 totalPosition = vec4(0.0f);
+		for(int i = 0 ; i < MAX_BONE_INFLUENCE ; i++)
+		{
+			if(boneIDs[i] == -1) 
+				continue;
+			if(boneIDs[i] >=MAX_BONES) 
+			{
+				totalPosition = vec4(position,1.0f);
+				break;
+			}
+			vec4 localPosition = finalBonesMatrices[boneIDs[i]] * vec4(position,1.0f);
+			totalPosition += localPosition * boneWeights[i];
+			vec3 localNormal = mat3(finalBonesMatrices[boneIDs[i]]) * normal;
+		}
 		
-		WorldPos = vec3(boneTransform * model * vec4(position, 1.0));
+
+		WorldPos = vec3(model * vec4(position, 1.0));
 		Normal = mat3(model) * normal;
-		gl_Position = VP * vec4(WorldPos, 1.0);
+		
+		gl_Position = VP * model * totalPosition;
 	}
 	else
 	{

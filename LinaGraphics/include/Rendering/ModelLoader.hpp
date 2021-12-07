@@ -55,6 +55,7 @@ namespace LinaEngine::Graphics
 		static bool LoadModelAnimated(const std::string& fileName, std::vector<IndexedModel>& models, std::vector<uint32>& modelMaterialIndices, std::vector<ModelMaterial>& materials);
 		static bool LoadQuad(IndexedModel& model);
 		static bool LoadPrimitive(std::vector<IndexedModel>& models, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords);
+		static void SetVertexBoneData(std::vector<int>& vertexBoneIDs, std::vector<float> vertexBoneWeights, int boneID, float weight);
 	};
 }
 

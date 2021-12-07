@@ -311,7 +311,7 @@ namespace LinaEngine::Graphics
 
 	struct BoneInfo
 	{
-		int m_index = -1;
+		int m_id = -1;
 		Matrix m_offset;
 	};
 
@@ -326,10 +326,8 @@ namespace LinaEngine::Graphics
 		Vector3 m_worldPosition;
 		Quaternion m_worldRotation;
 		Vector3 m_worldScale;
-		// Matrix m_rootInverse;
-		// std::vector<VertexBone> m_bones;
-		// std::map<std::string, int> m_boneMapping;
-		// std::vector<BoneInfo> m_boneInfos;
+		Matrix m_rootInverse;
+		std::map<std::string, BoneInfo> m_boneInfoMap; 
 	};
 
 	struct TextureParameters

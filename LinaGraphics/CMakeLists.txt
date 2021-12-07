@@ -21,6 +21,9 @@ set(CMAKE_CXX_STANDARD 17)
 #--------------------------------------------------------------------
 set (LINAGRAPHICS_SOURCES
 
+	#Animation
+	src/Animation/Animation.cpp
+	
 	#Rendering
 	src/Rendering/ArrayBitmap.cpp
 	src/Rendering/Texture.cpp
@@ -49,6 +52,9 @@ set (LINAGRAPHICS_SOURCES
 set(LINAGRAPHICS_HEADERS
 	#Helpers
 	include/Helpers/DrawParameterHelper.hpp
+	
+	#Animation
+	include/Animation/Animation.hpp
 	
 	#Rendering
 	include/Rendering/ArrayBitmap.hpp
@@ -125,6 +131,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glad/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/assimp/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaECS/include)
 
@@ -137,6 +144,14 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glad/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glad.lib
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/assimp/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/${ASSIMP_LIB}
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_animation_fbx.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_animation_offline_r.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_animation_r.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_animation_tools.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_base_r.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_geometry_r.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/ozz_options_r.lib
+
 	PRIVATE Lina::Common
 	PRIVATE Lina::ECS
 )

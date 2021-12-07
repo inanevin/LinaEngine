@@ -99,8 +99,8 @@ namespace LinaEngine::Graphics
 			worldParams->m_worldScale = Vector3(ps.x, ps.y, ps.z);
 		}
 
-		// aiMatrix4x4 rootTransformation = scene->mRootNode->mTransformation;
-		// worldParams->m_rootInverse = AssimpToInternal(rootTransformation).Inverse();	
+		aiMatrix4x4 rootTransformation = scene->mRootNode->mTransformation;
+		worldParams->m_rootInverse = AssimpToInternal(rootTransformation).Inverse();	
 
 		// Iterate through the meshes on the scene.
 		for (uint32 j = 0; j < scene->mNumMeshes; j++)
@@ -109,34 +109,34 @@ namespace LinaEngine::Graphics
 			const aiMesh* model = scene->mMeshes[j];
 			modelMaterialIndices.push_back(model->mMaterialIndex);
 			
-			/*
+			
 			// Load bones.
-			for (uint32 i = 0; i < model->mNumBones; i++)
-			{
-				uint32 boneIndex = 0;
-				std::string boneName(model->mBones[i]->mName.data);
+			//for (uint32 i = 0; i < model->mNumBones; i++)
+			//{
+			//	uint32 boneIndex = 0;
+			//	std::string boneName(model->mBones[i]->mName.data);
+			//
+			//	if (worldParams->m_boneMapping.find(boneName) == worldParams->m_boneMapping.end())
+			//	{
+			//		boneIndex = i;
+			//		worldParams->m_boneInfos.push_back(BoneInfo());
+			//	}
+			//	else
+			//	{
+			//		boneIndex = worldParams->m_boneMapping[boneName];
+			//	}
+			//
+			//	worldParams->m_boneMapping[boneName] = boneIndex;
+			//	worldParams->m_boneInfos[boneIndex].m_offset = AssimpToInternal(model->mBones[i]->mOffsetMatrix);
+			//
+			//	for (uint32 k = 0; k < model->mBones[i]->mNumWeights; k++)
+			//	{
+			//		uint32 vertexID = model->mBones[i]->mWeights[k].mVertexId;
+			//		float weight = model->mBones[i]->mWeights[k].mWeight;
+			//		AddBoneData(&worldParams->m_bones[vertexID], boneIndex, weight);
+			//	}
+			//}
 
-				if (worldParams->m_boneMapping.find(boneName) == worldParams->m_boneMapping.end())
-				{
-					boneIndex = i;
-					worldParams->m_boneInfos.push_back(BoneInfo());
-				}
-				else
-				{
-					boneIndex = worldParams->m_boneMapping[boneName];
-				}
-
-				worldParams->m_boneMapping[boneName] = boneIndex;
-				worldParams->m_boneInfos[boneIndex].m_offset = AssimpToInternal(model->mBones[i]->mOffsetMatrix);
-
-				for (uint32 k = 0; k < model->mBones[i]->mNumWeights; k++)
-				{
-					uint32 vertexID = model->mBones[i]->mWeights[k].mVertexId;
-					float weight = model->mBones[i]->mWeights[k].mWeight;
-					AddBoneData(&worldParams->m_bones[vertexID], boneIndex, weight);
-				}
-			}
-			*/
 
 			// Build and indexed model for each mesh & fill in the data.
 			IndexedModel currentModel;
@@ -153,24 +153,83 @@ namespace LinaEngine::Graphics
 
 			const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
 
+			/*	for (uint32 j = 0; j < worldParams->m_bones.size(); j++)
+				{
+					BoneData& data = worldParams->m_bones[j];
+					for (uint32 k = 0; k < data.m_weights.size(); k++)
+					{
+						BoneWeight& w = data.m_weights[k];
+
+						if (w.m_id == i)
+						{
+							LINA_CORE_ERR("FOUND A BONE {0}", data.m_boneName);
+						}
+					}
+
+				}*/
+
+			std::vector<std::vector<int>> vertexBoneIDs;
+			std::vector<std::vector<float>> vertexBoneWeights;
+
+			vertexBoneIDs.resize(model->mNumVertices, std::vector<int>(4, -1));
+			vertexBoneWeights.resize(model->mNumVertices, std::vector<float>(4, 0.0f));
+
+			int boneCounter = 0;
+			for (int boneIndex = 0; boneIndex < model->mNumBones; ++boneIndex)
+			{
+				int boneID = -1;
+				std::string boneName = model->mBones[boneIndex]->mName.C_Str();
+				if (worldParams->m_boneInfoMap.find(boneName) == worldParams->m_boneInfoMap.end())
+				{
+					BoneInfo newBoneInfo;
+					newBoneInfo.m_id = boneCounter;
+					newBoneInfo.m_offset = AssimpToInternal(model->mBones[boneIndex]->mOffsetMatrix);
+					worldParams->m_boneInfoMap[boneName] = newBoneInfo;
+					boneID = boneCounter;
+					boneCounter++;
+				}
+				else
+				{
+					boneID = worldParams->m_boneInfoMap[boneName].m_id;
+				}
+				assert(boneID != -1);
+				auto weights = model->mBones[boneIndex]->mWeights;
+				int numWeights = model->mBones[boneIndex]->mNumWeights;
+
+				for (int weightIndex = 0; weightIndex < numWeights; ++weightIndex)
+				{
+					int vertexId = weights[weightIndex].mVertexId;
+					float weight = weights[weightIndex].mWeight;
+					LINA_CORE_ASSERT(vertexId <= vertices.size());
+
+					SetVertexBoneData(vertexBoneIDs[vertexId], vertexBoneWeights[vertexId], boneID, weight);
+				}
+			}
+		
+
 			// Iterate through vertices.
 			for (uint32 i = 0; i < model->mNumVertices; i++)
 			{
+
 				// Get array references from the current model on stack.
 				const aiVector3D pos = model->mVertices[i];
 				const aiVector3D normal = model->HasNormals() ? model->mNormals[i] : aiZeroVector;
 				const aiVector3D texCoord = model->HasTextureCoords(0) ? model->mTextureCoords[0][i] : aiZeroVector;
 				const aiVector3D tangent = model->HasTangentsAndBitangents() ? model->mTangents[i] : aiZeroVector;
 				const aiVector3D biTangent = model->HasTangentsAndBitangents() ? model->mBitangents[i] : aiZeroVector;
-
+				
 				// Set model vertex data.
 				currentModel.AddElement(0, pos.x, pos.y, pos.z);
 				currentModel.AddElement(1, texCoord.x, texCoord.y);
 				currentModel.AddElement(2, normal.x, normal.y, normal.z);
 				currentModel.AddElement(3, tangent.x, tangent.y, tangent.z);
 				currentModel.AddElement(4, biTangent.x, biTangent.y, biTangent.z);
-				currentModel.AddElement(5, 0,0,0,0);
-				currentModel.AddElement(6, 0.0f, 0.0f, 0.0f, 0.0f);
+
+			
+				const std::vector<int>& vboneIDs = vertexBoneIDs[i];
+				const std::vector<float>& vboneWeights = vertexBoneWeights[i];
+				currentModel.AddElement(5, vboneIDs[0], vboneIDs[1], vboneIDs[2], vboneIDs[3]);
+				currentModel.AddElement(6, vboneWeights[0], vboneWeights[1], vboneWeights[2], vboneWeights[3]);
 			}
 
 			// Iterate through faces & add indices for each face.
@@ -377,6 +436,17 @@ namespace LinaEngine::Graphics
 		// Add model to array.
 		models.push_back(currentModel);
 		return true;
+	}
+	void ModelLoader::SetVertexBoneData(std::vector<int>& vertexBoneIDs, std::vector<float> vertexBoneWeights, int boneID, float weight)
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			if (vertexBoneIDs[i] < 0)
+			{
+				vertexBoneIDs[i] = boneID;
+				vertexBoneWeights[i] = weight;
+			}
+		}
 	}
 }
 
