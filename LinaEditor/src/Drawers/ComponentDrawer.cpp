@@ -38,6 +38,7 @@ SOFTWARE.
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
+#include "ECS/Components/ModelRendererComponent.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Modals/SelectMeshModal.hpp"
 #include "Modals/SelectMaterialModal.hpp"
@@ -67,6 +68,7 @@ namespace LinaEditor
 		RegisterComponentToDraw<PointLightComponent>(GetTypeID<PointLightComponent>(), "Point Light", std::bind(&ComponentDrawer::DrawPointLightComponent, this, std::placeholders::_1, std::placeholders::_2));
 		RegisterComponentToDraw<FreeLookComponent>(GetTypeID<FreeLookComponent>(), "Free Look", std::bind(&ComponentDrawer::DrawFreeLookComponent, this, std::placeholders::_1, std::placeholders::_2));
 		RegisterComponentToDraw<MeshRendererComponent>(GetTypeID<MeshRendererComponent>(), "Mesh Renderer", std::bind(&ComponentDrawer::DrawMeshRendererComponent, this, std::placeholders::_1, std::placeholders::_2));
+		RegisterComponentToDraw<ModelRendererComponent>(GetTypeID<ModelRendererComponent>(), "Model Renderer", std::bind(&ComponentDrawer::DrawModelRendererComponent, this, std::placeholders::_1, std::placeholders::_2));
 		RegisterComponentToDraw<SpriteRendererComponent>(GetTypeID<SpriteRendererComponent>(), "Sprite Renderer", std::bind(&ComponentDrawer::DrawSpriteRendererComponent, this, std::placeholders::_1, std::placeholders::_2));
 
 #endif
@@ -883,6 +885,137 @@ namespace LinaEditor
 					ecs.get<TransformComponent>(entity).transform.SetLocalLocation(Graphics::Model::GetModel(renderer.m_meshPath).GetWorldParameters().m_worldPosition);
 					ecs.get<TransformComponent>(entity).transform.SetLocalRotation(Graphics::Model::GetModel(renderer.m_meshPath).GetWorldParameters().m_worldRotation);
 					ecs.get<TransformComponent>(entity).transform.SetLocalScale(Graphics::Model::GetModel(renderer.m_meshPath).GetWorldParameters().m_worldScale);
+				}
+			}
+		}
+
+
+
+		// Draw bevel line.
+		WidgetsUtility::DrawBeveledLine();
+	}
+
+	void ComponentDrawer::DrawModelRendererComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
+	{
+		// Get component
+		ModelRendererComponent& renderer = ecs.get<ModelRendererComponent>(entity);
+		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+		ECSTypeID id = GetTypeID<ModelRendererComponent>();
+
+		// Align.
+		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
+		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
+
+		// Draw title.
+		bool refreshPressed = false;
+		bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<ModelRendererComponent>(), "ModelRenderer", ICON_MD_TOYS, &refreshPressed, &renderer.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
+
+		// Remove if requested.
+		if (removeComponent)
+		{
+			ecs.remove<ModelRendererComponent>(entity);
+			return;
+		}
+
+		// Refresh
+		if (refreshPressed)
+			ecs.replace<ModelRendererComponent>(entity, ModelRendererComponent());
+
+		// Draw component.
+		if (m_foldoutStateMap[entity][id])
+		{
+			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
+			float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
+			float cursorPosLabels = CURSORPOS_X_LABELS;
+
+			// Model selection
+			char meshPathC[128] = "";
+			strcpy(meshPathC, renderer.m_modelPath.c_str());
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Model");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
+			ImGui::InputText("##selectedMesh", meshPathC, IM_ARRAYSIZE(meshPathC), ImGuiInputTextFlags_ReadOnly);
+			ImGui::SameLine();
+			WidgetsUtility::IncrementCursorPosY(5);
+
+			// Mesh drag & drop.
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMESH_ID))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(uint32));
+
+					auto& model = LinaEngine::Graphics::Model::GetModel(*(uint32*)payload->m_data);
+					renderer.m_modelID = model.GetID();
+					renderer.m_modelPath = model.GetPath();
+					renderer.m_materialID.clear();
+					renderer.m_materialPath.clear();
+					renderer.m_materialID.resize(model.GetMaterialSpecs().size());
+					renderer.m_materialPath.resize(model.GetMaterialSpecs().size());
+				}
+				ImGui::EndDragDropTarget();
+			}
+
+			if (WidgetsUtility::IconButton("##selectmesh", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
+			{
+				renderer.m_modelID = -1;
+				renderer.m_modelPath = "";
+			}
+
+			for (int i = 0; i < renderer.m_materialPath.size(); i++)
+			{
+				// Material selection.
+				char matPathC[128] = "";
+				strcpy(matPathC, renderer.m_materialPath[i].c_str());
+
+				ImGui::SetCursorPosX(cursorPosLabels);
+				std::string materialName = LinaEngine::Graphics::Model::GetModel(renderer.m_modelPath).GetMaterialSpecs()[i].m_name;
+				WidgetsUtility::AlignedText(materialName.c_str());
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(cursorPosValues);
+				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
+
+				std::string selectedMat = "##selectedMath" + std::to_string(i);
+				ImGui::InputText(selectedMat.c_str(), matPathC, IM_ARRAYSIZE(matPathC), ImGuiInputTextFlags_ReadOnly);
+				ImGui::SameLine();
+				WidgetsUtility::IncrementCursorPosY(5);
+
+
+				// Material drag & drop.
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
+					{
+						IM_ASSERT(payload->DataSize == sizeof(uint32));
+						renderer.m_materialID[i] = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetID();
+						renderer.m_materialPath[i] = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetPath();
+
+					}
+					ImGui::EndDragDropTarget();
+				}
+
+				std::string icnBtn = "##selectmat" + std::to_string(i);
+				if (WidgetsUtility::IconButton(icnBtn.c_str(), ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
+				{
+					renderer.m_materialID[i] = -1;
+					renderer.m_materialPath[i] = "";
+				}
+
+			}
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
+
+			if (ImGui::Button("Set World To Model Offset"))
+			{
+				if (Graphics::Model::ModelExists(renderer.m_modelPath))
+				{
+					ecs.get<TransformComponent>(entity).transform.SetLocalLocation(Graphics::Model::GetModel(renderer.m_modelPath).GetWorldParameters().m_worldPosition);
+					ecs.get<TransformComponent>(entity).transform.SetLocalRotation(Graphics::Model::GetModel(renderer.m_modelPath).GetWorldParameters().m_worldRotation);
+					ecs.get<TransformComponent>(entity).transform.SetLocalScale(Graphics::Model::GetModel(renderer.m_modelPath).GetWorldParameters().m_worldScale);
 				}
 			}
 		}

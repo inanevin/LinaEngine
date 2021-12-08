@@ -24,7 +24,6 @@ set (LINAGRAPHICS_SOURCES
 	#Animation
 	src/Animation/Animation.cpp
 	src/Animation/Skeleton.cpp
-	src/ECS/Systems/AnimationSystem.cpp
 	
 	#Rendering
 	src/Rendering/ArrayBitmap.cpp
@@ -46,6 +45,8 @@ set (LINAGRAPHICS_SOURCES
 	src/ECS/Systems/SpriteRendererSystem.cpp
 	src/ECS/Systems/CameraSystem.cpp
 	src/ECS/Systems/LightingSystem.cpp
+	src/ECS/Systems/AnimationSystem.cpp
+
 )
 
 #--------------------------------------------------------------------
@@ -58,8 +59,7 @@ set(LINAGRAPHICS_HEADERS
 	#Animation
 	include/Animation/Animation.hpp
 	include/Animation/Skeleton.hpp
-	include/ECS/Systems/AnimationSystem.hpp
-	include/ECS/Components/AnimationComponent.hpp
+
 
 	#Rendering
 	include/Rendering/ArrayBitmap.hpp
@@ -87,16 +87,18 @@ set(LINAGRAPHICS_HEADERS
 	include/PackageManager/OpenGL/GLRenderDevice.hpp
 	include/PackageManager/OpenGL/GLWindow.hpp
 	
-	
+	include/ECS/Systems/AnimationSystem.hpp
 	include/ECS/Systems/CameraSystem.hpp
 	include/ECS/Systems/MeshRendererSystem.hpp
 	include/ECS/Systems/LightingSystem.hpp
 	include/ECS/Systems/SpriteRendererSystem.hpp
 	include/ECS/Components/MeshRendererComponent.hpp
+	include/ECS/Components/ModelRendererComponent.hpp
 	include/ECS/Components/CameraComponent.hpp
 	include/ECS/Components/LightComponent.hpp
 	include/ECS/Components/SpriteRendererComponent.hpp
-	
+	include/ECS/Components/AnimationComponent.hpp
+
 	include/Utility/stb/stb.h
 	include/Utility/stb/stb_c_lexer.h
 	include/Utility/stb/stb_connected_components.h
