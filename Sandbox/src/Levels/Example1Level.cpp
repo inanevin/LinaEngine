@@ -21,6 +21,8 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "Levels/Example1Level.hpp"
 #include "Core/Application.hpp"
 #include "ECS/Components/AnimationComponent.hpp"
+#include "Rendering/Model.hpp"
+#include "ECS/Components/ModelRendererComponent.hpp"
 
 using namespace LinaEngine::Graphics;
 using namespace LinaEngine::ECS;
@@ -42,8 +44,16 @@ void Example1Level::Initialize()
 {
 	LINA_CLIENT_TRACE("Example1Level initialized. Implement your logic for instantiating entities, players, assigning cameras etc. from now on.");
 
-	auto ybot = Application::GetECSRegistry().GetEntity("YBot");
 
+	// auto& reg = Application::GetECSRegistry();
+	// auto entity = reg.CreateEntity("Test");
+	// auto& mr = reg.emplace<ECS::ModelRendererComponent>(entity);
+	// 
+	// auto& model = Graphics::Model::CreateModel("resources/sandbox/Meshes/MarkerMan.fbx");
+	// mr.SetModel(reg, entity, model);
+	// 
+	// auto& mat = Graphics::Material::LoadMaterialFromFile("resources/sandbox/NewMaterial207.mat");
+	// mr.SetMaterial(reg, entity, 1, mat);
 	//auto& anim = Application::GetECSRegistry().emplace<ECS::AnimationComponent>(ybot);
 	//anim.m_animationName = "Armature_Move";
 }
