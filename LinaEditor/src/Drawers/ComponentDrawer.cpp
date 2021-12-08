@@ -849,37 +849,24 @@ namespace LinaEditor
 					IM_ASSERT(payload->DataSize == sizeof(uint32));
 
 					auto& model = LinaEngine::Graphics::Model::GetModel(*(uint32*)payload->m_data);
-					renderer.m_modelID = model.GetID();
-					renderer.m_modelPath = model.GetPath();
-					renderer.m_materialID.clear();
-					renderer.m_materialPath.clear();
-					renderer.m_materialID.resize(model.GetMaterialSpecs().size());
-					renderer.m_materialPath.resize(model.GetMaterialSpecs().size());
-
-					if (Graphics::Model::ModelExists(renderer.m_modelPath))
-					{
-						Graphics::Model::GetModel(renderer.m_modelPath).GenerateMeshChildren(ecs, entity, renderer.m_modelPath, renderer.m_materialPath);
-					}
+					renderer.SetModel(ecs, entity, model);
 				}
 				ImGui::EndDragDropTarget();
 			}
 
+			// Remove Model
 			if (WidgetsUtility::IconButton("##selectmesh", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 			{
-				renderer.m_modelID = -1;
-				renderer.m_modelPath = "";
-				renderer.m_materialID.clear();
-				renderer.m_materialPath.clear();
-
-				ecs.DestroyAllChildren(entity);
+				renderer.RemoveModel(ecs, entity);
 			}
 
-			for (int i = 0; i < renderer.m_materialPath.size(); i++)
+			for (int i = 0; i < renderer.m_materialPaths.size(); i++)
 			{
 				// Material selection.
 				char matPathC[128] = "";
-				strcpy(matPathC, renderer.m_materialPath[i].c_str());
+				strcpy(matPathC, renderer.m_materialPaths[i].c_str());
 
+				// Draw material name
 				ImGui::SetCursorPosX(cursorPosLabels);
 				std::string materialName = LinaEngine::Graphics::Model::GetModel(renderer.m_modelPath).GetMaterialSpecs()[i].m_name;
 				WidgetsUtility::AlignedText(materialName.c_str());
@@ -887,11 +874,11 @@ namespace LinaEditor
 				ImGui::SetCursorPosX(cursorPosValues);
 				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
 
+				// Draw selected material name
 				std::string selectedMat = "##selectedMath" + std::to_string(i);
 				ImGui::InputText(selectedMat.c_str(), matPathC, IM_ARRAYSIZE(matPathC), ImGuiInputTextFlags_ReadOnly);
 				ImGui::SameLine();
 				WidgetsUtility::IncrementCursorPosY(5);
-
 
 				// Material drag & drop.
 				if (ImGui::BeginDragDropTarget())
@@ -899,60 +886,23 @@ namespace LinaEditor
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
 					{
 						IM_ASSERT(payload->DataSize == sizeof(uint32));
-						renderer.m_materialID[i] = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetID();
-						renderer.m_materialPath[i] = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetPath();
-						std::set<ECSEntity>::iterator it;
-						std::set<ECSEntity> children = ecs.get<EntityDataComponent>(entity).m_children;
-						auto& model = LinaEngine::Graphics::Model::GetModel(renderer.m_modelID);
 
-						int childrenIndex = 0;
-						for (it = children.begin(); it != children.end(); ++it)
-						{
-							MeshRendererComponent* mr = ecs.try_get<MeshRendererComponent>(*it);
-							if (mr != nullptr)
-							{
-								if (i == model.GetMeshes()[childrenIndex].GetMaterialSlotIndex())
-								{
-									mr->m_materialID = renderer.m_materialID[i];
-									mr->m_materialPath = renderer.m_materialPath[i];
-								}
-							}
-							childrenIndex++;
-						}
+						auto& mat = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data);
+						renderer.SetMaterial(ecs, entity, i, mat);
 					}
 					ImGui::EndDragDropTarget();
 				}
 
+				// Remove Material
 				std::string icnBtn = "##selectmat" + std::to_string(i);
 				if (WidgetsUtility::IconButton(icnBtn.c_str(), ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 				{
-					renderer.m_materialID[i] = -1;
-					renderer.m_materialPath[i] = "";
-					std::set<ECSEntity>::iterator it;
-					std::set<ECSEntity> children = ecs.get<EntityDataComponent>(entity).m_children;
-					auto& model = LinaEngine::Graphics::Model::GetModel(renderer.m_modelID);
-					int childrenIndex = 0;
-					for (it = children.begin(); it != children.end(); ++it)
-					{
-						MeshRendererComponent* mr = ecs.try_get<MeshRendererComponent>(*it);
-						if (mr != nullptr)
-						{
-							if (i == model.GetMeshes()[childrenIndex].GetMaterialSlotIndex())
-							{
-								mr->m_materialID = -1;
-								mr->m_materialPath = "";
-							}
-						}
-						childrenIndex++;
-					}
+					renderer.RemoveMaterial(ecs, entity, i);
 				}
-
 			}
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
-
-
 		}
 
 
@@ -998,12 +948,12 @@ namespace LinaEditor
 			if (LinaEngine::Graphics::Material::MaterialExists(renderer.m_materialID))
 			{
 				renderer.m_selectedMatID = renderer.m_materialID;
-				renderer.m_selectedMatPath = renderer.m_materialPath;
+				renderer.m_selectedMatPath = renderer.m_materialPaths;
 			}
 
 			// Material selection.
 			char matPathC[128] = "";
-			strcpy(matPathC, renderer.m_materialPath.c_str());
+			strcpy(matPathC, renderer.m_materialPaths.c_str());
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Material");
@@ -1022,7 +972,7 @@ namespace LinaEditor
 				{
 					IM_ASSERT(payload->DataSize == sizeof(uint32));
 					renderer.m_materialID = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetID();
-					renderer.m_materialPath = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetPath();
+					renderer.m_materialPaths = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetPath();
 
 				}
 				ImGui::EndDragDropTarget();
@@ -1031,7 +981,7 @@ namespace LinaEditor
 			if (WidgetsUtility::IconButton("##selectspritemat", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 			{
 				renderer.m_materialID = -1;
-				renderer.m_materialPath = "";
+				renderer.m_materialPaths = "";
 			}
 
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);

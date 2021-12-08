@@ -69,9 +69,6 @@ namespace LinaEngine::Graphics
 		static void UnloadAll();
 		static std::map<int, Model>& GetLoadedModels() { return s_loadedMeshes; }
 
-		void GenerateMeshChildren(ECS::ECSRegistry& reg, ECS::ECSEntity parent, const std::string& modelPath, const std::vector<std::string>& materialPaths);
-
-
 		std::vector<Mesh>& GetMeshes()
 		{
 			return m_meshes;

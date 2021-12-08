@@ -27,6 +27,7 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include "Core/EditorApplication.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
+#include "ECS/Components/ModelRendererComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
@@ -105,7 +106,7 @@ class SandboxApplication : public LinaEngine::Application
 				LinaEngine::ECS::RigidbodyComponent,
 				LinaEngine::ECS::MeshRendererComponent,
 				LinaEngine::ECS::SpriteRendererComponent,
-				LinaEngine::ECS::EntityDataComponent	
+				LinaEngine::ECS::ModelRendererComponent
 				>(oarchive);
 		}
 
@@ -123,7 +124,7 @@ class SandboxApplication : public LinaEngine::Application
 				LinaEngine::ECS::RigidbodyComponent,
 				LinaEngine::ECS::MeshRendererComponent,
 				LinaEngine::ECS::SpriteRendererComponent,
-				LinaEngine::ECS::EntityDataComponent
+				LinaEngine::ECS::ModelRendererComponent
 				>(iarchive);
 		}
 

@@ -43,7 +43,7 @@ namespace LinaEngine::ECS
 	struct SpriteRendererComponent : public ECSComponent
 	{
 		int m_materialID = -1;
-		std::string m_materialPath = "";
+		std::string m_materialPaths = "";
 
 		// Editor properties, not inside the macro to avoid any struct size mismatch during serialization.
 		int m_selectedMatID = -1;
@@ -52,7 +52,7 @@ namespace LinaEngine::ECS
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_materialPath, m_isEnabled); // serialize things by passing them to the archive
+			archive(m_materialPaths, m_isEnabled); // serialize things by passing them to the archive
 		}
 
 	};

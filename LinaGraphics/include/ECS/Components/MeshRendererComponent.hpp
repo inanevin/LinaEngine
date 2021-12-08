@@ -48,21 +48,14 @@ namespace LinaEngine::ECS
 		std::string m_materialPath = "";
 		int m_modelID = -1;
 		int m_materialID = -1;
-		int m_meshIndex = -1;
+		int m_meshIndex = -1;	// Index to define which mesh is this in the model's hierarchy. (parallel with the child entity indices under the model renderer component's entity).
 		bool m_excludeFromDrawList = false;
 
-	
-		// 	int m_meshID = -1;
-		//std::vector<int> m_materialID;
-		//
-		//std::string m_meshPath = "";
-		//std::vector<std::string> m_materialPath;
-		//std::string m_meshParamsPath = "";
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_excludeFromDrawList,m_modelPath, m_materialPath, m_isEnabled);
+			archive(m_excludeFromDrawList, m_meshIndex, m_modelPath, m_materialPath, m_isEnabled);
 		}
 	};
 }

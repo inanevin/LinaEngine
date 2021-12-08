@@ -64,17 +64,88 @@ namespace LinaEngine::World
 		ECS::ECSRegistry& ecs = Application::GetECSRegistry();
 
 		auto view = ecs.view<ECS::ModelRendererComponent>();
+		LINA_CORE_TRACE("Loading Level Resources");
+		for (ECS::ECSEntity entity : view)
+		{
+			ECS::ModelRendererComponent& mr = view.get<ECS::ModelRendererComponent>(entity);
+
+			LINA_CORE_TRACE("Going to load model {0}", mr.m_modelPath);
+
+			// Load the model pointed by the model renderer.
+			if (!Graphics::Model::ModelExists(mr.m_modelPath))
+			{
+				if (Utility::FileExists(mr.m_modelPath))
+				{
+					const std::string paramsPath = Utility::FileExists(mr.m_modelParamsPath) ? mr.m_modelParamsPath : "";
+					Graphics::Model& model = Graphics::Model::CreateModel(mr.m_modelParamsPath, Graphics::ModelParameters(), -1, paramsPath);
+					mr.m_modelID = model.GetID();
+					LINA_CORE_TRACE("Loaded model {0}", mr.m_modelPath);
+				}
+			}
+			else
+			{
+				mr.m_modelID = Graphics::Model::GetModel(mr.m_modelPath).GetID();
+			}
+
+
+			LINA_CORE_TRACE("Going to load model materials. {0}", mr.m_modelPath);
+
+			// Load all the materials pointed by the model renderer.
+			for (int i = 0; i < mr.m_materialPaths.size(); i++)
+			{
+				LINA_CORE_TRACE("Trying to load material {0}", mr.m_materialPaths[i]);
+
+				auto& path = mr.m_materialPaths[i];
+				if (!Graphics::Material::MaterialExists(path))
+				{
+					if (Utility::FileExists(path))
+					{
+						Graphics::Material::LoadMaterialFromFile(path);
+						LINA_CORE_TRACE("Material loaded {0}", path);
+					}
+					else
+						LINA_CORE_TRACE("File doesn't exists {0}", path);
+
+				}
+				else
+					LINA_CORE_TRACE("Material already exists {0}", path);
+
+			}
+
+			// Iterate model renderer's children, find all mesh renderer components & assign their mesh & material IDs accordingly.
+			ECS::EntityDataComponent& data = ecs.get<ECS::EntityDataComponent>(entity);
+			for (auto& child : data.m_children)
+			{
+				ECS::MeshRendererComponent* meshRenderer = ecs.try_get<ECS::MeshRendererComponent>(child);
+
+				if (meshRenderer != nullptr)
+				{
+					LINA_CORE_TRACE("Found a mesh renderer under model renderer entity, trying to set it's data.");
+
+					if (Graphics::Material::MaterialExists(meshRenderer->m_materialPath))
+					{
+						meshRenderer->m_materialID = Graphics::Material::GetMaterial(meshRenderer->m_materialPath).GetID();
+						LINA_CORE_TRACE("Set mesh renderer material. {0}", meshRenderer->m_materialPath);
+					}
+					else
+						LINA_CORE_TRACE("Mesh renderer's material path doesn't contain a material.");
+
+					meshRenderer->m_modelID = Graphics::Model::GetModel(meshRenderer->m_modelPath).GetID();
+				}
+			}
+		}
+
 		/*auto view = ecs.view<ECS::MeshRendererComponent>();
 
 		for (ECS::ECSEntity entity : view)
 		{
 			ECS::MeshRendererComponent& mr = view.get<ECS::MeshRendererComponent>(entity);
-			LINA_CORE_TRACE("Mat size {0} ", mr.m_materialPath.size());
+			LINA_CORE_TRACE("Mat size {0} ", mr.m_materialPaths.size());
 
-			for (int i = 0; i < mr.m_materialPath.size(); i++)
+			for (int i = 0; i < mr.m_materialPaths.size(); i++)
 			{
 				mr.m_materialID.push_back(0);
-				auto& path = mr.m_materialPath[i];
+				auto& path = mr.m_materialPaths[i];
 				auto& id = mr.m_materialID[i];
 
 				// Load used materials.
@@ -131,11 +202,11 @@ namespace LinaEngine::World
 		{
 			ECS::SpriteRendererComponent& sprite = viewSprites.get<ECS::SpriteRendererComponent>(entity);
 
-			if (!Graphics::Material::MaterialExists(sprite.m_materialPath))
+			if (!Graphics::Material::MaterialExists(sprite.m_materialPaths))
 			{
-				if (Utility::FileExists(sprite.m_materialPath))
+				if (Utility::FileExists(sprite.m_materialPaths))
 				{
-					Graphics::Material& mat = Graphics::Material::LoadMaterialFromFile(sprite.m_materialPath);
+					Graphics::Material& mat = Graphics::Material::LoadMaterialFromFile(sprite.m_materialPaths);
 					sprite.m_materialID = mat.GetID();
 
 					// Load material textures.
@@ -157,7 +228,7 @@ namespace LinaEngine::World
 			}
 			else
 			{
-				Graphics::Material& mat = Graphics::Material::GetMaterial(sprite.m_materialPath);
+				Graphics::Material& mat = Graphics::Material::GetMaterial(sprite.m_materialPaths);
 				sprite.m_materialID = mat.GetID();
 			}
 		}

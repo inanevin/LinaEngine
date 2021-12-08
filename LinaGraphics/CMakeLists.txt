@@ -46,6 +46,7 @@ set (LINAGRAPHICS_SOURCES
 	src/ECS/Systems/CameraSystem.cpp
 	src/ECS/Systems/LightingSystem.cpp
 	src/ECS/Systems/AnimationSystem.cpp
+	src/ECS/Components/ModelRendererComponent.cpp
 
 )
 

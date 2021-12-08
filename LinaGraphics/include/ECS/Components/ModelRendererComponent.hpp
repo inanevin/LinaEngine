@@ -41,23 +41,59 @@ Timestamp: 12/8/2021 12:27:21 PM
 
 // Headers here.
 #include "ECS/ECSComponent.hpp"
+#include "ECS/ECSSystem.hpp"
 #include <cereal/types/string.hpp>
 #include <cereal/types/vector.hpp>
 
+namespace LinaEngine
+{
+	namespace World
+	{
+		class Level;
+	}
+
+	namespace Graphics
+	{
+		class Model;
+		class Material;
+	}
+}
+
+namespace LinaEditor
+{
+	class ComponentDrawer;
+}
+
 namespace LinaEngine::ECS
 {
+	class MeshRendererSystem;
+
 	struct ModelRendererComponent : public ECSComponent
 	{
+
+		void SetModel(ECS::ECSRegistry& reg, ECS::ECSEntity parent, Graphics::Model& model);
+		void RemoveModel(ECS::ECSRegistry& reg, ECS::ECSEntity parent);
+		void SetMaterial(ECS::ECSRegistry& reg, ECS::ECSEntity parent, int materialIndex, const Graphics::Material& material);
+		void RemoveMaterial(ECS::ECSRegistry& reg, ECS::ECSEntity parent, int materialIndex);
+		
+
+	private:
+
+		friend class cereal::access;
+		friend class ECS::MeshRendererSystem;
+		friend class LinaEngine::World::Level;
+		friend class LinaEditor::ComponentDrawer;
+
 		int m_modelID = 0;
 		std::string m_modelPath = "";
 		std::string m_modelParamsPath = "";
-		std::vector<std::string> m_materialPath;
-		std::vector<int> m_materialID;
+		std::vector<std::string> m_materialPaths;
+		int m_materialCount = -1;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_modelPath, m_modelParamsPath, m_materialPath, m_isEnabled);
+			archive(m_modelPath, m_modelParamsPath, m_materialCount, m_materialPaths, m_isEnabled);
 		}
 	
 	};
