@@ -66,7 +66,9 @@ namespace LinaEngine::ECS
 	public:
 
 		ECSRegistry() {  };
-		virtual ~ECSRegistry() {};
+		virtual ~ECSRegistry();
+
+		void Initialize();
 
 		template<typename Type>
 		void RegisterComponentToClone()
@@ -74,6 +76,7 @@ namespace LinaEngine::ECS
 			m_cloneComponentFunctions[GetTypeID<Type>()] = std::bind(&ECSRegistry::CloneComponent<Type>, this, std::placeholders::_1, std::placeholders::_2);
 		}
 
+		void OnEntityDataComponentAdded(entt::registry& reg, entt::entity ent);
 		void Refresh();
 		void AddChildToEntity(ECSEntity parent, ECSEntity child);
 		void DestroyAllChildren(ECSEntity parent);

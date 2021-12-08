@@ -48,6 +48,22 @@ namespace LinaEngine::ECS
 		return false;
 	}
 
+	ECSRegistry::~ECSRegistry()
+	{
+		on_construct<EntityDataComponent>().disconnect(this);
+	}
+
+	void ECSRegistry::Initialize()
+	{
+		on_construct<EntityDataComponent>().connect<&ECSRegistry::OnEntityDataComponentAdded>(this);
+	}
+
+	void ECSRegistry::OnEntityDataComponentAdded(entt::registry& reg, entt::entity ent)
+	{
+		auto& data = reg.get<EntityDataComponent>(ent);
+		data.m_ecs = this;
+	}
+
 	void ECSRegistry::Refresh()
 	{
 

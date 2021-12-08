@@ -75,7 +75,7 @@ namespace LinaEngine
 		s_inputEngine = CreateInputEngine();
 		s_physicsEngine = CreatePhysicsEngine();
 		s_audioEngine = CreateAudioEngine();
-
+	
 		// Build main window.
 		bool windowCreationSuccess = s_appWindow->CreateContext(props);
 		if (!windowCreationSuccess)
@@ -104,6 +104,7 @@ namespace LinaEngine
 		s_renderEngine->SetPreDrawCallback(m_preDrawCallback);
 		s_renderEngine->SetViewportDisplay(Vector2::Zero, s_appWindow->GetSize());
 
+		s_ecs.Initialize();
 		s_inputEngine->Initialize(s_ecs, s_appWindow->GetNativeWindow(), m_inputDevice);
 		s_physicsEngine->Initialize(s_ecs, m_drawLineCallback);
 		s_renderEngine->Initialize(s_ecs, *s_appWindow);

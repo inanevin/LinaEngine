@@ -85,69 +85,11 @@ namespace LinaEngine
 			return m_rotation.IsNormalized();
 		}
 
-		void Set(const Vector3& translationIn, const Quaternion& rotationIn, const Vector3& scaleIn)
-		{
-			m_location = translationIn;
-			m_rotation = rotationIn;
-			m_scale = scaleIn;
-		}
-
-		void Rotate(const Vector3& axis, float angle)
-		{
-			m_rotation = Quaternion(axis, angle);
-		}
-
 		void Rotate(const Vector3& euler)
 		{
 			m_rotation = Quaternion::Euler(euler.x, euler.y, euler.z);
 		}
 
-		void Rotate(float x, float y, float z)
-		{
-			m_rotation = Quaternion::Euler(x, y, z);
-		}
-
-		Transformation operator+(const Transformation& other) const
-		{
-			return Transformation(m_location + other.m_location, m_rotation + other.m_rotation, m_scale + other.m_scale);
-		}
-
-		Transformation operator+=(const Transformation& other)
-		{
-			m_location += other.m_location;
-			m_rotation += other.m_rotation;
-			m_scale += other.m_scale;
-			return *this;
-		}
-
-		Transformation operator*(const Transformation& other) const
-		{
-			return Transformation(m_location * other.m_location, m_rotation * other.m_rotation, m_scale * other.m_scale);
-		}
-
-		Transformation operator*=(const Transformation& other)
-		{
-			m_location *= other.m_location;
-			m_rotation *= other.m_rotation;
-			m_scale *= other.m_scale;
-			return *this;
-		}
-
-		Transformation operator*(float other) const
-		{
-			return Transformation(m_location * other, m_rotation * other, m_scale * other);
-		}
-
-		Transformation operator*=(float other)
-		{
-			m_location *= other;
-			m_rotation *= other;
-			m_scale *= other;
-			return *this;
-		}
-
-
-		void SetLocalLocation(const Vector3& loc);
 		void SetLocation(const Vector3& loc);
 
 		// Pivot determines whether the children will be rotated/scaled based on this transformation or on their own. 

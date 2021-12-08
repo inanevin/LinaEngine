@@ -257,6 +257,7 @@ namespace LinaEditor
 		// Get component
 		TransformComponent& transform = ecs.get<TransformComponent>(entity);
 		ECSTypeID id = GetTypeID<TransformComponent>();
+		EntityDataComponent& data = ecs.get<EntityDataComponent>(entity);
 
 		// Align.
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -283,7 +284,8 @@ namespace LinaEditor
 			ImGui::SetCursorPosX(cursorPosValues);
 			Vector3 location = transform.transform.GetLocalLocation();
 			ImGui::DragFloat3("##loc", &location.x);
-			transform.transform.SetLocalLocation(location);
+			// transform.transform.SetLocalLocation(location);
+			data.SetLocalLocation(location);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Rotation");

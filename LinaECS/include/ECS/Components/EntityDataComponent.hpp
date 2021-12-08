@@ -64,21 +64,33 @@ namespace LinaEngine::ECS
 		std::string m_name = "";
 		std::set<ECSEntity> m_children;
 		ECSEntity m_parent = entt::null;
+		LinaEngine::Transformation m_transform;
 
 		void SetLocalLocation(const Vector3& loc);
 		void SetLocation(const Vector3& loc);
 		void SetLocalRotation(const Quaternion& rot, bool isThisPivot = true);
 		void SetLocalRotationAngles(const Vector3& angles, bool isThisPivot = true);
-		void SetLocalScale(const Vector3& scale, bool isThisPivot = true);
 		void SetRotation(const Quaternion& rot, bool isThisPivot = true);
-		void SetScale(const Vector3& scale, bool isThisPivot = true);
 		void SetRotationAngles(const Vector3& angles, bool isThisPivot = true);
+		void SetLocalScale(const Vector3& scale, bool isThisPivot = true);
+		void SetScale(const Vector3& scale, bool isThisPivot = true);
+
+	private:
+
+		void UpdateGlobalLocation();
+		void UpdateLocalLocation();
+		void UpdateGlobalRotation();
+		void UpdateLocalRotation();
+		void UpdateGlobalScale();
+		void UpdateLocalScale();
+
 
 	private:
 
 		friend class cereal::access;
+		friend class ECSRegistry;
 
-		LinaEngine::Transformation m_transform;
+		ECSRegistry* m_ecs = nullptr;
 
 		template<class Archive>
 		void serialize(Archive& archive)

@@ -36,14 +36,6 @@ namespace LinaEngine
 		return Transformation(Vector3::Lerp(from.m_location, to.m_location, t), Quaternion::Slerp(from.m_rotation, to.m_rotation, t), Vector3::Lerp(from.m_scale, to.m_scale, t));
 	}
 
-	void Transformation::SetLocalLocation(const Vector3& loc)
-	{
-		m_localLocation = loc;
-		UpdateGlobalLocation();
-
-		for (Transformation* child : m_children)
-			child->UpdateGlobalLocation();
-	}
 
 	void Transformation::SetLocation(const Vector3& loc)
 	{

@@ -73,7 +73,7 @@ namespace LinaEngine
 
 namespace LinaEngine::ECS
 {
-	struct TransformComponent;
+	struct EntityDataComponent;
 	struct MeshRendererComponent;
 
 	class MeshRendererSystem : public BaseECSSystem
@@ -111,7 +111,7 @@ namespace LinaEngine::ECS
 	
 		virtual void UpdateComponents(float delta) override;
 
-		void FlushSingleRenderer(MeshRendererComponent& mrc, TransformComponent& transform, Graphics::DrawParams drawParams);
+		void FlushSingleRenderer(MeshRendererComponent& mrc, ECS::EntityDataComponent& data, Graphics::DrawParams drawParams);
 
 		void OnModelRendererRemoved(entt::registry& reg, entt::entity ent);
 
