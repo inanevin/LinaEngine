@@ -46,6 +46,14 @@ namespace LinaEngine::ECS
 		mat[1][0] = model.cols[1].m128_f32[0];	mat[1][1] = model.cols[1].m128_f32[1];	mat[1][2] = model.cols[1].m128_f32[2];	mat[1][3] = model.cols[1].m128_f32[3];
 		mat[2][0] = model.cols[2].m128_f32[0];	mat[2][1] = model.cols[2].m128_f32[1];	mat[2][2] = model.cols[2].m128_f32[2];	mat[2][3] = model.cols[2].m128_f32[3];
 		mat[3][0] = model.cols[3].m128_f32[0];	mat[3][1] = model.cols[3].m128_f32[1];	mat[3][2] = model.cols[3].m128_f32[2];	mat[3][3] = model.cols[3].m128_f32[3];
+
+		/* Row - major
+		* 
+		mat[0][0] = model.cols[0].m128_f32[0];	mat[0][1] = model.cols[1].m128_f32[0];	mat[0][2] = model.cols[2].m128_f32[0];	mat[0][3] = model.cols[3].m128_f32[0];
+		mat[1][0] = model.cols[0].m128_f32[1];	mat[1][1] = model.cols[1].m128_f32[1];	mat[1][2] = model.cols[2].m128_f32[1];	mat[1][3] = model.cols[3].m128_f32[1];
+		mat[2][0] = model.cols[0].m128_f32[2];	mat[2][1] = model.cols[1].m128_f32[2];	mat[2][2] = model.cols[2].m128_f32[2];	mat[2][3] = model.cols[3].m128_f32[2];
+		mat[3][0] = model.cols[0].m128_f32[3];	mat[3][1] = model.cols[1].m128_f32[3];	mat[3][2] = model.cols[2].m128_f32[3];	mat[3][3] = model.cols[3].m128_f32[3];
+		*/
 #else
 		mat[0][0] = model.cols[0].x;	mat[0][1] = model.cols[0].y;	mat[0][2] = model.cols[0].z;	mat[0][3] = model.cols[0].w;
 		mat[1][0] = model.cols[1].x;	mat[1][1] = model.cols[1].y;	mat[1][2] = model.cols[1].z;	mat[1][3] = model.cols[1].w;
@@ -63,28 +71,33 @@ namespace LinaEngine::ECS
 		for (auto entity : view)
 		{
 			MeshRendererComponent& renderer = view.get<MeshRendererComponent>(entity);
-			if (!renderer.m_isEnabled || renderer.m_excludeFromDrawList || renderer.m_materialID < 0 || renderer.m_meshID < 0) continue;
+			if (!renderer.m_isEnabled || renderer.m_excludeFromDrawList || renderer.m_materialID.size() == 0 || renderer.m_meshID < 0) continue;
 
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 
 			// We get the materials, then according to their surface types we add the mesh
 			// data into either opaque queue or the transparent queue.
-			Graphics::Material& mat = LinaEngine::Graphics::Material::GetMaterial(renderer.m_materialID);
 			Graphics::Mesh& mesh = LinaEngine::Graphics::Mesh::GetMesh(renderer.m_meshID);
 
-			if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
+			for (int i = 0; i < mesh.GetVertexArrays().size(); i++)
 			{
-				for (int i = 0; i < mesh.GetVertexArrays().size(); i++)
-					RenderOpaque(*mesh.GetVertexArray(i), mesh.GetSkeleton(), mat, transform.transform.ToMatrix());
-			}
-			else
-			{
-				// Transparent queue is a priority queue unlike the opaque one, so we set the priority as distance to the camera.
-				float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - transform.transform.GetLocation()).MagnitudeSqrt();
+				if (!Graphics::Material::MaterialExists(renderer.m_materialID[i])) continue;
 
-				for (int i = 0; i < mesh.GetVertexArrays().size(); i++)
+				Graphics::Material& mat = LinaEngine::Graphics::Material::GetMaterial(renderer.m_materialID[i]);
+
+				if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
+					RenderOpaque(*mesh.GetVertexArray(i), mesh.GetSkeleton(), mat, transform.transform.ToMatrix());
+				else
+				{
+					// Transparent queue is a priority queue unlike the opaque one, so we set the priority as distance to the camera.
+					float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - transform.transform.GetLocation()).MagnitudeSqrt();
 					RenderTransparent(*mesh.GetVertexArray(i), mesh.GetSkeleton(), mat, transform.transform.ToMatrix(), priority);
+
+				}
+
+
 			}
+
 		}
 
 	}
@@ -102,10 +115,11 @@ namespace LinaEngine::ECS
 		if (skeleton.IsLoaded())
 		{
 			auto& models = skeleton.GetModels();
+			LINA_CORE_TRACE("{0} - {1}", models.size(), skeleton.GetOffsetMatrices().size());
 
-			for (auto& model : models)
+			for (int i = 0; i < models.size(); i++)
 			{
-				Matrix mat = OZZToMatrix(model);
+				Matrix mat = OZZToMatrix(models[i]) * skeleton.GetOffsetMatrices()[i];
 				m_opaqueRenderBatch[drawData].m_boneTransformations.push_back(mat);
 			}
 		}
@@ -175,7 +189,7 @@ namespace LinaEngine::ECS
 			{
 				mat->SetMatrix4(std::string(UF_BONE_MATRICES) + "[" + std::to_string(i) + "]", modelData.m_boneTransformations[i]);
 
-				/*LINA_CORE_TRACE("Local {0} {1} {2}",
+				/**LINA_CORE_TRACE("Local {0} {1} {2}",
 					 modelData.m_boneTransformations[0].GetTranslation().x,
 					 modelData.m_boneTransformations[0].GetTranslation().y,
 					 modelData.m_boneTransformations[0].GetTranslation().z
@@ -198,7 +212,7 @@ namespace LinaEngine::ECS
 
 	void MeshRendererSystem::FlushSingleRenderer(ECS::MeshRendererComponent& mrc, ECS::TransformComponent& tr, Graphics::DrawParams drawParams)
 	{
-		if (!Graphics::Mesh::MeshExists(mrc.m_meshID) || !Graphics::Material::MaterialExists(mrc.m_materialID))
+		if (!Graphics::Mesh::MeshExists(mrc.m_meshID))
 		{
 			LINA_CORE_WARN("Mesh or material does not exists for this renderer, aborting single flush.");
 			return;
@@ -206,16 +220,20 @@ namespace LinaEngine::ECS
 
 
 		Graphics::Mesh& mesh = Graphics::Mesh::GetMesh(mrc.m_meshID);
-		Graphics::Material& mat = Graphics::Material::GetMaterial(mrc.m_materialID);
-
-		for (Graphics::VertexArray* va : mesh.GetVertexArrays())
+		for (int i = 0; i < mesh.GetVertexArrays().size(); i++)
 		{
+			if (!Graphics::Material::MaterialExists(mrc.m_materialID[i])) continue;
+
+			Graphics::Material& mat = Graphics::Material::GetMaterial(mrc.m_materialID[i]);
+
+			auto& va = mesh.GetVertexArrays()[i];
 			const Matrix model = tr.transform.ToMatrix();
 			va->UpdateBuffer(7, &model[0][0], sizeof(Matrix));
 			va->UpdateBuffer(8, &tr.transform.ToMatrix().Inverse().Transpose()[0][0], sizeof(Matrix));
 			m_renderEngine->UpdateShaderData(&mat);
 			s_renderDevice->Draw(va->GetID(), drawParams, 1, va->GetIndexCount(), false);
 		}
+
 
 	}
 

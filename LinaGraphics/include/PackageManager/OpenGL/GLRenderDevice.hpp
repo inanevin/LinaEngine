@@ -104,8 +104,6 @@ namespace LinaEngine::Graphics
 		void UpdateTextureParameters(uint32 bindMode, uint32 id, SamplerParameters samplerParmas);
 	
 		uint32 ReleaseTexture2D(uint32 texture2D);
-		uint32 CreateVertexArray(float** vertexData, const uint32* vertexElementSizes, const uint32* vertexElementTypes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage);
-		uint32 CreateVertexArray(const void** vertexData, const uint32* vertexElementSizes, const uint32* vertexElementTypes, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage);
 		uint32 CreateVertexArray(const std::vector<BufferData>& bufferData, uint32 numVertexComponents, uint32 numInstanceComponents, uint32 numVertices, const uint32* indices, uint32 numIndices, BufferUsage bufferUsage);
 		uint32 CreateSkyboxVertexArray();
 		uint32 CreateScreenQuadVertexArray();

@@ -813,8 +813,14 @@ namespace LinaEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMESH_ID))
 				{
 					IM_ASSERT(payload->DataSize == sizeof(uint32));
-					renderer.m_meshID = LinaEngine::Graphics::Mesh::GetMesh(*(uint32*)payload->m_data).GetID();
-					renderer.m_meshPath = LinaEngine::Graphics::Mesh::GetMesh(*(uint32*)payload->m_data).GetPath();
+
+					auto& mesh = LinaEngine::Graphics::Mesh::GetMesh(*(uint32*)payload->m_data);
+					renderer.m_meshID = mesh.GetID();
+					renderer.m_meshPath = mesh.GetPath();
+					renderer.m_materialID.clear();
+					renderer.m_materialPath.clear();
+					renderer.m_materialID.resize(mesh.GetMaterialIndices().size());
+					renderer.m_materialPath.resize(mesh.GetMaterialIndices().size());
 				}
 				ImGui::EndDragDropTarget();
 			}
@@ -825,39 +831,46 @@ namespace LinaEditor
 				renderer.m_meshPath = "";
 			}
 
-			// Material selection.
-			char matPathC[128] = "";
-			strcpy(matPathC, renderer.m_materialPath.c_str());
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Material");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
-			ImGui::InputText("##selectedMat", matPathC, IM_ARRAYSIZE(matPathC), ImGuiInputTextFlags_ReadOnly);
-			ImGui::SameLine();
-			WidgetsUtility::IncrementCursorPosY(5);
-
-
-			// Material drag & drop.
-			if (ImGui::BeginDragDropTarget())
+			for (int i = 0; i < renderer.m_materialPath.size(); i++)
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
+				// Material selection.
+				char matPathC[128] = "";
+				strcpy(matPathC, renderer.m_materialPath[i].c_str());
+
+				ImGui::SetCursorPosX(cursorPosLabels);
+				WidgetsUtility::AlignedText("Material");
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(cursorPosValues);
+				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
+
+				std::string selectedMat = "##selectedMath" + std::to_string(i);
+				ImGui::InputText(selectedMat.c_str(), matPathC, IM_ARRAYSIZE(matPathC), ImGuiInputTextFlags_ReadOnly);
+				ImGui::SameLine();
+				WidgetsUtility::IncrementCursorPosY(5);
+
+
+				// Material drag & drop.
+				if (ImGui::BeginDragDropTarget())
 				{
-					IM_ASSERT(payload->DataSize == sizeof(uint32));
-					renderer.m_materialID = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetID();
-					renderer.m_materialPath = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetPath();
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
+					{
+						IM_ASSERT(payload->DataSize == sizeof(uint32));
+						renderer.m_materialID[i] = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetID();
+						renderer.m_materialPath[i] = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetPath();
 
+					}
+					ImGui::EndDragDropTarget();
 				}
-				ImGui::EndDragDropTarget();
-			}
 
-			if (WidgetsUtility::IconButton("##selectmat", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-			{
-				renderer.m_materialID = -1;
-				renderer.m_materialPath = "";
-			}
+				std::string icnBtn = "##selectmat" + std::to_string(i);
+				if (WidgetsUtility::IconButton(icnBtn.c_str(), ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
+				{
+					renderer.m_materialID[i] = -1;
+					renderer.m_materialPath[i] = "";
+				}
 
+			}
+		
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 

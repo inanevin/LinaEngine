@@ -40,7 +40,7 @@ Timestamp: 12/7/2021 2:13:56 PM
 #define Skeleton_HPP
 
 // Headers here.
-
+#include "Utility/Math/Matrix.hpp"
 #include <ozz/animation/runtime/skeleton.h>
 #include <ozz/base/maths/soa_transform.h>
 #include <ozz/base/containers/vector.h>
@@ -70,6 +70,8 @@ namespace LinaEngine::Graphics
 			return m_animationMap;
 		}
 
+		std::vector<Matrix>& GetOffsetMatrices() { return m_offsetMatrices; }
+
 		ozz::animation::Skeleton& GetSkeleton() { return m_skeleton; }
 		ozz::vector<ozz::math::SoaTransform>& GetLocals() { return m_locals; }
 		ozz::vector<ozz::math::Float4x4>& GetModels() { return m_models; }
@@ -84,7 +86,7 @@ namespace LinaEngine::Graphics
 		ozz::vector<ozz::math::Float4x4> m_models;
 		ozz::animation::SamplingCache m_cache;
 		std::map<std::string, Animation*> m_animationMap;
-
+		std::vector<Matrix> m_offsetMatrices;
 	};
 }
 

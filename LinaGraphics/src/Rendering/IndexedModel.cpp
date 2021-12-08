@@ -50,7 +50,6 @@ namespace LinaEngine::Graphics
 			m_bufferElements[elementIndex].m_intElements.push_back(e0);
 	}
 
-	
 
 	void IndexedModel::AddIndices(uint32 i0, uint32 i1, uint32 i2)
 	{

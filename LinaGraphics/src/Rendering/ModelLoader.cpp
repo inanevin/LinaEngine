@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Rendering/ModelLoader.hpp"  
 #include "Rendering/RenderingCommon.hpp"
+#include "Rendering/Mesh.hpp"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -66,8 +67,13 @@ namespace LinaEngine::Graphics
 		return mat;
 	}
 
-	bool ModelLoader::LoadModel(const std::string& fileName, std::vector<IndexedModel>& models, std::vector<uint32>& modelMaterialIndices, std::vector<ModelMaterial>& materials, Skeleton& skeleton, MeshParameters meshParams, MeshSceneParameters* worldParams)
+	bool ModelLoader::LoadModel(const std::string& fileName,  Mesh* mesh, MeshParameters meshParams)
 	{
+		MeshSceneParameters& worldParams = mesh->GetWorldParameters();
+		auto& modelMaterialIndices = mesh->GetMaterialIndices();
+		auto& models = mesh->GetIndexedModels();
+		auto& materials = mesh->GetMaterialSpecs();
+
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
 		uint32 importFlags = 0;
@@ -96,24 +102,24 @@ namespace LinaEngine::Graphics
 			return false;
 		}
 
-		if (worldParams != nullptr && scene->mRootNode->mNumChildren > 0)
+		if (scene->mRootNode->mNumChildren > 0)
 		{
 			aiVector3D ps, pr, pos;
 			scene->mRootNode->mChildren[0]->mTransformation.Decompose(ps, pr, pos);
-			worldParams->m_worldPosition = Vector3(pos.x, pos.y, pos.z);
-			worldParams->m_worldRotation = Quaternion::Euler(pr.x, pr.y, pr.z);
-			worldParams->m_worldScale = Vector3(ps.x, ps.y, ps.z);
+			worldParams.m_worldPosition = Vector3(pos.x, pos.y, pos.z);
+			worldParams.m_worldRotation = Quaternion::Euler(pr.x, pr.y, pr.z);
+			worldParams.m_worldScale = Vector3(ps.x, ps.y, ps.z);
 		}
 
 		aiMatrix4x4 rootTransformation = scene->mRootNode->mTransformation;
-		worldParams->m_rootInverse = AssimpToInternal(rootTransformation).Inverse();
+		worldParams.m_rootInverse = AssimpToInternal(rootTransformation).Inverse();
 
 		const std::string runningDirectory = Utility::GetRunningDirectory();
 		const std::string fileExt = Utility::GetFileExtension(fileName);
 		const bool isFBX = fileExt.compare("fbx") == 0;
 
 		// Load animations if fbx
-		if (isFBX && scene->HasAnimations())
+	/*if (isFBX && scene->HasAnimations())
 		{
 			// Create .ozz files out of FBX.
 			const std::string meshPath = runningDirectory + "\\" + fileName;
@@ -126,7 +132,6 @@ namespace LinaEngine::Graphics
 			// Make directory in the original fbx file dir.
 			const std::string makeDirCommand = "cd " + meshFolder + " && mkdir " + meshName;
 			system(makeDirCommand.c_str());
-			LINA_CORE_ERR("command {0}", makeDirCommand);
 
 			// Copy the ozz files to the newly created directory.
 			const std::string moveCommand = cdToBin + "&& move *.ozz " + meshFolder + "\\" + meshName;
@@ -134,7 +139,7 @@ namespace LinaEngine::Graphics
 
 			// Load skeleton.
 			const std::string skelPath = Utility::GetFileWithoutExtension(fileName) + "/skeleton.ozz";
-			skeleton.LoadSkeleton(skelPath);
+			//skeleton.LoadSkeleton(skelPath);
 
 			// Create animation structure for each ozz file
 			std::string path(meshFolder + "/");
@@ -171,10 +176,8 @@ namespace LinaEngine::Graphics
 				}
 			}
 
-
-
 		}
-
+		*/
 
 		// Iterate through the meshes on the scene.
 		for (uint32 j = 0; j < scene->mNumMeshes; j++)
@@ -208,12 +211,12 @@ namespace LinaEngine::Graphics
 			}
 
 
-			int boneCounter = 0;
+		/*	int boneCounter = 0;
 			for (int boneIndex = 0; boneIndex < model->mNumBones; ++boneIndex)
 			{
 				int boneID = -1;
 				std::string boneName = model->mBones[boneIndex]->mName.C_Str();
-				if (worldParams->m_boneInfoMap.find(boneName) == worldParams->m_boneInfoMap.end())
+				if (worldParams.m_boneInfoMap.find(boneName) == worldParams.m_boneInfoMap.end())
 				{
 					BoneInfo newBoneInfo;
 					newBoneInfo.m_id = boneCounter;
@@ -226,6 +229,9 @@ namespace LinaEngine::Graphics
 				{
 					boneID = worldParams->m_boneInfoMap[boneName].m_id;
 				}
+
+
+
 				assert(boneID != -1);
 				auto weights = model->mBones[boneID]->mWeights;
 				int numWeights = model->mBones[boneID]->mNumWeights;
@@ -236,12 +242,9 @@ namespace LinaEngine::Graphics
 					float weight = weights[weightIndex].mWeight;
 					LINA_CORE_ASSERT(vertexId <= vertices.size());
 					SetVertexBoneData(vertexBoneIDs[vertexId], vertexBoneWeights[vertexId], boneID, weight);
-					//LINA_CORE_TRACE("MESH {3}, Bone ID {0}, Vertex ID {1},  Bone Weight {2}", boneID, vertexId, weight, j);
-					//LINA_CORE_TRACE("Setting data on vertex {0}, bone: {1}, weight{2}", vboneIDs[0], vboneIDs[1], vboneIDs[2], vboneIDs[3]);
-
 				}
 			}
-
+			*/
 
 			// Iterate through vertices.
 			for (uint32 i = 0; i < model->mNumVertices; i++)
@@ -266,31 +269,16 @@ namespace LinaEngine::Graphics
 				{
 					const std::vector<int>& vboneIDs = vertexBoneIDs[i];
 					const std::vector<float>& vboneWeights = vertexBoneWeights[i];
-					//currentModel.AddElement(5, vboneIDs[0], vboneIDs[1], vboneIDs[2], vboneIDs[3]);
-					//currentModel.AddElement(6, vboneWeights[0], vboneWeights[1], vboneWeights[2], vboneWeights[3]);
-					currentModel.AddElement(5, 1, 3, 7, 0);
-					currentModel.AddElement(6, 0.05f, 0.4f, 2.0f, 1.0f);
-					//LINA_CORE_ERR("BONE ID: {0}", vertexBoneIDs[i][0]);
-
-
-					if (vboneIDs[0] > 100)
-						LINA_CORE_ERR("BIGGER");
-					if (vboneIDs[1] > 100)
-						LINA_CORE_ERR("BIGGER");
-					if (vboneIDs[2] > 100)
-						LINA_CORE_ERR("BIGGER");
-					if (vboneIDs[3] > 100)
-						LINA_CORE_ERR("BIGGER");
-
-					//LINA_CORE_TRACE("Bone IDs : {0}, {1}, {2}, {3}", vboneIDs[0], vboneIDs[1], vboneIDs[2], vboneIDs[3]);
-					//LINA_CORE_TRACE("Bone Weights : {0}, {1}, {2}, {3}", vboneWeights[0], vboneWeights[1], vboneWeights[2], vboneWeights[3]);
+					currentModel.AddElement(5, vboneIDs[0], vboneIDs[1], vboneIDs[2], vboneIDs[3]);
+					currentModel.AddElement(6, vboneWeights[0], vboneWeights[1], vboneWeights[2], vboneWeights[3]);
+					//currentModel.AddElement(5, 1, 3, 7, 0);
+					//currentModel.AddElement(6, 0.05f, 0.4f, 2.0f, 1.0f);
 				}
 				else
 				{
 					currentModel.AddElement(5, -1, -1, -1, -1);
 					currentModel.AddElement(6, 0.0f, 0.0f, 0.0f, 0.0f);
 				}
-
 			}
 
 			// Iterate through faces & add indices for each face.

@@ -59,7 +59,7 @@ namespace LinaEngine::Graphics
 
 		Mesh& mesh = s_loadedMeshes[id];
 		mesh.SetParameters(meshParams);
-		ModelLoader::LoadModel(filePath, mesh.GetIndexedModels(), mesh.GetMaterialIndices(), mesh.GetMaterialSpecs(),  mesh.GetSkeleton(), meshParams, &mesh.m_worldParameters);
+		ModelLoader::LoadModel(filePath, &mesh, meshParams);
 
 		if (mesh.GetIndexedModels().size() == 0)
 		{

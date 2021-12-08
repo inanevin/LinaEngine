@@ -31,15 +31,14 @@ layout (location = 11) in mat4 inverseTransposeModel;
 out vec2 TexCoords;
 out vec3 WorldPos;
 out vec3 Normal;
-out vec4 outBoneIDs;
 
 
 uniform bool uf_isSkinned;
-
 const int MAX_BONES = 150;
 const int MAX_BONE_INFLUENCE = 4;
 uniform mat4 uf_boneMatrices[MAX_BONES];
 
+  
 void main()
 {
 	TexCoords = texCoords;	
@@ -48,41 +47,34 @@ void main()
 	{
 		
 		vec4 totalPosition = vec4(0.0f);
-		totalPosition = vec4(position,1.0f);
+		
 		for(int i = 0 ; i < MAX_BONE_INFLUENCE ; i++)
 		{
-			//if(boneIDs[i] == -1) 
-				//continue;
+			if(boneIDs[i] == -1) 
+				continue;
 				
-			//if(boneIDs[i] >= MAX_BONES) 
-			//{
-			//	totalPosition = vec4(position,1.0f);
-			//	break;
-			//}
+			if(boneIDs[i] >= MAX_BONES) 
+			{
+				totalPosition = vec4(position,1.0f);
+				break;
+			}
 			
-			//vec4 localPosition = uf_boneMatrices[boneIDs[i]] * vec4(position,1.0f);
-			//totalPosition += localPosition * boneWeights[i];
-			//vec3 localNormal = mat3(uf_boneMatrices[boneIDs[i]]) * normal;
+			vec4 localPosition = uf_boneMatrices[boneIDs[i]] * vec4(position,1.0f);
+			totalPosition += localPosition * boneWeights[i];
+			vec3 localNormal = mat3(uf_boneMatrices[boneIDs[i]]) * normal;
 		}
 		
-
+		//mat4 BoneTransform = uf_boneMatrices[boneIDs[0]] * boneWeights[0];
+		//BoneTransform += uf_boneMatrices[boneIDs[1]] * boneWeights[1];
+		//BoneTransform += uf_boneMatrices[boneIDs[2]] * boneWeights[2];
+		//BoneTransform += uf_boneMatrices[boneIDs[3]] * boneWeights[3];
+		
 		WorldPos = vec3(model * totalPosition);
 		Normal = mat3(model) * normal;
-		
-		float a = 0;
-		
-		if(boneIDs[0] == 1)
-		a = 1;
-		else if(boneIDs[0] == 2)
-		a = 2;
-		
-		outBoneIDs = vec4(a, 0,0,1);
-	
-		gl_Position = VP * vec4(WorldPos, 1.0);
+		gl_Position = VP *  vec4(WorldPos, 1.0f);
 	}
 	else
 	{
-	outBoneIDs = vec4(1,0,0,0);
 		WorldPos = vec3(model * vec4(position, 1.0));
 		Normal = mat3(model) * normal;
 		gl_Position = VP * vec4(WorldPos, 1.0);
@@ -102,8 +94,6 @@ layout (location = 1) out vec4 brightColor;
 in vec2 TexCoords;
 in vec3 WorldPos;
 in vec3 Normal;
-in vec4 outBoneIDs;
-
 
 struct Material
 {
@@ -243,15 +233,11 @@ void main()
         brightColor = vec4(0.0, 0.0, 0.0, 1.0);
 		
     // HDR tonemapping
-   // color = color / (color + vec3(1.0));
+	// color = color / (color + vec3(1.0));
     // gamma correct
     //color = pow(color, vec3(1.0/2.2));
 
 	float alpha =  material.surfaceType == 0 ? 1.0 : (material.albedoMap.isActive ? texture(material.albedoMap.texture, tiled).a : 1.0);
-	//fragColor = vec4(color, alpha);
-
-		fragColor = vec4(outBoneIDs.x, 0.0f, 0.0f, 1.0);
-
-
+	fragColor = vec4(color, alpha);
 }
 #endif

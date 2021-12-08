@@ -73,12 +73,10 @@ namespace LinaEngine::ECS
 				samplingJob.cache = &skeleton.GetCache();
 				samplingJob.ratio = test;
 				samplingJob.output = ozz::make_span(skeleton.GetLocals());
-
 				
 				if (!samplingJob.Run()) {
 					continue;
 				}
-
 
 				ozz::animation::LocalToModelJob toModelJob;
 				toModelJob.skeleton = &skeleton.GetSkeleton();
@@ -89,6 +87,7 @@ namespace LinaEngine::ECS
 					continue;
 				}
 
+				
 			}
 		}
 	}

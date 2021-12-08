@@ -67,37 +67,45 @@ namespace LinaEngine::World
 		for (ECS::ECSEntity entity : view)
 		{
 			ECS::MeshRendererComponent& mr = view.get<ECS::MeshRendererComponent>(entity);
+			LINA_CORE_TRACE("Mat size {0} ", mr.m_materialPath.size());
 
-			// Load used materials.
-			if (!Graphics::Material::MaterialExists(mr.m_materialPath))
+			for (int i = 0; i < mr.m_materialPath.size(); i++)
 			{
-				if (Utility::FileExists(mr.m_materialPath))
+				mr.m_materialID.push_back(0);
+				auto& path = mr.m_materialPath[i];
+				auto& id = mr.m_materialID[i];
+
+				// Load used materials.
+				if (!Graphics::Material::MaterialExists(path))
 				{
-					Graphics::Material& mat = Graphics::Material::LoadMaterialFromFile(mr.m_materialPath);
-					mr.m_materialID = mat.GetID();
-
-					// Load material textures.
-					for (std::map<std::string, Graphics::MaterialSampler2D>::iterator it = mat.m_sampler2Ds.begin(); it != mat.m_sampler2Ds.end(); ++it)
+					if (Utility::FileExists(path))
 					{
-						if (Utility::FileExists(it->second.m_path))
+						Graphics::Material& mat = Graphics::Material::LoadMaterialFromFile(path);
+						id = mat.GetID();
+
+						// Load material textures.
+						for (std::map<std::string, Graphics::MaterialSampler2D>::iterator it = mat.m_sampler2Ds.begin(); it != mat.m_sampler2Ds.end(); ++it)
 						{
-							Graphics::SamplerParameters samplerParams;
+							if (Utility::FileExists(it->second.m_path))
+							{
+								Graphics::SamplerParameters samplerParams;
 
-							if (Utility::FileExists(it->second.m_paramsPath))
-								samplerParams = Graphics::Texture::LoadParameters(it->second.m_paramsPath);
+								if (Utility::FileExists(it->second.m_paramsPath))
+									samplerParams = Graphics::Texture::LoadParameters(it->second.m_paramsPath);
 
-							Graphics::Texture& texture = Graphics::Texture::CreateTexture2D(it->second.m_path, samplerParams, false, false, it->second.m_paramsPath);
+								Graphics::Texture& texture = Graphics::Texture::CreateTexture2D(it->second.m_path, samplerParams, false, false, it->second.m_paramsPath);
 
-							mat.SetTexture(it->first, &texture, it->second.m_bindMode);
+								mat.SetTexture(it->first, &texture, it->second.m_bindMode);
+							}
 						}
 					}
-				}
 
-			}
-			else
-			{
-				Graphics::Material& mat = Graphics::Material::GetMaterial(mr.m_materialPath);
-				mr.m_materialID = mat.GetID();
+				}
+				else
+				{
+					Graphics::Material& mat = Graphics::Material::GetMaterial(path);
+					id = mat.GetID();
+				}
 			}
 
 			// Load used meshes

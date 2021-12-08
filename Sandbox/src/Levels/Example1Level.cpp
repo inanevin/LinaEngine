@@ -44,8 +44,8 @@ void Example1Level::Initialize()
 
 	auto ybot = Application::GetECSRegistry().GetEntity("YBot");
 
-	auto& anim = Application::GetECSRegistry().emplace<ECS::AnimationComponent>(ybot);
-	anim.m_animationName = "Armature_Move";
+	//auto& anim = Application::GetECSRegistry().emplace<ECS::AnimationComponent>(ybot);
+	//anim.m_animationName = "Armature_Move";
 }
 
 void Example1Level::Tick(bool isInPlayMode, float delta)

@@ -38,7 +38,7 @@ Timestamp: 4/14/2019 1:37:59 AM
 
 #include "ECS/ECSComponent.hpp"
 #include <cereal/types/string.hpp>
-
+#include <cereal/types/vector.hpp>
 
 namespace LinaEngine::ECS
 {
@@ -46,10 +46,10 @@ namespace LinaEngine::ECS
 	{
 
 		int m_meshID = -1;
-		int m_materialID = -1;
+		std::vector<int> m_materialID;
 		bool m_excludeFromDrawList = false;
 		std::string m_meshPath = "";
-		std::string m_materialPath = "";
+		std::vector<std::string> m_materialPath;
 		std::string m_meshParamsPath = "";
 
 		template<class Archive>

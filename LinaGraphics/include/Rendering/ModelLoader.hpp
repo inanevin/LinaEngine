@@ -48,12 +48,14 @@ Timestamp: 4/26/2019 12:07:47 AM
 
 namespace LinaEngine::Graphics
 {
+	class Mesh;
+
 	class ModelLoader
 	{
 	public:
 
 		// Load models using ASSIMP
-		static bool LoadModel(const std::string& fileName, std::vector<IndexedModel>& models, std::vector<uint32>& modelMaterialIndices, std::vector<ModelMaterial>& materials, Skeleton& skeleton, MeshParameters meshParams, MeshSceneParameters* worldParams = nullptr);
+		static bool LoadModel(const std::string& fileName, Mesh* mesh, MeshParameters meshParams);
 		static bool LoadQuad(IndexedModel& model);
 		static bool LoadPrimitive(std::vector<IndexedModel>& models, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords);
 		static void SetVertexBoneData(std::vector<int>& vertexBoneIDs, std::vector<float>& vertexBoneWeights, int boneID, float weight);
