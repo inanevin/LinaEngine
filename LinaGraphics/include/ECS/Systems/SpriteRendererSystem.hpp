@@ -79,7 +79,6 @@ namespace LinaEngine::ECS
 	private:
 	
 		Graphics::Mesh m_quadMesh;
-		Graphics::VertexArray m_spriteVertexArray;
 		RenderDevice* s_renderDevice = nullptr;
 		Graphics::RenderEngine* m_renderEngine = nullptr;
 		std::map<Graphics::Material*, BatchModelData> m_renderBatch;

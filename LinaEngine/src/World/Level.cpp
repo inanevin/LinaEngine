@@ -112,7 +112,7 @@ namespace LinaEngine::World
 			if (!Graphics::Model::ModelExists(mr.m_meshPath))
 			{
 
-				Graphics::MeshParameters params;
+				Graphics::ModelParameters params;
 				if (Utility::FileExists(mr.m_meshParamsPath))
 					params = Graphics::Model::LoadParameters(mr.m_meshParamsPath);
 

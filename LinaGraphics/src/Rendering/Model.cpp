@@ -42,44 +42,42 @@ namespace LinaEngine::Graphics
 
 	Model::~Model()
 	{
-		for (uint32 i = 0; i < m_vertexArrays.size(); i++)
-			delete m_vertexArrays[i];
 
-
-		m_vertexArrays.clear();
 		m_meshes.clear();
 		m_materialSpecArray.clear();
 		m_materialIndexArray.clear();
 	}
 
-	Model& Model::CreateModel(const std::string& filePath, MeshParameters meshParams, int id, const std::string& paramsPath)
+	Model& Model::CreateModel(const std::string& filePath, ModelParameters meshParams, int id, const std::string& paramsPath)
 	{
 		// Internal meshes are created with non-negative ids, user loaded ones should have default id of -1.
 		if (id == -1) id = Utility::GetUniqueID();
 
-		Model& mesh = s_loadedMeshes[id];
-		mesh.SetParameters(meshParams);
-		ModelLoader::LoadModel(filePath, &mesh, meshParams);
+		Model& model = s_loadedMeshes[id];
+		model.SetParameters(meshParams);
+		ModelLoader::LoadModel(filePath, &model, meshParams);
 
-		if (mesh.GetMeshes().size() == 0)
+		if (model.GetMeshes().size() == 0)
 		{
 			LINA_CORE_WARN("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad...", filePath);
 			UnloadModel(id);
 			return GetPrimitive(Primitives::Plane);
 		}
 
-		// Build vertex array for each mesh.
-		for (uint32 i = 0; i < mesh.GetMeshes().size(); i++)
+		// Build vertex array for each model.
+		for (uint32 i = 0; i < model.GetMeshes().size(); i++)
 		{
-			VertexArray* vertexArray = new VertexArray();
-			vertexArray->Construct(RenderEngine::GetRenderDevice(), mesh.GetMeshes()[i], BufferUsage::USAGE_DYNAMIC_DRAW);
-			mesh.GetVertexArrays().push_back(vertexArray);
+			model.GetMeshes()[i].CreateVertexArray(RenderEngine::GetRenderDevice(), BufferUsage::USAGE_DYNAMIC_DRAW);
+
+			//VertexArray* vertexArray = new VertexArray();
+			//vertexArray->Construct(RenderEngine::GetRenderDevice(), model.GetMeshes()[i], BufferUsage::USAGE_DYNAMIC_DRAW);
+			//model.GetMeshes()[i].VertexArray = vertexArray;
 		}
 
 		// Set id
-		mesh.m_meshID = id;
-		mesh.m_path = filePath;
-		mesh.m_paramsPath = paramsPath;
+		model.m_meshID = id;
+		model.m_path = filePath;
+		model.m_paramsPath = paramsPath;
 
 		LINA_CORE_TRACE("Mesh created. {0}", filePath);
 		return s_loadedMeshes[id];
@@ -153,9 +151,9 @@ namespace LinaEngine::Graphics
 		s_loadedMeshes.clear();
 	}
 
-	MeshParameters Model::LoadParameters(const std::string& path)
+	ModelParameters Model::LoadParameters(const std::string& path)
 	{
-		MeshParameters params;
+		ModelParameters params;
 
 		std::ifstream stream(path);
 		{
@@ -168,7 +166,7 @@ namespace LinaEngine::Graphics
 		return params;
 	}
 
-	void Model::SaveParameters(const std::string& path, MeshParameters params)
+	void Model::SaveParameters(const std::string& path, ModelParameters params)
 	{
 		std::ofstream stream(path);
 		{

@@ -53,12 +53,10 @@ namespace LinaEngine::Graphics
 		return mat;
 	}
 
-	bool ModelLoader::LoadModel(const std::string& fileName,  Model* mesh, MeshParameters meshParams)
+	bool ModelLoader::LoadModel(const std::string& fileName,  Model* model, ModelParameters meshParams)
 	{
-		MeshSceneParameters& worldParams = mesh->GetWorldParameters();
-		auto& modelMaterialIndices = mesh->GetMaterialIndices();
-		auto& models = mesh->GetMeshes();
-		auto& materials = mesh->GetMaterialSpecs();
+		ModelSceneParameters& worldParams = model->GetWorldParameters();
+
 
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
@@ -109,21 +107,22 @@ namespace LinaEngine::Graphics
 		// Iterate through the meshes on the scene.
 		for (uint32 j = 0; j < scene->mNumMeshes; j++)
 		{
-			// Build model reference for each mesh.
-			const aiMesh* model = scene->mMeshes[j];
-			modelMaterialIndices.push_back(model->mMaterialIndex);
+			// Build aiMesh reference for each aiMesh.
+			const aiMesh* aiMesh = scene->mMeshes[j];
+			auto mm = model->GetMaterialIndices();
+			//model->GetMaterialIndices().push_back(aiMesh->mMaterialIndex);
 
-			// Build and indexed model for each mesh & fill in the data.
-			Mesh currentModel;
-			currentModel.AllocateElement(3, 0, true); // Positions
-			currentModel.AllocateElement(2, 1, true); // TexCoords
-			currentModel.AllocateElement(3, 2, true); // Normals
-			currentModel.AllocateElement(3, 3, true); // Tangents
-			currentModel.AllocateElement(3, 4, true); // Bitangents
-			currentModel.AllocateElement(4, 5, false); // Bone ids
-			currentModel.AllocateElement(4, 6, true);	// bone weights
-			currentModel.AllocateElement(16, 7, true, true); // Model Matrix
-			currentModel.AllocateElement(16, 11, true, true); // Inverse transpose matrix
+			// Build and indexed aiMesh for each aiMesh & fill in the data.
+			Mesh currentMesh;
+			currentMesh.AllocateElement(3, 0, true); // Positions
+			currentMesh.AllocateElement(2, 1, true); // TexCoords
+			currentMesh.AllocateElement(3, 2, true); // Normals
+			currentMesh.AllocateElement(3, 3, true); // Tangents
+			currentMesh.AllocateElement(3, 4, true); // Bitangents
+			currentMesh.AllocateElement(4, 5, false); // Bone ids
+			currentMesh.AllocateElement(4, 6, true);	// bone weights
+			currentMesh.AllocateElement(16, 7, true, true); // Model Matrix
+			currentMesh.AllocateElement(16, 11, true, true); // Inverse transpose matrix
 
 
 			const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
@@ -131,59 +130,59 @@ namespace LinaEngine::Graphics
 			std::vector<std::vector<int>> vertexBoneIDs;
 			std::vector<std::vector<float>> vertexBoneWeights;
 
-			if (model->mNumBones > 0)
+			if (aiMesh->mNumBones > 0)
 			{
-				vertexBoneIDs.resize(model->mNumVertices, std::vector<int>(4, -1));
-				vertexBoneWeights.resize(model->mNumVertices, std::vector<float>(4, 0.0f));
+				vertexBoneIDs.resize(aiMesh->mNumVertices, std::vector<int>(4, -1));
+				vertexBoneWeights.resize(aiMesh->mNumVertices, std::vector<float>(4, 0.0f));
 			}
 
 
 
 			// Iterate through vertices.
-			for (uint32 i = 0; i < model->mNumVertices; i++)
+			for (uint32 i = 0; i < aiMesh->mNumVertices; i++)
 			{
 
-				// Get array references from the current model on stack.
-				const aiVector3D pos = model->mVertices[i];
-				const aiVector3D normal = model->HasNormals() ? model->mNormals[i] : aiZeroVector;
-				const aiVector3D texCoord = model->HasTextureCoords(0) ? model->mTextureCoords[0][i] : aiZeroVector;
-				const aiVector3D tangent = model->HasTangentsAndBitangents() ? model->mTangents[i] : aiZeroVector;
-				const aiVector3D biTangent = model->HasTangentsAndBitangents() ? model->mBitangents[i] : aiZeroVector;
+				// Get array references from the current aiMesh on stack.
+				const aiVector3D pos = aiMesh->mVertices[i];
+				const aiVector3D normal = aiMesh->HasNormals() ? aiMesh->mNormals[i] : aiZeroVector;
+				const aiVector3D texCoord = aiMesh->HasTextureCoords(0) ? aiMesh->mTextureCoords[0][i] : aiZeroVector;
+				const aiVector3D tangent = aiMesh->HasTangentsAndBitangents() ? aiMesh->mTangents[i] : aiZeroVector;
+				const aiVector3D biTangent = aiMesh->HasTangentsAndBitangents() ? aiMesh->mBitangents[i] : aiZeroVector;
 
-				// Set model vertex data.
-				currentModel.AddElement(0, pos.x, pos.y, pos.z);
-				currentModel.AddElement(1, texCoord.x, texCoord.y);
-				currentModel.AddElement(2, normal.x, normal.y, normal.z);
-				currentModel.AddElement(3, tangent.x, tangent.y, tangent.z);
-				currentModel.AddElement(4, biTangent.x, biTangent.y, biTangent.z);
+				// Set aiMesh vertex data.
+				currentMesh.AddElement(0, pos.x, pos.y, pos.z);
+				currentMesh.AddElement(1, texCoord.x, texCoord.y);
+				currentMesh.AddElement(2, normal.x, normal.y, normal.z);
+				currentMesh.AddElement(3, tangent.x, tangent.y, tangent.z);
+				currentMesh.AddElement(4, biTangent.x, biTangent.y, biTangent.z);
 
 
 				if (vertexBoneIDs.size() > 0)
 				{
 					const std::vector<int>& vboneIDs = vertexBoneIDs[i];
 					const std::vector<float>& vboneWeights = vertexBoneWeights[i];
-					currentModel.AddElement(5, vboneIDs[0], vboneIDs[1], vboneIDs[2], vboneIDs[3]);
-					currentModel.AddElement(6, vboneWeights[0], vboneWeights[1], vboneWeights[2], vboneWeights[3]);
-					//currentModel.AddElement(5, 1, 3, 7, 0);
-					//currentModel.AddElement(6, 0.05f, 0.4f, 2.0f, 1.0f);
+					currentMesh.AddElement(5, vboneIDs[0], vboneIDs[1], vboneIDs[2], vboneIDs[3]);
+					currentMesh.AddElement(6, vboneWeights[0], vboneWeights[1], vboneWeights[2], vboneWeights[3]);
+					//currentMesh.AddElement(5, 1, 3, 7, 0);
+					//currentMesh.AddElement(6, 0.05f, 0.4f, 2.0f, 1.0f);
 				}
 				else
 				{
-					currentModel.AddElement(5, -1, -1, -1, -1);
-					currentModel.AddElement(6, 0.0f, 0.0f, 0.0f, 0.0f);
+					currentMesh.AddElement(5, -1, -1, -1, -1);
+					currentMesh.AddElement(6, 0.0f, 0.0f, 0.0f, 0.0f);
 				}
 			}
 
 			// Iterate through faces & add indices for each face.
-			for (uint32 i = 0; i < model->mNumFaces; i++)
+			for (uint32 i = 0; i < aiMesh->mNumFaces; i++)
 			{
-				const aiFace& face = model->mFaces[i];
+				const aiFace& face = aiMesh->mFaces[i];
 				LINA_CORE_ASSERT(face.mNumIndices == 3);
-				currentModel.AddIndices(face.mIndices[0], face.mIndices[1], face.mIndices[2]);
+				currentMesh.AddIndices(face.mIndices[0], face.mIndices[1], face.mIndices[2]);
 			}
 
-			// Add model to array.
-			models.push_back(currentModel);
+			// Add aiMesh to array.
+			model->GetMeshes().push_back(currentMesh);
 		}
 
 		// Iterate through the materials in the scene.
@@ -201,7 +200,7 @@ namespace LinaEngine::Graphics
 				spec.m_textureNames["diffuse"] = str;
 			}
 			// Push the material to list.
-			materials.push_back(spec);
+			model->GetMaterialSpecs().push_back(spec);
 		}
 
 		return true;
@@ -209,13 +208,13 @@ namespace LinaEngine::Graphics
 
 
 
-	bool ModelLoader::LoadQuad(Mesh& currentModel)
+	bool ModelLoader::LoadQuad(Mesh& mesh)
 	{
-		// Build and indexed model for each mesh & fill in the data.
-		currentModel.AllocateElement(3, 0, true); // Positions
-		currentModel.AllocateElement(2, 1, true); // TexCoords
-		currentModel.AllocateElement(16, 7, true, true); // Model Matrix
-		currentModel.AllocateElement(16, 11, true, true); // Inverse transpose matrix
+		// Build and indexed aiMesh for each aiMesh & fill in the data.
+		mesh.AllocateElement(3, 0, true); // Positions
+		mesh.AllocateElement(2, 1, true); // TexCoords
+		mesh.AllocateElement(16, 7, true, true); // Model Matrix
+		mesh.AllocateElement(16, 11, true, true); // Inverse transpose matrix
 
 		Vector3 vertices[] = {
 			Vector3(-0.5f, 0.5f, 0.0f),  // left top, id 0
@@ -240,31 +239,31 @@ namespace LinaEngine::Graphics
 		};
 
 
-		// Set model vertex data.
+		// Set aiMesh vertex data.
 		for (int i = 0; i < 4; i++)
 		{
-			currentModel.AddElement(0, vertices[i].x, vertices[i].y, vertices[i].z);
-			currentModel.AddElement(1, texCoords[i].x, texCoords[i].y);
+			mesh.AddElement(0, vertices[i].x, vertices[i].y, vertices[i].z);
+			mesh.AddElement(1, texCoords[i].x, texCoords[i].y);
 		}
 
 		// Add indices.
-		currentModel.AddIndices(indices[0], indices[1], indices[2]);
-		currentModel.AddIndices(indices[3], indices[4], indices[5]);
+		mesh.AddIndices(indices[0], indices[1], indices[2]);
+		mesh.AddIndices(indices[3], indices[4], indices[5]);
 
 		return true;
 	}
 
-	bool ModelLoader::LoadPrimitive(std::vector<Mesh>& models, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords)
+	bool ModelLoader::LoadPrimitive(std::vector<Mesh>& meshes, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords)
 	{
-		// Build and indexed model for each mesh & fill in the data.
-		Mesh currentModel;
-		currentModel.AllocateElement(3, 0, true); // Positions
-		currentModel.AllocateElement(2, 1, true); // TexCoords
-		currentModel.AllocateElement(3, 2, true); // Normals
-		currentModel.AllocateElement(3, 3, true); // Tangents
+		// Build and indexed aiMesh for each aiMesh & fill in the data.
+		Mesh currentMesh;
+		currentMesh.AllocateElement(3, 0, true); // Positions
+		currentMesh.AllocateElement(2, 1, true); // TexCoords
+		currentMesh.AllocateElement(3, 2, true); // Normals
+		currentMesh.AllocateElement(3, 3, true); // Tangents
 
-		currentModel.AllocateElement(16, 7, true, true); // Model Matrix
-		currentModel.AllocateElement(16, 11, true, true); // Inverse transpose matrix
+		currentMesh.AllocateElement(16, 7, true, true); // Model Matrix
+		currentMesh.AllocateElement(16, 11, true, true); // Inverse transpose matrix
 
 
 		const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
@@ -272,17 +271,17 @@ namespace LinaEngine::Graphics
 		// Iterate through vertices.
 		for (uint32 i = 0; i < vertexSize; i++)
 		{
-			// Get array references from the current model on stack.
+			// Get array references from the current aiMesh on stack.
 			const Vector3 pos = vertices[i];
 			const Vector2 texCoord = texCoords[i];
 			const Vector3 normal = Vector3::Zero;
 			const Vector3 tangent = Vector3::Zero;
 			const aiVector3D biTangent = aiZeroVector;
-			// Set model vertex data.
-			currentModel.AddElement(0, pos.x, pos.y, pos.z);
-			currentModel.AddElement(1, texCoord.x, texCoord.y);
-			currentModel.AddElement(2, normal.x, normal.y, normal.z);
-			currentModel.AddElement(3, tangent.x, tangent.y, tangent.z);
+			// Set aiMesh vertex data.
+			currentMesh.AddElement(0, pos.x, pos.y, pos.z);
+			currentMesh.AddElement(1, texCoord.x, texCoord.y);
+			currentMesh.AddElement(2, normal.x, normal.y, normal.z);
+			currentMesh.AddElement(3, tangent.x, tangent.y, tangent.z);
 
 		}
 
@@ -290,11 +289,11 @@ namespace LinaEngine::Graphics
 		for (uint32 i = 0; i < indicesSize; i++)
 		{
 			if (i % 3 == 0)
-				currentModel.AddIndices(indices[i], indices[i + 1], indices[i + 2]);
+				currentMesh.AddIndices(indices[i], indices[i + 1], indices[i + 2]);
 		}
 
-		// Add model to array.
-		models.push_back(currentModel);
+		// Add aiMesh to array.
+		meshes.push_back(currentMesh);
 		return true;
 	}
 	void ModelLoader::SetVertexBoneData(std::vector<int>& vertexBoneIDs, std::vector<float>& vertexBoneWeights, int boneID, float weight)

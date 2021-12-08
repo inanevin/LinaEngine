@@ -49,23 +49,23 @@ namespace LinaEngine::ECS
 
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 
-			// We get the materials, then according to their surface types we add the mesh
+			// We get the materials, then according to their surface types we add the model
 			// data into either opaque queue or the transparent queue.
-			Graphics::Model& mesh = LinaEngine::Graphics::Model::GetModel(renderer.m_meshID);
+			Graphics::Model& model = LinaEngine::Graphics::Model::GetModel(renderer.m_meshID);
 
-			for (int i = 0; i < mesh.GetVertexArrays().size(); i++)
+			for (int i = 0; i < model.GetMeshes().size(); i++)
 			{
 				if (!Graphics::Material::MaterialExists(renderer.m_materialID[i])) continue;
 
 				Graphics::Material& mat = LinaEngine::Graphics::Material::GetMaterial(renderer.m_materialID[i]);
-
+				auto& mesh = model.GetMeshes()[i];
 				if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
-					RenderOpaque(*mesh.GetVertexArray(i), mesh.GetSkeleton(), mat, transform.transform.ToMatrix());
+					RenderOpaque(mesh.GetVertexArray(), model.GetSkeleton(), mat, transform.transform.ToMatrix());
 				else
 				{
 					// Transparent queue is a priority queue unlike the opaque one, so we set the priority as distance to the camera.
 					float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - transform.transform.GetLocation()).MagnitudeSqrt();
-					RenderTransparent(*mesh.GetVertexArray(i), mesh.GetSkeleton(), mat, transform.transform.ToMatrix(), priority);
+					RenderTransparent(mesh.GetVertexArray(), model.GetSkeleton(), mat, transform.transform.ToMatrix(), priority);
 
 				}
 
@@ -179,19 +179,20 @@ namespace LinaEngine::ECS
 		}
 
 
-		Graphics::Model& mesh = Graphics::Model::GetModel(mrc.m_meshID);
-		for (int i = 0; i < mesh.GetVertexArrays().size(); i++)
+		Graphics::Model& model = Graphics::Model::GetModel(mrc.m_meshID);
+		for (int i = 0; i < model.GetMeshes().size(); i++)
 		{
 			if (!Graphics::Material::MaterialExists(mrc.m_materialID[i])) continue;
 
 			Graphics::Material& mat = Graphics::Material::GetMaterial(mrc.m_materialID[i]);
 
-			auto& va = mesh.GetVertexArrays()[i];
+			auto& mesh = model.GetMeshes()[i];
+			auto& va = mesh.GetVertexArray();
 			const Matrix model = tr.transform.ToMatrix();
-			va->UpdateBuffer(7, &model[0][0], sizeof(Matrix));
-			va->UpdateBuffer(8, &tr.transform.ToMatrix().Inverse().Transpose()[0][0], sizeof(Matrix));
+			va.UpdateBuffer(7, &model[0][0], sizeof(Matrix));
+			va.UpdateBuffer(8, &tr.transform.ToMatrix().Inverse().Transpose()[0][0], sizeof(Matrix));
 			m_renderEngine->UpdateShaderData(&mat);
-			s_renderDevice->Draw(va->GetID(), drawParams, 1, va->GetIndexCount(), false);
+			s_renderDevice->Draw(va.GetID(), drawParams, 1, va.GetIndexCount(), false);
 		}
 
 

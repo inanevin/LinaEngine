@@ -42,7 +42,6 @@ Timestamp: 4/26/2019 12:30:15 AM
 #include "Core/SizeDefinitions.hpp"
 #include "RenderingCommon.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
-#include "Mesh.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -51,22 +50,23 @@ namespace LinaEngine::Graphics
 	{
 	public:
 
-		VertexArray() : m_engineBoundID(0), m_IndexCount(0), s_renderDevice(nullptr) {};
+		VertexArray() : m_engineBoundID(0), m_indexCount(0), m_renderDevice(nullptr) {};
 		~VertexArray()
 		{
-			m_engineBoundID = s_renderDevice->ReleaseVertexArray(m_engineBoundID);
+			m_engineBoundID = m_renderDevice->ReleaseVertexArray(m_engineBoundID);
 		}
-	
-		void Construct(RenderDevice& deviceIn, Mesh& model, BufferUsage bufferUsage)
+
+
+		void Setup(RenderDevice& deviceIn, uint32 engineBoundID, uint32 indexCount)
 		{
-			s_renderDevice = &deviceIn;
-			m_engineBoundID = model.CreateVertexArray(deviceIn, bufferUsage);
-			m_IndexCount = model.GetIndexCount();
+			m_renderDevice = &deviceIn;
+			m_engineBoundID = engineBoundID;
+			m_indexCount = indexCount;
 		}
 
 		void UpdateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize)
 		{
-			return s_renderDevice->UpdateVertexArrayBuffer(m_engineBoundID, bufferIndex, data, dataSize);
+			return m_renderDevice->UpdateVertexArrayBuffer(m_engineBoundID, bufferIndex, data, dataSize);
 		}
 
 		uint32 GetID()
@@ -76,14 +76,14 @@ namespace LinaEngine::Graphics
 
 		uint32 GetIndexCount()
 		{ 
-			return m_IndexCount;  
+			return m_indexCount;  
 		}
 
 	private:
 
-		RenderDevice* s_renderDevice = nullptr;
+		RenderDevice* m_renderDevice = nullptr;
 		uint32 m_engineBoundID = 0;
-		uint32 m_IndexCount = 0;
+		uint32 m_indexCount = 0;
 		
 	};
 

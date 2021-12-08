@@ -58,7 +58,7 @@ namespace LinaEngine::Graphics
 		Model() {};
 		virtual ~Model();
 
-		static Model& CreateModel(const std::string& filePath, MeshParameters meshParams = MeshParameters(), int id = -1, const std::string& paramsPath = "");
+		static Model& CreateModel(const std::string& filePath, ModelParameters meshParams = ModelParameters(), int id = -1, const std::string& paramsPath = "");
 		static Model& GetModel(int id);
 		static Model& GetModel(const std::string& path);
 		static bool ModelExists(int id);
@@ -67,23 +67,6 @@ namespace LinaEngine::Graphics
 		static Model& GetPrimitive(Primitives primitive);
 		static void UnloadAll();
 		static std::map<int, Model>& GetLoadedModels() { return s_loadedMeshes; }
-
-		VertexArray* GetVertexArray(uint32 index)
-		{
-
-			if (index >= m_vertexArrays.size() || index < 0 || m_vertexArrays.size() == 0)
-			{
-				LINA_CORE_ERR("Index is bigger than the vertex array size or vertex array size is 0. Returning nullptr!");
-				return nullptr;
-			}
-
-			return m_vertexArrays.at(index);
-		}
-
-		std::vector<VertexArray*>& GetVertexArrays()
-		{
-			return m_vertexArrays;
-		}
 
 		std::vector<Mesh>& GetMeshes()
 		{
@@ -97,7 +80,7 @@ namespace LinaEngine::Graphics
 
 		std::vector<uint32>& GetMaterialIndices()
 		{
-			return m_materialIndexArray;
+			return m_materialSlotIndices;
 		}
 
 		Skeleton& GetSkeleton()
@@ -105,11 +88,11 @@ namespace LinaEngine::Graphics
 			return m_skeleton;
 		}
 
-		static MeshParameters LoadParameters(const std::string& path);
-		static void SaveParameters(const std::string& path, MeshParameters params);
-		void SetParameters(MeshParameters params) { m_parameters = params; }
-		MeshParameters& GetParameters() { return m_parameters; }
-		MeshSceneParameters& GetWorldParameters() { return m_worldParameters; }
+		static ModelParameters LoadParameters(const std::string& path);
+		static void SaveParameters(const std::string& path, ModelParameters params);
+		void SetParameters(ModelParameters params) { m_parameters = params; }
+		ModelParameters& GetParameters() { return m_parameters; }
+		ModelSceneParameters& GetWorldParameters() { return m_worldParameters; }
 		const std::string& GetPath() const { return m_path; }
 		const std::string& GetParamsPath() const { return m_paramsPath; }
 		const int GetID() const { return m_meshID; }
@@ -124,12 +107,12 @@ namespace LinaEngine::Graphics
 		std::string m_path = "";
 		std::string m_paramsPath = "";
 
-		MeshSceneParameters m_worldParameters;
-		MeshParameters m_parameters;
-		std::vector<VertexArray*> m_vertexArrays;
+		ModelSceneParameters m_worldParameters;
+		ModelParameters m_parameters;
 		std::vector<Mesh> m_meshes;
 		std::vector<ModelMaterial> m_materialSpecArray;
 		std::vector<uint32> m_materialIndexArray;
+		std::vector<uint32> m_materialSlotIndices;
 		Skeleton m_skeleton;
 
 	};

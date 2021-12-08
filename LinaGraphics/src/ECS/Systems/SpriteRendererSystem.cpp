@@ -39,7 +39,7 @@ namespace LinaEngine::ECS
 		m_renderEngine = &renderEngineIn;
 		s_renderDevice = &renderDeviceIn;
 		Graphics::ModelLoader::LoadQuad(m_quadMesh);
-		m_spriteVertexArray.Construct(*s_renderDevice, m_quadMesh, Graphics::BufferUsage::USAGE_STATIC_COPY);
+		m_quadMesh.CreateVertexArray(*s_renderDevice, Graphics::BufferUsage::USAGE_STATIC_COPY);
 	}
 
 	void SpriteRendererSystem::UpdateComponents(float delta)
@@ -88,11 +88,11 @@ namespace LinaEngine::ECS
 
 			// Draw call.
 			// Update the buffer w/ each transform.
-			m_spriteVertexArray.UpdateBuffer(2, models, numTransforms * sizeof(Matrix));
-			m_spriteVertexArray.UpdateBuffer(3, inverseTransposeModels, numTransforms * sizeof(Matrix));
+			m_quadMesh.GetVertexArray().UpdateBuffer(2, models, numTransforms * sizeof(Matrix));
+			m_quadMesh.GetVertexArray().UpdateBuffer(3, inverseTransposeModels, numTransforms * sizeof(Matrix));
 
 			m_renderEngine->UpdateShaderData(mat);
-			s_renderDevice->Draw(m_spriteVertexArray.GetID(), drawParams, numTransforms, m_spriteVertexArray.GetIndexCount(), false);
+			s_renderDevice->Draw(m_quadMesh.GetVertexArray().GetID(), drawParams, numTransforms, m_quadMesh.GetVertexArray().GetIndexCount(), false);
 
 			// Clear the buffer.
 			if (completeFlush)

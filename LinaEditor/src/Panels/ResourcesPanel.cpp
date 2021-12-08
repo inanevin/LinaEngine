@@ -497,8 +497,8 @@ namespace LinaEditor
 
 				if (!meshExists)
 				{
-					LinaEngine::Graphics::MeshParameters meshParams;
-					std::string meshParamsPath = file.m_pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.m_name) + ".meshparams";
+					LinaEngine::Graphics::ModelParameters meshParams;
+					std::string meshParamsPath = file.m_pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.m_name) + ".modelparams";
 
 					if (LinaEngine::Utility::FileExists(meshParamsPath))
 						meshParams = LinaEngine::Graphics::Model::LoadParameters(meshParamsPath);

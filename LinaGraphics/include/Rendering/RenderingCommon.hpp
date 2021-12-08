@@ -286,7 +286,7 @@ namespace LinaEngine::Graphics
 		Cylinder = 5
 	};
 
-	struct MeshParameters
+	struct ModelParameters
 	{
 		bool m_triangulate = true;
 		bool m_smoothNormals = true;
@@ -321,7 +321,7 @@ namespace LinaEngine::Graphics
 		Matrix m_offset;
 	};
 
-	struct MeshSceneParameters
+	struct ModelSceneParameters
 	{
 		Vector3 m_worldPosition;
 		Quaternion m_worldRotation;

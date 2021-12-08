@@ -55,7 +55,7 @@ namespace LinaEngine::Graphics
 	public:
 
 		// Load models using ASSIMP
-		static bool LoadModel(const std::string& fileName, Model* mesh, MeshParameters meshParams);
+		static bool LoadModel(const std::string& fileName, Model* mesh, ModelParameters meshParams);
 		static bool LoadQuad(Mesh& model);
 		static bool LoadPrimitive(std::vector<Mesh>& models, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords);
 		static void SetVertexBoneData(std::vector<int>& vertexBoneIDs, std::vector<float>& vertexBoneWeights, int boneID, float weight);
