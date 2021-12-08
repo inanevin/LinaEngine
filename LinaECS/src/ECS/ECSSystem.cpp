@@ -84,14 +84,18 @@ namespace LinaEngine::ECS
 	void ECSRegistry::DestroyAllChildren(ECSEntity parent)
 	{
 		ECSEntityData* data = try_get<ECSEntityData>(parent);
+		LINA_CORE_TRACE("Destroy All Children called");
 
 		if (data == nullptr) return;
 
+		int counter = 0;
 		std::set<ECSEntity> children = data->m_children;
 		std::set<ECSEntity>::iterator it;
 		for (it = children.begin(); it != children.end(); ++it)
 		{
+			LINA_CORE_TRACE("Destroy Entity Called {0}", counter);
 			DestroyEntity(*it);
+			counter++;
 		}
 		data->m_children.clear();
 		LINA_CORE_TRACE("Child count {0}", get<ECSEntityData>(parent).m_children.size());

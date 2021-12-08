@@ -43,6 +43,7 @@ Timestamp: 4/8/2019 5:28:34 PM
 #include "Core/Common.hpp"
 #include "entt/entity/registry.hpp"
 #include "entt/entity/entity.hpp"
+#include "Utility/Math/Transformation.hpp"
 #include <cereal/types/string.hpp>
 #include <cereal/types/map.hpp>
 #include <cereal/types/set.hpp>
@@ -63,6 +64,9 @@ namespace LinaEngine::ECS
 		std::string m_name = "";
 		std::set<ECSEntity> m_children;
 		ECSEntity m_parent = entt::null;
+
+		void SetLocalLocation()
+
 
 		template<class Archive>
 		void serialize(Archive& archive)
