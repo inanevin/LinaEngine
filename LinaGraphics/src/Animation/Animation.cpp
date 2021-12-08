@@ -37,21 +37,6 @@ namespace LinaEngine::Graphics
 	bool Animation::LoadAnimation(const std::string& animPath)
 	{
 		LINA_CORE_TRACE("Loading animation archive: {0}", animPath);
-
-		ozz::io::File file(animPath.c_str(), "rb");
-		if (!file.opened())
-		{
-			LINA_CORE_ERR("Failed to open animation file {0}", animPath);
-			return false;
-		}
-
-		ozz::io::IArchive archive(&file);
-		if (!archive.TestTag<ozz::animation::Animation>())
-		{
-			LINA_CORE_ERR("Failed to load animation instance from file {0}", animPath);
-			return false;
-		}
-
-		archive >> m_anim;
+		return true;
 	}
 }

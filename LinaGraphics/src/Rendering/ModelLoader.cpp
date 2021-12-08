@@ -42,20 +42,6 @@ SOFTWARE.
 namespace LinaEngine::Graphics
 {
 
-	void AddBoneData(VertexBone* data, uint32 boneID, float weight)
-	{
-		for (uint32 i = 0; i < NUM_BONES_PER_VERTEX; i++)
-		{
-			if (data->m_weights[i] == 0.0f)
-			{
-				data->m_ids[i] = boneID;
-				data->m_weights[i] = weight;
-				return;
-			}
-		}
-
-		LINA_CORE_ERR("Reached to the end of max bones per vertex!");
-	}
 
 	Matrix AssimpToInternal(aiMatrix4x4 aiMat)
 	{
@@ -118,66 +104,7 @@ namespace LinaEngine::Graphics
 		const std::string fileExt = Utility::GetFileExtension(fileName);
 		const bool isFBX = fileExt.compare("fbx") == 0;
 
-		// Load animations if fbx
-	/*if (isFBX && scene->HasAnimations())
-		{
-			// Create .ozz files out of FBX.
-			const std::string meshPath = runningDirectory + "\\" + fileName;
-			const std::string meshName = Utility::GetFileNameOnly(Utility::GetFileWithoutExtension(fileName));
-			const std::string meshFolder = runningDirectory + "\\" + Utility::GetFilePath(fileName);
-			const std::string cdToBin = "cd " + runningDirectory + "\\resources\\engine\\bin";
-			const std::string command = cdToBin + "&& fbx2ozz.exe --file=" + meshPath;
-			system(command.c_str());
-
-			// Make directory in the original fbx file dir.
-			const std::string makeDirCommand = "cd " + meshFolder + " && mkdir " + meshName;
-			system(makeDirCommand.c_str());
-
-			// Copy the ozz files to the newly created directory.
-			const std::string moveCommand = cdToBin + "&& move *.ozz " + meshFolder + "\\" + meshName;
-			system(moveCommand.c_str());
-
-			// Load skeleton.
-			const std::string skelPath = Utility::GetFileWithoutExtension(fileName) + "/skeleton.ozz";
-			//skeleton.LoadSkeleton(skelPath);
-
-			// Create animation structure for each ozz file
-			std::string path(meshFolder + "/");
-			std::string ext(".ozz");
-			for (auto& p : std::filesystem::recursive_directory_iterator(path))
-			{
-				if (p.path().extension() == ext)
-				{
-					const std::string animName = p.path().stem().string();
-
-					// Skip skeleton
-					if (animName.compare("skeleton") == 0)
-						continue;
-
-					// Create runtime animation for each ozz
-					const std::string path = Utility::GetFileWithoutExtension(fileName) + "/" + animName + ".ozz";
-					Animation* anim = new Animation();
-					const bool success = anim->LoadAnimation(path);
-
-					if (success)
-					{
-						if (skeleton.GetSkeleton().num_joints() != anim->GetAnim().num_tracks())
-						{
-							LINA_CORE_ERR("Loaded animation does not match with the loaded skeleton. {0}", path);
-							delete anim;
-						}
-						else
-							skeleton.GetAnimations()[animName] = anim;
-
-					}
-					else
-						delete anim;
-
-				}
-			}
-
-		}
-		*/
+		
 
 		// Iterate through the meshes on the scene.
 		for (uint32 j = 0; j < scene->mNumMeshes; j++)
@@ -211,40 +138,6 @@ namespace LinaEngine::Graphics
 			}
 
 
-		/*	int boneCounter = 0;
-			for (int boneIndex = 0; boneIndex < model->mNumBones; ++boneIndex)
-			{
-				int boneID = -1;
-				std::string boneName = model->mBones[boneIndex]->mName.C_Str();
-				if (worldParams.m_boneInfoMap.find(boneName) == worldParams.m_boneInfoMap.end())
-				{
-					BoneInfo newBoneInfo;
-					newBoneInfo.m_id = boneCounter;
-					newBoneInfo.m_offset = AssimpToInternal(model->mBones[boneIndex]->mOffsetMatrix);
-					worldParams->m_boneInfoMap[boneName] = newBoneInfo;
-					boneID = boneCounter;
-					boneCounter++;
-				}
-				else
-				{
-					boneID = worldParams->m_boneInfoMap[boneName].m_id;
-				}
-
-
-
-				assert(boneID != -1);
-				auto weights = model->mBones[boneID]->mWeights;
-				int numWeights = model->mBones[boneID]->mNumWeights;
-
-				for (int weightIndex = 0; weightIndex < numWeights; ++weightIndex)
-				{
-					int vertexId = weights[weightIndex].mVertexId;
-					float weight = weights[weightIndex].mWeight;
-					LINA_CORE_ASSERT(vertexId <= vertices.size());
-					SetVertexBoneData(vertexBoneIDs[vertexId], vertexBoneWeights[vertexId], boneID, weight);
-				}
-			}
-			*/
 
 			// Iterate through vertices.
 			for (uint32 i = 0; i < model->mNumVertices; i++)

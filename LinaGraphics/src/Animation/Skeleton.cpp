@@ -47,33 +47,27 @@ namespace LinaEngine::Graphics
     {
         LINA_CORE_TRACE("Loading skeleton archive: {0}", skelPath);
 
-        ozz::io::File file(skelPath.c_str(), "rb");
-        if (!file.opened())
-        {
-            LINA_CORE_ERR("Failed to open skeleton file {0}", skelPath);
-            return false;
-        }
-
-        ozz::io::IArchive archive(&file);
-        if (!archive.TestTag<ozz::animation::Skeleton>())
-        {
-            LINA_CORE_ERR("Failed to load skeleton instance from file {0}", skelPath);
-            return false;
-        }
-
-        // Once the tag is validated, reading cannot fail.
-        archive >> m_skeleton;
-
-        // Allocates runtime buffers.
-        const int num_soa_joints = m_skeleton.num_soa_joints();
-        m_locals.resize(num_soa_joints);
-        const int num_joints = m_skeleton.num_joints();
-        m_models.resize(num_joints);
-        
-        // Allocates a cache that matches animation requirements.
-        m_cache.Resize(num_joints);
-
-        m_loaded = true;
         return true;
+    }
+    void Skeleton::SetVertexBoneDataToDefault(VertexBoneData& vertex)
+    {
+        for (int i = 0; i < MAX_BONE_INFLUENCE; i++)
+        {
+            vertex.m_boneIDs[i] = -1;
+            vertex.m_boneWeights[i] = 0.0f;
+        }
+    }
+
+    void Skeleton::SetVertexBoneData(VertexBoneData& vertex, int boneID, float weight)
+    {
+        for (int i = 0; i < MAX_BONE_INFLUENCE; ++i)
+        {
+            if (vertex.m_boneIDs[i] < 0)
+            {
+                vertex.m_boneWeights[i] = weight;
+                vertex.m_boneIDs[i] = boneID;
+                break;
+            }
+        }
     }
 }

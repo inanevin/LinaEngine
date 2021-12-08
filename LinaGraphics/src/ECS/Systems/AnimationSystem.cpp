@@ -31,9 +31,6 @@ SOFTWARE.
 #include "ECS/Components/AnimationComponent.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Mesh.hpp"
-#include <ozz/animation/runtime/sampling_job.h>
-#include <ozz/animation/runtime/local_to_model_job.h>
-#include <ozz/base/span.h>
 
 namespace LinaEngine::ECS
 {
@@ -68,24 +65,6 @@ namespace LinaEngine::ECS
 			{
 				Graphics::Animation* anim = meshAnimations[ar.m_animationName];
 
-				ozz::animation::SamplingJob samplingJob;
-				samplingJob.animation = &anim->GetAnim();
-				samplingJob.cache = &skeleton.GetCache();
-				samplingJob.ratio = test;
-				samplingJob.output = ozz::make_span(skeleton.GetLocals());
-				
-				if (!samplingJob.Run()) {
-					continue;
-				}
-
-				ozz::animation::LocalToModelJob toModelJob;
-				toModelJob.skeleton = &skeleton.GetSkeleton();
-				toModelJob.input = ozz::make_span(skeleton.GetLocals());
-				toModelJob.output = make_span(skeleton.GetModels());
-			
-				if (!toModelJob.Run()) {
-					continue;
-				}
 
 				
 			}

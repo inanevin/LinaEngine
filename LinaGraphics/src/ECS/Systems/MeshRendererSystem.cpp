@@ -37,32 +37,6 @@ SOFTWARE.
 namespace LinaEngine::ECS
 {
 
-	Matrix OZZToMatrix(ozz::math::Float4x4& model)
-	{
-
-		Matrix mat;
-#ifdef OZZ_SIMD_SSEx
-		mat[0][0] = model.cols[0].m128_f32[0];	mat[0][1] = model.cols[0].m128_f32[1];	mat[0][2] = model.cols[0].m128_f32[2];	mat[0][3] = model.cols[0].m128_f32[3];
-		mat[1][0] = model.cols[1].m128_f32[0];	mat[1][1] = model.cols[1].m128_f32[1];	mat[1][2] = model.cols[1].m128_f32[2];	mat[1][3] = model.cols[1].m128_f32[3];
-		mat[2][0] = model.cols[2].m128_f32[0];	mat[2][1] = model.cols[2].m128_f32[1];	mat[2][2] = model.cols[2].m128_f32[2];	mat[2][3] = model.cols[2].m128_f32[3];
-		mat[3][0] = model.cols[3].m128_f32[0];	mat[3][1] = model.cols[3].m128_f32[1];	mat[3][2] = model.cols[3].m128_f32[2];	mat[3][3] = model.cols[3].m128_f32[3];
-
-		/* Row - major
-		* 
-		mat[0][0] = model.cols[0].m128_f32[0];	mat[0][1] = model.cols[1].m128_f32[0];	mat[0][2] = model.cols[2].m128_f32[0];	mat[0][3] = model.cols[3].m128_f32[0];
-		mat[1][0] = model.cols[0].m128_f32[1];	mat[1][1] = model.cols[1].m128_f32[1];	mat[1][2] = model.cols[2].m128_f32[1];	mat[1][3] = model.cols[3].m128_f32[1];
-		mat[2][0] = model.cols[0].m128_f32[2];	mat[2][1] = model.cols[1].m128_f32[2];	mat[2][2] = model.cols[2].m128_f32[2];	mat[2][3] = model.cols[3].m128_f32[2];
-		mat[3][0] = model.cols[0].m128_f32[3];	mat[3][1] = model.cols[1].m128_f32[3];	mat[3][2] = model.cols[2].m128_f32[3];	mat[3][3] = model.cols[3].m128_f32[3];
-		*/
-#else
-		mat[0][0] = model.cols[0].x;	mat[0][1] = model.cols[0].y;	mat[0][2] = model.cols[0].z;	mat[0][3] = model.cols[0].w;
-		mat[1][0] = model.cols[1].x;	mat[1][1] = model.cols[1].y;	mat[1][2] = model.cols[1].z;	mat[1][3] = model.cols[1].w;
-		mat[2][0] = model.cols[2].x;	mat[2][1] = model.cols[2].y;	mat[2][2] = model.cols[2].z;	mat[2][3] = model.cols[2].w;
-		mat[3][0] = model.cols[3].x;	mat[3][1] = model.cols[3].y;	mat[3][2] = model.cols[3].z;	mat[3][3] = model.cols[3].w;
-#endif
-
-		return mat;
-	}
 
 	void MeshRendererSystem::UpdateComponents(float delta)
 	{
@@ -114,14 +88,7 @@ namespace LinaEngine::ECS
 
 		if (skeleton.IsLoaded())
 		{
-			auto& models = skeleton.GetModels();
-			LINA_CORE_TRACE("{0} - {1}", models.size(), skeleton.GetOffsetMatrices().size());
-
-			for (int i = 0; i < models.size(); i++)
-			{
-				Matrix mat = OZZToMatrix(models[i]) * skeleton.GetOffsetMatrices()[i];
-				m_opaqueRenderBatch[drawData].m_boneTransformations.push_back(mat);
-			}
+			
 		}
 
 
@@ -142,16 +109,9 @@ namespace LinaEngine::ECS
 
 		if (skeleton.IsLoaded())
 		{
-			auto& models = skeleton.GetModels();
-
-			for (auto& model : models)
-			{
-				Matrix mat = OZZToMatrix(model);
-				modelData.m_boneTransformations.push_back(mat);
-			}
+			
 		}
 
-		m_transparentRenderBatch.emplace(std::make_pair(drawData, modelData));
 
 	}
 

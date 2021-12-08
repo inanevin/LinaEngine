@@ -41,13 +41,10 @@ Timestamp: 12/7/2021 2:13:56 PM
 
 // Headers here.
 #include "Utility/Math/Matrix.hpp"
-#include <ozz/animation/runtime/skeleton.h>
-#include <ozz/base/maths/soa_transform.h>
-#include <ozz/base/containers/vector.h>
-#include <ozz/base/maths/soa_float4x4.h>
-#include <ozz/animation/runtime/sampling_job.h>
+#include "Rendering/RenderingCommon.hpp"
 #include <string>
 #include <map>
+
 
 namespace LinaEngine::Graphics
 {
@@ -65,28 +62,26 @@ namespace LinaEngine::Graphics
 
 		bool IsLoaded() const { return m_loaded; }
 
+		void SetVertexBoneDataToDefault(VertexBoneData& vertex);
+		void SetVertexBoneData(VertexBoneData& vertex, int boneID, float weight);
+		
+
 		std::map<std::string, Animation*>& GetAnimations()
 		{
 			return m_animationMap;
 		}
 
-		std::vector<Matrix>& GetOffsetMatrices() { return m_offsetMatrices; }
-
-		ozz::animation::Skeleton& GetSkeleton() { return m_skeleton; }
-		ozz::vector<ozz::math::SoaTransform>& GetLocals() { return m_locals; }
-		ozz::vector<ozz::math::Float4x4>& GetModels() { return m_models; }
-		ozz::animation::SamplingCache& GetCache() { return m_cache; }
 
 	private:
 
 
 		bool m_loaded = false;
-		ozz::animation::Skeleton m_skeleton;
-		ozz::vector<ozz::math::SoaTransform> m_locals;
-		ozz::vector<ozz::math::Float4x4> m_models;
-		ozz::animation::SamplingCache m_cache;
+		std::vector<VertexBoneData> m_vertexBoneData;
 		std::map<std::string, Animation*> m_animationMap;
-		std::vector<Matrix> m_offsetMatrices;
+		std::map<std::string, BoneInfo> m_boneInfoMap;
+
+		int m_boneIDs[MAX_BONE_INFLUENCE];
+		float m_boneWeights[MAX_BONE_INFLUENCE];
 	};
 }
 

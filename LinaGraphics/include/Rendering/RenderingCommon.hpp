@@ -51,7 +51,7 @@ namespace LinaEngine::Graphics
 #define RENDERSETTINGS_FULLPATH "resources/engine/defaultSettings.rendersettings"
 #define RENDERSETTINGS_FOLDERPATH "resources/engine"
 #define RENDERSETTINGS_FILE "defaultSettings"
-#define NUM_BONES_PER_VERTEX 4
+#define MAX_BONE_INFLUENCE 4
 
 	enum BufferUsage
 	{
@@ -309,16 +309,16 @@ namespace LinaEngine::Graphics
 		float m_width = 0.0f;
 	};
 
-	struct BoneInfo
+	struct VertexBoneData
 	{
-		int m_id = -1;
-		Matrix m_offset;
+		int m_boneIDs[MAX_BONE_INFLUENCE];
+		float m_boneWeights[MAX_BONE_INFLUENCE];
 	};
 
-	struct VertexBone
+	struct BoneInfo
 	{
-		uint32 m_ids[NUM_BONES_PER_VERTEX];
-		float m_weights[NUM_BONES_PER_VERTEX];
+		int m_id;
+		Matrix m_offset;
 	};
 
 	struct MeshSceneParameters
@@ -327,7 +327,6 @@ namespace LinaEngine::Graphics
 		Quaternion m_worldRotation;
 		Vector3 m_worldScale;
 		Matrix m_rootInverse;
-		std::map<std::string, BoneInfo> m_boneInfoMap; 
 	};
 
 	struct TextureParameters
