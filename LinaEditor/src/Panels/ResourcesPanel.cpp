@@ -381,12 +381,12 @@ namespace LinaEditor
 					ImGui::EndDragDropSource();
 				}
 			}
-			else if (it->second.m_type == FileType::Mesh)
+			else if (it->second.m_type == FileType::Model)
 			{
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 				{
 					// Set payload to carry the texture;
-					uint32 id = LinaEngine::Graphics::Mesh::GetMesh(it->second.m_path).GetID();
+					uint32 id = LinaEngine::Graphics::Model::GetModel(it->second.m_path).GetID();
 					ImGui::SetDragDropPayload(RESOURCES_MOVEMESH_ID, &id, sizeof(uint32));
 
 					// Display preview 
@@ -421,8 +421,8 @@ namespace LinaEditor
 				// Notify properties panel of file selection.
 				if (it->second.m_type == FileType::Texture2D)
 					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Texture*>(LinaEngine::Action::ActionType::TextureSelected, &LinaEngine::Graphics::Texture::GetTexture(it->second.m_path));
-				else if (it->second.m_type == FileType::Mesh)
-					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Mesh*>(LinaEngine::Action::ActionType::MeshSelected, &LinaEngine::Graphics::Mesh::GetMesh(it->second.m_path));
+				else if (it->second.m_type == FileType::Model)
+					EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Model*>(LinaEngine::Action::ActionType::MeshSelected, &LinaEngine::Graphics::Model::GetModel(it->second.m_path));
 				else if (it->second.m_type == FileType::Material)
 					EditorApplication::GetEditorDispatcher().DispatchAction<std::pair<EditorFile*, LinaEngine::Graphics::Material*>>(LinaEngine::Action::ActionType::MaterialSelected, std::make_pair(&it->second, &LinaEngine::Graphics::Material::GetMaterial(it->second.m_path)));
 			}
@@ -491,9 +491,9 @@ namespace LinaEditor
 					LinaEngine::Graphics::Material::LoadMaterialFromFile(file.m_path);
 
 			}
-			else if (file.m_type == FileType::Mesh)
+			else if (file.m_type == FileType::Model)
 			{
-				bool meshExists = LinaEngine::Graphics::Mesh::MeshExists(file.m_path);
+				bool meshExists = LinaEngine::Graphics::Model::ModelExists(file.m_path);
 
 				if (!meshExists)
 				{
@@ -501,11 +501,11 @@ namespace LinaEditor
 					std::string meshParamsPath = file.m_pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.m_name) + ".meshparams";
 
 					if (LinaEngine::Utility::FileExists(meshParamsPath))
-						meshParams = LinaEngine::Graphics::Mesh::LoadParameters(meshParamsPath);
+						meshParams = LinaEngine::Graphics::Model::LoadParameters(meshParamsPath);
 
-					LinaEngine::Graphics::Mesh::CreateMesh(file.m_path, meshParams, -1, meshParamsPath);
+					LinaEngine::Graphics::Model::CreateModel(file.m_path, meshParams, -1, meshParamsPath);
 
-					LinaEngine::Graphics::Mesh::SaveParameters(meshParamsPath, meshParams);
+					LinaEngine::Graphics::Model::SaveParameters(meshParamsPath, meshParams);
 				}
 			}
 		}
@@ -534,7 +534,7 @@ namespace LinaEditor
 				LinaEngine::Graphics::Material& mat = LinaEngine::Graphics::Material::GetMaterial(file.m_path);
 				mat.PostLoadMaterialData(renderEngine);
 			}
-			else if (file.m_type == FileType::Mesh)
+			else if (file.m_type == FileType::Model)
 			{
 
 			}
@@ -550,8 +550,8 @@ namespace LinaEditor
 		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
 		if (file.m_type == FileType::Texture2D)
 			LinaEngine::Graphics::Texture::UnloadTextureResource(LinaEngine::Graphics::Texture::GetTexture(file.m_path).GetID());
-		else if (file.m_type == FileType::Mesh)
-			LinaEngine::Graphics::Mesh::UnloadMeshResource(LinaEngine::Graphics::Mesh::GetMesh(file.m_path).GetID());
+		else if (file.m_type == FileType::Model)
+			LinaEngine::Graphics::Model::UnloadModel(LinaEngine::Graphics::Model::GetModel(file.m_path).GetID());
 		else if (file.m_type == FileType::Material)
 			LinaEngine::Graphics::Material::UnloadMaterialResource(LinaEngine::Graphics::Material::GetMaterial(file.m_path).GetID());
 	}
@@ -600,7 +600,7 @@ namespace LinaEditor
 		else if (extension.compare("ttf") == 0)
 			return FileType::Font;
 		else if (extension.compare("obj") == 0 || extension.compare("fbx") == 0 || extension.compare("3ds") == 0)
-			return FileType::Mesh;
+			return FileType::Model;
 		else if (extension.compare("mat") == 0)
 			return FileType::Material;
 		else if (extension.compare("glsl") == 0)

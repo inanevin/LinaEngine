@@ -30,7 +30,7 @@ SOFTWARE.
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/AnimationComponent.hpp"
 #include "Rendering/RenderEngine.hpp"
-#include "Rendering/Mesh.hpp"
+#include "Rendering/Model.hpp"
 
 namespace LinaEngine::ECS
 {
@@ -56,7 +56,7 @@ namespace LinaEngine::ECS
 			MeshRendererComponent& mr = view.get<MeshRendererComponent>(entity);
 			AnimationComponent& ar = view.get<AnimationComponent>(entity);
 
-			Graphics::Mesh& mesh = Graphics::Mesh::GetMesh(mr.m_meshID);
+			Graphics::Model& mesh = Graphics::Model::GetModel(mr.m_meshID);
 			Graphics::Skeleton& skeleton = mesh.GetSkeleton();
 
 			auto& meshAnimations = skeleton.GetAnimations();

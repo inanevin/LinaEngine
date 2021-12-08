@@ -29,7 +29,7 @@ SOFTWARE.
 #include "ECS/Systems/MeshRendererSystem.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
-#include "Rendering/Mesh.hpp"
+#include "Rendering/Model.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Material.hpp"
 #include "Animation/Skeleton.hpp"
@@ -51,7 +51,7 @@ namespace LinaEngine::ECS
 
 			// We get the materials, then according to their surface types we add the mesh
 			// data into either opaque queue or the transparent queue.
-			Graphics::Mesh& mesh = LinaEngine::Graphics::Mesh::GetMesh(renderer.m_meshID);
+			Graphics::Model& mesh = LinaEngine::Graphics::Model::GetModel(renderer.m_meshID);
 
 			for (int i = 0; i < mesh.GetVertexArrays().size(); i++)
 			{
@@ -172,14 +172,14 @@ namespace LinaEngine::ECS
 
 	void MeshRendererSystem::FlushSingleRenderer(ECS::MeshRendererComponent& mrc, ECS::TransformComponent& tr, Graphics::DrawParams drawParams)
 	{
-		if (!Graphics::Mesh::MeshExists(mrc.m_meshID))
+		if (!Graphics::Model::ModelExists(mrc.m_meshID))
 		{
 			LINA_CORE_WARN("Mesh or material does not exists for this renderer, aborting single flush.");
 			return;
 		}
 
 
-		Graphics::Mesh& mesh = Graphics::Mesh::GetMesh(mrc.m_meshID);
+		Graphics::Model& mesh = Graphics::Model::GetModel(mrc.m_meshID);
 		for (int i = 0; i < mesh.GetVertexArrays().size(); i++)
 		{
 			if (!Graphics::Material::MaterialExists(mrc.m_materialID[i])) continue;

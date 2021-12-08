@@ -33,7 +33,7 @@ set (LINAGRAPHICS_SOURCES
 	src/Rendering/ModelLoader.cpp
 	src/Rendering/Material.cpp
 	src/Rendering/RenderEngine.cpp
-	src/Rendering/Mesh.cpp
+	src/Rendering/Model.cpp
 	src/Rendering/RenderingCommon.cpp
 	src/Rendering/Shader.cpp
 	src/Rendering/RenderSettings.cpp
@@ -75,7 +75,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/Sampler.hpp
 	include/Rendering/UniformBuffer.hpp
 	include/Rendering/RenderTarget.hpp
-	include/Rendering/Mesh.hpp
+	include/Rendering/Model.hpp
 	include/Rendering/RenderingCommon.hpp
 	include/Rendering/RenderConstants.hpp
 	include/Rendering/RenderBuffer.hpp

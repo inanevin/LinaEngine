@@ -351,10 +351,10 @@ namespace LinaEngine::Graphics
 	void RenderEngine::ConstructEnginePrimitives()
 	{
 		// Primitives
-		Mesh::CreateMesh("resources/engine/meshes/primitives/cube.obj", MeshParameters(), Primitives::Cube);
-		Mesh::CreateMesh("resources/engine/meshes/primitives/cylinder.obj", MeshParameters(), Primitives::Cylinder);
-		Mesh::CreateMesh("resources/engine/meshes/primitives/plane.obj", MeshParameters(), Primitives::Plane);
-		Mesh::CreateMesh("resources/engine/meshes/primitives/sphere.obj", MeshParameters(), Primitives::Sphere);
+		Model::CreateModel("resources/engine/meshes/primitives/cube.obj", MeshParameters(), Primitives::Cube);
+		Model::CreateModel("resources/engine/meshes/primitives/cylinder.obj", MeshParameters(), Primitives::Cylinder);
+		Model::CreateModel("resources/engine/meshes/primitives/plane.obj", MeshParameters(), Primitives::Plane);
+		Model::CreateModel("resources/engine/meshes/primitives/sphere.obj", MeshParameters(), Primitives::Sphere);
 	}
 
 	void RenderEngine::ConstructRenderTargets()
@@ -437,7 +437,7 @@ namespace LinaEngine::Graphics
 	void RenderEngine::DumpMemory()
 	{
 		// Clear dumps.
-		Mesh::UnloadAll();
+		Model::UnloadAll();
 		Texture::UnloadAll();
 		Material::UnloadAll();
 		Shader::UnloadAll();

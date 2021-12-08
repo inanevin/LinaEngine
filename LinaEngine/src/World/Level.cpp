@@ -109,18 +109,18 @@ namespace LinaEngine::World
 			}
 
 			// Load used meshes
-			if (!Graphics::Mesh::MeshExists(mr.m_meshPath))
+			if (!Graphics::Model::ModelExists(mr.m_meshPath))
 			{
 
 				Graphics::MeshParameters params;
 				if (Utility::FileExists(mr.m_meshParamsPath))
-					params = Graphics::Mesh::LoadParameters(mr.m_meshParamsPath);
+					params = Graphics::Model::LoadParameters(mr.m_meshParamsPath);
 
-				Graphics::Mesh& mesh = Graphics::Mesh::CreateMesh(mr.m_meshPath, params, -1, mr.m_meshParamsPath);
+				Graphics::Model& mesh = Graphics::Model::CreateModel(mr.m_meshPath, params, -1, mr.m_meshParamsPath);
 				mr.m_meshID = mesh.GetID();
 			}
 			else
-				mr.m_meshID = Graphics::Mesh::GetMesh(mr.m_meshPath).GetID();
+				mr.m_meshID = Graphics::Model::GetModel(mr.m_meshPath).GetID();
 		}
 
 		auto viewSprites = ecs.view<ECS::SpriteRendererComponent>();

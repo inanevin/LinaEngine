@@ -53,7 +53,7 @@ namespace LinaEngine
 	namespace Graphics
 	{
 		class RenderEngine;
-		class Mesh;
+		class Model;
 		class Material;
 	}
 }
@@ -71,7 +71,7 @@ namespace LinaEditor
 			None,
 			Entities,
 			Texture2D,
-			Mesh,
+			Model,
 			Material
 		};
 
@@ -85,7 +85,7 @@ namespace LinaEditor
 
 		void EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity);
 		void TextureSelected(LinaEngine::Graphics::Texture* texture);
-		void MeshSelected(LinaEngine::Graphics::Mesh* mesh);
+		void MeshSelected(LinaEngine::Graphics::Model* mesh);
 		void MaterialSelected(std::pair<EditorFile*, LinaEngine::Graphics::Material*>);
 
 		void Unselect()

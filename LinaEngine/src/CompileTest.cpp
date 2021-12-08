@@ -122,7 +122,7 @@ SOFTWARE.
 //#include "Rendering/UniformBuffer.hpp"
 //#include "Rendering/RenderContext.hpp"
 //#include "Rendering/RenderTarget.hpp"
-//#include "Rendering/Mesh.hpp"
+//#include "Rendering/Model.hpp"
 //#include "Rendering/RenderingCommon.hpp"
 //#include "Rendering/ShaderConstants.hpp"
 //

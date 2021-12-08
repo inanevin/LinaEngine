@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Drawers/ComponentDrawer.hpp"
 #include "Core/Application.hpp"
 #include "Rendering/RenderEngine.hpp"
-#include "Rendering/Mesh.hpp"
+#include "Rendering/Model.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
@@ -814,7 +814,7 @@ namespace LinaEditor
 				{
 					IM_ASSERT(payload->DataSize == sizeof(uint32));
 
-					auto& mesh = LinaEngine::Graphics::Mesh::GetMesh(*(uint32*)payload->m_data);
+					auto& mesh = LinaEngine::Graphics::Model::GetModel(*(uint32*)payload->m_data);
 					renderer.m_meshID = mesh.GetID();
 					renderer.m_meshPath = mesh.GetPath();
 					renderer.m_materialID.clear();
@@ -876,11 +876,11 @@ namespace LinaEditor
 
 			if (ImGui::Button("Set World To Model Offset"))
 			{
-				if (Graphics::Mesh::MeshExists(renderer.m_meshPath))
+				if (Graphics::Model::ModelExists(renderer.m_meshPath))
 				{
-					ecs.get<TransformComponent>(entity).transform.SetLocalLocation(Graphics::Mesh::GetMesh(renderer.m_meshPath).GetWorldParameters().m_worldPosition);
-					ecs.get<TransformComponent>(entity).transform.SetLocalRotation(Graphics::Mesh::GetMesh(renderer.m_meshPath).GetWorldParameters().m_worldRotation);
-					ecs.get<TransformComponent>(entity).transform.SetLocalScale(Graphics::Mesh::GetMesh(renderer.m_meshPath).GetWorldParameters().m_worldScale);
+					ecs.get<TransformComponent>(entity).transform.SetLocalLocation(Graphics::Model::GetModel(renderer.m_meshPath).GetWorldParameters().m_worldPosition);
+					ecs.get<TransformComponent>(entity).transform.SetLocalRotation(Graphics::Model::GetModel(renderer.m_meshPath).GetWorldParameters().m_worldRotation);
+					ecs.get<TransformComponent>(entity).transform.SetLocalScale(Graphics::Model::GetModel(renderer.m_meshPath).GetWorldParameters().m_worldScale);
 				}
 			}
 		}

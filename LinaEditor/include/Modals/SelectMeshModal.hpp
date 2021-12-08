@@ -39,7 +39,7 @@ Timestamp: 10/19/2020 11:05:17 PM
 #ifndef SelectMeshModal_HPP
 #define SelectMeshModal_HPP
 
-#include "Rendering/Mesh.hpp"
+#include "Rendering/Model.hpp"
 
 namespace LinaEditor
 {
@@ -51,7 +51,7 @@ namespace LinaEditor
 		SelectMeshModal();
 		~SelectMeshModal();
 	
-		static void Draw(const std::map<int, LinaEngine::Graphics::Mesh>& map, int* selectedMeshID, std::string& meshPath);
+		static void Draw(const std::map<int, LinaEngine::Graphics::Model>& map, int* selectedMeshID, std::string& meshPath);
 
 	private:
 	

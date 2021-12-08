@@ -33,13 +33,13 @@ SOFTWARE.
 
 namespace LinaEditor
 {
-	void SelectMeshModal::Draw(const std::map<int, LinaEngine::Graphics::Mesh>& map, int* selectedMeshID, std::string& selectedMeshPath)
+	void SelectMeshModal::Draw(const std::map<int, LinaEngine::Graphics::Model>& map, int* selectedMeshID, std::string& selectedMeshPath)
 	{
 		ImGui::BeginChild("SelectMeshModalChild", ImVec2(0, 300), true);
 
 		static int selected = -1;
 		static std::string selectedPath = "";
-		for (std::map<int, LinaEngine::Graphics::Mesh>::const_iterator it = map.begin(); it != map.end(); it++)
+		for (std::map<int, LinaEngine::Graphics::Model>::const_iterator it = map.begin(); it != map.end(); it++)
 		{
 			WidgetsUtility::IncrementCursorPosY(5);
 			WidgetsUtility::IncrementCursorPosX(5);

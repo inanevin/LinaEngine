@@ -45,7 +45,7 @@ namespace LinaEngine
 {
 	namespace Graphics
 	{
-		class Mesh;
+		class Model;
 	}
 }
 
@@ -59,13 +59,13 @@ namespace LinaEditor
 		MeshDrawer() {};
 		~MeshDrawer() {};
 	
-		void SetSelectedMesh(LinaEngine::Graphics::Mesh& mesh);
+		void SetSelectedMesh(LinaEngine::Graphics::Model& mesh);
 		void DrawSelectedMesh();
 
 
 	private:
 	
-		LinaEngine::Graphics::Mesh* m_selectedMesh = nullptr;
+		LinaEngine::Graphics::Model* m_selectedMesh = nullptr;
 		LinaEngine::Graphics::MeshParameters m_selectedParams;
 	};
 }

@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Rendering/Mesh.hpp"
+#include "Rendering/Model.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Rendering/RenderEngine.hpp"
@@ -38,9 +38,9 @@ SOFTWARE.
 namespace LinaEngine::Graphics
 {
 
-	std::map<int, Mesh> Mesh::s_loadedMeshes;
+	std::map<int, Model> Model::s_loadedMeshes;
 
-	Mesh::~Mesh()
+	Model::~Model()
 	{
 		for (uint32 i = 0; i < m_vertexArrays.size(); i++)
 			delete m_vertexArrays[i];
@@ -52,19 +52,19 @@ namespace LinaEngine::Graphics
 		m_materialIndexArray.clear();
 	}
 
-	Mesh& Mesh::CreateMesh(const std::string& filePath, MeshParameters meshParams, int id, const std::string& paramsPath)
+	Model& Model::CreateModel(const std::string& filePath, MeshParameters meshParams, int id, const std::string& paramsPath)
 	{
 		// Internal meshes are created with non-negative ids, user loaded ones should have default id of -1.
 		if (id == -1) id = Utility::GetUniqueID();
 
-		Mesh& mesh = s_loadedMeshes[id];
+		Model& mesh = s_loadedMeshes[id];
 		mesh.SetParameters(meshParams);
 		ModelLoader::LoadModel(filePath, &mesh, meshParams);
 
 		if (mesh.GetIndexedModels().size() == 0)
 		{
 			LINA_CORE_WARN("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad...", filePath);
-			UnloadMeshResource(id);
+			UnloadModel(id);
 			return GetPrimitive(Primitives::Plane);
 		}
 
@@ -85,19 +85,19 @@ namespace LinaEngine::Graphics
 		return s_loadedMeshes[id];
 	}
 
-	Mesh& Mesh::GetMesh(int id)
+	Model& Model::GetModel(int id)
 	{
-		if (!MeshExists(id))
+		if (!ModelExists(id))
 		{
 			// Mesh not found.
 			LINA_CORE_WARN("Mesh with the id {0} was not found, returning un-constructed mesh...", id);
-			return Mesh();
+			return Model();
 		}
 
 		return s_loadedMeshes[id];
 	}
 
-	Mesh& Mesh::GetMesh(const std::string& path)
+	Model& Model::GetModel(const std::string& path)
 	{
 		const auto it = std::find_if(s_loadedMeshes.begin(), s_loadedMeshes.end(), [path]
 		(const auto& item) -> bool { return item.second.GetPath().compare(path) == 0; });
@@ -106,28 +106,28 @@ namespace LinaEngine::Graphics
 		{
 			// Mesh not found.
 			LINA_CORE_WARN("Mesh with the path {0} was not found, returning un-constructed mesh...", path);
-			return Mesh();
+			return Model();
 		}
 
 		return it->second;
 	}
 
-	bool Mesh::MeshExists(int id)
+	bool Model::ModelExists(int id)
 	{
 		if (id < 0) return false;
 		return !(s_loadedMeshes.find(id) == s_loadedMeshes.end());
 	}
 
-	bool Mesh::MeshExists(const std::string& path)
+	bool Model::ModelExists(const std::string& path)
 	{
 		const auto it = std::find_if(s_loadedMeshes.begin(), s_loadedMeshes.end(), [path]
 		(const auto& it) -> bool { 	return it.second.GetPath().compare(path) == 0; 	});
 		return it != s_loadedMeshes.end();
 	}
 
-	void Mesh::UnloadMeshResource(int id)
+	void Model::UnloadModel(int id)
 	{
-		if (!MeshExists(id))
+		if (!ModelExists(id))
 		{
 			LINA_CORE_WARN("Mesh not found! Aborting... ");
 			return;
@@ -136,9 +136,9 @@ namespace LinaEngine::Graphics
 		s_loadedMeshes.erase(id);
 	}
 
-	Mesh& Mesh::GetPrimitive(Primitives primitive)
+	Model& Model::GetPrimitive(Primitives primitive)
 	{
-		if (!MeshExists(primitive))
+		if (!ModelExists(primitive))
 		{
 			// VA not found.
 			LINA_CORE_WARN("Primitive with the ID {0} was not found, returning plane...", primitive);
@@ -148,12 +148,12 @@ namespace LinaEngine::Graphics
 			return s_loadedMeshes[primitive];
 	}
 
-	void Mesh::UnloadAll()
+	void Model::UnloadAll()
 	{
 		s_loadedMeshes.clear();
 	}
 
-	MeshParameters Mesh::LoadParameters(const std::string& path)
+	MeshParameters Model::LoadParameters(const std::string& path)
 	{
 		MeshParameters params;
 
@@ -168,7 +168,7 @@ namespace LinaEngine::Graphics
 		return params;
 	}
 
-	void Mesh::SaveParameters(const std::string& path, MeshParameters params)
+	void Model::SaveParameters(const std::string& path, MeshParameters params)
 	{
 		std::ofstream stream(path);
 		{

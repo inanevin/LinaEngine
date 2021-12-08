@@ -47,7 +47,7 @@ namespace LinaEngine
 	namespace Graphics
 	{
 		class RenderEngine;
-		class Mesh;
+		class Model;
 		class Texture;
 		class Material;
 	}

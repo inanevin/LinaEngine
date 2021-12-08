@@ -51,7 +51,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "Rendering/ModelLoader.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Rendering/RenderBuffer.hpp"
-#include "Mesh.hpp"
+#include "Model.hpp"
 #include "UniformBuffer.hpp"
 #include "Window.hpp"
 #include "RenderContext.hpp"

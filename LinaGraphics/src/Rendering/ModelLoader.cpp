@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Rendering/ModelLoader.hpp"  
 #include "Rendering/RenderingCommon.hpp"
-#include "Rendering/Mesh.hpp"
+#include "Rendering/Model.hpp"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -53,7 +53,7 @@ namespace LinaEngine::Graphics
 		return mat;
 	}
 
-	bool ModelLoader::LoadModel(const std::string& fileName,  Mesh* mesh, MeshParameters meshParams)
+	bool ModelLoader::LoadModel(const std::string& fileName,  Model* mesh, MeshParameters meshParams)
 	{
 		MeshSceneParameters& worldParams = mesh->GetWorldParameters();
 		auto& modelMaterialIndices = mesh->GetMaterialIndices();
