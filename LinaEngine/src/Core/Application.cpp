@@ -112,7 +112,7 @@ namespace LinaEngine
 
 		// Register ECS components for cloning functionality.
 		s_ecs.RegisterComponentToClone<ECS::EntityDataComponent>();
-		s_ecs.RegisterComponentToClone<ECS::TransformComponent>();
+		s_ecs.RegisterComponentToClone<ECS::EntityDataComponent>();
 
 		m_deltaTimeArray.fill(-1.0);
 		m_isInPlayMode = true;

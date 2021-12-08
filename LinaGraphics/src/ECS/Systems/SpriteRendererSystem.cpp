@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "ECS/Systems/SpriteRendererSystem.hpp"
-#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "Rendering/RenderEngine.hpp"
 
@@ -44,7 +44,7 @@ namespace LinaEngine::ECS
 
 	void SpriteRendererSystem::UpdateComponents(float delta)
 	{
-		auto view = m_ecs->view<TransformComponent, SpriteRendererComponent>();
+		auto view = m_ecs->view<EntityDataComponent, SpriteRendererComponent>();
 
 		// Find the sprites and add them to the render queue.
 		for (auto entity : view)
@@ -52,13 +52,13 @@ namespace LinaEngine::ECS
 			SpriteRendererComponent& renderer = view.get<SpriteRendererComponent>(entity);
 			if (!renderer.m_isEnabled) return;
 
-			TransformComponent& transform = view.get<TransformComponent>(entity);
+			EntityDataComponent& data= view.get<EntityDataComponent>(entity);
 
 			// Dont draw if mesh or material does not exist.
 			if (renderer.m_materialID < 0) continue;
 
 			Graphics::Material& mat = LinaEngine::Graphics::Material::GetMaterial(renderer.m_materialID);
-			Render(mat, transform.transform.ToMatrix());
+			Render(mat, data.ToMatrix());
 		}
 	}
 

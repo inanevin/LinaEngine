@@ -55,24 +55,96 @@ namespace LinaEngine::ECS
 
 	void EntityDataComponent::SetLocalRotation(const Quaternion& rot, bool isThisPivot)
 	{
+		m_transform.m_localRotation = rot;
+		m_transform.m_localRotationAngles = rot.GetEuler();
+		UpdateGlobalRotation();
+
+		for (auto child : m_children)
+		{
+			auto& d = m_ecs->get<EntityDataComponent>(child);
+			d.UpdateGlobalRotation();
+
+			if (isThisPivot)
+				d.UpdateGlobalLocation();
+		}
 	}
+
 	void EntityDataComponent::SetLocalRotationAngles(const Vector3& angles, bool isThisPivot)
 	{
+		m_transform.m_localRotationAngles = angles;
+		m_transform.m_localRotation = Quaternion::FromVector(glm::radians((glm::vec3)angles));
+		UpdateGlobalRotation();
+
+		for (auto child : m_children)
+		{
+			auto& d = m_ecs->get<EntityDataComponent>(child);
+			d.UpdateGlobalRotation();
+
+			if (isThisPivot)
+				d.UpdateGlobalLocation();
+		}
 	}
 
 	void EntityDataComponent::SetRotation(const Quaternion& rot, bool isThisPivot)
 	{
+		m_transform.m_rotation = rot;
+		m_transform.m_rotationAngles = rot.GetEuler();
+		UpdateLocalRotation();
+
+		for (auto child : m_children)
+		{
+			auto& d = m_ecs->get<EntityDataComponent>(child);
+			d.UpdateGlobalRotation();
+
+			if (isThisPivot)
+				d.UpdateGlobalLocation();
+		}
 	}
 
 	void EntityDataComponent::SetRotationAngles(const Vector3& angles, bool isThisPivot)
 	{
+		m_transform.m_rotationAngles = angles;
+		m_transform.m_rotation = Quaternion::FromVector(glm::radians((glm::vec3)angles));
+		UpdateLocalRotation();
+
+		for (auto child : m_children)
+		{
+			auto& d = m_ecs->get<EntityDataComponent>(child);
+			d.UpdateGlobalRotation();
+
+			if (isThisPivot)
+				d.UpdateGlobalLocation();
+		}
 	}
 
 	void EntityDataComponent::SetLocalScale(const Vector3& scale, bool isThisPivot)
 	{
+		m_transform.m_localScale = scale;
+		UpdateGlobalScale();
+
+		for (auto child : m_children)
+		{
+			auto& d = m_ecs->get<EntityDataComponent>(child);
+			d.UpdateGlobalScale();
+
+			if (isThisPivot)
+				d.UpdateGlobalLocation();
+		}
 	}
+
 	void EntityDataComponent::SetScale(const Vector3& scale, bool isThisPivot)
 	{
+		m_transform.m_scale = scale;
+		UpdateLocalScale();
+
+		for (auto child : m_children)
+		{
+			auto& d = m_ecs->get<EntityDataComponent>(child);
+			d.UpdateGlobalScale();
+
+			if (isThisPivot)
+				d.UpdateGlobalLocation();
+		}
 	}
 
 	void EntityDataComponent::UpdateGlobalLocation()
@@ -107,16 +179,69 @@ namespace LinaEngine::ECS
 
 	void EntityDataComponent::UpdateGlobalScale()
 	{
+		if (m_parent == entt::null)
+			m_transform.m_scale = m_transform.m_localScale;
+		else
+		{
+			auto& d = m_ecs->get<EntityDataComponent>(m_parent);
+			Matrix global = Matrix::Scale(d.m_transform.m_scale) * Matrix::Scale(m_transform.m_localScale);
+			m_transform.m_scale = global.GetScale();
+		}
+
+		for (auto child : m_children)
+		{
+			auto& d = m_ecs->get<EntityDataComponent>(child);
+			d.UpdateGlobalScale();
+		}
 	}
 
 	void EntityDataComponent::UpdateGlobalRotation()
 	{
+		if (m_parent == entt::null)
+		{
+			m_transform.m_rotation = m_transform.m_localRotation;
+			m_transform.m_rotationAngles = m_transform.m_localRotationAngles;
+		}
+		else
+		{
+			auto& d = m_ecs->get<EntityDataComponent>(m_parent);
+			Matrix global = Matrix::InitRotation(d.m_transform.m_rotation) * m_transform.ToLocalMatrix();
+			global.Decompose(Vector3(), m_transform.m_rotation);
+			m_transform.m_rotationAngles = m_transform.m_rotation.GetEuler();
+		}
+
+		for (auto child : m_children)
+		{
+			auto& d = m_ecs->get<EntityDataComponent>(child);
+			d.UpdateGlobalRotation();
+		}
 	}
+
 	void EntityDataComponent::UpdateLocalScale()
 	{
+		if (m_parent == entt::null)
+			m_transform.m_localScale = m_transform.m_scale;
+		else
+		{
+			auto& d = m_ecs->get<EntityDataComponent>(m_parent);
+			Matrix global = Matrix::Scale(d.m_transform.m_scale).Inverse() * Matrix::Scale(m_transform.m_scale);
+			m_transform.m_localScale = global.GetScale();
+		}
 	}
 
 	void EntityDataComponent::UpdateLocalRotation()
 	{
+		if (m_parent == entt::null)
+		{
+			m_transform.m_localRotation = m_transform.m_rotation;
+			m_transform.m_localRotationAngles = m_transform.m_rotationAngles;
+		}
+		else
+		{
+			auto& d = m_ecs->get<EntityDataComponent>(m_parent);
+			Matrix global = Matrix::InitRotation(d.m_transform.m_rotation).Inverse() * m_transform.ToMatrix();
+			global.Decompose(Vector3(), m_transform.m_localRotation);
+			m_transform.m_localRotationAngles = m_transform.m_localRotation.GetEuler();
+		}
 	}
 }

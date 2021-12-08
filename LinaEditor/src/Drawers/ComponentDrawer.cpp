@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Model.hpp"
 #include "Rendering/Material.hpp"
-#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
@@ -61,7 +61,7 @@ namespace LinaEditor
 
 #ifdef LINA_EDITOR
 
-		RegisterComponentToDraw<TransformComponent>(GetTypeID<TransformComponent>(), "Transformation", std::bind(&ComponentDrawer::DrawTransformComponent, this, std::placeholders::_1, std::placeholders::_2));
+		RegisterComponentToDraw<EntityDataComponent>(GetTypeID<EntityDataComponent>(), "Transformation", std::bind(&ComponentDrawer::DrawEntityDataComponent, this, std::placeholders::_1, std::placeholders::_2));
 		RegisterComponentToDraw<RigidbodyComponent>(GetTypeID<RigidbodyComponent>(), "Rigidbody", std::bind(&ComponentDrawer::DrawRigidbodyComponent, this, std::placeholders::_1, std::placeholders::_2));
 		RegisterComponentToDraw<CameraComponent>(GetTypeID<CameraComponent>(), "Camera", std::bind(&ComponentDrawer::DrawCameraComponent, this, std::placeholders::_1, std::placeholders::_2));
 		RegisterComponentToDraw<DirectionalLightComponent>(GetTypeID<DirectionalLightComponent>(), "Directional Light", std::bind(&ComponentDrawer::DrawDirectionalLightComponent, this, std::placeholders::_1, std::placeholders::_2));
@@ -152,15 +152,12 @@ namespace LinaEditor
 		}
 	}
 
-	bool ComponentDrawer::DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor, const ImVec2& iconOffset, bool alwaysEnabled, bool hardcodedComponent)
+	bool ComponentDrawer::DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor, const ImVec2& iconOffset, bool cantDelete, bool noRefresh)
 	{
-		// Caret button.
-		if (!hardcodedComponent)
-		{
-			const char* caret = *foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
-			if (WidgetsUtility::IconButtonNoDecoration(caret, 30, 0.8f))
-				*foldoutOpen = !*foldoutOpen;
-		}
+	
+		const char* caret = *foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
+		if (WidgetsUtility::IconButtonNoDecoration(caret, 30, 0.8f))
+			*foldoutOpen = !*foldoutOpen;
 
 		// Title.
 		ImGui::SameLine();
@@ -169,7 +166,6 @@ namespace LinaEditor
 		ImGui::Text(title);
 		ImGui::AlignTextToFramePadding();
 		ImGui::SameLine();
-
 
 		// Title is the drag and drop target.
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
@@ -202,7 +198,7 @@ namespace LinaEditor
 
 		// Enabled toggle
 		std::string buf(title);
-		if (!alwaysEnabled && enabled != nullptr)
+		if (!cantDelete && enabled != nullptr)
 		{
 			buf.append("t");
 			ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
@@ -213,17 +209,20 @@ namespace LinaEditor
 		}
 
 		// Refresh button
-		buf.append("r");
-		ImGui::SameLine();
-		if (alwaysEnabled && enabled != nullptr)
-			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 20);
-		else
-			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 43);
-		WidgetsUtility::IncrementCursorPosY(4);
-		*refreshPressed = WidgetsUtility::IconButton(buf.c_str(), ICON_FA_SYNC_ALT, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header), hardcodedComponent);
+		if (!noRefresh)
+		{
+			buf.append("r");
+			ImGui::SameLine();
+			if (cantDelete)
+				ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 23);
+			else
+				ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 43);
+			WidgetsUtility::IncrementCursorPosY(4);
+			*refreshPressed = WidgetsUtility::IconButton(buf.c_str(), ICON_FA_SYNC_ALT, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
+		}
 
 		// Close button
-		if (!alwaysEnabled)
+		if (!cantDelete)
 		{
 			buf.append("c");
 			ImGui::SameLine();
@@ -252,12 +251,11 @@ namespace LinaEditor
 		"CAPSULE"
 	};
 
-	void ComponentDrawer::DrawTransformComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
+	void ComponentDrawer::DrawEntityDataComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity)
 	{
 		// Get component
-		TransformComponent& transform = ecs.get<TransformComponent>(entity);
-		ECSTypeID id = GetTypeID<TransformComponent>();
 		EntityDataComponent& data = ecs.get<EntityDataComponent>(entity);
+		ECSTypeID id = GetTypeID<EntityDataComponent>();
 
 		// Align.
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -265,11 +263,15 @@ namespace LinaEditor
 
 		// Draw title.
 		bool refreshPressed = false;
-		ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<TransformComponent>(), "Transformation", ICON_FA_ARROWS_ALT, &refreshPressed, &transform.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 0), true);
+		ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<EntityDataComponent>(), "Entity Data", ICON_FA_ARROWS_ALT, &refreshPressed, nullptr, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 0), true);
 
 		// Refresh
 		if (refreshPressed)
-			ecs.replace<TransformComponent>(entity, TransformComponent());
+		{
+			data.SetLocalLocation(Vector3::Zero);
+			data.SetLocalRotation(Quaternion());
+			data.SetLocalScale(Vector3::One);
+		}
 
 		// Draw component
 		if (m_foldoutStateMap[entity][id])
@@ -282,26 +284,26 @@ namespace LinaEditor
 			WidgetsUtility::AlignedText("Location");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
-			Vector3 location = transform.transform.GetLocalLocation();
+			Vector3 location = data.GetLocalLocation();
 			ImGui::DragFloat3("##loc", &location.x);
-			// transform.transform.SetLocalLocation(location);
+			// data.SetLocalLocation(location);
 			data.SetLocalLocation(location);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Rotation");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
-			glm::vec3 rot = transform.transform.GetLocalRotationAngles();
+			glm::vec3 rot = data.GetLocalRotationAngles();
 			ImGui::DragFloat3("##rot", &rot.x);
-			transform.transform.SetLocalRotationAngles(rot);
+			data.SetLocalRotationAngles(rot);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Scale");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
-			Vector3 scale = transform.transform.GetLocalScale();
+			Vector3 scale = data.GetLocalScale();
 			ImGui::DragFloat3("##scale", &scale.x);
-			transform.transform.SetLocalScale(scale);
+			data.SetLocalScale(scale);
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 			ImGui::SetCursorPosX(cursorPosLabels);
 
@@ -317,22 +319,22 @@ namespace LinaEditor
 				WidgetsUtility::AlignedText("Location");
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
-				Vector3 globalLocation = transform.transform.GetLocation();
+				Vector3 globalLocation = data.GetLocation();
 				ImGui::InputFloat3("##dbg_loc", &globalLocation.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
 				ImGui::SetCursorPosX(cursorPosLabels);
 				WidgetsUtility::AlignedText("Rotation");
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
-				Quaternion globalRotation = transform.transform.GetRotation();
-				Vector3 angles = transform.transform.GetRotationAngles();
+				Quaternion globalRotation = data.GetRotation();
+				Vector3 angles = data.GetRotationAngles();
 				ImGui::InputFloat3("##dbg_rot", &angles.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
 				ImGui::SetCursorPosX(cursorPosLabels);
 				WidgetsUtility::AlignedText("Scale");
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
-				Vector3 globalScale = transform.transform.GetScale();
+				Vector3 globalScale = data.GetScale();
 				ImGui::InputFloat3("##dbg_scl", &globalScale.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 			}
 
@@ -787,11 +789,7 @@ namespace LinaEditor
 		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
 
 		bool refreshPressed = false;
-		ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<ModelRendererComponent>(), "MeshRenderer", ICON_MD_GRID_ON, &refreshPressed, &renderer.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
-		
-		// Align.
-		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
-		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
+		ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<ModelRendererComponent>(), "MeshRenderer", ICON_MD_GRID_ON, &refreshPressed, &renderer.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3), true, true);
 
 		// Draw bevel line.
 		WidgetsUtility::DrawBeveledLine();

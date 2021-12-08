@@ -1,4 +1,4 @@
-/* 
+ /* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "ECS/Systems/CameraSystem.hpp"  
-#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "Utility/Math/Math.hpp"
@@ -61,13 +61,13 @@ namespace LinaEngine::ECS
 		if (m_activeCameraEntity != entt::null)
 		{
 			CameraComponent& camera = m_ecs->get<CameraComponent>(m_activeCameraEntity);
-			TransformComponent& transform = m_ecs->get<TransformComponent>(m_activeCameraEntity);
+			EntityDataComponent& data = m_ecs->get<EntityDataComponent>(m_activeCameraEntity);
 
 			if (!m_viewMatrixInjected)
 			{
 				// Actual camera view matrix.
-				Vector3 location = transform.transform.GetLocation();
-				Quaternion rotation = transform.transform.GetRotation();
+				Vector3 location = data.GetLocation();
+				Quaternion rotation = data.GetRotation();
 				m_view = Matrix::InitLookAt(location, location + rotation.GetForward(), rotation.GetUp());
 			}
 			else
@@ -84,7 +84,7 @@ namespace LinaEngine::ECS
 
 	Vector3 CameraSystem::GetCameraLocation()
 	{
-		return m_activeCameraEntity == entt::null ? Vector3(Vector3::Zero) : m_ecs->get<TransformComponent>(m_activeCameraEntity).transform.GetLocation();
+		return m_activeCameraEntity == entt::null ? Vector3(Vector3::Zero) : m_ecs->get<EntityDataComponent>(m_activeCameraEntity).GetLocation();
 	}
 
 	LinaEngine::Color& CameraSystem::GetCurrentClearColor()

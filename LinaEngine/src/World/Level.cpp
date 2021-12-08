@@ -30,7 +30,7 @@ SOFTWARE.
 #include "ECS/ECS.hpp"
 #include "Core/Application.hpp"
 #include "Rendering/RenderEngine.hpp"
-#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
@@ -235,8 +235,6 @@ namespace LinaEngine::World
 				LinaEngine::Application::GetApp().DeserializeRegistry(registry, iarchive);
 			}
 		}
-
-		registry.Refresh();
 
 	}
 }

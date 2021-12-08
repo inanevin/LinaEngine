@@ -456,7 +456,7 @@ namespace LinaEngine::Graphics
 		{
 			if (std::get<1>(tuple[i])->m_castsShadows)
 			{
-				Vector3 lightPos = std::get<0>(tuple[i])->transform.GetLocation();
+				Vector3 lightPos = std::get<0>(tuple[i])->GetLocation();
 				float farPlane = std::get<1>(tuple[i])->m_shadowFar;
 				float nearPlane = std::get<1>(tuple[i])->m_shadowNear;
 

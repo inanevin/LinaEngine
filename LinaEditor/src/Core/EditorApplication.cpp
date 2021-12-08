@@ -32,7 +32,7 @@ SOFTWARE.
 #include "Panels/ECSPanel.hpp"
 #include "Core/SplashScreen.hpp"
 #include "Core/GUILayer.hpp"
-#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
@@ -102,7 +102,7 @@ namespace LinaEditor
 		if (ecs.GetEntity(EDITOR_CAMERA_NAME) == entt::null)
 		{
 			ECSEntity editorCamera = ecs.CreateEntity(EDITOR_CAMERA_NAME);
-			TransformComponent cameraTransform;
+			EntityDataComponent cameraTransform;
 			CameraComponent cameraComponent;
 			FreeLookComponent freeLookComponent;
 			ecs.emplace<CameraComponent>(editorCamera, cameraComponent);

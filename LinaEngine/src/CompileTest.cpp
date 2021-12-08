@@ -49,7 +49,7 @@ SOFTWARE.
 //#include "ECS/Components/MeshRendererComponent.hpp"
 //#include "ECS/Components/MotionComponent.hpp"
 //#include "ECS/Components/MovementControlComponent.hpp"
-//#include "ECS/Components/TransformComponent.hpp"
+//#include "ECS/Components/EntityDataComponent.hpp"
 //#include "ECS/Interactions/TestInteraction.hpp"
 //#include "ECS/Systems/CameraSystem.hpp"
 //#include "ECS/Systems/CubeChunkRenderSystem.hpp"

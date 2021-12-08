@@ -32,7 +32,7 @@ SOFTWARE.
 #include "Rendering/RenderEngine.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "ECS/Components/CameraComponent.hpp"
-#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "Core/EditorApplication.hpp"
 #include "Input/InputEngine.hpp"
 #include "Core/Application.hpp"
@@ -185,9 +185,9 @@ namespace LinaEditor
 		//ImGui::GetWindowDrawList()->AddLine(ImVec2(coord.x, coord.y), ImVec2(coord2.x, coord2.y), col, 2);
 		if (m_selectedTransform != entt::null)
 		{
-			ECS::TransformComponent& tr = LinaEngine::Application::GetECSRegistry().get<ECS::TransformComponent>(m_selectedTransform);
+			ECS::EntityDataComponent& data = LinaEngine::Application::GetECSRegistry().get<ECS::EntityDataComponent>(m_selectedTransform);
 			// Get required matrices.
-			glm::mat4 object = tr.transform.ToMatrix();
+			glm::mat4 object = data.ToMatrix();
 
 
 			// Draw transformation handle.
@@ -199,13 +199,13 @@ namespace LinaEditor
 			if (ImGuizmo::IsUsing())
 			{
 			
-				glm::vec3 rot = tr.transform.GetRotationAngles();
+				glm::vec3 rot = data.GetRotationAngles();
 				glm::vec3 deltaRotation = glm::vec3(matrixRotation[0], matrixRotation[1], matrixRotation[2]) - rot;
-				tr.transform.SetRotationAngles(rot + deltaRotation);
+				data.SetRotationAngles(rot + deltaRotation);
 			}
 
-			tr.transform.SetLocation(Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]));
-			tr.transform.SetScale(Vector3(matrixScale[0], matrixScale[1], matrixScale[2]));
+			data.SetLocation(Vector3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]));
+			data.SetScale(Vector3(matrixScale[0], matrixScale[1], matrixScale[2]));
 
 		}
 

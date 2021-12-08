@@ -43,7 +43,7 @@ Timestamp: 5/13/2019 12:49:19 AM
 #include "ECS/ECS.hpp"
 #include "Utility/Math/Color.hpp"
 #include "Utility/Math/Vector.hpp"
-#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
 
@@ -83,16 +83,16 @@ namespace LinaEngine::ECS
 
 		DirectionalLightComponent* GetDirLight() { return std::get<1>(m_directionalLight); }
 		Color GetAmbientColor() { return m_ambientColor; }
-		std::vector<std::tuple<TransformComponent*, PointLightComponent*>>& GetPointLights() { return m_pointLights; }
+		std::vector<std::tuple<EntityDataComponent*, PointLightComponent*>>& GetPointLights() { return m_pointLights; }
 
 
 	private:
 
 		RenderDevice* s_renderDevice = nullptr;
 		Graphics::RenderEngine* m_renderEngine = nullptr;
-		std::tuple < TransformComponent*, DirectionalLightComponent*> m_directionalLight;
-		std::vector<std::tuple<TransformComponent*, PointLightComponent*>> m_pointLights;
-		std::vector<std::tuple<TransformComponent*, SpotLightComponent*>> m_spotLights;
+		std::tuple < EntityDataComponent*, DirectionalLightComponent*> m_directionalLight;
+		std::vector<std::tuple<EntityDataComponent*, PointLightComponent*>> m_pointLights;
+		std::vector<std::tuple<EntityDataComponent*, SpotLightComponent*>> m_spotLights;
 		Color m_ambientColor = Color(0.0f, 0.0f, 0.0f);
 	};
 }

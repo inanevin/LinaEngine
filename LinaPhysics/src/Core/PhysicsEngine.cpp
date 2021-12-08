@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Core/PhysicsEngine.hpp"  
 #include "Utility/Log.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
-#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "Utility/UtilityFunctions.hpp"
 #include "Utility/Math/Color.hpp"
 
@@ -107,7 +107,7 @@ namespace LinaEngine::Physics
 		m_physicsPipeline.AddSystem(m_rigidbodySystem);
 		ecsReg.on_construct<LinaEngine::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
 		ecsReg.on_destroy<LinaEngine::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
-		ecsReg.on_construct<LinaEngine::ECS::TransformComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
+		ecsReg.on_construct<LinaEngine::ECS::EntityDataComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
 		ecsReg.on_update<LinaEngine::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyUpdated>(this);
 		
 	}
@@ -128,18 +128,18 @@ namespace LinaEngine::Physics
 	void PhysicsEngine::OnRigidbodyOrTransformAdded(entt::registry& reg, entt::entity ent)
 	{
 		// If the object doesn't have a transform & rigidbody yet, return.
-		if (!reg.has<LinaEngine::ECS::TransformComponent>(ent) || !reg.has<LinaEngine::ECS::RigidbodyComponent>(ent)) return;
+		if (!reg.has<LinaEngine::ECS::EntityDataComponent>(ent) || !reg.has<LinaEngine::ECS::RigidbodyComponent>(ent)) return;
 		LinaEngine::ECS::RigidbodyComponent& rb = reg.get<LinaEngine::ECS::RigidbodyComponent>(ent);
 
 		// Return if rigidbody is already alive.
 		if (rb.m_alive) return;
 
-		LinaEngine::ECS::TransformComponent& tr = reg.get<LinaEngine::ECS::TransformComponent>(ent);
+		LinaEngine::ECS::EntityDataComponent& data = reg.get<LinaEngine::ECS::EntityDataComponent>(ent);
 		btCollisionShape* colShape = GetCollisionShape(rb);
 
 		btTransform transform;
 		transform.setIdentity();
-		Vector3 location = tr.transform.GetLocation();
+		Vector3 location = data.GetLocation();
 		transform.setOrigin(btVector3(location.x, location.y, location.z));
 
 		btScalar mass(rb.m_mass);

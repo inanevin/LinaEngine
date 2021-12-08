@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "ECS/Systems/RigidbodySystem.hpp"
-#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
 #include "Core/PhysicsEngine.hpp"
 
@@ -35,7 +35,7 @@ namespace LinaEngine::ECS
 {
 	void RigidbodySystem::UpdateComponents(float delta)
 	{
-		auto view = m_ecs->view<TransformComponent, RigidbodyComponent>();
+		auto view = m_ecs->view<EntityDataComponent, RigidbodyComponent>();
 
 		// Find all entities with rigidbody component and transform component attached to them.
 		for (auto entity : view)
@@ -43,7 +43,7 @@ namespace LinaEngine::ECS
 			RigidbodyComponent& rbComponent = view.get<RigidbodyComponent>(entity);
 			if (!rbComponent.m_isEnabled) continue;
 
-			TransformComponent& transform = view.get<TransformComponent>(entity);
+			EntityDataComponent& data = view.get<EntityDataComponent>(entity);
 
 			// We get the rigidbody information from the world, and update the entity's transformation
 			// based on the body's transformation. So we keep the game world that does the rendering via
@@ -52,8 +52,8 @@ namespace LinaEngine::ECS
 			btTransform btTrans;
 			rb->getMotionState()->getWorldTransform(btTrans);
 
-			transform.transform.SetLocation(Vector3(btTrans.getOrigin().getX(), btTrans.getOrigin().getY(), btTrans.getOrigin().getZ()));
-			transform.transform.SetRotation(Quaternion(btTrans.getRotation().getX(), btTrans.getRotation().getY(), btTrans.getRotation().getZ(), btTrans.getRotation().getW()));
+			data.SetLocation(Vector3(btTrans.getOrigin().getX(), btTrans.getOrigin().getY(), btTrans.getOrigin().getZ()));
+			data.SetRotation(Quaternion(btTrans.getRotation().getX(), btTrans.getRotation().getY(), btTrans.getRotation().getZ(), btTrans.getRotation().getW()));
 		}
 	}
 }

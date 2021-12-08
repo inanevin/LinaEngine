@@ -50,7 +50,7 @@ namespace LinaEngine
 {
 	namespace ECS
 	{
-		struct TransformComponent;
+		struct EntityDataComponent;
 		struct RigidbodyComponent;
 	}
 

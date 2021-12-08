@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "ECS/Systems/EditorCameraSystem.hpp"
-#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "Input/InputAxisBinder.hpp"
 #include "Input/InputEngine.hpp"
@@ -47,7 +47,7 @@ namespace LinaEngine::ECS
 			FreeLookComponent& freeLook = m_ecs->get<FreeLookComponent>(m_editorCamera);
 			if (!freeLook.m_isEnabled) return;
 
-			TransformComponent& transform = m_ecs->get<TransformComponent>(m_editorCamera);
+			EntityDataComponent& data = m_ecs->get<EntityDataComponent>(m_editorCamera);
 
 			Vector2 mouseAxis = m_inputEngine->GetMouseAxis();
 
@@ -62,13 +62,13 @@ namespace LinaEngine::ECS
 
 				Quaternion qX = Quaternion::AxisAngle(Vector3::Up, freeLook.m_angles.x);
 				Quaternion qY = Quaternion::AxisAngle(Vector3::Right, freeLook.m_angles.y);
-				transform.transform.SetLocalRotation(qX * qY);
+				data.SetLocalRotation(qX * qY);
 			}
 
 			// Handle movement.
 			float horizontalKey = m_inputEngine->GetHorizontalAxisValue();
 			float verticalKey = m_inputEngine->GetVerticalAxisValue();
-			Quaternion rotation = transform.transform.GetRotation();
+			Quaternion rotation = data.GetRotation();
 			Vector3 fw = rotation.GetForward();
 			Vector3 up = rotation.GetUp();
 			Vector3 rg = rotation.GetRight();
@@ -81,7 +81,7 @@ namespace LinaEngine::ECS
 			horizontal.Normalize();
 			horizontal *= freeLook.m_movementSpeeds.x * horizontalKey * delta;
 
-			transform.transform.SetLocation(transform.transform.GetLocation() + vertical + horizontal);
+			data.SetLocation(data.GetLocation() + vertical + horizontal);
 		}
 
 

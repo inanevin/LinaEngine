@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "ECS/ECSSystem.hpp"  
 #include "Utility/Log.hpp"
-#include "ECS/Components/TransformComponent.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "..\..\include\ECS\Components\EntityDataComponent.hpp"
 
 namespace LinaEngine::ECS
@@ -64,17 +64,6 @@ namespace LinaEngine::ECS
 		data.m_ecs = this;
 	}
 
-	void ECSRegistry::Refresh()
-	{
-
-		auto singleView = view<EntityDataComponent>();
-
-		for (ECSEntity entity : singleView)
-		{
-			AddEntityChildTransforms(entity);
-		}
-	}
-
 	void ECSRegistry::AddChildToEntity(ECSEntity parent, ECSEntity child)
 	{
 		if (parent == child) return;
@@ -84,16 +73,11 @@ namespace LinaEngine::ECS
 
 		if (parentData.m_parent == child || childData.m_parent == parent) return;
 
-		Transformation* childTransform = &get<TransformComponent>(child).transform;
-		Transformation* parentTransform = &get<TransformComponent>(parent).transform;
-
 		if (childData.m_parent != entt::null)
 		{
 			RemoveChildFromEntity(childData.m_parent, child);
-			childTransform->RemoveFromParent();
 		}
 
-		parentTransform->AddChild(childTransform);
 		parentData.m_children.emplace(child);
 		childData.m_parent = parent;
 	}
@@ -124,9 +108,6 @@ namespace LinaEngine::ECS
 		if (children.find(child) != children.end())
 		{
 			children.erase(child);
-
-			// Remove transformation.
-			get<TransformComponent>(parent).transform.RemoveChild(&get<TransformComponent>(child).transform);
 		}
 
 		get<EntityDataComponent>(child).m_parent = entt::null;
@@ -158,9 +139,7 @@ namespace LinaEngine::ECS
 	ECSEntity ECSRegistry::CreateEntity(const std::string& name)
 	{
 		entt::entity ent = create();
-		emplace<EntityDataComponent>(ent, EntityDataComponent( false, false, true, name ));
-		emplace<TransformComponent>(ent, TransformComponent());
-		Refresh();
+		emplace<EntityDataComponent>(ent, EntityDataComponent( false, true, true, name ));
 		return ent;
 	}
 
@@ -177,8 +156,6 @@ namespace LinaEngine::ECS
 		//EntityDataComponent& copyData = get<EntityDataComponent>(copy);
 		get<EntityDataComponent>(copy).m_parent = entt::null;
 		get<EntityDataComponent>(copy).m_children.clear();
-		Refresh();
-
 
 		for (ECSEntity child : sourceData.m_children)
 		{
@@ -191,10 +168,7 @@ namespace LinaEngine::ECS
 		if (attachParent && sourceData.m_parent != entt::null)
 			AddChildToEntity(sourceData.m_parent, copy);
 
-		Refresh();
-
 		return copy;
-
 	}
 
 	ECSEntity ECSRegistry::GetEntity(const std::string& name)
@@ -227,19 +201,6 @@ namespace LinaEngine::ECS
 			RemoveFromParent(entity);
 
 		destroy(entity);
-	}
-
-	void ECSRegistry::AddEntityChildTransforms(ECSEntity entity)
-	{
-		EntityDataComponent data = get<EntityDataComponent>(entity);
-		get<TransformComponent>(entity).transform.m_children.clear();
-		get<TransformComponent>(entity).transform.m_parent = data.m_parent == entt::null ? nullptr : &get<TransformComponent>(data.m_parent).transform;
-
-		for (ECSEntity child : data.m_children)
-		{
-			get<TransformComponent>(entity).transform.AddChild(&get<TransformComponent>(child).transform);
-			AddEntityChildTransforms(child);
-		}
 	}
 
 }

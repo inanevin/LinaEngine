@@ -62,12 +62,12 @@ namespace LinaEngine::ECS
 			Graphics::Material& mat = LinaEngine::Graphics::Material::GetMaterial(renderer.m_materialID);
 
 			if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
-				RenderOpaque(mesh.GetVertexArray(), model.GetSkeleton(), mat, data.m_transform.ToMatrix());
+				RenderOpaque(mesh.GetVertexArray(), model.GetSkeleton(), mat, data.ToMatrix());
 			else
 			{
 				// Transparent queue is a priority queue unlike the opaque one, so we set the priority as distance to the camera.
-				float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - data.m_transform.GetLocation()).MagnitudeSqrt();
-				RenderTransparent(mesh.GetVertexArray(), model.GetSkeleton(), mat, data.m_transform.ToMatrix(), priority);
+				float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - data.GetLocation()).MagnitudeSqrt();
+				RenderTransparent(mesh.GetVertexArray(), model.GetSkeleton(), mat, data.ToMatrix(), priority);
 
 			}
 
@@ -195,9 +195,9 @@ namespace LinaEngine::ECS
 
 			auto& mesh = model.GetMeshes()[i];
 			auto& va = mesh.GetVertexArray();
-			const Matrix model = data.m_transform.ToMatrix();
+			const Matrix model = data.ToMatrix();
 			va.UpdateBuffer(7, &model[0][0], sizeof(Matrix));
-			va.UpdateBuffer(8, &data.m_transform.ToMatrix().Inverse().Transpose()[0][0], sizeof(Matrix));
+			va.UpdateBuffer(8, &data.ToMatrix().Inverse().Transpose()[0][0], sizeof(Matrix));
 			m_renderEngine->UpdateShaderData(&mat);
 			s_renderDevice->Draw(va.GetID(), drawParams, 1, va.GetIndexCount(), false);
 		}

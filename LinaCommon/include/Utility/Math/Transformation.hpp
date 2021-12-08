@@ -75,43 +75,6 @@ namespace LinaEngine
 			return Matrix::TransformMatrix(m_localLocation, m_localRotation, m_localScale);
 		}
 
-		void NormalizeRotation()
-		{
-			m_rotation = m_rotation.Normalized();
-		}
-
-		bool IsRotationNormalized()
-		{
-			return m_rotation.IsNormalized();
-		}
-
-		void Rotate(const Vector3& euler)
-		{
-			m_rotation = Quaternion::Euler(euler.x, euler.y, euler.z);
-		}
-
-		void SetLocation(const Vector3& loc);
-
-		// Pivot determines whether the children will be rotated/scaled based on this transformation or on their own. 
-		void SetLocalRotation(const Quaternion& rot, bool isThisPivot = true);
-		void SetLocalRotationAngles(const Vector3& angles, bool isThisPivot = true);
-		void SetLocalScale(const Vector3& scale, bool isThisPivot = true);
-		void SetRotation(const Quaternion& rot, bool isThisPivot = true);
-		void SetScale(const Vector3& scale, bool isThisPivot = true);
-		void SetRotationAngles(const Vector3& angles, bool isThisPivot = true);
-
-		const Vector3& GetLocalRotationAngles() { return m_localRotationAngles; }
-		const Vector3& GetLocalLocation() { return m_localLocation; }
-		const Quaternion& GetLocalRotation() { return m_localRotation; }
-		const Vector3& GetLocalScale() { return m_localScale; }
-		const Vector3& GetLocation() { return m_location; }
-		const Quaternion& GetRotation() { return m_rotation; }
-		const Vector3& GetRotationAngles() { return m_rotationAngles; }
-		const Vector3& GetScale() { return m_scale; }
-
-		int GetChildCount() { return m_children.size(); }
-		bool HasParent() { return m_parent != nullptr; }
-		const std::set<Transformation*>& GetChildren() { return m_children; }
 
 		Vector3 m_location = Vector3::Zero;
 		Quaternion m_rotation;
@@ -129,26 +92,7 @@ namespace LinaEngine
 		}
 
 	private:
-
-		void UpdateGlobalScale();
-		void UpdateGlobalLocation();
-		void UpdateGlobalRotation();
-		void UpdateLocalScale();
-		void UpdateLocalLocation();
-		void UpdateLocalRotation();
-
 		friend class ECS::ECSRegistry;
-		void AddChild(Transformation* child);
-		void RemoveChild(Transformation* child);
-		void RemoveFromParent();
-
-	private:
-
-
-		
-
-		Transformation* m_parent = nullptr;
-		std::set<Transformation*> m_children;
 
 	};
 

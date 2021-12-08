@@ -65,7 +65,7 @@ namespace LinaEditor
 		void AddIDToDrawList(LinaEngine::ECS::ECSTypeID id);	
 		void ClearDrawList();
 		void DrawComponents(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
-		bool DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconFolor = ImVec4(1, 1, 1, 1), const ImVec2& iconOffset = ImVec2(0, 0), bool alwaysEnabled = false, bool disabled = false);
+		bool DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconFolor = ImVec4(1, 1, 1, 1), const ImVec2& iconOffset = ImVec2(0, 0), bool cantDelete = false,  bool noRefresh = false);
 	
 		template<typename T>
 		void RegisterComponentToDraw(LinaEngine::ECS::ECSTypeID typeID, const std::string& label, ComponentFunction drawFunction)
@@ -75,7 +75,7 @@ namespace LinaEditor
 			std::get<2>(m_componentFunctionsMap[typeID]) = drawFunction;
 		}
 
-		void DrawTransformComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
+		void DrawEntityDataComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
 		void DrawCameraComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
 		void DrawFreeLookComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);
 		void DrawRigidbodyComponent(LinaEngine::ECS::ECSRegistry& ecs, LinaEngine::ECS::ECSEntity entity);

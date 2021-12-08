@@ -64,7 +64,10 @@ namespace LinaEngine::ECS
 		std::string m_name = "";
 		std::set<ECSEntity> m_children;
 		ECSEntity m_parent = entt::null;
-		LinaEngine::Transformation m_transform;
+
+		/* TRANSFORM OPERATIONS */
+
+		Matrix ToMatrix() { return m_transform.ToMatrix(); }
 
 		void SetLocalLocation(const Vector3& loc);
 		void SetLocation(const Vector3& loc);
@@ -74,6 +77,15 @@ namespace LinaEngine::ECS
 		void SetRotationAngles(const Vector3& angles, bool isThisPivot = true);
 		void SetLocalScale(const Vector3& scale, bool isThisPivot = true);
 		void SetScale(const Vector3& scale, bool isThisPivot = true);
+
+		const Vector3& GetLocalRotationAngles() { return m_transform.m_localRotationAngles; }
+		const Vector3& GetLocalLocation() { return m_transform.m_localLocation; }
+		const Quaternion& GetLocalRotation() { return m_transform.m_localRotation; }
+		const Vector3& GetLocalScale() { return m_transform.m_localScale; }
+		const Vector3& GetLocation() { return m_transform.m_location; }
+		const Quaternion& GetRotation() { return m_transform.m_rotation; }
+		const Vector3& GetRotationAngles() { return m_transform.m_rotationAngles; }
+		const Vector3& GetScale() { return m_transform.m_scale; }
 
 	private:
 
@@ -91,11 +103,12 @@ namespace LinaEngine::ECS
 		friend class ECSRegistry;
 
 		ECSRegistry* m_ecs = nullptr;
+		LinaEngine::Transformation m_transform;
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_isHidden, m_isEnabled, m_name, m_parent, m_children);
+			archive(m_isHidden, m_transform, m_isEnabled, m_name, m_parent, m_children);
 		}
 
 	

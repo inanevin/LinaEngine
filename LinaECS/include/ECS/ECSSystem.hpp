@@ -77,7 +77,6 @@ namespace LinaEngine::ECS
 		}
 
 		void OnEntityDataComponentAdded(entt::registry& reg, entt::entity ent);
-		void Refresh();
 		void AddChildToEntity(ECSEntity parent, ECSEntity child);
 		void DestroyAllChildren(ECSEntity parent);
 		void RemoveChildFromEntity(ECSEntity parent, ECSEntity child);
@@ -98,8 +97,6 @@ namespace LinaEngine::ECS
 			Type component = get<Type>(from);
 			emplace<Type>(to, component);
 		}
-
-		void AddEntityChildTransforms(ECSEntity entity);
 
 	private:
 

@@ -33,7 +33,6 @@ set (LINAECS_SOURCES
 set(LINAECS_HEADERS
 	#ECS
 	include/ECS/Components/EntityDataComponent.hpp
-	include/ECS/Components/TransformComponent.hpp
 
 	include/ECS/ECSSystem.hpp
 	include/ECS/ECS.hpp

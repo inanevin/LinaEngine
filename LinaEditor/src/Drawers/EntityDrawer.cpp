@@ -50,6 +50,7 @@ namespace LinaEditor
 	void EntityDrawer::DrawSelectedEntity()
 	{
 		LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
+		LinaEngine::ECS::EntityDataComponent& data = ecs.get<LinaEngine::ECS::EntityDataComponent>(m_selectedEntity);
 
 		// Align.
 		ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(16);
@@ -78,9 +79,8 @@ namespace LinaEditor
 		// Entity enabled toggle button.
 		ImGui::SameLine();	
 		WidgetsUtility::IncrementCursorPosY(1.5f);
-		static bool b = false;
 		ImVec4 toggleColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
-		WidgetsUtility::ToggleButton("##eactive", &b, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
+		WidgetsUtility::ToggleButton("##eactive", &data.m_isEnabled, 0.8f, 1.4f, toggleColor, ImVec4(toggleColor.x, toggleColor.y, toggleColor.z, 0.7f));
 
 		// Add component button.
 		ImGui::SetCursorPosX(13);

@@ -47,7 +47,7 @@ Timestamp: 5/2/2019 12:40:46 AM
 
 namespace LinaEngine::ECS
 {
-	struct TransformComponent;
+	struct EntityDataComponent;
 	struct CameraComponent;
 
 
