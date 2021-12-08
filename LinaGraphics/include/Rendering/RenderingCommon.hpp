@@ -283,7 +283,9 @@ namespace LinaEngine::Graphics
 		Sphere = 2,
 		Icosphere = 3,
 		Cone = 4,
-		Cylinder = 5
+		Cylinder = 5,
+		Capsule = 6,
+		Quad = 7
 	};
 
 	struct ModelParameters

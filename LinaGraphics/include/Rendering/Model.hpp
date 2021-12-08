@@ -45,6 +45,7 @@ Timestamp: 5/6/2019 4:23:45 PM
 #include "Rendering/Mesh.hpp"
 #include "Rendering/Material.hpp"
 #include "Animation/Skeleton.hpp"
+#include "Core/SizeDefinitions.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -78,11 +79,6 @@ namespace LinaEngine::Graphics
 			return m_materialSpecArray;
 		}
 
-		std::vector<uint32>& GetMaterialIndices()
-		{
-			return m_materialSlotIndices;
-		}
-
 		Skeleton& GetSkeleton()
 		{
 			return m_skeleton;
@@ -111,8 +107,6 @@ namespace LinaEngine::Graphics
 		ModelParameters m_parameters;
 		std::vector<Mesh> m_meshes;
 		std::vector<ModelMaterial> m_materialSpecArray;
-		std::vector<uint32> m_materialIndexArray;
-		std::vector<uint32> m_materialSlotIndices;
 		Skeleton m_skeleton;
 
 	};

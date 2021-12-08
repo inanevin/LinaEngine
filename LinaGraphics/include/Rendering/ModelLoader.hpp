@@ -40,22 +40,21 @@ Timestamp: 4/26/2019 12:07:47 AM
 #define ModelLoader_HPP
 
 
-#include "Mesh.hpp"
 #include "Animation/Animation.hpp"
 #include "Material.hpp"
 #include "Animation/Skeleton.hpp"
+#include "Model.hpp"
 #include <string>
 
 namespace LinaEngine::Graphics
 {
-	class Model;
 
 	class ModelLoader
 	{
 	public:
 
 		// Load models using ASSIMP
-		static bool LoadModel(const std::string& fileName, Model* mesh, ModelParameters meshParams);
+		static bool LoadModel(const std::string& fileName, Model& model, ModelParameters meshParams);
 		static bool LoadQuad(Mesh& model);
 		static bool LoadPrimitive(std::vector<Mesh>& models, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords);
 		static void SetVertexBoneData(std::vector<int>& vertexBoneIDs, std::vector<float>& vertexBoneWeights, int boneID, float weight);

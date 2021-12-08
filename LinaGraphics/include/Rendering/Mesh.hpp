@@ -67,12 +67,15 @@ namespace LinaEngine::Graphics
 			AddElement(elementIndex, args...);
 		}
 
-		// Adds index data to m_Indices array, 1 to 4 m_Indices. TODO: Maybe template? Consider inline array push performance.
-		void AddIndices(uint32 i0, uint32 i1, uint32 i2);
-	
-		// Accessor for num m_Indices.
-		uint32 GetIndexCount() const { return m_indices.size(); }
+		void SetMaterialSlot(uint32 slotIndex)
+		{
+			m_materialSlot = slotIndex;
+		}
 
+		uint32 GetMaterialSlotIndex() { return m_materialSlot; }
+
+		void AddIndices(uint32 i0, uint32 i1, uint32 i2);
+		uint32 GetIndexCount() const { return m_indices.size(); }
 		VertexArray& GetVertexArray() { return m_vertexArray; }
 
 	public:
@@ -84,7 +87,7 @@ namespace LinaEngine::Graphics
 		std::vector<uint32> m_indices;
 		std::vector<BufferData> m_bufferElements;
 		VertexArray m_vertexArray;
-
+		uint32 m_materialSlot = 0;
 	};
 }
 

@@ -351,10 +351,12 @@ namespace LinaEngine::Graphics
 	void RenderEngine::ConstructEnginePrimitives()
 	{
 		// Primitives
-		Model::CreateModel("resources/engine/meshes/primitives/cube.obj", ModelParameters(), Primitives::Cube);
-		Model::CreateModel("resources/engine/meshes/primitives/cylinder.obj", ModelParameters(), Primitives::Cylinder);
-		Model::CreateModel("resources/engine/meshes/primitives/plane.obj", ModelParameters(), Primitives::Plane);
-		Model::CreateModel("resources/engine/meshes/primitives/sphere.obj", ModelParameters(), Primitives::Sphere);
+		Model::CreateModel("resources/engine/meshes/primitives/cube.fbx", ModelParameters(), Primitives::Cube);
+		Model::CreateModel("resources/engine/meshes/primitives/cylinder.fbx", ModelParameters(), Primitives::Cylinder);
+		Model::CreateModel("resources/engine/meshes/primitives/capsule.fbx", ModelParameters(), Primitives::Capsule);
+		Model::CreateModel("resources/engine/meshes/primitives/quad.fbx", ModelParameters(), Primitives::Quad);
+		Model::CreateModel("resources/engine/meshes/primitives/plane.fbx", ModelParameters(), Primitives::Plane);
+		Model::CreateModel("resources/engine/meshes/primitives/sphere.fbx", ModelParameters(), Primitives::Sphere);
 	}
 
 	void RenderEngine::ConstructRenderTargets()

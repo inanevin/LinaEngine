@@ -53,12 +53,16 @@ namespace LinaEngine::ECS
 			// data into either opaque queue or the transparent queue.
 			Graphics::Model& model = LinaEngine::Graphics::Model::GetModel(renderer.m_meshID);
 
-			for (int i = 0; i < model.GetMeshes().size(); i++)
+			auto& meshes = model.GetMeshes();
+			for (int i = 0; i < meshes.size(); i++)
 			{
-				if (!Graphics::Material::MaterialExists(renderer.m_materialID[i])) continue;
+				auto& mesh = meshes[i];
+				uint32 materialSlot = mesh.GetMaterialSlotIndex();
 
-				Graphics::Material& mat = LinaEngine::Graphics::Material::GetMaterial(renderer.m_materialID[i]);
-				auto& mesh = model.GetMeshes()[i];
+				if (!Graphics::Material::MaterialExists(renderer.m_materialID[materialSlot])) continue;
+
+				Graphics::Material& mat = LinaEngine::Graphics::Material::GetMaterial(renderer.m_materialID[materialSlot]);
+				
 				if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
 					RenderOpaque(mesh.GetVertexArray(), model.GetSkeleton(), mat, transform.transform.ToMatrix());
 				else

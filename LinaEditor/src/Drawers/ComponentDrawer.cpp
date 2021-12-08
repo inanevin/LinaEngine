@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Model.hpp"
+#include "Rendering/Material.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
@@ -814,13 +815,13 @@ namespace LinaEditor
 				{
 					IM_ASSERT(payload->DataSize == sizeof(uint32));
 
-					auto& mesh = LinaEngine::Graphics::Model::GetModel(*(uint32*)payload->m_data);
-					renderer.m_meshID = mesh.GetID();
-					renderer.m_meshPath = mesh.GetPath();
+					auto& model = LinaEngine::Graphics::Model::GetModel(*(uint32*)payload->m_data);
+					renderer.m_meshID = model.GetID();
+					renderer.m_meshPath = model.GetPath();
 					renderer.m_materialID.clear();
 					renderer.m_materialPath.clear();
-					renderer.m_materialID.resize(mesh.GetMaterialIndices().size());
-					renderer.m_materialPath.resize(mesh.GetMaterialIndices().size());
+					renderer.m_materialID.resize(model.GetMaterialSpecs().size());
+					renderer.m_materialPath.resize(model.GetMaterialSpecs().size());
 				}
 				ImGui::EndDragDropTarget();
 			}
@@ -838,7 +839,8 @@ namespace LinaEditor
 				strcpy(matPathC, renderer.m_materialPath[i].c_str());
 
 				ImGui::SetCursorPosX(cursorPosLabels);
-				WidgetsUtility::AlignedText("Material");
+				std::string materialName = LinaEngine::Graphics::Model::GetModel(renderer.m_meshPath).GetMaterialSpecs()[i].m_name;
+				WidgetsUtility::AlignedText(materialName.c_str());
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
 				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());

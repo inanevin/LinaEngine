@@ -53,9 +53,9 @@ namespace LinaEngine::Graphics
 		return mat;
 	}
 
-	bool ModelLoader::LoadModel(const std::string& fileName,  Model* model, ModelParameters meshParams)
+	bool ModelLoader::LoadModel(const std::string& fileName, Model& model, ModelParameters meshParams)
 	{
-		ModelSceneParameters& worldParams = model->GetWorldParameters();
+		ModelSceneParameters& worldParams = model.GetWorldParameters();
 
 
 		// Get the importer & set assimp scene.
@@ -109,11 +109,10 @@ namespace LinaEngine::Graphics
 		{
 			// Build aiMesh reference for each aiMesh.
 			const aiMesh* aiMesh = scene->mMeshes[j];
-			auto mm = model->GetMaterialIndices();
-			//model->GetMaterialIndices().push_back(aiMesh->mMaterialIndex);
-
+		
 			// Build and indexed aiMesh for each aiMesh & fill in the data.
 			Mesh currentMesh;
+			currentMesh.SetMaterialSlot(scene->mMeshes[j]->mMaterialIndex);
 			currentMesh.AllocateElement(3, 0, true); // Positions
 			currentMesh.AllocateElement(2, 1, true); // TexCoords
 			currentMesh.AllocateElement(3, 2, true); // Normals
@@ -182,7 +181,7 @@ namespace LinaEngine::Graphics
 			}
 
 			// Add aiMesh to array.
-			model->GetMeshes().push_back(currentMesh);
+			model.GetMeshes().push_back(currentMesh);
 		}
 
 		// Iterate through the materials in the scene.
@@ -191,6 +190,7 @@ namespace LinaEngine::Graphics
 			// Build material reference & material specifications.
 			const aiMaterial* material = scene->mMaterials[i];
 			ModelMaterial spec;
+			spec.m_name = scene->mMaterials[i]->GetName().C_Str();
 
 			// Currently only handles diffuse textures.
 			aiString texturePath;
@@ -200,7 +200,13 @@ namespace LinaEngine::Graphics
 				spec.m_textureNames["diffuse"] = str;
 			}
 			// Push the material to list.
-			model->GetMaterialSpecs().push_back(spec);
+			model.GetMaterialSpecs().push_back(spec);
+		}
+		if (model.GetMaterialSpecs().size() == 0)
+		{
+			ModelMaterial defaultSpec;
+			defaultSpec.m_name = "Material";
+			model.GetMaterialSpecs().push_back(defaultSpec);
 		}
 
 		return true;

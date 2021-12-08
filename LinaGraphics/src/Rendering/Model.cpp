@@ -42,10 +42,8 @@ namespace LinaEngine::Graphics
 
 	Model::~Model()
 	{
-
 		m_meshes.clear();
 		m_materialSpecArray.clear();
-		m_materialIndexArray.clear();
 	}
 
 	Model& Model::CreateModel(const std::string& filePath, ModelParameters meshParams, int id, const std::string& paramsPath)
@@ -55,7 +53,7 @@ namespace LinaEngine::Graphics
 
 		Model& model = s_loadedMeshes[id];
 		model.SetParameters(meshParams);
-		ModelLoader::LoadModel(filePath, &model, meshParams);
+		ModelLoader::LoadModel(filePath, model, meshParams);
 
 		if (model.GetMeshes().size() == 0)
 		{
@@ -68,10 +66,6 @@ namespace LinaEngine::Graphics
 		for (uint32 i = 0; i < model.GetMeshes().size(); i++)
 		{
 			model.GetMeshes()[i].CreateVertexArray(RenderEngine::GetRenderDevice(), BufferUsage::USAGE_DYNAMIC_DRAW);
-
-			//VertexArray* vertexArray = new VertexArray();
-			//vertexArray->Construct(RenderEngine::GetRenderDevice(), model.GetMeshes()[i], BufferUsage::USAGE_DYNAMIC_DRAW);
-			//model.GetMeshes()[i].VertexArray = vertexArray;
 		}
 
 		// Set id
