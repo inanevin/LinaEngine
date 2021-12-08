@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Rendering/Model.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/ModelLoader.hpp"
 #include <stdio.h>
@@ -44,6 +45,29 @@ namespace LinaEngine::Graphics
 	{
 		m_meshes.clear();
 		m_materialSpecArray.clear();
+	}
+
+	void Model::GenerateMeshChildren(ECS::ECSRegistry& reg, ECS::ECSEntity parent, const std::string& modelPath, const std::vector<std::string>& materialPaths)
+	{
+		reg.DestroyAllChildren(parent);
+
+		for (int i = 0; i < m_meshes.size(); i++)
+		{
+			auto& mesh = m_meshes[i];
+			ECS::ECSEntity newEntity = reg.CreateEntity(mesh.GetName());
+			reg.AddChildToEntity(parent, newEntity);
+			auto& mr = reg.emplace<ECS::MeshRendererComponent>(newEntity);
+			mr.m_modelPath = modelPath;
+			mr.m_materialPath = materialPaths[mesh.GetMaterialSlotIndex()];
+			mr.m_meshIndex = i;
+			
+			if (ModelExists(mr.m_modelPath))
+				mr.m_modelID = GetModel(mr.m_modelPath).GetID();
+
+			if (Material::MaterialExists(mr.m_materialPath))
+				mr.m_materialID = Material::GetMaterial(mr.m_materialPath).GetID();
+
+		}
 	}
 
 	Model& Model::CreateModel(const std::string& filePath, ModelParameters meshParams, int id, const std::string& paramsPath)

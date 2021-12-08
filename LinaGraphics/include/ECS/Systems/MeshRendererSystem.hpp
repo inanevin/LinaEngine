@@ -102,12 +102,7 @@ namespace LinaEngine::ECS
 
 		MeshRendererSystem() {};
 
-		void Construct(ECSRegistry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn)
-		{
-			BaseECSSystem::Construct(registry);
-			m_renderEngine = &renderEngineIn;
-			s_renderDevice = &renderDeviceIn;
-		}
+		void Construct(ECSRegistry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn);
 
 		void RenderOpaque(Graphics::VertexArray& vertexArray, LinaEngine::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn);
 		void RenderTransparent(Graphics::VertexArray& vertexArray, LinaEngine::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn, float priority);
@@ -117,6 +112,8 @@ namespace LinaEngine::ECS
 		virtual void UpdateComponents(float delta) override;
 
 		void FlushSingleRenderer(MeshRendererComponent& mrc, TransformComponent& transform, Graphics::DrawParams drawParams);
+
+		void OnModelRendererRemoved(entt::registry& reg, entt::entity ent);
 
 	private:
 

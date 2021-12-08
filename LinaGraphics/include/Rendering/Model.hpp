@@ -40,7 +40,7 @@ Timestamp: 5/6/2019 4:23:45 PM
 #ifndef MODEL_HPP
 #define MODEL_HPP
 
-
+#include "ECS/ECS.hpp"
 #include "Rendering/Texture.hpp"
 #include "Rendering/Mesh.hpp"
 #include "Rendering/Material.hpp"
@@ -68,6 +68,9 @@ namespace LinaEngine::Graphics
 		static Model& GetPrimitive(Primitives primitive);
 		static void UnloadAll();
 		static std::map<int, Model>& GetLoadedModels() { return s_loadedMeshes; }
+
+		void GenerateMeshChildren(ECS::ECSRegistry& reg, ECS::ECSEntity parent, const std::string& modelPath, const std::vector<std::string>& materialPaths);
+
 
 		std::vector<Mesh>& GetMeshes()
 		{

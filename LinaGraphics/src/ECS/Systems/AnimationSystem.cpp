@@ -56,18 +56,18 @@ namespace LinaEngine::ECS
 			MeshRendererComponent& mr = view.get<MeshRendererComponent>(entity);
 			AnimationComponent& ar = view.get<AnimationComponent>(entity);
 
-			Graphics::Model& mesh = Graphics::Model::GetModel(mr.m_meshID);
-			Graphics::Skeleton& skeleton = mesh.GetSkeleton();
-
-			auto& meshAnimations = skeleton.GetAnimations();
-
-			if (meshAnimations.find(ar.m_animationName) != meshAnimations.end())
-			{
-				Graphics::Animation* anim = meshAnimations[ar.m_animationName];
-
-
-				
-			}
+			//Graphics::Model& mesh = Graphics::Model::GetModel(mr.m_meshID);
+			//Graphics::Skeleton& skeleton = mesh.GetSkeleton();
+			//
+			//auto& meshAnimations = skeleton.GetAnimations();
+			//
+			//if (meshAnimations.find(ar.m_animationName) != meshAnimations.end())
+			//{
+			//	Graphics::Animation* anim = meshAnimations[ar.m_animationName];
+			//
+			//
+			//	
+			//}
 		}
 	}
 }

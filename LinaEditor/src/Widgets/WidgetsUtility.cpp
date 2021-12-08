@@ -389,7 +389,7 @@ namespace LinaEditor
 	}
 
 
-	bool WidgetsUtility::IconButton(const char* id, const char* label, float width, float scale, const ImVec4& color, const ImVec4& hoverColor, const ImVec4& pressedColor)
+	bool WidgetsUtility::IconButton(const char* id, const char* label, float width, float scale, const ImVec4& color, const ImVec4& hoverColor, const ImVec4& pressedColor, bool disabled)
 	{
 		if (width != 0.0f)
 			ImGui::SetNextItemWidth(width);
@@ -397,17 +397,25 @@ namespace LinaEditor
 		bool isHovered = std::get<0>(s_iconButtons[id]);
 		bool isPressed = std::get<1>(s_iconButtons[id]);
 
+		if (!disabled)
+		{
+			Icon(label, scale, isPressed ? pressedColor : (isHovered ? hoverColor : color));
+			bool pressed = ImGui::IsItemClicked();
+			bool hovered = ImGui::IsItemHovered();
+			bool beingPressed = hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
+			bool released = hovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left);
+			std::get<0>(s_iconButtons[id]) = hovered;
+			std::get<1>(s_iconButtons[id]) = hovered && beingPressed;
+			return released;
+		}
+		else
+		{
+			ImVec4 disabledColor = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+			Icon(label, scale, disabledColor);
+			return false;
+		}
+		
 
-		Icon(label, scale, isPressed ? pressedColor : (isHovered ? hoverColor : color));
-
-		bool pressed = ImGui::IsItemClicked();
-		bool hovered = ImGui::IsItemHovered();
-		bool beingPressed = hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left);
-		bool released = hovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left);
-		std::get<0>(s_iconButtons[id]) = hovered;
-		std::get<1>(s_iconButtons[id]) = hovered && beingPressed;
-
-		return released;
 	}
 
 	bool WidgetsUtility::Button(const char* label, const ImVec2& size)

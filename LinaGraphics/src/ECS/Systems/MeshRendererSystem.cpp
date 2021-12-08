@@ -29,6 +29,7 @@ SOFTWARE.
 #include "ECS/Systems/MeshRendererSystem.hpp"
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
+#include "ECS/Components/ModelRendererComponent.hpp"
 #include "Rendering/Model.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Material.hpp"
@@ -45,39 +46,41 @@ namespace LinaEngine::ECS
 		for (auto entity : view)
 		{
 			MeshRendererComponent& renderer = view.get<MeshRendererComponent>(entity);
-			if (!renderer.m_isEnabled || renderer.m_excludeFromDrawList || renderer.m_materialID.size() == 0 || renderer.m_meshID < 0) continue;
+			if (!renderer.m_isEnabled || renderer.m_excludeFromDrawList || renderer.m_materialID < 0 || renderer.m_meshIndex < 0) continue;
 
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 
 			// We get the materials, then according to their surface types we add the model
 			// data into either opaque queue or the transparent queue.
-			Graphics::Model& model = LinaEngine::Graphics::Model::GetModel(renderer.m_meshID);
+			Graphics::Model& model = LinaEngine::Graphics::Model::GetModel(renderer.m_modelID);
 
-			auto& meshes = model.GetMeshes();
-			for (int i = 0; i < meshes.size(); i++)
+			auto& mesh = model.GetMeshes()[renderer.m_meshIndex];
+			uint32 materialSlot = mesh.GetMaterialSlotIndex();
+
+			if (!Graphics::Material::MaterialExists(renderer.m_materialID)) continue;
+
+			Graphics::Material& mat = LinaEngine::Graphics::Material::GetMaterial(renderer.m_materialID);
+
+			if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
+				RenderOpaque(mesh.GetVertexArray(), model.GetSkeleton(), mat, transform.transform.ToMatrix());
+			else
 			{
-				auto& mesh = meshes[i];
-				uint32 materialSlot = mesh.GetMaterialSlotIndex();
-
-				if (!Graphics::Material::MaterialExists(renderer.m_materialID[materialSlot])) continue;
-
-				Graphics::Material& mat = LinaEngine::Graphics::Material::GetMaterial(renderer.m_materialID[materialSlot]);
-				
-				if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
-					RenderOpaque(mesh.GetVertexArray(), model.GetSkeleton(), mat, transform.transform.ToMatrix());
-				else
-				{
-					// Transparent queue is a priority queue unlike the opaque one, so we set the priority as distance to the camera.
-					float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - transform.transform.GetLocation()).MagnitudeSqrt();
-					RenderTransparent(mesh.GetVertexArray(), model.GetSkeleton(), mat, transform.transform.ToMatrix(), priority);
-
-				}
-
+				// Transparent queue is a priority queue unlike the opaque one, so we set the priority as distance to the camera.
+				float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - transform.transform.GetLocation()).MagnitudeSqrt();
+				RenderTransparent(mesh.GetVertexArray(), model.GetSkeleton(), mat, transform.transform.ToMatrix(), priority);
 
 			}
 
 		}
 
+	}
+
+	void MeshRendererSystem::Construct(ECSRegistry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn)
+	{
+		BaseECSSystem::Construct(registry);
+		m_renderEngine = &renderEngineIn;
+		s_renderDevice = &renderDeviceIn;
+		registry.on_destroy<ModelRendererComponent>().connect<&MeshRendererSystem::OnModelRendererRemoved>(this);
 	}
 
 	void MeshRendererSystem::RenderOpaque(Graphics::VertexArray& vertexArray, LinaEngine::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn)
@@ -92,7 +95,7 @@ namespace LinaEngine::ECS
 
 		if (skeleton.IsLoaded())
 		{
-			
+
 		}
 
 
@@ -113,7 +116,7 @@ namespace LinaEngine::ECS
 
 		if (skeleton.IsLoaded())
 		{
-			
+
 		}
 
 
@@ -176,19 +179,19 @@ namespace LinaEngine::ECS
 
 	void MeshRendererSystem::FlushSingleRenderer(ECS::MeshRendererComponent& mrc, ECS::TransformComponent& tr, Graphics::DrawParams drawParams)
 	{
-		if (!Graphics::Model::ModelExists(mrc.m_meshID))
+		if (!Graphics::Model::ModelExists(mrc.m_modelID))
 		{
 			LINA_CORE_WARN("Mesh or material does not exists for this renderer, aborting single flush.");
 			return;
 		}
 
 
-		Graphics::Model& model = Graphics::Model::GetModel(mrc.m_meshID);
+		Graphics::Model& model = Graphics::Model::GetModel(mrc.m_modelID);
 		for (int i = 0; i < model.GetMeshes().size(); i++)
 		{
-			if (!Graphics::Material::MaterialExists(mrc.m_materialID[i])) continue;
+			if (!Graphics::Material::MaterialExists(mrc.m_materialID)) continue;
 
-			Graphics::Material& mat = Graphics::Material::GetMaterial(mrc.m_materialID[i]);
+			Graphics::Material& mat = Graphics::Material::GetMaterial(mrc.m_materialID);
 
 			auto& mesh = model.GetMeshes()[i];
 			auto& va = mesh.GetVertexArray();
@@ -200,6 +203,11 @@ namespace LinaEngine::ECS
 		}
 
 
+	}
+
+	void MeshRendererSystem::OnModelRendererRemoved(entt::registry& reg, entt::entity ent)
+	{
+		m_ecs->DestroyAllChildren(ent);
 	}
 
 	void MeshRendererSystem::FlushTransparent(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)

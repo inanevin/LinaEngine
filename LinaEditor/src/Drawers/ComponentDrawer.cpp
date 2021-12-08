@@ -96,8 +96,13 @@ namespace LinaEditor
 		// Iterate registered types & add as eligible if entity does not contain the type.
 		for (std::map<ECSTypeID, ComponentValueTuple>::iterator it = m_componentFunctionsMap.begin(); it != m_componentFunctionsMap.end(); ++it)
 		{
+			// Exclusion
+			if (std::get<0>(it->second).compare("Mesh Renderer") == 0) continue;
+
 			if (std::find(typeIDs.begin(), typeIDs.end(), it->first) == typeIDs.end())
+			{
 				eligibleTypes.push_back(std::get<0>(it->second));
+			}
 		}
 
 		return eligibleTypes;
@@ -146,12 +151,15 @@ namespace LinaEditor
 		}
 	}
 
-	bool ComponentDrawer::DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor, const ImVec2& iconOffset, bool alwaysEnabled)
+	bool ComponentDrawer::DrawComponentTitle(LinaEngine::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor, const ImVec2& iconOffset, bool alwaysEnabled, bool hardcodedComponent)
 	{
 		// Caret button.
-		const char* caret = *foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
-		if (WidgetsUtility::IconButtonNoDecoration(caret, 30, 0.8f))
-			*foldoutOpen = !*foldoutOpen;
+		if (!hardcodedComponent)
+		{
+			const char* caret = *foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
+			if (WidgetsUtility::IconButtonNoDecoration(caret, 30, 0.8f))
+				*foldoutOpen = !*foldoutOpen;
+		}
 
 		// Title.
 		ImGui::SameLine();
@@ -211,7 +219,7 @@ namespace LinaEditor
 		else
 			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 43);
 		WidgetsUtility::IncrementCursorPosY(4);
-		*refreshPressed = WidgetsUtility::IconButton(buf.c_str(), ICON_FA_SYNC_ALT, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header));
+		*refreshPressed = WidgetsUtility::IconButton(buf.c_str(), ICON_FA_SYNC_ALT, 0.0f, 0.6f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header), hardcodedComponent);
 
 		// Close button
 		if (!alwaysEnabled)
@@ -770,126 +778,17 @@ namespace LinaEditor
 		MeshRendererComponent& renderer = ecs.get<MeshRendererComponent>(entity);
 		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
 		ECSTypeID id = GetTypeID<MeshRendererComponent>();
-
+		
 		// Align.
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
 		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
 
-		// Draw title.
 		bool refreshPressed = false;
-		bool removeComponent = ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<MeshRendererComponent>(), "MeshRenderer", ICON_MD_GRID_ON, &refreshPressed, &renderer.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
-
-		// Remove if requested.
-		if (removeComponent)
-		{
-			ecs.remove<MeshRendererComponent>(entity);
-			return;
-		}
-
-		// Refresh
-		if (refreshPressed)
-			ecs.replace<MeshRendererComponent>(entity, MeshRendererComponent());
-
-		// Draw component.
-		if (m_foldoutStateMap[entity][id])
-		{
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFOREVAL);
-			float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
-			float cursorPosLabels = CURSORPOS_X_LABELS;
-
-			// Mesh selection
-			char meshPathC[128] = "";
-			strcpy(meshPathC, renderer.m_meshPath.c_str());
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Mesh");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
-			ImGui::InputText("##selectedMesh", meshPathC, IM_ARRAYSIZE(meshPathC), ImGuiInputTextFlags_ReadOnly);
-			ImGui::SameLine();
-			WidgetsUtility::IncrementCursorPosY(5);
-
-			// Mesh drag & drop.
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMESH_ID))
-				{
-					IM_ASSERT(payload->DataSize == sizeof(uint32));
-
-					auto& model = LinaEngine::Graphics::Model::GetModel(*(uint32*)payload->m_data);
-					renderer.m_meshID = model.GetID();
-					renderer.m_meshPath = model.GetPath();
-					renderer.m_materialID.clear();
-					renderer.m_materialPath.clear();
-					renderer.m_materialID.resize(model.GetMaterialSpecs().size());
-					renderer.m_materialPath.resize(model.GetMaterialSpecs().size());
-				}
-				ImGui::EndDragDropTarget();
-			}
-
-			if (WidgetsUtility::IconButton("##selectmesh", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-			{
-				renderer.m_meshID = -1;
-				renderer.m_meshPath = "";
-			}
-
-			for (int i = 0; i < renderer.m_materialPath.size(); i++)
-			{
-				// Material selection.
-				char matPathC[128] = "";
-				strcpy(matPathC, renderer.m_materialPath[i].c_str());
-
-				ImGui::SetCursorPosX(cursorPosLabels);
-				std::string materialName = LinaEngine::Graphics::Model::GetModel(renderer.m_meshPath).GetMaterialSpecs()[i].m_name;
-				WidgetsUtility::AlignedText(materialName.c_str());
-				ImGui::SameLine();
-				ImGui::SetCursorPosX(cursorPosValues);
-				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
-
-				std::string selectedMat = "##selectedMath" + std::to_string(i);
-				ImGui::InputText(selectedMat.c_str(), matPathC, IM_ARRAYSIZE(matPathC), ImGuiInputTextFlags_ReadOnly);
-				ImGui::SameLine();
-				WidgetsUtility::IncrementCursorPosY(5);
-
-
-				// Material drag & drop.
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
-					{
-						IM_ASSERT(payload->DataSize == sizeof(uint32));
-						renderer.m_materialID[i] = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetID();
-						renderer.m_materialPath[i] = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetPath();
-
-					}
-					ImGui::EndDragDropTarget();
-				}
-
-				std::string icnBtn = "##selectmat" + std::to_string(i);
-				if (WidgetsUtility::IconButton(icnBtn.c_str(), ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
-				{
-					renderer.m_materialID[i] = -1;
-					renderer.m_materialPath[i] = "";
-				}
-
-			}
+		ComponentDrawer::s_activeInstance->DrawComponentTitle(GetTypeID<ModelRendererComponent>(), "MeshRenderer", ICON_MD_GRID_ON, &refreshPressed, &renderer.m_isEnabled, &m_foldoutStateMap[entity][id], ImGui::GetStyleColorVec4(ImGuiCol_Header), ImVec2(0, 3));
 		
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
-
-			if (ImGui::Button("Set World To Model Offset"))
-			{
-				if (Graphics::Model::ModelExists(renderer.m_meshPath))
-				{
-					ecs.get<TransformComponent>(entity).transform.SetLocalLocation(Graphics::Model::GetModel(renderer.m_meshPath).GetWorldParameters().m_worldPosition);
-					ecs.get<TransformComponent>(entity).transform.SetLocalRotation(Graphics::Model::GetModel(renderer.m_meshPath).GetWorldParameters().m_worldRotation);
-					ecs.get<TransformComponent>(entity).transform.SetLocalScale(Graphics::Model::GetModel(renderer.m_meshPath).GetWorldParameters().m_worldScale);
-				}
-			}
-		}
-
-
+		// Align.
+		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
+		WidgetsUtility::IncrementCursorPosX(CURSORPOS_X_LABELS);
 
 		// Draw bevel line.
 		WidgetsUtility::DrawBeveledLine();
@@ -955,6 +854,11 @@ namespace LinaEditor
 					renderer.m_materialPath.clear();
 					renderer.m_materialID.resize(model.GetMaterialSpecs().size());
 					renderer.m_materialPath.resize(model.GetMaterialSpecs().size());
+
+					if (Graphics::Model::ModelExists(renderer.m_modelPath))
+					{
+						Graphics::Model::GetModel(renderer.m_modelPath).GenerateMeshChildren(ecs, entity, renderer.m_modelPath, renderer.m_materialPath);
+					}
 				}
 				ImGui::EndDragDropTarget();
 			}
@@ -963,6 +867,10 @@ namespace LinaEditor
 			{
 				renderer.m_modelID = -1;
 				renderer.m_modelPath = "";
+				renderer.m_materialID.clear();
+				renderer.m_materialPath.clear();
+
+				ecs.DestroyAllChildren(entity);
 			}
 
 			for (int i = 0; i < renderer.m_materialPath.size(); i++)
@@ -992,7 +900,24 @@ namespace LinaEditor
 						IM_ASSERT(payload->DataSize == sizeof(uint32));
 						renderer.m_materialID[i] = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetID();
 						renderer.m_materialPath[i] = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetPath();
+						std::set<ECSEntity>::iterator it;
+						std::set<ECSEntity> children = ecs.get<ECSEntityData>(entity).m_children;
+						auto& model = LinaEngine::Graphics::Model::GetModel(renderer.m_modelID);
 
+						int childrenIndex = 0;
+						for (it = children.begin(); it != children.end(); ++it)
+						{
+							MeshRendererComponent* mr = ecs.try_get<MeshRendererComponent>(*it);
+							if (mr != nullptr)
+							{
+								if (i == model.GetMeshes()[childrenIndex].GetMaterialSlotIndex())
+								{
+									mr->m_materialID = renderer.m_materialID[i];
+									mr->m_materialPath = renderer.m_materialPath[i];
+								}
+							}
+							childrenIndex++;
+						}
 					}
 					ImGui::EndDragDropTarget();
 				}
@@ -1002,6 +927,23 @@ namespace LinaEditor
 				{
 					renderer.m_materialID[i] = -1;
 					renderer.m_materialPath[i] = "";
+					std::set<ECSEntity>::iterator it;
+					std::set<ECSEntity> children = ecs.get<ECSEntityData>(entity).m_children;
+					auto& model = LinaEngine::Graphics::Model::GetModel(renderer.m_modelID);
+					int childrenIndex = 0;
+					for (it = children.begin(); it != children.end(); ++it)
+					{
+						MeshRendererComponent* mr = ecs.try_get<MeshRendererComponent>(*it);
+						if (mr != nullptr)
+						{
+							if (i == model.GetMeshes()[childrenIndex].GetMaterialSlotIndex())
+							{
+								mr->m_materialID = -1;
+								mr->m_materialPath = "";
+							}
+						}
+						childrenIndex++;
+					}
 				}
 
 			}
@@ -1009,15 +951,7 @@ namespace LinaEditor
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 
-			if (ImGui::Button("Set World To Model Offset"))
-			{
-				if (Graphics::Model::ModelExists(renderer.m_modelPath))
-				{
-					ecs.get<TransformComponent>(entity).transform.SetLocalLocation(Graphics::Model::GetModel(renderer.m_modelPath).GetWorldParameters().m_worldPosition);
-					ecs.get<TransformComponent>(entity).transform.SetLocalRotation(Graphics::Model::GetModel(renderer.m_modelPath).GetWorldParameters().m_worldRotation);
-					ecs.get<TransformComponent>(entity).transform.SetLocalScale(Graphics::Model::GetModel(renderer.m_modelPath).GetWorldParameters().m_worldScale);
-				}
-			}
+
 		}
 
 

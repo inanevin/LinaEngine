@@ -81,6 +81,22 @@ namespace LinaEngine::ECS
 		childData.m_parent = parent;
 	}
 
+	void ECSRegistry::DestroyAllChildren(ECSEntity parent)
+	{
+		ECSEntityData* data = try_get<ECSEntityData>(parent);
+
+		if (data == nullptr) return;
+
+		std::set<ECSEntity> children = data->m_children;
+		std::set<ECSEntity>::iterator it;
+		for (it = children.begin(); it != children.end(); ++it)
+		{
+			DestroyEntity(*it);
+		}
+		data->m_children.clear();
+		LINA_CORE_TRACE("Child count {0}", get<ECSEntityData>(parent).m_children.size());
+	}
+
 	void ECSRegistry::RemoveChildFromEntity(ECSEntity parent, ECSEntity child)
 	{
 		std::set<ECSEntity>& children = get<ECSEntityData>(parent).m_children;

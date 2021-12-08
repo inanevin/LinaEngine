@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -74,6 +74,13 @@ namespace LinaEngine::Graphics
 
 		uint32 GetMaterialSlotIndex() { return m_materialSlot; }
 
+		void SetName(const std::string& name)
+		{
+			m_name = name;
+		}
+
+		std::string& GetName() { return m_name; }
+
 		void AddIndices(uint32 i0, uint32 i1, uint32 i2);
 		uint32 GetIndexCount() const { return m_indices.size(); }
 		VertexArray& GetVertexArray() { return m_vertexArray; }
@@ -84,6 +91,7 @@ namespace LinaEngine::Graphics
 	private:
 
 		// Index & element data.
+		std::string m_name = "";
 		std::vector<uint32> m_indices;
 		std::vector<BufferData> m_bufferElements;
 		VertexArray m_vertexArray;

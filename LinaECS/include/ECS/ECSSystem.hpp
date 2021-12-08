@@ -93,6 +93,7 @@ namespace LinaEngine::ECS
 
 		void Refresh();
 		void AddChildToEntity(ECSEntity parent, ECSEntity child);
+		void DestroyAllChildren(ECSEntity parent);
 		void RemoveChildFromEntity(ECSEntity parent, ECSEntity child);
 		void RemoveFromParent(ECSEntity child);
 		void CloneEntity(ECSEntity from, ECSEntity to);

@@ -69,7 +69,7 @@ namespace LinaEditor
 		static void ScreenPosLine();
 		static void Icon(const char* label, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 1));
 		static bool IconButtonNoDecoration(const char* label, float width = 0.0f, float scale = 0.6f);
-		static bool IconButton(const char* id, const char* label, float width = 0.0f, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 0.6f), const ImVec4& hoverColor = ImVec4(1,1,1,.8f), const ImVec4& pressedColor = ImVec4(1, 1, 1, 1.0f));
+		static bool IconButton(const char* id, const char* label, float width = 0.0f, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 0.6f), const ImVec4& hoverColor = ImVec4(1,1,1,.8f), const ImVec4& pressedColor = ImVec4(1, 1, 1, 1.0f), bool disabled = false);
 		static bool Button(const char* label, const ImVec2& size = ImVec2(0,0));
 		static bool InputQuaternion(const char* label, LinaEngine::Quaternion& v);
 		static bool DragQuaternion(const char* label, LinaEngine::Quaternion& v);

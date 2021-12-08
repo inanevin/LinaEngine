@@ -112,6 +112,7 @@ namespace LinaEngine::Graphics
 		
 			// Build and indexed aiMesh for each aiMesh & fill in the data.
 			Mesh currentMesh;
+			currentMesh.SetName(scene->mMeshes[j]->mName.C_Str());
 			currentMesh.SetMaterialSlot(scene->mMeshes[j]->mMaterialIndex);
 			currentMesh.AllocateElement(3, 0, true); // Positions
 			currentMesh.AllocateElement(2, 1, true); // TexCoords

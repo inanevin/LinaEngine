@@ -62,7 +62,7 @@ namespace LinaEngine::World
 	{
 		ECS::ECSRegistry& ecs = Application::GetECSRegistry();
 
-		auto view = ecs.view<ECS::MeshRendererComponent>();
+		/*auto view = ecs.view<ECS::MeshRendererComponent>();
 
 		for (ECS::ECSEntity entity : view)
 		{
@@ -121,7 +121,7 @@ namespace LinaEngine::World
 			}
 			else
 				mr.m_meshID = Graphics::Model::GetModel(mr.m_meshPath).GetID();
-		}
+		}*/
 
 		auto viewSprites = ecs.view<ECS::SpriteRendererComponent>();
 

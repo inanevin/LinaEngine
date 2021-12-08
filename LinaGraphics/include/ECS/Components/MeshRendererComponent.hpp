@@ -44,18 +44,25 @@ namespace LinaEngine::ECS
 {
 	struct MeshRendererComponent : public ECSComponent
 	{
-
-		int m_meshID = -1;
-		std::vector<int> m_materialID;
+		std::string m_modelPath = "";
+		std::string m_materialPath = "";
+		int m_modelID = -1;
+		int m_materialID = -1;
+		int m_meshIndex = -1;
 		bool m_excludeFromDrawList = false;
-		std::string m_meshPath = "";
-		std::vector<std::string> m_materialPath;
-		std::string m_meshParamsPath = "";
+
+	
+		// 	int m_meshID = -1;
+		//std::vector<int> m_materialID;
+		//
+		//std::string m_meshPath = "";
+		//std::vector<std::string> m_materialPath;
+		//std::string m_meshParamsPath = "";
 
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_excludeFromDrawList, m_meshPath, m_meshParamsPath, m_materialPath, m_isEnabled);
+			archive(m_excludeFromDrawList,m_modelPath, m_materialPath, m_isEnabled);
 		}
 	};
 }
