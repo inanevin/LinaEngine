@@ -37,6 +37,7 @@ SOFTWARE.
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
+#include "ECS/Components/ModelRendererComponent.hpp"
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/xml.hpp>
 #include <stdio.h>
@@ -62,6 +63,7 @@ namespace LinaEngine::World
 	{
 		ECS::ECSRegistry& ecs = Application::GetECSRegistry();
 
+		auto view = ecs.view<ECS::ModelRendererComponent>();
 		/*auto view = ecs.view<ECS::MeshRendererComponent>();
 
 		for (ECS::ECSEntity entity : view)

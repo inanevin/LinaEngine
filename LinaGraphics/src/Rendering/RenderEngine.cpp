@@ -32,9 +32,10 @@ SOFTWARE.
 #include "Rendering/RenderConstants.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/ArrayBitmap.hpp"
-#include "ECS/Components/CameraComponent.hpp"
 #include "ECS/ECS.hpp"
 #include "Utility/UtilityFunctions.hpp"
+#include "ECS/Components/CameraComponent.hpp"
+#include "ECS/Components/ModelRendererComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "PackageManager/OpenGL/GLRenderDevice.hpp"
@@ -90,6 +91,7 @@ namespace LinaEngine::Graphics
 		ecsReg.RegisterComponentToClone<LinaEngine::ECS::SpotLightComponent>();
 		ecsReg.RegisterComponentToClone<LinaEngine::ECS::DirectionalLightComponent>();
 		ecsReg.RegisterComponentToClone<LinaEngine::ECS::MeshRendererComponent>();
+		ecsReg.RegisterComponentToClone<LinaEngine::ECS::ModelRendererComponent>();
 		ecsReg.RegisterComponentToClone<LinaEngine::ECS::SpriteRendererComponent>();
 
 		// Set references.

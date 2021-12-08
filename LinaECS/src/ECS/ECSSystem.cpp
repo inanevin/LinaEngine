@@ -85,7 +85,6 @@ namespace LinaEngine::ECS
 	void ECSRegistry::DestroyAllChildren(ECSEntity parent)
 	{
 		EntityDataComponent* data = try_get<EntityDataComponent>(parent);
-		LINA_CORE_TRACE("Destroy All Children called");
 
 		if (data == nullptr) return;
 
@@ -94,12 +93,10 @@ namespace LinaEngine::ECS
 		std::set<ECSEntity>::iterator it;
 		for (it = children.begin(); it != children.end(); ++it)
 		{
-			LINA_CORE_TRACE("Destroy Entity Called {0}", counter);
 			DestroyEntity(*it);
 			counter++;
 		}
 		data->m_children.clear();
-		LINA_CORE_TRACE("Child count {0}", get<EntityDataComponent>(parent).m_children.size());
 	}
 
 	void ECSRegistry::RemoveChildFromEntity(ECSEntity parent, ECSEntity child)
