@@ -39,6 +39,7 @@ SOFTWARE.
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Modals/SelectMeshModal.hpp"
 #include "Modals/SelectMaterialModal.hpp"
@@ -901,7 +902,7 @@ namespace LinaEditor
 						renderer.m_materialID[i] = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetID();
 						renderer.m_materialPath[i] = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetPath();
 						std::set<ECSEntity>::iterator it;
-						std::set<ECSEntity> children = ecs.get<ECSEntityData>(entity).m_children;
+						std::set<ECSEntity> children = ecs.get<EntityDataComponent>(entity).m_children;
 						auto& model = LinaEngine::Graphics::Model::GetModel(renderer.m_modelID);
 
 						int childrenIndex = 0;
@@ -928,7 +929,7 @@ namespace LinaEditor
 					renderer.m_materialID[i] = -1;
 					renderer.m_materialPath[i] = "";
 					std::set<ECSEntity>::iterator it;
-					std::set<ECSEntity> children = ecs.get<ECSEntityData>(entity).m_children;
+					std::set<ECSEntity> children = ecs.get<EntityDataComponent>(entity).m_children;
 					auto& model = LinaEngine::Graphics::Model::GetModel(renderer.m_modelID);
 					int childrenIndex = 0;
 					for (it = children.begin(); it != children.end(); ++it)

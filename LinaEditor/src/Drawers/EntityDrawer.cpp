@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "Modals/SelectComponentModal.hpp"
 #include "Drawers/ComponentDrawer.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "IconsFontAwesome5.h"
 
 namespace LinaEditor
@@ -62,7 +63,7 @@ namespace LinaEditor
 		{
 			m_shouldCopyEntityName = false;
 			memset(entityName, 0, sizeof entityName);
-			std::string str = ecs.get<LinaEngine::ECS::ECSEntityData>(m_selectedEntity).m_name;
+			std::string str = ecs.get<LinaEngine::ECS::EntityDataComponent>(m_selectedEntity).m_name;
 			std::copy(str.begin(), str.end(), entityName);
 		}
 
@@ -71,7 +72,7 @@ namespace LinaEditor
 		WidgetsUtility::IncrementCursorPosY(-5);
 		ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
 		ImGui::InputText("##ename", entityName, IM_ARRAYSIZE(entityName));
-		ecs.get<LinaEngine::ECS::ECSEntityData>(m_selectedEntity).m_name = entityName;
+		ecs.get<LinaEngine::ECS::EntityDataComponent>(m_selectedEntity).m_name = entityName;
 		WidgetsUtility::PopStyleVar();
 
 		// Entity enabled toggle button.

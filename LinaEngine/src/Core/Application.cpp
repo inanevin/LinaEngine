@@ -36,7 +36,7 @@ SOFTWARE.
 #include "Core/Layer.hpp"
 #include "World/DefaultLevel.hpp"
 #include "Core/Timer.hpp"
-
+#include "ECS/Components/EntityDataComponent.hpp"
 
 namespace LinaEngine
 {
@@ -110,7 +110,7 @@ namespace LinaEngine
 		s_audioEngine->Initialize();
 
 		// Register ECS components for cloning functionality.
-		s_ecs.RegisterComponentToClone<ECS::ECSEntityData>();
+		s_ecs.RegisterComponentToClone<ECS::EntityDataComponent>();
 		s_ecs.RegisterComponentToClone<ECS::TransformComponent>();
 
 		m_deltaTimeArray.fill(-1.0);

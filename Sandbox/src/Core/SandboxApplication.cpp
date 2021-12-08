@@ -32,6 +32,7 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include "ECS/Components/RigidbodyComponent.hpp"
 #include "Game/GameManager.hpp"
 #include "Editor/ClientComponentDrawer.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 
 
 class SandboxApplication : public LinaEngine::Application
@@ -95,7 +96,7 @@ class SandboxApplication : public LinaEngine::Application
 			entt::snapshot{ registry }
 				.entities(oarchive)
 				.component<
-				LinaEngine::ECS::ECSEntityData,
+				LinaEngine::ECS::EntityDataComponent,
 				LinaEngine::ECS::CameraComponent,
 				LinaEngine::ECS::FreeLookComponent,
 				LinaEngine::ECS::PointLightComponent,
@@ -113,7 +114,7 @@ class SandboxApplication : public LinaEngine::Application
 			entt::snapshot_loader{ registry }
 				.entities(iarchive)
 				.component<
-				LinaEngine::ECS::ECSEntityData,
+				LinaEngine::ECS::EntityDataComponent,
 				LinaEngine::ECS::CameraComponent,
 				LinaEngine::ECS::FreeLookComponent,
 				LinaEngine::ECS::PointLightComponent,

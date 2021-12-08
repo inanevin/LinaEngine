@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Panels/ECSPanel.hpp"
 #include "Panels/ScenePanel.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "Core/GUILayer.hpp"
 #include "Utility/Log.hpp"
 #include "Widgets/WidgetsUtility.hpp"
@@ -55,7 +56,7 @@ namespace LinaEditor
 	void ECSPanel::DrawEntityNode(int id, LinaEngine::ECS::ECSEntity entity)
 	{
 		LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
-		LinaEngine::ECS::ECSEntityData& data = ecs.get<LinaEngine::ECS::ECSEntityData>(entity);
+		LinaEngine::ECS::EntityDataComponent& data = ecs.get<LinaEngine::ECS::EntityDataComponent>(entity);
 		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 		static ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth;
 		ImGuiTreeNodeFlags flags = data.m_children.size() == 0 ? leaf_flags : base_flags;
@@ -154,11 +155,11 @@ namespace LinaEditor
 				WidgetsUtility::FramePadding(ImVec2(0, 0));
 				WidgetsUtility::IncrementCursorPosY(7);
 				int entityCounter = 0;
-				auto singleView = ecs.view<LinaEngine::ECS::ECSEntityData>();
+				auto singleView = ecs.view<LinaEngine::ECS::EntityDataComponent>();
 
 				for (auto entity : singleView)
 				{
-					LinaEngine::ECS::ECSEntityData& data = ecs.get<LinaEngine::ECS::ECSEntityData>(entity);
+					LinaEngine::ECS::EntityDataComponent& data = ecs.get<LinaEngine::ECS::EntityDataComponent>(entity);
 
 					if (data.m_parent == entt::null)
 						DrawEntityNode(entityCounter, entity);

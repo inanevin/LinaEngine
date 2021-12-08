@@ -171,6 +171,15 @@ namespace LinaEngine
 		bool HasParent() { return m_parent != nullptr; }
 		const std::set<Transformation*>& GetChildren() { return m_children; }
 
+		Vector3 m_location = Vector3::Zero;
+		Quaternion m_rotation;
+		Vector3 m_rotationAngles = Vector3::Zero;
+		Vector3 m_scale = Vector3::One;
+		Vector3 m_localLocation = Vector3::Zero;
+		Quaternion m_localRotation;
+		Vector3 m_localScale = Vector3::One;
+		Vector3 m_localRotationAngles = Vector3::Zero;
+
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
@@ -194,14 +203,7 @@ namespace LinaEngine
 	private:
 
 
-		Vector3 m_location = Vector3::Zero;
-		Quaternion m_rotation;
-		Vector3 m_rotationAngles = Vector3::Zero;
-		Vector3 m_scale = Vector3::One;
-		Vector3 m_localLocation = Vector3::Zero;
-		Quaternion m_localRotation;
-		Vector3 m_localScale = Vector3::One;
-		Vector3 m_localRotationAngles = Vector3::Zero;
+		
 
 		Transformation* m_parent = nullptr;
 		std::set<Transformation*> m_children;

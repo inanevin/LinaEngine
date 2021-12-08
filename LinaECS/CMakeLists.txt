@@ -24,6 +24,7 @@ set(CMAKE_CXX_STANDARD 17)
 set (LINAECS_SOURCES
 	# ECS 
 	src/ECS/ECSSystem.cpp
+	src/ECS/Components/EntityDataComponent.cpp
 )
 
 #--------------------------------------------------------------------
@@ -31,7 +32,9 @@ set (LINAECS_SOURCES
 #--------------------------------------------------------------------
 set(LINAECS_HEADERS
 	#ECS
+	include/ECS/Components/EntityDataComponent.hpp
 	include/ECS/Components/TransformComponent.hpp
+
 	include/ECS/ECSSystem.hpp
 	include/ECS/ECS.hpp
 	include/ECS/ECSComponent.hpp

@@ -35,6 +35,7 @@ SOFTWARE.
 #include "ECS/Components/TransformComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Systems/FreeLookSystem.hpp"
 #include "Core/EditorCommon.hpp"
 using namespace LinaEngine::ECS;
@@ -96,7 +97,7 @@ namespace LinaEditor
 	{
 		ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
 
-		auto singleView = ecs.view<LinaEngine::ECS::ECSEntityData>();
+		auto singleView = ecs.view<LinaEngine::ECS::EntityDataComponent>();
 
 		if (ecs.GetEntity(EDITOR_CAMERA_NAME) == entt::null)
 		{
