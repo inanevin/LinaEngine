@@ -47,7 +47,7 @@ namespace LinaEngine::Graphics
 
 
 		m_vertexArrays.clear();
-		m_indexedModelArray.clear();
+		m_meshes.clear();
 		m_materialSpecArray.clear();
 		m_materialIndexArray.clear();
 	}
@@ -61,7 +61,7 @@ namespace LinaEngine::Graphics
 		mesh.SetParameters(meshParams);
 		ModelLoader::LoadModel(filePath, &mesh, meshParams);
 
-		if (mesh.GetIndexedModels().size() == 0)
+		if (mesh.GetMeshes().size() == 0)
 		{
 			LINA_CORE_WARN("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad...", filePath);
 			UnloadModel(id);
@@ -69,10 +69,10 @@ namespace LinaEngine::Graphics
 		}
 
 		// Build vertex array for each mesh.
-		for (uint32 i = 0; i < mesh.GetIndexedModels().size(); i++)
+		for (uint32 i = 0; i < mesh.GetMeshes().size(); i++)
 		{
 			VertexArray* vertexArray = new VertexArray();
-			vertexArray->Construct(RenderEngine::GetRenderDevice(), mesh.GetIndexedModels()[i], BufferUsage::USAGE_DYNAMIC_DRAW);
+			vertexArray->Construct(RenderEngine::GetRenderDevice(), mesh.GetMeshes()[i], BufferUsage::USAGE_DYNAMIC_DRAW);
 			mesh.GetVertexArrays().push_back(vertexArray);
 		}
 

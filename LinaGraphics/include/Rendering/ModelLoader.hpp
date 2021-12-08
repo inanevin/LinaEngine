@@ -29,7 +29,7 @@ SOFTWARE.
 /*
 Class: ModelLoader
 
-Assimp wrapper, responsible for loading modals and creating the necessary IndexedModel data.
+Assimp wrapper, responsible for loading modals and creating the necessary Mesh data.
 
 Timestamp: 4/26/2019 12:07:47 AM
 */
@@ -40,7 +40,7 @@ Timestamp: 4/26/2019 12:07:47 AM
 #define ModelLoader_HPP
 
 
-#include "IndexedModel.hpp"
+#include "Mesh.hpp"
 #include "Animation/Animation.hpp"
 #include "Material.hpp"
 #include "Animation/Skeleton.hpp"
@@ -56,8 +56,8 @@ namespace LinaEngine::Graphics
 
 		// Load models using ASSIMP
 		static bool LoadModel(const std::string& fileName, Model* mesh, MeshParameters meshParams);
-		static bool LoadQuad(IndexedModel& model);
-		static bool LoadPrimitive(std::vector<IndexedModel>& models, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords);
+		static bool LoadQuad(Mesh& model);
+		static bool LoadPrimitive(std::vector<Mesh>& models, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords);
 		static void SetVertexBoneData(std::vector<int>& vertexBoneIDs, std::vector<float>& vertexBoneWeights, int boneID, float weight);
 	};
 }

@@ -38,8 +38,8 @@ namespace LinaEngine::ECS
 		BaseECSSystem::Construct(registry);
 		m_renderEngine = &renderEngineIn;
 		s_renderDevice = &renderDeviceIn;
-		Graphics::ModelLoader::LoadQuad(m_quadModel);
-		m_spriteVertexArray.Construct(*s_renderDevice, m_quadModel, Graphics::BufferUsage::USAGE_STATIC_COPY);
+		Graphics::ModelLoader::LoadQuad(m_quadMesh);
+		m_spriteVertexArray.Construct(*s_renderDevice, m_quadMesh, Graphics::BufferUsage::USAGE_STATIC_COPY);
 	}
 
 	void SpriteRendererSystem::UpdateComponents(float delta)

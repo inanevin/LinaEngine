@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 /*
-Class: IndexedModel
+Class: Mesh
 
 Holds vertex, index, joint etc. data for model files.
 
@@ -36,20 +36,19 @@ Timestamp: 4/26/2019 12:11:36 AM
 
 #pragma once
 
-#ifndef IndexedModel_HPP
-#define IndexedModel_HPP
+#ifndef Mesh_HPP
+#define Mesh_HPP
 
 #include "Core/SizeDefinitions.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
 
 namespace LinaEngine::Graphics
 {
-
-	class IndexedModel
+	class Mesh
 	{
 	public:
 
-		IndexedModel() {}
+		Mesh() {}
 
 		// Creates a vertex array using render renderEngine.
 		uint32 CreateVertexArray(RenderDevice& engine, BufferUsage bufferUsage);

@@ -42,7 +42,7 @@ Timestamp: 4/26/2019 12:30:15 AM
 #include "Core/SizeDefinitions.hpp"
 #include "RenderingCommon.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
-#include "IndexedModel.hpp"
+#include "Mesh.hpp"
 
 namespace LinaEngine::Graphics
 {
@@ -57,7 +57,7 @@ namespace LinaEngine::Graphics
 			m_engineBoundID = s_renderDevice->ReleaseVertexArray(m_engineBoundID);
 		}
 	
-		void Construct(RenderDevice& deviceIn, IndexedModel& model, BufferUsage bufferUsage)
+		void Construct(RenderDevice& deviceIn, Mesh& model, BufferUsage bufferUsage)
 		{
 			s_renderDevice = &deviceIn;
 			m_engineBoundID = model.CreateVertexArray(deviceIn, bufferUsage);

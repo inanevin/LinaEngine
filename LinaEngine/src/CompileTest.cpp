@@ -114,7 +114,7 @@ SOFTWARE.
 //#include "Rendering/Shader.hpp"
 //#include "Rendering/Texture.hpp"
 //#include "Rendering/Window.hpp"
-//#include "Rendering/IndexedModel.hpp"
+//#include "Rendering/Mesh.hpp"
 //#include "Rendering/ModelLoader.hpp"
 //#include "Rendering/VertexArray.hpp"
 //#include "Rendering/Material.hpp"

@@ -29,7 +29,7 @@ set (LINAGRAPHICS_SOURCES
 	#Rendering
 	src/Rendering/ArrayBitmap.cpp
 	src/Rendering/Texture.cpp
-	src/Rendering/IndexedModel.cpp
+	src/Rendering/Mesh.cpp
 	src/Rendering/ModelLoader.cpp
 	src/Rendering/Material.cpp
 	src/Rendering/RenderEngine.cpp
@@ -67,7 +67,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/Shader.hpp
 	include/Rendering/Texture.hpp
 	include/Rendering/Window.hpp
-	include/Rendering/IndexedModel.hpp
+	include/Rendering/Mesh.hpp
 	include/Rendering/ModelLoader.hpp
 	include/Rendering/VertexArray.hpp
 	include/Rendering/Material.hpp

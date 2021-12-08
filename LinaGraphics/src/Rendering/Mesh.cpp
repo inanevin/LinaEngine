@@ -26,12 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Rendering/IndexedModel.hpp"  
+#include "Rendering/Mesh.hpp"  
 #include "PackageManager/PAMRenderDevice.hpp"
 
 namespace LinaEngine::Graphics
 {
-	void IndexedModel::AddElement(uint32 elementIndex, float e0)
+	void Mesh::AddElement(uint32 elementIndex, float e0)
 	{
 		LINA_CORE_ASSERT(elementIndex < m_elementSizes.size());
 
@@ -41,7 +41,7 @@ namespace LinaEngine::Graphics
 			m_bufferElements[elementIndex].m_intElements.push_back(e0);
 	}
 
-	void IndexedModel::AddElement(uint32 elementIndex, int e0)
+	void Mesh::AddElement(uint32 elementIndex, int e0)
 	{
 
 		if (m_bufferElements[elementIndex].m_isFloat)
@@ -51,19 +51,19 @@ namespace LinaEngine::Graphics
 	}
 
 
-	void IndexedModel::AddIndices(uint32 i0, uint32 i1, uint32 i2)
+	void Mesh::AddIndices(uint32 i0, uint32 i1, uint32 i2)
 	{
 		m_indices.push_back(i0);
 		m_indices.push_back(i1);
 		m_indices.push_back(i2);
 	}
 
-	void IndexedModel::AllocateElement(uint32 elementSize, uint32 attrib, bool isFloat, bool isInstanced)
+	void Mesh::AllocateElement(uint32 elementSize, uint32 attrib, bool isFloat, bool isInstanced)
 	{
 		m_bufferElements.push_back(BufferData(elementSize, attrib, isFloat, isInstanced));
 	}
 
-	uint32 IndexedModel::CreateVertexArray(RenderDevice& renderDevice, BufferUsage bufferUsage)
+	uint32 Mesh::CreateVertexArray(RenderDevice& renderDevice, BufferUsage bufferUsage)
 	{
 		uint32 numVertices = m_bufferElements[0].m_floatElements.size() / m_bufferElements[0].m_elementSize;
 		uint32 numIndices = m_indices.size();

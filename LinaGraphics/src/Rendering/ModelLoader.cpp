@@ -57,7 +57,7 @@ namespace LinaEngine::Graphics
 	{
 		MeshSceneParameters& worldParams = mesh->GetWorldParameters();
 		auto& modelMaterialIndices = mesh->GetMaterialIndices();
-		auto& models = mesh->GetIndexedModels();
+		auto& models = mesh->GetMeshes();
 		auto& materials = mesh->GetMaterialSpecs();
 
 		// Get the importer & set assimp scene.
@@ -114,7 +114,7 @@ namespace LinaEngine::Graphics
 			modelMaterialIndices.push_back(model->mMaterialIndex);
 
 			// Build and indexed model for each mesh & fill in the data.
-			IndexedModel currentModel;
+			Mesh currentModel;
 			currentModel.AllocateElement(3, 0, true); // Positions
 			currentModel.AllocateElement(2, 1, true); // TexCoords
 			currentModel.AllocateElement(3, 2, true); // Normals
@@ -209,7 +209,7 @@ namespace LinaEngine::Graphics
 
 
 
-	bool ModelLoader::LoadQuad(IndexedModel& currentModel)
+	bool ModelLoader::LoadQuad(Mesh& currentModel)
 	{
 		// Build and indexed model for each mesh & fill in the data.
 		currentModel.AllocateElement(3, 0, true); // Positions
@@ -254,10 +254,10 @@ namespace LinaEngine::Graphics
 		return true;
 	}
 
-	bool ModelLoader::LoadPrimitive(std::vector<IndexedModel>& models, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords)
+	bool ModelLoader::LoadPrimitive(std::vector<Mesh>& models, int vertexSize, int indicesSize, float* vertices, int* indices, float* texCoords)
 	{
 		// Build and indexed model for each mesh & fill in the data.
-		IndexedModel currentModel;
+		Mesh currentModel;
 		currentModel.AllocateElement(3, 0, true); // Positions
 		currentModel.AllocateElement(2, 1, true); // TexCoords
 		currentModel.AllocateElement(3, 2, true); // Normals

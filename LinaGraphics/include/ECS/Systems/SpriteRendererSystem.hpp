@@ -43,7 +43,7 @@ Timestamp: 10/1/2020 9:27:40 AM
 #include "ECS/ECSSystem.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
 #include "Rendering/VertexArray.hpp"
-#include "Rendering/IndexedModel.hpp"
+#include "Rendering/Mesh.hpp"
 
 namespace LinaEngine
 {
@@ -78,7 +78,7 @@ namespace LinaEngine::ECS
 
 	private:
 	
-		Graphics::IndexedModel m_quadModel;
+		Graphics::Mesh m_quadMesh;
 		Graphics::VertexArray m_spriteVertexArray;
 		RenderDevice* s_renderDevice = nullptr;
 		Graphics::RenderEngine* m_renderEngine = nullptr;

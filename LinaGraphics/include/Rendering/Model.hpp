@@ -29,7 +29,7 @@ SOFTWARE.
 /*
 Class: Mesh
 
-Responsible for storing vertex array data generated into IndexedModels. MeshRenderers point to a particular
+Responsible for storing vertex array data generated into Meshs. MeshRenderers point to a particular
 mesh instance in the engine.
 
 Timestamp: 5/6/2019 4:23:45 PM
@@ -42,7 +42,7 @@ Timestamp: 5/6/2019 4:23:45 PM
 
 
 #include "Rendering/Texture.hpp"
-#include "Rendering/IndexedModel.hpp"
+#include "Rendering/Mesh.hpp"
 #include "Rendering/Material.hpp"
 #include "Animation/Skeleton.hpp"
 
@@ -85,9 +85,9 @@ namespace LinaEngine::Graphics
 			return m_vertexArrays;
 		}
 
-		std::vector<IndexedModel>& GetIndexedModels()
+		std::vector<Mesh>& GetMeshes()
 		{
-			return m_indexedModelArray;
+			return m_meshes;
 		}
 
 		std::vector<ModelMaterial>& GetMaterialSpecs()
@@ -127,7 +127,7 @@ namespace LinaEngine::Graphics
 		MeshSceneParameters m_worldParameters;
 		MeshParameters m_parameters;
 		std::vector<VertexArray*> m_vertexArrays;
-		std::vector<IndexedModel> m_indexedModelArray;
+		std::vector<Mesh> m_meshes;
 		std::vector<ModelMaterial> m_materialSpecArray;
 		std::vector<uint32> m_materialIndexArray;
 		Skeleton m_skeleton;
