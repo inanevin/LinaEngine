@@ -24,9 +24,7 @@ layout (location = 3) in vec3 tangent;
 layout (location = 4) in vec3 biTangent;
 layout (location = 5) in ivec4 boneIDs;
 layout (location = 6) in vec4 boneWeights;
-
 layout (location = 7) in mat4 model;
-layout (location = 11) in mat4 inverseTransposeModel;
 
 out vec2 TexCoords;
 out vec3 WorldPos;
@@ -71,13 +69,13 @@ void main()
 		
 		WorldPos = vec3(model * vec4(position,1.0f));
 		Normal = mat3(model) * normal;
-		gl_Position = projection * view *  vec4(WorldPos, 1.0f);
+		gl_Position = VP *  vec4(WorldPos, 1.0f);
 	}
 	else
 	{
 		WorldPos = vec3(model * vec4(position, 1.0));
 		Normal = mat3(model) * normal;
-		gl_Position = projection * view * vec4(WorldPos, 1.0);
+		gl_Position = VP * vec4(WorldPos, 1.0);
 	}
 
 }

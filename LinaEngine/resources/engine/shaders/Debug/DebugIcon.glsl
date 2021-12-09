@@ -19,13 +19,13 @@
 #include <../UniformBuffers.glh>
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec2 texCoords;
-layout (location = 2) in mat4 model;
-layout (location = 6) in mat4 inverseTransposeModel;
+layout (location = 7) in mat4 model;
+
 out vec2 TexCoords;
 
 void main()
 {
-	gl_Position = projection * view * model * vec4(position, 1.0);
+	gl_Position = VP * model * vec4(position, 1.0);
 	TexCoords = texCoords;
 }
 

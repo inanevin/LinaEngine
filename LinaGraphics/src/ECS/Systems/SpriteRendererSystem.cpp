@@ -38,7 +38,7 @@ namespace LinaEngine::ECS
 		BaseECSSystem::Construct(registry);
 		m_renderEngine = &renderEngineIn;
 		s_renderDevice = &renderDeviceIn;
-		Graphics::ModelLoader::LoadQuad(m_quadMesh);
+		Graphics::ModelLoader::LoadSpriteQuad(m_quadMesh);
 		m_quadMesh.CreateVertexArray(*s_renderDevice, Graphics::BufferUsage::USAGE_STATIC_COPY);
 	}
 
@@ -65,8 +65,8 @@ namespace LinaEngine::ECS
 	void SpriteRendererSystem::Render(Graphics::Material& material, const Matrix& transformIn)
 	{
 		m_renderBatch[&material].m_models.push_back(transformIn);
-		m_renderBatch[&material].m_inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
 	}
+
 
 	void SpriteRendererSystem::Flush(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
 	{
@@ -81,15 +81,12 @@ namespace LinaEngine::ECS
 			if (numTransforms == 0) continue;
 
 			Matrix* models = &modelData.m_models[0];
-			Matrix* inverseTransposeModels = &modelData.m_inverseTransposeModels[0];
 
 			// Get the material for drawing, object's own material or overriden material.
 			Graphics::Material* mat = overrideMaterial == nullptr ? it->first : overrideMaterial;
 
-			// Draw call.
 			// Update the buffer w/ each transform.
 			m_quadMesh.GetVertexArray().UpdateBuffer(2, models, numTransforms * sizeof(Matrix));
-			m_quadMesh.GetVertexArray().UpdateBuffer(3, inverseTransposeModels, numTransforms * sizeof(Matrix));
 
 			m_renderEngine->UpdateShaderData(mat);
 			s_renderDevice->Draw(m_quadMesh.GetVertexArray().GetID(), drawParams, numTransforms, m_quadMesh.GetVertexArray().GetIndexCount(), false);
@@ -98,7 +95,6 @@ namespace LinaEngine::ECS
 			if (completeFlush)
 			{
 				modelData.m_models.clear();
-				modelData.m_inverseTransposeModels.clear();
 			}
 		}
 	}

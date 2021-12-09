@@ -62,7 +62,6 @@ namespace LinaEngine::ECS
 		struct BatchModelData
 		{
 			std::vector<Matrix> m_models;
-			std::vector<Matrix> m_inverseTransposeModels;
 		};
 
 	public:

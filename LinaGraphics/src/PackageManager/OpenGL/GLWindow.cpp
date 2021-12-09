@@ -255,6 +255,25 @@ namespace LinaEngine::Graphics
 		}
 
 		SetVsync(false);
+
+		//if (m_windowProperties.m_windowState != WindowState::Maximized)
+		//{
+		//	m_windowProperties.m_widthBeforeMaximize = m_windowProperties.m_width;
+		//	m_windowProperties.m_heightBeforeMaximize = m_windowProperties.m_height;
+		//	m_windowProperties.m_xPosBeforeMaximize = m_windowProperties.m_xPos;
+		//	m_windowProperties.m_yPosBeforeMaximize = m_windowProperties.m_yPos;
+		//	SetPos(Vector2::Zero);
+		//	SetSize(Vector2(m_windowProperties.m_workingAreaWidth, m_windowProperties.m_workingAreaHeight));
+		//	m_windowProperties.m_windowState = WindowState::Maximized;
+		//	//glfwMaximizeWindow(m_glfwWindow);
+		//}
+		//else
+		//{
+		//	SetPos(Vector2(m_windowProperties.m_xPosBeforeMaximize, m_windowProperties.m_yPosBeforeMaximize));
+		//	SetSize(Vector2(m_windowProperties.m_widthBeforeMaximize, m_windowProperties.m_heightBeforeMaximize));
+		//	m_windowProperties.m_windowState = WindowState::Normal;
+		//	//glfwRestoreWindow(m_glfwWindow);
+		//}
 	}
 
 	void GLWindow::Close()

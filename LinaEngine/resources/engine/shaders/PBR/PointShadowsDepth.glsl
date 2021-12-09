@@ -22,7 +22,6 @@ layout (location = 2) in vec3 normal;
 layout (location = 3) in vec3 tangent;
 layout (location = 4) in vec3 biTangent;
 layout (location = 7) in mat4 model;
-layout (location = 11) in mat4 inverseTransposeModel;
 
 void main()
 {

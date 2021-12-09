@@ -138,7 +138,7 @@ namespace LinaEngine::Graphics
 		m_lineVAO = s_renderDevice.CreateLineVertexArray();
 
 		// Meshes
-		Graphics::ModelLoader::LoadQuad(m_quadMesh);
+		Graphics::ModelLoader::LoadSpriteQuad(m_quadMesh);
 		m_quadMesh.CreateVertexArray(s_renderDevice, Graphics::BufferUsage::USAGE_STATIC_COPY);
 
 		// Construct render targets
@@ -657,7 +657,6 @@ namespace LinaEngine::Graphics
 			tr.m_rotation = Quaternion::LookAt(icon.m_center, m_cameraSystem.GetCameraLocation(), Vector3::Up);
 			Matrix model = tr.ToMatrix();
 			m_quadMesh.GetVertexArray().UpdateBuffer(2, &model, 1 * sizeof(Matrix));
-			m_quadMesh.GetVertexArray().UpdateBuffer(3, &model, 1 * sizeof(Matrix));
 			m_debugIconMaterial.SetTexture(MAT_TEXTURE2D_DIFFUSE, &Texture::GetTexture(icon.m_textureID));
 			UpdateShaderData(&m_debugIconMaterial);
 			s_renderDevice.Draw(m_quadMesh.GetVertexArray().GetID(), m_defaultDrawParams, 1, m_quadMesh.GetVertexArray().GetIndexCount(), false);

@@ -91,7 +91,6 @@ namespace LinaEngine::ECS
 		drawData.m_vertexArray = &vertexArray;
 		drawData.m_material = &material;
 		m_opaqueRenderBatch[drawData].m_models.push_back(transformIn);
-		m_opaqueRenderBatch[drawData].m_inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
 
 		if (skeleton.IsLoaded())
 		{
@@ -112,7 +111,6 @@ namespace LinaEngine::ECS
 
 		Graphics::BatchModelData modelData;
 		modelData.m_models.push_back(transformIn);
-		modelData.m_inverseTransposeModels.push_back(transformIn.Transpose().Inverse());
 
 		if (skeleton.IsLoaded())
 		{
@@ -137,7 +135,6 @@ namespace LinaEngine::ECS
 
 			Graphics::VertexArray* vertexArray = drawData.m_vertexArray;
 			Matrix* models = &modelData.m_models[0];
-			Matrix* inverseTransposeModels = &modelData.m_inverseTransposeModels[0];
 
 			// Get the material for drawing, object's own material or overriden material.
 			Graphics::Material* mat = overrideMaterial == nullptr ? drawData.m_material : overrideMaterial;
@@ -145,7 +142,6 @@ namespace LinaEngine::ECS
 			// Draw call.
 			// Update the buffer w/ each transform.
 			vertexArray->UpdateBuffer(7, models, numTransforms * sizeof(Matrix));
-			vertexArray->UpdateBuffer(8, inverseTransposeModels, numTransforms * sizeof(Matrix));
 
 			if (modelData.m_boneTransformations.size() == 0)
 				mat->SetBool(UF_BOOL_SKINNED, false);
@@ -171,7 +167,6 @@ namespace LinaEngine::ECS
 			if (completeFlush)
 			{
 				modelData.m_models.clear();
-				modelData.m_inverseTransposeModels.clear();
 				modelData.m_boneTransformations.clear();
 			}
 		}
@@ -227,7 +222,6 @@ namespace LinaEngine::ECS
 
 			Graphics::VertexArray* vertexArray = drawData.m_vertexArray;
 			Matrix* models = &modelData.m_models[0];
-			Matrix* inverseTransposeModels = &modelData.m_inverseTransposeModels[0];
 
 			// Get the material for drawing, object's own material or overriden material.
 			Graphics::Material* mat = overrideMaterial == nullptr ? drawData.m_material : overrideMaterial;
@@ -235,7 +229,6 @@ namespace LinaEngine::ECS
 			// Draw call.
 			// Update the buffer w/ each transform.
 			vertexArray->UpdateBuffer(7, models, numTransforms * sizeof(Matrix));
-			vertexArray->UpdateBuffer(8, inverseTransposeModels, numTransforms * sizeof(Matrix));
 
 			if (modelData.m_boneTransformations.size() == 0)
 				mat->SetBool(UF_BOOL_SKINNED, false);
@@ -251,7 +244,6 @@ namespace LinaEngine::ECS
 			if (completeFlush)
 			{
 				modelData.m_models.clear();
-				modelData.m_inverseTransposeModels.clear();
 				modelData.m_boneTransformations.clear();
 			}
 
