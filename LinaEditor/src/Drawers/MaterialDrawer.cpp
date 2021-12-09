@@ -448,6 +448,8 @@ namespace LinaEditor
 						IM_ASSERT(payload->DataSize == sizeof(uint32));
 						m_selectedMaterial->SetTexture(it.first, &LinaEngine::Graphics::Texture::GetTexture(*(uint32*)payload->m_data), it.second.m_bindMode);
 					}
+
+			
 					ImGui::EndDragDropTarget();
 				}
 			}
@@ -455,7 +457,7 @@ namespace LinaEditor
 
 		WidgetsUtility::IncrementCursorPosX(11);
 		WidgetsUtility::IncrementCursorPosY(11);
-		if (ImGui::Button("Apply Changes"))
+		if (ImGui::Button("Apply Changes", ImVec2(90,30)))
 		{
 			LinaEngine::Graphics::Material::SaveMaterialData(*m_selectedMaterial, m_selectedMaterial->GetPath());
 			LinaEngine::Application::GetRenderEngine().MaterialUpdated(*m_selectedMaterial);
@@ -464,7 +466,7 @@ namespace LinaEditor
 		ImGui::SameLine();
 		WidgetsUtility::IncrementCursorPosX(11);
 
-		if (ImGui::Button("Reset"))
+		if (ImGui::Button("Reset", ImVec2(57, 30)))
 		{
 			LinaEngine::Graphics::Material::SetMaterialShader(*m_selectedMaterial, LinaEngine::Graphics::RenderEngine::GetDefaultShader());
 		}

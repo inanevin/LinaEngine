@@ -76,9 +76,11 @@ namespace LinaEditor
 
 	}
 
+
 	void ComponentDrawer::Setup()
 	{
 		s_activeInstance = this;
+
 	}
 
 	// Use reflection for gods sake later on.
@@ -402,7 +404,7 @@ namespace LinaEditor
 			ImGui::DragFloat("##zFar", &camera.m_zFar);
 
 			ImGui::SetCursorPosX(cursorPosValues);
-			if (ImGui::Button("Set Active Camera"))
+			if (ImGui::Button("Set Active Camera", ImVec2(110, 30)))
 				LinaEngine::Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(entity);
 
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
@@ -574,6 +576,7 @@ namespace LinaEditor
 	{
 		// Get component
 		PointLightComponent& pLight = ecs.get<PointLightComponent>(entity);
+		ECS::EntityDataComponent& data = ecs.get<ECS::EntityDataComponent>(entity);
 		ECSTypeID id = GetTypeID<PointLightComponent>();
 
 		// Align.
@@ -594,6 +597,8 @@ namespace LinaEditor
 		// Refresh
 		if (refreshPressed)
 			ecs.replace<PointLightComponent>(entity, PointLightComponent());
+
+		
 
 		// Draw component.
 		if (m_foldoutStateMap[entity][id])
@@ -644,6 +649,25 @@ namespace LinaEditor
 			}
 
 
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Draw Debug");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::Checkbox("##drawDebug", &pLight.m_drawDebug);
+
+
+			if (pLight.m_drawDebug)
+			{
+				Vector3 end1 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetRight());
+				Vector3 end2 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetRight());
+				Vector3 end3 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetForward());
+				Vector3 end4 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetForward());
+				Application::GetRenderEngine().DrawLine(data.GetLocation(), end1, LinaEngine::Color::Red, 1.4f);
+				Application::GetRenderEngine().DrawLine(data.GetLocation(), end2, LinaEngine::Color::Red, 1.4f);
+				Application::GetRenderEngine().DrawLine(data.GetLocation(), end3, LinaEngine::Color::Red, 1.4f);
+				Application::GetRenderEngine().DrawLine(data.GetLocation(), end4, LinaEngine::Color::Red, 1.4f);
+			}
+
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 		}
 
@@ -655,6 +679,7 @@ namespace LinaEditor
 	{
 		// Get component
 		SpotLightComponent& sLight = ecs.get<SpotLightComponent>(entity);
+		ECS::EntityDataComponent& data = ecs.get<ECS::EntityDataComponent>(entity);
 		ECSTypeID id = GetTypeID<SpotLightComponent>();
 
 		// Align.
@@ -707,6 +732,18 @@ namespace LinaEditor
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::DragFloat("##outerCutOff", &sLight.m_outerCutoff);
 
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Draw Debug");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::Checkbox("##drawDebug", &sLight.m_drawDebug);
+
+			if (sLight.m_drawDebug)
+			{
+				Vector3 end1 = data.GetLocation() + (sLight.m_distance * data.GetRotation().GetForward());
+				Application::GetRenderEngine().DrawLine(data.GetLocation(), end1, LinaEngine::Color::Red, 1.4f);
+			}
+
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 		}
 
@@ -718,6 +755,7 @@ namespace LinaEditor
 	{
 		// Get component
 		DirectionalLightComponent& dLight = ecs.get<DirectionalLightComponent>(entity);
+		ECS::EntityDataComponent& data = ecs.get<ECS::EntityDataComponent>(entity);
 		ECSTypeID id = GetTypeID<DirectionalLightComponent>();
 
 		// Align.
@@ -769,6 +807,19 @@ namespace LinaEditor
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::DragFloat4("##sproj", &dLight.m_shadowOrthoProjection.x);
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Draw Debug");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::Checkbox("##drawDebug", &dLight.m_drawDebug);
+
+			if (dLight.m_drawDebug)
+			{
+				Vector3 dir = Vector3::Zero - data.GetLocation();
+				Vector3 end1 = data.GetLocation() + dir;
+				Application::GetRenderEngine().DrawLine(data.GetLocation(), end1, LinaEngine::Color::Red, 1.4f);
+			}
 
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 		}

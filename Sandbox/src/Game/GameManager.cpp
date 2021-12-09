@@ -47,6 +47,7 @@ namespace LinaEngine
 	void GameManager::Tick(float delta)
 	{
 
+
 	}
 
 

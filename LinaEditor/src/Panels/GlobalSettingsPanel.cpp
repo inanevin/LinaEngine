@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -43,8 +43,8 @@ namespace LinaEditor
 #define CURSORPOS_X_LABELS 12
 #define CURSORPOS_XPERC_VALUES 0.30f
 
-    void GlobalSettingsPanel::Setup()
-    {
+	void GlobalSettingsPanel::Setup()
+	{
 		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::World::Level*>("#levelsettings_levelinstall", LinaEngine::Action::ActionType::LevelInstalled,
 			std::bind(&GlobalSettingsPanel::LevelInstalled, this, std::placeholders::_1));
 
@@ -53,10 +53,10 @@ namespace LinaEditor
 
 		m_show = true;
 
-    }
+	}
 
-    void GlobalSettingsPanel::Draw()
-    {
+	void GlobalSettingsPanel::Draw()
+	{
 		if (m_show)
 		{
 			float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
@@ -129,6 +129,24 @@ namespace LinaEditor
 					levelData.m_skyboxMaterialID = -1;
 					levelData.m_skyboxMaterialPath = "";
 					m_currentLevel->SetSkyboxMaterial();
+				}
+
+				if (Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
+				{
+					auto& mat = Graphics::Material::GetMaterial(levelData.m_skyboxMaterialID);
+					if (Graphics::Shader::ShaderExists(mat.GetShaderID()))
+					{
+						auto& shader = Graphics::Shader::GetShader(mat.GetShaderID());
+						if (shader.GetPath().compare("resources/engine/shaders/Skybox/SkyboxHDRI.glsl") == 0)
+						{
+							if (ImGui::Button("Capture HDRI", ImVec2(20, 30)))
+							{
+								auto& texture = mat.GetTexture("material.environmentMap");
+								if(!texture.GetIsEmpty())
+								Application::GetRenderEngine().CaptureCalculateHDRI(texture);
+							}
+						}
+					}
 				}
 			}
 
@@ -239,7 +257,7 @@ namespace LinaEditor
 			LinaEngine::Application::GetRenderEngine().UpdateRenderSettings();
 			ImGui::SetCursorPosX(cursorPosLabels);
 
-			if (ImGui::Button("Save Settings"))
+			if (ImGui::Button("Save Settings", ImVec2(90, 30)))
 				LinaEngine::Graphics::RenderSettings::SerializeRenderSettings(renderSettings, RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
 
 			ImGui::PopStyleVar();
@@ -247,7 +265,7 @@ namespace LinaEditor
 
 
 		}
-    }
+	}
 
 	void GlobalSettingsPanel::LevelInstalled(LinaEngine::World::Level* level)
 	{

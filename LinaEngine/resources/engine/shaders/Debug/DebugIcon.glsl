@@ -23,7 +23,6 @@ layout (location = 2) in mat4 model;
 layout (location = 6) in mat4 inverseTransposeModel;
 out vec2 TexCoords;
 
-
 void main()
 {
 	gl_Position = projection * view * model * vec4(position, 1.0);
@@ -42,7 +41,6 @@ in vec2 TexCoords;
 struct Material
 {
   MaterialSampler2D diffuse;
-  vec3 objectColor;
 };
 
 uniform Material material;
@@ -50,7 +48,6 @@ uniform Material material;
 
 void main()
 {
-	fragColor = (material.diffuse.isActive ? texture(material.diffuse.texture ,TexCoords) : vec4(1.0)) * vec4(material.objectColor, 1.0);
-
+	fragColor = (material.diffuse.isActive ? texture(material.diffuse.texture ,TexCoords) : vec4(1.0)) * vec4(1.0, 1.0, 1.0, 1.0);
 }
 #endif

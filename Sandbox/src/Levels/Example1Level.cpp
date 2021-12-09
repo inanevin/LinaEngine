@@ -22,6 +22,7 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "Core/Application.hpp"
 #include "ECS/Components/AnimationComponent.hpp"
 #include "Rendering/Model.hpp"
+#include "Rendering/RenderEngine.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
 
 using namespace LinaEngine::Graphics;
@@ -56,6 +57,12 @@ void Example1Level::Initialize()
 	// mr.SetMaterial(reg, entity, 1, mat);
 	//auto& anim = Application::GetECSRegistry().emplace<ECS::AnimationComponent>(ybot);
 	//anim.m_animationName = "Armature_Move";
+
+	// Texture* hdri = &Texture::GetTexture("resources/sandbox/HDRI/studio.hdr");
+	// Application::GetRenderEngine().CaptureCalculateHDRI(*hdri);
+	// Material& mat = LinaEngine::Graphics::Material::CreateMaterial(Graphics::Shader::GetShader("resources/engine/shaders/Skybox/SkyboxHDRI.glsl"));
+	// mat.SetTexture(MAT_MAP_ENVIRONMENT, &Application::GetRenderEngine().GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
+	// Application::GetRenderEngine().SetSkyboxMaterial(&mat);
 }
 
 void Example1Level::Tick(bool isInPlayMode, float delta)

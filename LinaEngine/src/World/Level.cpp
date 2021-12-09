@@ -64,12 +64,10 @@ namespace LinaEngine::World
 		ECS::ECSRegistry& ecs = Application::GetECSRegistry();
 
 		auto view = ecs.view<ECS::ModelRendererComponent>();
-		LINA_CORE_TRACE("Loading Level Resources");
+		LINA_CORE_TRACE("Loading Level Resources...");
 		for (ECS::ECSEntity entity : view)
 		{
 			ECS::ModelRendererComponent& mr = view.get<ECS::ModelRendererComponent>(entity);
-
-			LINA_CORE_TRACE("Going to load model {0}", mr.m_modelPath);
 
 			// Load the model pointed by the model renderer.
 			if (!Graphics::Model::ModelExists(mr.m_modelPath))
@@ -79,7 +77,6 @@ namespace LinaEngine::World
 					const std::string paramsPath = Utility::FileExists(mr.m_modelParamsPath) ? mr.m_modelParamsPath : "";
 					Graphics::Model& model = Graphics::Model::CreateModel(mr.m_modelParamsPath, Graphics::ModelParameters(), -1, paramsPath);
 					mr.m_modelID = model.GetID();
-					LINA_CORE_TRACE("Loaded model {0}", mr.m_modelPath);
 				}
 			}
 			else
@@ -88,27 +85,17 @@ namespace LinaEngine::World
 			}
 
 
-			LINA_CORE_TRACE("Going to load model materials. {0}", mr.m_modelPath);
-
 			// Load all the materials pointed by the model renderer.
 			for (int i = 0; i < mr.m_materialPaths.size(); i++)
 			{
-				LINA_CORE_TRACE("Trying to load material {0}", mr.m_materialPaths[i]);
-
 				auto& path = mr.m_materialPaths[i];
 				if (!Graphics::Material::MaterialExists(path))
 				{
 					if (Utility::FileExists(path))
 					{
 						Graphics::Material::LoadMaterialFromFile(path);
-						LINA_CORE_TRACE("Material loaded {0}", path);
 					}
-					else
-						LINA_CORE_TRACE("File doesn't exists {0}", path);
-
 				}
-				else
-					LINA_CORE_TRACE("Material already exists {0}", path);
 
 			}
 
@@ -120,81 +107,13 @@ namespace LinaEngine::World
 
 				if (meshRenderer != nullptr)
 				{
-					LINA_CORE_TRACE("Found a mesh renderer under model renderer entity, trying to set it's data.");
-
 					if (Graphics::Material::MaterialExists(meshRenderer->m_materialPath))
-					{
 						meshRenderer->m_materialID = Graphics::Material::GetMaterial(meshRenderer->m_materialPath).GetID();
-						LINA_CORE_TRACE("Set mesh renderer material. {0}", meshRenderer->m_materialPath);
-					}
-					else
-						LINA_CORE_TRACE("Mesh renderer's material path doesn't contain a material.");
 
 					meshRenderer->m_modelID = Graphics::Model::GetModel(meshRenderer->m_modelPath).GetID();
 				}
 			}
 		}
-
-		/*auto view = ecs.view<ECS::MeshRendererComponent>();
-
-		for (ECS::ECSEntity entity : view)
-		{
-			ECS::MeshRendererComponent& mr = view.get<ECS::MeshRendererComponent>(entity);
-			LINA_CORE_TRACE("Mat size {0} ", mr.m_materialPaths.size());
-
-			for (int i = 0; i < mr.m_materialPaths.size(); i++)
-			{
-				mr.m_materialID.push_back(0);
-				auto& path = mr.m_materialPaths[i];
-				auto& id = mr.m_materialID[i];
-
-				// Load used materials.
-				if (!Graphics::Material::MaterialExists(path))
-				{
-					if (Utility::FileExists(path))
-					{
-						Graphics::Material& mat = Graphics::Material::LoadMaterialFromFile(path);
-						id = mat.GetID();
-
-						// Load material textures.
-						for (std::map<std::string, Graphics::MaterialSampler2D>::iterator it = mat.m_sampler2Ds.begin(); it != mat.m_sampler2Ds.end(); ++it)
-						{
-							if (Utility::FileExists(it->second.m_path))
-							{
-								Graphics::SamplerParameters samplerParams;
-
-								if (Utility::FileExists(it->second.m_paramsPath))
-									samplerParams = Graphics::Texture::LoadParameters(it->second.m_paramsPath);
-
-								Graphics::Texture& texture = Graphics::Texture::CreateTexture2D(it->second.m_path, samplerParams, false, false, it->second.m_paramsPath);
-
-								mat.SetTexture(it->first, &texture, it->second.m_bindMode);
-							}
-						}
-					}
-
-				}
-				else
-				{
-					Graphics::Material& mat = Graphics::Material::GetMaterial(path);
-					id = mat.GetID();
-				}
-			}
-
-			// Load used meshes
-			if (!Graphics::Model::ModelExists(mr.m_meshPath))
-			{
-
-				Graphics::ModelParameters params;
-				if (Utility::FileExists(mr.m_meshParamsPath))
-					params = Graphics::Model::LoadParameters(mr.m_meshParamsPath);
-
-				Graphics::Model& mesh = Graphics::Model::CreateModel(mr.m_meshPath, params, -1, mr.m_meshParamsPath);
-				mr.m_meshID = mesh.GetID();
-			}
-			else
-				mr.m_meshID = Graphics::Model::GetModel(mr.m_meshPath).GetID();
-		}*/
 
 		auto viewSprites = ecs.view<ECS::SpriteRendererComponent>();
 

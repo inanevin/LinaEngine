@@ -34,6 +34,24 @@ namespace LinaEngine::ECS
 
 	const float DIRLIGHT_DISTANCE_OFFSET = 10;
 
+	uint32 pLightIconID = -1;
+	uint32 sLightIconID = -1;
+	uint32 dLightIconID = -1;
+
+	void LightingSystem::Construct(ECSRegistry& registry, RenderDevice& rdIn, Graphics::RenderEngine& renderEngineIn)
+	{
+		BaseECSSystem::Construct(registry);
+		s_renderDevice = &rdIn;
+		m_renderEngine = &renderEngineIn;
+
+#if LINA_EDITOR
+		// Create debug icon textures for lights
+		pLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/pLightIcon.png").GetID();
+		sLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/sLightIcon.png").GetID();
+		dLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/dLightIcon.png").GetID();
+#endif
+	}
+
 	void LightingSystem::UpdateComponents(float delta)
 	{
 		// Flush lights every update.
@@ -52,8 +70,13 @@ namespace LinaEngine::ECS
 			DirectionalLightComponent* dirLight = &dirLightView.get<DirectionalLightComponent>(entity);
 			if (!dirLight->m_isEnabled) continue;
 
-			std::get<0>(m_directionalLight) = &dirLightView.get<EntityDataComponent>(entity);
+			EntityDataComponent& data = dirLightView.get<EntityDataComponent>(entity);
+			std::get<0>(m_directionalLight) = &data;
 			std::get<1>(m_directionalLight) = dirLight;
+
+#if LINA_EDITOR
+			m_renderEngine->DrawIcon(data.GetLocation(), dLightIconID, 0.12f);
+#endif
 		}
 
 		// For the point & spot lights, we simply find them and add them to their respective lists,
@@ -67,7 +90,12 @@ namespace LinaEngine::ECS
 			PointLightComponent* pLight = &pointLightView.get<PointLightComponent>(*it);
 			if (!pLight->m_isEnabled) continue;
 
-			m_pointLights.push_back(std::make_pair(&pointLightView.get<EntityDataComponent>(*it), pLight));
+			EntityDataComponent& data = pointLightView.get<EntityDataComponent>(*it);
+			m_pointLights.push_back(std::make_pair(&data, pLight));
+
+#if LINA_EDITOR
+			m_renderEngine->DrawIcon(data.GetLocation(), pLightIconID, 0.12f);
+#endif
 		}
 
 		// Set Spot lights.
@@ -77,7 +105,12 @@ namespace LinaEngine::ECS
 			SpotLightComponent* sLight = &spotLightView.get<SpotLightComponent>(*it);
 			if (!sLight->m_isEnabled) continue;
 
-			m_spotLights.push_back(std::make_pair(&spotLightView.get<EntityDataComponent>(*it), sLight));
+			EntityDataComponent& data = spotLightView.get<EntityDataComponent>(*it);
+			m_spotLights.push_back(std::make_pair(&data, sLight));
+
+#if LINA_EDITOR
+			m_renderEngine->DrawIcon(data.GetLocation(), sLightIconID, 0.12f);
+#endif
 		}
 	}
 

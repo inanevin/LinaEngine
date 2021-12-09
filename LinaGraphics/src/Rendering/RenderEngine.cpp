@@ -137,6 +137,10 @@ namespace LinaEngine::Graphics
 		m_screenQuadVAO = s_renderDevice.CreateScreenQuadVertexArray();
 		m_lineVAO = s_renderDevice.CreateLineVertexArray();
 
+		// Meshes
+		Graphics::ModelLoader::LoadQuad(m_quadMesh);
+		m_quadMesh.CreateVertexArray(s_renderDevice, Graphics::BufferUsage::USAGE_STATIC_COPY);
+
 		// Construct render targets
 		ConstructRenderTargets();
 
@@ -309,8 +313,12 @@ namespace LinaEngine::Graphics
 		m_sqShadowMapShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);;
 
 		// Line
-		m_debugLineShader = &Shader::CreateShader("resources/engine/shaders/Misc/DebugLine.glsl");
+		m_debugLineShader = &Shader::CreateShader("resources/engine/shaders/Debug/DebugLine.glsl");
 		m_debugLineShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
+
+		// Icon
+		m_debugIconShader = &Shader::CreateShader("resources/engine/shaders/Debug/DebugIcon.glsl");
+		m_debugIconShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 
 		// 2D
 		Shader::CreateShader("resources/engine/shaders/2D/Sprite.glsl").BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
@@ -341,7 +349,8 @@ namespace LinaEngine::Graphics
 		Material::SetMaterialShader(m_screenQuadFinalMaterial, *m_sqFinalShader);
 		Material::SetMaterialShader(m_screenQuadBlurMaterial, *m_sqBlurShader);
 		Material::SetMaterialShader(m_hdriMaterial, *m_hdriEquirectangularShader);
-		Material::SetMaterialShader(m_debugDrawMaterial, *m_debugLineShader);
+		Material::SetMaterialShader(m_debugLineMaterial, *m_debugLineShader);
+		Material::SetMaterialShader(m_debugIconMaterial, *m_debugIconShader);
 		Material::SetMaterialShader(m_shadowMapMaterial, *m_sqShadowMapShader);
 		Material::SetMaterialShader(m_defaultSkyboxMaterial, *m_skyboxSingleColorShader);
 		Material::SetMaterialShader(s_defaultUnlit, *s_standardUnlitShader);
@@ -440,6 +449,16 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::DumpMemory()
 	{
+		while (!m_debugLineQueue.empty())
+		{
+			m_debugLineQueue.pop();
+		}
+
+		while (!m_debugIconQueue.empty())
+		{
+			m_debugIconQueue.pop();
+		}
+
 		// Clear dumps.
 		Model::UnloadAll();
 		Texture::UnloadAll();
@@ -574,6 +593,11 @@ namespace LinaEngine::Graphics
 		s_renderDevice.Draw(m_screenQuadVAO, m_fullscreenQuadDP, 0, 6, true);
 	}
 
+	void RenderEngine::DrawIcon(Vector3 position, uint32 textureID, float size)
+	{
+		m_debugIconQueue.push(DebugIcon{ position, textureID, size });
+	}
+
 	void RenderEngine::DrawLine(Vector3 p1, Vector3 p2, Color col, float width)
 	{
 		m_debugLineQueue.push(DebugLine{ p1, p2, col, width });
@@ -616,10 +640,26 @@ namespace LinaEngine::Graphics
 		while (!m_debugLineQueue.empty())
 		{
 			DebugLine line = m_debugLineQueue.front();
-			s_renderDevice.SetShader(m_debugDrawMaterial.m_shaderID);
-			s_renderDevice.UpdateShaderUniformColor(m_debugDrawMaterial.m_shaderID, MAT_COLOR, line.m_color);
-			s_renderDevice.DrawLine(m_debugDrawMaterial.m_shaderID, Matrix::Identity(), line.m_from, line.m_to, line.m_width);
+			s_renderDevice.SetShader(m_debugLineMaterial.m_shaderID);
+			s_renderDevice.UpdateShaderUniformColor(m_debugLineMaterial.m_shaderID, MAT_COLOR, line.m_color);
+			s_renderDevice.DrawLine(m_debugLineMaterial.m_shaderID, Matrix::Identity(), line.m_from, line.m_to, line.m_width);
 			m_debugLineQueue.pop();
+		}
+
+		while (!m_debugIconQueue.empty())
+		{
+			DebugIcon icon = m_debugIconQueue.front();
+			Transformation tr;
+			tr.m_location = icon.m_center;
+			tr.m_scale = Vector3(icon.m_size);
+			tr.m_rotation = Quaternion::LookAt(icon.m_center, m_cameraSystem.GetCameraLocation(), Vector3::Up);
+			Matrix model = tr.ToMatrix();
+			m_quadMesh.GetVertexArray().UpdateBuffer(2, &model, 1 * sizeof(Matrix));
+			m_quadMesh.GetVertexArray().UpdateBuffer(3, &model, 1 * sizeof(Matrix));
+			m_debugIconMaterial.SetTexture(MAT_TEXTURE2D_DIFFUSE, &Texture::GetTexture(icon.m_textureID));
+			UpdateShaderData(&m_debugIconMaterial);
+			s_renderDevice.Draw(m_quadMesh.GetVertexArray().GetID(), m_defaultDrawParams, 1, m_quadMesh.GetVertexArray().GetIndexCount(), false);
+			m_debugIconQueue.pop();
 		}
 
 	}

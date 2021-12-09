@@ -368,6 +368,10 @@ namespace LinaEditor
 					ImGui::EndDragDropSource();
 				}
 			}
+			if (it->second.m_type == FileType::HDRI)
+			{
+				// TODO: HDRI Support & auto capturing.
+			}
 			else if (it->second.m_type == FileType::Material)
 			{
 				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
@@ -466,7 +470,6 @@ namespace LinaEditor
 		{
 			EditorFile& file = it->second;
 
-			// SKIP FOR NOW BC WE NEED TO MAKE SURE WE HANDLE BOTH ENGINE CREATION & EDITOR CREATION
 			if (file.m_type == FileType::Texture2D)
 			{
 				bool textureExists = LinaEngine::Graphics::Texture::TextureExists(file.m_path);
@@ -483,6 +486,13 @@ namespace LinaEditor
 
 					LinaEngine::Graphics::Texture::SaveParameters(samplerParamsPath, samplerParams);
 				}
+			}
+			if (file.m_type == FileType::HDRI)
+			{
+				bool textureExists = LinaEngine::Graphics::Texture::TextureExists(file.m_path);
+
+				if (!textureExists)
+					LinaEngine::Graphics::Texture::CreateTextureHDRI(file.m_path);
 			}
 			if (file.m_type == FileType::Material)
 			{
@@ -550,6 +560,8 @@ namespace LinaEditor
 		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
 		if (file.m_type == FileType::Texture2D)
 			LinaEngine::Graphics::Texture::UnloadTextureResource(LinaEngine::Graphics::Texture::GetTexture(file.m_path).GetID());
+		else if(file.m_type == FileType::HDRI)
+			LinaEngine::Graphics::Texture::UnloadTextureResource(LinaEngine::Graphics::Texture::GetTexture(file.m_path).GetID());
 		else if (file.m_type == FileType::Model)
 			LinaEngine::Graphics::Model::UnloadModel(LinaEngine::Graphics::Model::GetModel(file.m_path).GetID());
 		else if (file.m_type == FileType::Material)
@@ -597,6 +609,8 @@ namespace LinaEditor
 	{
 		if (extension.compare("jpg") == 0 || extension.compare("jpeg") == 0 || extension.compare("png") == 0 || extension.compare("tga") == 0)
 			return FileType::Texture2D;
+		else if (extension.compare("hdr") == 0)
+			return FileType::HDRI;
 		else if (extension.compare("ttf") == 0)
 			return FileType::Font;
 		else if (extension.compare("obj") == 0 || extension.compare("fbx") == 0 || extension.compare("3ds") == 0)

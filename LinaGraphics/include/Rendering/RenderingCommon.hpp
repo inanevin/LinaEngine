@@ -311,6 +311,13 @@ namespace LinaEngine::Graphics
 		float m_width = 0.0f;
 	};
 
+	struct DebugIcon
+	{
+		Vector3 m_center;
+		uint32 m_textureID = -1;
+		float m_size = 1.0f;
+	};
+
 	struct VertexBoneData
 	{
 		int m_boneIDs[MAX_BONE_INFLUENCE];

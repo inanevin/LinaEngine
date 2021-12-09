@@ -61,6 +61,7 @@ namespace LinaEditor
 	{
 		Unknown,
 		Texture2D,
+		HDRI,
 		Model,
 		Font,
 		Material,

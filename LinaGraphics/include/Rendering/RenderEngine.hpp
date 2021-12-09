@@ -114,6 +114,7 @@ namespace LinaEngine::Graphics
 		void SetHDRIData(Material* mat);
 		void RemoveHDRIData(Material* mat);
 
+		void DrawIcon(Vector3 p, uint32 textureID, float size = 1.0f);
 		void DrawLine(Vector3 p1, Vector3 p2, Color col, float width = 1.0f);
 		void DrawAABB(Vector3 center, Vector3 halfWidths, Color col = Color::White, float width = 1.0f);
 		void ProcessDebugQueue();
@@ -186,11 +187,14 @@ namespace LinaEngine::Graphics
 		SamplerParameters m_pingPongRTParams;
 		SamplerParameters m_shadowsRTParams;
 
+		Mesh m_quadMesh;
+
 		Material m_screenQuadFinalMaterial;
 		Material m_screenQuadBlurMaterial;
 		Material m_screenQuadOutlineMaterial;
 		Material* m_skyboxMaterial = nullptr;
-		Material m_debugDrawMaterial;
+		Material m_debugLineMaterial;
+		Material m_debugIconMaterial;
 		Material m_hdriMaterial;
 		Material m_shadowMapMaterial;
 		Material m_defaultSkyboxMaterial;
@@ -205,6 +209,7 @@ namespace LinaEngine::Graphics
 		Shader* m_sqBlurShader = nullptr;
 		Shader* m_sqShadowMapShader = nullptr;
 		Shader* m_debugLineShader = nullptr;
+		Shader* m_debugIconShader = nullptr;
 		Shader* m_skyboxSingleColorShader = nullptr;
 		Shader* m_pointShadowsDepthShader = nullptr;
 		static Shader* s_standardUnlitShader;
@@ -276,6 +281,7 @@ namespace LinaEngine::Graphics
 		bool m_firstFrameDrawn = false;
 
 		std::queue<DebugLine> m_debugLineQueue;
+		std::queue<DebugIcon> m_debugIconQueue;
 		std::map<Shader*, PostProcessEffect> m_postProcessMap;
 
 		DISALLOW_COPY_ASSIGN_MOVE(RenderEngine)

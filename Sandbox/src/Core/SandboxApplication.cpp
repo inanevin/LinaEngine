@@ -46,8 +46,8 @@ class SandboxApplication : public LinaEngine::Application
 
 		// Init engine.
 		LinaEngine::Graphics::WindowProperties props;
-		props.m_width = 1440;
-		props.m_height = 900;
+		props.m_width = 1920;
+		props.m_height = 1080;
 		props.m_windowState = Graphics::WindowState::Maximized;
 		props.m_decorated = false;
 		props.m_resizable = true;
@@ -67,7 +67,7 @@ class SandboxApplication : public LinaEngine::Application
 
 		// Set the app window size back to original.
 		GetAppWindow().SetPos(Vector2::Zero);
-		GetAppWindow().SetSize(Vector2(props.m_width, props.m_height));
+		GetAppWindow().SetSize(Vector2(windowProps.m_workingAreaWidth, windowProps.m_workingAreaHeight));
 
 		SetPlayMode(false);
 #else

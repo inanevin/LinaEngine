@@ -214,15 +214,8 @@ void main()
     }
     else    
 	{
-		// ambient lighting (we now use IBL as the ambient term)
-		vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
-		vec3 kS = F;
-		vec3 kD = 1.0 - kS;
-		kD *= 1.0 - metallic;
-		
-		ambient = (kD * (albedo)) * ao * ambientColor.xyz;
+		ambient = ambientColor.xyz * albedo * ao;
 	}
-	 
 
     vec3 color = ambient + Lo;
 	

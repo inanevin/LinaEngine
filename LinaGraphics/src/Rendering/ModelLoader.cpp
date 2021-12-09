@@ -220,8 +220,8 @@ namespace LinaEngine::Graphics
 		// Build and indexed aiMesh for each aiMesh & fill in the data.
 		mesh.AllocateElement(3, 0, true); // Positions
 		mesh.AllocateElement(2, 1, true); // TexCoords
-		mesh.AllocateElement(16, 7, true, true); // Model Matrix
-		mesh.AllocateElement(16, 11, true, true); // Inverse transpose matrix
+		mesh.AllocateElement(16, 2, true, true); // Model Matrix
+		mesh.AllocateElement(16, 6, true, true); // Inverse transpose matrix
 
 		Vector3 vertices[] = {
 			Vector3(-0.5f, 0.5f, 0.0f),  // left top, id 0
