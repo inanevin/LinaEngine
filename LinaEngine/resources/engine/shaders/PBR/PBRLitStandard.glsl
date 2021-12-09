@@ -141,21 +141,28 @@ void main()
     // reflectance equation
     vec3 Lo = vec3(0.0);
     // Directional Light
-    {
+    if(directionalLightExists == 1)
+	{
       vec3 L = -directionalLight.direction;
       vec3 radiance = directionalLight.color;
       Lo += CalculateLight(N, V, L, albedo, metallic, roughness, radiance, F0, 0.0);
     }
 
+	int affectingLightCount = 0;
+	
     // Point lights.
     for(int i = 0; i < pointLightCount; ++i)
     {
+		if(affectingLightCount >= MAX_LIGHT_PER_VERTEX)
+			continue;
+			
         // calculate per-light radiance
         vec3 L = normalize(pointLights[i].position - WorldPos);
         float distance = length(pointLights[i].position - WorldPos);
 
 		if(distance < pointLights[i].distance)
 		{
+			affectingLightCount++;
 			float attenuation = 1.0 / (distance * distance);
 			vec3 radiance = pointLights[i].color * attenuation;
 			
@@ -167,14 +174,18 @@ void main()
     // Spot lights
     for(int i = 0; i < spotLightCount; ++i)
     {
+		if(affectingLightCount >= MAX_LIGHT_PER_VERTEX)
+			continue;
+			
       // calculate per-light radiance
       vec3 L = normalize(spotLights[i].position - WorldPos);
       float distance = length(spotLights[i].position - WorldPos);
 	  
 	  if(distance < spotLights[i].distance)
 	  {
+		affectingLightCount++;
+		
 		float attenuation = 1.0 / (distance * distance);
-
 		float theta = dot(L, normalize(-spotLights[i].direction));
 		float epsilon = (spotLights[i].cutOff - spotLights[i].outerCutOff);
 		float intensity = clamp((theta - spotLights[i].outerCutOff) / epsilon, 0.0, 1.0);

@@ -48,6 +48,7 @@ namespace LinaEngine::Graphics
 
 	void GLWindow::Tick()
 	{
+		
 		if (!glfwWindowShouldClose(static_cast<GLFWwindow*>(m_window)))
 		{
 			// Swap Buffers
@@ -130,7 +131,7 @@ namespace LinaEngine::Graphics
 		glViewport(0, 0, m_windowProperties.m_width, m_windowProperties.m_height);
 
 		SetVsync(false);
-
+		
 		// set user pointer for callbacks.
 		glfwSetWindowUserPointer(m_glfwWindow, this);
 

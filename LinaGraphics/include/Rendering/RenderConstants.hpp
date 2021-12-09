@@ -56,6 +56,7 @@ namespace LinaEngine::Graphics
 #define SC_LIGHTDIRECTION std::string(".direction")
 #define SC_LIGHTPOSITION std::string(".position")
 #define SC_DIRECTIONALLIGHT std::string("directionalLight")
+#define SC_DIRECTIONALLIGHT_EXISTS std::string("directionalLightExists")
 #define SC_POINTLIGHTS std::string("pointLights")
 #define SC_SPOTLIGHTS std::string("spotLights")
 

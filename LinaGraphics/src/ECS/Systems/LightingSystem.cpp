@@ -126,12 +126,13 @@ namespace LinaEngine::ECS
 		if (dirLightData != nullptr && dirLight != nullptr)
 		{
 			Vector3 direction = Vector3::Zero - dirLightData->GetLocation();
+			s_renderDevice->UpdateShaderUniformInt(shaderID, SC_DIRECTIONALLIGHT_EXISTS, 1);
 			s_renderDevice->UpdateShaderUniformColor(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTCOLOR, dirLight->m_color);
 			s_renderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTDIRECTION, direction.Normalized());
 		}
 		else
 		{
-			s_renderDevice->UpdateShaderUniformColor(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTCOLOR, Color::Black);
+			s_renderDevice->UpdateShaderUniformInt(shaderID, SC_DIRECTIONALLIGHT_EXISTS, 0);
 		}
 
 		// Iterate point lights.

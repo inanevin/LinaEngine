@@ -45,7 +45,6 @@ void Example1Level::Initialize()
 {
 	LINA_CLIENT_TRACE("Example1Level initialized. Implement your logic for instantiating entities, players, assigning cameras etc. from now on.");
 
-
 	// auto& reg = Application::GetECSRegistry();
 	// auto entity = reg.CreateEntity("Test");
 	// auto& mr = reg.emplace<ECS::ModelRendererComponent>(entity);

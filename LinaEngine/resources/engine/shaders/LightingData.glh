@@ -42,7 +42,8 @@ struct SpotLight
 #define MAX_POINT_LIGHT 12
 #define MAX_SPOT_LIGHT 12
 #define DIRLIGHT_DISTANCE 1 // change to ZFar later on
-
+#define MAX_LIGHT_PER_VERTEX 4
 uniform PointLight pointLights[MAX_POINT_LIGHT];
 uniform SpotLight spotLights[MAX_SPOT_LIGHT];
 uniform DirectionalLight directionalLight;
+uniform int directionalLightExists;

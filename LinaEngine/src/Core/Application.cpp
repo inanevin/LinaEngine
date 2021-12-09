@@ -171,6 +171,9 @@ namespace LinaEngine
 			m_smoothDeltaTime = deltaTime;
 			updates++;
 
+
+			LINA_CORE_TRACE("FPS: {0} - UPS: {1}", m_currentFPS, m_currentUPS);
+
 			//LINA_TIMER_START("[Input] Engine Tick");
 
 			// Update input engine.
@@ -260,7 +263,6 @@ namespace LinaEngine
 				s_renderEngine->RenderLayers();
 				s_renderEngine->Swap();
 			}
-
 
 
 

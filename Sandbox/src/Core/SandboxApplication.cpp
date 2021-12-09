@@ -71,6 +71,8 @@ class SandboxApplication : public LinaEngine::Application
 
 		SetPlayMode(false);
 #else
+		GetAppWindow().SetPos(Vector2::Zero);
+		GetAppWindow().SetSize(Vector2(1920, 1080));
 		SetPlayMode(true);
 #endif
 

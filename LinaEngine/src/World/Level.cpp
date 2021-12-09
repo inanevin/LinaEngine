@@ -75,7 +75,7 @@ namespace LinaEngine::World
 				if (Utility::FileExists(mr.m_modelPath))
 				{
 					const std::string paramsPath = Utility::FileExists(mr.m_modelParamsPath) ? mr.m_modelParamsPath : "";
-					Graphics::Model& model = Graphics::Model::CreateModel(mr.m_modelParamsPath, Graphics::ModelParameters(), -1, paramsPath);
+					Graphics::Model& model = Graphics::Model::CreateModel(mr.m_modelPath, Graphics::ModelParameters(), -1, paramsPath);
 					mr.m_modelID = model.GetID();
 				}
 			}
