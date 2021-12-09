@@ -469,6 +469,10 @@ namespace LinaEngine
 		if (m_currentLevel != nullptr)
 		{
 			m_currentLevel->Uninstall();
+			s_ecs.each([](auto entity)
+				{
+					s_ecs.DestroyEntity(entity);
+				});
 			s_ecs.clear();
 			s_engineDispatcher.DispatchAction<World::Level*>(Action::ActionType::LevelUninstalled, m_currentLevel);
 			m_currentLevel = nullptr;
