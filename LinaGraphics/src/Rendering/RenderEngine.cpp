@@ -346,6 +346,7 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::ConstructEngineMaterials()
 	{
+
 		Material::LoadMaterialFromFile("resources/engine/materials/DefaultLit.mat");
 		Material::LoadMaterialFromFile("resources/engine/materials/DefaultUnlit.mat");
 
@@ -808,8 +809,9 @@ namespace LinaEngine::Graphics
 		for (auto const& d : (*data).m_matrices)
 			s_renderDevice.UpdateShaderUniformMatrix(data->m_shaderID, d.first, d.second);
 
+
 		// Set material's shadow textures to the FBO textures.
-		if (data->m_receivesLighting)
+		if (data->m_isPBR)
 		{
 			auto& tuple = m_lightingSystem.GetPointLights();
 
@@ -846,7 +848,7 @@ namespace LinaEngine::Graphics
 		}
 
 
-		if (data->m_receivesLighting)
+		if (data->m_isPBR)
 			m_lightingSystem.SetLightingShaderData(data->GetShaderID());
 
 		if (!m_firstFrameDrawn)

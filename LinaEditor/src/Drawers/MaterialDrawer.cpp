@@ -115,6 +115,8 @@ namespace LinaEditor
 		ImGui::AlignTextToFramePadding();
 		WidgetsUtility::IncrementCursorPosY(-5);
 		ImGui::Text("General Settings");
+		if (ImGui::IsItemClicked())
+			WidgetsUtility::s_carets["##matdraw_general"] = !WidgetsUtility::s_carets["##matdraw_general"];
 		ImGui::AlignTextToFramePadding();
 
 		if (caretGeneral)
@@ -126,12 +128,6 @@ namespace LinaEditor
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::Checkbox("##useshdri", &m_selectedMaterial->m_usesHDRI);
-
-			ImGui::SetCursorPosX(cursorPosLabels);
-			WidgetsUtility::AlignedText("Receives Lighting");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::Checkbox("##receiveslighting", &m_selectedMaterial->m_receivesLighting);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Is Shadow Mapped");
@@ -174,7 +170,7 @@ namespace LinaEditor
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
-			ImGui::InputText("##selectedSpriteMat", shaderPathC, IM_ARRAYSIZE(shaderPathC), ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputText("##selectedShader", shaderPathC, IM_ARRAYSIZE(shaderPathC), ImGuiInputTextFlags_ReadOnly);
 			ImGui::SameLine();
 			WidgetsUtility::IncrementCursorPosY(5);
 
@@ -191,7 +187,7 @@ namespace LinaEditor
 				ImGui::EndDragDropTarget();
 			}
 
-			if (WidgetsUtility::IconButton("##selectspritemat", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
+			if (WidgetsUtility::IconButton("##selectshader", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 			{
 
 				Graphics::Material::SetMaterialShader(*m_selectedMaterial, LinaEngine::Graphics::RenderEngine::GetDefaultShader());
@@ -209,6 +205,8 @@ namespace LinaEditor
 			ImGui::AlignTextToFramePadding();
 			WidgetsUtility::IncrementCursorPosY(-5);
 			ImGui::Text("Floats");
+			if (ImGui::IsItemClicked())
+				WidgetsUtility::s_carets["##matdraw_floats"] = !WidgetsUtility::s_carets["##matdraw_floats"];
 			ImGui::AlignTextToFramePadding();
 
 			if (caretFloats)
@@ -240,6 +238,8 @@ namespace LinaEditor
 			ImGui::AlignTextToFramePadding();
 			WidgetsUtility::IncrementCursorPosY(-5);
 			ImGui::Text("Ints");
+			if (ImGui::IsItemClicked())
+				WidgetsUtility::s_carets["##matdraw_ints"] = !WidgetsUtility::s_carets["##matdraw_ints"];
 			ImGui::AlignTextToFramePadding();
 
 			if (caretInts)
@@ -272,6 +272,8 @@ namespace LinaEditor
 			ImGui::AlignTextToFramePadding();
 			WidgetsUtility::IncrementCursorPosY(-5);
 			ImGui::Text("Bools");
+			if (ImGui::IsItemClicked())
+				WidgetsUtility::s_carets["##matdraw_bools"] = !WidgetsUtility::s_carets["##matdraw_bools"];
 			ImGui::AlignTextToFramePadding();
 
 			if (caretBools)
@@ -304,6 +306,8 @@ namespace LinaEditor
 			ImGui::AlignTextToFramePadding();
 			WidgetsUtility::IncrementCursorPosY(-5);
 			ImGui::Text("Colors");
+			if (ImGui::IsItemClicked())
+				WidgetsUtility::s_carets["##matdraw_Colors"] = !WidgetsUtility::s_carets["##matdraw_Colors"];
 			ImGui::AlignTextToFramePadding();
 
 			if (caretColors)
@@ -337,6 +341,8 @@ namespace LinaEditor
 			ImGui::AlignTextToFramePadding();
 			WidgetsUtility::IncrementCursorPosY(-5);
 			ImGui::Text("Vector2s");
+			if (ImGui::IsItemClicked())
+				WidgetsUtility::s_carets["##matdraw_Vector2s"] = !WidgetsUtility::s_carets["##matdraw_Vector2s"];
 			ImGui::AlignTextToFramePadding();
 
 			if (caretVector2s)
@@ -369,6 +375,8 @@ namespace LinaEditor
 			ImGui::AlignTextToFramePadding();
 			WidgetsUtility::IncrementCursorPosY(-5);
 			ImGui::Text("Vector3s");
+			if (ImGui::IsItemClicked())
+				WidgetsUtility::s_carets["##matdraw_Vector3s"] = !WidgetsUtility::s_carets["##matdraw_Vector3s"];
 			ImGui::AlignTextToFramePadding();
 
 			if (caretVector3s)
@@ -401,6 +409,8 @@ namespace LinaEditor
 			ImGui::AlignTextToFramePadding();
 			WidgetsUtility::IncrementCursorPosY(-5);
 			ImGui::Text("Vector4s");
+			if (ImGui::IsItemClicked())
+				WidgetsUtility::s_carets["##matdraw_Vector4s"] = !WidgetsUtility::s_carets["##matdraw_Vector4s"];
 			ImGui::AlignTextToFramePadding();
 
 			if (caretVector4s)
@@ -433,6 +443,8 @@ namespace LinaEditor
 			ImGui::AlignTextToFramePadding();
 			WidgetsUtility::IncrementCursorPosY(-5);
 			ImGui::Text("Textures");
+			if (ImGui::IsItemClicked())
+				WidgetsUtility::s_carets["##matdraw_textures"] = !WidgetsUtility::s_carets["##matdraw_textures"];
 			ImGui::AlignTextToFramePadding();
 
 			if (caretTextures)

@@ -97,12 +97,12 @@ namespace LinaEditor
 		static void WindowRounding(float rounding);
 		static void PopStyleVar();
 	
+		static std::map<std::string, bool> s_carets;
 
 	private:
 	
 		static std::map<std::string, std::tuple<bool,bool>> s_iconButtons;
 		static std::map<std::string, float> s_debugFloats;
-		static std::map<std::string, bool> s_carets;
 	};
 }
 

@@ -166,6 +166,8 @@ namespace LinaEditor
 		ImGui::AlignTextToFramePadding();
 		WidgetsUtility::IncrementCursorPosY(-5);
 		ImGui::Text(title);
+		if(ImGui::IsItemClicked())
+			*foldoutOpen = !*foldoutOpen;
 		ImGui::AlignTextToFramePadding();
 		ImGui::SameLine();
 
@@ -614,6 +616,12 @@ namespace LinaEditor
 			WidgetsUtility::ColorButton("##pclr", &pLight.m_color.r);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Intensity");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::DragFloat("##plint", &pLight.m_intensity);
+
+			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Distance");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
@@ -721,6 +729,12 @@ namespace LinaEditor
 			ImGui::DragFloat("##sldist", &sLight.m_distance);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Intensity");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::DragFloat("##slint", &sLight.m_intensity);
+
+			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Cutoff");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
@@ -789,6 +803,12 @@ namespace LinaEditor
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
 			WidgetsUtility::ColorButton("##dclr", &dLight.m_color.r);
+
+			ImGui::SetCursorPosX(cursorPosLabels);
+			WidgetsUtility::AlignedText("Intensity");
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(cursorPosValues);
+			ImGui::DragFloat("##dlint", &dLight.m_intensity);
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Shadow Near Plane");

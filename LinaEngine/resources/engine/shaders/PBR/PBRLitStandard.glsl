@@ -153,9 +153,7 @@ void main()
     // Point lights.
     for(int i = 0; i < pointLightCount; ++i)
     {
-		if(affectingLightCount >= MAX_LIGHT_PER_VERTEX)
-			continue;
-			
+
         // calculate per-light radiance
         vec3 L = normalize(pointLights[i].position - WorldPos);
         float distance = length(pointLights[i].position - WorldPos);

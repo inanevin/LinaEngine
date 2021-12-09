@@ -202,7 +202,7 @@ namespace LinaEngine::Graphics
 		template<class Archive>
 		void serialize(Archive& archive)
 		{
-			archive(m_usesHDRI, m_receivesLighting, m_isShadowMapped, m_shaderPath, m_surfaceType, m_sampler2Ds, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
+			archive(m_usesHDRI, m_isPBR, m_isShadowMapped, m_shaderPath, m_surfaceType, m_sampler2Ds, m_floats, m_ints, m_colors, m_vector2s, m_vector3s, m_vector4s, m_matrices, m_bools);
 		}
 
 
@@ -216,8 +216,8 @@ namespace LinaEngine::Graphics
 		std::map<std::string, Matrix> m_matrices;
 		std::map<std::string, bool> m_bools;
 
+		bool m_isPBR = false;
 		bool m_usesHDRI = false;
-		bool m_receivesLighting = false;
 		bool m_isShadowMapped = false;
 		std::string m_shaderPath = "";
 		uint32 m_shaderID = 0;

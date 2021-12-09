@@ -266,7 +266,7 @@ namespace LinaEngine::Graphics
 		material.m_matrices.clear();
 		material.m_vector4s.clear();
 		material.m_isShadowMapped = false;
-		material.m_receivesLighting = false;
+		material.m_isPBR = shader.GetPath().compare("resources/engine/shaders/PBR/PBRLitStandard.glsl") == 0;
 		material.m_usesHDRI = false;
 
 		ShaderUniformData data = shader.GetUniformData();
@@ -278,114 +278,11 @@ namespace LinaEngine::Graphics
 		material.m_vector3s = data.m_vector3s;
 		material.m_vector4s = data.m_vector4s;
 		material.m_matrices = data.m_matrices;
-		
+
 		for (std::map<std::string, ShaderSamplerData>::iterator it = data.m_sampler2Ds.begin(); it != data.m_sampler2Ds.end(); ++it)
 		{
 			material.m_sampler2Ds[it->first] = { it->second.m_unit, nullptr, "","", it->second.m_bindMode, false };
 		}
-
-		/*
-		if (shader == Shaders::Standard_Unlit)
-		{
-			material.m_colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
-			material.m_sampler2Ds[MAT_TEXTURE2D_DIFFUSE] = { 0 };
-			material.m_ints[MAT_SURFACETYPE] = 0;
-		}
-		else if (shader == Shaders::Skybox_SingleColor)
-		{
-			material.m_colors[MAT_COLOR] = Color::Gray;
-		}
-		else if (shader == Shaders::Skybox_Gradient)
-		{
-			material.m_colors = data.m_colors;
-			
-		}
-		else if (shader == Shaders::Skybox_Procedural)
-		{
-			material.m_colors[MAT_STARTCOLOR] = Color::Black;
-			material.m_colors[MAT_ENDCOLOR] = Color::White;
-			material.m_vector3s[MAT_SUNDIRECTION] = Vector3(0, -1, 0);
-		}
-		else if (shader == Shaders::Skybox_Cubemap)
-		{
-			material.m_sampler2Ds[MAT_MAP_ENVIRONMENT] = { 0 };
-		}
-		else if (shader == Shaders::Skybox_HDRI)
-		{
-			material.m_sampler2Ds[MAT_MAP_ENVIRONMENT] = { 0 };
-		}
-		else if (shader == Shaders::Skybox_Atmospheric)
-		{
-			material.m_floats[MAT_TIME] = 0.0f;
-			material.m_floats[MAT_CIRRUS] = 0.4f;
-			material.m_floats[MAT_CUMULUS] = 0.8f;
-			material.m_floats[UF_FLOAT_TIME] = 0.0f;
-		}
-
-		else if (shader == Shaders::ScreenQuad_Final)
-		{
-			material.m_sampler2Ds[MAT_MAP_SCREEN] = { 0 };
-			material.m_sampler2Ds[MAT_MAP_BLOOM] = { 1 };
-			material.m_sampler2Ds[MAT_MAP_OUTLINE] = { 2 };
-			material.m_floats[MAT_EXPOSURE] = 1.0f;
-			material.m_floats[MAT_FXAAREDUCEMIN] = 1.0f / 128.0f;
-			material.m_floats[MAT_FXAAREDUCEMUL] = 1.0f / 8.0f;
-			material.m_floats[MAT_FXAASPANMAX] = 8.0f;
-			material.m_bools[MAT_BLOOMENABLED] = false;
-			material.m_bools[MAT_FXAAENABLED] = false;
-			material.m_vector3s[MAT_INVERSESCREENMAPSIZE] = Vector3();
-		}
-		else if (shader == Shaders::ScreenQuad_Blur)
-		{
-			material.m_sampler2Ds[MAT_MAP_SCREEN] = { 0 };
-			material.m_bools[MAT_ISHORIZONTAL] = false;
-		}
-		else if (shader == Shaders::ScreenQuad_Outline)
-		{
-			material.m_sampler2Ds[MAT_MAP_SCREEN] = { 0 };
-		}
-		else if (shader == Shaders::ScreenQuad_Shadowmap)
-		{
-
-
-		}
-		else if (shader == Shaders::PBR_Lit)
-		{
-			material.m_sampler2Ds[MAT_TEXTURE2D_ALBEDOMAP] = { 0 };
-			material.m_sampler2Ds[MAT_TEXTURE2D_NORMALMAP] = { 1 };
-			material.m_sampler2Ds[MAT_TEXTURE2D_ROUGHNESSMAP] = { 2 };
-			material.m_sampler2Ds[MAT_TEXTURE2D_METALLICMAP] = { 3 };
-			material.m_sampler2Ds[MAT_TEXTURE2D_AOMAP] = { 4 };
-		//	material.m_sampler2Ds[MAT_TEXTURE2D_SHADOWMAP] = { 5 };
-			material.m_sampler2Ds[MAT_TEXTURE2D_BRDFLUTMAP] = { 5 };
-			material.m_sampler2Ds[MAT_TEXTURE2D_IRRADIANCEMAP] = { 6, nullptr, "", "", TextureBindMode::BINDTEXTURE_CUBEMAP, false };
-			material.m_sampler2Ds[MAT_TEXTURE2D_PREFILTERMAP] = { 7,nullptr, "", "", TextureBindMode::BINDTEXTURE_CUBEMAP, false };
-			material.m_floats[MAT_METALLICMULTIPLIER] = 1.0f;
-			material.m_floats[MAT_ROUGHNESSMULTIPLIER] = 1.0f;
-			material.m_ints[MAT_WORKFLOW] = 0;
-			material.m_ints[MAT_SURFACETYPE] = 0;
-			material.m_vector2s[MAT_TILING] = Vector2::One;
-			material.m_colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
-			material.m_receivesLighting = true;
-		//	material.m_isShadowMapped = true;
-			material.m_usesHDRI = true;
-		}
-		else if (shader == Shaders::HDRI_Equirectangular)
-		{
-			material.m_sampler2Ds[MAT_MAP_EQUIRECTANGULAR] = { 0 };
-			material.m_matrices[UF_MATRIX_VIEW] = Matrix();
-			material.m_matrices[UF_MATRIX_PROJECTION] = Matrix();
-		}
-		else if (shader == Shaders::Debug_Line)
-		{
-			material.m_colors[MAT_COLOR] = Color::White;
-		}
-		else if (shader == Shaders::Standard_Sprite)
-		{
-			material.m_colors[MAT_OBJECTCOLORPROPERTY] = Color::White;
-			material.m_sampler2Ds[MAT_TEXTURE2D_DIFFUSE] = { 0 };
-		}
-		*/
 
 		return material;
 	}

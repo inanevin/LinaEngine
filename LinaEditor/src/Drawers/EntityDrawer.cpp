@@ -85,7 +85,7 @@ namespace LinaEditor
 		// Add component button.
 		ImGui::SetCursorPosX(13);
 		WidgetsUtility::IncrementCursorPosY(6);
-		ImGui::Text("Add "); 
+		ImGui::Text("Add Component "); 
 		ImGui::SameLine();
 		WidgetsUtility::IncrementCursorPosY(4);
 
