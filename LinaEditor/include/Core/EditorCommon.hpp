@@ -73,7 +73,7 @@ namespace LinaEditor
 
 // LOG PANEL
 #define LOG_ID "Log"
-#define LOGPANEL_ICONSENABLED true
+#define LOGPANEL_ICONSENABLED false
 #define LOGPANEL_COLOR_ICONDEFAULT ImVec4(1.0f, 1.0f, 1.0f, 0.5f);
 #define LOGPANEL_COLOR_ICONHOVERED ImVec4(1.0f, 1.0f, 1.0f, 0.8f);
 #define LOGPANEL_COLOR_ICONPRESSED  ImVec4(1.0f, 1.0f, 1.0f, .4f);
@@ -86,7 +86,7 @@ namespace LinaEditor
 #define LOGPANEL_COLOR_INFO_HOVERED ImVec4(0.9f, 0.9f, 0.9f, 1.0f)
 #define LOGPANEL_COLOR_INFO_PRESSED ImVec4(1.0f, 1.0f, 1.0f, 1.0f)
 
-#define LOGPANEL_COLOR_TRACE_DEFAULT ImVec4(0.0f, 0.4f, 0.8f, 1.0f) 
+#define LOGPANEL_COLOR_TRACE_DEFAULT ImVec4(0.6f, 0.6f, 0.8f, 1.0f) 
 #define LOGPANEL_COLOR_TRACE_HOVERED ImVec4(0.0f, 0.6f, 1.0f, 1.0f)
 #define LOGPANEL_COLOR_TRACE_PRESSED ImVec4(0.0f, 0.2f, 0.4f, 1.0f)
 

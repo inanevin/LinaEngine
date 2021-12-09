@@ -46,30 +46,33 @@ class SandboxApplication : public LinaEngine::Application
 
 		// Init engine.
 		LinaEngine::Graphics::WindowProperties props;
-		props.m_width = 1280;
-		props.m_height = 720;
+		props.m_width = 1440;
+		props.m_height = 900;
+		props.m_windowState = Graphics::WindowState::Maximized;
 		props.m_decorated = false;
-		props.m_resizable = false;
+		props.m_resizable = true;
 		props.m_fullscreen = false;
+		props.m_msaaSamples = 4;
 		props.m_title = "Lina Engine - Configuration [] - Build Type [] - Project [] - Build []";
 		Initialize(props);
 
-	
 #ifdef LINA_EDITOR
 		m_editor.Setup();
 		
 		// Refresh after level init.
 		m_editor.Refresh();
 		
+		// Update props.
+		auto& windowProps = GetAppWindow().GetWindowProperties();
+
 		// Set the app window size back to original.
+		GetAppWindow().SetPos(Vector2::Zero);
 		GetAppWindow().SetSize(Vector2(props.m_width, props.m_height));
-		GetAppWindow().SetPosCentered(Vector2::Zero);
-		
+
 		SetPlayMode(false);
 #else
 		SetPlayMode(true);
 #endif
-	
 
 		GetMainStack().PushLayer(m_gameManager);
 

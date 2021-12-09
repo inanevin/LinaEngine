@@ -82,7 +82,7 @@ namespace LinaEditor
 				WidgetsUtility::IncrementCursorPosY(11);
 
 				// Empty dump
-				if (ImGui::Button("Clear"))
+				if (ImGui::Button("Clear", ImVec2(50,29)))
 				{
 					m_logDeque.clear();
 				}
@@ -91,7 +91,7 @@ namespace LinaEditor
 				WidgetsUtility::IncrementCursorPosX(3);
 
 				// Save dump contents on a file.
-				if (ImGui::Button("Save"))
+				if (ImGui::Button("Save", ImVec2(50, 28)))
 				{
 					std::string fullPath = "";
 					fullPath = EditorUtility::SaveFile(".txt", LinaEngine::Application::GetAppWindow().GetNativeWindow());
@@ -104,8 +104,6 @@ namespace LinaEditor
 						// save later.
 					}
 				}
-
-
 
 
 
@@ -130,7 +128,8 @@ namespace LinaEditor
 						ImGui::PushTextWrapPos(ImGui::GetWindowContentRegionMax().x - 5);
 
 						// Draw the level icon.
-						WidgetsUtility::IncrementCursorPos(ImVec2(15, 0));
+						// WidgetsUtility::IncrementCursorPos(ImVec2(15, 0)); // for icons
+						WidgetsUtility::IncrementCursorPos(ImVec2(5, 0));
 
 						// Draw the icon depending on the log level type also set the text color ready.
 						if (it->m_dump.m_level == LinaEngine::Log::LogLevel::Critical)

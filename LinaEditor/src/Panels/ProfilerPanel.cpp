@@ -66,7 +66,7 @@ namespace LinaEditor
 
 	void ProfilerPanel::Setup()
 	{
-
+		m_show = false;
 	}
 
 	void ProfilerPanel::Draw()

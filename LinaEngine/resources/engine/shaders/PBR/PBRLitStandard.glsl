@@ -69,15 +69,15 @@ void main()
 		//BoneTransform += uf_boneMatrices[boneIDs[2]] * boneWeights[2];
 		//BoneTransform += uf_boneMatrices[boneIDs[3]] * boneWeights[3];
 		
-		WorldPos = vec3(model * totalPosition);
+		WorldPos = vec3(model * vec4(position,1.0f));
 		Normal = mat3(model) * normal;
-		gl_Position = VP *  vec4(WorldPos, 1.0f);
+		gl_Position = projection * view *  vec4(WorldPos, 1.0f);
 	}
 	else
 	{
 		WorldPos = vec3(model * vec4(position, 1.0));
 		Normal = mat3(model) * normal;
-		gl_Position = VP * vec4(WorldPos, 1.0);
+		gl_Position = projection * view * vec4(WorldPos, 1.0);
 	}
 
 }

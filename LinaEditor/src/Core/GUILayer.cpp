@@ -108,16 +108,19 @@ namespace LinaEditor
 		// Setup Dear ImGui style
 		ImGuiStyle& style = ImGui::GetStyle();
 		ImVec4* colors = ImGui::GetStyle().Colors;
+		style.FrameBorderSize = 1.0f;
+		style.PopupBorderSize = 1.0f;
 		style.AntiAliasedFill = false;
 		style.WindowRounding = 0.0f;
-		style.TabRounding = 3.0f;
+		style.TabRounding = 0.0f;
 		style.ChildRounding = 0.0f;
 		style.PopupRounding = 3.0f;
-		style.FrameRounding = 3.0f;
+		style.FrameRounding = 0.0f;
 		style.ScrollbarRounding = 5.0f;
 		style.FramePadding = ImVec2(0, 5);
 		style.WindowPadding = ImVec2(0, 0);
 		style.ItemInnerSpacing = ImVec2(8, 4);
+		style.ItemInnerSpacing = ImVec2(5, 4);
 		style.GrabRounding = 6.0f;
 		style.ChildBorderSize = 0.0f;
 		style.TabBorderSize = 0.0f;
@@ -125,17 +128,17 @@ namespace LinaEditor
 		style.WindowMenuButtonPosition = ImGuiDir_None;
 		colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 		colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-		colors[ImGuiCol_WindowBg] = ImVec4(0.17f, 0.17f, 0.18f, 0.54f);
-		colors[ImGuiCol_ChildBg] = ImVec4(0.17f, 0.17f, 0.18f, 1.00f);
-		colors[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
+		colors[ImGuiCol_WindowBg] = ImVec4(0.08f, 0.08f, 0.08f, 1.0f);
+		colors[ImGuiCol_ChildBg] = ImVec4(0.08f, 0.08f, 0.08f, 1.0f);
+		colors[ImGuiCol_PopupBg] = ImVec4(0.22f, 0.22f, 0.22f, 0.94f);
 		colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
 		colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
 		colors[ImGuiCol_FrameBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.54f);
 		colors[ImGuiCol_FrameBgHovered] = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
 		colors[ImGuiCol_FrameBgActive] = ImVec4(0.45f, 0.34f, 0.46f, 1.00f);
-		colors[ImGuiCol_TitleBg] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
-		colors[ImGuiCol_TitleBgActive] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
-		colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+		colors[ImGuiCol_TitleBg] = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
+		colors[ImGuiCol_TitleBgActive] = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
+		colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
 		colors[ImGuiCol_MenuBarBg] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
 		colors[ImGuiCol_ScrollbarBg] = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
 		colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
@@ -145,7 +148,7 @@ namespace LinaEditor
 		colors[ImGuiCol_SliderGrab] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
 		colors[ImGuiCol_SliderGrabActive] = ImVec4(0.74f, 0.74f, 0.74f, 1.00f);
 		colors[ImGuiCol_Button] = ImVec4(0.21f, 0.21f, 0.21f, 1.00f);
-		colors[ImGuiCol_ButtonHovered] = ImVec4(0.27f, 0.27f, 0.27f, 1.00f);
+		colors[ImGuiCol_ButtonHovered] = ImVec4(0.43f, 0.43f, 0.43f, 1.00f);
 		colors[ImGuiCol_ButtonActive] = ImVec4(0.33f, 0.33f, 0.33f, 1.00f);
 		colors[ImGuiCol_Header] = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
 		colors[ImGuiCol_HeaderHovered] = ImVec4(0.46f, 0.34f, 0.47f, 1.00f);
@@ -158,9 +161,9 @@ namespace LinaEditor
 		colors[ImGuiCol_ResizeGripActive] = ImVec4(0.73f, 0.73f, 0.73f, 1.00f);
 		colors[ImGuiCol_Tab] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
 		colors[ImGuiCol_TabHovered] = ImVec4(0.24f, 0.25f, 0.26f, 1.00f);
-		colors[ImGuiCol_TabActive] = ImVec4(0.17f, 0.17f, 0.18f, 1.00f);
+		colors[ImGuiCol_TabActive] = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
 		colors[ImGuiCol_TabUnfocused] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
-		colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.17f, 0.17f, 0.18f, 1.00f);
+		colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
 		colors[ImGuiCol_DockingPreview] = ImVec4(0.45f, 0.28f, 0.46f, 1.00f);
 		colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
 		colors[ImGuiCol_PlotLines] = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
@@ -187,7 +190,6 @@ namespace LinaEditor
 		m_propertiesPanel.Setup();
 		m_scenePanel.Setup();
 		m_resourcesPanel.Setup();
-		m_levelSettingsPanel.Setup();
 		m_globalSettingsPanel.Setup();
 
 		// Imgui first frame initialization.
@@ -225,7 +227,6 @@ namespace LinaEditor
 		m_logPanel.Draw();
 		m_profilerPanel.Draw();
 		m_propertiesPanel.Draw();
-		m_levelSettingsPanel.Draw();
 		m_globalSettingsPanel.Draw();
 
 
@@ -305,6 +306,10 @@ namespace LinaEditor
 			m_propertiesPanel.Open();
 		else if (item == MenuBarItems::LogPanel)
 			m_logPanel.Open();
+		else if (item == MenuBarItems::GlobalSettingsPanel)
+			m_globalSettingsPanel.Open();
+		else if (item == MenuBarItems::ProfilerPanel)
+			m_profilerPanel.Open();
 		else if (item == MenuBarItems::ImGuiPanel)
 			s_showIMGUIDemo = true;
 
@@ -414,21 +419,19 @@ namespace LinaEditor
 
 				ImGuiID dock_main_id = dockspace_id; // This variable will track the document node, however we are not using it here as we aren't docking anything into it.
 				ImGuiID dock_id_prop = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.15f, NULL, &dock_main_id);
-				ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Right, 0.20f, NULL, &dock_main_id);
+				ImGuiID dock_id_propBottom = ImGui::DockBuilderSplitNode(dock_id_prop, ImGuiDir_Down, 0.6f, NULL, &dock_id_prop);
+				ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Right, 0.25f, NULL, &dock_main_id);
+				ImGuiID dock_id_rightBottom = ImGui::DockBuilderSplitNode(dock_id_right, ImGuiDir_Down, 0.20f, NULL, &dock_id_right);
 				ImGuiID dock_id_bottom = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Down, 0.20f, NULL, &dock_main_id);
 
-				ImGui::DockBuilderDockWindow(RESOURCES_ID, dock_id_prop);
+				ImGui::DockBuilderDockWindow(RESOURCES_ID, dock_id_propBottom);
 				ImGui::DockBuilderDockWindow(ECS_ID, dock_id_prop);
 				ImGui::DockBuilderDockWindow(SCENE_ID, dock_main_id);
-				ImGui::DockBuilderDockWindow(LOG_ID, dock_id_bottom);
-				ImGui::DockBuilderDockWindow(PROFILER_ID, dock_id_bottom);
-				ImGui::DockBuilderDockWindow(GLOBALSETTINGS_ID, dock_id_bottom);
+				ImGui::DockBuilderDockWindow(LOG_ID, dock_id_rightBottom);
+				ImGui::DockBuilderDockWindow(GLOBALSETTINGS_ID, dock_id_rightBottom);
 				ImGui::DockBuilderDockWindow(PROPERTIES_ID, dock_id_right);
-				ImGui::DockBuilderDockWindow(LEVELSETTINGS_ID, dock_id_right);
 				ImGui::DockBuilderFinish(dockspace_id);
-
 			}
-
 		}
 
 		ImGui::End();

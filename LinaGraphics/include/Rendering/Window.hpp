@@ -60,7 +60,7 @@ namespace LinaEngine::Graphics
 
 		virtual void SetVsync(bool enabled)
 		{
-			m_windowProperties.vSyncEnabled = enabled;
+			m_windowProperties.m_vSyncEnabled = enabled;
 		}
 
 		virtual double GetTime() = 0;
@@ -72,7 +72,7 @@ namespace LinaEngine::Graphics
 		virtual void Close() = 0;
 		virtual void Sleep(int milliseconds) = 0;
 
-		bool GetVsycnEnabled() { return m_windowProperties.vSyncEnabled; }
+		bool GetVsycnEnabled() { return m_windowProperties.m_vSyncEnabled; }
 
 		uint32 GetWidth() { return m_windowProperties.m_width; }
 

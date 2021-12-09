@@ -73,8 +73,7 @@ namespace LinaEngine::Graphics
 		
 		// Set props.
 		m_windowProperties = propsIn;
-
-		
+				
 		// Initialize glfw & set window hints
 		int init = glfwInit();
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -83,11 +82,6 @@ namespace LinaEngine::Graphics
 		glfwWindowHint(GLFW_SAMPLES, 4);
 		glfwWindowHint(GLFW_DECORATED, m_windowProperties.m_decorated);
 		glfwWindowHint(GLFW_RESIZABLE, m_windowProperties.m_resizable);
-
-		if (propsIn.m_windowState == WindowState::Iconified)
-			glfwWindowHint(GLFW_ICONIFIED, GLFW_TRUE);
-		else if (propsIn.m_windowState == WindowState::Maximized)
-			glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
 #ifdef __APPLE__
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -123,6 +117,14 @@ namespace LinaEngine::Graphics
 			LINA_CORE_ERR("GLAD Loader failed!");
 			return false;
 		}
+
+		//int xpos, ypos, width, height;
+		//glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), &xpos, &ypos, &width, &height);
+		//glfwSetWindowSizeLimits(m_glfwWindow, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE, height);
+		//m_windowProperties.m_workingAreaWidth = width;
+		//m_windowProperties.m_workingAreaHeight = height;
+		//SetPos(Vector2::Zero);
+		//SetSize(Vector2(width, height));
 
 		// Update OpenGL about the window data.
 		glViewport(0, 0, m_windowProperties.m_width, m_windowProperties.m_height);
@@ -244,16 +246,24 @@ namespace LinaEngine::Graphics
 	{
 		if (m_windowProperties.m_windowState != WindowState::Maximized)
 		{
+			m_windowProperties.m_widthBeforeMaximize = m_windowProperties.m_width;
+			m_windowProperties.m_heightBeforeMaximize = m_windowProperties.m_height;
+			m_windowProperties.m_xPosBeforeMaximize = m_windowProperties.m_xPos;
+			m_windowProperties.m_yPosBeforeMaximize = m_windowProperties.m_yPos;
+
+			//SetPos(Vector2::Zero);
+			//SetSize(Vector2(m_windowProperties.m_workingAreaWidth, m_windowProperties.m_workingAreaHeight));
+
 			m_windowProperties.m_windowState = WindowState::Maximized;
 			glfwMaximizeWindow(m_glfwWindow);
 		}
 		else
 		{
+			//SetPos(Vector2(m_windowProperties.m_xPosBeforeMaximize, m_windowProperties.m_yPosBeforeMaximize));
+			//SetSize(Vector2(m_windowProperties.m_widthBeforeMaximize, m_windowProperties.m_heightBeforeMaximize));
 			m_windowProperties.m_windowState = WindowState::Normal;
 			glfwRestoreWindow(m_glfwWindow);
 		}
-
-		SetVsync(false);
 	}
 
 	void GLWindow::Close()

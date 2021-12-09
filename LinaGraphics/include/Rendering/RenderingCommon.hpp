@@ -372,11 +372,18 @@ namespace LinaEngine::Graphics
 	struct WindowProperties
 	{
 		std::string m_title;
-		unsigned int m_width;
-		unsigned int m_height;
+		unsigned int m_width = 256;
+		unsigned int m_height = 256;
 		unsigned int m_xPos = 0;
 		unsigned int m_yPos = 0;
-		bool vSyncEnabled;
+		unsigned int m_xPosBeforeMaximize = 0;
+		unsigned int m_yPosBeforeMaximize = 0;
+		unsigned int m_widthBeforeMaximize = 256;
+		unsigned int m_heightBeforeMaximize = 256;
+		unsigned int m_workingAreaWidth = 256;
+		unsigned int m_workingAreaHeight = 256;
+		int m_msaaSamples = 4;
+		bool m_vSyncEnabled = false;
 		bool m_decorated = true;
 		bool m_resizable = true;
 		bool m_fullscreen = false;

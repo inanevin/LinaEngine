@@ -110,11 +110,13 @@ namespace LinaEditor
 
 		// Panels menu
 		std::vector<MenuElement*> panels;
-		panels.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, " Entity Panel", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::ECSPanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_EYE, " Scene Panel", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::ScenePanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_FILE, " Resources Panel", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::PropertiesPanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_COG, " Properties Panel", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::ResourcesPanel)));
-		panels.emplace_back(new MenuItem(ICON_FA_CLIPBOARD, " Log Panel", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::LogPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, " Entity", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::ECSPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_EYE, " Scene", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::ScenePanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_FILE, " Resources", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::PropertiesPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_COG, " Properties", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::ResourcesPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_CLIPBOARD, " Log", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::LogPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_GLOBE, " Global Settings", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::GlobalSettingsPanel)));
+		panels.emplace_back(new MenuItem(ICON_FA_CHART_LINE, " Profiler", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::ProfilerPanel)));
 		panels.emplace_back(new MenuItem("", "ImGui Panel", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::ImGuiPanel)));
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_COLUMNS*/ "Panels", "pu_panel", panels, HEADER_COLOR_BG, true));
 

@@ -46,7 +46,6 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #include "Panels/LogPanel.hpp"
 #include "Panels/HeaderPanel.hpp"
 #include "Panels/ProfilerPanel.hpp"
-#include "Panels/LevelSettingsPanel.hpp"
 #include "Panels/GlobalSettingsPanel.hpp"
 #include "World/DefaultLevel.hpp"
 #include <vector>
@@ -98,7 +97,9 @@ namespace LinaEditor
 		PropertiesPanel = 44,
 		ResourcesPanel = 45,
 		ScenePanel = 46,
-		ImGuiPanel = 47,
+		ProfilerPanel = 47,
+		GlobalSettingsPanel = 48,
+		ImGuiPanel = 50,
 
 		DebugViewPhysics = 61,
 		DebugViewShadows = 62,
@@ -140,7 +141,6 @@ namespace LinaEditor
 		LogPanel m_logPanel;
 		HeaderPanel m_headerPanel;
 		ProfilerPanel m_profilerPanel;
-		LevelSettingsPanel m_levelSettingsPanel;
 		GlobalSettingsPanel m_globalSettingsPanel;
 
 		LinaEngine::World::DefaultLevel m_defaultLevel;
