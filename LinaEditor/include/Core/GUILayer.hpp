@@ -105,6 +105,13 @@ namespace LinaEditor
 		DebugViewShadows = 62,
 		DebugViewNormal = 63,
 
+		Cube = 80,
+		Sphere = 81,
+		Capsule = 82,
+		Cylinder = 83,
+		Plane = 84,
+		Quad = 85
+
 	};
 
 	class GUILayer : public LinaEngine::Layer
@@ -130,6 +137,7 @@ namespace LinaEditor
 
 		void DrawFPSCounter(int corner = 0);
 		void DrawCentralDockingSpace();
+		void CreateObjectInLevel(const std::string& modelPath);
 
 	private:
 

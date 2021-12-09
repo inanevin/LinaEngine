@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
+#include "ECS/Components/ModelRendererComponent.hpp"
 #include "Core/EditorApplication.hpp"
 #include "Input/InputEngine.hpp"
 #include "Core/Application.hpp"
@@ -128,7 +129,6 @@ namespace LinaEditor
 				else if (m_drawMode == DrawMode::ShadowMap)
 					ImGui::GetWindowDrawList()->AddImage((void*)renderEngine.GetShadowMapImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
 
-
 				ImGuiIO& io = ImGui::GetIO();
 				ImGuizmo::Enable(true);
 				ImGuizmo::SetOrthographic(false);
@@ -139,9 +139,34 @@ namespace LinaEditor
 				ProcessInput();
 				DrawGizmos();
 
+				
+
 				ImGui::EndChild();
 
 			}
+
+
+			// Mesh drag & drop.
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMESH_ID))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(uint32));
+
+					auto& ecs = LinaEngine::Application::GetECSRegistry();
+					auto& model = LinaEngine::Graphics::Model::GetModel(*(uint32*)payload->m_data);
+					auto entity = ecs.CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
+					auto& mr = ecs.emplace<ECS::ModelRendererComponent>(entity);
+					mr.SetModel(ecs, entity, model);
+
+					auto& mat = Graphics::Material::GetMaterial("resources/engine/materials/DefaultLit.mat");
+
+					for (int i = 0; i < model.GetMaterialSpecs().size(); i++)
+						mr.SetMaterial(ecs, entity, i, mat);
+				}
+				ImGui::EndDragDropTarget();
+			}
+
 
 			ImGui::End();
 

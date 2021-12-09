@@ -346,6 +346,9 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::ConstructEngineMaterials()
 	{
+		Material::LoadMaterialFromFile("resources/engine/materials/DefaultLit.mat");
+		Material::LoadMaterialFromFile("resources/engine/materials/DefaultUnlit.mat");
+
 		Material::SetMaterialShader(m_screenQuadFinalMaterial, *m_sqFinalShader);
 		Material::SetMaterialShader(m_screenQuadBlurMaterial, *m_sqBlurShader);
 		Material::SetMaterialShader(m_hdriMaterial, *m_hdriEquirectangularShader);
@@ -444,7 +447,6 @@ namespace LinaEngine::Graphics
 		m_secondaryRenderBuffer.Construct(s_renderDevice, RenderBufferStorage::STORAGE_DEPTH, m_viewportSize);
 		m_secondaryRenderTarget.Construct(s_renderDevice, m_secondaryRTTexture, m_viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_secondaryRenderBuffer.GetID());
 #endif
-
 	}
 
 	void RenderEngine::DumpMemory()
@@ -503,25 +505,24 @@ namespace LinaEngine::Graphics
 			}
 		}
 
-		s_renderDevice.SetFBO(m_primaryMSAATarget.GetID());
-		s_renderDevice.SetViewport(Vector2::Zero, m_viewportSize);
+		 s_renderDevice.SetFBO(m_primaryMSAATarget.GetID());
+		 s_renderDevice.SetViewport(Vector2::Zero, m_viewportSize);
 
 
-		if (m_customDrawEnabled && m_customDrawFunction)
-			m_customDrawFunction();
-		else
-		{
-			s_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
-			DrawSkybox();
-			DrawSceneObjects(m_defaultDrawParams);
+		 if (m_customDrawEnabled && m_customDrawFunction)
+		 	m_customDrawFunction();
+		 else
+		 {
+		 	s_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
+		 	DrawSkybox();
+		 	DrawSceneObjects(m_defaultDrawParams);
 		}
 
 		// Draw debugs
-		ProcessDebugQueue();
+		 ProcessDebugQueue();
 
 		// Finalize drawing.
 		DrawFinalize();
-
 
 	}
 

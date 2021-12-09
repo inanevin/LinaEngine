@@ -108,6 +108,16 @@ namespace LinaEditor
 		level.emplace_back(new MenuItem(ICON_FA_UPLOAD, " Load Level Data", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::LoadLevelData)));
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_ARCHWAY*/ "Level", "pu_level", level, HEADER_COLOR_BG, true));
 
+		// Object Menu
+		std::vector<MenuElement*> objects;
+		objects.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, "Cube", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::Cube)));
+		objects.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, "Capsule", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::Capsule)));
+		objects.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, "Cylinder", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::Cylinder)));
+		objects.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, "Plane", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::Plane)));
+		objects.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, "Sphere", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::Sphere)));
+		objects.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, "Quad", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::Quad)));
+		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_COLUMNS*/ "Objecs", "pu_objects", objects, HEADER_COLOR_BG, true));
+
 		// Panels menu
 		std::vector<MenuElement*> panels;
 		panels.emplace_back(new MenuItem(ICON_FA_OBJECT_GROUP, " Entity", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::ECSPanel)));

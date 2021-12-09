@@ -29,6 +29,9 @@ SOFTWARE.
 #include "Panels/ECSPanel.hpp"
 #include "Panels/ScenePanel.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
+#include "ECS/Components/ModelRendererComponent.hpp"
+#include "Rendering/Model.hpp"
+#include "Rendering/Material.hpp"
 #include "Core/GUILayer.hpp"
 #include "Utility/Log.hpp"
 #include "Widgets/WidgetsUtility.hpp"
@@ -201,7 +204,7 @@ namespace LinaEditor
 			ImVec2 min = ImVec2(ImGui::GetWindowPos().x + ImGui::GetCursorPos().x, ImGui::GetWindowPos().y + ImGui::GetCursorPosY());
 			ImVec2 max = ImVec2(min.x + ImGui::GetWindowSize().x, min.y + ImGui::GetWindowSize().y);
 		
-
+		
 			if (ImGui::BeginDragDropTargetCustom(ImRect(min,max), id))
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ECS_MOVEENTITY))
@@ -210,6 +213,23 @@ namespace LinaEditor
 					ECSEntity entity = *(ECSEntity*)payload->m_data;
 					ecs.RemoveFromParent(entity);
 				}
+
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMESH_ID))
+				{
+					IM_ASSERT(payload->DataSize == sizeof(uint32));
+
+					auto& ecs = LinaEngine::Application::GetECSRegistry();
+					auto& model = LinaEngine::Graphics::Model::GetModel(*(uint32*)payload->m_data);
+					auto entity = ecs.CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
+					auto& mr = ecs.emplace<ECS::ModelRendererComponent>(entity);
+					mr.SetModel(ecs, entity, model);
+
+					auto& mat = Graphics::Material::GetMaterial("resources/engine/materials/DefaultLit.mat");
+
+					for (int i = 0; i < model.GetMaterialSpecs().size(); i++)
+						mr.SetMaterial(ecs, entity, i, mat);
+				}
+
 				ImGui::EndDragDropTarget();
 			}
 

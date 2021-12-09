@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Utility/EditorUtility.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Helpers/DrawParameterHelper.hpp"
+#include "ECS/Components/ModelRendererComponent.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -323,6 +324,20 @@ namespace LinaEditor
 		else if (item == MenuBarItems::DebugViewNormal)
 			m_scenePanel.SetDrawMode(LinaEditor::ScenePanel::DrawMode::FinalImage);
 
+		// Objects
+
+		else if (item == MenuBarItems::Cube)
+			CreateObjectInLevel("resources/engine/meshes/primitives/cube.fbx");
+		else if (item == MenuBarItems::Cylinder)
+			CreateObjectInLevel("resources/engine/meshes/primitives/cylinder.fbx");
+		else if (item == MenuBarItems::Capsule)
+			CreateObjectInLevel("resources/engine/meshes/primitives/capsule.fbx");
+		else if (item == MenuBarItems::Quad)
+			CreateObjectInLevel("resources/engine/meshes/primitives/quad.fbx");
+		else if (item == MenuBarItems::Sphere)
+			CreateObjectInLevel("resources/engine/meshes/primitives/sphere.fbx");
+		else if (item == MenuBarItems::Plane)
+			CreateObjectInLevel("resources/engine/meshes/primitives/plane.fbx");
 	}
 
 	void GUILayer::Refresh()
@@ -439,5 +454,19 @@ namespace LinaEditor
 		ImGui::Begin("Background", NULL, ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoInputs);
 		ImGui::End();
 		ImGui::PopStyleColor();
+	}
+	
+	void GUILayer::CreateObjectInLevel(const std::string& modelPath)
+	{
+		auto& ecs = LinaEngine::Application::GetECSRegistry();
+		auto& model = LinaEngine::Graphics::Model::GetModel(modelPath);
+		auto entity = ecs.CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
+		auto& mr = ecs.emplace<ECS::ModelRendererComponent>(entity);
+		mr.SetModel(ecs, entity, model);
+
+		auto& mat = Graphics::Material::GetMaterial("resources/engine/materials/DefaultLit.mat");
+
+		for (int i = 0; i < model.GetMaterialSpecs().size(); i++)
+			mr.SetMaterial(ecs, entity, i, mat);
 	}
 }
