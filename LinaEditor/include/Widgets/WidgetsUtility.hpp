@@ -51,6 +51,12 @@ namespace LinaEngine
 {
 	class Quaternion;
 
+	namespace Graphics
+	{
+		class Material;
+		class Model;
+		class Shader;
+	}
 }
 
 namespace LinaEditor
@@ -96,7 +102,10 @@ namespace LinaEditor
 		static void ItemSpacing(const ImVec2& amt);
 		static void WindowRounding(float rounding);
 		static void PopStyleVar();
-	
+		static LinaEngine::Graphics::Material* MaterialComboBox(const char* comboID, const std::string& currentPath);
+		static LinaEngine::Graphics::Model* ModelComboBox(const char* comboID, int currentModelID);
+		static LinaEngine::Graphics::Shader* ShaderComboBox(const char* comboID, int currentShaderID);
+
 		static std::map<std::string, bool> s_carets;
 
 	private:

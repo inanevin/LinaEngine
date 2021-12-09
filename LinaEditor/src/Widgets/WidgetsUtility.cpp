@@ -29,7 +29,11 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "Utility/Math/Math.hpp"
 #include "Utility/Math/Quaternion.hpp"
+#include "Rendering/Material.hpp"
+#include "Rendering/Model.hpp"
+#include "Rendering/Shader.hpp"
 #include "Drawers/ComponentDrawer.hpp"
+#include "Utility/UtilityFunctions.hpp"
 #include "IconsFontAwesome5.h"
 
 namespace LinaEditor
@@ -356,6 +360,114 @@ namespace LinaEditor
 	void WidgetsUtility::PopStyleVar()
 	{
 		ImGui::PopStyleVar();
+	}
+
+	LinaEngine::Graphics::Material* WidgetsUtility::MaterialComboBox(const char* comboID, const std::string& currentPath)
+	{
+		Graphics::Material* materialToReturn = nullptr;
+
+		std::string materialLabel = "";
+		if (Graphics::Material::MaterialExists(currentPath))
+		{
+			materialLabel = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(currentPath));
+		}
+
+		if (ImGui::BeginCombo(comboID, materialLabel.c_str()))
+		{
+			auto& loadedMaterials = Graphics::Material::GetLoadedMaterials();
+
+			for (auto& material : loadedMaterials)
+			{
+				const bool selected = currentPath == material.second.GetPath();
+
+				std::string label = material.second.GetPath();
+				label = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));
+				if (ImGui::Selectable(label.c_str(), selected))
+				{
+					materialToReturn = &material.second;
+				}
+
+				if (selected)
+					ImGui::SetItemDefaultFocus();
+			}
+
+			ImGui::EndCombo();
+		}
+
+		return materialToReturn;
+	}
+
+	LinaEngine::Graphics::Model* WidgetsUtility::ModelComboBox(const char* comboID, int currentModelID)
+	{
+		LinaEngine::Graphics::Model* modelToReturn = nullptr;
+
+		std::string modelLabel = "";
+		if (Graphics::Model::ModelExists(currentModelID))
+		{
+			const std::string modelLabelFull = Graphics::Model::GetModel(currentModelID).GetPath();
+			modelLabel = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(modelLabelFull));
+		}
+
+		if (ImGui::BeginCombo(comboID, modelLabel.c_str()))
+		{
+			auto& loadedModels = Graphics::Model::GetLoadedModels();
+
+			for (auto& model : loadedModels)
+			{
+				const bool selected = currentModelID == model.second.GetID();
+
+				std::string label = model.second.GetPath();
+				label = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));
+				if (ImGui::Selectable(label.c_str(), selected))
+				{
+					modelToReturn = &model.second;
+				}
+
+				if (selected)
+					ImGui::SetItemDefaultFocus();
+			}
+
+			ImGui::EndCombo();
+		}
+
+		return modelToReturn;
+	}
+
+	LinaEngine::Graphics::Shader* WidgetsUtility::ShaderComboBox(const char* comboID, int currentShaderID)
+	{
+		LinaEngine::Graphics::Shader* shaderToReturn = nullptr;
+
+		std::string shaderLabel = "";
+		if (Graphics::Shader::ShaderExists(currentShaderID))
+		{
+			const std::string shaderLabelFull = Graphics::Shader::GetShader(currentShaderID).GetPath();
+			shaderLabel = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(shaderLabelFull));
+		}
+
+
+		if (ImGui::BeginCombo(comboID, shaderLabel.c_str()))
+		{
+			auto& loadedShaders = LinaEngine::Graphics::Shader::GetLoadedShaders();
+
+			for (auto& shader : loadedShaders)
+			{
+				const bool selected = currentShaderID == shader.second->GetID();
+
+				std::string label = shader.second->GetPath();
+				label = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(label));
+				if (ImGui::Selectable(label.c_str(), selected))
+				{
+					shaderToReturn = shader.second;
+				}
+
+				if (selected)
+					ImGui::SetItemDefaultFocus();
+			}
+
+			ImGui::EndCombo();
+		}
+
+		return shaderToReturn;
 	}
 
 	void WidgetsUtility::Icon(const char* label, float scale, const ImVec4& color)

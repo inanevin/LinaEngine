@@ -908,9 +908,11 @@ namespace LinaEditor
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
-			ImGui::InputText("##selectedMesh", meshPathC, IM_ARRAYSIZE(meshPathC), ImGuiInputTextFlags_ReadOnly);
-			ImGui::SameLine();
-			WidgetsUtility::IncrementCursorPosY(5);
+
+			LinaEngine::Graphics::Model* selected = WidgetsUtility::ModelComboBox("##modelrend_model", renderer.m_modelID);
+
+			if (selected)
+				renderer.SetModel(ecs, entity, *selected);
 
 			// Mesh drag & drop.
 			if (ImGui::BeginDragDropTarget())
@@ -925,6 +927,8 @@ namespace LinaEditor
 				ImGui::EndDragDropTarget();
 			}
 
+			ImGui::SameLine();
+			WidgetsUtility::IncrementCursorPosY(5);
 			// Remove Model
 			if (WidgetsUtility::IconButton("##selectmesh", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 			{
@@ -945,9 +949,14 @@ namespace LinaEditor
 				ImGui::SetCursorPosX(cursorPosValues);
 				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
 
-				// Draw selected material name
-				std::string selectedMat = "##selectedMath" + std::to_string(i);
-				ImGui::InputText(selectedMat.c_str(), matPathC, IM_ARRAYSIZE(matPathC), ImGuiInputTextFlags_ReadOnly);
+				const std::string cboxID = "#modelrend_material " + i;
+				LinaEngine::Graphics::Material* selectedMaterial = WidgetsUtility::MaterialComboBox(cboxID.c_str(), renderer.m_materialPaths[i]);
+
+				if (selectedMaterial != nullptr)
+					renderer.SetMaterial(ecs, entity, i, *selectedMaterial);
+
+				
+				
 				ImGui::SameLine();
 				WidgetsUtility::IncrementCursorPosY(5);
 
@@ -1022,20 +1031,22 @@ namespace LinaEditor
 				renderer.m_selectedMatPath = renderer.m_materialPaths;
 			}
 
-			// Material selection.
-			char matPathC[128] = "";
-			strcpy(matPathC, renderer.m_materialPaths.c_str());
+			
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Material");
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorPosValues);
-			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
-			ImGui::InputText("##selectedSpriteMat", matPathC, IM_ARRAYSIZE(matPathC), ImGuiInputTextFlags_ReadOnly);
-			ImGui::SameLine();
-			WidgetsUtility::IncrementCursorPosY(5);
 
+			Graphics::Material* selected = WidgetsUtility::MaterialComboBox("##spr_material", renderer.m_materialPaths);
 
+			if (selected != nullptr)
+			{
+				renderer.m_materialID = selected->GetID();
+				renderer.m_materialPaths = selected->GetPath();
+			}
+			
+		
 			// Material drag & drop.
 			if (ImGui::BeginDragDropTarget())
 			{
@@ -1048,6 +1059,10 @@ namespace LinaEditor
 				}
 				ImGui::EndDragDropTarget();
 			}
+
+			ImGui::SameLine();
+			WidgetsUtility::IncrementCursorPosY(5);
+
 
 			if (WidgetsUtility::IconButton("##selectspritemat", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 			{
