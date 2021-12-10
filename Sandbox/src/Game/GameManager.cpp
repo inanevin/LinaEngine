@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Levels/Example1Level.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 	GameManager* GameManager::s_instance = nullptr;
 	Example1Level* m_exampleLevel = nullptr;
@@ -41,7 +41,7 @@ namespace LinaEngine
 		s_instance = this;
 		LINA_CLIENT_TRACE("Game Manager Attached!");
 		m_exampleLevel = new Example1Level();
-		LinaEngine::Application::GetApp().InstallLevel(*m_exampleLevel, true, "resources/sandbox/Levels/", "Example1Level");
+		Lina::Application::GetApp().InstallLevel(*m_exampleLevel, true, "resources/sandbox/Levels/", "Example1Level");
 	}
 
 	void GameManager::Tick(float delta)

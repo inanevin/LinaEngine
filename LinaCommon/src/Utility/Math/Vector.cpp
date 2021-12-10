@@ -32,7 +32,7 @@ SOFTWARE.
 #include "glm/gtx/rotate_vector.hpp"
 #include "Utility/Math/Quaternion.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 
 	Vector4 Vector4::Zero = Vector4(0.0f);

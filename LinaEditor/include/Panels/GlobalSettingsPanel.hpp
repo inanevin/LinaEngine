@@ -41,7 +41,7 @@ Timestamp: 10/30/2020 9:37:42 AM
 
 #include "Panels/EditorPanel.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace World
 	{
@@ -49,7 +49,7 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class GlobalSettingsPanel : public EditorPanel
 	{
@@ -62,12 +62,12 @@ namespace LinaEditor
 		virtual void Setup() override;
 		virtual void Draw() override;
 	
-		void LevelInstalled(LinaEngine::World::Level* level);
-		void LevelIUninstalled(LinaEngine::World::Level* level);
+		void LevelInstalled(Lina::World::Level* level);
+		void LevelIUninstalled(Lina::World::Level* level);
 
 	private:
 	
-		LinaEngine::World::Level* m_currentLevel = nullptr;
+		Lina::World::Level* m_currentLevel = nullptr;
 	};
 }
 

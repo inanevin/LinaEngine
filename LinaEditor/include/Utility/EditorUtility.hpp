@@ -43,7 +43,7 @@ Timestamp: 5/9/2020 1:22:23
 #include <vector>
 #include <map>
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace Graphics
 	{
@@ -53,7 +53,7 @@ namespace LinaEngine
 
 struct ImVec4;
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 
 

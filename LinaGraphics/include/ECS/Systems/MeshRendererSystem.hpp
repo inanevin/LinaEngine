@@ -47,7 +47,7 @@ Timestamp: 4/27/2019 5:38:44 PM
 #include "Rendering/VertexArray.hpp"
 #include <queue>
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace Graphics
 	{
@@ -70,7 +70,7 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	struct EntityDataComponent;
 	struct MeshRendererComponent;
@@ -103,8 +103,8 @@ namespace LinaEngine::ECS
 
 		void Construct(ECSRegistry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn);
 
-		void RenderOpaque(Graphics::VertexArray& vertexArray, LinaEngine::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn);
-		void RenderTransparent(Graphics::VertexArray& vertexArray, LinaEngine::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn, float priority);
+		void RenderOpaque(Graphics::VertexArray& vertexArray, Lina::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn);
+		void RenderTransparent(Graphics::VertexArray& vertexArray, Lina::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn, float priority);
 		void FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
 		void FlushTransparent(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
 	

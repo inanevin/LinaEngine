@@ -43,7 +43,7 @@ Timestamp: 1/2/2019 1:42:06 AM
 #include "Core/Common.hpp"
 #include <string>
 
-namespace LinaEngine
+namespace Lina
 {
 	class Layer
 	{

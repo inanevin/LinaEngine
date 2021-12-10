@@ -32,7 +32,7 @@ SOFTWARE.
 #include <cstdlib>
 #include <stdio.h>
 
-namespace LinaEngine
+namespace Lina
 {
 
 	void* GenericMemory::malloc(uintptr amt, uint32 alignment)

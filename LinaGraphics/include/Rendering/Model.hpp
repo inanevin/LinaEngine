@@ -47,7 +47,7 @@ Timestamp: 5/6/2019 4:23:45 PM
 #include "Animation/Skeleton.hpp"
 #include "Core/SizeDefinitions.hpp"
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	class VertexArray;
 

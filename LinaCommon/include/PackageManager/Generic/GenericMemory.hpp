@@ -47,7 +47,7 @@ Timestamp: 4/8/2019 9:04:58 PM
 
 #define GENERIC_MEMORY_SMALL_MEMSWAP_MAX 16
 
-namespace LinaEngine
+namespace Lina
 {
 
 	struct GenericMemory

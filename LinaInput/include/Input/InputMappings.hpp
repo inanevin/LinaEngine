@@ -38,7 +38,7 @@ Timestamp: 1/6/2019 4:33:31 AM
 #ifndef InputMappings_HPP
 #define InputMappings_HPP
 
-namespace LinaEngine::Input
+namespace Lina::Input
 {
 
 #define NUM_KEY_STATES 380

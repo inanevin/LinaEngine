@@ -45,7 +45,7 @@ Timestamp: 12/8/2021 12:27:21 PM
 #include <cereal/types/string.hpp>
 #include <cereal/types/vector.hpp>
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace World
 	{
@@ -59,12 +59,12 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class ComponentDrawer;
 }
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	class MeshRendererSystem;
 
@@ -81,8 +81,8 @@ namespace LinaEngine::ECS
 
 		friend class cereal::access;
 		friend class ECS::MeshRendererSystem;
-		friend class LinaEngine::World::Level;
-		friend class LinaEditor::ComponentDrawer;
+		friend class Lina::World::Level;
+		friend class Lina::Editor::ComponentDrawer;
 
 		int m_modelID = 0;
 		std::string m_modelPath = "";

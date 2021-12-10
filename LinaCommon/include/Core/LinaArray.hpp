@@ -41,7 +41,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 
 #include <vector>
 
-namespace LinaEngine
+namespace Lina
 {
 	// Custom array w/ extension functions defined.
 	template<typename T>

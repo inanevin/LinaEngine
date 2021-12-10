@@ -42,7 +42,7 @@ SOFTWARE.
 #include "Helpers/DrawParameterHelper.hpp"
 #include "Core/Timer.hpp"
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	RenderDevice RenderEngine::s_renderDevice;
 	Texture RenderEngine::s_defaultTexture;
@@ -80,19 +80,19 @@ namespace LinaEngine::Graphics
 		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
 
-	void RenderEngine::Initialize(LinaEngine::ECS::ECSRegistry& ecsReg, Window& appWindow)
+	void RenderEngine::Initialize(Lina::ECS::ECSRegistry& ecsReg, Window& appWindow)
 	{
 		if (Utility::FileExists(RENDERSETTINGS_FULLPATH))
 			m_renderSettings = RenderSettings::DeserializeRenderSettings(RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
 
 		// Register ECS components
-		ecsReg.RegisterComponentToClone<LinaEngine::ECS::CameraComponent>();
-		ecsReg.RegisterComponentToClone<LinaEngine::ECS::PointLightComponent>();
-		ecsReg.RegisterComponentToClone<LinaEngine::ECS::SpotLightComponent>();
-		ecsReg.RegisterComponentToClone<LinaEngine::ECS::DirectionalLightComponent>();
-		ecsReg.RegisterComponentToClone<LinaEngine::ECS::MeshRendererComponent>();
-		ecsReg.RegisterComponentToClone<LinaEngine::ECS::ModelRendererComponent>();
-		ecsReg.RegisterComponentToClone<LinaEngine::ECS::SpriteRendererComponent>();
+		ecsReg.RegisterComponentToClone<Lina::ECS::CameraComponent>();
+		ecsReg.RegisterComponentToClone<Lina::ECS::PointLightComponent>();
+		ecsReg.RegisterComponentToClone<Lina::ECS::SpotLightComponent>();
+		ecsReg.RegisterComponentToClone<Lina::ECS::DirectionalLightComponent>();
+		ecsReg.RegisterComponentToClone<Lina::ECS::MeshRendererComponent>();
+		ecsReg.RegisterComponentToClone<Lina::ECS::ModelRendererComponent>();
+		ecsReg.RegisterComponentToClone<Lina::ECS::SpriteRendererComponent>();
 
 		// Set references.
 		m_appWindow = &appWindow;
@@ -211,7 +211,7 @@ namespace LinaEngine::Graphics
 	}
 
 
-	void RenderEngine::AddToRenderingPipeline(LinaEngine::ECS::BaseECSSystem& system)
+	void RenderEngine::AddToRenderingPipeline(Lina::ECS::BaseECSSystem& system)
 	{
 		m_renderingPipeline.AddSystem(system);
 	}

@@ -40,7 +40,7 @@ Timestamp: 4/14/2019 1:37:59 AM
 #include <cereal/types/string.hpp>
 #include <cereal/types/vector.hpp>
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	struct MeshRendererComponent : public ECSComponent
 	{

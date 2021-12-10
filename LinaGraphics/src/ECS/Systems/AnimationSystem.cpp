@@ -32,9 +32,9 @@ SOFTWARE.
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Model.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
-	void AnimationSystem::Construct(ECSRegistry& registry, LinaEngine::Graphics::RenderEngine* renderEngine)
+	void AnimationSystem::Construct(ECSRegistry& registry, Lina::Graphics::RenderEngine* renderEngine)
 	{
 		BaseECSSystem::Construct(registry);
 		m_renderEngine = renderEngine;

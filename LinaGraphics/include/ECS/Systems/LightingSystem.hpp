@@ -48,7 +48,7 @@ Timestamp: 5/13/2019 12:49:19 AM
 #include "PackageManager/PAMRenderDevice.hpp"
 
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace Graphics
 	{
@@ -56,7 +56,7 @@ namespace LinaEngine
 	}	
 }
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	class LightingSystem : public BaseECSSystem
 	{

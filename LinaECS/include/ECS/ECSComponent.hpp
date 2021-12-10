@@ -41,7 +41,7 @@ Timestamp: 5/23/2020 5:17:02 PM
 #ifndef ECSComponent_HPP
 #define ECSComponent_HPP
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	class ECSComponent
 	{

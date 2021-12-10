@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Rendering/RenderEngine.hpp"
 #include "Utility/UtilityFunctions.hpp"
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	std::map<int, Shader*> Shader::s_loadedShaders;
 
@@ -54,7 +54,7 @@ namespace LinaEngine::Graphics
 		{
 			// Mesh not found.
 			LINA_CORE_WARN("Shader with the path {0} was not found, returning default shader", path);
-			return LinaEngine::Graphics::RenderEngine::GetDefaultShader();
+			return Lina::Graphics::RenderEngine::GetDefaultShader();
 		}
 
 		return *it->second;

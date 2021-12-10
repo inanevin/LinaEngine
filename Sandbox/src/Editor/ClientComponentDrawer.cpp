@@ -33,7 +33,7 @@ SOFTWARE.
 
 #endif
 
-namespace LinaEngine
+namespace Lina
 {
 
 

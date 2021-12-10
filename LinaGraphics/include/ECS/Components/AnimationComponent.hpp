@@ -43,7 +43,7 @@ Timestamp: 12/7/2021 4:13:25 PM
 #include "ECS/ECSComponent.hpp"
 #include <string>
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	struct AnimationComponent : public ECSComponent
 	{

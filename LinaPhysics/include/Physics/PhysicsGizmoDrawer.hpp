@@ -37,7 +37,7 @@ SOFTWARE.
 #include "Utility/Math/Color.hpp"
 #include <functional>
 
-namespace LinaEngine
+namespace Lina
 {
 	class Application;
 }
@@ -47,7 +47,7 @@ class PhysicsGizmoDrawer : public btIDebugDraw
 public:
 
 
-	void Setup(std::function<void(LinaEngine::Vector3, LinaEngine::Vector3, LinaEngine::Color, float)>& cb) { m_drawLineCallback = cb; }
+	void Setup(std::function<void(Lina::Vector3, Lina::Vector3, Lina::Color, float)>& cb) { m_drawLineCallback = cb; }
 
 	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
 	{
@@ -78,7 +78,7 @@ public:
 private:
 	
 	DebugDrawModes m_debugMode;
-	std::function<void(LinaEngine::Vector3, LinaEngine::Vector3, LinaEngine::Color, float)> m_drawLineCallback;
+	std::function<void(Lina::Vector3, Lina::Vector3, Lina::Color, float)> m_drawLineCallback;
 };
 
 #endif

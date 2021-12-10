@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Actions/ActionDispatcher.hpp"  
 
-namespace LinaEngine::Action
+namespace Lina::Action
 {
 	
 	void ActionDispatcher::Initialize(int startIndex, int endIndex)
@@ -70,7 +70,7 @@ namespace LinaEngine::Action
 
 	ActionHandlerBase* ActionDispatcher::FindAction(std::list<ActionHandlerBase*>& targetList, const std::string& actionID)
 	{
-		size_t actionIDHashed = LinaEngine::Utility::StringToHash(actionID);
+		size_t actionIDHashed = Lina::Utility::StringToHash(actionID);
 		std::list<ActionHandlerBase*>::iterator it = std::find_if(targetList.begin(), targetList.end(), [actionIDHashed]
 		(const ActionHandlerBase* m) -> bool { return m->GetHashedID() == actionIDHashed; });
 

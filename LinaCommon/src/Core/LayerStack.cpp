@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Core/LayerStack.hpp"  
 #include "Core/Layer.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 	LayerStack::LayerStack()
 	{

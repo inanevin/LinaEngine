@@ -31,7 +31,7 @@ SOFTWARE.
 #include "PackageManager/Generic/GenericMemory.hpp"
 #include "glad/glad.h"
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	// ---------------------------------------------------------------------
 	// ---------------------------------------------------------------------
@@ -1576,7 +1576,7 @@ namespace LinaEngine::Graphics
 		uint32 version = GetVersion();
 
 		if (version >= 330)
-			m_ShaderVersion = LinaEngine::Internal::ToString(version);
+			m_ShaderVersion = Lina::Internal::ToString(version);
 		else if (version >= 320)
 			m_ShaderVersion = "150";
 		else if (version >= 310)

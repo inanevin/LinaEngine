@@ -26,9 +26,9 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
 
-using namespace LinaEngine::Graphics;
-using namespace LinaEngine::ECS;
-using namespace LinaEngine;
+using namespace Lina::Graphics;
+using namespace Lina::ECS;
+using namespace Lina;
 
 Example1Level::~Example1Level()
 {
@@ -59,7 +59,7 @@ void Example1Level::Initialize()
 
 	// Texture* hdri = &Texture::GetTexture("resources/sandbox/HDRI/studio.hdr");
 	// Application::GetRenderEngine().CaptureCalculateHDRI(*hdri);
-	// Material& mat = LinaEngine::Graphics::Material::CreateMaterial(Graphics::Shader::GetShader("resources/engine/shaders/Skybox/SkyboxHDRI.glsl"));
+	// Material& mat = Lina::Graphics::Material::CreateMaterial(Graphics::Shader::GetShader("resources/engine/shaders/Skybox/SkyboxHDRI.glsl"));
 	// mat.SetTexture(MAT_MAP_ENVIRONMENT, &Application::GetRenderEngine().GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 	// Application::GetRenderEngine().SetSkyboxMaterial(&mat);
 	// Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(Application::GetECSRegistry().GetEntity("Entity"));

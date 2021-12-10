@@ -31,7 +31,7 @@ SOFTWARE.
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "..\..\include\ECS\Components\EntityDataComponent.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	bool ECSSystemList::RemoveSystem(BaseECSSystem& system)
 	{

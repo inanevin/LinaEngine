@@ -45,7 +45,7 @@ Timestamp: 2/16/2019 1:47:28 AM
 #include "UniformBuffer.hpp"
 #include <string>
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 
 	class Shader

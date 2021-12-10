@@ -41,7 +41,7 @@ Timestamp: 10/29/2020 6:57:41 PM
 
 #include "Rendering/RenderingCommon.hpp"
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	class DrawParameterHelper
 	{

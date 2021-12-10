@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Utility/Log.hpp"
 #include <sstream>
 
-namespace LinaEngine
+namespace Lina
 {
 	std::function<void(Log::LogDump)> Log::s_onLog;
 }

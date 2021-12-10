@@ -45,7 +45,7 @@ Timestamp: 5/13/2019 9:00:55 PM
 #include "ECS/ECSComponent.hpp"
 
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 
 	struct LightComponent : public ECSComponent

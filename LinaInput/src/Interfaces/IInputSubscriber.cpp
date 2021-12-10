@@ -22,53 +22,53 @@ Timestamp: 10/18/2020 2:53:28 PM
 #include "Input/InputEngine.hpp"
 #include "Actions/Action.hpp"
 
-namespace LinaEngine::Input
+namespace Lina::Input
 {
 		void IInputSubscriber::SubscribeKeyPressedAction(const std::string& handlerID, std::function<void(InputCode::Key)>&& cb, InputCode::Key key)
 		{
 			if (key != InputCode::Key::Unknown)
-				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Key>(handlerID, LinaEngine::Action::ActionType::KeyPressed, cb, key);
+				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Key>(handlerID, Lina::Action::ActionType::KeyPressed, cb, key);
 			else
-				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Key>(handlerID, LinaEngine::Action::ActionType::KeyPressed, cb);
+				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Key>(handlerID, Lina::Action::ActionType::KeyPressed, cb);
 		}
 
 		void IInputSubscriber::SubscribeKeyReleasedAction(const std::string& handlerID, std::function<void(InputCode::Key)>&& cb, InputCode::Key key)
 		{
 			if (key != InputCode::Key::Unknown)
-				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Key>(handlerID, LinaEngine::Action::ActionType::KeyReleased, cb, key);
+				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Key>(handlerID, Lina::Action::ActionType::KeyReleased, cb, key);
 			else
-				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Key>(handlerID, LinaEngine::Action::ActionType::KeyReleased, cb);
+				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Key>(handlerID, Lina::Action::ActionType::KeyReleased, cb);
 		}
 
 		void IInputSubscriber::SubscribeMouseButtonPressedAction(const std::string& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse button)
 		{
 			if (button != InputCode::Mouse::MouseUnknown)
-				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Mouse>(handlerID, LinaEngine::Action::ActionType::MouseButtonPressed, cb, button);
+				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Mouse>(handlerID, Lina::Action::ActionType::MouseButtonPressed, cb, button);
 			else
-				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Mouse>(handlerID, LinaEngine::Action::ActionType::MouseButtonPressed, cb);
+				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Mouse>(handlerID, Lina::Action::ActionType::MouseButtonPressed, cb);
 		}
 
 		void IInputSubscriber::SubscribeMouseButtonReleasedAction(const std::string& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse button)
 		{
 			if (button != InputCode::Mouse::MouseUnknown)
-				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Mouse>(handlerID, LinaEngine::Action::ActionType::MouseButtonReleased, cb, button);
+				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Mouse>(handlerID, Lina::Action::ActionType::MouseButtonReleased, cb, button);
 			else
-				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Mouse>(handlerID, LinaEngine::Action::ActionType::MouseButtonReleased, cb);
+				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Mouse>(handlerID, Lina::Action::ActionType::MouseButtonReleased, cb);
 		}
 
 		void IInputSubscriber::SubscribeMousePressedAction(const std::string& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse mouse )
 		{
 			if (mouse != InputCode::Mouse::MouseUnknown)
-				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Mouse>(handlerID, LinaEngine::Action::ActionType::MouseButtonPressed, cb, mouse);
+				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Mouse>(handlerID, Lina::Action::ActionType::MouseButtonPressed, cb, mouse);
 			else
-				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Mouse>(handlerID, LinaEngine::Action::ActionType::MouseButtonPressed, cb);
+				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Mouse>(handlerID, Lina::Action::ActionType::MouseButtonPressed, cb);
 		}
 
 		void IInputSubscriber::SubscribeMouseReleasedAction(const std::string& handlerID, std::function<void(InputCode::Mouse)>&& cb, InputCode::Mouse mouse )
 		{
 			if (mouse != InputCode::Mouse::MouseUnknown)
-				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Mouse>(handlerID, LinaEngine::Action::ActionType::MouseButtonReleased, cb, mouse);
+				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Mouse>(handlerID, Lina::Action::ActionType::MouseButtonReleased, cb, mouse);
 			else
-				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Mouse>(handlerID, LinaEngine::Action::ActionType::MouseButtonReleased, cb);
+				InputEngine::GetInputDispatcher().SubscribeAction<InputCode::Mouse>(handlerID, Lina::Action::ActionType::MouseButtonReleased, cb);
 		}
 }

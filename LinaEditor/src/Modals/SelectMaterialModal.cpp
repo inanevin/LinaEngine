@@ -30,15 +30,15 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "imgui/imgui.h"
 
-namespace LinaEditor
+namespace Lina::Editor
 {
-	void SelectMaterialModal::Draw(const std::map<int, LinaEngine::Graphics::Material>& map, int* selectedMatID, std::string& selectedMatPath)
+	void SelectMaterialModal::Draw(const std::map<int, Lina::Graphics::Material>& map, int* selectedMatID, std::string& selectedMatPath)
 	{
 		ImGui::BeginChild("SelectMeshModalChild", ImVec2(0, 300), true);
 
 		static int selected = -1;
 		static std::string selectedPath = "";
-		for (std::map<int, LinaEngine::Graphics::Material>::const_iterator it = map.begin(); it != map.end(); it++)
+		for (std::map<int, Lina::Graphics::Material>::const_iterator it = map.begin(); it != map.end(); it++)
 		{
 			const std::string& path = it->second.GetPath();
 

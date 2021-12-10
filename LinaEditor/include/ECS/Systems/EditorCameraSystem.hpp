@@ -42,23 +42,23 @@ Timestamp: 10/27/2020 4:58:35 PM
 // Headers here.
 #include "ECS/ECSSystem.hpp"
 
-namespace LinaEngine::Input
+namespace Lina::Input
 {
 	class InputEngine;
 }
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class ScenePanel;
 }
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	class EditorCameraSystem : public BaseECSSystem
 	{
 	public:
 
-		void Construct(ECSRegistry& registry, LinaEngine::Input::InputEngine& inputEngineIn, LinaEditor::ScenePanel& scenePanel)
+		void Construct(ECSRegistry& registry, Lina::Input::InputEngine& inputEngineIn, Lina::Editor::ScenePanel& scenePanel)
 		{
 			BaseECSSystem::Construct(registry);
 			m_inputEngine = &inputEngineIn;
@@ -72,8 +72,8 @@ namespace LinaEngine::ECS
 	private:
 
 		ECSEntity m_editorCamera = entt::null;
-		LinaEditor::ScenePanel* m_scenePanel;
-		LinaEngine::Input::InputEngine* m_inputEngine;
+		Lina::Editor::ScenePanel* m_scenePanel;
+		Lina::Input::InputEngine* m_inputEngine;
 		float m_horizontalKeyAmt = 0.0f;
 		float m_verticalKeyAmt = 0.0f;
 		float m_targetXAngle = 0.0f;

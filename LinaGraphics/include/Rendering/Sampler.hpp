@@ -41,7 +41,7 @@ Timestamp: 4/26/2019 6:20:27 PM
 
 #include "PackageManager/PAMRenderDevice.hpp"
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	class Sampler
 	{

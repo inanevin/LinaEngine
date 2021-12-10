@@ -32,7 +32,7 @@ SOFTWARE.
 #include "AL/alc.h"
 #include "AL/alut.h"
 
-namespace LinaEngine::Audio
+namespace Lina::Audio
 {
 	AudioEngine::AudioEngine()
 	{

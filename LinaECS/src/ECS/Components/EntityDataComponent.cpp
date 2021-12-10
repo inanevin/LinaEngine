@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "ECS/Components/EntityDataComponent.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	void EntityDataComponent::AddRotation(const Vector3& angles)
 	{
@@ -191,7 +191,7 @@ namespace LinaEngine::ECS
 		else
 		{
 			auto& d = m_ecs->get<EntityDataComponent>(m_parent);
-			LinaEngine::Matrix global = d.m_transform.ToMatrix() * m_transform.ToLocalMatrix();
+			Lina::Matrix global = d.m_transform.ToMatrix() * m_transform.ToLocalMatrix();
 			Vector3 translation = global.GetTranslation();
 			m_transform.m_previousLocation = m_transform.m_location;
 			m_transform.m_location = translation;
@@ -211,7 +211,7 @@ namespace LinaEngine::ECS
 		else
 		{
 			auto& d = m_ecs->get<EntityDataComponent>(m_parent);
-			LinaEngine::Matrix global = d.m_transform.ToMatrix().Inverse() * m_transform.ToMatrix();
+			Lina::Matrix global = d.m_transform.ToMatrix().Inverse() * m_transform.ToMatrix();
 			m_transform.m_localLocation = global.GetTranslation();
 		}
 	}

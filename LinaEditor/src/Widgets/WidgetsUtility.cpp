@@ -36,7 +36,7 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "IconsFontAwesome5.h"
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	std::map<std::string, std::tuple<bool, bool>> WidgetsUtility::s_iconButtons;
 	std::map<std::string, float> WidgetsUtility::s_debugFloats;
@@ -192,7 +192,7 @@ namespace LinaEditor
 
 		for (int i = 0; i < height; i++)
 		{
-			ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + thickness * i), ImVec2(max.x, max.y + thickness * i), ImGui::ColorConvertFloat4ToU32(ImVec4(color.x, color.y, color.z, LinaEngine::Math::Remap((float)i, 0.0f, (float)height, 1.0f, 0.0f))), thickness);
+			ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, min.y + thickness * i), ImVec2(max.x, max.y + thickness * i), ImGui::ColorConvertFloat4ToU32(ImVec4(color.x, color.y, color.z, Lina::Math::Remap((float)i, 0.0f, (float)height, 1.0f, 0.0f))), thickness);
 		}
 	}
 
@@ -215,19 +215,19 @@ namespace LinaEditor
 		ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImVec4(0, 0, 0, 1)));
 	}
 
-	bool WidgetsUtility::InputQuaternion(const char* label, LinaEngine::Quaternion& v)
+	bool WidgetsUtility::InputQuaternion(const char* label, Lina::Quaternion& v)
 	{
 		float rot[3] = { v.GetEuler().x, v.GetEuler().y,v.GetEuler().z };
 		bool edited = ImGui::InputFloat3(label, rot);
-		v = LinaEngine::Quaternion::Euler(rot[0], rot[1], rot[2]);
+		v = Lina::Quaternion::Euler(rot[0], rot[1], rot[2]);
 		return edited;
 	}
 
-	bool WidgetsUtility::DragQuaternion(const char* label, LinaEngine::Quaternion& v)
+	bool WidgetsUtility::DragQuaternion(const char* label, Lina::Quaternion& v)
 	{
 		float rot[3] = { v.GetEuler().x, v.GetEuler().y,v.GetEuler().z };
 		bool edited = ImGui::DragFloat3(label, rot);
-		v = LinaEngine::Quaternion::Euler(rot[0], rot[1], rot[2]);
+		v = Lina::Quaternion::Euler(rot[0], rot[1], rot[2]);
 		return edited;
 	}
 
@@ -362,7 +362,7 @@ namespace LinaEditor
 		ImGui::PopStyleVar();
 	}
 
-	LinaEngine::Graphics::Material* WidgetsUtility::MaterialComboBox(const char* comboID, const std::string& currentPath)
+	Lina::Graphics::Material* WidgetsUtility::MaterialComboBox(const char* comboID, const std::string& currentPath)
 	{
 		Graphics::Material* materialToReturn = nullptr;
 
@@ -397,9 +397,9 @@ namespace LinaEditor
 		return materialToReturn;
 	}
 
-	LinaEngine::Graphics::Model* WidgetsUtility::ModelComboBox(const char* comboID, int currentModelID)
+	Lina::Graphics::Model* WidgetsUtility::ModelComboBox(const char* comboID, int currentModelID)
 	{
-		LinaEngine::Graphics::Model* modelToReturn = nullptr;
+		Lina::Graphics::Model* modelToReturn = nullptr;
 
 		std::string modelLabel = "";
 		if (Graphics::Model::ModelExists(currentModelID))
@@ -433,9 +433,9 @@ namespace LinaEditor
 		return modelToReturn;
 	}
 
-	LinaEngine::Graphics::Shader* WidgetsUtility::ShaderComboBox(const char* comboID, int currentShaderID)
+	Lina::Graphics::Shader* WidgetsUtility::ShaderComboBox(const char* comboID, int currentShaderID)
 	{
-		LinaEngine::Graphics::Shader* shaderToReturn = nullptr;
+		Lina::Graphics::Shader* shaderToReturn = nullptr;
 
 		std::string shaderLabel = "";
 		if (Graphics::Shader::ShaderExists(currentShaderID))
@@ -447,7 +447,7 @@ namespace LinaEditor
 
 		if (ImGui::BeginCombo(comboID, shaderLabel.c_str()))
 		{
-			auto& loadedShaders = LinaEngine::Graphics::Shader::GetLoadedShaders();
+			auto& loadedShaders = Lina::Graphics::Shader::GetLoadedShaders();
 
 			for (auto& shader : loadedShaders)
 			{

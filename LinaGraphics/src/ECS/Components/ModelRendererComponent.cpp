@@ -31,7 +31,7 @@ SOFTWARE.
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "Rendering/Model.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	void ModelRendererComponent::SetModel(ECS::ECSRegistry& reg, ECS::ECSEntity parent, Graphics::Model& model)
 	{

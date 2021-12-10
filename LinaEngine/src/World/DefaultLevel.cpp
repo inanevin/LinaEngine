@@ -29,7 +29,7 @@ SOFTWARE.
 #include "World/DefaultLevel.hpp"
 
 
-namespace LinaEngine::World
+namespace Lina::World
 {
 
 	DefaultLevel::~DefaultLevel()

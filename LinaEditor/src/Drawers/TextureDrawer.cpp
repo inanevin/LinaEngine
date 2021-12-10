@@ -33,9 +33,9 @@ SOFTWARE.
 #include "Rendering/Texture.hpp"
 #include "Core/EditorApplication.hpp"
 
-using namespace LinaEngine::Graphics;
+using namespace Lina::Graphics;
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	const char* pixelFormats[]{
 	"R",
@@ -83,7 +83,7 @@ namespace LinaEditor
 #define CURSORPOS_XPERC_VALUES2 
 
 
-	void TextureDrawer::SetSelectedTexture(LinaEngine::Graphics::Texture* texture)
+	void TextureDrawer::SetSelectedTexture(Lina::Graphics::Texture* texture)
 	{
 
 		m_selectedTexture = texture;
@@ -324,14 +324,14 @@ namespace LinaEditor
 
 			std::string filePath = m_selectedTexture->GetPath();
 			std::string paramsPath = m_selectedTexture->GetParamsPath();
-			LinaEngine::Graphics::Texture* reimportedTexture = &LinaEngine::Graphics::Texture::CreateTexture2D(filePath, newParams, false, false, paramsPath);
+			Lina::Graphics::Texture* reimportedTexture = &Lina::Graphics::Texture::CreateTexture2D(filePath, newParams, false, false, paramsPath);
 
 			auto pair = std::make_pair(m_selectedTexture, reimportedTexture);
-			LinaEditor::EditorApplication::GetEditorDispatcher().DispatchAction<std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*>>(LinaEngine::Action::ActionType::TextureReimported,
+			Lina::Editor::EditorApplication::GetEditorDispatcher().DispatchAction<std::pair<Lina::Graphics::Texture*, Lina::Graphics::Texture*>>(Lina::Action::ActionType::TextureReimported,
 				pair);
 
-			LinaEngine::Graphics::Texture::UnloadTextureResource(m_selectedTexture->GetID());
-			LinaEngine::Graphics::Texture::SaveParameters(paramsPath, newParams);
+			Lina::Graphics::Texture::UnloadTextureResource(m_selectedTexture->GetID());
+			Lina::Graphics::Texture::SaveParameters(paramsPath, newParams);
 
 			SetSelectedTexture(reimportedTexture);
 		}

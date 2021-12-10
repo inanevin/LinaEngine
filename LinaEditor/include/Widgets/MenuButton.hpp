@@ -43,7 +43,7 @@ Timestamp: 10/8/2020 9:02:33 PM
 #include "Utility/Math/Color.hpp"
 #include <functional>
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class MenuElement
 	{
@@ -82,7 +82,7 @@ namespace LinaEditor
 		friend class MenuButton;
 
 		bool m_isHovered = false;
-		LinaEngine::Color m_color = LinaEngine::Color(0, 0, 0, 0);
+		Lina::Color m_color = Lina::Color(0, 0, 0, 0);
 		std::function<void()> m_onClick;
 	};
 
@@ -91,7 +91,7 @@ namespace LinaEditor
 		
 	public:
 		
-		MenuButton(const char* title, const char* popupID, std::vector<MenuElement*>& children, const LinaEngine::Color& bgColor = LinaEngine::Color(0,0,0,0), bool useSameLine = false);
+		MenuButton(const char* title, const char* popupID, std::vector<MenuElement*>& children, const Lina::Color& bgColor = Lina::Color(0,0,0,0), bool useSameLine = false);
 		~MenuButton();
 
 		virtual void Draw() override;
@@ -113,7 +113,7 @@ namespace LinaEditor
 		bool m_useSameLine = false;
 		std::function<void()> m_onClick;
 		std::vector<MenuElement*> m_children;
-		LinaEngine::Color m_bgColor = LinaEngine::Color::Black;
+		Lina::Color m_bgColor = Lina::Color::Black;
 	};
 }
 

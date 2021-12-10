@@ -43,7 +43,7 @@ Timestamp: 4/14/2019 7:12:53 PM
 #ifdef LINA_GRAPHICS_OPENGL
 #include "OpenGL/GLInputDevice.hpp"
 
-typedef LinaEngine::Input::GLInputDevice InputDevice;
+typedef Lina::Input::GLInputDevice InputDevice;
 #endif
 
 #endif

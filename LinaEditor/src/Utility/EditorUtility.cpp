@@ -43,7 +43,7 @@ SOFTWARE.
 #include <commdlg.h>
 #endif
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	bool EditorUtility::CreateFolderInPath(const std::string& path)
 	{

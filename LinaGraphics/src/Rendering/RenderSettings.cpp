@@ -31,7 +31,7 @@ SOFTWARE.
 #include <cereal/archives/binary.hpp>
 #include <fstream>
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	void RenderSettings::SerializeRenderSettings(RenderSettings& settings, const std::string& path, const std::string& fileName)
 	{

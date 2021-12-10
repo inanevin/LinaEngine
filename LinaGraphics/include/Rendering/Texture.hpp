@@ -46,7 +46,7 @@ Timestamp: 1/7/2019 1:55:47 PM
 #include "PackageManager/PAMRenderDevice.hpp"
 #include "Sampler.hpp"
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	class ArrayBitmap;
 	class DDSTexture;

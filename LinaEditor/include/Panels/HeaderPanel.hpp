@@ -42,7 +42,7 @@ Timestamp: 10/8/2020 1:39:03 PM
 #include "Widgets/MenuButton.hpp"
 #include "Panels/EditorPanel.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace Graphics
 	{
@@ -51,7 +51,7 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class MenuButton;
 	enum class MenuBarItems;

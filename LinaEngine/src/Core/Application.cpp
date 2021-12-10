@@ -39,7 +39,7 @@ SOFTWARE.
 #include "ECS/Components/EntityDataComponent.hpp"
 #include <chrono>
 
-namespace LinaEngine
+namespace Lina
 {
 #define PHYSICS_DELTA 0.01666
 
@@ -173,12 +173,12 @@ namespace LinaEngine
 			LINA_TIMER_START("Update MS");
 			UpdateGame((float)m_rawDeltaTime);
 			LINA_TIMER_STOP("Update MS");
-			m_updateTime = LinaEngine::Timer::GetTimer("UPDATE MS").GetDuration();
+			m_updateTime = Lina::Timer::GetTimer("UPDATE MS").GetDuration();
 
 			LINA_TIMER_START("RENDER MS");
 			DisplayGame(1.0f);
 			LINA_TIMER_STOP("RENDER MS");
-			m_renderTime = LinaEngine::Timer::GetTimer("RENDER MS").GetDuration();
+			m_renderTime = Lina::Timer::GetTimer("RENDER MS").GetDuration();
 			frames++;
 
 			double now = GetTime();
@@ -295,12 +295,12 @@ namespace LinaEngine
 
 	void Application::KeyCallback(int key, int action)
 	{
-		s_inputEngine->DispatchKeyAction(static_cast<LinaEngine::Input::InputCode::Key>(key), action);
+		s_inputEngine->DispatchKeyAction(static_cast<Lina::Input::InputCode::Key>(key), action);
 	}
 
 	void Application::MouseCallback(int button, int action)
 	{
-		s_inputEngine->DispatchMouseAction(static_cast<LinaEngine::Input::InputCode::Mouse>(button), action);
+		s_inputEngine->DispatchMouseAction(static_cast<Lina::Input::InputCode::Mouse>(button), action);
 	}
 
 	void Application::RemoveOutliers(bool biggest)
@@ -392,14 +392,14 @@ namespace LinaEngine
 		m_isInPlayMode = enabled;
 
 		if (enabled)
-			s_inputEngine->SetCursorMode(LinaEngine::Input::CursorMode::Disabled);
+			s_inputEngine->SetCursorMode(Lina::Input::CursorMode::Disabled);
 		else
-			s_inputEngine->SetCursorMode(LinaEngine::Input::CursorMode::Visible);
+			s_inputEngine->SetCursorMode(Lina::Input::CursorMode::Visible);
 
-		s_engineDispatcher.DispatchAction<bool>(LinaEngine::Action::ActionType::PlayModeActivation, enabled);
+		s_engineDispatcher.DispatchAction<bool>(Lina::Action::ActionType::PlayModeActivation, enabled);
 	}
 
-	bool Application::InstallLevel(LinaEngine::World::Level& level, bool loadFromFile, const std::string& path, const std::string& levelName)
+	bool Application::InstallLevel(Lina::World::Level& level, bool loadFromFile, const std::string& path, const std::string& levelName)
 	{
 		UninstallLevel();
 
@@ -410,7 +410,7 @@ namespace LinaEngine
 		return install;
 	}
 
-	void Application::InitializeLevel(LinaEngine::World::Level& level)
+	void Application::InitializeLevel(Lina::World::Level& level)
 	{
 		m_currentLevel->Initialize();
 		s_engineDispatcher.DispatchAction<World::Level*>(Action::ActionType::LevelInitialized, &level);

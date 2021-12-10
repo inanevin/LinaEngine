@@ -43,7 +43,7 @@ Timestamp: 10/12/2020 1:02:29 AM
 #include "ECS/ECS.hpp"
 #include "ComponentDrawer.hpp"
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class EntityDrawer
 	{
@@ -53,13 +53,13 @@ namespace LinaEditor
 		~EntityDrawer() {};
 		
 		void Setup();
-		void SetSelectedEntity(LinaEngine::ECS::ECSEntity entity);
+		void SetSelectedEntity(Lina::ECS::ECSEntity entity);
 		void DrawSelectedEntity();
 
 	private:
 
 		ComponentDrawer m_componentDrawer;
-		LinaEngine::ECS::ECSEntity m_selectedEntity;
+		Lina::ECS::ECSEntity m_selectedEntity;
 		bool m_shouldCopyEntityName = true;
 
 	};

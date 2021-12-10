@@ -41,7 +41,7 @@ Timestamp: 5/23/2020 4:16:05 PM
 
 #include "Utility/Math/Vector.hpp"
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class GUILayer;
 

@@ -41,7 +41,7 @@ Timestamp: 10/22/2020 1:33:48 AM
 #include "Rendering/RenderingCommon.hpp"
 
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace Graphics
 	{
@@ -49,7 +49,7 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class MeshDrawer
 	{
@@ -59,14 +59,14 @@ namespace LinaEditor
 		MeshDrawer() {};
 		~MeshDrawer() {};
 	
-		void SetSelectedMesh(LinaEngine::Graphics::Model& mesh);
+		void SetSelectedMesh(Lina::Graphics::Model& mesh);
 		void DrawSelectedMesh();
 
 
 	private:
 	
-		LinaEngine::Graphics::Model* m_selectedMesh = nullptr;
-		LinaEngine::Graphics::ModelParameters m_selectedParams;
+		Lina::Graphics::Model* m_selectedMesh = nullptr;
+		Lina::Graphics::ModelParameters m_selectedParams;
 	};
 }
 

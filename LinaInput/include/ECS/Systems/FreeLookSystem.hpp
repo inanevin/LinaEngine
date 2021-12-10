@@ -41,18 +41,18 @@ Timestamp: 5/2/2019 2:21:35 AM
 
 #include "ECS/ECSSystem.hpp"
 
-namespace LinaEngine::Input
+namespace Lina::Input
 {
 	class InputEngine;
 }
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	class FreeLookSystem : public BaseECSSystem
 	{
 	public:
 
-		void Construct(ECSRegistry& registry, LinaEngine::Input::InputEngine& inputEngineIn)
+		void Construct(ECSRegistry& registry, Lina::Input::InputEngine& inputEngineIn)
 		{
 			BaseECSSystem::Construct(registry);
 			m_inputEngine = &inputEngineIn;
@@ -62,7 +62,7 @@ namespace LinaEngine::ECS
 
 	private:
 
-		LinaEngine::Input::InputEngine* m_inputEngine;
+		Lina::Input::InputEngine* m_inputEngine;
 		float m_horizontalKeyAmt = 0.0f;
 		float m_verticalKeyAmt = 0.0f;
 		float m_targetXAngle = 0.0f;

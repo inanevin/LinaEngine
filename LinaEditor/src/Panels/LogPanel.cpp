@@ -35,28 +35,28 @@ SOFTWARE.
 #include "Utility/EditorUtility.hpp"
 #include "IconsFontAwesome5.h"
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	LogPanel::~LogPanel()
 	{
-		LinaEngine::Application::GetEngineDispatcher().UnsubscribeAction("##lina_logPanel_onLog", LinaEngine::Action::ActionType::MessageLogged);
+		Lina::Application::GetEngineDispatcher().UnsubscribeAction("##lina_logPanel_onLog", Lina::Action::ActionType::MessageLogged);
 	}
 
 	void LogPanel::Setup()
 	{
 		// We set our dispatcher & subscribe in order to receive log events.
-		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::Log::LogDump>("##lina_logPanel_onLog", LinaEngine::Action::ActionType::MessageLogged, std::bind(&LogPanel::OnLog, this, std::placeholders::_1));
+		Lina::Application::GetEngineDispatcher().SubscribeAction<Lina::Log::LogDump>("##lina_logPanel_onLog", Lina::Action::ActionType::MessageLogged, std::bind(&LogPanel::OnLog, this, std::placeholders::_1));
 
 		// Add icon buttons.
-		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_debug", "Debug", ICON_FA_BUG, LinaEngine::Log::LogLevel::Debug, LOGPANEL_COLOR_DEBUG_DEFAULT, LOGPANEL_COLOR_DEBUG_HOVERED, LOGPANEL_COLOR_DEBUG_PRESSED));
-		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_info", "Info", ICON_FA_INFO_CIRCLE, LinaEngine::Log::LogLevel::Info, LOGPANEL_COLOR_INFO_DEFAULT, LOGPANEL_COLOR_INFO_HOVERED, LOGPANEL_COLOR_INFO_PRESSED));
-		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_trace", "Trace", ICON_FA_CLIPBOARD_LIST, LinaEngine::Log::LogLevel::Trace, LOGPANEL_COLOR_TRACE_DEFAULT, LOGPANEL_COLOR_TRACE_HOVERED, LOGPANEL_COLOR_TRACE_PRESSED));
-		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_warn", "Warn", ICON_FA_EXCLAMATION_TRIANGLE, LinaEngine::Log::LogLevel::Warn, LOGPANEL_COLOR_WARN_DEFAULT, LOGPANEL_COLOR_WARN_HOVERED, LOGPANEL_COLOR_WARN_PRESSED));
-		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_error", "Error", ICON_FA_TIMES_CIRCLE, LinaEngine::Log::LogLevel::Error, LOGPANEL_COLOR_ERR_DEFAULT, LOGPANEL_COLOR_ERR_HOVERED, LOGPANEL_COLOR_ERR_PRESSED));
-		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_critical", "Critical", ICON_FA_SKULL_CROSSBONES, LinaEngine::Log::LogLevel::Critical, LOGPANEL_COLOR_CRIT_DEFAULT, LOGPANEL_COLOR_CRIT_HOVERED, LOGPANEL_COLOR_CRIT_PRESSED));
+		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_debug", "Debug", ICON_FA_BUG, Lina::Log::LogLevel::Debug, LOGPANEL_COLOR_DEBUG_DEFAULT, LOGPANEL_COLOR_DEBUG_HOVERED, LOGPANEL_COLOR_DEBUG_PRESSED));
+		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_info", "Info", ICON_FA_INFO_CIRCLE, Lina::Log::LogLevel::Info, LOGPANEL_COLOR_INFO_DEFAULT, LOGPANEL_COLOR_INFO_HOVERED, LOGPANEL_COLOR_INFO_PRESSED));
+		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_trace", "Trace", ICON_FA_CLIPBOARD_LIST, Lina::Log::LogLevel::Trace, LOGPANEL_COLOR_TRACE_DEFAULT, LOGPANEL_COLOR_TRACE_HOVERED, LOGPANEL_COLOR_TRACE_PRESSED));
+		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_warn", "Warn", ICON_FA_EXCLAMATION_TRIANGLE, Lina::Log::LogLevel::Warn, LOGPANEL_COLOR_WARN_DEFAULT, LOGPANEL_COLOR_WARN_HOVERED, LOGPANEL_COLOR_WARN_PRESSED));
+		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_error", "Error", ICON_FA_TIMES_CIRCLE, Lina::Log::LogLevel::Error, LOGPANEL_COLOR_ERR_DEFAULT, LOGPANEL_COLOR_ERR_HOVERED, LOGPANEL_COLOR_ERR_PRESSED));
+		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_critical", "Critical", ICON_FA_SKULL_CROSSBONES, Lina::Log::LogLevel::Critical, LOGPANEL_COLOR_CRIT_DEFAULT, LOGPANEL_COLOR_CRIT_HOVERED, LOGPANEL_COLOR_CRIT_PRESSED));
 
 		// To be retrieved from editor settings file later on.
-		m_logLevelFlags = LinaEngine::Log::LogLevel::Critical | LinaEngine::Log::LogLevel::Debug | LinaEngine::Log::LogLevel::Trace | LinaEngine::Log::LogLevel::Info | LinaEngine::Log::LogLevel::Error | LinaEngine::Log::LogLevel::Warn;
+		m_logLevelFlags = Lina::Log::LogLevel::Critical | Lina::Log::LogLevel::Debug | Lina::Log::LogLevel::Trace | Lina::Log::LogLevel::Info | Lina::Log::LogLevel::Error | Lina::Log::LogLevel::Warn;
 
 		// Update icon colors depending on the chosen log levels
 		for (int i = 0; i < m_logLevelIconButtons.size(); i++)
@@ -94,7 +94,7 @@ namespace LinaEditor
 				if (ImGui::Button("Save", ImVec2(50, 28)))
 				{
 					std::string fullPath = "";
-					fullPath = EditorUtility::SaveFile(".txt", LinaEngine::Application::GetAppWindow().GetNativeWindow());
+					fullPath = EditorUtility::SaveFile(".txt", Lina::Application::GetAppWindow().GetNativeWindow());
 
 					if (fullPath.compare("") != 0)
 					{
@@ -132,32 +132,32 @@ namespace LinaEditor
 						WidgetsUtility::IncrementCursorPos(ImVec2(5, 0));
 
 						// Draw the icon depending on the log level type also set the text color ready.
-						if (it->m_dump.m_level == LinaEngine::Log::LogLevel::Critical)
+						if (it->m_dump.m_level == Lina::Log::LogLevel::Critical)
 						{
 							if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_SKULL_CROSSBONES, 0.6f, LOGPANEL_COLOR_CRIT_DEFAULT);
 							ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_CRIT_DEFAULT);
 						}
-						else if (it->m_dump.m_level == LinaEngine::Log::LogLevel::Debug)
+						else if (it->m_dump.m_level == Lina::Log::LogLevel::Debug)
 						{
 							if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_BUG, 0.6f, LOGPANEL_COLOR_DEBUG_DEFAULT);
 							ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_DEBUG_DEFAULT);
 						}
-						else if (it->m_dump.m_level == LinaEngine::Log::LogLevel::Error)
+						else if (it->m_dump.m_level == Lina::Log::LogLevel::Error)
 						{
 							if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_TIMES_CIRCLE, 0.6f, LOGPANEL_COLOR_ERR_DEFAULT);
 							ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_ERR_DEFAULT);
 						}
-						else if (it->m_dump.m_level == LinaEngine::Log::LogLevel::Info)
+						else if (it->m_dump.m_level == Lina::Log::LogLevel::Info)
 						{
 							if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_INFO_CIRCLE, 0.6f, LOGPANEL_COLOR_INFO_DEFAULT);
 							ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_INFO_DEFAULT);
 						}
-						else if (it->m_dump.m_level == LinaEngine::Log::LogLevel::Trace)
+						else if (it->m_dump.m_level == Lina::Log::LogLevel::Trace)
 						{
 							if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_CLIPBOARD_LIST, 0.6f, LOGPANEL_COLOR_TRACE_DEFAULT);
 							ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_TRACE_DEFAULT);
 						}
-						else if (it->m_dump.m_level == LinaEngine::Log::LogLevel::Warn)
+						else if (it->m_dump.m_level == Lina::Log::LogLevel::Warn)
 						{
 							if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_EXCLAMATION_TRIANGLE, 0.6f, LOGPANEL_COLOR_WARN_DEFAULT);
 							ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_WARN_DEFAULT);
@@ -190,7 +190,7 @@ namespace LinaEditor
 	}
 
 
-	void LogPanel::OnLog(LinaEngine::Log::LogDump dump)
+	void LogPanel::OnLog(Lina::Log::LogDump dump)
 	{
 		LogDumpEntry entry(dump, 1);
 

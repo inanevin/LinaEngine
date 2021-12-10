@@ -51,7 +51,7 @@ timestamp: 10/29/2018 11:04:54 PM
 #include <sstream>
 #include <iostream>
 
-namespace LinaEngine
+namespace Lina
 {
 
 	class Vector2 : public glm::vec2

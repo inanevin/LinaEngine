@@ -43,7 +43,7 @@ Timestamp: 4/26/2019 12:30:15 AM
 #include "RenderingCommon.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 
 	class VertexArray

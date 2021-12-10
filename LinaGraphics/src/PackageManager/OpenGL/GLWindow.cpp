@@ -32,7 +32,7 @@ SOFTWARE.
 #include "GLFW/glfw3.h"
 
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	GLWindow::GLWindow()
 	{
@@ -236,7 +236,7 @@ namespace LinaEngine::Graphics
 	void GLWindow::SetPosCentered(const Vector2 newPos)
 	{
 		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-		SetPos(LinaEngine::Vector2(mode->width / 2.0f + newPos.x - m_windowProperties.m_width / 2.0f, mode->height / 2.0f + newPos.y - m_windowProperties.m_height / 2.0f));
+		SetPos(Lina::Vector2(mode->width / 2.0f + newPos.x - m_windowProperties.m_width / 2.0f, mode->height / 2.0f + newPos.y - m_windowProperties.m_height / 2.0f));
 	}
 
 

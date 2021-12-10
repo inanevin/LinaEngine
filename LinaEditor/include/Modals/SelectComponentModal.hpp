@@ -41,7 +41,7 @@ Timestamp: 10/12/2020 12:45:38 AM
 
 #include "Drawers/EntityDrawer.hpp"
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class SelectComponentModal
 	{

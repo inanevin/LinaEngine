@@ -44,7 +44,7 @@ Timestamp: 10/30/2018 1:00:25 PM
 #include "Utility/Log.hpp"
 #include "glm/matrix.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 	class Transformation;
 

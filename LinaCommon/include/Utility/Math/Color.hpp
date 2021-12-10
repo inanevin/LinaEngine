@@ -40,7 +40,7 @@ Timestamp: 10/26/2018 7:19:07 PM
 #ifndef Lina_Color_HPP
 #define Lina_Color_HPP
 
-namespace LinaEngine
+namespace Lina
 {
 	class Color
 	{

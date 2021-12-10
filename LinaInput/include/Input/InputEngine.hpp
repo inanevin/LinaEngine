@@ -46,7 +46,7 @@ Timestamp: 4/14/2019 7:46:20 PM
 #include "InputAxisBinder.hpp"
 #include "ECS/Systems/FreeLookSystem.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace ECS
 	{
@@ -55,7 +55,7 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEngine::Input
+namespace Lina::Input
 {
 	class InputEngine
 	{
@@ -66,7 +66,7 @@ namespace LinaEngine::Input
 		virtual ~InputEngine() {};
 
 		// Initialize the engine, sets the dispatcher references & initializes axes.
-		void Initialize(LinaEngine::ECS::ECSRegistry& reg, LinaEngine::ECS::ECSSystemList& mainPipeline, void* contextWindowPointer, InputDevice* inputDevice);
+		void Initialize(Lina::ECS::ECSRegistry& reg, Lina::ECS::ECSSystemList& mainPipeline, void* contextWindowPointer, InputDevice* inputDevice);
 
 		void Tick() { m_inputDevice->Tick(); }
 
@@ -99,17 +99,17 @@ namespace LinaEngine::Input
 		void DispatchKeyAction(InputCode::Key key, int action)
 		{
 			if (action == 1)
-				s_inputDispatcher.DispatchAction<InputCode::Key>(LinaEngine::Action::ActionType::KeyPressed, key);
+				s_inputDispatcher.DispatchAction<InputCode::Key>(Lina::Action::ActionType::KeyPressed, key);
 			else if (action == 0)
-				s_inputDispatcher.DispatchAction<InputCode::Key>(LinaEngine::Action::ActionType::KeyReleased, key);
+				s_inputDispatcher.DispatchAction<InputCode::Key>(Lina::Action::ActionType::KeyReleased, key);
 		}
 
 		void DispatchMouseAction(InputCode::Mouse button, int action)
 		{
 			if (action == 1)
-				s_inputDispatcher.DispatchAction<InputCode::Mouse>(LinaEngine::Action::ActionType::MouseButtonPressed, button);
+				s_inputDispatcher.DispatchAction<InputCode::Mouse>(Lina::Action::ActionType::MouseButtonPressed, button);
 			else if (action == 0)
-				s_inputDispatcher.DispatchAction<InputCode::Mouse>(LinaEngine::Action::ActionType::MouseButtonReleased, button);
+				s_inputDispatcher.DispatchAction<InputCode::Mouse>(Lina::Action::ActionType::MouseButtonReleased, button);
 		}
 
 		static Action::ActionDispatcher& GetInputDispatcher() { return s_inputDispatcher; }
@@ -121,7 +121,7 @@ namespace LinaEngine::Input
 		InputKeyAxisBinder m_horizontalKeyAxis;
 		InputKeyAxisBinder m_verticalKeyAxis;
 
-		LinaEngine::ECS::FreeLookSystem m_freelookSystem;
+		Lina::ECS::FreeLookSystem m_freelookSystem;
 		static Action::ActionDispatcher s_inputDispatcher;
 		InputDevice* m_inputDevice = nullptr;
 

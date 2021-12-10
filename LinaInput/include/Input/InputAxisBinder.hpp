@@ -42,7 +42,7 @@ Timestamp: 4/13/2019 10:02:03 PM
 
 #include "Interfaces/IInputSubscriber.hpp"
 
-namespace LinaEngine::Input
+namespace Lina::Input
 {
 #define LINA_ACTION_CALLBACK(x) std::bind(&x, this)
 #define LINA_ACTION_CALLBACK_PARAM1(x) std::bind(&x, this, std::placeholders::_1)

@@ -40,7 +40,7 @@ Timestamp: 10/10/2020 3:25:27 PM
 
 
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace Graphics
 	{
@@ -50,7 +50,7 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class SplashScreen
 	{
@@ -61,7 +61,7 @@ namespace LinaEditor
 		~SplashScreen();
 		
 		void Draw();
-		void Setup(const LinaEngine::Graphics::WindowProperties& props);
+		void Setup(const Lina::Graphics::WindowProperties& props);
 	};
 }
 

@@ -31,15 +31,15 @@ SOFTWARE.
 #include "imgui/imgui.h"
 #include "Rendering/Shader.hpp"
 
-namespace LinaEditor
+namespace Lina::Editor
 {
-	void SelectShaderModal::Draw(const std::map<int, LinaEngine::Graphics::Shader*>& map, int* selectedShaderID, std::string& shaderPath)
+	void SelectShaderModal::Draw(const std::map<int, Lina::Graphics::Shader*>& map, int* selectedShaderID, std::string& shaderPath)
 	{
 		ImGui::BeginChild("SelectShaderModalChild", ImVec2(0, 300), true);
 
 		static int selected = -1;
 		static std::string selectedPath = "";
-		for (std::map<int, LinaEngine::Graphics::Shader*>::const_iterator it = map.begin(); it != map.end(); it++)
+		for (std::map<int, Lina::Graphics::Shader*>::const_iterator it = map.begin(); it != map.end(); it++)
 		{
 			WidgetsUtility::IncrementCursorPosY(5);
 			WidgetsUtility::IncrementCursorPosX(5);

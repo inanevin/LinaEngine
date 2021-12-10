@@ -29,7 +29,7 @@ SOFTWARE.
 
 #include "Core/Layer.hpp"  
 
-namespace LinaEngine
+namespace Lina
 {
 
 }

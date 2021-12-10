@@ -41,11 +41,11 @@ Timestamp: 12/29/2018 11:28:02 PM
 
 #include "Core/Application.hpp"
 
-extern LinaEngine::Application* LinaEngine::CreateApplication();
+extern Lina::Application* Lina::CreateApplication();
 
 int main(int argc, char** argv)
 {
-	auto app = LinaEngine::CreateApplication();
+	auto app = Lina::CreateApplication();
 	delete app;
 }
 

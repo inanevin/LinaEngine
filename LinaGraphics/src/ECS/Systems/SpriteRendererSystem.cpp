@@ -31,7 +31,7 @@ SOFTWARE.
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "Rendering/RenderEngine.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	void SpriteRendererSystem::Construct(ECSRegistry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn)
 	{
@@ -57,7 +57,7 @@ namespace LinaEngine::ECS
 			// Dont draw if mesh or material does not exist.
 			if (renderer.m_materialID < 0) continue;
 
-			Graphics::Material& mat = LinaEngine::Graphics::Material::GetMaterial(renderer.m_materialID);
+			Graphics::Material& mat = Lina::Graphics::Material::GetMaterial(renderer.m_materialID);
 			Render(mat, data.ToMatrix());
 		}
 	}

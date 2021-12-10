@@ -44,7 +44,7 @@ Timestamp: 6/5/2020 12:54:52 AM
 #include <map>
 #include <vector>
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace Graphics
 	{
@@ -53,7 +53,7 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEditor 
+namespace Lina::Editor 
 {
 
 	class PropertiesPanel;
@@ -82,9 +82,9 @@ namespace LinaEditor
 		void UnloadFileResourcesInFolder(EditorFolder& folder);
 		bool ExpandFileResource(EditorFolder& folder, const std::string& path, FileType type = FileType::Unknown);
 		FileType GetFileType(std::string& extension);
-		void MaterialTextureSelected(LinaEngine::Graphics::Texture* texture);
-		void TextureReimported(std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*> textures);
-		bool VerifyMaterialFiles(EditorFolder& folder, std::pair<LinaEngine::Graphics::Texture*, LinaEngine::Graphics::Texture*> textures);
+		void MaterialTextureSelected(Lina::Graphics::Texture* texture);
+		void TextureReimported(std::pair<Lina::Graphics::Texture*, Lina::Graphics::Texture*> textures);
+		bool VerifyMaterialFiles(EditorFolder& folder, std::pair<Lina::Graphics::Texture*, Lina::Graphics::Texture*> textures);
 
 	private:
 

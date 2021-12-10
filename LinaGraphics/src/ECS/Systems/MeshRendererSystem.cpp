@@ -35,7 +35,7 @@ SOFTWARE.
 #include "Rendering/Material.hpp"
 #include "Animation/Skeleton.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 
 
@@ -52,14 +52,14 @@ namespace LinaEngine::ECS
 
 			// We get the materials, then according to their surface types we add the model
 			// data into either opaque queue or the transparent queue.
-			Graphics::Model& model = LinaEngine::Graphics::Model::GetModel(renderer.m_modelID);
+			Graphics::Model& model = Lina::Graphics::Model::GetModel(renderer.m_modelID);
 
 			auto& mesh = model.GetMeshes()[renderer.m_meshIndex];
 			uint32 materialSlot = mesh.GetMaterialSlotIndex();
 
 			if (!Graphics::Material::MaterialExists(renderer.m_materialID)) continue;
 
-			Graphics::Material& mat = LinaEngine::Graphics::Material::GetMaterial(renderer.m_materialID);
+			Graphics::Material& mat = Lina::Graphics::Material::GetMaterial(renderer.m_materialID);
 			Matrix finalMatrix = data.ToMatrix();
 
 			if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
@@ -84,7 +84,7 @@ namespace LinaEngine::ECS
 		registry.on_destroy<ModelRendererComponent>().connect<&MeshRendererSystem::OnModelRendererRemoved>(this);
 	}
 
-	void MeshRendererSystem::RenderOpaque(Graphics::VertexArray& vertexArray, LinaEngine::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn)
+	void MeshRendererSystem::RenderOpaque(Graphics::VertexArray& vertexArray, Lina::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn)
 	{
 		// Render commands basically add the necessary
 		// draw data into the maps/lists etc.
@@ -100,7 +100,7 @@ namespace LinaEngine::ECS
 
 	}
 
-	void MeshRendererSystem::RenderTransparent(Graphics::VertexArray& vertexArray, LinaEngine::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn, float priority)
+	void MeshRendererSystem::RenderTransparent(Graphics::VertexArray& vertexArray, Lina::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn, float priority)
 	{
 		// Render commands basically add the necessary
 		// draw data into the maps/lists etc.

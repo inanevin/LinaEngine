@@ -43,7 +43,7 @@ Timestamp: 6/5/2020 6:51:29 PM
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/ECS.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace Graphics
 	{
@@ -51,7 +51,7 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 
 
@@ -74,7 +74,7 @@ namespace LinaEditor
 		virtual void Setup() override;
 		virtual void Draw() override;
 
-		void EntitySelected(LinaEngine::ECS::ECSEntity entity);
+		void EntitySelected(Lina::ECS::ECSEntity entity);
 		void Unselected();
 		void ProcessInput();
 		void DrawGizmos();
@@ -84,7 +84,7 @@ namespace LinaEditor
 	private:
 
 		bool m_isFocused = true;
-		LinaEngine::ECS::ECSEntity m_selectedTransform = entt::null;
+		Lina::ECS::ECSEntity m_selectedTransform = entt::null;
 		DrawMode m_drawMode = DrawMode::FinalImage;
 	};
 }

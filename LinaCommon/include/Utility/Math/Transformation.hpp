@@ -44,7 +44,7 @@ Timestamp: 4/9/2019 12:06:04 PM
 #include "Matrix.hpp"
 #include <set>
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace ECS
 	{
@@ -52,7 +52,7 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEngine
+namespace Lina
 {
 	class Transformation
 	{

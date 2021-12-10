@@ -39,7 +39,7 @@ Timestamp: 10/20/2020 11:03:45 AM
 #ifndef MaterialDrawer_HPP
 #define MaterialDrawer_HPP
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace Graphics 
 	{
@@ -51,7 +51,7 @@ namespace LinaEngine
 #include <string>
 
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class EditorFile;
 
@@ -63,7 +63,7 @@ namespace LinaEditor
 		MaterialDrawer() {};
 		~MaterialDrawer() {};
 	
-		void SetSelectedMaterial(EditorFile* file, LinaEngine::Graphics::Material& entity);
+		void SetSelectedMaterial(EditorFile* file, Lina::Graphics::Material& entity);
 		void DrawSelectedMaterial();
 
 	private:
@@ -73,7 +73,7 @@ namespace LinaEditor
 	private:
 
 		bool m_shouldCopyMatName = false;
-		LinaEngine::Graphics::Material* m_selectedMaterial = nullptr;
+		Lina::Graphics::Material* m_selectedMaterial = nullptr;
 		EditorFile* m_selectedFile = nullptr;
 	
 	};

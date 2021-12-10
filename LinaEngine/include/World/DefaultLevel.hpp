@@ -41,7 +41,7 @@ Timestamp: 10/16/2020 12:58:01 AM
 
 #include "World/Level.hpp"
 
-namespace LinaEngine::World
+namespace Lina::World
 {
 	class DefaultLevel : public Level
 	{

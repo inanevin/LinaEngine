@@ -33,7 +33,7 @@ SOFTWARE.
 #include <cereal/archives/binary.hpp>
 #include <fstream>
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	std::map<int, Texture*> Texture::s_loadedTextures;
 

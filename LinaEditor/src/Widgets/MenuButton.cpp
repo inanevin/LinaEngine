@@ -32,7 +32,7 @@ SOFTWARE.
 #include "imgui/imgui.h"
 #include <iostream>
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	bool MenuButton::s_anyButtonFocused = false;
 
@@ -73,7 +73,7 @@ namespace LinaEditor
 		}
 	}
 
-	MenuButton::MenuButton(const char* title, const char* popupID, std::vector<MenuElement*>& children, const LinaEngine::Color& bgColor, bool sameLine) : MenuElement("", title)
+	MenuButton::MenuButton(const char* title, const char* popupID, std::vector<MenuElement*>& children, const Lina::Color& bgColor, bool sameLine) : MenuElement("", title)
 	{
 		m_children = children;
 		m_bgColor = bgColor;

@@ -42,7 +42,7 @@ Timestamp: 12/7/2021 11:34:48 AM
 // Headers here.
 #include <string>
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	class Animation
 	{

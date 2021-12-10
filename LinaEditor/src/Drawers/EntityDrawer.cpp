@@ -34,13 +34,13 @@ SOFTWARE.
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "IconsFontAwesome5.h"
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	void EntityDrawer::Setup()
 	{
 		m_componentDrawer.Setup();
 	}
-	void EntityDrawer::SetSelectedEntity(LinaEngine::ECS::ECSEntity entity)
+	void EntityDrawer::SetSelectedEntity(Lina::ECS::ECSEntity entity)
 	{
 		m_shouldCopyEntityName = true;
 		m_selectedEntity = entity;
@@ -49,8 +49,8 @@ namespace LinaEditor
 
 	void EntityDrawer::DrawSelectedEntity()
 	{
-		LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
-		LinaEngine::ECS::EntityDataComponent& data = ecs.get<LinaEngine::ECS::EntityDataComponent>(m_selectedEntity);
+		Lina::ECS::ECSRegistry& ecs = Lina::Application::GetECSRegistry();
+		Lina::ECS::EntityDataComponent& data = ecs.get<Lina::ECS::EntityDataComponent>(m_selectedEntity);
 
 		// Align.
 		ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(16);
@@ -64,7 +64,7 @@ namespace LinaEditor
 		{
 			m_shouldCopyEntityName = false;
 			memset(entityName, 0, sizeof entityName);
-			std::string str = ecs.get<LinaEngine::ECS::EntityDataComponent>(m_selectedEntity).m_name;
+			std::string str = ecs.get<Lina::ECS::EntityDataComponent>(m_selectedEntity).m_name;
 			std::copy(str.begin(), str.end(), entityName);
 		}
 
@@ -73,7 +73,7 @@ namespace LinaEditor
 		WidgetsUtility::IncrementCursorPosY(-5);
 		ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
 		ImGui::InputText("##ename", entityName, IM_ARRAYSIZE(entityName));
-		ecs.get<LinaEngine::ECS::EntityDataComponent>(m_selectedEntity).m_name = entityName;
+		ecs.get<Lina::ECS::EntityDataComponent>(m_selectedEntity).m_name = entityName;
 		WidgetsUtility::PopStyleVar();
 
 		// Entity enabled toggle button.

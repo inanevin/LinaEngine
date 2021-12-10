@@ -38,7 +38,7 @@ SOFTWARE.
 #include <string>
 #endif
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace Utility
 	{

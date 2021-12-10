@@ -41,7 +41,7 @@ Timestamp: 5/23/2020 4:15:06 PM
 #include "Panels/EditorPanel.hpp"
 #include "ECS/ECS.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace World
 	{
@@ -49,7 +49,7 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class ScenePanel;
 	class PropertiesPanel;
@@ -65,12 +65,12 @@ namespace LinaEditor
 		virtual void Setup() override;
 		virtual void Draw() override;
 		void Refresh();
-		void DrawEntityNode(int id,  LinaEngine::ECS::ECSEntity entity);
-		void OnLevelInstall(LinaEngine::World::Level* level);
+		void DrawEntityNode(int id,  Lina::ECS::ECSEntity entity);
+		void OnLevelInstall(Lina::World::Level* level);
 
 	private:
 
-		LinaEngine::ECS::ECSEntity m_selectedEntity;
+		Lina::ECS::ECSEntity m_selectedEntity;
 	};
 }
 

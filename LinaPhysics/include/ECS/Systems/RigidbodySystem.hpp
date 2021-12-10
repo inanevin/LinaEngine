@@ -41,7 +41,7 @@ Timestamp: 9/30/2020 2:52:58 AM
 
 #include "ECS/ECS.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace Physics
 	{
@@ -49,7 +49,7 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	class RigidbodySystem : public BaseECSSystem
 	{
@@ -59,7 +59,7 @@ namespace LinaEngine::ECS
 
 		virtual void UpdateComponents(float delta) override;
 
-		void Construct(ECSRegistry& registry, LinaEngine::Physics::PhysicsEngine* physicsEngine) 
+		void Construct(ECSRegistry& registry, Lina::Physics::PhysicsEngine* physicsEngine) 
 		{ 
 			BaseECSSystem::Construct(registry);
 			m_physicsEngine = physicsEngine; 
@@ -67,7 +67,7 @@ namespace LinaEngine::ECS
 
 	private:
 
-		LinaEngine::Physics::PhysicsEngine* m_physicsEngine = nullptr;
+		Lina::Physics::PhysicsEngine* m_physicsEngine = nullptr;
 
 	};
 }

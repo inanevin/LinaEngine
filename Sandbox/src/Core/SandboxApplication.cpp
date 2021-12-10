@@ -35,7 +35,7 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include "Editor/ClientComponentDrawer.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 
-class SandboxApplication : public LinaEngine::Application
+class SandboxApplication : public Lina::Application
 {
 public:
 
@@ -44,7 +44,7 @@ public:
 		LINA_CLIENT_TRACE("[Constructor] -> Sandbox Application ({0})", typeid(*this).name());
 
 		// Init engine.
-		LinaEngine::Graphics::WindowProperties props;
+		Lina::Graphics::WindowProperties props;
 		props.m_width = 1440;
 		props.m_height = 900;
 		props.m_windowState = Graphics::WindowState::Maximized;
@@ -88,87 +88,87 @@ public:
 private:
 
 #ifdef LINA_EDITOR
-	LinaEditor::EditorApplication m_editor;
+	Lina::Editor::EditorApplication m_editor;
 #endif
 	ClientComponentDrawer m_componentDrawer;
 	GameManager m_gameManager;
 
 	// Inherited via Application
-	virtual void SerializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryOutputArchive& oarchive) override
+	virtual void SerializeRegistry(Lina::ECS::ECSRegistry& registry, cereal::BinaryOutputArchive& oarchive) override
 	{
 		entt::snapshot{ registry }
 			.entities(oarchive)
 			.component<
-			LinaEngine::ECS::EntityDataComponent,
-			LinaEngine::ECS::CameraComponent,
-			LinaEngine::ECS::FreeLookComponent,
-			LinaEngine::ECS::PointLightComponent,
-			LinaEngine::ECS::DirectionalLightComponent,
-			LinaEngine::ECS::SpotLightComponent,
-			LinaEngine::ECS::RigidbodyComponent,
-			LinaEngine::ECS::MeshRendererComponent,
-			LinaEngine::ECS::SpriteRendererComponent,
-			LinaEngine::ECS::ModelRendererComponent
+			Lina::ECS::EntityDataComponent,
+			Lina::ECS::CameraComponent,
+			Lina::ECS::FreeLookComponent,
+			Lina::ECS::PointLightComponent,
+			Lina::ECS::DirectionalLightComponent,
+			Lina::ECS::SpotLightComponent,
+			Lina::ECS::RigidbodyComponent,
+			Lina::ECS::MeshRendererComponent,
+			Lina::ECS::SpriteRendererComponent,
+			Lina::ECS::ModelRendererComponent
 			>(oarchive);
 	}
 
-	virtual void DeserializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryInputArchive& iarchive) override
+	virtual void DeserializeRegistry(Lina::ECS::ECSRegistry& registry, cereal::BinaryInputArchive& iarchive) override
 	{
 		entt::snapshot_loader{ registry }
 			.entities(iarchive)
 			.component<
-			LinaEngine::ECS::EntityDataComponent,
-			LinaEngine::ECS::CameraComponent,
-			LinaEngine::ECS::FreeLookComponent,
-			LinaEngine::ECS::PointLightComponent,
-			LinaEngine::ECS::DirectionalLightComponent,
-			LinaEngine::ECS::SpotLightComponent,
-			LinaEngine::ECS::RigidbodyComponent,
-			LinaEngine::ECS::MeshRendererComponent,
-			LinaEngine::ECS::SpriteRendererComponent,
-			LinaEngine::ECS::ModelRendererComponent
+			Lina::ECS::EntityDataComponent,
+			Lina::ECS::CameraComponent,
+			Lina::ECS::FreeLookComponent,
+			Lina::ECS::PointLightComponent,
+			Lina::ECS::DirectionalLightComponent,
+			Lina::ECS::SpotLightComponent,
+			Lina::ECS::RigidbodyComponent,
+			Lina::ECS::MeshRendererComponent,
+			Lina::ECS::SpriteRendererComponent,
+			Lina::ECS::ModelRendererComponent
 			>(iarchive);
 	}
 
 };
 
-LinaEngine::Application* LinaEngine::CreateApplication()
+Lina::Application* Lina::CreateApplication()
 {
 	return new SandboxApplication();
 }
 
 // Default platform context window.
-LinaEngine::Graphics::Window* LinaEngine::CreateContextWindow()
+Lina::Graphics::Window* Lina::CreateContextWindow()
 {
 	return new ContextWindow();
 }
 
 // Default platform input device.
-LinaEngine::Input::InputDevice* LinaEngine::CreateInputDevice()
+Lina::Input::InputDevice* Lina::CreateInputDevice()
 {
 	return new InputDevice();
 }
 
 // Default engine
-LinaEngine::Graphics::RenderEngine* LinaEngine::CreateRenderEngine()
+Lina::Graphics::RenderEngine* Lina::CreateRenderEngine()
 {
-	return new LinaEngine::Graphics::RenderEngine();
+	return new Lina::Graphics::RenderEngine();
 }
 
 // Default engine
-LinaEngine::Physics::PhysicsEngine* LinaEngine::CreatePhysicsEngine()
+Lina::Physics::PhysicsEngine* Lina::CreatePhysicsEngine()
 {
-	return new LinaEngine::Physics::PhysicsEngine();
+	return new Lina::Physics::PhysicsEngine();
 }
 
 // Default engine
-LinaEngine::Audio::AudioEngine* LinaEngine::CreateAudioEngine()
+Lina::Audio::AudioEngine* Lina::CreateAudioEngine()
 {
-	return new LinaEngine::Audio::AudioEngine();
+	return new Lina::Audio::AudioEngine();
 }
 
 // Default engine
-LinaEngine::Input::InputEngine* LinaEngine::CreateInputEngine()
+Lina::Input::InputEngine* Lina::CreateInputEngine()
 {
-	return new LinaEngine::Input::InputEngine();
+	return new Lina::Input::InputEngine();
 }

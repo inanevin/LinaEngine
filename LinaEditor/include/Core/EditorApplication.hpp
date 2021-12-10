@@ -29,7 +29,7 @@ SOFTWARE.
 /*
 Class: EditorApplication
 
-This class can also be derived from LinaEngine::Application to create a standalone editor build.
+This class can also be derived from Lina::Application to create a standalone editor build.
 Probably will be deprecated in the future as the editor is now a linked-library from Sandbox.
 
 Timestamp: 10/15/2020 10:44:39 PM
@@ -45,7 +45,7 @@ Timestamp: 10/15/2020 10:44:39 PM
 #include "ECS/Systems/EditorCameraSystem.hpp"
 #include "Core/GUILayer.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace World
 	{
@@ -54,7 +54,7 @@ namespace LinaEngine
 
 }
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class EditorApplication
 	{
@@ -65,8 +65,8 @@ namespace LinaEditor
 
 		void Setup();
 		void Refresh();
-		void LevelInstalled(LinaEngine::World::Level* level);
-		static LinaEngine::Action::ActionDispatcher& GetEditorDispatcher() { return s_editorDispatcher; }
+		void LevelInstalled(Lina::World::Level* level);
+		static Lina::Action::ActionDispatcher& GetEditorDispatcher() { return s_editorDispatcher; }
 
 	private:
 
@@ -74,8 +74,8 @@ namespace LinaEditor
 
 	private:
 
-		LinaEngine::ECS::EditorCameraSystem editorCameraSystem;
-		static LinaEngine::Action::ActionDispatcher s_editorDispatcher;
+		Lina::ECS::EditorCameraSystem editorCameraSystem;
+		static Lina::Action::ActionDispatcher s_editorDispatcher;
 		GUILayer m_guiLayer;
 	};
 }

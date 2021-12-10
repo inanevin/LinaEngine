@@ -50,7 +50,7 @@ Timestamp: 4/10/2019 1:26:00 PM
 #include <map>
 #include <list>
 
-namespace LinaEngine::Action
+namespace Lina::Action
 {
 	class ActionDispatcher
 	{
@@ -91,7 +91,7 @@ namespace LinaEngine::Action
 		template<typename T>
 		void SubscribeAction(const std::string& actionID, ActionType at, const std::function<void(T)>& callback, T condition)
 		{
-			size_t actionIDHashed = LinaEngine::Utility::StringToHash(actionID);
+			size_t actionIDHashed = Lina::Utility::StringToHash(actionID);
 
 			// If an handler with the same id already exists, abort.
 			std::list<ActionHandlerBase*>& targetList = m_actionHandlerMap.at(at);
@@ -115,7 +115,7 @@ namespace LinaEngine::Action
 		template<typename T>
 		void SubscribeAction(const std::string& actionID, ActionType at, const std::function<void(T)>& callback)
 		{
-			size_t actionIDHashed = LinaEngine::Utility::StringToHash(actionID);
+			size_t actionIDHashed = Lina::Utility::StringToHash(actionID);
 
 			// If an handler with the same id already exists, abort.
 			std::list<ActionHandlerBase*>& targetList = m_actionHandlerMap.at(at);

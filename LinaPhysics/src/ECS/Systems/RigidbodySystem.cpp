@@ -31,7 +31,7 @@ SOFTWARE.
 #include "ECS/Components/RigidbodyComponent.hpp"
 #include "Core/PhysicsEngine.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	void RigidbodySystem::UpdateComponents(float delta)
 	{

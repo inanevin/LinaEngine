@@ -44,7 +44,7 @@ Timestamp: 4/14/2019 7:46:12 PM
 #include "Utility/Math/Vector.hpp"
 #include "RenderingCommon.hpp"
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	class Window
 	{

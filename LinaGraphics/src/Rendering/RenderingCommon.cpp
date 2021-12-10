@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Rendering/RenderingCommon.hpp"
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 
 	char* g_materialSurfaceTypeStr[2]

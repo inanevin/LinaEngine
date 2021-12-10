@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Utility/Log.hpp"
 #include <GLFW/glfw3.h>
 
-namespace LinaEngine::Input
+namespace Lina::Input
 {
 
 	static const float s_axisSensitivity = 0.1f;

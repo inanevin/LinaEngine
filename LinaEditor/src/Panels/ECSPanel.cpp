@@ -39,27 +39,27 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Input/InputEngine.hpp"
 
-namespace LinaEditor
+namespace Lina::Editor
 {
-	using namespace LinaEngine::ECS;
-	using namespace LinaEngine;
+	using namespace Lina::ECS;
+	using namespace Lina;
 
 	void ECSPanel::Setup()
 	{
-		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::World::Level*>("##ecspanel_levelinstall", LinaEngine::Action::ActionType::LevelInstalled,
+		Lina::Application::GetEngineDispatcher().SubscribeAction<Lina::World::Level*>("##ecspanel_levelinstall", Lina::Action::ActionType::LevelInstalled,
 			std::bind(&ECSPanel::OnLevelInstall, this, std::placeholders::_1));
 	}
 
 	void ECSPanel::Refresh()
 	{
 		m_selectedEntity = entt::null;
-		EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
+		EditorApplication::GetEditorDispatcher().DispatchAction<void*>(Lina::Action::ActionType::Unselect, 0);
 	}
 
-	void ECSPanel::DrawEntityNode(int id, LinaEngine::ECS::ECSEntity entity)
+	void ECSPanel::DrawEntityNode(int id, Lina::ECS::ECSEntity entity)
 	{
-		LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
-		LinaEngine::ECS::EntityDataComponent& data = ecs.get<LinaEngine::ECS::EntityDataComponent>(entity);
+		Lina::ECS::ECSRegistry& ecs = Lina::Application::GetECSRegistry();
+		Lina::ECS::EntityDataComponent& data = ecs.get<Lina::ECS::EntityDataComponent>(entity);
 		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 		static ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth;
 		ImGuiTreeNodeFlags flags = data.m_children.size() == 0 ? leaf_flags : base_flags;
@@ -73,7 +73,7 @@ namespace LinaEditor
 		if (ImGui::IsItemClicked())
 		{
 			m_selectedEntity = entity;
-			EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, m_selectedEntity);
+			EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(Lina::Action::ActionType::EntitySelected, m_selectedEntity);
 		}
 
 
@@ -108,9 +108,9 @@ namespace LinaEditor
 		}
 	}
 
-	void ECSPanel::OnLevelInstall(LinaEngine::World::Level* level)
+	void ECSPanel::OnLevelInstall(Lina::World::Level* level)
 	{
-		EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
+		EditorApplication::GetEditorDispatcher().DispatchAction<void*>(Lina::Action::ActionType::Unselect, 0);
 		m_selectedEntity = entt::null;
 	}
 
@@ -118,7 +118,7 @@ namespace LinaEditor
 	{
 		if (m_show)
 		{
-			LinaEngine::ECS::ECSRegistry& ecs = LinaEngine::Application::GetECSRegistry();
+			Lina::ECS::ECSRegistry& ecs = Lina::Application::GetECSRegistry();
 
 
 
@@ -138,14 +138,14 @@ namespace LinaEditor
 				WidgetsUtility::WindowPadding(ImVec2(3, 4));
 
 				// Handle Right Click.
-				if (LinaEngine::Application::GetApp().GetActiveLevelExists() && ImGui::BeginPopupContextWindow())
+				if (Lina::Application::GetApp().GetActiveLevelExists() && ImGui::BeginPopupContextWindow())
 				{
 					if (ImGui::BeginMenu("Create"))
 					{
 						if (ImGui::MenuItem("Entity"))
 						{
 							m_selectedEntity = ecs.CreateEntity("Entity");
-							EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, m_selectedEntity);
+							EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(Lina::Action::ActionType::EntitySelected, m_selectedEntity);
 						}
 
 						ImGui::EndMenu();
@@ -158,11 +158,11 @@ namespace LinaEditor
 				WidgetsUtility::FramePadding(ImVec2(0, 0));
 				WidgetsUtility::IncrementCursorPosY(7);
 				int entityCounter = 0;
-				auto singleView = ecs.view<LinaEngine::ECS::EntityDataComponent>();
+				auto singleView = ecs.view<Lina::ECS::EntityDataComponent>();
 
 				for (auto entity : singleView)
 				{
-					LinaEngine::ECS::EntityDataComponent& data = ecs.get<LinaEngine::ECS::EntityDataComponent>(entity);
+					Lina::ECS::EntityDataComponent& data = ecs.get<Lina::ECS::EntityDataComponent>(entity);
 
 					if (data.m_parent == entt::null)
 						DrawEntityNode(entityCounter, entity);
@@ -170,7 +170,7 @@ namespace LinaEditor
 					// Deselect.
 					if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 					{
-						EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
+						EditorApplication::GetEditorDispatcher().DispatchAction<void*>(Lina::Action::ActionType::Unselect, 0);
 						m_selectedEntity = entt::null;
 					}
 
@@ -185,16 +185,16 @@ namespace LinaEditor
 			if (m_selectedEntity != entt::null)
 			{
 				// Duplicate
-				if (ImGui::IsKeyDown(LinaEngine::Input::InputCode::Key::LCTRL) && ImGui::IsKeyReleased(LinaEngine::Input::InputCode::D))
+				if (ImGui::IsKeyDown(Lina::Input::InputCode::Key::LCTRL) && ImGui::IsKeyReleased(Lina::Input::InputCode::D))
 				{
 					m_selectedEntity = ecs.CreateEntity(m_selectedEntity);
-					EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(LinaEngine::Action::ActionType::EntitySelected, m_selectedEntity);
+					EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(Lina::Action::ActionType::EntitySelected, m_selectedEntity);
 				}
 
 				// Delete
-				if (ImGui::IsKeyReleased(LinaEngine::Input::InputCode::Key::Delete) && ImGui::IsWindowFocused())
+				if (ImGui::IsKeyReleased(Lina::Input::InputCode::Key::Delete) && ImGui::IsWindowFocused())
 				{
-					EditorApplication::GetEditorDispatcher().DispatchAction<void*>(LinaEngine::Action::ActionType::Unselect, 0);
+					EditorApplication::GetEditorDispatcher().DispatchAction<void*>(Lina::Action::ActionType::Unselect, 0);
 					ecs.DestroyEntity(m_selectedEntity);
 					m_selectedEntity = entt::null;
 				}
@@ -218,8 +218,8 @@ namespace LinaEditor
 				{
 					IM_ASSERT(payload->DataSize == sizeof(uint32));
 
-					auto& ecs = LinaEngine::Application::GetECSRegistry();
-					auto& model = LinaEngine::Graphics::Model::GetModel(*(uint32*)payload->m_data);
+					auto& ecs = Lina::Application::GetECSRegistry();
+					auto& model = Lina::Graphics::Model::GetModel(*(uint32*)payload->m_data);
 					auto entity = ecs.CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
 					auto& mr = ecs.emplace<ECS::ModelRendererComponent>(entity);
 					mr.SetModel(ecs, entity, model);

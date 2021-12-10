@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Panels/EditorPanel.hpp"
 
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 
 }

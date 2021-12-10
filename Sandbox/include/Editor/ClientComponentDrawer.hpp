@@ -40,7 +40,7 @@ Timestamp: 11/3/2020 1:49:15 PM
 #define ClientComponentDrawer_HPP
 
 
-namespace LinaEngine
+namespace Lina
 {
 	class ClientComponentDrawer
 	{

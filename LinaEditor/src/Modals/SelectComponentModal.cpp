@@ -35,7 +35,7 @@ SOFTWARE.
 
 #define MAX_SELECTABLE_COMPONENTS 100
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	std::vector<std::string> SelectComponentModal::Draw(const std::vector<std::string>& types)
 	{

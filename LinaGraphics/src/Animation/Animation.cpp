@@ -32,7 +32,7 @@ SOFTWARE.
 #include <ozz/base/io/stream.h>
 #include <ozz/base/io/archive.h>
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	bool Animation::LoadAnimation(const std::string& animPath)
 	{

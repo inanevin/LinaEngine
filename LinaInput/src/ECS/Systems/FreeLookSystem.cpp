@@ -33,7 +33,7 @@ SOFTWARE.
 #include "Input/InputEngine.hpp"
 #include "Utility/Math/Math.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	
 
@@ -51,19 +51,19 @@ namespace LinaEngine::ECS
 			EntityDataComponent& data = m_ecs->get<EntityDataComponent>(entity);
 
 			// Disable cursor upon starting mouse look.
-			if (m_inputEngine->GetMouseButtonDown(LinaEngine::Input::InputCode::Mouse::Mouse2))
-				m_inputEngine->SetCursorMode(LinaEngine::Input::CursorMode::Disabled);
+			if (m_inputEngine->GetMouseButtonDown(Lina::Input::InputCode::Mouse::Mouse2))
+				m_inputEngine->SetCursorMode(Lina::Input::CursorMode::Disabled);
 
 			Vector2 mouseAxis = m_inputEngine->GetMouseAxis();
 
 			// Holding right click enables rotating.
-			if (m_inputEngine->GetMouseButton(LinaEngine::Input::InputCode::Mouse::Mouse2))
+			if (m_inputEngine->GetMouseButton(Lina::Input::InputCode::Mouse::Mouse2))
 			{
 				m_targetYAngle += mouseAxis.y * freeLook.m_rotationSpeeds.x;
 				m_targetXAngle += mouseAxis.x * freeLook.m_rotationSpeeds.y;
 
-				freeLook.m_angles.y = LinaEngine::Math::Lerp(freeLook.m_angles.y, m_targetYAngle, 15 * delta);
-				freeLook.m_angles.x = LinaEngine::Math::Lerp(freeLook.m_angles.x, m_targetXAngle, 15 * delta);
+				freeLook.m_angles.y = Lina::Math::Lerp(freeLook.m_angles.y, m_targetYAngle, 15 * delta);
+				freeLook.m_angles.x = Lina::Math::Lerp(freeLook.m_angles.x, m_targetXAngle, 15 * delta);
 
 				Quaternion qX = Quaternion::AxisAngle(Vector3::Up, freeLook.m_angles.x);
 				Quaternion qY = Quaternion::AxisAngle(Vector3::Right, freeLook.m_angles.y);

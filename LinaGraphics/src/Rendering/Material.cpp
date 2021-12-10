@@ -35,14 +35,14 @@ SOFTWARE.
 #include <cereal/archives/binary.hpp>
 #include <fstream>
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 
 	std::map<int, Material> Material::s_loadedMaterials;
 	std::set<Material*> Material::s_shadowMappedMaterials;
 	std::set<Material*> Material::s_hdriMaterials;
 
-	void Material::PostLoadMaterialData(LinaEngine::Graphics::RenderEngine& renderEngine)
+	void Material::PostLoadMaterialData(Lina::Graphics::RenderEngine& renderEngine)
 	{
 		for (std::map<std::string, MaterialSampler2D>::iterator it = m_sampler2Ds.begin(); it != m_sampler2Ds.end(); ++it)
 		{

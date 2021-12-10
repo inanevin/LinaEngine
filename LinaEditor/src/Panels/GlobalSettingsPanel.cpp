@@ -38,17 +38,17 @@ SOFTWARE.
 #include "imgui/imgui.h"
 #include "IconsFontAwesome5.h"
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 #define CURSORPOS_X_LABELS 12
 #define CURSORPOS_XPERC_VALUES 0.30f
 
 	void GlobalSettingsPanel::Setup()
 	{
-		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::World::Level*>("#levelsettings_levelinstall", LinaEngine::Action::ActionType::LevelInstalled,
+		Lina::Application::GetEngineDispatcher().SubscribeAction<Lina::World::Level*>("#levelsettings_levelinstall", Lina::Action::ActionType::LevelInstalled,
 			std::bind(&GlobalSettingsPanel::LevelInstalled, this, std::placeholders::_1));
 
-		LinaEngine::Application::GetEngineDispatcher().SubscribeAction<LinaEngine::World::Level*>("#levelsettings_leveluninstall", LinaEngine::Action::ActionType::LevelUninstalled,
+		Lina::Application::GetEngineDispatcher().SubscribeAction<Lina::World::Level*>("#levelsettings_leveluninstall", Lina::Action::ActionType::LevelUninstalled,
 			std::bind(&GlobalSettingsPanel::LevelInstalled, this, std::placeholders::_1));
 
 		m_show = true;
@@ -78,7 +78,7 @@ namespace LinaEditor
 
 			if (m_currentLevel != nullptr)
 			{
-				LinaEngine::World::LevelData& levelData = m_currentLevel->GetLevelData();
+				Lina::World::LevelData& levelData = m_currentLevel->GetLevelData();
 
 				ImGui::SetCursorPosX(cursorPosLabels);
 				WidgetsUtility::IncrementCursorPosY(11);
@@ -87,9 +87,9 @@ namespace LinaEditor
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
 				WidgetsUtility::ColorButton("##lvlAmb", &levelData.m_ambientColor.r);
-				LinaEngine::Application::GetRenderEngine().GetLightingSystem()->SetAmbientColor(levelData.m_ambientColor);
+				Lina::Application::GetRenderEngine().GetLightingSystem()->SetAmbientColor(levelData.m_ambientColor);
 				// Material selection
-				if (LinaEngine::Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
+				if (Lina::Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
 				{
 					levelData.m_selectedSkyboxMatID = levelData.m_skyboxMaterialID;
 					levelData.m_selectedSkyboxMatPath = levelData.m_skyboxMaterialPath;
@@ -116,8 +116,8 @@ namespace LinaEditor
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVEMATERIAL_ID))
 					{
 						IM_ASSERT(payload->DataSize == sizeof(uint32));
-						levelData.m_skyboxMaterialID = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetID();
-						levelData.m_skyboxMaterialPath = LinaEngine::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetPath();
+						levelData.m_skyboxMaterialID = Lina::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetID();
+						levelData.m_skyboxMaterialPath = Lina::Graphics::Material::GetMaterial(*(uint32*)payload->m_data).GetPath();
 						m_currentLevel->SetSkyboxMaterial();
 					}
 
@@ -157,7 +157,7 @@ namespace LinaEditor
 			/// </summary>
 
 
-			LinaEngine::Graphics::RenderSettings& renderSettings = LinaEngine::Application::GetRenderEngine().GetRenderSettings();
+			Lina::Graphics::RenderSettings& renderSettings = Lina::Application::GetRenderEngine().GetRenderSettings();
 
 			// Shadow.
 			WidgetsUtility::DrawShadowedLine(5);
@@ -254,11 +254,11 @@ namespace LinaEditor
 			WidgetsUtility::DrawBeveledLine();
 			WidgetsUtility::IncrementCursorPosY(6);
 
-			LinaEngine::Application::GetRenderEngine().UpdateRenderSettings();
+			Lina::Application::GetRenderEngine().UpdateRenderSettings();
 			ImGui::SetCursorPosX(cursorPosLabels);
 
 			if (ImGui::Button("Save Settings", ImVec2(90, 30)))
-				LinaEngine::Graphics::RenderSettings::SerializeRenderSettings(renderSettings, RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
+				Lina::Graphics::RenderSettings::SerializeRenderSettings(renderSettings, RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
 
 			ImGui::PopStyleVar();
 			ImGui::End();
@@ -267,13 +267,13 @@ namespace LinaEditor
 		}
 	}
 
-	void GlobalSettingsPanel::LevelInstalled(LinaEngine::World::Level* level)
+	void GlobalSettingsPanel::LevelInstalled(Lina::World::Level* level)
 	{
 		m_currentLevel = level;
 		m_currentLevel->SetSkyboxMaterial();
 	}
 
-	void GlobalSettingsPanel::LevelIUninstalled(LinaEngine::World::Level* level)
+	void GlobalSettingsPanel::LevelIUninstalled(Lina::World::Level* level)
 	{
 		m_currentLevel = nullptr;
 	}

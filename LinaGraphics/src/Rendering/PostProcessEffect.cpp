@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Rendering/RenderEngine.hpp"
 #include "Helpers/DrawParameterHelper.hpp"
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	void PostProcessEffect::Construct(Shader& shader, RenderEngine* renderEngine)
 	{

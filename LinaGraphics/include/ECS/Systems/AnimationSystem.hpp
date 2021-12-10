@@ -42,14 +42,14 @@ Timestamp: 12/7/2021 4:10:26 PM
 // Headers here.
 #include "ECS/ECS.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace Graphics
 	{
 		class RenderEngine;
 	}
 }
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	class AnimationSystem : public BaseECSSystem
 	{
@@ -59,13 +59,13 @@ namespace LinaEngine::ECS
 		AnimationSystem() {};
 		~AnimationSystem() {};
 
-		void Construct(ECSRegistry& registry, LinaEngine::Graphics::RenderEngine* renderEngine);		
+		void Construct(ECSRegistry& registry, Lina::Graphics::RenderEngine* renderEngine);		
 		virtual void UpdateComponents(float delta) override;
 
 	
 	private:
 
-		LinaEngine::Graphics::RenderEngine* m_renderEngine;
+		Lina::Graphics::RenderEngine* m_renderEngine;
 	
 	};
 }

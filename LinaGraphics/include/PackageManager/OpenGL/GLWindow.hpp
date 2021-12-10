@@ -44,7 +44,7 @@ Timestamp: 4/14/2019 5:12:19 PM
 
 struct GLFWwindow;
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 
 	class GLWindow : public Window

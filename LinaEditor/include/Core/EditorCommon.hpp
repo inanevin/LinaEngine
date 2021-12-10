@@ -43,7 +43,7 @@ Timestamp: 5/8/2020 11:04:45 PM
 #include <string>
 
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	struct EditorPathConstants
 	{
@@ -62,9 +62,9 @@ namespace LinaEditor
 #define HEADER_FRAMEPADDING_FILEMENU ImVec2(5,3)
 #define HEADER_FRAMEPADDING_TOPBUTTONS ImVec2(3,2)
 #define HEADER_WINDOWPADDING_MENUBUTTON ImVec2(7,4)
-#define HEADER_COLOR_BG LinaEngine::Color(0, 0, 0, 1)
-#define HEADER_COLOR_TOPBUTTONS LinaEngine::Color(1, 1, 1, 1)
-#define HEADER_COLOR_MENUBARBUTTON_ACTIVE LinaEngine::Color(0.5f, 0.5f, 0.5f, 1.0f)
+#define HEADER_COLOR_BG Lina::Color(0, 0, 0, 1)
+#define HEADER_COLOR_TOPBUTTONS Lina::Color(1, 1, 1, 1)
+#define HEADER_COLOR_MENUBARBUTTON_ACTIVE Lina::Color(0.5f, 0.5f, 0.5f, 1.0f)
 #define HEADER_RESIZE_THRESHOLD 10
 #define HEADER_HEIGHT 60
 #define HEADER_OFFSET_TOPBUTTONS 80

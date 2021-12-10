@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Utility/Log.hpp"
 #include <glm/gtx/quaternion.hpp>
 
-namespace LinaEngine
+namespace Lina
 {
 
 	Quaternion::Quaternion(const Vector3& axis, float angle)

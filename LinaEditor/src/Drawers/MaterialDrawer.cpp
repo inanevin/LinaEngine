@@ -42,7 +42,7 @@ SOFTWARE.
 #include "imgui/imgui.h"
 #include "IconsFontAwesome5.h"
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 
 #define CURSORPOS_X_LABELS 30
@@ -58,7 +58,7 @@ namespace LinaEditor
 	};
 
 
-	void MaterialDrawer::SetSelectedMaterial(EditorFile* file, LinaEngine::Graphics::Material& mat)
+	void MaterialDrawer::SetSelectedMaterial(EditorFile* file, Lina::Graphics::Material& mat)
 	{
 		m_selectedMaterial = &mat;
 		m_selectedFile = file;
@@ -136,7 +136,7 @@ namespace LinaEditor
 			ImGui::Checkbox("##isshadowmapped", &m_selectedMaterial->m_isShadowMapped);
 
 			WidgetsUtility::FramePaddingX(4);
-			const char* surfaceTypeLabel = LinaEngine::Graphics::g_materialSurfaceTypeStr[m_selectedMaterial->GetSurfaceType()];
+			const char* surfaceTypeLabel = Lina::Graphics::g_materialSurfaceTypeStr[m_selectedMaterial->GetSurfaceType()];
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Surface Type");
 			ImGui::SameLine();
@@ -145,12 +145,12 @@ namespace LinaEditor
 
 			if (ImGui::BeginCombo("##surfaceType", surfaceTypeLabel))
 			{
-				for (int n = 0; n < IM_ARRAYSIZE(LinaEngine::Graphics::g_materialSurfaceTypeStr); n++)
+				for (int n = 0; n < IM_ARRAYSIZE(Lina::Graphics::g_materialSurfaceTypeStr); n++)
 				{
 					const bool is_surface_selected = (m_selectedMaterial->GetSurfaceType() == n);
-					if (ImGui::Selectable(LinaEngine::Graphics::g_materialSurfaceTypeStr[n], is_surface_selected))
+					if (ImGui::Selectable(Lina::Graphics::g_materialSurfaceTypeStr[n], is_surface_selected))
 					{
-						m_selectedMaterial->SetSurfaceType((LinaEngine::Graphics::MaterialSurfaceType)n);
+						m_selectedMaterial->SetSurfaceType((Lina::Graphics::MaterialSurfaceType)n);
 					}
 
 					if (is_surface_selected)
@@ -168,7 +168,7 @@ namespace LinaEditor
 			ImGui::SetCursorPosX(cursorPosValues);
 			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 35 - ImGui::GetCursorPosX());
 
-			LinaEngine::Graphics::Shader* selected = WidgetsUtility::ShaderComboBox("##mat_shader", m_selectedMaterial->GetShaderID());
+			Lina::Graphics::Shader* selected = WidgetsUtility::ShaderComboBox("##mat_shader", m_selectedMaterial->GetShaderID());
 			
 			if (selected != nullptr)
 				m_selectedMaterial->SetMaterialShader(*m_selectedMaterial, *selected);
@@ -181,7 +181,7 @@ namespace LinaEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVESHADER_ID))
 				{
 					IM_ASSERT(payload->DataSize == sizeof(uint32));
-					Graphics::Material::SetMaterialShader(*m_selectedMaterial, LinaEngine::Graphics::Shader::GetShader(*(uint32*)payload->m_data));
+					Graphics::Material::SetMaterialShader(*m_selectedMaterial, Lina::Graphics::Shader::GetShader(*(uint32*)payload->m_data));
 
 				}
 				ImGui::EndDragDropTarget();
@@ -192,7 +192,7 @@ namespace LinaEditor
 
 			if (WidgetsUtility::IconButton("##selectshader", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 			{
-				Graphics::Material::SetMaterialShader(*m_selectedMaterial, LinaEngine::Graphics::RenderEngine::GetDefaultShader());
+				Graphics::Material::SetMaterialShader(*m_selectedMaterial, Lina::Graphics::RenderEngine::GetDefaultShader());
 			}
 		}
 
@@ -315,7 +315,7 @@ namespace LinaEditor
 			{
 				WidgetsUtility::IncrementCursorPosY(11);
 
-				for (std::map<std::string, LinaEngine::Color>::iterator it = m_selectedMaterial->m_colors.begin(); it != m_selectedMaterial->m_colors.end(); ++it)
+				for (std::map<std::string, Lina::Color>::iterator it = m_selectedMaterial->m_colors.begin(); it != m_selectedMaterial->m_colors.end(); ++it)
 				{
 					WidgetsUtility::FramePaddingX(4);
 					ImGui::SetCursorPosX(cursorPosLabels);
@@ -350,7 +350,7 @@ namespace LinaEditor
 			{
 				WidgetsUtility::IncrementCursorPosY(11);
 
-				for (std::map<std::string, LinaEngine::Vector2>::iterator it = m_selectedMaterial->m_vector2s.begin(); it != m_selectedMaterial->m_vector2s.end(); ++it)
+				for (std::map<std::string, Lina::Vector2>::iterator it = m_selectedMaterial->m_vector2s.begin(); it != m_selectedMaterial->m_vector2s.end(); ++it)
 				{
 					WidgetsUtility::FramePaddingX(4);
 					ImGui::SetCursorPosX(cursorPosLabels);
@@ -384,7 +384,7 @@ namespace LinaEditor
 			{
 				WidgetsUtility::IncrementCursorPosY(11);
 
-				for (std::map<std::string, LinaEngine::Vector3>::iterator it = m_selectedMaterial->m_vector3s.begin(); it != m_selectedMaterial->m_vector3s.end(); ++it)
+				for (std::map<std::string, Lina::Vector3>::iterator it = m_selectedMaterial->m_vector3s.begin(); it != m_selectedMaterial->m_vector3s.end(); ++it)
 				{
 					WidgetsUtility::FramePaddingX(4);
 					ImGui::SetCursorPosX(cursorPosLabels);
@@ -418,7 +418,7 @@ namespace LinaEditor
 			{
 				WidgetsUtility::IncrementCursorPosY(11);
 
-				for (std::map<std::string, LinaEngine::Vector4>::iterator it = m_selectedMaterial->m_vector4s.begin(); it != m_selectedMaterial->m_vector4s.end(); ++it)
+				for (std::map<std::string, Lina::Vector4>::iterator it = m_selectedMaterial->m_vector4s.begin(); it != m_selectedMaterial->m_vector4s.end(); ++it)
 				{
 					WidgetsUtility::FramePaddingX(4);
 					ImGui::SetCursorPosX(cursorPosLabels);
@@ -474,7 +474,7 @@ namespace LinaEditor
 
 						if (ImGui::IsMouseHoveringRect(minTexture, maxTexture) && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
 						{
-							LinaEditor::EditorApplication::GetEditorDispatcher().DispatchAction<LinaEngine::Graphics::Texture*>(LinaEngine::Action::ActionType::MaterialTextureSelected, it.second.m_boundTexture);
+							Lina::Editor::EditorApplication::GetEditorDispatcher().DispatchAction<Lina::Graphics::Texture*>(Lina::Action::ActionType::MaterialTextureSelected, it.second.m_boundTexture);
 						}
 					}
 
@@ -487,7 +487,7 @@ namespace LinaEditor
 						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(RESOURCES_MOVETEXTURE_ID))
 						{
 							IM_ASSERT(payload->DataSize == sizeof(uint32));
-							m_selectedMaterial->SetTexture(it.first, &LinaEngine::Graphics::Texture::GetTexture(*(uint32*)payload->m_data), it.second.m_bindMode);
+							m_selectedMaterial->SetTexture(it.first, &Lina::Graphics::Texture::GetTexture(*(uint32*)payload->m_data), it.second.m_bindMode);
 						}
 
 
@@ -502,8 +502,8 @@ namespace LinaEditor
 		WidgetsUtility::IncrementCursorPosY(11);
 		if (ImGui::Button("Apply Changes", ImVec2(90, 30)))
 		{
-			LinaEngine::Graphics::Material::SaveMaterialData(*m_selectedMaterial, m_selectedMaterial->GetPath());
-			LinaEngine::Application::GetRenderEngine().MaterialUpdated(*m_selectedMaterial);
+			Lina::Graphics::Material::SaveMaterialData(*m_selectedMaterial, m_selectedMaterial->GetPath());
+			Lina::Application::GetRenderEngine().MaterialUpdated(*m_selectedMaterial);
 		}
 
 		ImGui::SameLine();
@@ -511,7 +511,7 @@ namespace LinaEditor
 
 		if (ImGui::Button("Reset", ImVec2(57, 30)))
 		{
-			LinaEngine::Graphics::Material::SetMaterialShader(*m_selectedMaterial, LinaEngine::Graphics::RenderEngine::GetDefaultShader());
+			Lina::Graphics::Material::SetMaterialShader(*m_selectedMaterial, Lina::Graphics::RenderEngine::GetDefaultShader());
 		}
 
 

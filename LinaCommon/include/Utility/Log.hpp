@@ -45,12 +45,12 @@ Timestamp: 12/30/2018 1:54:10 AM
 
 #ifdef LINA_CORE_ENABLE_LOGGING
 
-#define LINA_CORE_ERR(...)			::LinaEngine::Log::LogMessage(::LinaEngine::Log::LogLevel::Error, __VA_ARGS__);
-#define LINA_CORE_WARN(...)			::LinaEngine::Log::LogMessage(::LinaEngine::Log::LogLevel::Warn,__VA_ARGS__); 
-#define LINA_CORE_INFO(...)			::LinaEngine::Log::LogMessage(::LinaEngine::Log::LogLevel::Info,__VA_ARGS__); 
-#define LINA_CORE_TRACE(...)		::LinaEngine::Log::LogMessage(::LinaEngine::Log::LogLevel::Trace,__VA_ARGS__);
-#define LINA_CORE_DEBUG(...)		::LinaEngine::Log::LogMessage(::LinaEngine::Log::LogLevel::Debug,__VA_ARGS__); 
-#define LINA_CORE_CRITICAL(...)		::LinaEngine::Log::LogMessage(::LinaEngine::Log::LogLevel::Critical,__VA_ARGS__);
+#define LINA_CORE_ERR(...)			::Lina::Log::LogMessage(::Lina::Log::LogLevel::Error, __VA_ARGS__);
+#define LINA_CORE_WARN(...)			::Lina::Log::LogMessage(::Lina::Log::LogLevel::Warn,__VA_ARGS__); 
+#define LINA_CORE_INFO(...)			::Lina::Log::LogMessage(::Lina::Log::LogLevel::Info,__VA_ARGS__); 
+#define LINA_CORE_TRACE(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Trace,__VA_ARGS__);
+#define LINA_CORE_DEBUG(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Debug,__VA_ARGS__); 
+#define LINA_CORE_CRITICAL(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Critical,__VA_ARGS__);
 
 #else
 
@@ -66,12 +66,12 @@ Timestamp: 12/30/2018 1:54:10 AM
 
 
 
-#define LINA_CLIENT_ERR(...)		::LinaEngine::Log::LogMessage(::LinaEngine::Log::LogLevel::Error, __VA_ARGS__);
-#define LINA_CLIENT_WARN(...)		::LinaEngine::Log::LogMessage(::LinaEngine::Log::LogLevel::Warn,__VA_ARGS__); 
-#define LINA_CLIENT_INFO(...)		::LinaEngine::Log::LogMessage(::LinaEngine::Log::LogLevel::Info,__VA_ARGS__); 
-#define LINA_CLIENT_TRACE(...)		::LinaEngine::Log::LogMessage(::LinaEngine::Log::LogLevel::Trace,__VA_ARGS__);
-#define LINA_CLIENT_DEBUG(...)		::LinaEngine::Log::LogMessage(::LinaEngine::Log::LogLevel::Debug,__VA_ARGS__); 
-#define LINA_CLIENT_CRITICAL(...)	::LinaEngine::Log::LogMessage(::LinaEngine::Log::LogLevel::Critical,__VA_ARGS__);
+#define LINA_CLIENT_ERR(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Error, __VA_ARGS__);
+#define LINA_CLIENT_WARN(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Warn,__VA_ARGS__); 
+#define LINA_CLIENT_INFO(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Info,__VA_ARGS__); 
+#define LINA_CLIENT_TRACE(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Trace,__VA_ARGS__);
+#define LINA_CLIENT_DEBUG(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Debug,__VA_ARGS__); 
+#define LINA_CLIENT_CRITICAL(...)	::Lina::Log::LogMessage(::Lina::Log::LogLevel::Critical,__VA_ARGS__);
 
 #else
 
@@ -103,7 +103,7 @@ Timestamp: 12/30/2018 1:54:10 AM
 #define MAX_BACKTRACE_SIZE 32
 #define FMT_HEADER_ONLY
 
-namespace LinaEngine
+namespace Lina
 {
 	class  Log
 	{

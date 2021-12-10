@@ -45,7 +45,7 @@ Timestamp: 5/2/2019 12:40:46 AM
 #include "Utility/Math/Color.hpp"
 #include "ECS/Components/LightComponent.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	struct EntityDataComponent;
 	struct CameraComponent;

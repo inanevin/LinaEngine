@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Core/EditorCommon.hpp"
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	std::string& EditorPathConstants::contentsPath = std::string("ProjectContents/");
 }

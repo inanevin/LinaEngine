@@ -41,7 +41,7 @@ Timestamp: 4/14/2019 5:15:15 PM
 
 #include "Input/InputDevice.hpp"
 
-namespace LinaEngine::Input
+namespace Lina::Input
 {
 	// A subclass of Input Device.
 	class GLInputDevice : public InputDevice

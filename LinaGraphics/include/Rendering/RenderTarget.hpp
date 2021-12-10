@@ -43,7 +43,7 @@ Timestamp: 4/26/2019 9:13:05 PM
 #include "PackageManager/PAMRenderDevice.hpp"
 #include "Utility/Log.hpp"
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	class RenderTarget
 	{

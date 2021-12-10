@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Core/Timer.hpp"
 #include "Utility/Log.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 	std::map<std::string, Timer*> Timer::s_activeTimers;
 

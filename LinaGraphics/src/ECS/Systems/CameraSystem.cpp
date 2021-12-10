@@ -32,7 +32,7 @@ SOFTWARE.
 #include "ECS/Components/CameraComponent.hpp"
 #include "Utility/Math/Math.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 
 	void CameraSystem::Construct(ECSRegistry& registry)
@@ -87,9 +87,9 @@ namespace LinaEngine::ECS
 		return m_activeCameraEntity == entt::null ? Vector3(Vector3::Zero) : m_ecs->get<EntityDataComponent>(m_activeCameraEntity).GetLocation();
 	}
 
-	LinaEngine::Color& CameraSystem::GetCurrentClearColor()
+	Lina::Color& CameraSystem::GetCurrentClearColor()
 	{
-		return m_activeCameraEntity == entt::null ? LinaEngine::Color::Gray : m_ecs->get<CameraComponent>(m_activeCameraEntity).m_clearColor;
+		return m_activeCameraEntity == entt::null ? Lina::Color::Gray : m_ecs->get<CameraComponent>(m_activeCameraEntity).m_clearColor;
 	}
 
 	CameraComponent* CameraSystem::GetActiveCameraComponent()

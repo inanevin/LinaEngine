@@ -46,7 +46,7 @@ Timestamp: 12/7/2021 2:13:56 PM
 #include <map>
 
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	class Animation;
 

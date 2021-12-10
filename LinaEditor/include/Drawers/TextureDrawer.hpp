@@ -42,7 +42,7 @@ Timestamp: 10/16/2020 6:27:20 PM
 #include "Rendering/RenderingCommon.hpp"
 #include "Core/Common.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace Graphics
 	{
@@ -53,7 +53,7 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class TextureDrawer
 	{
@@ -63,20 +63,20 @@ namespace LinaEditor
 		TextureDrawer() {};
 		~TextureDrawer() {};
 	
-		void SetSelectedTexture(LinaEngine::Graphics::Texture* texture);
+		void SetSelectedTexture(Lina::Graphics::Texture* texture);
 		void DrawSelectedTexture();
 	
 
 	private:
 
-		int GetSamplerFilterID(LinaEngine::Graphics::SamplerFilter filter);
-		int GetWrapModeID(LinaEngine::Graphics::SamplerWrapMode wrapMode);
-		LinaEngine::Graphics::SamplerFilter GetSamplerFilterFromID(int id);
-		LinaEngine::Graphics::SamplerWrapMode GetWrapModeFromID(int id);
+		int GetSamplerFilterID(Lina::Graphics::SamplerFilter filter);
+		int GetWrapModeID(Lina::Graphics::SamplerWrapMode wrapMode);
+		Lina::Graphics::SamplerFilter GetSamplerFilterFromID(int id);
+		Lina::Graphics::SamplerWrapMode GetWrapModeFromID(int id);
 
 	private:
 
-		LinaEngine::Graphics::Texture* m_selectedTexture = nullptr;
+		Lina::Graphics::Texture* m_selectedTexture = nullptr;
 		int m_currentInternalPixelFormat = 0;
 		int m_currentPixelFormat = 0;
 		int m_currentMinFilter = 0;

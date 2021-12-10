@@ -46,7 +46,7 @@ Timestamp: 5/1/2019 2:35:28 AM
 #include "ECS/Components/AABBComponent.hpp"
 #include "btBulletDynamicsCommon.h"
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace ECS
 	{
@@ -60,7 +60,7 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEngine::Physics
+namespace Lina::Physics
 {
 
 	class PhysicsEngine
@@ -70,7 +70,7 @@ namespace LinaEngine::Physics
 		PhysicsEngine();
 		~PhysicsEngine();
 
-		void Initialize(LinaEngine::ECS::ECSRegistry& ecsReg, std::function<void(Vector3, Vector3, Color, float)>& cb);
+		void Initialize(Lina::ECS::ECSRegistry& ecsReg, std::function<void(Vector3, Vector3, Color, float)>& cb);
 		void Tick(float fixedDelta);
 		void CleanUp();
 
@@ -87,7 +87,7 @@ namespace LinaEngine::Physics
 
 	private:
 
-		btCollisionShape* GetCollisionShape(LinaEngine::ECS::RigidbodyComponent rb);
+		btCollisionShape* GetCollisionShape(Lina::ECS::RigidbodyComponent rb);
 
 	private:
 
@@ -99,8 +99,8 @@ namespace LinaEngine::Physics
 
 		PhysicsGizmoDrawer m_gizmoDrawer;
 
-		LinaEngine::ECS::RigidbodySystem m_rigidbodySystem;
-		LinaEngine::ECS::ECSSystemList m_physicsPipeline;
+		Lina::ECS::RigidbodySystem m_rigidbodySystem;
+		Lina::ECS::ECSSystemList m_physicsPipeline;
 
 		std::map<int, btRigidBody*> s_bodies;		
 		bool m_debugDrawEnabled = false;

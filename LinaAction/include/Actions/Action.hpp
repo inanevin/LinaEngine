@@ -44,7 +44,7 @@ Timestamp: 1/6/2019 5:41:20 AM
 #include "Core/Common.hpp"
 #include <functional>
 
-namespace LinaEngine::Action
+namespace Lina::Action
 {
 	enum ActionType
 	{

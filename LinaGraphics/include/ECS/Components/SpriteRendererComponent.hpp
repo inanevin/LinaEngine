@@ -38,7 +38,7 @@ Timestamp: 10/1/2020 9:26:21 AM
 
 #include "ECS/ECSComponent.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	struct SpriteRendererComponent : public ECSComponent
 	{

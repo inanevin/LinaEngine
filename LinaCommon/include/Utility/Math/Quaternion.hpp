@@ -42,7 +42,7 @@ Timestamp: 10/14/2018 10:42:21 PM
 
 #include "Vector.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 
 	class Quaternion : public glm::quat

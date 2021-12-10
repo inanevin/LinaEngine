@@ -37,7 +37,7 @@ Timestamp: 4/14/2019 5:15:15 PM
 #ifndef InputCommon_HPP
 #define InputCommon_HPP
 
-namespace LinaEngine::Input
+namespace Lina::Input
 {
 	// Cursor Modes
 	enum CursorMode { Visible, Hidden, Disabled };

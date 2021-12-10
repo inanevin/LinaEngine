@@ -43,7 +43,7 @@ Timestamp: 12/5/2020 1:13:57 PM
 #include <map>
 #include <string>
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace Graphics
 	{
@@ -51,7 +51,7 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class SelectShaderModal
 	{
@@ -61,7 +61,7 @@ namespace LinaEditor
 		SelectShaderModal() {};
 		~SelectShaderModal() {};
 
-		static void Draw(const std::map<int, LinaEngine::Graphics::Shader*>& map, int* selectedShaderID, std::string& shaderPath);
+		static void Draw(const std::map<int, Lina::Graphics::Shader*>& map, int* selectedShaderID, std::string& shaderPath);
 
 	
 	private:

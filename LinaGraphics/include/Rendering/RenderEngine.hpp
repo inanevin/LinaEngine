@@ -63,7 +63,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include <set>
 #include <queue>
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace Input
 	{
@@ -73,7 +73,7 @@ namespace LinaEngine
 	class Event;
 }
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	class Shader;
 
@@ -89,11 +89,11 @@ namespace LinaEngine::Graphics
 
 		RenderEngine();
 		~RenderEngine();
-		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn, Window& appWindow);
+		void Initialize(Lina::ECS::ECSRegistry& ecsIn, Window& appWindow);
 		void Tick(float delta);
 		void Render(float interpolation);
 		void RenderLayers();
-		void AddToRenderingPipeline(LinaEngine::ECS::BaseECSSystem& system);
+		void AddToRenderingPipeline(Lina::ECS::BaseECSSystem& system);
 		void SetViewportDisplay(Vector2 offset, Vector2 size);
 		void SetSkyboxMaterial(Material* skyboxMaterial) { m_skyboxMaterial = skyboxMaterial; }
 		void PushLayer(Layer& layer);
@@ -248,13 +248,13 @@ namespace LinaEngine::Graphics
 		// Structure that keeps track of current buffer values
 		BufferValueRecord m_bufferValueRecord;
 
-		LinaEngine::ECS::AnimationSystem m_animationSystem;
-		LinaEngine::ECS::CameraSystem m_cameraSystem;
-		LinaEngine::ECS::MeshRendererSystem m_meshRendererSystem;
-		LinaEngine::ECS::SpriteRendererSystem m_spriteRendererSystem;
-		LinaEngine::ECS::LightingSystem m_lightingSystem;
-		LinaEngine::ECS::ECSSystemList m_renderingPipeline;
-		LinaEngine::ECS::ECSSystemList m_animationPipeline;
+		Lina::ECS::AnimationSystem m_animationSystem;
+		Lina::ECS::CameraSystem m_cameraSystem;
+		Lina::ECS::MeshRendererSystem m_meshRendererSystem;
+		Lina::ECS::SpriteRendererSystem m_spriteRendererSystem;
+		Lina::ECS::LightingSystem m_lightingSystem;
+		Lina::ECS::ECSSystemList m_renderingPipeline;
+		Lina::ECS::ECSSystemList m_animationPipeline;
 
 	private:
 

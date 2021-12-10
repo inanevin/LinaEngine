@@ -31,7 +31,7 @@ SOFTWARE.
 #include <ozz/animation/runtime/animation.h>
 #include <ozz/base/io/stream.h>
 #include <ozz/base/io/archive.h>
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
     Skeleton::~Skeleton()
     {

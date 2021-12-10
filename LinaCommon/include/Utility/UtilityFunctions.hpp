@@ -41,7 +41,7 @@ Timestamp: 1/5/2019 12:42:58 AM
 #include <vector>
 #include <functional>
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace Utility
 	{

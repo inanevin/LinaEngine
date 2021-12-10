@@ -45,7 +45,7 @@ Timestamp: 5/6/2019 5:10:23 PM
 #include <cereal/archives/binary.hpp>
 #include "Utility/Math/Color.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace ECS
 	{
@@ -53,7 +53,7 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEngine::World
+namespace Lina::World
 {
 	struct LevelData
 	{

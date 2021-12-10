@@ -59,6 +59,9 @@ set(LINACOMMON_HEADERS
 	include/Core/LinaAPI.hpp
 	include/Core/Timer.hpp
 	
+	# Job System
+	include/JobSystem/JobSystem.hpp
+	
 	# PAM
 	include/PackageManager/Generic/cmwc4096.hpp
 	include/PackageManager/Generic/GenericMemory.hpp
@@ -101,6 +104,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glm/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/fmt/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/cereal/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/taskflow/include)
+
 
 
 #--------------------------------------------------------------------

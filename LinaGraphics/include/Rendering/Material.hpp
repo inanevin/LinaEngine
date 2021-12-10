@@ -49,7 +49,7 @@ Timestamp: 4/26/2019 1:12:18 AM
 #include <cereal/types/map.hpp>
 #include <set>
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	class RenderEngine;
 	class Texture;
@@ -95,7 +95,7 @@ namespace LinaEngine::Graphics
 		static std::map<int, Material>& GetLoadedMaterials() { return s_loadedMaterials; }
 
 		void UpdateMaterialData();
-		void PostLoadMaterialData(LinaEngine::Graphics::RenderEngine& renderEngine);
+		void PostLoadMaterialData(Lina::Graphics::RenderEngine& renderEngine);
 		void SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		void RemoveTexture(const std::string& textureName);
 		Texture& GetTexture(const std::string& name);

@@ -34,7 +34,7 @@ SOFTWARE.
 #include "imgui/imgui.h"
 #include "imgui/implot/implot.h"
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 
 	struct RollingBuffer
@@ -82,7 +82,7 @@ namespace LinaEditor
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 			ImGui::SetNextWindowBgAlpha(1.0f);
 
-			const std::map<std::string, LinaEngine::Timer*>& map = LinaEngine::Timer::GetTimerMap();
+			const std::map<std::string, Lina::Timer*>& map = Lina::Timer::GetTimerMap();
 
 			ImGui::Begin(PROFILER_ID, &m_show, flags);
 
@@ -92,7 +92,7 @@ namespace LinaEditor
 			WidgetsUtility::IncrementCursorPosY(11);
 
 
-			float currentTime = LinaEngine::Application::GetApp().GetTime();
+			float currentTime = Lina::Application::GetApp().GetTime();
 
 			bool displayMS = false;
 			if (currentTime > m_lastMSDisplayTime + MS_DISPLAY_TIME)
@@ -103,21 +103,21 @@ namespace LinaEditor
 
 			WidgetsUtility::IncrementCursorPosX(12);
 
-			double updateTime = LinaEngine::Application::GetApp().GetUpdateTime();
+			double updateTime = Lina::Application::GetApp().GetUpdateTime();
 			const std::string updateTimeStr = "Update Time: " + std::to_string(updateTime);
 			WidgetsUtility::AlignedText(updateTimeStr.c_str());
 
-			double renderTime = LinaEngine::Application::GetApp().GetRenderTime();
+			double renderTime = Lina::Application::GetApp().GetRenderTime();
 			const std::string renderTimeStr = "Render Time: " + std::to_string(renderTime);
 			WidgetsUtility::AlignedText(renderTimeStr.c_str());
 
-			double frameTime = LinaEngine::Application::GetApp().GetFrameTime();
+			double frameTime = Lina::Application::GetApp().GetFrameTime();
 			const std::string frameTimeStr = "Frame Time: " + std::to_string(frameTime);
 			WidgetsUtility::AlignedText(frameTimeStr.c_str());
 
 
 
-			for (std::map<std::string, LinaEngine::Timer*>::const_iterator it = map.begin(); it != map.end(); ++it)
+			for (std::map<std::string, Lina::Timer*>::const_iterator it = map.begin(); it != map.end(); ++it)
 			{
 				std::string txt = "";
 				txt = it->first + " " + m_timerMSStorage[it->first] + " ms";
@@ -134,10 +134,10 @@ namespace LinaEditor
 			WidgetsUtility::IncrementCursorPosX(12);
 			WidgetsUtility::IncrementCursorPosY(12);
 
-			int fps = LinaEngine::Application::GetApp().GetCurrentFPS();
-			int ups = LinaEngine::Application::GetApp().GetCurrentUPS();
-			float rawDelta = LinaEngine::Application::GetApp().GetRawDelta();
-			float smoothDelta = LinaEngine::Application::GetApp().GetSmoothDelta();
+			int fps = Lina::Application::GetApp().GetCurrentFPS();
+			int ups = Lina::Application::GetApp().GetCurrentUPS();
+			float rawDelta = Lina::Application::GetApp().GetRawDelta();
+			float smoothDelta = Lina::Application::GetApp().GetSmoothDelta();
 
 			static RollingBuffer fpsData;
 			static RollingBuffer upsData;

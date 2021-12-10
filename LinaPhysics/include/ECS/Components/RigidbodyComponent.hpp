@@ -39,7 +39,7 @@ Timestamp: 9/30/2020 2:46:27 AM
 #include "ECS/ECSComponent.hpp"
 #include "Utility/Math/Vector.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	enum class CollisionShape
 	{
@@ -52,8 +52,8 @@ namespace LinaEngine::ECS
 	struct RigidbodyComponent : public ECSComponent
 	{
 		CollisionShape m_collisionShape = CollisionShape::Sphere;
-		LinaEngine::Vector3 m_localInertia = LinaEngine::Vector3::Zero;
-		LinaEngine::Vector3 m_halfExtents = LinaEngine::Vector3::Zero; // used for box & cylinder shapes
+		Lina::Vector3 m_localInertia = Lina::Vector3::Zero;
+		Lina::Vector3 m_halfExtents = Lina::Vector3::Zero; // used for box & cylinder shapes
 		float m_mass = 0.0f;
 		float m_radius = 0.0f; // used for sphere & capsule shapes.
 		float m_capsuleHeight = 0.0f; 

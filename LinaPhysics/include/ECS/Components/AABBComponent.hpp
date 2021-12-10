@@ -43,12 +43,12 @@ Timestamp: 12/8/2020 4:52:07 PM
 #include "ECS/ECSComponent.hpp"
 #include "Utility/Math/Vector.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	struct AABBComponent : public ECSComponent
 	{
-		LinaEngine::Vector3 m_center = LinaEngine::Vector3::Zero;
-		LinaEngine::Vector3 m_halfWidths = LinaEngine::Vector3::One;
+		Lina::Vector3 m_center = Lina::Vector3::Zero;
+		Lina::Vector3 m_halfWidths = Lina::Vector3::One;
 
 		template<class Archive>
 		void serialize(Archive& archive)

@@ -39,7 +39,7 @@ SOFTWARE.
 #include <iostream>
 #include <filesystem>
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 
 

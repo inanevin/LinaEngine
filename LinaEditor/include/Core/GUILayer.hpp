@@ -50,7 +50,7 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #include "World/DefaultLevel.hpp"
 #include <vector>
 
-namespace LinaEngine
+namespace Lina
 {
 	class Application;
 
@@ -76,7 +76,7 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	enum class MenuBarItems
 	{
@@ -114,12 +114,12 @@ namespace LinaEditor
 
 	};
 
-	class GUILayer : public LinaEngine::Layer
+	class GUILayer : public Lina::Layer
 	{
 
 	public:
 
-		GUILayer() : LinaEngine::Layer("GUILayer") {}
+		GUILayer() : Lina::Layer("GUILayer") {}
 		~GUILayer();
 
 		// Overrides
@@ -141,7 +141,7 @@ namespace LinaEditor
 
 	private:
 
-		LinaEngine::Graphics::DrawParams m_drawParameters;
+		Lina::Graphics::DrawParams m_drawParameters;
 		ECSPanel m_ecsPanel;
 		ResourcesPanel m_resourcesPanel;
 		ScenePanel m_scenePanel;
@@ -151,7 +151,7 @@ namespace LinaEditor
 		ProfilerPanel m_profilerPanel;
 		GlobalSettingsPanel m_globalSettingsPanel;
 
-		LinaEngine::World::DefaultLevel m_defaultLevel;
+		Lina::World::DefaultLevel m_defaultLevel;
 	};
 }
 

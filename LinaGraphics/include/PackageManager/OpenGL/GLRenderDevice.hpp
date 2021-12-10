@@ -46,9 +46,9 @@ Timestamp: 4/27/2019 10:12:16 PM
 #include "Rendering/RenderingCommon.hpp"
 #include <map>
 
-using namespace LinaEngine;
+using namespace Lina;
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 
 	// Vertex array struct for storage & vertex array data transportation.

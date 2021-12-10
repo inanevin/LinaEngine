@@ -47,7 +47,7 @@ Timestamp: 10/11/2020 1:39:01 PM
 #include <map>
 #include <string>
 
-namespace LinaEngine
+namespace Lina
 {
 	class Quaternion;
 
@@ -59,7 +59,7 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class WidgetsUtility
 	{
@@ -77,8 +77,8 @@ namespace LinaEditor
 		static bool IconButtonNoDecoration(const char* label, float width = 0.0f, float scale = 0.6f);
 		static bool IconButton(const char* id, const char* label, float width = 0.0f, float scale = 0.6f, const ImVec4& color = ImVec4(1, 1, 1, 0.6f), const ImVec4& hoverColor = ImVec4(1,1,1,.8f), const ImVec4& pressedColor = ImVec4(1, 1, 1, 1.0f), bool disabled = false);
 		static bool Button(const char* label, const ImVec2& size = ImVec2(0,0));
-		static bool InputQuaternion(const char* label, LinaEngine::Quaternion& v);
-		static bool DragQuaternion(const char* label, LinaEngine::Quaternion& v);
+		static bool InputQuaternion(const char* label, Lina::Quaternion& v);
+		static bool DragQuaternion(const char* label, Lina::Quaternion& v);
 		static void AlignedText(const char* label);
 		static bool Caret(const char* title);
 		static void IncrementCursorPosX(float f);
@@ -102,9 +102,9 @@ namespace LinaEditor
 		static void ItemSpacing(const ImVec2& amt);
 		static void WindowRounding(float rounding);
 		static void PopStyleVar();
-		static LinaEngine::Graphics::Material* MaterialComboBox(const char* comboID, const std::string& currentPath);
-		static LinaEngine::Graphics::Model* ModelComboBox(const char* comboID, int currentModelID);
-		static LinaEngine::Graphics::Shader* ShaderComboBox(const char* comboID, int currentShaderID);
+		static Lina::Graphics::Material* MaterialComboBox(const char* comboID, const std::string& currentPath);
+		static Lina::Graphics::Model* ModelComboBox(const char* comboID, int currentModelID);
+		static Lina::Graphics::Shader* ShaderComboBox(const char* comboID, int currentShaderID);
 
 		static std::map<std::string, bool> s_carets;
 

@@ -47,18 +47,18 @@ static Matrix modelMatrix = Matrix::Identity();
 static ImVec2 previousWindowSize;
 #define GRID_SIZE 1000
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 
 	void ScenePanel::Setup()
 	{
-		EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::ECS::ECSEntity>("##lina_scenePanel_entity", LinaEngine::Action::ActionType::EntitySelected,
+		EditorApplication::GetEditorDispatcher().SubscribeAction<Lina::ECS::ECSEntity>("##lina_scenePanel_entity", Lina::Action::ActionType::EntitySelected,
 			std::bind(&ScenePanel::EntitySelected, this, std::placeholders::_1));
 
-		EditorApplication::GetEditorDispatcher().SubscribeAction<void*>("##lina_scenePanel_unselect", LinaEngine::Action::ActionType::Unselect,
+		EditorApplication::GetEditorDispatcher().SubscribeAction<void*>("##lina_scenePanel_unselect", Lina::Action::ActionType::Unselect,
 			std::bind(&ScenePanel::Unselected, this));
 
-		Application::GetEngineDispatcher().SubscribeAction<int>("#lina_scenePanel_uninstall", LinaEngine::Action::ActionType::LevelUninstalled, std::bind(&ScenePanel::Unselected, this));
+		Application::GetEngineDispatcher().SubscribeAction<int>("#lina_scenePanel_uninstall", Lina::Action::ActionType::LevelUninstalled, std::bind(&ScenePanel::Unselected, this));
 	}
 
 	void ScenePanel::Draw()
@@ -68,7 +68,7 @@ namespace LinaEditor
 		if (m_show)
 		{
 
-			LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+			Lina::Graphics::RenderEngine& renderEngine = Lina::Application::GetRenderEngine();
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 			ImGui::SetNextWindowBgAlpha(1.0f);
 
@@ -110,8 +110,8 @@ namespace LinaEditor
 				// Resize scene panel.
 				if ((size.x != previousWindowSize.x || size.y != previousWindowSize.y))
 				{
-						LinaEngine::Application::GetRenderEngine().SetViewportDisplay(Vector2(0,0), Vector2((int)(size.x), (int)(size.y)));
-					//LinaEngine::Application::GetRenderEngine().OnWindowResized((uint32)ImGui::GetCurrentWindow()->Size.x, (uint32)ImGui::GetCurrentWindow()->Size.y);
+						Lina::Application::GetRenderEngine().SetViewportDisplay(Vector2(0,0), Vector2((int)(size.x), (int)(size.y)));
+					//Lina::Application::GetRenderEngine().OnWindowResized((uint32)ImGui::GetCurrentWindow()->Size.x, (uint32)ImGui::GetCurrentWindow()->Size.y);
 					previousWindowSize = size;
 				}
 
@@ -153,8 +153,8 @@ namespace LinaEditor
 				{
 					IM_ASSERT(payload->DataSize == sizeof(uint32));
 
-					auto& ecs = LinaEngine::Application::GetECSRegistry();
-					auto& model = LinaEngine::Graphics::Model::GetModel(*(uint32*)payload->m_data);
+					auto& ecs = Lina::Application::GetECSRegistry();
+					auto& model = Lina::Graphics::Model::GetModel(*(uint32*)payload->m_data);
 					auto entity = ecs.CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
 					auto& mr = ecs.emplace<ECS::ModelRendererComponent>(entity);
 					mr.SetModel(ecs, entity, model);
@@ -174,7 +174,7 @@ namespace LinaEditor
 	}
 
 
-	void ScenePanel::EntitySelected(LinaEngine::ECS::ECSEntity entity)
+	void ScenePanel::EntitySelected(Lina::ECS::ECSEntity entity)
 	{
 		m_selectedTransform = entity;
 	}
@@ -202,7 +202,7 @@ namespace LinaEditor
 
 	void ScenePanel::DrawGizmos()
 	{
-		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+		Lina::Graphics::RenderEngine& renderEngine = Lina::Application::GetRenderEngine();
 
 		Matrix& view = renderEngine.GetCameraSystem()->GetViewMatrix();
 		Matrix& projection = renderEngine.GetCameraSystem()->GetProjectionMatrix();
@@ -210,7 +210,7 @@ namespace LinaEditor
 		//ImGui::GetWindowDrawList()->AddLine(ImVec2(coord.x, coord.y), ImVec2(coord2.x, coord2.y), col, 2);
 		if (m_selectedTransform != entt::null)
 		{
-			ECS::EntityDataComponent& data = LinaEngine::Application::GetECSRegistry().get<ECS::EntityDataComponent>(m_selectedTransform);
+			ECS::EntityDataComponent& data = Lina::Application::GetECSRegistry().get<ECS::EntityDataComponent>(m_selectedTransform);
 			// Get required matrices.
 			glm::mat4 object = data.ToMatrix();
 

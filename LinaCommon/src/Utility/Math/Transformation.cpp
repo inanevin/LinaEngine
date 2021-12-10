@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Utility/Math/Transformation.hpp"  
 #include "Utility/Math/Math.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 	Transformation Transformation::Interpolate(Transformation& from, Transformation& to, float t)
 	{

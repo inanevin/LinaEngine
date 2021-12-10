@@ -42,7 +42,7 @@ Timestamp: 12/7/2020 9:11:14 PM
 // Headers here.
 #include "Core/Layer.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 
 	class GameManager : public Layer

@@ -37,52 +37,52 @@ SOFTWARE.
 #include "Utility/EditorUtility.hpp"
 #include "IconsFontAwesome5.h"
 
-namespace LinaEditor
+namespace Lina::Editor
 {
-	using namespace LinaEngine::ECS;
-	using namespace LinaEngine;
+	using namespace Lina::ECS;
+	using namespace Lina;
 	static bool s_openCompExistsModal;
 
 
 	void PropertiesPanel::Setup()
 	{
-		EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::ECS::ECSEntity>("##lina_propsPanel_entity", LinaEngine::Action::ActionType::EntitySelected,
+		EditorApplication::GetEditorDispatcher().SubscribeAction<Lina::ECS::ECSEntity>("##lina_propsPanel_entity", Lina::Action::ActionType::EntitySelected,
 			std::bind(&PropertiesPanel::EntitySelected, this, std::placeholders::_1));
 
-		EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::Graphics::Model*>("##lina_propsPanel_mesh", LinaEngine::Action::ActionType::MeshSelected,
+		EditorApplication::GetEditorDispatcher().SubscribeAction<Lina::Graphics::Model*>("##lina_propsPanel_mesh", Lina::Action::ActionType::MeshSelected,
 			std::bind(&PropertiesPanel::MeshSelected, this, std::placeholders::_1));
 
-		EditorApplication::GetEditorDispatcher().SubscribeAction<std::pair<EditorFile*, LinaEngine::Graphics::Material*>>("##lina_propsPanel_material", LinaEngine::Action::ActionType::MaterialSelected,
+		EditorApplication::GetEditorDispatcher().SubscribeAction<std::pair<EditorFile*, Lina::Graphics::Material*>>("##lina_propsPanel_material", Lina::Action::ActionType::MaterialSelected,
 			std::bind(&PropertiesPanel::MaterialSelected, this, std::placeholders::_1));
 
 
-		EditorApplication::GetEditorDispatcher().SubscribeAction<LinaEngine::Graphics::Texture*>("##lina_propsPanel_texture", LinaEngine::Action::ActionType::TextureSelected,
+		EditorApplication::GetEditorDispatcher().SubscribeAction<Lina::Graphics::Texture*>("##lina_propsPanel_texture", Lina::Action::ActionType::TextureSelected,
 			std::bind(&PropertiesPanel::TextureSelected, this, std::placeholders::_1));
 
-		EditorApplication::GetEditorDispatcher().SubscribeAction<void*>("##lina_propsPanel_unselect", LinaEngine::Action::ActionType::Unselect,
+		EditorApplication::GetEditorDispatcher().SubscribeAction<void*>("##lina_propsPanel_unselect", Lina::Action::ActionType::Unselect,
 			std::bind(&PropertiesPanel::Unselect, this));
 
 		m_entityDrawer.Setup();
 	}
 
-	void PropertiesPanel::EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity)
+	void PropertiesPanel::EntitySelected(Lina::ECS::ECSEntity selectedEntity)
 	{
 		m_entityDrawer.SetSelectedEntity(selectedEntity);
 		m_currentDrawType = DrawType::Entities;
 	}
 
-	void PropertiesPanel::TextureSelected(LinaEngine::Graphics::Texture* texture)
+	void PropertiesPanel::TextureSelected(Lina::Graphics::Texture* texture)
 	{
 		m_textureDrawer.SetSelectedTexture(texture);
 		m_currentDrawType = DrawType::Texture2D;
 	}
 
-	void PropertiesPanel::MaterialSelected(std::pair<EditorFile*, LinaEngine::Graphics::Material*> pair)
+	void PropertiesPanel::MaterialSelected(std::pair<EditorFile*, Lina::Graphics::Material*> pair)
 	{
 		m_materialDrawer.SetSelectedMaterial(pair.first, *pair.second);
 		m_currentDrawType = DrawType::Material;
 	}
-	void PropertiesPanel::MeshSelected(LinaEngine::Graphics::Model* mesh)
+	void PropertiesPanel::MeshSelected(Lina::Graphics::Model* mesh)
 	{
 		m_meshDrawer.SetSelectedMesh(*mesh);
 		m_currentDrawType = DrawType::Model;

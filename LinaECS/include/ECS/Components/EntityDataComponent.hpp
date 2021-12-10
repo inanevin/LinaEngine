@@ -44,7 +44,7 @@ Timestamp: 12/8/2021 5:35:25 PM
 #include "ECS/ECSComponent.hpp"
 #include "ECS/ECSSystem.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	struct EntityDataComponent : public ECSComponent
 	{
@@ -109,7 +109,7 @@ namespace LinaEngine::ECS
 		friend class ECSRegistry;
 
 		ECSRegistry* m_ecs = nullptr;
-		LinaEngine::Transformation m_transform;
+		Lina::Transformation m_transform;
 
 		template<class Archive>
 		void serialize(Archive& archive)

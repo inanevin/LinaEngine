@@ -45,7 +45,7 @@ Timestamp: 10/1/2020 9:27:40 AM
 #include "Rendering/VertexArray.hpp"
 #include "Rendering/Mesh.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace Graphics
 	{
@@ -54,7 +54,7 @@ namespace LinaEngine
 	}
 }
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	class SpriteRendererSystem : public BaseECSSystem
 	{

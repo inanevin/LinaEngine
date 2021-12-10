@@ -47,35 +47,35 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include <functional>
 #include <array>
 
-namespace LinaEngine::World
+namespace Lina::World
 {
 	class Level;
 }
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	class Window;
 	class RenderEngine;
 	struct WindowProperties;
 }
 
-namespace LinaEngine::Input
+namespace Lina::Input
 {
 	class InputEngine;
 	class InputDevice;
 }
 
-namespace LinaEngine::Physics
+namespace Lina::Physics
 {
 	class PhysicsEngine;
 }
 
-namespace LinaEngine::Audio
+namespace Lina::Audio
 {
 	class AudioEngine;
 }
 
-namespace LinaEngine
+namespace Lina
 {
 
 	class Application
@@ -92,14 +92,14 @@ namespace LinaEngine
 
 
 		// Loads a level into memory.
-		bool InstallLevel(LinaEngine::World::Level& level, bool loadFromFile = false, const std::string& path = "", const std::string& levelName = "");
+		bool InstallLevel(Lina::World::Level& level, bool loadFromFile = false, const std::string& path = "", const std::string& levelName = "");
 		void SaveLevelData(const std::string& folderPath, const std::string& fileName);
 		void LoadLevelData(const std::string& folderPath, const std::string& fileName);
 		void RestartLevel();
 
 		// Serialization functions for ecs registry.
-		virtual void SerializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryOutputArchive& oarchive) = 0;
-		virtual void DeserializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryInputArchive& iarchive) = 0;
+		virtual void SerializeRegistry(Lina::ECS::ECSRegistry& registry, cereal::BinaryOutputArchive& oarchive) = 0;
+		virtual void DeserializeRegistry(Lina::ECS::ECSRegistry& registry, cereal::BinaryInputArchive& iarchive) = 0;
 
 		// Unloads a level from memory.
 		void UninstallLevel();
@@ -154,7 +154,7 @@ namespace LinaEngine
 		void WindowCloseCallback() {};
 		void RemoveOutliers(bool biggest);
 		double SmoothDeltaTime(double dt);
-		void InitializeLevel(LinaEngine::World::Level& level);
+		void InitializeLevel(Lina::World::Level& level);
 
 	private:
 

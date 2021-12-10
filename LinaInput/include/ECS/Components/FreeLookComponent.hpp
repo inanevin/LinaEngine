@@ -42,13 +42,13 @@ Timestamp: 5/2/2019 1:40:16 AM
 #include "ECS/ECSComponent.hpp"
 #include "Utility/Math/Vector.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	struct FreeLookComponent : public ECSComponent
 	{
-		LinaEngine::Vector2 m_angles = LinaEngine::Vector2::Zero;
-		LinaEngine::Vector2 m_movementSpeeds = LinaEngine::Vector2(12,12);
-		LinaEngine::Vector2 m_rotationSpeeds = LinaEngine::Vector2(3, 3);
+		Lina::Vector2 m_angles = Lina::Vector2::Zero;
+		Lina::Vector2 m_movementSpeeds = Lina::Vector2(12,12);
+		Lina::Vector2 m_rotationSpeeds = Lina::Vector2(3, 3);
 
 		template<class Archive>
 		void serialize(Archive& archive)

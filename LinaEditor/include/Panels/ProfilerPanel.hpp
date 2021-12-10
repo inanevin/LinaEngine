@@ -42,7 +42,7 @@ Timestamp: 10/22/2020 11:22:48 PM
 #include "Panels/EditorPanel.hpp"
 #include <deque>
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class ProfilerPanel : public EditorPanel
 	{

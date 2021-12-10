@@ -43,7 +43,7 @@ Timestamp: 4/26/2019 12:11:36 AM
 #include "PackageManager/PAMRenderDevice.hpp"
 #include "Rendering/VertexArray.hpp"
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	class Mesh
 	{

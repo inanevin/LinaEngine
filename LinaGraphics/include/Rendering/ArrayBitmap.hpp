@@ -45,7 +45,7 @@ Timestamp: 4/14/2019 11:59:32 AM
 #include "Utility/Log.hpp"
 #include <string>
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	class ArrayBitmap
 	{

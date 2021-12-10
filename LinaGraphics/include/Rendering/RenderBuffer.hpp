@@ -42,7 +42,7 @@ Timestamp: 5/19/2020 8:10:11 PM
 
 #include "PackageManager/PAMRenderDevice.hpp"
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	class RenderBuffer
 	{

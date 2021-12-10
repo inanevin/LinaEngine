@@ -43,7 +43,7 @@ Timestamp: 4/4/2019 2:29:37 AM
 #include <string>
 #include <functional>
 
-namespace LinaEngine::Input
+namespace Lina::Input
 {
 	class IInputSubscriber
 	{

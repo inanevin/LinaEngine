@@ -44,7 +44,7 @@ Timestamp: 4/14/2019 11:59:32 AM
 #include "Utility/Math/Color.hpp"
 #include "map"
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 #define INTERNAL_MAT_PATH "__internal"
 #define MAX_POINT_LIGHTS 12

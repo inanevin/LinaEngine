@@ -42,12 +42,12 @@ Timestamp: 5/2/2019 12:20:42 AM
 #include "ECS/ECSComponent.hpp"
 #include "Utility/Math/Color.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 
 	struct CameraComponent : public ECSComponent
 	{
-		LinaEngine::Color m_clearColor = LinaEngine::Color(0.1f, 0.1f, 0.1f, 1.0f);
+		Lina::Color m_clearColor = Lina::Color(0.1f, 0.1f, 0.1f, 1.0f);
 		float m_fieldOfView = 90.0f;
 		float m_zNear = 0.01f;
 		float m_zFar = 1000.0f;

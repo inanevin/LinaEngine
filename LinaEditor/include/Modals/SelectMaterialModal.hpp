@@ -41,7 +41,7 @@ Timestamp: 10/20/2020 12:53:37 AM
 
 #include "Rendering/Material.hpp"
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class SelectMaterialModal
 	{
@@ -50,7 +50,7 @@ namespace LinaEditor
 		
 		SelectMaterialModal();
 		~SelectMaterialModal();
-		static void Draw(const std::map<int, LinaEngine::Graphics::Material>& map, int* selectedMatID, std::string& matPath);
+		static void Draw(const std::map<int, Lina::Graphics::Material>& map, int* selectedMatID, std::string& matPath);
 
 	private:
 	

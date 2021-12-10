@@ -28,20 +28,20 @@ SOFTWARE.
 
 #include "Utility/Math/Color.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
-	Color LinaEngine::Color::Red = Color(1, 0, 0, 1);
-	Color LinaEngine::Color::Green = Color(0, 1, 0);
-	Color LinaEngine::Color::LightBlue = Color(0.4f, 0.4f, 0.8f);
-	Color LinaEngine::Color::Blue = Color(0, 0, 1);
-	Color LinaEngine::Color::DarkBlue = Color(0.1f, 0.1f, 0.6f);
-	Color LinaEngine::Color::Cyan = Color(0, 1, 1);
-	Color LinaEngine::Color::Yellow = Color(1, 1, 0);
-	Color LinaEngine::Color::Black = Color(0, 0, 0);
-	Color LinaEngine::Color::White = Color(1, 1, 1);
-	Color LinaEngine::Color::Purple = Color(1, 0, 1);
-	Color LinaEngine::Color::Maroon = Color(0.5f, 0, 0);
-	Color LinaEngine::Color::Beige = Color(0.96f, 0.96f, 0.862f);
-	Color LinaEngine::Color::Brown = Color(0.647f, 0.164f, 0.164f);
-	Color LinaEngine::Color::Gray = Color(0.5f, 0.5f, 0.5f);
+	Color Lina::Color::Red = Color(1, 0, 0, 1);
+	Color Lina::Color::Green = Color(0, 1, 0);
+	Color Lina::Color::LightBlue = Color(0.4f, 0.4f, 0.8f);
+	Color Lina::Color::Blue = Color(0, 0, 1);
+	Color Lina::Color::DarkBlue = Color(0.1f, 0.1f, 0.6f);
+	Color Lina::Color::Cyan = Color(0, 1, 1);
+	Color Lina::Color::Yellow = Color(1, 1, 0);
+	Color Lina::Color::Black = Color(0, 0, 0);
+	Color Lina::Color::White = Color(1, 1, 1);
+	Color Lina::Color::Purple = Color(1, 0, 1);
+	Color Lina::Color::Maroon = Color(0.5f, 0, 0);
+	Color Lina::Color::Beige = Color(0.96f, 0.96f, 0.862f);
+	Color Lina::Color::Brown = Color(0.647f, 0.164f, 0.164f);
+	Color Lina::Color::Gray = Color(0.5f, 0.5f, 0.5f);
 }

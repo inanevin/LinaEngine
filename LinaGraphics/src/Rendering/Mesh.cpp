@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Rendering/Mesh.hpp"  
 #include "PackageManager/PAMRenderDevice.hpp"
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	void Mesh::AddElement(uint32 elementIndex, float e0)
 	{

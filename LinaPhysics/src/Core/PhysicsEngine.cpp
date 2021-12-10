@@ -34,7 +34,7 @@ SOFTWARE.
 #include "Utility/Math/Color.hpp"
 
 
-namespace LinaEngine::Physics
+namespace Lina::Physics
 {
 	PhysicsEngine::PhysicsEngine()
 	{
@@ -74,12 +74,12 @@ namespace LinaEngine::Physics
 		delete m_collisionConfig;
 	}
 
-	void PhysicsEngine::Initialize(LinaEngine::ECS::ECSRegistry& ecsReg, std::function<void(Vector3,Vector3,Color,float)>& cb)
+	void PhysicsEngine::Initialize(Lina::ECS::ECSRegistry& ecsReg, std::function<void(Vector3,Vector3,Color,float)>& cb)
 	{
 		LINA_CORE_TRACE("[Initialization] -> Physics Engine ({0})", typeid(*this).name());
 
 		// Register components.
-		ecsReg.RegisterComponentToClone<LinaEngine::ECS::RigidbodyComponent>();
+		ecsReg.RegisterComponentToClone<Lina::ECS::RigidbodyComponent>();
 
 		// collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
 		m_collisionConfig = new btDefaultCollisionConfiguration();
@@ -105,10 +105,10 @@ namespace LinaEngine::Physics
 		// Setup rigidbody system and listen to events so that we can refresh bodies when new rigidbodies are created, destroyed etc.
 		m_rigidbodySystem.Construct(ecsReg, this);
 		m_physicsPipeline.AddSystem(m_rigidbodySystem);
-		ecsReg.on_construct<LinaEngine::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
-		ecsReg.on_destroy<LinaEngine::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
-		ecsReg.on_construct<LinaEngine::ECS::EntityDataComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
-		ecsReg.on_update<LinaEngine::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyUpdated>(this);
+		ecsReg.on_construct<Lina::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
+		ecsReg.on_destroy<Lina::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
+		ecsReg.on_construct<Lina::ECS::EntityDataComponent>().connect<&PhysicsEngine::OnRigidbodyOrTransformAdded>(this);
+		ecsReg.on_update<Lina::ECS::RigidbodyComponent>().connect<&PhysicsEngine::OnRigidbodyUpdated>(this);
 		
 	}
 
@@ -128,13 +128,13 @@ namespace LinaEngine::Physics
 	void PhysicsEngine::OnRigidbodyOrTransformAdded(entt::registry& reg, entt::entity ent)
 	{
 		// If the object doesn't have a transform & rigidbody yet, return.
-		if (!reg.all_of<LinaEngine::ECS::EntityDataComponent>(ent) || !reg.all_of<LinaEngine::ECS::RigidbodyComponent>(ent)) return;
-		LinaEngine::ECS::RigidbodyComponent& rb = reg.get<LinaEngine::ECS::RigidbodyComponent>(ent);
+		if (!reg.all_of<Lina::ECS::EntityDataComponent>(ent) || !reg.all_of<Lina::ECS::RigidbodyComponent>(ent)) return;
+		Lina::ECS::RigidbodyComponent& rb = reg.get<Lina::ECS::RigidbodyComponent>(ent);
 
 		// Return if rigidbody is already alive.
 		if (rb.m_alive) return;
 
-		LinaEngine::ECS::EntityDataComponent& data = reg.get<LinaEngine::ECS::EntityDataComponent>(ent);
+		Lina::ECS::EntityDataComponent& data = reg.get<Lina::ECS::EntityDataComponent>(ent);
 		btCollisionShape* colShape = GetCollisionShape(rb);
 
 		btTransform transform;
@@ -161,7 +161,7 @@ namespace LinaEngine::Physics
 
 		// Register the body to the map and assign it to the world
 		// so that its simulated.
-		int id = LinaEngine::Utility::GetUniqueID();
+		int id = Lina::Utility::GetUniqueID();
 		s_bodies[id] = body;
 		rb.m_bodyID = id;
 
@@ -171,7 +171,7 @@ namespace LinaEngine::Physics
 
 	void PhysicsEngine::OnRigidbodyRemoved(entt::registry& reg, entt::entity ent)
 	{
-		LinaEngine::ECS::RigidbodyComponent& rbComp = reg.get<LinaEngine::ECS::RigidbodyComponent>(ent);
+		Lina::ECS::RigidbodyComponent& rbComp = reg.get<Lina::ECS::RigidbodyComponent>(ent);
 		btRigidBody* rb = s_bodies[rbComp.m_bodyID];
 		
 		if (rb->getMotionState())
@@ -184,7 +184,7 @@ namespace LinaEngine::Physics
 
 	void PhysicsEngine::OnRigidbodyUpdated(entt::registry& reg, entt::entity ent)
 	{
-		LinaEngine::ECS::RigidbodyComponent& rbComp = reg.get<LinaEngine::ECS::RigidbodyComponent>(ent);
+		Lina::ECS::RigidbodyComponent& rbComp = reg.get<Lina::ECS::RigidbodyComponent>(ent);
 		btRigidBody* rb = s_bodies[rbComp.m_bodyID];
 
 		// We remove the body, replace the collision shape
@@ -213,18 +213,18 @@ namespace LinaEngine::Physics
 			m_world->debugDrawWorld();
 	}
 
-	btCollisionShape* PhysicsEngine::GetCollisionShape(LinaEngine::ECS::RigidbodyComponent rb)
+	btCollisionShape* PhysicsEngine::GetCollisionShape(Lina::ECS::RigidbodyComponent rb)
 	{
 		btCollisionShape* colShape = nullptr;
 
 		// Build collision shape depending on the type
-		if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::BOX)
+		if (rb.m_collisionShape == Lina::ECS::CollisionShape::BOX)
 			colShape = new btBoxShape(btVector3(rb.m_halfExtents.x, rb.m_halfExtents.y, rb.m_halfExtents.z));
-		else if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::Sphere)
+		else if (rb.m_collisionShape == Lina::ECS::CollisionShape::Sphere)
 			colShape = new btSphereShape(btScalar(rb.m_radius));
-		else if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::CAPSULE)
+		else if (rb.m_collisionShape == Lina::ECS::CollisionShape::CAPSULE)
 			colShape = new btCapsuleShape(btScalar(rb.m_radius), btScalar(rb.m_capsuleHeight));
-		else if (rb.m_collisionShape == LinaEngine::ECS::CollisionShape::Cylinder)
+		else if (rb.m_collisionShape == Lina::ECS::CollisionShape::Cylinder)
 			colShape = new btCylinderShape(btVector3(rb.m_halfExtents.x, rb.m_halfExtents.y, rb.m_halfExtents.z));
 
 		return colShape;

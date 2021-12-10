@@ -45,7 +45,7 @@ Timestamp: 10/6/2020 11:13:50 AM
 #include "Input/InputMappings.hpp"
 #include "Input/InputCommon.hpp"
 
-namespace LinaEngine::Input
+namespace Lina::Input
 {
 	class InputDevice
 	{

@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Utility/stb/stb_image.h"
 #include "PackageManager/PAMMemory.hpp"
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 
 

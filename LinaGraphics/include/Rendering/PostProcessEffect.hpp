@@ -45,7 +45,7 @@ Timestamp: 12/10/2020 6:02:07 PM
 #include "Material.hpp"
 #include "Shader.hpp"
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 	class RenderEngine;
 	class PostProcessEffect

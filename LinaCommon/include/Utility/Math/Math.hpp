@@ -59,7 +59,7 @@ Timestamp: 4/8/2019 9:14:44 PM
 #define MATH_RAD_TO_DEG_CONV 57.2957795130823f
 #define MATH_DEG_TO_RAD_CONV 0.0174532925199433f
 
-namespace LinaEngine
+namespace Lina
 {
 	struct Math
 	{

@@ -44,13 +44,13 @@ SOFTWARE.
 #include <fstream>
 
 
-namespace LinaEngine::World
+namespace Lina::World
 {
 	bool Level::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
 	{
 		if (loadFromFile)
 		{
-			if (LinaEngine::Utility::FileExists(path + "/" + levelName + ".linaleveldata"))
+			if (Lina::Utility::FileExists(path + "/" + levelName + ".linaleveldata"))
 			{
 				DeserializeLevelData(path, levelName);
 				LoadLevelResources();
@@ -152,7 +152,7 @@ namespace LinaEngine::World
 			}
 		}
 
-		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+		Lina::Graphics::RenderEngine& renderEngine = Lina::Application::GetRenderEngine();
 
 		if (Utility::FileExists(m_levelData.m_skyboxMaterialPath))
 		{
@@ -167,7 +167,7 @@ namespace LinaEngine::World
 
 	void Level::SetSkyboxMaterial()
 	{
-		LinaEngine::Graphics::RenderEngine& renderEngine = LinaEngine::Application::GetRenderEngine();
+		Lina::Graphics::RenderEngine& renderEngine = Lina::Application::GetRenderEngine();
 
 		if (Graphics::Material::MaterialExists(m_levelData.m_skyboxMaterialPath))
 		{
@@ -180,14 +180,14 @@ namespace LinaEngine::World
 
 	void Level::SerializeLevelData(const std::string& path, const std::string& levelName)
 	{
-		LinaEngine::ECS::ECSRegistry& registry = LinaEngine::Application::GetECSRegistry();
+		Lina::ECS::ECSRegistry& registry = Lina::Application::GetECSRegistry();
 
 		{
 
 			std::ofstream registrySnapshotStream(path + "/" + levelName + "_ecsSnapshot.linasnapshot", std::ios::binary);
 			{
 				cereal::BinaryOutputArchive oarchive(registrySnapshotStream); // Build an output archive
-				LinaEngine::Application::GetApp().SerializeRegistry(registry, oarchive);
+				Lina::Application::GetApp().SerializeRegistry(registry, oarchive);
 			}
 
 		}
@@ -205,7 +205,7 @@ namespace LinaEngine::World
 
 	void Level::DeserializeLevelData(const std::string& path, const std::string& levelName)
 	{
-		LinaEngine::ECS::ECSRegistry& registry = LinaEngine::Application::GetECSRegistry();
+		Lina::ECS::ECSRegistry& registry = Lina::Application::GetECSRegistry();
 
 		{
 			std::ifstream levelDataStream(path + "/" + levelName + ".linaleveldata", std::ios::binary);
@@ -224,7 +224,7 @@ namespace LinaEngine::World
 			std::ifstream regSnapshotStream(path + "/" + levelName + "_ecsSnapshot.linasnapshot", std::ios::binary);
 			{
 				cereal::BinaryInputArchive iarchive(regSnapshotStream);
-				LinaEngine::Application::GetApp().DeserializeRegistry(registry, iarchive);
+				Lina::Application::GetApp().DeserializeRegistry(registry, iarchive);
 			}
 		}
 

@@ -42,16 +42,16 @@ SOFTWARE.
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-LinaEngine::Graphics::Texture* splashScreenTexture;
+Lina::Graphics::Texture* splashScreenTexture;
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 
 
-	void SplashScreen::Setup(const LinaEngine::Graphics::WindowProperties& props)
+	void SplashScreen::Setup(const Lina::Graphics::WindowProperties& props)
 	{
 		// Set GUI draw params.
-		LinaEngine::Graphics::DrawParams splashDrawParams;
+		Lina::Graphics::DrawParams splashDrawParams;
 		splashDrawParams.useScissorTest = false;
 		splashDrawParams.useDepthTest = true;
 		splashDrawParams.useStencilTest = true;
@@ -74,13 +74,13 @@ namespace LinaEditor
 		splashDrawParams.scissorHeight = 0;
 
 		// Set draw params.
-		LinaEngine::Application::GetRenderEngine().SetDrawParameters(splashDrawParams);
+		Lina::Application::GetRenderEngine().SetDrawParameters(splashDrawParams);
 
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 
-		LinaEngine::Graphics::Window& splashWindow = LinaEngine::Application::GetAppWindow();
+		Lina::Graphics::Window& splashWindow = Lina::Application::GetAppWindow();
 
 		GLFWwindow* window = static_cast<GLFWwindow*>(splashWindow.GetNativeWindow());
 
@@ -90,10 +90,10 @@ namespace LinaEditor
 
 		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 		splashWindow.SetSize(Vector2(props.m_width, props.m_height));
-		splashWindow.SetPos(LinaEngine::Vector2(mode->width / 2.0f + props.m_xPos - props.m_width / 2.0f, mode->height / 2.0f + props.m_yPos - props.m_height / 2.0f));
+		splashWindow.SetPos(Lina::Vector2(mode->width / 2.0f + props.m_xPos - props.m_width / 2.0f, mode->height / 2.0f + props.m_yPos - props.m_height / 2.0f));
 
 		// Build pixel data.
-		splashScreenTexture = &LinaEngine::Graphics::Texture::CreateTexture2D("resources/editor/textures/splashScreen.png");
+		splashScreenTexture = &Lina::Graphics::Texture::CreateTexture2D("resources/editor/textures/splashScreen.png");
 	}
 
 	void SplashScreen::Draw()
@@ -119,7 +119,7 @@ namespace LinaEditor
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		// swap buffers.
-		LinaEngine::Application::GetAppWindow().Tick();
+		Lina::Application::GetAppWindow().Tick();
 
 	}
 

@@ -48,7 +48,7 @@ Timestamp: 6/7/2020 5:13:24 PM
 #include "Drawers/MeshDrawer.hpp"
 #include "Rendering/RenderingCommon.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 	namespace Graphics
 	{
@@ -59,7 +59,7 @@ namespace LinaEngine
 }
 
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 	class EditorFile;
 
@@ -83,10 +83,10 @@ namespace LinaEditor
 		virtual void Setup() override;
 		virtual void Draw() override;
 
-		void EntitySelected(LinaEngine::ECS::ECSEntity selectedEntity);
-		void TextureSelected(LinaEngine::Graphics::Texture* texture);
-		void MeshSelected(LinaEngine::Graphics::Model* mesh);
-		void MaterialSelected(std::pair<EditorFile*, LinaEngine::Graphics::Material*>);
+		void EntitySelected(Lina::ECS::ECSEntity selectedEntity);
+		void TextureSelected(Lina::Graphics::Texture* texture);
+		void MeshSelected(Lina::Graphics::Model* mesh);
+		void MaterialSelected(std::pair<EditorFile*, Lina::Graphics::Material*>);
 
 		void Unselect()
 		{

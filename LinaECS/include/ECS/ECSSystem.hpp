@@ -51,7 +51,7 @@ Timestamp: 4/8/2019 5:28:34 PM
 #include <map>
 #include <set>
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 	typedef entt::entity ECSEntity;
 	typedef entt::id_type ECSTypeID;

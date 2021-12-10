@@ -29,7 +29,7 @@ SOFTWARE.
 #include "ECS/Systems/LightingSystem.hpp"  
 #include "Rendering/RenderEngine.hpp"
 
-namespace LinaEngine::ECS
+namespace Lina::ECS
 {
 
 	const float DIRLIGHT_DISTANCE_OFFSET = 10;

@@ -33,13 +33,13 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "imgui/imgui.h"
 
-namespace LinaEditor
+namespace Lina::Editor
 {
 
 #define CURSORPOS_X_LABELS 12
 #define CURSORPOS_XPERC_VALUES 0.55f
 
-	void MeshDrawer::SetSelectedMesh(LinaEngine::Graphics::Model& mesh)
+	void MeshDrawer::SetSelectedMesh(Lina::Graphics::Model& mesh)
 	{
 		m_selectedMesh = &mesh;
 		m_selectedParams = m_selectedMesh->GetParameters();
@@ -91,10 +91,10 @@ namespace LinaEditor
 			int id = m_selectedMesh->GetID();
 			std::string filePath = m_selectedMesh->GetPath();
 			std::string paramsPath = m_selectedMesh->GetParamsPath();
-			LinaEngine::Graphics::Model::UnloadModel(id);
-			m_selectedMesh = &LinaEngine::Graphics::Model::CreateModel(filePath, Graphics::ModelParameters(m_selectedParams), id);
+			Lina::Graphics::Model::UnloadModel(id);
+			m_selectedMesh = &Lina::Graphics::Model::CreateModel(filePath, Graphics::ModelParameters(m_selectedParams), id);
 			LINA_CORE_TRACE("File: {0} Params: {1}", filePath, paramsPath);
-			//LinaEngine::Graphics::Mesh::SaveParameters(paramsPath, m_selectedParams);
+			//Lina::Graphics::Mesh::SaveParameters(paramsPath, m_selectedParams);
 
 		}
 

@@ -33,7 +33,7 @@ SOFTWARE.
 #include <glm/gtx/matrix_decompose.hpp>
 #include "glm/gtx/transform.hpp"
 
-namespace LinaEngine
+namespace Lina
 {
 
 	Matrix Matrix::Identity()

@@ -46,7 +46,7 @@ Timestamp: 4/26/2019 12:07:47 AM
 #include "Model.hpp"
 #include <string>
 
-namespace LinaEngine::Graphics
+namespace Lina::Graphics
 {
 
 	class ModelLoader
