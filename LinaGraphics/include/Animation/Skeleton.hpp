@@ -40,7 +40,7 @@ Timestamp: 12/7/2021 2:13:56 PM
 #define Skeleton_HPP
 
 // Headers here.
-#include "Utility/Math/Matrix.hpp"
+#include "Math/Matrix.hpp"
 #include "Rendering/RenderingCommon.hpp"
 #include <string>
 #include <map>

@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Rendering/Model.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Utility/UtilityFunctions.hpp"
-#include "Utility/Log.hpp"
+#include "Log/Log.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/ModelLoader.hpp"

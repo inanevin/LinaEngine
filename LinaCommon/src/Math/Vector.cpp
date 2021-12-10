@@ -26,11 +26,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Utility/Math/Vector.hpp"  
+#include "Math/Vector.hpp"  
 #include "glm/gtx/transform.hpp"
 #include "glm/gtx/projection.hpp"
 #include "glm/gtx/rotate_vector.hpp"
-#include "Utility/Math/Quaternion.hpp"
+#include "Math/Quaternion.hpp"
 
 namespace Lina
 {

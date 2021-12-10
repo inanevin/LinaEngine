@@ -33,7 +33,7 @@ SOFTWARE.
 #include "Rendering/Model.hpp"
 #include "Rendering/Material.hpp"
 #include "Core/GUILayer.hpp"
-#include "Utility/Log.hpp"
+#include "Log/Log.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Core/EditorApplication.hpp"
 #include "Core/Application.hpp"

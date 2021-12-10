@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Core/SplashScreen.hpp"
 #include "Rendering/Window.hpp"
-#include "Utility/Log.hpp"
+#include "Log/Log.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Texture.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"

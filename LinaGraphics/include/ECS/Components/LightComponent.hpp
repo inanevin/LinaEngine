@@ -39,9 +39,9 @@ Timestamp: 5/13/2019 9:00:55 PM
 #ifndef LightComponent_HPP
 #define LightComponent_HPP
 
-#include "Utility/Math/Color.hpp"
-#include "Utility/Math/Vector.hpp"
-#include "Utility/Math/Math.hpp"
+#include "Math/Color.hpp"
+#include "Math/Vector.hpp"
+#include "Math/Math.hpp"
 #include "ECS/ECSComponent.hpp"
 
 

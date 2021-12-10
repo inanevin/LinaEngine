@@ -1,11 +1,13 @@
 /* 
 This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+https://github.com/inanevin/Lina
 
 Author: Inan Evin
 http://www.inanevin.com
 
 Copyright (c) [2018-2020] [Inan Evin]
+
+Custom Memory Allocators: Copyright (c) 2016 Mariano Trebino
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,22 +28,59 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Utility/Math/Color.hpp"
+/*
+Class: StackLinkedList
+
+Linked list for pool allocator.
+
+Timestamp: 12/19/2020 1:44:39 AM
+*/
+
+#pragma once
+
+#ifndef StackLinkedList_HPP
+#define StackLinkedList_HPP
+
+// Headers here.
+
 
 namespace Lina
 {
-	Color Lina::Color::Red = Color(1, 0, 0, 1);
-	Color Lina::Color::Green = Color(0, 1, 0);
-	Color Lina::Color::LightBlue = Color(0.4f, 0.4f, 0.8f);
-	Color Lina::Color::Blue = Color(0, 0, 1);
-	Color Lina::Color::DarkBlue = Color(0.1f, 0.1f, 0.6f);
-	Color Lina::Color::Cyan = Color(0, 1, 1);
-	Color Lina::Color::Yellow = Color(1, 1, 0);
-	Color Lina::Color::Black = Color(0, 0, 0);
-	Color Lina::Color::White = Color(1, 1, 1);
-	Color Lina::Color::Purple = Color(1, 0, 1);
-	Color Lina::Color::Maroon = Color(0.5f, 0, 0);
-	Color Lina::Color::Beige = Color(0.96f, 0.96f, 0.862f);
-	Color Lina::Color::Brown = Color(0.647f, 0.164f, 0.164f);
-	Color Lina::Color::Gray = Color(0.5f, 0.5f, 0.5f);
+    template <class T>
+    class StackLinkedList 
+    {
+    public:
+
+        struct Node 
+        {
+            T data;
+            Node* next = nullptr;
+        };
+
+        Node* head = nullptr;
+
+        StackLinkedList() = default;
+        StackLinkedList(StackLinkedList& stackLinkedList) = delete;
+        void push(Node* newNode);
+        Node* pop();
+
+    };
+
+#include "SinglyLinkedList.hpp"
+
+
+    template <class T>
+    void StackLinkedList<T>::push(Node* newNode) {
+        newNode->next = head;
+        head = newNode;
+    }
+
+    template <class T>
+    typename StackLinkedList<T>::Node* StackLinkedList<T>::pop() {
+        Node* top = head;
+        head = head->next;
+        return top;
+    }
 }
+
+#endif

@@ -30,13 +30,23 @@ set (LINACOMMON_SOURCES
 	src/PackageManager/Generic/GenericMemory.cpp
 	
 	#Utility
-	src/Utility/Math/Matrix.cpp
-	src/Utility/Math/Quaternion.cpp
-	src/Utility/Math/Transformation.cpp
-	src/Utility/Math/Vector.cpp
-	src/Utility/Math/Color.cpp
 	src/Utility/UtilityFunctions.cpp
-	src/Utility/Log.cpp
+	
+	# Log
+	src/Log/Log.cpp
+	
+	#Math
+	src/Math/Matrix.cpp
+	src/Math/Quaternion.cpp
+	src/Math/Transformation.cpp
+	src/Math/Vector.cpp
+	src/Math/Color.cpp
+	
+	# Memory
+	src/Memory/StackAllocator.cpp
+	src/Memory/FrameAllocator.cpp
+	src/Memory/PoolAllocator.cpp
+	src/Memory/FreeListAllocator.cpp
 	
 	#src/Utility/EngineUtility.cpp
 	#src/Utility/FileUtility.cpp
@@ -68,17 +78,30 @@ set(LINACOMMON_HEADERS
 	include/PackageManager/PAMMemory.hpp
 	include/PackageManager/PAMSIMD.hpp
 
-
+	# Memory
+	include/Memory/MemoryAllocator.hpp
+	include/Memory/StackAllocator.hpp
+	include/Memory/MemoryUtility.hpp
+	include/Memory/FrameAllocator.hpp
+	include/Memory/PoolAllocator.hpp
+	include/Memory/StackLinkedList.hpp
+	include/Memory/SinglyLinkedList.hpp
+	include/Memory/FreeListAllocator.hpp	
+	
+	# Log
+	include/Log/Log.hpp
+	
 	# Utility
-	include/Utility/Math/Color.hpp
-	include/Utility/Math/Math.hpp
-	include/Utility/Math/Matrix.hpp
-	include/Utility/Math/Quaternion.hpp
-	include/Utility/Math/Transformation.hpp
-	include/Utility/Math/Vector.hpp
-	include/Utility/Log.hpp
 	include/Utility/UtilityFunctions.hpp
 
+	# Math
+	include/Math/Color.hpp
+	include/Math/Math.hpp
+	include/Math/Matrix.hpp
+	include/Math/Quaternion.hpp
+	include/Math/Transformation.hpp
+	include/Math/Vector.hpp
+	
 	#include/Utility/EngineUtility.hpp
 	#include/Utility/FileUtility.hpp
 	#include/Utility/StringID.hpp

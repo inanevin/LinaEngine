@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "PackageManager/OpenGL/GLRenderDevice.hpp"  
-#include "Utility/Math/Color.hpp"
+#include "Math/Color.hpp"
 #include "PackageManager/Generic/GenericMemory.hpp"
 #include "glad/glad.h"
 

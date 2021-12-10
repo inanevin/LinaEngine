@@ -41,7 +41,7 @@ Timestamp: 12/8/2020 4:52:07 PM
 
 // Headers here.
 #include "ECS/ECSComponent.hpp"
-#include "Utility/Math/Vector.hpp"
+#include "Math/Vector.hpp"
 
 namespace Lina::ECS
 {

@@ -40,7 +40,7 @@ Timestamp: 10/8/2020 9:02:33 PM
 #define MenuButton_HPP
 
 
-#include "Utility/Math/Color.hpp"
+#include "Math/Color.hpp"
 #include <functional>
 
 namespace Lina::Editor

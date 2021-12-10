@@ -32,7 +32,7 @@ SOFTWARE.
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "Input/InputAxisBinder.hpp"
 #include "Input/InputEngine.hpp"
-#include "Utility/Math/Math.hpp"
+#include "Math/Math.hpp"
 #include "Panels/ScenePanel.hpp"
 #include "Core/EditorCommon.hpp"
 namespace Lina::ECS

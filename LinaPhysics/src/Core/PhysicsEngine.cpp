@@ -27,11 +27,11 @@ SOFTWARE.
 */
 
 #include "Core/PhysicsEngine.hpp"  
-#include "Utility/Log.hpp"
+#include "Log/Log.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "Utility/UtilityFunctions.hpp"
-#include "Utility/Math/Color.hpp"
+#include "Math/Color.hpp"
 
 
 namespace Lina::Physics

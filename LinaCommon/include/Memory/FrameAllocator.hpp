@@ -1,11 +1,13 @@
-/*
-This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+/* 
+This file is a part of: Lina AudioEngine
+https://github.com/inanevin/Lina
 
 Author: Inan Evin
 http://www.inanevin.com
 
 Copyright (c) [2018-2020] [Inan Evin]
+
+Custom Memory Allocators: Copyright (c) 2016 Mariano Trebino
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,34 +28,49 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Timer.hpp"
-#include "Log/Log.hpp"
+/*
+Class: FrameAllocator
+
+A memory allocator of type that is suitable for single frame operations, and would be cleared at the
+beginning of each frame. 
+
+Timestamp: 12/19/2020 1:37:43 AM
+*/
+
+#pragma once
+
+#ifndef FrameAllocator_HPP
+#define FrameAllocator_HPP
+
+// Headers here.
+#include "MemoryAllocator.hpp"
 
 namespace Lina
 {
-	std::map<std::string, Timer*> Timer::s_activeTimers;
-
-	void Timer::Stop()
+	class FrameAllocator : public MemoryAllocator
 	{
-		std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
-		std::chrono::duration<double, std::milli> ms = now - m_startTimePoint;
-		m_duration = ms.count();
-		m_active = false;
-	}
+	
 
-	Timer& Timer::GetTimer(const std::string& name)
-	{
-		if (s_activeTimers.find(name) == s_activeTimers.end())
-			s_activeTimers[name] = new Timer();
+	public:
 
-		return *s_activeTimers[name];
-	}
+		FrameAllocator::FrameAllocator(const std::size_t totalSize) : MemoryAllocator(totalSize) { }
+		virtual ~FrameAllocator();
 
-	void Timer::UnloadTimers()
-	{
-		for (std::map<std::string, Timer*>::iterator it = s_activeTimers.begin(); it != s_activeTimers.end(); ++it)
-			delete it->second;
+		virtual void* Allocate(const std::size_t size, const std::size_t alignment = 0) override;
+		virtual void Free(void* ptr) override;
+		virtual void Init() override;
+		virtual void Reset();
 
-		s_activeTimers.clear();
-	}
+	protected:
+
+		void* m_start_ptr = nullptr;
+		std::size_t m_offset = 0;
+
+	private:
+
+		FrameAllocator(FrameAllocator& linearAllocator);
+	
+	};
 }
+
+#endif

@@ -1,11 +1,13 @@
-/*
+/* 
 This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+https://github.com/inanevin/Lina
 
 Author: Inan Evin
 http://www.inanevin.com
 
 Copyright (c) [2018-2020] [Inan Evin]
+
+Custom Memory Allocators: Copyright (c) 2016 Mariano Trebino
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,15 +28,53 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Utility/Math/Transformation.hpp"  
-#include "Utility/Math/Math.hpp"
+/*
+Class: StackAllocator
+
+A custom stack memory allocator, last in first out frame allocator.
+
+Timestamp: 12/19/2020 1:30:18 AM
+*/
+
+#pragma once
+
+#ifndef StackAllocator_HPP
+#define StackAllocator_HPP
+
+// Headers here.
+#include "MemoryAllocator.hpp"
 
 namespace Lina
 {
-	Transformation Transformation::Interpolate(Transformation& from, Transformation& to, float t)
-	{
-		return Transformation(Vector3::Lerp(from.m_location, to.m_location, t), Quaternion::Slerp(from.m_rotation, to.m_rotation, t), Vector3::Lerp(from.m_scale, to.m_scale, t));
-	}
+    class StackAllocator : public MemoryAllocator
+    {
 
+    public:
+
+        StackAllocator(const std::size_t totalSize) : MemoryAllocator(totalSize) {}
+        virtual ~StackAllocator();
+
+        virtual void* Allocate(const std::size_t size, const std::size_t alignment = 0) override;
+        virtual void Free(void* ptr);
+        virtual void Init() override;
+        virtual void Reset();
+
+
+    protected:
+
+        void* m_start_ptr = nullptr;
+        std::size_t m_offset = 0;
+
+
+    private:
+
+        StackAllocator(StackAllocator& stackAllocator);
+
+        struct AllocationHeader
+        {
+            char padding;
+        };
+    };
 }
 
+#endif

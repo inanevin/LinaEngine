@@ -40,7 +40,7 @@ Timestamp: 12/8/2021 5:35:25 PM
 #define EntityDataComponent_HPP
 
 // Headers here.
-#include "Utility/Math/Transformation.hpp"
+#include "Math/Transformation.hpp"
 #include "ECS/ECSComponent.hpp"
 #include "ECS/ECSSystem.hpp"
 

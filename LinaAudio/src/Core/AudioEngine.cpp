@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/AudioEngine.hpp"  
-#include "Utility/Log.hpp"
+#include "Log/Log.hpp"
 #include "AL/al.h"
 #include "AL/alc.h"
 #include "AL/alut.h"

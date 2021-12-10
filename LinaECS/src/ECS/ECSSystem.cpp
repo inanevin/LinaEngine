@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "ECS/ECSSystem.hpp"  
-#include "Utility/Log.hpp"
+#include "Log/Log.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "..\..\include\ECS\Components\EntityDataComponent.hpp"
 

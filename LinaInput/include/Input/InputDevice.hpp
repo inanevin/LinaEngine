@@ -41,7 +41,7 @@ Timestamp: 10/6/2020 11:13:50 AM
 
 
 
-#include "Utility/Math/Vector.hpp"
+#include "Math/Vector.hpp"
 #include "Input/InputMappings.hpp"
 #include "Input/InputCommon.hpp"
 

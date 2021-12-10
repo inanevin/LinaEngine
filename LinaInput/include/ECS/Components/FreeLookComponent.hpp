@@ -40,7 +40,7 @@ Timestamp: 5/2/2019 1:40:16 AM
 #define FreeLookComponent_HPP
 
 #include "ECS/ECSComponent.hpp"
-#include "Utility/Math/Vector.hpp"
+#include "Math/Vector.hpp"
 
 namespace Lina::ECS
 {

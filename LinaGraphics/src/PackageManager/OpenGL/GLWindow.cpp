@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "PackageManager/OpenGL/GLWindow.hpp"
-#include "Utility/Log.hpp"
+#include "Log/Log.hpp"
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 

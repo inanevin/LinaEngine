@@ -55,7 +55,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "UniformBuffer.hpp"
 #include "Window.hpp"
 #include "RenderContext.hpp"
-#include "Utility/Math/Color.hpp"
+#include "Math/Color.hpp"
 #include "Core/LayerStack.hpp"
 #include "RenderSettings.hpp"
 #include "PostProcessEffect.hpp"

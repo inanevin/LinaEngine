@@ -33,8 +33,8 @@ SOFTWARE.
 
 #define BT_NO_SIMD_OPERATOR_OVERLOADS
 #include "btBulletDynamicsCommon.h"
-#include "Utility/Math/Vector.hpp"
-#include "Utility/Math/Color.hpp"
+#include "Math/Vector.hpp"
+#include "Math/Color.hpp"
 #include <functional>
 
 namespace Lina

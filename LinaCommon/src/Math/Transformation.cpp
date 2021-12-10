@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,11 +26,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Utility/Log.hpp"
-#include <sstream>
+#include "Math/Transformation.hpp"  
+#include "Math/Math.hpp"
 
 namespace Lina
 {
-	std::function<void(Log::LogDump)> Log::s_onLog;
+	Transformation Transformation::Interpolate(Transformation& from, Transformation& to, float t)
+	{
+		return Transformation(Vector3::Lerp(from.m_location, to.m_location, t), Quaternion::Slerp(from.m_rotation, to.m_rotation, t), Vector3::Lerp(from.m_scale, to.m_scale, t));
+	}
+
 }
 

@@ -1,11 +1,13 @@
-/*
+/* 
 This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+https://github.com/inanevin/Lina
 
 Author: Inan Evin
 http://www.inanevin.com
 
 Copyright (c) [2018-2020] [Inan Evin]
+
+Custom Memory Allocators: Copyright (c) 2016 Mariano Trebino
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,34 +28,42 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Timer.hpp"
-#include "Log/Log.hpp"
+/*
+Class: MemoryAllocator
+
+Base class for various custom memory allocators.
+
+Timestamp: 12/19/2020 1:28:46 AM
+*/
+
+#pragma once
+
+#ifndef MemoryAllocator_HPP
+#define MemoryAllocator_HPP
+
+// Headers here.
+#include <cstddef>
 
 namespace Lina
 {
-	std::map<std::string, Timer*> Timer::s_activeTimers;
+	class MemoryAllocator
+	{		
 
-	void Timer::Stop()
-	{
-		std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
-		std::chrono::duration<double, std::milli> ms = now - m_startTimePoint;
-		m_duration = ms.count();
-		m_active = false;
-	}
+    public:
 
-	Timer& Timer::GetTimer(const std::string& name)
-	{
-		if (s_activeTimers.find(name) == s_activeTimers.end())
-			s_activeTimers[name] = new Timer();
+        MemoryAllocator(const std::size_t totalSize) : m_totalSize{ totalSize }, m_used{ 0 }, m_peak{ 0 } { }
+        virtual ~MemoryAllocator() { m_totalSize = 0; }
 
-		return *s_activeTimers[name];
-	}
+        virtual void* Allocate(const std::size_t size, const std::size_t alignment = 0) = 0;
+        virtual void Free(void* ptr) = 0;
+        virtual void Init() = 0;
 
-	void Timer::UnloadTimers()
-	{
-		for (std::map<std::string, Timer*>::iterator it = s_activeTimers.begin(); it != s_activeTimers.end(); ++it)
-			delete it->second;
+    protected:
+        std::size_t m_totalSize = 0;
+        std::size_t m_used = 0;
+        std::size_t m_peak = 0;
 
-		s_activeTimers.clear();
-	}
+	};
 }
+
+#endif

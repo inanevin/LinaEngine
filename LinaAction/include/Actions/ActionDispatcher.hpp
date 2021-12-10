@@ -43,7 +43,7 @@ Timestamp: 4/10/2019 1:26:00 PM
 #define ActionDispatcher_HPP
 
 #include "Action.hpp"
-#include "Utility/Log.hpp"
+#include "Log/Log.hpp"
 #include "Core/SizeDefinitions.hpp"
 #include "Utility/UtilityFunctions.hpp"
 

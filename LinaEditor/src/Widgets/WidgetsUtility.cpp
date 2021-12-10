@@ -27,8 +27,8 @@ SOFTWARE.
 */
 
 #include "Widgets/WidgetsUtility.hpp"
-#include "Utility/Math/Math.hpp"
-#include "Utility/Math/Quaternion.hpp"
+#include "Math/Math.hpp"
+#include "Math/Quaternion.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/Model.hpp"
 #include "Rendering/Shader.hpp"

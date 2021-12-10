@@ -41,7 +41,7 @@ Timestamp: 4/26/2019 9:13:05 PM
 
 #include "Texture.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
-#include "Utility/Log.hpp"
+#include "Log/Log.hpp"
 
 namespace Lina::Graphics
 {

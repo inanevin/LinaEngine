@@ -41,8 +41,8 @@ Timestamp: 4/27/2019 10:12:16 PM
 #define GLRenderDevice_HPP
 
 
-#include "Utility/Math/Matrix.hpp"
-#include "Utility/Math/Color.hpp"
+#include "Math/Matrix.hpp"
+#include "Math/Color.hpp"
 #include "Rendering/RenderingCommon.hpp"
 #include <map>
 

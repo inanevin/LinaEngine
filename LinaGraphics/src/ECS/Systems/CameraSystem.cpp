@@ -30,7 +30,7 @@ SOFTWARE.
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
-#include "Utility/Math/Math.hpp"
+#include "Math/Math.hpp"
 
 namespace Lina::ECS
 {

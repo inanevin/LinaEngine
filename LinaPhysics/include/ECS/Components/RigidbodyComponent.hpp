@@ -37,7 +37,7 @@ Timestamp: 9/30/2020 2:46:27 AM
 #define RigidbodyComponent_HPP
 
 #include "ECS/ECSComponent.hpp"
-#include "Utility/Math/Vector.hpp"
+#include "Math/Vector.hpp"
 
 namespace Lina::ECS
 {

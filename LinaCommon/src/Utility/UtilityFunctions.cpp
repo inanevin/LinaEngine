@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Utility/UtilityFunctions.hpp"
-#include "Utility/Log.hpp"
+#include "Log/Log.hpp"
 #include <fstream>
 #include <iostream>
 #include <sstream>

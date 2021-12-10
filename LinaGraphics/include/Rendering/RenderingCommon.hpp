@@ -39,9 +39,9 @@ Timestamp: 4/14/2019 11:59:32 AM
 
 #include "Core/SizeDefinitions.hpp"
 #include <string>
-#include "Utility/Math/Vector.hpp"
-#include "Utility/Math/Matrix.hpp"
-#include "Utility/Math/Color.hpp"
+#include "Math/Vector.hpp"
+#include "Math/Matrix.hpp"
+#include "Math/Color.hpp"
 #include "map"
 
 namespace Lina::Graphics

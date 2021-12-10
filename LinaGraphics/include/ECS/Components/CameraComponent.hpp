@@ -40,7 +40,7 @@ Timestamp: 5/2/2019 12:20:42 AM
 #define CameraComponent_HPP
 
 #include "ECS/ECSComponent.hpp"
-#include "Utility/Math/Color.hpp"
+#include "Math/Color.hpp"
 
 namespace Lina::ECS
 {

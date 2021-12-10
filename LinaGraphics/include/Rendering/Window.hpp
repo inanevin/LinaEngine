@@ -41,7 +41,7 @@ Timestamp: 4/14/2019 7:46:12 PM
 #define WINDOW_HPP
 
 #include <functional>
-#include "Utility/Math/Vector.hpp"
+#include "Math/Vector.hpp"
 #include "RenderingCommon.hpp"
 
 namespace Lina::Graphics

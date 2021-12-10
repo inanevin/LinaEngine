@@ -1,11 +1,13 @@
-/*
+/* 
 This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+https://github.com/inanevin/Lina
 
 Author: Inan Evin
 http://www.inanevin.com
 
 Copyright (c) [2018-2020] [Inan Evin]
+
+Custom Memory Allocators: Copyright (c) 2016 Mariano Trebino
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,34 +28,50 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Timer.hpp"
-#include "Log/Log.hpp"
+/*
+Class: PoolAllocator
+
+Pool allocator for data of predefined sizes.
+
+Timestamp: 12/19/2020 1:43:16 AM
+*/
+
+#pragma once
+
+#ifndef PoolAllocator_HPP
+#define PoolAllocator_HPP
+
+// Headers here.
+#include "MemoryAllocator.hpp"
+#include "StackLinkedList.hpp"
 
 namespace Lina
 {
-	std::map<std::string, Timer*> Timer::s_activeTimers;
+    class PoolAllocator : public MemoryAllocator {
+    
+    public:
 
-	void Timer::Stop()
-	{
-		std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
-		std::chrono::duration<double, std::milli> ms = now - m_startTimePoint;
-		m_duration = ms.count();
-		m_active = false;
-	}
+        PoolAllocator(const std::size_t totalSize, const std::size_t chunkSize);
+        virtual ~PoolAllocator();
 
-	Timer& Timer::GetTimer(const std::string& name)
-	{
-		if (s_activeTimers.find(name) == s_activeTimers.end())
-			s_activeTimers[name] = new Timer();
+        virtual void* Allocate(const std::size_t size, const std::size_t alignment = 0) override;
+        virtual void Free(void* ptr) override;
+        virtual void Init() override;
+        virtual void Reset();
 
-		return *s_activeTimers[name];
-	}
+    private:
+        PoolAllocator(PoolAllocator& poolAllocator);
 
-	void Timer::UnloadTimers()
-	{
-		for (std::map<std::string, Timer*>::iterator it = s_activeTimers.begin(); it != s_activeTimers.end(); ++it)
-			delete it->second;
 
-		s_activeTimers.clear();
-	}
+    private:
+        struct  FreeHeader { };
+        using Node = StackLinkedList<FreeHeader>::Node;
+        StackLinkedList<FreeHeader> m_freeList;
+
+        void* m_start_ptr = nullptr;
+        std::size_t m_chunkSize;
+
+	};
 }
+
+#endif

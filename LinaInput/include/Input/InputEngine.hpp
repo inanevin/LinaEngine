@@ -39,7 +39,7 @@ Timestamp: 4/14/2019 7:46:20 PM
 #ifndef INPUTENGINE_HPP
 #define INPUTENGINE_HPP
 
-#include "Utility/Math/Vector.hpp"
+#include "Math/Vector.hpp"
 #include "Input/InputCommon.hpp"
 #include "Actions/ActionDispatcher.hpp"
 #include "InputDevice.hpp"

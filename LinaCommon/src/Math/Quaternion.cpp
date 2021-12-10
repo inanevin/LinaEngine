@@ -26,8 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Utility/Math/Quaternion.hpp"  
-#include "Utility/Log.hpp"
+#include "Math/Quaternion.hpp"  
+#include "Log/Log.hpp"
 #include <glm/gtx/quaternion.hpp>
 
 namespace Lina

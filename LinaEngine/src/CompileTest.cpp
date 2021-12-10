@@ -129,14 +129,14 @@ SOFTWARE.
 //
 //// Utility
 //
-//#include "Utility/Math/Color.hpp"
-//#include "Utility/Math/Matrix.hpp"
-//#include "Utility/Math/Quaternion.hpp"
-//#include "Utility/Math/Transformation.hpp"
-//#include "Utility/Math/Vector.hpp"
-//#include "Utility/Math/AABB.hpp"
-//#include "Utility/Math/Plane.hpp"
-//#include "Utility/Log.hpp"
+//#include "Math/Color.hpp"
+//#include "Math/Matrix.hpp"
+//#include "Math/Quaternion.hpp"
+//#include "Math/Transformation.hpp"
+//#include "Math/Vector.hpp"
+//#include "Math/AABB.hpp"
+//#include "Math/Plane.hpp"
+//#include "Log/Log.hpp"
 //#include "Utility/UtilityFunctions.hpp"
 //
 //// World

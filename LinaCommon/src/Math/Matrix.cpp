@@ -26,9 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Utility/Math/Matrix.hpp"  
-#include "Utility/Math/Quaternion.hpp"
-#include "Utility/Math/Transformation.hpp"
+#include "Math/Matrix.hpp"  
+#include "Math/Quaternion.hpp"
+#include "Math/Transformation.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_decompose.hpp>
 #include "glm/gtx/transform.hpp"

@@ -41,7 +41,7 @@ Timestamp: 10/15/2020 10:44:39 PM
 #define EditorApplication_HPP
 
 #include "Actions/ActionDispatcher.hpp"
-#include "Utility/Log.hpp"
+#include "Log/Log.hpp"
 #include "ECS/Systems/EditorCameraSystem.hpp"
 #include "Core/GUILayer.hpp"
 

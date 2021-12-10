@@ -41,8 +41,8 @@ Timestamp: 5/13/2019 12:49:19 AM
 #define LightingSystem_HPP
 
 #include "ECS/ECS.hpp"
-#include "Utility/Math/Color.hpp"
-#include "Utility/Math/Vector.hpp"
+#include "Math/Color.hpp"
+#include "Math/Vector.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"

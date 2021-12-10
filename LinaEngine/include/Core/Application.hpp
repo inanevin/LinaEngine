@@ -39,8 +39,8 @@ Timestamp: 12/29/2018 10:43:46 PM
 #ifndef Lina_Application_HPP
 #define Lina_Application_HPP
 
-#include "Utility/Math/Vector.hpp"
-#include "Utility/Math/Color.hpp"
+#include "Math/Vector.hpp"
+#include "Math/Color.hpp"
 #include "Core/LayerStack.hpp"
 #include "ECS/ECSSystem.hpp"
 #include "Actions/ActionDispatcher.hpp"

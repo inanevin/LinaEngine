@@ -41,7 +41,7 @@ Timestamp: 10/30/2018 1:00:25 PM
 
 #include "Vector.hpp"
 #include "Quaternion.hpp"
-#include "Utility/Log.hpp"
+#include "Log/Log.hpp"
 #include "glm/matrix.hpp"
 
 namespace Lina

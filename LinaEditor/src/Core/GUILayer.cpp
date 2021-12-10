@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Core/GUILayer.hpp"
 #include "Core/Application.hpp"
-#include "Utility/Log.hpp"
+#include "Log/Log.hpp"
 #include "Core/PhysicsEngine.hpp"
 #include "Input/InputEngine.hpp"
 #include "Rendering/RenderEngine.hpp"

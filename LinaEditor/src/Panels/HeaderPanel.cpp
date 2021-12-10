@@ -27,8 +27,8 @@ SOFTWARE.
 */
 
 #include "Panels/HeaderPanel.hpp"
-#include "Utility/Math/Vector.hpp"
-#include "Utility/Math/Math.hpp"
+#include "Math/Vector.hpp"
+#include "Math/Math.hpp"
 #include "Rendering/Texture.hpp"
 #include "Rendering/RenderEngine.hpp"
 #include "Rendering/Window.hpp"

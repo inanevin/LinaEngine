@@ -28,7 +28,7 @@ SOFTWARE.
 
 
 #include "PackageManager/Generic/GenericMemory.hpp"  
-#include "Utility/Math/Math.hpp"
+#include "Math/Math.hpp"
 #include <cstdlib>
 #include <stdio.h>
 

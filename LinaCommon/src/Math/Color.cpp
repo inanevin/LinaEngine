@@ -1,4 +1,4 @@
-/*
+/* 
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,34 +26,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Timer.hpp"
-#include "Log/Log.hpp"
+#include "Math/Color.hpp"
 
 namespace Lina
 {
-	std::map<std::string, Timer*> Timer::s_activeTimers;
-
-	void Timer::Stop()
-	{
-		std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
-		std::chrono::duration<double, std::milli> ms = now - m_startTimePoint;
-		m_duration = ms.count();
-		m_active = false;
-	}
-
-	Timer& Timer::GetTimer(const std::string& name)
-	{
-		if (s_activeTimers.find(name) == s_activeTimers.end())
-			s_activeTimers[name] = new Timer();
-
-		return *s_activeTimers[name];
-	}
-
-	void Timer::UnloadTimers()
-	{
-		for (std::map<std::string, Timer*>::iterator it = s_activeTimers.begin(); it != s_activeTimers.end(); ++it)
-			delete it->second;
-
-		s_activeTimers.clear();
-	}
+	Color Lina::Color::Red = Color(1, 0, 0, 1);
+	Color Lina::Color::Green = Color(0, 1, 0);
+	Color Lina::Color::LightBlue = Color(0.4f, 0.4f, 0.8f);
+	Color Lina::Color::Blue = Color(0, 0, 1);
+	Color Lina::Color::DarkBlue = Color(0.1f, 0.1f, 0.6f);
+	Color Lina::Color::Cyan = Color(0, 1, 1);
+	Color Lina::Color::Yellow = Color(1, 1, 0);
+	Color Lina::Color::Black = Color(0, 0, 0);
+	Color Lina::Color::White = Color(1, 1, 1);
+	Color Lina::Color::Purple = Color(1, 0, 1);
+	Color Lina::Color::Maroon = Color(0.5f, 0, 0);
+	Color Lina::Color::Beige = Color(0.96f, 0.96f, 0.862f);
+	Color Lina::Color::Brown = Color(0.647f, 0.164f, 0.164f);
+	Color Lina::Color::Gray = Color(0.5f, 0.5f, 0.5f);
 }

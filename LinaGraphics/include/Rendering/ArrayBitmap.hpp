@@ -42,7 +42,7 @@ Timestamp: 4/14/2019 11:59:32 AM
 #define ArrayBitmap_HPP
 
 #include "Core/SizeDefinitions.hpp"
-#include "Utility/Log.hpp"
+#include "Log/Log.hpp"
 #include <string>
 
 namespace Lina::Graphics

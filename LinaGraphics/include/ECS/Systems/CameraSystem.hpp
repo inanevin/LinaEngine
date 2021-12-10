@@ -41,8 +41,8 @@ Timestamp: 5/2/2019 12:40:46 AM
 #define CameraSystem_HPP
 
 #include "ECS/ECS.hpp"
-#include "Utility/Math/Matrix.hpp"
-#include "Utility/Math/Color.hpp"
+#include "Math/Matrix.hpp"
+#include "Math/Color.hpp"
 #include "ECS/Components/LightComponent.hpp"
 
 namespace Lina::ECS

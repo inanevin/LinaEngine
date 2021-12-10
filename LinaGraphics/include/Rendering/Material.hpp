@@ -41,8 +41,8 @@ Timestamp: 4/26/2019 1:12:18 AM
 #define Material_HPP
 
 
-#include "Utility/Math/Matrix.hpp"
-#include "Utility/Math/Color.hpp"
+#include "Math/Matrix.hpp"
+#include "Math/Color.hpp"
 #include "Rendering/RenderConstants.hpp"
 #include "Rendering/RenderingCommon.hpp"
 #include <cereal/types/string.hpp>
