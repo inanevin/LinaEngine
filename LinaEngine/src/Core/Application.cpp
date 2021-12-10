@@ -59,20 +59,16 @@ namespace Lina
 	Graphics::Window* Application::s_appWindow = nullptr;
 	ECS::Registry Application::s_ecs;
 	Application* Application::s_application = nullptr;
-
+	Event::EventSystem* Application::s_eventSystem = nullptr;
 
 	Application::Application()
 	{
 		s_application = this;
-
 		s_engineDispatcher.Initialize(Action::ActionType::EngineActionsStartIndex, Action::ActionType::EngineActionsEndIndex);
-
-		// Make sure log event is delegated to the application.
-		Log::s_onLog = std::bind(&Application::OnLog, this, std::placeholders::_1);
+		s_eventSystem = new Event::EventSystem();
+		Log::s_onLogSink.connect<&Application::OnLog>(this);
 
 		LINA_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
-		LINA_ASSERT(!instance, "Application already exists!");
-
 	}
 
 	void Application::Initialize(Graphics::WindowProperties& props)
@@ -84,7 +80,7 @@ namespace Lina
 		s_inputEngine = CreateInputEngine();
 		s_physicsEngine = CreatePhysicsEngine();
 		s_audioEngine = CreateAudioEngine();
-	
+
 		// Build main window.
 		bool windowCreationSuccess = s_appWindow->CreateContext(props);
 		if (!windowCreationSuccess)
@@ -154,18 +150,12 @@ namespace Lina
 		if (s_appWindow)
 			delete s_appWindow;
 
+		if (s_eventSystem)
+			delete s_eventSystem;
+
 		LINA_TRACE("[Destructor] -> Application ({0})", typeid(*this).name());
 	}
 
-
-	void Application::OnLog(Log::LogDump dump)
-	{
-		// Dump to cout
-		std::cout << dump.m_message << std::endl;
-
-		// Dispatch the action to any listener.
-		s_engineDispatcher.DispatchAction<Log::LogDump>(Action::ActionType::MessageLogged, dump);
-	}
 
 	void Application::Run()
 	{
@@ -213,13 +203,14 @@ namespace Lina
 				m_firstRun = false;
 		}
 
+		Log::s_onLogSink.disconnect(this);
 		Timer::UnloadTimers();
 	}
 
 
 	void Application::UpdateGame(float deltaTime)
 	{
-		
+
 		// Tick physics (fixed)
 		s_physicsEngine->Tick(0.02);
 
@@ -272,6 +263,21 @@ namespace Lina
 			s_renderEngine->RenderLayers();
 			s_appWindow->Tick();
 		}
+	}
+
+	void Application::OnLog(Event::ELog dump)
+	{
+		std::string msg = dump.m_message;
+
+		if (dump.m_level == Lina::LogLevel::Error)
+			msg = "\033{1;31m" + dump.m_message + "\033[0m";
+		else if (dump.m_level == Lina::LogLevel::Warn)
+			msg = "\033{1;33m" + dump.m_message + "\033[0m";
+
+		std::cout << msg << std::endl;
+
+		if (s_eventSystem != nullptr)
+			s_eventSystem->Trigger<Event::EPostMainLoop>();
 	}
 
 	bool Application::OnWindowClose()

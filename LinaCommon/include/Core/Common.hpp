@@ -39,6 +39,78 @@ Timestamp: 4/7/2019 3:29:18 PM
 #ifndef Common_HPP
 #define Common_HPP
 
+#include <string>
+#include <Core/SizeDefinitions.hpp>
+namespace Lina
+{
+
+	enum class WindowState
+	{
+		Normal = 0,
+		Maximized = 1,
+		Iconified = 2
+	};
+
+	/* Struct containing basic data about window properties. */
+	struct WindowProperties
+	{
+		std::string m_title;
+		int m_width;
+		int m_height;
+		unsigned int m_xPos = 0;
+		unsigned int m_yPos = 0;
+		bool vSyncEnabled;
+		bool m_decorated = true;
+		bool m_resizable = true;
+		bool m_fullscreen = false;
+		WindowState m_windowState;
+
+		WindowProperties()
+		{
+			m_title = "Lina Engine";
+			m_width = 1440;
+			m_height = 900;
+		}
+
+		WindowProperties(const std::string& title, unsigned int width, unsigned int height)
+		{
+			m_title = title;
+			m_width = width;
+			m_height = height;
+		}
+	};
+
+	enum LogLevel 
+	{
+		None = 1 << 0,
+		Debug = 1 << 1,
+		Info = 1 << 2,
+		Critical = 1 << 3,
+		Error = 1 << 4,
+		Trace = 1 << 5,
+		Warn = 1 << 6
+	};
+
+	enum class ApplicationMode
+	{
+		Unknown = 1 << 0,
+		Editor = 1 << 1,
+		EditorGame = 1 << 2,
+		Standalone = 1 << 3
+	};
+
+	struct ApplicationInfo
+	{
+		const char* m_appName = "";
+		int m_appMajor = 0;
+		int m_appMinor = 0;
+		int m_appPatch = 0;
+
+		ApplicationMode m_appMode = ApplicationMode::Editor;
+		WindowProperties m_windowProperties = WindowProperties();
+	};
+}
+
 /****************************************** OPTIONS ******************************************/
 
 #ifdef LINA_COMPILER_MSVC

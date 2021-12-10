@@ -40,6 +40,7 @@ Timestamp: 6/7/2020 8:56:39 PM
 
 #include "Panels/EditorPanel.hpp"
 #include "Log/Log.hpp"
+#include "EventSystem/Events.hpp"
 #include "Core/EditorCommon.hpp"
 #include "imgui/imgui.h"
 #include <deque>
@@ -62,7 +63,7 @@ namespace Lina::Editor
 		const char* m_id = "";
 		const char* m_tooltip = "";
 		const char* m_icon = "";
-		unsigned int m_targetLevel = Lina::Log::LogLevel::None;
+		unsigned int m_targetLevel = Lina::LogLevel::None;
 		ImVec4 m_colorDefault = ImVec4(0, 0, 0, 0);
 		ImVec4 m_colorHovered = ImVec4(0, 0, 0, 0);
 		ImVec4 m_colorPressed = ImVec4(0, 0, 0, 0);
@@ -76,8 +77,8 @@ namespace Lina::Editor
 		// Wrapper for displaying log dumps
 		struct LogDumpEntry
 		{
-			LogDumpEntry(Lina::Log::LogDump dump, int count) : m_dump(dump), m_count(count) {};
-			Lina::Log::LogDump m_dump;
+			LogDumpEntry(Lina::Event::ELog dump, int count) : m_dump(dump), m_count(count) {};
+			Lina::Event::ELog m_dump;
 			int m_count = 1;
 		};
 
@@ -88,11 +89,11 @@ namespace Lina::Editor
 
 		virtual void Setup() override;
 		virtual void Draw() override;
-		void OnLog(Lina::Log::LogDump dump);
+		void OnLog(Lina::Event::ELog dump);
 
 	private:
-
-		unsigned int m_logLevelFlags = Lina::Log::LogLevel::None;
+	
+		unsigned int m_logLevelFlags = Lina::LogLevel::None;
 		std::vector<LogLevelIconButton> m_logLevelIconButtons;
 		std::deque<LogDumpEntry> m_logDeque;
 	};

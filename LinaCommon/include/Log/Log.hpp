@@ -39,17 +39,20 @@ Timestamp: 12/30/2018 1:54:10 AM
 #ifndef Log_HPP
 #define Log_HPP
 
+#include "Core/MacroDetection.hpp"
+#include "EventSystem/Events.hpp"
+#include "EventSystem/EventCommon.hpp"
 #include "fmt/core.h"
 #include <functional>
 
 #ifdef LINA_ENABLE_LOGGING
 
-#define LINA_ERR(...)			::Lina::Log::LogMessage(::Lina::Log::LogLevel::Error, __VA_ARGS__);
-#define LINA_WARN(...)			::Lina::Log::LogMessage(::Lina::Log::LogLevel::Warn,__VA_ARGS__); 
-#define LINA_INFO(...)			::Lina::Log::LogMessage(::Lina::Log::LogLevel::Info,__VA_ARGS__); 
-#define LINA_TRACE(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Trace,__VA_ARGS__);
-#define LINA_DEBUG(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Debug,__VA_ARGS__); 
-#define LINA_CRITICAL(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Critical,__VA_ARGS__);
+#define LINA_ERR(...)			::Lina::Log::LogMessage(::Lina::LogLevel::Error, __VA_ARGS__);
+#define LINA_WARN(...)			::Lina::Log::LogMessage(::Lina::LogLevel::Warn, __VA_ARGS__); 
+#define LINA_INFO(...)			::Lina::Log::LogMessage(::Lina::LogLevel::Info,  __VA_ARGS__); 
+#define LINA_TRACE(...)			::Lina::Log::LogMessage(::Lina::LogLevel::Trace, __VA_ARGS__);
+#define LINA_DEBUG(...)			::Lina::Log::LogMessage(::Lina::LogLevel::Debug,__VA_ARGS__); 
+#define LINA_CRITICAL(...)		::Lina::Log::LogMessage(::Lina::LogLevel::Critical, __VA_ARGS__);
 
 #else
 
@@ -75,68 +78,42 @@ Timestamp: 12/30/2018 1:54:10 AM
 
 #ifdef LINA_DEBUG_BUILD
 
-
 #define LINA_ASSERT(x,...) { if(!(x)) { LINA_CRITICAL("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
-#define LINA_ASSERT(x,...)  {	if(!(x)) { LINA_CRITICAL("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+
 
 #else
 
-#define LINA_ASSERT(x,...)
 #define LINA_ASSERT(x,...)
 
 
 #endif
 
-#define CORE_LOG_LOCATION "logs/core_log.txt"
-#define CLIENT_LOG_LOCATION "logs/client_log.txt"
-#define MAX_BACKTRACE_SIZE 32
 #define FMT_HEADER_ONLY
 
 namespace Lina
 {
+	namespace Editor
+	{
+		class LogPanel;
+	}
+
 	class  Log
 	{
 	public:
 
-		enum LogLevel
-		{
-			None = 1 << 0,
-			Debug = 1 << 1,
-			Info = 1 << 2,
-			Critical = 1 << 3,
-			Error = 1 << 4,
-			Trace = 1 << 5,
-			Warn = 1 << 6
-		};
-
-		// Sent as an event parameter to whoever is listening for OnLog events.
-		struct LogDump
-		{
-			LogDump() {};
-			LogDump(LogLevel level, const std::string& message) : m_level(level), m_message(message) {};
-			LogLevel m_level = LogLevel::Info;
-			std::string m_message = "";
-
-			friend bool operator== (const LogDump c1, const LogDump& c2)
-			{
-				return (c1.m_level == c2.m_level);
-			}
-
-			friend bool operator!= (const LogDump c1, const LogDump& c2)
-			{
-				return (c1.m_level != c2.m_level);
-			}
-		};
-
-
 		template<typename... Args>
 		static void LogMessage(LogLevel level, const Args &... args)
 		{
-			if (s_onLog)
-				s_onLog(LogDump(level, fmt::format(args...)));
+			s_onLog.publish(Event::ELog(level, fmt::format(args...)));
 		}
 
-		static std::function<void(LogDump)> s_onLog;
+	private:
+
+		friend class Application;
+		friend class Editor::LogPanel;
+
+		static Event::Sink<void(Event::ELog)> s_onLogSink;
+		static Event::Signal<void(Event::ELog)> s_onLog;
 	};
 }
 

@@ -57,7 +57,6 @@ namespace Lina::Action
 		InputActionsEndIndex = MouseButtonReleased,
 
 		// Engine actions
-		MessageLogged,
 		PostSceneDraw,
 		PostDraw,
 		PreDraw,
@@ -67,7 +66,7 @@ namespace Lina::Action
 		PlayModeActivation,
 		WindowClosed,
 		WindowResized,
-		EngineActionsStartIndex = MessageLogged,
+		EngineActionsStartIndex = PostSceneDraw,
 		EngineActionsEndIndex = WindowResized,
 
 		// Editor actions

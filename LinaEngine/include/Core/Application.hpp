@@ -39,6 +39,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #ifndef Lina_Application_HPP
 #define Lina_Application_HPP
 
+#include "EventSystem/EventSystem.hpp"
 #include "Math/Vector.hpp"
 #include "Math/Color.hpp"
 #include "Core/LayerStack.hpp"
@@ -123,7 +124,7 @@ namespace Lina
 		static Physics::PhysicsEngine& GetPhysicsEngine() { return *s_physicsEngine; }
 		static Audio::AudioEngine& GetAudioEngine() { return *s_audioEngine; }
 		static ECS::Registry& GetECSRegistry() { return s_ecs; }
-
+		static Event::EventSystem& GetEventSystem() { return *s_eventSystem; }
 	protected:
 
 		virtual void Initialize(Graphics::WindowProperties& props);
@@ -139,7 +140,7 @@ namespace Lina
 		// Callbacks.
 		void UpdateGame(float deltaTime);
 		void DisplayGame(float interpolation);
-		void OnLog(Log::LogDump dump);
+		void OnLog(Event::ELog dump);
 		bool OnWindowClose();
 		void OnWindowResize(Vector2 size);
 		void OnPostSceneDraw();
@@ -168,6 +169,7 @@ namespace Lina
 		static Audio::AudioEngine* s_audioEngine;
 		static ECS::Registry s_ecs;
 		static Graphics::Window* s_appWindow;
+		static Event::EventSystem* s_eventSystem;
 
 		Input::InputDevice* m_inputDevice = nullptr;
 		World::Level* m_currentLevel = nullptr;

@@ -69,8 +69,6 @@ namespace Lina
 	{
 		class InputEngine;
 	}
-
-	class Event;
 }
 
 namespace Lina::Graphics

@@ -21,6 +21,7 @@ Timestamp: 10/18/2020 2:53:28 PM
 #include "Interfaces/IInputSubscriber.hpp"
 #include "Input/InputEngine.hpp"
 #include "Actions/Action.hpp"
+#include "Log/Log.hpp"
 
 namespace Lina::Input
 {

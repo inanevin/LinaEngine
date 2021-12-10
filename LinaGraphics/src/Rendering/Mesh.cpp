@@ -33,8 +33,6 @@ namespace Lina::Graphics
 {
 	void Mesh::AddElement(uint32 elementIndex, float e0)
 	{
-		LINA_ASSERT(elementIndex < m_elementSizes.size());
-
 		if(m_bufferElements[elementIndex].m_isFloat)
 			m_bufferElements[elementIndex].m_floatElements.push_back(e0);
 		else

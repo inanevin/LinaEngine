@@ -32,6 +32,9 @@ set (LINACOMMON_SOURCES
 	# Log
 	src/Log/Log.cpp
 	
+	# Events
+	src/EventSystem/EventSystem.cpp
+	
 	#Math
 	src/Math/Matrix.cpp
 	src/Math/Quaternion.cpp
@@ -85,6 +88,11 @@ set(LINACOMMON_HEADERS
 	include/Memory/FreeListAllocator.hpp	
 	include/Memory/Memory.hpp
 	
+	# Events
+	include/EventSystem/EventCommon.hpp
+	include/EventSystem/Events.hpp
+	include/EventSystem/EventSystem.hpp
+
 	# Log
 	include/Log/Log.hpp
 	

@@ -26,6 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "Log/Log.hpp"
 #include "Panels/LogPanel.hpp"
 #include "Core/GUILayer.hpp"
 #include "Core/Application.hpp"
@@ -35,28 +36,27 @@ SOFTWARE.
 #include "Utility/EditorUtility.hpp"
 #include "IconsFontAwesome5.h"
 
+#define MAX_BACKTRACE_SIZE 32
+
 namespace Lina::Editor
 {
-	LogPanel::~LogPanel()
-	{
-		Lina::Application::GetEngineDispatcher().UnsubscribeAction("##lina_logPanel_onLog", Lina::Action::ActionType::MessageLogged);
-	}
+	LogPanel::~LogPanel() {};
 
 	void LogPanel::Setup()
 	{
 		// We set our dispatcher & subscribe in order to receive log events.
-		Lina::Application::GetEngineDispatcher().SubscribeAction<Lina::Log::LogDump>("##lina_logPanel_onLog", Lina::Action::ActionType::MessageLogged, std::bind(&LogPanel::OnLog, this, std::placeholders::_1));
+		Lina::Application::GetEventSystem().Connect<Event::ELog, &LogPanel::OnLog>(this);
 
 		// Add icon buttons.
-		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_debug", "Debug", ICON_FA_BUG, Lina::Log::LogLevel::Debug, LOGPANEL_COLOR_DEBUG_DEFAULT, LOGPANEL_COLOR_DEBUG_HOVERED, LOGPANEL_COLOR_DEBUG_PRESSED));
-		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_info", "Info", ICON_FA_INFO_CIRCLE, Lina::Log::LogLevel::Info, LOGPANEL_COLOR_INFO_DEFAULT, LOGPANEL_COLOR_INFO_HOVERED, LOGPANEL_COLOR_INFO_PRESSED));
-		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_trace", "Trace", ICON_FA_CLIPBOARD_LIST, Lina::Log::LogLevel::Trace, LOGPANEL_COLOR_TRACE_DEFAULT, LOGPANEL_COLOR_TRACE_HOVERED, LOGPANEL_COLOR_TRACE_PRESSED));
-		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_warn", "Warn", ICON_FA_EXCLAMATION_TRIANGLE, Lina::Log::LogLevel::Warn, LOGPANEL_COLOR_WARN_DEFAULT, LOGPANEL_COLOR_WARN_HOVERED, LOGPANEL_COLOR_WARN_PRESSED));
-		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_error", "Error", ICON_FA_TIMES_CIRCLE, Lina::Log::LogLevel::Error, LOGPANEL_COLOR_ERR_DEFAULT, LOGPANEL_COLOR_ERR_HOVERED, LOGPANEL_COLOR_ERR_PRESSED));
-		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_critical", "Critical", ICON_FA_SKULL_CROSSBONES, Lina::Log::LogLevel::Critical, LOGPANEL_COLOR_CRIT_DEFAULT, LOGPANEL_COLOR_CRIT_HOVERED, LOGPANEL_COLOR_CRIT_PRESSED));
+		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_debug", "Debug", ICON_FA_BUG, Lina::LogLevel::Debug, LOGPANEL_COLOR_DEBUG_DEFAULT, LOGPANEL_COLOR_DEBUG_HOVERED, LOGPANEL_COLOR_DEBUG_PRESSED));
+		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_info", "Info", ICON_FA_INFO_CIRCLE, Lina::LogLevel::Info, LOGPANEL_COLOR_INFO_DEFAULT, LOGPANEL_COLOR_INFO_HOVERED, LOGPANEL_COLOR_INFO_PRESSED));
+		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_trace", "Trace", ICON_FA_CLIPBOARD_LIST, Lina::LogLevel::Trace, LOGPANEL_COLOR_TRACE_DEFAULT, LOGPANEL_COLOR_TRACE_HOVERED, LOGPANEL_COLOR_TRACE_PRESSED));
+		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_warn", "Warn", ICON_FA_EXCLAMATION_TRIANGLE, Lina::LogLevel::Warn, LOGPANEL_COLOR_WARN_DEFAULT, LOGPANEL_COLOR_WARN_HOVERED, LOGPANEL_COLOR_WARN_PRESSED));
+		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_error", "Error", ICON_FA_TIMES_CIRCLE, Lina::LogLevel::Error, LOGPANEL_COLOR_ERR_DEFAULT, LOGPANEL_COLOR_ERR_HOVERED, LOGPANEL_COLOR_ERR_PRESSED));
+		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_critical", "Critical", ICON_FA_SKULL_CROSSBONES, Lina::LogLevel::Critical, LOGPANEL_COLOR_CRIT_DEFAULT, LOGPANEL_COLOR_CRIT_HOVERED, LOGPANEL_COLOR_CRIT_PRESSED));
 
 		// To be retrieved from editor settings file later on.
-		m_logLevelFlags = Lina::Log::LogLevel::Critical | Lina::Log::LogLevel::Debug | Lina::Log::LogLevel::Trace | Lina::Log::LogLevel::Info | Lina::Log::LogLevel::Error | Lina::Log::LogLevel::Warn;
+		m_logLevelFlags = Lina::LogLevel::Critical | Lina::LogLevel::Debug | Lina::LogLevel::Trace | Lina::LogLevel::Info | Lina::LogLevel::Error | Lina::LogLevel::Warn;
 
 		// Update icon colors depending on the chosen log levels
 		for (int i = 0; i < m_logLevelIconButtons.size(); i++)
@@ -132,32 +132,32 @@ namespace Lina::Editor
 						WidgetsUtility::IncrementCursorPos(ImVec2(5, 0));
 
 						// Draw the icon depending on the log level type also set the text color ready.
-						if (it->m_dump.m_level == Lina::Log::LogLevel::Critical)
+						if (it->m_dump.m_level == Lina::LogLevel::Critical)
 						{
 							if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_SKULL_CROSSBONES, 0.6f, LOGPANEL_COLOR_CRIT_DEFAULT);
 							ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_CRIT_DEFAULT);
 						}
-						else if (it->m_dump.m_level == Lina::Log::LogLevel::Debug)
+						else if (it->m_dump.m_level == Lina::LogLevel::Debug)
 						{
 							if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_BUG, 0.6f, LOGPANEL_COLOR_DEBUG_DEFAULT);
 							ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_DEBUG_DEFAULT);
 						}
-						else if (it->m_dump.m_level == Lina::Log::LogLevel::Error)
+						else if (it->m_dump.m_level == Lina::LogLevel::Error)
 						{
 							if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_TIMES_CIRCLE, 0.6f, LOGPANEL_COLOR_ERR_DEFAULT);
 							ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_ERR_DEFAULT);
 						}
-						else if (it->m_dump.m_level == Lina::Log::LogLevel::Info)
+						else if (it->m_dump.m_level == Lina::LogLevel::Info)
 						{
 							if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_INFO_CIRCLE, 0.6f, LOGPANEL_COLOR_INFO_DEFAULT);
 							ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_INFO_DEFAULT);
 						}
-						else if (it->m_dump.m_level == Lina::Log::LogLevel::Trace)
+						else if (it->m_dump.m_level == Lina::LogLevel::Trace)
 						{
 							if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_CLIPBOARD_LIST, 0.6f, LOGPANEL_COLOR_TRACE_DEFAULT);
 							ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_TRACE_DEFAULT);
 						}
-						else if (it->m_dump.m_level == Lina::Log::LogLevel::Warn)
+						else if (it->m_dump.m_level == Lina::LogLevel::Warn)
 						{
 							if (LOGPANEL_ICONSENABLED) WidgetsUtility::Icon(ICON_FA_EXCLAMATION_TRIANGLE, 0.6f, LOGPANEL_COLOR_WARN_DEFAULT);
 							ImGui::PushStyleColor(ImGuiCol_Text, LOGPANEL_COLOR_WARN_DEFAULT);
@@ -190,7 +190,7 @@ namespace Lina::Editor
 	}
 
 
-	void LogPanel::OnLog(Lina::Log::LogDump dump)
+	void LogPanel::OnLog(Lina::Event::ELog dump)
 	{
 		LogDumpEntry entry(dump, 1);
 

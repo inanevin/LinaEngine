@@ -26,12 +26,39 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Log/Log.hpp"
-#include <sstream>
+/*
+Class: EventCommon
 
-namespace Lina
+
+
+Timestamp: 12/25/2020 11:54:49 PM
+*/
+
+#pragma once
+
+#ifndef EventCommon_HPP
+#define EventCommon_HPP
+
+// Headers here.
+
+#define ENTT_USE_ATOMIC
+#include <entt/signal/dispatcher.hpp>
+#include <entt/signal/delegate.hpp>
+#include <entt/signal/sigh.hpp>
+
+namespace Lina::Event
 {
-	Event::Signal<void(Event::ELog)> Log::s_onLog;
-	Event::Sink<void(Event::ELog)> Log::s_onLogSink = Event::Sink<void(Event::ELog)>{ Log::s_onLog };
+	template<typename T>
+	using Signal = entt::sigh<T>;
+
+	template<typename T>
+	using Sink = entt::sink<T>;
+
+	using Dispatcher = entt::dispatcher;
+
+	template<typename T>
+	using Delegate = entt::delegate<T>;
+
 }
 
+#endif

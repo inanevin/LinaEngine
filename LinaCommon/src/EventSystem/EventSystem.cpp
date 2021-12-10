@@ -26,12 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Log/Log.hpp"
-#include <sstream>
+#include "EventSystem/EventSystem.hpp"
 
-namespace Lina
+namespace Lina::Event
 {
-	Event::Signal<void(Event::ELog)> Log::s_onLog;
-	Event::Sink<void(Event::ELog)> Log::s_onLogSink = Event::Sink<void(Event::ELog)>{ Log::s_onLog };
+	
 }
-

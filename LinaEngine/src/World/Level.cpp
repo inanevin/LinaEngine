@@ -26,6 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "Log/Log.hpp"
 #include "World/Level.hpp"
 #include "ECS/ECS.hpp"
 #include "Core/Application.hpp"
