@@ -8,8 +8,12 @@
 * [Introduction](#introduction)
 * [Names and identifiers](#names-and-identifiers)
 * [Reflection in a nutshell](#reflection-in-a-nutshell)
-  * [Any as in any type](#any-as-in-any-type)
+  * [Any to the rescue](#any-to-the-rescue)
   * [Enjoy the runtime](#enjoy-the-runtime)
+  * [Container support](#container-support)
+  * [Pointer-like types](#pointer-like-types)
+  * [Template information](#template-information)
+  * [Implicitly generated default constructor](#implicitly-generated-default-constructor)
   * [Policies: the more, the less](#policies-the-more-the-less)
   * [Named constants and enums](#named-constants-and-enums)
   * [Properties and meta objects](#properties-and-meta-objects)
@@ -20,15 +24,15 @@
 
 # Introduction
 
-Reflection (or rather, its lack) is a trending topic in the C++ world and, in
-the specific case of `EnTT`, a tool that can unlock a lot of other features. I
+Reflection (or rather, its lack) is a trending topic in the C++ world and a tool
+that can unlock a lot of interesting feature in the specific case of `EnTT`. I
 looked for a third-party library that met my needs on the subject, but I always
 came across some details that I didn't like: macros, being intrusive, too many
-allocations. In one word: unsatisfactory.<br/>
+allocations, and so on.<br/>
 I finally decided to write a built-in, non-intrusive and macro-free runtime
 reflection system for `EnTT`. Maybe I didn't do better than others or maybe yes,
 time will tell me, but at least I can model this tool around the library to
-which it belongs and not vice versa.
+which it belongs and not the opposite.
 
 # Names and identifiers
 
@@ -40,9 +44,9 @@ This means that users can assign any type of identifier to the meta objects, as
 long as they are numeric. It doesn't matter if they are generated at runtime, at
 compile-time or with custom functions.
 
-However, the examples in the following sections are all based on the
+That being said, the examples in the following sections are all based on the
 `hashed_string` class as provided by this library. Therefore, where an
-identifier is required, it's likely that a user defined literal is used as
+identifier is required, it's likely that an user defined literal is used as
 follows:
 
 ```cpp
@@ -91,8 +95,8 @@ features to a reflected type so that the reflection system can use it correctly
 under the hood, but they don't want to also make the type _searchable_. In this
 case, it's sufficient not to invoke `type`.
 
-A factory is such that all its member functions returns the factory itself or
-a decorated version of it. This object can be used to add the following:
+A factory is such that all its member functions return the factory itself or a
+decorated version of it. This object can be used to add the following:
 
 * _Constructors_. Actual constructors can be assigned to a reflected type by
   specifying their list of arguments. Free functions (namely, factories) can be
@@ -119,8 +123,8 @@ a decorated version of it. This object can be used to add the following:
 
 * _Data members_. Both real data members of the underlying type and static and
   global variables, as well as constants of any kind, can be attached to a meta
-  type. From a client's point of view, all the variables associated with the
-  reflected type will appear as if they were part of the type itself.<br/>
+  type. From the point of view of the client, all the variables associated with
+  the reflected type will appear as if they were part of the type itself.<br/>
   Use the `data` member function for this purpose:
 
   ```cpp
@@ -130,18 +134,24 @@ a decorated version of it. This object can be used to add the following:
       .data<&global_variable>("global"_hs);
   ```
 
-  This function requires as an argument the identifier to give to the meta data
+  The function requires as an argument the identifier to give to the meta data
   once created. Users can then access meta data at runtime by searching for them
   by _name_.<br/>
-  Data members can be set also by means of a couple of functions, namely a
-  setter and a getter. Setters and getters can be either free functions, member
-  functions or mixed ones, as long as they respect the required signatures.<br/>
+  Data members can also be defined by means of a setter and getter pair. Setters
+  and getters can be either free functions, class members or a mix of them, as
+  long as they respect the required signatures. This approach is also convenient
+  to create a read-only variable from a non-const data member:
+
+  ```cpp
+  entt::meta<my_type>().data<nullptr, &my_type::data_member>("member"_hs);
+  ```
+
   Refer to the inline documentation for all the details.
 
 * _Member functions_. Both real member functions of the underlying type and free
-  functions can be attached to a meta type. From a client's point of view, all
-  the functions associated with the reflected type will appear as if they were
-  part of the type itself.<br/>
+  functions can be attached to a meta type. From the point of view of the
+  client, all the functions associated with the reflected type will appear as if
+  they were part of the type itself.<br/>
   Use the `func` member function for this purpose:
 
   ```cpp
@@ -151,9 +161,11 @@ a decorated version of it. This object can be used to add the following:
       .func<&free_function>("free"_hs);
   ```
 
-  This function requires as an argument the identifier to give to the meta
+  The function requires as an argument the identifier to give to the meta
   function once created. Users can then access meta functions at runtime by
-  searching for them by _name_.
+  searching for them by _name_.<br/>
+  Overloading of meta functions is supported. Overloaded functions are resolved
+  at runtime by the reflection system according to the types of the arguments.
 
 * _Base classes_. A base class is such that the underlying type is actually
   derived from it. In this case, the reflection system tracks the relationship
@@ -184,91 +196,45 @@ Also, do not forget what these few lines hide under the hood: a built-in,
 non-intrusive and macro-free system for reflection in C++. Features that are
 definitely worth the price, at least for me.
 
-## Any as in any type
+## Any to the rescue
 
-The reflection system comes with its own `meta_any` type. It may seem redundant
-since C++17 introduced `std::any`, but it is not.<br/>
-In fact, the _type_ returned by an `std::any` is a const reference to an
-`std::type_info`, an implementation defined class that's not something everyone
-wants to see in a software. Furthermore, the class `std::type_info` suffers from
-some design flaws and there is even no way to _convert_ an `std::type_info` into
-a meta type, thus linking the two worlds.
+The reflection system offers a kind of _extended version_ of the `entt::any`
+class (see the core module for more details).<br/>
+The purpose is to add some feature on top of those already present, so as to
+integrate it with the meta type system without having to duplicate the code.
 
-The class `meta_any` offers an API similar to that of its most famous
-counterpart and serves the same purpose of being an opaque container for any
-type of value.<br/>
-It minimizes the allocations required, which are almost absent thanks to _SBO_
-techniques. In fact, unless users deal with _fat types_ and create instances of
-them through the reflection system, allocations are at zero.
-
-Creating instances of `meta_any`, whether empty or from existing objects, is
-trivial:
+The API is very similar to that of the `any` type. The class `meta_any` _wraps_
+many of the feature to infer a meta node, before forwarding some or all of the
+arguments to the underlying storage.<br/>
+Among the few relevant differences, `meta_any` adds support for containers and
+pointer-like types (see the following sections for more details), while `any`
+does not.<br/>
+Similar to `any`, this class can also be used to create _aliases_ for unmanaged
+objects either with `forward_as_meta` or using the `std::in_place_type<T &>`
+disambiguation tag, as well as from an existing object by means of the `as_ref`
+member function. However, unlike `any`, `meta_any` treats an empty instance and
+one initialized with `void` differently:
 
 ```cpp
-// a container for an int
-entt::meta_any any{0};
-
-// an empty container
 entt::meta_any empty{};
+entt::meta_any other{std::in_place_type<void>};
 ```
 
-The `meta_any` class takes also the burden of destroying the contained object
-when required.<br/>
-Furthermore, an instance of `meta_any` is not tied to a specific type.
-Therefore, the wrapper will be reconfigured by assigning it an object of a
-different type than the one contained, so as to be able to handle the new
-instance.
-
-A particularly interesting feature of this class is that it can also be used as
-an opaque container for unmanaged objects:
-
-```cpp
-int value;
-entt::meta_any any{std::ref(value)};
-```
-
-In other words, whenever `meta_any` intercepts a `reference_wrapper`, it acts as
-a reference to the original instance rather than making a copy of it. The
-contained object is never destroyed and users must ensure that its lifetime
-exceeds that of the container.<br/>
-Similarly, to create a copy that works as a _light_ reference for the managed
-object, it's possible to _dereference_ a given `meta_any` so as to invoke its
-aliasing constructor:
-
-```cpp
-// aliasing constructor
-entt::meta_any ref = any.ref();
-```
-
-This is also equivalent to:
-
-```cpp
-// indirection operator
-entt::meta_any ref = *any;
-```
-
-In both cases, it doesn't matter if the starting container actually holds an
-object or acts as a reference for unmanaged elements, the new instance thus
-created won't create copies and will only serve as a reference for the original
-item.<br/>
-It means that, starting from the example above, both `ref` and` any` will point
-to the same object, whether it's initially contained in `any` or already an
-unmanaged one. This is particularly useful for passing instances of `meta_any`
-belonging to the external context by reference to a function or a constructor
-rather than making copies of them.
-
-The `meta_any` class has also a `type` member function that returns the meta
-type of the contained value, if any. The member functions `try_cast`, `cast` and
-`convert` are then used to know if the underlying object has a given type as a
-base or if it can be converted implicitly to it.
+While `any` considers both as empty, `meta_any` treats objects initialized with
+`void` as if they were _valid_ ones. This allows to differentiate between failed
+function calls and function calls that are successful but return nothing.<br/>
+Finally, the member functions `try_cast`, `cast` and `allow_cast` are used to
+cast the underlying object to a given type (either a reference or a value type)
+or to _convert_ a `meta_any` in such a way that a cast becomes viable for the
+resulting object. There is in fact no `any_cast` equivalent for `meta_any`.
 
 ## Enjoy the runtime
 
 Once the web of reflected types has been constructed, it's a matter of using it
 at runtime where required.<br/>
-All this has the great merit that, unlike the vast majority of the things
-present in this library and closely linked to the compile-time, the reflection
-system stands in fact as a non-intrusive tool for the runtime.
+All this has the great merit that the reflection system stands in fact as a
+non-intrusive tool for the runtime, unlike the vast majority of the things
+offered by this library and closely linked to the compile-time.
 
 To search for a reflected type there are a few options:
 
@@ -276,23 +242,21 @@ To search for a reflected type there are a few options:
 // direct access to a reflected type
 auto by_type = entt::resolve<my_type>();
 
-// lookup of a reflected type by identifier
-auto by_id = entt::resolve_id("reflected_type"_hs);
+// look up a reflected type by identifier
+auto by_id = entt::resolve("reflected_type"_hs);
 
-// lookup of a reflected type by type id
-auto by_type_id = entt::resolve_type(entt::type_info<my_type>::id());
+// look up a reflected type by type info
+auto by_type_id = entt::resolve(entt::type_id<my_type>());
 ```
 
 There exits also an overload of the `resolve` function to use to iterate all the
-reflected types at once as well as a `resolve_if` function to use to perform
-more refined searches when needed:
+reflected types at once. It returns an iterable object that can be used in a
+range-for loop:
 
 ```cpp
-resolve([](auto type) {
+for(auto type: entt::resolve()) {
     // ...
-});
-
-auto by_lookup = resolve_if([](auto type) { return type.is_floating_point(); });
+}
 ```
 
 In all cases, the returned value is an instance of `meta_type`. This kind of
@@ -348,24 +312,8 @@ The meta objects that compose a meta type are accessed in the following ways:
   auto base = entt::resolve<derived_type>().base("base"_hs);
   ```
 
-  The returned type is `meta_base` and may be invalid if there is no meta base
-  object associated with the given identifier.<br/>
-  Meta bases aren't meant to be used directly, even though they are freely
-  accessible. They expose only a few methods to use to know the meta type of the
-  base class and to convert a raw pointer between types.
-
-* _Meta conversion functions_. They are accessed by type:
-
-  ```cpp
-  auto conv = entt::resolve<double>().conv<int>();
-  ```
-
-  The returned type is `meta_conv` and may be invalid if there is no meta
-  conversion function associated with the given type.<br/>
-  The meta conversion functions are as thin as the meta bases and with a very
-  similar interface. The sole difference is that they return a newly created
-  instance wrapped in a `meta_any` object when they convert between different
-  types.
+  The returned type is `meta_type` and may be invalid if there is no meta base
+  object associated with the given identifier.
 
 All the objects thus obtained as well as the meta types can be explicitly
 converted to a boolean value to check if they are valid:
@@ -376,13 +324,13 @@ if(auto func = entt::resolve<my_type>().func("member"_hs); func) {
 }
 ```
 
-Furthermore, all meta objects can be iterated through an overload that accepts a
-callback through which to return them. As an example:
+Furthermore, all them are also returned by specific overloads that provide the
+caller with iterable ranges of top-level elements. As an example:
 
 ```cpp
-entt::resolve<my_type>().data([](auto data) {
+for(auto data = entt::resolve<my_type>().data()) {
     // ...
-});
+}
 ```
 
 A meta type can be used to `construct` actual instances of the underlying
@@ -393,12 +341,12 @@ or may not be initialized, depending on whether a suitable constructor has been
 found or not.
 
 There is no object that wraps the destructor of a meta type nor a `destroy`
-member function in its API. The reason is quickly explained: destructors are
-invoked implicitly by `meta_any` behind the scenes and users have not to deal
-with them explicitly. Furthermore, they have no name, cannot be searched and
-wouldn't have member functions to expose anyway.<br/>
-Therefore, exposing destructors would be pointless and would add nothing to the
-library itself.
+member function in its API. Destructors are invoked implicitly by `meta_any`
+behind the scenes and users have not to deal with them explicitly. Furthermore,
+they have no name, cannot be searched and wouldn't have member functions to
+expose anyway.<br/>
+Similarly, conversion functions aren't directly accessible. They are used
+internally by `meta_any` and the meta objects when needed.
 
 Meta types and meta objects in general contain much more than what is said: a
 plethora of functions in addition to those listed whose purposes and uses go
@@ -406,9 +354,403 @@ unfortunately beyond the scope of this document.<br/>
 I invite anyone interested in the subject to look at the code, experiment and
 read the inline documentation to get the best out of this powerful tool.
 
+## Container support
+
+The runtime reflection system also supports containers of all types.<br/>
+Moreover, _containers_ doesn't necessarily mean those offered by the C++
+standard library. In fact, user defined data structures can also work with the
+meta system in many cases.
+
+To make a container be recognized as such by the meta system, users are required
+to provide specializations for either the `meta_sequence_container_traits` class
+or the `meta_associative_container_traits` class, according with the actual type
+of the container.<br/>
+`EnTT` already exports the specializations for some common classes. In
+particular:
+
+* `std::vector` and `std::array` are exported as _sequence containers_.
+* `std::map`, `std::set` and their unordered counterparts are exported as
+  _associative containers_.
+
+It's important to include the header file `container.hpp` to make these
+specializations available to the compiler when needed.<br/>
+The same file also contains many examples for the users that are interested in
+making their own containers available to the meta system.
+
+When a specialization of the `meta_sequence_container_traits` class exists, the
+meta system treats the wrapped type as a sequence container. In a similar way,
+a type is treated as an associative container if a specialization of the
+`meta_associative_container_traits` class is found for it.<br/>
+Proxy objects are returned by dedicated members of the `meta_any` class. The
+following is a deliberately verbose example of how users can access a proxy
+object for a sequence container:
+
+```cpp
+std::vector<int> vec{1, 2, 3};
+entt::meta_any any = entt::forward_as_meta(vec);
+
+if(any.type().is_sequence_container()) {
+    if(auto view = any.as_sequence_container(); view) {
+        // ...
+    }
+}
+```
+
+The method to use to get a proxy object for associative containers is
+`as_associative_container` instead.<br/>
+It goes without saying that it's not necessary to perform a double check.
+Instead, it's sufficient to query the meta type or verify that the proxy object
+is valid. In fact, proxies are contextually convertible to bool to know if they
+are valid. For example, invalid proxies are returned when the wrapped object
+isn't a container.<br/>
+In all cases, users aren't expected to _reflect_ containers explicitly. It's
+sufficient to assign a container for which a specialization of the traits
+classes exists to a `meta_any` object to be able to get its proxy object.
+
+The interface of the `meta_sequence_container` proxy object is the same for all
+types of sequence containers, although the available features differ from case
+to case. In particular:
+
+* The `value_type` member function returns the meta type of the elements.
+
+* The `size` member function returns the number of elements in the container as
+  an unsigned integer value:
+
+  ```cpp
+  const auto size = view.size();
+  ```
+
+* The `resize` member function allows to resize the wrapped container and
+  returns true in case of succes:
+
+  ```cpp
+  const bool ok = view.resize(3u);
+  ```
+
+  For example, it's not possible to resize fixed size containers.
+
+* The `clear` member function allows to clear the wrapped container and returns
+  true in case of success:
+
+  ```cpp
+  const bool ok = view.clear();
+  ```
+
+  For example, it's not possible to clear fixed size containers.
+
+* The `begin` and `end` member functions return opaque iterators that can be
+  used to iterate the container directly:
+
+  ```cpp
+  for(entt::meta_any element: view) {
+      // ...
+  }
+  ```
+
+  In all cases, given an underlying container of type `C`, the returned element
+  contains an object of type `C::value_type` which therefore depends on the
+  actual container.<br/>
+  All meta iterators are input iterators and don't offer an indirection operator
+  on purpose.
+
+* The `insert` member function can be used to add elements to the container. It
+  accepts a meta iterator and the element to insert:
+
+  ```cpp
+  auto last = view.end();
+  // appends an integer to the container
+  view.insert(last, 42);
+  ```
+
+  This function returns a meta iterator pointing to the inserted element and a
+  boolean value to indicate whether the operation was successful or not. Note
+  that a call to `insert` may silently fail in case of fixed size containers or
+  whether the arguments aren't at least convertible to the required types.<br/>
+  Since the meta iterators are contextually convertible to bool, users can rely
+  on them to know if the operation has failed on the actual container or
+  upstream, for example for an argument conversion problem.
+
+* The `erase` member function can be used to remove elements from the container.
+  It accepts a meta iterator to the element to remove:
+
+  ```cpp
+  auto first = view.begin();
+  // removes the first element from the container
+  view.erase(first);
+  ```
+
+  This function returns a meta iterator following the last removed element and a
+  boolean value to indicate whether the operation was successful or not. Note
+  that a call to `erase` may silently fail in case of fixed size containers.
+
+* The `operator[]` can be used to access elements in a container. It accepts a
+  single argument, that is the position of the element to return:
+
+  ```cpp
+  for(std::size_t pos{}, last = view.size(); pos < last; ++pos) {
+      entt::meta_any value = view[pos];
+      // ...
+  }
+  ```
+
+  The function returns instances of `meta_any` that directly refer to the actual
+  elements. Modifying the returned object will then directly modify the element
+  inside the container.
+
+Similarly, also the interface of the `meta_associative_container` proxy object
+is the same for all types of associative containers. However, there are some
+differences in behavior in the case of key-only containers. In particular:
+
+* The `key_only` member function returns true if the wrapped container is a
+  key-only one.
+
+* The `key_type` member function returns the meta type of the keys.
+
+* The `mapped_type` member function returns an invalid meta type for key-only
+  containers and the meta type of the mapped values for all other types of
+  containers.
+
+* The `value_type` member function returns the meta type of the elements.<br/>
+  For example, it returns the meta type of `int` for `std::set<int>` while it
+  returns the meta type of `std::pair<const int, char>` for
+  `std::map<int, char>`.
+
+* The `size` member function returns the number of elements in the container as
+  an unsigned integer value:
+
+  ```cpp
+  const auto size = view.size();
+  ```
+
+* The `clear` member function allows to clear the wrapped container and returns
+  true in case of success:
+
+  ```cpp
+  const bool ok = view.clear();
+  ```
+
+* The `begin` and `end` member functions return opaque iterators that can be
+  used to iterate the container directly:
+
+  ```cpp
+  for(std::pair<entt::meta_any, entt::meta_any> element: view) {
+      // ...
+  }
+  ```
+
+  In all cases, given an underlying container of type `C`, the returned element
+  is a key-value pair where the key has type `C::key_type` and the value has
+  type `C::mapped_type`. Since key-only containers don't have a mapped type,
+  their _value_ is nothing more than an invalid `meta_any` object.<br/>
+  All meta iterators are input iterators and don't offer an indirection operator
+  on purpose.
+
+  While the accessed key is usually constant in the associative containers and
+  is therefore returned by copy, the value (if any) is wrapped by an instance of
+  `meta_any` that directly refers to the actual element. Modifying it will then
+  directly modify the element inside the container.
+
+* The `insert` member function can be used to add elements to the container. It
+  accepts two arguments, respectively the key and the value to be inserted:
+
+  ```cpp
+  auto last = view.end();
+  // appends an integer to the container
+  view.insert(last.handle(), 42, 'c');
+  ```
+
+  This function returns a boolean value to indicate whether the operation was
+  successful or not. Note that a call to `insert` may fail when the arguments
+  aren't at least convertible to the required types.
+
+* The `erase` member function can be used to remove elements from the container.
+  It accepts a single argument, that is the key to be removed:
+
+  ```cpp
+  view.erase(42);
+  ```
+
+  This function returns a boolean value to indicate whether the operation was
+  successful or not. Note that a call to `erase` may fail when the argument
+  isn't at least convertible to the required type.
+
+* The `operator[]` can be used to access elements in a container. It accepts a
+  single argument, that is the key of the element to return:
+
+  ```cpp
+  entt::meta_any value = view[42];
+  ```
+
+  The function returns instances of `meta_any` that directly refer to the actual
+  elements. Modifying the returned object will then directly modify the element
+  inside the container.
+
+Container support is minimal but likely sufficient to satisfy all needs.
+
+## Pointer-like types
+
+As with containers, it's also possible to communicate to the meta system which
+types to consider _pointers_. This will allow to dereference instances of
+`meta_any`, thus obtaining light _references_ to the pointed objects that are
+also correctly associated with their meta types.<br/>
+To make the meta system recognize a type as _pointer-like_, users can specialize
+the `is_meta_pointer_like` class. `EnTT` already exports the specializations for
+some common classes. In particular:
+
+* All types of raw pointers.
+* `std::unique_ptr` and `std::shared_ptr`.
+
+It's important to include the header file `pointer.hpp` to make these
+specializations available to the compiler when needed.<br/>
+The same file also contains many examples for the users that are interested in
+making their own pointer-like types available to the meta system.
+
+When a type is recognized as a pointer-like one by the meta system, it's
+possible to dereference the instances of `meta_any` that contain these objects.
+The following is a deliberately verbose example to show how to use this feature:
+
+```cpp
+int value = 42;
+// meta type equivalent to that of int *
+entt::meta_any any{&value};
+
+if(any.type().is_pointer_like()) {
+    // meta type equivalent to that of int
+    if(entt::meta_any ref = *any; ref) {
+        // ...
+    }
+}
+```
+
+Of course, it's not necessary to perform a double check. Instead, it's enough to
+query the meta type or verify that the returned object is valid. For example,
+invalid instances are returned when the wrapped object isn't a pointer-like
+type.<br/>
+Note that dereferencing a pointer-like object returns an instance of `meta_any`
+which refers to the pointed object and allows users to modify it directly
+(unless the returned element is const, of course).
+
+In general, _dereferencing_ a pointer-like type boils down to a `*ptr`. However,
+`EnTT` also supports classes that don't offer an `operator*`. In particular:
+
+* It's possible to exploit a solution based on ADL lookup by offering a function
+  (also a template one) named `dereference_meta_pointer_like`:
+
+  ```cpp
+  template<typename Type>
+  Type & dereference_meta_pointer_like(const custom_pointer_type<Type> &ptr) {
+      return ptr.deref();
+  }
+  ```
+
+* When not in control of the type's namespace, it's possible to inject into the
+  `entt` namespace a specialization of the `adl_meta_pointer_like` class
+  template to bypass the adl lookup as a whole:
+
+  ```cpp
+  template<typename Type>
+  struct entt::adl_meta_pointer_like<custom_pointer_type<Type>> {
+      static decltype(auto) dereference(const custom_pointer_type<Type> &ptr) {
+          return ptr.deref();
+      }
+  };
+  ```
+
+In all other cases, that is, when dereferencing a pointer works as expected and
+regardless of the pointed type, no user intervention is required.
+
+## Template information
+
+Meta types also provide a minimal set of information about the nature of the
+original type in case it's a class template.<br/>
+By default, this works out of the box and requires no user action. However, it's
+important to include the header file `template.hpp` to make these information
+available to the compiler when needed.
+
+Meta template information are easily found:
+
+```cpp
+// this method returns true if the type is recognized as a class template specialization
+if(auto type = entt::resolve<std::shared_ptr<my_type>>(); type.is_template_specialization()) {
+    // meta type of the class template conveniently wrapped by entt::meta_class_template_tag
+    auto class_type = type.template_type();
+
+    // number of template arguments
+    std::size_t arity = type.template_arity();
+
+    // meta type of the i-th argument
+    auto arg_type = type.template_arg(0u);
+}
+```
+
+Typically, when template information for a type are required, what the library
+provides is sufficient. However, there are some cases where a user may want more
+details or a different set of information.<br/>
+Consider the case of a class template that is meant to wrap function types:
+
+```cpp
+template<typename>
+struct function_type;
+
+template<typename Ret, typename... Args>
+struct function_type<Ret(Args...)> {};
+```
+
+In this case, rather than the function type, the user might want the return type
+and unpacked arguments as if they were different template parameters for the
+original class template.<br/>
+To achieve this, users must enter the library internals and provide their own
+specialization for the class template `entt::meta_template_traits`, such as:
+
+```cpp
+template<typename Ret, typename... Args>
+struct entt::meta_template_traits<function_type<Ret(Args...)>> {
+    using class_type = meta_class_template_tag<function_type>;
+    using args_type = type_list<Ret, Args...>;
+};
+```
+
+The reflection system doesn't verify the accuracy of the information nor infer a
+correspondence between real types and meta types.<br/>
+Therefore, the specialization will be used as is and the information it contains
+will be associated with the appropriate type when required.
+
+## Implicitly generated default constructor
+
+In many cases, it's useful to be able to create objects of default constructible
+types through the reflection system, while not having to explicitly register the
+meta type or the default constructor.<br/>
+For example, in the case of primitive types like `int` or `char`, but not just
+them.
+
+For this reason and only for default constructible types, default constructors
+are automatically defined and associated with their meta types, whether they are
+explicitly or implicitly generated.<br/>
+Therefore, it won't be necessary to do this in order to construct an integer
+from its meta type:
+
+```cpp
+entt::meta<int>().ctor<>();
+```
+
+Instead, just do this:
+
+```cpp
+entt::resolve<int>().construct();
+```
+
+Where the meta type can be for example the one returned from a meta container,
+useful for building keys without knowing or having to register the actual types.
+
+In all cases, when users register custom defaul constructors, they are preferred
+both during searches and when the `construct` member function is invoked.<br/>
+However, the implicitly generated default constructor will always be returned,
+either if one is not explicitly specified or if all constructors are iterated
+for some reason (in this case, it will always be the last element).
+
 ## Policies: the more, the less
 
-Policies are a kind of compile-time directives that can be used when recording
+Policies are a kind of compile-time directives that can be used when registering
 reflection information.<br/>
 Their purpose is to require slightly different behavior than the default in some
 specific cases. For example, when reading a given data member, its value is
@@ -428,32 +770,30 @@ There are a few alternatives available at the moment:
 
 * The _as-void_ policy, associated with the type `entt::as_void_t`.<br/>
   Its purpose is to discard the return value of a meta object, whatever it is,
-  thus making it appear as if its type were `void`.<br/>
+  thus making it appear as if its type were `void`:
+  ```cpp
+  entt::meta<my_type>().func<&my_type::member_function, entt::as_void_t>("member"_hs);
+  ```
   If the use with functions is obvious, it must be said that it's also possible
   to use this policy with constructors and data members. In the first case, the
   constructor will be invoked but the returned wrapper will actually be empty.
   In the second case, instead, the property will not be accessible for reading.
 
-  As an example of use:
-
-  ```cpp
-  entt::meta<my_type>().func<&my_type::member_function, entt::as_void_t>("member"_hs);
-  ```
-
-* The _as-ref_ policy, associated with the type `entt::as_ref_t`.<br/>
-  It allows to build wrappers that act as references to unmanaged objects.
-  Modifying the object contained in the wrapper for which the _reference_ was
-  requested will make it possible to directly modify the instance used to
-  initialize the wrapper itself.<br/>
-  This policy works with constructors (for example, when objects are taken from
-  an external container rather than created on demand), data members and
-  functions in general (as long as their return types are lvalue references).
-
-  As an example of use:
-
+* The _as-ref_ and _as-cref_ policies, associated with the types
+  `entt::as_ref_t` and `entt::as_cref_t`.<br/>
+  They allow to build wrappers that act as references to unmanaged objects.
+  Accessing the object contained in the wrapper for which the _reference_ was
+  requested will make it possible to directly access the instance used to
+  initialize the wrapper itself:
   ```cpp
   entt::meta<my_type>().data<&my_type::data_member, entt::as_ref_t>("member"_hs);
   ```
+  These policies work with constructors (for example, when objects are taken
+  from an external container rather than created on demand), data members and
+  functions in general.<br/>
+  If on the one hand `as_cref_t` always forces the return type to be const,
+  `as_ref_t` _adapts_ to the constness of the passed object and to that of the
+  return type if any.
 
 Some uses are rather trivial, but it's useful to note that there are some less
 obvious corner cases that can in turn be solved with the use of policies.
@@ -478,8 +818,8 @@ Exporting constant values or elements from an enum is as simple as ever:
 
 ```cpp
 entt::meta<my_enum>()
-        .data<my_enum::a_value>("a_value"_hs)
-        .data<my_enum::another_value>("another_value"_hs);
+    .data<my_enum::a_value>("a_value"_hs)
+    .data<my_enum::another_value>("another_value"_hs);
 
 entt::meta<int>().data<2048>("max_int"_hs);
 ```
@@ -577,9 +917,9 @@ properties at once or to search a specific property by key:
 
 ```cpp
 // iterate all properties of a meta type
-entt::resolve<my_type>().prop([](auto prop) {
+for(auto prop: entt::resolve<my_type>().prop()) {
     // ...
-});
+}
 
 // search for a given property by name
 auto prop = entt::resolve<my_type>().prop("tooltip"_hs);
@@ -593,16 +933,16 @@ the key and the value contained in the form of `meta_any` objects, respectively.
 
 A type registered with the reflection system can also be unregistered. This
 means unregistering all its data members, member functions, conversion functions
-and so on. However, the base classes won't be unregistered, since they don't
+and so on. However, base classes aren't unregistered as well, since they don't
 necessarily depend on it. Similarly, implicitly generated types (as an example,
-the meta types implicitly generated for function parameters when needed) won't
-be unregistered.<br/>
+the meta types implicitly generated for function parameters when needed) aren't
+unregistered.<br/>
 Roughly speaking, unregistering a type means disconnecting all associated meta
 objects from it and making its identifier no longer visible. The underlying node
 will remain available though, as if it were implicitly generated:
 
 ```cpp
-entt::meta<my_type>().reset();
+entt::resolve<my_type>().reset();
 ```
 
 The type can be re-registered later with a completely different name and form.

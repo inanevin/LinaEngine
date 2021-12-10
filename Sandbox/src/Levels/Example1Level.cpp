@@ -67,11 +67,11 @@ void Example1Level::Initialize()
 
 void Example1Level::Tick(bool isInPlayMode, float delta)
 {
-	 auto& data = Application::GetECSRegistry().get<ECS::EntityDataComponent>(Application::GetECSRegistry().GetEntity("Capsule"));
-	 data.AddRotation(Vector3(65 * delta, 0, 0));
-	 Vector3 location = data.GetLocation();
-	 location.x = Math::Sin(Application::GetTime() * 1.8f) * 1.5f;
-	 data.SetLocation(location);
+	//auto& data = Application::GetECSRegistry().get<ECS::EntityDataComponent>(Application::GetECSRegistry().GetEntity("Capsule"));
+	//data.AddRotation(Vector3(65 * delta, 0, 0));
+	//Vector3 location = data.GetLocation();
+	//location.x = Math::Sin(Application::GetTime() * 1.8f) * 1.5f;
+	//data.SetLocation(location);
 	return;
 }
 

@@ -128,7 +128,7 @@ namespace LinaEngine::Physics
 	void PhysicsEngine::OnRigidbodyOrTransformAdded(entt::registry& reg, entt::entity ent)
 	{
 		// If the object doesn't have a transform & rigidbody yet, return.
-		if (!reg.has<LinaEngine::ECS::EntityDataComponent>(ent) || !reg.has<LinaEngine::ECS::RigidbodyComponent>(ent)) return;
+		if (!reg.all_of<LinaEngine::ECS::EntityDataComponent>(ent) || !reg.all_of<LinaEngine::ECS::RigidbodyComponent>(ent)) return;
 		LinaEngine::ECS::RigidbodyComponent& rb = reg.get<LinaEngine::ECS::RigidbodyComponent>(ent);
 
 		// Return if rigidbody is already alive.

@@ -92,7 +92,7 @@ namespace LinaEditor
 		// Store all components of the entity.
 		ecs.visit(entity, [&typeIDs](const auto component)
 			{
-				ECSTypeID id = component;
+				ECSTypeID id = component.hash();
 				typeIDs.push_back(id);
 			});
 

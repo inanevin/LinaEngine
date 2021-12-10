@@ -39,17 +39,17 @@ endif()
 
 message(VERBOSE "*")
 message(VERBOSE "* ${PROJECT_NAME} v${PROJECT_VERSION} (${CMAKE_BUILD_TYPE})")
-message(VERBOSE "* Copyright (c) 2017-2020 Michele Caini <michele.caini@gmail.com>")
+message(VERBOSE "* Copyright (c) 2017-2021 Michele Caini <michele.caini@gmail.com>")
 message(VERBOSE "*")
 
-option(USE_LIBCPP "Use libc++ by adding -stdlib=libc++ flag if availbale." ON)
-option(USE_ASAN "Use address sanitizer by adding -fsanitize=address -fno-omit-frame-pointer flags" OFF)
+option(ENTT_USE_LIBCPP "Use libc++ by adding -stdlib=libc++ flag if availbale." ON)
+option(ENTT_USE_SANITIZER "Enable sanitizers by adding -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined flags" OFF)
 
 #
 # Compiler stuff
 #
 
-if(NOT WIN32 AND USE_LIBCPP)
+if(NOT WIN32 AND ENTT_USE_LIBCPP)
     include(CheckCXXSourceCompiles)
     include(CMakePushCheckState)
 
@@ -60,10 +60,10 @@ if(NOT WIN32 AND USE_LIBCPP)
     check_cxx_source_compiles("
         #include<type_traits>
         int main() { return std::is_same_v<int, char>; }
-    " HAS_LIBCPP)
+    " ENTT_HAS_LIBCPP)
 
-    if(NOT HAS_LIBCPP)
-        message(VERBOSE "The option USE_LIBCPP is set (by default) but libc++ is not available. The flag will not be added to the target.")
+    if(NOT ENTT_HAS_LIBCPP)
+        message(VERBOSE "The option ENTT_USE_LIBCPP is set (by default) but libc++ is not available. The flag will not be added to the target.")
     endif()
 
     cmake_pop_check_state()
@@ -85,16 +85,33 @@ target_include_directories(
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-if(USE_ASAN)
-    target_compile_options(EnTT INTERFACE $<$<CONFIG:Debug>:-fsanitize=address -fno-omit-frame-pointer>)
-    target_link_libraries(EnTT INTERFACE $<$<CONFIG:Debug>:-fsanitize=address -fno-omit-frame-pointer>)
+if(ENTT_USE_SANITIZER)
+    target_compile_options(EnTT INTERFACE $<$<CONFIG:Debug>:-fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined>)
+    target_link_libraries(EnTT INTERFACE $<$<CONFIG:Debug>:-fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined>)
 endif()
 
-if(HAS_LIBCPP)
+if(ENTT_HAS_LIBCPP)
     target_compile_options(EnTT BEFORE INTERFACE -stdlib=libc++)
 endif()
 
 target_compile_features(EnTT INTERFACE cxx_std_17)
+
+#
+# Install pkg-config file
+#
+
+set(EnTT_PKGCONFIG ${CMAKE_CURRENT_BINARY_DIR}/entt.pc)
+
+configure_file(
+    ${EnTT_SOURCE_DIR}/cmake/in/entt.pc.in
+    ${EnTT_PKGCONFIG}
+    @ONLY
+)
+
+install(
+    FILES ${EnTT_PKGCONFIG}
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+)
 
 #
 # Install EnTT
@@ -148,14 +165,17 @@ export(PACKAGE EnTT)
 # Tests
 #
 
-option(BUILD_TESTING "Enable testing with ctest." OFF)
+option(ENTT_BUILD_TESTING "Enable building tests." OFF)
 
-if(BUILD_TESTING)
-    option(FIND_GTEST_PACKAGE "Enable finding gtest package." OFF)
-    option(BUILD_BENCHMARK "Build benchmark." OFF)
-    option(BUILD_LIB "Build lib example." OFF)
-    option(BUILD_SNAPSHOT "Build snapshot example." OFF)
+if(ENTT_BUILD_TESTING)
+    option(ENTT_FIND_GTEST_PACKAGE "Enable finding gtest package." OFF)
+    option(ENTT_BUILD_BENCHMARK "Build benchmark." OFF)
+    option(ENTT_BUILD_EXAMPLE "Build examples." OFF)
+    option(ENTT_BUILD_LIB "Build lib tests." OFF)
+    option(ENTT_BUILD_SNAPSHOT "Build snapshot test with Cereal." OFF)
+    option(ENTT_BUILD_UINT64 "Build using 64b entity identifiers" OFF)
 
+    include(CTest)
     enable_testing()
     add_subdirectory(test)
 endif()
@@ -164,9 +184,9 @@ endif()
 # Documentation
 #
 
-option(BUILD_DOCS "Enable building with documentation." OFF)
+option(ENTT_BUILD_DOCS "Enable building with documentation." OFF)
 
-if(BUILD_DOCS)
+if(ENTT_BUILD_DOCS)
     find_package(Doxygen 1.8)
 
     if(DOXYGEN_FOUND)
@@ -184,6 +204,7 @@ add_custom_target(
         .github/workflows/build.yml
         .github/workflows/coverage.yml
         .github/workflows/deploy.yml
+        .github/workflows/sanitizer.yml
         .github/FUNDING.yml
         AUTHORS
         CONTRIBUTING.md

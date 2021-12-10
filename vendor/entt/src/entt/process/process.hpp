@@ -5,7 +5,6 @@
 #include <utility>
 #include <type_traits>
 #include "../config/config.h"
-#include "../core/type_traits.hpp"
 
 
 namespace entt {
@@ -79,36 +78,37 @@ class process {
         SUCCEEDED,
         FAILED,
         ABORTED,
-        FINISHED
+        FINISHED,
+        REJECTED
     };
 
     template<typename Target = Derived>
-    auto next(integral_constant<state::UNINITIALIZED>)
-    -> decltype(std::declval<Target>().init()) {
+    auto next(std::integral_constant<state, state::UNINITIALIZED>)
+    -> decltype(std::declval<Target>().init(), void()) {
         static_cast<Target *>(this)->init();
     }
 
     template<typename Target = Derived>
-    auto next(integral_constant<state::RUNNING>, Delta delta, void *data)
-    -> decltype(std::declval<Target>().update(delta, data)) {
+    auto next(std::integral_constant<state, state::RUNNING>, Delta delta, void *data)
+    -> decltype(std::declval<Target>().update(delta, data), void()) {
         static_cast<Target *>(this)->update(delta, data);
     }
 
     template<typename Target = Derived>
-    auto next(integral_constant<state::SUCCEEDED>)
-    -> decltype(std::declval<Target>().succeeded()) {
+    auto next(std::integral_constant<state, state::SUCCEEDED>)
+    -> decltype(std::declval<Target>().succeeded(), void()) {
         static_cast<Target *>(this)->succeeded();
     }
 
     template<typename Target = Derived>
-    auto next(integral_constant<state::FAILED>)
-    -> decltype(std::declval<Target>().failed()) {
+    auto next(std::integral_constant<state, state::FAILED>)
+    -> decltype(std::declval<Target>().failed(), void()) {
         static_cast<Target *>(this)->failed();
     }
 
     template<typename Target = Derived>
-    auto next(integral_constant<state::ABORTED>)
-    -> decltype(std::declval<Target>().aborted()) {
+    auto next(std::integral_constant<state, state::ABORTED>)
+    -> decltype(std::declval<Target>().aborted(), void()) {
         static_cast<Target *>(this)->aborted();
     }
 
@@ -169,7 +169,7 @@ public:
 
     /*! @brief Default destructor. */
     virtual ~process() {
-        static_assert(std::is_base_of_v<process, Derived>);
+        static_assert(std::is_base_of_v<process, Derived>, "Incorrect use of the class template");
     }
 
     /**
@@ -194,7 +194,7 @@ public:
      * @brief Returns true if a process is either running or paused.
      * @return True if the process is still alive, false otherwise.
      */
-    bool alive() const ENTT_NOEXCEPT {
+    [[nodiscard]] bool alive() const ENTT_NOEXCEPT {
         return current == state::RUNNING || current == state::PAUSED;
     }
 
@@ -202,7 +202,7 @@ public:
      * @brief Returns true if a process is already terminated.
      * @return True if the process is terminated, false otherwise.
      */
-    bool dead() const ENTT_NOEXCEPT {
+    [[nodiscard]] bool finished() const ENTT_NOEXCEPT {
         return current == state::FINISHED;
     }
 
@@ -210,7 +210,7 @@ public:
      * @brief Returns true if a process is currently paused.
      * @return True if the process is paused, false otherwise.
      */
-    bool paused() const ENTT_NOEXCEPT {
+    [[nodiscard]] bool paused() const ENTT_NOEXCEPT {
         return current == state::PAUSED;
     }
 
@@ -218,8 +218,8 @@ public:
      * @brief Returns true if a process terminated with errors.
      * @return True if the process terminated with errors, false otherwise.
      */
-    bool rejected() const ENTT_NOEXCEPT {
-        return stopped;
+    [[nodiscard]] bool rejected() const ENTT_NOEXCEPT {
+        return current == state::REJECTED;
     }
 
     /**
@@ -230,11 +230,11 @@ public:
     void tick(const Delta delta, void *data = nullptr) {
         switch (current) {
         case state::UNINITIALIZED:
-            next(integral_constant<state::UNINITIALIZED>{});
+            next(std::integral_constant<state, state::UNINITIALIZED>{});
             current = state::RUNNING;
             break;
         case state::RUNNING:
-            next(integral_constant<state::RUNNING>{}, delta, data);
+            next(std::integral_constant<state, state::RUNNING>{}, delta, data);
             break;
         default:
             // suppress warnings
@@ -244,18 +244,16 @@ public:
         // if it's dead, it must be notified and removed immediately
         switch(current) {
         case state::SUCCEEDED:
-            next(integral_constant<state::SUCCEEDED>{});
+            next(std::integral_constant<state, state::SUCCEEDED>{});
             current = state::FINISHED;
             break;
         case state::FAILED:
-            next(integral_constant<state::FAILED>{});
-            current = state::FINISHED;
-            stopped = true;
+            next(std::integral_constant<state, state::FAILED>{});
+            current = state::REJECTED;
             break;
         case state::ABORTED:
-            next(integral_constant<state::ABORTED>{});
-            current = state::FINISHED;
-            stopped = true;
+            next(std::integral_constant<state, state::ABORTED>{});
+            current = state::REJECTED;
             break;
         default:
             // suppress warnings
@@ -265,7 +263,6 @@ public:
 
 private:
     state current{state::UNINITIALIZED};
-    bool stopped{false};
 };
 
 

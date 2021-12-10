@@ -1,0 +1,33 @@
+name: sanitizer
+
+on: [push, pull_request]
+
+jobs:
+
+  linux:
+    timeout-minutes: 10
+
+    strategy:
+      matrix:
+        compiler: [clang++]
+        id_type: [uint32, uint64]
+        include:
+          - id_type: uint64
+            id_type_option: -DENTT_BUILD_UINT64=ON
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Compile tests
+      working-directory: build
+      env:
+        CXX: ${{ matrix.compiler }}
+      run: |
+        cmake -DENTT_USE_SANITIZER=ON -DENTT_BUILD_TESTING=ON -DENTT_BUILD_LIB=ON -DENTT_BUILD_EXAMPLE=ON ${{ matrix.id_type_option }} ..
+        make -j4
+    - name: Run tests
+      working-directory: build
+      env:
+        CTEST_OUTPUT_ON_FAILURE: 1
+      run: ctest --timeout 10 -C Debug -j4

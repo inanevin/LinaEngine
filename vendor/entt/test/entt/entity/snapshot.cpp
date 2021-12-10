@@ -5,7 +5,21 @@
 #include <type_traits>
 #include <gtest/gtest.h>
 #include <entt/entity/registry.hpp>
+#include <entt/entity/snapshot.hpp>
 #include <entt/entity/entity.hpp>
+
+struct noncopyable_component {
+    noncopyable_component(): value{} {}
+    explicit noncopyable_component(int v): value{v} {}
+
+    noncopyable_component(const noncopyable_component &) = delete;
+    noncopyable_component(noncopyable_component &&) = default;
+
+    noncopyable_component& operator=(const noncopyable_component &) = delete;
+    noncopyable_component& operator=(noncopyable_component &&) = default;
+
+    int value;
+};
 
 template<typename Storage>
 struct output_archive {
@@ -16,6 +30,10 @@ struct output_archive {
     template<typename... Value>
     void operator()(const Value &... value) {
         (std::get<std::queue<Value>>(storage).push(value), ...);
+    }
+
+    void operator()(const entt::entity &entity, const noncopyable_component &instance) {
+        (*this)(entity, instance.value);
     }
 
 private:
@@ -37,6 +55,10 @@ struct input_archive {
         };
 
         (assign(value), ...);
+    }
+
+    void operator()(entt::entity &entity, noncopyable_component &instance) {
+        (*this)(entity, instance.value);
     }
 
 private:
@@ -62,23 +84,23 @@ struct map_component {
 };
 
 TEST(Snapshot, Dump) {
-    using traits_type = entt::entt_traits<std::underlying_type_t<entt::entity>>;
+    using traits_type = entt::entt_traits<entt::entity>;
 
     entt::registry registry;
 
     const auto e0 = registry.create();
-    registry.assign<int>(e0, 42);
-    registry.assign<char>(e0, 'c');
-    registry.assign<double>(e0, .1);
+    registry.emplace<int>(e0, 42);
+    registry.emplace<char>(e0, 'c');
+    registry.emplace<double>(e0, .1);
 
     const auto e1 = registry.create();
 
     const auto e2 = registry.create();
-    registry.assign<int>(e2, 3);
+    registry.emplace<int>(e2, 3);
 
     const auto e3 = registry.create();
-    registry.assign<a_component>(e3);
-    registry.assign<char>(e3, '0');
+    registry.emplace<a_component>(e3);
+    registry.emplace<char>(e3, '0');
 
     registry.destroy(e1);
     auto v1 = registry.current(e1);
@@ -97,11 +119,7 @@ TEST(Snapshot, Dump) {
     output_archive<storage_type> output{storage};
     input_archive<storage_type> input{storage};
 
-    registry.snapshot()
-            .entities(output)
-            .destroyed(output)
-            .component<int, char, double, a_component, another_component>(output);
-
+    entt::snapshot{registry}.entities(output).component<int, char, double, a_component, another_component>(output);
     registry.clear();
 
     ASSERT_FALSE(registry.valid(e0));
@@ -109,11 +127,7 @@ TEST(Snapshot, Dump) {
     ASSERT_FALSE(registry.valid(e2));
     ASSERT_FALSE(registry.valid(e3));
 
-    registry.loader()
-            .entities(input)
-            .destroyed(input)
-            .component<int, char, double, a_component, another_component>(input)
-            .orphans();
+    entt::snapshot_loader{registry}.entities(input).component<int, char, double, a_component, another_component>(input).orphans();
 
     ASSERT_TRUE(registry.valid(e0));
     ASSERT_FALSE(registry.valid(e1));
@@ -130,28 +144,28 @@ TEST(Snapshot, Dump) {
     ASSERT_EQ(registry.current(e1), v1);
     ASSERT_EQ(registry.get<int>(e2), 3);
     ASSERT_EQ(registry.get<char>(e3), '0');
-    ASSERT_TRUE(registry.has<a_component>(e3));
+    ASSERT_TRUE(registry.all_of<a_component>(e3));
 
     ASSERT_TRUE(registry.empty<another_component>());
 }
 
 TEST(Snapshot, Partial) {
-    using traits_type = entt::entt_traits<std::underlying_type_t<entt::entity>>;
+    using traits_type = entt::entt_traits<entt::entity>;
 
     entt::registry registry;
 
     const auto e0 = registry.create();
-    registry.assign<int>(e0, 42);
-    registry.assign<char>(e0, 'c');
-    registry.assign<double>(e0, .1);
+    registry.emplace<int>(e0, 42);
+    registry.emplace<char>(e0, 'c');
+    registry.emplace<double>(e0, .1);
 
     const auto e1 = registry.create();
 
     const auto e2 = registry.create();
-    registry.assign<int>(e2, 3);
+    registry.emplace<int>(e2, 3);
 
     const auto e3 = registry.create();
-    registry.assign<char>(e3, '0');
+    registry.emplace<char>(e3, '0');
 
     registry.destroy(e1);
     auto v1 = registry.current(e1);
@@ -168,11 +182,7 @@ TEST(Snapshot, Partial) {
     output_archive<storage_type> output{storage};
     input_archive<storage_type> input{storage};
 
-    registry.snapshot()
-            .entities(output)
-            .destroyed(output)
-            .component<char, int>(output);
-
+    entt::snapshot{registry}.entities(output).component<char, int>(output);
     registry.clear();
 
     ASSERT_FALSE(registry.valid(e0));
@@ -180,10 +190,7 @@ TEST(Snapshot, Partial) {
     ASSERT_FALSE(registry.valid(e2));
     ASSERT_FALSE(registry.valid(e3));
 
-    registry.loader()
-            .entities(input)
-            .destroyed(input)
-            .component<char, int>(input);
+    entt::snapshot_loader{registry}.entities(input).component<char, int>(input);
 
     ASSERT_TRUE(registry.valid(e0));
     ASSERT_FALSE(registry.valid(e1));
@@ -192,15 +199,12 @@ TEST(Snapshot, Partial) {
 
     ASSERT_EQ(registry.get<int>(e0), 42);
     ASSERT_EQ(registry.get<char>(e0), 'c');
-    ASSERT_FALSE(registry.has<double>(e0));
+    ASSERT_FALSE(registry.all_of<double>(e0));
     ASSERT_EQ(registry.current(e1), v1);
     ASSERT_EQ(registry.get<int>(e2), 3);
     ASSERT_EQ(registry.get<char>(e3), '0');
 
-    registry.snapshot()
-            .entities(output)
-            .destroyed(output);
-
+    entt::snapshot{registry}.entities(output);
     registry.clear();
 
     ASSERT_FALSE(registry.valid(e0));
@@ -208,10 +212,7 @@ TEST(Snapshot, Partial) {
     ASSERT_FALSE(registry.valid(e2));
     ASSERT_FALSE(registry.valid(e3));
 
-    registry.loader()
-            .entities(input)
-            .destroyed(input)
-            .orphans();
+    entt::snapshot_loader{registry}.entities(input).orphans();
 
     ASSERT_FALSE(registry.valid(e0));
     ASSERT_FALSE(registry.valid(e1));
@@ -220,23 +221,25 @@ TEST(Snapshot, Partial) {
 }
 
 TEST(Snapshot, Iterator) {
-    using traits_type = entt::entt_traits<std::underlying_type_t<entt::entity>>;
+    using traits_type = entt::entt_traits<entt::entity>;
 
     entt::registry registry;
 
     for(auto i = 0; i < 50; ++i) {
         const auto entity = registry.create();
-        registry.assign<another_component>(entity, i, i);
+        registry.emplace<another_component>(entity, i, i);
+        registry.emplace<noncopyable_component>(entity, i);
 
         if(i % 2) {
-            registry.assign<a_component>(entity);
+            registry.emplace<a_component>(entity);
         }
     }
 
     using storage_type = std::tuple<
         std::queue<typename traits_type::entity_type>,
         std::queue<entt::entity>,
-        std::queue<another_component>
+        std::queue<another_component>,
+        std::queue<int>
     >;
 
     storage_type storage;
@@ -246,19 +249,19 @@ TEST(Snapshot, Iterator) {
     const auto view = registry.view<a_component>();
     const auto size = view.size();
 
-    registry.snapshot().component<another_component>(output, view.begin(), view.end());
+    entt::snapshot{registry}.component<another_component, noncopyable_component>(output, view.begin(), view.end());
     registry.clear();
-    registry.loader().component<another_component>(input);
+    entt::snapshot_loader{registry}.component<another_component, noncopyable_component>(input);
 
     ASSERT_EQ(registry.view<another_component>().size(), size);
 
     registry.view<another_component>().each([](const auto entity, const auto &) {
-        ASSERT_TRUE(entt::to_integral(entity) % 2);
+        ASSERT_NE(entt::to_integral(entity) % 2u, 0u);
     });
 }
 
 TEST(Snapshot, Continuous) {
-    using traits_type = entt::entt_traits<std::underlying_type_t<entt::entity>>;
+    using traits_type = entt::entt_traits<entt::entity>;
 
     entt::registry src;
     entt::registry dst;
@@ -274,6 +277,7 @@ TEST(Snapshot, Continuous) {
         std::queue<another_component>,
         std::queue<what_a_component>,
         std::queue<map_component>,
+        std::queue<int>,
         std::queue<double>
     >;
 
@@ -282,7 +286,7 @@ TEST(Snapshot, Continuous) {
     input_archive<storage_type> input{storage};
 
     for(int i = 0; i < 10; ++i) {
-        src.create();
+        static_cast<void>(src.create());
     }
 
     src.clear();
@@ -291,13 +295,14 @@ TEST(Snapshot, Continuous) {
         entity = src.create();
         entities.push_back(entity);
 
-        src.assign<a_component>(entity);
-        src.assign<another_component>(entity, i, i);
+        src.emplace<a_component>(entity);
+        src.emplace<another_component>(entity, i, i);
+        src.emplace<noncopyable_component>(entity, i);
 
         if(i % 2) {
-            src.assign<what_a_component>(entity, entity);
+            src.emplace<what_a_component>(entity, entity);
         } else {
-            src.assign<map_component>(entity);
+            src.emplace<map_component>(entity);
         }
     }
 
@@ -314,17 +319,14 @@ TEST(Snapshot, Continuous) {
     });
 
     entity = dst.create();
-    dst.assign<a_component>(entity);
-    dst.assign<another_component>(entity, -1, -1);
+    dst.emplace<a_component>(entity);
+    dst.emplace<another_component>(entity, -1, -1);
+    dst.emplace<noncopyable_component>(entity, -1);
 
-    src.snapshot()
-       .entities(output)
-       .destroyed(output)
-       .component<a_component, another_component, what_a_component, map_component>(output);
+    entt::snapshot{src}.entities(output).component<a_component, another_component, what_a_component, map_component, noncopyable_component>(output);
 
     loader.entities(input)
-        .destroyed(input)
-        .component<a_component, another_component, what_a_component, map_component>(
+        .component<a_component, another_component, what_a_component, map_component, noncopyable_component>(
             input,
             &what_a_component::bar,
             &what_a_component::quux,
@@ -337,9 +339,10 @@ TEST(Snapshot, Continuous) {
     decltype(dst.size()) another_component_cnt{};
     decltype(dst.size()) what_a_component_cnt{};
     decltype(dst.size()) map_component_cnt{};
+    decltype(dst.size()) noncopyable_component_cnt{};
 
     dst.each([&dst, &a_component_cnt](auto entt) {
-        ASSERT_TRUE(dst.has<a_component>(entt));
+        ASSERT_TRUE(dst.all_of<a_component>(entt));
         ++a_component_cnt;
     });
 
@@ -375,19 +378,20 @@ TEST(Snapshot, Continuous) {
         ++map_component_cnt;
     });
 
+    dst.view<noncopyable_component>().each([&dst, &noncopyable_component_cnt](auto, const auto &component) {
+        ++noncopyable_component_cnt;
+        ASSERT_EQ(component.value, static_cast<int>(dst.size<noncopyable_component>() - noncopyable_component_cnt - 1u));
+    });
+
     src.view<another_component>().each([](auto, auto &component) {
         component.value = 2 * component.key;
     });
 
     auto size = dst.size();
 
-    src.snapshot()
-        .entities(output)
-        .destroyed(output)
-        .component<a_component, what_a_component, map_component, another_component>(output);
+    entt::snapshot{src}.entities(output).component<a_component, what_a_component, map_component, another_component>(output);
 
     loader.entities(input)
-        .destroyed(input)
         .component<a_component, what_a_component, map_component, another_component>(
             input,
             &what_a_component::bar,
@@ -403,6 +407,7 @@ TEST(Snapshot, Continuous) {
     ASSERT_EQ(dst.size<another_component>(), another_component_cnt);
     ASSERT_EQ(dst.size<what_a_component>(), what_a_component_cnt);
     ASSERT_EQ(dst.size<map_component>(), map_component_cnt);
+    ASSERT_EQ(dst.size<noncopyable_component>(), noncopyable_component_cnt);
 
     dst.view<another_component>().each([](auto, auto &component) {
         ASSERT_EQ(component.value, component.key < 0 ? -1 : (2 * component.key));
@@ -414,13 +419,9 @@ TEST(Snapshot, Continuous) {
         component.bar = entity;
     });
 
-    src.snapshot()
-        .entities(output)
-        .destroyed(output)
-        .component<what_a_component, map_component, a_component, another_component>(output);
+    entt::snapshot{src}.entities(output).component<what_a_component, map_component, a_component, another_component>(output);
 
     loader.entities(input)
-        .destroyed(input)
         .component<what_a_component, map_component, a_component, another_component>(
             input,
             &what_a_component::bar,
@@ -442,13 +443,9 @@ TEST(Snapshot, Continuous) {
     src.destroy(entity);
     loader.shrink();
 
-    src.snapshot()
-        .entities(output)
-        .destroyed(output)
-        .component<a_component, another_component, what_a_component, map_component>(output);
+    entt::snapshot{src}.entities(output).component<a_component, another_component, what_a_component, map_component>(output);
 
     loader.entities(input)
-        .destroyed(input)
         .component<a_component, another_component, what_a_component, map_component>(
             input,
             &what_a_component::bar,
@@ -462,7 +459,7 @@ TEST(Snapshot, Continuous) {
         ASSERT_FALSE(dst.valid(component.bar));
     });
 
-    ASSERT_FALSE(loader.has(entity));
+    ASSERT_FALSE(loader.contains(entity));
 
     entity = src.create();
 
@@ -473,13 +470,9 @@ TEST(Snapshot, Continuous) {
     dst.clear<a_component>();
     a_component_cnt = src.size<a_component>();
 
-    src.snapshot()
-        .entities(output)
-        .destroyed(output)
-        .component<a_component, what_a_component, map_component, another_component>(output);
+    entt::snapshot{src}.entities(output).component<a_component, what_a_component, map_component, another_component>(output);
 
     loader.entities(input)
-        .destroyed(input)
         .component<a_component, what_a_component, map_component, another_component>(
             input,
             &what_a_component::bar,
@@ -494,13 +487,9 @@ TEST(Snapshot, Continuous) {
     src.clear<a_component>();
     a_component_cnt = {};
 
-    src.snapshot()
-        .entities(output)
-        .destroyed(output)
-        .component<what_a_component, map_component, a_component, another_component>(output);
+    entt::snapshot{src}.entities(output).component<what_a_component, map_component, a_component, another_component>(output);
 
     loader.entities(input)
-        .destroyed(input)
         .component<what_a_component, map_component, a_component, another_component>(
             input,
             &what_a_component::bar,
@@ -514,7 +503,7 @@ TEST(Snapshot, Continuous) {
 }
 
 TEST(Snapshot, MoreOnShrink) {
-    using traits_type = entt::entt_traits<std::underlying_type_t<entt::entity>>;
+    using traits_type = entt::entt_traits<entt::entity>;
 
     entt::registry src;
     entt::registry dst;
@@ -531,7 +520,7 @@ TEST(Snapshot, MoreOnShrink) {
     input_archive<storage_type> input{storage};
 
     auto entity = src.create();
-    src.snapshot().entities(output);
+    entt::snapshot{src}.entities(output);
     loader.entities(input).shrink();
 
     ASSERT_TRUE(dst.valid(entity));
@@ -542,7 +531,7 @@ TEST(Snapshot, MoreOnShrink) {
 }
 
 TEST(Snapshot, SyncDataMembers) {
-    using traits_type = entt::entt_traits<std::underlying_type_t<entt::entity>>;
+    using traits_type = entt::entt_traits<entt::entity>;
 
     entt::registry src;
     entt::registry dst;
@@ -560,8 +549,8 @@ TEST(Snapshot, SyncDataMembers) {
     output_archive<storage_type> output{storage};
     input_archive<storage_type> input{storage};
 
-    src.create();
-    src.create();
+    static_cast<void>(src.create());
+    static_cast<void>(src.create());
 
     src.clear();
 
@@ -569,17 +558,17 @@ TEST(Snapshot, SyncDataMembers) {
     auto child = src.create();
 
 
-    src.assign<what_a_component>(parent, entt::null);
-    src.assign<what_a_component>(child, parent).quux.push_back(child);
+    src.emplace<what_a_component>(parent, entt::null);
+    src.emplace<what_a_component>(child, parent).quux.push_back(child);
 
-    src.assign<map_component>(
+    src.emplace<map_component>(
         child,
         decltype(map_component::keys){{{ child, 10 }}},
         decltype(map_component::values){{{ 10, child }}},
         decltype(map_component::both){{{ child, child }}}
     );
 
-    src.snapshot().entities(output).component<what_a_component, map_component>(output);
+    entt::snapshot{src}.entities(output).component<what_a_component, map_component>(output);
 
     loader.entities(input).component<what_a_component, map_component>(
         input,
@@ -593,8 +582,8 @@ TEST(Snapshot, SyncDataMembers) {
     ASSERT_FALSE(dst.valid(parent));
     ASSERT_FALSE(dst.valid(child));
 
-    ASSERT_TRUE(dst.has<what_a_component>(loader.map(parent)));
-    ASSERT_TRUE(dst.has<what_a_component>(loader.map(child)));
+    ASSERT_TRUE(dst.all_of<what_a_component>(loader.map(parent)));
+    ASSERT_TRUE(dst.all_of<what_a_component>(loader.map(child)));
 
     ASSERT_EQ(dst.get<what_a_component>(loader.map(parent)).bar, static_cast<entt::entity>(entt::null));
 

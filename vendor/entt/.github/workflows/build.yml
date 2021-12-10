@@ -9,24 +9,48 @@ jobs:
 
     strategy:
       matrix:
-        compiler: [g++, clang++]
+        compiler:
+          - pkg: g++-7
+            exe: g++-7
+          - pkg: g++-8
+            exe: g++-8
+          - pkg: g++-9
+            exe: g++-9
+          - pkg: g++
+            exe: g++
+          - pkg: clang-8
+            exe: clang++-8
+          - pkg: clang-9
+            exe: clang++-9
+          - pkg: clang-10
+            exe: clang++-10
+          - pkg: clang
+            exe: clang++
+        id_type: [uint32, uint64]
+        include:
+          - id_type: uint64
+            id_type_option: -DENTT_BUILD_UINT64=ON
 
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
+    - name: Install compiler
+      run: |
+        sudo apt-get update
+        sudo apt-get install ${{ matrix.compiler.pkg }} -y
     - name: Compile tests
       working-directory: build
       env:
-        CXX: ${{ matrix.compiler }}
+        CXX: ${{ matrix.compiler.exe }}
       run: |
-        cmake -DBUILD_TESTING=ON -DBUILD_LIB=ON ..
+        cmake -DENTT_BUILD_TESTING=ON -DENTT_BUILD_LIB=ON -DENTT_BUILD_EXAMPLE=ON ${{ matrix.id_type_option }} ..
         make -j4
     - name: Run tests
       working-directory: build
       env:
         CTEST_OUTPUT_ON_FAILURE: 1
-      run: ctest --timeout 5 -C Debug -j4
+      run: ctest --timeout 10 -C Debug -j4
 
   windows:
     timeout-minutes: 10
@@ -34,13 +58,20 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, windows-2016]
-        toolset: [clang-cl, default]
+        toolset: [clang-cl, default, v141]
+        id_type: [uint32, uint64]
         include:
           - toolset: clang-cl
             toolset_option: -T"ClangCl"
+          - toolset: v141
+            toolset_option: -T"v141"
+          - id_type: uint64
+            id_type_option: -DENTT_BUILD_UINT64=ON
         exclude:
           - os: windows-2016
             toolset: clang-cl
+          - os: windows-2016
+            toolset: v141
 
     runs-on: ${{ matrix.os }}
 
@@ -49,16 +80,24 @@ jobs:
     - name: Compile tests
       working-directory: build
       run: |
-        cmake -DBUILD_TESTING=ON -DBUILD_LIB=ON ${{ matrix.toolset_option }} ..
+        cmake -DENTT_BUILD_TESTING=ON -DENTT_BUILD_LIB=ON -DENTT_BUILD_EXAMPLE=ON ${{ matrix.id_type_option }} ${{ matrix.toolset_option }} ..
         cmake --build . -j 4
     - name: Run tests
       working-directory: build
       env:
         CTEST_OUTPUT_ON_FAILURE: 1
-      run: ctest --timeout 5 -C Debug -j4
+      run: ctest --timeout 10 -C Debug -j4
 
   macos:
     timeout-minutes: 10
+
+    strategy:
+      matrix:
+        id_type: [uint32, uint64]
+        include:
+          - id_type: uint64
+            id_type_option: -DENTT_BUILD_UINT64=ON
+
     runs-on: macOS-latest
 
     steps:
@@ -66,10 +105,10 @@ jobs:
     - name: Compile tests
       working-directory: build
       run: |
-        cmake -DBUILD_TESTING=ON -DBUILD_LIB=ON ..
+        cmake -DENTT_BUILD_TESTING=ON -DENTT_BUILD_LIB=ON -DENTT_BUILD_EXAMPLE=ON ${{ matrix.id_type_option }} ..
         make -j4
     - name: Run tests
       working-directory: build
       env:
         CTEST_OUTPUT_ON_FAILURE: 1
-      run: ctest --timeout 5 -C Debug -j4
+      run: ctest --timeout 10 -C Debug -j4

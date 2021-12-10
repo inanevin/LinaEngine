@@ -19,9 +19,8 @@
 general and on GNU/Linux when default visibility was set to hidden. The
 limitation was mainly due to a custom utility used to assign unique, sequential
 identifiers with different types.<br/>
-Fortunately, nowadays using `EnTT` across boundaries is straightforward. In
-fact, everything just works transparently in almost all cases. There are only a
-few exceptions, easy to deal with anyway.
+Fortunately, nowadays using `EnTT` across boundaries is easier. However, use in
+standalone applications is favored and user intervention is otherwise required.
 
 ## The EnTT way
 
@@ -29,8 +28,8 @@ Many classes in `EnTT` make extensive use of type erasure for their purposes.
 This isn't a problem in itself (in fact, it's the basis of an API so convenient
 to use). However, a way is needed to recognize the objects whose type has been
 erased on the other side of a boundary.<br/>
-The `type_info` class template is how identifiers are generated and thus made
-available to the rest of the library. The `type_index` class template makes all
+The `type_hash` class template is how identifiers are generated and thus made
+available to the rest of the library. The `type_seq` class template makes all
 types _indexable_ instead, so as to speed up the lookup.
 
 In general, these classes don't arouse much interest. The only exceptions are:
@@ -48,27 +47,19 @@ In general, these classes don't arouse much interest. The only exceptions are:
   `EnTT`, so as to make everything work nicely across boundaries.
 
 * When working with plugins or shared libraries that don't export any symbol. In
-  this case, `type_index` confuses the other classes by giving potentially wrong
+  this case, `type_seq` confuses the other classes by giving potentially wrong
   information to them.<br/>
-  To avoid problems, it's required to provide a custom generator or to suppress
-  the index generation as a whole:
-
-  ```cpp
-  template<typename Type>
-  struct entt::type_index<Type> {};
-  ```
-
-  All classes that use `type_index` perform also a check on the possibility of
-  creating indexes for types. If it's not a viable solution, they fallback on
-  the type id provided by `type_info`. The latter makes everything stable across
-  boundaries.<br/>
-  This is why suppressing the generation of the indexes solves the problem. In
-  case it's still necessary to associate sequential indexes with types, users
-  can refer to the `family` class, although knowing that these will not be
-  stable across boundaries.
+  To avoid problems, it's required to provide a custom generator. Briefly, it's
+  necessary to specialize the `type_seq` class and make it point to a context
+  that is also shared between the main application and the dynamically loaded
+  libraries or plugins.<br/>
+  This will make the type system available to the whole application, not just to
+  a particular tool such as the registry or the dispatcher. It means that a call
+  to `type_seq::value()` will return the same identifier for the same type from
+  both sides of a boundary and can be used reliably for any purpose.
 
 For anyone who needs more details, the test suite contains multiple examples
-covering the most common cases.<br/>
+covering the most common cases (see the `lib` directory for all details).<br/>
 It goes without saying that it's impossible to cover all the possible cases.
 However, what is offered should hopefully serve as a basis for all of them.
 
@@ -76,8 +67,8 @@ However, what is offered should hopefully serve as a basis for all of them.
 
 The runtime reflection system deserves a special mention when it comes to using
 it across boundaries.<br/>
-Since it's linked to a static context to which the visible components are
-attached and different contexts don't relate to each other, they must be
+Since it's linked already to a static context to which the visible components
+are attached and different contexts don't relate to each other, they must be
 _shared_ to allow the use of meta types across boundaries.
 
 Sharing a context is trivial though. First of all, the local one must be
@@ -100,7 +91,7 @@ attached the new visible meta types, no matter where they are created.<br/>
 A context can also be reset and then associated again locally as:
 
 ```cpp
-entt::meta_ctx::bind{entt::meta_ctx{});
+entt::meta_ctx::bind(entt::meta_ctx{});
 ```
 
 This is allowed because local and global contexts are separated. Therefore, it's

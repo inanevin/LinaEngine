@@ -35,12 +35,11 @@ Timestamp: 12/29/2018 11:15:41 PM
 #include "Editor/ClientComponentDrawer.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 
-
 class SandboxApplication : public LinaEngine::Application
 {
-	public:
+public:
 
-	SandboxApplication() 
+	SandboxApplication()
 	{
 		LINA_CLIENT_TRACE("[Constructor] -> Sandbox Application ({0})", typeid(*this).name());
 
@@ -58,10 +57,10 @@ class SandboxApplication : public LinaEngine::Application
 
 #ifdef LINA_EDITOR
 		m_editor.Setup();
-		
+
 		// Refresh after level init.
 		m_editor.Refresh();
-		
+
 		// Update props.
 		auto& windowProps = GetAppWindow().GetWindowProperties();
 
@@ -75,7 +74,7 @@ class SandboxApplication : public LinaEngine::Application
 		SetPlayMode(true);
 #endif
 		GetMainStack().PushLayer(m_gameManager);
-		 GetAppWindow().SetVsync(2);
+		GetAppWindow().SetVsync(2);
 		// Run engine.
 		Run();
 
@@ -86,50 +85,50 @@ class SandboxApplication : public LinaEngine::Application
 		LINA_CLIENT_TRACE("[Destructor] -> Sandbox Application ({0})", typeid(*this).name());
 	}
 
-	private:
-		
+private:
+
 #ifdef LINA_EDITOR
-		LinaEditor::EditorApplication m_editor;
+	LinaEditor::EditorApplication m_editor;
 #endif
-		ClientComponentDrawer m_componentDrawer;
-		GameManager m_gameManager;
+	ClientComponentDrawer m_componentDrawer;
+	GameManager m_gameManager;
 
-		// Inherited via Application
-		virtual void SerializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryOutputArchive& oarchive) override
-		{
-			entt::snapshot{ registry }
-				.entities(oarchive)
-				.component<
-				LinaEngine::ECS::EntityDataComponent,
-				LinaEngine::ECS::CameraComponent,
-				LinaEngine::ECS::FreeLookComponent,
-				LinaEngine::ECS::PointLightComponent,
-				LinaEngine::ECS::DirectionalLightComponent,
-				LinaEngine::ECS::SpotLightComponent,
-				LinaEngine::ECS::RigidbodyComponent,
-				LinaEngine::ECS::MeshRendererComponent,
-				LinaEngine::ECS::SpriteRendererComponent,
-				LinaEngine::ECS::ModelRendererComponent
-				>(oarchive);
-		}
+	// Inherited via Application
+	virtual void SerializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryOutputArchive& oarchive) override
+	{
+		entt::snapshot{ registry }
+			.entities(oarchive)
+			.component<
+			LinaEngine::ECS::EntityDataComponent,
+			LinaEngine::ECS::CameraComponent,
+			LinaEngine::ECS::FreeLookComponent,
+			LinaEngine::ECS::PointLightComponent,
+			LinaEngine::ECS::DirectionalLightComponent,
+			LinaEngine::ECS::SpotLightComponent,
+			LinaEngine::ECS::RigidbodyComponent,
+			LinaEngine::ECS::MeshRendererComponent,
+			LinaEngine::ECS::SpriteRendererComponent,
+			LinaEngine::ECS::ModelRendererComponent
+			>(oarchive);
+	}
 
-		virtual void DeserializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryInputArchive& iarchive) override
-		{
-			entt::snapshot_loader{ registry }
-				.entities(iarchive)
-				.component<
-				LinaEngine::ECS::EntityDataComponent,
-				LinaEngine::ECS::CameraComponent,
-				LinaEngine::ECS::FreeLookComponent,
-				LinaEngine::ECS::PointLightComponent,
-				LinaEngine::ECS::DirectionalLightComponent,
-				LinaEngine::ECS::SpotLightComponent,
-				LinaEngine::ECS::RigidbodyComponent,
-				LinaEngine::ECS::MeshRendererComponent,
-				LinaEngine::ECS::SpriteRendererComponent,
-				LinaEngine::ECS::ModelRendererComponent
-				>(iarchive);
-		}
+	virtual void DeserializeRegistry(LinaEngine::ECS::ECSRegistry& registry, cereal::BinaryInputArchive& iarchive) override
+	{
+		entt::snapshot_loader{ registry }
+			.entities(iarchive)
+			.component<
+			LinaEngine::ECS::EntityDataComponent,
+			LinaEngine::ECS::CameraComponent,
+			LinaEngine::ECS::FreeLookComponent,
+			LinaEngine::ECS::PointLightComponent,
+			LinaEngine::ECS::DirectionalLightComponent,
+			LinaEngine::ECS::SpotLightComponent,
+			LinaEngine::ECS::RigidbodyComponent,
+			LinaEngine::ECS::MeshRendererComponent,
+			LinaEngine::ECS::SpriteRendererComponent,
+			LinaEngine::ECS::ModelRendererComponent
+			>(iarchive);
+	}
 
 };
 

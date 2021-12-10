@@ -41,6 +41,7 @@ Timestamp: 4/8/2019 5:28:34 PM
 #define ECSSystem_HPP
 
 #include "Core/Common.hpp"
+#include <entt/entity/snapshot.hpp>
 #include "entt/entity/registry.hpp"
 #include "entt/entity/entity.hpp"
 #include "Utility/Math/Transformation.hpp"
@@ -58,7 +59,8 @@ namespace LinaEngine::ECS
 	template<typename T>
 	ECSTypeID GetTypeID()
 	{
-		return entt::type_info<T>::id();
+		return entt::type_id<T>().hash();
+		//	return entt::type_info<T>::id();
 	}
 	
 	class ECSRegistry : public entt::registry

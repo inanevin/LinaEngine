@@ -23,7 +23,7 @@ namespace entt {
  * events to be published all together once per tick.<br/>
  * Listeners are provided in the form of member functions. For each event of
  * type `Event`, listeners are such that they can be invoked with an argument of
- * type `const Event &`, no matter what the return type is.
+ * type `Event &`, no matter what the return type is.
  *
  * The dispatcher creates instances of the `sigh` class internally. Refer to the
  * documentation of the latter for more details.
@@ -32,13 +32,15 @@ class dispatcher {
     struct basic_pool {
         virtual ~basic_pool() = default;
         virtual void publish() = 0;
+        virtual void disconnect(void *) = 0;
         virtual void clear() ENTT_NOEXCEPT = 0;
-        virtual id_type type_id() const ENTT_NOEXCEPT = 0;
     };
 
     template<typename Event>
     struct pool_handler final: basic_pool {
-        using signal_type = sigh<void(const Event &)>;
+        static_assert(std::is_same_v<Event, std::decay_t<Event>>, "Invalid event type");
+
+        using signal_type = sigh<void(Event &)>;
         using sink_type = typename signal_type::sink_type;
 
         void publish() override {
@@ -51,26 +53,31 @@ class dispatcher {
             events.erase(events.cbegin(), events.cbegin()+length);
         }
 
+        void disconnect(void *instance) override {
+            sink().disconnect(instance);
+        }
+
         void clear() ENTT_NOEXCEPT override {
             events.clear();
         }
 
-        sink_type sink() ENTT_NOEXCEPT {
+        [[nodiscard]] sink_type sink() ENTT_NOEXCEPT {
             return entt::sink{signal};
         }
 
         template<typename... Args>
         void trigger(Args &&... args) {
-            signal.publish(Event{std::forward<Args>(args)...});
+            Event instance{std::forward<Args>(args)...};
+            signal.publish(instance);
         }
 
         template<typename... Args>
         void enqueue(Args &&... args) {
-            events.emplace_back(std::forward<Args>(args)...);
-        }
-
-        id_type type_id() const ENTT_NOEXCEPT override {
-            return type_info<Event>::id();
+            if constexpr(std::is_aggregate_v<Event>) {
+                events.push_back(Event{std::forward<Args>(args)...});
+            } else {
+                events.emplace_back(std::forward<Args>(args)...);
+            }
         }
 
     private:
@@ -79,36 +86,38 @@ class dispatcher {
     };
 
     template<typename Event>
-    pool_handler<Event> & assure() {
-        static_assert(std::is_same_v<Event, std::decay_t<Event>>);
+    [[nodiscard]] pool_handler<Event> & assure() {
+        const auto index = type_seq<Event>::value();
 
-        if constexpr(has_type_index_v<Event>) {
-            const auto index = type_index<Event>::value();
-
-            if(!(index < pools.size())) {
-                pools.resize(index+1);
-            }
-
-            if(!pools[index]) {
-                pools[index].reset(new pool_handler<Event>{});
-            }
-
-            return static_cast<pool_handler<Event> &>(*pools[index]);
-        } else {
-            auto it = std::find_if(pools.begin(), pools.end(), [id = type_info<Event>::id()](const auto &cpool) { return id == cpool->type_id(); });
-            return static_cast<pool_handler<Event> &>(it == pools.cend() ? *pools.emplace_back(new pool_handler<Event>{}) : **it);
+        if(!(index < pools.size())) {
+            pools.resize(std::size_t(index)+1u);
         }
+
+        if(!pools[index]) {
+            pools[index].reset(new pool_handler<Event>{});
+        }
+
+        return static_cast<pool_handler<Event> &>(*pools[index]);
     }
 
 public:
+    /*! @brief Default constructor. */
+    dispatcher() = default;
+
+    /*! @brief Default move constructor. */
+    dispatcher(dispatcher &&) = default;
+
+    /*! @brief Default move assignment operator. @return This dispatcher. */
+    dispatcher & operator=(dispatcher &&) = default;
+
     /**
      * @brief Returns a sink object for the given event.
      *
      * A sink is an opaque object used to connect listeners to events.
      *
-     * The function type for a listener is:
+     * The function type for a listener is _compatible_ with:
      * @code{.cpp}
-     * void(const Event &);
+     * void(Event &);
      * @endcode
      *
      * The order of invocation of the listeners isn't guaranteed.
@@ -119,7 +128,7 @@ public:
      * @return A temporary sink object.
      */
     template<typename Event>
-    auto sink() {
+    [[nodiscard]] auto sink() {
         return assure<Event>().sink();
     }
 
@@ -179,6 +188,32 @@ public:
     template<typename Event>
     void enqueue(Event &&event) {
         assure<std::decay_t<Event>>().enqueue(std::forward<Event>(event));
+    }
+
+    /**
+     * @brief Utility function to disconnect everything related to a given value
+     * or instance from a dispatcher.
+     * @tparam Type Type of class or type of payload.
+     * @param value_or_instance A valid object that fits the purpose.
+     */
+    template<typename Type>
+    void disconnect(Type &value_or_instance) {
+        disconnect(&value_or_instance);
+    }
+
+    /**
+     * @brief Utility function to disconnect everything related to a given value
+     * or instance from a dispatcher.
+     * @tparam Type Type of class or type of payload.
+     * @param value_or_instance A valid object that fits the purpose.
+     */
+    template<typename Type>
+    void disconnect(Type *value_or_instance) {
+        for(auto &&cpool: pools) {
+            if(cpool) {
+                cpool->disconnect(value_or_instance);
+            }
+        }
     }
 
     /**

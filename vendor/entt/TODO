@@ -1,25 +1,36 @@
 * long term feature: shared_ptr less locator and resource cache
-* custom allocators and EnTT allocator-aware in general (long term feature, I don't actually need it at the moment) - see #22
 * debugging tools (#60): the issue online already contains interesting tips on this, look at it
 * work stealing job system (see #100) + mt scheduler based on const awareness for types
-* meta: sort of meta view based on meta stuff to iterate entities, void * and meta info objects (remove runtime views, welcome reflection)
-* add opaque input iterators to views and groups that return tuples <entity, T &...> (proxy), multi-pass guaranteed
 * allow to replace std:: with custom implementations
-* custom (decoupled) pools ==> N-buffering, shared components, multi-model, hibitsets, and so on
 * add examples (and credits) from @alanjfs :)
-* static reflection, hint: template<> meta_type_t<Type>: meta_descriptor<name, func..., props..., etc...> (see #342)
-* can we write a bool conv func for entt::entity that silently compares it to null?
-* is it possible to make 0 the entity null?
-* update documentation for meta, it contains less than half of the actual feature
+* custom pools example (multi instance, tables, enable/disable, and so on...)
 
-Next:
-* make it easier to hook into the type system and describe how to do that to eg auto-generate meta types on first use
-* review multi component views to reduce instantiations once empty types are gone...
-* add observer functions aside observer class
+WIP:
+* remove view/storage dispatcher, add support to relax policy constraints on user request (eg view.use<T>())
+* improve perf for sparse_set/storage::insert/emplace/destroy/remove/...
+* custom allocators all over
 
-* WIP:
- - introduce the component iterators for non-contiguous collections of entities (multi component views, observers, user defined collections)
-
-* WIP: snapshot rework
- - snapshot: support for range-based archives
- - update documentation to describe alternatives
+WIP:
+* make value_type available from meta container types, otherwise we have to default construct a container to get it
+* make it possible to register externally managed pools with the registry (allow for system centric mode)
+* registry: switch to the udata/mixin model and get rid of poly storage, use pointer to sparse set only for pools, discard pool_data type.
+* it's now possible to have 0 as null entity/version, so we can finally switch to it
+* make pools available (registry/view/group), review operator| for views
+* page size: add per-pool size, allow for 0 sizes (old fully packed array)
+* compressed pair to exploit ebo in sparse set and the others
+* isolate view iterator, unwrap iterators in registry ::remove/::erase/::destroy to use the faster solution for non-view iterators
+* remove view each<T>(F), each<T>(), make view::use return a view and remove the mutable data member
+* resource, forward the id to the loader from the cache and if constexpr the call to load, update doc and describe customization points
+* make it possible to create views of the type `view<T, T>`, add get by index and such, allow to register custom pools by name with the registry
+* add user data to type_info
+* any_vector for context variables
+* make const registry::view thread safe, switch to a view<T...>{registry} model (long term goal)
+* weak reference wrapper example with custom storage
+* headless (sparse set only) view
+* write documentation for custom storages and views!!
+* make runtime views use opaque storage and therefore return also elements.
+* add exclude-only views to combine with packs
+* entity-aware observer, add observer functions aside observer class
+* deprecate non-owning groups in favor of owning views and view packs, introduce lazy owning views
+* snapshot: support for range-based archives
+* add example: 64 bit ids with 32 bits reserved for users' purposes

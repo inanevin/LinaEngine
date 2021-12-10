@@ -124,7 +124,7 @@ namespace LinaEngine::ECS
 	{
 		visit(from, [this, from, to](const auto component)
 			{
-				m_cloneComponentFunctions[component](from, to);
+				m_cloneComponentFunctions[component.hash()](from, to);
 			});
 	}
 

@@ -57,13 +57,11 @@ class scheduler {
     struct continuation {
         continuation(process_handler *ref)
             : handler{ref}
-        {
-            ENTT_ASSERT(handler);
-        }
+        {}
 
         template<typename Proc, typename... Args>
         continuation then(Args &&... args) {
-            static_assert(std::is_base_of_v<process<Proc, Delta>, Proc>);
+            static_assert(std::is_base_of_v<process<Proc, Delta>, Proc>, "Invalid process type");
             auto proc = typename process_handler::instance_type{new Proc{std::forward<Args>(args)...}, &scheduler::deleter<Proc>};
             handler->next.reset(new process_handler{std::move(proc), &scheduler::update<Proc>, &scheduler::abort<Proc>, nullptr});
             handler = handler->next.get();
@@ -80,23 +78,23 @@ class scheduler {
     };
 
     template<typename Proc>
-    static bool update(process_handler &handler, const Delta delta, void *data) {
+    [[nodiscard]] static bool update(process_handler &handler, const Delta delta, void *data) {
         auto *process = static_cast<Proc *>(handler.instance.get());
         process->tick(delta, data);
 
-        auto dead = process->dead();
-
-        if(dead) {
-            if(handler.next && !process->rejected()) {
+        if(process->rejected()) {
+            return true;
+        } else if(process->finished()) {
+            if(handler.next) {
                 handler = std::move(*handler.next);
                 // forces the process to exit the uninitialized state
-                dead = handler.update(handler, {}, nullptr);
-            } else {
-                handler.instance.reset();
+                return handler.update(handler, {}, nullptr);
             }
+
+            return true;
         }
 
-        return dead;
+        return false;
     }
 
     template<typename Proc>
@@ -126,7 +124,7 @@ public:
      * @brief Number of processes currently scheduled.
      * @return Number of processes currently scheduled.
      */
-    size_type size() const ENTT_NOEXCEPT {
+    [[nodiscard]] size_type size() const ENTT_NOEXCEPT {
         return handlers.size();
     }
 
@@ -134,7 +132,7 @@ public:
      * @brief Returns true if at least a process is currently scheduled.
      * @return True if there are scheduled processes, false otherwise.
      */
-    bool empty() const ENTT_NOEXCEPT {
+    [[nodiscard]] bool empty() const ENTT_NOEXCEPT {
         return handlers.empty();
     }
 
@@ -175,7 +173,7 @@ public:
      */
     template<typename Proc, typename... Args>
     auto attach(Args &&... args) {
-        static_assert(std::is_base_of_v<process<Proc, Delta>, Proc>);
+        static_assert(std::is_base_of_v<process<Proc, Delta>, Proc>, "Invalid process type");
         auto proc = typename process_handler::instance_type{new Proc{std::forward<Args>(args)...}, &scheduler::deleter<Proc>};
         process_handler handler{std::move(proc), &scheduler::update<Proc>, &scheduler::abort<Proc>, nullptr};
         // forces the process to exit the uninitialized state
@@ -252,19 +250,17 @@ public:
      * @param data Optional data.
      */
     void update(const Delta delta, void *data = nullptr) {
-        bool clean = false;
+        auto sz = handlers.size();
 
         for(auto pos = handlers.size(); pos; --pos) {
             auto &handler = handlers[pos-1];
-            const bool dead = handler.update(handler, delta, data);
-            clean = clean || dead;
+
+            if(const auto dead = handler.update(handler, delta, data); dead) {
+                std::swap(handler, handlers[--sz]);
+            }
         }
 
-        if(clean) {
-            handlers.erase(std::remove_if(handlers.begin(), handlers.end(), [](auto &handler) {
-                return !handler.instance;
-            }), handlers.end());
-        }
+        handlers.erase(handlers.begin() + sz, handlers.end());
     }
 
     /**

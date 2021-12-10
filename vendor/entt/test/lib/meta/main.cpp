@@ -10,6 +10,8 @@ ENTT_API void tear_down();
 ENTT_API entt::meta_any wrap_int(int);
 
 TEST(Lib, Meta) {
+    using namespace entt::literals;
+
     ASSERT_FALSE(entt::resolve("position"_hs));
     ASSERT_FALSE(entt::resolve("velocity"_hs));
 
@@ -23,19 +25,19 @@ TEST(Lib, Meta) {
     ASSERT_EQ(entt::resolve<velocity>(), entt::resolve("velocity"_hs));
 
     auto pos = entt::resolve("position"_hs).construct(42., 3.);
-    auto vel = entt::resolve("velocity"_hs).ctor().invoke();
+    auto vel = entt::resolve("velocity"_hs).ctor<>().invoke();
 
     ASSERT_TRUE(pos && vel);
 
     ASSERT_EQ(pos.type().data("x"_hs).type(), entt::resolve<int>());
-    ASSERT_TRUE(pos.type().data("y"_hs).get(*pos).try_cast<int>());
-    ASSERT_EQ(pos.type().data("x"_hs).get(*pos).cast<int>(), 42);
-    ASSERT_EQ(pos.type().data("y"_hs).get(*pos).cast<int>(), 3);
+    ASSERT_NE(pos.type().data("y"_hs).get(pos).try_cast<int>(), nullptr);
+    ASSERT_EQ(pos.type().data("x"_hs).get(pos).cast<int>(), 42);
+    ASSERT_EQ(pos.type().data("y"_hs).get(pos).cast<int>(), 3);
 
     ASSERT_EQ(vel.type().data("dx"_hs).type(), entt::resolve<double>());
-    ASSERT_TRUE(vel.type().data("dy"_hs).get(*vel).convert<double>());
-    ASSERT_EQ(vel.type().data("dx"_hs).get(*vel).cast<double>(), 0.);
-    ASSERT_EQ(vel.type().data("dy"_hs).get(*vel).cast<double>(), 0.);
+    ASSERT_TRUE(vel.type().data("dy"_hs).get(vel).allow_cast<double>());
+    ASSERT_EQ(vel.type().data("dx"_hs).get(vel).cast<double>(), 0.);
+    ASSERT_EQ(vel.type().data("dy"_hs).get(vel).cast<double>(), 0.);
 
     ASSERT_EQ(wrap_int(42).type(), entt::resolve<int>());
     ASSERT_EQ(wrap_int(42).cast<int>(), 42);
