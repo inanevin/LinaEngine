@@ -37,6 +37,10 @@ set (LINACOMMON_SOURCES
 	src/Utility/Math/Color.cpp
 	src/Utility/UtilityFunctions.cpp
 	src/Utility/Log.cpp
+	
+	#src/Utility/EngineUtility.cpp
+	#src/Utility/FileUtility.cpp
+	#src/Utility/StringID.cpp
 )
 
 #--------------------------------------------------------------------
@@ -72,6 +76,9 @@ set(LINACOMMON_HEADERS
 	include/Utility/Log.hpp
 	include/Utility/UtilityFunctions.hpp
 
+	#include/Utility/EngineUtility.hpp
+	#include/Utility/FileUtility.hpp
+	#include/Utility/StringID.hpp
 )
 
 #--------------------------------------------------------------------
