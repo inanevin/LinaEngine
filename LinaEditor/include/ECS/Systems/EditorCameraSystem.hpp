@@ -40,7 +40,7 @@ Timestamp: 10/27/2020 4:58:35 PM
 #define EditorCameraSystem_HPP
 
 // Headers here.
-#include "ECS/ECSSystem.hpp"
+#include "ECS/ECS.hpp"
 
 namespace Lina::Input
 {
@@ -58,7 +58,7 @@ namespace Lina::ECS
 	{
 	public:
 
-		void Construct(ECSRegistry& registry, Lina::Input::InputEngine& inputEngineIn, Lina::Editor::ScenePanel& scenePanel)
+		void Construct(Registry& registry, Lina::Input::InputEngine& inputEngineIn, Lina::Editor::ScenePanel& scenePanel)
 		{
 			BaseECSSystem::Construct(registry);
 			m_inputEngine = &inputEngineIn;
@@ -67,11 +67,11 @@ namespace Lina::ECS
 
 		virtual void UpdateComponents(float delta) override;
 
-		void SetEditorCamera(ECSEntity entity) { m_editorCamera = entity; }
+		void SetEditorCamera(Entity entity) { m_editorCamera = entity; }
 
 	private:
 
-		ECSEntity m_editorCamera = entt::null;
+		Entity m_editorCamera = entt::null;
 		Lina::Editor::ScenePanel* m_scenePanel;
 		Lina::Input::InputEngine* m_inputEngine;
 		float m_horizontalKeyAmt = 0.0f;

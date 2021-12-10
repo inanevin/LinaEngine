@@ -83,7 +83,7 @@ namespace Lina::Editor
 		virtual void Setup() override;
 		virtual void Draw() override;
 
-		void EntitySelected(Lina::ECS::ECSEntity selectedEntity);
+		void EntitySelected(Lina::ECS::Entity selectedEntity);
 		void TextureSelected(Lina::Graphics::Texture* texture);
 		void MeshSelected(Lina::Graphics::Model* mesh);
 		void MaterialSelected(std::pair<EditorFile*, Lina::Graphics::Material*>);

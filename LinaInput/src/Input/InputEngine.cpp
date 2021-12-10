@@ -34,9 +34,9 @@ namespace Lina::Input
 {
 	Action::ActionDispatcher InputEngine::s_inputDispatcher;
 
-	void InputEngine::Initialize(Lina::ECS::ECSRegistry& reg, Lina::ECS::ECSSystemList& mainPipeline, void* contextWindowPointer, InputDevice* inputDevice)
+	void InputEngine::Initialize(Lina::ECS::Registry& reg, Lina::ECS::ECSSystemList& mainPipeline, void* contextWindowPointer, InputDevice* inputDevice)
 	{
-		reg.RegisterComponentToClone<Lina::ECS::FreeLookComponent>();
+	
 		m_inputDevice = inputDevice;
 		s_inputDispatcher.Initialize(Action::ActionType::InputActionsStartIndex, Action::ActionType::InputActionsEndIndex);
 		m_horizontalKeyAxis.Initialize(InputCode::Key::D, InputCode::Key::A, "##lina_horBinder");

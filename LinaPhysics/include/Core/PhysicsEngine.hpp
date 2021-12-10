@@ -70,7 +70,7 @@ namespace Lina::Physics
 		PhysicsEngine();
 		~PhysicsEngine();
 
-		void Initialize(Lina::ECS::ECSRegistry& ecsReg, std::function<void(Vector3, Vector3, Color, float)>& cb);
+		void Initialize(Lina::ECS::Registry& ecsReg, std::function<void(Vector3, Vector3, Color, float)>& cb);
 		void Tick(float fixedDelta);
 		void CleanUp();
 

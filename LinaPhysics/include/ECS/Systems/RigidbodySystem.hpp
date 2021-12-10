@@ -59,7 +59,7 @@ namespace Lina::ECS
 
 		virtual void UpdateComponents(float delta) override;
 
-		void Construct(ECSRegistry& registry, Lina::Physics::PhysicsEngine* physicsEngine) 
+		void Construct(Registry& registry, Lina::Physics::PhysicsEngine* physicsEngine) 
 		{ 
 			BaseECSSystem::Construct(registry);
 			m_physicsEngine = physicsEngine; 

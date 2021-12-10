@@ -56,7 +56,7 @@ namespace Lina
 
 	namespace ECS
 	{
-		class ECSRegistry;
+		class Registry;
 	}
 
 	namespace World

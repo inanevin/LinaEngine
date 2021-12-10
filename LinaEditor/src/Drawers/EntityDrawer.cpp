@@ -40,7 +40,7 @@ namespace Lina::Editor
 	{
 		m_componentDrawer.Setup();
 	}
-	void EntityDrawer::SetSelectedEntity(Lina::ECS::ECSEntity entity)
+	void EntityDrawer::SetSelectedEntity(Lina::ECS::Entity entity)
 	{
 		m_shouldCopyEntityName = true;
 		m_selectedEntity = entity;
@@ -49,7 +49,7 @@ namespace Lina::Editor
 
 	void EntityDrawer::DrawSelectedEntity()
 	{
-		Lina::ECS::ECSRegistry& ecs = Lina::Application::GetECSRegistry();
+		Lina::ECS::Registry& ecs = Lina::Application::GetECSRegistry();
 		Lina::ECS::EntityDataComponent& data = ecs.get<Lina::ECS::EntityDataComponent>(m_selectedEntity);
 
 		// Align.

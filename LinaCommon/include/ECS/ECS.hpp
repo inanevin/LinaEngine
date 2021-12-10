@@ -27,18 +27,162 @@ SOFTWARE.
 */
 
 /*
-Class: ECS
+Class: ECSSystem
 
-Inclusion header file for ECS files.
+Defines Registry wrapper, base ECS system class that defines functions for updating entity components
+as well as an ECS Systems class responsible for iterating & calling update functions of containted systems.
 
-Timestamp: 5/13/2020 11:49:35 PM
-
+Timestamp: 4/8/2019 5:28:34 PM
 */
+
 #pragma once
 
-#ifndef LINAECS_HPP
-#define LINAECS_HPP
+#ifndef ECSSystem_HPP
+#define ECSSystem_HPP
 
-#include "ECS/ECSSystem.hpp"
+#include "Core/Common.hpp"
+#include "Math/Transformation.hpp"
+
+#define ENTT_USE_ATOMIC
+#include <entt/config/config.h>
+#include <entt/entity/snapshot.hpp>
+#include <entt/entity/registry.hpp>
+#include <entt/entity/entity.hpp>
+
+
+#include <cereal/types/string.hpp>
+#include <cereal/types/map.hpp>
+#include <cereal/types/set.hpp>
+#include <cereal/archives/portable_binary.hpp>
+#include <map>
+#include <set>
+
+namespace Lina::ECS
+{
+	typedef entt::entity Entity;
+	typedef entt::id_type TypeID;
+	typedef entt::snapshot Snapshot;
+	typedef entt::continuous_loader SnapshotLoader;
+	typedef entt::delegate<void(entt::snapshot&, cereal::PortableBinaryOutputArchive&)> ComponentSerializeFunction;
+	typedef entt::delegate<void(entt::snapshot_loader&, cereal::PortableBinaryInputArchive&)> ComponentDeserializeFunction;
+
+	template<typename T>
+	TypeID GetTypeID()
+	{
+		return entt::type_hash<T>::value();
+	}
+	
+	class Registry : public entt::registry
+	{
+	public:
+
+		Registry() {  };
+		virtual ~Registry();
+
+		void Initialize();
+
+		// Registering a component enables serialization as well as duplication functionality in & out editor.
+		template<typename T>
+		void RegisterComponent(bool onlyClone = false)
+		{
+			TypeID id = GetTypeID<T>();
+			if (!onlyClone)
+			{
+				m_serializeFunctions[id].first.connect<&Registry::SerializeComponent<T>>(this);
+				m_serializeFunctions[id].second.connect<&Registry::DeserializeComponent<T>>(this);
+			}
+		
+			m_cloneComponentFunctions[id] = std::bind(&Registry::CloneComponent<T>, this, std::placeholders::_1, std::placeholders::_2);
+		}
+
+		void SerializeComponentsInRegistry(cereal::PortableBinaryOutputArchive& archive);
+		void DeserializeComponentsInRegistry(cereal::PortableBinaryInputArchive& archive);
+		void OnEntityDataComponentAdded(entt::registry& reg, entt::entity ent);
+		void AddChildToEntity(Entity parent, Entity child);
+		void DestroyAllChildren(Entity parent);
+		void RemoveChildFromEntity(Entity parent, Entity child);
+		void RemoveFromParent(Entity child);
+		void CloneEntity(Entity from, Entity to);
+		void DestroyEntity(Entity entity, bool isRoot = true);
+
+		Entity CreateEntity(const std::string& name);
+		Entity CreateEntity(Entity copy, bool attachParent = true);
+		Entity GetEntity(const std::string& name);
+		const std::set<Entity>& GetChildren(Entity parent);
+
+	private:
+
+
+		template<typename Type>
+		void CloneComponent(Entity from, Entity to)
+		{
+			Type component = get<Type>(from);
+			emplace<Type>(to, component);
+		}
+
+		template<typename Type>
+		void SerializeComponent(entt::snapshot& snapshot, cereal::PortableBinaryOutputArchive& archive)
+		{
+			snapshot.component<Type>(archive);
+		}
+
+		template<typename Type>
+		void DeserializeComponent(entt::snapshot_loader& loader, cereal::PortableBinaryInputArchive& archive)
+		{
+			loader.component<Type>(archive);
+		}
+
+
+
+	private:
+
+		std::unordered_map<TypeID, std::pair<ComponentSerializeFunction, ComponentDeserializeFunction>> m_serializeFunctions;
+		std::map<TypeID, std::function<void(Entity, Entity)>> m_cloneComponentFunctions;
+
+	};
+	
+
+	class BaseECSSystem
+	{
+	public:
+
+		BaseECSSystem() {};
+
+		virtual void UpdateComponents(float delta) = 0;
+		virtual void SystemActivation(bool active) { m_isActive = active; }
+
+	protected:
+
+		virtual void Construct(Registry& reg) { m_ecs = &reg; };
+		Registry* m_ecs = nullptr;
+		bool m_isActive = false;
+
+	};
+
+	class ECSSystemList
+	{
+	public:
+
+		bool AddSystem(BaseECSSystem& system)
+		{
+			m_systems.push_back(&system);
+			return true;
+		}
+
+		void UpdateSystems(float delta)
+		{
+			for (auto s : m_systems)
+				s->UpdateComponents(delta);
+		}
+
+		bool RemoveSystem(BaseECSSystem& system);
+
+	private:
+
+		std::vector<BaseECSSystem*> m_systems;
+
+	};
+}
+
 
 #endif

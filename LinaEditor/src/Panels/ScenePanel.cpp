@@ -52,7 +52,7 @@ namespace Lina::Editor
 
 	void ScenePanel::Setup()
 	{
-		EditorApplication::GetEditorDispatcher().SubscribeAction<Lina::ECS::ECSEntity>("##lina_scenePanel_entity", Lina::Action::ActionType::EntitySelected,
+		EditorApplication::GetEditorDispatcher().SubscribeAction<Lina::ECS::Entity>("##lina_scenePanel_entity", Lina::Action::ActionType::EntitySelected,
 			std::bind(&ScenePanel::EntitySelected, this, std::placeholders::_1));
 
 		EditorApplication::GetEditorDispatcher().SubscribeAction<void*>("##lina_scenePanel_unselect", Lina::Action::ActionType::Unselect,
@@ -174,7 +174,7 @@ namespace Lina::Editor
 	}
 
 
-	void ScenePanel::EntitySelected(Lina::ECS::ECSEntity entity)
+	void ScenePanel::EntitySelected(Lina::ECS::Entity entity)
 	{
 		m_selectedTransform = entity;
 	}

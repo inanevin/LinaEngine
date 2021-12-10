@@ -58,11 +58,11 @@ namespace Lina::ECS
 		CameraSystem() {};
 		virtual void UpdateComponents(float delta) override;
 
-		void Construct(ECSRegistry& registry);
+		void Construct(Registry& registry);
 		void SetAspectRatio(float aspect) { m_aspectRatio = aspect; }
 		void InjectViewMatrix(const Matrix& view) { m_viewMatrixInjected = true;  m_view = view; }
 		void InjectProjMatrix(const Matrix& proj) { m_projMatrixInjected = true; m_projection = proj; }
-		void SetActiveCamera(ECSEntity cameraOwner);
+		void SetActiveCamera(Entity cameraOwner);
 
 		void OnCameraDestroyed(entt::registry& registry, entt::entity entity)
 		{
@@ -70,7 +70,7 @@ namespace Lina::ECS
 				m_activeCameraEntity = entt::null;
 		}
 
-		ECSEntity GetActiveCamera() { return m_activeCameraEntity; }
+		Entity GetActiveCamera() { return m_activeCameraEntity; }
 		Matrix& GetViewMatrix() { return m_view; }
 		Matrix& GetProjectionMatrix() { return m_projection; }
 		Vector3 GetCameraLocation();
@@ -86,7 +86,7 @@ namespace Lina::ECS
 		bool m_useDirLightView = false;
 		bool m_viewMatrixInjected = false;
 		bool m_projMatrixInjected = false;
-		ECSEntity m_activeCameraEntity = entt::null;
+		Entity m_activeCameraEntity = entt::null;
 
 	};
 }

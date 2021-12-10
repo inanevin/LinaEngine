@@ -41,7 +41,7 @@ Timestamp: 12/8/2021 12:27:21 PM
 
 // Headers here.
 #include "ECS/ECSComponent.hpp"
-#include "ECS/ECSSystem.hpp"
+#include "ECS/ECS.hpp"
 #include <cereal/types/string.hpp>
 #include <cereal/types/vector.hpp>
 
@@ -71,10 +71,10 @@ namespace Lina::ECS
 	struct ModelRendererComponent : public ECSComponent
 	{
 
-		void SetModel(ECS::ECSRegistry& reg, ECS::ECSEntity parent, Graphics::Model& model);
-		void RemoveModel(ECS::ECSRegistry& reg, ECS::ECSEntity parent);
-		void SetMaterial(ECS::ECSRegistry& reg, ECS::ECSEntity parent, int materialIndex, const Graphics::Material& material);
-		void RemoveMaterial(ECS::ECSRegistry& reg, ECS::ECSEntity parent, int materialIndex);
+		void SetModel(ECS::Registry& reg, ECS::Entity parent, Graphics::Model& model);
+		void RemoveModel(ECS::Registry& reg, ECS::Entity parent);
+		void SetMaterial(ECS::Registry& reg, ECS::Entity parent, int materialIndex, const Graphics::Material& material);
+		void RemoveMaterial(ECS::Registry& reg, ECS::Entity parent, int materialIndex);
 		
 
 	private:

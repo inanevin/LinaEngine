@@ -42,7 +42,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 
 #include "Core/Common.hpp"
 #include "RenderingCommon.hpp"
-#include "ECS/ECSSystem.hpp"
+#include "ECS/ECS.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
 #include "ECS/Systems/LightingSystem.hpp"
 #include "ECS/Systems/AnimationSystem.hpp"
@@ -89,7 +89,7 @@ namespace Lina::Graphics
 
 		RenderEngine();
 		~RenderEngine();
-		void Initialize(Lina::ECS::ECSRegistry& ecsIn, Window& appWindow);
+		void Initialize(Lina::ECS::Registry& ecsIn, Window& appWindow);
 		void Tick(float delta);
 		void Render(float interpolation);
 		void RenderLayers();

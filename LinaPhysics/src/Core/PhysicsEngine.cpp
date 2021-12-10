@@ -74,12 +74,9 @@ namespace Lina::Physics
 		delete m_collisionConfig;
 	}
 
-	void PhysicsEngine::Initialize(Lina::ECS::ECSRegistry& ecsReg, std::function<void(Vector3,Vector3,Color,float)>& cb)
+	void PhysicsEngine::Initialize(Lina::ECS::Registry& ecsReg, std::function<void(Vector3,Vector3,Color,float)>& cb)
 	{
 		LINA_TRACE("[Initialization] -> Physics Engine ({0})", typeid(*this).name());
-
-		// Register components.
-		ecsReg.RegisterComponentToClone<Lina::ECS::RigidbodyComponent>();
 
 		// collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
 		m_collisionConfig = new btDefaultCollisionConfiguration();

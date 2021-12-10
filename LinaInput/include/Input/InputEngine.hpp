@@ -50,7 +50,7 @@ namespace Lina
 {
 	namespace ECS
 	{
-		class ECSRegistry;
+		class Registry;
 		class ECSSystemList;
 	}
 }
@@ -66,7 +66,7 @@ namespace Lina::Input
 		virtual ~InputEngine() {};
 
 		// Initialize the engine, sets the dispatcher references & initializes axes.
-		void Initialize(Lina::ECS::ECSRegistry& reg, Lina::ECS::ECSSystemList& mainPipeline, void* contextWindowPointer, InputDevice* inputDevice);
+		void Initialize(Lina::ECS::Registry& reg, Lina::ECS::ECSSystemList& mainPipeline, void* contextWindowPointer, InputDevice* inputDevice);
 
 		void Tick() { m_inputDevice->Tick(); }
 

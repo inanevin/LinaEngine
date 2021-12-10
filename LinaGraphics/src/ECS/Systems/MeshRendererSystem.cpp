@@ -76,7 +76,7 @@ namespace Lina::ECS
 
 	}
 
-	void MeshRendererSystem::Construct(ECSRegistry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn)
+	void MeshRendererSystem::Construct(Registry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn)
 	{
 		BaseECSSystem::Construct(registry);
 		m_renderEngine = &renderEngineIn;

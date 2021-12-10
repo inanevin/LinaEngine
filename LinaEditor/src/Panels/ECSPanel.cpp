@@ -56,9 +56,9 @@ namespace Lina::Editor
 		EditorApplication::GetEditorDispatcher().DispatchAction<void*>(Lina::Action::ActionType::Unselect, 0);
 	}
 
-	void ECSPanel::DrawEntityNode(int id, Lina::ECS::ECSEntity entity)
+	void ECSPanel::DrawEntityNode(int id, Lina::ECS::Entity entity)
 	{
-		Lina::ECS::ECSRegistry& ecs = Lina::Application::GetECSRegistry();
+		Lina::ECS::Registry& ecs = Lina::Application::GetECSRegistry();
 		Lina::ECS::EntityDataComponent& data = ecs.get<Lina::ECS::EntityDataComponent>(entity);
 		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 		static ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_SpanAvailWidth;
@@ -73,13 +73,13 @@ namespace Lina::Editor
 		if (ImGui::IsItemClicked())
 		{
 			m_selectedEntity = entity;
-			EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(Lina::Action::ActionType::EntitySelected, m_selectedEntity);
+			EditorApplication::GetEditorDispatcher().DispatchAction<Entity>(Lina::Action::ActionType::EntitySelected, m_selectedEntity);
 		}
 
 
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 		{
-			ImGui::SetDragDropPayload(ECS_MOVEENTITY, &entity, sizeof(ECSEntity));
+			ImGui::SetDragDropPayload(ECS_MOVEENTITY, &entity, sizeof(Entity));
 
 			// Display preview 
 			ImGui::Text(data.m_name.c_str());
@@ -90,8 +90,8 @@ namespace Lina::Editor
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ECS_MOVEENTITY))
 			{
-				IM_ASSERT(payload->DataSize == sizeof(ECSEntity));
-				ecs.AddChildToEntity(entity, *(ECSEntity*)payload->m_data);
+				IM_ASSERT(payload->DataSize == sizeof(Entity));
+				ecs.AddChildToEntity(entity, *(Entity*)payload->m_data);
 			}
 			ImGui::EndDragDropTarget();
 		}
@@ -99,7 +99,7 @@ namespace Lina::Editor
 		if (nodeOpen)
 		{
 			int counter = 0;
-			for (ECSEntity child : data.m_children)
+			for (Entity child : data.m_children)
 			{
 				DrawEntityNode(counter, child);
 					counter++;
@@ -118,7 +118,7 @@ namespace Lina::Editor
 	{
 		if (m_show)
 		{
-			Lina::ECS::ECSRegistry& ecs = Lina::Application::GetECSRegistry();
+			Lina::ECS::Registry& ecs = Lina::Application::GetECSRegistry();
 
 
 
@@ -145,7 +145,7 @@ namespace Lina::Editor
 						if (ImGui::MenuItem("Entity"))
 						{
 							m_selectedEntity = ecs.CreateEntity("Entity");
-							EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(Lina::Action::ActionType::EntitySelected, m_selectedEntity);
+							EditorApplication::GetEditorDispatcher().DispatchAction<Entity>(Lina::Action::ActionType::EntitySelected, m_selectedEntity);
 						}
 
 						ImGui::EndMenu();
@@ -188,7 +188,7 @@ namespace Lina::Editor
 				if (ImGui::IsKeyDown(Lina::Input::InputCode::Key::LCTRL) && ImGui::IsKeyReleased(Lina::Input::InputCode::D))
 				{
 					m_selectedEntity = ecs.CreateEntity(m_selectedEntity);
-					EditorApplication::GetEditorDispatcher().DispatchAction<ECSEntity>(Lina::Action::ActionType::EntitySelected, m_selectedEntity);
+					EditorApplication::GetEditorDispatcher().DispatchAction<Entity>(Lina::Action::ActionType::EntitySelected, m_selectedEntity);
 				}
 
 				// Delete
@@ -209,8 +209,8 @@ namespace Lina::Editor
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(ECS_MOVEENTITY))
 				{
-					IM_ASSERT(payload->DataSize == sizeof(ECSEntity));
-					ECSEntity entity = *(ECSEntity*)payload->m_data;
+					IM_ASSERT(payload->DataSize == sizeof(Entity));
+					Entity entity = *(Entity*)payload->m_data;
 					ecs.RemoveFromParent(entity);
 				}
 

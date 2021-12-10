@@ -47,7 +47,7 @@ Timestamp: 10/13/2020 2:34:21 PM
 namespace Lina::Editor
 {
 
-	typedef std::function<void(Lina::ECS::ECSRegistry&, Lina::ECS::ECSEntity)> ComponentFunction;
+	typedef std::function<void(Lina::ECS::Registry&, Lina::ECS::Entity)> ComponentFunction;
 	typedef std::tuple<std::string, ComponentFunction, ComponentFunction> ComponentValueTuple;
 
 	class ComponentDrawer
@@ -59,32 +59,32 @@ namespace Lina::Editor
 		~ComponentDrawer() {};
 
 		void Setup();
-		std::vector<std::string> GetEligibleComponents(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity);
-		void AddComponentToEntity(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity, const std::string& comp);
-		void SwapComponentOrder(Lina::ECS::ECSTypeID id1, Lina::ECS::ECSTypeID id2);
-		void AddIDToDrawList(Lina::ECS::ECSTypeID id);	
+		std::vector<std::string> GetEligibleComponents(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity);
+		void AddComponentToEntity(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity, const std::string& comp);
+		void SwapComponentOrder(Lina::ECS::TypeID id1, Lina::ECS::TypeID id2);
+		void AddIDToDrawList(Lina::ECS::TypeID id);	
 		void ClearDrawList();
-		void DrawComponents(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity);
-		bool DrawComponentTitle(Lina::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconFolor = ImVec4(1, 1, 1, 1), const ImVec2& iconOffset = ImVec2(0, 0), bool cantDelete = false,  bool noRefresh = false);
+		void DrawComponents(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity);
+		bool DrawComponentTitle(Lina::ECS::TypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconFolor = ImVec4(1, 1, 1, 1), const ImVec2& iconOffset = ImVec2(0, 0), bool cantDelete = false,  bool noRefresh = false);
 	
 		template<typename T>
-		void RegisterComponentToDraw(Lina::ECS::ECSTypeID typeID, const std::string& label, ComponentFunction drawFunction)
+		void RegisterComponentToDraw(Lina::ECS::TypeID typeID, const std::string& label, ComponentFunction drawFunction)
 		{
 			std::get<0>(m_componentFunctionsMap[typeID]) = label;
 			std::get<1>(m_componentFunctionsMap[typeID]) = std::bind(&ComponentDrawer::ComponentAddFunction<T>, this, std::placeholders::_1, std::placeholders::_2);
 			std::get<2>(m_componentFunctionsMap[typeID]) = drawFunction;
 		}
 
-		void DrawEntityDataComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity);
-		void DrawCameraComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity);
-		void DrawFreeLookComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity);
-		void DrawRigidbodyComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity);
-		void DrawPointLightComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity);
-		void DrawSpotLightComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity);
-		void DrawDirectionalLightComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity);
-		void DrawMeshRendererComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity);
-		void DrawModelRendererComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity);
-		void DrawSpriteRendererComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity);
+		void DrawEntityDataComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity);
+		void DrawCameraComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity);
+		void DrawFreeLookComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity);
+		void DrawRigidbodyComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity);
+		void DrawPointLightComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity);
+		void DrawSpotLightComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity);
+		void DrawDirectionalLightComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity);
+		void DrawMeshRendererComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity);
+		void DrawModelRendererComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity);
+		void DrawSpriteRendererComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity);
 
 	public:
 		// Selected colilsion shape in editor.
@@ -98,16 +98,16 @@ namespace Lina::Editor
 
 
 		template<typename T>
-		void ComponentAddFunction(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity)
+		void ComponentAddFunction(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
 		{
 			ecs.emplace<T>(entity, T());
 		}
 
 	private:
 
-		std::map<Lina::ECS::ECSTypeID, ComponentValueTuple> m_componentFunctionsMap;
-		std::map<Lina::ECS::ECSEntity, std::map<Lina::ECS::ECSTypeID, bool>> m_foldoutStateMap;
-		std::vector<Lina::ECS::ECSTypeID> m_componentDrawList;
+		std::map<Lina::ECS::TypeID, ComponentValueTuple> m_componentFunctionsMap;
+		std::map<Lina::ECS::Entity, std::map<Lina::ECS::TypeID, bool>> m_foldoutStateMap;
+		std::vector<Lina::ECS::TypeID> m_componentDrawList;
 
 
 	};

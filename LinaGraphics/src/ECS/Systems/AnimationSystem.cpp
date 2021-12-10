@@ -34,7 +34,7 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-	void AnimationSystem::Construct(ECSRegistry& registry, Lina::Graphics::RenderEngine* renderEngine)
+	void AnimationSystem::Construct(Registry& registry, Lina::Graphics::RenderEngine* renderEngine)
 	{
 		BaseECSSystem::Construct(registry);
 		m_renderEngine = renderEngine;

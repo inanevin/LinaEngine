@@ -59,7 +59,7 @@ namespace Lina::ECS
 		AnimationSystem() {};
 		~AnimationSystem() {};
 
-		void Construct(ECSRegistry& registry, Lina::Graphics::RenderEngine* renderEngine);		
+		void Construct(Registry& registry, Lina::Graphics::RenderEngine* renderEngine);		
 		virtual void UpdateComponents(float delta) override;
 
 	

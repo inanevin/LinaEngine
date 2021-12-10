@@ -84,20 +84,20 @@ namespace Lina::Editor
 	}
 
 	// Use reflection for gods sake later on.
-	std::vector<std::string> ComponentDrawer::GetEligibleComponents(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity)
+	std::vector<std::string> ComponentDrawer::GetEligibleComponents(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
 	{
 		std::vector<std::string> eligibleTypes;
-		std::vector<ECSTypeID> typeIDs;
+		std::vector<TypeID> typeIDs;
 
 		// Store all components of the entity.
 		ecs.visit(entity, [&typeIDs](const auto component)
 			{
-				ECSTypeID id = component.hash();
+				TypeID id = component.hash();
 				typeIDs.push_back(id);
 			});
 
 		// Iterate registered types & add as eligible if entity does not contain the type.
-		for (std::map<ECSTypeID, ComponentValueTuple>::iterator it = m_componentFunctionsMap.begin(); it != m_componentFunctionsMap.end(); ++it)
+		for (std::map<TypeID, ComponentValueTuple>::iterator it = m_componentFunctionsMap.begin(); it != m_componentFunctionsMap.end(); ++it)
 		{
 			// Exclusion
 			if (std::get<0>(it->second).compare("Mesh Renderer") == 0) continue;
@@ -111,25 +111,25 @@ namespace Lina::Editor
 		return eligibleTypes;
 	}
 
-	void ComponentDrawer::AddComponentToEntity(ECSRegistry& ecs, ECSEntity entity, const std::string& comp)
+	void ComponentDrawer::AddComponentToEntity(Registry& ecs, Entity entity, const std::string& comp)
 	{
 		// Call the add function of the type when the requested strings match.
-		for (std::map<ECSTypeID, ComponentValueTuple>::iterator it = m_componentFunctionsMap.begin(); it != m_componentFunctionsMap.end(); ++it)
+		for (std::map<TypeID, ComponentValueTuple>::iterator it = m_componentFunctionsMap.begin(); it != m_componentFunctionsMap.end(); ++it)
 		{
 			if (std::get<0>(it->second).compare(comp) == 0)
 				std::get<1>(it->second)(ecs, entity);
 		}
 	}
 
-	void ComponentDrawer::SwapComponentOrder(Lina::ECS::ECSTypeID id1, Lina::ECS::ECSTypeID id2)
+	void ComponentDrawer::SwapComponentOrder(Lina::ECS::TypeID id1, Lina::ECS::TypeID id2)
 	{
 		// Swap iterators.
-		std::vector<ECSTypeID>::iterator it1 = std::find(m_componentDrawList.begin(), m_componentDrawList.end(), id1);
-		std::vector<ECSTypeID>::iterator it2 = std::find(m_componentDrawList.begin(), m_componentDrawList.end(), id2);
+		std::vector<TypeID>::iterator it1 = std::find(m_componentDrawList.begin(), m_componentDrawList.end(), id1);
+		std::vector<TypeID>::iterator it2 = std::find(m_componentDrawList.begin(), m_componentDrawList.end(), id2);
 		std::iter_swap(it1, it2);
 	}
 
-	void ComponentDrawer::AddIDToDrawList(Lina::ECS::ECSTypeID id)
+	void ComponentDrawer::AddIDToDrawList(Lina::ECS::TypeID id)
 	{
 		// Add only if it doesn't exists.
 		if (std::find(m_componentDrawList.begin(), m_componentDrawList.end(), id) == m_componentDrawList.end())
@@ -141,7 +141,7 @@ namespace Lina::Editor
 		m_componentDrawList.clear();
 	}
 
-	void ComponentDrawer::DrawComponents(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity)
+	void ComponentDrawer::DrawComponents(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
 	{
 		s_activeInstance = this;
 
@@ -154,7 +154,7 @@ namespace Lina::Editor
 		}
 	}
 
-	bool ComponentDrawer::DrawComponentTitle(Lina::ECS::ECSTypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor, const ImVec2& iconOffset, bool cantDelete, bool noRefresh)
+	bool ComponentDrawer::DrawComponentTitle(Lina::ECS::TypeID typeID, const char* title, const char* icon, bool* refreshPressed, bool* enabled, bool* foldoutOpen, const ImVec4& iconColor, const ImVec2& iconOffset, bool cantDelete, bool noRefresh)
 	{
 	
 		const char* caret = *foldoutOpen ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT;
@@ -187,8 +187,8 @@ namespace Lina::Editor
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("COMP_MOVE_PAYLOAD"))
 			{
-				IM_ASSERT(payload->DataSize == sizeof(Lina::ECS::ECSTypeID));
-				Lina::ECS::ECSTypeID payloadID = *(const Lina::ECS::ECSTypeID*)payload->m_data;
+				IM_ASSERT(payload->DataSize == sizeof(Lina::ECS::TypeID));
+				Lina::ECS::TypeID payloadID = *(const Lina::ECS::TypeID*)payload->m_data;
 				SwapComponentOrder(payloadID, typeID);
 			}
 			ImGui::EndDragDropTarget();
@@ -255,11 +255,11 @@ namespace Lina::Editor
 		"CAPSULE"
 	};
 
-	void ComponentDrawer::DrawEntityDataComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity)
+	void ComponentDrawer::DrawEntityDataComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
 		EntityDataComponent& data = ecs.get<EntityDataComponent>(entity);
-		ECSTypeID id = GetTypeID<EntityDataComponent>();
+		TypeID id = GetTypeID<EntityDataComponent>();
 
 		// Align.
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -349,11 +349,11 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawCameraComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity)
+	void ComponentDrawer::DrawCameraComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
 		CameraComponent& camera = ecs.get<CameraComponent>(entity);
-		ECSTypeID id = GetTypeID<CameraComponent>();
+		TypeID id = GetTypeID<CameraComponent>();
 
 		// Align.
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -416,11 +416,11 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawFreeLookComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity)
+	void ComponentDrawer::DrawFreeLookComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
 		FreeLookComponent& freeLook = ecs.get<FreeLookComponent>(entity);
-		ECSTypeID id = GetTypeID<FreeLookComponent>();
+		TypeID id = GetTypeID<FreeLookComponent>();
 
 		// Align.
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -467,11 +467,11 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawRigidbodyComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity)
+	void ComponentDrawer::DrawRigidbodyComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
 		RigidbodyComponent& rb = ecs.get<RigidbodyComponent>(entity);
-		ECSTypeID id = GetTypeID<RigidbodyComponent>();
+		TypeID id = GetTypeID<RigidbodyComponent>();
 
 		// Align.
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -574,12 +574,12 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawPointLightComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity)
+	void ComponentDrawer::DrawPointLightComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
 		PointLightComponent& pLight = ecs.get<PointLightComponent>(entity);
 		ECS::EntityDataComponent& data = ecs.get<ECS::EntityDataComponent>(entity);
-		ECSTypeID id = GetTypeID<PointLightComponent>();
+		TypeID id = GetTypeID<PointLightComponent>();
 
 		// Align.
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -683,12 +683,12 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawSpotLightComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity)
+	void ComponentDrawer::DrawSpotLightComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
 		SpotLightComponent& sLight = ecs.get<SpotLightComponent>(entity);
 		ECS::EntityDataComponent& data = ecs.get<ECS::EntityDataComponent>(entity);
-		ECSTypeID id = GetTypeID<SpotLightComponent>();
+		TypeID id = GetTypeID<SpotLightComponent>();
 
 		// Align.
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -765,12 +765,12 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawDirectionalLightComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity)
+	void ComponentDrawer::DrawDirectionalLightComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
 		DirectionalLightComponent& dLight = ecs.get<DirectionalLightComponent>(entity);
 		ECS::EntityDataComponent& data = ecs.get<ECS::EntityDataComponent>(entity);
-		ECSTypeID id = GetTypeID<DirectionalLightComponent>();
+		TypeID id = GetTypeID<DirectionalLightComponent>();
 
 		// Align.
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -848,12 +848,12 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawMeshRendererComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity)
+	void ComponentDrawer::DrawMeshRendererComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
 		MeshRendererComponent& renderer = ecs.get<MeshRendererComponent>(entity);
 		Lina::Graphics::RenderEngine& renderEngine = Lina::Application::GetRenderEngine();
-		ECSTypeID id = GetTypeID<MeshRendererComponent>();
+		TypeID id = GetTypeID<MeshRendererComponent>();
 		
 		// Align.
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -866,12 +866,12 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawModelRendererComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity)
+	void ComponentDrawer::DrawModelRendererComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
 		ModelRendererComponent& renderer = ecs.get<ModelRendererComponent>(entity);
 		Lina::Graphics::RenderEngine& renderEngine = Lina::Application::GetRenderEngine();
-		ECSTypeID id = GetTypeID<ModelRendererComponent>();
+		TypeID id = GetTypeID<ModelRendererComponent>();
 
 		// Align.
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);
@@ -991,12 +991,12 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawSpriteRendererComponent(Lina::ECS::ECSRegistry& ecs, Lina::ECS::ECSEntity entity)
+	void ComponentDrawer::DrawSpriteRendererComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
 		SpriteRendererComponent& renderer = ecs.get<SpriteRendererComponent>(entity);
 		Lina::Graphics::RenderEngine& renderEngine = Lina::Application::GetRenderEngine();
-		ECSTypeID id = GetTypeID<SpriteRendererComponent>();
+		TypeID id = GetTypeID<SpriteRendererComponent>();
 
 		// Align.
 		WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_BEFORE);

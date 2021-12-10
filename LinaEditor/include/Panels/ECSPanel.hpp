@@ -65,12 +65,12 @@ namespace Lina::Editor
 		virtual void Setup() override;
 		virtual void Draw() override;
 		void Refresh();
-		void DrawEntityNode(int id,  Lina::ECS::ECSEntity entity);
+		void DrawEntityNode(int id,  Lina::ECS::Entity entity);
 		void OnLevelInstall(Lina::World::Level* level);
 
 	private:
 
-		Lina::ECS::ECSEntity m_selectedEntity;
+		Lina::ECS::Entity m_selectedEntity;
 	};
 }
 

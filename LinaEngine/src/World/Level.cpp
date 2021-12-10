@@ -53,7 +53,6 @@ namespace Lina::World
 			if (Lina::Utility::FileExists(path + "/" + levelName + ".linaleveldata"))
 			{
 				DeserializeLevelData(path, levelName);
-				LoadLevelResources();
 			}
 		}
 		return true;
@@ -61,11 +60,11 @@ namespace Lina::World
 
 	void Level::LoadLevelResources()
 	{
-		ECS::ECSRegistry& ecs = Application::GetECSRegistry();
+		ECS::Registry& ecs = Application::GetECSRegistry();
 
 		auto view = ecs.view<ECS::ModelRendererComponent>();
 		LINA_TRACE("Loading Level Resources...");
-		for (ECS::ECSEntity entity : view)
+		for (ECS::Entity entity : view)
 		{
 			ECS::ModelRendererComponent& mr = view.get<ECS::ModelRendererComponent>(entity);
 
@@ -117,7 +116,7 @@ namespace Lina::World
 
 		auto viewSprites = ecs.view<ECS::SpriteRendererComponent>();
 
-		for (ECS::ECSEntity entity : viewSprites)
+		for (ECS::Entity entity : viewSprites)
 		{
 			ECS::SpriteRendererComponent& sprite = viewSprites.get<ECS::SpriteRendererComponent>(entity);
 
@@ -180,24 +179,20 @@ namespace Lina::World
 
 	void Level::SerializeLevelData(const std::string& path, const std::string& levelName)
 	{
-		Lina::ECS::ECSRegistry& registry = Lina::Application::GetECSRegistry();
-
+		Lina::ECS::Registry& registry = Lina::Application::GetECSRegistry();
 		{
 
-			std::ofstream registrySnapshotStream(path + "/" + levelName + "_ecsSnapshot.linasnapshot", std::ios::binary);
+			std::ofstream registrySnapshotStream(path + "/" + levelName, std::ios::binary);
 			{
-				cereal::BinaryOutputArchive oarchive(registrySnapshotStream); // Build an output archive
+				cereal::PortableBinaryOutputArchive oarchive(registrySnapshotStream); // Build an output archive
 				Lina::Application::GetApp().SerializeRegistry(registry, oarchive);
 			}
-
 		}
+
 		{
-
-
 			std::ofstream levelDataStream(path + "/" + levelName + ".linaleveldata", std::ios::binary);
 			{
 				cereal::BinaryOutputArchive oarchive(levelDataStream); // Build an output archive
-
 				oarchive(m_levelData); // Write the data to the archive
 			}
 		}
@@ -205,7 +200,7 @@ namespace Lina::World
 
 	void Level::DeserializeLevelData(const std::string& path, const std::string& levelName)
 	{
-		Lina::ECS::ECSRegistry& registry = Lina::Application::GetECSRegistry();
+		Lina::ECS::Registry& registry = Lina::Application::GetECSRegistry();
 
 		{
 			std::ifstream levelDataStream(path + "/" + levelName + ".linaleveldata", std::ios::binary);
@@ -219,14 +214,15 @@ namespace Lina::World
 		}
 
 		registry.clear();
-
 		{
-			std::ifstream regSnapshotStream(path + "/" + levelName + "_ecsSnapshot.linasnapshot", std::ios::binary);
+			std::ifstream regSnapshotStream(path + "/" + levelName, std::ios::binary);
 			{
-				cereal::BinaryInputArchive iarchive(regSnapshotStream);
+				cereal::PortableBinaryInputArchive iarchive(regSnapshotStream);
 				Lina::Application::GetApp().DeserializeRegistry(registry, iarchive);
 			}
 		}
+
+		LoadLevelResources();
 
 	}
 }

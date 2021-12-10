@@ -74,7 +74,7 @@ namespace Lina::Editor
 		virtual void Setup() override;
 		virtual void Draw() override;
 
-		void EntitySelected(Lina::ECS::ECSEntity entity);
+		void EntitySelected(Lina::ECS::Entity entity);
 		void Unselected();
 		void ProcessInput();
 		void DrawGizmos();
@@ -84,7 +84,7 @@ namespace Lina::Editor
 	private:
 
 		bool m_isFocused = true;
-		Lina::ECS::ECSEntity m_selectedTransform = entt::null;
+		Lina::ECS::Entity m_selectedTransform = entt::null;
 		DrawMode m_drawMode = DrawMode::FinalImage;
 	};
 }

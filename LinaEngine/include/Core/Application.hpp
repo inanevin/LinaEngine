@@ -42,7 +42,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "Math/Vector.hpp"
 #include "Math/Color.hpp"
 #include "Core/LayerStack.hpp"
-#include "ECS/ECSSystem.hpp"
+#include "ECS/ECS.hpp"
 #include "Actions/ActionDispatcher.hpp"
 #include <functional>
 #include <array>
@@ -98,8 +98,8 @@ namespace Lina
 		void RestartLevel();
 
 		// Serialization functions for ecs registry.
-		virtual void SerializeRegistry(Lina::ECS::ECSRegistry& registry, cereal::BinaryOutputArchive& oarchive) = 0;
-		virtual void DeserializeRegistry(Lina::ECS::ECSRegistry& registry, cereal::BinaryInputArchive& iarchive) = 0;
+		virtual void SerializeRegistry(Lina::ECS::Registry& registry, cereal::PortableBinaryOutputArchive& oarchive) = 0;
+		virtual void DeserializeRegistry(Lina::ECS::Registry& registry, cereal::PortableBinaryInputArchive& iarchive) = 0;
 
 		// Unloads a level from memory.
 		void UninstallLevel();
@@ -126,7 +126,7 @@ namespace Lina
 		static Input::InputEngine& GetInputEngine() { return *s_inputEngine; }
 		static Physics::PhysicsEngine& GetPhysicsEngine() { return *s_physicsEngine; }
 		static Audio::AudioEngine& GetAudioEngine() { return *s_audioEngine; }
-		static ECS::ECSRegistry& GetECSRegistry() { return s_ecs; }
+		static ECS::Registry& GetECSRegistry() { return s_ecs; }
 
 	protected:
 
@@ -170,7 +170,7 @@ namespace Lina
 		static Graphics::RenderEngine* s_renderEngine;
 		static Physics::PhysicsEngine* s_physicsEngine;
 		static Audio::AudioEngine* s_audioEngine;
-		static ECS::ECSRegistry s_ecs;
+		static ECS::Registry s_ecs;
 		static Graphics::Window* s_appWindow;
 
 		Input::InputDevice* m_inputDevice = nullptr;

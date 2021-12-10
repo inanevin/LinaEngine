@@ -94,40 +94,42 @@ private:
 	GameManager m_gameManager;
 
 	// Inherited via Application
-	virtual void SerializeRegistry(Lina::ECS::ECSRegistry& registry, cereal::BinaryOutputArchive& oarchive) override
+	virtual void SerializeRegistry(Lina::ECS::Registry& registry, cereal::PortableBinaryOutputArchive& oarchive) override
 	{
-		entt::snapshot{ registry }
-			.entities(oarchive)
-			.component<
-			Lina::ECS::EntityDataComponent,
-			Lina::ECS::CameraComponent,
-			Lina::ECS::FreeLookComponent,
-			Lina::ECS::PointLightComponent,
-			Lina::ECS::DirectionalLightComponent,
-			Lina::ECS::SpotLightComponent,
-			Lina::ECS::RigidbodyComponent,
-			Lina::ECS::MeshRendererComponent,
-			Lina::ECS::SpriteRendererComponent,
-			Lina::ECS::ModelRendererComponent
-			>(oarchive);
+		//ECS::Snapshot(registry).entities(oarchive);
+		registry.SerializeComponentsInRegistry( oarchive);
+		//auto& snapshot = entt::snapshot{ registry };
+		//snapshot.entities(oarchive);
+		//
+		//snapshot.component<Lina::ECS::EntityDataComponent>(oarchive);
+		//snapshot.component<Lina::ECS::CameraComponent >(oarchive);
+		//snapshot.component<Lina::ECS::FreeLookComponent >(oarchive);
+		//snapshot.component<Lina::ECS::PointLightComponent >(oarchive);
+		//snapshot.component<Lina::ECS::DirectionalLightComponent >(oarchive);
+		//snapshot.component<Lina::ECS::SpotLightComponent >(oarchive);
+		//snapshot.component<Lina::ECS::RigidbodyComponent >(oarchive);
+		//snapshot.component<Lina::ECS::MeshRendererComponent >(oarchive);
+		//snapshot.component<Lina::ECS::SpriteRendererComponent >(oarchive);
+		//snapshot.component<Lina::ECS::ModelRendererComponent >(oarchive);
 	}
 
-	virtual void DeserializeRegistry(Lina::ECS::ECSRegistry& registry, cereal::BinaryInputArchive& iarchive) override
+	virtual void DeserializeRegistry(Lina::ECS::Registry& registry, cereal::PortableBinaryInputArchive& iarchive) override
 	{
-		entt::snapshot_loader{ registry }
-			.entities(iarchive)
-			.component<
-			Lina::ECS::EntityDataComponent,
-			Lina::ECS::CameraComponent,
-			Lina::ECS::FreeLookComponent,
-			Lina::ECS::PointLightComponent,
-			Lina::ECS::DirectionalLightComponent,
-			Lina::ECS::SpotLightComponent,
-			Lina::ECS::RigidbodyComponent,
-			Lina::ECS::MeshRendererComponent,
-			Lina::ECS::SpriteRendererComponent,
-			Lina::ECS::ModelRendererComponent
-			>(iarchive);
+		registry.DeserializeComponentsInRegistry(iarchive);
+		//auto& loader = entt::snapshot_loader{ registry };
+		//
+		//loader.entities(iarchive);
+		//
+		//loader.component<Lina::ECS::EntityDataComponent>(iarchive);
+		//loader.component<Lina::ECS::CameraComponent >(iarchive);
+		//loader.component<Lina::ECS::FreeLookComponent >(iarchive);
+		//loader.component<Lina::ECS::PointLightComponent >(iarchive);
+		//loader.component<Lina::ECS::DirectionalLightComponent >(iarchive);
+		//loader.component<Lina::ECS::SpotLightComponent >(iarchive);
+		//loader.component<Lina::ECS::RigidbodyComponent >(iarchive);
+		//loader.component<Lina::ECS::MeshRendererComponent >(iarchive);
+		//loader.component<Lina::ECS::SpriteRendererComponent >(iarchive);
+		//loader.component<Lina::ECS::ModelRendererComponent >(iarchive);
 	}
 
 };

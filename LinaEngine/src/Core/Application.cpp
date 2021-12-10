@@ -36,7 +36,15 @@ SOFTWARE.
 #include "Core/Layer.hpp"
 #include "World/DefaultLevel.hpp"
 #include "Core/Timer.hpp"
+
+#include "ECS/Components/CameraComponent.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
+#include "ECS/Components/RigidbodyComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
+#include "ECS/Components/ModelRendererComponent.hpp"
+#include "ECS/Components/SpriteRendererComponent.hpp"
+#include "ECS/Components/FreeLookComponent.hpp"
+
 #include <chrono>
 
 namespace Lina
@@ -49,7 +57,7 @@ namespace Lina
 	Physics::PhysicsEngine* Application::s_physicsEngine = nullptr;
 	Audio::AudioEngine* Application::s_audioEngine = nullptr;
 	Graphics::Window* Application::s_appWindow = nullptr;
-	ECS::ECSRegistry Application::s_ecs;
+	ECS::Registry Application::s_ecs;
 	Application* Application::s_application = nullptr;
 
 
@@ -111,9 +119,17 @@ namespace Lina
 		s_renderEngine->Initialize(s_ecs, *s_appWindow);
 		s_audioEngine->Initialize();
 
-		// Register ECS components for cloning functionality.
-		s_ecs.RegisterComponentToClone<ECS::EntityDataComponent>();
-		s_ecs.RegisterComponentToClone<ECS::EntityDataComponent>();
+		// Register ECS components for cloning & serialization functionality.
+		s_ecs.RegisterComponent<ECS::EntityDataComponent>();
+		s_ecs.RegisterComponent<ECS::FreeLookComponent>();
+		s_ecs.RegisterComponent<ECS::RigidbodyComponent>();
+		s_ecs.RegisterComponent<ECS::CameraComponent>();
+		s_ecs.RegisterComponent<ECS::PointLightComponent>();
+		s_ecs.RegisterComponent<ECS::SpotLightComponent>();
+		s_ecs.RegisterComponent<ECS::DirectionalLightComponent>();
+		s_ecs.RegisterComponent<ECS::MeshRendererComponent>();
+		s_ecs.RegisterComponent<ECS::ModelRendererComponent>();
+		s_ecs.RegisterComponent<ECS::SpriteRendererComponent>();
 
 		m_deltaTimeArray.fill(-1.0);
 		m_isInPlayMode = true;

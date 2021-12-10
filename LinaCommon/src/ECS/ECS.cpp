@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ECS/ECSSystem.hpp"  
+#include "ECS/ECS.hpp"  
 #include "Log/Log.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "..\..\include\ECS\Components\EntityDataComponent.hpp"
@@ -48,23 +48,44 @@ namespace Lina::ECS
 		return false;
 	}
 
-	ECSRegistry::~ECSRegistry()
+	Registry::~Registry()
 	{
 		on_construct<EntityDataComponent>().disconnect(this);
 	}
 
-	void ECSRegistry::Initialize()
+	void Registry::Initialize()
 	{
-		on_construct<EntityDataComponent>().connect<&ECSRegistry::OnEntityDataComponentAdded>(this);
+		on_construct<EntityDataComponent>().connect<&Registry::OnEntityDataComponentAdded>(this);
 	}
 
-	void ECSRegistry::OnEntityDataComponentAdded(entt::registry& reg, entt::entity ent)
+	void Registry::SerializeComponentsInRegistry( cereal::PortableBinaryOutputArchive& archive) {
+
+		auto& snapshot = entt::snapshot{ *this };
+		snapshot.entities(archive);
+
+		for (auto& func : m_serializeFunctions)
+		{
+			func.second.first(snapshot, archive);
+		}
+	}
+
+	void Registry::DeserializeComponentsInRegistry(cereal::PortableBinaryInputArchive& archive)
+	{
+		auto& loader = entt::snapshot_loader{ *this };
+		loader.entities(archive);
+		for (auto& func : m_serializeFunctions)
+		{
+			func.second.second(loader, archive);
+		}
+	}
+
+	void Registry::OnEntityDataComponentAdded(entt::registry& reg, entt::entity ent)
 	{
 		auto& data = reg.get<EntityDataComponent>(ent);
 		data.m_ecs = this;
 	}
 
-	void ECSRegistry::AddChildToEntity(ECSEntity parent, ECSEntity child)
+	void Registry::AddChildToEntity(Entity parent, Entity child)
 	{
 		if (parent == child) return;
 
@@ -82,15 +103,15 @@ namespace Lina::ECS
 		childData.m_parent = parent;
 	}
 
-	void ECSRegistry::DestroyAllChildren(ECSEntity parent)
+	void Registry::DestroyAllChildren(Entity parent)
 	{
 		EntityDataComponent* data = try_get<EntityDataComponent>(parent);
 
 		if (data == nullptr) return;
 
 		int counter = 0;
-		std::set<ECSEntity> children = data->m_children;
-		std::set<ECSEntity>::iterator it;
+		std::set<Entity> children = data->m_children;
+		std::set<Entity>::iterator it;
 		for (it = children.begin(); it != children.end(); ++it)
 		{
 			DestroyEntity(*it);
@@ -99,9 +120,9 @@ namespace Lina::ECS
 		data->m_children.clear();
 	}
 
-	void ECSRegistry::RemoveChildFromEntity(ECSEntity parent, ECSEntity child)
+	void Registry::RemoveChildFromEntity(Entity parent, Entity child)
 	{
-		std::set<ECSEntity>& children = get<EntityDataComponent>(parent).m_children;
+		std::set<Entity>& children = get<EntityDataComponent>(parent).m_children;
 		if (children.find(child) != children.end())
 		{
 			children.erase(child);
@@ -111,16 +132,16 @@ namespace Lina::ECS
 
 	}
 
-	void ECSRegistry::RemoveFromParent(ECSEntity child)
+	void Registry::RemoveFromParent(Entity child)
 	{
-		ECSEntity parent = get<EntityDataComponent>(child).m_parent;
+		Entity parent = get<EntityDataComponent>(child).m_parent;
 
 		if (parent != entt::null)
 			RemoveChildFromEntity(parent, child);
 
 	}
 
-	void ECSRegistry::CloneEntity(ECSEntity from, ECSEntity to)
+	void Registry::CloneEntity(Entity from, Entity to)
 	{
 		visit(from, [this, from, to](const auto component)
 			{
@@ -128,24 +149,24 @@ namespace Lina::ECS
 			});
 	}
 
-	const std::set<ECSEntity>& ECSRegistry::GetChildren(ECSEntity parent)
+	const std::set<Entity>& Registry::GetChildren(Entity parent)
 	{
 		return get<EntityDataComponent>(parent).m_children;
 	}
 
-	ECSEntity ECSRegistry::CreateEntity(const std::string& name)
+	Entity Registry::CreateEntity(const std::string& name)
 	{
 		entt::entity ent = create();
 		emplace<EntityDataComponent>(ent, EntityDataComponent( false, true, true, name ));
 		return ent;
 	}
 
-	ECSEntity ECSRegistry::CreateEntity(ECSEntity source, bool attachParent)
+	Entity Registry::CreateEntity(Entity source, bool attachParent)
 	{
 		EntityDataComponent sourceData = get<EntityDataComponent>(source);
 
 		// Build the entity.
-		ECSEntity copy = create();
+		Entity copy = create();
 
 		// Copy entity components to newly created one
 		CloneEntity(source, copy);
@@ -154,9 +175,9 @@ namespace Lina::ECS
 		get<EntityDataComponent>(copy).m_parent = entt::null;
 		get<EntityDataComponent>(copy).m_children.clear();
 
-		for (ECSEntity child : sourceData.m_children)
+		for (Entity child : sourceData.m_children)
 		{
-			ECSEntity copyChild = CreateEntity(child, false);
+			Entity copyChild = CreateEntity(child, false);
 			EntityDataComponent& copyChildData = get<EntityDataComponent>(copyChild);
 			copyChildData.m_parent = copy;
 			get<EntityDataComponent>(copy).m_children.emplace(copyChild);
@@ -168,7 +189,7 @@ namespace Lina::ECS
 		return copy;
 	}
 
-	ECSEntity ECSRegistry::GetEntity(const std::string& name)
+	Entity Registry::GetEntity(const std::string& name)
 	{
 		auto singleView = view<EntityDataComponent>();
 
@@ -182,16 +203,16 @@ namespace Lina::ECS
 		return entt::null;
 	}
 
-	void ECSRegistry::DestroyEntity(ECSEntity entity, bool isRoot)
+	void Registry::DestroyEntity(Entity entity, bool isRoot)
 	{
-		std::set<ECSEntity> toErase;
-		for (ECSEntity child : get<EntityDataComponent>(entity).m_children)
+		std::set<Entity> toErase;
+		for (Entity child : get<EntityDataComponent>(entity).m_children)
 		{
 			toErase.emplace(child);
 			DestroyEntity(child, false);
 		}
 
-		for (ECSEntity child : toErase)
+		for (Entity child : toErase)
 			get<EntityDataComponent>(entity).m_children.erase(child);
 
 		if (isRoot)

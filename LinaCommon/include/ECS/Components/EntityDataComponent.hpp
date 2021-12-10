@@ -42,7 +42,7 @@ Timestamp: 12/8/2021 5:35:25 PM
 // Headers here.
 #include "Math/Transformation.hpp"
 #include "ECS/ECSComponent.hpp"
-#include "ECS/ECSSystem.hpp"
+#include "ECS/ECS.hpp"
 
 namespace Lina::ECS
 {
@@ -62,8 +62,8 @@ namespace Lina::ECS
 		bool m_isEnabled = true;
 		bool m_serialized = true;
 		std::string m_name = "";
-		std::set<ECSEntity> m_children;
-		ECSEntity m_parent = entt::null;
+		std::set<Entity> m_children;
+		Entity m_parent = entt::null;
 
 		/* TRANSFORM OPERATIONS */
 
@@ -106,9 +106,9 @@ namespace Lina::ECS
 	private:
 
 		friend class cereal::access;
-		friend class ECSRegistry;
+		friend class Registry;
 
-		ECSRegistry* m_ecs = nullptr;
+		Registry* m_ecs = nullptr;
 		Lina::Transformation m_transform;
 
 		template<class Archive>

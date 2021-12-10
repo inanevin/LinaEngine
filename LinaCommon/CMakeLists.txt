@@ -51,7 +51,7 @@ set (LINACOMMON_SOURCES
 	#src/Utility/StringID.cpp
 	
 	# ECS 
-	src/ECS/ECSSystem.cpp
+	src/ECS/ECS.cpp
 	src/ECS/Components/EntityDataComponent.cpp
 )
 
@@ -101,7 +101,6 @@ set(LINACOMMON_HEADERS
 	
 	#ECS
 	include/ECS/Components/EntityDataComponent.hpp
-	include/ECS/ECSSystem.hpp
 	include/ECS/ECS.hpp
 	include/ECS/ECSComponent.hpp
 	

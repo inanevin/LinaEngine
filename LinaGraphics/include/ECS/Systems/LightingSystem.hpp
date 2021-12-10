@@ -64,7 +64,7 @@ namespace Lina::ECS
 
 		LightingSystem() {};
 
-		void Construct(ECSRegistry& registry, RenderDevice& rdIn, Graphics::RenderEngine& renderEngineIn);
+		void Construct(Registry& registry, RenderDevice& rdIn, Graphics::RenderEngine& renderEngineIn);
 
 		virtual void UpdateComponents(float delta) override;
 		void SetLightingShaderData(uint32 shaderID);

@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-	void SpriteRendererSystem::Construct(ECSRegistry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn)
+	void SpriteRendererSystem::Construct(Registry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn)
 	{
 		BaseECSSystem::Construct(registry);
 		m_renderEngine = &renderEngineIn;

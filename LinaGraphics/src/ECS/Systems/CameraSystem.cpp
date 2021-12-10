@@ -35,14 +35,14 @@ SOFTWARE.
 namespace Lina::ECS
 {
 
-	void CameraSystem::Construct(ECSRegistry& registry)
+	void CameraSystem::Construct(Registry& registry)
 	{
 		BaseECSSystem::Construct(registry);
 
 		registry.on_destroy<CameraComponent>().connect<&CameraSystem::OnCameraDestroyed>(this);
 	}
 
-	void CameraSystem::SetActiveCamera(ECSEntity cameraOwner)
+	void CameraSystem::SetActiveCamera(Entity cameraOwner)
 	{
 		if (cameraOwner == entt::null)
 		{

@@ -48,7 +48,7 @@ namespace Lina
 {
 	namespace ECS
 	{
-		class ECSRegistry;
+		class Registry;
 	}
 }
 
@@ -96,7 +96,7 @@ namespace Lina
 		}
 
 	private:
-		friend class ECS::ECSRegistry;
+		friend class ECS::Registry;
 
 	};
 

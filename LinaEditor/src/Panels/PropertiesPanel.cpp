@@ -46,7 +46,7 @@ namespace Lina::Editor
 
 	void PropertiesPanel::Setup()
 	{
-		EditorApplication::GetEditorDispatcher().SubscribeAction<Lina::ECS::ECSEntity>("##lina_propsPanel_entity", Lina::Action::ActionType::EntitySelected,
+		EditorApplication::GetEditorDispatcher().SubscribeAction<Lina::ECS::Entity>("##lina_propsPanel_entity", Lina::Action::ActionType::EntitySelected,
 			std::bind(&PropertiesPanel::EntitySelected, this, std::placeholders::_1));
 
 		EditorApplication::GetEditorDispatcher().SubscribeAction<Lina::Graphics::Model*>("##lina_propsPanel_mesh", Lina::Action::ActionType::MeshSelected,
@@ -65,7 +65,7 @@ namespace Lina::Editor
 		m_entityDrawer.Setup();
 	}
 
-	void PropertiesPanel::EntitySelected(Lina::ECS::ECSEntity selectedEntity)
+	void PropertiesPanel::EntitySelected(Lina::ECS::Entity selectedEntity)
 	{
 		m_entityDrawer.SetSelectedEntity(selectedEntity);
 		m_currentDrawType = DrawType::Entities;

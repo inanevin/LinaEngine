@@ -39,7 +39,7 @@ Timestamp: 5/2/2019 2:21:35 AM
 #ifndef FreeLookSystem_HPP
 #define FreeLookSystem_HPP
 
-#include "ECS/ECSSystem.hpp"
+#include "ECS/ECS.hpp"
 
 namespace Lina::Input
 {
@@ -52,7 +52,7 @@ namespace Lina::ECS
 	{
 	public:
 
-		void Construct(ECSRegistry& registry, Lina::Input::InputEngine& inputEngineIn)
+		void Construct(Registry& registry, Lina::Input::InputEngine& inputEngineIn)
 		{
 			BaseECSSystem::Construct(registry);
 			m_inputEngine = &inputEngineIn;

@@ -40,7 +40,7 @@ Timestamp: 10/1/2020 9:27:40 AM
 #define SpriteRendererSystem_HPP
 
 
-#include "ECS/ECSSystem.hpp"
+#include "ECS/ECS.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Rendering/Mesh.hpp"
@@ -69,7 +69,7 @@ namespace Lina::ECS
 		SpriteRendererSystem() {};
 		~SpriteRendererSystem() {};
 	
-		void Construct(ECSRegistry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn);
+		void Construct(Registry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn);
 		virtual void UpdateComponents(float delta) override;
 
 		void Render(Graphics::Material& material, const Matrix& transformIn);

@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-	void ModelRendererComponent::SetModel(ECS::ECSRegistry& reg, ECS::ECSEntity parent, Graphics::Model& model)
+	void ModelRendererComponent::SetModel(ECS::Registry& reg, ECS::Entity parent, Graphics::Model& model)
 	{
 		// Assign model data
 		m_modelID = model.GetID();
@@ -56,7 +56,7 @@ namespace Lina::ECS
 		for (int i = 0; i < model.GetMeshes().size(); i++)
 		{
 			auto& mesh = model.GetMeshes()[i];
-			ECS::ECSEntity newEntity = reg.CreateEntity(mesh.GetName());
+			ECS::Entity newEntity = reg.CreateEntity(mesh.GetName());
 			reg.AddChildToEntity(parent, newEntity);
 			auto& mr = reg.emplace<ECS::MeshRendererComponent>(newEntity);
 			mr.m_meshIndex = i;
@@ -67,7 +67,7 @@ namespace Lina::ECS
 		m_materialCount = model.GetMaterialSpecs().size();
 	}
 
-	void ModelRendererComponent::RemoveModel(ECS::ECSRegistry& reg, ECS::ECSEntity parent)
+	void ModelRendererComponent::RemoveModel(ECS::Registry& reg, ECS::Entity parent)
 	{
 		ModelRendererComponent* modelRendererInEntity = reg.try_get<ModelRendererComponent>(parent);
 		if (this != modelRendererInEntity)
@@ -83,7 +83,7 @@ namespace Lina::ECS
 		m_materialPaths.clear();
 	}
 
-	void ModelRendererComponent::SetMaterial(ECS::ECSRegistry& reg, ECS::ECSEntity parent, int materialIndex, const Graphics::Material& material)
+	void ModelRendererComponent::SetMaterial(ECS::Registry& reg, ECS::Entity parent, int materialIndex, const Graphics::Material& material)
 	{
 		
 		ModelRendererComponent* modelRendererInEntity = reg.try_get<ModelRendererComponent>(parent);
@@ -116,7 +116,7 @@ namespace Lina::ECS
 		}
 	}
 
-	void ModelRendererComponent::RemoveMaterial(ECS::ECSRegistry& reg, ECS::ECSEntity parent, int materialIndex)
+	void ModelRendererComponent::RemoveMaterial(ECS::Registry& reg, ECS::Entity parent, int materialIndex)
 	{
 		ModelRendererComponent* modelRendererInEntity = reg.try_get<ModelRendererComponent>(parent);
 		if (this != modelRendererInEntity)

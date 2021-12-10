@@ -80,19 +80,10 @@ namespace Lina::Graphics
 		LINA_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
 
-	void RenderEngine::Initialize(Lina::ECS::ECSRegistry& ecsReg, Window& appWindow)
+	void RenderEngine::Initialize(Lina::ECS::Registry& ecsReg, Window& appWindow)
 	{
 		if (Utility::FileExists(RENDERSETTINGS_FULLPATH))
 			m_renderSettings = RenderSettings::DeserializeRenderSettings(RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
-
-		// Register ECS components
-		ecsReg.RegisterComponentToClone<Lina::ECS::CameraComponent>();
-		ecsReg.RegisterComponentToClone<Lina::ECS::PointLightComponent>();
-		ecsReg.RegisterComponentToClone<Lina::ECS::SpotLightComponent>();
-		ecsReg.RegisterComponentToClone<Lina::ECS::DirectionalLightComponent>();
-		ecsReg.RegisterComponentToClone<Lina::ECS::MeshRendererComponent>();
-		ecsReg.RegisterComponentToClone<Lina::ECS::ModelRendererComponent>();
-		ecsReg.RegisterComponentToClone<Lina::ECS::SpriteRendererComponent>();
 
 		// Set references.
 		m_appWindow = &appWindow;

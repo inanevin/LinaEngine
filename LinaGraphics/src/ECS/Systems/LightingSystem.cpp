@@ -38,7 +38,7 @@ namespace Lina::ECS
 	uint32 sLightIconID = -1;
 	uint32 dLightIconID = -1;
 
-	void LightingSystem::Construct(ECSRegistry& registry, RenderDevice& rdIn, Graphics::RenderEngine& renderEngineIn)
+	void LightingSystem::Construct(Registry& registry, RenderDevice& rdIn, Graphics::RenderEngine& renderEngineIn)
 	{
 		BaseECSSystem::Construct(registry);
 		s_renderDevice = &rdIn;

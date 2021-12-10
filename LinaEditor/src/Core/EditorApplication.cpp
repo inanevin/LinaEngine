@@ -95,13 +95,13 @@ namespace Lina::Editor
 
 	void EditorApplication::LevelInstalled(Lina::World::Level* level)
 	{
-		ECSRegistry& ecs = Lina::Application::GetECSRegistry();
+		Registry& ecs = Lina::Application::GetECSRegistry();
 
 		auto singleView = ecs.view<Lina::ECS::EntityDataComponent>();
 
 		if (ecs.GetEntity(EDITOR_CAMERA_NAME) == entt::null)
 		{
-			ECSEntity editorCamera = ecs.CreateEntity(EDITOR_CAMERA_NAME);
+			Entity editorCamera = ecs.CreateEntity(EDITOR_CAMERA_NAME);
 			EntityDataComponent cameraTransform;
 			CameraComponent cameraComponent;
 			FreeLookComponent freeLookComponent;
@@ -113,7 +113,7 @@ namespace Lina::Editor
 		}
 		else
 		{
-			ECSEntity editorCamera = ecs.GetEntity(EDITOR_CAMERA_NAME);
+			Entity editorCamera = ecs.GetEntity(EDITOR_CAMERA_NAME);
 			Lina::Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(editorCamera);
 			ecs.get<FreeLookComponent>(editorCamera).m_isEnabled = true;
 			editorCameraSystem.SetEditorCamera(editorCamera);
@@ -123,8 +123,8 @@ namespace Lina::Editor
 
 	void EditorApplication::PlayModeChanged(bool enabled)
 	{
-		ECSRegistry& ecs = Lina::Application::GetECSRegistry();
-		ECSEntity editorCamera = ecs.GetEntity(EDITOR_CAMERA_NAME);
+		Registry& ecs = Lina::Application::GetECSRegistry();
+		Entity editorCamera = ecs.GetEntity(EDITOR_CAMERA_NAME);
 
 		if (editorCamera != entt::null)
 		{

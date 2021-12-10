@@ -40,7 +40,7 @@ Timestamp: 4/27/2019 5:38:44 PM
 #ifndef RenderableMeshSystem_HPP
 #define RenderableMeshSystem_HPP
 
-#include "ECS/ECSSystem.hpp"
+#include "ECS/ECS.hpp"
 #include "PackageManager/PAMRenderDevice.hpp"
 #include "Rendering/RenderingCommon.hpp"
 #include "Rendering/RenderTarget.hpp"
@@ -101,7 +101,7 @@ namespace Lina::ECS
 
 		MeshRendererSystem() {};
 
-		void Construct(ECSRegistry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn);
+		void Construct(Registry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn);
 
 		void RenderOpaque(Graphics::VertexArray& vertexArray, Lina::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn);
 		void RenderTransparent(Graphics::VertexArray& vertexArray, Lina::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn, float priority);
