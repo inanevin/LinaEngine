@@ -50,11 +50,5 @@ namespace LinaEngine::Audio
 		LINA_CORE_TRACE("[Initialization] -> Audio Engine ({0})", typeid(*this).name());
 
 	}
-
-	void AudioEngine::Tick(float delta)
-	{
-		
-	}
-
 }
 

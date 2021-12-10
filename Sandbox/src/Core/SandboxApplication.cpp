@@ -46,8 +46,8 @@ class SandboxApplication : public LinaEngine::Application
 
 		// Init engine.
 		LinaEngine::Graphics::WindowProperties props;
-		props.m_width = 1920;
-		props.m_height = 1080;
+		props.m_width = 1440;
+		props.m_height = 900;
 		props.m_windowState = Graphics::WindowState::Maximized;
 		props.m_decorated = false;
 		props.m_resizable = true;
@@ -71,13 +71,11 @@ class SandboxApplication : public LinaEngine::Application
 
 		SetPlayMode(false);
 #else
-		GetAppWindow().SetPos(Vector2::Zero);
-		GetAppWindow().SetSize(Vector2(1920, 1080));
+
 		SetPlayMode(true);
 #endif
-
 		GetMainStack().PushLayer(m_gameManager);
-
+		 GetAppWindow().SetVsync(2);
 		// Run engine.
 		Run();
 

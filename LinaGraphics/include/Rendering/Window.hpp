@@ -58,9 +58,9 @@ namespace LinaEngine::Graphics
 		virtual void Tick() = 0;
 		virtual void* GetNativeWindow() const = 0;
 
-		virtual void SetVsync(bool enabled)
+		virtual void SetVsync(int interval)
 		{
-			m_windowProperties.m_vSyncEnabled = enabled;
+			m_windowProperties.m_vSync = interval;
 		}
 
 		virtual double GetTime() = 0;
@@ -72,7 +72,7 @@ namespace LinaEngine::Graphics
 		virtual void Close() = 0;
 		virtual void Sleep(int milliseconds) = 0;
 
-		bool GetVsycnEnabled() { return m_windowProperties.m_vSyncEnabled; }
+		bool GetVsycnEnabled() { return m_windowProperties.m_vSync; }
 
 		uint32 GetWidth() { return m_windowProperties.m_width; }
 

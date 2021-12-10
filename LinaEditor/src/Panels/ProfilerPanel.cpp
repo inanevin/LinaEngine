@@ -61,6 +61,9 @@ namespace LinaEditor
 
 
 #define MS_DISPLAY_TIME .1
+#define CURSORPOS_X_LABELS 12
+#define CURSORPOS_XPERC_VALUES 0.30f
+
 
 	std::map<std::string, std::string> m_timerMSStorage;
 
@@ -73,6 +76,8 @@ namespace LinaEditor
 	{
 		if (m_show)
 		{
+			float cursorPosValues = ImGui::GetWindowSize().x * CURSORPOS_XPERC_VALUES;
+			float cursorPosLabels = CURSORPOS_X_LABELS;
 
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 			ImGui::SetNextWindowBgAlpha(1.0f);
@@ -86,13 +91,31 @@ namespace LinaEditor
 			WidgetsUtility::DrawShadowedLine(5);
 			WidgetsUtility::IncrementCursorPosY(11);
 
+
 			float currentTime = LinaEngine::Application::GetApp().GetTime();
+
 			bool displayMS = false;
 			if (currentTime > m_lastMSDisplayTime + MS_DISPLAY_TIME)
 			{
 				m_lastMSDisplayTime = currentTime;
 				displayMS = true;
 			}
+
+			WidgetsUtility::IncrementCursorPosX(12);
+
+			double updateTime = LinaEngine::Application::GetApp().GetUpdateTime();
+			const std::string updateTimeStr = "Update Time: " + std::to_string(updateTime);
+			WidgetsUtility::AlignedText(updateTimeStr.c_str());
+
+			double renderTime = LinaEngine::Application::GetApp().GetRenderTime();
+			const std::string renderTimeStr = "Render Time: " + std::to_string(renderTime);
+			WidgetsUtility::AlignedText(renderTimeStr.c_str());
+
+			double frameTime = LinaEngine::Application::GetApp().GetFrameTime();
+			const std::string frameTimeStr = "Frame Time: " + std::to_string(frameTime);
+			WidgetsUtility::AlignedText(frameTimeStr.c_str());
+
+
 
 			for (std::map<std::string, LinaEngine::Timer*>::const_iterator it = map.begin(); it != map.end(); ++it)
 			{

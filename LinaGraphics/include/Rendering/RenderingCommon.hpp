@@ -390,7 +390,7 @@ namespace LinaEngine::Graphics
 		unsigned int m_workingAreaWidth = 256;
 		unsigned int m_workingAreaHeight = 256;
 		int m_msaaSamples = 4;
-		bool m_vSyncEnabled = false;
+		int m_vSync = 0;
 		bool m_decorated = true;
 		bool m_resizable = true;
 		bool m_fullscreen = false;

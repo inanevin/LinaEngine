@@ -76,6 +76,10 @@ namespace LinaEngine
 		}
 
 
+		Vector3 m_previousLocation = Vector3::Zero;
+		Vector3 m_previousAngles = Vector3::Zero;
+		Vector3 m_previousScale = Vector3::Zero;
+
 		Vector3 m_location = Vector3::Zero;
 		Quaternion m_rotation;
 		Vector3 m_rotationAngles = Vector3::Zero;

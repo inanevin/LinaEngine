@@ -91,9 +91,9 @@ namespace LinaEngine::Graphics
 		~RenderEngine();
 		void Initialize(LinaEngine::ECS::ECSRegistry& ecsIn, Window& appWindow);
 		void Tick(float delta);
-		void Render();
+		void Render(float interpolation);
 		void RenderLayers();
-		void Swap();
+		void AddToRenderingPipeline(LinaEngine::ECS::BaseECSSystem& system);
 		void SetViewportDisplay(Vector2 offset, Vector2 size);
 		void SetSkyboxMaterial(Material* skyboxMaterial) { m_skyboxMaterial = skyboxMaterial; }
 		void PushLayer(Layer& layer);
@@ -104,7 +104,7 @@ namespace LinaEngine::Graphics
 		void UpdateRenderSettings();
 		void* GetFinalImage();
 		void* GetShadowMapImage();
-		void UpdateSystems();
+		void UpdateSystems(float interpolation);
 		void BindShaderToViewBuffer(Shader& shader);
 		void BindShaderToDebugBuffer(Shader& shader);
 		void BindShaderToLightBuffer(Shader& shader);

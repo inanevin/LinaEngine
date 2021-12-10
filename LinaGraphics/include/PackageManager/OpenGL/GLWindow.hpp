@@ -61,7 +61,7 @@ namespace LinaEngine::Graphics
 		void Tick() override;
 
 		// Enables/Disables Vsync.
-		void SetVsync(bool enable) override;
+		void SetVsync(int interval) override;
 
 		// Gets the native glfw window.
 		virtual void* GetNativeWindow() const { return m_window; }

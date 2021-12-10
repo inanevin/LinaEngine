@@ -109,6 +109,9 @@ namespace LinaEngine
 		bool GetActiveLevelExists() { return m_activeLevelExists; }
 		double GetRawDelta() { return m_rawDeltaTime; }
 		double GetSmoothDelta() { return m_smoothDeltaTime; }
+		double GetFrameTime() { return m_frameTime; }
+		double GetRenderTime() { return m_renderTime; }
+		double GetUpdateTime() { return m_updateTime; }
 		void AddToMainPipeline(ECS::BaseECSSystem& system) { m_mainECSPipeline.AddSystem(system); }
 		void SetPlayMode(bool enabled);
 		bool GetPlayMode() { return m_isInPlayMode; }
@@ -138,6 +141,8 @@ namespace LinaEngine
 	private:
 
 		// Callbacks.
+		void UpdateGame(float deltaTime);
+		void DisplayGame(float interpolation);
 		void OnLog(Log::LogDump dump);
 		bool OnWindowClose();
 		void OnWindowResize(Vector2 size);
@@ -179,6 +184,8 @@ namespace LinaEngine
 		bool m_isInPlayMode = false;
 		int m_currentFPS = 0;
 		int m_currentUPS = 0;
+		double m_updateTime = 0;
+		double m_renderTime = 0;
 		double m_frameTime = 0;
 		double m_smoothDeltaTime;
 		double m_rawDeltaTime;

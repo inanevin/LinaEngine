@@ -30,6 +30,35 @@ SOFTWARE.
 
 namespace LinaEngine::ECS
 {
+	void EntityDataComponent::AddRotation(const Vector3& angles)
+	{
+		SetRotationAngles(GetRotationAngles() + angles);
+	}
+
+	void EntityDataComponent::AddLocaRotation(const Vector3& angles)
+	{
+		SetLocalRotationAngles(GetLocalRotationAngles() + angles);
+	}
+
+	void EntityDataComponent::AddLocation(const Vector3& loc)
+	{
+		SetLocation(GetLocation() + loc);
+	}
+
+	void EntityDataComponent::AddLocalLocation(const Vector3& loc)
+	{
+		SetLocalLocation(GetLocalLocation() + loc);
+	}
+
+	Transformation EntityDataComponent::GetInterpolated(float interpolation)
+	{
+		Transformation t;
+		t.m_location = Vector3::Lerp(m_transform.m_previousLocation, m_transform.m_location, interpolation);
+		t.m_scale = Vector3::Lerp(m_transform.m_previousScale, m_transform.m_scale , interpolation);
+		t.m_rotation = Quaternion::Euler(Vector3::Lerp(m_transform.m_previousAngles, m_transform.m_rotation.GetEuler(), interpolation));
+		return t;
+	}
+
 	void EntityDataComponent::SetLocalLocation(const Vector3& loc)
 	{
 		m_transform.m_localLocation = loc;
@@ -43,6 +72,7 @@ namespace LinaEngine::ECS
 	}
 	void EntityDataComponent::SetLocation(const Vector3& loc)
 	{
+		m_transform.m_previousLocation = m_transform.m_location;
 		m_transform.m_location = loc;
 		UpdateLocalLocation();
 
@@ -87,6 +117,7 @@ namespace LinaEngine::ECS
 
 	void EntityDataComponent::SetRotation(const Quaternion& rot, bool isThisPivot)
 	{
+		m_transform.m_previousAngles = m_transform.m_rotationAngles;
 		m_transform.m_rotation = rot;
 		m_transform.m_rotationAngles = rot.GetEuler();
 		UpdateLocalRotation();
@@ -103,6 +134,7 @@ namespace LinaEngine::ECS
 
 	void EntityDataComponent::SetRotationAngles(const Vector3& angles, bool isThisPivot)
 	{
+		m_transform.m_previousAngles = m_transform.m_rotationAngles;
 		m_transform.m_rotationAngles = angles;
 		m_transform.m_rotation = Quaternion::FromVector(glm::radians((glm::vec3)angles));
 		UpdateLocalRotation();
@@ -134,6 +166,7 @@ namespace LinaEngine::ECS
 
 	void EntityDataComponent::SetScale(const Vector3& scale, bool isThisPivot)
 	{
+		m_transform.m_previousScale = m_transform.m_scale;
 		m_transform.m_scale = scale;
 		UpdateLocalScale();
 
@@ -149,13 +182,19 @@ namespace LinaEngine::ECS
 
 	void EntityDataComponent::UpdateGlobalLocation()
 	{
+
 		if (m_parent == entt::null)
+		{
+			m_transform.m_previousLocation = m_transform.m_location;
 			m_transform.m_location = m_transform.m_localLocation;
+		}
 		else
 		{
 			auto& d = m_ecs->get<EntityDataComponent>(m_parent);
 			LinaEngine::Matrix global = d.m_transform.ToMatrix() * m_transform.ToLocalMatrix();
-			m_transform.m_location = global.GetTranslation();
+			Vector3 translation = global.GetTranslation();
+			m_transform.m_previousLocation = m_transform.m_location;
+			m_transform.m_location = translation;
 		}
 
 		for (auto child : m_children)
@@ -180,12 +219,17 @@ namespace LinaEngine::ECS
 	void EntityDataComponent::UpdateGlobalScale()
 	{
 		if (m_parent == entt::null)
+		{
+			m_transform.m_previousScale = m_transform.m_scale;
 			m_transform.m_scale = m_transform.m_localScale;
+		}
 		else
 		{
 			auto& d = m_ecs->get<EntityDataComponent>(m_parent);
 			Matrix global = Matrix::Scale(d.m_transform.m_scale) * Matrix::Scale(m_transform.m_localScale);
-			m_transform.m_scale = global.GetScale();
+			Vector3 scale = global.GetScale();;
+			m_transform.m_previousScale = m_transform.m_scale;
+			m_transform.m_scale = scale;
 		}
 
 		for (auto child : m_children)
@@ -199,6 +243,7 @@ namespace LinaEngine::ECS
 	{
 		if (m_parent == entt::null)
 		{
+			m_transform.m_previousAngles = m_transform.m_rotationAngles;
 			m_transform.m_rotation = m_transform.m_localRotation;
 			m_transform.m_rotationAngles = m_transform.m_localRotationAngles;
 		}
@@ -206,7 +251,10 @@ namespace LinaEngine::ECS
 		{
 			auto& d = m_ecs->get<EntityDataComponent>(m_parent);
 			Matrix global = Matrix::InitRotation(d.m_transform.m_rotation) * m_transform.ToLocalMatrix();
-			global.Decompose(Vector3(), m_transform.m_rotation);
+			Quaternion targetRot;
+			global.Decompose(Vector3(), targetRot);
+			m_transform.m_previousAngles = m_transform.m_rotationAngles;
+			m_transform.m_rotation = targetRot;
 			m_transform.m_rotationAngles = m_transform.m_rotation.GetEuler();
 		}
 

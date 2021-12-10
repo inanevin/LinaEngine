@@ -49,10 +49,10 @@ namespace LinaEngine::Graphics
 	void GLWindow::Tick()
 	{
 		
-		if (!glfwWindowShouldClose(static_cast<GLFWwindow*>(m_window)))
+		if (!glfwWindowShouldClose(m_glfwWindow))
 		{
 			// Swap Buffers
-			glfwSwapBuffers(static_cast<GLFWwindow*>(m_window));
+			glfwSwapBuffers(m_glfwWindow);
 		}
 		else
 		{
@@ -89,9 +89,11 @@ namespace LinaEngine::Graphics
 #endif
 		if (m_windowProperties.m_fullscreen)
 		{
+
 			m_windowProperties.m_width = glfwGetVideoMode(glfwGetPrimaryMonitor())->width;
 			m_windowProperties.m_height = glfwGetVideoMode(glfwGetPrimaryMonitor())->height;
 		}
+
 
 
 		// Build window
@@ -119,6 +121,7 @@ namespace LinaEngine::Graphics
 			return false;
 		}
 
+#if LINA_EDITOR
 		int xpos, ypos, width, height;
 		glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), &xpos, &ypos, &width, &height);
 		glfwSetWindowSizeLimits(m_glfwWindow, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE, height);
@@ -126,11 +129,11 @@ namespace LinaEngine::Graphics
 		m_windowProperties.m_workingAreaHeight = height;
 		SetPos(Vector2::Zero);
 		SetSize(Vector2(width, height));
-
+#endif
 		// Update OpenGL about the window data.
 		glViewport(0, 0, m_windowProperties.m_width, m_windowProperties.m_height);
 
-		SetVsync(false);
+		SetVsync(0);
 		
 		// set user pointer for callbacks.
 		glfwSetWindowUserPointer(m_glfwWindow, this);
@@ -205,10 +208,10 @@ namespace LinaEngine::Graphics
 
 
 
-	void GLWindow::SetVsync(bool enabled)
+	void GLWindow::SetVsync(int interval)
 	{
-		Window::SetVsync(enabled);
-		glfwSwapInterval(enabled);
+		Window::SetVsync(interval);
+		glfwSwapInterval(interval);
 	}
 
 	double GLWindow::GetTime()

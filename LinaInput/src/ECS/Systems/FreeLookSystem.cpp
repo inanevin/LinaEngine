@@ -59,18 +59,16 @@ namespace LinaEngine::ECS
 			// Holding right click enables rotating.
 			if (m_inputEngine->GetMouseButton(LinaEngine::Input::InputCode::Mouse::Mouse2))
 			{
-				m_targetYAngle += mouseAxis.y * freeLook.m_rotationSpeeds.x * delta * 50;
-				m_targetXAngle += mouseAxis.x * freeLook.m_rotationSpeeds.y * delta * 50;
+				m_targetYAngle += mouseAxis.y * freeLook.m_rotationSpeeds.x;
+				m_targetXAngle += mouseAxis.x * freeLook.m_rotationSpeeds.y;
 
-				freeLook.m_angles.y = LinaEngine::Math::Lerp(freeLook.m_angles.y, m_targetYAngle, 8 * delta);
-				freeLook.m_angles.x = LinaEngine::Math::Lerp(freeLook.m_angles.x, m_targetXAngle, 8 * delta);
+				freeLook.m_angles.y = LinaEngine::Math::Lerp(freeLook.m_angles.y, m_targetYAngle, 15 * delta);
+				freeLook.m_angles.x = LinaEngine::Math::Lerp(freeLook.m_angles.x, m_targetXAngle, 15 * delta);
 
-				data.SetRotation(Quaternion::Euler(Vector3(freeLook.m_angles.y, freeLook.m_angles.x, 0.0f)));
+				Quaternion qX = Quaternion::AxisAngle(Vector3::Up, freeLook.m_angles.x);
+				Quaternion qY = Quaternion::AxisAngle(Vector3::Right, freeLook.m_angles.y);
+				data.SetLocalRotation(qX * qY);
 			}
-
-			// Enable cursor after finishing mouse look.
-			if (m_inputEngine->GetMouseButtonUp(LinaEngine::Input::InputCode::Mouse::Mouse2))
-				m_inputEngine->SetCursorMode(LinaEngine::Input::CursorMode::Visible);
 
 
 			// Handle movement.
@@ -81,15 +79,9 @@ namespace LinaEngine::ECS
 			Vector3 up = rotation.GetUp();
 			Vector3 rg = rotation.GetRight();
 
-			Vector3 vertical = rotation.GetForward();
-			vertical.Normalize();
-			vertical *= freeLook.m_movementSpeeds.y * verticalKey * delta;
-
-			Vector3 horizontal = rotation.GetRight();
-			horizontal.Normalize();
-			horizontal *= freeLook.m_movementSpeeds.x * horizontalKey * delta;
-
-			data.SetLocation(data.GetLocation() + vertical + horizontal);
+	
+			data.AddLocation(verticalKey * delta * freeLook.m_movementSpeeds.y * fw.Normalized());
+			data.AddLocation(horizontalKey * delta * freeLook.m_movementSpeeds.y * rg.Normalized());
 		}
 
 	}

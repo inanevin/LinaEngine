@@ -160,10 +160,10 @@ namespace LinaEngine::Graphics
 		m_lightingSystem.Construct(ecsReg, s_renderDevice, *this);
 	
 		// Add the ECS systems into the pipeline.
-		m_renderingPipeline.AddSystem(m_cameraSystem);
-		m_renderingPipeline.AddSystem(m_meshRendererSystem);
-		m_renderingPipeline.AddSystem(m_spriteRendererSystem);
-		m_renderingPipeline.AddSystem(m_lightingSystem);
+		AddToRenderingPipeline(m_cameraSystem);
+		AddToRenderingPipeline(m_meshRendererSystem);
+		AddToRenderingPipeline(m_spriteRendererSystem);
+		AddToRenderingPipeline(m_lightingSystem);
 
 		// Initialize Animation System.
 		m_animationSystem.Construct(ecsReg, this);
@@ -181,12 +181,11 @@ namespace LinaEngine::Graphics
 		m_animationPipeline.UpdateSystems(delta);
 	}
 
-	void RenderEngine::Render()
+	void RenderEngine::Render(float interpolation)
 	{
 
 		if (m_preDrawCallback)
 			m_preDrawCallback();
-
 
 		Draw();
 
@@ -211,10 +210,10 @@ namespace LinaEngine::Graphics
 
 	}
 
-	void RenderEngine::Swap()
+
+	void RenderEngine::AddToRenderingPipeline(LinaEngine::ECS::BaseECSSystem& system)
 	{
-		// Update window.
-		m_appWindow->Tick();
+		m_renderingPipeline.AddSystem(system);
 	}
 
 	void RenderEngine::SetViewportDisplay(Vector2 pos, Vector2 size)
@@ -472,7 +471,7 @@ namespace LinaEngine::Graphics
 
 	void RenderEngine::Draw()
 	{
-		UpdateSystems();
+		UpdateSystems(0.0f);
 
 		// Set render targets for point light shadows & calculate all the depth textures.
 		auto& tuple = m_lightingSystem.GetPointLights();
@@ -1106,14 +1105,13 @@ namespace LinaEngine::Graphics
 		return (void*)m_shadowMapRTTexture.GetID();
 	}
 
-	void RenderEngine::UpdateSystems()
+	void RenderEngine::UpdateSystems(float delta)
 	{
 		// Update pipeline.
-		m_renderingPipeline.UpdateSystems(0.0f);
+		m_renderingPipeline.UpdateSystems(delta);
 
 		// Update uniform buffers on GPU
 		UpdateUniformBuffers();
-
 	}
 
 	void RenderEngine::BindShaderToViewBuffer(Shader& shader)

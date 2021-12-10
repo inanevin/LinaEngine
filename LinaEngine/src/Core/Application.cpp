@@ -37,6 +37,7 @@ SOFTWARE.
 #include "World/DefaultLevel.hpp"
 #include "Core/Timer.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
+#include <chrono>
 
 namespace LinaEngine
 {
@@ -105,7 +106,7 @@ namespace LinaEngine
 		s_renderEngine->SetViewportDisplay(Vector2::Zero, s_appWindow->GetSize());
 
 		s_ecs.Initialize();
-		s_inputEngine->Initialize(s_ecs, s_appWindow->GetNativeWindow(), m_inputDevice);
+		s_inputEngine->Initialize(s_ecs, m_mainECSPipeline, s_appWindow->GetNativeWindow(), m_inputDevice);
 		s_physicsEngine->Initialize(s_ecs, m_drawLineCallback);
 		s_renderEngine->Initialize(s_ecs, *s_appWindow);
 		s_audioEngine->Initialize();
@@ -140,6 +141,7 @@ namespace LinaEngine
 		LINA_CORE_TRACE("[Destructor] -> Application ({0})", typeid(*this).name());
 	}
 
+
 	void Application::OnLog(Log::LogDump dump)
 	{
 		// Dump to cout
@@ -151,139 +153,109 @@ namespace LinaEngine
 
 	void Application::Run()
 	{
-
-		double lastTime = s_appWindow->GetTime();
-		double timer = lastTime;
-		double deltaTime = 0;
-		double accumulator = 0.0;
 		int frames = 0;
 		int updates = 0;
-		double lastFPSTime = 0;
+		double totalFPSTime = GetTime();
+		double previousFrameTime;
+		double currentFrameTime = GetTime();
+
 		while (m_running)
 		{
-			//LINA_TIMER_START("[Core] Main Loop");
 
-			double now = s_appWindow->GetTime();
-			deltaTime = now - lastTime;
-			m_rawDeltaTime = deltaTime;
-			lastTime = now;
-			deltaTime = SmoothDeltaTime(deltaTime);
-			m_smoothDeltaTime = deltaTime;
-			updates++;
+			previousFrameTime = currentFrameTime;
+			currentFrameTime = GetTime();
 
-
-			LINA_CORE_TRACE("FPS: {0} - UPS: {1}", m_currentFPS, m_currentUPS);
-
-			//LINA_TIMER_START("[Input] Engine Tick");
-
-			// Update input engine.
+			m_rawDeltaTime = (currentFrameTime - previousFrameTime);
+			m_smoothDeltaTime = SmoothDeltaTime(m_rawDeltaTime);
 			s_inputEngine->Tick();
 
-			// Tick render engine, this won't render, but will tick any cpu-bound systems within render engine.
-			s_renderEngine->Tick(deltaTime);
+			updates++;
+			LINA_TIMER_START("Update MS");
+			UpdateGame((float)m_rawDeltaTime);
+			LINA_TIMER_STOP("Update MS");
+			m_updateTime = LinaEngine::Timer::GetTimer("UPDATE MS").GetDuration();
 
-			//LINA_TIMER_STOP("[Input] Engine Tick");
-
-			//LINA_TIMER_START("[Audio] Engine Tick");
-
-			// Update input engine.
-			s_audioEngine->Tick(deltaTime);
-
-			//LINA_TIMER_STOP("[Audio] Engine Tick");
-
-			//LINA_TIMER_START("[Core] Tick Engine Layers");
-
-			// Update layers.
-			for (Layer* layer : m_mainLayerStack)
-				layer->Tick(deltaTime);
-
-			//LINA_TIMER_STOP("[Core] Tick Engine Layers");
-
-			if (m_isInPlayMode)
-			{
-				//	LINA_TIMER_START("[Core] Tick PlayMode Layers");
-
-					// Update layers.
-				for (Layer* layer : m_playModeStack)
-					layer->Tick(deltaTime);
-
-				//	LINA_TIMER_STOP("[Core] Tick PlayMode Layers");
-			}
-
-
-			//LINA_TIMER_START("[Level] Tick Current");
-
-			// Update current level.
-			if (m_activeLevelExists)
-				m_currentLevel->Tick(m_isInPlayMode, deltaTime);
-
-			//	LINA_TIMER_STOP("[Level] Tick Current");
-
-			//	LINA_TIMER_START("[Core] Main Pipeline");
-
-			m_mainECSPipeline.UpdateSystems(deltaTime);
-
-			//	LINA_TIMER_STOP("[Core] Main Pipeline");
-
-			//	accumulator += deltaTime;
-
-			//while (accumulator >= PHYSICS_DELTA)
-			//{
-			////	LINA_TIMER_START("[Physics] Engine");
-			//	s_physicsEngine->Tick(PHYSICS_DELTA);
-			//	LINA_TIMER_STOP("[Physics] Engine");
-			//	accumulator -= PHYSICS_DELTA;
-			//}
-
-			//	LINA_TIMER_START("[Graphics] Render");
-
-				// Update layers.
-			for (Layer* layer : m_mainLayerStack)
-				layer->PostTick(deltaTime);
-
-			if (m_isInPlayMode)
-			{
-
-				// Update layers.
-				for (Layer* layer : m_playModeStack)
-					layer->PostTick(deltaTime);
-
-			}
-
-			// Update current level.
-			if (m_activeLevelExists)
-				m_currentLevel->PostTick(m_isInPlayMode, deltaTime);
-
-			if (m_canRender)
-			{
-				// render level.
-				if (m_activeLevelExists)
-					s_renderEngine->Render();
-
-				s_renderEngine->RenderLayers();
-				s_renderEngine->Swap();
-			}
-
-
-
+			LINA_TIMER_START("RENDER MS");
+			DisplayGame(1.0f);
+			LINA_TIMER_STOP("RENDER MS");
+			m_renderTime = LinaEngine::Timer::GetTimer("RENDER MS").GetDuration();
 			frames++;
 
-			if (now > lastFPSTime + 1.0) {
-				lastFPSTime = now;
+			double now = GetTime();
+			// Calculate FPS, UPS.
+			if (now - totalFPSTime >= 1.0)
+			{
+				m_frameTime = m_rawDeltaTime * 1000;
 				m_currentFPS = frames;
 				m_currentUPS = updates;
-				updates = 0;
+				totalFPSTime += 1.0;
 				frames = 0;
+				updates = 0;
 			}
-
 
 			if (m_firstRun)
 				m_firstRun = false;
-
-
 		}
 
 		Timer::UnloadTimers();
+	}
+
+
+	void Application::UpdateGame(float deltaTime)
+	{
+		
+		// Tick physics (fixed)
+		s_physicsEngine->Tick(0.02);
+
+		// Main layers.
+		for (Layer* layer : m_mainLayerStack)
+			layer->Tick(deltaTime);
+
+		// Game layers.
+		if (m_isInPlayMode)
+		{
+			for (Layer* layer : m_playModeStack)
+				layer->Tick(deltaTime);
+		}
+
+		// Level
+		if (m_activeLevelExists)
+			m_currentLevel->Tick(m_isInPlayMode, deltaTime);
+
+		// Other main systems (engine or game)
+		m_mainECSPipeline.UpdateSystems(deltaTime);
+
+		// Animation, particle systems.
+		s_renderEngine->Tick(deltaTime);
+
+
+		// Main layers post.
+		for (Layer* layer : m_mainLayerStack)
+			layer->PostTick(deltaTime);
+
+		// Game layers post.
+		if (m_isInPlayMode)
+		{
+			for (Layer* layer : m_playModeStack)
+				layer->PostTick(deltaTime);
+		}
+
+		// Level post.
+		if (m_activeLevelExists)
+			m_currentLevel->PostTick(m_isInPlayMode, deltaTime);
+	}
+
+	void Application::DisplayGame(float interpolation)
+	{
+		if (m_canRender)
+		{
+			// render level.
+			if (m_activeLevelExists)
+				s_renderEngine->Render(interpolation);
+
+			s_renderEngine->RenderLayers();
+			s_appWindow->Tick();
+		}
 	}
 
 	bool Application::OnWindowClose()

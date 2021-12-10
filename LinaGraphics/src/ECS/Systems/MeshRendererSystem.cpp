@@ -60,14 +60,15 @@ namespace LinaEngine::ECS
 			if (!Graphics::Material::MaterialExists(renderer.m_materialID)) continue;
 
 			Graphics::Material& mat = LinaEngine::Graphics::Material::GetMaterial(renderer.m_materialID);
+			Matrix finalMatrix = data.ToMatrix();
 
 			if (mat.GetSurfaceType() == Graphics::MaterialSurfaceType::Opaque)
-				RenderOpaque(mesh.GetVertexArray(), model.GetSkeleton(), mat, data.ToMatrix());
+				RenderOpaque(mesh.GetVertexArray(), model.GetSkeleton(), mat, finalMatrix);
 			else
 			{
 				// Transparent queue is a priority queue unlike the opaque one, so we set the priority as distance to the camera.
 				float priority = (m_renderEngine->GetCameraSystem()->GetCameraLocation() - data.GetLocation()).MagnitudeSqrt();
-				RenderTransparent(mesh.GetVertexArray(), model.GetSkeleton(), mat, data.ToMatrix(), priority);
+				RenderTransparent(mesh.GetVertexArray(), model.GetSkeleton(), mat, finalMatrix, priority);
 
 			}
 
@@ -97,7 +98,6 @@ namespace LinaEngine::ECS
 
 		}
 
-
 	}
 
 	void MeshRendererSystem::RenderTransparent(Graphics::VertexArray& vertexArray, LinaEngine::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn, float priority)
@@ -116,8 +116,6 @@ namespace LinaEngine::ECS
 		{
 
 		}
-
-
 	}
 
 	void MeshRendererSystem::FlushOpaque(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial, bool completeFlush)
@@ -139,7 +137,7 @@ namespace LinaEngine::ECS
 			// Get the material for drawing, object's own material or overriden material.
 			Graphics::Material* mat = overrideMaterial == nullptr ? drawData.m_material : overrideMaterial;
 
-			// Draw call.
+
 			// Update the buffer w/ each transform.
 			vertexArray->UpdateBuffer(7, models, numTransforms * sizeof(Matrix));
 
@@ -149,16 +147,7 @@ namespace LinaEngine::ECS
 				mat->SetBool(UF_BOOL_SKINNED, true);
 
 			for (int i = 0; i < modelData.m_boneTransformations.size(); i++)
-			{
 				mat->SetMatrix4(std::string(UF_BONE_MATRICES) + "[" + std::to_string(i) + "]", modelData.m_boneTransformations[i]);
-
-				/**LINA_CORE_TRACE("Local {0} {1} {2}",
-					 modelData.m_boneTransformations[0].GetTranslation().x,
-					 modelData.m_boneTransformations[0].GetTranslation().y,
-					 modelData.m_boneTransformations[0].GetTranslation().z
-				);*/
-
-			}
 
 			m_renderEngine->UpdateShaderData(mat);
 			s_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);

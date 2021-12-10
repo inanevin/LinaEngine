@@ -69,6 +69,12 @@ namespace LinaEngine::ECS
 
 		Matrix ToMatrix() { return m_transform.ToMatrix(); }
 
+		void AddRotation(const Vector3& angles);
+		void AddLocaRotation(const Vector3& angles);
+		void AddLocation(const Vector3& loc);
+		void AddLocalLocation(const Vector3& loc);
+
+		Transformation GetInterpolated(float interpolation);
 		void SetLocalLocation(const Vector3& loc);
 		void SetLocation(const Vector3& loc);
 		void SetLocalRotation(const Quaternion& rot, bool isThisPivot = true);

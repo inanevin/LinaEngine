@@ -44,12 +44,14 @@ Timestamp: 4/14/2019 7:46:20 PM
 #include "Actions/ActionDispatcher.hpp"
 #include "InputDevice.hpp"
 #include "InputAxisBinder.hpp"
+#include "ECS/Systems/FreeLookSystem.hpp"
 
 namespace LinaEngine
 {
 	namespace ECS
 	{
 		class ECSRegistry;
+		class ECSSystemList;
 	}
 }
 
@@ -64,7 +66,7 @@ namespace LinaEngine::Input
 		virtual ~InputEngine() {};
 
 		// Initialize the engine, sets the dispatcher references & initializes axes.
-		void Initialize(LinaEngine::ECS::ECSRegistry& reg, void* contextWindowPointer, InputDevice* inputDevice);
+		void Initialize(LinaEngine::ECS::ECSRegistry& reg, LinaEngine::ECS::ECSSystemList& mainPipeline, void* contextWindowPointer, InputDevice* inputDevice);
 
 		void Tick() { m_inputDevice->Tick(); }
 
@@ -119,6 +121,7 @@ namespace LinaEngine::Input
 		InputKeyAxisBinder m_horizontalKeyAxis;
 		InputKeyAxisBinder m_verticalKeyAxis;
 
+		LinaEngine::ECS::FreeLookSystem m_freelookSystem;
 		static Action::ActionDispatcher s_inputDispatcher;
 		InputDevice* m_inputDevice = nullptr;
 

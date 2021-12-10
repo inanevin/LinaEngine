@@ -49,7 +49,6 @@ namespace LinaEngine::Audio
 		~AudioEngine();
 
 		void Initialize();	
-		void Tick(float delta);
 	};
 }
 
