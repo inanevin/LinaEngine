@@ -50,9 +50,11 @@ namespace Lina::World
 	{
 		if (loadFromFile)
 		{
-			if (Lina::Utility::FileExists(path + "/" + levelName + ".linaleveldata"))
+			if (Lina::Utility::FileExists(path + "/" + levelName + ".linalevel"))
 			{
 				DeserializeLevelData(path, levelName);
+				LoadLevelResources();
+
 			}
 		}
 		return true;
@@ -64,6 +66,7 @@ namespace Lina::World
 
 		auto view = ecs.view<ECS::ModelRendererComponent>();
 		LINA_TRACE("Loading Level Resources...");
+
 		for (ECS::Entity entity : view)
 		{
 			ECS::ModelRendererComponent& mr = view.get<ECS::ModelRendererComponent>(entity);
@@ -182,18 +185,12 @@ namespace Lina::World
 		Lina::ECS::Registry& registry = Lina::Application::GetECSRegistry();
 		{
 
-			std::ofstream registrySnapshotStream(path + "/" + levelName, std::ios::binary);
+			std::ofstream levelDataStream(path + "/" + levelName + ".linalevel", std::ios::binary);
 			{
-				cereal::PortableBinaryOutputArchive oarchive(registrySnapshotStream); // Build an output archive
-				Lina::Application::GetApp().SerializeRegistry(registry, oarchive);
-			}
-		}
-
-		{
-			std::ofstream levelDataStream(path + "/" + levelName + ".linaleveldata", std::ios::binary);
-			{
-				cereal::BinaryOutputArchive oarchive(levelDataStream); // Build an output archive
-				oarchive(m_levelData); // Write the data to the archive
+				cereal::PortableBinaryOutputArchive oarchive(levelDataStream); // Build an output archive
+				//
+				oarchive(m_levelData); // write the level data to the archive.
+				registry.SerializeComponentsInRegistry(oarchive);
 			}
 		}
 	}
@@ -203,26 +200,16 @@ namespace Lina::World
 		Lina::ECS::Registry& registry = Lina::Application::GetECSRegistry();
 
 		{
-			std::ifstream levelDataStream(path + "/" + levelName + ".linaleveldata", std::ios::binary);
+			std::ifstream levelDataStream(path + "/" + levelName + ".linalevel", std::ios::binary);
 			{
-				cereal::BinaryInputArchive iarchive(levelDataStream);
+				cereal::PortableBinaryInputArchive iarchive(levelDataStream);
 
 				// Read the data into it.
 				iarchive(m_levelData);
 
+				registry.clear();
+				registry.DeserializeComponentsInRegistry(iarchive);
 			}
 		}
-
-		registry.clear();
-		{
-			std::ifstream regSnapshotStream(path + "/" + levelName, std::ios::binary);
-			{
-				cereal::PortableBinaryInputArchive iarchive(regSnapshotStream);
-				Lina::Application::GetApp().DeserializeRegistry(registry, iarchive);
-			}
-		}
-
-		LoadLevelResources();
-
 	}
 }

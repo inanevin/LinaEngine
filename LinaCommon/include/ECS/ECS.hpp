@@ -61,8 +61,6 @@ namespace Lina::ECS
 {
 	typedef entt::entity Entity;
 	typedef entt::id_type TypeID;
-	typedef entt::snapshot Snapshot;
-	typedef entt::continuous_loader SnapshotLoader;
 	typedef entt::delegate<void(entt::snapshot&, cereal::PortableBinaryOutputArchive&)> ComponentSerializeFunction;
 	typedef entt::delegate<void(entt::snapshot_loader&, cereal::PortableBinaryInputArchive&)> ComponentDeserializeFunction;
 

@@ -97,10 +97,6 @@ namespace Lina
 		void LoadLevelData(const std::string& folderPath, const std::string& fileName);
 		void RestartLevel();
 
-		// Serialization functions for ecs registry.
-		virtual void SerializeRegistry(Lina::ECS::Registry& registry, cereal::PortableBinaryOutputArchive& oarchive) = 0;
-		virtual void DeserializeRegistry(Lina::ECS::Registry& registry, cereal::PortableBinaryInputArchive& iarchive) = 0;
-
 		// Unloads a level from memory.
 		void UninstallLevel();
 

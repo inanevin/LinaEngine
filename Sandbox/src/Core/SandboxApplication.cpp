@@ -93,45 +93,6 @@ private:
 	ClientComponentDrawer m_componentDrawer;
 	GameManager m_gameManager;
 
-	// Inherited via Application
-	virtual void SerializeRegistry(Lina::ECS::Registry& registry, cereal::PortableBinaryOutputArchive& oarchive) override
-	{
-		//ECS::Snapshot(registry).entities(oarchive);
-		registry.SerializeComponentsInRegistry( oarchive);
-		//auto& snapshot = entt::snapshot{ registry };
-		//snapshot.entities(oarchive);
-		//
-		//snapshot.component<Lina::ECS::EntityDataComponent>(oarchive);
-		//snapshot.component<Lina::ECS::CameraComponent >(oarchive);
-		//snapshot.component<Lina::ECS::FreeLookComponent >(oarchive);
-		//snapshot.component<Lina::ECS::PointLightComponent >(oarchive);
-		//snapshot.component<Lina::ECS::DirectionalLightComponent >(oarchive);
-		//snapshot.component<Lina::ECS::SpotLightComponent >(oarchive);
-		//snapshot.component<Lina::ECS::RigidbodyComponent >(oarchive);
-		//snapshot.component<Lina::ECS::MeshRendererComponent >(oarchive);
-		//snapshot.component<Lina::ECS::SpriteRendererComponent >(oarchive);
-		//snapshot.component<Lina::ECS::ModelRendererComponent >(oarchive);
-	}
-
-	virtual void DeserializeRegistry(Lina::ECS::Registry& registry, cereal::PortableBinaryInputArchive& iarchive) override
-	{
-		registry.DeserializeComponentsInRegistry(iarchive);
-		//auto& loader = entt::snapshot_loader{ registry };
-		//
-		//loader.entities(iarchive);
-		//
-		//loader.component<Lina::ECS::EntityDataComponent>(iarchive);
-		//loader.component<Lina::ECS::CameraComponent >(iarchive);
-		//loader.component<Lina::ECS::FreeLookComponent >(iarchive);
-		//loader.component<Lina::ECS::PointLightComponent >(iarchive);
-		//loader.component<Lina::ECS::DirectionalLightComponent >(iarchive);
-		//loader.component<Lina::ECS::SpotLightComponent >(iarchive);
-		//loader.component<Lina::ECS::RigidbodyComponent >(iarchive);
-		//loader.component<Lina::ECS::MeshRendererComponent >(iarchive);
-		//loader.component<Lina::ECS::SpriteRendererComponent >(iarchive);
-		//loader.component<Lina::ECS::ModelRendererComponent >(iarchive);
-	}
-
 };
 
 Lina::Application* Lina::CreateApplication()
