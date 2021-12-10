@@ -74,13 +74,13 @@ namespace Lina::Graphics
 
 		//int32 Get(int32 x, int32 y) const
 		//{
-		//	LINA_CORE_ASSERT((x > 0 && x < m_width) && (y >= 0 && y < m_heigth), "Conditions are not map on array bitmap !");
+		//	LINA_ASSERT((x > 0 && x < m_width) && (y >= 0 && y < m_heigth), "Conditions are not map on array bitmap !");
 		//	return m_pixels[x + y * m_width];
 		//};
 		//
 		//void Set(int32 x, int32 y, int32 pixel)
 		//{
-		//	LINA_CORE_ASSERT((x > 0 && x < m_width) && (y >= 0 && y < m_heigth), "Conditions are not map on array bitmap !");
+		//	LINA_ASSERT((x > 0 && x < m_width) && (y >= 0 && y < m_heigth), "Conditions are not map on array bitmap !");
 		//	m_pixels[x + y * m_width] = pixel;
 		//};
 

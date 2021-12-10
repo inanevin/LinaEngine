@@ -48,7 +48,7 @@ namespace Lina::ECS
 		ModelRendererComponent* modelRendererInEntity = reg.try_get<ModelRendererComponent>(parent);
 		if (this != modelRendererInEntity)
 		{
-			LINA_CORE_ERR("You have to pass the same entity that this model component is attached to in order to set the model data. {0}", model.GetPath());
+			LINA_ERR("You have to pass the same entity that this model component is attached to in order to set the model data. {0}", model.GetPath());
 			return;
 		}
 
@@ -72,7 +72,7 @@ namespace Lina::ECS
 		ModelRendererComponent* modelRendererInEntity = reg.try_get<ModelRendererComponent>(parent);
 		if (this != modelRendererInEntity)
 		{
-			LINA_CORE_ERR("You have to pass the same entity that this model component is attached to in order to remove the model data.");
+			LINA_ERR("You have to pass the same entity that this model component is attached to in order to remove the model data.");
 			return;
 		}
 		// Make sure children hierarchy of the entity that this component is attached is empty.
@@ -89,7 +89,7 @@ namespace Lina::ECS
 		ModelRendererComponent* modelRendererInEntity = reg.try_get<ModelRendererComponent>(parent);
 		if (this != modelRendererInEntity)
 		{
-			LINA_CORE_ERR("You have to pass the same entity that this model component is attached to in order to set the material data. {0}", material.GetPath());
+			LINA_ERR("You have to pass the same entity that this model component is attached to in order to set the material data. {0}", material.GetPath());
 			return;
 		}
 
@@ -121,7 +121,7 @@ namespace Lina::ECS
 		ModelRendererComponent* modelRendererInEntity = reg.try_get<ModelRendererComponent>(parent);
 		if (this != modelRendererInEntity)
 		{
-			LINA_CORE_ERR("You have to pass the same entity that this model component is attached to in order to remove the material data. {0}", materialIndex);
+			LINA_ERR("You have to pass the same entity that this model component is attached to in order to remove the material data. {0}", materialIndex);
 			return;
 		}
 

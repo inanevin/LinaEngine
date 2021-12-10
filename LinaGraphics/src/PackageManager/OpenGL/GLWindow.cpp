@@ -36,13 +36,13 @@ namespace Lina::Graphics
 {
 	GLWindow::GLWindow()
 	{
-		LINA_CORE_TRACE("[Constructor] -> GLWindow ({0})", typeid(*this).name());
+		LINA_TRACE("[Constructor] -> GLWindow ({0})", typeid(*this).name());
 	
 	}
 
 	GLWindow::~GLWindow()
 	{
-		LINA_CORE_TRACE("[Destructor] -> GLWindow ({0})", typeid(*this).name());
+		LINA_TRACE("[Destructor] -> GLWindow ({0})", typeid(*this).name());
 		glfwTerminate();
 	}
 
@@ -64,12 +64,12 @@ namespace Lina::Graphics
 
 	static void GLFWErrorCallback(int error, const char* desc)
 	{
-		LINA_CORE_ERR("GLFW Error: {0} Description: {1} ", error, desc);
+		LINA_ERR("GLFW Error: {0} Description: {1} ", error, desc);
 	}
 
 	bool GLWindow::CreateContext(WindowProperties propsIn)
 	{
-		LINA_CORE_TRACE("[Initialization] -> GLWindow ({0})", typeid(*this).name());
+		LINA_TRACE("[Initialization] -> GLWindow ({0})", typeid(*this).name());
 
 		
 		// Set props.
@@ -105,7 +105,7 @@ namespace Lina::Graphics
 		if (!m_glfwWindow)
 		{
 			// Assert window creation.
-			LINA_CORE_ERR("GLFW could not initialize!");
+			LINA_ERR("GLFW could not initialize!");
 			return false;
 		}
 		// Set error callback
@@ -117,7 +117,7 @@ namespace Lina::Graphics
 		bool loaded = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		if (!loaded)
 		{
-			LINA_CORE_ERR("GLAD Loader failed!");
+			LINA_ERR("GLAD Loader failed!");
 			return false;
 		}
 

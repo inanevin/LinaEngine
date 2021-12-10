@@ -118,7 +118,7 @@ namespace Lina::Editor
 		/*	Deletes the file if exists */
 		if (std::rename(oldPathStr.c_str(), newPathStr.c_str()) != 0)
 		{
-			LINA_CORE_ERR("Can not rename file! Folder Path: {0}, Old Name: {1}, New Name: {2}", folderPath, oldName, newName);
+			LINA_ERR("Can not rename file! Folder Path: {0}, Old Name: {1}, New Name: {2}", folderPath, oldName, newName);
 			return false;
 		}
 		

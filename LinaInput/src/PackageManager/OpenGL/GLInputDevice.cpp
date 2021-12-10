@@ -40,17 +40,17 @@ namespace Lina::Input
 
 	GLInputDevice::GLInputDevice()
 	{
-		LINA_CORE_TRACE("[Constructor] -> GLInputDevice ({0})", typeid(*this).name());
+		LINA_TRACE("[Constructor] -> GLInputDevice ({0})", typeid(*this).name());
 	}
 
 	GLInputDevice::~GLInputDevice()
 	{
-		LINA_CORE_TRACE("[Destructor] -> GLInputDevice ({0})", typeid(*this).name());
+		LINA_TRACE("[Destructor] -> GLInputDevice ({0})", typeid(*this).name());
 	}
 
 	void GLInputDevice::Initialize(void* contextWindowPointer)
 	{
-		LINA_CORE_TRACE("[Initialization] -> GLInputDevice ({0})", typeid(*this).name());
+		LINA_TRACE("[Initialization] -> GLInputDevice ({0})", typeid(*this).name());
 		glfwWindow = static_cast<GLFWwindow*>(contextWindowPointer);
 	}
 

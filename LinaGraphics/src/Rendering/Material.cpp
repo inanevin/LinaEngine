@@ -97,7 +97,7 @@ namespace Lina::Graphics
 		}
 		else
 		{
-			LINA_CORE_ERR("This material doesn't support texture slot with the name {0}, returning...", textureName);
+			LINA_ERR("This material doesn't support texture slot with the name {0}, returning...", textureName);
 			return;
 		}
 	}
@@ -110,7 +110,7 @@ namespace Lina::Graphics
 		}
 		else
 		{
-			LINA_CORE_ERR("This material doesn't support texture slot with the name {0}, returning...", textureName);
+			LINA_ERR("This material doesn't support texture slot with the name {0}, returning...", textureName);
 			return;
 		}
 	}
@@ -120,7 +120,7 @@ namespace Lina::Graphics
 			return *m_sampler2Ds[name].m_boundTexture;
 		else
 		{
-			LINA_CORE_WARN("This material doesn't support texture slot with the name {0}, returning empty texture", name);
+			LINA_WARN("This material doesn't support texture slot with the name {0}, returning empty texture", name);
 			return Texture();
 		}
 	}
@@ -224,7 +224,7 @@ namespace Lina::Graphics
 		if (!MaterialExists(id))
 		{
 			// Mesh not found.
-			LINA_CORE_WARN("Material with the id {0} was not found, returning default material...", id);
+			LINA_WARN("Material with the id {0} was not found, returning default material...", id);
 			return RenderEngine::GetDefaultUnlitMaterial();
 		}
 
@@ -239,7 +239,7 @@ namespace Lina::Graphics
 		if (it == s_loadedMaterials.end())
 		{
 			// Mesh not found.
-			LINA_CORE_WARN("Material with the path {0} was not found, returning un-constructed material...", path);
+			LINA_WARN("Material with the path {0} was not found, returning un-constructed material...", path);
 			return Material();
 		}
 
@@ -322,7 +322,7 @@ namespace Lina::Graphics
 	{
 		if (!MaterialExists(id))
 		{
-			LINA_CORE_WARN("Material not found! Aborting... ");
+			LINA_WARN("Material not found! Aborting... ");
 			return;
 		}
 

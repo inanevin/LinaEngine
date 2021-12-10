@@ -59,7 +59,7 @@ namespace Lina::Graphics
 
 		if (model.GetMeshes().size() == 0)
 		{
-			LINA_CORE_WARN("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad...", filePath);
+			LINA_WARN("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad...", filePath);
 			UnloadModel(id);
 			return GetPrimitive(Primitives::Plane);
 		}
@@ -75,7 +75,7 @@ namespace Lina::Graphics
 		model.m_path = filePath;
 		model.m_paramsPath = paramsPath;
 
-		LINA_CORE_TRACE("Mesh created. {0}", filePath);
+		LINA_TRACE("Mesh created. {0}", filePath);
 		return s_loadedMeshes[id];
 	}
 
@@ -84,7 +84,7 @@ namespace Lina::Graphics
 		if (!ModelExists(id))
 		{
 			// Mesh not found.
-			LINA_CORE_WARN("Mesh with the id {0} was not found, returning un-constructed mesh...", id);
+			LINA_WARN("Mesh with the id {0} was not found, returning un-constructed mesh...", id);
 			return Model();
 		}
 
@@ -99,7 +99,7 @@ namespace Lina::Graphics
 		if (it == s_loadedMeshes.end())
 		{
 			// Mesh not found.
-			LINA_CORE_WARN("Mesh with the path {0} was not found, returning un-constructed mesh...", path);
+			LINA_WARN("Mesh with the path {0} was not found, returning un-constructed mesh...", path);
 			return Model();
 		}
 
@@ -123,7 +123,7 @@ namespace Lina::Graphics
 	{
 		if (!ModelExists(id))
 		{
-			LINA_CORE_WARN("Mesh not found! Aborting... ");
+			LINA_WARN("Mesh not found! Aborting... ");
 			return;
 		}
 
@@ -135,7 +135,7 @@ namespace Lina::Graphics
 		if (!ModelExists(primitive))
 		{
 			// VA not found.
-			LINA_CORE_WARN("Primitive with the ID {0} was not found, returning plane...", primitive);
+			LINA_WARN("Primitive with the ID {0} was not found, returning plane...", primitive);
 			return GetPrimitive(Primitives::Plane);
 		}
 		else

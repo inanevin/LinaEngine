@@ -38,12 +38,12 @@ namespace Lina::Physics
 {
 	PhysicsEngine::PhysicsEngine()
 	{
-		LINA_CORE_TRACE("[Constructor] -> Physics Engine ({0})", typeid(*this).name());
+		LINA_TRACE("[Constructor] -> Physics Engine ({0})", typeid(*this).name());
 	}
 
 	PhysicsEngine::~PhysicsEngine()
 	{
-		LINA_CORE_TRACE("[Destructor] -> Physics Engine ({0})", typeid(*this).name());
+		LINA_TRACE("[Destructor] -> Physics Engine ({0})", typeid(*this).name());
 
 		// Remove collision shapes.
 		for (std::map<int, btRigidBody*>::iterator it = s_bodies.begin(); it != s_bodies.end(); ++it)
@@ -76,7 +76,7 @@ namespace Lina::Physics
 
 	void PhysicsEngine::Initialize(Lina::ECS::ECSRegistry& ecsReg, std::function<void(Vector3,Vector3,Color,float)>& cb)
 	{
-		LINA_CORE_TRACE("[Initialization] -> Physics Engine ({0})", typeid(*this).name());
+		LINA_TRACE("[Initialization] -> Physics Engine ({0})", typeid(*this).name());
 
 		// Register components.
 		ecsReg.RegisterComponentToClone<Lina::ECS::RigidbodyComponent>();

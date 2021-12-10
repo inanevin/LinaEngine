@@ -63,7 +63,7 @@ namespace Lina::Graphics
 
 	RenderEngine::RenderEngine()
 	{
-		LINA_CORE_TRACE("[Constructor] -> RenderEngine ({0})", typeid(*this).name());
+		LINA_TRACE("[Constructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
 
 	RenderEngine::~RenderEngine()
@@ -77,7 +77,7 @@ namespace Lina::Graphics
 		m_hdriCubeVAO = s_renderDevice.ReleaseVertexArray(m_hdriCubeVAO);
 		m_lineVAO = s_renderDevice.ReleaseVertexArray(m_lineVAO);
 
-		LINA_CORE_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
+		LINA_TRACE("[Destructor] -> RenderEngine ({0})", typeid(*this).name());
 	}
 
 	void RenderEngine::Initialize(Lina::ECS::ECSRegistry& ecsReg, Window& appWindow)
@@ -331,11 +331,11 @@ namespace Lina::Graphics
 
 		for (std::map<int, Shader*>::iterator it = loadedShaders.begin(); it != loadedShaders.end(); ++it)
 		{
-			LINA_CORE_TRACE("Validating {0}", it->second->GetPath());
+			LINA_TRACE("Validating {0}", it->second->GetPath());
 			bool success = s_renderDevice.ValidateShaderProgram(it->second->GetID());
 
 			if (!success)
-				LINA_CORE_TRACE("Failed validation");
+				LINA_TRACE("Failed validation");
 
 			validated |= success;
 		}
@@ -1052,13 +1052,13 @@ namespace Lina::Graphics
 	{
 		if (mat == nullptr)
 		{
-			LINA_CORE_WARN("Material to set HDRI data is null, returning...");
+			LINA_WARN("Material to set HDRI data is null, returning...");
 			return;
 		}
 
 		if (!m_hdriDataCaptured)
 		{
-			LINA_CORE_WARN("HDRI data is not captured, please capture it first then set the material's data.");
+			LINA_WARN("HDRI data is not captured, please capture it first then set the material's data.");
 			return;
 		}
 
@@ -1071,7 +1071,7 @@ namespace Lina::Graphics
 	{
 		if (mat == nullptr)
 		{
-			LINA_CORE_WARN("Material to remove HDRI data from is null, returning...");
+			LINA_WARN("Material to remove HDRI data from is null, returning...");
 			return;
 		}
 

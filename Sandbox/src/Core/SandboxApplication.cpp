@@ -41,7 +41,7 @@ public:
 
 	SandboxApplication()
 	{
-		LINA_CLIENT_TRACE("[Constructor] -> Sandbox Application ({0})", typeid(*this).name());
+		LINA_TRACE("[Constructor] -> Sandbox Application ({0})", typeid(*this).name());
 
 		// Init engine.
 		Lina::Graphics::WindowProperties props;
@@ -82,7 +82,7 @@ public:
 
 	~SandboxApplication()
 	{
-		LINA_CLIENT_TRACE("[Destructor] -> Sandbox Application ({0})", typeid(*this).name());
+		LINA_TRACE("[Destructor] -> Sandbox Application ({0})", typeid(*this).name());
 	}
 
 private:

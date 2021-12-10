@@ -192,7 +192,7 @@ namespace Lina::Graphics
 
 	GLRenderDevice::GLRenderDevice()
 	{
-		LINA_CORE_TRACE("[Constructor] -> GLRenderDevice ({0})", typeid(*this).name());
+		LINA_TRACE("[Constructor] -> GLRenderDevice ({0})", typeid(*this).name());
 		m_GLVersion = m_boundFBO = m_boundVAO = m_boundShader = m_viewportFBO = 0;
 	}
 
@@ -206,7 +206,7 @@ namespace Lina::Graphics
 	{
 		const GLubyte* vendor = glGetString(GL_VENDOR); // Returns the vendor
 		const GLubyte* renderer = glGetString(GL_RENDERER); // Returns a hint to the model
-		LINA_CORE_TRACE("Graphics Information: {0}, {1}", vendor, renderer);
+		LINA_TRACE("Graphics Information: {0}, {1}", vendor, renderer);
 
 		m_isStencilTestEnabled = defaultParams.useStencilTest;
 		m_isDepthTestEnabled = defaultParams.useDepthTest;
@@ -768,7 +768,7 @@ namespace Lina::Graphics
 
 		if (shaderProgram == 0)
 		{
-			LINA_CORE_ERR("Error creating shader program!");
+			LINA_ERR("Error creating shader program!");
 			return (uint32)-1;
 		}
 
@@ -876,7 +876,7 @@ namespace Lina::Graphics
 
 		// Err check
 		if (errorCheck && glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			LINA_CORE_ERR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
+			LINA_ERR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
 
 		SetFBO(0);
 		return fbo;
@@ -996,7 +996,7 @@ namespace Lina::Graphics
 		SetFBO(fbo);
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{
-			LINA_CORE_ERR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
+			LINA_ERR("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
 			SetFBO(0);
 			return false;
 		}
@@ -1591,7 +1591,7 @@ namespace Lina::Graphics
 		{
 			int32 majorVersion = version / 100;
 			int32 minorVersion = (version / 10) % 10;
-			LINA_CORE_ERR("Error: OpenGL Version {0}.{1} does not support shaders.\n", majorVersion, minorVersion);
+			LINA_ERR("Error: OpenGL Version {0}.{1} does not support shaders.\n", majorVersion, minorVersion);
 			return "";
 		}
 
@@ -1637,7 +1637,7 @@ namespace Lina::Graphics
 		case PixelFormat::FORMAT_RGBA16F: return GL_RGBA;
 		case PixelFormat::FORMAT_RGB16F: return GL_RGBA;
 		default:
-			LINA_CORE_ERR("PixelFormat {0} is not a valid PixelFormat.", format);
+			LINA_ERR("PixelFormat {0} is not a valid PixelFormat.", format);
 			return 0;
 		};
 	}
@@ -1664,7 +1664,7 @@ namespace Lina::Graphics
 		case PixelFormat::FORMAT_RGBA16F: return GL_RGBA16F;
 		case PixelFormat::FORMAT_RGB16F: return GL_RGB16F;
 		default:
-			LINA_CORE_ERR("PixelFormat {0} is not a valid PixelFormat.", format);
+			LINA_ERR("PixelFormat {0} is not a valid PixelFormat.", format);
 			return 0;
 		};
 	}
@@ -1677,7 +1677,7 @@ namespace Lina::Graphics
 
 		if (shader == 0)
 		{
-			LINA_CORE_ERR("Error creating shader type {0}", type);
+			LINA_ERR("Error creating shader type {0}", type);
 			return false;
 		}
 
@@ -1698,7 +1698,7 @@ namespace Lina::Graphics
 		{
 			GLchar InfoLog[1024];
 			glGetShaderInfoLog(shader, 1024, NULL, InfoLog);
-			LINA_CORE_ERR("Error compiling shader type {0}: '{1}'\n", shader, InfoLog);
+			LINA_ERR("Error compiling shader type {0}: '{1}'\n", shader, InfoLog);
 			return false;
 		}
 
@@ -1727,7 +1727,7 @@ namespace Lina::Graphics
 			else
 				glGetShaderInfoLog(shader, sizeof(error), NULL, error);
 
-			LINA_CORE_ERR("{0}: '{1}'\n", errorMessage.c_str(), error);
+			LINA_ERR("{0}: '{1}'\n", errorMessage.c_str(), error);
 			return true;
 		}
 
@@ -1801,7 +1801,7 @@ namespace Lina::Graphics
 
 			/*if (type != GL_SAMPLER_2D)
 			{
-				LINA_CORE_ERR("Non-sampler2d uniforms currently unsupported!");
+				LINA_ERR("Non-sampler2d uniforms currently unsupported!");
 				continue;
 			}*/
 

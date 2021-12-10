@@ -45,7 +45,7 @@ namespace Lina::Graphics
 
     bool Skeleton::LoadSkeleton(const std::string& skelPath)
     {
-        LINA_CORE_TRACE("Loading skeleton archive: {0}", skelPath);
+        LINA_TRACE("Loading skeleton archive: {0}", skelPath);
 
         return true;
     }

@@ -43,7 +43,7 @@ bool Example1Level::Install(bool loadFromFile, const std::string& path, const st
 
 void Example1Level::Initialize()
 {
-	LINA_CLIENT_TRACE("Example1Level initialized. Implement your logic for instantiating entities, players, assigning cameras etc. from now on.");
+	LINA_TRACE("Example1Level initialized. Implement your logic for instantiating entities, players, assigning cameras etc. from now on.");
 
 	// auto& reg = Application::GetECSRegistry();
 	// auto entity = reg.CreateEntity("Test");

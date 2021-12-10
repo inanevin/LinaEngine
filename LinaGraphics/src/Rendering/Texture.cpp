@@ -63,7 +63,7 @@ namespace Lina::Graphics
 	{
 		if (data.size() != 6)
 		{
-			LINA_CORE_WARN("Could not construct cubemap texture! ArrayBitmap data size needs to be 6, returning un-constructed texture...");
+			LINA_WARN("Could not construct cubemap texture! ArrayBitmap data size needs to be 6, returning un-constructed texture...");
 			return Texture();
 		}
 
@@ -202,7 +202,7 @@ namespace Lina::Graphics
 		int nrComponents = textureBitmap->Load(filePath);
 		if (nrComponents == -1)
 		{
-			LINA_CORE_WARN("Texture with the path {0} doesn't exist, returning empty texture", filePath);
+			LINA_WARN("Texture with the path {0} doesn't exist, returning empty texture", filePath);
 			delete textureBitmap;
 			return RenderEngine::GetDefaultTexture();
 		}
@@ -229,7 +229,7 @@ namespace Lina::Graphics
 		// Delete pixel data.
 		delete textureBitmap;
 
-		LINA_CORE_TRACE("Texture created. {0}", filePath);
+		LINA_TRACE("Texture created. {0}", filePath);
 
 		// Return
 		return *s_loadedTextures[texture->GetID()];
@@ -244,7 +244,7 @@ namespace Lina::Graphics
 
 		if (!data)
 		{
-			LINA_CORE_WARN("Texture with the path {0} doesn't exist, returning empty texture", filePath);
+			LINA_WARN("Texture with the path {0} doesn't exist, returning empty texture", filePath);
 			return RenderEngine::GetDefaultTexture();
 		}
 
@@ -269,7 +269,7 @@ namespace Lina::Graphics
 		if (!TextureExists(id))
 		{
 			// Mesh not found.
-			LINA_CORE_WARN("Texture with the id {0} was not found, returning un-constructed texture...", id);
+			LINA_WARN("Texture with the id {0} was not found, returning un-constructed texture...", id);
 			return Texture();
 		}
 
@@ -284,7 +284,7 @@ namespace Lina::Graphics
 		if (it == s_loadedTextures.end())
 		{
 			// Mesh not found.
-			LINA_CORE_WARN("Texture with the path {0} was not found, returning un-constructed texture...", path);
+			LINA_WARN("Texture with the path {0} was not found, returning un-constructed texture...", path);
 			return Texture();
 		}
 
@@ -295,7 +295,7 @@ namespace Lina::Graphics
 	{
 		if (!TextureExists(id))
 		{
-			LINA_CORE_WARN("Texture not found! Aborting... ");
+			LINA_WARN("Texture not found! Aborting... ");
 			return;
 		}
 

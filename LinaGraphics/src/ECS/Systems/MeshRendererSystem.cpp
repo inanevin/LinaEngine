@@ -165,7 +165,7 @@ namespace Lina::ECS
 	{
 		if (!Graphics::Model::ModelExists(mrc.m_modelID))
 		{
-			LINA_CORE_WARN("Mesh or material does not exists for this renderer, aborting single flush.");
+			LINA_WARN("Mesh or material does not exists for this renderer, aborting single flush.");
 			return;
 		}
 

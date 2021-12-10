@@ -64,7 +64,7 @@ namespace Lina::World
 		ECS::ECSRegistry& ecs = Application::GetECSRegistry();
 
 		auto view = ecs.view<ECS::ModelRendererComponent>();
-		LINA_CORE_TRACE("Loading Level Resources...");
+		LINA_TRACE("Loading Level Resources...");
 		for (ECS::ECSEntity entity : view)
 		{
 			ECS::ModelRendererComponent& mr = view.get<ECS::ModelRendererComponent>(entity);

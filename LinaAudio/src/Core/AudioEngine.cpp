@@ -36,18 +36,18 @@ namespace Lina::Audio
 {
 	AudioEngine::AudioEngine()
 	{
-		LINA_CORE_TRACE("[Constructor] -> Audio Engine ({0})", typeid(*this).name());
+		LINA_TRACE("[Constructor] -> Audio Engine ({0})", typeid(*this).name());
 	}
 
 	AudioEngine::~AudioEngine()
 	{
-		LINA_CORE_TRACE("[Destructor] -> Audio Engine ({0})", typeid(*this).name());
+		LINA_TRACE("[Destructor] -> Audio Engine ({0})", typeid(*this).name());
 
 	}
 
 	void AudioEngine::Initialize()
 	{
-		LINA_CORE_TRACE("[Initialization] -> Audio Engine ({0})", typeid(*this).name());
+		LINA_TRACE("[Initialization] -> Audio Engine ({0})", typeid(*this).name());
 
 	}
 }

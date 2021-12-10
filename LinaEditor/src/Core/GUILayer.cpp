@@ -64,12 +64,12 @@ namespace Lina::Editor
 
 	GUILayer::~GUILayer()
 	{
-		LINA_CLIENT_TRACE("[Destructor] -> GUI Layer ({0})", typeid(*this).name());
+		LINA_TRACE("[Destructor] -> GUI Layer ({0})", typeid(*this).name());
 	}
 
 	void GUILayer::Attach()
 	{
-		LINA_CLIENT_INFO("Editor GUI Layer Attached");
+		LINA_INFO("Editor GUI Layer Attached");
 
 		// Listen to menu bar clicked events.
 		EditorApplication::GetEditorDispatcher().SubscribeAction<MenuBarItems>("##linaeditor_menubarclicked", Lina::Action::ActionType::MenuItemClicked, std::bind(&GUILayer::DispatchMenuBarClickedAction, this, std::placeholders::_1));
@@ -200,7 +200,7 @@ namespace Lina::Editor
 
 	void GUILayer::Detach()
 	{
-		LINA_CLIENT_INFO("Editor GUI Layer Detached");
+		LINA_INFO("Editor GUI Layer Detached");
 
 		// Cleanup
 		ImGui_ImplOpenGL3_Shutdown();

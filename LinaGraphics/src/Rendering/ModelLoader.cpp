@@ -82,7 +82,7 @@ namespace Lina::Graphics
 
 		if (!scene)
 		{
-			LINA_CORE_ERR("Mesh loading failed! {0}", fileName.c_str());
+			LINA_ERR("Mesh loading failed! {0}", fileName.c_str());
 			return false;
 		}
 
@@ -176,7 +176,7 @@ namespace Lina::Graphics
 			for (uint32 i = 0; i < aiMesh->mNumFaces; i++)
 			{
 				const aiFace& face = aiMesh->mFaces[i];
-				LINA_CORE_ASSERT(face.mNumIndices == 3);
+				LINA_ASSERT(face.mNumIndices == 3);
 				currentMesh.AddIndices(face.mIndices[0], face.mIndices[1], face.mIndices[2]);
 			}
 

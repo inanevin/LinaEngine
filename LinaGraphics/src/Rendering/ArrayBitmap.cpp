@@ -49,7 +49,7 @@ namespace Lina::Graphics
 		m_pixels = stbi_load(fileName.c_str(), &texWidth, &texHeight, &nrComps, 4);
 
 		if (m_pixels == nullptr) {
-			LINA_CORE_ERR("Bitmap with the name {0} could not be loaded!", fileName);
+			LINA_ERR("Bitmap with the name {0} could not be loaded!", fileName);
 			return -1;
 		}
 

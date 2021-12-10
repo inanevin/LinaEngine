@@ -60,7 +60,7 @@ namespace Lina::Editor
 
 	HeaderPanel::~HeaderPanel()
 	{
-		LINA_CLIENT_TRACE("[Destructor] -> Header Panel ({0})", typeid(*this).name());
+		LINA_TRACE("[Destructor] -> Header Panel ({0})", typeid(*this).name());
 		for (int i = 0; i < m_menuBarButtons.size(); i++)
 			delete m_menuBarButtons[i];
 	}

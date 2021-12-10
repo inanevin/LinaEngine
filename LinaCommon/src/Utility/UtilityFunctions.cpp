@@ -163,7 +163,7 @@ namespace Lina
 			}
 			else
 			{
-				LINA_CORE_ERR("File could not be loaded! {0}", fileName);
+				LINA_ERR("File could not be loaded! {0}", fileName);
 				return false;
 			}
 

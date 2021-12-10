@@ -91,13 +91,13 @@ namespace Lina::Graphics
 
 			if (texture.IsCompressed())
 			{
-				LINA_CORE_TRACE("Compressed textures cannot be used as render targets!");
+				LINA_TRACE("Compressed textures cannot be used as render targets!");
 				throw std::invalid_argument("Compressed textures cannot be used as render targets!");
 			}
 
 			if (texture.HasMipmaps())
 			{
-				LINA_CORE_TRACE("Rendering to a texture with mipmaps will NOT render to all mipmap levels! Unexpected results may occur.");
+				LINA_TRACE("Rendering to a texture with mipmaps will NOT render to all mipmap levels! Unexpected results may occur.");
 			}
 		}
 

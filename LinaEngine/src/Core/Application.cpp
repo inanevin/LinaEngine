@@ -62,8 +62,8 @@ namespace Lina
 		// Make sure log event is delegated to the application.
 		Log::s_onLog = std::bind(&Application::OnLog, this, std::placeholders::_1);
 
-		LINA_CORE_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
-		LINA_CORE_ASSERT(!instance, "Application already exists!");
+		LINA_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
+		LINA_ASSERT(!instance, "Application already exists!");
 
 	}
 
@@ -81,7 +81,7 @@ namespace Lina
 		bool windowCreationSuccess = s_appWindow->CreateContext(props);
 		if (!windowCreationSuccess)
 		{
-			LINA_CORE_ERR("Window Creation Failed!");
+			LINA_ERR("Window Creation Failed!");
 			return;
 		}
 
@@ -138,7 +138,7 @@ namespace Lina
 		if (s_appWindow)
 			delete s_appWindow;
 
-		LINA_CORE_TRACE("[Destructor] -> Application ({0})", typeid(*this).name());
+		LINA_TRACE("[Destructor] -> Application ({0})", typeid(*this).name());
 	}
 
 

@@ -83,7 +83,7 @@ namespace Lina::Action
 			catch (const std::out_of_range& e)
 			{
 				const char* exp = e.what();
-				LINA_CORE_ERR("Out of Range Exception while subscribing handler! {0}", exp);
+				LINA_ERR("Out of Range Exception while subscribing handler! {0}", exp);
 			}
 		}
 
@@ -97,7 +97,7 @@ namespace Lina::Action
 			std::list<ActionHandlerBase*>& targetList = m_actionHandlerMap.at(at);
 			if (FindAction(targetList, actionID) != nullptr)
 			{
-				LINA_CORE_WARN("The handler {0} already exists. Aborting subscription.", actionID);
+				LINA_WARN("The handler {0} already exists. Aborting subscription.", actionID);
 				return;
 			}
 
@@ -121,7 +121,7 @@ namespace Lina::Action
 			std::list<ActionHandlerBase*>& targetList = m_actionHandlerMap.at(at);
 			if (FindAction(targetList, actionID) != nullptr)
 			{
-				LINA_CORE_WARN("The handler {0} already exists. Aborting subscription.", actionID);
+				LINA_WARN("The handler {0} already exists. Aborting subscription.", actionID);
 				return;
 			}
 

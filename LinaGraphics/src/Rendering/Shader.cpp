@@ -53,7 +53,7 @@ namespace Lina::Graphics
 		if (it == s_loadedShaders.end())
 		{
 			// Mesh not found.
-			LINA_CORE_WARN("Shader with the path {0} was not found, returning default shader", path);
+			LINA_WARN("Shader with the path {0} was not found, returning default shader", path);
 			return Lina::Graphics::RenderEngine::GetDefaultShader();
 		}
 

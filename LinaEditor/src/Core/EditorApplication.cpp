@@ -53,12 +53,12 @@ namespace Lina::Editor
 
 	EditorApplication::~EditorApplication()
 	{
-		LINA_CLIENT_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
+		LINA_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
 	}
 
 	void EditorApplication::Setup()
 	{
-		LINA_CLIENT_TRACE("[Constructor] -> Editor Application ({0})", typeid(*this).name());
+		LINA_TRACE("[Constructor] -> Editor Application ({0})", typeid(*this).name());
 
 		Lina::Graphics::WindowProperties splashProps;
 		splashProps.m_width = 720;

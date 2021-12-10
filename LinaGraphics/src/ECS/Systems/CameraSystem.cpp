@@ -53,7 +53,7 @@ namespace Lina::ECS
 		if (m_ecs->all_of<CameraComponent>(cameraOwner))
 			m_activeCameraEntity = cameraOwner;
 		else
-			LINA_CORE_WARN("This entity does not have a camera component, can not set it as main camera.");
+			LINA_WARN("This entity does not have a camera component, can not set it as main camera.");
 	}
 
 	void CameraSystem::UpdateComponents(float interpolation)

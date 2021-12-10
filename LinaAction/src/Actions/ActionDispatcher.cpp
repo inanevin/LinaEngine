@@ -65,7 +65,7 @@ namespace Lina::Action
 			delete base;
 		}
 		else
-			LINA_CORE_WARN("This action ID {0} does not exists, aborting unsubscription.", actionID);
+			LINA_WARN("This action ID {0} does not exists, aborting unsubscription.", actionID);
 	}
 
 	ActionHandlerBase* ActionDispatcher::FindAction(std::list<ActionHandlerBase*>& targetList, const std::string& actionID)

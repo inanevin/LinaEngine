@@ -43,57 +43,47 @@ Timestamp: 12/30/2018 1:54:10 AM
 #include "fmt/core.h"
 #include <functional>
 
-#ifdef LINA_CORE_ENABLE_LOGGING
+#ifdef LINA_ENABLE_LOGGING
 
-#define LINA_CORE_ERR(...)			::Lina::Log::LogMessage(::Lina::Log::LogLevel::Error, __VA_ARGS__);
-#define LINA_CORE_WARN(...)			::Lina::Log::LogMessage(::Lina::Log::LogLevel::Warn,__VA_ARGS__); 
-#define LINA_CORE_INFO(...)			::Lina::Log::LogMessage(::Lina::Log::LogLevel::Info,__VA_ARGS__); 
-#define LINA_CORE_TRACE(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Trace,__VA_ARGS__);
-#define LINA_CORE_DEBUG(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Debug,__VA_ARGS__); 
-#define LINA_CORE_CRITICAL(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Critical,__VA_ARGS__);
+#define LINA_ERR(...)			::Lina::Log::LogMessage(::Lina::Log::LogLevel::Error, __VA_ARGS__);
+#define LINA_WARN(...)			::Lina::Log::LogMessage(::Lina::Log::LogLevel::Warn,__VA_ARGS__); 
+#define LINA_INFO(...)			::Lina::Log::LogMessage(::Lina::Log::LogLevel::Info,__VA_ARGS__); 
+#define LINA_TRACE(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Trace,__VA_ARGS__);
+#define LINA_DEBUG(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Debug,__VA_ARGS__); 
+#define LINA_CRITICAL(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Critical,__VA_ARGS__);
 
 #else
 
-#define LINA_CORE_ERR(...)		
-#define LINA_CORE_WARN(...)		
-#define LINA_CORE_INFO(...)		
-#define LINA_CORE_TRACE(...)	
-#define LINA_CORE_FATAL(...)	
-
+#define LINA_ERR(...)		
+#define LINA_WARN(...)		
+#define LINA_INFO(...)		
+#define LINA_TRACE(...)	
+#define LINA_FATAL(...)	
+#define LINA_ERR(...)		
+#define LINA_WARN(...)		
+#define LINA_INFO(...)		
+#define LINA_TRACE(...)	
+#define LINA_FATAL(...)	
+#define LINA_ERR_R(...)		
+#define LINA_WARN_R(...)	
+#define LINA_INFO_R(...)	
+#define LINA_TRACE_R(...)	
+#define LINA_DEBUG_R(...)	
+#define LINA_CRITICAL_R(...)
 #endif
 
-#ifdef LINA_CLIENT_ENABLE_LOGGING
 
 
+#ifdef LINA_DEBUG_BUILD
 
-#define LINA_CLIENT_ERR(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Error, __VA_ARGS__);
-#define LINA_CLIENT_WARN(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Warn,__VA_ARGS__); 
-#define LINA_CLIENT_INFO(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Info,__VA_ARGS__); 
-#define LINA_CLIENT_TRACE(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Trace,__VA_ARGS__);
-#define LINA_CLIENT_DEBUG(...)		::Lina::Log::LogMessage(::Lina::Log::LogLevel::Debug,__VA_ARGS__); 
-#define LINA_CLIENT_CRITICAL(...)	::Lina::Log::LogMessage(::Lina::Log::LogLevel::Critical,__VA_ARGS__);
+
+#define LINA_ASSERT(x,...) { if(!(x)) { LINA_CRITICAL("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+#define LINA_ASSERT(x,...)  {	if(!(x)) { LINA_CRITICAL("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 
 #else
 
-
-#define LINA_CLIENT_ERR(...)		
-#define LINA_CLIENT_WARN(...)		
-#define LINA_CLIENT_INFO(...)		
-#define LINA_CLIENT_TRACE(...)
-#define LINA_CLIENT_FATAL(...)
-
-#endif
-
-#ifdef LINA_DEBUG
-
-
-#define LINA_CLIENT_ASSERT(x,...) { if(!(x)) { LINA_CLIENT_CRITICAL("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
-#define LINA_CORE_ASSERT(x,...)  {	if(!(x)) { LINA_CORE_CRITICAL("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
-
-#else
-
-#define LINA_CLIENT_ASSERT(x,...)
-#define LINA_CORE_ASSERT(x,...)
+#define LINA_ASSERT(x,...)
+#define LINA_ASSERT(x,...)
 
 
 #endif

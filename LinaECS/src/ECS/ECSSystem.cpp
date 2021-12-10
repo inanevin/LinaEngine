@@ -178,7 +178,7 @@ namespace Lina::ECS
 				return entity;
 		}
 
-		LINA_CORE_WARN("Entity with the name {0} could not be found, returning null entity.", name);
+		LINA_WARN("Entity with the name {0} could not be found, returning null entity.", name);
 		return entt::null;
 	}
 

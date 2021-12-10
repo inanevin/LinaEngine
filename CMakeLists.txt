@@ -31,10 +31,22 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_SUPPRESS_REGENERATION true)
 
-option(LINA_ENABLE_TIMEPROFILING "Enables time profiling" ON)
 option(LINA_ENABLE_EDITOR "Enables editor layer" ON)
-option(LINA_CLIENT_ENABLE_LOGGING "Enables console logging" ON)
-option(LINA_CORE_ENABLE_LOGGING "Enables console logging" ON)
+option(LINA_ENABLE_LOGGING "Enables console logging" ON)
+option(LINA_ENABLE_PROFILING "Enables profiling" ON)
+option(LINA_PRODUCTION_BUILD "Enable distribution ready build." OFF)
+
+if(LINA_ENABLE_LOGGING)
+	add_compile_definitions(LINA_ENABLE_LOGGING)
+endif()
+
+if(LINA_ENABLE_PROFILING)
+	add_compile_definitions(LINA_ENABLE_PROFILING)
+endif()
+
+if(LINA_PRODUCTION_BUILD)
+	add_compile_definitions(LINA_PRODUCTION_BUILD)
+endif()
 
 set(TARGET_ARCHITECTURE "x64")
 

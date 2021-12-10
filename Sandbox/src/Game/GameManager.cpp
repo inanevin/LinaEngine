@@ -39,7 +39,7 @@ namespace Lina
 	void GameManager::Attach()
 	{
 		s_instance = this;
-		LINA_CLIENT_TRACE("Game Manager Attached!");
+		LINA_TRACE("Game Manager Attached!");
 		m_exampleLevel = new Example1Level();
 		Lina::Application::GetApp().InstallLevel(*m_exampleLevel, true, "resources/sandbox/Levels/", "Example1Level");
 	}

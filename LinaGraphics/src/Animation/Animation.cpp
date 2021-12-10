@@ -36,7 +36,7 @@ namespace Lina::Graphics
 {
 	bool Animation::LoadAnimation(const std::string& animPath)
 	{
-		LINA_CORE_TRACE("Loading animation archive: {0}", animPath);
+		LINA_TRACE("Loading animation archive: {0}", animPath);
 		return true;
 	}
 }
