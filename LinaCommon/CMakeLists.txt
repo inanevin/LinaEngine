@@ -49,6 +49,10 @@ set (LINACOMMON_SOURCES
 	#src/Utility/EngineUtility.cpp
 	#src/Utility/FileUtility.cpp
 	#src/Utility/StringID.cpp
+	
+	# ECS 
+	src/ECS/ECSSystem.cpp
+	src/ECS/Components/EntityDataComponent.cpp
 )
 
 #--------------------------------------------------------------------
@@ -95,6 +99,12 @@ set(LINACOMMON_HEADERS
 	include/Math/Transformation.hpp
 	include/Math/Vector.hpp
 	
+	#ECS
+	include/ECS/Components/EntityDataComponent.hpp
+	include/ECS/ECSSystem.hpp
+	include/ECS/ECS.hpp
+	include/ECS/ECSComponent.hpp
+	
 	#include/Utility/EngineUtility.hpp
 	#include/Utility/FileUtility.hpp
 	#include/Utility/StringID.hpp
@@ -122,7 +132,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/fmt
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/cereal/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/taskflow/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/easy_profiler/include)
-
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/entt/src)
 
 #--------------------------------------------------------------------
 # Subdirectories & linking

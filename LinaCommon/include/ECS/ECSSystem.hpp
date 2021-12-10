@@ -60,7 +60,6 @@ namespace Lina::ECS
 	ECSTypeID GetTypeID()
 	{
 		return entt::type_id<T>().hash();
-		//	return entt::type_info<T>::id();
 	}
 	
 	class ECSRegistry : public entt::registry

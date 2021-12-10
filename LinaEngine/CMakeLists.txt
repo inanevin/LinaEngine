@@ -70,7 +70,6 @@ include(../CMake/GLGraphicsDefinitions.cmake)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaECS/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaGraphics/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaInput/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaPhysics/include)
@@ -87,7 +86,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAudio/
 target_link_libraries(${PROJECT_NAME} 
 	# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
 	PUBLIC Lina::Common
-	PUBLIC Lina::ECS
 	PUBLIC Lina::Graphics
 	PUBLIC Lina::Action
 	PUBLIC Lina::Input

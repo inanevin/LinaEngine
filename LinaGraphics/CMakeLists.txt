@@ -141,7 +141,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/gla
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/assimp/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaECS/include)
 
 
 #--------------------------------------------------------------------
@@ -158,9 +157,7 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/ozz_base.lib
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/ozz_geometry.lib
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/ozz/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/ozz_options.lib
-
 	PRIVATE Lina::Common
-	PRIVATE Lina::ECS
 )
 	
 

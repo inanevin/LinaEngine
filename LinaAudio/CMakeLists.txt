@@ -59,7 +59,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/openal/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/alut/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaECS/include)
 
 
 
@@ -71,7 +70,6 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/openal/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/OpenAL32.lib
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/alut/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/alut.lib
 	PRIVATE Lina::Common
-	PRIVATE Lina::ECS
 )
 	
 
