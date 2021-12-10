@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "PackageManager/OpenGL/GLRenderDevice.hpp"  
 #include "Math/Color.hpp"
-#include "PackageManager/Generic/GenericMemory.hpp"
+#include "Memory/Memory.hpp"
 #include "glad/glad.h"
 
 namespace Lina::Graphics
@@ -1140,7 +1140,7 @@ namespace Lina::Graphics
 	void GLRenderDevice::UpdateUniformBuffer(uint32 buffer, const void* data, uintptr dataSize)
 	{
 		void* dest = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-		GenericMemory::memcpy(dest, data, dataSize);
+		Memory::memcpy(dest, data, dataSize);
 		glUnmapBuffer(GL_UNIFORM_BUFFER);
 	}
 
@@ -1570,23 +1570,23 @@ namespace Lina::Graphics
 	std::string GLRenderDevice::GetShaderVersion()
 	{
 		// Return if not valid.
-		if (!m_ShaderVersion.empty()) return m_ShaderVersion;
+		if (!m_shaderVersion.empty()) return m_shaderVersion;
 
 		// Check & set version according to data.
 		uint32 version = GetVersion();
 
 		if (version >= 330)
-			m_ShaderVersion = Lina::Internal::ToString(version);
+			m_shaderVersion = std::to_string(version);
 		else if (version >= 320)
-			m_ShaderVersion = "150";
+			m_shaderVersion = "150";
 		else if (version >= 310)
-			m_ShaderVersion = "140";
+			m_shaderVersion = "140";
 		else if (version >= 300)
-			m_ShaderVersion = "130";
+			m_shaderVersion = "130";
 		else if (version >= 210)
-			m_ShaderVersion = "120";
+			m_shaderVersion = "120";
 		else if (version >= 200)
-			m_ShaderVersion = "110";
+			m_shaderVersion = "110";
 		else
 		{
 			int32 majorVersion = version / 100;
@@ -1595,7 +1595,7 @@ namespace Lina::Graphics
 			return "";
 		}
 
-		return m_ShaderVersion;
+		return m_shaderVersion;
 	}
 
 	uint32 GLRenderDevice::GetVersion()

@@ -39,7 +39,6 @@ Timestamp: 12/30/2018 1:54:10 AM
 #ifndef Log_HPP
 #define Log_HPP
 
-#include "Core/LinaAPI.hpp"
 #include "fmt/core.h"
 #include <functional>
 

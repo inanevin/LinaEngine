@@ -39,10 +39,6 @@ timestamp: 10/29/2018 11:04:54 PM
 #ifndef Vector_HPP
 #define Vector_HPP
 
-#include "Core/Common.hpp"
-#include "Core/LinaAPI.hpp"
-#include "Core/Internal.hpp"
-
 #include "glm/vec2.hpp"
 #include "glm/glm.hpp"
 #include "glm/vec3.hpp"

@@ -26,9 +26,6 @@ set (LINACOMMON_SOURCES
     src/Core/LayerStack.cpp
     src/Core/Timer.cpp
 	
-	src/PackageManager/Generic/cmwc4096.cpp
-	src/PackageManager/Generic/GenericMemory.cpp
-	
 	#Utility
 	src/Utility/UtilityFunctions.cpp
 	
@@ -47,6 +44,7 @@ set (LINACOMMON_SOURCES
 	src/Memory/FrameAllocator.cpp
 	src/Memory/PoolAllocator.cpp
 	src/Memory/FreeListAllocator.cpp
+	src/Memory/Memory.cpp
 	
 	#src/Utility/EngineUtility.cpp
 	#src/Utility/FileUtility.cpp
@@ -60,24 +58,18 @@ set(LINACOMMON_HEADERS
 
 	#CORE
 	include/Core/Common.hpp
-	include/Core/Environment.hpp
-	include/Core/Internal.hpp
-	include/Core/LinaArray.hpp
 	include/Core/SizeDefinitions.hpp
 	include/Core/Layer.hpp
 	include/Core/LayerStack.hpp
-	include/Core/LinaAPI.hpp
 	include/Core/Timer.hpp
+	include/Core/MacroDetection.hpp
 	
 	# Job System
 	include/JobSystem/JobSystem.hpp
-	
-	# PAM
-	include/PackageManager/Generic/cmwc4096.hpp
-	include/PackageManager/Generic/GenericMemory.hpp
-	include/PackageManager/PAMMemory.hpp
-	include/PackageManager/PAMSIMD.hpp
 
+	# Profiler
+	include/Profiling/Profiler.hpp
+	
 	# Memory
 	include/Memory/MemoryAllocator.hpp
 	include/Memory/StackAllocator.hpp
@@ -87,6 +79,7 @@ set(LINACOMMON_HEADERS
 	include/Memory/StackLinkedList.hpp
 	include/Memory/SinglyLinkedList.hpp
 	include/Memory/FreeListAllocator.hpp	
+	include/Memory/Memory.hpp
 	
 	# Log
 	include/Log/Log.hpp
@@ -128,7 +121,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glm
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/fmt/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/cereal/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/taskflow/include)
-
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/easy_profiler/include)
 
 
 #--------------------------------------------------------------------
@@ -138,6 +131,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/tas
 target_link_libraries(${PROJECT_NAME} 
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glm/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glm_static.lib
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/fmt/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/fmt.lib
+	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/easy_profiler/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/easy_profiler.lib
 )
 
 #--------------------------------------------------------------------

@@ -43,7 +43,7 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "Modals/SelectMeshModal.hpp"
 #include "Modals/SelectMaterialModal.hpp"
-#include "PackageManager/PAMMemory.hpp"
+#include "Memory/Memory.hpp"
 #include "Core/EditorCommon.hpp"
 #include "IconsFontAwesome5.h"
 #include "IconsMaterialDesign.h"

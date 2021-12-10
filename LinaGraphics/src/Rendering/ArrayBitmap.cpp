@@ -29,7 +29,7 @@ SOFTWARE.
 #define STB_IMAGE_IMPLEMENTATION 
 #include "Rendering/ArrayBitmap.hpp"  
 #include "Utility/stb/stb_image.h"
-#include "PackageManager/PAMMemory.hpp"
+#include "Memory/Memory.hpp"
 
 namespace Lina::Graphics
 {

@@ -38,7 +38,7 @@ SOFTWARE.
 #include "Modals/SelectShaderModal.hpp"
 #include "Rendering/Shader.hpp"
 #include "Utility/EditorUtility.hpp"
-#include "PackageManager/Generic/GenericMemory.hpp"
+#include "Memory/Memory.hpp"
 #include "imgui/imgui.h"
 #include "IconsFontAwesome5.h"
 
@@ -96,7 +96,7 @@ namespace Lina::Editor
 				EditorUtility::ChangeFilename(m_selectedFile->m_pathToFolder.c_str(), m_selectedFile->m_name.c_str(), newName.c_str());
 				m_selectedFile->m_name = newName;
 
-				GenericMemory::memset(materialName, 0, 64);
+				Memory::memset(materialName, 0, 64);
 				std::string extensionlessStr = EditorUtility::RemoveExtensionFromFilename(m_selectedFile->m_name);
 				std::copy(extensionlessStr.begin(), extensionlessStr.end(), materialName);
 

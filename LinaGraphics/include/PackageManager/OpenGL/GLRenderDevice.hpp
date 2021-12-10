@@ -195,7 +195,7 @@ namespace Lina::Graphics
 		Vector2 m_boundViewportPos;
 		std::map<uint32, VertexArrayData> m_vaoMap;
 		std::map<uint32, ShaderProgram> m_shaderProgramMap;
-		std::string m_ShaderVersion;
+		std::string m_shaderVersion;
 		uint32 m_GLVersion;
 
 		// Current drawing parameters.
