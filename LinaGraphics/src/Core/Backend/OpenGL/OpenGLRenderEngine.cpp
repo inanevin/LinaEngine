@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "EventSystem/EventSystem.hpp"
-#include "Core/Layer.hpp"
 #include "Core/Backend/OpenGL/OpenGLRenderEngine.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/RenderConstants.hpp"

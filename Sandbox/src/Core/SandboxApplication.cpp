@@ -68,7 +68,8 @@ public:
 
 		SetPlayMode(true);
 #endif
-		GetMainStack().PushLayer(m_gameManager);
+		
+		m_gameManager.Initialize();
 		Graphics::WindowBackend::Get()->SetVsync(2);
 		// Run engine.
 		Run();

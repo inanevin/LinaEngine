@@ -22,8 +22,7 @@ set(CMAKE_CXX_STANDARD 17)
 #--------------------------------------------------------------------
 set (LINACOMMON_SOURCES
 
-    src/Core/Layer.cpp
-    src/Core/LayerStack.cpp
+
     src/Core/Timer.cpp
 	
 	#Utility
@@ -66,8 +65,6 @@ set(LINACOMMON_HEADERS
 	#CORE
 	include/Core/Common.hpp
 	include/Core/SizeDefinitions.hpp
-	include/Core/Layer.hpp
-	include/Core/LayerStack.hpp
 	include/Core/Timer.hpp
 	include/Core/MacroDetection.hpp
 	

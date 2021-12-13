@@ -48,7 +48,6 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "EventSystem/EventSystem.hpp"
 #include "Math/Vector.hpp"
 #include "Math/Color.hpp"
-#include "Core/LayerStack.hpp"
 #include "ECS/ECS.hpp"
 #include <functional>
 #include <array>
@@ -100,8 +99,6 @@ namespace Lina
 		void AddToMainPipeline(ECS::BaseECSSystem& system) { m_mainECSPipeline.AddSystem(system); }
 		void SetPlayMode(bool enabled);
 		bool GetPlayMode() { return m_isInPlayMode; }
-		LayerStack& GetMainStack() { return m_mainLayerStack; }
-		LayerStack& GetPlayModeStack() { return m_playModeStack; }
 		World::Level* GetCurrentLevel() { return m_currentLevel; }
 
 		double GetTime();
@@ -127,10 +124,6 @@ namespace Lina
 		void InitializeLevel(Lina::World::Level& level);
 
 	private:
-
-		// Layer queue.
-		LayerStack m_mainLayerStack;
-		LayerStack m_playModeStack;
 
 		// Active engines running in the application.
 		static Application* s_application;

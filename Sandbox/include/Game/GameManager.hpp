@@ -39,13 +39,12 @@ Timestamp: 12/7/2020 9:11:14 PM
 #ifndef GameManager_HPP
 #define GameManager_HPP
 
-// Headers here.
-#include "Core/Layer.hpp"
+#include "EventSystem/Events.hpp"
 
 namespace Lina
 {
 
-	class GameManager : public Layer
+	class GameManager 
 	{
 		
 	public:
@@ -53,8 +52,8 @@ namespace Lina
 		GameManager() {};
 		~GameManager() {};
 
-		virtual void Attach() override;
-		virtual void Tick(float delta) override;
+		void Initialize();
+		void OnTick(Event::ETick ev);
 
 		static GameManager* GetInstance() { return s_instance; }
 	

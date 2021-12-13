@@ -36,20 +36,18 @@ namespace Lina
 	Example1Level* m_exampleLevel = nullptr;
 
 
-	void GameManager::Attach()
+	void GameManager::Initialize()
 	{
 		s_instance = this;
 		LINA_TRACE("Game Manager Attached!");
 		m_exampleLevel = new Example1Level();
 		Lina::Application::GetApp().InstallLevel(*m_exampleLevel, true, "resources/sandbox/Levels/", "Example1Level");
+		Lina::Event::EventSystem::Get()->Connect<Event::ETick, &GameManager::OnTick>(this);
 	}
 
-	void GameManager::Tick(float delta)
+	void GameManager::OnTick(Event::ETick ev)
 	{
 
-
 	}
-
-
 
 }

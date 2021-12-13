@@ -29,7 +29,6 @@ SOFTWARE.
 #include "LinaPch.hpp"
 #include "Core/Application.hpp"
 
-#include "Core/Layer.hpp"
 #include "World/DefaultLevel.hpp"
 #include "Core/Timer.hpp"
 
@@ -171,17 +170,6 @@ namespace Lina
 		// Tick physics (fixed)
 		m_physicsEngine.Tick(0.02);
 
-		// Main layers.
-		for (Layer* layer : m_mainLayerStack)
-			layer->Tick(deltaTime);
-
-		// Game layers.
-		if (m_isInPlayMode)
-		{
-			for (Layer* layer : m_playModeStack)
-				layer->Tick(deltaTime);
-		}
-
 		// Level
 		if (m_activeLevelExists)
 			m_currentLevel->Tick(m_isInPlayMode, deltaTime);
@@ -191,18 +179,6 @@ namespace Lina
 
 		// Animation, particle systems.
 		m_renderEngine.Tick(deltaTime);
-
-
-		// Main layers post.
-		for (Layer* layer : m_mainLayerStack)
-			layer->PostTick(deltaTime);
-
-		// Game layers post.
-		if (m_isInPlayMode)
-		{
-			for (Layer* layer : m_playModeStack)
-				layer->PostTick(deltaTime);
-		}
 
 		// Level post.
 		if (m_activeLevelExists)
