@@ -98,7 +98,7 @@ namespace Lina::Graphics
 
 		static std::map<int, Model> s_loadedMeshes;
 
-		friend class RenderEngine;
+		friend class OpenGLRenderEngine;
 		int m_meshID = -1;
 		std::string m_path = "";
 		std::string m_paramsPath = "";

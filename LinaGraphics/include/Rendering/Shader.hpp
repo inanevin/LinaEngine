@@ -41,7 +41,6 @@ Timestamp: 2/16/2019 1:47:28 AM
 #define Shader_HPP
 
 #include "Core/Common.hpp"
-#include "PackageManager/PAMRenderDevice.hpp"
 #include "UniformBuffer.hpp"
 #include <string>
 
@@ -54,31 +53,11 @@ namespace Lina::Graphics
 
 		Shader() {};
 
-		~Shader() { m_engineBoundID = s_renderDevice->ReleaseShaderProgram(m_engineBoundID); }
+		~Shader();
 
-		Shader& Construct(RenderDevice& renderDeviceIn, const std::string& text, bool usesGeometryShader)
-		{
-			s_renderDevice = &renderDeviceIn;
-			m_engineBoundID = s_renderDevice->CreateShaderProgram(text, &m_uniformData, usesGeometryShader);
-			return *this;
-		}
-
-		// Set uniform buffer through render engine.
-		void SetUniformBuffer(const std::string& name, UniformBuffer& buffer) 
-		{ 
-			s_renderDevice->SetShaderUniformBuffer(m_engineBoundID, name, buffer.GetID()); 
-		}
-
-		void BindBlockToBuffer(uint32 bindingPoint, std::string blockName)
-		{
-			s_renderDevice->BindShaderBlockToBufferPoint(m_engineBoundID, bindingPoint, blockName);
-		}
-
-		// Get shader id, this gets matched w/ program id on render engine.
-		uint32 GetID() { return m_engineBoundID; }
-
-		ShaderUniformData& GetUniformData() { return m_uniformData; }
-		const std::string& GetPath() { return m_path; }
+		Shader& Construct(const std::string& text, bool usesGeometryShader);
+		void SetUniformBuffer(const std::string& name, UniformBuffer& buffer);
+		void BindBlockToBuffer(uint32 bindingPoint, std::string blockName);
 
 		static Shader& CreateShader(const std::string& path, bool usesGeometryShader = false);
 		static Shader& GetShader(const std::string& path);
@@ -88,10 +67,16 @@ namespace Lina::Graphics
 		static void UnloadAll();
 		static std::map<int, Shader*>& GetLoadedShaders() { return s_loadedShaders; }
 
+
+		ShaderUniformData& GetUniformData() { return m_uniformData; }
+		uint32 GetID() { return m_engineBoundID; }
+		const std::string& GetPath() { return m_path; }
+
+
 	private:
 
 		ShaderUniformData m_uniformData;
-		RenderDevice* s_renderDevice = nullptr;
+		RenderDevice* m_renderDevice = nullptr;
 		uint32 m_engineBoundID = 0;
 		std::string m_path = "";
 		static std::map<int, Shader*> s_loadedShaders;

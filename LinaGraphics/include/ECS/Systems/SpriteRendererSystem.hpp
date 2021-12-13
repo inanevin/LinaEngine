@@ -41,15 +41,14 @@ Timestamp: 10/1/2020 9:27:40 AM
 
 
 #include "ECS/ECS.hpp"
-#include "PackageManager/PAMRenderDevice.hpp"
 #include "Rendering/VertexArray.hpp"
 #include "Rendering/Mesh.hpp"
+#include "Core/RenderBackendFwd.hpp"
 
 namespace Lina
 {
 	namespace Graphics
 	{
-		class RenderEngine;
 		class Material;
 	}
 }
@@ -69,17 +68,18 @@ namespace Lina::ECS
 		SpriteRendererSystem() {};
 		~SpriteRendererSystem() {};
 	
-		void Construct(Registry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn);
+		virtual void Initialize() override;
 		virtual void UpdateComponents(float delta) override;
 
 		void Render(Graphics::Material& material, const Matrix& transformIn);
 		void Flush(Graphics::DrawParams& drawParams, Graphics::Material* overrideMaterial = nullptr, bool completeFlush = true);
 
 	private:
-	
+
+		Lina::Graphics::RenderDevice* m_renderDevice = nullptr;
+		Lina::Graphics::RenderEngine* m_renderEngine = nullptr;
+
 		Graphics::Mesh m_quadMesh;
-		RenderDevice* s_renderDevice = nullptr;
-		Graphics::RenderEngine* m_renderEngine = nullptr;
 		std::map<Graphics::Material*, BatchModelData> m_renderBatch;
 	};
 }

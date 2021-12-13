@@ -30,7 +30,7 @@ SOFTWARE.
 Class: MeshRendererSystem
 
 Responsible for adding all the mesh renderers into a pool which is then
-flushed to draw those renderers' data by the RenderEngine.
+flushed to draw those renderers' data by the OpenGLRenderEngine.
 
 Timestamp: 4/27/2019 5:38:44 PM
 */
@@ -41,17 +41,16 @@ Timestamp: 4/27/2019 5:38:44 PM
 #define RenderableMeshSystem_HPP
 
 #include "ECS/ECS.hpp"
-#include "PackageManager/PAMRenderDevice.hpp"
 #include "Rendering/RenderingCommon.hpp"
 #include "Rendering/RenderTarget.hpp"
 #include "Rendering/VertexArray.hpp"
+#include "Core/RenderBackendFwd.hpp"
 #include <queue>
 
 namespace Lina
 {
 	namespace Graphics
 	{
-		class RenderEngine;
 		class Material;
 		class Skeleton;
 
@@ -101,7 +100,7 @@ namespace Lina::ECS
 
 		MeshRendererSystem() {};
 
-		void Construct(Registry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn);
+		virtual void Initialize() override;
 
 		void RenderOpaque(Graphics::VertexArray& vertexArray, Lina::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn);
 		void RenderTransparent(Graphics::VertexArray& vertexArray, Lina::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn, float priority);
@@ -116,9 +115,10 @@ namespace Lina::ECS
 
 	private:
 
-		RenderDevice* s_renderDevice = nullptr;
-		Graphics::RenderEngine* m_renderEngine = nullptr;
+		Lina::Graphics::RenderDevice* m_renderDevice = nullptr;
+		Lina::Graphics::RenderEngine* m_renderEngine = nullptr;
 
+	
 		// Map & queue to see the list of same vertex array & textures to compress them into single draw call.
 		std::map<Graphics::BatchDrawData, Graphics::BatchModelData, BatchDrawDataComp> m_opaqueRenderBatch;
 		std::priority_queue<BatchPair, std::vector<BatchPair>, BatchComparison> m_transparentRenderBatch;

@@ -33,6 +33,7 @@ SOFTWARE.
 
 #define BT_NO_SIMD_OPERATOR_OVERLOADS
 #include "btBulletDynamicsCommon.h"
+#include "EventSystem/Events.hpp"
 #include "Math/Vector.hpp"
 #include "Math/Color.hpp"
 #include <functional>
@@ -47,7 +48,6 @@ class PhysicsGizmoDrawer : public btIDebugDraw
 public:
 
 
-	void Setup(std::function<void(Lina::Vector3, Lina::Vector3, Lina::Color, float)>& cb) { m_drawLineCallback = cb; }
 
 	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
 	{
@@ -76,9 +76,11 @@ public:
 	void drawLine(const btVector3& from, const btVector3& to, const btVector3& color) ;
 
 private:
+
+
+private:
 	
 	DebugDrawModes m_debugMode;
-	std::function<void(Lina::Vector3, Lina::Vector3, Lina::Color, float)> m_drawLineCallback;
 };
 
 #endif

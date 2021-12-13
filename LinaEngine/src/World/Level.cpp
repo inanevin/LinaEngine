@@ -29,8 +29,9 @@ SOFTWARE.
 #include "Log/Log.hpp"
 #include "World/Level.hpp"
 #include "ECS/ECS.hpp"
+#include "Utility/UtilityFunctions.hpp"
 #include "Core/Application.hpp"
-#include "Rendering/RenderEngine.hpp"
+#include "Core/RenderEngineBackend.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
@@ -63,9 +64,9 @@ namespace Lina::World
 
 	void Level::LoadLevelResources()
 	{
-		ECS::Registry& ecs = Application::GetECSRegistry();
+		ECS::Registry* ecs = ECS::Registry::Get();
 
-		auto view = ecs.view<ECS::ModelRendererComponent>();
+		auto view = ecs->view<ECS::ModelRendererComponent>();
 		LINA_TRACE("Loading Level Resources...");
 
 		for (ECS::Entity entity : view)
@@ -103,10 +104,10 @@ namespace Lina::World
 			}
 
 			// Iterate model renderer's children, find all mesh renderer components & assign their mesh & material IDs accordingly.
-			ECS::EntityDataComponent& data = ecs.get<ECS::EntityDataComponent>(entity);
+			ECS::EntityDataComponent& data = ecs->get<ECS::EntityDataComponent>(entity);
 			for (auto& child : data.m_children)
 			{
-				ECS::MeshRendererComponent* meshRenderer = ecs.try_get<ECS::MeshRendererComponent>(child);
+				ECS::MeshRendererComponent* meshRenderer = ecs->try_get<ECS::MeshRendererComponent>(child);
 
 				if (meshRenderer != nullptr)
 				{
@@ -118,7 +119,7 @@ namespace Lina::World
 			}
 		}
 
-		auto viewSprites = ecs.view<ECS::SpriteRendererComponent>();
+		auto viewSprites = ecs->view<ECS::SpriteRendererComponent>();
 
 		for (ECS::Entity entity : viewSprites)
 		{
@@ -155,35 +156,35 @@ namespace Lina::World
 			}
 		}
 
-		Lina::Graphics::RenderEngine& renderEngine = Lina::Application::GetRenderEngine();
+		Lina::Graphics::RenderEngineBackend* renderEngine = Lina::Graphics::RenderEngineBackend::Get();
 
 		if (Utility::FileExists(m_levelData.m_skyboxMaterialPath))
 		{
 			Graphics::Material& mat = Graphics::Material::LoadMaterialFromFile(m_levelData.m_skyboxMaterialPath);
-			renderEngine.SetSkyboxMaterial(&mat);
+			renderEngine->SetSkyboxMaterial(&mat);
 		}
 		else
-			renderEngine.SetSkyboxMaterial(nullptr);
+			renderEngine->SetSkyboxMaterial(nullptr);
 
-		renderEngine.GetLightingSystem()->SetAmbientColor(m_levelData.m_ambientColor);
+		renderEngine->GetLightingSystem()->SetAmbientColor(m_levelData.m_ambientColor);
 	}
 
 	void Level::SetSkyboxMaterial()
 	{
-		Lina::Graphics::RenderEngine& renderEngine = Lina::Application::GetRenderEngine();
+		Lina::Graphics::RenderEngineBackend* renderEngine = Lina::Graphics::RenderEngineBackend::Get();
 
 		if (Graphics::Material::MaterialExists(m_levelData.m_skyboxMaterialPath))
 		{
-			renderEngine.SetSkyboxMaterial(&Graphics::Material::GetMaterial(m_levelData.m_skyboxMaterialPath));
+			renderEngine->SetSkyboxMaterial(&Graphics::Material::GetMaterial(m_levelData.m_skyboxMaterialPath));
 		}
 		else
-			renderEngine.SetSkyboxMaterial(nullptr);
+			renderEngine->SetSkyboxMaterial(nullptr);
 	}
 
 
 	void Level::SerializeLevelData(const std::string& path, const std::string& levelName)
 	{
-		Lina::ECS::Registry& registry = Lina::Application::GetECSRegistry();
+		Lina::ECS::Registry* registry = ECS::Registry::Get();
 		{
 
 			std::ofstream levelDataStream(path + "/" + levelName + ".linalevel", std::ios::binary);
@@ -191,14 +192,14 @@ namespace Lina::World
 				cereal::PortableBinaryOutputArchive oarchive(levelDataStream); // Build an output archive
 				//
 				oarchive(m_levelData); // write the level data to the archive.
-				registry.SerializeComponentsInRegistry(oarchive);
+				registry->SerializeComponentsInRegistry(oarchive);
 			}
 		}
 	}
 
 	void Level::DeserializeLevelData(const std::string& path, const std::string& levelName)
 	{
-		Lina::ECS::Registry& registry = Lina::Application::GetECSRegistry();
+		Lina::ECS::Registry* registry = ECS::Registry::Get();
 
 		{
 			std::ifstream levelDataStream(path + "/" + levelName + ".linalevel", std::ios::binary);
@@ -208,8 +209,8 @@ namespace Lina::World
 				// Read the data into it.
 				iarchive(m_levelData);
 
-				registry.clear();
-				registry.DeserializeComponentsInRegistry(iarchive);
+				registry->clear();
+				registry->DeserializeComponentsInRegistry(iarchive);
 			}
 		}
 	}

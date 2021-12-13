@@ -43,18 +43,10 @@ Timestamp: 5/13/2019 12:49:19 AM
 #include "ECS/ECS.hpp"
 #include "Math/Color.hpp"
 #include "Math/Vector.hpp"
+#include "Core/RenderBackendFwd.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/LightComponent.hpp"
-#include "PackageManager/PAMRenderDevice.hpp"
 
-
-namespace Lina
-{
-	namespace Graphics
-	{
-		class RenderEngine;
-	}	
-}
 
 namespace Lina::ECS
 {
@@ -64,8 +56,7 @@ namespace Lina::ECS
 
 		LightingSystem() {};
 
-		void Construct(Registry& registry, RenderDevice& rdIn, Graphics::RenderEngine& renderEngineIn);
-
+		virtual void Initialize() override;
 		virtual void UpdateComponents(float delta) override;
 		void SetLightingShaderData(uint32 shaderID);
 		void ResetLightData();
@@ -80,11 +71,10 @@ namespace Lina::ECS
 		Color GetAmbientColor() { return m_ambientColor; }
 		std::vector<std::tuple<EntityDataComponent*, PointLightComponent*>>& GetPointLights() { return m_pointLights; }
 
-
 	private:
 
-		RenderDevice* s_renderDevice = nullptr;
-		Graphics::RenderEngine* m_renderEngine = nullptr;
+		Lina::Graphics::RenderDevice* m_renderDevice = nullptr;
+		Lina::Graphics::RenderEngine* m_renderEngine = nullptr;
 		std::tuple < EntityDataComponent*, DirectionalLightComponent*> m_directionalLight;
 		std::vector<std::tuple<EntityDataComponent*, PointLightComponent*>> m_pointLights;
 		std::vector<std::tuple<EntityDataComponent*, SpotLightComponent*>> m_spotLights;

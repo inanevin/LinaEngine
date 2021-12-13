@@ -39,7 +39,8 @@ Timestamp: 4/26/2019 6:41:58 PM
 #ifndef UniformBuffer_HPP
 #define UniformBuffer_HPP
 
-#include "PackageManager/PAMRenderDevice.hpp"
+#include "RenderingCommon.hpp"
+#include "Core/RenderBackendFwd.hpp"
 
 namespace Lina::Graphics
 {
@@ -48,34 +49,17 @@ namespace Lina::Graphics
 	public:
 
 		UniformBuffer() {}
-		~UniformBuffer()
-		{
-			if (m_isConstructed)
-				m_engineBoundID = s_renderDevice->ReleaseUniformBuffer(m_engineBoundID);
-		}
+		~UniformBuffer();
 
-		// Updates the uniform buffer w/ new data, allows dynamic size change.
-		void Construct(RenderDevice& renderDeviceIn, uintptr dataSize, BufferUsage usage, const void* data = nullptr)
-		{
-			s_renderDevice = &renderDeviceIn;
-			m_bufferSize = dataSize;
-			m_engineBoundID = s_renderDevice->CreateUniformBuffer(data, dataSize, usage);
-			m_isConstructed = true;
-		}
-
-		void Bind(uint32 point)
-		{
-			s_renderDevice->BindUniformBuffer(m_engineBoundID, point);
-		}
-
-		void Update(const void* data, uintptr offset, uintptr dataSize) { s_renderDevice->UpdateUniformBuffer(m_engineBoundID, data, offset, dataSize); }
-		void Update(const void* data,  uintptr dataSize) { s_renderDevice->UpdateUniformBuffer(m_engineBoundID, data, dataSize); }
-
+		void Construct(uintptr dataSize, BufferUsage usage, const void* data = nullptr);
+		void Bind(uint32 point);
+		void Update(const void* data, uintptr offset, uintptr dataSize);
+		void Update(const void* data, uintptr dataSize);
 		uint32 GetID() { return m_engineBoundID; }
 
 	private:
 
-		RenderDevice* s_renderDevice = nullptr;
+		RenderDevice* m_renderDevice = nullptr;
 		uint32 m_engineBoundID = 0;
 		uintptr m_bufferSize = 0;
 		bool m_isConstructed = false;

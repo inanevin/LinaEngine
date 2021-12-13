@@ -29,15 +29,16 @@ SOFTWARE.
 #include "Core/GUILayer.hpp"
 #include "Core/Application.hpp"
 #include "Log/Log.hpp"
-#include "Core/PhysicsEngine.hpp"
-#include "Input/InputEngine.hpp"
-#include "Rendering/RenderEngine.hpp"
+#include "Core/PhysicsBackend.hpp"
+#include "Core/InputBackend.hpp"
+#include "Core/RenderBackendFwd.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Core/EditorApplication.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Helpers/DrawParameterHelper.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
+#include "Utility/UtilityFunctions.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -72,7 +73,7 @@ namespace Lina::Editor
 		LINA_INFO("Editor GUI Layer Attached");
 
 		// Listen to menu bar clicked events.
-		EditorApplication::GetEditorDispatcher().SubscribeAction<MenuBarItems>("##linaeditor_menubarclicked", Lina::Action::ActionType::MenuItemClicked, std::bind(&GUILayer::DispatchMenuBarClickedAction, this, std::placeholders::_1));
+		Lina::Event::EventSystem::Get()->Connect<EMenuBarItemClicked, &GUILayer::DispatchMenuBarClickedAction>(this);
 
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
@@ -100,11 +101,15 @@ namespace Lina::Editor
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		ImGui::StyleColorsDark();
 
-		GLFWwindow* window = static_cast<GLFWwindow*>(Lina::Application::GetAppWindow().GetNativeWindow());
+#ifdef LINA_GRAPHICS_OPENGL
+		GLFWwindow* window = static_cast<GLFWwindow*>(Lina::Graphics::WindowBackend::Get()->GetNativeWindow());
 
 		// Setup Platform/Renderer bindings
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init();
+#else
+		LINA_ERR("Undefined platform for IMGUI!");
+#endif
 
 		// Setup Dear ImGui style
 		ImGuiStyle& style = ImGui::GetStyle();
@@ -212,8 +217,9 @@ namespace Lina::Editor
 	void GUILayer::Render()
 	{
 		// Set draw params first.
-		Lina::Application::GetRenderEngine().SetDrawParameters(m_drawParameters);
+		Lina::Graphics::RenderEngineBackend::Get()->SetDrawParameters(m_drawParameters);
 	
+#ifdef LINA_GRAPHICS_OPENGL
 		//Setup
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -231,7 +237,7 @@ namespace Lina::Editor
 		m_globalSettingsPanel.Draw();
 
 
-		if (Lina::Application::GetInputEngine().GetKeyDown(Lina::Input::InputCode::Escape))
+		if (Lina::Input::InputEngineBackend::Get()->GetKeyDown(Lina::Input::InputCode::Escape))
 			Lina::Application::GetApp().SetPlayMode(!Lina::Application::GetApp().GetPlayMode());
 
 		if (s_showIMGUIDemo)
@@ -240,10 +246,13 @@ namespace Lina::Editor
 		// Rendering
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#endif
 	}
 
-	void GUILayer::DispatchMenuBarClickedAction(const MenuBarItems& item)
+	void GUILayer::DispatchMenuBarClickedAction(EMenuBarItemClicked event)
 	{
+		MenuBarItems item = event.m_item;
+
 		// File
 		if (item == MenuBarItems::NewProject)
 		{
@@ -272,7 +281,7 @@ namespace Lina::Editor
 		else if (item == MenuBarItems::SaveLevelData)
 		{
 			std::string fullPath = "";
-			fullPath = EditorUtility::SaveFile(".linaleveldata", Lina::Application::GetAppWindow().GetNativeWindow());
+			fullPath = EditorUtility::SaveFile(".linaleveldata", Lina::Graphics::WindowBackend::Get()->GetNativeWindow());
 
 			if (fullPath.compare("") != 0)
 			{
@@ -285,7 +294,7 @@ namespace Lina::Editor
 		else if (item == MenuBarItems::LoadLevelData)
 		{
 			std::string fullPath = "";
-			fullPath = EditorUtility::OpenFile(".linaleveldata", Lina::Application::GetAppWindow().GetNativeWindow());
+			fullPath = EditorUtility::OpenFile(".linaleveldata", Lina::Graphics::WindowBackend::Get()->GetNativeWindow());
 
 			if (fullPath.compare("") != 0)
 			{
@@ -316,7 +325,7 @@ namespace Lina::Editor
 
 		// Debug
 		else if (item == MenuBarItems::DebugViewPhysics)
-			Lina::Application::GetPhysicsEngine().SetDebugDraw(s_physicsDebugEnabled);
+			Lina::Physics::PhysicsEngineBackend::Get()->SetDebugDraw(s_physicsDebugEnabled);
 
 		else if (item == MenuBarItems::DebugViewShadows)
 			m_scenePanel.SetDrawMode(Lina::Editor::ScenePanel::DrawMode::ShadowMap);
@@ -427,7 +436,7 @@ namespace Lina::Editor
 			if (s_setDockspaceLayout)
 			{
 				s_setDockspaceLayout = false;
-				Vector2 screenSize = Lina::Application::GetAppWindow().GetSize();
+				Vector2 screenSize = Lina::Graphics::WindowBackend::Get()->GetSize();
 				ImGui::DockBuilderRemoveNode(dockspace_id); // Clear out existing layout
 				ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace); // Add empty node
 				ImGui::DockBuilderSetNodeSize(dockspace_id, ImVec2(screenSize.x, screenSize.y));
@@ -458,10 +467,10 @@ namespace Lina::Editor
 	
 	void GUILayer::CreateObjectInLevel(const std::string& modelPath)
 	{
-		auto& ecs = Lina::Application::GetECSRegistry();
+		auto* ecs = Lina::ECS::Registry::Get();
 		auto& model = Lina::Graphics::Model::GetModel(modelPath);
-		auto entity = ecs.CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
-		auto& mr = ecs.emplace<ECS::ModelRendererComponent>(entity);
+		auto entity = ecs->CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
+		auto& mr = ecs->emplace<ECS::ModelRendererComponent>(entity);
 		mr.SetModel(ecs, entity, model);
 
 		auto& mat = Graphics::Material::GetMaterial("resources/engine/materials/DefaultLit.mat");

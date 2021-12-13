@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Core/EditorApplication.hpp"
 #include "Core/Application.hpp"
-#include "Rendering/RenderEngine.hpp"
+#include "Core/RenderEngineBackend.hpp"
 #include "Panels/ECSPanel.hpp"
 #include "Core/SplashScreen.hpp"
 #include "Core/GUILayer.hpp"
@@ -38,18 +38,11 @@ SOFTWARE.
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Systems/FreeLookSystem.hpp"
 #include "Core/EditorCommon.hpp"
+
 using namespace Lina::ECS;
 
 namespace Lina::Editor
 {
-
-	Lina::Action::ActionDispatcher EditorApplication::s_editorDispatcher;
-
-	EditorApplication::EditorApplication()
-	{
-		s_editorDispatcher.Initialize(Lina::Action::ActionType::EditorActionsStartIndex, Lina::Action::ActionType::EditorActionsEndIndex);
-
-	}
 
 	EditorApplication::~EditorApplication()
 	{
@@ -60,7 +53,7 @@ namespace Lina::Editor
 	{
 		LINA_TRACE("[Constructor] -> Editor Application ({0})", typeid(*this).name());
 
-		Lina::Graphics::WindowProperties splashProps;
+		Lina::WindowProperties splashProps;
 		splashProps.m_width = 720;
 		splashProps.m_height = 450;
 		splashProps.m_decorated = false;
@@ -73,14 +66,12 @@ namespace Lina::Editor
 		// Remove splash.
 		delete splash;
 
-		Lina::Application::GetRenderEngine().PushLayer(m_guiLayer);
+		Lina::Graphics::RenderEngineBackend::Get()->PushLayer(m_guiLayer);
 
-		Lina::Application::GetEngineDispatcher().SubscribeAction<Lina::World::Level*>("##linaeditor_level_init", Lina::Action::ActionType::LevelInitialized,
-			std::bind(&EditorApplication::LevelInstalled, this, std::placeholders::_1));
+		Lina::Event::EventSystem::Get()->Connect<Event::ELevelInitialized, &EditorApplication::LevelInitialized>(this);
+		Lina::Event::EventSystem::Get()->Connect<Event::EPlayModeChanged, &EditorApplication::PlayModeChanged>(this);
 
-		Lina::Application::GetEngineDispatcher().SubscribeAction <bool>("##linaeditor_playmode", Lina::Action::ActionType::PlayModeActivation, std::bind(&EditorApplication::PlayModeChanged, this, std::placeholders::_1));
-
-		editorCameraSystem.Construct(Lina::Application::GetECSRegistry(), Lina::Application::GetInputEngine(), m_guiLayer.GetScenePanel());
+		editorCameraSystem.Initialize(m_guiLayer.GetScenePanel());
 		editorCameraSystem.SystemActivation(true);
 
 		Lina::Application::GetApp().AddToMainPipeline(editorCameraSystem);
@@ -93,53 +84,55 @@ namespace Lina::Editor
 		m_guiLayer.Refresh();
 	}
 
-	void EditorApplication::LevelInstalled(Lina::World::Level* level)
+	void EditorApplication::LevelInitialized(Event::ELevelInitialized ev)
 	{
-		Registry& ecs = Lina::Application::GetECSRegistry();
+		Registry* ecs = Lina::ECS::Registry::Get();
 
-		auto singleView = ecs.view<Lina::ECS::EntityDataComponent>();
+		auto singleView = ecs->view<Lina::ECS::EntityDataComponent>();
 
-		if (ecs.GetEntity(EDITOR_CAMERA_NAME) == entt::null)
+		if (ecs->GetEntity(EDITOR_CAMERA_NAME) == entt::null)
 		{
-			Entity editorCamera = ecs.CreateEntity(EDITOR_CAMERA_NAME);
+			Entity editorCamera = ecs->CreateEntity(EDITOR_CAMERA_NAME);
 			EntityDataComponent cameraTransform;
 			CameraComponent cameraComponent;
 			FreeLookComponent freeLookComponent;
-			ecs.emplace<CameraComponent>(editorCamera, cameraComponent);
-			ecs.emplace<FreeLookComponent>(editorCamera, freeLookComponent);
-			Lina::Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(editorCamera);
+			ecs->emplace<CameraComponent>(editorCamera, cameraComponent);
+			ecs->emplace<FreeLookComponent>(editorCamera, freeLookComponent);
+			Lina::Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(editorCamera);
 			editorCameraSystem.SetEditorCamera(editorCamera);
 			Refresh();
 		}
 		else
 		{
-			Entity editorCamera = ecs.GetEntity(EDITOR_CAMERA_NAME);
-			Lina::Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(editorCamera);
-			ecs.get<FreeLookComponent>(editorCamera).m_isEnabled = true;
+			Entity editorCamera = ecs->GetEntity(EDITOR_CAMERA_NAME);
+			Lina::Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(editorCamera);
+			ecs->get<FreeLookComponent>(editorCamera).m_isEnabled = true;
 			editorCameraSystem.SetEditorCamera(editorCamera);
 		}
 
 	}
 
-	void EditorApplication::PlayModeChanged(bool enabled)
+	void EditorApplication::PlayModeChanged(Event::EPlayModeChanged playMode)
 	{
-		Registry& ecs = Lina::Application::GetECSRegistry();
-		Entity editorCamera = ecs.GetEntity(EDITOR_CAMERA_NAME);
+		bool enabled = playMode.m_playMode;
+
+		Registry* ecs = Lina::ECS::Registry::Get();
+		Entity editorCamera = ecs->GetEntity(EDITOR_CAMERA_NAME);
 
 		if (editorCamera != entt::null)
 		{
 			if (enabled)
 			{
-				if (Lina::Application::GetRenderEngine().GetCameraSystem()->GetActiveCamera() == editorCamera)
-					Lina::Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(entt::null);
+				if (Lina::Graphics::RenderEngineBackend::Get()->GetCameraSystem()->GetActiveCamera() == editorCamera)
+					Lina::Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(entt::null);
 
-				ecs.get<FreeLookComponent>(editorCamera).m_isEnabled = false;
+				ecs->get<FreeLookComponent>(editorCamera).m_isEnabled = false;
 				editorCameraSystem.SystemActivation(false);
 			}
 			else
 			{
-				Lina::Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(editorCamera);
-				ecs.get<FreeLookComponent>(editorCamera).m_isEnabled = true;
+				Lina::Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(editorCamera);
+				ecs->get<FreeLookComponent>(editorCamera).m_isEnabled = true;
 				editorCameraSystem.SystemActivation(true);
 			}
 			

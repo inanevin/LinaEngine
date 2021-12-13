@@ -39,7 +39,8 @@ Timestamp: 4/26/2019 6:20:27 PM
 #ifndef Sampler_HPP
 #define Sampler_HPP
 
-#include "PackageManager/PAMRenderDevice.hpp"
+#include "RenderingCommon.hpp"
+#include "Core/RenderBackendFwd.hpp"
 
 namespace Lina::Graphics
 {
@@ -50,36 +51,21 @@ namespace Lina::Graphics
 		Sampler() {};
 
 		// Destructor releases sampler data through render engine
-		~Sampler()
-		{
-			m_engineBoundID = s_renderDevice->ReleaseSampler(m_engineBoundID);
-		}
+		~Sampler();
 
-		void Construct(RenderDevice& deviceIn, SamplerParameters samplerParams, TextureBindMode bindMode, bool isCubemap = false)
-		{
-			s_renderDevice = &deviceIn;
-			m_engineBoundID = s_renderDevice->CreateSampler(samplerParams, isCubemap);
-			m_targetBindMode = bindMode;
-			m_params = samplerParams;
-		}
-
-		void UpdateSettings(SamplerParameters samplerParams) 
-		{
-			m_params = samplerParams;
-			s_renderDevice->UpdateSamplerParameters(m_engineBoundID, samplerParams);
-			s_renderDevice->UpdateTextureParameters(m_targetBindMode, m_targetTextureID, samplerParams);
-		}
+		void Construct(SamplerParameters samplerParams, TextureBindMode bindMode, bool isCubemap = false);
+		void UpdateSettings(SamplerParameters samplerParams);
 
 		SamplerParameters& GetSamplerParameters() { return m_params; }
-
 		uint32 GetID() const { return m_engineBoundID; }
 		void SetTargetTextureID(uint32 id) { m_targetTextureID = id; }
+
 	private:
 
 		uint32 m_targetTextureID = 0;
 		TextureBindMode m_targetBindMode;
 		SamplerParameters m_params;
-		RenderDevice* s_renderDevice = nullptr;
+		RenderDevice* m_renderDevice = nullptr;
 		uint32 m_engineBoundID = 0;
 
 

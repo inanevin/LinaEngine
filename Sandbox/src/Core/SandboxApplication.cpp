@@ -18,12 +18,7 @@ Timestamp: 12/29/2018 11:15:41 PM
 */
 
 #include <Lina.hpp>
-#include "PackageManager/PAMWindow.hpp"
-#include "PackageManager/PAMInputDevice.hpp"
-#include "Rendering/RenderEngine.hpp"
-#include "Core/PhysicsEngine.hpp"
-#include "Core/AudioEngine.hpp"
-#include "Input/InputEngine.hpp"
+#include "Core/WindowBackend.hpp"
 #include "Core/EditorApplication.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
@@ -44,10 +39,10 @@ public:
 		LINA_TRACE("[Constructor] -> Sandbox Application ({0})", typeid(*this).name());
 
 		// Init engine.
-		Lina::Graphics::WindowProperties props;
+		Lina::WindowProperties props;
 		props.m_width = 1440;
 		props.m_height = 900;
-		props.m_windowState = Graphics::WindowState::Maximized;
+		props.m_windowState = WindowState::Maximized;
 		props.m_decorated = false;
 		props.m_resizable = true;
 		props.m_fullscreen = false;
@@ -62,11 +57,11 @@ public:
 		m_editor.Refresh();
 
 		// Update props.
-		auto& windowProps = GetAppWindow().GetWindowProperties();
+		auto& windowProps = Graphics::WindowBackend::Get()->GetProperties();
 
 		// Set the app window size back to original.
-		GetAppWindow().SetPos(Vector2::Zero);
-		GetAppWindow().SetSize(Vector2(windowProps.m_workingAreaWidth, windowProps.m_workingAreaHeight));
+		Graphics::WindowBackend::Get()->SetPos(Vector2::Zero);
+		Graphics::WindowBackend::Get()->SetSize(Vector2(windowProps.m_workingAreaWidth, windowProps.m_workingAreaHeight));
 
 		SetPlayMode(false);
 #else
@@ -74,7 +69,7 @@ public:
 		SetPlayMode(true);
 #endif
 		GetMainStack().PushLayer(m_gameManager);
-		GetAppWindow().SetVsync(2);
+		Graphics::WindowBackend::Get()->SetVsync(2);
 		// Run engine.
 		Run();
 
@@ -98,40 +93,4 @@ private:
 Lina::Application* Lina::CreateApplication()
 {
 	return new SandboxApplication();
-}
-
-// Default platform context window.
-Lina::Graphics::Window* Lina::CreateContextWindow()
-{
-	return new ContextWindow();
-}
-
-// Default platform input device.
-Lina::Input::InputDevice* Lina::CreateInputDevice()
-{
-	return new InputDevice();
-}
-
-// Default engine
-Lina::Graphics::RenderEngine* Lina::CreateRenderEngine()
-{
-	return new Lina::Graphics::RenderEngine();
-}
-
-// Default engine
-Lina::Physics::PhysicsEngine* Lina::CreatePhysicsEngine()
-{
-	return new Lina::Physics::PhysicsEngine();
-}
-
-// Default engine
-Lina::Audio::AudioEngine* Lina::CreateAudioEngine()
-{
-	return new Lina::Audio::AudioEngine();
-}
-
-// Default engine
-Lina::Input::InputEngine* Lina::CreateInputEngine()
-{
-	return new Lina::Input::InputEngine();
 }

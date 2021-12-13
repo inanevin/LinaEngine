@@ -40,10 +40,10 @@ Timestamp: 10/15/2020 10:44:39 PM
 #ifndef EditorApplication_HPP
 #define EditorApplication_HPP
 
-#include "Actions/ActionDispatcher.hpp"
 #include "Log/Log.hpp"
 #include "ECS/Systems/EditorCameraSystem.hpp"
 #include "Core/GUILayer.hpp"
+#include "EventSystem/Events.hpp"
 
 namespace Lina
 {
@@ -60,22 +60,20 @@ namespace Lina::Editor
 	{
 	public:
 
-		EditorApplication();
+		EditorApplication() {};
 		~EditorApplication();
 
 		void Setup();
 		void Refresh();
-		void LevelInstalled(Lina::World::Level* level);
-		static Lina::Action::ActionDispatcher& GetEditorDispatcher() { return s_editorDispatcher; }
+		void LevelInitialized(Event::ELevelInitialized ev);
 
 	private:
 
-		void PlayModeChanged(bool enabled);
+		void PlayModeChanged(Event::EPlayModeChanged playmode);
 
 	private:
 
 		Lina::ECS::EditorCameraSystem editorCameraSystem;
-		static Lina::Action::ActionDispatcher s_editorDispatcher;
 		GUILayer m_guiLayer;
 	};
 }

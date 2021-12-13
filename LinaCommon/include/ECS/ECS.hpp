@@ -57,6 +57,11 @@ Timestamp: 4/8/2019 5:28:34 PM
 #include <map>
 #include <set>
 
+namespace Lina
+{
+	class Application;
+}
+
 namespace Lina::ECS
 {
 	typedef entt::entity Entity;
@@ -76,6 +81,8 @@ namespace Lina::ECS
 
 		Registry() {  };
 		virtual ~Registry();
+
+		FORCEINLINE static Registry* Get() { return s_ecs; }
 
 		void Initialize();
 
@@ -134,6 +141,10 @@ namespace Lina::ECS
 
 	private:
 
+		friend class Lina::Application;
+
+		static Registry* s_ecs;
+
 		std::unordered_map<TypeID, std::pair<ComponentSerializeFunction, ComponentDeserializeFunction>> m_serializeFunctions;
 		std::map<TypeID, std::function<void(Entity, Entity)>> m_cloneComponentFunctions;
 
@@ -146,12 +157,12 @@ namespace Lina::ECS
 
 		BaseECSSystem() {};
 
+		virtual void Initialize();
 		virtual void UpdateComponents(float delta) = 0;
 		virtual void SystemActivation(bool active) { m_isActive = active; }
 
 	protected:
 
-		virtual void Construct(Registry& reg) { m_ecs = &reg; };
 		Registry* m_ecs = nullptr;
 		bool m_isActive = false;
 

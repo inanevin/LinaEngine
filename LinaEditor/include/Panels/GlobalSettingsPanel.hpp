@@ -40,6 +40,7 @@ Timestamp: 10/30/2020 9:37:42 AM
 #define GlobalSettingsPanel_HPP
 
 #include "Panels/EditorPanel.hpp"
+#include "EventSystem/Events.hpp"
 
 namespace Lina
 {
@@ -62,8 +63,8 @@ namespace Lina::Editor
 		virtual void Setup() override;
 		virtual void Draw() override;
 	
-		void LevelInstalled(Lina::World::Level* level);
-		void LevelIUninstalled(Lina::World::Level* level);
+		void LevelInstalled(Event::ELevelInstalled ev);
+		void LevelIUninstalled(Event::ELevelUninstalled ev);
 
 	private:
 	

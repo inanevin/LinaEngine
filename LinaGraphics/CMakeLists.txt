@@ -31,16 +31,21 @@ set (LINAGRAPHICS_SOURCES
 	src/Rendering/Mesh.cpp
 	src/Rendering/ModelLoader.cpp
 	src/Rendering/Material.cpp
-	src/Rendering/RenderEngine.cpp
 	src/Rendering/Model.cpp
 	src/Rendering/RenderingCommon.cpp
 	src/Rendering/Shader.cpp
 	src/Rendering/RenderSettings.cpp
 	src/Rendering/PostProcessEffect.cpp
+	src/Rendering/RenderBuffer.cpp
+	src/Rendering/RenderTarget.cpp
+	src/Rendering/Sampler.cpp
+	src/Rendering/UniformBuffer.cpp
+	src/Rendering/VertexArray.cpp
 	
-	src/PackageManager/OpenGL/GLRenderDevice.cpp
-	src/PackageManager/OpenGL/GLWindow.cpp
-	
+	src/Core/Backend/OpenGL/OpenGLWindow.cpp
+	src/Core/Backend/OpenGL/OpenGLRenderEngine.cpp
+	src/Core/Backend/OpenGL/OpenGLRenderDevice.cpp
+
 	src/ECS/Systems/MeshRendererSystem.cpp
 	src/ECS/Systems/SpriteRendererSystem.cpp
 	src/ECS/Systems/CameraSystem.cpp
@@ -54,6 +59,16 @@ set (LINAGRAPHICS_SOURCES
 # Set headers
 #--------------------------------------------------------------------
 set(LINAGRAPHICS_HEADERS
+
+	# Backend
+	include/Core/WindowBackend.hpp
+	include/Core/RenderDeviceBackend.hpp
+	include/Core/RenderEngineBackend.hpp
+	include/Core/Backend/OpenGL/OpenGLRenderEngine.hpp
+	include/Core/Backend/OpenGL/OpenGLRenderDevice.hpp
+	include/Core/Backend/OpenGL/OpenGLWindow.hpp
+	include/Core/RenderBackendFwd.hpp
+	
 	#Helpers
 	include/Helpers/DrawParameterHelper.hpp
 	
@@ -64,10 +79,8 @@ set(LINAGRAPHICS_HEADERS
 
 	#Rendering
 	include/Rendering/ArrayBitmap.hpp
-	include/Rendering/RenderEngine.hpp
 	include/Rendering/Shader.hpp
 	include/Rendering/Texture.hpp
-	include/Rendering/Window.hpp
 	include/Rendering/Mesh.hpp
 	include/Rendering/ModelLoader.hpp
 	include/Rendering/VertexArray.hpp
@@ -83,10 +96,7 @@ set(LINAGRAPHICS_HEADERS
 	include/Rendering/RenderSettings.hpp
 	include/Rendering/PostProcessEffect.hpp
 	
-	include/PackageManager/PAMRenderDevice.hpp	
-	include/PackageManager/PAMWindow.hpp
-	include/PackageManager/OpenGL/GLRenderDevice.hpp
-	include/PackageManager/OpenGL/GLWindow.hpp
+
 	
 	include/ECS/Systems/AnimationSystem.hpp
 	include/ECS/Systems/CameraSystem.hpp

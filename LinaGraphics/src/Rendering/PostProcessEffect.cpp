@@ -27,21 +27,23 @@ SOFTWARE.
 */
 
 #include "Rendering/PostProcessEffect.hpp"
-#include "Rendering/RenderEngine.hpp"
+#include "Core/RenderEngineBackend.hpp"
 #include "Helpers/DrawParameterHelper.hpp"
 
 namespace Lina::Graphics
 {
-	void PostProcessEffect::Construct(Shader& shader, RenderEngine* renderEngine)
+
+
+	void PostProcessEffect::Construct(Shader& shader)
 	{
-		m_renderEngine = renderEngine;
-		m_renderDevice = &m_renderEngine->GetRenderDevice();
+		m_renderEngine= RenderEngineBackend::Get();
+		m_renderDevice = m_renderEngine->GetRenderDevice();
 		m_samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
 		m_samplerParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGBA16F;
 		m_samplerParams.m_textureParams.m_minFilter = m_samplerParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
 		m_samplerParams.m_textureParams.m_wrapS = m_samplerParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
-		m_rtTexture.ConstructRTTexture(*m_renderDevice, m_renderEngine->GetViewportSize(), m_samplerParams, false);
-		m_renderTarget.Construct(*m_renderDevice, m_rtTexture, m_renderEngine->GetViewportSize(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
+		m_rtTexture.ConstructRTTexture(m_renderEngine->GetViewportSize(), m_samplerParams, false);
+		m_renderTarget.Construct(m_rtTexture, m_renderEngine->GetViewportSize(), TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR);
 		m_drawParams = DrawParameterHelper::GetFullScreenQuad();
 		Material::SetMaterialShader(m_material, shader);
 	}

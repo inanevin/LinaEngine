@@ -46,7 +46,6 @@ namespace Lina
 {
 	namespace Graphics
 	{
-		class RenderEngine;
 		class Model;
 		class Texture;
 		class Material;

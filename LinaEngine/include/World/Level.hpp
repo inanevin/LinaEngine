@@ -42,7 +42,7 @@ Timestamp: 5/6/2019 5:10:23 PM
 #define Level_HPP
 
 #include <string>
-#include <cereal/archives/binary.hpp>
+#include <cereal/archives/portable_binary.hpp>
 #include "Math/Color.hpp"
 
 namespace Lina

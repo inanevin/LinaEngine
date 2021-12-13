@@ -26,6 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "EventSystem/EventSystem.hpp"
 #include "ECS/ECS.hpp"  
 #include "Log/Log.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
@@ -33,6 +34,8 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
+	Registry* Registry::s_ecs = nullptr;
+
 	bool ECSSystemList::RemoveSystem(BaseECSSystem& system)
 	{
 		for (unsigned int i = 0; i < m_systems.size(); i++)
@@ -219,6 +222,11 @@ namespace Lina::ECS
 			RemoveFromParent(entity);
 
 		destroy(entity);
+	}
+
+	void BaseECSSystem::Initialize()
+	{
+		m_ecs = ECS::Registry::Get();
 	}
 
 }

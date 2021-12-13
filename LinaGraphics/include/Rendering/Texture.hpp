@@ -40,10 +40,9 @@ Timestamp: 1/7/2019 1:55:47 PM
 #ifndef Texture_HPP
 #define Texture_HPP
 
-
+#include "Core/RenderBackendFwd.hpp"
 #include "Rendering/RenderingCommon.hpp"
 #include "Core/Common.hpp"
-#include "PackageManager/PAMRenderDevice.hpp"
 #include "Sampler.hpp"
 
 namespace Lina::Graphics
@@ -59,13 +58,13 @@ namespace Lina::Graphics
 		Texture() {};
 		~Texture();
 
-		Texture& Construct(RenderDevice& deviceIn, const class ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress, const std::string& path = "");
-		Texture& ConstructCubemap(RenderDevice& deviceIn, SamplerParameters samplerParams, const std::vector<class ArrayBitmap*>& data, bool compress, const std::string& path = "");
-		Texture& ConstructHDRI(RenderDevice& deviceIn, SamplerParameters samplerParams, Vector2 size, float* data, const std::string& path = "");
-		Texture& ConstructRTCubemapTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, const std::string& path = "");
-		Texture& ConstructRTTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, bool useBorder = false, const std::string& path = "");
-		Texture& ConstructRTTextureMSAA(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, int sampleCount, const std::string& path = "");
-		Texture& ConstructEmpty(RenderDevice& deviceIn, SamplerParameters samplerParams = SamplerParameters(), const std::string& path = "");
+		Texture& Construct( const class ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress, const std::string& path = "");
+		Texture& ConstructCubemap( SamplerParameters samplerParams, const std::vector<class ArrayBitmap*>& data, bool compress, const std::string& path = "");
+		Texture& ConstructHDRI(SamplerParameters samplerParams, Vector2 size, float* data, const std::string& path = "");
+		Texture& ConstructRTCubemapTexture(Vector2 size, SamplerParameters samplerParams, const std::string& path = "");
+		Texture& ConstructRTTexture(Vector2 size, SamplerParameters samplerParams, bool useBorder = false, const std::string& path = "");
+		Texture& ConstructRTTextureMSAA(Vector2 size, SamplerParameters samplerParams, int sampleCount, const std::string& path = "");
+		Texture& ConstructEmpty( SamplerParameters samplerParams = SamplerParameters(), const std::string& path = "");
 		static SamplerParameters LoadParameters(const std::string& path);
 		static void SaveParameters(const std::string& path, SamplerParameters params);
 		uint32 GetID() const { return m_id; };
@@ -91,11 +90,11 @@ namespace Lina::Graphics
 
 		static std::map<int, Texture*> s_loadedTextures;
 
-		friend class RenderEngine;
+		friend RenderEngine;
 
 		TextureBindMode m_bindMode;
 		Sampler m_sampler;
-		RenderDevice* s_renderDevice = nullptr;
+		RenderDevice* m_renderDevice = nullptr;
 		uint32 m_id = 0;
 		Vector2 m_size = Vector2::One;
 		bool m_isCompressed = false;

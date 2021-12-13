@@ -30,7 +30,6 @@ SOFTWARE.
 #include "Core/GUILayer.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Drawers/EntityDrawer.hpp"
-#include "Rendering/RenderEngine.hpp"
 #include "Core/Application.hpp"
 #include "Rendering/Model.hpp"
 #include "Core/EditorApplication.hpp"
@@ -46,45 +45,35 @@ namespace Lina::Editor
 
 	void PropertiesPanel::Setup()
 	{
-		EditorApplication::GetEditorDispatcher().SubscribeAction<Lina::ECS::Entity>("##lina_propsPanel_entity", Lina::Action::ActionType::EntitySelected,
-			std::bind(&PropertiesPanel::EntitySelected, this, std::placeholders::_1));
-
-		EditorApplication::GetEditorDispatcher().SubscribeAction<Lina::Graphics::Model*>("##lina_propsPanel_mesh", Lina::Action::ActionType::MeshSelected,
-			std::bind(&PropertiesPanel::MeshSelected, this, std::placeholders::_1));
-
-		EditorApplication::GetEditorDispatcher().SubscribeAction<std::pair<EditorFile*, Lina::Graphics::Material*>>("##lina_propsPanel_material", Lina::Action::ActionType::MaterialSelected,
-			std::bind(&PropertiesPanel::MaterialSelected, this, std::placeholders::_1));
-
-
-		EditorApplication::GetEditorDispatcher().SubscribeAction<Lina::Graphics::Texture*>("##lina_propsPanel_texture", Lina::Action::ActionType::TextureSelected,
-			std::bind(&PropertiesPanel::TextureSelected, this, std::placeholders::_1));
-
-		EditorApplication::GetEditorDispatcher().SubscribeAction<void*>("##lina_propsPanel_unselect", Lina::Action::ActionType::Unselect,
-			std::bind(&PropertiesPanel::Unselect, this));
+		Lina::Event::EventSystem::Get()->Connect<EEntitySelected, &PropertiesPanel::EntitySelected>(this);
+		Lina::Event::EventSystem::Get()->Connect<EModelSelected, &PropertiesPanel::ModelSelected>(this);
+		Lina::Event::EventSystem::Get()->Connect<EMaterialSelected, &PropertiesPanel::MaterialSelected>(this);
+		Lina::Event::EventSystem::Get()->Connect<ETextureSelected, &PropertiesPanel::TextureSelected>(this);
+		Lina::Event::EventSystem::Get()->Connect<EEntityUnselected, &PropertiesPanel::Unselect>(this);
 
 		m_entityDrawer.Setup();
 	}
 
-	void PropertiesPanel::EntitySelected(Lina::ECS::Entity selectedEntity)
+	void PropertiesPanel::EntitySelected(EEntitySelected ev)
 	{
-		m_entityDrawer.SetSelectedEntity(selectedEntity);
+		m_entityDrawer.SetSelectedEntity(ev.m_entity);
 		m_currentDrawType = DrawType::Entities;
 	}
 
-	void PropertiesPanel::TextureSelected(Lina::Graphics::Texture* texture)
+	void PropertiesPanel::TextureSelected(ETextureSelected ev)
 	{
-		m_textureDrawer.SetSelectedTexture(texture);
+		m_textureDrawer.SetSelectedTexture(ev.m_texture);
 		m_currentDrawType = DrawType::Texture2D;
 	}
 
-	void PropertiesPanel::MaterialSelected(std::pair<EditorFile*, Lina::Graphics::Material*> pair)
+	void PropertiesPanel::MaterialSelected(EMaterialSelected ev)
 	{
-		m_materialDrawer.SetSelectedMaterial(pair.first, *pair.second);
+		m_materialDrawer.SetSelectedMaterial(ev.m_file, *ev.m_material);
 		m_currentDrawType = DrawType::Material;
 	}
-	void PropertiesPanel::MeshSelected(Lina::Graphics::Model* mesh)
+	void PropertiesPanel::ModelSelected(EModelSelected ev)
 	{
-		m_meshDrawer.SetSelectedMesh(*mesh);
+		m_modelDrawer.SetSelectedModel(*ev.m_model);
 		m_currentDrawType = DrawType::Model;
 	}
 
@@ -114,7 +103,7 @@ namespace Lina::Editor
 			else if (m_currentDrawType == DrawType::Texture2D)
 				m_textureDrawer.DrawSelectedTexture();
 			else if (m_currentDrawType == DrawType::Model)
-				m_meshDrawer.DrawSelectedMesh();
+				m_modelDrawer.DrawSelectedMesh();
 			else if (m_currentDrawType == DrawType::Material)
 				m_materialDrawer.DrawSelectedMaterial();
 

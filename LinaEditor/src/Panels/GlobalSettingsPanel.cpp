@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Panels/GlobalSettingsPanel.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Core/EditorCommon.hpp"
-#include "Rendering/RenderEngine.hpp"
+#include "Core/RenderEngineBackend.hpp"
 #include "Core/Application.hpp"
 #include "Rendering/RenderSettings.hpp"
 #include "World/Level.hpp"
@@ -45,14 +45,9 @@ namespace Lina::Editor
 
 	void GlobalSettingsPanel::Setup()
 	{
-		Lina::Application::GetEngineDispatcher().SubscribeAction<Lina::World::Level*>("#levelsettings_levelinstall", Lina::Action::ActionType::LevelInstalled,
-			std::bind(&GlobalSettingsPanel::LevelInstalled, this, std::placeholders::_1));
-
-		Lina::Application::GetEngineDispatcher().SubscribeAction<Lina::World::Level*>("#levelsettings_leveluninstall", Lina::Action::ActionType::LevelUninstalled,
-			std::bind(&GlobalSettingsPanel::LevelInstalled, this, std::placeholders::_1));
-
+		Lina::Event::EventSystem::Get()->Connect<Lina::Event::ELevelInstalled, &GlobalSettingsPanel::LevelInstalled>(this);
+		Lina::Event::EventSystem::Get()->Connect<Lina::Event::ELevelUninstalled, &GlobalSettingsPanel::LevelIUninstalled>(this);
 		m_show = true;
-
 	}
 
 	void GlobalSettingsPanel::Draw()
@@ -87,7 +82,7 @@ namespace Lina::Editor
 				ImGui::SameLine();
 				ImGui::SetCursorPosX(cursorPosValues);
 				WidgetsUtility::ColorButton("##lvlAmb", &levelData.m_ambientColor.r);
-				Lina::Application::GetRenderEngine().GetLightingSystem()->SetAmbientColor(levelData.m_ambientColor);
+				Lina::Graphics::RenderEngineBackend::Get()->GetLightingSystem()->SetAmbientColor(levelData.m_ambientColor);
 				// Material selection
 				if (Lina::Graphics::Material::MaterialExists(levelData.m_skyboxMaterialID))
 				{
@@ -142,8 +137,8 @@ namespace Lina::Editor
 							if (ImGui::Button("Capture HDRI", ImVec2(20, 30)))
 							{
 								auto& texture = mat.GetTexture("material.environmentMap");
-								if(!texture.GetIsEmpty())
-								Application::GetRenderEngine().CaptureCalculateHDRI(texture);
+								if (!texture.GetIsEmpty())
+									Lina::Graphics::RenderEngineBackend::Get()->CaptureCalculateHDRI(texture);
 							}
 						}
 					}
@@ -157,7 +152,7 @@ namespace Lina::Editor
 			/// </summary>
 
 
-			Lina::Graphics::RenderSettings& renderSettings = Lina::Application::GetRenderEngine().GetRenderSettings();
+			Lina::Graphics::RenderSettings& renderSettings = Lina::Graphics::RenderEngineBackend::Get()->GetRenderSettings();
 
 			// Shadow.
 			WidgetsUtility::DrawShadowedLine(5);
@@ -254,7 +249,7 @@ namespace Lina::Editor
 			WidgetsUtility::DrawBeveledLine();
 			WidgetsUtility::IncrementCursorPosY(6);
 
-			Lina::Application::GetRenderEngine().UpdateRenderSettings();
+			Lina::Graphics::RenderEngineBackend::Get()->UpdateRenderSettings();
 			ImGui::SetCursorPosX(cursorPosLabels);
 
 			if (ImGui::Button("Save Settings", ImVec2(90, 30)))
@@ -267,13 +262,13 @@ namespace Lina::Editor
 		}
 	}
 
-	void GlobalSettingsPanel::LevelInstalled(Lina::World::Level* level)
+	void GlobalSettingsPanel::LevelInstalled(Event::ELevelInstalled ev)
 	{
-		m_currentLevel = level;
+		m_currentLevel = Lina::Application::GetApp().GetCurrentLevel();
 		m_currentLevel->SetSkyboxMaterial();
 	}
 
-	void GlobalSettingsPanel::LevelIUninstalled(Lina::World::Level* level)
+	void GlobalSettingsPanel::LevelIUninstalled(Event::ELevelUninstalled ev)
 	{
 		m_currentLevel = nullptr;
 	}

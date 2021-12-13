@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Rendering/Material.hpp"
-#include "Rendering/RenderEngine.hpp"
+#include "Core/RenderEngineBackend.hpp"
 #include "Rendering/Shader.hpp"
 #include "Rendering/Texture.hpp"
 #include "Utility/UtilityFunctions.hpp"
@@ -42,7 +42,7 @@ namespace Lina::Graphics
 	std::set<Material*> Material::s_shadowMappedMaterials;
 	std::set<Material*> Material::s_hdriMaterials;
 
-	void Material::PostLoadMaterialData(Lina::Graphics::RenderEngine& renderEngine)
+	void Material::PostLoadMaterialData()
 	{
 		for (std::map<std::string, MaterialSampler2D>::iterator it = m_sampler2Ds.begin(); it != m_sampler2Ds.end(); ++it)
 		{
@@ -55,7 +55,7 @@ namespace Lina::Graphics
 		if (Shader::ShaderExists(m_shaderPath))
 			m_shaderID = Shader::GetShader(m_shaderPath).GetID();
 		else
-			m_shaderID = RenderEngine::GetDefaultShader().GetID();
+			m_shaderID = OpenGLRenderEngine::GetDefaultShader().GetID();
 	}
 
 
@@ -146,7 +146,7 @@ namespace Lina::Graphics
 		if (Shader::ShaderExists(mat.m_shaderPath))
 			SetMaterialShader(mat, Shader::GetShader(mat.m_shaderPath), true);
 		else
-			SetMaterialShader(mat, RenderEngine::GetDefaultShader(), true);
+			SetMaterialShader(mat, OpenGLRenderEngine::GetDefaultShader(), true);
 
 		SetMaterialContainers(mat);
 
@@ -225,7 +225,7 @@ namespace Lina::Graphics
 		{
 			// Mesh not found.
 			LINA_WARN("Material with the id {0} was not found, returning default material...", id);
-			return RenderEngine::GetDefaultUnlitMaterial();
+			return OpenGLRenderEngine::GetDefaultUnlitMaterial();
 		}
 
 		return s_loadedMaterials[id];

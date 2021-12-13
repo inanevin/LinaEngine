@@ -30,14 +30,19 @@ SOFTWARE.
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "Core/Application.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
-#include "Input/InputAxisBinder.hpp"
-#include "Input/InputEngine.hpp"
 #include "Math/Math.hpp"
 #include "Panels/ScenePanel.hpp"
 #include "Core/EditorCommon.hpp"
+
 namespace Lina::ECS
 {
-	
+
+	void EditorCameraSystem::Initialize(Lina::Editor::ScenePanel& scenePanel)
+	{
+		BaseECSSystem::Initialize();
+		m_scenePanel = &scenePanel;
+		m_inputEngine = Lina::Input::InputEngineBackend::Get();
+	}
 
 	void Lina::ECS::EditorCameraSystem::UpdateComponents(float delta)
 	{

@@ -29,7 +29,7 @@ SOFTWARE.
 #include "ECS/Systems/RigidbodySystem.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
-#include "Core/PhysicsEngine.hpp"
+#include "Core/PhysicsBackend.hpp"
 
 namespace Lina::ECS
 {
@@ -48,7 +48,7 @@ namespace Lina::ECS
 			// We get the rigidbody information from the world, and update the entity's transformation
 			// based on the body's transformation. So we keep the game world that does the rendering via
 			// transformations in sync with the physics world.
-			btRigidBody* rb = m_physicsEngine->GetActiveRigidbody(rbComponent.m_bodyID);
+			btRigidBody* rb = Physics::PhysicsEngineBackend::Get()->GetActiveRigidbody(rbComponent.m_bodyID);
 			btTransform btTrans;
 			rb->getMotionState()->getWorldTransform(btTrans);
 

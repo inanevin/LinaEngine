@@ -30,8 +30,8 @@ SOFTWARE.
 #include "Math/Vector.hpp"
 #include "Math/Math.hpp"
 #include "Rendering/Texture.hpp"
-#include "Rendering/RenderEngine.hpp"
-#include "Rendering/Window.hpp"
+#include "Core/RenderBackendFwd.hpp"
+#include "Core/WindowBackend.hpp"
 #include "Core/GUILayer.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Widgets/WidgetsUtility.hpp"
@@ -137,14 +137,14 @@ namespace Lina::Editor
 		debug.emplace_back(new MenuItem(ICON_FA_IMAGES, " Debug View Normal", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::DebugViewNormal)));
 		m_menuBarButtons.emplace_back(new MenuButton(/*ICON_FA_BUG*/ "Debug", "dbg_panel", debug, HEADER_COLOR_BG, true));
 
-		m_title = Application::GetAppWindow().GetWindowProperties().m_title;
+		m_title = Lina::Graphics::WindowBackend::Get()->GetProperties().m_title;
 	}
 
 	void HeaderPanel::Draw()
 	{
 		if (m_show)
 		{
-			Lina::Graphics::Window& appWindow = Lina::Application::GetAppWindow();
+			Lina::Graphics::WindowBackend* appWindow = Lina::Graphics::WindowBackend::Get();
 			// Logo animation
 			if (logoAnimRatio < 0.99f)
 			{
@@ -199,11 +199,11 @@ namespace Lina::Editor
 					appResizeActive = true;
 					ImVec2 delta = ImVec2(ImGui::GetMousePos().x - resizeStartPos.x, ImGui::GetMousePos().y - resizeStartPos.y);
 
-					appWindow.SetSize(Vector2(resizeStartSize.x + delta.x, resizeStartSize.y + delta.y));
+					appWindow->SetSize(Vector2(resizeStartSize.x + delta.x, resizeStartSize.y + delta.y));
 				}
 				else
 				{
-					resizeStartSize = appWindow.GetSize();
+					resizeStartSize = appWindow->GetSize();
 					resizeStartPos = ImGui::GetMousePos();
 					appResizeActive = false;
 				}
@@ -228,7 +228,7 @@ namespace Lina::Editor
 				headerClickPos = ImGui::GetMousePos();
 
 				ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
-				Vector2 windowPos = appWindow.GetPos();
+				Vector2 windowPos = appWindow->GetPos();
 				Vector2 newPos = Vector2(windowPos.x + delta.x, windowPos.y + delta.y);
 
 				if (newPos.x < 0.0f)
@@ -237,7 +237,7 @@ namespace Lina::Editor
 				if (newPos.y < 0.0f)
 					newPos.y = 0.0f;
 
-				appWindow.SetPos(newPos);
+				appWindow->SetPos(newPos);
 			}
 
 			// Icon
@@ -261,21 +261,21 @@ namespace Lina::Editor
 			// Minimize
 			if (ImGui::Button(ICON_FA_WINDOW_MINIMIZE))
 			{
-				appWindow.Iconify();
+				appWindow->Iconify();
 			}
 
 			// Maximize/Restore
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_FA_WINDOW_MAXIMIZE))
 			{
-				appWindow.Maximize();
+				appWindow->Maximize();
 			}
 
 			// Exit.
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_FA_WINDOW_CLOSE))
 			{
-				appWindow.Close();
+				appWindow->Close();
 			}
 
 			WidgetsUtility::PopScaledFont();
@@ -366,6 +366,7 @@ namespace Lina::Editor
 
 	void HeaderPanel::DispatchMenuBarClickedAction(const MenuBarItems& item)
 	{
-		EditorApplication::GetEditorDispatcher().DispatchAction<MenuBarItems>(Lina::Action::ActionType::MenuItemClicked, item);
+		Lina::Event::EventSystem::Get()->Trigger<EMenuBarItemClicked>(EMenuBarItemClicked{item});
+
 	}
 }

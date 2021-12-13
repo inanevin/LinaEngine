@@ -71,10 +71,10 @@ namespace Lina::ECS
 	struct ModelRendererComponent : public ECSComponent
 	{
 
-		void SetModel(ECS::Registry& reg, ECS::Entity parent, Graphics::Model& model);
-		void RemoveModel(ECS::Registry& reg, ECS::Entity parent);
-		void SetMaterial(ECS::Registry& reg, ECS::Entity parent, int materialIndex, const Graphics::Material& material);
-		void RemoveMaterial(ECS::Registry& reg, ECS::Entity parent, int materialIndex);
+		void SetModel(ECS::Registry* reg, ECS::Entity parent, Graphics::Model& model);
+		void RemoveModel(ECS::Registry* reg, ECS::Entity parent);
+		void SetMaterial(ECS::Registry* reg, ECS::Entity parent, int materialIndex, const Graphics::Material& material);
+		void RemoveMaterial(ECS::Registry* reg, ECS::Entity parent, int materialIndex);
 		
 
 	private:

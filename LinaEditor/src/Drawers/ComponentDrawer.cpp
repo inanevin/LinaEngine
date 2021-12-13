@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "Drawers/ComponentDrawer.hpp"
 #include "Core/Application.hpp"
-#include "Rendering/RenderEngine.hpp"
 #include "Rendering/Model.hpp"
 #include "Rendering/Material.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
@@ -84,13 +83,13 @@ namespace Lina::Editor
 	}
 
 	// Use reflection for gods sake later on.
-	std::vector<std::string> ComponentDrawer::GetEligibleComponents(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
+	std::vector<std::string> ComponentDrawer::GetEligibleComponents(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
 	{
 		std::vector<std::string> eligibleTypes;
 		std::vector<TypeID> typeIDs;
 
 		// Store all components of the entity.
-		ecs.visit(entity, [&typeIDs](const auto component)
+		ecs->visit(entity, [&typeIDs](const auto component)
 			{
 				TypeID id = component.hash();
 				typeIDs.push_back(id);
@@ -111,7 +110,7 @@ namespace Lina::Editor
 		return eligibleTypes;
 	}
 
-	void ComponentDrawer::AddComponentToEntity(Registry& ecs, Entity entity, const std::string& comp)
+	void ComponentDrawer::AddComponentToEntity(Registry* ecs, Entity entity, const std::string& comp)
 	{
 		// Call the add function of the type when the requested strings match.
 		for (std::map<TypeID, ComponentValueTuple>::iterator it = m_componentFunctionsMap.begin(); it != m_componentFunctionsMap.end(); ++it)
@@ -141,7 +140,7 @@ namespace Lina::Editor
 		m_componentDrawList.clear();
 	}
 
-	void ComponentDrawer::DrawComponents(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawComponents(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
 	{
 		s_activeInstance = this;
 
@@ -255,10 +254,10 @@ namespace Lina::Editor
 		"CAPSULE"
 	};
 
-	void ComponentDrawer::DrawEntityDataComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawEntityDataComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
-		EntityDataComponent& data = ecs.get<EntityDataComponent>(entity);
+		EntityDataComponent& data = ecs->get<EntityDataComponent>(entity);
 		TypeID id = GetTypeID<EntityDataComponent>();
 
 		// Align.
@@ -349,10 +348,10 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawCameraComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawCameraComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
-		CameraComponent& camera = ecs.get<CameraComponent>(entity);
+		CameraComponent& camera = ecs->get<CameraComponent>(entity);
 		TypeID id = GetTypeID<CameraComponent>();
 
 		// Align.
@@ -366,13 +365,13 @@ namespace Lina::Editor
 		// Remove if requested.
 		if (removeComponent)
 		{
-			ecs.remove<CameraComponent>(entity);
+			ecs->remove<CameraComponent>(entity);
 			return;
 		}
 
 		// Refresh
 		if (refreshPressed)
-			ecs.replace<CameraComponent>(entity, CameraComponent());
+			ecs->replace<CameraComponent>(entity, CameraComponent());
 
 		// Draw component.
 		if (m_foldoutStateMap[entity][id])
@@ -407,7 +406,7 @@ namespace Lina::Editor
 
 			ImGui::SetCursorPosX(cursorPosValues);
 			if (ImGui::Button("Set Active Camera", ImVec2(110, 30)))
-				Lina::Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(entity);
+				Lina::Graphics::RenderEngineBackend::Get()->GetCameraSystem()->SetActiveCamera(entity);
 
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 		}
@@ -416,10 +415,10 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawFreeLookComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawFreeLookComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
-		FreeLookComponent& freeLook = ecs.get<FreeLookComponent>(entity);
+		FreeLookComponent& freeLook = ecs->get<FreeLookComponent>(entity);
 		TypeID id = GetTypeID<FreeLookComponent>();
 
 		// Align.
@@ -433,13 +432,13 @@ namespace Lina::Editor
 		// Remove if requested.
 		if (removeComponent)
 		{
-			ecs.remove<FreeLookComponent>(entity);
+			ecs->remove<FreeLookComponent>(entity);
 			return;
 		}
 
 		// Refresh
 		if (refreshPressed)
-			ecs.replace<FreeLookComponent>(entity, FreeLookComponent());
+			ecs->replace<FreeLookComponent>(entity, FreeLookComponent());
 
 		// Draw component.
 		if (m_foldoutStateMap[entity][id])
@@ -467,10 +466,10 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawRigidbodyComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawRigidbodyComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
-		RigidbodyComponent& rb = ecs.get<RigidbodyComponent>(entity);
+		RigidbodyComponent& rb = ecs->get<RigidbodyComponent>(entity);
 		TypeID id = GetTypeID<RigidbodyComponent>();
 
 		// Align.
@@ -484,13 +483,13 @@ namespace Lina::Editor
 		// Remove if requested.
 		if (removeComponent)
 		{
-			ecs.remove<RigidbodyComponent>(entity);
+			ecs->remove<RigidbodyComponent>(entity);
 			return;
 		}
 
 		// Refresh
 		if (refreshPressed)
-			ecs.replace<RigidbodyComponent>(entity, RigidbodyComponent());
+			ecs->replace<RigidbodyComponent>(entity, RigidbodyComponent());
 
 		// Draw component.
 		if (m_foldoutStateMap[entity][id])
@@ -565,7 +564,7 @@ namespace Lina::Editor
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			if (ImGui::Button("Apply"))
-				ecs.replace<Lina::ECS::RigidbodyComponent>(entity, rb);
+				ecs->replace<Lina::ECS::RigidbodyComponent>(entity, rb);
 
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
 		}
@@ -574,11 +573,11 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawPointLightComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawPointLightComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
-		PointLightComponent& pLight = ecs.get<PointLightComponent>(entity);
-		ECS::EntityDataComponent& data = ecs.get<ECS::EntityDataComponent>(entity);
+		PointLightComponent& pLight = ecs->get<PointLightComponent>(entity);
+		ECS::EntityDataComponent& data = ecs->get<ECS::EntityDataComponent>(entity);
 		TypeID id = GetTypeID<PointLightComponent>();
 
 		// Align.
@@ -592,13 +591,13 @@ namespace Lina::Editor
 		// Remove if requested.
 		if (removeComponent)
 		{
-			ecs.remove<PointLightComponent>(entity);
+			ecs->remove<PointLightComponent>(entity);
 			return;
 		}
 
 		// Refresh
 		if (refreshPressed)
-			ecs.replace<PointLightComponent>(entity, PointLightComponent());
+			ecs->replace<PointLightComponent>(entity, PointLightComponent());
 
 		
 
@@ -670,10 +669,10 @@ namespace Lina::Editor
 				Vector3 end2 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetRight());
 				Vector3 end3 = data.GetLocation() + (pLight.m_distance * data.GetRotation().GetForward());
 				Vector3 end4 = data.GetLocation() + (-pLight.m_distance * data.GetRotation().GetForward());
-				Application::GetRenderEngine().DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
-				Application::GetRenderEngine().DrawLine(data.GetLocation(), end2, Lina::Color::Red, 1.4f);
-				Application::GetRenderEngine().DrawLine(data.GetLocation(), end3, Lina::Color::Red, 1.4f);
-				Application::GetRenderEngine().DrawLine(data.GetLocation(), end4, Lina::Color::Red, 1.4f);
+				Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
+				Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end2, Lina::Color::Red, 1.4f);
+				Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end3, Lina::Color::Red, 1.4f);
+				Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end4, Lina::Color::Red, 1.4f);
 			}
 
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
@@ -683,11 +682,11 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawSpotLightComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawSpotLightComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
-		SpotLightComponent& sLight = ecs.get<SpotLightComponent>(entity);
-		ECS::EntityDataComponent& data = ecs.get<ECS::EntityDataComponent>(entity);
+		SpotLightComponent& sLight = ecs->get<SpotLightComponent>(entity);
+		ECS::EntityDataComponent& data = ecs->get<ECS::EntityDataComponent>(entity);
 		TypeID id = GetTypeID<SpotLightComponent>();
 
 		// Align.
@@ -701,13 +700,13 @@ namespace Lina::Editor
 		// Remove if requested.
 		if (removeComponent)
 		{
-			ecs.remove<SpotLightComponent>(entity);
+			ecs->remove<SpotLightComponent>(entity);
 			return;
 		}
 
 		// Refresh
 		if (refreshPressed)
-			ecs.replace<SpotLightComponent>(entity, SpotLightComponent());
+			ecs->replace<SpotLightComponent>(entity, SpotLightComponent());
 
 		// Draw component.
 		if (m_foldoutStateMap[entity][id])
@@ -755,7 +754,7 @@ namespace Lina::Editor
 			if (sLight.m_drawDebug)
 			{
 				Vector3 end1 = data.GetLocation() + (sLight.m_distance * data.GetRotation().GetForward());
-				Application::GetRenderEngine().DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
+				Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
 			}
 
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
@@ -765,11 +764,11 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawDirectionalLightComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawDirectionalLightComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
-		DirectionalLightComponent& dLight = ecs.get<DirectionalLightComponent>(entity);
-		ECS::EntityDataComponent& data = ecs.get<ECS::EntityDataComponent>(entity);
+		DirectionalLightComponent& dLight = ecs->get<DirectionalLightComponent>(entity);
+		ECS::EntityDataComponent& data = ecs->get<ECS::EntityDataComponent>(entity);
 		TypeID id = GetTypeID<DirectionalLightComponent>();
 
 		// Align.
@@ -783,13 +782,13 @@ namespace Lina::Editor
 		// Remove if requested.
 		if (removeComponent)
 		{
-			ecs.remove<DirectionalLightComponent>(entity);
+			ecs->remove<DirectionalLightComponent>(entity);
 			return;
 		}
 
 		// Refresh
 		if (refreshPressed)
-			ecs.replace<DirectionalLightComponent>(entity, DirectionalLightComponent());
+			ecs->replace<DirectionalLightComponent>(entity, DirectionalLightComponent());
 
 		// Draw component.
 		if (m_foldoutStateMap[entity][id])
@@ -838,7 +837,7 @@ namespace Lina::Editor
 			{
 				Vector3 dir = Vector3::Zero - data.GetLocation();
 				Vector3 end1 = data.GetLocation() + dir;
-				Application::GetRenderEngine().DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
+				Lina::Graphics::RenderEngineBackend::Get()->DrawLine(data.GetLocation(), end1, Lina::Color::Red, 1.4f);
 			}
 
 			WidgetsUtility::IncrementCursorPosY(CURSORPOS_Y_INCREMENT_AFTER);
@@ -848,11 +847,10 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawMeshRendererComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawMeshRendererComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
-		MeshRendererComponent& renderer = ecs.get<MeshRendererComponent>(entity);
-		Lina::Graphics::RenderEngine& renderEngine = Lina::Application::GetRenderEngine();
+		MeshRendererComponent& renderer = ecs->get<MeshRendererComponent>(entity);
 		TypeID id = GetTypeID<MeshRendererComponent>();
 		
 		// Align.
@@ -866,11 +864,10 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawModelRendererComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawModelRendererComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
-		ModelRendererComponent& renderer = ecs.get<ModelRendererComponent>(entity);
-		Lina::Graphics::RenderEngine& renderEngine = Lina::Application::GetRenderEngine();
+		ModelRendererComponent& renderer = ecs->get<ModelRendererComponent>(entity);
 		TypeID id = GetTypeID<ModelRendererComponent>();
 
 		// Align.
@@ -884,13 +881,13 @@ namespace Lina::Editor
 		// Remove if requested.
 		if (removeComponent)
 		{
-			ecs.remove<ModelRendererComponent>(entity);
+			ecs->remove<ModelRendererComponent>(entity);
 			return;
 		}
 
 		// Refresh
 		if (refreshPressed)
-			ecs.replace<ModelRendererComponent>(entity, ModelRendererComponent());
+			ecs->replace<ModelRendererComponent>(entity, ModelRendererComponent());
 
 		// Draw component.
 		if (m_foldoutStateMap[entity][id])
@@ -991,11 +988,10 @@ namespace Lina::Editor
 		WidgetsUtility::DrawBeveledLine();
 	}
 
-	void ComponentDrawer::DrawSpriteRendererComponent(Lina::ECS::Registry& ecs, Lina::ECS::Entity entity)
+	void ComponentDrawer::DrawSpriteRendererComponent(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity)
 	{
 		// Get component
-		SpriteRendererComponent& renderer = ecs.get<SpriteRendererComponent>(entity);
-		Lina::Graphics::RenderEngine& renderEngine = Lina::Application::GetRenderEngine();
+		SpriteRendererComponent& renderer = ecs->get<SpriteRendererComponent>(entity);
 		TypeID id = GetTypeID<SpriteRendererComponent>();
 
 		// Align.
@@ -1009,13 +1005,13 @@ namespace Lina::Editor
 		// Remove if requested.
 		if (removeComponent)
 		{
-			ecs.remove<SpriteRendererComponent>(entity);
+			ecs->remove<SpriteRendererComponent>(entity);
 			return;
 		}
 
 		// Refresh
 		if (refreshPressed)
-			ecs.replace<SpriteRendererComponent>(entity, SpriteRendererComponent());
+			ecs->replace<SpriteRendererComponent>(entity, SpriteRendererComponent());
 
 		// Draw component.
 		if (m_foldoutStateMap[entity][id])
@@ -1031,7 +1027,6 @@ namespace Lina::Editor
 				renderer.m_selectedMatPath = renderer.m_materialPaths;
 			}
 
-			
 
 			ImGui::SetCursorPosX(cursorPosLabels);
 			WidgetsUtility::AlignedText("Material");

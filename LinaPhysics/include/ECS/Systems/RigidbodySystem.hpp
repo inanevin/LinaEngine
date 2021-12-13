@@ -40,12 +40,12 @@ Timestamp: 9/30/2020 2:52:58 AM
 #define RigidbodySystem_HPP
 
 #include "ECS/ECS.hpp"
-
+#
 namespace Lina
 {
 	namespace Physics
 	{
-		class PhysicsEngine;
+		class BulletPhysicsEngine;
 	}
 }
 
@@ -56,18 +56,9 @@ namespace Lina::ECS
 	public:
 
 		RigidbodySystem() {};
-
 		virtual void UpdateComponents(float delta) override;
 
-		void Construct(Registry& registry, Lina::Physics::PhysicsEngine* physicsEngine) 
-		{ 
-			BaseECSSystem::Construct(registry);
-			m_physicsEngine = physicsEngine; 
-		}
-
 	private:
-
-		Lina::Physics::PhysicsEngine* m_physicsEngine = nullptr;
 
 	};
 }

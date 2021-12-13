@@ -28,15 +28,16 @@ SOFTWARE.
 #include "Log/Log.hpp"
 #include "Panels/ScenePanel.hpp"
 #include "Core/GUILayer.hpp"
-#include "Input/InputMappings.hpp"
-#include "Rendering/RenderEngine.hpp"
+#include "Core/InputMappings.hpp"
+#include "Core/RenderEngineBackend.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "Core/EditorApplication.hpp"
-#include "Input/InputEngine.hpp"
+#include "Core/InputBackend.hpp"
 #include "Core/Application.hpp"
+#include "Utility/UtilityFunctions.hpp"
 #include "imgui/imgui.h"
 #include <imgui/imguizmo/ImGuizmo.h>
 
@@ -52,13 +53,9 @@ namespace Lina::Editor
 
 	void ScenePanel::Setup()
 	{
-		EditorApplication::GetEditorDispatcher().SubscribeAction<Lina::ECS::Entity>("##lina_scenePanel_entity", Lina::Action::ActionType::EntitySelected,
-			std::bind(&ScenePanel::EntitySelected, this, std::placeholders::_1));
-
-		EditorApplication::GetEditorDispatcher().SubscribeAction<void*>("##lina_scenePanel_unselect", Lina::Action::ActionType::Unselect,
-			std::bind(&ScenePanel::Unselected, this));
-
-		Application::GetEngineDispatcher().SubscribeAction<int>("#lina_scenePanel_uninstall", Lina::Action::ActionType::LevelUninstalled, std::bind(&ScenePanel::Unselected, this));
+		Lina::Event::EventSystem::Get()->Connect<EEntityUnselected, &ScenePanel::Unselected>(this);
+		Lina::Event::EventSystem::Get()->Connect<EEntitySelected, &ScenePanel::EntitySelected>(this);
+		Lina::Event::EventSystem::Get()->Connect<Event::ELevelUninstalled, &ScenePanel::LevelUninstalled>(this);
 	}
 
 	void ScenePanel::Draw()
@@ -68,7 +65,7 @@ namespace Lina::Editor
 		if (m_show)
 		{
 
-			Lina::Graphics::RenderEngine& renderEngine = Lina::Application::GetRenderEngine();
+			Lina::Graphics::RenderEngineBackend* renderEngine = Lina::Graphics::RenderEngineBackend::Get();
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 			ImGui::SetNextWindowBgAlpha(1.0f);
 
@@ -86,7 +83,7 @@ namespace Lina::Editor
 						m_isFocused = false;
 				}
 
-				if (renderEngine.GetCameraSystem()->GetActiveCameraComponent() == nullptr)
+				if (renderEngine->GetCameraSystem()->GetActiveCameraComponent() == nullptr)
 				{
 					ImGui::Text("NO CAMERA AVAILABLE");
 				}
@@ -96,7 +93,7 @@ namespace Lina::Editor
 
 
 				// Get game viewport aspect.
-				Vector2 vpSize = renderEngine.GetViewportSize();
+				Vector2 vpSize = renderEngine->GetViewportSize();
 				float aspect = (float)vpSize.x / (float)vpSize.y;
 
 				// Mins & max for scene panel area.
@@ -110,8 +107,8 @@ namespace Lina::Editor
 				// Resize scene panel.
 				if ((size.x != previousWindowSize.x || size.y != previousWindowSize.y))
 				{
-						Lina::Application::GetRenderEngine().SetViewportDisplay(Vector2(0,0), Vector2((int)(size.x), (int)(size.y)));
-					//Lina::Application::GetRenderEngine().OnWindowResized((uint32)ImGui::GetCurrentWindow()->Size.x, (uint32)ImGui::GetCurrentWindow()->Size.y);
+					Lina::Graphics::RenderEngineBackend::Get()->SetViewportDisplay(Vector2(0,0), Vector2((int)(size.x), (int)(size.y)));
+					//Lina::Graphics::RenderEngineBackend::Get()->OnWindowResized((uint32)ImGui::GetCurrentWindow()->Size.x, (uint32)ImGui::GetCurrentWindow()->Size.y);
 					previousWindowSize = size;
 				}
 
@@ -125,9 +122,9 @@ namespace Lina::Editor
 
 
 				if (m_drawMode == DrawMode::FinalImage)
-					ImGui::GetWindowDrawList()->AddImage((void*)renderEngine.GetFinalImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
+					ImGui::GetWindowDrawList()->AddImage((void*)renderEngine->GetFinalImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
 				else if (m_drawMode == DrawMode::ShadowMap)
-					ImGui::GetWindowDrawList()->AddImage((void*)renderEngine.GetShadowMapImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
+					ImGui::GetWindowDrawList()->AddImage((void*)renderEngine->GetShadowMapImage(), imageRectMin, imageRectMax, ImVec2(0, 1), ImVec2(1, 0));
 
 				ImGuiIO& io = ImGui::GetIO();
 				ImGuizmo::Enable(true);
@@ -153,10 +150,10 @@ namespace Lina::Editor
 				{
 					IM_ASSERT(payload->DataSize == sizeof(uint32));
 
-					auto& ecs = Lina::Application::GetECSRegistry();
+					auto* ecs = Lina::ECS::Registry::Get();
 					auto& model = Lina::Graphics::Model::GetModel(*(uint32*)payload->m_data);
-					auto entity = ecs.CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
-					auto& mr = ecs.emplace<ECS::ModelRendererComponent>(entity);
+					auto entity = ecs->CreateEntity(Utility::GetFileNameOnly(model.GetPath()));
+					auto& mr = ecs->emplace<ECS::ModelRendererComponent>(entity);
 					mr.SetModel(ecs, entity, model);
 
 					auto& mat = Graphics::Material::GetMaterial("resources/engine/materials/DefaultLit.mat");
@@ -174,14 +171,19 @@ namespace Lina::Editor
 	}
 
 
-	void ScenePanel::EntitySelected(Lina::ECS::Entity entity)
+	void ScenePanel::EntitySelected(EEntitySelected ev)
 	{
-		m_selectedTransform = entity;
+		m_selectedTransform = ev.m_entity;
 	}
 
-	void ScenePanel::Unselected()
+	void ScenePanel::Unselected(EEntityUnselected ev)
 	{
 		m_selectedTransform = entt::null;
+	}
+
+	void ScenePanel::LevelUninstalled(Event::ELevelUninstalled ev)
+	{
+		Unselected(EEntityUnselected());
 	}
 
 	void ScenePanel::ProcessInput()
@@ -202,15 +204,15 @@ namespace Lina::Editor
 
 	void ScenePanel::DrawGizmos()
 	{
-		Lina::Graphics::RenderEngine& renderEngine = Lina::Application::GetRenderEngine();
+		Lina::Graphics::RenderEngineBackend* renderEngine = Lina::Graphics::RenderEngineBackend::Get();
 
-		Matrix& view = renderEngine.GetCameraSystem()->GetViewMatrix();
-		Matrix& projection = renderEngine.GetCameraSystem()->GetProjectionMatrix();
+		Matrix& view = renderEngine->GetCameraSystem()->GetViewMatrix();
+		Matrix& projection = renderEngine->GetCameraSystem()->GetProjectionMatrix();
 
 		//ImGui::GetWindowDrawList()->AddLine(ImVec2(coord.x, coord.y), ImVec2(coord2.x, coord2.y), col, 2);
 		if (m_selectedTransform != entt::null)
 		{
-			ECS::EntityDataComponent& data = Lina::Application::GetECSRegistry().get<ECS::EntityDataComponent>(m_selectedTransform);
+			ECS::EntityDataComponent& data = Lina::ECS::Registry::Get()->get<ECS::EntityDataComponent>(m_selectedTransform);
 			// Get required matrices.
 			glm::mat4 object = data.ToMatrix();
 

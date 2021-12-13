@@ -39,22 +39,13 @@ Timestamp: 6/5/2020 6:51:29 PM
 #ifndef ScenePanel_HPP
 #define ScenePanel_HPP
 
+#include "Core/EditorCommon.hpp"
 #include "Panels/EditorPanel.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/ECS.hpp"
 
-namespace Lina
-{
-	namespace Graphics
-	{
-		class RenderEngine;
-	}
-}
-
 namespace Lina::Editor
 {
-
-
 	class ScenePanel : public EditorPanel
 	{
 	
@@ -74,8 +65,9 @@ namespace Lina::Editor
 		virtual void Setup() override;
 		virtual void Draw() override;
 
-		void EntitySelected(Lina::ECS::Entity entity);
-		void Unselected();
+		void EntitySelected(EEntitySelected ev);
+		void Unselected(EEntityUnselected ev);
+		void LevelUninstalled(Event::ELevelUninstalled ev);
 		void ProcessInput();
 		void DrawGizmos();
 		void SetDrawMode(DrawMode mode) { m_drawMode = mode; }

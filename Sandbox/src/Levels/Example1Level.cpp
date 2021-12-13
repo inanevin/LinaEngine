@@ -22,7 +22,7 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "Core/Application.hpp"
 #include "ECS/Components/AnimationComponent.hpp"
 #include "Rendering/Model.hpp"
-#include "Rendering/RenderEngine.hpp"
+#include "Core/RenderEngineBackend.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
 

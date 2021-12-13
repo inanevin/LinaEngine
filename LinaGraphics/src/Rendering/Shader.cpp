@@ -27,19 +27,41 @@ SOFTWARE.
 */
 
 #include "Rendering/Shader.hpp"
-#include "Rendering/RenderEngine.hpp"
+#include "Core/RenderEngineBackend.hpp"
 #include "Utility/UtilityFunctions.hpp"
 
 namespace Lina::Graphics
 {
 	std::map<int, Shader*> Shader::s_loadedShaders;
 
+	Shader::~Shader()
+	{
+	m_engineBoundID = m_renderDevice->ReleaseShaderProgram(m_engineBoundID);
+	}
+
+	Shader& Shader::Construct(const std::string& text, bool usesGeometryShader)
+	{
+		m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
+		m_engineBoundID = m_renderDevice->CreateShaderProgram(text, &m_uniformData, usesGeometryShader);
+		return *this;
+	}
+
+	void Shader::SetUniformBuffer(const std::string& name, UniformBuffer& buffer)
+	{
+		m_renderDevice->SetShaderUniformBuffer(m_engineBoundID, name, buffer.GetID());
+	}
+
+	void Shader::BindBlockToBuffer(uint32 bindingPoint, std::string blockName)
+	{
+		m_renderDevice->BindShaderBlockToBufferPoint(m_engineBoundID, bindingPoint, blockName);
+	}
+
 	Shader& Shader::CreateShader(const std::string& path, bool usesGeometryShader)
 	{
 		std::string shaderText;
 		Utility::LoadTextFileWithIncludes(shaderText, path, "#include");
 		Shader* shader = new Shader();
-		shader->Construct(RenderEngine::GetRenderDevice(), shaderText, usesGeometryShader);
+		shader->Construct(shaderText, usesGeometryShader);
 		shader->m_path = path;
 		s_loadedShaders[shader->GetID()] = shader;
 		return *shader;
@@ -54,7 +76,7 @@ namespace Lina::Graphics
 		{
 			// Mesh not found.
 			LINA_WARN("Shader with the path {0} was not found, returning default shader", path);
-			return Lina::Graphics::RenderEngine::GetDefaultShader();
+			return RenderEngineBackend::GetDefaultShader();
 		}
 
 		return *it->second;

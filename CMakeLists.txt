@@ -48,6 +48,12 @@ if(LINA_PRODUCTION_BUILD)
 	add_compile_definitions(LINA_PRODUCTION_BUILD)
 endif()
 
+add_compile_definitions(LINA_AUDIO_OPENAL)
+#add_compile_definitions(LINA_GRAPHICS_VULKAN)
+add_compile_definitions(LINA_GRAPHICS_OPENGL)
+add_compile_definitions(LINA_INPUT_GLFW)
+add_compile_definitions(LINA_PHYSICS_BULLET)
+
 set(TARGET_ARCHITECTURE "x64")
 
 set(ASSIMP_LIB "assimp-vc142-mtd.lib")
@@ -70,7 +76,6 @@ set(LINASANDBOX_HEADER_DIR Sandbox/include)
 # Sub directories
 #--------------------------------------------------------------------
 
-add_subdirectory(LinaAction)
 add_subdirectory(LinaAudio)
 add_subdirectory(LinaCommon)
 add_subdirectory(LinaGraphics)

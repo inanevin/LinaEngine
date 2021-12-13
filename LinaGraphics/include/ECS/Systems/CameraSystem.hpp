@@ -56,9 +56,9 @@ namespace Lina::ECS
 	public:
 
 		CameraSystem() {};
+		virtual void Initialize() override;
 		virtual void UpdateComponents(float delta) override;
 
-		void Construct(Registry& registry);
 		void SetAspectRatio(float aspect) { m_aspectRatio = aspect; }
 		void InjectViewMatrix(const Matrix& view) { m_viewMatrixInjected = true;  m_view = view; }
 		void InjectProjMatrix(const Matrix& proj) { m_projMatrixInjected = true; m_projection = proj; }

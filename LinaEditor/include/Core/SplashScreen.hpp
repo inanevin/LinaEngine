@@ -42,12 +42,7 @@ Timestamp: 10/10/2020 3:25:27 PM
 
 namespace Lina
 {
-	namespace Graphics
-	{
-		class Window;
-		class RenderEngine;
-		struct WindowProperties;
-	}
+	struct WindowProperties;
 }
 
 namespace Lina::Editor
@@ -61,7 +56,7 @@ namespace Lina::Editor
 		~SplashScreen();
 		
 		void Draw();
-		void Setup(const Lina::Graphics::WindowProperties& props);
+		void Setup(const Lina::WindowProperties& props);
 	};
 }
 

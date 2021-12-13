@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "Drawers/TextureDrawer.hpp"
 #include "Widgets/WidgetsUtility.hpp"
-#include "Rendering/RenderEngine.hpp"
 #include "Core/Application.hpp"
 #include "Rendering/Texture.hpp"
 #include "Core/EditorApplication.hpp"
@@ -327,8 +326,7 @@ namespace Lina::Editor
 			Lina::Graphics::Texture* reimportedTexture = &Lina::Graphics::Texture::CreateTexture2D(filePath, newParams, false, false, paramsPath);
 
 			auto pair = std::make_pair(m_selectedTexture, reimportedTexture);
-			Lina::Editor::EditorApplication::GetEditorDispatcher().DispatchAction<std::pair<Lina::Graphics::Texture*, Lina::Graphics::Texture*>>(Lina::Action::ActionType::TextureReimported,
-				pair);
+			Lina::Event::EventSystem::Get()->Trigger<ETextureReimported>(ETextureReimported{m_selectedTexture, reimportedTexture});
 
 			Lina::Graphics::Texture::UnloadTextureResource(m_selectedTexture->GetID());
 			Lina::Graphics::Texture::SaveParameters(paramsPath, newParams);

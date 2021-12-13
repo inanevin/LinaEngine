@@ -30,9 +30,9 @@ SOFTWARE.
 #include "Panels/LogPanel.hpp"
 #include "Core/GUILayer.hpp"
 #include "Core/Application.hpp"
-#include "Rendering/Window.hpp"
+#include "Core/WindowBackend.hpp"
 #include "Widgets/WidgetsUtility.hpp"
-#include "Input/InputMappings.hpp"
+#include "Core/InputMappings.hpp"
 #include "Utility/EditorUtility.hpp"
 #include "IconsFontAwesome5.h"
 
@@ -45,7 +45,7 @@ namespace Lina::Editor
 	void LogPanel::Setup()
 	{
 		// We set our dispatcher & subscribe in order to receive log events.
-		Lina::Application::GetEventSystem().Connect<Event::ELog, &LogPanel::OnLog>(this);
+		Lina::Event::EventSystem::Get()->Connect<Event::ELog, &LogPanel::OnLog>(this);
 
 		// Add icon buttons.
 		m_logLevelIconButtons.push_back(LogLevelIconButton("ll_debug", "Debug", ICON_FA_BUG, Lina::LogLevel::Debug, LOGPANEL_COLOR_DEBUG_DEFAULT, LOGPANEL_COLOR_DEBUG_HOVERED, LOGPANEL_COLOR_DEBUG_PRESSED));
@@ -94,7 +94,7 @@ namespace Lina::Editor
 				if (ImGui::Button("Save", ImVec2(50, 28)))
 				{
 					std::string fullPath = "";
-					fullPath = EditorUtility::SaveFile(".txt", Lina::Application::GetAppWindow().GetNativeWindow());
+					fullPath = EditorUtility::SaveFile(".txt", Lina::Graphics::WindowBackend::Get()->GetNativeWindow());
 
 					if (fullPath.compare("") != 0)
 					{

@@ -40,8 +40,8 @@ Timestamp: 4/26/2019 12:11:36 AM
 #define Mesh_HPP
 
 #include "Core/SizeDefinitions.hpp"
-#include "PackageManager/PAMRenderDevice.hpp"
 #include "Rendering/VertexArray.hpp"
+#include "Core/RenderDeviceBackend.hpp"
 
 namespace Lina::Graphics
 {
@@ -52,7 +52,7 @@ namespace Lina::Graphics
 		Mesh() {}
 
 		// Creates a vertex array using render render device.
-		void CreateVertexArray(RenderDevice& engine, BufferUsage bufferUsage);
+		void CreateVertexArray(BufferUsage bufferUsage);
 
 		// Sets the element size array according to the desired size.
 		void AllocateElement(uint32 elementSize, uint32 attrib, bool isFloat, bool isInstanced = false);

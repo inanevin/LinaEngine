@@ -27,12 +27,14 @@ SOFTWARE.
 */
 
 #include "Physics/PhysicsGizmoDrawer.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "EventSystem/Events.hpp"
 
 #define LINE_WIDTH 2.0f
 
 void PhysicsGizmoDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
 {
-	// Delegate the drawLine command coming from BtPhysics to the engine, so that the render engine can issue draw commands.
-	m_drawLineCallback(Lina::Vector3(from.getX(), from.getY(), from.getZ()), Lina::Vector3(to.getX(), to.getY(), to.getZ()), Lina::Color(color.getX(), color.getY(), color.getZ()), LINE_WIDTH);
+	Lina::Event::EventSystem::Get()->Trigger<Lina::Event::EDrawPhysicsDebug>(Lina::Event::EDrawPhysicsDebug{
+		Lina::Vector3(from.getX(), from.getY(), from.getZ()), Lina::Vector3(to.getX(), to.getY(), to.getZ()), Lina::Color(color.getX(), color.getY(), color.getZ()), LINE_WIDTH
+		});
 }
-

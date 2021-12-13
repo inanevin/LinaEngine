@@ -42,14 +42,6 @@ Timestamp: 10/8/2020 1:39:03 PM
 #include "Widgets/MenuButton.hpp"
 #include "Panels/EditorPanel.hpp"
 
-namespace Lina
-{
-	namespace Graphics
-	{
-		class RenderEngine;
-		class Window;
-	}
-}
 
 namespace Lina::Editor
 {

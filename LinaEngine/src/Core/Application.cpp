@@ -28,11 +28,7 @@ SOFTWARE.
 
 #include "LinaPch.hpp"
 #include "Core/Application.hpp"
-#include "Rendering/RenderEngine.hpp"
-#include "Core/PhysicsEngine.hpp"
-#include "Core/AudioEngine.hpp"
-#include "Input/InputEngine.hpp"
-#include "Rendering/Window.hpp"
+
 #include "Core/Layer.hpp"
 #include "World/DefaultLevel.hpp"
 #include "Core/Timer.hpp"
@@ -51,81 +47,58 @@ namespace Lina
 {
 #define PHYSICS_DELTA 0.01666
 
-	Action::ActionDispatcher Application::s_engineDispatcher;
-	Input::InputEngine* Application::s_inputEngine = nullptr;
-	Graphics::RenderEngine* Application::s_renderEngine = nullptr;
-	Physics::PhysicsEngine* Application::s_physicsEngine = nullptr;
-	Audio::AudioEngine* Application::s_audioEngine = nullptr;
-	Graphics::Window* Application::s_appWindow = nullptr;
-	ECS::Registry Application::s_ecs;
-	Application* Application::s_application = nullptr;
-	Event::EventSystem* Application::s_eventSystem = nullptr;
+	Lina::Application* Application::s_application = nullptr;
 
 	Application::Application()
 	{
 		s_application = this;
-		s_engineDispatcher.Initialize(Action::ActionType::EngineActionsStartIndex, Action::ActionType::EngineActionsEndIndex);
-		s_eventSystem = new Event::EventSystem();
 		Log::s_onLogSink.connect<&Application::OnLog>(this);
+
+		Event::EventSystem::s_eventSystem = &m_eventSystem;
+		ECS::Registry::s_ecs = &m_ecs;
+		Graphics::WindowBackend::s_openglWindow = &m_window;
+		Graphics::RenderEngineBackend::s_renderEngine = &m_renderEngine;
+		Physics::PhysicsEngineBackend::s_physicsEngine = &m_physicsEngine;
+		Input::InputEngineBackend::s_inputEngine = &m_inputEngine;
+
+		m_eventSystem.Connect<Event::EWindowClosed, &Application::OnWindowClose>(this);
+		m_eventSystem.Connect<Event::EWindowResized, &Application::OnWindowResize>(this);
 
 		LINA_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
 	}
 
-	void Application::Initialize(Graphics::WindowProperties& props)
+	void Application::Initialize(WindowProperties& props)
 	{
-		// Get engine instances.
-		s_appWindow = CreateContextWindow();
-		m_inputDevice = CreateInputDevice();
-		s_renderEngine = CreateRenderEngine();
-		s_inputEngine = CreateInputEngine();
-		s_physicsEngine = CreatePhysicsEngine();
-		s_audioEngine = CreateAudioEngine();
+		m_inputEngine.Initialize();
 
 		// Build main window.
-		bool windowCreationSuccess = s_appWindow->CreateContext(props);
+		bool windowCreationSuccess = m_window.CreateContext(props);
 		if (!windowCreationSuccess)
 		{
 			LINA_ERR("Window Creation Failed!");
 			return;
 		}
 
-		// Set callbacks.
-		m_keyCallback = std::bind(&Application::KeyCallback, this, std::placeholders::_1, std::placeholders::_2);
-		m_mouseCallback = std::bind(&Application::MouseCallback, this, std::placeholders::_1, std::placeholders::_2);
-		m_WwndowResizeCallback = std::bind(&Application::OnWindowResize, this, std::placeholders::_1);
-		m_windowClosedCallback = std::bind(&Application::OnWindowClose, this);
-		m_drawLineCallback = std::bind(&Application::OnDrawLine, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
-		m_postSceneDrawCallback = std::bind(&Application::OnPostSceneDraw, this);
-		m_preDrawCallback = std::bind(&Application::OnPreDraw, this);
-		m_postDrawCallback = std::bind(&Application::OnPostDraw, this);
-
 		// Set event callback for main window.
-		s_appWindow->SetKeyCallback(m_keyCallback);
-		s_appWindow->SetMouseCallback(m_mouseCallback);
-		s_appWindow->SetWindowResizeCallback(m_WwndowResizeCallback);
-		s_appWindow->SetWindowClosedCallback(m_windowClosedCallback);
-		s_renderEngine->SetPostSceneDrawCallback(m_postSceneDrawCallback);
-		s_renderEngine->SetPostDrawCallback(m_postDrawCallback);
-		s_renderEngine->SetPreDrawCallback(m_preDrawCallback);
-		s_renderEngine->SetViewportDisplay(Vector2::Zero, s_appWindow->GetSize());
+		m_renderEngine.SetViewportDisplay(Vector2::Zero, m_window.GetSize());
 
-		s_ecs.Initialize();
-		s_inputEngine->Initialize(s_ecs, m_mainECSPipeline, s_appWindow->GetNativeWindow(), m_inputDevice);
-		s_physicsEngine->Initialize(s_ecs, m_drawLineCallback);
-		s_renderEngine->Initialize(s_ecs, *s_appWindow);
-		s_audioEngine->Initialize();
+		m_ecs.Initialize();
+		m_physicsEngine.Initialize(m_drawLineCallback);
+		m_renderEngine.Initialize();
+		m_audioEngine.Initialize();
+
 
 		// Register ECS components for cloning & serialization functionality.
-		s_ecs.RegisterComponent<ECS::EntityDataComponent>();
-		s_ecs.RegisterComponent<ECS::FreeLookComponent>();
-		s_ecs.RegisterComponent<ECS::RigidbodyComponent>();
-		s_ecs.RegisterComponent<ECS::CameraComponent>();
-		s_ecs.RegisterComponent<ECS::PointLightComponent>();
-		s_ecs.RegisterComponent<ECS::SpotLightComponent>();
-		s_ecs.RegisterComponent<ECS::DirectionalLightComponent>();
-		s_ecs.RegisterComponent<ECS::MeshRendererComponent>();
-		s_ecs.RegisterComponent<ECS::ModelRendererComponent>();
-		s_ecs.RegisterComponent<ECS::SpriteRendererComponent>();
+		m_ecs.RegisterComponent<ECS::EntityDataComponent>();
+		m_ecs.RegisterComponent<ECS::FreeLookComponent>();
+		m_ecs.RegisterComponent<ECS::RigidbodyComponent>();
+		m_ecs.RegisterComponent<ECS::CameraComponent>();
+		m_ecs.RegisterComponent<ECS::PointLightComponent>();
+		m_ecs.RegisterComponent<ECS::SpotLightComponent>();
+		m_ecs.RegisterComponent<ECS::DirectionalLightComponent>();
+		m_ecs.RegisterComponent<ECS::MeshRendererComponent>();
+		m_ecs.RegisterComponent<ECS::ModelRendererComponent>();
+		m_ecs.RegisterComponent<ECS::SpriteRendererComponent>();
 
 		m_deltaTimeArray.fill(-1.0);
 		m_isInPlayMode = true;
@@ -135,24 +108,6 @@ namespace Lina
 
 	Application::~Application()
 	{
-		if (s_physicsEngine)
-			delete s_physicsEngine;
-
-		if (s_inputEngine)
-			delete s_inputEngine;
-
-		if (s_renderEngine)
-			delete s_renderEngine;
-
-		if (m_inputDevice)
-			delete m_inputDevice;
-
-		if (s_appWindow)
-			delete s_appWindow;
-
-		if (s_eventSystem)
-			delete s_eventSystem;
-
 		LINA_TRACE("[Destructor] -> Application ({0})", typeid(*this).name());
 	}
 
@@ -173,8 +128,9 @@ namespace Lina
 
 			m_rawDeltaTime = (currentFrameTime - previousFrameTime);
 			m_smoothDeltaTime = SmoothDeltaTime(m_rawDeltaTime);
-			s_inputEngine->Tick();
+			m_eventSystem.Trigger<Event::ETick>(Event::ETick{ (float)m_rawDeltaTime, m_isInPlayMode });
 
+			m_inputEngine.Tick();
 			updates++;
 			LINA_TIMER_START("Update MS");
 			UpdateGame((float)m_rawDeltaTime);
@@ -210,9 +166,8 @@ namespace Lina
 
 	void Application::UpdateGame(float deltaTime)
 	{
-
 		// Tick physics (fixed)
-		s_physicsEngine->Tick(0.02);
+		m_physicsEngine.Tick(0.02);
 
 		// Main layers.
 		for (Layer* layer : m_mainLayerStack)
@@ -233,7 +188,7 @@ namespace Lina
 		m_mainECSPipeline.UpdateSystems(deltaTime);
 
 		// Animation, particle systems.
-		s_renderEngine->Tick(deltaTime);
+		m_renderEngine.Tick(deltaTime);
 
 
 		// Main layers post.
@@ -256,12 +211,17 @@ namespace Lina
 	{
 		if (m_canRender)
 		{
+			m_eventSystem.Trigger<Event::EPreRender>(Event::EPreRender{});
+
 			// render level.
 			if (m_activeLevelExists)
-				s_renderEngine->Render(interpolation);
+				m_renderEngine.Render(interpolation);
 
-			s_renderEngine->RenderLayers();
-			s_appWindow->Tick();
+			m_eventSystem.Trigger<Event::EPostRender>(Event::EPostRender{});
+			m_eventSystem.Trigger<Event::EFinalizePostRender>(Event::EFinalizePostRender{});
+
+			m_renderEngine.RenderLayers();
+			m_window.Tick();
 		}
 	}
 
@@ -269,61 +229,31 @@ namespace Lina
 	{
 		std::string msg = dump.m_message;
 
-		if (dump.m_level == Lina::LogLevel::Error)
-			msg = "\033{1;31m" + dump.m_message + "\033[0m";
-		else if (dump.m_level == Lina::LogLevel::Warn)
-			msg = "\033{1;33m" + dump.m_message + "\033[0m";
+		// if (dump.m_level == Lina::LogLevel::Error)
+		// 	msg = "\033{1;31m" + dump.m_message + "\033[0m";
+		// else if (dump.m_level == Lina::LogLevel::Warn)
+		// 	msg = "\033{1;33m" + dump.m_message + "\033[0m";
 
 		std::cout << msg << std::endl;
 
-		if (s_eventSystem != nullptr)
-			s_eventSystem->Trigger<Event::EPostMainLoop>();
+		m_eventSystem.Trigger<Event::ELog>(dump);
 	}
 
-	bool Application::OnWindowClose()
+	bool Application::OnWindowClose(Event::EWindowClosed event)
 	{
 		m_running = false;
-		s_engineDispatcher.DispatchAction<void*>(Action::ActionType::WindowClosed, 0);
 		return true;
 	}
 
-	void Application::OnWindowResize(Vector2 size)
+	void Application::OnWindowResize(Event::EWindowResized event)
 	{
-		if (size.x == 0.0f || size.y == 0.0f)
+		if (event.m_windowProps.m_width == 0.0f || event.m_windowProps.m_height == 0.0f)
 			m_canRender = false;
 		else
 			m_canRender = true;
 
-		s_renderEngine->SetViewportDisplay(Vector2::Zero, size);
-
-		s_engineDispatcher.DispatchAction<Vector2>(Action::ActionType::WindowResized, size);
 	}
 
-	void Application::OnPostSceneDraw()
-	{
-		s_physicsEngine->OnPostSceneDraw();
-		s_engineDispatcher.DispatchAction<void*>(Action::ActionType::PostSceneDraw, 0);
-	}
-
-	void Application::OnPostDraw()
-	{
-		s_engineDispatcher.DispatchAction<void*>(Action::ActionType::PostDraw, 0);
-	}
-
-	void Application::OnPreDraw()
-	{
-		s_engineDispatcher.DispatchAction<void*>(Action::ActionType::PreDraw, 0);
-	}
-
-	void Application::KeyCallback(int key, int action)
-	{
-		s_inputEngine->DispatchKeyAction(static_cast<Lina::Input::InputCode::Key>(key), action);
-	}
-
-	void Application::MouseCallback(int button, int action)
-	{
-		s_inputEngine->DispatchMouseAction(static_cast<Lina::Input::InputCode::Mouse>(button), action);
-	}
 
 	void Application::RemoveOutliers(bool biggest)
 	{
@@ -412,13 +342,7 @@ namespace Lina
 	void Application::SetPlayMode(bool enabled)
 	{
 		m_isInPlayMode = enabled;
-
-		if (enabled)
-			s_inputEngine->SetCursorMode(Lina::Input::CursorMode::Disabled);
-		else
-			s_inputEngine->SetCursorMode(Lina::Input::CursorMode::Visible);
-
-		s_engineDispatcher.DispatchAction<bool>(Lina::Action::ActionType::PlayModeActivation, enabled);
+		m_eventSystem.Trigger<Event::EPlayModeChanged>(Event::EPlayModeChanged{ enabled });
 	}
 
 	bool Application::InstallLevel(Lina::World::Level& level, bool loadFromFile, const std::string& path, const std::string& levelName)
@@ -426,8 +350,8 @@ namespace Lina
 		UninstallLevel();
 
 		bool install = level.Install(loadFromFile, path, levelName);
-		s_engineDispatcher.DispatchAction<World::Level*>(Action::ActionType::LevelInstalled, &level);
 		m_currentLevel = &level;
+		m_eventSystem.Trigger<Event::ELevelInstalled>(Event::ELevelInstalled{});
 		InitializeLevel(level);
 		return install;
 	}
@@ -435,7 +359,7 @@ namespace Lina
 	void Application::InitializeLevel(Lina::World::Level& level)
 	{
 		m_currentLevel->Initialize();
-		s_engineDispatcher.DispatchAction<World::Level*>(Action::ActionType::LevelInitialized, &level);
+		m_eventSystem.Trigger<Event::ELevelInitialized>(Event::ELevelInitialized{});
 		m_activeLevelExists = true;
 	}
 
@@ -463,24 +387,19 @@ namespace Lina
 		if (m_currentLevel != nullptr)
 		{
 			m_currentLevel->Uninstall();
-			s_ecs.each([](auto entity)
+			m_ecs.each([this](auto entity)
 				{
-					s_ecs.DestroyEntity(entity);
+					m_ecs.DestroyEntity(entity);
 				});
-			s_ecs.clear();
-			s_engineDispatcher.DispatchAction<World::Level*>(Action::ActionType::LevelUninstalled, m_currentLevel);
+			m_ecs.clear();
+			m_eventSystem.Trigger<Event::ELevelUninstalled>(Event::ELevelUninstalled{});
 			m_currentLevel = nullptr;
 		}
 	}
 
-	void Application::OnDrawLine(Vector3 from, Vector3 to, Color color, float width)
-	{
-		s_renderEngine->DrawLine(from, to, color, width);
-	}
-
 	double Application::GetTime()
 	{
-		return s_appWindow->GetTime();
+		return m_window.GetTime();
 	}
 
 }

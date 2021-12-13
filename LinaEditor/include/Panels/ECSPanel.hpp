@@ -38,6 +38,7 @@ Timestamp: 5/23/2020 4:15:06 PM
 #ifndef ECSPanel_HPP
 #define ECSPanel_HPP
 
+#include "EventSystem/Events.hpp"
 #include "Panels/EditorPanel.hpp"
 #include "ECS/ECS.hpp"
 
@@ -66,7 +67,7 @@ namespace Lina::Editor
 		virtual void Draw() override;
 		void Refresh();
 		void DrawEntityNode(int id,  Lina::ECS::Entity entity);
-		void OnLevelInstall(Lina::World::Level* level);
+		void OnLevelInstall(Event::ELevelInstalled event);
 
 	private:
 

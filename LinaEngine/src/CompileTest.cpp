@@ -90,7 +90,7 @@ SOFTWARE.
 //#include "PackageManager/Generic/GenericMemory.hpp"
 //#include "PackageManager/Generic/GenericVectorMath.hpp"
 //#include "PackageManager/OpenGL/GLInputDevice.hpp"
-//#include "PackageManager/OpenGL/GLRenderDevice.hpp"
+//#include "PackageManager/OpenGL/OpenGLRenderDevice.hpp"
 //#include "PackageManager/OpenGL/GLWindow.hpp"
 //#include "PackageManager/SSE/SSEVectorMath.hpp"
 //#include "PackageManager/PAMInputDevice.hpp"
@@ -104,13 +104,13 @@ SOFTWARE.
 //// Physics
 //
 //#include "Physics/PhysicsInteractionWorld.hpp"
-//#include "Physics/PhysicsEngine.hpp"
+//#include "Physics/BulletPhysicsEngine.hpp"
 //
 //// Rendering
 //
 //#include "Rendering/ArrayBitmap.hpp"
 //#include "Rendering/DDSTexture.hpp"
-//#include "Rendering/RenderEngine.hpp"
+//#include "Rendering/OpenGLRenderEngine.hpp"
 //#include "Rendering/Shader.hpp"
 //#include "Rendering/Texture.hpp"
 //#include "Rendering/Window.hpp"

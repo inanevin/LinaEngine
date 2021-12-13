@@ -30,5 +30,6 @@ SOFTWARE.
 
 namespace Lina::Event
 {
-	
+	EventSystem* EventSystem::s_eventSystem = nullptr;
 }
+

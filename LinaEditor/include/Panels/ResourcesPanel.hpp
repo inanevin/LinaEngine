@@ -40,18 +40,10 @@ Timestamp: 6/5/2020 12:54:52 AM
 #define ResourcesPanel_HPP
 
 #include "Panels/EditorPanel.hpp"
+#include "Core/EditorCommon.hpp"
 #include "Utility/EditorUtility.hpp"
 #include <map>
 #include <vector>
-
-namespace Lina
-{
-	namespace Graphics
-	{
-		class RenderEngine;
-		class Texture;
-	}
-}
 
 namespace Lina::Editor 
 {
@@ -82,9 +74,9 @@ namespace Lina::Editor
 		void UnloadFileResourcesInFolder(EditorFolder& folder);
 		bool ExpandFileResource(EditorFolder& folder, const std::string& path, FileType type = FileType::Unknown);
 		FileType GetFileType(std::string& extension);
-		void MaterialTextureSelected(Lina::Graphics::Texture* texture);
-		void TextureReimported(std::pair<Lina::Graphics::Texture*, Lina::Graphics::Texture*> textures);
-		bool VerifyMaterialFiles(EditorFolder& folder, std::pair<Lina::Graphics::Texture*, Lina::Graphics::Texture*> textures);
+		void MaterialTextureSelected(EMaterialTextureSelected ev);
+		void TextureReimported(ETextureReimported ev);
+		bool VerifyMaterialFiles(EditorFolder& folder, ETextureReimported ev);
 
 	private:
 

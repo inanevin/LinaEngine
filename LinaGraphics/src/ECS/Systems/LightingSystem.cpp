@@ -27,7 +27,8 @@ SOFTWARE.
 */
 
 #include "ECS/Systems/LightingSystem.hpp"  
-#include "Rendering/RenderEngine.hpp"
+#include "Core/RenderDeviceBackend.hpp"
+#include "Core/RenderEngineBackend.hpp"
 
 namespace Lina::ECS
 {
@@ -38,11 +39,12 @@ namespace Lina::ECS
 	uint32 sLightIconID = -1;
 	uint32 dLightIconID = -1;
 
-	void LightingSystem::Construct(Registry& registry, RenderDevice& rdIn, Graphics::RenderEngine& renderEngineIn)
+
+	void LightingSystem::Initialize()
 	{
-		BaseECSSystem::Construct(registry);
-		s_renderDevice = &rdIn;
-		m_renderEngine = &renderEngineIn;
+		BaseECSSystem::Initialize();
+		m_renderEngine = Graphics::RenderEngineBackend::Get();
+		m_renderDevice = m_renderEngine->GetRenderDevice();
 
 #if LINA_EDITOR
 		// Create debug icon textures for lights
@@ -51,6 +53,8 @@ namespace Lina::ECS
 		dLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/dLightIcon.png").GetID();
 #endif
 	}
+
+
 
 	void LightingSystem::UpdateComponents(float delta)
 	{
@@ -126,13 +130,13 @@ namespace Lina::ECS
 		if (dirLightData != nullptr && dirLight != nullptr)
 		{
 			Vector3 direction = Vector3::Zero - dirLightData->GetLocation();
-			s_renderDevice->UpdateShaderUniformInt(shaderID, SC_DIRECTIONALLIGHT_EXISTS, 1);
-			s_renderDevice->UpdateShaderUniformColor(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTCOLOR, dirLight->m_color * dirLight->m_intensity);
-			s_renderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTDIRECTION, direction.Normalized());
+			m_renderDevice->UpdateShaderUniformInt(shaderID, SC_DIRECTIONALLIGHT_EXISTS, 1);
+			m_renderDevice->UpdateShaderUniformColor(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTCOLOR, dirLight->m_color * dirLight->m_intensity);
+			m_renderDevice->UpdateShaderUniformVector3(shaderID, SC_DIRECTIONALLIGHT + SC_LIGHTDIRECTION, direction.Normalized());
 		}
 		else
 		{
-			s_renderDevice->UpdateShaderUniformInt(shaderID, SC_DIRECTIONALLIGHT_EXISTS, 0);
+			m_renderDevice->UpdateShaderUniformInt(shaderID, SC_DIRECTIONALLIGHT_EXISTS, 0);
 		}
 
 		// Iterate point lights.
@@ -143,11 +147,11 @@ namespace Lina::ECS
 			EntityDataComponent* data= std::get<0>(*it);
 			PointLightComponent* pointLight = std::get<1>(*it);
 			std::string currentPointLightStr = std::to_string(currentPointLightCount);
-			s_renderDevice->UpdateShaderUniformVector3(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTPOSITION, data->GetLocation());
-			s_renderDevice->UpdateShaderUniformColor(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTCOLOR, pointLight->m_color * pointLight->m_intensity);
-			s_renderDevice->UpdateShaderUniformFloat(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTDISTANCE, pointLight->m_distance);
-			s_renderDevice->UpdateShaderUniformFloat(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTBIAS, pointLight->m_bias);
-			s_renderDevice->UpdateShaderUniformFloat(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTSHADOWFAR, pointLight->m_shadowFar);
+			m_renderDevice->UpdateShaderUniformVector3(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTPOSITION, data->GetLocation());
+			m_renderDevice->UpdateShaderUniformColor(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTCOLOR, pointLight->m_color * pointLight->m_intensity);
+			m_renderDevice->UpdateShaderUniformFloat(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTDISTANCE, pointLight->m_distance);
+			m_renderDevice->UpdateShaderUniformFloat(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTBIAS, pointLight->m_bias);
+			m_renderDevice->UpdateShaderUniformFloat(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTSHADOWFAR, pointLight->m_shadowFar);
 
 			currentPointLightCount++;
 		}
@@ -160,12 +164,12 @@ namespace Lina::ECS
 			EntityDataComponent* data = std::get<0>(*it);
 			SpotLightComponent* spotLight = std::get<1>(*it);
 			std::string currentSpotLightStr = std::to_string(currentSpotLightCount);
-			s_renderDevice->UpdateShaderUniformVector3(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTPOSITION, data->GetLocation());
-			s_renderDevice->UpdateShaderUniformColor(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTCOLOR, spotLight->m_color * spotLight->m_intensity);
-			s_renderDevice->UpdateShaderUniformVector3(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTDIRECTION, data->GetRotation().GetForward());
-			s_renderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTCUTOFF, spotLight->m_cutoff);
-			s_renderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTOUTERCUTOFF, spotLight->m_outerCutoff);
-			s_renderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTDISTANCE, spotLight->m_distance);
+			m_renderDevice->UpdateShaderUniformVector3(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTPOSITION, data->GetLocation());
+			m_renderDevice->UpdateShaderUniformColor(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTCOLOR, spotLight->m_color * spotLight->m_intensity);
+			m_renderDevice->UpdateShaderUniformVector3(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTDIRECTION, data->GetRotation().GetForward());
+			m_renderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTCUTOFF, spotLight->m_cutoff);
+			m_renderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTOUTERCUTOFF, spotLight->m_outerCutoff);
+			m_renderDevice->UpdateShaderUniformFloat(shaderID, SC_SPOTLIGHTS + "[" + currentSpotLightStr + "]" + SC_LIGHTDISTANCE, spotLight->m_distance);
 			currentSpotLightCount++;
 		}
 

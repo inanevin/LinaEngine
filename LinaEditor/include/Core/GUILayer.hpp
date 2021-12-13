@@ -37,6 +37,7 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #ifndef GUILAYER_HPP
 #define GUILAYER_HPP
 
+
 #include "Core/Layer.hpp"
 #include "Rendering/RenderingCommon.hpp"
 #include "Panels/ECSPanel.hpp"
@@ -52,67 +53,15 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 
 namespace Lina
 {
-	class Application;
-
-	namespace ECS
-	{
-		class Registry;
-	}
-
 	namespace World
 	{
 		class Level;
-	}
-
-	namespace Physics
-	{
-		class PhysicsEngine;
-	}
-
-	namespace Graphics
-	{
-		class Window;
-		class RenderEngine;
 	}
 }
 
 namespace Lina::Editor
 {
-	enum class MenuBarItems
-	{
-		NewProject = 0,
-		LoadProject = 1,
-		SaveProject = 2,
-
-		Edit = 10,
-		View = 20,
-
-		SaveLevelData = 30,
-		LoadLevelData = 31,
-		NewLevelData = 32,
-
-		ECSPanel = 40,
-		HeaderPanel = 11,
-		LogPanel = 42,
-		PropertiesPanel = 44,
-		ResourcesPanel = 45,
-		ScenePanel = 46,
-		ProfilerPanel = 47,
-		GlobalSettingsPanel = 48,
-		ImGuiPanel = 50,
-
-		DebugViewPhysics = 61,
-		DebugViewShadows = 62,
-		DebugViewNormal = 63,
-
-		Cube = 80,
-		Sphere = 81,
-		Capsule = 82,
-		Cylinder = 83,
-		Plane = 84,
-		Quad = 85
-
-	};
+	
 
 	class GUILayer : public Lina::Layer
 	{
@@ -128,7 +77,7 @@ namespace Lina::Editor
 		void Render() override;
 
 		// Menu bar item callback from header panel.
-		void DispatchMenuBarClickedAction(const MenuBarItems& item);
+		void DispatchMenuBarClickedAction(EMenuBarItemClicked event);
 
 		void Refresh();
 		ScenePanel& GetScenePanel() { return m_scenePanel; }

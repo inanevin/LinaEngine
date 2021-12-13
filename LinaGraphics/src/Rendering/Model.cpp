@@ -31,8 +31,7 @@ SOFTWARE.
 #include "Utility/UtilityFunctions.hpp"
 #include "Log/Log.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
-#include "Rendering/RenderEngine.hpp"
-#include "Rendering/ModelLoader.hpp"
+#include "Core/RenderEngineBackend.hpp"
 #include <stdio.h>
 #include <cereal/archives/binary.hpp>
 #include <fstream>
@@ -67,7 +66,7 @@ namespace Lina::Graphics
 		// Build vertex array for each model.
 		for (uint32 i = 0; i < model.GetMeshes().size(); i++)
 		{
-			model.GetMeshes()[i].CreateVertexArray(RenderEngine::GetRenderDevice(), BufferUsage::USAGE_DYNAMIC_DRAW);
+			model.GetMeshes()[i].CreateVertexArray( BufferUsage::USAGE_DYNAMIC_DRAW);
 		}
 
 		// Set id

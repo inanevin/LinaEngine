@@ -31,12 +31,21 @@ SOFTWARE.
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "Rendering/Model.hpp"
-#include "Rendering/RenderEngine.hpp"
+#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderDeviceBackend.hpp"
 #include "Rendering/Material.hpp"
 #include "Animation/Skeleton.hpp"
 
 namespace Lina::ECS
 {
+
+	void MeshRendererSystem::Initialize()
+	{
+		BaseECSSystem::Initialize();
+		m_renderEngine = Graphics::RenderEngineBackend::Get();
+		m_renderDevice = m_renderEngine->GetRenderDevice();
+		m_ecs->on_destroy<ModelRendererComponent>().connect<&MeshRendererSystem::OnModelRendererRemoved>(this);
+	}
 
 
 	void MeshRendererSystem::UpdateComponents(float delta)
@@ -74,14 +83,6 @@ namespace Lina::ECS
 
 		}
 
-	}
-
-	void MeshRendererSystem::Construct(Registry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn)
-	{
-		BaseECSSystem::Construct(registry);
-		m_renderEngine = &renderEngineIn;
-		s_renderDevice = &renderDeviceIn;
-		registry.on_destroy<ModelRendererComponent>().connect<&MeshRendererSystem::OnModelRendererRemoved>(this);
 	}
 
 	void MeshRendererSystem::RenderOpaque(Graphics::VertexArray& vertexArray, Lina::Graphics::Skeleton& skeleton, Graphics::Material& material, const Matrix& transformIn)
@@ -150,7 +151,7 @@ namespace Lina::ECS
 				mat->SetMatrix4(std::string(UF_BONE_MATRICES) + "[" + std::to_string(i) + "]", modelData.m_boneTransformations[i]);
 
 			m_renderEngine->UpdateShaderData(mat);
-			s_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
+			m_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
 
 			// Clear the buffer.
 			if (completeFlush)
@@ -183,7 +184,7 @@ namespace Lina::ECS
 			va.UpdateBuffer(7, &model[0][0], sizeof(Matrix));
 			va.UpdateBuffer(8, &data.ToMatrix().Inverse().Transpose()[0][0], sizeof(Matrix));
 			m_renderEngine->UpdateShaderData(&mat);
-			s_renderDevice->Draw(va.GetID(), drawParams, 1, va.GetIndexCount(), false);
+			m_renderDevice->Draw(va.GetID(), drawParams, 1, va.GetIndexCount(), false);
 		}
 
 
@@ -227,7 +228,7 @@ namespace Lina::ECS
 			for (int i = 0; i < modelData.m_boneTransformations.size(); i++)
 				mat->SetMatrix4(std::string(UF_BONE_MATRICES) + "[" + std::to_string(i) + "]", modelData.m_boneTransformations[i]);
 			m_renderEngine->UpdateShaderData(mat);
-			s_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
+			m_renderDevice->Draw(vertexArray->GetID(), drawParams, numTransforms, vertexArray->GetIndexCount(), false);
 
 			// Clear the buffer.
 			if (completeFlush)

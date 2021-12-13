@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Drawers/MeshDrawer.hpp"
 #include "Rendering/Model.hpp"
 #include "Core/Application.hpp"
-#include "Rendering/RenderEngine.hpp"
+#include "Core/RenderEngineBackend.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "imgui/imgui.h"
 
@@ -39,7 +39,7 @@ namespace Lina::Editor
 #define CURSORPOS_X_LABELS 12
 #define CURSORPOS_XPERC_VALUES 0.55f
 
-	void MeshDrawer::SetSelectedMesh(Lina::Graphics::Model& mesh)
+	void MeshDrawer::SetSelectedModel(Lina::Graphics::Model& mesh)
 	{
 		m_selectedMesh = &mesh;
 		m_selectedParams = m_selectedMesh->GetParameters();

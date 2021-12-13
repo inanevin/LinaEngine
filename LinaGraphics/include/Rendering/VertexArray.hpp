@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -40,51 +40,29 @@ Timestamp: 4/26/2019 12:30:15 AM
 #define VertexArray_HPP
 
 #include "Core/SizeDefinitions.hpp"
+#include "Core/RenderBackendFwd.hpp"
 #include "RenderingCommon.hpp"
-#include "PackageManager/PAMRenderDevice.hpp"
 
 namespace Lina::Graphics
 {
-
 	class VertexArray
 	{
 	public:
 
 		VertexArray() : m_engineBoundID(0), m_indexCount(0), m_renderDevice(nullptr) {};
-		~VertexArray()
-		{
-			m_engineBoundID = m_renderDevice->ReleaseVertexArray(m_engineBoundID);
-		}
+		~VertexArray();
 
-
-		void Setup(RenderDevice& deviceIn, uint32 engineBoundID, uint32 indexCount)
-		{
-			m_renderDevice = &deviceIn;
-			m_engineBoundID = engineBoundID;
-			m_indexCount = indexCount;
-		}
-
-		void UpdateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize)
-		{
-			return m_renderDevice->UpdateVertexArrayBuffer(m_engineBoundID, bufferIndex, data, dataSize);
-		}
-
-		uint32 GetID()
-		{ 
-			return m_engineBoundID;
-		}
-
-		uint32 GetIndexCount()
-		{ 
-			return m_indexCount;  
-		}
+		void Setup(uint32 engineBoundID, uint32 indexCount);
+		void UpdateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize);
+		uint32 GetID() { return m_engineBoundID; }
+		uint32 GetIndexCount() { return m_indexCount; }
 
 	private:
 
 		RenderDevice* m_renderDevice = nullptr;
 		uint32 m_engineBoundID = 0;
 		uint32 m_indexCount = 0;
-		
+
 	};
 
 }

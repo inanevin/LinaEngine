@@ -35,11 +35,10 @@ SOFTWARE.
 namespace Lina::ECS
 {
 
-	void CameraSystem::Construct(Registry& registry)
+	void CameraSystem::Initialize()
 	{
-		BaseECSSystem::Construct(registry);
-
-		registry.on_destroy<CameraComponent>().connect<&CameraSystem::OnCameraDestroyed>(this);
+		BaseECSSystem::Initialize();
+		m_ecs->on_destroy<CameraComponent>().connect<&CameraSystem::OnCameraDestroyed>(this);
 	}
 
 	void CameraSystem::SetActiveCamera(Entity cameraOwner)
@@ -55,6 +54,7 @@ namespace Lina::ECS
 		else
 			LINA_WARN("This entity does not have a camera component, can not set it as main camera.");
 	}
+
 
 	void CameraSystem::UpdateComponents(float interpolation)
 	{

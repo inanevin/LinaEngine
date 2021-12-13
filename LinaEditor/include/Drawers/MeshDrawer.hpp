@@ -59,7 +59,7 @@ namespace Lina::Editor
 		MeshDrawer() {};
 		~MeshDrawer() {};
 	
-		void SetSelectedMesh(Lina::Graphics::Model& mesh);
+		void SetSelectedModel(Lina::Graphics::Model& mesh);
 		void DrawSelectedMesh();
 
 

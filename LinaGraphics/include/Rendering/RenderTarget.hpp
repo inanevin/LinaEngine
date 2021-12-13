@@ -40,7 +40,6 @@ Timestamp: 4/26/2019 9:13:05 PM
 #define RenderTarget_HPP
 
 #include "Texture.hpp"
-#include "PackageManager/PAMRenderDevice.hpp"
 #include "Log/Log.hpp"
 
 namespace Lina::Graphics
@@ -50,64 +49,18 @@ namespace Lina::Graphics
 	public:
 
 		RenderTarget() {}
+		~RenderTarget();
 
-		// Destructor releases the render target through render engine.
-		~RenderTarget()
-		{
-			if (m_constructed)
-				m_engineBoundID = s_renderDevice->ReleaseRenderTarget(m_engineBoundID);
-		}
-
-
-		// TODO: Take care of texture compression. Should not be compressed.
-		// Constructors create the target through render engine.
-		void Construct(RenderDevice& renderDeviceIn, Texture& texture, const Vector2& size, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, bool noReadWrite = false, uint32 attachmentNumber = 0, uint32 mipLevel = 0)
-		{
-			m_constructed = true;
-			s_renderDevice = &renderDeviceIn;
-			m_engineBoundID = s_renderDevice->CreateRenderTarget(texture.GetID(), (uint32)size.x, (uint32)size.y, bindTextureMode, attachment, attachmentNumber, mipLevel, noReadWrite, false, FrameBufferAttachment::ATTACHMENT_COLOR, 0, true);
-			CheckCompressed(texture);
-		}
-
-		void Construct(RenderDevice& renderDeviceIn, Texture& texture, const Vector2& size, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, FrameBufferAttachment rboAttachment, uint32 rbo, uint32 attachmentNumber = 0, uint32 mipLevel = 0)
-		{
-			m_constructed = true;
-			s_renderDevice = &renderDeviceIn;
-			m_rbo = rbo;
-			m_engineBoundID = s_renderDevice->CreateRenderTarget(texture.GetID(), (uint32)size.x, (uint32)size.y, bindTextureMode, attachment, attachmentNumber, mipLevel, false, rbo != 0, rboAttachment, rbo, true);
-			CheckCompressed(texture);
-		}
-
-		void Construct(RenderDevice& renderDeviceIn, Vector2 size, FrameBufferAttachment rboAttachment, uint32 rbo)
-		{
-			m_constructed = true;
-			s_renderDevice = &renderDeviceIn;
-			m_rbo = rbo;
-			m_engineBoundID = s_renderDevice->CreateRenderTarget(0, size.x, size.y, TextureBindMode::BINDTEXTURE_NONE, FrameBufferAttachment::ATTACHMENT_COLOR, 0,0, false, true, rboAttachment, rbo, false);
-		}
-
-		// Check if the texture is compressed. It should not be so to properly create the target.
-		void CheckCompressed(const Texture& texture) {
-
-			if (texture.IsCompressed())
-			{
-				LINA_TRACE("Compressed textures cannot be used as render targets!");
-				throw std::invalid_argument("Compressed textures cannot be used as render targets!");
-			}
-
-			if (texture.HasMipmaps())
-			{
-				LINA_TRACE("Rendering to a texture with mipmaps will NOT render to all mipmap levels! Unexpected results may occur.");
-			}
-		}
-
+		void Construct(Texture& texture, const Vector2& size, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, bool noReadWrite = false, uint32 attachmentNumber = 0, uint32 mipLevel = 0);
+		void Construct(Texture& texture, const Vector2& size, TextureBindMode bindTextureMode, FrameBufferAttachment attachment, FrameBufferAttachment rboAttachment, uint32 rbo, uint32 attachmentNumber = 0, uint32 mipLevel = 0);
+		void Construct(Vector2 size, FrameBufferAttachment rboAttachment, uint32 rbo);
+		void CheckCompressed(const Texture& texture);
 
 		uint32 GetID() { return m_engineBoundID; }
 
 	private:
 
 		bool m_constructed = false;
-		RenderDevice* s_renderDevice = nullptr;
 		uint32 m_engineBoundID = 0;
 		uint32 m_rbo = 0;
 

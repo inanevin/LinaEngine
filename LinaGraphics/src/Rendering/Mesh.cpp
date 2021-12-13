@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Rendering/Mesh.hpp"  
-#include "PackageManager/PAMRenderDevice.hpp"
+#include "Core/RenderEngineBackend.hpp"
 
 namespace Lina::Graphics
 {
@@ -61,7 +61,7 @@ namespace Lina::Graphics
 		m_bufferElements.push_back(BufferData(elementSize, attrib, isFloat, isInstanced));
 	}
 
-	void Mesh::CreateVertexArray(RenderDevice& renderDevice, BufferUsage bufferUsage)
+	void Mesh::CreateVertexArray(BufferUsage bufferUsage)
 	{
 		uint32 numVertices = m_bufferElements[0].m_floatElements.size() / m_bufferElements[0].m_elementSize;
 		uint32 numIndices = m_indices.size();
@@ -76,8 +76,8 @@ namespace Lina::Graphics
 		int totalInstanceComponents = m_bufferElements.size() - totalVertexComponents;
 
 		// Init vertex array.
-		uint32 id = renderDevice.CreateVertexArray(m_bufferElements, totalVertexComponents, totalInstanceComponents, numVertices, &m_indices[0], numIndices, bufferUsage);
-		m_vertexArray.Setup(renderDevice, id, GetIndexCount());
+		uint32 id = RenderEngineBackend::Get()->GetRenderDevice()->CreateVertexArray(m_bufferElements, totalVertexComponents, totalInstanceComponents, numVertices, &m_indices[0], numIndices, bufferUsage);
+		m_vertexArray.Setup(id, GetIndexCount());
 	}
 }
 

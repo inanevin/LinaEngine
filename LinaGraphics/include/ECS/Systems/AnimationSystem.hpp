@@ -46,7 +46,7 @@ namespace Lina
 {
 	namespace Graphics
 	{
-		class RenderEngine;
+		class OpenGLRenderEngine;
 	}
 }
 namespace Lina::ECS
@@ -59,14 +59,10 @@ namespace Lina::ECS
 		AnimationSystem() {};
 		~AnimationSystem() {};
 
-		void Construct(Registry& registry, Lina::Graphics::RenderEngine* renderEngine);		
 		virtual void UpdateComponents(float delta) override;
 
-	
-	private:
+	protected:
 
-		Lina::Graphics::RenderEngine* m_renderEngine;
-	
 	};
 }
 

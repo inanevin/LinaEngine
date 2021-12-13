@@ -29,17 +29,18 @@ SOFTWARE.
 #include "ECS/Systems/SpriteRendererSystem.hpp"
 #include "ECS/Components/EntityDataComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
-#include "Rendering/RenderEngine.hpp"
+#include "Core/RenderEngineBackend.hpp"
+#include "Core/RenderDeviceBackend.hpp"
 
 namespace Lina::ECS
 {
-	void SpriteRendererSystem::Construct(Registry& registry, Graphics::RenderEngine& renderEngineIn, RenderDevice& renderDeviceIn)
+	void SpriteRendererSystem::Initialize()
 	{
-		BaseECSSystem::Construct(registry);
-		m_renderEngine = &renderEngineIn;
-		s_renderDevice = &renderDeviceIn;
+		BaseECSSystem::Initialize();
+		m_renderEngine = Graphics::RenderEngineBackend::Get();
+		m_renderDevice = m_renderEngine->GetRenderDevice();
 		Graphics::ModelLoader::LoadSpriteQuad(m_quadMesh);
-		m_quadMesh.CreateVertexArray(*s_renderDevice, Graphics::BufferUsage::USAGE_STATIC_COPY);
+		m_quadMesh.CreateVertexArray(Graphics::BufferUsage::USAGE_STATIC_COPY);
 	}
 
 	void SpriteRendererSystem::UpdateComponents(float delta)
@@ -89,7 +90,7 @@ namespace Lina::ECS
 			m_quadMesh.GetVertexArray().UpdateBuffer(2, models, numTransforms * sizeof(Matrix));
 
 			m_renderEngine->UpdateShaderData(mat);
-			s_renderDevice->Draw(m_quadMesh.GetVertexArray().GetID(), drawParams, numTransforms, m_quadMesh.GetVertexArray().GetIndexCount(), false);
+			m_renderDevice->Draw(m_quadMesh.GetVertexArray().GetID(), drawParams, numTransforms, m_quadMesh.GetVertexArray().GetIndexCount(), false);
 
 			// Clear the buffer.
 			if (completeFlush)

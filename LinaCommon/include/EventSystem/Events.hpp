@@ -41,6 +41,8 @@ Timestamp: 12/24/2020 7:02:11 PM
 
 // Headers here.
 #include "Utility/StringId.hpp"
+#include "Math/Vector.hpp"
+#include "Math/Color.hpp"
 #include "Core/Common.hpp"
 
 #define MT_DISPATCHER_COUNT 4
@@ -76,16 +78,20 @@ namespace Lina::Event
 	struct EPreTick { float m_deltaTime; bool m_isInPlayMode; };
 	struct EPostTick { float m_deltaTime; bool m_isInPlayMode; };
 	struct ERender {};
+	struct EPlayModeChanged { bool m_playMode; };
 
 	// Physics
 	struct EPhysicsTick { float m_fixedDelta; bool m_isInPlayMode; };
 	struct EPrePhysicsTick { float m_fixedDelta; bool m_isInPlayMode; };
 	struct EPostPhysicsTick { float m_fixedDelta; bool m_isInPlayMode; };
+	struct EDrawPhysicsDebug { Vector3 m_from; Vector3 m_to; Color m_color; float m_lineWidth; };
 
 	// Render
 	struct EPreRender { };
+	struct EPostSceneDraw { };
 	struct EPostRender { };
 	struct EFinalizePostRender {};
+	struct ECustomDraw{};
 
 	// Window
 	struct EWindowContextCreated { void* m_window; };
@@ -96,14 +102,15 @@ namespace Lina::Event
 	struct EWindowFocused { void* m_window; int m_focused; };
 	struct EWindowMaximized { void* m_window; int m_isMaximized; };
 	struct EWindowIconified { void* m_window; int m_isIconified; };
-	struct EWindowKeyCallback { void* m_window; int m_key; int m_scancode; int m_action; int m_mods; };
-	struct EWindowMouseButtonCallback { void* m_window; int m_button; int m_action; int m_mods; };
-	struct EWindowMouseScrollCallback { void* m_window; double m_xoff; double m_yoff; };
-	struct EWindowMouseCursorPosCallback { void* m_window; double m_xpos; double m_ypos; };
+	struct EKeyCallback { void* m_window; int m_key; int m_scancode; InputAction m_action; int m_mods; };
+	struct EMouseButtonCallback { void* m_window; int m_button; InputAction m_action; int m_mods; };
+	struct EMouseScrollCallback { void* m_window; double m_xoff; double m_yoff; };
+	struct EMouseCursorCallback { void* m_window; double m_xpos; double m_ypos; };
 
 	// Level
-	struct ELevelLoaded { StringIDType m_level; };
-	struct ELevelUnloaded { StringIDType m_level; };
+	struct ELevelInstalled { };
+	struct ELevelUninstalled { };
+	struct ELevelInitialized { };
 
 	// Resources.
 	struct EAudioResourceLoaded { StringIDType m_sid;  void* m_data; int m_dataSize; int m_format; float m_freq; };

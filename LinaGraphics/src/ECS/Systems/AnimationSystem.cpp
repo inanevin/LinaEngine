@@ -29,16 +29,10 @@ SOFTWARE.
 #include "ECS/Systems/AnimationSystem.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/AnimationComponent.hpp"
-#include "Rendering/RenderEngine.hpp"
 #include "Rendering/Model.hpp"
 
 namespace Lina::ECS
 {
-	void AnimationSystem::Construct(Registry& registry, Lina::Graphics::RenderEngine* renderEngine)
-	{
-		BaseECSSystem::Construct(registry);
-		m_renderEngine = renderEngine;
-	}
 
 	static float test = 0.0f;
 

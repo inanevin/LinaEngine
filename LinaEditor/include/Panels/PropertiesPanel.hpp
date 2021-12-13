@@ -47,12 +47,12 @@ Timestamp: 6/7/2020 5:13:24 PM
 #include "Drawers/MaterialDrawer.hpp"
 #include "Drawers/MeshDrawer.hpp"
 #include "Rendering/RenderingCommon.hpp"
+#include "Core/EditorCommon.hpp"
 
 namespace Lina
 {
 	namespace Graphics
 	{
-		class RenderEngine;
 		class Model;
 		class Material;
 	}
@@ -83,12 +83,12 @@ namespace Lina::Editor
 		virtual void Setup() override;
 		virtual void Draw() override;
 
-		void EntitySelected(Lina::ECS::Entity selectedEntity);
-		void TextureSelected(Lina::Graphics::Texture* texture);
-		void MeshSelected(Lina::Graphics::Model* mesh);
-		void MaterialSelected(std::pair<EditorFile*, Lina::Graphics::Material*>);
+		void EntitySelected(EEntitySelected ev);
+		void TextureSelected(ETextureSelected ev);
+		void ModelSelected(EModelSelected ev);
+		void MaterialSelected(EMaterialSelected ev);
 
-		void Unselect()
+		void Unselect(EEntityUnselected ev)
 		{
 			m_currentDrawType = DrawType::None;
 		}
@@ -100,7 +100,7 @@ namespace Lina::Editor
 		TextureDrawer m_textureDrawer;
 
 		// Selected mesh
-		MeshDrawer m_meshDrawer;
+		MeshDrawer m_modelDrawer;
 
 		// Selected material
 		MaterialDrawer m_materialDrawer;

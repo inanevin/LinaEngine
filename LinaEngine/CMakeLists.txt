@@ -73,7 +73,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaGraphics/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaInput/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaPhysics/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAction/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaAudio/include)
 
 
@@ -87,7 +86,6 @@ target_link_libraries(${PROJECT_NAME}
 	# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
 	PUBLIC Lina::Common
 	PUBLIC Lina::Graphics
-	PUBLIC Lina::Action
 	PUBLIC Lina::Input
 	PUBLIC Lina::Physics
 	PUBLIC Lina::Audio

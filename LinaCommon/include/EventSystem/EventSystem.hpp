@@ -38,20 +38,33 @@ Timestamp: 12/29/2018 11:28:02 PM
 #ifndef EventSystem_HPP
 #define EventSystem_HPP
 
+#include "Core/Common.hpp"
 #include "Utility/StringId.hpp"
 #include "EventCommon.hpp"
 #include <mutex>
 
 
+namespace Lina
+{
+	class Application;
+}
+
 namespace Lina::Event
 {
-
 	class EventSystem
 	{
 	public:
 
 		EventSystem() {}
 		~EventSystem() {};
+
+		FORCEINLINE static EventSystem* Get() { return s_eventSystem; }
+
+		template<typename T>
+		bool IsEmpty()
+		{
+			return m_mainDispatcher.sink<T>().empty();
+		}
 
 		template<typename T, auto Candidate, typename Type>
 		void Connect(Type&& value_or_instance ...) {
@@ -126,11 +139,13 @@ namespace Lina::Event
 
 	private:
 
+		friend class Lina::Application;
+
 		mutable std::recursive_mutex m_mutex;
 		Dispatcher m_mainDispatcher{};
+		static EventSystem* s_eventSystem;
 
 	};
-
 }
 
 #endif

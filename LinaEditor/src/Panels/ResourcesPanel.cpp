@@ -31,11 +31,12 @@ SOFTWARE.
 #include "Panels/PropertiesPanel.hpp"
 #include "Core/Application.hpp"
 #include "Core/EditorApplication.hpp"
-#include "Rendering/RenderEngine.hpp"
-#include "Input/InputMappings.hpp"
+#include "Core/RenderEngineBackend.hpp"
+#include "Core/InputMappings.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Utility/EditorUtility.hpp"
+#include "Utility/UtilityFunctions.hpp"
 #include "Rendering/Shader.hpp"
 #include "IconsFontAwesome5.h"
 #include "imgui/imgui.h"
@@ -65,14 +66,9 @@ namespace Lina::Editor
 
 	void ResourcesPanel::Setup()
 	{
-		Lina::Editor::EditorApplication::GetEditorDispatcher().SubscribeAction<std::pair<Lina::Graphics::Texture*, Lina::Graphics::Texture*>>("##mrsr_textureReimport", Lina::Action::ActionType::TextureReimported,
-			std::bind(&ResourcesPanel::TextureReimported, this, std::placeholders::_1));
-
-		Lina::Editor::EditorApplication::GetEditorDispatcher().SubscribeAction<Lina::Graphics::Texture*>("##mrsr_matTextureSelected", Lina::Action::ActionType::MaterialTextureSelected,
-			std::bind(&ResourcesPanel::MaterialTextureSelected, this, std::placeholders::_1));
-
+		Lina::Event::EventSystem::Get()->Connect<ETextureReimported, &ResourcesPanel::TextureReimported>(this);
+		Lina::Event::EventSystem::Get()->Connect<EMaterialTextureSelected, &ResourcesPanel::MaterialTextureSelected>(this);
 		ScanRoot();
-
 		s_highlightColor = ImGui::GetStyleColorVec4(ImGuiCol_Header);
 		s_fileNameColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
 		s_usedFileNameColor = s_fileNameColor;
@@ -198,7 +194,7 @@ namespace Lina::Editor
 					file.m_type = FileType::Material;
 					file.m_id = ++s_itemIDCounter;
 
-					Graphics::Material& m = Lina::Graphics::Material::CreateMaterial(Graphics::RenderEngine::GetDefaultShader(), file.m_path);
+					Graphics::Material& m = Lina::Graphics::Material::CreateMaterial(Graphics::RenderEngineBackend::Get()->GetDefaultShader(), file.m_path);
 					Graphics::Material::SaveMaterialData(m, materialPath);
 
 					if (s_hoveredFolder != nullptr)
@@ -421,14 +417,14 @@ namespace Lina::Editor
 				s_selectedItem = it->second.m_id;
 				s_selectedFolder = nullptr;
 				s_selectedFile = &it->second;
-
+				
 				// Notify properties panel of file selection.
 				if (it->second.m_type == FileType::Texture2D)
-					EditorApplication::GetEditorDispatcher().DispatchAction<Lina::Graphics::Texture*>(Lina::Action::ActionType::TextureSelected, &Lina::Graphics::Texture::GetTexture(it->second.m_path));
+					Lina::Event::EventSystem::Get()->Trigger<ETextureSelected>(ETextureSelected{ &Lina::Graphics::Texture::GetTexture(it->second.m_path) });
 				else if (it->second.m_type == FileType::Model)
-					EditorApplication::GetEditorDispatcher().DispatchAction<Lina::Graphics::Model*>(Lina::Action::ActionType::MeshSelected, &Lina::Graphics::Model::GetModel(it->second.m_path));
+					Lina::Event::EventSystem::Get()->Trigger<EModelSelected>(EModelSelected{ &Lina::Graphics::Model::GetModel(it->second.m_path) });
 				else if (it->second.m_type == FileType::Material)
-					EditorApplication::GetEditorDispatcher().DispatchAction<std::pair<EditorFile*, Lina::Graphics::Material*>>(Lina::Action::ActionType::MaterialSelected, std::make_pair(&it->second, &Lina::Graphics::Material::GetMaterial(it->second.m_path)));
+					Lina::Event::EventSystem::Get()->Trigger<EMaterialSelected>(EMaterialSelected{ &it->second, &Lina::Graphics::Material::GetMaterial(it->second.m_path) });
 			}
 
 			if (nodeOpen)
@@ -440,7 +436,7 @@ namespace Lina::Editor
 		// Deselect.
 		if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 		{
-			EditorApplication::GetEditorDispatcher().DispatchAction<void*>(Lina::Action::ActionType::Unselect, 0);
+			Lina::Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
 			s_selectedItem = -1;
 		}
 
@@ -453,7 +449,7 @@ namespace Lina::Editor
 				s_selectedFile->m_markedForErase = true;
 
 			// Deselect
-			EditorApplication::GetEditorDispatcher().DispatchAction<void*>(Lina::Action::ActionType::Unselect, 0);
+			Lina::Event::EventSystem::Get()->Trigger<EEntityUnselected>(EEntityUnselected{});
 			s_selectedItem = -1;
 		}
 
@@ -463,8 +459,6 @@ namespace Lina::Editor
 
 	void ResourcesPanel::LoadFolderResources(EditorFolder& folder)
 	{
-		Lina::Graphics::RenderEngine& renderEngine = Lina::Application::GetRenderEngine();
-
 		// Load files.
 		for (std::map<int, EditorFile>::iterator it = folder.m_files.begin(); it != folder.m_files.end(); ++it)
 		{
@@ -527,7 +521,7 @@ namespace Lina::Editor
 
 	void ResourcesPanel::LoadFolderDependencies(EditorFolder& folder)
 	{
-		Lina::Graphics::RenderEngine& renderEngine = Lina::Application::GetRenderEngine();
+		Lina::Graphics::RenderEngineBackend* renderEngine = Lina::Graphics::RenderEngineBackend::Get();
 
 		// Load files.
 		for (std::map<int, EditorFile>::iterator it = folder.m_files.begin(); it != folder.m_files.end(); ++it)
@@ -542,7 +536,7 @@ namespace Lina::Editor
 			if (file.m_type == FileType::Material)
 			{
 				Lina::Graphics::Material& mat = Lina::Graphics::Material::GetMaterial(file.m_path);
-				mat.PostLoadMaterialData(renderEngine);
+				mat.PostLoadMaterialData();
 			}
 			else if (file.m_type == FileType::Model)
 			{
@@ -557,7 +551,6 @@ namespace Lina::Editor
 
 	void ResourcesPanel::UnloadFileResource(EditorFile& file)
 	{
-		Lina::Graphics::RenderEngine& renderEngine = Lina::Application::GetRenderEngine();
 		if (file.m_type == FileType::Texture2D)
 			Lina::Graphics::Texture::UnloadTextureResource(Lina::Graphics::Texture::GetTexture(file.m_path).GetID());
 		else if(file.m_type == FileType::HDRI)
@@ -623,17 +616,17 @@ namespace Lina::Editor
 			return FileType::Unknown;
 	}
 
-	void ResourcesPanel::MaterialTextureSelected(Lina::Graphics::Texture* texture)
+	void ResourcesPanel::MaterialTextureSelected(EMaterialTextureSelected ev)
 	{
-		ExpandFileResource(m_resourceFolders[0], texture->GetPath(), FileType::Texture2D);
+		ExpandFileResource(m_resourceFolders[0], ev.m_texture->GetPath(), FileType::Texture2D);
 	}
 
-	void ResourcesPanel::TextureReimported(std::pair<Lina::Graphics::Texture*, Lina::Graphics::Texture*> texturePair)
+	void ResourcesPanel::TextureReimported(ETextureReimported ev)
 	{
-		VerifyMaterialFiles(m_resourceFolders[0], texturePair);
+		VerifyMaterialFiles(m_resourceFolders[0], ev);
 	}
 
-	bool ResourcesPanel::VerifyMaterialFiles(EditorFolder& folder, std::pair<Lina::Graphics::Texture*, Lina::Graphics::Texture*> textures)
+	bool ResourcesPanel::VerifyMaterialFiles(EditorFolder& folder, ETextureReimported ev)
 	{
 		// Iterate the files in this folder first & see if there is a match.
 		for (auto file : folder.m_files)
@@ -643,9 +636,9 @@ namespace Lina::Editor
 				Lina::Graphics::Material& mat = Lina::Graphics::Material::GetMaterial(file.second.m_path);
 				for (auto sampler : mat.m_sampler2Ds)
 				{
-					if (sampler.second.m_boundTexture == textures.first)
+					if (sampler.second.m_boundTexture == ev.m_selected)
 					{
-						mat.SetTexture(sampler.first, textures.second, sampler.second.m_bindMode);
+						mat.SetTexture(sampler.first, ev.m_reimported, sampler.second.m_bindMode);
 						return true;
 					}
 				}
@@ -656,7 +649,7 @@ namespace Lina::Editor
 		// Iterate subfolders.
 		for (auto folder : folder.m_subFolders)
 		{
-			if (VerifyMaterialFiles(folder.second, textures))
+			if (VerifyMaterialFiles(folder.second, ev))
 				return true;
 		}
 

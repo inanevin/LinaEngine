@@ -39,12 +39,17 @@ Timestamp: 12/29/2018 10:43:46 PM
 #ifndef Lina_Application_HPP
 #define Lina_Application_HPP
 
+#include "EventSystem/Events.hpp"
+#include "Core/InputBackend.hpp"
+#include "Core/RenderEngineBackend.hpp"
+#include "Core/PhysicsBackend.hpp"
+#include "Core/AudioEngine.hpp"
+#include "Core/WindowBackend.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Math/Vector.hpp"
 #include "Math/Color.hpp"
 #include "Core/LayerStack.hpp"
 #include "ECS/ECS.hpp"
-#include "Actions/ActionDispatcher.hpp"
 #include <functional>
 #include <array>
 
@@ -53,23 +58,6 @@ namespace Lina::World
 	class Level;
 }
 
-namespace Lina::Graphics
-{
-	class Window;
-	class RenderEngine;
-	struct WindowProperties;
-}
-
-namespace Lina::Input
-{
-	class InputEngine;
-	class InputDevice;
-}
-
-namespace Lina::Physics
-{
-	class PhysicsEngine;
-}
 
 namespace Lina::Audio
 {
@@ -114,26 +102,16 @@ namespace Lina
 		bool GetPlayMode() { return m_isInPlayMode; }
 		LayerStack& GetMainStack() { return m_mainLayerStack; }
 		LayerStack& GetPlayModeStack() { return m_playModeStack; }
+		World::Level* GetCurrentLevel() { return m_currentLevel; }
 
-		static double GetTime();
-		static Action::ActionDispatcher& GetEngineDispatcher() { return s_engineDispatcher; }
+		double GetTime();
 		static Application& GetApp() { return *s_application; }
-		static Graphics::Window& GetAppWindow() { return *s_appWindow; }
-		static Graphics::RenderEngine& GetRenderEngine() { return *s_renderEngine; }
-		static Input::InputEngine& GetInputEngine() { return *s_inputEngine; }
-		static Physics::PhysicsEngine& GetPhysicsEngine() { return *s_physicsEngine; }
-		static Audio::AudioEngine& GetAudioEngine() { return *s_audioEngine; }
-		static ECS::Registry& GetECSRegistry() { return s_ecs; }
-		static Event::EventSystem& GetEventSystem() { return *s_eventSystem; }
+
 	protected:
 
-		virtual void Initialize(Graphics::WindowProperties& props);
+		virtual void Initialize(WindowProperties& props);
 
 		Application();
-
-		// Delegates draw commands from physics engine to rendering engine
-		virtual void OnDrawLine(Vector3 from, Vector3 to, Color color, float width = 1.0f);
-
 
 	private:
 
@@ -141,21 +119,14 @@ namespace Lina
 		void UpdateGame(float deltaTime);
 		void DisplayGame(float interpolation);
 		void OnLog(Event::ELog dump);
-		bool OnWindowClose();
-		void OnWindowResize(Vector2 size);
-		void OnPostSceneDraw();
-		void OnPostDraw();
-		void OnPreDraw();
-		void KeyCallback(int key, int action);
-		void MouseCallback(int button, int action);
-		void WindowCloseCallback() {};
+		bool OnWindowClose(Event::EWindowClosed);
+		void OnWindowResize(Event::EWindowResized);
+
 		void RemoveOutliers(bool biggest);
 		double SmoothDeltaTime(double dt);
 		void InitializeLevel(Lina::World::Level& level);
 
 	private:
-
-		static Action::ActionDispatcher s_engineDispatcher;
 
 		// Layer queue.
 		LayerStack m_mainLayerStack;
@@ -163,15 +134,14 @@ namespace Lina
 
 		// Active engines running in the application.
 		static Application* s_application;
-		static Input::InputEngine* s_inputEngine;
-		static Graphics::RenderEngine* s_renderEngine;
-		static Physics::PhysicsEngine* s_physicsEngine;
-		static Audio::AudioEngine* s_audioEngine;
-		static ECS::Registry s_ecs;
-		static Graphics::Window* s_appWindow;
-		static Event::EventSystem* s_eventSystem;
+		Graphics::RenderEngineBackend m_renderEngine;
+		Physics::PhysicsEngineBackend m_physicsEngine;
+		Audio::AudioEngine m_audioEngine;
+		Input::InputEngineBackend m_inputEngine;
+		Graphics::WindowBackend m_window;
+		Event::EventSystem m_eventSystem;
+		ECS::Registry m_ecs;
 
-		Input::InputDevice* m_inputDevice = nullptr;
 		World::Level* m_currentLevel = nullptr;
 		ECS::ECSSystemList m_mainECSPipeline;
 
@@ -209,12 +179,7 @@ namespace Lina
 
 	// Defined in client.
 	Application* CreateApplication();
-	Graphics::Window* CreateContextWindow();
-	Graphics::RenderEngine* CreateRenderEngine();
-	Input::InputDevice* CreateInputDevice();
-	Input::InputEngine* CreateInputEngine();
-	Physics::PhysicsEngine* CreatePhysicsEngine();
-	Audio::AudioEngine* CreateAudioEngine();
+	
 };
 
 

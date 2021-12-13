@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Rendering/Texture.hpp"  
 #include "Rendering/ArrayBitmap.hpp"
-#include "Rendering/RenderEngine.hpp"
+#include "Core/RenderEngineBackend.hpp"
 #include <stdio.h>
 #include <cereal/archives/binary.hpp>
 #include <fstream>
@@ -39,17 +39,17 @@ namespace Lina::Graphics
 
 	Texture::~Texture()
 	{
-		m_id = s_renderDevice->ReleaseTexture2D(m_id);
+		m_id = m_renderDevice->ReleaseTexture2D(m_id);
 
 	}
 
-	Texture& Texture::Construct(RenderDevice& deviceIn, const ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress, const std::string& path)
+	Texture& Texture::Construct(const ArrayBitmap& data, SamplerParameters samplerParams, bool shouldCompress, const std::string& path)
 	{
-		s_renderDevice = &deviceIn;
+		m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
 		m_size = Vector2(data.GetWidth(), data.GetHeight());
 		m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
-		m_sampler.Construct(deviceIn, samplerParams, m_bindMode);
-		m_id = s_renderDevice->CreateTexture2D(m_size, data.GetPixelArray(), samplerParams, shouldCompress, false, Color::White);
+		m_sampler.Construct(samplerParams, m_bindMode);
+		m_id = m_renderDevice->CreateTexture2D(m_size, data.GetPixelArray(), samplerParams, shouldCompress, false, Color::White);
 		m_sampler.SetTargetTextureID(m_id);
 		m_isCompressed = shouldCompress;
 		m_hasMipMaps = samplerParams.m_textureParams.m_generateMipMaps;
@@ -59,7 +59,7 @@ namespace Lina::Graphics
 	}
 
 
-	Texture& Texture::ConstructCubemap(RenderDevice& deviceIn, SamplerParameters samplerParams, const std::vector<ArrayBitmap*>& data, bool shouldCompress, const std::string& path)
+	Texture& Texture::ConstructCubemap(SamplerParameters samplerParams, const std::vector<ArrayBitmap*>& data, bool shouldCompress, const std::string& path)
 	{
 		if (data.size() != 6)
 		{
@@ -67,7 +67,7 @@ namespace Lina::Graphics
 			return Texture();
 		}
 
-		s_renderDevice = &deviceIn;
+		m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
 		m_size = Vector2(data[0]->GetWidth(), data[0]->GetHeight());
 		m_bindMode = TextureBindMode::BINDTEXTURE_CUBEMAP;
 
@@ -76,8 +76,8 @@ namespace Lina::Graphics
 		for (uint32 i = 0; i < 6; i++)
 			cubeMapData.push_back(data[i]->GetPixelArray());
 
-		m_sampler.Construct(deviceIn, samplerParams, m_bindMode);
-		m_id = s_renderDevice->CreateCubemapTexture(m_size, samplerParams, cubeMapData, 6U);
+		m_sampler.Construct(samplerParams, m_bindMode);
+		m_id = m_renderDevice->CreateCubemapTexture(m_size, samplerParams, cubeMapData, 6U);
 		m_sampler.SetTargetTextureID(m_id);
 		m_isCompressed = shouldCompress;
 		m_hasMipMaps = samplerParams.m_textureParams.m_generateMipMaps;
@@ -87,13 +87,13 @@ namespace Lina::Graphics
 		return *this;
 	}
 
-	Texture& Texture::ConstructHDRI(RenderDevice& deviceIn, SamplerParameters samplerParams, Vector2 size, float* data, const std::string& path)
+	Texture& Texture::ConstructHDRI(SamplerParameters samplerParams, Vector2 size, float* data, const std::string& path)
 	{
-		s_renderDevice = &deviceIn;
+		m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
 		m_size = size;
 		m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
-		m_sampler.Construct(deviceIn, samplerParams, m_bindMode);
-		m_id = s_renderDevice->CreateTextureHDRI(size, data, samplerParams);
+		m_sampler.Construct( samplerParams, m_bindMode);
+		m_id = m_renderDevice->CreateTextureHDRI(size, data, samplerParams);
 		m_sampler.SetTargetTextureID(m_id);
 		m_isCompressed = false;
 		m_hasMipMaps = samplerParams.m_textureParams.m_generateMipMaps;
@@ -102,13 +102,13 @@ namespace Lina::Graphics
 		return *this;
 	}
 
-	Texture& Texture::ConstructRTCubemapTexture(RenderDevice& deviceIn,  Vector2 size, SamplerParameters samplerParams, const std::string& path)
+	Texture& Texture::ConstructRTCubemapTexture(Vector2 size, SamplerParameters samplerParams, const std::string& path)
 	{
-		s_renderDevice = &deviceIn;
+		m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
 		m_size = size;
 		m_bindMode = TextureBindMode::BINDTEXTURE_CUBEMAP;
-		m_sampler.Construct(deviceIn,samplerParams, m_bindMode, true);
-		m_id = s_renderDevice->CreateCubemapTextureEmpty(m_size, samplerParams);
+		m_sampler.Construct(samplerParams, m_bindMode, true);
+		m_id = m_renderDevice->CreateCubemapTextureEmpty(m_size, samplerParams);
 		m_sampler.SetTargetTextureID(m_id);
 		m_isCompressed = false;
 		m_isEmpty = false;
@@ -117,15 +117,15 @@ namespace Lina::Graphics
 		return *this;
 	}
 
-	Texture& Texture::ConstructRTTexture(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, bool useBorder, const std::string& path)
+	Texture& Texture::ConstructRTTexture(Vector2 size, SamplerParameters samplerParams, bool useBorder, const std::string& path)
 	{
 		// Frame buffer texture.
 
-		s_renderDevice = &deviceIn;
+		m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
 		SamplerParameters params;
 		m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
-		m_sampler.Construct(deviceIn, params, m_bindMode);
-		m_id = s_renderDevice->CreateTexture2D(size, NULL, samplerParams, false, useBorder, Color::White);
+		m_sampler.Construct( params, m_bindMode);
+		m_id = m_renderDevice->CreateTexture2D(size, NULL, samplerParams, false, useBorder, Color::White);
 		m_sampler.SetTargetTextureID(m_id);
 		m_size = size;
 		m_isCompressed = false;
@@ -135,13 +135,13 @@ namespace Lina::Graphics
 		return *this;
 	}
 
-	Texture& Texture::ConstructRTTextureMSAA(RenderDevice& deviceIn, Vector2 size, SamplerParameters samplerParams, int sampleCount, const std::string& path)
+	Texture& Texture::ConstructRTTextureMSAA(Vector2 size, SamplerParameters samplerParams, int sampleCount, const std::string& path)
 	{
-		s_renderDevice = &deviceIn;
+		m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
 		SamplerParameters params;
 		m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D_MULTISAMPLE;
 	//	m_sampler.Construct(deviceIn, params, m_bindMode);
-		m_id = s_renderDevice->CreateTexture2DMSAA(size, samplerParams, sampleCount);
+		m_id = m_renderDevice->CreateTexture2DMSAA(size, samplerParams, sampleCount);
 	//	m_sampler.SetTargetTextureID(m_id);
 		m_size = size;
 		m_isCompressed = false;
@@ -151,15 +151,15 @@ namespace Lina::Graphics
 		return *this;
 	}
 
-	Texture& Texture::ConstructEmpty(RenderDevice& deviceIn, SamplerParameters samplerParams, const std::string& path)
+	Texture& Texture::ConstructEmpty(SamplerParameters samplerParams, const std::string& path)
 	{
-		s_renderDevice = &deviceIn;
+		m_renderDevice = RenderEngineBackend::Get()->GetRenderDevice();
 
 		SamplerParameters params;
 
 		m_bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D;
-		m_sampler.Construct(deviceIn, params, m_bindMode);
-		m_id = s_renderDevice->CreateTexture2DEmpty(Vector2::One, samplerParams);
+		m_sampler.Construct( params, m_bindMode);
+		m_id = m_renderDevice->CreateTexture2DEmpty(Vector2::One, samplerParams);
 		m_sampler.SetTargetTextureID(m_id);
 		m_size = Vector2::One;
 		m_isCompressed = false;
@@ -204,7 +204,7 @@ namespace Lina::Graphics
 		{
 			LINA_WARN("Texture with the path {0} doesn't exist, returning empty texture", filePath);
 			delete textureBitmap;
-			return RenderEngine::GetDefaultTexture();
+			return RenderEngineBackend::GetDefaultTexture();
 		}
 
 		if (useDefaultFormats)
@@ -222,7 +222,7 @@ namespace Lina::Graphics
 
 		// Build texture & construct.
 		Texture* texture = new Texture();
-		texture->Construct(RenderEngine::GetRenderDevice(), *textureBitmap, samplerParams, compress, filePath);
+		texture->Construct(*textureBitmap, samplerParams, compress, filePath);
 		s_loadedTextures[texture->GetID()] = texture;
 		texture->m_paramsPath = paramsPath;
 
@@ -245,7 +245,7 @@ namespace Lina::Graphics
 		if (!data)
 		{
 			LINA_WARN("Texture with the path {0} doesn't exist, returning empty texture", filePath);
-			return RenderEngine::GetDefaultTexture();
+			return RenderEngineBackend::GetDefaultTexture();
 		}
 
 		// Build texture & construct.
@@ -256,7 +256,7 @@ namespace Lina::Graphics
 		samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
 
 		Texture* texture = new Texture();
-		texture->ConstructHDRI(RenderEngine::GetRenderDevice(), samplerParams, Vector2(w, h), data, filePath);
+		texture->ConstructHDRI(samplerParams, Vector2(w, h), data, filePath);
 		s_loadedTextures[texture->GetID()] = texture;
 
 		// Return

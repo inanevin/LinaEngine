@@ -51,7 +51,7 @@ Timestamp: 4/26/2019 1:12:18 AM
 
 namespace Lina::Graphics
 {
-	class RenderEngine;
+	class OpenGLRenderEngine;
 	class Texture;
 	class Shader;
 
@@ -95,7 +95,7 @@ namespace Lina::Graphics
 		static std::map<int, Material>& GetLoadedMaterials() { return s_loadedMaterials; }
 
 		void UpdateMaterialData();
-		void PostLoadMaterialData(Lina::Graphics::RenderEngine& renderEngine);
+		void PostLoadMaterialData();
 		void SetTexture(const std::string& textureName, Texture* texture, TextureBindMode bindMode = TextureBindMode::BINDTEXTURE_TEXTURE2D);
 		void RemoveTexture(const std::string& textureName);
 		Texture& GetTexture(const std::string& name);
@@ -231,7 +231,7 @@ namespace Lina::Graphics
 
 	private:
 
-		friend class RenderEngine;
+		friend class OpenGLRenderEngine;
 		friend class RenderContext;
 
 		int m_materialID = -1;

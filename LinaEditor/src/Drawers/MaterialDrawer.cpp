@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Core/EditorApplication.hpp"
 #include "Rendering/Material.hpp"
 #include "Rendering/Texture.hpp"
-#include "Rendering/RenderEngine.hpp"
+#include "Core/RenderEngineBackend.hpp"
 #include "Widgets/WidgetsUtility.hpp"
 #include "Rendering/RenderingCommon.hpp"
 #include "Core/EditorCommon.hpp"
@@ -192,7 +192,7 @@ namespace Lina::Editor
 
 			if (WidgetsUtility::IconButton("##selectshader", ICON_FA_MINUS_SQUARE, 0.0f, .7f, ImVec4(1, 1, 1, 0.8f), ImVec4(1, 1, 1, 1), ImGui::GetStyleColorVec4(ImGuiCol_Header)))
 			{
-				Graphics::Material::SetMaterialShader(*m_selectedMaterial, Lina::Graphics::RenderEngine::GetDefaultShader());
+				Graphics::Material::SetMaterialShader(*m_selectedMaterial, Lina::Graphics::OpenGLRenderEngine::GetDefaultShader());
 			}
 		}
 
@@ -474,7 +474,7 @@ namespace Lina::Editor
 
 						if (ImGui::IsMouseHoveringRect(minTexture, maxTexture) && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
 						{
-							Lina::Editor::EditorApplication::GetEditorDispatcher().DispatchAction<Lina::Graphics::Texture*>(Lina::Action::ActionType::MaterialTextureSelected, it.second.m_boundTexture);
+							Lina::Event::EventSystem::Get()->Trigger<EMaterialTextureSelected>(EMaterialTextureSelected{ it.second.m_boundTexture });
 						}
 					}
 
@@ -503,7 +503,7 @@ namespace Lina::Editor
 		if (ImGui::Button("Apply Changes", ImVec2(90, 30)))
 		{
 			Lina::Graphics::Material::SaveMaterialData(*m_selectedMaterial, m_selectedMaterial->GetPath());
-			Lina::Application::GetRenderEngine().MaterialUpdated(*m_selectedMaterial);
+			Lina::Graphics::RenderEngineBackend::Get()->MaterialUpdated(*m_selectedMaterial);
 		}
 
 		ImGui::SameLine();
@@ -511,7 +511,7 @@ namespace Lina::Editor
 
 		if (ImGui::Button("Reset", ImVec2(57, 30)))
 		{
-			Lina::Graphics::Material::SetMaterialShader(*m_selectedMaterial, Lina::Graphics::RenderEngine::GetDefaultShader());
+			Lina::Graphics::Material::SetMaterialShader(*m_selectedMaterial, Lina::Graphics::OpenGLRenderEngine::GetDefaultShader());
 		}
 
 

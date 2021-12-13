@@ -39,16 +39,73 @@ Timestamp: 5/8/2020 11:04:45 PM
 #ifndef EditorCommon_HPP
 #define EditorCommon_HPP
 
+#include "Utility/EditorUtility.hpp"
 #include "Log/Log.hpp"
+#include "ECS/ECS.hpp"
 #include <string>
 
+namespace Lina
+{
+	namespace Graphics
+	{
+		class Texture;
+		class Model;
+		class Material;
+	}
 
+
+}
 namespace Lina::Editor
 {
 	struct EditorPathConstants
 	{
 		static std::string& contentsPath;
 	};
+
+	enum class MenuBarItems
+	{
+		NewProject = 0,
+		LoadProject = 1,
+		SaveProject = 2,
+
+		Edit = 10,
+		View = 20,
+
+		SaveLevelData = 30,
+		LoadLevelData = 31,
+		NewLevelData = 32,
+
+		ECSPanel = 40,
+		HeaderPanel = 11,
+		LogPanel = 42,
+		PropertiesPanel = 44,
+		ResourcesPanel = 45,
+		ScenePanel = 46,
+		ProfilerPanel = 47,
+		GlobalSettingsPanel = 48,
+		ImGuiPanel = 50,
+
+		DebugViewPhysics = 61,
+		DebugViewShadows = 62,
+		DebugViewNormal = 63,
+
+		Cube = 80,
+		Sphere = 81,
+		Capsule = 82,
+		Cylinder = 83,
+		Plane = 84,
+		Quad = 85
+
+	};
+
+	struct EMenuBarItemClicked { MenuBarItems m_item; };
+	struct EEntityUnselected { };
+	struct EEntitySelected { ECS::Entity m_entity; };
+	struct EMaterialTextureSelected { Graphics::Texture* m_texture; };
+	struct ETextureReimported { Graphics::Texture* m_selected; Graphics::Texture* m_reimported; };
+	struct ETextureSelected { Graphics::Texture* m_texture; };
+	struct EMaterialSelected { EditorFile* m_file; Graphics::Material* m_material; };
+	struct EModelSelected { Graphics::Model* m_model; };
 
 #define EDITOR_CAMERA_NAME "Editor Camera"
 
@@ -128,5 +185,7 @@ namespace Lina::Editor
 // Scene
 #define SCENE_ID "Viewport"
 }
+
+
 
 #endif

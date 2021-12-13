@@ -49,8 +49,8 @@ namespace Lina::Editor
 
 	void EntityDrawer::DrawSelectedEntity()
 	{
-		Lina::ECS::Registry& ecs = Lina::Application::GetECSRegistry();
-		Lina::ECS::EntityDataComponent& data = ecs.get<Lina::ECS::EntityDataComponent>(m_selectedEntity);
+		Lina::ECS::Registry* ecs = Lina::ECS::Registry::Get();
+		Lina::ECS::EntityDataComponent& data = ecs->get<Lina::ECS::EntityDataComponent>(m_selectedEntity);
 
 		// Align.
 		ImGui::SetCursorPosX(12); WidgetsUtility::IncrementCursorPosY(16);
@@ -64,7 +64,7 @@ namespace Lina::Editor
 		{
 			m_shouldCopyEntityName = false;
 			memset(entityName, 0, sizeof entityName);
-			std::string str = ecs.get<Lina::ECS::EntityDataComponent>(m_selectedEntity).m_name;
+			std::string str = ecs->get<Lina::ECS::EntityDataComponent>(m_selectedEntity).m_name;
 			std::copy(str.begin(), str.end(), entityName);
 		}
 
@@ -73,7 +73,7 @@ namespace Lina::Editor
 		WidgetsUtility::IncrementCursorPosY(-5);
 		ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - ImGui::GetCursorPosX() - 56);
 		ImGui::InputText("##ename", entityName, IM_ARRAYSIZE(entityName));
-		ecs.get<Lina::ECS::EntityDataComponent>(m_selectedEntity).m_name = entityName;
+		ecs->get<Lina::ECS::EntityDataComponent>(m_selectedEntity).m_name = entityName;
 		WidgetsUtility::PopStyleVar();
 
 		// Entity enabled toggle button.
@@ -120,7 +120,7 @@ namespace Lina::Editor
 		WidgetsUtility::FramePaddingX(4);
 
 		// Visit each component an entity has and add the component to the draw list if its registered as a drawable component.
-		ecs.visit(m_selectedEntity, [this](const auto component)
+		ecs->visit(m_selectedEntity, [this](const auto component)
 			{
 				m_componentDrawer.AddIDToDrawList(component.hash());
 			});

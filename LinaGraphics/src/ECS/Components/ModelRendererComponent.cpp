@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace Lina::ECS
 {
-	void ModelRendererComponent::SetModel(ECS::Registry& reg, ECS::Entity parent, Graphics::Model& model)
+	void ModelRendererComponent::SetModel(ECS::Registry* reg, ECS::Entity parent, Graphics::Model& model)
 	{
 		// Assign model data
 		m_modelID = model.GetID();
@@ -43,9 +43,9 @@ namespace Lina::ECS
 		m_materialPaths.resize(model.GetMaterialSpecs().size());
 
 		// Make sure children hierarchy of the entity that this component is attached is empty.
-		reg.DestroyAllChildren(parent);
+		reg->DestroyAllChildren(parent);
 
-		ModelRendererComponent* modelRendererInEntity = reg.try_get<ModelRendererComponent>(parent);
+		ModelRendererComponent* modelRendererInEntity = reg->try_get<ModelRendererComponent>(parent);
 		if (this != modelRendererInEntity)
 		{
 			LINA_ERR("You have to pass the same entity that this model component is attached to in order to set the model data. {0}", model.GetPath());
@@ -56,9 +56,9 @@ namespace Lina::ECS
 		for (int i = 0; i < model.GetMeshes().size(); i++)
 		{
 			auto& mesh = model.GetMeshes()[i];
-			ECS::Entity newEntity = reg.CreateEntity(mesh.GetName());
-			reg.AddChildToEntity(parent, newEntity);
-			auto& mr = reg.emplace<ECS::MeshRendererComponent>(newEntity);
+			ECS::Entity newEntity = reg->CreateEntity(mesh.GetName());
+			reg->AddChildToEntity(parent, newEntity);
+			auto& mr = reg->emplace<ECS::MeshRendererComponent>(newEntity);
 			mr.m_meshIndex = i;
 			mr.m_modelID = model.GetID();
 			mr.m_modelPath = m_modelPath;
@@ -67,26 +67,26 @@ namespace Lina::ECS
 		m_materialCount = model.GetMaterialSpecs().size();
 	}
 
-	void ModelRendererComponent::RemoveModel(ECS::Registry& reg, ECS::Entity parent)
+	void ModelRendererComponent::RemoveModel(ECS::Registry* reg, ECS::Entity parent)
 	{
-		ModelRendererComponent* modelRendererInEntity = reg.try_get<ModelRendererComponent>(parent);
+		ModelRendererComponent* modelRendererInEntity = reg->try_get<ModelRendererComponent>(parent);
 		if (this != modelRendererInEntity)
 		{
 			LINA_ERR("You have to pass the same entity that this model component is attached to in order to remove the model data.");
 			return;
 		}
 		// Make sure children hierarchy of the entity that this component is attached is empty.
-		reg.DestroyAllChildren(parent);
+		reg->DestroyAllChildren(parent);
 		m_modelID = -1;
 		m_modelParamsPath = "";
 		m_modelPath = "";
 		m_materialPaths.clear();
 	}
 
-	void ModelRendererComponent::SetMaterial(ECS::Registry& reg, ECS::Entity parent, int materialIndex, const Graphics::Material& material)
+	void ModelRendererComponent::SetMaterial(ECS::Registry* reg, ECS::Entity parent, int materialIndex, const Graphics::Material& material)
 	{
 		
-		ModelRendererComponent* modelRendererInEntity = reg.try_get<ModelRendererComponent>(parent);
+		ModelRendererComponent* modelRendererInEntity = reg->try_get<ModelRendererComponent>(parent);
 		if (this != modelRendererInEntity)
 		{
 			LINA_ERR("You have to pass the same entity that this model component is attached to in order to set the material data. {0}", material.GetPath());
@@ -98,11 +98,11 @@ namespace Lina::ECS
 
 		// Find the mesh that points to this material index.
 		auto& model = Graphics::Model::GetModel(m_modelID);
-		ECS::EntityDataComponent& data = reg.get<ECS::EntityDataComponent>(parent);
+		ECS::EntityDataComponent& data = reg->get<ECS::EntityDataComponent>(parent);
 
 		for (auto child : data.m_children)
 		{
-			MeshRendererComponent* meshRenderer = reg.try_get<MeshRendererComponent>(child);
+			MeshRendererComponent* meshRenderer = reg->try_get<MeshRendererComponent>(child);
 
 			if (meshRenderer != nullptr)
 			{
@@ -116,9 +116,9 @@ namespace Lina::ECS
 		}
 	}
 
-	void ModelRendererComponent::RemoveMaterial(ECS::Registry& reg, ECS::Entity parent, int materialIndex)
+	void ModelRendererComponent::RemoveMaterial(ECS::Registry* reg, ECS::Entity parent, int materialIndex)
 	{
-		ModelRendererComponent* modelRendererInEntity = reg.try_get<ModelRendererComponent>(parent);
+		ModelRendererComponent* modelRendererInEntity = reg->try_get<ModelRendererComponent>(parent);
 		if (this != modelRendererInEntity)
 		{
 			LINA_ERR("You have to pass the same entity that this model component is attached to in order to remove the material data. {0}", materialIndex);
@@ -129,11 +129,11 @@ namespace Lina::ECS
 
 		// Find the mesh that points to this material index.
 		auto& model = Graphics::Model::GetModel(m_modelID);
-		ECS::EntityDataComponent& data = reg.get<ECS::EntityDataComponent>(parent);
+		ECS::EntityDataComponent& data = reg->get<ECS::EntityDataComponent>(parent);
 
 		for (auto child : data.m_children)
 		{
-			MeshRendererComponent* meshRenderer = reg.try_get<MeshRendererComponent>(child);
+			MeshRendererComponent* meshRenderer = reg->try_get<MeshRendererComponent>(child);
 
 			if (meshRenderer != nullptr)
 			{
