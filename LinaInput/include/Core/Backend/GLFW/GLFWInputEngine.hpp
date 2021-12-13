@@ -84,8 +84,6 @@ namespace Lina::Input
 
 		void Initialize();
 		void OnPlayModeChanged(Event::EPlayModeChanged playMode);
-		void OnPreMainLoop(Event::EPreMainLoop& e);
-		void OnPostMainLoop(Event::EPostMainLoop& e);
 		void OnWindowContextCreated(Event::EWindowContextCreated& e);
 
 	private:

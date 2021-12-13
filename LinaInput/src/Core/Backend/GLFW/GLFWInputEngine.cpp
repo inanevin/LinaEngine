@@ -50,8 +50,6 @@ namespace Lina::Input
 
 	void GLFWInputEngine::Initialize()
 	{
-		Event::EventSystem::Get()->Connect<Event::EPreMainLoop, &GLFWInputEngine::OnPreMainLoop>(this);
-		Event::EventSystem::Get()->Connect<Event::EPostMainLoop, &GLFWInputEngine::OnPostMainLoop>(this);
 		Event::EventSystem::Get()->Connect<Event::EWindowContextCreated, &GLFWInputEngine::OnWindowContextCreated>(this);
 		Event::EventSystem::Get()->Connect<Event::EPlayModeChanged, &GLFWInputEngine::OnPlayModeChanged>(this);
 		LINA_TRACE("[Input Engine GLFW] -> Initialized");
@@ -67,15 +65,6 @@ namespace Lina::Input
 			SetCursorMode(Lina::Input::CursorMode::Visible);
 	}
 
-	void GLFWInputEngine::OnPreMainLoop(Event::EPreMainLoop& e)
-	{
-		LINA_TRACE("[Input Engine GLFW] -> Pre Main");
-	}
-
-	void GLFWInputEngine::OnPostMainLoop(Event::EPostMainLoop& e)
-	{
-		LINA_TRACE("[Input Engine GLFW] -> Post Main");
-	}
 
 	void GLFWInputEngine::OnWindowContextCreated(Event::EWindowContextCreated& e)
 	{
