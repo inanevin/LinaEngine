@@ -32,24 +32,37 @@ SOFTWARE.
 
 namespace Lina
 {
-	void Engine::Start(const ApplicationInfo& appInfo)
+	void Engine::Initialize(const ApplicationInfo& appInfo)
 	{
-		m_eventSystem = Event::EventSystem::Get();
+		LINA_TRACE("[Initialize] -> Core Engine {0}", typeid(*this).name());
+		//Event::EventSystem::s_eventSystem = &m_eventSystem;
+		//ECS::Registry::s_ecs = &m_ecs;
+		//Graphics::WindowBackend::s_openglWindo w = &m_window;
+		//Graphics::RenderEngineBackend::s_renderEngine = &m_renderEngine;
+		//Physics::PhysicsEngineBackend::s_physicsEngine = &m_physicsEngine;
+		//Input::InputEngineBackend::s_inputEngine = &m_inputEngine;
+
 		m_running = true;
-		m_eventSystem->Trigger<Event::EStart>(Event::EStart{ appInfo });
-		LINA_TRACE("[Start] -> Core Engine {0}", typeid(*this).name());
+		//m_eventSystem.Trigger<Event::EInitializeEngine>(Event::EInitializeEngine{ appInfo });
+		Run();
 	}
 
 	void Engine::Run()
 	{
+		//m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{ });
+
 		while (m_running)
 		{
 
 		}
+
+		//m_eventSystem.Trigger<Event::EEndGame>(Event::EEndGame{ });
+		Shutdown();
 	}
 
 	void Engine::Shutdown()
 	{
 		LINA_TRACE("[Shutdown] -> Core Engine {0}", typeid(*this).name());
+		//m_eventSystem.Trigger<Event::EShutdownEngine>(Event::EShutdownEngine{});
 	}
 }

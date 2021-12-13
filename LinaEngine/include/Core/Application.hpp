@@ -150,6 +150,8 @@ namespace Lina
 		bool m_firstRun = true;
 		bool m_canRender = true;
 		bool m_isInPlayMode = false;
+
+		// Performance & variable stepping
 		int m_currentFPS = 0;
 		int m_currentUPS = 0;
 		double m_updateTime = 0;
@@ -157,19 +159,6 @@ namespace Lina
 		double m_frameTime = 0;
 		double m_smoothDeltaTime;
 		double m_rawDeltaTime;
-
-
-		// Callbacks
-		std::function<void(int, int)> m_keyCallback;
-		std::function<void(int, int)> m_mouseCallback;
-		std::function<void(Vector2)> m_WwndowResizeCallback;
-		std::function<void()> m_windowClosedCallback;
-		std::function<void(Vector3, Vector3, Color, float)> m_drawLineCallback;
-		std::function<void()> m_postSceneDrawCallback;
-		std::function<void()> m_postDrawCallback;
-		std::function<void()> m_preDrawCallback;
-
-
 		std::array<double, DELTA_TIME_HISTORY> m_deltaTimeArray;
 		uint8 m_deltaTimeArrIndex = 0;
 		uint8 m_deltaTimeArrOffset = 0;

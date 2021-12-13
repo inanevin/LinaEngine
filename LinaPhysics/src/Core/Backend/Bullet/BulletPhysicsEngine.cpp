@@ -77,7 +77,7 @@ namespace Lina::Physics
 		delete m_collisionConfig;
 	}
 
-	void BulletPhysicsEngine::Initialize(std::function<void(Vector3,Vector3,Color,float)>& cb)
+	void BulletPhysicsEngine::Initialize()
 	{
 		LINA_TRACE("[Initialization] -> Physics Engine ({0})", typeid(*this).name());
 

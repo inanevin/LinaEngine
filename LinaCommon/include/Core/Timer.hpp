@@ -45,7 +45,7 @@ Timestamp: 10/22/2020 11:04:40 PM
 
 #ifdef LINA_ENABLE_TIMEPROFILING
 
-#define LINA_TIMER_START(...) ::Lina::Timer::GetTimer(__VA_ARGS__).Start()
+#define LINA_TIMER_START(...) ::Lina::Timer::GetTimer(__VA_ARGS__).Initialize()
 #define LINA_TIMER_STOP(...) ::Lina::Timer::GetTimer(__VA_ARGS__).Stop()
 
 
@@ -67,7 +67,7 @@ namespace Lina
 
 		~Timer() {};
 
-		void Start()
+		void Initialize()
 		{
 			m_active = true;
 			m_startTimePoint = std::chrono::high_resolution_clock::now();

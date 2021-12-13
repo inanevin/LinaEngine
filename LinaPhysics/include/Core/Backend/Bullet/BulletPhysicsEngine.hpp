@@ -64,7 +64,7 @@ namespace Lina::Physics
 
 		static BulletPhysicsEngine* Get() { return s_physicsEngine; }
 
-		void Initialize(std::function<void(Vector3, Vector3, Color, float)>& cb);
+		void Initialize();
 		void Tick(float fixedDelta);
 		void CleanUp();
 

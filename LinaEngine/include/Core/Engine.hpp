@@ -58,7 +58,7 @@ namespace Lina
 		Engine() {};
 		~Engine() {};
 
-		void Start(const ApplicationInfo& appInfo);
+		void Initialize(const ApplicationInfo& appInfo);
 		void Shutdown();
 
 	private:
@@ -68,7 +68,14 @@ namespace Lina
 	private: 
 
 		bool m_running = false;
-		Event::EventSystem* m_eventSystem = nullptr;
+	//Event::EventSystem m_eventSystem;
+	//Graphics::RenderEngineBackend m_renderEngine;
+	//Physics::PhysicsEngineBackend m_physicsEngine;
+	//Audio::AudioEngine m_audioEngine;
+	//Input::InputEngineBackend m_inputEngine;
+	//Graphics::WindowBackend m_window;
+	//Event::EventSystem m_eventSystem;
+	//ECS::Registry m_ecs;
 
 	};
 }

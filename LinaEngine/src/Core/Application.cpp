@@ -83,7 +83,7 @@ namespace Lina
 		m_renderEngine.SetViewportDisplay(Vector2::Zero, m_window.GetSize());
 
 		m_ecs.Initialize();
-		m_physicsEngine.Initialize(m_drawLineCallback);
+		m_physicsEngine.Initialize();
 		m_renderEngine.Initialize();
 		m_audioEngine.Initialize();
 
