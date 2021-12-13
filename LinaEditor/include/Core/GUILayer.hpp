@@ -38,7 +38,6 @@ It inits panels, drawers etc. and is the main bridge of communication between ed
 #define GUILAYER_HPP
 
 
-#include "Core/Layer.hpp"
 #include "Rendering/RenderingCommon.hpp"
 #include "Panels/ECSPanel.hpp"
 #include "Panels/ResourcesPanel.hpp"
@@ -63,18 +62,18 @@ namespace Lina::Editor
 {
 	
 
-	class GUILayer : public Lina::Layer
+	class GUILayer 
 	{
 
 	public:
 
-		GUILayer() : Lina::Layer("GUILayer") {}
+		GUILayer() {}
 		~GUILayer();
 
-		// Overrides
-		void Attach() override;
-		void Detach() override;
-		void Render() override;
+		void Initialize();
+		void OnStartGame(Event::EStartGame ev);
+		void OnEndGame(Event::EEndGame ev);
+		void OnPostRender(Event::EPostRender);
 
 		// Menu bar item callback from header panel.
 		void DispatchMenuBarClickedAction(EMenuBarItemClicked event);

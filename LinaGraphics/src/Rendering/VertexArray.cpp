@@ -44,7 +44,7 @@ namespace Lina::Graphics
 	}
 
 
-	void VertexArray::Setup(uint32 engineBoundID, uint32 indexCount)
+	void VertexArray::Initialize(uint32 engineBoundID, uint32 indexCount)
 	{
 		m_renderDevice = Graphics::RenderEngineBackend::Get()->GetRenderDevice();
 		m_engineBoundID = engineBoundID;

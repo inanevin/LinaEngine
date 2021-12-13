@@ -57,7 +57,6 @@ Timestamp: 4/15/2019 12:26:31 PM
 #include "Rendering/RenderContext.hpp"
 #include "Core/Backend/OpenGL/OpenGLWindow.hpp"
 #include "Math/Color.hpp"
-#include "Core/LayerStack.hpp"
 #include "Rendering/RenderSettings.hpp"
 #include "Rendering/PostProcessEffect.hpp"
 #include <functional>
@@ -67,6 +66,11 @@ Timestamp: 4/15/2019 12:26:31 PM
 namespace Lina
 {
 	class LinaEngine;
+
+	namespace Event
+	{
+		class EventSystem;
+	}
 }
 
 namespace Lina::Graphics
@@ -91,12 +95,9 @@ namespace Lina::Graphics
 		void Initialize();
 		void Tick(float delta);
 		void Render(float interpolation);
-		void RenderLayers();
 		void AddToRenderingPipeline(Lina::ECS::BaseECSSystem& system);
 		void SetViewportDisplay(Vector2 offset, Vector2 size);
 		void SetSkyboxMaterial(Material* skyboxMaterial) { m_skyboxMaterial = skyboxMaterial; }
-		void PushLayer(Layer& layer);
-		void PushOverlay(Layer& layer);
 		void MaterialUpdated(Material& mat);
 		void UpdateShaderData(Material* mat);
 		void SetDrawParameters(const DrawParams& params);
@@ -165,6 +166,7 @@ namespace Lina::Graphics
 		friend class Lina::Application;
 		static OpenGLRenderEngine* s_renderEngine;
 
+		Event::EventSystem* m_eventSystem;
 		OpenGLRenderDevice m_renderDevice;
 		OpenGLWindow* m_appWindow;
 
@@ -243,7 +245,6 @@ namespace Lina::Graphics
 		UniformBuffer m_globalLightBuffer;
 		UniformBuffer m_globalDebugBuffer;
 
-		LayerStack m_guiLayerStack;
 		RenderingDebugData m_debugData;
 		RenderSettings m_renderSettings;
 

@@ -52,7 +52,7 @@ namespace Lina::Graphics
 		VertexArray() : m_engineBoundID(0), m_indexCount(0), m_renderDevice(nullptr) {};
 		~VertexArray();
 
-		void Setup(uint32 engineBoundID, uint32 indexCount);
+		void Initialize(uint32 engineBoundID, uint32 indexCount);
 		void UpdateBuffer(uint32 bufferIndex, const void* data, uintptr dataSize);
 		uint32 GetID() { return m_engineBoundID; }
 		uint32 GetIndexCount() { return m_indexCount; }

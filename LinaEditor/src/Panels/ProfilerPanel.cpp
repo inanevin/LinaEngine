@@ -67,7 +67,7 @@ namespace Lina::Editor
 
 	std::map<std::string, std::string> m_timerMSStorage;
 
-	void ProfilerPanel::Setup()
+	void ProfilerPanel::Initialize()
 	{
 		m_show = false;
 	}

@@ -92,8 +92,7 @@ namespace Lina::Event
 	struct EPreRender { };
 	struct EPostSceneDraw { };
 	struct EPostRender { };
-	struct EFinalizePostRender {};
-	struct ECustomDraw{};
+	struct ECustomRender{};
 
 	// Window
 	struct EWindowContextCreated { void* m_window; };

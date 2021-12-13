@@ -43,7 +43,7 @@ namespace Lina::Editor
 	static bool s_openCompExistsModal;
 
 
-	void PropertiesPanel::Setup()
+	void PropertiesPanel::Initialize()
 	{
 		Lina::Event::EventSystem::Get()->Connect<EEntitySelected, &PropertiesPanel::EntitySelected>(this);
 		Lina::Event::EventSystem::Get()->Connect<EModelSelected, &PropertiesPanel::ModelSelected>(this);
@@ -51,7 +51,7 @@ namespace Lina::Editor
 		Lina::Event::EventSystem::Get()->Connect<ETextureSelected, &PropertiesPanel::TextureSelected>(this);
 		Lina::Event::EventSystem::Get()->Connect<EEntityUnselected, &PropertiesPanel::Unselect>(this);
 
-		m_entityDrawer.Setup();
+		m_entityDrawer.Initialize();
 	}
 
 	void PropertiesPanel::EntitySelected(EEntitySelected ev)

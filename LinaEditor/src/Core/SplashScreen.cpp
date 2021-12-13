@@ -48,7 +48,7 @@ namespace Lina::Editor
 {
 
 
-	void SplashScreen::Setup(const Lina::WindowProperties& props)
+	void SplashScreen::Initialize(const Lina::WindowProperties& props)
 	{
 		// Set GUI draw params.
 		Lina::Graphics::DrawParams splashDrawParams;

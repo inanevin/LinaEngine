@@ -76,7 +76,7 @@ namespace Lina::Editor
 	}
 
 
-	void ComponentDrawer::Setup()
+	void ComponentDrawer::Initialize()
 	{
 		s_activeInstance = this;
 

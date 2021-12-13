@@ -66,7 +66,7 @@ namespace Lina::Editor
 	}
 
 
-	void HeaderPanel::Setup()
+	void HeaderPanel::Initialize()
 	{// Logo texture
 		windowIcon = &Lina::Graphics::Texture::CreateTexture2D("resources/editor/textures/linaEngineIcon.png");
 

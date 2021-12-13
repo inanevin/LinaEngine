@@ -49,7 +49,7 @@ namespace Lina::Editor
 		LINA_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
 	}
 
-	void EditorApplication::Setup()
+	void EditorApplication::Initialize()
 	{
 		LINA_TRACE("[Constructor] -> Editor Application ({0})", typeid(*this).name());
 
@@ -60,13 +60,13 @@ namespace Lina::Editor
 		splashProps.m_resizable = false;
 
 		SplashScreen* splash = new SplashScreen();
-		splash->Setup(splashProps);
+		splash->Initialize(splashProps);
 		splash->Draw(); // We should carry this over to a separate thread later on when things are more complex and requires data shown to the user while loading.
 
 		// Remove splash.
 		delete splash;
 
-		Lina::Graphics::RenderEngineBackend::Get()->PushLayer(m_guiLayer);
+		m_guiLayer.Initialize();
 
 		Lina::Event::EventSystem::Get()->Connect<Event::ELevelInitialized, &EditorApplication::LevelInitialized>(this);
 		Lina::Event::EventSystem::Get()->Connect<Event::EPlayModeChanged, &EditorApplication::PlayModeChanged>(this);

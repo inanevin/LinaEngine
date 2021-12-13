@@ -52,7 +52,7 @@ namespace Lina::Editor
 		
 		EditorPanel() { };
 		virtual ~EditorPanel() {};
-		virtual void Setup() = 0;
+		virtual void Initialize() = 0;
 		virtual void Draw() = 0;
 		virtual void Open() { m_show = true; }
 		virtual void Close() { m_show = false; }

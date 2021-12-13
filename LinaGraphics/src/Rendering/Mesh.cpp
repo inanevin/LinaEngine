@@ -77,7 +77,7 @@ namespace Lina::Graphics
 
 		// Init vertex array.
 		uint32 id = RenderEngineBackend::Get()->GetRenderDevice()->CreateVertexArray(m_bufferElements, totalVertexComponents, totalInstanceComponents, numVertices, &m_indices[0], numIndices, bufferUsage);
-		m_vertexArray.Setup(id, GetIndexCount());
+		m_vertexArray.Initialize(id, GetIndexCount());
 	}
 }
 

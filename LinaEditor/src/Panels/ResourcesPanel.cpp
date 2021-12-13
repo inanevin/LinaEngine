@@ -64,7 +64,7 @@ namespace Lina::Editor
 	static float s_colorLerpDuration = 1.0f;
 	static float s_colorLerpItemID;
 
-	void ResourcesPanel::Setup()
+	void ResourcesPanel::Initialize()
 	{
 		Lina::Event::EventSystem::Get()->Connect<ETextureReimported, &ResourcesPanel::TextureReimported>(this);
 		Lina::Event::EventSystem::Get()->Connect<EMaterialTextureSelected, &ResourcesPanel::MaterialTextureSelected>(this);

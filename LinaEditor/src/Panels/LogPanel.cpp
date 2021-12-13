@@ -42,7 +42,7 @@ namespace Lina::Editor
 {
 	LogPanel::~LogPanel() {};
 
-	void LogPanel::Setup()
+	void LogPanel::Initialize()
 	{
 		// We set our dispatcher & subscribe in order to receive log events.
 		Lina::Event::EventSystem::Get()->Connect<Event::ELog, &LogPanel::OnLog>(this);

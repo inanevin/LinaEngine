@@ -51,7 +51,7 @@ public:
 		Initialize(props);
 
 #ifdef LINA_EDITOR
-		m_editor.Setup();
+		m_editor.Initialize();
 
 		// Refresh after level init.
 		m_editor.Refresh();

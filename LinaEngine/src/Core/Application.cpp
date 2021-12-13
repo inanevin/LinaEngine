@@ -120,6 +120,7 @@ namespace Lina
 		double previousFrameTime;
 		double currentFrameTime = GetTime();
 
+		m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
 		while (m_running)
 		{
 
@@ -158,6 +159,7 @@ namespace Lina
 			if (m_firstRun)
 				m_firstRun = false;
 		}
+		m_eventSystem.Trigger<Event::EEndGame>(Event::EEndGame{});
 
 		Log::s_onLogSink.disconnect(this);
 		Timer::UnloadTimers();
@@ -218,9 +220,6 @@ namespace Lina
 				m_renderEngine.Render(interpolation);
 
 			m_eventSystem.Trigger<Event::EPostRender>(Event::EPostRender{});
-			m_eventSystem.Trigger<Event::EFinalizePostRender>(Event::EFinalizePostRender{});
-
-			m_renderEngine.RenderLayers();
 			m_window.Tick();
 		}
 	}

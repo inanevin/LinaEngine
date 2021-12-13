@@ -68,7 +68,14 @@ namespace Lina::Editor
 		LINA_TRACE("[Destructor] -> GUI Layer ({0})", typeid(*this).name());
 	}
 
-	void GUILayer::Attach()
+	void GUILayer::Initialize()
+	{
+		Event::EventSystem::Get()->Connect<Event::EStartGame, &GUILayer::OnStartGame>(this);
+		Event::EventSystem::Get()->Connect<Event::EEndGame, &GUILayer::OnEndGame>(this);
+		Event::EventSystem::Get()->Connect<Event::EPostRender, &GUILayer::OnPostRender>(this);
+	}
+
+	void GUILayer::OnStartGame(Event::EStartGame ev)
 	{
 		LINA_INFO("Editor GUI Layer Attached");
 
@@ -189,21 +196,21 @@ namespace Lina::Editor
 
 		m_drawParameters = Graphics::DrawParameterHelper::GetGUILayer();
 
-		m_ecsPanel.Setup();
-		m_headerPanel.Setup();
-		m_logPanel.Setup();
-		m_profilerPanel.Setup();
-		m_propertiesPanel.Setup();
-		m_scenePanel.Setup();
-		m_resourcesPanel.Setup();
-		m_globalSettingsPanel.Setup();
+		m_ecsPanel.Initialize();
+		m_headerPanel.Initialize();
+		m_logPanel.Initialize();
+		m_profilerPanel.Initialize();
+		m_propertiesPanel.Initialize();
+		m_scenePanel.Initialize();
+		m_resourcesPanel.Initialize();
+		m_globalSettingsPanel.Initialize();
 
 		// Imgui first frame initialization.
-		Render();
+		OnPostRender(Event::EPostRender());
 
 	}
 
-	void GUILayer::Detach()
+	void GUILayer::OnEndGame(Event::EEndGame ev)
 	{
 		LINA_INFO("Editor GUI Layer Detached");
 
@@ -214,7 +221,7 @@ namespace Lina::Editor
 		ImPlot::DestroyContext();
 	}
 
-	void GUILayer::Render()
+	void GUILayer::OnPostRender(Event::EPostRender ev)
 	{
 		// Set draw params first.
 		Lina::Graphics::RenderEngineBackend::Get()->SetDrawParameters(m_drawParameters);

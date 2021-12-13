@@ -58,7 +58,7 @@ namespace Lina::Editor
 		ComponentDrawer();
 		~ComponentDrawer() {};
 
-		void Setup();
+		void Initialize();
 		std::vector<std::string> GetEligibleComponents(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity);
 		void AddComponentToEntity(Lina::ECS::Registry* ecs, Lina::ECS::Entity entity, const std::string& comp);
 		void SwapComponentOrder(Lina::ECS::TypeID id1, Lina::ECS::TypeID id2);

@@ -52,7 +52,7 @@ namespace Lina::Editor
 		EntityDrawer() {};
 		~EntityDrawer() {};
 		
-		void Setup();
+		void Initialize();
 		void SetSelectedEntity(Lina::ECS::Entity entity);
 		void DrawSelectedEntity();
 

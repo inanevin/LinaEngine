@@ -45,7 +45,7 @@ namespace Lina::Editor
 	using namespace Lina::ECS;
 	using namespace Lina;
 
-	void ECSPanel::Setup()
+	void ECSPanel::Initialize()
 	{
 		Lina::Event::EventSystem::Get()->Connect<Event::ELevelInstalled, &ECSPanel::OnLevelInstall>(this);
 	}

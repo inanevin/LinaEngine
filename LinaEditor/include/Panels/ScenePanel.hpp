@@ -62,7 +62,7 @@ namespace Lina::Editor
 		virtual ~ScenePanel() {};
 
 
-		virtual void Setup() override;
+		virtual void Initialize() override;
 		virtual void Draw() override;
 
 		void EntitySelected(EEntitySelected ev);

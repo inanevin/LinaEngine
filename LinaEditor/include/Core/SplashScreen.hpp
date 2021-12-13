@@ -56,7 +56,7 @@ namespace Lina::Editor
 		~SplashScreen();
 		
 		void Draw();
-		void Setup(const Lina::WindowProperties& props);
+		void Initialize(const Lina::WindowProperties& props);
 	};
 }
 

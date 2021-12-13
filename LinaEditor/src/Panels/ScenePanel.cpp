@@ -51,7 +51,7 @@ static ImVec2 previousWindowSize;
 namespace Lina::Editor
 {
 
-	void ScenePanel::Setup()
+	void ScenePanel::Initialize()
 	{
 		Lina::Event::EventSystem::Get()->Connect<EEntityUnselected, &ScenePanel::Unselected>(this);
 		Lina::Event::EventSystem::Get()->Connect<EEntitySelected, &ScenePanel::EntitySelected>(this);

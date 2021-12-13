@@ -63,7 +63,7 @@ namespace Lina::Editor
 		EditorApplication() {};
 		~EditorApplication();
 
-		void Setup();
+		void Initialize();
 		void Refresh();
 		void LevelInitialized(Event::ELevelInitialized ev);
 

@@ -36,9 +36,9 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	void EntityDrawer::Setup()
+	void EntityDrawer::Initialize()
 	{
-		m_componentDrawer.Setup();
+		m_componentDrawer.Initialize();
 	}
 	void EntityDrawer::SetSelectedEntity(Lina::ECS::Entity entity)
 	{

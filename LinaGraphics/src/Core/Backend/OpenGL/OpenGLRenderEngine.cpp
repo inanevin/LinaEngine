@@ -88,9 +88,10 @@ namespace Lina::Graphics
 
 		// Set references.
 		m_appWindow = OpenGLWindow::Get();
+		m_eventSystem = Event::EventSystem::Get();
 
-		Event::EventSystem::Get()->Connect<Event::EWindowResized, &OpenGLRenderEngine::OnWindowResized>(this);
-		Event::EventSystem::Get()->Connect < Event::EDrawPhysicsDebug, &OpenGLRenderEngine::OnPhysicsDraw >(this);
+		m_eventSystem->Connect<Event::EWindowResized, &OpenGLRenderEngine::OnWindowResized>(this);
+		m_eventSystem->Connect < Event::EDrawPhysicsDebug, &OpenGLRenderEngine::OnPhysicsDraw >(this);
 
 		// Flip loaded images.
 		ArrayBitmap::SetImageFlip(true);
@@ -170,21 +171,18 @@ namespace Lina::Graphics
 
 	void OpenGLRenderEngine::Render(float interpolation)
 	{
+
+		m_eventSystem->Trigger<Event::EPreRender>(Event::EPreRender{});
+
 		Draw();
 
 		if (!m_firstFrameDrawn)
 			m_firstFrameDrawn = true;
-	}
 
-	void OpenGLRenderEngine::RenderLayers()
-	{
+		// Reset the viewport & fbo to allow any post render drawing, like GUI.
 		m_renderDevice.SetFBO(0);
 		m_renderDevice.SetViewport(m_viewportPos, m_viewportSize);
-
-		// Draw GUI Layers
-		for (Layer* layer : m_guiLayerStack)
-			layer->Render();
-
+		m_eventSystem->Trigger<Event::EPostRender>(Event::EPostRender{});
 	}
 
 
@@ -496,8 +494,8 @@ namespace Lina::Graphics
 		m_renderDevice.SetViewport(Vector2::Zero, m_viewportSize);
 
 
-		if (!Event::EventSystem::Get()->IsEmpty<Event::ECustomDraw>())
-			Event::EventSystem::Get()->Trigger<Event::ECustomDraw>(Event::ECustomDraw{});
+		if (!Event::EventSystem::Get()->IsEmpty<Event::ECustomRender>())
+			Event::EventSystem::Get()->Trigger<Event::ECustomRender>(Event::ECustomRender{});
 		else
 		{
 			m_renderDevice.Clear(true, true, true, m_cameraSystem.GetCurrentClearColor(), 0xFF);
@@ -1062,16 +1060,6 @@ namespace Lina::Graphics
 		mat->RemoveTexture(MAT_TEXTURE2D_BRDFLUTMAP);
 		mat->RemoveTexture(MAT_TEXTURE2D_PREFILTERMAP);
 
-	}
-
-	void OpenGLRenderEngine::PushLayer(Layer& layer)
-	{
-		m_guiLayerStack.PushLayer(layer);
-	}
-
-	void OpenGLRenderEngine::PushOverlay(Layer& layer)
-	{
-		m_guiLayerStack.PushOverlay(layer);
 	}
 
 	void* OpenGLRenderEngine::GetFinalImage()
