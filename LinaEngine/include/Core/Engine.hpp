@@ -40,6 +40,7 @@ Timestamp: 12/14/2021 10:09:33 PM
 #define Engine_HPP
 
 // Headers here.
+#include "Core/ResourceManager.hpp"
 #include "Core/InputBackend.hpp"
 #include "Core/RenderEngineBackend.hpp"
 #include "Core/PhysicsBackend.hpp"
@@ -89,7 +90,6 @@ namespace Lina
 	private:
 
 		static Engine* s_engine;
-		ECS::ECSSystemList m_mainECSPipeline;
 		Graphics::RenderEngineBackend m_renderEngine;
 		Physics::PhysicsEngineBackend m_physicsEngine;
 		Audio::AudioEngineBackend m_audioEngine;
@@ -97,6 +97,8 @@ namespace Lina
 		Graphics::WindowBackend m_window;
 		Event::EventSystem m_eventSystem;
 		ECS::Registry m_ecs;
+		ECS::ECSSystemList m_mainECSPipeline;
+		Resources::ResourceManager m_resourceManager;
 
 		ApplicationInfo m_appInfo;
 		bool m_running = false;

@@ -49,7 +49,7 @@ set (LINACOMMON_SOURCES
 	src/Memory/Memory.cpp
 	
 	#src/Utility/FileUtility.cpp
-	#src/Utility/StringID.cpp
+	src/Utility/StringID.cpp
 	
 	# ECS 
 	src/ECS/ECS.cpp
@@ -109,7 +109,7 @@ set(LINACOMMON_HEADERS
 	include/ECS/ECSComponent.hpp
 	
 	#include/Utility/FileUtility.hpp
-	#include/Utility/StringID.hpp
+	include/Utility/StringID.hpp
 )
 
 #--------------------------------------------------------------------

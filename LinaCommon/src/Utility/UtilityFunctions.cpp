@@ -76,6 +76,22 @@ namespace Lina
 #endif
 		}
 
+		char* WCharToChar(const wchar_t* input)
+		{
+			// Count required buffer size (plus one for null-terminator).
+			size_t size = (wcslen(input) + 1) * sizeof(wchar_t);
+			char* buffer = new char[size];
+
+#ifdef __STDC_LIB_EXT1__
+			// wcstombs_s is only guaranteed to be available if __STDC_LIB_EXT1__ is defined
+			size_t convertedSize;
+			std::wcstombs_s(&convertedSize, buffer, size, input, size);
+#else
+			std::wcstombs(buffer, input, size);
+#endif
+			return buffer;
+		}
+
 		bool FileExists(const std::string& path)
 		{
 			struct stat buffer;

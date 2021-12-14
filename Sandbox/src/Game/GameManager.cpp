@@ -45,6 +45,7 @@ void GameManager::Initialize()
 void GameManager::OnTick(Event::ETick ev)
 {
 
+
 }
 
 void GameManager::OnShutdown(Event::EShutdown ev)

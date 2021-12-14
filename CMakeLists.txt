@@ -80,6 +80,7 @@ add_subdirectory(LinaInput)
 add_subdirectory(LinaPhysics)
 add_subdirectory(LinaEngine)
 add_subdirectory(LinaEditor)
+add_subdirectory(LinaResource)
 add_subdirectory(Sandbox)
 
 
