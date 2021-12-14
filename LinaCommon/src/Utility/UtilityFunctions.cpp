@@ -31,6 +31,7 @@ SOFTWARE.
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <filesystem>
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include <windows.h>
@@ -79,6 +80,78 @@ namespace Lina
 		{
 			struct stat buffer;
 			return (stat(path.c_str(), &buffer) == 0);
+		}
+
+		void ScanFolder(Folder& root, bool recursive)
+		{
+			for (const auto& entry : std::filesystem::directory_iterator(root.m_fullPath))
+			{
+				if (entry.path().has_extension())
+				{
+					root.m_files.push_back(File());
+					File& file = root.m_files.back();
+
+					file.m_fullName = entry.path().filename().string();
+					file.m_folderPath = entry.path().parent_path().string() + "/";
+					std::string replacedPath = entry.path().relative_path().string();
+					std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
+					file.m_fullPath = replacedPath;
+					file.m_extension = file.m_fullName.substr(file.m_fullName.find(".") + 1);
+					file.m_pureName = GetFileWithoutExtension(file.m_fullName);
+				}
+				else
+				{
+					root.m_folders.push_back(Folder());
+					Folder& folder = root.m_folders.back();
+					folder.m_name = entry.path().filename().string();
+					std::string replacedPath = entry.path().relative_path().string();
+					std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
+					folder.m_fullPath = replacedPath;
+
+					if (recursive)
+						ScanFolder(folder, recursive);
+				}
+			}
+		}
+
+		bool DeleteFileInPath(const std::string& path)
+		{
+			return remove(path.c_str());
+		}
+
+		bool CreateFolderInPath(const std::string& path)
+		{
+			bool success = std::filesystem::create_directory(path);;
+
+			if (!success)
+				LINA_ERR("Could not create directory. {0}", path);
+
+			return success;
+		}
+
+		bool DeleteDirectory(const std::string& path)
+		{
+			bool success = std::filesystem::remove_all(path);
+
+			if (!success)
+				LINA_ERR("Could not delete directory. {0}", path);
+
+			return success;
+		}
+
+		bool ChangeFileName(const std::string& folderPath, const std::string& oldName, const std::string& newName)
+		{
+			std::string oldPathStr = std::string(folderPath) + std::string(oldName);
+			std::string newPathStr = std::string(folderPath) + std::string(newName);
+
+			/*	Deletes the file if exists */
+			if (std::rename(oldPathStr.c_str(), newPathStr.c_str()) != 0)
+			{
+				LINA_ERR("Can not rename file! Folder Path: {0}, Old Name: {1}, New Name: {2}", folderPath, oldName, newName);
+				return false;
+			}
+
+			return true;
 		}
 
 		int GetUniqueID()

@@ -45,7 +45,39 @@ namespace Lina
 {
 	namespace Utility
 	{
+		struct File
+		{
+			std::string m_fullPath = "";	// folder + purename + extension
+			std::string m_folderPath = "";
+			std::string m_pureName = "";	// name without extension
+			std::string m_extension = "";
+			std::string m_fullName = "";	// name with extension
+		};
+
+		struct Folder
+		{
+			std::string m_fullPath = "";
+			std::string m_name = "";
+			std::vector<File> m_files;
+			std::vector<Folder> m_folders;
+		};
+
 		static int s_uniqueID = 100;
+
+		// Scans the given folder & fills it's child folder data
+		void ScanFolder(Folder& root, bool recursive = true);
+
+		// Removes file from OS.
+		bool DeleteFileInPath(const std::string& path);
+
+		// Creates a new folder in path.
+		bool CreateFolderInPath(const std::string& path);
+
+		// Removes all files & folders in directory.
+		bool DeleteDirectory(const std::string& path);
+
+		// Replaces given filename.
+		bool ChangeFileName(const std::string& folderPath, const std::string& oldName, const std::string& newName);
 
 		// Creates a GUID.
 		int GetUniqueID();
