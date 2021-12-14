@@ -77,8 +77,6 @@ namespace Lina
 		// Main application loop.
 		void Run();
 
-
-
 		// Loads a level into memory.
 		bool InstallLevel(Lina::World::Level& level, bool loadFromFile = false, const std::string& path = "", const std::string& levelName = "");
 		void SaveLevelData(const std::string& folderPath, const std::string& fileName);

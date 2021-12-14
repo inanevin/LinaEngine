@@ -25,7 +25,6 @@ set (LINAENGINE_SOURCES
 	src/CompileTest.cpp	
 	
 	# CORE
-	src/Core/Engine.cpp
     src/Core/Application.cpp
 	src/World/Level.cpp
 	src/World/DefaultLevel.cpp
@@ -38,7 +37,6 @@ set(LINAENGINE_HEADERS
 
 	#CORE
 	include/Core/Application.hpp
-	include/Core/Engine.hpp
 	
 	#World
 	include/World/Level.hpp
