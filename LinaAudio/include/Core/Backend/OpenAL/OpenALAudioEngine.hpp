@@ -50,7 +50,7 @@ struct ALCdevice;
 
 namespace Lina
 {
-	class Application;
+	class Engine;
 
 	namespace World
 	{
@@ -74,7 +74,7 @@ namespace Lina::Audio
 
 	private:
 
-		friend class Application;
+		friend class Engine;
 		OpenALAudioEngine() {};
 		~OpenALAudioEngine() {};
 		void Initialize();	

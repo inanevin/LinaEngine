@@ -59,7 +59,7 @@ Timestamp: 4/8/2019 5:28:34 PM
 
 namespace Lina
 {
-	class Application;
+	class Engine;
 }
 
 namespace Lina::ECS
@@ -113,7 +113,7 @@ namespace Lina::ECS
 
 	private:
 
-		friend class Lina::Application;
+		friend class Lina::Engine;
 		Registry() {};
 		virtual ~Registry() {};
 		void Initialize();

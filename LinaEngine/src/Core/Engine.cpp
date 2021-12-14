@@ -27,8 +27,266 @@ SOFTWARE.
 */
 
 #include "Core/Engine.hpp"
+#include "ECS/Components/CameraComponent.hpp"
+#include "ECS/Components/MeshRendererComponent.hpp"
+#include "ECS/Components/RigidbodyComponent.hpp"
+#include "ECS/Components/EntityDataComponent.hpp"
+#include "ECS/Components/ModelRendererComponent.hpp"
+#include "ECS/Components/SpriteRendererComponent.hpp"
+#include "ECS/Components/FreeLookComponent.hpp"
+#include "Profiling/Profiler.hpp"
+#include "Core/Timer.hpp"
+#include "Utility/UtilityFunctions.hpp"
+
+#define PHYSICS_DELTA 0.01666
 
 namespace Lina
 {
-	
+	Engine* Engine::s_engine = nullptr;
+
+	double Engine::GetElapsedTime()
+	{
+		return Utility::GetCPUTime() - m_startTime;
+	}
+
+	void Engine::SetPlayMode(bool enabled)
+	{
+		m_isInPlayMode = enabled;
+		m_eventSystem.Trigger<Event::EPlayModeChanged>(Event::EPlayModeChanged{ enabled });
+	}
+	void Engine::Initialize(ApplicationInfo& appInfo)
+	{
+		Event::EventSystem::s_eventSystem = &m_eventSystem;
+		ECS::Registry::s_ecs = &m_ecs;
+		Graphics::WindowBackend::s_openglWindow = &m_window;
+		Graphics::RenderEngineBackend::s_renderEngine = &m_renderEngine;
+		Physics::PhysicsEngineBackend::s_physicsEngine = &m_physicsEngine;
+		Input::InputEngineBackend::s_inputEngine = &m_inputEngine;
+
+
+		m_appInfo = appInfo;
+		m_eventSystem.Initialize();
+		m_inputEngine.Initialize();
+
+		// Build main window.
+		bool windowCreationSuccess = m_window.CreateContext(appInfo);
+		if (!windowCreationSuccess)
+		{
+			LINA_ERR("Window Creation Failed!");
+			return;
+		}
+
+		// Set event callback for main window.
+		m_renderEngine.SetViewportDisplay(Vector2::Zero, m_window.GetSize());
+
+		// Init rest
+		m_ecs.Initialize();
+		m_physicsEngine.Initialize();
+		m_renderEngine.Initialize(appInfo.m_appMode);
+		m_audioEngine.Initialize();
+
+		// Register ECS components for cloning & serialization functionality.
+		m_ecs.RegisterComponent<ECS::EntityDataComponent>();
+		m_ecs.RegisterComponent<ECS::FreeLookComponent>();
+		m_ecs.RegisterComponent<ECS::RigidbodyComponent>();
+		m_ecs.RegisterComponent<ECS::CameraComponent>();
+		m_ecs.RegisterComponent<ECS::PointLightComponent>();
+		m_ecs.RegisterComponent<ECS::SpotLightComponent>();
+		m_ecs.RegisterComponent<ECS::DirectionalLightComponent>();
+		m_ecs.RegisterComponent<ECS::MeshRendererComponent>();
+		m_ecs.RegisterComponent<ECS::ModelRendererComponent>();
+		m_ecs.RegisterComponent<ECS::SpriteRendererComponent>();
+
+		// Initialize any listeners.
+		m_eventSystem.Trigger<Event::EInitialize>(Event::EInitialize{});
+
+		m_deltaTimeArray.fill(-1.0);
+		m_isInPlayMode = true;
+
+	}
+
+	void Engine::Run()
+    {
+		m_running = true;
+		m_startTime = Utility::GetCPUTime();
+
+		PROFILER_MAIN_THREAD;
+		PROFILER_ENABLE;
+
+		int frames = 0;
+		int updates = 0;
+		double totalFPSTime = GetElapsedTime();
+		double previousFrameTime;
+		double currentFrameTime = GetElapsedTime();
+
+		// Starting game.
+		m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
+
+		while (m_running)
+		{
+			previousFrameTime = currentFrameTime;
+			currentFrameTime = GetElapsedTime();
+			m_rawDeltaTime = (currentFrameTime - previousFrameTime);
+			m_smoothDeltaTime = SmoothDeltaTime(m_rawDeltaTime);
+
+			m_inputEngine.Tick();
+			updates++;
+			LINA_TIMER_START("Update MS");
+			UpdateGame((float)m_rawDeltaTime);
+			LINA_TIMER_STOP("Update MS");
+			m_updateTime = Lina::Timer::GetTimer("UPDATE MS").GetDuration();
+
+			LINA_TIMER_START("RENDER MS");
+			DisplayGame(1.0f);
+			LINA_TIMER_STOP("RENDER MS");
+			m_renderTime = Lina::Timer::GetTimer("RENDER MS").GetDuration();
+			frames++;
+
+			double now = GetElapsedTime();
+			// Calculate FPS, UPS.
+			if (now - totalFPSTime >= 1.0)
+			{
+				m_frameTime = m_rawDeltaTime * 1000;
+				m_currentFPS = frames;
+				m_currentUPS = updates;
+				totalFPSTime += 1.0;
+				frames = 0;
+				updates = 0;
+			}
+
+			if (m_firstRun)
+				m_firstRun = false;
+		}
+
+		// Ending game.
+		m_eventSystem.Trigger<Event::EEndGame>(Event::EEndGame{});
+
+		// Shutting down.
+		m_ecs.Shutdown();
+		m_physicsEngine.Shutdown();
+		m_renderEngine.Shutdown();
+		m_audioEngine.Shutdown();
+		m_inputEngine.Shutdown();
+		m_eventSystem.Trigger<Event::EShutdown>(Event::EShutdown{});
+		m_eventSystem.Shutdown();
+
+		PROFILER_DUMP("profile.prof");
+		Timer::UnloadTimers();
+
+    }
+    void Engine::UpdateGame(float deltaTime)
+    {
+        PROFILER_FUNC("Engine Tick");
+
+        m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{ (float)m_rawDeltaTime, m_isInPlayMode });
+
+        // Physics events & physics tick.
+        m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{});
+        m_physicsEngine.Tick(0.02);
+        m_eventSystem.Trigger<Event::EPhysicsTick>(Event::EPhysicsTick{ PHYSICS_DELTA, m_isInPlayMode });
+        m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{ PHYSICS_DELTA, m_isInPlayMode });
+
+        // Other main systems (engine or game)
+        m_mainECSPipeline.UpdateSystems(deltaTime);
+
+        // Animation, particle systems.
+        m_renderEngine.Tick(deltaTime);
+
+        m_eventSystem.Trigger<Event::ETick>(Event::ETick{ (float)m_rawDeltaTime, m_isInPlayMode });
+        m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{ (float)m_rawDeltaTime, m_isInPlayMode });
+    }
+    void Engine::DisplayGame(float interpolation)
+    {
+        PROFILER_FUNC("Engine Render");
+
+        if (m_canRender)
+        {
+            m_eventSystem.Trigger<Event::EPreRender>(Event::EPreRender{});
+            m_renderEngine.Render(interpolation);
+            m_eventSystem.Trigger<Event::EPostRender>(Event::EPostRender{});
+            m_window.Tick();
+        }
+    }
+    void Engine::RemoveOutliers(bool biggest)
+    {
+		int outlier = biggest ? 0 : 10;
+		int outlierIndex = -1;
+		int indexCounter = 0;
+		for (double d : m_deltaTimeArray)
+		{
+			if (d < 0)
+			{
+				indexCounter++;
+				continue;
+			}
+
+			if (biggest)
+			{
+				if (d > outlier)
+				{
+					outlierIndex = indexCounter;
+					outlier = d;
+				}
+			}
+			else
+			{
+				if (d < outlier)
+				{
+					outlierIndex = indexCounter;
+					outlier = d;
+				}
+			}
+
+			indexCounter++;
+		}
+
+		if (outlierIndex != -1)
+			m_deltaTimeArray[outlierIndex] = m_deltaTimeArray[outlierIndex] * -1.0;
+    }
+    double Engine::SmoothDeltaTime(double dt)
+    {
+
+		if (m_deltaFirstFill < DELTA_TIME_HISTORY)
+		{
+			m_deltaFirstFill++;
+		}
+		else if (!m_deltaFilled)
+			m_deltaFilled = true;
+
+		m_deltaTimeArray[m_deltaTimeArrOffset] = dt;
+		m_deltaTimeArrOffset++;
+
+
+		if (m_deltaTimeArrOffset == DELTA_TIME_HISTORY)
+			m_deltaTimeArrOffset = 0;
+
+		if (!m_deltaFilled)
+			return dt;
+
+		// Remove the biggest & smalles 2 deltas.
+		RemoveOutliers(true);
+		RemoveOutliers(true);
+		RemoveOutliers(false);
+		RemoveOutliers(false);
+
+		double avg = 0.0;
+		int index = 0;
+		for (double d : m_deltaTimeArray)
+		{
+			if (d < 0.0)
+			{
+				m_deltaTimeArray[index] = m_deltaTimeArray[index] * -1.0;
+				index++;
+				continue;
+			}
+
+			avg += d;
+			index++;
+		}
+
+		avg /= DELTA_TIME_HISTORY - 4;
+
+		return avg;
+    }
+ 
 }

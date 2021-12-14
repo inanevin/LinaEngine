@@ -49,7 +49,7 @@ Timestamp: 5/1/2019 2:35:28 AM
 
 namespace Lina
 {
-	class Application;
+	class Engine;
 
 	namespace Event
 	{
@@ -73,7 +73,7 @@ namespace Lina::Physics
 		btCollisionShape* GetCollisionShape(Lina::ECS::RigidbodyComponent rb);
 
 	private:
-		friend class Lina::Application;
+		friend class Lina::Engine;
 		BulletPhysicsEngine();
 		~BulletPhysicsEngine();
 		void Initialize();

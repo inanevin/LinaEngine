@@ -40,22 +40,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #define Lina_Application_HPP
 
 #include "EventSystem/Events.hpp"
-#include "Core/InputBackend.hpp"
-#include "Core/RenderEngineBackend.hpp"
-#include "Core/PhysicsBackend.hpp"
-#include "Core/AudioBackend.hpp"
-#include "Core/WindowBackend.hpp"
-#include "EventSystem/EventSystem.hpp"
-#include "Math/Vector.hpp"
-#include "Math/Color.hpp"
-#include "ECS/ECS.hpp"
-#include <functional>
-#include <array>
-
-namespace Lina::World
-{
-	class Level;
-}
+#include "Core/Engine.hpp"
 
 namespace Lina
 {
@@ -69,30 +54,17 @@ namespace Lina
 		Application();
 		virtual ~Application() {};
 
-		// Loads a level into memory.
 		bool InstallLevel(Lina::World::Level& level, bool loadFromFile = false, const std::string& path = "", const std::string& levelName = "");
+		void InitializeLevel(Lina::World::Level& level);
 		void SaveLevelData(const std::string& folderPath, const std::string& fileName);
 		void LoadLevelData(const std::string& folderPath, const std::string& fileName);
 		void RestartLevel();
-
-		// Unloads a level from memory.
 		void UninstallLevel();
-
-		int GetCurrentFPS() { return m_currentFPS; }
-		int GetCurrentUPS() { return m_currentUPS; }
 		bool GetActiveLevelExists() { return m_activeLevelExists; }
-		double GetRawDelta() { return m_rawDeltaTime; }
-		double GetSmoothDelta() { return m_smoothDeltaTime; }
-		double GetFrameTime() { return m_frameTime; }
-		double GetRenderTime() { return m_renderTime; }
-		double GetUpdateTime() { return m_updateTime; }
-		void AddToMainPipeline(ECS::BaseECSSystem& system) { m_mainECSPipeline.AddSystem(system); }
-		void SetPlayMode(bool enabled);
-		bool GetPlayMode() { return m_isInPlayMode; }
+
 		World::Level* GetCurrentLevel() { return m_currentLevel; }
 
-		double GetTime();
-		static Application& GetApp() { return *s_application; }
+		static Application& Get() { return *s_application; }
 
 	protected:
 
@@ -102,56 +74,23 @@ namespace Lina
 	private:
 
 		// Callbacks.
-		void UpdateGame(float deltaTime);
-		void DisplayGame(float interpolation);
 		void OnLog(Event::ELog dump);
 		bool OnWindowClose(Event::EWindowClosed);
 		void OnWindowResize(Event::EWindowResized);
-
-		void RemoveOutliers(bool biggest);
-		double SmoothDeltaTime(double dt);
-		void InitializeLevel(Lina::World::Level& level);
 
 	private:
 
 		// Active engines running in the application.
 		static Application* s_application;
-		Graphics::RenderEngineBackend m_renderEngine;
-		Physics::PhysicsEngineBackend m_physicsEngine;
-		Audio::AudioEngineBackend m_audioEngine;
-		Input::InputEngineBackend m_inputEngine;
-		Graphics::WindowBackend m_window;
-		Event::EventSystem m_eventSystem;
-		ECS::Registry m_ecs;
-
 		World::Level* m_currentLevel = nullptr;
-		ECS::ECSSystemList m_mainECSPipeline;
+		Engine m_engine;
 		ApplicationInfo m_appInfo;
 
 		bool m_activeLevelExists = false;
-		bool m_running = false;
-		bool m_firstRun = true;
-		bool m_canRender = true;
-		bool m_isInPlayMode = false;
 
-		// Performance & variable stepping
-		int m_currentFPS = 0;
-		int m_currentUPS = 0;
-		double m_updateTime = 0;
-		double m_renderTime = 0;
-		double m_frameTime = 0;
-		double m_smoothDeltaTime;
-		double m_rawDeltaTime;
-		std::array<double, DELTA_TIME_HISTORY> m_deltaTimeArray;
-		uint8 m_deltaTimeArrIndex = 0;
-		uint8 m_deltaTimeArrOffset = 0;
-		int m_deltaFirstFill = 0;
-		bool m_deltaFilled = false;
+
 	};
 
-	// Defined in client.
-	Application* CreateApplication();
-	
 };
 
 

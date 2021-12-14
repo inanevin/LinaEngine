@@ -148,7 +148,7 @@ namespace Lina::Editor
 			// Logo animation
 			if (logoAnimRatio < 0.99f)
 			{
-				logoAnimRatio = Math::Lerp(logoAnimRatio, 1.0f, Lina::Application::GetApp().GetSmoothDelta() * logoAnimSpeed);
+				logoAnimRatio = Math::Lerp(logoAnimRatio, 1.0f, Lina::Engine::Get()->GetSmoothDelta() * logoAnimSpeed);
 				logoAnimRatio = Math::Clamp(logoAnimRatio, 0.0f, 1.0f);
 				int logoAnimIndex = (int)Math::Remap(logoAnimRatio, 0.0f, 1.0f, 0.0f, (float)HEADER_LINALOGO_ANIMSIZE - 1);
 				linaLogoID = linaLogoAnimation[logoAnimIndex]->GetID();
@@ -158,7 +158,7 @@ namespace Lina::Editor
 				if (linaLogoID != linaLogoAnimation[0]->GetID())
 					linaLogoID = linaLogoAnimation[0]->GetID();
 
-				logoAnimWaitCounter += Lina::Application::GetApp().GetSmoothDelta();
+				logoAnimWaitCounter += Lina::Engine::Get()->GetSmoothDelta();
 
 				if (logoAnimWaitCounter > logoAnimWait)
 				{

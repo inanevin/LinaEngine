@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Core/GameApplication.hpp"
 #include "Core/EditorApplication.hpp"
+#include "Core/Engine.hpp"
 
 namespace Lina
 {
@@ -48,11 +49,11 @@ namespace Lina
 			Graphics::WindowBackend::Get()->SetPos(Vector2::Zero);
 			Graphics::WindowBackend::Get()->SetSize(Vector2(windowProps.m_workingAreaWidth, windowProps.m_workingAreaHeight));
 
-			SetPlayMode(false);
+			Lina::Engine::Get()->SetPlayMode(false);
 		}
 		else
 		{
-			SetPlayMode(true);
+			Lina::Engine::Get()->SetPlayMode(true);
 		}
 
 		// Initialize game manager.

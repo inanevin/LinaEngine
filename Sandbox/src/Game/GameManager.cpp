@@ -37,7 +37,7 @@ void GameManager::Initialize()
 	LINA_TRACE("Game Manager Attached!");
 	s_instance = this;
 	m_exampleLevel = new ExampleLevel();
-	Lina::Application::GetApp().InstallLevel(*m_exampleLevel, true, "resources/sandbox/Levels/", "ExampleLevel");
+	Lina::Application::Get().InstallLevel(*m_exampleLevel, true, "resources/sandbox/Levels/", "ExampleLevel");
 	Lina::Event::EventSystem::Get()->Connect<Event::ETick, &GameManager::OnTick>(this);
 	Lina::Event::EventSystem::Get()->Connect<Event::EShutdown, &GameManager::OnShutdown>(this);
 }

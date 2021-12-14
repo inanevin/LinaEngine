@@ -65,7 +65,7 @@ Timestamp: 4/15/2019 12:26:31 PM
 
 namespace Lina
 {
-	class LinaEngine;
+	class Engine;
 
 	namespace Event
 	{
@@ -135,7 +135,7 @@ namespace Lina::Graphics
 
 
 	private:
-		friend class Lina::Application;
+		friend class Lina::Engine;
 		OpenGLRenderEngine() {};
 		~OpenGLRenderEngine() {};
 		void Initialize(ApplicationMode appMode);

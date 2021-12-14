@@ -50,23 +50,37 @@ namespace Lina
 		// Creates a GUID.
 		int GetUniqueID();
 
+		// Return CPU's clock time.
+		double GetCPUTime();
+
+		// Check if given file exists.
 		bool FileExists(const std::string& path);
 
 		// Converts the current GUID to string via to_string and simply returns that.
 		std::string GetUniqueIDString();
 
+		// Returns unique hash for string.
 		size_t StringToHash(const std::string& str);
 
+		// Splits string at deliminitor.
 		std::vector<std::string> Split(const std::string& s, char delim);
 
+		// Returns the path until the specified file, no file name nor extension.
 		std::string GetFilePath(const std::string& fileName);
+
+		// Removes the extension and returns the string as is.
 		std::string GetFileWithoutExtension(const std::string& filename);
+
+		// Returns the file name with it's extension, no path.
 		std::string GetFileNameOnly(const std::string& filename);
+
+		// Returns only the file extension, no path or no dots.
 		std::string GetFileExtension(const std::string& file);
 
 		// Mostly used for loading shaders.
 		bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword);
 
+		// Return the full directory (user-specific) that the engine executable is running on.
 		std::string GetRunningDirectory();
 	}
 }

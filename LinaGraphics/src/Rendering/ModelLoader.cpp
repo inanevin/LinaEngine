@@ -29,12 +29,13 @@ SOFTWARE.
 #include "Rendering/ModelLoader.hpp"  
 #include "Rendering/RenderingCommon.hpp"
 #include "Rendering/Model.hpp"
+#include "Utility/UtilityFunctions.hpp"
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
 #include <ozz/animation/offline/tools/import2ozz.h>
-#include <Utility/UtilityFunctions.hpp>
 #include <fstream>
 #include <iostream>
 #include <filesystem>

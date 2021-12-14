@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/EditorApplication.hpp"
-#include "Core/Application.hpp"
+#include "Core/Engine.hpp"
 #include "Core/RenderEngineBackend.hpp"
 #include "Panels/ECSPanel.hpp"
 #include "Core/SplashScreen.hpp"
@@ -68,7 +68,7 @@ namespace Lina::Editor
 		editorCameraSystem.Initialize(m_guiLayer.GetScenePanel());
 		editorCameraSystem.SystemActivation(true);
 
-		Lina::Application::GetApp().AddToMainPipeline(editorCameraSystem);
+		Lina::Engine::Get()->AddToMainPipeline(editorCameraSystem);
 
 
 	}

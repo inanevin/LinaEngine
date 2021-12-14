@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Widgets/WidgetsUtility.hpp"
 #include "Core/Application.hpp"
 #include "Core/EditorCommon.hpp"
+#include "Utility/UtilityFunctions.hpp"
 #include "Core/Timer.hpp"
 #include "imgui/imgui.h"
 #include "imgui/implot/implot.h"
@@ -92,7 +93,7 @@ namespace Lina::Editor
 			WidgetsUtility::IncrementCursorPosY(11);
 
 
-			float currentTime = Lina::Application::GetApp().GetTime();
+			float currentTime = Engine::Get()->GetElapsedTime();
 
 			bool displayMS = false;
 			if (currentTime > m_lastMSDisplayTime + MS_DISPLAY_TIME)
@@ -103,15 +104,15 @@ namespace Lina::Editor
 
 			WidgetsUtility::IncrementCursorPosX(12);
 
-			double updateTime = Lina::Application::GetApp().GetUpdateTime();
+			double updateTime = Lina::Engine::Get()->GetUpdateTime();
 			const std::string updateTimeStr = "Update Time: " + std::to_string(updateTime);
 			WidgetsUtility::AlignedText(updateTimeStr.c_str());
 
-			double renderTime = Lina::Application::GetApp().GetRenderTime();
+			double renderTime = Lina::Engine::Get()->GetRenderTime();
 			const std::string renderTimeStr = "Render Time: " + std::to_string(renderTime);
 			WidgetsUtility::AlignedText(renderTimeStr.c_str());
 
-			double frameTime = Lina::Application::GetApp().GetFrameTime();
+			double frameTime = Lina::Engine::Get()->GetFrameTime();
 			const std::string frameTimeStr = "Frame Time: " + std::to_string(frameTime);
 			WidgetsUtility::AlignedText(frameTimeStr.c_str());
 
@@ -134,10 +135,10 @@ namespace Lina::Editor
 			WidgetsUtility::IncrementCursorPosX(12);
 			WidgetsUtility::IncrementCursorPosY(12);
 
-			int fps = Lina::Application::GetApp().GetCurrentFPS();
-			int ups = Lina::Application::GetApp().GetCurrentUPS();
-			float rawDelta = Lina::Application::GetApp().GetRawDelta();
-			float smoothDelta = Lina::Application::GetApp().GetSmoothDelta();
+			int fps = Lina::Engine::Get()->GetCurrentFPS();
+			int ups = Lina::Engine::Get()->GetCurrentUPS();
+			float rawDelta = Lina::Engine::Get()->GetRawDelta();
+			float smoothDelta = Lina::Engine::Get()->GetSmoothDelta();
 
 			static RollingBuffer fpsData;
 			static RollingBuffer upsData;

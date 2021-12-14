@@ -46,11 +46,6 @@ Timestamp: 4/27/2019 10:12:16 PM
 #include "Rendering/RenderingCommon.hpp"
 #include <map>
 
-namespace Lina
-{
-	class Application;
-}
-
 using namespace Lina;
 
 namespace Lina::Graphics
@@ -188,7 +183,6 @@ namespace Lina::Graphics
 
 	private:
 
-		friend class Lina::Application;
 
 		static OpenGLRenderDevice* s_renderDevice;
 

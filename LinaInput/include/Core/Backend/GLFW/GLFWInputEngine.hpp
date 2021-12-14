@@ -48,7 +48,7 @@ Timestamp: 4/14/2019 7:46:20 PM
 
 namespace Lina
 {
-	class Application;
+	class Engine;
 }
 
 namespace Lina::Input
@@ -76,7 +76,7 @@ namespace Lina::Input
 
 	private:
 
-		friend class Application;
+		friend class Engine;
 		GLFWInputEngine() {}
 		~GLFWInputEngine() {};
 		void Initialize();
@@ -87,7 +87,7 @@ namespace Lina::Input
 
 	private:
 
-		friend class Lina::Application;
+		friend class Lina::Engine;
 		static GLFWInputEngine* s_inputEngine;
 		InputAxis m_horizontalAxis;
 		InputAxis m_verticalAxis;

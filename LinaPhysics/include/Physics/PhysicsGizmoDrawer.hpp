@@ -38,10 +38,7 @@ SOFTWARE.
 #include "Math/Color.hpp"
 #include <functional>
 
-namespace Lina
-{
-	class Application;
-}
+
 
 class PhysicsGizmoDrawer : public btIDebugDraw
 {

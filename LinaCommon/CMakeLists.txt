@@ -48,7 +48,6 @@ set (LINACOMMON_SOURCES
 	src/Memory/FreeListAllocator.cpp
 	src/Memory/Memory.cpp
 	
-	#src/Utility/EngineUtility.cpp
 	#src/Utility/FileUtility.cpp
 	#src/Utility/StringID.cpp
 	
@@ -109,7 +108,6 @@ set(LINACOMMON_HEADERS
 	include/ECS/ECS.hpp
 	include/ECS/ECSComponent.hpp
 	
-	#include/Utility/EngineUtility.hpp
 	#include/Utility/FileUtility.hpp
 	#include/Utility/StringID.hpp
 )
@@ -137,6 +135,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/cer
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/taskflow/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/easy_profiler/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/entt/src)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
+
 
 #--------------------------------------------------------------------
 # Subdirectories & linking
@@ -146,6 +146,7 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glm/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glm_static.lib
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/fmt/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/fmt.lib
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/easy_profiler/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/easy_profiler.lib
+	PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
 )
 
 #--------------------------------------------------------------------

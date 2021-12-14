@@ -46,7 +46,7 @@ Timestamp: 12/29/2018 11:28:02 PM
 
 namespace Lina
 {
-	class Application;
+	class Engine;
 }
 
 namespace Lina::Event
@@ -139,7 +139,7 @@ namespace Lina::Event
 
 	private:
 
-		friend class Lina::Application;
+		friend class Lina::Engine;
 		void Initialize();
 		void Shutdown();
 

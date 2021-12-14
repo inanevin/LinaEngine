@@ -25,7 +25,7 @@ Timestamp: 5/6/2019 9:22:56 PM
 #include "Core/RenderEngineBackend.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "ECS/Systems/CameraSystem.hpp"
-
+#include "Utility/UtilityFunctions.hpp"
 using namespace Lina::Graphics;
 using namespace Lina::ECS;
 using namespace Lina;
@@ -60,6 +60,7 @@ void ExampleLevel::Initialize()
 	// mat.SetTexture(MAT_MAP_ENVIRONMENT, &Application::GetRenderEngine().GetHDRICubemap(), TextureBindMode::BINDTEXTURE_CUBEMAP);
 	// Application::GetRenderEngine().SetSkyboxMaterial(&mat);
 	// Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(Application::GetECSRegistry().GetEntity("Entity"));
+
 }
 
 void ExampleLevel::Tick(Event::ETick ev)
@@ -70,7 +71,7 @@ void ExampleLevel::Tick(Event::ETick ev)
 		auto& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(entity);
 		data.AddRotation(Vector3(65 * ev.m_deltaTime, 0, 0));
 		Vector3 location = data.GetLocation();
-		location.x = Math::Sin(Lina::Application::GetApp().GetTime() * 1.8f) * 1.5f;
+		location.x = Math::Sin(Engine::Get()->GetElapsedTime() * 1.8f) * 1.5f;
 		data.SetLocation(location);
 	}
 }

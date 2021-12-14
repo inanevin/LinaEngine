@@ -45,7 +45,7 @@ struct GLFWwindow;
 
 namespace Lina
 {
-	class Application;
+	class Engine;
 }
 
 namespace Lina::Graphics
@@ -76,7 +76,7 @@ namespace Lina::Graphics
 
 	private:
 
-		friend class Lina::Application;
+		friend class Lina::Engine;
 		OpenGLWindow() {};
 		~OpenGLWindow() {};
 		bool CreateContext(ApplicationInfo& appInfo);

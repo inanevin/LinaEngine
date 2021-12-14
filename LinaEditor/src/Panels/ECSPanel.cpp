@@ -138,7 +138,7 @@ namespace Lina::Editor
 				WidgetsUtility::WindowPadding(ImVec2(3, 4));
 
 				// Handle Right Click.
-				if (Lina::Application::GetApp().GetActiveLevelExists() && ImGui::BeginPopupContextWindow())
+				if (Lina::Application::Get().GetActiveLevelExists() && ImGui::BeginPopupContextWindow())
 				{
 					if (ImGui::BeginMenu("Create"))
 					{

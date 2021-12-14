@@ -40,20 +40,84 @@ Timestamp: 12/14/2021 10:09:33 PM
 #define Engine_HPP
 
 // Headers here.
-
+#include "Core/InputBackend.hpp"
+#include "Core/RenderEngineBackend.hpp"
+#include "Core/PhysicsBackend.hpp"
+#include "Core/AudioBackend.hpp"
+#include "Core/WindowBackend.hpp"
+#include "EventSystem/EventSystem.hpp"
+#define DELTA_TIME_HISTORY 11
 
 namespace Lina
 {
+	class Application;
+
 	class Engine
 	{
 		
 	public:
-		
-		Engine();
-		~Engine();
-	
+
+		static Engine* Get() { return s_engine; }
+
+		double GetElapsedTime();
+		void SetPlayMode(bool enabled);
+		bool GetPlayMode() { return m_isInPlayMode; }
+		void AddToMainPipeline(ECS::BaseECSSystem& system) { m_mainECSPipeline.AddSystem(system); }
+		int GetCurrentFPS() { return m_currentFPS; }
+		int GetCurrentUPS() { return m_currentUPS; }
+		double GetRawDelta() { return m_rawDeltaTime; }
+		double GetSmoothDelta() { return m_smoothDeltaTime; }
+		double GetFrameTime() { return m_frameTime; }
+		double GetRenderTime() { return m_renderTime; }
+		double GetUpdateTime() { return m_updateTime; }
+
 	private:
-	
+
+		friend class Application;
+
+		Engine() {};
+		~Engine() {};
+
+		void Initialize(ApplicationInfo& appInfo);
+		void Run();
+		void UpdateGame(float deltaTime);
+		void DisplayGame(float interpolation);
+
+		void RemoveOutliers(bool biggest);
+		double SmoothDeltaTime(double dt);
+
+	private:
+
+		static Engine* s_engine;
+		ECS::ECSSystemList m_mainECSPipeline;
+		Graphics::RenderEngineBackend m_renderEngine;
+		Physics::PhysicsEngineBackend m_physicsEngine;
+		Audio::AudioEngineBackend m_audioEngine;
+		Input::InputEngineBackend m_inputEngine;
+		Graphics::WindowBackend m_window;
+		Event::EventSystem m_eventSystem;
+		ECS::Registry m_ecs;
+
+		ApplicationInfo m_appInfo;
+		bool m_running = false;
+		bool m_canRender = true;
+		bool m_firstRun = true;
+		bool m_isInPlayMode = false;
+
+		// Performance & variable stepping
+		int m_currentFPS = 0;
+		int m_currentUPS = 0;
+		double m_updateTime = 0;
+		double m_renderTime = 0;
+		double m_frameTime = 0;
+		double m_smoothDeltaTime;
+		double m_rawDeltaTime;
+		std::array<double, DELTA_TIME_HISTORY> m_deltaTimeArray;
+		uint8 m_deltaTimeArrIndex = 0;
+		uint8 m_deltaTimeArrOffset = 0;
+		int m_deltaFirstFill = 0;
+		bool m_deltaFilled = false;
+		double m_startTime = 0.0;
 	};
 }
 

@@ -27,18 +27,12 @@ SOFTWARE.
 */
 
 #include "LinaPch.hpp"
+#include "Log/Log.hpp"
 #include "Core/MacroDetection.hpp"
 #include "Core/Application.hpp"
 #include "World/DefaultLevel.hpp"
-#include "Core/Timer.hpp"
-#include "ECS/Components/CameraComponent.hpp"
-#include "ECS/Components/MeshRendererComponent.hpp"
-#include "ECS/Components/RigidbodyComponent.hpp"
-#include "ECS/Components/EntityDataComponent.hpp"
-#include "ECS/Components/ModelRendererComponent.hpp"
-#include "ECS/Components/SpriteRendererComponent.hpp"
-#include "ECS/Components/FreeLookComponent.hpp"
-#include "Profiling/Profiler.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "EventSystem/Events.hpp"
 
 #ifdef LINA_WINDOWS
 #include <windows.h>
@@ -46,7 +40,6 @@ SOFTWARE.
 
 namespace Lina
 {
-#define PHYSICS_DELTA 0.01666
 
 	Lina::Application* Application::s_application = nullptr;
 
@@ -56,173 +49,31 @@ namespace Lina
 
 		// Setup static references.
 		s_application = this;
+		m_engine.s_engine = &m_engine;
 		Log::s_onLogSink.connect<&Application::OnLog>(this);
-		Event::EventSystem::s_eventSystem = &m_eventSystem;
-		ECS::Registry::s_ecs = &m_ecs;
-		Graphics::WindowBackend::s_openglWindow = &m_window;
-		Graphics::RenderEngineBackend::s_renderEngine = &m_renderEngine;
-		Physics::PhysicsEngineBackend::s_physicsEngine = &m_physicsEngine;
-		Input::InputEngineBackend::s_inputEngine = &m_inputEngine;
-
-		// Connect events.
-		m_eventSystem.Connect<Event::EWindowClosed, &Application::OnWindowClose>(this);
-		m_eventSystem.Connect<Event::EWindowResized, &Application::OnWindowResize>(this);
+	
 	}
 
 	void Application::Initialize(ApplicationInfo& appInfo)
 	{
 		LINA_TRACE("[Initialization] -> Application ({0})", typeid(*this).name());
 
-		m_appInfo = appInfo;
-		m_eventSystem.Initialize();
-		m_inputEngine.Initialize();
+		m_engine.Initialize(appInfo);
 
-		// Build main window.
-		bool windowCreationSuccess = m_window.CreateContext(appInfo);
-		if (!windowCreationSuccess)
-		{
-			LINA_ERR("Window Creation Failed!");
-			return;
-		}
+		// Connect events.
+		m_engine.m_eventSystem.Connect<Event::EWindowClosed, &Application::OnWindowClose>(this);
+		m_engine.m_eventSystem.Connect<Event::EWindowResized, &Application::OnWindowResize>(this);
 
-		// Set event callback for main window.
-		m_renderEngine.SetViewportDisplay(Vector2::Zero, m_window.GetSize());
-
-		// Init rest
-		m_ecs.Initialize();
-		m_physicsEngine.Initialize();
-		m_renderEngine.Initialize(appInfo.m_appMode);
-		m_audioEngine.Initialize();
-
-		// Register ECS components for cloning & serialization functionality.
-		m_ecs.RegisterComponent<ECS::EntityDataComponent>();
-		m_ecs.RegisterComponent<ECS::FreeLookComponent>();
-		m_ecs.RegisterComponent<ECS::RigidbodyComponent>();
-		m_ecs.RegisterComponent<ECS::CameraComponent>();
-		m_ecs.RegisterComponent<ECS::PointLightComponent>();
-		m_ecs.RegisterComponent<ECS::SpotLightComponent>();
-		m_ecs.RegisterComponent<ECS::DirectionalLightComponent>();
-		m_ecs.RegisterComponent<ECS::MeshRendererComponent>();
-		m_ecs.RegisterComponent<ECS::ModelRendererComponent>();
-		m_ecs.RegisterComponent<ECS::SpriteRendererComponent>();
-
-		// Initialize any listeners.
-		m_eventSystem.Trigger<Event::EInitialize>(Event::EInitialize{});
-
-		m_deltaTimeArray.fill(-1.0);
-		m_isInPlayMode = true;
-		m_running = true;
 	}
 
 	void Application::Run()
 	{
-		PROFILER_MAIN_THREAD;
-		PROFILER_ENABLE;
-
-		int frames = 0;
-		int updates = 0;
-		double totalFPSTime = GetTime();
-		double previousFrameTime;
-		double currentFrameTime = GetTime();
-
-		// Starting game.
-		m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
-
-		while (m_running)
-		{
-			previousFrameTime = currentFrameTime;
-			currentFrameTime = GetTime();
-
-			m_rawDeltaTime = (currentFrameTime - previousFrameTime);
-			m_smoothDeltaTime = SmoothDeltaTime(m_rawDeltaTime);
-
-			m_inputEngine.Tick();
-			updates++;
-			LINA_TIMER_START("Update MS");
-			UpdateGame((float)m_rawDeltaTime);
-			LINA_TIMER_STOP("Update MS");
-			m_updateTime = Lina::Timer::GetTimer("UPDATE MS").GetDuration();
-
-			LINA_TIMER_START("RENDER MS");
-			DisplayGame(1.0f);
-			LINA_TIMER_STOP("RENDER MS");
-			m_renderTime = Lina::Timer::GetTimer("RENDER MS").GetDuration();
-			frames++;
-
-			double now = GetTime();
-			// Calculate FPS, UPS.
-			if (now - totalFPSTime >= 1.0)
-			{
-				m_frameTime = m_rawDeltaTime * 1000;
-				m_currentFPS = frames;
-				m_currentUPS = updates;
-				totalFPSTime += 1.0;
-				frames = 0;
-				updates = 0;
-			}
-
-			if (m_firstRun)
-				m_firstRun = false;
-		}
-
-		// Ending game.
-		m_eventSystem.Trigger<Event::EEndGame>(Event::EEndGame{});
-
-		// Shutting down.
-		m_ecs.Shutdown();
-		m_physicsEngine.Shutdown();
-		m_renderEngine.Shutdown();
-		m_audioEngine.Shutdown();
-		m_inputEngine.Shutdown();
-		m_eventSystem.Trigger<Event::EShutdown>(Event::EShutdown{});
-		m_eventSystem.Shutdown();
-
-		PROFILER_DUMP("profile.prof");
+		m_engine.Run();
 
 		// Cleanup first
 		Log::s_onLogSink.disconnect(this);
-		Timer::UnloadTimers();
 	}
 
-
-	void Application::UpdateGame(float deltaTime)
-	{
-		PROFILER_FUNC("Engine Tick");
-
-		m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{ (float)m_rawDeltaTime, m_isInPlayMode });
-
-		// Physics events & physics tick.
-		m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{});
-		m_physicsEngine.Tick(0.02);
-		m_eventSystem.Trigger<Event::EPhysicsTick>(Event::EPhysicsTick{PHYSICS_DELTA, m_isInPlayMode});
-		m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{PHYSICS_DELTA, m_isInPlayMode});
-
-		// Other main systems (engine or game)
-		m_mainECSPipeline.UpdateSystems(deltaTime);
-
-		// Animation, particle systems.
-		m_renderEngine.Tick(deltaTime);
-
-		m_eventSystem.Trigger<Event::ETick>(Event::ETick{ (float)m_rawDeltaTime, m_isInPlayMode });
-		m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{ (float)m_rawDeltaTime, m_isInPlayMode });
-	}
-
-	void Application::DisplayGame(float interpolation)
-	{
-		PROFILER_FUNC("Engine Render");
-
-		if (m_canRender)
-		{
-			m_eventSystem.Trigger<Event::EPreRender>(Event::EPreRender{});
-
-			// render level.
-			if (m_activeLevelExists)
-				m_renderEngine.Render(interpolation);
-
-			m_eventSystem.Trigger<Event::EPostRender>(Event::EPostRender{});
-			m_window.Tick();
-		}
-	}
 
 	void Application::OnLog(Event::ELog dump)
 	{
@@ -253,110 +104,22 @@ namespace Lina
 #endif
 		std::cout << msg << std::endl;
 
-		m_eventSystem.Trigger<Event::ELog>(dump);
+		m_engine.m_eventSystem.Trigger<Event::ELog>(dump);
 	}
 
 	bool Application::OnWindowClose(Event::EWindowClosed event)
 	{
-		m_running = false;
+		m_engine.m_running = false;
 		return true;
 	}
 
 	void Application::OnWindowResize(Event::EWindowResized event)
 	{
 		if (event.m_windowProps.m_width == 0.0f || event.m_windowProps.m_height == 0.0f)
-			m_canRender = false;
+			m_engine.m_canRender = false;
 		else
-			m_canRender = true;
+			m_engine.m_canRender = true;
 
-	}
-
-	void Application::RemoveOutliers(bool biggest)
-	{
-		int outlier = biggest ? 0 : 10;
-		int outlierIndex = -1;
-		int indexCounter = 0;
-		for (double d : m_deltaTimeArray)
-		{
-			if (d < 0)
-			{
-				indexCounter++;
-				continue;
-			}
-
-			if (biggest)
-			{
-				if (d > outlier)
-				{
-					outlierIndex = indexCounter;
-					outlier = d;
-				}
-			}
-			else
-			{
-				if (d < outlier)
-				{
-					outlierIndex = indexCounter;
-					outlier = d;
-				}
-			}
-
-			indexCounter++;
-		}
-
-		if (outlierIndex != -1)
-			m_deltaTimeArray[outlierIndex] = m_deltaTimeArray[outlierIndex] * -1.0;
-	}
-
-	double Application::SmoothDeltaTime(double dt)
-	{
-		if (m_deltaFirstFill < DELTA_TIME_HISTORY)
-		{
-			m_deltaFirstFill++;
-		}
-		else if (!m_deltaFilled)
-			m_deltaFilled = true;
-
-		m_deltaTimeArray[m_deltaTimeArrOffset] = dt;
-		m_deltaTimeArrOffset++;
-
-
-		if (m_deltaTimeArrOffset == DELTA_TIME_HISTORY)
-			m_deltaTimeArrOffset = 0;
-
-		if (!m_deltaFilled)
-			return dt;
-
-		// Remove the biggest & smalles 2 deltas.
-		RemoveOutliers(true);
-		RemoveOutliers(true);
-		RemoveOutliers(false);
-		RemoveOutliers(false);
-
-		double avg = 0.0;
-		int index = 0;
-		for (double d : m_deltaTimeArray)
-		{
-			if (d < 0.0)
-			{
-				m_deltaTimeArray[index] = m_deltaTimeArray[index] * -1.0;
-				index++;
-				continue;
-			}
-
-			avg += d;
-			index++;
-		}
-
-		avg /= DELTA_TIME_HISTORY - 4;
-
-		return avg;
-	}
-
-	void Application::SetPlayMode(bool enabled)
-	{
-		m_isInPlayMode = enabled;
-		m_eventSystem.Trigger<Event::EPlayModeChanged>(Event::EPlayModeChanged{ enabled });
 	}
 
 	bool Application::InstallLevel(Lina::World::Level& level, bool loadFromFile, const std::string& path, const std::string& levelName)
@@ -365,7 +128,7 @@ namespace Lina
 
 		bool install = level.Install(loadFromFile, path, levelName);
 		m_currentLevel = &level;
-		m_eventSystem.Trigger<Event::ELevelInstalled>(Event::ELevelInstalled{});
+		m_engine.m_eventSystem.Trigger<Event::ELevelInstalled>(Event::ELevelInstalled{});
 		InitializeLevel(level);
 		return install;
 	}
@@ -373,7 +136,7 @@ namespace Lina
 	void Application::InitializeLevel(Lina::World::Level& level)
 	{
 		m_currentLevel->Initialize();
-		m_eventSystem.Trigger<Event::ELevelInitialized>(Event::ELevelInitialized{});
+		m_engine.m_eventSystem.Trigger<Event::ELevelInitialized>(Event::ELevelInitialized{});
 		m_activeLevelExists = true;
 	}
 
@@ -401,19 +164,14 @@ namespace Lina
 		if (m_currentLevel != nullptr)
 		{
 			m_currentLevel->Uninstall();
-			m_ecs.each([this](auto entity)
+			m_engine.m_ecs.each([this](auto entity)
 				{
-					m_ecs.DestroyEntity(entity);
+					m_engine.m_ecs.DestroyEntity(entity);
 				});
-			m_ecs.clear();
-			m_eventSystem.Trigger<Event::ELevelUninstalled>(Event::ELevelUninstalled{});
+			m_engine.m_ecs.clear();
+			m_engine.m_eventSystem.Trigger<Event::ELevelUninstalled>(Event::ELevelUninstalled{});
 			m_currentLevel = nullptr;
 		}
-	}
-
-	double Application::GetTime()
-	{
-		return m_window.GetTime();
 	}
 
 }

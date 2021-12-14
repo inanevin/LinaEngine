@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/GUILayer.hpp"
+#include "Core/Engine.hpp"
 #include "Core/Application.hpp"
 #include "Log/Log.hpp"
 #include "Core/PhysicsBackend.hpp"
@@ -232,7 +233,7 @@ namespace Lina::Editor
 
 
 		if (Lina::Input::InputEngineBackend::Get()->GetKeyDown(Lina::Input::InputCode::Escape))
-			Lina::Application::GetApp().SetPlayMode(!Lina::Application::GetApp().GetPlayMode());
+			Lina::Engine::Get()->SetPlayMode(!Lina::Engine::Get()->GetPlayMode());
 
 		if (s_showIMGUIDemo)
 			ImGui::ShowDemoWindow(&s_showIMGUIDemo);
@@ -270,7 +271,7 @@ namespace Lina::Editor
 		else if (item == MenuBarItems::NewLevelData)
 		{
 			// Build a new level.
-			Lina::Application::GetApp().InstallLevel(m_defaultLevel);
+			Lina::Application::Get().InstallLevel(m_defaultLevel);
 		}
 		else if (item == MenuBarItems::SaveLevelData)
 		{
@@ -282,7 +283,7 @@ namespace Lina::Editor
 				size_t lastIndex = fullPath.find_last_of("/");
 				std::string folderPath = fullPath.substr(0, lastIndex);
 				std::string fileName = fullPath.substr(lastIndex + 1);
-				Lina::Application::GetApp().SaveLevelData(folderPath, fileName);
+				Lina::Application::Get().SaveLevelData(folderPath, fileName);
 			}
 		}
 		else if (item == MenuBarItems::LoadLevelData)
@@ -295,7 +296,7 @@ namespace Lina::Editor
 				size_t lastIndex = fullPath.find_last_of("/");
 				std::string folderPath = fullPath.substr(0, lastIndex);
 				std::string fileName = EditorUtility::RemoveExtensionFromFilename(fullPath.substr(lastIndex + 1));
-				Lina::Application::GetApp().LoadLevelData(folderPath, fileName);
+				Lina::Application::Get().LoadLevelData(folderPath, fileName);
 			}
 		}
 
@@ -370,7 +371,7 @@ namespace Lina::Editor
 		{
 			ImGui::Text("FPS Overlay");
 			ImGui::Separator();
-			std::string fpsText = std::to_string(Lina::Application::GetApp().GetCurrentFPS()) + " Frames per second";
+			std::string fpsText = std::to_string(Lina::Engine::Get()->GetCurrentFPS()) + " Frames per second";
 			ImGui::Text(fpsText.c_str());
 		}
 		ImGui::End();

@@ -264,7 +264,7 @@ namespace Lina::Editor
 
 	void GlobalSettingsPanel::LevelInstalled(Event::ELevelInstalled ev)
 	{
-		m_currentLevel = Lina::Application::GetApp().GetCurrentLevel();
+		m_currentLevel = Lina::Application::Get().GetCurrentLevel();
 		m_currentLevel->SetSkyboxMaterial();
 	}
 

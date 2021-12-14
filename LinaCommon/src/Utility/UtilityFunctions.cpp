@@ -36,12 +36,45 @@ SOFTWARE.
 #include <windows.h>
 #include <iostream>
 #include <string>
+double g_timerFrequency;
+bool g_isTimerInitialized = false;
 #endif
 
 namespace Lina
 {
 	namespace Utility
 	{
+		double GetCPUTime()
+		{
+#ifdef LINA_WINDOWS
+			if (!g_isTimerInitialized)
+			{
+				LARGE_INTEGER li;
+				if (!QueryPerformanceFrequency(&li))
+					LINA_ERR("Initialization -> QueryPerformanceFrequency failed!");
+
+				g_timerFrequency = double(li.QuadPart);
+				g_isTimerInitialized = true;
+			}
+
+			LARGE_INTEGER li;
+			if (!QueryPerformanceCounter(&li))
+				LINA_ERR("GetTime -> QueryPerformanceCounter failed in get time!");
+
+			return double(li.QuadPart) / g_timerFrequency;
+#endif
+
+#ifdef LINA_LINUX
+			timespec ts;
+			clock_gettime(CLOCK_REALTIME, &ts);
+			return (double)(((long)ts.tv_sec * NANOSECONDS_PER_SECOND) + ts.tv_nsec) / ((double)(NANOSECONDS_PER_SECOND));
+#endif
+
+#ifdef LINA_UNKNOWN_PLATFORM
+			return (double)glfwGetTime();
+#endif
+		}
+
 		bool FileExists(const std::string& path)
 		{
 			struct stat buffer;
