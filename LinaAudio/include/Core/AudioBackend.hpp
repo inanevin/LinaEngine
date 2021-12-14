@@ -26,27 +26,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Audio/AudioEngine.hpp"  
+/*
+Class: PhysicsBackend
 
 
-namespace LinaEngine::Audio
+
+Timestamp: 12/22/2020 6:07:35 PM
+*/
+
+#pragma once
+
+#ifndef AudioBackend_HPP
+#define AudioBackend_HPP
+
+#ifdef LINA_AUDIO_OPENAL
+#include "Backend/OpenAL/OpenALAudioEngine.hpp"
+#endif
+
+namespace Lina::Audio
 {
-	AudioEngine::AudioEngine()
-	{
-		LINA_CORE_TRACE("[Constructor] -> Audio Engine ({0})", typeid(*this).name());
-	}
-
-	AudioEngine::~AudioEngine()
-	{
-		LINA_CORE_TRACE("[Destructor] -> Audio Engine ({0})", typeid(*this).name());
-
-	}
-
-	void AudioEngine::Initialize()
-	{
-		LINA_CORE_TRACE("[Initialization] -> Audio Engine ({0})", typeid(*this).name());
-
-	}
-
+#ifdef LINA_PHYSICS_BULLET
+	typedef OpenALAudioEngine AudioEngineBackend;
+#endif
 }
 
+#endif

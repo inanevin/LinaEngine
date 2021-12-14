@@ -44,8 +44,8 @@ Timestamp: 12/12/2021 11:55:32 AM
 
 namespace Lina::Physics
 {
-	class BulletPhysicsengine;
-	typedef BulletPhysicsengine PhysicsEngine;
+	class BulletPhysicsEngine;
+	typedef BulletPhysicsEngine PhysicsEngine;
 }
 #endif
 

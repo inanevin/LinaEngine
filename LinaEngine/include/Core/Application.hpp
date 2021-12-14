@@ -43,7 +43,7 @@ Timestamp: 12/29/2018 10:43:46 PM
 #include "Core/InputBackend.hpp"
 #include "Core/RenderEngineBackend.hpp"
 #include "Core/PhysicsBackend.hpp"
-#include "Core/AudioEngine.hpp"
+#include "Core/AudioBackend.hpp"
 #include "Core/WindowBackend.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Math/Vector.hpp"
@@ -55,12 +55,6 @@ Timestamp: 12/29/2018 10:43:46 PM
 namespace Lina::World
 {
 	class Level;
-}
-
-
-namespace Lina::Audio
-{
-	class AudioEngine;
 }
 
 namespace Lina
@@ -124,7 +118,7 @@ namespace Lina
 		static Application* s_application;
 		Graphics::RenderEngineBackend m_renderEngine;
 		Physics::PhysicsEngineBackend m_physicsEngine;
-		Audio::AudioEngine m_audioEngine;
+		Audio::AudioEngineBackend m_audioEngine;
 		Input::InputEngineBackend m_inputEngine;
 		Graphics::WindowBackend m_window;
 		Event::EventSystem m_eventSystem;

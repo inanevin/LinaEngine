@@ -39,24 +39,62 @@ Timestamp: 5/1/2019 2:35:28 AM
 #ifndef AudioEngine_HPP
 #define AudioEngine_HPP
 
+#include "Math/Vector.hpp"
+#include "EventSystem/Events.hpp"
+#include <unordered_map>
+#include <mutex>
+
+struct ALCcontext;
+struct ALCdevice;
+
+
 namespace Lina
 {
 	class Application;
+
+	namespace World
+	{
+		class Level;
+	}
+
+	namespace ECS
+	{
+		class Registry;
+	}
 }
 
 namespace Lina::Audio
 {
-	class AudioEngine
+	class OpenALAudioEngine
 	{
 	public:
+
+		void LoadAudioSource(const std::string& path);
+		void PlayOneShot(const std::string& path, float gain = 1.0f, bool looping = false, float pitch = 1.0f, Vector3 position = Vector3::Zero, Vector3 velocity = Vector3::Zero);
 
 	private:
 
 		friend class Application;
-		AudioEngine() {};
-		~AudioEngine() {};
+		OpenALAudioEngine() {};
+		~OpenALAudioEngine() {};
 		void Initialize();	
 		void Shutdown();
+
+	private:
+
+		void OnAudioSourceLoaded(const std::string& path, void* data, int dataSize, int format, float freq);
+		void ListAudioDevices(const char* type, const char* list);
+		void CheckForError();
+
+	private:
+
+		ECS::Registry* m_ecs = nullptr;
+		mutable std::mutex m_mutex;
+		ALCcontext* m_context = nullptr;
+		ALCdevice* m_device = nullptr;
+		Vector3 m_mainListenerLastPos = Vector3::Zero;
+		std::unordered_map<std::string, unsigned int> m_audioBuffers;
+		std::unordered_map<std::string, unsigned int> m_oneShotSources;
 	};
 }
 
