@@ -75,7 +75,7 @@ int main(int argc, char** argv)
 {
 	Lina::GameApplication* game = new Lina::GameApplication();
 	ApplicationInfo appInfo;
-	appInfo.m_appMode = ApplicationMode::Standalone;
+	appInfo.m_appMode = ApplicationMode::Editor;
 	appInfo.m_appName = "Lina Sandbox Game";
 	appInfo.m_windowProperties.m_width = 1440;
 	appInfo.m_windowProperties.m_height = 900;

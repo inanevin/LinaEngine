@@ -64,11 +64,14 @@ void ExampleLevel::Initialize()
 
 void ExampleLevel::Tick(Event::ETick ev)
 {
-	//auto& data = Application::GetECSRegistry().get<ECS::EntityDataComponent>(Application::GetECSRegistry().GetEntity("Capsule"));
-	//data.AddRotation(Vector3(65 * delta, 0, 0));
-	//Vector3 location = data.GetLocation();
-	//location.x = Math::Sin(Application::GetTime() * 1.8f) * 1.5f;
-	//data.SetLocation(location);
-	return;
+	auto entity = ECS::Registry::Get()->GetEntity("capsule.fbx");
+	if (entity != ECSNULL)
+	{
+		auto& data = ECS::Registry::Get()->get<ECS::EntityDataComponent>(entity);
+		data.AddRotation(Vector3(65 * ev.m_deltaTime, 0, 0));
+		Vector3 location = data.GetLocation();
+		location.x = Math::Sin(Lina::Application::GetApp().GetTime() * 1.8f) * 1.5f;
+		data.SetLocation(location);
+	}
 }
 

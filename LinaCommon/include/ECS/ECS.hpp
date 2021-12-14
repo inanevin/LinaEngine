@@ -64,6 +64,9 @@ namespace Lina
 
 namespace Lina::ECS
 {
+
+#define ECSNULL entt::null
+
 	typedef entt::entity Entity;
 	typedef entt::id_type TypeID;
 	typedef entt::delegate<void(entt::snapshot&, cereal::PortableBinaryOutputArchive&)> ComponentSerializeFunction;
