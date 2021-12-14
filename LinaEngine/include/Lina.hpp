@@ -36,9 +36,6 @@ Timestamp: 12/29/2018 11:21:31 PM
 #define LinaEngine_HPP
 
 
-// To be used by Lina applications.
-#include "Core/Layer.hpp"
-
 // *********** ENTRY POINT *********** 
 #include "EntryPoint.hpp"
 // *********** ENTRY POINT *********** 

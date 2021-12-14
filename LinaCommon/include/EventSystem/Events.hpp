@@ -72,8 +72,8 @@ namespace Lina::Event
 	struct EAppLoad {ApplicationInfo* m_appInfo = nullptr; };
 
 	// Engine.
-	struct EInitializeEngine { ApplicationInfo m_appInfo; };
-	struct EShutdownEngine {};
+	struct EInitialize { ApplicationInfo m_appInfo; };
+	struct EShutdown {};
 	struct EStartGame {};
 	struct EEndGame {};
 	struct ETick { float m_deltaTime; bool m_isInPlayMode; };

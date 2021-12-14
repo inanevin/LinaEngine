@@ -71,8 +71,7 @@ namespace Lina::Editor
 		~GUILayer();
 
 		void Initialize();
-		void OnStartGame(Event::EStartGame ev);
-		void OnEndGame(Event::EEndGame ev);
+		void OnShutdown(Event::EShutdown ev);
 		void OnPostRender(Event::EPostRender);
 
 		// Menu bar item callback from header panel.

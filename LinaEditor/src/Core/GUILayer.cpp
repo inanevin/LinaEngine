@@ -70,13 +70,9 @@ namespace Lina::Editor
 
 	void GUILayer::Initialize()
 	{
-		Event::EventSystem::Get()->Connect<Event::EStartGame, &GUILayer::OnStartGame>(this);
-		Event::EventSystem::Get()->Connect<Event::EEndGame, &GUILayer::OnEndGame>(this);
+		Event::EventSystem::Get()->Connect<Event::EShutdown, &GUILayer::OnShutdown>(this);
 		Event::EventSystem::Get()->Connect<Event::EPostRender, &GUILayer::OnPostRender>(this);
-	}
 
-	void GUILayer::OnStartGame(Event::EStartGame ev)
-	{
 		LINA_INFO("Editor GUI Layer Attached");
 
 		// Listen to menu bar clicked events.
@@ -207,10 +203,10 @@ namespace Lina::Editor
 
 		// Imgui first frame initialization.
 		OnPostRender(Event::EPostRender());
-
 	}
 
-	void GUILayer::OnEndGame(Event::EEndGame ev)
+
+	void GUILayer::OnShutdown(Event::EShutdown ev)
 	{
 		LINA_INFO("Editor GUI Layer Detached");
 

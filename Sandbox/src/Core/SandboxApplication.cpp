@@ -70,7 +70,7 @@ public:
 #endif
 		
 		m_gameManager.Initialize();
-		Graphics::WindowBackend::Get()->SetVsync(2);
+		//Graphics::WindowBackend::Get()->SetVsync(2);
 		// Run engine.
 		Run();
 
