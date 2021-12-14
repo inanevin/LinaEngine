@@ -36,6 +36,7 @@ namespace Lina::Resources
 		{ StringID("jpg"), ResourceType::Image },
 		{ StringID("jpeg"), ResourceType::Image },
 		{ StringID("tga"), ResourceType::Image },
+		{ StringID("hdr"), ResourceType::HDR },
 		{ StringID("fbx"), ResourceType::Mesh },
 		{ StringID("obj"), ResourceType::Mesh },
 		{ StringID("3ds"), ResourceType::Mesh },
@@ -43,9 +44,7 @@ namespace Lina::Resources
 		{ StringID("mp3"), ResourceType::Audio },
 		{ StringID("ogg"), ResourceType::Audio },
 		{ StringID("linamat"), ResourceType::Material },
-		{ StringID("vert"), ResourceType::GLSLVertex },
-		{ StringID("geo"), ResourceType::GLSLGeo },
-		{ StringID("frag"), ResourceType::GLSLFrag },
+		{ StringID("glsl"), ResourceType::GLSL },
 		{ StringID("spv"), ResourceType::SPIRV },
 	};
 

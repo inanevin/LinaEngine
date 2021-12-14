@@ -54,38 +54,11 @@ namespace Lina::Graphics
 		return mat;
 	}
 
-	bool ModelLoader::LoadModel(const std::string& fileName, Model& model, ModelParameters meshParams)
+	bool ModelLoader::LoadModel(const void* scenePtr, Model& model)
 	{
+		const aiScene* scene = (aiScene*)scenePtr;
+
 		ModelSceneParameters& worldParams = model.GetWorldParameters();
-
-
-		// Get the importer & set assimp scene.
-		Assimp::Importer importer;
-		uint32 importFlags = 0;
-		if (meshParams.m_calculateTangentSpace)
-			importFlags |= aiProcess_CalcTangentSpace;
-
-		if (meshParams.m_triangulate)
-			importFlags |= aiProcess_Triangulate;
-
-		if (meshParams.m_smoothNormals)
-			importFlags |= aiProcess_GenSmoothNormals;
-
-		if (meshParams.m_flipUVs)
-			importFlags |= aiProcess_FlipUVs;
-
-		if (meshParams.m_flipWinding)
-			importFlags |= aiProcess_FlipWindingOrder;
-
-
-		const aiScene* scene = importer.ReadFile(fileName.c_str(), importFlags);
-
-
-		if (!scene)
-		{
-			LINA_ERR("Mesh loading failed! {0}", fileName.c_str());
-			return false;
-		}
 
 		if (scene->mRootNode->mNumChildren > 0)
 		{
@@ -100,17 +73,15 @@ namespace Lina::Graphics
 		worldParams.m_rootInverse = AssimpToInternal(rootTransformation).Inverse();
 
 		const std::string runningDirectory = Utility::GetRunningDirectory();
-		const std::string fileExt = Utility::GetFileExtension(fileName);
-		const bool isFBX = fileExt.compare("fbx") == 0;
 
-		
+
 
 		// Iterate through the meshes on the scene.
 		for (uint32 j = 0; j < scene->mNumMeshes; j++)
 		{
 			// Build aiMesh reference for each aiMesh.
 			const aiMesh* aiMesh = scene->mMeshes[j];
-		
+
 			// Build and indexed aiMesh for each aiMesh & fill in the data.
 			Mesh currentMesh;
 			currentMesh.SetName(scene->mMeshes[j]->mName.C_Str());
@@ -209,8 +180,41 @@ namespace Lina::Graphics
 			defaultSpec.m_name = "Material";
 			model.GetMaterialSpecs().push_back(defaultSpec);
 		}
-
 		return true;
+	}
+
+	bool ModelLoader::LoadModel(const std::string& fileName, Model& model, ModelParameters meshParams)
+	{
+		ModelSceneParameters& worldParams = model.GetWorldParameters();
+
+		// Get the importer & set assimp scene.
+		Assimp::Importer importer;
+		uint32 importFlags = 0;
+		if (meshParams.m_calculateTangentSpace)
+			importFlags |= aiProcess_CalcTangentSpace;
+
+		if (meshParams.m_triangulate)
+			importFlags |= aiProcess_Triangulate;
+
+		if (meshParams.m_smoothNormals)
+			importFlags |= aiProcess_GenSmoothNormals;
+
+		if (meshParams.m_flipUVs)
+			importFlags |= aiProcess_FlipUVs;
+
+		if (meshParams.m_flipWinding)
+			importFlags |= aiProcess_FlipWindingOrder;
+
+
+		const aiScene* scene = importer.ReadFile(fileName.c_str(), importFlags);
+
+		if (!scene)
+		{
+			LINA_ERR("Mesh loading failed! {0}", fileName.c_str());
+			return false;
+		}
+
+		return LoadModel(scene, model);
 	}
 
 

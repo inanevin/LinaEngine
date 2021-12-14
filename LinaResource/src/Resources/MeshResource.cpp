@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/Lina
 
@@ -36,8 +36,8 @@ SOFTWARE.
 
 namespace Lina::Resources
 {
-	
-	bool MeshResource::LoadFromMemory(StringIDType m_sid, unsigned char* buffer, size_t bufferSize, Event::EventSystem* eventSys)
+
+	bool MeshResource::LoadFromMemory(StringIDType sid, unsigned char* buffer, size_t bufferSize)
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
@@ -52,20 +52,23 @@ namespace Lina::Resources
 		}
 
 		// Trigger event w/ data
-		eventSys->Trigger<Event::EMeshResourceLoaded>({ m_sid });
+		Lina::Event::EventSystem::Get()->Trigger<Event::EMeshResourceLoaded>({ sid, (void*)scene });
 
 		LINA_TRACE("[Mesh Loader] -> Mesh loaded from memory.");
 		return true;
 	}
 
-	bool MeshResource::LoadFromFile(const std::string& path, Event::EventSystem* eventSys)
+	bool MeshResource::LoadFromFile(const std::string& path)
 	{
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
 		uint32_t importFlags = 0;
+		importFlags |= aiProcess_CalcTangentSpace;
+		importFlags |= aiProcess_Triangulate;
+		importFlags |= aiProcess_GenSmoothNormals;
 
 		const aiScene* scene = importer.ReadFile(path.c_str(), importFlags);
-		
+
 		if (!scene)
 		{
 			LINA_ERR("[Mesh Loader] -> Mesh loading failed: {0}", path.c_str());
@@ -73,7 +76,7 @@ namespace Lina::Resources
 		}
 
 		// Trigger event w/ data
-		eventSys->Trigger<Event::EMeshResourceLoaded>({ StringID(path.c_str()).value() });
+		Lina::Event::EventSystem::Get()->Trigger<Event::EMeshResourceLoaded>({ StringID(path.c_str()).value(), (void*)scene });
 
 		LINA_TRACE("[Mesh Loader] -> Mesh loaded from file: {0}", path);
 		return true;

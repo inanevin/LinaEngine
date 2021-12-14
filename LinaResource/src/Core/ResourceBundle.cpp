@@ -87,7 +87,7 @@ namespace Lina::Resources
 				else if (package.first == ResourceType::Mesh)
 				{
 					MeshResource* mesh = new MeshResource();
-					if(mesh->LoadFromMemory(resource.first, &resource.second[0], resource.second.size(), eventSys))
+					if(mesh->LoadFromMemory(resource.first, &resource.second[0], resource.second.size()))
 						m_meshPackage[resource.first] = mesh;
 					else
 						delete mesh;
@@ -138,7 +138,7 @@ namespace Lina::Resources
 		else if (type == ResourceType::Mesh)
 		{
 			MeshResource* mesh = new MeshResource();
-			if (mesh->LoadFromFile(path, eventSys))
+			if (mesh->LoadFromFile(path))
 				m_meshPackage[StringID(path.c_str()).value()] = mesh;
 			else
 				delete mesh;
@@ -159,13 +159,13 @@ namespace Lina::Resources
 			else
 				delete mat;
 		}
-		else if (type == ResourceType::GLSLFrag || type == ResourceType::GLSLGeo || type == ResourceType::GLSLVertex)
-		{
-			ShaderResource* shader = new ShaderResource();
-			if (shader->LoadFromFile(path, type, eventSys))
-				m_shaderPackage[StringID(path.c_str()).value()] = shader;
-			else
-				delete shader;
-		}
+		//else if (type == ResourceType::GLSLFrag || type == ResourceType::GLSLGeo || type == ResourceType::GLSLVertex)
+		//{
+		//	ShaderResource* shader = new ShaderResource();
+		//	if (shader->LoadFromFile(path, type, eventSys))
+		//		m_shaderPackage[StringID(path.c_str()).value()] = shader;
+		//	else
+		//		delete shader;
+		//}
 	}
 }

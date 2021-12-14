@@ -103,6 +103,8 @@ namespace Lina
 		m_deltaTimeArray.fill(-1.0);
 		m_isInPlayMode = true;
 
+		LINA_WARN("Loading Editor Resources");
+		m_resourceManager.LoadEditorResources();
 	}
 
 	void Engine::Run()
@@ -209,7 +211,7 @@ namespace Lina
     }
     void Engine::RemoveOutliers(bool biggest)
     {
-		int outlier = biggest ? 0 : 10;
+		double outlier = biggest ? 0 : 10;
 		int outlierIndex = -1;
 		int indexCounter = 0;
 		for (double d : m_deltaTimeArray)

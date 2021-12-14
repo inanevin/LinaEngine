@@ -63,11 +63,10 @@ namespace Lina::Resources
 		Unknown,
 		Mesh,
 		Image,
+		HDR,
 		Audio,
 		Material,
-		GLSLVertex,
-		GLSLFrag,
-		GLSLGeo,
+		GLSL,
 		SPIRV
 	};
 

@@ -129,17 +129,17 @@ namespace Lina::Resources
 
 		shaderc_shader_kind kind;
 
-		if (type == ResourceType::GLSLFrag)
-			kind = shaderc_glsl_fragment_shader;
-		else if (type == ResourceType::GLSLVertex)
-			kind = shaderc_glsl_vertex_shader;
-		else if (type == ResourceType::GLSLGeo)
-			kind = shaderc_glsl_geometry_shader;
-		else
-		{
-			LINA_ERR("[Shader Loader] -> Could not determine the shader kind for compilation! {0}", path);
-			return false;
-	}
+		//if (type == ResourceType::GLSLFrag)
+		//	kind = shaderc_glsl_fragment_shader;
+		//else if (type == ResourceType::GLSLVertex)
+		//	kind = shaderc_glsl_vertex_shader;
+		//else if (type == ResourceType::GLSLGeo)
+		//	kind = shaderc_glsl_geometry_shader;
+		//else
+		//{
+		//	LINA_ERR("[Shader Loader] -> Could not determine the shader kind for compilation! {0}", path);
+		//	return false;
+		//}
 
 		std::string sourceName = Utility::GetFileWithoutExtension(Utility::GetFileNameOnly(path));
 		std::ifstream stream(path);

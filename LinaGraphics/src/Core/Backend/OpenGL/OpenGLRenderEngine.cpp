@@ -75,7 +75,8 @@ namespace Lina::Graphics
 		m_appMode = appMode;
 
 		m_eventSystem->Connect<Event::EWindowResized, &OpenGLRenderEngine::OnWindowResized>(this);
-		m_eventSystem->Connect < Event::EDrawPhysicsDebug, &OpenGLRenderEngine::OnPhysicsDraw >(this);
+		m_eventSystem->Connect<Event::EDrawPhysicsDebug, &OpenGLRenderEngine::OnPhysicsDraw>(this);
+		m_eventSystem->Connect<Event::EMeshResourceLoaded, &OpenGLRenderEngine::OnMeshResourceLoaded>(this);
 
 		// Flip loaded images.
 		ArrayBitmap::SetImageFlip(true);
@@ -243,6 +244,11 @@ namespace Lina::Graphics
 			mat.SetTexture(MAT_TEXTURE2D_SHADOWMAP, nullptr);
 		}
 
+	}
+
+	void OpenGLRenderEngine::OnMeshResourceLoaded(Event::EMeshResourceLoaded event)
+	{
+		Model::CreateModel(event.m_sid, event.m_scene);
 	}
 
 	void OpenGLRenderEngine::OnPhysicsDraw(Event::EDrawPhysicsDebug event)

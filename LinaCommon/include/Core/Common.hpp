@@ -58,6 +58,21 @@ namespace Lina
 		Repeated
 	};
 
+	struct LevelData
+	{
+		std::string m_skyboxMaterialPath = "";
+		int m_skyboxMaterialID = -1;
+		int m_selectedSkyboxMatID = -1;
+		std::string m_selectedSkyboxMatPath = "";
+		Color m_ambientColor = Color(0);
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+			archive(m_skyboxMaterialPath, m_selectedSkyboxMatPath, m_ambientColor);
+		}
+	};
+
 	/* Struct containing basic data about window properties. */
 	struct WindowProperties
 	{

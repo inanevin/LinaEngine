@@ -102,6 +102,8 @@ namespace Lina::Resources
 		ResourceManager() {};
 		~ResourceManager() {};
 
+		void LoadResourcesInFolder(Utility::Folder& root);
+		void LoadEditorResources();
 		void DebugLevelLoad(Event::ETick& e);
 		void OnStartGame(Event::EStartGame& e);
 		void OnEndGame(Event::EEndGame& e);

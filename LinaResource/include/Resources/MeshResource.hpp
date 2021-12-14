@@ -70,8 +70,8 @@ namespace Lina::Resources
 		MeshResource() {};
 		~MeshResource() {};
 
-		bool LoadFromMemory(StringIDType m_sid, unsigned char* buffer, size_t bufferSize, Event::EventSystem* eventSys);
-		bool LoadFromFile(const std::string& path, Event::EventSystem* eventSys);
+		static bool LoadFromMemory(StringIDType sid, unsigned char* buffer, size_t bufferSize);
+		static bool LoadFromFile(const std::string& path);
 	};
 }
 

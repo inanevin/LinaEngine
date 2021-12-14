@@ -145,6 +145,7 @@ namespace Lina::Graphics
 
 	private:
 
+		void OnMeshResourceLoaded(Event::EMeshResourceLoaded event);
 		void OnPhysicsDraw(Event::EDrawPhysicsDebug event);
 		void OnWindowResized(Event::EWindowResized event);
 		void ConstructEngineShaders();

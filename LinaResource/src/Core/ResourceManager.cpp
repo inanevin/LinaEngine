@@ -39,6 +39,8 @@ namespace Lina::Resources
 	static float t = 0.0f;
 	static bool loaded = false;
 
+
+
 	void ResourceManager::DebugLevelLoad(Event::ETick& e)
 	{
 		t += e.m_deltaTime;
@@ -77,6 +79,54 @@ namespace Lina::Resources
 
 		LINA_TRACE("[Resource Manager] -> Shutdown");
 	}
+
+
+	void ResourceManager::LoadEditorResources()
+	{
+		Utility::Folder root;
+		root.m_fullPath = "resources/";
+		Utility::ScanFolder(root, true);
+		LoadResourcesInFolder(root);
+	}
+
+	void ResourceManager::LoadResourcesInFolder(Utility::Folder& root)
+	{
+		for (auto& folder : root.m_folders)
+			LoadResourcesInFolder(folder);
+
+		for (auto& file : root.m_files)
+		{
+			ResourceType type = GetResourceType(file.m_extension);
+
+			switch (type)
+			{
+			case ResourceType::Image:
+			//	Graphics::Texture::CreateTexture2D(file.m_fullPath);
+				break;
+
+			case ResourceType::HDR:
+
+				break;
+
+			case ResourceType::Mesh:
+				MeshResource::LoadFromFile(file.m_fullPath);
+				break;
+
+			case ResourceType::Audio:
+
+				break;
+
+			case ResourceType::Material:
+
+				break;
+
+			case ResourceType::GLSL:
+
+				break;
+			}
+		}
+	}
+
 
 	void ResourceManager::OnAppLoad(Event::EAppLoad& e)
 	{

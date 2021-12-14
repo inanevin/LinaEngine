@@ -47,6 +47,37 @@ namespace Lina::Graphics
 		m_materialSpecArray.clear();
 	}
 
+	Model& Model::CreateModel(StringIDType sid, const void* scene, ModelParameters meshParams, int id, const std::string& paramsPath)
+	{
+			// Internal meshes are created with non-negative ids, user loaded ones should have default id of -1.
+		if (id == -1) id = Utility::GetUniqueID();
+
+		Model& model = s_loadedMeshes[id];
+		model.SetParameters(meshParams);
+		ModelLoader::LoadModel(scene, model);
+
+		if (model.GetMeshes().size() == 0)
+		{
+			LINA_WARN("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad...");
+			UnloadModel(id);
+			return GetPrimitive(Primitives::Plane);
+		}
+
+		// Build vertex array for each model.
+		for (uint32 i = 0; i < model.GetMeshes().size(); i++)
+		{
+			model.GetMeshes()[i].CreateVertexArray( BufferUsage::USAGE_DYNAMIC_DRAW);
+		}
+
+		// Set id
+		model.m_meshID = id;
+		// model.m_path = filePath;
+		model.m_paramsPath = paramsPath;
+
+		LINA_TRACE("Mesh created. ");
+		return s_loadedMeshes[id];
+	}
+
 	Model& Model::CreateModel(const std::string& filePath, ModelParameters meshParams, int id, const std::string& paramsPath)
 	{
 		// Internal meshes are created with non-negative ids, user loaded ones should have default id of -1.
@@ -58,7 +89,7 @@ namespace Lina::Graphics
 
 		if (model.GetMeshes().size() == 0)
 		{
-			LINA_WARN("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad...", filePath);
+			LINA_WARN("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad... {0}", filePath);
 			UnloadModel(id);
 			return GetPrimitive(Primitives::Plane);
 		}

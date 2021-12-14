@@ -47,6 +47,7 @@ Timestamp: 5/6/2019 4:23:45 PM
 #include "Animation/Skeleton.hpp"
 #include "Core/SizeDefinitions.hpp"
 
+
 namespace Lina::Graphics
 {
 	class VertexArray;
@@ -59,6 +60,7 @@ namespace Lina::Graphics
 		Model() {};
 		virtual ~Model();
 
+		static Model& CreateModel(StringIDType sid, const void* scene, ModelParameters meshParams = ModelParameters(), int id = -1, const std::string& paramsPath = "");
 		static Model& CreateModel(const std::string& filePath, ModelParameters meshParams = ModelParameters(), int id = -1, const std::string& paramsPath = "");
 		static Model& GetModel(int id);
 		static Model& GetModel(const std::string& path);
