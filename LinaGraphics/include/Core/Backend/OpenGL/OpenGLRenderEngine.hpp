@@ -87,14 +87,8 @@ namespace Lina::Graphics
 	{
 	public:
 
-		OpenGLRenderEngine();
-		~OpenGLRenderEngine();
-
 		static OpenGLRenderEngine* Get() { return s_renderEngine; }
 
-		void Initialize();
-		void Tick(float delta);
-		void Render(float interpolation);
 		void AddToRenderingPipeline(Lina::ECS::BaseECSSystem& system);
 		void SetViewportDisplay(Vector2 offset, Vector2 size);
 		void SetSkyboxMaterial(Material* skyboxMaterial) { m_skyboxMaterial = skyboxMaterial; }
@@ -141,6 +135,15 @@ namespace Lina::Graphics
 
 
 	private:
+		friend class Lina::Application;
+		OpenGLRenderEngine() {};
+		~OpenGLRenderEngine() {};
+		void Initialize(ApplicationMode appMode);
+		void Shutdown();
+		void Tick(float delta);
+		void Render(float interpolation);
+
+	private:
 
 		void OnPhysicsDraw(Event::EDrawPhysicsDebug event);
 		void OnWindowResized(Event::EWindowResized event);
@@ -159,13 +162,10 @@ namespace Lina::Graphics
 		void CalculateHDRIIrradiance(Matrix& captureProjection, Matrix views[6]);
 		void CalculateHDRIPrefilter(Matrix& captureProjection, Matrix views[6]);
 		void CalculateHDRIBRDF(Matrix& captureProjection, Matrix views[6]);
-
-
 	private:
 
-		friend class Lina::Application;
 		static OpenGLRenderEngine* s_renderEngine;
-
+		ApplicationMode m_appMode;
 		Event::EventSystem* m_eventSystem;
 		OpenGLRenderDevice m_renderDevice;
 		OpenGLWindow* m_appWindow;
@@ -177,11 +177,9 @@ namespace Lina::Graphics
 		RenderTarget m_shadowMapTarget;
 		RenderTarget m_pLightShadowTargets[MAX_POINT_LIGHTS];
 
-#ifdef LINA_EDITOR
 		RenderTarget m_secondaryRenderTarget;
 		RenderBuffer m_secondaryRenderBuffer;
 		Texture m_secondaryRTTexture;
-#endif
 
 		RenderBuffer m_primaryBuffer;
 		RenderBuffer m_hdriCaptureRenderBuffer;

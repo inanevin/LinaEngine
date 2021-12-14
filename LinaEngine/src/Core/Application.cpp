@@ -27,11 +27,10 @@ SOFTWARE.
 */
 
 #include "LinaPch.hpp"
+#include "Core/MacroDetection.hpp"
 #include "Core/Application.hpp"
-
 #include "World/DefaultLevel.hpp"
 #include "Core/Timer.hpp"
-
 #include "ECS/Components/CameraComponent.hpp"
 #include "ECS/Components/MeshRendererComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
@@ -40,7 +39,9 @@ SOFTWARE.
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
 
-#include <chrono>
+#ifdef LINA_WINDOWS
+#include <windows.h>
+#endif
 
 namespace Lina
 {
@@ -50,9 +51,11 @@ namespace Lina
 
 	Application::Application()
 	{
+		LINA_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
+
+		// Setup static references.
 		s_application = this;
 		Log::s_onLogSink.connect<&Application::OnLog>(this);
-
 		Event::EventSystem::s_eventSystem = &m_eventSystem;
 		ECS::Registry::s_ecs = &m_ecs;
 		Graphics::WindowBackend::s_openglWindow = &m_window;
@@ -60,18 +63,21 @@ namespace Lina
 		Physics::PhysicsEngineBackend::s_physicsEngine = &m_physicsEngine;
 		Input::InputEngineBackend::s_inputEngine = &m_inputEngine;
 
+		// Connect events.
 		m_eventSystem.Connect<Event::EWindowClosed, &Application::OnWindowClose>(this);
 		m_eventSystem.Connect<Event::EWindowResized, &Application::OnWindowResize>(this);
-
-		LINA_TRACE("[Constructor] -> Application ({0})", typeid(*this).name());
 	}
 
-	void Application::Initialize(WindowProperties& props)
+	void Application::Initialize(ApplicationInfo& appInfo)
 	{
+		LINA_TRACE("[Initialization] -> Application ({0})", typeid(*this).name());
+
+		m_appInfo = appInfo;
+		m_eventSystem.Initialize();
 		m_inputEngine.Initialize();
 
 		// Build main window.
-		bool windowCreationSuccess = m_window.CreateContext(props);
+		bool windowCreationSuccess = m_window.CreateContext(appInfo);
 		if (!windowCreationSuccess)
 		{
 			LINA_ERR("Window Creation Failed!");
@@ -81,11 +87,11 @@ namespace Lina
 		// Set event callback for main window.
 		m_renderEngine.SetViewportDisplay(Vector2::Zero, m_window.GetSize());
 
+		// Init rest
 		m_ecs.Initialize();
 		m_physicsEngine.Initialize();
-		m_renderEngine.Initialize();
+		m_renderEngine.Initialize(appInfo.m_appMode);
 		m_audioEngine.Initialize();
-
 
 		// Register ECS components for cloning & serialization functionality.
 		m_ecs.RegisterComponent<ECS::EntityDataComponent>();
@@ -99,17 +105,13 @@ namespace Lina
 		m_ecs.RegisterComponent<ECS::ModelRendererComponent>();
 		m_ecs.RegisterComponent<ECS::SpriteRendererComponent>();
 
+		// Initialize any listeners.
+		m_eventSystem.Trigger<Event::EInitialize>(Event::EInitialize{});
+
 		m_deltaTimeArray.fill(-1.0);
 		m_isInPlayMode = true;
 		m_running = true;
 	}
-
-
-	Application::~Application()
-	{
-		LINA_TRACE("[Destructor] -> Application ({0})", typeid(*this).name());
-	}
-
 
 	void Application::Run()
 	{
@@ -119,16 +121,16 @@ namespace Lina
 		double previousFrameTime;
 		double currentFrameTime = GetTime();
 
+		// Starting game.
 		m_eventSystem.Trigger<Event::EStartGame>(Event::EStartGame{});
+
 		while (m_running)
 		{
-
 			previousFrameTime = currentFrameTime;
 			currentFrameTime = GetTime();
 
 			m_rawDeltaTime = (currentFrameTime - previousFrameTime);
 			m_smoothDeltaTime = SmoothDeltaTime(m_rawDeltaTime);
-			m_eventSystem.Trigger<Event::ETick>(Event::ETick{ (float)m_rawDeltaTime, m_isInPlayMode });
 
 			m_inputEngine.Tick();
 			updates++;
@@ -158,8 +160,20 @@ namespace Lina
 			if (m_firstRun)
 				m_firstRun = false;
 		}
+
+		// Ending game.
 		m_eventSystem.Trigger<Event::EEndGame>(Event::EEndGame{});
 
+		// Shutting down.
+		m_ecs.Shutdown();
+		m_physicsEngine.Shutdown();
+		m_renderEngine.Shutdown();
+		m_audioEngine.Shutdown();
+		m_inputEngine.Shutdown();
+		m_eventSystem.Trigger<Event::EShutdown>(Event::EShutdown{});
+		m_eventSystem.Shutdown();
+
+		// Cleanup first
 		Log::s_onLogSink.disconnect(this);
 		Timer::UnloadTimers();
 	}
@@ -167,12 +181,13 @@ namespace Lina
 
 	void Application::UpdateGame(float deltaTime)
 	{
-		// Tick physics (fixed)
-		m_physicsEngine.Tick(0.02);
+		m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{ (float)m_rawDeltaTime, m_isInPlayMode });
 
-		// Level
-		if (m_activeLevelExists)
-			m_currentLevel->Tick(m_isInPlayMode, deltaTime);
+		// Physics events & physics tick.
+		m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{});
+		m_physicsEngine.Tick(0.02);
+		m_eventSystem.Trigger<Event::EPhysicsTick>(Event::EPhysicsTick{PHYSICS_DELTA, m_isInPlayMode});
+		m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{PHYSICS_DELTA, m_isInPlayMode});
 
 		// Other main systems (engine or game)
 		m_mainECSPipeline.UpdateSystems(deltaTime);
@@ -180,9 +195,8 @@ namespace Lina
 		// Animation, particle systems.
 		m_renderEngine.Tick(deltaTime);
 
-		// Level post.
-		if (m_activeLevelExists)
-			m_currentLevel->PostTick(m_isInPlayMode, deltaTime);
+		m_eventSystem.Trigger<Event::ETick>(Event::ETick{ (float)m_rawDeltaTime, m_isInPlayMode });
+		m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{ (float)m_rawDeltaTime, m_isInPlayMode });
 	}
 
 	void Application::DisplayGame(float interpolation)
@@ -202,13 +216,31 @@ namespace Lina
 
 	void Application::OnLog(Event::ELog dump)
 	{
-		std::string msg = dump.m_message;
+		std::string msg = "[" + LogLevelAsString(dump.m_level) + "] " + dump.m_message;
 
-		// if (dump.m_level == Lina::LogLevel::Error)
-		// 	msg = "\033{1;31m" + dump.m_message + "\033[0m";
-		// else if (dump.m_level == Lina::LogLevel::Warn)
-		// 	msg = "\033{1;33m" + dump.m_message + "\033[0m";
+#ifdef LINA_WINDOWS
+		HANDLE hConsole;
+		int color = 15;
 
+		if (dump.m_level == LogLevel::Trace || dump.m_level == LogLevel::Debug)
+			color = 3;
+		else if (dump.m_level == LogLevel::Info || dump.m_level == LogLevel::None)
+			color = 15;
+		else if (dump.m_level == LogLevel::Warn)
+			color = 6;
+		else if (dump.m_level == LogLevel::Error || dump.m_level == LogLevel::Critical)
+			color = 4;
+
+		hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleTextAttribute(hConsole, color);
+
+#elif LINA_LINUX
+		if (dump.m_level == Lina::LogLevel::Error)
+			msg = "\033{1;31m" + dump.m_message + "\033[0m";
+		else if (dump.m_level == Lina::LogLevel::Warn)
+			msg = "\033{1;33m" + dump.m_message + "\033[0m";
+
+#endif
 		std::cout << msg << std::endl;
 
 		m_eventSystem.Trigger<Event::ELog>(dump);
@@ -228,7 +260,6 @@ namespace Lina
 			m_canRender = true;
 
 	}
-
 
 	void Application::RemoveOutliers(bool biggest)
 	{
@@ -311,8 +342,6 @@ namespace Lina
 
 		return avg;
 	}
-
-
 
 	void Application::SetPlayMode(bool enabled)
 	{

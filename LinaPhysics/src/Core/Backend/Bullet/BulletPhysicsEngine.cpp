@@ -109,7 +109,9 @@ namespace Lina::Physics
 		ECS::Registry::Get()->on_construct<Lina::ECS::EntityDataComponent>().connect<&BulletPhysicsEngine::OnRigidbodyOrTransformAdded>(this);
 		ECS::Registry::Get()->on_update<Lina::ECS::RigidbodyComponent>().connect<&BulletPhysicsEngine::OnRigidbodyUpdated>(this);
 		
-		Event::EventSystem::Get()->Connect<Event::EPostSceneDraw, &BulletPhysicsEngine::OnPostSceneDraw>(this);
+		// Engine events.
+		m_eventSystem = Event::EventSystem::Get();
+		m_eventSystem->Connect<Event::EPostSceneDraw, &BulletPhysicsEngine::OnPostSceneDraw>(this);
 	}
 
 
@@ -120,9 +122,9 @@ namespace Lina::Physics
 		m_physicsPipeline.UpdateSystems(fixedDelta);
 	}
 
-	void BulletPhysicsEngine::CleanUp()
+	void BulletPhysicsEngine::Shutdown()
 	{
-
+		LINA_TRACE("[Shutdown] -> Physics Engine ({0})", typeid(*this).name());
 	}
 
 	void BulletPhysicsEngine::OnRigidbodyOrTransformAdded(entt::registry& reg, entt::entity ent)

@@ -18,7 +18,7 @@ Timestamp: 5/6/2019 9:22:56 PM
 
 */
 
-#include "Levels/Example1Level.hpp"
+#include "Levels/ExampleLevel.hpp"
 #include "Core/Application.hpp"
 #include "ECS/Components/AnimationComponent.hpp"
 #include "Rendering/Model.hpp"
@@ -30,21 +30,17 @@ using namespace Lina::Graphics;
 using namespace Lina::ECS;
 using namespace Lina;
 
-Example1Level::~Example1Level()
-{
 
-}
-
-bool Example1Level::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
+bool ExampleLevel::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
 {
 	Level::Install(loadFromFile, path, levelName);
 	return true;
 }
 
-void Example1Level::Initialize()
+void ExampleLevel::Initialize()
 {
-	LINA_TRACE("Example1Level initialized. Implement your logic for instantiating entities, players, assigning cameras etc. from now on.");
-
+	LINA_TRACE("ExampleLevel initialized. Implement your logic for instantiating entities, players, assigning cameras etc. from now on.");
+	Level::Initialize();
 
 	// auto& reg = Application::GetECSRegistry();
 	// auto entity = reg.CreateEntity("Test");
@@ -66,7 +62,7 @@ void Example1Level::Initialize()
 	// Application::GetRenderEngine().GetCameraSystem()->SetActiveCamera(Application::GetECSRegistry().GetEntity("Entity"));
 }
 
-void Example1Level::Tick(bool isInPlayMode, float delta)
+void ExampleLevel::Tick(Event::ETick ev)
 {
 	//auto& data = Application::GetECSRegistry().get<ECS::EntityDataComponent>(Application::GetECSRegistry().GetEntity("Capsule"));
 	//data.AddRotation(Vector3(65 * delta, 0, 0));

@@ -55,20 +55,15 @@ namespace Lina::Graphics
 	{
 	public:
 
-		OpenGLWindow();
-		~OpenGLWindow();
-
 		static OpenGLWindow* Get() { return s_openglWindow; }
 		virtual void* GetNativeWindow() const { return m_window; }
 
 		Vector2 GetSize() { return Vector2(m_windowProperties.m_width, m_windowProperties.m_height); }
 		Vector2 GetPos() { return Vector2(m_windowProperties.m_xPos, m_windowProperties.m_yPos); }
-
 		float GetWidth() { return m_windowProperties.m_width; }
 		float GetHeight() { return m_windowProperties.m_height; }
 		const WindowProperties& GetProperties() const { return m_windowProperties; }
 
-		double GetTime();
 		void SetVsync(int interval);
 		void SetSize(const Vector2& newSize);
 		void SetPos(const Vector2& newPos);
@@ -76,14 +71,17 @@ namespace Lina::Graphics
 		void Iconify();
 		void Maximize();
 		void Close();
-		void Sleep(int milliseconds);
 		void Tick();
+		double GetTime();
 
 	private:
 
 		friend class Lina::Application;
-
-		bool CreateContext(WindowProperties propsIn);
+		OpenGLWindow() {};
+		~OpenGLWindow() {};
+		bool CreateContext(ApplicationInfo& appInfo);
+		void Shutdown();
+		void Sleep(int milliseconds);
 
 	private:
 

@@ -29,10 +29,6 @@ SOFTWARE.
 #include "Editor/ClientComponentDrawer.hpp"
 
 
-#ifdef LINA_EDITOR
-
-#endif
-
 namespace Lina
 {
 

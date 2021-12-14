@@ -50,6 +50,11 @@ Timestamp: 5/1/2019 2:35:28 AM
 namespace Lina
 {
 	class Application;
+
+	namespace Event
+	{
+		class EventSystem;
+	}
 }
 
 namespace Lina::Physics
@@ -59,51 +64,43 @@ namespace Lina::Physics
 	{
 	public:
 
-		BulletPhysicsEngine();
-		~BulletPhysicsEngine();
-
 		static BulletPhysicsEngine* Get() { return s_physicsEngine; }
-
-		void Initialize();
-		void Tick(float fixedDelta);
-		void CleanUp();
-
-		// Called when rigidbody components are added/removed from an entity.
-		void OnRigidbodyOrTransformAdded(entt::registry&, entt::entity);
-		void OnRigidbodyRemoved(entt::registry&, entt::entity);
-		void OnRigidbodyUpdated(entt::registry&, entt::entity);
-
-		// Callbacks
-		void OnPostSceneDraw(Event::EPostSceneDraw);
 
 		btRigidBody* GetActiveRigidbody(int id) { return s_bodies[id]; }
 		void SetDebugDraw(bool enabled) { m_debugDrawEnabled = enabled; }
 
 	private:
-
 		btCollisionShape* GetCollisionShape(Lina::ECS::RigidbodyComponent rb);
 
 	private:
-
 		friend class Lina::Application;
+		BulletPhysicsEngine();
+		~BulletPhysicsEngine();
+		void Initialize();
+		void Tick(float fixedDelta);
+		void Shutdown();
+
+	private:
+
+		void OnRigidbodyOrTransformAdded(entt::registry&, entt::entity);
+		void OnRigidbodyRemoved(entt::registry&, entt::entity);
+		void OnRigidbodyUpdated(entt::registry&, entt::entity);
+		void OnPostSceneDraw(Event::EPostSceneDraw);
+
+	private:
 
 		static BulletPhysicsEngine* s_physicsEngine;
-
 		btDefaultCollisionConfiguration* m_collisionConfig = nullptr;
 		btCollisionDispatcher* m_collisionDispatcher = nullptr;
 		btBroadphaseInterface* m_overlappingPairCache = nullptr;
 		btSequentialImpulseConstraintSolver* m_impulseSolver = nullptr;
 		btDiscreteDynamicsWorld* m_world = nullptr;
-
 		PhysicsGizmoDrawer m_gizmoDrawer;
-
 		Lina::ECS::RigidbodySystem m_rigidbodySystem;
 		Lina::ECS::ECSSystemList m_physicsPipeline;
-
+		Lina::Event::EventSystem* m_eventSystem;
 		std::map<int, btRigidBody*> s_bodies;		
 		bool m_debugDrawEnabled = false;
-
-		DISALLOW_COPY_ASSIGN_MOVE(BulletPhysicsEngine)
 	};
 }
 

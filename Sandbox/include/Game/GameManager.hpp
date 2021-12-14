@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -41,26 +41,26 @@ Timestamp: 12/7/2020 9:11:14 PM
 
 #include "EventSystem/Events.hpp"
 
-namespace Lina
+using namespace Lina;
+class ExampleLevel;
+
+class GameManager
 {
 
-	class GameManager 
-	{
-		
-	public:
-		
-		GameManager() {};
-		~GameManager() {};
+public:
 
-		void Initialize();
-		void OnTick(Event::ETick ev);
+	GameManager() {};
+	~GameManager() {};
+	void Initialize();
+	void OnTick(Event::ETick ev);
+	void OnShutdown(Event::EShutdown ev);
+	static GameManager* GetInstance() { return s_instance; }
 
-		static GameManager* GetInstance() { return s_instance; }
-	
-	private:
+private:
 
-		static GameManager* s_instance;
-	};
-}
+	static GameManager* s_instance;
+	ExampleLevel* m_exampleLevel;
+};
+
 
 #endif

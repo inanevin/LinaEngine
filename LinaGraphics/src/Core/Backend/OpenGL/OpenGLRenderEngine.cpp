@@ -61,33 +61,18 @@ namespace Lina::Graphics
 	constexpr int UNIFORMBUFFER_DEBUGDATA_BINDPOINT = 2;
 	constexpr auto UNIFORMBUFFER_DEBUGDATA_NAME = "DebugData";
 
-	OpenGLRenderEngine::OpenGLRenderEngine()
+
+	void OpenGLRenderEngine::Initialize(ApplicationMode appMode)
 	{
-		LINA_TRACE("[Constructor] -> OpenGLRenderEngine ({0})", typeid(*this).name());
-	}
+		LINA_TRACE("[Initialization] -> OpenGLRenderEngine ({0})", typeid(*this).name());
 
-	OpenGLRenderEngine::~OpenGLRenderEngine()
-	{
-		// Dump the remaining memory.
-		DumpMemory();
-
-		// Release Vertex Array Objects
-		m_skyboxVAO = m_renderDevice.ReleaseVertexArray(m_skyboxVAO);
-		m_screenQuadVAO = m_renderDevice.ReleaseVertexArray(m_screenQuadVAO);
-		m_hdriCubeVAO = m_renderDevice.ReleaseVertexArray(m_hdriCubeVAO);
-		m_lineVAO = m_renderDevice.ReleaseVertexArray(m_lineVAO);
-
-		LINA_TRACE("[Destructor] -> OpenGLRenderEngine ({0})", typeid(*this).name());
-	}
-
-	void OpenGLRenderEngine::Initialize()
-	{
 		if (Utility::FileExists(RENDERSETTINGS_FULLPATH))
 			m_renderSettings = RenderSettings::DeserializeRenderSettings(RENDERSETTINGS_FOLDERPATH, RENDERSETTINGS_FILE);
 
 		// Set references.
 		m_appWindow = OpenGLWindow::Get();
 		m_eventSystem = Event::EventSystem::Get();
+		m_appMode = appMode;
 
 		m_eventSystem->Connect<Event::EWindowResized, &OpenGLRenderEngine::OnWindowResized>(this);
 		m_eventSystem->Connect < Event::EDrawPhysicsDebug, &OpenGLRenderEngine::OnPhysicsDraw >(this);
@@ -147,7 +132,7 @@ namespace Lina::Graphics
 		m_cameraSystem.Initialize();
 		m_meshRendererSystem.Initialize();
 		m_spriteRendererSystem.Initialize();
-		m_lightingSystem.Initialize();
+		m_lightingSystem.Initialize(m_appMode);
 		m_cameraSystem.SetAspectRatio((float)m_viewportSize.x / (float)m_viewportSize.y);
 		AddToRenderingPipeline(m_cameraSystem);
 		AddToRenderingPipeline(m_meshRendererSystem);
@@ -161,6 +146,21 @@ namespace Lina::Graphics
 		// Set debug values.
 		m_debugData.visualizeDepth = false;
 
+	}
+
+
+	void OpenGLRenderEngine::Shutdown()
+	{
+		LINA_TRACE("[Shutdown] -> OpenGLRenderEngine ({0})", typeid(*this).name());
+
+		// Dump the remaining memory.
+		DumpMemory();
+
+		// Release Vertex Array Objects
+		m_skyboxVAO = m_renderDevice.ReleaseVertexArray(m_skyboxVAO);
+		m_screenQuadVAO = m_renderDevice.ReleaseVertexArray(m_screenQuadVAO);
+		m_hdriCubeVAO = m_renderDevice.ReleaseVertexArray(m_hdriCubeVAO);
+		m_lineVAO = m_renderDevice.ReleaseVertexArray(m_lineVAO);
 	}
 
 	void OpenGLRenderEngine::Tick(float delta)
@@ -212,9 +212,8 @@ namespace Lina::Graphics
 			m_renderDevice.ResizeRTTexture(p.second.GetTexture().GetID(), m_viewportSize, sp.m_textureParams.m_internalPixelFormat, sp.m_textureParams.m_pixelFormat);
 		}
 
-#ifdef LINA_EDITOR
-		m_renderDevice.ResizeRTTexture(m_secondaryRTTexture.GetID(), m_viewportSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
-#endif
+		if (m_appMode == ApplicationMode::Editor)
+			m_renderDevice.ResizeRTTexture(m_secondaryRTTexture.GetID(), m_viewportSize, m_primaryRTParams.m_textureParams.m_internalPixelFormat, m_primaryRTParams.m_textureParams.m_pixelFormat);
 	}
 
 
@@ -255,6 +254,7 @@ namespace Lina::Graphics
 	{
 		SetViewportDisplay(Vector2::Zero, Vector2(event.m_windowProps.m_width, event.m_windowProps.m_height));
 	}
+
 
 	void OpenGLRenderEngine::ConstructEngineShaders()
 	{
@@ -426,11 +426,12 @@ namespace Lina::Graphics
 		for (int i = 0; i < MAX_POINT_LIGHTS; i++)
 			m_pLightShadowTargets[i].Construct(m_pLightShadowTextures[i], m_pLightShadowResolution, TextureBindMode::BINDTEXTURE_TEXTURE, FrameBufferAttachment::ATTACHMENT_DEPTH, true);
 
-#ifdef LINA_EDITOR
-		m_secondaryRTTexture.ConstructRTTexture(m_viewportSize, m_primaryRTParams, false);
-		m_secondaryRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_viewportSize);
-		m_secondaryRenderTarget.Construct(m_secondaryRTTexture, m_viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_secondaryRenderBuffer.GetID());
-#endif
+		if (m_appMode == ApplicationMode::Editor)
+		{
+			m_secondaryRTTexture.ConstructRTTexture(m_viewportSize, m_primaryRTParams, false);
+			m_secondaryRenderBuffer.Construct(RenderBufferStorage::STORAGE_DEPTH, m_viewportSize);
+			m_secondaryRenderTarget.Construct(m_secondaryRTTexture, m_viewportSize, TextureBindMode::BINDTEXTURE_TEXTURE2D, FrameBufferAttachment::ATTACHMENT_COLOR, FrameBufferAttachment::ATTACHMENT_DEPTH, m_secondaryRenderBuffer.GetID());
+		}
 	}
 
 	void OpenGLRenderEngine::DumpMemory()
@@ -556,12 +557,12 @@ namespace Lina::Graphics
 		}
 
 		// After we've applied custom post processing, draw the final image either to the screen, or to a secondary frame buffer to display it in editor.
-#ifdef LINA_EDITOR
-		m_renderDevice.SetFBO(m_secondaryRenderTarget.GetID());
-#else
-		// Back to default buffer
-		m_renderDevice.SetFBO(0);
-#endif
+		if (m_appMode == ApplicationMode::Editor)
+			m_renderDevice.SetFBO(m_secondaryRenderTarget.GetID());
+		else
+			// Back to default buffer
+			m_renderDevice.SetFBO(0);
+
 		m_renderDevice.SetViewport(m_viewportPos, m_viewportSize);
 		m_renderDevice.Clear(true, true, true, Color::White, 0xFF);
 
@@ -1063,11 +1064,11 @@ namespace Lina::Graphics
 
 	void* OpenGLRenderEngine::GetFinalImage()
 	{
-#ifdef LINA_EDITOR
-		return (void*)m_secondaryRTTexture.GetID();
-#else
-		return (void*)m_primaryRTTexture0.GetID();
-#endif
+		if (m_appMode == ApplicationMode::Editor)
+			return (void*)m_secondaryRTTexture.GetID();
+		else
+			return (void*)m_primaryRTTexture0.GetID();
+
 	}
 
 	void* OpenGLRenderEngine::GetShadowMapImage()

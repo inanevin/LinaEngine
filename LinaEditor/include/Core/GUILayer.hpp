@@ -68,7 +68,7 @@ namespace Lina::Editor
 	public:
 
 		GUILayer() {}
-		~GUILayer();
+		~GUILayer() {};
 
 		void Initialize();
 		void OnShutdown(Event::EShutdown ev);

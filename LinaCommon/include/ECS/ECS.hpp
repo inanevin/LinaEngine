@@ -79,12 +79,7 @@ namespace Lina::ECS
 	{
 	public:
 
-		Registry() {  };
-		virtual ~Registry();
-
 		FORCEINLINE static Registry* Get() { return s_ecs; }
-
-		void Initialize();
 
 		// Registering a component enables serialization as well as duplication functionality in & out editor.
 		template<typename T>
@@ -102,18 +97,24 @@ namespace Lina::ECS
 
 		void SerializeComponentsInRegistry(cereal::PortableBinaryOutputArchive& archive);
 		void DeserializeComponentsInRegistry(cereal::PortableBinaryInputArchive& archive);
-		void OnEntityDataComponentAdded(entt::registry& reg, entt::entity ent);
 		void AddChildToEntity(Entity parent, Entity child);
 		void DestroyAllChildren(Entity parent);
 		void RemoveChildFromEntity(Entity parent, Entity child);
 		void RemoveFromParent(Entity child);
 		void CloneEntity(Entity from, Entity to);
 		void DestroyEntity(Entity entity, bool isRoot = true);
-
 		Entity CreateEntity(const std::string& name);
 		Entity CreateEntity(Entity copy, bool attachParent = true);
 		Entity GetEntity(const std::string& name);
 		const std::set<Entity>& GetChildren(Entity parent);
+
+	private:
+
+		friend class Lina::Application;
+		Registry() {};
+		virtual ~Registry() {};
+		void Initialize();
+		void Shutdown();
 
 	private:
 
@@ -137,14 +138,11 @@ namespace Lina::ECS
 			loader.component<Type>(archive);
 		}
 
-
+		void OnEntityDataComponentAdded(entt::registry& reg, entt::entity ent);
 
 	private:
 
-		friend class Lina::Application;
-
 		static Registry* s_ecs;
-
 		std::unordered_map<TypeID, std::pair<ComponentSerializeFunction, ComponentDeserializeFunction>> m_serializeFunctions;
 		std::map<TypeID, std::function<void(Entity, Entity)>> m_cloneComponentFunctions;
 

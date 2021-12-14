@@ -39,16 +39,24 @@ Timestamp: 5/1/2019 2:35:28 AM
 #ifndef AudioEngine_HPP
 #define AudioEngine_HPP
 
+namespace Lina
+{
+	class Application;
+}
+
 namespace Lina::Audio
 {
 	class AudioEngine
 	{
 	public:
 
-		AudioEngine();
-		~AudioEngine();
+	private:
 
+		friend class Application;
+		AudioEngine() {};
+		~AudioEngine() {};
 		void Initialize();	
+		void Shutdown();
 	};
 }
 

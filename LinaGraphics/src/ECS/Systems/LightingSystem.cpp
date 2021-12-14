@@ -40,18 +40,20 @@ namespace Lina::ECS
 	uint32 dLightIconID = -1;
 
 
-	void LightingSystem::Initialize()
+	void LightingSystem::Initialize(Lina::ApplicationMode& appMode)
 	{
 		BaseECSSystem::Initialize();
 		m_renderEngine = Graphics::RenderEngineBackend::Get();
 		m_renderDevice = m_renderEngine->GetRenderDevice();
+		m_appMode = appMode;
 
-#if LINA_EDITOR
-		// Create debug icon textures for lights
-		pLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/pLightIcon.png").GetID();
-		sLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/sLightIcon.png").GetID();
-		dLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/dLightIcon.png").GetID();
-#endif
+		if (m_appMode == Lina::ApplicationMode::Editor)
+		{
+			// Create debug icon textures for lights
+			pLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/pLightIcon.png").GetID();
+			sLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/sLightIcon.png").GetID();
+			dLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/dLightIcon.png").GetID();
+		}
 	}
 
 
@@ -78,9 +80,8 @@ namespace Lina::ECS
 			std::get<0>(m_directionalLight) = &data;
 			std::get<1>(m_directionalLight) = dirLight;
 
-#if LINA_EDITOR
-			m_renderEngine->DrawIcon(data.GetLocation(), dLightIconID, 0.12f);
-#endif
+			if (m_appMode == Lina::ApplicationMode::Editor)
+				m_renderEngine->DrawIcon(data.GetLocation(), dLightIconID, 0.12f);
 		}
 
 		// For the point & spot lights, we simply find them and add them to their respective lists,
@@ -97,9 +98,8 @@ namespace Lina::ECS
 			EntityDataComponent& data = pointLightView.get<EntityDataComponent>(*it);
 			m_pointLights.push_back(std::make_pair(&data, pLight));
 
-#if LINA_EDITOR
-			m_renderEngine->DrawIcon(data.GetLocation(), pLightIconID, 0.12f);
-#endif
+			if (m_appMode == Lina::ApplicationMode::Editor)
+				m_renderEngine->DrawIcon(data.GetLocation(), pLightIconID, 0.12f);
 		}
 
 		// Set Spot lights.
@@ -112,9 +112,8 @@ namespace Lina::ECS
 			EntityDataComponent& data = spotLightView.get<EntityDataComponent>(*it);
 			m_spotLights.push_back(std::make_pair(&data, sLight));
 
-#if LINA_EDITOR
-			m_renderEngine->DrawIcon(data.GetLocation(), sLightIconID, 0.12f);
-#endif
+			if (m_appMode == Lina::ApplicationMode::Editor)
+				m_renderEngine->DrawIcon(data.GetLocation(), sLightIconID, 0.12f);
 		}
 	}
 
@@ -144,7 +143,7 @@ namespace Lina::ECS
 
 		for (std::vector<std::tuple<EntityDataComponent*, PointLightComponent*>>::iterator it = m_pointLights.begin(); it != m_pointLights.end(); ++it)
 		{
-			EntityDataComponent* data= std::get<0>(*it);
+			EntityDataComponent* data = std::get<0>(*it);
 			PointLightComponent* pointLight = std::get<1>(*it);
 			std::string currentPointLightStr = std::to_string(currentPointLightCount);
 			m_renderDevice->UpdateShaderUniformVector3(shaderID, SC_POINTLIGHTS + "[" + currentPointLightStr + "]" + SC_LIGHTPOSITION, data->GetLocation());
@@ -188,10 +187,10 @@ namespace Lina::ECS
 
 		// Used for directional shadow mapping.
 
-		EntityDataComponent* directionalLightData= std::get<0>(m_directionalLight);
+		EntityDataComponent* directionalLightData = std::get<0>(m_directionalLight);
 		DirectionalLightComponent* light = std::get<1>(m_directionalLight);
 
-		if (directionalLightData== nullptr || light == nullptr) return Matrix();
+		if (directionalLightData == nullptr || light == nullptr) return Matrix();
 
 		Matrix lightProjection = Matrix::Orthographic(light->m_shadowOrthoProjection.x, light->m_shadowOrthoProjection.y, light->m_shadowOrthoProjection.z, light->m_shadowOrthoProjection.w, light->m_shadowZNear, light->m_shadowZFar);
 		//	Matrix lightView = Matrix::TransformMatrix(directionalLightTransform->transform.GetLocation(), directionalLightTransform->transform.GetRotation(), Vector3::One);
@@ -230,7 +229,7 @@ namespace Lina::ECS
 
 	const Vector3& LightingSystem::GetDirectionalLightPos()
 	{
-		EntityDataComponent* directionalLightData= std::get<0>(m_directionalLight);
+		EntityDataComponent* directionalLightData = std::get<0>(m_directionalLight);
 		if (directionalLightData == nullptr) return Vector3::Zero;
 		return directionalLightData->GetLocation();
 	}

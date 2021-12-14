@@ -24,16 +24,18 @@ Timestamp: 5/6/2019 9:22:35 PM
 
 #include "World/Level.hpp"
 
-class Example1Level : public Lina::World::Level
+using namespace Lina;
+
+class ExampleLevel : public Lina::World::Level
 {
 public:
 
-	Example1Level() {};
-	~Example1Level();
+	ExampleLevel() {};
+	~ExampleLevel() {};
 
 	virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName) override;
 	virtual void Initialize() override;
-	virtual void Tick(bool isInPlayMode, float delta) override;
+	virtual void Tick(Event::ETick ev) override;
 
 };
 

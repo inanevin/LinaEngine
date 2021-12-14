@@ -43,18 +43,19 @@ namespace Lina::Input
 	GLFWwindow* glfwWindow = nullptr;
 	GLFWInputEngine* GLFWInputEngine::s_inputEngine = nullptr;
 
-	GLFWInputEngine::~GLFWInputEngine()
-	{
-
-	}
 
 	void GLFWInputEngine::Initialize()
 	{
+		LINA_TRACE("[Initialization] -> Input Engine GLFW ({0})", typeid(*this).name());
 		Event::EventSystem::Get()->Connect<Event::EWindowContextCreated, &GLFWInputEngine::OnWindowContextCreated>(this);
 		Event::EventSystem::Get()->Connect<Event::EPlayModeChanged, &GLFWInputEngine::OnPlayModeChanged>(this);
-		LINA_TRACE("[Input Engine GLFW] -> Initialized");
 		m_horizontalAxis.BindAxis(LINA_KEY_D, LINA_KEY_A);
 		m_verticalAxis.BindAxis(LINA_KEY_W, LINA_KEY_S);
+	}
+
+	void GLFWInputEngine::Shutdown()
+	{
+		LINA_TRACE("[Shutdown] -> Input Engine GLFW ({0})", typeid(*this).name());
 	}
 
 	void GLFWInputEngine::OnPlayModeChanged(Event::EPlayModeChanged playMode)
@@ -69,7 +70,6 @@ namespace Lina::Input
 	void GLFWInputEngine::OnWindowContextCreated(Event::EWindowContextCreated& e)
 	{
 		glfwWindow = static_cast<GLFWwindow*>(e.m_window);
-		LINA_TRACE("[Input Engine GLFW] -> Window Context Created");
 	}
 
 	bool GLFWInputEngine::GetKey(int keycode)

@@ -21,14 +21,16 @@ project(Sandbox)
 
 set(SANDBOX_SOURCES 
 
-src/Core/SandboxApplication.cpp
-src/Levels/Example1Level.cpp
+src/Core/GameApplication.cpp
+src/Levels/ExampleLevel.cpp
 src/Game/GameManager.cpp
 src/Editor/ClientComponentDrawer.cpp
 )
 
 set(SANDBOX_HEADERS
-include/Levels/Example1Level.hpp
+
+include/Core/GameApplication.hpp
+include/Levels/ExampleLevel.hpp
 include/Game/GameManager.hpp
 include/Editor/ClientComponentDrawer.hpp
 )

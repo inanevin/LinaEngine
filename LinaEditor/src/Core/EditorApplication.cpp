@@ -43,15 +43,9 @@ using namespace Lina::ECS;
 
 namespace Lina::Editor
 {
-
-	EditorApplication::~EditorApplication()
-	{
-		LINA_TRACE("[Destructor] -> Editor Application ({0})", typeid(*this).name());
-	}
-
 	void EditorApplication::Initialize()
 	{
-		LINA_TRACE("[Constructor] -> Editor Application ({0})", typeid(*this).name());
+		LINA_TRACE("[Initialize] -> Editor Application ({0})", typeid(*this).name());
 
 		Lina::WindowProperties splashProps;
 		splashProps.m_width = 720;

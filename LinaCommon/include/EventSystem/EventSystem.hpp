@@ -140,11 +140,14 @@ namespace Lina::Event
 	private:
 
 		friend class Lina::Application;
+		void Initialize();
+		void Shutdown();
+
+	private:
 
 		mutable std::recursive_mutex m_mutex;
 		Dispatcher m_mainDispatcher{};
 		static EventSystem* s_eventSystem;
-
 	};
 }
 

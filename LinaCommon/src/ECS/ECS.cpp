@@ -51,14 +51,17 @@ namespace Lina::ECS
 		return false;
 	}
 
-	Registry::~Registry()
-	{
-		on_construct<EntityDataComponent>().disconnect(this);
-	}
 
 	void Registry::Initialize()
 	{
+		LINA_TRACE("[Initialization] -> ECS Registry ({0})", typeid(*this).name());
 		on_construct<EntityDataComponent>().connect<&Registry::OnEntityDataComponentAdded>(this);
+	}
+
+	void Registry::Shutdown()
+	{
+		LINA_TRACE("[Shutdown] -> ECS Registry ({0})", typeid(*this).name());
+		on_construct<EntityDataComponent>().disconnect(this);
 	}
 
 	void Registry::SerializeComponentsInRegistry( cereal::PortableBinaryOutputArchive& archive) {

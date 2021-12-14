@@ -26,19 +26,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-/*
-Class: Lina
-Timestamp: 12/29/2018 11:21:31 PM
-*/
+#include "Core/Common.hpp"
 
-#pragma once
-#ifndef LinaEngine_HPP
-#define LinaEngine_HPP
-
-
-// *********** ENTRY POINT *********** 
-#include "EntryPoint.hpp"
-// *********** ENTRY POINT *********** 
-
-
-#endif
+namespace Lina
+{
+	std::string LogLevelAsString(LogLevel level)
+	{
+		switch (level)
+		{
+		case LogLevel::Critical:
+			return "Critical";
+		case LogLevel::Debug:
+			return "Debug";
+		case LogLevel::Error:
+			return "Error";
+		case LogLevel::Info:
+			return "Info";
+		case LogLevel::None:
+			return "None";
+		case LogLevel::Trace:
+			return "Trace";
+		case LogLevel::Warn:
+			return "Warn";
+		default:
+			return "";
+		}
+	}
+}

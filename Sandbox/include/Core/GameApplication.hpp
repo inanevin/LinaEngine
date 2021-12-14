@@ -27,28 +27,44 @@ SOFTWARE.
 */
 
 /*
-Class: EntryPoint
+Class: GameApplication
 
-Application, game or editor, starts here.
 
-Timestamp: 12/29/2018 11:28:02 PM
+
+Timestamp: 12/14/2021 2:03:29 PM
 */
 
 #pragma once
 
+#ifndef GameApplication_HPP
+#define GameApplication_HPP
 
-#ifdef LINA_PLATFORM_WINDOWS
-
+// Headers here.
 #include "Core/Application.hpp"
+#include "Game/GameManager.hpp"
 
-extern Lina::Application* Lina::CreateApplication();
-
-int main(int argc, char** argv)
+namespace Lina
 {
-	auto app = Lina::CreateApplication();
-	delete app;
+	namespace Editor
+	{
+		class EditorApplication;
+	}
+
+	class GameApplication : public Application
+	{
+		
+	public:
+
+		GameApplication() : Application() {};
+		virtual ~GameApplication() {};
+	
+		void Initialize(ApplicationInfo appInfo);
+
+	private:
+	
+		GameManager m_gameManager;
+		Editor::EditorApplication* m_editor = nullptr;
+	};
 }
 
 #endif
-
-

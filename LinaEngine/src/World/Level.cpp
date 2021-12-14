@@ -50,6 +50,8 @@ namespace Lina::World
 {
 	bool Level::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
 	{
+		Lina::Event::EventSystem::Get()->Connect<Event::ETick, &Level::Tick>(this);
+
 		if (loadFromFile)
 		{
 			if (Lina::Utility::FileExists(path + "/" + levelName + ".linalevel"))
@@ -60,6 +62,11 @@ namespace Lina::World
 			}
 		}
 		return true;
+	}
+
+	void Level::Uninstall()
+	{
+		Lina::Event::EventSystem::Get()->Disconnect<Event::ETick>(this);
 	}
 
 	void Level::LoadLevelResources()

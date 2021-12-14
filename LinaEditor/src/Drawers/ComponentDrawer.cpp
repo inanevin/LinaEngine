@@ -58,8 +58,6 @@ namespace Lina::Editor
 	ComponentDrawer::ComponentDrawer()
 	{
 
-#ifdef LINA_EDITOR
-
 		RegisterComponentToDraw<EntityDataComponent>(GetTypeID<EntityDataComponent>(), "Transformation", std::bind(&ComponentDrawer::DrawEntityDataComponent, this, std::placeholders::_1, std::placeholders::_2));
 		RegisterComponentToDraw<RigidbodyComponent>(GetTypeID<RigidbodyComponent>(), "Rigidbody", std::bind(&ComponentDrawer::DrawRigidbodyComponent, this, std::placeholders::_1, std::placeholders::_2));
 		RegisterComponentToDraw<CameraComponent>(GetTypeID<CameraComponent>(), "Camera", std::bind(&ComponentDrawer::DrawCameraComponent, this, std::placeholders::_1, std::placeholders::_2));
@@ -70,8 +68,6 @@ namespace Lina::Editor
 		RegisterComponentToDraw<MeshRendererComponent>(GetTypeID<MeshRendererComponent>(), "Mesh Renderer", std::bind(&ComponentDrawer::DrawMeshRendererComponent, this, std::placeholders::_1, std::placeholders::_2));
 		RegisterComponentToDraw<ModelRendererComponent>(GetTypeID<ModelRendererComponent>(), "Model Renderer", std::bind(&ComponentDrawer::DrawModelRendererComponent, this, std::placeholders::_1, std::placeholders::_2));
 		RegisterComponentToDraw<SpriteRendererComponent>(GetTypeID<SpriteRendererComponent>(), "Sprite Renderer", std::bind(&ComponentDrawer::DrawSpriteRendererComponent, this, std::placeholders::_1, std::placeholders::_2));
-
-#endif
 
 	}
 

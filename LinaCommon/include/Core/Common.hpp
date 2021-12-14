@@ -105,12 +105,12 @@ namespace Lina
 		Warn = 1 << 6
 	};
 
+	extern std::string LogLevelAsString(LogLevel level);
+
 	enum class ApplicationMode
 	{
-		Unknown = 1 << 0,
-		Editor = 1 << 1,
-		EditorGame = 1 << 2,
-		Standalone = 1 << 3
+		Editor = 1 << 0,
+		Standalone = 1 << 1
 	};
 
 	struct ApplicationInfo

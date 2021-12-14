@@ -28,10 +28,8 @@ SOFTWARE.
 
 #include "World/DefaultLevel.hpp"
 
-
 namespace Lina::World
 {
-
 	DefaultLevel::~DefaultLevel()
 	{
 	}
@@ -44,6 +42,4 @@ namespace Lina::World
 	void DefaultLevel::Initialize()
 	{
 	}
-
-
 }

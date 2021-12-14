@@ -61,7 +61,7 @@ namespace Lina::Editor
 	public:
 
 		EditorApplication() {};
-		~EditorApplication();
+		~EditorApplication() {};
 
 		void Initialize();
 		void Refresh();

@@ -41,9 +41,10 @@ Timestamp: 5/6/2019 5:10:23 PM
 #ifndef Level_HPP
 #define Level_HPP
 
+#include "Math/Color.hpp"
+#include "EventSystem/Events.hpp"
 #include <string>
 #include <cereal/archives/portable_binary.hpp>
-#include "Math/Color.hpp"
 
 namespace Lina
 {
@@ -78,24 +79,20 @@ namespace Lina::World
 		virtual ~Level() {  };
 
 		virtual bool Install(bool loadFromFile, const std::string& path, const std::string& levelName);
-		virtual void Uninstall() {};
+		virtual void Uninstall();
 		virtual void Initialize() {};
-		virtual void Tick(bool isInPlayMode, float delta) {};
-		virtual void PostTick(bool isInPlayMode, float delta) {};
+		virtual void Tick(Lina::Event::ETick ev) {};
+
 		void SerializeLevelData(const std::string& path, const std::string& levelName);
 		void DeserializeLevelData(const std::string& path, const std::string& levelName);
-		LevelData& GetLevelData() { return m_levelData; }
 		void SetSkyboxMaterial();
+		LevelData& GetLevelData() { return m_levelData; }
 
 	private:
-
 		void LoadLevelResources();
 
-
 	private:
-
 		LevelData m_levelData;
-
 	};
 }
 

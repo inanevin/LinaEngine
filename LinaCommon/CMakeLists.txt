@@ -22,7 +22,7 @@ set(CMAKE_CXX_STANDARD 17)
 #--------------------------------------------------------------------
 set (LINACOMMON_SOURCES
 
-
+	src/Core/Common.cpp
     src/Core/Timer.cpp
 	
 	#Utility

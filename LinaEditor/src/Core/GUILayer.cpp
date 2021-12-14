@@ -63,17 +63,10 @@ static const char* s_loadLevelDialogID = "id_loadLevel";
 namespace Lina::Editor
 {
 
-	GUILayer::~GUILayer()
-	{
-		LINA_TRACE("[Destructor] -> GUI Layer ({0})", typeid(*this).name());
-	}
-
 	void GUILayer::Initialize()
 	{
 		Event::EventSystem::Get()->Connect<Event::EShutdown, &GUILayer::OnShutdown>(this);
 		Event::EventSystem::Get()->Connect<Event::EPostRender, &GUILayer::OnPostRender>(this);
-
-		LINA_INFO("Editor GUI Layer Attached");
 
 		// Listen to menu bar clicked events.
 		Lina::Event::EventSystem::Get()->Connect<EMenuBarItemClicked, &GUILayer::DispatchMenuBarClickedAction>(this);

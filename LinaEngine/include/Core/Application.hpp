@@ -72,10 +72,8 @@ namespace Lina
 
 #define DELTA_TIME_HISTORY 11
 
-		virtual ~Application();
-
-		// Main application loop.
-		void Run();
+		Application();
+		virtual ~Application() {};
 
 		// Loads a level into memory.
 		bool InstallLevel(Lina::World::Level& level, bool loadFromFile = false, const std::string& path = "", const std::string& levelName = "");
@@ -104,9 +102,8 @@ namespace Lina
 
 	protected:
 
-		virtual void Initialize(WindowProperties& props);
-
-		Application();
+		virtual void Initialize(ApplicationInfo& appInfo);
+		void Run();
 
 	private:
 
@@ -135,6 +132,7 @@ namespace Lina
 
 		World::Level* m_currentLevel = nullptr;
 		ECS::ECSSystemList m_mainECSPipeline;
+		ApplicationInfo m_appInfo;
 
 		bool m_activeLevelExists = false;
 		bool m_running = false;

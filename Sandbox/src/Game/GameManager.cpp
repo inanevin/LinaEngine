@@ -28,26 +28,26 @@ SOFTWARE.
 
 #include "Game/GameManager.hpp"
 #include "Core/Application.hpp"
-#include "Levels/Example1Level.hpp"
+#include "Levels/ExampleLevel.hpp"
 
-namespace Lina
+GameManager* GameManager::s_instance = nullptr;
+
+void GameManager::Initialize()
 {
-	GameManager* GameManager::s_instance = nullptr;
-	Example1Level* m_exampleLevel = nullptr;
+	LINA_TRACE("Game Manager Attached!");
+	s_instance = this;
+	m_exampleLevel = new ExampleLevel();
+	Lina::Application::GetApp().InstallLevel(*m_exampleLevel, true, "resources/sandbox/Levels/", "Example1Level");
+	Lina::Event::EventSystem::Get()->Connect<Event::ETick, &GameManager::OnTick>(this);
+	Lina::Event::EventSystem::Get()->Connect<Event::EShutdown, &GameManager::OnShutdown>(this);
+}
 
+void GameManager::OnTick(Event::ETick ev)
+{
 
-	void GameManager::Initialize()
-	{
-		s_instance = this;
-		LINA_TRACE("Game Manager Attached!");
-		m_exampleLevel = new Example1Level();
-		Lina::Application::GetApp().InstallLevel(*m_exampleLevel, true, "resources/sandbox/Levels/", "Example1Level");
-		Lina::Event::EventSystem::Get()->Connect<Event::ETick, &GameManager::OnTick>(this);
-	}
+}
 
-	void GameManager::OnTick(Event::ETick ev)
-	{
-
-	}
-
+void GameManager::OnShutdown(Event::EShutdown ev)
+{
+	delete m_exampleLevel;
 }

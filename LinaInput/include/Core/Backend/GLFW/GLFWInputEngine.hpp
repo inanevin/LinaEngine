@@ -68,7 +68,6 @@ namespace Lina::Input
 		bool GetMouseButtonUp(int index);
 		void SetCursorMode(CursorMode mode) const;
 		void SetMousePosition(const Vector2& v) const;
-		void Tick();
 		Vector2 GetMousePosition();
 		Vector2 GetRawMouseAxis();
 		Vector2 GetMouseAxis();
@@ -78,11 +77,11 @@ namespace Lina::Input
 	private:
 
 		friend class Application;
-
-		GLFWInputEngine() { }
-		~GLFWInputEngine();
-
+		GLFWInputEngine() {}
+		~GLFWInputEngine() {};
 		void Initialize();
+		void Tick();
+		void Shutdown();
 		void OnPlayModeChanged(Event::EPlayModeChanged playMode);
 		void OnWindowContextCreated(Event::EWindowContextCreated& e);
 
