@@ -24,6 +24,7 @@ set (LINAENGINE_SOURCES
 	
 	# CORE
     src/Core/Application.cpp
+	src/Core/Engine.cpp
 	src/World/Level.cpp
 	src/World/DefaultLevel.cpp
 )
@@ -35,6 +36,7 @@ set(LINAENGINE_HEADERS
 
 	#CORE
 	include/Core/Application.hpp
+	include/Core/Engine.hpp
 	
 	#World
 	include/World/Level.hpp

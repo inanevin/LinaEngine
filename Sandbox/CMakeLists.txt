@@ -102,45 +102,20 @@ TARGET ${PROJECT_NAME}
 POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/resources" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/resources/")
 
-# Copy assimp dll to project binary directory
+# Copy dlls to project solution directory to run within IDE.
 add_custom_command(
 TARGET ${PROJECT_NAME}
 POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vendor/assimp/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/${ASSIMP_DLL}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/vendor/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
 
 
-# Copy assimp dll to project solution directory to run within IDE.
+# Copy dlls to binary directory
 add_custom_command(
 TARGET ${PROJECT_NAME}
 POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vendor/openal/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/OpenAL32.dll" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}")
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/vendor/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/")
 
 
-# Copy openal dll to project binary directory
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vendor/openal/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/OpenAL32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
-
-
-# Copy openal dll to project solution directory to run within IDE.
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vendor/openal/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/OpenAL32.dll" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}")
-
-# Copy alut dll to project binary directory
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vendor/alut/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/alut.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>")
-
-
-# Copy alut dll to project solution directory to run within IDE.
-add_custom_command(
-TARGET ${PROJECT_NAME}
-POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/vendor/alut/bin/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/alut.dll" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}")
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

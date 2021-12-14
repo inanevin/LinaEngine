@@ -38,6 +38,7 @@ SOFTWARE.
 #include "ECS/Components/ModelRendererComponent.hpp"
 #include "ECS/Components/SpriteRendererComponent.hpp"
 #include "ECS/Components/FreeLookComponent.hpp"
+#include "Profiling/Profiler.hpp"
 
 #ifdef LINA_WINDOWS
 #include <windows.h>
@@ -115,6 +116,9 @@ namespace Lina
 
 	void Application::Run()
 	{
+		PROFILER_MAIN_THREAD;
+		PROFILER_ENABLE;
+
 		int frames = 0;
 		int updates = 0;
 		double totalFPSTime = GetTime();
@@ -173,6 +177,8 @@ namespace Lina
 		m_eventSystem.Trigger<Event::EShutdown>(Event::EShutdown{});
 		m_eventSystem.Shutdown();
 
+		PROFILER_DUMP("profile.prof");
+
 		// Cleanup first
 		Log::s_onLogSink.disconnect(this);
 		Timer::UnloadTimers();
@@ -181,6 +187,8 @@ namespace Lina
 
 	void Application::UpdateGame(float deltaTime)
 	{
+		PROFILER_FUNC("Engine Tick");
+
 		m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{ (float)m_rawDeltaTime, m_isInPlayMode });
 
 		// Physics events & physics tick.
@@ -201,6 +209,8 @@ namespace Lina
 
 	void Application::DisplayGame(float interpolation)
 	{
+		PROFILER_FUNC("Engine Render");
+
 		if (m_canRender)
 		{
 			m_eventSystem.Trigger<Event::EPreRender>(Event::EPreRender{});

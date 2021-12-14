@@ -201,8 +201,6 @@ namespace Lina::Editor
 
 	void GUILayer::OnShutdown(Event::EShutdown ev)
 	{
-		LINA_INFO("Editor GUI Layer Detached");
-
 		// Cleanup
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
