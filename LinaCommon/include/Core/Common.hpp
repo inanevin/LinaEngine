@@ -41,6 +41,8 @@ Timestamp: 4/7/2019 3:29:18 PM
 
 #include <string>
 #include <Core/SizeDefinitions.hpp>
+#include "Math/Color.hpp"
+
 namespace Lina
 {
 

@@ -41,6 +41,7 @@ Timestamp: 12/19/2020 3:54:38 PM
 
 #include "Utility/StringId.hpp"
 #include "Core/ResourcesCommon.hpp"
+#include "Core/Common.hpp"
 #include "ECS/ECS.hpp"
 #include <cereal/cereal.hpp>
 #include <set>
@@ -71,6 +72,9 @@ namespace Lina::Resources
 
 		bool Export(const std::string& path, ECS::Registry& ecs);
 		bool LoadFromFile(const std::string& path, ECS::Registry& ecs);
+
+		static void ExportLevel(const std::string& path, const std::string& name, LevelData& levelData);
+		static void ImportLevel(const std::string& path, const std::string& name, LevelData& levelData);
 
 		template<class Archive>
 		void serialize(Archive& archive)

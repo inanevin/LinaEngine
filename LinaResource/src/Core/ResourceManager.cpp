@@ -39,7 +39,7 @@ namespace Lina::Resources
 	static float t = 0.0f;
 	static bool loaded = false;
 
-
+	ResourceManager* ResourceManager::s_resourceManager = nullptr;
 
 	void ResourceManager::DebugLevelLoad(Event::ETick& e)
 	{
@@ -47,25 +47,15 @@ namespace Lina::Resources
 		if (!loaded && t > 3.0f)
 		{
 			loaded = true;
-			ExportLevel("", "default");
+			// ExportLevel("", "default");
 		}
-	}
-
-	void ResourceManager::SetReferences(Event::EventSystem* eventSys, ECS::Registry* ecs)
-	{
-		m_eventSys = eventSys;
-		m_ecs = ecs;
-		m_eventSys->Connect<Event::EStartGame, &ResourceManager::OnStartGame>(this);
-		m_eventSys->Connect<Event::EAppLoad, &ResourceManager::OnAppLoad>(this);
-		m_eventSys->Connect<Event::EEndGame, &ResourceManager::OnEndGame>(this);
-		m_eventSys->Connect<Event::ETick, &ResourceManager::DebugLevelLoad>(this);
 	}
 
 	void ResourceManager::OnStartGame(Event::EStartGame& e)
 	{
 		LINA_TRACE("[Resource Manager] -> Startup");
 
-		
+
 	}
 
 	void ResourceManager::OnEndGame(Event::EEndGame& e)
@@ -101,7 +91,7 @@ namespace Lina::Resources
 			switch (type)
 			{
 			case ResourceType::Image:
-			//	Graphics::Texture::CreateTexture2D(file.m_fullPath);
+				//	Graphics::Texture::CreateTexture2D(file.m_fullPath);
 				break;
 
 			case ResourceType::HDR:
@@ -137,7 +127,7 @@ namespace Lina::Resources
 		m_activeLevel.AddUsedResource("Resources/Shaders/vert.spv");
 
 		// If we are in editor, fill our resource bundle with all the files imported in the project's Resources directory.
-		if (m_appMode == ApplicationMode::Editor )
+		if (m_appMode == ApplicationMode::Editor)
 		{
 			m_currentProgressData.m_state = ResourceProgressState::Pending;
 
@@ -169,12 +159,24 @@ namespace Lina::Resources
 
 			m_future = m_executor.run(m_taskflow);
 		}
-		else
-			ImportLevel("", "default");
+		//	else
+		//		ImportLevel("", "default");
 	}
 
-	void ResourceManager::ImportLevel(const std::string& path, const std::string& levelName)
+	void ResourceManager::ImportLevel(const std::string& path, const std::string& levelName, LevelData& levelData)
 	{
+		
+		if (!Utility::FileExists(path + "/" + levelName + ".linalevel"))
+		{
+			LINA_ERR("Level you are trying to load does not exists. {0}, {1}", path, levelName);
+			return;
+		}
+
+		LevelResource::ImportLevel(path, levelName, levelData);
+
+
+		
+		return;
 		// TODO: Unload current level.
 
 		// Make sure we set state before multithreading.
@@ -236,8 +238,12 @@ namespace Lina::Resources
 
 	}
 
-	void ResourceManager::ExportLevel(const std::string& path, const std::string& levelName)
+	void ResourceManager::ExportLevel(const std::string& path, const std::string& levelName, LevelData& levelData)
 	{
+
+		LevelResource::ExportLevel(path, levelName, levelData);
+
+		return;
 		// Make sure we don't have any packing/unpacking going on.
 		m_taskflow.clear();
 		m_executor.wait_for_all();

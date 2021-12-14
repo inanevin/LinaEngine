@@ -83,4 +83,38 @@ namespace Lina::Resources
 		return true;		
     }
 
+	void LevelResource::ExportLevel(const std::string& path, const std::string& name, LevelData& levelData)
+	{
+		Lina::ECS::Registry* registry = ECS::Registry::Get();
+		{
+
+			std::ofstream levelDataStream(path + "/" + name + ".linalevel", std::ios::binary);
+			{
+				cereal::PortableBinaryOutputArchive oarchive(levelDataStream); // Build an output archive
+				//
+				oarchive(levelData); // write the level data to the archive.
+				registry->SerializeComponentsInRegistry(oarchive);
+			}
+		}
+	}
+
+	void LevelResource::ImportLevel(const std::string& path, const std::string& name, LevelData& levelData)
+	{
+		Lina::ECS::Registry* registry = ECS::Registry::Get();
+
+		{
+			std::ifstream levelDataStream(path + "/" + name + ".linalevel", std::ios::binary);
+			{
+				cereal::PortableBinaryInputArchive iarchive(levelDataStream);
+
+				// Read the data into it.
+				iarchive(levelData);
+
+				registry->clear();
+				registry->DeserializeComponentsInRegistry(iarchive);
+			}
+		}
+	}
+
+
 }

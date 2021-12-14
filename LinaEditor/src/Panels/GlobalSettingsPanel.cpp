@@ -73,7 +73,7 @@ namespace Lina::Editor
 
 			if (m_currentLevel != nullptr)
 			{
-				Lina::World::LevelData& levelData = m_currentLevel->GetLevelData();
+				Lina::LevelData& levelData = m_currentLevel->GetLevelData();
 
 				ImGui::SetCursorPosX(cursorPosLabels);
 				WidgetsUtility::IncrementCursorPosY(11);

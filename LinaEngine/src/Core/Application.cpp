@@ -33,6 +33,7 @@ SOFTWARE.
 #include "World/DefaultLevel.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/Events.hpp"
+#include "Utility/UtilityFunctions.hpp"
 
 #ifdef LINA_WINDOWS
 #include <windows.h>
@@ -51,7 +52,7 @@ namespace Lina
 		s_application = this;
 		m_engine.s_engine = &m_engine;
 		Log::s_onLogSink.connect<&Application::OnLog>(this);
-	
+
 	}
 
 	void Application::Initialize(ApplicationInfo& appInfo)
@@ -124,7 +125,12 @@ namespace Lina
 
 	bool Application::InstallLevel(Lina::World::Level& level, bool loadFromFile, const std::string& path, const std::string& levelName)
 	{
+
 		UninstallLevel();
+
+		// New levels are created with path as ""
+		if (path.compare("") != 0)
+			Resources::ResourceManager::Get()->ImportLevel(path, levelName, level.GetLevelData());
 
 		bool install = level.Install(loadFromFile, path, levelName);
 		m_currentLevel = &level;
@@ -143,7 +149,7 @@ namespace Lina
 	void Application::SaveLevelData(const std::string& folderPath, const std::string& fileName)
 	{
 		if (m_currentLevel != nullptr)
-			m_currentLevel->SerializeLevelData(folderPath, fileName);
+			Resources::ResourceManager::Get()->ExportLevel(folderPath, fileName, m_currentLevel->GetLevelData());
 	}
 
 	void Application::LoadLevelData(const std::string& folderPath, const std::string& fileName)

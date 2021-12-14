@@ -56,11 +56,11 @@ namespace Lina::World
 		{
 			if (Lina::Utility::FileExists(path + "/" + levelName + ".linalevel"))
 			{
-				DeserializeLevelData(path, levelName);
+				//DeserializeLevelData(path, levelName);
 				LoadLevelResources();
-
+		
 			}
-		}
+		 }
 		return true;
 	}
 

@@ -62,7 +62,7 @@ namespace Lina
 		Graphics::RenderEngineBackend::s_renderEngine = &m_renderEngine;
 		Physics::PhysicsEngineBackend::s_physicsEngine = &m_physicsEngine;
 		Input::InputEngineBackend::s_inputEngine = &m_inputEngine;
-
+		Resources::ResourceManager::s_resourceManager = &m_resourceManager;
 
 		m_appInfo = appInfo;
 		m_eventSystem.Initialize();

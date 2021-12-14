@@ -69,16 +69,13 @@ namespace Lina::Resources
 	class ResourceManager
 	{
 
-	private:
-
-
-
-		void SetReferences(Event::EventSystem* eventSys, ECS::Registry* ecs);
 
 	public:
 
-		void ImportLevel(const std::string& path, const std::string& levelName);
-		void ExportLevel(const std::string& path, const std::string& levelName);
+		static ResourceManager* Get() { return s_resourceManager; }
+
+		void ImportLevel(const std::string& path, const std::string& levelName, LevelData& levelData);
+		void ExportLevel(const std::string& path, const std::string& levelName, LevelData& levelData);
 
 		// Queries current progress data, useful for showing progress information.
 		ResourceProgressData& GetCurrentProgressData() { return m_currentProgressData; }
@@ -112,6 +109,7 @@ namespace Lina::Resources
 
 	private:
 
+		static ResourceManager* s_resourceManager ;
 		Event::EventSystem* m_eventSys = nullptr;
 		ECS::Registry* m_ecs = nullptr;
 		ResourceProgressData m_currentProgressData;
