@@ -145,9 +145,9 @@ namespace Lina::World
 							if (Utility::FileExists(it->second.m_paramsPath))
 								samplerParams = Graphics::Texture::LoadParameters(it->second.m_paramsPath);
 
-							Graphics::Texture& texture = Graphics::Texture::CreateTexture2D(it->second.m_path, samplerParams, false, false, it->second.m_paramsPath);
-
-							mat.SetTexture(it->first, &texture, it->second.m_bindMode);
+							//Graphics::Texture& texture = Graphics::Texture::CreateTexture2D(it->second.m_path, samplerParams, false, false, it->second.m_paramsPath);
+							//
+							//mat.SetTexture(it->first, &texture, it->second.m_bindMode);
 						}
 					}
 				}

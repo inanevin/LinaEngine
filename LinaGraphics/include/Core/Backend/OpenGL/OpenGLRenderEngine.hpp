@@ -145,7 +145,10 @@ namespace Lina::Graphics
 
 	private:
 
-		void OnModelResourceLoaded(Event::EModelResourceLoaded event);
+		void OnLoadModelResourceFromFile(Event::ELoadModelResourceFromFile event);
+		void OnLoadImageResourceFromFile(Event::ELoadImageResourceFromFile event);
+		void OnLoadMaterialResourceFromFile(Event::ELoadMaterialResourceFromFile event);
+		void OnLoadShaderResourceFromFile(Event::ELoadShaderResourceFromFile event);
 		void OnPhysicsDraw(Event::EDrawPhysicsDebug event);
 		void OnWindowResized(Event::EWindowResized event);
 		void ConstructEngineShaders();

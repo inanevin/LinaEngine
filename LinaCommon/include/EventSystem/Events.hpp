@@ -44,6 +44,7 @@ Timestamp: 12/24/2020 7:02:11 PM
 #include "Math/Vector.hpp"
 #include "Math/Color.hpp"
 #include "Core/Common.hpp"
+#include <string>
 
 #define MT_DISPATCHER_COUNT 4
 
@@ -114,10 +115,15 @@ namespace Lina::Event
 	struct ELevelInitialized { };
 
 	// Resources.
-	struct EAudioResourceLoaded { StringIDType m_sid;  void* m_data; int m_dataSize; int m_format; float m_freq; };
-	struct EImageResourceLoaded { StringIDType m_sid;  unsigned char* m_data; int32_t m_width; int32_t m_height; };
-	struct EModelResourceLoaded { StringIDType m_sid; std::string m_path; std::string m_paramsPath; void* m_scene; ModelParameters m_params; };
-	struct EShaderResourceLoaded { StringIDType m_sid; const char* m_data; size_t m_dataSize; };
+	//struct EAudioResourceLoaded { StringIDType m_sid;  void* m_data; int m_dataSize; int m_format; float m_freq; };
+	//struct EImageResourceLoaded { StringIDType m_sid;  unsigned char* m_data; int32_t m_width; int32_t m_height; };
+	//struct EModelResourceLoaded { StringIDType m_sid; std::string m_path; std::string m_paramsPath; void* m_scene; ModelParameters m_params; };
+	//struct EShaderResourceLoaded { StringIDType m_sid; const char* m_data; size_t m_dataSize; };
+	struct ELoadModelResourceFromFile { std::string m_path; std::string m_paramsPath; };
+	struct ELoadImageResourceFromFile { std::string m_path; std::string m_paramsPath; };
+	struct ELoadMaterialResourceFromFile { std::string m_path; std::string m_paramsPath; };
+	struct ELoadAudioResourceFromFile { std::string m_path; std::string m_paramsPath; };
+	struct ELoadShaderResourceFromFile { std::string m_path; std::string m_paramsPath; };
 	struct EResourceProgressStarted {};
 	struct EResourceProgressEnded {};
 }

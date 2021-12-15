@@ -231,8 +231,6 @@ namespace Lina::Graphics
 		// Delete pixel data.
 		delete textureBitmap;
 
-		LINA_TRACE("Texture created. {0}", filePath);
-
 		// Return
 		return *s_loadedTextures[sid];
 	}

@@ -47,30 +47,24 @@ namespace Lina::Graphics
 		m_materialSpecArray.clear();
 	}
 
-	Model& Model::CreateModel(StringIDType sid, const void* scene, ModelParameters meshParams, const std::string& filePath, const std::string& paramsPath)
+	ModelParameters Model::LoadParameters(const std::string& path)
 	{
-		Model& model = s_loadedModels[sid];
-		model.SetParameters(meshParams);
-		ModelLoader::LoadModel(scene, model);
-
-		if (model.GetMeshes().size() == 0)
+		ModelParameters params;
+		std::ifstream stream(path);
 		{
-			LINA_WARN("Indexed model array is empty! The model with the name: {0} could not be found or model scene does not contain any mesh! Returning plane quad...");
-			UnloadModel(sid);
-			return s_loadedModels[0];
+			cereal::BinaryInputArchive iarchive(stream);
+			iarchive(params);
 		}
+		return params;
+	}
 
-		// Build vertex array for each model.
-		for (uint32 i = 0; i < model.GetMeshes().size(); i++)
+	void Model::SaveParameters(const std::string& path, ModelParameters params)
+	{
+		std::ofstream stream(path);
 		{
-			model.GetMeshes()[i].CreateVertexArray( BufferUsage::USAGE_DYNAMIC_DRAW);
+			cereal::BinaryOutputArchive oarchive(stream);
+			oarchive(params); 
 		}
-
-		// Set id
-		model.m_meshID = sid;
-		model.m_path = filePath;
-		model.m_paramsPath = paramsPath;
-		return s_loadedModels[sid];
 	}
 
 	Model& Model::CreateModel(const std::string& filePath, ModelParameters meshParams,  const std::string& paramsPath)
@@ -98,8 +92,6 @@ namespace Lina::Graphics
 		model.m_meshID = id;
 		model.m_path = filePath;
 		model.m_paramsPath = paramsPath;
-
-		LINA_TRACE("[Mesh Loader] -> Mesh loaded from file: {0}", filePath);
 		return s_loadedModels[id];
 	}
 

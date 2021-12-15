@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -68,6 +68,8 @@ namespace Lina
 		m_eventSystem.Initialize();
 		m_inputEngine.Initialize();
 
+	
+
 		// Build main window.
 		bool windowCreationSuccess = m_window.CreateContext(appInfo);
 		if (!windowCreationSuccess)
@@ -103,12 +105,14 @@ namespace Lina
 		m_deltaTimeArray.fill(-1.0);
 		m_isInPlayMode = true;
 
-		LINA_WARN("Loading Editor Resources");
-		m_resourceManager.LoadEditorResources();
+
+		if (appInfo.m_appMode == ApplicationMode::Editor)
+			m_resourceManager.LoadEditorResources();
+
 	}
 
 	void Engine::Run()
-    {
+	{
 		m_running = true;
 		m_startTime = Utility::GetCPUTime();
 
@@ -175,42 +179,42 @@ namespace Lina
 		PROFILER_DUMP("profile.prof");
 		Timer::UnloadTimers();
 
-    }
-    void Engine::UpdateGame(float deltaTime)
-    {
-        PROFILER_FUNC("Engine Tick");
+	}
+	void Engine::UpdateGame(float deltaTime)
+	{
+		PROFILER_FUNC("Engine Tick");
 
-        m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{ (float)m_rawDeltaTime, m_isInPlayMode });
+		m_eventSystem.Trigger<Event::EPreTick>(Event::EPreTick{ (float)m_rawDeltaTime, m_isInPlayMode });
 
-        // Physics events & physics tick.
-        m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{});
-        m_physicsEngine.Tick(0.02);
-        m_eventSystem.Trigger<Event::EPhysicsTick>(Event::EPhysicsTick{ PHYSICS_DELTA, m_isInPlayMode });
-        m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{ PHYSICS_DELTA, m_isInPlayMode });
+		// Physics events & physics tick.
+		m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{});
+		m_physicsEngine.Tick(0.02);
+		m_eventSystem.Trigger<Event::EPhysicsTick>(Event::EPhysicsTick{ PHYSICS_DELTA, m_isInPlayMode });
+		m_eventSystem.Trigger<Event::EPrePhysicsTick>(Event::EPrePhysicsTick{ PHYSICS_DELTA, m_isInPlayMode });
 
-        // Other main systems (engine or game)
-        m_mainECSPipeline.UpdateSystems(deltaTime);
+		// Other main systems (engine or game)
+		m_mainECSPipeline.UpdateSystems(deltaTime);
 
-        // Animation, particle systems.
-        m_renderEngine.Tick(deltaTime);
+		// Animation, particle systems.
+		m_renderEngine.Tick(deltaTime);
 
-        m_eventSystem.Trigger<Event::ETick>(Event::ETick{ (float)m_rawDeltaTime, m_isInPlayMode });
-        m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{ (float)m_rawDeltaTime, m_isInPlayMode });
-    }
-    void Engine::DisplayGame(float interpolation)
-    {
-        PROFILER_FUNC("Engine Render");
+		m_eventSystem.Trigger<Event::ETick>(Event::ETick{ (float)m_rawDeltaTime, m_isInPlayMode });
+		m_eventSystem.Trigger<Event::EPostTick>(Event::EPostTick{ (float)m_rawDeltaTime, m_isInPlayMode });
+	}
+	void Engine::DisplayGame(float interpolation)
+	{
+		PROFILER_FUNC("Engine Render");
 
-        if (m_canRender)
-        {
-            m_eventSystem.Trigger<Event::EPreRender>(Event::EPreRender{});
-            m_renderEngine.Render(interpolation);
-            m_eventSystem.Trigger<Event::EPostRender>(Event::EPostRender{});
-            m_window.Tick();
-        }
-    }
-    void Engine::RemoveOutliers(bool biggest)
-    {
+		if (m_canRender)
+		{
+			m_eventSystem.Trigger<Event::EPreRender>(Event::EPreRender{});
+			m_renderEngine.Render(interpolation);
+			m_eventSystem.Trigger<Event::EPostRender>(Event::EPostRender{});
+			m_window.Tick();
+		}
+	}
+	void Engine::RemoveOutliers(bool biggest)
+	{
 		double outlier = biggest ? 0 : 10;
 		int outlierIndex = -1;
 		int indexCounter = 0;
@@ -244,9 +248,9 @@ namespace Lina
 
 		if (outlierIndex != -1)
 			m_deltaTimeArray[outlierIndex] = m_deltaTimeArray[outlierIndex] * -1.0;
-    }
-    double Engine::SmoothDeltaTime(double dt)
-    {
+	}
+	double Engine::SmoothDeltaTime(double dt)
+	{
 
 		if (m_deltaFirstFill < DELTA_TIME_HISTORY)
 		{
@@ -289,6 +293,6 @@ namespace Lina
 		avg /= DELTA_TIME_HISTORY - 4;
 
 		return avg;
-    }
- 
+	}
+
 }

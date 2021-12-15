@@ -73,6 +73,8 @@ namespace Lina::Resources
 
 	void ResourceManager::LoadEditorResources()
 	{
+		LINA_WARN("[Resource Manager] -> Loading Editor Resources");
+
 		m_currentProgressData.m_state = ResourceProgressState::Pending;
 
 		// Find resources.

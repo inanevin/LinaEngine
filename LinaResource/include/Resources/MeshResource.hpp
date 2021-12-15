@@ -42,7 +42,6 @@ Timestamp: 12/19/2020 2:28:46 AM
 
 // Headers here.
 #include "Utility/StringId.hpp"
-#include "Core/Common.hpp"
 
 namespace Lina
 {
@@ -61,10 +60,10 @@ namespace Lina::Resources
 
 	public:
 
-		static bool LoadFromMemory(StringIDType sid, unsigned char* buffer, size_t bufferSize, ModelParameters& params);
-		static bool LoadFromFile(const std::string& path, const std::string& paramsPath, ModelParameters& params);
-		static bool LoadParamsFromFile(const std::string& path, ModelParameters& params);
-		static bool SaveParamsToFile(const std::string& path, ModelParameters& params);
+		//static bool LoadFromMemory(StringIDType sid, unsigned char* buffer, size_t bufferSize, ModelParameters& params);
+		//static bool LoadFromFile(const std::string& path, const std::string& paramsPath, ModelParameters& params);
+		//static bool LoadParamsFromFile(const std::string& path, ModelParameters& params);
+		//static bool SaveParamsToFile(const std::string& path, ModelParameters& params);
 
 	private:
 

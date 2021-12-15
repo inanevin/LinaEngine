@@ -144,6 +144,8 @@ namespace Lina::Resources
 		// InitializeVulkan the corresponding package class from memory.
 		if (type == ResourceType::Image)
 		{
+			std::string paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
+			Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ file.m_fullPath, paramsPath });
 			//ImageResource* img = new ImageResource();
 			//if (img->LoadFromFile(path))
 			//	m_imagePackage[StringID(path.c_str()).value()] = img;
@@ -152,17 +154,18 @@ namespace Lina::Resources
 		}
 		else if (type == ResourceType::Mesh)
 		{
-			std::string paramsPath = "";
-			paramsPath = file.m_folderPath + file.m_pureName + ".modelparams";
-			ModelParameters params;
+			std::string paramsPath = file.m_folderPath + file.m_pureName + ".modelparams";
+			Event::EventSystem::Get()->Trigger<Event::ELoadModelResourceFromFile>( Event::ELoadModelResourceFromFile{ file.m_fullPath, paramsPath} );
 
-			// Load the parameters first if it exists.
-			if (Utility::FileExists(paramsPath))
-				MeshResource::LoadParamsFromFile(paramsPath, params);
-			else
-				MeshResource::SaveParamsToFile(paramsPath, params);
-
-			MeshResource::LoadFromFile(file.m_fullPath, paramsPath, params);
+			//ModelParameters params;
+			//
+			//// Load the parameters first if it exists.
+			//if (Utility::FileExists(paramsPath))
+			//	MeshResource::LoadParamsFromFile(paramsPath, params);
+			//else
+			//	MeshResource::SaveParamsToFile(paramsPath, params);
+			//
+			//MeshResource::LoadFromFile(file.m_fullPath, paramsPath, params);
 		}
 		else if (type == ResourceType::Audio)
 		{

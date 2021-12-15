@@ -66,7 +66,7 @@ namespace Lina::Editor
 	private:
 	
 		Lina::Graphics::Model* m_selectedMesh = nullptr;
-		Lina::ModelParameters m_selectedParams;
+		Lina::Graphics::ModelParameters m_selectedParams;
 	};
 }
 

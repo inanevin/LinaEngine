@@ -320,17 +320,14 @@ namespace Lina::Editor
 			params.m_textureParams.m_wrapS = selectedWrapS;
 			params.m_textureParams.m_wrapT = selectedWrapT;
 			SamplerParameters newParams = params;
-
 			std::string filePath = m_selectedTexture->GetPath();
 			std::string paramsPath = m_selectedTexture->GetParamsPath();
-			Lina::Graphics::Texture* reimportedTexture = &Lina::Graphics::Texture::CreateTexture2D(filePath, newParams, false, false, paramsPath);
-
+			Lina::Graphics::Texture::SaveParameters(paramsPath, newParams);
+			Lina::Graphics::Texture::UnloadTextureResource(m_selectedTexture->GetSID());
+			Lina::Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ filePath, paramsPath });
+			Lina::Graphics::Texture* reimportedTexture = &Lina::Graphics::Texture::GetTexture(filePath);
 			auto pair = std::make_pair(m_selectedTexture, reimportedTexture);
 			Lina::Event::EventSystem::Get()->Trigger<ETextureReimported>(ETextureReimported{m_selectedTexture, reimportedTexture});
-
-			Lina::Graphics::Texture::UnloadTextureResource(m_selectedTexture->GetSID());
-			Lina::Graphics::Texture::SaveParameters(paramsPath, newParams);
-
 			SetSelectedTexture(reimportedTexture);
 		}
 

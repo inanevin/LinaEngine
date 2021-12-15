@@ -60,7 +60,8 @@ namespace Lina::Graphics
 		Model() {};
 		virtual ~Model();
 
-		static Model& CreateModel(StringIDType sid, const void* scene, ModelParameters meshParams = ModelParameters(), const std::string& filePath = "", const std::string & paramsPath = "");
+		static ModelParameters LoadParameters(const std::string& path);
+		static void SaveParameters(const std::string& path, ModelParameters params);
 		static Model& CreateModel(const std::string& filePath, ModelParameters meshParams = ModelParameters(), const std::string& paramsPath = "");
 		static Model& GetModel(StringIDType id);
 		static Model& GetModel(const std::string& path);

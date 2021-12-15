@@ -39,7 +39,7 @@ SOFTWARE.
 
 namespace Lina::Resources
 {
-
+	/*
 	bool MeshResource::LoadFromMemory(StringIDType sid, unsigned char* buffer, size_t bufferSize, ModelParameters& params)
 	{
 		// Get the importer & set assimp scene.
@@ -138,5 +138,5 @@ namespace Lina::Resources
 
 		return true;
 	}
-
+	*/
 }

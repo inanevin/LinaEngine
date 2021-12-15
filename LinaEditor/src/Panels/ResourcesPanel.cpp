@@ -470,15 +470,15 @@ namespace Lina::Editor
 
 				if (!textureExists)
 				{
-					Lina::Graphics::SamplerParameters samplerParams;
-					std::string samplerParamsPath = file.m_pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.m_name) + ".samplerparams";
-
-					if (Lina::Utility::FileExists(samplerParamsPath))
-						samplerParams = Lina::Graphics::Texture::LoadParameters(samplerParamsPath);
-
-					Lina::Graphics::Texture::CreateTexture2D(file.m_path, samplerParams, false, false, samplerParamsPath);
-
-					Lina::Graphics::Texture::SaveParameters(samplerParamsPath, samplerParams);
+					//Lina::Graphics::SamplerParameters samplerParams;
+					//std::string samplerParamsPath = file.m_pathToFolder + EditorUtility::RemoveExtensionFromFilename(file.m_name) + ".samplerparams";
+					//
+					//if (Lina::Utility::FileExists(samplerParamsPath))
+					//	samplerParams = Lina::Graphics::Texture::LoadParameters(samplerParamsPath);
+					//
+					//Lina::Graphics::Texture::CreateTexture2D(file.m_path, samplerParams, false, false, samplerParamsPath);
+					//
+					//Lina::Graphics::Texture::SaveParameters(samplerParamsPath, samplerParams);
 				}
 			}
 			if (file.m_type == FileType::HDRI)

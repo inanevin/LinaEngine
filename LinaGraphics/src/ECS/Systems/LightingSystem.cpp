@@ -47,19 +47,21 @@ namespace Lina::ECS
 		m_renderDevice = m_renderEngine->GetRenderDevice();
 		m_appMode = appMode;
 
-		if (m_appMode == Lina::ApplicationMode::Editor)
-		{
-			// Create debug icon textures for lights
-			pLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/pLightIcon.png").GetSID();
-			sLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/sLightIcon.png").GetSID();
-			dLightIconID = Graphics::Texture::CreateTexture2D("resources/engine/textures/dLightIcon.png").GetSID();
-		}
+		
 	}
 
 
 
 	void LightingSystem::UpdateComponents(float delta)
 	{
+		if (m_appMode == Lina::ApplicationMode::Editor || pLightIconID == -1)
+		{
+			// Create debug icon textures for lights
+			pLightIconID = Graphics::Texture::GetTexture("resources/engine/textures/pLightIcon.png").GetSID();
+			sLightIconID = Graphics::Texture::GetTexture("resources/engine/textures/sLightIcon.png").GetSID();
+			dLightIconID = Graphics::Texture::GetTexture("resources/engine/textures/dLightIcon.png").GetSID();
+		}
+
 		// Flush lights every update.
 		std::get<0>(m_directionalLight) = nullptr;
 		std::get<1>(m_directionalLight) = nullptr;

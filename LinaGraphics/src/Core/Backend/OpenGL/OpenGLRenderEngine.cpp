@@ -41,6 +41,7 @@ SOFTWARE.
 #include "Core/Backend/OpenGL/OpenGLRenderDevice.hpp"
 #include "Helpers/DrawParameterHelper.hpp"
 #include "Core/Timer.hpp"
+#include "..\..\..\..\include\Core\Backend\OpenGL\OpenGLRenderEngine.hpp"
 
 namespace Lina::Graphics
 {
@@ -76,7 +77,10 @@ namespace Lina::Graphics
 
 		m_eventSystem->Connect<Event::EWindowResized, &OpenGLRenderEngine::OnWindowResized>(this);
 		m_eventSystem->Connect<Event::EDrawPhysicsDebug, &OpenGLRenderEngine::OnPhysicsDraw>(this);
-		m_eventSystem->Connect<Event::EModelResourceLoaded, &OpenGLRenderEngine::OnModelResourceLoaded>(this);
+		m_eventSystem->Connect<Event::ELoadModelResourceFromFile, &OpenGLRenderEngine::OnLoadModelResourceFromFile>(this);
+		m_eventSystem->Connect<Event::ELoadMaterialResourceFromFile, &OpenGLRenderEngine::OnLoadMaterialResourceFromFile>(this);
+		m_eventSystem->Connect<Event::ELoadImageResourceFromFile, &OpenGLRenderEngine::OnLoadImageResourceFromFile>(this);
+		m_eventSystem->Connect<Event::ELoadShaderResourceFromFile, &OpenGLRenderEngine::OnLoadShaderResourceFromFile>(this);
 
 		// Flip loaded images.
 		ArrayBitmap::SetImageFlip(true);
@@ -242,10 +246,43 @@ namespace Lina::Graphics
 		}
 
 	}
-
-	void OpenGLRenderEngine::OnModelResourceLoaded(Event::EModelResourceLoaded event)
+	
+	void OpenGLRenderEngine::OnLoadModelResourceFromFile(Event::ELoadModelResourceFromFile event)
 	{
-		Model::CreateModel(event.m_sid, event.m_scene, event.m_params, event.m_path, event.m_paramsPath);
+		ModelParameters params;
+
+		LINA_TRACE("[Model Loader] -> Loading model: {0}", event.m_path);
+
+		if (Utility::FileExists(event.m_paramsPath))
+			params = Model::LoadParameters(event.m_paramsPath);
+		else
+			Model::SaveParameters(event.m_paramsPath, params);
+
+		Model::CreateModel(event.m_path, params, event.m_paramsPath);
+	}
+
+	void OpenGLRenderEngine::OnLoadImageResourceFromFile(Event::ELoadImageResourceFromFile event)
+	{
+		SamplerParameters params;
+		LINA_TRACE("[Texture Loader] -> Loading texture: {0}", event.m_path);
+
+		bool paramsExists = Utility::FileExists(event.m_paramsPath);
+
+		if (paramsExists)
+			params = Texture::LoadParameters(event.m_paramsPath);
+
+		Texture::CreateTexture2D(event.m_path, params, false, false, event.m_paramsPath);
+
+		if (!paramsExists)
+			Texture::SaveParameters(event.m_paramsPath, params);
+	}
+
+	void OpenGLRenderEngine::OnLoadMaterialResourceFromFile(Event::ELoadMaterialResourceFromFile event)
+	{
+	}
+
+	void OpenGLRenderEngine::OnLoadShaderResourceFromFile(Event::ELoadShaderResourceFromFile event)
+	{
 	}
 
 	void OpenGLRenderEngine::OnPhysicsDraw(Event::EDrawPhysicsDebug event)
