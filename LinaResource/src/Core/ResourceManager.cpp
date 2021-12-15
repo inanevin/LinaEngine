@@ -71,6 +71,15 @@ namespace Lina::Resources
 	}
 
 
+	void ResourceManager::AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder& folder)
+	{
+		for (auto& childFolder : folder.m_folders)
+			AddAllResourcesToPack(resources, childFolder);
+
+		for (auto& file : folder.m_files)
+			resources.push_back(file.m_fullPath);
+	}
+
 	void ResourceManager::LoadEditorResources()
 	{
 		LINA_WARN("[Resource Manager] -> Loading Editor Resources");
@@ -173,73 +182,25 @@ namespace Lina::Resources
 
 	void ResourceManager::ExportLevel(const std::string& path, const std::string& levelName, LevelData& levelData)
 	{
-
 		// Setup progress data.
 		m_currentProgressData.m_state = ResourceProgressState::InProgress;
 		m_currentProgressData.m_progressTitle = "Exporting level...";
 		m_currentProgressData.m_currentResourceName = levelName + ".linalevel";
 		LevelResource::ExportLevel(path, levelName, levelData);
+	}
 
+	void ResourceManager::PackageProject(const std::string& path, const std::string& levelName)
+	{
 		// Find out which resources to export.
 		std::vector<std::string> filesToPack;
 
-
-
+		Utility::Folder root;
+		root.m_fullPath = "resources/";
+		Utility::ScanFolder(root);
+		AddAllResourcesToPack(filesToPack, root);
+		
 		// Export resources.
-		m_packager.PackageFileset(filesToPack, path + levelName + ".linabundle", PACKAGE_PASS, &m_currentProgressData);
-
-		return;
-		// Make sure we don't have any packing/unpacking going on.
-		m_taskflow.clear();
-		m_executor.wait_for_all();
-
-		// Pack the bundle associated with this level, on a seperate thread.
-		m_taskflow.emplace([=]()
-			{
-				m_eventSys->Trigger<Event::EResourceProgressStarted>();
-
-				// Export level first.
-				m_currentProgressData.m_state = ResourceProgressState::InProgress;
-				m_currentProgressData.m_progressTitle = "Exporting level...";
-				m_currentProgressData.m_currentResourceName = levelName + ".linalevel";
-				m_activeLevel.Export(path + levelName + ".linalevel", *m_ecs);
-
-				// Find out which resources to pack.
-				m_currentProgressData.m_progressTitle = "Packing resources...";
-				std::vector<std::string> filesToPack;
-				for (auto& resource : m_activeLevel.m_usedResources)
-					filesToPack.push_back(resource.data());
-
-				m_packager.PackageFileset(filesToPack, path + levelName + ".linabundle", PACKAGE_PASS, &m_currentProgressData);
-				m_eventSys->Trigger<Event::EResourceProgressEnded>();
-			});
-
-		m_future = m_executor.run(m_taskflow);
-
-	}
-
-	MaterialResource* ResourceManager::GetMaterialResource(StringIDType sid)
-	{
-		if (m_bundle.m_materialPackage.find(sid) != m_bundle.m_materialPackage.end())
-			return m_bundle.m_materialPackage[sid];
-		else return nullptr;
-	}
-
-	ShaderResource* ResourceManager::GetShaderResource(StringIDType sid)
-	{
-		if (m_bundle.m_shaderPackage.find(sid) != m_bundle.m_shaderPackage.end())
-			return m_bundle.m_shaderPackage[sid];
-		else return nullptr;
-	}
-
-	void ResourceManager::AddResourceReference(const std::string& path, ResourceType type)
-	{
-		m_activeLevel.AddUsedResource(path);
-	}
-
-	void ResourceManager::RemoveResourceReference(const std::string& path, ResourceType type)
-	{
-		m_activeLevel.RemoveUsedResource(path);
+		m_packager.PackageFileset(filesToPack, path + levelName + RESOURCEPACKAGE_EXTENSION, PACKAGE_PASS, &m_currentProgressData);
 	}
 
 }

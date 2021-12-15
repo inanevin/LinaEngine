@@ -56,6 +56,7 @@ namespace Lina
 
 		bool InstallLevel(Lina::World::Level& level, bool loadFromFile = false, const std::string& path = "", const std::string& levelName = "");
 		void InitializeLevel(Lina::World::Level& level);
+		void PackageProject(const std::string& folderPath, const std::string& fileName);
 		void SaveLevelData(const std::string& folderPath, const std::string& fileName);
 		void LoadLevelData(const std::string& folderPath, const std::string& fileName);
 		void RestartLevel();

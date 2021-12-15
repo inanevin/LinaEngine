@@ -146,6 +146,11 @@ namespace Lina
 		m_activeLevelExists = true;
 	}
 
+	void Application::PackageProject(const std::string& folderPath, const std::string& fileName)
+	{
+		Resources::ResourceManager::Get()->PackageProject(folderPath, fileName);
+	}
+
 	void Application::SaveLevelData(const std::string& folderPath, const std::string& fileName)
 	{
 		if (m_currentLevel != nullptr)

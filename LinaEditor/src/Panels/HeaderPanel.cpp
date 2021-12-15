@@ -90,6 +90,7 @@ namespace Lina::Editor
 		fileItems.emplace_back(new MenuItem(ICON_FA_FOLDER_PLUS, " New Project", nullptr));
 		fileItems.emplace_back(new MenuItem(ICON_FA_FOLDER_OPEN, " Open Project", nullptr));
 		fileItems.emplace_back(new MenuItem(ICON_FA_SAVE, " Save Project", nullptr));
+		fileItems.emplace_back(new MenuItem(ICON_FA_PALETTE, " Package Project", std::bind(&HeaderPanel::DispatchMenuBarClickedAction, this, MenuBarItems::PackageProject)));
 		m_menuBarButtons.push_back(new MenuButton(/*ICON_FA_FILE*/ "File", "pu_file", fileItems, HEADER_COLOR_BG, false));
 
 		// Edit menu.

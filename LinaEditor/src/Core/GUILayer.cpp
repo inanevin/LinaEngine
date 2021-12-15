@@ -261,6 +261,19 @@ namespace Lina::Editor
 		{
 
 		}
+		else if (item == MenuBarItems::PackageProject)
+		{
+			std::string fullPath = "";
+			fullPath = EditorUtility::SaveFile(".linabundle", Lina::Graphics::WindowBackend::Get()->GetNativeWindow());
+
+			if (fullPath.compare("") != 0)
+			{
+				size_t lastIndex = fullPath.find_last_of("/");
+				std::string folderPath = fullPath.substr(0, lastIndex);
+				std::string fileName = fullPath.substr(lastIndex + 1);
+				Lina::Application::Get().PackageProject(folderPath, fileName);
+			}
+		}
 
 		// Edit
 
@@ -299,6 +312,7 @@ namespace Lina::Editor
 				Lina::Application::Get().LoadLevelData(folderPath, fileName);
 			}
 		}
+
 
 		// Panels.
 		else if (item == MenuBarItems::ECSPanel)

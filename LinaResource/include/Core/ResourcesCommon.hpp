@@ -46,8 +46,7 @@ Timestamp: 12/19/2020 6:42:13 PM
 
 namespace Lina::Resources
 {
-#define RESOURCEPACKAGE_EXTENSION ".linapackage"
-#define IMAGEPACKAGE_PATH "Resources/Packages/images.linapackage"
+#define RESOURCEPACKAGE_EXTENSION ".linabundle"
 #define PACKAGE_PASS L"1234"
 
 

@@ -131,6 +131,7 @@ namespace Lina::Resources
 				{
 					char* chr = Utility::WCharToChar(file.c_str());
 					loadingData->m_currentResourceName = std::string(chr);
+					LINA_TRACE("[Packager] -> Packing {0}", loadingData->m_currentResourceName);
 					delete chr;
 				});
 
@@ -152,7 +153,7 @@ namespace Lina::Resources
 
 			// compress.
 			compressor.compress(wfiles, woutput);
-			LINA_TRACE("[Packager] -> Successfully packed files starting with: {0}", files[0]);
+			LINA_TRACE("[Packager] -> Successfully packed files.");
 		}
 		catch (const bit7z::BitException& ex)
 		{

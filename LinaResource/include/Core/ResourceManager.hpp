@@ -76,22 +76,11 @@ namespace Lina::Resources
 
 		void ImportLevel(const std::string& path, const std::string& levelName, LevelData& levelData);
 		void ExportLevel(const std::string& path, const std::string& levelName, LevelData& levelData);
-
+		void PackageProject(const std::string& path, const std::string& levelName);
+			
 		// Queries current progress data, useful for showing progress information.
 		ResourceProgressData& GetCurrentProgressData() { return m_currentProgressData; }
 
-		// Returns nullptr if not found.
-		MaterialResource* GetMaterialResource(StringIDType sid);
-
-		// Returns nullptr if not found.
-		ShaderResource* GetShaderResource(StringIDType sid);
-
-		// Adds a resource reference to current active level.
-		void AddResourceReference(const std::string& path, ResourceType type);
-
-		// Removes a resource reference from current active level.
-		void RemoveResourceReference(const std::string& path, ResourceType type);
-		
 	
 	private:
 
@@ -99,6 +88,7 @@ namespace Lina::Resources
 		ResourceManager() {};
 		~ResourceManager() {};
 
+		void AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder& folder);
 		void LoadEditorResources();
 		void DebugLevelLoad(Event::ETick& e);
 		void OnStartGame(Event::EStartGame& e);

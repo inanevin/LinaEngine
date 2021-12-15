@@ -67,6 +67,7 @@ namespace Lina::Editor
 		NewProject = 0,
 		LoadProject = 1,
 		SaveProject = 2,
+		PackageProject = 3,
 
 		Edit = 10,
 		View = 20,
