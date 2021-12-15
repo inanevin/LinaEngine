@@ -59,6 +59,8 @@ namespace Lina::Graphics
 		void SetUniformBuffer(const std::string& name, UniformBuffer& buffer);
 		void BindBlockToBuffer(uint32 bindingPoint, std::string blockName);
 
+		static void ClearShaderIncludes();
+		static void PushShaderInclude(const std::string& name, const std::string& text);
 		static Shader& CreateShader(const std::string& path, bool usesGeometryShader = false, unsigned char* data = nullptr, size_t dataSize = 0);
 		static Shader& GetShader(const std::string& path);
 		static Shader& GetShader(StringIDType id);
@@ -85,7 +87,7 @@ namespace Lina::Graphics
 		StringIDType m_sid;
 		std::string m_path = "";
 		static std::map<StringIDType, Shader*> s_loadedShaders;
-
+		static std::map<std::string, std::string> s_loadedShaderIncludes;
 	
 	};
 }

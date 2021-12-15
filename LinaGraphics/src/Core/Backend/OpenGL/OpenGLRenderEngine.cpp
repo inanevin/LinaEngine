@@ -75,10 +75,12 @@ namespace Lina::Graphics
 		m_eventSystem->Connect<Event::ELoadMaterialResourceFromFile, &OpenGLRenderEngine::OnLoadMaterialResourceFromFile>(this);
 		m_eventSystem->Connect<Event::ELoadImageResourceFromFile, &OpenGLRenderEngine::OnLoadImageResourceFromFile>(this);
 		m_eventSystem->Connect<Event::ELoadShaderResourceFromFile, &OpenGLRenderEngine::OnLoadShaderResourceFromFile>(this);
+		m_eventSystem->Connect<Event::ELoadShaderIncludeResourceFromFile, &OpenGLRenderEngine::OnLoadShaderIncludeResourceFromFile>(this);
 		m_eventSystem->Connect<Event::ELoadModelResourceFromMemory, &OpenGLRenderEngine::OnLoadModelResourceFromMemory>(this);
 		m_eventSystem->Connect<Event::ELoadMaterialResourceFromMemory, &OpenGLRenderEngine::OnLoadMaterialResourceFromMemory>(this);
 		m_eventSystem->Connect<Event::ELoadImageResourceFromMemory, &OpenGLRenderEngine::OnLoadImageResourceFromMemory>(this);
 		m_eventSystem->Connect<Event::ELoadShaderResourceFromMemory, &OpenGLRenderEngine::OnLoadShaderResourceFromMemory>(this);
+		m_eventSystem->Connect<Event::ELoadShaderIncludeResourceFromMemory, &OpenGLRenderEngine::OnLoadShaderIncludeResourceFromMemory>(this);
 	}
 
 	void OpenGLRenderEngine::Initialize(ApplicationMode appMode)
@@ -152,6 +154,7 @@ namespace Lina::Graphics
 		// Set debug values.
 		m_debugData.visualizeDepth = false;
 
+		Shader::ClearShaderIncludes();
 	}
 
 
@@ -303,6 +306,13 @@ namespace Lina::Graphics
 		}
 	}
 
+	void OpenGLRenderEngine::OnLoadShaderIncludeResourceFromFile(Event::ELoadShaderIncludeResourceFromFile event)
+	{
+		const std::string& name = Utility::GetFileNameOnly(Utility::GetFileWithoutExtension(event.m_path));
+		const std::string& text = Utility::GetFileContents(event.m_path);
+		Shader::PushShaderInclude(name, text);
+	}
+
 	void OpenGLRenderEngine::OnLoadModelResourceFromMemory(Event::ELoadModelResourceFromMemory event)
 	{
 		LINA_TRACE("[Model Loader] -> Loading (memory): {0}", event.m_path);
@@ -345,6 +355,10 @@ namespace Lina::Graphics
 			LINA_TRACE("[Shader Loader] -> Loading (memory): {0}", event.m_path);
 			ConstructShader(event.m_path, event.m_data, event.m_dataSize);
 		}
+	}
+
+	void OpenGLRenderEngine::OnLoadShaderIncludeResourceFromMemory(Event::ELoadShaderIncludeResourceFromMemory event)
+	{
 	}
 
 	void OpenGLRenderEngine::OnPhysicsDraw(Event::EDrawPhysicsDebug event)

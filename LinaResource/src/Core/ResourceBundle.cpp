@@ -145,12 +145,19 @@ namespace Lina::Resources
 			m_materials[path] = data;
 		else if (type == ResourceType::GLSL)
 			m_shaders[path] = data;
+		else if (type == ResourceType::GLH)
+			m_shaderIncludes[path] = data;
 
 		data.clear();
 	}
 
 	void ResourceBundle::LoadAllMemoryMaps()
 	{
+		
+		for (auto& shaderInc : m_shaderIncludes)
+		{
+
+		}
 		for (auto& shader : m_shaders)
 			Event::EventSystem::Get()->Trigger<Event::ELoadShaderResourceFromMemory>(Event::ELoadShaderResourceFromMemory{ shader.first, &shader.second[0], shader.second.size() });
 
@@ -241,6 +248,10 @@ namespace Lina::Resources
 		for (auto v : m_shaders)
 			v.second.clear();
 
+		for (auto v : m_shaderIncludes)
+			v.second.clear();
+
+		m_shaderIncludes.clear();
 		m_shaders.clear();
 		m_materials.clear();
 		m_audioParameters.clear();
@@ -251,11 +262,11 @@ namespace Lina::Resources
 		m_modelParameters.clear();
 	}
 
-	void ResourceBundle::LoadResourcesInFolder(Utility::Folder& root, ResourceProgressData* progData, ResourceType onlyLoad, ResourceType exclude)
+	void ResourceBundle::LoadResourcesInFolder(Utility::Folder& root, ResourceProgressData* progData, const std::vector<ResourceType>& excludes, ResourceType onlyLoad)
 	{
 		for (auto& folder : root.m_folders)
 		{
-			LoadResourcesInFolder(folder, progData, onlyLoad, exclude);
+			LoadResourcesInFolder(folder, progData, excludes, onlyLoad);
 		}
 
 		// Initialize each file into memory where they will persist during the editor lifetime.
@@ -266,8 +277,14 @@ namespace Lina::Resources
 			if (onlyLoad != ResourceType::Unknown && resType != onlyLoad)
 				continue;
 
-			if (exclude != ResourceType::Unknown && resType == exclude)
-				continue;
+			if (excludes.size() != 0)
+			{
+				for (const auto rt : excludes)
+				{
+					if (resType == rt)
+						continue;
+				}
+			}
 
 			LoadResourceFromFile(file, resType, progData);
 			progData->m_currentResourceName = file.m_fullPath;
@@ -279,32 +296,39 @@ namespace Lina::Resources
 	{
 		if (type == ResourceType::Image)
 		{
-			//std::string paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
-			//Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ file.m_fullPath, paramsPath, false });
-
+			std::string paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
+			Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ file.m_fullPath, paramsPath, false });
 		}
 		else if (type == ResourceType::HDR)
 		{
-			// std::string paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
-			// Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ file.m_fullPath, paramsPath, true });
+			std::string paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
+			Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ file.m_fullPath, paramsPath, true });
 		}
 		else if (type == ResourceType::Model)
 		{
-			// std::string paramsPath = file.m_folderPath + file.m_pureName + ".modelparams";
-			// Event::EventSystem::Get()->Trigger<Event::ELoadModelResourceFromFile>(Event::ELoadModelResourceFromFile{ file.m_fullPath, paramsPath });
+			std::string paramsPath = file.m_folderPath + file.m_pureName + ".modelparams";
+			Event::EventSystem::Get()->Trigger<Event::ELoadModelResourceFromFile>(Event::ELoadModelResourceFromFile{ file.m_fullPath, paramsPath });
 		}
 		else if (type == ResourceType::Audio)
 		{
-			// std::string paramsPath = file.m_folderPath + file.m_pureName + ".audioparams";
-			// Event::EventSystem::Get()->Trigger<Event::ELoadAudioResourceFromFile>(Event::ELoadAudioResourceFromFile{ file.m_fullPath, paramsPath });
+			std::string paramsPath = file.m_folderPath + file.m_pureName + ".audioparams";
+			Event::EventSystem::Get()->Trigger<Event::ELoadAudioResourceFromFile>(Event::ELoadAudioResourceFromFile{ file.m_fullPath, paramsPath });
 		}
 		else if (type == ResourceType::Material)
 		{
-			// Event::EventSystem::Get()->Trigger<Event::ELoadMaterialResourceFromFile>(Event::ELoadMaterialResourceFromFile{ file.m_fullPath });
+			Event::EventSystem::Get()->Trigger<Event::ELoadMaterialResourceFromFile>(Event::ELoadMaterialResourceFromFile{ file.m_fullPath });
+		}
+		else if (type == ResourceType::GLH)
+		{
+			Event::EventSystem::Get()->Trigger<Event::ELoadShaderIncludeResourceFromFile>(Event::ELoadShaderIncludeResourceFromFile{ file.m_fullPath });
 		}
 		else if (type == ResourceType::GLSL)
 		{
-			//Event::EventSystem::Get()->Trigger<Event::ELoadShaderResourceFromFile>(Event::ELoadShaderResourceFromFile{ file.m_fullPath });
+			Event::EventSystem::Get()->Trigger<Event::ELoadShaderResourceFromFile>(Event::ELoadShaderResourceFromFile{ file.m_fullPath });
+		}
+		else if (type == ResourceType::GLH)
+		{
+			Event::EventSystem::Get()->Trigger<Event::ELoadShaderIncludeResourceFromFile>(Event::ELoadShaderIncludeResourceFromFile{ file.m_fullPath });
 		}
 	}
 

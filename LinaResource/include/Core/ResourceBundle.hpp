@@ -78,7 +78,7 @@ namespace Lina::Resources
 		void LoadAllMemoryMaps();
 
 		// Calls LoadResourceFromFile on all resources within the folder.
-		void LoadResourcesInFolder(Utility::Folder& root, ResourceProgressData* progData, ResourceType onlyLoad = ResourceType::Unknown, ResourceType exclude = ResourceType::Unknown);
+		void LoadResourcesInFolder(Utility::Folder& root, ResourceProgressData* progData, const std::vector<ResourceType>& excludes, ResourceType onlyLoad = ResourceType::Unknown);
 
 		// Loads given resource from a file path into memory.
 		void LoadResourceFromFile(Utility::File& file, ResourceType type, ResourceProgressData* progData);
@@ -108,6 +108,7 @@ namespace Lina::Resources
 		std::unordered_map<std::string, std::vector<unsigned char>> m_models;
 		std::unordered_map<std::string, std::vector<unsigned char>> m_materials;
 		std::unordered_map<std::string, std::vector<unsigned char>> m_shaders;
+		std::unordered_map<std::string, std::vector<unsigned char>> m_shaderIncludes;
 	};
 }
 

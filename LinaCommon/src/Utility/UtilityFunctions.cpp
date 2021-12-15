@@ -242,6 +242,7 @@ namespace Lina
 		{
 			return file.substr(file.find_last_of(".") + 1);
 		}
+
 		std::string GetFileNameOnly(const std::string& fileName)
 		{
 			return fileName.substr(fileName.find_last_of("/\\") + 1);
@@ -252,12 +253,11 @@ namespace Lina
 			size_t lastindex = fileName.find_last_of(".");
 			return fileName.substr(0, lastindex);
 		}
-		bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword)
+
+		bool LoadTextWithIncludes(std::string& output,  const std::string& includeKeyword)
 		{
 			std::ifstream file;
-			file.open(fileName.c_str());
-
-			std::string filePath = GetFilePath(fileName);
+			file.open(output);
 			std::stringstream ss;
 			std::string line;
 
@@ -277,8 +277,45 @@ namespace Lina
 							includeFileName.substr(1, includeFileName.length() - 2);
 
 						std::string toAppend;
-						LoadTextFileWithIncludes(toAppend, filePath + includeFileName,
-							includeKeyword);
+						LoadTextWithIncludes(toAppend, includeKeyword);
+						ss << toAppend << "\n";
+					}
+				}
+			}
+			else
+			{
+				LINA_ERR("Text could not be loaded!");
+				return false;
+			}
+
+			output = ss.str();
+			return true;
+		}
+
+		bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword, std::map<std::string, std::string>& includesMap)
+		{
+			std::ifstream file;
+			file.open(fileName.c_str());
+			std::string filePath = GetFilePath(fileName);
+			std::stringstream ss;
+			std::string line;
+
+			if (file.is_open())
+			{
+				while (file.good())
+				{
+					getline(file, line);
+
+					if (line.find(includeKeyword) == std::string::npos)
+						ss << line << "\n";
+
+					else
+					{
+						std::string includeFileName = Split(line, ' ')[1];
+						includeFileName = includeFileName.substr(1, includeFileName.length() - 2);
+						const std::string includeID = GetFileWithoutExtension(GetFileNameOnly(includeFileName));
+						std::string toAppend = includesMap[includeID];
+						// LoadTextFileWithIncludes(toAppend, filePath + includeFileName, includeKeyword);
 						ss << toAppend << "\n";
 					}
 				}
@@ -291,6 +328,13 @@ namespace Lina
 
 			output = ss.str();
 			return true;
+		}
+
+		std::string GetFileContents(const std::string& filePath)
+		{
+			std::ifstream ifs(filePath);
+			std::string content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
+			return content;
 		}
 
 		std::string GetRunningDirectory()

@@ -48,6 +48,7 @@ namespace Lina::Resources
 		{ StringID("audioparams"), ResourceType::AudioParams },
 		{ StringID("mat"), ResourceType::Material },
 		{ StringID("glsl"), ResourceType::GLSL },
+		{ StringID("glh"), ResourceType::GLH },
 		{ StringID("spv"), ResourceType::SPIRV },
 		{ StringID("ttf"), ResourceType::Font },
 		{ StringID("otf"), ResourceType::Font },

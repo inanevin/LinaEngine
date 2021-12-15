@@ -33,6 +33,7 @@ SOFTWARE.
 namespace Lina::Graphics
 {
 	std::map<StringIDType, Shader*> Shader::s_loadedShaders;
+	std::map<std::string, std::string> Shader::s_loadedShaderIncludes;
 
 	Shader::~Shader()
 	{
@@ -59,7 +60,7 @@ namespace Lina::Graphics
 	Shader& Shader::CreateShaderFromMemory(const std::string& path, unsigned char* data, size_t dataSize, bool usesGeometryShader)
 	{
 		std::string shaderText = std::string(reinterpret_cast<char*>(data), dataSize);
-		Utility::LoadTextFileWithIncludes(shaderText, path, "#include");
+		Utility::LoadTextWithIncludes(shaderText, "#include");
 		StringIDType sid = StringID(path.c_str()).value();
 		Shader* shader = new Shader();
 		shader->Construct(shaderText, usesGeometryShader);
@@ -69,13 +70,25 @@ namespace Lina::Graphics
 		return *shader;
 	}
 
+	void Shader::ClearShaderIncludes()
+	{
+		s_loadedShaderIncludes.clear();
+	}
+
+	void Shader::PushShaderInclude(const std::string& name, const std::string& text)
+	{
+		s_loadedShaderIncludes[name] = text;
+		LINA_INFO("Shader Inc \n {0}", text);
+	}
+
 	Shader& Shader::CreateShader(const std::string& path, bool usesGeometryShader, unsigned char* data, size_t dataSize)
 	{
 		if (data != nullptr)
 			return CreateShaderFromMemory(path, data, dataSize, usesGeometryShader);
 
 		std::string shaderText;
-		Utility::LoadTextFileWithIncludes(shaderText, path, "#include");
+		Utility::LoadTextFileWithIncludes(shaderText, path, "#include", s_loadedShaderIncludes);
+		LINA_WARN("Final Shader \n {0}", shaderText);
 		StringIDType sid = StringID(path.c_str()).value();
 		Shader* shader = new Shader();
 		shader->Construct(shaderText, usesGeometryShader);

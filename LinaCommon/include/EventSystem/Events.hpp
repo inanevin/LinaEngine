@@ -124,10 +124,12 @@ namespace Lina::Event
 	struct ELoadMaterialResourceFromFile { std::string m_path; };
 	struct ELoadAudioResourceFromFile { std::string m_path; std::string m_paramsPath; };
 	struct ELoadShaderResourceFromFile { std::string m_path; };
+	struct ELoadShaderIncludeResourceFromFile { std::string m_path; };
 	struct ELoadModelResourceFromMemory { std::string m_path;  unsigned char* m_data; size_t m_dataSize;  std::string m_paramsPath; unsigned char* m_paramsData; size_t m_paramsDataSize; };
 	struct ELoadMaterialResourceFromMemory { std::string m_path; unsigned char* m_data; size_t m_dataSize; };
 	struct ELoadImageResourceFromMemory { std::string m_path; unsigned char* m_data; size_t m_dataSize;  std::string m_paramsPath; unsigned char* m_paramsData; size_t m_paramsDataSize; bool m_isHDR; };
 	struct ELoadShaderResourceFromMemory { std::string m_path; unsigned char* m_data; size_t m_dataSize; };
+	struct ELoadShaderIncludeResourceFromMemory { std::string m_path; unsigned char* m_data; size_t m_dataSize; };
 	struct ELoadAudioResourceFromMemory { std::string m_path; unsigned char* m_data; size_t m_dataSize; std::string m_paramsPath; unsigned char* m_paramsData; size_t m_paramsDataSize; };
 	struct EResourceProgressStarted {};
 	struct EResourceProgressEnded {};

@@ -40,6 +40,7 @@ Timestamp: 1/5/2019 12:42:58 AM
 #include <string>
 #include <vector>
 #include <functional>
+#include <map>
 
 namespace Lina
 {
@@ -112,8 +113,14 @@ namespace Lina
 		// Returns only the file extension, no path or no dots.
 		extern std::string GetFileExtension(const std::string& file);
 
+		// Used for loading shaders from memory.
+		extern bool LoadTextWithIncludes(std::string& output, const std::string& includeKeyword);
+
 		// Mostly used for loading shaders.
-		extern bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword);
+		extern bool LoadTextFileWithIncludes(std::string& output, const std::string& fileName, const std::string& includeKeyword, std::map<std::string, std::string>& includesMap);
+
+		// Returns the whole file content as string
+		extern std::string GetFileContents(const std::string& filePath);
 
 		// Return the full directory (user-specific) that the engine executable is running on.
 		extern std::string GetRunningDirectory();

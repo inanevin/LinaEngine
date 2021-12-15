@@ -80,11 +80,10 @@ namespace Lina
 
 		m_renderEngine.ConnectEvents();
 		m_audioEngine.Initialize();
-		//if (appInfo.m_appMode == ApplicationMode::Editor)
-		//	m_resourceManager.LoadEditorResources();
-
-		m_resourceManager.LoadEditorResources();
-		m_resourceManager.ImportResourceBundle("resources/", "Example");
+		if (appInfo.m_appMode == ApplicationMode::Editor)
+			m_resourceManager.LoadEditorResources();
+		else
+			m_resourceManager.ImportResourceBundle("resources/", "Example");
 
 		// Set event callback for main window.
 		m_renderEngine.SetViewportDisplay(Vector2::Zero, m_window.GetSize());
@@ -93,7 +92,7 @@ namespace Lina
 		m_ecs.Initialize();
 		m_physicsEngine.Initialize();
 		m_renderEngine.Initialize(appInfo.m_appMode);
-	
+
 
 		// Register ECS components for cloning & serialization functionality.
 		m_ecs.RegisterComponent<ECS::EntityDataComponent>();

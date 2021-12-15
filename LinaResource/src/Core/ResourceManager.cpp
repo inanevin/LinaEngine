@@ -97,9 +97,14 @@ namespace Lina::Resources
 		m_currentProgressData.m_currentProgress = 0.0f;
 		std::unordered_map<std::string, ResourceType> filledResources;
 
-		// Load all editor resources, first only load shaders, then load the rest..
-		m_bundle.LoadResourcesInFolder(root, &m_currentProgressData, ResourceType::GLSL);
-		m_bundle.LoadResourcesInFolder(root, &m_currentProgressData, ResourceType::Unknown, ResourceType::GLSL);
+		// Load all editor resources, first only load the shader includes, then shaders, then the rest.
+		std::vector<ResourceType> excludes;
+		m_bundle.LoadResourcesInFolder(root, &m_currentProgressData, excludes, ResourceType::GLH);
+		m_bundle.LoadResourcesInFolder(root, &m_currentProgressData, excludes, ResourceType::GLSL);
+
+		excludes.push_back(ResourceType::GLH);
+		excludes.push_back(ResourceType::GLSL);
+		m_bundle.LoadResourcesInFolder(root, &m_currentProgressData, excludes, ResourceType::Unknown);
 
 		// Notify listeners that unpacking has finished.
 		m_currentProgressData.m_state = ResourceProgressState::None;

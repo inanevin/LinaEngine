@@ -69,6 +69,7 @@ namespace Lina::Resources
 		AudioParams = 7,
 		Material = 8,
 		GLSL = 9,
+		GLH,
 		SPIRV = 11,
 		Font = 12
 	};
