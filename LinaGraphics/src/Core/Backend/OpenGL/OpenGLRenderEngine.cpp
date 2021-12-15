@@ -299,7 +299,7 @@ namespace Lina::Graphics
 		if (!Shader::ShaderExists(event.m_path))
 		{
 			LINA_TRACE("[Shader Loader] -> Loading (file): {0}", event.m_path);
-			ConstructShader(event.m_path);
+			ConstructShader(event.m_path, nullptr, 0);
 		}
 	}
 
@@ -334,15 +334,17 @@ namespace Lina::Graphics
 	void OpenGLRenderEngine::OnLoadMaterialResourceFromMemory(Event::ELoadMaterialResourceFromMemory event)
 	{
 		LINA_TRACE("[Material Loader] -> Loading (memory): {0}", event.m_path);
-
 		Material::LoadMaterialFromMemory(event.m_path, event.m_data, event.m_dataSize);
-
 	}
 
 	void OpenGLRenderEngine::OnLoadShaderResourceFromMemory(Event::ELoadShaderResourceFromMemory event)
 	{
-		LINA_TRACE("[Shader Loader] -> Loading (memory): {0}", event.m_path);
 
+		if (!Shader::ShaderExists(event.m_path))
+		{
+			LINA_TRACE("[Shader Loader] -> Loading (memory): {0}", event.m_path);
+			ConstructShader(event.m_path, event.m_data, event.m_dataSize);
+		}
 	}
 
 	void OpenGLRenderEngine::OnPhysicsDraw(Event::EDrawPhysicsDebug event)
@@ -375,25 +377,25 @@ namespace Lina::Graphics
 		return !validated;
 	}
 
-	void OpenGLRenderEngine::ConstructShader(const std::string& path)
+	void OpenGLRenderEngine::ConstructShader(const std::string& path, unsigned char* data, size_t dataSize)
 	{
 		if (path.compare("resources/engine/shaders/Unlit/Unlit.glsl") == 0)
 		{
-			s_standardUnlitShader = &Shader::CreateShader(path, false);
+			s_standardUnlitShader = &Shader::CreateShader(path, false, data, dataSize);
 			s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 			s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
 			s_standardUnlitShader->BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 		}
 		else if (path.compare("resources/engine/shaders/PBR/PBRLitStandard.glsl") == 0)
 		{
-			Shader& shader = Shader::CreateShader(path, false);
+			Shader& shader = Shader::CreateShader(path, false, data, dataSize);
 			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 			shader.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
 			shader.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);
 		}
 		else if (path.compare("resources/engine/shaders/PBR/PointShadowsDepth.glsl") == 0)
 		{
-			m_pointShadowsDepthShader = &Shader::CreateShader(path, true);
+			m_pointShadowsDepthShader = &Shader::CreateShader(path, true, data, dataSize);
 		}
 		else if (path.compare("resources/engine/shaders/Skybox/SkyboxColor.glsl") == 0)
 		{
@@ -404,59 +406,59 @@ namespace Lina::Graphics
 			|| path.compare("resources/engine/shaders/Skybox/SkyboxProcedural.glsl") == 0 || path.compare("resources/engine/shaders/Skybox/SkyboxHDRI.glsl") == 0
 			|| path.compare("resources/engine/shaders/Skybox/SkyboxAtmospheric.glsl") == 0)
 		{
-			Shader& shader = Shader::CreateShader(path, false);
+			Shader& shader = Shader::CreateShader(path, false, data, dataSize);
 			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		}
 
 		else if (path.compare("resources/engine/shaders/HDRI/HDRIEquirectangular.glsl") == 0)
 		{
-			m_hdriEquirectangularShader = &Shader::CreateShader(path);
+			m_hdriEquirectangularShader = &Shader::CreateShader(path, false, data, dataSize);
 		}
 		else if (path.compare("resources/engine/shaders/HDRI/HDRIIrradiance.glsl") == 0)
 		{
-			m_hdriIrradianceShader = &Shader::CreateShader(path);
+			m_hdriIrradianceShader = &Shader::CreateShader(path, false, data, dataSize);
 		}
 		else if (path.compare("resources/engine/shaders/HDRI/HDRIPrefilter.glsl") == 0)
 		{
-			m_hdriPrefilterShader = &Shader::CreateShader(path);
+			m_hdriPrefilterShader = &Shader::CreateShader(path, false, data, dataSize);
 		}
 		else if (path.compare("resources/engine/shaders/HDRI/HDRIBRDF.glsl") == 0)
 		{
-			m_hdriBRDFShader = &Shader::CreateShader(path);
+			m_hdriBRDFShader = &Shader::CreateShader(path, false, data, dataSize);
 		}
 		else if (path.compare("resources/engine/shaders/ScreenQuads/SQFinal.glsl") == 0)
 		{
-			m_sqFinalShader = &Shader::CreateShader(path);
+			m_sqFinalShader = &Shader::CreateShader(path, false, data, dataSize);
 			m_sqFinalShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		}
 		else if (path.compare("resources/engine/shaders/ScreenQuads/SQBlur.glsl") == 0)
 		{
-			m_sqBlurShader = &Shader::CreateShader(path);
+			m_sqBlurShader = &Shader::CreateShader(path, false, data, dataSize);
 			m_sqBlurShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		}
 		else if (path.compare("resources/engine/shaders/ScreenQuads/SQShadowMap.glsl") == 0)
 		{
-			m_sqShadowMapShader = &Shader::CreateShader(path);
+			m_sqShadowMapShader = &Shader::CreateShader(path, false, data, dataSize);
 			m_sqShadowMapShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		}
 		else if (path.compare("resources/engine/shaders/Debug/DebugLine.glsl") == 0)
 		{
-			m_debugLineShader = &Shader::CreateShader(path);
+			m_debugLineShader = &Shader::CreateShader(path, false, data, dataSize);
 			m_debugLineShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		}
 		else if (path.compare("resources/engine/shaders/Debug/DebugIcon.glsl") == 0)
 		{
-			m_debugIconShader = &Shader::CreateShader(path);
+			m_debugIconShader = &Shader::CreateShader(path, false, data, dataSize);
 			m_debugIconShader->BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		}
 		else if (path.compare("resources/engine/shaders/2D/Sprite.glsl") == 0)
 		{
-			Shader& shader = Shader::CreateShader(path, false);
+			Shader& shader = Shader::CreateShader(path, false, data, dataSize);
 			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 		}
 		else
 		{
-			Shader& shader = Shader::CreateShader(path, false);
+			Shader& shader = Shader::CreateShader(path, false, data, dataSize);
 			shader.BindBlockToBuffer(UNIFORMBUFFER_VIEWDATA_BINDPOINT, UNIFORMBUFFER_VIEWDATA_NAME);
 			shader.BindBlockToBuffer(UNIFORMBUFFER_LIGHTDATA_BINDPOINT, UNIFORMBUFFER_LIGHTDATA_NAME);
 			shader.BindBlockToBuffer(UNIFORMBUFFER_DEBUGDATA_BINDPOINT, UNIFORMBUFFER_DEBUGDATA_NAME);

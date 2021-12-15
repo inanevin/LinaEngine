@@ -144,16 +144,16 @@ namespace Lina::Resources
 		else if (type == ResourceType::Material)
 			m_materials[path] = data;
 		else if (type == ResourceType::GLSL)
-		{
-			//Event::EventSystem::Get()->Trigger<Event::ELoadShaderResourceFromFile>(Event::ELoadShaderResourceFromFile{ file.m_fullPath });
-		}
+			m_shaders[path] = data;
 
 		data.clear();
-
 	}
 
 	void ResourceBundle::LoadAllMemoryMaps()
 	{
+		for (auto& shader : m_shaders)
+			Event::EventSystem::Get()->Trigger<Event::ELoadShaderResourceFromMemory>(Event::ELoadShaderResourceFromMemory{ shader.first, &shader.second[0], shader.second.size() });
+
 		for (auto& audio : m_audios)
 		{
 			std::string nameOnly = Utility::GetFileWithoutExtension(audio.first);
@@ -204,7 +204,7 @@ namespace Lina::Resources
 			{
 				Event::EventSystem::Get()->Trigger<Event::ELoadModelResourceFromMemory>(Event::ELoadModelResourceFromMemory{
 					model.first, &model.second[0], model.second.size(),
-					paramsName, &m_modelParameters[paramsName][0], m_modelParameters[paramsName].size()  });
+					paramsName, &m_modelParameters[paramsName][0], m_modelParameters[paramsName].size() });
 			}
 			else
 			{
@@ -215,7 +215,7 @@ namespace Lina::Resources
 		}
 
 		for (auto& material : m_materials)
-			Event::EventSystem::Get()->Trigger<Event::ELoadMaterialResourceFromMemory>(Event::ELoadMaterialResourceFromMemory{material.first, &material.second[0], material.second.size()});
+			Event::EventSystem::Get()->Trigger<Event::ELoadMaterialResourceFromMemory>(Event::ELoadMaterialResourceFromMemory{ material.first, &material.second[0], material.second.size() });
 
 		for (auto v : m_images)
 			v.second.clear();
@@ -238,6 +238,10 @@ namespace Lina::Resources
 		for (auto v : m_materials)
 			v.second.clear();
 
+		for (auto v : m_shaders)
+			v.second.clear();
+
+		m_shaders.clear();
 		m_materials.clear();
 		m_audioParameters.clear();
 		m_audios.clear();
@@ -300,7 +304,7 @@ namespace Lina::Resources
 		}
 		else if (type == ResourceType::GLSL)
 		{
-			Event::EventSystem::Get()->Trigger<Event::ELoadShaderResourceFromFile>(Event::ELoadShaderResourceFromFile{ file.m_fullPath });
+			//Event::EventSystem::Get()->Trigger<Event::ELoadShaderResourceFromFile>(Event::ELoadShaderResourceFromFile{ file.m_fullPath });
 		}
 	}
 

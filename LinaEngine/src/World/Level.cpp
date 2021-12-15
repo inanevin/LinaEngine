@@ -40,14 +40,49 @@ SOFTWARE.
 #include "ECS/Components/LightComponent.hpp"
 #include "ECS/Components/RigidbodyComponent.hpp"
 #include "ECS/Components/ModelRendererComponent.hpp"
-#include <cereal/archives/json.hpp>
-#include <cereal/archives/xml.hpp>
+#include <cereal/archives/portable_binary.hpp>
 #include <stdio.h>
 #include <fstream>
 
 
 namespace Lina::World
 {
+
+	void Level::ExportLevel(const std::string& path, const std::string& name)
+	{
+		const std::string finalPath = path + "/" + name + ".linalevel";
+
+		// Delete if exists.
+		if (Utility::FileExists(finalPath))
+			Utility::DeleteFileInPath(finalPath);
+
+		Lina::ECS::Registry* registry = ECS::Registry::Get();
+		{
+
+			std::ofstream levelDataStream(finalPath, std::ios::binary);
+			{
+				cereal::PortableBinaryOutputArchive oarchive(levelDataStream); 
+				oarchive(m_levelData); 
+				registry->SerializeComponentsInRegistry(oarchive);
+			}
+		}
+	}
+
+	void Level::ImportLevel(const std::string& path, const std::string& name)
+	{
+		Lina::ECS::Registry* registry = ECS::Registry::Get();
+
+		{
+			std::ifstream levelDataStream(path + "/" + name + ".linalevel", std::ios::binary);
+			{
+				cereal::PortableBinaryInputArchive iarchive(levelDataStream);
+				iarchive(m_levelData);
+				registry->clear();
+				registry->DeserializeComponentsInRegistry(iarchive);
+			}
+		}
+	}
+
 	bool Level::Install(bool loadFromFile, const std::string& path, const std::string& levelName)
 	{
 		Lina::Event::EventSystem::Get()->Connect<Event::ETick, &Level::Tick>(this);

@@ -157,7 +157,7 @@ namespace Lina::Graphics
 		void OnPhysicsDraw(Event::EDrawPhysicsDebug event);
 		void OnWindowResized(Event::EWindowResized event);
 		bool ValidateEngineShaders();
-		void ConstructShader(const std::string& path);
+		void ConstructShader(const std::string& path, unsigned char* data, size_t dataSize);
 		void ConstructEngineMaterials();
 		void ConstructRenderTargets();
 		void DumpMemory();

@@ -125,12 +125,11 @@ namespace Lina
 
 	bool Application::InstallLevel(Lina::World::Level& level, bool loadFromFile, const std::string& path, const std::string& levelName)
 	{
-
 		UninstallLevel();
 
 		// New levels are created with path as ""
-		if (path.compare("") != 0)
-			Resources::ResourceManager::Get()->ImportLevel(path, levelName, level.GetLevelData());
+		if (path.compare("") != 0 && Utility::FileExists(path + "/" + levelName + ".linalevel"))
+			level.ImportLevel(path, levelName);
 
 		bool install = level.Install(loadFromFile, path, levelName);
 		m_currentLevel = &level;
@@ -154,7 +153,7 @@ namespace Lina
 	void Application::SaveLevelData(const std::string& folderPath, const std::string& fileName)
 	{
 		if (m_currentLevel != nullptr)
-			Resources::ResourceManager::Get()->ExportLevel(folderPath, fileName, m_currentLevel->GetLevelData());
+			m_currentLevel->ExportLevel(folderPath, fileName);
 	}
 
 	void Application::LoadLevelData(const std::string& folderPath, const std::string& fileName)

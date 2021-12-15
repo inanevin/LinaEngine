@@ -70,6 +70,8 @@ namespace Lina::World
 		virtual void Uninstall();
 		virtual void Initialize() {};
 		virtual void Tick(Lina::Event::ETick ev) {};
+		void ImportLevel(const std::string& path, const std::string& name);
+		void ExportLevel(const std::string& path, const std::string& name);
 
 		void SetSkyboxMaterial();
 		LevelData& GetLevelData() { return m_levelData; }

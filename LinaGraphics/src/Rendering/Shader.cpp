@@ -56,13 +56,24 @@ namespace Lina::Graphics
 		m_renderDevice->BindShaderBlockToBufferPoint(m_engineBoundID, bindingPoint, blockName);
 	}
 
-	Shader& Shader::CreateShaderFromMemory(unsigned char* data, size_t dataSize, bool usesGeometryShader)
+	Shader& Shader::CreateShaderFromMemory(const std::string& path, unsigned char* data, size_t dataSize, bool usesGeometryShader)
 	{
-		return Shader();	// TODO: insert return statement here
+		std::string shaderText = std::string(reinterpret_cast<char*>(data), dataSize);
+		Utility::LoadTextFileWithIncludes(shaderText, path, "#include");
+		StringIDType sid = StringID(path.c_str()).value();
+		Shader* shader = new Shader();
+		shader->Construct(shaderText, usesGeometryShader);
+		shader->m_path = path;
+		shader->m_sid = sid;
+		s_loadedShaders[sid] = shader;
+		return *shader;
 	}
 
-	Shader& Shader::CreateShader(const std::string& path, bool usesGeometryShader)
+	Shader& Shader::CreateShader(const std::string& path, bool usesGeometryShader, unsigned char* data, size_t dataSize)
 	{
+		if (data != nullptr)
+			return CreateShaderFromMemory(path, data, dataSize, usesGeometryShader);
+
 		std::string shaderText;
 		Utility::LoadTextFileWithIncludes(shaderText, path, "#include");
 		StringIDType sid = StringID(path.c_str()).value();
