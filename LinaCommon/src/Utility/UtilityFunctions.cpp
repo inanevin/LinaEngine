@@ -117,6 +117,7 @@ namespace Lina
 
 					if (totalFiles != nullptr)
 						(*totalFiles) = (*totalFiles) + 1;
+
 				}
 				else
 				{
@@ -128,7 +129,7 @@ namespace Lina
 					folder.m_fullPath = replacedPath;
 
 					if (recursive)
-						ScanFolder(folder, recursive);
+						ScanFolder(folder, recursive, totalFiles);
 				}
 			}
 		}

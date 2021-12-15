@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Log/Log.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "Core/ResourceManager.hpp"
+#include "Math/Math.hpp"
 
 namespace Lina::Resources
 {
@@ -196,11 +197,12 @@ namespace Lina::Resources
 				}
 			}
 
-			ResourceManager::TriggerResourceUpdatedEvent();
 			ResourceManager::s_currentProgressData.m_currentResourceName = file.m_fullPath;
-			LoadResourceFromFile(file, resType);
 			ResourceManager::s_currentProgressData.m_currentProcessedFiles++;
-			ResourceManager::s_currentProgressData.m_currentProgress = (float)ResourceManager::s_currentProgressData.m_currentProcessedFiles / (float)ResourceManager::s_currentProgressData.m_currentTotalFiles;
+			ResourceManager::s_currentProgressData.m_currentProgress = ((float)ResourceManager::s_currentProgressData.m_currentProcessedFiles / (float)ResourceManager::s_currentProgressData.m_currentTotalFiles) * 100.0f;
+			ResourceManager::s_currentProgressData.m_currentProgress = Lina::Math::Clamp(ResourceManager::s_currentProgressData.m_currentProgress, 0.0f, 100.0f);
+			ResourceManager::TriggerResourceUpdatedEvent();
+			LoadResourceFromFile(file, resType);
 		}
 	}
 

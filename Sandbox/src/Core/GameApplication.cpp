@@ -53,6 +53,7 @@ namespace Lina
 		}
 		else
 		{
+			Lina::Engine::Get()->StartLoadingResources();
 			Lina::Engine::Get()->SetPlayMode(true);
 		}
 

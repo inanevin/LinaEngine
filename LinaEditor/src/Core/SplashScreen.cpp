@@ -119,9 +119,14 @@ namespace Lina::Editor
 		// Draw window.
 		ImGui::Begin("SplashScreen", NULL, ImGuiWindowFlags_NoDecoration);
 		ImGui::GetWindowDrawList()->AddImage((void*)splashScreenTexture->GetID(), ImVec2(0, 0), viewport->Size, ImVec2(0, 1), ImVec2(1, 0));
+
+		ImGui::SetNextWindowPos(ImVec2(500, 250));
+		ImGui::BeginChild("text", ImVec2(300, 300), ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar);
 		ImGui::Text("Loading %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
-		std::string loadData = m_currentlyLoadingResource + std::to_string(m_percentage);
+		ImGui::Text(m_currentlyLoadingResource.c_str());
+		std::string loadData = std::to_string(m_percentage) + "%";
 		ImGui::Text(loadData.c_str());
+		ImGui::EndChild();
 		ImGui::End();
 		// Rendering
 		ImGui::Render();

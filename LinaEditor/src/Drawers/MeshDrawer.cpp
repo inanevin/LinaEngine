@@ -92,7 +92,7 @@ namespace Lina::Editor
 			std::string filePath = m_selectedMesh->GetPath();
 			std::string paramsPath = m_selectedMesh->GetParamsPath();
 			Lina::Graphics::Model::UnloadModel(id);
-			m_selectedMesh = &Lina::Graphics::Model::CreateModel(filePath, Graphics::ModelParameters(m_selectedParams));
+			m_selectedMesh = &Lina::Graphics::Model::CreateModel(filePath, Graphics::ModelParameters(m_selectedParams), paramsPath);
 			LINA_TRACE("File: {0} Params: {1}", filePath, paramsPath);
 			Lina::Graphics::Model::SaveParameters(paramsPath, m_selectedParams);
 		}
