@@ -27,15 +27,6 @@ set (LINARESOURCE_SOURCES
 	src/Core/ResourceBundle.cpp
 	
 	src/Utility/Packager.cpp
-	
-	src/Resources/ImageResource.cpp
-	src/Resources/MeshResource.cpp
-	src/Resources/ShaderResource.cpp
-	src/Resources/AudioResource.cpp
-	src/Resources/LevelResource.cpp
-	src/Resources/MaterialResource.cpp
-	
-	
 )
 
 #--------------------------------------------------------------------
@@ -47,17 +38,7 @@ set(LINARESOURCE_HEADERS
 	include/Core/ResourceManager.hpp
 	include/Core/ResourcesCommon.hpp
 	include/Core/ResourceBundle.hpp
-	include/Core/ResourcePackages.hpp
-	
 	include/Utility/Packager.hpp
-	
-	
-	include/Resources/ImageResource.hpp
-	include/Resources/MeshResource.hpp
-	include/Resources/ShaderResource.hpp
-	include/Resources/AudioResource.hpp
-	include/Resources/LevelResource.hpp
-	include/Resources/MaterialResource.hpp
 )
 
 
@@ -76,12 +57,7 @@ add_library(Lina::Resource ALIAS ${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/alut/include)
-#target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/stb/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bit7z/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/assimp/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/openal/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/libshaderc/include)
 
 #--------------------------------------------------------------------
 # Subdirectories & linking
@@ -90,12 +66,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/lib
 
 target_link_libraries(${PROJECT_NAME} 
 
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/alut/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/alut.lib
 	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/bit7z/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/bit7z64.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/assimp/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/${ASSIMP_LIB}
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/openal/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/OpenAL32.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/libshaderc/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/shaderc_shared.lib
-	PUBLIC oleaut32.lib
 	PUBLIC user32.lib
 	PRIVATE Lina::Common
 )

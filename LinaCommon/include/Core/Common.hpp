@@ -133,11 +133,15 @@ namespace Lina
 
 	struct ApplicationInfo
 	{
+		// Bundle name that is used to load resources package on Standalone builds.
+		std::string m_bundleName = "";
+		
+		// App Info
 		const char* m_appName = "";
 		int m_appMajor = 0;
 		int m_appMinor = 0;
 		int m_appPatch = 0;
-
+		
 		ApplicationMode m_appMode = ApplicationMode::Editor;
 		WindowProperties m_windowProperties = WindowProperties();
 	};

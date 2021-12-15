@@ -109,7 +109,7 @@ namespace Lina
 
 					file.m_fullName = entry.path().filename().string();
 					file.m_folderPath = entry.path().parent_path().string() + "/";
-					std::string replacedPath = entry.path().relative_path().string();
+					std::string replacedPath = entry.path().string();
 					std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
 					file.m_fullPath = replacedPath;
 					file.m_extension = file.m_fullName.substr(file.m_fullName.find(".") + 1);
@@ -120,7 +120,7 @@ namespace Lina
 					root.m_folders.push_back(Folder());
 					Folder& folder = root.m_folders.back();
 					folder.m_name = entry.path().filename().string();
-					std::string replacedPath = entry.path().relative_path().string();
+					std::string replacedPath = entry.path().string();
 					std::replace(replacedPath.begin(), replacedPath.end(), '\\', '/');
 					folder.m_fullPath = replacedPath;
 

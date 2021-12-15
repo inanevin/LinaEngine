@@ -27,102 +27,12 @@ SOFTWARE.
 */
 
 #include "Core/ResourceBundle.hpp"
-#include "Resources/ImageResource.hpp"
-#include "Resources/MeshResource.hpp"
-#include "Resources/AudioResource.hpp"
-#include "Resources/MaterialResource.hpp"
-#include "Resources/ShaderResource.hpp"
 #include "Log/Log.hpp"
 #include "EventSystem/EventSystem.hpp"
 
 namespace Lina::Resources
 {
-	void ResourceBundle::UnloadRawPackages()
-	{
-		for (auto& p : m_rawPackages)
-			p.second.clear();
-
-		m_rawPackages.clear();
-
-		LINA_TRACE("[Resource Bundle] -> Raw bundle unloaded.");
-	}
-
-	void ResourceBundle::UnloadProcessedPackages()
-	{
-		// Clear in-active packages only. (those whose buffers are immediately send to hardware.)
-		for (auto& r : m_imagePackage)
-			delete r.second;
-
-		for (auto& r : m_audioPackage)
-			delete r.second;
-
-		for (auto& r : m_meshPackage)
-			delete r.second;
-
-		m_imagePackage.clear();
-		m_audioPackage.clear();
-		m_meshPackage.clear();
-
-		/* DO NOT delete material & shader resources, as they are considered active resources and need to stay in-memory.*/
-	}
-
-	void ResourceBundle::ProcessRawPackages(Event::EventSystem* eventSys)
-	{
-		for (auto& package : m_rawPackages)
-		{
-			RawPackage& rawPackage = package.second;
-
-			// For every resource in this package, 
-			for (auto& resource : rawPackage)
-			{
-				// InitializeVulkan the corresponding package class from memory.
-				if (package.first == ResourceType::Image)
-				{
-					ImageResource* img = new ImageResource();
-					if (img->LoadFromMemory(resource.first, &resource.second[0], resource.second.size(), eventSys))
-						m_imagePackage[resource.first] = img;
-					else
-						delete img;
-				}
-				else if (package.first == ResourceType::Model)
-				{
-					//MeshResource* mesh = new MeshResource();
-					//if(mesh->LoadFromMemory(resource.first, &resource.second[0], resource.second.size()))
-					//	m_meshPackage[resource.first] = mesh;
-					//else
-					//	delete mesh;
-				}
-				else if (package.first == ResourceType::Audio)
-				{
-					AudioResource* aud = new AudioResource();
-					if (aud->LoadFromMemory(resource.first, &resource.second[0], resource.second.size(), eventSys))
-						m_audioPackage[resource.first] = aud;
-					else
-						delete aud;
-				}
-				else if (package.first == ResourceType::Material)
-				{
-					MaterialResource* mat = new MaterialResource();
-					if (mat->LoadFromMemory(resource.first, &resource.second[0], resource.second.size(), eventSys))
-						m_materialPackage[resource.first] = mat;
-					else
-						delete mat;
-				}
-				else if (package.first == ResourceType::SPIRV)
-				{
-					ShaderResource* shader = new ShaderResource();
-					if (shader->LoadFromMemory(resource.first, &resource.second[0], resource.second.size(), eventSys))
-						m_shaderPackage[resource.first] = shader;
-					else
-						delete shader;
-				}
-			}
-		}
-
-		LINA_TRACE("[Resource Bundle] -> Raw bundle processed into packages.");
-		UnloadRawPackages();
-	}
-
+	
 	void ResourceBundle::PushResourceFromMemory(const std::string& path, ResourceType type, std::vector<unsigned char>& data)
 	{
 		StringIDType sid = StringID(path.c_str()).value();

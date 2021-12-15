@@ -62,7 +62,7 @@ namespace Lina
 		// Set vsync
 		// Graphics::WindowBackend::Get()->SetVsync(2);
 
-		Run();
+		// Run();
 
 		// After engine has finished running.
 		if (m_editor != nullptr)
@@ -78,6 +78,7 @@ int main(int argc, char** argv)
 	ApplicationInfo appInfo;
 	appInfo.m_appMode = ApplicationMode::Editor;
 	appInfo.m_appName = "Lina Sandbox Game";
+	appInfo.m_bundleName = "Example";
 	appInfo.m_windowProperties.m_width = 1440;
 	appInfo.m_windowProperties.m_height = 900;
 	appInfo.m_windowProperties.m_windowState = WindowState::Maximized;

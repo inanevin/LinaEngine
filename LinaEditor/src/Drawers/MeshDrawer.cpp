@@ -31,7 +31,6 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Core/RenderEngineBackend.hpp"
 #include "Widgets/WidgetsUtility.hpp"
-#include "Resources/MeshResource.hpp"
 #include "imgui/imgui.h"
 
 namespace Lina::Editor

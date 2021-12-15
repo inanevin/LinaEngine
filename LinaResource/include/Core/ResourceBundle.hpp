@@ -41,7 +41,6 @@ Timestamp: 12/22/2020 12:26:55 AM
 
 // Headers here.
 #include "ResourcesCommon.hpp"
-#include "ResourcePackages.hpp"
 #include "Utility/UtilityFunctions.hpp"
 
 namespace Lina
@@ -62,15 +61,6 @@ namespace Lina::Resources
 		friend class ResourceManager;
 		friend class Packager;
 
-		// Clears raw packages off from memory.
-		void UnloadRawPackages();
-
-		// Clears processed packages off from memory.
-		void UnloadProcessedPackages();
-
-		// Converts each raw package into a processed package & fills in the table.
-		void ProcessRawPackages(Event::EventSystem* eventSys);
-
 		// Pushes the given memory buffer to a resource map.
 		void PushResourceFromMemory(const std::string& path, ResourceType type, std::vector<unsigned char>& data);
 
@@ -82,21 +72,6 @@ namespace Lina::Resources
 
 		// Loads given resource from a file path into memory.
 		void LoadResourceFromFile(Utility::File& file, ResourceType type, ResourceProgressData* progData);
-
-		std::unordered_map<ResourceType, RawPackage> m_rawPackages =
-		{
-			{ResourceType::Image, RawPackage()},
-			{ResourceType::Material, RawPackage()},
-			{ResourceType::Model, RawPackage()},
-			{ResourceType::Audio, RawPackage()},
-			{ResourceType::SPIRV, RawPackage()}
-		};
-
-		ImagePackage m_imagePackage;
-		MeshPackage m_meshPackage;
-		AudioPackage m_audioPackage;
-		MaterialPackage m_materialPackage;		
-		ShaderPackage m_shaderPackage;		
 
 		std::unordered_map<std::string, std::vector<unsigned char>> m_audioParameters;
 		std::unordered_map<std::string, std::vector<unsigned char>> m_imageParameters;

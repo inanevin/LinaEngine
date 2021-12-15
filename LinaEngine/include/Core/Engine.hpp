@@ -83,9 +83,10 @@ namespace Lina
 		void Run();
 		void UpdateGame(float deltaTime);
 		void DisplayGame(float interpolation);
-
 		void RemoveOutliers(bool biggest);
 		double SmoothDeltaTime(double dt);
+
+		void OnAllResourcesLoaded(Event::EAllResourcesLoaded ev);
 
 	private:
 

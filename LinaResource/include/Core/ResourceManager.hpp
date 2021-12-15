@@ -40,8 +40,6 @@ Timestamp: 5/1/2019 2:35:28 AM
 #define ResourceEngine_HPP
 
 #include "ResourceBundle.hpp"
-#include "ResourcePackages.hpp"
-#include "Resources/LevelResource.hpp"
 #include "Utility/StringId.hpp"
 #include "JobSystem/JobSystem.hpp"
 #include "ECS/ECS.hpp"
@@ -74,8 +72,6 @@ namespace Lina::Resources
 
 		static ResourceManager* Get() { return s_resourceManager; }
 
-		void ImportLevel(const std::string& path, const std::string& levelName, LevelData& levelData);
-		void ExportLevel(const std::string& path, const std::string& levelName, LevelData& levelData);
 		void PackageProject(const std::string& path, const std::string& name);
 		void ImportResourceBundle(const std::string& path, const std::string& name);
 
@@ -91,9 +87,7 @@ namespace Lina::Resources
 
 		void AddAllResourcesToPack(std::vector<std::string>& resources, Utility::Folder& folder);
 		void LoadEditorResources();
-		void DebugLevelLoad(Event::ETick& e);
-		void OnStartGame(Event::EStartGame& e);
-		void OnEndGame(Event::EEndGame& e);
+		void Shutdown();
 
 	private:
 
@@ -110,7 +104,6 @@ namespace Lina::Resources
 
 	private:
 
-		LevelResource m_activeLevel;
 		ResourceBundle m_bundle;
 		ApplicationMode m_appMode = ApplicationMode::Editor;
 

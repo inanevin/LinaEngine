@@ -130,13 +130,13 @@ namespace Lina::Graphics
 	Material& Material::CreateMaterial(Shader& shader, const std::string& path)
 	{
 		// Build material & set it's shader.
-		int id = Utility::GetUniqueID();
-		Material& mat = s_loadedMaterials[id];
+		StringIDType sid = StringID(path.c_str()).value();
+		Material& mat = s_loadedMaterials[sid];
 		SetMaterialShader(mat, shader);
 		SetMaterialContainers(mat);
-		mat.m_materialID = id;
+		mat.m_materialID = sid;
 		mat.m_path = path.compare("") == 0 ? INTERNAL_MAT_PATH : path;
-		return s_loadedMaterials[id];
+		return s_loadedMaterials[sid];
 	}
 
 	Material& Material::LoadMaterialFromFile(const std::string& path)

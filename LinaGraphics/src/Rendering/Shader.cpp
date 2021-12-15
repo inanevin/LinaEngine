@@ -61,7 +61,6 @@ namespace Lina::Graphics
 	{
 		std::string shaderText = std::string(reinterpret_cast<char*>(data), dataSize);
 		Utility::LoadTextWithIncludes(shaderText, "#include", s_loadedShaderIncludes);
-		LINA_WARN("Shader \n {0}", shaderText);
 		StringIDType sid = StringID(path.c_str()).value();
 		Shader* shader = new Shader();
 		shader->Construct(shaderText, usesGeometryShader);
@@ -79,7 +78,6 @@ namespace Lina::Graphics
 	void Shader::PushShaderInclude(const std::string& name, const std::string& text)
 	{
 		s_loadedShaderIncludes[name] = text;
-		LINA_WARN("Include \n{0}", text);
 	}
 
 	Shader& Shader::CreateShader(const std::string& path, bool usesGeometryShader, unsigned char* data, size_t dataSize)
