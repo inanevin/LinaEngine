@@ -39,7 +39,6 @@ namespace Lina::Graphics
 	{
 		if (m_pixels != nullptr)
 			stbi_image_free(m_pixels);
-		//m_pixels = (unsigned char*)Memory::free(m_pixels);
 	}
 
 	int ArrayBitmap::Load(const std::string& fileName)
@@ -53,25 +52,20 @@ namespace Lina::Graphics
 			return -1;
 		}
 
-		if (texWidth == m_width && texHeight == m_heigth) {
-			//Memory::memcpy(m_pixels, data, GetPixelsSize());
-		}
-		else {
-			m_width = texWidth;
-			m_heigth = texHeight;
-			//m_pixels = (int32*)Memory::free(m_pixels);
-			//m_pixels = (int32*)Memory::malloc(GetPixelsSize());
-			//Memory::memcpy(m_pixels, data, GetPixelsSize());
-		}
+		m_width = texWidth;
+		m_height = texHeight;
 
-		//		stbi_image_free(m_pixels);
 		return nrComps;
 	}
 
-	bool ArrayBitmap::Save(const std::string& fileName) const
+	int ArrayBitmap::Load(unsigned char* data, size_t dataSize)
 	{
-		// TODO: Serialization
-		return false;
+		int32 texWidth, texHeight, nrComps;
+		m_pixels = stbi_load_from_memory(data, dataSize, &texWidth, &texHeight, &nrComps, 4);
+		LINA_ASSERT(m_pixels != nullptr, "Bitmap could not be loaded!");
+		m_width = texWidth;
+		m_height = texHeight;
+		return nrComps;
 	}
 
 	void ArrayBitmap::SetImageFlip(bool flip)
@@ -87,6 +81,11 @@ namespace Lina::Graphics
 	float* ArrayBitmap::LoadImmediateHDRI(const char* fileName, int& w, int& h, int& nrChannels)
 	{
 		return stbi_loadf(fileName, &w, &h, &nrChannels, 0);
+	}
+
+	float* ArrayBitmap::LoadImmediateHDRI(unsigned char* data, size_t dataSize, int& w, int& h, int& nrChannels)
+	{
+		return stbi_loadf_from_memory(data, dataSize, &w, &h, &nrChannels, 0);
 	}
 
 	bool ArrayBitmap::Free(unsigned char* data)

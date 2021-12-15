@@ -198,14 +198,66 @@ namespace Lina::Graphics
 		}
 	}
 
-	Texture& Texture::CreateTexture2D(unsigned char* data, size_t dataSize, SamplerParameters samplerParams, bool compress, bool useDefaultFormats)
+	Texture& Texture::CreateTexture2D(const std::string& path, const std::string& paramsPath, unsigned char* data, size_t dataSize, SamplerParameters samplerParams, bool compress, bool useDefaultFormats)
 	{
-		return Texture();
+		// Build pixel data.
+		ArrayBitmap* textureBitmap = new ArrayBitmap();
+
+		int nrComponents = textureBitmap->Load(data, dataSize);
+		
+		if (useDefaultFormats)
+		{
+			if (nrComponents == 1)
+				samplerParams.m_textureParams.m_internalPixelFormat = samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_R;
+			if (nrComponents == 2)
+				samplerParams.m_textureParams.m_internalPixelFormat = samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RG;
+			else if (nrComponents == 3)
+				samplerParams.m_textureParams.m_internalPixelFormat = samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
+			else if (nrComponents == 4)
+				samplerParams.m_textureParams.m_internalPixelFormat = samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGBA;
+
+		}
+
+		StringIDType sid = StringID(path.c_str()).value();
+
+		// Build texture & construct.
+		Texture* texture = new Texture();
+		texture->Construct(*textureBitmap, samplerParams, compress, path);
+		texture->m_sid = sid;
+		texture->m_path = path;
+		texture->m_paramsPath = paramsPath;
+		s_loadedTextures[sid] = texture;
+
+		// Delete pixel data.
+		delete textureBitmap;
+
+		// Return
+		return *s_loadedTextures[sid];
 	}
 
-	Texture& Texture::CreateTextureHDRI(unsigned char* data, size_t dataSize)
+	Texture& Texture::CreateTextureHDRI(const std::string& path, unsigned char* data, size_t dataSize)
 	{
-		return Texture();
+		// Build pixel data.
+		int w, h, nrComponents;
+		float* bitmapData = ArrayBitmap::LoadImmediateHDRI(data, dataSize, w, h, nrComponents);
+
+		LINA_ASSERT(bitmapData != nullptr, "HDR texture could not be loaded!");
+
+		// Build texture & construct.
+		SamplerParameters samplerParams;
+		samplerParams.m_textureParams.m_wrapR = samplerParams.m_textureParams.m_wrapS = samplerParams.m_textureParams.m_wrapT = SamplerWrapMode::WRAP_CLAMP_EDGE;
+		samplerParams.m_textureParams.m_minFilter = samplerParams.m_textureParams.m_magFilter = SamplerFilter::FILTER_LINEAR;
+		samplerParams.m_textureParams.m_internalPixelFormat = PixelFormat::FORMAT_RGB16F;
+		samplerParams.m_textureParams.m_pixelFormat = PixelFormat::FORMAT_RGB;
+
+		StringIDType sid = StringID(path.c_str()).value();
+		Texture* texture = new Texture();
+		texture->ConstructHDRI(samplerParams, Vector2(w, h), bitmapData, path);
+		texture->m_sid = sid;
+		s_loadedTextures[sid] = texture;
+
+		// Return
+		return *s_loadedTextures[sid];
 	}
 
 	Texture& Texture::CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams, bool compress, bool useDefaultFormats, const std::string& paramsPath)

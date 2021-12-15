@@ -57,12 +57,13 @@ namespace Lina::Graphics
 		// Load the bitmap from a file in resources.
 		int Load(const std::string& fileName);
 
-		// Save the bitmap into a file in resources.
-		bool Save(const std::string& fileName) const;
+		// Load the bätmap from memory-
+		int Load(unsigned char* data, size_t dataSize);
 
 		static void SetImageFlip(bool flip);
 		static unsigned char* LoadImmediate(const char* filename, int& w, int& h,  int& nrchannels);
 		static float* LoadImmediateHDRI(const char* fileName, int& w, int& h, int& nrChannels);
+		static float* LoadImmediateHDRI(unsigned char* data, size_t dataSize, int& w, int& h, int& nrChannels);
 		static bool Free(unsigned char* data);
 
 		// Clr colors.
@@ -70,14 +71,14 @@ namespace Lina::Graphics
 
 		// Accessors & Mutators.
 		int32 GetWidth() const { return m_width; };
-		int32 GetHeight() const { return m_heigth; };
+		int32 GetHeight() const { return m_height; };
 
 		unsigned char* GetPixelArray() { return m_pixels; }
 		const unsigned char* GetPixelArray() const { return m_pixels; }
 
 	private:
 		int32 m_width = 0;
-		int32 m_heigth = 0;
+		int32 m_height = 0;
 		unsigned char* m_pixels = nullptr;
 
 	};

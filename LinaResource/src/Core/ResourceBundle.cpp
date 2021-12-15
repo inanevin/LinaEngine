@@ -132,12 +132,14 @@ namespace Lina::Resources
 			//std::string paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
 			//Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ file.m_fullPath, paramsPath, false });
 			// Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromMemory>(Event::ELoadImageResourceFromMemory{ path, &data[0], data.size() });
-
+			m_images[path] = data;
+			data.clear();
 		}
 
 		else if (type == ResourceType::ImageParams)
 		{
-
+			m_imageParameters[path] = data;
+			data.clear();
 		}
 		else if (type == ResourceType::HDR)
 		{
@@ -266,8 +268,8 @@ namespace Lina::Resources
 	{
 		if (type == ResourceType::Image)
 		{
-			std::string paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
-			Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ file.m_fullPath, paramsPath, false });
+			//std::string paramsPath = file.m_folderPath + file.m_pureName + ".samplerparams";
+			//Event::EventSystem::Get()->Trigger<Event::ELoadImageResourceFromFile>(Event::ELoadImageResourceFromFile{ file.m_fullPath, paramsPath, false });
 
 		}
 		else if (type == ResourceType::HDR)

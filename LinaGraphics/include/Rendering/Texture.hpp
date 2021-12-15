@@ -80,8 +80,8 @@ namespace Lina::Graphics
 		static SamplerParameters LoadParameters(const std::string& path);
 		static SamplerParameters LoadParametersFromMemory(unsigned char* data, size_t dataSize);
 		static void SaveParameters(const std::string& path, SamplerParameters params);
-		static Texture& CreateTexture2D(unsigned char* data, size_t dataSize, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false);
-		static Texture& CreateTextureHDRI(unsigned char* data, size_t dataSize);
+		static Texture& CreateTexture2D(const std::string& path, const std::string& paramsPath, unsigned char* data, size_t dataSize, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false);
+		static Texture& CreateTextureHDRI(const std::string& path, unsigned char* data, size_t dataSize);
 		static Texture& CreateTexture2D(const std::string& filePath, SamplerParameters samplerParams = SamplerParameters(), bool compress = false, bool useDefaultFormats = false, const std::string& paramsPath = "");
 		static Texture& CreateTextureHDRI(const std::string filePath);
 		static Texture& GetTexture(StringIDType id);

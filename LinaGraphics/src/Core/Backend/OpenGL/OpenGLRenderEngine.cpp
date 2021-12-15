@@ -255,7 +255,7 @@ namespace Lina::Graphics
 	{
 		ModelParameters params;
 
-		LINA_TRACE("[Model Loader] -> Loading model: {0}", event.m_path);
+		LINA_TRACE("[Model Loader] -> Loading (file): {0}", event.m_path);
 
 		if (Utility::FileExists(event.m_paramsPath))
 			params = Model::LoadParameters(event.m_paramsPath);
@@ -267,7 +267,7 @@ namespace Lina::Graphics
 
 	void OpenGLRenderEngine::OnLoadImageResourceFromFile(Event::ELoadImageResourceFromFile event)
 	{
-		LINA_TRACE("[Texture Loader] -> Loading texture: {0}", event.m_path);
+		LINA_TRACE("[Texture Loader] -> Loading (file): {0}", event.m_path);
 
 
 		if (event.m_isHDR)
@@ -290,7 +290,7 @@ namespace Lina::Graphics
 
 	void OpenGLRenderEngine::OnLoadMaterialResourceFromFile(Event::ELoadMaterialResourceFromFile event)
 	{
-		LINA_TRACE("[Material Loader] -> Loading material: {0}", event.m_path);
+		LINA_TRACE("[Material Loader] -> Loading (file): {0}", event.m_path);
 		Material::LoadMaterialFromFile(event.m_path);
 	}
 
@@ -298,25 +298,42 @@ namespace Lina::Graphics
 	{
 		if (!Shader::ShaderExists(event.m_path))
 		{
-			LINA_TRACE("[Shader Loader] -> Loading shader: {0}", event.m_path);
+			LINA_TRACE("[Shader Loader] -> Loading (file): {0}", event.m_path);
 			ConstructShader(event.m_path);
 		}
 	}
 
 	void OpenGLRenderEngine::OnLoadModelResourceFromMemory(Event::ELoadModelResourceFromMemory event)
 	{
+		LINA_TRACE("[Model Loader] -> Loading (file): {0}", event.m_path);
+
 	}
 
 	void OpenGLRenderEngine::OnLoadImageResourceFromMemory(Event::ELoadImageResourceFromMemory event)
 	{
+		LINA_TRACE("[Texture Loader] -> Loading (memory): {0}", event.m_path);
+
+		SamplerParameters params;
+
+		if (event.m_paramsData != nullptr)
+			params = Texture::LoadParametersFromMemory(event.m_paramsData, event.m_paramsDataSize);
+
+		if (event.m_isHDR)
+			Texture::CreateTextureHDRI(event.m_path, event.m_data, event.m_dataSize);
+		else
+			Texture::CreateTexture2D(event.m_path, event.m_paramsPath, event.m_data, event.m_dataSize, params, false, false);
 	}
 
 	void OpenGLRenderEngine::OnLoadMaterialResourceFromMemory(Event::ELoadMaterialResourceFromMemory event)
 	{
+		LINA_TRACE("[Material Loader] -> Loading (memory): {0}", event.m_path);
+
 	}
 
 	void OpenGLRenderEngine::OnLoadShaderResourceFromMemory(Event::ELoadShaderResourceFromMemory event)
 	{
+		LINA_TRACE("[Shader Loader] -> Loading (memory): {0}", event.m_path);
+
 	}
 
 	void OpenGLRenderEngine::OnPhysicsDraw(Event::EDrawPhysicsDebug event)

@@ -155,7 +155,7 @@ namespace Lina::Audio
 
 	void OpenALAudioEngine::OnLoadAudioFromFile(Event::ELoadAudioResourceFromFile ev)
 	{
-		LINA_TRACE("[Audio Loader] -> Loading audio (file): {0}", ev.m_path);
+		LINA_TRACE("[Audio Loader] -> Loading (file): {0}", ev.m_path);
 
 		std::string paramsPath = Utility::GetFileWithoutExtension(ev.m_path) + ".audioparams";
 		AudioParameters params;
@@ -170,7 +170,7 @@ namespace Lina::Audio
 
 	void OpenALAudioEngine::OnLoadAudioFromMemory(Event::ELoadAudioResourceFromMemory ev)
 	{
-		LINA_TRACE("[Audio Loader] -> Loading audio (memory): {0}", ev.m_path);
+		LINA_TRACE("[Audio Loader] -> Loading (memory): {0}", ev.m_path);
 
 		AudioParameters params;
 
