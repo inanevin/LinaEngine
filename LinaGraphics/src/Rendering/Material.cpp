@@ -160,11 +160,36 @@ namespace Lina::Graphics
 		return s_loadedMaterials[id];
 	}
 
-	Material& Material::LoadMaterialFromMemory(unsigned char* data, size_t dataSize)
+	Material& Material::LoadMaterialFromMemory(const std::string& path, unsigned char* data, size_t dataSize)
 	{
-		return Material();
-		// TODO: insert return statement here
+		// Build material & set it's shader.
+		StringIDType id = StringID(path.c_str()).value();
+		Material& mat = s_loadedMaterials[id];
+		
+		{
+			std::string data((char*)data, dataSize);
+			std::istringstream stream(data, std::ios::binary);
+			{
+				cereal::PortableBinaryInputArchive iarchive(stream);
+				iarchive(mat);
+			}
+		}
+	
+
+		if (Shader::ShaderExists(mat.m_shaderPath))
+			SetMaterialShader(mat, Shader::GetShader(mat.m_shaderPath), true);
+		else
+			SetMaterialShader(mat, OpenGLRenderEngine::GetDefaultShader(), true);
+
+		SetMaterialContainers(mat);
+
+		mat.m_materialID = id;
+		mat.m_path = path;
+		mat.UpdateMaterialData();
+
+		return s_loadedMaterials[id];
 	}
+
 
 	void Material::UpdateMaterialData()
 	{

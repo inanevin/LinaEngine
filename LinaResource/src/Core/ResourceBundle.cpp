@@ -142,9 +142,7 @@ namespace Lina::Resources
 		else if (type == ResourceType::AudioParams)
 			m_audioParameters[path] = data;
 		else if (type == ResourceType::Material)
-		{
-			//Event::EventSystem::Get()->Trigger<Event::ELoadMaterialResourceFromFile>(Event::ELoadMaterialResourceFromFile{ file.m_fullPath });
-		}
+			m_materials[path] = data;
 		else if (type == ResourceType::GLSL)
 		{
 			//Event::EventSystem::Get()->Trigger<Event::ELoadShaderResourceFromFile>(Event::ELoadShaderResourceFromFile{ file.m_fullPath });
@@ -216,6 +214,8 @@ namespace Lina::Resources
 			}
 		}
 
+		for (auto& material : m_materials)
+			Event::EventSystem::Get()->Trigger<Event::ELoadMaterialResourceFromMemory>(Event::ELoadMaterialResourceFromMemory{material.first, &material.second[0], material.second.size()});
 
 		for (auto v : m_images)
 			v.second.clear();
@@ -235,6 +235,10 @@ namespace Lina::Resources
 		for (auto v : m_models)
 			v.second.clear();
 
+		for (auto v : m_materials)
+			v.second.clear();
+
+		m_materials.clear();
 		m_audioParameters.clear();
 		m_audios.clear();
 		m_imageParameters.clear();
@@ -292,7 +296,7 @@ namespace Lina::Resources
 		}
 		else if (type == ResourceType::Material)
 		{
-			Event::EventSystem::Get()->Trigger<Event::ELoadMaterialResourceFromFile>(Event::ELoadMaterialResourceFromFile{ file.m_fullPath });
+			// Event::EventSystem::Get()->Trigger<Event::ELoadMaterialResourceFromFile>(Event::ELoadMaterialResourceFromFile{ file.m_fullPath });
 		}
 		else if (type == ResourceType::GLSL)
 		{

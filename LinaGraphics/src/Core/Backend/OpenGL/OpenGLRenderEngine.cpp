@@ -335,6 +335,8 @@ namespace Lina::Graphics
 	{
 		LINA_TRACE("[Material Loader] -> Loading (memory): {0}", event.m_path);
 
+		Material::LoadMaterialFromMemory(event.m_path, event.m_data, event.m_dataSize);
+
 	}
 
 	void OpenGLRenderEngine::OnLoadShaderResourceFromMemory(Event::ELoadShaderResourceFromMemory event)

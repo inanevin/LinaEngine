@@ -79,7 +79,7 @@ namespace Lina::Graphics
 
 		static Material& CreateMaterial(Shader& shader, const std::string& path = "");
 		static Material& LoadMaterialFromFile(const std::string& path = "");
-		static Material& LoadMaterialFromMemory(unsigned char* data, size_t dataSize);
+		static Material& LoadMaterialFromMemory(const std::string& path, unsigned char* data, size_t dataSize);
 		static Material& GetMaterial(StringIDType id);
 		static Material& GetMaterial(const std::string& path);
 		static bool MaterialExists(StringIDType id);
